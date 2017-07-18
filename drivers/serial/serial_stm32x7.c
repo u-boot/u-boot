@@ -11,7 +11,6 @@
 #include <asm/io.h>
 #include <serial.h>
 #include <asm/arch/stm32.h>
-#include <dm/platform_data/serial_stm32x7.h>
 #include "serial_stm32x7.h"
 
 DECLARE_GLOBAL_DATA_PTR;

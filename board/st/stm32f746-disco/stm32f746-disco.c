@@ -14,7 +14,6 @@
 #include <asm/arch/stm32.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/fmc.h>
-#include <dm/platform_data/serial_stm32x7.h>
 #include <asm/arch/stm32_periph.h>
 #include <asm/arch/stm32_defs.h>
 #include <asm/arch/syscfg.h>
