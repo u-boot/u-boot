@@ -54,6 +54,12 @@ struct stm32_fmc_regs {
 	u32 sdsr;	/* SDRAM Status register */
 };
 
+/*
+ * NOR/PSRAM Control register BCR1
+ * FMC controller Enable, only availabe for H7
+ */
+#define FMC_BCR1_FMCEN		BIT(31)
+
 /* Control register SDCR */
 #define FMC_SDCR_RPIPE_SHIFT	13	/* RPIPE bit shift */
 #define FMC_SDCR_RBURST_SHIFT	12	/* RBURST bit shift */
@@ -123,6 +129,11 @@ enum stm32_fmc_bank {
 	MAX_SDRAM_BANK,
 };
 
+enum stm32_fmc_family {
+	STM32F7_FMC,
+	STM32H7_FMC,
+};
+
 struct bank_params {
 	struct stm32_sdram_control *sdram_control;
 	struct stm32_sdram_timing *sdram_timing;
@@ -134,6 +145,7 @@ struct stm32_sdram_params {
 	struct stm32_fmc_regs *base;
 	u8 no_sdram_banks;
 	struct bank_params bank_params[MAX_SDRAM_BANK];
+	enum stm32_fmc_family family;
 };
 
 #define SDRAM_MODE_BL_SHIFT	0
@@ -150,6 +162,10 @@ int stm32_sdram_init(struct udevice *dev)
 	u32 ctb; /* SDCMR register: Command Target Bank */
 	u32 ref_count;
 	u8 i;
+
+	/* disable the FMC controller */
+	if (params->family == STM32H7_FMC)
+		clrbits_le32(&regs->bcr1, FMC_BCR1_FMCEN);
 
 	for (i = 0; i < params->no_sdram_banks; i++) {
 		control = params->bank_params[i].sdram_control;
@@ -193,6 +209,7 @@ int stm32_sdram_init(struct udevice *dev)
 				| timing->txsr << FMC_SDTR_TXSR_SHIFT
 				| timing->tmrd << FMC_SDTR_TMRD_SHIFT,
 				&regs->sdtr2);
+
 		if (target_bank == SDRAM_BANK1)
 			ctb = FMC_SDCMR_BANK_1;
 		else
@@ -224,6 +241,10 @@ int stm32_sdram_init(struct udevice *dev)
 		/* Refresh timer */
 		writel(ref_count << 1, &regs->sdrtr);
 	}
+
+	/* enable the FMC controller */
+	if (params->family == STM32H7_FMC)
+		setbits_le32(&regs->bcr1, FMC_BCR1_FMCEN);
 
 	return 0;
 }
@@ -305,6 +326,7 @@ static int stm32_fmc_probe(struct udevice *dev)
 		return -EINVAL;
 
 	params->base = (struct stm32_fmc_regs *)addr;
+	params->family = dev_get_driver_data(dev);
 
 #ifdef CONFIG_CLK
 	struct clk clk;
@@ -337,7 +359,8 @@ static struct ram_ops stm32_fmc_ops = {
 };
 
 static const struct udevice_id stm32_fmc_ids[] = {
-	{ .compatible = "st,stm32-fmc" },
+	{ .compatible = "st,stm32-fmc", .data = STM32F7_FMC },
+	{ .compatible = "st,stm32h7-fmc", .data = STM32H7_FMC },
 	{ }
 };
 
