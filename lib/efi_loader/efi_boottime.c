@@ -252,15 +252,13 @@ void efi_timer_check(void)
 	WATCHDOG_RESET();
 }
 
-static efi_status_t EFIAPI efi_set_timer(struct efi_event *event, int type,
-					 uint64_t trigger_time)
+efi_status_t efi_set_timer(struct efi_event *event, int type,
+			   uint64_t trigger_time)
 {
 	/* We don't have 64bit division available everywhere, so limit timer
 	 * distances to 32bit bits. */
 	u32 trigger32 = trigger_time;
 	int i;
-
-	EFI_ENTRY("%p, %d, %"PRIx64, event, type, trigger_time);
 
 	if (trigger32 < trigger_time) {
 		printf("WARNING: Truncating timer from %"PRIx64" to %x\n",
@@ -283,13 +281,20 @@ static efi_status_t EFIAPI efi_set_timer(struct efi_event *event, int type,
 				timer_get_us() + (trigger32 / 10);
 			break;
 		default:
-			return EFI_EXIT(EFI_INVALID_PARAMETER);
+			return EFI_INVALID_PARAMETER;
 		}
 		event->trigger_type = type;
 		event->trigger_time = trigger_time;
-		return EFI_EXIT(EFI_SUCCESS);
+		return EFI_SUCCESS;
 	}
-	return EFI_EXIT(EFI_INVALID_PARAMETER);
+	return EFI_INVALID_PARAMETER;
+}
+
+static efi_status_t EFIAPI efi_set_timer_ext(struct efi_event *event, int type,
+					 uint64_t trigger_time)
+{
+	EFI_ENTRY("%p, %d, %"PRIx64, event, type, trigger_time);
+	return EFI_EXIT(efi_set_timer(event, type, trigger_time));
 }
 
 static efi_status_t EFIAPI efi_wait_for_event(unsigned long num_events,
@@ -1067,7 +1072,7 @@ static const struct efi_boot_services efi_boot_services = {
 	.allocate_pool = efi_allocate_pool_ext,
 	.free_pool = efi_free_pool_ext,
 	.create_event = efi_create_event_ext,
-	.set_timer = efi_set_timer,
+	.set_timer = efi_set_timer_ext,
 	.wait_for_event = efi_wait_for_event,
 	.signal_event = efi_signal_event_ext,
 	.close_event = efi_close_event,

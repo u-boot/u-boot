@@ -122,6 +122,9 @@ efi_status_t efi_create_event(enum efi_event_type type, UINTN notify_tpl,
 					struct efi_event *event,
 					void *context),
 			      void *notify_context, struct efi_event **event);
+/* Call this to set a timer */
+efi_status_t efi_set_timer(struct efi_event *event, int type,
+			   uint64_t trigger_time);
 
 /* Generic EFI memory allocator, call this to get memory */
 void *efi_alloc(uint64_t len, int memory_type);
