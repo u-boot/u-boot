@@ -8,6 +8,8 @@
 #ifndef _STM32_RCC_H
 #define _STM32_RCC_H
 
+#include <dt-bindings/mfd/stm32f7-rcc.h>
+
 /*
  * RCC AHB1ENR specific definitions
  */

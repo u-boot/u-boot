@@ -12,6 +12,8 @@
 #include <asm/arch/stm32.h>
 #include <asm/arch/stm32_periph.h>
 
+#include <dt-bindings/mfd/stm32f7-rcc.h>
+
 #define RCC_CR_HSION			BIT(0)
 #define RCC_CR_HSEON			BIT(16)
 #define RCC_CR_HSERDY			BIT(17)
@@ -220,6 +222,65 @@ unsigned long clock_get(enum clock clck)
 	}
 }
 
+static unsigned long stm32_clk_get_rate(struct clk *clk)
+{
+	struct stm32_clk *priv = dev_get_priv(clk->dev);
+	struct stm32_rcc_regs *regs = priv->base;
+	u32 sysclk = 0;
+	u32 shift = 0;
+	/* Prescaler table lookups for clock computation */
+	u8 ahb_psc_table[16] = {
+		0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9
+	};
+	u8 apb_psc_table[8] = {
+		0, 0, 0, 0, 1, 2, 3, 4
+	};
+
+	if ((readl(&regs->cfgr) & RCC_CFGR_SWS_MASK) ==
+			RCC_CFGR_SWS_PLL) {
+		u16 pllm, plln, pllp;
+		pllm = (readl(&regs->pllcfgr) & RCC_PLLCFGR_PLLM_MASK);
+		plln = ((readl(&regs->pllcfgr) & RCC_PLLCFGR_PLLN_MASK)
+			>> RCC_PLLCFGR_PLLN_SHIFT);
+		pllp = ((((readl(&regs->pllcfgr) & RCC_PLLCFGR_PLLP_MASK)
+			>> RCC_PLLCFGR_PLLP_SHIFT) + 1) << 1);
+		sysclk = ((CONFIG_STM32_HSE_HZ / pllm) * plln) / pllp;
+	} else {
+		return -EINVAL;
+	}
+
+	switch (clk->id) {
+	/*
+	 * AHB CLOCK: 3 x 32 bits consecutive registers are used :
+	 * AHB1, AHB2 and AHB3
+	 */
+	case STM32F7_AHB1_CLOCK(GPIOA) ... STM32F7_AHB3_CLOCK(QSPI):
+		shift = ahb_psc_table[(
+			(readl(&regs->cfgr) & RCC_CFGR_AHB_PSC_MASK)
+			>> RCC_CFGR_HPRE_SHIFT)];
+		return sysclk >>= shift;
+		break;
+	/* APB1 CLOCK */
+	case STM32F7_APB1_CLOCK(TIM2) ... STM32F7_APB1_CLOCK(UART8):
+		shift = apb_psc_table[(
+			(readl(&regs->cfgr) & RCC_CFGR_APB1_PSC_MASK)
+			>> RCC_CFGR_PPRE1_SHIFT)];
+		return sysclk >>= shift;
+		break;
+	/* APB2 CLOCK */
+	case STM32F7_APB2_CLOCK(TIM1) ... STM32F7_APB2_CLOCK(LTDC):
+		shift = apb_psc_table[(
+			(readl(&regs->cfgr) & RCC_CFGR_APB2_PSC_MASK)
+			>> RCC_CFGR_PPRE2_SHIFT)];
+		return sysclk >>= shift;
+		break;
+	default:
+		error("clock index %ld out of range\n", clk->id);
+		return -EINVAL;
+		break;
+	}
+}
+
 static int stm32_clk_enable(struct clk *clk)
 {
 	struct stm32_clk *priv = dev_get_priv(clk->dev);
@@ -291,6 +352,7 @@ static int stm32_clk_of_xlate(struct clk *clk, struct ofnode_phandle_args *args)
 static struct clk_ops stm32_clk_ops = {
 	.of_xlate	= stm32_clk_of_xlate,
 	.enable		= stm32_clk_enable,
+	.get_rate	= stm32_clk_get_rate,
 };
 
 static const struct udevice_id stm32_clk_ids[] = {
