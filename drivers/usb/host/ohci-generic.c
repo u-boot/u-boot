@@ -8,6 +8,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <dm/ofnode.h>
+#include <generic-phy.h>
 #include <reset.h>
 #include "ohci.h"
 
@@ -19,6 +20,7 @@ struct generic_ohci {
 	ohci_t ohci;
 	struct clk *clocks;	/* clock list */
 	struct reset_ctl *resets; /* reset list */
+	struct phy phy;
 	int clock_count;	/* number of clock in clock list */
 	int reset_count;	/* number of reset in reset list */
 };
@@ -83,11 +85,32 @@ static int ohci_usb_probe(struct udevice *dev)
 		goto clk_err;
 	}
 
+	err = generic_phy_get_by_index(dev, 0, &priv->phy);
+	if (err) {
+		if (err != -ENOENT) {
+			error("failed to get usb phy\n");
+			goto reset_err;
+		}
+	}
+
+	err = generic_phy_init(&priv->phy);
+	if (err) {
+		error("failed to init usb phy\n");
+		goto reset_err;
+	}
+
 	err = ohci_register(dev, regs);
 	if (err)
-		goto reset_err;
+		goto phy_err;
 
 	return 0;
+
+phy_err:
+	if (generic_phy_valid(&priv->phy)) {
+		ret = generic_phy_exit(&priv->phy);
+		if (ret)
+			error("failed to release phy\n");
+	}
 
 reset_err:
 	ret = reset_release_all(priv->resets, priv->reset_count);
@@ -109,6 +132,12 @@ static int ohci_usb_remove(struct udevice *dev)
 	ret = ohci_deregister(dev);
 	if (ret)
 		return ret;
+
+	if (generic_phy_valid(&priv->phy)) {
+		ret = generic_phy_exit(&priv->phy);
+		if (ret)
+			return ret;
+	}
 
 	ret = reset_release_all(priv->resets, priv->reset_count);
 	if (ret)
