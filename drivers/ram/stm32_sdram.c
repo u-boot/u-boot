@@ -10,24 +10,49 @@
 #include <dm.h>
 #include <ram.h>
 #include <asm/io.h>
-#include <asm/arch/stm32.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 struct stm32_fmc_regs {
-	u32 sdcr1;	/* Control register 1 */
-	u32 sdcr2;	/* Control register 2 */
-	u32 sdtr1;	/* Timing register 1 */
-	u32 sdtr2;	/* Timing register 2 */
-	u32 sdcmr;	/* Mode register */
-	u32 sdrtr;	/* Refresh timing register */
-	u32 sdsr;	/* Status register */
-};
+	/* 0x0 */
+	u32 bcr1;	/* NOR/PSRAM Chip select control register 1 */
+	u32 btr1;	/* SRAM/NOR-Flash Chip select timing register 1 */
+	u32 bcr2;	/* NOR/PSRAM Chip select Control register 2 */
+	u32 btr2;	/* SRAM/NOR-Flash Chip select timing register 2 */
+	u32 bcr3;	/* NOR/PSRAMChip select Control register 3 */
+	u32 btr3;	/* SRAM/NOR-Flash Chip select timing register 3 */
+	u32 bcr4;	/* NOR/PSRAM Chip select Control register 4 */
+	u32 btr4;	/* SRAM/NOR-Flash Chip select timing register 4 */
+	u32 reserved1[24];
 
-/*
- * FMC registers base
- */
-#define STM32_SDRAM_FMC		((struct stm32_fmc_regs *)SDRAM_FMC_BASE)
+	/* 0x80 */
+	u32 pcr;	/* NAND Flash control register */
+	u32 sr;		/* FIFO status and interrupt register */
+	u32 pmem;	/* Common memory space timing register */
+	u32 patt;	/* Attribute memory space timing registers  */
+	u32 reserved2[1];
+	u32 eccr;	/* ECC result registers */
+	u32 reserved3[27];
+
+	/* 0x104 */
+	u32 bwtr1;	/* SRAM/NOR-Flash write timing register 1 */
+	u32 reserved4[1];
+	u32 bwtr2;	/* SRAM/NOR-Flash write timing register 2 */
+	u32 reserved5[1];
+	u32 bwtr3;	/* SRAM/NOR-Flash write timing register 3 */
+	u32 reserved6[1];
+	u32 bwtr4;	/* SRAM/NOR-Flash write timing register 4 */
+	u32 reserved7[8];
+
+	/* 0x140 */
+	u32 sdcr1;	/* SDRAM Control register 1 */
+	u32 sdcr2;	/* SDRAM Control register 2 */
+	u32 sdtr1;	/* SDRAM Timing register 1 */
+	u32 sdtr2;	/* SDRAM Timing register 2 */
+	u32 sdcmr;	/* SDRAM Mode register */
+	u32 sdrtr;	/* SDRAM Refresh timing register */
+	u32 sdsr;	/* SDRAM Status register */
+};
 
 /* Control register SDCR */
 #define FMC_SDCR_RPIPE_SHIFT	13	/* RPIPE bit shift */
@@ -66,9 +91,9 @@ struct stm32_fmc_regs {
 
 #define FMC_SDSR_BUSY			BIT(5)
 
-#define FMC_BUSY_WAIT()		do { \
+#define FMC_BUSY_WAIT(regs)	do { \
 		__asm__ __volatile__ ("dsb" : : : "memory"); \
-		while (STM32_SDRAM_FMC->sdsr & FMC_SDSR_BUSY) \
+		while (regs->sdsr & FMC_SDSR_BUSY) \
 			; \
 	} while (0)
 
@@ -93,6 +118,7 @@ struct stm32_sdram_timing {
 	u8 trcd;
 };
 struct stm32_sdram_params {
+	struct stm32_fmc_regs *base;
 	u8 no_sdram_banks;
 	struct stm32_sdram_control sdram_control;
 	struct stm32_sdram_timing sdram_timing;
@@ -106,6 +132,7 @@ struct stm32_sdram_params {
 int stm32_sdram_init(struct udevice *dev)
 {
 	struct stm32_sdram_params *params = dev_get_platdata(dev);
+	struct stm32_fmc_regs *regs = params->base;
 
 	writel(params->sdram_control.sdclk << FMC_SDCR_SDCLK_SHIFT
 		| params->sdram_control.cas_latency << FMC_SDCR_CAS_SHIFT
@@ -115,7 +142,7 @@ int stm32_sdram_init(struct udevice *dev)
 		| params->sdram_control.no_columns << FMC_SDCR_NC_SHIFT
 		| params->sdram_control.rd_pipe_delay << FMC_SDCR_RPIPE_SHIFT
 		| params->sdram_control.rd_burst << FMC_SDCR_RBURST_SHIFT,
-		&STM32_SDRAM_FMC->sdcr1);
+		&regs->sdcr1);
 
 	writel(params->sdram_timing.trcd << FMC_SDTR_TRCD_SHIFT
 		| params->sdram_timing.trp << FMC_SDTR_TRP_SHIFT
@@ -124,36 +151,36 @@ int stm32_sdram_init(struct udevice *dev)
 		| params->sdram_timing.tras << FMC_SDTR_TRAS_SHIFT
 		| params->sdram_timing.txsr << FMC_SDTR_TXSR_SHIFT
 		| params->sdram_timing.tmrd << FMC_SDTR_TMRD_SHIFT,
-		&STM32_SDRAM_FMC->sdtr1);
+		&regs->sdtr1);
 
 	writel(FMC_SDCMR_BANK_1 | FMC_SDCMR_MODE_START_CLOCK,
-	       &STM32_SDRAM_FMC->sdcmr);
+	       &regs->sdcmr);
 	udelay(200);	/* 200 us delay, page 10, "Power-Up" */
-	FMC_BUSY_WAIT();
+	FMC_BUSY_WAIT(regs);
 
 	writel(FMC_SDCMR_BANK_1 | FMC_SDCMR_MODE_PRECHARGE,
-	       &STM32_SDRAM_FMC->sdcmr);
+	       &regs->sdcmr);
 	udelay(100);
-	FMC_BUSY_WAIT();
+	FMC_BUSY_WAIT(regs);
 
 	writel((FMC_SDCMR_BANK_1 | FMC_SDCMR_MODE_AUTOREFRESH
-		| 7 << FMC_SDCMR_NRFS_SHIFT), &STM32_SDRAM_FMC->sdcmr);
+		| 7 << FMC_SDCMR_NRFS_SHIFT), &regs->sdcmr);
 	udelay(100);
-	FMC_BUSY_WAIT();
+	FMC_BUSY_WAIT(regs);
 
 	writel(FMC_SDCMR_BANK_1 | (SDRAM_MODE_BL << SDRAM_MODE_BL_SHIFT
 	       | params->sdram_control.cas_latency << SDRAM_MODE_CAS_SHIFT)
 	       << FMC_SDCMR_MODE_REGISTER_SHIFT | FMC_SDCMR_MODE_WRITE_MODE,
-	       &STM32_SDRAM_FMC->sdcmr);
+	       &regs->sdcmr);
 	udelay(100);
-	FMC_BUSY_WAIT();
+	FMC_BUSY_WAIT(regs);
 
 	writel(FMC_SDCMR_BANK_1 | FMC_SDCMR_MODE_NORMAL,
-	       &STM32_SDRAM_FMC->sdcmr);
-	FMC_BUSY_WAIT();
+	       &regs->sdcmr);
+	FMC_BUSY_WAIT(regs);
 
 	/* Refresh timer */
-	writel((params->sdram_ref_count) << 1, &STM32_SDRAM_FMC->sdrtr);
+	writel((params->sdram_ref_count) << 1, &regs->sdrtr);
 
 	return 0;
 }
@@ -189,7 +216,16 @@ static int stm32_fmc_ofdata_to_platdata(struct udevice *dev)
 
 static int stm32_fmc_probe(struct udevice *dev)
 {
+	struct stm32_sdram_params *params = dev_get_platdata(dev);
 	int ret;
+	fdt_addr_t addr;
+
+	addr = dev_read_addr(dev);
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	params->base = (struct stm32_fmc_regs *)addr;
+
 #ifdef CONFIG_CLK
 	struct clk clk;
 
