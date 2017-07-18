@@ -11,7 +11,7 @@
 #ifndef __IOMUX_MX53_H__
 #define __IOMUX_MX53_H__
 
-#include <asm/imx-common/iomux-v3.h>
+#include <asm/mach-imx/iomux-v3.h>
 
 /* Pad control groupings */
 #define MX53_UART_PAD_CTRL	(PAD_CTL_PUS_100K_DOWN | PAD_CTL_DSE_HIGH | \

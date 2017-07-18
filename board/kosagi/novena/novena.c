@@ -16,11 +16,11 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/imx-common/boot_mode.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/mxc_i2c.h>
-#include <asm/imx-common/sata.h>
-#include <asm/imx-common/video.h>
+#include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/mxc_i2c.h>
+#include <asm/mach-imx/sata.h>
+#include <asm/mach-imx/video.h>
 #include <fsl_esdhc.h>
 #include <i2c.h>
 #include <input.h>

@@ -18,10 +18,10 @@
 #include <asm/arch/mx6-ddr.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/boot_mode.h>
-#include <asm/imx-common/mxc_i2c.h>
-#include <asm/imx-common/spi.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/mxc_i2c.h>
+#include <asm/mach-imx/spi.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <mmc.h>

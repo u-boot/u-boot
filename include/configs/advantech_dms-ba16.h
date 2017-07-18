@@ -10,7 +10,7 @@
 #define __ADVANTECH_DMSBA16_CONFIG_H
 
 #include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
+#include <asm/mach-imx/gpio.h>
 
 #define CONFIG_BOARD_NAME	"Advantech DMS-BA16"
 

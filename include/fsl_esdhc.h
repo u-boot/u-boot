@@ -177,7 +177,8 @@ struct fsl_esdhc_cfg {
 	phys_addr_t esdhc_base;
 	u32	sdhc_clk;
 	u8	max_bus_width;
-	u8	wp_enable;
+	int	wp_enable;
+	int	vs18_enable; /* Use 1.8V if set to 1 */
 	struct mmc_config cfg;
 };
 

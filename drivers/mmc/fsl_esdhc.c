@@ -16,6 +16,7 @@
 #include <hwconfig.h>
 #include <mmc.h>
 #include <part.h>
+#include <power/regulator.h>
 #include <malloc.h>
 #include <fsl_esdhc.h>
 #include <fdt_support.h>
@@ -92,6 +93,7 @@ struct fsl_esdhc {
  * @dev: pointer for the device
  * @non_removable: 0: removable; 1: non-removable
  * @wp_enable: 1: enable checking wp; 0: no check
+ * @vs18_enable: 1: use 1.8V voltage; 0: use 3.3V
  * @cd_gpio: gpio for card detection
  * @wp_gpio: gpio for write protection
  */
@@ -104,6 +106,7 @@ struct fsl_esdhc_priv {
 	struct udevice *dev;
 	int non_removable;
 	int wp_enable;
+	int vs18_enable;
 #ifdef CONFIG_DM_GPIO
 	struct gpio_desc cd_gpio;
 	struct gpio_desc wp_gpio;
@@ -670,9 +673,8 @@ static int esdhc_init(struct mmc *mmc)
 	/* Set timout to the maximum value */
 	esdhc_clrsetbits32(&regs->sysctl, SYSCTL_TIMEOUT_MASK, 14 << 16);
 
-#ifdef CONFIG_SYS_FSL_ESDHC_FORCE_VSELECT
-	esdhc_setbits32(&regs->vendorspec, ESDHC_VENDORSPEC_VSELECT);
-#endif
+	if (priv->vs18_enable)
+		esdhc_setbits32(&regs->vendorspec, ESDHC_VENDORSPEC_VSELECT);
 
 	return 0;
 }
@@ -745,6 +747,9 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv)
 	esdhc_setbits32(&regs->vendorspec, VENDORSPEC_PEREN |
 			VENDORSPEC_HCKEN | VENDORSPEC_IPGEN | VENDORSPEC_CKEN);
 #endif
+
+	if (priv->vs18_enable)
+		esdhc_setbits32(&regs->vendorspec, ESDHC_VENDORSPEC_VSELECT);
 
 	writel(SDHCI_IRQ_EN_BITS, &regs->irqstaten);
 	memset(&priv->cfg, 0, sizeof(priv->cfg));
@@ -831,6 +836,7 @@ static int fsl_esdhc_cfg_to_priv(struct fsl_esdhc_cfg *cfg,
 	priv->bus_width = cfg->max_bus_width;
 	priv->sdhc_clk = cfg->sdhc_clk;
 	priv->wp_enable  = cfg->wp_enable;
+	priv->vs18_enable  = cfg->vs18_enable;
 
 	return 0;
 };
@@ -962,6 +968,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
+	struct udevice *vqmmc_dev;
 	fdt_addr_t addr;
 	unsigned int val;
 	int ret;
@@ -999,6 +1006,29 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	if (ret)
 		priv->wp_enable = 0;
 #endif
+
+	priv->vs18_enable = 0;
+
+#ifdef CONFIG_DM_REGULATOR
+	/*
+	 * If emmc I/O has a fixed voltage at 1.8V, this must be provided,
+	 * otherwise, emmc will work abnormally.
+	 */
+	ret = device_get_supply_regulator(dev, "vqmmc-supply", &vqmmc_dev);
+	if (ret) {
+		dev_dbg(dev, "no vqmmc-supply\n");
+	} else {
+		ret = regulator_set_enable(vqmmc_dev, true);
+		if (ret) {
+			dev_err(dev, "fail to enable vqmmc-supply\n");
+			return ret;
+		}
+
+		if (regulator_get_value(vqmmc_dev) == 1800000)
+			priv->vs18_enable = 1;
+	}
+#endif
+
 	/*
 	 * TODO:
 	 * Because lack of clk driver, if SDHC clk is not enabled,

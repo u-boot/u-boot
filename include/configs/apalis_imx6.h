@@ -19,7 +19,7 @@
 #define CONFIG_SYS_GENERIC_BOARD
 
 #include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
+#include <asm/mach-imx/gpio.h>
 
 #ifdef CONFIG_SPL
 #include "imx6_spl.h"

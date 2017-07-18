@@ -18,7 +18,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/imx-common/sys_proto.h>
+#include <asm/mach-imx/sys_proto.h>
 
 #define BO_CTRL_WR_UNLOCK		16
 #define BM_CTRL_WR_UNLOCK		0xffff0000

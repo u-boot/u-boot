@@ -7,7 +7,7 @@
 #ifndef __ASM_ARCH_IMX6ULL_PINS_H__
 #define __ASM_ARCH_IMX6ULL_PINS_H__
 
-#include <asm/imx-common/iomux-v3.h>
+#include <asm/mach-imx/iomux-v3.h>
 
 enum {
 	MX6_PAD_BOOT_MODE0__GPIO5_IO10	                       = IOMUX_PAD(0x0044, 0x0000, IOMUX_CONFIG_LPSR | 5, 0x0000, 0, 0),

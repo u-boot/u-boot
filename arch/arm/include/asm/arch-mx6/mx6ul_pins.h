@@ -7,7 +7,7 @@
 #ifndef __ASM_ARCH_IMX6UL_PINS_H__
 #define __ASM_ARCH_IMX6UL_PINS_H__
 
-#include <asm/imx-common/iomux-v3.h>
+#include <asm/mach-imx/iomux-v3.h>
 
 enum {
 

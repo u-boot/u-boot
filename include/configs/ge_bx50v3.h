@@ -13,7 +13,7 @@
 #define __GE_BX50V3_CONFIG_H
 
 #include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
+#include <asm/mach-imx/gpio.h>
 
 #define BX50V3_BOOTARGS_EXTRA
 #if defined(CONFIG_TARGET_GE_B450V3)

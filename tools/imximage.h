@@ -16,7 +16,7 @@
 
 /*
  * NOTE: This file must be kept in sync with arch/arm/include/asm/\
- *       imx-common/imximage.cfg because tools/imximage.c can not
+ *       mach-imx/imximage.cfg because tools/imximage.c can not
  *       cross-include headers from arch/arm/ and vice-versa.
  */
 #define CMD_DATA_STR	"DATA"

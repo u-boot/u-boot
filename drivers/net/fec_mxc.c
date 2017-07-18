@@ -23,7 +23,7 @@
 
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/imx-common/sys_proto.h>
+#include <asm/mach-imx/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -1223,17 +1223,6 @@ static int fecmxc_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	bus = fec_get_miibus((uint32_t)priv->eth, dev_id);
-	if (!bus)
-		goto err_mii;
-
-	priv->bus = bus;
-	priv->xcv_type = CONFIG_FEC_XCV_TYPE;
-	priv->interface = pdata->phy_interface;
-	ret = fec_phy_init(priv, dev);
-	if (ret)
-		goto err_phy;
-
 	/* Reset chip. */
 	writel(readl(&priv->eth->ecntrl) | FEC_ECNTRL_RESET,
 	       &priv->eth->ecntrl);
@@ -1248,6 +1237,19 @@ static int fecmxc_probe(struct udevice *dev)
 
 	fec_reg_setup(priv);
 	priv->dev_id = (dev_id == -1) ? 0 : dev_id;
+
+	bus = fec_get_miibus(dev, dev_id);
+	if (!bus) {
+		ret = -ENOMEM;
+		goto err_mii;
+	}
+
+	priv->bus = bus;
+	priv->xcv_type = CONFIG_FEC_XCV_TYPE;
+	priv->interface = pdata->phy_interface;
+	ret = fec_phy_init(priv, dev);
+	if (ret)
+		goto err_phy;
 
 	return 0;
 

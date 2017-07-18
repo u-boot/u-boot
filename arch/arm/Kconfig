@@ -1098,13 +1098,13 @@ source "arch/arm/mach-mvebu/Kconfig"
 
 source "arch/arm/cpu/armv7/ls102xa/Kconfig"
 
-source "arch/arm/cpu/armv7/mx7ulp/Kconfig"
+source "arch/arm/mach-imx/mx7ulp/Kconfig"
 
-source "arch/arm/cpu/armv7/mx7/Kconfig"
+source "arch/arm/mach-imx/mx7/Kconfig"
 
-source "arch/arm/cpu/armv7/mx6/Kconfig"
+source "arch/arm/mach-imx/mx6/Kconfig"
 
-source "arch/arm/cpu/armv7/mx5/Kconfig"
+source "arch/arm/mach-imx/mx5/Kconfig"
 
 source "arch/arm/mach-omap2/Kconfig"
 
@@ -1144,7 +1144,7 @@ source "arch/arm/cpu/armv8/zynqmp/Kconfig"
 
 source "arch/arm/cpu/armv8/Kconfig"
 
-source "arch/arm/imx-common/Kconfig"
+source "arch/arm/mach-imx/Kconfig"
 
 source "board/aries/m28evk/Kconfig"
 source "board/bosch/shc/Kconfig"

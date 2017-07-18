@@ -12,7 +12,7 @@
 #include <asm/gpio.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
-#include <asm/imx-common/spi.h>
+#include <asm/mach-imx/spi.h>
 
 #ifdef CONFIG_MX27
 /* i.MX27 has a completely wrong register layout and register definitions in the

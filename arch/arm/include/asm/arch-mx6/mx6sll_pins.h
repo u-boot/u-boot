@@ -7,7 +7,7 @@
 #ifndef __ASM_ARCH_IMX6SLL_PINS_H__
 #define __ASM_ARCH_IMX6SLL_PINS_H__
 
-#include <asm/imx-common/iomux-v3.h>
+#include <asm/mach-imx/iomux-v3.h>
 
 enum {
 	MX6_PAD_WDOG_B__WDOG1_B                               = IOMUX_PAD(0x02DC, 0x0014, 0, 0x0000, 0, 0),

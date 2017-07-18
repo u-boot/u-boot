@@ -7,6 +7,6 @@
 #ifndef __ASM_ARCH_MX7_GPIO_H
 #define __ASM_ARCH_MX7_GPIO_H
 
-#include <asm/imx-common/gpio.h>
+#include <asm/mach-imx/gpio.h>
 
 #endif /* __ASM_ARCH_MX7_GPIO_H */

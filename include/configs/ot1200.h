@@ -95,6 +95,9 @@
 
 #define CONFIG_PREBOOT                 ""
 
+/* Thermal support */
+#define CONFIG_IMX_THERMAL
+
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 

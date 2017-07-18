@@ -66,8 +66,9 @@
 #define CONFIG_SYS_TEXT_BASE    0x77800000
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"fdt_addr=0x71ff0000\0" \
-	"rdaddr=0x72000000\0" \
+	"fdt_addr_r=0x71ff0000\0" \
+	"pxefile_addr_r=0x73000000\0" \
+	"ramdisk_addr_r=0x72000000\0" \
 	"console=ttymxc1,115200\0" \
 	"uenv=/boot/uEnv.txt\0" \
 	"optargs=\0" \
@@ -81,10 +82,11 @@
 		"rootfstype=${mmcrootfstype} " \
 		"${cmdline}\0" \
 	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
-	"loadrd=load mmc ${bootpart} ${rdaddr} ${bootdir}/${rdfile};" \
+	"loadpxe=dhcp;setenv kernel_addr_r ${loadaddr};pxe get;pxe boot;\0" \
+	"loadrd=load mmc ${bootpart} ${ramdisk_addr_r} ${bootdir}/${rdfile};" \
 		"setenv rdsize ${filesize}\0" \
 	"loadfdt=echo loading ${fdt_path} ...;" \
-		"load mmc ${bootpart} ${fdt_addr} ${fdt_path}\0" \
+		"load mmc ${bootpart} ${fdt_addr_r} ${fdt_path}\0" \
 	"mmcboot=mmc dev ${mmcdev}; " \
 		"if mmc rescan; then " \
 			"echo SD/MMC found on device ${mmcdev};" \
@@ -128,8 +130,11 @@
 			"fi;" \
 			"run mmcargs;" \
 			"echo debug: [${bootargs}] ... ;" \
-			"echo debug: [bootz ${loadaddr} - ${fdt_addr}] ... ;" \
-			"bootz ${loadaddr} - ${fdt_addr}; " \
+			"echo debug: [bootz ${loadaddr} - ${fdt_addr_r}];" \
+			"bootz ${loadaddr} - ${fdt_addr_r}; " \
+		"else " \
+			"echo loading from dhcp ...; " \
+			"run loadpxe; " \
 		"fi;\0"
 
 #define CONFIG_BOOTCOMMAND \

@@ -899,7 +899,7 @@ u-boot.bin: u-boot-nodtb.bin FORCE
 endif
 
 %.imx: %.bin
-	$(Q)$(MAKE) $(build)=arch/arm/imx-common $@
+	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 
 %.vyb: %.imx
 	$(Q)$(MAKE) $(build)=arch/arm/cpu/armv7/vf610 $@
@@ -1064,10 +1064,10 @@ tpl/u-boot-with-tpl.bin: tpl/u-boot-tpl.bin u-boot.bin FORCE
 	$(call if_changed,pad_cat)
 
 SPL: spl/u-boot-spl.bin FORCE
-	$(Q)$(MAKE) $(build)=arch/arm/imx-common $@
+	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 
 u-boot-with-spl.imx u-boot-with-nand-spl.imx: SPL u-boot.bin FORCE
-	$(Q)$(MAKE) $(build)=arch/arm/imx-common $@
+	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 
 MKIMAGEFLAGS_u-boot.ubl = -n $(UBL_CONFIG) -T ublimage -e $(CONFIG_SYS_TEXT_BASE)
 

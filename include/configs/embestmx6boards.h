@@ -15,7 +15,6 @@
 
 #define CONFIG_MXC_UART_BASE		UART2_BASE
 #define CONSOLE_DEV		"ttymxc1"
-#define CONFIG_MMCROOT			"/dev/mmcblk1p2"
 
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
 
@@ -140,6 +139,10 @@
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 
+#define CONFIG_BOOTCOMMAND \
+	"run finduuid; " \
+	"run distro_bootcmd"
+
 #include <config_distro_bootcmd.h>
 
 #define CONSOLE_STDIN_SETTINGS \
@@ -157,6 +160,7 @@
 	CONSOLE_ENV_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
 	"fdtfile=" CONFIG_FDTFILE "\0" \
+	"finduuid=part uuid mmc 0:1 uuid\0" \
 	BOOTENV
 
 #endif                         /* __RIOTBOARD_CONFIG_H */

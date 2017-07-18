@@ -11,7 +11,7 @@
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 #include "mx6_common.h"
-#include <asm/imx-common/gpio.h>
+#include <asm/mach-imx/gpio.h>
 
 #define is_mx6ul_9x9_evk()	CONFIG_IS_ENABLED(TARGET_MX6UL_9X9_EVK)
 

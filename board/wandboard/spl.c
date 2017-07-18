@@ -11,8 +11,8 @@
 #include <asm/arch/mx6-pins.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/video.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/video.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <asm/arch/crm_regs.h>
@@ -289,8 +289,6 @@ static void spl_dram_init(void)
 		mx6dq_dram_iocfg(64, &mx6dq_ddr_ioregs, &mx6dq_grp_ioregs);
 		mx6_dram_cfg(&mem_q, &mx6q_2g_mmdc_calib, &h5t04g63afr);
 	}
-
-	udelay(100);
 }
 
 void board_init_f(ulong dummy)

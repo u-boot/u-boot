@@ -10,7 +10,7 @@
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/mxc_i2c.h>
+#include <asm/mach-imx/mxc_i2c.h>
 #include <fsl_esdhc.h>
 #include <hwconfig.h>
 #include <power/pmic.h>

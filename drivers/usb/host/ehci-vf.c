@@ -17,8 +17,8 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/regs-usbphy.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/regs-usbphy.h>
 #include <usb/ehci-ci.h>
 #include <libfdt.h>
 #include <fdtdec.h>

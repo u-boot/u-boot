@@ -6,8 +6,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __MX6QSABRESD_CONFIG_H
-#define __MX6QSABRESD_CONFIG_H
+#ifndef __MX6SABRESD_CONFIG_H
+#define __MX6SABRESD_CONFIG_H
 
 #ifdef CONFIG_SPL
 #include "imx6_spl.h"
@@ -16,7 +16,6 @@
 #define CONFIG_MACH_TYPE	3980
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONSOLE_DEV		"ttymxc0"
-#define CONFIG_MMCROOT			"/dev/mmcblk1p2"
 
 #define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
 
@@ -71,4 +70,4 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	1 /* Enabled USB controller number */
 #endif
 
-#endif                         /* __MX6QSABRESD_CONFIG_H */
+#endif                         /* __MX6SABRESD_CONFIG_H */

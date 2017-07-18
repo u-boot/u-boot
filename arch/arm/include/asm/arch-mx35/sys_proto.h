@@ -8,7 +8,7 @@
 #ifndef _MX35_SYS_PROTO_H_
 #define _MX35_SYS_PROTO_H_
 
-#include <asm/imx-common/sys_proto.h>
+#include <asm/mach-imx/sys_proto.h>
 
 void mx3_setup_sdram_bank(u32 start_address, u32 ddr2_config, u32 row,
 			  u32 col, u32 dsize, u32 refresh);

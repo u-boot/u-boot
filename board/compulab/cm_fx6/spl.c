@@ -16,7 +16,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
-#include <asm/imx-common/iomux-v3.h>
+#include <asm/mach-imx/iomux-v3.h>
 #include <fsl_esdhc.h>
 #include "common.h"
 

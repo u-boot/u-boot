@@ -21,6 +21,16 @@
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
+/* SATA Configuration */
+#ifdef CONFIG_CMD_SATA
+#define CONFIG_DWC_AHSATA
+#define CONFIG_SYS_SATA_MAX_DEVICE      1
+#define CONFIG_DWC_AHSATA_PORT_ID       0
+#define CONFIG_DWC_AHSATA_BASE_ADDR     SATA_ARB_BASE_ADDR
+#define CONFIG_LBA48
+#define CONFIG_LIBATA
+#endif
+
 /* Ethernet Configuration */
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
@@ -84,6 +94,7 @@
 	"console=" CONSOLE_DEV ",115200\0" \
 	"bootm_size=0x10000000\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
+	"finduuid=part uuid mmc 0:1 uuid\0" \
 	"update_sd_firmware=" \
 		"if test ${ip_dyn} = yes; then " \
 			"setenv get_cmd dhcp; " \
@@ -112,10 +123,12 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"run findfdt; " \
+	"run finduuid; " \
 	"run distro_bootcmd"
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
+	func(SATA, sata, 0) \
 	func(USB, usb, 0) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)

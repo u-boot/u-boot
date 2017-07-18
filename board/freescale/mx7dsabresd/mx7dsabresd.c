@@ -9,7 +9,7 @@
 #include <asm/arch/mx7-pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/iomux-v3.h>
+#include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
 #include <linux/sizes.h>
 #include <common.h>
@@ -21,7 +21,7 @@
 #include <power/pfuze3000_pmic.h>
 #include "../common/pfuze.h"
 #include <i2c.h>
-#include <asm/imx-common/mxc_i2c.h>
+#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/arch/crm_regs.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -353,6 +353,12 @@ int power_init_board(void)
 	printf("PMIC: PFUZE3000 DEV_ID=0x%x REV_ID=0x%x\n", dev_id, rev_id);
 
 	pmic_clrsetbits(dev, PFUZE3000_LDOGCTL, 0, 1);
+
+	/*
+	 * Set the voltage of VLDO4 output to 2.8V which feeds
+	 * the MIPI DSI and MIPI CSI inputs.
+	 */
+	pmic_clrsetbits(dev, PFUZE3000_VLD4CTL, 0xF, 0xA);
 
 	return 0;
 }

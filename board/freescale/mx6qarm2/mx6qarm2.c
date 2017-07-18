@@ -11,7 +11,7 @@
 #include <asm/arch/clock.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/iomux-v3.h>
+#include <asm/mach-imx/iomux-v3.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <miiphy.h>
