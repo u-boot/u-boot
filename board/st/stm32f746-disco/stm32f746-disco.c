@@ -13,7 +13,6 @@
 #include <asm/armv7m.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch/fmc.h>
 #include <asm/arch/stm32_periph.h>
 #include <asm/arch/stm32_defs.h>
 #include <asm/arch/syscfg.h>
