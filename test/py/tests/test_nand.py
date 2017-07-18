@@ -30,6 +30,7 @@ sector_size = 0
 
 # Find out nand memory parameters
 def nand_pre_commands(u_boot_console):
+    global nand_detected
     if nand_detected:
         return
 
@@ -78,7 +79,6 @@ def nand_pre_commands(u_boot_console):
     m = re.search('(.+?)MiB', total_size)
     if m:
         try:
-            global total_size
             total_size = int(m.group(1))
             total_size *= 1024 * 1024
             print 'Total size is: ' + str(total_size) + " B"
@@ -87,7 +87,6 @@ def nand_pre_commands(u_boot_console):
         except ValueError:
             pytest.fail("NAND size not recognized")
 
-    global nand_detected
     nand_detected = True
 
 # Read the whole NAND flash twice, random_size till full flash size, random till page size
