@@ -10,6 +10,8 @@
 
 #include <common.h>
 #include <dm.h>
+#include <fdtdec.h>
+#include <generic-phy.h>
 #include <usb.h>
 
 #include "xhci.h"
@@ -18,6 +20,10 @@
 #include <linux/usb/otg.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+struct xhci_dwc3_platdata {
+	struct phy usb_phy;
+};
 
 void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode)
 {
@@ -112,10 +118,25 @@ static int xhci_dwc3_probe(struct udevice *dev)
 	struct xhci_hccr *hccr;
 	struct dwc3 *dwc3_reg;
 	enum usb_dr_mode dr_mode;
+	int ret;
 
 	hccr = (struct xhci_hccr *)devfdt_get_addr(dev);
 	hcor = (struct xhci_hcor *)((phys_addr_t)hccr +
 			HC_LENGTH(xhci_readl(&(hccr)->cr_capbase)));
+
+	ret = generic_phy_get_by_index(dev, 0, &plat->usb_phy);
+	if (ret) {
+		if (ret != -ENOENT) {
+			error("Failed to get USB PHY for %s\n", dev->name);
+			return ret;
+		}
+	} else {
+		ret = generic_phy_init(&plat->usb_phy);
+		if (ret) {
+			error("Can't init USB PHY for %s\n", dev->name);
+			return ret;
+		}
+	}
 
 	dwc3_reg = (struct dwc3 *)((char *)(hccr) + DWC3_REG_OFFSET);
 
@@ -133,6 +154,17 @@ static int xhci_dwc3_probe(struct udevice *dev)
 
 static int xhci_dwc3_remove(struct udevice *dev)
 {
+	struct xhci_dwc3_platdata *plat = dev_get_platdata(dev);
+	int ret;
+
+	if (generic_phy_valid(&plat->usb_phy)) {
+		ret = generic_phy_exit(&plat->usb_phy);
+		if (ret) {
+			error("Can't deinit USB PHY for %s\n", dev->name);
+			return ret;
+		}
+	}
+
 	return xhci_deregister(dev);
 }
 
