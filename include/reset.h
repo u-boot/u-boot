@@ -144,6 +144,18 @@ int reset_assert(struct reset_ctl *reset_ctl);
  */
 int reset_deassert(struct reset_ctl *reset_ctl);
 
+/**
+ * reset_release_all - Assert/Free an array of previously requested resets.
+ *
+ * For each reset contained in the reset array, this function will check if
+ * reset has been previously requested and then will assert and free it.
+ *
+ * @reset_ctl:	A reset struct array that was previously successfully
+ *		requested by reset_get_by_*().
+ * @count	Number of reset contained in the array
+ * @return 0 if OK, or a negative error code.
+ */
+int reset_release_all(struct reset_ctl *reset_ctl, int count);
 #else
 static inline int reset_get_by_index(struct udevice *dev, int index,
 				     struct reset_ctl *reset_ctl)
@@ -171,6 +183,12 @@ static inline int reset_deassert(struct reset_ctl *reset_ctl)
 {
 	return 0;
 }
+
+static inline int reset_release_all(struct reset_ctl *reset_ctl, int count)
+{
+	return 0;
+}
+
 #endif
 
 #endif
