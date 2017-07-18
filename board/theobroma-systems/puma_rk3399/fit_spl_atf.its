@@ -23,7 +23,7 @@
 		};
 		atf {
 			description = "ARM Trusted Firmware";
-			data = /incbin/("../../../bl31.bin");
+			data = /incbin/("../../../bl31-rk3399.bin");
 			type = "firmware";
 			arch = "arm64";
 			compression = "none";
