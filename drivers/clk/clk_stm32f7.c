@@ -104,7 +104,7 @@ struct pll_psc sys_pll_psc = {
 #endif
 #endif
 
-int configure_clocks(void)
+static int configure_clocks(void)
 {
 	/* Reset RCC configuration */
 	setbits_le32(&STM32_RCC->cr, RCC_CR_HSION);

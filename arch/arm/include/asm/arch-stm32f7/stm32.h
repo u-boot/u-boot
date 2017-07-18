@@ -114,7 +114,6 @@ struct stm32_pwr_regs {
 };
 #define STM32_PWR		((struct stm32_pwr_regs *)PWR_BASE)
 
-int configure_clocks(void);
 unsigned long clock_get(enum clock clck);
 void stm32_flash_latency_cfg(int latency);
 
