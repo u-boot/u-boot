@@ -47,6 +47,15 @@
 			pad-offset = <0x3a0>;
 			mode-func = <1>;
 		};
+
+		xhci_hub_reset: usb_ulpi_stp@0 {
+			gpio-offset = <0xa0 10>;
+			pad-offset = <0x23b0>;
+			mode-func = <0>;
+			mode-gpio;
+			output-value = <1>;
+			direction = <PIN_OUTPUT>;
+		};
 	};
 
 	chosen {
@@ -261,6 +270,9 @@
 		fsp,enable-spi;
 		fsp,enable-sata;
 		fsp,sata-mode = <SATA_MODE_AHCI>;
+#ifdef CONFIG_USB_XHCI_HCD
+		fsp,enable-xhci;
+#endif
 		fsp,lpe-mode = <LPE_MODE_PCI>;
 		fsp,lpss-sio-mode = <LPSS_SIO_MODE_PCI>;
 		fsp,enable-dma0;
