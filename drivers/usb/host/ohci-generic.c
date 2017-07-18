@@ -8,6 +8,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <dm/ofnode.h>
+#include <reset.h>
 #include "ohci.h"
 
 #if !defined(CONFIG_USB_OHCI_NEW)
@@ -17,14 +18,16 @@
 struct generic_ohci {
 	ohci_t ohci;
 	struct clk *clocks;	/* clock list */
+	struct reset_ctl *resets; /* reset list */
 	int clock_count;	/* number of clock in clock list */
+	int reset_count;	/* number of reset in reset list */
 };
 
 static int ohci_usb_probe(struct udevice *dev)
 {
 	struct ohci_regs *regs = (struct ohci_regs *)devfdt_get_addr(dev);
 	struct generic_ohci *priv = dev_get_priv(dev);
-	int i, err, ret, clock_nb;
+	int i, err, ret, clock_nb, reset_nb;
 
 	err = 0;
 	priv->clock_count = 0;
@@ -53,12 +56,43 @@ static int ohci_usb_probe(struct udevice *dev)
 		return clock_nb;
 	}
 
+	priv->reset_count = 0;
+	reset_nb = dev_count_phandle_with_args(dev, "resets", "#reset-cells");
+	if (reset_nb > 0) {
+		priv->resets = devm_kcalloc(dev, reset_nb,
+					    sizeof(struct reset_ctl),
+					    GFP_KERNEL);
+		if (!priv->resets)
+			return -ENOMEM;
+
+		for (i = 0; i < reset_nb; i++) {
+			err = reset_get_by_index(dev, i, &priv->resets[i]);
+			if (err < 0)
+				break;
+
+			err = reset_deassert(&priv->resets[i]);
+			if (err) {
+				error("failed to deassert reset %d\n", i);
+				reset_free(&priv->resets[i]);
+				goto reset_err;
+			}
+			priv->reset_count++;
+		}
+	} else if (reset_nb != -ENOENT) {
+		error("failed to get reset phandle(%d)\n", reset_nb);
+		goto clk_err;
+	}
+
 	err = ohci_register(dev, regs);
 	if (err)
-		goto clk_err;
+		goto reset_err;
 
 	return 0;
 
+reset_err:
+	ret = reset_release_all(priv->resets, priv->reset_count);
+	if (ret)
+		error("failed to assert all resets\n");
 clk_err:
 	ret = clk_release_all(priv->clocks, priv->clock_count);
 	if (ret)
@@ -73,6 +107,10 @@ static int ohci_usb_remove(struct udevice *dev)
 	int ret;
 
 	ret = ohci_deregister(dev);
+	if (ret)
+		return ret;
+
+	ret = reset_release_all(priv->resets, priv->reset_count);
 	if (ret)
 		return ret;
 
