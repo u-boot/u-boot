@@ -45,6 +45,7 @@ int generic_phy_get_by_index(struct udevice *dev, int index,
 	debug("%s(dev=%p, index=%d, phy=%p)\n", __func__, dev, index, phy);
 
 	assert(phy);
+	phy->dev = NULL;
 	ret = dev_read_phandle_with_args(dev, "phys", "#phy-cells", 0, index,
 					 &args);
 	if (ret) {
