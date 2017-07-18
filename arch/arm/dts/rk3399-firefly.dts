@@ -8,7 +8,7 @@
 #include <dt-bindings/pwm/pwm.h>
 #include <dt-bindings/pinctrl/rockchip.h>
 #include "rk3399.dtsi"
-#include "rk3399-sdram-ddr3-1333.dtsi"
+#include "rk3399-sdram-ddr3-1600.dtsi"
 
 / {
 	model = "Firefly-RK3399 Board";
