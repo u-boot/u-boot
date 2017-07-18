@@ -65,6 +65,8 @@ int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
 	debug("%s(dev=%p, index=%d, clk=%p)\n", __func__, dev, index, clk);
 
 	assert(clk);
+	clk->dev = NULL;
+
 	ret = dev_read_phandle_with_args(dev, "clocks", "#clock-cells", 0,
 					  index, &args);
 	if (ret) {
@@ -102,6 +104,7 @@ int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk)
 	int index;
 
 	debug("%s(dev=%p, name=%s, clk=%p)\n", __func__, dev, name, clk);
+	clk->dev = NULL;
 
 	index = dev_read_stringlist_search(dev, "clock-names", name);
 	if (index < 0) {
@@ -185,6 +188,29 @@ int clk_disable(struct clk *clk)
 		return -ENOSYS;
 
 	return ops->disable(clk);
+}
+
+int clk_release_all(struct clk *clk, int count)
+{
+	int i, ret;
+
+	for (i = 0; i < count; i++) {
+		debug("%s(clk[%d]=%p)\n", __func__, i, &clk[i]);
+
+		/* check if clock has been previously requested */
+		if (!clk[i].dev)
+			continue;
+
+		ret = clk_disable(&clk[i]);
+		if (ret && ret != -ENOSYS)
+			return ret;
+
+		ret = clk_free(&clk[i]);
+		if (ret && ret != -ENOSYS)
+			return ret;
+	}
+
+	return 0;
 }
 
 UCLASS_DRIVER(clk) = {
