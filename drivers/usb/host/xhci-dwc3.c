@@ -9,8 +9,14 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <usb.h>
+
+#include "xhci.h"
 #include <asm/io.h>
 #include <linux/usb/dwc3.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode)
 {
@@ -97,3 +103,43 @@ void dwc3_set_fladj(struct dwc3 *dwc3_reg, u32 val)
 	setbits_le32(&dwc3_reg->g_fladj, GFLADJ_30MHZ_REG_SEL |
 			GFLADJ_30MHZ(val));
 }
+
+static int xhci_dwc3_probe(struct udevice *dev)
+{
+	struct xhci_dwc3_platdata *plat = dev_get_platdata(dev);
+	struct xhci_hcor *hcor;
+	struct xhci_hccr *hccr;
+	struct dwc3 *dwc3_reg;
+
+	hccr = (struct xhci_hccr *)devfdt_get_addr(dev);
+	hcor = (struct xhci_hcor *)((phys_addr_t)hccr +
+			HC_LENGTH(xhci_readl(&(hccr)->cr_capbase)));
+
+	dwc3_reg = (struct dwc3 *)((char *)(hccr) + DWC3_REG_OFFSET);
+
+	dwc3_core_init(dwc3_reg);
+
+	return xhci_register(dev, hccr, hcor);
+}
+
+static int xhci_dwc3_remove(struct udevice *dev)
+{
+	return xhci_deregister(dev);
+}
+
+static const struct udevice_id xhci_dwc3_ids[] = {
+	{ .compatible = "snps,dwc3" },
+	{ }
+};
+
+U_BOOT_DRIVER(xhci_dwc3) = {
+	.name = "xhci-dwc3",
+	.id = UCLASS_USB,
+	.of_match = xhci_dwc3_ids,
+	.probe = xhci_dwc3_probe,
+	.remove = xhci_dwc3_remove,
+	.ops = &xhci_usb_ops,
+	.priv_auto_alloc_size = sizeof(struct xhci_ctrl),
+	.platdata_auto_alloc_size = sizeof(struct xhci_dwc3_platdata),
+	.flags = DM_FLAG_ALLOC_PRIV_DMA,
+};
