@@ -171,54 +171,6 @@ static int configure_clocks(struct udevice *dev)
 	return 0;
 }
 
-unsigned long clock_get(enum clock clck)
-{
-	u32 sysclk = 0;
-	u32 shift = 0;
-	/* Prescaler table lookups for clock computation */
-	u8 ahb_psc_table[16] = {
-		0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9
-	};
-	u8 apb_psc_table[8] = {
-		0, 0, 0, 0, 1, 2, 3, 4
-	};
-
-	if ((readl(&STM32_RCC->cfgr) & RCC_CFGR_SWS_MASK) ==
-			RCC_CFGR_SWS_PLL) {
-		u16 pllm, plln, pllp;
-		pllm = (readl(&STM32_RCC->pllcfgr) & RCC_PLLCFGR_PLLM_MASK);
-		plln = ((readl(&STM32_RCC->pllcfgr) & RCC_PLLCFGR_PLLN_MASK)
-			>> RCC_PLLCFGR_PLLN_SHIFT);
-		pllp = ((((readl(&STM32_RCC->pllcfgr) & RCC_PLLCFGR_PLLP_MASK)
-			>> RCC_PLLCFGR_PLLP_SHIFT) + 1) << 1);
-		sysclk = ((CONFIG_STM32_HSE_HZ / pllm) * plln) / pllp;
-	}
-
-	switch (clck) {
-	case CLOCK_AHB:
-		shift = ahb_psc_table[(
-			(readl(&STM32_RCC->cfgr) & RCC_CFGR_AHB_PSC_MASK)
-			>> RCC_CFGR_HPRE_SHIFT)];
-		return sysclk >>= shift;
-		break;
-	case CLOCK_APB1:
-		shift = apb_psc_table[(
-			(readl(&STM32_RCC->cfgr) & RCC_CFGR_APB1_PSC_MASK)
-			>> RCC_CFGR_PPRE1_SHIFT)];
-		return sysclk >>= shift;
-		break;
-	case CLOCK_APB2:
-		shift = apb_psc_table[(
-			(readl(&STM32_RCC->cfgr) & RCC_CFGR_APB2_PSC_MASK)
-			>> RCC_CFGR_PPRE2_SHIFT)];
-		return sysclk >>= shift;
-		break;
-	default:
-		return 0;
-		break;
-	}
-}
-
 static unsigned long stm32_clk_get_rate(struct clk *clk)
 {
 	struct stm32_clk *priv = dev_get_priv(clk->dev);

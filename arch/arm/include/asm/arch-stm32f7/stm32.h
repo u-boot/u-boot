@@ -57,11 +57,6 @@ static const u32 sect_sz_kb[CONFIG_SYS_MAX_FLASH_SECT] = {
 	[5 ... 7] =	256 * 1024
 };
 
-enum clock {
-	CLOCK_AHB,
-	CLOCK_APB1,
-	CLOCK_APB2
-};
 #define STM32_BUS_MASK		GENMASK(31, 16)
 
 struct stm32_rcc_regs {
@@ -108,7 +103,6 @@ struct stm32_pwr_regs {
 };
 #define STM32_PWR		((struct stm32_pwr_regs *)PWR_BASE)
 
-unsigned long clock_get(enum clock clck);
 void stm32_flash_latency_cfg(int latency);
 
 #endif /* _ASM_ARCH_HARDWARE_H */
