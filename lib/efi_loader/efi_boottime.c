@@ -104,15 +104,15 @@ static int guidcmp(const efi_guid_t *g1, const efi_guid_t *g2)
 	return memcmp(g1, g2, sizeof(efi_guid_t));
 }
 
-static unsigned long EFIAPI efi_raise_tpl(unsigned long new_tpl)
+static unsigned long EFIAPI efi_raise_tpl(UINTN new_tpl)
 {
-	EFI_ENTRY("0x%lx", new_tpl);
+	EFI_ENTRY("0x%zx", new_tpl);
 	return EFI_EXIT(0);
 }
 
-static void EFIAPI efi_restore_tpl(unsigned long old_tpl)
+static void EFIAPI efi_restore_tpl(UINTN old_tpl)
 {
-	EFI_ENTRY("0x%lx", old_tpl);
+	EFI_ENTRY("0x%zx", old_tpl);
 	EFI_EXIT(efi_unsupported(__func__));
 }
 
@@ -180,7 +180,7 @@ static efi_status_t EFIAPI efi_free_pool_ext(void *buffer)
 static struct efi_event efi_events[16];
 
 static efi_status_t EFIAPI efi_create_event(
-			enum efi_event_type type, ulong notify_tpl,
+			enum efi_event_type type, UINTN notify_tpl,
 			void (EFIAPI *notify_function) (
 					struct efi_event *event,
 					void *context),
@@ -188,7 +188,7 @@ static efi_status_t EFIAPI efi_create_event(
 {
 	int i;
 
-	EFI_ENTRY("%d, 0x%lx, %p, %p", type, notify_tpl, notify_function,
+	EFI_ENTRY("%d, 0x%zx, %p, %p", type, notify_tpl, notify_function,
 		  notify_context);
 	if (event == NULL)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);

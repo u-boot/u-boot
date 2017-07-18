@@ -77,7 +77,7 @@ struct efi_object {
  */
 struct efi_event {
 	u32 type;
-	unsigned long notify_tpl;
+	UINTN notify_tpl;
 	void (EFIAPI *notify_function)(struct efi_event *event, void *context);
 	void *notify_context;
 	u64 trigger_next;
