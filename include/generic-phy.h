@@ -220,4 +220,15 @@ int generic_phy_get_by_index(struct udevice *user, int index,
 int generic_phy_get_by_name(struct udevice *user, const char *phy_name,
 			    struct phy *phy);
 
+/**
+ * generic_phy_valid() - check if PHY port is valid
+ *
+ * @phy:	the PHY port to check
+ * @return TRUE if valid, or FALSE
+ */
+static inline bool generic_phy_valid(struct phy *phy)
+{
+	return phy->dev != NULL;
+}
+
 #endif /*__GENERIC_PHY_H */
