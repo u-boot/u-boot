@@ -40,12 +40,19 @@ Example:
 		pinctrl-names = "default";
 		status = "okay";
 
-		mr-nbanks = <1>;
 		/* sdram memory configuration from sdram datasheet */
-	bank1: bank@0 {
-	       st,sdram-control = /bits/ 8 <NO_COL_8 NO_ROW_12 MWIDTH_16 BANKS_2
+		bank1: bank@0 {
+		       st,sdram-control = /bits/ 8 <NO_COL_8 NO_ROW_12 MWIDTH_16 BANKS_2
 						CAS_3 RD_BURST_EN RD_PIPE_DL_0>;
-	       st,sdram-timing = /bits/ 8 <TMRD_1 TXSR_60 TRAS_42 TRC_60 TRP_18
+		       st,sdram-timing = /bits/ 8 <TMRD_1 TXSR_60 TRAS_42 TRC_60 TRP_18
 						TRCD_18>;
-       };
-}
+		};
+
+		/* sdram memory configuration from sdram datasheet */
+		bank2: bank@1 {
+		       st,sdram-control = /bits/ 8 <NO_COL_8 NO_ROW_12 MWIDTH_16 BANKS_2
+						CAS_3 RD_BURST_EN RD_PIPE_DL_0>;
+		       st,sdram-timing = /bits/ 8 <TMRD_1 TXSR_60 TRAS_42 TRC_60 TRP_18
+						TRCD_18>;
+		};
+	}
