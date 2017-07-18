@@ -67,6 +67,13 @@ config BOOT_INIT_FILE
 	  Add register writes to boot.bin format (max 256 pairs).
 	  Expect a table of register-value pairs, e.g. "0x12345678 0x4321"
 
+config ZYNQ_M29EW_WB_HACK
+	bool "Zynq NOR hack"
+	default n
+	help
+	  The option provides hack for Zynq NOR driver which is required
+	  for NOR operations to work as expected.
+
 config ZYNQ_SDHCI_MAX_FREQ
 	default 52000000
 
