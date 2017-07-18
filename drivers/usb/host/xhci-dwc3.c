@@ -15,6 +15,7 @@
 #include "xhci.h"
 #include <asm/io.h>
 #include <linux/usb/dwc3.h>
+#include <linux/usb/otg.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -110,6 +111,7 @@ static int xhci_dwc3_probe(struct udevice *dev)
 	struct xhci_hcor *hcor;
 	struct xhci_hccr *hccr;
 	struct dwc3 *dwc3_reg;
+	enum usb_dr_mode dr_mode;
 
 	hccr = (struct xhci_hccr *)devfdt_get_addr(dev);
 	hcor = (struct xhci_hcor *)((phys_addr_t)hccr +
@@ -118,6 +120,13 @@ static int xhci_dwc3_probe(struct udevice *dev)
 	dwc3_reg = (struct dwc3 *)((char *)(hccr) + DWC3_REG_OFFSET);
 
 	dwc3_core_init(dwc3_reg);
+
+	dr_mode = usb_get_dr_mode(dev_of_offset(dev));
+	if (dr_mode == USB_DR_MODE_UNKNOWN)
+		/* by default set dual role mode to HOST */
+		dr_mode = USB_DR_MODE_HOST;
+
+	dwc3_set_mode(dwc3_reg, dr_mode);
 
 	return xhci_register(dev, hccr, hcor);
 }
