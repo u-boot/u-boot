@@ -81,6 +81,39 @@ efi_status_t efi_exit_func(efi_status_t ret)
 	return ret;
 }
 
+/* Low 32 bit */
+#define EFI_LOW32(a) (a & 0xFFFFFFFFULL)
+/* High 32 bit */
+#define EFI_HIGH32(a) (a >> 32)
+
+/*
+ * 64bit division by 10 implemented as multiplication by 1 / 10
+ *
+ * Decimals of one tenth: 0x1 / 0xA = 0x0.19999...
+ */
+#define EFI_TENTH 0x199999999999999A
+static u64 efi_div10(u64 a)
+{
+	u64 prod;
+	u64 rem;
+	u64 ret;
+
+	ret  = EFI_HIGH32(a) * EFI_HIGH32(EFI_TENTH);
+	prod = EFI_HIGH32(a) * EFI_LOW32(EFI_TENTH);
+	rem  = EFI_LOW32(prod);
+	ret += EFI_HIGH32(prod);
+	prod = EFI_LOW32(a) * EFI_HIGH32(EFI_TENTH);
+	rem += EFI_LOW32(prod);
+	ret += EFI_HIGH32(prod);
+	prod = EFI_LOW32(a) * EFI_LOW32(EFI_TENTH);
+	rem += EFI_HIGH32(prod);
+	ret += EFI_HIGH32(rem);
+	/* Round to nearest integer */
+	if (rem >= (1 << 31))
+		++ret;
+	return ret;
+}
+
 void efi_signal_event(struct efi_event *event)
 {
 	if (event->signaled)
@@ -244,7 +277,7 @@ void efi_timer_check(void)
 			continue;
 		if (efi_events[i].trigger_type == EFI_TIMER_PERIODIC) {
 			efi_events[i].trigger_next +=
-				efi_events[i].trigger_time / 10;
+				efi_events[i].trigger_time;
 			efi_events[i].signaled = 0;
 		}
 		efi_signal_event(&efi_events[i]);
@@ -255,15 +288,13 @@ void efi_timer_check(void)
 efi_status_t efi_set_timer(struct efi_event *event, int type,
 			   uint64_t trigger_time)
 {
-	/* We don't have 64bit division available everywhere, so limit timer
-	 * distances to 32bit bits. */
-	u32 trigger32 = trigger_time;
 	int i;
 
-	if (trigger32 < trigger_time) {
-		printf("WARNING: Truncating timer from %"PRIx64" to %x\n",
-		       trigger_time, trigger32);
-	}
+	/*
+	 * The parameter defines a multiple of 100ns.
+	 * We use multiples of 1000ns. So divide by 10.
+	 */
+	trigger_time = efi_div10(trigger_time);
 
 	for (i = 0; i < ARRAY_SIZE(efi_events); ++i) {
 		if (event != &efi_events[i])
@@ -278,7 +309,7 @@ efi_status_t efi_set_timer(struct efi_event *event, int type,
 		case EFI_TIMER_PERIODIC:
 		case EFI_TIMER_RELATIVE:
 			event->trigger_next =
-				timer_get_us() + (trigger32 / 10);
+				timer_get_us() + trigger_time;
 			break;
 		default:
 			return EFI_INVALID_PARAMETER;
