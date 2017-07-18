@@ -26,7 +26,7 @@ extern struct efi_runtime_services efi_runtime_services;
 extern struct efi_system_table systab;
 
 extern const struct efi_simple_text_output_protocol efi_con_out;
-extern const struct efi_simple_input_interface efi_con_in;
+extern struct efi_simple_input_interface efi_con_in;
 extern const struct efi_console_control_protocol efi_console_control;
 extern const struct efi_device_path_to_text_protocol efi_device_path_to_text;
 
@@ -90,6 +90,8 @@ struct efi_event {
 /* This list contains all UEFI objects we know of */
 extern struct list_head efi_obj_list;
 
+/* Called by bootefi to make console interface available */
+int efi_console_register(void);
 /* Called by bootefi to make all disk storage accessible as EFI objects */
 int efi_disk_register(void);
 /* Called by bootefi to make GOP (graphical) interface available */
@@ -125,6 +127,8 @@ efi_status_t efi_create_event(enum efi_event_type type, UINTN notify_tpl,
 /* Call this to set a timer */
 efi_status_t efi_set_timer(struct efi_event *event, int type,
 			   uint64_t trigger_time);
+/* Call this to signal an event */
+void efi_signal_event(struct efi_event *event);
 
 /* Generic EFI memory allocator, call this to get memory */
 void *efi_alloc(uint64_t len, int memory_type);

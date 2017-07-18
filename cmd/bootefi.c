@@ -226,6 +226,7 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 	INIT_LIST_HEAD(&efi_obj_list);
 	list_add_tail(&loaded_image_info_obj.link, &efi_obj_list);
 	list_add_tail(&bootefi_device_obj.link, &efi_obj_list);
+	efi_console_register();
 #ifdef CONFIG_PARTITIONS
 	efi_disk_register();
 #endif

@@ -81,7 +81,7 @@ efi_status_t efi_exit_func(efi_status_t ret)
 	return ret;
 }
 
-static void efi_signal_event(struct efi_event *event)
+void efi_signal_event(struct efi_event *event)
 {
 	if (event->signaled)
 		return;
