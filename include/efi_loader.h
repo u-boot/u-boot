@@ -116,6 +116,12 @@ efi_status_t efi_exit_func(efi_status_t ret);
 void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map);
 /* Call this to set the current device name */
 void efi_set_bootdev(const char *dev, const char *devnr, const char *path);
+/* Call this to create an event */
+efi_status_t efi_create_event(enum efi_event_type type, UINTN notify_tpl,
+			      void (EFIAPI *notify_function) (
+					struct efi_event *event,
+					void *context),
+			      void *notify_context, struct efi_event **event);
 
 /* Generic EFI memory allocator, call this to get memory */
 void *efi_alloc(uint64_t len, int memory_type);

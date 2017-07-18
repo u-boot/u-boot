@@ -179,26 +179,23 @@ static efi_status_t EFIAPI efi_free_pool_ext(void *buffer)
  */
 static struct efi_event efi_events[16];
 
-static efi_status_t EFIAPI efi_create_event(
-			enum efi_event_type type, UINTN notify_tpl,
-			void (EFIAPI *notify_function) (
+efi_status_t efi_create_event(enum efi_event_type type, UINTN notify_tpl,
+			      void (EFIAPI *notify_function) (
 					struct efi_event *event,
 					void *context),
-			void *notify_context, struct efi_event **event)
+			      void *notify_context, struct efi_event **event)
 {
 	int i;
 
-	EFI_ENTRY("%d, 0x%zx, %p, %p", type, notify_tpl, notify_function,
-		  notify_context);
 	if (event == NULL)
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
+		return EFI_INVALID_PARAMETER;
 
 	if ((type & EVT_NOTIFY_SIGNAL) && (type & EVT_NOTIFY_WAIT))
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
+		return EFI_INVALID_PARAMETER;
 
 	if ((type & (EVT_NOTIFY_SIGNAL|EVT_NOTIFY_WAIT)) &&
 	    notify_function == NULL)
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
+		return EFI_INVALID_PARAMETER;
 
 	for (i = 0; i < ARRAY_SIZE(efi_events); ++i) {
 		if (efi_events[i].type)
@@ -211,10 +208,24 @@ static efi_status_t EFIAPI efi_create_event(
 		efi_events[i].trigger_next = -1ULL;
 		efi_events[i].signaled = 0;
 		*event = &efi_events[i];
-		return EFI_EXIT(EFI_SUCCESS);
+		return EFI_SUCCESS;
 	}
-	return EFI_EXIT(EFI_OUT_OF_RESOURCES);
+	return EFI_OUT_OF_RESOURCES;
 }
+
+static efi_status_t EFIAPI efi_create_event_ext(
+			enum efi_event_type type, UINTN notify_tpl,
+			void (EFIAPI *notify_function) (
+					struct efi_event *event,
+					void *context),
+			void *notify_context, struct efi_event **event)
+{
+	EFI_ENTRY("%d, 0x%zx, %p, %p", type, notify_tpl, notify_function,
+		  notify_context);
+	return EFI_EXIT(efi_create_event(type, notify_tpl, notify_function,
+					 notify_context, event));
+}
+
 
 /*
  * Our timers have to work without interrupts, so we check whenever keyboard
@@ -1055,7 +1066,7 @@ static const struct efi_boot_services efi_boot_services = {
 	.get_memory_map = efi_get_memory_map_ext,
 	.allocate_pool = efi_allocate_pool_ext,
 	.free_pool = efi_free_pool_ext,
-	.create_event = efi_create_event,
+	.create_event = efi_create_event_ext,
 	.set_timer = efi_set_timer,
 	.wait_for_event = efi_wait_for_event,
 	.signal_event = efi_signal_event_ext,
