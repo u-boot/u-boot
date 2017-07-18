@@ -101,6 +101,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += zynq-zc702.dtb \
 	zynq-microzed.dtb \
 	zynq-cc108.dtb \
 	zynq-cse-nand.dtb \
+	zynq-cse-nor.dtb \
 	zynq-cse-qspi-parallel.dtb \
 	zynq-cse-qspi-single.dtb \
 	zynq-cse-qspi-stacked.dtb \
