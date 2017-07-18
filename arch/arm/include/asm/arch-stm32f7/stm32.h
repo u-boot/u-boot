@@ -58,7 +58,6 @@ static const u32 sect_sz_kb[CONFIG_SYS_MAX_FLASH_SECT] = {
 };
 
 enum clock {
-	CLOCK_CORE,
 	CLOCK_AHB,
 	CLOCK_APB1,
 	CLOCK_APB2
@@ -100,11 +99,6 @@ struct stm32_rcc_regs {
 	u32 dckcfgr;	/* dedicated clocks configuration register */
 };
 #define STM32_RCC		((struct stm32_rcc_regs *)RCC_BASE)
-
-struct stm32_rcc_ext_f7_regs {
-	u32 dckcfgr2;	/* dedicated clocks configuration register */
-};
-#define STM32_RCC_EXT_F7	((struct stm32_rcc_ext_f7_regs *) (RCC_BASE + sizeof(struct stm32_rcc_regs)))
 
 struct stm32_pwr_regs {
 	u32 cr1;   /* power control register 1 */

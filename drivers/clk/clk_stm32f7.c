@@ -195,9 +195,6 @@ unsigned long clock_get(enum clock clck)
 	}
 
 	switch (clck) {
-	case CLOCK_CORE:
-		return sysclk;
-		break;
 	case CLOCK_AHB:
 		shift = ahb_psc_table[(
 			(readl(&STM32_RCC->cfgr) & RCC_CFGR_AHB_PSC_MASK)
