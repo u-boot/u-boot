@@ -47,6 +47,8 @@
 
 #include "armv7-m.dtsi"
 #include <dt-bindings/pinctrl/stm32f746-pinfunc.h>
+#include <dt-bindings/clock/stm32fx-clock.h>
+#include <dt-bindings/mfd/stm32f7-rcc.h>
 
 / {
 	clocks {
@@ -74,7 +76,7 @@
 		fmc: fmc@A0000000 {
 			compatible = "st,stm32-fmc";
 			reg = <0xA0000000 0x1000>;
-			clocks = <&rcc 0 64>;
+			clocks = <&rcc 0 STM32F7_AHB3_CLOCK(FMC)>;
 			u-boot,dm-pre-reloc;
 		};
 
@@ -86,14 +88,14 @@
 			reg-names = "QuadSPI", "QuadSPI-memory";
 			interrupts = <92>;
 			spi-max-frequency = <108000000>;
-			clocks = <&rcc 0 65>;
+			clocks = <&rcc 0 STM32F7_AHB3_CLOCK(QSPI)>;
 			status = "disabled";
 		};
 		usart1: serial@40011000 {
 			compatible = "st,stm32f7-usart", "st,stm32f7-uart";
 			reg = <0x40011000 0x400>;
 			interrupts = <37>;
-			clocks = <&rcc 0 164>;
+			clocks = <&rcc 0 STM32F7_APB2_CLOCK(USART1)>;
 			status = "disabled";
 			u-boot,dm-pre-reloc;
 		};
@@ -119,7 +121,7 @@
 				#gpio-cells = <2>;
 				compatible = "st,stm32-gpio";
 				reg = <0x0 0x400>;
-				clocks = <&rcc 0 0>;
+				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOA)>;
 				st,bank-name = "GPIOA";
 				u-boot,dm-pre-reloc;
 			};
@@ -129,7 +131,7 @@
 				#gpio-cells = <2>;
 				compatible = "st,stm32-gpio";
 				reg = <0x400 0x400>;
-				clocks = <&rcc 0 1>;
+				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOB)>;
 				st,bank-name = "GPIOB";
 				u-boot,dm-pre-reloc;
 			};
@@ -140,7 +142,7 @@
 				#gpio-cells = <2>;
 				compatible = "st,stm32-gpio";
 				reg = <0x800 0x400>;
-				clocks = <&rcc 0 2>;
+				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOC)>;
 				st,bank-name = "GPIOC";
 				u-boot,dm-pre-reloc;
 			};
@@ -150,7 +152,7 @@
 				#gpio-cells = <2>;
 				compatible = "st,stm32-gpio";
 				reg = <0xc00 0x400>;
-				clocks = <&rcc 0 3>;
+				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOD)>;
 				st,bank-name = "GPIOD";
 				u-boot,dm-pre-reloc;
 			};
@@ -160,7 +162,7 @@
 				#gpio-cells = <2>;
 				compatible = "st,stm32-gpio";
 				reg = <0x1000 0x400>;
-				clocks = <&rcc 0 4>;
+				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOE)>;
 				st,bank-name = "GPIOE";
 				u-boot,dm-pre-reloc;
 			};
@@ -170,7 +172,7 @@
 				#gpio-cells = <2>;
 				compatible = "st,stm32-gpio";
 				reg = <0x1400 0x400>;
-				clocks = <&rcc 0 5>;
+				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOF)>;
 				st,bank-name = "GPIOF";
 				u-boot,dm-pre-reloc;
 			};
@@ -180,7 +182,7 @@
 				#gpio-cells = <2>;
 				compatible = "st,stm32-gpio";
 				reg = <0x1800 0x400>;
-				clocks = <&rcc 0 6>;
+				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOG)>;
 				st,bank-name = "GPIOG";
 				u-boot,dm-pre-reloc;
 			};
@@ -190,7 +192,7 @@
 				#gpio-cells = <2>;
 				compatible = "st,stm32-gpio";
 				reg = <0x1c00 0x400>;
-				clocks = <&rcc 0 7>;
+				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOH)>;
 				st,bank-name = "GPIOH";
 				u-boot,dm-pre-reloc;
 			};
@@ -200,7 +202,7 @@
 				#gpio-cells = <2>;
 				compatible = "st,stm32-gpio";
 				reg = <0x2000 0x400>;
-				clocks = <&rcc 0 8>;
+				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOI)>;
 				st,bank-name = "GPIOI";
 				u-boot,dm-pre-reloc;
 			};
@@ -210,7 +212,7 @@
 				#gpio-cells = <2>;
 				compatible = "st,stm32-gpio";
 				reg = <0x2400 0x400>;
-				clocks = <&rcc 0 9>;
+				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOJ)>;
 				st,bank-name = "GPIOJ";
 				u-boot,dm-pre-reloc;
 			};
@@ -220,7 +222,7 @@
 				#gpio-cells = <2>;
 				compatible = "st,stm32-gpio";
 				reg = <0x2800 0x400>;
-				clocks = <&rcc 0 10>;
+				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOK)>;
 				st,bank-name = "GPIOK";
 				u-boot,dm-pre-reloc;
 			};
