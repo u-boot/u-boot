@@ -61,6 +61,7 @@
 	aliases {
 		rtc0 = &i2c_rtc;
 		rtc1 = &rk818;
+		eeprom0 = &i2c_eeprom_id;
 	};
 
 	ext_gmac: external-gmac-clock {
@@ -380,6 +381,13 @@
 	i2c_eeprom: eeprom@50 {
 		compatible = "atmel,24c32";
 		reg = <0x50>;
+		pagesize = <32>;
+	};
+
+	/* M24C32-D Identification page */
+	i2c_eeprom_id: eeprom@58 {
+		compatible = "atmel,24c32";
+		reg = <0x58>;
 		pagesize = <32>;
 	};
 
