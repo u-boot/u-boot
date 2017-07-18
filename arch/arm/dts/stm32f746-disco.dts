@@ -195,7 +195,6 @@
 	pinctrl-names = "default";
 	status = "okay";
 
-	mr-nbanks = <1>;
 	/* Memory configuration from sdram datasheet MT48LC_4M32_B2B5-6A */
 	bank1: bank@0 {
 	       st,sdram-control = /bits/ 8 <NO_COL_8 NO_ROW_12 MWIDTH_16 BANKS_4
