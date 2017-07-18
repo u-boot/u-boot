@@ -97,6 +97,15 @@ int reset_get_by_name(struct udevice *dev, const char *name,
 	return reset_get_by_index(dev, index, reset_ctl);
 }
 
+int reset_request(struct reset_ctl *reset_ctl)
+{
+	struct reset_ops *ops = reset_dev_ops(reset_ctl->dev);
+
+	debug("%s(reset_ctl=%p)\n", __func__, reset_ctl);
+
+	return ops->request(reset_ctl);
+}
+
 int reset_free(struct reset_ctl *reset_ctl)
 {
 	struct reset_ops *ops = reset_dev_ops(reset_ctl->dev);

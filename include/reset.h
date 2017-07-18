@@ -100,6 +100,15 @@ int reset_get_by_name(struct udevice *dev, const char *name,
 		      struct reset_ctl *reset_ctl);
 
 /**
+ * reset_request - Request a reset signal.
+ *
+ * @reset_ctl:	A reset control struct.
+ *
+ * @return 0 if OK, or a negative error code.
+ */
+int reset_request(struct reset_ctl *reset_ctl);
+
+/**
  * reset_free - Free a previously requested reset signal.
  *
  * @reset_ctl:	A reset control struct that was previously successfully
