@@ -25,7 +25,7 @@ struct stm32_usart {
 /* Information about a serial port */
 struct stm32x7_serial_platdata {
 	struct stm32_usart *base;  /* address of registers in physical memory */
-	unsigned int clock;
+	unsigned long int clock_rate;
 };
 
 #define USART_CR1_OVER8			(1 << 15)
