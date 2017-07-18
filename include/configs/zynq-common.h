@@ -432,13 +432,6 @@
 
 #define CONFIG_SPL_RAM_DEVICE
 
-#ifdef DEBUG
-#define CONFIG_SPL_NET_SUPPORT
-#define CONFIG_SPL_ETH_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
-#define CONFIG_SPL_ETH_DEVICE "Gem.e000b000"
-#endif
-
 /* for booting directly linux */
 
 /* SP location before relocation, must use scratch RAM */
