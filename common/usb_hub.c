@@ -55,9 +55,6 @@ struct usb_device_scan {
 	struct list_head list;
 };
 
-/* TODO(sjg@chromium.org): Remove this when CONFIG_DM_USB is defined */
-static struct usb_hub_device hub_dev[USB_MAX_HUB];
-static int usb_hub_index;
 static LIST_HEAD(usb_scan_list);
 
 __weak void usb_hub_reset_devices(int port)
@@ -164,6 +161,10 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 	      max(100, (int)pgood_delay) + 1000);
 }
 
+#ifndef CONFIG_DM_USB
+static struct usb_hub_device hub_dev[USB_MAX_HUB];
+static int usb_hub_index;
+
 void usb_hub_reset(void)
 {
 	usb_hub_index = 0;
@@ -180,6 +181,7 @@ static struct usb_hub_device *usb_hub_allocate(void)
 	printf("ERROR: USB_MAX_HUB (%d) reached\n", USB_MAX_HUB);
 	return NULL;
 }
+#endif
 
 #define MAX_TRIES 5
 
@@ -543,6 +545,20 @@ out:
 	return ret;
 }
 
+static struct usb_hub_device *usb_get_hub_device(struct usb_device *dev)
+{
+	struct usb_hub_device *hub;
+
+#ifndef CONFIG_DM_USB
+	/* "allocate" Hub device */
+	hub = usb_hub_allocate();
+#else
+	hub = dev_get_uclass_priv(dev->dev);
+#endif
+
+	return hub;
+}
+
 static int usb_hub_configure(struct usb_device *dev)
 {
 	int i, length;
@@ -554,11 +570,11 @@ static int usb_hub_configure(struct usb_device *dev)
 	__maybe_unused struct usb_hub_status *hubsts;
 	int ret;
 
-	/* "allocate" Hub device */
-	hub = usb_hub_allocate();
+	hub = usb_get_hub_device(dev);
 	if (hub == NULL)
 		return -ENOMEM;
 	hub->pusb_dev = dev;
+
 	/* Get the the hub descriptor */
 	ret = usb_get_hub_descriptor(dev, buffer, 4);
 	if (ret < 0) {
@@ -792,6 +808,7 @@ UCLASS_DRIVER(usb_hub) = {
 	.child_pre_probe	= usb_child_pre_probe,
 	.per_child_auto_alloc_size = sizeof(struct usb_device),
 	.per_child_platdata_auto_alloc_size = sizeof(struct usb_dev_platdata),
+	.per_device_auto_alloc_size = sizeof(struct usb_hub_device),
 };
 
 static const struct usb_device_id hub_id_table[] = {
