@@ -12,7 +12,8 @@
 	compatible = "tsd,rk3399-q7", "tsd,puma", "rockchip,rk3399";
 
 	config {
-		u-boot,spl-payload-offset = <0x40000>; /* 256kbyte */
+		u-boot,spl-payload-offset = <0x40000>; /* @ 256KB */
+		u-boot,mmc-env-offset = <0x4000>;      /* @  16KB */
 		u-boot,boot-led = "module_led";
 	};
 
