@@ -727,6 +727,7 @@ static int xhci_submit_root(struct usb_device *udev, unsigned long pipe,
 	case USB_REQ_GET_DESCRIPTOR | ((USB_DIR_IN | USB_RT_HUB) << 8):
 		switch (le16_to_cpu(req->value) >> 8) {
 		case USB_DT_HUB:
+		case USB_DT_SS_HUB:
 			debug("USB_DT_HUB config\n");
 			srcptr = &descriptor.hub;
 			srclen = 0x8;

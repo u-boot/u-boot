@@ -65,11 +65,21 @@ __weak void usb_hub_reset_devices(int port)
 	return;
 }
 
+static inline bool usb_hub_is_superspeed(struct usb_device *hdev)
+{
+	return hdev->descriptor.bDeviceProtocol == 3;
+}
+
 static int usb_get_hub_descriptor(struct usb_device *dev, void *data, int size)
 {
+	unsigned short dtype = USB_DT_HUB;
+
+	if (usb_hub_is_superspeed(dev))
+		dtype = USB_DT_SS_HUB;
+
 	return usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
 		USB_REQ_GET_DESCRIPTOR, USB_DIR_IN | USB_RT_HUB,
-		USB_DT_HUB << 8, 0, data, size, USB_CNTL_TIMEOUT);
+		dtype << 8, 0, data, size, USB_CNTL_TIMEOUT);
 }
 
 static int usb_clear_port_feature(struct usb_device *dev, int port, int feature)

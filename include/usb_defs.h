@@ -93,6 +93,7 @@
 #define USB_DT_REPORT       (USB_TYPE_CLASS | 0x02)
 #define USB_DT_PHYSICAL     (USB_TYPE_CLASS | 0x03)
 #define USB_DT_HUB          (USB_TYPE_CLASS | 0x09)
+#define USB_DT_SS_HUB       (USB_TYPE_CLASS | 0x0a)
 
 /* Descriptor sizes per descriptor type */
 #define USB_DT_DEVICE_SIZE      18
