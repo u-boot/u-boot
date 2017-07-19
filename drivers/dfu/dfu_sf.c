@@ -12,7 +12,7 @@
 #include <spi.h>
 #include <spi_flash.h>
 
-static int dfu_get_medium_size_sf(struct dfu_entity *dfu, long *size)
+static int dfu_get_medium_size_sf(struct dfu_entity *dfu, u64 *size)
 {
 	*size = dfu->data.sf.size;
 

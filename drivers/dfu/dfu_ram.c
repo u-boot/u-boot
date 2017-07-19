@@ -41,7 +41,7 @@ static int dfu_write_medium_ram(struct dfu_entity *dfu, u64 offset,
 	return dfu_transfer_medium_ram(DFU_OP_WRITE, dfu, offset, buf, len);
 }
 
-int dfu_get_medium_size_ram(struct dfu_entity *dfu, long *size)
+int dfu_get_medium_size_ram(struct dfu_entity *dfu, u64 *size)
 {
 	*size = dfu->data.ram.size;
 

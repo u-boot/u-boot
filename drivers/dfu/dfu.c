@@ -343,7 +343,7 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 		if (ret < 0)
 			return ret;
 
-		debug("%s: %s %ld [B]\n", __func__, dfu->name, dfu->r_left);
+		debug("%s: %s %lld [B]\n", __func__, dfu->name, dfu->r_left);
 
 		dfu->i_blk_seq_num = 0;
 		dfu->crc = 0;

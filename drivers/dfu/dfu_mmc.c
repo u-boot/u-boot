@@ -17,7 +17,7 @@
 #include <mmc.h>
 
 static unsigned char *dfu_file_buf;
-static long dfu_file_buf_len;
+static u64 dfu_file_buf_len;
 static long dfu_file_buf_filled;
 
 static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
@@ -107,7 +107,7 @@ static int mmc_file_buffer(struct dfu_entity *dfu, void *buf, long *len)
 }
 
 static int mmc_file_op(enum dfu_op op, struct dfu_entity *dfu,
-			void *buf, long *len)
+			void *buf, u64 *len)
 {
 	const char *fsname, *opname;
 	char cmd_buf[DFU_CMD_BUF_SIZE];
@@ -150,7 +150,7 @@ static int mmc_file_op(enum dfu_op op, struct dfu_entity *dfu,
 	sprintf(cmd_buf + strlen(cmd_buf), " %s", dfu->name);
 
 	if (op == DFU_OP_WRITE)
-		sprintf(cmd_buf + strlen(cmd_buf), " %lx", *len);
+		sprintf(cmd_buf + strlen(cmd_buf), " %llx", *len);
 
 	debug("%s: %s 0x%p\n", __func__, cmd_buf, cmd_buf);
 
@@ -209,7 +209,7 @@ int dfu_flush_medium_mmc(struct dfu_entity *dfu)
 	return ret;
 }
 
-int dfu_get_medium_size_mmc(struct dfu_entity *dfu, long *size)
+int dfu_get_medium_size_mmc(struct dfu_entity *dfu, u64 *size)
 {
 	int ret;
 
@@ -237,7 +237,7 @@ static int mmc_file_unbuffer(struct dfu_entity *dfu, u64 offset, void *buf,
 			     long *len)
 {
 	int ret;
-	long file_len;
+	u64 file_len;
 
 	if (dfu_file_buf_filled == -1) {
 		ret = mmc_file_op(DFU_OP_READ, dfu, dfu_file_buf, &file_len);
