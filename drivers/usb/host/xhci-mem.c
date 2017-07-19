@@ -723,6 +723,11 @@ void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl,
 	u64 trb_64 = 0;
 	int slot_id = udev->slot_id;
 	int speed = udev->speed;
+	int route = 0;
+#ifdef CONFIG_DM_USB
+	struct usb_device *dev = udev;
+	struct usb_hub_device *hub;
+#endif
 
 	virt_dev = ctrl->devs[slot_id];
 
@@ -733,7 +738,32 @@ void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl,
 	slot_ctx = xhci_get_slot_ctx(ctrl, virt_dev->in_ctx);
 
 	/* Only the control endpoint is valid - one endpoint context */
-	slot_ctx->dev_info |= cpu_to_le32(LAST_CTX(1) | 0);
+	slot_ctx->dev_info |= cpu_to_le32(LAST_CTX(1));
+
+#ifdef CONFIG_DM_USB
+	/* Calculate the route string for this device */
+	port_num = dev->portnr;
+	while (!usb_hub_is_root_hub(dev->dev)) {
+		hub = dev_get_uclass_priv(dev->dev);
+		/*
+		 * Each hub in the topology is expected to have no more than
+		 * 15 ports in order for the route string of a device to be
+		 * unique. SuperSpeed hubs are restricted to only having 15
+		 * ports, but FS/LS/HS hubs are not. The xHCI specification
+		 * says that if the port number the device is greater than 15,
+		 * that portion of the route string shall be set to 15.
+		 */
+		if (port_num > 15)
+			port_num = 15;
+		route |= port_num << (hub->hub_depth * 4);
+		dev = dev_get_parent_priv(dev->dev);
+		port_num = dev->portnr;
+		dev = dev_get_parent_priv(dev->dev->parent);
+	}
+
+	debug("route string %x\n", route);
+#endif
+	slot_ctx->dev_info |= route;
 
 	switch (speed) {
 	case USB_SPEED_SUPER:
