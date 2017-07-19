@@ -165,7 +165,7 @@ static int dfu_write_buffer_drain(struct dfu_entity *dfu)
 	return ret;
 }
 
-void dfu_write_transaction_cleanup(struct dfu_entity *dfu)
+void dfu_transaction_cleanup(struct dfu_entity *dfu)
 {
 	/* clear everything */
 	dfu->crc = 0;
@@ -174,6 +174,10 @@ void dfu_write_transaction_cleanup(struct dfu_entity *dfu)
 	dfu->i_buf_start = dfu_buf;
 	dfu->i_buf_end = dfu_buf;
 	dfu->i_buf = dfu->i_buf_start;
+	dfu->r_left = 0;
+	dfu->b_left = 0;
+	dfu->bad_skip = 0;
+
 	dfu->inited = 0;
 }
 
@@ -192,7 +196,7 @@ int dfu_flush(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 		printf("\nDFU complete %s: 0x%08x\n", dfu_hash_algo->name,
 		       dfu->crc);
 
-	dfu_write_transaction_cleanup(dfu);
+	dfu_transaction_cleanup(dfu);
 
 	return ret;
 }
@@ -223,7 +227,7 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 	if (dfu->i_blk_seq_num != blk_seq_num) {
 		printf("%s: Wrong sequence number! [%d] [%d]\n",
 		       __func__, dfu->i_blk_seq_num, blk_seq_num);
-		dfu_write_transaction_cleanup(dfu);
+		dfu_transaction_cleanup(dfu);
 		return -1;
 	}
 
@@ -247,7 +251,7 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 	if ((dfu->i_buf + size) > dfu->i_buf_end) {
 		ret = dfu_write_buffer_drain(dfu);
 		if (ret) {
-			dfu_write_transaction_cleanup(dfu);
+			dfu_transaction_cleanup(dfu);
 			return ret;
 		}
 	}
@@ -256,7 +260,7 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 	if ((dfu->i_buf + size) > dfu->i_buf_end) {
 		error("Buffer overflow! (0x%p + 0x%x > 0x%p)\n", dfu->i_buf,
 		      size, dfu->i_buf_end);
-		dfu_write_transaction_cleanup(dfu);
+		dfu_transaction_cleanup(dfu);
 		return -1;
 	}
 
@@ -267,7 +271,7 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 	if (size == 0 || (dfu->i_buf + size) > dfu->i_buf_end) {
 		ret = dfu_write_buffer_drain(dfu);
 		if (ret) {
-			dfu_write_transaction_cleanup(dfu);
+			dfu_transaction_cleanup(dfu);
 			return ret;
 		}
 	}
@@ -377,17 +381,7 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 			      dfu_hash_algo->name, dfu->crc);
 		puts("\nUPLOAD ... done\nCtrl+C to exit ...\n");
 
-		dfu->i_blk_seq_num = 0;
-		dfu->crc = 0;
-		dfu->offset = 0;
-		dfu->i_buf_start = dfu_buf;
-		dfu->i_buf_end = dfu_buf;
-		dfu->i_buf = dfu->i_buf_start;
-		dfu->b_left = 0;
-
-		dfu->bad_skip = 0;
-
-		dfu->inited = 0;
+		dfu_transaction_cleanup(dfu);
 	}
 
 	return ret;
