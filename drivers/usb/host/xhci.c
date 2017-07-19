@@ -332,8 +332,8 @@ static int xhci_set_configuration(struct usb_device *udev)
 	ifdesc = &udev->config.if_desc[0];
 
 	ctrl_ctx = xhci_get_input_control_ctx(in_ctx);
-	/* Zero the input context control */
-	ctrl_ctx->add_flags = 0;
+	/* Initialize the input context control */
+	ctrl_ctx->add_flags = cpu_to_le32(SLOT_FLAG);
 	ctrl_ctx->drop_flags = 0;
 
 	/* EP_FLAG gives values 1 & 4 for EP1OUT and EP2IN */
