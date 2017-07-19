@@ -837,6 +837,8 @@
 			#stream-id-cells = <1>;
 			iommus = <&smmu 0x870>;
 			power-domains = <&pd_sd0>;
+			nvmem-cells = <&soc_revision>;
+			nvmem-cell-names = "soc_revision";
 		};
 
 		sdhci1: sdhci@ff170000 {
@@ -851,6 +853,8 @@
 			#stream-id-cells = <1>;
 			iommus = <&smmu 0x871>;
 			power-domains = <&pd_sd1>;
+			nvmem-cells = <&soc_revision>;
+			nvmem-cell-names = "soc_revision";
 		};
 
 		pinctrl0: pinctrl@ff180000 {
