@@ -783,6 +783,20 @@ void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl,
 		BUG();
 	}
 
+#ifdef CONFIG_DM_USB
+	/* Set up TT fields to support FS/LS devices */
+	if (speed == USB_SPEED_LOW || speed == USB_SPEED_FULL) {
+		dev = dev_get_parent_priv(udev->dev);
+		if (dev->speed == USB_SPEED_HIGH) {
+			hub = dev_get_uclass_priv(udev->dev);
+			if (hub->tt.multi)
+				slot_ctx->dev_info |= cpu_to_le32(DEV_MTT);
+			slot_ctx->tt_info |= cpu_to_le32(TT_PORT(udev->portnr));
+			slot_ctx->tt_info |= cpu_to_le32(TT_SLOT(dev->slot_id));
+		}
+	}
+#endif
+
 	port_num = hop_portnr;
 	debug("port_num = %d\n", port_num);
 
