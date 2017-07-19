@@ -31,6 +31,12 @@ config USB_XHCI_MVEBU
 	  SoCs, which includes Armada8K, Armada3700 and other Armada
 	  family SoCs.
 
+config USB_XHCI_PCI
+	bool "Support for PCI-based xHCI USB controller"
+	default y if X86
+	help
+	  Enables support for the PCI-based xHCI controller.
+
 config USB_XHCI_ROCKCHIP
 	bool "Support for Rockchip on-chip xHCI USB controller"
 	depends on ARCH_ROCKCHIP
