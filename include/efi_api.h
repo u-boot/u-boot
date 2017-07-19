@@ -22,7 +22,7 @@
 #endif
 
 /* Types and defines for EFI CreateEvent */
-enum efi_event_type {
+enum efi_timer_delay {
 	EFI_TIMER_STOP = 0,
 	EFI_TIMER_PERIODIC = 1,
 	EFI_TIMER_RELATIVE = 2
@@ -59,14 +59,15 @@ struct efi_boot_services {
 	efi_status_t (EFIAPI *allocate_pool)(int, unsigned long, void **);
 	efi_status_t (EFIAPI *free_pool)(void *);
 
-	efi_status_t (EFIAPI *create_event)(enum efi_event_type type,
+	efi_status_t (EFIAPI *create_event)(uint32_t type,
 			UINTN notify_tpl,
 			void (EFIAPI *notify_function) (
 					struct efi_event *event,
 					void *context),
 			void *notify_context, struct efi_event **event);
-	efi_status_t (EFIAPI *set_timer)(struct efi_event *event, int type,
-			uint64_t trigger_time);
+	efi_status_t (EFIAPI *set_timer)(struct efi_event *event,
+					 enum efi_timer_delay type,
+					 uint64_t trigger_time);
 	efi_status_t (EFIAPI *wait_for_event)(unsigned long number_of_events,
 			struct efi_event **event, unsigned long *index);
 	efi_status_t (EFIAPI *signal_event)(struct efi_event *event);

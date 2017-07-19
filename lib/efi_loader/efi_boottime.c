@@ -207,7 +207,7 @@ static efi_status_t EFIAPI efi_free_pool_ext(void *buffer)
  */
 static struct efi_event efi_events[16];
 
-efi_status_t efi_create_event(enum efi_event_type type, UINTN notify_tpl,
+efi_status_t efi_create_event(uint32_t type, UINTN notify_tpl,
 			      void (EFIAPI *notify_function) (
 					struct efi_event *event,
 					void *context),
@@ -242,7 +242,7 @@ efi_status_t efi_create_event(enum efi_event_type type, UINTN notify_tpl,
 }
 
 static efi_status_t EFIAPI efi_create_event_ext(
-			enum efi_event_type type, UINTN notify_tpl,
+			uint32_t type, UINTN notify_tpl,
 			void (EFIAPI *notify_function) (
 					struct efi_event *event,
 					void *context),
@@ -280,7 +280,7 @@ void efi_timer_check(void)
 	WATCHDOG_RESET();
 }
 
-efi_status_t efi_set_timer(struct efi_event *event, int type,
+efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
 			   uint64_t trigger_time)
 {
 	int i;
@@ -316,8 +316,9 @@ efi_status_t efi_set_timer(struct efi_event *event, int type,
 	return EFI_INVALID_PARAMETER;
 }
 
-static efi_status_t EFIAPI efi_set_timer_ext(struct efi_event *event, int type,
-					 uint64_t trigger_time)
+static efi_status_t EFIAPI efi_set_timer_ext(struct efi_event *event,
+					     enum efi_timer_delay type,
+					     uint64_t trigger_time)
 {
 	EFI_ENTRY("%p, %d, %"PRIx64, event, type, trigger_time);
 	return EFI_EXIT(efi_set_timer(event, type, trigger_time));

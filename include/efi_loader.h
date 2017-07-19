@@ -76,13 +76,13 @@ struct efi_object {
  * @signaled:		The notify function was already called
  */
 struct efi_event {
-	u32 type;
+	uint32_t type;
 	UINTN notify_tpl;
 	void (EFIAPI *notify_function)(struct efi_event *event, void *context);
 	void *notify_context;
 	u64 trigger_next;
 	u64 trigger_time;
-	enum efi_event_type trigger_type;
+	enum efi_timer_delay trigger_type;
 	int signaled;
 };
 
@@ -119,13 +119,13 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map);
 /* Call this to set the current device name */
 void efi_set_bootdev(const char *dev, const char *devnr, const char *path);
 /* Call this to create an event */
-efi_status_t efi_create_event(enum efi_event_type type, UINTN notify_tpl,
+efi_status_t efi_create_event(uint32_t type, UINTN notify_tpl,
 			      void (EFIAPI *notify_function) (
 					struct efi_event *event,
 					void *context),
 			      void *notify_context, struct efi_event **event);
 /* Call this to set a timer */
-efi_status_t efi_set_timer(struct efi_event *event, int type,
+efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
 			   uint64_t trigger_time);
 /* Call this to signal an event */
 void efi_signal_event(struct efi_event *event);
