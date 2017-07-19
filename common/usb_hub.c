@@ -112,9 +112,40 @@ static int usb_get_hub_status(struct usb_device *dev, void *data)
 
 int usb_get_port_status(struct usb_device *dev, int port, void *data)
 {
-	return usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
+	int ret;
+
+	ret = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
 			USB_REQ_GET_STATUS, USB_DIR_IN | USB_RT_PORT, 0, port,
 			data, sizeof(struct usb_port_status), USB_CNTL_TIMEOUT);
+
+#ifdef CONFIG_DM_USB
+	if (ret < 0)
+		return ret;
+
+	/*
+	 * Translate the USB 3.0 hub port status field into the old version
+	 * that U-Boot understands. Do this only when the hub is not root hub.
+	 * For root hub, the port status field has already been translated
+	 * in the host controller driver (see xhci_submit_root() in xhci.c).
+	 *
+	 * Note: this only supports driver model.
+	 */
+
+	if (!usb_hub_is_root_hub(dev->dev) && usb_hub_is_superspeed(dev)) {
+		struct usb_port_status *status = (struct usb_port_status *)data;
+		u16 tmp = (status->wPortStatus) & USB_SS_PORT_STAT_MASK;
+
+		if (status->wPortStatus & USB_SS_PORT_STAT_POWER)
+			tmp |= USB_PORT_STAT_POWER;
+		if ((status->wPortStatus & USB_SS_PORT_STAT_SPEED) ==
+		    USB_SS_PORT_STAT_SPEED_5GBPS)
+			tmp |= USB_PORT_STAT_SUPER_SPEED;
+
+		status->wPortStatus = tmp;
+	}
+#endif
+
+	return ret;
 }
 
 
