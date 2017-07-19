@@ -19,7 +19,7 @@ obj-spl-$(CONFIG_ROCKCHIP_RK3188) += rk3188-board-spl.o
 obj-spl-$(CONFIG_ROCKCHIP_RK322X) += rk322x-board-spl.o
 obj-spl-$(CONFIG_ROCKCHIP_RK3288) += rk3288-board-spl.o
 obj-spl-$(CONFIG_ROCKCHIP_RK3368) += rk3368-board-spl.o
-obj-spl-$(CONFIG_ROCKCHIP_RK3399) += rk3399-board-spl.o
+obj-spl-$(CONFIG_ROCKCHIP_RK3399) += rk3399-board-spl.o spl-boot-order.o
 
 ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_TPL_BUILD),)
 obj-$(CONFIG_ROCKCHIP_RK3188) += rk3188-board.o
