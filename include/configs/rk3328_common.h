@@ -63,6 +63,4 @@
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	1
 
-/* xhci host */
-#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
 #endif
