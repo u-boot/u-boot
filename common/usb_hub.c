@@ -405,8 +405,15 @@ static int usb_scan_port(struct usb_device_scan *usb_scan)
 	portchange = le16_to_cpu(portsts->wPortChange);
 	debug("Port %d Status %X Change %X\n", i + 1, portstatus, portchange);
 
-	/* No connection change happened, wait a bit more. */
-	if (!(portchange & USB_PORT_STAT_C_CONNECTION)) {
+	/*
+	 * No connection change happened, wait a bit more.
+	 *
+	 * For some situation, the hub reports no connection change but a
+	 * device is connected to the port (eg: CCS bit is set but CSC is not
+	 * in the PORTSC register of a root hub), ignore such case.
+	 */
+	if (!(portchange & USB_PORT_STAT_C_CONNECTION) &&
+	    !(portstatus & USB_PORT_STAT_CONNECTION)) {
 		if (get_timer(0) >= hub->connect_timeout) {
 			debug("devnum=%d port=%d: timeout\n",
 			      dev->devnum, i + 1);
@@ -417,10 +424,6 @@ static int usb_scan_port(struct usb_device_scan *usb_scan)
 		}
 		return 0;
 	}
-
-	/* Test if the connection came up, and if not exit */
-	if (!(portstatus & USB_PORT_STAT_CONNECTION))
-		return 0;
 
 	/* A new USB device is ready at this point */
 	debug("devnum=%d port=%d: USB dev found\n", dev->devnum, i + 1);
