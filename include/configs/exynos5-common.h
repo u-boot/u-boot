@@ -134,8 +134,6 @@
 /* Enable Time Command */
 
 /* USB */
-#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
-
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
 #define CONFIG_USB_ETHER_SMSC95XX

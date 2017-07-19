@@ -310,7 +310,6 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_USB_OHCI_SUNXI
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
-#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 1
 #endif
 
 #ifdef CONFIG_USB_MUSB_SUNXI
