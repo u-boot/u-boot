@@ -80,7 +80,7 @@ static int pwm_regulator_set_voltage(struct udevice *dev, int uvolt)
 	}
 
 	ret = pwm_set_config(priv->pwm, priv->pwm_id,
-			(priv->period_ns / 100) * duty_cycle, priv->period_ns);
+			priv->period_ns, (priv->period_ns / 100) * duty_cycle);
 	if (ret) {
 		dev_err(dev, "Failed to configure PWM\n");
 		return ret;
