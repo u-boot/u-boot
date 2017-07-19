@@ -482,10 +482,9 @@ struct xhci_protocol_caps {
  * @type: Type of context.  Used to calculated offsets to contained contexts.
  * @size: Size of the context data
  * @bytes: The raw context data given to HW
- * @dma: dma address of the bytes
  *
  * Represents either a Device or Input context.  Holds a pointer to the raw
- * memory used for the context (bytes) and dma address of it (dma).
+ * memory used for the context (bytes).
  */
 struct xhci_container_ctx {
 	unsigned type;
