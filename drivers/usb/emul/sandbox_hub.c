@@ -96,7 +96,12 @@ static struct usb_hub_descriptor hub_desc = {
 								1 << 7),
 	.bPwrOn2PwrGood		= 2,
 	.bHubContrCurrent	= 5,
-	.DeviceRemovable	= {0, 0xff}, /* all ports removeable */
+	{
+		{
+			/* all ports removeable */
+			.DeviceRemovable	= {0, 0xff}
+		}
+	}
 #if SANDBOX_NUM_PORTS > 8
 #error "This code sets up an incorrect mask"
 #endif

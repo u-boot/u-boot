@@ -546,10 +546,20 @@ struct usb_hub_descriptor {
 	unsigned short wHubCharacteristics;
 	unsigned char  bPwrOn2PwrGood;
 	unsigned char  bHubContrCurrent;
-	unsigned char  DeviceRemovable[(USB_MAXCHILDREN+1+7)/8];
-	unsigned char  PortPowerCtrlMask[(USB_MAXCHILDREN+1+7)/8];
-	/* DeviceRemovable and PortPwrCtrlMask want to be variable-length
-	   bitmaps that hold max 255 entries. (bit0 is ignored) */
+	/* 2.0 and 3.0 hubs differ here */
+	union {
+		struct {
+			/* add 1 bit for hub status change; round to bytes */
+			__u8 DeviceRemovable[(USB_MAXCHILDREN + 1 + 7) / 8];
+			__u8 PortPowerCtrlMask[(USB_MAXCHILDREN + 1 + 7) / 8];
+		} __attribute__ ((packed)) hs;
+
+		struct {
+			__u8 bHubHdrDecLat;
+			__le16 wHubDelay;
+			__le16 DeviceRemovable;
+		} __attribute__ ((packed)) ss;
+	} u;
 } __attribute__ ((packed));
 
 

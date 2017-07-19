@@ -583,17 +583,19 @@ static int usb_hub_configure(struct usb_device *dev)
 			&descriptor->wHubCharacteristics)),
 			&hub->desc.wHubCharacteristics);
 	/* set the bitmap */
-	bitmap = (unsigned char *)&hub->desc.DeviceRemovable[0];
+	bitmap = (unsigned char *)&hub->desc.u.hs.DeviceRemovable[0];
 	/* devices not removable by default */
 	memset(bitmap, 0xff, (USB_MAXCHILDREN+1+7)/8);
-	bitmap = (unsigned char *)&hub->desc.PortPowerCtrlMask[0];
+	bitmap = (unsigned char *)&hub->desc.u.hs.PortPowerCtrlMask[0];
 	memset(bitmap, 0xff, (USB_MAXCHILDREN+1+7)/8); /* PowerMask = 1B */
 
 	for (i = 0; i < ((hub->desc.bNbrPorts + 1 + 7)/8); i++)
-		hub->desc.DeviceRemovable[i] = descriptor->DeviceRemovable[i];
+		hub->desc.u.hs.DeviceRemovable[i] =
+			descriptor->u.hs.DeviceRemovable[i];
 
 	for (i = 0; i < ((hub->desc.bNbrPorts + 1 + 7)/8); i++)
-		hub->desc.PortPowerCtrlMask[i] = descriptor->PortPowerCtrlMask[i];
+		hub->desc.u.hs.PortPowerCtrlMask[i] =
+			descriptor->u.hs.PortPowerCtrlMask[i];
 
 	dev->maxchild = descriptor->bNbrPorts;
 	debug("%d ports detected\n", dev->maxchild);
@@ -637,7 +639,7 @@ static int usb_hub_configure(struct usb_device *dev)
 
 	for (i = 0; i < dev->maxchild; i++)
 		debug("port %d is%s removable\n", i + 1,
-		      hub->desc.DeviceRemovable[(i + 1) / 8] & \
+		      hub->desc.u.hs.DeviceRemovable[(i + 1) / 8] & \
 		      (1 << ((i + 1) % 8)) ? " not" : "");
 
 	if (sizeof(struct usb_hub_status) > USB_BUFSIZ) {

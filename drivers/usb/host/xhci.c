@@ -50,8 +50,8 @@ static struct descriptor {
 		cpu_to_le16(0x8), /* wHubCharacteristics */
 		10,		/* bPwrOn2PwrGood */
 		0,		/* bHubCntrCurrent */
-		{},		/* Device removable */
-		{}		/* at most 7 ports! XXX */
+		{		/* Device removable */
+		}		/* at most 7 ports! XXX */
 	},
 	{
 		0x12,		/* bLength */
