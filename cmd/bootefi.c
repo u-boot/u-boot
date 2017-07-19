@@ -20,6 +20,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static uint8_t efi_obj_list_initalized;
+
 /*
  * When booting using the "bootefi" command, we don't know which
  * physical device the file came from. So we create a pseudo-device
@@ -103,6 +105,38 @@ static struct efi_object bootefi_device_obj = {
 		}
 	},
 };
+
+/* Initialize and populate EFI object list */
+static void efi_init_obj_list(void)
+{
+	efi_obj_list_initalized = 1;
+
+	list_add_tail(&loaded_image_info_obj.link, &efi_obj_list);
+	list_add_tail(&bootefi_device_obj.link, &efi_obj_list);
+	efi_console_register();
+#ifdef CONFIG_PARTITIONS
+	efi_disk_register();
+#endif
+#if defined(CONFIG_LCD) || defined(CONFIG_DM_VIDEO)
+	efi_gop_register();
+#endif
+#ifdef CONFIG_NET
+	void *nethandle = loaded_image_info.device_handle;
+	efi_net_register(&nethandle);
+
+	if (!memcmp(bootefi_device_path[0].str, "N\0e\0t", 6))
+		loaded_image_info.device_handle = nethandle;
+	else
+		loaded_image_info.device_handle = bootefi_device_path;
+#endif
+#ifdef CONFIG_GENERATE_SMBIOS_TABLE
+	efi_smbios_register();
+#endif
+
+	/* Initialize EFI runtime services */
+	efi_reset_system_init();
+	efi_get_time_init();
+}
 
 static void *copy_fdt(void *fdt)
 {
@@ -223,32 +257,8 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 		return -ENOENT;
 
 	/* Initialize and populate EFI object list */
-	INIT_LIST_HEAD(&efi_obj_list);
-	list_add_tail(&loaded_image_info_obj.link, &efi_obj_list);
-	list_add_tail(&bootefi_device_obj.link, &efi_obj_list);
-	efi_console_register();
-#ifdef CONFIG_PARTITIONS
-	efi_disk_register();
-#endif
-#if defined(CONFIG_LCD) || defined(CONFIG_DM_VIDEO)
-	efi_gop_register();
-#endif
-#ifdef CONFIG_NET
-	void *nethandle = loaded_image_info.device_handle;
-	efi_net_register(&nethandle);
-
-	if (!memcmp(bootefi_device_path[0].str, "N\0e\0t", 6))
-		loaded_image_info.device_handle = nethandle;
-	else
-		loaded_image_info.device_handle = bootefi_device_path;
-#endif
-#ifdef CONFIG_GENERATE_SMBIOS_TABLE
-	efi_smbios_register();
-#endif
-
-	/* Initialize EFI runtime services */
-	efi_reset_system_init();
-	efi_get_time_init();
+	if (!efi_obj_list_initalized)
+		efi_init_obj_list();
 
 	/* Call our payload! */
 	debug("%s:%d Jumping to 0x%lx\n", __func__, __LINE__, (long)entry);
