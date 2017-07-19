@@ -171,14 +171,40 @@ void dfu_transaction_cleanup(struct dfu_entity *dfu)
 	dfu->crc = 0;
 	dfu->offset = 0;
 	dfu->i_blk_seq_num = 0;
-	dfu->i_buf_start = dfu_buf;
-	dfu->i_buf_end = dfu_buf;
+	dfu->i_buf_start = dfu_get_buf(dfu);
+	dfu->i_buf_end = dfu->i_buf_start;
 	dfu->i_buf = dfu->i_buf_start;
 	dfu->r_left = 0;
 	dfu->b_left = 0;
 	dfu->bad_skip = 0;
 
 	dfu->inited = 0;
+}
+
+int dfu_transaction_initiate(struct dfu_entity *dfu, bool read)
+{
+	int ret = 0;
+
+	if (dfu->inited)
+		return 0;
+
+	dfu_transaction_cleanup(dfu);
+
+	if (dfu->i_buf_start == NULL)
+		return -ENOMEM;
+
+	dfu->i_buf_end = dfu->i_buf_start + dfu_get_buf_size();
+
+	if (read) {
+		ret = dfu->get_medium_size(dfu, &dfu->r_left);
+		if (ret < 0)
+			return ret;
+		debug("%s: %s %lld [B]\n", __func__, dfu->name, dfu->r_left);
+	}
+
+	dfu->inited = 1;
+
+	return 0;
 }
 
 int dfu_flush(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
@@ -209,20 +235,9 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 	      __func__, dfu->name, buf, size, blk_seq_num, dfu->offset,
 	      (unsigned long)(dfu->i_buf - dfu->i_buf_start));
 
-	if (!dfu->inited) {
-		/* initial state */
-		dfu->crc = 0;
-		dfu->offset = 0;
-		dfu->bad_skip = 0;
-		dfu->i_blk_seq_num = 0;
-		dfu->i_buf_start = dfu_get_buf(dfu);
-		if (dfu->i_buf_start == NULL)
-			return -ENOMEM;
-		dfu->i_buf_end = dfu_get_buf(dfu) + dfu_buf_size;
-		dfu->i_buf = dfu->i_buf_start;
-
-		dfu->inited = 1;
-	}
+	ret = dfu_transaction_initiate(dfu, false);
+	if (ret < 0)
+		return ret;
 
 	if (dfu->i_blk_seq_num != blk_seq_num) {
 		printf("%s: Wrong sequence number! [%d] [%d]\n",
@@ -338,28 +353,9 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 	debug("%s: name: %s buf: 0x%p size: 0x%x p_num: 0x%x i_buf: 0x%p\n",
 	       __func__, dfu->name, buf, size, blk_seq_num, dfu->i_buf);
 
-	if (!dfu->inited) {
-		dfu->i_buf_start = dfu_get_buf(dfu);
-		if (dfu->i_buf_start == NULL)
-			return -ENOMEM;
-
-		ret = dfu->get_medium_size(dfu, &dfu->r_left);
-		if (ret < 0)
-			return ret;
-
-		debug("%s: %s %lld [B]\n", __func__, dfu->name, dfu->r_left);
-
-		dfu->i_blk_seq_num = 0;
-		dfu->crc = 0;
-		dfu->offset = 0;
-		dfu->i_buf_end = dfu_get_buf(dfu) + dfu_buf_size;
-		dfu->i_buf = dfu->i_buf_start;
-		dfu->b_left = 0;
-
-		dfu->bad_skip = 0;
-
-		dfu->inited = 1;
-	}
+	ret = dfu_transaction_initiate(dfu, true);
+	if (ret < 0)
+		return ret;
 
 	if (dfu->i_blk_seq_num != blk_seq_num) {
 		printf("%s: Wrong sequence number! [%d] [%d]\n",
