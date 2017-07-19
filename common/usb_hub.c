@@ -789,6 +789,17 @@ static int usb_hub_configure(struct usb_device *dev)
 
 #ifdef CONFIG_DM_USB
 	/*
+	 * Update USB host controller's internal representation of this hub
+	 * after the hub descriptor is fetched.
+	 */
+	ret = usb_update_hub_device(dev);
+	if (ret < 0 && ret != -ENOSYS) {
+		debug("%s: failed to update hub device for HCD (%x)\n",
+		      __func__, ret);
+		return ret;
+	}
+
+	/*
 	 * A maximum of seven tiers are allowed in a USB topology, and the
 	 * root hub occupies the first tier. The last tier ends with a normal
 	 * USB device. USB 3.0 hubs use a 20-bit field called 'route string'
