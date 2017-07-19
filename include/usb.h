@@ -776,6 +776,14 @@ int usb_setup_device(struct usb_device *dev, bool do_read,
 		     struct usb_device *parent);
 
 /**
+ * usb_hub_is_root_hub() - Test whether a hub device is root hub or not
+ *
+ * @hub:	USB hub device to test
+ * @return:	true if the hub device is root hub, false otherwise.
+ */
+bool usb_hub_is_root_hub(struct udevice *hub);
+
+/**
  * usb_hub_scan() - Scan a hub and find its devices
  *
  * @hub:	Hub device to scan

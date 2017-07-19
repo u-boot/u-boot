@@ -67,6 +67,16 @@ static inline bool usb_hub_is_superspeed(struct usb_device *hdev)
 	return hdev->descriptor.bDeviceProtocol == 3;
 }
 
+#ifdef CONFIG_DM_USB
+bool usb_hub_is_root_hub(struct udevice *hub)
+{
+	if (device_get_uclass_id(hub->parent) != UCLASS_USB_HUB)
+		return true;
+
+	return false;
+}
+#endif
+
 static int usb_get_hub_descriptor(struct usb_device *dev, void *data, int size)
 {
 	unsigned short dtype = USB_DT_HUB;
