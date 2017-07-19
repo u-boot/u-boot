@@ -871,24 +871,6 @@ bool usb_device_has_child_on_port(struct usb_device *parent, int port);
 int usb_hub_probe(struct usb_device *dev, int ifnum);
 void usb_hub_reset(void);
 
-/**
- * legacy_hub_port_reset() - reset a port given its usb_device pointer
- *
- * Reset a hub port and see if a device is present on that port, providing
- * sufficient time for it to show itself. The port status is returned.
- *
- * With driver model this moves to hub_port_reset() and is passed a struct
- * udevice.
- *
- * @dev:	USB device to reset
- * @port:	Port number to reset (note ports are numbered from 0 here)
- * @portstat:	Returns port status
- */
-int legacy_hub_port_reset(struct usb_device *dev, int port,
-			  unsigned short *portstat);
-
-int hub_port_reset(struct udevice *dev, int port, unsigned short *portstat);
-
 /*
  * usb_find_usb2_hub_address_port() - Get hub address and port for TT setting
  *

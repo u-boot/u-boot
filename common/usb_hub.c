@@ -207,8 +207,18 @@ static inline char *portspeed(int portstatus)
 	return speed_str;
 }
 
-int legacy_hub_port_reset(struct usb_device *dev, int port,
-			unsigned short *portstat)
+/**
+ * usb_hub_port_reset() - reset a port given its usb_device pointer
+ *
+ * Reset a hub port and see if a device is present on that port, providing
+ * sufficient time for it to show itself. The port status is returned.
+ *
+ * @dev:	USB device to reset
+ * @port:	Port number to reset (note ports are numbered from 0 here)
+ * @portstat:	Returns port status
+ */
+static int usb_hub_port_reset(struct usb_device *dev, int port,
+			      unsigned short *portstat)
 {
 	int err, tries;
 	ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
@@ -281,15 +291,6 @@ int legacy_hub_port_reset(struct usb_device *dev, int port,
 	return 0;
 }
 
-#ifdef CONFIG_DM_USB
-int hub_port_reset(struct udevice *dev, int port, unsigned short *portstat)
-{
-	struct usb_device *udev = dev_get_parent_priv(dev);
-
-	return legacy_hub_port_reset(udev, port, portstat);
-}
-#endif
-
 int usb_hub_port_connect_change(struct usb_device *dev, int port)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
@@ -323,7 +324,7 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 	}
 
 	/* Reset the port */
-	ret = legacy_hub_port_reset(dev, port, &portstatus);
+	ret = usb_hub_port_reset(dev, port, &portstatus);
 	if (ret < 0) {
 		if (ret != -ENXIO)
 			printf("cannot reset port %i!?\n", port + 1);
