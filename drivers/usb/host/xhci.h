@@ -548,12 +548,12 @@ struct xhci_slot_ctx {
  * The Slot ID of the hub that isolates the high speed signaling from
  * this low or full-speed device.  '0' if attached to root hub port.
  */
-#define TT_SLOT			(0xff)
+#define TT_SLOT(p)		(((p) & 0xff) << 0)
 /*
  * The number of the downstream facing port of the high-speed hub
  * '0' if the device is not low or full speed.
  */
-#define TT_PORT			(0xff << 8)
+#define TT_PORT(p)		(((p) & 0xff) << 8)
 #define TT_THINK_TIME(p)	(((p) & 0x3) << 16)
 
 /* dev_state bitmasks */
