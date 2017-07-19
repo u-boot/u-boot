@@ -33,6 +33,7 @@ config USB_XHCI_MVEBU
 
 config USB_XHCI_PCI
 	bool "Support for PCI-based xHCI USB controller"
+	depends on DM_USB
 	default y if X86
 	help
 	  Enables support for the PCI-based xHCI controller.
