@@ -148,9 +148,12 @@ static void ehci_powerup_fixup(struct ehci_ctrl *ctrl, uint32_t *status_reg,
 
 static uint32_t *ehci_get_portsc_register(struct ehci_ctrl *ctrl, int port)
 {
-	if (port < 0 || port >= CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS) {
+	int max_ports = HCS_N_PORTS(ehci_readl(&ctrl->hccr->cr_hcsparams));
+
+	if (port < 0 || port >= max_ports) {
 		/* Printing the message would cause a scan failure! */
-		debug("The request port(%u) is not configured\n", port);
+		debug("The request port(%u) exceeds maximum port number\n",
+		      port);
 		return NULL;
 	}
 
@@ -205,6 +208,7 @@ static int ehci_shutdown(struct ehci_ctrl *ctrl)
 {
 	int i, ret = 0;
 	uint32_t cmd, reg;
+	int max_ports = HCS_N_PORTS(ehci_readl(&ctrl->hccr->cr_hcsparams));
 
 	if (!ctrl || !ctrl->hcor)
 		return -EINVAL;
@@ -219,7 +223,7 @@ static int ehci_shutdown(struct ehci_ctrl *ctrl)
 		100 * 1000);
 
 	if (!ret) {
-		for (i = 0; i < CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS; i++) {
+		for (i = 0; i < max_ports; i++) {
 			reg = ehci_readl(&ctrl->hcor->or_portsc[i]);
 			reg |= EHCI_PS_SUSP;
 			ehci_writel(&ctrl->hcor->or_portsc[i], reg);
