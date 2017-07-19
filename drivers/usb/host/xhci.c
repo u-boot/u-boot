@@ -668,12 +668,14 @@ static int xhci_submit_root(struct usb_device *udev, unsigned long pipe,
 	uint32_t reg;
 	volatile uint32_t *status_reg;
 	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
+	struct xhci_hccr *hccr = ctrl->hccr;
 	struct xhci_hcor *hcor = ctrl->hcor;
+	int max_ports = HCS_MAX_PORTS(xhci_readl(&hccr->cr_hcsparams1));
 
 	if ((req->requesttype & USB_RT_PORT) &&
-	    le16_to_cpu(req->index) > CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS) {
-		printf("The request port(%d) is not configured\n",
-			le16_to_cpu(req->index) - 1);
+	    le16_to_cpu(req->index) > max_ports) {
+		printf("The request port(%d) exceeds maximum port number\n",
+		       le16_to_cpu(req->index) - 1);
 		return -EINVAL;
 	}
 

@@ -172,9 +172,7 @@ struct xhci_hcor {
 	volatile uint64_t or_dcbaap;
 	volatile uint32_t or_config;
 	volatile uint32_t reserved_2[241];
-	struct xhci_hcor_port_regs portregs[CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS];
-
-	uint32_t reserved_4[CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS * 254];
+	struct xhci_hcor_port_regs portregs[MAX_HC_PORTS];
 };
 
 /* USBCMD - USB command - command bitmasks */
