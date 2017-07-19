@@ -700,6 +700,56 @@ static int usb_hub_configure(struct usb_device *dev)
 		break;
 	}
 
+	switch (dev->descriptor.bDeviceProtocol) {
+	case USB_HUB_PR_FS:
+		break;
+	case USB_HUB_PR_HS_SINGLE_TT:
+		debug("Single TT\n");
+		break;
+	case USB_HUB_PR_HS_MULTI_TT:
+		ret = usb_set_interface(dev, 0, 1);
+		if (ret == 0) {
+			debug("TT per port\n");
+			hub->tt.multi = true;
+		} else {
+			debug("Using single TT (err %d)\n", ret);
+		}
+		break;
+	case USB_HUB_PR_SS:
+		/* USB 3.0 hubs don't have a TT */
+		break;
+	default:
+		debug("Unrecognized hub protocol %d\n",
+		      dev->descriptor.bDeviceProtocol);
+		break;
+	}
+
+	/* Note 8 FS bit times == (8 bits / 12000000 bps) ~= 666ns */
+	switch (hubCharacteristics & HUB_CHAR_TTTT) {
+	case HUB_TTTT_8_BITS:
+		if (dev->descriptor.bDeviceProtocol != 0) {
+			hub->tt.think_time = 666;
+			debug("TT requires at most %d FS bit times (%d ns)\n",
+			      8, hub->tt.think_time);
+		}
+		break;
+	case HUB_TTTT_16_BITS:
+		hub->tt.think_time = 666 * 2;
+		debug("TT requires at most %d FS bit times (%d ns)\n",
+		      16, hub->tt.think_time);
+		break;
+	case HUB_TTTT_24_BITS:
+		hub->tt.think_time = 666 * 3;
+		debug("TT requires at most %d FS bit times (%d ns)\n",
+		      24, hub->tt.think_time);
+		break;
+	case HUB_TTTT_32_BITS:
+		hub->tt.think_time = 666 * 4;
+		debug("TT requires at most %d FS bit times (%d ns)\n",
+		      32, hub->tt.think_time);
+		break;
+	}
+
 	debug("power on to power good time: %dms\n",
 	      descriptor->bPwrOn2PwrGood * 2);
 	debug("hub controller current requirement: %dmA\n",

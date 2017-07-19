@@ -293,6 +293,7 @@
 #define HUB_CHAR_LPSM               0x0003
 #define HUB_CHAR_COMPOUND           0x0004
 #define HUB_CHAR_OCPM               0x0018
+#define HUB_CHAR_TTTT               0x0060 /* TT Think Time mask */
 
 /*
  * Hub Status & Hub Change bit masks
@@ -308,6 +309,17 @@
 
 /* Hub class request codes */
 #define USB_REQ_SET_HUB_DEPTH	0x0c
+
+/*
+ * As of USB 2.0, full/low speed devices are segregated into trees.
+ * One type grows from USB 1.1 host controllers (OHCI, UHCI etc).
+ * The other type grows from high speed hubs when they connect to
+ * full/low speed devices using "Transaction Translators" (TTs).
+ */
+struct usb_tt {
+	bool		multi;		/* true means one TT per port */
+	unsigned	think_time;	/* think time in ns */
+};
 
 /*
  * CBI style

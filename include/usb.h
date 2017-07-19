@@ -537,6 +537,21 @@ struct usb_hub_status {
 	unsigned short wHubChange;
 } __attribute__ ((packed));
 
+/*
+ * Hub Device descriptor
+ * USB Hub class device protocols
+ */
+#define USB_HUB_PR_FS		0 /* Full speed hub */
+#define USB_HUB_PR_HS_NO_TT	0 /* Hi-speed hub without TT */
+#define USB_HUB_PR_HS_SINGLE_TT	1 /* Hi-speed hub with single TT */
+#define USB_HUB_PR_HS_MULTI_TT	2 /* Hi-speed hub with multiple TT */
+#define USB_HUB_PR_SS		3 /* Super speed hub */
+
+/* Transaction Translator Think Times, in bits */
+#define HUB_TTTT_8_BITS		0x00
+#define HUB_TTTT_16_BITS	0x20
+#define HUB_TTTT_24_BITS	0x40
+#define HUB_TTTT_32_BITS	0x60
 
 /* Hub descriptor */
 struct usb_hub_descriptor {
@@ -571,6 +586,7 @@ struct usb_hub_device {
 	ulong query_delay;		/* Device query delay in ms */
 	int overcurrent_count[USB_MAXCHILDREN];	/* Over-current counter */
 	int hub_depth;			/* USB 3.0 hub depth */
+	struct usb_tt tt;		/* Transaction Translator */
 };
 
 #ifdef CONFIG_DM_USB
