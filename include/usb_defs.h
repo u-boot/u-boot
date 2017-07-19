@@ -262,12 +262,17 @@
 
 /*
  * Changes to wPortStatus bit field in USB 3.0
- * See USB 3.0 spec Table 10-11
+ * See USB 3.0 spec Table 10-10
  */
 #define USB_SS_PORT_STAT_LINK_STATE	0x01e0
 #define USB_SS_PORT_STAT_POWER		0x0200
 #define USB_SS_PORT_STAT_SPEED		0x1c00
 #define USB_SS_PORT_STAT_SPEED_5GBPS	0x0000
+/* Bits that are the same from USB 2.0 */
+#define USB_SS_PORT_STAT_MASK		(USB_PORT_STAT_CONNECTION | \
+					 USB_PORT_STAT_ENABLE | \
+					 USB_PORT_STAT_OVERCURRENT | \
+					 USB_PORT_STAT_RESET)
 
 /* wPortChange bits */
 #define USB_PORT_STAT_C_CONNECTION  0x0001
