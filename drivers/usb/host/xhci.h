@@ -30,7 +30,7 @@
 /* Max number of USB devices for any host controller - limit in section 6.1 */
 #define MAX_HC_SLOTS            256
 /* Section 5.3.3 - MaxPorts */
-#define MAX_HC_PORTS            127
+#define MAX_HC_PORTS            255
 
 /* Up to 16 ms to halt an HC */
 #define XHCI_MAX_HALT_USEC	(16*1000)
@@ -102,8 +102,8 @@ struct xhci_hccr {
 #define HCS_MAX_INTRS(p)	(((p) >> 8) & 0x7ff)
 /* bits 24:31, Max Ports - max value is 0x7F = 127 ports */
 #define HCS_MAX_PORTS_SHIFT	24
-#define HCS_MAX_PORTS_MASK	(0x7f << HCS_MAX_PORTS_SHIFT)
-#define HCS_MAX_PORTS(p)	(((p) >> 24) & 0x7f)
+#define HCS_MAX_PORTS_MASK	(0xff << HCS_MAX_PORTS_SHIFT)
+#define HCS_MAX_PORTS(p)	(((p) >> 24) & 0xff)
 
 /* HCSPARAMS2 - hcs_params2 - bitmasks */
 /* bits 0:3, frames or uframes that SW needs to queue transactions
