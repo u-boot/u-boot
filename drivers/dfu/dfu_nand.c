@@ -114,9 +114,11 @@ static int dfu_write_medium_nand(struct dfu_entity *dfu,
 	return ret;
 }
 
-long dfu_get_medium_size_nand(struct dfu_entity *dfu)
+int dfu_get_medium_size_nand(struct dfu_entity *dfu, long *size)
 {
-	return dfu->data.nand.size;
+	*size = dfu->data.nand.size;
+
+	return 0;
 }
 
 static int dfu_read_medium_nand(struct dfu_entity *dfu, u64 offset, void *buf,

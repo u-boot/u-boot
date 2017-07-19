@@ -110,7 +110,7 @@ struct dfu_entity {
 		struct sf_internal_data sf;
 	} data;
 
-	long (*get_medium_size)(struct dfu_entity *dfu);
+	int (*get_medium_size)(struct dfu_entity *dfu, long *size);
 
 	int (*read_medium)(struct dfu_entity *dfu,
 			u64 offset, void *buf, long *len);

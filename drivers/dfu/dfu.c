@@ -339,9 +339,9 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 		if (dfu->i_buf_start == NULL)
 			return -ENOMEM;
 
-		dfu->r_left = dfu->get_medium_size(dfu);
-		if (dfu->r_left < 0)
-			return dfu->r_left;
+		ret = dfu->get_medium_size(dfu, &dfu->r_left);
+		if (ret < 0)
+			return ret;
 
 		debug("%s: %s %ld [B]\n", __func__, dfu->name, dfu->r_left);
 

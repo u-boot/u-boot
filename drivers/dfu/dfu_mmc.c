@@ -209,23 +209,23 @@ int dfu_flush_medium_mmc(struct dfu_entity *dfu)
 	return ret;
 }
 
-long dfu_get_medium_size_mmc(struct dfu_entity *dfu)
+int dfu_get_medium_size_mmc(struct dfu_entity *dfu, long *size)
 {
 	int ret;
-	long len;
 
 	switch (dfu->layout) {
 	case DFU_RAW_ADDR:
-		return dfu->data.mmc.lba_size * dfu->data.mmc.lba_blk_size;
+		*size = dfu->data.mmc.lba_size * dfu->data.mmc.lba_blk_size;
+		return 0;
 	case DFU_FS_FAT:
 	case DFU_FS_EXT4:
 		dfu_file_buf_filled = -1;
-		ret = mmc_file_op(DFU_OP_SIZE, dfu, NULL, &len);
+		ret = mmc_file_op(DFU_OP_SIZE, dfu, NULL, size);
 		if (ret < 0)
 			return ret;
-		if (len > CONFIG_SYS_DFU_MAX_FILE_SIZE)
+		if (*size > CONFIG_SYS_DFU_MAX_FILE_SIZE)
 			return -1;
-		return len;
+		return 0;
 	default:
 		printf("%s: Layout (%s) not (yet) supported!\n", __func__,
 		       dfu_get_layout(dfu->layout));
