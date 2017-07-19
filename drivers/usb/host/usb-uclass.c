@@ -139,6 +139,17 @@ int usb_reset_root_port(struct usb_device *udev)
 	return ops->reset_root_port(bus, udev);
 }
 
+int usb_update_hub_device(struct usb_device *udev)
+{
+	struct udevice *bus = udev->controller_dev;
+	struct dm_usb_ops *ops = usb_get_ops(bus);
+
+	if (!ops->update_hub_device)
+		return -ENOSYS;
+
+	return ops->update_hub_device(bus, udev);
+}
+
 int usb_stop(void)
 {
 	struct udevice *bus;
