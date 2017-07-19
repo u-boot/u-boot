@@ -75,6 +75,16 @@ bool usb_hub_is_root_hub(struct udevice *hub)
 
 	return false;
 }
+
+static int usb_set_hub_depth(struct usb_device *dev, int depth)
+{
+	if (depth < 0 || depth > 4)
+		return -EINVAL;
+
+	return usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+		USB_REQ_SET_HUB_DEPTH, USB_DIR_OUT | USB_RT_HUB,
+		depth, 0, NULL, 0, USB_CNTL_TIMEOUT);
+}
 #endif
 
 static int usb_get_hub_descriptor(struct usb_device *dev, void *data, int size)
@@ -726,6 +736,48 @@ static int usb_hub_configure(struct usb_device *dev)
 	debug("%sover-current condition exists\n",
 	      (le16_to_cpu(hubsts->wHubStatus) & HUB_STATUS_OVERCURRENT) ? \
 	      "" : "no ");
+
+#ifdef CONFIG_DM_USB
+	/*
+	 * A maximum of seven tiers are allowed in a USB topology, and the
+	 * root hub occupies the first tier. The last tier ends with a normal
+	 * USB device. USB 3.0 hubs use a 20-bit field called 'route string'
+	 * to route packets to the designated downstream port. The hub uses a
+	 * hub depth value multiplied by four as an offset into the 'route
+	 * string' to locate the bits it uses to determine the downstream
+	 * port number.
+	 */
+	if (usb_hub_is_root_hub(dev->dev)) {
+		hub->hub_depth = -1;
+	} else {
+		struct udevice *hdev;
+		int depth = 0;
+
+		hdev = dev->dev->parent;
+		while (!usb_hub_is_root_hub(hdev)) {
+			depth++;
+			hdev = hdev->parent;
+		}
+
+		hub->hub_depth = depth;
+
+		if (usb_hub_is_superspeed(dev)) {
+			debug("set hub (%p) depth to %d\n", dev, depth);
+			/*
+			 * This request sets the value that the hub uses to
+			 * determine the index into the 'route string index'
+			 * for this hub.
+			 */
+			ret = usb_set_hub_depth(dev, depth);
+			if (ret < 0) {
+				debug("%s: failed to set hub depth (%lX)\n",
+				      __func__, dev->status);
+				return ret;
+			}
+		}
+	}
+#endif
+
 	usb_hub_power_on(hub);
 
 	/*

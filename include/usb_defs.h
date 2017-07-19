@@ -306,6 +306,9 @@
 /* Mask for wIndex in get/set port feature */
 #define USB_HUB_PORT_MASK	0xf
 
+/* Hub class request codes */
+#define USB_REQ_SET_HUB_DEPTH	0x0c
+
 /*
  * CBI style
  */
