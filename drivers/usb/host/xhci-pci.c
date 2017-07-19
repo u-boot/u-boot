@@ -8,15 +8,9 @@
 
 #include <common.h>
 #include <dm.h>
-#include <errno.h>
 #include <pci.h>
 #include <usb.h>
-
 #include "xhci.h"
-
-struct xhci_pci_priv {
-	struct xhci_ctrl ctrl;	/* Needs to come first in this struct! */
-};
 
 static void xhci_pci_init(struct udevice *dev, struct xhci_hccr **ret_hccr,
 			  struct xhci_hcor **ret_hcor)
@@ -53,17 +47,6 @@ static int xhci_pci_probe(struct udevice *dev)
 	return xhci_register(dev, hccr, hcor);
 }
 
-static int xhci_pci_remove(struct udevice *dev)
-{
-	int ret;
-
-	ret = xhci_deregister(dev);
-	if (ret)
-		return ret;
-
-	return 0;
-}
-
 static const struct udevice_id xhci_pci_ids[] = {
 	{ .compatible = "xhci-pci" },
 	{ }
@@ -73,11 +56,11 @@ U_BOOT_DRIVER(xhci_pci) = {
 	.name	= "xhci_pci",
 	.id	= UCLASS_USB,
 	.probe = xhci_pci_probe,
-	.remove = xhci_pci_remove,
+	.remove = xhci_deregister,
 	.of_match = xhci_pci_ids,
 	.ops	= &xhci_usb_ops,
 	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
-	.priv_auto_alloc_size = sizeof(struct xhci_pci_priv),
+	.priv_auto_alloc_size = sizeof(struct xhci_ctrl),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
 
