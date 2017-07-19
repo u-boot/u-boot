@@ -96,6 +96,25 @@ static void xhci_ring_free(struct xhci_ring *ring)
 }
 
 /**
+ * Free the scratchpad buffer array and scratchpad buffers
+ *
+ * @ctrl	host controller data structure
+ * @return	none
+ */
+static void xhci_scratchpad_free(struct xhci_ctrl *ctrl)
+{
+	if (!ctrl->scratchpad)
+		return;
+
+	ctrl->dcbaa->dev_context_ptrs[0] = 0;
+
+	free((void *)(uintptr_t)ctrl->scratchpad->sp_array[0]);
+	free(ctrl->scratchpad->sp_array);
+	free(ctrl->scratchpad);
+	ctrl->scratchpad = NULL;
+}
+
+/**
  * frees the "xhci_container_ctx" pointer passed
  *
  * @param ptr	pointer to "xhci_container_ctx" to be freed
@@ -155,6 +174,7 @@ void xhci_cleanup(struct xhci_ctrl *ctrl)
 {
 	xhci_ring_free(ctrl->event_ring);
 	xhci_ring_free(ctrl->cmd_ring);
+	xhci_scratchpad_free(ctrl);
 	xhci_free_virt_devices(ctrl);
 	free(ctrl->erst.entries);
 	free(ctrl->dcbaa);
@@ -317,6 +337,70 @@ struct xhci_ring *xhci_ring_alloc(unsigned int num_segs, bool link_trbs)
 	xhci_initialize_ring_info(ring);
 
 	return ring;
+}
+
+/**
+ * Set up the scratchpad buffer array and scratchpad buffers
+ *
+ * @ctrl	host controller data structure
+ * @return	-ENOMEM if buffer allocation fails, 0 on success
+ */
+static int xhci_scratchpad_alloc(struct xhci_ctrl *ctrl)
+{
+	struct xhci_hccr *hccr = ctrl->hccr;
+	struct xhci_hcor *hcor = ctrl->hcor;
+	struct xhci_scratchpad *scratchpad;
+	int num_sp;
+	uint32_t page_size;
+	void *buf;
+	int i;
+
+	num_sp = HCS_MAX_SCRATCHPAD(xhci_readl(&hccr->cr_hcsparams2));
+	if (!num_sp)
+		return 0;
+
+	scratchpad = malloc(sizeof(*scratchpad));
+	if (!scratchpad)
+		goto fail_sp;
+	ctrl->scratchpad = scratchpad;
+
+	scratchpad->sp_array = xhci_malloc(num_sp * sizeof(u64));
+	if (!scratchpad->sp_array)
+		goto fail_sp2;
+	ctrl->dcbaa->dev_context_ptrs[0] =
+		cpu_to_le64((uintptr_t)scratchpad->sp_array);
+
+	page_size = xhci_readl(&hcor->or_pagesize) & 0xffff;
+	for (i = 0; i < 16; i++) {
+		if ((0x1 & page_size) != 0)
+			break;
+		page_size = page_size >> 1;
+	}
+	BUG_ON(i == 16);
+
+	page_size = 1 << (i + 12);
+	buf = memalign(page_size, num_sp * page_size);
+	if (!buf)
+		goto fail_sp3;
+	memset(buf, '\0', num_sp * page_size);
+	xhci_flush_cache((uintptr_t)buf, num_sp * page_size);
+
+	for (i = 0; i < num_sp; i++) {
+		uintptr_t ptr = (uintptr_t)buf + i * page_size;
+		scratchpad->sp_array[i] = cpu_to_le64(ptr);
+	}
+
+	return 0;
+
+fail_sp3:
+	free(scratchpad->sp_array);
+
+fail_sp2:
+	free(scratchpad);
+	ctrl->scratchpad = NULL;
+
+fail_sp:
+	return -ENOMEM;
 }
 
 /**
@@ -498,6 +582,9 @@ int xhci_mem_init(struct xhci_ctrl *ctrl, struct xhci_hccr *hccr,
 	val_64 |= ((uintptr_t)(ctrl->erst.entries) & ~ERST_PTR_MASK);
 
 	xhci_writeq(&ctrl->ir_set->erst_base, val_64);
+
+	/* set up the scratchpad buffer array and scratchpad buffers */
+	xhci_scratchpad_alloc(ctrl);
 
 	/* initializing the virtual devices to NULL */
 	for (i = 0; i < MAX_HC_SLOTS; ++i)
