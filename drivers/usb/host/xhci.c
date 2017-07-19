@@ -415,8 +415,7 @@ static int xhci_address_device(struct usb_device *udev, int root_portnr)
 	 * so setting up the slot context.
 	 */
 	debug("Setting up addressable devices %p\n", ctrl->dcbaa);
-	xhci_setup_addressable_virt_dev(ctrl, udev->slot_id, udev->speed,
-					root_portnr);
+	xhci_setup_addressable_virt_dev(ctrl, udev, root_portnr);
 
 	ctrl_ctx = xhci_get_input_control_ctx(virt_dev->in_ctx);
 	ctrl_ctx->add_flags = cpu_to_le32(SLOT_FLAG | EP0_FLAG);

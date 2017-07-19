@@ -1247,8 +1247,8 @@ void xhci_endpoint_copy(struct xhci_ctrl *ctrl,
 void xhci_slot_copy(struct xhci_ctrl *ctrl,
 		    struct xhci_container_ctx *in_ctx,
 		    struct xhci_container_ctx *out_ctx);
-void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl, int slot_id,
-				     int speed, int hop_portnr);
+void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl,
+				     struct usb_device *udev, int hop_portnr);
 void xhci_queue_command(struct xhci_ctrl *ctrl, u8 *ptr,
 			u32 slot_id, u32 ep_index, trb_type cmd);
 void xhci_acknowledge_event(struct xhci_ctrl *ctrl);
