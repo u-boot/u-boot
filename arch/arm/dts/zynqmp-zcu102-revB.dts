@@ -8,10 +8,11 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include "zynqmp-zcu102.dts"
+#include "zynqmp-zcu102-revA.dts"
 
 / {
 	model = "ZynqMP ZCU102 RevB";
+	compatible = "xlnx,zynqmp-zcu102-revB", "xlnx,zynqmp-zcu102", "xlnx,zynqmp";
 };
 
 &gem3 {
