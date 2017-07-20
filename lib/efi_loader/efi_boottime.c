@@ -866,6 +866,7 @@ static efi_status_t EFIAPI efi_protocols_per_handle(void *handle,
 {
 	EFI_ENTRY("%p, %p, %p", handle, protocol_buffer,
 		  protocol_buffer_count);
+	*protocol_buffer_count = 0;
 	return EFI_EXIT(EFI_OUT_OF_RESOURCES);
 }
 
