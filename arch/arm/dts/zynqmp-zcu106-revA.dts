@@ -18,7 +18,7 @@
 
 / {
 	model = "ZynqMP ZCU106 RevA";
-	compatible = "xlnx,zynqmp-zcu106", "xlnx,zynqmp";
+	compatible = "xlnx,zynqmp-zcu106-revA", "xlnx,zynqmp-zcu106", "xlnx,zynqmp";
 
 	aliases {
 		ethernet0 = &gem3;
