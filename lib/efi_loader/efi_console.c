@@ -429,11 +429,12 @@ struct efi_simple_input_interface efi_con_in = {
 
 static struct efi_event *console_timer_event;
 
-static void efi_key_notify(struct efi_event *event, void *context)
+static void EFIAPI efi_key_notify(struct efi_event *event, void *context)
 {
 }
 
-static void efi_console_timer_notify(struct efi_event *event, void *context)
+static void EFIAPI efi_console_timer_notify(struct efi_event *event,
+					    void *context)
 {
 	EFI_ENTRY("%p, %p", event, context);
 	if (tstc())
