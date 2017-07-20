@@ -1610,10 +1610,6 @@
 		status = "okay";
 	};
 
-	hdmi_ddc: i2c@7000c400 {
-		clock-frequency = <100000>;
-	};
-
 	/*
 	 * GEN1_I2C: I2C1_SDA/SCL on MXM3 pin 209/211 (e.g. RTC on carrier
 	 * board)
