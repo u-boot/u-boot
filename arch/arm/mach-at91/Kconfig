@@ -36,6 +36,7 @@ config TARGET_GURNARD
 config TARGET_AT91SAM9261EK
 	bool "Atmel at91sam9261 reference board"
 	select CPU_ARM926EJS
+	select BOARD_EARLY_INIT_F
 
 config TARGET_PM9261
 	bool "Ronetix pm9261 board"
