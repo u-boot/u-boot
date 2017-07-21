@@ -11,6 +11,7 @@
 #include <cpu.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
+#include <version.h>
 #include <asm/acpi/global_nvs.h>
 #include <asm/acpi_table.h>
 #include <asm/io.h>
@@ -60,6 +61,7 @@ void acpi_fill_header(struct acpi_table_header *header, char *signature)
 	memcpy(header->signature, signature, 4);
 	memcpy(header->oem_id, OEM_ID, 6);
 	memcpy(header->oem_table_id, OEM_TABLE_ID, 8);
+	header->oem_revision = U_BOOT_BUILD_DATE;
 	memcpy(header->aslc_id, ASLC_ID, 4);
 }
 
