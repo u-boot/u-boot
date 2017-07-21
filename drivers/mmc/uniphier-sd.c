@@ -132,17 +132,24 @@ struct uniphier_sd_priv {
 #define UNIPHIER_SD_CAP_NONREMOVABLE	BIT(0)	/* Nonremovable e.g. eMMC */
 #define UNIPHIER_SD_CAP_DMA_INTERNAL	BIT(1)	/* have internal DMA engine */
 #define UNIPHIER_SD_CAP_DIV1024		BIT(2)	/* divisor 1024 is available */
+#define UNIPHIER_SD_CAP_64BIT		BIT(3)	/* Controller is 64bit */
 };
 
 static u32 uniphier_sd_readl(struct uniphier_sd_priv *priv, const u32 reg)
 {
-	return readl(priv->regbase + reg);
+	if (priv->caps & UNIPHIER_SD_CAP_64BIT)
+		return readl(priv->regbase + (reg << 1));
+	else
+		return readl(priv->regbase + reg);
 }
 
 static void uniphier_sd_writel(struct uniphier_sd_priv *priv,
 			       const u32 val, const u32 reg)
 {
-	writel(val, priv->regbase + reg);
+	if (priv->caps & UNIPHIER_SD_CAP_64BIT)
+		writel(val, priv->regbase + (reg << 1));
+	else
+		writel(val, priv->regbase + reg);
 }
 
 static dma_addr_t __dma_map_single(void *ptr, size_t size,
