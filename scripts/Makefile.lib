@@ -386,7 +386,7 @@ $(obj)/helloworld.so: $(obj)/helloworld.o arch/$(ARCH)/lib/$(EFI_CRT0) \
 quiet_cmd_acpi_c_asl= ASL     $<
 cmd_acpi_c_asl=         \
 	$(CPP) -x assembler-with-cpp -D__ASSEMBLY__ -P $(UBOOTINCLUDE) -o $<.tmp $<; \
-	iasl -p $< -tc $<.tmp $(if $(KBUILD_VERBOSE:1=), >/dev/null); \
+	iasl -p $< -tc $<.tmp $(if $(KBUILD_VERBOSE:1=), >/dev/null) && \
 	mv $(patsubst %.asl,%.hex,$<) $@
 
 $(obj)/dsdt.c:    $(src)/dsdt.asl
