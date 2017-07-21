@@ -134,11 +134,17 @@ static int spi_dataflash_erase(struct udevice *dev, u32 offset, size_t len)
 	debug("%s: erase addr=0x%x len 0x%x\n", dev->name, offset, len);
 
 	div_u64_rem(len, spi_flash->page_size, &rem);
-	if (rem)
+	if (rem) {
+		printf("%s: len(0x%x) isn't the multiple of page size(0x%x)\n",
+		       dev->name, len, spi_flash->page_size);
 		return -EINVAL;
+	}
 	div_u64_rem(offset, spi_flash->page_size, &rem);
-	if (rem)
+	if (rem) {
+		printf("%s: offset(0x%x) isn't the multiple of page size(0x%x)\n",
+		       dev->name, offset, spi_flash->page_size);
 		return -EINVAL;
+	}
 
 	status = spi_claim_bus(spi);
 	if (status) {
