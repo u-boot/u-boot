@@ -178,9 +178,8 @@ struct __packed acpi_fadt {
 	u32 flags;
 	struct acpi_gen_regaddr reset_reg;
 	u8 reset_value;
-	u8 res3;
-	u8 res4;
-	u8 res5;
+	u16 arm_boot_arch;
+	u8 minor_revision;
 	u32 x_firmware_ctl_l;
 	u32 x_firmware_ctl_h;
 	u32 x_dsdt_l;
