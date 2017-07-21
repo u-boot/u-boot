@@ -34,6 +34,7 @@
 		tcb1 = &tcb1;
 		i2c0 = &i2c0;
 		ssc0 = &ssc0;
+		spi0 = &spi0;
 	};
 	cpus {
 		#address-cells = <0>;

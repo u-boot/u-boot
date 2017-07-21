@@ -87,10 +87,6 @@ int board_init(void)
 #ifdef CONFIG_CMD_NAND
 	at91sam9260ek_nand_hw_init();
 #endif
-#ifdef CONFIG_HAS_DATAFLASH
-	at91_spi0_hw_init((1 << 0) | (1 << 1));
-#endif
-
 	return 0;
 }
 
