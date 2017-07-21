@@ -205,10 +205,6 @@ int board_init(void)
 #ifdef CONFIG_CMD_NAND
 	at91sam9263ek_nand_hw_init();
 #endif
-#ifdef CONFIG_HAS_DATAFLASH
-	at91_set_pio_output(AT91_PIO_PORTE, 20, 1);	/* select spi0 clock */
-	at91_spi0_hw_init(1 << 0);
-#endif
 #ifdef CONFIG_USB_OHCI_NEW
 	at91_uhp_hw_init();
 #endif

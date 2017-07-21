@@ -32,6 +32,7 @@
 		ssc0 = &ssc0;
 		ssc1 = &ssc1;
 		pwm0 = &pwm0;
+		spi0 = &spi0;
 	};
 
 	cpus {
