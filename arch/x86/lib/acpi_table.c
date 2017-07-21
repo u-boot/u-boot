@@ -15,7 +15,9 @@
 #include <asm/acpi/global_nvs.h>
 #include <asm/acpi_table.h>
 #include <asm/io.h>
+#include <asm/ioapic.h>
 #include <asm/lapic.h>
+#include <asm/mpspec.h>
 #include <asm/tables.h>
 #include <asm/arch/global_nvs.h>
 
@@ -239,6 +241,33 @@ int acpi_create_madt_lapic_nmi(struct acpi_madt_lapic_nmi *lapic_nmi,
 	lapic_nmi->lint = lint;
 
 	return lapic_nmi->length;
+}
+
+static int acpi_create_madt_irq_overrides(u32 current)
+{
+	struct acpi_madt_irqoverride *irqovr;
+	u16 sci_flags = MP_IRQ_TRIGGER_LEVEL | MP_IRQ_POLARITY_HIGH;
+	int length = 0;
+
+	irqovr = (void *)current;
+	length += acpi_create_madt_irqoverride(irqovr, 0, 0, 2, 0);
+
+	irqovr = (void *)(current + length);
+	length += acpi_create_madt_irqoverride(irqovr, 0, 9, 9, sci_flags);
+
+	return length;
+}
+
+__weak u32 acpi_fill_madt(u32 current)
+{
+	current += acpi_create_madt_lapics(current);
+
+	current += acpi_create_madt_ioapic((struct acpi_madt_ioapic *)current,
+			io_apic_read(IO_APIC_ID) >> 24, IO_APIC_ADDR, 0);
+
+	current += acpi_create_madt_irq_overrides(current);
+
+	return current;
 }
 
 static void acpi_create_madt(struct acpi_madt *madt)
