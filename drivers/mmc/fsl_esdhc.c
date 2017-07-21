@@ -930,8 +930,6 @@ __weak int esdhc_status_fixup(void *blob, const char *compat)
 		return 1;
 	}
 #endif
-	do_fixup_by_compat(blob, compat, "status", "okay",
-			   sizeof("okay"), 1);
 	return 0;
 }
 
