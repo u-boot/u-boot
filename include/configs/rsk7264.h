@@ -25,7 +25,6 @@
 #define CONFIG_SYS_MAXARGS	16	/* max args accepted for monitor commands */
 
 /* Serial */
-#define CONFIG_SCIF_CONSOLE	1
 #define CONFIG_CONS_SCIF3	1
 
 /* Memory */

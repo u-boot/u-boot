@@ -47,7 +47,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 38400 }
 
 /* SCIF */
-#define CONFIG_SCIF_CONSOLE 1
 #define CONFIG_SCIF_A		1 /* SH7723 has SCIF and SCIFA */
 #define CONFIG_CONS_SCIF5	1
 

@@ -38,7 +38,6 @@
 #define RCAR_GEN2_UBOOT_SDRAM_SIZE	(512 * 1024 * 1024)
 
 /* SCIF */
-#define CONFIG_SCIF_CONSOLE
 
 /* SPI */
 #define CONFIG_SPI
