@@ -53,34 +53,12 @@
 # define CONFIG_SYS_FLASH_PROTECTION	/* First stage loader in sector 0 */
 # define CONFIG_EFLASH_PROTSECTORS	1
 
-/* 512kB DataFlash at NPCS0 */
-#define CONFIG_SYS_MAX_DATAFLASH_BANKS	1
-#define CONFIG_HAS_DATAFLASH
-#define CONFIG_ATMEL_DATAFLASH_SPI
-#define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000
-#define DATAFLASH_TCSS			(0x1a << 16)
-#define DATAFLASH_TCHS			(0x1 << 24)
 
-#define CONFIG_ENV_OFFSET		0x3DE000
-#define CONFIG_ENV_SECT_SIZE		(132 << 10)
-#define CONFIG_ENV_SIZE			CONFIG_ENV_SECT_SIZE
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 \
-					+ CONFIG_ENV_OFFSET)
-#define CONFIG_SYS_MONITOR_BASE		(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 \
-					+ 0x042000)
-
-/* SPI */
-#define CONFIG_ATMEL_SPI
-#define AT91_SPI_CLK			15000000
-
-/* Serial port */
-#define CONFIG_ATMEL_USART
-#define CONFIG_USART3			/* USART 3 is DBGU */
-#define CONFIG_USART_BASE		ATMEL_BASE_DBGU
-#define	CONFIG_USART_ID			ATMEL_ID_SYS
-
-/* Misc. hardware drivers */
-#define CONFIG_AT91_GPIO
+/* bootstrap + u-boot + env + linux in dataflash on CS0 */
+#define CONFIG_ENV_OFFSET	0x3DE000
+#define CONFIG_ENV_SIZE		(132 << 10)
+#define CONFIG_ENV_SECT_SIZE	CONFIG_ENV_SIZE
+#define CONFIG_ENV_SPI_MAX_HZ	15000000
 
 #ifndef MINIMAL_LOADER
 #define CONFIG_CMD_REISER
@@ -185,7 +163,9 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
-#define CONFIG_BOOTCOMMAND	"cp.b 0xC00C6000 ${loadaddr} 0x294000; bootm"
+#define CONFIG_BOOTCOMMAND	"sf probe 0:0; " \
+				"sf read 0x22000000 0xc6000 0x294000; " \
+				"bootm 0x22000000"
 #if defined(CONFIG_CMD_NAND)
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 " \
 				"root=/dev/mtdblock0 " \

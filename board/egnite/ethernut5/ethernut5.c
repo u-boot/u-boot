@@ -58,8 +58,6 @@
 #include <netdev.h>
 #include <miiphy.h>
 #include <i2c.h>
-#include <spi.h>
-#include <dataflash.h>
 #include <mmc.h>
 #include <atmel_mci.h>
 
@@ -67,7 +65,6 @@
 #include <asm/arch/at91sam9260_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
-#include <asm/arch/at91_spi.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
 #include <asm/io.h>
@@ -76,25 +73,6 @@
 #include "ethernut5_pwrman.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-AT91S_DATAFLASH_INFO dataflash_info[CONFIG_SYS_MAX_DATAFLASH_BANKS];
-
-struct dataflash_addr cs[CONFIG_SYS_MAX_DATAFLASH_BANKS] = {
-	{CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0, 0}
-};
-
-/*
- * In fact we have 7 partitions, but u-boot supports 5 only. This is
- * no big deal, because the first partition is reserved for applications
- * and the last one is used by Nut/OS. Both need not to be visible here.
- */
-dataflash_protect_t area_list[NB_DATAFLASH_AREA] = {
-	{ 0x00021000, 0x00041FFF, FLAG_PROTECT_SET, 0, "setup" },
-	{ 0x00042000, 0x000C5FFF, FLAG_PROTECT_SET, 0, "uboot" },
-	{ 0x000C6000, 0x00359FFF, FLAG_PROTECT_SET, 0, "kernel" },
-	{ 0x0035A000, 0x003DDFFF, FLAG_PROTECT_SET, 0, "nutos" },
-	{ 0x003DE000, 0x003FEFFF, FLAG_PROTECT_CLEAR, 0, "env" }
-};
 
 /*
  * This is called last during early initialization. Most of the basic
@@ -158,13 +136,9 @@ int board_init(void)
 	/* Set adress of boot parameters. */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 	/* Initialize UARTs and power management. */
-	at91_seriald_hw_init();
 	ethernut5_power_init();
 #ifdef CONFIG_CMD_NAND
 	ethernut5_nand_hw_init();
-#endif
-#ifdef CONFIG_HAS_DATAFLASH
-	at91_spi0_hw_init(1 << 0);
 #endif
 	return 0;
 }
@@ -219,33 +193,5 @@ int board_mmc_init(bd_t *bd)
 int board_mmc_getcd(struct mmc *mmc)
 {
 	return !at91_get_pio_value(CONFIG_SYS_MMC_CD_PIN);
-}
-#endif
-
-#ifdef CONFIG_ATMEL_SPI
-/*
-
- * Note, that u-boot uses different code for SPI bus access. While
- * memory routines use automatic chip select control, the serial
- * flash support requires 'manual' GPIO control. Thus, we switch
- * modes.
- */
-void spi_cs_activate(struct spi_slave *slave)
-{
-	/* Enable NPCS0 in GPIO mode. This disables peripheral control. */
-	at91_set_pio_output(AT91_PIO_PORTA, 3, 0);
-}
-
-void spi_cs_deactivate(struct spi_slave *slave)
-{
-	/* Disable NPCS0 in GPIO mode. */
-	at91_set_pio_output(AT91_PIO_PORTA, 3, 1);
-	/* Switch back to peripheral chip select control. */
-	at91_set_a_periph(AT91_PIO_PORTA, 3, 1);
-}
-
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	return bus == 0 && cs == 0;
 }
 #endif
