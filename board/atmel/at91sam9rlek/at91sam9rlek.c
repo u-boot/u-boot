@@ -184,9 +184,6 @@ int board_init(void)
 #ifdef CONFIG_CMD_NAND
 	at91sam9rlek_nand_hw_init();
 #endif
-#ifdef CONFIG_HAS_DATAFLASH
-	at91_spi0_hw_init(1 << 0);
-#endif
 #ifdef CONFIG_LCD
 	at91sam9rlek_lcd_hw_init();
 #endif

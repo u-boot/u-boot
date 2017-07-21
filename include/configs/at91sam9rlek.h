@@ -53,15 +53,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(ATMEL_BASE_SRAM + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
 
-/* DataFlash */
-#define CONFIG_ATMEL_DATAFLASH_SPI
-#define CONFIG_HAS_DATAFLASH			1
-#define CONFIG_SYS_MAX_DATAFLASH_BANKS		1
-#define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* CS0 */
-#define AT91_SPI_CLK				15000000
-#define DATAFLASH_TCSS				(0x1a << 16)
-#define DATAFLASH_TCHS				(0x1 << 24)
-
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_NAND_ATMEL
@@ -89,11 +80,13 @@
 #ifdef CONFIG_SYS_USE_DATAFLASH
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
-#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 + 0x8400)
-#define CONFIG_ENV_OFFSET		0x4200
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 + CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_OFFSET	0x4200
 #define CONFIG_ENV_SIZE		0x4200
-#define CONFIG_BOOTCOMMAND	"cp.b 0xC0084000 0x22000000 0x210000; bootm"
+#define CONFIG_ENV_SECT_SIZE	0x210
+#define CONFIG_ENV_SPI_MAX_HZ	15000000
+#define CONFIG_BOOTCOMMAND	"sf probe 0; " \
+				"sf read 0x22000000 0x84000 0x294000; " \
+				"bootm 0x22000000"
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 " \
 				"root=/dev/mtdblock0 " \
 				"mtdparts=atmel_nand:-(root) "\
