@@ -20,6 +20,7 @@
 #include <linux/sizes.h>
 #include <asm/arch/rmobile.h>
 #include <asm/arch/sh_sdhi.h>
+#include <clk.h>
 
 #define DRIVER_NAME "sh-sdhi"
 
@@ -824,8 +825,10 @@ static int sh_sdhi_dm_probe(struct udevice *dev)
 	struct sh_sdhi_plat *plat = dev_get_platdata(dev);
 	struct sh_sdhi_host *host = dev_get_priv(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct clk sh_sdhi_clk;
 	const u32 quirks = dev_get_driver_data(dev);
 	fdt_addr_t base;
+	int ret;
 
 	base = devfdt_get_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
@@ -834,6 +837,18 @@ static int sh_sdhi_dm_probe(struct udevice *dev)
 	host->addr = devm_ioremap(dev, base, SZ_2K);
 	if (!host->addr)
 		return -ENOMEM;
+
+	ret = clk_get_by_index(dev, 0, &sh_sdhi_clk);
+	if (ret) {
+		debug("failed to get clock, ret=%d\n", ret);
+		return ret;
+	}
+
+	ret = clk_enable(&sh_sdhi_clk);
+	if (ret) {
+		debug("failed to enable clock, ret=%d\n", ret);
+		return ret;
+	}
 
 	host->quirks = quirks;
 
