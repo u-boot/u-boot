@@ -230,7 +230,7 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 #ifdef CONFIG_PARTITIONS
 	efi_disk_register();
 #endif
-#ifdef CONFIG_LCD
+#if defined(CONFIG_LCD) || defined(CONFIG_DM_VIDEO)
 	efi_gop_register();
 #endif
 #ifdef CONFIG_NET
