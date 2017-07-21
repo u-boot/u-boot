@@ -431,6 +431,8 @@ efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
 		}
 	}
 
+	*map_key = 0;
+
 	return EFI_SUCCESS;
 }
 
