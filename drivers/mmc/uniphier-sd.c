@@ -135,6 +135,23 @@ struct uniphier_sd_priv {
 #define UNIPHIER_SD_CAP_64BIT		BIT(3)	/* Controller is 64bit */
 };
 
+static u64 uniphier_sd_readq(struct uniphier_sd_priv *priv, const u32 reg)
+{
+	if (priv->caps & UNIPHIER_SD_CAP_64BIT)
+		return readq(priv->regbase + (reg << 1));
+	else
+		return readq(priv->regbase + reg);
+}
+
+static void uniphier_sd_writeq(struct uniphier_sd_priv *priv,
+			       const u64 val, const u32 reg)
+{
+	if (priv->caps & UNIPHIER_SD_CAP_64BIT)
+		writeq(val, priv->regbase + (reg << 1));
+	else
+		writeq(val, priv->regbase + reg);
+}
+
 static u32 uniphier_sd_readl(struct uniphier_sd_priv *priv, const u32 reg)
 {
 	if (priv->caps & UNIPHIER_SD_CAP_64BIT)
@@ -248,12 +265,37 @@ static int uniphier_sd_pio_read_one_block(struct udevice *dev, u32 **pbuf,
 	uniphier_sd_writel(priv, 0, UNIPHIER_SD_INFO2);
 
 	if (likely(IS_ALIGNED((unsigned long)*pbuf, 4))) {
-		for (i = 0; i < blocksize / 4; i++)
-			*(*pbuf)++ = uniphier_sd_readl(priv, UNIPHIER_SD_BUF);
+		if (priv->caps & UNIPHIER_SD_CAP_64BIT) {
+			for (i = 0; i < blocksize / 8; i++) {
+				u64 data;
+				data = uniphier_sd_readq(priv,
+							 UNIPHIER_SD_BUF);
+				*(*pbuf)++ = data;
+				*(*pbuf)++ = data >> 32;
+			}
+		} else {
+			for (i = 0; i < blocksize / 4; i++) {
+				u32 data;
+				data = uniphier_sd_readl(priv, UNIPHIER_SD_BUF);
+				*(*pbuf)++ = data;
+			}
+		}
 	} else {
-		for (i = 0; i < blocksize / 4; i++)
-			put_unaligned(uniphier_sd_readl(priv, UNIPHIER_SD_BUF),
-				      (*pbuf)++);
+		if (priv->caps & UNIPHIER_SD_CAP_64BIT) {
+			for (i = 0; i < blocksize / 8; i++) {
+				u64 data;
+				data = uniphier_sd_readq(priv,
+							 UNIPHIER_SD_BUF);
+				put_unaligned(data, (*pbuf)++);
+				put_unaligned(data >> 32, (*pbuf)++);
+			}
+		} else {
+			for (i = 0; i < blocksize / 4; i++) {
+				u32 data;
+				data = uniphier_sd_readl(priv, UNIPHIER_SD_BUF);
+				put_unaligned(data, (*pbuf)++);
+			}
+		}
 	}
 
 	return 0;
@@ -274,12 +316,34 @@ static int uniphier_sd_pio_write_one_block(struct udevice *dev,
 	uniphier_sd_writel(priv, 0, UNIPHIER_SD_INFO2);
 
 	if (likely(IS_ALIGNED((unsigned long)*pbuf, 4))) {
-		for (i = 0; i < blocksize / 4; i++)
-			uniphier_sd_writel(priv, *(*pbuf)++, UNIPHIER_SD_BUF);
+		if (priv->caps & UNIPHIER_SD_CAP_64BIT) {
+			for (i = 0; i < blocksize / 8; i++) {
+				u64 data = *(*pbuf)++;
+				data |= (u64)*(*pbuf)++ << 32;
+				uniphier_sd_writeq(priv, data,
+						   UNIPHIER_SD_BUF);
+			}
+		} else {
+			for (i = 0; i < blocksize / 4; i++) {
+				uniphier_sd_writel(priv, *(*pbuf)++,
+						   UNIPHIER_SD_BUF);
+			}
+		}
 	} else {
-		for (i = 0; i < blocksize / 4; i++)
-			uniphier_sd_writel(priv, get_unaligned((*pbuf)++),
-					   UNIPHIER_SD_BUF);
+		if (priv->caps & UNIPHIER_SD_CAP_64BIT) {
+			for (i = 0; i < blocksize / 8; i++) {
+				u64 data = get_unaligned((*pbuf)++);
+				data |= (u64)get_unaligned((*pbuf)++) << 32;
+				uniphier_sd_writeq(priv, data,
+						   UNIPHIER_SD_BUF);
+			}
+		} else {
+			for (i = 0; i < blocksize / 4; i++) {
+				u32 data = get_unaligned((*pbuf)++);
+				uniphier_sd_writel(priv, data,
+						   UNIPHIER_SD_BUF);
+			}
+		}
 	}
 
 	return 0;
