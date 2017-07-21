@@ -31,6 +31,7 @@ struct sh_sdhi_host {
 	unsigned char wait_int;
 	unsigned char sd_error;
 	unsigned char detect_waiting;
+	unsigned char app_cmd;
 };
 
 static inline void sh_sdhi_writeq(struct sh_sdhi_host *host, int reg, u64 val)
@@ -475,65 +476,64 @@ static void sh_sdhi_get_response(struct sh_sdhi_host *host, struct mmc_cmd *cmd)
 static unsigned short sh_sdhi_set_cmd(struct sh_sdhi_host *host,
 			struct mmc_data *data, unsigned short opc)
 {
-	switch (opc) {
-	case SD_CMD_APP_SEND_OP_COND:
-	case SD_CMD_APP_SEND_SCR:
-		opc |= SDHI_APP;
-		break;
-	case SD_CMD_APP_SET_BUS_WIDTH:
-		 /* SD_APP_SET_BUS_WIDTH*/
+	if (host->app_cmd) {
 		if (!data)
-			opc |= SDHI_APP;
-		else /* SD_SWITCH */
-			opc = SDHI_SD_SWITCH;
-		break;
-	case MMC_CMD_SEND_OP_COND:
-		opc = SDHI_MMC_SEND_OP_COND;
-		break;
-	case MMC_CMD_SEND_EXT_CSD:
-		if (data)
-			opc = SDHI_MMC_SEND_EXT_CSD;
-		break;
-	default:
-		break;
+			host->app_cmd = 0;
+		return opc | BIT(6);
 	}
-	return opc;
+
+	switch (opc) {
+	case MMC_CMD_SWITCH:
+		return opc | (data ? 0x1c00 : 0x40);
+	case MMC_CMD_SEND_EXT_CSD:
+		return opc | (data ? 0x1c00 : 0);
+	case MMC_CMD_SEND_OP_COND:
+		return opc | 0x0700;
+	case MMC_CMD_APP_CMD:
+		host->app_cmd = 1;
+	default:
+		return opc;
+	}
 }
 
 static unsigned short sh_sdhi_data_trans(struct sh_sdhi_host *host,
 			struct mmc_data *data, unsigned short opc)
 {
-	unsigned short ret;
-
-	switch (opc) {
-	case MMC_CMD_READ_MULTIPLE_BLOCK:
-		ret = sh_sdhi_multi_read(host, data);
-		break;
-	case MMC_CMD_WRITE_MULTIPLE_BLOCK:
-		ret = sh_sdhi_multi_write(host, data);
-		break;
-	case MMC_CMD_WRITE_SINGLE_BLOCK:
-		ret = sh_sdhi_single_write(host, data);
-		break;
-	case MMC_CMD_READ_SINGLE_BLOCK:
-	case SDHI_SD_APP_SEND_SCR:
-	case SDHI_SD_SWITCH: /* SD_SWITCH */
-	case SDHI_MMC_SEND_EXT_CSD:
-		ret = sh_sdhi_single_read(host, data);
-		break;
-	default:
-		printf(DRIVER_NAME": SD: NOT SUPPORT CMD = d'%04d\n", opc);
-		ret = -EINVAL;
-		break;
+	if (host->app_cmd) {
+		host->app_cmd = 0;
+		switch (opc) {
+		case SD_CMD_APP_SEND_SCR:
+		case SD_CMD_APP_SD_STATUS:
+			return sh_sdhi_single_read(host, data);
+		default:
+			printf(DRIVER_NAME": SD: NOT SUPPORT APP CMD = d'%04d\n",
+				opc);
+			return -EINVAL;
+		}
+	} else {
+		switch (opc) {
+		case MMC_CMD_WRITE_MULTIPLE_BLOCK:
+			return sh_sdhi_multi_write(host, data);
+		case MMC_CMD_READ_MULTIPLE_BLOCK:
+			return sh_sdhi_multi_read(host, data);
+		case MMC_CMD_WRITE_SINGLE_BLOCK:
+			return sh_sdhi_single_write(host, data);
+		case MMC_CMD_READ_SINGLE_BLOCK:
+		case MMC_CMD_SWITCH:
+		case MMC_CMD_SEND_EXT_CSD:;
+			return sh_sdhi_single_read(host, data);
+		default:
+			printf(DRIVER_NAME": SD: NOT SUPPORT CMD = d'%04d\n", opc);
+			return -EINVAL;
+		}
 	}
-	return ret;
 }
 
 static int sh_sdhi_start_cmd(struct sh_sdhi_host *host,
 			struct mmc_data *data, struct mmc_cmd *cmd)
 {
 	long time;
-	unsigned short opc = cmd->cmdidx;
+	unsigned short shcmd, opc = cmd->cmdidx;
 	int ret = 0;
 	unsigned long timeout;
 
@@ -561,7 +561,8 @@ static int sh_sdhi_start_cmd(struct sh_sdhi_host *host,
 		}
 		sh_sdhi_writew(host, SDHI_SIZE, data->blocksize);
 	}
-	opc = sh_sdhi_set_cmd(host, data, opc);
+
+	shcmd = sh_sdhi_set_cmd(host, data, opc);
 
 	/*
 	 *  U-Boot cannot use interrupt.
@@ -592,11 +593,12 @@ static int sh_sdhi_start_cmd(struct sh_sdhi_host *host,
 		       INFO2M_RESP_TIMEOUT | INFO2M_ILA) &
 		       sh_sdhi_readw(host, SDHI_INFO2_MASK));
 
-	sh_sdhi_writew(host, SDHI_CMD, (unsigned short)(opc & CMD_MASK));
-
+	sh_sdhi_writew(host, SDHI_CMD, (unsigned short)(shcmd & CMD_MASK));
 	time = sh_sdhi_wait_interrupt_flag(host);
-	if (!time)
+	if (!time) {
+		host->app_cmd = 0;
 		return sh_sdhi_error_manage(host);
+	}
 
 	if (host->sd_error) {
 		switch (cmd->cmdidx) {
@@ -614,15 +616,20 @@ static int sh_sdhi_start_cmd(struct sh_sdhi_host *host,
 		}
 		host->sd_error = 0;
 		host->wait_int = 0;
+		host->app_cmd = 0;
 		return ret;
 	}
-	if (sh_sdhi_readw(host, SDHI_INFO1) & INFO1_RESP_END)
+
+	if (sh_sdhi_readw(host, SDHI_INFO1) & INFO1_RESP_END) {
+		host->app_cmd = 0;
 		return -EINVAL;
+	}
 
 	if (host->wait_int) {
 		sh_sdhi_get_response(host, cmd);
 		host->wait_int = 0;
 	}
+
 	if (data)
 		ret = sh_sdhi_data_trans(host, data, opc);
 
