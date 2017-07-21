@@ -298,12 +298,13 @@ static int ravb_phy_config(struct udevice *dev)
 	struct ravb_priv *eth = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct phy_device *phydev;
-	int reg;
+	int mask = 0xffffffff, reg;
 
-	phydev = phy_connect(eth->bus, pdata->phy_interface,
-			     dev, PHY_INTERFACE_MODE_RGMII_ID);
+	phydev = phy_find_by_mask(eth->bus, mask, pdata->phy_interface);
 	if (!phydev)
 		return -ENODEV;
+
+	phy_connect_dev(phydev, dev);
 
 	eth->phydev = phydev;
 
