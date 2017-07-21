@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <errno.h>
 #include <miiphy.h>
@@ -120,6 +121,7 @@ struct ravb_priv {
 	struct phy_device	*phydev;
 	struct mii_dev		*bus;
 	void __iomem		*iobase;
+	struct clk		clk;
 };
 
 static inline void ravb_flush_dcache(u32 addr, u32 len)
@@ -432,9 +434,13 @@ int ravb_start(struct udevice *dev)
 	struct ravb_priv *eth = dev_get_priv(dev);
 	int ret;
 
-	ret = ravb_reset(dev);
+	ret = clk_enable(&eth->clk);
 	if (ret)
 		return ret;
+
+	ret = ravb_reset(dev);
+	if (ret)
+		goto err;
 
 	ravb_base_desc_init(eth);
 	ravb_tx_desc_init(eth);
@@ -442,17 +448,24 @@ int ravb_start(struct udevice *dev)
 
 	ret = ravb_config(dev);
 	if (ret)
-		return ret;
+		goto err;
 
 	/* Setting the control will start the AVB-DMAC process. */
 	writel(CCC_OPC_OPERATION, eth->iobase + RAVB_REG_CCC);
 
 	return 0;
+
+err:
+	clk_disable(&eth->clk);
+	return ret;
 }
 
 static void ravb_stop(struct udevice *dev)
 {
+	struct ravb_priv *eth = dev_get_priv(dev);
+
 	ravb_reset(dev);
+	clk_disable(&eth->clk);
 }
 
 static int ravb_probe(struct udevice *dev)
@@ -465,6 +478,10 @@ static int ravb_probe(struct udevice *dev)
 
 	iobase = map_physmem(pdata->iobase, 0x1000, MAP_NOCACHE);
 	eth->iobase = iobase;
+
+	ret = clk_get_by_index(dev, 0, &eth->clk);
+	if (ret < 0)
+		goto err_mdio_alloc;
 
 	mdiodev = mdio_alloc();
 	if (!mdiodev) {
