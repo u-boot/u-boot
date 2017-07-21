@@ -67,8 +67,6 @@ typedef unsigned long flash_sect_t;
 #define FLASH_CFI_BY16		0x02
 #define FLASH_CFI_BY32		0x04
 #define FLASH_CFI_BY64		0x08
-/* convert between bit value and numeric value */
-#define CFI_FLASH_SHIFT_WIDTH	3
 /*
  * Values for the flash device interface
  */
