@@ -293,8 +293,8 @@ static void acpi_create_madt(struct acpi_madt *madt)
 	header->checksum = table_compute_checksum((void *)madt, header->length);
 }
 
-static int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig,
-				     u32 base, u16 seg_nr, u8 start, u8 end)
+int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig, u32 base,
+			      u16 seg_nr, u8 start, u8 end)
 {
 	memset(mmconfig, 0, sizeof(*mmconfig));
 	mmconfig->base_address_l = base;
@@ -306,7 +306,7 @@ static int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig,
 	return sizeof(struct acpi_mcfg_mmconfig);
 }
 
-static u32 acpi_fill_mcfg(u32 current)
+__weak u32 acpi_fill_mcfg(u32 current)
 {
 	current += acpi_create_mcfg_mmconfig
 		((struct acpi_mcfg_mmconfig *)current,

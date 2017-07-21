@@ -314,6 +314,9 @@ int acpi_create_madt_irqoverride(struct acpi_madt_irqoverride *irqoverride,
 int acpi_create_madt_lapic_nmi(struct acpi_madt_lapic_nmi *lapic_nmi,
 			       u8 cpu, u16 flags, u8 lint);
 u32 acpi_fill_madt(u32 current);
+int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig, u32 base,
+			      u16 seg_nr, u8 start, u8 end);
+u32 acpi_fill_mcfg(u32 current);
 void acpi_create_gnvs(struct acpi_global_nvs *gnvs);
 /**
  * enter_acpi_mode() - enter into ACPI mode
