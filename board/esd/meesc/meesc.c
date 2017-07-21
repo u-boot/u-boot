@@ -247,12 +247,7 @@ int misc_init_r(void)
 
 int board_early_init_f(void)
 {
-	at91_periph_clk_enable(ATMEL_ID_PIOA);
-	at91_periph_clk_enable(ATMEL_ID_PIOB);
-	at91_periph_clk_enable(ATMEL_ID_PIOCDE);
 	at91_periph_clk_enable(ATMEL_ID_UHP);
-
-	at91_seriald_hw_init();
 
 	return 0;
 }
@@ -267,9 +262,6 @@ int board_init(void)
 
 #ifdef CONFIG_CMD_NAND
 	meesc_nand_hw_init();
-#endif
-#ifdef CONFIG_HAS_DATAFLASH
-	at91_spi0_hw_init(1 << 0);
 #endif
 #ifdef CONFIG_MACB
 	meesc_macb_hw_init();
