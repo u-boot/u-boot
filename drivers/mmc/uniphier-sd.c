@@ -751,6 +751,7 @@ static int uniphier_sd_probe(struct udevice *dev)
 	struct uniphier_sd_plat *plat = dev_get_platdata(dev);
 	struct uniphier_sd_priv *priv = dev_get_priv(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	const u32 quirks = dev_get_driver_data(dev);
 	fdt_addr_t base;
 	struct clk clk;
 	int ret;
@@ -802,17 +803,21 @@ static int uniphier_sd_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
+	if (quirks) {
+		priv->caps = quirks;
+	} else {
+		priv->version = uniphier_sd_readl(priv, UNIPHIER_SD_VERSION) &
+							UNIPHIER_SD_VERSION_IP;
+		dev_dbg(dev, "version %x\n", priv->version);
+		if (priv->version >= 0x10) {
+			priv->caps |= UNIPHIER_SD_CAP_DMA_INTERNAL;
+			priv->caps |= UNIPHIER_SD_CAP_DIV1024;
+		}
+	}
+
 	if (fdt_get_property(gd->fdt_blob, dev_of_offset(dev), "non-removable",
 			     NULL))
 		priv->caps |= UNIPHIER_SD_CAP_NONREMOVABLE;
-
-	priv->version = uniphier_sd_readl(priv, UNIPHIER_SD_VERSION) &
-							UNIPHIER_SD_VERSION_IP;
-	dev_dbg(dev, "version %x\n", priv->version);
-	if (priv->version >= 0x10) {
-		priv->caps |= UNIPHIER_SD_CAP_DMA_INTERNAL;
-		priv->caps |= UNIPHIER_SD_CAP_DIV1024;
-	}
 
 	uniphier_sd_host_init(priv);
 
@@ -828,7 +833,7 @@ static int uniphier_sd_probe(struct udevice *dev)
 }
 
 static const struct udevice_id uniphier_sd_match[] = {
-	{ .compatible = "socionext,uniphier-sdhc" },
+	{ .compatible = "socionext,uniphier-sdhc", .data = 0 },
 	{ /* sentinel */ }
 };
 
