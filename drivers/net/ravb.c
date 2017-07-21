@@ -589,9 +589,46 @@ static const struct eth_ops ravb_ops = {
 	.write_hwaddr		= ravb_write_hwaddr,
 };
 
+int ravb_ofdata_to_platdata(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	const char *phy_mode;
+	const fdt32_t *cell;
+	int ret = 0;
+
+	pdata->iobase = devfdt_get_addr(dev);
+	pdata->phy_interface = -1;
+	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
+			       NULL);
+	if (phy_mode)
+		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
+	if (pdata->phy_interface == -1) {
+		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
+		return -EINVAL;
+	}
+
+	pdata->max_speed = 1000;
+	cell = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "max-speed", NULL);
+	if (cell)
+		pdata->max_speed = fdt32_to_cpu(*cell);
+
+	sprintf(bb_miiphy_buses[0].name, dev->name);
+
+	return ret;
+}
+
+static const struct udevice_id ravb_ids[] = {
+	{ .compatible = "renesas,etheravb-r8a7795" },
+	{ .compatible = "renesas,etheravb-r8a7796" },
+	{ .compatible = "renesas,etheravb-rcar-gen3" },
+	{ }
+};
+
 U_BOOT_DRIVER(eth_ravb) = {
 	.name		= "ravb",
 	.id		= UCLASS_ETH,
+	.of_match	= ravb_ids,
+	.ofdata_to_platdata = ravb_ofdata_to_platdata,
 	.probe		= ravb_probe,
 	.remove		= ravb_remove,
 	.ops		= &ravb_ops,
