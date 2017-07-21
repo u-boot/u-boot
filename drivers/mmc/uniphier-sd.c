@@ -134,6 +134,17 @@ struct uniphier_sd_priv {
 #define UNIPHIER_SD_CAP_DIV1024		BIT(2)	/* divisor 1024 is available */
 };
 
+static u32 uniphier_sd_readl(struct uniphier_sd_priv *priv, const u32 reg)
+{
+	return readl(priv->regbase + reg);
+}
+
+static void uniphier_sd_writel(struct uniphier_sd_priv *priv,
+			       const u32 val, const u32 reg)
+{
+	writel(val, priv->regbase + reg);
+}
+
 static dma_addr_t __dma_map_single(void *ptr, size_t size,
 				   enum dma_data_direction dir)
 {
@@ -157,7 +168,7 @@ static void __dma_unmap_single(dma_addr_t addr, size_t size,
 static int uniphier_sd_check_error(struct udevice *dev)
 {
 	struct uniphier_sd_priv *priv = dev_get_priv(dev);
-	u32 info2 = readl(priv->regbase + UNIPHIER_SD_INFO2);
+	u32 info2 = uniphier_sd_readl(priv, UNIPHIER_SD_INFO2);
 
 	if (info2 & UNIPHIER_SD_INFO2_ERR_RTO) {
 		/*
@@ -195,7 +206,7 @@ static int uniphier_sd_wait_for_irq(struct udevice *dev, unsigned int reg,
 	long wait = 1000000;
 	int ret;
 
-	while (!(readl(priv->regbase + reg) & flag)) {
+	while (!(uniphier_sd_readl(priv, reg) & flag)) {
 		if (wait-- < 0) {
 			dev_err(dev, "timeout\n");
 			return -ETIMEDOUT;
@@ -227,14 +238,14 @@ static int uniphier_sd_pio_read_one_block(struct udevice *dev, u32 **pbuf,
 	 * Clear the status flag _before_ read the buffer out because
 	 * UNIPHIER_SD_INFO2_BRE is edge-triggered, not level-triggered.
 	 */
-	writel(0, priv->regbase + UNIPHIER_SD_INFO2);
+	uniphier_sd_writel(priv, 0, UNIPHIER_SD_INFO2);
 
 	if (likely(IS_ALIGNED((unsigned long)*pbuf, 4))) {
 		for (i = 0; i < blocksize / 4; i++)
-			*(*pbuf)++ = readl(priv->regbase + UNIPHIER_SD_BUF);
+			*(*pbuf)++ = uniphier_sd_readl(priv, UNIPHIER_SD_BUF);
 	} else {
 		for (i = 0; i < blocksize / 4; i++)
-			put_unaligned(readl(priv->regbase + UNIPHIER_SD_BUF),
+			put_unaligned(uniphier_sd_readl(priv, UNIPHIER_SD_BUF),
 				      (*pbuf)++);
 	}
 
@@ -253,15 +264,15 @@ static int uniphier_sd_pio_write_one_block(struct udevice *dev,
 	if (ret)
 		return ret;
 
-	writel(0, priv->regbase + UNIPHIER_SD_INFO2);
+	uniphier_sd_writel(priv, 0, UNIPHIER_SD_INFO2);
 
 	if (likely(IS_ALIGNED((unsigned long)*pbuf, 4))) {
 		for (i = 0; i < blocksize / 4; i++)
-			writel(*(*pbuf)++, priv->regbase + UNIPHIER_SD_BUF);
+			uniphier_sd_writel(priv, *(*pbuf)++, UNIPHIER_SD_BUF);
 	} else {
 		for (i = 0; i < blocksize / 4; i++)
-			writel(get_unaligned((*pbuf)++),
-			       priv->regbase + UNIPHIER_SD_BUF);
+			uniphier_sd_writel(priv, get_unaligned((*pbuf)++),
+					   UNIPHIER_SD_BUF);
 	}
 
 	return 0;
@@ -292,22 +303,22 @@ static void uniphier_sd_dma_start(struct uniphier_sd_priv *priv,
 {
 	u32 tmp;
 
-	writel(0, priv->regbase + UNIPHIER_SD_DMA_INFO1);
-	writel(0, priv->regbase + UNIPHIER_SD_DMA_INFO2);
+	uniphier_sd_writel(priv, 0, UNIPHIER_SD_DMA_INFO1);
+	uniphier_sd_writel(priv, 0, UNIPHIER_SD_DMA_INFO2);
 
 	/* enable DMA */
-	tmp = readl(priv->regbase + UNIPHIER_SD_EXTMODE);
+	tmp = uniphier_sd_readl(priv, UNIPHIER_SD_EXTMODE);
 	tmp |= UNIPHIER_SD_EXTMODE_DMA_EN;
-	writel(tmp, priv->regbase + UNIPHIER_SD_EXTMODE);
+	uniphier_sd_writel(priv, tmp, UNIPHIER_SD_EXTMODE);
 
-	writel(dma_addr & U32_MAX, priv->regbase + UNIPHIER_SD_DMA_ADDR_L);
+	uniphier_sd_writel(priv, dma_addr & U32_MAX, UNIPHIER_SD_DMA_ADDR_L);
 
 	/* suppress the warning "right shift count >= width of type" */
 	dma_addr >>= min_t(int, 32, 8 * sizeof(dma_addr));
 
-	writel(dma_addr & U32_MAX, priv->regbase + UNIPHIER_SD_DMA_ADDR_H);
+	uniphier_sd_writel(priv, dma_addr & U32_MAX, UNIPHIER_SD_DMA_ADDR_H);
 
-	writel(UNIPHIER_SD_DMA_CTL_START, priv->regbase + UNIPHIER_SD_DMA_CTL);
+	uniphier_sd_writel(priv, UNIPHIER_SD_DMA_CTL_START, UNIPHIER_SD_DMA_CTL);
 }
 
 static int uniphier_sd_dma_wait_for_irq(struct udevice *dev, u32 flag,
@@ -316,7 +327,7 @@ static int uniphier_sd_dma_wait_for_irq(struct udevice *dev, u32 flag,
 	struct uniphier_sd_priv *priv = dev_get_priv(dev);
 	long wait = 1000000 + 10 * blocks;
 
-	while (!(readl(priv->regbase + UNIPHIER_SD_DMA_INFO1) & flag)) {
+	while (!(uniphier_sd_readl(priv, UNIPHIER_SD_DMA_INFO1) & flag)) {
 		if (wait-- < 0) {
 			dev_err(dev, "timeout during DMA\n");
 			return -ETIMEDOUT;
@@ -325,7 +336,7 @@ static int uniphier_sd_dma_wait_for_irq(struct udevice *dev, u32 flag,
 		udelay(10);
 	}
 
-	if (readl(priv->regbase + UNIPHIER_SD_DMA_INFO2)) {
+	if (uniphier_sd_readl(priv, UNIPHIER_SD_DMA_INFO2)) {
 		dev_err(dev, "error during DMA\n");
 		return -EIO;
 	}
@@ -343,7 +354,7 @@ static int uniphier_sd_dma_xfer(struct udevice *dev, struct mmc_data *data)
 	u32 poll_flag, tmp;
 	int ret;
 
-	tmp = readl(priv->regbase + UNIPHIER_SD_DMA_MODE);
+	tmp = uniphier_sd_readl(priv, UNIPHIER_SD_DMA_MODE);
 
 	if (data->flags & MMC_DATA_READ) {
 		buf = data->dest;
@@ -357,7 +368,7 @@ static int uniphier_sd_dma_xfer(struct udevice *dev, struct mmc_data *data)
 		tmp &= ~UNIPHIER_SD_DMA_MODE_DIR_RD;
 	}
 
-	writel(tmp, priv->regbase + UNIPHIER_SD_DMA_MODE);
+	uniphier_sd_writel(priv, tmp, UNIPHIER_SD_DMA_MODE);
 
 	dma_addr = __dma_map_single(buf, len, dir);
 
@@ -396,27 +407,27 @@ static int uniphier_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 	int ret;
 	u32 tmp;
 
-	if (readl(priv->regbase + UNIPHIER_SD_INFO2) & UNIPHIER_SD_INFO2_CBSY) {
+	if (uniphier_sd_readl(priv, UNIPHIER_SD_INFO2) & UNIPHIER_SD_INFO2_CBSY) {
 		dev_err(dev, "command busy\n");
 		return -EBUSY;
 	}
 
 	/* clear all status flags */
-	writel(0, priv->regbase + UNIPHIER_SD_INFO1);
-	writel(0, priv->regbase + UNIPHIER_SD_INFO2);
+	uniphier_sd_writel(priv, 0, UNIPHIER_SD_INFO1);
+	uniphier_sd_writel(priv, 0, UNIPHIER_SD_INFO2);
 
 	/* disable DMA once */
-	tmp = readl(priv->regbase + UNIPHIER_SD_EXTMODE);
+	tmp = uniphier_sd_readl(priv, UNIPHIER_SD_EXTMODE);
 	tmp &= ~UNIPHIER_SD_EXTMODE_DMA_EN;
-	writel(tmp, priv->regbase + UNIPHIER_SD_EXTMODE);
+	uniphier_sd_writel(priv, tmp, UNIPHIER_SD_EXTMODE);
 
-	writel(cmd->cmdarg, priv->regbase + UNIPHIER_SD_ARG);
+	uniphier_sd_writel(priv, cmd->cmdarg, UNIPHIER_SD_ARG);
 
 	tmp = cmd->cmdidx;
 
 	if (data) {
-		writel(data->blocksize, priv->regbase + UNIPHIER_SD_SIZE);
-		writel(data->blocks, priv->regbase + UNIPHIER_SD_SECCNT);
+		uniphier_sd_writel(priv, data->blocksize, UNIPHIER_SD_SIZE);
+		uniphier_sd_writel(priv, data->blocks, UNIPHIER_SD_SECCNT);
 
 		/* Do not send CMD12 automatically */
 		tmp |= UNIPHIER_SD_CMD_NOSTOP | UNIPHIER_SD_CMD_DATA;
@@ -457,7 +468,7 @@ static int uniphier_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 
 	dev_dbg(dev, "sending CMD%d (SD_CMD=%08x, SD_ARG=%08x)\n",
 		cmd->cmdidx, tmp, cmd->cmdarg);
-	writel(tmp, priv->regbase + UNIPHIER_SD_CMD);
+	uniphier_sd_writel(priv, tmp, UNIPHIER_SD_CMD);
 
 	ret = uniphier_sd_wait_for_irq(dev, UNIPHIER_SD_INFO1,
 				       UNIPHIER_SD_INFO1_RSP);
@@ -465,10 +476,10 @@ static int uniphier_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		return ret;
 
 	if (cmd->resp_type & MMC_RSP_136) {
-		u32 rsp_127_104 = readl(priv->regbase + UNIPHIER_SD_RSP76);
-		u32 rsp_103_72 = readl(priv->regbase + UNIPHIER_SD_RSP54);
-		u32 rsp_71_40 = readl(priv->regbase + UNIPHIER_SD_RSP32);
-		u32 rsp_39_8 = readl(priv->regbase + UNIPHIER_SD_RSP10);
+		u32 rsp_127_104 = uniphier_sd_readl(priv, UNIPHIER_SD_RSP76);
+		u32 rsp_103_72 = uniphier_sd_readl(priv, UNIPHIER_SD_RSP54);
+		u32 rsp_71_40 = uniphier_sd_readl(priv, UNIPHIER_SD_RSP32);
+		u32 rsp_39_8 = uniphier_sd_readl(priv, UNIPHIER_SD_RSP10);
 
 		cmd->response[0] = ((rsp_127_104 & 0x00ffffff) << 8) |
 				   ((rsp_103_72  & 0xff000000) >> 24);
@@ -479,7 +490,7 @@ static int uniphier_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		cmd->response[3] = (rsp_39_8     & 0xffffff)   << 8;
 	} else {
 		/* bit 39-8 */
-		cmd->response[0] = readl(priv->regbase + UNIPHIER_SD_RSP10);
+		cmd->response[0] = uniphier_sd_readl(priv, UNIPHIER_SD_RSP10);
 	}
 
 	if (data) {
@@ -518,10 +529,10 @@ static int uniphier_sd_set_bus_width(struct uniphier_sd_priv *priv,
 		return -EINVAL;
 	}
 
-	tmp = readl(priv->regbase + UNIPHIER_SD_OPTION);
+	tmp = uniphier_sd_readl(priv, UNIPHIER_SD_OPTION);
 	tmp &= ~UNIPHIER_SD_OPTION_WIDTH_MASK;
 	tmp |= val;
-	writel(tmp, priv->regbase + UNIPHIER_SD_OPTION);
+	uniphier_sd_writel(priv, tmp, UNIPHIER_SD_OPTION);
 
 	return 0;
 }
@@ -531,12 +542,12 @@ static void uniphier_sd_set_ddr_mode(struct uniphier_sd_priv *priv,
 {
 	u32 tmp;
 
-	tmp = readl(priv->regbase + UNIPHIER_SD_IF_MODE);
+	tmp = uniphier_sd_readl(priv, UNIPHIER_SD_IF_MODE);
 	if (mmc->ddr_mode)
 		tmp |= UNIPHIER_SD_IF_MODE_DDR;
 	else
 		tmp &= ~UNIPHIER_SD_IF_MODE_DDR;
-	writel(tmp, priv->regbase + UNIPHIER_SD_IF_MODE);
+	uniphier_sd_writel(priv, tmp, UNIPHIER_SD_IF_MODE);
 }
 
 static void uniphier_sd_set_clk_rate(struct uniphier_sd_priv *priv,
@@ -573,21 +584,21 @@ static void uniphier_sd_set_clk_rate(struct uniphier_sd_priv *priv,
 	else
 		val = UNIPHIER_SD_CLKCTL_DIV1024;
 
-	tmp = readl(priv->regbase + UNIPHIER_SD_CLKCTL);
+	tmp = uniphier_sd_readl(priv, UNIPHIER_SD_CLKCTL);
 	if (tmp & UNIPHIER_SD_CLKCTL_SCLKEN &&
 	    (tmp & UNIPHIER_SD_CLKCTL_DIV_MASK) == val)
 		return;
 
 	/* stop the clock before changing its rate to avoid a glitch signal */
 	tmp &= ~UNIPHIER_SD_CLKCTL_SCLKEN;
-	writel(tmp, priv->regbase + UNIPHIER_SD_CLKCTL);
+	uniphier_sd_writel(priv, tmp, UNIPHIER_SD_CLKCTL);
 
 	tmp &= ~UNIPHIER_SD_CLKCTL_DIV_MASK;
 	tmp |= val | UNIPHIER_SD_CLKCTL_OFFEN;
-	writel(tmp, priv->regbase + UNIPHIER_SD_CLKCTL);
+	uniphier_sd_writel(priv, tmp, UNIPHIER_SD_CLKCTL);
 
 	tmp |= UNIPHIER_SD_CLKCTL_SCLKEN;
-	writel(tmp, priv->regbase + UNIPHIER_SD_CLKCTL);
+	uniphier_sd_writel(priv, tmp, UNIPHIER_SD_CLKCTL);
 
 	udelay(1000);
 }
@@ -617,7 +628,7 @@ static int uniphier_sd_get_cd(struct udevice *dev)
 	if (priv->caps & UNIPHIER_SD_CAP_NONREMOVABLE)
 		return 1;
 
-	return !!(readl(priv->regbase + UNIPHIER_SD_INFO1) &
+	return !!(uniphier_sd_readl(priv, UNIPHIER_SD_INFO1) &
 		  UNIPHIER_SD_INFO1_CD);
 }
 
@@ -632,28 +643,28 @@ static void uniphier_sd_host_init(struct uniphier_sd_priv *priv)
 	u32 tmp;
 
 	/* soft reset of the host */
-	tmp = readl(priv->regbase + UNIPHIER_SD_SOFT_RST);
+	tmp = uniphier_sd_readl(priv, UNIPHIER_SD_SOFT_RST);
 	tmp &= ~UNIPHIER_SD_SOFT_RST_RSTX;
-	writel(tmp, priv->regbase + UNIPHIER_SD_SOFT_RST);
+	uniphier_sd_writel(priv, tmp, UNIPHIER_SD_SOFT_RST);
 	tmp |= UNIPHIER_SD_SOFT_RST_RSTX;
-	writel(tmp, priv->regbase + UNIPHIER_SD_SOFT_RST);
+	uniphier_sd_writel(priv, tmp, UNIPHIER_SD_SOFT_RST);
 
 	/* FIXME: implement eMMC hw_reset */
 
-	writel(UNIPHIER_SD_STOP_SEC, priv->regbase + UNIPHIER_SD_STOP);
+	uniphier_sd_writel(priv, UNIPHIER_SD_STOP_SEC, UNIPHIER_SD_STOP);
 
 	/*
 	 * Connected to 32bit AXI.
 	 * This register dropped backward compatibility at version 0x10.
 	 * Write an appropriate value depending on the IP version.
 	 */
-	writel(priv->version >= 0x10 ? 0x00000101 : 0x00000000,
-	       priv->regbase + UNIPHIER_SD_HOST_MODE);
+	uniphier_sd_writel(priv, priv->version >= 0x10 ? 0x00000101 : 0x00000000,
+			   UNIPHIER_SD_HOST_MODE);
 
 	if (priv->caps & UNIPHIER_SD_CAP_DMA_INTERNAL) {
-		tmp = readl(priv->regbase + UNIPHIER_SD_DMA_MODE);
+		tmp = uniphier_sd_readl(priv, UNIPHIER_SD_DMA_MODE);
 		tmp |= UNIPHIER_SD_DMA_MODE_ADDR_INC;
-		writel(tmp, priv->regbase + UNIPHIER_SD_DMA_MODE);
+		uniphier_sd_writel(priv, tmp, UNIPHIER_SD_DMA_MODE);
 	}
 }
 
@@ -724,7 +735,7 @@ static int uniphier_sd_probe(struct udevice *dev)
 			     NULL))
 		priv->caps |= UNIPHIER_SD_CAP_NONREMOVABLE;
 
-	priv->version = readl(priv->regbase + UNIPHIER_SD_VERSION) &
+	priv->version = uniphier_sd_readl(priv, UNIPHIER_SD_VERSION) &
 							UNIPHIER_SD_VERSION_IP;
 	dev_dbg(dev, "version %x\n", priv->version);
 	if (priv->version >= 0x10) {
