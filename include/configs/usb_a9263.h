@@ -36,14 +36,6 @@
 /*
  * Hardware drivers
  */
-#define CONFIG_AT91_GPIO
-
-/* serial console */
-#define CONFIG_ATMEL_USART
-#define CONFIG_USART_BASE		ATMEL_BASE_DBGU
-#define CONFIG_USART_ID			ATMEL_ID_SYS
-
-
 /*
  * BOOTP options
  */
@@ -58,16 +50,7 @@
 #define CONFIG_SYS_SDRAM_SIZE		0x04000000
 
 #define CONFIG_SYS_INIT_SP_ADDR \
-	(ATMEL_BASE_SRAM1 + 0x1000 - GENERATED_GBL_DATA_SIZE)
-
-/* DataFlash */
-#define CONFIG_ATMEL_DATAFLASH_SPI
-#define CONFIG_HAS_DATAFLASH
-#define CONFIG_SYS_MAX_DATAFLASH_BANKS		1
-#define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000
-#define AT91_SPI_CLK				8000000
-#define DATAFLASH_TCSS				(0x1a << 16)
-#define DATAFLASH_TCHS				(0x1 << 24)
+	(ATMEL_BASE_SRAM1 + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
@@ -106,12 +89,11 @@
 #define CONFIG_SYS_MEMTEST_START		CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END			0x23e00000
 
-/* bootstrap + u-boot + env in dataflash on CS0 */
-#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 + 0x4000)
+/* bootstrap + u-boot + env + linux in dataflash on CS0 */
 #define CONFIG_ENV_OFFSET	0x2000
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 + \
-				 CONFIG_ENV_OFFSET)
 #define CONFIG_ENV_SIZE		0x2000
+#define CONFIG_ENV_SECT_SIZE	CONFIG_ENV_SIZE
+#define CONFIG_ENV_SPI_MAX_HZ	15000000
 #define CONFIG_BOOTCOMMAND	"nboot 21000000 0"
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 " \
 	"root=/dev/mtdblock1 " \
