@@ -470,13 +470,13 @@ static int uniphier_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		u32 rsp_71_40 = readl(priv->regbase + UNIPHIER_SD_RSP32);
 		u32 rsp_39_8 = readl(priv->regbase + UNIPHIER_SD_RSP10);
 
-		cmd->response[0] = (rsp_127_104 & 0xffffff) << 8 |
-							(rsp_103_72 & 0xff);
-		cmd->response[1] = (rsp_103_72  & 0xffffff) << 8 |
-							(rsp_71_40 & 0xff);
-		cmd->response[2] = (rsp_71_40   & 0xffffff) << 8 |
-							(rsp_39_8 & 0xff);
-		cmd->response[3] = (rsp_39_8    & 0xffffff) << 8;
+		cmd->response[0] = ((rsp_127_104 & 0x00ffffff) << 8) |
+				   ((rsp_103_72  & 0xff000000) >> 24);
+		cmd->response[1] = ((rsp_103_72  & 0x00ffffff) << 8) |
+				   ((rsp_71_40   & 0xff000000) >> 24);
+		cmd->response[2] = ((rsp_71_40   & 0x00ffffff) << 8) |
+				   ((rsp_39_8    & 0xff000000) >> 24);
+		cmd->response[3] = (rsp_39_8     & 0xffffff)   << 8;
 	} else {
 		/* bit 39-8 */
 		cmd->response[0] = readl(priv->regbase + UNIPHIER_SD_RSP10);
