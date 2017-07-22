@@ -54,7 +54,6 @@
  */
 #if defined(CONFIG_SPI_BOOT) || defined(CONFIG_NAND)
 #define CONFIG_MTD_DEVICE		/* Required for mtdparts */
-#define CONFIG_CMD_MTDPARTS
 #endif /* CONFIG_SPI_BOOT, ... */
 
 #ifdef CONFIG_SPL_OS_BOOT

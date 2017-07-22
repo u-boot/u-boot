@@ -235,7 +235,6 @@
 
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITION
-#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT			"nand0=e0600000.flash"
 #define MTDPARTS_DEFAULT		\
 	"mtdparts=e0600000.flash:512k(uboot),128k(env),6m@1m(kernel),-(fs)"

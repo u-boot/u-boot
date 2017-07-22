@@ -23,7 +23,6 @@
 
 #define CONFIG_LMB
 
-#define CONFIG_LZO
 #undef CONFIG_ZLIB
 #undef CONFIG_GZIP
 #define CONFIG_SYS_BOOTM_LEN		(16 << 20)

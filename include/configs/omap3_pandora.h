@@ -58,11 +58,6 @@
 #define CONFIG_SYS_NAND_OOBSIZE		64
 
 #ifdef CONFIG_NAND
-#define CONFIG_CMD_UBIFS	/* Read-only UBI volume operations */
-
-#define CONFIG_RBTREE		/* required by CONFIG_CMD_UBI */
-#define CONFIG_LZO		/* required by CONFIG_CMD_UBIFS */
-
 #define CONFIG_MTD_PARTITIONS	/* required for UBI partition support */
 
 #define MTDIDS_DEFAULT			"nand0=omap2-nand.0"

@@ -233,11 +233,8 @@ int vct_gpio_get(int pin);
  * UBI configuration
  */
 #if defined(CONFIG_VCT_ONENAND)
-#define CONFIG_SYS_USE_UBI
-#define	CONFIG_RBTREE
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_CMD_MTDPARTS
 
 #define MTDIDS_DEFAULT		"onenand0=onenand"
 #define MTDPARTS_DEFAULT	"mtdparts=onenand:128k(u-boot),"	\

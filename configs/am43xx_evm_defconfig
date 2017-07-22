@@ -17,6 +17,7 @@ CONFIG_HUSH_PARSER=y
 # CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_SETEXPR is not set
+CONFIG_CMD_MTDPARTS=y
 CONFIG_ISO_PARTITION=y
 CONFIG_OF_CONTROL=y
 CONFIG_OF_LIST="am437x-gp-evm am437x-sk-evm am43x-epos-evm am437x-idk-evm"

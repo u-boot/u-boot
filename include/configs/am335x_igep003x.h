@@ -120,8 +120,6 @@
 
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
-#define CONFIG_RBTREE
-#define CONFIG_LZO
 
 #define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
 #define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:512k(SPL),-(UBI)"

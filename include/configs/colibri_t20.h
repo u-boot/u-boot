@@ -46,7 +46,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 /* Dynamic MTD partition support */
-#define CONFIG_CMD_MTDPARTS	/* Enable 'mtdparts' command line support */
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 #define MTDIDS_DEFAULT		"nand0=tegra_nand"
@@ -61,12 +60,6 @@
 #define CONFIG_ENV_OFFSET		(SZ_2M)
 #undef CONFIG_ENV_SIZE		/* undef size from tegra20-common.h */
 #define CONFIG_ENV_SIZE			(SZ_64K)
-
-/* UBI */
-#define CONFIG_CMD_UBIFS	/* increases size by almost 60 KB */
-#define CONFIG_LZO
-#define CONFIG_RBTREE
-
 
 #define BOARD_EXTRA_ENV_SETTINGS \
 	"mtdparts=" MTDPARTS_DEFAULT "\0"

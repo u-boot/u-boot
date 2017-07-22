@@ -156,7 +156,6 @@
 
 /* MTD device */
 # define CONFIG_MTD_DEVICE
-# define CONFIG_CMD_MTDPARTS
 # define CONFIG_MTD_PARTITIONS
 # define MTDIDS_DEFAULT		"nand0=gpmi-nand"
 # define MTDPARTS_DEFAULT	"mtdparts=gpmi-nand:4m(uboot)," \

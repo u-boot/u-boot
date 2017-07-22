@@ -139,11 +139,6 @@
 #define CONFIG_MXC_GPIO
 
 /*
- * MTD partitions
- */
-#define CONFIG_CMD_MTDPARTS
-
-/*
  * U-Boot general configuration
  */
 #define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size  */

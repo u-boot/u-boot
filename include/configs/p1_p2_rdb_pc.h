@@ -72,7 +72,6 @@
  */
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_FLASH_CFI_MTD
 #define MTDIDS_DEFAULT "nor0=ec000000.nor"
 #define MTDPARTS_DEFAULT "mtdparts=ec000000.nor:128k(dtb),6016k(kernel)," \
@@ -98,7 +97,6 @@
  */
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_FLASH_CFI_MTD
 #ifdef CONFIG_PHYS_64BIT
 #define MTDIDS_DEFAULT "nor0=fef000000.nor"
@@ -157,7 +155,6 @@
  */
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_FLASH_CFI_MTD
 #ifdef CONFIG_PHYS_64BIT
 #define MTDIDS_DEFAULT "nor0=fef000000.nor"

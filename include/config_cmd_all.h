@@ -14,7 +14,6 @@
  */
 
 #define CONFIG_CMD_MFSL		/* FSL support for Microblaze	*/
-#define CONFIG_CMD_MTDPARTS	/* mtd parts support		*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_ONENAND	/* OneNAND support		*/
 #define CONFIG_CMD_PCI		/* pciinfo			*/
@@ -27,7 +26,6 @@
 #define CONFIG_CMD_SAVES	/* save S record dump		*/
 #define CONFIG_CMD_SDRAM	/* SDRAM DIMM SPD info printout */
 #define CONFIG_CMD_TERMINAL	/* built-in Serial Terminal	*/
-#define CONFIG_CMD_UBIFS	/* UBIFS Support		*/
 #define CONFIG_CMD_UNIVERSE	/* Tundra Universe Support	*/
 #define CONFIG_CMD_ZFS		/* ZFS Support			*/
 

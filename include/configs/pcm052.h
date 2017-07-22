@@ -33,13 +33,7 @@
 
 #define CONFIG_JFFS2_NAND
 
-/* UBI */
-#define CONFIG_CMD_UBIFS
-#define CONFIG_RBTREE
-#define CONFIG_LZO
-
 /* Dynamic MTD partition support */
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
 

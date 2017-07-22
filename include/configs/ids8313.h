@@ -476,7 +476,6 @@
 #define CONFIG_JFFS2_DEV		"0"
 
 /* mtdparts command line support */
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_FLASH_CFI_MTD
 #define CONFIG_MTD_DEVICE
 #define MTDIDS_DEFAULT		"nor0=ff800000.flash,nand0=e1000000.flash"
@@ -527,9 +526,6 @@
 
 /* UBI Support */
 #define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_CMD_UBIFS
-#define CONFIG_RBTREE
-#define CONFIG_LZO
 #define CONFIG_MTD_PARTITIONS
 
 /* bootcount support */

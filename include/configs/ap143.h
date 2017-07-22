@@ -50,11 +50,6 @@
 #define CONFIG_ENV_SECT_SIZE            0x10000
 #define CONFIG_ENV_SIZE                 0x10000
 
-/*
- * Command
- */
-#define CONFIG_CMD_MTDPARTS
-
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE               256
 #define CONFIG_SYS_MAXARGS              16

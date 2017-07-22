@@ -77,16 +77,10 @@
 #define CONFIG_APBH_DMA_BURST8
 
 /* Filesystem support */
-#define CONFIG_LZO
-#define CONFIG_CMD_UBIFS
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
 #define MTDIDS_DEFAULT    "nand0=nand"
 #define MTDPARTS_DEFAULT  "mtdparts=nand:16m(uboot),1m(env),-(rootfs)"
-
-/* Various command support */
-#define CONFIG_RBTREE
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS           1

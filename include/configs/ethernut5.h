@@ -84,13 +84,11 @@
 #define CONFIG_AT91_GPIO
 
 /* Command line configuration */
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND
 
 #ifndef MINIMAL_LOADER
 #define CONFIG_CMD_REISER
 #define CONFIG_CMD_SAVES
-#define CONFIG_CMD_UBIFS
 #endif
 
 /* NAND flash */
@@ -186,8 +184,6 @@
 #define MTDIDS_DEFAULT		"nand0=atmel_nand"
 #define MTDPARTS_DEFAULT	"mtdparts=atmel_nand:-(root)"
 #endif
-#define CONFIG_LZO
-#define CONFIG_RBTREE
 
 /* Boot command */
 #define CONFIG_CMDLINE_TAG

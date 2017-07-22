@@ -810,7 +810,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #ifdef CONFIG_MTD_NOR_FLASH
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_FLASH_CFI_MTD
 #define MTDIDS_DEFAULT "nor0=fe8000000.nor,nand0=fff800000.flash," \
 			"spi0=spife110000.0"

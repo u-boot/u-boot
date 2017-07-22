@@ -103,9 +103,6 @@
 #define CONFIG_SUPPORT_EMMC_BOOT
 #define CONFIG_SUPPORT_EMMC_RPMB
 
-/* Filesystem support */
-#define CONFIG_CMD_UBIFS
-
 /*
  * SATA Configs
  */
@@ -140,7 +137,6 @@
 
 /* Various command support */
 #define CONFIG_CMD_UNZIP         /* gzwrite */
-#define CONFIG_RBTREE
 
 /* Ethernet support */
 #define CONFIG_FEC_MXC
@@ -204,8 +200,6 @@
 /*
  * MTD Command for mtdparts
  */
-#define CONFIG_LZO
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 #ifdef CONFIG_SPI_FLASH

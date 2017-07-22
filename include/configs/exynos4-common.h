@@ -21,7 +21,6 @@
 #define CONFIG_MMC_DEFAULT_DEV	0
 
 #undef CONFIG_CMD_ONENAND
-#undef CONFIG_CMD_MTDPARTS
 
 /* TIZEN THOR downloader support */
 #define CONFIG_CMD_THOR_DOWNLOAD

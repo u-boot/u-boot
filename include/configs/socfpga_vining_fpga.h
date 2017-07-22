@@ -170,9 +170,6 @@
 		"else echo \"Unsupported boot mode: \"${bootmode} ; "	\
 		"fi\0"							\
 
-#define CONFIG_CMD_UBIFS
-#define CONFIG_RBTREE
-#define CONFIG_LZO
 #define MTDPARTS_DEFAULT			\
 	"mtdparts=ff705000.spi.0:"		\
 		"1m(u-boot),"			\

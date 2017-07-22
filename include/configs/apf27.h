@@ -54,11 +54,9 @@
 /*
  * U-Boot Commands
  */
-#define CONFIG_CMD_MTDPARTS	/* MTD partition support	*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_NAND_LOCK_UNLOCK
 #define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_CMD_UBIFS
 
 /*
  * Memory configurations
@@ -236,12 +234,6 @@
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_SUPPORT_VFAT
-
-/*
- * UBIFS
- */
-#define CONFIG_RBTREE
-#define CONFIG_LZO
 
 /*
  * Ethernet (on SOC imx FEC)

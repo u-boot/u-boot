@@ -71,7 +71,6 @@
 /* UBI/UBI config options */
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_RBTREE
 
 /* Ethernet config options */
 #define CONFIG_MII
@@ -106,11 +105,8 @@
 /*
  * Command support defines
  */
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_SAVES
-#define CONFIG_CMD_UBIFS
-#define CONFIG_LZO
 
 /* Filesystem support (for USB key) */
 #define CONFIG_SUPPORT_VFAT

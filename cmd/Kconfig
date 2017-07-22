@@ -1270,7 +1270,7 @@ config CMD_UBIFS
 	depends on CMD_UBI
 	select CRC32
 	select LZO
-	default y if NAND_SUNXI
+	default y if CMD_UBI
 	help
 	  UBIFS is a file system for flash devices which works on top of UBI.
 

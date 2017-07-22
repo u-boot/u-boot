@@ -89,7 +89,6 @@
 
 /* commands to include */
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_MTDPARTS
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -112,9 +111,6 @@
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_NAND_OMAP_GPMC_PREFETCH
 #define CONFIG_BCH
-#define CONFIG_CMD_UBIFS		/* Read-only UBI volume operations */
-#define CONFIG_RBTREE			/* required by CONFIG_CMD_UBI */
-#define CONFIG_LZO			/* required by CONFIG_CMD_UBIFS */
 #define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
 							/* to access nand */
 #define CONFIG_SYS_NAND_BASE		NAND_BASE	/* physical address */

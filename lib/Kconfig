@@ -157,7 +157,9 @@ config LZMA
 	  CONFIG_CMD_LZMADEC which provides a decode command.
 
 config LZO
-	bool
+	bool "Enable LZO decompression support"
+	help
+	  This enables support for LZO compression algorithm.r
 endmenu
 
 config ERRNO_STR

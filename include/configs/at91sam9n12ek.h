@@ -90,7 +90,6 @@
 
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
-#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT			"nand0=atmel_nand"
 #define MTDPARTS_DEFAULT						\
 	"mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,"		\

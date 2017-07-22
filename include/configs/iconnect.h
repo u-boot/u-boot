@@ -25,7 +25,6 @@
  * Compression configuration
  */
 #define CONFIG_BZIP2
-#define CONFIG_LZO
 
 /*
  * Commands configuration
@@ -86,10 +85,7 @@
 /*
  * File system
  */
-#define CONFIG_CMD_UBIFS
-#define CONFIG_RBTREE
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_CMD_MTDPARTS
 
 #endif /* _CONFIG_ICONNECT_H */

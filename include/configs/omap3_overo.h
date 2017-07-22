@@ -46,11 +46,6 @@
 /* commands to include */
 
 #ifdef CONFIG_NAND
-#define CONFIG_CMD_UBIFS	/* Read-only UBI volume operations */
-
-#define CONFIG_RBTREE		/* required by CONFIG_CMD_UBI */
-#define CONFIG_LZO		/* required by CONFIG_CMD_UBIFS */
-
 #define CONFIG_MTD_PARTITIONS	/* required for UBI partition support */
 
 /* NAND block size is 128 KiB.  Synchronize these values with

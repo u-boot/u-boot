@@ -20,7 +20,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 # define CONFIG_TIMESTAMP
-# define CONFIG_LZO
 #endif
 
 #define CONFIG_SYS_BOOTM_LEN		(16 << 20)

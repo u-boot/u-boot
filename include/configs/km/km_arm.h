@@ -116,11 +116,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS	/* enable memory tag */
 
 /*
- * Commands configuration
- */
-#define CONFIG_CMD_MTDPARTS
-
-/*
  * NAND Flash configuration
  */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
@@ -152,11 +147,6 @@
 #define CONFIG_PHY_BASE_ADR	0
 #define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
 #define CONFIG_KM_COMMON_ETH_INIT /* standard km ethernet_present for piggy */
-
-/*
- * UBI related stuff
- */
-#define CONFIG_SYS_USE_UBI
 
 /*
  * I2C related stuff

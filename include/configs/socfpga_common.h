@@ -188,7 +188,6 @@ unsigned int cm_get_l4_sp_clk_hz(void);
 /* Enable multiple SPI NOR flash manufacturers */
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SPI_FLASH_MTD
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 #define MTDIDS_DEFAULT			"nor0=ff705000.spi.0"
@@ -279,13 +278,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 				"14848k(boot),"		\
 				"16m(rootfs),"		\
 				"-@1536k(UBI)\0"
-#endif
-
-/* UBI and UBIFS support */
-#if defined(CONFIG_CMD_SF) || defined(CONFIG_CMD_NAND)
-#define CONFIG_CMD_UBIFS
-#define CONFIG_RBTREE
-#define CONFIG_LZO
 #endif
 
 /*

@@ -73,7 +73,6 @@
 #include "mv-common.h"
 
 /* Remove or override few declarations from mv-common.h */
-#undef CONFIG_RBTREE
 #undef CONFIG_ENV_SPI_MAX_HZ
 #undef CONFIG_SYS_IDE_MAXBUS
 #undef CONFIG_SYS_IDE_MAXDEVICE

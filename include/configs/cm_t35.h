@@ -83,7 +83,6 @@
 #define CONFIG_USB_TTY
 
 /* commands to include */
-#define CONFIG_CMD_MTDPARTS	/* Enable MTD parts commands */
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS
 #define MTDIDS_DEFAULT		"nand0=nand"

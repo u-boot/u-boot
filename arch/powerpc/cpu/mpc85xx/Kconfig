@@ -482,6 +482,7 @@ config ARCH_BSC9132
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select FSL_IFC
 	imply CMD_EEPROM
+	imply CMD_MTDPARTS
 
 config ARCH_C29X
 	bool
@@ -617,6 +618,7 @@ config ARCH_P1010
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select FSL_IFC
 	imply CMD_EEPROM
+	imply CMD_MTDPARTS
 	imply CMD_SATA
 
 config ARCH_P1011
@@ -903,6 +905,7 @@ config ARCH_T1024
 	select SYS_FSL_SEC_COMPAT_5
 	select FSL_IFC
 	imply CMD_EEPROM
+	imply CMD_MTDPARTS
 
 config ARCH_T1040
 	bool
@@ -921,6 +924,7 @@ config ARCH_T1040
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
 	select FSL_IFC
+	imply CMD_MTDPARTS
 	imply CMD_SATA
 
 config ARCH_T1042
@@ -940,6 +944,7 @@ config ARCH_T1042
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
 	select FSL_IFC
+	imply CMD_MTDPARTS
 	imply CMD_SATA
 
 config ARCH_T2080

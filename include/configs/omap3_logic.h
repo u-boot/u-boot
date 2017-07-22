@@ -54,7 +54,6 @@
 
 /* commands to include */
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands	*/
 
 /* I2C */
@@ -79,10 +78,6 @@
 /* Board NAND Info. */
 #ifdef CONFIG_NAND
 #define CONFIG_NAND_OMAP_GPMC
-
-#define CONFIG_CMD_UBIFS		/* Read-only UBI volume operations */
-#define CONFIG_RBTREE			/* required by CONFIG_CMD_UBI */
-#define CONFIG_LZO			/* required by CONFIG_CMD_UBIFS */
 
 #define CONFIG_SYS_NAND_ADDR		NAND_BASE /* physical address */
 						  /* to access nand */

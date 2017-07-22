@@ -324,7 +324,6 @@
 #ifdef CONFIG_CMD_JFFS2
 #define CONFIG_JFFS2_DEV		"nand0"
 #define CONFIG_JFFS2_PART_OFFSET	(0x800000)
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE
 #define MTDIDS_DEFAULT		"nand0=m54418twr.nand"
 
@@ -335,10 +334,8 @@
 #endif
 
 #ifdef CONFIG_CMD_UBI
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts command */
 #define CONFIG_MTD_PARTITIONS	/* mtdparts and UBI support */
-#define CONFIG_RBTREE
 #define MTDIDS_DEFAULT		"nand0=NAND"
 #define MTDPARTS_DEFAULT	"mtdparts=NAND:1m(u-boot),"	\
 					"-(ubi)"

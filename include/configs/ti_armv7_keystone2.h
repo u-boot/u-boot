@@ -186,8 +186,6 @@
 #define CONFIG_SYS_NAND_MAX_CHIPS		1
 #define CONFIG_SYS_NAND_NO_SUBPAGE_WRITE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_RBTREE
-#define CONFIG_LZO
 #define MTDIDS_DEFAULT			"nand0=davinci_nand.0"
 #define MTDPARTS_DEFAULT		"mtdparts=davinci_nand.0:" \
 					"1024k(bootloader)ro,512k(params)ro," \
@@ -203,7 +201,6 @@
 
 /* U-Boot command configuration */
 #define CONFIG_CMD_SAVES
-#define CONFIG_CMD_UBIFS
 
 /* U-Boot general configuration */
 #define CONFIG_MISC_INIT_R

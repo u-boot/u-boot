@@ -186,11 +186,7 @@
 #endif /* CONFIG_CMD_NAND */
 
 /* UBI/UBIFS config options */
-#define CONFIG_LZO
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_RBTREE
-#define CONFIG_CMD_MTDPARTS
-#define CONFIG_CMD_UBIFS
 
 #endif			       /* __CONFIG_H */

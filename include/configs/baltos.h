@@ -35,12 +35,8 @@
 #define CONFIG_SYS_BOOTM_LEN         SZ_64M
 
 /* UBI Support */
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
-#define CONFIG_RBTREE
-#define CONFIG_LZO
-#define CONFIG_CMD_UBIFS
 
 /* I2C configuration */
 #undef CONFIG_SYS_OMAP24_I2C_SPEED

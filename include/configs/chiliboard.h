@@ -15,7 +15,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 # define CONFIG_TIMESTAMP
-# define CONFIG_LZO
 #endif
 
 /* Clock Defines */

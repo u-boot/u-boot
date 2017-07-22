@@ -810,7 +810,6 @@ The following options need to be configured:
 		CONFIG_CMD_MISC		  Misc functions like sleep etc
 		CONFIG_CMD_MMC		* MMC memory mapped support
 		CONFIG_CMD_MII		* MII utility commands
-		CONFIG_CMD_MTDPARTS	* MTD partition support
 		CONFIG_CMD_NAND		* NAND support
 		CONFIG_CMD_NET		  bootp, tftpboot, rarpboot
 		CONFIG_CMD_NFS		  NFS support
@@ -1619,11 +1618,6 @@ The following options need to be configured:
 		NOTE: the bzip2 algorithm requires a lot of RAM, so
 		the malloc area (as defined by CONFIG_SYS_MALLOC_LEN) should
 		be at least 4MB.
-
-		CONFIG_LZO
-
-		If this option is set, support for LZO compressed images
-		is included.
 
 - MII/PHY support:
 		CONFIG_PHY_ADDR
@@ -2796,13 +2790,6 @@ FIT uImage format:
 		kernel. Needed for UBI support.
 
 - UBI support
-		CONFIG_CMD_UBI
-
-		Adds commands for interacting with MTD partitions formatted
-		with the UBI flash translation layer
-
-		Requires also defining CONFIG_RBTREE
-
 		CONFIG_UBI_SILENCE_MSG
 
 		Make the verbose messages from UBI stop printing.  This leaves
@@ -2871,13 +2858,6 @@ FIT uImage format:
 		default: 0
 
 - UBIFS support
-		CONFIG_CMD_UBIFS
-
-		Adds commands for interacting with UBI volumes formatted as
-		UBIFS.  UBIFS is read-only in u-boot.
-
-		Requires UBI support as well as CONFIG_LZO
-
 		CONFIG_UBIFS_SILENCE_MSG
 
 		Make the verbose messages from UBIFS stop printing.  This leaves

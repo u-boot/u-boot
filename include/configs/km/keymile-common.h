@@ -10,11 +10,6 @@
 
 #define CONFIG_BOOTCOUNT_LIMIT
 
-/*
- * Command line configuration.
- */
-#define CONFIG_CMD_MTDPARTS
-
 #undef	CONFIG_WATCHDOG		/* disable platform specific watchdog */
 
 #undef	CONFIG_BOOTARGS		/* the boot command will set bootargs */
@@ -60,7 +55,6 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /* UBI Support for all Keymile boards */
-#define CONFIG_RBTREE
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_CONCAT

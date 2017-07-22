@@ -35,11 +35,6 @@
 #define CONFIG_INITRD_TAG
 
 /*
- * Compressions
- */
-#define CONFIG_LZO
-
-/*
  * Hardware drivers
  */
 

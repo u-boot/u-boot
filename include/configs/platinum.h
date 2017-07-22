@@ -19,10 +19,8 @@
  * Console configuration
  */
 
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_CMD_UBIFS
 
 /*
  * Hardware configuration
@@ -130,10 +128,8 @@
 						 sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* MTD/UBI/UBIFS config */
-#define CONFIG_LZO
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_RBTREE
 
 #if (CONFIG_SYS_NAND_MAX_CHIPS == 1)
 #define MTDIDS_DEFAULT		"nand0=gpmi-nand"

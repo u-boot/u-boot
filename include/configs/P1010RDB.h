@@ -354,7 +354,6 @@ extern unsigned long get_sdram_size(void);
 
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITION
-#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT			"nand0=ff800000.flash"
 #define MTDPARTS_DEFAULT		\
 	"mtdparts=ff800000.flash:2m(uboot-env),1m(dtb),5m(kernel),56m(fs),-(usr)"

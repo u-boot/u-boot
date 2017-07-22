@@ -77,11 +77,7 @@
 /*
  * File system
  */
-#define CONFIG_CMD_UBIFS
-#define CONFIG_RBTREE
 #define CONFIG_MTD_DEVICE               /* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_CMD_MTDPARTS
-#define CONFIG_LZO
 
 #endif /* _CONFIG_POGO_E02_H */

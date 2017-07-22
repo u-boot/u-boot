@@ -569,6 +569,7 @@ config ARCH_KEYSTONE
 	select SUPPORT_SPL
 	select SYS_THUMB_BUILD
 	select CMD_POWEROFF
+	imply CMD_MTDPARTS
 	imply FIT
 
 config ARCH_OMAP2PLUS
@@ -649,6 +650,7 @@ config ARCH_SOCFPGA
 	select ARCH_MISC_INIT
 	select SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 	select SYS_THUMB_BUILD
+	imply CMD_MTDPARTS
 	imply CRC32_VERIFY
 	imply FAT_WRITE
 
@@ -693,6 +695,7 @@ config ARCH_VF610
 	bool "Freescale Vybrid"
 	select CPU_V7
 	select SYS_FSL_ERRATUM_ESDHC111
+	imply CMD_MTDPARTS
 
 config ARCH_ZYNQ
 	bool "Xilinx Zynq Platform"
