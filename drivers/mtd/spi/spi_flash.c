@@ -947,11 +947,25 @@ int spi_flash_scan(struct spi_flash *flash)
 	if (IS_ERR_OR_NULL(info))
 		return -ENOENT;
 
-	/* Flash powers up read-only, so clear BP# bits */
+	/*
+	 * Flash powers up read-only, so clear BP# bits.
+	 *
+	 * Note on some flash (like Macronix), QE (quad enable) bit is in the
+	 * same status register as BP# bits, and we need preserve its original
+	 * value during a reboot cycle as this is required by some platforms
+	 * (like Intel ICH SPI controller working under descriptor mode).
+	 */
 	if (JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_ATMEL ||
-	    JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_MACRONIX ||
-	    JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_SST)
-		write_sr(flash, 0);
+	   (JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_SST) ||
+	   (JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_MACRONIX)) {
+		u8 sr = 0;
+
+		if (JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_MACRONIX) {
+			read_sr(flash, &sr);
+			sr &= STATUS_QEB_MXIC;
+		}
+		write_sr(flash, sr);
+	}
 
 	flash->name = info->name;
 	flash->memory_map = spi->memory_map;
