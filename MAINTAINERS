@@ -452,6 +452,7 @@ F:	drivers/video/
 
 X86
 M:	Simon Glass <sjg@chromium.org>
+M:	Bin Meng <bmeng.cn@gmail.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-x86.git
 F:	arch/x86/
