@@ -432,6 +432,21 @@ config ENV_IS_IN_NVRAM
 	  can just be read and written to, without any special
 	  provision.
 
+config ENV_IS_IN_REMOTE
+	bool "Environment is in remove memory space"
+	depends on !CHAIN_OF_TRUST
+	help
+	  Define this if you have a remote memory space which you
+	  want to use for the local device's environment.
+
+	  - CONFIG_ENV_ADDR:
+	  - CONFIG_ENV_SIZE:
+
+	  These two #defines specify the address and size of the
+	  environment area within the remote memory space. The
+	  local device can get the environment from remote memory
+	  space by SRIO or PCIE links.
+
 config ENV_IS_IN_SPI_FLASH
 	bool "Environment is in SPI flash"
 	depends on !CHAIN_OF_TRUST
