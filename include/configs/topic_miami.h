@@ -14,7 +14,6 @@
 #define CONFIG_ZYNQ_I2C1
 
 /* Speed up boot time by ignoring the environment which we never used */
-#define CONFIG_ENV_IS_NOWHERE
 
 #include "zynq-common.h"
 

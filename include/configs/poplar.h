@@ -67,7 +67,6 @@
 
 
 /* Command line configuration */
-#define CONFIG_ENV_IS_IN_MMC		1
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_OFFSET		(0x780 * 512)	/* env_mmc_blknum */
 #define CONFIG_ENV_SIZE			0x10000	/* env_mmc_nblks bytes */

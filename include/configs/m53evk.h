@@ -92,7 +92,6 @@
 #define CONFIG_SYS_NAND_USE_FLASH_BBT
 
 /* Environment is in NAND */
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 #define CONFIG_ENV_SECT_SIZE		(128 * 1024)
 #define CONFIG_ENV_RANGE		(4 * CONFIG_ENV_SECT_SIZE)
@@ -111,8 +110,6 @@
 		"14m(boot),"			\
 		"240m(data),"			\
 		"-@2048k(UBI)"
-#else
-#define CONFIG_ENV_IS_NOWHERE
 #endif
 
 /*

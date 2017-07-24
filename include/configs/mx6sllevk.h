@@ -133,7 +133,6 @@
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* USDHC1 */
 
 #define CONFIG_ENV_OFFSET		(12 * SZ_64K)
-#define CONFIG_ENV_IS_IN_MMC
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC1_BASE_ADDR

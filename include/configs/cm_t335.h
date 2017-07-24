@@ -136,7 +136,6 @@
 					"1m(u-boot),1m(u-boot-env)," \
 					"1m(dtb),4m(splash)," \
 					"6m(kernel),-(rootfs)"
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x300000 /* environment starts here */
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 #define CONFIG_SYS_NAND_ONFI_DETECTION

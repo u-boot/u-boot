@@ -90,7 +90,6 @@
 
 #ifdef CONFIG_SYS_USE_NANDFLASH
 /* bootstrap + u-boot + env in nandflash */
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x120000
 #define CONFIG_ENV_OFFSET_REDUND	0x100000
 #define CONFIG_ENV_SIZE			0x20000

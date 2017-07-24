@@ -140,9 +140,6 @@
 #define	CONFIG_SYS_FLASH_PROTECTION		1
 
 #define CONFIG_ENV_IS_IN_FLASH		1
-
-#else	/* No flash */
-#define	CONFIG_ENV_IS_NOWHERE
 #endif
 
 #define	CONFIG_SYS_MONITOR_BASE		0x0

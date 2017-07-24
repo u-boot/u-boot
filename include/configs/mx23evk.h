@@ -23,7 +23,6 @@
 
 /* Environment */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_ENV_IS_IN_MMC
 
 /* Environment is in MMC */
 #if defined(CONFIG_CMD_MMC) && defined(CONFIG_ENV_IS_IN_MMC)

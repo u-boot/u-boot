@@ -23,7 +23,6 @@
 /* Environment */
 #define CONFIG_ENV_SIZE			(16 * 1024)
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_ENV_IS_NOWHERE
 
 /* FEC Ethernet on SoC */
 #ifdef	CONFIG_CMD_NET

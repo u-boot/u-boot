@@ -165,8 +165,6 @@
 # elif defined(CONFIG_ZYNQ_QSPI)
 /* Environment in Serial Flash */
 #  define CONFIG_ENV_IS_IN_SPI_FLASH
-# elif !defined(CONFIG_MTD_NOR_FLASH)
-#  define CONFIG_ENV_IS_NOWHERE
 # endif
 
 # define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE

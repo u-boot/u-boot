@@ -17,7 +17,6 @@
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1)
 
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV 1
 
 #endif

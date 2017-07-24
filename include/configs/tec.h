@@ -25,7 +25,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 /* Environment in NAND, aligned to start of last sector */
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		(SZ_512M - SZ_128K) /* 128K sectors */
 
 /* USB host support */

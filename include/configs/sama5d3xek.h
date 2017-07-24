@@ -109,8 +109,6 @@
 /* override the bootcmd, bootargs and other configuration nandflash env */
 #elif CONFIG_SYS_USE_MMC
 /* override the bootcmd, bootargs and other configuration for sd/mmc env */
-#else
-#define CONFIG_ENV_IS_NOWHERE
 #endif
 
 /* SPL */

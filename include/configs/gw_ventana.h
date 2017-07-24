@@ -214,10 +214,6 @@
 /* Persistent Environment Config */
 #ifdef CONFIG_SPI_FLASH
   #define CONFIG_ENV_IS_IN_SPI_FLASH
-#elif defined(CONFIG_SPL_NAND_SUPPORT)
-  #define CONFIG_ENV_IS_IN_NAND
-#else
-  #define CONFIG_ENV_IS_IN_MMC
 #endif
 #if defined(CONFIG_ENV_IS_IN_MMC)
   #define CONFIG_SYS_MMC_ENV_DEV         0

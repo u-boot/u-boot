@@ -148,7 +148,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* environment organization */
-#define CONFIG_ENV_IS_IN_NAND
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_SYS_MMC_ENV_DEV		0   /* USDHC1 */

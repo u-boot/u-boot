@@ -148,9 +148,6 @@
  * which will not be influenced by any data already on the device.
  */
 #ifdef CONFIG_FLASHCARD
-
-#define CONFIG_ENV_IS_NOWHERE
-
 /* the rdaddr is 16 MiB before the loadaddr */
 #define CONFIG_ENV_RDADDR	"rdaddr=0x81000000\0"
 
@@ -170,8 +167,6 @@
 #else /* CONFIG_FLASHCARD */
 
 #define CONFIG_ENV_OVERWRITE /* allow to overwrite serial and ethaddr */
-
-#define CONFIG_ENV_IS_IN_NAND
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_COMMON_ENV_SETTINGS \

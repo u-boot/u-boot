@@ -30,14 +30,11 @@
  * http://homepage.ntlworld.com./jonathan.deboynepollard/FGA/disc-partition-alignment.html
  */
 #ifdef CONFIG_CMD_MMC
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_OFFSET		(512 * 1024)
 #define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 #define CONFIG_ENV_OFFSET_REDUND	\
 		(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#else
-#define CONFIG_ENV_IS_NOWHERE
 #endif
 
 /* Booting Linux */

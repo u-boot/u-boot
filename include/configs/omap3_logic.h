@@ -249,7 +249,6 @@
 /* Monitor at start of flash */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 
-#define CONFIG_ENV_IS_IN_NAND		1
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 #define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 

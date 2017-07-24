@@ -181,7 +181,6 @@
 /*
  * The NAND Flash partitions:
  */
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		(0x100000)
 #define CONFIG_ENV_OFFSET_REDUND	(0x180000)
 #define CONFIG_ENV_RANGE		(SZ_512K)

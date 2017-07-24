@@ -143,7 +143,6 @@
 
 /* environment organization */
 #define CONFIG_ENV_SIZE			SZ_8K
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_OFFSET		(8 * SZ_64K)
 
 #define CONFIG_SYS_MMC_ENV_DEV		0

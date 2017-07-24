@@ -287,7 +287,6 @@
 
 #if defined(CONFIG_SD_BOOT)
 #define CONFIG_ENV_OFFSET		0x100000
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV	0
 #define CONFIG_ENV_SIZE			0x2000
 #elif defined(CONFIG_QSPI_BOOT)

@@ -79,8 +79,6 @@
 #ifdef CONFIG_MVEBU_SPI_BOOT
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 /* Environment in NAND flash */
-#elif defined(CONFIG_MVEBU_NAND_BOOT)
-#define CONFIG_ENV_IS_IN_NAND
 #endif
 
 #define CONFIG_ENV_OFFSET		0x180000 /* as Marvell U-Boot version */

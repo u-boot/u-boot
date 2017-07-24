@@ -677,7 +677,6 @@ extern unsigned long get_sdram_size(void);
  * Environment
  */
 #if defined(CONFIG_SDCARD)
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_FSL_FIXED_MMC_LOCATION
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_SIZE			0x2000
@@ -691,7 +690,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_ENV_SECT_SIZE	0x10000
 #define CONFIG_ENV_SIZE		0x2000
 #elif defined(CONFIG_NAND)
-#define CONFIG_ENV_IS_IN_NAND
 #ifdef CONFIG_TPL_BUILD
 #define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_INIT_L2_ADDR + (160 << 10))
@@ -706,7 +704,6 @@ extern unsigned long get_sdram_size(void);
 #endif
 #define CONFIG_ENV_OFFSET	(1024 * 1024)
 #elif defined(CONFIG_SYS_RAMBOOT)
-#define CONFIG_ENV_IS_NOWHERE		/* Store ENV in memory only */
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_MONITOR_BASE - 0x1000)
 #define CONFIG_ENV_SIZE			0x2000
 #else

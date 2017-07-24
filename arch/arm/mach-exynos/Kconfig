@@ -8,6 +8,7 @@ config ARCH_EXYNOS4
 	bool "Exynos4 SoC family"
 	select CPU_V7
 	select BOARD_EARLY_INIT_F
+	imply ENV_IS_IN_MMC
 	help
 	  Samsung Exynos4 SoC family are based on ARM Cortex-A9 CPU. There
 	  are multiple SoCs in this family including Exynos4210, Exynos4412,

@@ -23,8 +23,6 @@
 #define CONFIG_PHY_MICREL_KSZ9031
 #endif
 
-#define CONFIG_ENV_IS_IN_MMC
-
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>
 

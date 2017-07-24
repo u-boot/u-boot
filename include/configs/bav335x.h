@@ -18,7 +18,6 @@
 #define __CONFIG_BAV335X_H
 
 #include <configs/ti_am335x_common.h>
-#define CONFIG_ENV_IS_NOWHERE
 
 #ifndef CONFIG_SPL_BUILD
 # define CONFIG_TIMESTAMP
@@ -388,8 +387,6 @@ DEFAULT_LINUX_BOOT_ENV \
 	"8m(NAND.kernel)," \
 	"-(NAND.rootfs)"
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x000c0000
-#undef CONFIG_ENV_IS_NOWHERE
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x001c0000
 #define CONFIG_ENV_OFFSET_REDUND	0x001e0000
 #define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_SYS_NAND_BLOCK_SIZE
@@ -514,8 +511,6 @@ DEFAULT_LINUX_BOOT_ENV \
 					"128k(u-boot-env2),3464k(kernel)," \
 					"-(rootfs)"
 #elif defined(CONFIG_EMMC_BOOT)
-#undef CONFIG_ENV_IS_NOWHERE
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2
 #define CONFIG_ENV_OFFSET		0x0

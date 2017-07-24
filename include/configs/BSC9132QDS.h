@@ -485,7 +485,6 @@ combinations. this should be removed later
  * Environment
  */
 #if defined(CONFIG_RAMBOOT_SDCARD)
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_FSL_FIXED_MMC_LOCATION
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_SIZE			0x2000
@@ -499,12 +498,10 @@ combinations. this should be removed later
 #define CONFIG_ENV_SECT_SIZE	0x10000
 #define CONFIG_ENV_SIZE		0x2000
 #elif defined(CONFIG_NAND) || defined(CONFIG_NAND_SECBOOT)
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
 #define CONFIG_ENV_OFFSET	((768 * 1024) + CONFIG_SYS_NAND_BLOCK_SIZE)
 #define CONFIG_ENV_RANGE	(3 * CONFIG_ENV_SIZE)
 #elif defined(CONFIG_SYS_RAMBOOT)
-#define CONFIG_ENV_IS_NOWHERE		/* Store ENV in memory only */
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_MONITOR_BASE - 0x1000)
 #define CONFIG_ENV_SIZE			0x2000
 #else

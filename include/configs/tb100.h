@@ -65,7 +65,6 @@
 /*
  * Environment settings
  */
-#define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_SIZE			SZ_2K
 #define CONFIG_ENV_OFFSET		0
 

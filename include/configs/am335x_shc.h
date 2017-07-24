@@ -34,8 +34,6 @@
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-#define CONFIG_ENV_IS_IN_MMC		1
-
 /*
  * in case of SD Card or Network boot we want to have a possibility to
  * debrick the shc, therefore do not read environment from eMMC
@@ -289,11 +287,4 @@
 #define CONFIG_SYS_I2C_SLAVE		1
 
 #define CONFIG_SHOW_BOOT_PROGRESS
-
-#if defined CONFIG_SHC_NETBOOT
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_ENV_IS_NOWHERE
-#undef CONFIG_ENV_IS_IN_MMC
-#endif
-#endif
 #endif	/* ! __CONFIG_AM335X_SHC_H */

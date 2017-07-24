@@ -167,7 +167,6 @@
 #endif
 
 #if defined(CONFIG_SD_BOOT)
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_OFFSET		(3 * 1024 * 1024)
 #define CONFIG_ENV_SIZE			0x2000

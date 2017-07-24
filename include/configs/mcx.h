@@ -256,7 +256,6 @@
 #define CONFIG_SYS_NAND_BUSWIDTH_16BIT
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_NAND_OMAP_GPMC_PREFETCH
-#define CONFIG_ENV_IS_IN_NAND
 #define SMNAND_ENV_OFFSET		0x180000 /* environment starts here */
 
 /* Redundant Environment */

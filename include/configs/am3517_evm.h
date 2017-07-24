@@ -292,7 +292,6 @@
 #define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 #define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET
 #define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
-#define CONFIG_ENV_IS_IN_NAND
 
 /* Defines for SPL */
 #define CONFIG_SPL_FRAMEWORK

@@ -10,7 +10,6 @@
 #define ROCKCHIP_DEVICE_SETTINGS
 #include <configs/rk3188_common.h>
 
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV 0
 
 #ifdef CONFIG_ROCKCHIP_SPL_BACK_TO_BROM

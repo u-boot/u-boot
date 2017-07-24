@@ -76,7 +76,6 @@
 					"root=/dev/sda2 coherent_pool=16M"
 
 /* Do not preserve environment */
-#define CONFIG_ENV_IS_NOWHERE		1
 #define CONFIG_ENV_SIZE			0x1000
 
 /* Monitor Command Prompt */

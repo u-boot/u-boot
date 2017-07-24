@@ -33,7 +33,6 @@
 /*
  * U-Boot environment configurations
  */
-#define CONFIG_ENV_IS_IN_MMC
 
 /*
  * arguments passed to the bootz command. The value of

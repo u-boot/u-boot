@@ -88,7 +88,6 @@
 
 #ifdef CONFIG_USE_SPIFLASH
 #undef CONFIG_ENV_IS_IN_FLASH
-#undef CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SIZE			(8 << 10)
 #define CONFIG_ENV_OFFSET		0x80000
@@ -161,7 +160,6 @@
 #if !defined(CONFIG_SYS_USE_NAND) && \
 	!defined(CONFIG_USE_NOR) && \
 	!defined(CONFIG_USE_SPIFLASH)
-#define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_SIZE		(16 << 10)
 #endif
 

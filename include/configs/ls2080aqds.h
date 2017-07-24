@@ -229,7 +229,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_CS0_FTIM2		CONFIG_SYS_NAND_FTIM2
 #define CONFIG_SYS_CS0_FTIM3		CONFIG_SYS_NAND_FTIM3
 
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		(896 * 1024)
 #define CONFIG_ENV_SECT_SIZE		0x20000
 #define CONFIG_ENV_SIZE			0x2000
@@ -238,7 +237,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(640 * 1024)
 #elif defined(CONFIG_SD_BOOT)
 #define CONFIG_ENV_OFFSET		0x200000
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_SIZE			0x20000
 #endif

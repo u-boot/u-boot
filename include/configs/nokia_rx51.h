@@ -371,8 +371,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
  * FLASH and environment organization
  */
 
-#define CONFIG_ENV_IS_NOWHERE
-
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
 #define CONFIG_SYS_INIT_RAM_SIZE	0x800

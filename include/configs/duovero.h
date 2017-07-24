@@ -39,7 +39,6 @@
 /* GPIO */
 
 /* ENV related config options */
-#define CONFIG_ENV_IS_NOWHERE
 
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 

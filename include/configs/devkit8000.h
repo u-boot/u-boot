@@ -182,7 +182,6 @@
 					0x01000000) /* 16MB */
 
 /* NAND and environment organization  */
-#define CONFIG_ENV_IS_IN_NAND		1
 #define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 
 #define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET

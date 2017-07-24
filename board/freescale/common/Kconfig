@@ -6,6 +6,7 @@ config CHAIN_OF_TRUST
 	select SPL_BOARD_INIT if (ARM && SPL)
 	select SHA_HW_ACCEL
 	select SHA_PROG_HW_ACCEL
+	select ENV_IS_NOWHERE
 	bool
 	default y
 

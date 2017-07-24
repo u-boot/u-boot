@@ -71,8 +71,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
-#define CONFIG_ENV_IS_NOWHERE
-
 #define CONFIG_HWCONFIG
 
 #define CONFIG_SYS_INIT_RAM_ADDR		0x00100000

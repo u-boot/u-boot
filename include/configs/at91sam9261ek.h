@@ -167,7 +167,6 @@
 #else /* CONFIG_SYS_USE_NANDFLASH */
 
 /* bootstrap + u-boot + env + linux in nandflash */
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0xc0000
 #define CONFIG_ENV_OFFSET_REDUND	0x100000
 #define CONFIG_ENV_SIZE		0x20000		/* 1 sector = 128 kB */

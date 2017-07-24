@@ -18,7 +18,6 @@
 	func(PXE, pxe, na) \
 	func(DHCP, dchp, na)
 
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV 1
 
 #endif

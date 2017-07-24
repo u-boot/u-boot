@@ -138,7 +138,6 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_IS_IN_NAND		1
 #define CONFIG_ENV_SIZE			SZ_128K
 #define CONFIG_ENV_OFFSET		0x000A0000
 

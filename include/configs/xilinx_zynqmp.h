@@ -138,9 +138,6 @@
 #endif
 
 /* Do not preserve environment */
-#if !defined(CONFIG_ENV_IS_IN_FAT)
-#define CONFIG_ENV_IS_NOWHERE		1
-#endif
 #define CONFIG_ENV_SIZE			0x8000
 
 /* Monitor Command Prompt */

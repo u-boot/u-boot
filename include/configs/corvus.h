@@ -107,7 +107,6 @@
 #define CONFIG_SYS_LOAD_ADDR	ATMEL_BASE_CS6
 
 /* bootstrap + u-boot + env in nandflash */
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x100000
 #define CONFIG_ENV_OFFSET_REDUND	0x180000
 #define CONFIG_ENV_SIZE			SZ_128K

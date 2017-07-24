@@ -13,6 +13,7 @@ config MX7D
 	select ROM_UNIFIED_SECTIONS
 	imply CMD_FUSE
 	bool
+	imply ENV_IS_IN_MMC
 
 choice
 	prompt "MX7 board select"

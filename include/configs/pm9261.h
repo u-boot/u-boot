@@ -256,7 +256,6 @@
 #elif defined(CONFIG_SYS_USE_NANDFLASH) /* CONFIG_SYS_USE_NANDFLASH */
 
 /* bootstrap + u-boot + env + linux in nandflash */
-#define CONFIG_ENV_IS_IN_NAND		1
 #define CONFIG_ENV_OFFSET		0x60000
 #define CONFIG_ENV_OFFSET_REDUND	0x80000
 #define CONFIG_ENV_SIZE			0x20000		/* 1 sector = 128 kB */

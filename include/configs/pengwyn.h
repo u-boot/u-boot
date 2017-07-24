@@ -160,7 +160,6 @@
 					"512k(SPL.backup3),1536k(u-boot)," \
 					"512k(u-boot-spl-os)," \
 					"512k(u-boot-env),5m(kernel),-(rootfs)"
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 /* NAND: SPL falcon mode configs */

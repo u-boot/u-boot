@@ -321,7 +321,6 @@
 					"128k(SPL.backup3)," \
 					"1920k(u-boot)," \
 					"-(UBI)"
-#define CONFIG_ENV_IS_NOWHERE
 #endif
 #endif
 

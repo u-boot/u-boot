@@ -28,7 +28,6 @@
 	"board= B2260" \
 	"load_addr= #CONFIG_SYS_LOAD_ADDR \0"
 
-#define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_SIZE 0x4000
 
 /* Extra Commands */

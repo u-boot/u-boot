@@ -38,7 +38,6 @@
 #define CONFIG_BAUDRATE				115200
 
 #define CONFIG_ENV_SIZE				SZ_8K
-#define CONFIG_ENV_IS_NOWHERE
 
 /* console configuration */
 #define CONFIG_SYS_CBSIZE			SZ_1K

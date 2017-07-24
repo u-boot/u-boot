@@ -15,8 +15,6 @@
 /* Store env in emmc */
 #undef CONFIG_ENV_SIZE
 #define CONFIG_ENV_SIZE			SZ_32K
-#undef CONFIG_ENV_IS_NOWHERE
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0 /* emmc */
 #define CONFIG_SYS_MMC_ENV_PART		0 /* user area */
 

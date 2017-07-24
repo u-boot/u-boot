@@ -89,7 +89,6 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /* Environment settings */
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		(512 << 10)
 #define CONFIG_ENV_SIZE			(256 << 10)
 #define CONFIG_ENV_OVERWRITE

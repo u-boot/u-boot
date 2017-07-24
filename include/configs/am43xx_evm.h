@@ -257,11 +257,6 @@
 #define CONFIG_PHYLIB
 #define PHY_ANEG_TIMEOUT	8000 /* PHY needs longer aneg time at 1G */
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_ETH_SUPPORT)
-#undef CONFIG_ENV_IS_IN_FAT
-#define CONFIG_ENV_IS_NOWHERE
-#endif
-
 #define CONFIG_SYS_RX_ETH_BUFFER	64
 
 /* NAND support */

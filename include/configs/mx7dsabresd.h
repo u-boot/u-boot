@@ -185,7 +185,6 @@
 
 /* environment organization */
 #define CONFIG_ENV_SIZE			SZ_8K
-#define CONFIG_ENV_IS_IN_MMC
 
 /*
  * If want to use nand, define CONFIG_NAND_MXS and rework board

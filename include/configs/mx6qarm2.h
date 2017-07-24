@@ -123,7 +123,6 @@
 /* Environment organization */
 #define CONFIG_ENV_OFFSET		(6 * 64 * 1024)
 #define CONFIG_ENV_SIZE			(8 * 1024)
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		1
 
 /* USB Configs */

@@ -83,6 +83,7 @@ config ARCH_BMIPS
 	select CPU
 	select RAM
 	select SYSRESET
+	imply ENV_IS_NOWHERE
 
 config MACH_PIC32
 	bool "Support Microchip PIC32"

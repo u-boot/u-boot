@@ -25,7 +25,6 @@
 
 /* Environment */
 #define CONFIG_ENV_SIZE			(16 * 1024)
-#define CONFIG_ENV_IS_IN_NAND
 
 /* Environment is in NAND */
 #if defined(CONFIG_CMD_NAND) && defined(CONFIG_ENV_IS_IN_NAND)
@@ -47,8 +46,6 @@
 		"14m(boot),"			\
 		"238m(data),"			\
 		"-@4096k(UBI)"
-#else
-#define CONFIG_ENV_IS_NOWHERE
 #endif
 
 /* FEC Ethernet on SoC */

@@ -34,8 +34,6 @@
 #ifdef CONFIG_SPI_FLASH
 #define CONFIG_ENV_IS_IN_SPI_FLASH	1
 #define CONFIG_ENV_SECT_SIZE		0x10000	/* 64k */
-#else
-#define CONFIG_ENV_IS_NOWHERE		1	/* if env in SDRAM */
 #endif
 
 #ifdef CONFIG_CMD_SF

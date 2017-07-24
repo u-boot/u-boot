@@ -143,7 +143,6 @@
  */
 
 #define CONFIG_ENV_SIZE		(128 * 1024)
-#define CONFIG_ENV_IS_NOWHERE
 
 #define CONFIG_ENV_OVERWRITE
 

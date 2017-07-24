@@ -90,7 +90,6 @@
 #define CONFIG_APBH_DMA_BURST8
 
 /* Environment in NAND */
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		(16 << 20)
 #define CONFIG_ENV_SECT_SIZE		(128 << 10)
 #define CONFIG_ENV_SIZE			CONFIG_ENV_SECT_SIZE
@@ -101,7 +100,6 @@
 
 /* Environment in MMC */
 #define CONFIG_ENV_SIZE			(8 << 10)
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_OFFSET		(6 * 64 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 

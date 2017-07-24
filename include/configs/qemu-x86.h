@@ -49,7 +49,6 @@
 
 /* SPI is not supported */
 #undef CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_IS_NOWHERE
 
 #define CONFIG_SPL_FRAMEWORK
 

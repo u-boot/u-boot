@@ -19,7 +19,6 @@
 
 /* Environment */
 #define CONFIG_ENV_SIZE			(16 * 1024)
-#define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_OVERWRITE
 
 /* Booting Linux */

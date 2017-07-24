@@ -42,7 +42,6 @@
 #define CONFIG_SYS_MMC_IMG_LOAD_PART    1
 
 #define CONFIG_ENV_OFFSET		(12 * SZ_64K)
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_SIZE			SZ_8K
 
 /* Using ULP WDOG for reset */

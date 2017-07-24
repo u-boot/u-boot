@@ -78,7 +78,6 @@
 /*
  * Environment variables configurations
  */
-#define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_SIZE			0x4000
 
 #ifdef CONFIG_CMD_USB

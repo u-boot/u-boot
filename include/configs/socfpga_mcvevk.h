@@ -23,7 +23,6 @@
 
 /* Environment is in MMC */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_ENV_IS_IN_MMC
 
 /* Extra Environment */
 #define CONFIG_EXTRA_ENV_SETTINGS					\

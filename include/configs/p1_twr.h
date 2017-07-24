@@ -361,11 +361,9 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  */
 #ifdef CONFIG_SYS_RAMBOOT
 #ifdef CONFIG_RAMBOOT_SDCARD
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_SYS_MMC_ENV_DEV	0
 #else
-#define CONFIG_ENV_IS_NOWHERE	/* Store ENV in memory only */
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
 #define CONFIG_ENV_SIZE		0x2000
 #endif

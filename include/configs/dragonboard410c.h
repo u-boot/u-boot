@@ -110,7 +110,6 @@ REFLASH(dragonboard/u-boot.img, 8)\
 	"pxefile_addr_r=0x90100000\0"\
 	BOOTENV
 
-#define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 

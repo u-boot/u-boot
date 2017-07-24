@@ -28,7 +28,6 @@
 	"name_fs=arago-console-image-k2hk-evm.cpio.gz\0"
 
 #define CONFIG_ENV_SIZE				(256 << 10)  /* 256 KiB */
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET			0x100000
 
 #include <configs/ti_armv7_keystone2.h>

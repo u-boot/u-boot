@@ -41,10 +41,7 @@
  *  Environment variables configurations
  */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SECT_SIZE		0x20000	/* 128K */
-#else
-#define CONFIG_ENV_IS_NOWHERE
 #endif
 
 #define CONFIG_ENV_SIZE			0x20000	/* 128k */

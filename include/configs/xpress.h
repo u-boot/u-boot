@@ -57,7 +57,6 @@
 
 /* Environment is in stored in the eMMC boot partition */
 #define CONFIG_ENV_SIZE			(16 << 10)
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_OFFSET		(512 << 10)
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* USDHC2 */
 #define CONFIG_SYS_MMC_ENV_PART		1	/* boot parition */

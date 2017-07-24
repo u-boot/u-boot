@@ -22,7 +22,6 @@
 #define CONFIG_NR_DRAM_BANKS		2
 
 /* MMC ENV related defines */
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		1		/* eMMC */
 #define CONFIG_SYS_MMC_ENV_PART		0
 #define CONFIG_ENV_SIZE			SZ_128K

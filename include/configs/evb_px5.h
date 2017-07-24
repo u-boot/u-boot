@@ -9,7 +9,6 @@
 
 #include <configs/rk3368_common.h>
 
-#define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_SIZE			0x2000
 
 #define CONFIG_CONSOLE_SCROLL_LINES	10

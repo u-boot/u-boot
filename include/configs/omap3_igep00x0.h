@@ -133,7 +133,6 @@
 #define CONFIG_SPL_UBI_INFO_ADDR	0x88080000
 
 /* environment organization */
-#define CONFIG_ENV_IS_NOWHERE		1
 #define CONFIG_ENV_UBI_PART		"UBI"
 #define CONFIG_ENV_UBI_VOLUME		"config"
 #define CONFIG_ENV_UBI_VOLUME_REDUND	"config_r"

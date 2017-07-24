@@ -17,7 +17,6 @@
 #endif
 
 #if defined(CONFIG_NAND)
-#define CONFIG_ENV_IS_IN_NAND
 #else
 #define CONFIG_ENV_IS_IN_FLASH
 #endif

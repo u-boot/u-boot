@@ -30,6 +30,7 @@ config MX6SL
 config MX6SX
 	select ROM_UNIFIED_SECTIONS
 	bool
+	imply ENV_IS_IN_MMC
 
 config MX6SLL
 	select ROM_UNIFIED_SECTIONS

@@ -300,8 +300,6 @@
 
 #define CONFIG_ENV_SIZE			(8 * 1024)
 
-#define CONFIG_ENV_IS_IN_MMC
-
 #if defined(CONFIG_ENV_IS_IN_MMC)
 /* Environment in eMMC, before config block at the end of 1st "boot sector" */
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE + \

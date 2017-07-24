@@ -276,13 +276,11 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_ENV_SECT_SIZE	0x10000
 #define CONFIG_ENV_SIZE		0x2000
 #elif defined(CONFIG_NAND)
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
 #define CONFIG_ENV_OFFSET	((768 * 1024) + CONFIG_SYS_NAND_BLOCK_SIZE)
 #define CONFIG_ENV_RANGE	(3 * CONFIG_ENV_SIZE)
 #elif defined(CONFIG_SYS_RAMBOOT)
-#define CONFIG_ENV_IS_NOWHERE	/* Store ENV in memory only */
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
 #define CONFIG_ENV_SIZE		0x2000
 #endif

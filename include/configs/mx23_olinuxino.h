@@ -19,7 +19,6 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* Environment */
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_OVERWRITE
 
 /* Environment is in MMC */

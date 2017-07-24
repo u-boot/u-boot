@@ -414,7 +414,6 @@
 #define CONFIG_ENV_SIZE		0x2000
 #endif
 #elif defined(CONFIG_NAND)
-#define CONFIG_ENV_IS_IN_NAND
 #ifdef CONFIG_TPL_BUILD
 #define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_INIT_L2_ADDR + (160 << 10))

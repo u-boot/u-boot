@@ -174,7 +174,6 @@
 #elif defined(CONFIG_SYS_USE_NANDFLASH)
 
 /* bootstrap + u-boot + env + linux in nandflash */
-#define CONFIG_ENV_IS_IN_NAND	1
 #define CONFIG_ENV_OFFSET		0x120000
 #define CONFIG_ENV_OFFSET_REDUND	0x100000
 #define CONFIG_ENV_SIZE		0x20000		/* 1 sector = 128 kB */
@@ -188,7 +187,6 @@
 
 #else	/* CONFIG_SYS_USE_MMC */
 /* bootstrap + u-boot + env + linux in mmc */
-#define CONFIG_ENV_IS_IN_MMC
 /* For FAT system, most cases it should be in the reserved sector */
 #define CONFIG_ENV_OFFSET		0x2000
 #define CONFIG_ENV_SIZE			0x1000

@@ -86,8 +86,6 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	(2 * CONFIG_SYS_HZ) /* Timeout for Flash Erase */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	(2 * CONFIG_SYS_HZ) /* Timeout for Flash Write */
 
-#define	CONFIG_ENV_IS_NOWHERE	1
-
 /* Address and size of Primary Environment Sector	*/
 #define CONFIG_ENV_ADDR		0xB0030000
 #define CONFIG_ENV_SIZE		0x10000

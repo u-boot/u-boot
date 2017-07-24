@@ -59,6 +59,7 @@ config MACH_SUNXI_H3_H5
 	select SUNXI_DRAM_DW_32BIT
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
+	imply ENV_IS_IN_MMC
 
 choice
 	prompt "Sunxi SoC Variant"
@@ -70,6 +71,7 @@ config MACH_SUN4I
 	select ARM_CORTEX_CPU_IS_UP
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
+	imply ENV_IS_IN_MMC
 
 config MACH_SUN5I
 	bool "sun5i (Allwinner A13)"
@@ -87,6 +89,7 @@ config MACH_SUN6I
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
+	imply ENV_IS_IN_MMC
 
 config MACH_SUN7I
 	bool "sun7i (Allwinner A20)"
@@ -97,6 +100,7 @@ config MACH_SUN7I
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
+	imply ENV_IS_IN_MMC
 
 config MACH_SUN8I_A23
 	bool "sun8i (Allwinner A23)"
@@ -107,6 +111,7 @@ config MACH_SUN8I_A23
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
+	imply ENV_IS_IN_MMC
 
 config MACH_SUN8I_A33
 	bool "sun8i (Allwinner A33)"
@@ -132,6 +137,7 @@ config MACH_SUN8I_H3
 	select ARCH_SUPPORT_PSCI
 	select MACH_SUNXI_H3_H5
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
+	imply ENV_IS_IN_MMC
 
 config MACH_SUN8I_R40
 	bool "sun8i (Allwinner R40)"

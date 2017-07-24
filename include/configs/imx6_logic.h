@@ -141,7 +141,6 @@
 
 /* Environment organization */
 #define CONFIG_ENV_SIZE                        (8 * 1024)
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET             0x400000
 #define CONFIG_ENV_SECT_SIZE          CONFIG_ENV_SIZE
 

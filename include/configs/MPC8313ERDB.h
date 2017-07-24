@@ -431,7 +431,6 @@
  * Environment
  */
 #if defined(CONFIG_NAND)
-	#define CONFIG_ENV_IS_IN_NAND	1
 	#define CONFIG_ENV_OFFSET		(512 * 1024)
 	#define CONFIG_ENV_SECT_SIZE	CONFIG_SYS_NAND_BLOCK_SIZE
 	#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
@@ -448,7 +447,6 @@
 
 /* Address and size of Redundant Environment Sector */
 #else
-	#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
 	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
 	#define CONFIG_ENV_SIZE		0x2000
 #endif

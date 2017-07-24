@@ -22,7 +22,6 @@
 #define CONFIG_SYS_I2C_TEGRA
 
 /* Environment in eMMC, at the end of 2nd "boot sector" */
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		2
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)

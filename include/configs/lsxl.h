@@ -62,8 +62,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	8
 #define CONFIG_ENV_IS_IN_SPI_FLASH	1
 #define CONFIG_ENV_SECT_SIZE		0x10000 /* 64K */
-#else
-#define CONFIG_ENV_IS_NOWHERE
 #endif
 
 #define CONFIG_ENV_SIZE			0x10000 /* 64k */

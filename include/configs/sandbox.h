@@ -52,7 +52,6 @@
 #define CONFIG_AUTO_COMPLETE
 
 #define CONFIG_ENV_SIZE		8192
-#define CONFIG_ENV_IS_NOWHERE
 
 /* SPI - enable all SPI flash types for testing purposes */
 #define CONFIG_CMD_SF_TEST
