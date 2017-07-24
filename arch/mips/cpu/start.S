@@ -60,8 +60,8 @@
 		sp, sp, GD_SIZE		# reserve space for gd
 	and	sp, sp, t0		# force 16 byte alignment
 	move	k0, sp			# save gd pointer
-#ifdef CONFIG_SYS_MALLOC_F_LEN
-	li	t2, CONFIG_SYS_MALLOC_F_LEN
+#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+	li	t2, CONFIG_VAL(SYS_MALLOC_F_LEN)
 	PTR_SUBU \
 		sp, sp, t2		# reserve space for early malloc
 	and	sp, sp, t0		# force 16 byte alignment
@@ -75,7 +75,7 @@
 	blt	t0, t1, 1b
 	 PTR_ADDIU t0, PTRSIZE
 
-#ifdef CONFIG_SYS_MALLOC_F_LEN
+#if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	PTR_S	sp, GD_MALLOC_BASE(k0)	# gd->malloc_base offset
 #endif
 	.endm
