@@ -139,8 +139,10 @@ obj-y += console.o
 endif
 obj-$(CONFIG_CROS_EC) += cros_ec.o
 obj-y += dlmalloc.o
-ifdef CONFIG_SYS_MALLOC_F_LEN
+ifdef CONFIG_SYS_MALLOC_F
+ifneq ($(CONFIG_$(SPL_)SYS_MALLOC_F_LEN),0)
 obj-y += malloc_simple.o
+endif
 endif
 obj-y += image.o
 obj-$(CONFIG_ANDROID_BOOT_IMAGE) += image-android.o

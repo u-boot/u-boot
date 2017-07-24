@@ -727,7 +727,7 @@ static int initf_bootstage(void)
 
 static int initf_console_record(void)
 {
-#if defined(CONFIG_CONSOLE_RECORD) && defined(CONFIG_SYS_MALLOC_F_LEN)
+#if defined(CONFIG_CONSOLE_RECORD) && CONFIG_VAL(SYS_MALLOC_F_LEN)
 	return console_record_init();
 #else
 	return 0;
@@ -736,7 +736,7 @@ static int initf_console_record(void)
 
 static int initf_dm(void)
 {
-#if defined(CONFIG_DM) && defined(CONFIG_SYS_MALLOC_F_LEN)
+#if defined(CONFIG_DM) && CONFIG_VAL(SYS_MALLOC_F_LEN)
 	int ret;
 
 	bootstage_start(BOOTSTATE_ID_ACCUM_DM_F, "dm_f");

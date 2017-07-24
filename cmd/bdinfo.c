@@ -344,9 +344,9 @@ static int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc,
 #ifdef CONFIG_BOARD_TYPES
 	printf("Board Type  = %ld\n", gd->board_type);
 #endif
-#ifdef CONFIG_SYS_MALLOC_F
+#if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	printf("Early malloc usage: %lx / %x\n", gd->malloc_ptr,
-	       CONFIG_SYS_MALLOC_F_LEN);
+	       CONFIG_VAL(SYS_MALLOC_F_LEN));
 #endif
 	if (gd->fdt_blob)
 		printf("fdt_blob = %p\n", gd->fdt_blob);

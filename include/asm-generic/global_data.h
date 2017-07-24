@@ -88,7 +88,7 @@ typedef struct global_data {
 #endif
 	unsigned int timebase_h;
 	unsigned int timebase_l;
-#ifdef CONFIG_SYS_MALLOC_F_LEN
+#if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	unsigned long malloc_base;	/* base address of early malloc() */
 	unsigned long malloc_limit;	/* limit address */
 	unsigned long malloc_ptr;	/* current address */

@@ -23,8 +23,8 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 static const unsigned long baudrate_table[] = CONFIG_SYS_BAUDRATE_TABLE;
 
-#ifndef CONFIG_SYS_MALLOC_F_LEN
-#error "Serial is required before relocation - define CONFIG_SYS_MALLOC_F_LEN to make this work"
+#if !CONFIG_VAL(SYS_MALLOC_F_LEN)
+#error "Serial is required before relocation - define CONFIG_$(SPL_)SYS_MALLOC_F_LEN to make this work"
 #endif
 
 static int serial_check_stdout(const void *blob, struct udevice **devp)
