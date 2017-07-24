@@ -124,7 +124,6 @@
 #else /* CONFIG_SYS_USE_MMC */
 
 /* bootstrap + u-boot + env + linux in mmc */
-#define CONFIG_ENV_IS_IN_FAT
 #define FAT_ENV_INTERFACE	"mmc"
 #define FAT_ENV_FILE		"uboot.env"
 #define FAT_ENV_DEVICE_AND_PART	"0"

@@ -71,7 +71,6 @@
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */
 
-#define CONFIG_ENV_IS_IN_FAT
 #define FAT_ENV_INTERFACE		"mmc"
 #define FAT_ENV_DEVICE_AND_PART		"0:1"
 #define FAT_ENV_FILE			"uboot.env"
@@ -127,7 +126,6 @@
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE		CONFIG_ISW_ENTRY_ADDR
 #endif
-#undef CONFIG_ENV_IS_IN_FAT
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_SPI_MAX_HZ           CONFIG_SF_DEFAULT_SPEED
 #define CONFIG_ENV_SECT_SIZE           (64 << 10) /* 64 KB sectors */

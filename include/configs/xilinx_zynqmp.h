@@ -73,7 +73,6 @@
 # ifndef CONFIG_ZYNQ_SDHCI_MAX_FREQ
 #  define CONFIG_ZYNQ_SDHCI_MAX_FREQ	200000000
 # endif
-# define CONFIG_ENV_IS_IN_FAT
 # define FAT_ENV_DEVICE_AND_PART	"0:auto"
 # define FAT_ENV_FILE			"uboot.env"
 # define FAT_ENV_INTERFACE		"mmc"

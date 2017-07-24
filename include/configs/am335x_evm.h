@@ -353,7 +353,6 @@
 #define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_SYS_NAND_BLOCK_SIZE
 #elif !defined(CONFIG_ENV_IS_NOWHERE)
 /* Not NAND, SPI, NOR or eMMC env, so put ENV in a file on FAT */
-#define CONFIG_ENV_IS_IN_FAT
 #define FAT_ENV_INTERFACE		"mmc"
 #define FAT_ENV_DEVICE_AND_PART		"0:1"
 #define FAT_ENV_FILE			"uboot.env"

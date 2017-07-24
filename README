@@ -3422,19 +3422,6 @@ environment in RAM: we could work on NVRAM directly, but we want to
 keep settings there always unmodified except somebody uses "saveenv"
 to save the current settings.
 
-- CONFIG_ENV_IS_IN_REMOTE:
-
-	Define this if you have a remote memory space which you
-	want to use for the local device's environment.
-
-	- CONFIG_ENV_ADDR:
-	- CONFIG_ENV_SIZE:
-
-	  These two #defines specify the address and size of the
-	  environment area within the remote memory space. The
-	  local device can get the environment from remote memory
-	  space by SRIO or PCIE links.
-
 BE CAREFUL! For some special cases, the local device can not use
 "saveenv" command. For example, the local device will get the
 environment stored in a remote NOR flash by SRIO or PCIE link,
@@ -3445,37 +3432,6 @@ but it can not erase, write this NOR flash by SRIO or PCIE interface.
 	Defines address in RAM to which the nand_spl code should copy the
 	environment. If redundant environment is used, it will be copied to
 	CONFIG_NAND_ENV_DST + CONFIG_ENV_SIZE.
-
-- CONFIG_ENV_IS_IN_FAT:
-       Define this if you want to use the FAT file system for the environment.
-
-       - FAT_ENV_INTERFACE:
-
-         Define this to a string that is the name of the block device.
-
-       - FAT_ENV_DEVICE_AND_PART:
-
-         Define this to a string to specify the partition of the device. It can
-         be as following:
-
-           "D:P", "D:0", "D", "D:" or "D:auto" (D, P are integers. And P >= 1)
-               - "D:P": device D partition P. Error occurs if device D has no
-                        partition table.
-               - "D:0": device D.
-               - "D" or "D:": device D partition 1 if device D has partition
-                              table, or the whole device D if has no partition
-                              table.
-               - "D:auto": first partition in device D with bootable flag set.
-                           If none, first valid partition in device D. If no
-                           partition table then means device D.
-
-       - FAT_ENV_FILE:
-
-         It's a string of the FAT file name. This file use to store the
-         environment.
-
-       - CONFIG_FAT_WRITE:
-         This must be enabled. Otherwise it cannot save the environment file.
 
 Please note that the environment is read-only until the monitor
 has been relocated to RAM and a RAM copy of the environment has been

@@ -106,7 +106,6 @@
 
 /* Preserve environment on sd card */
 #define CONFIG_ENV_SIZE			0x1000
-#define CONFIG_ENV_IS_IN_FAT
 #define FAT_ENV_INTERFACE               "mmc"
 #define FAT_ENV_DEVICE_AND_PART         "1:1"
 #define FAT_ENV_FILE                    "uboot.env"

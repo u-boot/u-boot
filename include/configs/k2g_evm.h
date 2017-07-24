@@ -70,7 +70,6 @@
 #define CONFIG_PHY_MICREL
 #define PHY_ANEG_TIMEOUT	10000 /* PHY needs longer aneg time */
 
-#define CONFIG_ENV_IS_IN_FAT
 #define CONFIG_ENV_SIZE			(256 << 10)  /* 256 KiB */
 #define FAT_ENV_INTERFACE		"mmc"
 #define FAT_ENV_DEVICE_AND_PART		"0:1"

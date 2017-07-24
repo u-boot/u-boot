@@ -252,6 +252,40 @@ config ENV_IS_IN_EEPROM
 	  EEPROM which holds the environment, is reached over
 	  a pca9547 i2c mux with address 0x70, channel 3.
 
+config ENV_IS_IN_FAT
+	bool "Environment is in a FAT filesystem"
+	depends on !CHAIN_OF_TRUST
+	help
+         Define this if you want to use the FAT file system for the environment.
+
+         - FAT_ENV_INTERFACE:
+
+         Define this to a string that is the name of the block device.
+
+         - FAT_ENV_DEVICE_AND_PART:
+
+         Define this to a string to specify the partition of the device. It can
+         be as following:
+
+           "D:P", "D:0", "D", "D:" or "D:auto" (D, P are integers. And P >= 1)
+               - "D:P": device D partition P. Error occurs if device D has no
+                        partition table.
+               - "D:0": device D.
+               - "D" or "D:": device D partition 1 if device D has partition
+                              table, or the whole device D if has no partition
+                              table.
+               - "D:auto": first partition in device D with bootable flag set.
+                           If none, first valid partition in device D. If no
+                           partition table then means device D.
+
+         - FAT_ENV_FILE:
+
+         It's a string of the FAT file name. This file use to store the
+         environment.
+
+         - CONFIG_FAT_WRITE:
+         This must be enabled. Otherwise it cannot save the environment file.
+
 config ENV_IS_IN_FLASH
 	bool "Environment in flash memory"
 	depends on !CHAIN_OF_TRUST

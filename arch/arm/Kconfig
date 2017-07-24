@@ -488,6 +488,7 @@ config ARCH_BCM283X
 	select DM_GPIO
 	select OF_CONTROL
 	imply FAT_WRITE
+	imply ENV_IS_IN_FAT
 
 config TARGET_VEXPRESS_CA15_TC2
 	bool "Support vexpress_ca15_tc2"
