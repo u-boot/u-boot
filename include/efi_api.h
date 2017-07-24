@@ -349,6 +349,11 @@ struct simple_text_output_mode {
 	bool cursor_visible;
 };
 
+
+#define EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL_GUID \
+	EFI_GUID(0x387477c2, 0x69c7, 0x11d2, \
+		 0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
+
 struct efi_simple_text_output_protocol {
 	void *reset;
 	efi_status_t (EFIAPI *output_string)(
@@ -382,6 +387,10 @@ struct efi_input_key {
 	u16 scan_code;
 	s16 unicode_char;
 };
+
+#define EFI_SIMPLE_TEXT_INPUT_PROTOCOL_GUID \
+	EFI_GUID(0x387477c1, 0x69c7, 0x11d2, \
+		 0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
 
 struct efi_simple_input_interface {
 	efi_status_t(EFIAPI *reset)(struct efi_simple_input_interface *this,
