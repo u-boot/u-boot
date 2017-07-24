@@ -161,7 +161,6 @@
 #ifndef CONFIG_ENV_IS_NOWHERE
 # ifdef CONFIG_MTD_NOR_FLASH
 /* Environment in NOR flash */
-#  define CONFIG_ENV_IS_IN_FLASH
 # elif defined(CONFIG_ZYNQ_QSPI)
 /* Environment in Serial Flash */
 #  define CONFIG_ENV_IS_IN_SPI_FLASH

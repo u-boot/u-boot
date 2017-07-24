@@ -19,6 +19,7 @@ choice
 config TARGET_SBC8548
 	bool "Support sbc8548"
 	select ARCH_MPC8548
+	imply ENV_IS_IN_FLASH
 
 config TARGET_SOCRATES
 	bool "Support socrates"
@@ -104,6 +105,7 @@ config TARGET_MPC8544DS
 config TARGET_MPC8548CDS
 	bool "Support MPC8548CDS"
 	select ARCH_MPC8548
+	imply ENV_IS_IN_FLASH
 
 config TARGET_MPC8555CDS
 	bool "Support MPC8555CDS"
@@ -549,6 +551,7 @@ config ARCH_MPC8548
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	imply ENV_IS_IN_FLASH
 
 config ARCH_MPC8555
 	bool
@@ -596,6 +599,7 @@ config ARCH_MPC8572
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select FSL_ELBC
+	imply ENV_IS_IN_FLASH
 
 config ARCH_P1010
 	bool

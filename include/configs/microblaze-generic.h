@@ -99,7 +99,6 @@
 #  define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SIZE)
 
 # else	/* FLASH && !RAMENV */
-#  define CONFIG_ENV_IS_IN_FLASH	1
 /* 128K(one sector) for env */
 #  define CONFIG_ENV_SECT_SIZE	0x20000
 #  define CONFIG_ENV_ADDR \

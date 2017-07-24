@@ -15,6 +15,7 @@ config TARGET_MICROBLAZE_GENERIC
 	select OF_CONTROL
 	select DM
 	select DM_SERIAL
+	select ENV_IS_IN_FLASH
 
 endchoice
 

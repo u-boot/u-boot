@@ -176,6 +176,78 @@ endmenu
 
 menu "Environment"
 
+config ENV_IS_IN_FLASH
+	bool "Environment in flash memory"
+	depends on !CHAIN_OF_TRUST
+	help
+	  Define this if you have a flash device which you want to use for the
+	  environment.
+
+	  a) The environment occupies one whole flash sector, which is
+	   "embedded" in the text segment with the U-Boot code. This
+	   happens usually with "bottom boot sector" or "top boot
+	   sector" type flash chips, which have several smaller
+	   sectors at the start or the end. For instance, such a
+	   layout can have sector sizes of 8, 2x4, 16, Nx32 kB. In
+	   such a case you would place the environment in one of the
+	   4 kB sectors - with U-Boot code before and after it. With
+	   "top boot sector" type flash chips, you would put the
+	   environment in one of the last sectors, leaving a gap
+	   between U-Boot and the environment.
+
+	  CONFIG_ENV_OFFSET:
+
+	   Offset of environment data (variable area) to the
+	   beginning of flash memory; for instance, with bottom boot
+	   type flash chips the second sector can be used: the offset
+	   for this sector is given here.
+
+	   CONFIG_ENV_OFFSET is used relative to CONFIG_SYS_FLASH_BASE.
+
+	  CONFIG_ENV_ADDR:
+
+	   This is just another way to specify the start address of
+	   the flash sector containing the environment (instead of
+	   CONFIG_ENV_OFFSET).
+
+	  CONFIG_ENV_SECT_SIZE:
+
+	   Size of the sector containing the environment.
+
+
+	  b) Sometimes flash chips have few, equal sized, BIG sectors.
+	   In such a case you don't want to spend a whole sector for
+	   the environment.
+
+	  CONFIG_ENV_SIZE:
+
+	   If you use this in combination with CONFIG_ENV_IS_IN_FLASH
+	   and CONFIG_ENV_SECT_SIZE, you can specify to use only a part
+	   of this flash sector for the environment. This saves
+	   memory for the RAM copy of the environment.
+
+	   It may also save flash memory if you decide to use this
+	   when your environment is "embedded" within U-Boot code,
+	   since then the remainder of the flash sector could be used
+	   for U-Boot code. It should be pointed out that this is
+	   STRONGLY DISCOURAGED from a robustness point of view:
+	   updating the environment in flash makes it always
+	   necessary to erase the WHOLE sector. If something goes
+	   wrong before the contents has been restored from a copy in
+	   RAM, your target system will be dead.
+
+	  CONFIG_ENV_ADDR_REDUND
+	  CONFIG_ENV_SIZE_REDUND
+
+	   These settings describe a second storage area used to hold
+	   a redundant copy of the environment data, so that there is
+	   a valid backup copy in case there is a power failure during
+	   a "saveenv" operation.
+
+	  BE CAREFUL! Any changes to the flash layout, and some changes to the
+	  source code will make it necessary to adapt <board>/u-boot.lds*
+	  accordingly!
+
 config ENV_IS_IN_MMC
 	bool "Environment in an MMC device"
 	depends on !CHAIN_OF_TRUST

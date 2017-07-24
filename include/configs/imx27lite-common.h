@@ -89,7 +89,6 @@
 /*
  * Flash & Environment
  */
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
 /* Use buffered writes (~10x faster) */

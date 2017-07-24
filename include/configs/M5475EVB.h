@@ -232,7 +232,6 @@
  */
 #define CONFIG_ENV_OFFSET		0x40000
 #define CONFIG_ENV_SECT_SIZE	0x10000
-#define CONFIG_ENV_IS_IN_FLASH	1
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

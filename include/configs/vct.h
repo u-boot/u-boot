@@ -137,7 +137,6 @@
  * FLASH and environment organization
  */
 #if defined(CONFIG_VCT_NOR)
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_FLASH_NOT_MEM_MAPPED
 
 /*

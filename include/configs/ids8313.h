@@ -429,7 +429,6 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE \
 				+ CONFIG_SYS_MONITOR_LEN)
 #define CONFIG_ENV_SIZE		0x20000

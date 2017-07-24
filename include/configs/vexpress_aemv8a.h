@@ -284,6 +284,5 @@
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
 #define FLASH_MAX_SECTOR_SIZE		0x00040000
 #define CONFIG_ENV_SIZE			CONFIG_ENV_SECT_SIZE
-#define CONFIG_ENV_IS_IN_FLASH		1
 
 #endif /* __VEXPRESS_AEMV8A_H */

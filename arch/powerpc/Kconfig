@@ -28,6 +28,7 @@ config MPC86xx
 	bool "MPC86xx"
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
+	imply ENV_IS_IN_FLASH
 
 config 8xx
 	bool "MPC8xx"

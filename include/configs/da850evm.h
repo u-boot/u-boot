@@ -162,7 +162,6 @@
  * Flash & Environment
  */
 #ifdef CONFIG_USE_NAND
-#undef CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_NAND_DAVINCI
 #define CONFIG_ENV_OFFSET		0x0 /* Block 0--not used by bootcode */
 #define CONFIG_ENV_SIZE			(128 << 10)
@@ -217,7 +216,6 @@
 #endif
 
 #ifdef CONFIG_USE_NOR
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_PROTECTION
@@ -233,7 +231,6 @@
 #endif
 
 #ifdef CONFIG_USE_SPIFLASH
-#undef CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SIZE			(64 << 10)
 #define CONFIG_ENV_OFFSET		(512 << 10)

@@ -438,7 +438,6 @@ extern unsigned long get_clock_freq(void);
 /*
  * Environment
  */
-#define CONFIG_ENV_IS_IN_FLASH	1
 #if CONFIG_SYS_MONITOR_BASE > 0xfff80000
 #define CONFIG_ENV_ADDR	0xfff80000
 #else

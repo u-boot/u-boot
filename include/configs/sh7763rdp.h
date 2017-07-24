@@ -74,7 +74,6 @@
 /* Use hardware flash sectors protection instead of U-Boot software protection */
 #undef  CONFIG_SYS_FLASH_PROTECTION
 #undef  CONFIG_SYS_DIRECT_FLASH_TFTP
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE	(128 * 1024)
 #define CONFIG_ENV_SIZE		(CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + (1 * CONFIG_ENV_SECT_SIZE))

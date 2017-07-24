@@ -452,7 +452,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_ENV_OVERWRITE
 
 #ifndef CONFIG_SYS_RAMBOOT
-  #define CONFIG_ENV_IS_IN_FLASH
   #define CONFIG_ENV_ADDR	\
 			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
   #define CONFIG_ENV_SECT_SIZE	0x10000 /* 64K (one sector) for environment */

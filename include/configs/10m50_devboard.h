@@ -70,7 +70,6 @@
  * of flash. NOTE: the monitor length must be multiple of sector size
  * (which is common practice).
  */
-#define CONFIG_ENV_IS_IN_FLASH
 
 #define CONFIG_ENV_SIZE			0x10000	/* 64k, 1 sector */
 #define CONFIG_ENV_OVERWRITE		/* Serial change Ok	*/

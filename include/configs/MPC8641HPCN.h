@@ -563,7 +563,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  * Environment
  */
 #ifndef CONFIG_SYS_RAMBOOT
-    #define CONFIG_ENV_IS_IN_FLASH	1
     #define CONFIG_ENV_ADDR		\
 			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
     #define CONFIG_ENV_SECT_SIZE		0x10000	/* 64K(one sector) for env */

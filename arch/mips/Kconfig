@@ -21,6 +21,7 @@ config TARGET_QEMU_MIPS
 	select SUPPORTS_CPU_MIPS64_R1
 	select SUPPORTS_CPU_MIPS64_R2
 	select ROM_EXCEPTION_VECTORS
+	imply ENV_IS_IN_FLASH
 
 config TARGET_MALTA
 	bool "Support malta"
@@ -42,6 +43,7 @@ config TARGET_MALTA
 	select SWAP_IO_SPACE
 	select MIPS_L1_CACHE_SHIFT_6
 	select ROM_EXCEPTION_VECTORS
+	imply ENV_IS_IN_FLASH
 
 config TARGET_VCT
 	bool "Support vct"
@@ -108,6 +110,7 @@ config TARGET_BOSTON
 	select SUPPORTS_CPU_MIPS64_R2
 	select SUPPORTS_CPU_MIPS64_R6
 	select ROM_EXCEPTION_VECTORS
+	imply ENV_IS_IN_FLASH
 
 config TARGET_XILFPGA
 	bool "Support Imagination Xilfpga"
@@ -197,6 +200,7 @@ config CPU_MIPS64_R2
 	bool "MIPS64 Release 2"
 	depends on SUPPORTS_CPU_MIPS64_R2
 	select 64BIT
+	imply ENV_IS_IN_FLASH
 	help
 	  Choose this option to build a kernel for release 2 through 5 of the
 	  MIPS64 architecture.

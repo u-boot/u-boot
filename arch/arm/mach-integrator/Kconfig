@@ -11,11 +11,13 @@ config ARCH_INTEGRATOR_AP
 config ARCH_INTEGRATOR_CP
 	bool "Support Integrator/CP platform"
 	select ARCH_CINTEGRATOR
+	imply ENV_IS_IN_FLASH
 
 endchoice
 
 config ARCH_CINTEGRATOR
 	bool
+	imply ENV_IS_IN_FLASH
 
 choice
 	prompt "Integrator core module select"

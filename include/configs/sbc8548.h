@@ -485,7 +485,6 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_SIZE		0x2000
 #if CONFIG_SYS_TEXT_BASE == 0xfff00000	/* Boot from 64MB SODIMM */
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + 0x80000)

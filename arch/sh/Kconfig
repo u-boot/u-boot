@@ -3,13 +3,16 @@ menu "SuperH architecture"
 
 config CPU_SH2
 	bool
+	imply ENV_IS_IN_FLASH
 
 config CPU_SH2A
 	bool
 	select CPU_SH2
+	imply ENV_IS_IN_FLASH
 
 config CPU_SH3
 	bool
+	imply ENV_IS_IN_FLASH
 
 config CPU_SH4
 	bool

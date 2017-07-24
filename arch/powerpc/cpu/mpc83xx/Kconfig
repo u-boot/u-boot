@@ -13,6 +13,7 @@ config TARGET_MPC8308_P1M
 
 config TARGET_SBC8349
 	bool "Support sbc8349"
+	imply ENV_IS_IN_FLASH
 
 config TARGET_VE8313
 	bool "Support ve8313"
@@ -39,6 +40,7 @@ config TARGET_MPC8323ERDB
 config TARGET_MPC832XEMDS
 	bool "Support MPC832XEMDS"
 	select BOARD_EARLY_INIT_F
+	imply ENV_IS_IN_FLASH
 
 config TARGET_MPC8349EMDS
 	bool "Support MPC8349EMDS"
@@ -50,6 +52,7 @@ config TARGET_MPC8349EMDS
 config TARGET_MPC8349ITX
 	bool "Support MPC8349ITX"
 	imply CMD_IRQ
+	imply ENV_IS_IN_FLASH
 
 config TARGET_MPC837XEMDS
 	bool "Support MPC837XEMDS"
@@ -74,11 +77,13 @@ config TARGET_SUVD3
 	bool "Support suvd3"
 	imply CMD_CRAMFS
 	imply FS_CRAMFS
+	imply ENV_IS_IN_FLASH
 
 config TARGET_TUXX1
 	bool "Support tuxx1"
 	imply CMD_CRAMFS
 	imply FS_CRAMFS
+	imply ENV_IS_IN_FLASH
 
 config TARGET_TQM834X
 	bool "Support TQM834x"
@@ -90,6 +95,7 @@ config TARGET_HRCON
 config TARGET_STRIDER
 	bool "Support strider"
 	select SYS_FSL_ERRATUM_ESDHC111
+	imply ENV_IS_IN_FLASH
 
 endchoice
 

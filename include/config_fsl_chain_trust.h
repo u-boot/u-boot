@@ -15,7 +15,6 @@
 
 #undef CONFIG_ENV_IS_IN_EEPROM
 #undef CONFIG_ENV_IS_IN_SPI_FLASH
-#undef CONFIG_ENV_IS_IN_FLASH
 
 #endif
 

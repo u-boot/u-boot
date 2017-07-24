@@ -43,7 +43,6 @@
 
 #define CONFIG_ENV_ADDR		0xFF040000
 #define CONFIG_ENV_SECT_SIZE	0x00020000
-#define CONFIG_ENV_IS_IN_FLASH	1
 
 /*
  * BOOTP options

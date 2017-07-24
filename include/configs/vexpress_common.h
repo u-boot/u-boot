@@ -262,7 +262,6 @@
 #define CONFIG_ENV_OVERWRITE		1
 
 /* Store environment at top of flash */
-#define CONFIG_ENV_IS_IN_FLASH		1
 #define CONFIG_ENV_OFFSET		(PHYS_FLASH_SIZE - \
 					(2 * CONFIG_ENV_SECT_SIZE))
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE1 + \

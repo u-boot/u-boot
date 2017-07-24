@@ -198,8 +198,6 @@
 #ifdef CONFIG_CF_SBF
 #	define CONFIG_ENV_IS_IN_SPI_FLASH
 #	define CONFIG_ENV_SPI_CS	2
-#else
-#	define CONFIG_ENV_IS_IN_FLASH	1
 #endif
 #define CONFIG_ENV_OVERWRITE		1
 

@@ -149,7 +149,6 @@
 /*
  * Environment Settings
  */
-#define CONFIG_ENV_IS_IN_FLASH
 
 /*
  * after u-boot.bin

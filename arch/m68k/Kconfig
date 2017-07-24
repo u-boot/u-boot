@@ -10,6 +10,7 @@ config MCF520x
 
 config MCF52x2
 	bool
+	imply ENV_IS_IN_FLASH
 
 config MCF523x
 	bool
@@ -22,6 +23,7 @@ config MCF5301x
 
 config MCF532x
 	bool
+	imply ENV_IS_IN_FLASH
 
 config MCF537x
 	bool
@@ -37,6 +39,7 @@ config MCF5227x
 
 config MCF547x_8x
 	bool
+	imply ENV_IS_IN_FLASH
 
 # processor type
 config M5208
@@ -70,6 +73,7 @@ config M5275
 config M5282
 	bool
 	select MCF52x2
+	imply ENV_IS_IN_FLASH
 
 config M5307
 	bool
@@ -107,10 +111,12 @@ config M52277
 config M547x
 	bool
 	select MCF547x_8x
+	imply ENV_IS_IN_FLASH
 
 config M548x
 	bool
 	select MCF547x_8x
+	imply ENV_IS_IN_FLASH
 
 choice
 	prompt "Target select"
@@ -191,10 +197,12 @@ config TARGET_M54455EVB
 config TARGET_M5475EVB
 	bool "Support M5475EVB"
 	select M547x
+	imply ENV_IS_IN_FLASH
 
 config TARGET_M5485EVB
 	bool "Support M5485EVB"
 	select M548x
+	imply ENV_IS_IN_FLASH
 
 config TARGET_AMCORE
 	bool "Support AMCORE"

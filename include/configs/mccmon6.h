@@ -313,7 +313,6 @@
 #define CONFIG_ENV_SIZE			(SZ_128K)
 
 /* Envs are stored in NOR flash */
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE    (SZ_128K)
 #define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + 0x40000)
 

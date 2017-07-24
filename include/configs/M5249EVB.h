@@ -84,8 +84,6 @@
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_ENV_IS_IN_FLASH	1
-
 #define LDS_BOARD_TEXT \
         . = DEFINED(env_offset) ? env_offset : .; \
         common/env_embedded.o (.text);

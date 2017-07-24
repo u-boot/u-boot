@@ -22,7 +22,6 @@
  * Environment settings
  */
 #define	CONFIG_ENV_OVERWRITE
-#define CONFIG_ENV_IS_IN_FLASH		1
 #define CONFIG_ENV_ADDR			0x40000
 #define CONFIG_ENV_SIZE			0x10000
 
