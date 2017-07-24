@@ -239,7 +239,6 @@
 
 /* FLASH and environment organization */
 
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SIZE                 (8 * 1024)
 #define CONFIG_ENV_OFFSET               (768 * 1024)
 #define CONFIG_ENV_SECT_SIZE            (64 * 1024)

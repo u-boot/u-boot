@@ -42,7 +42,6 @@
 #undef CONFIG_ENV_SIZE
 #define CONFIG_ENV_SIZE			0x1000
 #define CONFIG_ENV_SECT_SIZE		0x1000
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_OFFSET		0x003f8000
 
 #define CONFIG_STD_DEVICES_SETTINGS	"stdin=usbkbd,i8042-kbd,serial\0" \

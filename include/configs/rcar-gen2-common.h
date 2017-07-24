@@ -52,7 +52,6 @@
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 
 /* ENV setting */
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_ADDR	0xC0000
 
 /* Common ENV setting */

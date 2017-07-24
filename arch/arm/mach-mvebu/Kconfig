@@ -32,6 +32,7 @@ config ARMADA_38X
 config ARMADA_XP
 	bool
 	select ARMADA_32BIT
+	imply ENV_IS_IN_SPI_FLASH
 
 # ARMv8 SoCs...
 config ARMADA_3700

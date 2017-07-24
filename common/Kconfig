@@ -432,6 +432,45 @@ config ENV_IS_IN_NVRAM
 	  can just be read and written to, without any special
 	  provision.
 
+config ENV_IS_IN_SPI_FLASH
+	bool "Environment is in SPI flash"
+	depends on !CHAIN_OF_TRUST
+	help
+	  Define this if you have a SPI Flash memory device which you
+	  want to use for the environment.
+
+	  - CONFIG_ENV_OFFSET:
+	  - CONFIG_ENV_SIZE:
+
+	  These two #defines specify the offset and size of the
+	  environment area within the SPI Flash. CONFIG_ENV_OFFSET must be
+	  aligned to an erase sector boundary.
+
+	  - CONFIG_ENV_SECT_SIZE:
+
+	  Define the SPI flash's sector size.
+
+	  - CONFIG_ENV_OFFSET_REDUND (optional):
+
+	  This setting describes a second storage area of CONFIG_ENV_SIZE
+	  size used to hold a redundant copy of the environment data, so
+	  that there is a valid backup copy in case there is a power failure
+	  during a "saveenv" operation. CONFIG_ENV_OFFSET_REDUND must be
+	  aligned to an erase sector boundary.
+
+	  - CONFIG_ENV_SPI_BUS (optional):
+	  - CONFIG_ENV_SPI_CS (optional):
+
+	  Define the SPI bus and chip select. If not defined they will be 0.
+
+	  - CONFIG_ENV_SPI_MAX_HZ (optional):
+
+	  Define the SPI max work clock. If not defined then use 1MHz.
+
+	  - CONFIG_ENV_SPI_MODE (optional):
+
+	  Define the SPI work mode. If not defined then use SPI_MODE_3.
+
 config ENV_IS_IN_UBI
 	bool "Environment in a UBI volume"
 	depends on !CHAIN_OF_TRUST

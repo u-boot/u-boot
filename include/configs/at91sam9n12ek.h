@@ -125,7 +125,6 @@
 #ifdef CONFIG_SYS_USE_SPIFLASH
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_OFFSET		0x5000
 #define CONFIG_ENV_SIZE			0x3000
 #define CONFIG_ENV_SECT_SIZE		0x1000

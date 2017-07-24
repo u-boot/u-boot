@@ -231,7 +231,6 @@
 #endif
 
 #ifdef CONFIG_USE_SPIFLASH
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SIZE			(64 << 10)
 #define CONFIG_ENV_OFFSET		(512 << 10)
 #define CONFIG_ENV_SECT_SIZE		(64 << 10)

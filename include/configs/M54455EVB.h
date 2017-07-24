@@ -270,7 +270,6 @@
  * crc error warning if there is no correct environment on the flash.
  */
 #ifdef CONFIG_CF_SBF
-#	define CONFIG_ENV_IS_IN_SPI_FLASH
 #	define CONFIG_ENV_SPI_CS		1
 #endif
 #undef CONFIG_ENV_OVERWRITE

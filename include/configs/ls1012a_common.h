@@ -64,7 +64,6 @@
  */
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SIZE			0x40000          /* 256KB */
 #define CONFIG_ENV_OFFSET		0x200000        /* 2MB */
 #define CONFIG_ENV_SECT_SIZE		0x40000

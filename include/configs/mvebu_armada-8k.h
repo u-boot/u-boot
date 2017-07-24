@@ -77,7 +77,6 @@
 
 /* Environment in SPI NOR flash */
 #ifdef CONFIG_MVEBU_SPI_BOOT
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 /* Environment in NAND flash */
 #endif
 

@@ -212,9 +212,6 @@
 #endif
 
 /* Persistent Environment Config */
-#ifdef CONFIG_SPI_FLASH
-  #define CONFIG_ENV_IS_IN_SPI_FLASH
-#endif
 #if defined(CONFIG_ENV_IS_IN_MMC)
   #define CONFIG_SYS_MMC_ENV_DEV         0
   #define CONFIG_SYS_MMC_ENV_PART        1

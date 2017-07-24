@@ -11,8 +11,6 @@
 #include "exynos5420-common.h"
 #include <configs/exynos5-common.h>
 
-#undef CONFIG_ENV_IS_IN_SPI_FLASH
-
 #define CONFIG_BOARD_COMMON
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000

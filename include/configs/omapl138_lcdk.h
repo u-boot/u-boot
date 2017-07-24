@@ -212,7 +212,6 @@
 #endif
 
 #ifdef CONFIG_USE_SPIFLASH
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SIZE			(64 << 10)
 #define CONFIG_ENV_OFFSET		(256 << 10)
 #define CONFIG_ENV_SECT_SIZE		(64 << 10)
@@ -306,7 +305,6 @@
 #undef CONFIG_ENV_OFFSET
 #define CONFIG_ENV_SIZE		(16 << 10)	/* 16 KiB */
 #define CONFIG_ENV_OFFSET	(51 << 9)	/* Sector 51 */
-#undef CONFIG_ENV_IS_IN_SPI_FLASH
 #endif
 
 #ifndef CONFIG_DIRECT_NOR_BOOT

@@ -97,7 +97,6 @@
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SECT_SIZE		(64 * 1024)
 #define CONFIG_ENV_OFFSET		(768 * 1024)
 #define CONFIG_ENV_SPI_MAX_HZ           48000000

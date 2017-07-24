@@ -204,7 +204,6 @@ int get_scl(void);
  *  Environment variables configurations
  */
 #if defined CONFIG_KM_ENV_IS_IN_SPI_NOR
-#define CONFIG_ENV_IS_IN_SPI_FLASH  /* use SPI-Flash for environment vars */
 #define CONFIG_ENV_OFFSET		0xc0000     /* no bracets! */
 #define CONFIG_ENV_SIZE			0x02000     /* Size of Environment */
 #define CONFIG_ENV_SECT_SIZE		0x10000

@@ -277,7 +277,6 @@
 #endif
 
 #if defined(CONFIG_CF_SBF)
-#define CONFIG_ENV_IS_IN_SPI_FLASH	1
 #define CONFIG_ENV_SPI_CS		1
 #define CONFIG_ENV_OFFSET		0x40000
 #define CONFIG_ENV_SIZE		0x2000

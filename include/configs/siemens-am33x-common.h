@@ -215,7 +215,6 @@
  * 0x442000 - 0x800000 : Userland
  */
 #if defined(CONFIG_SPI_BOOT)
-# define CONFIG_ENV_IS_IN_SPI_FLASH
 # define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
 # define CONFIG_ENV_OFFSET		(892 << 10) /* 892 KiB in */
 # define CONFIG_ENV_SECT_SIZE		(4 << 10) /* 4 KB sectors */

@@ -7,16 +7,6 @@
 #ifndef __CONFIG_FSL_CHAIN_TRUST_H
 #define __CONFIG_FSL_CHAIN_TRUST_H
 
-/* For secure boot, since ENVIRONMENT in flash/external memories is
- * not verified, undef CONFIG_ENV_xxx and set default env
- * (CONFIG_ENV_IS_NOWHERE)
- */
-#ifdef CONFIG_SECURE_BOOT
-
-#undef CONFIG_ENV_IS_IN_SPI_FLASH
-
-#endif
-
 #ifdef CONFIG_CHAIN_OF_TRUST
 
 #ifndef CONFIG_EXTRA_ENV

@@ -179,7 +179,6 @@
 		"256k(samtec2),"		\
 		"-(rcvrfs);"	/* Recovery */	\
 
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 #define CONFIG_ENV_SECT_SIZE		(64 * 1024)

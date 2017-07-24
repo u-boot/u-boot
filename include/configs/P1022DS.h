@@ -551,7 +551,6 @@
  * Environment
  */
 #ifdef CONFIG_SPIFLASH
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_BUS	0
 #define CONFIG_ENV_SPI_CS	0
 #define CONFIG_ENV_SPI_MAX_HZ	10000000

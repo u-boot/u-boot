@@ -121,7 +121,6 @@
 				"bootm 0x22000000"
 #elif defined(CONFIG_SYS_USE_SPIFLASH)
 /* bootstrap + u-boot + env + linux in spi flash */
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_OFFSET	0x5000
 #define CONFIG_ENV_SIZE		0x3000
 #define CONFIG_ENV_SECT_SIZE	0x1000
@@ -131,7 +130,6 @@
 				"bootm 0x22000000"
 #elif defined(CONFIG_SYS_USE_DATAFLASH)
 /* bootstrap + u-boot + env + linux in data flash */
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_OFFSET	0x4200
 #define CONFIG_ENV_SIZE		0x4200
 #define CONFIG_ENV_SECT_SIZE	0x210
