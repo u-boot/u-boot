@@ -111,6 +111,7 @@ void dwc3_set_fladj(struct dwc3 *dwc3_reg, u32 val)
 			GFLADJ_30MHZ(val));
 }
 
+#ifdef CONFIG_DM_USB
 static int xhci_dwc3_probe(struct udevice *dev)
 {
 	struct xhci_dwc3_platdata *plat = dev_get_platdata(dev);
@@ -184,3 +185,4 @@ U_BOOT_DRIVER(xhci_dwc3) = {
 	.platdata_auto_alloc_size = sizeof(struct xhci_dwc3_platdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
+#endif
