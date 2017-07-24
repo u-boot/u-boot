@@ -264,14 +264,14 @@ in_flash:
 	cmplw	r3, r4
 	bne	1b
 
-#ifdef CONFIG_SYS_MALLOC_F_LEN
+#if CONFIG_VAL(SYS_MALLOC_F_LEN)
 
-#if CONFIG_SYS_MALLOC_F_LEN + GENERATED_GBL_DATA_SIZE > CONFIG_SYS_INIT_RAM_SIZE
-#error "CONFIG_SYS_MALLOC_F_LEN too large to fit into initial RAM."
+#if CONFIG_VAL(SYS_MALLOC_F_LEN) + GENERATED_GBL_DATA_SIZE > CONFIG_SYS_INIT_RAM_SIZE
+#error "SYS_MALLOC_F_LEN too large to fit into initial RAM."
 #endif
 
 	/* r3 = new stack pointer / pre-reloc malloc area */
-	subi    r3, r3, CONFIG_SYS_MALLOC_F_LEN
+	subi    r3, r3, CONFIG_VAL(SYS_MALLOC_F_LEN)
 
 	/* Set pointer to pre-reloc malloc area in GD */
 	stw     r3, GD_MALLOC_BASE(r4)

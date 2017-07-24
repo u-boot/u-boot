@@ -1183,14 +1183,13 @@ _start_cont:
 	lis	r3,(CONFIG_SYS_INIT_RAM_ADDR)@h
 	ori	r3,r3,((CONFIG_SYS_INIT_SP_OFFSET-16)&~0xf)@l /* Align to 16 */
 
-#ifdef CONFIG_SYS_MALLOC_F_LEN
-
-#if CONFIG_SYS_MALLOC_F_LEN + GENERATED_GBL_DATA_SIZE > CONFIG_SYS_INIT_RAM_SIZE
-#error "CONFIG_SYS_MALLOC_F_LEN too large to fit into initial RAM."
+#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_VAL(SYS_MALLOC_F_LEN) + GENERATED_GBL_DATA_SIZE > CONFIG_SYS_INIT_RAM_SIZE
+#error "SYS_MALLOC_F_LEN too large to fit into initial RAM."
 #endif
 
 	/* Leave 16+ byte for back chain termination and NULL return address */
-	subi	r3,r3,((CONFIG_SYS_MALLOC_F_LEN+16+15)&~0xf)
+	subi	r3,r3,((CONFIG_VAL(SYS_MALLOC_F_LEN)+16+15)&~0xf)
 #endif
 
 	/* End of RAM */
@@ -1204,7 +1203,7 @@ _start_cont:
 	cmplw 	r4,r3
 	bne	1b
 
-#ifdef CONFIG_SYS_MALLOC_F_LEN
+#if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	lis	r4,(CONFIG_SYS_INIT_RAM_ADDR)@h
 	ori	r4,r4,(CONFIG_SYS_GBL_DATA_OFFSET)@l
 
