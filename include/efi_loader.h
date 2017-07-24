@@ -20,7 +20,10 @@
 	debug("EFI: Entry %s(" format ")\n", __func__, ##__VA_ARGS__); \
 	} while(0)
 
-#define EFI_EXIT(ret) efi_exit_func(ret);
+#define EFI_EXIT(ret) ({ \
+	debug("EFI: Exit: %s: %u\n", __func__, (u32)((ret) & ~EFI_ERROR_MASK)); \
+	efi_exit_func(ret); \
+	})
 
 extern struct efi_runtime_services efi_runtime_services;
 extern struct efi_system_table systab;
