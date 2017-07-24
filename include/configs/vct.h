@@ -183,7 +183,6 @@
 
 #if defined(CONFIG_VCT_ONENAND)
 #define CONFIG_USE_ONENAND_BOARD_INIT
-#define	CONFIG_ENV_IS_IN_ONENAND
 #define	CONFIG_SYS_ONENAND_BASE		0x00000000	/* this is not real address */
 #define CONFIG_SYS_FLASH_BASE		0x00000000
 #define CONFIG_ENV_ADDR			(128 << 10)	/* after compr. U-Boot image */
