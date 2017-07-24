@@ -168,6 +168,11 @@ static inline void ascii2unicode(u16 *unicode, const char *ascii)
 		*(unicode++) = *(ascii++);
 }
 
+static inline int guidcmp(const efi_guid_t *g1, const efi_guid_t *g2)
+{
+	return memcmp(g1, g2, sizeof(efi_guid_t));
+}
+
 /*
  * Use these to indicate that your code / data should go into the EFI runtime
  * section and thus still be available when the OS is running

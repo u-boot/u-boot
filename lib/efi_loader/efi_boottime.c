@@ -132,11 +132,6 @@ static efi_status_t efi_unsupported(const char *funcname)
 	return EFI_EXIT(EFI_UNSUPPORTED);
 }
 
-static int guidcmp(const efi_guid_t *g1, const efi_guid_t *g2)
-{
-	return memcmp(g1, g2, sizeof(efi_guid_t));
-}
-
 static unsigned long EFIAPI efi_raise_tpl(UINTN new_tpl)
 {
 	EFI_ENTRY("0x%zx", new_tpl);
