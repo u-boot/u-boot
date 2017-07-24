@@ -13,7 +13,6 @@
  */
 #ifdef CONFIG_SECURE_BOOT
 
-#undef CONFIG_ENV_IS_IN_EEPROM
 #undef CONFIG_ENV_IS_IN_SPI_FLASH
 
 #endif

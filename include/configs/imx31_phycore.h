@@ -135,7 +135,6 @@
 /* Monitor at beginning of flash */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 
-#define CONFIG_ENV_IS_IN_EEPROM
 #define CONFIG_ENV_OFFSET			0x00	/* env. starts here */
 #define CONFIG_ENV_SIZE				4096
 #define CONFIG_SYS_I2C_EEPROM_ADDR		0x52

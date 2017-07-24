@@ -212,7 +212,6 @@ int get_scl(void);
 					CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_TOTAL_SIZE		0x20000     /* no bracets! */
 #else
-#define CONFIG_ENV_IS_IN_EEPROM		/* use EEPROM for environment vars */
 #define CONFIG_SYS_DEF_EEPROM_ADDR	0x50
 #define CONFIG_ENV_EEPROM_IS_ON_I2C
 #define CONFIG_SYS_EEPROM_WREN
