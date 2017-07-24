@@ -122,6 +122,7 @@ struct phy_ops {
 	int	(*power_off)(struct phy *phy);
 };
 
+#ifdef CONFIG_PHY
 
 /**
  * generic_phy_init() - initialize the PHY port
@@ -219,6 +220,47 @@ int generic_phy_get_by_index(struct udevice *user, int index,
  */
 int generic_phy_get_by_name(struct udevice *user, const char *phy_name,
 			    struct phy *phy);
+
+#else /* CONFIG_PHY */
+
+static inline int generic_phy_init(struct phy *phy)
+{
+	return 0;
+}
+
+static inline int generic_phy_exit(struct phy *phy)
+{
+	return 0;
+}
+
+static inline int generic_phy_reset(struct phy *phy)
+{
+	return 0;
+}
+
+static inline int generic_phy_power_on(struct phy *phy)
+{
+	return 0;
+}
+
+static inline int generic_phy_power_off(struct phy *phy)
+{
+	return 0;
+}
+
+static inline int generic_phy_get_by_index(struct udevice *user, int index,
+			     struct phy *phy)
+{
+	return 0;
+}
+
+static inline int generic_phy_get_by_name(struct udevice *user, const char *phy_name,
+			    struct phy *phy)
+{
+	return 0;
+}
+
+#endif /* CONFIG_PHY */
 
 /**
  * generic_phy_valid() - check if PHY port is valid
