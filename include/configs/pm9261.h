@@ -240,7 +240,6 @@
 #ifdef CONFIG_SYS_USE_DATAFLASH_CS0
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
-#define CONFIG_ENV_IS_IN_DATAFLASH	1
 #define CONFIG_SYS_MONITOR_BASE		\
 		(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 + 0x8400)
 #define CONFIG_ENV_OFFSET	0x4200

@@ -3422,19 +3422,6 @@ environment in RAM: we could work on NVRAM directly, but we want to
 keep settings there always unmodified except somebody uses "saveenv"
 to save the current settings.
 
-- CONFIG_ENV_IS_IN_DATAFLASH:
-
-	Define this if you have a DataFlash memory device which you
-	want to use for the environment.
-
-	- CONFIG_ENV_OFFSET:
-	- CONFIG_ENV_ADDR:
-	- CONFIG_ENV_SIZE:
-
-	  These three #defines specify the offset and size of the
-	  environment area within the total memory of your DataFlash placed
-	  at the specified address.
-
 - CONFIG_ENV_IS_IN_SPI_FLASH:
 
 	Define this if you have a SPI Flash memory device which you

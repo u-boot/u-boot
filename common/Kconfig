@@ -176,6 +176,21 @@ endmenu
 
 menu "Environment"
 
+config ENV_IS_IN_DATAFLASH
+	bool "Environment in dataflash"
+	depends on !CHAIN_OF_TRUST
+	help
+	  Define this if you have a DataFlash memory device which you
+	  want to use for the environment.
+
+	  - CONFIG_ENV_OFFSET:
+	  - CONFIG_ENV_ADDR:
+	  - CONFIG_ENV_SIZE:
+
+	  These three #defines specify the offset and size of the
+	  environment area within the total memory of your DataFlash placed
+	  at the specified address.
+
 config ENV_IS_IN_EEPROM
 	bool "Environment in EEPROM"
 	depends on !CHAIN_OF_TRUST
