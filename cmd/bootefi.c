@@ -339,7 +339,7 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 {
 	__maybe_unused struct blk_desc *desc;
 	char devname[32] = { 0 }; /* dp->str is u16[32] long */
-	char *colon;
+	char *colon, *s;
 
 #if defined(CONFIG_BLK) || CONFIG_IS_ENABLED(ISO_PARTITION)
 	desc = blk_get_dev(dev, simple_strtol(devnr, NULL, 10));
@@ -384,5 +384,9 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 	} else {
 		snprintf(devname, sizeof(devname), "%s", path);
 	}
+	/* DOS style file path: */
+	s = devname;
+	while ((s = strchr(s, '/')))
+		*s++ = '\\';
 	ascii2unicode(bootefi_image_path[0].str, devname);
 }
