@@ -74,7 +74,6 @@
 
 /* Environment data setup
 */
-#define CONFIG_ENV_IS_IN_NVRAM
 #define CONFIG_SYS_NVRAM_BASE_ADDR	0xfff88000	/* NVRAM base address */
 #define CONFIG_SYS_NVRAM_SIZE		0x8000		/* NVRAM size */
 #define CONFIG_ENV_SIZE			0x2000		/* Size of Environ */

@@ -272,7 +272,6 @@
  * Environment is embedded in u-boot in the second sector of the flash
  */
 #if !defined(CONFIG_SERIAL_BOOT)  /*MRAM boot*/
-#define CONFIG_ENV_IS_IN_MRAM	1
 #define CONFIG_ENV_ADDR		(0x40000 - 0x1000) /*MRAM size 40000*/
 #define CONFIG_ENV_SIZE		0x1000
 #endif

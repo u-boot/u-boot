@@ -3412,20 +3412,6 @@ following configurations:
 	Builds up envcrc with the target environment so that external utils
 	may easily extract it and embed it in final U-Boot images.
 
-- CONFIG_ENV_IS_IN_NVRAM:
-
-	Define this if you have some non-volatile memory device
-	(NVRAM, battery buffered SRAM) which you want to use for the
-	environment.
-
-	- CONFIG_ENV_ADDR:
-	- CONFIG_ENV_SIZE:
-
-	  These two #defines are used to determine the memory area you
-	  want to use for environment. It is assumed that this memory
-	  can just be read and written to, without any special
-	  provision.
-
 BE CAREFUL! The first access to the environment happens quite early
 in U-Boot initialization (when we try to get the setting of for the
 console baudrate). You *MUST* have mapped your NVRAM area then, or
