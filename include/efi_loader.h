@@ -66,6 +66,14 @@ struct efi_object {
 	void *handle;
 };
 
+#define EFI_PROTOCOL_OBJECT(_guid, _protocol) (struct efi_object){	\
+	.protocols = {{							\
+		.guid = &(_guid),	 				\
+		.protocol_interface = (void *)(_protocol), 		\
+	}},								\
+	.handle = (void *)(_protocol),					\
+}
+
 /**
  * struct efi_event
  *
