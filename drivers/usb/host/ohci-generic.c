@@ -91,12 +91,13 @@ static int ohci_usb_probe(struct udevice *dev)
 			error("failed to get usb phy\n");
 			goto reset_err;
 		}
-	}
+	} else {
 
-	err = generic_phy_init(&priv->phy);
-	if (err) {
-		error("failed to init usb phy\n");
-		goto reset_err;
+		err = generic_phy_init(&priv->phy);
+		if (err) {
+			error("failed to init usb phy\n");
+			goto reset_err;
+		}
 	}
 
 	err = ohci_register(dev, regs);
