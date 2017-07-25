@@ -88,6 +88,8 @@ config TEGRA124
 	bool "Tegra124 family"
 	select TEGRA_ARMV7_COMMON
 	imply ENV_IS_IN_MMC
+	imply REGMAP
+	imply SYSCON
 
 config TEGRA210
 	bool "Tegra210 family"

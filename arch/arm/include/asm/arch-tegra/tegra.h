@@ -97,6 +97,11 @@ enum {
 	TEGRA_SOC_UNKNOWN	= -1,
 };
 
+/* Tegra system controller (SYSCON) devices */
+enum {
+	TEGRA_SYSCON_PMC,
+};
+
 #else  /* __ASSEMBLY__ */
 #define PRM_RSTCTRL		NV_PA_PMC_BASE
 #endif
