@@ -729,7 +729,7 @@ static int rk3288_pinctrl_set_pins(struct udevice *dev, int banknum, int index,
 	value |= (mask << (shift + 16)) | (muxval << shift);
 	writel(value, addr);
 
-	/* Handle pullup/pulldown */
+	/* Handle pullup/pulldown/drive-strength */
 	if (flags) {
 		uint val = 0;
 
@@ -737,10 +737,15 @@ static int rk3288_pinctrl_set_pins(struct udevice *dev, int banknum, int index,
 			val = 1;
 		else if (flags & (1 << PIN_CONFIG_BIAS_PULL_DOWN))
 			val = 2;
+		else if (flags & (1 << PIN_CONFIG_DRIVE_STRENGTH))
+			val = 3;
+
 		shift = (index & 7) * 2;
 		ind = index >> 3;
 		if (banknum == 0)
 			addr = &priv->pmu->gpio0pull[ind];
+		else if (flags & (1 << PIN_CONFIG_DRIVE_STRENGTH))
+			addr = &priv->grf->gpio1_e[banknum - 1][ind];
 		else
 			addr = &priv->grf->gpio1_p[banknum - 1][ind];
 		debug("%s: addr=%p, val=%x, shift=%x\n", __func__, addr, val,
@@ -778,6 +783,9 @@ static int rk3288_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 		flags = pinctrl_decode_pin_config(blob, pcfg_node);
 		if (flags < 0)
 			return flags;
+
+		if (fdtdec_get_int(blob, pcfg_node, "drive-strength", 0) == 12)
+			flags |= 1 << PIN_CONFIG_DRIVE_STRENGTH;
 
 		ret = rk3288_pinctrl_set_pins(dev, ptr[0], ptr[1], ptr[2],
 					      flags);
