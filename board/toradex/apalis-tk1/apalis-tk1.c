@@ -61,6 +61,7 @@ void pinmux_init(void)
 #ifdef CONFIG_PCI_TEGRA
 int tegra_pcie_board_init(void)
 {
+	/* TODO: Convert to driver model
 	struct udevice *pmic;
 	int err;
 
@@ -94,6 +95,7 @@ int tegra_pcie_board_init(void)
 		error("failed to set GPIO#2 high: %d\n", err);
 		return err;
 	}
+	*/
 
 	/* Reset I210 Gigabit Ethernet Controller */
 	gpio_request(LAN_RESET_N, "LAN_RESET_N");
@@ -110,6 +112,7 @@ int tegra_pcie_board_init(void)
 	gpio_direction_output(TEGRA_GPIO(O, 6), 0);
 
 	/* Make sure LDO9 and LDO10 are initially enabled @ 0V */
+	/* TODO: Convert to driver model
 	err = as3722_ldo_enable(pmic, 9);
 	if (err < 0) {
 		error("failed to enable LDO9: %d\n", err);
@@ -130,6 +133,7 @@ int tegra_pcie_board_init(void)
 		error("failed to set LDO10 voltage: %d\n", err);
 		return err;
 	}
+	*/
 
 	mdelay(100);
 
@@ -137,6 +141,7 @@ int tegra_pcie_board_init(void)
 	gpio_set_value(TEGRA_GPIO(O, 6), 1);
 
 	/* Enable LDO9 and LDO10 for +V3.3_ETH on patched prototypes */
+	/* TODO: Convert to driver model
 	err = as3722_ldo_set_voltage(pmic, 9, 0xff);
 	if (err < 0) {
 		error("failed to set LDO9 voltage: %d\n", err);
@@ -147,6 +152,7 @@ int tegra_pcie_board_init(void)
 		error("failed to set LDO10 voltage: %d\n", err);
 		return err;
 	}
+	*/
 
 	mdelay(100);
 	gpio_set_value(LAN_RESET_N, 1);

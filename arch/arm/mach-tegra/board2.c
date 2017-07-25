@@ -29,7 +29,6 @@
 #ifdef CONFIG_TEGRA_CLOCK_SCALING
 #include <asm/arch/emc.h>
 #endif
-#include <power/as3722.h>
 #include "emc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -142,11 +141,6 @@ int board_init(void)
 		debug("Memory controller init failed: %d\n", err);
 #  endif
 # endif /* CONFIG_TEGRA_PMU */
-#ifdef CONFIG_PMIC_AS3722
-	err = as3722_init(NULL);
-	if (err && err != -ENODEV)
-		return err;
-#endif
 #endif /* CONFIG_SYS_I2C_TEGRA */
 
 #ifdef CONFIG_USB_EHCI_TEGRA

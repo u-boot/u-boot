@@ -11,253 +11,99 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <i2c.h>
-
+#include <dm/lists.h>
 #include <power/as3722.h>
+#include <power/pmic.h>
 
-#define AS3722_SD_VOLTAGE(n) (0x00 + (n))
-#define AS3722_GPIO_CONTROL(n) (0x08 + (n))
-#define  AS3722_GPIO_CONTROL_MODE_OUTPUT_VDDH (1 << 0)
-#define  AS3722_GPIO_CONTROL_MODE_OUTPUT_VDDL (7 << 0)
-#define  AS3722_GPIO_CONTROL_INVERT (1 << 7)
-#define AS3722_LDO_VOLTAGE(n) (0x10 + (n))
-#define AS3722_GPIO_SIGNAL_OUT 0x20
-#define AS3722_SD_CONTROL 0x4d
-#define AS3722_LDO_CONTROL 0x4e
-#define AS3722_ASIC_ID1 0x90
-#define  AS3722_DEVICE_ID 0x0c
-#define AS3722_ASIC_ID2 0x91
+#define AS3722_NUM_OF_REGS	0x92
 
-int as3722_read(struct udevice *pmic, u8 reg, u8 *value)
+static int as3722_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 {
-	int err;
+	int ret;
 
-	err = dm_i2c_read(pmic, reg, value, 1);
-	if (err < 0)
-		return err;
+	ret = dm_i2c_read(dev, reg, buff, len);
+	if (ret < 0)
+		return ret;
 
 	return 0;
 }
 
-int as3722_write(struct udevice *pmic, u8 reg, u8 value)
+static int as3722_write(struct udevice *dev, uint reg, const uint8_t *buff,
+			int len)
 {
-	int err;
+	int ret;
 
-	err = dm_i2c_write(pmic, reg, &value, 1);
-	if (err < 0)
-		return err;
+	ret = dm_i2c_write(dev, reg, buff, len);
+	if (ret < 0)
+		return ret;
 
 	return 0;
 }
 
-static int as3722_read_id(struct udevice *pmic, u8 *id, u8 *revision)
+static int as3722_read_id(struct udevice *dev, uint *idp, uint *revisionp)
 {
-	int err;
+	int ret;
 
-	err = as3722_read(pmic, AS3722_ASIC_ID1, id);
-	if (err) {
-		error("failed to read ID1 register: %d", err);
-		return err;
+	ret = pmic_reg_read(dev, AS3722_ASIC_ID1);
+	if (ret < 0) {
+		error("failed to read ID1 register: %d", ret);
+		return ret;
 	}
+	*idp = ret;
 
-	err = as3722_read(pmic, AS3722_ASIC_ID2, revision);
-	if (err) {
-		error("failed to read ID2 register: %d", err);
-		return err;
+	ret = pmic_reg_read(dev, AS3722_ASIC_ID2);
+	if (ret < 0) {
+		error("failed to read ID2 register: %d", ret);
+		return ret;
 	}
+	*revisionp = ret;
 
 	return 0;
 }
 
-int as3722_sd_enable(struct udevice *pmic, unsigned int sd)
+/* TODO(treding@nvidia.com): Add proper regulator support to avoid this */
+int as3722_sd_set_voltage(struct udevice *dev, unsigned int sd, u8 value)
 {
-	u8 value;
-	int err;
+	int ret;
 
 	if (sd > 6)
 		return -EINVAL;
 
-	err = as3722_read(pmic, AS3722_SD_CONTROL, &value);
-	if (err) {
-		error("failed to read SD control register: %d", err);
-		return err;
-	}
-
-	value |= 1 << sd;
-
-	err = as3722_write(pmic, AS3722_SD_CONTROL, value);
-	if (err < 0) {
-		error("failed to write SD control register: %d", err);
-		return err;
+	ret = pmic_reg_write(dev, AS3722_SD_VOLTAGE(sd), value);
+	if (ret < 0) {
+		error("failed to write SD%u voltage register: %d", sd, ret);
+		return ret;
 	}
 
 	return 0;
 }
 
-int as3722_sd_set_voltage(struct udevice *pmic, unsigned int sd, u8 value)
+int as3722_ldo_set_voltage(struct udevice *dev, unsigned int ldo, u8 value)
 {
-	int err;
-
-	if (sd > 6)
-		return -EINVAL;
-
-	err = as3722_write(pmic, AS3722_SD_VOLTAGE(sd), value);
-	if (err < 0) {
-		error("failed to write SD%u voltage register: %d", sd, err);
-		return err;
-	}
-
-	return 0;
-}
-
-int as3722_ldo_enable(struct udevice *pmic, unsigned int ldo)
-{
-	u8 value;
-	int err;
+	int ret;
 
 	if (ldo > 11)
 		return -EINVAL;
 
-	err = as3722_read(pmic, AS3722_LDO_CONTROL, &value);
-	if (err) {
-		error("failed to read LDO control register: %d", err);
-		return err;
-	}
-
-	value |= 1 << ldo;
-
-	err = as3722_write(pmic, AS3722_LDO_CONTROL, value);
-	if (err < 0) {
-		error("failed to write LDO control register: %d", err);
-		return err;
-	}
-
-	return 0;
-}
-
-int as3722_ldo_set_voltage(struct udevice *pmic, unsigned int ldo, u8 value)
-{
-	int err;
-
-	if (ldo > 11)
-		return -EINVAL;
-
-	err = as3722_write(pmic, AS3722_LDO_VOLTAGE(ldo), value);
-	if (err < 0) {
+	ret = pmic_reg_write(dev, AS3722_LDO_VOLTAGE(ldo), value);
+	if (ret < 0) {
 		error("failed to write LDO%u voltage register: %d", ldo,
-		      err);
-		return err;
+		      ret);
+		return ret;
 	}
 
 	return 0;
 }
 
-int as3722_gpio_configure(struct udevice *pmic, unsigned int gpio,
-			  unsigned long flags)
+static int as3722_probe(struct udevice *dev)
 {
-	u8 value = 0;
-	int err;
+	uint id, revision;
+	int ret;
 
-	if (flags & AS3722_GPIO_OUTPUT_VDDH)
-		value |= AS3722_GPIO_CONTROL_MODE_OUTPUT_VDDH;
-
-	if (flags & AS3722_GPIO_INVERT)
-		value |= AS3722_GPIO_CONTROL_INVERT;
-
-	err = as3722_write(pmic, AS3722_GPIO_CONTROL(gpio), value);
-	if (err) {
-		error("failed to configure GPIO#%u: %d", gpio, err);
-		return err;
-	}
-
-	return 0;
-}
-
-static int as3722_gpio_set(struct udevice *pmic, unsigned int gpio,
-			   unsigned int level)
-{
-	const char *l;
-	u8 value;
-	int err;
-
-	if (gpio > 7)
-		return -EINVAL;
-
-	err = as3722_read(pmic, AS3722_GPIO_SIGNAL_OUT, &value);
-	if (err < 0) {
-		error("failed to read GPIO signal out register: %d", err);
-		return err;
-	}
-
-	if (level == 0) {
-		value &= ~(1 << gpio);
-		l = "low";
-	} else {
-		value |= 1 << gpio;
-		l = "high";
-	}
-
-	err = as3722_write(pmic, AS3722_GPIO_SIGNAL_OUT, value);
-	if (err) {
-		error("failed to set GPIO#%u %s: %d", gpio, l, err);
-		return err;
-	}
-
-	return 0;
-}
-
-int as3722_gpio_direction_output(struct udevice *pmic, unsigned int gpio,
-				 unsigned int level)
-{
-	u8 value;
-	int err;
-
-	if (gpio > 7)
-		return -EINVAL;
-
-	if (level == 0)
-		value = AS3722_GPIO_CONTROL_MODE_OUTPUT_VDDL;
-	else
-		value = AS3722_GPIO_CONTROL_MODE_OUTPUT_VDDH;
-
-	err = as3722_write(pmic, AS3722_GPIO_CONTROL(gpio), value);
-	if (err) {
-		error("failed to configure GPIO#%u as output: %d", gpio, err);
-		return err;
-	}
-
-	err = as3722_gpio_set(pmic, gpio, level);
-	if (err < 0) {
-		error("failed to set GPIO#%u high: %d", gpio, err);
-		return err;
-	}
-
-	return 0;
-}
-
-/* Temporary function until we get the pmic framework */
-int as3722_get(struct udevice **devp)
-{
-	int bus = 0;
-	int address = 0x40;
-
-	return i2c_get_chip_for_busnum(bus, address, 1, devp);
-}
-
-int as3722_init(struct udevice **devp)
-{
-	struct udevice *pmic;
-	u8 id, revision;
-	const unsigned int bus = 0;
-	const unsigned int address = 0x40;
-	int err;
-
-	err = i2c_get_chip_for_busnum(bus, address, 1, &pmic);
-	if (err)
-		return err;
-	err = as3722_read_id(pmic, &id, &revision);
-	if (err < 0) {
-		error("failed to read ID: %d", err);
-		return err;
+	ret = as3722_read_id(dev, &id, &revision);
+	if (ret < 0) {
+		error("failed to read ID: %d", ret);
+		return ret;
 	}
 
 	if (id != AS3722_DEVICE_ID) {
@@ -265,10 +111,68 @@ int as3722_init(struct udevice **devp)
 		return -ENOENT;
 	}
 
-	debug("AS3722 revision %#x found on I2C bus %u, address %#x\n",
-	      revision, bus, address);
-	if (devp)
-		*devp = pmic;
+	debug("AS3722 revision %#x found on I2C bus %s\n", revision, dev->name);
 
 	return 0;
 }
+
+#if CONFIG_IS_ENABLED(PMIC_CHILDREN)
+static const struct pmic_child_info pmic_children_info[] = {
+	{ .prefix = "sd", .driver = "as3722_stepdown"},
+	{ .prefix = "ldo", .driver = "as3722_ldo"},
+	{ },
+};
+
+static int as3722_bind(struct udevice *dev)
+{
+	struct udevice *gpio_dev;
+	ofnode regulators_node;
+	int children;
+	int ret;
+
+	regulators_node = dev_read_subnode(dev, "regulators");
+	if (!ofnode_valid(regulators_node)) {
+		debug("%s: %s regulators subnode not found\n", __func__,
+		      dev->name);
+		return -ENXIO;
+	}
+
+	children = pmic_bind_children(dev, regulators_node, pmic_children_info);
+	if (!children)
+		debug("%s: %s - no child found\n", __func__, dev->name);
+	ret = device_bind_driver(dev, "gpio_as3722", "gpio_as3722", &gpio_dev);
+	if (ret) {
+		debug("%s: Cannot bind GPIOs (ret=%d)\n", __func__, ret);
+		return ret;
+	}
+
+	return 0;
+}
+#endif
+
+static int as3722_reg_count(struct udevice *dev)
+{
+	return AS3722_NUM_OF_REGS;
+}
+
+static struct dm_pmic_ops as3722_ops = {
+	.reg_count = as3722_reg_count,
+	.read = as3722_read,
+	.write = as3722_write,
+};
+
+static const struct udevice_id as3722_ids[] = {
+	{ .compatible = "ams,as3722" },
+	{ }
+};
+
+U_BOOT_DRIVER(pmic_as3722) = {
+	.name = "as3722_pmic",
+	.id = UCLASS_PMIC,
+	.of_match = as3722_ids,
+#if CONFIG_IS_ENABLED(PMIC_CHILDREN)
+	.bind = as3722_bind,
+#endif
+	.probe = as3722_probe,
+	.ops = &as3722_ops,
+};

@@ -39,6 +39,7 @@ void pinmux_init(void)
 #ifdef CONFIG_PCI_TEGRA
 int tegra_pcie_board_init(void)
 {
+/* TODO: Convert to driver model
 	struct udevice *pmic;
 	int err;
 
@@ -59,6 +60,7 @@ int tegra_pcie_board_init(void)
 		error("failed to set SD4 voltage: %d\n", err);
 		return err;
 	}
+*/
 
 	return 0;
 }
