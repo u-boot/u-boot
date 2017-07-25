@@ -6,6 +6,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <assert.h>
 #include <elf.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -68,6 +69,11 @@
 		break;						\
 	case 8:							\
 		_val = is_be ? htobe64(val) : htole64(val);	\
+		break;						\
+	default:						\
+		/* We should never reach here */		\
+		_val = 0;					\
+		assert(0);					\
 		break;						\
 	}							\
 								\
