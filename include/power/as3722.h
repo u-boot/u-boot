@@ -12,6 +12,14 @@
 #define AS3722_GPIO_OUTPUT_VDDH (1 << 0)
 #define AS3722_GPIO_INVERT (1 << 1)
 
+#define AS3722_DEVICE_ID 0x0c
+#define AS3722_SD_VOLTAGE(n) (0x00 + (n))
+#define AS3722_LDO_VOLTAGE(n) (0x10 + (n))
+#define AS3722_SD_CONTROL 0x4d
+#define AS3722_LDO_CONTROL 0x4e
+#define AS3722_ASIC_ID1 0x90
+#define AS3722_ASIC_ID2 0x91
+
 struct udevice;
 
 int as3722_init(struct udevice **devp);
