@@ -121,8 +121,8 @@ static int xhci_dwc3_probe(struct udevice *dev)
 	enum usb_dr_mode dr_mode;
 	int ret;
 
-	hccr = (struct xhci_hccr *)devfdt_get_addr(dev);
-	hcor = (struct xhci_hcor *)((phys_addr_t)hccr +
+	hccr = (struct xhci_hccr *)((uintptr_t)dev_read_addr(dev));
+	hcor = (struct xhci_hcor *)((uintptr_t)hccr +
 			HC_LENGTH(xhci_readl(&(hccr)->cr_capbase)));
 
 	ret = generic_phy_get_by_index(dev, 0, &plat->usb_phy);
