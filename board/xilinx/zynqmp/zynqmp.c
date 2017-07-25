@@ -78,7 +78,7 @@ static const struct {
 	},
 };
 
-static int chip_id(unsigned char id)
+int chip_id(unsigned char id)
 {
 	struct pt_regs regs;
 	regs.regs[0] = ZYNQMP_SIP_SVC_CSU_DMA_CHIPID;
