@@ -11,10 +11,10 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <mmc.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/tegra_mmc.h>
-#include <mmc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -599,8 +599,7 @@ static int tegra_mmc_probe(struct udevice *dev)
 
 	cfg->name = dev->name;
 
-	bus_width = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-				   "bus-width", 1);
+	bus_width = dev_read_u32_default(dev, "bus-width", 1);
 
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	cfg->host_caps = 0;
@@ -621,7 +620,7 @@ static int tegra_mmc_probe(struct udevice *dev)
 
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
-	priv->reg = (void *)devfdt_get_addr(dev);
+	priv->reg = (void *)dev_read_addr(dev);
 
 	ret = reset_get_by_name(dev, "sdhci", &priv->reset_ctl);
 	if (ret) {
@@ -648,12 +647,10 @@ static int tegra_mmc_probe(struct udevice *dev)
 		return ret;
 
 	/* These GPIOs are optional */
-	gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
-			     GPIOD_IS_IN);
-	gpio_request_by_name(dev, "wp-gpios", 0, &priv->wp_gpio,
-			     GPIOD_IS_IN);
-	gpio_request_by_name(dev, "power-gpios", 0,
-			     &priv->pwr_gpio, GPIOD_IS_OUT);
+	gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio, GPIOD_IS_IN);
+	gpio_request_by_name(dev, "wp-gpios", 0, &priv->wp_gpio, GPIOD_IS_IN);
+	gpio_request_by_name(dev, "power-gpios", 0, &priv->pwr_gpio,
+			     GPIOD_IS_OUT);
 	if (dm_gpio_is_valid(&priv->pwr_gpio))
 		dm_gpio_set_value(&priv->pwr_gpio, 1);
 
