@@ -1187,9 +1187,23 @@ retry_scr:
 
 	mode = MMC_TIMING_HS;
 
-	if (mmc->is_uhs && mmc->version >= SD_VERSION_3) {
-		if (!(mmc_host_uhs(mmc)))
-			return 0;
+	if ((mmc->version >= SD_VERSION_3) &&
+	    mmc_host_uhs(mmc)) {
+		/*
+		 * If the card is already in 1.8V and the system doesn't have
+		 * mechanism to power cycle the SD card, it will respond with
+		 * no 1.8V supported in OCR response. Below check will confirm
+		 * if the above condition has occured. If the host is supporting
+		 * UHS modes and the card is supporting SD specification 3.0 and
+		 * above, it can operate at UHS modes and hence switch to 1.8
+		 * voltage.
+		 */
+		if (__be32_to_cpu(switch_status[3]) &
+		    (SD_UHS_SPEED_SDR104 | SD_UHS_SPEED_DDR50 |
+		     SD_UHS_SPEED_SDR50)) {
+			mmc->is_uhs = 1;
+			mmc_set_voltage(mmc);
+		}
 
 		if (__be32_to_cpu(switch_status[3]) &
 		    SD_UHS_SPEED_SDR104) {
