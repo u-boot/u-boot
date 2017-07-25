@@ -34,6 +34,6 @@ int __weak tegra_xusb_phy_unprepare(struct tegra_xusb_phy *phy)
 	return -ENOSYS;
 }
 
-void __weak tegra_xusb_padctl_init(const void *fdt)
+void __weak tegra_xusb_padctl_init(void)
 {
 }

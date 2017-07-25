@@ -166,7 +166,7 @@ int board_init(void)
 	pin_mux_nand();
 #endif
 
-	tegra_xusb_padctl_init(gd->fdt_blob);
+	tegra_xusb_padctl_init();
 
 #ifdef CONFIG_TEGRA_LP0
 	/* save Sdram params to PMC 2, 4, and 24 for WB0 */

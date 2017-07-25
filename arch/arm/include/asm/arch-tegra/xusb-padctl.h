@@ -15,7 +15,7 @@ struct tegra_xusb_phy;
  */
 struct tegra_xusb_phy *tegra_xusb_phy_get(unsigned int type);
 
-void tegra_xusb_padctl_init(const void *fdt);
+void tegra_xusb_padctl_init(void);
 int tegra_xusb_phy_prepare(struct tegra_xusb_phy *phy);
 int tegra_xusb_phy_enable(struct tegra_xusb_phy *phy);
 int tegra_xusb_phy_disable(struct tegra_xusb_phy *phy);

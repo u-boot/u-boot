@@ -75,14 +75,14 @@ tegra_xusb_padctl_find_lane(struct tegra_xusb_padctl *padctl, const char *name)
 static int
 tegra_xusb_padctl_group_parse_dt(struct tegra_xusb_padctl *padctl,
 				 struct tegra_xusb_padctl_group *group,
-				 const void *fdt, int node)
+				 ofnode node)
 {
 	unsigned int i;
-	int len;
+	int len, ret;
 
-	group->name = fdt_get_name(fdt, node, &len);
+	group->name = ofnode_get_name(node);
 
-	len = fdt_stringlist_count(fdt, node, "nvidia,lanes");
+	len = ofnode_read_string_count(node, "nvidia,lanes");
 	if (len < 0) {
 		error("failed to parse \"nvidia,lanes\" property");
 		return -EINVAL;
@@ -91,9 +91,9 @@ tegra_xusb_padctl_group_parse_dt(struct tegra_xusb_padctl *padctl,
 	group->num_pins = len;
 
 	for (i = 0; i < group->num_pins; i++) {
-		group->pins[i] = fdt_stringlist_get(fdt, node, "nvidia,lanes",
-						    i, NULL);
-		if (!group->pins[i]) {
+		ret = ofnode_read_string_index(node, "nvidia,lanes", i,
+					       &group->pins[i]);
+		if (ret) {
 			error("failed to read string from \"nvidia,lanes\" property");
 			return -EINVAL;
 		}
@@ -101,13 +101,14 @@ tegra_xusb_padctl_group_parse_dt(struct tegra_xusb_padctl *padctl,
 
 	group->num_pins = len;
 
-	group->func = fdt_stringlist_get(fdt, node, "nvidia,function", 0, NULL);
-	if (!group->func) {
+	ret = ofnode_read_string_index(node, "nvidia,function", 0,
+				       &group->func);
+	if (ret) {
 		error("failed to parse \"nvidia,func\" property");
 		return -EINVAL;
 	}
 
-	group->iddq = fdtdec_get_int(fdt, node, "nvidia,iddq", -1);
+	group->iddq = ofnode_read_u32_default(node, "nvidia,iddq", -1);
 
 	return 0;
 }
@@ -217,20 +218,21 @@ tegra_xusb_padctl_config_apply(struct tegra_xusb_padctl *padctl,
 static int
 tegra_xusb_padctl_config_parse_dt(struct tegra_xusb_padctl *padctl,
 				  struct tegra_xusb_padctl_config *config,
-				  const void *fdt, int node)
+				  ofnode node)
 {
-	int subnode;
+	ofnode subnode;
 
-	config->name = fdt_get_name(fdt, node, NULL);
+	config->name = ofnode_get_name(node);
 
-	fdt_for_each_subnode(subnode, fdt, node) {
+	for (subnode = ofnode_first_subnode(node);
+	     ofnode_valid(subnode);
+	     subnode = ofnode_next_subnode(subnode)) {
 		struct tegra_xusb_padctl_group *group;
 		int err;
 
 		group = &config->groups[config->num_groups];
 
-		err = tegra_xusb_padctl_group_parse_dt(padctl, group, fdt,
-						       subnode);
+		err = tegra_xusb_padctl_group_parse_dt(padctl, group, subnode);
 		if (err < 0) {
 			error("failed to parse group %s", group->name);
 			return err;
@@ -243,20 +245,24 @@ tegra_xusb_padctl_config_parse_dt(struct tegra_xusb_padctl *padctl,
 }
 
 static int tegra_xusb_padctl_parse_dt(struct tegra_xusb_padctl *padctl,
-				      const void *fdt, int node)
+				      ofnode node)
 {
-	int subnode, err;
+	ofnode subnode;
+	int err;
 
-	err = fdt_get_resource(fdt, node, "reg", 0, &padctl->regs);
+	err = ofnode_read_resource(node, 0, &padctl->regs);
 	if (err < 0) {
 		error("registers not found");
 		return err;
 	}
 
-	fdt_for_each_subnode(subnode, fdt, node) {
+	for (subnode = ofnode_first_subnode(node);
+	     ofnode_valid(subnode);
+	     subnode = ofnode_next_subnode(subnode)) {
 		struct tegra_xusb_padctl_config *config = &padctl->config;
 
-		err = tegra_xusb_padctl_config_parse_dt(padctl, config, fdt,
+		debug("%s: subnode=%s\n", __func__, ofnode_get_name(subnode));
+		err = tegra_xusb_padctl_config_parse_dt(padctl, config,
 							subnode);
 		if (err < 0) {
 			error("failed to parse entry %s: %d",
@@ -264,25 +270,28 @@ static int tegra_xusb_padctl_parse_dt(struct tegra_xusb_padctl *padctl,
 			continue;
 		}
 	}
+	debug("%s: done\n", __func__);
 
 	return 0;
 }
 
 struct tegra_xusb_padctl padctl;
 
-int tegra_xusb_process_nodes(const void *fdt, int nodes[], unsigned int count,
-	const struct tegra_xusb_padctl_soc *socdata)
+int tegra_xusb_process_nodes(ofnode nodes[], unsigned int count,
+			     const struct tegra_xusb_padctl_soc *socdata)
 {
 	unsigned int i;
 	int err;
 
+	debug("%s: count=%d\n", __func__, count);
 	for (i = 0; i < count; i++) {
-		if (!fdtdec_get_is_enabled(fdt, nodes[i]))
+		debug("%s: i=%d, node=%p\n", __func__, i, nodes[i].np);
+		if (!ofnode_is_available(nodes[i]))
 			continue;
 
 		padctl.socdata = socdata;
 
-		err = tegra_xusb_padctl_parse_dt(&padctl, fdt, nodes[i]);
+		err = tegra_xusb_padctl_parse_dt(&padctl, nodes[i]);
 		if (err < 0) {
 			error("failed to parse DT: %d", err);
 			continue;
@@ -300,6 +309,7 @@ int tegra_xusb_process_nodes(const void *fdt, int nodes[], unsigned int count,
 		/* only a single instance is supported */
 		break;
 	}
+	debug("%s: done\n", __func__);
 
 	return 0;
 }
