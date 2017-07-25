@@ -14,6 +14,7 @@
 #include <sdhci.h>
 #include <mmc.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <zynqmp_tap_delay.h>
 #include "mmc_private.h"
@@ -231,7 +232,11 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 					"xlnx,device_id", -1);
 	priv->bank = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 				    "xlnx,mio_bank", -1);
-	if (fdt_get_property(gd->fdt_blob, dev->of_offset, "no-1-8-v", NULL))
+	if (fdt_get_property(gd->fdt_blob, dev->of_offset, "no-1-8-v", NULL)
+#if defined(CONFIG_ARCH_ZYNQMP)
+	    || (chip_id(VERSION) == ZYNQMP_SILICON_V1)
+#endif
+	    )
 		priv->no_1p8 = 1;
 	else
 		priv->no_1p8 = 0;
