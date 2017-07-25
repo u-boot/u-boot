@@ -1,8 +1,11 @@
 /*
  * (C) Copyright 2017 Rockchip Electronics Co., Ltd
  * Author: Andy Yan <andy.yan@rock-chips.com>
+ * (C) Copyright 2017 Theobroma Systems Design und Consulting GmbH
+ *
  * SPDX-License-Identifier:	GPL-2.0+
  */
+
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
@@ -15,6 +18,29 @@
 #include <dm/pinctrl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/* PMUGRF_GPIO0B_IOMUX */
+enum {
+	GPIO0B5_SHIFT           = 10,
+	GPIO0B5_MASK            = GENMASK(GPIO0B5_SHIFT + 1, GPIO0B5_SHIFT),
+	GPIO0B5_GPIO            = 0,
+	GPIO0B5_SPI2_CSN0       = (2 << GPIO0B5_SHIFT),
+
+	GPIO0B4_SHIFT           = 8,
+	GPIO0B4_MASK            = GENMASK(GPIO0B4_SHIFT + 1, GPIO0B4_SHIFT),
+	GPIO0B4_GPIO            = 0,
+	GPIO0B4_SPI2_CLK        = (2 << GPIO0B4_SHIFT),
+
+	GPIO0B3_SHIFT           = 6,
+	GPIO0B3_MASK            = GENMASK(GPIO0B3_SHIFT + 1, GPIO0B3_SHIFT),
+	GPIO0B3_GPIO            = 0,
+	GPIO0B3_SPI2_TXD        = (2 << GPIO0B3_SHIFT),
+
+	GPIO0B2_SHIFT           = 4,
+	GPIO0B2_MASK            = GENMASK(GPIO0B2_SHIFT + 1, GPIO0B2_SHIFT),
+	GPIO0B2_GPIO            = 0,
+	GPIO0B2_SPI2_RXD        = (2 << GPIO0B2_SHIFT),
+};
 
 /*GRF_GPIO0C_IOMUX*/
 enum {
@@ -225,17 +251,32 @@ enum {
 	GPIO2D0_UART0_SIN       = (1 << GPIO2D0_SHIFT),
 };
 
+/* GRF_GPIO1B_IOMUX */
+enum {
+	GPIO1B7_SHIFT           = 14,
+	GPIO1B7_MASK            = GENMASK(GPIO1B7_SHIFT + 1, GPIO1B7_SHIFT),
+	GPIO1B7_GPIO            = 0,
+	GPIO1B7_SPI1_CSN0       = (2 << GPIO1B7_SHIFT),
+
+	GPIO1B6_SHIFT           = 12,
+	GPIO1B6_MASK            = GENMASK(GPIO1B6_SHIFT + 1, GPIO1B6_SHIFT),
+	GPIO1B6_GPIO            = 0,
+	GPIO1B6_SPI1_CLK        = (2 << GPIO1B6_SHIFT),
+};
+
 /* GRF_GPIO1C_IOMUX */
 enum {
 	GPIO1C7_SHIFT           = 14,
 	GPIO1C7_MASK            = GENMASK(GPIO1C7_SHIFT + 1, GPIO1C7_SHIFT),
 	GPIO1C7_GPIO            = 0,
 	GPIO1C7_EMMC_DATA5      = (2 << GPIO1C7_SHIFT),
+	GPIO1C7_SPI0_TXD        = (3 << GPIO1C7_SHIFT),
 
 	GPIO1C6_SHIFT           = 12,
 	GPIO1C6_MASK            = GENMASK(GPIO1C6_SHIFT + 1, GPIO1C6_SHIFT),
 	GPIO1C6_GPIO            = 0,
 	GPIO1C6_EMMC_DATA4      = (2 << GPIO1C6_SHIFT),
+	GPIO1C6_SPI0_RXD        = (3 << GPIO1C6_SHIFT),
 
 	GPIO1C5_SHIFT           = 10,
 	GPIO1C5_MASK            = GENMASK(GPIO1C5_SHIFT + 1, GPIO1C5_SHIFT),
@@ -256,10 +297,25 @@ enum {
 	GPIO1C2_MASK            = GENMASK(GPIO1C2_SHIFT + 1, GPIO1C2_SHIFT),
 	GPIO1C2_GPIO            = 0,
 	GPIO1C2_EMMC_DATA0      = (2 << GPIO1C2_SHIFT),
+
+	GPIO1C1_SHIFT           = 2,
+	GPIO1C1_MASK            = GENMASK(GPIO1C1_SHIFT + 1, GPIO1C1_SHIFT),
+	GPIO1C1_GPIO            = 0,
+	GPIO1C1_SPI1_RXD        = (2 << GPIO1C1_SHIFT),
+
+	GPIO1C0_SHIFT           = 0,
+	GPIO1C0_MASK            = GENMASK(GPIO1C0_SHIFT + 1, GPIO1C0_SHIFT),
+	GPIO1C0_GPIO            = 0,
+	GPIO1C0_SPI1_TXD        = (2 << GPIO1C0_SHIFT),
 };
 
 /* GRF_GPIO1D_IOMUX*/
 enum {
+	GPIO1D5_SHIFT           = 10,
+	GPIO1D5_MASK            = GENMASK(GPIO1D5_SHIFT + 1, GPIO1D5_SHIFT),
+	GPIO1D5_GPIO            = 0,
+	GPIO1D5_SPI0_CLK        = (2 << GPIO1D5_SHIFT),
+
 	GPIO1D3_SHIFT           = 6,
 	GPIO1D3_MASK            = GENMASK(GPIO1D3_SHIFT + 1, GPIO1D3_SHIFT),
 	GPIO1D3_GPIO            = 0,
@@ -274,11 +330,13 @@ enum {
 	GPIO1D1_MASK            = GENMASK(GPIO1D1_SHIFT + 1, GPIO1D1_SHIFT),
 	GPIO1D1_GPIO            = 0,
 	GPIO1D1_EMMC_DATA7      = (2 << GPIO1D1_SHIFT),
+	GPIO1D1_SPI0_CSN1       = (3 << GPIO1D1_SHIFT),
 
 	GPIO1D0_SHIFT           = 0,
 	GPIO1D0_MASK            = GENMASK(GPIO1D0_SHIFT + 1, GPIO1D0_SHIFT),
 	GPIO1D0_GPIO            = 0,
 	GPIO1D0_EMMC_DATA6      = (2 << GPIO1D0_SHIFT),
+	GPIO1D0_SPI0_CSN0       = (3 << GPIO1D0_SHIFT),
 };
 
 
@@ -370,6 +428,7 @@ enum {
 	GPIO3D4_MASK            = GENMASK(GPIO3D4_SHIFT + 1, GPIO3D4_SHIFT),
 	GPIO3D4_GPIO            = 0,
 	GPIO3D4_MAC_TXCLK       = (1 << GPIO3D4_SHIFT),
+	GPIO3D4_SPI1_CNS1       = (2 << GPIO3D4_SHIFT),
 
 	GPIO3D1_SHIFT           = 2,
 	GPIO3D1_MASK            = GENMASK(GPIO3D1_SHIFT + 1, GPIO3D1_SHIFT),
@@ -414,6 +473,54 @@ static void pinctrl_rk3368_uart_config(struct rk3368_pinctrl_priv *priv,
 		break;
 	default:
 		debug("uart id = %d iomux error!\n", uart_id);
+		break;
+	}
+}
+
+static void pinctrl_rk3368_spi_config(struct rk3368_pinctrl_priv *priv,
+				      int spi_id)
+{
+	struct rk3368_grf *grf = priv->grf;
+	struct rk3368_pmu_grf *pmugrf = priv->pmugrf;
+
+	switch (spi_id) {
+	case PERIPH_ID_SPI0:
+		/*
+		 * eMMC can only be connected with 4 bits, when SPI0 is used.
+		 * This is all-or-nothing, so we assume that if someone asks us
+		 * to configure SPI0, that their eMMC interface is unused or
+		 * configured appropriately.
+		 */
+		rk_clrsetreg(&grf->gpio1d_iomux,
+			     GPIO1D0_MASK | GPIO1D1_MASK |
+			     GPIO1D5_MASK,
+			     GPIO1D0_SPI0_CSN0 | GPIO1D1_SPI0_CSN1 |
+			     GPIO1D5_SPI0_CLK);
+		rk_clrsetreg(&grf->gpio1c_iomux,
+			     GPIO1C6_MASK | GPIO1C7_MASK,
+			     GPIO1C6_SPI0_RXD | GPIO1C7_SPI0_TXD);
+		break;
+	case PERIPH_ID_SPI1:
+		/*
+		 * We don't implement support for configuring SPI1_CSN#1, as it
+		 * conflicts with the GMAC (MAC TX clk-out).
+		 */
+		rk_clrsetreg(&grf->gpio1b_iomux,
+			     GPIO1B6_MASK | GPIO1B7_MASK,
+			     GPIO1B6_SPI1_CLK | GPIO1B7_SPI1_CSN0);
+		rk_clrsetreg(&grf->gpio1c_iomux,
+			     GPIO1C0_MASK | GPIO1C1_MASK,
+			     GPIO1C0_SPI1_TXD | GPIO1C1_SPI1_RXD);
+		break;
+	case PERIPH_ID_SPI2:
+		rk_clrsetreg(&pmugrf->gpio0b_iomux,
+			     GPIO0B2_MASK | GPIO0B3_MASK |
+			     GPIO0B4_MASK | GPIO0B5_MASK,
+			     GPIO0B2_SPI2_RXD | GPIO0B3_SPI2_TXD |
+			     GPIO0B4_SPI2_CLK | GPIO0B5_SPI2_CSN0);
+		break;
+	default:
+		debug("%s: spi id = %d iomux error!\n", __func__, spi_id);
 		break;
 	}
 }
@@ -498,6 +605,11 @@ static int rk3368_pinctrl_request(struct udevice *dev, int func, int flags)
 	case PERIPH_ID_UART4:
 		pinctrl_rk3368_uart_config(priv, func);
 		break;
+	case PERIPH_ID_SPI0:
+	case PERIPH_ID_SPI1:
+	case PERIPH_ID_SPI2:
+		pinctrl_rk3368_spi_config(priv, func);
+		break;
 	case PERIPH_ID_EMMC:
 	case PERIPH_ID_SDCARD:
 		pinctrl_rk3368_sdmmc_config(priv->grf, func);
@@ -536,6 +648,12 @@ static int rk3368_pinctrl_get_periph_id(struct udevice *dev,
 		return PERIPH_ID_UART1;
 	case 55:
 		return PERIPH_ID_UART0;
+	case 44:
+		return PERIPH_ID_SPI0;
+	case 45:
+		return PERIPH_ID_SPI1;
+	case 41:
+		return PERIPH_ID_SPI2;
 	case 35:
 		return PERIPH_ID_EMMC;
 	case 32:
