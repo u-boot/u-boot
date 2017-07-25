@@ -282,32 +282,6 @@ static ulong rk3368_mmc_set_clk(struct clk *clk, ulong rate)
 }
 #endif
 
-static ulong rk3368_clk_get_rate(struct clk *clk)
-{
-	struct rk3368_clk_priv *priv = dev_get_priv(clk->dev);
-	ulong rate = 0;
-
-	debug("%s: id %ld\n", __func__, clk->id);
-	switch (clk->id) {
-	case PLL_CPLL:
-		rate = rkclk_pll_get_rate(priv->cru, CPLL);
-		break;
-	case PLL_GPLL:
-		rate = rkclk_pll_get_rate(priv->cru, GPLL);
-		break;
-#if !IS_ENABLED(CONFIG_SPL_BUILD) || CONFIG_IS_ENABLED(MMC_SUPPORT)
-	case HCLK_SDMMC:
-	case HCLK_EMMC:
-		rate = rk3368_mmc_get_clk(priv->cru, clk->id);
-		break;
-#endif
-	default:
-		return -ENOENT;
-	}
-
-	return rate;
-}
-
 #if IS_ENABLED(CONFIG_TPL_BUILD)
 static ulong rk3368_ddr_set_clk(struct rk3368_cru *cru, ulong set_rate)
 {
@@ -351,6 +325,110 @@ static ulong rk3368_gmac_set_clk(struct rk3368_cru *cru,
 }
 #endif
 
+/*
+ * RK3368 SPI clocks have a common divider-width (7 bits) and a single bit
+ * to select either CPLL or GPLL as the clock-parent. The location within
+ * the enclosing CLKSEL_CON (i.e. div_shift and sel_shift) are variable.
+ */
+
+struct spi_clkreg {
+	uint8_t reg;  /* CLKSEL_CON[reg] register in CRU */
+	uint8_t div_shift;
+	uint8_t sel_shift;
+};
+
+/*
+ * The entries are numbered relative to their offset from SCLK_SPI0.
+ */
+static const struct spi_clkreg spi_clkregs[] = {
+	[0] = { .reg = 45, .div_shift = 0, .sel_shift = 7, },
+	[1] = { .reg = 45, .div_shift = 8, .sel_shift = 15, },
+	[2] = { .reg = 46, .div_shift = 8, .sel_shift = 15, },
+};
+
+static inline u32 extract_bits(u32 val, unsigned width, unsigned shift)
+{
+	return (val >> shift) & ((1 << width) - 1);
+}
+
+static ulong rk3368_spi_get_clk(struct rk3368_cru *cru, ulong clk_id)
+{
+	const struct spi_clkreg *spiclk = NULL;
+	u32 div, val;
+
+	switch (clk_id) {
+	case SCLK_SPI0 ... SCLK_SPI2:
+		spiclk = &spi_clkregs[clk_id - SCLK_SPI0];
+		break;
+
+	default:
+		error("%s: SPI clk-id %ld not supported\n", __func__, clk_id);
+		return -EINVAL;
+	}
+
+	val = readl(&cru->clksel_con[spiclk->reg]);
+	div = extract_bits(val, 7, spiclk->div_shift);
+
+	debug("%s: div 0x%x\n", __func__, div);
+	return DIV_TO_RATE(GPLL_HZ, div);
+}
+
+static ulong rk3368_spi_set_clk(struct rk3368_cru *cru, ulong clk_id, uint hz)
+{
+	const struct spi_clkreg *spiclk = NULL;
+	int src_clk_div;
+
+	src_clk_div = DIV_ROUND_UP(GPLL_HZ, hz);
+	assert(src_clk_div < 127);
+
+	switch (clk_id) {
+	case SCLK_SPI0 ... SCLK_SPI2:
+		spiclk = &spi_clkregs[clk_id - SCLK_SPI0];
+		break;
+
+	default:
+		error("%s: SPI clk-id %ld not supported\n", __func__, clk_id);
+		return -EINVAL;
+	}
+
+	rk_clrsetreg(&cru->clksel_con[spiclk->reg],
+		     ((0x7f << spiclk->div_shift) |
+		      (0x1 << spiclk->sel_shift)),
+		     ((src_clk_div << spiclk->div_shift) |
+		      (1 << spiclk->sel_shift)));
+
+	return rk3368_spi_get_clk(cru, clk_id);
+}
+
+static ulong rk3368_clk_get_rate(struct clk *clk)
+{
+	struct rk3368_clk_priv *priv = dev_get_priv(clk->dev);
+	ulong rate = 0;
+
+	debug("%s: id %ld\n", __func__, clk->id);
+	switch (clk->id) {
+	case PLL_CPLL:
+		rate = rkclk_pll_get_rate(priv->cru, CPLL);
+		break;
+	case PLL_GPLL:
+		rate = rkclk_pll_get_rate(priv->cru, GPLL);
+		break;
+	case SCLK_SPI0 ... SCLK_SPI2:
+		rate = rk3368_spi_get_clk(priv->cru, clk->id);
+		break;
+#if !IS_ENABLED(CONFIG_SPL_BUILD) || CONFIG_IS_ENABLED(MMC_SUPPORT)
+	case HCLK_SDMMC:
+	case HCLK_EMMC:
+		rate = rk3368_mmc_get_clk(priv->cru, clk->id);
+		break;
+#endif
+	default:
+		return -ENOENT;
+	}
+
+	return rate;
+}
+
 static ulong rk3368_clk_set_rate(struct clk *clk, ulong rate)
 {
 	__maybe_unused struct rk3368_clk_priv *priv = dev_get_priv(clk->dev);
@@ -358,6 +436,9 @@ static ulong rk3368_clk_set_rate(struct clk *clk, ulong rate)
 
 	debug("%s id:%ld rate:%ld\n", __func__, clk->id, rate);
 	switch (clk->id) {
+	case SCLK_SPI0 ... SCLK_SPI2:
+		ret = rk3368_spi_set_clk(priv->cru, clk->id, rate);
+		break;
 #if IS_ENABLED(CONFIG_TPL_BUILD)
 	case CLK_DDR:
 		ret = rk3368_ddr_set_clk(priv->cru, rate);
