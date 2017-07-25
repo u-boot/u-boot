@@ -144,4 +144,7 @@ struct pmu_regs {
 
 #define pmu_base ((struct pmu_regs *)ZYNQMP_PMU_BASEADDR)
 
+#define ZYNQMP_CSU_IDCODE_ADDR	0xFFCA0040
+#define ZYNQMP_CSU_VER_ADDR	0xFFCA0044
+
 #endif /* _ASM_ARCH_HARDWARE_H */
