@@ -8,7 +8,6 @@
 
 	aliases {
 		console = &uarta;
-		stdout-path = &uarta;
 		i2c0 = "/i2c@7000d000";
 		i2c1 = "/i2c@7000c000";
 		i2c2 = "/i2c@7000c400";
@@ -24,6 +23,10 @@
 		usb0 = "/usb@7d000000";
 		usb1 = "/usb@7d008000";
 		usb2 = "/usb@7d004000";
+	};
+
+	chosen {
+		stdout-path = &uarta;
 	};
 
 	host1x@50000000 {
