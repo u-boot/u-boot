@@ -114,6 +114,30 @@ int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk)
 
 	return clk_get_by_index(dev, index, clk);
 }
+
+int clk_release_all(struct clk *clk, int count)
+{
+	int i, ret;
+
+	for (i = 0; i < count; i++) {
+		debug("%s(clk[%d]=%p)\n", __func__, i, &clk[i]);
+
+		/* check if clock has been previously requested */
+		if (!clk[i].dev)
+			continue;
+
+		ret = clk_disable(&clk[i]);
+		if (ret && ret != -ENOSYS)
+			return ret;
+
+		ret = clk_free(&clk[i]);
+		if (ret && ret != -ENOSYS)
+			return ret;
+	}
+
+	return 0;
+}
+
 #endif /* OF_CONTROL */
 
 int clk_request(struct udevice *dev, struct clk *clk)
@@ -188,29 +212,6 @@ int clk_disable(struct clk *clk)
 		return -ENOSYS;
 
 	return ops->disable(clk);
-}
-
-int clk_release_all(struct clk *clk, int count)
-{
-	int i, ret;
-
-	for (i = 0; i < count; i++) {
-		debug("%s(clk[%d]=%p)\n", __func__, i, &clk[i]);
-
-		/* check if clock has been previously requested */
-		if (!clk[i].dev)
-			continue;
-
-		ret = clk_disable(&clk[i]);
-		if (ret && ret != -ENOSYS)
-			return ret;
-
-		ret = clk_free(&clk[i]);
-		if (ret && ret != -ENOSYS)
-			return ret;
-	}
-
-	return 0;
 }
 
 UCLASS_DRIVER(clk) = {
