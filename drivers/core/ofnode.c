@@ -199,13 +199,14 @@ fdt_addr_t ofnode_get_addr_index(ofnode node, int index)
 		const __be32 *prop_val;
 		uint flags;
 		u64 size;
+		int na;
 
-		prop_val = of_get_address(
-			(struct device_node *)ofnode_to_np(node), index,
-			&size, &flags);
+		prop_val = of_get_address(ofnode_to_np(node), index, &size,
+					  &flags);
 		if (!prop_val)
 			return FDT_ADDR_T_NONE;
-		return  be32_to_cpup(prop_val);
+		na = of_n_addr_cells(ofnode_to_np(node));
+		return of_read_number(prop_val, na);
 	} else {
 		return fdt_get_base_address(gd->fdt_blob,
 					    ofnode_to_offset(node));
