@@ -15,6 +15,8 @@
 /* Enable checks to protect against invalid calls */
 #undef OF_CHECKS
 
+struct resource;
+
 /**
  * ofnode - reference to a device tree node
  *
@@ -604,5 +606,7 @@ int ofnode_read_simple_size_cells(ofnode node);
  * @eturns true if node is needed in SPL/TL, false otherwise
  */
 bool ofnode_pre_reloc(ofnode node);
+
+int ofnode_read_resource(ofnode node, uint index, struct resource *res);
 
 #endif

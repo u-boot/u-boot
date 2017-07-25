@@ -14,6 +14,7 @@
 #include <dm/of_addr.h>
 #include <dm/ofnode.h>
 #include <linux/err.h>
+#include <linux/ioport.h>
 
 int ofnode_read_u32(ofnode node, const char *propname, u32 *outp)
 {
@@ -592,4 +593,24 @@ bool ofnode_pre_reloc(ofnode node)
 #endif
 
 	return false;
+}
+
+int ofnode_read_resource(ofnode node, uint index, struct resource *res)
+{
+	if (ofnode_is_np(node)) {
+		return of_address_to_resource(ofnode_to_np(node), index, res);
+	} else {
+		struct fdt_resource fres;
+		int ret;
+
+		ret = fdt_get_resource(gd->fdt_blob, ofnode_to_offset(node),
+				       "reg", index, &fres);
+		if (ret < 0)
+			return -EINVAL;
+		memset(res, '\0', sizeof(*res));
+		res->start = fres.start;
+		res->end = fres.end;
+
+		return 0;
+	}
 }

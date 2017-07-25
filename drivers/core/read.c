@@ -159,3 +159,8 @@ int dev_read_enabled(struct udevice *dev)
 		return fdtdec_get_is_enabled(gd->fdt_blob,
 					     ofnode_to_offset(node));
 }
+
+int dev_read_resource(struct udevice *dev, uint index, struct resource *res)
+{
+	return ofnode_read_resource(dev_ofnode(dev), index, res);
+}

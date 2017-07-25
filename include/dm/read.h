@@ -44,16 +44,6 @@ static inline bool dev_of_valid(struct udevice *dev)
 	return ofnode_valid(dev_ofnode(dev));
 }
 
-/**
- * dev_read_resource() - obtain an indexed resource from a device.
- *
- * @dev: devuce to examine
- * @index index of the resource to retrieve (0 = first)
- * @res returns the resource
- * @return 0 if ok, negative on error
- */
-int dev_read_resource(struct udevice *dev, uint index, struct resource *res);
-
 #ifndef CONFIG_DM_DEV_READ_INLINE
 /**
  * dev_read_u32_default() - read a 32-bit integer from a device's DT property
@@ -348,6 +338,16 @@ const uint8_t *dev_read_u8_array_ptr(struct udevice *dev, const char *propname,
  */
 int dev_read_enabled(struct udevice *dev);
 
+/**
+ * dev_read_resource() - obtain an indexed resource from a device.
+ *
+ * @dev: devuce to examine
+ * @index index of the resource to retrieve (0 = first)
+ * @res returns the resource
+ * @return 0 if ok, negative on error
+ */
+int dev_read_resource(struct udevice *dev, uint index, struct resource *res);
+
 #else /* CONFIG_DM_DEV_READ_INLINE is enabled */
 
 static inline int dev_read_u32_default(struct udevice *dev,
@@ -480,6 +480,12 @@ static inline const uint8_t *dev_read_u8_array_ptr(struct udevice *dev,
 static inline int dev_read_enabled(struct udevice *dev)
 {
 	return fdtdec_get_is_enabled(gd->fdt_blob, dev_of_offset(dev));
+}
+
+static inline int dev_read_resource(struct udevice *dev, uint index,
+				    struct resource *res)
+{
+	return ofnode_read_resource(dev_ofnode(dev), index, res);
 }
 
 #endif /* CONFIG_DM_DEV_READ_INLINE */
