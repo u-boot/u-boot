@@ -76,13 +76,14 @@ static const struct {
 	},
 };
 
-static int chip_id(void)
+static int chip_id(unsigned char id)
 {
 	struct pt_regs regs;
 	regs.regs[0] = ZYNQMP_SIP_SVC_CSU_DMA_CHIPID;
 	regs.regs[1] = 0;
 	regs.regs[2] = 0;
 	regs.regs[3] = 0;
+	int val = -EINVAL;
 
 	smc_call(&regs);
 
@@ -92,19 +93,31 @@ static int chip_id(void)
 	 * regs[0][63:32] = CSU.IDCODE register
 	 * regs[1][31:0]  = CSU.version register
 	 */
-	regs.regs[0] = upper_32_bits(regs.regs[0]);
-	regs.regs[0] &= ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK |
-			ZYNQMP_CSU_IDCODE_SVD_MASK;
-	regs.regs[0] >>= ZYNQMP_CSU_IDCODE_SVD_SHIFT;
+	switch (id) {
+	case IDCODE:
+		regs.regs[0] = upper_32_bits(regs.regs[0]);
+		regs.regs[0] &= ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK |
+				ZYNQMP_CSU_IDCODE_SVD_MASK;
+		regs.regs[0] >>= ZYNQMP_CSU_IDCODE_SVD_SHIFT;
+		val = regs.regs[0];
+		break;
+	case VERSION:
+		regs.regs[1] = lower_32_bits(regs.regs[1]);
+		regs.regs[1] &= ZYNQMP_CSU_SILICON_VER_MASK;
+		val = regs.regs[1];
+		break;
+	default:
+		printf("%s, Invalid Req:0x%x\n", __func__, id);
+	}
 
-	return regs.regs[0];
+	return val;
 }
 
 static char *zynqmp_get_silicon_idcode_name(void)
 {
 	uint32_t i, id;
 
-	id = chip_id();
+	id = chip_id(IDCODE);
 	for (i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
 		if (zynqmp_devices[i].id == id)
 			return zynqmp_devices[i].name;
