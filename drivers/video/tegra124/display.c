@@ -12,7 +12,6 @@
 #include <errno.h>
 #include <display.h>
 #include <edid.h>
-#include <fdtdec.h>
 #include <lcd.h>
 #include <video.h>
 #include <asm/gpio.h>
@@ -334,7 +333,6 @@ static int display_init(struct udevice *dev, void *lcdbase,
 {
 	struct display_plat *disp_uc_plat;
 	struct dc_ctlr *dc_ctlr;
-	const void *blob = gd->fdt_blob;
 	struct udevice *dp_dev;
 	const int href_to_sync = 1, vref_to_sync = 1;
 	int panel_bpp = 18;	/* default 18 bits per pixel */
@@ -363,9 +361,8 @@ static int display_init(struct udevice *dev, void *lcdbase,
 		return ret;
 	}
 
-	dc_ctlr = (struct dc_ctlr *)fdtdec_get_addr(blob, dev_of_offset(dev),
-						    "reg");
-	if (fdtdec_decode_display_timing(blob, dev_of_offset(dev), 0, timing)) {
+	dc_ctlr = (struct dc_ctlr *)dev_read_addr(dev);
+	if (ofnode_decode_display_timing(dev_ofnode(dev), 0, timing)) {
 		debug("%s: Failed to decode display timing\n", __func__);
 		return -EINVAL;
 	}
@@ -416,6 +413,7 @@ static int display_init(struct udevice *dev, void *lcdbase,
 		debug("dc: failed to update window\n");
 		return ret;
 	}
+	debug("%s: ready\n", __func__);
 
 	return 0;
 }
