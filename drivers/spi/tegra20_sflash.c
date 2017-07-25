@@ -91,7 +91,7 @@ static int tegra20_sflash_ofdata_to_platdata(struct udevice *bus)
 	int node = dev_of_offset(bus);
 
 	plat->base = devfdt_get_addr(bus);
-	plat->periph_id = clock_decode_periph_id(blob, node);
+	plat->periph_id = clock_decode_periph_id(bus);
 
 	if (plat->periph_id == PERIPH_ID_NONE) {
 		debug("%s: could not decode periph id %d\n", __func__,

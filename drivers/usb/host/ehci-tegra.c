@@ -723,7 +723,7 @@ static int fdt_decode_usb(struct udevice *dev, struct fdt_usb *config)
 	config->enabled = fdtdec_get_is_enabled(blob, node);
 	config->has_legacy_mode = fdtdec_get_bool(blob, node,
 						  "nvidia,has-legacy-mode");
-	config->periph_id = clock_decode_periph_id(blob, node);
+	config->periph_id = clock_decode_periph_id(dev);
 	if (config->periph_id == PERIPH_ID_NONE) {
 		debug("%s: Missing/invalid peripheral ID\n", __func__);
 		return -EINVAL;
