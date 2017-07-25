@@ -31,8 +31,7 @@ static void pinctrl_rk3368_uart_config(struct rk3368_pinctrl_priv *priv,
 	case PERIPH_ID_UART2:
 		rk_clrsetreg(&grf->gpio2a_iomux,
 			     GPIO2A6_MASK | GPIO2A5_MASK,
-			     GPIO2A6_UART2_SIN << GPIO2A6_SHIFT |
-			     GPIO2A5_UART2_SOUT << GPIO2A5_SHIFT);
+			     GPIO2A6_UART2_SIN | GPIO2A5_UART2_SOUT);
 		break;
 	case PERIPH_ID_UART0:
 		break;
@@ -44,10 +43,8 @@ static void pinctrl_rk3368_uart_config(struct rk3368_pinctrl_priv *priv,
 		rk_clrsetreg(&pmugrf->gpio0d_iomux,
 			     GPIO0D0_MASK | GPIO0D1_MASK |
 			     GPIO0D2_MASK | GPIO0D3_MASK,
-			     GPIO0D0_GPIO << GPIO0D0_SHIFT |
-			     GPIO0D1_GPIO << GPIO0D1_SHIFT |
-			     GPIO0D2_UART4_SOUT << GPIO0D2_SHIFT |
-			     GPIO0D3_UART4_SIN << GPIO0D3_SHIFT);
+			     GPIO0D0_GPIO | GPIO0D1_GPIO |
+			     GPIO0D2_UART4_SOUT | GPIO0D3_UART4_SIN);
 		break;
 	default:
 		debug("uart id = %d iomux error!\n", uart_id);
