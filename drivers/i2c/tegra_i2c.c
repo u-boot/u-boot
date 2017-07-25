@@ -9,7 +9,6 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-#include <fdtdec.h>
 #include <i2c.h>
 #include <asm/io.h>
 #include <clk.h>
@@ -365,7 +364,11 @@ static int tegra_i2c_probe(struct udevice *dev)
 
 	i2c_bus->id = dev->seq;
 	i2c_bus->type = dev_get_driver_data(dev);
-	i2c_bus->regs = (struct i2c_ctlr *)devfdt_get_addr(dev);
+	i2c_bus->regs = (struct i2c_ctlr *)dev_read_addr(dev);
+	if ((ulong)i2c_bus->regs == FDT_ADDR_T_NONE) {
+		debug("%s: Cannot get regs address\n", __func__);
+		return -EINVAL;
+	}
 
 	ret = reset_get_by_name(dev, "i2c", &i2c_bus->reset_ctl);
 	if (ret) {
