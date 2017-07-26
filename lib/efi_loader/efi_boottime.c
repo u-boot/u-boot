@@ -630,6 +630,17 @@ static efi_status_t EFIAPI efi_locate_device_path(efi_guid_t *protocol,
 	return EFI_EXIT(EFI_NOT_FOUND);
 }
 
+/* Collapses configuration table entries, removing index i */
+static void efi_remove_configuration_table(int i)
+{
+	struct efi_configuration_table *this = &efi_conf_table[i];
+	struct efi_configuration_table *next = &efi_conf_table[i+1];
+	struct efi_configuration_table *end = &efi_conf_table[systab.nr_tables];
+
+	memmove(this, next, (ulong)end - (ulong)next);
+	systab.nr_tables--;
+}
+
 efi_status_t efi_install_configuration_table(const efi_guid_t *guid, void *table)
 {
 	int i;
@@ -637,10 +648,16 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid, void *table
 	/* Check for guid override */
 	for (i = 0; i < systab.nr_tables; i++) {
 		if (!guidcmp(guid, &efi_conf_table[i].guid)) {
-			efi_conf_table[i].table = table;
+			if (table)
+				efi_conf_table[i].table = table;
+			else
+				efi_remove_configuration_table(i);
 			return EFI_SUCCESS;
 		}
 	}
+
+	if (!table)
+		return EFI_NOT_FOUND;
 
 	/* No override, check for overflow */
 	if (i >= ARRAY_SIZE(efi_conf_table))
