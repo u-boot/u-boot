@@ -178,7 +178,6 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges = <0 0 0 0xffffffff>;
-		u-boot,dm-pre-reloc;
 
 		serial0: serial@54006800 {
 			compatible = "socionext,uniphier-uart";
@@ -378,11 +377,9 @@
 			compatible = "socionext,uniphier-ld20-soc-glue",
 				     "simple-mfd", "syscon";
 			reg = <0x5f800000 0x2000>;
-			u-boot,dm-pre-reloc;
 
 			pinctrl: pinctrl {
 				compatible = "socionext,uniphier-ld20-pinctrl";
-				u-boot,dm-pre-reloc;
 			};
 		};
 

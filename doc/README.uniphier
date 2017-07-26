@@ -5,7 +5,7 @@ U-Boot for UniPhier SoC family
 Recommended toolchains
 ----------------------
 
-The UniPhir platform is well tested with Linaro toolchanis.
+The UniPhier platform is well tested with Linaro toolchains.
 You can download pre-built toolchains from:
 
     http://www.linaro.org/downloads/
@@ -14,97 +14,97 @@ You can download pre-built toolchains from:
 Compile the source
 ------------------
 
-sLD3 reference board:
-    $ make uniphier_sld3_defconfig
+The source can be configured and built with the following commands:
+
+    $ make <defconfig>
+    $ make CROSS_COMPILE=<toolchain-prefix> DEVICE_TREE=<device-tree>
+
+The recommended <toolchain-prefix> is `arm-linux-gnueabihf-` for 32bit SoCs,
+`aarch64-linux-gnu-` for 64bit SoCs, but you may wish to change it to use your
+favorite compiler.
+
+The following tables show <defconfig> and <device-tree> for each board.
+
+32bit SoC boards:
+
+ Board         | <defconfig>                  | <device-tree>
+---------------|------------------------------|------------------------------
+sLD3 reference | uniphier_sld3_defconfig      | uniphier-sld3-ref (default)
+LD4 reference  | uniphier_ld4_sld8_defconfig  | uniphier-ld4-ref (default)
+sld8 reference | uniphier_ld4_sld8_defconfig  | uniphier-sld8-def
+Pro4 reference | uniphier_pro4_defconfig      | uniphier-pro4-ref (default)
+Pro4 Ace       | uniphier_pro4_defconfig      | uniphier-pro4-ace
+Pro4 Sanji     | uniphier_pro4_defconfig      | uniphier-pro4-sanji
+Pro5 4KBOX     | uniphier_pxs2_ld6b_defconfig | uniphier-pro5-4kbox
+PXs2 Gentil    | uniphier_pxs2_ld6b_defconfig | uniphier-pxs2-gentil
+PXs2 Vodka     | uniphier_pxs2_ld6b_defconfig | uniphier-pxs2-vodka (default)
+LD6b reference | uniphier_pxs2_ld6b_defconfig | uniphier-ld6b-ref
+
+64bit SoC boards:
+
+ Board         | <defconfig>           | <device-tree>
+---------------|-----------------------|----------------------------
+LD11 reference | uniphier_v8_defconfig | uniphier-ld11-ref
+LD11 Global    | uniphier_v8_defconfig | uniphier-ld11-global
+LD20 reference | uniphier_v8_defconfig | uniphier-ld20-ref (default)
+LD20 Global    | uniphier_v8_defconfig | uniphier-ld20-global
+
+For example, to compile the source for PXs2 Vodka board, run the following:
+
+    $ make uniphier_pxs2_ld6b_defconfig
+    $ make CROSS_COMPILE=arm-linux-gnueabihf- DEVICE_TREE=uniphier-pxs2-vodka
+
+The device tree marked as (default) can be omitted.  `uniphier-pxs2-vodka` is
+the default device tree for the configuration `uniphier_pxs2_ld6b_defconfig`,
+so the following gives the same result.
+
+    $ make uniphier_pxs2_ld6b_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabihf-
 
-LD4 reference board:
-    $ make uniphier_ld4_sld8_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabihf-
 
-sLD8 reference board:
-    $ make uniphier_ld4_sld8_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabihf- DEVICE_TREE=uniphier-sld8-ref
+Booting 32bit SoC boards
+------------------------
 
-Pro4 reference board:
-    $ make uniphier_pro4_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabihf-
+The build command will generate the following:
+- u-boot.bin
+- spl/u-boot.bin
 
-Pro4 Ace board:
-    $ make uniphier_pro4_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabihf- DEVICE_TREE=uniphier-pro4-ace
-
-Pro4 Sanji board:
-    $ make uniphier_pro4_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabihf- DEVICE_TREE=uniphier-pro4-sanji
-
-Pro5 4KBOX Board:
-    $ make uniphier_pxs2_ld6b_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabihf- DEVICE_TREE=uniphier-pro5-4kbox
-
-PXs2 Gentil board:
-    $ make uniphier_pxs2_ld6b_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabihf- DEVICE_TREE=uniphier-pxs2-gentil
-
-PXs2 Vodka board:
-    $ make uniphier_pxs2_ld6b_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabihf-
-
-LD6b reference board:
-    $ make uniphier_pxs2_ld6b_defconfig
-    $ make CROSS_COMPILE=arm-linux-gnueabihf- DEVICE_TREE=uniphier-ld6b-ref
-
-LD11 reference board:
-    $ make uniphier_ld11_defconfig
-    $ make CROSS_COMPILE=aarch64-linux-gnu-
-
-LD20 reference board:
-    $ make uniphier_ld20_defconfig
-    $ make CROSS_COMPILE=aarch64-linux-gnu-
-
-PXs3 reference board:
-    $ make uniphier_v8_defconfig
-    $ make CROSS_COMPILE=aarch64-linux-gnu- DEVICE_TREE=uniphier-pxs3-ref
-
-You may wish to change the "CROSS_COMPILE=..." to use your favorite compiler.
-
-
-Burn U-Boot images to NAND
---------------------------
-
-Write the following to the NAND device:
+U-Boot can boot UniPhier 32bit SoC boards by itself.  Flash the generated images
+to the storage device (NAND or eMMC) on your board.
 
  - spl/u-boot-spl.bin at the offset address 0x00000000
  - u-boot.bin         at the offset address 0x00020000
 
-or
+The `u-boot-with-spl.bin` is the concatenation of the two (with appropriate
+padding), so you can also do:
 
  - u-boot-with-spl.bin at the offset address 0x00000000
 
 If a TFTP server is available, the images can be easily updated.
 Just copy the u-boot-spl.bin and u-boot.bin to the TFTP public directory,
-and then run the following command at the U-Boot command line:
+and run the following command at the U-Boot command line:
 
-  => run nandupdate
+To update the images in NAND:
+
+    => run nandupdate
+
+To update the images in eMMC:
+
+    => run emmcupdate
 
 
-Burn U-Boot images to eMMC
---------------------------
+Booting 64bit SoC boards
+------------------------
 
-Write the following to the Boot partition 1 of the eMMC device:
+The build command will generate the following:
+- u-boot.bin
 
- - spl/u-boot-spl.bin at the offset address 0x00000000
- - u-boot.bin         at the offset address 0x00020000
+However, U-Boot is not the first stage loader for UniPhier 64bit SoC boards.
+U-Boot serves as a non-secure boot loader loaded by [ARM Trusted Firmware],
+so you need to provide the `u-boot.bin` to the build command of ARM Trusted
+Firmware.
 
-or
-
- - u-boot-with-spl.bin at the offset address 0x00000000
-
-If a TFTP server is available, the images can be easily updated.
-Just copy the u-boot-spl.bin and u-boot.bin to the TFTP public directory,
-and then run the following command at the U-Boot command line:
-
-  => run emmcupdate
+[ARM Trusted Firmware]: https://github.com/ARM-software/arm-trusted-firmware
 
 
 UniPhier specific commands
@@ -179,4 +179,4 @@ newer SoCs.  Even if it is, EA[25] is not connected on most of the boards.
 
 --
 Masahiro Yamada <yamada.masahiro@socionext.com>
-Jan. 2017
+Jul. 2017
