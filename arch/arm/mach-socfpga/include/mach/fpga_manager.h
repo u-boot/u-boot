@@ -12,6 +12,8 @@
 
 #if defined(CONFIG_TARGET_SOCFPGA_GEN5)
 #include <asm/arch/fpga_manager_gen5.h>
+#elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
+#include <asm/arch/fpga_manager_arria10.h>
 #endif
 
 /* FPGA CD Ratio Value */
