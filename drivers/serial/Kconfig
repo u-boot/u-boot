@@ -509,6 +509,13 @@ config STI_ASC_SERIAL
 	  on STiH410 SoC. This is a basic implementation,  it supports
 	  following baudrate 9600, 19200, 38400, 57600 and 115200.
 
+config STM32X7_SERIAL
+	bool "STMicroelectronics STM32 SoCs on-chip UART"
+	depends on DM_SERIAL && STM32F7
+	help
+	  If you have a machine based on a STM32 F7 you can enable its
+	  onboard serial ports, say Y to this option. If unsure, say N.
+
 config MPC8XX_CONS
 	bool "Console driver for MPC8XX"
 	depends on 8xx
