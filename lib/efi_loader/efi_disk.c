@@ -68,7 +68,7 @@ static efi_status_t EFIAPI efi_disk_rw_blocks(struct efi_block_io *this,
 
 	/* We only support full block access */
 	if (buffer_size & (blksz - 1))
-		return EFI_EXIT(EFI_DEVICE_ERROR);
+		return EFI_DEVICE_ERROR;
 
 	if (direction == EFI_DISK_READ)
 		n = blk_dread(desc, lba, blocks, buffer);
@@ -81,9 +81,9 @@ static efi_status_t EFIAPI efi_disk_rw_blocks(struct efi_block_io *this,
 	debug("EFI: %s:%d n=%lx blocks=%x\n", __func__, __LINE__, n, blocks);
 
 	if (n != blocks)
-		return EFI_EXIT(EFI_DEVICE_ERROR);
+		return EFI_DEVICE_ERROR;
 
-	return EFI_EXIT(EFI_SUCCESS);
+	return EFI_SUCCESS;
 }
 
 static efi_status_t EFIAPI efi_disk_read_blocks(struct efi_block_io *this,
