@@ -211,6 +211,8 @@ hostprogs-$(CONFIG_STATIC_RELA) += relocate-rela
 hostprogs-y += fdtgrep
 fdtgrep-objs += $(LIBFDT_OBJS) fdtgrep.o
 
+hostprogs-$(CONFIG_MIPS) += mips-relocs
+
 # We build some files with extra pedantic flags to try to minimize things
 # that won't build on some weird host compiler -- though there are lots of
 # exceptions for files that aren't complaint.

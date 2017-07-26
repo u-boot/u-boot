@@ -418,7 +418,7 @@ static int reserve_uboot(void)
 	 */
 	gd->relocaddr -= gd->mon_len;
 	gd->relocaddr &= ~(4096 - 1);
-#ifdef CONFIG_E500
+#if defined(CONFIG_E500) || defined(CONFIG_MIPS)
 	/* round down to next 64 kB limit so that IVPR stays aligned */
 	gd->relocaddr &= ~(65536 - 1);
 #endif
