@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <malloc.h>
 #include <timer.h>
+#include <asm/cpu.h>
 #include <asm/io.h>
 #include <asm/i8254.h>
 #include <asm/ibmpc.h>
@@ -85,6 +86,9 @@ static unsigned long __maybe_unused try_msr_calibrate_tsc(void)
 	u32 lo, hi, ratio, freq_id, freq;
 	unsigned long res;
 	int cpu_index;
+
+	if (gd->arch.x86_vendor != X86_VENDOR_INTEL)
+		return 0;
 
 	cpu_index = match_cpu(gd->arch.x86, gd->arch.x86_model);
 	if (cpu_index < 0)
