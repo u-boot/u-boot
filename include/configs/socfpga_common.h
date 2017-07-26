@@ -103,11 +103,10 @@
 /*
  * FPGA Driver
  */
-#ifdef CONFIG_TARGET_SOCFPGA_GEN5
 #ifdef CONFIG_CMD_FPGA
 #define CONFIG_FPGA_COUNT		1
 #endif
-#endif
+
 /*
  * L4 OSC1 Timer 0
  */
