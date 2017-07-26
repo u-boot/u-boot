@@ -215,6 +215,7 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 	ulong (*entry)(void *image_handle, struct efi_system_table *st)
 		asmlinkage;
 	ulong fdt_pages, fdt_size, fdt_start, fdt_end;
+	const efi_guid_t fdt_guid = EFI_FDT_GUID;
 	bootm_headers_t img = { 0 };
 
 	/*
@@ -233,9 +234,7 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 		}
 
 		/* Link to it in the efi tables */
-		systab.tables[0].guid = EFI_FDT_GUID;
-		systab.tables[0].table = fdt;
-		systab.nr_tables = 1;
+		efi_install_configuration_table(&fdt_guid, fdt);
 
 		/* And reserve the space in the memory map */
 		fdt_start = ((ulong)fdt) & ~EFI_PAGE_MASK;
@@ -248,7 +247,7 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 				   EFI_BOOT_SERVICES_DATA, true);
 	} else {
 		printf("WARNING: Invalid device tree, expect boot to fail\n");
-		systab.nr_tables = 0;
+		efi_install_configuration_table(&fdt_guid, NULL);
 	}
 
 	/* Load the EFI payload */
