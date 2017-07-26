@@ -103,9 +103,6 @@ static unsigned long __maybe_unused try_msr_calibrate_tsc(void)
 	}
 	debug("Maximum core-clock to bus-clock ratio: 0x%x\n", ratio);
 
-	if (!ratio)
-		goto fail;
-
 	if (freq_desc_tables[cpu_index].msr_plat == 2) {
 		/* TODO: Figure out how best to deal with this */
 		freq = FREQ_100;
@@ -118,18 +115,12 @@ static unsigned long __maybe_unused try_msr_calibrate_tsc(void)
 		debug("Resolved frequency ID: %u, frequency: %u KHz\n",
 		      freq_id, freq);
 	}
-	if (!freq)
-		goto fail;
 
 	/* TSC frequency = maximum resolved freq * maximum resolved bus ratio */
 	res = freq * ratio / 1000;
 	debug("TSC runs at %lu MHz\n", res);
 
 	return res;
-
-fail:
-	debug("Fast TSC calibration using MSR failed\n");
-	return 0;
 }
 
 /*
