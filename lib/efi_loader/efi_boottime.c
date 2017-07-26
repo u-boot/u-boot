@@ -141,7 +141,7 @@ static unsigned long EFIAPI efi_raise_tpl(UINTN new_tpl)
 static void EFIAPI efi_restore_tpl(UINTN old_tpl)
 {
 	EFI_ENTRY("0x%zx", old_tpl);
-	EFI_EXIT(efi_unsupported(__func__));
+	efi_unsupported(__func__);
 }
 
 static efi_status_t EFIAPI efi_allocate_pages_ext(int type, int memory_type,
@@ -818,7 +818,7 @@ static efi_status_t EFIAPI efi_set_watchdog_timer(unsigned long timeout,
 {
 	EFI_ENTRY("%ld, 0x%"PRIx64", %ld, %p", timeout, watchdog_code,
 		  data_size, watchdog_data);
-	return EFI_EXIT(efi_unsupported(__func__));
+	return efi_unsupported(__func__);
 }
 
 static efi_status_t EFIAPI efi_connect_controller(
