@@ -112,8 +112,8 @@ int secure_boot_verify_image(void **image, size_t *size)
 
 	/* Perform cache writeback on input buffer */
 	flush_dcache_range(
-		(u32)*image,
-		(u32)*image + roundup(*size, ARCH_DMA_MINALIGN));
+		rounddown((u32)*image, ARCH_DMA_MINALIGN),
+		roundup((u32)*image + *size, ARCH_DMA_MINALIGN));
 
 	cert_addr = (uint32_t)*image;
 	sig_addr = find_sig_start((char *)*image, *size);
@@ -151,8 +151,8 @@ int secure_boot_verify_image(void **image, size_t *size)
 
 	/* Perform cache writeback on output buffer */
 	flush_dcache_range(
-		(u32)*image,
-		(u32)*image + roundup(*size, ARCH_DMA_MINALIGN));
+		rounddown((u32)*image, ARCH_DMA_MINALIGN),
+		roundup((u32)*image + *size, ARCH_DMA_MINALIGN));
 
 auth_exit:
 	if (result != 0) {
