@@ -13,6 +13,14 @@ config FPGA_ALTERA
 	  Enable Altera FPGA specific functions which includes bitstream
 	  (in BIT format), fpga and device validation.
 
+config FPGA_SOCFPGA
+	bool "Enable Gen5 and Arria10 common FPGA drivers"
+	select FPGA_ALTERA
+	help
+	  Say Y here to enable the Gen5 and Arria10 common FPGA driver
+
+	  This provides common functionality for Gen5 and Arria10 devices.
+
 config FPGA_CYCLON2
 	bool "Enable Altera FPGA driver for Cyclone II"
 	depends on FPGA_ALTERA
