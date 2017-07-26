@@ -72,7 +72,6 @@
 #define CONFIG_FASTBOOT_BUF_SIZE	0x07000000
 
 /* TWL4030 */
-#define CONFIG_TWL4030_PWM
 #define CONFIG_TWL4030_USB
 
 /* Board NAND Info. */
