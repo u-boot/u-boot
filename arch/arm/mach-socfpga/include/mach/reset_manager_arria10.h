@@ -17,7 +17,7 @@ int socfpga_reset_deassert_bridges_handoff(void);
 void socfpga_reset_assert_fpga_connected_peripherals(void);
 void socfpga_reset_deassert_osc1wd0(void);
 void socfpga_reset_uart(int assert);
-int socfpga_bridges_reset(int enable);
+int socfpga_bridges_reset(void);
 
 struct socfpga_reset_manager {
 	u32	stat;
