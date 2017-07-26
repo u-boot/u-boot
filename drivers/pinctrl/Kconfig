@@ -60,7 +60,7 @@ config PINCONF
 	  framework.
 
 config SPL_PINCTRL
-	bool "Support pin controlloers in SPL"
+	bool "Support pin controllers in SPL"
 	depends on SPL && SPL_DM
 	help
 	  This option is an SPL-variant of the PINCTRL option.
