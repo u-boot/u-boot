@@ -42,3 +42,4 @@ config TI_COMMON_CMD_OPTIONS
 	imply CMD_SPI
 	imply CMD_TIME
 	imply CMD_USB if USB
+	imply ENV_IS_IN_FAT if MMC_OMAP_HS
