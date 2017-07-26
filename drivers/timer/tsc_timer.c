@@ -71,11 +71,16 @@ static int match_cpu(u8 family, u8 model)
 	(freq_desc_tables[cpu_index].freqs[freq_id])
 
 /*
- * Do MSR calibration only for known/supported CPUs.
+ * TSC on Intel Atom SoCs capable of determining TSC frequency by MSR is
+ * reliable and the frequency is known (provided by HW).
  *
- * Returns the calibration value or 0 if MSR calibration failed.
+ * On these platforms PIT/HPET is generally not available so calibration won't
+ * work at all and there is no other clocksource to act as a watchdog for the
+ * TSC, so we have no other choice than to trust it.
+ *
+ * Returns the TSC frequency in MHz or 0 if HW does not provide it.
  */
-static unsigned long __maybe_unused try_msr_calibrate_tsc(void)
+static unsigned long __maybe_unused cpu_mhz_from_msr(void)
 {
 	u32 lo, hi, ratio, freq_id, freq;
 	unsigned long res;
@@ -336,7 +341,7 @@ static int tsc_timer_probe(struct udevice *dev)
 	if (!uc_priv->clock_rate) {
 		unsigned long fast_calibrate;
 
-		fast_calibrate = try_msr_calibrate_tsc();
+		fast_calibrate = cpu_mhz_from_msr();
 		if (!fast_calibrate) {
 			fast_calibrate = quick_pit_calibrate();
 			if (!fast_calibrate)
