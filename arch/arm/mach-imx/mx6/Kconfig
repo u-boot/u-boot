@@ -331,6 +331,11 @@ config TARGET_PCM058
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 
+config TARGET_PFLA02
+	bool "Phytec PFLA02 (PhyFlex) i.MX6 Quad"
+	select BOARD_LATE_INIT
+	select SUPPORT_SPL
+
 config TARGET_SECOMX6
 	bool "secomx6 boards"
 
@@ -428,6 +433,7 @@ source "board/freescale/mx6ul_14x14_evk/Kconfig"
 source "board/freescale/mx6ullevk/Kconfig"
 source "board/grinn/liteboard/Kconfig"
 source "board/phytec/pcm058/Kconfig"
+source "board/phytec/pfla02/Kconfig"
 source "board/gateworks/gw_ventana/Kconfig"
 source "board/kosagi/novena/Kconfig"
 source "board/samtec/vining_2000/Kconfig"
