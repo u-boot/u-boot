@@ -287,7 +287,7 @@ static ulong rockchip_mmc_get_clk(struct rk3188_cru *cru, uint gclk_rate,
 		return -EINVAL;
 	}
 
-	return DIV_TO_RATE(gclk_rate, div);
+	return DIV_TO_RATE(gclk_rate, div) / 2;
 }
 
 static ulong rockchip_mmc_set_clk(struct rk3188_cru *cru, uint gclk_rate,
@@ -296,7 +296,8 @@ static ulong rockchip_mmc_set_clk(struct rk3188_cru *cru, uint gclk_rate,
 	int src_clk_div;
 
 	debug("%s: gclk_rate=%u\n", __func__, gclk_rate);
-	src_clk_div = RATE_TO_DIV(gclk_rate, freq);
+	/* mmc clock defaulg div 2 internal, need provide double in cru */
+	src_clk_div = DIV_ROUND_UP(gclk_rate / 2, freq);
 	assert(src_clk_div <= 0x3f);
 
 	switch (periph) {

@@ -530,10 +530,11 @@ static ulong rockchip_mmc_set_clk(struct rk3288_cru *cru, uint gclk_rate,
 	int mux;
 
 	debug("%s: gclk_rate=%u\n", __func__, gclk_rate);
-	src_clk_div = RATE_TO_DIV(gclk_rate, freq);
+	/* mmc clock default div 2 internal, need provide double in cru */
+	src_clk_div = DIV_ROUND_UP(gclk_rate / 2, freq);
 
 	if (src_clk_div > 0x3f) {
-		src_clk_div = RATE_TO_DIV(OSC_HZ, freq);
+		src_clk_div = DIV_ROUND_UP(OSC_HZ / 2, freq);
 		mux = EMMC_PLL_SELECT_24MHZ;
 		assert((int)EMMC_PLL_SELECT_24MHZ ==
 		       (int)MMC0_PLL_SELECT_24MHZ);
