@@ -17,13 +17,16 @@
 
 int __efi_entry_check(void);
 int __efi_exit_check(void);
+const char *__efi_nesting_inc(void);
+const char *__efi_nesting_dec(void);
 
 /*
  * Enter the u-boot world from UEFI:
  */
 #define EFI_ENTRY(format, ...) do { \
 	assert(__efi_entry_check()); \
-	debug("EFI: Entry %s(" format ")\n", __func__, ##__VA_ARGS__); \
+	debug("%sEFI: Entry %s(" format ")\n", __efi_nesting_inc(), \
+		__func__, ##__VA_ARGS__); \
 	} while(0)
 
 /*
@@ -31,7 +34,8 @@ int __efi_exit_check(void);
  */
 #define EFI_EXIT(ret) ({ \
 	efi_status_t _r = ret; \
-	debug("EFI: Exit: %s: %u\n", __func__, (u32)(_r & ~EFI_ERROR_MASK)); \
+	debug("%sEFI: Exit: %s: %u\n", __efi_nesting_dec(), \
+		__func__, (u32)(_r & ~EFI_ERROR_MASK)); \
 	assert(__efi_exit_check()); \
 	_r; \
 	})
@@ -40,11 +44,11 @@ int __efi_exit_check(void);
  * Callback into UEFI world from u-boot:
  */
 #define EFI_CALL(exp) do { \
-	debug("EFI: Call: %s\n", #exp); \
+	debug("%sEFI: Call: %s\n", __efi_nesting_inc(), #exp); \
 	assert(__efi_exit_check()); \
 	exp; \
 	assert(__efi_entry_check()); \
-	debug("EFI: Return From: %s\n", #exp); \
+	debug("%sEFI: Return From: %s\n", __efi_nesting_dec(), #exp); \
 	} while(0)
 
 extern struct efi_runtime_services efi_runtime_services;

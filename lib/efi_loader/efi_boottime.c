@@ -50,6 +50,7 @@ static volatile void *efi_gd, *app_gd;
 #endif
 
 static int entry_count;
+static int nesting_level;
 
 /* Called on every callback entry */
 int __efi_entry_check(void)
@@ -94,6 +95,28 @@ void efi_restore_gd(void)
 		return;
 	gd = efi_gd;
 #endif
+}
+
+/*
+ * Two spaces per indent level, maxing out at 10.. which ought to be
+ * enough for anyone ;-)
+ */
+static const char *indent_string(int level)
+{
+	const char *indent = "                    ";
+	const int max = strlen(indent);
+	level = min(max, level * 2);
+	return &indent[max - level];
+}
+
+const char *__efi_nesting_inc(void)
+{
+	return indent_string(nesting_level++);
+}
+
+const char *__efi_nesting_dec(void)
+{
+	return indent_string(--nesting_level);
 }
 
 /* Low 32 bit */
@@ -748,9 +771,11 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 		return EFI_EXIT(info->exit_status);
 	}
 
+	__efi_nesting_dec();
 	__efi_exit_check();
 	entry(image_handle, &systab);
 	__efi_entry_check();
+	__efi_nesting_inc();
 
 	/* Should usually never get here */
 	return EFI_EXIT(EFI_SUCCESS);
