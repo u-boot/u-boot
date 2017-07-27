@@ -15,11 +15,14 @@
 
 #include <linux/list.h>
 
+int __efi_entry_check(void);
+int __efi_exit_check(void);
+
 /*
  * Enter the u-boot world from UEFI:
  */
 #define EFI_ENTRY(format, ...) do { \
-	efi_restore_gd(); \
+	assert(__efi_entry_check()); \
 	debug("EFI: Entry %s(" format ")\n", __func__, ##__VA_ARGS__); \
 	} while(0)
 
@@ -29,7 +32,8 @@
 #define EFI_EXIT(ret) ({ \
 	efi_status_t _r = ret; \
 	debug("EFI: Exit: %s: %u\n", __func__, (u32)(_r & ~EFI_ERROR_MASK)); \
-	efi_exit_func(_r); \
+	assert(__efi_exit_check()); \
+	_r; \
 	})
 
 /*
@@ -37,9 +41,9 @@
  */
 #define EFI_CALL(exp) do { \
 	debug("EFI: Call: %s\n", #exp); \
-	efi_exit_func(EFI_SUCCESS); \
+	assert(__efi_exit_check()); \
 	exp; \
-	efi_restore_gd(); \
+	assert(__efi_entry_check()); \
 	debug("EFI: Return From: %s\n", #exp); \
 	} while(0)
 
@@ -139,10 +143,9 @@ void efi_timer_check(void);
 void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info);
 /* Called once to store the pristine gd pointer */
 void efi_save_gd(void);
-/* Called from EFI_ENTRY on callback entry to put gd into the gd register */
+/* Special case handler for error/abort that just tries to dtrt to get
+ * back to u-boot world */
 void efi_restore_gd(void);
-/* Called from EFI_EXIT on callback exit to restore the gd register */
-efi_status_t efi_exit_func(efi_status_t ret);
 /* Call this to relocate the runtime section to an address space */
 void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map);
 /* Call this to set the current device name */

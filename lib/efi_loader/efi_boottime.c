@@ -49,6 +49,30 @@ static struct efi_configuration_table __efi_runtime_data efi_conf_table[2];
 static volatile void *efi_gd, *app_gd;
 #endif
 
+static int entry_count;
+
+/* Called on every callback entry */
+int __efi_entry_check(void)
+{
+	int ret = entry_count++ == 0;
+#ifdef CONFIG_ARM
+	assert(efi_gd);
+	app_gd = gd;
+	gd = efi_gd;
+#endif
+	return ret;
+}
+
+/* Called on every callback exit */
+int __efi_exit_check(void)
+{
+	int ret = --entry_count == 0;
+#ifdef CONFIG_ARM
+	gd = app_gd;
+#endif
+	return ret;
+}
+
 /* Called from do_bootefi_exec() */
 void efi_save_gd(void)
 {
@@ -57,28 +81,19 @@ void efi_save_gd(void)
 #endif
 }
 
-/* Called on every callback entry */
+/*
+ * Special case handler for error/abort that just forces things back
+ * to u-boot world so we can dump out an abort msg, without any care
+ * about returning back to UEFI world.
+ */
 void efi_restore_gd(void)
 {
 #ifdef CONFIG_ARM
 	/* Only restore if we're already in EFI context */
 	if (!efi_gd)
 		return;
-
-	if (gd != efi_gd)
-		app_gd = gd;
 	gd = efi_gd;
 #endif
-}
-
-/* Called on every callback exit */
-efi_status_t efi_exit_func(efi_status_t ret)
-{
-#ifdef CONFIG_ARM
-	gd = app_gd;
-#endif
-
-	return ret;
 }
 
 /* Low 32 bit */
@@ -733,7 +748,9 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 		return EFI_EXIT(info->exit_status);
 	}
 
+	__efi_exit_check();
 	entry(image_handle, &systab);
+	__efi_entry_check();
 
 	/* Should usually never get here */
 	return EFI_EXIT(EFI_SUCCESS);
