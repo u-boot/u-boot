@@ -9,19 +9,10 @@
 #include <ram.h>
 #include <dm/pinctrl.h>
 #include <dm/uclass-internal.h>
-#include <misc.h>
 #include <asm/setup.h>
 #include <asm/arch/periph.h>
 #include <power/regulator.h>
 #include <u-boot/sha256.h>
-
-#define RK3399_CPUID_OFF  0x7
-#define RK3399_CPUID_LEN  0x10
-
-DECLARE_GLOBAL_DATA_PTR;
-
-#define RK3399_CPUID_OFF  0x7
-#define RK3399_CPUID_LEN  0x10
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -107,11 +98,14 @@ static void setup_macaddr(void)
 static void setup_serial(void)
 {
 #if CONFIG_IS_ENABLED(ROCKCHIP_EFUSE)
+	const u32 cpuid_offset = 0x7;
+	const u32 cpuid_length = 0x10;
+
 	struct udevice *dev;
 	int ret, i;
-	u8 cpuid[RK3399_CPUID_LEN];
-	u8 low[RK3399_CPUID_LEN/2], high[RK3399_CPUID_LEN/2];
-	char cpuid_str[RK3399_CPUID_LEN * 2 + 1];
+	u8 cpuid[cpuid_length];
+	u8 low[cpuid_length/2], high[cpuid_length/2];
+	char cpuid_str[cpuid_length * 2 + 1];
 	u64 serialno;
 	char serialno_str[16];
 
@@ -124,7 +118,7 @@ static void setup_serial(void)
 	}
 
 	/* read the cpu_id range from the efuses */
-	ret = misc_read(dev, RK3399_CPUID_OFF, &cpuid, sizeof(cpuid));
+	ret = misc_read(dev, cpuid_offset, &cpuid, sizeof(cpuid));
 	if (ret) {
 		debug("%s: reading cpuid from the efuses failed\n",
 		      __func__);
