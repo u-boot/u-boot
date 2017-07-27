@@ -21,8 +21,9 @@
 	} while(0)
 
 #define EFI_EXIT(ret) ({ \
-	debug("EFI: Exit: %s: %u\n", __func__, (u32)((ret) & ~EFI_ERROR_MASK)); \
-	efi_exit_func(ret); \
+	efi_status_t _r = ret; \
+	debug("EFI: Exit: %s: %u\n", __func__, (u32)(_r & ~EFI_ERROR_MASK)); \
+	efi_exit_func(_r); \
 	})
 
 extern struct efi_runtime_services efi_runtime_services;
