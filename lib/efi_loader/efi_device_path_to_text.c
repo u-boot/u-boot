@@ -52,6 +52,7 @@ static uint16_t *efi_convert_device_node_to_text(
 			break;
 			}
 		}
+		break;
 	case DEVICE_PATH_TYPE_MEDIA_DEVICE:
 		switch (device_node->sub_type) {
 		case DEVICE_PATH_SUB_TYPE_FILE_PATH:
@@ -63,6 +64,7 @@ static uint16_t *efi_convert_device_node_to_text(
 			memcpy(buffer, device_node->data, buffer_size);
 			break;
 		}
+		break;
 	}
 
 	/*
