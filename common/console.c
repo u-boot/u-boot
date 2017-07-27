@@ -146,6 +146,21 @@ static int console_setfile(int file, struct stdio_dev * dev)
 	return error;
 }
 
+/**
+ * console_dev_is_serial() - Check if a stdio device is a serial device
+ *
+ * @sdev: Device to check
+ * @return true if this device is a serial device
+ */
+static bool console_dev_is_serial(struct stdio_dev *sdev)
+{
+	bool is_serial;
+
+	is_serial = !strcmp(sdev->name, "serial");
+
+	return is_serial;
+}
+
 #if CONFIG_IS_ENABLED(CONSOLE_MUX)
 /** Console I/O multiplexing *******************************************/
 
@@ -210,7 +225,7 @@ static void console_puts_noserial(int file, const char *s)
 
 	for (i = 0; i < cd_count[file]; i++) {
 		dev = console_devices[file][i];
-		if (dev->puts != NULL && strcmp(dev->name, "serial") != 0)
+		if (dev->puts != NULL && !console_dev_is_serial(dev))
 			dev->puts(dev, s);
 	}
 }
@@ -249,7 +264,7 @@ static inline void console_putc(int file, const char c)
 
 static inline void console_puts_noserial(int file, const char *s)
 {
-	if (strcmp(stdio_devices[file]->name, "serial") != 0)
+	if (!console_dev_is_serial(stdio_devices[file]))
 		stdio_devices[file]->puts(stdio_devices[file], s);
 }
 
