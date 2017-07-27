@@ -39,9 +39,6 @@ struct pll_div {
 #define GPLL_HZ		(576 * 1000 * 1000)
 #define CPLL_HZ		(400 * 1000 * 1000)
 
-#define RATE_TO_DIV(input_rate, output_rate) \
-		((input_rate) / (output_rate) - 1);
-
 #define DIV_TO_RATE(input_rate, div)    ((input_rate) / ((div) + 1))
 
 #define PLL_DIVISORS(hz, _nr, _no) { \

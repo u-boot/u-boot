@@ -676,8 +676,8 @@ static ulong rk3399_spi_set_clk(struct rk3399_cru *cru, ulong clk_id, uint hz)
 	const struct spi_clkreg *spiclk = NULL;
 	int src_clk_div;
 
-	src_clk_div = RATE_TO_DIV(GPLL_HZ, hz);
-	assert(src_clk_div < 127);
+	src_clk_div = DIV_ROUND_UP(GPLL_HZ, hz) - 1;
+	assert(src_clk_div < 128);
 
 	switch (clk_id) {
 	case SCLK_SPI1 ... SCLK_SPI5:
@@ -782,9 +782,10 @@ static ulong rk3399_mmc_set_clk(struct rk3399_cru *cru,
 		/* mmc clock defaulg div 2 internal, provide double in cru */
 		src_clk_div = DIV_ROUND_UP(GPLL_HZ / 2, set_rate);
 
-		if (src_clk_div > 127) {
+		if (src_clk_div > 128) {
 			/* use 24MHz source for 400KHz clock */
 			src_clk_div = DIV_ROUND_UP(OSC_HZ / 2, set_rate);
+			assert(src_clk_div - 1 < 128);
 			rk_clrsetreg(&cru->clksel_con[16],
 				     CLK_EMMC_PLL_MASK | CLK_EMMC_DIV_CON_MASK,
 				     CLK_EMMC_PLL_SEL_24M << CLK_EMMC_PLL_SHIFT |
@@ -798,8 +799,8 @@ static ulong rk3399_mmc_set_clk(struct rk3399_cru *cru,
 		break;
 	case SCLK_EMMC:
 		/* Select aclk_emmc source from GPLL */
-		src_clk_div = GPLL_HZ / aclk_emmc;
-		assert(src_clk_div - 1 < 31);
+		src_clk_div = DIV_ROUND_UP(GPLL_HZ , aclk_emmc);
+		assert(src_clk_div - 1 < 32);
 
 		rk_clrsetreg(&cru->clksel_con[21],
 			     ACLK_EMMC_PLL_SEL_MASK | ACLK_EMMC_DIV_CON_MASK,
@@ -807,8 +808,8 @@ static ulong rk3399_mmc_set_clk(struct rk3399_cru *cru,
 			     (src_clk_div - 1) << ACLK_EMMC_DIV_CON_SHIFT);
 
 		/* Select clk_emmc source from GPLL too */
-		src_clk_div = GPLL_HZ / set_rate;
-		assert(src_clk_div - 1 < 127);
+		src_clk_div = DIV_ROUND_UP(GPLL_HZ, set_rate);
+		assert(src_clk_div - 1 < 128);
 
 		rk_clrsetreg(&cru->clksel_con[22],
 			     CLK_EMMC_PLL_MASK | CLK_EMMC_DIV_CON_MASK,

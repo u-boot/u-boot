@@ -249,8 +249,9 @@ static ulong rockchip_mmc_set_clk(struct rk3036_cru *cru, uint clk_general_rate,
 	/* mmc clock auto divide 2 in internal */
 	src_clk_div = DIV_ROUND_UP(clk_general_rate / 2, freq);
 
-	if (src_clk_div > 0x7f) {
+	if (src_clk_div > 128) {
 		src_clk_div = DIV_ROUND_UP(OSC_HZ / 2, freq);
+		assert(src_clk_div - 1 < 128);
 		mux = EMMC_SEL_24M;
 	} else {
 		mux = EMMC_SEL_GPLL;
