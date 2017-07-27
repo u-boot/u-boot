@@ -15,16 +15,33 @@
 
 #include <linux/list.h>
 
+/*
+ * Enter the u-boot world from UEFI:
+ */
 #define EFI_ENTRY(format, ...) do { \
 	efi_restore_gd(); \
 	debug("EFI: Entry %s(" format ")\n", __func__, ##__VA_ARGS__); \
 	} while(0)
 
+/*
+ * Exit the u-boot world back to UEFI:
+ */
 #define EFI_EXIT(ret) ({ \
 	efi_status_t _r = ret; \
 	debug("EFI: Exit: %s: %u\n", __func__, (u32)(_r & ~EFI_ERROR_MASK)); \
 	efi_exit_func(_r); \
 	})
+
+/*
+ * Callback into UEFI world from u-boot:
+ */
+#define EFI_CALL(exp) do { \
+	debug("EFI: Call: %s\n", #exp); \
+	efi_exit_func(EFI_SUCCESS); \
+	exp; \
+	efi_restore_gd(); \
+	debug("EFI: Return From: %s\n", #exp); \
+	} while(0)
 
 extern struct efi_runtime_services efi_runtime_services;
 extern struct efi_system_table systab;

@@ -120,9 +120,7 @@ void efi_signal_event(struct efi_event *event)
 		return;
 	event->signaled = 1;
 	if (event->type & EVT_NOTIFY_SIGNAL) {
-		EFI_EXIT(EFI_SUCCESS);
-		event->notify_function(event, event->notify_context);
-		EFI_ENTRY("returning from notification function");
+		EFI_CALL(event->notify_function(event, event->notify_context));
 	}
 }
 
