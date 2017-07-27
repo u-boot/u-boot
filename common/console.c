@@ -8,6 +8,7 @@
 #include <common.h>
 #include <console.h>
 #include <debug_uart.h>
+#include <dm.h>
 #include <stdarg.h>
 #include <iomux.h>
 #include <malloc.h>
@@ -150,12 +151,20 @@ static int console_setfile(int file, struct stdio_dev * dev)
  * console_dev_is_serial() - Check if a stdio device is a serial device
  *
  * @sdev: Device to check
- * @return true if this device is a serial device
+ * @return true if this device is in the serial uclass (or for pre-driver-model,
+ * whether it is called "serial".
  */
 static bool console_dev_is_serial(struct stdio_dev *sdev)
 {
 	bool is_serial;
 
+#ifdef CONFIG_DM_SERIAL
+	if (sdev->flags & DEV_FLAGS_DM) {
+		struct udevice *dev = sdev->priv;
+
+		is_serial = device_get_uclass_id(dev) == UCLASS_SERIAL;
+	} else
+#endif
 	is_serial = !strcmp(sdev->name, "serial");
 
 	return is_serial;

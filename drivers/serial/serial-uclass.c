@@ -353,7 +353,7 @@ static int serial_post_probe(struct udevice *dev)
 	memset(&sdev, '\0', sizeof(sdev));
 
 	strncpy(sdev.name, dev->name, sizeof(sdev.name));
-	sdev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT;
+	sdev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT | DEV_FLAGS_DM;
 	sdev.priv = dev;
 	sdev.putc = serial_stub_putc;
 	sdev.puts = serial_stub_puts;

@@ -16,6 +16,7 @@
 
 #define DEV_FLAGS_INPUT	 0x00000001	/* Device can be used as input	console */
 #define DEV_FLAGS_OUTPUT 0x00000002	/* Device can be used as output console */
+#define DEV_FLAGS_DM     0x00000004	/* Device priv is a struct udevice * */
 
 /* Device information */
 struct stdio_dev {
