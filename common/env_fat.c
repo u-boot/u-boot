@@ -48,8 +48,8 @@ int saveenv(void)
 	if (err)
 		return err;
 
-	part = blk_get_device_part_str(FAT_ENV_INTERFACE,
-					FAT_ENV_DEVICE_AND_PART,
+	part = blk_get_device_part_str(CONFIG_ENV_FAT_INTERFACE,
+					CONFIG_ENV_FAT_DEVICE_AND_PART,
 					&dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
@@ -57,15 +57,15 @@ int saveenv(void)
 	dev = dev_desc->devnum;
 	if (fat_set_blk_dev(dev_desc, &info) != 0) {
 		printf("\n** Unable to use %s %d:%d for saveenv **\n",
-		       FAT_ENV_INTERFACE, dev, part);
+		       CONFIG_ENV_FAT_INTERFACE, dev, part);
 		return 1;
 	}
 
-	err = file_fat_write(FAT_ENV_FILE, (void *)&env_new, 0, sizeof(env_t),
+	err = file_fat_write(CONFIG_ENV_FAT_FILE, (void *)&env_new, 0, sizeof(env_t),
 			     &size);
 	if (err == -1) {
 		printf("\n** Unable to write \"%s\" from %s%d:%d **\n",
-			FAT_ENV_FILE, FAT_ENV_INTERFACE, dev, part);
+			CONFIG_ENV_FAT_FILE, CONFIG_ENV_FAT_INTERFACE, dev, part);
 		return 1;
 	}
 
@@ -82,8 +82,8 @@ void env_relocate_spec(void)
 	int dev, part;
 	int err;
 
-	part = blk_get_device_part_str(FAT_ENV_INTERFACE,
-					FAT_ENV_DEVICE_AND_PART,
+	part = blk_get_device_part_str(CONFIG_ENV_FAT_INTERFACE,
+					CONFIG_ENV_FAT_DEVICE_AND_PART,
 					&dev_desc, &info, 1);
 	if (part < 0)
 		goto err_env_relocate;
@@ -91,14 +91,14 @@ void env_relocate_spec(void)
 	dev = dev_desc->devnum;
 	if (fat_set_blk_dev(dev_desc, &info) != 0) {
 		printf("\n** Unable to use %s %d:%d for loading the env **\n",
-		       FAT_ENV_INTERFACE, dev, part);
+		       CONFIG_ENV_FAT_INTERFACE, dev, part);
 		goto err_env_relocate;
 	}
 
-	err = file_fat_read(FAT_ENV_FILE, buf, CONFIG_ENV_SIZE);
+	err = file_fat_read(CONFIG_ENV_FAT_FILE, buf, CONFIG_ENV_SIZE);
 	if (err == -1) {
 		printf("\n** Unable to read \"%s\" from %s%d:%d **\n",
-			FAT_ENV_FILE, FAT_ENV_INTERFACE, dev, part);
+			CONFIG_ENV_FAT_FILE, CONFIG_ENV_FAT_INTERFACE, dev, part);
 		goto err_env_relocate;
 	}
 

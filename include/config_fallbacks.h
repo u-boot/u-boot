@@ -33,10 +33,6 @@
 #define CONFIG_FS_FAT
 #endif
 
-#if defined(CONFIG_ENV_IS_IN_FAT) && !defined(CONFIG_FAT_WRITE)
-#define CONFIG_FAT_WRITE
-#endif
-
 #if (defined(CONFIG_CMD_EXT4) || defined(CONFIG_CMD_EXT2)) && \
 						!defined(CONFIG_FS_EXT4)
 #define CONFIG_FS_EXT4

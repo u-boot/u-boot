@@ -105,14 +105,6 @@
 	"root=/dev/mtdblock7 rw rootfstype=jffs2"
 #elif CONFIG_SYS_USE_MMC
 /* bootstrap + u-boot + env + linux in mmc */
-#define FAT_ENV_INTERFACE	"mmc"
-/*
- * We don't specify the part number, if device 0 has partition table, it means
- * the first partition; it no partition table, then take whole device as a
- * FAT file system.
- */
-#define FAT_ENV_DEVICE_AND_PART	"0"
-#define FAT_ENV_FILE		"uboot.env"
 #define CONFIG_ENV_SIZE		0x4000
 
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 " \

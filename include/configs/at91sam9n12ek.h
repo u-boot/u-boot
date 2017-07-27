@@ -156,9 +156,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #else
 /* Use file in FAT file to save environment */
-#define FAT_ENV_INTERFACE		"mmc"
-#define FAT_ENV_FILE			"uboot.env"
-#define FAT_ENV_DEVICE_AND_PART		"0"
 #define CONFIG_ENV_SIZE			0x4000
 #endif
 

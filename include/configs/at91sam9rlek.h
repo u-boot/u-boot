@@ -124,9 +124,6 @@
 #else /* CONFIG_SYS_USE_MMC */
 
 /* bootstrap + u-boot + env + linux in mmc */
-#define FAT_ENV_INTERFACE	"mmc"
-#define FAT_ENV_FILE		"uboot.env"
-#define FAT_ENV_DEVICE_AND_PART	"0"
 #define CONFIG_ENV_SIZE		0x4000
 #define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x21000000 at91sam9rlek.dtb; " \
 				"fatload mmc 0:1 0x22000000 zImage; " \

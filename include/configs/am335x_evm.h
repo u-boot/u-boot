@@ -351,11 +351,6 @@
 #define CONFIG_ENV_OFFSET		0x001c0000
 #define CONFIG_ENV_OFFSET_REDUND	0x001e0000
 #define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_SYS_NAND_BLOCK_SIZE
-#elif !defined(CONFIG_ENV_IS_NOWHERE)
-/* Not NAND, SPI, NOR or eMMC env, so put ENV in a file on FAT */
-#define FAT_ENV_INTERFACE		"mmc"
-#define FAT_ENV_DEVICE_AND_PART		"0:1"
-#define FAT_ENV_FILE			"uboot.env"
 #endif
 
 /* SPI flash. */

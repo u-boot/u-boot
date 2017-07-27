@@ -60,10 +60,6 @@
  * Environment settings
  */
 #define CONFIG_ENV_SIZE			SZ_16K
-#define FAT_ENV_INTERFACE		"mmc"
-#define FAT_ENV_DEVICE_AND_PART		"0:1"
-#define FAT_ENV_FILE			"uboot.env"
-#define CONFIG_FAT_WRITE
 
 /*
  * Environment configuration

@@ -53,9 +53,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #else
 /* u-boot env in sd/mmc card */
-#define FAT_ENV_INTERFACE	"mmc"
-#define FAT_ENV_DEVICE_AND_PART	"0"
-#define FAT_ENV_FILE		"uboot.env"
 #define CONFIG_ENV_SIZE		0x4000
 #endif
 

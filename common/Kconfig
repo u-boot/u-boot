@@ -255,33 +255,10 @@ config ENV_IS_IN_EEPROM
 config ENV_IS_IN_FAT
 	bool "Environment is in a FAT filesystem"
 	depends on !CHAIN_OF_TRUST
+	select FAT_WRITE
 	help
          Define this if you want to use the FAT file system for the environment.
 
-         - FAT_ENV_INTERFACE:
-
-         Define this to a string that is the name of the block device.
-
-         - FAT_ENV_DEVICE_AND_PART:
-
-         Define this to a string to specify the partition of the device. It can
-         be as following:
-
-           "D:P", "D:0", "D", "D:" or "D:auto" (D, P are integers. And P >= 1)
-               - "D:P": device D partition P. Error occurs if device D has no
-                        partition table.
-               - "D:0": device D.
-               - "D" or "D:": device D partition 1 if device D has partition
-                              table, or the whole device D if has no partition
-                              table.
-               - "D:auto": first partition in device D with bootable flag set.
-                           If none, first valid partition in device D. If no
-                           partition table then means device D.
-
-         - FAT_ENV_FILE:
-
-         It's a string of the FAT file name. This file use to store the
-         environment.
 
          - CONFIG_FAT_WRITE:
          This must be enabled. Otherwise it cannot save the environment file.
@@ -569,6 +546,42 @@ config ENV_IS_NOWHERE
 	help
 	  Define this if you don't want to or can't have an environment stored
 	  on a storage medium
+
+config ENV_FAT_INTERFACE
+	string "Name of the block device for the environment"
+	depends on ENV_IS_IN_FAT
+	default "mmc" if TI_COMMON_CMD_OPTIONS || ARCH_ZYNQMP || ARCH_AT91
+	help
+	  Define this to a string that is the name of the block device.
+
+config ENV_FAT_DEVICE_AND_PART
+	string "Device and partition for where to store the environemt in FAT"
+	depends on ENV_IS_IN_FAT
+	default "0:1" if TI_COMMON_CMD_OPTIONS
+	default "0:auto" if ARCH_ZYNQMP
+	default "0" if ARCH_AT91
+	help
+	  Define this to a string to specify the partition of the device. It can
+	  be as following:
+
+	    "D:P", "D:0", "D", "D:" or "D:auto" (D, P are integers. And P >= 1)
+	       - "D:P": device D partition P. Error occurs if device D has no
+	                partition table.
+	       - "D:0": device D.
+	       - "D" or "D:": device D partition 1 if device D has partition
+	                      table, or the whole device D if has no partition
+	                      table.
+	       - "D:auto": first partition in device D with bootable flag set.
+	                   If none, first valid partition in device D. If no
+	                   partition table then means device D.
+
+config ENV_FAT_FILE
+	string "Name of the FAT file to use for the environemnt"
+	depends on ENV_IS_IN_FAT
+	default "uboot.env"
+	help
+	  It's a string of the FAT file name. This file use to store the
+	  environment.
 
 if ARCH_SUNXI
 

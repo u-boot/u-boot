@@ -57,10 +57,8 @@
 #ifdef CONFIG_SYS_USE_MMC
 
 /* bootstrap + u-boot + env in sd card */
-#undef FAT_ENV_DEVICE_AND_PART
 #undef CONFIG_BOOTCOMMAND
 
-#define FAT_ENV_DEVICE_AND_PART	"1"
 #define CONFIG_BOOTCOMMAND	"fatload mmc 1:1 0x21000000 at91-sama5d2_xplained.dtb; " \
 				"fatload mmc 1:1 0x22000000 zImage; " \
 				"bootz 0x22000000 - 0x21000000"
