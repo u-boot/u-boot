@@ -79,7 +79,6 @@
 	cap-sd-highspeed;
 	card-detect-delay = <200>;
 	disable-wp;
-	max-frequency = <50000000>;
 	num-slots = <1>;
 	supports-sd;
 };
