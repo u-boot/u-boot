@@ -213,8 +213,6 @@
 					 CONFIG_SYS_INIT_RAM_SIZE - \
 					 GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_OMAP3_SPI
-
 /*
  * USB
  *

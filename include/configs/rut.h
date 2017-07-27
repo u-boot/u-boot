@@ -120,7 +120,6 @@
 #define DA8XX_LCD_CNTL_BASE	LCD_CNTL_BASE
 
 #define CONFIG_SPI
-#define CONFIG_OMAP3_SPI
 
 #define BOARD_LCD_RESET		115	/* Bank 3 pin 19 */
 #define CONFIG_FORMIKE

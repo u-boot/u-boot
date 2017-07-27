@@ -142,7 +142,6 @@
 #endif
 
 /* SPI */
-#undef CONFIG_OMAP3_SPI
 #define CONFIG_TI_SPI_MMAP
 #define CONFIG_QSPI_SEL_GPIO                   48
 #define CONFIG_SF_DEFAULT_SPEED                48000000

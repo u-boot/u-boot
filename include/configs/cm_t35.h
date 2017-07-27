@@ -248,8 +248,6 @@
 #define CONFIG_BMP_16BPP
 #define CONFIG_SCF0403_LCD
 
-#define CONFIG_OMAP3_SPI
-
 /* Defines for SPL */
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_NAND_SIMPLE

@@ -60,7 +60,6 @@
 
 /* SPI */
 #undef CONFIG_SPI
-#undef CONFIG_OMAP3_SPI
 
 /* I2C */
 

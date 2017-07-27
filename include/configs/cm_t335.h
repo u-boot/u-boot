@@ -16,7 +16,6 @@
 #include <configs/ti_am335x_common.h>
 
 #undef CONFIG_SPI
-#undef CONFIG_OMAP3_SPI
 #undef CONFIG_BOOTCOUNT_LIMIT
 #undef CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 

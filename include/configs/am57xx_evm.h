@@ -123,7 +123,6 @@
 #define CONFIG_SYS_SPI_U_BOOT_OFFS     0x40000
 
 /* SPI */
-#undef	CONFIG_OMAP3_SPI
 #define CONFIG_TI_SPI_MMAP
 #define CONFIG_SF_DEFAULT_SPEED                76800000
 #define CONFIG_SF_DEFAULT_MODE                 SPI_MODE_0

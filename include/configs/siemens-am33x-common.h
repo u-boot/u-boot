@@ -72,7 +72,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x81000000 /* Default load address */
 
 #define CONFIG_SPI
-#define CONFIG_OMAP3_SPI
 #define CONFIG_MTD_DEVICE
 #define CONFIG_SF_DEFAULT_SPEED		(75000000)
 
