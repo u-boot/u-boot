@@ -21,13 +21,15 @@ int arch_cpu_init(void)
 		{ 0x00000000, REGION_0, XN_DIS, PRIV_RW_USR_RW,
 		STRONG_ORDER, REGION_4GB },
 	};
+	int i;
+
 	configure_clocks();
 	/*
 	 * Configure the memory protection unit (MPU) to allow full access to
 	 * the whole 4GB address space.
 	 */
 	disable_mpu();
-	for (int i = 0; i < ARRAY_SIZE(stm32_region_config); i++)
+	for (i = 0; i < ARRAY_SIZE(stm32_region_config); i++)
 		mpu_config(&stm32_region_config[i]);
 	enable_mpu();
 
