@@ -9,7 +9,12 @@
 
 #include "config.h"
 
+#ifdef CONFIG_SYS_BIG_ENDIAN
+OUTPUT_FORMAT("elf32-shbig-linux", "elf32-shbig-linux", "elf32-sh-linux")
+#else
 OUTPUT_FORMAT("elf32-sh-linux", "elf32-sh-linux", "elf32-sh-linux")
+#endif
+
 OUTPUT_ARCH(sh)
 
 MEMORY
