@@ -652,6 +652,11 @@
 		reg = <0x0 0xff738000 0x0 0x1000>;
 	};
 
+	sgrf: syscon@ff740000 {
+	        compatible = "rockchip,rk3368-sgrf", "syscon";
+		reg = <0x0 0xff740000 0x0 0x1000>;
+	};
+
 	cru: clock-controller@ff760000 {
 		compatible = "rockchip,rk3368-cru";
 		reg = <0x0 0xff760000 0x0 0x1000>;
