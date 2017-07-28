@@ -18,6 +18,8 @@ static const struct udevice_id rk3368_syscon_ids[] = {
 	  .data = ROCKCHIP_SYSCON_PMUGRF },
 	{ .compatible = "rockchip,rk3368-msch",
 	  .data = ROCKCHIP_SYSCON_MSCH },
+	{ .compatible = "rockchip,rk3368-sgrf",
+	  .data = ROCKCHIP_SYSCON_SGRF },
 	{ }
 };
 
@@ -54,6 +56,13 @@ U_BOOT_DRIVER(rockchip_rk3368_msch) = {
 	.name = "rockchip_rk3368_msch",
 	.id = UCLASS_SYSCON,
 	.of_match = rk3368_syscon_ids + 2,
+	.bind = rk3368_syscon_bind_of_platdata,
+};
+
+U_BOOT_DRIVER(rockchip_rk3368_sgrf) = {
+	.name = "rockchip_rk3368_sgrf",
+	.id = UCLASS_SYSCON,
+	.of_match = rk3368_syscon_ids + 3,
 	.bind = rk3368_syscon_bind_of_platdata,
 };
 #endif
