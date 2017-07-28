@@ -103,9 +103,16 @@ u-boot-spl-platdata := $(obj)/dts/dt-platdata.o
 endif
 
 # Linker Script
-ifdef CONFIG_$(SPL_TPL_)LDSCRIPT
+# First test whether there's a linker-script for the specific stage defined...
+ifneq ($(CONFIG_$(SPL_TPL_)LDSCRIPT),)
 # need to strip off double quotes
 LDSCRIPT := $(addprefix $(srctree)/,$(CONFIG_$(SPL_TPL_)LDSCRIPT:"%"=%))
+else
+# ...then fall back to the generic SPL linker-script
+ifneq ($(CONFIG_SPL_LDSCRIPT),)
+# need to strip off double quotes
+LDSCRIPT := $(addprefix $(srctree)/,$(CONFIG_SPL_LDSCRIPT:"%"=%))
+endif
 endif
 
 ifeq ($(wildcard $(LDSCRIPT)),)

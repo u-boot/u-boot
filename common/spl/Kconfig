@@ -18,6 +18,16 @@ config SPL
 
 if SPL
 
+config SPL_LDSCRIPT
+	string "Linker script for the SPL stage"
+	default "arch/$(ARCH)/cpu/u-boot-spl.lds"
+	depends on SPL
+	help
+	  The SPL stage will usually require a different linker-script
+	  (as it runs from a different memory region) than the regular
+	  U-Boot stage.	 Set this to the path of the linker-script to
+	  be used for SPL.
+
 config SPL_BOARD_INIT
 	bool "Call board-specific initialization in SPL"
 	help
@@ -706,6 +716,15 @@ config TPL
 	  If you want to build TPL as well as the normal image and SPL, say Y.
 
 if TPL
+
+config TPL_LDSCRIPT
+        string "Linker script for the TPL stage"
+	depends on TPL
+	help
+	  The TPL stage will usually require a different linker-script
+	  (as it runs from a different memory region) than the regular
+	  U-Boot stage.  Set this to the path of the linker-script to
+	  be used for TPL.
 
 config TPL_BOOTROM_SUPPORT
         bool "Support returning to the BOOTROM (from TPL)"
