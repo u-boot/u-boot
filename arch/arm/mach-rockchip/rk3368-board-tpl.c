@@ -21,23 +21,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
- * The ARMv8 generic timer uses the STIMER1 as its clock-source.
- * Set up the STIMER1 to free-running (i.e. auto-reload) to start
- * the generic timer counting (if we don't do this, udelay will not
- * work and block indefinitively).
- */
-static void secure_timer_init(void)
-{
-	struct rk_timer * const stimer1 =
-		(struct rk_timer * const)0xff830020;
-	const u32 TIMER_EN = BIT(0);
-
-	writel(~0u, &stimer1->timer_load_count0);
-	writel(~0u, &stimer1->timer_load_count1);
-	writel(TIMER_EN, &stimer1->timer_ctrl_reg);
-}
-
-/*
  * The SPL (and also the full U-Boot stage on the RK3368) will run in
  * secure mode (i.e. EL3) and an ATF will eventually be booted before
  * starting up the operating system... so we can initialize the SGRF
@@ -153,8 +136,6 @@ void board_init_f(ulong dummy)
 		hang();
 	}
 
-	/* Make sure the ARMv8 generic timer counts */
-	secure_timer_init();
 	/* Reset security, so we can use DMA in the MMC drivers */
 	sgrf_init();
 

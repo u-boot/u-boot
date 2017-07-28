@@ -19,23 +19,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/*
- * The ARMv8 generic timer uses the STIMER1 as its clock-source.
- * Set up the STIMER1 to free-running (i.e. auto-reload) to start
- * the generic timer counting (if we don't do this, udelay will not
- * work and block indefinitively).
- */
-static void secure_timer_init(void)
-{
-	struct rk_timer * const stimer1 =
-		(struct rk_timer * const)0xff830020;
-	const u32 TIMER_EN = BIT(0);
-
-	writel(~0u, &stimer1->timer_load_count0);
-	writel(~0u, &stimer1->timer_load_count1);
-	writel(TIMER_EN, &stimer1->timer_ctrl_reg);
-}
-
 void board_debug_uart_init(void)
 {
 }
@@ -51,9 +34,6 @@ void board_init_f(ulong dummy)
 		debug("spl_early_init() failed: %d\n", ret);
 		hang();
 	}
-
-	/* Make sure the ARMv8 generic timer counts */
-	secure_timer_init();
 
 	/* Set up our preloader console */
 	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
