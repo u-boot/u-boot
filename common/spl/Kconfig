@@ -717,7 +717,7 @@ config TPL_ENV_SUPPORT
 config TPL_I2C_SUPPORT
 	bool "Support I2C"
 	help
-	  Enable support for the I2C bus in SPL. See SPL_I2C_SUPPORT for
+	  Enable support for the I2C bus in TPL. See SPL_I2C_SUPPORT for
 	  details.
 
 config TPL_LIBCOMMON_SUPPORT
@@ -747,24 +747,24 @@ config TPL_MMC_SUPPORT
 config TPL_NAND_SUPPORT
 	bool "Support NAND flash"
 	help
-	  Enable support for NAND in SPL. See SPL_NAND_SUPPORT for details.
+	  Enable support for NAND in TPL. See SPL_NAND_SUPPORT for details.
 
 config TPL_SERIAL_SUPPORT
 	bool "Support serial"
 	help
-	  Enable support for serial in SPL. See SPL_SERIAL_SUPPORT for
+	  Enable support for serial in TPL. See SPL_SERIAL_SUPPORT for
 	  details.
 
 config TPL_SPI_FLASH_SUPPORT
 	bool "Support SPI flash drivers"
 	help
-	  Enable support for using SPI flash in SPL. See SPL_SPI_FLASH_SUPPORT
+	  Enable support for using SPI flash in TPL. See SPL_SPI_FLASH_SUPPORT
 	  for details.
 
 config TPL_SPI_SUPPORT
 	bool "Support SPI drivers"
 	help
-	  Enable support for using SPI in SPL. See SPL_SPI_SUPPORT for
+	  Enable support for using SPI in TPL. See SPL_SPI_SUPPORT for
 	  details.
 
 endif # TPL
