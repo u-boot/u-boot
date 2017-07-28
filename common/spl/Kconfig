@@ -726,6 +726,45 @@ config TPL_LDSCRIPT
 	  U-Boot stage.  Set this to the path of the linker-script to
 	  be used for TPL.
 
+	  May be left empty to trigger the Makefile infrastructure to
+	  fall back to the linker-script used for the SPL stage.
+
+config TPL_NEEDS_SEPARATE_TEXT_BASE
+        bool "TPL needs a separate text-base"
+	default n
+	depends on TPL
+	help
+	  Enable, if the TPL stage should not inherit its text-base
+	  from the SPL stage.  When enabled, a base address for the
+	  .text sections of the TPL stage has to be set below.
+
+config TPL_NEEDS_SEPARATE_STACK
+        bool "TPL needs a separate initial stack-pointer"
+	default n
+	depends on TPL
+	help
+	  Enable, if the TPL stage should not inherit its initial
+	  stack-pointer from the settings for the SPL stage.
+
+config TPL_TEXT_BASE
+        hex "Base address for the .text section of the TPL stage"
+	depends on TPL_NEEDS_SEPARATE_TEXT_BASE
+	help
+	  The base address for the .text section of the TPL stage.
+
+config TPL_MAX_SIZE
+        int "Maximum size (in bytes) for the TPL stage"
+	depends on TPL
+	help
+	  The maximum size (in bytes) of the TPL stage.
+
+config TPL_STACK
+        hex "Address of the initial stack-pointer for the TPL stage"
+	depends on TPL_NEEDS_SEPARATE_STACK
+	help
+	  The address of the initial stack-pointer for the TPL stage.
+	  Usually this will be the (aligned) top-of-stack.
+
 config TPL_BOOTROM_SUPPORT
         bool "Support returning to the BOOTROM (from TPL)"
 	help
