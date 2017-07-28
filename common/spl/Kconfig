@@ -754,6 +754,7 @@ config TPL_TEXT_BASE
 
 config TPL_MAX_SIZE
         int "Maximum size (in bytes) for the TPL stage"
+	default 0
 	depends on TPL
 	help
 	  The maximum size (in bytes) of the TPL stage.
