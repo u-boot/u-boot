@@ -103,4 +103,11 @@ config AE3XX_TIMER
 	help
 	  Select this to enable a timer for AE3XX devices.
 
+config ROCKCHIP_TIMER
+        bool "Rockchip timer support"
+	depends on TIMER
+	help
+	  Select this to enable support for the timer found on
+	  Rockchip devices.
+
 endmenu
