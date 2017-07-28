@@ -335,12 +335,40 @@ static int ksz9031_phy_extwrite(struct phy_device *phydev, int addr,
 static int ksz9031_config(struct phy_device *phydev)
 {
 	int ret;
+
 	ret = ksz9031_of_config(phydev);
 	if (ret)
 		return ret;
 	ret = ksz9031_center_flp_timing(phydev);
 	if (ret)
 		return ret;
+
+	/* add an option to disable the gigabit feature of this PHY */
+	if (getenv("disable_giga")) {
+		unsigned features;
+		unsigned bmcr;
+
+		/* disable speed 1000 in features supported by the PHY */
+		features = phydev->drv->features;
+		features &= ~(SUPPORTED_1000baseT_Half |
+				SUPPORTED_1000baseT_Full);
+		phydev->advertising = phydev->supported = features;
+
+		/* disable speed 1000 in Basic Control Register */
+		bmcr = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR);
+		bmcr &= ~(1 << 6);
+		phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR, bmcr);
+
+		/* disable speed 1000 in 1000Base-T Control Register */
+		phy_write(phydev, MDIO_DEVAD_NONE, MII_CTRL1000, 0);
+
+		/* start autoneg */
+		genphy_config_aneg(phydev);
+		genphy_restart_aneg(phydev);
+
+		return 0;
+	}
+
 	return genphy_config(phydev);
 }
 
