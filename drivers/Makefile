@@ -15,6 +15,7 @@ obj-$(CONFIG_$(SPL_TPL_)RAM) += ram/
 obj-$(CONFIG_$(SPL_TPL_)SERIAL_SUPPORT) += serial/
 obj-$(CONFIG_$(SPL_TPL_)SPI_FLASH_SUPPORT) += mtd/spi/
 obj-$(CONFIG_$(SPL_TPL_)SPI_SUPPORT) += spi/
+obj-$(CONFIG_$(SPL_TPL_)TIMER) += timer/
 
 ifndef CONFIG_TPL_BUILD
 ifdef CONFIG_SPL_BUILD
@@ -38,7 +39,6 @@ obj-$(CONFIG_SPL_USBETH_SUPPORT) += net/phy/
 obj-$(CONFIG_SPL_PCI_SUPPORT) += pci/
 obj-$(CONFIG_SPL_PCH_SUPPORT) += pch/
 obj-$(CONFIG_SPL_RTC_SUPPORT) += rtc/
-obj-$(CONFIG_SPL_TIMER_SUPPORT) += timer/
 obj-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += usb/musb-new/
 obj-$(CONFIG_SPL_USB_GADGET_SUPPORT) += usb/gadget/
 obj-$(CONFIG_SPL_USB_GADGET_SUPPORT) += usb/gadget/udc/
@@ -83,7 +83,6 @@ obj-y += scsi/
 obj-y += sound/
 obj-y += spmi/
 obj-y += sysreset/
-obj-y += timer/
 obj-y += tpm/
 obj-y += video/
 obj-y += watchdog/

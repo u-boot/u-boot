@@ -9,6 +9,24 @@ config TIMER
 	  will be used. The timer is usually a 32 bits free-running up
 	  counter. There may be no real tick, and no timer interrupt.
 
+config SPL_TIMER
+	bool "Enable driver model for timer drivers in SPL"
+	depends on TIMER && SPL
+	help
+	  Enable support for timer drivers in SPL. These can be used to get
+	  a timer value when in SPL, or perhaps for implementing a delay
+	  function. This enables the drivers in drivers/timer as part of an
+	  SPL build.
+
+config TPL_TIMER
+	bool "Enable driver model for timer drivers in TPL"
+	depends on TIMER && TPL
+	help
+	  Enable support for timer drivers in TPL. These can be used to get
+	  a timer value when in TPL, or perhaps for implementing a delay
+	  function. This enables the drivers in drivers/timer as part of an
+	  TPL build.
+
 config TIMER_EARLY
 	bool "Allow timer to be used early in U-Boot"
 	depends on TIMER
