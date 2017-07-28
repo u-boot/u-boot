@@ -335,11 +335,13 @@ config SYS_EXTRA_OPTIONS
 config SYS_TEXT_BASE
 	depends on ARC || X86 || ARCH_UNIPHIER || ARCH_ZYNQMP || \
 		(M68K && !TARGET_ASTRO_MCF5373L) || MICROBLAZE || MIPS || \
-		ARCH_ZYNQ || ARCH_KEYSTONE
+		ARCH_ZYNQ || ARCH_KEYSTONE || ARCH_OMAP2PLUS
 	depends on !EFI_APP
 	hex "Text Base"
 	help
 	  TODO: Move CONFIG_SYS_TEXT_BASE for all the architecture
+
+	default 0x80800000 if ARCH_OMAP2PLUS
 
 
 config SYS_CLK_FREQ
