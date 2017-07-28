@@ -38,10 +38,6 @@ SECTIONS
 		KEEP(CONFIG_BOARDDIR/lowlevel_init.o	(.text .spiboot1.text))
 		KEEP(*(.spiboot2.text))
 		. = ALIGN(8192);
-		env/embedded.o	(.ppcenv)
-		. = ALIGN(8192);
-		env/embedded.o	(.ppcenvr)
-		. = ALIGN(8192);
 		*(.text)
 		. = ALIGN(4);
 	} >ram =0xFF
