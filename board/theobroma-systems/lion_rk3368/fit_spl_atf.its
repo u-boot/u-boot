@@ -45,7 +45,7 @@
 			description = "Theobroma Systems RK3368-uQ7 (Puma) SoM";
 			firmware = "uboot";
 			loadables = "atf";
- 			fdt = "fdt";
+			fdt = "fdt";
 		};
 	};
 };
