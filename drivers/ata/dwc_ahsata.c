@@ -696,7 +696,7 @@ static u32 dwc_ahsata_rw_cmd(int dev, u32 start, u32 blkcnt,
 		return 0;
 }
 
-void dwc_ahsata_flush_cache(int dev)
+static void dwc_ahsata_flush_cache(int dev)
 {
 	struct ahci_uc_priv *probe_ent =
 		(struct ahci_uc_priv *)sata_dev_desc[dev].priv;
@@ -793,7 +793,7 @@ u32 dwc_ahsata_rw_ncq_cmd(int dev, u32 start, lbaint_t blkcnt,
 	return blkcnt;
 }
 
-void dwc_ahsata_flush_cache_ext(int dev)
+static void dwc_ahsata_flush_cache_ext(int dev)
 {
 	struct ahci_uc_priv *probe_ent =
 		(struct ahci_uc_priv *)sata_dev_desc[dev].priv;
@@ -823,8 +823,8 @@ static void dwc_ahsata_init_wcache(int dev, u16 *id)
 		probe_ent->flags |= SATA_FLAG_FLUSH_EXT;
 }
 
-u32 ata_low_level_rw_lba48(int dev, u32 blknr, lbaint_t blkcnt,
-				const void *buffer, int is_write)
+static u32 ata_low_level_rw_lba48(int dev, u32 blknr, lbaint_t blkcnt,
+				  const void *buffer, int is_write)
 {
 	u32 start, blks;
 	u8 *addr;
@@ -857,8 +857,8 @@ u32 ata_low_level_rw_lba48(int dev, u32 blknr, lbaint_t blkcnt,
 	return blkcnt;
 }
 
-u32 ata_low_level_rw_lba28(int dev, u32 blknr, lbaint_t blkcnt,
-				const void *buffer, int is_write)
+static u32 ata_low_level_rw_lba28(int dev, u32 blknr, lbaint_t blkcnt,
+				  const void *buffer, int is_write)
 {
 	u32 start, blks;
 	u8 *addr;
