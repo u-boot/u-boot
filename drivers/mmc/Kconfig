@@ -43,7 +43,7 @@ config SPL_DM_MMC
 
 config SPL_DM_MMC_OPS
 	bool "Support MMC controller operations using Driver Model in SPL"
-	depends on SPL_DM && DM_MMC_OPS
+	depends on SPL_DM_MMC && DM_MMC_OPS
 	default y
 	help
 	  Driver model provides a means of supporting device operations. This
