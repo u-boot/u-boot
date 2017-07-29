@@ -9,7 +9,9 @@
  */
 
 #include <common.h>
+#include <ahci.h>
 #include <dm.h>
+#include <dwc_ahsata.h>
 #include <fsl_esdhc.h>
 #include <miiphy.h>
 #include <mtd_node.h>
@@ -29,6 +31,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <dm/platform_data/serial_mxc.h>
+#include <dm/device-internal.h>
 #include <jffs2/load_kernel.h>
 #include "common.h"
 #include "../common/eeprom.h"
@@ -206,6 +209,8 @@ static int cm_fx6_setup_issd(void)
 }
 
 #define CM_FX6_SATA_INIT_RETRIES	10
+
+# if !CONFIG_IS_ENABLED(AHCI)
 int sata_initialize(void)
 {
 	int err, i;
@@ -246,6 +251,7 @@ int sata_stop(void)
 
 	return 0;
 }
+# endif
 #else
 static int cm_fx6_setup_issd(void) { return 0; }
 #endif
@@ -757,3 +763,66 @@ U_BOOT_DEVICE(cm_fx6_serial) = {
 	.name	= "serial_mxc",
 	.platdata = &cm_fx6_mxc_serial_plat,
 };
+
+#if CONFIG_IS_ENABLED(AHCI)
+static int sata_imx_probe(struct udevice *dev)
+{
+	int i, err;
+
+	/* Make sure this gpio has logical 0 value */
+	gpio_direction_output(CM_FX6_SATA_PWLOSS_INT, 0);
+	udelay(100);
+	cm_fx6_sata_power(1);
+
+	for (i = 0; i < CM_FX6_SATA_INIT_RETRIES; i++) {
+		err = setup_sata();
+		if (err) {
+			printf("SATA setup failed: %d\n", err);
+			return err;
+		}
+
+		udelay(100);
+
+		err = dwc_ahsata_probe(dev);
+		if (!err)
+			break;
+
+		/* There is no device on the SATA port */
+		if (sata_dm_port_status(0, 0) == 0)
+			break;
+
+		/* There's a device, but link not established. Retry */
+		device_remove(dev, DM_REMOVE_NORMAL);
+	}
+
+	return 0;
+}
+
+static int sata_imx_remove(struct udevice *dev)
+{
+	cm_fx6_sata_power(0);
+	mdelay(250);
+
+	return 0;
+}
+
+struct ahci_ops sata_imx_ops = {
+	.port_status = dwc_ahsata_port_status,
+	.reset	= dwc_ahsata_bus_reset,
+	.scan	= dwc_ahsata_scan,
+};
+
+static const struct udevice_id sata_imx_ids[] = {
+	{ .compatible = "fsl,imx6q-ahci" },
+	{ }
+};
+
+U_BOOT_DRIVER(sata_imx) = {
+	.name		= "dwc_ahci",
+	.id		= UCLASS_AHCI,
+	.of_match	= sata_imx_ids,
+	.ops		= &sata_imx_ops,
+	.probe		= sata_imx_probe,
+	.remove		= sata_imx_remove,  /* reset bus to stop it */
+};
+#endif /* AHCI */
