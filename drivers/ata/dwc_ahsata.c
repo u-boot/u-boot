@@ -556,68 +556,6 @@ static int ahci_port_start(struct ahci_uc_priv *probe_ent,
 	return 0;
 }
 
-int init_sata(int dev)
-{
-	int i;
-	u32 linkmap;
-	struct ahci_uc_priv *probe_ent = NULL;
-
-#if defined(CONFIG_MX6)
-	if (!is_mx6dq() && !is_mx6dqp())
-		return 1;
-#endif
-	if (dev < 0 || dev > (CONFIG_SYS_SATA_MAX_DEVICE - 1)) {
-		printf("The sata index %d is out of ranges\n\r", dev);
-		return -1;
-	}
-
-	ahci_init_one(dev);
-
-	probe_ent = (struct ahci_uc_priv *)sata_dev_desc[dev].priv;
-	linkmap = probe_ent->link_port_map;
-
-	if (0 == linkmap) {
-		printf("No port device detected!\n");
-		return 1;
-	}
-
-	for (i = 0; i < probe_ent->n_ports; i++) {
-		if ((linkmap >> i) && ((linkmap >> i) & 0x01)) {
-			if (ahci_port_start(probe_ent, (u8)i)) {
-				printf("Can not start port %d\n", i);
-				return 1;
-			}
-			probe_ent->hard_port_no = i;
-			break;
-		}
-	}
-
-	return 0;
-}
-
-int reset_sata(int dev)
-{
-	struct ahci_uc_priv *probe_ent;
-	struct sata_host_regs *host_mmio;
-
-	if (dev < 0 || dev > (CONFIG_SYS_SATA_MAX_DEVICE - 1)) {
-		printf("The sata index %d is out of ranges\n\r", dev);
-		return -1;
-	}
-
-	probe_ent = (struct ahci_uc_priv *)sata_dev_desc[dev].priv;
-	if (NULL == probe_ent)
-		/* not initialized, so nothing to reset */
-		return 0;
-
-	host_mmio = (struct sata_host_regs *)probe_ent->mmio_base;
-	setbits_le32(&host_mmio->ghc, SATA_HOST_GHC_HR);
-	while (readl(&host_mmio->ghc) & SATA_HOST_GHC_HR)
-		udelay(100);
-
-	return 0;
-}
-
 static void dwc_ahsata_print_info(int dev)
 {
 	struct blk_desc *pdev = &(sata_dev_desc[dev]);
@@ -845,6 +783,68 @@ static u32 ata_low_level_rw_lba28(int dev, u32 blknr, lbaint_t blkcnt,
 	} while (blks != 0);
 
 	return blkcnt;
+}
+
+int init_sata(int dev)
+{
+	int i;
+	u32 linkmap;
+	struct ahci_uc_priv *probe_ent = NULL;
+
+#if defined(CONFIG_MX6)
+	if (!is_mx6dq() && !is_mx6dqp())
+		return 1;
+#endif
+	if (dev < 0 || dev > (CONFIG_SYS_SATA_MAX_DEVICE - 1)) {
+		printf("The sata index %d is out of ranges\n\r", dev);
+		return -1;
+	}
+
+	ahci_init_one(dev);
+
+	probe_ent = (struct ahci_uc_priv *)sata_dev_desc[dev].priv;
+	linkmap = probe_ent->link_port_map;
+
+	if (0 == linkmap) {
+		printf("No port device detected!\n");
+		return 1;
+	}
+
+	for (i = 0; i < probe_ent->n_ports; i++) {
+		if ((linkmap >> i) && ((linkmap >> i) & 0x01)) {
+			if (ahci_port_start(probe_ent, (u8)i)) {
+				printf("Can not start port %d\n", i);
+				return 1;
+			}
+			probe_ent->hard_port_no = i;
+			break;
+		}
+	}
+
+	return 0;
+}
+
+int reset_sata(int dev)
+{
+	struct ahci_uc_priv *probe_ent;
+	struct sata_host_regs *host_mmio;
+
+	if (dev < 0 || dev > (CONFIG_SYS_SATA_MAX_DEVICE - 1)) {
+		printf("The sata index %d is out of ranges\n\r", dev);
+		return -1;
+	}
+
+	probe_ent = (struct ahci_uc_priv *)sata_dev_desc[dev].priv;
+	if (NULL == probe_ent)
+		/* not initialized, so nothing to reset */
+		return 0;
+
+	host_mmio = (struct sata_host_regs *)probe_ent->mmio_base;
+	setbits_le32(&host_mmio->ghc, SATA_HOST_GHC_HR);
+	while (readl(&host_mmio->ghc) & SATA_HOST_GHC_HR)
+		udelay(100);
+
+	return 0;
 }
 
 int sata_port_status(int dev, int port)
