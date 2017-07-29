@@ -102,8 +102,7 @@ static int waiting_for_cmd_completed(u8 *offset,
 
 static int ahci_setup_oobr(struct ahci_uc_priv *uc_priv, int clk)
 {
-	struct sata_host_regs *host_mmio =
-		(struct sata_host_regs *)uc_priv->mmio_base;
+	struct sata_host_regs *host_mmio = uc_priv->mmio_base;
 
 	writel(SATA_HOST_OOBR_WE, &(host_mmio->oobr));
 	writel(0x02060b14, &(host_mmio->oobr));
@@ -116,8 +115,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 	u32 tmp, cap_save, num_ports;
 	int i, j, timeout = 1000;
 	struct sata_port_regs *port_mmio = NULL;
-	struct sata_host_regs *host_mmio =
-		(struct sata_host_regs *)uc_priv->mmio_base;
+	struct sata_host_regs *host_mmio = uc_priv->mmio_base;
 	int clk = mxc_get_clock(MXC_SATA_CLK);
 
 	cap_save = readl(&(host_mmio->cap));
@@ -165,8 +163,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 
 	for (i = 0; i < uc_priv->n_ports; i++) {
 		uc_priv->port[i].port_mmio = ahci_port_base(host_mmio, i);
-		port_mmio =
-			(struct sata_port_regs *)uc_priv->port[i].port_mmio;
+		port_mmio = uc_priv->port[i].port_mmio;
 
 		/* Ensure that the DWC_ahsata is in idle state */
 		tmp = readl(&(port_mmio->cmd));
@@ -274,8 +271,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 
 static void ahci_print_info(struct ahci_uc_priv *uc_priv)
 {
-	struct sata_host_regs *host_mmio =
-		(struct sata_host_regs *)uc_priv->mmio_base;
+	struct sata_host_regs *host_mmio = uc_priv->mmio_base;
 	u32 vers, cap, impl, speed;
 	const char *speed_s;
 	const char *scc_s;
@@ -350,7 +346,7 @@ static int ahci_init_one(int pdev)
 	ahci_print_info(uc_priv);
 
 	/* Save the uc_private struct to block device struct */
-	sata_dev_desc[pdev].priv = (void *)uc_priv;
+	sata_dev_desc[pdev].priv = uc_priv;
 
 	return 0;
 
@@ -410,8 +406,7 @@ static int ahci_exec_ata_cmd(struct ahci_uc_priv *uc_priv, u8 port,
 			     s32 is_write)
 {
 	struct ahci_ioports *pp = &(uc_priv->port[port]);
-	struct sata_port_regs *port_mmio =
-			(struct sata_port_regs *)pp->port_mmio;
+	struct sata_port_regs *port_mmio = pp->port_mmio;
 	u32 opts;
 	int sg_count = 0, cmd_slot = 0;
 
@@ -458,8 +453,7 @@ static int ahci_exec_ata_cmd(struct ahci_uc_priv *uc_priv, u8 port,
 
 static void ahci_set_feature(u8 dev, u8 port)
 {
-	struct ahci_uc_priv *uc_priv =
-		(struct ahci_uc_priv *)sata_dev_desc[dev].priv;
+	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
 	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
 	struct sata_fis_h2d *cfis = &h2d;
 
@@ -476,8 +470,7 @@ static void ahci_set_feature(u8 dev, u8 port)
 static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 {
 	struct ahci_ioports *pp = &(uc_priv->port[port]);
-	struct sata_port_regs *port_mmio =
-		(struct sata_port_regs *)pp->port_mmio;
+	struct sata_port_regs *port_mmio = pp->port_mmio;
 	u32 port_status;
 	u32 mem;
 	int timeout = 10000000;
@@ -570,8 +563,7 @@ static void dwc_ahsata_print_info(int dev)
 
 static void dwc_ahsata_identify(int dev, u16 *id)
 {
-	struct ahci_uc_priv *uc_priv =
-		(struct ahci_uc_priv *)sata_dev_desc[dev].priv;
+	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
 	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
 	struct sata_fis_h2d *cfis = &h2d;
 	u8 port = uc_priv->hard_port_no;
@@ -589,8 +581,7 @@ static void dwc_ahsata_identify(int dev, u16 *id)
 
 static void dwc_ahsata_xfer_mode(int dev, u16 *id)
 {
-	struct ahci_uc_priv *uc_priv =
-		(struct ahci_uc_priv *)sata_dev_desc[dev].priv;
+	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
 
 	uc_priv->pio_mask = id[ATA_ID_PIO_MODES];
 	uc_priv->udma_mask = id[ATA_ID_UDMA_MODES];
@@ -600,8 +591,7 @@ static void dwc_ahsata_xfer_mode(int dev, u16 *id)
 static u32 dwc_ahsata_rw_cmd(int dev, u32 start, u32 blkcnt,
 				u8 *buffer, int is_write)
 {
-	struct ahci_uc_priv *uc_priv =
-		(struct ahci_uc_priv *)sata_dev_desc[dev].priv;
+	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
 	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
 	struct sata_fis_h2d *cfis = &h2d;
 	u8 port = uc_priv->hard_port_no;
@@ -631,8 +621,7 @@ static u32 dwc_ahsata_rw_cmd(int dev, u32 start, u32 blkcnt,
 
 static void dwc_ahsata_flush_cache(int dev)
 {
-	struct ahci_uc_priv *uc_priv =
-		(struct ahci_uc_priv *)sata_dev_desc[dev].priv;
+	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
 	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
 	struct sata_fis_h2d *cfis = &h2d;
 	u8 port = uc_priv->hard_port_no;
@@ -649,8 +638,7 @@ static void dwc_ahsata_flush_cache(int dev)
 static u32 dwc_ahsata_rw_cmd_ext(int dev, u32 start, lbaint_t blkcnt,
 				u8 *buffer, int is_write)
 {
-	struct ahci_uc_priv *uc_priv =
-		(struct ahci_uc_priv *)sata_dev_desc[dev].priv;
+	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
 	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
 	struct sata_fis_h2d *cfis = &h2d;
 	u8 port = uc_priv->hard_port_no;
@@ -685,8 +673,7 @@ static u32 dwc_ahsata_rw_cmd_ext(int dev, u32 start, lbaint_t blkcnt,
 
 static void dwc_ahsata_flush_cache_ext(int dev)
 {
-	struct ahci_uc_priv *uc_priv =
-		(struct ahci_uc_priv *)sata_dev_desc[dev].priv;
+	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
 	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
 	struct sata_fis_h2d *cfis = &h2d;
 	u8 port = uc_priv->hard_port_no;
@@ -702,8 +689,7 @@ static void dwc_ahsata_flush_cache_ext(int dev)
 
 static void dwc_ahsata_init_wcache(int dev, u16 *id)
 {
-	struct ahci_uc_priv *uc_priv =
-		(struct ahci_uc_priv *)sata_dev_desc[dev].priv;
+	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
 
 	if (ata_id_has_wcache(id) && ata_id_wcache_enabled(id))
 		uc_priv->flags |= SATA_FLAG_WCACHE;
@@ -797,7 +783,7 @@ int init_sata(int dev)
 
 	ahci_init_one(dev);
 
-	uc_priv = (struct ahci_uc_priv *)sata_dev_desc[dev].priv;
+	uc_priv = sata_dev_desc[dev].priv;
 	linkmap = uc_priv->link_port_map;
 
 	if (0 == linkmap) {
@@ -829,12 +815,12 @@ int reset_sata(int dev)
 		return -1;
 	}
 
-	uc_priv = (struct ahci_uc_priv *)sata_dev_desc[dev].priv;
+	uc_priv = sata_dev_desc[dev].priv;
 	if (NULL == uc_priv)
 		/* not initialized, so nothing to reset */
 		return 0;
 
-	host_mmio = (struct sata_host_regs *)uc_priv->mmio_base;
+	host_mmio = uc_priv->mmio_base;
 	setbits_le32(&host_mmio->ghc, SATA_HOST_GHC_HR);
 	while (readl(&host_mmio->ghc) & SATA_HOST_GHC_HR)
 		udelay(100);
@@ -853,8 +839,8 @@ int sata_port_status(int dev, int port)
 	if (sata_dev_desc[dev].priv == NULL)
 		return -ENODEV;
 
-	uc_priv = (struct ahci_uc_priv *)sata_dev_desc[dev].priv;
-	port_mmio = (struct sata_port_regs *)uc_priv->port[port].port_mmio;
+	uc_priv = sata_dev_desc[dev].priv;
+	port_mmio = uc_priv->port[port].port_mmio;
 
 	return readl(&(port_mmio->ssts)) & SATA_PORT_SSTS_DET_MASK;
 }
@@ -878,8 +864,7 @@ ulong sata_read(int dev, ulong blknr, lbaint_t blkcnt, void *buffer)
 ulong sata_write(int dev, ulong blknr, lbaint_t blkcnt, const void *buffer)
 {
 	u32 rc;
-	struct ahci_uc_priv *uc_priv =
-		(struct ahci_uc_priv *)sata_dev_desc[dev].priv;
+	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
 	u32 flags = uc_priv->flags;
 
 	if (sata_dev_desc[dev].lba48) {
@@ -905,8 +890,7 @@ int scan_sata(int dev)
 	u8 product[ATA_ID_PROD_LEN + 1] = { 0 };
 	u16 *id;
 	u64 n_sectors;
-	struct ahci_uc_priv *uc_priv =
-		(struct ahci_uc_priv *)sata_dev_desc[dev].priv;
+	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
 	u8 port = uc_priv->hard_port_no;
 	struct blk_desc *pdev = &(sata_dev_desc[dev]);
 
