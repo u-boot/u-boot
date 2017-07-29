@@ -106,7 +106,9 @@ struct fsl_esdhc_priv {
 	struct fsl_esdhc *esdhc_regs;
 	unsigned int sdhc_clk;
 	unsigned int bus_width;
+#if !CONFIG_IS_ENABLED(BLK)
 	struct mmc *mmc;
+#endif
 	struct udevice *dev;
 	int non_removable;
 	int wp_enable;
@@ -690,7 +692,7 @@ static int esdhc_getcd_common(struct fsl_esdhc_priv *priv)
 		return 1;
 #endif
 
-#ifdef CONFIG_DM_MMC
+#if CONFIG_IS_ENABLED(DM_MMC)
 	if (priv->non_removable)
 		return 1;
 #ifdef CONFIG_DM_GPIO
@@ -724,6 +726,7 @@ static int esdhc_reset(struct fsl_esdhc *regs)
 	return 0;
 }
 
+#if !CONFIG_IS_ENABLED(DM_MMC_OPS)
 static int esdhc_getcd(struct mmc *mmc)
 {
 	struct fsl_esdhc_priv *priv = mmc->priv;
@@ -759,6 +762,7 @@ static const struct mmc_ops esdhc_ops = {
 	.send_cmd	= esdhc_send_cmd,
 	.set_ios	= esdhc_set_ios,
 };
+#endif
 
 static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 			  struct fsl_esdhc_plat *plat)
@@ -791,7 +795,9 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 
 	writel(SDHCI_IRQ_EN_BITS, &regs->irqstaten);
 	cfg = &plat->cfg;
+#ifndef CONFIG_DM_MMC
 	memset(cfg, '\0', sizeof(*cfg));
+#endif
 
 	voltage_caps = 0;
 	caps = esdhc_read32(&regs->hostcapblt);
@@ -814,7 +820,9 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 		voltage_caps |= MMC_VDD_32_33 | MMC_VDD_33_34;
 
 	cfg->name = "FSL_SDHC";
+#if !CONFIG_IS_ENABLED(DM_MMC_OPS)
 	cfg->ops = &esdhc_ops;
+#endif
 #ifdef CONFIG_SYS_SD_VOLTAGE
 	cfg->voltages = CONFIG_SYS_SD_VOLTAGE;
 #else
@@ -1002,7 +1010,7 @@ void fdt_fixup_esdhc(void *blob, bd_t *bd)
 }
 #endif
 
-#ifdef CONFIG_DM_MMC
+#if CONFIG_IS_ENABLED(DM_MMC)
 #include <asm/arch/clock.h>
 __weak void init_clk_usdhc(u32 index)
 {
@@ -1018,6 +1026,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 #endif
 	fdt_addr_t addr;
 	unsigned int val;
+	struct mmc *mmc;
 	int ret;
 
 	addr = dev_read_addr(dev);
@@ -1110,11 +1119,46 @@ static int fsl_esdhc_probe(struct udevice *dev)
 		return ret;
 	}
 
-	upriv->mmc = priv->mmc;
-	priv->mmc->dev = dev;
+	mmc = &plat->mmc;
+	mmc->cfg = &plat->cfg;
+	mmc->dev = dev;
+	upriv->mmc = mmc;
 
-	return 0;
+	return esdhc_init_common(priv, mmc);
 }
+
+#if CONFIG_IS_ENABLED(DM_MMC_OPS)
+static int fsl_esdhc_get_cd(struct udevice *dev)
+{
+	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
+
+	return true;
+	return esdhc_getcd_common(priv);
+}
+
+static int fsl_esdhc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
+			      struct mmc_data *data)
+{
+	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
+	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
+
+	return esdhc_send_cmd_common(priv, &plat->mmc, cmd, data);
+}
+
+static int fsl_esdhc_set_ios(struct udevice *dev)
+{
+	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
+	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
+
+	return esdhc_set_ios_common(priv, &plat->mmc);
+}
+
+static const struct dm_mmc_ops fsl_esdhc_ops = {
+	.get_cd		= fsl_esdhc_get_cd,
+	.send_cmd	= fsl_esdhc_send_cmd,
+	.set_ios	= fsl_esdhc_set_ios,
+};
+#endif
 
 static const struct udevice_id fsl_esdhc_ids[] = {
 	{ .compatible = "fsl,imx6ul-usdhc", },
@@ -1127,10 +1171,25 @@ static const struct udevice_id fsl_esdhc_ids[] = {
 	{ /* sentinel */ }
 };
 
+#if CONFIG_IS_ENABLED(BLK)
+static int fsl_esdhc_bind(struct udevice *dev)
+{
+	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
+
+	return mmc_bind(dev, &plat->mmc, &plat->cfg);
+}
+#endif
+
 U_BOOT_DRIVER(fsl_esdhc) = {
 	.name	= "fsl-esdhc-mmc",
 	.id	= UCLASS_MMC,
 	.of_match = fsl_esdhc_ids,
+#if CONFIG_IS_ENABLED(DM_MMC_OPS)
+	.ops	= &fsl_esdhc_ops,
+#endif
+#if CONFIG_IS_ENABLED(BLK)
+	.bind	= fsl_esdhc_bind,
+#endif
 	.probe	= fsl_esdhc_probe,
 	.platdata_auto_alloc_size = sizeof(struct fsl_esdhc_plat),
 	.priv_auto_alloc_size = sizeof(struct fsl_esdhc_priv),
