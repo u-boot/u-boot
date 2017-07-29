@@ -451,9 +451,8 @@ static int ahci_exec_ata_cmd(struct ahci_uc_priv *uc_priv, u8 port,
 	return buf_len;
 }
 
-static void ahci_set_feature(u8 dev, u8 port)
+static void ahci_set_feature(struct ahci_uc_priv *uc_priv, u8 port)
 {
-	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
 	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
 	struct sata_fis_h2d *cfis = &h2d;
 
@@ -545,10 +544,8 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 	return 0;
 }
 
-static void dwc_ahsata_print_info(int dev)
+static void dwc_ahsata_print_info(struct blk_desc *pdev)
 {
-	struct blk_desc *pdev = &(sata_dev_desc[dev]);
-
 	printf("SATA Device Info:\n\r");
 #ifdef CONFIG_SYS_64BIT_LBA
 	printf("S/N: %s\n\rProduct model number: %s\n\r"
@@ -561,9 +558,8 @@ static void dwc_ahsata_print_info(int dev)
 #endif
 }
 
-static void dwc_ahsata_identify(int dev, u16 *id)
+static void dwc_ahsata_identify(struct ahci_uc_priv *uc_priv, u16 *id)
 {
-	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
 	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
 	struct sata_fis_h2d *cfis = &h2d;
 	u8 port = uc_priv->hard_port_no;
@@ -579,19 +575,16 @@ static void dwc_ahsata_identify(int dev, u16 *id)
 	ata_swap_buf_le16(id, ATA_ID_WORDS);
 }
 
-static void dwc_ahsata_xfer_mode(int dev, u16 *id)
+static void dwc_ahsata_xfer_mode(struct ahci_uc_priv *uc_priv, u16 *id)
 {
-	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
-
 	uc_priv->pio_mask = id[ATA_ID_PIO_MODES];
 	uc_priv->udma_mask = id[ATA_ID_UDMA_MODES];
 	debug("pio %04x, udma %04x\n\r", uc_priv->pio_mask, uc_priv->udma_mask);
 }
 
-static u32 dwc_ahsata_rw_cmd(int dev, u32 start, u32 blkcnt,
-				u8 *buffer, int is_write)
+static u32 dwc_ahsata_rw_cmd(struct ahci_uc_priv *uc_priv, u32 start,
+			     u32 blkcnt, u8 *buffer, int is_write)
 {
-	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
 	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
 	struct sata_fis_h2d *cfis = &h2d;
 	u8 port = uc_priv->hard_port_no;
@@ -619,9 +612,8 @@ static u32 dwc_ahsata_rw_cmd(int dev, u32 start, u32 blkcnt,
 		return 0;
 }
 
-static void dwc_ahsata_flush_cache(int dev)
+static void dwc_ahsata_flush_cache(struct ahci_uc_priv *uc_priv)
 {
-	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
 	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
 	struct sata_fis_h2d *cfis = &h2d;
 	u8 port = uc_priv->hard_port_no;
@@ -635,10 +627,9 @@ static void dwc_ahsata_flush_cache(int dev)
 	ahci_exec_ata_cmd(uc_priv, port, cfis, NULL, 0, 0);
 }
 
-static u32 dwc_ahsata_rw_cmd_ext(int dev, u32 start, lbaint_t blkcnt,
-				u8 *buffer, int is_write)
+static u32 dwc_ahsata_rw_cmd_ext(struct ahci_uc_priv *uc_priv, u32 start,
+				 lbaint_t blkcnt, u8 *buffer, int is_write)
 {
-	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
 	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
 	struct sata_fis_h2d *cfis = &h2d;
 	u8 port = uc_priv->hard_port_no;
@@ -671,9 +662,8 @@ static u32 dwc_ahsata_rw_cmd_ext(int dev, u32 start, lbaint_t blkcnt,
 		return 0;
 }
 
-static void dwc_ahsata_flush_cache_ext(int dev)
+static void dwc_ahsata_flush_cache_ext(struct ahci_uc_priv *uc_priv)
 {
-	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
 	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
 	struct sata_fis_h2d *cfis = &h2d;
 	u8 port = uc_priv->hard_port_no;
@@ -687,10 +677,8 @@ static void dwc_ahsata_flush_cache_ext(int dev)
 	ahci_exec_ata_cmd(uc_priv, port, cfis, NULL, 0, 0);
 }
 
-static void dwc_ahsata_init_wcache(int dev, u16 *id)
+static void dwc_ahsata_init_wcache(struct ahci_uc_priv *uc_priv, u16 *id)
 {
-	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
-
 	if (ata_id_has_wcache(id) && ata_id_wcache_enabled(id))
 		uc_priv->flags |= SATA_FLAG_WCACHE;
 	if (ata_id_has_flush(id))
@@ -699,8 +687,9 @@ static void dwc_ahsata_init_wcache(int dev, u16 *id)
 		uc_priv->flags |= SATA_FLAG_FLUSH_EXT;
 }
 
-static u32 ata_low_level_rw_lba48(int dev, u32 blknr, lbaint_t blkcnt,
-				  const void *buffer, int is_write)
+static u32 ata_low_level_rw_lba48(struct ahci_uc_priv *uc_priv, u32 blknr,
+				  lbaint_t blkcnt, const void *buffer,
+				  int is_write)
 {
 	u32 start, blks;
 	u8 *addr;
@@ -714,15 +703,16 @@ static u32 ata_low_level_rw_lba48(int dev, u32 blknr, lbaint_t blkcnt,
 
 	do {
 		if (blks > max_blks) {
-			if (max_blks != dwc_ahsata_rw_cmd_ext(dev, start,
-						max_blks, addr, is_write))
+			if (max_blks != dwc_ahsata_rw_cmd_ext(uc_priv, start,
+							      max_blks, addr,
+							      is_write))
 				return 0;
 			start += max_blks;
 			blks -= max_blks;
 			addr += ATA_SECT_SIZE * max_blks;
 		} else {
-			if (blks != dwc_ahsata_rw_cmd_ext(dev, start,
-						blks, addr, is_write))
+			if (blks != dwc_ahsata_rw_cmd_ext(uc_priv, start, blks,
+							  addr, is_write))
 				return 0;
 			start += blks;
 			blks = 0;
@@ -733,8 +723,9 @@ static u32 ata_low_level_rw_lba48(int dev, u32 blknr, lbaint_t blkcnt,
 	return blkcnt;
 }
 
-static u32 ata_low_level_rw_lba28(int dev, u32 blknr, lbaint_t blkcnt,
-				  const void *buffer, int is_write)
+static u32 ata_low_level_rw_lba28(struct ahci_uc_priv *uc_priv, u32 blknr,
+				  lbaint_t blkcnt, const void *buffer,
+				  int is_write)
 {
 	u32 start, blks;
 	u8 *addr;
@@ -747,15 +738,16 @@ static u32 ata_low_level_rw_lba28(int dev, u32 blknr, lbaint_t blkcnt,
 	max_blks = ATA_MAX_SECTORS;
 	do {
 		if (blks > max_blks) {
-			if (max_blks != dwc_ahsata_rw_cmd(dev, start,
-						max_blks, addr, is_write))
+			if (max_blks != dwc_ahsata_rw_cmd(uc_priv, start,
+							  max_blks, addr,
+							  is_write))
 				return 0;
 			start += max_blks;
 			blks -= max_blks;
 			addr += ATA_SECT_SIZE * max_blks;
 		} else {
-			if (blks != dwc_ahsata_rw_cmd(dev, start,
-						blks, addr, is_write))
+			if (blks != dwc_ahsata_rw_cmd(uc_priv, start, blks,
+						      addr, is_write))
 				return 0;
 			start += blks;
 			blks = 0;
@@ -850,13 +842,14 @@ int sata_port_status(int dev, int port)
  */
 ulong sata_read(int dev, ulong blknr, lbaint_t blkcnt, void *buffer)
 {
+	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
 	u32 rc;
 
 	if (sata_dev_desc[dev].lba48)
-		rc = ata_low_level_rw_lba48(dev, blknr, blkcnt,
+		rc = ata_low_level_rw_lba48(uc_priv, blknr, blkcnt,
 						buffer, READ_CMD);
 	else
-		rc = ata_low_level_rw_lba28(dev, blknr, blkcnt,
+		rc = ata_low_level_rw_lba28(uc_priv, blknr, blkcnt,
 						buffer, READ_CMD);
 	return rc;
 }
@@ -868,17 +861,17 @@ ulong sata_write(int dev, ulong blknr, lbaint_t blkcnt, const void *buffer)
 	u32 flags = uc_priv->flags;
 
 	if (sata_dev_desc[dev].lba48) {
-		rc = ata_low_level_rw_lba48(dev, blknr, blkcnt,
-						buffer, WRITE_CMD);
+		rc = ata_low_level_rw_lba48(uc_priv, blknr, blkcnt, buffer,
+					    WRITE_CMD);
 		if ((flags & SATA_FLAG_WCACHE) &&
 			(flags & SATA_FLAG_FLUSH_EXT))
-			dwc_ahsata_flush_cache_ext(dev);
+			dwc_ahsata_flush_cache_ext(uc_priv);
 	} else {
-		rc = ata_low_level_rw_lba28(dev, blknr, blkcnt,
-						buffer, WRITE_CMD);
+		rc = ata_low_level_rw_lba28(uc_priv, blknr, blkcnt, buffer,
+					    WRITE_CMD);
 		if ((flags & SATA_FLAG_WCACHE) &&
 			(flags & SATA_FLAG_FLUSH))
-			dwc_ahsata_flush_cache(dev);
+			dwc_ahsata_flush_cache(uc_priv);
 	}
 	return rc;
 }
@@ -903,7 +896,7 @@ int scan_sata(int dev)
 	}
 
 	/* Identify device to get information */
-	dwc_ahsata_identify(dev, id);
+	dwc_ahsata_identify(uc_priv, id);
 
 	/* Serial number */
 	ata_id_c_string(id, serial, ATA_ID_SERNO, sizeof(serial));
@@ -936,17 +929,17 @@ int scan_sata(int dev)
 	uc_priv->flags |= ata_id_queue_depth(id);
 
 	/* Get the xfer mode from device */
-	dwc_ahsata_xfer_mode(dev, id);
+	dwc_ahsata_xfer_mode(uc_priv, id);
 
 	/* Get the write cache status from device */
-	dwc_ahsata_init_wcache(dev, id);
+	dwc_ahsata_init_wcache(uc_priv, id);
 
 	/* Set the xfer mode to highest speed */
-	ahci_set_feature(dev, port);
+	ahci_set_feature(uc_priv, port);
 
 	free((void *)id);
 
-	dwc_ahsata_print_info(dev);
+	dwc_ahsata_print_info(&sata_dev_desc[dev]);
 
 	is_ready = 1;
 
