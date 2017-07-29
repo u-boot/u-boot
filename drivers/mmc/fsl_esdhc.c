@@ -621,14 +621,17 @@ static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 static int esdhc_init_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 {
 	struct fsl_esdhc *regs = priv->esdhc_regs;
-	int timeout = 1000;
+	ulong start;
 
 	/* Reset the entire host controller */
 	esdhc_setbits32(&regs->sysctl, SYSCTL_RSTA);
 
 	/* Wait until the controller is available */
-	while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTA) && --timeout)
-		udelay(1000);
+	start = get_timer(0);
+	while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTA)) {
+		if (get_timer(start) > 1000)
+			return -ETIMEDOUT;
+	}
 
 #if defined(CONFIG_FSL_USDHC)
 	/* RSTA doesn't reset MMC_BOOT register, so manually reset it */
