@@ -156,10 +156,9 @@ static uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
 /*
  * PIO Read/Write Mode reduce the performace as DMA is not used in this mode.
  */
-static void
-esdhc_pio_read_write(struct mmc *mmc, struct mmc_data *data)
+static void esdhc_pio_read_write(struct fsl_esdhc_priv *priv,
+				 struct mmc_data *data)
 {
-	struct fsl_esdhc_priv *priv = mmc->priv;
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 	uint blocks;
 	char *buffer;
@@ -218,10 +217,10 @@ esdhc_pio_read_write(struct mmc *mmc, struct mmc_data *data)
 }
 #endif
 
-static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
+static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
+			    struct mmc_data *data)
 {
 	int timeout;
-	struct fsl_esdhc_priv *priv = mmc->priv;
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 #if defined(CONFIG_FSL_LAYERSCAPE) || defined(CONFIG_S32V234)
 	dma_addr_t addr;
@@ -384,7 +383,7 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 
 	/* Set up for a data transfer if we have one */
 	if (data) {
-		err = esdhc_setup_data(mmc, data);
+		err = esdhc_setup_data(priv, mmc, data);
 		if(err)
 			return err;
 
@@ -470,7 +469,7 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	/* Wait until all of the blocks are transferred */
 	if (data) {
 #ifdef CONFIG_SYS_FSL_ESDHC_USE_PIO
-		esdhc_pio_read_write(mmc, data);
+		esdhc_pio_read_write(priv, data);
 #else
 		do {
 			irqstat = esdhc_read32(&regs->irqstat);
@@ -522,7 +521,7 @@ out:
 	return err;
 }
 
-static void set_sysctl(struct mmc *mmc, uint clock)
+static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 {
 	int div = 1;
 #ifdef ARCH_MXC
@@ -531,7 +530,6 @@ static void set_sysctl(struct mmc *mmc, uint clock)
 	int pre_div = 2;
 #endif
 	int ddr_pre_div = mmc->ddr_mode ? 2 : 1;
-	struct fsl_esdhc_priv *priv = mmc->priv;
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 	int sdhc_clk = priv->sdhc_clk;
 	uint clk;
@@ -569,9 +567,8 @@ static void set_sysctl(struct mmc *mmc, uint clock)
 }
 
 #ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
-static void esdhc_clock_control(struct mmc *mmc, bool enable)
+static void esdhc_clock_control(struct fsl_esdhc_priv *priv, bool enable)
 {
-	struct fsl_esdhc_priv *priv = mmc->priv;
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 	u32 value;
 	u32 time_out;
@@ -605,12 +602,12 @@ static int esdhc_set_ios(struct mmc *mmc)
 
 #ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
 	/* Select to use peripheral clock */
-	esdhc_clock_control(mmc, false);
+	esdhc_clock_control(priv, false);
 	esdhc_setbits32(&regs->scr, ESDHCCTL_PCS);
-	esdhc_clock_control(mmc, true);
+	esdhc_clock_control(priv, true);
 #endif
 	/* Set the clock speed */
-	set_sysctl(mmc, mmc->clock);
+	set_sysctl(priv, mmc, mmc->clock);
 
 	/* Set the bus width */
 	esdhc_clrbits32(&regs->proctl, PROCTL_DTW_4 | PROCTL_DTW_8);
