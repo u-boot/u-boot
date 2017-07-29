@@ -5,19 +5,18 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <libata.h>
+#include <common.h>
 #include <ahci.h>
 #include <fis.h>
-#include <sata.h>
-
-#include <common.h>
+#include <libata.h>
 #include <malloc.h>
-#include <linux/ctype.h>
-#include <linux/errno.h>
+#include <sata.h>
 #include <asm/io.h>
-#include <linux/bitops.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#include <linux/bitops.h>
+#include <linux/ctype.h>
+#include <linux/errno.h>
 #include "dwc_ahsata.h"
 
 struct sata_port_regs {
