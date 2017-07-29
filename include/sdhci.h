@@ -410,7 +410,7 @@ int sdhci_bind(struct udevice *dev, struct mmc *mmc, struct mmc_config *cfg);
 int add_sdhci(struct sdhci_host *host, u32 f_max, u32 f_min);
 #endif /* !CONFIG_BLK */
 
-#ifdef CONFIG_DM_MMC_OPS
+#ifdef CONFIG_DM_MMC
 /* Export the operations to drivers */
 int sdhci_probe(struct udevice *dev);
 extern const struct dm_mmc_ops sdhci_ops;

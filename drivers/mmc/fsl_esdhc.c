@@ -726,7 +726,7 @@ static int esdhc_reset(struct fsl_esdhc *regs)
 	return 0;
 }
 
-#if !CONFIG_IS_ENABLED(DM_MMC_OPS)
+#if !CONFIG_IS_ENABLED(DM_MMC)
 static int esdhc_getcd(struct mmc *mmc)
 {
 	struct fsl_esdhc_priv *priv = mmc->priv;
@@ -820,7 +820,7 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 		voltage_caps |= MMC_VDD_32_33 | MMC_VDD_33_34;
 
 	cfg->name = "FSL_SDHC";
-#if !CONFIG_IS_ENABLED(DM_MMC_OPS)
+#if !CONFIG_IS_ENABLED(DM_MMC)
 	cfg->ops = &esdhc_ops;
 #endif
 #ifdef CONFIG_SYS_SD_VOLTAGE
@@ -1127,7 +1127,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	return esdhc_init_common(priv, mmc);
 }
 
-#if CONFIG_IS_ENABLED(DM_MMC_OPS)
+#if CONFIG_IS_ENABLED(DM_MMC)
 static int fsl_esdhc_get_cd(struct udevice *dev)
 {
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
@@ -1184,9 +1184,7 @@ U_BOOT_DRIVER(fsl_esdhc) = {
 	.name	= "fsl-esdhc-mmc",
 	.id	= UCLASS_MMC,
 	.of_match = fsl_esdhc_ids,
-#if CONFIG_IS_ENABLED(DM_MMC_OPS)
 	.ops	= &fsl_esdhc_ops,
-#endif
 #if CONFIG_IS_ENABLED(BLK)
 	.bind	= fsl_esdhc_bind,
 #endif
