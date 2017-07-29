@@ -1013,8 +1013,6 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
-	const void *fdt = gd->fdt_blob;
-	int node = dev_of_offset(dev);
 #ifdef CONFIG_DM_REGULATOR
 	struct udevice *vqmmc_dev;
 #endif
@@ -1022,14 +1020,14 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	unsigned int val;
 	int ret;
 
-	addr = devfdt_get_addr(dev);
+	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
 	priv->esdhc_regs = (struct fsl_esdhc *)addr;
 	priv->dev = dev;
 
-	val = fdtdec_get_int(fdt, node, "bus-width", -1);
+	val = dev_read_u32_default(dev, "bus-width", -1);
 	if (val == 8)
 		priv->bus_width = 8;
 	else if (val == 4)
@@ -1037,21 +1035,21 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	else
 		priv->bus_width = 1;
 
-	if (fdt_get_property(fdt, node, "non-removable", NULL)) {
+	if (dev_read_bool(dev, "non-removable")) {
 		priv->non_removable = 1;
 	 } else {
 		priv->non_removable = 0;
 #ifdef CONFIG_DM_GPIO
-		gpio_request_by_name_nodev(offset_to_ofnode(node), "cd-gpios",
-					   0, &priv->cd_gpio, GPIOD_IS_IN);
+		gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
+				     GPIOD_IS_IN);
 #endif
 	}
 
 	priv->wp_enable = 1;
 
 #ifdef CONFIG_DM_GPIO
-	ret = gpio_request_by_name_nodev(offset_to_ofnode(node), "wp-gpios", 0,
-					 &priv->wp_gpio, GPIOD_IS_IN);
+	ret = gpio_request_by_name(dev, "wp-gpios", 0, &priv->wp_gpio,
+				   GPIOD_IS_IN);
 	if (ret)
 		priv->wp_enable = 0;
 #endif
