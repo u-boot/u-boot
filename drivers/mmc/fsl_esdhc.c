@@ -866,7 +866,7 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 	return 0;
 }
 
-#ifndef CONFIG_DM_MMC
+#if !CONFIG_IS_ENABLED(DM_MMC)
 static int fsl_esdhc_cfg_to_priv(struct fsl_esdhc_cfg *cfg,
 				 struct fsl_esdhc_priv *priv)
 {
