@@ -632,4 +632,16 @@ int blk_select_hwpart_devnum(enum if_type if_type, int devnum, int hwpart);
  */
 const char *blk_get_if_type_name(enum if_type if_type);
 
+/**
+ * blk_common_cmd() - handle common commands with block devices
+ *
+ * @args: Number of arguments to the command (argv[0] is the command itself)
+ * @argv: Command arguments
+ * @if_type: Interface type
+ * @cur_devnump: Current device number for this interface type
+ * @return 0 if OK, CMD_RET_ERROR on error
+ */
+int blk_common_cmd(int argc, char * const argv[], enum if_type if_type,
+		   int *cur_devnump);
+
 #endif
