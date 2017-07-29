@@ -698,18 +698,23 @@ static int esdhc_getcd_common(struct fsl_esdhc_priv *priv)
 	return timeout > 0;
 }
 
-static void esdhc_reset(struct fsl_esdhc *regs)
+static int esdhc_reset(struct fsl_esdhc *regs)
 {
-	unsigned long timeout = 100; /* wait max 100 ms */
+	ulong start;
 
 	/* reset the controller */
 	esdhc_setbits32(&regs->sysctl, SYSCTL_RSTA);
 
 	/* hardware clears the bit when it is done */
-	while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTA) && --timeout)
-		udelay(1000);
-	if (!timeout)
-		printf("MMC/SD: Reset never completed.\n");
+	start = get_timer(0);
+	while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTA)) {
+		if (get_timer(start) > 100) {
+			printf("MMC/SD: Reset never completed.\n");
+			return -ETIMEDOUT;
+		}
+	}
+
+	return 0;
 }
 
 static int esdhc_getcd(struct mmc *mmc)
@@ -753,6 +758,7 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv)
 	struct fsl_esdhc *regs;
 	struct mmc *mmc;
 	u32 caps, voltage_caps;
+	int ret;
 
 	if (!priv)
 		return -EINVAL;
@@ -760,7 +766,9 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv)
 	regs = priv->esdhc_regs;
 
 	/* First reset the eSDHC controller */
-	esdhc_reset(regs);
+	ret = esdhc_reset(regs);
+	if (ret)
+		return ret;
 
 #ifndef CONFIG_FSL_USDHC
 	esdhc_setbits32(&regs->sysctl, SYSCTL_PEREN | SYSCTL_HCKEN
