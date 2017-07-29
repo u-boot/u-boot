@@ -42,6 +42,7 @@ int reset_get_by_index(struct udevice *dev, int index,
 
 	debug("%s(dev=%p, index=%d, reset_ctl=%p)\n", __func__, dev, index,
 	      reset_ctl);
+	reset_ctl->dev = NULL;
 
 	ret = dev_read_phandle_with_args(dev, "resets", "#reset-cells", 0,
 					  index, &args);
@@ -87,6 +88,7 @@ int reset_get_by_name(struct udevice *dev, const char *name,
 
 	debug("%s(dev=%p, name=%s, reset_ctl=%p)\n", __func__, dev, name,
 	      reset_ctl);
+	reset_ctl->dev = NULL;
 
 	index = dev_read_stringlist_search(dev, "reset-names", name);
 	if (index < 0) {
@@ -95,6 +97,15 @@ int reset_get_by_name(struct udevice *dev, const char *name,
 	}
 
 	return reset_get_by_index(dev, index, reset_ctl);
+}
+
+int reset_request(struct reset_ctl *reset_ctl)
+{
+	struct reset_ops *ops = reset_dev_ops(reset_ctl->dev);
+
+	debug("%s(reset_ctl=%p)\n", __func__, reset_ctl);
+
+	return ops->request(reset_ctl);
 }
 
 int reset_free(struct reset_ctl *reset_ctl)
@@ -122,6 +133,29 @@ int reset_deassert(struct reset_ctl *reset_ctl)
 	debug("%s(reset_ctl=%p)\n", __func__, reset_ctl);
 
 	return ops->rst_deassert(reset_ctl);
+}
+
+int reset_release_all(struct reset_ctl *reset_ctl, int count)
+{
+	int i, ret;
+
+	for (i = 0; i < count; i++) {
+		debug("%s(reset_ctl[%d]=%p)\n", __func__, i, &reset_ctl[i]);
+
+		/* check if reset has been previously requested */
+		if (!reset_ctl[i].dev)
+			continue;
+
+		ret = reset_assert(&reset_ctl[i]);
+		if (ret)
+			return ret;
+
+		ret = reset_free(&reset_ctl[i]);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
 }
 
 UCLASS_DRIVER(reset) = {

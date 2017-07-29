@@ -199,6 +199,24 @@ int dev_read_phandle_with_args(struct udevice *dev, const char *list_name,
 				struct ofnode_phandle_args *out_args);
 
 /**
+ * dev_count_phandle_with_args() - Return phandle number in a list
+ *
+ * This function is usefull to get phandle number contained in a property list.
+ * For example, this allows to allocate the right amount of memory to keep
+ * clock's reference contained into the "clocks" property.
+ *
+ *
+ * @dev:	device whose node containing a list
+ * @list_name:	property name that contains a list
+ * @cells_name:	property name that specifies phandles' arguments count
+ * @Returns number of phandle found on success, on error returns appropriate
+ * errno value.
+ */
+
+int dev_count_phandle_with_args(struct udevice *dev, const char *list_name,
+				const char *cells_name);
+
+/**
  * dev_read_addr_cells() - Get the number of address cells for a device's node
  *
  * This walks back up the tree to find the closest #address-cells property
@@ -414,6 +432,13 @@ static inline int dev_read_phandle_with_args(struct udevice *dev,
 	return ofnode_parse_phandle_with_args(dev_ofnode(dev), list_name,
 					      cells_name, cell_count, index,
 					      out_args);
+}
+
+static inline int dev_count_phandle_with_args(struct udevice *dev,
+		const char *list_name, const char *cells_name)
+{
+	return ofnode_count_phandle_with_args(dev_ofnode(dev), list_name,
+					      cells_name);
 }
 
 static inline int dev_read_addr_cells(struct udevice *dev)

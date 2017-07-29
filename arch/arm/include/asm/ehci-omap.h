@@ -19,11 +19,7 @@ enum usbhs_omap_port_mode {
 	OMAP_EHCI_PORT_MODE_HSIC,
 };
 
-#ifdef CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS
-#define OMAP_HS_USB_PORTS	CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS
-#else
 #define OMAP_HS_USB_PORTS	3
-#endif
 
 #define is_ehci_phy_mode(x)	((x) == OMAP_EHCI_PORT_MODE_PHY)
 #define is_ehci_tll_mode(x)	((x) == OMAP_EHCI_PORT_MODE_TLL)

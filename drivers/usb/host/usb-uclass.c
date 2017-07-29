@@ -139,6 +139,17 @@ int usb_reset_root_port(struct usb_device *udev)
 	return ops->reset_root_port(bus, udev);
 }
 
+int usb_update_hub_device(struct usb_device *udev)
+{
+	struct udevice *bus = udev->controller_dev;
+	struct dm_usb_ops *ops = usb_get_ops(bus);
+
+	if (!ops->update_hub_device)
+		return -ENOSYS;
+
+	return ops->update_hub_device(bus, udev);
+}
+
 int usb_stop(void)
 {
 	struct udevice *bus;
@@ -177,7 +188,6 @@ int usb_stop(void)
 #ifdef CONFIG_USB_STORAGE
 	usb_stor_reset();
 #endif
-	usb_hub_reset();
 	uc_priv->companion_device_count = 0;
 	usb_started = 0;
 
@@ -230,7 +240,6 @@ int usb_init(void)
 	int ret;
 
 	asynch_allowed = 1;
-	usb_hub_reset();
 
 	ret = uclass_get(UCLASS_USB, &uc);
 	if (ret)
@@ -373,8 +382,8 @@ int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp)
 }
 
 /* returns 0 if no match, 1 if match */
-int usb_match_device(const struct usb_device_descriptor *desc,
-		     const struct usb_device_id *id)
+static int usb_match_device(const struct usb_device_descriptor *desc,
+			    const struct usb_device_id *id)
 {
 	if ((id->match_flags & USB_DEVICE_ID_MATCH_VENDOR) &&
 	    id->idVendor != le16_to_cpu(desc->idVendor))
@@ -410,9 +419,9 @@ int usb_match_device(const struct usb_device_descriptor *desc,
 }
 
 /* returns 0 if no match, 1 if match */
-int usb_match_one_id_intf(const struct usb_device_descriptor *desc,
-			  const struct usb_interface_descriptor *int_desc,
-			  const struct usb_device_id *id)
+static int usb_match_one_id_intf(const struct usb_device_descriptor *desc,
+			const struct usb_interface_descriptor *int_desc,
+			const struct usb_device_id *id)
 {
 	/* The interface class, subclass, protocol and number should never be
 	 * checked for a match if the device class is Vendor Specific,
@@ -445,9 +454,9 @@ int usb_match_one_id_intf(const struct usb_device_descriptor *desc,
 }
 
 /* returns 0 if no match, 1 if match */
-int usb_match_one_id(struct usb_device_descriptor *desc,
-		     struct usb_interface_descriptor *int_desc,
-		     const struct usb_device_id *id)
+static int usb_match_one_id(struct usb_device_descriptor *desc,
+			    struct usb_interface_descriptor *int_desc,
+			    const struct usb_device_id *id)
 {
 	if (!usb_match_device(desc, id))
 		return 0;
@@ -680,7 +689,7 @@ int usb_detect_change(void)
 	return change;
 }
 
-int usb_child_post_bind(struct udevice *dev)
+static int usb_child_post_bind(struct udevice *dev)
 {
 	struct usb_dev_platdata *plat = dev_get_parent_platdata(dev);
 	int val;

@@ -315,6 +315,18 @@ int ofnode_parse_phandle_with_args(ofnode node, const char *list_name,
 	return 0;
 }
 
+int ofnode_count_phandle_with_args(ofnode node, const char *list_name,
+				   const char *cells_name)
+{
+	if (ofnode_is_np(node))
+		return of_count_phandle_with_args(ofnode_to_np(node),
+				list_name, cells_name);
+	else
+		return fdtdec_parse_phandle_with_args(gd->fdt_blob,
+				ofnode_to_offset(node), list_name, cells_name,
+				0, -1, NULL);
+}
+
 ofnode ofnode_path(const char *path)
 {
 	if (of_live_active())

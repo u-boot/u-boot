@@ -280,8 +280,15 @@ void xhci_queue_command(struct xhci_ctrl *ctrl, u8 *ptr, u32 slot_id,
 	fields[0] = lower_32_bits(val_64);
 	fields[1] = upper_32_bits(val_64);
 	fields[2] = 0;
-	fields[3] = TRB_TYPE(cmd) | EP_ID_FOR_TRB(ep_index) |
-		    SLOT_ID_FOR_TRB(slot_id) | ctrl->cmd_ring->cycle_state;
+	fields[3] = TRB_TYPE(cmd) | SLOT_ID_FOR_TRB(slot_id) |
+		    ctrl->cmd_ring->cycle_state;
+
+	/*
+	 * Only 'reset endpoint', 'stop endpoint' and 'set TR dequeue pointer'
+	 * commands need endpoint id encoded.
+	 */
+	if (cmd >= TRB_RESET_EP && cmd <= TRB_SET_DEQ)
+		fields[3] |= EP_ID_FOR_TRB(ep_index);
 
 	queue_trb(ctrl, ctrl->cmd_ring, false, fields);
 

@@ -63,12 +63,6 @@
 
 #endif
 
-/* USB */
-
-#ifdef CONFIG_CMD_USB
-#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
-#endif
-
 /* USB device */
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_RNDIS

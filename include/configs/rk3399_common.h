@@ -80,7 +80,4 @@
 #define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_USB_ETHER_RTL8152
 
-/* rockchip xhci host driver */
-#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
-
 #endif

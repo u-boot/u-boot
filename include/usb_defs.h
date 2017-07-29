@@ -93,6 +93,7 @@
 #define USB_DT_REPORT       (USB_TYPE_CLASS | 0x02)
 #define USB_DT_PHYSICAL     (USB_TYPE_CLASS | 0x03)
 #define USB_DT_HUB          (USB_TYPE_CLASS | 0x09)
+#define USB_DT_SS_HUB       (USB_TYPE_CLASS | 0x0a)
 
 /* Descriptor sizes per descriptor type */
 #define USB_DT_DEVICE_SIZE      18
@@ -261,12 +262,17 @@
 
 /*
  * Changes to wPortStatus bit field in USB 3.0
- * See USB 3.0 spec Table 10-11
+ * See USB 3.0 spec Table 10-10
  */
 #define USB_SS_PORT_STAT_LINK_STATE	0x01e0
 #define USB_SS_PORT_STAT_POWER		0x0200
 #define USB_SS_PORT_STAT_SPEED		0x1c00
 #define USB_SS_PORT_STAT_SPEED_5GBPS	0x0000
+/* Bits that are the same from USB 2.0 */
+#define USB_SS_PORT_STAT_MASK		(USB_PORT_STAT_CONNECTION | \
+					 USB_PORT_STAT_ENABLE | \
+					 USB_PORT_STAT_OVERCURRENT | \
+					 USB_PORT_STAT_RESET)
 
 /* wPortChange bits */
 #define USB_PORT_STAT_C_CONNECTION  0x0001
@@ -287,6 +293,7 @@
 #define HUB_CHAR_LPSM               0x0003
 #define HUB_CHAR_COMPOUND           0x0004
 #define HUB_CHAR_OCPM               0x0018
+#define HUB_CHAR_TTTT               0x0060 /* TT Think Time mask */
 
 /*
  * Hub Status & Hub Change bit masks
@@ -299,6 +306,20 @@
 
 /* Mask for wIndex in get/set port feature */
 #define USB_HUB_PORT_MASK	0xf
+
+/* Hub class request codes */
+#define USB_REQ_SET_HUB_DEPTH	0x0c
+
+/*
+ * As of USB 2.0, full/low speed devices are segregated into trees.
+ * One type grows from USB 1.1 host controllers (OHCI, UHCI etc).
+ * The other type grows from high speed hubs when they connect to
+ * full/low speed devices using "Transaction Translators" (TTs).
+ */
+struct usb_tt {
+	bool		multi;		/* true means one TT per port */
+	unsigned	think_time;	/* think time in ns */
+};
 
 /*
  * CBI style

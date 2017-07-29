@@ -537,6 +537,21 @@ struct usb_hub_status {
 	unsigned short wHubChange;
 } __attribute__ ((packed));
 
+/*
+ * Hub Device descriptor
+ * USB Hub class device protocols
+ */
+#define USB_HUB_PR_FS		0 /* Full speed hub */
+#define USB_HUB_PR_HS_NO_TT	0 /* Hi-speed hub without TT */
+#define USB_HUB_PR_HS_SINGLE_TT	1 /* Hi-speed hub with single TT */
+#define USB_HUB_PR_HS_MULTI_TT	2 /* Hi-speed hub with multiple TT */
+#define USB_HUB_PR_SS		3 /* Super speed hub */
+
+/* Transaction Translator Think Times, in bits */
+#define HUB_TTTT_8_BITS		0x00
+#define HUB_TTTT_16_BITS	0x20
+#define HUB_TTTT_24_BITS	0x40
+#define HUB_TTTT_32_BITS	0x60
 
 /* Hub descriptor */
 struct usb_hub_descriptor {
@@ -546,10 +561,20 @@ struct usb_hub_descriptor {
 	unsigned short wHubCharacteristics;
 	unsigned char  bPwrOn2PwrGood;
 	unsigned char  bHubContrCurrent;
-	unsigned char  DeviceRemovable[(USB_MAXCHILDREN+1+7)/8];
-	unsigned char  PortPowerCtrlMask[(USB_MAXCHILDREN+1+7)/8];
-	/* DeviceRemovable and PortPwrCtrlMask want to be variable-length
-	   bitmaps that hold max 255 entries. (bit0 is ignored) */
+	/* 2.0 and 3.0 hubs differ here */
+	union {
+		struct {
+			/* add 1 bit for hub status change; round to bytes */
+			__u8 DeviceRemovable[(USB_MAXCHILDREN + 1 + 7) / 8];
+			__u8 PortPowerCtrlMask[(USB_MAXCHILDREN + 1 + 7) / 8];
+		} __attribute__ ((packed)) hs;
+
+		struct {
+			__u8 bHubHdrDecLat;
+			__le16 wHubDelay;
+			__le16 DeviceRemovable;
+		} __attribute__ ((packed)) ss;
+	} u;
 } __attribute__ ((packed));
 
 
@@ -560,6 +585,8 @@ struct usb_hub_device {
 	ulong connect_timeout;		/* Device connection timeout in ms */
 	ulong query_delay;		/* Device query delay in ms */
 	int overcurrent_count[USB_MAXCHILDREN];	/* Over-current counter */
+	int hub_depth;			/* USB 3.0 hub depth */
+	struct usb_tt tt;		/* Transaction Translator */
 };
 
 #ifdef CONFIG_DM_USB
@@ -731,6 +758,14 @@ struct dm_usb_ops {
 	 * reset_root_port() - Reset usb root port
 	 */
 	int (*reset_root_port)(struct udevice *bus, struct usb_device *udev);
+
+	/**
+	 * update_hub_device() - Update HCD's internal representation of hub
+	 *
+	 * After a hub descriptor is fetched, notify HCD so that its internal
+	 * representation of this hub can be updated (xHCI)
+	 */
+	int (*update_hub_device)(struct udevice *bus, struct usb_device *udev);
 };
 
 #define usb_get_ops(dev)	((struct dm_usb_ops *)(dev)->driver->ops)
@@ -764,6 +799,14 @@ struct usb_device *usb_get_dev_index(struct udevice *bus, int index);
  * @return 0 if OK, -ve on error */
 int usb_setup_device(struct usb_device *dev, bool do_read,
 		     struct usb_device *parent);
+
+/**
+ * usb_hub_is_root_hub() - Test whether a hub device is root hub or not
+ *
+ * @hub:	USB hub device to test
+ * @return:	true if the hub device is root hub, false otherwise.
+ */
+bool usb_hub_is_root_hub(struct udevice *hub);
 
 /**
  * usb_hub_scan() - Scan a hub and find its devices
@@ -861,24 +904,6 @@ bool usb_device_has_child_on_port(struct usb_device *parent, int port);
 int usb_hub_probe(struct usb_device *dev, int ifnum);
 void usb_hub_reset(void);
 
-/**
- * legacy_hub_port_reset() - reset a port given its usb_device pointer
- *
- * Reset a hub port and see if a device is present on that port, providing
- * sufficient time for it to show itself. The port status is returned.
- *
- * With driver model this moves to hub_port_reset() and is passed a struct
- * udevice.
- *
- * @dev:	USB device to reset
- * @port:	Port number to reset (note ports are numbered from 0 here)
- * @portstat:	Returns port status
- */
-int legacy_hub_port_reset(struct usb_device *dev, int port,
-			  unsigned short *portstat);
-
-int hub_port_reset(struct udevice *dev, int port, unsigned short *portstat);
-
 /*
  * usb_find_usb2_hub_address_port() - Get hub address and port for TT setting
  *
@@ -914,6 +939,17 @@ int usb_new_device(struct usb_device *dev);
 int usb_alloc_device(struct usb_device *dev);
 
 /**
+ * update_hub_device() - Update HCD's internal representation of hub
+ *
+ * After a hub descriptor is fetched, notify HCD so that its internal
+ * representation of this hub can be updated.
+ *
+ * @dev:		Hub device
+ * @return 0 if OK, -ve on error
+ */
+int usb_update_hub_device(struct usb_device *dev);
+
+/**
  * usb_emul_setup_device() - Set up a new USB device emulation
  *
  * This is normally called when a new emulation device is bound. It tells
@@ -926,7 +962,7 @@ int usb_alloc_device(struct usb_device *dev);
  * @desc_list:		List of points or USB descriptors, terminated by NULL.
  *			The first entry must be struct usb_device_descriptor,
  *			and others follow on after that.
- * @return 0 if OK, -ve on error
+ * @return 0 if OK, -ENOSYS if not implemented, other -ve on error
  */
 int usb_emul_setup_device(struct udevice *dev, int maxpacketsize,
 			  struct usb_string *strings, void **desc_list);

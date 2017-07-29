@@ -20,7 +20,8 @@
 
 #define CONFIG_STD_DEVICES_SETTINGS	"stdin=usbkbd,serial\0" \
 					"stdout=vidconsole,serial\0" \
-					"stderr=vidconsole,serial\0"
+					"stderr=vidconsole,serial\0" \
+					"usb_pgood_delay=40\0"
 
 #define CONFIG_SCSI_DEV_LIST		\
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_VALLEYVIEW_SATA}, \

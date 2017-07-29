@@ -435,6 +435,23 @@ int ofnode_parse_phandle_with_args(ofnode node, const char *list_name,
 				   struct ofnode_phandle_args *out_args);
 
 /**
+ * ofnode_count_phandle_with_args() - Count number of phandle in a list
+ *
+ * This function is useful to count phandles into a list.
+ * Returns number of phandle on success, on error returns appropriate
+ * errno value.
+ *
+ * @node:	device tree node containing a list
+ * @list_name:	property name that contains a list
+ * @cells_name:	property name that specifies phandles' arguments count
+ * @return number of phandle on success, -ENOENT if @list_name does not
+ *      exist, -EINVAL if a phandle was not found, @cells_name could not
+ *      be found.
+ */
+int ofnode_count_phandle_with_args(ofnode node, const char *list_name,
+				   const char *cells_name);
+
+/**
  * ofnode_path() - find a node by full path
  *
  * @path: Full path to node, e.g. "/bus/spi@1"

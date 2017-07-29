@@ -68,7 +68,6 @@
 #if 0
 #undef CONFIG_DM_USB
 #define CONFIG_USB_XHCI_PCI
-#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
 #endif
 
 #if !defined(CONFIG_USB_XHCI_HCD)

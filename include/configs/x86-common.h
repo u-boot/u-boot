@@ -128,7 +128,6 @@
  * USB configuration
  */
 #define CONFIG_USB_EHCI_PCI
-#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS     12
 #define CONFIG_SYS_USB_EVENT_POLL
 
 #define CONFIG_USB_HOST_ETHER
