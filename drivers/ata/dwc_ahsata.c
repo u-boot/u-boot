@@ -10,6 +10,7 @@
 #include <fis.h>
 #include <libata.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <sata.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
@@ -720,6 +721,130 @@ static u32 ata_low_level_rw_lba28(struct ahci_uc_priv *uc_priv, u32 blknr,
 	return blkcnt;
 }
 
+static int dwc_ahci_start_ports(struct ahci_uc_priv *uc_priv)
+{
+	u32 linkmap;
+	int i;
+
+	linkmap = uc_priv->link_port_map;
+
+	if (0 == linkmap) {
+		printf("No port device detected!\n");
+		return -ENXIO;
+	}
+
+	for (i = 0; i < uc_priv->n_ports; i++) {
+		if ((linkmap >> i) && ((linkmap >> i) & 0x01)) {
+			if (ahci_port_start(uc_priv, (u8)i)) {
+				printf("Can not start port %d\n", i);
+				return 1;
+			}
+			uc_priv->hard_port_no = i;
+			break;
+		}
+	}
+
+	return 0;
+}
+
+static int dwc_ahsata_scan_common(struct ahci_uc_priv *uc_priv,
+				  struct blk_desc *pdev)
+{
+	u8 serial[ATA_ID_SERNO_LEN + 1] = { 0 };
+	u8 firmware[ATA_ID_FW_REV_LEN + 1] = { 0 };
+	u8 product[ATA_ID_PROD_LEN + 1] = { 0 };
+	u64 n_sectors;
+	u8 port = uc_priv->hard_port_no;
+	ALLOC_CACHE_ALIGN_BUFFER(u16, id, ATA_ID_WORDS);
+
+	/* Identify device to get information */
+	dwc_ahsata_identify(uc_priv, id);
+
+	/* Serial number */
+	ata_id_c_string(id, serial, ATA_ID_SERNO, sizeof(serial));
+	memcpy(pdev->product, serial, sizeof(serial));
+
+	/* Firmware version */
+	ata_id_c_string(id, firmware, ATA_ID_FW_REV, sizeof(firmware));
+	memcpy(pdev->revision, firmware, sizeof(firmware));
+
+	/* Product model */
+	ata_id_c_string(id, product, ATA_ID_PROD, sizeof(product));
+	memcpy(pdev->vendor, product, sizeof(product));
+
+	/* Totoal sectors */
+	n_sectors = ata_id_n_sectors(id);
+	pdev->lba = (u32)n_sectors;
+
+	pdev->type = DEV_TYPE_HARDDISK;
+	pdev->blksz = ATA_SECT_SIZE;
+	pdev->lun = 0;
+
+	/* Check if support LBA48 */
+	if (ata_id_has_lba48(id)) {
+		pdev->lba48 = 1;
+		debug("Device support LBA48\n\r");
+	}
+
+	/* Get the NCQ queue depth from device */
+	uc_priv->flags &= (~SATA_FLAG_Q_DEP_MASK);
+	uc_priv->flags |= ata_id_queue_depth(id);
+
+	/* Get the xfer mode from device */
+	dwc_ahsata_xfer_mode(uc_priv, id);
+
+	/* Get the write cache status from device */
+	dwc_ahsata_init_wcache(uc_priv, id);
+
+	/* Set the xfer mode to highest speed */
+	ahci_set_feature(uc_priv, port);
+
+	dwc_ahsata_print_info(pdev);
+
+	return 0;
+}
+
+/*
+ * SATA interface between low level driver and command layer
+ */
+static ulong sata_read_common(struct ahci_uc_priv *uc_priv,
+			      struct blk_desc *desc, ulong blknr,
+			      lbaint_t blkcnt, void *buffer)
+{
+	u32 rc;
+
+	if (desc->lba48)
+		rc = ata_low_level_rw_lba48(uc_priv, blknr, blkcnt, buffer,
+					    READ_CMD);
+	else
+		rc = ata_low_level_rw_lba28(uc_priv, blknr, blkcnt, buffer,
+					    READ_CMD);
+
+	return rc;
+}
+
+static ulong sata_write_common(struct ahci_uc_priv *uc_priv,
+			       struct blk_desc *desc, ulong blknr,
+			       lbaint_t blkcnt, const void *buffer)
+{
+	u32 rc;
+	u32 flags = uc_priv->flags;
+
+	if (desc->lba48) {
+		rc = ata_low_level_rw_lba48(uc_priv, blknr, blkcnt, buffer,
+					    WRITE_CMD);
+		if ((flags & SATA_FLAG_WCACHE) && (flags & SATA_FLAG_FLUSH_EXT))
+			dwc_ahsata_flush_cache_ext(uc_priv);
+	} else {
+		rc = ata_low_level_rw_lba28(uc_priv, blknr, blkcnt, buffer,
+					    WRITE_CMD);
+		if ((flags & SATA_FLAG_WCACHE) && (flags & SATA_FLAG_FLUSH))
+			dwc_ahsata_flush_cache(uc_priv);
+	}
+
+	return rc;
+}
+
 static int ahci_init_one(int pdev)
 {
 	int rc;
@@ -755,8 +880,6 @@ err_out:
 
 int init_sata(int dev)
 {
-	int i;
-	u32 linkmap;
 	struct ahci_uc_priv *uc_priv = NULL;
 
 #if defined(CONFIG_MX6)
@@ -771,25 +894,8 @@ int init_sata(int dev)
 	ahci_init_one(dev);
 
 	uc_priv = sata_dev_desc[dev].priv;
-	linkmap = uc_priv->link_port_map;
 
-	if (0 == linkmap) {
-		printf("No port device detected!\n");
-		return 1;
-	}
-
-	for (i = 0; i < uc_priv->n_ports; i++) {
-		if ((linkmap >> i) && ((linkmap >> i) & 0x01)) {
-			if (ahci_port_start(uc_priv, (u8)i)) {
-				printf("Can not start port %d\n", i);
-				return 1;
-			}
-			uc_priv->hard_port_no = i;
-			break;
-		}
-	}
-
-	return 0;
+	return dwc_ahci_start_ports(uc_priv) ? 1 : 0;
 }
 
 int reset_sata(int dev)
@@ -838,103 +944,23 @@ int sata_port_status(int dev, int port)
 ulong sata_read(int dev, ulong blknr, lbaint_t blkcnt, void *buffer)
 {
 	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
-	u32 rc;
 
-	if (sata_dev_desc[dev].lba48)
-		rc = ata_low_level_rw_lba48(uc_priv, blknr, blkcnt,
-						buffer, READ_CMD);
-	else
-		rc = ata_low_level_rw_lba28(uc_priv, blknr, blkcnt,
-						buffer, READ_CMD);
-	return rc;
+	return sata_read_common(uc_priv, &sata_dev_desc[dev], blknr, blkcnt,
+				buffer);
 }
 
 ulong sata_write(int dev, ulong blknr, lbaint_t blkcnt, const void *buffer)
 {
-	u32 rc;
 	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
-	u32 flags = uc_priv->flags;
 
-	if (sata_dev_desc[dev].lba48) {
-		rc = ata_low_level_rw_lba48(uc_priv, blknr, blkcnt, buffer,
-					    WRITE_CMD);
-		if ((flags & SATA_FLAG_WCACHE) &&
-			(flags & SATA_FLAG_FLUSH_EXT))
-			dwc_ahsata_flush_cache_ext(uc_priv);
-	} else {
-		rc = ata_low_level_rw_lba28(uc_priv, blknr, blkcnt, buffer,
-					    WRITE_CMD);
-		if ((flags & SATA_FLAG_WCACHE) &&
-			(flags & SATA_FLAG_FLUSH))
-			dwc_ahsata_flush_cache(uc_priv);
-	}
-	return rc;
+	return sata_write_common(uc_priv, &sata_dev_desc[dev], blknr, blkcnt,
+				 buffer);
 }
 
 int scan_sata(int dev)
 {
-	u8 serial[ATA_ID_SERNO_LEN + 1] = { 0 };
-	u8 firmware[ATA_ID_FW_REV_LEN + 1] = { 0 };
-	u8 product[ATA_ID_PROD_LEN + 1] = { 0 };
-	u16 *id;
-	u64 n_sectors;
 	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
-	u8 port = uc_priv->hard_port_no;
 	struct blk_desc *pdev = &sata_dev_desc[dev];
 
-	id = (u16 *)memalign(ARCH_DMA_MINALIGN,
-				roundup(ARCH_DMA_MINALIGN,
-					(ATA_ID_WORDS * 2)));
-	if (!id) {
-		printf("id malloc failed\n\r");
-		return -1;
-	}
-
-	/* Identify device to get information */
-	dwc_ahsata_identify(uc_priv, id);
-
-	/* Serial number */
-	ata_id_c_string(id, serial, ATA_ID_SERNO, sizeof(serial));
-	memcpy(pdev->product, serial, sizeof(serial));
-
-	/* Firmware version */
-	ata_id_c_string(id, firmware, ATA_ID_FW_REV, sizeof(firmware));
-	memcpy(pdev->revision, firmware, sizeof(firmware));
-
-	/* Product model */
-	ata_id_c_string(id, product, ATA_ID_PROD, sizeof(product));
-	memcpy(pdev->vendor, product, sizeof(product));
-
-	/* Totoal sectors */
-	n_sectors = ata_id_n_sectors(id);
-	pdev->lba = (u32)n_sectors;
-
-	pdev->type = DEV_TYPE_HARDDISK;
-	pdev->blksz = ATA_SECT_SIZE;
-	pdev->lun = 0 ;
-
-	/* Check if support LBA48 */
-	if (ata_id_has_lba48(id)) {
-		pdev->lba48 = 1;
-		debug("Device support LBA48\n\r");
-	}
-
-	/* Get the NCQ queue depth from device */
-	uc_priv->flags &= (~SATA_FLAG_Q_DEP_MASK);
-	uc_priv->flags |= ata_id_queue_depth(id);
-
-	/* Get the xfer mode from device */
-	dwc_ahsata_xfer_mode(uc_priv, id);
-
-	/* Get the write cache status from device */
-	dwc_ahsata_init_wcache(uc_priv, id);
-
-	/* Set the xfer mode to highest speed */
-	ahci_set_feature(uc_priv, port);
-
-	free((void *)id);
-
-	dwc_ahsata_print_info(&sata_dev_desc[dev]);
-
-	return 0;
+	return dwc_ahsata_scan_common(uc_priv, pdev);
 }
