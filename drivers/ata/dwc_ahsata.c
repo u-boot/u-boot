@@ -17,7 +17,7 @@
 #include <linux/bitops.h>
 #include <linux/ctype.h>
 #include <linux/errno.h>
-#include "dwc_ahsata.h"
+#include "dwc_ahsata_priv.h"
 
 struct sata_port_regs {
 	u32 clb;
