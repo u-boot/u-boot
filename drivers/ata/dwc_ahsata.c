@@ -7,6 +7,8 @@
 
 #include <common.h>
 #include <ahci.h>
+#include <dm.h>
+#include <dwc_ahsata.h>
 #include <fis.h>
 #include <libata.h>
 #include <malloc.h>
@@ -845,6 +847,7 @@ static ulong sata_write_common(struct ahci_uc_priv *uc_priv,
 	return rc;
 }
 
+#if !CONFIG_IS_ENABLED(AHCI)
 static int ahci_init_one(int pdev)
 {
 	int rc;
@@ -964,3 +967,113 @@ int scan_sata(int dev)
 
 	return dwc_ahsata_scan_common(uc_priv, pdev);
 }
+#endif /* CONFIG_IS_ENABLED(AHCI) */
+
+#if CONFIG_IS_ENABLED(AHCI)
+
+int dwc_ahsata_port_status(struct udevice *dev, int port)
+{
+	struct ahci_uc_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct sata_port_regs *port_mmio;
+
+	port_mmio = uc_priv->port[port].port_mmio;
+	return readl(&port_mmio->ssts) & SATA_PORT_SSTS_DET_MASK ? 0 : -ENXIO;
+}
+
+int dwc_ahsata_bus_reset(struct udevice *dev)
+{
+	struct ahci_uc_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct sata_host_regs *host_mmio = uc_priv->mmio_base;
+
+	setbits_le32(&host_mmio->ghc, SATA_HOST_GHC_HR);
+	while (readl(&host_mmio->ghc) & SATA_HOST_GHC_HR)
+		udelay(100);
+
+	return 0;
+}
+
+int dwc_ahsata_scan(struct udevice *dev)
+{
+	struct ahci_uc_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct blk_desc *desc;
+	struct udevice *blk;
+	int ret;
+
+	/*
+	* Create only one block device and do detection
+	* to make sure that there won't be a lot of
+	* block devices created
+	*/
+	device_find_first_child(dev, &blk);
+	if (!blk) {
+		ret = blk_create_devicef(dev, "dwc_ahsata_blk", "blk",
+					 IF_TYPE_SATA, -1, 512, 0, &blk);
+		if (ret) {
+			debug("Can't create device\n");
+			return ret;
+		}
+	}
+
+	desc = dev_get_uclass_platdata(blk);
+	ret = dwc_ahsata_scan_common(uc_priv, desc);
+	if (ret) {
+		debug("%s: Failed to scan bus\n", __func__);
+		return ret;
+	}
+
+	return 0;
+}
+
+int dwc_ahsata_probe(struct udevice *dev)
+{
+	struct ahci_uc_priv *uc_priv = dev_get_uclass_priv(dev);
+	int ret;
+
+	uc_priv->host_flags = ATA_FLAG_SATA | ATA_FLAG_NO_LEGACY |
+			ATA_FLAG_MMIO | ATA_FLAG_PIO_DMA | ATA_FLAG_NO_ATAPI;
+	uc_priv->mmio_base = (void __iomem *)dev_read_addr(dev);
+
+	/* initialize adapter */
+	ret = ahci_host_init(uc_priv);
+	if (ret)
+		return ret;
+
+	ahci_print_info(uc_priv);
+
+	return dwc_ahci_start_ports(uc_priv);
+}
+
+static ulong dwc_ahsata_read(struct udevice *blk, lbaint_t blknr,
+			     lbaint_t blkcnt, void *buffer)
+{
+	struct blk_desc *desc = dev_get_uclass_platdata(blk);
+	struct udevice *dev = dev_get_parent(blk);
+	struct ahci_uc_priv *uc_priv;
+
+	uc_priv = dev_get_uclass_priv(dev);
+	return sata_read_common(uc_priv, desc, blknr, blkcnt, buffer);
+}
+
+static ulong dwc_ahsata_write(struct udevice *blk, lbaint_t blknr,
+			      lbaint_t blkcnt, const void *buffer)
+{
+	struct blk_desc *desc = dev_get_uclass_platdata(blk);
+	struct udevice *dev = dev_get_parent(blk);
+	struct ahci_uc_priv *uc_priv;
+
+	uc_priv = dev_get_uclass_priv(dev);
+	return sata_write_common(uc_priv, desc, blknr, blkcnt, buffer);
+}
+
+static const struct blk_ops dwc_ahsata_blk_ops = {
+	.read	= dwc_ahsata_read,
+	.write	= dwc_ahsata_write,
+};
+
+U_BOOT_DRIVER(dwc_ahsata_blk) = {
+	.name		= "dwc_ahsata_blk",
+	.id		= UCLASS_BLK,
+	.ops		= &dwc_ahsata_blk_ops,
+};
+
+#endif
