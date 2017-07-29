@@ -596,7 +596,7 @@ int blk_create_devicef(struct udevice *parent, const char *drv_name,
 	}
 	device_set_name_alloced(*devp);
 
-	return ret;
+	return 0;
 }
 
 int blk_unbind_all(int if_type)
