@@ -11,16 +11,51 @@
  */
 
 #include <common.h>
+#include <ahci.h>
 #include <dm.h>
 #include <sata.h>
 
+#ifndef CONFIG_AHCI
 struct blk_desc sata_dev_desc[CONFIG_SYS_SATA_MAX_DEVICE];
+#endif
 
+int sata_reset(struct udevice *dev)
+{
+	struct ahci_ops *ops = ahci_get_ops(dev);
+
+	if (!ops->reset)
+		return -ENOSYS;
+
+	return ops->reset(dev);
+}
+
+int sata_dm_port_status(struct udevice *dev, int port)
+{
+	struct ahci_ops *ops = ahci_get_ops(dev);
+
+	if (!ops->port_status)
+		return -ENOSYS;
+
+	return ops->port_status(dev, port);
+}
+
+int sata_scan(struct udevice *dev)
+{
+	struct ahci_ops *ops = ahci_get_ops(dev);
+
+	if (!ops->scan)
+		return -ENOSYS;
+
+	return ops->scan(dev);
+}
+
+#ifndef CONFIG_AHCI
 #ifdef CONFIG_PARTITIONS
 struct blk_desc *sata_get_dev(int dev)
 {
 	return (dev < CONFIG_SYS_SATA_MAX_DEVICE) ? &sata_dev_desc[dev] : NULL;
 }
+#endif
 #endif
 
 #ifdef CONFIG_BLK
@@ -49,6 +84,7 @@ static unsigned long sata_bwrite(struct blk_desc *block_dev, lbaint_t start,
 }
 #endif
 
+#ifndef CONFIG_AHCI
 int __sata_initialize(void)
 {
 	int rc, ret = -1;
@@ -95,6 +131,7 @@ __weak int __sata_stop(void)
 	return err;
 }
 int sata_stop(void) __attribute__((weak, alias("__sata_stop")));
+#endif
 
 #ifdef CONFIG_BLK
 static const struct blk_ops sata_blk_ops = {
