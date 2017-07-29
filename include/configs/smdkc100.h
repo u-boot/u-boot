@@ -59,8 +59,6 @@
 /***********************************************************
  * Command definition
  ***********************************************************/
-#undef CONFIG_CMD_NAND
-
 #define CONFIG_CMD_ONENAND
 
 #define CONFIG_MTD_DEVICE

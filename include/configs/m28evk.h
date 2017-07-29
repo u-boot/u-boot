@@ -13,10 +13,6 @@
 
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
-/* U-Boot Commands */
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_NAND_TRIMFFS
-
 /* Memory configuration */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */
 #define PHYS_SDRAM_1			0x40000000	/* Base address */

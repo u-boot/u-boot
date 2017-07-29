@@ -28,7 +28,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_NAND
 #define CONFIG_SYS_MVFS
 
 #define CONFIG_NR_DRAM_BANKS		1

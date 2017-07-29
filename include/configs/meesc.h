@@ -65,14 +65,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-/*
- * Command line configuration.
- */
-
-#ifdef CONFIG_SYS_USE_NANDFLASH
-#define CONFIG_CMD_NAND
-#endif
-
 /* LED */
 #define CONFIG_AT91_LED
 

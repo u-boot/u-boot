@@ -55,11 +55,6 @@
 #define CONFIG_BOOTP_HOSTNAME		1
 
 /*
- * Command line configuration.
- */
-#define CONFIG_CMD_NAND		1
-
-/*
  * SDRAM: 1 bank, min 32, max 128 MB
  * Initialized before u-boot gets started.
  */

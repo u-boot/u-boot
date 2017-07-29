@@ -68,8 +68,6 @@
 					"1920k(u-boot),128k(u-boot-env),"\
 					"4m(kernel),-(fs)"
 
-#define CONFIG_CMD_NAND		/* NAND support			*/
-
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_OMAP34XX
 #define CONFIG_SYS_OMAP24_I2C_SPEED	100000

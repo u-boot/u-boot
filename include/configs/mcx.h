@@ -80,7 +80,6 @@
 
 /* commands to include */
 
-#define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
 

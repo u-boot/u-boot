@@ -128,7 +128,6 @@
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
-#define CONFIG_CMD_NAND
 #define CONFIG_CMD_CACHE
 
 #endif /* __CONFIG_H */

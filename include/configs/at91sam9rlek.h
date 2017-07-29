@@ -45,12 +45,6 @@
 /* Let board_init_f handle the framebuffer allocation */
 #undef CONFIG_FB_ADDR
 
-/*
- * Command line configuration.
- */
-
-#define CONFIG_CMD_NAND			1
-
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		ATMEL_BASE_CS1

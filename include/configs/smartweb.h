@@ -196,14 +196,6 @@
 									\
 	"mtdparts="MTDPARTS_DEFAULT"\0"
 
-/* Command line & features configuration */
-
-#define CONFIG_CMD_NAND
-
-#ifdef CONFIG_MACB
-#else
-#endif /* CONFIG_MACB */
-
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_INIT_SP_ADDR		0x301000
 #define CONFIG_SPL_STACK_R

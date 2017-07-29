@@ -58,11 +58,6 @@
 
 
 /*
- * Command line configuration.
- */
-#define CONFIG_CMD_NAND
-
-/*
  * SDRAM: 1 bank, min 32, max 128 MB
  * Initialized before u-boot gets started.
  */

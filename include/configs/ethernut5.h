@@ -82,9 +82,6 @@
 /* Misc. hardware drivers */
 #define CONFIG_AT91_GPIO
 
-/* Command line configuration */
-#define CONFIG_CMD_NAND
-
 #ifndef MINIMAL_LOADER
 #define CONFIG_CMD_REISER
 #define CONFIG_CMD_SAVES

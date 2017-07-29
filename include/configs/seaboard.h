@@ -47,7 +47,6 @@
 #define CONFIG_KEYBOARD
 
 /* NAND support */
-#define CONFIG_CMD_NAND
 #define CONFIG_TEGRA_NAND
 
 /* Max number of NAND devices */

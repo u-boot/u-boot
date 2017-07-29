@@ -41,7 +41,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_NAND
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING

@@ -45,8 +45,6 @@
 #endif
 
 /* NAND flash */
-#define CONFIG_CMD_NAND
-
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_NAND_ATMEL
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
@@ -59,7 +57,6 @@
 /* PMECC & PMERRLOC */
 #define CONFIG_ATMEL_NAND_HWECC
 #define CONFIG_ATMEL_NAND_HW_PMECC
-#define CONFIG_CMD_NAND_TRIMFFS
 #endif
 
 /* USB */

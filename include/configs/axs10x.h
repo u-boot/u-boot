@@ -63,11 +63,6 @@
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
 
-/*
- * Commands still not supported in Kconfig
- */
-#define CONFIG_CMD_NAND
-
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_CMDLINE_EDITING

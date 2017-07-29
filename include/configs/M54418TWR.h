@@ -36,9 +36,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-/* Command line configuration */
-#undef CONFIG_CMD_NAND
-
 /*
  * NAND FLASH
  */

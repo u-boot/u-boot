@@ -426,6 +426,7 @@ config ARCH_B4420
 	select SYS_PPC64
 	select FSL_IFC
 	imply CMD_EEPROM
+	imply CMD_NAND
 
 config ARCH_B4860
 	bool
@@ -452,6 +453,7 @@ config ARCH_B4860
 	select SYS_PPC64
 	select FSL_IFC
 	imply CMD_EEPROM
+	imply CMD_NAND
 
 config ARCH_BSC9131
 	bool
@@ -466,6 +468,7 @@ config ARCH_BSC9131
 	select SYS_FSL_SEC_COMPAT_4
 	select FSL_IFC
 	imply CMD_EEPROM
+	imply CMD_NAND
 
 config ARCH_BSC9132
 	bool
@@ -485,6 +488,7 @@ config ARCH_BSC9132
 	select FSL_IFC
 	imply CMD_EEPROM
 	imply CMD_MTDPARTS
+	imply CMD_NAND
 
 config ARCH_C29X
 	bool
@@ -498,6 +502,7 @@ config ARCH_C29X
 	select SYS_FSL_SEC_COMPAT_6
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select FSL_IFC
+	imply CMD_NAND
 
 config ARCH_MPC8536
 	bool
@@ -511,6 +516,7 @@ config ARCH_MPC8536
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select FSL_ELBC
+	imply CMD_NAND
 	imply CMD_SATA
 
 config ARCH_MPC8540
@@ -584,6 +590,7 @@ config ARCH_MPC8569
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select FSL_ELBC
+	imply CMD_NAND
 
 config ARCH_MPC8572
 	bool
@@ -599,6 +606,7 @@ config ARCH_MPC8572
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select FSL_ELBC
+	imply CMD_NAND
 	imply ENV_IS_IN_FLASH
 
 config ARCH_P1010
@@ -623,6 +631,7 @@ config ARCH_P1010
 	select FSL_IFC
 	imply CMD_EEPROM
 	imply CMD_MTDPARTS
+	imply CMD_NAND
 	imply CMD_SATA
 
 config ARCH_P1011
@@ -652,6 +661,7 @@ config ARCH_P1020
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select FSL_ELBC
+	imply CMD_NAND
 	imply CMD_SATA
 
 config ARCH_P1021
@@ -667,6 +677,7 @@ config ARCH_P1021
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select FSL_ELBC
+	imply CMD_NAND
 	imply CMD_SATA
 
 config ARCH_P1022
@@ -711,6 +722,7 @@ config ARCH_P1024
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select FSL_ELBC
 	imply CMD_EEPROM
+	imply CMD_NAND
 	imply CMD_SATA
 
 config ARCH_P1025
@@ -743,6 +755,7 @@ config ARCH_P2020
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select FSL_ELBC
 	imply CMD_EEPROM
+	imply CMD_NAND
 
 config ARCH_P2041
 	bool
@@ -765,6 +778,7 @@ config ARCH_P2041
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select FSL_ELBC
+	imply CMD_NAND
 
 config ARCH_P3041
 	bool
@@ -789,6 +803,7 @@ config ARCH_P3041
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select FSL_ELBC
+	imply CMD_NAND
 	imply CMD_SATA
 
 config ARCH_P4080
@@ -891,6 +906,7 @@ config ARCH_T1023
 	select SYS_FSL_SEC_COMPAT_5
 	select FSL_IFC
 	imply CMD_EEPROM
+	imply CMD_NAND
 
 config ARCH_T1024
 	bool
@@ -909,6 +925,7 @@ config ARCH_T1024
 	select SYS_FSL_SEC_COMPAT_5
 	select FSL_IFC
 	imply CMD_EEPROM
+	imply CMD_NAND
 	imply CMD_MTDPARTS
 
 config ARCH_T1040
@@ -929,6 +946,7 @@ config ARCH_T1040
 	select SYS_FSL_SEC_COMPAT_5
 	select FSL_IFC
 	imply CMD_MTDPARTS
+	imply CMD_NAND
 	imply CMD_SATA
 
 config ARCH_T1042
@@ -949,6 +967,7 @@ config ARCH_T1042
 	select SYS_FSL_SEC_COMPAT_5
 	select FSL_IFC
 	imply CMD_MTDPARTS
+	imply CMD_NAND
 	imply CMD_SATA
 
 config ARCH_T2080
@@ -973,6 +992,7 @@ config ARCH_T2080
 	select SYS_PPC64
 	select FSL_IFC
 	imply CMD_SATA
+	imply CMD_NAND
 
 config ARCH_T2081
 	bool
@@ -993,6 +1013,7 @@ config ARCH_T2081
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
 	select FSL_IFC
+	imply CMD_NAND
 
 config ARCH_T4160
 	bool
@@ -1015,6 +1036,7 @@ config ARCH_T4160
 	select SYS_PPC64
 	select FSL_IFC
 	imply CMD_SATA
+	imply CMD_NAND
 
 config ARCH_T4240
 	bool
@@ -1040,6 +1062,7 @@ config ARCH_T4240
 	select SYS_PPC64
 	select FSL_IFC
 	imply CMD_SATA
+	imply CMD_NAND
 
 config BOOKE
 	bool

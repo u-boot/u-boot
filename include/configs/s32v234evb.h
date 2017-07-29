@@ -103,7 +103,6 @@
 
 #ifdef CONFIG_SYS_USE_NAND
 /* Nand Flash Configs */
-#define	CONFIG_CMD_NAND
 #define CONFIG_JFFS2_NAND
 #define MTD_NAND_FSL_NFC_SWECC 1
 #define CONFIG_NAND_FSL_NFC

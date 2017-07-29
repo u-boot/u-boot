@@ -68,9 +68,6 @@
 /* EHCI */
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	25
 
-/* commands to include */
-#define CONFIG_CMD_NAND		/* NAND support			*/
-
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_OMAP24_I2C_SPEED	400000
 #define CONFIG_SYS_OMAP24_I2C_SLAVE	1

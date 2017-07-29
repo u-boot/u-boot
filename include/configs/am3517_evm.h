@@ -87,9 +87,6 @@
 
 #endif /* CONFIG_USB_MUSB_AM35X */
 
-/* commands to include */
-#define CONFIG_CMD_NAND
-
 /* I2C */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_OMAP24_I2C_SPEED	100000

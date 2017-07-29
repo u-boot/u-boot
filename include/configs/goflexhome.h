@@ -43,7 +43,6 @@
  * Commands configuration
  */
 
-#define CONFIG_CMD_NAND
 #define CONFIG_SYS_MVFS         /* Picks up Filesystem from mv-common.h */
 
 /*

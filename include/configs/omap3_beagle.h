@@ -70,8 +70,6 @@
 					"1920k(u-boot),128k(u-boot-env),"\
 					"4m(kernel),-(fs)"
 
-#define CONFIG_CMD_NAND		/* NAND support			*/
-
 #define CONFIG_VIDEO_OMAP3	/* DSS Support			*/
 
 /*

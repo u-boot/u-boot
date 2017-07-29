@@ -96,7 +96,6 @@
 /*
  * Command support defines
  */
-#define CONFIG_CMD_NAND
 #define CONFIG_CMD_SAVES
 
 /*

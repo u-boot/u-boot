@@ -16,13 +16,6 @@
 #include "mx6_common.h"
 
 /*
- * Console configuration
- */
-
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_NAND_TRIMFFS
-
-/*
  * Hardware configuration
  */
 

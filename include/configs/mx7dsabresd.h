@@ -191,9 +191,6 @@
  * to support nand, since emmc has pin conflicts with nand
  */
 #ifdef CONFIG_NAND_MXS
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_NAND_TRIMFFS
-
 /* NAND stuff */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x40000000

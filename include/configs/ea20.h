@@ -135,8 +135,6 @@
 
 /* NAND Setup */
 #ifdef CONFIG_SYS_USE_NAND
-#define CONFIG_CMD_NAND
-
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 

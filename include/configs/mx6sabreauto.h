@@ -69,10 +69,6 @@
 #define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_SYS_I2C_SPEED		100000
 
-/* NAND flash command */
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_NAND_TRIMFFS
-
 /* NAND stuff */
 #define CONFIG_NAND_MXS
 #define CONFIG_SYS_MAX_NAND_DEVICE     1

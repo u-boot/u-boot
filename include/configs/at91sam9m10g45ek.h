@@ -50,12 +50,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-/*
- * Command line configuration.
- */
-
-#define CONFIG_CMD_NAND
-
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE           ATMEL_BASE_CS6

@@ -18,12 +18,6 @@
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
 /*
- * U-Boot Commands
- */
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_NAND_TRIMFFS
-
-/*
  * Memory configurations
  */
 #define CONFIG_NR_DRAM_BANKS		2

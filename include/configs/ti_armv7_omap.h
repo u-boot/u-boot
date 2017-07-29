@@ -30,7 +30,6 @@
 #define CONFIG_SYS_NAND_BASE		0x8000000
 #endif
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_CMD_NAND
 #endif
 
 /* Now for the remaining common defines */

@@ -64,11 +64,6 @@
 #define CONFIG_BOOTP_GATEWAY		1
 #define CONFIG_BOOTP_HOSTNAME		1
 
-/*
- * Command line configuration.
- */
-#define CONFIG_CMD_NAND		1
-
 #define CONFIG_JFFS2_CMDLINE		1
 #define CONFIG_JFFS2_NAND		1
 #define CONFIG_JFFS2_DEV		"nand0" /* NAND dev jffs2 lives on */

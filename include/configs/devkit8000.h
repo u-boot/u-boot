@@ -90,9 +90,6 @@
 #define CONFIG_JFFS2_PART_SIZE		0xf980000	/* size of jffs2 */
 							/* partition */
 
-/* commands to include */
-#define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands	*/
-
 #undef CONFIG_SUPPORT_RAW_INITRD
 
 /* BOOTP/DHCP options */

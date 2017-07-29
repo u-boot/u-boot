@@ -130,7 +130,6 @@
 #undef CONFIG_SYS_NAND_U_BOOT_OFFS
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x200000
 
-#define CONFIG_CMD_NAND
 #define MTDIDS_DEFAULT			"nand0=nand"
 #define MTDPARTS_DEFAULT		"mtdparts=nand:2m(spl)," \
 					"1m(u-boot),1m(u-boot-env)," \

@@ -235,8 +235,6 @@
 #define CONFIG_NAND
 /* NAND support */
 #ifdef CONFIG_NAND
-#define CONFIG_CMD_NAND
-
 /* UBI Support */
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_MTD_PARTITIONS

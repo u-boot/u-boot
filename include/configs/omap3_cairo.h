@@ -53,9 +53,6 @@
 
 #define CONFIG_NAND
 
-/* commands to include */
-#define CONFIG_CMD_NAND_LOCK_UNLOCK
-
 /*
  * TWL4030
  */

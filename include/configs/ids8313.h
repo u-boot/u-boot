@@ -411,7 +411,6 @@
 /*
  * U-Boot environment setup
  */
-#define CONFIG_CMD_NAND
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_BOOTP_GATEWAY
@@ -524,7 +523,6 @@
 	"bootm ${loadaddr} - ${fdtaddr}"
 
 /* UBI Support */
-#define CONFIG_CMD_NAND_TRIMFFS
 #define CONFIG_MTD_PARTITIONS
 
 /* bootcount support */

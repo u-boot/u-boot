@@ -52,10 +52,6 @@
 
 #define CONFIG_USB_OMAP3
 
-/* commands to include */
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands	*/
-
 /* I2C */
 #define CONFIG_SYS_I2C_OMAP34XX
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* EEPROM AT24C64      */

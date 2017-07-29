@@ -52,13 +52,6 @@
 #define CONFIG_ROOTPATH	"/tftpboot/" __stringify(CONFIG_BOARD_NAME) "-root"
 
 /*
- * U-Boot Commands
- */
-#define CONFIG_CMD_NAND		/* NAND support			*/
-#define CONFIG_CMD_NAND_LOCK_UNLOCK
-#define CONFIG_CMD_NAND_TRIMFFS
-
-/*
  * Memory configurations
  */
 #define CONFIG_NR_DRAM_POPULATED 1

@@ -150,9 +150,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Enable NAND support */
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_NAND_TRIMFFS
-
 #ifdef CONFIG_CMD_NAND
 
 /* NAND stuff */

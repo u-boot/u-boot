@@ -150,12 +150,6 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP
 
-/*
- * U-Boot commands
- */
-#define CONFIG_CMD_NAND
-
-
 #define CONFIG_LOADADDR		0xa0800000	/* loadaddr env var */
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 

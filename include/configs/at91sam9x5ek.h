@@ -46,11 +46,6 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /*
- * Command line configuration.
- */
-#define CONFIG_CMD_NAND
-
-/*
  * define CONFIG_USB_EHCI_HCD to enable USB Hi-Speed (aka 2.0)
  * NB: in this case, USB 1.1 devices won't be recognized.
  */
@@ -81,17 +76,15 @@
 #define CONFIG_SYS_NAND_ENABLE_PIN	AT91_PIN_PD4
 #define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PD5
 
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITIONS
+#endif
+
 /* PMECC & PMERRLOC */
 #define CONFIG_ATMEL_NAND_HWECC		1
 #define CONFIG_ATMEL_NAND_HW_PMECC	1
 #define CONFIG_PMECC_CAP		2
 #define CONFIG_PMECC_SECTOR_SIZE	512
-
-#define CONFIG_CMD_NAND_TRIMFFS
-
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
-#endif
 
 /* USB */
 #ifdef CONFIG_CMD_USB

@@ -14,6 +14,7 @@ CONFIG_CMD_BOOTZ=y
 # CONFIG_CMD_IMI is not set
 # CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_LOADS is not set
+CONFIG_CMD_NAND=y
 CONFIG_CMD_USB=y
 # CONFIG_CMD_FPGA is not set
 # CONFIG_CMD_SOURCE is not set

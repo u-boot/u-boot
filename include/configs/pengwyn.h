@@ -114,7 +114,6 @@
 /* SPL */
 
 /* NAND support */
-#define CONFIG_CMD_NAND
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_NAND_OMAP_ELM
 

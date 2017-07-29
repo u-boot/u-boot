@@ -69,8 +69,6 @@
 
 #elif defined(CONFIG_SPL_NAND_SUPPORT)
 /* Enable NAND support */
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_NAND_TRIMFFS
 #ifdef CONFIG_CMD_NAND
   #define CONFIG_NAND_MXS
   #define CONFIG_SYS_MAX_NAND_DEVICE	1

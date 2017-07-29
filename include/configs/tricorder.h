@@ -97,10 +97,6 @@
 #define CONFIG_SYS_NAND_MAX_OOBFREE	2
 #define CONFIG_SYS_NAND_MAX_ECCPOS	56
 
-/* commands to include */
-#define CONFIG_CMD_NAND			/* NAND support */
-#define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands */
-
 /* needed for ubi */
 #define CONFIG_MTD_DEVICE       /* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS

@@ -35,9 +35,6 @@
 #define CONFIG_SF_DEFAULT_SPEED		30000000
 #endif
 
-/* NAND flash */
-#undef CONFIG_CMD_NAND
-
 /* I2C */
 #define AT24MAC_ADDR		0x5c
 #define AT24MAC_REG		0x9a
