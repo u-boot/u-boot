@@ -57,6 +57,11 @@ static enum uclass_id if_type_to_uclass_id(enum if_type if_type)
 	return if_type_uclass_id[if_type];
 }
 
+const char *blk_get_if_type_name(enum if_type if_type)
+{
+	return if_typename_str[if_type];
+}
+
 struct blk_desc *blk_get_devnum_by_type(enum if_type if_type, int devnum)
 {
 	struct blk_desc *desc;

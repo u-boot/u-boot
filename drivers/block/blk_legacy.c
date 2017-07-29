@@ -38,6 +38,13 @@ static struct blk_driver *blk_driver_lookup_typename(const char *if_typename)
 	return NULL;
 }
 
+const char *blk_get_if_type_name(enum if_type if_type)
+{
+	struct blk_driver *drv = blk_driver_lookup_type(if_type);
+
+	return drv ? drv->if_typename : NULL;
+}
+
 /**
  * get_desc() - Get the block device descriptor for the given device number
  *

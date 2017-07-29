@@ -624,4 +624,12 @@ ulong blk_write_devnum(enum if_type if_type, int devnum, lbaint_t start,
  */
 int blk_select_hwpart_devnum(enum if_type if_type, int devnum, int hwpart);
 
+/**
+ * blk_get_if_type_name() - Get the name of an interface type
+ *
+ * @if_type: Interface type to check
+ * @return name of interface, or NULL if none
+ */
+const char *blk_get_if_type_name(enum if_type if_type);
+
 #endif
