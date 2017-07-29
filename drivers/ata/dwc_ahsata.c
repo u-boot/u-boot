@@ -104,8 +104,8 @@ static int ahci_setup_oobr(struct ahci_uc_priv *uc_priv, int clk)
 {
 	struct sata_host_regs *host_mmio = uc_priv->mmio_base;
 
-	writel(SATA_HOST_OOBR_WE, &(host_mmio->oobr));
-	writel(0x02060b14, &(host_mmio->oobr));
+	writel(SATA_HOST_OOBR_WE, &host_mmio->oobr);
+	writel(0x02060b14, &host_mmio->oobr);
 
 	return 0;
 }
@@ -118,16 +118,15 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 	struct sata_host_regs *host_mmio = uc_priv->mmio_base;
 	int clk = mxc_get_clock(MXC_SATA_CLK);
 
-	cap_save = readl(&(host_mmio->cap));
+	cap_save = readl(&host_mmio->cap);
 	cap_save |= SATA_HOST_CAP_SSS;
 
 	/* global controller reset */
-	tmp = readl(&(host_mmio->ghc));
+	tmp = readl(&host_mmio->ghc);
 	if ((tmp & SATA_HOST_GHC_HR) == 0)
-		writel_with_flush(tmp | SATA_HOST_GHC_HR, &(host_mmio->ghc));
+		writel_with_flush(tmp | SATA_HOST_GHC_HR, &host_mmio->ghc);
 
-	while ((readl(&(host_mmio->ghc)) & SATA_HOST_GHC_HR)
-		&& --timeout)
+	while ((readl(&host_mmio->ghc) & SATA_HOST_GHC_HR) && --timeout)
 		;
 
 	if (timeout <= 0) {
@@ -136,15 +135,14 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 	}
 
 	/* Set timer 1ms */
-	writel(clk / 1000, &(host_mmio->timer1ms));
+	writel(clk / 1000, &host_mmio->timer1ms);
 
 	ahci_setup_oobr(uc_priv, 0);
 
-	writel_with_flush(SATA_HOST_GHC_AE, &(host_mmio->ghc));
-	writel(cap_save, &(host_mmio->cap));
+	writel_with_flush(SATA_HOST_GHC_AE, &host_mmio->ghc);
+	writel(cap_save, &host_mmio->cap);
 	num_ports = (cap_save & SATA_HOST_CAP_NP_MASK) + 1;
-	writel_with_flush((1 << num_ports) - 1,
-				&(host_mmio->pi));
+	writel_with_flush((1 << num_ports) - 1, &host_mmio->pi);
 
 	/*
 	 * Determine which Ports are implemented by the DWC_ahsata,
@@ -152,8 +150,8 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 	 * software to determine how many Ports are available and
 	 * which Port registers need to be initialized.
 	 */
-	uc_priv->cap = readl(&(host_mmio->cap));
-	uc_priv->port_map = readl(&(host_mmio->pi));
+	uc_priv->cap = readl(&host_mmio->cap);
+	uc_priv->port_map = readl(&host_mmio->pi);
 
 	/* Determine how many command slots the HBA supports */
 	uc_priv->n_ports = (uc_priv->cap & SATA_HOST_CAP_NP_MASK) + 1;
@@ -166,7 +164,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 		port_mmio = uc_priv->port[i].port_mmio;
 
 		/* Ensure that the DWC_ahsata is in idle state */
-		tmp = readl(&(port_mmio->cmd));
+		tmp = readl(&port_mmio->cmd);
 
 		/*
 		 * When P#CMD.ST, P#CMD.CR, P#CMD.FRE and P#CMD.FR
@@ -181,7 +179,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 			 * 0 when read.
 			 */
 			tmp &= ~SATA_PORT_CMD_ST;
-			writel_with_flush(tmp, &(port_mmio->cmd));
+			writel_with_flush(tmp, &port_mmio->cmd);
 
 			/*
 			 * spec says 500 msecs for each bit, so
@@ -190,7 +188,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 			mdelay(500);
 
 			timeout = 1000;
-			while ((readl(&(port_mmio->cmd)) & SATA_PORT_CMD_CR)
+			while ((readl(&port_mmio->cmd) & SATA_PORT_CMD_CR)
 				&& --timeout)
 				;
 
@@ -201,12 +199,12 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 		}
 
 		/* Spin-up device */
-		tmp = readl(&(port_mmio->cmd));
-		writel((tmp | SATA_PORT_CMD_SUD), &(port_mmio->cmd));
+		tmp = readl(&port_mmio->cmd);
+		writel((tmp | SATA_PORT_CMD_SUD), &port_mmio->cmd);
 
 		/* Wait for spin-up to finish */
 		timeout = 1000;
-		while (!(readl(&(port_mmio->cmd)) | SATA_PORT_CMD_SUD)
+		while (!(readl(&port_mmio->cmd) | SATA_PORT_CMD_SUD)
 			&& --timeout)
 			;
 		if (timeout <= 0) {
@@ -216,7 +214,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 
 		for (j = 0; j < 100; ++j) {
 			mdelay(10);
-			tmp = readl(&(port_mmio->ssts));
+			tmp = readl(&port_mmio->ssts);
 			if (((tmp & SATA_PORT_SSTS_DET_MASK) == 0x3) ||
 				((tmp & SATA_PORT_SSTS_DET_MASK) == 0x1))
 				break;
@@ -224,7 +222,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 
 		/* Wait for COMINIT bit 26 (DIAG_X) in SERR */
 		timeout = 1000;
-		while (!(readl(&(port_mmio->serr)) | SATA_PORT_SERR_DIAG_X)
+		while (!(readl(&port_mmio->serr) | SATA_PORT_SERR_DIAG_X)
 			&& --timeout)
 			;
 		if (timeout <= 0) {
@@ -237,33 +235,33 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 		 * register, by writing ones to each implemented\
 		 * bit location.
 		 */
-		tmp = readl(&(port_mmio->serr));
+		tmp = readl(&port_mmio->serr);
 		debug("P#SERR 0x%x\n",
 				tmp);
-		writel(tmp, &(port_mmio->serr));
+		writel(tmp, &port_mmio->serr);
 
 		/* Ack any pending irq events for this port */
-		tmp = readl(&(host_mmio->is));
+		tmp = readl(&host_mmio->is);
 		debug("IS 0x%x\n", tmp);
 		if (tmp)
-			writel(tmp, &(host_mmio->is));
+			writel(tmp, &host_mmio->is);
 
-		writel(1 << i, &(host_mmio->is));
+		writel(1 << i, &host_mmio->is);
 
 		/* set irq mask (enables interrupts) */
-		writel(DEF_PORT_IRQ, &(port_mmio->ie));
+		writel(DEF_PORT_IRQ, &port_mmio->ie);
 
 		/* register linkup ports */
-		tmp = readl(&(port_mmio->ssts));
+		tmp = readl(&port_mmio->ssts);
 		debug("Port %d status: 0x%x\n", i, tmp);
 		if ((tmp & SATA_PORT_SSTS_DET_MASK) == 0x03)
 			uc_priv->link_port_map |= (0x01 << i);
 	}
 
-	tmp = readl(&(host_mmio->ghc));
+	tmp = readl(&host_mmio->ghc);
 	debug("GHC 0x%x\n", tmp);
-	writel(tmp | SATA_HOST_GHC_IE, &(host_mmio->ghc));
-	tmp = readl(&(host_mmio->ghc));
+	writel(tmp | SATA_HOST_GHC_IE, &host_mmio->ghc);
+	tmp = readl(&host_mmio->ghc);
 	debug("GHC 0x%x\n", tmp);
 
 	return 0;
@@ -276,7 +274,7 @@ static void ahci_print_info(struct ahci_uc_priv *uc_priv)
 	const char *speed_s;
 	const char *scc_s;
 
-	vers = readl(&(host_mmio->vs));
+	vers = readl(&host_mmio->vs);
 	cap = uc_priv->cap;
 	impl = uc_priv->port_map;
 
@@ -357,7 +355,7 @@ err_out:
 static int ahci_fill_sg(struct ahci_uc_priv *uc_priv, u8 port,
 			unsigned char *buf, int buf_len)
 {
-	struct ahci_ioports *pp = &(uc_priv->port[port]);
+	struct ahci_ioports *pp = &uc_priv->port[port];
 	struct ahci_sg *ahci_sg = pp->cmd_tbl_sg;
 	u32 sg_count, max_bytes;
 	int i;
@@ -405,12 +403,12 @@ static int ahci_exec_ata_cmd(struct ahci_uc_priv *uc_priv, u8 port,
 			     struct sata_fis_h2d *cfis, u8 *buf, u32 buf_len,
 			     s32 is_write)
 {
-	struct ahci_ioports *pp = &(uc_priv->port[port]);
+	struct ahci_ioports *pp = &uc_priv->port[port];
 	struct sata_port_regs *port_mmio = pp->port_mmio;
 	u32 opts;
 	int sg_count = 0, cmd_slot = 0;
 
-	cmd_slot = AHCI_GET_CMD_SLOT(readl(&(port_mmio->ci)));
+	cmd_slot = AHCI_GET_CMD_SLOT(readl(&port_mmio->ci));
 	if (32 == cmd_slot) {
 		printf("Can't find empty command slot!\n");
 		return 0;
@@ -434,10 +432,10 @@ static int ahci_exec_ata_cmd(struct ahci_uc_priv *uc_priv, u8 port,
 	ahci_fill_cmd_slot(pp, cmd_slot, opts);
 
 	flush_cache((int)(pp->cmd_slot), AHCI_PORT_PRIV_DMA_SZ);
-	writel_with_flush(1 << cmd_slot, &(port_mmio->ci));
+	writel_with_flush(1 << cmd_slot, &port_mmio->ci);
 
-	if (waiting_for_cmd_completed((u8 *)&(port_mmio->ci),
-				10000, 0x1 << cmd_slot)) {
+	if (waiting_for_cmd_completed((u8 *)&port_mmio->ci, 10000,
+				      0x1 << cmd_slot)) {
 		printf("timeout exit!\n");
 		return -1;
 	}
@@ -468,14 +466,14 @@ static void ahci_set_feature(struct ahci_uc_priv *uc_priv, u8 port)
 
 static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 {
-	struct ahci_ioports *pp = &(uc_priv->port[port]);
+	struct ahci_ioports *pp = &uc_priv->port[port];
 	struct sata_port_regs *port_mmio = pp->port_mmio;
 	u32 port_status;
 	u32 mem;
 	int timeout = 10000000;
 
 	debug("Enter start port: %d\n", port);
-	port_status = readl(&(port_mmio->ssts));
+	port_status = readl(&port_mmio->ssts);
 	debug("Port %d status: %x\n", port, port_status);
 	if ((port_status & 0xf) != 0x03) {
 		printf("No Link on this port!\n");
@@ -515,17 +513,17 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 
 	mem += AHCI_CMD_TBL_HDR;
 
-	writel_with_flush(0x00004444, &(port_mmio->dmacr));
+	writel_with_flush(0x00004444, &port_mmio->dmacr);
 	pp->cmd_tbl_sg = (struct ahci_sg *)mem;
-	writel_with_flush((u32)pp->cmd_slot, &(port_mmio->clb));
-	writel_with_flush(pp->rx_fis, &(port_mmio->fb));
+	writel_with_flush((u32)pp->cmd_slot, &port_mmio->clb);
+	writel_with_flush(pp->rx_fis, &port_mmio->fb);
 
 	/* Enable FRE */
-	writel_with_flush((SATA_PORT_CMD_FRE | readl(&(port_mmio->cmd))),
-			&(port_mmio->cmd));
+	writel_with_flush((SATA_PORT_CMD_FRE | readl(&port_mmio->cmd)),
+			  &port_mmio->cmd);
 
 	/* Wait device ready */
-	while ((readl(&(port_mmio->tfd)) & (SATA_PORT_TFD_STS_ERR |
+	while ((readl(&port_mmio->tfd) & (SATA_PORT_TFD_STS_ERR |
 		SATA_PORT_TFD_STS_DRQ | SATA_PORT_TFD_STS_BSY))
 		&& --timeout)
 		;
@@ -537,7 +535,7 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 
 	writel_with_flush(PORT_CMD_ICC_ACTIVE | PORT_CMD_FIS_RX |
 			  PORT_CMD_POWER_ON | PORT_CMD_SPIN_UP |
-			  PORT_CMD_START, &(port_mmio->cmd));
+			  PORT_CMD_START, &port_mmio->cmd);
 
 	debug("Exit start port %d\n", port);
 
@@ -834,7 +832,7 @@ int sata_port_status(int dev, int port)
 	uc_priv = sata_dev_desc[dev].priv;
 	port_mmio = uc_priv->port[port].port_mmio;
 
-	return readl(&(port_mmio->ssts)) & SATA_PORT_SSTS_DET_MASK;
+	return readl(&port_mmio->ssts) & SATA_PORT_SSTS_DET_MASK;
 }
 
 /*
@@ -885,7 +883,7 @@ int scan_sata(int dev)
 	u64 n_sectors;
 	struct ahci_uc_priv *uc_priv = sata_dev_desc[dev].priv;
 	u8 port = uc_priv->hard_port_no;
-	struct blk_desc *pdev = &(sata_dev_desc[dev]);
+	struct blk_desc *pdev = &sata_dev_desc[dev];
 
 	id = (u16 *)memalign(ARCH_DMA_MINALIGN,
 				roundup(ARCH_DMA_MINALIGN,
