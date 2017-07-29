@@ -9,7 +9,6 @@
 
 obj-y	+= board.o
 obj-y	+= clock_manager.o
-obj-y	+= fpga_manager.o
 obj-y	+= misc.o
 obj-y	+= reset_manager.o
 obj-y	+= timer.o
@@ -21,6 +20,7 @@ obj-y	+= reset_manager_gen5.o
 obj-y	+= scan_manager.o
 obj-y	+= system_manager_gen5.o
 obj-y	+= wrap_pll_config.o
+obj-y	+= fpga_manager.o
 endif
 
 ifdef CONFIG_TARGET_SOCFPGA_ARRIA10

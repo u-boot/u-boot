@@ -318,13 +318,13 @@ void socfpga_per_reset_all(void)
 }
 
 #if defined(CONFIG_SOCFPGA_VIRTUAL_TARGET)
-int socfpga_bridges_reset(int enable)
+int socfpga_bridges_reset(void)
 {
 	/* For SoCFPGA-VT, this is NOP. */
 	return 0;
 }
 #else
-int socfpga_bridges_reset(int enable)
+int socfpga_bridges_reset(void)
 {
 	int ret;
 
