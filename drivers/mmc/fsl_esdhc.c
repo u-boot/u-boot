@@ -348,13 +348,12 @@ static void check_and_invalidate_dcache_range
  * Sends a command out on the bus.  Takes the mmc pointer,
  * a command pointer, and an optional data pointer.
  */
-static int
-esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
+static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
+				 struct mmc_cmd *cmd, struct mmc_data *data)
 {
 	int	err = 0;
 	uint	xfertyp;
 	uint	irqstat;
-	struct fsl_esdhc_priv *priv = mmc->priv;
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_ESDHC111
@@ -595,9 +594,8 @@ static void esdhc_clock_control(struct fsl_esdhc_priv *priv, bool enable)
 }
 #endif
 
-static int esdhc_set_ios(struct mmc *mmc)
+static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 {
-	struct fsl_esdhc_priv *priv = mmc->priv;
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 
 #ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
@@ -620,9 +618,8 @@ static int esdhc_set_ios(struct mmc *mmc)
 	return 0;
 }
 
-static int esdhc_init(struct mmc *mmc)
+static int esdhc_init_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 {
-	struct fsl_esdhc_priv *priv = mmc->priv;
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 	int timeout = 1000;
 
@@ -676,9 +673,8 @@ static int esdhc_init(struct mmc *mmc)
 	return 0;
 }
 
-static int esdhc_getcd(struct mmc *mmc)
+static int esdhc_getcd_common(struct fsl_esdhc_priv *priv)
 {
-	struct fsl_esdhc_priv *priv = mmc->priv;
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 	int timeout = 1000;
 
@@ -716,11 +712,40 @@ static void esdhc_reset(struct fsl_esdhc *regs)
 		printf("MMC/SD: Reset never completed.\n");
 }
 
+static int esdhc_getcd(struct mmc *mmc)
+{
+	struct fsl_esdhc_priv *priv = mmc->priv;
+
+	return esdhc_getcd_common(priv);
+}
+
+static int esdhc_init(struct mmc *mmc)
+{
+	struct fsl_esdhc_priv *priv = mmc->priv;
+
+	return esdhc_init_common(priv, mmc);
+}
+
+static int esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+			  struct mmc_data *data)
+{
+	struct fsl_esdhc_priv *priv = mmc->priv;
+
+	return esdhc_send_cmd_common(priv, mmc, cmd, data);
+}
+
+static int esdhc_set_ios(struct mmc *mmc)
+{
+	struct fsl_esdhc_priv *priv = mmc->priv;
+
+	return esdhc_set_ios_common(priv, mmc);
+}
+
 static const struct mmc_ops esdhc_ops = {
+	.getcd		= esdhc_getcd,
+	.init		= esdhc_init,
 	.send_cmd	= esdhc_send_cmd,
 	.set_ios	= esdhc_set_ios,
-	.init		= esdhc_init,
-	.getcd		= esdhc_getcd,
 };
 
 static int fsl_esdhc_init(struct fsl_esdhc_priv *priv)
