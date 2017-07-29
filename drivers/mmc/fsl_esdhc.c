@@ -81,6 +81,11 @@ struct fsl_esdhc {
 	uint    scr;		/* eSDHC control register */
 };
 
+struct fsl_esdhc_plat {
+	struct mmc_config cfg;
+	struct mmc mmc;
+};
+
 /**
  * struct fsl_esdhc_priv
  *
@@ -101,7 +106,6 @@ struct fsl_esdhc_priv {
 	struct fsl_esdhc *esdhc_regs;
 	unsigned int sdhc_clk;
 	unsigned int bus_width;
-	struct mmc_config cfg;
 	struct mmc *mmc;
 	struct udevice *dev;
 	int non_removable;
@@ -756,8 +760,10 @@ static const struct mmc_ops esdhc_ops = {
 	.set_ios	= esdhc_set_ios,
 };
 
-static int fsl_esdhc_init(struct fsl_esdhc_priv *priv)
+static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
+			  struct fsl_esdhc_plat *plat)
 {
+	struct mmc_config *cfg;
 	struct fsl_esdhc *regs;
 	struct mmc *mmc;
 	u32 caps, voltage_caps;
@@ -785,7 +791,8 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv)
 		esdhc_setbits32(&regs->vendorspec, ESDHC_VENDORSPEC_VSELECT);
 
 	writel(SDHCI_IRQ_EN_BITS, &regs->irqstaten);
-	memset(&priv->cfg, 0, sizeof(priv->cfg));
+	cfg = &plat->cfg;
+	memset(cfg, '\0', sizeof(*cfg));
 
 	voltage_caps = 0;
 	caps = esdhc_read32(&regs->hostcapblt);
@@ -807,49 +814,49 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv)
 	if (caps & ESDHC_HOSTCAPBLT_VS33)
 		voltage_caps |= MMC_VDD_32_33 | MMC_VDD_33_34;
 
-	priv->cfg.name = "FSL_SDHC";
-	priv->cfg.ops = &esdhc_ops;
+	cfg->name = "FSL_SDHC";
+	cfg->ops = &esdhc_ops;
 #ifdef CONFIG_SYS_SD_VOLTAGE
-	priv->cfg.voltages = CONFIG_SYS_SD_VOLTAGE;
+	cfg->voltages = CONFIG_SYS_SD_VOLTAGE;
 #else
-	priv->cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
+	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 #endif
-	if ((priv->cfg.voltages & voltage_caps) == 0) {
+	if ((cfg->voltages & voltage_caps) == 0) {
 		printf("voltage not supported by controller\n");
 		return -1;
 	}
 
 	if (priv->bus_width == 8)
-		priv->cfg.host_caps = MMC_MODE_4BIT | MMC_MODE_8BIT;
+		cfg->host_caps = MMC_MODE_4BIT | MMC_MODE_8BIT;
 	else if (priv->bus_width == 4)
-		priv->cfg.host_caps = MMC_MODE_4BIT;
+		cfg->host_caps = MMC_MODE_4BIT;
 
-	priv->cfg.host_caps = MMC_MODE_4BIT | MMC_MODE_8BIT;
+	cfg->host_caps = MMC_MODE_4BIT | MMC_MODE_8BIT;
 #ifdef CONFIG_SYS_FSL_ESDHC_HAS_DDR_MODE
-	priv->cfg.host_caps |= MMC_MODE_DDR_52MHz;
+	cfg->host_caps |= MMC_MODE_DDR_52MHz;
 #endif
 
 	if (priv->bus_width > 0) {
 		if (priv->bus_width < 8)
-			priv->cfg.host_caps &= ~MMC_MODE_8BIT;
+			cfg->host_caps &= ~MMC_MODE_8BIT;
 		if (priv->bus_width < 4)
-			priv->cfg.host_caps &= ~MMC_MODE_4BIT;
+			cfg->host_caps &= ~MMC_MODE_4BIT;
 	}
 
 	if (caps & ESDHC_HOSTCAPBLT_HSS)
-		priv->cfg.host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
+		cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
 #ifdef CONFIG_ESDHC_DETECT_8_BIT_QUIRK
 	if (CONFIG_ESDHC_DETECT_8_BIT_QUIRK)
-		priv->cfg.host_caps &= ~MMC_MODE_8BIT;
+		cfg->host_caps &= ~MMC_MODE_8BIT;
 #endif
 
-	priv->cfg.f_min = 400000;
-	priv->cfg.f_max = min(priv->sdhc_clk, (u32)52000000);
+	cfg->f_min = 400000;
+	cfg->f_max = min(priv->sdhc_clk, (u32)52000000);
 
-	priv->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
+	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
-	mmc = mmc_create(&priv->cfg, priv);
+	mmc = mmc_create(cfg, priv);
 	if (mmc == NULL)
 		return -1;
 
@@ -876,6 +883,7 @@ static int fsl_esdhc_cfg_to_priv(struct fsl_esdhc_cfg *cfg,
 
 int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 {
+	struct fsl_esdhc_plat *plat;
 	struct fsl_esdhc_priv *priv;
 	int ret;
 
@@ -885,17 +893,24 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 	priv = calloc(sizeof(struct fsl_esdhc_priv), 1);
 	if (!priv)
 		return -ENOMEM;
+	plat = calloc(sizeof(struct fsl_esdhc_plat), 1);
+	if (!plat) {
+		free(priv);
+		return -ENOMEM;
+	}
 
 	ret = fsl_esdhc_cfg_to_priv(cfg, priv);
 	if (ret) {
 		debug("%s xlate failure\n", __func__);
+		free(plat);
 		free(priv);
 		return ret;
 	}
 
-	ret = fsl_esdhc_init(priv);
+	ret = fsl_esdhc_init(priv, plat);
 	if (ret) {
 		debug("%s init failure\n", __func__);
+		free(plat);
 		free(priv);
 		return ret;
 	}
@@ -996,6 +1011,7 @@ __weak void init_clk_usdhc(u32 index)
 static int fsl_esdhc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
@@ -1090,7 +1106,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	ret = fsl_esdhc_init(priv);
+	ret = fsl_esdhc_init(priv, plat);
 	if (ret) {
 		dev_err(dev, "fsl_esdhc_init failure\n");
 		return ret;
@@ -1118,6 +1134,7 @@ U_BOOT_DRIVER(fsl_esdhc) = {
 	.id	= UCLASS_MMC,
 	.of_match = fsl_esdhc_ids,
 	.probe	= fsl_esdhc_probe,
+	.platdata_auto_alloc_size = sizeof(struct fsl_esdhc_plat),
 	.priv_auto_alloc_size = sizeof(struct fsl_esdhc_priv),
 };
 #endif
