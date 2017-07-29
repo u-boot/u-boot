@@ -77,8 +77,6 @@ struct sata_host_regs {
 
 #define writel_with_flush(a, b)	do { writel(a, b); readl(b); } while (0)
 
-static int is_ready;
-
 static inline void __iomem *ahci_port_base(void __iomem *base, u32 port)
 {
 	return base + 0x100 + (port * 0x80);
@@ -937,8 +935,6 @@ int scan_sata(int dev)
 	free((void *)id);
 
 	dwc_ahsata_print_info(&sata_dev_desc[dev]);
-
-	is_ready = 1;
 
 	return 0;
 }
