@@ -316,39 +316,6 @@ static void ahci_print_info(struct ahci_uc_priv *uc_priv)
 		cap & (1 << 13) ? "part " : "");
 }
 
-static int ahci_init_one(int pdev)
-{
-	int rc;
-	struct ahci_uc_priv *uc_priv = NULL;
-
-	uc_priv = malloc(sizeof(struct ahci_uc_priv));
-	memset(uc_priv, 0, sizeof(struct ahci_uc_priv));
-	uc_priv->dev = pdev;
-
-	uc_priv->host_flags = ATA_FLAG_SATA
-				| ATA_FLAG_NO_LEGACY
-				| ATA_FLAG_MMIO
-				| ATA_FLAG_PIO_DMA
-				| ATA_FLAG_NO_ATAPI;
-
-	uc_priv->mmio_base = (void __iomem *)CONFIG_DWC_AHSATA_BASE_ADDR;
-
-	/* initialize adapter */
-	rc = ahci_host_init(uc_priv);
-	if (rc)
-		goto err_out;
-
-	ahci_print_info(uc_priv);
-
-	/* Save the uc_private struct to block device struct */
-	sata_dev_desc[pdev].priv = uc_priv;
-
-	return 0;
-
-err_out:
-	return rc;
-}
-
 static int ahci_fill_sg(struct ahci_uc_priv *uc_priv, u8 port,
 			unsigned char *buf, int buf_len)
 {
@@ -751,6 +718,39 @@ static u32 ata_low_level_rw_lba28(struct ahci_uc_priv *uc_priv, u32 blknr,
 	} while (blks != 0);
 
 	return blkcnt;
+}
+
+static int ahci_init_one(int pdev)
+{
+	int rc;
+	struct ahci_uc_priv *uc_priv = NULL;
+
+	uc_priv = malloc(sizeof(struct ahci_uc_priv));
+	memset(uc_priv, 0, sizeof(struct ahci_uc_priv));
+	uc_priv->dev = pdev;
+
+	uc_priv->host_flags = ATA_FLAG_SATA
+				| ATA_FLAG_NO_LEGACY
+				| ATA_FLAG_MMIO
+				| ATA_FLAG_PIO_DMA
+				| ATA_FLAG_NO_ATAPI;
+
+	uc_priv->mmio_base = (void __iomem *)CONFIG_DWC_AHSATA_BASE_ADDR;
+
+	/* initialize adapter */
+	rc = ahci_host_init(uc_priv);
+	if (rc)
+		goto err_out;
+
+	ahci_print_info(uc_priv);
+
+	/* Save the uc_private struct to block device struct */
+	sata_dev_desc[pdev].priv = uc_priv;
+
+	return 0;
+
+err_out:
+	return rc;
 }
 
 int init_sata(int dev)
