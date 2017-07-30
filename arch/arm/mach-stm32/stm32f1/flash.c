@@ -49,7 +49,7 @@ unsigned long flash_init(void)
 	if (size <= STM32_MAX_BANK) {
 		banks = 1;
 		flash_info[0].sector_count = size >> 1;
-	} else if (size > STM32_MAX_BANK) {
+	} else {
 		banks = 2;
 		flash_info[0].sector_count = STM32_MAX_BANK >> 1;
 		flash_info[1].sector_count = (size - STM32_MAX_BANK) >> 1;
