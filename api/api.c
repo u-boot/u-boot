@@ -625,7 +625,7 @@ int syscall(int call, int *retval, ...)
 
 void api_init(void)
 {
-	struct api_signature *sig = NULL;
+	struct api_signature *sig;
 
 	/* TODO put this into linker set one day... */
 	calls_table[API_RSVD] = NULL;
