@@ -93,6 +93,8 @@ config X86
 	select DM_KEYBOARD
 	select DM_SERIAL
 	select DM_GPIO
+	select PCI
+	select DM_PCI
 	select DM_SPI
 	select DM_SPI_FLASH
 	select TIMER
