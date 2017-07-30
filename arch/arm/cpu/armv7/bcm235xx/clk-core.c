@@ -479,9 +479,9 @@ unsigned long clk_get_rate(struct clk *c)
 {
 	unsigned long rate;
 
-	debug("%s: %s\n", __func__, c->name);
 	if (!c || !c->ops || !c->ops->get_rate)
 		return 0;
+	debug("%s: %s\n", __func__, c->name);
 
 	rate = c->ops->get_rate(c);
 	debug("%s: rate = %ld\n", __func__, rate);
