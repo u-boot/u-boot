@@ -11,8 +11,3 @@ int arch_early_init_r(void)
 {
 	return 0;
 }
-
-int board_early_init_f(void)
-{
-	return 0;
-}
