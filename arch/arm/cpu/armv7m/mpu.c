@@ -68,6 +68,7 @@ void mpu_config(struct mpu_region_config *reg_config)
 		break;
 	case DEVICE_NON_SHARED:
 		attr = (2 << TEX_SHIFT) | BUFFERABLE;
+		break;
 	default:
 		attr = 0; /* strongly ordered */
 		break;
