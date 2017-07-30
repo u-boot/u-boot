@@ -6,6 +6,7 @@
 
 config QEMU
 	bool
+	select ARCH_EARLY_INIT_R
 
 if QEMU
 

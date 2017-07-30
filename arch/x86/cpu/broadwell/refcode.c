@@ -56,7 +56,17 @@ struct rmodule_header {
 	uint32_t padding[4];
 } __packed;
 
-int cpu_run_reference_code(void)
+/**
+ * cpu_run_reference_code() - Run the platform reference code
+ *
+ * Some platforms require a binary blob to be executed once SDRAM is
+ * available. This is used to set up various platform features, such as the
+ * platform controller hub (PCH). This function should be implemented by the
+ * CPU-specific code.
+ *
+ * @return 0 on success, -ve on failure
+ */
+static int cpu_run_reference_code(void)
 {
 	struct pei_data _pei_data __aligned(8);
 	struct pei_data *pei_data = &_pei_data;
@@ -110,4 +120,9 @@ int cpu_run_reference_code(void)
 	debug("Refereence code completed\n");
 
 	return 0;
+}
+
+int arch_early_init_r(void)
+{
+	return cpu_run_reference_code();
 }

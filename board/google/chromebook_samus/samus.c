@@ -5,9 +5,3 @@
  */
 
 #include <common.h>
-#include <asm/cpu.h>
-
-int arch_early_init_r(void)
-{
-	return cpu_run_reference_code();
-}

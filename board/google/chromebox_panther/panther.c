@@ -5,9 +5,3 @@
  */
 
 #include <common.h>
-#include <asm/arch/pch.h>
-
-int arch_early_init_r(void)
-{
-	return 0;
-}

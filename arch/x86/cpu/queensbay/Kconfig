@@ -8,6 +8,7 @@ config INTEL_QUEENSBAY
 	bool
 	select HAVE_FSP
 	select HAVE_CMC
+	select ARCH_EARLY_INIT_R
 
 if INTEL_QUEENSBAY
 
