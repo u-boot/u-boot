@@ -91,17 +91,21 @@ config X86
 	select SUPPORT_OF_CONTROL
 	select OF_CONTROL
 	select DM
-	select DM_KEYBOARD
-	select DM_SERIAL
-	select DM_GPIO
-	select PCI
 	select DM_PCI
-	select DM_SPI
-	select DM_SPI_FLASH
+	select PCI
 	select TIMER
 	select X86_TSC_TIMER
 	select USB
 	select USB_EHCI_HCD
+	imply DM_ETH
+	imply DM_GPIO
+	imply DM_KEYBOARD
+	imply DM_RTC
+	imply DM_SERIAL
+	imply DM_SPI
+	imply DM_SPI_FLASH
+	imply DM_USB
+	imply DM_VIDEO
 	imply CMD_FPGA_LOADMK
 	imply CMD_GETTIME
 	imply CMD_IO
