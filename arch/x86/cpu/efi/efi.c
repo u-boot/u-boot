@@ -31,8 +31,3 @@ int misc_init_r(void)
 {
 	return 0;
 }
-
-int arch_misc_init(void)
-{
-	return 0;
-}

@@ -7,6 +7,7 @@
 config INTEL_QUARK
 	bool
 	select HAVE_RMU
+	select ARCH_MISC_INIT
 
 if INTEL_QUARK
 
