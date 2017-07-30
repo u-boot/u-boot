@@ -8,6 +8,7 @@ config INTEL_BAYTRAIL
 	bool
 	select HAVE_FSP if !EFI
 	imply ENV_IS_IN_SPI_FLASH
+	imply HAVE_INTEL_ME if !EFI
 
 if INTEL_BAYTRAIL
 config INTERNAL_UART

@@ -6,6 +6,7 @@
 config INTEL_BROADWELL
 	bool
 	select CACHE_MRC_BIN
+	imply HAVE_INTEL_ME
 
 if INTEL_BROADWELL
 
