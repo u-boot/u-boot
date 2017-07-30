@@ -10,6 +10,8 @@ config QEMU
 	imply ENV_IS_NOWHERE
 	imply E1000
 	imply SYS_NS16550
+	imply USB
+	imply USB_EHCI_HCD
 	imply VIDEO_VESA
 
 if QEMU

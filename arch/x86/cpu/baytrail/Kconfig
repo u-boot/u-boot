@@ -19,6 +19,9 @@ config INTEL_BAYTRAIL
 	imply SCSI
 	imply SPI_FLASH
 	imply SYS_NS16550
+	imply USB
+	imply USB_EHCI_HCD
+	imply USB_XHCI_HCD
 	imply VIDEO_VESA
 
 if INTEL_BAYTRAIL

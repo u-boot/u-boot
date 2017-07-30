@@ -95,8 +95,6 @@ config X86
 	select PCI
 	select TIMER
 	select X86_TSC_TIMER
-	select USB
-	select USB_EHCI_HCD
 	imply DM_ETH
 	imply DM_GPIO
 	imply DM_KEYBOARD

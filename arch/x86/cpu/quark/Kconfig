@@ -19,6 +19,8 @@ config INTEL_QUARK
 	imply MMC_SDHCI_SDMA
 	imply SPI_FLASH
 	imply SYS_NS16550
+	imply USB
+	imply USB_EHCI_HCD
 
 if INTEL_QUARK
 

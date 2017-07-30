@@ -12,6 +12,9 @@ config SYS_COREBOOT
 	imply MMC_SDHCI_SDMA
 	imply SPI_FLASH
 	imply SYS_NS16550
+	imply USB
+	imply USB_EHCI_HCD
+	imply USB_XHCI_HCD
 	imply VIDEO_COREBOOT
 	imply CMD_CBFS
 	imply FS_CBFS

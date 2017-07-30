@@ -13,6 +13,7 @@ config INTEL_TANGIER
 	imply MMC_SDHCI_SDMA
 	imply MMC_SDHCI_TANGIER
 	imply TANGIER_WATCHDOG
+	imply USB
 	imply USB_DWC3
 
 config SYS_CAR_ADDR
