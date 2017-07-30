@@ -89,6 +89,7 @@ config X86
 	select HAVE_PRIVATE_LIBGCC
 	select USE_PRIVATE_LIBGCC
 	select SUPPORT_OF_CONTROL
+	select OF_CONTROL
 	select DM
 	select DM_KEYBOARD
 	select DM_SERIAL
