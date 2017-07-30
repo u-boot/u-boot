@@ -12,6 +12,7 @@ config NORTHBRIDGE_INTEL_IVYBRIDGE
 	imply ENABLE_MRC_CACHE
 	imply ENV_IS_IN_SPI_FLASH
 	imply ICH_SPI
+	imply INTEL_ICH6_GPIO
 	imply SCSI
 	imply SPI_FLASH
 	imply USB

@@ -63,9 +63,6 @@
 
 #define CONFIG_SUPPORT_VFAT
 
-/* x86 GPIOs are accessed through a PCI device */
-#define CONFIG_INTEL_ICH6_GPIO
-
 /*-----------------------------------------------------------------------
  * Command line configuration.
  */

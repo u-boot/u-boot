@@ -44,9 +44,6 @@
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH9_AHCI}
 #endif
 
-/* GPIO is not supported */
-#undef CONFIG_INTEL_ICH6_GPIO
-
 /* SPI is not supported */
 
 #define CONFIG_SPL_FRAMEWORK
