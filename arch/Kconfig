@@ -94,6 +94,8 @@ config X86
 	select DM_GPIO
 	select DM_SPI
 	select DM_SPI_FLASH
+	select TIMER
+	select X86_TSC_TIMER
 	select USB
 	select USB_EHCI_HCD
 	imply CMD_FPGA_LOADMK
