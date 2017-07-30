@@ -493,9 +493,9 @@ int clk_set_rate(struct clk *c, unsigned long rate)
 {
 	int ret;
 
-	debug("%s: %s rate=%ld\n", __func__, c->name, rate);
 	if (!c || !c->ops || !c->ops->set_rate)
 		return -EINVAL;
+	debug("%s: %s rate=%ld\n", __func__, c->name, rate);
 
 	if (c->use_cnt)
 		return -EINVAL;
