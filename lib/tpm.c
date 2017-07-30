@@ -95,8 +95,10 @@ int pack_byte_string(uint8_t *str, size_t size, const char *format, ...)
 			return -1;
 		}
 
-		if (offset + length > size)
+		if (offset + length > size) {
+			va_end(args);
 			return -1;
+		}
 
 		switch (*format) {
 		case 'b':
@@ -163,6 +165,7 @@ int unpack_byte_string(const uint8_t *str, size_t size, const char *format, ...)
 			length = va_arg(args, uint32_t);
 			break;
 		default:
+			va_end(args);
 			debug("Couldn't recognize format string\n");
 			return -1;
 		}
