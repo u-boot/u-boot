@@ -345,7 +345,7 @@ int board_init(void)
 
 static int init_dwmmc(void)
 {
-	int ret;
+	int ret = 0;
 
 #ifdef CONFIG_MMC_DW
 
