@@ -233,7 +233,6 @@ static int sdram_find(struct udevice *dev)
 	uint32_t tseg_base, uma_size, tolud;
 	uint64_t tom, me_base, touud;
 	uint64_t uma_memory_base = 0;
-	uint64_t uma_memory_size;
 	unsigned long long tomk;
 	uint16_t ggc;
 	u32 val;
@@ -298,7 +297,6 @@ static int sdram_find(struct udevice *dev)
 		tolud += uma_size << 10;
 		/* UMA starts at old TOLUD */
 		uma_memory_base = tomk * 1024ULL;
-		uma_memory_size = uma_size * 1024ULL;
 		debug("ME UMA base %llx size %uM\n", me_base, uma_size >> 10);
 	}
 
@@ -312,13 +310,11 @@ static int sdram_find(struct udevice *dev)
 		debug("%uM UMA", uma_size >> 10);
 		tomk -= uma_size;
 		uma_memory_base = tomk * 1024ULL;
-		uma_memory_size += uma_size * 1024ULL;
 
 		/* GTT Graphics Stolen Memory Size (GGMS) */
 		uma_size = ((ggc >> 8) & 0x3) * 1024ULL;
 		tomk -= uma_size;
 		uma_memory_base = tomk * 1024ULL;
-		uma_memory_size += uma_size * 1024ULL;
 		debug(" and %uM GTT\n", uma_size >> 10);
 	}
 
@@ -327,7 +323,6 @@ static int sdram_find(struct udevice *dev)
 	uma_size = (uma_memory_base - tseg_base) >> 10;
 	tomk -= uma_size;
 	uma_memory_base = tomk * 1024ULL;
-	uma_memory_size += uma_size * 1024ULL;
 	debug("TSEG base 0x%08x size %uM\n", tseg_base, uma_size >> 10);
 
 	debug("Available memory below 4GB: %lluM\n", tomk >> 10);
