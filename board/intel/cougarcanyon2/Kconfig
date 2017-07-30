@@ -22,5 +22,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	select HAVE_FSP
 	select BOARD_ROMSIZE_KB_2048
 	select BOARD_EARLY_INIT_F
+	select SPI_FLASH_WINBOND
 
 endif
