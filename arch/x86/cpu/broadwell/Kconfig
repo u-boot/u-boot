@@ -10,6 +10,7 @@ config INTEL_BROADWELL
 	imply HAVE_INTEL_ME
 	imply ENABLE_MRC_CACHE
 	imply ENV_IS_IN_SPI_FLASH
+	imply AHCI_PCI
 	imply ICH_SPI
 	imply INTEL_BROADWELL_GPIO
 	imply SCSI

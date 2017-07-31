@@ -4,6 +4,7 @@ config SYS_COREBOOT
 	bool
 	default y
 	imply ENV_IS_NOWHERE
+	imply AHCI_PCI
 	imply E1000
 	imply ICH_SPI
 	imply MMC

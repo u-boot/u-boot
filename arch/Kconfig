@@ -95,12 +95,14 @@ config X86
 	select PCI
 	select TIMER
 	select X86_TSC_TIMER
+	imply BLK
 	imply DM_ETH
 	imply DM_GPIO
 	imply DM_KEYBOARD
 	imply DM_MMC
 	imply DM_RTC
 	imply DM_SERIAL
+	imply DM_SCSI
 	imply DM_SPI
 	imply DM_SPI_FLASH
 	imply DM_USB

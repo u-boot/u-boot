@@ -10,6 +10,7 @@ config INTEL_QUEENSBAY
 	select HAVE_CMC
 	select ARCH_EARLY_INIT_R
 	imply ENV_IS_IN_SPI_FLASH
+	imply AHCI_PCI
 	imply ICH_SPI
 	imply INTEL_ICH6_GPIO
 	imply MMC
