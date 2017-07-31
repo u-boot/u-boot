@@ -18,14 +18,6 @@ DECLARE_GLOBAL_DATA_PTR;
 const efi_guid_t efi_guid_device_path = DEVICE_PATH_GUID;
 const efi_guid_t efi_guid_loaded_image = LOADED_IMAGE_GUID;
 
-efi_status_t EFIAPI efi_return_handle(void *handle, efi_guid_t *protocol,
-			void **protocol_interface, void *agent_handle,
-			void *controller_handle, uint32_t attributes)
-{
-	*protocol_interface = handle;
-	return EFI_SUCCESS;
-}
-
 static efi_status_t efi_loader_relocate(const IMAGE_BASE_RELOCATION *rel,
 			unsigned long rel_size, void *efi_reloc)
 {

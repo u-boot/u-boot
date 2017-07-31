@@ -35,29 +35,6 @@ struct efi_disk_obj {
 	const struct blk_desc *desc;
 };
 
-static efi_status_t EFIAPI efi_disk_open_block(void *handle,
-			efi_guid_t *protocol, void **protocol_interface,
-			void *agent_handle, void *controller_handle,
-			uint32_t attributes)
-{
-	struct efi_disk_obj *diskobj = handle;
-
-	*protocol_interface = &diskobj->ops;
-
-	return EFI_SUCCESS;
-}
-
-static efi_status_t EFIAPI efi_disk_open_dp(void *handle, efi_guid_t *protocol,
-			void **protocol_interface, void *agent_handle,
-			void *controller_handle, uint32_t attributes)
-{
-	struct efi_disk_obj *diskobj = handle;
-
-	*protocol_interface = diskobj->dp;
-
-	return EFI_SUCCESS;
-}
-
 static efi_status_t EFIAPI efi_disk_reset(struct efi_block_io *this,
 			char extended_verification)
 {
@@ -91,7 +68,7 @@ static efi_status_t EFIAPI efi_disk_rw_blocks(struct efi_block_io *this,
 
 	/* We only support full block access */
 	if (buffer_size & (blksz - 1))
-		return EFI_EXIT(EFI_DEVICE_ERROR);
+		return EFI_DEVICE_ERROR;
 
 	if (direction == EFI_DISK_READ)
 		n = blk_dread(desc, lba, blocks, buffer);
@@ -104,9 +81,9 @@ static efi_status_t EFIAPI efi_disk_rw_blocks(struct efi_block_io *this,
 	debug("EFI: %s:%d n=%lx blocks=%x\n", __func__, __LINE__, n, blocks);
 
 	if (n != blocks)
-		return EFI_EXIT(EFI_DEVICE_ERROR);
+		return EFI_DEVICE_ERROR;
 
-	return EFI_EXIT(EFI_SUCCESS);
+	return EFI_SUCCESS;
 }
 
 static efi_status_t EFIAPI efi_disk_read_blocks(struct efi_block_io *this,
@@ -210,10 +187,11 @@ static void efi_disk_add_dev(const char *name,
 	diskobj = calloc(1, objlen);
 
 	/* Fill in object data */
+	dp = (void *)&diskobj[1];
 	diskobj->parent.protocols[0].guid = &efi_block_io_guid;
-	diskobj->parent.protocols[0].open = efi_disk_open_block;
+	diskobj->parent.protocols[0].protocol_interface = &diskobj->ops;
 	diskobj->parent.protocols[1].guid = &efi_guid_device_path;
-	diskobj->parent.protocols[1].open = efi_disk_open_dp;
+	diskobj->parent.protocols[1].protocol_interface = dp;
 	diskobj->parent.handle = diskobj;
 	diskobj->ops = block_io_disk_template;
 	diskobj->ifname = if_typename;
@@ -230,7 +208,6 @@ static void efi_disk_add_dev(const char *name,
 	diskobj->ops.media = &diskobj->media;
 
 	/* Fill in device path */
-	dp = (void*)&diskobj[1];
 	diskobj->dp = dp;
 	dp[0].dp.type = DEVICE_PATH_TYPE_MEDIA_DEVICE;
 	dp[0].dp.sub_type = DEVICE_PATH_SUB_TYPE_FILE_PATH;
@@ -289,9 +266,9 @@ int efi_disk_register(void)
 #ifdef CONFIG_BLK
 	struct udevice *dev;
 
-	for (uclass_first_device(UCLASS_BLK, &dev);
+	for (uclass_first_device_check(UCLASS_BLK, &dev);
 	     dev;
-	     uclass_next_device(&dev)) {
+	     uclass_next_device_check(&dev)) {
 		struct blk_desc *desc = dev_get_uclass_platdata(dev);
 		const char *if_typename = dev->driver->name;
 

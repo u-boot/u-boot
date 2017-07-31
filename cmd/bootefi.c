@@ -20,6 +20,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static uint8_t efi_obj_list_initalized;
+
 /*
  * When booting using the "bootefi" command, we don't know which
  * physical device the file came from. So we create a pseudo-device
@@ -54,14 +56,6 @@ static struct efi_device_path_file_path bootefi_device_path[] = {
 	}
 };
 
-static efi_status_t EFIAPI bootefi_open_dp(void *handle, efi_guid_t *protocol,
-			void **protocol_interface, void *agent_handle,
-			void *controller_handle, uint32_t attributes)
-{
-	*protocol_interface = bootefi_device_path;
-	return EFI_SUCCESS;
-}
-
 /* The EFI loaded_image interface for the image executed via "bootefi" */
 static struct efi_loaded_image loaded_image_info = {
 	.device_handle = bootefi_device_path,
@@ -78,7 +72,7 @@ static struct efi_object loaded_image_info_obj = {
 			 * return handle which points to loaded_image_info
 			 */
 			.guid = &efi_guid_loaded_image,
-			.open = &efi_return_handle,
+			.protocol_interface = &loaded_image_info,
 		},
 		{
 			/*
@@ -86,7 +80,15 @@ static struct efi_object loaded_image_info_obj = {
 			 * bootefi_device_path
 			 */
 			.guid = &efi_guid_device_path,
-			.open = &bootefi_open_dp,
+			.protocol_interface = bootefi_device_path,
+		},
+		{
+			.guid = &efi_guid_console_control,
+			.protocol_interface = (void *) &efi_console_control
+		},
+		{
+			.guid = &efi_guid_device_path_to_text_protocol,
+			.protocol_interface = (void *) &efi_device_path_to_text
 		},
 	},
 };
@@ -99,10 +101,42 @@ static struct efi_object bootefi_device_obj = {
 			/* When asking for the device path interface, return
 			 * bootefi_device_path */
 			.guid = &efi_guid_device_path,
-			.open = &bootefi_open_dp,
+			.protocol_interface = bootefi_device_path
 		}
 	},
 };
+
+/* Initialize and populate EFI object list */
+static void efi_init_obj_list(void)
+{
+	efi_obj_list_initalized = 1;
+
+	list_add_tail(&loaded_image_info_obj.link, &efi_obj_list);
+	list_add_tail(&bootefi_device_obj.link, &efi_obj_list);
+	efi_console_register();
+#ifdef CONFIG_PARTITIONS
+	efi_disk_register();
+#endif
+#if defined(CONFIG_LCD) || defined(CONFIG_DM_VIDEO)
+	efi_gop_register();
+#endif
+#ifdef CONFIG_NET
+	void *nethandle = loaded_image_info.device_handle;
+	efi_net_register(&nethandle);
+
+	if (!memcmp(bootefi_device_path[0].str, "N\0e\0t", 6))
+		loaded_image_info.device_handle = nethandle;
+	else
+		loaded_image_info.device_handle = bootefi_device_path;
+#endif
+#ifdef CONFIG_GENERATE_SMBIOS_TABLE
+	efi_smbios_register();
+#endif
+
+	/* Initialize EFI runtime services */
+	efi_reset_system_init();
+	efi_get_time_init();
+}
 
 static void *copy_fdt(void *fdt)
 {
@@ -147,15 +181,28 @@ static void *copy_fdt(void *fdt)
 	return new_fdt;
 }
 
+static ulong efi_do_enter(void *image_handle,
+			  struct efi_system_table *st,
+			  asmlinkage ulong (*entry)(void *image_handle,
+				struct efi_system_table *st))
+{
+	efi_status_t ret = EFI_LOAD_ERROR;
+
+	if (entry)
+		ret = entry(image_handle, st);
+	st->boottime->exit(image_handle, ret, 0, NULL);
+	return ret;
+}
+
 #ifdef CONFIG_ARM64
-static unsigned long efi_run_in_el2(ulong (*entry)(void *image_handle,
-		struct efi_system_table *st), void *image_handle,
-		struct efi_system_table *st)
+static unsigned long efi_run_in_el2(asmlinkage ulong (*entry)(
+			void *image_handle, struct efi_system_table *st),
+			void *image_handle, struct efi_system_table *st)
 {
 	/* Enable caches again */
 	dcache_enable();
 
-	return entry(image_handle, st);
+	return efi_do_enter(image_handle, st, entry);
 }
 #endif
 
@@ -168,6 +215,7 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 	ulong (*entry)(void *image_handle, struct efi_system_table *st)
 		asmlinkage;
 	ulong fdt_pages, fdt_size, fdt_start, fdt_end;
+	const efi_guid_t fdt_guid = EFI_FDT_GUID;
 	bootm_headers_t img = { 0 };
 
 	/*
@@ -186,9 +234,7 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 		}
 
 		/* Link to it in the efi tables */
-		systab.tables[0].guid = EFI_FDT_GUID;
-		systab.tables[0].table = fdt;
-		systab.nr_tables = 1;
+		efi_install_configuration_table(&fdt_guid, fdt);
 
 		/* And reserve the space in the memory map */
 		fdt_start = ((ulong)fdt) & ~EFI_PAGE_MASK;
@@ -201,7 +247,7 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 				   EFI_BOOT_SERVICES_DATA, true);
 	} else {
 		printf("WARNING: Invalid device tree, expect boot to fail\n");
-		systab.nr_tables = 0;
+		efi_install_configuration_table(&fdt_guid, NULL);
 	}
 
 	/* Load the EFI payload */
@@ -210,38 +256,14 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 		return -ENOENT;
 
 	/* Initialize and populate EFI object list */
-	INIT_LIST_HEAD(&efi_obj_list);
-	list_add_tail(&loaded_image_info_obj.link, &efi_obj_list);
-	list_add_tail(&bootefi_device_obj.link, &efi_obj_list);
-#ifdef CONFIG_PARTITIONS
-	efi_disk_register();
-#endif
-#ifdef CONFIG_LCD
-	efi_gop_register();
-#endif
-#ifdef CONFIG_NET
-	void *nethandle = loaded_image_info.device_handle;
-	efi_net_register(&nethandle);
-
-	if (!memcmp(bootefi_device_path[0].str, "N\0e\0t", 6))
-		loaded_image_info.device_handle = nethandle;
-	else
-		loaded_image_info.device_handle = bootefi_device_path;
-#endif
-#ifdef CONFIG_GENERATE_SMBIOS_TABLE
-	efi_smbios_register();
-#endif
-
-	/* Initialize EFI runtime services */
-	efi_reset_system_init();
-	efi_get_time_init();
+	if (!efi_obj_list_initalized)
+		efi_init_obj_list();
 
 	/* Call our payload! */
 	debug("%s:%d Jumping to 0x%lx\n", __func__, __LINE__, (long)entry);
 
 	if (setjmp(&loaded_image_info.exit_jmp)) {
-		efi_status_t status = loaded_image_info.exit_status;
-		return status == EFI_SUCCESS ? 0 : -EINVAL;
+		return loaded_image_info.exit_status;
 	}
 
 #ifdef CONFIG_ARM64
@@ -260,7 +282,7 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 	}
 #endif
 
-	return entry(&loaded_image_info, &systab);
+	return efi_do_enter(&loaded_image_info, &systab, entry);
 }
 
 
@@ -269,7 +291,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *saddr, *sfdt;
 	unsigned long addr, fdt_addr = 0;
-	int r = 0;
+	unsigned long r;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -294,12 +316,13 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	printf("## Starting EFI application at %08lx ...\n", addr);
 	r = do_bootefi_exec((void *)addr, (void*)fdt_addr);
-	printf("## Application terminated, r = %d\n", r);
+	printf("## Application terminated, r = %lu\n",
+	       r & ~EFI_ERROR_MASK);
 
-	if (r != 0)
-		r = 1;
-
-	return r;
+	if (r != EFI_SUCCESS)
+		return 1;
+	else
+		return 0;
 }
 
 #ifdef CONFIG_SYS_LONGHELP
@@ -325,7 +348,7 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 {
 	__maybe_unused struct blk_desc *desc;
 	char devname[32] = { 0 }; /* dp->str is u16[32] long */
-	char *colon;
+	char *colon, *s;
 
 #if defined(CONFIG_BLK) || CONFIG_IS_ENABLED(ISO_PARTITION)
 	desc = blk_get_dev(dev, simple_strtol(devnr, NULL, 10));
@@ -370,5 +393,9 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 	} else {
 		snprintf(devname, sizeof(devname), "%s", path);
 	}
+	/* DOS style file path: */
+	s = devname;
+	while ((s = strchr(s, '/')))
+		*s++ = '\\';
 	ascii2unicode(bootefi_image_path[0].str, devname);
 }

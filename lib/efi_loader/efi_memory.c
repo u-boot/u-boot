@@ -379,6 +379,9 @@ efi_status_t efi_free_pool(void *buffer)
 	efi_status_t r;
 	struct efi_pool_allocation *alloc;
 
+	if (buffer == NULL)
+		return EFI_INVALID_PARAMETER;
+
 	alloc = container_of(buffer, struct efi_pool_allocation, data);
 	/* Sanity check, was the supplied address returned by allocate_pool */
 	assert(((uintptr_t)alloc & EFI_PAGE_MASK) == 0);
@@ -406,14 +409,14 @@ efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
 
 	*memory_map_size = map_size;
 
+	if (provided_map_size < map_size)
+		return EFI_BUFFER_TOO_SMALL;
+
 	if (descriptor_size)
 		*descriptor_size = sizeof(struct efi_mem_desc);
 
 	if (descriptor_version)
 		*descriptor_version = EFI_MEMORY_DESCRIPTOR_VERSION;
-
-	if (provided_map_size < map_size)
-		return EFI_BUFFER_TOO_SMALL;
 
 	/* Copy list into array */
 	if (memory_map) {
@@ -427,6 +430,8 @@ efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
 			memory_map--;
 		}
 	}
+
+	*map_key = 0;
 
 	return EFI_SUCCESS;
 }

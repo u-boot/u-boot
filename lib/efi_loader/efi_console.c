@@ -421,8 +421,61 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
-const struct efi_simple_input_interface efi_con_in = {
+struct efi_simple_input_interface efi_con_in = {
 	.reset = efi_cin_reset,
 	.read_key_stroke = efi_cin_read_key_stroke,
 	.wait_for_key = NULL,
 };
+
+static struct efi_event *console_timer_event;
+
+static void EFIAPI efi_key_notify(struct efi_event *event, void *context)
+{
+}
+
+static void EFIAPI efi_console_timer_notify(struct efi_event *event,
+					    void *context)
+{
+	EFI_ENTRY("%p, %p", event, context);
+	if (tstc())
+		efi_signal_event(efi_con_in.wait_for_key);
+	EFI_EXIT(EFI_SUCCESS);
+}
+
+
+static struct efi_object efi_console_control_obj =
+	EFI_PROTOCOL_OBJECT(efi_guid_console_control, &efi_console_control);
+static struct efi_object efi_console_output_obj =
+	EFI_PROTOCOL_OBJECT(EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL_GUID, &efi_con_out);
+static struct efi_object efi_console_input_obj =
+	EFI_PROTOCOL_OBJECT(EFI_SIMPLE_TEXT_INPUT_PROTOCOL_GUID, &efi_con_in);
+
+/* This gets called from do_bootefi_exec(). */
+int efi_console_register(void)
+{
+	efi_status_t r;
+
+	/* Hook up to the device list */
+	list_add_tail(&efi_console_control_obj.link, &efi_obj_list);
+	list_add_tail(&efi_console_output_obj.link, &efi_obj_list);
+	list_add_tail(&efi_console_input_obj.link, &efi_obj_list);
+
+	r = efi_create_event(EVT_NOTIFY_WAIT, TPL_CALLBACK,
+			     efi_key_notify, NULL, &efi_con_in.wait_for_key);
+	if (r != EFI_SUCCESS) {
+		printf("ERROR: Failed to register WaitForKey event\n");
+		return r;
+	}
+	r = efi_create_event(EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK,
+			     efi_console_timer_notify, NULL,
+			     &console_timer_event);
+	if (r != EFI_SUCCESS) {
+		printf("ERROR: Failed to register console event\n");
+		return r;
+	}
+	/* 5000 ns cycle is sufficient for 2 MBaud */
+	r = efi_set_timer(console_timer_event, EFI_TIMER_PERIODIC, 50);
+	if (r != EFI_SUCCESS)
+		printf("ERROR: Failed to set console timer\n");
+	return r;
+}

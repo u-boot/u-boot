@@ -22,20 +22,33 @@
 #endif
 
 /* Types and defines for EFI CreateEvent */
-enum efi_event_type {
+enum efi_timer_delay {
 	EFI_TIMER_STOP = 0,
 	EFI_TIMER_PERIODIC = 1,
 	EFI_TIMER_RELATIVE = 2
 };
 
-#define EVT_NOTIFY_WAIT		0x00000100
-#define EVT_NOTIFY_SIGNAL	0x00000200
+#define UINTN size_t
+
+#define EVT_TIMER				0x80000000
+#define EVT_RUNTIME				0x40000000
+#define EVT_NOTIFY_WAIT				0x00000100
+#define EVT_NOTIFY_SIGNAL			0x00000200
+#define EVT_SIGNAL_EXIT_BOOT_SERVICES		0x00000201
+#define EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE	0x60000202
+
+#define TPL_APPLICATION		0x04
+#define TPL_CALLBACK		0x08
+#define TPL_NOTIFY		0x10
+#define TPL_HIGH_LEVEL		0x1F
+
+struct efi_event;
 
 /* EFI Boot Services table */
 struct efi_boot_services {
 	struct efi_table_hdr hdr;
-	efi_status_t (EFIAPI *raise_tpl)(unsigned long new_tpl);
-	void (EFIAPI *restore_tpl)(unsigned long old_tpl);
+	efi_status_t (EFIAPI *raise_tpl)(UINTN new_tpl);
+	void (EFIAPI *restore_tpl)(UINTN old_tpl);
 
 	efi_status_t (EFIAPI *allocate_pages)(int, int, unsigned long,
 					      efi_physical_addr_t *);
@@ -46,19 +59,21 @@ struct efi_boot_services {
 	efi_status_t (EFIAPI *allocate_pool)(int, unsigned long, void **);
 	efi_status_t (EFIAPI *free_pool)(void *);
 
-	efi_status_t (EFIAPI *create_event)(enum efi_event_type type,
-			unsigned long notify_tpl,
-			void (EFIAPI *notify_function) (void *event,
-							void *context),
-			void *notify_context, void **event);
-	efi_status_t (EFIAPI *set_timer)(void *event, int type,
-			uint64_t trigger_time);
+	efi_status_t (EFIAPI *create_event)(uint32_t type,
+			UINTN notify_tpl,
+			void (EFIAPI *notify_function) (
+					struct efi_event *event,
+					void *context),
+			void *notify_context, struct efi_event **event);
+	efi_status_t (EFIAPI *set_timer)(struct efi_event *event,
+					 enum efi_timer_delay type,
+					 uint64_t trigger_time);
 	efi_status_t (EFIAPI *wait_for_event)(unsigned long number_of_events,
-			void *event, unsigned long *index);
-	efi_status_t (EFIAPI *signal_event)(void *event);
-	efi_status_t (EFIAPI *close_event)(void *event);
-	efi_status_t (EFIAPI *check_event)(void *event);
-
+			struct efi_event **event, unsigned long *index);
+	efi_status_t (EFIAPI *signal_event)(struct efi_event *event);
+	efi_status_t (EFIAPI *close_event)(struct efi_event *event);
+	efi_status_t (EFIAPI *check_event)(struct efi_event *event);
+#define EFI_NATIVE_INTERFACE	0x00000000
 	efi_status_t (EFIAPI *install_protocol_interface)(
 			void **handle, efi_guid_t *protocol,
 			int protocol_interface_type, void *protocol_interface);
@@ -71,7 +86,7 @@ struct efi_boot_services {
 					       void **);
 	void *reserved;
 	efi_status_t (EFIAPI *register_protocol_notify)(
-			efi_guid_t *protocol, void *event,
+			efi_guid_t *protocol, struct efi_event *event,
 			void **registration);
 	efi_status_t (EFIAPI *locate_handle)(
 			enum efi_locate_search_type search_type,
@@ -334,6 +349,11 @@ struct simple_text_output_mode {
 	bool cursor_visible;
 };
 
+
+#define EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL_GUID \
+	EFI_GUID(0x387477c2, 0x69c7, 0x11d2, \
+		 0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
+
 struct efi_simple_text_output_protocol {
 	void *reset;
 	efi_status_t (EFIAPI *output_string)(
@@ -368,13 +388,17 @@ struct efi_input_key {
 	s16 unicode_char;
 };
 
+#define EFI_SIMPLE_TEXT_INPUT_PROTOCOL_GUID \
+	EFI_GUID(0x387477c1, 0x69c7, 0x11d2, \
+		 0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
+
 struct efi_simple_input_interface {
 	efi_status_t(EFIAPI *reset)(struct efi_simple_input_interface *this,
 			bool ExtendedVerification);
 	efi_status_t(EFIAPI *read_key_stroke)(
 			struct efi_simple_input_interface *this,
 			struct efi_input_key *key);
-	void *wait_for_key;
+	struct efi_event *wait_for_key;
 };
 
 #define CONSOLE_CONTROL_GUID \
@@ -393,6 +417,30 @@ struct efi_console_control_protocol
 	efi_status_t (EFIAPI *lock_std_in)(
 			struct efi_console_control_protocol *this,
 			uint16_t *password);
+};
+
+#define EFI_DEVICE_PATH_TO_TEXT_PROTOCOL_GUID \
+	EFI_GUID(0x8b843e20, 0x8132, 0x4852, \
+		 0x90, 0xcc, 0x55, 0x1a, 0x4e, 0x4a, 0x7f, 0x1c)
+
+struct efi_device_path_protocol
+{
+	uint8_t type;
+	uint8_t sub_type;
+	uint16_t length;
+	uint8_t data[];
+};
+
+struct efi_device_path_to_text_protocol
+{
+	uint16_t *(EFIAPI *convert_device_node_to_text)(
+			struct efi_device_path_protocol *device_node,
+			bool display_only,
+			bool allow_shortcuts);
+	uint16_t *(EFIAPI *convert_device_path_to_text)(
+			struct efi_device_path_protocol *device_path,
+			bool display_only,
+			bool allow_shortcuts);
 };
 
 #define EFI_GOP_GUID \

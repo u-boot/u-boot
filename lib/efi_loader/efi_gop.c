@@ -28,6 +28,7 @@ struct efi_gop_obj {
 	struct efi_gop_mode mode;
 	/* Fields we only have acces to during init */
 	u32 bpix;
+	void *fb;
 };
 
 static efi_status_t EFIAPI gop_query_mode(struct efi_gop *this, u32 mode_number,
@@ -71,7 +72,7 @@ static efi_status_t EFIAPI gop_blt(struct efi_gop *this, void *buffer,
 	if (operation != EFI_BLT_BUFFER_TO_VIDEO)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-	fb = (void*)gd->fb_base;
+	fb = gopobj->fb;
 	line_len16 = gopobj->info.width * sizeof(u16);
 	line_len32 = gopobj->info.width * sizeof(u32);
 
@@ -130,6 +131,7 @@ int efi_gop_register(void)
 	struct efi_gop_obj *gopobj;
 	u32 bpix, col, row;
 	u64 fb_base, fb_size;
+	void *fb;
 
 #ifdef CONFIG_DM_VIDEO
 	struct udevice *vdev;
@@ -144,6 +146,7 @@ int efi_gop_register(void)
 	row = video_get_ysize(vdev);
 	fb_base = (uintptr_t)priv->fb;
 	fb_size = priv->fb_size;
+	fb = priv->fb;
 #else
 	int line_len;
 
@@ -152,6 +155,7 @@ int efi_gop_register(void)
 	row = panel_info.vl_row;
 	fb_base = gd->fb_base;
 	fb_size = lcd_get_size(&line_len);
+	fb = gd->fb_base;
 #endif
 
 	switch (bpix) {
@@ -172,7 +176,7 @@ int efi_gop_register(void)
 
 	/* Fill in object data */
 	gopobj->parent.protocols[0].guid = &efi_gop_guid;
-	gopobj->parent.protocols[0].open = efi_return_handle;
+	gopobj->parent.protocols[0].protocol_interface = &gopobj->ops;
 	gopobj->parent.handle = &gopobj->ops;
 	gopobj->ops.query_mode = gop_query_mode;
 	gopobj->ops.set_mode = gop_set_mode;
@@ -200,6 +204,7 @@ int efi_gop_register(void)
 	gopobj->info.pixels_per_scanline = col;
 
 	gopobj->bpix = bpix;
+	gopobj->fb = fb;
 
 	/* Hook up to the device list */
 	list_add_tail(&gopobj->parent.link, &efi_obj_list);

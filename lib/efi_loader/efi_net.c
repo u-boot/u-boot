@@ -199,30 +199,6 @@ static efi_status_t EFIAPI efi_net_receive(struct efi_simple_network *this,
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
-static efi_status_t EFIAPI efi_net_open_dp(void *handle, efi_guid_t *protocol,
-			void **protocol_interface, void *agent_handle,
-			void *controller_handle, uint32_t attributes)
-{
-	struct efi_simple_network *net = handle;
-	struct efi_net_obj *netobj = container_of(net, struct efi_net_obj, net);
-
-	*protocol_interface = &netobj->dp_mac;
-
-	return EFI_SUCCESS;
-}
-
-static efi_status_t EFIAPI efi_net_open_pxe(void *handle, efi_guid_t *protocol,
-			void **protocol_interface, void *agent_handle,
-			void *controller_handle, uint32_t attributes)
-{
-	struct efi_simple_network *net = handle;
-	struct efi_net_obj *netobj = container_of(net, struct efi_net_obj, net);
-
-	*protocol_interface = &netobj->pxe;
-
-	return EFI_SUCCESS;
-}
-
 void efi_net_set_dhcp_ack(void *pkt, int len)
 {
 	int maxsize = sizeof(*dhcp_ack);
@@ -258,11 +234,11 @@ int efi_net_register(void **handle)
 
 	/* Fill in object data */
 	netobj->parent.protocols[0].guid = &efi_net_guid;
-	netobj->parent.protocols[0].open = efi_return_handle;
+	netobj->parent.protocols[0].protocol_interface = &netobj->net;
 	netobj->parent.protocols[1].guid = &efi_guid_device_path;
-	netobj->parent.protocols[1].open = efi_net_open_dp;
+	netobj->parent.protocols[1].protocol_interface = &netobj->dp_mac;
 	netobj->parent.protocols[2].guid = &efi_pxe_guid;
-	netobj->parent.protocols[2].open = efi_net_open_pxe;
+	netobj->parent.protocols[2].protocol_interface = &netobj->pxe;
 	netobj->parent.handle = &netobj->net;
 	netobj->net.start = efi_net_start;
 	netobj->net.stop = efi_net_stop;
