@@ -199,7 +199,7 @@ static int at91_i2c_enable_clk(struct udevice *dev)
 	return 0;
 }
 
-static int at91_i2c_probe(struct udevice *dev, uint chip, uint chip_flags)
+static int at91_i2c_probe_chip(struct udevice *dev, uint chip, uint chip_flags)
 {
 	struct at91_i2c_bus *bus = dev_get_priv(dev);
 	struct at91_i2c_regs *reg = bus->regs;
@@ -254,10 +254,31 @@ static int at91_i2c_ofdata_to_platdata(struct udevice *dev)
 
 static const struct dm_i2c_ops at91_i2c_ops = {
 	.xfer		= at91_i2c_xfer,
-	.probe_chip	= at91_i2c_probe,
+	.probe_chip	= at91_i2c_probe_chip,
 	.set_bus_speed	= at91_i2c_set_bus_speed,
 	.get_bus_speed	= at91_i2c_get_bus_speed,
 };
+
+static int at91_i2c_probe(struct udevice *dev)
+{
+	struct at91_i2c_bus *bus = dev_get_priv(dev);
+	struct at91_i2c_regs *reg = bus->regs;
+	int ret;
+
+	ret = at91_i2c_enable_clk(dev);
+	if (ret)
+		return ret;
+
+	writel(TWI_CR_SWRST, &reg->cr);
+
+	at91_calc_i2c_clock(dev, bus->clock_frequency);
+
+	writel(bus->cwgr_val, &reg->cwgr);
+	writel(TWI_CR_MSEN, &reg->cr);
+	writel(TWI_CR_SVDIS, &reg->cr);
+
+	return 0;
+}
 
 static const struct at91_i2c_pdata at91rm9200_config = {
 	.clk_max_div = 5,
@@ -315,6 +336,7 @@ U_BOOT_DRIVER(i2c_at91) = {
 	.name	= "i2c_at91",
 	.id	= UCLASS_I2C,
 	.of_match = at91_i2c_ids,
+	.probe = at91_i2c_probe,
 	.ofdata_to_platdata = at91_i2c_ofdata_to_platdata,
 	.per_child_auto_alloc_size = sizeof(struct dm_i2c_chip),
 	.priv_auto_alloc_size = sizeof(struct at91_i2c_bus),
