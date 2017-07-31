@@ -710,6 +710,10 @@
 	maximum-speed = "super-speed";
 };
 
+&watchdog0 {
+	status = "okay";
+};
+
 &xilinx_drm {
 	status = "okay";
 };
