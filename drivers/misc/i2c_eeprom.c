@@ -66,6 +66,7 @@ static int i2c_eeprom_std_probe(struct udevice *dev)
 
 static const struct udevice_id i2c_eeprom_std_ids[] = {
 	{ .compatible = "i2c-eeprom", .data = 0 },
+	{ .compatible = "microchip,24aa02e48", .data = 3 },
 	{ .compatible = "atmel,24c01a", .data = 3 },
 	{ .compatible = "atmel,24c02", .data = 3 },
 	{ .compatible = "atmel,24c04", .data = 4 },
