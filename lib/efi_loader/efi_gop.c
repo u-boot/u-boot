@@ -155,7 +155,7 @@ int efi_gop_register(void)
 	row = panel_info.vl_row;
 	fb_base = gd->fb_base;
 	fb_size = lcd_get_size(&line_len);
-	fb = gd->fb_base;
+	fb = (void*)gd->fb_base;
 #endif
 
 	switch (bpix) {
