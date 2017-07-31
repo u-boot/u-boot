@@ -469,7 +469,9 @@ static void atapi_inquiry(struct blk_desc *dev_desc)
 
 	device = dev_desc->devnum;
 	dev_desc->type = DEV_TYPE_UNKNOWN;	/* not yet valid */
+#ifndef CONFIG_BLK
 	dev_desc->block_read = atapi_read;
+#endif
 
 	memset(ccb, 0, sizeof(ccb));
 	memset(iobuf, 0, sizeof(iobuf));
