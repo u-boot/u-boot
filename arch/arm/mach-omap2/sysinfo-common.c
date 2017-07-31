@@ -16,6 +16,15 @@
  */
 u32 get_device_type(void)
 {
+#if defined(CONFIG_OMAP34XX)
+	/*
+	 * On OMAP3 systems we call this early enough that we must just
+	 * use the direct offset for safety.
+	 */
+	return (readl(OMAP34XX_CTRL_BASE + 0x2f0) & DEVICE_TYPE_MASK) >>
+		DEVICE_TYPE_SHIFT;
+#else
 	return (readl((*ctrl)->control_status) & DEVICE_TYPE_MASK) >>
 		DEVICE_TYPE_SHIFT;
+#endif
 }
