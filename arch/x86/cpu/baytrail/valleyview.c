@@ -11,18 +11,6 @@
 #include <asm/mrccache.h>
 #include <asm/post.h>
 
-static struct pci_device_id mmc_supported[] = {
-	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BYT_SDIO },
-	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BYT_SD },
-	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BYT_EMMC2 },
-	{},
-};
-
-int cpu_mmc_init(bd_t *bis)
-{
-	return pci_mmc_init("ValleyView SDHCI", mmc_supported);
-}
-
 #ifndef CONFIG_EFI_APP
 int arch_cpu_init(void)
 {

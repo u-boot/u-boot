@@ -98,6 +98,7 @@ config X86
 	imply DM_ETH
 	imply DM_GPIO
 	imply DM_KEYBOARD
+	imply DM_MMC
 	imply DM_RTC
 	imply DM_SERIAL
 	imply DM_SPI
