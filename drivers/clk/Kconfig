@@ -12,7 +12,7 @@ config CLK
 
 config SPL_CLK
 	bool "Enable clock support in SPL"
-	depends on CLK && SPL_DM
+	depends on CLK && SPL && SPL_DM
 	help
 	  The clock subsystem adds a small amount of overhead to the image.
 	  If this is acceptable and you have a need to use clock drivers in
