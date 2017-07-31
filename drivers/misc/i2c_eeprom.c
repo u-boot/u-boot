@@ -72,6 +72,7 @@ static const struct udevice_id i2c_eeprom_std_ids[] = {
 	{ .compatible = "atmel,24c04", .data = 4 },
 	{ .compatible = "atmel,24c08a", .data = 4 },
 	{ .compatible = "atmel,24c16a", .data = 4 },
+	{ .compatible = "atmel,24mac402", .data = 4 },
 	{ .compatible = "atmel,24c32", .data = 5 },
 	{ .compatible = "atmel,24c64", .data = 5 },
 	{ .compatible = "atmel,24c128", .data = 6 },
