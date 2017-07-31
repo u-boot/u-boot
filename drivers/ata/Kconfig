@@ -40,6 +40,12 @@ config DM_SCSI
 
 menu "SATA/SCSI device support"
 
+config AHCI_PCI
+	bool "Support for PCI-based AHCI controller"
+	depends on DM_SCSI
+	help
+	  Enables support for the PCI-based AHCI controller.
+
 config SATA_CEVA
 	bool "Ceva Sata controller"
 	depends on AHCI
