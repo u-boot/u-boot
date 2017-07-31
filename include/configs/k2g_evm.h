@@ -69,7 +69,6 @@
 	"run envboot; "							\
 	"run run_mon_hs; "						\
 	"run init_${boot}; "						\
-	"run set_name_pmmc get_pmmc_${boot} run_pmmc; "			\
 	"run get_fit_${boot}; "						\
 	"bootm ${fit_loadaddr}#${name_fdt}"
 #endif
