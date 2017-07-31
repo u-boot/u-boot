@@ -13,6 +13,7 @@
 #include <asm/arch/mmc_host_def.h>
 #include <fdtdec.h>
 #include <i2c.h>
+#include <remoteproc.h>
 #include "mux-k2g.h"
 #include "../common/board_detect.h"
 
@@ -352,4 +353,24 @@ int get_num_eth_ports(void)
 {
 	return sizeof(eth_priv_cfg) / sizeof(struct eth_priv_t);
 }
+#endif
+
+#ifdef CONFIG_TI_SECURE_DEVICE
+void board_pmmc_image_process(ulong pmmc_image, size_t pmmc_size)
+{
+	int id = getenv_ulong("dev_pmmc", 10, 0);
+	int ret;
+
+	if (!rproc_is_initialized())
+		rproc_init();
+
+	ret = rproc_load(id, pmmc_image, pmmc_size);
+	printf("Load Remote Processor %d with data@addr=0x%08lx %u bytes:%s\n",
+	       id, pmmc_image, pmmc_size, ret ? " Failed!" : " Success!");
+
+	if (!ret)
+		rproc_start(id);
+}
+
+U_BOOT_FIT_LOADABLE_HANDLER(IH_TYPE_PMMC, board_pmmc_image_process);
 #endif
