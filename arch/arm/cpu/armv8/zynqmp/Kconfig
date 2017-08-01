@@ -73,6 +73,7 @@ config SYS_MALLOC_F_LEN
 
 config DEFINE_TCM_OCM_MMAP
 	bool "Define TCM and OCM memory in MMU Table"
+	default y if MP
 	help
 	  This option if enabled defines the TCM and OCM memory and its
 	  memory attributes in MMU table entry.
