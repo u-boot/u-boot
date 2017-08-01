@@ -100,10 +100,19 @@ int mmc_set_boot_bus_width(struct mmc *mmc, u8 width, u8 reset, u8 mode)
  */
 int mmc_set_part_conf(struct mmc *mmc, u8 ack, u8 part_num, u8 access)
 {
-	return mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CONF,
-			  EXT_CSD_BOOT_ACK(ack) |
-			  EXT_CSD_BOOT_PART_NUM(part_num) |
-			  EXT_CSD_PARTITION_ACCESS(access));
+	int ret;
+	u8 part_conf;
+
+	part_conf = EXT_CSD_BOOT_ACK(ack) |
+		    EXT_CSD_BOOT_PART_NUM(part_num) |
+		    EXT_CSD_PARTITION_ACCESS(access);
+
+	ret = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CONF,
+			 part_conf);
+	if (!ret)
+		mmc->part_config = part_conf;
+
+	return ret;
 }
 
 /*
