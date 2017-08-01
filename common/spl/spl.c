@@ -158,7 +158,7 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 			spl_image->load_addr, spl_image->size);
 #else
 		/* LEGACY image not supported */
-		debug("Legacy boot image support not enabled, proceeding to other boot methods");
+		debug("Legacy boot image support not enabled, proceeding to other boot methods\n");
 		return -EINVAL;
 #endif
 	} else {
@@ -196,7 +196,7 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 		spl_set_header_raw_uboot(spl_image);
 #else
 		/* RAW image not supported, proceed to other boot methods. */
-		debug("Raw boot image support not enabled, proceeding to other boot methods");
+		debug("Raw boot image support not enabled, proceeding to other boot methods\n");
 		return -EINVAL;
 #endif
 	}
