@@ -35,4 +35,9 @@ config SANDBOX_64BIT
 
 endchoice
 
+config SANDBOX_BITS_PER_LONG
+	int
+	default 32 if SANDBOX_32BIT
+	default 64 if SANDBOX_64BIT
+
 endmenu
