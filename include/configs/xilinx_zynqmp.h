@@ -58,7 +58,6 @@
 #ifndef CONFIG_SPL_BUILD
 # define CONFIG_ISO_PARTITION
 #endif
-#define CONFIG_MP
 
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
