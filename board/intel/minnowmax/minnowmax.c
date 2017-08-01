@@ -12,11 +12,6 @@
 
 #define GPIO_BANKE_NAME		"gpioe"
 
-int arch_early_init_r(void)
-{
-	return 0;
-}
-
 int misc_init_r(void)
 {
 	struct udevice *dev;

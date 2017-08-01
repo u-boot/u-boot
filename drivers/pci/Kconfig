@@ -1,6 +1,6 @@
 menuconfig PCI
 	bool "PCI support"
-	default y if PPC || X86
+	default y if PPC
 	help
 	  Enable support for PCI (Peripheral Interconnect Bus), a type of bus
 	  used on some devices to allow the CPU to communicate with its

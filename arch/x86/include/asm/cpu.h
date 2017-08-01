@@ -288,16 +288,4 @@ u32 cpu_get_family_model(void);
  */
 u32 cpu_get_stepping(void);
 
-/**
- * cpu_run_reference_code() - Run the platform reference code
- *
- * Some platforms require a binary blob to be executed once SDRAM is
- * available. This is used to set up various platform features, such as the
- * platform controller hub (PCH). This function should be implemented by the
- * CPU-specific code.
- *
- * @return 0 on success, -ve on failure
- */
-int cpu_run_reference_code(void);
-
 #endif

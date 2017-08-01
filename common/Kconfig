@@ -871,7 +871,6 @@ menu "Start-up hooks"
 
 config ARCH_EARLY_INIT_R
 	bool "Call arch-specific init soon after relocation"
-	default y if X86
 	help
 	  With this option U-Boot will call arch_early_init_r() soon after
 	  relocation. Driver model is running by this point, and the cache
@@ -888,7 +887,6 @@ config ARCH_MISC_INIT
 
 config BOARD_EARLY_INIT_F
 	bool "Call board-specific init before relocation"
-	default y if X86
 	help
 	  Some boards need to perform initialisation as soon as possible
 	  after boot. With this option, U-Boot calls board_early_init_f()

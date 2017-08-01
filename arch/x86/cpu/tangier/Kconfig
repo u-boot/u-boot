@@ -7,6 +7,14 @@
 config INTEL_TANGIER
 	bool
 	depends on INTEL_MID
+	imply INTEL_MID_SERIAL
+	imply MMC
+	imply MMC_SDHCI
+	imply MMC_SDHCI_SDMA
+	imply MMC_SDHCI_TANGIER
+	imply TANGIER_WATCHDOG
+	imply USB
+	imply USB_DWC3
 
 config SYS_CAR_ADDR
 	hex

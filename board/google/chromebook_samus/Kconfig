@@ -21,6 +21,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	select INTEL_BROADWELL
 	select HAVE_INTEL_ME
 	select BOARD_ROMSIZE_KB_8192
+	select SPI_FLASH_WINBOND
 
 config PCIE_ECAM_BASE
 	default 0xf0000000

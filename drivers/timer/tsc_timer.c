@@ -11,17 +11,12 @@
 #include <dm.h>
 #include <malloc.h>
 #include <timer.h>
+#include <asm/cpu.h>
 #include <asm/io.h>
 #include <asm/i8254.h>
 #include <asm/ibmpc.h>
 #include <asm/msr.h>
 #include <asm/u-boot-x86.h>
-
-/* CPU reference clock frequency: in KHz */
-#define FREQ_83		83200
-#define FREQ_100	99840
-#define FREQ_133	133200
-#define FREQ_166	166400
 
 #define MAX_NUM_FREQS	8
 
@@ -45,17 +40,17 @@ struct freq_desc {
 
 static struct freq_desc freq_desc_tables[] = {
 	/* PNW */
-	{ 6, 0x27, 0, { 0, 0, 0, 0, 0, FREQ_100, 0, FREQ_83 } },
+	{ 6, 0x27, 0, { 0, 0, 0, 0, 0, 99840, 0, 83200 } },
 	/* CLV+ */
-	{ 6, 0x35, 0, { 0, FREQ_133, 0, 0, 0, FREQ_100, 0, FREQ_83 } },
-	/* TNG */
-	{ 6, 0x4a, 1, { 0, FREQ_100, FREQ_133, 0, 0, 0, 0, 0 } },
-	/* VLV2 */
-	{ 6, 0x37, 1, { FREQ_83, FREQ_100, FREQ_133, FREQ_166, 0, 0, 0, 0 } },
+	{ 6, 0x35, 0, { 0, 133200, 0, 0, 0, 99840, 0, 83200 } },
+	/* TNG - Intel Atom processor Z3400 series */
+	{ 6, 0x4a, 1, { 0, 100000, 133300, 0, 0, 0, 0, 0 } },
+	/* VLV2 - Intel Atom processor E3000, Z3600, Z3700 series */
+	{ 6, 0x37, 1, { 83300, 100000, 133300, 116700, 80000, 0, 0, 0 } },
+	/* ANN - Intel Atom processor Z3500 series */
+	{ 6, 0x5a, 1, { 83300, 100000, 133300, 100000, 0, 0, 0, 0 } },
 	/* Ivybridge */
 	{ 6, 0x3a, 2, { 0, 0, 0, 0, 0, 0, 0, 0 } },
-	/* ANN */
-	{ 6, 0x5a, 1, { FREQ_83, FREQ_100, FREQ_133, FREQ_100, 0, 0, 0, 0 } },
 };
 
 static int match_cpu(u8 family, u8 model)
@@ -76,15 +71,23 @@ static int match_cpu(u8 family, u8 model)
 	(freq_desc_tables[cpu_index].freqs[freq_id])
 
 /*
- * Do MSR calibration only for known/supported CPUs.
+ * TSC on Intel Atom SoCs capable of determining TSC frequency by MSR is
+ * reliable and the frequency is known (provided by HW).
  *
- * Returns the calibration value or 0 if MSR calibration failed.
+ * On these platforms PIT/HPET is generally not available so calibration won't
+ * work at all and there is no other clocksource to act as a watchdog for the
+ * TSC, so we have no other choice than to trust it.
+ *
+ * Returns the TSC frequency in MHz or 0 if HW does not provide it.
  */
-static unsigned long __maybe_unused try_msr_calibrate_tsc(void)
+static unsigned long __maybe_unused cpu_mhz_from_msr(void)
 {
 	u32 lo, hi, ratio, freq_id, freq;
 	unsigned long res;
 	int cpu_index;
+
+	if (gd->arch.x86_vendor != X86_VENDOR_INTEL)
+		return 0;
 
 	cpu_index = match_cpu(gd->arch.x86, gd->arch.x86_model);
 	if (cpu_index < 0)
@@ -92,19 +95,16 @@ static unsigned long __maybe_unused try_msr_calibrate_tsc(void)
 
 	if (freq_desc_tables[cpu_index].msr_plat) {
 		rdmsr(MSR_PLATFORM_INFO, lo, hi);
-		ratio = (lo >> 8) & 0x1f;
+		ratio = (lo >> 8) & 0xff;
 	} else {
 		rdmsr(MSR_IA32_PERF_STATUS, lo, hi);
 		ratio = (hi >> 8) & 0x1f;
 	}
 	debug("Maximum core-clock to bus-clock ratio: 0x%x\n", ratio);
 
-	if (!ratio)
-		goto fail;
-
 	if (freq_desc_tables[cpu_index].msr_plat == 2) {
 		/* TODO: Figure out how best to deal with this */
-		freq = FREQ_100;
+		freq = 100000;
 		debug("Using frequency: %u KHz\n", freq);
 	} else {
 		/* Get FSB FREQ ID */
@@ -114,18 +114,12 @@ static unsigned long __maybe_unused try_msr_calibrate_tsc(void)
 		debug("Resolved frequency ID: %u, frequency: %u KHz\n",
 		      freq_id, freq);
 	}
-	if (!freq)
-		goto fail;
 
 	/* TSC frequency = maximum resolved freq * maximum resolved bus ratio */
 	res = freq * ratio / 1000;
 	debug("TSC runs at %lu MHz\n", res);
 
 	return res;
-
-fail:
-	debug("Fast TSC calibration using MSR failed\n");
-	return 0;
 }
 
 /*
@@ -347,7 +341,7 @@ static int tsc_timer_probe(struct udevice *dev)
 	if (!uc_priv->clock_rate) {
 		unsigned long fast_calibrate;
 
-		fast_calibrate = try_msr_calibrate_tsc();
+		fast_calibrate = cpu_mhz_from_msr();
 		if (!fast_calibrate) {
 			fast_calibrate = quick_pit_calibrate();
 			if (!fast_calibrate)

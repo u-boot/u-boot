@@ -67,6 +67,12 @@ config INTEL_BROADWELL_GPIO
 	  driver from the common Intel ICH6 driver. It supports a total of
 	  95 GPIOs which can be configured from the device tree.
 
+config INTEL_ICH6_GPIO
+	bool "Intel ICH6 compatible legacy GPIO driver"
+	depends on DM_GPIO
+	help
+	  Say yes here to select Intel ICH6 compatible legacy GPIO driver.
+
 config IMX_RGPIO2P
 	bool "i.MX7ULP RGPIO2P driver"
 	depends on DM

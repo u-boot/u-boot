@@ -87,15 +87,26 @@ config X86
 	bool "x86 architecture"
 	select CREATE_ARCH_SYMLINK
 	select HAVE_PRIVATE_LIBGCC
+	select USE_PRIVATE_LIBGCC
 	select SUPPORT_OF_CONTROL
+	select OF_CONTROL
 	select DM
-	select DM_KEYBOARD
-	select DM_SERIAL
-	select DM_GPIO
-	select DM_SPI
-	select DM_SPI_FLASH
-	select USB
-	select USB_EHCI_HCD
+	select DM_PCI
+	select PCI
+	select TIMER
+	select X86_TSC_TIMER
+	imply BLK
+	imply DM_ETH
+	imply DM_GPIO
+	imply DM_KEYBOARD
+	imply DM_MMC
+	imply DM_RTC
+	imply DM_SERIAL
+	imply DM_SCSI
+	imply DM_SPI
+	imply DM_SPI_FLASH
+	imply DM_USB
+	imply DM_VIDEO
 	imply CMD_FPGA_LOADMK
 	imply CMD_GETTIME
 	imply CMD_IO

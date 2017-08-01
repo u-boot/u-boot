@@ -21,9 +21,6 @@
 					"stdout=serial,vidconsole\0" \
 					"stderr=serial,vidconsole\0"
 
-#define CONFIG_SCSI_DEV_LIST		\
-	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_TCF_SATA}
-
 /* Environment configuration */
 #define CONFIG_ENV_SECT_SIZE		0x1000
 #define CONFIG_ENV_OFFSET		0

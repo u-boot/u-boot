@@ -36,7 +36,6 @@ config SANDBOX_TIMER
 config X86_TSC_TIMER
 	bool "x86 Time-Stamp Counter (TSC) timer support"
 	depends on TIMER && X86
-	default y if X86
 	help
 	  Select this to enable Time-Stamp Counter (TSC) timer for x86.
 
