@@ -6,9 +6,11 @@
  */
 
 #include <common.h>
+#include <ahci.h>
 #include <dm.h>
 
 UCLASS_DRIVER(ahci) = {
 	.id		= UCLASS_AHCI,
 	.name		= "ahci",
+	.per_device_auto_alloc_size = sizeof(struct ahci_uc_priv),
 };

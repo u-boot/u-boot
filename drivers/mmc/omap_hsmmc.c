@@ -62,11 +62,11 @@ struct omap2_mmc_platform_config {
 
 struct omap_hsmmc_data {
 	struct hsmmc *base_addr;
-#ifndef CONFIG_DM_MMC
+#if !CONFIG_IS_ENABLED(DM_MMC)
 	struct mmc_config cfg;
 #endif
 #ifdef OMAP_HSMMC_USE_GPIO
-#ifdef CONFIG_DM_MMC
+#if CONFIG_IS_ENABLED(DM_MMC)
 	struct gpio_desc cd_gpio;	/* Change Detect GPIO */
 	struct gpio_desc wp_gpio;	/* Write Protect GPIO */
 	bool cd_inverted;
@@ -86,7 +86,7 @@ static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 
 static inline struct omap_hsmmc_data *omap_hsmmc_get_data(struct mmc *mmc)
 {
-#ifdef CONFIG_DM_MMC
+#if CONFIG_IS_ENABLED(DM_MMC)
 	return dev_get_priv(mmc->dev);
 #else
 	return (struct omap_hsmmc_data *)mmc->priv;
@@ -94,7 +94,7 @@ static inline struct omap_hsmmc_data *omap_hsmmc_get_data(struct mmc *mmc)
 }
 static inline struct mmc_config *omap_hsmmc_get_cfg(struct mmc *mmc)
 {
-#ifdef CONFIG_DM_MMC
+#if CONFIG_IS_ENABLED(DM_MMC)
 	struct omap_hsmmc_plat *plat = dev_get_platdata(mmc->dev);
 	return &plat->cfg;
 #else
@@ -102,7 +102,7 @@ static inline struct mmc_config *omap_hsmmc_get_cfg(struct mmc *mmc)
 #endif
 }
 
- #if defined(OMAP_HSMMC_USE_GPIO) && !defined(CONFIG_DM_MMC)
+#if defined(OMAP_HSMMC_USE_GPIO) && !CONFIG_IS_ENABLED(DM_MMC)
 static int omap_mmc_setup_gpio_in(int gpio, const char *label)
 {
 	int ret;
@@ -326,7 +326,7 @@ static void mmc_reset_controller_fsm(struct hsmmc *mmc_base, u32 bit)
 		}
 	}
 }
-#ifndef CONFIG_DM_MMC
+#if !CONFIG_IS_ENABLED(DM_MMC)
 static int omap_hsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			struct mmc_data *data)
 {
@@ -564,7 +564,7 @@ static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 	return 0;
 }
 
-#ifndef CONFIG_DM_MMC
+#if !CONFIG_IS_ENABLED(DM_MMC)
 static int omap_hsmmc_set_ios(struct mmc *mmc)
 {
 	struct omap_hsmmc_data *priv = omap_hsmmc_get_data(mmc);
@@ -630,7 +630,7 @@ static int omap_hsmmc_set_ios(struct udevice *dev)
 }
 
 #ifdef OMAP_HSMMC_USE_GPIO
-#ifdef CONFIG_DM_MMC
+#if CONFIG_IS_ENABLED(DM_MMC)
 static int omap_hsmmc_getcd(struct udevice *dev)
 {
 	struct omap_hsmmc_data *priv = dev_get_priv(dev);
@@ -688,7 +688,7 @@ static int omap_hsmmc_getwp(struct mmc *mmc)
 #endif
 #endif
 
-#ifdef CONFIG_DM_MMC
+#if CONFIG_IS_ENABLED(DM_MMC)
 static const struct dm_mmc_ops omap_hsmmc_ops = {
 	.send_cmd	= omap_hsmmc_send_cmd,
 	.set_ios	= omap_hsmmc_set_ios,
@@ -709,7 +709,7 @@ static const struct mmc_ops omap_hsmmc_ops = {
 };
 #endif
 
-#ifndef CONFIG_DM_MMC
+#if !CONFIG_IS_ENABLED(DM_MMC)
 int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 		int wp_gpio)
 {

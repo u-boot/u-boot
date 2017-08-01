@@ -236,7 +236,7 @@ static int bd82x6x_sata_probe(struct udevice *dev)
 		bd82x6x_sata_enable(dev);
 	else {
 		bd82x6x_sata_init(dev, pch);
-		ret = ahci_probe_scsi(dev);
+		ret = ahci_probe_scsi_pci(dev);
 		if (ret)
 			return ret;
 	}

@@ -30,6 +30,27 @@ config DM_MMC_OPS
 	  option will be removed as soon as all DM_MMC drivers use it, as it
 	  will the only supported behaviour.
 
+config SPL_DM_MMC
+	bool "Enable MMC controllers using Driver Model in SPL"
+	depends on SPL_DM && DM_MMC
+	default y
+	help
+	  This enables the MultiMediaCard (MMC) uclass which supports MMC and
+	  Secure Digital I/O (SDIO) cards. Both removable (SD, micro-SD, etc.)
+	  and non-removable (e.g. eMMC chip) devices are supported. These
+	  appear as block devices in U-Boot and can support filesystems such
+	  as EXT4 and FAT.
+
+config SPL_DM_MMC_OPS
+	bool "Support MMC controller operations using Driver Model in SPL"
+	depends on SPL_DM && DM_MMC_OPS
+	default y
+	help
+	  Driver model provides a means of supporting device operations. This
+	  option moves MMC operations under the control of driver model. The
+	  option will be removed as soon as all DM_MMC drivers use it, as it
+	  will the only supported behaviour.
+
 if MMC
 
 config SPL_MMC_TINY

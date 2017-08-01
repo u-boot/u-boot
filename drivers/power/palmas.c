@@ -50,10 +50,9 @@ int palmas_mmc1_poweron_ldo(uint voltage)
 	int ret;
 	/*
 	 * Currently valid for the dra7xx_evm board:
-	 * Set TPS659038 LDO1 to 3.0 V
+	 * Set TPS659038 LDO1 to 3.0 V or 1.8V
 	 */
-	val = LDO_VOLT_3V0;
-	ret = palmas_i2c_write_u8(TPS65903X_CHIP_P1, LDO1_VOLTAGE, val);
+	ret = palmas_i2c_write_u8(TPS65903X_CHIP_P1, LDO1_VOLTAGE, voltage);
 	if (ret) {
 		printf("tps65903x: could not set LDO1 voltage.\n");
 		return ret;

@@ -1,5 +1,6 @@
 #include <common.h>
 #include <ahci.h>
+#include <dm.h>
 #include <scsi.h>
 #include <errno.h>
 #include <asm/io.h>
@@ -13,9 +14,8 @@
 /* This magic PHY initialisation was taken from the Allwinner releases
  * and Linux driver, but is completely undocumented.
  */
-static int sunxi_ahci_phy_init(u32 base)
+static int sunxi_ahci_phy_init(u8 *reg_base)
 {
-	u8 *reg_base = (u8 *)base;
 	u32 reg_val;
 	int timeout;
 
@@ -70,10 +70,65 @@ static int sunxi_ahci_phy_init(u32 base)
 	return 0;
 }
 
+#ifndef CONFIG_DM_SCSI
 void scsi_init(void)
 {
-	if (sunxi_ahci_phy_init(SUNXI_SATA_BASE) < 0)
+	if (sunxi_ahci_phy_init((u8 *)SUNXI_SATA_BASE) < 0)
 		return;
 
 	ahci_init((void __iomem *)SUNXI_SATA_BASE);
 }
+#else
+static int sunxi_sata_probe(struct udevice *dev)
+{
+	ulong base;
+	u8 *reg;
+	int ret;
+
+	base = dev_read_addr(dev);
+	if (base == FDT_ADDR_T_NONE) {
+		debug("%s: Failed to find address (err=%d\n)", __func__, ret);
+		return -EINVAL;
+	}
+	reg = (u8 *)base;
+	ret = sunxi_ahci_phy_init(reg);
+	if (ret) {
+		debug("%s: Failed to init phy (err=%d\n)", __func__, ret);
+		return ret;
+	}
+	ret = ahci_probe_scsi(dev, base);
+	if (ret) {
+		debug("%s: Failed to probe (err=%d\n)", __func__, ret);
+		return ret;
+	}
+
+	return 0;
+}
+
+static int sunxi_sata_bind(struct udevice *dev)
+{
+	struct udevice *scsi_dev;
+	int ret;
+
+	ret = ahci_bind_scsi(dev, &scsi_dev);
+	if (ret) {
+		debug("%s: Failed to bind (err=%d\n)", __func__, ret);
+		return ret;
+	}
+
+	return 0;
+}
+
+static const struct udevice_id sunxi_ahci_ids[] = {
+	{ .compatible = "allwinner,sun4i-a10-ahci" },
+	{ }
+};
+
+U_BOOT_DRIVER(ahci_sunxi_drv) = {
+	.name		= "ahci_sunxi",
+	.id		= UCLASS_AHCI,
+	.of_match	= sunxi_ahci_ids,
+	.bind		= sunxi_sata_bind,
+	.probe		= sunxi_sata_probe,
+};
+#endif

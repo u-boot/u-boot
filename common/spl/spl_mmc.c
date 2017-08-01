@@ -115,7 +115,7 @@ static int spl_mmc_get_device_index(u32 boot_device)
 
 static int spl_mmc_find_device(struct mmc **mmcp, u32 boot_device)
 {
-#ifdef CONFIG_DM_MMC
+#if CONFIG_IS_ENABLED(DM_MMC)
 	struct udevice *dev;
 #endif
 	int err, mmc_dev;
@@ -132,7 +132,7 @@ static int spl_mmc_find_device(struct mmc **mmcp, u32 boot_device)
 		return err;
 	}
 
-#ifdef CONFIG_DM_MMC
+#if CONFIG_IS_ENABLED(DM_MMC)
 	err = uclass_get_device(UCLASS_MMC, mmc_dev, &dev);
 	if (!err)
 		*mmcp = mmc_get_mmc_dev(dev);

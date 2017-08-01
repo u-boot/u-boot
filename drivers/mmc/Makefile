@@ -6,9 +6,9 @@
 #
 
 obj-y += mmc.o
-obj-$(CONFIG_DM_MMC) += mmc-uclass.o
+obj-$(CONFIG_$(SPL_)DM_MMC) += mmc-uclass.o
 
-ifndef CONFIG_BLK
+ifndef CONFIG_$(SPL_)BLK
 obj-y += mmc_legacy.o
 endif
 

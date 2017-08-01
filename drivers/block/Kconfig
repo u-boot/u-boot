@@ -10,6 +10,18 @@ config BLK
 	  be partitioned into several areas, called 'partitions' in U-Boot.
 	  A filesystem can be placed in each partition.
 
+config SPL_BLK
+	bool "Support block devices in SPL"
+	depends on SPL_DM && BLK
+	default y
+	help
+	  Enable support for block devices, such as SCSI, MMC and USB
+	  flash sticks. These provide a block-level interface which permits
+	  reading, writing and (in some cases) erasing blocks. Block
+	  devices often have a partition table which allows the device to
+	  be partitioned into several areas, called 'partitions' in U-Boot.
+	  A filesystem can be placed in each partition.
+
 config BLOCK_CACHE
 	bool "Use block device cache"
 	default n

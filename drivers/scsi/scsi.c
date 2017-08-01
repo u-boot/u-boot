@@ -451,7 +451,7 @@ static void scsi_init_dev_desc_priv(struct blk_desc *dev_desc)
 	dev_desc->product[0] = 0;
 	dev_desc->revision[0] = 0;
 	dev_desc->removable = false;
-#ifndef CONFIG_BLK
+#if !CONFIG_IS_ENABLED(BLK)
 	dev_desc->block_read = scsi_read;
 	dev_desc->block_write = scsi_write;
 #endif
