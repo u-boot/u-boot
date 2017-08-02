@@ -41,8 +41,6 @@
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_BOOTP_SEND_HOSTNAME
 /* PHY */
-#define CONFIG_PHY_MICREL
-#define CONFIG_PHY_MICREL_KSZ90X1
 #endif
 
 /* Extra Environment */

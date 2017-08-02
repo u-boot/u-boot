@@ -25,10 +25,6 @@
 #define PHYS_SDRAM_1_SIZE		0x40000000
 
 /* Ethernet on SoC (EMAC) */
-#if defined(CONFIG_CMD_NET)
-#define CONFIG_PHY_MICREL
-#define CONFIG_PHY_MICREL_KSZ90X1
-#endif
 
 /*
  * U-Boot environment configurations

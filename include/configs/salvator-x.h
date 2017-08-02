@@ -26,7 +26,6 @@
 
 /* Ethernet RAVB */
 #define CONFIG_NET_MULTI
-#define CONFIG_PHY_MICREL
 #define CONFIG_BITBANGMII
 #define CONFIG_BITBANGMII_MULTI
 

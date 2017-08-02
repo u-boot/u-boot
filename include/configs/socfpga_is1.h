@@ -25,8 +25,6 @@
 #define CONFIG_ARP_TIMEOUT		500UL
 
 /* PHY */
-#define CONFIG_PHY_MICREL
-#define CONFIG_PHY_MICREL_KSZ90X1
 #endif
 
 /* The rest of the configuration is shared */

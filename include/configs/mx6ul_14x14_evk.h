@@ -206,8 +206,6 @@
 #define CONFIG_FEC_XCV_TYPE		RMII
 #endif
 #define CONFIG_ETHPRIME			"FEC"
-
-#define CONFIG_PHY_MICREL
 #endif
 
 #define CONFIG_IMX_THERMAL
