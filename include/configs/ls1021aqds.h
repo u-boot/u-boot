@@ -457,7 +457,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ETHPRIME			"eTSEC1"
 
 #define CONFIG_PHY_GIGE
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_REALTEK
 
 #define CONFIG_HAS_ETH0

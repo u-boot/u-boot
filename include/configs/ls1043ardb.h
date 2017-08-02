@@ -249,7 +249,6 @@
 #define AQR105_IRQ_MASK			0x40000000
 
 #ifdef CONFIG_NET
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 #define CONFIG_PHY_VITESSE
 #define CONFIG_PHY_REALTEK

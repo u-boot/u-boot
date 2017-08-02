@@ -60,7 +60,6 @@
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_ETHPRIME			"FEC"
 #define CONFIG_FEC_MXC_PHYADDR		1
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_ATHEROS
 
 /* Framebuffer */

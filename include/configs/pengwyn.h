@@ -191,7 +191,6 @@
 #define CONFIG_NET_MULTI
 
 /* Network */
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_RESET	1
 #define CONFIG_PHY_NATSEMI
 #define CONFIG_PHY_REALTEK

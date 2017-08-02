@@ -296,7 +296,6 @@ extern int soft_i2c_gpio_scl;
 #ifdef CONFIG_SUNXI_EMAC
 #define CONFIG_PHY_ADDR		1
 #define CONFIG_MII			/* MII PHY management		*/
-#define CONFIG_PHYLIB
 #endif
 
 #ifdef CONFIG_SUNXI_GMAC

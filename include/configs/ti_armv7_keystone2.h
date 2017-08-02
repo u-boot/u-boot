@@ -97,7 +97,6 @@
 #endif
 
 /* Network Configuration */
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_MARVELL
 #define CONFIG_MII
 #define CONFIG_BOOTP_DEFAULT

@@ -141,7 +141,6 @@
 #endif /* CONFIG_USB_MUSB_GADGET */
 
 #define CONFIG_PHY_GIGE
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_SMSC
 
 #endif	/* ! __CONFIG_PCM051_H */

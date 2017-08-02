@@ -207,7 +207,6 @@
 #endif
 #define CONFIG_ETHPRIME			"FEC"
 
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_MICREL
 #endif
 

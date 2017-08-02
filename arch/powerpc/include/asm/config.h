@@ -74,16 +74,11 @@
 /* The TSEC driver uses the PHYLIB infrastructure */
 #ifndef CONFIG_PHYLIB
 #if defined(CONFIG_TSEC_ENET)
-#define CONFIG_PHYLIB
-
 #include <config_phylib_all_drivers.h>
 #endif /* TSEC_ENET */
 #endif /* !CONFIG_PHYLIB */
 
 /* The FMAN driver uses the PHYLIB infrastructure */
-#if defined(CONFIG_FMAN_ENET)
-#define CONFIG_PHYLIB
-#endif
 
 /* All PPC boards must swap IDE bytes */
 #define CONFIG_IDE_SWAP_IO

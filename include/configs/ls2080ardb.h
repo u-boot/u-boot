@@ -468,7 +468,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_PHYLIB_10G
 #define CONFIG_PHY_AQUANTIA
 #define CONFIG_PHY_CORTINA
-#define CONFIG_PHYLIB
 #define	CONFIG_SYS_CORTINA_FW_IN_NOR
 #ifdef CONFIG_QSPI_BOOT
 #define CONFIG_CORTINA_FW_ADDR		0x20980000

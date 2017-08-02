@@ -84,7 +84,6 @@
 
 /* Ethernet */
 #define CONFIG_MACB
-#define CONFIG_PHYLIB
 #define CONFIG_RMII
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_AT91_WANTS_COMMON_PHY
