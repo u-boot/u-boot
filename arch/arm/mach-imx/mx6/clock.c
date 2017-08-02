@@ -19,7 +19,7 @@ enum pll_clocks {
 	PLL_USBOTG,	/* OTG USB PLL */
 	PLL_ENET,	/* ENET PLL */
 	PLL_AUDIO,	/* AUDIO PLL */
-	PLL_VIDEO,	/* AUDIO PLL */
+	PLL_VIDEO,	/* VIDEO PLL */
 };
 
 struct mxc_ccm_reg *imx_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
