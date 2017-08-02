@@ -130,7 +130,7 @@ u32 get_cpu_speed_grade_hz(void)
 		if (val == OCOTP_CFG3_SPEED_528MHZ)
 			return 528000000;
 		else if (val == OCOTP_CFG3_SPEED_696MHZ)
-			return 69600000;
+			return 696000000;
 		else
 			return 0;
 	}
