@@ -86,6 +86,13 @@ config ROCKCHIP_RK3368
 	  On-chip peripherals include Gigabit Ethernet, USB2 host and OTG, SDIO,
 	  I2S, UARTs, SPI, I2C and PWMs.
 
+if ROCKCHIP_RK3368
+
+config TPL_LDSCRIPT
+	default "arch/arm/mach-rockchip/rk3368/u-boot-tpl.lds"
+
+endif
+
 config ROCKCHIP_RK3399
 	bool "Support Rockchip RK3399"
 	select ARM64

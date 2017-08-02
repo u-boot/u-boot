@@ -35,8 +35,6 @@
 #define CONFIG_SPL_BSS_START_ADDR       0x400000
 #define CONFIG_SPL_BSS_MAX_SIZE         0x20000
 
-#define CONFIG_TPL_LDSCRIPT \
-	  "arch/arm/mach-rockchip/rk3368/u-boot-tpl.lds"
 #define CONFIG_TPL_TEXT_BASE		0xff8c1000
 #define CONFIG_TPL_MAX_SIZE		0x7000
 #define CONFIG_TPL_STACK		0xff8cffff
