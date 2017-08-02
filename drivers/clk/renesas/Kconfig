@@ -1,0 +1,13 @@
+config CLK_RENESAS
+	bool "Renesas clock drivers"
+	depends on CLK && ARCH_RMOBILE
+	help
+	  Enable support for clock present on Renesas RCar SoCs.
+
+config CLK_RCAR_GEN3
+	bool "Renesas RCar Gen3 R8A7795/R8A7796 clock driver"
+	def_bool y if RCAR_GEN3
+	depends on CLK_RENESAS
+	help
+	  Enable this to support the clocks on Renesas RCar Gen3
+	  R8A7795 and R8A7796 SoC.

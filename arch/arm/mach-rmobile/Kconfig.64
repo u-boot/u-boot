@@ -20,11 +20,17 @@ config TARGET_SALVATOR_X
 	help
           Support for Renesas R-Car Gen3 platform
 
+config TARGET_ULCB
+	bool "ULCB board"
+	help
+          Support for Renesas R-Car Gen3 ULCB platform
+
 endchoice
 
 config SYS_SOC
 	default "rmobile"
 
 source "board/renesas/salvator-x/Kconfig"
+source "board/renesas/ulcb/Kconfig"
 
 endif

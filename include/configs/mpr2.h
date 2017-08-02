@@ -64,7 +64,6 @@
 #define CONFIG_SYS_TMU_CLK_DIV		4	/* 4 (default), 16, 64, 256 or 1024 */
 
 /* UART */
-#define CONFIG_SCIF_CONSOLE	1
 #define CONFIG_CONS_SCIF0	1
 
 #endif	/* __MPR2_H */

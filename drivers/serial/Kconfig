@@ -464,6 +464,14 @@ config SANDBOX_SERIAL
 	     -t raw		Raw mode, Ctrl-C is processed by U-Boot
 	     -t cooked		Cooked mode, Ctrl-C terminates
 
+config SCIF_CONSOLE
+	bool "Renesas SCIF UART support"
+	depends on SH || ARCH_RMOBILE
+	help
+	  Select this to enable Renesas SCIF UART. To operate serial ports
+	  on systems with RCar or SH SoCs, say Y to this option. If unsure,
+	  say N.
+
 config UNIPHIER_SERIAL
 	bool "Support for UniPhier on-chip UART"
 	depends on ARCH_UNIPHIER
