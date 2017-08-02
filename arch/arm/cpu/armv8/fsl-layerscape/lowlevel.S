@@ -497,9 +497,7 @@ slave_cpu:
 	rev     x0, x0                  /* BE to LE conversion */
 cpu_is_le:
 	ldr	x5, [x11, #24]
-	ldr	x6, =IH_ARCH_DEFAULT
-	cmp	x6, x5
-	b.eq	1f
+	cbz	x5, 1f
 
 #ifdef CONFIG_ARMV8_SWITCH_TO_EL1
 	adr	x4, secondary_switch_to_el1
@@ -541,9 +539,7 @@ ENTRY(secondary_switch_to_el1)
 	ldr	x4, [x11]
 
 	ldr	x5, [x11, #24]
-	ldr	x6, =IH_ARCH_DEFAULT
-	cmp	x6, x5
-	b.eq	2f
+	cbz	x5, 2f
 
 	ldr	x5, =ES_TO_AARCH32
 	bl	switch_to_el1

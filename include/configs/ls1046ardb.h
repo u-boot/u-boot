@@ -219,7 +219,6 @@
 #define CONFIG_USB_XHCI_FSL
 #define CONFIG_USB_XHCI_DWC3
 #define CONFIG_USB_MAX_CONTROLLER_COUNT         3
-#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #endif
 #endif
@@ -239,10 +238,9 @@
 #endif
 
 #ifndef SPL_NO_MISC
-#define CONFIG_BOOTCOMMAND		"sf probe 0:0;sf read $kernel_load" \
-					"$kernel_start $kernel_size;" \
-					"bootm $kernel_load"
-
+#undef CONFIG_BOOTCOMMAND
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; env exists secureboot"	\
+			   "&& esbc_halt; run qspi_bootcmd;"
 #define MTDPARTS_DEFAULT "mtdparts=1550000.quadspi:1m(rcw)," \
 			"15m(u-boot),48m(kernel.itb);" \
 			"7e800000.flash:16m(nand_uboot)," \

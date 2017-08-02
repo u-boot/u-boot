@@ -81,7 +81,13 @@ int fsl_setenv_chain_of_trust(void)
 	 * bootcmd = CONFIG_CHAIN_BOOT_CMD (Validate and execute Boot script)
 	 */
 	setenv("bootdelay", "0");
+
+#ifdef CONFIG_ARM
+	setenv("secureboot", "y");
+#else
 	setenv("bootcmd", CONFIG_CHAIN_BOOT_CMD);
+#endif
+
 	return 0;
 }
 #endif

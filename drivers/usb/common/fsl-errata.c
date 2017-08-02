@@ -202,6 +202,10 @@ bool has_erratum_a010151(void)
 #ifdef CONFIG_ARM64
 	case SVR_LS2080A:
 	case SVR_LS2085A:
+			/* fallthrough */
+	case SVR_LS2088A:
+			/* fallthrough */
+	case SVR_LS2081A:
 	case SVR_LS1046A:
 	case SVR_LS1012A:
 		return IS_SVR_REV(svr, 1, 0);

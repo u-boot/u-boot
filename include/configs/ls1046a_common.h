@@ -201,20 +201,72 @@
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 
+#include <config_distro_defaults.h>
+#ifndef CONFIG_SPL_BUILD
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(USB, usb, 0)
+#include <config_distro_bootcmd.h>
+#endif
+
 #ifndef SPL_NO_MISC
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
-	"loadaddr=0x80100000\0"			\
 	"ramdisk_addr=0x800000\0"		\
 	"ramdisk_size=0x2000000\0"		\
 	"fdt_high=0xffffffffffffffff\0"		\
 	"initrd_high=0xffffffffffffffff\0"	\
+	"fdt_addr=0x64f00000\0"                 \
+	"kernel_addr=0x65000000\0"              \
+	"scriptaddr=0x80000000\0"               \
+	"scripthdraddr=0x80080000\0"		\
+	"fdtheader_addr_r=0x80100000\0"         \
+	"kernelheader_addr_r=0x80200000\0"      \
+	"load_addr=0xa0000000\0"            \
+	"kernel_addr_r=0x81000000\0"            \
+	"fdt_addr_r=0x90000000\0"               \
+	"ramdisk_addr_r=0xa0000000\0"           \
 	"kernel_start=0x1000000\0"		\
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
 	"console=ttyS0,115200\0"                \
-		MTDPARTS_DEFAULT "\0"
+		MTDPARTS_DEFAULT "\0"		\
+	BOOTENV					\
+	"boot_scripts=ls1046ardb_boot.scr\0"    \
+	"boot_script_hdr=hdr_ls1046ardb_bs.out\0"	\
+	"scan_dev_for_boot_part="               \
+		"part list ${devtype} ${devnum} devplist; "   \
+		"env exists devplist || setenv devplist 1; "  \
+		"for distro_bootpart in ${devplist}; do "     \
+		  "if fstype ${devtype} "                  \
+			"${devnum}:${distro_bootpart} "      \
+			"bootfstype; then "                  \
+			"run scan_dev_for_boot; "            \
+		  "fi; "                                   \
+		"done\0"                                   \
+	"scan_dev_for_boot="				  \
+		"echo Scanning ${devtype} "		  \
+				"${devnum}:${distro_bootpart}...; "  \
+		"for prefix in ${boot_prefixes}; do "	  \
+			"run scan_dev_for_scripts; "	  \
+		"done;"					  \
+		"\0"					  \
+	"boot_a_script="				  \
+		"load ${devtype} ${devnum}:${distro_bootpart} "  \
+			"${scriptaddr} ${prefix}${script}; "    \
+		"env exists secureboot && load ${devtype} "     \
+			"${devnum}:${distro_bootpart} "		\
+			"${scripthdraddr} ${prefix}${boot_script_hdr} " \
+			"&& esbc_validate ${scripthdraddr};"    \
+		"source ${scriptaddr}\0"	  \
+	"installer=load mmc 0:2 $load_addr "          \
+		"/flex_installer_arm64.itb; "          \
+		"bootm $load_addr#ls1046ardb\0"	 \
+	"qspi_bootcmd=echo Trying load from qspi..;"      \
+		"sf probe && sf read $load_addr "         \
+		"$kernel_start $kernel_size && bootm $load_addr#$board\0"
+
 
 #define CONFIG_BOOTARGS			"console=ttyS0,115200 root=/dev/ram0 " \
 					"earlycon=uart8250,mmio,0x21c0500 " \
@@ -227,10 +279,6 @@
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Boot args buffer */
 #define CONFIG_SYS_LONGHELP
-
-#ifndef SPL_NO_MISC
-#define CONFIG_CMDLINE_EDITING		1
-#endif
 
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_MAXARGS		64	/* max command args */

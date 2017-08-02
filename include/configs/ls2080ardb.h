@@ -356,96 +356,112 @@ unsigned long get_board_sys_clk(void);
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
 
-/* Initial environment variables */
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#ifdef CONFIG_SECURE_BOOT
-#define CONFIG_EXTRA_ENV_SETTINGS		\
-	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
-	"scriptaddr=0x80800000\0"		\
-	"kernel_addr_r=0x81000000\0"		\
-	"pxefile_addr_r=0x81000000\0"		\
-	"fdt_addr_r=0x88000000\0"		\
-	"ramdisk_addr_r=0x89000000\0"		\
-	"loadaddr=0x80100000\0"			\
-	"kernel_addr=0x100000\0"		\
-	"ramdisk_addr=0x800000\0"		\
-	"ramdisk_size=0x2000000\0"		\
-	"fdt_high=0xa0000000\0"			\
-	"initrd_high=0xffffffffffffffff\0"	\
-	"kernel_start=0x581000000\0"		\
-	"kernel_load=0xa0000000\0"		\
-	"kernel_size=0x2800000\0"		\
-	"mcmemsize=0x40000000\0"		\
-	"fdtfile=fsl-ls2080a-rdb.dtb\0"		\
-	"mcinitcmd=esbc_validate 0x580700000;"  \
-	"esbc_validate 0x580740000;"            \
-	"fsl_mc start mc 0x580a00000"           \
-	" 0x580e00000 \0"                       \
-	BOOTENV
-#else
 #ifdef CONFIG_QSPI_BOOT
-#define CONFIG_EXTRA_ENV_SETTINGS		\
-	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
-	"scriptaddr=0x80800000\0"		\
-	"kernel_addr_r=0x81000000\0"		\
-	"pxefile_addr_r=0x81000000\0"		\
-	"fdt_addr_r=0x88000000\0"		\
-	"ramdisk_addr_r=0x89000000\0"		\
-	"loadaddr=0x80100000\0"			\
-	"kernel_addr=0x100000\0"		\
-	"ramdisk_size=0x2000000\0"		\
-	"fdt_high=0xa0000000\0"			\
-	"initrd_high=0xffffffffffffffff\0"	\
-	"kernel_start=0x21000000\0"		\
-	"mcmemsize=0x40000000\0"		\
-	"mcinitcmd=fsl_mc start mc 0x20a00000" \
-	" 0x20e00000 \0"                       \
-	BOOTENV
+#define MC_INIT_CMD				\
+	"mcinitcmd=env exists secureboot && "	\
+	"esbc_validate 0x20700000 && "		\
+	"esbc_validate 0x20740000;"		\
+	"fsl_mc start mc 0x20a00000 0x20e00000 \0"
 #else
-#define CONFIG_EXTRA_ENV_SETTINGS		\
-	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
-	"scriptaddr=0x80800000\0"		\
-	"kernel_addr_r=0x81000000\0"		\
-	"pxefile_addr_r=0x81000000\0"		\
-	"fdt_addr_r=0x88000000\0"		\
-	"ramdisk_addr_r=0x89000000\0"		\
-	"loadaddr=0x80100000\0"			\
-	"kernel_addr=0x100000\0"		\
-	"ramdisk_addr=0x800000\0"		\
-	"ramdisk_size=0x2000000\0"		\
-	"fdt_high=0xa0000000\0"			\
-	"initrd_high=0xffffffffffffffff\0"	\
-	"kernel_start=0x581000000\0"		\
-	"kernel_load=0xa0000000\0"		\
-	"kernel_size=0x2800000\0"		\
-	"mcmemsize=0x40000000\0"		\
-	"fdtfile=fsl-ls2080a-rdb.dtb\0"		\
-	"mcinitcmd=fsl_mc start mc 0x580a00000" \
-	" 0x580e00000 \0"                       \
-	BOOTENV
-#endif
+#define MC_INIT_CMD				\
+	"mcinitcmd=env exists secureboot && "	\
+	"esbc_validate 0x580700000 && "		\
+	"esbc_validate 0x580740000; "		\
+	"fsl_mc start mc 0x580a00000 0x580e00000 \0"
 #endif
 
+/* Initial environment variables */
+#undef CONFIG_EXTRA_ENV_SETTINGS
+#define CONFIG_EXTRA_ENV_SETTINGS		\
+	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
+	"ramdisk_addr=0x800000\0"		\
+	"ramdisk_size=0x2000000\0"		\
+	"fdt_high=0xa0000000\0"			\
+	"initrd_high=0xffffffffffffffff\0"	\
+	"fdt_addr=0x64f00000\0"			\
+	"kernel_addr=0x65000000\0"		\
+	"kernel_start=0x1000000\0"		\
+	"kernelheader_start=0x800000\0"		\
+	"scriptaddr=0x80000000\0"		\
+	"scripthdraddr=0x80080000\0"		\
+	"fdtheader_addr_r=0x80100000\0"		\
+	"kernelheader_addr_r=0x80200000\0"	\
+	"kernelheader_addr=0x580800000\0"	\
+	"kernel_addr_r=0x81000000\0"		\
+	"kernelheader_size=0x40000\0"		\
+	"fdt_addr_r=0x90000000\0"		\
+	"load_addr=0xa0000000\0"		\
+	"kernel_size=0x2800000\0"		\
+	"console=ttyAMA0,38400n8\0"		\
+	MC_INIT_CMD				\
+	BOOTENV					\
+	"boot_scripts=ls2088ardb_boot.scr\0"	\
+	"boot_script_hdr=hdr_ls2088ardb_bs.out\0"	\
+	"scan_dev_for_boot_part="		\
+		"part list ${devtype} ${devnum} devplist; "	\
+		"env exists devplist || setenv devplist 1; "	\
+		"for distro_bootpart in ${devplist}; do "	\
+			"if fstype ${devtype} "			\
+				"${devnum}:${distro_bootpart} "	\
+				"bootfstype; then "		\
+				"run scan_dev_for_boot; "	\
+			"fi; "					\
+		"done\0"					\
+	"scan_dev_for_boot="					\
+		"echo Scanning ${devtype} "			\
+			"${devnum}:${distro_bootpart}...; "	\
+		"for prefix in ${boot_prefixes}; do "		\
+			"run scan_dev_for_scripts; "		\
+		"done;\0"					\
+	"boot_a_script="					\
+		"load ${devtype} ${devnum}:${distro_bootpart} "	\
+			"${scriptaddr} ${prefix}${script}; "	\
+		"env exists secureboot && load ${devtype} "	\
+			"${devnum}:${distro_bootpart} "		\
+			"${scripthdraddr} ${prefix}${boot_script_hdr} "	\
+			"&& esbc_validate ${scripthdraddr};"	\
+		"source ${scriptaddr}\0"			\
+	"installer=load mmc 0:2 $load_addr "			\
+		"/flex_installer_arm64.itb; "			\
+		"bootm $load_addr#ls2088ardb\0"			\
+	"qspi_bootcmd=echo Trying load from qspi..;"		\
+		"sf probe && sf read $load_addr "		\
+		"$kernel_start $kernel_size ; env exists secureboot &&"	\
+		"sf read $kernelheader_addr_r $kernelheader_start "	\
+		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; "\
+		" bootm $load_addr#$board\0"			\
+	"nor_bootcmd=echo Trying load from nor..;"		\
+		"cp.b $kernel_addr $load_addr "			\
+		"$kernel_size ; env exists secureboot && "	\
+		"cp.b $kernelheader_addr $kernelheader_addr_r "	\
+		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; "\
+		"bootm $load_addr#$board\0"
+
+#undef CONFIG_BOOTCOMMAND
+#ifdef CONFIG_QSPI_BOOT
+/* Try to boot an on-QSPI kernel first, then do normal distro boot */
+#define CONFIG_BOOTCOMMAND						\
+			"env exists mcinitcmd && env exists secureboot "\
+			"&& esbc_validate 0x20780000; "			\
+			"env exists mcinitcmd && "			\
+			"fsl_mc lazyapply dpl 0x20d00000; "		\
+			"run distro_bootcmd;run qspi_bootcmd; "		\
+			"env exists secureboot && esbc_halt; "
+#else
+/* Try to boot an on-NOR kernel first, then do normal distro boot */
+#define CONFIG_BOOTCOMMAND						\
+			"env exists mcinitcmd && env exists secureboot "\
+			"&& esbc_validate 0x580780000; env exists mcinitcmd "\
+			"&& fsl_mc lazyapply dpl 0x580d00000;"		\
+			"run distro_bootcmd;run nor_bootcmd; "		\
+			"env exists secureboot && esbc_halt; "
+#endif
 
 #undef CONFIG_BOOTARGS
 #define CONFIG_BOOTARGS		"console=ttyS1,115200 root=/dev/ram0 " \
 				"earlycon=uart8250,mmio,0x21c0600 " \
 				"ramdisk_size=0x2000000 default_hugepagesz=2m" \
 				" hugepagesz=2m hugepages=256"
-
-#undef CONFIG_BOOTCOMMAND
-#ifdef CONFIG_QSPI_BOOT
-/* Try to boot an on-QSPI kernel first, then do normal distro boot */
-#define CONFIG_BOOTCOMMAND "run mcinitcmd && fsl_mc lazyapply dpl 0x20d00000" \
-			   " && bootm $kernel_start" \
-			   " || run distro_bootcmd"
-#else
-/* Try to boot an on-NOR kernel first, then do normal distro boot */
-#define CONFIG_BOOTCOMMAND "run mcinitcmd && fsl_mc lazyapply dpl 0x580d00000" \
-			   " && cp.b $kernel_start $kernel_load $kernel_size" \
-			   " && bootm $kernel_load" \
-			   " || run distro_bootcmd"
-#endif
 
 /* MAC/PHY configuration */
 #ifdef CONFIG_FSL_MC_ENET
