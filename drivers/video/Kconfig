@@ -624,4 +624,14 @@ config VIDEO_DW_HDMI
 	  rather requires a SoC-specific glue driver to call it), it
 	  can not be enabled from the configuration menu.
 
+config VIDEO_SIMPLE
+	bool "Simple display driver for preconfigured display"
+	help
+	  Enables a simple generic display driver which utilizes the
+	  simple-framebuffer devicetree bindings.
+
+	  This driver assumes that the display hardware has been initialized
+	  before u-boot starts, and u-boot will simply render to the pre-
+	  allocated frame buffer surface.
+
 endmenu
