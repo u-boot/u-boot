@@ -32,11 +32,6 @@ __weak uchar env_get_char_spec(int index)
 	return *((uchar *)(gd->env_addr + index));
 }
 
-static uchar env_get_char_init(int index)
-{
-	return env_get_char_spec(index);
-}
-
 static uchar env_get_char_memory(int index)
 {
 	return *(uchar *)(gd->env_addr + index);
@@ -50,7 +45,7 @@ uchar env_get_char(int index)
 	else if (gd->flags & GD_FLG_RELOC)  /* if relocated to RAM */
 		return env_get_char_memory(index);
 	else
-		return env_get_char_init(index);
+		return env_get_char_spec(index);
 }
 
 /*
