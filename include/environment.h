@@ -171,7 +171,6 @@ extern const unsigned char default_environment[];
 extern env_t *env_ptr;
 
 extern void env_relocate_spec(void);
-extern unsigned char env_get_char_spec(int);
 
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 extern void env_reloc(void);
@@ -281,9 +280,6 @@ struct env_driver {
 
 extern struct hsearch_data env_htab;
 
-/* Function that returns a character from the environment */
-unsigned char env_get_char(int);
-
 /* Function that updates CRC of the enironment */
 void env_crc_update(void);
 
@@ -313,6 +309,16 @@ int env_import_redund(const char *buf1, const char *buf2);
  * @return pointer to driver, or NULL if none (which should not happen)
  */
 struct env_driver *env_driver_lookup_default(void);
+
+/**
+ * env_get_char() - Get a character from the early environment
+ *
+ * This reads from the pre-relocation environemnt
+ *
+ * @index: Index of character to read (0 = first)
+ * @return character read, or -ve on error
+ */
+int env_get_char(int index);
 
 #endif /* DO_DEPS_ONLY */
 

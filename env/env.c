@@ -69,11 +69,13 @@ struct env_driver *env_driver_lookup_default(void)
 	return drv;
 }
 
-int env_get_char_new(int index)
+int env_get_char(int index)
 {
 	struct env_driver *drv = env_driver_lookup_default();
 	int ret;
 
+	if (!gd->env_valid)
+		return default_environment[index];
 	if (!drv)
 		return -ENODEV;
 	if (!drv->get_char)
@@ -146,11 +148,6 @@ int env_init(void)
 	}
 
 	return 0;
-}
-
-unsigned char env_get_char_spec(int index)
-{
-	return *(uchar *)(gd->env_addr + index);
 }
 
 void env_relocate_spec(void)

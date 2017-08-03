@@ -27,20 +27,6 @@ struct hsearch_data env_htab = {
 	.change_ok = env_flags_validate,
 };
 
-__weak uchar env_get_char_spec(int index)
-{
-	return *(uchar *)(gd->env_addr + index);
-}
-
-uchar env_get_char(int index)
-{
-	/* if env is not set up, or crc was bad, use the default environment */
-	if (!gd->env_valid)
-		return default_environment[index];
-	else
-		return env_get_char_spec(index);
-}
-
 /*
  * Read an environment variable as a boolean
  * Return -1 if variable does not exist (default to true)
