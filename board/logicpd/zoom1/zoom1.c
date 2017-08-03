@@ -130,7 +130,7 @@ int board_eth_init(bd_t *bis)
 	uchar eth_addr[6];
 
 	rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
-	if (!eth_getenv_enetaddr(STR_ENV_ETHADDR, eth_addr)) {
+	if (!eth_env_get_enetaddr(STR_ENV_ETHADDR, eth_addr)) {
 		dev = eth_get_dev_by_index(0);
 		if (dev) {
 			eth_env_set_enetaddr(STR_ENV_ETHADDR, dev->enetaddr);

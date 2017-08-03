@@ -704,7 +704,7 @@ static int smc_get_ethaddr(bd_t *bd, struct eth_device *dev)
 {
 	uchar v_mac[6];
 
-	if (!eth_getenv_enetaddr("ethaddr", v_mac)) {
+	if (!eth_env_get_enetaddr("ethaddr", v_mac)) {
 		/* get ROM mac value if any */
 		if (!get_rom_mac(dev, v_mac)) {
 			printf("\n*** ERROR: ethaddr is NOT set !!\n");

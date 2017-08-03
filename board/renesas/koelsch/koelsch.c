@@ -131,7 +131,7 @@ int board_eth_init(bd_t *bis)
 	unsigned char enetaddr[6];
 
 	ret = sh_eth_initialize(bis);
-	if (!eth_getenv_enetaddr("ethaddr", enetaddr))
+	if (!eth_env_get_enetaddr("ethaddr", enetaddr))
 		return ret;
 
 	/* Set Mac address */

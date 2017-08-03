@@ -53,7 +53,7 @@ int misc_init_r(void)
 #if defined(CONFIG_CMD_NET)
 	uchar mac_id[6];
 
-	if (!eth_getenv_enetaddr("ethaddr", mac_id) && !i2c_read_mac(mac_id))
+	if (!eth_env_get_enetaddr("ethaddr", mac_id) && !i2c_read_mac(mac_id))
 		eth_env_set_enetaddr("ethaddr", mac_id);
 #endif
 	env_set("verify", "n");

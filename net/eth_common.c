@@ -24,7 +24,7 @@ void eth_parse_enetaddr(const char *addr, uchar *enetaddr)
 	}
 }
 
-int eth_getenv_enetaddr(const char *name, uchar *enetaddr)
+int eth_env_get_enetaddr(const char *name, uchar *enetaddr)
 {
 	eth_parse_enetaddr(env_get(name), enetaddr);
 	return is_valid_ethaddr(enetaddr);
@@ -34,7 +34,7 @@ int eth_env_set_enetaddr(const char *name, const uchar *enetaddr)
 {
 	char buf[ARP_HLEN_ASCII + 1];
 
-	if (eth_getenv_enetaddr(name, (uchar *)buf))
+	if (eth_env_get_enetaddr(name, (uchar *)buf))
 		return -EEXIST;
 
 	sprintf(buf, "%pM", enetaddr);
@@ -42,12 +42,12 @@ int eth_env_set_enetaddr(const char *name, const uchar *enetaddr)
 	return env_set(name, buf);
 }
 
-int eth_getenv_enetaddr_by_index(const char *base_name, int index,
+int eth_env_get_enetaddr_by_index(const char *base_name, int index,
 				 uchar *enetaddr)
 {
 	char enetvar[32];
 	sprintf(enetvar, index ? "%s%daddr" : "%saddr", base_name, index);
-	return eth_getenv_enetaddr(enetvar, enetaddr);
+	return eth_env_get_enetaddr(enetvar, enetaddr);
 }
 
 int eth_env_set_enetaddr_by_index(const char *base_name, int index,

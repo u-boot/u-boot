@@ -190,8 +190,8 @@ static int mc_fixup_mac_addr(void *blob, int nodeoffset,
 	/* MAC address property present */
 	if (fdt_get_property(blob, nodeoffset, propname, NULL)) {
 		/* u-boot MAC addr randomly assigned - leave the present one */
-		if (!eth_getenv_enetaddr_by_index("eth", eth_dev->index,
-						  env_enetaddr))
+		if (!eth_env_get_enetaddr_by_index("eth", eth_dev->index,
+						   env_enetaddr))
 			return err;
 	} else {
 		size = MC_DT_INCREASE_SIZE + strlen(propname) + len;

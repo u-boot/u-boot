@@ -168,7 +168,7 @@ static int cm_t3517_handle_mac_address(void)
 	unsigned char enetaddr[6];
 	int ret;
 
-	ret = eth_getenv_enetaddr("ethaddr", enetaddr);
+	ret = eth_env_get_enetaddr("ethaddr", enetaddr);
 	if (ret)
 		return 0;
 

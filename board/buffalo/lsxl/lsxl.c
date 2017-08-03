@@ -203,7 +203,7 @@ void check_enetaddr(void)
 {
 	uchar enetaddr[6];
 
-	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
+	if (!eth_env_get_enetaddr("ethaddr", enetaddr)) {
 		/* signal unset/invalid ethaddr to user */
 		set_led(LED_INFO_BLINKING);
 	}

@@ -106,7 +106,7 @@ static int handle_mac_address(void)
 	uchar enetaddr[6];
 	int rv;
 
-	rv = eth_getenv_enetaddr("ethaddr", enetaddr);
+	rv = eth_env_get_enetaddr("ethaddr", enetaddr);
 	if (rv)
 		return 0;
 

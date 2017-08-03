@@ -126,7 +126,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 	uint8_t enetaddr[6];
 
 	/* MAC addr */
-	if (eth_getenv_enetaddr("usbethaddr", enetaddr)) {
+	if (eth_env_get_enetaddr("usbethaddr", enetaddr)) {
 		fdt_find_and_setprop(blob, "/smsc95xx@0", "mac-address",
 				     enetaddr, 6, 1);
 	}
@@ -161,7 +161,7 @@ static int handle_mac_address(void)
 	uint8_t enetaddr[6];
 	int ret;
 
-	ret = eth_getenv_enetaddr("usbethaddr", enetaddr);
+	ret = eth_env_get_enetaddr("usbethaddr", enetaddr);
 	if (ret)
 		return 0;
 

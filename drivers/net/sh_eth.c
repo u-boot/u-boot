@@ -578,7 +578,7 @@ int sh_eth_initialize(bd_t *bd)
 	if (retval < 0)
 		return retval;
 
-	if (!eth_getenv_enetaddr("ethaddr", dev->enetaddr))
+	if (!eth_env_get_enetaddr("ethaddr", dev->enetaddr))
 		puts("Please set MAC address\n");
 
 	return ret;

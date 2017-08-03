@@ -70,8 +70,7 @@ static int format_mac_pxe(char *outbuf, size_t outbuf_len)
 		return -EINVAL;
 	}
 
-	if (!eth_getenv_enetaddr_by_index("eth", eth_get_dev_index(),
-					  ethaddr))
+	if (!eth_env_get_enetaddr_by_index("eth", eth_get_dev_index(), ethaddr))
 		return -ENOENT;
 
 	sprintf(outbuf, "01-%02x-%02x-%02x-%02x-%02x-%02x",

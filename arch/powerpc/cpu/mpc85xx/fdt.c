@@ -580,7 +580,7 @@ static void fdt_fixup_l2_switch(void *blob)
 		return;
 
 	/* Get MAC address for the l2switch from "l2switchaddr"*/
-	if (!eth_getenv_enetaddr("l2switchaddr", l2swaddr)) {
+	if (!eth_env_get_enetaddr("l2switchaddr", l2swaddr)) {
 		printf("Warning: MAC address for l2switch not found\n");
 		memset(l2swaddr, 0, sizeof(l2swaddr));
 	}

@@ -264,7 +264,7 @@ int board_eth_init(bd_t *bis)
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;
 
-	if (!eth_getenv_enetaddr("ethaddr", mac_addr)) {
+	if (!eth_env_get_enetaddr("ethaddr", mac_addr)) {
 		/* try reading mac address from efuse */
 		mac_lo = readl(&cdev->macid0l);
 		mac_hi = readl(&cdev->macid0h);

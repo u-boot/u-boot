@@ -131,7 +131,7 @@ int misc_init_r(void)
 	uchar env_enetaddr[6];
 	int enetaddr_found;
 
-	enetaddr_found = eth_getenv_enetaddr("ethaddr", env_enetaddr);
+	enetaddr_found = eth_env_get_enetaddr("ethaddr", env_enetaddr);
 
 #ifdef CONFIG_MAC_ADDR_IN_SPIFLASH
 	int spi_mac_read;

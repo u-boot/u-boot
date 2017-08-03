@@ -495,7 +495,7 @@ static int eth_post_probe(struct udevice *dev)
 	if (eth_get_ops(dev)->read_rom_hwaddr)
 		eth_get_ops(dev)->read_rom_hwaddr(dev);
 
-	eth_getenv_enetaddr_by_index("eth", dev->seq, env_enetaddr);
+	eth_env_get_enetaddr_by_index("eth", dev->seq, env_enetaddr);
 	if (!is_zero_ethaddr(env_enetaddr)) {
 		if (!is_zero_ethaddr(pdata->enetaddr) &&
 		    memcmp(pdata->enetaddr, env_enetaddr, ARP_HLEN)) {

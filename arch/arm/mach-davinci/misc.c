@@ -90,7 +90,7 @@ void davinci_sync_env_enetaddr(uint8_t *rom_enetaddr)
 	uint8_t env_enetaddr[6];
 	int ret;
 
-	ret = eth_getenv_enetaddr_by_index("eth", 0, env_enetaddr);
+	ret = eth_env_get_enetaddr_by_index("eth", 0, env_enetaddr);
 	if (!ret) {
 		/*
 		 * There is no MAC address in the environment, so we

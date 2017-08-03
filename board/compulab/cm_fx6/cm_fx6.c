@@ -470,7 +470,7 @@ static int handle_mac_address(char *env_var, uint eeprom_bus)
 	unsigned char enetaddr[6];
 	int rc;
 
-	rc = eth_getenv_enetaddr(env_var, enetaddr);
+	rc = eth_env_get_enetaddr(env_var, enetaddr);
 	if (rc)
 		return 0;
 
@@ -605,13 +605,13 @@ int ft_board_setup(void *blob, bd_t *bd)
 	fdt_shrink_to_minimum(blob, 0); /* Make room for new properties */
 
 	/* MAC addr */
-	if (eth_getenv_enetaddr("ethaddr", enetaddr)) {
+	if (eth_env_get_enetaddr("ethaddr", enetaddr)) {
 		fdt_find_and_setprop(blob,
 				     "/soc/aips-bus@02100000/ethernet@02188000",
 				     "local-mac-address", enetaddr, 6, 1);
 	}
 
-	if (eth_getenv_enetaddr("eth1addr", enetaddr)) {
+	if (eth_env_get_enetaddr("eth1addr", enetaddr)) {
 		fdt_find_and_setprop(blob, "/eth@pcie", "local-mac-address",
 				     enetaddr, 6, 1);
 	}

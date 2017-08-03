@@ -434,7 +434,7 @@ static int handle_mac_address(void)
 	unsigned char enetaddr[6];
 	int rc;
 
-	rc = eth_getenv_enetaddr("ethaddr", enetaddr);
+	rc = eth_env_get_enetaddr("ethaddr", enetaddr);
 	if (rc)
 		return 0;
 

@@ -95,7 +95,7 @@ static int cl_som_am57x_handle_mac_address(char *env_name, uint port_num)
 	int ret;
 	uint8_t enetaddr[6];
 
-	ret = eth_getenv_enetaddr(env_name, enetaddr);
+	ret = eth_env_get_enetaddr(env_name, enetaddr);
 	if (ret)
 		return 0;
 

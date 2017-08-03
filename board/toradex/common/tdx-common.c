@@ -86,11 +86,11 @@ int show_board_info(void)
 	 * Check if environment contains a valid MAC address,
 	 * set the one from config block if not
 	 */
-	if (!eth_getenv_enetaddr("ethaddr", ethaddr))
+	if (!eth_env_get_enetaddr("ethaddr", ethaddr))
 		eth_env_set_enetaddr("ethaddr", (u8 *)&tdx_eth_addr);
 
 #ifdef CONFIG_TDX_CFG_BLOCK_2ND_ETHADDR
-	if (!eth_getenv_enetaddr("eth1addr", ethaddr)) {
+	if (!eth_env_get_enetaddr("eth1addr", ethaddr)) {
 		/*
 		 * Secondary MAC address is allocated from block
 		 * 0x100000 higher then the first MAC address

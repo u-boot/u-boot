@@ -355,7 +355,7 @@ static int ftmac100_free_pkt(struct udevice *dev, uchar *packet, int length)
 int ftmac100_read_rom_hwaddr(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
-	eth_getenv_enetaddr("ethaddr", pdata->enetaddr);
+	eth_env_get_enetaddr("ethaddr", pdata->enetaddr);
 	return 0;
 }
 
