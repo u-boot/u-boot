@@ -150,11 +150,6 @@ int env_init(void)
 	return 0;
 }
 
-void env_relocate_spec(void)
-{
-	env_load();
-}
-
 int saveenv(void)
 {
 	return env_save();

@@ -170,8 +170,6 @@ extern env_t environment;
 extern const unsigned char default_environment[];
 extern env_t *env_ptr;
 
-extern void env_relocate_spec(void);
-
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 extern void env_reloc(void);
 #endif
@@ -319,6 +317,13 @@ struct env_driver *env_driver_lookup_default(void);
  * @return character read, or -ve on error
  */
 int env_get_char(int index);
+
+/**
+ * env_load() - Load the environment from storage
+ *
+ * @return 0 if OK, -ve on error
+ */
+int env_load(void);
 
 #endif /* DO_DEPS_ONLY */
 

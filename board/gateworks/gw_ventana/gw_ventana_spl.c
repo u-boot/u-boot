@@ -690,7 +690,7 @@ int spl_start_uboot(void)
 	debug("%s\n", __func__);
 #ifdef CONFIG_SPL_ENV_SUPPORT
 	env_init();
-	env_relocate_spec();
+	env_load();
 	debug("boot_os=%s\n", getenv("boot_os"));
 	if (getenv_yesno("boot_os") == 1)
 		ret = 0;

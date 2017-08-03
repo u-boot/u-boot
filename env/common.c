@@ -280,7 +280,7 @@ void env_relocate(void)
 		set_default_env("!bad CRC");
 #endif
 	} else {
-		env_relocate_spec();
+		env_load();
 	}
 }
 
