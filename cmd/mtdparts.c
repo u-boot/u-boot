@@ -1533,7 +1533,7 @@ static int spread_partitions(void)
  * @param buf temporary buffer pointer MTDPARTS_MAXLEN long
  * @return mtdparts variable string, NULL if not found
  */
-static const char *getenv_mtdparts(char *buf)
+static const char *env_get_mtdparts(char *buf)
 {
 	if (gd->flags & GD_FLG_ENV_READY)
 		return env_get("mtdparts");
@@ -1565,7 +1565,7 @@ static int parse_mtdparts(const char *const mtdparts)
 	}
 
 	/* re-read 'mtdparts' variable, mtd_devices_init may be updating env */
-	p = getenv_mtdparts(tmp_parts);
+	p = env_get_mtdparts(tmp_parts);
 	if (!p)
 		p = mtdparts;
 
@@ -1742,7 +1742,7 @@ int mtdparts_init(void)
 
 	/* get variables */
 	ids = env_get("mtdids");
-	parts = getenv_mtdparts(tmp_parts);
+	parts = env_get_mtdparts(tmp_parts);
 	current_partition = env_get("partition");
 
 	/* save it for later parsing, cannot rely on current partition pointer

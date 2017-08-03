@@ -300,7 +300,7 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				ptr += sprintf(build_buf + ptr, "e=%s", tmp);
 				tmp = env_get("netmask");
 				if (tmp) {
-					u32 mask = getenv_ip("netmask").s_addr;
+					u32 mask = env_get_ip("netmask").s_addr;
 					ptr += sprintf(build_buf + ptr,
 						       ":%08x ", ntohl(mask));
 				} else {

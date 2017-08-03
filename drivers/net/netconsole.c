@@ -62,8 +62,8 @@ static int is_broadcast(struct in_addr ip)
 
 	/* update only when the environment has changed */
 	if (env_changed_id != env_id) {
-		netmask = getenv_ip("netmask");
-		our_ip = getenv_ip("ipaddr");
+		netmask = env_get_ip("netmask");
+		our_ip = env_get_ip("ipaddr");
 
 		env_changed_id = env_id;
 	}
@@ -83,7 +83,7 @@ static int refresh_settings_from_env(void)
 	/* update only when the environment has changed */
 	if (env_changed_id != env_id) {
 		if (env_get("ncip")) {
-			nc_ip = getenv_ip("ncip");
+			nc_ip = env_get_ip("ncip");
 			if (!nc_ip.s_addr)
 				return -1;	/* ncip is 0.0.0.0 */
 			p = strchr(env_get("ncip"), ':');

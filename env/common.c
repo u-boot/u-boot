@@ -44,7 +44,7 @@ int env_get_yesno(const char *var)
 /*
  * Look up the variable from the default environment
  */
-char *getenv_default(const char *name)
+char *env_get_default(const char *name)
 {
 	char *ret_val;
 	unsigned long really_valid = gd->env_valid;

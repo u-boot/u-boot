@@ -55,8 +55,8 @@ static void boot_start_lmb(bootm_headers_t *images)
 
 	lmb_init(&images->lmb);
 
-	mem_start = getenv_bootm_low();
-	mem_size = getenv_bootm_size();
+	mem_start = env_get_bootm_low();
+	mem_size = env_get_bootm_size();
 
 	lmb_add(&images->lmb, (phys_addr_t)mem_start, mem_size);
 

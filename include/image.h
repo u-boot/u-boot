@@ -769,9 +769,9 @@ static inline void image_set_name(image_header_t *hdr, const char *name)
 int image_check_hcrc(const image_header_t *hdr);
 int image_check_dcrc(const image_header_t *hdr);
 #ifndef USE_HOSTCC
-ulong getenv_bootm_low(void);
-phys_size_t getenv_bootm_size(void);
-phys_size_t getenv_bootm_mapsize(void);
+ulong env_get_bootm_low(void);
+phys_size_t env_get_bootm_size(void);
+phys_size_t env_get_bootm_mapsize(void);
 #endif
 void memmove_wd(void *to, void *from, size_t len, ulong chunksz);
 

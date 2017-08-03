@@ -331,7 +331,7 @@ int do_sntp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *toff;
 
 	if (argc < 2) {
-		net_ntp_server = getenv_ip("ntpserverip");
+		net_ntp_server = env_get_ip("ntpserverip");
 		if (net_ntp_server.s_addr == 0) {
 			printf("ntpserverip not set\n");
 			return CMD_RET_FAILURE;

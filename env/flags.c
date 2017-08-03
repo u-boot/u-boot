@@ -541,7 +541,7 @@ int env_flags_validate(const ENTRY *item, const char *newval, enum env_op op,
 			return 1;
 		} else if (item->flags &
 		    ENV_FLAGS_VARACCESS_PREVENT_NONDEF_OVERWR) {
-			const char *defval = getenv_default(name);
+			const char *defval = env_get_default(name);
 
 			if (defval == NULL)
 				defval = "";

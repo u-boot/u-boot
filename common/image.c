@@ -465,7 +465,7 @@ static int on_loadaddr(const char *name, const char *value, enum env_op op,
 }
 U_BOOT_ENV_CALLBACK(loadaddr, on_loadaddr);
 
-ulong getenv_bootm_low(void)
+ulong env_get_bootm_low(void)
 {
 	char *s = env_get("bootm_low");
 	if (s) {
@@ -482,7 +482,7 @@ ulong getenv_bootm_low(void)
 #endif
 }
 
-phys_size_t getenv_bootm_size(void)
+phys_size_t env_get_bootm_size(void)
 {
 	phys_size_t tmp, size;
 	phys_addr_t start;
@@ -509,7 +509,7 @@ phys_size_t getenv_bootm_size(void)
 	return size - (tmp - start);
 }
 
-phys_size_t getenv_bootm_mapsize(void)
+phys_size_t env_get_bootm_mapsize(void)
 {
 	phys_size_t tmp;
 	char *s = env_get("bootm_mapsize");
@@ -521,7 +521,7 @@ phys_size_t getenv_bootm_mapsize(void)
 #if defined(CONFIG_SYS_BOOTMAPSZ)
 	return CONFIG_SYS_BOOTMAPSZ;
 #else
-	return getenv_bootm_size();
+	return env_get_bootm_size();
 #endif
 }
 
@@ -1233,7 +1233,7 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 		if (initrd_high == ~0)
 			initrd_copy_to_ram = 0;
 	} else {
-		initrd_high = getenv_bootm_mapsize() + getenv_bootm_low();
+		initrd_high = env_get_bootm_mapsize() + env_get_bootm_low();
 	}
 
 
@@ -1506,7 +1506,7 @@ int boot_get_loadable(int argc, char * const argv[], bootm_headers_t *images,
  * @cmd_end: pointer to a ulong variable, will hold cmdline end
  *
  * boot_get_cmdline() allocates space for kernel command line below
- * BOOTMAPSZ + getenv_bootm_low() address. If "bootargs" U-Boot environemnt
+ * BOOTMAPSZ + env_get_bootm_low() address. If "bootargs" U-Boot environemnt
  * variable is present its contents is copied to allocated kernel
  * command line.
  *
@@ -1520,7 +1520,7 @@ int boot_get_cmdline(struct lmb *lmb, ulong *cmd_start, ulong *cmd_end)
 	char *s;
 
 	cmdline = (char *)(ulong)lmb_alloc_base(lmb, CONFIG_SYS_BARGSIZE, 0xf,
-				getenv_bootm_mapsize() + getenv_bootm_low());
+				env_get_bootm_mapsize() + env_get_bootm_low());
 
 	if (cmdline == NULL)
 		return -1;
@@ -1547,7 +1547,7 @@ int boot_get_cmdline(struct lmb *lmb, ulong *cmd_start, ulong *cmd_end)
  * @kbd: double pointer to board info data
  *
  * boot_get_kbd() allocates space for kernel copy of board info data below
- * BOOTMAPSZ + getenv_bootm_low() address and kernel board info is initialized
+ * BOOTMAPSZ + env_get_bootm_low() address and kernel board info is initialized
  * with the current u-boot board info data.
  *
  * returns:
@@ -1557,7 +1557,7 @@ int boot_get_cmdline(struct lmb *lmb, ulong *cmd_start, ulong *cmd_end)
 int boot_get_kbd(struct lmb *lmb, bd_t **kbd)
 {
 	*kbd = (bd_t *)(ulong)lmb_alloc_base(lmb, sizeof(bd_t), 0xf,
-				getenv_bootm_mapsize() + getenv_bootm_low());
+				env_get_bootm_mapsize() + env_get_bootm_low());
 	if (*kbd == NULL)
 		return -1;
 

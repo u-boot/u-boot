@@ -156,8 +156,8 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 	} else {
 		of_start =
 		    (void *)(ulong) lmb_alloc_base(lmb, of_len, 0x1000,
-						   getenv_bootm_mapsize()
-						   + getenv_bootm_low());
+						   env_get_bootm_mapsize()
+						   + env_get_bootm_low());
 	}
 
 	if (of_start == NULL) {

@@ -1536,7 +1536,7 @@ ushort string_to_vlan(const char *s)
 	return htons(id);
 }
 
-ushort getenv_vlan(char *var)
+ushort env_get_vlan(char *var)
 {
 	return string_to_vlan(env_get(var));
 }

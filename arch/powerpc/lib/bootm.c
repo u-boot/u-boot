@@ -86,7 +86,7 @@ static void boot_jump_linux(bootm_headers_t *images)
 		debug ("   Booting using OF flat tree...\n");
 		WATCHDOG_RESET ();
 		(*kernel) ((bd_t *)of_flat_tree, 0, 0, EPAPR_MAGIC,
-			   getenv_bootm_mapsize(), 0, 0);
+			   env_get_bootm_mapsize(), 0, 0);
 		/* does not return */
 	} else
 #endif
@@ -121,8 +121,8 @@ void arch_lmb_reserve(struct lmb *lmb)
 	phys_size_t bootm_size;
 	ulong size, sp, bootmap_base;
 
-	bootmap_base = getenv_bootm_low();
-	bootm_size = getenv_bootm_size();
+	bootmap_base = env_get_bootm_low();
+	bootm_size = env_get_bootm_size();
 
 #ifdef DEBUG
 	if (((u64)bootmap_base + bootm_size) >
@@ -340,6 +340,6 @@ void boot_jump_vxworks(bootm_headers_t *images)
 
 	((void (*)(void *, ulong, ulong, ulong,
 		ulong, ulong, ulong))images->ep)(images->ft_addr,
-		0, 0, EPAPR_MAGIC, getenv_bootm_mapsize(), 0, 0);
+		0, 0, EPAPR_MAGIC, env_get_bootm_mapsize(), 0, 0);
 }
 #endif
