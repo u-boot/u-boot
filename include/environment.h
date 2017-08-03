@@ -202,10 +202,6 @@ extern struct hsearch_data env_htab;
 /* Function that returns a character from the environment */
 unsigned char env_get_char(int);
 
-/* Function that returns a pointer to a value from the environment */
-const unsigned char *env_get_addr(int);
-unsigned char env_get_char_memory(int index);
-
 /* Function that updates CRC of the enironment */
 void env_crc_update(void);
 

@@ -41,7 +41,15 @@ static uchar env_get_char_init(int index)
 		return default_environment[index];
 }
 
-uchar env_get_char_memory(int index)
+static const uchar *env_get_addr(int index)
+{
+	if (gd->env_valid)
+		return (uchar *)(gd->env_addr + index);
+	else
+		return &default_environment[index];
+}
+
+static uchar env_get_char_memory(int index)
 {
 	return *env_get_addr(index);
 }
@@ -53,14 +61,6 @@ uchar env_get_char(int index)
 		return env_get_char_memory(index);
 	else
 		return env_get_char_init(index);
-}
-
-const uchar *env_get_addr(int index)
-{
-	if (gd->env_valid)
-		return (uchar *)(gd->env_addr + index);
-	else
-		return &default_environment[index];
 }
 
 /*
