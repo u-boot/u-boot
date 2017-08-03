@@ -18,7 +18,7 @@ static int ahci_pci_bind(struct udevice *dev)
 
 static int ahci_pci_probe(struct udevice *dev)
 {
-	return ahci_probe_scsi(dev);
+	return ahci_probe_scsi_pci(dev);
 }
 
 static const struct udevice_id ahci_pci_ids[] = {
