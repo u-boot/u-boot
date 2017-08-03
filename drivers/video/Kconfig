@@ -457,6 +457,8 @@ config VIDEO_SANDBOX_SDL
 	  console device and can display stdout output. Within U-Boot is is
 	  a normal bitmap display and can display images as well as text.
 
+source "drivers/video/stm32/Kconfig"
+
 config VIDEO_TEGRA20
 	bool "Enable LCD support on Tegra20"
 	depends on OF_CONTROL
