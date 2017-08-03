@@ -21,7 +21,7 @@ static void mmc_late_init(void)
 	char mmcblk[32];
 	u32 dev_no = mmc_get_env_dev();
 
-	setenv_ulong("mmcdev", dev_no);
+	env_set_ulong("mmcdev", dev_no);
 
 	/* Set mmcblk env */
 	sprintf(mmcblk, "/dev/mmcblk%dp2 rootwait rw", dev_no);

@@ -663,7 +663,7 @@ void api_init(void)
 		return;
 	}
 
-	setenv_hex("api_address", (unsigned long)sig);
+	env_set_hex("api_address", (unsigned long)sig);
 	debugf("API sig @ 0x%lX\n", (unsigned long)sig);
 	memcpy(sig->magic, API_SIG_MAGIC, 8);
 	sig->version = API_SIG_VERSION;

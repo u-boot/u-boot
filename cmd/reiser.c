@@ -157,7 +157,7 @@ int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	load_addr = addr;
 
 	printf ("\n%ld bytes read\n", filelen);
-	setenv_hex("filesize", filelen);
+	env_set_hex("filesize", filelen);
 
 	return filelen;
 }

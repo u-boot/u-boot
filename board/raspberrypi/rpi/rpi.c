@@ -266,7 +266,7 @@ static void set_fdt_addr(void)
 	if (fdt_magic(fw_dtb_pointer) != FDT_MAGIC)
 		return;
 
-	setenv_hex("fdt_addr", fw_dtb_pointer);
+	env_set_hex("fdt_addr", fw_dtb_pointer);
 }
 
 /*

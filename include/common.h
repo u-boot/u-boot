@@ -349,18 +349,34 @@ int getenv_yesno(const char *var);
  */
 int env_set(const char *varname, const char *value);
 
-int setenv_ulong(const char *varname, ulong value);
-int setenv_hex(const char *varname, ulong value);
 /**
- * setenv_addr - Set an environment variable to an address in hex
+ * env_set_ulong() - set an environment variable to an integer
+ *
+ * @varname: Variable to adjust
+ * @value: Value to set for the variable (will be converted to a string)
+ * @return 0 if OK, 1 on error
+ */
+int env_set_ulong(const char *varname, ulong value);
+
+/**
+ * env_set_hex() - set an environment variable to a hex value
+ *
+ * @varname: Variable to adjust
+ * @value: Value to set for the variable (will be converted to a hex string)
+ * @return 0 if OK, 1 on error
+ */
+int env_set_hex(const char *varname, ulong value);
+
+/**
+ * env_set_addr - Set an environment variable to an address in hex
  *
  * @varname:	Environment variable to set
  * @addr:	Value to set it to
  * @return 0 if ok, 1 on error
  */
-static inline int setenv_addr(const char *varname, const void *addr)
+static inline int env_set_addr(const char *varname, const void *addr)
 {
-	return setenv_hex(varname, (ulong)addr);
+	return env_set_hex(varname, (ulong)addr);
 }
 
 #ifdef CONFIG_AUTO_COMPLETE

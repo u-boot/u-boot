@@ -138,7 +138,7 @@ int do_cramfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (size > 0) {
 		printf("### CRAMFS load complete: %d bytes loaded to 0x%lx\n",
 			size, offset);
-		setenv_hex("filesize", size);
+		env_set_hex("filesize", size);
 	} else {
 		printf("### CRAMFS LOAD ERROR<%x> for %s!\n", size, filename);
 	}

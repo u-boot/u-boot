@@ -645,8 +645,8 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		ret = boot_ramdisk_high(&images->lmb, images->rd_start,
 			rd_len, &images->initrd_start, &images->initrd_end);
 		if (!ret) {
-			setenv_hex("initrd_start", images->initrd_start);
-			setenv_hex("initrd_end", images->initrd_end);
+			env_set_hex("initrd_start", images->initrd_start);
+			env_set_hex("initrd_end", images->initrd_end);
 		}
 	}
 #endif

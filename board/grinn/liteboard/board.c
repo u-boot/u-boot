@@ -168,7 +168,7 @@ void board_late_mmc_init(void)
 	if (!check_mmc_autodetect())
 		return;
 
-	setenv_ulong("mmcdev", dev_no);
+	env_set_ulong("mmcdev", dev_no);
 
 	/* Set mmcblk env */
 	sprintf(mmcblk, "/dev/mmcblk%dp2 rootwait rw",

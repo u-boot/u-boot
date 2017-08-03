@@ -182,7 +182,7 @@ static ulong load_serial(long offset)
 			    start_addr, end_addr, size, size
 		    );
 		    flush_cache(start_addr, size);
-		    setenv_hex("filesize", size);
+		    env_set_hex("filesize", size);
 		    return (addr);
 		case SREC_START:
 		    break;
@@ -529,7 +529,7 @@ static ulong load_serial_bin(ulong offset)
 	flush_cache(offset, size);
 
 	printf("## Total Size      = 0x%08x = %d Bytes\n", size, size);
-	setenv_hex("filesize", size);
+	env_set_hex("filesize", size);
 
 	return offset;
 }
@@ -1000,7 +1000,7 @@ static ulong load_serial_ymodem(ulong offset, int mode)
 	flush_cache(offset, ALIGN(size, ARCH_DMA_MINALIGN));
 
 	printf("## Total Size      = 0x%08x = %d Bytes\n", size, size);
-	setenv_hex("filesize", size);
+	env_set_hex("filesize", size);
 
 	return offset;
 }

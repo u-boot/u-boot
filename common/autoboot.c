@@ -278,12 +278,12 @@ static void process_fdt_options(const void *blob)
 	/* Add an env variable to point to a kernel payload, if available */
 	addr = fdtdec_get_config_int(gd->fdt_blob, "kernel-offset", 0);
 	if (addr)
-		setenv_addr("kernaddr", (void *)(CONFIG_SYS_TEXT_BASE + addr));
+		env_set_addr("kernaddr", (void *)(CONFIG_SYS_TEXT_BASE + addr));
 
 	/* Add an env variable to point to a root disk, if available */
 	addr = fdtdec_get_config_int(gd->fdt_blob, "rootdisk-offset", 0);
 	if (addr)
-		setenv_addr("rootaddr", (void *)(CONFIG_SYS_TEXT_BASE + addr));
+		env_set_addr("rootaddr", (void *)(CONFIG_SYS_TEXT_BASE + addr));
 #endif /* CONFIG_OF_CONTROL && CONFIG_SYS_TEXT_BASE */
 }
 
@@ -300,7 +300,7 @@ const char *bootdelay_process(void)
 	bootcount = bootcount_load();
 	bootcount++;
 	bootcount_store(bootcount);
-	setenv_ulong("bootcount", bootcount);
+	env_set_ulong("bootcount", bootcount);
 	bootlimit = getenv_ulong("bootlimit", 10, 0);
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
 

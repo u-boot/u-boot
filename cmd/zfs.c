@@ -115,7 +115,7 @@ static int do_zfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	load_addr = addr;
 
 	printf("%llu bytes read\n", zfile.size);
-	setenv_hex("filesize", zfile.size);
+	env_set_hex("filesize", zfile.size);
 
 	return 0;
 }

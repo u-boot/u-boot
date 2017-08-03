@@ -80,7 +80,7 @@ static int do_cbfs_fsload(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	printf("\n%ld bytes read\n", size);
 
-	setenv_hex("filesize", size);
+	env_set_hex("filesize", size);
 
 	return 0;
 }

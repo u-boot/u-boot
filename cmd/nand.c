@@ -305,9 +305,9 @@ static void nand_print_and_set_info(int idx)
 	printf("  bbt options 0x%08x\n", chip->bbt_options);
 
 	/* Set geometry info */
-	setenv_hex("nand_writesize", mtd->writesize);
-	setenv_hex("nand_oobsize", mtd->oobsize);
-	setenv_hex("nand_erasesize", mtd->erasesize);
+	env_set_hex("nand_writesize", mtd->writesize);
+	env_set_hex("nand_oobsize", mtd->oobsize);
+	env_set_hex("nand_erasesize", mtd->erasesize);
 }
 
 static int raw_access(struct mtd_info *mtd, ulong addr, loff_t off,

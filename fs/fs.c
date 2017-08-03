@@ -348,7 +348,7 @@ int do_size(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	if (fs_size(argv[3], &size) < 0)
 		return CMD_RET_FAILURE;
 
-	setenv_hex("filesize", size);
+	env_set_hex("filesize", size);
 
 	return 0;
 }
@@ -417,8 +417,8 @@ int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	}
 	puts("\n");
 
-	setenv_hex("fileaddr", addr);
-	setenv_hex("filesize", len_read);
+	env_set_hex("fileaddr", addr);
+	env_set_hex("filesize", len_read);
 
 	return 0;
 }

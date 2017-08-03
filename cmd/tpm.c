@@ -231,7 +231,7 @@ static int type_string_write_vars(const char *type_str, uint8_t *data,
 		default:
 			return -1;
 		}
-		if (setenv_ulong(*vars, value))
+		if (env_set_ulong(*vars, value))
 			return -1;
 	}
 
@@ -624,7 +624,7 @@ static int do_tpm_load_key_by_sha1(cmd_tbl_t *cmdtp, int flag, int argc, char *
 				 &key_handle);
 	if (!err) {
 		printf("Key handle is 0x%x\n", key_handle);
-		setenv_hex("key_handle", key_handle);
+		env_set_hex("key_handle", key_handle);
 	}
 
 	return report_return_code(err);

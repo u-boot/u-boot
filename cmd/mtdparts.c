@@ -239,7 +239,7 @@ static void index_partitions(void)
 			dev = list_entry(dentry, struct mtd_device, link);
 			if (dev == current_mtd_dev) {
 				mtddevnum += current_mtd_partnum;
-				setenv_ulong("mtddevnum", mtddevnum);
+				env_set_ulong("mtddevnum", mtddevnum);
 				break;
 			}
 			mtddevnum += dev->num_parts;

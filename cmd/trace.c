@@ -46,9 +46,9 @@ static int create_func_list(int argc, char * const argv[])
 	used = min(avail, (size_t)needed);
 	printf("Function trace dumped to %08lx, size %#zx\n",
 	       (ulong)map_to_sysmem(buff + buff_ptr), used);
-	setenv_hex("profbase", map_to_sysmem(buff));
-	setenv_hex("profsize", buff_size);
-	setenv_hex("profoffset", buff_ptr + used);
+	env_set_hex("profbase", map_to_sysmem(buff));
+	env_set_hex("profsize", buff_size);
+	env_set_hex("profoffset", buff_ptr + used);
 
 	return 0;
 }
@@ -71,9 +71,9 @@ static int create_call_list(int argc, char * const argv[])
 	printf("Call list dumped to %08lx, size %#zx\n",
 	       (ulong)map_to_sysmem(buff + buff_ptr), used);
 
-	setenv_hex("profbase", map_to_sysmem(buff));
-	setenv_hex("profsize", buff_size);
-	setenv_hex("profoffset", buff_ptr + used);
+	env_set_hex("profbase", map_to_sysmem(buff));
+	env_set_hex("profsize", buff_size);
+	env_set_hex("profoffset", buff_ptr + used);
 
 	return 0;
 }

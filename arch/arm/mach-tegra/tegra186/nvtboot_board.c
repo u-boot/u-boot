@@ -15,7 +15,7 @@ static int set_fdt_addr(void)
 {
 	int ret;
 
-	ret = setenv_hex("fdt_addr", nvtboot_boot_x0);
+	ret = env_set_hex("fdt_addr", nvtboot_boot_x0);
 	if (ret) {
 		printf("Failed to set fdt_addr to point at DTB: %d\n", ret);
 		return ret;

@@ -1021,6 +1021,6 @@ int misc_init_r(void)
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
 #endif
-	setenv_hex("reset_cause", get_imx_reset_cause());
+	env_set_hex("reset_cause", get_imx_reset_cause());
 	return 0;
 }

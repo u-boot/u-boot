@@ -304,7 +304,7 @@ int env_set(const char *varname, const char *varvalue)
  * @param value		Value to set it to
  * @return 0 if ok, 1 on error
  */
-int setenv_ulong(const char *varname, ulong value)
+int env_set_ulong(const char *varname, ulong value)
 {
 	/* TODO: this should be unsigned */
 	char *str = simple_itoa(value);
@@ -319,7 +319,7 @@ int setenv_ulong(const char *varname, ulong value)
  * @param value		Value to set it to
  * @return 0 if ok, 1 on error
  */
-int setenv_hex(const char *varname, ulong value)
+int env_set_hex(const char *varname, ulong value)
 {
 	char str[17];
 
@@ -957,7 +957,7 @@ NXTARG:		;
 		envp->flags = ACTIVE_FLAG;
 #endif
 	}
-	setenv_hex("filesize", len + offsetof(env_t, data));
+	env_set_hex("filesize", len + offsetof(env_t, data));
 
 	return 0;
 

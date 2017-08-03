@@ -43,7 +43,7 @@ void set_working_fdt_addr(ulong addr)
 
 	buf = map_sysmem(addr, 0);
 	working_fdt = buf;
-	setenv_hex("fdtaddr", addr);
+	env_set_hex("fdtaddr", addr);
 }
 
 /*
@@ -373,7 +373,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			}
 			if (subcmd[0] == 's') {
 				/* get the num nodes at this level */
-				setenv_ulong(var, curIndex + 1);
+				env_set_ulong(var, curIndex + 1);
 			} else {
 				/* node index not found */
 				printf("libfdt node not found\n");

@@ -646,7 +646,7 @@ static void parse_spl_header(const uint32_t spl_addr)
 		return;
 	}
 	/* otherwise assume .scr format (mkimage-type script) */
-	setenv_hex("fel_scriptaddr", spl->fel_script_address);
+	env_set_hex("fel_scriptaddr", spl->fel_script_address);
 }
 
 /*
