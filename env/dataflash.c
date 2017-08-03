@@ -14,7 +14,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static unsigned char env_dataflash_get_char(int index)
+static int env_dataflash_get_char(int index)
 {
 	uchar c;
 

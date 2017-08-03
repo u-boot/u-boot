@@ -41,7 +41,7 @@ env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
 #endif
 
 #ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
-static uchar env_nvram_get_char(int index)
+static int env_nvram_get_char(int index)
 {
 	uchar c;
 

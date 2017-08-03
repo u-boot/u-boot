@@ -227,9 +227,9 @@ struct env_driver {
 	 * will read from gd->env_addr.
 	 *
 	 * @index: Index of character to read (0=first)
-	 * @return character read
+	 * @return character read, or -ve on error
 	 */
-	unsigned char (*get_char)(int index);
+	int (*get_char)(int index);
 
 	/**
 	 * load() - Load the environment from storage

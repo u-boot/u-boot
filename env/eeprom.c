@@ -61,7 +61,7 @@ static int eeprom_bus_write(unsigned dev_addr, unsigned offset,
 	return rcode;
 }
 
-static uchar env_eeprom_get_char(int index)
+static int env_eeprom_get_char(int index)
 {
 	uchar c;
 	unsigned int off = CONFIG_ENV_OFFSET;
