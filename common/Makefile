@@ -19,7 +19,7 @@ ifdef CONFIG_BOOT_RETRY_TIME
 obj-y += bootretry.o
 endif
 
-# boards
+# # boards
 obj-y += board_f.o
 obj-y += board_r.o
 obj-$(CONFIG_DISPLAY_BOARDINFO) += board_info.o
@@ -28,29 +28,6 @@ obj-$(CONFIG_DISPLAY_BOARDINFO_LATE) += board_info.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o bootm_os.o
 obj-$(CONFIG_CMD_BOOTZ) += bootm.o bootm_os.o
 obj-$(CONFIG_CMD_BOOTI) += bootm.o bootm_os.o
-
-# environment
-obj-y += env_attr.o
-obj-y += env_callback.o
-obj-y += env_flags.o
-obj-$(CONFIG_ENV_IS_IN_DATAFLASH) += env_dataflash.o
-obj-$(CONFIG_ENV_IS_IN_EEPROM) += env_eeprom.o
-extra-$(CONFIG_ENV_IS_EMBEDDED) += env_embedded.o
-obj-$(CONFIG_ENV_IS_IN_EEPROM) += env_embedded.o
-extra-$(CONFIG_ENV_IS_IN_FLASH) += env_embedded.o
-obj-$(CONFIG_ENV_IS_IN_NVRAM) += env_embedded.o
-obj-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
-obj-$(CONFIG_ENV_IS_IN_MMC) += env_mmc.o
-obj-$(CONFIG_ENV_IS_IN_FAT) += env_fat.o
-obj-$(CONFIG_ENV_IS_IN_EXT4) += env_ext4.o
-obj-$(CONFIG_ENV_IS_IN_NAND) += env_nand.o
-obj-$(CONFIG_ENV_IS_IN_NVRAM) += env_nvram.o
-obj-$(CONFIG_ENV_IS_IN_ONENAND) += env_onenand.o
-obj-$(CONFIG_ENV_IS_IN_SATA) += env_sata.o
-obj-$(CONFIG_ENV_IS_IN_SPI_FLASH) += env_sf.o
-obj-$(CONFIG_ENV_IS_IN_REMOTE) += env_remote.o
-obj-$(CONFIG_ENV_IS_IN_UBI) += env_ubi.o
-obj-$(CONFIG_ENV_IS_NOWHERE) += env_nowhere.o
 
 obj-$(CONFIG_CMD_BEDBUG) += bedbug.o
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += fdt_support.o
@@ -92,7 +69,6 @@ ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_DFU_SUPPORT) += dfu.o
 obj-$(CONFIG_SPL_DFU_SUPPORT) += cli_hush.o
 obj-$(CONFIG_SPL_HASH_SUPPORT) += hash.o
-obj-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += xyzModem.o
 obj-$(CONFIG_SPL_LOAD_FIT) += common_fit.o
 obj-$(CONFIG_SPL_NET_SUPPORT) += miiphyutil.o
@@ -101,28 +77,7 @@ ifdef CONFIG_SPL_USB_HOST_SUPPORT
 obj-$(CONFIG_SPL_USB_SUPPORT) += usb.o usb_hub.o
 obj-$(CONFIG_USB_STORAGE) += usb_storage.o
 endif
-# environment
-ifdef CONFIG_TPL_BUILD
-obj-$(CONFIG_TPL_ENV_SUPPORT) += env_attr.o
-obj-$(CONFIG_TPL_ENV_SUPPORT) += env_flags.o
-obj-$(CONFIG_TPL_ENV_SUPPORT) += env_callback.o
-else
-obj-$(CONFIG_SPL_ENV_SUPPORT) += env_attr.o
-obj-$(CONFIG_SPL_ENV_SUPPORT) += env_flags.o
-obj-$(CONFIG_SPL_ENV_SUPPORT) += env_callback.o
 endif
-ifneq ($(CONFIG_TPL_ENV_SUPPORT)$(CONFIG_SPL_ENV_SUPPORT),)
-obj-$(CONFIG_ENV_IS_NOWHERE) += env_nowhere.o
-obj-$(CONFIG_ENV_IS_IN_MMC) += env_mmc.o
-obj-$(CONFIG_ENV_IS_IN_FAT) += env_fat.o
-obj-$(CONFIG_ENV_IS_IN_EXT4) += env_ext4.o
-obj-$(CONFIG_ENV_IS_IN_NAND) += env_nand.o
-obj-$(CONFIG_ENV_IS_IN_SPI_FLASH) += env_sf.o
-obj-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
-endif
-endif
-#environment
-obj-y += env_common.o
 #others
 obj-$(CONFIG_DDR_SPD) += ddr_spd.o
 obj-$(CONFIG_SPD_EEPROM) += ddr_spd.o
@@ -175,5 +130,3 @@ obj-$(CONFIG_CMD_DFU) += dfu.o
 obj-y += command.o
 obj-y += s_record.o
 obj-y += xyzModem.o
-
-CFLAGS_env_embedded.o := -Wa,--no-warn -DENV_CRC=$(shell tools/envcrc 2>/dev/null)

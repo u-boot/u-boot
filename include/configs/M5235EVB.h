@@ -176,7 +176,7 @@
 
 #define LDS_BOARD_TEXT \
 	. = DEFINED(env_offset) ? env_offset : .; \
-	common/env_embedded.o (.text);
+	env/embedded.o(.text);
 
 #ifdef NORFLASH_PS32BIT
 #	define CONFIG_ENV_OFFSET		(0x8000)

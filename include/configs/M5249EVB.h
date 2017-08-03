@@ -85,8 +85,8 @@
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define LDS_BOARD_TEXT \
-        . = DEFINED(env_offset) ? env_offset : .; \
-        common/env_embedded.o (.text);
+	. = DEFINED(env_offset) ? env_offset : .; \
+	env/embedded.o(.text);
 
 #define CONFIG_ENV_OFFSET		0x4000	/* Address of Environment Sector*/
 #define CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/

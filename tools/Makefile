@@ -37,7 +37,7 @@ hostprogs-$(CONFIG_VIDEO_LOGO) += bmp_logo
 HOSTCFLAGS_bmp_logo.o := -pedantic
 
 hostprogs-$(CONFIG_BUILD_ENVCRC) += envcrc
-envcrc-objs := envcrc.o lib/crc32.o common/env_embedded.o lib/sha1.o
+envcrc-objs := envcrc.o lib/crc32.o env/embedded.o lib/sha1.o
 
 hostprogs-$(CONFIG_CMD_NET) += gen_eth_addr
 HOSTCFLAGS_gen_eth_addr.o := -pedantic
@@ -225,7 +225,7 @@ HOSTCFLAGS_sha256.o := -pedantic
 quiet_cmd_wrap = WRAP    $@
 cmd_wrap = echo "\#include <../$(patsubst $(obj)/%,%,$@)>" >$@
 
-$(obj)/lib/%.c $(obj)/common/%.c:
+$(obj)/lib/%.c $(obj)/common/%.c $(obj)/env/%.c:
 	$(call cmd,wrap)
 
 clean-dirs := lib common

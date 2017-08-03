@@ -296,7 +296,7 @@
 
 #define LDS_BOARD_TEXT \
 	. = DEFINED(env_offset) ? env_offset : .; \
-	common/env_embedded.o       (.text*)
+	env/embedded.o(.text*)
 
 #if ENABLE_JFFS
 /* JFFS Partition offset set */

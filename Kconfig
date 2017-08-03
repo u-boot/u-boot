@@ -380,6 +380,8 @@ source "disk/Kconfig"
 
 source "dts/Kconfig"
 
+source "env/Kconfig"
+
 source "net/Kconfig"
 
 source "drivers/Kconfig"

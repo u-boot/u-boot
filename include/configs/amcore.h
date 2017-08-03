@@ -93,8 +93,8 @@
 #define CONFIG_ENV_SECT_SIZE		0x1000
 
 #define LDS_BOARD_TEXT \
-        . = DEFINED(env_offset) ? env_offset : .; \
-        common/env_embedded.o (.text*);
+	. = DEFINED(env_offset) ? env_offset : .; \
+	env/embedded.o(.text*);
 
 /* memory map space for linux boot data */
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)
