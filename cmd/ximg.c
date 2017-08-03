@@ -52,7 +52,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 #endif
 	uint8_t		comp;
 
-	verify = getenv_yesno("verify");
+	verify = env_get_yesno("verify");
 
 	if (argc > 1) {
 		addr = simple_strtoul(argv[1], NULL, 16);

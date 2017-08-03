@@ -16,10 +16,10 @@ static int get_args(int argc, char * const argv[], char **buff,
 	if (argc < 2)
 		return -1;
 	if (argc < 4) {
-		*buff_size = getenv_ulong("profsize", 16, 0);
-		*buff = map_sysmem(getenv_ulong("profbase", 16, 0),
+		*buff_size = env_get_ulong("profsize", 16, 0);
+		*buff = map_sysmem(env_get_ulong("profbase", 16, 0),
 				   *buff_size);
-		*buff_ptr = getenv_ulong("profoffset", 16, 0);
+		*buff_ptr = env_get_ulong("profoffset", 16, 0);
 	} else {
 		*buff_size = simple_strtoul(argv[3], NULL, 16);
 		*buff = map_sysmem(simple_strtoul(argv[2], NULL, 16),

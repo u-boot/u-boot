@@ -372,7 +372,7 @@ static int initr_flash(void)
 	*
 	* NOTE: Maybe we should add some WATCHDOG_RESET()? XXX
 	*/
-	if (getenv_yesno("flashchecksum") == 1) {
+	if (env_get_yesno("flashchecksum") == 1) {
 		printf("  CRC: %08X", crc32(0,
 			(const unsigned char *) CONFIG_SYS_FLASH_BASE,
 			flash_size));
@@ -490,7 +490,7 @@ static int initr_env(void)
 #endif
 
 	/* Initialize from environment */
-	load_addr = getenv_ulong("loadaddr", 16, load_addr);
+	load_addr = env_get_ulong("loadaddr", 16, load_addr);
 
 	return 0;
 }
@@ -651,7 +651,7 @@ int initr_mem(void)
 	char memsz[32];
 
 # ifdef CONFIG_PRAM
-	pram = getenv_ulong("pram", 10, CONFIG_PRAM);
+	pram = env_get_ulong("pram", 10, CONFIG_PRAM);
 # endif
 # if defined(CONFIG_LOGBUFFER) && !defined(CONFIG_ALT_LB_ADDR)
 	/* Also take the logbuffer into account (pram is in kB) */

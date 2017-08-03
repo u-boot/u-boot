@@ -217,7 +217,7 @@ static u8 *get_2nd_stage_bl_location(ulong target_addr)
 {
 	ulong addr;
 #ifdef CCDM_SECOND_STAGE
-	addr = getenv_ulong("loadaddr", 16, CONFIG_LOADADDR);
+	addr = env_get_ulong("loadaddr", 16, CONFIG_LOADADDR);
 #else
 	addr = target_addr;
 #endif
@@ -235,7 +235,7 @@ static u8 *get_image_location(void)
 {
 	ulong addr;
 	/* TODO use other area? */
-	addr = getenv_ulong("loadaddr", 16, CONFIG_LOADADDR);
+	addr = env_get_ulong("loadaddr", 16, CONFIG_LOADADDR);
 	return (u8 *)(addr);
 }
 #endif

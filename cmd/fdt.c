@@ -111,7 +111,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				return 1;
 			printf("The address of the fdt is %#08lx\n",
 			       control ? (ulong)map_to_sysmem(blob) :
-					getenv_hex("fdtaddr", 0));
+					env_get_hex("fdtaddr", 0));
 			return 0;
 		}
 

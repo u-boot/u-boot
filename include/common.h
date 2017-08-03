@@ -335,10 +335,21 @@ char *env_get(const char *varname);
  */
 int env_get_f(const char *name, char *buf, unsigned len);
 
-ulong getenv_ulong(const char *name, int base, ulong default_val);
+/**
+ * env_get_ulong() - Return an environment variable as an integer value
+ *
+ * Most U-Boot environment variables store hex values. For those which store
+ * (e.g.) base-10 integers, this function can be used to read the value.
+ *
+ * @name:	Variable to look up
+ * @base:	Base to use (e.g. 10 for base 10, 2 for binary)
+ * @default_val: Default value to return if no value is found
+ * @return the value found, or @default_val if none
+ */
+ulong env_get_ulong(const char *name, int base, ulong default_val);
 
 /**
- * getenv_hex() - Return an environment variable as a hex value
+ * env_get_hex() - Return an environment variable as a hex value
  *
  * Decode an environment as a hex number (it may or may not have a 0x
  * prefix). If the environment variable cannot be found, or does not start
@@ -347,13 +358,13 @@ ulong getenv_ulong(const char *name, int base, ulong default_val);
  * @varname:		Variable to decode
  * @default_val:	Value to return on error
  */
-ulong getenv_hex(const char *varname, ulong default_val);
+ulong env_get_hex(const char *varname, ulong default_val);
 
 /*
  * Read an environment variable as a boolean
  * Return -1 if variable does not exist (default to true)
  */
-int getenv_yesno(const char *var);
+int env_get_yesno(const char *var);
 
 /**
  * env_set() - set an environment variable

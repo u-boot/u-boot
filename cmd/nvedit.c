@@ -327,7 +327,7 @@ int env_set_hex(const char *varname, ulong value)
 	return env_set(varname, str);
 }
 
-ulong getenv_hex(const char *varname, ulong default_val)
+ulong env_get_hex(const char *varname, ulong default_val)
 {
 	const char *s;
 	ulong value;
@@ -690,7 +690,7 @@ int env_get_f(const char *name, char *buf, unsigned len)
  *			found
  * @return the decoded value, or default_val if not found
  */
-ulong getenv_ulong(const char *name, int base, ulong default_val)
+ulong env_get_ulong(const char *name, int base, ulong default_val)
 {
 	/*
 	 * We can use env_get() here, even before relocation, since the

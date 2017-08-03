@@ -692,7 +692,7 @@ int spl_start_uboot(void)
 	env_init();
 	env_load();
 	debug("boot_os=%s\n", env_get("boot_os"));
-	if (getenv_yesno("boot_os") == 1)
+	if (env_get_yesno("boot_os") == 1)
 		ret = 0;
 #else
 	/* use i2c-0:0x50:0x00 for falcon boot mode (0=linux, else uboot) */

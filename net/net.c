@@ -329,7 +329,7 @@ void net_auto_load(void)
 		return;
 	}
 #endif
-	if (getenv_yesno("autoload") == 0) {
+	if (env_get_yesno("autoload") == 0) {
 		/*
 		 * Just use BOOTP/RARP to configure system;
 		 * Do not use TFTP to load the bootfile.

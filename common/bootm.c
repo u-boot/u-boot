@@ -72,7 +72,7 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
 	memset((void *)&images, 0, sizeof(images));
-	images.verify = getenv_yesno("verify");
+	images.verify = env_get_yesno("verify");
 
 	boot_start_lmb(&images);
 
@@ -534,7 +534,7 @@ static void fixup_silent_linux(void)
 	 *	yes - we always fixup
 	 *	unset - we rely on the console silent flag
 	 */
-	want_silent = getenv_yesno("silent_linux");
+	want_silent = env_get_yesno("silent_linux");
 	if (want_silent == 0)
 		return;
 	else if (want_silent == -1 && !(gd->flags & GD_FLG_SILENT))

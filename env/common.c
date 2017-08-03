@@ -31,7 +31,7 @@ struct hsearch_data env_htab = {
  * Read an environment variable as a boolean
  * Return -1 if variable does not exist (default to true)
  */
-int getenv_yesno(const char *var)
+int env_get_yesno(const char *var)
 {
 	char *s = env_get(var);
 

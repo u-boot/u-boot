@@ -282,9 +282,9 @@ int board_late_init(void)
 	snprintf(othbootargs, sizeof(othbootargs),
 		 "u=vxWorksFTP pw=vxWorks o=0x%08x;0x%08x;0x%08x;0x%08x",
 		 (unsigned int) gd->fb_base-0x20,
-		 (u32)getenv_ulong("vx_memtop", 16, gd->fb_base-0x20),
-		 (u32)getenv_ulong("vx_romfsbase", 16, 0),
-		 (u32)getenv_ulong("vx_romfssize", 16, 0));
+		 (u32)env_get_ulong("vx_memtop", 16, gd->fb_base-0x20),
+		 (u32)env_get_ulong("vx_romfsbase", 16, 0),
+		 (u32)env_get_ulong("vx_romfssize", 16, 0));
 	env_set("othbootargs", othbootargs);
 	/*
 	 * reset VBAR registers to its reset location, VxWorks 6.9.3.2 does

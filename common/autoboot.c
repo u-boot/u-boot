@@ -301,7 +301,7 @@ const char *bootdelay_process(void)
 	bootcount++;
 	bootcount_store(bootcount);
 	env_set_ulong("bootcount", bootcount);
-	bootlimit = getenv_ulong("bootlimit", 10, 0);
+	bootlimit = env_get_ulong("bootlimit", 10, 0);
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
 
 	s = env_get("bootdelay");

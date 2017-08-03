@@ -504,7 +504,7 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 #endif
 
 	if (env_get("bootp_arch"))
-		clientarch = getenv_ulong("bootp_arch", 16, clientarch);
+		clientarch = env_get_ulong("bootp_arch", 16, clientarch);
 
 	if (clientarch > 0) {
 		*e++ = 93;	/* Client System Architecture */

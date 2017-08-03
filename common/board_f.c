@@ -118,7 +118,7 @@ __weak void board_add_ram_info(int use_default)
 
 static int init_baud_rate(void)
 {
-	gd->baudrate = getenv_ulong("baudrate", 10, CONFIG_BAUDRATE);
+	gd->baudrate = env_get_ulong("baudrate", 10, CONFIG_BAUDRATE);
 	return 0;
 }
 
@@ -324,7 +324,7 @@ static int reserve_pram(void)
 {
 	ulong reg;
 
-	reg = getenv_ulong("pram", 10, CONFIG_PRAM);
+	reg = env_get_ulong("pram", 10, CONFIG_PRAM);
 	gd->relocaddr -= (reg << 10);		/* size is in kB */
 	debug("Reserving %ldk for protected RAM at %08lx\n", reg,
 	      gd->relocaddr);
