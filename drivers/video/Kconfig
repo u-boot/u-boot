@@ -14,6 +14,17 @@ config DM_VIDEO
 	  option compiles in the video uclass and routes all LCD/video access
 	  through this.
 
+config BACKLIGHT_PWM
+	bool "Generic PWM based Backlight Driver"
+	depends on DM_VIDEO && DM_PWM
+	default y
+	help
+	  If you have a LCD backlight adjustable by PWM, say Y to enable
+	  this driver.
+	  This driver can be use with "simple-panel" and
+	  it understands the standard device tree
+	  (leds/backlight/pwm-backlight.txt)
+
 config VIDEO_BPP8
 	bool "Support 8-bit-per-pixel displays"
 	depends on DM_VIDEO
