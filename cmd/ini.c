@@ -219,7 +219,7 @@ static int ini_handler(void *user, char *section, char *name, char *value)
 		for (i = 0; i < strlen(value); i++)
 			value[i] = tolower(value[i]);
 #endif
-		setenv(name, value);
+		env_set(name, value);
 		printf("ini: Imported %s as %s\n", name, value);
 	}
 

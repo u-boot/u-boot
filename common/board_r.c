@@ -658,7 +658,7 @@ int initr_mem(void)
 	pram += (LOGBUFF_LEN + LOGBUFF_OVERHEAD) / 1024;
 # endif
 	sprintf(memsz, "%ldk", (long int) ((gd->ram_size / 1024) - pram));
-	setenv("mem", memsz);
+	env_set("mem", memsz);
 
 	return 0;
 }

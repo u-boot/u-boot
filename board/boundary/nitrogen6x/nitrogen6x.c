@@ -954,7 +954,7 @@ static int do_kbd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char envvalue[ARRAY_SIZE(buttons)+1];
 	int numpressed = read_keys(envvalue);
-	setenv("keybd", envvalue);
+	env_set("keybd", envvalue);
 	return numpressed == 0;
 }
 
@@ -995,7 +995,7 @@ static void preboot_keys(void)
 			sprintf(cmd_name, "%s%c", kbd_command_prefix, *suffix);
 			cmd = getenv(cmd_name);
 			if (cmd) {
-				setenv("preboot", cmd);
+				env_set("preboot", cmd);
 				return;
 			}
 		}

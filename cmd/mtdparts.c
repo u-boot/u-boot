@@ -246,12 +246,12 @@ static void index_partitions(void)
 		}
 
 		part = mtd_part_info(current_mtd_dev, current_mtd_partnum);
-		setenv("mtddevname", part->name);
+		env_set("mtddevname", part->name);
 
 		debug("=> mtddevnum %d,\n=> mtddevname %s\n", mtddevnum, part->name);
 	} else {
-		setenv("mtddevnum", NULL);
-		setenv("mtddevname", NULL);
+		env_set("mtddevnum", NULL);
+		env_set("mtddevname", NULL);
 
 		debug("=> mtddevnum NULL\n=> mtddevname NULL\n");
 	}
@@ -270,12 +270,12 @@ static void current_save(void)
 		sprintf(buf, "%s%d,%d", MTD_DEV_TYPE(current_mtd_dev->id->type),
 					current_mtd_dev->id->num, current_mtd_partnum);
 
-		setenv("partition", buf);
+		env_set("partition", buf);
 		strncpy(last_partition, buf, 16);
 
 		debug("=> partition %s\n", buf);
 	} else {
-		setenv("partition", NULL);
+		env_set("partition", NULL);
 		last_partition[0] = '\0';
 
 		debug("=> partition NULL\n");
@@ -1213,9 +1213,9 @@ static int generate_mtdparts_save(char *buf, u32 buflen)
 	ret = generate_mtdparts(buf, buflen);
 
 	if ((buf[0] != '\0') && (ret == 0))
-		setenv("mtdparts", buf);
+		env_set("mtdparts", buf);
 	else
-		setenv("mtdparts", NULL);
+		env_set("mtdparts", NULL);
 
 	return ret;
 }
@@ -1764,7 +1764,7 @@ int mtdparts_init(void)
 		if (mtdids_default) {
 			debug("mtdids variable not defined, using default\n");
 			ids = mtdids_default;
-			setenv("mtdids", (char *)ids);
+			env_set("mtdids", (char *)ids);
 		} else {
 			printf("mtdids not defined, no default present\n");
 			return 1;
@@ -1780,7 +1780,7 @@ int mtdparts_init(void)
 	if (!parts) {
 		if (mtdparts_default && use_defaults) {
 			parts = mtdparts_default;
-			if (setenv("mtdparts", (char *)parts) == 0)
+			if (env_set("mtdparts", (char *)parts) == 0)
 				use_defaults = 0;
 		} else
 			printf("mtdparts variable not set, see 'help mtdparts'\n");
@@ -1956,9 +1956,9 @@ static int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 	if (argc == 2) {
 		if (strcmp(argv[1], "default") == 0) {
-			setenv("mtdids", NULL);
-			setenv("mtdparts", NULL);
-			setenv("partition", NULL);
+			env_set("mtdids", NULL);
+			env_set("mtdparts", NULL);
+			env_set("partition", NULL);
 			use_defaults = 1;
 
 			mtdparts_init();
@@ -1967,7 +1967,7 @@ static int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc,
 			/* this may be the first run, initialize lists if needed */
 			mtdparts_init();
 
-			setenv("mtdparts", NULL);
+			env_set("mtdparts", NULL);
 
 			/* mtd_devices_init() calls current_save() */
 			return mtd_devices_init();

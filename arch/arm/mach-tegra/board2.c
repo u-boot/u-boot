@@ -214,9 +214,9 @@ int board_late_init(void)
 #if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
 	if (tegra_cpu_is_non_secure()) {
 		printf("CPU is in NS mode\n");
-		setenv("cpu_ns_mode", "1");
+		env_set("cpu_ns_mode", "1");
 	} else {
-		setenv("cpu_ns_mode", "");
+		env_set("cpu_ns_mode", "");
 	}
 #endif
 	start_cpu_fan();

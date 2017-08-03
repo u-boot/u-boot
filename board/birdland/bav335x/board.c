@@ -301,8 +301,8 @@ int board_init(void)
 int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	setenv("board_name", "BAV335xB");
-	setenv("board_rev", "B"); /* Fix me, but why bother.. */
+	env_set("board_name", "BAV335xB");
+	env_set("board_rev", "B"); /* Fix me, but why bother.. */
 #endif
 	return 0;
 }

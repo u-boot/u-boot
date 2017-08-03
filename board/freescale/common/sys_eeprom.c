@@ -479,7 +479,7 @@ int mac_read_from_eeprom(void)
 			 * (i.e. have not yet been set)
 			 */
 			if (!getenv(enetvar))
-				setenv(enetvar, ethaddr);
+				env_set(enetvar, ethaddr);
 		}
 	}
 

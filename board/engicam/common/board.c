@@ -25,7 +25,7 @@ static void mmc_late_init(void)
 
 	/* Set mmcblk env */
 	sprintf(mmcblk, "/dev/mmcblk%dp2 rootwait rw", dev_no);
-	setenv("mmcroot", mmcblk);
+	env_set("mmcroot", mmcblk);
 
 	sprintf(cmd, "mmc dev %d", dev_no);
 	run_command(cmd, 0);
@@ -43,20 +43,20 @@ int board_late_init(void)
 #ifdef CONFIG_ENV_IS_IN_MMC
 		mmc_late_init();
 #endif
-		setenv("modeboot", "mmcboot");
+		env_set("modeboot", "mmcboot");
 		break;
 	case IMX6_BMODE_NAND:
-		setenv("modeboot", "nandboot");
+		env_set("modeboot", "nandboot");
 		break;
 	default:
-		setenv("modeboot", "");
+		env_set("modeboot", "");
 		break;
 	}
 
 	if (is_mx6ul())
-		setenv("console", "ttymxc0");
+		env_set("console", "ttymxc0");
 	else
-		setenv("console", "ttymxc3");
+		env_set("console", "ttymxc3");
 
 	setenv_fdt_file();
 

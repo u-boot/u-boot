@@ -60,7 +60,7 @@ static int extract_env(const char *str, char **env)
 #ifdef CONFIG_RANDOM_UUID
 		debug("%s unset. ", str);
 		gen_rand_uuid_str(uuid_str, UUID_STR_FORMAT_GUID);
-		setenv(s, uuid_str);
+		env_set(s, uuid_str);
 
 		e = getenv(s);
 		if (e) {
@@ -626,7 +626,7 @@ static int do_disk_guid(struct blk_desc *dev_desc, char * const namestr)
 		return CMD_RET_FAILURE;
 
 	if (namestr)
-		setenv(namestr, disk_guid);
+		env_set(namestr, disk_guid);
 	else
 		printf("%s\n", disk_guid);
 

@@ -48,7 +48,7 @@ void main_loop(void)
 	bootstage_mark_name(BOOTSTAGE_ID_MAIN_LOOP, "main_loop");
 
 #ifdef CONFIG_VERSION_VARIABLE
-	setenv("ver", version_string);  /* set version variable */
+	env_set("ver", version_string);  /* set version variable */
 #endif /* CONFIG_VERSION_VARIABLE */
 
 	cli_init();

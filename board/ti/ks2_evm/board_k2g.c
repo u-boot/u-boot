@@ -310,9 +310,9 @@ int board_late_init(void)
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	if (board_is_k2g_gp())
-		setenv("board_name", "66AK2GGP\0");
+		env_set("board_name", "66AK2GGP\0");
 	else if (board_is_k2g_ice())
-		setenv("board_name", "66AK2GIC\0");
+		env_set("board_name", "66AK2GIC\0");
 #endif
 	return 0;
 }

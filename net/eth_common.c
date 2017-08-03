@@ -39,7 +39,7 @@ int eth_setenv_enetaddr(const char *name, const uchar *enetaddr)
 
 	sprintf(buf, "%pM", enetaddr);
 
-	return setenv(name, buf);
+	return env_set(name, buf);
 }
 
 int eth_getenv_enetaddr_by_index(const char *base_name, int index,
@@ -97,14 +97,14 @@ void eth_current_changed(void)
 	/* update current ethernet name */
 	if (eth_get_dev()) {
 		if (act == NULL || strcmp(act, eth_get_name()) != 0)
-			setenv("ethact", eth_get_name());
+			env_set("ethact", eth_get_name());
 	}
 	/*
 	 * remove the variable completely if there is no active
 	 * interface
 	 */
 	else if (act != NULL)
-		setenv("ethact", NULL);
+		env_set("ethact", NULL);
 }
 
 void eth_try_another(int first_restart)

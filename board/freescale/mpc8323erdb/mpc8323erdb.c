@@ -216,7 +216,7 @@ int mac_read_from_eeprom(void)
 						buf[i * 6 + 4], buf[i * 6 + 5]);
 					sprintf((char *)enetvar,
 						i ? "eth%daddr" : "ethaddr", i);
-					setenv((char *)enetvar, str);
+					env_set((char *)enetvar, str);
 				}
 			}
 		}

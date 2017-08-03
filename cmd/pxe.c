@@ -591,7 +591,7 @@ static int label_localboot(struct pxe_label *label)
 		char bootargs[CONFIG_SYS_CBSIZE];
 
 		cli_simple_process_macros(label->append, bootargs);
-		setenv("bootargs", bootargs);
+		env_set("bootargs", bootargs);
 	}
 
 	debug("running: %s\n", localcmd);
@@ -695,7 +695,7 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		strcat(bootargs, mac_str);
 
 		cli_simple_process_macros(bootargs, finalbootargs);
-		setenv("bootargs", finalbootargs);
+		env_set("bootargs", finalbootargs);
 		printf("append: %s\n", finalbootargs);
 	}
 
@@ -1674,7 +1674,7 @@ static int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		filename = getenv("bootfile");
 	else {
 		filename = argv[5];
-		setenv("bootfile", filename);
+		env_set("bootfile", filename);
 	}
 
 	if (strstr(argv[3], "ext2"))

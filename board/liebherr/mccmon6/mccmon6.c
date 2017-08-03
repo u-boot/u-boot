@@ -367,7 +367,7 @@ int board_init(void)
 
 int board_late_init(void)
 {
-	setenv("board_name", "mccmon6");
+	env_set("board_name", "mccmon6");
 
 	return 0;
 }

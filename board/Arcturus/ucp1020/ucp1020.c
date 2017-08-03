@@ -230,9 +230,9 @@ int last_stage_init(void)
 				strcat(newkernelargs, mmckargs);
 				strcat(newkernelargs, " ");
 				strcat(newkernelargs, &tmp[n]);
-				setenv("kernelargs", newkernelargs);
+				env_set("kernelargs", newkernelargs);
 			} else {
-				setenv("kernelargs", mmckargs);
+				env_set("kernelargs", mmckargs);
 			}
 		}
 	get_arc_info();
@@ -244,7 +244,7 @@ int last_stage_init(void)
 			strcat(newkernelargs, sval);
 			strcat(newkernelargs, " ");
 			strcat(newkernelargs, kval);
-			setenv("kernelargs", newkernelargs);
+			env_set("kernelargs", newkernelargs);
 		}
 	} else {
 		printf("Error reading kernelargs env variable!\n");

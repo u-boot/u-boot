@@ -170,7 +170,7 @@ static void store_net_params(struct bootp_hdr *bp)
 	 * not contain a new value
 	 */
 	if (*net_boot_file_name)
-		setenv("bootfile", net_boot_file_name);
+		env_set("bootfile", net_boot_file_name);
 #endif
 	net_copy_ip(&net_ip, &bp->bp_yiaddr);
 }

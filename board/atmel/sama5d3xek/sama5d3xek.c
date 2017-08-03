@@ -267,7 +267,7 @@ int board_late_init(void)
 		*p = tolower(*p);
 
 	strcat(name, "ek.dtb");
-	setenv("dtb_name", name);
+	env_set("dtb_name", name);
 #endif
 	return 0;
 }

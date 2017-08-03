@@ -116,7 +116,7 @@ extern void cm_remap(void);
 
 int misc_init_r (void)
 {
-	setenv("verify", "n");
+	env_set("verify", "n");
 	return (0);
 }
 

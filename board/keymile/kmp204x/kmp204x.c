@@ -222,7 +222,7 @@ int last_stage_init(void)
 	if (dip_switch != 0) {
 		/* start bootloader */
 		puts("DIP:   Enabled\n");
-		setenv("actual_bank", "0");
+		env_set("actual_bank", "0");
 	}
 #endif
 	set_km_env();

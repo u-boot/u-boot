@@ -173,7 +173,7 @@ void board_late_mmc_init(void)
 	/* Set mmcblk env */
 	sprintf(mmcblk, "/dev/mmcblk%dp2 rootwait rw",
 		dev_no);
-	setenv("mmcroot", mmcblk);
+	env_set("mmcroot", mmcblk);
 
 	sprintf(cmd, "mmc dev %d", dev_no);
 	run_command(cmd, 0);

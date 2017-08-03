@@ -282,11 +282,11 @@ static int regex_sub(const char *name,
 		if (!global)
 			break;
 	}
-	debug("## FINAL (now setenv()) :  %s\n", data);
+	debug("## FINAL (now env_set()) :  %s\n", data);
 
 	printf("%s=%s\n", name, data);
 
-	return setenv(name, data);
+	return env_set(name, data);
 }
 #endif
 

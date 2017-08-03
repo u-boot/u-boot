@@ -320,7 +320,7 @@ int misc_init_r(void)
 		u_id_high = readl(&STM32_U_ID->u_id_high);
 		sprintf(serialno, "%08x%08x%08x",
 			u_id_high, u_id_mid, u_id_low);
-		setenv("serial#", serialno);
+		env_set("serial#", serialno);
 	}
 
 	return 0;

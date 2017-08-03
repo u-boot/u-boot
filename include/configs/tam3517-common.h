@@ -334,7 +334,7 @@ do {								\
 		else						\
 			strcpy(ethname, "ethaddr");		\
 		printf("Setting %s from EEPROM with %s\n", ethname, buf);\
-		setenv(ethname, buf);				\
+		env_set(ethname, buf);				\
 	}							\
 } while (0)
 

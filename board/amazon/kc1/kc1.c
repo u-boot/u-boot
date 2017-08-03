@@ -119,7 +119,7 @@ int misc_init_r(void)
 
 	if (reboot_mode[0] > 0 && isascii(reboot_mode[0])) {
 		if (!getenv("reboot-mode"))
-			setenv("reboot-mode", (char *)reboot_mode);
+			env_set("reboot-mode", (char *)reboot_mode);
 	}
 
 	omap_reboot_mode_clear();

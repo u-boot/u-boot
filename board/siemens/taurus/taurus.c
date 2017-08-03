@@ -380,9 +380,9 @@ static int upgrade_failure_fallback(void)
 	partitionset_active = getenv("partitionset_active");
 	if (partitionset_active) {
 		if (partitionset_active[0] == 'A')
-			setenv("partitionset_active", "B");
+			env_set("partitionset_active", "B");
 		else
-			setenv("partitionset_active", "A");
+			env_set("partitionset_active", "A");
 	} else {
 		printf("partitionset_active missing.\n");
 		return -ENOENT;
@@ -390,22 +390,22 @@ static int upgrade_failure_fallback(void)
 
 	rootfs = getenv("rootfs");
 	rootfs_fallback = getenv("rootfs_fallback");
-	setenv("rootfs", rootfs_fallback);
-	setenv("rootfs_fallback", rootfs);
+	env_set("rootfs", rootfs_fallback);
+	env_set("rootfs_fallback", rootfs);
 
 	kern_size = getenv("kernel_size");
 	kern_size_fb = getenv("kernel_size_fallback");
-	setenv("kernel_size", kern_size_fb);
-	setenv("kernel_size_fallback", kern_size);
+	env_set("kernel_size", kern_size_fb);
+	env_set("kernel_size_fallback", kern_size);
 
 	kern_off = getenv("kernel_Off");
 	kern_off_fb = getenv("kernel_Off_fallback");
-	setenv("kernel_Off", kern_off_fb);
-	setenv("kernel_Off_fallback", kern_off);
+	env_set("kernel_Off", kern_off_fb);
+	env_set("kernel_Off_fallback", kern_off);
 
-	setenv("bootargs", '\0');
-	setenv("upgrade_available", '\0');
-	setenv("boot_retries", '\0');
+	env_set("bootargs", '\0');
+	env_set("upgrade_available", '\0');
+	env_set("boot_retries", '\0');
 	env_save();
 
 	return 0;
@@ -424,7 +424,7 @@ static int do_upgrade_available(cmd_tbl_t *cmdtp, int flag, int argc,
 		boot_retry = simple_strtoul(getenv("boot_retries"), NULL, 10);
 		boot_retry++;
 		sprintf(boot_buf, "%lx", boot_retry);
-		setenv("boot_retries", boot_buf);
+		env_set("boot_retries", boot_buf);
 		env_save();
 
 		/*

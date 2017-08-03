@@ -64,11 +64,11 @@ static void assign_serial(void)
 
 	snprintf(usb0addr, sizeof(usb0addr), "02:00:86:%02x:%02x:%02x",
 		 ssn[13], ssn[14], ssn[15]);
-	setenv("usb0addr", usb0addr);
+	env_set("usb0addr", usb0addr);
 
 	for (i = 0; i < 16; i++)
 		snprintf(&serial[2 * i], 3, "%02x", ssn[i]);
-	setenv("serial#", serial);
+	env_set("serial#", serial);
 
 #if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
 	env_save();
@@ -86,7 +86,7 @@ static void assign_hardware_id(void)
 		printf("Can't retrieve hardware revision\n");
 
 	snprintf(hardware_id, sizeof(hardware_id), "%02X", v.hardware_id);
-	setenv("hardware_id", hardware_id);
+	env_set("hardware_id", hardware_id);
 
 #if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
 	env_save();

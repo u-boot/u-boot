@@ -84,8 +84,8 @@ int board_late_init(void)
 #endif
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	setenv("board_name", "EVK");
-	setenv("board_rev", "14X14");
+	env_set("board_name", "EVK");
+	env_set("board_rev", "14X14");
 #endif
 
 	return 0;

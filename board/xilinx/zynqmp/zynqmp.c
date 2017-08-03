@@ -321,7 +321,7 @@ int board_late_init(void)
 				strlen(getenv("boot_targets")) + 2);
 
 	sprintf(new_targets, "%s %s", mode, getenv("boot_targets"));
-	setenv("boot_targets", new_targets);
+	env_set("boot_targets", new_targets);
 
 	return 0;
 }

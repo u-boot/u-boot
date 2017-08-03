@@ -144,8 +144,8 @@ static void setup_serial(void)
 	serialno |= (u64)crc32_no_comp(serialno, high, 8) << 32;
 	snprintf(serialno_str, sizeof(serialno_str), "%llx", serialno);
 
-	setenv("cpuid#", cpuid_str);
-	setenv("serial#", serialno_str);
+	env_set("cpuid#", cpuid_str);
+	env_set("serial#", serialno_str);
 #endif
 
 	return;

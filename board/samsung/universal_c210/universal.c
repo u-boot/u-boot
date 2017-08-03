@@ -397,6 +397,6 @@ void exynos_lcd_misc_init(vidinfo_t *vid)
 	vid->pclk_name = 1;	/* MPLL */
 	vid->sclk_div = 1;
 
-	setenv("lcdinfo", "lcd=ld9040");
+	env_set("lcdinfo", "lcd=ld9040");
 }
 #endif

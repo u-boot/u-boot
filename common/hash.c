@@ -302,7 +302,7 @@ static void store_result(struct hash_algo *algo, const uint8_t *sum,
 			str_ptr += 2;
 		}
 		*str_ptr = '\0';
-		setenv(dest, str_output);
+		env_set(dest, str_output);
 	} else {
 		ulong addr;
 		void *buf;

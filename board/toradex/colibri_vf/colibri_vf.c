@@ -535,7 +535,7 @@ int board_late_init(void)
 	if (((src->sbmr2 & SRC_SBMR2_BMOD_MASK) >> SRC_SBMR2_BMOD_SHIFT)
 			== SRC_SBMR2_BMOD_SERIAL) {
 		printf("Serial Downloader recovery mode, disable autoboot\n");
-		setenv("bootdelay", "-1");
+		env_set("bootdelay", "-1");
 	}
 
 	return 0;

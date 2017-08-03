@@ -413,11 +413,11 @@ static int set_pin_state(void)
 		return ret;
 
 	if (val >= VAL_UPPER)
-		setenv("pin_state", "connected");
+		env_set("pin_state", "connected");
 	else if (val < VAL_UPPER && val > VAL_LOWER)
-		setenv("pin_state", "open");
+		env_set("pin_state", "open");
 	else
-		setenv("pin_state", "button");
+		env_set("pin_state", "button");
 
 	return ret;
 }

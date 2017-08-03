@@ -318,7 +318,7 @@ static const struct boot_mode board_boot_modes[] = {
 int board_late_init(void)
 {
 	add_board_boot_modes(board_boot_modes);
-	setenv("board_name", "xpress");
+	env_set("board_name", "xpress");
 
 	return 0;
 }

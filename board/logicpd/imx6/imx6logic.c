@@ -173,11 +173,11 @@ int board_init(void)
 
 int board_late_init(void)
 {
-	setenv("board_name", "imx6logic");
+	env_set("board_name", "imx6logic");
 
 	if (is_mx6dq()) {
-		setenv("board_rev", "MX6DQ");
-		setenv("fdt_file", "imx6q-logicpd.dtb");
+		env_set("board_rev", "MX6DQ");
+		env_set("fdt_file", "imx6q-logicpd.dtb");
 	}
 
 	return 0;

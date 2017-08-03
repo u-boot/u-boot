@@ -712,7 +712,7 @@ static void setup_environment(const void *fdt)
 			snprintf(serial_string, sizeof(serial_string),
 				"%08x%08x", sid[0], sid[3]);
 
-			setenv("serial#", serial_string);
+			env_set("serial#", serial_string);
 		}
 	}
 }
@@ -721,11 +721,11 @@ int misc_init_r(void)
 {
 	__maybe_unused int ret;
 
-	setenv("fel_booted", NULL);
-	setenv("fel_scriptaddr", NULL);
+	env_set("fel_booted", NULL);
+	env_set("fel_scriptaddr", NULL);
 	/* determine if we are running in FEL mode */
 	if (!is_boot0_magic(SPL_ADDR + 4)) { /* eGON.BT0 */
-		setenv("fel_booted", "1");
+		env_set("fel_booted", "1");
 		parse_spl_header(SPL_ADDR);
 	}
 

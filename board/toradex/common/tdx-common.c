@@ -80,7 +80,7 @@ int show_board_info(void)
 		tdx_hw_tag.ver_minor,
 		(char)tdx_hw_tag.ver_assembly + 'A');
 
-	setenv("serial#", tdx_serial_str);
+	env_set("serial#", tdx_serial_str);
 
 	/*
 	 * Check if environment contains a valid MAC address,

@@ -301,7 +301,7 @@ int board_eth_init(bd_t *bis)
 	if (!getenv("ethprime")) {
 		struct eth_device *dev = eth_get_dev_by_index(0);
 		if (dev) {
-			setenv("ethprime", dev->name);
+			env_set("ethprime", dev->name);
 			printf("set ethprime to %s\n", getenv("ethprime"));
 		}
 	}
@@ -662,7 +662,7 @@ int checkboard(void)
 	if (p)
 		quiet = simple_strtol(p, NULL, 10);
 	else
-		setenv("quiet", "0");
+		env_set("quiet", "0");
 
 	puts("\nGateworks Corporation Copyright 2014\n");
 	if (info->model[0]) {
@@ -737,26 +737,26 @@ int misc_init_r(void)
 		else if (is_cpu_type(MXC_CPU_MX6DL) ||
 			 is_cpu_type(MXC_CPU_MX6SOLO))
 			cputype = "imx6dl";
-		setenv("soctype", cputype);
+		env_set("soctype", cputype);
 		if (8 << (ventana_info.nand_flash_size-1) >= 2048)
-			setenv("flash_layout", "large");
+			env_set("flash_layout", "large");
 		else
-			setenv("flash_layout", "normal");
+			env_set("flash_layout", "normal");
 		memset(str, 0, sizeof(str));
 		for (i = 0; i < (sizeof(str)-1) && info->model[i]; i++)
 			str[i] = tolower(info->model[i]);
-		setenv("model", str);
+		env_set("model", str);
 		if (!getenv("fdt_file")) {
 			sprintf(fdt, "%s-%s.dtb", cputype, str);
-			setenv("fdt_file", fdt);
+			env_set("fdt_file", fdt);
 		}
 		p = strchr(str, '-');
 		if (p) {
 			*p++ = 0;
 
-			setenv("model_base", str);
+			env_set("model_base", str);
 			sprintf(fdt, "%s-%s.dtb", cputype, str);
-			setenv("fdt_file1", fdt);
+			env_set("fdt_file1", fdt);
 			if (board_type != GW551x &&
 			    board_type != GW552x &&
 			    board_type != GW553x &&
@@ -765,7 +765,7 @@ int misc_init_r(void)
 			str[5] = 'x';
 			str[6] = 0;
 			sprintf(fdt, "%s-%s.dtb", cputype, str);
-			setenv("fdt_file2", fdt);
+			env_set("fdt_file2", fdt);
 		}
 
 		/* initialize env from EEPROM */
@@ -780,11 +780,11 @@ int misc_init_r(void)
 
 		/* board serial-number */
 		sprintf(str, "%6d", info->serial);
-		setenv("serial#", str);
+		env_set("serial#", str);
 
 		/* memory MB */
 		sprintf(str, "%d", (int) (gd->ram_size >> 20));
-		setenv("mem_mb", str);
+		env_set("mem_mb", str);
 	}
 
 	/* Set a non-initialized hwconfig based on board configuration */
@@ -798,7 +798,7 @@ int misc_init_r(void)
 			if (strlen(buf) + strlen(buf1) < sizeof(buf))
 				strcat(buf, buf1);
 		}
-		setenv("hwconfig", buf);
+		env_set("hwconfig", buf);
 	}
 
 	/* setup baseboard specific GPIO based on board and env */

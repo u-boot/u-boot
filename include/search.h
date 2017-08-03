@@ -118,7 +118,7 @@ extern int hwalk_r(struct hsearch_data *__htab, int (*callback)(ENTRY *));
 #define H_MATCH_SUBSTR	(1 << 7) /* search for substring matches	     */
 #define H_MATCH_REGEX	(1 << 8) /* search for regular expression matches    */
 #define H_MATCH_METHOD	(H_MATCH_IDENT | H_MATCH_SUBSTR | H_MATCH_REGEX)
-#define H_PROGRAMMATIC	(1 << 9) /* indicate that an import is from setenv() */
+#define H_PROGRAMMATIC	(1 << 9) /* indicate that an import is from env_set() */
 #define H_ORIGIN_FLAGS	(H_INTERACTIVE | H_PROGRAMMATIC)
 
 #endif /* _SEARCH_H_ */

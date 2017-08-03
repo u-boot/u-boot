@@ -68,7 +68,7 @@ static int baltos_set_console(void)
 	printf("DIPs: 0x%1x\n", (~dips) & 0xf);
 
 	if ((dips & 0xf) == 0xe)
-		setenv("console", "ttyUSB0,115200n8");
+		env_set("console", "ttyUSB0,115200n8");
 
 	return 0;
 }
@@ -373,7 +373,7 @@ int board_late_init(void)
 		return -ENODEV;
 	}
 
-	setenv("board_name", model);
+	env_set("board_name", model);
 #endif
 
 	return 0;

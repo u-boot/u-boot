@@ -35,9 +35,9 @@ int board_mmc_get_env_dev(int devno)
 void setenv_fdt_file(void)
 {
 	if (is_mx6dq())
-		setenv("fdt_file", "imx6q-icore-rqs.dtb");
+		env_set("fdt_file", "imx6q-icore-rqs.dtb");
 	else if(is_mx6dl() || is_mx6solo())
-		setenv("fdt_file", "imx6dl-icore-rqs.dtb");
+		env_set("fdt_file", "imx6dl-icore-rqs.dtb");
 }
 
 #ifdef CONFIG_SPL_BUILD

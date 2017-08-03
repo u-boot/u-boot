@@ -251,7 +251,7 @@ static void set_fdtfile(void)
 		return;
 
 	fdtfile = model->fdtfile;
-	setenv("fdtfile", fdtfile);
+	env_set("fdtfile", fdtfile);
 }
 
 /*
@@ -303,7 +303,7 @@ static void set_usbethaddr(void)
 	eth_setenv_enetaddr("usbethaddr", msg->get_mac_address.body.resp.mac);
 
 	if (!getenv("ethaddr"))
-		setenv("ethaddr", getenv("usbethaddr"));
+		env_set("ethaddr", getenv("usbethaddr"));
 
 	return;
 }
@@ -314,13 +314,13 @@ static void set_board_info(void)
 	char s[11];
 
 	snprintf(s, sizeof(s), "0x%X", revision);
-	setenv("board_revision", s);
+	env_set("board_revision", s);
 	snprintf(s, sizeof(s), "%d", rev_scheme);
-	setenv("board_rev_scheme", s);
+	env_set("board_rev_scheme", s);
 	/* Can't rename this to board_rev_type since it's an ABI for scripts */
 	snprintf(s, sizeof(s), "0x%X", rev_type);
-	setenv("board_rev", s);
-	setenv("board_name", model->name);
+	env_set("board_rev", s);
+	env_set("board_name", model->name);
 }
 #endif /* CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG */
 
@@ -345,7 +345,7 @@ static void set_serial_number(void)
 
 	snprintf(serial_string, sizeof(serial_string), "%016" PRIx64,
 		 msg->get_board_serial.body.resp.serial);
-	setenv("serial#", serial_string);
+	env_set("serial#", serial_string);
 }
 
 int misc_init_r(void)

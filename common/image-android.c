@@ -90,7 +90,7 @@ int android_image_get_kernel(const struct andr_img_hdr *hdr, int verify,
 	if (*hdr->cmdline)
 		strcat(newbootargs, hdr->cmdline);
 
-	setenv("bootargs", newbootargs);
+	env_set("bootargs", newbootargs);
 
 	if (os_data) {
 		*os_data = (ulong)hdr;

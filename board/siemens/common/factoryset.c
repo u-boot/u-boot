@@ -266,7 +266,7 @@ err:
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
-static int factoryset_mac_setenv(void)
+static int factoryset_mac_env_set(void)
 {
 	uint8_t mac_addr[6];
 
@@ -296,11 +296,11 @@ static int factoryset_mac_setenv(void)
 	return 0;
 }
 
-int factoryset_setenv(void)
+int factoryset_env_set(void)
 {
 	int ret = 0;
 
-	if (factoryset_mac_setenv() < 0)
+	if (factoryset_mac_env_set() < 0)
 		ret = -1;
 
 	return ret;

@@ -93,7 +93,7 @@ int misc_init_r(void)
 		x = (*(volatile u32 *)CONFIG_SYS_FPGAREG_DIPSW)
 			& FPGAREG_MAC_MASK;
 		sprintf(&s[15], "%02x", x);
-		setenv("ethaddr", s);
+		env_set("ethaddr", s);
 	}
 #endif /* CONFIG_CMD_NET */
 

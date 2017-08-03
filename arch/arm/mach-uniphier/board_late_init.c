@@ -55,7 +55,7 @@ static int uniphier_set_fdt_file(void)
 
 	strncat(dtb_name, ".dtb", buf_len);
 
-	return setenv("fdt_file", dtb_name);
+	return env_set("fdt_file", dtb_name);
 }
 
 int board_late_init(void)
@@ -65,20 +65,20 @@ int board_late_init(void)
 	switch (uniphier_boot_device_raw()) {
 	case BOOT_DEVICE_MMC1:
 		printf("eMMC Boot");
-		setenv("bootmode", "emmcboot");
+		env_set("bootmode", "emmcboot");
 		break;
 	case BOOT_DEVICE_NAND:
 		printf("NAND Boot");
-		setenv("bootmode", "nandboot");
+		env_set("bootmode", "nandboot");
 		nand_denali_wp_disable();
 		break;
 	case BOOT_DEVICE_NOR:
 		printf("NOR Boot");
-		setenv("bootmode", "norboot");
+		env_set("bootmode", "norboot");
 		break;
 	case BOOT_DEVICE_USB:
 		printf("USB Boot");
-		setenv("bootmode", "usbboot");
+		env_set("bootmode", "usbboot");
 		break;
 	default:
 		printf("Unknown");

@@ -283,7 +283,7 @@ static int _do_env_set(int flag, int argc, char * const argv[], int env_flag)
 	return 0;
 }
 
-int setenv(const char *varname, const char *varvalue)
+int env_set(const char *varname, const char *varvalue)
 {
 	const char * const argv[4] = { "setenv", varname, varvalue, NULL };
 
@@ -309,7 +309,7 @@ int setenv_ulong(const char *varname, ulong value)
 	/* TODO: this should be unsigned */
 	char *str = simple_itoa(value);
 
-	return setenv(varname, str);
+	return env_set(varname, str);
 }
 
 /**
@@ -324,7 +324,7 @@ int setenv_hex(const char *varname, ulong value)
 	char str[17];
 
 	sprintf(str, "%lx", value);
-	return setenv(varname, str);
+	return env_set(varname, str);
 }
 
 ulong getenv_hex(const char *varname, ulong default_val)
@@ -931,7 +931,7 @@ NXTARG:		;
 			return 1;
 		}
 		sprintf(buf, "%zX", (size_t)len);
-		setenv("filesize", buf);
+		env_set("filesize", buf);
 
 		return 0;
 	}

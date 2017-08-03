@@ -155,7 +155,7 @@ int AT91F_DataflashInit (void)
 	return found[0];
 }
 
-void AT91F_DataflashSetEnv (void)
+void AT91F_Dataflashenv_set(void)
 {
 	int i, j;
 	int part;
@@ -169,8 +169,9 @@ void AT91F_DataflashSetEnv (void)
 			/* Set the environment according to the label...*/
 			if((env & FLAG_SETENV) == FLAG_SETENV) {
 				start = dataflash_info[i].Device.area_list[j].start;
-				sprintf((char*) s,"%lX",start);
-				setenv((char*) area_list[part].label,(char*) s);
+				sprintf((char *)s, "%lX", start);
+				env_set((char *)area_list[part].label,
+					(char *)s);
 			}
 			part++;
 		}

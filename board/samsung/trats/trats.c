@@ -469,7 +469,7 @@ void exynos_lcd_misc_init(vidinfo_t *vid)
 #endif
 #ifdef CONFIG_S6E8AX0
 	s6e8ax0_init();
-	setenv("lcdinfo", "lcd=s6e8ax0");
+	env_set("lcdinfo", "lcd=s6e8ax0");
 #endif
 }
 #endif

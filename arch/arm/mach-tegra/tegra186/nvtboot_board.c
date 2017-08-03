@@ -49,7 +49,7 @@ static int set_ethaddr_from_nvtboot(void)
 		return -ENOENT;
 	}
 
-	ret = setenv("ethaddr", (void *)prop);
+	ret = env_set("ethaddr", (void *)prop);
 	if (ret) {
 		printf("Failed to set ethaddr from nvtboot DTB: %d\n", ret);
 		return ret;

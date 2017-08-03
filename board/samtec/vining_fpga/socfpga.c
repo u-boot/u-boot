@@ -69,9 +69,9 @@ int misc_init_r(void)
 	/* Check EEPROM signature. */
 	if (!(data[0] == 0xa5 && data[1] == 0x5a)) {
 		puts("Invalid I2C EEPROM signature.\n");
-		setenv("unit_serial", "invalid");
-		setenv("unit_ident", "VINing-xxxx-STD");
-		setenv("hostname", "vining-invalid");
+		env_set("unit_serial", "invalid");
+		env_set("unit_ident", "VINing-xxxx-STD");
+		env_set("hostname", "vining-invalid");
 		return 0;
 	}
 
@@ -82,13 +82,13 @@ int misc_init_r(void)
 			 (data[0x56] << 8) | (data[0x57] << 0);
 		memset(str, 0, sizeof(str));
 		sprintf(str, "%07i", serial);
-		setenv("unit_serial", str);
+		env_set("unit_serial", str);
 	}
 
 	if (!getenv("unit_ident")) {
 		memset(str, 0, sizeof(str));
 		memcpy(str, &data[0x2e], 18);
-		setenv("unit_ident", str);
+		env_set("unit_ident", str);
 	}
 
 	/* Set ethernet address from EEPROM. */

@@ -156,9 +156,9 @@ int board_late_init(void)
 				gpio_set_value(IMX_GPIO_NR(1, 29), 0);
 				gpio_set_value(IMX_GPIO_NR(4, 21), 0);
 
-				setenv("preboot", "run gs_slow_boot");
+				env_set("preboot", "run gs_slow_boot");
 			} else
-				setenv("preboot", "run gs_fast_boot");
+				env_set("preboot", "run gs_fast_boot");
 		}
 	}
 

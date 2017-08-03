@@ -241,7 +241,7 @@ void arch_preboot_os(void)
 int fb_set_reboot_flag(void)
 {
 	printf("Setting reboot to fastboot flag ...\n");
-	setenv("dofastboot", "1");
+	env_set("dofastboot", "1");
 	env_save();
 	return 0;
 }

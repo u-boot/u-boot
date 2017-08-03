@@ -670,9 +670,9 @@ int board_late_init(void)
 	if (bootmode == 7) {
 		my_bootdelay = getenv("nor_bootdelay");
 		if (my_bootdelay != NULL)
-			setenv("bootdelay", my_bootdelay);
+			env_set("bootdelay", my_bootdelay);
 		else
-			setenv("bootdelay", "-2");
+			env_set("bootdelay", "-2");
 	}
 
 	/* if we have the lg panel, we can initialze it now */

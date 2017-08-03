@@ -67,7 +67,7 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 	tftp_timeout_count_max = cnt_max;
 
 	/* we don't want to retry the connection if errors occur */
-	setenv("netretry", "no");
+	env_set("netretry", "no");
 
 	/* download the update file */
 	load_addr = addr;
@@ -83,7 +83,7 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 	tftp_timeout_ms = saved_timeout_msecs;
 	tftp_timeout_count_max = saved_timeout_count;
 
-	setenv("netretry", saved_netretry);
+	env_set("netretry", saved_netretry);
 	if (saved_netretry != NULL)
 		free(saved_netretry);
 

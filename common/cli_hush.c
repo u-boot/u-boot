@@ -2265,7 +2265,7 @@ void unset_local_var(const char *name)
 			} else {
 #ifndef __U_BOOT__
 				if(cur->flg_export)
-					unsetenv(cur->name);
+					unenv_set(cur->name);
 #endif
 				free(cur->name);
 				free(cur->value);

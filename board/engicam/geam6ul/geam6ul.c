@@ -93,7 +93,7 @@ void setup_gpmi_nand(void)
 void setenv_fdt_file(void)
 {
 	if (is_mx6ul())
-		setenv("fdt_file", "imx6ul-geam-kit.dtb");
+		env_set("fdt_file", "imx6ul-geam-kit.dtb");
 }
 
 #ifdef CONFIG_SPL_BUILD

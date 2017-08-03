@@ -200,7 +200,7 @@ static int do_smhload(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		/* Optionally save returned end to the environment */
 		if (argc == 4) {
 			sprintf(end_str, "0x%08lx", end_addr);
-			setenv(argv[3], end_str);
+			env_set(argv[3], end_str);
 		}
 	} else {
 		return CMD_RET_USAGE;

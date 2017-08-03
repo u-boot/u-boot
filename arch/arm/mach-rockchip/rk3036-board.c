@@ -34,11 +34,11 @@ static void setup_boot_mode(void)
 	switch (boot_mode) {
 	case BOOT_FASTBOOT:
 		printf("enter fastboot!\n");
-		setenv("preboot", "setenv preboot; fastboot usb0");
+		env_set("preboot", "setenv preboot; fastboot usb0");
 		break;
 	case BOOT_UMS:
 		printf("enter UMS!\n");
-		setenv("preboot", "setenv preboot; ums mmc 0");
+		env_set("preboot", "setenv preboot; ums mmc 0");
 		break;
 	}
 }

@@ -44,7 +44,7 @@ int parse_aes_key(char *key, uint8_t *bin_key);
 int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts);
 
 /**
- * fw_setenv() - adds or removes one variable to the environment
+ * fw_env_set() - adds or removes one variable to the environment
  *
  * @argc: number of strings in argv, argv[0] is variable name,
  *          argc==1 means erase variable, argc > 1 means add a variable
@@ -61,7 +61,7 @@ int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts);
  * ERRORS:
  *  EROFS - some variables ("ethaddr", "serial#") cannot be modified
  */
-int fw_setenv(int argc, char *argv[], struct env_opts *opts);
+int fw_env_set(int argc, char *argv[], struct env_opts *opts);
 
 /**
  * fw_parse_script() - adds or removes multiple variables with a batch script

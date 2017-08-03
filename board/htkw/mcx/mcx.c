@@ -83,7 +83,7 @@ int board_late_init(void)
 	if (gpio_get_value(HOT_WATER_BUTTON))
 		return 0;
 
-	setenv("bootcmd", "run swupdate");
+	env_set("bootcmd", "run swupdate");
 
 	return 0;
 }

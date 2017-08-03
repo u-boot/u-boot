@@ -325,7 +325,7 @@ int board_init(void)
 
 int board_late_init(void)
 {
-	setenv("bootmode", boot_mode_sf ? "sf" : "emmc");
+	env_set("bootmode", boot_mode_sf ? "sf" : "emmc");
 	return 0;
 }
 

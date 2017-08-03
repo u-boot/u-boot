@@ -49,15 +49,15 @@ void set_working_fdt_addr(ulong addr)
 /*
  * Get a value from the fdt and format it to be set in the environment
  */
-static int fdt_value_setenv(const void *nodep, int len, const char *var)
+static int fdt_value_env_set(const void *nodep, int len, const char *var)
 {
 	if (is_printable_string(nodep, len))
-		setenv(var, (void *)nodep);
+		env_set(var, (void *)nodep);
 	else if (len == 4) {
 		char buf[11];
 
 		sprintf(buf, "0x%08X", fdt32_to_cpu(*(fdt32_t *)nodep));
-		setenv(var, buf);
+		env_set(var, buf);
 	} else if (len%4 == 0 && len <= 20) {
 		/* Needed to print things like sha1 hashes. */
 		char buf[41];
@@ -66,7 +66,7 @@ static int fdt_value_setenv(const void *nodep, int len, const char *var)
 		for (i = 0; i < len; i += sizeof(unsigned int))
 			sprintf(buf + (i * 2), "%08x",
 				*(unsigned int *)(nodep + i));
-		setenv(var, buf);
+		env_set(var, buf);
 	} else {
 		printf("error: unprintable value\n");
 		return 1;
@@ -358,10 +358,12 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				if (curDepth == startDepth + 1)
 					curIndex++;
 				if (subcmd[0] == 'n' && curIndex == reqIndex) {
-					const char *nodeName = fdt_get_name(
-					    working_fdt, nextNodeOffset, NULL);
+					const char *node_name;
 
-					setenv(var, (char *)nodeName);
+					node_name = fdt_get_name(working_fdt,
+								 nextNodeOffset,
+								 NULL);
+					env_set(var, node_name);
 					return 0;
 				}
 				nextNodeOffset = fdt_next_node(
@@ -382,13 +384,14 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				working_fdt, nodeoffset, prop, &len);
 			if (len == 0) {
 				/* no property value */
-				setenv(var, "");
+				env_set(var, "");
 				return 0;
 			} else if (nodep && len > 0) {
 				if (subcmd[0] == 'v') {
 					int ret;
 
-					ret = fdt_value_setenv(nodep, len, var);
+					ret = fdt_value_env_set(nodep, len,
+								var);
 					if (ret != 0)
 						return ret;
 				} else if (subcmd[0] == 'a') {
@@ -396,13 +399,13 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 					char buf[11];
 
 					sprintf(buf, "0x%p", nodep);
-					setenv(var, buf);
+					env_set(var, buf);
 				} else if (subcmd[0] == 's') {
 					/* Get size */
 					char buf[11];
 
 					sprintf(buf, "0x%08X", len);
-					setenv(var, buf);
+					env_set(var, buf);
 				} else
 					return CMD_RET_USAGE;
 				return 0;

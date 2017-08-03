@@ -674,12 +674,12 @@ int board_late_init(void)
 #endif
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	setenv("board_name", "EVK");
+	env_set("board_name", "EVK");
 
 	if (is_mx6ul_9x9_evk())
-		setenv("board_rev", "9X9");
+		env_set("board_rev", "9X9");
 	else
-		setenv("board_rev", "14X14");
+		env_set("board_rev", "14X14");
 #endif
 
 	return 0;

@@ -184,7 +184,7 @@ int load_lcdtiming(struct am335x_lcdpanel *panel)
 		puts("no 'factory-settings / rotation' in dtb!\n");
 	}
 	snprintf(buf, sizeof(buf), "fbcon=rotate:%d", panel_info.vl_rot);
-	setenv("optargs_rot", buf);
+	env_set("optargs_rot", buf);
 #else
 	pnltmp.hactive = getenv_ulong("ds1_hactive", 10, ~0UL);
 	pnltmp.vactive = getenv_ulong("ds1_vactive", 10, ~0UL);

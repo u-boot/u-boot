@@ -195,9 +195,9 @@ void setup_display(void)
 void setenv_fdt_file(void)
 {
 	if (is_mx6dq())
-		setenv("fdt_file", "imx6q-icore.dtb");
+		env_set("fdt_file", "imx6q-icore.dtb");
 	else if(is_mx6dl() || is_mx6solo())
-		setenv("fdt_file", "imx6dl-icore.dtb");
+		env_set("fdt_file", "imx6dl-icore.dtb");
 }
 
 #ifdef CONFIG_SPL_BUILD

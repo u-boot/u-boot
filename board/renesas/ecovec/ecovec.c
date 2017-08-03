@@ -55,7 +55,7 @@ int board_late_init(void)
 	/* Set MAC address */
 	sprintf(env_mac, "%02X:%02X:%02X:%02X:%02X:%02X",
 		mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-	setenv("ethaddr", env_mac);
+	env_set("ethaddr", env_mac);
 
 	debug_led(0x0F);
 

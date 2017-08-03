@@ -336,7 +336,19 @@ ulong getenv_hex(const char *varname, ulong default_val);
  * Return -1 if variable does not exist (default to true)
  */
 int getenv_yesno(const char *var);
-int	setenv	     (const char *, const char *);
+
+/**
+ * env_set() - set an environment variable
+ *
+ * This sets or deletes the value of an environment variable. For setting the
+ * value the variable is created if it does not already exist.
+ *
+ * @varname: Variable to adjust
+ * @value: Value to set for the variable, or NULL or "" to delete the variable
+ * @return 0 if OK, 1 on error
+ */
+int env_set(const char *varname, const char *value);
+
 int setenv_ulong(const char *varname, ulong value);
 int setenv_hex(const char *varname, ulong value);
 /**

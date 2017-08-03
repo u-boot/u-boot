@@ -40,7 +40,7 @@ static void omap_set_fastboot_cpu(void)
 		printf("Warning: fastboot.cpu: unknown CPU rev: %u\n", cpu_rev);
 	}
 
-	setenv("fastboot.cpu", cpu);
+	env_set("fastboot.cpu", cpu);
 }
 
 static void omap_set_fastboot_secure(void)
@@ -63,7 +63,7 @@ static void omap_set_fastboot_secure(void)
 		printf("Warning: fastboot.secure: unknown CPU sec: %u\n", dev);
 	}
 
-	setenv("fastboot.secure", secure);
+	env_set("fastboot.secure", secure);
 }
 
 static void omap_set_fastboot_board_rev(void)
@@ -74,7 +74,7 @@ static void omap_set_fastboot_board_rev(void)
 	if (board_rev == NULL)
 		printf("Warning: fastboot.board_rev: unknown board revision\n");
 
-	setenv("fastboot.board_rev", board_rev);
+	env_set("fastboot.board_rev", board_rev);
 }
 
 #ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
@@ -118,7 +118,7 @@ static void omap_set_fastboot_userdata_size(void)
 		sprintf(buf, "%u", sz_kb);
 	}
 
-	setenv("fastboot.userdata_size", buf);
+	env_set("fastboot.userdata_size", buf);
 }
 #else
 static inline void omap_set_fastboot_userdata_size(void)
@@ -173,7 +173,7 @@ void omap_die_id_serial(void)
 		snprintf(serial_string, sizeof(serial_string),
 			"%08x%08x", die_id[0], die_id[3]);
 
-		setenv("serial#", serial_string);
+		env_set("serial#", serial_string);
 	}
 }
 

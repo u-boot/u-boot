@@ -731,7 +731,7 @@ int board_late_init(void)
 	 * on HS devices.
 	 */
 	if (get_device_type() == HS_DEVICE)
-		setenv("boot_fit", "1");
+		env_set("boot_fit", "1");
 #endif
 
 #if !defined(CONFIG_SPL_BUILD)

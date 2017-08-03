@@ -413,7 +413,7 @@ int misc_init_r(void)
 
 	/* set env variable attkernaddr for relocated kernel */
 	sprintf(buf, "%#x", KERNEL_ADDRESS);
-	setenv("attkernaddr", buf);
+	env_set("attkernaddr", buf);
 
 	/* initialize omap tags */
 	init_omap_tags();

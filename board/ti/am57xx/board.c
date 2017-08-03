@@ -592,7 +592,7 @@ void am57x_idk_lcd_detect(void)
 		/* we will let default be "no lcd" */
 	}
 out:
-	setenv("idk_lcd", idk_lcd);
+	env_set("idk_lcd", idk_lcd);
 	return;
 }
 
@@ -612,7 +612,7 @@ int board_late_init(void)
 	 * on HS devices.
 	 */
 	if (get_device_type() == HS_DEVICE)
-		setenv("boot_fit", "1");
+		env_set("boot_fit", "1");
 
 	/*
 	 * Set the GPIO7 Pad to POWERHOLD. This has higher priority

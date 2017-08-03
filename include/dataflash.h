@@ -197,7 +197,7 @@ extern int AT91F_DataflashInit(void);
 
 extern void dataflash_print_info (void);
 extern void dataflash_perror (int err);
-extern void AT91F_DataflashSetEnv (void);
+extern void AT91F_Dataflashenv_set(void);
 
 extern struct dataflash_addr cs[CONFIG_SYS_MAX_DATAFLASH_BANKS];
 extern dataflash_protect_t area_list[NB_DATAFLASH_AREA];

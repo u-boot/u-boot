@@ -626,7 +626,7 @@ int board_late_init(void)
 	 * on HS devices.
 	 */
 	if (get_device_type() == HS_DEVICE)
-		setenv("boot_fit", "1");
+		env_set("boot_fit", "1");
 #endif
 	return 0;
 }

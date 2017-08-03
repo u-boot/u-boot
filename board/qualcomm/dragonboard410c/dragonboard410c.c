@@ -128,7 +128,7 @@ int misc_init_r(void)
 	}
 
 	if (dm_gpio_get_value(&resin)) {
-		setenv("bootdelay", "-1");
+		env_set("bootdelay", "-1");
 		printf("Power button pressed - dropping to console.\n");
 	}
 

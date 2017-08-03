@@ -193,7 +193,7 @@ static void set_bootcount_addr(void)
 	unsigned int bootcountaddr;
 	bootcountaddr = gd->ram_size - BOOTCOUNT_ADDR;
 	sprintf((char *)buf, "0x%x", bootcountaddr);
-	setenv("bootcountaddr", (char *)buf);
+	env_set("bootcountaddr", (char *)buf);
 }
 
 int misc_init_r(void)
@@ -299,7 +299,7 @@ int board_late_init(void)
 	if (dip_switch != 0) {
 		/* start bootloader */
 		puts("DIP:   Enabled\n");
-		setenv("actual_bank", "0");
+		env_set("actual_bank", "0");
 	}
 #endif
 

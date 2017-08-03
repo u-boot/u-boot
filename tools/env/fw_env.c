@@ -468,7 +468,7 @@ int fw_env_write(char *name, char *value)
  *	    modified or deleted
  *
  */
-int fw_setenv(int argc, char *argv[], struct env_opts *opts)
+int fw_env_set(int argc, char *argv[], struct env_opts *opts)
 {
 	int i;
 	size_t len;

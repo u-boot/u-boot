@@ -78,7 +78,7 @@ void usage_printenv(void)
 		"\n");
 }
 
-void usage_setenv(void)
+void usage_env_set(void)
 {
 	fprintf(stderr,
 		"Usage: fw_setenv [OPTIONS]... [VARIABLE]...\n"
@@ -142,7 +142,7 @@ static void parse_common_args(int argc, char *argv[])
 			env_opts.lockname = optarg;
 			break;
 		case 'h':
-			do_printenv ? usage_printenv() : usage_setenv();
+			do_printenv ? usage_printenv() : usage_env_set();
 			exit(EXIT_SUCCESS);
 			break;
 		default:
@@ -202,7 +202,7 @@ int parse_setenv_args(int argc, char *argv[])
 			/* ignore common options */
 			break;
 		default: /* '?' */
-			usage_setenv();
+			usage_env_set();
 			exit(EXIT_FAILURE);
 			break;
 		}
@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
 			retval = EXIT_FAILURE;
 	} else {
 		if (!script_file) {
-			if (fw_setenv(argc, argv, &env_opts) != 0)
+			if (fw_env_set(argc, argv, &env_opts) != 0)
 				retval = EXIT_FAILURE;
 		} else {
 			if (fw_parse_script(script_file, &env_opts) != 0)

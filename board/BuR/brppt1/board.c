@@ -167,7 +167,7 @@ int board_late_init(void)
 		lcd_position_cursor(1, 8);
 		lcd_puts(
 		"switching to network-console ...       ");
-		setenv("bootcmd", "run netconsole");
+		env_set("bootcmd", "run netconsole");
 	}
 	return 0;
 }

@@ -676,7 +676,7 @@ int board_late_init(void)
 
 	rev = get_board_rev();
 	snprintf(env_str, ARRAY_SIZE(env_str), "%.4x", rev);
-	setenv("board_rev", env_str);
+	env_set("board_rev", env_str);
 #endif
 
 	return 0;

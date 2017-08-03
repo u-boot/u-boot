@@ -33,8 +33,8 @@ static int sb_eth_raw_start(struct udevice *dev)
 
 	if (strcmp(interface, "lo") == 0) {
 		priv->local = 1;
-		setenv("ipaddr", "127.0.0.1");
-		setenv("serverip", "127.0.0.1");
+		env_set("ipaddr", "127.0.0.1");
+		env_set("serverip", "127.0.0.1");
 	}
 	return sandbox_eth_raw_os_start(interface, pdata->enetaddr, priv);
 }

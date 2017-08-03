@@ -804,7 +804,7 @@ int board_late_init(void)
 
 	rev = get_board_rev();
 	snprintf(env_str, ARRAY_SIZE(env_str), "%.4x", rev);
-	setenv("board_rev", env_str);
+	env_set("board_rev", env_str);
 
 #ifndef CONFIG_TDX_APALIS_IMX6_V1_0
 	if ((rev & 0xfff0) == 0x0100) {
@@ -816,7 +816,7 @@ int board_late_init(void)
 		/* if using the default device tree, use version for V1.0 HW */
 		fdt_env = getenv("fdt_file");
 		if ((fdt_env != NULL) && (strcmp(FDT_FILE, fdt_env) == 0)) {
-			setenv("fdt_file", FDT_FILE_V1_0);
+			env_set("fdt_file", FDT_FILE_V1_0);
 			printf("patching fdt_file to " FDT_FILE_V1_0 "\n");
 #ifndef CONFIG_ENV_IS_NOWHERE
 			env_save();

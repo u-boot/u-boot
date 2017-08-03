@@ -220,7 +220,7 @@ int board_late_init(void)
 
 		/* If the user has not set fdtimage, set the default */
 		if (!getenv("fdtimage"))
-			setenv("fdtimage", board->fdtfile);
+			env_set("fdtimage", board->fdtfile);
 	}
 
 	/* restore hsusb0_data5 pin as hsusb0_data5 */

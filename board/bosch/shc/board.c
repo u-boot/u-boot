@@ -251,7 +251,7 @@ static void check_button_status(void)
 
 	if (value == 0) {
 		printf("front button activated !\n");
-		setenv("harakiri", "1");
+		env_set("harakiri", "1");
 	}
 }
 

@@ -425,14 +425,14 @@ int board_late_init(void)
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	if (is_mx6dq())
-		setenv("board_rev", "MX6Q");
+		env_set("board_rev", "MX6Q");
 	else
-		setenv("board_rev", "MX6DL");
+		env_set("board_rev", "MX6DL");
 
 	if (is_revc1())
-		setenv("board_name", "C1");
+		env_set("board_name", "C1");
 	else
-		setenv("board_name", "B1");
+		env_set("board_name", "B1");
 #endif
 	return 0;
 }

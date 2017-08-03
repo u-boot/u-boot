@@ -329,7 +329,7 @@ int arch_misc_init(void)
 
 	strcpy(soc, "vf");
 	strcat(soc, soc_type);
-	setenv("soc", soc);
+	env_set("soc", soc);
 
 	return 0;
 }

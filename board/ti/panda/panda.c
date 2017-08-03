@@ -103,7 +103,7 @@ int get_board_revision(void)
 		board_id4 = gpio_get_value(PANDA_ES_BOARD_ID_4_GPIO);
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-		setenv("board_name", "panda-es");
+		env_set("board_name", "panda-es");
 #endif
 		board_id = ((board_id4 << 4) | (board_id3 << 3) |
 			(board_id2 << 2) | (board_id1 << 1) | (board_id0));
@@ -117,7 +117,7 @@ int get_board_revision(void)
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 		if ((board_id >= 0x3) && (processor_rev == OMAP4430_ES2_3))
-			setenv("board_name", "panda-a4");
+			env_set("board_name", "panda-a4");
 #endif
 	}
 

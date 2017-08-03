@@ -569,7 +569,7 @@ static void fixup_silent_linux(void)
 		env_val = CONSOLE_ARG;
 	}
 
-	setenv("bootargs", env_val);
+	env_set("bootargs", env_val);
 	debug("after silent fix-up: %s\n", env_val);
 	free(buf);
 }

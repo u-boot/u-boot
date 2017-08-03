@@ -285,7 +285,7 @@ static int set_regdomain(void)
 		puts("EEPROM regdomain read failed.\n");
 
 	printf("Regdomain set to %s\n", rd);
-	return setenv("regdomain", rd);
+	return env_set("regdomain", rd);
 }
 #endif
 

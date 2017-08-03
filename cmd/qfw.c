@@ -55,7 +55,7 @@ static int qemu_fwcfg_setup_kernel(void *load_addr, void *initrd_addr)
 		 * when invoking qemu), do not update bootargs
 		 */
 		if (*data_addr != '\0') {
-			if (setenv("bootargs", data_addr) < 0)
+			if (env_set("bootargs", data_addr) < 0)
 				printf("warning: unable to change bootargs\n");
 		}
 	}

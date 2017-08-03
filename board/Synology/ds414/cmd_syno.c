@@ -81,7 +81,7 @@ static int do_syno_populate(int argc, char * const argv[])
 		         ethaddr[0], ethaddr[1], ethaddr[2],
 			 ethaddr[3], ethaddr[4], ethaddr[5]);
 		printf("parsed %s = %s\n", var, val);
-		setenv(var, val);
+		env_set(var, val);
 	}
 	if (!strncmp(buf + 32, SYNO_SN_TAG, strlen(SYNO_SN_TAG))) {
 		char *snp, *csump;
@@ -111,7 +111,7 @@ static int do_syno_populate(int argc, char * const argv[])
 			goto out_unmap;
 		}
 		printf("parsed SN = %s\n", snp);
-		setenv("SN", snp);
+		env_set("SN", snp);
 	} else {	/* old style format */
 		unsigned char csum = 0;
 
@@ -125,7 +125,7 @@ static int do_syno_populate(int argc, char * const argv[])
 		}
 		bufp[n] = '\0';
 		printf("parsed SN = %s\n", buf + 32);
-		setenv("SN", buf + 32);
+		env_set("SN", buf + 32);
 	}
 out_unmap:
 	unmap_physmem(buf, len);

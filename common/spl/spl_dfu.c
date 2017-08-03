@@ -46,7 +46,7 @@ int spl_dfu_cmd(int usbctrl, char *dfu_alt_info, char *interface, char *devstr)
 		return -EINVAL;
 	}
 
-	ret = setenv("dfu_alt_info", str_env);
+	ret = env_set("dfu_alt_info", str_env);
 	if (ret) {
 		error("unable to set env variable \"dfu_alt_info\"!\n");
 		return -EINVAL;

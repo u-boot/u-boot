@@ -256,9 +256,9 @@ int arch_misc_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	if (is_mx7d())
-		setenv("soc", "imx7d");
+		env_set("soc", "imx7d");
 	else
-		setenv("soc", "imx7s");
+		env_set("soc", "imx7s");
 #endif
 
 	return 0;

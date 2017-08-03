@@ -55,7 +55,7 @@ int misc_init_r(void)
 		len = meson_sm_read_efuse(EFUSE_SN_OFFSET, serial,
 			EFUSE_SN_SIZE);
 		if (len == EFUSE_SN_SIZE) 
-			setenv("serial#", serial);
+			env_set("serial#", serial);
 	}
 
 	return 0;
