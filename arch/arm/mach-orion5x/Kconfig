@@ -15,4 +15,7 @@ config SYS_SOC
 
 source "board/LaCie/edminiv2/Kconfig"
 
+config SPL_LDSCRIPT
+	default "$(CPUDIR)/orion5x/u-boot-spl.lds" if ORION5X
+
 endif

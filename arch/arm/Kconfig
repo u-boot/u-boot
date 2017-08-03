@@ -618,6 +618,11 @@ config ARCH_MX6
 	select SYS_FSL_SEC_LE
 	select SYS_THUMB_BUILD if SPL
 
+if ARCH_MX6
+config SPL_LDSCRIPT
+        default "arch/arm/mach-omap2/u-boot-spl.lds"
+endif
+
 config ARCH_MX5
 	bool "Freescale MX5"
 	select CPU_V7
@@ -1233,3 +1238,10 @@ source "board/zipitz2/Kconfig"
 source "arch/arm/Kconfig.debug"
 
 endmenu
+
+config SPL_LDSCRIPT
+        default "arch/arm/cpu/arm926ejs/mxs/u-boot-spl.lds" if TARGET_APX4DEVKIT || TARGET_BG0900 || TARGET_M28EVK || TARGET_MX23_OLINUXINO || TARGET_MX23EVK || TARGET_MX28EVK || TARGET_SANSA_FUZE_PLUS || TARGET_SC_SPS_1 || TARGET_TS4600 || TARGET_XFI3
+        default "arch/arm/cpu/arm1136/u-boot-spl.lds" if CPU_ARM1136
+	default "arch/arm/cpu/armv8/u-boot-spl.lds" if ARM64
+
+

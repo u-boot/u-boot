@@ -1,5 +1,8 @@
 if ARCH_ZYNQ
 
+config SPL_LDSCRIPT
+	default "arch/arm/mach-zynq/u-boot-spl.lds"
+
 config SPL_FAT_SUPPORT
 	default y
 

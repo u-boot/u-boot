@@ -170,4 +170,7 @@ source "board/ti/am335x/Kconfig"
 source "board/compulab/cm_t335/Kconfig"
 source "board/compulab/cm_t43/Kconfig"
 
+config SPL_LDSCRIPT
+        default "arch/arm/mach-omap2/u-boot-spl.lds"
+
 endif

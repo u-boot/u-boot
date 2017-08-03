@@ -199,4 +199,8 @@ source "board/siemens/corvus/Kconfig"
 source "board/siemens/taurus/Kconfig"
 source "board/siemens/smartweb/Kconfig"
 
+config SPL_LDSCRIPT
+	default "arch/arm/mach-at91/arm926ejs/u-boot-spl.lds" if CPU_ARM926EJS
+	default "arch/arm/mach-at91/armv7/u-boot-spl.lds" if CPU_V7
+
 endif

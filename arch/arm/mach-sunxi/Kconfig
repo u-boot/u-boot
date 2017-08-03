@@ -1,5 +1,8 @@
 if ARCH_SUNXI
 
+config SPL_LDSCRIPT
+	default "arch/arm/cpu/armv7/sunxi/u-boot-spl.lds" if !ARM64
+
 config IDENT_STRING
 	default " Allwinner Technology"
 
