@@ -29,11 +29,6 @@ struct hsearch_data env_htab = {
 
 __weak uchar env_get_char_spec(int index)
 {
-	return *((uchar *)(gd->env_addr + index));
-}
-
-static uchar env_get_char_memory(int index)
-{
 	return *(uchar *)(gd->env_addr + index);
 }
 
@@ -42,8 +37,6 @@ uchar env_get_char(int index)
 	/* if env is not set up, or crc was bad, use the default environment */
 	if (!gd->env_valid)
 		return default_environment[index];
-	else if (gd->flags & GD_FLG_RELOC)  /* if relocated to RAM */
-		return env_get_char_memory(index);
 	else
 		return env_get_char_spec(index);
 }
