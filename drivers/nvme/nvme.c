@@ -832,7 +832,7 @@ U_BOOT_DRIVER(nvme) = {
 };
 
 struct pci_device_id nvme_supported[] = {
-	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x0953) },
+	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_EXPRESS, ~0) },
 	{}
 };
 
