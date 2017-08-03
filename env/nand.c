@@ -158,12 +158,12 @@ static int writeenv(size_t offset, u_char *buf)
 	return 0;
 }
 
-struct env_location {
+struct nand_env_location {
 	const char *name;
 	const nand_erase_options_t erase_opts;
 };
 
-static int erase_and_write_env(const struct env_location *location,
+static int erase_and_write_env(const struct nand_env_location *location,
 		u_char *env_new)
 {
 	struct mtd_info *mtd;
@@ -189,7 +189,7 @@ int saveenv(void)
 	int	ret = 0;
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
 	int	env_idx = 0;
-	static const struct env_location location[] = {
+	static const struct nand_env_location location[] = {
 		{
 			.name = "NAND",
 			.erase_opts = {
