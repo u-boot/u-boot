@@ -125,3 +125,11 @@ void env_relocate_spec(void)
 
 	env_import(buf, 1);
 }
+
+U_BOOT_ENV_LOCATION(sata) = {
+	.location	= ENVL_ESATA,
+	.get_char	= env_get_char_spec,
+	.load		= env_relocate_spec,
+	.save		= env_save_ptr(saveenv),
+	.init		= env_init,
+};

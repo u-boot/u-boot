@@ -243,3 +243,11 @@ int env_init(void)
 	gd->env_valid = ENV_VALID;
 	return 0;
 }
+
+U_BOOT_ENV_LOCATION(eeprom) = {
+	.location	= ENVL_EEPROM,
+	.get_char	= env_get_char_spec,
+	.load		= env_relocate_spec,
+	.save		= env_save_ptr(saveenv),
+	.init		= env_init,
+};

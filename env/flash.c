@@ -20,15 +20,29 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_CMD_SAVEENV) && defined(CONFIG_CMD_FLASH)
-#define CMD_SAVEENV
-#elif defined(CONFIG_ENV_ADDR_REDUND)
-#error CONFIG_ENV_ADDR_REDUND must have CONFIG_CMD_SAVEENV & CONFIG_CMD_FLASH
+#ifndef CONFIG_SPL_BUILD
+# if defined(CONFIG_CMD_SAVEENV) && defined(CONFIG_CMD_FLASH)
+#  define CMD_SAVEENV
+# elif defined(CONFIG_ENV_ADDR_REDUND)
+#  error CONFIG_ENV_ADDR_REDUND must have CONFIG_CMD_SAVEENV & CONFIG_CMD_FLASH
+# endif
 #endif
 
 #if defined(CONFIG_ENV_SIZE_REDUND) &&	\
 	(CONFIG_ENV_SIZE_REDUND < CONFIG_ENV_SIZE)
 #error CONFIG_ENV_SIZE_REDUND should not be less then CONFIG_ENV_SIZE
+#endif
+
+/* TODO(sjg@chromium.org): Figure out all these special cases */
+#if (!defined(CONFIG_MICROBLAZE) && !defined(CONFIG_ARCH_ZYNQ) && \
+	!defined(CONFIG_TARGET_MCCMON6) && !defined(CONFIG_TARGET_X600) && \
+	!defined(CONFIG_TARGET_EDMINIV2)) || \
+	!defined(CONFIG_SPL_BUILD)
+#define LOADENV
+#endif
+
+#if !defined(CONFIG_TARGET_X600) || !defined(CONFIG_SPL_BUILD)
+#define INITENV
 #endif
 
 char *env_name_spec = "Flash";
@@ -58,6 +72,7 @@ static ulong end_addr_new = CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1;
 
 
 #ifdef CONFIG_ENV_ADDR_REDUND
+#ifdef INITENV
 int env_init(void)
 {
 	int crc1_ok = 0, crc2_ok = 0;
@@ -101,6 +116,7 @@ int env_init(void)
 
 	return 0;
 }
+#endif
 
 #ifdef CMD_SAVEENV
 int saveenv(void)
@@ -207,6 +223,7 @@ done:
 
 #else /* ! CONFIG_ENV_ADDR_REDUND */
 
+#ifdef INITENV
 int env_init(void)
 {
 	if (crc32(0, env_ptr->data, ENV_SIZE) == env_ptr->crc) {
@@ -219,6 +236,7 @@ int env_init(void)
 	gd->env_valid	= 0;
 	return 0;
 }
+#endif
 
 #ifdef CMD_SAVEENV
 int saveenv(void)
@@ -336,3 +354,16 @@ void env_relocate_spec(void)
 
 	env_import((char *)flash_addr, 1);
 }
+
+U_BOOT_ENV_LOCATION(flash) = {
+	.location	= ENVL_FLASH,
+#ifdef LOADENV
+	.load		= env_relocate_spec,
+#endif
+#ifdef CMD_SAVEENV
+	.save		= env_save_ptr(saveenv),
+#endif
+#ifdef INITENV
+	.init		= env_init,
+#endif
+};

@@ -24,7 +24,8 @@
 #include <search.h>
 #include <errno.h>
 
-#if defined(CONFIG_CMD_SAVEENV) && defined(CONFIG_CMD_NAND)
+#if defined(CONFIG_CMD_SAVEENV) && defined(CONFIG_CMD_NAND) && \
+		!defined(CONFIG_SPL_BUILD)
 #define CMD_SAVEENV
 #elif defined(CONFIG_ENV_OFFSET_REDUND)
 #error CONFIG_ENV_OFFSET_REDUND must have CONFIG_CMD_SAVEENV & CONFIG_CMD_NAND
@@ -394,3 +395,12 @@ void env_relocate_spec(void)
 #endif /* ! ENV_IS_EMBEDDED */
 }
 #endif /* CONFIG_ENV_OFFSET_REDUND */
+
+U_BOOT_ENV_LOCATION(nand) = {
+	.location	= ENVL_NAND,
+	.load		= env_relocate_spec,
+#if defined(CMD_SAVEENV)
+	.save		= env_save_ptr(saveenv),
+#endif
+	.init		= env_init,
+};

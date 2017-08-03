@@ -19,6 +19,18 @@
 #include <fat.h>
 #include <mmc.h>
 
+#ifdef CONFIG_SPL_BUILD
+/* TODO(sjg@chromium.org): Figure out why this is needed */
+# if !defined(CONFIG_TARGET_AM335X_EVM) || defined(CONFIG_SPL_OS_BOOT)
+#  define LOADENV
+# endif
+#else
+# define LOADENV
+# if defined(CONFIG_CMD_SAVEENV)
+#  define CMD_SAVEENV
+# endif
+#endif
+
 char *env_name_spec = "FAT";
 
 env_t *env_ptr;
@@ -34,7 +46,7 @@ int env_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_CMD_SAVEENV
+#ifdef CMD_SAVEENV
 int saveenv(void)
 {
 	env_t	env_new;
@@ -72,8 +84,9 @@ int saveenv(void)
 	puts("done\n");
 	return 0;
 }
-#endif /* CONFIG_CMD_SAVEENV */
+#endif /* CMD_SAVEENV */
 
+#ifdef LOADENV
 void env_relocate_spec(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
@@ -108,3 +121,16 @@ void env_relocate_spec(void)
 err_env_relocate:
 	set_default_env(NULL);
 }
+#endif /* LOADENV */
+
+U_BOOT_ENV_LOCATION(fat) = {
+	.location	= ENVL_FAT,
+	.get_char	= env_get_char_spec,
+#ifdef LOADENV
+	.load		= env_relocate_spec,
+#endif
+#ifdef CMD_SAVEENV
+	.save		= env_save_ptr(saveenv),
+#endif
+	.init		= env_init,
+};

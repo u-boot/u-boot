@@ -204,6 +204,76 @@ enum env_valid {
 	ENV_REDUND,	/* Redundant environment is valid */
 };
 
+enum env_location {
+	ENVL_DATAFLASH,
+	ENVL_EEPROM,
+	ENVL_EXT4,
+	ENVL_FAT,
+	ENVL_FLASH,
+	ENVL_MMC,
+	ENVL_NAND,
+	ENVL_NVRAM,
+	ENVL_ONENAND,
+	ENVL_REMOTE,
+	ENVL_SPI_FLASH,
+	ENVL_UBI,
+	ENVL_NOWHERE,
+
+	ENVL_COUNT,
+	ENVL_UNKNOWN,
+};
+
+struct env_driver {
+	enum env_location location;
+
+	/**
+	 * get_char() - Read a character from the environment
+	 *
+	 * This method is optional. If not provided, a default implementation
+	 * will read from gd->env_addr.
+	 *
+	 * @index: Index of character to read (0=first)
+	 * @return character read
+	 */
+	unsigned char (*get_char)(int index);
+
+	/**
+	 * load() - Load the environment from storage
+	 *
+	 * This method is optional. If not provided, no environment will be
+	 * loaded.
+	 */
+	void (*load)(void);
+
+	/**
+	 * save() - Save the environment to storage
+	 *
+	 * This method is required for 'saveenv' to work.
+	 *
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*save)(void);
+
+	/**
+	 * init() - Set up the initial pre-relocation environment
+	 *
+	 * This method is optional.
+	 *
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*init)(void);
+};
+
+/* Declare a new environment location driver */
+#define U_BOOT_ENV_LOCATION(__name)					\
+	ll_entry_declare(struct env_driver, __name, env_driver)
+
+#ifdef CONFIG_CMD_SAVEENV
+#define env_save_ptr(x) x
+#else
+#define env_save_ptr(x) NULL
+#endif
+
 extern struct hsearch_data env_htab;
 
 /* Function that returns a character from the environment */

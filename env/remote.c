@@ -56,3 +56,11 @@ void env_relocate_spec(void)
 	env_import((char *)env_ptr, 1);
 #endif
 }
+
+U_BOOT_ENV_LOCATION(remote) = {
+	.location	= ENVL_REMOTE,
+	.get_char	= env_get_char_spec,
+	.load		= env_relocate_spec,
+	.save		= env_save_ptr(saveenv),
+	.init		= env_init,
+};

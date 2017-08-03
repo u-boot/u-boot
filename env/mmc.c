@@ -324,3 +324,13 @@ err:
 #endif
 }
 #endif /* CONFIG_ENV_OFFSET_REDUND */
+
+U_BOOT_ENV_LOCATION(mmc) = {
+	.location	= ENVL_MMC,
+	.get_char	= env_get_char_spec,
+	.load		= env_relocate_spec,
+#ifndef CONFIG_SPL_BUILD
+	.save		= env_save_ptr(saveenv),
+#endif
+	.init		= env_init,
+};

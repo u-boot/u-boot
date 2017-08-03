@@ -112,3 +112,13 @@ int env_init(void)
 
 	return 0;
 }
+
+U_BOOT_ENV_LOCATION(nvram) = {
+	.location	= ENVL_NVRAM,
+#ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
+	.get_char	= env_get_char_spec,
+#endif
+	.load		= env_relocate_spec,
+	.save		= env_save_ptr(saveenv),
+	.init		= env_init,
+};

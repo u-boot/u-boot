@@ -82,3 +82,11 @@ int env_init(void)
 
 	return 0;
 }
+
+U_BOOT_ENV_LOCATION(dataflash) = {
+	.location	= ENVL_DATAFLASH,
+	.get_char	= env_get_char_spec,
+	.load		= env_relocate_spec,
+	.save		= env_save_ptr(saveenv),
+	.init		= env_init,
+};

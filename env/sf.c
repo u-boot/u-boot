@@ -32,9 +32,15 @@
 # define CONFIG_ENV_SPI_MODE	CONFIG_SF_DEFAULT_MODE
 #endif
 
+#ifndef CONFIG_SPL_BUILD
+#define CMD_SAVEENV
+#endif
+
 #ifdef CONFIG_ENV_OFFSET_REDUND
+#ifdef CMD_SAVEENV
 static ulong env_offset		= CONFIG_ENV_OFFSET;
 static ulong env_new_offset	= CONFIG_ENV_OFFSET_REDUND;
+#endif
 
 #define ACTIVE_FLAG	1
 #define OBSOLETE_FLAG	0
@@ -77,6 +83,7 @@ static int setup_flash_device(void)
 }
 
 #if defined(CONFIG_ENV_OFFSET_REDUND)
+#ifdef CMD_SAVEENV
 int saveenv(void)
 {
 	env_t	env_new;
@@ -155,6 +162,7 @@ int saveenv(void)
 
 	return ret;
 }
+#endif /* CMD_SAVEENV */
 
 void env_relocate_spec(void)
 {
@@ -240,6 +248,7 @@ out:
 	free(tmp_env2);
 }
 #else
+#ifdef CMD_SAVEENV
 int saveenv(void)
 {
 	u32	saved_size, saved_offset, sector;
@@ -299,6 +308,7 @@ int saveenv(void)
 
 	return ret;
 }
+#endif /* CMD_SAVEENV */
 
 void env_relocate_spec(void)
 {
@@ -342,3 +352,13 @@ int env_init(void)
 
 	return 0;
 }
+
+U_BOOT_ENV_LOCATION(sf) = {
+	.location	= ENVL_SPI_FLASH,
+	.get_char	= env_get_char_spec,
+	.load		= env_relocate_spec,
+#ifdef CMD_SAVEENV
+	.save		= env_save_ptr(saveenv),
+#endif
+	.init		= env_init,
+};

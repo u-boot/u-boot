@@ -127,3 +127,11 @@ void env_relocate_spec(void)
 err_env_relocate:
 	set_default_env(NULL);
 }
+
+U_BOOT_ENV_LOCATION(ext4) = {
+	.location	= ENVL_EXT4,
+	.get_char	= env_get_char_spec,
+	.load		= env_relocate_spec,
+	.save		= env_save_ptr(saveenv),
+	.init		= env_init,
+};

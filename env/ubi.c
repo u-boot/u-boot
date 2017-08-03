@@ -177,3 +177,11 @@ void env_relocate_spec(void)
 	env_import(buf, 1);
 }
 #endif /* CONFIG_SYS_REDUNDAND_ENVIRONMENT */
+
+U_BOOT_ENV_LOCATION(ubi) = {
+	.location	= ENVL_UBI,
+	.get_char	= env_get_char_spec,
+	.load		= env_relocate_spec,
+	.save		= env_save_ptr(saveenv),
+	.init		= env_init,
+};

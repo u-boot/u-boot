@@ -33,3 +33,9 @@ int env_init(void)
 
 	return 0;
 }
+
+U_BOOT_ENV_LOCATION(nowhere) = {
+	.location	= ENVL_NOWHERE,
+	.load		= env_relocate_spec,
+	.init		= env_init,
+};
