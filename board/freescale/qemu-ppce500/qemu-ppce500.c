@@ -50,13 +50,19 @@ uint64_t get_phys_ccsrbar_addr_early(void)
 {
 	void *fdt = get_fdt_virt();
 	uint64_t r;
+	int size, node;
+	u32 naddr;
+	const fdt32_t *prop;
 
 	/*
 	 * To be able to read the FDT we need to create a temporary TLB
 	 * map for it.
 	 */
 	map_fdt_as(10);
-	r = fdt_get_base_address(fdt, fdt_path_offset(fdt, "/soc"));
+	node = fdt_path_offset(fdt, "/soc");
+	naddr = fdt_address_cells(fdt, node);
+	prop = fdt_getprop(fdt, node, "ranges", &size);
+	r = fdt_translate_address(fdt, node, prop + naddr);
 	disable_tlb(10);
 
 	return r;
