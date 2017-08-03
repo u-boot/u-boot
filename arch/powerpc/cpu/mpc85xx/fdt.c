@@ -770,8 +770,15 @@ int ft_verify_fdt(void *fdt)
 
 	/* First check the CCSR base address */
 	off = fdt_node_offset_by_prop_value(fdt, -1, "device_type", "soc", 4);
-	if (off > 0)
-		addr = fdt_get_base_address(fdt, off);
+	if (off > 0) {
+		int size;
+		u32 naddr;
+		const fdt32_t *prop;
+
+		naddr = fdt_address_cells(fdt, off);
+		prop = fdt_getprop(fdt, off, "ranges", &size);
+		addr = fdt_translate_address(fdt, off, prop + naddr);
+	}
 
 	if (!addr) {
 		printf("Warning: could not determine base CCSR address in "
