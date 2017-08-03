@@ -5,7 +5,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y += common.o
+obj-y += common.o env.o
 
 ifndef CONFIG_SPL_BUILD
 obj-y += attr.o
