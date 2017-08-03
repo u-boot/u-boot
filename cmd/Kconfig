@@ -773,6 +773,13 @@ config CMD_NAND_TORTURE
 
 endif # CMD_NAND
 
+config CMD_NVME
+	bool "nvme"
+	depends on NVME
+	default y if NVME
+	help
+	  NVM Express device support
+
 config CMD_MMC_SPI
 	bool "mmc_spi - Set up MMC SPI device"
 	help

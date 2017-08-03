@@ -40,3 +40,39 @@ It only support basic block read/write functions in the NVMe driver.
 Config options
 --------------
 CONFIG_NVME	Enable NVMe device support
+CONFIG_CMD_NVME	Enable basic NVMe commands
+
+Usage in U-Boot
+---------------
+To use an NVMe hard disk from U-Boot shell, a 'nvme scan' command needs to
+be executed for all NVMe hard disks attached to the NVMe controller to be
+identified.
+
+To list all of the NVMe hard disks, try:
+
+  => nvme list
+  Device 0: Vendor: 0x8086 Rev: 8DV10131 Prod: CVFT535600LS400BGN
+	    Type: Hard Disk
+	    Capacity: 381554.0 MB = 372.6 GB (781422768 x 512)
+
+and print out detailed information for controller and namespaces via:
+
+  => nvme info
+
+Raw block read/write to can be done via the 'nvme read/write' commands:
+
+  => nvme read a0000000 0 11000
+
+  => tftp 80000000 /tftpboot/kernel.itb
+  => nvme write 80000000 0 11000
+
+Of course, file system command can be used on the NVMe hard disk as well:
+
+  => fatls nvme 0:1
+	32376967   kernel.itb
+	22929408   100m
+
+	2 file(s), 0 dir(s)
+
+  => fatload nvme 0:1 a0000000 /kernel.itb
+  => bootm a0000000
