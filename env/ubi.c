@@ -16,8 +16,6 @@
 #include <ubi_uboot.h>
 #undef crc32
 
-env_t *env_ptr;
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_CMD_SAVEENV

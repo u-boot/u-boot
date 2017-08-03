@@ -14,8 +14,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-env_t *env_ptr;
-
 static unsigned char env_dataflash_get_char(int index)
 {
 	uchar c;

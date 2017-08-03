@@ -23,12 +23,6 @@
 #error CONFIG_ENV_SIZE_REDUND should be the same as CONFIG_ENV_SIZE
 #endif
 
-#ifdef ENV_IS_EMBEDDED
-env_t *env_ptr = &environment;
-#else /* ! ENV_IS_EMBEDDED */
-env_t *env_ptr;
-#endif /* ENV_IS_EMBEDDED */
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #if !defined(CONFIG_ENV_OFFSET)

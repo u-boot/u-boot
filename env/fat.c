@@ -31,8 +31,6 @@
 # endif
 #endif
 
-env_t *env_ptr;
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CMD_SAVEENV

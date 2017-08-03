@@ -36,7 +36,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
 extern void *nvram_read(void *dest, const long src, size_t count);
 extern void nvram_write(long dest, const void *src, size_t count);
-env_t *env_ptr;
 #else
 env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
 #endif

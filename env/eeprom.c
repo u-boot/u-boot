@@ -21,8 +21,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-env_t *env_ptr;
-
 static int eeprom_bus_read(unsigned dev_addr, unsigned offset,
 			   uchar *buffer, unsigned cnt)
 {
@@ -195,8 +193,6 @@ static int env_eeprom_save(void)
 	unsigned int off_red	= CONFIG_ENV_OFFSET_REDUND;
 	char flag_obsolete	= OBSOLETE_FLAG;
 #endif
-
-	BUG_ON(env_ptr != NULL);
 
 	rc = env_export(&env_new);
 	if (rc)
