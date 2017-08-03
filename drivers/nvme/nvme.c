@@ -563,6 +563,27 @@ static int nvme_get_info_from_identify(struct nvme_dev *dev)
 	memcpy(dev->firmware_rev, ctrl->fr, sizeof(ctrl->fr));
 	if (ctrl->mdts)
 		dev->max_transfer_shift = (ctrl->mdts + shift);
+	else {
+		/*
+		 * Maximum Data Transfer Size (MDTS) field indicates the maximum
+		 * data transfer size between the host and the controller. The
+		 * host should not submit a command that exceeds this transfer
+		 * size. The value is in units of the minimum memory page size
+		 * and is reported as a power of two (2^n).
+		 *
+		 * The spec also says: a value of 0h indicates no restrictions
+		 * on transfer size. But in nvme_blk_read/write() below we have
+		 * the following algorithm for maximum number of logic blocks
+		 * per transfer:
+		 *
+		 * u16 lbas = 1 << (dev->max_transfer_shift - ns->lba_shift);
+		 *
+		 * In order for lbas not to overflow, the maximum number is 15
+		 * which means dev->max_transfer_shift = 15 + 9 (ns->lba_shift).
+		 * Let's use 20 which provides 1MB size.
+		 */
+		dev->max_transfer_shift = 20;
+	}
 
 	/* Apply quirk stuff */
 	dm_pci_read_config16(dev->pdev, PCI_VENDOR_ID, &vendor);
