@@ -29,7 +29,7 @@ int env_init(void)
 {
 	/* use default */
 	gd->env_addr = (ulong)&default_environment[0];
-	gd->env_valid = 1;
+	gd->env_valid = ENV_VALID;
 
 	return 0;
 }

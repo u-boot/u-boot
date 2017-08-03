@@ -197,6 +197,13 @@ extern uint mmc_get_env_part(struct mmc *mmc);
 #include <env_flags.h>
 #include <search.h>
 
+/* Value for environment validity */
+enum env_valid {
+	ENV_INVALID,	/* No valid environment */
+	ENV_VALID,	/* First or only environment is valid */
+	ENV_REDUND,	/* Redundant environment is valid */
+};
+
 extern struct hsearch_data env_htab;
 
 /* Function that returns a character from the environment */

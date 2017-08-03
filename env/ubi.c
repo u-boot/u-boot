@@ -26,7 +26,7 @@ int env_init(void)
 {
 	/* use default */
 	gd->env_addr = (ulong)&default_environment[0];
-	gd->env_valid = 1;
+	gd->env_valid = ENV_VALID;
 
 	return 0;
 }
@@ -48,7 +48,7 @@ int saveenv(void)
 		return 1;
 	}
 
-	if (gd->env_valid == 1) {
+	if (gd->env_valid == ENV_VALID) {
 		puts("Writing to redundant UBI... ");
 		if (ubi_volume_write(CONFIG_ENV_UBI_VOLUME_REDUND,
 				     (void *)env_new, CONFIG_ENV_SIZE)) {
@@ -70,7 +70,7 @@ int saveenv(void)
 
 	puts("done\n");
 
-	gd->env_valid = gd->env_valid == 2 ? 1 : 2;
+	gd->env_valid = gd->env_valid == ENV_REDUND ? ENV_VALID : ENV_REDUND;
 
 	return 0;
 }

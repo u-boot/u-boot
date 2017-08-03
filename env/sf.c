@@ -93,7 +93,7 @@ int saveenv(void)
 		return ret;
 	env_new.flags	= ACTIVE_FLAG;
 
-	if (gd->env_valid == 1) {
+	if (gd->env_valid == ENV_VALID) {
 		env_new_offset = CONFIG_ENV_OFFSET_REDUND;
 		env_offset = CONFIG_ENV_OFFSET;
 	} else {
@@ -145,7 +145,7 @@ int saveenv(void)
 
 	puts("done\n");
 
-	gd->env_valid = gd->env_valid == 2 ? 1 : 2;
+	gd->env_valid = gd->env_valid == ENV_REDUND ? ENV_VALID : ENV_REDUND;
 
 	printf("Valid environment: %d\n", (int)gd->env_valid);
 
@@ -198,30 +198,30 @@ void env_relocate_spec(void)
 		set_default_env("!bad CRC");
 		goto err_read;
 	} else if (crc1_ok && !crc2_ok) {
-		gd->env_valid = 1;
+		gd->env_valid = ENV_VALID;
 	} else if (!crc1_ok && crc2_ok) {
-		gd->env_valid = 2;
+		gd->env_valid = ENV_REDUND;
 	} else if (tmp_env1->flags == ACTIVE_FLAG &&
 		   tmp_env2->flags == OBSOLETE_FLAG) {
-		gd->env_valid = 1;
+		gd->env_valid = ENV_VALID;
 	} else if (tmp_env1->flags == OBSOLETE_FLAG &&
 		   tmp_env2->flags == ACTIVE_FLAG) {
-		gd->env_valid = 2;
+		gd->env_valid = ENV_REDUND;
 	} else if (tmp_env1->flags == tmp_env2->flags) {
-		gd->env_valid = 1;
+		gd->env_valid = ENV_VALID;
 	} else if (tmp_env1->flags == 0xFF) {
-		gd->env_valid = 1;
+		gd->env_valid = ENV_VALID;
 	} else if (tmp_env2->flags == 0xFF) {
-		gd->env_valid = 2;
+		gd->env_valid = ENV_REDUND;
 	} else {
 		/*
 		 * this differs from code in env_flash.c, but I think a sane
 		 * default path is desirable.
 		 */
-		gd->env_valid = 1;
+		gd->env_valid = ENV_VALID;
 	}
 
-	if (gd->env_valid == 1)
+	if (gd->env_valid == ENV_VALID)
 		ep = tmp_env1;
 	else
 		ep = tmp_env2;
@@ -324,7 +324,7 @@ void env_relocate_spec(void)
 
 	ret = env_import(buf, 1);
 	if (ret)
-		gd->env_valid = 1;
+		gd->env_valid = ENV_VALID;
 
 err_read:
 	spi_flash_free(env_flash);
@@ -338,7 +338,7 @@ int env_init(void)
 {
 	/* SPI flash isn't usable before relocation */
 	gd->env_addr = (ulong)&default_environment[0];
-	gd->env_valid = 1;
+	gd->env_valid = ENV_VALID;
 
 	return 0;
 }

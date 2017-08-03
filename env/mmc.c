@@ -86,7 +86,7 @@ int env_init(void)
 {
 	/* use default */
 	gd->env_addr	= (ulong)&default_environment[0];
-	gd->env_valid	= 1;
+	gd->env_valid	= ENV_VALID;
 
 	return 0;
 }
@@ -180,7 +180,7 @@ int saveenv(void)
 		goto fini;
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
-	if (gd->env_valid == 1)
+	if (gd->env_valid == ENV_VALID)
 		copy = 1;
 #endif
 
@@ -200,7 +200,7 @@ int saveenv(void)
 	ret = 0;
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
-	gd->env_valid = gd->env_valid == 2 ? 1 : 2;
+	gd->env_valid = gd->env_valid == ENV_REDUND ? ENV_VALID : ENV_REDUND;
 #endif
 
 fini:
@@ -265,10 +265,10 @@ void env_relocate_spec(void)
 		ret = 1;
 		goto fini;
 	} else if (!read1_fail && read2_fail) {
-		gd->env_valid = 1;
+		gd->env_valid = ENV_VALID;
 		env_import((char *)tmp_env1, 1);
 	} else if (read1_fail && !read2_fail) {
-		gd->env_valid = 2;
+		gd->env_valid = ENV_REDUND;
 		env_import((char *)tmp_env2, 1);
 	} else {
 		env_import_redund((char *)tmp_env1, (char *)tmp_env2);

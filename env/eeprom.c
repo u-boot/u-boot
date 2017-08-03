@@ -71,7 +71,7 @@ uchar env_get_char_spec(int index)
 	unsigned int off = CONFIG_ENV_OFFSET;
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
-	if (gd->env_valid == 2)
+	if (gd->env_valid == ENV_REDUND)
 		off = CONFIG_ENV_OFFSET_REDUND;
 #endif
 	eeprom_bus_read(CONFIG_SYS_DEF_EEPROM_ADDR,
@@ -128,21 +128,21 @@ void env_relocate_spec(void)
 		gd->env_addr	= 0;
 		gd->env_valid	= 0;
 	} else if (crc_ok[0] && !crc_ok[1]) {
-		gd->env_valid = 1;
+		gd->env_valid = ENV_VALID;
 	} else if (!crc_ok[0] && crc_ok[1]) {
-		gd->env_valid = 2;
+		gd->env_valid = ENV_REDUND;
 	} else {
 		/* both ok - check serial */
 		if (flags[0] == ACTIVE_FLAG && flags[1] == OBSOLETE_FLAG)
-			gd->env_valid = 1;
+			gd->env_valid = ENV_VALID;
 		else if (flags[0] == OBSOLETE_FLAG && flags[1] == ACTIVE_FLAG)
-			gd->env_valid = 2;
+			gd->env_valid = ENV_REDUND;
 		else if (flags[0] == 0xFF && flags[1] == 0)
-			gd->env_valid = 2;
+			gd->env_valid = ENV_REDUND;
 		else if (flags[1] == 0xFF && flags[0] == 0)
-			gd->env_valid = 1;
+			gd->env_valid = ENV_VALID;
 		else /* flags are equal - almost impossible */
-			gd->env_valid = 1;
+			gd->env_valid = ENV_VALID;
 	}
 
 #else /* CONFIG_ENV_OFFSET_REDUND */
@@ -170,7 +170,7 @@ void env_relocate_spec(void)
 	}
 
 	if (crc == new) {
-		gd->env_valid	= 1;
+		gd->env_valid	= ENV_VALID;
 	} else {
 		gd->env_valid	= 0;
 	}
@@ -178,7 +178,7 @@ void env_relocate_spec(void)
 
 	off = CONFIG_ENV_OFFSET;
 #ifdef CONFIG_ENV_OFFSET_REDUND
-	if (gd->env_valid == 2)
+	if (gd->env_valid == ENV_REDUND)
 		off = CONFIG_ENV_OFFSET_REDUND;
 #endif
 
@@ -205,7 +205,7 @@ int saveenv(void)
 		return rc;
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
-	if (gd->env_valid == 1) {
+	if (gd->env_valid == ENV_VALID) {
 		off	= CONFIG_ENV_OFFSET_REDUND;
 		off_red	= CONFIG_ENV_OFFSET;
 	}
@@ -222,10 +222,10 @@ int saveenv(void)
 				 off_red + offsetof(env_t, flags),
 				 (uchar *)&flag_obsolete, 1);
 
-		if (gd->env_valid == 1)
-			gd->env_valid = 2;
+		if (gd->env_valid == ENV_VALID)
+			gd->env_valid = ENV_REDUND;
 		else
-			gd->env_valid = 1;
+			gd->env_valid = ENV_VALID;
 	}
 #endif
 	return rc;
@@ -240,6 +240,6 @@ int saveenv(void)
 int env_init(void)
 {
 	gd->env_addr = (ulong)&default_environment[0];
-	gd->env_valid = 1;
+	gd->env_valid = ENV_VALID;
 	return 0;
 }

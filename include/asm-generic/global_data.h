@@ -49,7 +49,7 @@ typedef struct global_data {
 	unsigned long precon_buf_idx;	/* Pre-Console buffer index */
 #endif
 	unsigned long env_addr;		/* Address  of Environment struct */
-	unsigned long env_valid;	/* Checksum of Environment valid? */
+	unsigned long env_valid;	/* Environment valid? enum env_valid */
 
 	unsigned long ram_top;		/* Top address of RAM used by U-Boot */
 	unsigned long relocaddr;	/* Start address of U-Boot in RAM */

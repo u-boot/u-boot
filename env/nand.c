@@ -84,37 +84,37 @@ int env_init(void)
 
 		return 0;
 	} else if (crc1_ok && !crc2_ok) {
-		gd->env_valid = 1;
+		gd->env_valid = ENV_VALID;
 	}
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	else if (!crc1_ok && crc2_ok) {
-		gd->env_valid = 2;
+		gd->env_valid = ENV_REDUND;
 	} else {
 		/* both ok - check serial */
 		if (tmp_env1->flags == 255 && tmp_env2->flags == 0)
-			gd->env_valid = 2;
+			gd->env_valid = ENV_REDUND;
 		else if (tmp_env2->flags == 255 && tmp_env1->flags == 0)
-			gd->env_valid = 1;
+			gd->env_valid = ENV_VALID;
 		else if (tmp_env1->flags > tmp_env2->flags)
-			gd->env_valid = 1;
+			gd->env_valid = ENV_VALID;
 		else if (tmp_env2->flags > tmp_env1->flags)
-			gd->env_valid = 2;
+			gd->env_valid = ENV_REDUND;
 		else /* flags are equal - almost impossible */
-			gd->env_valid = 1;
+			gd->env_valid = ENV_VALID;
 	}
 
-	if (gd->env_valid == 2)
+	if (gd->env_valid == ENV_REDUND)
 		env_ptr = tmp_env2;
 	else
 #endif
-	if (gd->env_valid == 1)
+	if (gd->env_valid == ENV_VALID)
 		env_ptr = tmp_env1;
 
 	gd->env_addr = (ulong)env_ptr->data;
 
 #else /* ENV_IS_EMBEDDED || CONFIG_NAND_ENV_DST */
 	gd->env_addr	= (ulong)&default_environment[0];
-	gd->env_valid	= 1;
+	gd->env_valid	= ENV_VALID;
 #endif /* ENV_IS_EMBEDDED || CONFIG_NAND_ENV_DST */
 
 	return 0;
@@ -217,14 +217,15 @@ int saveenv(void)
 		return ret;
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
-	env_idx = (gd->env_valid == 1);
+	env_idx = (gd->env_valid == ENV_VALID);
 #endif
 
 	ret = erase_and_write_env(&location[env_idx], (u_char *)env_new);
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	if (!ret) {
 		/* preset other copy for next write */
-		gd->env_valid = gd->env_valid == 2 ? 1 : 2;
+		gd->env_valid = gd->env_valid == ENV_REDUND ? ENV_VALID :
+				ENV_REDUND;
 		return ret;
 	}
 
@@ -342,10 +343,10 @@ void env_relocate_spec(void)
 		set_default_env("!bad env area");
 		goto done;
 	} else if (!read1_fail && read2_fail) {
-		gd->env_valid = 1;
+		gd->env_valid = ENV_VALID;
 		env_import((char *)tmp_env1, 1);
 	} else if (read1_fail && !read2_fail) {
-		gd->env_valid = 2;
+		gd->env_valid = ENV_REDUND;
 		env_import((char *)tmp_env2, 1);
 	} else {
 		env_import_redund((char *)tmp_env1, (char *)tmp_env2);

@@ -60,7 +60,7 @@ void env_relocate_spec(void)
 
 	rc = env_import(buf, 1);
 	if (rc)
-		gd->env_valid = 1;
+		gd->env_valid = ENV_VALID;
 }
 
 int saveenv(void)
@@ -110,7 +110,7 @@ int env_init(void)
 {
 	/* use default */
 	gd->env_addr = (ulong)&default_environment[0];
-	gd->env_valid = 1;
+	gd->env_valid = ENV_VALID;
 
 	return 0;
 }
