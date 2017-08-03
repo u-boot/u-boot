@@ -620,7 +620,7 @@ static int nvme_blk_probe(struct udevice *udev)
 	flbas = id->flbas & NVME_NS_FLBAS_LBA_MASK;
 	ns->flbas = flbas;
 	ns->lba_shift = id->lbaf[flbas].ds;
-	ns->mode_select_num_blocks = le64_to_cpu(id->nuse);
+	ns->mode_select_num_blocks = le64_to_cpu(id->nsze);
 	ns->mode_select_block_len = 1 << ns->lba_shift;
 	list_add(&ns->list, &ndev->namespaces);
 
