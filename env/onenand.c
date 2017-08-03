@@ -28,7 +28,7 @@ char *env_name_spec = "OneNAND";
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void env_relocate_spec(void)
+static void env_onenand_load(void)
 {
 	struct mtd_info *mtd = &onenand_mtd;
 #ifdef CONFIG_ENV_ADDR_FLEX
@@ -63,7 +63,7 @@ void env_relocate_spec(void)
 		gd->env_valid = ENV_VALID;
 }
 
-int saveenv(void)
+static int env_onenand_save(void)
 {
 	env_t	env_new;
 	int ret;
@@ -106,7 +106,7 @@ int saveenv(void)
 	return 0;
 }
 
-int env_init(void)
+static int env_onenand_init(void)
 {
 	/* use default */
 	gd->env_addr = (ulong)&default_environment[0];
@@ -117,8 +117,7 @@ int env_init(void)
 
 U_BOOT_ENV_LOCATION(onenand) = {
 	.location	= ENVL_ONENAND,
-	.get_char	= env_get_char_spec,
-	.load		= env_relocate_spec,
-	.save		= env_save_ptr(saveenv),
-	.init		= env_init,
+	.load		= env_onenand_load,
+	.save		= env_save_ptr(env_onenand_save),
+	.init		= env_onenand_init,
 };

@@ -50,30 +50,30 @@ char *env_name_spec = "Flash";
 #ifdef ENV_IS_EMBEDDED
 env_t *env_ptr = &environment;
 
-static env_t *flash_addr = (env_t *)CONFIG_ENV_ADDR;
+static __maybe_unused env_t *flash_addr = (env_t *)CONFIG_ENV_ADDR;
 
 #else /* ! ENV_IS_EMBEDDED */
 
 env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
-static env_t *flash_addr = (env_t *)CONFIG_ENV_ADDR;
+static __maybe_unused env_t *flash_addr = (env_t *)CONFIG_ENV_ADDR;
 #endif /* ENV_IS_EMBEDDED */
 
-#if defined(CMD_SAVEENV) || defined(CONFIG_ENV_ADDR_REDUND)
 /* CONFIG_ENV_ADDR is supposed to be on sector boundary */
-static ulong end_addr = CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1;
-#endif
+static ulong __maybe_unused end_addr =
+		CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1;
 
 #ifdef CONFIG_ENV_ADDR_REDUND
-static env_t *flash_addr_new = (env_t *)CONFIG_ENV_ADDR_REDUND;
+
+static env_t __maybe_unused *flash_addr_new = (env_t *)CONFIG_ENV_ADDR_REDUND;
 
 /* CONFIG_ENV_ADDR_REDUND is supposed to be on sector boundary */
-static ulong end_addr_new = CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1;
+static ulong __maybe_unused end_addr_new =
+		CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1;
 #endif /* CONFIG_ENV_ADDR_REDUND */
-
 
 #ifdef CONFIG_ENV_ADDR_REDUND
 #ifdef INITENV
-int env_init(void)
+static int env_flash_init(void)
 {
 	int crc1_ok = 0, crc2_ok = 0;
 
@@ -119,7 +119,7 @@ int env_init(void)
 #endif
 
 #ifdef CMD_SAVEENV
-int saveenv(void)
+static int env_flash_save(void)
 {
 	env_t	env_new;
 	char	*saved_data = NULL;
@@ -224,7 +224,7 @@ done:
 #else /* ! CONFIG_ENV_ADDR_REDUND */
 
 #ifdef INITENV
-int env_init(void)
+static int env_flash_init(void)
 {
 	if (crc32(0, env_ptr->data, ENV_SIZE) == env_ptr->crc) {
 		gd->env_addr	= (ulong)&(env_ptr->data);
@@ -239,7 +239,7 @@ int env_init(void)
 #endif
 
 #ifdef CMD_SAVEENV
-int saveenv(void)
+static int env_flash_save(void)
 {
 	env_t	env_new;
 	int	rc = 1;
@@ -309,7 +309,8 @@ done:
 
 #endif /* CONFIG_ENV_ADDR_REDUND */
 
-void env_relocate_spec(void)
+#ifdef LOADENV
+static void env_flash_load(void)
 {
 #ifdef CONFIG_ENV_ADDR_REDUND
 	if (gd->env_addr != (ulong)&(flash_addr->data)) {
@@ -354,16 +355,17 @@ void env_relocate_spec(void)
 
 	env_import((char *)flash_addr, 1);
 }
+#endif /* LOADENV */
 
 U_BOOT_ENV_LOCATION(flash) = {
 	.location	= ENVL_FLASH,
 #ifdef LOADENV
-	.load		= env_relocate_spec,
+	.load		= env_flash_load,
 #endif
 #ifdef CMD_SAVEENV
-	.save		= env_save_ptr(saveenv),
+	.save		= env_save_ptr(env_flash_save),
 #endif
 #ifdef INITENV
-	.init		= env_init,
+	.init		= env_flash_init,
 #endif
 };

@@ -17,7 +17,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 env_t *env_ptr;
 
-void env_relocate_spec(void)
+static void env_nowhere_load(void)
 {
 }
 
@@ -26,7 +26,7 @@ void env_relocate_spec(void)
  *
  * We are still running from ROM, so data use is limited
  */
-int env_init(void)
+static int env_nowhere_init(void)
 {
 	gd->env_addr	= (ulong)&default_environment[0];
 	gd->env_valid	= 0;
@@ -36,6 +36,6 @@ int env_init(void)
 
 U_BOOT_ENV_LOCATION(nowhere) = {
 	.location	= ENVL_NOWHERE,
-	.load		= env_relocate_spec,
-	.init		= env_init,
+	.load		= env_nowhere_load,
+	.init		= env_nowhere_init,
 };

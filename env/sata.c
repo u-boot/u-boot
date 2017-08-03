@@ -33,7 +33,7 @@ __weak int sata_get_env_dev(void)
 	return CONFIG_SYS_SATA_ENV_DEV;
 }
 
-int env_init(void)
+static int env_sata_init(void)
 {
 	/* use default */
 	gd->env_addr = (ulong)&default_environment[0];
@@ -56,7 +56,7 @@ static inline int write_env(struct blk_desc *sata, unsigned long size,
 	return (n == blk_cnt) ? 0 : -1;
 }
 
-int saveenv(void)
+static int env_sata_save(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
 	struct blk_desc *sata = NULL;
@@ -102,7 +102,7 @@ static inline int read_env(struct blk_desc *sata, unsigned long size,
 	return (n == blk_cnt) ? 0 : -1;
 }
 
-void env_relocate_spec(void)
+static void env_sata_load(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 	struct blk_desc *sata = NULL;
@@ -128,8 +128,7 @@ void env_relocate_spec(void)
 
 U_BOOT_ENV_LOCATION(sata) = {
 	.location	= ENVL_ESATA,
-	.get_char	= env_get_char_spec,
-	.load		= env_relocate_spec,
-	.save		= env_save_ptr(saveenv),
-	.init		= env_init,
+	.load		= env_sata_load,
+	.save		= env_save_ptr(env_sata_save),
+	.init		= env_sata_init,
 };

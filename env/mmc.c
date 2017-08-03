@@ -82,7 +82,7 @@ __weak int mmc_get_env_dev(void)
 	return CONFIG_SYS_MMC_ENV_DEV;
 }
 
-int env_init(void)
+static int env_mmc_init(void)
 {
 	/* use default */
 	gd->env_addr	= (ulong)&default_environment[0];
@@ -145,7 +145,7 @@ static void fini_mmc_for_env(struct mmc *mmc)
 #endif
 }
 
-#ifdef CONFIG_CMD_SAVEENV
+#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_SPL_BUILD)
 static inline int write_env(struct mmc *mmc, unsigned long size,
 			    unsigned long offset, const void *buffer)
 {
@@ -160,7 +160,7 @@ static inline int write_env(struct mmc *mmc, unsigned long size,
 	return (n == blk_cnt) ? 0 : -1;
 }
 
-int saveenv(void)
+static int env_mmc_save(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
 	int dev = mmc_get_env_dev();
@@ -207,7 +207,7 @@ fini:
 	fini_mmc_for_env(mmc);
 	return ret;
 }
-#endif /* CONFIG_CMD_SAVEENV */
+#endif /* CONFIG_CMD_SAVEENV && !CONFIG_SPL_BUILD */
 
 static inline int read_env(struct mmc *mmc, unsigned long size,
 			   unsigned long offset, const void *buffer)
@@ -224,7 +224,7 @@ static inline int read_env(struct mmc *mmc, unsigned long size,
 }
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
-void env_relocate_spec(void)
+static void env_mmc_load(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
 	struct mmc *mmc;
@@ -284,7 +284,7 @@ err:
 #endif
 }
 #else /* ! CONFIG_ENV_OFFSET_REDUND */
-void env_relocate_spec(void)
+static void env_mmc_load(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
@@ -327,10 +327,9 @@ err:
 
 U_BOOT_ENV_LOCATION(mmc) = {
 	.location	= ENVL_MMC,
-	.get_char	= env_get_char_spec,
-	.load		= env_relocate_spec,
+	.load		= env_mmc_load,
 #ifndef CONFIG_SPL_BUILD
-	.save		= env_save_ptr(saveenv),
+	.save		= env_save_ptr(env_mmc_save),
 #endif
-	.init		= env_init,
+	.init		= env_mmc_init,
 };

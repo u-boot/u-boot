@@ -22,7 +22,7 @@ env_t *env_ptr;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int env_init(void)
+static int env_ubi_init(void)
 {
 	/* use default */
 	gd->env_addr = (ulong)&default_environment[0];
@@ -33,7 +33,7 @@ int env_init(void)
 
 #ifdef CONFIG_CMD_SAVEENV
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
-int saveenv(void)
+static int env_ubi_save(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
 	int ret;
@@ -75,7 +75,7 @@ int saveenv(void)
 	return 0;
 }
 #else /* ! CONFIG_SYS_REDUNDAND_ENVIRONMENT */
-int saveenv(void)
+static int env_ubi_save(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
 	int ret;
@@ -104,7 +104,7 @@ int saveenv(void)
 #endif /* CONFIG_CMD_SAVEENV */
 
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
-void env_relocate_spec(void)
+static void env_ubi_load(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, env1_buf, CONFIG_ENV_SIZE);
 	ALLOC_CACHE_ALIGN_BUFFER(char, env2_buf, CONFIG_ENV_SIZE);
@@ -146,7 +146,7 @@ void env_relocate_spec(void)
 	env_import_redund((char *)tmp_env1, (char *)tmp_env2);
 }
 #else /* ! CONFIG_SYS_REDUNDAND_ENVIRONMENT */
-void env_relocate_spec(void)
+static void env_ubi_load(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 
@@ -180,8 +180,7 @@ void env_relocate_spec(void)
 
 U_BOOT_ENV_LOCATION(ubi) = {
 	.location	= ENVL_UBI,
-	.get_char	= env_get_char_spec,
-	.load		= env_relocate_spec,
-	.save		= env_save_ptr(saveenv),
-	.init		= env_init,
+	.load		= env_ubi_load,
+	.save		= env_save_ptr(env_ubi_save),
+	.init		= env_ubi_init,
 };

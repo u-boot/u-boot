@@ -64,7 +64,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * This way the SPL loads not only the U-Boot image from NAND but
  * also the environment.
  */
-int env_init(void)
+static int env_nand_init(void)
 {
 #if defined(ENV_IS_EMBEDDED) || defined(CONFIG_NAND_ENV_DST)
 	int crc1_ok = 0, crc2_ok = 0;
@@ -185,7 +185,7 @@ static int erase_and_write_env(const struct nand_env_location *location,
 	return ret;
 }
 
-int saveenv(void)
+static int env_nand_save(void)
 {
 	int	ret = 0;
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
@@ -317,7 +317,7 @@ int get_nand_env_oob(struct mtd_info *mtd, unsigned long *result)
 #endif
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
-void env_relocate_spec(void)
+static void env_nand_load(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
 	int read1_fail = 0, read2_fail = 0;
@@ -365,7 +365,7 @@ done:
  * device i.e., nand_dev_desc + 0. This is also the behaviour using
  * the new NAND code.
  */
-void env_relocate_spec(void)
+static void env_nand_load(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
 	int ret;
@@ -398,9 +398,9 @@ void env_relocate_spec(void)
 
 U_BOOT_ENV_LOCATION(nand) = {
 	.location	= ENVL_NAND,
-	.load		= env_relocate_spec,
+	.load		= env_nand_load,
 #if defined(CMD_SAVEENV)
-	.save		= env_save_ptr(saveenv),
+	.save		= env_save_ptr(env_nand_save),
 #endif
-	.init		= env_init,
+	.init		= env_nand_init,
 };

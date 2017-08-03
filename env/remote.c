@@ -25,7 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_ENV_OFFSET 0
 #endif
 
-int env_init(void)
+static int env_remote_init(void)
 {
 	if (crc32(0, env_ptr->data, ENV_SIZE) == env_ptr->crc) {
 		gd->env_addr = (ulong)&(env_ptr->data);
@@ -39,7 +39,7 @@ int env_init(void)
 }
 
 #ifdef CONFIG_CMD_SAVEENV
-int saveenv(void)
+static int env_remote_save(void)
 {
 #ifdef CONFIG_SRIO_PCIE_BOOT_SLAVE
 	printf("Can not support the 'saveenv' when boot from SRIO or PCIE!\n");
@@ -50,7 +50,7 @@ int saveenv(void)
 }
 #endif /* CONFIG_CMD_SAVEENV */
 
-void env_relocate_spec(void)
+static void env_remote_load(void)
 {
 #ifndef ENV_IS_EMBEDDED
 	env_import((char *)env_ptr, 1);
@@ -59,8 +59,7 @@ void env_relocate_spec(void)
 
 U_BOOT_ENV_LOCATION(remote) = {
 	.location	= ENVL_REMOTE,
-	.get_char	= env_get_char_spec,
-	.load		= env_relocate_spec,
-	.save		= env_save_ptr(saveenv),
-	.init		= env_init,
+	.load		= env_remote_load,
+	.save		= env_save_ptr(env_remote_save),
+	.init		= env_remote_init,
 };

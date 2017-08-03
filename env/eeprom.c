@@ -65,7 +65,7 @@ static int eeprom_bus_write(unsigned dev_addr, unsigned offset,
 	return rcode;
 }
 
-uchar env_get_char_spec(int index)
+static uchar env_eeprom_get_char(int index)
 {
 	uchar c;
 	unsigned int off = CONFIG_ENV_OFFSET;
@@ -80,7 +80,7 @@ uchar env_get_char_spec(int index)
 	return c;
 }
 
-void env_relocate_spec(void)
+static void env_eeprom_load(void)
 {
 	char buf_env[CONFIG_ENV_SIZE];
 	unsigned int off = CONFIG_ENV_OFFSET;
@@ -188,7 +188,7 @@ void env_relocate_spec(void)
 	env_import(buf_env, 1);
 }
 
-int saveenv(void)
+static int env_eeprom_save(void)
 {
 	env_t	env_new;
 	int	rc;
@@ -237,7 +237,7 @@ int saveenv(void)
  * We are still running from ROM, so data use is limited.
  * Use a (moderately small) buffer on the stack
  */
-int env_init(void)
+static int env_eeprom_init(void)
 {
 	gd->env_addr = (ulong)&default_environment[0];
 	gd->env_valid = ENV_VALID;
@@ -246,8 +246,8 @@ int env_init(void)
 
 U_BOOT_ENV_LOCATION(eeprom) = {
 	.location	= ENVL_EEPROM,
-	.get_char	= env_get_char_spec,
-	.load		= env_relocate_spec,
-	.save		= env_save_ptr(saveenv),
-	.init		= env_init,
+	.get_char	= env_eeprom_get_char,
+	.load		= env_eeprom_load,
+	.save		= env_save_ptr(env_eeprom_save),
+	.init		= env_eeprom_init,
 };

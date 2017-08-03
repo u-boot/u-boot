@@ -37,7 +37,7 @@ env_t *env_ptr;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int env_init(void)
+static int env_ext4_init(void)
 {
 	/* use default */
 	gd->env_addr = (ulong)&default_environment[0];
@@ -47,7 +47,7 @@ int env_init(void)
 }
 
 #ifdef CONFIG_CMD_SAVEENV
-int saveenv(void)
+static int env_ext4_save(void)
 {
 	env_t	env_new;
 	struct blk_desc *dev_desc = NULL;
@@ -88,7 +88,7 @@ int saveenv(void)
 }
 #endif /* CONFIG_CMD_SAVEENV */
 
-void env_relocate_spec(void)
+static void env_ext4_load(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 	struct blk_desc *dev_desc = NULL;
@@ -130,8 +130,7 @@ err_env_relocate:
 
 U_BOOT_ENV_LOCATION(ext4) = {
 	.location	= ENVL_EXT4,
-	.get_char	= env_get_char_spec,
-	.load		= env_relocate_spec,
-	.save		= env_save_ptr(saveenv),
-	.init		= env_init,
+	.load		= env_ext4_load,
+	.save		= env_save_ptr(env_ext4_save),
+	.init		= env_ext4_init,
 };

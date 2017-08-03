@@ -37,7 +37,7 @@ env_t *env_ptr;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int env_init(void)
+static int env_fat_init(void)
 {
 	/* use default */
 	gd->env_addr = (ulong)&default_environment[0];
@@ -47,7 +47,7 @@ int env_init(void)
 }
 
 #ifdef CMD_SAVEENV
-int saveenv(void)
+static int env_fat_save(void)
 {
 	env_t	env_new;
 	struct blk_desc *dev_desc = NULL;
@@ -87,7 +87,7 @@ int saveenv(void)
 #endif /* CMD_SAVEENV */
 
 #ifdef LOADENV
-void env_relocate_spec(void)
+static void env_fat_load(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 	struct blk_desc *dev_desc = NULL;
@@ -125,12 +125,11 @@ err_env_relocate:
 
 U_BOOT_ENV_LOCATION(fat) = {
 	.location	= ENVL_FAT,
-	.get_char	= env_get_char_spec,
 #ifdef LOADENV
-	.load		= env_relocate_spec,
+	.load		= env_fat_load,
 #endif
 #ifdef CMD_SAVEENV
-	.save		= env_save_ptr(saveenv),
+	.save		= env_save_ptr(env_fat_save),
 #endif
-	.init		= env_init,
+	.init		= env_fat_init,
 };

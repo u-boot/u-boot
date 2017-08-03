@@ -84,7 +84,7 @@ static int setup_flash_device(void)
 
 #if defined(CONFIG_ENV_OFFSET_REDUND)
 #ifdef CMD_SAVEENV
-int saveenv(void)
+static int env_sf_save(void)
 {
 	env_t	env_new;
 	char	*saved_buffer = NULL, flag = OBSOLETE_FLAG;
@@ -164,7 +164,7 @@ int saveenv(void)
 }
 #endif /* CMD_SAVEENV */
 
-void env_relocate_spec(void)
+static void env_sf_load(void)
 {
 	int ret;
 	int crc1_ok = 0, crc2_ok = 0;
@@ -249,7 +249,7 @@ out:
 }
 #else
 #ifdef CMD_SAVEENV
-int saveenv(void)
+static int env_sf_save(void)
 {
 	u32	saved_size, saved_offset, sector;
 	char	*saved_buffer = NULL;
@@ -310,7 +310,7 @@ int saveenv(void)
 }
 #endif /* CMD_SAVEENV */
 
-void env_relocate_spec(void)
+static void env_sf_load(void)
 {
 	int ret;
 	char *buf = NULL;
@@ -344,7 +344,7 @@ out:
 }
 #endif
 
-int env_init(void)
+static int env_sf_init(void)
 {
 	/* SPI flash isn't usable before relocation */
 	gd->env_addr = (ulong)&default_environment[0];
@@ -355,10 +355,9 @@ int env_init(void)
 
 U_BOOT_ENV_LOCATION(sf) = {
 	.location	= ENVL_SPI_FLASH,
-	.get_char	= env_get_char_spec,
-	.load		= env_relocate_spec,
+	.load		= env_sf_load,
 #ifdef CMD_SAVEENV
-	.save		= env_save_ptr(saveenv),
+	.save		= env_save_ptr(env_sf_save),
 #endif
-	.init		= env_init,
+	.init		= env_sf_init,
 };

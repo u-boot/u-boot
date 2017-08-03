@@ -44,7 +44,7 @@ env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
 char *env_name_spec = "NVRAM";
 
 #ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
-uchar env_get_char_spec(int index)
+static uchar env_nvram_get_char(int index)
 {
 	uchar c;
 
@@ -54,7 +54,7 @@ uchar env_get_char_spec(int index)
 }
 #endif
 
-void env_relocate_spec(void)
+static void env_nvram_load(void)
 {
 	char buf[CONFIG_ENV_SIZE];
 
@@ -66,7 +66,7 @@ void env_relocate_spec(void)
 	env_import(buf, 1);
 }
 
-int saveenv(void)
+static int env_nvram_save(void)
 {
 	env_t	env_new;
 	int	rcode = 0;
@@ -89,7 +89,7 @@ int saveenv(void)
  *
  * We are still running from ROM, so data use is limited
  */
-int env_init(void)
+static int env_nvram_init(void)
 {
 #if defined(CONFIG_SYS_NVRAM_ACCESS_ROUTINE)
 	ulong crc;
@@ -116,9 +116,9 @@ int env_init(void)
 U_BOOT_ENV_LOCATION(nvram) = {
 	.location	= ENVL_NVRAM,
 #ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
-	.get_char	= env_get_char_spec,
+	.get_char	= env_nvram_get_char,
 #endif
-	.load		= env_relocate_spec,
-	.save		= env_save_ptr(saveenv),
-	.init		= env_init,
+	.load		= env_nvram_load,
+	.save		= env_save_ptr(env_nvram_save),
+	.init		= env_nvram_init,
 };

@@ -143,3 +143,23 @@ int env_init_new(void)
 
 	return 0;
 }
+
+unsigned char env_get_char_spec(int index)
+{
+	return *(uchar *)(gd->env_addr + index);
+}
+
+void env_relocate_spec(void)
+{
+	env_load();
+}
+
+int saveenv(void)
+{
+	return env_save();
+}
+
+int env_init(void)
+{
+	return env_init_new();
+}
