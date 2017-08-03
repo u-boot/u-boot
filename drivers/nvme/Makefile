@@ -4,4 +4,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y += nvme-uclass.o nvme.o
+obj-y += nvme-uclass.o nvme.o nvme_show.o

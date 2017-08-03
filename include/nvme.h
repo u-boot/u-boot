@@ -68,4 +68,15 @@ int nvme_set_features(struct nvme_dev *dev, unsigned fid, unsigned dword11,
  */
 int nvme_scan_namespace(void);
 
+/**
+ * nvme_print_info - print detailed NVMe controller and namespace information
+ *
+ * This prints out detailed human readable NVMe controller and namespace
+ * information which is very useful for debugging.
+ *
+ * @udev:	NVMe controller device
+ * @return:	0 on success, -EIO if NVMe identify command fails
+ */
+int nvme_print_info(struct udevice *udev);
+
 #endif /* __NVME_H__ */
