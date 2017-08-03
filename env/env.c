@@ -125,7 +125,7 @@ int env_save(void)
 	return 0;
 }
 
-int env_init_new(void)
+int env_init(void)
 {
 	struct env_driver *drv = env_driver_lookup_default();
 	int ret = -ENOENT;
@@ -163,7 +163,3 @@ int saveenv(void)
 	return env_save();
 }
 
-int env_init(void)
-{
-	return env_init_new();
-}
