@@ -2384,12 +2384,12 @@ static int _usb_eth_init(struct ether_priv *priv)
 	strlcpy(host_addr, CONFIG_USBNET_HOST_ADDR, sizeof(host_addr));
 #endif
 	/* Check if the user overruled the MAC addresses */
-	if (getenv("usbnet_devaddr"))
-		strlcpy(dev_addr, getenv("usbnet_devaddr"),
+	if (env_get("usbnet_devaddr"))
+		strlcpy(dev_addr, env_get("usbnet_devaddr"),
 			sizeof(dev_addr));
 
-	if (getenv("usbnet_hostaddr"))
-		strlcpy(host_addr, getenv("usbnet_hostaddr"),
+	if (env_get("usbnet_hostaddr"))
+		strlcpy(host_addr, env_get("usbnet_hostaddr"),
 			sizeof(host_addr));
 
 	if (!is_eth_addr_valid(dev_addr)) {
@@ -2420,8 +2420,8 @@ static int _usb_eth_init(struct ether_priv *priv)
 	gadget = dev->gadget;
 	usb_gadget_connect(gadget);
 
-	if (getenv("cdc_connect_timeout"))
-		timeout = simple_strtoul(getenv("cdc_connect_timeout"),
+	if (env_get("cdc_connect_timeout"))
+		timeout = simple_strtoul(env_get("cdc_connect_timeout"),
 						NULL, 10) * CONFIG_SYS_HZ;
 	ts = get_timer(0);
 	while (!dev->network_started) {

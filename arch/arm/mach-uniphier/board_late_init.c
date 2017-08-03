@@ -37,7 +37,7 @@ static int uniphier_set_fdt_file(void)
 	char dtb_name[256];
 	int buf_len = sizeof(dtb_name);
 
-	if (getenv("fdt_file"))
+	if (env_get("fdt_file"))
 		return 0;	/* do nothing if it is already set */
 
 	compat = fdt_stringlist_get(gd->fdt_blob, 0, "compatible", 0, NULL);

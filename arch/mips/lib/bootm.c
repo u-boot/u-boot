@@ -80,7 +80,7 @@ static void linux_cmdline_legacy(bootm_headers_t *images)
 
 	linux_cmdline_init();
 
-	bootargs = getenv("bootargs");
+	bootargs = env_get("bootargs");
 	if (!bootargs)
 		return;
 
@@ -202,11 +202,11 @@ static void linux_env_legacy(bootm_headers_t *images)
 	sprintf(env_buf, "0x%X", (uint) (gd->bd->bi_flashsize));
 	linux_env_set("flash_size", env_buf);
 
-	cp = getenv("ethaddr");
+	cp = env_get("ethaddr");
 	if (cp)
 		linux_env_set("ethaddr", cp);
 
-	cp = getenv("eth1addr");
+	cp = env_get("eth1addr");
 	if (cp)
 		linux_env_set("eth1addr", cp);
 

@@ -54,7 +54,7 @@ int set_km_env(void)
 	env_set("pnvramaddr", (char *)buf);
 
 	/* try to read rootfssize (ram image) from environment */
-	p = getenv("rootfssize");
+	p = env_get("rootfssize");
 	if (p != NULL)
 		strict_strtoul(p, 16, &rootfssize);
 	pram = (rootfssize + CONFIG_KM_RESERVED_PRAM + CONFIG_KM_PHRAM +
@@ -236,10 +236,10 @@ static int do_checkboardidhwk(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 
 	/* now try to read values from environment if available */
-	p = getenv("boardid");
+	p = env_get("boardid");
 	if (p != NULL)
 		rc = strict_strtoul(p, 16, &envbid);
-	p = getenv("hwkey");
+	p = env_get("hwkey");
 	if (p != NULL)
 		rc = strict_strtoul(p, 16, &envhwkey);
 
@@ -253,7 +253,7 @@ static int do_checkboardidhwk(cmd_tbl_t *cmdtp, int flag, int argc,
 		 * BoardId/HWkey not available in the environment, so try the
 		 * environment variable for BoardId/HWkey list
 		 */
-		char *bidhwklist = getenv("boardIdListHex");
+		char *bidhwklist = env_get("boardIdListHex");
 
 		if (bidhwklist) {
 			int found = 0;
@@ -355,7 +355,7 @@ static int do_checktestboot(cmd_tbl_t *cmdtp, int flag, int argc,
 #if defined(CONFIG_POST)
 	testpin = post_hotkeys_pressed();
 #endif
-	s = getenv("test_bank");
+	s = env_get("test_bank");
 	/* when test_bank is not set, act as if testpin is not asserted */
 	testboot = (testpin != 0) && (s);
 	if (verbose) {

@@ -181,7 +181,7 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 	ulong addr;
 
 	/* pre-set load_addr */
-	s = getenv("loadaddr");
+	s = env_get("loadaddr");
 	if (s != NULL)
 		load_addr = simple_strtoul(s, NULL, 16);
 
@@ -344,7 +344,7 @@ int do_sntp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 	}
 
-	toff = getenv("timeoffset");
+	toff = env_get("timeoffset");
 	if (toff == NULL)
 		net_ntp_time_offset = 0;
 	else

@@ -63,13 +63,13 @@ static void setup_macaddr(void)
 {
 #if CONFIG_IS_ENABLED(CMD_NET)
 	int ret;
-	const char *cpuid = getenv("cpuid#");
+	const char *cpuid = env_get("cpuid#");
 	u8 hash[SHA256_SUM_LEN];
 	int size = sizeof(hash);
 	u8 mac_addr[6];
 
 	/* Only generate a MAC address, if none is set in the environment */
-	if (getenv("ethaddr"))
+	if (env_get("ethaddr"))
 		return;
 
 	if (!cpuid) {
@@ -165,7 +165,7 @@ void get_board_serial(struct tag_serialnr *serialnr)
 	char *serial_string;
 	u64 serial = 0;
 
-	serial_string = getenv("serial#");
+	serial_string = env_get("serial#");
 
 	if (serial_string)
 		serial = simple_strtoull(serial_string, NULL, 16);

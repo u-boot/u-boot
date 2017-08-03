@@ -1043,13 +1043,13 @@ static int second_stage_init(void)
 		goto failure;
 
 	/* run "prepboot" from env to get "mmcdev" set */
-	cptr = getenv("prepboot");
+	cptr = env_get("prepboot");
 	if (cptr && !run_command(cptr, 0))
-		mmcdev = getenv("mmcdev");
+		mmcdev = env_get("mmcdev");
 	if (!mmcdev)
 		goto failure;
 
-	cptr = getenv("ramdiskimage");
+	cptr = env_get("ramdiskimage");
 	if (cptr)
 		image_path = cptr;
 

@@ -211,7 +211,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 		{ "mxc_nand", MTD_DEV_TYPE_NAND, }, /* NAND flash */
 	};
 
-	if (getenv("fdt_noauto")) {
+	if (env_get("fdt_noauto")) {
 		puts("   Skiping ft_board_setup (fdt_noauto defined)\n");
 		return 0;
 	}

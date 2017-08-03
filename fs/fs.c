@@ -379,7 +379,7 @@ int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		if (ep == argv[3] || *ep != '\0')
 			return CMD_RET_USAGE;
 	} else {
-		addr_str = getenv("loadaddr");
+		addr_str = env_get("loadaddr");
 		if (addr_str != NULL)
 			addr = simple_strtoul(addr_str, NULL, 16);
 		else
@@ -388,7 +388,7 @@ int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	if (argc >= 5) {
 		filename = argv[4];
 	} else {
-		filename = getenv("bootfile");
+		filename = env_get("bootfile");
 		if (!filename) {
 			puts("** No boot file defined **\n");
 			return 1;

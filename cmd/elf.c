@@ -148,7 +148,7 @@ int do_bootelf(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	unsigned long addr; /* Address of the ELF image */
 	unsigned long rc; /* Return value from user code */
 	char *sload = NULL;
-	const char *ep = getenv("autostart");
+	const char *ep = env_get("autostart");
 	int rcode = 0;
 
 	/* Consume 'bootelf' */
@@ -258,7 +258,7 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * (LOCAL_MEM_LOCAL_ADRS + BOOT_LINE_OFFSET) as defined by
 	 * VxWorks BSP. For example, on PowerPC it defaults to 0x4200.
 	 */
-	tmp = getenv("bootaddr");
+	tmp = env_get("bootaddr");
 	if (!tmp) {
 		printf("## VxWorks bootline address not specified\n");
 	} else {
@@ -269,21 +269,21 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		 * parameter. If it is not defined, we may be able to
 		 * construct the info.
 		 */
-		bootline = getenv("bootargs");
+		bootline = env_get("bootargs");
 		if (bootline) {
 			memcpy((void *)bootaddr, bootline,
 			       max(strlen(bootline), (size_t)255));
 			flush_cache(bootaddr, max(strlen(bootline),
 						  (size_t)255));
 		} else {
-			tmp = getenv("bootdev");
+			tmp = env_get("bootdev");
 			if (tmp) {
 				strcpy(build_buf, tmp);
 				ptr = strlen(tmp);
 			} else
 				printf("## VxWorks boot device not specified\n");
 
-			tmp = getenv("bootfile");
+			tmp = env_get("bootfile");
 			if (tmp)
 				ptr += sprintf(build_buf + ptr,
 					       "host:%s ", tmp);
@@ -295,10 +295,10 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			 * The following parameters are only needed if 'bootdev'
 			 * is an ethernet device, otherwise they are optional.
 			 */
-			tmp = getenv("ipaddr");
+			tmp = env_get("ipaddr");
 			if (tmp) {
 				ptr += sprintf(build_buf + ptr, "e=%s", tmp);
-				tmp = getenv("netmask");
+				tmp = env_get("netmask");
 				if (tmp) {
 					u32 mask = getenv_ip("netmask").s_addr;
 					ptr += sprintf(build_buf + ptr,
@@ -308,19 +308,19 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				}
 			}
 
-			tmp = getenv("serverip");
+			tmp = env_get("serverip");
 			if (tmp)
 				ptr += sprintf(build_buf + ptr, "h=%s ", tmp);
 
-			tmp = getenv("gatewayip");
+			tmp = env_get("gatewayip");
 			if (tmp)
 				ptr += sprintf(build_buf + ptr, "g=%s ", tmp);
 
-			tmp = getenv("hostname");
+			tmp = env_get("hostname");
 			if (tmp)
 				ptr += sprintf(build_buf + ptr, "tn=%s ", tmp);
 
-			tmp = getenv("othbootargs");
+			tmp = env_get("othbootargs");
 			if (tmp) {
 				strcpy(build_buf + ptr, tmp);
 				ptr += strlen(tmp);
@@ -341,12 +341,12 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * Since E820 information is critical to the kernel, if we don't
 	 * specify these in the environments, use a default one.
 	 */
-	tmp = getenv("e820data");
+	tmp = env_get("e820data");
 	if (tmp)
 		data = (struct e820entry *)simple_strtoul(tmp, NULL, 16);
 	else
 		data = (struct e820entry *)VXWORKS_E820_DATA_ADDR;
-	tmp = getenv("e820info");
+	tmp = env_get("e820info");
 	if (tmp)
 		info = (struct e820info *)simple_strtoul(tmp, NULL, 16);
 	else

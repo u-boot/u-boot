@@ -50,7 +50,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	void	(*theKernel)(int zero, int arch, uint params);
 
 #ifdef CONFIG_CMDLINE_TAG
-	char *commandline = getenv("bootargs");
+	char *commandline = env_get("bootargs");
 #endif
 
 	/*
@@ -64,7 +64,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 
 	theKernel = (void (*)(int, int, uint))images->ep;
 
-	s = getenv("machid");
+	s = env_get("machid");
 	if (s) {
 		machid = simple_strtoul(s, NULL, 16);
 		printf("Using machid 0x%x from environment\n", machid);

@@ -1861,7 +1861,7 @@ int fsl_ddr_interactive_env_var_exists(void)
 {
 	char buffer[CONFIG_SYS_CBSIZE];
 
-	if (getenv_f("ddr_interactive", buffer, CONFIG_SYS_CBSIZE) >= 0)
+	if (env_get_f("ddr_interactive", buffer, CONFIG_SYS_CBSIZE) >= 0)
 		return 1;
 
 	return 0;
@@ -1891,11 +1891,11 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo, int var_is_set)
 	};
 
 	if (var_is_set) {
-		if (getenv_f("ddr_interactive", buffer2, CONFIG_SYS_CBSIZE) > 0) {
+		if (env_get_f("ddr_interactive", buffer2,
+			      CONFIG_SYS_CBSIZE) > 0)
 			p = buffer2;
-		} else {
+		else
 			var_is_set = 0;
-		}
 	}
 
 	/*

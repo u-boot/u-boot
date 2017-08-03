@@ -95,10 +95,10 @@ static void assign_hardware_id(void)
 
 int board_late_init(void)
 {
-	if (!getenv("serial#"))
+	if (!env_get("serial#"))
 		assign_serial();
 
-	if (!getenv("hardware_id"))
+	if (!env_get("hardware_id"))
 		assign_hardware_id();
 
 	return 0;

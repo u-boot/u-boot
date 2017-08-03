@@ -101,7 +101,7 @@ static char * evalstr(char *s)
 			i++;
 		}
 		s[i] = 0;
-		return  getenv((const char *)&s[2]);
+		return  env_get((const char *)&s[2]);
 	} else {
 		return s;
 	}

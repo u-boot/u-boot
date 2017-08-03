@@ -189,7 +189,7 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 	 * but allow this time to be increased via env variable as some
 	 * devices break the spec and require longer warm-up times
 	 */
-	env = getenv("usb_pgood_delay");
+	env = env_get("usb_pgood_delay");
 	if (env)
 		pgood_delay = max(pgood_delay,
 			          (unsigned)simple_strtol(env, NULL, 0));

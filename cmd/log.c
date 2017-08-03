@@ -71,7 +71,8 @@ void logbuff_init_ptrs(void)
 #endif
 
 	/* Set up log version */
-	if ((s = getenv ("logversion")) != NULL)
+	s = env_get("logversion");
+	if (s)
 		log_version = (int)simple_strtoul(s, NULL, 10);
 
 	if (log_version == 2)
@@ -94,7 +95,8 @@ void logbuff_init_ptrs(void)
 		log->v2.start = log->v2.con;
 
 	/* Initialize default loglevel if present */
-	if ((s = getenv ("loglevel")) != NULL)
+	s = env_get("loglevel");
+	if (s)
 		console_loglevel = (int)simple_strtoul(s, NULL, 10);
 
 	gd->flags |= GD_FLG_LOGINIT;

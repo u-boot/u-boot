@@ -15,7 +15,7 @@
 #include "fw_env.h"
 #include <env_attr.h>
 #include <env_flags.h>
-#define getenv fw_getenv
+#define env_get fw_getenv
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #else
 #include <common.h>
@@ -308,7 +308,7 @@ static inline int env_flags_lookup(const char *flags_list, const char *name,
  */
 enum env_flags_vartype env_flags_get_type(const char *name)
 {
-	const char *flags_list = getenv(ENV_FLAGS_VAR);
+	const char *flags_list = env_get(ENV_FLAGS_VAR);
 	char flags[ENV_FLAGS_ATTR_MAX_LEN + 1];
 
 	if (env_flags_lookup(flags_list, name, flags))
@@ -325,7 +325,7 @@ enum env_flags_vartype env_flags_get_type(const char *name)
  */
 enum env_flags_varaccess env_flags_get_varaccess(const char *name)
 {
-	const char *flags_list = getenv(ENV_FLAGS_VAR);
+	const char *flags_list = env_get(ENV_FLAGS_VAR);
 	char flags[ENV_FLAGS_ATTR_MAX_LEN + 1];
 
 	if (env_flags_lookup(flags_list, name, flags))
@@ -426,7 +426,7 @@ void env_flags_init(ENTRY *var_entry)
 	int ret = 1;
 
 	if (first_call) {
-		flags_list = getenv(ENV_FLAGS_VAR);
+		flags_list = env_get(ENV_FLAGS_VAR);
 		first_call = 0;
 	}
 	/* look in the ".flags" and static for a reference to this variable */

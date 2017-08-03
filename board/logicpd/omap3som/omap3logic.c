@@ -219,7 +219,7 @@ int board_late_init(void)
 			gd->bd->bi_arch_number = board->machine_id;
 
 		/* If the user has not set fdtimage, set the default */
-		if (!getenv("fdtimage"))
+		if (!env_get("fdtimage"))
 			env_set("fdtimage", board->fdtfile);
 	}
 

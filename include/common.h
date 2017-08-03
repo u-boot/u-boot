@@ -311,12 +311,30 @@ int	env_init     (void);
 void	env_relocate (void);
 int	envmatch     (uchar *, int);
 
-/* Avoid unfortunate conflict with libc's getenv() */
-#ifdef CONFIG_SANDBOX
-#define getenv uboot_getenv
-#endif
-char	*getenv	     (const char *);
-int	getenv_f     (const char *name, char *buf, unsigned len);
+/**
+ * env_get() - Look up the value of an environment variable
+ *
+ * In U-Boot proper this can be called before relocation (which is when the
+ * environment is loaded from storage, i.e. GD_FLG_ENV_READY is 0). In that
+ * case this function calls env_get_f().
+ *
+ * @varname:	Variable to look up
+ * @return value of variable, or NULL if not found
+ */
+char *env_get(const char *varname);
+
+/**
+ * env_get_f() - Look up the value of an environment variable (early)
+ *
+ * This function is called from env_get() if the environment has not been
+ * loaded yet (GD_FLG_ENV_READY flag is 0). Some environment locations will
+ * support reading the value (slowly) and some will not.
+ *
+ * @varname:	Variable to look up
+ * @return value of variable, or NULL if not found
+ */
+int env_get_f(const char *name, char *buf, unsigned len);
+
 ulong getenv_ulong(const char *name, int base, ulong default_val);
 
 /**
@@ -722,7 +740,7 @@ int zzip(void *dst, unsigned long *lenp, unsigned char *src,
 #include <net.h>
 static inline struct in_addr getenv_ip(char *var)
 {
-	return string_to_ip(getenv(var));
+	return string_to_ip(env_get(var));
 }
 
 int	pcmcia_init (void);

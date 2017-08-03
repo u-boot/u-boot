@@ -138,7 +138,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int bootm_maybe_autostart(cmd_tbl_t *cmdtp, const char *cmd)
 {
-	const char *ep = getenv("autostart");
+	const char *ep = env_get("autostart");
 
 	if (ep && !strcmp(ep, "yes")) {
 		char *local_args[2];
@@ -202,7 +202,7 @@ U_BOOT_CMD(
 #if defined(CONFIG_CMD_BOOTD)
 int do_bootd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	return run_command(getenv("bootcmd"), flag);
+	return run_command(env_get("bootcmd"), flag);
 }
 
 U_BOOT_CMD(

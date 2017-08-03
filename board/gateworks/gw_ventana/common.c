@@ -1160,7 +1160,7 @@ void setup_board_gpio(int board, struct ventana_board_info *info)
 	char arg[10];
 	size_t len;
 	int i;
-	int quiet = simple_strtol(getenv("quiet"), NULL, 10);
+	int quiet = simple_strtol(env_get("quiet"), NULL, 10);
 
 	if (board >= GW_UNKNOWN)
 		return;

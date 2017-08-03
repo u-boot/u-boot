@@ -265,7 +265,7 @@ static int adjust_vdd(ulong vdd_override)
 	vdd_target = vdd[vid];
 
 	/* check override variable for overriding VDD */
-	vdd_string = getenv("t4240qds_vdd_mv");
+	vdd_string = env_get("t4240qds_vdd_mv");
 	if (vdd_override == 0 && vdd_string &&
 	    !strict_strtoul(vdd_string, 10, &vdd_string_override))
 		vdd_override = vdd_string_override;

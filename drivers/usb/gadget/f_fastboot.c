@@ -212,7 +212,7 @@ static int fastboot_bind(struct usb_configuration *c, struct usb_function *f)
 		f->hs_descriptors = fb_hs_function;
 	}
 
-	s = getenv("serial#");
+	s = env_get("serial#");
 	if (s)
 		g_dnl_set_serialnumber((char *)s);
 
@@ -426,7 +426,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		sprintf(str_num, "0x%08x", CONFIG_FASTBOOT_BUF_SIZE);
 		strncat(response, str_num, chars_left);
 	} else if (!strcmp_l1("serialno", cmd)) {
-		s = getenv("serial#");
+		s = env_get("serial#");
 		if (s)
 			strncat(response, s, chars_left);
 		else
@@ -441,7 +441,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		}
 
 		sprintf(envstr, "fastboot.%s", cmd);
-		s = getenv(envstr);
+		s = env_get(envstr);
 		if (s) {
 			strncat(response, s, chars_left);
 		} else {

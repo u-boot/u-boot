@@ -139,7 +139,7 @@ void hw_watchdog_init(void)
 	int enable;
 
 	enable = 1;
-	s = getenv("watchdog");
+	s = env_get("watchdog");
 	if (s != NULL)
 		if ((strncmp(s, "off", 3) == 0) || (strncmp(s, "0", 1) == 0))
 			enable = 0;
@@ -191,13 +191,13 @@ int drv_video_init(void)
 	unsigned long splash;
 #endif
 	printf("Init Video as ");
-	s = getenv("displaywidth");
+	s = env_get("displaywidth");
 	if (s != NULL)
 		display_width = simple_strtoul(s, NULL, 10);
 	else
 		display_width = 256;
 
-	s = getenv("displayheight");
+	s = env_get("displayheight");
 	if (s != NULL)
 		display_height = simple_strtoul(s, NULL, 10);
 	else
@@ -211,7 +211,7 @@ int drv_video_init(void)
 	vcxk_init(display_width, display_height);
 
 #ifdef CONFIG_SPLASH_SCREEN
-	s = getenv("splashimage");
+	s = env_get("splashimage");
 	if (s != NULL) {
 		splash = simple_strtoul(s, NULL, 16);
 		vcxk_acknowledge_wait();

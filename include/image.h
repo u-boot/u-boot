@@ -373,7 +373,7 @@ typedef struct bootm_headers {
 	bd_t		*kbd;
 #endif
 
-	int		verify;		/* getenv("verify")[0] != 'n' */
+	int		verify;		/* env_get("verify")[0] != 'n' */
 
 #define	BOOTM_STATE_START	(0x00000001)
 #define	BOOTM_STATE_FINDOS	(0x00000002)

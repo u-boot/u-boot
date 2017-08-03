@@ -179,7 +179,7 @@ char *get_dfu_alt_system(char *interface, char *devstr)
 	if (board_is_odroidxu4())
 		return info;
 
-	return getenv("dfu_alt_system");
+	return env_get("dfu_alt_system");
 }
 
 char *get_dfu_alt_boot(char *interface, char *devstr)

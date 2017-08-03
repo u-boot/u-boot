@@ -666,7 +666,7 @@ int console_assign(int file, const char *devname)
 static void console_update_silent(void)
 {
 #ifdef CONFIG_SILENT_CONSOLE
-	if (getenv("silent") != NULL)
+	if (env_get("silent") != NULL)
 		gd->flags |= GD_FLG_SILENT;
 	else
 		gd->flags &= ~GD_FLG_SILENT;
@@ -745,9 +745,9 @@ int console_init_r(void)
 
 	/* stdin stdout and stderr are in environment */
 	/* scan for it */
-	stdinname  = getenv("stdin");
-	stdoutname = getenv("stdout");
-	stderrname = getenv("stderr");
+	stdinname  = env_get("stdin");
+	stdoutname = env_get("stdout");
+	stderrname = env_get("stderr");
 
 	if (OVERWRITE_CONSOLE == 0) {	/* if not overwritten by config switch */
 		inputdev  = search_device(DEV_FLAGS_INPUT,  stdinname);
@@ -836,7 +836,7 @@ int console_init_r(void)
 	 * console to serial console in this case or suppress it if
 	 * "silent" mode was requested.
 	 */
-	if (getenv("splashimage") != NULL) {
+	if (env_get("splashimage") != NULL) {
 		if (!(gd->flags & GD_FLG_SILENT))
 			outputdev = search_device (DEV_FLAGS_OUTPUT, "serial");
 	}

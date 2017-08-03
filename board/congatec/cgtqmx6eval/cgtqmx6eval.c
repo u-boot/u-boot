@@ -235,7 +235,7 @@ int power_init_board(void)
 		return 0;
 
 	/* set level of MIPI if specified */
-	lv_mipi = getenv("lv_mipi");
+	lv_mipi = env_get("lv_mipi");
 	if (lv_mipi)
 		return 0;
 
@@ -583,7 +583,7 @@ int board_video_skip(void)
 {
 	int i;
 	int ret;
-	char const *panel = getenv("panel");
+	char const *panel = env_get("panel");
 	if (!panel) {
 		for (i = 0; i < ARRAY_SIZE(displays); i++) {
 			struct display_info_t const *dev = displays + i;

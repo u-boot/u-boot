@@ -161,7 +161,7 @@ static int mmc_file_op(enum dfu_op op, struct dfu_entity *dfu,
 	}
 
 	if (op != DFU_OP_WRITE) {
-		str_env = getenv("filesize");
+		str_env = env_get("filesize");
 		if (str_env == NULL) {
 			puts("dfu: Wrong file size!\n");
 			return -1;

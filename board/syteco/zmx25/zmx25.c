@@ -146,7 +146,7 @@ int board_late_init(void)
 	udelay(5000);
 #endif
 
-	e = getenv("gs_base_board");
+	e = env_get("gs_base_board");
 	if (e != NULL) {
 		if (strcmp(e, "G283") == 0) {
 			int key = gpio_get_value(IMX_GPIO_NR(2, 29));

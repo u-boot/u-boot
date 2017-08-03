@@ -66,7 +66,7 @@ const char *get_board_type(void)
 #ifdef CONFIG_SET_DFU_ALT_INFO
 char *get_dfu_alt_system(char *interface, char *devstr)
 {
-	return getenv("dfu_alt_system");
+	return env_get("dfu_alt_system");
 }
 
 char *get_dfu_alt_boot(char *interface, char *devstr)

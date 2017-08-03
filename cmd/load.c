@@ -50,11 +50,11 @@ static int do_load_serial(cmd_tbl_t *cmdtp, int flag, int argc,
 	load_baudrate = current_baudrate = gd->baudrate;
 #endif
 
-	if (((env_echo = getenv("loads_echo")) != NULL) && (*env_echo == '1')) {
+	env_echo = env_get("loads_echo");
+	if (env_echo && *env_echo == '1')
 		do_echo = 1;
-	} else {
+	else
 		do_echo = 0;
-	}
 
 #ifdef	CONFIG_SYS_LOADS_BAUD_CHANGE
 	if (argc >= 2) {
@@ -427,9 +427,9 @@ static int do_load_serial_bin(cmd_tbl_t *cmdtp, int flag, int argc,
 	offset = CONFIG_SYS_LOAD_ADDR;
 
 	/* pre-set offset from $loadaddr */
-	if ((s = getenv("loadaddr")) != NULL) {
+	s = env_get("loadaddr");
+	if (s)
 		offset = simple_strtoul(s, NULL, 16);
-	}
 
 	load_baudrate = current_baudrate = gd->baudrate;
 

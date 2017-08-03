@@ -88,18 +88,18 @@ int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	switch (argc) {
 	case 3:
-		addr_str = getenv("loadaddr");
+		addr_str = env_get("loadaddr");
 		if (addr_str != NULL) {
 			addr = simple_strtoul (addr_str, NULL, 16);
 		} else {
 			addr = CONFIG_SYS_LOAD_ADDR;
 		}
-		filename = getenv ("bootfile");
+		filename = env_get("bootfile");
 		count = 0;
 		break;
 	case 4:
 		addr = simple_strtoul (argv[3], NULL, 16);
-		filename = getenv ("bootfile");
+		filename = env_get("bootfile");
 		count = 0;
 		break;
 	case 5:

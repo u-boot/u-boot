@@ -414,7 +414,7 @@ static void bootp_timeout_handler(void)
 static u8 *add_vci(u8 *e)
 {
 	char *vci = NULL;
-	char *env_vci = getenv("bootp_vci");
+	char *env_vci = env_get("bootp_vci");
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_NET_VCI_STRING)
 	vci = CONFIG_SPL_NET_VCI_STRING;
@@ -488,7 +488,7 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 		*e++ = tmp & 0xff;
 	}
 #if defined(CONFIG_BOOTP_SEND_HOSTNAME)
-	hostname = getenv("hostname");
+	hostname = env_get("hostname");
 	if (hostname) {
 		int hostnamelen = strlen(hostname);
 
@@ -503,7 +503,7 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 	clientarch = CONFIG_BOOTP_PXE_CLIENTARCH;
 #endif
 
-	if (getenv("bootp_arch"))
+	if (env_get("bootp_arch"))
 		clientarch = getenv_ulong("bootp_arch", 16, clientarch);
 
 	if (clientarch > 0) {
@@ -520,7 +520,7 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 	*e++ = 0;	/* minor revision */
 
 #ifdef CONFIG_LIB_UUID
-	uuid = getenv("pxeuuid");
+	uuid = env_get("pxeuuid");
 
 	if (uuid) {
 		if (uuid_str_valid(uuid)) {
@@ -713,7 +713,7 @@ void bootp_request(void)
 	dhcp_state = INIT;
 #endif
 
-	ep = getenv("bootpretryperiod");
+	ep = env_get("bootpretryperiod");
 	if (ep != NULL)
 		time_taken_max = simple_strtoul(ep, NULL, 10);
 	else

@@ -114,10 +114,10 @@ int board_video_skip(void)
 {
 	int ret;
 	struct display_info_t *preset;
-	char const *panel = getenv("displaytype");
+	char const *panel = env_get("displaytype");
 
 	if (!panel) /* Also accept panel for backward compatibility */
-		panel = getenv("panel");
+		panel = env_get("panel");
 
 	if (!panel)
 		return -ENOENT;

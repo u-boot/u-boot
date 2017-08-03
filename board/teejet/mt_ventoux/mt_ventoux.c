@@ -261,7 +261,7 @@ int misc_init_r(void)
 
 	if (ret)
 		return 0;
-	eth_addr = getenv("ethaddr");
+	eth_addr = env_get("ethaddr");
 	if (!eth_addr)
 		TAM3517_READ_MAC_FROM_EEPROM(&info);
 
@@ -311,7 +311,7 @@ int board_video_init(void)
 
 	fb = (void *)0x88000000;
 
-	s = getenv("panel");
+	s = env_get("panel");
 	if (s) {
 		index = simple_strtoul(s, NULL, 10);
 		if (index < ARRAY_SIZE(lcd_cfg))

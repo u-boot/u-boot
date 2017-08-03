@@ -74,7 +74,7 @@ int get_eth_env_param(char *env_name)
 	char *env;
 	int res = -1;
 
-	env = getenv(env_name);
+	env = env_get(env_name);
 	if (env)
 		res = simple_strtol(env, NULL, 0);
 
@@ -151,9 +151,9 @@ int ft_board_setup(void *blob, bd_t *bd)
 	u32 ddr3a_size;
 	int unitrd_fixup = 0;
 
-	env = getenv("mem_lpae");
+	env = env_get("mem_lpae");
 	lpae = env && simple_strtol(env, NULL, 0);
-	env = getenv("uinitrd_fixup");
+	env = env_get("uinitrd_fixup");
 	unitrd_fixup = env && simple_strtol(env, NULL, 0);
 
 	ddr3a_size = 0;
@@ -180,13 +180,13 @@ int ft_board_setup(void *blob, bd_t *bd)
 	}
 
 	/* reserve memory at start of bank */
-	env = getenv("mem_reserve_head");
+	env = env_get("mem_reserve_head");
 	if (env) {
 		start[0] += ustrtoul(env, &endp, 0);
 		size[0] -= ustrtoul(env, &endp, 0);
 	}
 
-	env = getenv("mem_reserve");
+	env = env_get("mem_reserve");
 	if (env)
 		size[0] -= ustrtoul(env, &endp, 0);
 
@@ -251,7 +251,7 @@ void ft_board_setup_ex(void *blob, bd_t *bd)
 	char *env;
 	u64 *reserve_start;
 
-	env = getenv("mem_lpae");
+	env = env_get("mem_lpae");
 	lpae = env && simple_strtol(env, NULL, 0);
 
 	if (lpae) {

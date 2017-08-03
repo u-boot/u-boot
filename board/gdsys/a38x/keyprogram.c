@@ -129,12 +129,12 @@ int load_and_run_keyprog(void)
 	char *hexprog;
 	struct key_program *prog;
 
-	cmd = getenv("loadkeyprogram");
+	cmd = env_get("loadkeyprogram");
 
 	if (!cmd || run_command(cmd, 0))
 		return 1;
 
-	hexprog = getenv("keyprogram");
+	hexprog = env_get("keyprogram");
 
 	if (decode_hexstr(hexprog, &binprog))
 		return 1;

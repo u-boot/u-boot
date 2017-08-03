@@ -181,7 +181,7 @@ int board_eth_init(bd_t *bis)
 	gpio_set_value(CL_SOM_AM57X_GPIO_PHY1_RST, 1);
 	mdelay(20);
 
-	cpsw_phy_envval = getenv("cpsw_phy");
+	cpsw_phy_envval = env_get("cpsw_phy");
 	if (cpsw_phy_envval != NULL)
 		cpsw_act_phy = simple_strtoul(cpsw_phy_envval, NULL, 0);
 

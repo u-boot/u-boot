@@ -10,7 +10,7 @@ int board_video_skip(void)
 {
 	int i;
 	int ret;
-	char const *panel = getenv("panel");
+	char const *panel = env_get("panel");
 
 	if (!panel) {
 		for (i = 0; i < display_count; i++) {

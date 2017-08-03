@@ -50,7 +50,7 @@ static int slow_equals(u8 *a, u8 *b, int len)
 
 static int passwd_abort(uint64_t etime)
 {
-	const char *sha_env_str = getenv("bootstopkeysha256");
+	const char *sha_env_str = env_get("bootstopkeysha256");
 	u8 sha_env[SHA256_SUM_LEN];
 	u8 sha[SHA256_SUM_LEN];
 	char presskey[MAX_DELAY_STOP_STR];
@@ -109,8 +109,8 @@ static int passwd_abort(uint64_t etime)
 		int retry;
 	}
 	delaykey[] = {
-		{ .str = getenv("bootdelaykey"),  .retry = 1 },
-		{ .str = getenv("bootstopkey"),   .retry = 0 },
+		{ .str = env_get("bootdelaykey"),  .retry = 1 },
+		{ .str = env_get("bootstopkey"),   .retry = 0 },
 	};
 
 	char presskey[MAX_DELAY_STOP_STR];
@@ -304,7 +304,7 @@ const char *bootdelay_process(void)
 	bootlimit = getenv_ulong("bootlimit", 10, 0);
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
 
-	s = getenv("bootdelay");
+	s = env_get("bootdelay");
 	bootdelay = s ? (int)simple_strtol(s, NULL, 10) : CONFIG_BOOTDELAY;
 
 #ifdef CONFIG_OF_CONTROL
@@ -321,17 +321,17 @@ const char *bootdelay_process(void)
 
 #ifdef CONFIG_POST
 	if (gd->flags & GD_FLG_POSTFAIL) {
-		s = getenv("failbootcmd");
+		s = env_get("failbootcmd");
 	} else
 #endif /* CONFIG_POST */
 #ifdef CONFIG_BOOTCOUNT_LIMIT
 	if (bootlimit && (bootcount > bootlimit)) {
 		printf("Warning: Bootlimit (%u) exceeded. Using altbootcmd.\n",
 		       (unsigned)bootlimit);
-		s = getenv("altbootcmd");
+		s = env_get("altbootcmd");
 	} else
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
-		s = getenv("bootcmd");
+		s = env_get("bootcmd");
 
 	process_fdt_options(gd->fdt_blob);
 	stored_bootdelay = bootdelay;
@@ -357,7 +357,7 @@ void autoboot_command(const char *s)
 
 #ifdef CONFIG_MENUKEY
 	if (menukey == CONFIG_MENUKEY) {
-		s = getenv("menucmd");
+		s = env_get("menucmd");
 		if (s)
 			run_command_list(s, -1, 0);
 	}

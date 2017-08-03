@@ -239,7 +239,7 @@ void fdt_fixup_fman_mac_addresses(void *blob)
 	unsigned char mac_addr[6];
 
 	/* get the mac addr from env */
-	tmp = getenv("ethaddr");
+	tmp = env_get("ethaddr");
 	if (!tmp) {
 		printf("ethaddr env variable not defined\n");
 		return;

@@ -383,7 +383,7 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #else
 	int quiet = 0;
 #endif
-	const char *quiet_str = getenv("quiet");
+	const char *quiet_str = env_get("quiet");
 	int dev = nand_curr_device;
 	int repeat = flag & CMD_FLAG_REPEAT;
 
@@ -966,11 +966,11 @@ static int do_nandboot(cmd_tbl_t *cmdtp, int flag, int argc,
 	switch (argc) {
 	case 1:
 		addr = CONFIG_SYS_LOAD_ADDR;
-		boot_device = getenv("bootdevice");
+		boot_device = env_get("bootdevice");
 		break;
 	case 2:
 		addr = simple_strtoul(argv[1], NULL, 16);
-		boot_device = getenv("bootdevice");
+		boot_device = env_get("bootdevice");
 		break;
 	case 3:
 		addr = simple_strtoul(argv[1], NULL, 16);

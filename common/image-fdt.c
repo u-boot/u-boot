@@ -132,7 +132,7 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 	of_len = *of_size + CONFIG_SYS_FDT_PAD;
 
 	/* If fdt_high is set use it to select the relocation address */
-	fdt_high = getenv("fdt_high");
+	fdt_high = env_get("fdt_high");
 	if (fdt_high) {
 		void *desired_addr = (void *)simple_strtoul(fdt_high, NULL, 16);
 

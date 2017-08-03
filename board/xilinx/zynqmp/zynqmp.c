@@ -318,9 +318,9 @@ int board_late_init(void)
 	 * and default boot_targets
 	 */
 	new_targets = calloc(1, strlen(mode) +
-				strlen(getenv("boot_targets")) + 2);
+				strlen(env_get("boot_targets")) + 2);
 
-	sprintf(new_targets, "%s %s", mode, getenv("boot_targets"));
+	sprintf(new_targets, "%s %s", mode, env_get("boot_targets"));
 	env_set("boot_targets", new_targets);
 
 	return 0;

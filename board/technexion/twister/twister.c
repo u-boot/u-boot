@@ -94,7 +94,7 @@ int misc_init_r(void)
 
 	omap_die_id_display();
 
-	eth_addr = getenv("ethaddr");
+	eth_addr = env_get("ethaddr");
 	if (eth_addr)
 		return 0;
 

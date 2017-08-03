@@ -331,7 +331,7 @@ void ddr3_check_ecc_int(u32 base)
 	int ecc_test = 0;
 	u32 value = __raw_readl(base + KS2_DDR3_ECC_INT_STATUS_OFFSET);
 
-	env = getenv("ecc_test");
+	env = env_get("ecc_test");
 	if (env)
 		ecc_test = simple_strtol(env, NULL, 0);
 

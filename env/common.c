@@ -33,7 +33,7 @@ struct hsearch_data env_htab = {
  */
 int getenv_yesno(const char *var)
 {
-	char *s = getenv(var);
+	char *s = env_get(var);
 
 	if (s == NULL)
 		return -1;
@@ -53,7 +53,7 @@ char *getenv_default(const char *name)
 	/* Pretend that the image is bad. */
 	gd->flags &= ~GD_FLG_ENV_READY;
 	gd->env_valid = 0;
-	ret_val = getenv(name);
+	ret_val = env_get(name);
 	gd->env_valid = really_valid;
 	gd->flags = real_gd_flags;
 	return ret_val;

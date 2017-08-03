@@ -362,7 +362,7 @@ static int parse_verify_sum(struct hash_algo *algo, char *verify_str,
 		if (strlen(verify_str) == digits)
 			vsum_str = verify_str;
 		else {
-			vsum_str = getenv(verify_str);
+			vsum_str = env_get(verify_str);
 			if (vsum_str == NULL || strlen(vsum_str) != digits) {
 				printf("Expected %d hex digits in env var\n",
 				       digits);

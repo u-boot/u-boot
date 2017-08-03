@@ -106,7 +106,7 @@ int fpga_get_reg(u32 fpga, u16 *reg, off_t regoff, u16 *data)
 
 int checkboard(void)
 {
-	char *s = getenv("serial#");
+	char *s = env_get("serial#");
 	bool hw_type_cat = pca9698_get_value(0x20, 18);
 
 	puts("Board: ");

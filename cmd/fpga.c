@@ -43,8 +43,8 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	int op, dev = FPGA_INVALID_DEVICE;
 	size_t data_size = 0;
 	void *fpga_data = NULL;
-	char *devstr = getenv("fpga");
-	char *datastr = getenv("fpgadata");
+	char *devstr = env_get("fpga");
+	char *datastr = env_get("fpgadata");
 	int rc = FPGA_FAIL;
 	int wrong_parms = 0;
 #if defined(CONFIG_FIT)

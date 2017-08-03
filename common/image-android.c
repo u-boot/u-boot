@@ -72,7 +72,7 @@ int android_image_get_kernel(const struct andr_img_hdr *hdr, int verify,
 		len += strlen(hdr->cmdline);
 	}
 
-	char *bootargs = getenv("bootargs");
+	char *bootargs = env_get("bootargs");
 	if (bootargs)
 		len += strlen(bootargs);
 

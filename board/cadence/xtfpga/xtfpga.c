@@ -86,7 +86,7 @@ int misc_init_r(void)
 	 * Default MAC address comes from CONFIG_ETHADDR + DIP switches 1-6.
 	 */
 
-	char *s = getenv("ethaddr");
+	char *s = env_get("ethaddr");
 	if (s == 0) {
 		unsigned int x;
 		char s[] = __stringify(CONFIG_ETHBASE);

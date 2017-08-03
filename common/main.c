@@ -25,7 +25,7 @@ static void run_preboot_environment_command(void)
 #ifdef CONFIG_PREBOOT
 	char *p;
 
-	p = getenv("preboot");
+	p = env_get("preboot");
 	if (p != NULL) {
 # ifdef CONFIG_AUTOBOOT_KEYED
 		int prev = disable_ctrlc(1);	/* disable Control C checking */

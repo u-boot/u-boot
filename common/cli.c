@@ -129,7 +129,7 @@ int do_run(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	for (i = 1; i < argc; ++i) {
 		char *arg;
 
-		arg = getenv(argv[i]);
+		arg = env_get(argv[i]);
 		if (arg == NULL) {
 			printf("## Error: \"%s\" not defined\n", argv[i]);
 			return 1;

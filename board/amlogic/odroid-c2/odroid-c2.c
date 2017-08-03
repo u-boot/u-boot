@@ -51,7 +51,7 @@ int misc_init_r(void)
 			eth_env_set_enetaddr("ethaddr", mac_addr);
 	}
 
-	if (!getenv("serial#")) {
+	if (!env_get("serial#")) {
 		len = meson_sm_read_efuse(EFUSE_SN_OFFSET, serial,
 			EFUSE_SN_SIZE);
 		if (len == EFUSE_SN_SIZE) 

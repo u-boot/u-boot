@@ -76,7 +76,7 @@ int misc_init_r(void)
 	}
 
 	/* If 'unit_serial' is already set, do nothing. */
-	if (!getenv("unit_serial")) {
+	if (!env_get("unit_serial")) {
 		/* This field is Big Endian ! */
 		serial = (data[0x54] << 24) | (data[0x55] << 16) |
 			 (data[0x56] << 8) | (data[0x57] << 0);
@@ -85,14 +85,14 @@ int misc_init_r(void)
 		env_set("unit_serial", str);
 	}
 
-	if (!getenv("unit_ident")) {
+	if (!env_get("unit_ident")) {
 		memset(str, 0, sizeof(str));
 		memcpy(str, &data[0x2e], 18);
 		env_set("unit_ident", str);
 	}
 
 	/* Set ethernet address from EEPROM. */
-	if (!getenv("ethaddr") && is_valid_ethaddr(&data[0x62]))
+	if (!env_get("ethaddr") && is_valid_ethaddr(&data[0x62]))
 		eth_env_set_enetaddr("ethaddr", &data[0x62]);
 
 	return 0;

@@ -51,7 +51,7 @@ void env_callback_init(ENTRY *var_entry)
 	int ret = 1;
 
 	if (first_call) {
-		callback_list = getenv(ENV_CALLBACK_VAR);
+		callback_list = env_get(ENV_CALLBACK_VAR);
 		first_call = 0;
 	}
 

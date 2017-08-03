@@ -173,7 +173,7 @@ int board_mmc_init(bd_t *bd)
 	char buffer[HWCONFIG_BUFFER_SIZE] = {0};
 	int esdhc_hwconfig_enabled = 0;
 
-	if (getenv_f("hwconfig", buffer, sizeof(buffer)) > 0)
+	if (env_get_f("hwconfig", buffer, sizeof(buffer)) > 0)
 		esdhc_hwconfig_enabled = hwconfig_f("esdhc", buffer);
 
 	if (esdhc_hwconfig_enabled == 0)

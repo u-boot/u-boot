@@ -524,7 +524,7 @@ static void fixup_silent_linux(void)
 {
 	char *buf;
 	const char *env_val;
-	char *cmdline = getenv("bootargs");
+	char *cmdline = env_get("bootargs");
 	int want_silent;
 
 	/*
@@ -691,7 +691,7 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 #ifdef CONFIG_TRACE
 	/* Pretend to run the OS, then run a user command */
 	if (!ret && (states & BOOTM_STATE_OS_FAKE_GO)) {
-		char *cmd_list = getenv("fakegocmd");
+		char *cmd_list = env_get("fakegocmd");
 
 		ret = boot_selected_os(argc, argv, BOOTM_STATE_OS_FAKE_GO,
 				images, boot_fn);

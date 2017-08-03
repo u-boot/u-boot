@@ -263,9 +263,9 @@ static int load_devicetree(void)
 				(size_t *)&dtbsize,
 				NULL, 0x20000, (u_char *)dtbaddr);
 #else
-	char *dtbname = getenv("dtb");
-	char *dtbdev = getenv("dtbdev");
-	char *dtbpart = getenv("dtbpart");
+	char *dtbname = env_get("dtb");
+	char *dtbdev = env_get("dtbdev");
+	char *dtbpart = env_get("dtbpart");
 	if (!dtbdev || !dtbpart || !dtbname) {
 		printf("%s: <dtbdev>/<dtbpart>/<dtb> missing.\n", __func__);
 		return -1;
@@ -405,11 +405,11 @@ static void br_summaryscreen_printenv(char *prefix,
 				       char *name, char *altname,
 				       char *suffix)
 {
-	char *envval = getenv(name);
+	char *envval = env_get(name);
 	if (0 != envval) {
 		lcd_printf("%s %s %s", prefix, envval, suffix);
 	} else if (0 != altname) {
-		envval = getenv(altname);
+		envval = env_get(altname);
 		if (0 != envval)
 			lcd_printf("%s %s %s", prefix, envval, suffix);
 	} else {
@@ -657,7 +657,7 @@ int board_eth_init(bd_t *bis)
 	mac_addr[4] = mac_lo & 0xFF;
 	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
 
-	if (!getenv("ethaddr")) {
+	if (!env_get("ethaddr")) {
 		#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_USE_FDT)
 		printf("<ethaddr> not set. trying DTB ... ");
 		mac = dtbmacaddr(0);

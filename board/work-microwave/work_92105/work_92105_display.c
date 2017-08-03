@@ -228,7 +228,7 @@ void work_92105_display_init(void)
 	i2c_write(0x2c, 0x01, 1, &enable_backlight, 1);
 
 	/* set display contrast */
-	display_contrast_str = getenv("fwopt_dispcontrast");
+	display_contrast_str = env_get("fwopt_dispcontrast");
 	if (display_contrast_str)
 		display_contrast = simple_strtoul(display_contrast_str,
 			NULL, 10);

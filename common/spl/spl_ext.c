@@ -89,7 +89,7 @@ int spl_load_image_ext_os(struct spl_image_info *spl_image,
 		return -1;
 	}
 #if defined(CONFIG_SPL_ENV_SUPPORT)
-	file = getenv("falcon_args_file");
+	file = env_get("falcon_args_file");
 	if (file) {
 		err = ext4fs_open(file, &filelen);
 		if (err < 0) {
@@ -102,7 +102,7 @@ int spl_load_image_ext_os(struct spl_image_info *spl_image,
 			       file, err);
 			goto defaults;
 		}
-		file = getenv("falcon_image_file");
+		file = env_get("falcon_image_file");
 		if (file) {
 			err = spl_load_image_ext(spl_image, block_dev,
 						 partition, file);

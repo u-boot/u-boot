@@ -1856,7 +1856,7 @@ static void *video_logo(void)
 	splash_get_pos(&video_logo_xpos, &video_logo_ypos);
 
 #ifdef CONFIG_SPLASH_SCREEN
-	s = getenv("splashimage");
+	s = env_get("splashimage");
 	if (s != NULL) {
 		ret = splash_screen_prepare();
 		if (ret < 0)

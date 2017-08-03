@@ -278,7 +278,7 @@ static int get_cfgblock_interactive(void)
 	len = cli_readline(message);
 	it = console_buffer[0];
 
-	soc = getenv("soc");
+	soc = env_get("soc");
 	if (!strcmp("mx6", soc)) {
 #ifdef CONFIG_MACH_TYPE
 		if (it == 'y' || it == 'Y')

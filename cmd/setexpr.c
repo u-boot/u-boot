@@ -145,7 +145,7 @@ static int regex_sub(const char *name,
 	}
 
 	if (t == NULL) {
-		value = getenv(name);
+		value = env_get(name);
 
 		if (value == NULL) {
 			printf("## Error: variable \"%s\" not defined\n", name);

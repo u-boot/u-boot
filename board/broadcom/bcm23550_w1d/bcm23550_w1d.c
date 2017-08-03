@@ -103,7 +103,7 @@ int board_usb_init(int index, enum usb_init_type init)
 int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 {
 	debug("%s\n", __func__);
-	if (!getenv("serial#"))
+	if (!env_get("serial#"))
 		g_dnl_set_serialnumber(CONFIG_USB_SERIALNO);
 	return 0;
 }

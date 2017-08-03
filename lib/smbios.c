@@ -112,7 +112,7 @@ static int smbios_write_type1(ulong *current, int handle)
 {
 	struct smbios_type1 *t = (struct smbios_type1 *)*current;
 	int len = sizeof(struct smbios_type1);
-	char *serial_str = getenv("serial#");
+	char *serial_str = env_get("serial#");
 
 	memset(t, 0, sizeof(struct smbios_type1));
 	fill_smbios_header(t, SMBIOS_SYSTEM_INFORMATION, len, handle);

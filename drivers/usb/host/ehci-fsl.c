@@ -225,7 +225,7 @@ static int ehci_fsl_init(int index, struct usb_ehci *ehci,
 				"phy_type", &len);
 #endif
 	else
-		phy_type = getenv("usb_phy_type");
+		phy_type = env_get("usb_phy_type");
 
 	if (!phy_type) {
 #ifdef CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY

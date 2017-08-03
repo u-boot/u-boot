@@ -261,7 +261,7 @@ int ivm_analyze_eeprom(unsigned char *buf, int len)
 
 	GET_STRING("IVM_Symbol", IVM_POS_SYMBOL_ONLY, 8)
 	GET_STRING("IVM_DeviceName", IVM_POS_SHORT_TEXT, 64)
-	tmp = (unsigned char *) getenv("IVM_DeviceName");
+	tmp = (unsigned char *)env_get("IVM_DeviceName");
 	if (tmp) {
 		int	len = strlen((char *)tmp);
 		int	i = 0;

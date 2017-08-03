@@ -85,7 +85,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 		r2 = (unsigned int)images->ft_addr;
 	} else {
 		r0 = 1;
-		r2 = (unsigned int)getenv("bootargs");
+		r2 = (unsigned int)env_get("bootargs");
 	}
 
 	smp_set_core_boot_addr((unsigned long)kernel_entry, -1);

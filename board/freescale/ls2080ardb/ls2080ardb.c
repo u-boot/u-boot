@@ -250,7 +250,7 @@ int misc_init_r(void)
 
 	val = in_le32(dcfg_ccsr + DCFG_RCWSR13 / 4);
 
-	env_hwconfig = getenv("hwconfig");
+	env_hwconfig = env_get("hwconfig");
 
 	if (hwconfig_f("dspi", env_hwconfig) &&
 	    DCFG_RCWSR13_DSPI == (val & (u32)(0xf << 8)))

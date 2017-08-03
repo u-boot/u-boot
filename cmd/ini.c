@@ -238,9 +238,9 @@ static int do_ini(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	section = argv[1];
 	file_address = (char *)simple_strtoul(
-		argc < 3 ? getenv("loadaddr") : argv[2], NULL, 16);
+		argc < 3 ? env_get("loadaddr") : argv[2], NULL, 16);
 	file_size = (size_t)simple_strtoul(
-		argc < 4 ? getenv("filesize") : argv[3], NULL, 16);
+		argc < 4 ? env_get("filesize") : argv[3], NULL, 16);
 
 	return ini_parse(file_address, file_size, ini_handler, (void *)section);
 }

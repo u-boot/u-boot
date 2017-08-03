@@ -458,7 +458,7 @@ static int API_env_get(va_list ap)
 	if ((value = (char **)va_arg(ap, uintptr_t)) == NULL)
 		return API_EINVAL;
 
-	*value = getenv(name);
+	*value = env_get(name);
 
 	return 0;
 }

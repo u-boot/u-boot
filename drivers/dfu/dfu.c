@@ -62,7 +62,7 @@ int dfu_init_env_entities(char *interface, char *devstr)
 #ifdef CONFIG_SET_DFU_ALT_INFO
 	set_dfu_alt_info(interface, devstr);
 #endif
-	str_env = getenv("dfu_alt_info");
+	str_env = env_get("dfu_alt_info");
 	if (!str_env) {
 		error("\"dfu_alt_info\" env variable not defined!\n");
 		return -EINVAL;
@@ -101,7 +101,7 @@ unsigned char *dfu_get_buf(struct dfu_entity *dfu)
 	if (dfu_buf != NULL)
 		return dfu_buf;
 
-	s = getenv("dfu_bufsiz");
+	s = env_get("dfu_bufsiz");
 	if (s)
 		dfu_buf_size = (unsigned long)simple_strtol(s, NULL, 0);
 
@@ -123,7 +123,7 @@ static char *dfu_get_hash_algo(void)
 {
 	char *s;
 
-	s = getenv("dfu_hash_algo");
+	s = env_get("dfu_hash_algo");
 	if (!s)
 		return NULL;
 

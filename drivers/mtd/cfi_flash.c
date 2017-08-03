@@ -2353,7 +2353,7 @@ unsigned long flash_init (void)
 #ifdef CONFIG_SYS_FLASH_PROTECTION
 	/* read environment from EEPROM */
 	char s[64];
-	getenv_f("unlock", s, sizeof(s));
+	env_get_f("unlock", s, sizeof(s));
 #endif
 
 #ifdef CONFIG_CFI_FLASH /* for driver model */

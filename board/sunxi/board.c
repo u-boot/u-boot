@@ -602,7 +602,7 @@ void get_board_serial(struct tag_serialnr *serialnr)
 	char *serial_string;
 	unsigned long long serial;
 
-	serial_string = getenv("serial#");
+	serial_string = env_get("serial#");
 
 	if (serial_string) {
 		serial = simple_strtoull(serial_string, NULL, 16);
@@ -694,7 +694,7 @@ static void setup_environment(const void *fdt)
 			else
 				sprintf(ethaddr, "eth%daddr", i);
 
-			if (getenv(ethaddr))
+			if (env_get(ethaddr))
 				continue;
 
 			/* Non OUI / registered MAC address */
@@ -708,7 +708,7 @@ static void setup_environment(const void *fdt)
 			eth_env_set_enetaddr(ethaddr, mac_addr);
 		}
 
-		if (!getenv("serial#")) {
+		if (!env_get("serial#")) {
 			snprintf(serial_string, sizeof(serial_string),
 				"%08x%08x", sid[0], sid[3]);
 

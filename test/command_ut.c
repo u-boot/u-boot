@@ -19,16 +19,16 @@ static int do_ut_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	/* commands separated by \n */
 	run_command_list("setenv list 1\n setenv list ${list}1", -1, 0);
-	assert(!strcmp("11", getenv("list")));
+	assert(!strcmp("11", env_get("list")));
 
 	/* command followed by \n and nothing else */
 	run_command_list("setenv list 1${list}\n", -1, 0);
-	assert(!strcmp("111", getenv("list")));
+	assert(!strcmp("111", env_get("list")));
 
 	/* a command string with \0 in it. Stuff after \0 should be ignored */
 	run_command("setenv list", 0);
 	run_command_list(test_cmd, sizeof(test_cmd), 0);
-	assert(!strcmp("123", getenv("list")));
+	assert(!strcmp("123", env_get("list")));
 
 	/*
 	 * a command list where we limit execution to only the first command
@@ -36,7 +36,7 @@ static int do_ut_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 */
 	run_command_list("setenv list 1\n setenv list ${list}2; "
 		"setenv list ${list}3", strlen("setenv list 1"), 0);
-	assert(!strcmp("1", getenv("list")));
+	assert(!strcmp("1", env_get("list")));
 
 	assert(run_command("false", 0) == 1);
 	assert(run_command("echo", 0) == 0);
@@ -46,10 +46,10 @@ static int do_ut_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_HUSH_PARSER
 	run_command("setenv foo 'setenv black 1\nsetenv adder 2'", 0);
 	run_command("run foo", 0);
-	assert(getenv("black") != NULL);
-	assert(!strcmp("1", getenv("black")));
-	assert(getenv("adder") != NULL);
-	assert(!strcmp("2", getenv("adder")));
+	assert(env_get("black") != NULL);
+	assert(!strcmp("1", env_get("black")));
+	assert(env_get("adder") != NULL);
+	assert(!strcmp("2", env_get("adder")));
 #endif
 
 	assert(run_command("", 0) == 0);

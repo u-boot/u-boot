@@ -26,7 +26,7 @@ void eth_parse_enetaddr(const char *addr, uchar *enetaddr)
 
 int eth_getenv_enetaddr(const char *name, uchar *enetaddr)
 {
-	eth_parse_enetaddr(getenv(name), enetaddr);
+	eth_parse_enetaddr(env_get(name), enetaddr);
 	return is_valid_ethaddr(enetaddr);
 }
 
@@ -76,13 +76,13 @@ int eth_mac_skip(int index)
 	char *skip_state;
 
 	sprintf(enetvar, index ? "eth%dmacskip" : "ethmacskip", index);
-	skip_state = getenv(enetvar);
+	skip_state = env_get(enetvar);
 	return skip_state != NULL;
 }
 
 void eth_current_changed(void)
 {
-	char *act = getenv("ethact");
+	char *act = env_get("ethact");
 	char *ethrotate;
 
 	/*
@@ -90,7 +90,7 @@ void eth_current_changed(void)
 	 * ethernet device if uc_priv->current == NULL. This is not what
 	 * we want when 'ethrotate' variable is 'no'.
 	 */
-	ethrotate = getenv("ethrotate");
+	ethrotate = env_get("ethrotate");
 	if ((ethrotate != NULL) && (strcmp(ethrotate, "no") == 0))
 		return;
 
@@ -116,7 +116,7 @@ void eth_try_another(int first_restart)
 	 * Do not rotate between network interfaces when
 	 * 'ethrotate' variable is set to 'no'.
 	 */
-	ethrotate = getenv("ethrotate");
+	ethrotate = env_get("ethrotate");
 	if ((ethrotate != NULL) && (strcmp(ethrotate, "no") == 0))
 		return;
 
@@ -142,12 +142,12 @@ void eth_set_current(void)
 
 	env_id = get_env_id();
 	if ((act == NULL) || (env_changed_id != env_id)) {
-		act = getenv("ethact");
+		act = env_get("ethact");
 		env_changed_id = env_id;
 	}
 
 	if (act == NULL) {
-		char *ethprime = getenv("ethprime");
+		char *ethprime = env_get("ethprime");
 		void *dev = NULL;
 
 		if (ethprime)

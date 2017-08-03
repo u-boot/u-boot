@@ -200,7 +200,7 @@ int rtc_set(struct rtc_time *tmp)
 void rtc_reset(void)
 {
 	uchar *const data = rtc_validate();
-	char const *const s = getenv("rtccal");
+	char const *const s = env_get("rtccal");
 
 	if (!data)
 		return;

@@ -97,7 +97,7 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 			 * Extract hwconfig from environment since environment
 			 * is not setup yet
 			 */
-			getenv_f("hwconfig", buffer, sizeof(buffer));
+			env_get_f("hwconfig", buffer, sizeof(buffer));
 			buf = buffer;
 
 			/* check if XFI interface enable in hwconfig for 10g */

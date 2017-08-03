@@ -27,7 +27,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 {
 	/* First parameter is mapped to $r5 for kernel boot args */
 	void	(*thekernel) (char *, ulong, ulong);
-	char	*commandline = getenv("bootargs");
+	char	*commandline = env_get("bootargs");
 	ulong	rd_data_start, rd_data_end;
 
 	/*

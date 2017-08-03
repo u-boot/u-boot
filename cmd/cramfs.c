@@ -104,7 +104,7 @@ int do_cramfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	struct mtdids id;
 
 	ulong addr;
-	addr = simple_strtoul(getenv("cramfsaddr"), NULL, 16);
+	addr = simple_strtoul(env_get("cramfsaddr"), NULL, 16);
 
 	/* hack! */
 	/* cramfs_* only supports NOR flash chips */
@@ -117,9 +117,9 @@ int do_cramfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	part.offset = (u64)(uintptr_t) map_sysmem(addr - OFFSET_ADJUSTMENT, 0);
 
 	/* pre-set Boot file name */
-	if ((filename = getenv("bootfile")) == NULL) {
+	filename = env_get("bootfile");
+	if (!filename)
 		filename = "uImage";
-	}
 
 	if (argc == 2) {
 		filename = argv[1];
@@ -169,7 +169,7 @@ int do_cramfs_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	struct mtdids id;
 
 	ulong addr;
-	addr = simple_strtoul(getenv("cramfsaddr"), NULL, 16);
+	addr = simple_strtoul(env_get("cramfsaddr"), NULL, 16);
 
 	/* hack! */
 	/* cramfs_* only supports NOR flash chips */

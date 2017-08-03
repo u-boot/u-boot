@@ -278,7 +278,7 @@ config SPL_ENV_SUPPORT
 	  needed in SPL as it has a much simpler task with less
 	  configuration. But some boards use this to support 'Falcon' boot
 	  on EXT2 and FAT, where SPL boots directly into Linux without
-	  starting U-Boot first. Enabling this option will make getenv()
+	  starting U-Boot first. Enabling this option will make env_get()
 	  and env_set() available in SPL.
 
 config SPL_SAVEENV

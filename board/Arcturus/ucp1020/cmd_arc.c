@@ -149,7 +149,7 @@ int get_arc_info(void)
 	if (smac[2][0] == 0xFF) {
 		printf("\t<not found>\n");
 	} else {
-		char *ret = getenv("ethaddr");
+		char *ret = env_get("ethaddr");
 
 		if (strcmp(ret, __stringify(CONFIG_ETHADDR)) == 0) {
 			env_set("ethaddr", smac[2]);
@@ -169,7 +169,7 @@ int get_arc_info(void)
 	if (smac[1][0] == 0xFF) {
 		printf("\t<not found>\n");
 	} else {
-		char *ret = getenv("eth1addr");
+		char *ret = env_get("eth1addr");
 
 		if (strcmp(ret, __stringify(CONFIG_ETH1ADDR)) == 0) {
 			env_set("eth1addr", smac[1]);
@@ -188,7 +188,7 @@ int get_arc_info(void)
 	if (smac[0][0] == 0xFF) {
 		printf("\t<not found>\n");
 	} else {
-		char *ret = getenv("eth2addr");
+		char *ret = env_get("eth2addr");
 
 		if (strcmp(ret, __stringify(CONFIG_ETH2ADDR)) == 0) {
 			env_set("eth2addr", smac[0]);

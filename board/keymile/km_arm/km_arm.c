@@ -201,7 +201,7 @@ int misc_init_r(void)
 #if defined(CONFIG_KM_MGCOGE3UN)
 	char *wait_for_ne;
 	u8 dip_switch = kw_gpio_get_value(KM_FLASH_ERASE_ENABLE);
-	wait_for_ne = getenv("waitforne");
+	wait_for_ne = env_get("waitforne");
 
 	if ((wait_for_ne != NULL) && (dip_switch == 0)) {
 		if (strcmp(wait_for_ne, "true") == 0) {

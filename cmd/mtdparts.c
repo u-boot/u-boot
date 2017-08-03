@@ -1536,8 +1536,8 @@ static int spread_partitions(void)
 static const char *getenv_mtdparts(char *buf)
 {
 	if (gd->flags & GD_FLG_ENV_READY)
-		return getenv("mtdparts");
-	if (getenv_f("mtdparts", buf, MTDPARTS_MAXLEN) != -1)
+		return env_get("mtdparts");
+	if (env_get_f("mtdparts", buf, MTDPARTS_MAXLEN) != -1)
 		return buf;
 	return NULL;
 }
@@ -1741,9 +1741,9 @@ int mtdparts_init(void)
 	}
 
 	/* get variables */
-	ids = getenv("mtdids");
+	ids = env_get("mtdids");
 	parts = getenv_mtdparts(tmp_parts);
-	current_partition = getenv("partition");
+	current_partition = env_get("partition");
 
 	/* save it for later parsing, cannot rely on current partition pointer
 	 * as 'partition' variable may be updated during init */
@@ -1850,7 +1850,7 @@ int mtdparts_init(void)
 			current_mtd_partnum = pnum;
 			current_save();
 		}
-	} else if (getenv("partition") == NULL) {
+	} else if (env_get("partition") == NULL) {
 		debug("no partition variable set, setting...\n");
 		current_save();
 	}

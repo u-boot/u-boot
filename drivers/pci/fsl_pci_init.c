@@ -390,7 +390,7 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 
 #ifdef CONFIG_SRIO_PCIE_BOOT_MASTER
 	/* boot from PCIE --master */
-	char *s = getenv("bootmaster");
+	char *s = env_get("bootmaster");
 	char pcie[6];
 	sprintf(pcie, "PCIE%d", pci_info->pci_num);
 
@@ -673,7 +673,7 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 #ifdef CONFIG_SRIO_PCIE_BOOT_MASTER
 	} else {
 		/* boot from PCIE --master releases slave's core 0 */
-		char *s = getenv("bootmaster");
+		char *s = env_get("bootmaster");
 		char pcie[6];
 		sprintf(pcie, "PCIE%d", pci_info->pci_num);
 

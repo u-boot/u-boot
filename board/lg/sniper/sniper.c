@@ -133,7 +133,7 @@ int misc_init_r(void)
 	}
 
 	if (reboot_mode[0] > 0 && isascii(reboot_mode[0])) {
-		if (!getenv("reboot-mode"))
+		if (!env_get("reboot-mode"))
 			env_set("reboot-mode", (char *)reboot_mode);
 	}
 

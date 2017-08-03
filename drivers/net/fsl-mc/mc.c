@@ -530,7 +530,7 @@ static unsigned long get_mc_boot_timeout_ms(void)
 {
 	unsigned long timeout_ms = CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS;
 
-	char *timeout_ms_env_var = getenv(MC_BOOT_TIMEOUT_ENV_VAR);
+	char *timeout_ms_env_var = env_get(MC_BOOT_TIMEOUT_ENV_VAR);
 
 	if (timeout_ms_env_var) {
 		timeout_ms = simple_strtoul(timeout_ms_env_var, NULL, 10);
@@ -815,7 +815,7 @@ unsigned long mc_get_dram_block_size(void)
 {
 	unsigned long dram_block_size = CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE;
 
-	char *dram_block_size_env_var = getenv(MC_MEM_SIZE_ENV_VAR);
+	char *dram_block_size_env_var = env_get(MC_MEM_SIZE_ENV_VAR);
 
 	if (dram_block_size_env_var) {
 		dram_block_size = simple_strtoul(dram_block_size_env_var, NULL,
@@ -1518,7 +1518,7 @@ void mc_env_boot(void)
 	 * address info properly. Without MAC addresses, the MC code
 	 * can not properly initialize the DPC.
 	 */
-	mc_boot_env_var = getenv(MC_BOOT_ENV_VAR);
+	mc_boot_env_var = env_get(MC_BOOT_ENV_VAR);
 	if (mc_boot_env_var)
 		run_command_list(mc_boot_env_var, -1, 0);
 #endif /* CONFIG_FSL_MC_ENET */

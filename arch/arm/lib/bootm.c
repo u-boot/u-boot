@@ -216,7 +216,7 @@ static void do_nonsec_virt_switch(void)
 /* Subcommand: PREP */
 static void boot_prep_linux(bootm_headers_t *images)
 {
-	char *commandline = getenv("bootargs");
+	char *commandline = env_get("bootargs");
 
 	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
 #ifdef CONFIG_OF_LIBFDT
@@ -273,7 +273,7 @@ __weak bool armv7_boot_nonsec_default(void)
 #ifdef CONFIG_ARMV7_NONSEC
 bool armv7_boot_nonsec(void)
 {
-	char *s = getenv("bootm_boot_mode");
+	char *s = env_get("bootm_boot_mode");
 	bool nonsec = armv7_boot_nonsec_default();
 
 	if (s && !strcmp(s, "sec"))
@@ -361,7 +361,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 	ulong addr = (ulong)kernel_entry | 1;
 	kernel_entry = (void *)addr;
 #endif
-	s = getenv("machid");
+	s = env_get("machid");
 	if (s) {
 		if (strict_strtoul(s, 16, &machid) < 0) {
 			debug("strict_strtoul failed!\n");

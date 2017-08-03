@@ -791,7 +791,7 @@ int board_eth_init(bd_t *bis)
 	mac_addr[4] = mac_lo & 0xFF;
 	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
 
-	if (!getenv("ethaddr")) {
+	if (!env_get("ethaddr")) {
 		puts("<ethaddr> not set. Validating first E-fuse MAC\n");
 		if (is_valid_ethaddr(mac_addr))
 			eth_env_set_enetaddr("ethaddr", mac_addr);
@@ -806,7 +806,7 @@ int board_eth_init(bd_t *bis)
 	mac_addr[4] = mac_lo & 0xFF;
 	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
 
-	if (!getenv("eth1addr")) {
+	if (!env_get("eth1addr")) {
 		if (is_valid_ethaddr(mac_addr))
 			eth_env_set_enetaddr("eth1addr", mac_addr);
 	}

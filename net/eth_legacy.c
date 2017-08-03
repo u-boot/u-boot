@@ -261,7 +261,7 @@ int eth_initialize(void)
 		bootstage_error(BOOTSTAGE_ID_NET_ETH_START);
 	} else {
 		struct eth_device *dev = eth_devices;
-		char *ethprime = getenv("ethprime");
+		char *ethprime = env_get("ethprime");
 
 		bootstage_mark(BOOTSTAGE_ID_NET_ETH_INIT);
 		do {

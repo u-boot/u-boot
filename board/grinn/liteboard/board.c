@@ -149,7 +149,7 @@ int board_mmc_init(bd_t *bis)
 
 static int check_mmc_autodetect(void)
 {
-	char *autodetect_str = getenv("mmcautodetect");
+	char *autodetect_str = env_get("mmcautodetect");
 
 	if ((autodetect_str != NULL) &&
 	    (strcmp(autodetect_str, "yes") == 0)) {

@@ -113,7 +113,8 @@ static void set_clocks_in_mhz (bd_t *kbd)
 {
 	char *s;
 
-	if ((s = getenv("clocks_in_mhz")) != NULL) {
+	s = env_get("clocks_in_mhz");
+	if (s) {
 		/* convert all clock information to MHz */
 		kbd->bi_intfreq /= 1000000L;
 		kbd->bi_busfreq /= 1000000L;

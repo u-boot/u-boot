@@ -72,7 +72,7 @@ int dram_init(void)
 int checkboard(void)
 {
 	char buf[64];
-	int i = getenv_f("serial#", buf, sizeof(buf));
+	int i = env_get_f("serial#", buf, sizeof(buf));
 	u32 config0 = read_c0_prid();
 
 	if ((config0 & 0xff0000) == PRID_COMP_LEGACY

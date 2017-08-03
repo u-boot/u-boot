@@ -121,7 +121,7 @@ unsigned char get_button_state(char * const envname, unsigned char def)
 	char *ptr_env;
 
 	/* If button is not found we take default */
-	ptr_env = getenv(envname);
+	ptr_env = env_get(envname);
 	if (NULL == ptr_env) {
 		gpio = def;
 	} else {
@@ -199,7 +199,7 @@ void set_env_gpios(unsigned char state)
 		strcat(str_tmp, num);
 
 		/* If env var is not found we stop */
-		ptr_env = getenv(str_tmp);
+		ptr_env = env_get(str_tmp);
 		if (NULL == ptr_env)
 			break;
 

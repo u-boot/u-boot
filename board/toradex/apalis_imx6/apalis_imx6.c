@@ -814,7 +814,7 @@ int board_late_init(void)
 		setup_iomux_dce_uart();
 
 		/* if using the default device tree, use version for V1.0 HW */
-		fdt_env = getenv("fdt_file");
+		fdt_env = env_get("fdt_file");
 		if ((fdt_env != NULL) && (strcmp(FDT_FILE, fdt_env) == 0)) {
 			env_set("fdt_file", FDT_FILE_V1_0);
 			printf("patching fdt_file to " FDT_FILE_V1_0 "\n");

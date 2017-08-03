@@ -333,7 +333,7 @@ ulong getenv_hex(const char *varname, ulong default_val)
 	ulong value;
 	char *endp;
 
-	s = getenv(varname);
+	s = env_get(varname);
 	if (s)
 		value = simple_strtoul(s, &endp, 16);
 	if (!s || endp == s)
@@ -594,7 +594,7 @@ static int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc,
 		return 1;
 
 	/* Set read buffer to initial value or empty sting */
-	init_val = getenv(argv[1]);
+	init_val = env_get(argv[1]);
 	if (init_val)
 		snprintf(buffer, CONFIG_SYS_CBSIZE, "%s", init_val);
 	else
@@ -622,7 +622,7 @@ static int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc,
  * return address of storage for that variable,
  * or NULL if not found
  */
-char *getenv(const char *name)
+char *env_get(const char *name)
 {
 	if (gd->flags & GD_FLG_ENV_READY) { /* after import into hashtable */
 		ENTRY e, *ep;
@@ -637,7 +637,7 @@ char *getenv(const char *name)
 	}
 
 	/* restricted capabilities before import */
-	if (getenv_f(name, (char *)(gd->env_buf), sizeof(gd->env_buf)) > 0)
+	if (env_get_f(name, (char *)(gd->env_buf), sizeof(gd->env_buf)) > 0)
 		return (char *)(gd->env_buf);
 
 	return NULL;
@@ -646,7 +646,7 @@ char *getenv(const char *name)
 /*
  * Look up variable from environment for restricted C runtime env.
  */
-int getenv_f(const char *name, char *buf, unsigned len)
+int env_get_f(const char *name, char *buf, unsigned len)
 {
 	int i, nxt;
 
@@ -693,10 +693,10 @@ int getenv_f(const char *name, char *buf, unsigned len)
 ulong getenv_ulong(const char *name, int base, ulong default_val)
 {
 	/*
-	 * We can use getenv() here, even before relocation, since the
+	 * We can use env_get() here, even before relocation, since the
 	 * environment variable value is an integer and thus short.
 	 */
-	const char *str = getenv(name);
+	const char *str = env_get(name);
 
 	return str ? simple_strtoul(str, NULL, base) : default_val;
 }

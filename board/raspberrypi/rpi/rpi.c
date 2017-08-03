@@ -247,7 +247,7 @@ static void set_fdtfile(void)
 {
 	const char *fdtfile;
 
-	if (getenv("fdtfile"))
+	if (env_get("fdtfile"))
 		return;
 
 	fdtfile = model->fdtfile;
@@ -260,7 +260,7 @@ static void set_fdtfile(void)
  */
 static void set_fdt_addr(void)
 {
-	if (getenv("fdt_addr"))
+	if (env_get("fdt_addr"))
 		return;
 
 	if (fdt_magic(fw_dtb_pointer) != FDT_MAGIC)
@@ -287,7 +287,7 @@ static void set_usbethaddr(void)
 	if (!model->has_onboard_eth)
 		return;
 
-	if (getenv("usbethaddr"))
+	if (env_get("usbethaddr"))
 		return;
 
 	BCM2835_MBOX_INIT_HDR(msg);
@@ -302,8 +302,8 @@ static void set_usbethaddr(void)
 
 	eth_env_set_enetaddr("usbethaddr", msg->get_mac_address.body.resp.mac);
 
-	if (!getenv("ethaddr"))
-		env_set("ethaddr", getenv("usbethaddr"));
+	if (!env_get("ethaddr"))
+		env_set("ethaddr", env_get("usbethaddr"));
 
 	return;
 }
@@ -330,7 +330,7 @@ static void set_serial_number(void)
 	int ret;
 	char serial_string[17] = { 0 };
 
-	if (getenv("serial#"))
+	if (env_get("serial#"))
 		return;
 
 	BCM2835_MBOX_INIT_HDR(msg);

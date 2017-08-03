@@ -467,7 +467,7 @@ U_BOOT_ENV_CALLBACK(loadaddr, on_loadaddr);
 
 ulong getenv_bootm_low(void)
 {
-	char *s = getenv("bootm_low");
+	char *s = env_get("bootm_low");
 	if (s) {
 		ulong tmp = simple_strtoul(s, NULL, 16);
 		return tmp;
@@ -486,7 +486,7 @@ phys_size_t getenv_bootm_size(void)
 {
 	phys_size_t tmp, size;
 	phys_addr_t start;
-	char *s = getenv("bootm_size");
+	char *s = env_get("bootm_size");
 	if (s) {
 		tmp = (phys_size_t)simple_strtoull(s, NULL, 16);
 		return tmp;
@@ -500,7 +500,7 @@ phys_size_t getenv_bootm_size(void)
 	size = gd->bd->bi_memsize;
 #endif
 
-	s = getenv("bootm_low");
+	s = env_get("bootm_low");
 	if (s)
 		tmp = (phys_size_t)simple_strtoull(s, NULL, 16);
 	else
@@ -512,7 +512,7 @@ phys_size_t getenv_bootm_size(void)
 phys_size_t getenv_bootm_mapsize(void)
 {
 	phys_size_t tmp;
-	char *s = getenv("bootm_mapsize");
+	char *s = env_get("bootm_mapsize");
 	if (s) {
 		tmp = (phys_size_t)simple_strtoull(s, NULL, 16);
 		return tmp;
@@ -1224,7 +1224,8 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 	ulong	initrd_high;
 	int	initrd_copy_to_ram = 1;
 
-	if ((s = getenv("initrd_high")) != NULL) {
+	s = env_get("initrd_high");
+	if (s) {
 		/* a value of "no" or a similar string will act like 0,
 		 * turning the "load high" feature off. This is intentional.
 		 */
@@ -1524,7 +1525,8 @@ int boot_get_cmdline(struct lmb *lmb, ulong *cmd_start, ulong *cmd_end)
 	if (cmdline == NULL)
 		return -1;
 
-	if ((s = getenv("bootargs")) == NULL)
+	s = env_get("bootargs");
+	if (!s)
 		s = "";
 
 	strcpy(cmdline, s);

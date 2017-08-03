@@ -469,7 +469,7 @@ step2:
 #define CTLR_INTLV_MASK	0x20000000
 	/* Perform build-in test on memory. Three-way interleaving is not yet
 	 * supported by this code. */
-	if (getenv_f("ddr_bist", buffer, CONFIG_SYS_CBSIZE) >= 0) {
+	if (env_get_f("ddr_bist", buffer, CONFIG_SYS_CBSIZE) >= 0) {
 		puts("Running BIST test. This will take a while...");
 		cs0_config = ddr_in32(&ddr->cs0_config);
 		cs0_bnds = ddr_in32(&ddr->cs0_bnds);

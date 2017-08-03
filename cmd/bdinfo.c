@@ -28,7 +28,7 @@ static void print_eth(int idx)
 		sprintf(name, "eth%iaddr", idx);
 	else
 		strcpy(name, "ethaddr");
-	val = getenv(name);
+	val = env_get(name);
 	if (!val)
 		val = "(not set)";
 	printf("%-12s= %s\n", name, val);
@@ -51,7 +51,7 @@ static void print_eths(void)
 	} while (dev);
 
 	printf("current eth = %s\n", eth_get_name());
-	printf("ip_addr     = %s\n", getenv("ipaddr"));
+	printf("ip_addr     = %s\n", env_get("ipaddr"));
 }
 #endif
 
@@ -141,7 +141,7 @@ static inline void print_eth_ip_addr(void)
 #if defined(CONFIG_HAS_ETH5)
 	print_eth(5);
 #endif
-	printf("IP addr     = %s\n", getenv("ipaddr"));
+	printf("IP addr     = %s\n", env_get("ipaddr"));
 #endif
 }
 
