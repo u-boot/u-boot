@@ -11,8 +11,6 @@
 #include <environment.h>
 #include <linux/stddef.h>
 
-char *env_name_spec = "Remote";
-
 #ifdef ENV_IS_EMBEDDED
 env_t *env_ptr = &environment;
 #else /* ! ENV_IS_EMBEDDED */
@@ -57,6 +55,7 @@ static void env_remote_load(void)
 
 U_BOOT_ENV_LOCATION(remote) = {
 	.location	= ENVL_REMOTE,
+	ENV_NAME("Remote")
 	.load		= env_remote_load,
 	.save		= env_save_ptr(env_remote_save),
 	.init		= env_remote_init,

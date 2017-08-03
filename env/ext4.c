@@ -31,8 +31,6 @@
 #include <ext4fs.h>
 #include <mmc.h>
 
-char *env_name_spec = "EXT4";
-
 env_t *env_ptr;
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -121,6 +119,7 @@ err_env_relocate:
 
 U_BOOT_ENV_LOCATION(ext4) = {
 	.location	= ENVL_EXT4,
+	ENV_NAME("EXT4")
 	.load		= env_ext4_load,
 	.save		= env_save_ptr(env_ext4_save),
 };

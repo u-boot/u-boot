@@ -31,8 +31,6 @@
 # endif
 #endif
 
-char *env_name_spec = "FAT";
-
 env_t *env_ptr;
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -116,6 +114,7 @@ err_env_relocate:
 
 U_BOOT_ENV_LOCATION(fat) = {
 	.location	= ENVL_FAT,
+	ENV_NAME("FAT")
 #ifdef LOADENV
 	.load		= env_fat_load,
 #endif

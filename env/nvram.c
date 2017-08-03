@@ -41,8 +41,6 @@ env_t *env_ptr;
 env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
 #endif
 
-char *env_name_spec = "NVRAM";
-
 #ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
 static uchar env_nvram_get_char(int index)
 {
@@ -115,6 +113,7 @@ static int env_nvram_init(void)
 
 U_BOOT_ENV_LOCATION(nvram) = {
 	.location	= ENVL_NVRAM,
+	ENV_NAME("NVRAM")
 #ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
 	.get_char	= env_nvram_get_char,
 #endif

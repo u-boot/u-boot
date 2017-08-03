@@ -16,8 +16,6 @@
 #include <ubi_uboot.h>
 #undef crc32
 
-char *env_name_spec = "UBI";
-
 env_t *env_ptr;
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -40,8 +40,6 @@
 #define CONFIG_ENV_RANGE	CONFIG_ENV_SIZE
 #endif
 
-char *env_name_spec = "NAND";
-
 #if defined(ENV_IS_EMBEDDED)
 env_t *env_ptr = &environment;
 #elif defined(CONFIG_NAND_ENV_DST)
@@ -398,6 +396,7 @@ static void env_nand_load(void)
 
 U_BOOT_ENV_LOCATION(nand) = {
 	.location	= ENVL_NAND,
+	ENV_NAME("NAND")
 	.load		= env_nand_load,
 #if defined(CMD_SAVEENV)
 	.save		= env_save_ptr(env_nand_save),

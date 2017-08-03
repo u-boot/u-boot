@@ -21,8 +21,6 @@
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/onenand.h>
 
-char *env_name_spec = "OneNAND";
-
 #define ONENAND_MAX_ENV_SIZE	CONFIG_ENV_SIZE
 #define ONENAND_ENV_SIZE(mtd)	(ONENAND_MAX_ENV_SIZE - ENV_HEADER_SIZE)
 
@@ -108,6 +106,7 @@ static int env_onenand_save(void)
 
 U_BOOT_ENV_LOCATION(onenand) = {
 	.location	= ENVL_ONENAND,
+	ENV_NAME("OneNAND")
 	.load		= env_onenand_load,
 	.save		= env_save_ptr(env_onenand_save),
 };

@@ -19,4 +19,5 @@ env_t *env_ptr;
 
 U_BOOT_ENV_LOCATION(nowhere) = {
 	.location	= ENVL_NOWHERE,
+	ENV_NAME("nowhere")
 };

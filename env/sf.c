@@ -48,8 +48,6 @@ static ulong env_new_offset	= CONFIG_ENV_OFFSET_REDUND;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-char *env_name_spec = "SPI Flash";
-
 static struct spi_flash *env_flash;
 
 static int setup_flash_device(void)
@@ -346,6 +344,7 @@ out:
 
 U_BOOT_ENV_LOCATION(sf) = {
 	.location	= ENVL_SPI_FLASH,
+	ENV_NAME("SPI Flash")
 	.load		= env_sf_load,
 #ifdef CMD_SAVEENV
 	.save		= env_save_ptr(env_sf_save),

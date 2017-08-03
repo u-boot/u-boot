@@ -16,8 +16,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 env_t *env_ptr;
 
-char *env_name_spec = "dataflash";
-
 static unsigned char env_dataflash_get_char(int index)
 {
 	uchar c;
@@ -70,6 +68,7 @@ static int env_dataflash_save(void)
 
 U_BOOT_ENV_LOCATION(dataflash) = {
 	.location	= ENVL_DATAFLASH,
+	ENV_NAME("dataflash")
 	.get_char	= env_dataflash_get_char,
 	.load		= env_dataflash_load,
 	.save		= env_save_ptr(env_dataflash_save),

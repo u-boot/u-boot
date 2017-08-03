@@ -706,7 +706,9 @@ ulong getenv_ulong(const char *name, int base, ulong default_val)
 static int do_env_save(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
-	printf("Saving Environment to %s...\n", env_name_spec);
+	struct env_driver *env = env_driver_lookup_default();
+
+	printf("Saving Environment to %s...\n", env->name);
 
 	return saveenv() ? 1 : 0;
 }

@@ -23,8 +23,6 @@
 #error CONFIG_ENV_SIZE_REDUND should be the same as CONFIG_ENV_SIZE
 #endif
 
-char *env_name_spec = "MMC";
-
 #ifdef ENV_IS_EMBEDDED
 env_t *env_ptr = &environment;
 #else /* ! ENV_IS_EMBEDDED */
@@ -318,6 +316,7 @@ err:
 
 U_BOOT_ENV_LOCATION(mmc) = {
 	.location	= ENVL_MMC,
+	ENV_NAME("MMC")
 	.load		= env_mmc_load,
 #ifndef CONFIG_SPL_BUILD
 	.save		= env_save_ptr(env_mmc_save),

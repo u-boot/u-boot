@@ -45,8 +45,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define INITENV
 #endif
 
-char *env_name_spec = "Flash";
-
 #ifdef ENV_IS_EMBEDDED
 env_t *env_ptr = &environment;
 
@@ -359,6 +357,7 @@ static void env_flash_load(void)
 
 U_BOOT_ENV_LOCATION(flash) = {
 	.location	= ENVL_FLASH,
+	ENV_NAME("Flash")
 #ifdef LOADENV
 	.load		= env_flash_load,
 #endif

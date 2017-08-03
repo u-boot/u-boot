@@ -54,7 +54,7 @@ static enum env_location env_get_default_location(void)
 		return ENVL_UNKNOWN;
 }
 
-static struct env_driver *env_driver_lookup_default(void)
+struct env_driver *env_driver_lookup_default(void)
 {
 	enum env_location loc = env_get_default_location();
 	struct env_driver *drv;

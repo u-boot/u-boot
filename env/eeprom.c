@@ -23,8 +23,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 env_t *env_ptr;
 
-char *env_name_spec = "EEPROM";
-
 static int eeprom_bus_read(unsigned dev_addr, unsigned offset,
 			   uchar *buffer, unsigned cnt)
 {
@@ -233,6 +231,7 @@ static int env_eeprom_save(void)
 
 U_BOOT_ENV_LOCATION(eeprom) = {
 	.location	= ENVL_EEPROM,
+	ENV_NAME("EEPROM")
 	.get_char	= env_eeprom_get_char,
 	.load		= env_eeprom_load,
 	.save		= env_save_ptr(env_eeprom_save),

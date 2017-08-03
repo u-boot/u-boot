@@ -24,8 +24,6 @@
 #error CONFIG_ENV_OFFSET or CONFIG_ENV_SIZE not defined
 #endif
 
-char *env_name_spec = "SATA";
-
 DECLARE_GLOBAL_DATA_PTR;
 
 __weak int sata_get_env_dev(void)
@@ -119,6 +117,7 @@ static void env_sata_load(void)
 
 U_BOOT_ENV_LOCATION(sata) = {
 	.location	= ENVL_ESATA,
+	ENV_NAME("SATA")
 	.load		= env_sata_load,
 	.save		= env_save_ptr(env_sata_save),
 };

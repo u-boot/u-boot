@@ -143,10 +143,6 @@ extern unsigned long nand_env_oob_offset;
 # define ENV_HEADER_SIZE	(sizeof(uint32_t))
 #endif
 
-#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
-extern char *env_name_spec;
-#endif
-
 #ifdef CONFIG_ENV_AES
 /* Make sure the payload is multiple of AES block size */
 #define ENV_SIZE ((CONFIG_ENV_SIZE - ENV_HEADER_SIZE) & ~(16 - 1))
@@ -224,6 +220,7 @@ enum env_location {
 };
 
 struct env_driver {
+	const char *name;
 	enum env_location location;
 
 	/**
@@ -269,6 +266,13 @@ struct env_driver {
 #define U_BOOT_ENV_LOCATION(__name)					\
 	ll_entry_declare(struct env_driver, __name, env_driver)
 
+/* Declare the name of a location */
+#ifdef CONFIG_CMD_SAVEENV
+#define ENV_NAME(_name) .name = _name,
+#else
+#define ENV_NAME(_name)
+#endif
+
 #ifdef CONFIG_CMD_SAVEENV
 #define env_save_ptr(x) x
 #else
@@ -302,6 +306,13 @@ int env_export(env_t *env_out);
 /* Select and import one of two redundant environments */
 int env_import_redund(const char *buf1, const char *buf2);
 #endif
+
+/**
+ * env_driver_lookup_default() - Look up the default environment driver
+ *
+ * @return pointer to driver, or NULL if none (which should not happen)
+ */
+struct env_driver *env_driver_lookup_default(void);
 
 #endif /* DO_DEPS_ONLY */
 
