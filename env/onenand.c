@@ -106,18 +106,8 @@ static int env_onenand_save(void)
 	return 0;
 }
 
-static int env_onenand_init(void)
-{
-	/* use default */
-	gd->env_addr = (ulong)&default_environment[0];
-	gd->env_valid = ENV_VALID;
-
-	return 0;
-}
-
 U_BOOT_ENV_LOCATION(onenand) = {
 	.location	= ENVL_ONENAND,
 	.load		= env_onenand_load,
 	.save		= env_save_ptr(env_onenand_save),
-	.init		= env_onenand_init,
 };

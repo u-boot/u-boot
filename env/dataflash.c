@@ -68,25 +68,9 @@ static int env_dataflash_save(void)
 				CONFIG_ENV_SIZE);
 }
 
-/*
- * Initialize environment use
- *
- * We are still running from ROM, so data use is limited.
- * Use a (moderately small) buffer on the stack
- */
-int env_dataflash_init(void)
-{
-	/* use default */
-	gd->env_addr = (ulong)&default_environment[0];
-	gd->env_valid = ENV_VALID;
-
-	return 0;
-}
-
 U_BOOT_ENV_LOCATION(dataflash) = {
 	.location	= ENVL_DATAFLASH,
 	.get_char	= env_dataflash_get_char,
 	.load		= env_dataflash_load,
 	.save		= env_save_ptr(env_dataflash_save),
-	.init		= env_dataflash_init,
 };

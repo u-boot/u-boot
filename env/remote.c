@@ -33,9 +33,7 @@ static int env_remote_init(void)
 		return 0;
 	}
 
-	gd->env_addr = (ulong)default_environment;
-	gd->env_valid = 0;
-	return 0;
+	return -ENOENT;
 }
 
 #ifdef CONFIG_CMD_SAVEENV

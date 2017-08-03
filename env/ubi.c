@@ -22,15 +22,6 @@ env_t *env_ptr;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int env_ubi_init(void)
-{
-	/* use default */
-	gd->env_addr = (ulong)&default_environment[0];
-	gd->env_valid = ENV_VALID;
-
-	return 0;
-}
-
 #ifdef CONFIG_CMD_SAVEENV
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 static int env_ubi_save(void)
@@ -182,5 +173,4 @@ U_BOOT_ENV_LOCATION(ubi) = {
 	.location	= ENVL_UBI,
 	.load		= env_ubi_load,
 	.save		= env_save_ptr(env_ubi_save),
-	.init		= env_ubi_init,
 };

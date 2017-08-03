@@ -259,7 +259,8 @@ struct env_driver {
 	 *
 	 * This method is optional.
 	 *
-	 * @return 0 if OK, -ve on error
+	 * @return 0 if OK, -ENOENT if no initial environment could be found,
+	 * other -ve on error
 	 */
 	int (*init)(void);
 };

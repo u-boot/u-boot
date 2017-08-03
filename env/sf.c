@@ -344,20 +344,10 @@ out:
 }
 #endif
 
-static int env_sf_init(void)
-{
-	/* SPI flash isn't usable before relocation */
-	gd->env_addr = (ulong)&default_environment[0];
-	gd->env_valid = ENV_VALID;
-
-	return 0;
-}
-
 U_BOOT_ENV_LOCATION(sf) = {
 	.location	= ENVL_SPI_FLASH,
 	.load		= env_sf_load,
 #ifdef CMD_SAVEENV
 	.save		= env_save_ptr(env_sf_save),
 #endif
-	.init		= env_sf_init,
 };

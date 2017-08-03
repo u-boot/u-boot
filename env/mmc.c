@@ -82,15 +82,6 @@ __weak int mmc_get_env_dev(void)
 	return CONFIG_SYS_MMC_ENV_DEV;
 }
 
-static int env_mmc_init(void)
-{
-	/* use default */
-	gd->env_addr	= (ulong)&default_environment[0];
-	gd->env_valid	= ENV_VALID;
-
-	return 0;
-}
-
 #ifdef CONFIG_SYS_MMC_ENV_PART
 __weak uint mmc_get_env_part(struct mmc *mmc)
 {
@@ -331,5 +322,4 @@ U_BOOT_ENV_LOCATION(mmc) = {
 #ifndef CONFIG_SPL_BUILD
 	.save		= env_save_ptr(env_mmc_save),
 #endif
-	.init		= env_mmc_init,
 };

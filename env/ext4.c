@@ -37,15 +37,6 @@ env_t *env_ptr;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int env_ext4_init(void)
-{
-	/* use default */
-	gd->env_addr = (ulong)&default_environment[0];
-	gd->env_valid = ENV_VALID;
-
-	return 0;
-}
-
 #ifdef CONFIG_CMD_SAVEENV
 static int env_ext4_save(void)
 {
@@ -132,5 +123,4 @@ U_BOOT_ENV_LOCATION(ext4) = {
 	.location	= ENVL_EXT4,
 	.load		= env_ext4_load,
 	.save		= env_save_ptr(env_ext4_save),
-	.init		= env_ext4_init,
 };

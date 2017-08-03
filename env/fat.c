@@ -37,15 +37,6 @@ env_t *env_ptr;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int env_fat_init(void)
-{
-	/* use default */
-	gd->env_addr = (ulong)&default_environment[0];
-	gd->env_valid = ENV_VALID;
-
-	return 0;
-}
-
 #ifdef CMD_SAVEENV
 static int env_fat_save(void)
 {
@@ -131,5 +122,4 @@ U_BOOT_ENV_LOCATION(fat) = {
 #ifdef CMD_SAVEENV
 	.save		= env_save_ptr(env_fat_save),
 #endif
-	.init		= env_fat_init,
 };

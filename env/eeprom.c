@@ -231,23 +231,9 @@ static int env_eeprom_save(void)
 	return rc;
 }
 
-/*
- * Initialize Environment use
- *
- * We are still running from ROM, so data use is limited.
- * Use a (moderately small) buffer on the stack
- */
-static int env_eeprom_init(void)
-{
-	gd->env_addr = (ulong)&default_environment[0];
-	gd->env_valid = ENV_VALID;
-	return 0;
-}
-
 U_BOOT_ENV_LOCATION(eeprom) = {
 	.location	= ENVL_EEPROM,
 	.get_char	= env_eeprom_get_char,
 	.load		= env_eeprom_load,
 	.save		= env_save_ptr(env_eeprom_save),
-	.init		= env_eeprom_init,
 };

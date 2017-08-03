@@ -33,15 +33,6 @@ __weak int sata_get_env_dev(void)
 	return CONFIG_SYS_SATA_ENV_DEV;
 }
 
-static int env_sata_init(void)
-{
-	/* use default */
-	gd->env_addr = (ulong)&default_environment[0];
-	gd->env_valid = ENV_VALID;
-
-	return 0;
-}
-
 #ifdef CONFIG_CMD_SAVEENV
 static inline int write_env(struct blk_desc *sata, unsigned long size,
 			    unsigned long offset, void *buffer)
@@ -130,5 +121,4 @@ U_BOOT_ENV_LOCATION(sata) = {
 	.location	= ENVL_ESATA,
 	.load		= env_sata_load,
 	.save		= env_save_ptr(env_sata_save),
-	.init		= env_sata_init,
 };

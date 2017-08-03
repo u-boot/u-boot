@@ -128,14 +128,18 @@ int env_save(void)
 int env_init_new(void)
 {
 	struct env_driver *drv = env_driver_lookup_default();
-	int ret;
+	int ret = -ENOENT;
 
 	if (!drv)
 		return -ENODEV;
-	if (!drv->init)
-		return -ENOSYS;
-	ret = drv->init();
-	if (ret) {
+	if (drv->init)
+		ret = drv->init();
+	if (ret == -ENOENT) {
+		gd->env_addr = (ulong)&default_environment[0];
+		gd->env_valid = 0;
+
+		return 0;
+	} else if (ret) {
 		debug("%s: Environment failed to init (err=%d)\n", __func__,
 		      ret);
 		return ret;
