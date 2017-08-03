@@ -52,6 +52,7 @@ enum uclass_id {
 	UCLASS_MOD_EXP,		/* RSA Mod Exp device */
 	UCLASS_MTD,		/* Memory Technology Device (MTD) device */
 	UCLASS_NORTHBRIDGE,	/* Intel Northbridge / SDRAM controller */
+	UCLASS_NVME,		/* NVM Express device */
 	UCLASS_PANEL,		/* Display panel, such as an LCD */
 	UCLASS_PANEL_BACKLIGHT,	/* Backlight controller for panel */
 	UCLASS_PCH,		/* x86 platform controller hub */
