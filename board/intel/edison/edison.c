@@ -5,6 +5,7 @@
  */
 #include <common.h>
 #include <dwc3-uboot.h>
+#include <environment.h>
 #include <mmc.h>
 #include <u-boot/md5.h>
 #include <usb.h>
@@ -70,7 +71,7 @@ static void assign_serial(void)
 	setenv("serial#", serial);
 
 #if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
-	saveenv();
+	env_save();
 #endif
 }
 
@@ -88,7 +89,7 @@ static void assign_hardware_id(void)
 	setenv("hardware_id", hardware_id);
 
 #if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
-	saveenv();
+	env_save();
 #endif
 }
 

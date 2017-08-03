@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <environment.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/mxc_hdmi.h>
@@ -818,7 +819,7 @@ int board_late_init(void)
 			setenv("fdt_file", FDT_FILE_V1_0);
 			printf("patching fdt_file to " FDT_FILE_V1_0 "\n");
 #ifndef CONFIG_ENV_IS_NOWHERE
-			saveenv();
+			env_save();
 #endif
 		}
 	}

@@ -15,6 +15,7 @@
 #include <command.h>
 #include <common.h>
 #include <dm.h>
+#include <environment.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9260_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
@@ -405,7 +406,7 @@ static int upgrade_failure_fallback(void)
 	setenv("bootargs", '\0');
 	setenv("upgrade_available", '\0');
 	setenv("boot_retries", '\0');
-	saveenv();
+	env_save();
 
 	return 0;
 }
@@ -424,7 +425,7 @@ static int do_upgrade_available(cmd_tbl_t *cmdtp, int flag, int argc,
 		boot_retry++;
 		sprintf(boot_buf, "%lx", boot_retry);
 		setenv("boot_retries", boot_buf);
-		saveenv();
+		env_save();
 
 		/*
 		 * Here the boot_retries count is checked, and if the

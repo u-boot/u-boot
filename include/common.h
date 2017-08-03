@@ -336,7 +336,6 @@ ulong getenv_hex(const char *varname, ulong default_val);
  * Return -1 if variable does not exist (default to true)
  */
 int getenv_yesno(const char *var);
-int	saveenv	     (void);
 int	setenv	     (const char *, const char *);
 int setenv_ulong(const char *varname, ulong value);
 int setenv_hex(const char *varname, ulong value);

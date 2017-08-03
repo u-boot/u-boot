@@ -325,6 +325,13 @@ int env_get_char(int index);
  */
 int env_load(void);
 
+/**
+ * env_save() - Save the environment to storage
+ *
+ * @return 0 if OK, -ve on error
+ */
+int env_save(void);
+
 #endif /* DO_DEPS_ONLY */
 
 #endif /* _ENVIRONMENT_H_ */

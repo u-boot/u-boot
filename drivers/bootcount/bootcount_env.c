@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <environment.h>
 
 void bootcount_store(ulong a)
 {
@@ -13,7 +14,7 @@ void bootcount_store(ulong a)
 
 	if (upgrade_available) {
 		setenv_ulong("bootcount", a);
-		saveenv();
+		env_save();
 	}
 }
 

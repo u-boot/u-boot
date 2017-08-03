@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <ahci.h>
+#include <environment.h>
 #include <spl.h>
 #include <asm/omap_common.h>
 #include <asm/arch/omap.h>
@@ -241,7 +242,7 @@ int fb_set_reboot_flag(void)
 {
 	printf("Setting reboot to fastboot flag ...\n");
 	setenv("dofastboot", "1");
-	saveenv();
+	env_save();
 	return 0;
 }
 #endif

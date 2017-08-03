@@ -710,7 +710,7 @@ static int do_env_save(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	printf("Saving Environment to %s...\n", env->name);
 
-	return saveenv() ? 1 : 0;
+	return env_save() ? 1 : 0;
 }
 
 U_BOOT_CMD(
