@@ -25,6 +25,16 @@ config BACKLIGHT_PWM
 	  it understands the standard device tree
 	  (leds/backlight/pwm-backlight.txt)
 
+config BACKLIGHT_GPIO
+	bool "Generic GPIO based Backlight Driver"
+	depends on DM_VIDEO
+	help
+	  If you have a LCD backlight adjustable by GPIO, say Y to enable
+	  this driver.
+	  This driver can be used with "simple-panel" and
+	  it understands the standard device tree
+	  (leds/backlight/gpio-backlight.txt)
+
 config VIDEO_BPP8
 	bool "Support 8-bit-per-pixel displays"
 	depends on DM_VIDEO
