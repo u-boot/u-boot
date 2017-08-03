@@ -30,9 +30,6 @@ config TPL_LIBCOMMON_SUPPORT
 config TPL_LIBGENERIC_SUPPORT
 	default y
 
-config TPL_SERIAL_SUPPORT
-	default y
-
 source "board/radxa/rock/Kconfig"
 
 endif
