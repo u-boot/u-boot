@@ -10,7 +10,6 @@ config INTEL_BAYTRAIL
 	select ARCH_MISC_INIT if !EFI
 	imply HAVE_INTEL_ME if !EFI
 	imply ENABLE_MRC_CACHE
-	imply ENV_IS_IN_SPI_FLASH
 	imply AHCI_PCI
 	imply ICH_SPI
 	imply INTEL_ICH6_GPIO

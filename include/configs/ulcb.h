@@ -93,7 +93,6 @@ unsigned char ulcb_softspi_read(void);
 #define CONFIG_SH_SDHI_FREQ		200000000
 
 /* Environment in eMMC, at the end of 2nd "boot sector" */
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
 #define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2

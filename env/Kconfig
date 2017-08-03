@@ -1,5 +1,45 @@
 menu "Environment"
 
+choice
+	prompt "Select the location of the environment"
+	default ENV_IS_IN_MMC if ARCH_SUNXI
+	default ENV_IS_IN_FAT if ARCH_BCM283X
+	default ENV_IS_IN_MMC if ARCH_UNIPHIER
+	default ENV_IS_IN_MMC if ARCH_EXYNOS4
+	default ENV_IS_IN_MMC if MX6SX || MX7D
+	default ENV_IS_IN_FLASH if ARCH_CINTEGRATOR
+	default ENV_IS_IN_SPI_FLASH if ARMADA_XP
+	default ENV_IS_IN_MMC if TEGRA30 || TEGRA124
+	default ENV_IS_IN_MMC if TEGRA_ARMV8_COMMON
+	default ENV_IS_IN_FLASH if ARCH_INTEGRATOR_CP
+	default ENV_IS_IN_FLASH if M548x || M547x || M5282 || MCF547x_8x
+	default ENV_IS_IN_FLASH if MCF532x || MCF52x2
+	default ENV_IS_IN_FLASH if MPC86xx || MPC83xx
+	default ENV_IS_IN_FLASH if ARCH_MPC8572 || ARCH_MPC8548 || ARCH_MPC8641
+	default ENV_IS_IN_FLASH if SH && !CPU_SH4
+	default ENV_IS_IN_SPI_FLASH if INTEL_BAYTRAIL
+	default ENV_IS_IN_SPI_FLASH if INTEL_BROADWELL
+	default ENV_IS_IN_SPI_FLASH if NORTHBRIDGE_INTEL_IVYBRIDGE
+	default ENV_IS_IN_SPI_FLASH if INTEL_QUARK
+	default ENV_IS_IN_SPI_FLASH if INTEL_QUEENSBAY
+	default ENV_IS_IN_FAT if MMC_OMAP_HS && TI_COMMON_CMD_OPTIONS
+	default ENV_IS_NOWHERE
+	help
+	  At present the environment can be stored in only one place. Use this
+	  option to select the location. This is either a device (where the
+	  environemnt information is simply written to a fixed location or
+	  partition on the device) or a filesystem (where the environment
+	  information is written to a file).
+
+config ENV_IS_NOWHERE
+	bool "Environment is not stored"
+	help
+	  Define this if you don't want to or can't have an environment stored
+	  on a storage medium. In this case the environemnt will still exist
+	  while U-Boot is running, but once U-Boot exits it will not be
+	  stored. U-Boot will therefore always start up with a default
+	  environment.
+
 config ENV_IS_IN_DATAFLASH
 	bool "Environment in dataflash"
 	depends on !CHAIN_OF_TRUST
@@ -161,7 +201,6 @@ config ENV_IS_IN_FLASH
 config ENV_IS_IN_MMC
 	bool "Environment in an MMC device"
 	depends on !CHAIN_OF_TRUST
-	default y if ARCH_SUNXI
 	help
 	  Define this if you have an MMC device which you want to use for the
 	  environment.
@@ -364,11 +403,7 @@ config ENV_IS_IN_UBI
 	  You will probably want to define these to avoid a really noisy system
 	  when storing the env in UBI.
 
-config ENV_IS_NOWHERE
-	bool "Environment is not stored"
-	help
-	  Define this if you don't want to or can't have an environment stored
-	  on a storage medium
+endchoice
 
 config ENV_FAT_INTERFACE
 	string "Name of the block device for the environment"

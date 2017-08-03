@@ -40,7 +40,6 @@ config ARCH_MPC8641
 	select FSL_LAW
 	select SYS_FSL_HAS_DDR1
 	select SYS_FSL_HAS_DDR2
-	imply ENV_IS_IN_FLASH
 
 config FSL_LAW
 	bool

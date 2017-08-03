@@ -42,7 +42,6 @@
 #define CONFIG_SYS_MEMTEST_END			0x01000000
 
 /* Environment */
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV			0
 #define CONFIG_SYS_MMC_ENV_PART			0
 #define CONFIG_ENV_SIZE				(64 * 1024)
