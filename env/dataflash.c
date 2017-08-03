@@ -23,7 +23,7 @@ static int env_dataflash_get_char(int index)
 	return c;
 }
 
-static void env_dataflash_load(void)
+static int env_dataflash_load(void)
 {
 	ulong crc, new = 0;
 	unsigned off;
@@ -44,6 +44,8 @@ static void env_dataflash_load(void)
 		env_import(buf, 1);
 	else
 		set_default_env("!bad CRC");
+
+	return 0;
 }
 
 #ifdef CONFIG_ENV_OFFSET_REDUND

@@ -26,7 +26,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static void env_onenand_load(void)
+static int env_onenand_load(void)
 {
 	struct mtd_info *mtd = &onenand_mtd;
 #ifdef CONFIG_ENV_ADDR_FLEX
@@ -59,6 +59,8 @@ static void env_onenand_load(void)
 	rc = env_import(buf, 1);
 	if (rc)
 		gd->env_valid = ENV_VALID;
+
+	return rc ? 0 : -EIO;
 }
 
 static int env_onenand_save(void)

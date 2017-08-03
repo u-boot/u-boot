@@ -98,21 +98,24 @@ static void env_sata_load(void)
 	int env_sata;
 
 	if (sata_initialize())
-		return;
+		return -EIO;
 
 	env_sata = sata_get_env_dev();
 
 	sata = sata_get_dev(env_sata);
 	if (sata == NULL) {
-		printf("Unknown SATA(%d) device for environment!\n",
-		       env_sata);
-		return;
+		printf("Unknown SATA(%d) device for environment!\n", env_sata);
+		return -EIO;
 	}
 
-	if (read_env(sata, CONFIG_ENV_SIZE, CONFIG_ENV_OFFSET, buf))
-		return set_default_env(NULL);
+	if (read_env(sata, CONFIG_ENV_SIZE, CONFIG_ENV_OFFSET, buf)) {
+		set_default_env(NULL);
+		return -EIO;
+	}
 
 	env_import(buf, 1);
+
+	return 0;
 }
 
 U_BOOT_ENV_LOCATION(sata) = {

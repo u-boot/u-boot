@@ -207,7 +207,7 @@ static inline int read_env(struct mmc *mmc, unsigned long size,
 }
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
-static void env_mmc_load(void)
+static int env_mmc_load(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
 	struct mmc *mmc;
@@ -224,13 +224,13 @@ static void env_mmc_load(void)
 
 	errmsg = init_mmc_for_env(mmc);
 	if (errmsg) {
-		ret = 1;
+		ret = -EIO;
 		goto err;
 	}
 
 	if (mmc_get_env_addr(mmc, 0, &offset1) ||
 	    mmc_get_env_addr(mmc, 1, &offset2)) {
-		ret = 1;
+		ret = -EIO;
 		goto fini;
 	}
 
@@ -245,7 +245,7 @@ static void env_mmc_load(void)
 
 	if (read1_fail && read2_fail) {
 		errmsg = "!bad CRC";
-		ret = 1;
+		ret = -EIO;
 		goto fini;
 	} else if (!read1_fail && read2_fail) {
 		gd->env_valid = ENV_VALID;
@@ -264,10 +264,12 @@ fini:
 err:
 	if (ret)
 		set_default_env(errmsg);
+
 #endif
+	return ret;
 }
 #else /* ! CONFIG_ENV_OFFSET_REDUND */
-static void env_mmc_load(void)
+static int env_mmc_load(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
@@ -281,18 +283,18 @@ static void env_mmc_load(void)
 
 	errmsg = init_mmc_for_env(mmc);
 	if (errmsg) {
-		ret = 1;
+		ret = -EIO;
 		goto err;
 	}
 
 	if (mmc_get_env_addr(mmc, 0, &offset)) {
-		ret = 1;
+		ret = -EIO;
 		goto fini;
 	}
 
 	if (read_env(mmc, CONFIG_ENV_SIZE, offset, buf)) {
 		errmsg = "!read failed";
-		ret = 1;
+		ret = -EIO;
 		goto fini;
 	}
 
@@ -305,6 +307,7 @@ err:
 	if (ret)
 		set_default_env(errmsg);
 #endif
+	return ret;
 }
 #endif /* CONFIG_ENV_OFFSET_REDUND */
 

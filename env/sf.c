@@ -61,7 +61,7 @@ static int setup_flash_device(void)
 				     0, 0, &new);
 	if (ret) {
 		set_default_env("!spi_flash_probe_bus_cs() failed");
-		return 1;
+		return ret;
 	}
 
 	env_flash = dev_get_uclass_priv(new);
@@ -73,7 +73,7 @@ static int setup_flash_device(void)
 			CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
 		if (!env_flash) {
 			set_default_env("!spi_flash_probe() failed");
-			return 1;
+			return -EIO;
 		}
 	}
 #endif
@@ -95,7 +95,7 @@ static int env_sf_save(void)
 
 	ret = env_export(&env_new);
 	if (ret)
-		return ret;
+		return -EIO;
 	env_new.flags	= ACTIVE_FLAG;
 
 	if (gd->env_valid == ENV_VALID) {
@@ -112,7 +112,7 @@ static int env_sf_save(void)
 		saved_offset = env_new_offset + CONFIG_ENV_SIZE;
 		saved_buffer = memalign(ARCH_DMA_MINALIGN, saved_size);
 		if (!saved_buffer) {
-			ret = 1;
+			ret = -ENOMEM;
 			goto done;
 		}
 		ret = spi_flash_read(env_flash, saved_offset,
@@ -162,7 +162,7 @@ static int env_sf_save(void)
 }
 #endif /* CMD_SAVEENV */
 
-static void env_sf_load(void)
+static int env_sf_load(void)
 {
 	int ret;
 	int crc1_ok = 0, crc2_ok = 0;
@@ -176,6 +176,7 @@ static void env_sf_load(void)
 			CONFIG_ENV_SIZE);
 	if (!tmp_env1 || !tmp_env2) {
 		set_default_env("!malloc() failed");
+		ret = -EIO;
 		goto out;
 	}
 
@@ -202,6 +203,7 @@ static void env_sf_load(void)
 
 	if (!crc1_ok && !crc2_ok) {
 		set_default_env("!bad CRC");
+		ret = -EIO;
 		goto err_read;
 	} else if (crc1_ok && !crc2_ok) {
 		gd->env_valid = ENV_VALID;
@@ -244,6 +246,8 @@ err_read:
 out:
 	free(tmp_env1);
 	free(tmp_env2);
+
+	return ret;
 }
 #else
 #ifdef CMD_SAVEENV
@@ -308,7 +312,7 @@ static int env_sf_save(void)
 }
 #endif /* CMD_SAVEENV */
 
-static void env_sf_load(void)
+static int env_sf_load(void)
 {
 	int ret;
 	char *buf = NULL;
@@ -316,7 +320,7 @@ static void env_sf_load(void)
 	buf = (char *)memalign(ARCH_DMA_MINALIGN, CONFIG_ENV_SIZE);
 	if (!buf) {
 		set_default_env("!malloc() failed");
-		return;
+		return -EIO;
 	}
 
 	ret = setup_flash_device();
@@ -339,6 +343,8 @@ err_read:
 	env_flash = NULL;
 out:
 	free(buf);
+
+	return ret;
 }
 #endif
 

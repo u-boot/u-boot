@@ -46,11 +46,13 @@ static int env_remote_save(void)
 }
 #endif /* CONFIG_CMD_SAVEENV */
 
-static void env_remote_load(void)
+static int env_remote_load(void)
 {
 #ifndef ENV_IS_EMBEDDED
 	env_import((char *)env_ptr, 1);
 #endif
+
+	return 0;
 }
 
 U_BOOT_ENV_LOCATION(remote) = {

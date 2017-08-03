@@ -236,8 +236,10 @@ struct env_driver {
 	 *
 	 * This method is optional. If not provided, no environment will be
 	 * loaded.
+	 *
+	 * @return 0 if OK, -ve on error
 	 */
-	void (*load)(void);
+	int (*load)(void);
 
 	/**
 	 * save() - Save the environment to storage

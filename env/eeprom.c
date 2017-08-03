@@ -76,7 +76,7 @@ static int env_eeprom_get_char(int index)
 	return c;
 }
 
-static void env_eeprom_load(void)
+static int env_eeprom_load(void)
 {
 	char buf_env[CONFIG_ENV_SIZE];
 	unsigned int off = CONFIG_ENV_OFFSET;
@@ -182,6 +182,8 @@ static void env_eeprom_load(void)
 		off, (uchar *)buf_env, CONFIG_ENV_SIZE);
 
 	env_import(buf_env, 1);
+
+	return 0;
 }
 
 static int env_eeprom_save(void)

@@ -302,7 +302,7 @@ int get_nand_env_oob(struct mtd_info *mtd, unsigned long *result)
 	}
 
 	if (oob_buf[0] == ENV_OOB_MARKER) {
-		*result = oob_buf[1] * mtd->erasesize;
+		*result = ovoid ob_buf[1] * mtd->erasesize;
 	} else if (oob_buf[0] == ENV_OOB_MARKER_OLD) {
 		*result = oob_buf[1];
 	} else {
@@ -315,17 +315,21 @@ int get_nand_env_oob(struct mtd_info *mtd, unsigned long *result)
 #endif
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
-static void env_nand_load(void)
+static int env_nand_load(void)
 {
-#if !defined(ENV_IS_EMBEDDED)
+#if defined(ENV_IS_EMBEDDED)
+	return 0;
+#else
 	int read1_fail = 0, read2_fail = 0;
 	env_t *tmp_env1, *tmp_env2;
+	int ret = 0;
 
 	tmp_env1 = (env_t *)malloc(CONFIG_ENV_SIZE);
 	tmp_env2 = (env_t *)malloc(CONFIG_ENV_SIZE);
 	if (tmp_env1 == NULL || tmp_env2 == NULL) {
 		puts("Can't allocate buffers for environment\n");
 		set_default_env("!malloc() failed");
+		ret = -EIO;
 		goto done;
 	}
 
@@ -355,6 +359,7 @@ done:
 	free(tmp_env1);
 	free(tmp_env2);
 
+	return ret;
 #endif /* ! ENV_IS_EMBEDDED */
 }
 #else /* ! CONFIG_ENV_OFFSET_REDUND */
@@ -363,7 +368,7 @@ done:
  * device i.e., nand_dev_desc + 0. This is also the behaviour using
  * the new NAND code.
  */
-static void env_nand_load(void)
+static int env_nand_load(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
 	int ret;
@@ -386,11 +391,13 @@ static void env_nand_load(void)
 	ret = readenv(CONFIG_ENV_OFFSET, (u_char *)buf);
 	if (ret) {
 		set_default_env("!readenv() failed");
-		return;
+		return -EIO;
 	}
 
 	env_import(buf, 1);
 #endif /* ! ENV_IS_EMBEDDED */
+
+	return 0;
 }
 #endif /* CONFIG_ENV_OFFSET_REDUND */
 

@@ -51,7 +51,7 @@ static int env_nvram_get_char(int index)
 }
 #endif
 
-static void env_nvram_load(void)
+static int env_nvram_load(void)
 {
 	char buf[CONFIG_ENV_SIZE];
 
@@ -61,6 +61,8 @@ static void env_nvram_load(void)
 	memcpy(buf, (void *)CONFIG_ENV_ADDR, CONFIG_ENV_SIZE);
 #endif
 	env_import(buf, 1);
+
+	return 0;
 }
 
 static int env_nvram_save(void)

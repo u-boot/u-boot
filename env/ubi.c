@@ -91,7 +91,7 @@ static int env_ubi_save(void)
 #endif /* CONFIG_CMD_SAVEENV */
 
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
-static void env_ubi_load(void)
+static int env_ubi_load(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, env1_buf, CONFIG_ENV_SIZE);
 	ALLOC_CACHE_ALIGN_BUFFER(char, env2_buf, CONFIG_ENV_SIZE);
@@ -115,7 +115,7 @@ static void env_ubi_load(void)
 		printf("\n** Cannot find mtd partition \"%s\"\n",
 		       CONFIG_ENV_UBI_PART);
 		set_default_env(NULL);
-		return;
+		return -EIO;
 	}
 
 	if (ubi_volume_read(CONFIG_ENV_UBI_VOLUME, (void *)tmp_env1,
@@ -131,9 +131,11 @@ static void env_ubi_load(void)
 	}
 
 	env_import_redund((char *)tmp_env1, (char *)tmp_env2);
+
+	return 0;
 }
 #else /* ! CONFIG_SYS_REDUNDAND_ENVIRONMENT */
-static void env_ubi_load(void)
+static int env_ubi_load(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 
@@ -151,17 +153,19 @@ static void env_ubi_load(void)
 		printf("\n** Cannot find mtd partition \"%s\"\n",
 		       CONFIG_ENV_UBI_PART);
 		set_default_env(NULL);
-		return;
+		return -EIO;
 	}
 
 	if (ubi_volume_read(CONFIG_ENV_UBI_VOLUME, buf, CONFIG_ENV_SIZE)) {
 		printf("\n** Unable to read env from %s:%s **\n",
 		       CONFIG_ENV_UBI_PART, CONFIG_ENV_UBI_VOLUME);
 		set_default_env(NULL);
-		return;
+		return -EIO;
 	}
 
 	env_import(buf, 1);
+
+	return 0;
 }
 #endif /* CONFIG_SYS_REDUNDAND_ENVIRONMENT */
 

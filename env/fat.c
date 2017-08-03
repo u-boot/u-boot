@@ -74,7 +74,7 @@ static int env_fat_save(void)
 #endif /* CMD_SAVEENV */
 
 #ifdef LOADENV
-static void env_fat_load(void)
+static int env_fat_load(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 	struct blk_desc *dev_desc = NULL;
@@ -103,10 +103,12 @@ static void env_fat_load(void)
 	}
 
 	env_import(buf, 1);
-	return;
+	return 0;
 
 err_env_relocate:
 	set_default_env(NULL);
+
+	return -EIO;
 }
 #endif /* LOADENV */
 

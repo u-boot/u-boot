@@ -308,7 +308,7 @@ done:
 #endif /* CONFIG_ENV_ADDR_REDUND */
 
 #ifdef LOADENV
-static void env_flash_load(void)
+static int env_flash_load(void)
 {
 #ifdef CONFIG_ENV_ADDR_REDUND
 	if (gd->env_addr != (ulong)&(flash_addr->data)) {
@@ -352,6 +352,8 @@ static void env_flash_load(void)
 #endif /* CONFIG_ENV_ADDR_REDUND */
 
 	env_import((char *)flash_addr, 1);
+
+	return 0;
 }
 #endif /* LOADENV */
 

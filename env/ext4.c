@@ -75,7 +75,7 @@ static int env_ext4_save(void)
 }
 #endif /* CONFIG_CMD_SAVEENV */
 
-static void env_ext4_load(void)
+static int env_ext4_load(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 	struct blk_desc *dev_desc = NULL;
@@ -109,10 +109,12 @@ static void env_ext4_load(void)
 	}
 
 	env_import(buf, 1);
-	return;
+	return 0;
 
 err_env_relocate:
 	set_default_env(NULL);
+
+	return -EIO;
 }
 
 U_BOOT_ENV_LOCATION(ext4) = {
