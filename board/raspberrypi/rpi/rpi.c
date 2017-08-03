@@ -300,7 +300,7 @@ static void set_usbethaddr(void)
 		return;
 	}
 
-	eth_setenv_enetaddr("usbethaddr", msg->get_mac_address.body.resp.mac);
+	eth_env_set_enetaddr("usbethaddr", msg->get_mac_address.body.resp.mac);
 
 	if (!getenv("ethaddr"))
 		env_set("ethaddr", getenv("usbethaddr"));

@@ -670,7 +670,7 @@ int board_eth_init(bd_t *bis)
 
 		if (mac) {
 			printf("using: %pM on ", mac);
-			eth_setenv_enetaddr("ethaddr", (const u8 *)mac);
+			eth_env_set_enetaddr("ethaddr", (const u8 *)mac);
 		}
 	}
 	writel(MII_MODE_ENABLE, &cdev->miisel);

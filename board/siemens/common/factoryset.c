@@ -292,7 +292,7 @@ static int factoryset_mac_env_set(void)
 		}
 	}
 
-	eth_setenv_enetaddr("ethaddr", mac_addr);
+	eth_env_set_enetaddr("ethaddr", mac_addr);
 	return 0;
 }
 

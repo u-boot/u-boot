@@ -1097,7 +1097,7 @@ static int fec_probe(bd_t *bd, int dev_id, uint32_t base_addr,
 		else
 			strcpy(mac, "ethaddr");
 		if (!getenv(mac))
-			eth_setenv_enetaddr(mac, ethaddr);
+			eth_env_set_enetaddr(mac, ethaddr);
 	}
 	return ret;
 err4:

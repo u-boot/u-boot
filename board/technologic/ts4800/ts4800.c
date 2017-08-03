@@ -178,7 +178,7 @@ static int fec_get_mac_from_register(uint32_t base_addr)
 		ethaddr[i] = (reg_mac[i / 4] >> ((i % 4) * 8)) & 0xFF;
 
 	if (is_valid_ethaddr(ethaddr)) {
-		eth_setenv_enetaddr("ethaddr", ethaddr);
+		eth_env_set_enetaddr("ethaddr", ethaddr);
 		return 0;
 	}
 

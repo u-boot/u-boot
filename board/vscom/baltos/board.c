@@ -457,7 +457,7 @@ int board_eth_init(bd_t *bis)
 		printf("<ethaddr> not set. Validating first E-fuse MAC\n");
 
 		if (is_valid_ethaddr(mac_addr))
-			eth_setenv_enetaddr("ethaddr", mac_addr);
+			eth_env_set_enetaddr("ethaddr", mac_addr);
 	}
 
 #ifdef CONFIG_DRIVER_TI_CPSW

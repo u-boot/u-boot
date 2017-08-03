@@ -771,11 +771,11 @@ int misc_init_r(void)
 		/* initialize env from EEPROM */
 		if (test_bit(EECONFIG_ETH0, info->config) &&
 		    !getenv("ethaddr")) {
-			eth_setenv_enetaddr("ethaddr", info->mac0);
+			eth_env_set_enetaddr("ethaddr", info->mac0);
 		}
 		if (test_bit(EECONFIG_ETH1, info->config) &&
 		    !getenv("eth1addr")) {
-			eth_setenv_enetaddr("eth1addr", info->mac1);
+			eth_env_set_enetaddr("eth1addr", info->mac1);
 		}
 
 		/* board serial-number */

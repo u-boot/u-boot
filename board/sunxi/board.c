@@ -705,7 +705,7 @@ static void setup_environment(const void *fdt)
 			mac_addr[4] = (sid[3] >>  8) & 0xff;
 			mac_addr[5] = (sid[3] >>  0) & 0xff;
 
-			eth_setenv_enetaddr(ethaddr, mac_addr);
+			eth_env_set_enetaddr(ethaddr, mac_addr);
 		}
 
 		if (!getenv("serial#")) {

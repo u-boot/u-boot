@@ -172,7 +172,7 @@ static int handle_mac_address(void)
 	if (!is_valid_ethaddr(enetaddr))
 		return -1;
 
-	return eth_setenv_enetaddr("usbethaddr", enetaddr);
+	return eth_env_set_enetaddr("usbethaddr", enetaddr);
 }
 
 int board_eth_init(bd_t *bis)

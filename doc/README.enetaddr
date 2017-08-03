@@ -98,12 +98,12 @@ if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
 }
 /* enetaddr is now set to the value stored in the ethaddr env var */
 
-	* int eth_setenv_enetaddr(char *name, const uchar *enetaddr);
+	* int eth_env_set_enetaddr(char *name, const uchar *enetaddr);
 
 Store the MAC address into the named environment variable.  The return value is
 the same as the env_set() function.
 uchar enetaddr[6] = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55 };
-eth_setenv_enetaddr("ethaddr", enetaddr);
+eth_env_set_enetaddr("ethaddr", enetaddr);
 /* the "ethaddr" env var should now be set to "00:11:22:33:44:55" */
 
 	* the %pM format modifier

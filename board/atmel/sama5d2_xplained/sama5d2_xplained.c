@@ -192,7 +192,7 @@ static int set_ethaddr_from_eeprom(void)
 		return -1;
 	}
 
-	return eth_setenv_enetaddr(ETHADDR_NAME, ethaddr);
+	return eth_env_set_enetaddr(ETHADDR_NAME, ethaddr);
 }
 #else
 static int set_ethaddr_from_eeprom(void)

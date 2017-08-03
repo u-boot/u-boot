@@ -451,8 +451,8 @@ void board_ti_set_ethaddr(int index)
 		for (i = 0; i < num_macs; i++) {
 			u64_to_mac(mac1 + i, mac_addr);
 			if (is_valid_ethaddr(mac_addr)) {
-				eth_setenv_enetaddr_by_index("eth", i + index,
-							     mac_addr);
+				eth_env_set_enetaddr_by_index("eth", i + index,
+							      mac_addr);
 			}
 		}
 	}

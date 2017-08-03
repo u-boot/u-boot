@@ -225,7 +225,7 @@ int board_eth_init(bd_t *bis)
 	if (!is_valid_ethaddr(factory_dat.mac))
 		printf("Error: no valid mac address\n");
 	else
-		eth_setenv_enetaddr("ethaddr", factory_dat.mac);
+		eth_env_set_enetaddr("ethaddr", factory_dat.mac);
 #endif /* #ifdef CONFIG_FACTORYSET */
 
 	/* Set rgmii mode and enable rmii clock to be sourced from chip */

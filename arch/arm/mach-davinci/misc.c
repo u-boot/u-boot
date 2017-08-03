@@ -99,7 +99,7 @@ void davinci_sync_env_enetaddr(uint8_t *rom_enetaddr)
 		debug("### Setting environment from EEPROM MAC address = "
 			"\"%pM\"\n",
 			env_enetaddr);
-		ret = !eth_setenv_enetaddr("ethaddr", rom_enetaddr);
+		ret = !eth_env_set_enetaddr("ethaddr", rom_enetaddr);
 	}
 	if (!ret)
 		printf("Failed to set mac address from EEPROM: %d\n", ret);

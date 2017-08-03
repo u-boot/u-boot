@@ -481,7 +481,7 @@ static int handle_mac_address(char *env_var, uint eeprom_bus)
 	if (!is_valid_ethaddr(enetaddr))
 		return -1;
 
-	return eth_setenv_enetaddr(env_var, enetaddr);
+	return eth_env_set_enetaddr(env_var, enetaddr);
 }
 
 #define SB_FX6_I2C_EEPROM_BUS	0

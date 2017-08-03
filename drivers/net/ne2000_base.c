@@ -723,7 +723,7 @@ static int ne2k_setup_driver(struct eth_device *dev)
 		 * returns -1 due to eth_getenv_enetaddr_by_index() failing,
 		 * and this causes "Warning: failed to set MAC address", and
 		 * cmd_bdinfo has no ethaddr value which it can show: */
-		eth_setenv_enetaddr("ethaddr", dev->enetaddr);
+		eth_env_set_enetaddr("ethaddr", dev->enetaddr);
 	}
 	return 0;
 }

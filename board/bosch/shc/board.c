@@ -460,7 +460,7 @@ int board_late_init(void)
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	if (shc_eeprom_valid)
 		if (is_valid_ethaddr(header.mac_addr))
-			eth_setenv_enetaddr("ethaddr", header.mac_addr);
+			eth_env_set_enetaddr("ethaddr", header.mac_addr);
 #endif
 
 	return 0;
@@ -549,7 +549,7 @@ int board_eth_init(bd_t *bis)
 		printf("<ethaddr> not set. Validating first E-fuse MAC\n");
 
 		if (is_valid_ethaddr(mac_addr))
-			eth_setenv_enetaddr("ethaddr", mac_addr);
+			eth_env_set_enetaddr("ethaddr", mac_addr);
 	}
 
 	writel(MII_MODE_ENABLE, &cdev->miisel);
@@ -565,7 +565,7 @@ int board_eth_init(bd_t *bis)
 #if defined(CONFIG_USB_ETHER) && \
 	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_USBETH_SUPPORT))
 	if (is_valid_ethaddr(mac_addr))
-		eth_setenv_enetaddr("usbnet_devaddr", mac_addr);
+		eth_env_set_enetaddr("usbnet_devaddr", mac_addr);
 
 	rv = usb_eth_initialize(bis);
 	if (rv < 0)

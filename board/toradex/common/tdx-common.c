@@ -87,7 +87,7 @@ int show_board_info(void)
 	 * set the one from config block if not
 	 */
 	if (!eth_getenv_enetaddr("ethaddr", ethaddr))
-		eth_setenv_enetaddr("ethaddr", (u8 *)&tdx_eth_addr);
+		eth_env_set_enetaddr("ethaddr", (u8 *)&tdx_eth_addr);
 
 #ifdef CONFIG_TDX_CFG_BLOCK_2ND_ETHADDR
 	if (!eth_getenv_enetaddr("eth1addr", ethaddr)) {
@@ -97,7 +97,7 @@ int show_board_info(void)
 		 */
 		memcpy(ethaddr, &tdx_eth_addr, 6);
 		ethaddr[3] += 0x10;
-		eth_setenv_enetaddr("eth1addr", ethaddr);
+		eth_env_set_enetaddr("eth1addr", ethaddr);
 	}
 #endif
 

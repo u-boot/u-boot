@@ -710,7 +710,7 @@ static int smc_get_ethaddr(bd_t *bd, struct eth_device *dev)
 			printf("\n*** ERROR: ethaddr is NOT set !!\n");
 			return -1;
 		}
-		eth_setenv_enetaddr("ethaddr", v_mac);
+		eth_env_set_enetaddr("ethaddr", v_mac);
 	}
 
 	smc_set_mac_addr(v_mac); /* use old function to update smc default */

@@ -897,7 +897,7 @@ int board_eth_init(bd_t *bis)
 		printf("<ethaddr> not set. Validating first E-fuse MAC\n");
 
 		if (is_valid_ethaddr(mac_addr))
-			eth_setenv_enetaddr("ethaddr", mac_addr);
+			eth_env_set_enetaddr("ethaddr", mac_addr);
 	}
 
 	mac_lo = readl((*ctrl)->control_core_mac_id_1_lo);
@@ -911,7 +911,7 @@ int board_eth_init(bd_t *bis)
 
 	if (!getenv("eth1addr")) {
 		if (is_valid_ethaddr(mac_addr))
-			eth_setenv_enetaddr("eth1addr", mac_addr);
+			eth_env_set_enetaddr("eth1addr", mac_addr);
 	}
 
 	ctrl_val = readl((*ctrl)->control_core_control_io1) & (~0x33);

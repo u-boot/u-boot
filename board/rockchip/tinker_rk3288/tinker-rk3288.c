@@ -29,7 +29,7 @@ int rk_board_late_init(void)
 		return 0;
 
 	if (is_valid_ethaddr(ethaddr))
-		eth_setenv_enetaddr("ethaddr", ethaddr);
+		eth_env_set_enetaddr("ethaddr", ethaddr);
 
 	return 0;
 }

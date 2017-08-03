@@ -229,7 +229,7 @@ int board_eth_init(bd_t *bis)
 		mac_addr[5] = (mac_lo & 0xFF00) >> 8;
 
 		if (is_valid_ethaddr(mac_addr))
-			eth_setenv_enetaddr("ethaddr", mac_addr);
+			eth_env_set_enetaddr("ethaddr", mac_addr);
 		else
 			goto try_usbether;
 	}

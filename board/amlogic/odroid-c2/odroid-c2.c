@@ -48,7 +48,7 @@ int misc_init_r(void)
 		len = meson_sm_read_efuse(EFUSE_MAC_OFFSET,
 					  mac_addr, EFUSE_MAC_SIZE);
 		if (len == EFUSE_MAC_SIZE && is_valid_ethaddr(mac_addr))
-			eth_setenv_enetaddr("ethaddr", mac_addr);
+			eth_env_set_enetaddr("ethaddr", mac_addr);
 	}
 
 	if (!getenv("serial#")) {

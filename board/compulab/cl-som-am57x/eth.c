@@ -107,7 +107,7 @@ static int cl_som_am57x_handle_mac_address(char *env_name, uint port_num)
 	if (!is_valid_ethaddr(enetaddr))
 		return -1;
 
-	ret = eth_setenv_enetaddr(env_name, enetaddr);
+	ret = eth_env_set_enetaddr(env_name, enetaddr);
 	if (ret)
 		printf("cl-som-am57x: Failed to set Eth port %d MAC address\n",
 		       port_num);

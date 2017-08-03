@@ -86,7 +86,7 @@ int misc_init_r(void)
 	if (!getenv("ethaddr")) {
 		uchar mac[6];
 		if (lacie_read_mac_address(mac) == 0)
-			eth_setenv_enetaddr("ethaddr", mac);
+			eth_env_set_enetaddr("ethaddr", mac);
 	}
 #endif
 	return 0;

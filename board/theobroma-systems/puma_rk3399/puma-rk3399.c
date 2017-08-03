@@ -89,7 +89,7 @@ static void setup_macaddr(void)
 	/* Make this a valid MAC address and set it */
 	mac_addr[0] &= 0xfe;  /* clear multicast bit */
 	mac_addr[0] |= 0x02;  /* set local assignment bit (IEEE802) */
-	eth_setenv_enetaddr("ethaddr", mac_addr);
+	eth_env_set_enetaddr("ethaddr", mac_addr);
 #endif
 
 	return;

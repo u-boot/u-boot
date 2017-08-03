@@ -111,7 +111,7 @@ int misc_init_r(void)
 		enetaddr[3] = (die_id_0 & 0x00ff0000) >> 16;
 		enetaddr[4] = (die_id_0 & 0x0000ff00) >> 8;
 		enetaddr[5] = (die_id_0 & 0x000000ff);
-		eth_setenv_enetaddr("ethaddr", enetaddr);
+		eth_env_set_enetaddr("ethaddr", enetaddr);
 	}
 #endif
 

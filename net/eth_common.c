@@ -30,7 +30,7 @@ int eth_getenv_enetaddr(const char *name, uchar *enetaddr)
 	return is_valid_ethaddr(enetaddr);
 }
 
-int eth_setenv_enetaddr(const char *name, const uchar *enetaddr)
+int eth_env_set_enetaddr(const char *name, const uchar *enetaddr)
 {
 	char buf[ARP_HLEN_ASCII + 1];
 
@@ -50,12 +50,12 @@ int eth_getenv_enetaddr_by_index(const char *base_name, int index,
 	return eth_getenv_enetaddr(enetvar, enetaddr);
 }
 
-int eth_setenv_enetaddr_by_index(const char *base_name, int index,
+int eth_env_set_enetaddr_by_index(const char *base_name, int index,
 				 uchar *enetaddr)
 {
 	char enetvar[32];
 	sprintf(enetvar, index ? "%s%daddr" : "%saddr", base_name, index);
-	return eth_setenv_enetaddr(enetvar, enetaddr);
+	return eth_env_set_enetaddr(enetvar, enetaddr);
 }
 
 void eth_common_init(void)

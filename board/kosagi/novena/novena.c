@@ -264,7 +264,7 @@ int misc_init_r(void)
 	}
 
 	/* Set ethernet address from EEPROM. */
-	eth_setenv_enetaddr("ethaddr", data.mac);
+	eth_env_set_enetaddr("ethaddr", data.mac);
 
 	return ret;
 }

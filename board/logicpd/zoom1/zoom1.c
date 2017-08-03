@@ -133,7 +133,7 @@ int board_eth_init(bd_t *bis)
 	if (!eth_getenv_enetaddr(STR_ENV_ETHADDR, eth_addr)) {
 		dev = eth_get_dev_by_index(0);
 		if (dev) {
-			eth_setenv_enetaddr(STR_ENV_ETHADDR, dev->enetaddr);
+			eth_env_set_enetaddr(STR_ENV_ETHADDR, dev->enetaddr);
 		} else {
 			printf("zoom1: Couldn't get eth device\n");
 			rc = -1;

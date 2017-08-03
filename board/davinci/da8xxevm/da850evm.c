@@ -147,7 +147,7 @@ int misc_init_r(void)
 	if (!enetaddr_found) {
 		if (!spi_mac_read) {
 			if (is_valid_ethaddr(buff)) {
-				if (eth_setenv_enetaddr("ethaddr", buff)) {
+				if (eth_env_set_enetaddr("ethaddr", buff)) {
 					printf("Warning: Failed to "
 					"set MAC address from SPI flash\n");
 				}
