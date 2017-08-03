@@ -78,6 +78,7 @@ obj-y += firmware/
 obj-$(CONFIG_FPGA) += fpga/
 obj-y += misc/
 obj-$(CONFIG_MMC) += mmc/
+obj-$(CONFIG_NVME) += nvme/
 obj-y += pcmcia/
 obj-y += dfu/
 obj-$(CONFIG_X86) += pch/

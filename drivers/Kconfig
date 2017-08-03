@@ -50,6 +50,8 @@ source "drivers/mtd/Kconfig"
 
 source "drivers/net/Kconfig"
 
+source "drivers/nvme/Kconfig"
+
 source "drivers/pci/Kconfig"
 
 source "drivers/pcmcia/Kconfig"
