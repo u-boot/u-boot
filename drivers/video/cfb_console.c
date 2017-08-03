@@ -2081,7 +2081,8 @@ static int cfg_video_init(void)
 	}
 	eorx = fgx ^ bgx;
 
-	video_clear();
+	if (!CONFIG_IS_ENABLED(NO_FB_CLEAR))
+		video_clear();
 
 #ifdef CONFIG_VIDEO_LOGO
 	/* Plot the logo and get start point of console */

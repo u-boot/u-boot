@@ -119,6 +119,14 @@ config SYS_WHITE_ON_BLACK
 	 better in low-light situations or to reduce eye strain in some
 	 cases.
 
+config NO_FB_CLEAR
+	bool "Skip framebuffer clear"
+	help
+	  If firmware (whatever loads u-boot) has already put a splash image
+	  on screen, you might want to preserve it until whatever u-boot
+	  loads takes over the screen.  This, for example, can be used to
+	  keep splash image on screen until grub graphical boot menu starts.
+
 source "drivers/video/fonts/Kconfig"
 
 config VIDCONSOLE_AS_LCD

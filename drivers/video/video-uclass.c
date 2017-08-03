@@ -199,7 +199,9 @@ static int video_post_probe(struct udevice *dev)
 #else
 	priv->colour_bg = 0xffffff;
 #endif
-	video_clear(dev);
+
+	if (!CONFIG_IS_ENABLED(NO_FB_CLEAR))
+		video_clear(dev);
 
 	/*
 	 * Create a text console device. For now we always do this, although
