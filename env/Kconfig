@@ -81,11 +81,10 @@ config ENV_IS_IN_FAT
 	depends on !CHAIN_OF_TRUST
 	select FAT_WRITE
 	help
-         Define this if you want to use the FAT file system for the environment.
+	  Define this if you want to use the FAT file system for the environment.
 
-
-         - CONFIG_FAT_WRITE:
-         This must be enabled. Otherwise it cannot save the environment file.
+	  - CONFIG_FAT_WRITE:
+	  This must be enabled. Otherwise it cannot save the environment file.
 
 config ENV_IS_IN_FLASH
 	bool "Environment in flash memory"
