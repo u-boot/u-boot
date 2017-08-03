@@ -34,25 +34,20 @@ __weak uchar env_get_char_spec(int index)
 
 static uchar env_get_char_init(int index)
 {
-	/* if crc was bad, use the default environment */
-	if (gd->env_valid)
-		return env_get_char_spec(index);
-	else
-		return default_environment[index];
+	return env_get_char_spec(index);
 }
 
 static uchar env_get_char_memory(int index)
 {
-	if (gd->env_valid)
-		return *(uchar *)(gd->env_addr + index);
-	else
-		return default_environment[index];
+	return *(uchar *)(gd->env_addr + index);
 }
 
 uchar env_get_char(int index)
 {
-	/* if relocated to RAM */
-	if (gd->flags & GD_FLG_RELOC)
+	/* if env is not set up, or crc was bad, use the default environment */
+	if (!gd->env_valid)
+		return default_environment[index];
+	else if (gd->flags & GD_FLG_RELOC)  /* if relocated to RAM */
 		return env_get_char_memory(index);
 	else
 		return env_get_char_init(index);
