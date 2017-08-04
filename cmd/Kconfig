@@ -492,6 +492,14 @@ config SHA1SUM_VERIFY
 	help
 	  Add -v option to verify data against a SHA1 checksum.
 
+config CMD_STRINGS
+	bool "strings - display strings in memory"
+	help
+	  This works similarly to the Unix 'strings' command except that it
+	  works with a memory range. String of printable characters found
+	  within the range are displayed. The minimum number of characters
+	  for a sequence to be considered a string can be provided.
+
 endmenu
 
 menu "Compression commands"
