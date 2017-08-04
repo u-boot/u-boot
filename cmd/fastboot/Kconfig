@@ -18,6 +18,8 @@ config CMD_FASTBOOT
 	  protocol for downloading images, flashing and device control
 	  used on Android devices.
 
+	  See doc/README.android-fastboot for more information.
+
 config ANDROID_BOOT_IMAGE
 	bool "Enable support for Android Boot Images"
 	help

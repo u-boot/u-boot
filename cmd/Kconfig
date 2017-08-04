@@ -577,7 +577,9 @@ config CMD_DFU
 	select USB_FUNCTION_DFU
 	help
 	  Enables the command "dfu" which is used to have U-Boot create a DFU
-	  class device via USB.
+	  class device via USB. This command requires that the "dfu_alt_info"
+	  environment variable be set and define the alt settings to expose to
+	  the host.
 
 config CMD_DM
 	bool "dm - Access to driver model information"

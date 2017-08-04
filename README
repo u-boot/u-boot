@@ -756,93 +756,6 @@ The following options need to be configured:
 		Select one of the baudrates listed in
 		CONFIG_SYS_BAUDRATE_TABLE, see below.
 
-- Monitor Functions:
-		The default command configuration includes all commands
-		except those marked below with a "*".
-
-		CONFIG_CMD_AES		  AES 128 CBC encrypt/decrypt
-		CONFIG_CMD_ASKENV	* ask for env variable
-		CONFIG_CMD_BDI		  bdinfo
-		CONFIG_CMD_BOOTD	  bootd
-		CONFIG_CMD_BOOTI	* ARM64 Linux kernel Image support
-		CONFIG_CMD_CACHE	* icache, dcache
-		CONFIG_CMD_CONSOLE	  coninfo
-		CONFIG_CMD_DHCP		* DHCP support
-		CONFIG_CMD_DIAG		* Diagnostics
-		CONFIG_CMD_ECHO		  echo arguments
-		CONFIG_CMD_EDITENV	  edit env variable
-		CONFIG_CMD_ELF		* bootelf, bootvx
-		CONFIG_CMD_ENV_EXISTS	* check existence of env variable
-		CONFIG_CMD_EXPORTENV	* export the environment
-		CONFIG_CMD_EXT2		* ext2 command support
-		CONFIG_CMD_EXT4		* ext4 command support
-		CONFIG_CMD_FS_GENERIC	* filesystem commands (e.g. load, ls)
-					  that work for multiple fs types
-		CONFIG_CMD_FS_UUID	* Look up a filesystem UUID
-		CONFIG_CMD_SAVEENV	  saveenv
-		CONFIG_CMD_FLASH	  flinfo, erase, protect
-		CONFIG_CMD_FPGA		  FPGA device initialization support
-		CONFIG_CMD_GO		* the 'go' command (exec code)
-		CONFIG_CMD_GREPENV	* search environment
-		CONFIG_CMD_I2C		* I2C serial bus support
-		CONFIG_CMD_IMI		  iminfo
-		CONFIG_CMD_IMLS		  List all images found in NOR flash
-		CONFIG_CMD_IMLS_NAND	* List all images found in NAND flash
-		CONFIG_CMD_IMPORTENV	* import an environment
-		CONFIG_CMD_INI		* import data from an ini file into the env
-		CONFIG_CMD_ITEST	  Integer/string test of 2 values
-		CONFIG_CMD_LDRINFO	* ldrinfo (display Blackfin loader)
-		CONFIG_CMD_LINK_LOCAL	* link-local IP address auto-configuration
-					  (169.254.*.*)
-		CONFIG_CMD_LOADB	  loadb
-		CONFIG_CMD_LOADS	  loads
-		CONFIG_CMD_MD5SUM	* print md5 message digest
-					  (requires CONFIG_CMD_MEMORY and CONFIG_MD5)
-		CONFIG_CMD_MEMINFO	* Display detailed memory information
-		CONFIG_CMD_MEMORY	  md, mm, nm, mw, cp, cmp, crc, base,
-					  loop, loopw
-		CONFIG_CMD_MEMTEST	* mtest
-		CONFIG_CMD_MISC		  Misc functions like sleep etc
-		CONFIG_CMD_MMC		* MMC memory mapped support
-		CONFIG_CMD_MII		* MII utility commands
-		CONFIG_CMD_NET		  bootp, tftpboot, rarpboot
-		CONFIG_CMD_NFS		  NFS support
-		CONFIG_CMD_PING		* send ICMP ECHO_REQUEST to network
-					  host
-		CONFIG_CMD_RUN		  run command in env variable
-		CONFIG_CMD_SF		* Read/write/erase SPI NOR flash
-		CONFIG_CMD_SOFTSWITCH	* Soft switch setting command for BF60x
-		CONFIG_CMD_SOURCE	  "source" command Support
-		CONFIG_CMD_SPI		* SPI serial bus support
-		CONFIG_CMD_TFTPSRV	* TFTP transfer in server mode
-		CONFIG_CMD_TFTPPUT	* TFTP put command (upload)
-		CONFIG_CMD_TIME		* run command and report execution time (ARM specific)
-		CONFIG_CMD_TIMER	* access to the system tick timer
-		CONFIG_CMD_USB		* USB support
-		CONFIG_CMD_CDP		* Cisco Discover Protocol support
-		CONFIG_CMD_XIMG		  Load part of Multi Image
-
-		EXAMPLE: If you want all functions except of network
-		support you can write:
-
-		#include "config_cmd_all.h"
-		#undef CONFIG_CMD_NET
-
-	Other Commands:
-		fdt (flattened device tree) command: CONFIG_OF_LIBFDT
-
-	Note:	Don't enable the "icache" and "dcache" commands
-		(configuration option CONFIG_CMD_CACHE) unless you know
-		what you (and your U-Boot users) are doing. Data
-		cache cannot be enabled on systems like the
-		8xx (where accesses to the IMMR region must be
-		uncached), and it cannot be disabled on all other
-		systems where we (mis-) use the data cache to hold an
-		initial stack and some data.
-
-
-		XXX - this list needs to get updated!
-
 - Removal of commands
 		If no commands are needed to boot, you can disable
 		CONFIG_CMDLINE to remove them. In this case, the command line
@@ -1044,10 +957,6 @@ The following options need to be configured:
 		Allow generic access to the SPI bus on the Intel 8257x, for
 		example with the "sspi" command.
 
-		CONFIG_CMD_E1000
-		Management command for E1000 devices.  When used on devices
-		with SPI support you can reprogram the EEPROM from U-Boot.
-
 		CONFIG_EEPRO100
 		Support for Intel 82557/82559/82559ER chips.
 		Optional CONFIG_EEPRO100_SROM_WRITE enables EEPROM
@@ -1182,11 +1091,6 @@ The following options need to be configured:
 			to. Contemporary x86 systems usually map it at
 			0xfed40000.
 
-		CONFIG_CMD_TPM
-		Add tpm monitor functions.
-		Requires CONFIG_TPM. If CONFIG_TPM_AUTH_SESSIONS is set, also
-		provides monitor access to authorized functions.
-
 		CONFIG_TPM
 		Define this to enable the TPM support library which provides
 		functional interfaces to some TPM commands.
@@ -1314,12 +1218,6 @@ The following options need to be configured:
 		CONFIG_USB_FUNCTION_DFU
 		This enables the USB portion of the DFU USB class
 
-		CONFIG_CMD_DFU
-		This enables the command "dfu" which is used to have
-		U-Boot create a DFU class device via USB.  This command
-		requires that the "dfu_alt_info" environment variable be
-		set and define the alt settings to expose to the host.
-
 		CONFIG_DFU_MMC
 		This enables support for exposing (e)MMC devices via DFU.
 
@@ -1358,13 +1256,6 @@ The following options need to be configured:
 - USB Device Android Fastboot support:
 		CONFIG_USB_FUNCTION_FASTBOOT
 		This enables the USB part of the fastboot gadget
-
-		CONFIG_CMD_FASTBOOT
-		This enables the command "fastboot" which enables the Android
-		fastboot mode for the platform's USB device. Fastboot is a USB
-		protocol for downloading images, flashing and device control
-		used on Android devices.
-		See doc/README.android-fastboot for more information.
 
 		CONFIG_ANDROID_BOOT_IMAGE
 		This enables support for booting images which use the Android
@@ -2471,12 +2362,7 @@ The following options need to be configured:
 		commands cp, md...
 
 - Serial Flash support
-		CONFIG_CMD_SF
-
-		Defining this option enables SPI flash commands
-		'sf probe/read/write/erase/update'.
-
-		Usage requires an initial 'probe' to define the serial
+		Usage requires an initial 'sf probe' to define the serial
 		flash parameters, followed by read/write/erase/update
 		commands.
 
