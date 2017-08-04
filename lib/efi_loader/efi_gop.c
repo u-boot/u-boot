@@ -137,7 +137,7 @@ int efi_gop_register(void)
 	struct udevice *vdev;
 
 	/* We only support a single video output device for now */
-	if (uclass_first_device(UCLASS_VIDEO, &vdev))
+	if (uclass_first_device(UCLASS_VIDEO, &vdev) || !vdev)
 		return -1;
 
 	struct video_priv *priv = dev_get_uclass_priv(vdev);
