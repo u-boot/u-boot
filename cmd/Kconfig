@@ -857,6 +857,12 @@ config CMD_SPI
 	help
 	  SPI utility command.
 
+config CMD_TSI148
+	bool "tsi148 - Command to access tsi148 device"
+	help
+	  This provides various sub-commands to initialise and configure the
+	  Turndra tsi148 device. See the command help for full details.
+
 config CMD_USB
 	bool "usb"
 	help
