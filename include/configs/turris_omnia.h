@@ -26,7 +26,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_PCI
 
 /* I2C support */
 #define CONFIG_DM_I2C

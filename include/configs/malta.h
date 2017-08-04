@@ -100,7 +100,6 @@
 /*
  * Commands
  */
-#define CONFIG_CMD_PCI
 
 #define CONFIG_SYS_LONGHELP		/* verbose help, undef to save memory */
 

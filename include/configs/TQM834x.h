@@ -270,13 +270,6 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /*
- * Command line configuration.
- */
-#if defined(CONFIG_PCI)
-    #define CONFIG_CMD_PCI
-#endif
-
-/*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/

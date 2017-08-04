@@ -345,10 +345,6 @@
 #define CONFIG_RTC_RX8025
 #define CONFIG_CMD_TSI148
 
-#if defined(CONFIG_PCI)
-    #define CONFIG_CMD_PCI
-#endif
-
 /* Pass Ethernet MAC to VxWorks */
 #define CONFIG_SYS_VXWORKS_MAC_PTR	0x000043f0
 

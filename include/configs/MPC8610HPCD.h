@@ -426,10 +426,6 @@
  * Command line configuration.
  */
 
-#if defined(CONFIG_PCI)
-#define CONFIG_CMD_PCI
-#endif
-
 #define CONFIG_WATCHDOG			/* watchdog enabled */
 #define CONFIG_SYS_WATCHDOG_FREQ	5000	/* Feed interval, 5s */
 

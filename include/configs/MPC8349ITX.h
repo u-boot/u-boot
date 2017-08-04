@@ -485,10 +485,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #if defined(CONFIG_SATA_SIL3114) || defined(CONFIG_USB_STORAGE)
 #endif
 
-#ifdef CONFIG_PCI
-	#define CONFIG_CMD_PCI
-#endif
-
 /* Watchdog */
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
 

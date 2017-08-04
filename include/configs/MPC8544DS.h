@@ -347,10 +347,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  */
 #define CONFIG_CMD_REGINFO
 
-#if defined(CONFIG_PCI)
-    #define CONFIG_CMD_PCI
-#endif
-
 /*
  * USB
  */

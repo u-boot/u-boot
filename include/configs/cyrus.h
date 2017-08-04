@@ -408,10 +408,6 @@
  */
 #define CONFIG_CMD_REGINFO
 
-#ifdef CONFIG_PCI
-#define CONFIG_CMD_PCI
-#endif
-
 /*
  * USB
  */

@@ -733,6 +733,14 @@ config CMD_PART
 	  Read and display information about the partition table on
 	  various media.
 
+config CMD_PCI
+	bool "pci - Access PCI devices"
+	help
+	  Provide access to PCI (Peripheral Interconnect Bus), a type of bus
+	  used on some devices to allow the CPU to communicate with its
+	  peripherals. Sub-commands allow bus enumeration, displaying and
+	  changing configuration space and a few other features.
+
 config CMD_REMOTEPROC
 	bool "remoteproc"
 	depends on REMOTEPROC

@@ -77,8 +77,6 @@
 #define CONFIG_FSL_PCIE_RESET		/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
-#define CONFIG_CMD_PCI
-
 /*
  * PCI Windows
  * Memory space is mapped 1-1, but I/O space must start from 0.

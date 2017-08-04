@@ -21,7 +21,6 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_PCI
 
 #define CONFIG_CONS_SCIF0	1
 

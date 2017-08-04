@@ -479,10 +479,6 @@
  * Command line configuration.
  */
 
-#if defined(CONFIG_PCI)
-#define CONFIG_CMD_PCI
-#endif
-
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
 

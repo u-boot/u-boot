@@ -23,7 +23,6 @@
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
 
 /* PCI host support */
-#define CONFIG_CMD_PCI
 
 #include "tegra-common-post.h"
 

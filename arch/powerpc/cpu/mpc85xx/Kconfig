@@ -489,6 +489,7 @@ config ARCH_BSC9132
 	imply CMD_EEPROM
 	imply CMD_MTDPARTS
 	imply CMD_NAND
+	imply CMD_PCI
 
 config ARCH_C29X
 	bool
@@ -503,6 +504,7 @@ config ARCH_C29X
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select FSL_IFC
 	imply CMD_NAND
+	imply CMD_PCI
 
 config ARCH_MPC8536
 	bool
@@ -633,6 +635,7 @@ config ARCH_P1010
 	imply CMD_MTDPARTS
 	imply CMD_NAND
 	imply CMD_SATA
+	imply CMD_PCI
 
 config ARCH_P1011
 	bool
@@ -663,6 +666,7 @@ config ARCH_P1020
 	select FSL_ELBC
 	imply CMD_NAND
 	imply CMD_SATA
+	imply CMD_PCI
 
 config ARCH_P1021
 	bool
@@ -724,6 +728,7 @@ config ARCH_P1024
 	imply CMD_EEPROM
 	imply CMD_NAND
 	imply CMD_SATA
+	imply CMD_PCI
 
 config ARCH_P1025
 	bool
@@ -1076,6 +1081,7 @@ config E500
 
 config E500MC
 	bool
+	imply CMD_PCI
 	help
 		Enble PowerPC E500MC core
 

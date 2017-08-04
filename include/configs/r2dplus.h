@@ -11,7 +11,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PCI
 #define CONFIG_CMD_SH_ZIMAGEBOOT
 
 /* SCIF */

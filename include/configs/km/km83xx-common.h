@@ -219,10 +219,6 @@
 #define CONFIG_SYS_NAND_BASE		CONFIG_SYS_KMBEC_FPGA_BASE
 #endif
 
-#if defined(CONFIG_PCI)
-#define CONFIG_CMD_PCI
-#endif
-
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is

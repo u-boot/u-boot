@@ -462,10 +462,6 @@
  * Command line configuration.
  */
 
-#if defined(CONFIG_PCI)
-    #define CONFIG_CMD_PCI
-#endif
-
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
 /*

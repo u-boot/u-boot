@@ -29,9 +29,6 @@
  * This version should also enable all other non-production
  * interfaces / features.
  */
-#ifdef CONFIG_USB
-#define CONFIG_CMD_PCI
-#endif
 
 /* I2C */
 #define CONFIG_SYS_I2C

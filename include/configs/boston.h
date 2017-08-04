@@ -20,7 +20,6 @@
 /*
  * PCI
  */
-#define CONFIG_CMD_PCI
 
 /*
  * Memory map

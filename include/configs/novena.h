@@ -17,7 +17,6 @@
 #include "mx6_common.h"
 
 /* U-Boot Commands */
-#define CONFIG_CMD_PCI
 
 /* U-Boot general configurations */
 

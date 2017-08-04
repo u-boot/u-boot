@@ -271,10 +271,6 @@
  * Command line configuration.
  */
 
-#ifdef CONFIG_PCI
-#define CONFIG_CMD_PCI
-#endif
-
 /*
  * Miscellaneous configurable options
  */

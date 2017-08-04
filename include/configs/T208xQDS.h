@@ -737,10 +737,6 @@ unsigned long get_board_ddr_clk(void);
  */
 #define CONFIG_CMD_REGINFO
 
-#ifdef CONFIG_PCI
-#define CONFIG_CMD_PCI
-#endif
-
 /*
  * Miscellaneous configurable options
  */

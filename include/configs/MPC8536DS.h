@@ -583,10 +583,6 @@
  */
 #define CONFIG_CMD_REGINFO
 
-#if defined(CONFIG_PCI)
-#define CONFIG_CMD_PCI
-#endif
-
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
 #ifdef CONFIG_MMC

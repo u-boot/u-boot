@@ -286,7 +286,6 @@
 /*
  * Command configuration.
  */
-#define CONFIG_CMD_PCI
 #define CONFIG_CMD_PCI_ENUM
 #define CONFIG_CMD_REGINFO
 

@@ -354,10 +354,6 @@
  */
 #define CONFIG_CMD_REGINFO
 
-#if defined(CONFIG_PCI)
-    #define CONFIG_CMD_PCI
-#endif
-
 #if defined(CONFIG_ETHER_ON_FCC)
 #endif
 

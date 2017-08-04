@@ -35,7 +35,6 @@
 #define CONFIG_USB_EHCI_TEGRA
 
 /* PCI host support */
-#define CONFIG_CMD_PCI
 
 /* PCI networking support */
 #define CONFIG_E1000_NO_NVM

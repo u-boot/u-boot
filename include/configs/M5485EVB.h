@@ -25,9 +25,6 @@
 #undef CONFIG_HW_WATCHDOG
 #define CONFIG_WATCHDOG_TIMEOUT	5000	/* timeout in milliseconds, max timeout is 6.71sec */
 
-/* Command line configuration */
-#define CONFIG_CMD_PCI
-
 #define CONFIG_SLTTMR
 
 #define CONFIG_FSLDMAFEC
@@ -67,9 +64,6 @@
 
 #ifdef CONFIG_CMD_USB
 #	define CONFIG_USB_OHCI_NEW
-#	ifndef CONFIG_CMD_PCI
-#		define CONFIG_CMD_PCI
-#	endif
 /*#	define CONFIG_PCI_OHCI*/
 #	define CONFIG_SYS_USB_OHCI_REGS_BASE		0x80041000
 #	define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	15
