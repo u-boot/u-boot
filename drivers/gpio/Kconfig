@@ -165,6 +165,15 @@ config SANDBOX_GPIO_COUNT
 	  of 'anonymous' GPIOs that do not belong to any device or bank.
 	  Select a suitable value depending on your needs.
 
+config CMD_TCA642X
+	bool "tca642x - Command to access tca642x state"
+	help
+	  DEPRECATED - This needs conversion to driver model
+
+	  This provides a way to looking at the pin state of this device.
+	  This mirrors the 'gpio' command and that should be used in preference
+	  to custom code.
+
 config TEGRA_GPIO
 	bool "Tegra20..210 GPIO driver"
 	depends on DM_GPIO

@@ -46,7 +46,6 @@
 
 /* Required support for the TCA642X GPIO we have on the uEVM */
 #define CONFIG_TCA642X
-#define CONFIG_CMD_TCA642X
 #define CONFIG_SYS_I2C_TCA642X_BUS_NUM 4
 #define CONFIG_SYS_I2C_TCA642X_ADDR 0x22
 
