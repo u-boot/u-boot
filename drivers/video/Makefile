@@ -33,7 +33,6 @@ obj-$(CONFIG_SCF0403_LCD) += scf0403_lcd.o
 obj-$(CONFIG_S6E8AX0) += s6e8ax0.o
 obj-$(CONFIG_S6E63D6) += s6e63d6.o
 obj-$(CONFIG_LD9040) += ld9040.o
-obj-$(CONFIG_SED156X) += sed156x.o
 obj-$(CONFIG_VIDEO_BCM2835) += bcm2835.o
 obj-$(CONFIG_VIDEO_COREBOOT) += coreboot.o
 obj-$(CONFIG_VIDEO_CT69000) += ct69000.o videomodes.o
