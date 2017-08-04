@@ -757,11 +757,6 @@ The following options need to be configured:
 		CONFIG_SYS_BAUDRATE_TABLE, see below.
 
 - Monitor Functions:
-		Monitor commands can be included or excluded
-		from the build by using the #include files
-		<config_cmd_all.h> and #undef'ing unwanted
-		commands, or adding #define's for wanted commands.
-
 		The default command configuration includes all commands
 		except those marked below with a "*".
 
