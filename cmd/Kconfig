@@ -1122,6 +1122,17 @@ config CMD_TERMINAL
 	  is very simple with no special processing of characters. As with
 	  cu, you can press ~. (tilde followed by period) to exit.
 
+config CMD_UUID
+	bool "uuid, guid - generation of unique IDs"
+	help
+	  This enables two commands:
+
+	     uuid - generate random Universally Unique Identifier
+	     guid - generate Globally Unique Identifier based on random UUID
+
+	  The two commands are very similar except for the endianness of the
+	  output.
+
 endmenu
 
 config CMD_BOOTSTAGE

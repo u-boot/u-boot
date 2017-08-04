@@ -826,7 +826,6 @@ The following options need to be configured:
 		CONFIG_CMD_USB		* USB support
 		CONFIG_CMD_CDP		* Cisco Discover Protocol support
 		CONFIG_CMD_XIMG		  Load part of Multi Image
-		CONFIG_CMD_UUID		* Generate random UUID or GUID string
 
 		EXAMPLE: If you want all functions except of network
 		support you can write:
