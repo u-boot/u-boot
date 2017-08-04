@@ -81,6 +81,7 @@ config TARGET_AM335X_SHC
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
+	imply CMD_SPL
 
 config TARGET_AM335X_SL50
 	bool "Support am335x_sl50"

@@ -276,6 +276,15 @@ config CMD_POWEROFF
 	help
 	  Poweroff/Shutdown the system
 
+config CMD_SPL
+	bool "spl export - Export boot information for Falcon boot"
+	depends on SPL
+	help
+	  Falcon mode allows booting directly from SPL into an Operating
+	  System such as Linux, thus skipping U-Boot proper. See
+	  doc/README.falcon for full information about how to use this
+	  command.
+
 endmenu
 
 menu "Environment commands"

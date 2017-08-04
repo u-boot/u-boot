@@ -318,7 +318,6 @@
 /* Commands */
 
 /* SPL part */
-#define CONFIG_CMD_SPL
 #define CONFIG_SPL_FRAMEWORK
 
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/mach-zynq/u-boot-spl.lds"

@@ -145,6 +145,7 @@ config TARGET_GW_VENTANA
 	bool "gw_ventana"
 	select SUPPORT_SPL
 	imply CMD_SATA
+	imply CMD_SPL
 
 config TARGET_KOSAGI_NOVENA
 	bool "Kosagi Novena"

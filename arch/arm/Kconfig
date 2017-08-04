@@ -732,6 +732,7 @@ config ARCH_ZYNQ
 	select CLK_ZYNQ
 	imply CMD_CLK
 	imply FAT_WRITE
+	imply CMD_SPL
 
 config ARCH_ZYNQMP
 	bool "Support Xilinx ZynqMP Platform"

@@ -36,7 +36,6 @@
 	"bootcmd=run nandboot\0"
 
 /* SPL OS boot options */
-#define CONFIG_CMD_SPL
 #define CONFIG_CMD_SPL_WRITE_SIZE	0x400 /* 1024 byte */
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x00200000
 #define CONFIG_CMD_SPL_NAND_OFS	(CONFIG_SYS_NAND_SPL_KERNEL_OFFS+\

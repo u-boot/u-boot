@@ -166,7 +166,6 @@
 	"fdtaddr=40800000\0" \
 
 /* Falcon mode definitions */
-#define CONFIG_CMD_SPL
 #define CONFIG_SYS_SPL_ARGS_ADDR        CONFIG_SYS_SDRAM_BASE + 0x100
 
 /* GPT */
