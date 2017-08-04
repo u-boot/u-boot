@@ -812,7 +812,6 @@ The following options need to be configured:
 		CONFIG_CMD_MII		* MII utility commands
 		CONFIG_CMD_NET		  bootp, tftpboot, rarpboot
 		CONFIG_CMD_NFS		  NFS support
-		CONFIG_CMD_PCMCIA		* PCMCIA support
 		CONFIG_CMD_PING		* send ICMP ECHO_REQUEST to network
 					  host
 		CONFIG_CMD_PORTIO	* Port I/O

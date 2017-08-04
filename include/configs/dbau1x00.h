@@ -67,11 +67,6 @@
  * Command line configuration.
  */
 
-#ifdef CONFIG_DBAU1550
-
-#undef CONFIG_CMD_PCMCIA
-#endif
-
 /*
  * Miscellaneous configurable options
  */

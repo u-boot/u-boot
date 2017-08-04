@@ -13,7 +13,6 @@
 #define CONFIG_MS7720SE		1
 
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_PCMCIA
 
 #define CONFIG_BOOTARGS		"console=ttySC0,115200"
 #define CONFIG_BOOTFILE		"/boot/zImage"
