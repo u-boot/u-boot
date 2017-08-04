@@ -718,6 +718,14 @@ config CMD_MMC_SPI
 	  to 20MHz. It is useful since it reduces the amount of protocol code
 	  required.
 
+config CMD_ONENAND
+	bool "onenand - access to onenand device"
+	help
+	  OneNAND is a brand of NAND ('Not AND' gate) flash which provides
+	  various useful features. This command allows reading, writing,
+	  and erasing blocks. It allso provides a way to show and change
+	  bad blocks, and test the device.
+
 config CMD_PART
 	bool "part"
 	select PARTITION_UUIDS

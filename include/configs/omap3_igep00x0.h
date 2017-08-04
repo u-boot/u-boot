@@ -52,8 +52,6 @@
 #define CONFIG_USBD_MANUFACTURER	"Texas Instruments"
 #define CONFIG_USBD_PRODUCT_NAME	"IGEP"
 
-#define CONFIG_CMD_ONENAND
-
 #ifndef CONFIG_SPL_BUILD
 
 /* Environment */

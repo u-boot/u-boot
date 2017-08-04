@@ -59,8 +59,6 @@
 /***********************************************************
  * Command definition
  ***********************************************************/
-#define CONFIG_CMD_ONENAND
-
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 

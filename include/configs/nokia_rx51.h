@@ -102,12 +102,6 @@
 #define CONFIG_CMDLINE_EDITING		/* add command line history */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
 
-#ifdef ONENAND_SUPPORT
-
-#define CONFIG_CMD_ONENAND		/* ONENAND support */
-
-#endif
-
 #define CONFIG_OMAP3_SPI
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_OMAP24_I2C_SPEED	100000
