@@ -13,7 +13,6 @@
  * Alphabetical list of all possible commands.
  */
 
-#define CONFIG_CMD_MFSL		/* FSL support for Microblaze	*/
 #define CONFIG_CMD_ONENAND	/* OneNAND support		*/
 #define CONFIG_CMD_PCI		/* pciinfo			*/
 #define CONFIG_CMD_PCMCIA	/* PCMCIA support		*/
