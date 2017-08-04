@@ -370,20 +370,6 @@ endmenu
 
 menu "Memory commands"
 
-config CMD_MEMORY
-	bool "md, mm, nm, mw, cp, cmp, base, loop"
-	default y
-	help
-	  Memory commands.
-	    md - memory display
-	    mm - memory modify (auto-incrementing address)
-	    nm - memory modify (constant address)
-	    mw - memory write (fill)
-	    cp - memory copy
-	    cmp - memory compare
-	    base - print or set address offset
-	    loop - initialize loop on address range
-
 config CMD_CRC32
 	bool "crc32"
 	select HASH
@@ -445,6 +431,11 @@ config EEPROM_LAYOUT_HELP_STRING
 	    Help printed with the LAYOUT VERSIONS part of the 'eeprom'
 	    command's help.
 
+config LOOPW
+	bool "loopw"
+	help
+	  Infinite write loop on address range
+
 config CMD_MD5SUM
 	bool "md5sum"
 	default n
@@ -459,22 +450,24 @@ config MD5SUM_VERIFY
 	help
 	  Add -v option to verify data against an MD5 checksum.
 
-config CMD_SHA1SUM
-	bool "sha1sum"
-	select SHA1
+config CMD_MEMINFO
+	bool "meminfo"
 	help
-	  Compute SHA1 checksum.
+	  Display memory information.
 
-config SHA1SUM_VERIFY
-	bool "sha1sum -v"
-	depends on CMD_SHA1SUM
+config CMD_MEMORY
+	bool "md, mm, nm, mw, cp, cmp, base, loop"
+	default y
 	help
-	  Add -v option to verify data against a SHA1 checksum.
-
-config LOOPW
-	bool "loopw"
-	help
-	  Infinite write loop on address range
+	  Memory commands.
+	    md - memory display
+	    mm - memory modify (auto-incrementing address)
+	    nm - memory modify (constant address)
+	    mw - memory write (fill)
+	    cp - memory copy
+	    cmp - memory compare
+	    base - print or set address offset
+	    loop - initialize loop on address range
 
 config CMD_MEMTEST
 	bool "memtest"
@@ -487,10 +480,17 @@ config CMD_MX_CYCLIC
 	  mdc - memory display cyclic
 	  mwc - memory write cyclic
 
-config CMD_MEMINFO
-	bool "meminfo"
+config CMD_SHA1SUM
+	bool "sha1sum"
+	select SHA1
 	help
-	  Display memory information.
+	  Compute SHA1 checksum.
+
+config SHA1SUM_VERIFY
+	bool "sha1sum -v"
+	depends on CMD_SHA1SUM
+	help
+	  Add -v option to verify data against a SHA1 checksum.
 
 endmenu
 
