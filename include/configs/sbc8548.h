@@ -506,11 +506,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-/*
- * Command line configuration.
- */
-#define CONFIG_CMD_REGINFO
-
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
 /*

@@ -56,8 +56,6 @@
 
 #define CONFIG_DDR_ECC
 
-#define CONFIG_CMD_REGINFO
-
 /* High Level Configuration Options */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 #define CONFIG_MP			/* support multiple processors */

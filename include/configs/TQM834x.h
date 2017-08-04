@@ -213,11 +213,6 @@
 
 #endif	/* CONFIG_TSEC_ENET */
 
-/*
- * General PCI
- * Addresses are mapped 1-1.
- */
-
 #if defined(CONFIG_PCI)
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */

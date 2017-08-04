@@ -158,6 +158,12 @@ config CMD_LICENSE
 	help
 	  Print GPL license text
 
+config CMD_REGINFO
+	bool "reginfo"
+	depends on PPC
+	help
+	  Register dump
+
 endmenu
 
 menu "Boot commands"

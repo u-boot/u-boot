@@ -284,11 +284,6 @@
 #define CONFIG_BOOTP_GATEWAY
 
 /*
- * Command configuration.
- */
-#define CONFIG_CMD_REGINFO
-
-/*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/

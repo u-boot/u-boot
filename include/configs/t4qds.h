@@ -10,8 +10,6 @@
 #ifndef __T4QDS_H
 #define __T4QDS_H
 
-#define CONFIG_CMD_REGINFO
-
 /* High Level Configuration Options */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 #define CONFIG_MP			/* support multiple processors */

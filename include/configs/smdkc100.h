@@ -56,9 +56,6 @@
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
-/***********************************************************
- * Command definition
- ***********************************************************/
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 

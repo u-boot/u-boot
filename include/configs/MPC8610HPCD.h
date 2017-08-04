@@ -262,8 +262,6 @@
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
-#define CONFIG_CMD_REGINFO
-
 #define CONFIG_ULI526X
 #ifdef CONFIG_ULI526X
 #endif

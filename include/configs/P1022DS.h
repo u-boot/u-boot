@@ -581,11 +581,6 @@
 #define CONFIG_SYS_LOADS_BAUD_CHANGE
 
 /*
- * Command line configuration.
- */
-#define CONFIG_CMD_REGINFO
-
-/*
  * USB
  */
 #define CONFIG_HAS_FSL_DR_USB

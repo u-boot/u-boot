@@ -333,9 +333,6 @@
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
 #ifndef CONFIG_TRAILBLAZER
-
-#define CONFIG_CMD_REGINFO
-
 /*
  * Board initialisation callbacks
  */

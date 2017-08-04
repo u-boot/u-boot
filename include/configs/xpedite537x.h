@@ -334,11 +334,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_HAS_ETH1
 
 /*
- * Command configuration.
- */
-#define CONFIG_CMD_REGINFO
-
-/*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
