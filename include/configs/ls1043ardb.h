@@ -292,7 +292,6 @@
 #ifndef SPL_NO_SATA
 #define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI
-#define CONFIG_CMD_SCSI
 #ifndef CONFIG_CMD_EXT2
 #define CONFIG_CMD_EXT2
 #endif

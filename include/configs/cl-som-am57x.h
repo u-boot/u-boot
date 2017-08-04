@@ -64,7 +64,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 /* SATA */
-#define CONFIG_CMD_SCSI
 #define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI
 #define CONFIG_SCSI_AHCI_PLAT

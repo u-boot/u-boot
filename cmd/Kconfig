@@ -1290,6 +1290,15 @@ config CMD_REISER
 	    reiserls - list files
 	    reiserload - load a file
 
+config CMD_SCSI
+	bool "scsi - Access to SCSI devices"
+	default y if SCSI
+	help
+	  This provides a 'scsi' command which provides access to SCSI (Small
+	  Computer System Interface) devices. The command provides a way to
+	  scan the bus, reset the bus, read and write data and get information
+	  about devices.
+
 endmenu
 
 menu "Debug commands"
