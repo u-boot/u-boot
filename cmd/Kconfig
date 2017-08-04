@@ -779,6 +779,12 @@ config CMD_SATA
 	  Attachment, where AT refers to an IBM AT (Advanced Technology)
 	  computer released in 1984.
 
+config CMD_SAVES
+	bool "saves - Save a file over serial in S-Record format"
+	help
+	  Provides a way to save a binary file using the Motorola S-Record
+	  format over the serial line.
+
 config CMD_SF
 	bool "sf"
 	help

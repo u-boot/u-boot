@@ -123,12 +123,6 @@
 	/* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-/*=================*/
-/* U-Boot commands */
-/*=================*/
-
-#define CONFIG_CMD_SAVES
-
 /*==============================*/
 /* U-Boot autoboot configuration */
 /*==============================*/

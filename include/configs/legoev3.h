@@ -197,11 +197,6 @@
 	"loadbootscr=fatload mmc 0 ${bootscraddr} boot.scr\0" \
 	"bootscript=source ${bootscraddr}\0" \
 
-/*
- * U-Boot commands
- */
-#define CONFIG_CMD_SAVES
-
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS
 #endif

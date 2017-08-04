@@ -294,14 +294,6 @@
 	"echo Product: $product; "	\
 	"gpio c 1; gpio c 2;"
 
-/*
- * U-Boot commands
- */
-#define CONFIG_CMD_SAVES
-
-#ifndef CONFIG_DRIVER_TI_EMAC
-#endif
-
 /* additions for new relocation code, must added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0xc0000000
 /* initial stack pointer in internal SRAM */

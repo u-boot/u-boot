@@ -160,24 +160,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-/*
- * Command line configuration.
- */
-
-#if defined(FLASH)
-# if !defined(RAMENV)
-#  define CONFIG_CMD_SAVES
-# endif
-
-#else
-#if defined(SPIFLASH)
-
-# if !defined(RAMENV)
-#  define CONFIG_CMD_SAVES
-# endif
-#endif
-#endif
-
 #if defined(CONFIG_CMD_JFFS2)
 # define CONFIG_MTD_PARTITIONS
 #endif

@@ -93,11 +93,6 @@
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 
 /*
- * Command support defines
- */
-#define CONFIG_CMD_SAVES
-
-/*
  * Default Environment Varible definitions
  */
 #define CONFIG_ENV_OVERWRITE

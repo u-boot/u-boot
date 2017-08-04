@@ -121,11 +121,6 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 
-/*
- * U-Boot commands
- */
-#define CONFIG_CMD_SAVES
-
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS
 #endif

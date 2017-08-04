@@ -263,11 +263,6 @@
 	"mem=32M console=ttyS2,115200n8 root=/dev/mtdblock2 rw noinitrd ip=dhcp"
 #define CONFIG_EXTRA_ENV_SETTINGS	"hwconfig=dsp:wake=yes"
 
-/*
- * U-Boot commands
- */
-#define CONFIG_CMD_SAVES
-
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS
 #endif

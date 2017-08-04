@@ -197,9 +197,6 @@
 #define CONFIG_DEV_USB_PHY_BASE			KS2_DEV_USB_PHY_BASE
 #define CONFIG_USB_PHY_CFG_BASE			KS2_USB_PHY_CFG_BASE
 
-/* U-Boot command configuration */
-#define CONFIG_CMD_SAVES
-
 /* U-Boot general configuration */
 #define CONFIG_MISC_INIT_R
 #define CONFIG_MX_CYCLIC

@@ -97,11 +97,6 @@
 #define CONFIG_USB_EHCI_SPEAR
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 
-/*
- * Command support defines
- */
-#define CONFIG_CMD_SAVES
-
 /* Filesystem support (for USB key) */
 #define CONFIG_SUPPORT_VFAT
 

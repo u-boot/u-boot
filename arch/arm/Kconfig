@@ -308,6 +308,7 @@ config TARGET_GPLUGD
 config ARCH_DAVINCI
 	bool "TI DaVinci"
 	select CPU_ARM926EJS
+	imply CMD_SAVES
 	help
 	  Support for TI's DaVinci platform.
 
@@ -409,21 +410,25 @@ config TARGET_SPEAR300
 	bool "Support spear300"
 	select CPU_ARM926EJS
 	select BOARD_EARLY_INIT_F
+	imply CMD_SAVES
 
 config TARGET_SPEAR310
 	bool "Support spear310"
 	select CPU_ARM926EJS
 	select BOARD_EARLY_INIT_F
+	imply CMD_SAVES
 
 config TARGET_SPEAR320
 	bool "Support spear320"
 	select CPU_ARM926EJS
 	select BOARD_EARLY_INIT_F
+	imply CMD_SAVES
 
 config TARGET_SPEAR600
 	bool "Support spear600"
 	select CPU_ARM926EJS
 	select BOARD_EARLY_INIT_F
+	imply CMD_SAVES
 
 config TARGET_STV0991
 	bool "Support stv0991"
@@ -575,6 +580,7 @@ config ARCH_KEYSTONE
 	select CMD_POWEROFF
 	imply CMD_MTDPARTS
 	imply FIT
+	imply CMD_SAVES
 
 config ARCH_OMAP2PLUS
 	bool "TI OMAP2+"
