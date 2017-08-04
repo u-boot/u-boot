@@ -312,6 +312,18 @@ config CMD_THOR_DOWNLOAD
 	  There is no documentation about this within the U-Boot source code
 	  but you should be able to find something on the interwebs.
 
+config CMD_ZBOOT
+	bool "zboot - x86 boot command"
+	help
+	  With x86 machines it is common to boot a bzImage file which
+	  contains both a kernel and a setup.bin file. The latter includes
+	  configuration information from the dark ages which x86 boards still
+	  need to pick things out of.
+
+	  Consider using FIT in preference to this since it supports directly
+	  booting both 32- and 64-bit kernels, as well as secure boot.
+	  Documentation is available in doc/uImage.FIT/x86-fit-boot.txt
+
 endmenu
 
 menu "Environment commands"

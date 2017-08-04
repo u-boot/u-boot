@@ -10,7 +10,6 @@
 #include <asm/ibmpc.h>
 
 /* Boot */
-#define CONFIG_CMD_ZBOOT
 #define CONFIG_BOOTCOMMAND "run bootcmd"
 
 /* DISK Partition support */

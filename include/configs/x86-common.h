@@ -67,8 +67,6 @@
  * Command line configuration.
  */
 
-#define CONFIG_CMD_ZBOOT
-
 #define CONFIG_BOOTARGS		\
 	"root=/dev/sdb3 init=/sbin/init rootwait ro"
 #define CONFIG_BOOTCOMMAND	\

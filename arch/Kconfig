@@ -113,6 +113,7 @@ config X86
 	imply CMD_IO
 	imply CMD_IRQ
 	imply CMD_SF_TEST
+	imply CMD_ZBOOT
 
 config XTENSA
 	bool "Xtensa architecture"
