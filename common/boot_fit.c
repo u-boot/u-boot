@@ -25,7 +25,7 @@ int fdt_offset(void *fit)
 	images = fdt_path_offset(fit, FIT_IMAGES_PATH);
 	if (images < 0) {
 		debug("%s: Cannot find /images node: %d\n", __func__, images);
-		return FDT_ERROR;
+		return -EINVAL;
 	}
 
 	fdt_name = fdt_getprop(fit, node, FIT_FDT_PROP, &fdt_len);
