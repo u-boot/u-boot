@@ -15,7 +15,6 @@
 #undef CONFIG_USB_GADGET_DWC2_OTG
 #undef CONFIG_USB_GADGET_DWC2_OTG_PHY
 #undef CONFIG_REVISION_TAG
-#undef CONFIG_CMD_THOR_DOWNLOAD
 
 /* High Level Configuration Options */
 #define CONFIG_EXYNOS4210		1	/* which is a EXYNOS4210 SoC */

@@ -304,6 +304,14 @@ config CMD_SPL_WRITE_SIZE
 	  flash used by Falcon-mode boot. See the documentation until CMD_SPL
 	  for detail.
 
+config CMD_THOR_DOWNLOAD
+	bool "thor - TIZEN 'thor' download"
+	help
+	  Implements the 'thor' download protocol. This is a way of
+	  downloading a software update over USB from an attached host.
+	  There is no documentation about this within the U-Boot source code
+	  but you should be able to find something on the interwebs.
+
 endmenu
 
 menu "Environment commands"
