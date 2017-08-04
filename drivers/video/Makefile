@@ -28,7 +28,6 @@ obj-$(CONFIG_ATMEL_LCD) += atmel_lcdfb.o
 obj-$(CONFIG_CFB_CONSOLE) += cfb_console.o
 obj-$(CONFIG_FSL_DIU_FB) += fsl_diu_fb.o videomodes.o
 obj-$(CONFIG_VIDEO_FSL_DCU_FB) += fsl_dcu_fb.o videomodes.o
-obj-$(CONFIG_L5F31188) += l5f31188.o
 obj-$(CONFIG_PXA_LCD) += pxa_lcd.o
 obj-$(CONFIG_SCF0403_LCD) += scf0403_lcd.o
 obj-$(CONFIG_S6E8AX0) += s6e8ax0.o
