@@ -797,6 +797,17 @@ config CMD_SF
 	help
 	  SPI Flash support
 
+config CMD_SF_TEST
+	bool "sf test - Allow testing of SPI flash"
+	help
+	  Provides a way to test that SPI flash is working correctly. The
+	  test is destructive, in that an area of SPI flash must be provided
+	  for the test to use. Performance information is also provided,
+	  measuring the performance of reading, writing and erasing in
+	  Mbps (Million Bits Per Second). This value should approximately
+	  equal the SPI bus speed for a single-bit-wide SPI bus, assuming
+	  everything is working properly.
+
 config CMD_SPI
 	bool "sspi"
 	help

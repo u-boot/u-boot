@@ -78,6 +78,7 @@ config SANDBOX
 	imply LZMA
 	imply SCSI
 	imply CMD_SATA
+	imply CMD_SF_TEST
 
 config SH
 	bool "SuperH architecture"
@@ -111,6 +112,7 @@ config X86
 	imply CMD_GETTIME
 	imply CMD_IO
 	imply CMD_IRQ
+	imply CMD_SF_TEST
 
 config XTENSA
 	bool "Xtensa architecture"

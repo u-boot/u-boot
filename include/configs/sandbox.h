@@ -52,7 +52,6 @@
 #define CONFIG_ENV_SIZE		8192
 
 /* SPI - enable all SPI flash types for testing purposes */
-#define CONFIG_CMD_SF_TEST
 
 #define CONFIG_I2C_EDID
 

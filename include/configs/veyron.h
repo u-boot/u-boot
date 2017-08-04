@@ -17,8 +17,6 @@
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SPI_FLASH_GIGADEVICE
 
-#define CONFIG_CMD_SF_TEST
-
 #define CONFIG_KEYBOARD
 
 #endif

@@ -9,8 +9,6 @@
 
 #include <configs/x86-common.h>
 
-#undef CONFIG_CMD_SF_TEST
-
 #undef CONFIG_TPM_TIS_BASE_ADDRESS
 
 #undef CONFIG_SCSI_AHCI
