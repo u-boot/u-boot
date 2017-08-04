@@ -21,12 +21,12 @@
  * Start the timer
  *
  * @dev: WDT Device
- * @timeout: Number of ticks before timer expires
+ * @timeout_ms: Number of ticks (milliseconds) before timer expires
  * @flags: Driver specific flags. This might be used to specify
  * which action needs to be executed when the timer expires
  * @return: 0 if OK, -ve on error
  */
-int wdt_start(struct udevice *dev, u64 timeout, ulong flags);
+int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags);
 
 /*
  * Stop the timer, thus disabling the Watchdog. Use wdt_start to start it again.
@@ -67,12 +67,12 @@ struct wdt_ops {
 	 * Start the timer
 	 *
 	 * @dev: WDT Device
-	 * @timeout: Number of ticks before the timer expires
+	 * @timeout_ms: Number of ticks (milliseconds) before the timer expires
 	 * @flags: Driver specific flags. This might be used to specify
 	 * which action needs to be executed when the timer expires
 	 * @return: 0 if OK, -ve on error
 	 */
-	int (*start)(struct udevice *dev, u64 timeout, ulong flags);
+	int (*start)(struct udevice *dev, u64 timeout_ms, ulong flags);
 	/*
 	 * Stop the timer
 	 *
