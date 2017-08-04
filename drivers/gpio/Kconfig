@@ -109,6 +109,15 @@ config OMAP_GPIO
 	  Support GPIO controllers on the TI OMAP3/4/5 and related (such as
 	  AM335x/AM43xx/AM57xx/DRA7xx/etc) families of SoCs.
 
+config CMD_PCA953X
+	bool "Enable the pca953x command"
+	help
+	  Deprecated: This should be converted to driver model.
+
+	  This command provides access to a pca953x GPIO device using the
+	  legacy GPIO interface. Several subcommands are provided which mirror
+	  the standard 'gpio' command. It should use that instead.
+
 config PM8916_GPIO
 	bool "Qualcomm PM8916 PMIC GPIO/keypad driver"
 	depends on DM_GPIO && PMIC_PM8916

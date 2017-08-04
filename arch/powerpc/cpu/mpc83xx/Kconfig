@@ -96,6 +96,7 @@ config TARGET_STRIDER
 	bool "Support strider"
 	select SYS_FSL_ERRATUM_ESDHC111
 	imply ENV_IS_IN_FLASH
+	imply CMD_PCA953X
 
 endchoice
 
