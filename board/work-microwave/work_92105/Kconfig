@@ -17,4 +17,11 @@ config CMD_HD44760
 	help
 	  This controls the LCD driver.
 
+config CMD_MAX6957
+	bool "Enable 'max6957aax' PMIC command"
+	help
+	  DEPRECATED: Needs conversion to driver model.
+
+	  This allows PMIC registers to be read and written.
+
 endif

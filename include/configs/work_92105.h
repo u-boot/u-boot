@@ -130,7 +130,6 @@
 
 #define CONFIG_LPC32XX_SSP
 #define CONFIG_LPC32XX_SSP_TIMEOUT 100000
-#define CONFIG_CMD_MAX6957
 /*
  * Environment
  */
