@@ -8,11 +8,6 @@
 
 #define CONFIG_DISPLAY_BOARDINFO
 
-/*
- * Command line configuration.
- */
-#define CONFIG_CMD_SH_ZIMAGEBOOT
-
 /* SCIF */
 #define CONFIG_CONS_SCIF1	1
 
