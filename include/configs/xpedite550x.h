@@ -335,7 +335,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 /*
  * Command configuration.
  */
-#define CONFIG_CMD_PCI_ENUM
 #define CONFIG_CMD_REGINFO
 
 /*
