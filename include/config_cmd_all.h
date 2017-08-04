@@ -13,7 +13,6 @@
  * Alphabetical list of all possible commands.
  */
 
-#define CONFIG_CMD_UNIVERSE	/* Tundra Universe Support	*/
 #define CONFIG_CMD_ZFS		/* ZFS Support			*/
 
 #endif	/* _CONFIG_CMD_ALL_H */

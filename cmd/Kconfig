@@ -863,6 +863,12 @@ config CMD_TSI148
 	  This provides various sub-commands to initialise and configure the
 	  Turndra tsi148 device. See the command help for full details.
 
+config CMD_UNIVERSE
+	bool "universe - Command to set up the Turndra Universe controller"
+	help
+	  This allows setting up the VMEbus provided by this controller.
+	  See the command help for full details.
+
 config CMD_USB
 	bool "usb"
 	help
