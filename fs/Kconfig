@@ -18,4 +18,6 @@ source "fs/ubifs/Kconfig"
 
 source "fs/cramfs/Kconfig"
 
+source "fs/yaffs2/Kconfig"
+
 endmenu
