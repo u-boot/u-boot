@@ -1416,6 +1416,15 @@ config CMD_KGDB
 	  single-stepping, inspecting variables, etc. This is supported only
 	  on PowerPC at present.
 
+config CMD_TRACE
+	bool "trace - Support tracing of function calls and timing"
+	help
+	  Enables a command to control using of function tracing within
+	  U-Boot. This allows recording of call traces including timing
+	  information. The command can write data to memory for exporting
+	  for analsys (e.g. using bootchart). See doc/README.trace for full
+	  details.
+
 endmenu
 
 config CMD_UBI
