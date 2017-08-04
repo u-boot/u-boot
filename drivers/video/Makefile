@@ -35,7 +35,6 @@ obj-$(CONFIG_S6E63D6) += s6e63d6.o
 obj-$(CONFIG_LD9040) += ld9040.o
 obj-$(CONFIG_VIDEO_BCM2835) += bcm2835.o
 obj-$(CONFIG_VIDEO_COREBOOT) += coreboot.o
-obj-$(CONFIG_VIDEO_CT69000) += ct69000.o videomodes.o
 obj-$(CONFIG_VIDEO_DA8XX) += da8xx-fb.o videomodes.o
 obj-$(CONFIG_VIDEO_LCD_ANX9804) += anx9804.o
 obj-$(CONFIG_VIDEO_LCD_HITACHI_TX18D42VM) += hitachi_tx18d42vm_lcd.o

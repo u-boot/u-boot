@@ -562,36 +562,9 @@ config CONSOLE_SCROLL_LINES
 	  console jump but can help speed up operation when scrolling
 	  is slow.
 
-config VIDEO_CT69000
-	bool "Enable Chips & Technologies 69000 video driver"
-	depends on VIDEO
-	help
-	  This enables a frame buffer driver for the Chips & Technologies
-	  ct69000, a fairly old graphics device (circa 2000) which is used
-	  on some hardware. It operates over the ISA bus, and supports
-	  some acceleration features.
-
-	  For the CT69000 and SMI_LYNXEM drivers, videomode is
-		selected via environment 'videomode'. Two different ways
-		are possible:
-		- "videomode=num"   'num' is a standard LiLo mode numbers.
-		Following standard modes are supported	(* is default):
-
-		      Colors	640x480 800x600 1024x768 1152x864 1280x1024
-		-------------+---------------------------------------------
-		      8 bits |	0x301*	0x303	 0x305	  0x161	    0x307
-		     15 bits |	0x310	0x313	 0x316	  0x162	    0x319
-		     16 bits |	0x311	0x314	 0x317	  0x163	    0x31A
-		     24 bits |	0x312	0x315	 0x318	    ?	    0x31B
-		-------------+---------------------------------------------
-		(i.e. setenv videomode 317; saveenv; reset;)
-
-		- "videomode=bootargs" all the video parameters are parsed
-		from the bootargs. (See drivers/video/videomodes.c)
-
 config SYS_CONSOLE_BG_COL
 	hex "Background colour"
-	depends on CFB_CONSOLE || VIDEO_CT69000
+	depends on CFB_CONSOLE
 	default 0x00
 	help
 	  Defines the background colour for the console. The value is from
@@ -602,7 +575,7 @@ config SYS_CONSOLE_BG_COL
 
 config SYS_CONSOLE_FG_COL
 	hex "Foreground colour"
-	depends on CFB_CONSOLE || VIDEO_CT69000
+	depends on CFB_CONSOLE
 	default 0xa0
 	help
 	  Defines the foreground colour for the console. The value is from
