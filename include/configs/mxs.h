@@ -46,7 +46,6 @@
 /* SPL */
 #define CONFIG_SPL_NO_CPU_SUPPORT_CODE
 #define CONFIG_SPL_START_S_PATH	"arch/arm/cpu/arm926ejs/mxs"
-#define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm926ejs/mxs/u-boot-spl.lds"
 
 /* Memory sizes */
 #define CONFIG_SYS_MALLOC_LEN		0x00400000	/* 4 MB for malloc */

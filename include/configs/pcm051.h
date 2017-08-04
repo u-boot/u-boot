@@ -117,8 +117,6 @@
 
 /* CPU */
 
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
-
 #ifdef CONFIG_SPI_BOOT
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000

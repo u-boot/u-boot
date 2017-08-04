@@ -235,8 +235,6 @@
 /* SPL part */
 #define CONFIG_SPL_FRAMEWORK
 
-#define CONFIG_SPL_LDSCRIPT	"arch/microblaze/cpu/u-boot-spl.lds"
-
 #ifdef CONFIG_SYS_FLASH_BASE
 # define CONFIG_SYS_UBOOT_BASE		CONFIG_SYS_FLASH_BASE
 #endif

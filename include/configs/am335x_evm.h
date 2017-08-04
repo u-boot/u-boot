@@ -191,8 +191,6 @@
 #define CONFIG_SYS_BOOTCOUNT_BE
 
 /* USB gadget RNDIS */
-
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
 #endif
 
 #ifdef CONFIG_NAND

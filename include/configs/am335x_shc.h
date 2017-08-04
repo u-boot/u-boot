@@ -246,8 +246,6 @@
 
 /* SPL */
 
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
-
 #ifndef CONFIG_SPL_USBETH_SUPPORT
 #define CONFIG_FASTBOOT_FLASH_MMC_DEV   1
 #endif

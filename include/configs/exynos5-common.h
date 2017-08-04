@@ -48,7 +48,6 @@
 #define CONFIG_SUPPORT_EMMC_BOOT
 
 /* specific .lds file */
-#define CONFIG_SPL_LDSCRIPT	"board/samsung/common/exynos-uboot-spl.lds"
 
 /* Boot Argument Buffer Size */
 /* memtest works on */

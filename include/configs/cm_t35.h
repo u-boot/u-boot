@@ -261,7 +261,6 @@
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_ECC
 #define CONFIG_SPL_OMAP3_ID_NAND
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
 
 /* NAND boot config */
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE

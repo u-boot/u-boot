@@ -149,7 +149,6 @@
 
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 #define CONFIG_SYS_SPI_U_BOOT_SIZE	0x40000
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
 
 /*
  * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM

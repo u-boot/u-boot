@@ -76,7 +76,6 @@
 #define CONFIG_SYS_FSL_PBL_RCW	\
 	board/freescale/ls1021aiot/ls102xa_rcw_sd.cfg
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_ENV_SUPPORT

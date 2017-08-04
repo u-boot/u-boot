@@ -64,7 +64,6 @@
 /* SD boot SPL */
 #ifdef CONFIG_SD_BOOT
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/cpu/armv8/u-boot-spl.lds"
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
@@ -104,7 +103,6 @@
 #ifdef CONFIG_NAND_BOOT
 #define CONFIG_SPL_PBL_PAD
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/cpu/armv8/u-boot-spl.lds"
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
