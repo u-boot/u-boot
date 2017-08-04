@@ -204,6 +204,7 @@ class Config(object):
 
         self.print_warnings = print_warnings
         self.print_undef_assign = print_undef_assign
+        self._warnings = []
 
         # For parsing routines that stop when finding a line belonging to a
         # different construct, these holds that line and the tokenized version
@@ -398,8 +399,12 @@ class Config(object):
           need to refer to the top-level kernel directory with "$srctree".
 
         replace (default: True): True if the configuration should replace the
-           old configuration; False if it should add to it."""
+           old configuration; False if it should add to it.
 
+        Returns a list or warnings (hopefully empty)
+        """
+
+        self._warnings = []
         # Put this first so that a missing file doesn't screw up our state
         filename = os.path.expandvars(filename)
         line_feeder = _FileFeed(filename)
@@ -449,7 +454,7 @@ class Config(object):
         while 1:
             line = line_feeder.get_next()
             if line is None:
-                return
+                return self._warnings
 
             line = line.rstrip()
 
@@ -1763,8 +1768,10 @@ class Config(object):
 
     def _warn(self, msg, filename=None, linenr=None):
         """For printing warnings to stderr."""
+        msg = _build_msg("warning: " + msg, filename, linenr)
         if self.print_warnings:
-            _stderr_msg("warning: " + msg, filename, linenr)
+            sys.stderr.write(msg + "\n")
+        self._warnings.append(msg)
 
 class Item(object):
 
@@ -3369,10 +3376,13 @@ def _clean_up_path(path):
         path = path[2:]
     return path.rstrip("/")
 
-def _stderr_msg(msg, filename, linenr):
+def _build_msg(msg, filename, linenr):
     if filename is not None:
-        sys.stderr.write("{0}:{1}: ".format(_clean_up_path(filename), linenr))
-    sys.stderr.write(msg + "\n")
+        msg = "{0}:{1}: ".format(_clean_up_path(filename), linenr) + msg
+    return msg
+
+def _stderr_msg(msg, filename, linenr):
+    sys.stderr.write(_build_msg(msg, filename, linenr) + "\n")
 
 def _tokenization_error(s, filename, linenr):
     loc = "" if filename is None else "{0}:{1}: ".format(filename, linenr)
