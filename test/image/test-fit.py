@@ -392,7 +392,7 @@ def run_fit_test(mkimage, u_boot):
         fail('Ramdisk loaded but should not be', stdout)
 
     # Find out the offset in the FIT where U-Boot has found the FDT
-    line = find_matching(stdout, 'Booting using the FDT blob at ')
+    line = find_matching(stdout, 'Booting using the fdt blob at ')
     fit_offset = int(line, 16) - params['fit_addr']
     fdt_magic = struct.pack('>L', 0xd00dfeed)
     data = read_file(fit)
