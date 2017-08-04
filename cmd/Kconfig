@@ -285,6 +285,16 @@ config CMD_SPL
 	  doc/README.falcon for full information about how to use this
 	  command.
 
+config CMD_SPL_NAND_OFS
+	hex "Offset of OS command line args for Falcon-mode NAND boot"
+	depends on CMD_SPL
+	default 0
+	help
+	  This provides the offset of the command line arguments for Linux
+	  when booting from NAND in Falcon mode.  See doc/README.falcon
+	  for full information about how to use this option (and also see
+	  board/gateworks/gw_ventana/README for an example).
+
 endmenu
 
 menu "Environment commands"
