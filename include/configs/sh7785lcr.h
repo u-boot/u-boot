@@ -12,7 +12,6 @@
 #define CONFIG_CPU_SH7785	1
 #define CONFIG_SH7785LCR	1
 
-#define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_SH_ZIMAGEBOOT
 
 #define CONFIG_BOOTARGS		"console=ttySC1,115200 root=/dev/nfs ip=dhcp"

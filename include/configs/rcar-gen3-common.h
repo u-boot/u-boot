@@ -12,7 +12,6 @@
 
 #include <asm/arch/rmobile.h>
 
-#define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE

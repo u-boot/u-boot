@@ -472,11 +472,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-/*
- * Command line configuration.
- */
-#define CONFIG_CMD_SDRAM
-
 #if defined(CONFIG_COMPACT_FLASH) || defined(CONFIG_SATA_SIL3114) \
 				|| defined(CONFIG_USB_STORAGE)
 	#define CONFIG_SUPPORT_VFAT

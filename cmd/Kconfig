@@ -785,6 +785,13 @@ config CMD_SAVES
 	  Provides a way to save a binary file using the Motorola S-Record
 	  format over the serial line.
 
+config CMD_SDRAM
+	bool "sdram - Print SDRAM configuration information"
+	help
+	  Provides information about attached SDRAM. This assumed that the
+	  SDRAM has an EEPROM with information that can be read using the
+	  I2C bus. This is only available on some boards.
+
 config CMD_SF
 	bool "sf"
 	help

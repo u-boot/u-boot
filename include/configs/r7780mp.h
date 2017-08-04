@@ -17,11 +17,6 @@
 
 #define CONFIG_DISPLAY_BOARDINFO
 
-/*
- * Command line configuration.
- */
-#define CONFIG_CMD_SDRAM
-
 #define CONFIG_CONS_SCIF0	1
 
 #define CONFIG_BOOTARGS		"console=ttySC0,115200"

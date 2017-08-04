@@ -15,8 +15,6 @@
 
 #define CONFIG_SYS_TEXT_BASE	0x8ef80000
 
-#define CONFIG_CMD_SDRAM
-
 #define CONFIG_BOOTARGS		"console=ttySC2,115200 root=/dev/nfs ip=dhcp"
 
 #define CONFIG_DISPLAY_BOARDINFO

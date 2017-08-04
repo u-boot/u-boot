@@ -11,8 +11,6 @@
 
 #include <asm/arch/rmobile.h>
 
-#define CONFIG_CMD_SDRAM
-
 /* Support File sytems */
 #define CONFIG_SUPPORT_VFAT
 #define CONFIG_FS_EXT4

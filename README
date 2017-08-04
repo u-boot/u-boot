@@ -815,8 +815,6 @@ The following options need to be configured:
 		CONFIG_CMD_PING		* send ICMP ECHO_REQUEST to network
 					  host
 		CONFIG_CMD_RUN		  run command in env variable
-		CONFIG_CMD_SDRAM	* print SDRAM configuration information
-					  (requires CONFIG_CMD_I2C)
 		CONFIG_CMD_SF		* Read/write/erase SPI NOR flash
 		CONFIG_CMD_SOFTSWITCH	* Soft switch setting command for BF60x
 		CONFIG_CMD_SOURCE	  "source" command Support
