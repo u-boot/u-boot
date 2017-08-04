@@ -749,6 +749,11 @@ config CMD_PCMCIA
 	  about 1990. These devices are typically removable memory or network
 	  cards using a standard 68-pin connector.
 
+config CMD_READ
+	bool "read - Read binary data from a partition"
+	help
+	  Provides low-level access to the data in a partition.
+
 config CMD_REMOTEPROC
 	bool "remoteproc"
 	depends on REMOTEPROC

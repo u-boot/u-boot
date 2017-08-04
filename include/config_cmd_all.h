@@ -15,7 +15,6 @@
 
 #define CONFIG_CMD_REGINFO	/* Register dump		*/
 #define CONFIG_CMD_REISER	/* Reiserfs support		*/
-#define CONFIG_CMD_READ		/* Read data from partition	*/
 #define CONFIG_CMD_SANDBOX	/* sb command to access sandbox features */
 #define CONFIG_CMD_SAVES	/* save S record dump		*/
 #define CONFIG_CMD_SDRAM	/* SDRAM DIMM SPD info printout */
