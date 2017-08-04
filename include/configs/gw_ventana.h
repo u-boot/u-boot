@@ -13,7 +13,6 @@
 
 /* Falcon Mode */
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x18000000
-#define CONFIG_CMD_SPL_WRITE_SIZE	(128 * SZ_1K)
 
 /* Falcon Mode - NAND support: args@17MB kernel@18MB */
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	(18 * SZ_1M)

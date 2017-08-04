@@ -295,6 +295,15 @@ config CMD_SPL_NAND_OFS
 	  for full information about how to use this option (and also see
 	  board/gateworks/gw_ventana/README for an example).
 
+config CMD_SPL_WRITE_SIZE
+	hex "Size of argument area"
+	depends on CMD_SPL
+	default 0x2000
+	help
+	  This provides the size of the command-line argument area in NAND
+	  flash used by Falcon-mode boot. See the documentation until CMD_SPL
+	  for detail.
+
 endmenu
 
 menu "Environment commands"
