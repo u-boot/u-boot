@@ -75,36 +75,70 @@ static const struct {
 		.name = "17eg",
 	},
 };
+#endif
 
-static int chip_id(void)
+int chip_id(unsigned char id)
 {
 	struct pt_regs regs;
-	regs.regs[0] = ZYNQMP_SIP_SVC_CSU_DMA_CHIPID;
-	regs.regs[1] = 0;
-	regs.regs[2] = 0;
-	regs.regs[3] = 0;
+	int val = -EINVAL;
 
-	smc_call(&regs);
+	if (current_el() != 3) {
+		regs.regs[0] = ZYNQMP_SIP_SVC_CSU_DMA_CHIPID;
+		regs.regs[1] = 0;
+		regs.regs[2] = 0;
+		regs.regs[3] = 0;
 
-	/*
-	 * SMC returns:
-	 * regs[0][31:0]  = status of the operation
-	 * regs[0][63:32] = CSU.IDCODE register
-	 * regs[1][31:0]  = CSU.version register
-	 */
-	regs.regs[0] = upper_32_bits(regs.regs[0]);
-	regs.regs[0] &= ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK |
-			ZYNQMP_CSU_IDCODE_SVD_MASK;
-	regs.regs[0] >>= ZYNQMP_CSU_IDCODE_SVD_SHIFT;
+		smc_call(&regs);
 
-	return regs.regs[0];
+		/*
+		 * SMC returns:
+		 * regs[0][31:0]  = status of the operation
+		 * regs[0][63:32] = CSU.IDCODE register
+		 * regs[1][31:0]  = CSU.version register
+		 */
+		switch (id) {
+		case IDCODE:
+			regs.regs[0] = upper_32_bits(regs.regs[0]);
+			regs.regs[0] &= ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK |
+					ZYNQMP_CSU_IDCODE_SVD_MASK;
+			regs.regs[0] >>= ZYNQMP_CSU_IDCODE_SVD_SHIFT;
+			val = regs.regs[0];
+			break;
+		case VERSION:
+			regs.regs[1] = lower_32_bits(regs.regs[1]);
+			regs.regs[1] &= ZYNQMP_CSU_SILICON_VER_MASK;
+			val = regs.regs[1];
+			break;
+		default:
+			printf("%s, Invalid Req:0x%x\n", __func__, id);
+		}
+	} else {
+		switch (id) {
+		case IDCODE:
+			val = readl(ZYNQMP_CSU_IDCODE_ADDR);
+			val &= ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK |
+			       ZYNQMP_CSU_IDCODE_SVD_MASK;
+			val >>= ZYNQMP_CSU_IDCODE_SVD_SHIFT;
+			break;
+		case VERSION:
+			val = readl(ZYNQMP_CSU_VER_ADDR);
+			val &= ZYNQMP_CSU_SILICON_VER_MASK;
+			break;
+		default:
+			printf("%s, Invalid Req:0x%x\n", __func__, id);
+		}
+	}
+
+	return val;
 }
 
+#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
+	!defined(CONFIG_SPL_BUILD)
 static char *zynqmp_get_silicon_idcode_name(void)
 {
 	uint32_t i, id;
 
-	id = chip_id();
+	id = chip_id(IDCODE);
 	for (i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
 		if (zynqmp_devices[i].id == id)
 			return zynqmp_devices[i].name;
@@ -118,6 +152,11 @@ int board_early_init_f(void)
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_CLK_ZYNQMP)
 	zynqmp_pmufw_version();
 #endif
+
+#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_ZYNQMP_PSU_INIT_ENABLED)
+	psu_init();
+#endif
+
 	return 0;
 }
 
@@ -133,10 +172,10 @@ int board_init(void)
 	if (current_el() != 3) {
 		static char version[ZYNQMP_VERSION_SIZE];
 
-		strncat(version, "xczu", ZYNQMP_VERSION_SIZE);
+		strncat(version, "xczu", 4);
 		zynqmppl.name = strncat(version,
 					zynqmp_get_silicon_idcode_name(),
-					ZYNQMP_VERSION_SIZE);
+					ZYNQMP_VERSION_SIZE - 5);
 		printf("Chip ID:\t%s\n", zynqmppl.name);
 		fpga_init();
 		fpga_add(fpga_xilinx, &zynqmppl);
@@ -150,7 +189,10 @@ int board_early_init_r(void)
 {
 	u32 val;
 
-	if (current_el() == 3) {
+	val = readl(&crlapb_base->timestamp_ref_ctrl);
+	val &= ZYNQMP_CRL_APB_TIMESTAMP_REF_CTRL_CLKACT;
+
+	if (current_el() == 3 && !val) {
 		val = readl(&crlapb_base->timestamp_ref_ctrl);
 		val |= ZYNQMP_CRL_APB_TIMESTAMP_REF_CTRL_CLKACT;
 		writel(val, &crlapb_base->timestamp_ref_ctrl);
@@ -162,12 +204,6 @@ int board_early_init_r(void)
 		writel(ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_EN,
 		       &iou_scntr_secure->counter_control_register);
 	}
-	/* Program freq register in System counter and enable system counter */
-	writel(gd->cpu_clk, &iou_scntr->base_frequency_id_register);
-	writel(ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_HDBG |
-	       ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_EN,
-	       &iou_scntr->counter_control_register);
-
 	return 0;
 }
 

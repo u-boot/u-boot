@@ -1,0 +1,161 @@
+/*
+ *  Copyright (C) 2015 Andrea Merello <adnrea.merello@gmail.com>
+ *  Copyright (C) 2017 Alexander Graf <agraf@suse.de>
+ *
+ *  Based on zynq-zed.dts which is:
+ *  Copyright (C) 2011 - 2014 Xilinx
+ *  Copyright (C) 2012 National Instruments Corp.
+ *
+ * This software is licensed under the terms of the GNU General Public
+ * License version 2, as published by the Free Software Foundation, and
+ * may be copied, distributed, and modified under those terms.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+/dts-v1/;
+/include/ "zynq-7000.dtsi"
+
+/ {
+	model = "Zynq Z-Turn MYIR Board";
+	compatible = "xlnx,zynq-7000";
+
+	aliases {
+		ethernet0 = &gem0;
+		serial0 = &uart1;
+		serial1 = &uart0;
+		spi0 = &qspi;
+		mmc0 = &sdhci0;
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x40000000>;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	gpio-leds {
+		compatible = "gpio-leds";
+		led_r {
+			label = "led_r";
+			gpios = <&gpio0 0x72 0x1>;
+			default-state = "on";
+			linux,default-trigger = "heartbeat";
+		};
+
+		led_g {
+			label = "led_g";
+			gpios = <&gpio0 0x73 0x1>;
+			default-state = "on";
+			linux,default-trigger = "heartbeat";
+		};
+
+		led_b {
+			label = "led_b";
+			gpios = <&gpio0 0x74 0x1>;
+			default-state = "on";
+			linux,default-trigger = "heartbeat";
+		};
+
+		usr_led1 {
+			label = "usr_led1";
+			gpios = <&gpio0 0x0 0x1>;
+			default-state = "off";
+			linux,default-trigger = "none";
+		};
+
+		usr_led2 {
+			label = "usr_led2";
+			gpios = <&gpio0 0x9 0x1>;
+			default-state = "off";
+			linux,default-trigger = "none";
+		};
+	};
+
+	gpio-beep {
+		compatible = "gpio-beeper";
+		label = "pl-beep";
+		gpios = <&gpio0 0x75 0x0>;
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+		autorepeat;
+		K1 {
+			label = "K1";
+			gpios = <&gpio0 0x32 0x1>;
+			linux,code = <0x66>;
+			gpio-key,wakeup;
+			autorepeat;
+		};
+	};
+};
+
+&clkc {
+	ps-clk-frequency = <33333333>;
+	fclk-enable = <0xf>;
+};
+
+&qspi {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&gem0 {
+	status = "okay";
+	phy-mode = "rgmii-id";
+	phy-handle = <&ethernet_phy>;
+
+	ethernet_phy: ethernet-phy@0 {
+		reg = <0x0>;
+	};
+};
+
+&sdhci0 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&uart0 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&uart1 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&usb0 {
+	status = "okay";
+	dr_mode = "host";
+};
+
+&can0 {
+	status = "okay";
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <400000>;
+
+	stlm75@49 {
+		status = "okay";
+		compatible = "lm75";
+		reg = <0x49>;
+	};
+
+	adxl345@53 {
+		compatible = "adi,adxl34x", "adxl34x";
+		reg = <0x53>;
+		interrupt-parent = <&intc>;
+		interrupts = <0x0 0x1e 0x4>;
+	};
+};
