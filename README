@@ -3693,7 +3693,7 @@ Low Level (hardware related) configuration options:
 
 - CONFIG_LOOPW
 		Add the "loopw" memory command. This only takes effect if
-		the memory commands are activated globally (CONFIG_CMD_MEM).
+		the memory commands are activated globally (CONFIG_CMD_MEMORY).
 
 - CONFIG_MX_CYCLIC
 		Add the "mdc" and "mwc" memory commands. These are cyclic
@@ -3707,7 +3707,7 @@ Low Level (hardware related) configuration options:
 		This command will write 12345678 to address 100 all 10 ms.
 
 		This only takes effect if the memory commands are activated
-		globally (CONFIG_CMD_MEM).
+		globally (CONFIG_CMD_MEMORY).
 
 - CONFIG_SKIP_LOWLEVEL_INIT
 		[ARM, NDS32, MIPS only] If this variable is defined, then certain
