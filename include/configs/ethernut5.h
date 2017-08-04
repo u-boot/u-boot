@@ -61,7 +61,6 @@
 #define CONFIG_ENV_SPI_MAX_HZ	15000000
 
 #ifndef MINIMAL_LOADER
-#define CONFIG_CMD_REISER
 #define CONFIG_CMD_SAVES
 #endif
 

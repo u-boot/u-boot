@@ -1275,6 +1275,15 @@ config CMD_MTDPARTS_SPREAD
 	  at least as large as the size specified in the mtdparts variable and
 	  2) each partition starts on a good block.
 
+config CMD_REISER
+	bool "reiser - Access to reiserfs filesystems"
+	help
+	  This provides two commands which operate on a resierfs filesystem,
+	  commonly used some years ago:
+
+	    reiserls - list files
+	    reiserload - load a file
+
 endmenu
 
 menu "Debug commands"
