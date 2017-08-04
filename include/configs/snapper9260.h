@@ -136,7 +136,4 @@
 /* U-Boot memory settings */
 #define CONFIG_SYS_MALLOC_LEN		(1 << 20)
 
-/* Command line configuration */
-#define CONFIG_CMD_PCA953X_INFO
-
 #endif /* __CONFIG_H */

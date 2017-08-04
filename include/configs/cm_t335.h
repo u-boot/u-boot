@@ -161,7 +161,6 @@
  * First select the I2C0 bus with "i2c dev 0", then use "pca953x" command.
  */
 #define CONFIG_PCA953X
-#define CONFIG_CMD_PCA953X_INFO
 #define CONFIG_SYS_I2C_PCA953X_ADDR	0x26
 #define CONFIG_SYS_I2C_PCA953X_WIDTH	{ {0x26, 16} }
 #endif /* CONFIG_SPL_BUILD */
