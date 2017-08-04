@@ -1094,6 +1094,14 @@ config CMD_QFW
 
 source "cmd/mvebu/Kconfig"
 
+config CMD_TERMINAL
+	bool "terminal - provides a way to attach a serial terminal"
+	help
+	  Provides a 'cu'-like serial terminal command. This can be used to
+	  access other serial ports from the system console. The terminal
+	  is very simple with no special processing of characters. As with
+	  cu, you can press ~. (tilde followed by period) to exit.
+
 endmenu
 
 config CMD_BOOTSTAGE
