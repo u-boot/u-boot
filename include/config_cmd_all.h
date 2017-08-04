@@ -13,6 +13,4 @@
  * Alphabetical list of all possible commands.
  */
 
-#define CONFIG_CMD_ZFS		/* ZFS Support			*/
-
 #endif	/* _CONFIG_CMD_ALL_H */

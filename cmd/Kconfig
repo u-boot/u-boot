@@ -1415,6 +1415,17 @@ config CMD_YAFFS2
 	  that device writes are sequential regardless of filesystem
 	  activity.
 
+config CMD_ZFS
+	bool "zfs - Access of ZFS filesystem"
+	help
+	  This provides commands to accessing a ZFS filesystem, commonly used
+	  on Solaris systems. Two sub-commands are provided:
+
+	    zfsls - list files in a directory
+	    zfsload - load a file
+
+	  See doc/README.zfs for more details.
+
 endmenu
 
 menu "Debug commands"
