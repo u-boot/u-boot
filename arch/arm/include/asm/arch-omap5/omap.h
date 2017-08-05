@@ -224,8 +224,8 @@ struct s32ktimer {
 #define OMAP_ABB_GPU_TXDONE_MASK		(0x1 << 28)
 
 /* ABB efuse masks */
-#define OMAP5_ABB_FUSE_VSET_MASK		(0x1F << 24)
-#define OMAP5_ABB_FUSE_ENABLE_MASK		(0x1 << 29)
+#define OMAP5_PROD_ABB_FUSE_VSET_MASK		(0x1F << 20)
+#define OMAP5_PROD_ABB_FUSE_ENABLE_MASK		(0x1 << 25)
 #define DRA7_ABB_FUSE_VSET_MASK			(0x1F << 20)
 #define DRA7_ABB_FUSE_ENABLE_MASK		(0x1 << 25)
 #define OMAP5_ABB_LDOVBBMPU_MUX_CTRL_MASK	(0x1 << 10)

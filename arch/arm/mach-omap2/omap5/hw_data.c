@@ -329,6 +329,15 @@ struct vcores_data omap5430_volts_es2 = {
 	.mm.addr = SMPS_REG_ADDR_45_IVA,
 	.mm.pmic = &palmas,
 	.mm.abb_tx_done_mask = OMAP_ABB_MM_TXDONE_MASK,
+
+	.mpu.efuse.reg[OPP_NOM]	= OMAP5_ES2_PROD_MPU_OPNO_VMIN,
+	.mpu.efuse.reg_bits	= OMAP5_ES2_PROD_REGBITS,
+
+	.core.efuse.reg[OPP_NOM] = OMAP5_ES2_PROD_CORE_OPNO_VMIN,
+	.core.efuse.reg_bits	= OMAP5_ES2_PROD_REGBITS,
+
+	.mm.efuse.reg[OPP_NOM]	= OMAP5_ES2_PROD_MM_OPNO_VMIN,
+	.mm.efuse.reg_bits	= OMAP5_ES2_PROD_REGBITS,
 };
 
 /*
