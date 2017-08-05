@@ -1,37 +1,13 @@
-#!/usr/bin/python
-#
 # Copyright (c) 2013, Google Inc.
-#
-# Sanity check of the FIT handling in U-Boot
 #
 # SPDX-License-Identifier:	GPL-2.0+
 #
-# To run this:
-#
-# make O=sandbox sandbox_config
-# make O=sandbox
-# ./test/image/test-fit.py -u sandbox/u-boot
-#
-# Note: The above testing requires the Python development package, typically
-# called python-devel or something similar.
+# Sanity check of the FIT handling in U-Boot
 
-import doctest
-from optparse import OptionParser
 import os
-import shutil
+import pytest
 import struct
-import sys
-import tempfile
-
-# Enable printing of all U-Boot output
-DEBUG = True
-
-# The 'command' library in patman is convenient for running commands
-base_path = os.path.dirname(sys.argv[0])
-patman = os.path.join(base_path, '../../tools/patman')
-sys.path.append(patman)
-
-import command
+import u_boot_utils as util
 
 # Define a base ITS which we can adjust using % and a dictionary
 base_its = '''
@@ -131,13 +107,11 @@ sb save hostfs 0 %(fdt_addr)x %(fdt_out)s %(fdt_size)x
 sb save hostfs 0 %(ramdisk_addr)x %(ramdisk_out)s %(ramdisk_size)x
 sb save hostfs 0 %(loadables1_addr)x %(loadables1_out)s %(loadables1_size)x
 sb save hostfs 0 %(loadables2_addr)x %(loadables2_out)s %(loadables2_size)x
-reset
 '''
 
-    def debug_stdout(stdout):
-        if DEBUG:
-            print stdout
-
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('fit_signature')
+def test_fit(u_boot_console):
     def make_fname(leaf):
         """Make a temporary filename
 
@@ -146,9 +120,8 @@ reset
         Return:
             Temporary filename
         """
-        global base_dir
 
-        return os.path.join(base_dir, leaf)
+        return os.path.join(cons.config.build_dir, leaf)
 
     def filesize(fname):
         """Get the size of a file
@@ -180,8 +153,8 @@ reset
         src = make_fname('u-boot.dts')
         dtb = make_fname('u-boot.dtb')
         with open(src, 'w') as fd:
-            print >>fd, base_fdt
-        command.Output('dtc', src, '-O', 'dtb', '-o', dtb)
+            print >> fd, base_fdt
+        util.run_and_log(cons, ['dtc', src, '-O', 'dtb', '-o', dtb])
         return dtb
 
     def make_its(params):
@@ -194,7 +167,7 @@ reset
         """
         its = make_fname('test.its')
         with open(its, 'w') as fd:
-            print >>fd, base_its % params
+            print >> fd, base_its % params
         return its
 
     def make_fit(mkimage, params):
@@ -211,9 +184,9 @@ reset
         """
         fit = make_fname('test.fit')
         its = make_its(params)
-        command.Output(mkimage, '-f', its, fit)
+        util.run_and_log(cons, [mkimage, '-f', its, fit])
         with open(make_fname('u-boot.dts'), 'w') as fd:
-            print >>fd, base_fdt
+            print >> fd, base_fdt
         return fit
 
     def make_kernel(filename, text):
@@ -229,7 +202,7 @@ reset
         for i in range(100):
             data += 'this %s %d is unlikely to boot\n' % (text, i)
         with open(fname, 'w') as fd:
-            print >>fd, data
+            print >> fd, data
         return fname
 
     def make_ramdisk(filename, text):
@@ -243,7 +216,7 @@ reset
         for i in range(100):
             data += '%s %d was seldom used in the middle ages\n' % (text, i)
         with open(fname, 'w') as fd:
-            print >>fd, data
+            print >> fd, data
         return fname
 
     def find_matching(text, match):
@@ -260,52 +233,58 @@ reset
         to use regex and return groups.
 
         Args:
-            text: Text to check (each line separated by \n)
+            text: Text to check (list of strings, one for each command issued)
             match: String to search for
         Return:
             String containing unmatched portion of line
         Exceptions:
             ValueError: If match is not found
 
-        >>> find_matching('first line:10\\nsecond_line:20', 'first line:')
+        >>> find_matching(['first line:10', 'second_line:20'], 'first line:')
         '10'
-        >>> find_matching('first line:10\\nsecond_line:20', 'second line')
+        >>> find_matching(['first line:10', 'second_line:20'], 'second line')
         Traceback (most recent call last):
           ...
         ValueError: Test aborted
-        >>> find_matching('first line:10\\nsecond_line:20', 'second_line:')
+        >>> find_matching('first line:10\', 'second_line:20'], 'second_line:')
         '20'
+        >>> find_matching('first line:10\', 'second_line:20\nthird_line:30'],
+                          'third_line:')
+        '30'
         """
-        for line in text.splitlines():
+        __tracebackhide__ = True
+        for line in '\n'.join(text).splitlines():
             pos = line.find(match)
             if pos != -1:
                 return line[:pos] + line[pos + len(match):]
 
-        print "Expected '%s' but not found in output:"
-        print text
-        raise ValueError('Test aborted')
+        pytest.fail("Expected '%s' but not found in output")
 
-    def set_test(name):
-        """Set the name of the current test and print a message
+    def check_equal(expected_fname, actual_fname, failure_msg):
+        """Check that a file matches its expected contents
 
         Args:
-            name: Name of test
+            expected_fname: Filename containing expected contents
+            actual_fname: Filename containing actual contents
+            failure_msg: Message to print on failure
         """
-        global test_name
+        expected_data = read_file(expected_fname)
+        actual_data = read_file(actual_fname)
+        assert expected_data == actual_data, failure_msg
 
-        test_name = name
-        print name
-
-    def fail(msg, stdout):
-        """Raise an error with a helpful failure message
+    def check_not_equal(expected_fname, actual_fname, failure_msg):
+        """Check that a file does not match its expected contents
 
         Args:
-            msg: Message to display
+            expected_fname: Filename containing expected contents
+            actual_fname: Filename containing actual contents
+            failure_msg: Message to print on failure
         """
-        print stdout
-        raise ValueError("Test '%s' failed: %s" % (test_name, msg))
+        expected_data = read_file(expected_fname)
+        actual_data = read_file(actual_fname)
+        assert expected_data != actual_data, failure_msg
 
-    def run_fit_test(mkimage, u_boot):
+    def run_fit_test(mkimage):
         """Basic sanity check of FIT loading in U-Boot
 
         TODO: Almost everything:
@@ -324,8 +303,6 @@ reset
           - bootm command line parameters should have desired effect
           - run code coverage to make sure we are testing all the code
         """
-        global test_name
-
         # Set up invariant files
         control_dtb = make_dtb()
         kernel = make_kernel('test-kernel.bin', 'kernel')
@@ -381,101 +358,71 @@ reset
 
         # First check that we can load a kernel
         # We could perhaps reduce duplication with some loss of readability
-        set_test('Kernel load')
-        stdout = command.Output(u_boot, '-d', control_dtb, '-c', cmd)
-        debug_stdout(stdout)
-            if read_file(kernel) != read_file(kernel_out):
-                fail('Kernel not loaded', stdout)
-            if read_file(control_dtb) == read_file(fdt_out):
-                fail('FDT loaded but should be ignored', stdout)
-            if read_file(ramdisk) == read_file(ramdisk_out):
-                fail('Ramdisk loaded but should not be', stdout)
+        cons.config.dtb = control_dtb
+        cons.restart_uboot()
+        with cons.log.section('Kernel load'):
+            output = cons.run_command_list(cmd.splitlines())
+            check_equal(kernel, kernel_out, 'Kernel not loaded')
+            check_not_equal(control_dtb, fdt_out,
+                            'FDT loaded but should be ignored')
+            check_not_equal(ramdisk, ramdisk_out,
+                            'Ramdisk loaded but should not be')
 
             # Find out the offset in the FIT where U-Boot has found the FDT
-            line = find_matching(stdout, 'Booting using the fdt blob at ')
+            line = find_matching(output, 'Booting using the fdt blob at ')
             fit_offset = int(line, 16) - params['fit_addr']
             fdt_magic = struct.pack('>L', 0xd00dfeed)
             data = read_file(fit)
 
             # Now find where it actually is in the FIT (skip the first word)
             real_fit_offset = data.find(fdt_magic, 4)
-            if fit_offset != real_fit_offset:
-                fail('U-Boot loaded FDT from offset %#x, FDT is actually at %#x' %
-                        (fit_offset, real_fit_offset), stdout)
+            assert fit_offset == real_fit_offset, (
+                  'U-Boot loaded FDT from offset %#x, FDT is actually at %#x' %
+                  (fit_offset, real_fit_offset))
 
         # Now a kernel and an FDT
-            set_test('Kernel + FDT load')
+        with cons.log.section('Kernel + FDT load'):
             params['fdt_load'] = 'load = <%#x>;' % params['fdt_addr']
             fit = make_fit(mkimage, params)
-            stdout = command.Output(u_boot, '-d', control_dtb, '-c', cmd)
-            debug_stdout(stdout)
-            if read_file(kernel) != read_file(kernel_out):
-                fail('Kernel not loaded', stdout)
-            if read_file(control_dtb) != read_file(fdt_out):
-                fail('FDT not loaded', stdout)
-            if read_file(ramdisk) == read_file(ramdisk_out):
-                fail('Ramdisk loaded but should not be', stdout)
+            cons.restart_uboot()
+            output = cons.run_command_list(cmd.splitlines())
+            check_equal(kernel, kernel_out, 'Kernel not loaded')
+            check_equal(control_dtb, fdt_out, 'FDT not loaded')
+            check_not_equal(ramdisk, ramdisk_out,
+                            'Ramdisk loaded but should not be')
 
         # Try a ramdisk
-        set_test('Kernel + FDT + Ramdisk load')
+        with cons.log.section('Kernel + FDT + Ramdisk load'):
             params['ramdisk_config'] = 'ramdisk = "ramdisk@1";'
             params['ramdisk_load'] = 'load = <%#x>;' % params['ramdisk_addr']
             fit = make_fit(mkimage, params)
-            stdout = command.Output(u_boot, '-d', control_dtb, '-c', cmd)
-            debug_stdout(stdout)
-            if read_file(ramdisk) != read_file(ramdisk_out):
-                fail('Ramdisk not loaded', stdout)
+            cons.restart_uboot()
+            output = cons.run_command_list(cmd.splitlines())
+            check_equal(ramdisk, ramdisk_out, 'Ramdisk not loaded')
 
         # Configuration with some Loadables
-        set_test('Kernel + FDT + Ramdisk load + Loadables')
+        with cons.log.section('Kernel + FDT + Ramdisk load + Loadables'):
             params['loadables_config'] = 'loadables = "kernel@2", "ramdisk@2";'
-            params['loadables1_load'] = 'load = <%#x>;' % params['loadables1_addr']
-            params['loadables2_load'] = 'load = <%#x>;' % params['loadables2_addr']
+            params['loadables1_load'] = ('load = <%#x>;' %
+                                         params['loadables1_addr'])
+            params['loadables2_load'] = ('load = <%#x>;' %
+                                         params['loadables2_addr'])
             fit = make_fit(mkimage, params)
-            stdout = command.Output(u_boot, '-d', control_dtb, '-c', cmd)
-            debug_stdout(stdout)
-            if read_file(loadables1) != read_file(loadables1_out):
-                fail('Loadables1 (kernel) not loaded', stdout)
-            if read_file(loadables2) != read_file(loadables2_out):
-                fail('Loadables2 (ramdisk) not loaded', stdout)
+            cons.restart_uboot()
+            output = cons.run_command_list(cmd.splitlines())
+            check_equal(loadables1, loadables1_out,
+                        'Loadables1 (kernel) not loaded')
+            check_equal(loadables2, loadables2_out,
+                        'Loadables2 (ramdisk) not loaded')
 
-def run_tests():
-    """Parse options, run the FIT tests and print the result"""
-    global base_path, base_dir
-
-    # Work in a temporary directory
-    base_dir = tempfile.mkdtemp()
-    parser = OptionParser()
-    parser.add_option('-u', '--u-boot',
-            default=os.path.join(base_path, 'u-boot'),
-            help='Select U-Boot sandbox binary')
-    parser.add_option('-k', '--keep', action='store_true',
-            help="Don't delete temporary directory even when tests pass")
-    parser.add_option('-t', '--selftest', action='store_true',
-            help='Run internal self tests')
-    (options, args) = parser.parse_args()
-
-    # Find the path to U-Boot, and assume mkimage is in its tools/mkimage dir
-    base_path = os.path.dirname(options.u_boot)
-    mkimage = os.path.join(base_path, 'tools/mkimage')
-
-    # There are a few doctests - handle these here
-    if options.selftest:
-        doctest.testmod()
-        return
-
-    title = 'FIT Tests'
-    print title, '\n', '=' * len(title)
-
-    run_fit_test(mkimage, options.u_boot)
-
-    print '\nTests passed'
-    print 'Caveat: this is only a sanity check - test coverage is poor'
-
-    # Remove the temporary directory unless we are asked to keep it
-    if options.keep:
-        print "Output files are in '%s'" % base_dir
-    else:
-        shutil.rmtree(base_dir)
-
-run_tests()
+    cons = u_boot_console
+    try:
+        # We need to use our own device tree file. Remember to restore it
+        # afterwards.
+        old_dtb = cons.config.dtb
+        mkimage = cons.config.build_dir + '/tools/mkimage'
+        run_fit_test(mkimage)
+    finally:
+        # Go back to the original U-Boot with the correct dtb.
+        cons.config.dtb = old_dtb
+        cons.restart_uboot()
