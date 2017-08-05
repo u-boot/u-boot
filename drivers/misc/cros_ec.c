@@ -1038,8 +1038,7 @@ int cros_ec_decode_ec_flash(struct udevice *dev, struct fdt_cros_ec *config)
 
 	config->flash_erase_value = ofnode_read_s32_default(flash_node,
 							    "erase-value", -1);
-	for (node = ofnode_first_subnode(flash_node); ofnode_valid(node);
-	     node = ofnode_next_subnode(node)) {
+	ofnode_for_each_subnode(node, flash_node) {
 		const char *name = ofnode_get_name(node);
 		enum ec_flash_region region;
 

@@ -224,9 +224,7 @@ tegra_xusb_padctl_config_parse_dt(struct tegra_xusb_padctl *padctl,
 
 	config->name = ofnode_get_name(node);
 
-	for (subnode = ofnode_first_subnode(node);
-	     ofnode_valid(subnode);
-	     subnode = ofnode_next_subnode(subnode)) {
+	ofnode_for_each_subnode(subnode, node) {
 		struct tegra_xusb_padctl_group *group;
 		int err;
 
@@ -256,9 +254,7 @@ static int tegra_xusb_padctl_parse_dt(struct tegra_xusb_padctl *padctl,
 		return err;
 	}
 
-	for (subnode = ofnode_first_subnode(node);
-	     ofnode_valid(subnode);
-	     subnode = ofnode_next_subnode(subnode)) {
+	ofnode_for_each_subnode(subnode, node) {
 		struct tegra_xusb_padctl_config *config = &padctl->config;
 
 		debug("%s: subnode=%s\n", __func__, ofnode_get_name(subnode));
