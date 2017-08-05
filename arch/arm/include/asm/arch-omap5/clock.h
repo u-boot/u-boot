@@ -236,9 +236,6 @@
 #define VDD_MPU_ES2_HIGH 1250
 #define VDD_MM_ES2_OD  1120
 
-#define VDD_MPU_ES2_LOW 880
-#define VDD_MM_ES2_LOW 880
-
 /* DRA74x/75x/72x voltage settings in mv for OPP_NOM per DM */
 #define VDD_MPU_DRA7_NOM	1150
 #define VDD_CORE_DRA7_NOM	1150
