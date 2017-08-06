@@ -12,6 +12,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <dm.h>
+#include <ns16550.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <asm/arch/mem.h>
@@ -22,13 +24,34 @@
 #include <i2c.h>
 #include <twl4030.h>
 #include <asm/mach-types.h>
+#include <asm/omap_musb.h>
 #include <linux/mtd/nand.h>
+#include <linux/usb/ch9.h>
+#include <linux/usb/gadget.h>
+#include <linux/usb/musb.h>
 #include "evm.h"
 
-#define OMAP3EVM_GPIO_ETH_RST_GEN1		64
-#define OMAP3EVM_GPIO_ETH_RST_GEN2		7
+#ifdef CONFIG_USB_EHCI_HCD
+#include <usb.h>
+#include <asm/ehci-omap.h>
+#endif
+
+#define OMAP3EVM_GPIO_ETH_RST_GEN1 64
+#define OMAP3EVM_GPIO_ETH_RST_GEN2 7
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static const struct ns16550_platdata omap3_evm_serial = {
+	.base = OMAP34XX_UART1,
+	.reg_shift = 2,
+	.clock = V_NS16550_CLK,
+	.fcr = UART_FCR_DEFVAL,
+};
+
+U_BOOT_DEVICE(omap3_evm_uart) = {
+	"ns16550_serial",
+	&omap3_evm_serial
+};
 
 static u32 omap3_evm_version;
 
@@ -60,25 +83,19 @@ static void omap3_evm_get_revision(void)
 	default:
 		omap3_evm_version = OMAP3EVM_BOARD_GEN_2;
        }
-#else
+#else /* !CONFIG_CMD_NET */
 #if defined(CONFIG_STATIC_BOARD_REV)
-	/*
-	 * Look for static defintion of the board revision
-	 */
+	/* Look for static defintion of the board revision */
 	omap3_evm_version = CONFIG_STATIC_BOARD_REV;
 #else
-	/*
-	 * Fallback to the default above.
-	 */
+	/* Fallback to the default above */
 	omap3_evm_version = OMAP3EVM_BOARD_GEN_2;
-#endif
-#endif	/* CONFIG_CMD_NET */
+#endif /* CONFIG_STATIC_BOARD_REV */
+#endif /* CONFIG_CMD_NET */
 }
 
-#ifdef CONFIG_USB_OMAP3
-/*
- * MUSB port on OMAP3EVM Rev >= E requires extvbus programming.
- */
+#if defined(CONFIG_USB_MUSB_GADGET) || defined(CONFIG_USB_MUSB_HOST)
+/* MUSB port on OMAP3EVM Rev >= E requires extvbus programming. */
 u8 omap3_evm_need_extvbus(void)
 {
 	u8 retval = 0;
@@ -88,7 +105,7 @@ u8 omap3_evm_need_extvbus(void)
 
 	return retval;
 }
-#endif
+#endif /* CONFIG_USB_MUSB_{GADGET,HOST} */
 
 /*
  * Routine: board_init
@@ -105,7 +122,7 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#if defined(CONFIG_SPL_BUILD)
 /*
  * Routine: get_board_mem_timings
  * Description: If we use SPL then there is no x-loader nor config header
@@ -138,7 +155,34 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
 	timings->mr = MICRON_V_MR_165;
 }
-#endif
+#endif /* CONFIG_SPL_BUILD */
+
+#if defined(CONFIG_USB_MUSB_OMAP2PLUS)
+static struct musb_hdrc_config musb_config = {
+	.multipoint     = 1,
+	.dyn_fifo       = 1,
+	.num_eps        = 16,
+	.ram_bits       = 12,
+};
+
+static struct omap_musb_board_data musb_board_data = {
+	.interface_type	= MUSB_INTERFACE_ULPI,
+};
+
+static struct musb_hdrc_platform_data musb_plat = {
+#if defined(CONFIG_USB_MUSB_HOST)
+	.mode           = MUSB_HOST,
+#elif defined(CONFIG_USB_MUSB_GADGET)
+	.mode		= MUSB_PERIPHERAL,
+#else
+#error "Please define either CONFIG_USB_MUSB_HOST or CONFIG_USB_MUSB_GADGET"
+#endif /* CONFIG_USB_MUSB_{GADGET,HOST} */
+	.config         = &musb_config,
+	.power          = 100,
+	.platform_ops	= &omap2430_ops,
+	.board_data	= &musb_board_data,
+};
+#endif /* CONFIG_USB_MUSB_OMAP2PLUS */
 
 /*
  * Routine: misc_init_r
@@ -146,6 +190,7 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
  */
 int misc_init_r(void)
 {
+	twl4030_power_init();
 
 #ifdef CONFIG_SYS_I2C_OMAP24XX
 	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
@@ -161,6 +206,13 @@ int misc_init_r(void)
 #endif
 	omap_die_id_display();
 
+#if defined(CONFIG_USB_MUSB_OMAP2PLUS)
+	musb_register(&musb_plat, &musb_board_data, (void *)MUSB_BASE);
+#endif
+
+#if defined(CONFIG_USB_ETHER) && defined(CONFIG_USB_MUSB_GADGET)
+	omap_die_id_usbethaddr();
+#endif
 	return 0;
 }
 
@@ -175,7 +227,7 @@ void set_muxconf_regs(void)
 	MUX_EVM();
 }
 
-#ifdef CONFIG_CMD_NET
+#if defined(CONFIG_CMD_NET)
 /*
  * Routine: setup_net_chip
  * Description: Setting up the configuration GPMC registers specific to the
@@ -237,7 +289,7 @@ static void reset_net_chip(void)
 int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
-#ifdef CONFIG_SMC911X
+#if defined(CONFIG_SMC911X)
 #define STR_ENV_ETHADDR	"ethaddr"
 
 	struct eth_device *dev;
@@ -254,7 +306,7 @@ int board_eth_init(bd_t *bis)
 			rc = -1;
 		}
 	}
-#endif
+#endif /* CONFIG_SMC911X */
 	return rc;
 }
 #endif /* CONFIG_CMD_NET */
@@ -264,11 +316,35 @@ int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0, -1, -1);
 }
-#endif
 
-#if defined(CONFIG_MMC)
 void board_mmc_power_init(void)
 {
 	twl4030_power_mmc_init(0);
 }
-#endif
+#endif /* CONFIG_MMC */
+
+#if defined(CONFIG_USB_EHCI_HCD)
+static struct omap_usbhs_board_data usbhs_bdata = {
+	.port_mode[0] = OMAP_USBHS_PORT_MODE_UNUSED,
+	.port_mode[1] = OMAP_EHCI_PORT_MODE_PHY,
+	.port_mode[2] = OMAP_USBHS_PORT_MODE_UNUSED
+};
+
+int ehci_hcd_init(int index, enum usb_init_type init,
+		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+{
+	return omap_ehci_hcd_init(index, &usbhs_bdata, hccr, hcor);
+}
+
+int ehci_hcd_stop(int index)
+{
+	return omap_ehci_hcd_stop();
+}
+#endif /* CONFIG_USB_EHCI_HCD */
+
+#if defined(CONFIG_USB_ETHER) && defined(CONFIG_USB_MUSB_GADGET) && !defined(CONFIG_CMD_NET)
+int board_eth_init(bd_t *bis)
+{
+	return usb_eth_initialize(bis);
+}
+#endif /* CONFIG_USB_ETHER */
