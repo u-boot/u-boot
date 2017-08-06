@@ -633,6 +633,10 @@ static efi_status_t efi_locate_handle(
 		return EFI_BUFFER_TOO_SMALL;
 	}
 
+	*buffer_size = size;
+	if (size == 0)
+		return EFI_NOT_FOUND;
+
 	/* Then fill the array */
 	list_for_each(lhandle, &efi_obj_list) {
 		struct efi_object *efiobj;
@@ -642,7 +646,6 @@ static efi_status_t efi_locate_handle(
 		}
 	}
 
-	*buffer_size = size;
 	return EFI_SUCCESS;
 }
 
