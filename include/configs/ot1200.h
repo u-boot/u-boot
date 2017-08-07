@@ -82,7 +82,6 @@
 #define CONFIG_FEC_XCV_TYPE             MII100
 #define CONFIG_ETHPRIME                 "FEC"
 #define CONFIG_FEC_MXC_PHYADDR          0x5
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_SMSC
 
 #ifndef CONFIG_SPL

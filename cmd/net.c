@@ -42,7 +42,7 @@ U_BOOT_CMD(
 );
 
 #ifdef CONFIG_CMD_TFTPPUT
-int do_tftpput(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_tftpput(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return netboot_common(TFTPPUT, cmdtp, argc, argv);
 }

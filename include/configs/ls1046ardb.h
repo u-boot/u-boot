@@ -180,7 +180,6 @@
 #ifndef SPL_NO_FMAN
 
 #ifdef CONFIG_NET
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 #define CONFIG_PHY_REALTEK
 #endif

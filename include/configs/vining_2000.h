@@ -72,7 +72,6 @@
 #define CONFIG_FEC_XCV_TYPE             RMII
 #define CONFIG_ETHPRIME                 "FEC"
 
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_ATHEROS
 
 #ifdef CONFIG_CMD_USB

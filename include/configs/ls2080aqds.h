@@ -406,7 +406,6 @@ unsigned long get_board_ddr_clk(void);
 
 #if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
 #define CONFIG_FSL_MEMAC
-#define	CONFIG_PHYLIB
 #define CONFIG_PHYLIB_10G
 #define CONFIG_PHY_VITESSE
 #define CONFIG_PHY_REALTEK

@@ -55,7 +55,6 @@
 #define CONFIG_NET_MULTI
 #define CONFIG_PHY_GIGE
 #define CONFIG_PHY_ATHEROS
-#define CONFIG_PHYLIB
 #define CONFIG_SYS_RX_ETH_BUFFER	64
 
 /* USB support */

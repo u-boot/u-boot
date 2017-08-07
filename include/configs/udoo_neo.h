@@ -112,7 +112,4 @@
 #define CONFIG_FEC_XCV_TYPE             RMII
 #define CONFIG_ETHPRIME                 "FEC0"
 
-#define CONFIG_PHYLIB
-#define CONFIG_PHY_MICREL
-
 #endif				/* __CONFIG_H */

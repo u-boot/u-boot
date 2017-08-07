@@ -50,7 +50,6 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_FMAN_ENET
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_VITESSE
 #define CONFIG_PHY_REALTEK
 #define CONFIG_PHYLIB_10G

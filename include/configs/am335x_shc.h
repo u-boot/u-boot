@@ -276,7 +276,6 @@
 #define CONFIG_NET_RETRY_COUNT         10
 #define CONFIG_NET_MULTI
 #define CONFIG_PHY_GIGE
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_ADDR			0
 #define CONFIG_PHY_SMSC
 

@@ -49,7 +49,6 @@
 
 #define CONFIG_MII
 #define CONFIG_DW_ALTDESCRIPTOR
-#define CONFIG_PHY_MICREL
 
 /* Command support defines */
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */

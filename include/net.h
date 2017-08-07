@@ -308,7 +308,7 @@ struct ethernet_hdr {
 	u8		et_dest[ARP_HLEN];	/* Destination node	*/
 	u8		et_src[ARP_HLEN];	/* Source node		*/
 	u16		et_protlen;		/* Protocol or length	*/
-};
+} __attribute__((packed));
 
 /* Ethernet header size */
 #define ETHER_HDR_SIZE	(sizeof(struct ethernet_hdr))
@@ -326,7 +326,7 @@ struct e802_hdr {
 	u8		et_snap2;
 	u8		et_snap3;
 	u16		et_prot;		/* 802 protocol		*/
-};
+} __attribute__((packed));
 
 /* 802 + SNAP + ethernet header size */
 #define E802_HDR_SIZE	(sizeof(struct e802_hdr))
@@ -340,7 +340,7 @@ struct vlan_ethernet_hdr {
 	u16		vet_vlan_type;		/* PROT_VLAN		*/
 	u16		vet_tag;		/* TAG of VLAN		*/
 	u16		vet_type;		/* protocol type	*/
-};
+} __attribute__((packed));
 
 /* VLAN Ethernet header size */
 #define VLAN_ETHER_HDR_SIZE	(sizeof(struct vlan_ethernet_hdr))
@@ -369,7 +369,7 @@ struct ip_hdr {
 	u16		ip_sum;		/* checksum			*/
 	struct in_addr	ip_src;		/* Source IP address		*/
 	struct in_addr	ip_dst;		/* Destination IP address	*/
-};
+} __attribute__((packed));
 
 #define IP_OFFS		0x1fff /* ip offset *= 8 */
 #define IP_FLAGS	0xe000 /* first 3 bits */
@@ -397,7 +397,7 @@ struct ip_udp_hdr {
 	u16		udp_dst;	/* UDP destination port		*/
 	u16		udp_len;	/* Length of UDP packet		*/
 	u16		udp_xsum;	/* Checksum			*/
-};
+} __attribute__((packed));
 
 #define IP_UDP_HDR_SIZE		(sizeof(struct ip_udp_hdr))
 #define UDP_HDR_SIZE		(IP_UDP_HDR_SIZE - IP_HDR_SIZE)
@@ -435,7 +435,7 @@ struct arp_hdr {
 	u8		ar_tha[];	/* Target hardware address	*/
 	u8		ar_tpa[];	/* Target protocol address	*/
 #endif /* 0 */
-};
+} __attribute__((packed));
 
 #define ARP_HDR_SIZE	(8+20)		/* Size assuming ethernet	*/
 
@@ -470,7 +470,7 @@ struct icmp_hdr {
 		} frag;
 		u8 data[0];
 	} un;
-};
+} __attribute__((packed));
 
 #define ICMP_HDR_SIZE		(sizeof(struct icmp_hdr))
 #define IP_ICMP_HDR_SIZE	(IP_HDR_SIZE + ICMP_HDR_SIZE)

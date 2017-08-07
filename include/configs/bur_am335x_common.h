@@ -31,7 +31,6 @@
 /* Network defines */
 #define CONFIG_DRIVER_TI_CPSW		/* Driver for IP block */
 #define CONFIG_MII			/* Required in net/eth.c */
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_NATSEMI
 
 /*

@@ -111,7 +111,6 @@
 #define CONFIG_CONS_INDEX		1
 
 /* Ethernet support */
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_SMSC
 
 /* NAND support */

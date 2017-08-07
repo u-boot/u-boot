@@ -101,7 +101,6 @@
 
 /* Network. */
 #define CONFIG_PHY_GIGE
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_SMSC
 
 #endif	/* ! __CONFIG_AM335X_SL50_H */

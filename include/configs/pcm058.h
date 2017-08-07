@@ -43,10 +43,6 @@
 #define CONFIG_ETHPRIME			"FEC"
 #define CONFIG_FEC_MXC_PHYADDR		3
 
-#define CONFIG_PHYLIB
-#define CONFIG_PHY_MICREL
-#define CONFIG_PHY_KSZ9031
-
 /* SPI Flash */
 #define CONFIG_MXC_SPI
 #define CONFIG_SF_DEFAULT_BUS		0

@@ -206,7 +206,6 @@
 #endif
 
 /* Network. */
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_SMSC
 
 #endif	/* ! __CONFIG_CHILIBOARD_H */

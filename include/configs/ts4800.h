@@ -61,7 +61,6 @@
  * Eth Configs
  */
 #define CONFIG_MII
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_SMSC
 
 #define CONFIG_FEC_MXC
