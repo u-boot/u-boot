@@ -7,8 +7,6 @@
 #ifndef __CONFIG_CHILIBOARD_H
 #define __CONFIG_CHILIBOARD_H
 
-#define CONFIG_NAND
-
 #include <configs/ti_am335x_common.h>
 
 #define CONFIG_CONS_INDEX		1

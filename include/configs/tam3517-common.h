@@ -130,7 +130,6 @@
  */
 
 /* **** PISMO SUPPORT *** */
-#define CONFIG_NAND
 #define CONFIG_NAND_OMAP_GPMC
 #define SMNAND_ENV_OFFSET		0x180000 /* environment starts here */
 

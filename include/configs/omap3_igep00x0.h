@@ -11,7 +11,6 @@
 #define __IGEP00X0_H
 
 #define CONFIG_NR_DRAM_BANKS            2
-#define CONFIG_NAND
 
 #include <configs/ti_omap3_common.h>
 #include <asm/mach-types.h>

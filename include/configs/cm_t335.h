@@ -12,7 +12,6 @@
 #define __CONFIG_CM_T335_H
 
 #define CONFIG_CM_T335
-#define CONFIG_NAND
 
 #include <configs/ti_am335x_common.h>
 

@@ -229,7 +229,6 @@
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_NET_RETRY_COUNT         10
 
-#define CONFIG_NAND
 /* NAND support */
 #ifdef CONFIG_NAND
 /* UBI Support */

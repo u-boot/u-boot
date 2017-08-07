@@ -1,4 +1,7 @@
-menu "NAND Device Support"
+
+menuconfig NAND
+	bool "NAND Device Support"
+if NAND
 
 config SYS_NAND_SELF_INIT
 	bool
@@ -173,4 +176,4 @@ config SPL_NAND_DENALI
 
 endif
 
-endmenu
+endif   # if NAND

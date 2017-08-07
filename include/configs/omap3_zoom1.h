@@ -13,7 +13,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_NAND
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>

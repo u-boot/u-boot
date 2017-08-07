@@ -11,7 +11,6 @@
 #ifndef __CONFIG_PENGWYN_H
 #define __CONFIG_PENGWYN_H
 
-#define CONFIG_NAND
 #define CONFIG_SERIAL1
 #define CONFIG_CONS_INDEX		1
 

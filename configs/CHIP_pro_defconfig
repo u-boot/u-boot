@@ -20,6 +20,7 @@ CONFIG_SPL_I2C_SUPPORT=y
 CONFIG_MTDIDS_DEFAULT="nand0=sunxi-nand.0"
 CONFIG_MTDPARTS_DEFAULT="mtdparts=sunxi-nand.0:256k(spl),256k(spl-backup),2m(uboot),2m(uboot-backup),-(UBI)"
 # CONFIG_MMC is not set
+CONFIG_NAND=y
 CONFIG_NAND_SUNXI=y
 CONFIG_AXP_ALDO3_VOLT=3300
 CONFIG_AXP_ALDO4_VOLT=3300

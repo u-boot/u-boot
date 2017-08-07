@@ -706,6 +706,7 @@ config ARCH_VF610
 	select CPU_V7
 	select SYS_FSL_ERRATUM_ESDHC111
 	imply CMD_MTDPARTS
+	imply NAND
 
 config ARCH_ZYNQ
 	bool "Xilinx Zynq Platform"

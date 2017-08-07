@@ -8,7 +8,6 @@
 #define __CONFIG_H
 
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
-#define CONFIG_NAND
 
 #include <configs/ti_omap3_common.h>
 /*

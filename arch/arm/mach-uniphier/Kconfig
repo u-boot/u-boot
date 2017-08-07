@@ -9,6 +9,7 @@ config ARCH_UNIPHIER_32BIT
 	select CPU_V7_HAS_NONSEC
 	select ARMV7_NONSEC
 	select ARCH_SUPPORT_PSCI
+	imply NAND
 
 choice
         prompt "UniPhier SoC select"

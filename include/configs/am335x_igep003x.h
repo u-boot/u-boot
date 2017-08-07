@@ -14,7 +14,6 @@
 #ifndef __CONFIG_IGEP003X_H
 #define __CONFIG_IGEP003X_H
 
-#define CONFIG_NAND
 #include <configs/ti_am335x_common.h>
 
 /* Clock defines */

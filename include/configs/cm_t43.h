@@ -25,7 +25,6 @@
 #endif
 
 /* NAND support */
-#define CONFIG_NAND
 #define CONFIG_NAND_OMAP_ELM
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE

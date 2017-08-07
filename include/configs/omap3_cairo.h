@@ -36,8 +36,6 @@
 #define CONFIG_SYS_SPL_MALLOC_START	0x80208000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 
-#define CONFIG_NAND
-
 #include <configs/ti_omap3_common.h>
 
 #define CONFIG_MISC_INIT_R
@@ -50,8 +48,6 @@
 
 /* Probe all devices */
 #define CONFIG_SYS_I2C_NOPROBES		{ {0x0, 0x0} }
-
-#define CONFIG_NAND
 
 /*
  * TWL4030
