@@ -147,7 +147,7 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 int misc_init_r(void)
 {
 
-#ifdef CONFIG_SYS_I2C_OMAP34XX
+#ifdef CONFIG_SYS_I2C_OMAP24XX
 	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 #endif
 
