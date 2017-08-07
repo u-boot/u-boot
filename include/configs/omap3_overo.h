@@ -34,7 +34,6 @@
 #define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + (128 << 15))
 
 /* I2C Support */
-#define CONFIG_SYS_I2C_OMAP24XX
 
 /* TWL4030 LED */
 #define CONFIG_TWL4030_LED

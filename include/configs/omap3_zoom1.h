@@ -63,9 +63,6 @@
 #endif
 #endif
 
-#undef CONFIG_SYS_I2C_OMAP24XX
-#define CONFIG_SYS_I2C_OMAP24XX
-
 /*
  * TWL4030
  */
