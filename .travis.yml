@@ -264,6 +264,15 @@ matrix:
           BUILDMAN="^sandbox$"
           TOOLCHAIN="x86_64"
     - env:
+        - TEST_PY_BD="sandbox_spl"
+          TEST_PY_TEST_SPEC="test_ofplatdata"
+          BUILDMAN="^sandbox$"
+          TOOLCHAIN="x86_64"
+    - env:
+        - TEST_PY_BD="sandbox_flattree"
+          BUILDMAN="^sandbox_flattree$"
+          TOOLCHAIN="x86_64"
+    - env:
         - TEST_PY_BD="vexpress_ca15_tc2"
           TEST_PY_ID="--id qemu"
           QEMU_TARGET="arm-softmmu"
