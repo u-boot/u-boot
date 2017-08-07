@@ -166,7 +166,7 @@ static inline void __maybe_unused print_std_bdinfo(const bd_t *bd)
 #if defined(CONFIG_PPC)
 void __weak board_detail(void)
 {
-	/* Please define boot_detail() for your platform */
+	/* Please define board_detail() for your platform */
 }
 
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
