@@ -187,6 +187,12 @@ ENTRY(cpu_init_cp15)
 	mcr	p15, 0, r0, c15, c0, 1	@ write diagnostic register
 #endif
 
+#ifdef CONFIG_ARM_ERRATA_845369
+	mrc     p15, 0, r0, c15, c0, 1	@ read diagnostic register
+	orr     r0, r0, #1 << 22	@ set bit #22
+	mcr     p15, 0, r0, c15, c0, 1	@ write diagnostic register
+#endif
+
 	mov	r5, lr			@ Store my Caller
 	mrc	p15, 0, r1, c0, c0, 0	@ r1 has Read Main ID Register (MIDR)
 	mov	r3, r1, lsr #20		@ get variant field
