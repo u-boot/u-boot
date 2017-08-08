@@ -1,3 +1,10 @@
+/*
+ * (C) Copyright 2000-2002
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
 #ifndef _ASM_IO_H
 #define _ASM_IO_H
 
@@ -117,71 +124,6 @@
 #define clrbits_8(addr, clear) clrbits(8, addr, clear)
 #define setbits_8(addr, set) setbits(8, addr, set)
 #define clrsetbits_8(addr, clear, set) clrsetbits(8, addr, clear, set)
-
-/*
- * ISA space is 'always mapped' on a typical x86 system, no need to
- * explicitly ioremap() it. The fact that the ISA IO space is mapped
- * to PAGE_OFFSET is pure coincidence - it does not mean ISA values
- * are physical addresses. The following constant pointer can be
- * used as the IO-area pointer (it can be iounmapped as well, so the
- * analogy with PCI is quite large):
- */
-#define isa_readb(a) readb((a))
-#define isa_readw(a) readw((a))
-#define isa_readl(a) readl((a))
-#define isa_writeb(b,a) writeb(b,(a))
-#define isa_writew(w,a) writew(w,(a))
-#define isa_writel(l,a) writel(l,(a))
-#define isa_memset_io(a,b,c)		memset_io((a),(b),(c))
-#define isa_memcpy_fromio(a,b,c)	memcpy_fromio((a),(b),(c))
-#define isa_memcpy_toio(a,b,c)		memcpy_toio((a),(b),(c))
-
-
-static inline int check_signature(unsigned long io_addr,
-	const unsigned char *signature, int length)
-{
-	int retval = 0;
-	do {
-		if (readb(io_addr) != *signature)
-			goto out;
-		io_addr++;
-		signature++;
-		length--;
-	} while (length);
-	retval = 1;
-out:
-	return retval;
-}
-
-/**
- *	isa_check_signature		-	find BIOS signatures
- *	@io_addr: mmio address to check
- *	@signature:  signature block
- *	@length: length of signature
- *
- *	Perform a signature comparison with the ISA mmio address io_addr.
- *	Returns 1 on a match.
- *
- *	This function is deprecated. New drivers should use ioremap and
- *	check_signature.
- */
-
-
-static inline int isa_check_signature(unsigned long io_addr,
-	const unsigned char *signature, int length)
-{
-	int retval = 0;
-	do {
-		if (isa_readb(io_addr) != *signature)
-			goto out;
-		io_addr++;
-		signature++;
-		length--;
-	} while (length);
-	retval = 1;
-out:
-	return retval;
-}
 
 #endif /* __KERNEL__ */
 
@@ -325,4 +267,4 @@ static inline phys_addr_t virt_to_phys(void * vaddr)
 #define __iormb()	dmb()
 #define __iowmb()	dmb()
 
-#endif
+#endif /* _ASM_IO_H */
