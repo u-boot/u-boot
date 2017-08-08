@@ -1,24 +1,31 @@
 if ARCH_MX6
 
+config MX6_SMP
+	select ARM_ERRATA_751472
+	select ARM_ERRATA_761320
+	select ARM_ERRATA_794072
+	bool
+
 config MX6
+	select ARM_ERRATA_743622 if !MX6UL
 	bool
 	default y
-	select ARM_ERRATA_743622 if !MX6UL
-	select ARM_ERRATA_751472 if !MX6UL
-	select ARM_ERRATA_761320 if !MX6UL
-	select ARM_ERRATA_794072 if !MX6UL
 	imply CMD_FUSE
 
 config MX6D
+	select MX6_SMP
 	bool
 
 config MX6DL
+	select MX6_SMP
 	bool
 
 config MX6Q
+	select MX6_SMP
 	bool
 
 config MX6QDL
+	select MX6_SMP
 	bool
 
 config MX6S
