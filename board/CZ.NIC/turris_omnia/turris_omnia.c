@@ -90,7 +90,7 @@ static struct serdes_map board_serdes_map_sata[] = {
 static bool omnia_detect_sata(void)
 {
 	struct udevice *bus, *dev;
-	int ret;
+	int ret, retry = 3;
 	u16 mode;
 
 	puts("SERDES0 card detect: ");
@@ -106,8 +106,13 @@ static bool omnia_detect_sata(void)
 		return false;
 	}
 
-	ret = dm_i2c_read(dev, OMNIA_I2C_MCU_ADDR_STATUS, (uchar *) &mode, 2);
-	if (ret) {
+	for (; retry > 0; --retry) {
+		ret = dm_i2c_read(dev, OMNIA_I2C_MCU_ADDR_STATUS, (uchar *) &mode, 2);
+		if (!ret)
+			break;
+	}
+
+	if (!retry) {
 		puts("I2C read failed! Default PEX\n");
 		return false;
 	}
