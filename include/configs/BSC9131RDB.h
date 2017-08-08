@@ -258,8 +258,6 @@ extern unsigned long get_sdram_size(void);
 
 #define CONFIG_ETHPRIME		"eTSEC1"
 
-#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
-
 #endif	/* CONFIG_TSEC_ENET */
 
 /*

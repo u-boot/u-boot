@@ -102,7 +102,6 @@
 #define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
 
 /* Network. */
-#define CONFIG_PHY_GIGE
 #define CONFIG_PHY_ATHEROS
 
 /* NAND support */

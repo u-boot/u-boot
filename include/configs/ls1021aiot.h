@@ -199,7 +199,6 @@
 
 #define CONFIG_ETHPRIME			"eTSEC2"
 
-#define CONFIG_PHY_GIGE
 #define CONFIG_PHY_ATHEROS
 
 #define CONFIG_HAS_ETH0

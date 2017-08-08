@@ -432,7 +432,6 @@ extern unsigned long get_clock_freq(void);
 
 /* Options are: eTSEC[0-3] */
 #define CONFIG_ETHPRIME		"eTSEC0"
-#define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
 #endif	/* CONFIG_TSEC_ENET */
 
 /*

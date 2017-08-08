@@ -55,7 +55,6 @@
  * Ethernet PHY configuration
  */
 #define CONFIG_MII
-#define CONFIG_PHY_GIGE
 
 /*
  * USB 1.1 configuration

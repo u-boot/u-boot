@@ -679,7 +679,6 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_MII		/* MII PHY management */
 #define CONFIG_ETHPRIME		"FM1@DTSEC1"
-#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 #endif
 
 #define CONFIG_SYS_FSL_B4860QDS_XFI_ERR

@@ -304,7 +304,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  * Networking options
  */
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
-#define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
 #define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_ETHPRIME		"eTSEC1"
 

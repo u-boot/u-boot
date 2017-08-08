@@ -504,8 +504,6 @@
 #define TSEC2_PHYIDX	0
 #define TSEC3_PHYIDX	0
 
-#define CONFIG_PHY_GIGE	1	/* Include GbE speed/duplex detection */
-
 #endif
 
 #define CONFIG_HOSTNAME		UCP1020

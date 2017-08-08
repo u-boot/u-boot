@@ -394,8 +394,6 @@
 #define TSEC2_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
 
 #define CONFIG_ETHPRIME		"eTSEC1"
-
-#define CONFIG_PHY_GIGE
 #endif	/* CONFIG_TSEC_ENET */
 
 /*

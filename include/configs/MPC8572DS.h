@@ -519,8 +519,6 @@
 #define TSEC4_PHYIDX		0
 
 #define CONFIG_ETHPRIME		"eTSEC1"
-
-#define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
 #endif	/* CONFIG_TSEC_ENET */
 
 /*

@@ -347,7 +347,6 @@ int get_scl(void);
 #define CONFIG_SYS_FM1_DTSEC5_PHY_ADDR	0x11
 #define CONFIG_SYS_TBIPA_VALUE	8
 #define CONFIG_ETHPRIME		"FM1@DTSEC5"
-#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 
 /*
  * Environment

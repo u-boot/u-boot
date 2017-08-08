@@ -32,11 +32,6 @@
 #define CONFIG_SYS_NS16550_CLK		166666666
 
 /*
- * Ethernet PHY configuration
- */
-#define CONFIG_PHY_GIGE
-
-/*
  * Even though the board houses Realtek RTL8211E PHY
  * corresponding PHY driver (drivers/net/phy/realtek.c) behaves unexpectedly.
  * In particular "parse_status" reports link is down.

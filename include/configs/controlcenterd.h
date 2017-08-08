@@ -282,8 +282,6 @@
 
 #define CONFIG_ETHPRIME		"eTSEC1"
 
-#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
-
 /*
  * USB
  */

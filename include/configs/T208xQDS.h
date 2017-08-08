@@ -672,7 +672,6 @@ unsigned long get_board_ddr_clk(void);
 #ifdef CONFIG_FMAN_ENET
 #define CONFIG_MII		/* MII PHY management */
 #define CONFIG_ETHPRIME		"FM1@DTSEC3"
-#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 #endif
 
 /*

@@ -558,7 +558,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_TBIPA_VALUE	8
 #define CONFIG_MII		/* MII PHY management */
 #define CONFIG_ETHPRIME		"FM1@DTSEC1"
-#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 #endif
 
 /*

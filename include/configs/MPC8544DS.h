@@ -318,8 +318,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define TSEC3_PHYIDX		0
 
 #define CONFIG_ETHPRIME		"eTSEC1"
-
-#define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
 #endif	/* CONFIG_TSEC_ENET */
 
 /*

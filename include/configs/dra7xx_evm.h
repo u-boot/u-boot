@@ -112,7 +112,6 @@
 #define CONFIG_NET_RETRY_COUNT		10
 #define CONFIG_DRIVER_TI_CPSW		/* Driver for IP block */
 #define CONFIG_MII			/* Required in net/eth.c */
-#define CONFIG_PHY_GIGE			/* per-board part of CPSW */
 #define CONFIG_PHY_TI
 
 /* SPI */

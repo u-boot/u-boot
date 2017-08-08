@@ -317,7 +317,6 @@ extern unsigned long get_clock_freq(void);
 
 /* For FM */
 #define CONFIG_SYS_DPAA_FMAN
-#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_FMAN_ENET

@@ -357,7 +357,6 @@
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 
 /* Network. */
-#define CONFIG_PHY_GIGE
 #define CONFIG_PHY_SMSC
 /* Enable Atheros phy driver */
 #define CONFIG_PHY_ATHEROS

@@ -488,7 +488,6 @@ unsigned long get_board_sys_clk(void);
 
 #define CONFIG_MII
 #define CONFIG_ETHPRIME		"DPMAC1@xgmii"
-#define CONFIG_PHY_GIGE
 #define CONFIG_PHY_AQUANTIA
 #endif
 

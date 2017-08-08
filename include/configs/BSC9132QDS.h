@@ -457,8 +457,6 @@ combinations. this should be removed later
 
 #define CONFIG_ETHPRIME		"eTSEC1"
 
-#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
-
 /* TBI PHY configuration for SGMII mode */
 #define CONFIG_TSEC_TBICR_SETTINGS ( \
 		TBICR_PHY_RESET \

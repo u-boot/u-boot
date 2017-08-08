@@ -1627,11 +1627,6 @@ The following options need to be configured:
 
 		The clock frequency of the MII bus
 
-		CONFIG_PHY_GIGE
-
-		If this option is set, support for speed/duplex
-		detection of gigabit PHY is included.
-
 		CONFIG_PHY_RESET_DELAY
 
 		Some PHY like Intel LXT971A need extra delay after

@@ -434,7 +434,6 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_MII		/* MII PHY management */
 #define CONFIG_ETHPRIME		"DPMAC1@xgmii"
-#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 
 #endif
 

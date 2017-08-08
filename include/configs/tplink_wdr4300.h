@@ -65,6 +65,5 @@
 #define CONFIG_CMD_MEMTEST
 
 #define CONFIG_CMD_MII
-#define CONFIG_PHY_GIGE
 
 #endif  /* __CONFIG_H */
