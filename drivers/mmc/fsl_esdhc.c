@@ -968,7 +968,9 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
+#ifdef CONFIG_DM_REGULATOR
 	struct udevice *vqmmc_dev;
+#endif
 	fdt_addr_t addr;
 	unsigned int val;
 	int ret;
