@@ -13,35 +13,21 @@
 
 #include <configs/x86-common.h>
 
-#define CONFIG_SYS_MONITOR_LEN		(1 << 20)
-
-#define CONFIG_PREBOOT
-
 /* Use BayTrail internal HS UART which is memory-mapped */
 #undef  CONFIG_SYS_NS16550_PORT_MAPPED
 
-#define CONFIG_STD_DEVICES_SETTINGS     "stdin=serial\0" \
-					"stdout=serial\0" \
-					"stderr=serial\0"
+/* Set the board specific parameters */
+#define DEF_ENV_TFTPDIR		"theadorable-x86-dfi"
+#define DEF_ENV_ETH_INIT	"usb reset"
+#define DEF_ENV_UBUNTU_PART	1
+#define DEF_ENV_UBUNTU_TTY	4	/* Use ttyS4 */
+#define DEF_ENV_YOCTO_PART	2
+#define DEF_ENV_YOCTO_TTY	1	/* Use ttyS1 */
 
-#define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_ASIX
-#define CONFIG_USB_ETHER_SMSC95XX
-#define CONFIG_USB_ETHER_MCS7830
-#define CONFIG_USB_ETHER_RTL8152
-
-#define VIDEO_IO_OFFSET				0
-#define CONFIG_X86EMU_RAW_IO
-#define CONFIG_CMD_BMP
-#define CONFIG_BMP_16BPP
-
-/* Environment settings */
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-#undef CONFIG_ENV_SIZE
-#define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_ENV_SECT_SIZE		0x1000
-#define CONFIG_ENV_OFFSET		0x006ec000
-#define CONFIG_ENV_OFFSET_REDUND	\
-	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
+/*
+ * Include the theadorable-x86 common options, macros and default
+ * environment
+ */
+#include <configs/theadorable-x86-common.h>
 
 #endif	/* __CONFIG_H */

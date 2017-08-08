@@ -13,26 +13,18 @@
 
 #include <configs/x86-common.h>
 
-#define CONFIG_SYS_MONITOR_LEN		(1 << 20)
+/* Set the board specific parameters */
+#define DEF_ENV_TFTPDIR		"theadorable-x86-conga"
+#define DEF_ENV_ETH_INIT	""
+#define DEF_ENV_UBUNTU_PART	2
+#define DEF_ENV_UBUNTU_TTY	0	/* Use ttyS0 */
+#define DEF_ENV_YOCTO_PART	3
+#define DEF_ENV_YOCTO_TTY	0	/* Use ttyS0 */
 
-#define CONFIG_PREBOOT
-
-#define CONFIG_STD_DEVICES_SETTINGS     "stdin=serial\0" \
-					"stdout=serial\0" \
-					"stderr=serial\0"
-
-#define VIDEO_IO_OFFSET				0
-#define CONFIG_X86EMU_RAW_IO
-#define CONFIG_CMD_BMP
-#define CONFIG_BMP_16BPP
-
-/* Environment settings */
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-#undef CONFIG_ENV_SIZE
-#define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_ENV_SECT_SIZE		0x1000
-#define CONFIG_ENV_OFFSET		0x006ec000
-#define CONFIG_ENV_OFFSET_REDUND	\
-	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
+/*
+ * Include the theadorable-x86 common options, macros and default
+ * environment
+ */
+#include <configs/theadorable-x86-common.h>
 
 #endif	/* __CONFIG_H */
