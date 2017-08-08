@@ -365,18 +365,6 @@ static void init_bandgap(void)
 	}
 }
 
-#ifdef CONFIG_MX6SL
-static void set_preclk_from_osc(void)
-{
-	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
-	u32 reg;
-
-	reg = readl(&mxc_ccm->cscmr1);
-	reg |= MXC_CCM_CSCMR1_PER_CLK_SEL_MASK;
-	writel(reg, &mxc_ccm->cscmr1);
-}
-#endif
-
 int arch_cpu_init(void)
 {
 	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
@@ -444,9 +432,8 @@ int arch_cpu_init(void)
 	}
 
 	/* Set perclk to source from OSC 24MHz */
-#if defined(CONFIG_MX6SL)
-	set_preclk_from_osc();
-#endif
+	if (is_mx6sl())
+		setbits_le32(&ccm->cscmr1, MXC_CCM_CSCMR1_PER_CLK_SEL_MASK);
 
 	imx_set_wdog_powerdown(false); /* Disable PDE bit of WMCR register */
 
