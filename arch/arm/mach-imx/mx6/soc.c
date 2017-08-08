@@ -251,6 +251,10 @@ static int set_ldo_voltage(enum ldo_reg ldo, u32 mv)
 	u32 val, step, old, reg = readl(&anatop->reg_core);
 	u8 shift;
 
+	/* No LDO_SOC/PU/ARM */
+	if (is_mx6sll())
+		return 0;
+
 	if (mv < 725)
 		val = 0x00;	/* Power gated off */
 	else if (mv > 1450)
@@ -310,7 +314,7 @@ static void clear_mmdc_ch_mask(void)
 	reg = readl(&mxc_ccm->ccdr);
 
 	/* Clear MMDC channel mask */
-	if (is_mx6sx() || is_mx6ul() || is_mx6ull() || is_mx6sl())
+	if (is_mx6sx() || is_mx6ul() || is_mx6ull() || is_mx6sl() || is_mx6sll())
 		reg &= ~(MXC_CCM_CCDR_MMDC_CH1_HS_MASK);
 	else
 		reg &= ~(MXC_CCM_CCDR_MMDC_CH1_HS_MASK | MXC_CCM_CCDR_MMDC_CH0_HS_MASK);
@@ -512,6 +516,10 @@ uint mmc_get_env_part(struct mmc *mmc)
 
 int board_postclk_init(void)
 {
+	/* NO LDO SOC on i.MX6SLL */
+	if (is_mx6sll())
+		return 0;
+
 	set_ldo_voltage(LDO_SOC, 1175);	/* Set VDDSOC to 1.175V */
 
 	return 0;
@@ -593,7 +601,7 @@ void s_init(void)
 	u32 mask528;
 	u32 reg, periph1, periph2;
 
-	if (is_mx6sx() || is_mx6ul() || is_mx6ull())
+	if (is_mx6sx() || is_mx6ul() || is_mx6ull() || is_mx6sll())
 		return;
 
 	/* Due to hardware limitation, on MX6Q we need to gate/ungate all PFDs
