@@ -3063,10 +3063,6 @@ static void gop_gmac_sgmii2_5_cfg(struct mvpp2_port *port)
 	val |= MVPP2_GMAC_CTRL4_QSGMII_BYPASS_ACTIVE_MASK;
 	writel(val, port->base + MVPP2_GMAC_CTRL_4_REG);
 
-	val = readl(port->base + MVPP2_GMAC_CTRL_2_REG);
-	val |= MVPP2_GMAC_PORT_DIS_PADING_MASK;
-	writel(val, port->base + MVPP2_GMAC_CTRL_2_REG);
-
 	val = readl(port->base + MVPP2_GMAC_CTRL_0_REG);
 	/*
 	 * Configure GIG MAC to 1000Base-X mode connected to a fiber
@@ -3109,10 +3105,6 @@ static void gop_gmac_sgmii_cfg(struct mvpp2_port *port)
 	val |= MVPP2_GMAC_CTRL4_QSGMII_BYPASS_ACTIVE_MASK;
 	writel(val, port->base + MVPP2_GMAC_CTRL_4_REG);
 
-	val = readl(port->base + MVPP2_GMAC_CTRL_2_REG);
-	val |= MVPP2_GMAC_PORT_DIS_PADING_MASK;
-	writel(val, port->base + MVPP2_GMAC_CTRL_2_REG);
-
 	val = readl(port->base + MVPP2_GMAC_CTRL_0_REG);
 	/* configure GIG MAC to SGMII mode */
 	val &= ~MVPP2_GMAC_PORT_TYPE_MASK;
@@ -3150,10 +3142,6 @@ static void gop_gmac_rgmii_cfg(struct mvpp2_port *port)
 	val |= MVPP2_GMAC_CTRL4_QSGMII_BYPASS_ACTIVE_MASK;
 	val |= MVPP2_GMAC_CTRL4_EXT_PIN_GMII_SEL_MASK;
 	writel(val, port->base + MVPP2_GMAC_CTRL_4_REG);
-
-	val = readl(port->base + MVPP2_GMAC_CTRL_2_REG);
-	val &= ~MVPP2_GMAC_PORT_DIS_PADING_MASK;
-	writel(val, port->base + MVPP2_GMAC_CTRL_2_REG);
 
 	val = readl(port->base + MVPP2_GMAC_CTRL_0_REG);
 	/* configure GIG MAC to SGMII mode */
