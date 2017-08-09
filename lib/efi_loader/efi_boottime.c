@@ -611,7 +611,7 @@ static int efi_search(enum efi_locate_search_type search_type,
 	return -1;
 }
 
-static efi_status_t EFIAPI efi_locate_handle(
+static efi_status_t efi_locate_handle(
 			enum efi_locate_search_type search_type,
 			efi_guid_t *protocol, void *search_key,
 			unsigned long *buffer_size, efi_handle_t *buffer)
