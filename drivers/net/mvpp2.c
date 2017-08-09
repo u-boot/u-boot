@@ -942,6 +942,7 @@ struct mvpp2 {
 	struct mii_dev *bus;
 
 	int probe_done;
+	u8 num_ports;
 };
 
 struct mvpp2_pcpu_stats {
@@ -4848,6 +4849,7 @@ static int mvpp2_port_probe(struct udevice *dev,
 #endif
 
 	priv->port_list[port->id] = port;
+	priv->num_ports++;
 	return 0;
 }
 
@@ -5512,10 +5514,8 @@ static int mvpp2_probe(struct udevice *dev)
 	int err;
 
 	/* Only call the probe function for the parent once */
-	if (!priv->probe_done) {
+	if (!priv->probe_done)
 		err = mvpp2_base_probe(dev->parent);
-		priv->probe_done = 1;
-	}
 
 	port->priv = dev_get_priv(dev->parent);
 
@@ -5553,11 +5553,15 @@ static int mvpp2_probe(struct udevice *dev)
 		gop_port_init(port);
 	}
 
-	/* Initialize network controller */
-	err = mvpp2_init(dev, priv);
-	if (err < 0) {
-		dev_err(&pdev->dev, "failed to initialize controller\n");
-		return err;
+	if (!priv->probe_done) {
+		/* Initialize network controller */
+		err = mvpp2_init(dev, priv);
+		if (err < 0) {
+			dev_err(&pdev->dev, "failed to initialize controller\n");
+			return err;
+		}
+		priv->num_ports = 0;
+		priv->probe_done = 1;
 	}
 
 	err = mvpp2_port_probe(dev, port, dev_of_offset(dev), priv);
@@ -5584,6 +5588,11 @@ static int mvpp2_remove(struct udevice *dev)
 	struct mvpp2_port *port = dev_get_priv(dev);
 	struct mvpp2 *priv = port->priv;
 	int i;
+
+	priv->num_ports--;
+
+	if (priv->num_ports)
+		return 0;
 
 	for (i = 0; i < MVPP2_BM_POOLS_NUM; i++)
 		mvpp2_bm_pool_destroy(dev, priv, &priv->bm_pools[i]);
