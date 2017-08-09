@@ -2675,7 +2675,7 @@ static int mvpp2_bm_pools_init(struct udevice *dev,
 		err = mvpp2_bm_pool_create(dev, priv, bm_pool, size);
 		if (err)
 			goto err_unroll_pools;
-		mvpp2_bm_pool_bufsize_set(priv, bm_pool, 0);
+		mvpp2_bm_pool_bufsize_set(priv, bm_pool, RX_BUFFER_SIZE);
 	}
 	return 0;
 
@@ -2860,9 +2860,6 @@ mvpp2_bm_pool_use(struct mvpp2_port *port, int pool, enum mvpp2_bm_type type,
 			return NULL;
 		}
 	}
-
-	mvpp2_bm_pool_bufsize_set(port->priv, new_pool,
-				  MVPP2_RX_BUF_SIZE(new_pool->pkt_size));
 
 	return new_pool;
 }
