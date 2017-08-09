@@ -1133,7 +1133,7 @@ static void arasan_check_ondie(struct mtd_info *mtd)
 static int arasan_nand_ecc_init(struct mtd_info *mtd)
 {
 	int found = -1;
-	u32 regval, eccpos_start, i;
+	u32 regval, eccpos_start, i, eccaddr;
 	struct nand_chip *nand_chip = mtd_to_nand(mtd);
 
 	for (i = 0; i < ARRAY_SIZE(ecc_matrix); i++) {
@@ -1152,7 +1152,10 @@ static int arasan_nand_ecc_init(struct mtd_info *mtd)
 	if (found < 0)
 		return 1;
 
-	regval = ecc_matrix[found].eccaddr |
+	eccaddr = mtd->writesize + mtd->oobsize -
+		  ecc_matrix[found].eccsize;
+
+	regval = eccaddr |
 		 (ecc_matrix[found].eccsize << ARASAN_NAND_ECC_SIZE_SHIFT) |
 		 (ecc_matrix[found].bch << ARASAN_NAND_ECC_BCH_SHIFT);
 	writel(regval, &arasan_nand_base->ecc_reg);
