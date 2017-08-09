@@ -347,7 +347,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  */
 
 #ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_USB_EHCI_PCI
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_PCI_EHCI_DEVICE			0
 #endif
