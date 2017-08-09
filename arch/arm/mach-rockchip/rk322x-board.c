@@ -7,6 +7,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <ram.h>
+#include <syscon.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/periph.h>
@@ -133,6 +134,20 @@ int board_usb_init(int index, enum usb_init_type init)
 
 int board_usb_cleanup(int index, enum usb_init_type init)
 {
+	return 0;
+}
+#endif
+
+#if defined(CONFIG_USB_FUNCTION_FASTBOOT)
+int fb_set_reboot_flag(void)
+{
+	struct rk322x_grf *grf;
+
+	printf("Setting reboot to fastboot flag ...\n");
+	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+	/* Set boot mode to fastboot */
+	writel(BOOT_FASTBOOT, &grf->os_reg[0]);
+
 	return 0;
 }
 #endif
