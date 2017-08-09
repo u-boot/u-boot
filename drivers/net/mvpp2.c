@@ -4681,20 +4681,6 @@ static int mvpp2_port_init(struct udevice *dev, struct mvpp2_port *port)
 		port->rxqs[queue] = rxq;
 	}
 
-	/* Configure Rx queue group interrupt for this port */
-	if (priv->hw_version == MVPP21) {
-		mvpp2_write(priv, MVPP21_ISR_RXQ_GROUP_REG(port->id),
-			    CONFIG_MV_ETH_RXQ);
-	} else {
-		u32 val;
-
-		val = (port->id << MVPP22_ISR_RXQ_GROUP_INDEX_GROUP_OFFSET);
-		mvpp2_write(priv, MVPP22_ISR_RXQ_GROUP_INDEX_REG, val);
-
-		val = (CONFIG_MV_ETH_RXQ <<
-		       MVPP22_ISR_RXQ_SUB_GROUP_SIZE_OFFSET);
-		mvpp2_write(priv, MVPP22_ISR_RXQ_SUB_GROUP_CONFIG_REG, val);
-	}
 
 	/* Create Rx descriptor rings */
 	for (queue = 0; queue < rxq_number; queue++) {
@@ -5058,25 +5044,6 @@ static int mvpp2_init(struct udevice *dev, struct mvpp2 *priv)
 	if (priv->hw_version == MVPP22)
 		mvpp2_tx_fifo_init(priv);
 
-	/* Reset Rx queue group interrupt configuration */
-	for (i = 0; i < MVPP2_MAX_PORTS; i++) {
-		if (priv->hw_version == MVPP21) {
-			mvpp2_write(priv, MVPP21_ISR_RXQ_GROUP_REG(i),
-				    CONFIG_MV_ETH_RXQ);
-			continue;
-		} else {
-			u32 val;
-
-			val = (i << MVPP22_ISR_RXQ_GROUP_INDEX_GROUP_OFFSET);
-			mvpp2_write(priv, MVPP22_ISR_RXQ_GROUP_INDEX_REG, val);
-
-			val = (CONFIG_MV_ETH_RXQ <<
-			       MVPP22_ISR_RXQ_SUB_GROUP_SIZE_OFFSET);
-			mvpp2_write(priv,
-				    MVPP22_ISR_RXQ_SUB_GROUP_CONFIG_REG, val);
-		}
-	}
-
 	if (priv->hw_version == MVPP21)
 		writel(MVPP2_EXT_GLOBAL_CTRL_DEFAULT,
 		       priv->lms_base + MVPP2_MNG_EXTENDED_GLOBAL_CTRL_REG);
@@ -5222,21 +5189,10 @@ static int mvpp2_recv(struct udevice *dev, int flags, uchar **packetp)
 	int pool, rx_bytes, err;
 	int rx_received;
 	struct mvpp2_rx_queue *rxq;
-	u32 cause_rx_tx, cause_rx, cause_misc;
 	u8 *data;
 
-	cause_rx_tx = mvpp2_read(port->priv,
-				 MVPP2_ISR_RX_TX_CAUSE_REG(port->id));
-	cause_rx_tx &= ~MVPP2_CAUSE_TXQ_OCCUP_DESC_ALL_MASK;
-	cause_misc = cause_rx_tx & MVPP2_CAUSE_MISC_SUM_MASK;
-	if (!cause_rx_tx && !cause_misc)
-		return 0;
-
-	cause_rx = cause_rx_tx & MVPP2_CAUSE_RXQ_OCCUP_DESC_ALL_MASK;
-
 	/* Process RX packets */
-	cause_rx |= port->pending_cause_rx;
-	rxq = mvpp2_get_rx_queue(port, cause_rx);
+	rxq = port->rxqs[0];
 
 	/* Get number of received packets and clamp the to-do */
 	rx_received = mvpp2_rxq_received(port, rxq->id);
