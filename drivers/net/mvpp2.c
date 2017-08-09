@@ -617,10 +617,10 @@ enum mv_netc_lanes {
 #define MVPP2_MAX_TXD			16
 
 /* Amount of Tx descriptors that can be reserved at once by CPU */
-#define MVPP2_CPU_DESC_CHUNK		64
+#define MVPP2_CPU_DESC_CHUNK		16
 
 /* Max number of Tx descriptors in each aggregated queue */
-#define MVPP2_AGGR_TXQ_SIZE		256
+#define MVPP2_AGGR_TXQ_SIZE		16
 
 /* Descriptor aligned size */
 #define MVPP2_DESC_ALIGNED_SIZE		32
