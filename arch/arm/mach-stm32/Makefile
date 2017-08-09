@@ -5,6 +5,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_STM32F1) += stm32f1/
 obj-$(CONFIG_STM32F4) += stm32f4/
 obj-$(CONFIG_STM32F7) += stm32f7/
