@@ -5254,21 +5254,6 @@ static int mvpp2_recv(struct udevice *dev, int flags, uchar **packetp)
 	return rx_bytes;
 }
 
-/* Drain Txq */
-static void mvpp2_txq_drain(struct mvpp2_port *port, struct mvpp2_tx_queue *txq,
-			    int enable)
-{
-	u32 val;
-
-	mvpp2_write(port->priv, MVPP2_TXQ_NUM_REG, txq->id);
-	val = mvpp2_read(port->priv, MVPP2_TXQ_PREF_BUF_REG);
-	if (enable)
-		val |= MVPP2_TXQ_DRAIN_EN_MASK;
-	else
-		val &= ~MVPP2_TXQ_DRAIN_EN_MASK;
-	mvpp2_write(port->priv, MVPP2_TXQ_PREF_BUF_REG, val);
-}
-
 static int mvpp2_send(struct udevice *dev, void *packet, int length)
 {
 	struct mvpp2_port *port = dev_get_priv(dev);
@@ -5312,9 +5297,6 @@ static int mvpp2_send(struct udevice *dev, void *packet, int length)
 		tx_done = mvpp2_txq_pend_desc_num_get(port, txq);
 	} while (tx_done);
 
-	/* Enable TXQ drain */
-	mvpp2_txq_drain(port, txq, 1);
-
 	timeout = 0;
 	do {
 		if (timeout++ > 10000) {
@@ -5323,9 +5305,6 @@ static int mvpp2_send(struct udevice *dev, void *packet, int length)
 		}
 		tx_done = mvpp2_txq_sent_desc_proc(port, txq);
 	} while (!tx_done);
-
-	/* Disable TXQ drain */
-	mvpp2_txq_drain(port, txq, 0);
 
 	return 0;
 }
