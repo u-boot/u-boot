@@ -5014,13 +5014,14 @@ static int mvpp2_init(struct udevice *dev, struct mvpp2 *priv)
 		return -EINVAL;
 	}
 
-	/* MBUS windows configuration */
-	dram_target_info = mvebu_mbus_dram_info();
-	if (dram_target_info)
-		mvpp2_conf_mbus_windows(dram_target_info, priv);
-
 	if (priv->hw_version == MVPP22)
 		mvpp2_axi_init(priv);
+	else {
+		/* MBUS windows configuration */
+		dram_target_info = mvebu_mbus_dram_info();
+		if (dram_target_info)
+			mvpp2_conf_mbus_windows(dram_target_info, priv);
+	}
 
 	if (priv->hw_version == MVPP21) {
 		/* Disable HW PHY polling */
