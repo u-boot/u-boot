@@ -30,6 +30,7 @@
 #include <asm/arch/soc.h>
 #include <linux/compat.h>
 #include <linux/mbus.h>
+#include <asm-generic/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -985,6 +986,10 @@ struct mvpp2_port {
 	phy_interface_t phy_interface;
 	int phy_node;
 	int phyaddr;
+#ifdef CONFIG_DM_GPIO
+	struct gpio_desc phy_reset_gpio;
+	struct gpio_desc phy_tx_disable_gpio;
+#endif
 	int init;
 	unsigned int link;
 	unsigned int duplex;
@@ -4765,6 +4770,13 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 		return -EINVAL;
 	}
 
+#ifdef CONFIG_DM_GPIO
+	gpio_request_by_name(dev, "phy-reset-gpios", 0,
+			     &port->phy_reset_gpio, GPIOD_IS_OUT);
+	gpio_request_by_name(dev, "marvell,sfp-tx-disable-gpio", 0,
+			     &port->phy_tx_disable_gpio, GPIOD_IS_OUT);
+#endif
+
 	/*
 	 * ToDo:
 	 * Not sure if this DT property "phy-speed" will get accepted, so
@@ -4786,6 +4798,21 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 	return 0;
 }
 
+#ifdef CONFIG_DM_GPIO
+/* Port GPIO initialization */
+static void mvpp2_gpio_init(struct mvpp2_port *port)
+{
+	if (dm_gpio_is_valid(&port->phy_reset_gpio)) {
+		dm_gpio_set_value(&port->phy_reset_gpio, 0);
+		udelay(1000);
+		dm_gpio_set_value(&port->phy_reset_gpio, 1);
+	}
+
+	if (dm_gpio_is_valid(&port->phy_tx_disable_gpio))
+		dm_gpio_set_value(&port->phy_tx_disable_gpio, 0);
+}
+#endif
+
 /* Ports initialization */
 static int mvpp2_port_probe(struct udevice *dev,
 			    struct mvpp2_port *port,
@@ -4803,6 +4830,10 @@ static int mvpp2_port_probe(struct udevice *dev,
 		return err;
 	}
 	mvpp2_port_power_up(port);
+
+#ifdef CONFIG_DM_GPIO
+	mvpp2_gpio_init(port);
+#endif
 
 	priv->port_list[port->id] = port;
 	return 0;
