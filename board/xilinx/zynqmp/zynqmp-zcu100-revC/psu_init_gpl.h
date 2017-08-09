@@ -21533,6 +21533,382 @@
 #define DDR_PHY_DX8SLBDQSCTL_DQSRES_DEFVAL                     0x00000000
 #define DDR_PHY_DX8SLBDQSCTL_DQSRES_SHIFT                      0
 #define DDR_PHY_DX8SLBDQSCTL_DQSRES_MASK                       0x0000000FU
+#undef DDR_QOS_CTRL_PORT_TYPE_OFFSET
+#define DDR_QOS_CTRL_PORT_TYPE_OFFSET                                              0XFD090000
+#undef DDR_QOS_CTRL_QOS_CTRL_OFFSET
+#define DDR_QOS_CTRL_QOS_CTRL_OFFSET                                               0XFD090004
+#undef DDR_QOS_CTRL_DDR_QOS_ECO_OFFSET
+#define DDR_QOS_CTRL_DDR_QOS_ECO_OFFSET                                            0XFD090800
+#undef DDR_QOS_CTRL_RD_LPR_THRSLD_OFFSET
+#define DDR_QOS_CTRL_RD_LPR_THRSLD_OFFSET                                          0XFD09000C
+#undef DDR_QOS_CTRL_WR_THRSLD_OFFSET
+#define DDR_QOS_CTRL_WR_THRSLD_OFFSET                                              0XFD090010
+#undef AFIFM2_AFIFM_RDQOS_OFFSET
+#define AFIFM2_AFIFM_RDQOS_OFFSET                                                  0XFD380008
+#undef AFIFM2_AFIFM_WRQOS_OFFSET
+#define AFIFM2_AFIFM_WRQOS_OFFSET                                                  0XFD38001C
+#undef AFIFM3_AFIFM_RDQOS_OFFSET
+#define AFIFM3_AFIFM_RDQOS_OFFSET                                                  0XFD390008
+#undef AFIFM3_AFIFM_WRQOS_OFFSET
+#define AFIFM3_AFIFM_WRQOS_OFFSET                                                  0XFD39001C
+#undef AFIFM4_AFIFM_RDQOS_OFFSET
+#define AFIFM4_AFIFM_RDQOS_OFFSET                                                  0XFD3A0008
+#undef AFIFM4_AFIFM_WRQOS_OFFSET
+#define AFIFM4_AFIFM_WRQOS_OFFSET                                                  0XFD3A001C
+#undef AFIFM5_AFIFM_RDQOS_OFFSET
+#define AFIFM5_AFIFM_RDQOS_OFFSET                                                  0XFD3B0008
+#undef AFIFM5_AFIFM_WRQOS_OFFSET
+#define AFIFM5_AFIFM_WRQOS_OFFSET                                                  0XFD3B001C
+
+/*
+* Set Port 5 Type 00 - Best Effort 01 - Low Latency 10 - Video traffic 11
+    * - Reserved
+*/
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT5_TYPE_DEFVAL
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT5_TYPE_SHIFT
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT5_TYPE_MASK
+#define DDR_QOS_CTRL_PORT_TYPE_PORT5_TYPE_DEFVAL               0x0000A845
+#define DDR_QOS_CTRL_PORT_TYPE_PORT5_TYPE_SHIFT                14
+#define DDR_QOS_CTRL_PORT_TYPE_PORT5_TYPE_MASK                 0x0000C000U
+
+/*
+* Set Port 4 Type 00 - Best Effort 01 - Low Latency 10 - Video traffic 11
+    * - Reserved
+*/
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT4_TYPE_DEFVAL
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT4_TYPE_SHIFT
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT4_TYPE_MASK
+#define DDR_QOS_CTRL_PORT_TYPE_PORT4_TYPE_DEFVAL               0x0000A845
+#define DDR_QOS_CTRL_PORT_TYPE_PORT4_TYPE_SHIFT                12
+#define DDR_QOS_CTRL_PORT_TYPE_PORT4_TYPE_MASK                 0x00003000U
+
+/*
+* Set Port 3 Type 00 - Best Effort 01 - Low Latency 10 - Video traffic 11
+    * - Reserved
+*/
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT3_TYPE_DEFVAL
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT3_TYPE_SHIFT
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT3_TYPE_MASK
+#define DDR_QOS_CTRL_PORT_TYPE_PORT3_TYPE_DEFVAL               0x0000A845
+#define DDR_QOS_CTRL_PORT_TYPE_PORT3_TYPE_SHIFT                10
+#define DDR_QOS_CTRL_PORT_TYPE_PORT3_TYPE_MASK                 0x00000C00U
+
+/*
+* Set Port 2 Blue Queue Type 00 - Best Effort 01 - Low Latency 10 - Video
+    * traffic 11 - Reserved
+*/
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT2B_TYPE_DEFVAL
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT2B_TYPE_SHIFT
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT2B_TYPE_MASK
+#define DDR_QOS_CTRL_PORT_TYPE_PORT2B_TYPE_DEFVAL              0x0000A845
+#define DDR_QOS_CTRL_PORT_TYPE_PORT2B_TYPE_SHIFT               8
+#define DDR_QOS_CTRL_PORT_TYPE_PORT2B_TYPE_MASK                0x00000300U
+
+/*
+* Set Port 2 Red Queue Type 00 - Best Effort 01 - Low Latency 10 - Video t
+    * raffic 11 - Reserved
+*/
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT2R_TYPE_DEFVAL
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT2R_TYPE_SHIFT
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT2R_TYPE_MASK
+#define DDR_QOS_CTRL_PORT_TYPE_PORT2R_TYPE_DEFVAL              0x0000A845
+#define DDR_QOS_CTRL_PORT_TYPE_PORT2R_TYPE_SHIFT               6
+#define DDR_QOS_CTRL_PORT_TYPE_PORT2R_TYPE_MASK                0x000000C0U
+
+/*
+* Set Port 1 Blue Queue Type 00 - Best Effort 01 - Low Latency 10 - Video
+    * traffic 11 - Reserved
+*/
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT1B_TYPE_DEFVAL
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT1B_TYPE_SHIFT
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT1B_TYPE_MASK
+#define DDR_QOS_CTRL_PORT_TYPE_PORT1B_TYPE_DEFVAL              0x0000A845
+#define DDR_QOS_CTRL_PORT_TYPE_PORT1B_TYPE_SHIFT               4
+#define DDR_QOS_CTRL_PORT_TYPE_PORT1B_TYPE_MASK                0x00000030U
+
+/*
+* Set Port 1 Red Queue Type 00 - Best Effort 01 - Low Latency 10 - Video t
+    * raffic 11 - Reserved
+*/
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT1R_TYPE_DEFVAL
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT1R_TYPE_SHIFT
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT1R_TYPE_MASK
+#define DDR_QOS_CTRL_PORT_TYPE_PORT1R_TYPE_DEFVAL              0x0000A845
+#define DDR_QOS_CTRL_PORT_TYPE_PORT1R_TYPE_SHIFT               2
+#define DDR_QOS_CTRL_PORT_TYPE_PORT1R_TYPE_MASK                0x0000000CU
+
+/*
+* Set Port 0 Type 00 - Best Effort 01 - Low Latency 10 - Video traffic 11
+    * - Reserved
+*/
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT0_TYPE_DEFVAL
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT0_TYPE_SHIFT
+#undef DDR_QOS_CTRL_PORT_TYPE_PORT0_TYPE_MASK
+#define DDR_QOS_CTRL_PORT_TYPE_PORT0_TYPE_DEFVAL               0x0000A845
+#define DDR_QOS_CTRL_PORT_TYPE_PORT0_TYPE_SHIFT                0
+#define DDR_QOS_CTRL_PORT_TYPE_PORT0_TYPE_MASK                 0x00000003U
+
+/*
+* Port 5 QoS throttle Control on Write channel 0 - Disable 1 - Enable
+*/
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT5_WR_CTRL_DEFVAL
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT5_WR_CTRL_SHIFT
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT5_WR_CTRL_MASK
+#define DDR_QOS_CTRL_QOS_CTRL_PORT5_WR_CTRL_DEFVAL             0x00400000
+#define DDR_QOS_CTRL_QOS_CTRL_PORT5_WR_CTRL_SHIFT              21
+#define DDR_QOS_CTRL_QOS_CTRL_PORT5_WR_CTRL_MASK               0x00200000U
+
+/*
+* Port 5 QoS throttle Control on Read LPR channel 0 - Disable 1 - Enable
+*/
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT5_LPR_CTRL_DEFVAL
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT5_LPR_CTRL_SHIFT
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT5_LPR_CTRL_MASK
+#define DDR_QOS_CTRL_QOS_CTRL_PORT5_LPR_CTRL_DEFVAL            0x00400000
+#define DDR_QOS_CTRL_QOS_CTRL_PORT5_LPR_CTRL_SHIFT             19
+#define DDR_QOS_CTRL_QOS_CTRL_PORT5_LPR_CTRL_MASK              0x00080000U
+
+/*
+* Port 4 QoS throttle Control on Write channel 0 - Disable 1 - Enable
+*/
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT4_WR_CTRL_DEFVAL
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT4_WR_CTRL_SHIFT
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT4_WR_CTRL_MASK
+#define DDR_QOS_CTRL_QOS_CTRL_PORT4_WR_CTRL_DEFVAL             0x00400000
+#define DDR_QOS_CTRL_QOS_CTRL_PORT4_WR_CTRL_SHIFT              18
+#define DDR_QOS_CTRL_QOS_CTRL_PORT4_WR_CTRL_MASK               0x00040000U
+
+/*
+* Port 4 QoS throttle Control on Read LPR channel 0 - Disable 1 - Enable
+*/
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT4_LPR_CTRL_DEFVAL
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT4_LPR_CTRL_SHIFT
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT4_LPR_CTRL_MASK
+#define DDR_QOS_CTRL_QOS_CTRL_PORT4_LPR_CTRL_DEFVAL            0x00400000
+#define DDR_QOS_CTRL_QOS_CTRL_PORT4_LPR_CTRL_SHIFT             16
+#define DDR_QOS_CTRL_QOS_CTRL_PORT4_LPR_CTRL_MASK              0x00010000U
+
+/*
+* Port 3 QoS throttle Control on Write channel 0 - Disable 1 - Enable
+*/
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT3_WR_CTRL_DEFVAL
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT3_WR_CTRL_SHIFT
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT3_WR_CTRL_MASK
+#define DDR_QOS_CTRL_QOS_CTRL_PORT3_WR_CTRL_DEFVAL             0x00400000
+#define DDR_QOS_CTRL_QOS_CTRL_PORT3_WR_CTRL_SHIFT              15
+#define DDR_QOS_CTRL_QOS_CTRL_PORT3_WR_CTRL_MASK               0x00008000U
+
+/*
+* Port 3 QoS throttle Control on Read LPR channel 0 - Disable 1 - Enable
+*/
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT3_LPR_CTRL_DEFVAL
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT3_LPR_CTRL_SHIFT
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT3_LPR_CTRL_MASK
+#define DDR_QOS_CTRL_QOS_CTRL_PORT3_LPR_CTRL_DEFVAL            0x00400000
+#define DDR_QOS_CTRL_QOS_CTRL_PORT3_LPR_CTRL_SHIFT             13
+#define DDR_QOS_CTRL_QOS_CTRL_PORT3_LPR_CTRL_MASK              0x00002000U
+
+/*
+* Port 2 QoS throttle Control on Write channel 0 - Disable 1 - Enable
+*/
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT2_WR_CTRL_DEFVAL
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT2_WR_CTRL_SHIFT
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT2_WR_CTRL_MASK
+#define DDR_QOS_CTRL_QOS_CTRL_PORT2_WR_CTRL_DEFVAL             0x00400000
+#define DDR_QOS_CTRL_QOS_CTRL_PORT2_WR_CTRL_SHIFT              12
+#define DDR_QOS_CTRL_QOS_CTRL_PORT2_WR_CTRL_MASK               0x00001000U
+
+/*
+* Port 2 Blue Queue throttle Control on Read LPR channel 0 - Disable 1 - E
+    * nable
+*/
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT2B_LPR_CTRL_DEFVAL
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT2B_LPR_CTRL_SHIFT
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT2B_LPR_CTRL_MASK
+#define DDR_QOS_CTRL_QOS_CTRL_PORT2B_LPR_CTRL_DEFVAL           0x00400000
+#define DDR_QOS_CTRL_QOS_CTRL_PORT2B_LPR_CTRL_SHIFT            10
+#define DDR_QOS_CTRL_QOS_CTRL_PORT2B_LPR_CTRL_MASK             0x00000400U
+
+/*
+* Port 2 Red Queue QoS throttle Control on Read LPR channel 0 - Disable 1
+    * - Enable
+*/
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT2R_LPR_CTRL_DEFVAL
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT2R_LPR_CTRL_SHIFT
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT2R_LPR_CTRL_MASK
+#define DDR_QOS_CTRL_QOS_CTRL_PORT2R_LPR_CTRL_DEFVAL           0x00400000
+#define DDR_QOS_CTRL_QOS_CTRL_PORT2R_LPR_CTRL_SHIFT            8
+#define DDR_QOS_CTRL_QOS_CTRL_PORT2R_LPR_CTRL_MASK             0x00000100U
+
+/*
+* Port 1 QoS throttle Control on Write channel 0 - Disable 1 - Enable
+*/
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT1_WR_CTRL_DEFVAL
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT1_WR_CTRL_SHIFT
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT1_WR_CTRL_MASK
+#define DDR_QOS_CTRL_QOS_CTRL_PORT1_WR_CTRL_DEFVAL             0x00400000
+#define DDR_QOS_CTRL_QOS_CTRL_PORT1_WR_CTRL_SHIFT              7
+#define DDR_QOS_CTRL_QOS_CTRL_PORT1_WR_CTRL_MASK               0x00000080U
+
+/*
+* Port 1 Blue Queue throttle Control on Read LPR channel 0 - Disable 1 - E
+    * nable
+*/
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT1B_LPR_CTRL_DEFVAL
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT1B_LPR_CTRL_SHIFT
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT1B_LPR_CTRL_MASK
+#define DDR_QOS_CTRL_QOS_CTRL_PORT1B_LPR_CTRL_DEFVAL           0x00400000
+#define DDR_QOS_CTRL_QOS_CTRL_PORT1B_LPR_CTRL_SHIFT            5
+#define DDR_QOS_CTRL_QOS_CTRL_PORT1B_LPR_CTRL_MASK             0x00000020U
+
+/*
+* Port 1 Red Queue QoS throttle Control on Read LPR channel 0 - Disable 1
+    * - Enable
+*/
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT1R_LPR_CTRL_DEFVAL
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT1R_LPR_CTRL_SHIFT
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT1R_LPR_CTRL_MASK
+#define DDR_QOS_CTRL_QOS_CTRL_PORT1R_LPR_CTRL_DEFVAL           0x00400000
+#define DDR_QOS_CTRL_QOS_CTRL_PORT1R_LPR_CTRL_SHIFT            3
+#define DDR_QOS_CTRL_QOS_CTRL_PORT1R_LPR_CTRL_MASK             0x00000008U
+
+/*
+* Port 0 QoS throttle Control on Write channel 0 - Disable 1 - Enable
+*/
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT0_WR_CTRL_DEFVAL
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT0_WR_CTRL_SHIFT
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT0_WR_CTRL_MASK
+#define DDR_QOS_CTRL_QOS_CTRL_PORT0_WR_CTRL_DEFVAL             0x00400000
+#define DDR_QOS_CTRL_QOS_CTRL_PORT0_WR_CTRL_SHIFT              2
+#define DDR_QOS_CTRL_QOS_CTRL_PORT0_WR_CTRL_MASK               0x00000004U
+
+/*
+* Port 0 QoS throttle Control on Read LPR channel 0 - Disable 1 - Enable
+*/
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT0_LPR_CTRL_DEFVAL
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT0_LPR_CTRL_SHIFT
+#undef DDR_QOS_CTRL_QOS_CTRL_PORT0_LPR_CTRL_MASK
+#define DDR_QOS_CTRL_QOS_CTRL_PORT0_LPR_CTRL_DEFVAL            0x00400000
+#define DDR_QOS_CTRL_QOS_CTRL_PORT0_LPR_CTRL_SHIFT             0
+#define DDR_QOS_CTRL_QOS_CTRL_PORT0_LPR_CTRL_MASK              0x00000001U
+
+/*
+* ECO
+*/
+#undef DDR_QOS_CTRL_DDR_QOS_ECO_VAL_DEFVAL
+#undef DDR_QOS_CTRL_DDR_QOS_ECO_VAL_SHIFT
+#undef DDR_QOS_CTRL_DDR_QOS_ECO_VAL_MASK
+#define DDR_QOS_CTRL_DDR_QOS_ECO_VAL_DEFVAL
+#define DDR_QOS_CTRL_DDR_QOS_ECO_VAL_SHIFT                     0
+#define DDR_QOS_CTRL_DDR_QOS_ECO_VAL_MASK                      0xFFFFFFFFU
+
+/*
+* Read LPR CAM Threshold Level
+*/
+#undef DDR_QOS_CTRL_RD_LPR_THRSLD_VALUE_DEFVAL
+#undef DDR_QOS_CTRL_RD_LPR_THRSLD_VALUE_SHIFT
+#undef DDR_QOS_CTRL_RD_LPR_THRSLD_VALUE_MASK
+#define DDR_QOS_CTRL_RD_LPR_THRSLD_VALUE_DEFVAL                0x00000000
+#define DDR_QOS_CTRL_RD_LPR_THRSLD_VALUE_SHIFT                 0
+#define DDR_QOS_CTRL_RD_LPR_THRSLD_VALUE_MASK                  0x0000007FU
+
+/*
+* Write CAM Threshold Level
+*/
+#undef DDR_QOS_CTRL_WR_THRSLD_VALUE_DEFVAL
+#undef DDR_QOS_CTRL_WR_THRSLD_VALUE_SHIFT
+#undef DDR_QOS_CTRL_WR_THRSLD_VALUE_MASK
+#define DDR_QOS_CTRL_WR_THRSLD_VALUE_DEFVAL                    0x00000000
+#define DDR_QOS_CTRL_WR_THRSLD_VALUE_SHIFT                     0
+#define DDR_QOS_CTRL_WR_THRSLD_VALUE_MASK                      0x0000007FU
+
+/*
+* Sets the level of the QoS field to be used for the read channel 4'b0000:
+    *  Lowest Priority' ' '4'b1111: Highest Priority
+*/
+#undef AFIFM2_AFIFM_RDQOS_VALUE_DEFVAL
+#undef AFIFM2_AFIFM_RDQOS_VALUE_SHIFT
+#undef AFIFM2_AFIFM_RDQOS_VALUE_MASK
+#define AFIFM2_AFIFM_RDQOS_VALUE_DEFVAL                        0x00000007
+#define AFIFM2_AFIFM_RDQOS_VALUE_SHIFT                         0
+#define AFIFM2_AFIFM_RDQOS_VALUE_MASK                          0x0000000FU
+
+/*
+* Sets the level of the QoS field to be used for the write channel 4'b0000
+    * : Lowest Priority' ' '4'b1111: Highest Priority
+*/
+#undef AFIFM2_AFIFM_WRQOS_VALUE_DEFVAL
+#undef AFIFM2_AFIFM_WRQOS_VALUE_SHIFT
+#undef AFIFM2_AFIFM_WRQOS_VALUE_MASK
+#define AFIFM2_AFIFM_WRQOS_VALUE_DEFVAL                        0x00000007
+#define AFIFM2_AFIFM_WRQOS_VALUE_SHIFT                         0
+#define AFIFM2_AFIFM_WRQOS_VALUE_MASK                          0x0000000FU
+
+/*
+* Sets the level of the QoS field to be used for the read channel 4'b0000:
+    *  Lowest Priority' ' '4'b1111: Highest Priority
+*/
+#undef AFIFM3_AFIFM_RDQOS_VALUE_DEFVAL
+#undef AFIFM3_AFIFM_RDQOS_VALUE_SHIFT
+#undef AFIFM3_AFIFM_RDQOS_VALUE_MASK
+#define AFIFM3_AFIFM_RDQOS_VALUE_DEFVAL                        0x00000007
+#define AFIFM3_AFIFM_RDQOS_VALUE_SHIFT                         0
+#define AFIFM3_AFIFM_RDQOS_VALUE_MASK                          0x0000000FU
+
+/*
+* Sets the level of the QoS field to be used for the write channel 4'b0000
+    * : Lowest Priority' ' '4'b1111: Highest Priority
+*/
+#undef AFIFM3_AFIFM_WRQOS_VALUE_DEFVAL
+#undef AFIFM3_AFIFM_WRQOS_VALUE_SHIFT
+#undef AFIFM3_AFIFM_WRQOS_VALUE_MASK
+#define AFIFM3_AFIFM_WRQOS_VALUE_DEFVAL                        0x00000007
+#define AFIFM3_AFIFM_WRQOS_VALUE_SHIFT                         0
+#define AFIFM3_AFIFM_WRQOS_VALUE_MASK                          0x0000000FU
+
+/*
+* Sets the level of the QoS field to be used for the read channel 4'b0000:
+    *  Lowest Priority' ' '4'b1111: Highest Priority
+*/
+#undef AFIFM4_AFIFM_RDQOS_VALUE_DEFVAL
+#undef AFIFM4_AFIFM_RDQOS_VALUE_SHIFT
+#undef AFIFM4_AFIFM_RDQOS_VALUE_MASK
+#define AFIFM4_AFIFM_RDQOS_VALUE_DEFVAL                        0x00000007
+#define AFIFM4_AFIFM_RDQOS_VALUE_SHIFT                         0
+#define AFIFM4_AFIFM_RDQOS_VALUE_MASK                          0x0000000FU
+
+/*
+* Sets the level of the QoS field to be used for the write channel 4'b0000
+    * : Lowest Priority' ' '4'b1111: Highest Priority
+*/
+#undef AFIFM4_AFIFM_WRQOS_VALUE_DEFVAL
+#undef AFIFM4_AFIFM_WRQOS_VALUE_SHIFT
+#undef AFIFM4_AFIFM_WRQOS_VALUE_MASK
+#define AFIFM4_AFIFM_WRQOS_VALUE_DEFVAL                        0x00000007
+#define AFIFM4_AFIFM_WRQOS_VALUE_SHIFT                         0
+#define AFIFM4_AFIFM_WRQOS_VALUE_MASK                          0x0000000FU
+
+/*
+* Sets the level of the QoS field to be used for the read channel 4'b0000:
+    *  Lowest Priority' ' '4'b1111: Highest Priority
+*/
+#undef AFIFM5_AFIFM_RDQOS_VALUE_DEFVAL
+#undef AFIFM5_AFIFM_RDQOS_VALUE_SHIFT
+#undef AFIFM5_AFIFM_RDQOS_VALUE_MASK
+#define AFIFM5_AFIFM_RDQOS_VALUE_DEFVAL                        0x00000007
+#define AFIFM5_AFIFM_RDQOS_VALUE_SHIFT                         0
+#define AFIFM5_AFIFM_RDQOS_VALUE_MASK                          0x0000000FU
+
+/*
+* Sets the level of the QoS field to be used for the write channel 4'b0000
+    * : Lowest Priority' ' '4'b1111: Highest Priority
+*/
+#undef AFIFM5_AFIFM_WRQOS_VALUE_DEFVAL
+#undef AFIFM5_AFIFM_WRQOS_VALUE_SHIFT
+#undef AFIFM5_AFIFM_WRQOS_VALUE_MASK
+#define AFIFM5_AFIFM_WRQOS_VALUE_DEFVAL                        0x00000007
+#define AFIFM5_AFIFM_WRQOS_VALUE_SHIFT                         0
+#define AFIFM5_AFIFM_WRQOS_VALUE_MASK                          0x0000000FU
 #undef IOU_SLCR_MIO_PIN_0_OFFSET
 #define IOU_SLCR_MIO_PIN_0_OFFSET                                                  0XFF180000
 #undef IOU_SLCR_MIO_PIN_1_OFFSET
@@ -31238,6 +31614,8 @@
 #define CRL_APB_RST_LPD_IOU2_OFFSET                                                0XFF5E0238
 #undef CRL_APB_RST_LPD_IOU2_OFFSET
 #define CRL_APB_RST_LPD_IOU2_OFFSET                                                0XFF5E0238
+#undef DP_AV_BUF_AUD_VID_CLK_SOURCE_OFFSET
+#define DP_AV_BUF_AUD_VID_CLK_SOURCE_OFFSET                                        0XFD4AB120
 #undef UART0_BAUD_RATE_DIVIDER_REG0_OFFSET
 #define UART0_BAUD_RATE_DIVIDER_REG0_OFFSET                                        0XFF000034
 #undef UART0_BAUD_RATE_GEN_REG0_OFFSET
@@ -31768,6 +32146,39 @@
 #define CRL_APB_RST_LPD_IOU2_UART1_RESET_DEFVAL                0x0017FFFF
 #define CRL_APB_RST_LPD_IOU2_UART1_RESET_SHIFT                 2
 #define CRL_APB_RST_LPD_IOU2_UART1_RESET_MASK                  0x00000004U
+
+/*
+* Bits[2] - - 0: Timing from PL (Default) - 1: Internal Timing This bit ca
+    * n be used in case where Internal VTC is clocked using PL clock. Typical
+    * use case is, when Video from memory is blended and output to PL
+*/
+#undef DP_AV_BUF_AUD_VID_CLK_SOURCE_VID_TIMING_SRC_DEFVAL
+#undef DP_AV_BUF_AUD_VID_CLK_SOURCE_VID_TIMING_SRC_SHIFT
+#undef DP_AV_BUF_AUD_VID_CLK_SOURCE_VID_TIMING_SRC_MASK
+#define DP_AV_BUF_AUD_VID_CLK_SOURCE_VID_TIMING_SRC_DEFVAL     0x00000000
+#define DP_AV_BUF_AUD_VID_CLK_SOURCE_VID_TIMING_SRC_SHIFT      2
+#define DP_AV_BUF_AUD_VID_CLK_SOURCE_VID_TIMING_SRC_MASK       0x00000004U
+
+/*
+* Bits[0] - - 0: clock from PL (Default) dp_live_video_in_clk - 1: Clock f
+    * rom PS(dp_vtc_pixel_clk_in)
+*/
+#undef DP_AV_BUF_AUD_VID_CLK_SOURCE_VID_CLK_SRC_DEFVAL
+#undef DP_AV_BUF_AUD_VID_CLK_SOURCE_VID_CLK_SRC_SHIFT
+#undef DP_AV_BUF_AUD_VID_CLK_SOURCE_VID_CLK_SRC_MASK
+#define DP_AV_BUF_AUD_VID_CLK_SOURCE_VID_CLK_SRC_DEFVAL        0x00000000
+#define DP_AV_BUF_AUD_VID_CLK_SOURCE_VID_CLK_SRC_SHIFT         0
+#define DP_AV_BUF_AUD_VID_CLK_SOURCE_VID_CLK_SRC_MASK          0x00000001U
+
+/*
+* Bits[1] - - 0: clock from PL (Default) - 1: Clock from PS
+*/
+#undef DP_AV_BUF_AUD_VID_CLK_SOURCE_AUD_CLK_SRC_DEFVAL
+#undef DP_AV_BUF_AUD_VID_CLK_SOURCE_AUD_CLK_SRC_SHIFT
+#undef DP_AV_BUF_AUD_VID_CLK_SOURCE_AUD_CLK_SRC_MASK
+#define DP_AV_BUF_AUD_VID_CLK_SOURCE_AUD_CLK_SRC_DEFVAL        0x00000000
+#define DP_AV_BUF_AUD_VID_CLK_SOURCE_AUD_CLK_SRC_SHIFT         1
+#define DP_AV_BUF_AUD_VID_CLK_SOURCE_AUD_CLK_SRC_MASK          0x00000002U
 
 /*
 * Baud rate divider value: 0 - 3: ignored 4 - 255: Baud rate
@@ -35322,6 +35733,8 @@
 #define CRF_APB_RST_FPD_TOP_OFFSET                                                 0XFD1A0100
 #undef CRL_APB_RST_LPD_TOP_OFFSET
 #define CRL_APB_RST_LPD_TOP_OFFSET                                                 0XFF5E023C
+#undef LPD_SLCR_AFI_FS_OFFSET
+#define LPD_SLCR_AFI_FS_OFFSET                                                     0XFF419000
 
 /*
 * AF_FM0 block level reset
@@ -35392,6 +35805,18 @@
 #define CRL_APB_RST_LPD_TOP_AFI_FM6_RESET_DEFVAL               0x00188FDF
 #define CRL_APB_RST_LPD_TOP_AFI_FM6_RESET_SHIFT                19
 #define CRL_APB_RST_LPD_TOP_AFI_FM6_RESET_MASK                 0x00080000U
+
+/*
+* Select the 32/64/128-bit data width selection for the Slave 0 00: 32-bit
+    *  AXI data width (default) 01: 64-bit AXI data width 10: 128-bit AXI data
+    *  width 11: reserved
+*/
+#undef LPD_SLCR_AFI_FS_DW_SS2_SEL_DEFVAL
+#undef LPD_SLCR_AFI_FS_DW_SS2_SEL_SHIFT
+#undef LPD_SLCR_AFI_FS_DW_SS2_SEL_MASK
+#define LPD_SLCR_AFI_FS_DW_SS2_SEL_DEFVAL                      0x00000200
+#define LPD_SLCR_AFI_FS_DW_SS2_SEL_SHIFT                       8
+#define LPD_SLCR_AFI_FS_DW_SS2_SEL_MASK                        0x00000300U
 #undef GPIO_MASK_DATA_5_MSW_OFFSET
 #define GPIO_MASK_DATA_5_MSW_OFFSET                                                0XFF0A002C
 #undef GPIO_DIRM_5_OFFSET
