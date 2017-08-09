@@ -316,6 +316,8 @@ do {									\
 #define	    MVPP22_BM_ADDR_HIGH_VIRT_RLS_MASK	0xff00
 #define     MVPP22_BM_ADDR_HIGH_VIRT_RLS_SHIFT	8
 #define MVPP22_BM_MC_RLS_REG			0x64d4
+#define MVPP22_BM_POOL_BASE_HIGH_REG		0x6310
+#define MVPP22_BM_POOL_BASE_HIGH_MASK		0xff
 
 /* TX Scheduler registers */
 #define MVPP2_TXP_SCHED_PORT_INDEX_REG		0x8000
@@ -2594,6 +2596,10 @@ static int mvpp2_bm_pool_create(struct udevice *dev,
 
 	mvpp2_write(priv, MVPP2_BM_POOL_BASE_REG(bm_pool->id),
 		    lower_32_bits(bm_pool->dma_addr));
+	if (priv->hw_version == MVPP22)
+		mvpp2_write(priv, MVPP22_BM_POOL_BASE_HIGH_REG,
+			    (upper_32_bits(bm_pool->dma_addr) &
+			    MVPP22_BM_POOL_BASE_HIGH_MASK));
 	mvpp2_write(priv, MVPP2_BM_POOL_SIZE_REG(bm_pool->id), size);
 
 	val = mvpp2_read(priv, MVPP2_BM_POOL_CTRL_REG(bm_pool->id));
