@@ -30,6 +30,8 @@
 #include <asm/arch/soc.h>
 #include <linux/compat.h>
 #include <linux/mbus.h>
+#include <asm-generic/gpio.h>
+#include <fdt_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -314,6 +316,8 @@ do {									\
 #define	    MVPP22_BM_ADDR_HIGH_VIRT_RLS_MASK	0xff00
 #define     MVPP22_BM_ADDR_HIGH_VIRT_RLS_SHIFT	8
 #define MVPP22_BM_MC_RLS_REG			0x64d4
+#define MVPP22_BM_POOL_BASE_HIGH_REG		0x6310
+#define MVPP22_BM_POOL_BASE_HIGH_MASK		0xff
 
 /* TX Scheduler registers */
 #define MVPP2_TXP_SCHED_PORT_INDEX_REG		0x8000
@@ -615,10 +619,10 @@ enum mv_netc_lanes {
 #define MVPP2_MAX_TXD			16
 
 /* Amount of Tx descriptors that can be reserved at once by CPU */
-#define MVPP2_CPU_DESC_CHUNK		64
+#define MVPP2_CPU_DESC_CHUNK		16
 
 /* Max number of Tx descriptors in each aggregated queue */
-#define MVPP2_AGGR_TXQ_SIZE		256
+#define MVPP2_AGGR_TXQ_SIZE		16
 
 /* Descriptor aligned size */
 #define MVPP2_DESC_ALIGNED_SIZE		32
@@ -940,6 +944,7 @@ struct mvpp2 {
 	struct mii_dev *bus;
 
 	int probe_done;
+	u8 num_ports;
 };
 
 struct mvpp2_pcpu_stats {
@@ -985,6 +990,10 @@ struct mvpp2_port {
 	phy_interface_t phy_interface;
 	int phy_node;
 	int phyaddr;
+#ifdef CONFIG_DM_GPIO
+	struct gpio_desc phy_reset_gpio;
+	struct gpio_desc phy_tx_disable_gpio;
+#endif
 	int init;
 	unsigned int link;
 	unsigned int duplex;
@@ -2587,6 +2596,10 @@ static int mvpp2_bm_pool_create(struct udevice *dev,
 
 	mvpp2_write(priv, MVPP2_BM_POOL_BASE_REG(bm_pool->id),
 		    lower_32_bits(bm_pool->dma_addr));
+	if (priv->hw_version == MVPP22)
+		mvpp2_write(priv, MVPP22_BM_POOL_BASE_HIGH_REG,
+			    (upper_32_bits(bm_pool->dma_addr) &
+			    MVPP22_BM_POOL_BASE_HIGH_MASK));
 	mvpp2_write(priv, MVPP2_BM_POOL_SIZE_REG(bm_pool->id), size);
 
 	val = mvpp2_read(priv, MVPP2_BM_POOL_CTRL_REG(bm_pool->id));
@@ -2662,7 +2675,7 @@ static int mvpp2_bm_pools_init(struct udevice *dev,
 		err = mvpp2_bm_pool_create(dev, priv, bm_pool, size);
 		if (err)
 			goto err_unroll_pools;
-		mvpp2_bm_pool_bufsize_set(priv, bm_pool, 0);
+		mvpp2_bm_pool_bufsize_set(priv, bm_pool, RX_BUFFER_SIZE);
 	}
 	return 0;
 
@@ -2847,9 +2860,6 @@ mvpp2_bm_pool_use(struct mvpp2_port *port, int pool, enum mvpp2_bm_type type,
 			return NULL;
 		}
 	}
-
-	mvpp2_bm_pool_bufsize_set(port->priv, new_pool,
-				  MVPP2_RX_BUF_SIZE(new_pool->pkt_size));
 
 	return new_pool;
 }
@@ -3057,10 +3067,6 @@ static void gop_gmac_sgmii2_5_cfg(struct mvpp2_port *port)
 	val |= MVPP2_GMAC_CTRL4_QSGMII_BYPASS_ACTIVE_MASK;
 	writel(val, port->base + MVPP2_GMAC_CTRL_4_REG);
 
-	val = readl(port->base + MVPP2_GMAC_CTRL_2_REG);
-	val |= MVPP2_GMAC_PORT_DIS_PADING_MASK;
-	writel(val, port->base + MVPP2_GMAC_CTRL_2_REG);
-
 	val = readl(port->base + MVPP2_GMAC_CTRL_0_REG);
 	/*
 	 * Configure GIG MAC to 1000Base-X mode connected to a fiber
@@ -3103,10 +3109,6 @@ static void gop_gmac_sgmii_cfg(struct mvpp2_port *port)
 	val |= MVPP2_GMAC_CTRL4_QSGMII_BYPASS_ACTIVE_MASK;
 	writel(val, port->base + MVPP2_GMAC_CTRL_4_REG);
 
-	val = readl(port->base + MVPP2_GMAC_CTRL_2_REG);
-	val |= MVPP2_GMAC_PORT_DIS_PADING_MASK;
-	writel(val, port->base + MVPP2_GMAC_CTRL_2_REG);
-
 	val = readl(port->base + MVPP2_GMAC_CTRL_0_REG);
 	/* configure GIG MAC to SGMII mode */
 	val &= ~MVPP2_GMAC_PORT_TYPE_MASK;
@@ -3144,10 +3146,6 @@ static void gop_gmac_rgmii_cfg(struct mvpp2_port *port)
 	val |= MVPP2_GMAC_CTRL4_QSGMII_BYPASS_ACTIVE_MASK;
 	val |= MVPP2_GMAC_CTRL4_EXT_PIN_GMII_SEL_MASK;
 	writel(val, port->base + MVPP2_GMAC_CTRL_4_REG);
-
-	val = readl(port->base + MVPP2_GMAC_CTRL_2_REG);
-	val &= ~MVPP2_GMAC_PORT_DIS_PADING_MASK;
-	writel(val, port->base + MVPP2_GMAC_CTRL_2_REG);
 
 	val = readl(port->base + MVPP2_GMAC_CTRL_0_REG);
 	/* configure GIG MAC to SGMII mode */
@@ -4686,20 +4684,6 @@ static int mvpp2_port_init(struct udevice *dev, struct mvpp2_port *port)
 		port->rxqs[queue] = rxq;
 	}
 
-	/* Configure Rx queue group interrupt for this port */
-	if (priv->hw_version == MVPP21) {
-		mvpp2_write(priv, MVPP21_ISR_RXQ_GROUP_REG(port->id),
-			    CONFIG_MV_ETH_RXQ);
-	} else {
-		u32 val;
-
-		val = (port->id << MVPP22_ISR_RXQ_GROUP_INDEX_GROUP_OFFSET);
-		mvpp2_write(priv, MVPP22_ISR_RXQ_GROUP_INDEX_REG, val);
-
-		val = (CONFIG_MV_ETH_RXQ <<
-		       MVPP22_ISR_RXQ_SUB_GROUP_SIZE_OFFSET);
-		mvpp2_write(priv, MVPP22_ISR_RXQ_SUB_GROUP_CONFIG_REG, val);
-	}
 
 	/* Create Rx descriptor rings */
 	for (queue = 0; queue < rxq_number; queue++) {
@@ -4734,10 +4718,11 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 {
 	int port_node = dev_of_offset(dev);
 	const char *phy_mode_str;
-	int phy_node;
+	int phy_node, mdio_off, cp_node;
 	u32 id;
 	u32 phyaddr = 0;
 	int phy_mode = -1;
+	u64 mdio_addr;
 
 	phy_node = fdtdec_lookup_phandle(gd->fdt_blob, port_node, "phy");
 
@@ -4745,6 +4730,28 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 		phyaddr = fdtdec_get_int(gd->fdt_blob, phy_node, "reg", 0);
 		if (phyaddr < 0) {
 			dev_err(&pdev->dev, "could not find phy address\n");
+			return -1;
+		}
+		mdio_off = fdt_parent_offset(gd->fdt_blob, phy_node);
+
+		/* TODO: This WA for mdio issue. U-boot 2017 don't have
+		 * mdio driver and on MACHIATOBin board ports from CP1
+		 * connected to mdio on CP0.
+		 * WA is to get mdio address from phy handler parent
+		 * base address. WA should be removed after
+		 * mdio driver implementation.
+		 */
+		mdio_addr = fdtdec_get_uint(gd->fdt_blob,
+					    mdio_off, "reg", 0);
+
+		cp_node = fdt_parent_offset(gd->fdt_blob, mdio_off);
+		mdio_addr |= fdt_get_base_address((void *)gd->fdt_blob,
+						  cp_node);
+
+		port->priv->mdio_base = (void *)mdio_addr;
+
+		if (port->priv->mdio_base < 0) {
+			dev_err(&pdev->dev, "could not find mdio base address\n");
 			return -1;
 		}
 	} else {
@@ -4764,6 +4771,13 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 		dev_err(&pdev->dev, "missing port-id value\n");
 		return -EINVAL;
 	}
+
+#ifdef CONFIG_DM_GPIO
+	gpio_request_by_name(dev, "phy-reset-gpios", 0,
+			     &port->phy_reset_gpio, GPIOD_IS_OUT);
+	gpio_request_by_name(dev, "marvell,sfp-tx-disable-gpio", 0,
+			     &port->phy_tx_disable_gpio, GPIOD_IS_OUT);
+#endif
 
 	/*
 	 * ToDo:
@@ -4786,6 +4800,21 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 	return 0;
 }
 
+#ifdef CONFIG_DM_GPIO
+/* Port GPIO initialization */
+static void mvpp2_gpio_init(struct mvpp2_port *port)
+{
+	if (dm_gpio_is_valid(&port->phy_reset_gpio)) {
+		dm_gpio_set_value(&port->phy_reset_gpio, 0);
+		udelay(1000);
+		dm_gpio_set_value(&port->phy_reset_gpio, 1);
+	}
+
+	if (dm_gpio_is_valid(&port->phy_tx_disable_gpio))
+		dm_gpio_set_value(&port->phy_tx_disable_gpio, 0);
+}
+#endif
+
 /* Ports initialization */
 static int mvpp2_port_probe(struct udevice *dev,
 			    struct mvpp2_port *port,
@@ -4804,7 +4833,12 @@ static int mvpp2_port_probe(struct udevice *dev,
 	}
 	mvpp2_port_power_up(port);
 
+#ifdef CONFIG_DM_GPIO
+	mvpp2_gpio_init(port);
+#endif
+
 	priv->port_list[port->id] = port;
+	priv->num_ports++;
 	return 0;
 }
 
@@ -4969,13 +5003,14 @@ static int mvpp2_init(struct udevice *dev, struct mvpp2 *priv)
 		return -EINVAL;
 	}
 
-	/* MBUS windows configuration */
-	dram_target_info = mvebu_mbus_dram_info();
-	if (dram_target_info)
-		mvpp2_conf_mbus_windows(dram_target_info, priv);
-
 	if (priv->hw_version == MVPP22)
 		mvpp2_axi_init(priv);
+	else {
+		/* MBUS windows configuration */
+		dram_target_info = mvebu_mbus_dram_info();
+		if (dram_target_info)
+			mvpp2_conf_mbus_windows(dram_target_info, priv);
+	}
 
 	if (priv->hw_version == MVPP21) {
 		/* Disable HW PHY polling */
@@ -5011,25 +5046,6 @@ static int mvpp2_init(struct udevice *dev, struct mvpp2 *priv)
 	/* Tx Fifo Init */
 	if (priv->hw_version == MVPP22)
 		mvpp2_tx_fifo_init(priv);
-
-	/* Reset Rx queue group interrupt configuration */
-	for (i = 0; i < MVPP2_MAX_PORTS; i++) {
-		if (priv->hw_version == MVPP21) {
-			mvpp2_write(priv, MVPP21_ISR_RXQ_GROUP_REG(i),
-				    CONFIG_MV_ETH_RXQ);
-			continue;
-		} else {
-			u32 val;
-
-			val = (i << MVPP22_ISR_RXQ_GROUP_INDEX_GROUP_OFFSET);
-			mvpp2_write(priv, MVPP22_ISR_RXQ_GROUP_INDEX_REG, val);
-
-			val = (CONFIG_MV_ETH_RXQ <<
-			       MVPP22_ISR_RXQ_SUB_GROUP_SIZE_OFFSET);
-			mvpp2_write(priv,
-				    MVPP22_ISR_RXQ_SUB_GROUP_CONFIG_REG, val);
-		}
-	}
 
 	if (priv->hw_version == MVPP21)
 		writel(MVPP2_EXT_GLOBAL_CTRL_DEFAULT,
@@ -5176,21 +5192,10 @@ static int mvpp2_recv(struct udevice *dev, int flags, uchar **packetp)
 	int pool, rx_bytes, err;
 	int rx_received;
 	struct mvpp2_rx_queue *rxq;
-	u32 cause_rx_tx, cause_rx, cause_misc;
 	u8 *data;
 
-	cause_rx_tx = mvpp2_read(port->priv,
-				 MVPP2_ISR_RX_TX_CAUSE_REG(port->id));
-	cause_rx_tx &= ~MVPP2_CAUSE_TXQ_OCCUP_DESC_ALL_MASK;
-	cause_misc = cause_rx_tx & MVPP2_CAUSE_MISC_SUM_MASK;
-	if (!cause_rx_tx && !cause_misc)
-		return 0;
-
-	cause_rx = cause_rx_tx & MVPP2_CAUSE_RXQ_OCCUP_DESC_ALL_MASK;
-
 	/* Process RX packets */
-	cause_rx |= port->pending_cause_rx;
-	rxq = mvpp2_get_rx_queue(port, cause_rx);
+	rxq = port->rxqs[0];
 
 	/* Get number of received packets and clamp the to-do */
 	rx_received = mvpp2_rxq_received(port, rxq->id);
@@ -5246,21 +5251,6 @@ static int mvpp2_recv(struct udevice *dev, int flags, uchar **packetp)
 	return rx_bytes;
 }
 
-/* Drain Txq */
-static void mvpp2_txq_drain(struct mvpp2_port *port, struct mvpp2_tx_queue *txq,
-			    int enable)
-{
-	u32 val;
-
-	mvpp2_write(port->priv, MVPP2_TXQ_NUM_REG, txq->id);
-	val = mvpp2_read(port->priv, MVPP2_TXQ_PREF_BUF_REG);
-	if (enable)
-		val |= MVPP2_TXQ_DRAIN_EN_MASK;
-	else
-		val &= ~MVPP2_TXQ_DRAIN_EN_MASK;
-	mvpp2_write(port->priv, MVPP2_TXQ_PREF_BUF_REG, val);
-}
-
 static int mvpp2_send(struct udevice *dev, void *packet, int length)
 {
 	struct mvpp2_port *port = dev_get_priv(dev);
@@ -5304,9 +5294,6 @@ static int mvpp2_send(struct udevice *dev, void *packet, int length)
 		tx_done = mvpp2_txq_pend_desc_num_get(port, txq);
 	} while (tx_done);
 
-	/* Enable TXQ drain */
-	mvpp2_txq_drain(port, txq, 1);
-
 	timeout = 0;
 	do {
 		if (timeout++ > 10000) {
@@ -5315,9 +5302,6 @@ static int mvpp2_send(struct udevice *dev, void *packet, int length)
 		}
 		tx_done = mvpp2_txq_sent_desc_proc(port, txq);
 	} while (!tx_done);
-
-	/* Disable TXQ drain */
-	mvpp2_txq_drain(port, txq, 0);
 
 	return 0;
 }
@@ -5469,10 +5453,8 @@ static int mvpp2_probe(struct udevice *dev)
 	int err;
 
 	/* Only call the probe function for the parent once */
-	if (!priv->probe_done) {
+	if (!priv->probe_done)
 		err = mvpp2_base_probe(dev->parent);
-		priv->probe_done = 1;
-	}
 
 	port->priv = dev_get_priv(dev->parent);
 
@@ -5510,11 +5492,15 @@ static int mvpp2_probe(struct udevice *dev)
 		gop_port_init(port);
 	}
 
-	/* Initialize network controller */
-	err = mvpp2_init(dev, priv);
-	if (err < 0) {
-		dev_err(&pdev->dev, "failed to initialize controller\n");
-		return err;
+	if (!priv->probe_done) {
+		/* Initialize network controller */
+		err = mvpp2_init(dev, priv);
+		if (err < 0) {
+			dev_err(&pdev->dev, "failed to initialize controller\n");
+			return err;
+		}
+		priv->num_ports = 0;
+		priv->probe_done = 1;
 	}
 
 	err = mvpp2_port_probe(dev, port, dev_of_offset(dev), priv);
@@ -5541,6 +5527,11 @@ static int mvpp2_remove(struct udevice *dev)
 	struct mvpp2_port *port = dev_get_priv(dev);
 	struct mvpp2 *priv = port->priv;
 	int i;
+
+	priv->num_ports--;
+
+	if (priv->num_ports)
+		return 0;
 
 	for (i = 0; i < MVPP2_BM_POOLS_NUM; i++)
 		mvpp2_bm_pool_destroy(dev, priv, &priv->bm_pools[i]);
