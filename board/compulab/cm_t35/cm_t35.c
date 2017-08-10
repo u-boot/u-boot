@@ -398,7 +398,7 @@ void board_mmc_power_init(void)
 }
 #endif
 
-#ifdef CONFIG_SYS_I2C_OMAP34XX
+#ifdef CONFIG_SYS_I2C_OMAP24XX
 /*
  * Routine: reset_net_chip
  * Description: reset the Ethernet controller via TPS65930 GPIO

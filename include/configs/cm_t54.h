@@ -17,7 +17,6 @@
 #include <configs/ti_omap5_common.h>
 
 /* EEPROM related defines */
-#define CONFIG_SYS_I2C_OMAP34XX
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 #define CONFIG_SYS_I2C_EEPROM_BUS	0
