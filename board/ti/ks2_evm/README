@@ -61,7 +61,7 @@ configs/k2g_evm_defconfig
 
 Supported boot modes:
  - SPI NOR boot
- - AEMIF NAND boot
+ - AEMIF NAND boot (K2E, K2L and K2HK)
  - UART boot
  - MMC boot (Only on K2G)
 
@@ -69,7 +69,7 @@ Supported image formats:
  - u-boot.bin: for loading and running u-boot.bin through
 		Texas Instruments code composure studio (CCS) and for UART boot.
  - u-boot-spi.gph: gpimage for programming SPI NOR flash for SPI NOR boot
- - MLO: gpimage for programming AEMIF NAND flash for NAND boot, MMC boot.
+ - MLO: gpimage for programming NAND flash for NAND boot, MMC boot.
 
 Build instructions:
 ===================
