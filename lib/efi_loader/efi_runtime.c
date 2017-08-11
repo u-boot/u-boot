@@ -325,7 +325,7 @@ void efi_add_runtime_mmio(void *mmio_ptr, u64 len)
 {
 	struct efi_runtime_mmio_list *newmmio;
 
-	u64 pages = (len + EFI_PAGE_SIZE - 1) >> EFI_PAGE_SHIFT;
+	u64 pages = (len + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
 	efi_add_memory_map(*(uintptr_t *)mmio_ptr, pages, EFI_MMAP_IO, false);
 
 	newmmio = calloc(1, sizeof(*newmmio));
