@@ -930,8 +930,6 @@ __weak int esdhc_status_fixup(void *blob, const char *compat)
 		return 1;
 	}
 #endif
-	do_fixup_by_compat(blob, compat, "status", "okay",
-			   sizeof("okay"), 1);
 	return 0;
 }
 
@@ -968,7 +966,9 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
+#ifdef CONFIG_DM_REGULATOR
 	struct udevice *vqmmc_dev;
+#endif
 	fdt_addr_t addr;
 	unsigned int val;
 	int ret;

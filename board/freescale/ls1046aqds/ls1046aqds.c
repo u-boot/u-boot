@@ -261,10 +261,6 @@ int board_init(void)
 	config_serdes_mux();
 #endif
 
-#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
-	enable_layerscape_ns_access();
-#endif
-
 	if (adjust_vdd(0))
 		printf("Warning: Adjusting core voltage failed.\n");
 

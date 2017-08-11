@@ -478,6 +478,7 @@ static int ls_pcie_probe(struct udevice *dev)
 	bool ep_mode;
 	uint svr;
 	int ret;
+	fdt_size_t cfg_size;
 
 	pcie->bus = dev;
 
@@ -539,8 +540,10 @@ static int ls_pcie_probe(struct udevice *dev)
 	if (svr == SVR_LS2088A || svr == SVR_LS2084A ||
 	    svr == SVR_LS2048A || svr == SVR_LS2044A ||
 	    svr == SVR_LS2081A || svr == SVR_LS2041A) {
+		cfg_size = fdt_resource_size(&pcie->cfg_res);
 		pcie->cfg_res.start = LS2088A_PCIE1_PHYS_ADDR +
 					LS2088A_PCIE_PHYS_SIZE * pcie->idx;
+		pcie->cfg_res.end = pcie->cfg_res.start + cfg_size;
 		pcie->ctrl = pcie->lut + 0x40000;
 	}
 
