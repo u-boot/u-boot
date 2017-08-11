@@ -94,4 +94,6 @@ endif
 
 source "drivers/usb/gadget/Kconfig"
 
+source "drivers/usb/eth/Kconfig"
+
 endif
