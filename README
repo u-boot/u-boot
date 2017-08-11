@@ -2835,10 +2835,6 @@ FIT uImage format:
 		Define this if you need to first read the OOB and then the
 		data. This is used, for example, on davinci platforms.
 
-		CONFIG_SPL_OMAP3_ID_NAND
-		Support for an OMAP3-specific set of functions to return the
-		ID and MFR of the first attached NAND chip, if present.
-
 		CONFIG_SPL_RAM_DEVICE
 		Support for running image already present in ram, in SPL binary
 

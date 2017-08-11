@@ -149,6 +149,12 @@ config TARGET_SNIPER
 
 endchoice
 
+config SPL_OMAP3_ID_NAND
+	bool "Support OMAP3-specific ID and MFR function"
+	help
+	  Support for an OMAP3-specific set of functions to return the
+	  ID and MFR of the first attached NAND chip, if present.
+
 config SYS_SOC
 	default "omap3"
 

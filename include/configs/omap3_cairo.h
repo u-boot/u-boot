@@ -177,7 +177,6 @@
 #define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
 
 /* Defines for SPL */
-#define CONFIG_SPL_OMAP3_ID_NAND
 
 /* NAND boot config */
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE

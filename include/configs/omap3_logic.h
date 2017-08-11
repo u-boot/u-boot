@@ -253,8 +253,6 @@
 
 /* Defines for SPL */
 
-#define CONFIG_SPL_OMAP3_ID_NAND
-
 /* NAND: SPL falcon mode configs */
 #ifdef CONFIG_SPL_OS_BOOT
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x280000

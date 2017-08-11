@@ -73,7 +73,6 @@
 #define CONFIG_ENV_OFFSET               SMNAND_ENV_OFFSET
 #define CONFIG_ENV_ADDR                 SMNAND_ENV_OFFSET
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_SPL_OMAP3_ID_NAND
 #define CONFIG_MTD_DEVICE               /* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS           /* required for UBI partition support */
 #endif /* CONFIG_NAND */
