@@ -17,8 +17,6 @@
 #undef CONFIG_SPL_TEXT_BASE
 #define CONFIG_SPL_TEXT_BASE		0x40200000
 
-#define CONFIG_BCH
-
 /* call misc_init_r */
 #define CONFIG_MISC_INIT_R
 

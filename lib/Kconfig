@@ -1,5 +1,12 @@
 menu "Library routines"
 
+config BCH
+	bool "Enable Software based BCH ECC"
+	help
+	  Enables software based BCH ECC algorithm present in lib/bch.c
+	  This is used by SoC platforms which do not have built-in ELM
+	  hardware engine required for BCH ECC correction.
+
 config CC_OPTIMIZE_LIBS_FOR_SPEED
 	bool "Optimize libraries for speed"
 	help

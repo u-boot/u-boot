@@ -180,12 +180,6 @@ Configuration Options:
 	And fetching device parameters flashed on device, by parsing
 	ONFI parameter page.
 
-   CONFIG_BCH
-	Enables software based BCH ECC algorithm present in lib/bch.c
-	This is used by SoC platforms which do not have built-in ELM
-	hardware engine required for BCH ECC correction.
-
-
 Platform specific options
 =========================
    CONFIG_NAND_OMAP_GPMC

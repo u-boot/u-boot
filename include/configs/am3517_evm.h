@@ -105,7 +105,6 @@
 #ifdef CONFIG_NAND
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_NAND_OMAP_GPMC_PREFETCH
-#define CONFIG_BCH
 #define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
 							/* to access nand */
 #define CONFIG_SYS_NAND_BASE		NAND_BASE	/* physical address */
