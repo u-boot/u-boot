@@ -16,6 +16,7 @@
 #include <asm/arch/soc.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/speed.h>
+#include <fsl_immap.h>
 #include <asm/arch/mp.h>
 #include <efi_loader.h>
 #include <fm_eth.h>

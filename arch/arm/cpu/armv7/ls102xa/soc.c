@@ -80,7 +80,8 @@ void erratum_a010315(void)
 int arch_soc_init(void)
 {
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
-	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
+	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)(CONFIG_SYS_IMMR +
+					CONFIG_SYS_CCI400_OFFSET);
 	unsigned int major;
 
 #ifdef CONFIG_LAYERSCAPE_NS_ACCESS

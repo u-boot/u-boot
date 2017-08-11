@@ -85,6 +85,7 @@ config ARCH_LS2080A
 
 config FSL_LSCH2
 	bool
+	select SYS_FSL_HAS_CCI400
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_5
 	select SYS_FSL_SEC_BE
@@ -248,12 +249,24 @@ config QSPI_AHB_INIT
 	  But some QSPI flash size up to 64MBytes, so initialize the QSPI AHB
 	  bus for those flashes to support the full QSPI flash size.
 
+config SYS_CCI400_OFFSET
+	hex "Offset for CCI400 base"
+	depends on SYS_FSL_HAS_CCI400
+	default 0x3090000 if ARCH_LS1088A
+	default 0x180000 if FSL_LSCH2
+	help
+	  Offset for CCI400 base
+	  CCI400 base addr = CCSRBAR + CCI400_OFFSET
+
 config SYS_FSL_IFC_BANK_COUNT
 	int "Maximum banks of Integrated flash controller"
 	depends on ARCH_LS1043A || ARCH_LS1046A || ARCH_LS2080A
 	default 4 if ARCH_LS1043A
 	default 4 if ARCH_LS1046A
 	default 8 if ARCH_LS2080A
+
+config SYS_FSL_HAS_CCI400
+	bool
 
 config SYS_FSL_HAS_DP_DDR
 	bool

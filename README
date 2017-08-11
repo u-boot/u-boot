@@ -312,6 +312,15 @@ Many of the options are named exactly as the corresponding Linux
 kernel configuration options. The intention is to make it easier to
 build a config tool - later.
 
+- ARM Platform Bus Type(CCI):
+		CoreLink Cache Coherent Interconnect (CCI) is ARM BUS which
+		provides full cache coherency between two clusters of multi-core
+		CPUs and I/O coherency for devices and I/O masters
+
+		CONFIG_SYS_FSL_HAS_CCI400
+
+		Defined For SoC that has cache coherent interconnect
+		CCN-400
 
 The following options need to be configured:
 

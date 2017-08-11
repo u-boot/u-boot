@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <fsl_immap.h>
 #include <fsl_ifc.h>
 #include <ahci.h>
 #include <scsi.h>
@@ -285,7 +286,8 @@ static void erratum_a008850_early(void)
 {
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008850
 	/* part 1 of 2 */
-	struct ccsr_cci400 __iomem *cci = (void *)CONFIG_SYS_CCI400_ADDR;
+	struct ccsr_cci400 __iomem *cci = (void *)(CONFIG_SYS_IMMR +
+						CONFIG_SYS_CCI400_OFFSET);
 	struct ccsr_ddr __iomem *ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
 
 	/* Skip if running at lower exception level */
@@ -304,7 +306,8 @@ void erratum_a008850_post(void)
 {
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008850
 	/* part 2 of 2 */
-	struct ccsr_cci400 __iomem *cci = (void *)CONFIG_SYS_CCI400_ADDR;
+	struct ccsr_cci400 __iomem *cci = (void *)(CONFIG_SYS_IMMR +
+						CONFIG_SYS_CCI400_OFFSET);
 	struct ccsr_ddr __iomem *ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
 	u32 tmp;
 
@@ -439,7 +442,8 @@ int setup_chip_volt(void)
 
 void fsl_lsch2_early_init_f(void)
 {
-	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
+	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)(CONFIG_SYS_IMMR +
+					CONFIG_SYS_CCI400_OFFSET);
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
 
 #ifdef CONFIG_LAYERSCAPE_NS_ACCESS
