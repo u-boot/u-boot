@@ -343,11 +343,11 @@ static int _davinci_i2c_probe_chip(struct i2c_regs *i2c_base, uint8_t chip)
 static struct i2c_regs *davinci_get_base(struct i2c_adapter *adap)
 {
 	switch (adap->hwadapnr) {
-#if I2C_BUS_MAX >= 3
+#if CONFIG_SYS_I2C_BUS_MAX >= 3
 	case 2:
 		return (struct i2c_regs *)I2C2_BASE;
 #endif
-#if I2C_BUS_MAX >= 2
+#if CONFIG_SYS_I2C_BUS_MAX >= 2
 	case 1:
 		return (struct i2c_regs *)I2C1_BASE;
 #endif
@@ -412,7 +412,7 @@ U_BOOT_I2C_ADAP_COMPLETE(davinci_0, davinci_i2c_init, davinci_i2c_probe_chip,
 			 CONFIG_SYS_DAVINCI_I2C_SLAVE,
 			 0)
 
-#if I2C_BUS_MAX >= 2
+#if CONFIG_SYS_I2C_BUS_MAX >= 2
 U_BOOT_I2C_ADAP_COMPLETE(davinci_1, davinci_i2c_init, davinci_i2c_probe_chip,
 			 davinci_i2c_read, davinci_i2c_write,
 			 davinci_i2c_setspeed,
@@ -421,7 +421,7 @@ U_BOOT_I2C_ADAP_COMPLETE(davinci_1, davinci_i2c_init, davinci_i2c_probe_chip,
 			 1)
 #endif
 
-#if I2C_BUS_MAX >= 3
+#if CONFIG_SYS_I2C_BUS_MAX >= 3
 U_BOOT_I2C_ADAP_COMPLETE(davinci_2, davinci_i2c_init, davinci_i2c_probe_chip,
 			 davinci_i2c_read, davinci_i2c_write,
 			 davinci_i2c_setspeed,

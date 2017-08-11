@@ -7,7 +7,7 @@
 #ifndef _OMAP5_I2C_H_
 #define _OMAP5_I2C_H_
 
-#define I2C_BUS_MAX	5
+#define CONFIG_SYS_I2C_BUS_MAX	5
 #define I2C_DEFAULT_BASE	I2C_BASE1
 
 struct i2c {

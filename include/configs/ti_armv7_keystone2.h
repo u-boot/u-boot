@@ -160,7 +160,7 @@
 #define CONFIG_SYS_DAVINCI_I2C_SLAVE1	0x10 /* SMBus host address */
 #define CONFIG_SYS_DAVINCI_I2C_SPEED2	100000
 #define CONFIG_SYS_DAVINCI_I2C_SLAVE2	0x10 /* SMBus host address */
-#define I2C_BUS_MAX			3
+#define CONFIG_SYS_I2C_BUS_MAX			3
 
 /* EEPROM definitions */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2
