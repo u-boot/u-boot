@@ -98,6 +98,11 @@ M:	Stefan Mavrodiev <stefan.mavrodiev@gmail.com>
 S:	Maintained
 F:	configs/A33-OLinuXino_defconfig
 
+A64-OLINUXINO BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/a64-olinuxino_defconfig
+
 A80 OPTIMUS BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
