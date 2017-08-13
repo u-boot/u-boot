@@ -33,6 +33,10 @@
 #include <linux/usb/gadget.h>
 #include <linux/usb/musb.h>
 #include "omap3logic.h"
+#ifdef CONFIG_USB_EHCI_HCD
+#include <usb.h>
+#include <asm/ehci-omap.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -138,6 +142,33 @@ static struct musb_hdrc_platform_data musb_plat = {
 	.board_data	= &musb_board_data,
 };
 #endif
+
+#if defined(CONFIG_USB_EHCI_HCD) && !defined(CONFIG_SPL_BUILD)
+/* Call usb_stop() before starting the kernel */
+void show_boot_progress(int val)
+{
+	if (val == BOOTSTAGE_ID_RUN_OS)
+		usb_stop();
+}
+
+static struct omap_usbhs_board_data usbhs_bdata = {
+	.port_mode[0] = OMAP_EHCI_PORT_MODE_PHY,
+	.port_mode[1] = OMAP_EHCI_PORT_MODE_PHY,
+	.port_mode[2] = OMAP_USBHS_PORT_MODE_UNUSED
+};
+
+int ehci_hcd_init(int index, enum usb_init_type init,
+		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+{
+	return omap_ehci_hcd_init(index, &usbhs_bdata, hccr, hcor);
+}
+
+int ehci_hcd_stop(int index)
+{
+	return omap_ehci_hcd_stop();
+}
+
+#endif /* CONFIG_USB_EHCI_HCD */
 
 
 /*
