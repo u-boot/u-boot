@@ -98,11 +98,6 @@ ENDPROC(enable_mmu)
 
 ENTRY(setup_init_ram)
 	ldr	r1, = SSCO_BASE
-	mrc	p15, 0, r0, c2, c0, 0	@ TTBR0
-	ldr	r0, [r0, #0x400]	@ entry for virtual address 0x100*****
-	bfc	r0, #0, #20
-	cmp	r0, #0x50000000		@ is sLD3 page table?
-	biceq	r1, r1, #0xc0000000	@ sLD3 ROM maps 0x5******* to 0x1*******
 
 	/* Touch to zero for the boot way */
 0:	ldr	r0, = 0x00408006	@ touch to zero with address range
