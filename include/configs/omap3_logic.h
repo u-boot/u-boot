@@ -90,7 +90,6 @@
 #define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW_DETECTION_SW
 #define CONFIG_SYS_NAND_MAX_OOBFREE	2
 #define CONFIG_SYS_NAND_MAX_ECCPOS	56
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS		/* required for UBI partition support */
 #define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
