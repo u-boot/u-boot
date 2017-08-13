@@ -239,55 +239,47 @@ skip_errata_801819:
 #endif
 
 #ifdef CONFIG_ARM_ERRATA_454179
-	cmp	r2, #0x21		@ Only on < r2p1
-	bge	skip_errata_454179
-
 	mrc	p15, 0, r0, c1, c0, 1	@ Read ACR
-	orr	r0, r0, #(0x3 << 6)	@ Set DBSM(BIT7) and IBE(BIT6) bits
+
+	cmp	r2, #0x21		@ Only on < r2p1
+	orrlt	r0, r0, #(0x3 << 6)	@ Set DBSM(BIT7) and IBE(BIT6) bits
+
 	push	{r1-r5}			@ Save the cpu info registers
 	bl	v7_arch_cp15_set_acr
 	pop	{r1-r5}			@ Restore the cpu info - fall through
-
-skip_errata_454179:
 #endif
 
 #ifdef CONFIG_ARM_ERRATA_430973
-	cmp	r2, #0x21		@ Only on < r2p1
-	bge	skip_errata_430973
-
 	mrc	p15, 0, r0, c1, c0, 1	@ Read ACR
-	orr	r0, r0, #(0x1 << 6)	@ Set IBE bit
+
+	cmp	r2, #0x21		@ Only on < r2p1
+	orrlt	r0, r0, #(0x1 << 6)	@ Set IBE bit
+
 	push	{r1-r5}			@ Save the cpu info registers
 	bl	v7_arch_cp15_set_acr
 	pop	{r1-r5}			@ Restore the cpu info - fall through
-
-skip_errata_430973:
 #endif
 
 #ifdef CONFIG_ARM_ERRATA_621766
-	cmp	r2, #0x21		@ Only on < r2p1
-	bge	skip_errata_621766
-
 	mrc	p15, 0, r0, c1, c0, 1	@ Read ACR
-	orr	r0, r0, #(0x1 << 5)	@ Set L1NEON bit
+
+	cmp	r2, #0x21		@ Only on < r2p1
+	orrlt	r0, r0, #(0x1 << 5)	@ Set L1NEON bit
+
 	push	{r1-r5}			@ Save the cpu info registers
 	bl	v7_arch_cp15_set_acr
 	pop	{r1-r5}			@ Restore the cpu info - fall through
-
-skip_errata_621766:
 #endif
 
 #ifdef CONFIG_ARM_ERRATA_725233
-	cmp	r2, #0x21		@ Only on < r2p1 (Cortex A8)
-	bge	skip_errata_725233
-
 	mrc	p15, 1, r0, c9, c0, 2	@ Read L2ACR
-	orr	r0, r0, #(0x1 << 27)	@ L2 PLD data forwarding disable
+
+	cmp	r2, #0x21		@ Only on < r2p1 (Cortex A8)
+	orrlt	r0, r0, #(0x1 << 27)	@ L2 PLD data forwarding disable
+
 	push	{r1-r5}			@ Save the cpu info registers
 	bl	v7_arch_cp15_set_l2aux_ctrl
 	pop	{r1-r5}			@ Restore the cpu info - fall through
-
-skip_errata_725233:
 #endif
 
 #ifdef CONFIG_ARM_ERRATA_852421
