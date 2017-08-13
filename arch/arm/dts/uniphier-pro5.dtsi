@@ -598,6 +598,7 @@
 				compatible = "snps,dwc3";
 				reg = <0x65a00000 0x10000>;
 				interrupts = <0 134 4>;
+				dr_mode = "host";
 				tx-fifo-resize;
 			};
 		};
@@ -615,6 +616,7 @@
 				compatible = "snps,dwc3";
 				reg = <0x65c00000 0x10000>;
 				interrupts = <0 137 4>;
+				dr_mode = "host";
 				tx-fifo-resize;
 			};
 		};
