@@ -196,4 +196,49 @@ config I2C_EEPROM
 	depends on MISC
 	help
 	  Enable a generic driver for EEPROMs attached via I2C.
+
+if I2C_EEPROM
+
+config SYS_I2C_EEPROM_ADDR
+	hex "Chip address of the EEPROM device"
+	default 0
+
+config SYS_I2C_EEPROM_BUS
+	int "I2C bus of the EEPROM device."
+	default 0
+
+config SYS_EEPROM_SIZE
+	int "Size in bytes of the EEPROM device"
+	default 256
+
+config SYS_EEPROM_PAGE_WRITE_BITS
+	int "Number of bits used to address bytes in a single page"
+	default 0
+	help
+	  The EEPROM page size is 2^SYS_EEPROM_PAGE_WRITE_BITS.
+	  A 64 byte page, for example would require six bits.
+
+config SYS_EEPROM_PAGE_WRITE_DELAY_MS
+	int "Number of milliseconds to delay between page writes"
+	default 0
+
+config SYS_I2C_EEPROM_ADDR_LEN
+	int "Length in bytes of the EEPROM memory array address"
+	default 1
+	help
+	  Note: This is NOT the chip address length!
+
+config SYS_I2C_EEPROM_ADDR_OVERFLOW
+	hex "EEPROM Address Overflow"
+	default 0
+	help
+	  EEPROM chips that implement "address overflow" are ones
+	  like Catalyst 24WC04/08/16 which has 9/10/11 bits of
+	  address and the extra bits end up in the "chip address" bit
+	  slots. This makes a 24WC08 (1Kbyte) chip look like four 256
+	  byte chips.
+
+endif
+
+
 endmenu
