@@ -41,46 +41,20 @@ struct uniphier_reset_data {
 	}
 
 /* System reset data */
-#define UNIPHIER_SLD3_SYS_RESET_STDMAC(id)		\
-	UNIPHIER_RESETX((id), 0x2000, 10)
-
-#define UNIPHIER_LD11_SYS_RESET_STDMAC(id)		\
-	UNIPHIER_RESETX((id), 0x200c, 8)
-
-#define UNIPHIER_PRO4_SYS_RESET_GIO(id)			\
-	UNIPHIER_RESETX((id), 0x2000, 6)
-
-#define UNIPHIER_LD20_SYS_RESET_GIO(id)			\
-	UNIPHIER_RESETX((id), 0x200c, 5)
-
-#define UNIPHIER_PRO4_SYS_RESET_USB3(id, ch)		\
-	UNIPHIER_RESETX((id), 0x2000 + 0x4 * (ch), 17)
-
-static const struct uniphier_reset_data uniphier_ld4_sys_reset_data[] = {
-	UNIPHIER_SLD3_SYS_RESET_STDMAC(8),	/* Ether, HSC, MIO */
-	UNIPHIER_RESET_END,
-};
-
 static const struct uniphier_reset_data uniphier_pro4_sys_reset_data[] = {
-	UNIPHIER_SLD3_SYS_RESET_STDMAC(8),	/* HSC, MIO, RLE */
-	UNIPHIER_PRO4_SYS_RESET_GIO(12),	/* Ether, SATA, USB3 */
-	UNIPHIER_PRO4_SYS_RESET_USB3(14, 0),
-	UNIPHIER_PRO4_SYS_RESET_USB3(15, 1),
-	UNIPHIER_RESET_END,
-};
-
-static const struct uniphier_reset_data uniphier_pro5_sys_reset_data[] = {
-	UNIPHIER_SLD3_SYS_RESET_STDMAC(8),	/* HSC */
-	UNIPHIER_PRO4_SYS_RESET_GIO(12),	/* PCIe, USB3 */
-	UNIPHIER_PRO4_SYS_RESET_USB3(14, 0),
-	UNIPHIER_PRO4_SYS_RESET_USB3(15, 1),
+	UNIPHIER_RESETX(2, 0x2000, 2),		/* NAND */
+	UNIPHIER_RESETX(8, 0x2000, 10),		/* STDMAC */
+	UNIPHIER_RESETX(12, 0x2000, 6),		/* GIO */
+	UNIPHIER_RESETX(14, 0x2000, 17),	/* USB30 */
+	UNIPHIER_RESETX(15, 0x2004, 17),	/* USB31 */
 	UNIPHIER_RESET_END,
 };
 
 static const struct uniphier_reset_data uniphier_pxs2_sys_reset_data[] = {
-	UNIPHIER_SLD3_SYS_RESET_STDMAC(8),	/* HSC, RLE */
-	UNIPHIER_PRO4_SYS_RESET_USB3(14, 0),
-	UNIPHIER_PRO4_SYS_RESET_USB3(15, 1),
+	UNIPHIER_RESETX(2, 0x2000, 2),		/* NAND */
+	UNIPHIER_RESETX(8, 0x2000, 10),		/* STDMAC */
+	UNIPHIER_RESETX(14, 0x2000, 17),	/* USB30 */
+	UNIPHIER_RESETX(15, 0x2004, 17),	/* USB31 */
 	UNIPHIER_RESETX(16, 0x2014, 4),		/* USB30-PHY0 */
 	UNIPHIER_RESETX(17, 0x2014, 0),		/* USB30-PHY1 */
 	UNIPHIER_RESETX(18, 0x2014, 2),		/* USB30-PHY2 */
@@ -91,14 +65,11 @@ static const struct uniphier_reset_data uniphier_pxs2_sys_reset_data[] = {
 	UNIPHIER_RESET_END,
 };
 
-static const struct uniphier_reset_data uniphier_ld11_sys_reset_data[] = {
-	UNIPHIER_LD11_SYS_RESET_STDMAC(8),	/* HSC, MIO */
-	UNIPHIER_RESET_END,
-};
-
 static const struct uniphier_reset_data uniphier_ld20_sys_reset_data[] = {
-	UNIPHIER_LD11_SYS_RESET_STDMAC(8),	/* HSC */
-	UNIPHIER_LD20_SYS_RESET_GIO(12),	/* PCIe, USB3 */
+	UNIPHIER_RESETX(2, 0x200c, 0),		/* NAND */
+	UNIPHIER_RESETX(4, 0x200c, 2),		/* eMMC */
+	UNIPHIER_RESETX(8, 0x200c, 8),		/* STDMAC */
+	UNIPHIER_RESETX(12, 0x200c, 5),		/* GIO */
 	UNIPHIER_RESETX(16, 0x200c, 12),	/* USB30-PHY0 */
 	UNIPHIER_RESETX(17, 0x200c, 13),	/* USB30-PHY1 */
 	UNIPHIER_RESETX(18, 0x200c, 14),	/* USB30-PHY2 */
@@ -271,7 +242,7 @@ static const struct udevice_id uniphier_reset_match[] = {
 	/* System reset */
 	{
 		.compatible = "socionext,uniphier-ld4-reset",
-		.data = (ulong)uniphier_ld4_sys_reset_data,
+		.data = (ulong)uniphier_pro4_sys_reset_data,
 	},
 	{
 		.compatible = "socionext,uniphier-pro4-reset",
@@ -279,11 +250,11 @@ static const struct udevice_id uniphier_reset_match[] = {
 	},
 	{
 		.compatible = "socionext,uniphier-sld8-reset",
-		.data = (ulong)uniphier_ld4_sys_reset_data,
+		.data = (ulong)uniphier_pro4_sys_reset_data,
 	},
 	{
 		.compatible = "socionext,uniphier-pro5-reset",
-		.data = (ulong)uniphier_pro5_sys_reset_data,
+		.data = (ulong)uniphier_pro4_sys_reset_data,
 	},
 	{
 		.compatible = "socionext,uniphier-pxs2-reset",
@@ -291,7 +262,7 @@ static const struct udevice_id uniphier_reset_match[] = {
 	},
 	{
 		.compatible = "socionext,uniphier-ld11-reset",
-		.data = (ulong)uniphier_ld11_sys_reset_data,
+		.data = (ulong)uniphier_ld20_sys_reset_data,
 	},
 	{
 		.compatible = "socionext,uniphier-ld20-reset",
