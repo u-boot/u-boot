@@ -25,6 +25,10 @@ ENTRY(lowlevel_init)
 	orr	r0, r0, #(CR_C | CR_M)	@ enable MMU and Dcache
 	mcr	p15, 0, r0, c1, c0, 0
 
+#ifdef CONFIG_DEBUG_LL
+	bl	debug_ll_init
+#endif
+
 	bl	setup_init_ram		@ RAM area for stack and page table
 
 	/*
@@ -41,10 +45,6 @@ ENTRY(lowlevel_init)
 	mcr	p15, 0, r0, c1, c0, 0
 
 	bl	enable_mmu
-
-#ifdef CONFIG_DEBUG_LL
-	bl	debug_ll_init
-#endif
 
 	mov	lr, r8			@ restore link
 	mov	pc, lr			@ back to my caller
