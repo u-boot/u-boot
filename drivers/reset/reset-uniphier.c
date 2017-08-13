@@ -56,7 +56,7 @@ struct uniphier_reset_data {
 #define UNIPHIER_PRO4_SYS_RESET_USB3(id, ch)		\
 	UNIPHIER_RESETX((id), 0x2000 + 0x4 * (ch), 17)
 
-static const struct uniphier_reset_data uniphier_sld3_sys_reset_data[] = {
+static const struct uniphier_reset_data uniphier_ld4_sys_reset_data[] = {
 	UNIPHIER_SLD3_SYS_RESET_STDMAC(8),	/* Ether, HSC, MIO */
 	UNIPHIER_RESET_END,
 };
@@ -270,12 +270,8 @@ static int uniphier_reset_probe(struct udevice *dev)
 static const struct udevice_id uniphier_reset_match[] = {
 	/* System reset */
 	{
-		.compatible = "socionext,uniphier-sld3-reset",
-		.data = (ulong)uniphier_sld3_sys_reset_data,
-	},
-	{
 		.compatible = "socionext,uniphier-ld4-reset",
-		.data = (ulong)uniphier_sld3_sys_reset_data,
+		.data = (ulong)uniphier_ld4_sys_reset_data,
 	},
 	{
 		.compatible = "socionext,uniphier-pro4-reset",
@@ -283,7 +279,7 @@ static const struct udevice_id uniphier_reset_match[] = {
 	},
 	{
 		.compatible = "socionext,uniphier-sld8-reset",
-		.data = (ulong)uniphier_sld3_sys_reset_data,
+		.data = (ulong)uniphier_ld4_sys_reset_data,
 	},
 	{
 		.compatible = "socionext,uniphier-pro5-reset",
@@ -302,10 +298,6 @@ static const struct udevice_id uniphier_reset_match[] = {
 		.data = (ulong)uniphier_ld20_sys_reset_data,
 	},
 	/* Media I/O reset */
-	{
-		.compatible = "socionext,uniphier-sld3-mio-clock",
-		.data = (ulong)uniphier_mio_reset_data,
-	},
 	{
 		.compatible = "socionext,uniphier-ld4-mio-reset",
 		.data = (ulong)uniphier_mio_reset_data,

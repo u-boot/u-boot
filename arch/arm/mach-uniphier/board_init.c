@@ -86,15 +86,6 @@ struct uniphier_initdata {
 };
 
 static const struct uniphier_initdata uniphier_initdata[] = {
-#if defined(CONFIG_ARCH_UNIPHIER_SLD3)
-	{
-		.soc_id = UNIPHIER_SLD3_ID,
-		.nand_2cs = true,
-		.sbc_init = uniphier_sbc_init_admulti,
-		.pll_init = uniphier_sld3_pll_init,
-		.clk_init = uniphier_ld4_clk_init,
-	},
-#endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD4)
 	{
 		.soc_id = UNIPHIER_LD4_ID,

@@ -13,25 +13,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_ARCH_UNIPHIER_SLD3)
-static const struct uniphier_board_data uniphier_sld3_data = {
-	.dram_freq = 1600,
-	.dram_ch[0] = {
-		.size = 0x20000000,
-		.width = 32,
-	},
-	.dram_ch[1] = {
-		.size = 0x20000000,
-		.width = 16,
-	},
-	.dram_ch[2] = {
-		.size = 0x10000000,
-		.width = 16,
-	},
-	.flags = UNIPHIER_BD_DRAM_SPARSE,
-};
-#endif
-
 #if defined(CONFIG_ARCH_UNIPHIER_LD4)
 static const struct uniphier_board_data uniphier_ld4_data = {
 	.dram_freq = 1600,
@@ -146,9 +127,6 @@ struct uniphier_board_id {
 };
 
 static const struct uniphier_board_id uniphier_boards[] = {
-#if defined(CONFIG_ARCH_UNIPHIER_SLD3)
-	{ "socionext,uniphier-sld3", &uniphier_sld3_data, },
-#endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD4)
 	{ "socionext,uniphier-ld4", &uniphier_ld4_data, },
 #endif

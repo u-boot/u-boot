@@ -3,12 +3,6 @@ if ARCH_UNIPHIER
 config PINCTRL_UNIPHIER
 	bool
 
-config PINCTRL_UNIPHIER_SLD3
-	bool "UniPhier sLD3 SoC pinctrl driver"
-	depends on ARCH_UNIPHIER_SLD3
-	default y
-	select PINCTRL_UNIPHIER
-
 config PINCTRL_UNIPHIER_LD4
 	bool "UniPhier LD4 SoC pinctrl driver"
 	depends on ARCH_UNIPHIER_LD4

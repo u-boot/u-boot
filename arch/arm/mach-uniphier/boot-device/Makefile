@@ -4,7 +4,6 @@
 
 obj-y					+= boot-device.o
 
-obj-$(CONFIG_ARCH_UNIPHIER_SLD3)	+= boot-device-sld3.o
 obj-$(CONFIG_ARCH_UNIPHIER_LD4)		+= boot-device-ld4.o
 obj-$(CONFIG_ARCH_UNIPHIER_PRO4)	+= boot-device-ld4.o
 obj-$(CONFIG_ARCH_UNIPHIER_SLD8)	+= boot-device-ld4.o

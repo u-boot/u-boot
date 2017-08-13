@@ -4,7 +4,6 @@
 
 ifdef CONFIG_SPL_BUILD
 
-obj-$(CONFIG_ARCH_UNIPHIER_SLD3)	+= umc-sld3.o
 obj-$(CONFIG_ARCH_UNIPHIER_LD4)		+= umc-ld4.o \
 					   ddrphy-training.o ddrphy-ld4.o
 obj-$(CONFIG_ARCH_UNIPHIER_PRO4)	+= umc-pro4.o \

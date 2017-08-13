@@ -29,9 +29,8 @@ ENTRY(lowlevel_init)
 
 	/*
 	 * Now we are using the page table embedded in the Boot ROM.
-	 * It is not handy since it is not a straight mapped table for sLD3.
-	 * Also, the access to the external bus is prohibited.  What we need
-	 * to do next is to create a page table and switch over to it.
+	 * What we need to do next is to create a page table and switch
+	 * over to it.
 	 */
 	bl	create_page_table
 	bl	__v7_flush_dcache_all

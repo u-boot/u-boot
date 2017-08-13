@@ -12,7 +12,7 @@
 #include "../init.h"
 #include "../sc-regs.h"
 
-void uniphier_sld3_early_clk_init(void)
+void uniphier_ld4_early_clk_init(void)
 {
 	u32 tmp;
 
