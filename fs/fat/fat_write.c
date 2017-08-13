@@ -762,7 +762,7 @@ static int check_overflow(fsdata *mydata, __u32 clustnum, loff_t size)
 	if (offset != 0)
 		sect_num++;
 
-	if (startsect + sect_num > cur_part_info.start + total_sector)
+	if (startsect + sect_num > total_sector)
 		return -1;
 	return 0;
 }
