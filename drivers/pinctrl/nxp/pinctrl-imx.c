@@ -158,7 +158,7 @@ static int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 		if (!(config_val & IMX_NO_PAD_CTL)) {
 			if (info->flags & SHARE_MUX_CONF_REG) {
 				clrsetbits_le32(info->base + conf_reg,
-						info->mux_mask, config_val);
+						~info->mux_mask, config_val);
 			} else {
 				writel(config_val, info->base + conf_reg);
 			}
