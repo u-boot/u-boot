@@ -71,18 +71,18 @@
 };
 
 &emmc {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
 &sdmmc {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
 &spi1 {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 
 	spiflash: w25q32dw@0 {
-		u-boot,dm-pre-reloc;
+		u-boot,dm-spl;
 	};
 };
 
