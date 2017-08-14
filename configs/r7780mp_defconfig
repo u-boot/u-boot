@@ -13,10 +13,10 @@ CONFIG_BOOTARGS="console=ttySC0,115200"
 # CONFIG_CMD_XIMG is not set
 # CONFIG_CMD_EDITENV is not set
 # CONFIG_CMD_ENV_EXISTS is not set
+# CONFIG_CMD_FPGA is not set
 CONFIG_CMD_IDE=y
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set
-# CONFIG_CMD_FPGA is not set
 CONFIG_CMD_PCI=y
 CONFIG_CMD_SDRAM=y
 # CONFIG_CMD_ECHO is not set

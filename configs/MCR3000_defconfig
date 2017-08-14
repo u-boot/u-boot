@@ -39,6 +39,8 @@ CONFIG_SYS_IMMR=0xFF000000
 CONFIG_OF_BOARD_SETUP=y
 CONFIG_ENV_IS_IN_FLASH=y
 CONFIG_BOOTDELAY=5
+CONFIG_USE_BOOTARGS=y
+CONFIG_BOOTARGS="ubi.mtd=4 root=ubi0:rootfs rw rootfstype=ubifs rootflags=sync console=ttyCPM0,115200N8 ip=${ipaddr}:::${netmask}:mcr3k:eth0:off"
 CONFIG_HUSH_PARSER=y
 CONFIG_SYS_PROMPT="S3K> "
 CONFIG_AUTOBOOT_KEYED=y
@@ -49,10 +51,10 @@ CONFIG_AUTOBOOT_DELAY_STR="root"
 # CONFIG_CMD_IMI is not set
 # CONFIG_CMD_IMLS is not set
 CONFIG_CMD_ASKENV=y
+# CONFIG_CMD_FPGA is not set
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set
 CONFIG_CMD_NAND=y
-# CONFIG_CMD_FPGA is not set
 # CONFIG_CMD_ECHO is not set
 # CONFIG_CMD_ITEST is not set
 # CONFIG_CMD_SOURCE is not set
@@ -69,5 +71,3 @@ CONFIG_MPC8XX_FEC=y
 CONFIG_SHA256=y
 CONFIG_LZMA=y
 CONFIG_OF_LIBFDT=y
-CONFIG_USE_BOOTARGS=y
-CONFIG_BOOTARGS="ubi.mtd=4 root=ubi0:rootfs rw rootfstype=ubifs rootflags=sync console=ttyCPM0,115200N8 ip=${ipaddr}:::${netmask}:mcr3k:eth0:off"

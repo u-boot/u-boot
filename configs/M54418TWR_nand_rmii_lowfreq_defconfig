@@ -9,9 +9,9 @@ CONFIG_BOOTARGS="root=/dev/mtdblock2 rw rootfstype=jffs2 mtdparts=NAND:1M(u-boot
 CONFIG_HUSH_PARSER=y
 CONFIG_SYS_PROMPT="-> "
 # CONFIG_CMD_IMLS is not set
+# CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set
-# CONFIG_CMD_FLASH is not set
 CONFIG_CMD_SF=y
 CONFIG_CMD_SPI=y
 # CONFIG_CMD_SETEXPR is not set

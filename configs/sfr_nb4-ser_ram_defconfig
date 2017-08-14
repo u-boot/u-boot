@@ -25,8 +25,8 @@ CONFIG_CMD_LICENSE=y
 # CONFIG_CMD_ENV_EXISTS is not set
 # CONFIG_CMD_CRC32 is not set
 CONFIG_CMD_MEMINFO=y
-# CONFIG_CMD_LOADS is not set
 # CONFIG_CMD_FPGA is not set
+# CONFIG_CMD_LOADS is not set
 # CONFIG_CMD_NET is not set
 # CONFIG_CMD_NFS is not set
 # CONFIG_CMD_MISC is not set
