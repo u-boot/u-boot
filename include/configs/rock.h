@@ -12,7 +12,7 @@
 
 #define CONFIG_SYS_MMC_ENV_DEV 0
 
-#if defined(ROCKCHIP_BACK_TO_BROM)
+#if CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM)
 /* SPL @ 32k for 34k
  * u-boot directly after @ 68k for 400k or so
  * ENV @ 992k
