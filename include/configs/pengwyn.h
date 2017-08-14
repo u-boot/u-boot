@@ -194,6 +194,4 @@
 
 /* CPSW support */
 
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
-
 #endif	/* ! __CONFIG_PENGWYN_H */

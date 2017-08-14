@@ -46,6 +46,7 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/pinctrl/rockchip.h>
 #include <dt-bindings/thermal/thermal.h>
+#include <dt-bindings/memory/rk3368-dmc.h>
 
 / {
 	compatible = "rockchip,rk3368";
@@ -225,6 +226,21 @@
 		clock-frequency = <24000000>;
 		clock-output-names = "xin24m";
 		#clock-cells = <0>;
+	};
+
+	dmc: dmc@ff610000 {
+		compatible = "rockchip,rk3368-dmc", "syscon";
+		rockchip,cru = <&cru>;
+		rockchip,grf = <&grf>;
+		rockchip,msch = <&service_msch>;
+		reg = <0 0xff610000 0 0x400
+		       0 0xff620000 0 0x400>;
+	};
+
+	service_msch: syscon@ffac0000 {
+		compatible = "rockchip,rk3368-msch", "syscon";
+		reg = <0x0 0xffac0000 0x0 0x2000>;
+		status = "okay";
 	};
 
 	sdmmc: dwmmc@ff0c0000 {
@@ -546,12 +562,6 @@
 		status = "disabled";
 	};
 
-	dmc: dmc@ff610000 {
-		u-boot,dm-pre-reloc;
-		compatible = "rockchip,rk3368-dmc", "syscon";
-		reg = <0x0 0xff610000 0x0 0x1000>;
-	};
-
 	i2c0: i2c@ff650000 {
 		compatible = "rockchip,rk3368-i2c", "rockchip,rk3288-i2c";
 		reg = <0x0 0xff650000 0x0 0x1000>;
@@ -647,9 +657,13 @@
 	};
 
 	pmugrf: syscon@ff738000 {
-		u-boot,dm-pre-reloc;
 		compatible = "rockchip,rk3368-pmugrf", "syscon";
 		reg = <0x0 0xff738000 0x0 0x1000>;
+	};
+
+	sgrf: syscon@ff740000 {
+	        compatible = "rockchip,rk3368-sgrf", "syscon";
+		reg = <0x0 0xff740000 0x0 0x1000>;
 	};
 
 	cru: clock-controller@ff760000 {
@@ -673,7 +687,7 @@
 		status = "disabled";
 	};
 
-	timer@ff810000 {
+	timer0: timer@ff810000 {
 		compatible = "rockchip,rk3368-timer", "rockchip,rk3288-timer";
 		reg = <0x0 0xff810000 0x0 0x20>;
 		interrupts = <GIC_SPI 66 IRQ_TYPE_LEVEL_HIGH>;

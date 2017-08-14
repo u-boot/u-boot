@@ -10,12 +10,21 @@ config RAM
 
 config SPL_RAM
 	bool "Enable RAM support in SPL"
-	depends on RAM
+	depends on RAM && SPL_DM
 	help
 	  The RAM subsystem adds a small amount of overhead to the image.
 	  If this is acceptable and you have a need to use RAM drivers in
 	  SPL, enable this option. It might provide a cleaner interface to
 	  setting up RAM (e.g. SDRAM / DDR) within SPL.
+
+config TPL_RAM
+	bool "Enable RAM support in SPL"
+	depends on RAM && TPL_DM
+	help
+	  The RAM subsystem adds a small amount of overhead to the image.
+	  If this is acceptable and you have a need to use RAM drivers in
+	  TPL, enable this option. It might provide a cleaner interface to
+	  setting up RAM (e.g. SDRAM / DDR) within TPL.
 
 config STM32_SDRAM
 	bool "Enable STM32 SDRAM support"

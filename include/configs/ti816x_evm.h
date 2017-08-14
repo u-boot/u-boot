@@ -118,8 +118,6 @@
 #define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
 					 CONFIG_SPL_TEXT_BASE)
 
-#define CONFIG_SPL_LDSCRIPT     "arch/arm/mach-omap2/u-boot-spl.lds"
-
 #define CONFIG_SYS_TEXT_BASE        0x80800000
 
 #define CONFIG_DRIVER_TI_EMAC

@@ -37,7 +37,7 @@ Compile the ATF
 
   > cd arm-trusted-firmware
   > make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399 bl31
-  > cp build/rk3399/release/bl31.bin ../u-boot
+  > cp build/rk3399/release/bl31.bin ../u-boot/bl31-rk3399.bin
 
 Compile the M0 firmware
 =======================

@@ -9,8 +9,8 @@
 
 void back_to_bootrom(void)
 {
-#if defined(CONFIG_SPL_LIBCOMMON_SUPPORT) && !defined(CONFIG_TPL_BUILD)
-	puts("Returning to boot ROM...");
+#if CONFIG_IS_ENABLED(LIBCOMMON_SUPPORT)
+	puts("Returning to boot ROM...\n");
 #endif
 	_back_to_bootrom_s();
 }

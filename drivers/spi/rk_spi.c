@@ -210,6 +210,14 @@ static int rockchip_spi_ofdata_to_platdata(struct udevice *bus)
 
 static int rockchip_spi_calc_modclk(ulong max_freq)
 {
+	/*
+	 * While this is not strictly correct for the RK3368, as the
+	 * GPLL will be 576MHz, things will still work, as the
+	 * clk_set_rate(...) implementation in our clock-driver will
+	 * chose the next closest rate not exceeding what we request
+	 * based on the output of this function.
+	 */
+
 	unsigned div;
 	const unsigned long gpll_hz = 594000000UL;
 
@@ -443,6 +451,7 @@ static const struct dm_spi_ops rockchip_spi_ops = {
 
 static const struct udevice_id rockchip_spi_ids[] = {
 	{ .compatible = "rockchip,rk3288-spi" },
+	{ .compatible = "rockchip,rk3368-spi" },
 	{ .compatible = "rockchip,rk3399-spi" },
 	{ }
 };

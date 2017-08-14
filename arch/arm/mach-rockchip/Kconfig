@@ -67,14 +67,42 @@ config ROCKCHIP_RK3328
 config ROCKCHIP_RK3368
 	bool "Support Rockchip RK3368"
 	select ARM64
+	select SUPPORT_SPL
+	select SUPPORT_TPL
+	select TPL_NEEDS_SEPARATE_TEXT_BASE if SPL
+	select TPL_NEEDS_SEPARATE_STACK if TPL
+	imply SPL_SEPARATE_BSS
+	imply SPL_SERIAL_SUPPORT
+	imply TPL_SERIAL_SUPPORT
+	select ENABLE_ARM_SOC_BOOT0_HOOK
+	select DEBUG_UART_BOARD_INIT
 	select SYS_NS16550
 	help
-	  The Rockchip RK3328 is a ARM-based SoC with a octa-core Cortex-A53.
-	  including NEON and GPU, 512KB L2 cache for big cluster and 256 KB
-	  L2 cache for little cluser, PowerVR G6110 based graphics, one video
-	  output processor supporting LVDS、HDMI、eDP, several DDR3 options
-	  and video codec support. Peripherals include Gigabit Ethernet,
-	  USB2 host and OTG, SDIO, I2S, UARTs, SPI, I2C and PWMs.
+	  The Rockchip RK3368 is a ARM-based SoC with a octa-core (organised
+	  into a big and little cluster with 4 cores each) Cortex-A53 including
+	  AdvSIMD, 512KB L2 cache (for the big cluster) and 256 KB L2 cache
+	  (for the little cluster), PowerVR G6110 based graphics, one video
+	  output processor supporting LVDS/HDMI/eDP, several DDR3 options and
+	  video codec support.
+
+	  On-chip peripherals include Gigabit Ethernet, USB2 host and OTG, SDIO,
+	  I2S, UARTs, SPI, I2C and PWMs.
+
+if ROCKCHIP_RK3368
+
+config TPL_LDSCRIPT
+	default "arch/arm/mach-rockchip/rk3368/u-boot-tpl.lds"
+
+config TPL_TEXT_BASE
+        default 0xff8c1000
+
+config TPL_MAX_SIZE
+        default 28672
+
+config TPL_STACK
+        default 0xff8cffff
+
+endif
 
 config ROCKCHIP_RK3399
 	bool "Support Rockchip RK3399"
@@ -101,10 +129,21 @@ config ROCKCHIP_RV1108
 	  The Rockchip RV1108 is a ARM-based SoC with a single-core Cortex-A7
 	  and a DSP.
 
-config ROCKCHIP_SPL_BACK_TO_BROM
+config SPL_ROCKCHIP_BACK_TO_BROM
 	bool "SPL returns to bootrom"
 	default y if ROCKCHIP_RK3036
 	select ROCKCHIP_BROM_HELPER
+	depends on SPL
+	help
+	  Rockchip SoCs have ability to load SPL & U-Boot binary. If enabled,
+          SPL will return to the boot rom, which will then load the U-Boot
+          binary to keep going on.
+
+config TPL_ROCKCHIP_BACK_TO_BROM
+	bool "TPL returns to bootrom"
+	default y if ROCKCHIP_RK3368
+	select ROCKCHIP_BROM_HELPER
+	depends on TPL
 	help
 	  Rockchip SoCs have ability to load SPL & U-Boot binary. If enabled,
           SPL will return to the boot rom, which will then load the U-Boot
@@ -122,7 +161,7 @@ config ROCKCHIP_BROM_HELPER
 	bool
 
 config SPL_MMC_SUPPORT
-	default y if !ROCKCHIP_SPL_BACK_TO_BROM
+	default y if !SPL_ROCKCHIP_BACK_TO_BROM
 
 source "arch/arm/mach-rockchip/rk3036/Kconfig"
 source "arch/arm/mach-rockchip/rk3188/Kconfig"

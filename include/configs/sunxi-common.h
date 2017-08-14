@@ -202,10 +202,6 @@
 
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
-#ifndef CONFIG_ARM64
-#define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv7/sunxi/u-boot-spl.lds"
-#endif
-
 #define CONFIG_SPL_PAD_TO		32768		/* decimal for 'dd' */
 
 

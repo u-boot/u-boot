@@ -49,11 +49,11 @@ obj-$(CONFIG_RSA) += rsa/
 obj-$(CONFIG_SHA1) += sha1.o
 obj-$(CONFIG_SHA256) += sha256.o
 
-obj-$(CONFIG_SPL_SAVEENV) += qsort.o
-obj-$(CONFIG_$(SPL_)OF_LIBFDT) += libfdt/
-ifneq ($(CONFIG_SPL_BUILD)$(CONFIG_SPL_OF_PLATDATA),yy)
-obj-$(CONFIG_$(SPL_)OF_CONTROL) += fdtdec_common.o
-obj-$(CONFIG_$(SPL_)OF_CONTROL) += fdtdec.o
+obj-$(CONFIG_$(SPL_TPL_)SAVEENV) += qsort.o
+obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += libfdt/
+ifneq ($(CONFIG_$(SPL_TPL_)BUILD)$(CONFIG_$(SPL_TPL_)OF_PLATDATA),yy)
+obj-$(CONFIG_$(SPL_TPL_)OF_CONTROL) += fdtdec_common.o
+obj-$(CONFIG_$(SPL_TPL_)OF_CONTROL) += fdtdec.o
 endif
 
 ifdef CONFIG_SPL_BUILD

@@ -235,7 +235,7 @@ static ulong rockchip_mmc_get_clk(struct rk3036_cru *cru, uint clk_general_rate,
 	}
 
 	src_rate = mux == EMMC_SEL_24M ? OSC_HZ : clk_general_rate;
-	return DIV_TO_RATE(src_rate, div);
+	return DIV_TO_RATE(src_rate, div) / 2;
 }
 
 static ulong rockchip_mmc_set_clk(struct rk3036_cru *cru, uint clk_general_rate,
@@ -247,10 +247,11 @@ static ulong rockchip_mmc_set_clk(struct rk3036_cru *cru, uint clk_general_rate,
 	debug("%s: clk_general_rate=%u\n", __func__, clk_general_rate);
 
 	/* mmc clock auto divide 2 in internal */
-	src_clk_div = (clk_general_rate / 2 + freq - 1) / freq;
+	src_clk_div = DIV_ROUND_UP(clk_general_rate / 2, freq);
 
-	if (src_clk_div > 0x7f) {
-		src_clk_div = (OSC_HZ / 2 + freq - 1) / freq;
+	if (src_clk_div > 128) {
+		src_clk_div = DIV_ROUND_UP(OSC_HZ / 2, freq);
+		assert(src_clk_div - 1 < 128);
 		mux = EMMC_SEL_24M;
 	} else {
 		mux = EMMC_SEL_GPLL;

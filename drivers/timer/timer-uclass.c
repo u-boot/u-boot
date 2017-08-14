@@ -42,6 +42,7 @@ unsigned long notrace timer_get_rate(struct udevice *dev)
 
 static int timer_pre_probe(struct udevice *dev)
 {
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct clk timer_clk;
 	int err;
@@ -56,6 +57,7 @@ static int timer_pre_probe(struct udevice *dev)
 	} else
 		uc_priv->clock_rate = fdtdec_get_int(gd->fdt_blob,
 				dev_of_offset(dev),	"clock-frequency", 0);
+#endif
 
 	return 0;
 }
@@ -81,16 +83,18 @@ u64 timer_conv_64(u32 count)
 
 int notrace dm_timer_init(void)
 {
-	const void *blob = gd->fdt_blob;
+	__maybe_unused const void *blob = gd->fdt_blob;
 	struct udevice *dev = NULL;
-	int node;
+	int node = -ENOENT;
 	int ret;
 
 	if (gd->timer)
 		return 0;
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	/* Check for a chosen timer to be used for tick */
 	node = fdtdec_get_chosen_node(blob, "tick-timer");
+#endif
 	if (node < 0) {
 		/* No chosen timer, trying first available timer */
 		ret = uclass_first_device_err(UCLASS_TIMER, &dev);

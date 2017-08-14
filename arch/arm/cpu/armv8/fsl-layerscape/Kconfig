@@ -393,3 +393,6 @@ config SYS_MC_RSV_MEM_ALIGN
 	help
 	  Reserved memory needs to be aligned for MC to use. Default value
 	  is 512MB.
+
+config SPL_LDSCRIPT
+	default "arch/arm/cpu/armv8/u-boot-spl.lds" if ARCH_LS1043A || ARCH_LS1046A || ARCH_LS2080A

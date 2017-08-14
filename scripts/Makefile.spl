@@ -98,14 +98,21 @@ endif
 
 u-boot-spl-init := $(head-y)
 u-boot-spl-main := $(libs-y)
-ifdef CONFIG_SPL_OF_PLATDATA
+ifdef CONFIG_$(SPL_TPL_)OF_PLATDATA
 u-boot-spl-platdata := $(obj)/dts/dt-platdata.o
 endif
 
 # Linker Script
-ifdef CONFIG_SPL_LDSCRIPT
+# First test whether there's a linker-script for the specific stage defined...
+ifneq ($(CONFIG_$(SPL_TPL_)LDSCRIPT),)
+# need to strip off double quotes
+LDSCRIPT := $(addprefix $(srctree)/,$(CONFIG_$(SPL_TPL_)LDSCRIPT:"%"=%))
+else
+# ...then fall back to the generic SPL linker-script
+ifneq ($(CONFIG_SPL_LDSCRIPT),)
 # need to strip off double quotes
 LDSCRIPT := $(addprefix $(srctree)/,$(CONFIG_SPL_LDSCRIPT:"%"=%))
+endif
 endif
 
 ifeq ($(wildcard $(LDSCRIPT)),)
@@ -202,7 +209,7 @@ cmd_cat = cat $(filter-out $(PHONY), $^) > $@
 quiet_cmd_copy = COPY    $@
       cmd_copy = cp $< $@
 
-ifeq ($(CONFIG_SPL_OF_CONTROL)$(CONFIG_OF_SEPARATE)$(CONFIG_SPL_OF_PLATDATA),yy)
+ifeq ($(CONFIG_$(SPL_TPL_)OF_CONTROL)$(CONFIG_OF_SEPARATE)$(CONFIG_$(SPL_TPL_)OF_PLATDATA),yy)
 $(obj)/$(SPL_BIN)-dtb.bin: $(obj)/$(SPL_BIN)-nodtb.bin \
 		$(if $(CONFIG_SPL_SEPARATE_BSS),,$(obj)/$(SPL_BIN)-pad.bin) \
 		$(obj)/$(SPL_BIN).dtb FORCE
@@ -293,8 +300,14 @@ LDFLAGS_$(SPL_BIN) += -T u-boot-spl.lds $(LDFLAGS_FINAL)
 # Avoid 'Not enough room for program headers' error on binutils 2.28 onwards.
 LDFLAGS_$(SPL_BIN) += $(call ld-option, --no-dynamic-linker)
 
+# First try the best-match (i.e. SPL_TEXT_BASE for SPL, TPL_TEXT_BASE for TPL)
+ifneq ($(CONFIG_$(SPL_TPL_)TEXT_BASE),)
+LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_$(SPL_TPL_)TEXT_BASE)
+else
+# And then fall back to just testing for SPL_TEXT_BASE, even if in TPL mode
 ifneq ($(CONFIG_SPL_TEXT_BASE),)
 LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
+endif
 endif
 
 MKIMAGEFLAGS_$(SPL_BIN).sfp = -T socfpgaimage

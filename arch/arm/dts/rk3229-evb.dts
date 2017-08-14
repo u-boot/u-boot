@@ -72,6 +72,17 @@
 	status = "okay";
 };
 
+&sdmmc {
+	status = "okay";
+	bus-width = <4>;
+	cap-mmc-highspeed;
+	cap-sd-highspeed;
+	card-detect-delay = <200>;
+	disable-wp;
+	num-slots = <1>;
+	supports-sd;
+};
+
 &uart2 {
 	status = "okay";
 };

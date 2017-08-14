@@ -241,8 +241,6 @@
 /* General network SPL, both CPSW and USB gadget RNDIS */
 #define CONFIG_SPL_NET_VCI_STRING	"AM335x U-Boot SPL"*/
 
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
-
 #ifdef CONFIG_NAND
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_NAND_OMAP_GPMC_PREFETCH

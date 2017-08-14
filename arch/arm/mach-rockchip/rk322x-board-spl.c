@@ -41,6 +41,8 @@ static struct rk322x_grf * const grf = (void *)GRF_BASE;
 		     CON_IOMUX_UART2SEL_MASK,
 		     CON_IOMUX_UART2SEL_21 << CON_IOMUX_UART2SEL_SHIFT);
 }
+
+#define SGRF_DDR_CON0 0x10150000
 void board_init_f(ulong dummy)
 {
 	struct udevice *dev;
@@ -71,6 +73,8 @@ void board_init_f(ulong dummy)
 		return;
 	}
 
+	/* Disable the ddr secure region setting to make it non-secure */
+	rk_clrreg(SGRF_DDR_CON0, 0x4000);
 #if defined(CONFIG_ROCKCHIP_SPL_BACK_TO_BROM) && !defined(CONFIG_SPL_BOARD_INIT)
 	back_to_bootrom();
 #endif

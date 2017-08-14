@@ -95,7 +95,6 @@
 	board/freescale/ls1021atwr/ls102xa_rcw_sd_ifc.cfg
 #endif
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
 
 #ifdef CONFIG_SECURE_BOOT
 /*

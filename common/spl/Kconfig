@@ -18,12 +18,33 @@ config SPL
 
 if SPL
 
+config SPL_LDSCRIPT
+	string "Linker script for the SPL stage"
+	default "arch/$(ARCH)/cpu/u-boot-spl.lds"
+	depends on SPL
+	help
+	  The SPL stage will usually require a different linker-script
+	  (as it runs from a different memory region) than the regular
+	  U-Boot stage.	 Set this to the path of the linker-script to
+	  be used for SPL.
+
 config SPL_BOARD_INIT
 	bool "Call board-specific initialization in SPL"
 	help
 	  If this option is enabled, U-Boot will call the function
 	  spl_board_init() from board_init_r(). This function should be
 	  provided by the board.
+
+config SPL_BOOTROM_SUPPORT
+        bool "Support returning to the BOOTROM"
+	help
+	  Some platforms (e.g. the Rockchip RK3368) provide support in their
+	  ROM for loading the next boot-stage after performing basic setup
+	  from the SPL stage.
+
+	  Enable this option, to return to the BOOTROM through the
+	  BOOT_DEVICE_BOOTROM (or fall-through to the next boot device in the
+	  boot device list, if not implemented for a given board)
 
 config SPL_RAW_IMAGE_SUPPORT
 	bool "Support SPL loading and booting of RAW images"
@@ -49,6 +70,15 @@ config SPL_SYS_MALLOC_SIMPLE
 	  Say Y here to only use the *_simple malloc functions from
 	  malloc_simple.c, rather then using the versions from dlmalloc.c;
 	  this will make the SPL binary smaller at the cost of more heap
+	  usage as the *_simple malloc functions do not re-use free-ed mem.
+
+config TPL_SYS_MALLOC_SIMPLE
+	bool
+	prompt "Only use malloc_simple functions in the TPL"
+	help
+	  Say Y here to only use the *_simple malloc functions from
+	  malloc_simple.c, rather then using the versions from dlmalloc.c;
+	  this will make the TPL binary smaller at the cost of more heap
 	  usage as the *_simple malloc functions do not re-use free-ed mem.
 
 config SPL_STACK_R
@@ -573,14 +603,6 @@ config SPL_SPI_SUPPORT
 	  enable SPI drivers that are needed for other purposes also, such
 	  as a SPI PMIC.
 
-config SPL_TIMER_SUPPORT
-	bool "Support timer drivers"
-	help
-	  Enable support for timer drivers in SPL. These can be used to get
-	  a timer value when in SPL, or perhaps for implementing a delay
-	  function. This enables the drivers in drivers/timer as part of an
-	  SPL build.
-
 config SPL_USB_HOST_SUPPORT
 	bool "Support USB host drivers"
 	help
@@ -687,6 +709,74 @@ config TPL
 
 if TPL
 
+config TPL_LDSCRIPT
+        string "Linker script for the TPL stage"
+	depends on TPL
+	help
+	  The TPL stage will usually require a different linker-script
+	  (as it runs from a different memory region) than the regular
+	  U-Boot stage.  Set this to the path of the linker-script to
+	  be used for TPL.
+
+	  May be left empty to trigger the Makefile infrastructure to
+	  fall back to the linker-script used for the SPL stage.
+
+config TPL_NEEDS_SEPARATE_TEXT_BASE
+        bool "TPL needs a separate text-base"
+	default n
+	depends on TPL
+	help
+	  Enable, if the TPL stage should not inherit its text-base
+	  from the SPL stage.  When enabled, a base address for the
+	  .text sections of the TPL stage has to be set below.
+
+config TPL_NEEDS_SEPARATE_STACK
+        bool "TPL needs a separate initial stack-pointer"
+	default n
+	depends on TPL
+	help
+	  Enable, if the TPL stage should not inherit its initial
+	  stack-pointer from the settings for the SPL stage.
+
+config TPL_TEXT_BASE
+        hex "Base address for the .text section of the TPL stage"
+	depends on TPL_NEEDS_SEPARATE_TEXT_BASE
+	help
+	  The base address for the .text section of the TPL stage.
+
+config TPL_MAX_SIZE
+        int "Maximum size (in bytes) for the TPL stage"
+	default 0
+	depends on TPL
+	help
+	  The maximum size (in bytes) of the TPL stage.
+
+config TPL_STACK
+        hex "Address of the initial stack-pointer for the TPL stage"
+	depends on TPL_NEEDS_SEPARATE_STACK
+	help
+	  The address of the initial stack-pointer for the TPL stage.
+	  Usually this will be the (aligned) top-of-stack.
+
+config TPL_BOOTROM_SUPPORT
+        bool "Support returning to the BOOTROM (from TPL)"
+	help
+	  Some platforms (e.g. the Rockchip RK3368) provide support in their
+	  ROM for loading the next boot-stage after performing basic setup
+	  from the TPL stage.
+
+	  Enable this option, to return to the BOOTROM through the
+	  BOOT_DEVICE_BOOTROM (or fall-through to the next boot device in the
+	  boot device list, if not implemented for a given board)
+
+config TPL_DRIVERS_MISC_SUPPORT
+	bool "Support misc drivers in TPL"
+	help
+	  Enable miscellaneous drivers in TPL. These drivers perform various
+	  tasks that don't fall nicely into other categories, Enable this
+	  option to build the drivers in drivers/misc as part of an TPL
+	  build, for those that support building in TPL (not all drivers do).
+
 config TPL_ENV_SUPPORT
 	bool "Support an environment"
 	help
@@ -695,7 +785,7 @@ config TPL_ENV_SUPPORT
 config TPL_I2C_SUPPORT
 	bool "Support I2C"
 	help
-	  Enable support for the I2C bus in SPL. See SPL_I2C_SUPPORT for
+	  Enable support for the I2C bus in TPL. See SPL_I2C_SUPPORT for
 	  details.
 
 config TPL_LIBCOMMON_SUPPORT
@@ -725,24 +815,24 @@ config TPL_MMC_SUPPORT
 config TPL_NAND_SUPPORT
 	bool "Support NAND flash"
 	help
-	  Enable support for NAND in SPL. See SPL_NAND_SUPPORT for details.
+	  Enable support for NAND in TPL. See SPL_NAND_SUPPORT for details.
 
 config TPL_SERIAL_SUPPORT
 	bool "Support serial"
 	help
-	  Enable support for serial in SPL. See SPL_SERIAL_SUPPORT for
+	  Enable support for serial in TPL. See SPL_SERIAL_SUPPORT for
 	  details.
 
 config TPL_SPI_FLASH_SUPPORT
 	bool "Support SPI flash drivers"
 	help
-	  Enable support for using SPI flash in SPL. See SPL_SPI_FLASH_SUPPORT
+	  Enable support for using SPI flash in TPL. See SPL_SPI_FLASH_SUPPORT
 	  for details.
 
 config TPL_SPI_SUPPORT
 	bool "Support SPI drivers"
 	help
-	  Enable support for using SPI in SPL. See SPL_SPI_SUPPORT for
+	  Enable support for using SPI in TPL. See SPL_SPI_SUPPORT for
 	  details.
 
 endif # TPL
