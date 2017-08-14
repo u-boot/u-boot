@@ -682,12 +682,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #define CONFIG_NETDEV		"eth0"
 
-#ifdef CONFIG_MPC8349ITX
-#define CONFIG_HOSTNAME		"mpc8349emitx"
-#else
-#define CONFIG_HOSTNAME		"mpc8349emitxgp"
-#endif
-
 /* Default path and filenames */
 #define CONFIG_ROOTPATH		"/nfsroot/rootfs"
 #define CONFIG_BOOTFILE		"uImage"
@@ -700,16 +694,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_FDTFILE		"mpc8349emitxgp.dtb"
 #endif
 
-
-#define CONFIG_BOOTARGS \
-	"root=/dev/nfs rw" \
-	" nfsroot=" __stringify(CONFIG_SERVERIP) ":" CONFIG_ROOTPATH	\
-	" ip=" __stringify(CONFIG_IPADDR) ":"		\
-		__stringify(CONFIG_SERVERIP) ":"	\
-		__stringify(CONFIG_GATEWAYIP) ":"	\
-		__stringify(CONFIG_NETMASK) ":"		\
-		CONFIG_HOSTNAME ":" CONFIG_NETDEV ":off"		\
-	" console=" __stringify(CONSOLE) "," __stringify(CONFIG_BAUDRATE)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=" __stringify(CONSOLE) "\0"			\

@@ -309,8 +309,6 @@
 	"echo Welcome on the ABB Socrates Board;" \
 	"echo"
 
-#undef	CONFIG_BOOTARGS		/* the boot command will set bootargs	*/
-
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"consdev=ttyS0\0"						\

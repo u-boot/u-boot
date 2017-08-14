@@ -628,6 +628,22 @@ config BOOTDELAY
 
 	  See doc/README.autoboot for details.
 
+config USE_BOOTARGS
+	bool "Enable boot arguments"
+	help
+	  Provide boot arguments to bootm command. Boot arguments are specified
+	  in CONFIG_BOOTARGS option. Enable this option to be able to specify
+	  CONFIG_BOOTARGS string. If this option is disabled, CONFIG_BOOTARGS
+	  will be undefined and won't take any space in U-Boot image.
+
+config BOOTARGS
+	string "Boot arguments"
+	depends on USE_BOOTARGS
+	help
+	  This can be used to pass arguments to the bootm command. The value of
+	  CONFIG_BOOTARGS goes into the environment value "bootargs". Note that
+	  this value will also override the "chosen" node in FDT blob.
+
 menu "Console"
 
 config MENU

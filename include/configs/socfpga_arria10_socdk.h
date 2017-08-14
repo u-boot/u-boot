@@ -31,13 +31,6 @@
  */
 
 /*
- * arguments passed to the bootz command. The value of
- * CONFIG_BOOTARGS goes into the environment value "bootargs".
- * Do note the value will overide also the chosen node in FDT blob.
- */
-#define CONFIG_BOOTARGS "console=ttyS0," __stringify(CONFIG_BAUDRATE)
-
-/*
  * Serial / UART configurations
  */
 #define CONFIG_SYS_NS16550_MEM32

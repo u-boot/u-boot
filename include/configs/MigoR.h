@@ -12,8 +12,6 @@
 #define CONFIG_CPU_SH7722	1
 #define CONFIG_MIGO_R		1
 
-#define CONFIG_BOOTARGS		"console=ttySC0,115200 root=1f01"
-
 #define CONFIG_DISPLAY_BOARDINFO
 #undef  CONFIG_SHOW_BOOT_PROGRESS
 

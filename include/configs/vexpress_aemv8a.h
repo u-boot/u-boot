@@ -173,15 +173,6 @@
 				"fdt_high=0xffffffffffffffff\0" \
 				"initrd_high=0xffffffffffffffff\0" \
 
-/* Assume we boot with root on the first partition of a USB stick */
-#define CONFIG_BOOTARGS		"console=ttyAMA0,115200n8 " \
-				"root=/dev/sda2 rw " \
-				"rootwait "\
-				"earlyprintk=pl011,0x7ff80000 debug "\
-				"user_debug=31 "\
-				"androidboot.hardware=juno "\
-				"loglevel=9"
-
 /* Copy the kernel and FDT to DRAM memory and boot */
 #define CONFIG_BOOTCOMMAND	"afs load ${kernel_name} ${kernel_addr} ; " \
 				"if test $? -eq 1; then "\
@@ -215,10 +206,6 @@
 				"fdt_high=0xffffffffffffffff\0"	\
 				"initrd_high=0xffffffffffffffff\0"
 
-#define CONFIG_BOOTARGS		"console=ttyAMA0 earlyprintk=pl011,"\
-				"0x1c090000 debug user_debug=31 "\
-				"loglevel=9"
-
 #define CONFIG_BOOTCOMMAND	"smhload ${kernel_name} ${kernel_addr}; " \
 				"smhload ${fdtfile} ${fdt_addr}; " \
 				"smhload ${initrd_name} ${initrd_addr} "\
@@ -235,13 +222,6 @@
 				"fdt_addr=0x83000000\0"		\
 				"fdt_high=0xffffffffffffffff\0"	\
 				"initrd_high=0xffffffffffffffff\0"
-
-#define CONFIG_BOOTARGS		"console=ttyAMA0 earlyprintk=pl011,"\
-				"0x1c090000 debug user_debug=31 "\
-				"androidboot.hardware=fvpbase "\
-				"root=/dev/vda2 rw "\
-				"rootwait "\
-				"loglevel=9"
 
 #define CONFIG_BOOTCOMMAND	"booti $kernel_addr $initrd_addr $fdt_addr"
 

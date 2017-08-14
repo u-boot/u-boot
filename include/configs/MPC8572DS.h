@@ -604,8 +604,6 @@
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
 
-#undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
-
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 "hwconfig=fsl_ddr:ctlr_intlv=bank,bank_intlv=cs0_cs1,ecc=off\0"		\
 "netdev=eth0\0"						\

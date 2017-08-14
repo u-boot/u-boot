@@ -165,7 +165,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 
 #define CONFIG_BOOTFILE			"uImage"
-#define CONFIG_BOOTARGS			"console=ttyS0,115200n8"
 #define CONFIG_LOADADDR			0x80008000
 
 /*

@@ -62,10 +62,6 @@
 #define CONFIG_NETMASK			255.0.0.0
 
 #define CONFIG_BOOTCOMMAND		"run flashboot"
-#define CONFIG_BOOTARGS		"ubi.mtd=4 root=ubi0:rootfs rw "	\
-				"rootfstype=ubifs rootflags=sync "	\
-				"console=ttyCPM0,115200N8 "		\
-				"ip=${ipaddr}:::${netmask}:mcr3k:eth0:off"
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #undef	CONFIG_LOADS_BAUD_CHANGE	/* don't allow baudrate change	*/

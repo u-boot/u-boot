@@ -135,21 +135,6 @@
 #define CONFIG_ENV_SIZE		0x4000
 #endif
 
-#ifdef CONFIG_SYS_USE_MMC
-#define CONFIG_BOOTARGS		"mem=128M console=ttyS0,115200 " \
-				"mtdparts=atmel_nand:" \
-				"8M(bootstrap/uboot/kernel)ro,-(rootfs) " \
-				"root=/dev/mmcblk0p2 " \
-				"rw rootfstype=ext4 rootwait"
-#else
-#define CONFIG_BOOTARGS							\
-	"console=ttyS0,115200 earlyprintk "				\
-	"mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,"		\
-	"256k(env),256k(env_redundant),256k(spare),"			\
-	"512k(dtb),6M(kernel)ro,-(rootfs) "				\
-	"rootfstype=ubifs ubi.mtd=7 root=ubi0:rootfs rw"
-#endif
-
 #define CONFIG_SYS_CBSIZE	256
 #define CONFIG_SYS_MAXARGS	16
 #define CONFIG_SYS_LONGHELP

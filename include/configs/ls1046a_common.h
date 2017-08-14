@@ -264,10 +264,6 @@
 		"sf probe && sf read $load_addr "         \
 		"$kernel_start $kernel_size && bootm $load_addr#$board\0"
 
-
-#define CONFIG_BOOTARGS			"console=ttyS0,115200 root=/dev/ram0 " \
-					"earlycon=uart8250,mmio,0x21c0500 " \
-					MTDPARTS_DEFAULT
 #endif
 
 /* Monitor Command Prompt */

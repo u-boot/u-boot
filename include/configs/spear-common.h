@@ -139,11 +139,6 @@
 						"bootm 0x1600000"
 #endif
 
-#define CONFIG_BOOTARGS				"console=ttyAMA0,115200 " \
-						"mem=128M " \
-						"root="CONFIG_FSMTDBLK \
-						"rootfstype=jffs2"
-
 #define CONFIG_NFSBOOTCOMMAND						\
 	"bootp; "							\
 	"setenv bootargs root=/dev/nfs rw "				\

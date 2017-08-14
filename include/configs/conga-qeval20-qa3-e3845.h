@@ -25,11 +25,7 @@
 #define CONFIG_ENV_SECT_SIZE		0x1000
 #define CONFIG_ENV_OFFSET		0x006ef000
 
-#undef CONFIG_BOOTARGS
 #undef CONFIG_BOOTCOMMAND
-
-#define CONFIG_BOOTARGS		\
-	"root=/dev/sda2 ro quiet"
 #define CONFIG_BOOTCOMMAND	\
 	"load scsi 0:2 03000000 /boot/vmlinuz-${kernel-ver}-generic;"	\
 	"load scsi 0:2 04000000 /boot/initrd.img-${kernel-ver}-generic;" \

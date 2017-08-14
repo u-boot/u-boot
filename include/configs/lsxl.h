@@ -71,7 +71,6 @@
  */
 #define CONFIG_LOADADDR		0x00800000
 #define CONFIG_BOOTCOMMAND	"run bootcmd_${bootsource}"
-#define CONFIG_BOOTARGS		"console=ttyS0,115200 root=/dev/sda2"
 
 #if defined(CONFIG_LSXHL)
 #define CONFIG_FDTFILE "kirkwood-lsxhl.dtb"

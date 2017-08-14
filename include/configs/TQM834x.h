@@ -450,13 +450,9 @@
 				/* default location for tftp and bootm */
 #define CONFIG_LOADADDR		400000
 
-#undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
-
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
-
-#undef	CONFIG_BOOTARGS
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\

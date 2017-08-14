@@ -12,8 +12,6 @@
 
 #undef	CONFIG_WATCHDOG		/* disable platform specific watchdog */
 
-#undef	CONFIG_BOOTARGS		/* the boot command will set bootargs */
-
 /*
  * Miscellaneous configurable options
  */

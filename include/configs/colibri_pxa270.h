@@ -39,7 +39,6 @@
 		"bootm 0xa0000000; "					\
 	"fi; "								\
 	"bootm 0xc0000;"
-#define	CONFIG_BOOTARGS			"console=tty0 console=ttyS0,115200"
 #define	CONFIG_TIMESTAMP
 #define	CONFIG_CMDLINE_TAG
 #define	CONFIG_SETUP_MEMORY_TAGS

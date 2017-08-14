@@ -762,8 +762,6 @@ extern unsigned long get_sdram_size(void);
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
 
-#undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
-
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"hwconfig=" __stringify(CONFIG_DEF_HWCONFIG)  "\0"	\
 	"netdev=eth0\0"						\

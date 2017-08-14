@@ -92,8 +92,6 @@
 #define CONFIG_BOOTP_SERVERIP
 #define CONFIG_IP_DEFRAG
 
-#define CONFIG_BOOTARGS ""
-
 #ifndef SANDBOX_NO_SDL
 #define CONFIG_SANDBOX_SDL
 #endif

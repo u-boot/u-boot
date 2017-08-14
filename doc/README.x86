@@ -792,11 +792,7 @@ command.
 You can also bake this behaviour into your build by hard-coding the
 environment variables if you add this to minnowmax.h:
 
-#undef CONFIG_BOOTARGS
 #undef CONFIG_BOOTCOMMAND
-
-#define CONFIG_BOOTARGS		\
-	"root=/dev/sda2 ro"
 #define CONFIG_BOOTCOMMAND	\
 	"ext2load scsi 0:2 03000000 /boot/vmlinuz-3.13.0-58-generic; " \
 	"ext2load scsi 0:2 04000000 /boot/initrd.img-3.13.0-58-generic; " \
@@ -804,6 +800,10 @@ environment variables if you add this to minnowmax.h:
 
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS "boot=zboot 03000000 0 04000000 ${filesize}"
+
+and change CONFIG_BOOTARGS value in configs/minnowmax_defconfig to:
+
+CONFIG_BOOTARGS="root=/dev/sda2 ro"
 
 Test with SeaBIOS
 -----------------

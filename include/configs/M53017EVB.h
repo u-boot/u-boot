@@ -44,8 +44,6 @@
 #	define CONFIG_SYS_FEC1_MIIBASE	CONFIG_SYS_FEC1_IOBASE
 #	define MCFFEC_TOUT_LOOP		50000
 
-#	define CONFIG_BOOTARGS		"root=/dev/mtdblock3 rw rootfstype=jffs2"
-
 /* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
 #	ifndef CONFIG_SYS_DISCOVER_PHY
 #		define FECDUPLEX	FULL

@@ -29,7 +29,6 @@
 #define CONFIG_CMDLINE_TAG		1
 #define CONFIG_INITRD_TAG		1
 #define CONFIG_SETUP_MEMORY_TAGS	1
-#define CONFIG_BOOTARGS		"root=/dev/nfs console=ttyAM0,115200 ip=dhcp"
 #define CONFIG_BOOTFILE		"edb93xx.img"
 
 #define CONFIG_SYS_LDSCRIPT	"board/cirrus/edb93xx/u-boot.lds"

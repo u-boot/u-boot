@@ -14,7 +14,6 @@
 #define CONFIG_ESPT	1
 #define __LITTLE_ENDIAN		1
 
-#define CONFIG_BOOTARGS         "console=ttySC0,115200 root=1f01"
 #define CONFIG_ENV_OVERWRITE    1
 
 #define CONFIG_DISPLAY_BOARDINFO

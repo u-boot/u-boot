@@ -466,7 +466,6 @@
 #define CONFIG_PREBOOT			"echo;" \
 					"echo Type \\\"run nfsboot\\\" " \
 					"to mount root filesystem over NFS;echo"
-#undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND		"run boot_cramfs"
 #undef	CONFIG_SYS_LOADS_BAUD_CHANGE
 

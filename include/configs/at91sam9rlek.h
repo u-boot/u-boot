@@ -87,10 +87,6 @@
 #define CONFIG_BOOTCOMMAND	"sf probe 0; " \
 				"sf read 0x22000000 0x84000 0x294000; " \
 				"bootm 0x22000000"
-#define CONFIG_BOOTARGS		"console=ttyS0,115200 " \
-				"root=/dev/mtdblock0 " \
-				"mtdparts=atmel_nand:-(root) "\
-				"rw rootfstype=jffs2"
 
 #elif CONFIG_SYS_USE_NANDFLASH
 
@@ -101,12 +97,6 @@
 #define CONFIG_BOOTCOMMAND	"nand read 0x22000000 0x200000 0x600000; "	\
 				"nand read 0x21000000 0x180000 0x80000; "	\
 				"bootz 0x22000000 - 0x21000000"
-#define CONFIG_BOOTARGS		\
-				"console=ttyS0,115200 earlyprintk "				\
-				"mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,"		\
-				"256K(env),256k(env_redundant),256k(spare),"			\
-				"512k(dtb),6M(kernel)ro,-(rootfs) "				\
-				"rootfstype=ubifs ubi.mtd=7 root=ubi0:rootfs"
 
 #else /* CONFIG_SYS_USE_MMC */
 
@@ -115,10 +105,6 @@
 #define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x21000000 at91sam9rlek.dtb; " \
 				"fatload mmc 0:1 0x22000000 zImage; " \
 				"bootz 0x22000000 - 0x21000000"
-#define CONFIG_BOOTARGS		"console=ttyS0,115200 " \
-				"mtdparts=atmel_nand:" \
-				"8M(bootstrap/uboot/kernel)ro,-(rootfs) " \
-				"root=/dev/mmcblk0p2 rw rootwait"
 #endif
 
 #define CONFIG_SYS_CBSIZE		256

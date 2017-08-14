@@ -67,22 +67,6 @@
 #define CONFIG_SYS_FEC0_PHYADDR	0
 #define CONFIG_SYS_FEC1_PHYADDR	1
 
-
-#ifdef	CONFIG_SYS_NAND_BOOT
-#define CONFIG_BOOTARGS	"root=/dev/mtdblock2 rw rootfstype=jffs2 " \
-				"mtdparts=NAND:1M(u-boot)ro,7M(kernel)ro," \
-				"-(jffs2) console=ttyS0,115200"
-#else
-#define CONFIG_BOOTARGS	"root=/dev/nfs rw nfsroot="	\
-				__stringify(CONFIG_SERVERIP) ":/tftpboot/" \
-				__stringify(CONFIG_IPADDR) "  ip="	\
-				__stringify(CONFIG_IPADDR) ":"	\
-				__stringify(CONFIG_SERVERIP)":"	\
-				__stringify(CONFIG_GATEWAYIP)": "	\
-				__stringify(CONFIG_NETMASK)		\
-				"::eth0:off:rw console=ttyS0,115200"
-#endif
-
 #define CONFIG_ETHPRIME	"FEC0"
 #define CONFIG_IPADDR		192.168.1.2
 #define CONFIG_NETMASK		255.255.255.0

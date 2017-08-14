@@ -556,8 +556,6 @@
 
 #define CONFIG_LOADADDR	1000000	/*default location for tftp and bootm*/
 
-#undef	CONFIG_BOOTARGS		/* the boot command will set bootargs*/
-
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 "netdev=eth0\0"						\
 "uboot=" __stringify(CONFIG_UBOOTPATH) "\0"				\

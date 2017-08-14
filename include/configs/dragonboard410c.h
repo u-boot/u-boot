@@ -58,9 +58,6 @@
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-/* Environment - Boot*/
-#define CONFIG_BOOTARGS "console=ttyMSM0,115200n8"
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0) \
 	func(MMC, mmc, 1) \

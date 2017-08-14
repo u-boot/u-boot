@@ -111,9 +111,6 @@
 
 #define CONFIG_COMMON_BOOT	"${console} ${meminfo} ${mtdparts}"
 
-#define CONFIG_BOOTARGS	"root=/dev/mtdblock8 rootfstype=ext4 " \
-			CONFIG_COMMON_BOOT
-
 #define CONFIG_UPDATEB	"updateb=onenand erase 0x0 0x100000;" \
 			" onenand write 0x32008000 0x0 0x100000\0"
 

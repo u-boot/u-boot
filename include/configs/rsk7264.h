@@ -16,7 +16,6 @@
 
 #define CONFIG_DISPLAY_BOARDINFO
 
-#define CONFIG_BOOTARGS		"console=ttySC3,115200"
 #define CONFIG_SYS_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
 
 #define CONFIG_SYS_LONGHELP	1	/* undef to save memory	*/

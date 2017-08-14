@@ -69,12 +69,6 @@
 					"fdt_addr=0x94C00000\0"		\
 					"fdt_high=0x9fffffff\0"
 
-#define CONFIG_BOOTARGS			\
-					"console=ttyAMA0,115200n8 " \
-					"earlycon=pl011,0x87e024000000 " \
-					"debug maxcpus=48 rootwait rw "\
-					"root=/dev/sda2 coherent_pool=16M"
-
 /* Do not preserve environment */
 #define CONFIG_ENV_SIZE			0x1000
 

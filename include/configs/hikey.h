@@ -86,9 +86,6 @@
  * Defines where the kernel and FDT will be put in RAM
  */
 
-/* Assume we boot with root on the seventh partition of eMMC */
-#define CONFIG_BOOTARGS	"console=ttyAMA0,115200n8 root=/dev/mmcblk0p9 rw"
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0) \
 	func(MMC, mmc, 1) \

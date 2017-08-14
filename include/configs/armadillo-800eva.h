@@ -18,8 +18,6 @@
 
 #define BOARD_LATE_INIT
 
-#define CONFIG_BOOTARGS		""
-
 #undef	CONFIG_SHOW_BOOT_PROGRESS
 
 #define CONFIG_ARCH_CPU_INIT

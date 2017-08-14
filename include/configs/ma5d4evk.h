@@ -11,7 +11,6 @@
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
 #include "at91-sama5_common.h"
-#undef CONFIG_BOOTARGS
 #define CONFIG_SYS_USE_SERIALFLASH	1
 #define CONFIG_BOARD_LATE_INIT
 
@@ -113,7 +112,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_BOOTFILE		"fitImage"
-#define CONFIG_BOOTARGS		"console=ttyS3,115200"
 #define CONFIG_LOADADDR		0x20800000
 #define CONFIG_BOOTCOMMAND	"run mmc_mmc"
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR

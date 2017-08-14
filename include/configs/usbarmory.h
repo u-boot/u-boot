@@ -87,7 +87,6 @@
 	BOOTENV
 
 #ifndef CONFIG_CMDLINE
-#define CONFIG_BOOTARGS "console=ttymxc0,115200 root=/dev/mmcblk0p1 rootwait rw"
 #define USBARMORY_FIT_PATH	"/boot/usbarmory.itb"
 #define USBARMORY_FIT_ADDR	"0x70800000"
 #endif

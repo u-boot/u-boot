@@ -32,8 +32,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{9600, 19200, 38400, 57600, 115200}
 
-#define CONFIG_BOOTARGS			\
-	"console=ttyS0,115200 root=/dev/mtdblock2 rootfstype=squashfs"
 #define CONFIG_BOOTCOMMAND		\
 	"dhcp 192.168.1.1:wdr4300.fit && bootm $loadaddr"
 

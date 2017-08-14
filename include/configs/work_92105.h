@@ -147,7 +147,6 @@
 #define CONFIG_INITRD_TAG
 
 #define CONFIG_BOOTFILE			"uImage"
-#define CONFIG_BOOTARGS			"console=ttyS2,115200n8"
 #define CONFIG_LOADADDR			0x80008000
 
 /*

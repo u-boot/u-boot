@@ -584,8 +584,6 @@
 
 #define CONFIG_LOADADDR 800000	/* default location for tftp and bootm */
 
-#undef CONFIG_BOOTARGS		/* the boot command will set bootargs */
-
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"consoledev=ttyS0\0"						\

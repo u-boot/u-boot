@@ -858,8 +858,6 @@
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR	1000000
 
-#define CONFIG_BOOTARGS	/* the boot command will set bootargs */
-
 #ifdef __SW_BOOT_NOR
 #define __NOR_RST_CMD	\
 norboot=i2c dev 1; i2c mw 18 1 __SW_BOOT_NOR 1; \

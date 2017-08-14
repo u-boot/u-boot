@@ -20,9 +20,6 @@
 
 #define CONFIG_SYS_HZ_CLOCK		1000000000	/* 1 GHz */
 
-#define CONFIG_BOOTARGS							\
-	"console=ttyS0,115200 earlyprintk consoleblank=0 ignore_loglevel"
-
 /* Environment */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"board= B2260" \

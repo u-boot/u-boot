@@ -326,10 +326,6 @@
 #define CONFIG_BOOTCOMMAND "run distro_bootcmd; env exists secureboot"	\
 			   "&& esbc_halt; run nor_bootcmd;"
 #endif
-
-#define CONFIG_BOOTARGS			"console=ttyS0,115200 root=/dev/ram0 " \
-					"earlycon=uart8250,mmio,0x21c0500 "    \
-					MTDPARTS_DEFAULT
 #endif
 
 /* Monitor Command Prompt */

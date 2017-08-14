@@ -78,9 +78,6 @@
 				" mem=128M " \
 				" " MTDPARTS_DEFAULT
 
-#define CONFIG_BOOTARGS	"root=/dev/mtdblock5 ubi.mtd=4" \
-			" rootfstype=cramfs " CONFIG_COMMON_BOOT
-
 #define CONFIG_UPDATEB	"updateb=onenand erase 0x0 0x40000;" \
 			" onenand write 0x32008000 0x0 0x40000\0"
 

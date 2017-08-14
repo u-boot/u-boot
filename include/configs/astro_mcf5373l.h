@@ -173,10 +173,6 @@
 #endif
 #endif
 
-/* default bootargs that are considered during boot */
-#define CONFIG_BOOTARGS		" console=ttyS2,115200 rootfstype=romfs"\
-				" loaderversion=$loaderversion"
-
 /* default RAM address for user programs */
 #define CONFIG_SYS_LOAD_ADDR	0x20000
 

@@ -118,13 +118,6 @@
 #define CONFIG_ENV_OFFSET_REDUND	0x80000
 #define CONFIG_ENV_SIZE			0x20000		/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND	"nand read 0x72000000 0x200000 0x200000; bootm"
-#define CONFIG_BOOTARGS		"fbcon=rotate:3 console=tty0 " \
-				"console=ttyS0,115200 " \
-				"root=/dev/mtdblock4 " \
-				"mtdparts=atmel_nand:128k(bootstrap)ro," \
-				"256k(uboot)ro,1664k(env)," \
-				"2M(linux)ro,-(root) rw " \
-				"rootfstype=jffs2"
 
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_MAXARGS		16

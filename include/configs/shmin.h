@@ -15,8 +15,6 @@
 /* T-SH7706LSR*/
 /* #define CONFIG_T_SH7706LSR	1 */
 
-#define CONFIG_BOOTARGS		"console=ttySC0,115200"
-
 /*
  * This board has original boot loader. If you write u-boot to 0x0,
  * you should set undef.

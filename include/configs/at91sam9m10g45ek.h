@@ -91,20 +91,10 @@
 #define CONFIG_BOOTCOMMAND						\
 	"nand read 0x70000000 0x200000 0x300000;"			\
 	"bootm 0x70000000"
-#define CONFIG_BOOTARGS							\
-	"console=ttyS0,115200 earlyprintk "				\
-	"mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,"		\
-	"256k(env),256k(env_redundant),256k(spare),"			\
-	"512k(dtb),6M(kernel)ro,-(rootfs) "				\
-	"root=/dev/mtdblock7 rw rootfstype=jffs2"
 #elif CONFIG_SYS_USE_MMC
 /* bootstrap + u-boot + env + linux in mmc */
 #define CONFIG_ENV_SIZE		0x4000
 
-#define CONFIG_BOOTARGS		"console=ttyS0,115200 " \
-				"mtdparts=atmel_nand:" \
-				"8M(bootstrap/uboot/kernel)ro,-(rootfs) " \
-				"root=/dev/mmcblk0p2 rw rootwait"
 #define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x71000000 dtb; " \
 				"fatload mmc 0:1 0x72000000 zImage; " \
 				"bootz 0x72000000 - 0x71000000"

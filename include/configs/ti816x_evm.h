@@ -26,8 +26,6 @@
 	"fatload mmc 0 ${loadaddr} uImage;"	\
 	"bootm ${loadaddr}"			\
 
-#define CONFIG_BOOTARGS	"console=ttyO2,115200n8 noinitrd earlyprintk"
-
 /* Clock Defines */
 #define V_OSCK          24000000    /* Clock output from T2 */
 #define V_SCLK          (V_OSCK >> 1)

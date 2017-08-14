@@ -38,7 +38,6 @@
 
 /* Booting Linux */
 #define CONFIG_BOOTFILE			"fitImage"
-#define CONFIG_BOOTARGS			"console=ttymxc1,115200 "
 #define CONFIG_BOOTCOMMAND		"run distro_bootcmd ; run net_nfs"
 #define CONFIG_HOSTNAME			novena
 

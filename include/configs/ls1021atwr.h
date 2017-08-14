@@ -484,8 +484,6 @@
 			   "&& esbc_halt; run nor_bootcmd;"
 #endif
 
-#define CONFIG_BOOTARGS			"console=ttyS0,115200 root=/dev/ram0"
-
 /*
  * Miscellaneous configurable options
  */

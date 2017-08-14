@@ -4,6 +4,8 @@ CONFIG_TARGET_PM9G45=y
 CONFIG_SYS_EXTRA_OPTIONS="AT91SAM9G45"
 CONFIG_ENV_IS_IN_NAND=y
 CONFIG_BOOTDELAY=3
+CONFIG_USE_BOOTARGS=y
+CONFIG_BOOTARGS="fbcon=rotate:3 console=tty0 console=ttyS0,115200 root=/dev/mtdblock4 mtdparts=atmel_nand:128k(bootstrap)ro,256k(uboot)ro,1664k(env),2M(linux)ro,-(root) rw rootfstype=jffs2"
 # CONFIG_DISPLAY_CPUINFO is not set
 # CONFIG_DISPLAY_BOARDINFO is not set
 CONFIG_BOARD_EARLY_INIT_F=y

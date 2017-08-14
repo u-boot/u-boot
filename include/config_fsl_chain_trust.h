@@ -28,7 +28,7 @@
  *	 "41066b564c6ffcef40ccbc1e0a5d0d519604000c785d97bbefd25e4d288d1c8b"
  */
 
-#ifdef CONFIG_BOOTARGS
+#ifdef CONFIG_USE_BOOTARGS
 #define CONFIG_SET_BOOTARGS	"setenv bootargs \'" CONFIG_BOOTARGS" \';"
 #else
 #define CONFIG_SET_BOOTARGS	"setenv bootargs \'root=/dev/ram "	\

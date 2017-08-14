@@ -164,12 +164,6 @@
 #define CONFIG_BOOTCOMMAND	"sf probe 0:0; " \
 				"sf read 0x22000000 0xc6000 0x294000; " \
 				"bootm 0x22000000"
-#if defined(CONFIG_CMD_NAND)
-#define CONFIG_BOOTARGS		"console=ttyS0,115200 " \
-				"root=/dev/mtdblock0 " \
-				MTDPARTS_DEFAULT \
-				" rw rootfstype=jffs2"
-#endif
 
 /* Misc. u-boot settings */
 #define CONFIG_SYS_CBSIZE		256

@@ -699,11 +699,6 @@ The following options need to be configured:
 		when no character is read on the console interface
 		within "Boot Delay" after reset.
 
-		CONFIG_BOOTARGS
-		This can be used to pass arguments to the bootm
-		command. The value of CONFIG_BOOTARGS goes into the
-		environment value "bootargs".
-
 		CONFIG_RAMBOOT and CONFIG_NFSBOOT
 		The value of these goes into the environment as
 		"ramboot" and "nfsboot" respectively, and can be used

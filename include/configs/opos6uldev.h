@@ -85,7 +85,6 @@
 #define ACFG_CONSOLE_DEV        ttymxc0
 #define CONFIG_SYS_AUTOLOAD     "no"
 #define CONFIG_ROOTPATH         "/tftpboot/" __stringify(CONFIG_BOARD_NAME) "-root"
-#define CONFIG_BOOTARGS         "console=" __stringify(ACFG_CONSOLE_DEV) "," __stringify(CONFIG_BAUDRATE)
 #define CONFIG_PREBOOT          "run check_env"
 #define CONFIG_BOOTCOMMAND	"run emmcboot"
 

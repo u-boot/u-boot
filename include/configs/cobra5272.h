@@ -155,9 +155,6 @@ u-boot: 'set' command */
 #define CONFIG_BOOTCOMMAND	"bootm 0xffe80000"	/*Autoboto command, please
 enter a valid image address in flash */
 
-#define CONFIG_BOOTARGS		" "			/* default bootargs that are
-considered during boot */
-
 /* User network settings */
 
 #define CONFIG_IPADDR 192.168.100.2		/* default board IP address */

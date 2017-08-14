@@ -88,12 +88,6 @@
 					"bootz 0x22000000 - 0x21000000"
 #endif
 
-#undef CONFIG_BOOTARGS
-#define CONFIG_BOOTARGS							\
-	"console=ttyS0,57600 earlyprintk "				\
-	"mtdparts=atmel_nand:6M(bootstrap)ro, 6M(kernel)ro,-(rootfs) "	\
-	"rootfstype=ubifs ubi.mtd=2 root=ubi0:rootfs"
-
 /* SPL */
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		0x200000
