@@ -63,13 +63,8 @@ int disable_interrupts (void)
 
 int interrupt_init (void)
 {
-	int ret;
-
 	/* call cpu specific function from $(CPU)/interrupts.c */
-	ret = interrupt_init_cpu (&decrementer_count);
-
-	if (ret)
-		return ret;
+	interrupt_init_cpu (&decrementer_count);
 
 	set_dec (decrementer_count);
 

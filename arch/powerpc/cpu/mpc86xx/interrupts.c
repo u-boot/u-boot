@@ -23,7 +23,7 @@
 #include <post.h>
 #endif
 
-int interrupt_init_cpu(unsigned *decrementer_count)
+void interrupt_init_cpu(unsigned *decrementer_count)
 {
 	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile ccsr_pic_t *pic = &immr->im_pic;
@@ -73,8 +73,6 @@ int interrupt_init_cpu(unsigned *decrementer_count)
 #ifdef CONFIG_POST
 	post_word_store(post_word);
 #endif
-
-	return 0;
 }
 
 /*

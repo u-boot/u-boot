@@ -122,7 +122,7 @@ static inline void set_msr(unsigned long msr)
 void print_reginfo(void);
 #endif
 
-int interrupt_init_cpu(unsigned *);
+void interrupt_init_cpu(unsigned *);
 void timer_interrupt_cpu(struct pt_regs *);
 unsigned long search_exception_table(unsigned long addr);
 

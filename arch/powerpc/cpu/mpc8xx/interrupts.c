@@ -30,7 +30,7 @@ static void cpm_interrupt(void *regs);
 
 /************************************************************************/
 
-int interrupt_init_cpu(unsigned *decrementer_count)
+void interrupt_init_cpu(unsigned *decrementer_count)
 {
 	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -41,8 +41,6 @@ int interrupt_init_cpu(unsigned *decrementer_count)
 
 	/* Configure CPM interrupts */
 	cpm_interrupt_init();
-
-	return 0;
 }
 
 /************************************************************************/
