@@ -140,7 +140,7 @@ static int rockchip_timer_probe(struct udevice *dev)
 	struct rockchip_timer_priv *priv = dev_get_priv(dev);
 	struct rockchip_timer_plat *plat = dev_get_platdata(dev);
 
-	priv->timer = map_sysmem(plat->dtd.reg[1], plat->dtd.reg[3]);
+	priv->timer = map_sysmem(plat->dtd.reg[0], plat->dtd.reg[1]);
 	uc_priv->clock_rate = plat->dtd.clock_frequency;
 #endif
 
