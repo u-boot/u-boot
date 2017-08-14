@@ -68,6 +68,14 @@ int board_init(void)
 		     CON_IOMUX_UART2SEL_MASK,
 		     CON_IOMUX_UART2SEL_21 << CON_IOMUX_UART2SEL_SHIFT);
 
+	/*
+	* The integrated macphy is enabled by default, disable it
+	* for saving power consuming.
+	*/
+	rk_clrsetreg(&grf->macphy_con[0],
+		     MACPHY_CFG_ENABLE_MASK,
+		     0 << MACPHY_CFG_ENABLE_SHIFT);
+
 	return 0;
 }
 
