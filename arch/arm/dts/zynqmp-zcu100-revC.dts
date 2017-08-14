@@ -640,7 +640,6 @@
 	disable-wp;
 	cap-power-off-card;
 	mmc-pwrseq = <&sdio_pwrseq>;
-	max-frequency = <16000000>;
 	vqmmc-supply = <&wmmcsdio_fixed>;
 	#address-cells = <1>;
 	#size-cells = <0>;
