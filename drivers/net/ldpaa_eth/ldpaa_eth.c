@@ -587,8 +587,10 @@ static void ldpaa_eth_stop(struct eth_device *net_dev)
 #ifdef CONFIG_PHYLIB
 	if (priv->phydev && bus != NULL)
 		phy_shutdown(priv->phydev);
-	else
+	else {
 		free(priv->phydev);
+		priv->phydev = NULL;
+	}
 #endif
 
 	ldpaa_dpbp_free();

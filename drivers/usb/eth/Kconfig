@@ -1,0 +1,17 @@
+comment "USB to Ethernet Controller Drivers"
+
+config USB_ETHER_LAN75XX
+	bool "Microchip LAN75XX support"
+	---help---
+	  Say Y here if you would like to support Microchip LAN75XX Hi-Speed
+	  USB 2.0 to 10/100/1000 Gigabit Ethernet controller.
+	  Supports 10Base-T/ 100Base-TX/1000Base-T.
+	  This driver supports the internal PHY.
+
+config USB_ETHER_LAN78XX
+	bool "Microchip LAN78XX support"
+	---help---
+	  Say Y here if you would like to support Microchip LAN78XX USB 3.1
+	  Gen 1 to 10/100/1000 Gigabit Ethernet controller.
+	  Supports 10Base-T/ 100Base-TX/1000Base-T.
+	  This driver supports the internal PHY.
