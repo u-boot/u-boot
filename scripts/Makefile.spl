@@ -369,7 +369,7 @@ ifneq ($(cmd_files),)
 endif
 
 checkdtoc: tools
-	@if ! ( echo 'import libfdt' | ( PYTHONPATH=tools python )); then \
+	@if ! ( echo 'import libfdt' | ( PYTHONPATH=tools $(PYTHON) )); then \
 		echo '*** dtoc needs the Python libfdt library. Either '; \
 		echo '*** install it on your system, or try:'; \
 		echo '***'; \
