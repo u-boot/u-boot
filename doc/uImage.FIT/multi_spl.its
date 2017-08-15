@@ -4,6 +4,13 @@
  * (Bogus) example FIT image description file demonstrating the usage
  * of multiple images loaded by the SPL.
  * Several binaries will be loaded at their respective load addresses.
+ *
+ * For booting U-Boot, "firmware" is searched first. If not found, "loadables"
+ * is used to identify images to be loaded into memory. If falcon boot is
+ * enabled, "kernel" is searched first. If not found, it falls back to the
+ * same flow as booting U-Boot. Changing image type will result skipping
+ * specific image.
+ *
  * Finally the one image specifying an entry point will be entered by the SPL.
  */
 

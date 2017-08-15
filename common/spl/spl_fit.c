@@ -222,13 +222,16 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	ulong size;
 	unsigned long count;
 	struct spl_image_info image_info;
-	int node, images, ret;
+	bool boot_os = false;
+	int node = -1;
+	int images, ret;
 	int base_offset, align_len = ARCH_DMA_MINALIGN - 1;
 	int index = 0;
 
 	/*
-	 * Figure out where the external images start. This is the base for the
-	 * data-offset properties in each image.
+	 * For FIT with external data, figure out where the external images
+	 * start. This is the base for the data-offset properties in each
+	 * image.
 	 */
 	size = fdt_totalsize(fit);
 	size = (size + 3) & ~3;
@@ -247,6 +250,9 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	 *
 	 * In fact the FIT has its own load address, but we assume it cannot
 	 * be before CONFIG_SYS_TEXT_BASE.
+	 *
+	 * For FIT with data embedded, data is loaded as part of FIT image.
+	 * For FIT with external data, data is not loaded in this step.
 	 */
 	fit = (void *)((CONFIG_SYS_TEXT_BASE - size - info->bl_len -
 			align_len) & ~align_len);
@@ -264,8 +270,17 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 		return -1;
 	}
 
+#ifdef CONFIG_SPL_OS_BOOT
+	/* Find OS image first */
+	node = spl_fit_get_image_node(fit, images, FIT_KERNEL_PROP, 0);
+	if (node < 0)
+		debug("No kernel image.\n");
+	else
+		boot_os = true;
+#endif
 	/* find the U-Boot image */
-	node = spl_fit_get_image_node(fit, images, "firmware", 0);
+	if (node < 0)
+		node = spl_fit_get_image_node(fit, images, "firmware", 0);
 	if (node < 0) {
 		debug("could not find firmware image, trying loadables...\n");
 		node = spl_fit_get_image_node(fit, images, "loadables", 0);
@@ -287,24 +302,31 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	if (ret)
 		return ret;
 
+#ifdef CONFIG_SPL_OS_BOOT
+	if (!fit_image_get_os(fit, node, &spl_image->os))
+		debug("Image OS is %s\n", genimg_get_os_name(spl_image->os));
+#else
 	spl_image->os = IH_OS_U_BOOT;
+#endif
 
-	/* Figure out which device tree the board wants to use */
-	node = spl_fit_get_image_node(fit, images, FIT_FDT_PROP, 0);
-	if (node < 0) {
-		debug("%s: cannot find FDT node\n", __func__);
-		return node;
+	if (!boot_os) {
+		/* Figure out which device tree the board wants to use */
+		node = spl_fit_get_image_node(fit, images, FIT_FDT_PROP, 0);
+		if (node < 0) {
+			debug("%s: cannot find FDT node\n", __func__);
+			return node;
+		}
+
+		/*
+		 * Read the device tree and place it after the image.
+		 * Align the destination address to ARCH_DMA_MINALIGN.
+		 */
+		image_info.load_addr = spl_image->load_addr + spl_image->size;
+		ret = spl_load_fit_image(info, sector, fit, base_offset, node,
+					 &image_info);
+		if (ret < 0)
+			return ret;
 	}
-
-	/*
-	 * Read the device tree and place it after the image.
-	 * Align the destination address to ARCH_DMA_MINALIGN.
-	 */
-	image_info.load_addr = spl_image->load_addr + spl_image->size;
-	ret = spl_load_fit_image(info, sector, fit, base_offset, node,
-				 &image_info);
-	if (ret < 0)
-		return ret;
 
 	/* Now check if there are more images for us to load */
 	for (; ; index++) {
