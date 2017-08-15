@@ -211,14 +211,6 @@ static int init_func_spi(void)
 }
 #endif
 
-__maybe_unused
-static int zero_global_data(void)
-{
-	memset((void *)gd, '\0', sizeof(gd_t));
-
-	return 0;
-}
-
 static int setup_mon_len(void)
 {
 #if defined(__ARM__) || defined(__MICROBLAZE__)
@@ -910,25 +902,6 @@ static const init_fnc_t init_sequence_f[] = {
 
 void board_init_f(ulong boot_flags)
 {
-#ifdef CONFIG_SYS_GENERIC_GLOBAL_DATA
-	/*
-	 * For some architectures, global data is initialized and used before
-	 * calling this function. The data should be preserved. For others,
-	 * CONFIG_SYS_GENERIC_GLOBAL_DATA should be defined and use the stack
-	 * here to host global data until relocation.
-	 */
-	gd_t data;
-
-	gd = &data;
-
-	/*
-	 * Clear global data before it is accessed at debug print
-	 * in initcall_run_list. Otherwise the debug print probably
-	 * get the wrong value of gd->have_console.
-	 */
-	zero_global_data();
-#endif
-
 	gd->flags = boot_flags;
 	gd->have_console = 0;
 
