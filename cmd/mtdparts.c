@@ -133,9 +133,9 @@ static const char *mtdparts_default = MTDPARTS_DEFAULT;
 #define MTDIDS_MAXLEN		128
 #define MTDPARTS_MAXLEN		512
 #define PARTITION_MAXLEN	16
-static char last_ids[MTDIDS_MAXLEN];
-static char last_parts[MTDPARTS_MAXLEN];
-static char last_partition[PARTITION_MAXLEN];
+static char last_ids[MTDIDS_MAXLEN + 1];
+static char last_parts[MTDPARTS_MAXLEN + 1];
+static char last_partition[PARTITION_MAXLEN + 1];
 
 /* low level jffs2 cache cleaning routine */
 extern void jffs2_free_cache(struct part_info *part);
@@ -240,15 +240,22 @@ static void index_partitions(void)
 			if (dev == current_mtd_dev) {
 				mtddevnum += current_mtd_partnum;
 				env_set_ulong("mtddevnum", mtddevnum);
+				debug("=> mtddevnum %d,\n", mtddevnum);
 				break;
 			}
 			mtddevnum += dev->num_parts;
 		}
 
 		part = mtd_part_info(current_mtd_dev, current_mtd_partnum);
-		env_set("mtddevname", part->name);
+		if (part) {
+			env_set("mtddevname", part->name);
 
-		debug("=> mtddevnum %d,\n=> mtddevname %s\n", mtddevnum, part->name);
+			debug("=> mtddevname %s\n", part->name);
+		} else {
+			env_set("mtddevname", NULL);
+
+			debug("=> mtddevname NULL\n");
+		}
 	} else {
 		env_set("mtddevnum", NULL);
 		env_set("mtddevname", NULL);
@@ -909,12 +916,6 @@ static int device_parse(const char *const mtd_dev, const char **ret, struct mtd_
 	}
 	if (err == 1) {
 		part_delall(&tmp_list);
-		return 1;
-	}
-
-	if (num_parts == 0) {
-		printf("no partitions for device %s%d (%s)\n",
-				MTD_DEV_TYPE(id->type), id->num, id->mtd_id);
 		return 1;
 	}
 
@@ -1593,8 +1594,10 @@ static int parse_mtdparts(const char *const mtdparts)
 		list_add_tail(&dev->link, &devices);
 		err = 0;
 	}
-	if (err == 1)
+	if (err == 1) {
+		free(dev);
 		device_delall(&devices);
+	}
 
 	return err;
 }
@@ -1730,9 +1733,9 @@ int mtdparts_init(void)
 	if (!initialized) {
 		INIT_LIST_HEAD(&mtdids);
 		INIT_LIST_HEAD(&devices);
-		memset(last_ids, 0, MTDIDS_MAXLEN);
-		memset(last_parts, 0, MTDPARTS_MAXLEN);
-		memset(last_partition, 0, PARTITION_MAXLEN);
+		memset(last_ids, 0, sizeof(last_ids));
+		memset(last_parts, 0, sizeof(last_parts));
+		memset(last_partition, 0, sizeof(last_partition));
 #if defined(CONFIG_SYS_MTDPARTS_RUNTIME)
 		board_mtdparts_default(&mtdids_default, &mtdparts_default);
 #endif
