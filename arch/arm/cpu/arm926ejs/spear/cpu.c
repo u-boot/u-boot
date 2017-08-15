@@ -84,7 +84,7 @@ int print_cpuinfo(void)
 }
 #endif
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_NAND_ECC_BCH)
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_NAND_ECC_BCH) && defined(CONFIG_NAND_FSMC)
 static int do_switch_ecc(cmd_tbl_t *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
