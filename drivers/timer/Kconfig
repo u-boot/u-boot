@@ -44,6 +44,14 @@ config ALTERA_TIMER
 	  Select this to enable a timer for Altera devices. Please find
 	  details on the "Embedded Peripherals IP User Guide" of Altera.
 
+config ATMEL_PIT_TIMER
+	bool "Atmel periodic interval timer support"
+	depends on TIMER
+	help
+	  Select this to enable a periodic interval timer for Atmel devices,
+	  it is designed to offer maximum accuracy and efficient management,
+	  even for systems with long response time.
+
 config SANDBOX_TIMER
 	bool "Sandbox timer support"
 	depends on SANDBOX && TIMER

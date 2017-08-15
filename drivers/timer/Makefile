@@ -15,3 +15,4 @@ obj-$(CONFIG_ARC_TIMER)	+= arc_timer.o
 obj-$(CONFIG_AG101P_TIMER) += ag101p_timer.o
 obj-$(CONFIG_AE3XX_TIMER) += ae3xx_timer.o
 obj-$(CONFIG_ROCKCHIP_TIMER) += rockchip_timer.o
+obj-$(CONFIG_ATMEL_PIT_TIMER) += atmel_pit_timer.o
