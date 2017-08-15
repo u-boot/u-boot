@@ -11,7 +11,6 @@ obj-$(CONFIG_EFI) += efi/
 obj-$(CONFIG_EFI_LOADER) += efi_loader/
 obj-$(CONFIG_LZMA) += lzma/
 obj-$(CONFIG_LZO) += lzo/
-obj-$(CONFIG_ZLIB) += zlib/
 obj-$(CONFIG_BZIP2) += bzip2/
 obj-$(CONFIG_TIZEN) += tizen/
 obj-$(CONFIG_FIT) += libfdt/
@@ -26,7 +25,6 @@ obj-y += crc16.o
 obj-$(CONFIG_ERRNO_STR) += errno_str.o
 obj-$(CONFIG_FIT) += fdtdec_common.o
 obj-$(CONFIG_TEST_FDTDEC) += fdtdec_test.o
-obj-$(CONFIG_GZIP) += gunzip.o
 obj-$(CONFIG_GZIP_COMPRESSED) += gzip.o
 obj-$(CONFIG_GENERATE_SMBIOS_TABLE) += smbios.o
 obj-y += initcall.o
@@ -48,6 +46,9 @@ endif
 obj-$(CONFIG_RSA) += rsa/
 obj-$(CONFIG_SHA1) += sha1.o
 obj-$(CONFIG_SHA256) += sha256.o
+
+obj-$(CONFIG_$(SPL_)ZLIB) += zlib/
+obj-$(CONFIG_$(SPL_)GZIP) += gunzip.o
 
 obj-$(CONFIG_$(SPL_TPL_)SAVEENV) += qsort.o
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += libfdt/

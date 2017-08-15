@@ -11,6 +11,10 @@
 #include <libfdt.h>
 #include <spl.h>
 
+#ifndef CONFIG_SYS_BOOTM_LEN
+#define CONFIG_SYS_BOOTM_LEN	(64 << 20)
+#endif
+
 /**
  * spl_fit_get_image_node(): By using the matching configuration subnode,
  * retrieve the name of an image, specified by a property name and an index
@@ -135,6 +139,19 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	ulong overhead;
 	int nr_sectors;
 	int align_len = ARCH_DMA_MINALIGN - 1;
+	uint8_t image_comp = -1, type = -1;
+
+	if (IS_ENABLED(CONFIG_SPL_OS_BOOT) && IS_ENABLED(CONFIG_SPL_GZIP)) {
+		if (fit_image_get_comp(fit, node, &image_comp))
+			puts("Cannot get image compression format.\n");
+		else
+			debug("%s ", genimg_get_comp_name(image_comp));
+
+		if (fit_image_get_type(fit, node, &type))
+			puts("Cannot get image type.\n");
+		else
+			debug("%s ", genimg_get_type_name(type));
+	}
 
 	offset = fdt_getprop_u32(fit, node, "data-offset");
 	if (offset == FDT_ERROR)
@@ -154,7 +171,7 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	if (info->read(info, sector + get_aligned_image_offset(info, offset),
 		       nr_sectors, (void*)load_ptr) != nr_sectors)
 		return -EIO;
-	debug("image: dst=%lx, offset=%lx, size=%lx\n", load_ptr, offset,
+	debug("image dst=%lx, offset=%lx, size=%lx\n", load_ptr, offset,
 	      (unsigned long)length);
 
 	src = (void *)load_ptr + overhead;
@@ -162,7 +179,18 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	board_fit_image_post_process(&src, &length);
 #endif
 
-	memcpy((void*)load_addr, src, length);
+	if (IS_ENABLED(CONFIG_SPL_OS_BOOT)	&&
+	    IS_ENABLED(CONFIG_SPL_GZIP)		&&
+	    image_comp == IH_COMP_GZIP		&&
+	    type == IH_TYPE_KERNEL) {
+		if (gunzip((void *)load_addr, CONFIG_SYS_BOOTM_LEN,
+			   src, &length)) {
+			puts("Uncompressing error\n");
+			return -EIO;
+		}
+	} else {
+		memcpy((void *)load_addr, src, length);
+	}
 
 	if (image_info) {
 		image_info->load_addr = load_addr;
