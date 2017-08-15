@@ -132,7 +132,7 @@ static lbaint_t fb_mmc_get_boot_header(struct blk_desc *dev_desc,
 
 	/* Read the boot image header */
 	res = blk_dread(dev_desc, info->start, hdr_sectors, (void *)hdr);
-	if (res == 0) {
+	if (res != hdr_sectors) {
 		error("cannot read header from boot partition");
 		fastboot_fail("cannot read header from boot partition");
 		return 0;
@@ -215,7 +215,7 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
 	ramdisk_buffer = (u8 *)hdr + (hdr_sectors * info.blksz);
 	res = blk_dread(dev_desc, ramdisk_sector_start, ramdisk_sectors,
 			ramdisk_buffer);
-	if (res == 0) {
+	if (res != ramdisk_sectors) {
 		error("cannot read ramdisk from boot partition");
 		fastboot_fail("cannot read ramdisk from boot partition");
 		return -1;
