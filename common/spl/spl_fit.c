@@ -132,14 +132,16 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 			      void *fit, ulong base_offset, int node,
 			      struct spl_image_info *image_info)
 {
-	ulong offset;
+	int offset;
 	size_t length;
+	int len;
 	ulong load_addr, load_ptr;
 	void *src;
 	ulong overhead;
 	int nr_sectors;
 	int align_len = ARCH_DMA_MINALIGN - 1;
 	uint8_t image_comp = -1, type = -1;
+	const void *data;
 
 	if (IS_ENABLED(CONFIG_SPL_OS_BOOT) && IS_ENABLED(CONFIG_SPL_GZIP)) {
 		if (fit_image_get_comp(fit, node, &image_comp))
@@ -153,28 +155,40 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 			debug("%s ", genimg_get_type_name(type));
 	}
 
-	offset = fdt_getprop_u32(fit, node, "data-offset");
-	if (offset == FDT_ERROR)
-		return -ENOENT;
-	offset += base_offset;
-	length = fdt_getprop_u32(fit, node, "data-size");
-	if (length == FDT_ERROR)
-		return -ENOENT;
-	load_addr = fdt_getprop_u32(fit, node, "load");
-	if (load_addr == FDT_ERROR && image_info)
+	if (fit_image_get_load(fit, node, &load_addr))
 		load_addr = image_info->load_addr;
-	load_ptr = (load_addr + align_len) & ~align_len;
 
-	overhead = get_aligned_image_overhead(info, offset);
-	nr_sectors = get_aligned_image_size(info, length, offset);
+	if (!fit_image_get_data_offset(fit, node, &offset)) {
+		/* External data */
+		offset += base_offset;
+		if (fit_image_get_data_size(fit, node, &len))
+			return -ENOENT;
 
-	if (info->read(info, sector + get_aligned_image_offset(info, offset),
-		       nr_sectors, (void*)load_ptr) != nr_sectors)
-		return -EIO;
-	debug("image dst=%lx, offset=%lx, size=%lx\n", load_ptr, offset,
-	      (unsigned long)length);
+		load_ptr = (load_addr + align_len) & ~align_len;
+		length = len;
 
-	src = (void *)load_ptr + overhead;
+		overhead = get_aligned_image_overhead(info, offset);
+		nr_sectors = get_aligned_image_size(info, length, offset);
+
+		if (info->read(info,
+			       sector + get_aligned_image_offset(info, offset),
+			       nr_sectors, (void *)load_ptr) != nr_sectors)
+			return -EIO;
+
+		debug("External data: dst=%lx, offset=%x, size=%lx\n",
+		      load_ptr, offset, (unsigned long)length);
+		src = (void *)load_ptr + overhead;
+	} else {
+		/* Embedded data */
+		if (fit_image_get_data(fit, node, &data, &length)) {
+			puts("Cannot get image data/size\n");
+			return -ENOENT;
+		}
+		debug("Embedded data: dst=%lx, size=%lx\n", load_addr,
+		      (unsigned long)length);
+		src = (void *)data;
+	}
+
 #ifdef CONFIG_SPL_FIT_IMAGE_POST_PROCESS
 	board_fit_image_post_process(&src, &length);
 #endif
