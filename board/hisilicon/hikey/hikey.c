@@ -295,12 +295,46 @@ static void mmc1_reset_clk(void)
 		data = readl(&peri_sc->rst0_stat);
 	} while (!(data & PERI_RST0_MMC1));
 
-	/* unreset mmc0 clock domain */
+	/* unreset mmc1 clock domain */
 	writel(PERI_RST0_MMC1, &peri_sc->rst0_dis);
 	do {
 		data = readl(&peri_sc->rst0_stat);
 	} while (data & PERI_RST0_MMC1);
 }
+
+static void mmc0_reset_clk(void)
+{
+	unsigned int data;
+
+	/* disable mmc0 bus clock */
+	hi6220_clk_disable(PERI_CLK0_MMC0, &peri_sc->clk0_dis);
+
+	/* enable mmc0 bus clock */
+	hi6220_clk_enable(PERI_CLK0_MMC0, &peri_sc->clk0_en);
+
+	/* reset mmc0 clock domain */
+	writel(PERI_RST0_MMC0, &peri_sc->rst0_en);
+
+	/* bypass mmc0 clock phase */
+	data = readl(&peri_sc->ctrl2);
+	data |= 3;
+	writel(data, &peri_sc->ctrl2);
+
+	/* disable low power */
+	data = readl(&peri_sc->ctrl13);
+	data |= 1 << 3;
+	writel(data, &peri_sc->ctrl13);
+	do {
+		data = readl(&peri_sc->rst0_stat);
+	} while (!(data & PERI_RST0_MMC0));
+
+	/* unreset mmc0 clock domain */
+	writel(PERI_RST0_MMC0, &peri_sc->rst0_dis);
+	do {
+		data = readl(&peri_sc->rst0_stat);
+	} while (data & PERI_RST0_MMC0);
+}
+
 
 /* PMU SSI is the IP that maps the external PMU hi6553 registers as IO */
 static void hi6220_pmussi_init(void)
@@ -349,7 +383,8 @@ static int init_dwmmc(void)
 
 #ifdef CONFIG_MMC_DW
 
-	/* mmc0 clocks are already configured by ATF */
+	/* mmc0 pll is already configured by ATF */
+	mmc0_reset_clk();
 	ret = hi6220_pinmux_config(PERIPH_ID_SDMMC0);
 	if (ret)
 		printf("%s: Error configuring pinmux for eMMC (%d)\n"
