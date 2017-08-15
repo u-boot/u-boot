@@ -54,7 +54,7 @@ static int disk_read(__u32 block, __u32 nr_blocks, void *buf)
 
 	ret = blk_dread(cur_dev, cur_part_info.start + block, nr_blocks, buf);
 
-	if (nr_blocks && ret == 0)
+	if (ret != nr_blocks)
 		return -1;
 
 	return ret;
