@@ -401,6 +401,15 @@ config FSP_BROKEN_HOB
 	  do not overwrite the important boot service data which is used by
 	  FSP, otherwise the subsequent call to fsp_notify() will fail.
 
+config FSP_LOCKDOWN_SPI
+	bool
+	depends on HAVE_FSP
+	help
+	  Some Intel FSP (like Braswell) does SPI lock-down during the call
+	  to fsp_notify(INIT_PHASE_BOOT). This option should be turned on
+	  for such FSP and U-Boot will configure the SPI opcode registers
+	  before the lock-down.
+
 config ENABLE_MRC_CACHE
 	bool "Enable MRC cache"
 	depends on !EFI && !SYS_COREBOOT
