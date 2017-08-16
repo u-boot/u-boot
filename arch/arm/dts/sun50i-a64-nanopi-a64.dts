@@ -1,18 +1,17 @@
- /*
- * Copyright 2015 - Ultimaker B.V.
- * Author Olliver Schinagl <oliver@schinagl.nl>
+/*
+ * Copyright (C) 2017 Jagan Teki <jteki@openedev.com>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
  * licensing only applies to this file, and not this project as a
  * whole.
  *
- *  a) This file is free software; you can redistribute it and/or
+ *  a) This library is free software; you can redistribute it and/or
  *     modify it under the terms of the GNU General Public License as
  *     published by the Free Software Foundation; either version 2 of the
  *     License, or (at your option) any later version.
  *
- *     This file is distributed in the hope that it will be useful,
+ *     This library is distributed in the hope that it will be useful,
  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
@@ -41,42 +40,76 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "sun7i-a20-olinuxino-lime2.dts"
+/dts-v1/;
+
+#include "sun50i-a64.dtsi"
+
+#include <dt-bindings/gpio/gpio.h>
 
 / {
-	model = "Olimex A20-OLinuXino-LIME2-eMMC";
-	compatible = "olimex,a20-olinuxino-lime2-emmc", "allwinner,sun7i-a20";
+	model = "FriendlyARM NanoPi A64";
+	compatible = "friendlyarm,nanopi-a64", "allwinner,sun50i-a64";
 
-	mmc2_pwrseq: pwrseq {
-		pinctrl-0 = <&mmc2_pins_nrst>;
-		pinctrl-names = "default";
-		compatible = "mmc-pwrseq-emmc";
-		reset-gpios = <&pio 2 16 GPIO_ACTIVE_LOW>;
+	aliases {
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	reg_vcc3v3: vcc3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
 	};
 };
 
-&pio {
-	mmc2_pins_nrst: mmc2-rst-pin {
-		allwinner,pins = "PC16";
-		allwinner,function = "gpio_out";
-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-	};
-};
-
-&mmc2 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mmc2_pins_a>;
-	vmmc-supply = <&reg_vcc3v3>;
-	vqmmc-supply = <&reg_vcc3v3>;
-	bus-width = <4>;
-	non-removable;
-	mmc-pwrseq = <&mmc2_pwrseq>;
+&ehci0 {
 	status = "okay";
+};
 
-	emmc: emmc@0 {
-		reg = <0>;
-		compatible = "mmc-card";
-		broken-hpi;
-	};
+&ehci1 {
+	status = "okay";
+};
+
+/* i2c1 connected with gpio headers like pine64, bananapi */
+&i2c1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c1_pins>;
+	status = "disabled";
+};
+
+&i2c1_pins {
+	bias-pull-up;
+};
+
+&mmc0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc0_pins>;
+	vmmc-supply = <&reg_vcc3v3>;
+	cd-gpios = <&pio 5 6 GPIO_ACTIVE_HIGH>;
+	cd-inverted;
+	disable-wp;
+	bus-width = <4>;
+	status = "okay";
+};
+
+&ohci0 {
+	status = "okay";
+};
+
+&ohci1 {
+	status = "okay";
+};
+
+&uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart0_pins_a>;
+	status = "okay";
+};
+
+&usbphy {
+	status = "okay";
 };

@@ -66,11 +66,17 @@ void clock_init_sec(void)
 #ifdef CONFIG_MACH_SUNXI_H3_H5
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	struct sunxi_prcm_reg * const prcm =
+		(struct sunxi_prcm_reg *)SUNXI_PRCM_BASE;
 
 	setbits_le32(&ccm->ccu_sec_switch,
 		     CCM_SEC_SWITCH_MBUS_NONSEC |
 		     CCM_SEC_SWITCH_BUS_NONSEC |
 		     CCM_SEC_SWITCH_PLL_NONSEC);
+	setbits_le32(&prcm->prcm_sec_switch,
+		     PRCM_SEC_SWITCH_APB0_CLK_NONSEC |
+		     PRCM_SEC_SWITCH_PLL_CFG_NONSEC |
+		     PRCM_SEC_SWITCH_PWR_GATE_NONSEC);
 #endif
 }
 

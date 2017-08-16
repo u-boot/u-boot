@@ -88,10 +88,20 @@ M:	Iain Paton <ipaton0@gmail.com>
 S:	Maintained
 F:	configs/A20-OLinuXino-Lime2_defconfig
 
+A20-OLINUXINO-LIME2-EMMC BOARD
+M:	Olliver Schinagl <oliver@schinagl.nl>
+S:	Maintained
+F:	configs/A20-OLinuXino-Lime2-eMMC_defconfig
+
 A33-OLINUXINO BOARD
 M:	Stefan Mavrodiev <stefan.mavrodiev@gmail.com>
 S:	Maintained
 F:	configs/A33-OLinuXino_defconfig
+
+A64-OLINUXINO BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/a64-olinuxino_defconfig
 
 A80 OPTIMUS BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
@@ -266,6 +276,11 @@ NANOPI-NEO-AIR BOARD
 M:	Jelle van der Waa <jelle@vdwaa.nl>
 S:	Maintained
 F:	configs/nanopi_neo_air_defconfig
+
+NANOPI-A64 BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/nanopi_a64_defconfig
 
 NINTENDO NES CLASSIC EDITION BOARD
 M:	FUKAUMI Naoki <naobsd@gmail.com>
