@@ -345,11 +345,38 @@ static void fdt_fixup_msi(void *blob)
 }
 #endif
 
+#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
+/* Remove JR node used by SEC firmware */
+void fdt_fixup_remove_jr(void *blob)
+{
+	int jr_node, addr_cells, len;
+	int crypto_node = fdt_path_offset(blob, "crypto");
+	u64 jr_offset, used_jr;
+	fdt32_t *reg;
+
+	used_jr = sec_firmware_used_jobring_offset();
+	fdt_support_default_count_cells(blob, crypto_node, &addr_cells, NULL);
+
+	jr_node = fdt_node_offset_by_compatible(blob, crypto_node,
+						"fsl,sec-v4.0-job-ring");
+
+	while (jr_node != -FDT_ERR_NOTFOUND) {
+		reg = (fdt32_t *)fdt_getprop(blob, jr_node, "reg", &len);
+		jr_offset = fdt_read_number(reg, addr_cells);
+		if (jr_offset == used_jr) {
+			fdt_del_node(blob, jr_node);
+			break;
+		}
+		jr_node = fdt_node_offset_by_compatible(blob, jr_node,
+							"fsl,sec-v4.0-job-ring");
+	}
+}
+#endif
+
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
-#ifdef CONFIG_FSL_LSCH2
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
-	unsigned int svr = in_be32(&gur->svr);
+	unsigned int svr = gur_in32(&gur->svr);
 
 	/* delete crypto node if not on an E-processor */
 	if (!IS_E_PROCESSOR(svr))
@@ -358,10 +385,14 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	else {
 		ccsr_sec_t __iomem *sec;
 
+#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
+		if (fdt_fixup_kaslr(blob))
+			fdt_fixup_remove_jr(blob);
+#endif
+
 		sec = (void __iomem *)CONFIG_SYS_FSL_SEC_ADDR;
 		fdt_fixup_crypto_node(blob, sec_in32(&sec->secvid_ms));
 	}
-#endif
 #endif
 
 #ifdef CONFIG_MP
