@@ -26,7 +26,14 @@ struct __packed fsp_header {
 	u32	fsp_tempram_init;	/* tempram_init offset */
 	u32	fsp_init;		/* fsp_init offset */
 	u32	fsp_notify;		/* fsp_notify offset */
-	u32	reserved2;
+	u32	fsp_mem_init;		/* fsp_mem_init offset */
+	u32	fsp_tempram_exit;	/* fsp_tempram_exit offset */
+	u32	fsp_silicon_init;	/* fsp_silicon_init offset */
 };
+
+#define FSP_HEADER_REVISION_1		1
+#define FSP_HEADER_REVISION_2		2
+
+#define FSP_ATTR_GRAPHICS_SUPPORT	(1 << 0)
 
 #endif
