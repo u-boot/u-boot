@@ -202,47 +202,6 @@ static int pci_rom_load(struct pci_rom_header *rom_header,
 
 struct vbe_mode_info mode_info;
 
-int vbe_get_video_info(struct graphic_device *gdev)
-{
-#ifdef CONFIG_FRAMEBUFFER_SET_VESA_MODE
-	struct vesa_mode_info *vesa = &mode_info.vesa;
-
-	gdev->winSizeX = vesa->x_resolution;
-	gdev->winSizeY = vesa->y_resolution;
-
-	gdev->plnSizeX = vesa->x_resolution;
-	gdev->plnSizeY = vesa->y_resolution;
-
-	gdev->gdfBytesPP = vesa->bits_per_pixel / 8;
-
-	switch (vesa->bits_per_pixel) {
-	case 32:
-	case 24:
-		gdev->gdfIndex = GDF_32BIT_X888RGB;
-		break;
-	case 16:
-		gdev->gdfIndex = GDF_16BIT_565RGB;
-		break;
-	default:
-		gdev->gdfIndex = GDF__8BIT_INDEX;
-		break;
-	}
-
-	gdev->isaBase = CONFIG_SYS_ISA_IO_BASE_ADDRESS;
-	gdev->pciBase = vesa->phys_base_ptr;
-
-	gdev->frameAdrs = vesa->phys_base_ptr;
-	gdev->memSize = vesa->bytes_per_scanline * vesa->y_resolution;
-
-	gdev->vprBase = vesa->phys_base_ptr;
-	gdev->cprBase = vesa->phys_base_ptr;
-
-	return gdev->winSizeX ? 0 : -ENOSYS;
-#else
-	return -ENOSYS;
-#endif
-}
-
 void setup_video(struct screen_info *screen_info)
 {
 	struct vesa_mode_info *vesa = &mode_info.vesa;
