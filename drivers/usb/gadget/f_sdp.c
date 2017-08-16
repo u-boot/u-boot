@@ -29,6 +29,8 @@
 #include <asm/io.h>
 #include <g_dnl.h>
 #include <sdp.h>
+#include <spl.h>
+#include <image.h>
 #include <imximage.h>
 
 #define HID_REPORT_ID_MASK	0x000000ff
@@ -670,8 +672,22 @@ static void sdp_handle_in_ep(void)
 		sdp_func->state = SDP_STATE_TX_REGISTER_BUSY;
 		break;
 	case SDP_STATE_JUMP:
-		printf("Checking imxheader at 0x%08x\n", f_sdp->jmp_address);
-		status = sdp_jump_imxheader((void *)f_sdp->jmp_address);
+		printf("Jumping to header at 0x%08x\n", sdp_func->jmp_address);
+		status = sdp_jump_imxheader((void *)sdp_func->jmp_address);
+
+		/* If imx header fails, try some U-Boot specific headers */
+		if (status) {
+#ifdef CONFIG_SPL_BUILD
+			/* In SPL, allow jumps to U-Boot images */
+			struct spl_image_info spl_image = {};
+			spl_parse_image_header(&spl_image,
+				(struct image_header *)sdp_func->jmp_address);
+			jump_to_image_no_args(&spl_image);
+#else
+			/* In U-Boot, allow jumps to scripts */
+			source(sdp_func->jmp_address, "script@1");
+#endif
+		}
 
 		sdp_func->next_state = SDP_STATE_IDLE;
 		sdp_func->error_status = status;
