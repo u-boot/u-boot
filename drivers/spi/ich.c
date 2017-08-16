@@ -338,6 +338,21 @@ static int ich_status_poll(struct ich_spi_priv *ctlr, u16 bitmask,
 	return -ETIMEDOUT;
 }
 
+void ich_spi_config_opcode(struct udevice *dev)
+{
+	struct ich_spi_priv *ctlr = dev_get_priv(dev);
+
+	/*
+	 * PREOP, OPTYPE, OPMENU1/OPMENU2 registers can be locked down
+	 * to prevent accidental or intentional writes. Before they get
+	 * locked down, these registers should be initialized properly.
+	 */
+	ich_writew(ctlr, SPI_OPPREFIX, ctlr->preop);
+	ich_writew(ctlr, SPI_OPTYPE, ctlr->optype);
+	ich_writel(ctlr, SPI_OPMENU_LOWER, ctlr->opmenu);
+	ich_writel(ctlr, SPI_OPMENU_UPPER, ctlr->opmenu + sizeof(u32));
+}
+
 static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			const void *dout, void *din, unsigned long flags)
 {
@@ -585,16 +600,11 @@ static int ich_spi_probe(struct udevice *dev)
 
 static int ich_spi_remove(struct udevice *bus)
 {
-	struct ich_spi_priv *ctlr = dev_get_priv(bus);
-
 	/*
 	 * Configure SPI controller so that the Linux MTD driver can fully
 	 * access the SPI NOR chip
 	 */
-	ich_writew(ctlr, SPI_OPPREFIX, ctlr->preop);
-	ich_writew(ctlr, SPI_OPTYPE, ctlr->optype);
-	ich_writel(ctlr, SPI_OPMENU_LOWER, ctlr->opmenu);
-	ich_writel(ctlr, SPI_OPMENU_UPPER, ctlr->opmenu + sizeof(u32));
+	ich_spi_config_opcode(bus);
 
 	return 0;
 }
