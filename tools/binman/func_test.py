@@ -38,6 +38,7 @@ X86_START16_DATA    = 'start16'
 U_BOOT_NODTB_DATA   = 'nodtb with microcode pointer somewhere in here'
 FSP_DATA            = 'fsp'
 CMC_DATA            = 'cmc'
+VBT_DATA            = 'vbt'
 
 class TestFunctional(unittest.TestCase):
     """Functional tests for binman
@@ -74,6 +75,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('u-boot-nodtb.bin', U_BOOT_NODTB_DATA)
         TestFunctional._MakeInputFile('fsp.bin', FSP_DATA)
         TestFunctional._MakeInputFile('cmc.bin', CMC_DATA)
+        TestFunctional._MakeInputFile('vbt.bin', VBT_DATA)
         self._output_setup = False
 
         # ELF file with a '_dt_ucode_base_size' symbol
@@ -801,6 +803,11 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(FSP_DATA, data[:len(FSP_DATA)])
 
     def testPackCmc(self):
-        """Test that an image with a FSP binary can be created"""
+        """Test that an image with a CMC binary can be created"""
         data = self._DoReadFile('43_intel-cmc.dts')
         self.assertEqual(CMC_DATA, data[:len(CMC_DATA)])
+
+    def testPackVbt(self):
+        """Test that an image with a VBT binary can be created"""
+        data = self._DoReadFile('46_intel-vbt.dts')
+        self.assertEqual(VBT_DATA, data[:len(VBT_DATA)])
