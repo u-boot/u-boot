@@ -28,7 +28,24 @@
 	"vram=16M\0" \
 	"partitions=" PARTS_DEFAULT "\0" \
 	"optargs=\0" \
-	"dofastboot=0\0"
+	"dofastboot=0\0" \
+	"emmc_android_boot=" \
+		"setenv eval_bootargs setenv bootargs $bootargs; " \
+		"run eval_bootargs; " \
+		"setenv mmcdev 1; " \
+		"setenv fdt_part 3; " \
+		"setenv boot_part 9; " \
+		"setenv machid fe6; " \
+		"mmc dev $mmcdev; " \
+		"mmc rescan; " \
+		"part start mmc ${mmcdev} ${fdt_part} fdt_start; " \
+		"part size mmc ${mmcdev} ${fdt_part} fdt_size; " \
+		"part start mmc ${mmcdev} ${boot_part} boot_start; " \
+		"part size mmc ${mmcdev} ${boot_part} boot_size; " \
+		"mmc read ${fdtaddr} ${fdt_start} ${fdt_size}; " \
+		"mmc read ${loadaddr} ${boot_start} ${boot_size}; " \
+		"echo Booting from eMMC ...; " \
+		"bootm $loadaddr $loadaddr $fdtaddr;\0"
 
 #ifdef CONFIG_OMAP54XX
 
@@ -76,6 +93,7 @@
 	"setenv bootpart 1:2; " \
 	"setenv mmcroot /dev/mmcblk0p2 rw; " \
 	"run mmcboot;" \
+	"run emmc_android_boot; " \
 	""
 
 #endif /* CONFIG_OMAP54XX */
