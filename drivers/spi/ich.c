@@ -126,7 +126,6 @@ static int ich_init_controller(struct udevice *dev,
 	if (plat->ich_version == ICHV_7) {
 		struct ich7_spi_regs *ich7_spi = sbase;
 
-		ich7_spi = (struct ich7_spi_regs *)sbase;
 		ctlr->ichspi_lock = readw(&ich7_spi->spis) & SPIS_LOCK;
 		ctlr->opmenu = offsetof(struct ich7_spi_regs, opmenu);
 		ctlr->menubytes = sizeof(ich7_spi->opmenu);
