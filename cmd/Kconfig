@@ -895,6 +895,13 @@ config CMD_USB
 	help
 	  USB support.
 
+config CMD_USB_SDP
+	bool "sdp"
+	select USB_FUNCTION_SDP
+	help
+	  Enables the command "sdp" which is used to have U-Boot emulating the
+	  Serial Download Protocol (SDP) via USB.
+
 config CMD_USB_MASS_STORAGE
 	bool "UMS usb mass storage"
 	help
