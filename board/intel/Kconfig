@@ -18,6 +18,15 @@ config TARGET_BAYLEYBAY
 	  4GB memory, HDMI/DP/VGA display, HD audio, SATA, USB2, USB3, SD, eMMC,
 	  PCIe and some other sensor interfaces.
 
+config TARGET_CHERRYHILL
+	bool "Cherry Hill"
+	help
+	  This is the Intel Cherry Hill Customer Reference Board. It is in a
+	  mini-ITX form factor containing the Intel Braswell SoC, which has
+	  a 64-bit quad-core, single-thread, Intel Atom processor, along with
+	  serial console, 10/100/1000 Ethernet, SD-Card, USB 2/3, SATA, PCIe,
+	  some GPIOs, one HDMI and two DP video out.
+
 config TARGET_COUGARCANYON2
 	bool "Cougar Canyon 2"
 	help
@@ -69,6 +78,7 @@ config TARGET_MINNOWMAX
 endchoice
 
 source "board/intel/bayleybay/Kconfig"
+source "board/intel/cherryhill/Kconfig"
 source "board/intel/cougarcanyon2/Kconfig"
 source "board/intel/crownbay/Kconfig"
 source "board/intel/edison/Kconfig"
