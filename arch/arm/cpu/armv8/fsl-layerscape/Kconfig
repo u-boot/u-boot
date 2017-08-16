@@ -196,12 +196,12 @@ config SYS_LS_PPA_FW_ADDR
 config SYS_LS_PPA_ESBC_ADDR
 	hex "hdr address of PPA firmware loading from"
 	depends on FSL_LS_PPA && CHAIN_OF_TRUST
-	default 0x600c0000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1043A
-	default 0x40740000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1046A
-	default 0x40480000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1012A
-	default 0x580c40000 if SYS_LS_PPA_FW_IN_XIP && FSL_LSCH3
-	default 0x700000 if SYS_LS_PPA_FW_IN_MMC
-	default 0x700000 if SYS_LS_PPA_FW_IN_NAND
+	default 0x60680000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1043A
+	default 0x40680000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1046A
+	default 0x40680000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1012A
+	default 0x580680000 if SYS_LS_PPA_FW_IN_XIP && FSL_LSCH3
+	default 0x680000 if SYS_LS_PPA_FW_IN_MMC
+	default 0x680000 if SYS_LS_PPA_FW_IN_NAND
 	help
 	  If the PPA header firmware locate at XIP flash, such as NOR or
 	  QSPI flash, this address is a directly memory-mapped.
