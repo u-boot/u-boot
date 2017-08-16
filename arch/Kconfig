@@ -112,6 +112,7 @@ config X86
 	imply CMD_GETTIME
 	imply CMD_IO
 	imply CMD_IRQ
+	imply CMD_PCI
 	imply CMD_SF_TEST
 	imply CMD_ZBOOT
 
