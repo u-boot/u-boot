@@ -139,6 +139,12 @@ void update_fsp_configs(struct fsp_config_data *config,
 #endif
 	update_fsp_gpio_configs(&silicon_upd->gpio_familiy_ptr,
 				&silicon_upd->gpio_pad_ptr);
+	/*
+	 * For Braswell B0 stepping, disable_punit_pwr_config must be set to 1
+	 * otherwise it just hangs in fsp_init().
+	 */
+	if (gd->arch.x86_mask == 2)
+		silicon_upd->disable_punit_pwr_config = 1;
 	silicon_upd->emmc_mode = fdtdec_get_int(blob, node,
 		"fsp,emmc-mode", EMMC_MODE_PCI);
 	silicon_upd->sata_speed = fdtdec_get_int(blob, node,
