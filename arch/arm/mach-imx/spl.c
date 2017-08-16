@@ -27,7 +27,7 @@ u32 spl_boot_device(void)
 	 * BOOT_MODE - see IMX6DQRM Table 8-1
 	 */
 	if (((bmode >> 24) & 0x03) == 0x01) /* Serial Downloader */
-		return BOOT_DEVICE_UART;
+		return BOOT_DEVICE_BOARD;
 
 	/* BOOT_CFG1[7:4] - see IMX6DQRM Table 8-8 */
 	switch ((reg & IMX6_BMODE_MASK) >> IMX6_BMODE_SHIFT) {
@@ -43,7 +43,7 @@ u32 spl_boot_device(void)
 		}
 	/* Reserved: Used to force Serial Downloader */
 	case IMX6_BMODE_RESERVED:
-		return BOOT_DEVICE_UART;
+		return BOOT_DEVICE_BOARD;
 	/* SATA: See 8.5.4, Table 8-20 */
 	case IMX6_BMODE_SATA:
 		return BOOT_DEVICE_SATA;
