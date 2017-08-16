@@ -242,4 +242,12 @@ static inline u16 get_guid_hob_data_size(const struct hob_header *hdr)
 	{ 0x82, 0xb9, 0x56, 0xa5, 0xf3, 0xe6, 0x2a, 0x07 } \
 	}
 
+/* The following GUIDs are newly introduced in FSP spec 1.1 */
+
+#define FSP_HOB_RESOURCE_OWNER_BOOTLOADER_TOLUM_GUID \
+	{ \
+	0x73ff4f56, 0xaa8e, 0x4451, \
+	{ 0xb3, 0x16, 0x36, 0x35, 0x36, 0x67, 0xad, 0x44 } \
+	}
+
 #endif
