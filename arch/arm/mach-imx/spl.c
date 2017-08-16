@@ -42,7 +42,7 @@ u32 spl_boot_device(void)
 		break;
 		}
 	/* Reserved: Used to force Serial Downloader */
-	case IMX6_BMODE_UART:
+	case IMX6_BMODE_RESERVED:
 		return BOOT_DEVICE_UART;
 	/* SATA: See 8.5.4, Table 8-20 */
 	case IMX6_BMODE_SATA:
