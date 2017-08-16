@@ -126,7 +126,6 @@ static int ich_init_controller(struct udevice *dev,
 	if (plat->ich_version == ICHV_7) {
 		struct ich7_spi_regs *ich7_spi = sbase;
 
-		ctlr->ichspi_lock = readw(&ich7_spi->spis) & SPIS_LOCK;
 		ctlr->opmenu = offsetof(struct ich7_spi_regs, opmenu);
 		ctlr->menubytes = sizeof(ich7_spi->opmenu);
 		ctlr->optype = offsetof(struct ich7_spi_regs, optype);
@@ -141,7 +140,6 @@ static int ich_init_controller(struct udevice *dev,
 	} else if (plat->ich_version == ICHV_9) {
 		struct ich9_spi_regs *ich9_spi = sbase;
 
-		ctlr->ichspi_lock = readw(&ich9_spi->hsfs) & HSFS_FLOCKDN;
 		ctlr->opmenu = offsetof(struct ich9_spi_regs, opmenu);
 		ctlr->menubytes = sizeof(ich9_spi->opmenu);
 		ctlr->optype = offsetof(struct ich9_spi_regs, optype);
@@ -186,6 +184,23 @@ static inline void spi_use_in(struct spi_trans *trans, unsigned bytes)
 	trans->bytesin -= bytes;
 }
 
+static bool spi_lock_status(struct ich_spi_platdata *plat, void *sbase)
+{
+	int lock = 0;
+
+	if (plat->ich_version == ICHV_7) {
+		struct ich7_spi_regs *ich7_spi = sbase;
+
+		lock = readw(&ich7_spi->spis) & SPIS_LOCK;
+	} else if (plat->ich_version == ICHV_9) {
+		struct ich9_spi_regs *ich9_spi = sbase;
+
+		lock = readw(&ich9_spi->hsfs) & HSFS_FLOCKDN;
+	}
+
+	return lock != 0;
+}
+
 static void spi_setup_type(struct spi_trans *trans, int data_bytes)
 {
 	trans->type = 0xFF;
@@ -219,14 +234,15 @@ static void spi_setup_type(struct spi_trans *trans, int data_bytes)
 	}
 }
 
-static int spi_setup_opcode(struct ich_spi_priv *ctlr, struct spi_trans *trans)
+static int spi_setup_opcode(struct ich_spi_priv *ctlr, struct spi_trans *trans,
+			    bool lock)
 {
 	uint16_t optypes;
 	uint8_t opmenu[ctlr->menubytes];
 
 	trans->opcode = trans->out[0];
 	spi_use_out(trans, 1);
-	if (!ctlr->ichspi_lock) {
+	if (!lock) {
 		/* The lock is off, so just use index 0. */
 		ich_writeb(ctlr, trans->opcode, ctlr->opmenu);
 		optypes = ich_readw(ctlr, ctlr->optype);
@@ -336,6 +352,7 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	struct spi_trans *trans = &ctlr->trans;
 	unsigned type = flags & (SPI_XFER_BEGIN | SPI_XFER_END);
 	int using_cmd = 0;
+	bool lock = spi_lock_status(plat, ctlr->base);
 	int ret;
 
 	/* We don't support writing partial bytes */
@@ -399,7 +416,7 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		ich_writeb(ctlr, SPIS_CDS | SPIS_FCERR, ctlr->status);
 
 	spi_setup_type(trans, using_cmd ? bytes : 0);
-	opcode_index = spi_setup_opcode(ctlr, trans);
+	opcode_index = spi_setup_opcode(ctlr, trans, lock);
 	if (opcode_index < 0)
 		return -EINVAL;
 	with_address = spi_setup_offset(trans);
@@ -412,7 +429,7 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		 * in order to prevent the Management Engine from
 		 * issuing a transaction between WREN and DATA.
 		 */
-		if (!ctlr->ichspi_lock)
+		if (!lock)
 			ich_writew(ctlr, trans->opcode, ctlr->preop);
 		return 0;
 	}
