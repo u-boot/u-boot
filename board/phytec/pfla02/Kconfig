@@ -1,0 +1,12 @@
+if TARGET_PFLA02
+
+config SYS_BOARD
+	default "pfla02"
+
+config SYS_VENDOR
+	default "phytec"
+
+config SYS_CONFIG_NAME
+	default "pfla02"
+
+endif

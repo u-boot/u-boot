@@ -755,8 +755,8 @@ static void gpr_init(void)
 	writel(0xF00000CF, &iomux->gpr[4]);
 	if (is_mx6dqp()) {
 		/* set IPU AXI-id1 Qos=0x1 AXI-id0/2/3 Qos=0x7 */
-		writel(0x007F007F, &iomux->gpr[6]);
-		writel(0x007F007F, &iomux->gpr[7]);
+		writel(0x77177717, &iomux->gpr[6]);
+		writel(0x77177717, &iomux->gpr[7]);
 	} else {
 		/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
 		writel(0x007F007F, &iomux->gpr[6]);

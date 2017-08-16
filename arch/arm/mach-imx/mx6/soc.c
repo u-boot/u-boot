@@ -114,6 +114,12 @@ u32 get_cpu_rev(void)
 #define OCOTP_CFG3_SPEED_528MHZ 1
 #define OCOTP_CFG3_SPEED_696MHZ 2
 
+/*
+ * For i.MX6ULL
+ */
+#define OCOTP_CFG3_SPEED_792MHZ 2
+#define OCOTP_CFG3_SPEED_900MHZ 3
+
 u32 get_cpu_speed_grade_hz(void)
 {
 	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
@@ -126,11 +132,22 @@ u32 get_cpu_speed_grade_hz(void)
 	val >>= OCOTP_CFG3_SPEED_SHIFT;
 	val &= 0x3;
 
-	if (is_mx6ul() || is_mx6ull()) {
+	if (is_mx6ul()) {
 		if (val == OCOTP_CFG3_SPEED_528MHZ)
 			return 528000000;
 		else if (val == OCOTP_CFG3_SPEED_696MHZ)
-			return 69600000;
+			return 696000000;
+		else
+			return 0;
+	}
+
+	if (is_mx6ull()) {
+		if (val == OCOTP_CFG3_SPEED_528MHZ)
+			return 528000000;
+		else if (val == OCOTP_CFG3_SPEED_792MHZ)
+			return 792000000;
+		else if (val == OCOTP_CFG3_SPEED_900MHZ)
+			return 900000000;
 		else
 			return 0;
 	}
@@ -234,6 +251,10 @@ static int set_ldo_voltage(enum ldo_reg ldo, u32 mv)
 	u32 val, step, old, reg = readl(&anatop->reg_core);
 	u8 shift;
 
+	/* No LDO_SOC/PU/ARM */
+	if (is_mx6sll())
+		return 0;
+
 	if (mv < 725)
 		val = 0x00;	/* Power gated off */
 	else if (mv > 1450)
@@ -293,7 +314,7 @@ static void clear_mmdc_ch_mask(void)
 	reg = readl(&mxc_ccm->ccdr);
 
 	/* Clear MMDC channel mask */
-	if (is_mx6sx() || is_mx6ul() || is_mx6ull() || is_mx6sl())
+	if (is_mx6sx() || is_mx6ul() || is_mx6ull() || is_mx6sl() || is_mx6sll())
 		reg &= ~(MXC_CCM_CCDR_MMDC_CH1_HS_MASK);
 	else
 		reg &= ~(MXC_CCM_CCDR_MMDC_CH1_HS_MASK | MXC_CCM_CCDR_MMDC_CH0_HS_MASK);
@@ -344,20 +365,10 @@ static void init_bandgap(void)
 	}
 }
 
-#ifdef CONFIG_MX6SL
-static void set_preclk_from_osc(void)
-{
-	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
-	u32 reg;
-
-	reg = readl(&mxc_ccm->cscmr1);
-	reg |= MXC_CCM_CSCMR1_PER_CLK_SEL_MASK;
-	writel(reg, &mxc_ccm->cscmr1);
-}
-#endif
-
 int arch_cpu_init(void)
 {
+	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+
 	init_aips();
 
 	/* Need to clear MMDC_CHx_MASK to make warm reset work. */
@@ -421,11 +432,13 @@ int arch_cpu_init(void)
 	}
 
 	/* Set perclk to source from OSC 24MHz */
-#if defined(CONFIG_MX6SL)
-	set_preclk_from_osc();
-#endif
+	if (is_mx6sl())
+		setbits_le32(&ccm->cscmr1, MXC_CCM_CSCMR1_PER_CLK_SEL_MASK);
 
 	imx_set_wdog_powerdown(false); /* Disable PDE bit of WMCR register */
+
+	if (is_mx6sx())
+		setbits_le32(&ccm->cscdr1, MXC_CCM_CSCDR1_UART_CLK_SEL);
 
 	init_src();
 
@@ -495,6 +508,10 @@ uint mmc_get_env_part(struct mmc *mmc)
 
 int board_postclk_init(void)
 {
+	/* NO LDO SOC on i.MX6SLL */
+	if (is_mx6sll())
+		return 0;
+
 	set_ldo_voltage(LDO_SOC, 1175);	/* Set VDDSOC to 1.175V */
 
 	return 0;
@@ -576,7 +593,7 @@ void s_init(void)
 	u32 mask528;
 	u32 reg, periph1, periph2;
 
-	if (is_mx6sx() || is_mx6ul() || is_mx6ull())
+	if (is_mx6sx() || is_mx6ul() || is_mx6ull() || is_mx6sll())
 		return;
 
 	/* Due to hardware limitation, on MX6Q we need to gate/ungate all PFDs
