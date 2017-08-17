@@ -8,6 +8,7 @@ config INTEL_BAYTRAIL
 	bool
 	select HAVE_FSP if !EFI
 	select ARCH_MISC_INIT if !EFI
+	select CPU_INTEL_TURBO_NOT_PACKAGE_SCOPED
 	imply HAVE_INTEL_ME if !EFI
 	imply ENABLE_MRC_CACHE
 	imply AHCI_PCI
