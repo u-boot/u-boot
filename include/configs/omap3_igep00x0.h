@@ -13,7 +13,6 @@
 #define CONFIG_NR_DRAM_BANKS            2
 
 #include <configs/ti_omap3_common.h>
-#include <asm/mach-types.h>
 
 /*
  * We are only ever GP parts and will utilize all of the "downloaded image"
@@ -26,15 +25,21 @@
 
 #define CONFIG_REVISION_TAG		1
 
-/* Status LED available for IGEP0020 and IGEP0030 but not IGEP0032 */
-#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020) || \
-		       (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0030)
-#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020)
-#define RED_LED_GPIO 27
-#elif (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0030)
-#define RED_LED_GPIO 16
-#endif
-#endif
+/* GPIO banks */
+#define CONFIG_OMAP3_GPIO_2		/* GPIO32..63   is in GPIO bank 2 */
+#define CONFIG_OMAP3_GPIO_4		/* GPIO96..127  is in GPIO bank 4 */
+
+/* TPS65950 */
+#define PBIASLITEVMODE1			(1 << 8)
+
+/* LED */
+#define IGEP0020_GPIO_LED		27
+#define IGEP0030_GPIO_LED		16
+
+/* Board and revision detection GPIOs */
+#define IGEP0030_USB_TRANSCEIVER_RESET		54
+#define GPIO_IGEP00X0_BOARD_DETECTION		28
+#define GPIO_IGEP00X0_REVISION_DETECTION	129
 
 /* USB */
 #define CONFIG_USB_MUSB_UDC		1
@@ -67,9 +72,29 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)
 
+#define CONFIG_BOOTCOMMAND \
+	"run findfdt; " \
+	"run distro_bootcmd"
+
 #include <config_distro_bootcmd.h>
 
+#define ENV_FINDFDT \
+	"findfdt="\
+		"if test ${board_name} = igep0020; then " \
+			"if test ${board_rev} = F; then " \
+				"setenv fdtfile omap3-igep0020-rev-f.dtb; " \
+			"else " \
+				"setenv fdtfile omap3-igep0020.dtb; fi; fi; " \
+		"if test ${board_name} = igep0030; then " \
+			"if test ${board_rev} = G; then " \
+				"setenv fdtfile omap3-igep0030-rev-g.dtb; " \
+			"else " \
+				"setenv fdtfile omap3-igep0030.dtb; fi; fi; " \
+		"if test ${fdtfile} = ''; then " \
+			"echo WARNING: Could not determine device tree to use; fi; \0"
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	ENV_FINDFDT \
 	ENV_DEVICE_SETTINGS \
 	MEM_LAYOUT_SETTINGS \
 	BOOTENV

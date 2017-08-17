@@ -22,14 +22,6 @@ DECLARE_GLOBAL_DATA_PTR;
 void set_muxconf_regs(void)
 {
 	MUX_DEFAULT();
-
-#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020)
-	MUX_IGEP0020();
-#endif
-
-#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0030)
-	MUX_IGEP0030();
-#endif
 }
 
 /*
@@ -59,10 +51,6 @@ int board_init(void)
 
 	/* boot param addr */
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
-
-#if defined(CONFIG_LED_STATUS) && defined(CONFIG_LED_STATUS_BOOT_ENABLE)
-	status_led_set(CONFIG_LED_STATUS_BOOT, CONFIG_LED_STATUS_ON);
-#endif
 
 	return 0;
 }

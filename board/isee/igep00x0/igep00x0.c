@@ -17,7 +17,6 @@
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/mach-types.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
 #include <linux/mtd/onenand.h>
@@ -37,6 +36,43 @@ U_BOOT_DEVICE(igep_uart) = {
 	"ns16550_serial",
 	&igep_serial
 };
+
+/*
+ * Routine: get_board_revision
+ * Description: GPIO_28 and GPIO_129 are used to read board and revision from
+ * IGEP00x0 boards. First of all, it is necessary to reset USB transceiver from
+ * IGEP0030 in order to read GPIO_IGEP00X0_BOARD_DETECTION correctly, because
+ * this functionality is shared by USB HOST.
+ * Once USB reset is applied, U-boot configures these pins as input pullup to
+ * detect board and revision:
+ * IGEP0020-RF = 0b00
+ * IGEP0020-RC = 0b01
+ * IGEP0030-RG = 0b10
+ * IGEP0030-RE = 0b11
+ */
+static int get_board_revision(void)
+{
+	int revision;
+
+	gpio_request(IGEP0030_USB_TRANSCEIVER_RESET,
+				"igep0030_usb_transceiver_reset");
+	gpio_direction_output(IGEP0030_USB_TRANSCEIVER_RESET, 0);
+
+	gpio_request(GPIO_IGEP00X0_BOARD_DETECTION, "igep00x0_board_detection");
+	gpio_direction_input(GPIO_IGEP00X0_BOARD_DETECTION);
+	revision = 2 * gpio_get_value(GPIO_IGEP00X0_BOARD_DETECTION);
+	gpio_free(GPIO_IGEP00X0_BOARD_DETECTION);
+
+	gpio_request(GPIO_IGEP00X0_REVISION_DETECTION,
+				"igep00x0_revision_detection");
+	gpio_direction_input(GPIO_IGEP00X0_REVISION_DETECTION);
+	revision = revision + gpio_get_value(GPIO_IGEP00X0_REVISION_DETECTION);
+	gpio_free(GPIO_IGEP00X0_REVISION_DETECTION);
+
+	gpio_free(IGEP0030_USB_TRANSCEIVER_RESET);
+
+	return revision;
+}
 
 int onenand_board_init(struct mtd_info *mtd)
 {
@@ -138,16 +174,33 @@ int ft_board_setup(void *blob, bd_t *bd)
 }
 #endif
 
-void set_fdt(void)
+void set_led(void)
 {
-	switch (gd->bd->bi_arch_number) {
-	case MACH_TYPE_IGEP0020:
-		env_set("fdtfile", "omap3-igep0020.dtb");
+	switch (get_board_revision()) {
+	case 0:
+	case 1:
+		gpio_request(IGEP0020_GPIO_LED, "igep0020_gpio_led");
+		gpio_direction_output(IGEP0020_GPIO_LED, 1);
 		break;
-	case MACH_TYPE_IGEP0030:
-		env_set("fdtfile", "omap3-igep0030.dtb");
+	case 2:
+	case 3:
+		gpio_request(IGEP0030_GPIO_LED, "igep0030_gpio_led");
+		gpio_direction_output(IGEP0030_GPIO_LED, 0);
+		break;
+	default:
+		/* Should not happen... */
 		break;
 	}
+}
+
+void set_boardname(void)
+{
+	char rev[5] = { 'F','C','G','E', };
+	int i = get_board_revision();
+
+	rev[i+1] = 0;
+	env_set("board_rev", rev + i);
+	env_set("board_name", i < 2 ? "igep0020" : "igep0030");
 }
 
 /*
@@ -156,13 +209,34 @@ void set_fdt(void)
  */
 int misc_init_r(void)
 {
+	t2_t *t2_base = (t2_t *)T2_BASE;
+	u32 pbias_lite;
+
 	twl4030_power_init();
+
+	/* set VSIM to 1.8V */
+	twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VSIM_DEDICATED,
+				TWL4030_PM_RECEIVER_VSIM_VSEL_18,
+				TWL4030_PM_RECEIVER_VSIM_DEV_GRP,
+				TWL4030_PM_RECEIVER_DEV_GRP_P1);
+
+	/* set up dual-voltage GPIOs to 1.8V */
+	pbias_lite = readl(&t2_base->pbias_lite);
+	pbias_lite &= ~PBIASLITEVMODE1;
+	pbias_lite |= PBIASLITEPWRDNZ1;
+	writel(pbias_lite, &t2_base->pbias_lite);
+	if (get_cpu_family() == CPU_OMAP36XX)
+		writel(readl(OMAP34XX_CTRL_WKUP_CTRL) |
+					 OMAP34XX_CTRL_WKUP_CTRL_GPIO_IO_PWRDNZ,
+					 OMAP34XX_CTRL_WKUP_CTRL);
 
 	setup_net_chip();
 
 	omap_die_id_display();
 
-	set_fdt();
+	set_led();
+
+	set_boardname();
 
 	return 0;
 }

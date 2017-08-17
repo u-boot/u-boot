@@ -103,6 +103,8 @@
 	MUX_VAL(CP(MMC1_DAT1),      (IEN  | PTU | EN  | M0)) /* MMC1_DAT1 */\
 	MUX_VAL(CP(MMC1_DAT2),      (IEN  | PTU | EN  | M0)) /* MMC1_DAT2 */\
 	MUX_VAL(CP(MMC1_DAT3),      (IEN  | PTU | EN  | M0)) /* MMC1_DAT3 */\
+	MUX_VAL(CP(UART1_TX),       (IDIS | PTD | DIS | M0)) /* UART1_TX */\
+	MUX_VAL(CP(UART1_RX),       (IEN  | PTD | DIS | M0)) /* UART1_RX */\
 	MUX_VAL(CP(UART3_TX_IRTX),  (IDIS | PTD | DIS | M0)) /* UART3_TX */\
 	MUX_VAL(CP(UART3_RX_IRRX),  (IEN  | PTD | DIS | M0)) /* UART3_RX */\
 	MUX_VAL(CP(I2C1_SCL),       (IEN  | PTU | EN  | M0)) /* I2C1_SCL */\
@@ -117,13 +119,10 @@
 	MUX_VAL(CP(SYS_BOOT4),      (IEN  | PTD | DIS | M4)) /* GPIO_6 */\
 	MUX_VAL(CP(SYS_BOOT5),      (IEN  | PTD | DIS | M4)) /* GPIO_7 */\
 	MUX_VAL(CP(SYS_BOOT6),      (IEN  | PTD | DIS | M4)) /* GPIO_8 */\
+	MUX_VAL(CP(ETK_D14_ES2),    (IEN  | PTU | EN  | M4)) /* GPIO_28 */\
+	MUX_VAL(CP(GPMC_NCS3),      (IDIS | PTD | DIS | M4)) /* GPIO_54 */\
+	MUX_VAL(CP(GPMC_WAIT2),     (IEN  | PTU | DIS | M4)) /* GPIO_64 */\
+	MUX_VAL(CP(GPIO129),        (IEN  | PTU | EN  | M4)) /* GPIO_129 */\
 	MUX_VAL(CP(SDRC_CKE0),      (IDIS | PTU | EN  | M0)) /* SDRC_CKE0 */\
 	MUX_VAL(CP(SDRC_CKE1),      (IDIS | PTU | EN  | M0)) /* SDRC_CKE1 */
 #endif
-
-#define MUX_IGEP0020() \
-	MUX_VAL(CP(GPMC_WAIT2),     (IEN  | PTU | DIS | M4)) /* GPIO_64-ETH_NRST */\
-
-#define MUX_IGEP0030() \
-	MUX_VAL(CP(UART1_TX),       (IDIS | PTD | DIS | M0)) /* UART1_TX */\
-	MUX_VAL(CP(UART1_RX),       (IEN  | PTD | DIS | M0)) /* UART1_RX */
