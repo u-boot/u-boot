@@ -279,12 +279,12 @@ static int rk322x_pinctrl_probe(struct udevice *dev)
 }
 
 static const struct udevice_id rk322x_pinctrl_ids[] = {
-	{ .compatible = "rockchip,rk322x-pinctrl" },
+	{ .compatible = "rockchip,rk3228-pinctrl" },
 	{ }
 };
 
-U_BOOT_DRIVER(pinctrl_rk322x) = {
-	.name		= "pinctrl_rk322x",
+U_BOOT_DRIVER(pinctrl_rk3228) = {
+	.name		= "pinctrl_rk3228",
 	.id		= UCLASS_PINCTRL,
 	.of_match	= rk322x_pinctrl_ids,
 	.priv_auto_alloc_size = sizeof(struct rk322x_pinctrl_priv),
