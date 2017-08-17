@@ -529,6 +529,13 @@ config AP_STACK_SIZE
 	  the memory used by this initialisation process. Typically 4KB is
 	  enough space.
 
+config CPU_INTEL_TURBO_NOT_PACKAGE_SCOPED
+	bool
+	help
+	  This option indicates that the turbo mode setting is not package
+	  scoped. i.e. turbo_enable() needs to be called on not just the
+	  bootstrap processor (BSP).
+
 config HAVE_VGA_BIOS
 	bool "Add a VGA BIOS image"
 	help

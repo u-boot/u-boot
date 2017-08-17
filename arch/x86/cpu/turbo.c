@@ -14,7 +14,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if CONFIG_CPU_INTEL_TURBO_NOT_PACKAGE_SCOPED
+#ifdef CONFIG_CPU_INTEL_TURBO_NOT_PACKAGE_SCOPED
 static inline int get_global_turbo_state(void)
 {
 	return TURBO_UNKNOWN;
