@@ -118,7 +118,12 @@ after each run of 'spl export'. Unfortunately the position of temporary
 storage can not be predicted nor provided at commandline, it depends
 highly on your system setup and your provided data (ATAGS or FDT).
 However at the end of an succesful 'spl export' run it will print the
-RAM address of temporary storage.
+RAM address of temporary storage. The RAM address of FDT will also be
+set in the environment variable 'fdtargsaddr', the new length of the
+prepared FDT will be set in the environment variable 'fdtargslen'.
+These environment variables can be used in scripts for writing updated
+FDT to persistent storage.
+
 Now the user have to save the generated BLOB from that printed address
 to the pre-defined address in persistent storage
 (CONFIG_CMD_SPL_NAND_OFS in case of NAND).
