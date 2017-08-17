@@ -168,7 +168,7 @@ static void pinctrl_rk322x_sdmmc_config(struct rk322x_grf *grf, int mmc_id)
 		rk_clrsetreg(&grf->gpio1b_iomux,
 			     GPIO1B6_MASK | GPIO1B7_MASK,
 			     GPIO1B6_SDMMC_PWREN << GPIO1B6_SHIFT |
-			     GPIO1B7_SDMMC_CMD << GPIO1B6_SHIFT);
+			     GPIO1B7_SDMMC_CMD << GPIO1B7_SHIFT);
 		rk_clrsetreg(&grf->gpio1c_iomux, 0xfff,
 			     GPIO1C5_SDMMC_D3 << GPIO1C5_SHIFT |
 			     GPIO1C4_SDMMC_D2 << GPIO1C4_SHIFT |
