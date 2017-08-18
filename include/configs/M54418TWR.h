@@ -24,6 +24,8 @@
 #define CONFIG_SYS_UART_PORT		(0)
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600 , 19200 , 38400 , 57600, 115200 }
 
+#define LDS_BOARD_TEXT			board/freescale/m54418twr/sbf_dram_init.o (.text*)
+
 #undef CONFIG_WATCHDOG
 
 #define CONFIG_TIMESTAMP	/* Print image info with timestamp */

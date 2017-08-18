@@ -6,3 +6,4 @@
 #
 
 obj-y	= m54455evb.o
+extra-y	+= sbf_dram_init.o

@@ -159,6 +159,7 @@ asm_dram_init:
 	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET), %sp
 	clr.l	%sp@-
 
+#ifdef CONFIG_SYS_CS0_BASE
 	/* Must disable global address */
 	move.l	#0xFC008000, %a1
 	move.l	#(CONFIG_SYS_CS0_BASE), (%a1)
@@ -166,6 +167,7 @@ asm_dram_init:
 	move.l	#(CONFIG_SYS_CS0_CTRL), (%a1)
 	move.l	#0xFC008004, %a1
 	move.l	#(CONFIG_SYS_CS0_MASK), (%a1)
+#endif
 #endif /* CONFIG_CF_SBF */
 
 #ifdef CONFIG_MCF5441x
@@ -176,177 +178,12 @@ asm_dram_init:
 #if defined(CONFIG_CF_SBF)
 	move.b	#23, (%a1)		/* dspi */
 #endif
-	move.b	#46, (%a1)		/* DDR */
+#endif	/* CONFIG_MCF5441x */
 
-	/* slew settings */
-	move.l	#0xEC094060, %a1
-	move.b	#0, (%a1)
-
-	/* use vco instead of cpu*2 clock for ddr clock */
-	move.l	#0xEC09001A, %a1
-	move.w	#0xE01D, (%a1)
-
-	/* DDR settings */
-	move.l	#0xFC0B8180, %a1
-	move.l	#0x00000000, (%a1)
-	move.l	#0x40000000, (%a1)
-
-	move.l	#0xFC0B81AC, %a1
-	move.l	#0x01030203, (%a1)
-
-	move.l	#0xFC0B8000, %a1
-	move.l	#0x01010101, (%a1)+	/* 0x00 */
-	move.l	#0x00000101, (%a1)+	/* 0x04 */
-	move.l	#0x01010100, (%a1)+	/* 0x08 */
-	move.l	#0x01010000, (%a1)+	/* 0x0C */
-	move.l	#0x00010101, (%a1)+	/* 0x10 */
-	move.l	#0xFC0B8018, %a1
-	move.l	#0x00010100, (%a1)+	/* 0x18 */
-	move.l	#0x00000001, (%a1)+	/* 0x1C */
-	move.l	#0x01000001, (%a1)+	/* 0x20 */
-	move.l	#0x00000100, (%a1)+	/* 0x24 */
-	move.l	#0x00010001, (%a1)+	/* 0x28 */
-	move.l	#0x00000200, (%a1)+	/* 0x2C */
-	move.l	#0x01000002, (%a1)+	/* 0x30 */
-	move.l	#0x00000000, (%a1)+	/* 0x34 */
-	move.l	#0x00000100, (%a1)+	/* 0x38 */
-	move.l	#0x02000100, (%a1)+	/* 0x3C */
-	move.l	#0x02000407, (%a1)+	/* 0x40 */
-	move.l	#0x02030007, (%a1)+	/* 0x44 */
-	move.l	#0x02000100, (%a1)+	/* 0x48 */
-	move.l	#0x0A030203, (%a1)+	/* 0x4C */
-	move.l	#0x00020708, (%a1)+	/* 0x50 */
-	move.l	#0x00050008, (%a1)+	/* 0x54 */
-	move.l	#0x04030002, (%a1)+	/* 0x58 */
-	move.l	#0x00000004, (%a1)+	/* 0x5C */
-	move.l	#0x020A0000, (%a1)+	/* 0x60 */
-	move.l	#0x0C00000E, (%a1)+	/* 0x64 */
-	move.l	#0x00002004, (%a1)+	/* 0x68 */
-	move.l	#0x00000000, (%a1)+	/* 0x6C */
-	move.l	#0x00100010, (%a1)+	/* 0x70 */
-	move.l	#0x00100010, (%a1)+	/* 0x74 */
-	move.l	#0x00000000, (%a1)+	/* 0x78 */
-	move.l	#0x07990000, (%a1)+	/* 0x7C */
-	move.l	#0xFC0B80A0, %a1
-	move.l	#0x00000000, (%a1)+	/* 0xA0 */
-	move.l	#0x00C80064, (%a1)+	/* 0xA4 */
-	move.l	#0x44520002, (%a1)+	/* 0xA8 */
-	move.l	#0x00C80023, (%a1)+	/* 0xAC */
-	move.l	#0xFC0B80B4, %a1
-	move.l	#0x0000C350, (%a1)	/* 0xB4 */
-	move.l	#0xFC0B80E0, %a1
-	move.l	#0x04000000, (%a1)+	/* 0xE0 */
-	move.l	#0x03000304, (%a1)+	/* 0xE4 */
-	move.l	#0x40040000, (%a1)+	/* 0xE8 */
-	move.l	#0xC0004004, (%a1)+	/* 0xEC */
-	move.l	#0x0642C000, (%a1)+	/* 0xF0 */
-	move.l	#0x00000642, (%a1)+	/* 0xF4 */
-	move.l	#0xFC0B8024, %a1
-	tpf
-	move.l	#0x01000100, (%a1)	/* 0x24 */
-
-	move.l	#0x2000, %d1
-	jsr	asm_delay
-#endif		/* CONFIG_MCF5441x */
-
-#ifdef CONFIG_MCF5445x
-	/* Dram Initialization a1, a2, and d0 */
-	/* mscr sdram */
-	move.l	#0xFC0A4074, %a1
-	move.b	#(CONFIG_SYS_SDRAM_DRV_STRENGTH), (%a1)
-	nop
-
-	/* SDRAM Chip 0 and 1 */
-	move.l	#0xFC0B8110, %a1
-	move.l	#0xFC0B8114, %a2
-
-	/* calculate the size */
-	move.l	#0x13, %d1
-	move.l	#(CONFIG_SYS_SDRAM_SIZE), %d2
-#ifdef CONFIG_SYS_SDRAM_BASE1
-	lsr.l	#1, %d2
-#endif
-
-dramsz_loop:
-	lsr.l	#1, %d2
-	add.l	#1, %d1
-	cmp.l	#1, %d2
-	bne	dramsz_loop
-#ifdef CONFIG_SYS_NAND_BOOT
-	beq	asm_nand_chk_status
-#endif
-	/* SDRAM Chip 0 and 1 */
-	move.l	#(CONFIG_SYS_SDRAM_BASE), (%a1)
-	or.l	%d1, (%a1)
-#ifdef CONFIG_SYS_SDRAM_BASE1
-	move.l	#(CONFIG_SYS_SDRAM_BASE1), (%a2)
-	or.l	%d1, (%a2)
-#endif
-	nop
-
-	/* dram cfg1 and cfg2 */
-	move.l	#0xFC0B8008, %a1
-	move.l	#(CONFIG_SYS_SDRAM_CFG1), (%a1)
-	nop
-	move.l	#0xFC0B800C, %a2
-	move.l	#(CONFIG_SYS_SDRAM_CFG2), (%a2)
-	nop
-
-	move.l	#0xFC0B8000, %a1	/* Mode */
-	move.l	#0xFC0B8004, %a2	/* Ctrl */
-
-	/* Issue PALL */
-	move.l	#(CONFIG_SYS_SDRAM_CTRL + 2), (%a2)
-	nop
-
-#ifdef CONFIG_M54455EVB
-	/* Issue LEMR */
-	move.l	#(CONFIG_SYS_SDRAM_EMOD + 0x408), (%a1)
-	nop
-	move.l	#(CONFIG_SYS_SDRAM_MODE + 0x300), (%a1)
-	nop
-#endif
-
-	move.l	#1000, %d1
-	jsr	asm_delay
-
-	/* Issue PALL */
-	move.l	#(CONFIG_SYS_SDRAM_CTRL + 2), (%a2)
-	nop
-
-	/* Perform two refresh cycles */
-	move.l	#(CONFIG_SYS_SDRAM_CTRL + 4), %d0
-	nop
-	move.l	%d0, (%a2)
-	move.l	%d0, (%a2)
-	nop
-
-#ifdef CONFIG_M54455EVB
-	move.l	#(CONFIG_SYS_SDRAM_MODE + 0x200), (%a1)
-	nop
-#elif defined(CONFIG_M54451EVB)
-	/* Issue LEMR */
-	move.l	#(CONFIG_SYS_SDRAM_MODE), (%a1)
-	nop
-	move.l	#(CONFIG_SYS_SDRAM_EMOD), (%a1)
-#endif
-
-	move.l	#500, %d1
-	jsr	asm_delay
-
-	move.l	#(CONFIG_SYS_SDRAM_CTRL), %d1
-	and.l	#0x7FFFFFFF, %d1
-#ifdef CONFIG_M54455EVB
-	or.l	#0x10000C00, %d1
-#elif defined(CONFIG_M54451EVB)
-	or.l	#0x10000C00, %d1
-#endif
-	move.l	%d1, (%a2)
-	nop
-
-	move.l	#2000, %d1
-	jsr	asm_delay
-#endif /* CONFIG_MCF5445x */
+	/* mandatory board level ddr-sdram init,
+	 * for both 5441x and 5445x
+	 */
+	bsr	sbf_dram_init
 
 #ifdef CONFIG_CF_SBF
 	/*
@@ -507,6 +344,7 @@ asm_nand_init:
 	movec	%d0, %ACR2
 	movec	%d0, %ACR3
 
+#ifdef CONFIG_SYS_CS0_BASE
 	/* Must disable global address */
 	move.l	#0xFC008000, %a1
 	move.l	#(CONFIG_SYS_CS0_BASE), (%a1)
@@ -514,6 +352,7 @@ asm_nand_init:
 	move.l	#(CONFIG_SYS_CS0_CTRL), (%a1)
 	move.l	#0xFC008004, %a1
 	move.l	#(CONFIG_SYS_CS0_MASK), (%a1)
+#endif
 
 	/* NAND port configuration */
 	move.l	#0xEC094048, %a1
@@ -537,7 +376,7 @@ asm_nand_init:
 	move.l  #0x000e0000, (%a1)
 
 	move.l	#0x2000, %d1
-	jsr	asm_delay
+	bsr	asm_delay
 
 	/* setup nand */
 	move.l  #0xFC0FFF00, %a1
@@ -565,7 +404,7 @@ asm_nand_read:
 	move.l	%d0, (%a0)
 
 	move.l	#0x200, %d1
-	jsr	asm_delay
+	bsr	asm_delay
 
 asm_nand_chk_status:
 	move.l  #0xFC0FFF38, %a4	/* isr */
@@ -595,6 +434,7 @@ asm_nand_copy:
 
 #endif			/* CONFIG_SYS_NAND_BOOT */
 
+.globl asm_delay
 asm_delay:
 	nop
 	subq.l	#1, %d1

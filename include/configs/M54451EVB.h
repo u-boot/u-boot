@@ -23,6 +23,8 @@
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
 
+#define LDS_BOARD_TEXT                  board/freescale/m54451evb/sbf_dram_init.o (.text*)
+
 #undef CONFIG_WATCHDOG
 
 #define CONFIG_TIMESTAMP	/* Print image info with timestamp */
