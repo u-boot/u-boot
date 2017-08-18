@@ -168,7 +168,7 @@ static void pinctrl_rk322x_sdmmc_config(struct rk322x_grf *grf, int mmc_id)
 		rk_clrsetreg(&grf->gpio1b_iomux,
 			     GPIO1B6_MASK | GPIO1B7_MASK,
 			     GPIO1B6_SDMMC_PWREN << GPIO1B6_SHIFT |
-			     GPIO1B7_SDMMC_CMD << GPIO1B6_SHIFT);
+			     GPIO1B7_SDMMC_CMD << GPIO1B7_SHIFT);
 		rk_clrsetreg(&grf->gpio1c_iomux, 0xfff,
 			     GPIO1C5_SDMMC_D3 << GPIO1C5_SHIFT |
 			     GPIO1C4_SDMMC_D2 << GPIO1C4_SHIFT |
@@ -279,12 +279,12 @@ static int rk322x_pinctrl_probe(struct udevice *dev)
 }
 
 static const struct udevice_id rk322x_pinctrl_ids[] = {
-	{ .compatible = "rockchip,rk322x-pinctrl" },
+	{ .compatible = "rockchip,rk3228-pinctrl" },
 	{ }
 };
 
-U_BOOT_DRIVER(pinctrl_rk322x) = {
-	.name		= "pinctrl_rk322x",
+U_BOOT_DRIVER(pinctrl_rk3228) = {
+	.name		= "pinctrl_rk3228",
 	.id		= UCLASS_PINCTRL,
 	.of_match	= rk322x_pinctrl_ids,
 	.priv_auto_alloc_size = sizeof(struct rk322x_pinctrl_priv),

@@ -7,7 +7,6 @@
 #include <common.h>
 #include <debug_uart.h>
 #include <dm.h>
-#include <fdtdec.h>
 #include <ram.h>
 #include <spl.h>
 #include <asm/gpio.h>
