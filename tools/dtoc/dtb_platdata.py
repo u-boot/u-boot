@@ -197,7 +197,7 @@ class DtbPlatdata(object):
         return lines
 
     def scan_dtb(self):
-        """Scan the device tree to obtain a tree of notes and properties
+        """Scan the device tree to obtain a tree of nodes and properties
 
         Once this is done, self._fdt.GetRoot() can be called to obtain the
         device tree root node, and progress from there.
