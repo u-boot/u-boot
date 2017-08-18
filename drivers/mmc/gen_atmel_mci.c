@@ -36,13 +36,22 @@ DECLARE_GLOBAL_DATA_PTR;
 # define MCI_BUS 0
 #endif
 
-struct atmel_mci_priv {
+#ifdef CONFIG_DM_MMC
+struct atmel_mci_plat {
+	struct mmc		mmc;
 	struct mmc_config	cfg;
 	struct atmel_mci	*mci;
+};
+#endif
+
+struct atmel_mci_priv {
+#ifndef CONFIG_DM_MMC
+	struct mmc_config	cfg;
+	struct atmel_mci	*mci;
+#endif
 	unsigned int		initialized:1;
 	unsigned int		curr_clk;
 #ifdef CONFIG_DM_MMC
-	struct mmc	mmc;
 	ulong		bus_clk_rate;
 #endif
 };
@@ -67,18 +76,21 @@ static void dump_cmd(u32 cmdr, u32 arg, u32 status, const char* msg)
 
 /* Setup for MCI Clock and Block Size */
 #ifdef CONFIG_DM_MMC
-static void mci_set_mode(struct atmel_mci_priv *priv, u32 hz, u32 blklen)
+static void mci_set_mode(struct udevice *dev, u32 hz, u32 blklen)
 {
-	struct mmc *mmc = &priv->mmc;
+	struct atmel_mci_plat *plat = dev_get_platdata(dev);
+	struct atmel_mci_priv *priv = dev_get_priv(dev);
+	struct mmc *mmc = &plat->mmc;
 	u32 bus_hz = priv->bus_clk_rate;
+	atmel_mci_t *mci = plat->mci;
 #else
 static void mci_set_mode(struct mmc *mmc, u32 hz, u32 blklen)
 {
 	struct atmel_mci_priv *priv = mmc->priv;
 	u32 bus_hz = get_mci_clk_rate();
+	atmel_mci_t *mci = priv->mci;
 #endif
 
-	atmel_mci_t *mci = priv->mci;
 	u32 clkdiv = 255;
 	unsigned int version = atmel_mci_get_version(mci);
 	u32 clkodd = 0;
@@ -222,15 +234,17 @@ io_fail:
 static int atmel_mci_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 			      struct mmc_data *data)
 {
+	struct atmel_mci_plat *plat = dev_get_platdata(dev);
 	struct atmel_mci_priv *priv = dev_get_priv(dev);
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	atmel_mci_t *mci = plat->mci;
 #else
 static int
 mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 {
 	struct atmel_mci_priv *priv = mmc->priv;
-#endif
 	atmel_mci_t *mci = priv->mci;
+#endif
 	u32 cmdr;
 	u32 error_flags = 0;
 	u32 status;
@@ -362,22 +376,23 @@ mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 #ifdef CONFIG_DM_MMC
 static int atmel_mci_set_ios(struct udevice *dev)
 {
-	struct atmel_mci_priv *priv = dev_get_priv(dev);
+	struct atmel_mci_plat *plat = dev_get_platdata(dev);
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	atmel_mci_t *mci = plat->mci;
 #else
 /* Entered into mmc structure during driver init */
 static int mci_set_ios(struct mmc *mmc)
 {
 	struct atmel_mci_priv *priv = mmc->priv;
-#endif
 	atmel_mci_t *mci = priv->mci;
+#endif
 	int bus_width = mmc->bus_width;
 	unsigned int version = atmel_mci_get_version(mci);
 	int busw;
 
 	/* Set the clock speed */
 #ifdef CONFIG_DM_MMC
-	mci_set_mode(priv, mmc->clock, MMC_DEFAULT_BLKLEN);
+	mci_set_mode(dev, mmc->clock, MMC_DEFAULT_BLKLEN);
 #else
 	mci_set_mode(mmc, mmc->clock, MMC_DEFAULT_BLKLEN);
 #endif
@@ -410,15 +425,17 @@ static int mci_set_ios(struct mmc *mmc)
 }
 
 #ifdef CONFIG_DM_MMC
-static int atmel_mci_hw_init(struct atmel_mci_priv *priv)
+static int atmel_mci_hw_init(struct udevice *dev)
 {
+	struct atmel_mci_plat *plat = dev_get_platdata(dev);
+	atmel_mci_t *mci = plat->mci;
 #else
 /* Entered into mmc structure during driver init */
 static int mci_init(struct mmc *mmc)
 {
 	struct atmel_mci_priv *priv = mmc->priv;
-#endif
 	atmel_mci_t *mci = priv->mci;
+#endif
 
 	/* Initialize controller */
 	writel(MMCI_BIT(SWRST), &mci->cr);	/* soft reset */
@@ -433,7 +450,7 @@ static int mci_init(struct mmc *mmc)
 
 	/* Set default clocks and blocklen */
 #ifdef CONFIG_DM_MMC
-	mci_set_mode(priv, CONFIG_SYS_MMC_CLK_OD, MMC_DEFAULT_BLKLEN);
+	mci_set_mode(dev, CONFIG_SYS_MMC_CLK_OD, MMC_DEFAULT_BLKLEN);
 #else
 	mci_set_mode(mmc, CONFIG_SYS_MMC_CLK_OD, MMC_DEFAULT_BLKLEN);
 #endif
@@ -509,12 +526,14 @@ static const struct dm_mmc_ops atmel_mci_mmc_ops = {
 	.set_ios = atmel_mci_set_ios,
 };
 
-static void atmel_mci_setup_cfg(struct atmel_mci_priv *priv)
+static void atmel_mci_setup_cfg(struct udevice *dev)
 {
+	struct atmel_mci_plat *plat = dev_get_platdata(dev);
+	struct atmel_mci_priv *priv = dev_get_priv(dev);
 	struct mmc_config *cfg;
 	u32 version;
 
-	cfg = &priv->cfg;
+	cfg = &plat->cfg;
 	cfg->name = "Atmel mci";
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 
@@ -522,7 +541,7 @@ static void atmel_mci_setup_cfg(struct atmel_mci_priv *priv)
 	 * If the version is above 3.0, the capabilities of the 8-bit
 	 * bus width and high speed are supported.
 	 */
-	version = atmel_mci_get_version(priv->mci);
+	version = atmel_mci_get_version(plat->mci);
 	if ((version & 0xf00) >= 0x300) {
 		cfg->host_caps = MMC_MODE_8BIT |
 				 MMC_MODE_HS | MMC_MODE_HS_52MHz;
@@ -568,7 +587,7 @@ failed:
 static int atmel_mci_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct atmel_mci_priv *priv = dev_get_priv(dev);
+	struct atmel_mci_plat *plat = dev_get_platdata(dev);
 	struct mmc *mmc;
 	int ret;
 
@@ -576,25 +595,25 @@ static int atmel_mci_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	priv->mci = (struct atmel_mci *)devfdt_get_addr_ptr(dev);
+	plat->mci = (struct atmel_mci *)devfdt_get_addr_ptr(dev);
 
-	atmel_mci_setup_cfg(priv);
+	atmel_mci_setup_cfg(dev);
 
-	mmc = &priv->mmc;
-	mmc->cfg = &priv->cfg;
+	mmc = &plat->mmc;
+	mmc->cfg = &plat->cfg;
 	mmc->dev = dev;
 	upriv->mmc = mmc;
 
-	atmel_mci_hw_init(priv);
+	atmel_mci_hw_init(dev);
 
 	return 0;
 }
 
 static int atmel_mci_bind(struct udevice *dev)
 {
-	struct atmel_mci_priv *priv = dev_get_priv(dev);
+	struct atmel_mci_plat *plat = dev_get_platdata(dev);
 
-	return mmc_bind(dev, &priv->mmc, &priv->cfg);
+	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
 
 static const struct udevice_id atmel_mci_ids[] = {
@@ -608,6 +627,7 @@ U_BOOT_DRIVER(atmel_mci) = {
 	.of_match = atmel_mci_ids,
 	.bind = atmel_mci_bind,
 	.probe = atmel_mci_probe,
+	.platdata_auto_alloc_size = sizeof(struct atmel_mci_plat),
 	.priv_auto_alloc_size = sizeof(struct atmel_mci_priv),
 	.ops = &atmel_mci_mmc_ops,
 };

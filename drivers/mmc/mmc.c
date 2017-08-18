@@ -53,7 +53,7 @@ struct blk_desc *mmc_get_blk_desc(struct mmc *mmc)
 }
 #endif
 
-#if !CONFIG_IS_ENABLED(DM_MMC_OPS)
+#if !CONFIG_IS_ENABLED(DM_MMC)
 __weak int board_mmc_getwp(struct mmc *mmc)
 {
 	return -1;
@@ -149,7 +149,7 @@ void mmc_trace_state(struct mmc *mmc, struct mmc_cmd *cmd)
 }
 #endif
 
-#if !CONFIG_IS_ENABLED(DM_MMC_OPS)
+#if !CONFIG_IS_ENABLED(DM_MMC)
 int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 {
 	int ret;
@@ -839,7 +839,7 @@ int mmc_hwpart_config(struct mmc *mmc,
 	return 0;
 }
 
-#if !CONFIG_IS_ENABLED(DM_MMC_OPS)
+#if !CONFIG_IS_ENABLED(DM_MMC)
 int mmc_getcd(struct mmc *mmc)
 {
 	int cd;
@@ -1075,7 +1075,7 @@ static const u8 multipliers[] = {
 	80,
 };
 
-#if !CONFIG_IS_ENABLED(DM_MMC_OPS)
+#if !CONFIG_IS_ENABLED(DM_MMC)
 static void mmc_set_ios(struct mmc *mmc)
 {
 	if (mmc->cfg->ops->set_ios)
@@ -1652,7 +1652,7 @@ int mmc_start_init(struct mmc *mmc)
 
 	/* we pretend there's no card when init is NULL */
 	no_card = mmc_getcd(mmc) == 0;
-#if !CONFIG_IS_ENABLED(DM_MMC_OPS)
+#if !CONFIG_IS_ENABLED(DM_MMC)
 	no_card = no_card || (mmc->cfg->ops->init == NULL);
 #endif
 	if (no_card) {
@@ -1673,7 +1673,7 @@ int mmc_start_init(struct mmc *mmc)
 	if (err)
 		return err;
 
-#if CONFIG_IS_ENABLED(DM_MMC_OPS)
+#if CONFIG_IS_ENABLED(DM_MMC)
 	/* The device has already been probed ready for use */
 #else
 	/* made sure it's not NULL earlier */

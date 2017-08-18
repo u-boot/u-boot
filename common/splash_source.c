@@ -166,7 +166,7 @@ static inline int splash_init_usb(void)
 #ifdef CONFIG_SATA
 static int splash_init_sata(void)
 {
-	return sata_initialize();
+	return sata_probe(0);
 }
 #else
 static inline int splash_init_sata(void)

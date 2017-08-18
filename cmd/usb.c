@@ -621,9 +621,6 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	struct usb_device *udev = NULL;
 	int i;
 	extern char usb_started;
-#ifdef CONFIG_USB_STORAGE
-	struct blk_desc *stor_dev;
-#endif
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -712,112 +709,10 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (strncmp(argv[1], "stor", 4) == 0)
 		return usb_stor_info();
 
-	if (strncmp(argv[1], "part", 4) == 0) {
-		int devno, ok = 0;
-		if (argc == 2) {
-			for (devno = 0; ; ++devno) {
-				stor_dev = blk_get_devnum_by_type(IF_TYPE_USB,
-								  devno);
-				if (stor_dev == NULL)
-					break;
-				if (stor_dev->type != DEV_TYPE_UNKNOWN) {
-					ok++;
-					if (devno)
-						printf("\n");
-					debug("print_part of %x\n", devno);
-					part_print(stor_dev);
-				}
-			}
-		} else {
-			devno = simple_strtoul(argv[2], NULL, 16);
-			stor_dev = blk_get_devnum_by_type(IF_TYPE_USB, devno);
-			if (stor_dev != NULL &&
-			    stor_dev->type != DEV_TYPE_UNKNOWN) {
-				ok++;
-				debug("print_part of %x\n", devno);
-				part_print(stor_dev);
-			}
-		}
-		if (!ok) {
-			printf("\nno USB devices available\n");
-			return 1;
-		}
-		return 0;
-	}
-	if (strcmp(argv[1], "read") == 0) {
-		if (usb_stor_curr_dev < 0) {
-			printf("no current device selected\n");
-			return 1;
-		}
-		if (argc == 5) {
-			unsigned long addr = simple_strtoul(argv[2], NULL, 16);
-			unsigned long blk  = simple_strtoul(argv[3], NULL, 16);
-			unsigned long cnt  = simple_strtoul(argv[4], NULL, 16);
-			unsigned long n;
-			printf("\nUSB read: device %d block # %ld, count %ld"
-				" ... ", usb_stor_curr_dev, blk, cnt);
-			stor_dev = blk_get_devnum_by_type(IF_TYPE_USB,
-							  usb_stor_curr_dev);
-			n = blk_dread(stor_dev, blk, cnt, (ulong *)addr);
-			printf("%ld blocks read: %s\n", n,
-				(n == cnt) ? "OK" : "ERROR");
-			if (n == cnt)
-				return 0;
-			return 1;
-		}
-	}
-	if (strcmp(argv[1], "write") == 0) {
-		if (usb_stor_curr_dev < 0) {
-			printf("no current device selected\n");
-			return 1;
-		}
-		if (argc == 5) {
-			unsigned long addr = simple_strtoul(argv[2], NULL, 16);
-			unsigned long blk  = simple_strtoul(argv[3], NULL, 16);
-			unsigned long cnt  = simple_strtoul(argv[4], NULL, 16);
-			unsigned long n;
-			printf("\nUSB write: device %d block # %ld, count %ld"
-				" ... ", usb_stor_curr_dev, blk, cnt);
-			stor_dev = blk_get_devnum_by_type(IF_TYPE_USB,
-							  usb_stor_curr_dev);
-			n = blk_dwrite(stor_dev, blk, cnt, (ulong *)addr);
-			printf("%ld blocks write: %s\n", n,
-				(n == cnt) ? "OK" : "ERROR");
-			if (n == cnt)
-				return 0;
-			return 1;
-		}
-	}
-	if (strncmp(argv[1], "dev", 3) == 0) {
-		if (argc == 3) {
-			int dev = (int)simple_strtoul(argv[2], NULL, 10);
-			printf("\nUSB device %d: ", dev);
-			stor_dev = blk_get_devnum_by_type(IF_TYPE_USB, dev);
-			if ((stor_dev == NULL) ||
-			    (stor_dev->if_type == IF_TYPE_UNKNOWN)) {
-				printf("unknown device\n");
-				return 1;
-			}
-			printf("\n    Device %d: ", dev);
-			dev_print(stor_dev);
-			if (stor_dev->type == DEV_TYPE_UNKNOWN)
-				return 1;
-			usb_stor_curr_dev = dev;
-			printf("... is now current device\n");
-			return 0;
-		} else {
-			printf("\nUSB device %d: ", usb_stor_curr_dev);
-			stor_dev = blk_get_devnum_by_type(IF_TYPE_USB,
-							  usb_stor_curr_dev);
-			dev_print(stor_dev);
-			if (stor_dev->type == DEV_TYPE_UNKNOWN)
-				return 1;
-			return 0;
-		}
-		return 0;
-	}
-#endif /* CONFIG_USB_STORAGE */
+	return blk_common_cmd(argc, argv, IF_TYPE_USB, &usb_stor_curr_dev);
+#else
 	return CMD_RET_USAGE;
+#endif /* CONFIG_USB_STORAGE */
 }
 
 U_BOOT_CMD(

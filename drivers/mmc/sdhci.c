@@ -134,7 +134,7 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 #define SDHCI_CMD_DEFAULT_TIMEOUT		100
 #define SDHCI_READ_STATUS_TIMEOUT		1000
 
-#ifdef CONFIG_DM_MMC_OPS
+#ifdef CONFIG_DM_MMC
 static int sdhci_send_command(struct udevice *dev, struct mmc_cmd *cmd,
 			      struct mmc_data *data)
 {
@@ -422,7 +422,7 @@ static void sdhci_set_power(struct sdhci_host *host, unsigned short power)
 	sdhci_writeb(host, pwr, SDHCI_POWER_CONTROL);
 }
 
-#ifdef CONFIG_DM_MMC_OPS
+#ifdef CONFIG_DM_MMC
 static int sdhci_set_ios(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
@@ -502,7 +502,7 @@ static int sdhci_init(struct mmc *mmc)
 	return 0;
 }
 
-#ifdef CONFIG_DM_MMC_OPS
+#ifdef CONFIG_DM_MMC
 int sdhci_probe(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
@@ -543,7 +543,7 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
 	cfg->name = host->name;
-#ifndef CONFIG_DM_MMC_OPS
+#ifndef CONFIG_DM_MMC
 	cfg->ops = &sdhci_ops;
 #endif
 

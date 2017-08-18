@@ -5,8 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __FSL_SATA_H__
-#define __FSL_SATA_H__
+#ifndef __DWC_AHSATA_PRIV_H__
+#define __DWC_AHSATA_PRIV_H__
 
 #define DWC_AHSATA_MAX_CMD_SLOTS	32
 
@@ -317,4 +317,4 @@
 #define READ_CMD	0
 #define WRITE_CMD	1
 
-#endif /* __FSL_SATA_H__ */
+#endif /* __DWC_AHSATA_H__ */

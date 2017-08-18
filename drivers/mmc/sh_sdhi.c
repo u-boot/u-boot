@@ -13,21 +13,26 @@
 #include <common.h>
 #include <malloc.h>
 #include <mmc.h>
+#include <dm.h>
 #include <linux/errno.h>
-#include <asm/io.h>
+#include <linux/compat.h>
+#include <linux/io.h>
+#include <linux/sizes.h>
 #include <asm/arch/rmobile.h>
 #include <asm/arch/sh_sdhi.h>
+#include <clk.h>
 
 #define DRIVER_NAME "sh-sdhi"
 
 struct sh_sdhi_host {
-	unsigned long addr;
+	void __iomem *addr;
 	int ch;
 	int bus_shift;
 	unsigned long quirks;
 	unsigned char wait_int;
 	unsigned char sd_error;
 	unsigned char detect_waiting;
+	unsigned char app_cmd;
 };
 
 static inline void sh_sdhi_writeq(struct sh_sdhi_host *host, int reg, u64 val)
@@ -48,11 +53,6 @@ static inline void sh_sdhi_writew(struct sh_sdhi_host *host, int reg, u16 val)
 static inline u16 sh_sdhi_readw(struct sh_sdhi_host *host, int reg)
 {
 	return readw(host->addr + (reg << host->bus_shift));
-}
-
-static void *mmc_priv(struct mmc *mmc)
-{
-	return (void *)mmc->priv;
 }
 
 static void sh_sdhi_detect(struct sh_sdhi_host *host)
@@ -477,65 +477,64 @@ static void sh_sdhi_get_response(struct sh_sdhi_host *host, struct mmc_cmd *cmd)
 static unsigned short sh_sdhi_set_cmd(struct sh_sdhi_host *host,
 			struct mmc_data *data, unsigned short opc)
 {
-	switch (opc) {
-	case SD_CMD_APP_SEND_OP_COND:
-	case SD_CMD_APP_SEND_SCR:
-		opc |= SDHI_APP;
-		break;
-	case SD_CMD_APP_SET_BUS_WIDTH:
-		 /* SD_APP_SET_BUS_WIDTH*/
+	if (host->app_cmd) {
 		if (!data)
-			opc |= SDHI_APP;
-		else /* SD_SWITCH */
-			opc = SDHI_SD_SWITCH;
-		break;
-	case MMC_CMD_SEND_OP_COND:
-		opc = SDHI_MMC_SEND_OP_COND;
-		break;
-	case MMC_CMD_SEND_EXT_CSD:
-		if (data)
-			opc = SDHI_MMC_SEND_EXT_CSD;
-		break;
-	default:
-		break;
+			host->app_cmd = 0;
+		return opc | BIT(6);
 	}
-	return opc;
+
+	switch (opc) {
+	case MMC_CMD_SWITCH:
+		return opc | (data ? 0x1c00 : 0x40);
+	case MMC_CMD_SEND_EXT_CSD:
+		return opc | (data ? 0x1c00 : 0);
+	case MMC_CMD_SEND_OP_COND:
+		return opc | 0x0700;
+	case MMC_CMD_APP_CMD:
+		host->app_cmd = 1;
+	default:
+		return opc;
+	}
 }
 
 static unsigned short sh_sdhi_data_trans(struct sh_sdhi_host *host,
 			struct mmc_data *data, unsigned short opc)
 {
-	unsigned short ret;
-
-	switch (opc) {
-	case MMC_CMD_READ_MULTIPLE_BLOCK:
-		ret = sh_sdhi_multi_read(host, data);
-		break;
-	case MMC_CMD_WRITE_MULTIPLE_BLOCK:
-		ret = sh_sdhi_multi_write(host, data);
-		break;
-	case MMC_CMD_WRITE_SINGLE_BLOCK:
-		ret = sh_sdhi_single_write(host, data);
-		break;
-	case MMC_CMD_READ_SINGLE_BLOCK:
-	case SDHI_SD_APP_SEND_SCR:
-	case SDHI_SD_SWITCH: /* SD_SWITCH */
-	case SDHI_MMC_SEND_EXT_CSD:
-		ret = sh_sdhi_single_read(host, data);
-		break;
-	default:
-		printf(DRIVER_NAME": SD: NOT SUPPORT CMD = d'%04d\n", opc);
-		ret = -EINVAL;
-		break;
+	if (host->app_cmd) {
+		host->app_cmd = 0;
+		switch (opc) {
+		case SD_CMD_APP_SEND_SCR:
+		case SD_CMD_APP_SD_STATUS:
+			return sh_sdhi_single_read(host, data);
+		default:
+			printf(DRIVER_NAME": SD: NOT SUPPORT APP CMD = d'%04d\n",
+				opc);
+			return -EINVAL;
+		}
+	} else {
+		switch (opc) {
+		case MMC_CMD_WRITE_MULTIPLE_BLOCK:
+			return sh_sdhi_multi_write(host, data);
+		case MMC_CMD_READ_MULTIPLE_BLOCK:
+			return sh_sdhi_multi_read(host, data);
+		case MMC_CMD_WRITE_SINGLE_BLOCK:
+			return sh_sdhi_single_write(host, data);
+		case MMC_CMD_READ_SINGLE_BLOCK:
+		case MMC_CMD_SWITCH:
+		case MMC_CMD_SEND_EXT_CSD:;
+			return sh_sdhi_single_read(host, data);
+		default:
+			printf(DRIVER_NAME": SD: NOT SUPPORT CMD = d'%04d\n", opc);
+			return -EINVAL;
+		}
 	}
-	return ret;
 }
 
 static int sh_sdhi_start_cmd(struct sh_sdhi_host *host,
 			struct mmc_data *data, struct mmc_cmd *cmd)
 {
 	long time;
-	unsigned short opc = cmd->cmdidx;
+	unsigned short shcmd, opc = cmd->cmdidx;
 	int ret = 0;
 	unsigned long timeout;
 
@@ -563,7 +562,8 @@ static int sh_sdhi_start_cmd(struct sh_sdhi_host *host,
 		}
 		sh_sdhi_writew(host, SDHI_SIZE, data->blocksize);
 	}
-	opc = sh_sdhi_set_cmd(host, data, opc);
+
+	shcmd = sh_sdhi_set_cmd(host, data, opc);
 
 	/*
 	 *  U-Boot cannot use interrupt.
@@ -594,11 +594,12 @@ static int sh_sdhi_start_cmd(struct sh_sdhi_host *host,
 		       INFO2M_RESP_TIMEOUT | INFO2M_ILA) &
 		       sh_sdhi_readw(host, SDHI_INFO2_MASK));
 
-	sh_sdhi_writew(host, SDHI_CMD, (unsigned short)(opc & CMD_MASK));
-
+	sh_sdhi_writew(host, SDHI_CMD, (unsigned short)(shcmd & CMD_MASK));
 	time = sh_sdhi_wait_interrupt_flag(host);
-	if (!time)
+	if (!time) {
+		host->app_cmd = 0;
 		return sh_sdhi_error_manage(host);
+	}
 
 	if (host->sd_error) {
 		switch (cmd->cmdidx) {
@@ -616,15 +617,20 @@ static int sh_sdhi_start_cmd(struct sh_sdhi_host *host,
 		}
 		host->sd_error = 0;
 		host->wait_int = 0;
+		host->app_cmd = 0;
 		return ret;
 	}
-	if (sh_sdhi_readw(host, SDHI_INFO1) & INFO1_RESP_END)
+
+	if (sh_sdhi_readw(host, SDHI_INFO1) & INFO1_RESP_END) {
+		host->app_cmd = 0;
 		return -EINVAL;
+	}
 
 	if (host->wait_int) {
 		sh_sdhi_get_response(host, cmd);
 		host->wait_int = 0;
 	}
+
 	if (data)
 		ret = sh_sdhi_data_trans(host, data, opc);
 
@@ -634,23 +640,17 @@ static int sh_sdhi_start_cmd(struct sh_sdhi_host *host,
 	return ret;
 }
 
-static int sh_sdhi_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
-			struct mmc_data *data)
+static int sh_sdhi_send_cmd_common(struct sh_sdhi_host *host,
+				   struct mmc_cmd *cmd, struct mmc_data *data)
 {
-	struct sh_sdhi_host *host = mmc_priv(mmc);
-	int ret;
-
 	host->sd_error = 0;
 
-	ret = sh_sdhi_start_cmd(host, data, cmd);
-
-	return ret;
+	return sh_sdhi_start_cmd(host, data, cmd);
 }
 
-static int sh_sdhi_set_ios(struct mmc *mmc)
+static int sh_sdhi_set_ios_common(struct sh_sdhi_host *host, struct mmc *mmc)
 {
 	int ret;
-	struct sh_sdhi_host *host = mmc_priv(mmc);
 
 	ret = sh_sdhi_clock_control(host, mmc->clock);
 	if (ret)
@@ -674,9 +674,8 @@ static int sh_sdhi_set_ios(struct mmc *mmc)
 	return 0;
 }
 
-static int sh_sdhi_initialize(struct mmc *mmc)
+static int sh_sdhi_initialize_common(struct sh_sdhi_host *host)
 {
-	struct sh_sdhi_host *host = mmc_priv(mmc);
 	int ret = sh_sdhi_sync_reset(host);
 
 	sh_sdhi_writew(host, SDHI_PORTSEL, USE_1PORT);
@@ -690,6 +689,34 @@ static int sh_sdhi_initialize(struct mmc *mmc)
 		       INFO1M_DATA3_CARD_RE | INFO1M_DATA3_CARD_IN);
 
 	return ret;
+}
+
+#ifndef CONFIG_DM_MMC
+static void *mmc_priv(struct mmc *mmc)
+{
+	return (void *)mmc->priv;
+}
+
+static int sh_sdhi_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+			    struct mmc_data *data)
+{
+	struct sh_sdhi_host *host = mmc_priv(mmc);
+
+	return sh_sdhi_send_cmd_common(host, cmd, data);
+}
+
+static int sh_sdhi_set_ios(struct mmc *mmc)
+{
+	struct sh_sdhi_host *host = mmc_priv(mmc);
+
+	return sh_sdhi_set_ios_common(host, mmc);
+}
+
+static int sh_sdhi_initialize(struct mmc *mmc)
+{
+	struct sh_sdhi_host *host = mmc_priv(mmc);
+
+	return sh_sdhi_initialize_common(host);
 }
 
 static const struct mmc_ops sh_sdhi_ops = {
@@ -743,7 +770,7 @@ int sh_sdhi_init(unsigned long addr, int ch, unsigned long quirks)
 	}
 
 	host->ch = ch;
-	host->addr = addr;
+	host->addr = (void __iomem *)addr;
 	host->quirks = quirks;
 
 	if (host->quirks & SH_SDHI_QUIRK_64BIT_BUF)
@@ -757,3 +784,123 @@ error:
 		free(host);
 	return ret;
 }
+
+#else
+
+struct sh_sdhi_plat {
+	struct mmc_config cfg;
+	struct mmc mmc;
+};
+
+int sh_sdhi_dm_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
+			struct mmc_data *data)
+{
+	struct sh_sdhi_host *host = dev_get_priv(dev);
+
+	return sh_sdhi_send_cmd_common(host, cmd, data);
+}
+
+int sh_sdhi_dm_set_ios(struct udevice *dev)
+{
+	struct sh_sdhi_host *host = dev_get_priv(dev);
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+
+	return sh_sdhi_set_ios_common(host, mmc);
+}
+
+static const struct dm_mmc_ops sh_sdhi_dm_ops = {
+	.send_cmd	= sh_sdhi_dm_send_cmd,
+	.set_ios	= sh_sdhi_dm_set_ios,
+};
+
+static int sh_sdhi_dm_bind(struct udevice *dev)
+{
+	struct sh_sdhi_plat *plat = dev_get_platdata(dev);
+
+	return mmc_bind(dev, &plat->mmc, &plat->cfg);
+}
+
+static int sh_sdhi_dm_probe(struct udevice *dev)
+{
+	struct sh_sdhi_plat *plat = dev_get_platdata(dev);
+	struct sh_sdhi_host *host = dev_get_priv(dev);
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct clk sh_sdhi_clk;
+	const u32 quirks = dev_get_driver_data(dev);
+	fdt_addr_t base;
+	int ret;
+
+	base = devfdt_get_addr(dev);
+	if (base == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	host->addr = devm_ioremap(dev, base, SZ_2K);
+	if (!host->addr)
+		return -ENOMEM;
+
+	ret = clk_get_by_index(dev, 0, &sh_sdhi_clk);
+	if (ret) {
+		debug("failed to get clock, ret=%d\n", ret);
+		return ret;
+	}
+
+	ret = clk_enable(&sh_sdhi_clk);
+	if (ret) {
+		debug("failed to enable clock, ret=%d\n", ret);
+		return ret;
+	}
+
+	host->quirks = quirks;
+
+	if (host->quirks & SH_SDHI_QUIRK_64BIT_BUF)
+		host->bus_shift = 2;
+	else if (host->quirks & SH_SDHI_QUIRK_16BIT_BUF)
+		host->bus_shift = 1;
+
+	plat->cfg.name = dev->name;
+	plat->cfg.host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS;
+
+	switch (fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "bus-width",
+			       1)) {
+	case 8:
+		plat->cfg.host_caps |= MMC_MODE_8BIT;
+		break;
+	case 4:
+		plat->cfg.host_caps |= MMC_MODE_4BIT;
+		break;
+	case 1:
+		break;
+	default:
+		dev_err(dev, "Invalid \"bus-width\" value\n");
+		return -EINVAL;
+	}
+
+	sh_sdhi_initialize_common(host);
+
+	plat->cfg.voltages = MMC_VDD_165_195 | MMC_VDD_32_33 | MMC_VDD_33_34;
+	plat->cfg.f_min = CLKDEV_INIT;
+	plat->cfg.f_max = CLKDEV_HS_DATA;
+	plat->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
+
+	upriv->mmc = &plat->mmc;
+
+	return 0;
+}
+
+static const struct udevice_id sh_sdhi_sd_match[] = {
+	{ .compatible = "renesas,sdhi-r8a7795", .data = SH_SDHI_QUIRK_64BIT_BUF },
+	{ .compatible = "renesas,sdhi-r8a7796", .data = SH_SDHI_QUIRK_64BIT_BUF },
+	{ /* sentinel */ }
+};
+
+U_BOOT_DRIVER(sh_sdhi_mmc) = {
+	.name			= "sh-sdhi-mmc",
+	.id			= UCLASS_MMC,
+	.of_match		= sh_sdhi_sd_match,
+	.bind			= sh_sdhi_dm_bind,
+	.probe			= sh_sdhi_dm_probe,
+	.priv_auto_alloc_size	= sizeof(struct sh_sdhi_host),
+	.platdata_auto_alloc_size = sizeof(struct sh_sdhi_plat),
+	.ops			= &sh_sdhi_dm_ops,
+};
+#endif

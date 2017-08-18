@@ -221,6 +221,10 @@
 #define EXT_CSD_BOOT_PART_NUM(x)	(x << 3)
 #define EXT_CSD_PARTITION_ACCESS(x)	(x << 0)
 
+#define EXT_CSD_EXTRACT_BOOT_ACK(x)		(((x) >> 6) & 0x1)
+#define EXT_CSD_EXTRACT_BOOT_PART(x)		(((x) >> 3) & 0x7)
+#define EXT_CSD_EXTRACT_PARTITION_ACCESS(x)	((x) & 0x7)
+
 #define EXT_CSD_BOOT_BUS_WIDTH_MODE(x)	(x << 3)
 #define EXT_CSD_BOOT_BUS_WIDTH_RESET(x)	(x << 2)
 #define EXT_CSD_BOOT_BUS_WIDTH_WIDTH(x)	(x)
@@ -321,7 +325,7 @@ struct mmc_data {
 /* forward decl. */
 struct mmc;
 
-#if CONFIG_IS_ENABLED(DM_MMC_OPS)
+#if CONFIG_IS_ENABLED(DM_MMC)
 struct dm_mmc_ops {
 	/**
 	 * send_cmd() - Send a command to the MMC device
@@ -385,7 +389,7 @@ struct mmc_ops {
 
 struct mmc_config {
 	const char *name;
-#if !CONFIG_IS_ENABLED(DM_MMC_OPS)
+#if !CONFIG_IS_ENABLED(DM_MMC)
 	const struct mmc_ops *ops;
 #endif
 	uint host_caps;
@@ -519,7 +523,7 @@ int mmc_switch_part(struct mmc *mmc, unsigned int part_num);
 int mmc_hwpart_config(struct mmc *mmc, const struct mmc_hwpart_conf *conf,
 		      enum mmc_hwpart_conf_mode mode);
 
-#if !CONFIG_IS_ENABLED(DM_MMC_OPS)
+#if !CONFIG_IS_ENABLED(DM_MMC)
 int mmc_getcd(struct mmc *mmc);
 int board_mmc_getcd(struct mmc *mmc);
 int mmc_getwp(struct mmc *mmc);

@@ -176,6 +176,60 @@ struct ahci_uc_priv {
 	u32	link_port_map; /*linkup port map*/
 };
 
+struct ahci_ops {
+	/**
+	 * reset() - reset the controller
+	 *
+	 * @dev:	Controller to reset
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*reset)(struct udevice *dev);
+
+	/**
+	 * port_status() - get the status of a SATA port
+	 *
+	 * @dev:	Controller to reset
+	 * @port:	Port number to check (0 for first)
+	 * @return 0 if detected, -ENXIO if nothing on port, other -ve on error
+	 */
+	int (*port_status)(struct udevice *dev, int port);
+
+	/**
+	 * scan() - scan SATA ports
+	 *
+	 * @dev:	Controller to scan
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*scan)(struct udevice *dev);
+};
+
+#define ahci_get_ops(dev)        ((struct ahci_ops *)(dev)->driver->ops)
+
+/**
+ * sata_reset() - reset the controller
+ *
+ * @dev:	Controller to reset
+ * @return 0 if OK, -ve on error
+ */
+int sata_reset(struct udevice *dev);
+
+/**
+ * sata_port_status() - get the status of a SATA port
+ *
+ * @dev:	Controller to reset
+ * @port:	Port number to check (0 for first)
+ * @return 0 if detected, -ENXIO if nothin on port, other -ve on error
+ */
+int sata_dm_port_status(struct udevice *dev, int port);
+
+/**
+ * sata_scan() - scan SATA ports
+ *
+ * @dev:	Controller to scan
+ * @return 0 if OK, -ve on error
+ */
+int sata_scan(struct udevice *dev);
+
 int ahci_init(void __iomem *base);
 int ahci_reset(void __iomem *base);
 

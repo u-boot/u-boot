@@ -279,7 +279,7 @@ void arch_preboot_os(void)
 	imx_pcie_remove();
 #endif
 #if defined(CONFIG_SATA)
-	sata_stop();
+	sata_remove(0);
 #if defined(CONFIG_MX6)
 	disable_sata_clock();
 #endif
