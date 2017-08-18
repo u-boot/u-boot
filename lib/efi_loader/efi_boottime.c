@@ -109,6 +109,11 @@ static const char *indent_string(int level)
 	return &indent[max - level];
 }
 
+const char *__efi_nesting(void)
+{
+	return indent_string(nesting_level);
+}
+
 const char *__efi_nesting_inc(void)
 {
 	return indent_string(nesting_level++);
@@ -1021,6 +1026,8 @@ static efi_status_t EFIAPI efi_locate_protocol(efi_guid_t *protocol,
 	if (!protocol || !protocol_interface)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
+	EFI_PRINT_GUID("protocol", protocol);
+
 	list_for_each(lhandle, &efi_obj_list) {
 		struct efi_object *efiobj;
 
@@ -1133,6 +1140,8 @@ static efi_status_t EFIAPI efi_open_protocol(
 	     EFI_OPEN_PROTOCOL_TEST_PROTOCOL)) {
 		goto out;
 	}
+
+	EFI_PRINT_GUID("protocol", protocol);
 
 	switch (attributes) {
 	case EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL:

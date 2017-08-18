@@ -17,6 +17,7 @@
 
 int __efi_entry_check(void);
 int __efi_exit_check(void);
+const char *__efi_nesting(void);
 const char *__efi_nesting_inc(void);
 const char *__efi_nesting_dec(void);
 
@@ -50,6 +51,13 @@ const char *__efi_nesting_dec(void);
 	assert(__efi_entry_check()); \
 	debug("%sEFI: Return From: %s\n", __efi_nesting_dec(), #exp); \
 	} while(0)
+
+/*
+ * Write GUID
+ */
+#define EFI_PRINT_GUID(txt, guid) ({ \
+	debug("%sEFI: %s %pUl\n", __efi_nesting(), txt, guid); \
+	})
 
 extern struct efi_runtime_services efi_runtime_services;
 extern struct efi_system_table systab;
