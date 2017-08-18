@@ -226,7 +226,9 @@ static int sunxi_musb_enable(struct musb *musb)
 		ret = sunxi_usb_phy_id_detect(0);
 		if (ret == 1) {
 			printf("No host cable detected: ");
+#ifndef CONFIG_SUN8I_V3S_CAM
 			return -ENODEV;
+#endif
 		}
 		sunxi_usb_phy_power_on(0); /* port power on */
 	}
@@ -260,7 +262,9 @@ static int sunxi_musb_init(struct musb *musb)
 	pr_debug("%s():\n", __func__);
 
 	musb->isr = sunxi_musb_interrupt;
-
+#ifdef CONFIG_MACH_SUN8I_V3S
+	musb_writeb(musb->mregs, MUSB_VEND0, MUSB_VEND0_PIO_MODE);
+#endif
 	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_USB0);
 #ifdef CONFIG_SUNXI_GEN_SUN6I
 	setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_GATE_OFFSET_USB0);
@@ -289,11 +293,36 @@ static const struct musb_platform_ops sunxi_musb_ops = {
 	.disable	= sunxi_musb_disable,
 };
 
+#ifdef CONFIG_MACH_SUN8I_V3S
+/* sunxi default FIFO config - fits in  */
+static struct musb_fifo_cfg sunxi_musb_fifo_config[] = {
+	{ .hw_ep_num = 1, .style = FIFO_TX, .maxpacket = 512, },
+	{ .hw_ep_num = 1, .style = FIFO_RX, .maxpacket = 512, },
+	{ .hw_ep_num = 2, .style = FIFO_TX, .maxpacket = 512, },
+	{ .hw_ep_num = 2, .style = FIFO_RX, .maxpacket = 512, },
+	{ .hw_ep_num = 3, .style = FIFO_TX, .maxpacket = 512, },
+	{ .hw_ep_num = 3, .style = FIFO_RX, .maxpacket = 512, },
+	{ .hw_ep_num = 4, .style = FIFO_TX, .maxpacket = 512, },
+	{ .hw_ep_num = 4, .style = FIFO_RX, .maxpacket = 512, },
+};
+#endif
+
 static struct musb_hdrc_config musb_config = {
+#ifdef CONFIG_MACH_SUN8I_V3S
+	.fifo_cfg		= sunxi_musb_fifo_config,
+	.fifo_cfg_size	= ARRAY_SIZE(sunxi_musb_fifo_config),	
+	.multipoint     = true,
+	.dyn_fifo       = true,
+	.soft_con		= true,
+	.num_eps        = 5,
+	.ram_bits       = 11,
+	.dma			=0,
+#else
 	.multipoint     = 1,
 	.dyn_fifo       = 1,
 	.num_eps        = 6,
 	.ram_bits       = 11,
+#endif
 };
 
 static struct musb_hdrc_platform_data musb_plat = {
@@ -304,6 +333,9 @@ static struct musb_hdrc_platform_data musb_plat = {
 #endif
 	.config         = &musb_config,
 	.power          = 250,
+#ifdef CONFIG_SUN8I_V3S_CAM
+	.set_power		= sunxi_usb_phy_power_on,
+#endif	
 	.platform_ops	= &sunxi_musb_ops,
 };
 
@@ -351,9 +383,19 @@ static int musb_usb_remove(struct udevice *dev)
 	return 0;
 }
 
+#ifdef CONFIG_MACH_SUN8I_V3S
+static const struct udevice_id sunxi_musb_ids[] = {
+	{ .compatible = "allwinner,sun8i-h3-musb" },
+	{ }
+};
+#endif
+
 U_BOOT_DRIVER(usb_musb) = {
 	.name	= "sunxi-musb",
 	.id	= UCLASS_USB,
+#ifdef CONFIG_MACH_SUN8I_V3S
+	.of_match = sunxi_musb_ids,
+#endif	
 	.probe = musb_usb_probe,
 	.remove = musb_usb_remove,
 	.ops	= &musb_usb_ops,

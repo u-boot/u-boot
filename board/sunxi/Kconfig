@@ -139,6 +139,12 @@ config MACH_SUN8I_V3S
 	select SUNXI_DE2
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 
+config SUN8I_V3S_CAM
+	bool "sun8i v3s camdroid board"
+	depends on MACH_SUN8I_V3S
+	help
+		Support Camdroid board's usb ethernet.
+	
 config MACH_SUN9I
 	bool "sun9i (Allwinner A80)"
 	select CPU_V7

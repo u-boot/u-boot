@@ -16,6 +16,7 @@
 #ifdef CONFIG_DM_ETH
 
 #define USB_BULK_RECV_TIMEOUT 500
+unsigned char rxx_buf[32768] __attribute__ ((aligned(128)));
 
 int usb_ether_register(struct udevice *dev, struct ueth_data *ueth, int rxsize)
 {
@@ -73,7 +74,9 @@ int usb_ether_register(struct udevice *dev, struct ueth_data *ueth, int rxsize)
 	}
 
 	ueth->rxsize = rxsize;
-	ueth->rxbuf = memalign(ARCH_DMA_MINALIGN, rxsize);
+//	ueth->rxbuf = memalign(ARCH_DMA_MINALIGN, rxsize);
+	ueth->rxbuf = rxx_buf;	
+	
 	if (!ueth->rxbuf)
 		return -ENOMEM;
 

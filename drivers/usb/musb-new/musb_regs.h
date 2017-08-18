@@ -324,7 +324,10 @@
  */
 
 #define MUSB_DEVCTL		0x0041
-
+#ifdef CONFIG_MACH_SUN8I_V3S
+#define MUSB_VEND0		0x0043 
+#define MUSB_VEND0_PIO_MODE		0
+#endif
 /* These are always controlled through the INDEX register */
 #define MUSB_TXFIFOSZ		0x0090
 #define MUSB_RXFIFOSZ		0x0094
@@ -434,7 +437,7 @@ static inline u8 musb_read_ulpi_buscontrol(void __iomem *mbase)
 
 static inline u8 musb_read_configdata(void __iomem *mbase)
 {
-#if defined CONFIG_MACH_SUN8I_A33 || defined CONFIG_MACH_SUN8I_A83T
+#if defined CONFIG_MACH_SUN8I_A33 || defined CONFIG_MACH_SUN8I_A83T || defined CONFIG_MACH_SUN8I_V3S
 	/* <Sigh> allwinner saves a reg, and we need to hardcode this */
 	return 0xde;
 #else

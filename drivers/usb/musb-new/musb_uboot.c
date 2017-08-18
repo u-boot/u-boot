@@ -3,6 +3,9 @@
 #include <watchdog.h>
 #ifdef CONFIG_ARCH_SUNXI
 #include <asm/arch/usb_phy.h>
+#ifdef CONFIG_SUN8I_V3S_CAM
+#include <asm/arch/gpio.h>
+#endif
 #endif
 #include <linux/errno.h>
 #include <linux/usb/ch9.h>
@@ -204,6 +207,10 @@ static int _musb_reset_root_port(struct musb_host_data *host,
 	power = musb_readb(mbase, MUSB_POWER);
 	musb_writeb(mbase, MUSB_POWER, ~MUSB_POWER_RESET & power);
 #ifdef CONFIG_ARCH_SUNXI
+#ifdef CONFIG_SUN8I_V3S_CAM
+	gpio_direction_output(SUNXI_GPG(3),1);
+	power = musb_readb(mbase, MUSB_POWER);
+#endif
 	sunxi_usb_phy_enable_squelch_detect(0, 1);
 #endif
 	host->host->isr(0, host->host);
@@ -222,7 +229,8 @@ int musb_lowlevel_init(struct musb_host_data *host)
 	/* USB spec says it may take up to 1 second for a device to connect */
 	unsigned long timeout = get_timer(0) + 1000;
 	int ret;
-
+	u8 mode;
+	
 	if (!host->host) {
 		printf("MUSB host is not registered\n");
 		return -ENODEV;
@@ -233,6 +241,11 @@ int musb_lowlevel_init(struct musb_host_data *host)
 		return ret;
 
 	mbase = host->host->mregs;
+#ifdef CONFIG_MACH_SUN8I_V3S
+	mode = musb_readb(mbase,MUSB_DEVCTL);
+	musb_writeb(mbase,MUSB_DEVCTL,mode|MUSB_DEVCTL_HM);
+	mode = musb_readb(mbase, MUSB_DEVCTL);
+#endif	
 	do {
 		if (musb_readb(mbase, MUSB_DEVCTL) & MUSB_DEVCTL_HM)
 			break;

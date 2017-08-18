@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2017 JuYoung Ryu <ujuozz@gmail.com>
  * Copyright (C) 2016 Icenowy Zheng <icenowy@aosc.xyz>
  *
  * This file is dual-licensed: you can use it either under the terms
@@ -180,6 +181,17 @@
 			#phy-cells = <1>;
 		};
 
+		ehci1: usb@01c1a000 {
+			compatible = "allwinner,sun8i-a23-ehci","generic-ehci";
+			reg = <0x01c1a000 0x100>;
+			interrupts = <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&ccu CLK_BUS_EHCI0>;
+			phys = <&usbphy>;
+			phy-names = "usb";
+			resets = <&ccu RST_BUS_EHCI0>;
+			status = "disabled";
+		};		
+		
 		ccu: clock@01c20000 {
 			compatible = "allwinner,sun8i-v3s-ccu";
 			reg = <0x01c20000 0x400>;
@@ -221,6 +233,11 @@
 				drive-strength = <30>;
 				bias-pull-up;
 			};
+
+			spi0_pins: spi0 {
+				pins = "PC0", "PC1", "PC2", "PC3";
+				function = "spi0";
+			};			
 		};
 
 		timer@01c20c00 {
@@ -270,6 +287,20 @@
 			status = "disabled";
 		};
 
+		spi0: spi@1c68000 {
+			compatible = "allwinner,sun8i-h3-spi";
+			reg = <0x01c68000 0x1000>;
+			interrupts = <GIC_SPI 65 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&ccu CLK_BUS_SPI0>, <&ccu CLK_SPI0>;
+			clock-names = "ahb", "mod";
+			pinctrl-names = "default";
+			pinctrl-0 = <&spi0_pins>;
+			resets = <&ccu RST_BUS_SPI0>;
+			status = "disabled";
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+		
 		gic: interrupt-controller@01c81000 {
 			compatible = "arm,cortex-a7-gic", "arm,cortex-a15-gic";
 			reg = <0x01c81000 0x1000>,

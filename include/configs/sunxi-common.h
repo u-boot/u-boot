@@ -148,7 +148,7 @@
 #define CONFIG_GENERIC_MMC
 #define CONFIG_MMC_SUNXI
 #define CONFIG_MMC_SUNXI_SLOT		0
-#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_ENV_IS_IN_MMC		1
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* first detected MMC controller */
 #define CONFIG_SYS_MMC_MAX_DEVICE	4
 #endif
@@ -283,7 +283,7 @@ extern int soft_i2c_gpio_scl;
 #endif /* ifdef CONFIG_REQUIRE_SERIAL_CONSOLE */
 
 /* GPIO */
-#define CONFIG_SUNXI_GPIO
+/*#define CONFIG_SUNXI_GPIO*/
 
 #ifdef CONFIG_VIDEO
 /*
@@ -532,6 +532,7 @@ extern int soft_i2c_gpio_scl;
 	"fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	"console=ttyS0,115200\0" \
 	BOOTCMD_SUNXI_COMPAT \
+	"machid=1029\0" \
 	BOOTENV
 
 #else /* ifndef CONFIG_SPL_BUILD */

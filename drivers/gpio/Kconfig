@@ -48,6 +48,12 @@ config INTEL_BROADWELL_GPIO
 	  driver from the common Intel ICH6 driver. It supports a total of
 	  95 GPIOs which can be configured from the device tree.
 
+config SUNXI_GPIO
+	bool "SUNXI GPIO driver"
+	default n
+	help
+	  Support for the SUNXI GPIO driver.
+	  	  
 config LPC32XX_GPIO
 	bool "LPC32XX GPIO driver"
 	depends on DM

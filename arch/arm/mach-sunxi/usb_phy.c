@@ -19,7 +19,7 @@
 #include <errno.h>
 
 #define SUNXI_USB_PMU_IRQ_ENABLE	0x800
-#ifdef CONFIG_MACH_SUN8I_A33
+#if defined CONFIG_MACH_SUN8I_A33 || defined(CONFIG_MACH_SUN8I_V3S)
 #define SUNXI_USB_CSR			0x410
 #else
 #define SUNXI_USB_CSR			0x404
@@ -120,7 +120,7 @@ __maybe_unused static void usb_phy_write(struct sunxi_usb_phy *phy, int addr,
 	int j = 0, usbc_bit = 0;
 	void *dest = (void *)SUNXI_USB0_BASE + SUNXI_USB_CSR;
 
-#ifdef CONFIG_MACH_SUN8I_A33
+#if defined CONFIG_MACH_SUN8I_A33 || defined(CONFIG_MACH_SUN8I_V3S)
 	/* CSR needs to be explicitly initialized to 0 on A33 */
 	writel(0, dest);
 #endif
@@ -165,7 +165,10 @@ static void sunxi_usb_phy_config(struct sunxi_usb_phy *phy)
 	/* The following comments are machine
 	 * translated from Chinese, you have been warned!
 	 */
-
+#if defined(CONFIG_MACH_SUN8I_V3S)
+	if (phy->id != 0) 
+		clrbits_le32(phy->base + REG_PMU_UNK_H3, 0x02);	 
+#endif
 	/* Regulation 45 ohms */
 	if (phy->id == 0)
 		usb_phy_write(phy, 0x0c, 0x01, 1);
@@ -351,11 +354,13 @@ int sunxi_usb_phy_probe(void)
 		phy->gpio_vbus_det = get_vbus_detect_gpio(i);
 		if (phy->gpio_vbus_det >= 0) {
 			ret = gpio_request(phy->gpio_vbus_det, "usb_vbus_det");
+#ifndef CONFIG_SUN8I_V3S_CAM			
 			if (ret)
 				return ret;
 			ret = gpio_direction_input(phy->gpio_vbus_det);
 			if (ret)
 				return ret;
+#endif
 		}
 
 		phy->gpio_id_det = get_id_detect_gpio(i);

@@ -23,6 +23,8 @@
 	#define CONFIG_SUNXI_USB_PHYS	3
 #elif defined CONFIG_MACH_SUN8I_V3S
 	#define CONFIG_SUNXI_USB_PHYS	1
+	#define CONFIG_USB_ETHER_ASIX
+	#define CONFIG_USB_HOST_ETHER		
 #else
 	#define CONFIG_SUNXI_USB_PHYS	2
 #endif
