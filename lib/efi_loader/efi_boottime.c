@@ -611,7 +611,7 @@ static int efi_search(enum efi_locate_search_type search_type,
 	return -1;
 }
 
-static efi_status_t EFIAPI efi_locate_handle(
+static efi_status_t efi_locate_handle(
 			enum efi_locate_search_type search_type,
 			efi_guid_t *protocol, void *search_key,
 			unsigned long *buffer_size, efi_handle_t *buffer)
@@ -633,6 +633,10 @@ static efi_status_t EFIAPI efi_locate_handle(
 		return EFI_BUFFER_TOO_SMALL;
 	}
 
+	*buffer_size = size;
+	if (size == 0)
+		return EFI_NOT_FOUND;
+
 	/* Then fill the array */
 	list_for_each(lhandle, &efi_obj_list) {
 		struct efi_object *efiobj;
@@ -642,7 +646,6 @@ static efi_status_t EFIAPI efi_locate_handle(
 		}
 	}
 
-	*buffer_size = size;
 	return EFI_SUCCESS;
 }
 

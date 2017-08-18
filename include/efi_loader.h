@@ -33,9 +33,9 @@ const char *__efi_nesting_dec(void);
  * Exit the u-boot world back to UEFI:
  */
 #define EFI_EXIT(ret) ({ \
-	efi_status_t _r = ret; \
+	typeof(ret) _r = ret; \
 	debug("%sEFI: Exit: %s: %u\n", __efi_nesting_dec(), \
-		__func__, (u32)(_r & ~EFI_ERROR_MASK)); \
+		__func__, (u32)((uintptr_t) _r & ~EFI_ERROR_MASK)); \
 	assert(__efi_exit_check()); \
 	_r; \
 	})
