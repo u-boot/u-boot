@@ -322,6 +322,10 @@ build a config tool - later.
 		Defined For SoC that has cache coherent interconnect
 		CCN-400
 
+		CONFIG_SYS_FSL_HAS_CCN504
+
+		Defined for SoC that has cache coherent interconnect CCN-504
+
 The following options need to be configured:
 
 - CPU Type:	Define exactly one, e.g. CONFIG_MPC85XX.

@@ -76,7 +76,7 @@ ENTRY(lowlevel_init)
 	switch_el x1, 1f, 100f, 100f	/* skip if not in EL3 */
 1:
 
-#ifdef CONFIG_FSL_LSCH3
+#if defined (CONFIG_SYS_FSL_HAS_CCN504)
 
 	/* Set Wuo bit for RN-I 20 */
 #ifdef CONFIG_ARCH_LS2080A
@@ -171,7 +171,7 @@ ENTRY(lowlevel_init)
 	ldr	x0, =CCI_S2_QOS_CONTROL_BASE(20)
 	ldr	x1, =0x00FF000C
 	bl	ccn504_set_qos
-#endif
+#endif /* CONFIG_SYS_FSL_HAS_CCN504 */
 
 #ifdef SMMU_BASE
 	/* Set the SMMU page size in the sACR register */
@@ -338,7 +338,9 @@ get_svr:
 	ldr	x1, =FSL_LSCH3_SVR
 	ldr	w0, [x1]
 	ret
+#endif
 
+#ifdef CONFIG_SYS_FSL_HAS_CCN504
 hnf_pstate_poll:
 	/* x0 has the desired status, return 0 for success, 1 for timeout
 	 * clobber x1, x2, x3, x4, x6, x7
@@ -420,7 +422,7 @@ ENTRY(__asm_flush_l3_dcache)
 	mov	lr, x29
 	ret
 ENDPROC(__asm_flush_l3_dcache)
-#endif
+#endif /* CONFIG_SYS_FSL_HAS_CCN504 */
 
 #ifdef CONFIG_MP
 	/* Keep literals not used by the secondary boot code outside it */

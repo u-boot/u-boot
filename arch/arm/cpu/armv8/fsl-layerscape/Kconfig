@@ -61,6 +61,7 @@ config ARCH_LS2080A
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_LE
 	select SYS_FSL_DDR_VER_50
+	select SYS_FSL_HAS_CCN504
 	select SYS_FSL_HAS_DP_DDR
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_HAS_DDR4
@@ -267,6 +268,9 @@ config SYS_FSL_IFC_BANK_COUNT
 	default 8 if ARCH_LS2080A
 
 config SYS_FSL_HAS_CCI400
+	bool
+
+config SYS_FSL_HAS_CCN504
 	bool
 
 config SYS_FSL_HAS_DP_DDR
