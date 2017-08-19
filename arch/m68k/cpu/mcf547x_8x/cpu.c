@@ -34,7 +34,8 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 1;
 };
 
-int checkcpu(void)
+#if defined(CONFIG_DISPLAY_CPUINFO)
+int print_cpuinfo(void)
 {
 	siu_t *siu = (siu_t *) MMAP_SIU;
 	u16 id = 0;
@@ -91,6 +92,7 @@ int checkcpu(void)
 
 	return 0;
 };
+#endif /* CONFIG_DISPLAY_CPUINFO */
 
 #if defined(CONFIG_HW_WATCHDOG)
 /* Called by macro WATCHDOG_RESET */
