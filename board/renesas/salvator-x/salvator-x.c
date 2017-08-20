@@ -161,17 +161,6 @@ int board_init(void)
 	return 0;
 }
 
-static struct eth_pdata salvator_x_ravb_platdata = {
-	.iobase		= 0xE6800000,
-	.phy_interface	= 0,
-	.max_speed	= 1000,
-};
-
-U_BOOT_DEVICE(salvator_x_ravb) = {
-	.name		= "ravb",
-	.platdata	= &salvator_x_ravb_platdata,
-};
-
 #ifdef CONFIG_SH_SDHI
 int board_mmc_init(bd_t *bis)
 {
