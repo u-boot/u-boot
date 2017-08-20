@@ -178,7 +178,7 @@ __maybe_weak u64 flash_read64(void *addr)
 /*-----------------------------------------------------------------------
  */
 #if defined(CONFIG_ENV_IS_IN_FLASH) || defined(CONFIG_ENV_ADDR_REDUND) || (CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE)
-flash_info_t *flash_get_info(ulong base)
+static flash_info_t *flash_get_info(ulong base)
 {
 	int i;
 	flash_info_t *info;
@@ -355,8 +355,8 @@ static ulong flash_read_long (flash_info_t * info, flash_sect_t sect,
 /*
  * Write a proper sized command to the correct address
  */
-void flash_write_cmd (flash_info_t * info, flash_sect_t sect,
-		      uint offset, u32 cmd)
+static void flash_write_cmd(flash_info_t *info, flash_sect_t sect,
+			    uint offset, u32 cmd)
 {
 
 	void *addr;
@@ -2298,7 +2298,7 @@ static void cfi_flash_set_config_reg(u32 base, u16 val)
 /*-----------------------------------------------------------------------
  */
 
-void flash_protect_default(void)
+static void flash_protect_default(void)
 {
 #if defined(CONFIG_SYS_FLASH_AUTOPROTECT_LIST)
 	int i;
