@@ -98,7 +98,7 @@ int env_load(void)
 		return -ENODEV;
 	if (!drv->load)
 		return 0;
-	drv->load();  /* TODO(sjg@chromium.org): Make this return an error */
+	ret = drv->load();
 	if (ret) {
 		debug("%s: Environment failed to load (err=%d)\n", __func__,
 		      ret);
