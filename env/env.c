@@ -74,7 +74,7 @@ int env_get_char(int index)
 	struct env_driver *drv = env_driver_lookup_default();
 	int ret;
 
-	if (!gd->env_valid)
+	if (gd->env_valid == ENV_INVALID)
 		return default_environment[index];
 	if (!drv)
 		return -ENODEV;

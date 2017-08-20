@@ -52,7 +52,7 @@ char *env_get_default(const char *name)
 
 	/* Pretend that the image is bad. */
 	gd->flags &= ~GD_FLG_ENV_READY;
-	gd->env_valid = 0;
+	gd->env_valid = ENV_INVALID;
 	ret_val = env_get(name);
 	gd->env_valid = really_valid;
 	gd->flags = real_gd_flags;
@@ -210,24 +210,24 @@ int env_import_redund(const char *buf1, const char *buf2)
 		set_default_env("!bad CRC");
 		return 0;
 	} else if (crc1_ok && !crc2_ok) {
-		gd->env_valid = 1;
+		gd->env_valid = ENV_VALID;
 	} else if (!crc1_ok && crc2_ok) {
-		gd->env_valid = 2;
+		gd->env_valid = ENV_REDUND;
 	} else {
 		/* both ok - check serial */
 		if (tmp_env1->flags == 255 && tmp_env2->flags == 0)
-			gd->env_valid = 2;
+			gd->env_valid = ENV_REDUND;
 		else if (tmp_env2->flags == 255 && tmp_env1->flags == 0)
-			gd->env_valid = 1;
+			gd->env_valid = ENV_VALID;
 		else if (tmp_env1->flags > tmp_env2->flags)
-			gd->env_valid = 1;
+			gd->env_valid = ENV_VALID;
 		else if (tmp_env2->flags > tmp_env1->flags)
-			gd->env_valid = 2;
+			gd->env_valid = ENV_REDUND;
 		else /* flags are equal - almost impossible */
-			gd->env_valid = 1;
+			gd->env_valid = ENV_VALID;
 	}
 
-	if (gd->env_valid == 1)
+	if (gd->env_valid == ENV_VALID)
 		ep = tmp_env1;
 	else
 		ep = tmp_env2;
@@ -271,7 +271,7 @@ void env_relocate(void)
 	env_reloc();
 	env_htab.change_ok += gd->reloc_off;
 #endif
-	if (gd->env_valid == 0) {
+	if (gd->env_valid == ENV_INVALID) {
 #if defined(CONFIG_ENV_IS_NOWHERE) || defined(CONFIG_SPL_BUILD)
 		/* Environment not changable */
 		set_default_env(NULL);

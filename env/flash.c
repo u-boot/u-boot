@@ -94,7 +94,7 @@ static int env_flash_init(void)
 		gd->env_valid	= ENV_VALID;
 	} else if (!crc1_ok && !crc2_ok) {
 		gd->env_addr	= addr_default;
-		gd->env_valid	= 0;
+		gd->env_valid	= ENV_INVALID;
 	} else if (flag1 == ACTIVE_FLAG && flag2 == OBSOLETE_FLAG) {
 		gd->env_addr	= addr1;
 		gd->env_valid	= ENV_VALID;
@@ -231,7 +231,7 @@ static int env_flash_init(void)
 	}
 
 	gd->env_addr	= (ulong)&default_environment[0];
-	gd->env_valid	= 0;
+	gd->env_valid	= ENV_INVALID;
 	return 0;
 }
 #endif

@@ -122,7 +122,7 @@ static int env_eeprom_load(void)
 
 	if (!crc_ok[0] && !crc_ok[1]) {
 		gd->env_addr	= 0;
-		gd->env_valid	= 0;
+		gd->env_valid = ENV_INVALID;
 	} else if (crc_ok[0] && !crc_ok[1]) {
 		gd->env_valid = ENV_VALID;
 	} else if (!crc_ok[0] && crc_ok[1]) {
@@ -166,9 +166,9 @@ static int env_eeprom_load(void)
 	}
 
 	if (crc == new) {
-		gd->env_valid	= ENV_VALID;
+		gd->env_valid = ENV_VALID;
 	} else {
-		gd->env_valid	= 0;
+		gd->env_valid = ENV_INVALID;
 	}
 #endif /* CONFIG_ENV_OFFSET_REDUND */
 

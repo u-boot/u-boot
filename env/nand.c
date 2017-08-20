@@ -79,7 +79,7 @@ static int env_nand_init(void)
 
 	if (!crc1_ok && !crc2_ok) {
 		gd->env_addr	= 0;
-		gd->env_valid	= 0;
+		gd->env_valid	= ENV_INVALID;
 
 		return 0;
 	} else if (crc1_ok && !crc2_ok) {
