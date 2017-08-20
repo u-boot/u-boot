@@ -300,15 +300,3 @@ void reset_cpu(ulong addr)
 	writel(RST_CODE, RST_CA57RESCNT);
 #endif
 }
-
-static const struct sh_serial_platdata serial_platdata = {
-	.base = SCIF2_BASE,
-	.type = PORT_SCIF,
-	.clk = CONFIG_SH_SCIF_CLK_FREQ,
-	.clk_mode = INT_CLK,
-};
-
-U_BOOT_DEVICE(salvator_x_scif2) = {
-	.name = "serial_sh",
-	.platdata = &serial_platdata,
-};
