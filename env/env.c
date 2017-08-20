@@ -138,7 +138,7 @@ int env_init(void)
 		ret = drv->init();
 	if (ret == -ENOENT) {
 		gd->env_addr = (ulong)&default_environment[0];
-		gd->env_valid = 0;
+		gd->env_valid = ENV_VALID;
 
 		return 0;
 	} else if (ret) {
