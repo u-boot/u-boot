@@ -111,6 +111,7 @@
 		#clock-cells = <0>;
 		/* This value must be overridden by the board */
 		clock-frequency = <0>;
+		u-boot,dm-pre-reloc;
 	};
 
 	extalr_clk: extalr {
@@ -118,6 +119,7 @@
 		#clock-cells = <0>;
 		/* This value must be overridden by the board */
 		clock-frequency = <0>;
+		u-boot,dm-pre-reloc;
 	};
 
 	/* External CAN clock - to be overridden by boards that provide it */
@@ -140,6 +142,7 @@
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
+		u-boot,dm-pre-reloc;
 
 		gic: interrupt-controller@f1010000 {
 			compatible = "arm,gic-400";
@@ -333,6 +336,7 @@
 			#clock-cells = <2>;
 			#power-domain-cells = <0>;
 			#reset-cells = <1>;
+			u-boot,dm-pre-reloc;
 		};
 
 		rst: reset-controller@e6160000 {
