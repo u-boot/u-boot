@@ -16,6 +16,8 @@ config INTEL_TANGIER
 	imply USB
 	imply USB_DWC3
 
+if INTEL_TANGIER
+
 config SYS_CAR_ADDR
 	hex
 	default 0x19200000
@@ -30,3 +32,5 @@ config SYS_CAR_SIZE
 config SYS_USB_OTG_BASE
 	hex
 	default 0xf9100000
+
+endif
