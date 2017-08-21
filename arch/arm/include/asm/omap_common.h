@@ -607,6 +607,7 @@ extern struct omap_sys_ctrl_regs const dra7xx_ctrl;
 
 extern struct pmic_data tps659038;
 extern struct pmic_data lp8733;
+extern struct pmic_data lp87565;
 
 void hw_data_init(void);
 
