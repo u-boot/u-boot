@@ -1726,7 +1726,7 @@ int mtdparts_init(void)
 	const char *ids, *parts;
 	const char *current_partition;
 	int ids_changed;
-	char tmp_ep[PARTITION_MAXLEN];
+	char tmp_ep[PARTITION_MAXLEN + 1];
 	char tmp_parts[MTDPARTS_MAXLEN];
 
 	debug("\n---mtdparts_init---\n");
@@ -1750,7 +1750,7 @@ int mtdparts_init(void)
 
 	/* save it for later parsing, cannot rely on current partition pointer
 	 * as 'partition' variable may be updated during init */
-	tmp_ep[0] = '\0';
+	memset(tmp_parts, 0, sizeof(tmp_parts));
 	if (current_partition)
 		strncpy(tmp_ep, current_partition, PARTITION_MAXLEN);
 
