@@ -23,10 +23,6 @@ int print_cpuinfo(void)
 	puts("SoC:   ");
 
 	switch (id) {
-	case UNIPHIER_SLD3_ID:
-		puts("sLD3");
-		required_model = 2;
-		break;
 	case UNIPHIER_LD4_ID:
 		puts("LD4");
 		required_rev = 2;

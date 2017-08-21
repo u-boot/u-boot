@@ -11,7 +11,6 @@
 #include <linux/kernel.h>
 #include <linux/stddef.h>
 
-#define UNIPHIER_SLD3_ID	0x25
 #define UNIPHIER_LD4_ID		0x26
 #define UNIPHIER_PRO4_ID	0x28
 #define UNIPHIER_SLD8_ID	0x29

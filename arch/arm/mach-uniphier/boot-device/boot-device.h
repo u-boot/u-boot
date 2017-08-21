@@ -13,14 +13,12 @@ struct uniphier_boot_device {
 	const char *desc;
 };
 
-extern const struct uniphier_boot_device uniphier_sld3_boot_device_table[];
 extern const struct uniphier_boot_device uniphier_ld4_boot_device_table[];
 extern const struct uniphier_boot_device uniphier_pro5_boot_device_table[];
 extern const struct uniphier_boot_device uniphier_pxs2_boot_device_table[];
 extern const struct uniphier_boot_device uniphier_ld11_boot_device_table[];
 extern const struct uniphier_boot_device uniphier_pxs3_boot_device_table[];
 
-extern const unsigned int uniphier_sld3_boot_device_count;
 extern const unsigned int uniphier_ld4_boot_device_count;
 extern const unsigned int uniphier_pro5_boot_device_count;
 extern const unsigned int uniphier_pxs2_boot_device_count;

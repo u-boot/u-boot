@@ -64,11 +64,9 @@ static const struct uniphier_clk_gate_data uniphier_mio_clk_gate[] = {
 	UNIPHIER_MIO_CLK_USB2(8, 0),
 	UNIPHIER_MIO_CLK_USB2(9, 1),
 	UNIPHIER_MIO_CLK_USB2(10, 2),
-	UNIPHIER_MIO_CLK_USB2(11, 3),		/* for PH1-sLD3 only */
 	UNIPHIER_MIO_CLK_USB2_PHY(12, 0),
 	UNIPHIER_MIO_CLK_USB2_PHY(13, 1),
 	UNIPHIER_MIO_CLK_USB2_PHY(14, 2),
-	UNIPHIER_MIO_CLK_USB2_PHY(15, 3),	/* for PH1-sLD3 only */
 	UNIPHIER_CLK_END
 };
 

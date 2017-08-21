@@ -29,7 +29,6 @@ u32 uniphier_smp_booted[CONFIG_ARMV7_PSCI_NR_CPUS];
 static int uniphier_get_nr_cpus(void)
 {
 	switch (uniphier_get_soc_id()) {
-	case UNIPHIER_SLD3_ID:
 	case UNIPHIER_PRO4_ID:
 	case UNIPHIER_PRO5_ID:
 		return 2;

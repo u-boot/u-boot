@@ -28,15 +28,6 @@ struct uniphier_memif_data {
 
 static const struct uniphier_memif_data uniphier_memif_data[] = {
 	{
-		.soc_id = UNIPHIER_SLD3_ID,
-		.sparse_ch1_base = 0xc0000000,
-		/*
-		 * In fact, SLD3 has DRAM ch2, but the memory regions for ch1
-		 * and ch2 overlap, and host cannot get access to them at the
-		 * same time.  Hide the ch2 from U-Boot.
-		 */
-	},
-	{
 		.soc_id = UNIPHIER_LD4_ID,
 		.sparse_ch1_base = 0xc0000000,
 	},

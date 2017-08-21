@@ -14,7 +14,7 @@ u32 spl_boot_mode(const u32 boot_device)
 	struct mmc *mmc;
 
 	/*
-	 * work around a bug in the Boot ROM of PH1-sLD3, LD4, Pro4, and sLD8:
+	 * work around a bug in the Boot ROM of LD4, Pro4, and sLD8:
 	 *
 	 * The boot ROM in these SoCs breaks the PARTITION_CONFIG [179] of
 	 * Extended CSD register; when switching to the Boot Partition 1, the

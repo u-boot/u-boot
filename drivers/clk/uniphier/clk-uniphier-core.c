@@ -147,10 +147,6 @@ static int uniphier_clk_probe(struct udevice *dev)
 
 static const struct udevice_id uniphier_clk_match[] = {
 	{
-		.compatible = "socionext,uniphier-sld3-mio-clock",
-		.data = (ulong)&uniphier_mio_clk_data,
-	},
-	{
 		.compatible = "socionext,uniphier-ld4-mio-clock",
 		.data = (ulong)&uniphier_mio_clk_data,
 	},

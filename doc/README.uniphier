@@ -29,7 +29,6 @@ The following tables show <defconfig> and <device-tree> for each board.
 
  Board         | <defconfig>                  | <device-tree>
 ---------------|------------------------------|------------------------------
-sLD3 reference | uniphier_sld3_defconfig      | uniphier-sld3-ref (default)
 LD4 reference  | uniphier_ld4_sld8_defconfig  | uniphier-ld4-ref (default)
 sld8 reference | uniphier_ld4_sld8_defconfig  | uniphier-sld8-def
 Pro4 reference | uniphier_pro4_defconfig      | uniphier-pro4-ref (default)

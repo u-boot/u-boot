@@ -25,13 +25,16 @@ ENTRY(lowlevel_init)
 	orr	r0, r0, #(CR_C | CR_M)	@ enable MMU and Dcache
 	mcr	p15, 0, r0, c1, c0, 0
 
+#ifdef CONFIG_DEBUG_LL
+	bl	debug_ll_init
+#endif
+
 	bl	setup_init_ram		@ RAM area for stack and page table
 
 	/*
 	 * Now we are using the page table embedded in the Boot ROM.
-	 * It is not handy since it is not a straight mapped table for sLD3.
-	 * Also, the access to the external bus is prohibited.  What we need
-	 * to do next is to create a page table and switch over to it.
+	 * What we need to do next is to create a page table and switch
+	 * over to it.
 	 */
 	bl	create_page_table
 	bl	__v7_flush_dcache_all
@@ -42,10 +45,6 @@ ENTRY(lowlevel_init)
 	mcr	p15, 0, r0, c1, c0, 0
 
 	bl	enable_mmu
-
-#ifdef CONFIG_DEBUG_LL
-	bl	debug_ll_init
-#endif
 
 	mov	lr, r8			@ restore link
 	mov	pc, lr			@ back to my caller
@@ -99,11 +98,6 @@ ENDPROC(enable_mmu)
 
 ENTRY(setup_init_ram)
 	ldr	r1, = SSCO_BASE
-	mrc	p15, 0, r0, c2, c0, 0	@ TTBR0
-	ldr	r0, [r0, #0x400]	@ entry for virtual address 0x100*****
-	bfc	r0, #0, #20
-	cmp	r0, #0x50000000		@ is sLD3 page table?
-	biceq	r1, r1, #0xc0000000	@ sLD3 ROM maps 0x5******* to 0x1*******
 
 	/* Touch to zero for the boot way */
 0:	ldr	r0, = 0x00408006	@ touch to zero with address range

@@ -26,27 +26,6 @@ ENTRY(debug_ll_init)
 	and		r1, r1, #SG_REVISION_TYPE_MASK
 	mov		r1, r1, lsr #SG_REVISION_TYPE_SHIFT
 
-#if defined(CONFIG_ARCH_UNIPHIER_SLD3)
-#define UNIPHIER_SLD3_UART_CLK		36864000
-	cmp		r1, #0x25
-	bne		sld3_end
-
-	sg_set_pinsel	64, 1, 4, 4, r0, r1	@ TXD0 -> TXD0
-
-	ldr		r0, =BCSCR5
-	ldr		r1, =0x24440000
-	str		r1, [r0]
-
-	ldr		r0, =SC_CLKCTRL
-	ldr		r1, [r0]
-	orr		r1, r1, #SC_CLKCTRL_CEN_PERI
-	str		r1, [r0]
-
-	ldr		r3, =DIV_ROUND(UNIPHIER_SLD3_UART_CLK, 16 * BAUDRATE)
-
-	b		init_uart
-sld3_end:
-#endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD4)
 #define UNIPHIER_LD4_UART_CLK		36864000
 	cmp		r1, #0x26
