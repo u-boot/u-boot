@@ -66,7 +66,7 @@ static struct hws_topology_map board_topology_map = {
 	      {0x1, 0, 0, 0} },
 	    SPEED_BIN_DDR_1866L,	/* speed_bin */
 	    BUS_WIDTH_8,		/* memory_width */
-	    MEM_4G,			/* mem_size */
+	    MEM_2G,			/* mem_size */
 	    DDR_FREQ_800,		/* frequency */
 	    0, 0,			/* cas_l cas_wl */
 	    HWS_TEMP_LOW,		/* temperature */
