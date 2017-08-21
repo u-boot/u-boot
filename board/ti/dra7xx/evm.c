@@ -710,6 +710,19 @@ int board_mmc_init(bd_t *bis)
 	omap_mmc_init(1, 0, 0, -1, -1);
 	return 0;
 }
+
+void board_mmc_poweron_ldo(uint voltage)
+{
+	if (board_is_dra71x_evm()) {
+		if (voltage == LDO_VOLT_3V0)
+			voltage = 0x19;
+		else if (voltage == LDO_VOLT_1V8)
+			voltage = 0xa;
+		lp873x_mmc1_poweron_ldo(voltage);
+	} else {
+		palmas_mmc1_poweron_ldo(voltage);
+	}
+}
 #endif
 
 #ifdef CONFIG_USB_DWC3

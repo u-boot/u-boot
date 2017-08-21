@@ -174,4 +174,5 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 		int wp_gpio);
 
 void vmmc_pbias_config(uint voltage);
+void board_mmc_poweron_ldo(uint voltage);
 #endif /* OMAP_MMC_H_ */
