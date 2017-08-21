@@ -90,6 +90,7 @@ struct chip_serdes_phy_config {
 	u32 comphy_mux_bitcount;
 	const fdt32_t *comphy_mux_lane_order;
 	u32 cp_index;
+	struct comphy_map comphy_map_data[MAX_LANE_OPTIONS];
 };
 
 /* Register helper functions */
