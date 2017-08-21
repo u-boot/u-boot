@@ -129,7 +129,7 @@ static inline int palmas_i2c_read_u8(u8 chip_no, u8 reg, u8 *val)
 }
 
 void palmas_init_settings(void);
-int palmas_mmc1_poweron_ldo(uint voltage);
+int palmas_mmc1_poweron_ldo(uint ldo_volt, uint ldo_ctrl, uint voltage);
 int lp873x_mmc1_poweron_ldo(uint voltage);
 int twl603x_mmc1_set_ldo9(u8 vsel);
 int twl603x_audio_power(u8 on);

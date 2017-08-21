@@ -457,7 +457,7 @@ void v7_arch_cp15_set_acr(u32 acr, u32 cpu_midr, u32 cpu_rev_comb,
 #if defined(CONFIG_PALMAS_POWER)
 __weak void board_mmc_poweron_ldo(uint voltage)
 {
-	palmas_mmc1_poweron_ldo(voltage);
+	palmas_mmc1_poweron_ldo(LDO1_VOLTAGE, LDO1_CTRL, voltage);
 }
 
 void vmmc_pbias_config(uint voltage)

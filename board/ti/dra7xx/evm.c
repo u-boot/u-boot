@@ -720,7 +720,7 @@ void board_mmc_poweron_ldo(uint voltage)
 			voltage = 0xa;
 		lp873x_mmc1_poweron_ldo(voltage);
 	} else {
-		palmas_mmc1_poweron_ldo(voltage);
+		palmas_mmc1_poweron_ldo(LDO1_VOLTAGE, LDO1_CTRL, voltage);
 	}
 }
 #endif

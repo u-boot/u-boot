@@ -42,24 +42,21 @@ int lp873x_mmc1_poweron_ldo(uint voltage)
 }
 #endif
 
-int palmas_mmc1_poweron_ldo(uint voltage)
+int palmas_mmc1_poweron_ldo(uint ldo_volt, uint ldo_ctrl, uint voltage)
 {
 	u8 val = 0;
 
 #if defined(CONFIG_DRA7XX)
 	int ret;
-	/*
-	 * Currently valid for the dra7xx_evm board:
-	 * Set TPS659038 LDO1 to 3.0 V or 1.8V
-	 */
-	ret = palmas_i2c_write_u8(TPS65903X_CHIP_P1, LDO1_VOLTAGE, voltage);
+
+	ret = palmas_i2c_write_u8(TPS65903X_CHIP_P1, ldo_volt, voltage);
 	if (ret) {
 		printf("tps65903x: could not set LDO1 voltage.\n");
 		return ret;
 	}
 	/* TURN ON LDO1 */
 	val = RSC_MODE_SLEEP | RSC_MODE_ACTIVE;
-	ret = palmas_i2c_write_u8(TPS65903X_CHIP_P1, LDO1_CTRL, val);
+	ret = palmas_i2c_write_u8(TPS65903X_CHIP_P1, ldo_ctrl, val);
 	if (ret) {
 		printf("tps65903x: could not turn on LDO1.\n");
 		return ret;
