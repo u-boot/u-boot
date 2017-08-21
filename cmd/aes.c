@@ -16,7 +16,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-__weak int aes_decrypt_hw(u8 *key_ptr, u8 *src_ptr, u8 *dst_ptr, u32 len)
+__weak int aes_decrypt_hw(u8 *key_ptr, u8 *src_ptr, u8 *dst_ptr, u32 len,
+			  bool devkey)
 {
 	return 0;
 }
@@ -39,8 +40,9 @@ static int do_aes(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	uint32_t aes_blocks;
 	int enc;
 	bool use_hw = false;
+	bool use_devkey = false;
 
-	if (argc < 6 || argc > 7)
+	if (argc < 6 || argc > 8)
 		return CMD_RET_USAGE;
 
 	if (!strncmp(argv[1], "enc", 3))
@@ -55,9 +57,14 @@ static int do_aes(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	dst_addr = simple_strtoul(argv[4], NULL, 16);
 	len = simple_strtoul(argv[5], NULL, 16);
 
-	if (argc == 7)
+	if (argc >= 7)
 		if (!strncmp(argv[6], "hw", 2))
 			use_hw = true;
+
+	if (use_hw) {
+		if (!strncmp(argv[7], "dev", 3))
+			use_devkey = true;
+	}
 
 	key_ptr = (uint8_t *)(uintptr_t)key_addr;
 	src_ptr = (uint8_t *)(uintptr_t)src_addr;
@@ -65,7 +72,8 @@ static int do_aes(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 	if (use_hw) {
 		if (!enc)
-			aes_decrypt_hw(key_ptr, src_ptr, dst_ptr, len);
+			aes_decrypt_hw(key_ptr, src_ptr, dst_ptr, len,
+				       use_devkey);
 	} else {
 		/* First we expand the key. */
 		aes_expand_key(key_ptr, key_exp);
@@ -91,18 +99,24 @@ static char aes_help_text[] =
 	"                          $key and store the result at address\n"
 	"                          $dst. The $len size must be multiple of\n"
 	"                          16 bytes and $key must be 16 bytes long.\n"
-	"aes dec key src dst len [hw] - Decrypt block of data $len bytes\n"
-	"                               long at address $src using a key at\n"
-	"                               address $key and store the result at\n"
-	"                               address $dst. The $len size must be\n"
-	"                               multiple of 16 bytes and $key must be\n"
-	"                               16 bytes long. The optional hw flag\n"
-	"                               specifies to used hardware engine if\n"
-	"                               supports\n";
+	"aes dec key src dst len [hw] [dev] - Decrypt block of data $len\n"
+	"                                     bytes long at address $src\n"
+	"                                     using a key at address $key\n"
+	"                                     and store the result at\n"
+	"                                     address $dst. The $len size\n"
+	"                                     must be multiple of 16 bytes\n"
+	"                                     and $key must be 16 bytes\n"
+	"                                     long. The optional hw flag\n"
+	"                                     specifies to used hardware\n"
+	"                                     engine if supports. Other\n"
+	"                                     optional flag dev sepcifies\n"
+	"                                     it to use device key which was\n"
+	"                                     programmed in eFUSE/BBRAM or\n"
+	"                                     any such\n";
 #endif
 
 U_BOOT_CMD(
-	aes, 7, 1, do_aes,
+	aes, 8, 1, do_aes,
 	"AES 128 CBC encryption",
 	aes_help_text
 );
