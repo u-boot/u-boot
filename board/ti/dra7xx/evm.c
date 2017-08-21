@@ -783,6 +783,12 @@ void recalibrate_iodelay(void)
 		iodelay = dra742_es1_1_iodelay_cfg_array;
 		niodelays = ARRAY_SIZE(dra742_es1_1_iodelay_cfg_array);
 		break;
+	case DRA762_ES1_0:
+		pads = dra76x_core_padconf_array;
+		npads = ARRAY_SIZE(dra76x_core_padconf_array);
+		iodelay = dra76x_es1_0_iodelay_cfg_array;
+		niodelays = ARRAY_SIZE(dra76x_es1_0_iodelay_cfg_array);
+		break;
 	default:
 	case DRA752_ES2_0:
 		pads = dra74x_core_padconf_array;
