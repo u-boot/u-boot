@@ -1115,7 +1115,9 @@ int board_fit_config_name_match(const char *name)
 		} else if (!strcmp(name, "dra72-evm")) {
 			return 0;
 		}
-	} else if (!is_dra72x() && !strcmp(name, "dra7-evm")) {
+	} else if (is_dra76x() && !strcmp(name, "dra76-evm")) {
+		return 0;
+	} else if (!is_dra72x() && !is_dra76x() && !strcmp(name, "dra7-evm")) {
 		return 0;
 	}
 
