@@ -26,6 +26,10 @@ config TARGET_DRA7XX_EVM
 	select TI_I2C_BOARD_DETECT
 	select PHYS_64BIT
 	imply SCSI
+	imply DM_PMIC
+	imply PMIC_LP87565
+	imply DM_REGULATOR
+	imply DM_REGULATOR_LP87565
 
 config TARGET_AM57XX_EVM
 	bool "AM57XX"
