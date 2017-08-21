@@ -8,6 +8,10 @@
  */
 
 /{
+	chosen {
+		tick-timer = &timer2;
+	};
+
 	ocp {
 		u-boot,dm-spl;
 
@@ -19,10 +23,12 @@
 
 &uart1 {
 	u-boot,dm-spl;
+	reg-shift = <2>;
 };
 
 &uart3 {
 	u-boot,dm-spl;
+	reg-shift = <2>;
 };
 
 &mmc1 {
@@ -49,6 +55,7 @@
 	u-boot,dm-spl;
 
 	m25p80@0 {
+		compatible = "spi-flash";
 		u-boot,dm-spl;
 	};
 };
