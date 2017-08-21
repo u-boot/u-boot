@@ -837,6 +837,8 @@ void board_mmc_poweron_ldo(uint voltage)
 		else if (voltage == LDO_VOLT_1V8)
 			voltage = 0xa;
 		lp873x_mmc1_poweron_ldo(voltage);
+	} else if (board_is_dra76x_evm()) {
+		palmas_mmc1_poweron_ldo(LDO4_VOLTAGE, LDO4_CTRL, voltage);
 	} else {
 		palmas_mmc1_poweron_ldo(LDO1_VOLTAGE, LDO1_CTRL, voltage);
 	}
