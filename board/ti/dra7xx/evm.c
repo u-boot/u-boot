@@ -210,6 +210,56 @@ const struct emif_regs emif2_ddr3_532_mhz_1cs_2G = {
 	.emif_rd_wr_exec_thresh         = 0x00000305
 };
 
+const struct emif_regs emif_1_regs_ddr3_666_mhz_1cs_dra76 = {
+	.sdram_config_init              = 0x61862B32,
+	.sdram_config                   = 0x61862B32,
+	.sdram_config2			= 0x00000000,
+	.ref_ctrl                       = 0x0000514C,
+	.ref_ctrl_final			= 0x0000144A,
+	.sdram_tim1                     = 0xD113783C,
+	.sdram_tim2                     = 0x30B47FE3,
+	.sdram_tim3                     = 0x409F8AD8,
+	.read_idle_ctrl                 = 0x00050000,
+	.zq_config                      = 0x5007190B,
+	.temp_alert_config              = 0x00000000,
+	.emif_ddr_phy_ctlr_1_init       = 0x0824400D,
+	.emif_ddr_phy_ctlr_1            = 0x0E24400D,
+	.emif_ddr_ext_phy_ctrl_1        = 0x04040100,
+	.emif_ddr_ext_phy_ctrl_2        = 0x006B009F,
+	.emif_ddr_ext_phy_ctrl_3        = 0x006B00A2,
+	.emif_ddr_ext_phy_ctrl_4        = 0x006B00A8,
+	.emif_ddr_ext_phy_ctrl_5        = 0x006B00A8,
+	.emif_rd_wr_lvl_rmp_win         = 0x00000000,
+	.emif_rd_wr_lvl_rmp_ctl         = 0x80000000,
+	.emif_rd_wr_lvl_ctl             = 0x00000000,
+	.emif_rd_wr_exec_thresh         = 0x00000305
+};
+
+const struct emif_regs emif_2_regs_ddr3_666_mhz_1cs_dra76 = {
+	.sdram_config_init              = 0x61862B32,
+	.sdram_config                   = 0x61862B32,
+	.sdram_config2			= 0x00000000,
+	.ref_ctrl                       = 0x0000514C,
+	.ref_ctrl_final			= 0x0000144A,
+	.sdram_tim1                     = 0xD113781C,
+	.sdram_tim2                     = 0x30B47FE3,
+	.sdram_tim3                     = 0x409F8AD8,
+	.read_idle_ctrl                 = 0x00050000,
+	.zq_config                      = 0x5007190B,
+	.temp_alert_config              = 0x00000000,
+	.emif_ddr_phy_ctlr_1_init       = 0x0824400D,
+	.emif_ddr_phy_ctlr_1            = 0x0E24400D,
+	.emif_ddr_ext_phy_ctrl_1        = 0x04040100,
+	.emif_ddr_ext_phy_ctrl_2        = 0x006B009F,
+	.emif_ddr_ext_phy_ctrl_3        = 0x006B00A2,
+	.emif_ddr_ext_phy_ctrl_4        = 0x006B00A8,
+	.emif_ddr_ext_phy_ctrl_5        = 0x006B00A8,
+	.emif_rd_wr_lvl_rmp_win         = 0x00000000,
+	.emif_rd_wr_lvl_rmp_ctl         = 0x80000000,
+	.emif_rd_wr_lvl_ctl             = 0x00000000,
+	.emif_rd_wr_exec_thresh         = 0x00000305
+};
+
 void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
 {
 	u64 ram_size;
@@ -234,6 +284,12 @@ void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
 				*regs = &emif2_ddr3_532_mhz_1cs;
 			break;
 		}
+		break;
+	case DRA762_ES1_0:
+		if (emif_nr == 1)
+			*regs = &emif_1_regs_ddr3_666_mhz_1cs_dra76;
+		else
+			*regs = &emif_2_regs_ddr3_666_mhz_1cs_dra76;
 		break;
 	case DRA722_ES1_0:
 	case DRA722_ES2_0:
@@ -290,6 +346,7 @@ void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 	ram_size = board_ti_get_emif_size();
 
 	switch (omap_revision()) {
+	case DRA762_ES1_0:
 	case DRA752_ES1_0:
 	case DRA752_ES1_1:
 	case DRA752_ES2_0:
@@ -1009,8 +1066,8 @@ static inline void vtt_regulator_enable(void)
 	if (omap_hw_init_context() == OMAP_INIT_CONTEXT_UBOOT_AFTER_SPL)
 		return;
 
-	/* Do not enable VTT for DRA722 */
-	if (is_dra72x())
+	/* Do not enable VTT for DRA722 or DRA76x */
+	if (is_dra72x() || is_dra76x())
 		return;
 
 	/*
