@@ -34,6 +34,7 @@
 #include "mux_data.h"
 #include "../common/board_detect.h"
 
+#define board_is_dra76x_evm()		board_ti_is("DRA76/7x")
 #define board_is_dra74x_evm()		board_ti_is("5777xCPU")
 #define board_is_dra72x_evm()		board_ti_is("DRA72x-T")
 #define board_is_dra71x_evm()		board_ti_is("DRA79x,D")
@@ -547,6 +548,8 @@ int board_late_init(void)
 			name = "dra71x";
 		else
 			name = "dra72x";
+	} else if (is_dra76x()) {
+		name = "dra76x";
 	} else {
 		name = "dra7xx";
 	}
@@ -595,6 +598,8 @@ void do_board_detect(void)
 		bname = "DRA72x EVM";
 	} else if (board_is_dra71x_evm()) {
 		bname = "DRA71x EVM";
+	} else if (board_is_dra76x_evm()) {
+		bname = "DRA76x EVM";
 	} else {
 		/* If EEPROM is not populated */
 		if (is_dra72x())
