@@ -470,7 +470,7 @@
 		gpu: gpu@fd4b0000 {
 			status = "disabled";
 			compatible = "arm,mali-400", "arm,mali-utgard";
-			reg = <0x0 0xfd4b0000 0x0 0x30000>;
+			reg = <0x0 0xfd4b0000 0x0 0x10000>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 132 4>, <0 132 4>, <0 132 4>, <0 132 4>, <0 132 4>, <0 132 4>;
 			interrupt-names = "IRQGP", "IRQGPMMU", "IRQPP0", "IRQPPMMU0", "IRQPP1", "IRQPPMMU1";
