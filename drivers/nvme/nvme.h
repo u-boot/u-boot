@@ -628,13 +628,6 @@ struct nvme_dev {
 	u64 *prp_pool;
 	u32 prp_entry_num;
 	u32 nn;
-	u32 blk_dev_start;
-};
-
-struct nvme_info {
-	int ns_num;	/*the number of nvme namespaces*/
-	int ndev_num;	/*the number of nvme devices*/
-	struct list_head dev_list;
 };
 
 /*
@@ -651,7 +644,5 @@ struct nvme_ns {
 	u64 mode_select_num_blocks;
 	u32 mode_select_block_len;
 };
-
-extern struct nvme_info *nvme_info;
 
 #endif /* __DRIVER_NVME_H__ */

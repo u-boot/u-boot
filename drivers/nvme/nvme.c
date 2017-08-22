@@ -13,8 +13,6 @@
 #include <dm/device-internal.h>
 #include "nvme.h"
 
-struct nvme_info *nvme_info;
-
 #define NVME_Q_DEPTH		2
 #define NVME_AQ_DEPTH		2
 #define NVME_SQ_SIZE(depth)	(depth * sizeof(struct nvme_command))
@@ -650,7 +648,8 @@ static int nvme_blk_probe(struct udevice *udev)
 
 	memset(ns, 0, sizeof(*ns));
 	ns->dev = ndev;
-	ns->ns_id = desc->devnum - ndev->blk_dev_start + 1;
+	/* extract the namespace id from the block device name */
+	ns->ns_id = trailing_strtol(udev->name) + 1;
 	if (nvme_identify(ndev, ns->ns_id, 0, (dma_addr_t)id))
 		return -EIO;
 
@@ -762,8 +761,10 @@ U_BOOT_DRIVER(nvme_blk) = {
 
 static int nvme_bind(struct udevice *udev)
 {
+	static int ndev_num;
 	char name[20];
-	sprintf(name, "nvme#%d", nvme_info->ndev_num++);
+
+	sprintf(name, "nvme#%d", ndev_num++);
 
 	return device_set_name(udev, name);
 }
@@ -815,8 +816,6 @@ static int nvme_probe(struct udevice *udev)
 		goto free_queue;
 
 	nvme_get_info_from_identify(ndev);
-	ndev->blk_dev_start = nvme_info->ns_num;
-	list_add(&ndev->node, &nvme_info->dev_list);
 
 	return 0;
 
