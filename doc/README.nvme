@@ -50,14 +50,14 @@ identified.
 
 To list all of the NVMe hard disks, try:
 
-  => nvme list
+  => nvme info
   Device 0: Vendor: 0x8086 Rev: 8DV10131 Prod: CVFT535600LS400BGN
 	    Type: Hard Disk
 	    Capacity: 381554.0 MB = 372.6 GB (781422768 x 512)
 
 and print out detailed information for controller and namespaces via:
 
-  => nvme info
+  => nvme detail
 
 Raw block read/write to can be done via the 'nvme read/write' commands:
 

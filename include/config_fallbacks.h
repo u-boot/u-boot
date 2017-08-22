@@ -50,6 +50,7 @@
 	defined(CONFIG_CMD_PART) || \
 	defined(CONFIG_CMD_GPT) || \
 	defined(CONFIG_MMC) || \
+	defined(CONFIG_NVME) || \
 	defined(CONFIG_SYSTEMACE) || \
 	defined(CONFIG_SANDBOX)
 #define HAVE_BLOCK_DEVICE
