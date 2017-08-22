@@ -21,12 +21,12 @@ DECLARE_GLOBAL_DATA_PTR;
 static void setup_boot_mode(void)
 {
 	struct rk322x_grf *const grf = (void *)GRF_BASE;
-	int boot_mode = readl(&grf->os_reg[4]);
+	int boot_mode = readl(&grf->os_reg[0]);
 
 	debug("boot mode %x.\n", boot_mode);
 
 	/* Clear boot mode */
-	writel(BOOT_NORMAL, &grf->os_reg[4]);
+	writel(BOOT_NORMAL, &grf->os_reg[0]);
 
 	switch (boot_mode) {
 	case BOOT_FASTBOOT:
