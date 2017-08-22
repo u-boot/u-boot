@@ -14,7 +14,6 @@
 #define __CONFIG_H
 
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
-
 #define CONFIG_EMIF4	/* The chip has EMIF4 controller */
 
 /*
@@ -27,39 +26,26 @@
 #define CONFIG_SYS_SPL_MALLOC_START	0x80208000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 
-#include <asm/arch/cpu.h>		/* get chip and board defs */
-#include <asm/arch/omap.h>
+#include <configs/ti_omap3_common.h>
+#undef CONFIG_SDRC	/* Disable SDRC since we have EMIF4 */
 
 #define CONFIG_MISC_INIT_R
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
-
-/* Clock Defines */
-#define V_OSCK			26000000	/* Clock output from T2 */
-#define V_SCLK			(V_OSCK >> 1)
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(16 << 20)
 
 /* Hardware drivers */
 
 /* NS16550 Configuration */
-#define V_NS16550_CLK			48000000	/* 48MHz (APLL96/2) */
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
 
 /* select serial console configuration */
 #define CONFIG_CONS_INDEX		3
 #define CONFIG_SYS_NS16550_COM3		OMAP34XX_UART3
 #define CONFIG_SERIAL3			3	/* UART3 on AM3517 EVM */
 
+
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
-					115200}
 
 /*
  * USB configuration
@@ -103,15 +89,9 @@
 
 /* Board NAND Info. */
 #ifdef CONFIG_NAND
-#define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_NAND_OMAP_GPMC_PREFETCH
 #define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
 							/* to access nand */
-#define CONFIG_SYS_NAND_BASE		NAND_BASE	/* physical address */
-							/* to access */
-							/* nand at CS0 */
-#define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of */
-							/* NAND devices */
 #define CONFIG_SYS_NAND_BUSWIDTH_16BIT
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT	64
@@ -231,35 +211,21 @@
 /* We set the max number of command args high to avoid HUSH bugs. */
 #define CONFIG_SYS_MAXARGS		64
 
-/* Console I/O Buffer Size */
-#define CONFIG_SYS_CBSIZE		512
+/* Print Buffer Size */
+#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE \
+					+ sizeof(CONFIG_SYS_PROMPT) + 16)
+/* Boot Argument Buffer Size */
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)
 #define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + \
 					0x01F00000) /* 31MB */
 
-#define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0) /* default load */
-								/* address */
-
-/*
- * AM3517 has 12 GP timers, they can be driven by the system clock
- * (12/13/16.8/19.2/38.4MHz) or by 32KHz clock. We use 13MHz (V_SCLK).
- * This rate is divided by a local divisor.
- */
-#define CONFIG_SYS_TIMERBASE		OMAP34XX_GPT2
-#define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
-
 /* Physical Memory Map */
-#define PHYS_SDRAM_1			OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_2			OMAP34XX_SDRC_CS1
 #define CONFIG_SYS_CS0_SIZE		(256 * 1024 * 1024)
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
 #define CONFIG_SYS_INIT_RAM_SIZE	0x800
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_SIZE - \
-					 GENERATED_GBL_DATA_SIZE)
 
 /* FLASH and environment organization */
 
@@ -284,11 +250,12 @@
 
 /* Defines for SPL */
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_NAND_SIMPLE
+#undef CONFIG_SPL_TEXT_BASE
 #define CONFIG_SPL_TEXT_BASE		0x40200000
 #define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
 					 CONFIG_SPL_TEXT_BASE)
 
+#undef CONFIG_SPL_BSS_START_ADDR
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */
 
