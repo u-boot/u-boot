@@ -100,6 +100,10 @@ void flush_dcache_range(unsigned long start, unsigned long stop)
 {
 }
 
+void invalidate_dcache_range(unsigned long start, unsigned long stop)
+{
+}
+
 int sandbox_read_fdt_from_file(void)
 {
 	struct sandbox_state *state = state_get_current();
