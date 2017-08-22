@@ -81,7 +81,7 @@ $ openssl rsa -in keys/dev.key -pubout
 Device Tree Bindings
 --------------------
 The following properties are required in the FIT's signature node(s) to
-allow thes signer to operate. These should be added to the .its file.
+allow the signer to operate. These should be added to the .its file.
 Signature nodes sit at the same level as hash nodes and are called
 signature@1, signature@2, etc.
 
@@ -150,7 +150,7 @@ all available signing keys until one matches.
 - required: If present this indicates that the key must be verified for the
 image / configuration to be considered valid. Only required keys are
 normally verified by the FIT image booting algorithm. Valid values are
-"image" to force verification of all images, and "conf" to force verfication
+"image" to force verification of all images, and "conf" to force verification
 of the selected configuration (which then relies on hashes in the images to
 verify those).
 
@@ -242,7 +242,7 @@ configuration 3 with kernel 1 and fdt 2:
 With signed images, nothing protects against this. Whether it gains an
 advantage for the attacker is debatable, but it is not secure.
 
-To solved this problem, we support signed configurations. In this case it
+To solve this problem, we support signed configurations. In this case it
 is the configurations that are signed, not the image. Each image has its
 own hash, and we include the hash in the configuration signature.
 
@@ -327,7 +327,7 @@ Enabling FIT Verification
 In addition to the options to enable FIT itself, the following CONFIGs must
 be enabled:
 
-CONFIG_FIT_SIGNATURE - enable signing and verfication in FITs
+CONFIG_FIT_SIGNATURE - enable signing and verification in FITs
 CONFIG_RSA - enable RSA algorithm for signing
 
 WARNING: When relying on signed FIT images with required signature check
@@ -336,7 +336,7 @@ CONFIG_IMAGE_FORMAT_LEGACY
 
 Testing
 -------
-An easy way to test signing and verfication is to use the test script
+An easy way to test signing and verification is to use the test script
 provided in test/vboot/vboot_test.sh. This uses sandbox (a special version
 of U-Boot which runs under Linux) to show the operation of a 'bootm'
 command loading and verifying images.
