@@ -435,6 +435,7 @@ int nvme_identify(struct nvme_dev *dev, unsigned nsid,
 	u32 page_size = dev->page_size;
 	int offset = dma_addr & (page_size - 1);
 	int length = sizeof(struct nvme_id_ctrl);
+	int ret;
 
 	memset(&c, 0, sizeof(c));
 	c.identify.opcode = nvme_admin_identify;
@@ -451,7 +452,12 @@ int nvme_identify(struct nvme_dev *dev, unsigned nsid,
 
 	c.identify.cns = cpu_to_le32(cns);
 
-	return nvme_submit_admin_cmd(dev, &c, NULL);
+	ret = nvme_submit_admin_cmd(dev, &c, NULL);
+	if (!ret)
+		invalidate_dcache_range(dma_addr,
+					dma_addr + sizeof(struct nvme_id_ctrl));
+
+	return ret;
 }
 
 int nvme_get_features(struct nvme_dev *dev, unsigned fid, unsigned nsid,
@@ -464,6 +470,11 @@ int nvme_get_features(struct nvme_dev *dev, unsigned fid, unsigned nsid,
 	c.features.nsid = cpu_to_le32(nsid);
 	c.features.prp1 = cpu_to_le64(dma_addr);
 	c.features.fid = cpu_to_le32(fid);
+
+	/*
+	 * TODO: add cache invalidate operation when the size of
+	 * the DMA buffer is known
+	 */
 
 	return nvme_submit_admin_cmd(dev, &c, result);
 }
@@ -478,6 +489,11 @@ int nvme_set_features(struct nvme_dev *dev, unsigned fid, unsigned dword11,
 	c.features.prp1 = cpu_to_le64(dma_addr);
 	c.features.fid = cpu_to_le32(fid);
 	c.features.dword11 = cpu_to_le32(dword11);
+
+	/*
+	 * TODO: add cache flush operation when the size of
+	 * the DMA buffer is known
+	 */
 
 	return nvme_submit_admin_cmd(dev, &c, result);
 }
@@ -562,7 +578,8 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
 
 static int nvme_get_info_from_identify(struct nvme_dev *dev)
 {
-	struct nvme_id_ctrl buf, *ctrl = &buf;
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, sizeof(struct nvme_id_ctrl));
+	struct nvme_id_ctrl *ctrl = (struct nvme_id_ctrl *)buf;
 	int ret;
 	int shift = NVME_CAP_MPSMIN(dev->cap) + 12;
 
@@ -627,7 +644,8 @@ static int nvme_blk_probe(struct udevice *udev)
 	struct blk_desc *desc = dev_get_uclass_platdata(udev);
 	struct nvme_ns *ns = dev_get_priv(udev);
 	u8 flbas;
-	struct nvme_id_ns buf, *id = &buf;
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, sizeof(struct nvme_id_ns));
+	struct nvme_id_ns *id = (struct nvme_id_ns *)buf;
 	struct pci_child_platdata *pplat;
 
 	memset(ns, 0, sizeof(*ns));
@@ -672,6 +690,10 @@ static ulong nvme_blk_rw(struct udevice *udev, lbaint_t blknr,
 	u16 lbas = 1 << (dev->max_transfer_shift - ns->lba_shift);
 	u64 total_lbas = blkcnt;
 
+	if (!read)
+		flush_dcache_range((unsigned long)buffer,
+				   (unsigned long)buffer + total_len);
+
 	c.rw.opcode = read ? nvme_cmd_read : nvme_cmd_write;
 	c.rw.flags = 0;
 	c.rw.nsid = cpu_to_le32(ns->ns_id);
@@ -705,6 +727,10 @@ static ulong nvme_blk_rw(struct udevice *udev, lbaint_t blknr,
 		temp_len -= lbas << ns->lba_shift;
 		buffer += lbas << ns->lba_shift;
 	}
+
+	if (read)
+		invalidate_dcache_range((unsigned long)buffer,
+					(unsigned long)buffer + total_len);
 
 	return (total_len - temp_len) >> desc->log2blksz;
 }

@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <memalign.h>
 #include <nvme.h>
 #include "nvme.h"
 
@@ -106,8 +107,10 @@ int nvme_print_info(struct udevice *udev)
 {
 	struct nvme_ns *ns = dev_get_priv(udev);
 	struct nvme_dev *dev = ns->dev;
-	struct nvme_id_ns buf_ns, *id = &buf_ns;
-	struct nvme_id_ctrl buf_ctrl, *ctrl = &buf_ctrl;
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf_ns, sizeof(struct nvme_id_ns));
+	struct nvme_id_ns *id = (struct nvme_id_ns *)buf_ns;
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf_ctrl, sizeof(struct nvme_id_ctrl));
+	struct nvme_id_ctrl *ctrl = (struct nvme_id_ctrl *)buf_ctrl;
 
 	if (nvme_identify(dev, 0, 1, (dma_addr_t)ctrl))
 		return -EIO;
