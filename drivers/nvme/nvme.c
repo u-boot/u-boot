@@ -656,8 +656,8 @@ static int nvme_blk_probe(struct udevice *udev)
 	return 0;
 }
 
-static ulong nvme_blk_read(struct udevice *udev, lbaint_t blknr,
-			   lbaint_t blkcnt, void *buffer)
+static ulong nvme_blk_rw(struct udevice *udev, lbaint_t blknr,
+			 lbaint_t blkcnt, void *buffer, bool read)
 {
 	struct nvme_ns *ns = dev_get_priv(udev);
 	struct nvme_dev *dev = ns->dev;
@@ -672,7 +672,7 @@ static ulong nvme_blk_read(struct udevice *udev, lbaint_t blknr,
 	u16 lbas = 1 << (dev->max_transfer_shift - ns->lba_shift);
 	u64 total_lbas = blkcnt;
 
-	c.rw.opcode = nvme_cmd_read;
+	c.rw.opcode = read ? nvme_cmd_read : nvme_cmd_write;
 	c.rw.flags = 0;
 	c.rw.nsid = cpu_to_le32(ns->ns_id);
 	c.rw.control = 0;
@@ -690,8 +690,8 @@ static ulong nvme_blk_read(struct udevice *udev, lbaint_t blknr,
 			total_lbas -= lbas;
 		}
 
-		if (nvme_setup_prps
-		   (dev, &prp2, lbas << ns->lba_shift, (ulong)buffer))
+		if (nvme_setup_prps(dev, &prp2,
+				    lbas << ns->lba_shift, (ulong)buffer))
 			return -EIO;
 		c.rw.slba = cpu_to_le64(slba);
 		slba += lbas;
@@ -709,57 +709,16 @@ static ulong nvme_blk_read(struct udevice *udev, lbaint_t blknr,
 	return (total_len - temp_len) >> desc->log2blksz;
 }
 
+static ulong nvme_blk_read(struct udevice *udev, lbaint_t blknr,
+			   lbaint_t blkcnt, void *buffer)
+{
+	return nvme_blk_rw(udev, blknr, blkcnt, buffer, true);
+}
+
 static ulong nvme_blk_write(struct udevice *udev, lbaint_t blknr,
 			    lbaint_t blkcnt, const void *buffer)
 {
-	struct nvme_ns *ns = dev_get_priv(udev);
-	struct nvme_dev *dev = ns->dev;
-	struct nvme_command c;
-	struct blk_desc *desc = dev_get_uclass_platdata(udev);
-	int status;
-	u64 prp2;
-	u64 total_len = blkcnt << desc->log2blksz;
-	u64 temp_len = total_len;
-
-	u64 slba = blknr;
-	u16 lbas = 1 << (dev->max_transfer_shift - ns->lba_shift);
-	u64 total_lbas = blkcnt;
-
-	c.rw.opcode = nvme_cmd_write;
-	c.rw.flags = 0;
-	c.rw.nsid = cpu_to_le32(ns->ns_id);
-	c.rw.control = 0;
-	c.rw.dsmgmt = 0;
-	c.rw.reftag = 0;
-	c.rw.apptag = 0;
-	c.rw.appmask = 0;
-	c.rw.metadata = 0;
-
-	while (total_lbas) {
-		if (total_lbas < lbas) {
-			lbas = (u16)total_lbas;
-			total_lbas = 0;
-		} else {
-			total_lbas -= lbas;
-		}
-
-		if (nvme_setup_prps
-		   (dev, &prp2, lbas << ns->lba_shift, (ulong)buffer))
-			return -EIO;
-		c.rw.slba = cpu_to_le64(slba);
-		slba += lbas;
-		c.rw.length = cpu_to_le16(lbas - 1);
-		c.rw.prp1 = cpu_to_le64((ulong)buffer);
-		c.rw.prp2 = cpu_to_le64(prp2);
-		status = nvme_submit_sync_cmd(dev->queues[NVME_IO_Q],
-				&c, NULL, IO_TIMEOUT);
-		if (status)
-			break;
-		temp_len -= lbas << ns->lba_shift;
-		buffer += lbas << ns->lba_shift;
-	}
-
-	return (total_len - temp_len) >> desc->log2blksz;
+	return nvme_blk_rw(udev, blknr, blkcnt, (void *)buffer, false);
 }
 
 static const struct blk_ops nvme_blk_ops = {
