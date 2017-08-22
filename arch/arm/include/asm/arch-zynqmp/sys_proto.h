@@ -15,6 +15,7 @@
 enum {
 	IDCODE,
 	VERSION,
+	IDCODE2,
 };
 
 enum {
