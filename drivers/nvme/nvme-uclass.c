@@ -26,28 +26,22 @@ static int nvme_info_init(struct uclass *uc)
 static int nvme_uclass_post_probe(struct udevice *udev)
 {
 	char name[20];
-	char *str;
 	struct udevice *ns_udev;
 	int i, ret;
 	struct nvme_dev *ndev = dev_get_priv(udev);
 
 	/* Create a blk device for each namespace */
 	for (i = 0; i < ndev->nn; i++) {
-		sprintf(name, "nvme-blk#%d", nvme_info->ns_num);
-		str = strdup(name);
-		if (!str)
-			return -ENOMEM;
+		sprintf(name, "blk#%d", nvme_info->ns_num);
 
 		/* The real blksz and size will be set by nvme_blk_probe() */
-		ret = blk_create_device(udev, "nvme-blk", str, IF_TYPE_NVME,
-					nvme_info->ns_num++, 512, 0, &ns_udev);
+		ret = blk_create_devicef(udev, "nvme-blk", name, IF_TYPE_NVME,
+					 nvme_info->ns_num++, 512, 0, &ns_udev);
 		if (ret) {
-			free(str);
 			nvme_info->ns_num--;
 
 			return ret;
 		}
-		device_set_name_alloced(ns_udev);
 	}
 
 	return 0;
