@@ -431,7 +431,7 @@ int nvme_identify(struct nvme_dev *dev, unsigned nsid,
 		c.identify.prp2 = 0;
 	} else {
 		dma_addr += (page_size - offset);
-		c.identify.prp2 = dma_addr;
+		c.identify.prp2 = cpu_to_le64(dma_addr);
 	}
 
 	c.identify.cns = cpu_to_le32(cns);
