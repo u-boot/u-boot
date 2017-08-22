@@ -621,6 +621,7 @@ struct nvme_dev {
 	char model[40];
 	char firmware_rev[8];
 	u32 max_transfer_shift;
+	u64 cap;
 	u32 stripe_size;
 	u32 page_size;
 	u8 vwc;

@@ -318,7 +318,7 @@ static int nvme_configure_admin_queue(struct nvme_dev *dev)
 {
 	int result;
 	u32 aqa;
-	u64 cap = nvme_readq(&dev->bar->cap);
+	u64 cap = dev->cap;
 	struct nvme_queue *nvmeq;
 	/* most architectures use 4KB as the page size */
 	unsigned page_shift = 12;
@@ -549,7 +549,7 @@ static int nvme_get_info_from_identify(struct nvme_dev *dev)
 {
 	struct nvme_id_ctrl buf, *ctrl = &buf;
 	int ret;
-	int shift = NVME_CAP_MPSMIN(nvme_readq(&dev->bar->cap)) + 12;
+	int shift = NVME_CAP_MPSMIN(dev->cap) + 12;
 
 	ret = nvme_identify(dev, 0, 1, (dma_addr_t)ctrl);
 	if (ret)
@@ -772,7 +772,6 @@ static int nvme_probe(struct udevice *udev)
 {
 	int ret;
 	struct nvme_dev *ndev = dev_get_priv(udev);
-	u64 cap;
 
 	ndev->instance = trailing_strtol(udev->name);
 
@@ -801,9 +800,9 @@ static int nvme_probe(struct udevice *udev)
 	}
 	ndev->prp_entry_num = MAX_PRP_POOL >> 3;
 
-	cap = nvme_readq(&ndev->bar->cap);
-	ndev->q_depth = min_t(int, NVME_CAP_MQES(cap) + 1, NVME_Q_DEPTH);
-	ndev->db_stride = 1 << NVME_CAP_STRIDE(cap);
+	ndev->cap = nvme_readq(&ndev->bar->cap);
+	ndev->q_depth = min_t(int, NVME_CAP_MQES(ndev->cap) + 1, NVME_Q_DEPTH);
+	ndev->db_stride = 1 << NVME_CAP_STRIDE(ndev->cap);
 	ndev->dbs = ((void __iomem *)ndev->bar) + 4096;
 
 	ret = nvme_configure_admin_queue(ndev);
