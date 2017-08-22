@@ -608,7 +608,6 @@ struct nvme_dev {
 	struct list_head node;
 	struct nvme_queue **queues;
 	u32 __iomem *dbs;
-	struct udevice *pdev;
 	int instance;
 	unsigned queue_count;
 	unsigned online_queues;

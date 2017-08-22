@@ -547,7 +547,6 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
 
 static int nvme_get_info_from_identify(struct nvme_dev *dev)
 {
-	u16 vendor, device;
 	struct nvme_id_ctrl buf, *ctrl = &buf;
 	int ret;
 	int shift = NVME_CAP_MPSMIN(nvme_readq(&dev->bar->cap)) + 12;
@@ -585,22 +584,6 @@ static int nvme_get_info_from_identify(struct nvme_dev *dev)
 		dev->max_transfer_shift = 20;
 	}
 
-	/* Apply quirk stuff */
-	dm_pci_read_config16(dev->pdev, PCI_VENDOR_ID, &vendor);
-	dm_pci_read_config16(dev->pdev, PCI_DEVICE_ID, &device);
-	if ((vendor == PCI_VENDOR_ID_INTEL) &&
-	    (device == 0x0953) && ctrl->vs[3]) {
-		unsigned int max_transfer_shift;
-		dev->stripe_size = (ctrl->vs[3] + shift);
-		max_transfer_shift = (ctrl->vs[3] + 18);
-		if (dev->max_transfer_shift) {
-			dev->max_transfer_shift = min(max_transfer_shift,
-						      dev->max_transfer_shift);
-		} else {
-			dev->max_transfer_shift = max_transfer_shift;
-		}
-	}
-
 	return 0;
 }
 
@@ -629,8 +612,8 @@ static int nvme_blk_probe(struct udevice *udev)
 	struct blk_desc *desc = dev_get_uclass_platdata(udev);
 	struct nvme_ns *ns = dev_get_priv(udev);
 	u8 flbas;
-	u16 vendor;
 	struct nvme_id_ns buf, *id = &buf;
+	struct pci_child_platdata *pplat;
 
 	memset(ns, 0, sizeof(*ns));
 	ns->dev = ndev;
@@ -649,8 +632,8 @@ static int nvme_blk_probe(struct udevice *udev)
 	desc->log2blksz = ns->lba_shift;
 	desc->blksz = 1 << ns->lba_shift;
 	desc->bdev = udev;
-	dm_pci_read_config16(ndev->pdev, PCI_VENDOR_ID, &vendor);
-	sprintf(desc->vendor, "0x%.4x", vendor);
+	pplat = dev_get_parent_platdata(udev->parent);
+	sprintf(desc->vendor, "0x%.4x", pplat->vendor);
 	memcpy(desc->product, ndev->serial, sizeof(ndev->serial));
 	memcpy(desc->revision, ndev->firmware_rev, sizeof(ndev->firmware_rev));
 	part_init(desc);
@@ -791,7 +774,6 @@ static int nvme_probe(struct udevice *udev)
 	struct nvme_dev *ndev = dev_get_priv(udev);
 	u64 cap;
 
-	ndev->pdev = pci_get_controller(udev);
 	ndev->instance = trailing_strtol(udev->name);
 
 	INIT_LIST_HEAD(&ndev->namespaces);
