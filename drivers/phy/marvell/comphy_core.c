@@ -136,20 +136,29 @@ static int comphy_probe(struct udevice *dev)
 		if (!fdtdec_get_is_enabled(blob, subnode))
 			continue;
 
-		comphy_map_data[lane].speed = fdtdec_get_int(
-			blob, subnode, "phy-speed", COMPHY_TYPE_INVALID);
-		comphy_map_data[lane].type = fdtdec_get_int(
-			blob, subnode, "phy-type", COMPHY_SPEED_INVALID);
-		comphy_map_data[lane].invert = fdtdec_get_int(
-			blob, subnode, "phy-invert", COMPHY_POLARITY_NO_INVERT);
-		comphy_map_data[lane].clk_src = fdtdec_get_bool(blob, subnode,
-								"clk-src");
-		comphy_map_data[lane].end_point = fdtdec_get_bool(blob, subnode,
-								  "end_point");
+		comphy_map_data[lane].type =
+			fdtdec_get_int(blob, subnode, "phy-type",
+				       COMPHY_TYPE_INVALID);
+
 		if (comphy_map_data[lane].type == COMPHY_TYPE_INVALID) {
 			printf("no phy type for lane %d, setting lane as unconnected\n",
 			       lane + 1);
+			continue;
 		}
+
+		comphy_map_data[lane].speed =
+			fdtdec_get_int(blob, subnode, "phy-speed",
+				       COMPHY_SPEED_INVALID);
+
+		comphy_map_data[lane].invert =
+			fdtdec_get_int(blob, subnode, "phy-invert",
+				       COMPHY_POLARITY_NO_INVERT);
+
+		comphy_map_data[lane].clk_src =
+			fdtdec_get_bool(blob, subnode, "clk-src");
+
+		comphy_map_data[lane].end_point =
+			fdtdec_get_bool(blob, subnode, "end_point");
 
 		lane++;
 	}
