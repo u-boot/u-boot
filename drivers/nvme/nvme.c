@@ -23,6 +23,12 @@ struct nvme_info *nvme_info;
 #define IO_TIMEOUT		30
 #define MAX_PRP_POOL		512
 
+enum nvme_queue_id {
+	NVME_ADMIN_Q,
+	NVME_IO_Q,
+	NVME_Q_NUM,
+};
+
 /*
  * An NVM Express queue. Each device has at least two (one for admin
  * commands and one for I/O commands).
@@ -209,7 +215,8 @@ static int nvme_submit_sync_cmd(struct nvme_queue *nvmeq,
 static int nvme_submit_admin_cmd(struct nvme_dev *dev, struct nvme_command *cmd,
 				 u32 *result)
 {
-	return nvme_submit_sync_cmd(dev->queues[0], cmd, result, ADMIN_TIMEOUT);
+	return nvme_submit_sync_cmd(dev->queues[NVME_ADMIN_Q], cmd,
+				    result, ADMIN_TIMEOUT);
 }
 
 static struct nvme_queue *nvme_alloc_queue(struct nvme_dev *dev,
@@ -349,7 +356,7 @@ static int nvme_configure_admin_queue(struct nvme_dev *dev)
 	if (result < 0)
 		return result;
 
-	nvmeq = dev->queues[0];
+	nvmeq = dev->queues[NVME_ADMIN_Q];
 	if (!nvmeq) {
 		nvmeq = nvme_alloc_queue(dev, 0, NVME_AQ_DEPTH);
 		if (!nvmeq)
@@ -377,7 +384,7 @@ static int nvme_configure_admin_queue(struct nvme_dev *dev)
 
 	nvmeq->cq_vector = 0;
 
-	nvme_init_queue(dev->queues[0], 0);
+	nvme_init_queue(dev->queues[NVME_ADMIN_Q], 0);
 
 	return result;
 
@@ -691,7 +698,7 @@ static ulong nvme_blk_read(struct udevice *udev, lbaint_t blknr,
 		c.rw.length = cpu_to_le16(lbas - 1);
 		c.rw.prp1 = cpu_to_le64((ulong)buffer);
 		c.rw.prp2 = cpu_to_le64(prp2);
-		status = nvme_submit_sync_cmd(dev->queues[1],
+		status = nvme_submit_sync_cmd(dev->queues[NVME_IO_Q],
 				&c, NULL, IO_TIMEOUT);
 		if (status)
 			break;
@@ -744,7 +751,7 @@ static ulong nvme_blk_write(struct udevice *udev, lbaint_t blknr,
 		c.rw.length = cpu_to_le16(lbas - 1);
 		c.rw.prp1 = cpu_to_le64((ulong)buffer);
 		c.rw.prp2 = cpu_to_le64(prp2);
-		status = nvme_submit_sync_cmd(dev->queues[1],
+		status = nvme_submit_sync_cmd(dev->queues[NVME_IO_Q],
 				&c, NULL, IO_TIMEOUT);
 		if (status)
 			break;
@@ -792,13 +799,14 @@ static int nvme_probe(struct udevice *udev)
 		goto free_nvme;
 	}
 
-	ndev->queues = malloc(2 * sizeof(struct nvme_queue *));
+	ndev->queues = malloc(NVME_Q_NUM * sizeof(struct nvme_queue *));
 	if (!ndev->queues) {
 		ret = -ENOMEM;
 		printf("Error: %s: Out of memory!\n", udev->name);
 		goto free_nvme;
 	}
-	memset(ndev->queues, 0, sizeof(2 * sizeof(struct nvme_queue *)));
+	memset(ndev->queues, 0,
+	       sizeof(NVME_Q_NUM * sizeof(struct nvme_queue *)));
 
 	ndev->prp_pool = malloc(MAX_PRP_POOL);
 	if (!ndev->prp_pool) {
