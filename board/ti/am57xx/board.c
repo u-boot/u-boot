@@ -1063,6 +1063,9 @@ int board_fit_config_name_match(const char *name)
 		if (board_is_x15_revb1()) {
 			if (!strcmp(name, "am57xx-beagle-x15-revb1"))
 				return 0;
+		} else if (board_is_x15_revc()) {
+			if (!strcmp(name, "am57xx-beagle-x15-revc"))
+				return 0;
 		} else if (!strcmp(name, "am57xx-beagle-x15")) {
 			return 0;
 		}
