@@ -72,6 +72,15 @@
 #define CONFIG_LIB_RAND
 #endif
 
+/* Console I/O Buffer Size */
+#ifndef CONFIG_SYS_CBSIZE
+#if defined(CONFIG_CMD_KGDB)
+#define CONFIG_SYS_CBSIZE	1024
+#else
+#define CONFIG_SYS_CBSIZE	256
+#endif
+#endif
+
 #ifndef CONFIG_SYS_PBSIZE
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + 128)
 #endif
