@@ -166,7 +166,6 @@
 				"bootm 0x22000000"
 
 /* Misc. u-boot settings */
-#define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + 16 \
 					+ sizeof(CONFIG_SYS_PROMPT))

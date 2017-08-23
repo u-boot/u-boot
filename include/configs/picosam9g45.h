@@ -111,7 +111,6 @@
 				"bootz 0x22000000 - 0x21000000"
 #endif
 
-#define CONFIG_SYS_CBSIZE	256
 #define CONFIG_SYS_MAXARGS	16
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE  \
 					+ sizeof(CONFIG_SYS_PROMPT) + 16)

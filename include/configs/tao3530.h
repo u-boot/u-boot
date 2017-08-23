@@ -148,7 +148,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 
 /* turn on command-line edit/hist/auto */
 #define CONFIG_CMDLINE_EDITING

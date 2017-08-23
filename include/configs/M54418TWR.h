@@ -180,11 +180,6 @@
 
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
-#else
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
-#endif
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)

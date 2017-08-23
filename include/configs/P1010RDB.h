@@ -723,11 +723,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
-#else
-#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
-#endif
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 						/* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args */

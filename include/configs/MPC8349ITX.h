@@ -493,12 +493,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 #define CONFIG_LOADADDR	800000	/* default location for tftp and bootm */
 
-#if defined(CONFIG_CMD_KGDB)
-	#define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size */
-#else
-	#define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
-#endif
-
 				/* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_MAXARGS	16	/* max number of command args */

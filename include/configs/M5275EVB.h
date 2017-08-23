@@ -90,11 +90,6 @@
 
 #define CONFIG_SYS_LONGHELP		/* undef to save memory	*/
 
-#if (CONFIG_CMD_KGDB)
-#	define CONFIG_SYS_CBSIZE	1024
-#else
-#	define CONFIG_SYS_CBSIZE	256
-#endif
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE

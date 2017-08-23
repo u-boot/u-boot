@@ -26,7 +26,6 @@
 
 #define CONFIG_SYS_TEXT_BASE	0x8FFC0000
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
-#define CONFIG_SYS_CBSIZE		256		/* Buffer size for input from the Console */
 #define CONFIG_SYS_PBSIZE		256		/* Buffer size for Console output */
 #define CONFIG_SYS_MAXARGS		16		/* max args accepted for monitor commands */
 #define CONFIG_SYS_BARGSIZE	512		/* Buffer size for Boot Arguments passed to kernel */

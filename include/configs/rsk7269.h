@@ -18,7 +18,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
 
 #define CONFIG_SYS_LONGHELP		/* undef to save memory	*/
-#define CONFIG_SYS_CBSIZE	256	/* Boot Argument Buffer Size */
 #define CONFIG_SYS_PBSIZE	256	/* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16	/* max number of command args */
 

@@ -73,7 +73,6 @@
  * Console configuration
  */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 						sizeof(CONFIG_SYS_PROMPT) + 16)

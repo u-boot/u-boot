@@ -8,8 +8,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <config.h>
-
 /* ram memory-related information */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			0x40000000

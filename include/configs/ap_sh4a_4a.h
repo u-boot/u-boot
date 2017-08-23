@@ -31,8 +31,6 @@
 /* undef to save memory	*/
 #define CONFIG_SYS_LONGHELP
 /* Monitor Command Prompt */
-/* Buffer size for input from the Console */
-#define CONFIG_SYS_CBSIZE		256
 /* Buffer size for Console output */
 #define CONFIG_SYS_PBSIZE		256
 /* max args accepted for monitor commands */

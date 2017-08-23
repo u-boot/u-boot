@@ -80,7 +80,6 @@ unsigned char zipitz2_spi_read(void);
 #endif
 
 #define	CONFIG_SYS_LONGHELP				/* undef to save memory	*/
-#define	CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size */
 #define	CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
 #define	CONFIG_SYS_MAXARGS		16		/* max number of command args */
 #define	CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */

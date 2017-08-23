@@ -57,7 +57,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_CBSIZE		256
 
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE \

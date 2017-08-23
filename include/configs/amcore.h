@@ -33,12 +33,6 @@
 /* undef to save memory	*/
 #undef	CONFIG_SYS_LONGHELP
 
-#if defined(CONFIG_CMD_KGDB)
-/* Console I/O buff. size */
-#define CONFIG_SYS_CBSIZE		1024
-#else
-#define CONFIG_SYS_CBSIZE		256
-#endif
 /* Print buffer size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					 sizeof(CONFIG_SYS_PROMPT)+16)

@@ -119,7 +119,6 @@
 #define CONFIG_ENV_SIZE			0x20000		/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND	"nand read 0x72000000 0x200000 0x200000; bootm"
 
-#define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)

@@ -93,8 +93,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-/* Console I/O Buffer Size */
-#define CONFIG_SYS_CBSIZE		256
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					 sizeof(CONFIG_SYS_PROMPT) + 16)

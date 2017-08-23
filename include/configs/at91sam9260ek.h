@@ -159,7 +159,6 @@
 	"fatload mmc 0:1 0x22000000 uImage; bootm"
 #endif
 
-#define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_LONGHELP		1
 #define CONFIG_CMDLINE_EDITING	1

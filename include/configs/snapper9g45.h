@@ -110,7 +110,6 @@
 	"altbootcmd=run boot_mmc ; run boot_usb ; run boot_safe ; run boot_working\0"
 
 /* Console settings */
-#define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE +		\
 					 sizeof(CONFIG_SYS_PROMPT) + 16)

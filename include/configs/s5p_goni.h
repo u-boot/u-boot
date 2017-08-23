@@ -168,7 +168,6 @@
 	"dfu_alt_info=" CONFIG_DFU_ALT "\0"
 
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE	384	/* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16	/* max number of command args */
 /* Boot Argument Buffer Size */

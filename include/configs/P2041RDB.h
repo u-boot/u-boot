@@ -594,11 +594,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#ifdef CONFIG_CMD_KGDB
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
-#else
-#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
-#endif
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + \
 				sizeof(CONFIG_SYS_PROMPT)+16)
