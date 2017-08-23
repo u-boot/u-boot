@@ -432,7 +432,6 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 		disk_partition_t *partitions, int parts)
 {
 	lbaint_t offset = (lbaint_t)le64_to_cpu(gpt_h->first_usable_lba);
-	lbaint_t start;
 	lbaint_t last_usable_lba = (lbaint_t)
 			le64_to_cpu(gpt_h->last_usable_lba);
 	int i, k;
@@ -448,24 +447,27 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 
 	for (i = 0; i < parts; i++) {
 		/* partition starting lba */
-		start = partitions[i].start;
+		lbaint_t start = partitions[i].start;
+		lbaint_t size = partitions[i].size;
+
 		if (start && (start < offset)) {
 			printf("Partition overlap\n");
 			return -1;
 		}
+
 		if (start) {
 			gpt_e[i].starting_lba = cpu_to_le64(start);
-			offset = start + partitions[i].size;
+			offset = start + size;
 		} else {
 			gpt_e[i].starting_lba = cpu_to_le64(offset);
-			offset += partitions[i].size;
+			offset += size;
 		}
 		if (offset > (last_usable_lba + 1)) {
 			printf("Partitions layout exceds disk size\n");
 			return -1;
 		}
 		/* partition ending lba */
-		if ((i == parts - 1) && (partitions[i].size == 0))
+		if ((i == parts - 1) && (size == 0))
 			/* extend the last partition to maximuim */
 			gpt_e[i].ending_lba = gpt_h->last_usable_lba;
 		else
@@ -525,7 +527,7 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 		debug("%s: name: %s offset[%d]: 0x" LBAF
 		      " size[%d]: 0x" LBAF "\n",
 		      __func__, partitions[i].name, i,
-		      offset, i, partitions[i].size);
+		      offset, i, size);
 	}
 
 	return 0;
