@@ -13,9 +13,16 @@ config CPU_RZA1
 choice
 	prompt "Renesas RZ/A1 board select"
 
+# Renesas Supported Boards
+config TARGET_GRPEACH
+	bool "GR-PEACH board"
+
 endchoice
 
 config SYS_SOC
 	default "rmobile"
+
+# Renesas Supported Boards
+source "board/renesas/grpeach/Kconfig"
 
 endif
