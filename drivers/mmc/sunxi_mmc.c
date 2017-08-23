@@ -519,7 +519,7 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 	if (ret)
 		return NULL;
 
-	return mmc_create(cfg, mmc_host);
+	return mmc_create(cfg, priv);
 }
 #else
 
