@@ -182,9 +182,6 @@
 
 /* size of console buffer */
 #define	CONFIG_SYS_CBSIZE	512
- /* print buffer size */
-#define	CONFIG_SYS_PBSIZE \
-		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 /* max number of command args */
 #define	CONFIG_SYS_MAXARGS	15
 #define	CONFIG_SYS_LONGHELP

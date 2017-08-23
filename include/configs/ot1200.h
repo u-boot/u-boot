@@ -95,9 +95,6 @@
 /* Thermal support */
 #define CONFIG_IMX_THERMAL
 
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS           1
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR

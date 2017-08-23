@@ -276,8 +276,6 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CLOCKS
 #define CONFIG_SYS_MAXARGS		32 /* max number of command args */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					sizeof(CONFIG_SYS_PROMPT) + 16)
 
 #ifndef CONFIG_NR_DRAM_BANKS
 # define CONFIG_NR_DRAM_BANKS		1

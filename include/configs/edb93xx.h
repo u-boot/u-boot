@@ -78,8 +78,6 @@
 
 #define CONFIG_SYS_LONGHELP			/* Enable "long" help in mon */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O buffer size */
-/* Print buffer size */
-#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 /* Boot argument buffer size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_MAXARGS	16		/* Max number of command args */

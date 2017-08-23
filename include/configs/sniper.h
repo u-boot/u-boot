@@ -94,8 +94,6 @@
 
 #define CONFIG_SYS_MAXARGS	16
 #define CONFIG_SYS_CBSIZE	512
-#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) \
-				 + 16)
 
 /*
  * Serial

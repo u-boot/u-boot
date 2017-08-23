@@ -145,9 +145,6 @@
 #undef CONFIG_SYS_BARGSIZE
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
 
-/* Increase print buffer size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-
 /* Increase maximum number of arguments */
 #undef CONFIG_SYS_MAXARGS
 #define CONFIG_SYS_MAXARGS		32

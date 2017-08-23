@@ -170,9 +170,6 @@
 #define CONFIG_HWCONFIG
 #define CONFIG_PREBOOT
 
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-
 /* Memory configuration */
 #define CONFIG_SYS_MEMTEST_START       0x10000000
 #define CONFIG_SYS_MEMTEST_END	       0x10010000

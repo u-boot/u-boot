@@ -322,8 +322,6 @@
 #endif /* CONFIG_TRAILBLAZER */
 
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_MAXARGS	16
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 

@@ -114,10 +114,6 @@
 
 /* Monitor Command Prompt */
 
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					sizeof(CONFIG_SYS_PROMPT) + 16)
-
 #define CONFIG_USB_DEV_PULLUP_GPIO	33
 /* USB VBUS GPIO 3 */
 

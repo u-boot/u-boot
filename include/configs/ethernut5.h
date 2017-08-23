@@ -167,8 +167,6 @@
 
 /* Misc. u-boot settings */
 #define CONFIG_SYS_MAXARGS		16
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + 16 \
-					+ sizeof(CONFIG_SYS_PROMPT))
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 

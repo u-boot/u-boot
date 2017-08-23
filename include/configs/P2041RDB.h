@@ -594,9 +594,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + \
-				sizeof(CONFIG_SYS_PROMPT)+16)
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args */
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE

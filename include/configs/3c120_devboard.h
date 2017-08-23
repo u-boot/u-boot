@@ -83,9 +83,6 @@
 #define CONFIG_SYS_LONGHELP		/* Provide extended help */
 #define CONFIG_SYS_MAXARGS		16	/* Max command args	*/
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Bootarg buf size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					sizeof(CONFIG_SYS_PROMPT) + \
-					 16)	/* Print buf size */
 #define CONFIG_SYS_LOAD_ADDR		0xd4000000	/* Half of RAM */
 #define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE

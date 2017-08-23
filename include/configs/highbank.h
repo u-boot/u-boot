@@ -56,9 +56,6 @@
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #define CONFIG_SYS_MAXARGS		16	/* max number of cmd args */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					 sizeof(CONFIG_SYS_PROMPT)+16)
 
 #define CONFIG_SYS_LOAD_ADDR		0x800000
 #define CONFIG_SYS_64BIT_LBA

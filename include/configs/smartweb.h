@@ -166,8 +166,6 @@
 /* General Boot Parameter */
 #define CONFIG_BOOTCOMMAND		"run flashboot"
 #define CONFIG_SYS_CBSIZE		512
-#define CONFIG_SYS_PBSIZE \
-	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 

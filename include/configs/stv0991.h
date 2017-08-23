@@ -31,8 +31,6 @@
 
 /* user interface */
 #define CONFIG_SYS_CBSIZE			1024
-#define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE \
-						+sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* MISC */
 #define CONFIG_SYS_LOAD_ADDR			0x00000000

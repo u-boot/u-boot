@@ -113,8 +113,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1	/* enable memory tag */
 
 #define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buff Size */
-#define	CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE \
-		+sizeof(CONFIG_SYS_PROMPT) + 16)	/* Print Buff */
 /*
  * Commands configuration
  */

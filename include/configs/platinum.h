@@ -112,10 +112,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_PREBOOT
 
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE + \
-						 sizeof(CONFIG_SYS_PROMPT) + 16)
-
 /* MTD/UBI/UBIFS config */
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
