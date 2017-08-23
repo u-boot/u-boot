@@ -445,24 +445,38 @@ int gpt_fill_pte(struct blk_desc *dev_desc,
 	char *str_type_guid;
 	unsigned char *bin_type_guid;
 #endif
+	size_t hdr_start = gpt_h->my_lba;
+	size_t hdr_end = hdr_start + 1;
+
+	size_t pte_start = gpt_h->partition_entry_lba;
+	size_t pte_end = pte_start +
+		gpt_h->num_partition_entries * gpt_h->sizeof_partition_entry /
+		dev_desc->blksz;
 
 	for (i = 0; i < parts; i++) {
 		/* partition starting lba */
 		lbaint_t start = partitions[i].start;
 		lbaint_t size = partitions[i].size;
 
-		if (start && (start < offset)) {
+		if (start) {
+			offset = start + size;
+		} else {
+			start = offset;
+			offset += size;
+		}
+
+		/*
+		 * If our partition overlaps with either the GPT
+		 * header, or the partition entry, reject it.
+		 */
+		if (((start <= hdr_end && hdr_start <= (start + size)) ||
+		     (start <= pte_end && pte_start <= (start + size)))) {
 			printf("Partition overlap\n");
 			return -1;
 		}
 
-		if (start) {
-			gpt_e[i].starting_lba = cpu_to_le64(start);
-			offset = start + size;
-		} else {
-			gpt_e[i].starting_lba = cpu_to_le64(offset);
-			offset += size;
-		}
+		gpt_e[i].starting_lba = cpu_to_le64(start);
+
 		if (offset > (last_usable_lba + 1)) {
 			printf("Partitions layout exceds disk size\n");
 			return -1;
