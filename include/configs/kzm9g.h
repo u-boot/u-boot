@@ -41,7 +41,6 @@
 /* prompt */
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_PBSIZE		256
-#define CONFIG_SYS_BARGSIZE		512
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200 }
 
 /* SCIF */

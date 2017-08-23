@@ -66,8 +66,6 @@
 /* Monitor Command Prompt */
 /* Buffer size for Console output */
 #define CONFIG_SYS_PBSIZE		256
-/* Buffer size for Boot Arguments passed to kernel */
-#define CONFIG_SYS_BARGSIZE	512
 /* List of legal baudrate settings for this board */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200 }
 

@@ -25,8 +25,6 @@
 
 #define CONFIG_SYS_TEXT_BASE	0x0C7C0000
 #define CONFIG_SYS_LONGHELP		/* undef to save memory	*/
-/* Buffer size for Boot Arguments passed to kernel */
-#define CONFIG_SYS_BARGSIZE	512
 /* List of legal baudrate settings for this board */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200 }
 
