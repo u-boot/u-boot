@@ -24,7 +24,7 @@
 #undef CHECK_FOR_POWERPC_PLATTFORM
 #define CD_SECTSIZE 2048
 
-static unsigned char tmpbuf[CD_SECTSIZE];
+static unsigned char tmpbuf[CD_SECTSIZE] __aligned(ARCH_DMA_MINALIGN);
 
 unsigned long iso_dread(struct blk_desc *block_dev, lbaint_t start,
                         lbaint_t blkcnt, void *buffer)
