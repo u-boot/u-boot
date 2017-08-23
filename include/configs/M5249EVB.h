@@ -41,7 +41,6 @@
 
 #define CONFIG_SYS_LONGHELP				/* undef to save memory		*/
 
-#define CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
 #define CONFIG_SYS_DEVICE_NULLDEV	1	/* include nulldev device	*/

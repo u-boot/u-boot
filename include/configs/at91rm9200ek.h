@@ -174,7 +174,6 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
 
 /*
  * Size of malloc() pool

@@ -80,7 +80,6 @@
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O buffer size */
 /* Boot argument buffer size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_MAXARGS	16		/* Max number of command args */
 
 /* Serial port hardware configuration */
 #define CONFIG_PL010_SERIAL

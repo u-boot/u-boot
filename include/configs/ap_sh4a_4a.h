@@ -33,8 +33,6 @@
 /* Monitor Command Prompt */
 /* Buffer size for Console output */
 #define CONFIG_SYS_PBSIZE		256
-/* max args accepted for monitor commands */
-#define CONFIG_SYS_MAXARGS		16
 /* Buffer size for Boot Arguments passed to kernel */
 #define CONFIG_SYS_BARGSIZE	512
 /* List of legal baudrate settings for this board */

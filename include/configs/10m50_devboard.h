@@ -78,7 +78,6 @@
  * MISC
  */
 #define CONFIG_SYS_LONGHELP		/* Provide extended help */
-#define CONFIG_SYS_MAXARGS		16	/* Max command args	*/
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Bootarg buf size */
 #define CONFIG_SYS_LOAD_ADDR		0xcc000000	/* Half of RAM */
 #define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR

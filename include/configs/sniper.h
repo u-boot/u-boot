@@ -92,7 +92,6 @@
 
 #define CONFIG_SYS_LONGHELP
 
-#define CONFIG_SYS_MAXARGS	16
 #define CONFIG_SYS_CBSIZE	512
 
 /*

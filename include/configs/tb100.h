@@ -54,7 +54,6 @@
  */
 
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_MAXARGS		16
 #define CONFIG_CMDLINE_EDITING
 
 /*

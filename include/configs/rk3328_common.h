@@ -10,7 +10,6 @@
 #include "rockchip-common.h"
 
 #define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_MALLOC_LEN		(32 << 20)
 #define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SKIP_LOWLEVEL_INIT

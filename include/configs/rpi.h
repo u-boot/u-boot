@@ -94,7 +94,6 @@
 #define CONFIG_PREBOOT			"usb start"
 
 /* Shell */
-#define CONFIG_SYS_MAXARGS		16
 #define CONFIG_CMDLINE_EDITING
 
 /* ATAGs support for bootm/bootz */

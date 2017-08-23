@@ -23,7 +23,6 @@
 #define CONFIG_ENV_OFFSET			0x30000
 #define CONFIG_ENV_ADDR				\
 	(PHYS_SDRAM_1_SIZE - CONFIG_ENV_SIZE)
-#define CONFIG_SYS_MAXARGS			16
 #define CONFIG_SYS_MALLOC_LEN			(CONFIG_ENV_SIZE + 16 * 1024)
 
 /* serial port (PL011) configuration */

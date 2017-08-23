@@ -309,7 +309,6 @@
 #error "Undefined memory device"
 #endif
 
-#define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_LONGHELP		1
 #define CONFIG_CMDLINE_EDITING		1
 

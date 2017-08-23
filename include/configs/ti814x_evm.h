@@ -87,8 +87,6 @@
 #define V_OSCK			24000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
 
-/* max number of command args */
-#define CONFIG_SYS_MAXARGS		16
 
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		512

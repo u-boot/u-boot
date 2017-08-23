@@ -20,7 +20,6 @@
 
 #define CONFIG_SYS_LONGHELP	1	/* undef to save memory	*/
 #define CONFIG_SYS_PBSIZE	256	/* Buffer size for Console output */
-#define CONFIG_SYS_MAXARGS	16	/* max args accepted for monitor commands */
 
 /* Serial */
 #define CONFIG_CONS_SCIF3	1

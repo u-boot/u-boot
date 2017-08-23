@@ -39,8 +39,6 @@
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
-#define CONFIG_SYS_MAXARGS	16
-
 /* turn on command-line edit/c/auto */
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE

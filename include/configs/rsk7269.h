@@ -19,7 +19,6 @@
 
 #define CONFIG_SYS_LONGHELP		/* undef to save memory	*/
 #define CONFIG_SYS_PBSIZE	256	/* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS	16	/* max number of command args */
 
 /* Serial */
 #define CONFIG_CONS_SCIF7

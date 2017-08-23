@@ -70,9 +70,6 @@
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
 
-/* max number of command args */
-#define CONFIG_SYS_MAXARGS		16
-
 #define CONFIG_SYS_MALLOC_LEN		(256 << 10)
 
 #define CONFIG_SYS_BOOTPARAMS_LEN	128*1024

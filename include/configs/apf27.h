@@ -103,7 +103,6 @@
  */
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_CBSIZE		2048		/* console I/O buffer */
-#define CONFIG_SYS_MAXARGS		16		/* max command args */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 						/* Boot argument buffer size */
 #define CONFIG_AUTO_COMPLETE

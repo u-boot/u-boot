@@ -297,7 +297,6 @@ extern unsigned long get_sdram_size(void);
 #else
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
 #endif
-#define CONFIG_SYS_MAXARGS	16		/* max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE/* Boot Argument Buffer Size */
 
 /*

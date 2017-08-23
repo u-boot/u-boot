@@ -36,8 +36,6 @@
 
 /* undef to save memory	*/
 #define CONFIG_SYS_LONGHELP
-/* max args accepted for monitor commands */
-#define CONFIG_SYS_MAXARGS		16
 /* Buffer size for Boot Arguments passed to kernel */
 #define CONFIG_SYS_BARGSIZE	512
 /* List of legal baudrate settings for this board */

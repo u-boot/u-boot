@@ -24,7 +24,6 @@
 
 /* U-Boot internals */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
-#define CONFIG_SYS_MAXARGS		16	/* max args accepted for monitor commands */
 #define CONFIG_SYS_BARGSIZE		512	/* Buffer size for Boot Arguments passed to kernel */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200 }	/* List of legal baudrate settings for this board */
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 32 * 1024 * 1024)
