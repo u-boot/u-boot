@@ -96,6 +96,18 @@ static int mmc_resource_init(int sdc_no)
 static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 {
 	unsigned int pll, pll_hz, div, n, oclk_dly, sclk_dly;
+	bool new_mode = false;
+	u32 val = 0;
+
+	if (IS_ENABLED(CONFIG_MMC_SUNXI_HAS_NEW_MODE) && (priv->mmc_no == 2))
+		new_mode = true;
+
+	/*
+	 * The MMC clock has an extra /2 post-divider when operating in the new
+	 * mode.
+	 */
+	if (new_mode)
+		hz = hz * 2;
 
 	if (hz <= 24000000) {
 		pll = CCM_MMC_CTRL_OSCM24;
@@ -152,9 +164,18 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 #endif
 	}
 
-	writel(CCM_MMC_CTRL_ENABLE | pll | CCM_MMC_CTRL_SCLK_DLY(sclk_dly) |
-	       CCM_MMC_CTRL_N(n) | CCM_MMC_CTRL_OCLK_DLY(oclk_dly) |
-	       CCM_MMC_CTRL_M(div), priv->mclkreg);
+	if (new_mode) {
+#ifdef CONFIG_MMC_SUNXI_HAS_NEW_MODE
+		val = CCM_MMC_CTRL_MODE_SEL_NEW;
+		writel(SUNXI_MMC_NTSR_MODE_SEL_NEW, &priv->reg->ntsr);
+#endif
+	} else {
+		val = CCM_MMC_CTRL_OCLK_DLY(oclk_dly) |
+			CCM_MMC_CTRL_SCLK_DLY(sclk_dly);
+	}
+
+	writel(CCM_MMC_CTRL_ENABLE| pll | CCM_MMC_CTRL_N(n) |
+	       CCM_MMC_CTRL_M(div) | val, priv->mclkreg);
 
 	debug("mmc %u set mod-clk req %u parent %u n %u m %u rate %u\n",
 	      priv->mmc_no, hz, pll_hz, 1u << n, div, pll_hz / (1u << n) / div);
