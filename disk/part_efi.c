@@ -534,6 +534,7 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 static uint32_t partition_entries_offset(struct blk_desc *dev_desc)
 {
 	uint32_t offset_blks = 2;
+	uint32_t __maybe_unused offset_bytes;
 	int __maybe_unused config_offset;
 
 #if defined(CONFIG_EFI_PARTITION_ENTRIES_OFF)
@@ -545,8 +546,9 @@ static uint32_t partition_entries_offset(struct blk_desc *dev_desc)
 	 * the disk) for the entries can be set in
 	 * CONFIG_EFI_PARTITION_ENTRIES_OFF.
 	 */
-	offset_blks =
+	offset_bytes =
 		PAD_TO_BLOCKSIZE(CONFIG_EFI_PARTITION_ENTRIES_OFF, dev_desc);
+	offset_blks = offset_bytes / dev_desc->blksz;
 #endif
 
 #if defined(CONFIG_OF_CONTROL)
@@ -558,8 +560,10 @@ static uint32_t partition_entries_offset(struct blk_desc *dev_desc)
 	config_offset = fdtdec_get_config_int(gd->fdt_blob,
 					      "u-boot,efi-partition-entries-offset",
 					      -EINVAL);
-	if (config_offset != -EINVAL)
-		offset_blks = PAD_TO_BLOCKSIZE(config_offset, dev_desc);
+	if (config_offset != -EINVAL) {
+		offset_bytes = PAD_TO_BLOCKSIZE(config_offset, dev_desc);
+		offset_blks = offset_bytes / dev_desc->blksz;
+	}
 #endif
 
 	debug("efi: partition entries offset (in blocks): %d\n", offset_blks);
