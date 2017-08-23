@@ -185,6 +185,13 @@ config MACB
 	  GEM (Gigabit Ethernet MAC) found in some ARM SoC devices.
 	  Say Y to include support for the MACB/GEM chip.
 
+config MACB_ZYNQ
+	bool "Cadence MACB/GEM Ethernet Interface for Xilinx Zynq"
+	depends on MACB
+	help
+	  The Cadence MACB ethernet interface was used on Zynq platform.
+	  Say Y to enable support for the MACB/GEM in Zynq chip.
+
 config PCH_GBE
 	bool "Intel Platform Controller Hub EG20T GMAC driver"
 	depends on DM_ETH && DM_PCI

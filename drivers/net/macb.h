@@ -11,6 +11,7 @@
 #define MACB_NCFGR				0x0004
 #define MACB_NSR				0x0008
 #define GEM_UR					0x000c
+#define MACB_DMACFG				0x0010
 #define MACB_TSR				0x0014
 #define MACB_RBQP				0x0018
 #define MACB_TBQP				0x001c
