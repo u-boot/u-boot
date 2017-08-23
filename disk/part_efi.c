@@ -428,8 +428,9 @@ int write_gpt_table(struct blk_desc *dev_desc,
 	return -1;
 }
 
-int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
-		disk_partition_t *partitions, int parts)
+int gpt_fill_pte(struct blk_desc *dev_desc,
+		 gpt_header *gpt_h, gpt_entry *gpt_e,
+		 disk_partition_t *partitions, int parts)
 {
 	lbaint_t offset = (lbaint_t)le64_to_cpu(gpt_h->first_usable_lba);
 	lbaint_t last_usable_lba = (lbaint_t)
@@ -633,7 +634,7 @@ int gpt_restore(struct blk_desc *dev_desc, char *str_disk_guid,
 		goto err;
 
 	/* Generate partition entries */
-	ret = gpt_fill_pte(gpt_h, gpt_e, partitions, parts_count);
+	ret = gpt_fill_pte(dev_desc, gpt_h, gpt_e, partitions, parts_count);
 	if (ret)
 		goto err;
 

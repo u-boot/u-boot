@@ -289,6 +289,7 @@ int write_gpt_table(struct blk_desc *dev_desc,
 /**
  * gpt_fill_pte(): Fill the GPT partition table entry
  *
+ * @param dev_desc - block device descriptor
  * @param gpt_h - GPT header representation
  * @param gpt_e - GPT partition table entries
  * @param partitions - list of partitions
@@ -296,8 +297,9 @@ int write_gpt_table(struct blk_desc *dev_desc,
  *
  * @return zero on success
  */
-int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
-		disk_partition_t *partitions, int parts);
+int gpt_fill_pte(struct blk_desc *dev_desc,
+		 gpt_header *gpt_h, gpt_entry *gpt_e,
+		 disk_partition_t *partitions, int parts);
 
 /**
  * gpt_fill_header(): Fill the GPT header
