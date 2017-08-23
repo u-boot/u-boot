@@ -72,6 +72,5 @@
  * Console configuration
  */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #endif /* _CONFIG_TB100_H_ */

@@ -90,8 +90,6 @@
 
 #define CONFIG_SYS_LONGHELP		/* undef to save memory	*/
 
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
 #define CONFIG_SYS_LOAD_ADDR		0x800000
 
 #define CONFIG_BOOTCOMMAND	"bootm ffe40000"

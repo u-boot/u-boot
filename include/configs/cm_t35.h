@@ -175,8 +175,6 @@
 #define CONFIG_TIMESTAMP
 #define CONFIG_SYS_AUTOLOAD		"no"
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
 
 #define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)	/* memtest */
 								/* works on */

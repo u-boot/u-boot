@@ -125,7 +125,6 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_BARGSIZE			CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_LOAD_ADDR			0x00800000
 
 /* Use last 2 lwords in internal SRAM for bootcounter */

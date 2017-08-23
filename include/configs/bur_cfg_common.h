@@ -49,7 +49,5 @@
 
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		512
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #endif	/* __BUR_CFG_COMMON_H__ */

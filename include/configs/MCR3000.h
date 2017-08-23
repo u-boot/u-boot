@@ -70,7 +70,6 @@
 
 /* Miscellaneous configurable options */
 #define	CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #define CONFIG_CMDLINE_EDITING		1
 #ifdef	CONFIG_HUSH_PARSER

@@ -78,8 +78,6 @@
 
 #define CONFIG_SYS_LONGHELP			/* Enable "long" help in mon */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O buffer size */
-/* Boot argument buffer size */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
 /* Serial port hardware configuration */
 #define CONFIG_PL010_SERIAL

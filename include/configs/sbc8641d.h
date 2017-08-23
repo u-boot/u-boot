@@ -459,8 +459,6 @@
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 #define CONFIG_CMDLINE_EDITING	1		/* add command line history */
 
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
-
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is

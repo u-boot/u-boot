@@ -81,7 +81,6 @@ unsigned char zipitz2_spi_read(void);
 
 #define	CONFIG_SYS_LONGHELP				/* undef to save memory	*/
 
-#define	CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 #define	CONFIG_SYS_DEVICE_NULLDEV	1
 
 /*

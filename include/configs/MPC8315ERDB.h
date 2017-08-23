@@ -454,9 +454,6 @@
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_LOAD_ADDR		0x2000000 /* default load address */
 
-				/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 256 MB of memory, since this is

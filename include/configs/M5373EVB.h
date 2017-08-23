@@ -89,7 +89,6 @@
 #define CONFIG_PRAM		512	/* 512 KB */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size    */
 #define CONFIG_SYS_LOAD_ADDR		0x40010000
 
 #define CONFIG_SYS_CLK			80000000

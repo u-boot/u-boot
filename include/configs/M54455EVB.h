@@ -195,8 +195,6 @@
 
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size    */
-
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x10000)
 
 #define CONFIG_SYS_MBAR		0xFC000000

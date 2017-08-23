@@ -181,8 +181,6 @@
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 #define CONFIG_SYS_MAXARGS		32	/* max number of command args */
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
 
 #define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0 + 0x02000000)
 

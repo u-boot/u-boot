@@ -41,8 +41,6 @@
 
 #define CONFIG_SYS_LONGHELP				/* undef to save memory		*/
 
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
-
 #define CONFIG_SYS_DEVICE_NULLDEV	1	/* include nulldev device	*/
 #define CONFIG_AUTO_COMPLETE	1	/* add autocompletion support	*/
 #define CONFIG_MX_CYCLIC	1	/* enable mdc/mwc commands	*/

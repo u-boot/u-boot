@@ -153,9 +153,6 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
 
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
-
 #define CONFIG_SYS_ALT_MEMTEST		1
 #define CONFIG_SYS_MEMTEST_START	(0x82000000)		/* memtest */
 								/* defaults */

@@ -33,9 +33,6 @@
 /* undef to save memory	*/
 #undef	CONFIG_SYS_LONGHELP
 
-/* Boot argument buffer size	*/
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
 #define CONFIG_AUTO_COMPLETE		1 /* add autocompletion support	*/
 #define CONFIG_MX_CYCLIC		1 /* enable mdc/mwc commands	*/
 

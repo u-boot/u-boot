@@ -216,7 +216,6 @@ unsigned long long get_qixis_addr(void);
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Boot args buffer */
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING		1
 #define CONFIG_AUTO_COMPLETE

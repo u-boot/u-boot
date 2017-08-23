@@ -146,8 +146,6 @@
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
-
 #define CONFIG_SYS_MEMTEST_START       0x70000000
 #define CONFIG_SYS_MEMTEST_END         0x70010000
 

@@ -331,8 +331,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory */
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
 
 #define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)
 #define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + 0x01F00000)/*31MB*/

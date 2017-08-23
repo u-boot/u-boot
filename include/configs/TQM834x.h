@@ -273,9 +273,6 @@
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
 
-				/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
 
 /*

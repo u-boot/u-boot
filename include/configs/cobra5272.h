@@ -169,8 +169,6 @@ from which user programs will be started */
 
 #define CONFIG_SYS_LONGHELP				/* undef to save memory		*/
 
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
-
 /*
  *-----------------------------------------------------------------------------
  * End of user parameters to be customized
