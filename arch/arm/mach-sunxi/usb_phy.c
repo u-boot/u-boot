@@ -18,12 +18,18 @@
 #include <asm/io.h>
 #include <errno.h>
 
-#define SUNXI_USB_PMU_IRQ_ENABLE	0x800
-#ifdef CONFIG_MACH_SUN8I_A33
-#define SUNXI_USB_CSR			0x410
-#else
+#if defined(CONFIG_MACH_SUN4I) ||		   \
+	defined(CONFIG_MACH_SUN5I) ||		   \
+	defined(CONFIG_MACH_SUN6I) ||		   \
+	defined(CONFIG_MACH_SUN7I) ||		   \
+	defined(CONFIG_MACH_SUN8I_A23) ||	   \
+	defined(CONFIG_MACH_SUN9I)
 #define SUNXI_USB_CSR			0x404
+#else
+#define SUNXI_USB_CSR			0x410
 #endif
+
+#define SUNXI_USB_PMU_IRQ_ENABLE	0x800
 #define SUNXI_USB_PASSBY_EN		1
 
 #define SUNXI_EHCI_AHB_ICHR8_EN		(1 << 10)
