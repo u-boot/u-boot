@@ -125,6 +125,7 @@ config MACH_SUN8I_A83T
 	bool "sun8i (Allwinner A83T)"
 	select CPU_V7
 	select SUNXI_GEN_SUN6I
+	select MMC_SUNXI_HAS_NEW_MODE
 	select SUPPORT_SPL
 
 config MACH_SUN8I_H3
