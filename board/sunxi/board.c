@@ -32,6 +32,7 @@
 #include <libfdt.h>
 #include <nand.h>
 #include <net.h>
+#include <spl.h>
 #include <sy8106a.h>
 #include <asm/setup.h>
 
@@ -720,11 +721,14 @@ static void setup_environment(const void *fdt)
 int misc_init_r(void)
 {
 	__maybe_unused int ret;
+	uint boot;
 
 	env_set("fel_booted", NULL);
 	env_set("fel_scriptaddr", NULL);
+
+	boot = sunxi_get_boot_device();
 	/* determine if we are running in FEL mode */
-	if (!is_boot0_magic(SPL_ADDR + 4)) { /* eGON.BT0 */
+	if (boot == BOOT_DEVICE_BOARD) {
 		env_set("fel_booted", "1");
 		parse_spl_header(SPL_ADDR);
 	}
