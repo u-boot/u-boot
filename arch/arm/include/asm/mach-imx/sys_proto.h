@@ -90,6 +90,8 @@ static inline u8 imx6_is_bmode_from_gpr9(void)
 }
 
 u32 imx6_src_get_boot_mode(void);
+void gpr_init(void);
+
 #endif /* CONFIG_MX6 */
 
 u32 get_nr_cpus(void);
