@@ -62,7 +62,6 @@
 #define CONFIG_SYS_MMC_CLK_OD		500000
 
 /* For generating MMC partitions */
-#define CONFIG_RANDOM_UUID
 
 #endif
 

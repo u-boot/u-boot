@@ -103,7 +103,6 @@
 		DFU_ALT_INFO_RAM
 
 #ifndef CONFIG_SPL_BUILD
-# define CONFIG_RANDOM_UUID
 # define PARTS_DEFAULT \
 	"partitions=uuid_disk=${uuid_gpt_disk};" \
 	"name=""boot"",size=16M,uuid=${uuid_gpt_boot};" \
