@@ -78,10 +78,6 @@
 #define CONFIG_BOOTCOUNT_AM33XX
 #define CONFIG_SYS_BOOTCOUNT_BE
 
-#ifndef CONFIG_SPL_USBETH_SUPPORT
-#define CONFIG_FASTBOOT_FLASH_MMC_DEV   1
-#endif
-
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
 /* Remove other SPL modes. */
 /* disable host part of MUSB in SPL */

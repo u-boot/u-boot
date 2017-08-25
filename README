@@ -1242,50 +1242,6 @@ The following options need to be configured:
 		entering dfuMANIFEST state. Host waits this timeout, before
 		sending again an USB request to the device.
 
-- USB Device Android Fastboot support:
-		CONFIG_USB_FUNCTION_FASTBOOT
-		This enables the USB part of the fastboot gadget
-
-		CONFIG_ANDROID_BOOT_IMAGE
-		This enables support for booting images which use the Android
-		image format header.
-
-		CONFIG_FASTBOOT_BUF_ADDR
-		The fastboot protocol requires a large memory buffer for
-		downloads. Define this to the starting RAM address to use for
-		downloaded images.
-
-		CONFIG_FASTBOOT_BUF_SIZE
-		The fastboot protocol requires a large memory buffer for
-		downloads. This buffer should be as large as possible for a
-		platform. Define this to the size available RAM for fastboot.
-
-		CONFIG_FASTBOOT_FLASH
-		The fastboot protocol includes a "flash" command for writing
-		the downloaded image to a non-volatile storage device. Define
-		this to enable the "fastboot flash" command.
-
-		CONFIG_FASTBOOT_FLASH_MMC_DEV
-		The fastboot "flash" command requires additional information
-		regarding the non-volatile storage device. Define this to
-		the eMMC device that fastboot should use to store the image.
-
-		CONFIG_FASTBOOT_GPT_NAME
-		The fastboot "flash" command supports writing the downloaded
-		image to the Protective MBR and the Primary GUID Partition
-		Table. (Additionally, this downloaded image is post-processed
-		to generate and write the Backup GUID Partition Table.)
-		This occurs when the specified "partition name" on the
-		"fastboot flash" command line matches this value.
-		The default is "gpt" if undefined.
-
-		CONFIG_FASTBOOT_MBR_NAME
-		The fastboot "flash" command supports writing the downloaded
-		image to DOS MBR.
-		This occurs when the "partition name" specified on the
-		"fastboot flash" command line matches this value.
-		If not defined the default value "mbr" is used.
-
 - Journaling Flash filesystem support:
 		CONFIG_JFFS2_NAND
 		Define these for a default partition on a NAND device

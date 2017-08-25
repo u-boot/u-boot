@@ -24,7 +24,6 @@
 #endif
 
 #define CONFIG_LMB
-#define CONFIG_ANDROID_BOOT_IMAGE
 
 #define CONFIG_FS_EXT4
 #define CONFIG_EXT4_WRITE

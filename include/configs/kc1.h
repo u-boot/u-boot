@@ -122,20 +122,6 @@
 #define CONFIG_USB_MUSB_OMAP2PLUS
 
 /*
- * Fastboot
- */
-
-#define CONFIG_USB_FUNCTION_FASTBOOT
-
-#define CONFIG_FASTBOOT_BUF_ADDR	CONFIG_SYS_LOAD_ADDR
-#define CONFIG_FASTBOOT_BUF_SIZE	0x2000000
-
-#define CONFIG_FASTBOOT_FLASH
-#define CONFIG_FASTBOOT_FLASH_MMC_DEV	0
-
-#define CONFIG_CMD_FASTBOOT
-
-/*
  * Environment
  */
 
@@ -174,8 +160,6 @@
  */
 
 #define CONFIG_SYS_LOAD_ADDR	0x82000000
-
-#define CONFIG_ANDROID_BOOT_IMAGE
 
 #define CONFIG_BOOTCOMMAND \
 	"setenv boot_mmc_part ${kernel_mmc_part}; " \
