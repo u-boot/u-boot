@@ -625,5 +625,7 @@ int ofnode_read_simple_size_cells(ofnode node);
 bool ofnode_pre_reloc(ofnode node);
 
 int ofnode_read_resource(ofnode node, uint index, struct resource *res);
+int ofnode_read_resource_byname(ofnode node, const char *name,
+				struct resource *res);
 
 #endif

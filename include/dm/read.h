@@ -359,12 +359,23 @@ int dev_read_enabled(struct udevice *dev);
 /**
  * dev_read_resource() - obtain an indexed resource from a device.
  *
- * @dev: devuce to examine
+ * @dev: device to examine
  * @index index of the resource to retrieve (0 = first)
  * @res returns the resource
  * @return 0 if ok, negative on error
  */
 int dev_read_resource(struct udevice *dev, uint index, struct resource *res);
+
+/**
+ * dev_read_resource_byname() - obtain a named resource from a device.
+ *
+ * @dev: device to examine
+ * @name: name of the resource to retrieve
+ * @res: returns the resource
+ * @return 0 if ok, negative on error
+ */
+int dev_read_resource_byname(struct udevice *dev, const char *name,
+			     struct resource *res);
 
 #else /* CONFIG_DM_DEV_READ_INLINE is enabled */
 
@@ -511,6 +522,13 @@ static inline int dev_read_resource(struct udevice *dev, uint index,
 				    struct resource *res)
 {
 	return ofnode_read_resource(dev_ofnode(dev), index, res);
+}
+
+static inline int dev_read_resource_byname(struct udevice *dev,
+					   const char *name,
+					   struct resource *res)
+{
+	return ofnode_read_resource_byname(dev_ofnode(dev), name, res);
 }
 
 #endif /* CONFIG_DM_DEV_READ_INLINE */
