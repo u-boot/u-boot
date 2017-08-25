@@ -793,6 +793,8 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 	EFI_ENTRY("%p, %ld, %ld, %p", image_handle, exit_status,
 		  exit_data_size, exit_data);
 
+	__efi_exit_check();
+
 	loaded_image_info->exit_status = exit_status;
 	longjmp(&loaded_image_info->exit_jmp, 1);
 
