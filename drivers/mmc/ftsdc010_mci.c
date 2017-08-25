@@ -128,8 +128,9 @@ static int ftsdc010_wait(struct ftsdc010_mmc __iomem *regs, uint32_t mask)
 		break;
 	}
 
-	if (ret)
+	if (ret){
 		debug("ftsdc010: wait st(0x%x) timeout\n", mask);
+	}
 
 	return ret;
 }
@@ -241,7 +242,7 @@ static int ftsdc010_request(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	if (!ret) {
 		ret = ftsdc010_wait(regs,
-			FTSDC010_STATUS_DATA_END | FTSDC010_STATUS_DATA_ERROR);
+			FTSDC010_STATUS_DATA_END | FTSDC010_STATUS_DATA_CRC_OK);
 	}
 
 	return ret;
