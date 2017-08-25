@@ -18,7 +18,7 @@ config SPL_RAM
 	  setting up RAM (e.g. SDRAM / DDR) within SPL.
 
 config TPL_RAM
-	bool "Enable RAM support in SPL"
+	bool "Enable RAM support in TPL"
 	depends on RAM && TPL_DM
 	help
 	  The RAM subsystem adds a small amount of overhead to the image.
