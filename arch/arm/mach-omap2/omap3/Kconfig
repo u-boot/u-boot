@@ -111,6 +111,7 @@ config TARGET_OMAP3_LOGIC
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
+	select OMAP3_GPIO_3
 	select OMAP3_GPIO_4
 	select OMAP3_GPIO_6
 
