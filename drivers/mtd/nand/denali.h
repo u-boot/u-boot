@@ -464,4 +464,6 @@ struct denali_nand_info {
 	uint32_t max_banks;
 };
 
+int denali_init(struct denali_nand_info *denali);
+
 #endif /* __DENALI_H__ */
