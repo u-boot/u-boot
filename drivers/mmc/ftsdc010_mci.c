@@ -376,7 +376,6 @@ void ftsdc_setup_cfg(struct mmc_config *cfg, const char *name, int buswidth,
 		cfg->host_caps |= MMC_MODE_4BIT;
 		cfg->host_caps &= ~MMC_MODE_8BIT;
 	}
-	cfg->host_caps |= MMC_MODE_HS | MMC_MODE_HS_52MHz;
 	cfg->part_type = PART_TYPE_DOS;
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 }
