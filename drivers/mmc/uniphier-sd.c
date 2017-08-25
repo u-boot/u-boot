@@ -11,10 +11,10 @@
 #include <mmc.h>
 #include <dm.h>
 #include <linux/compat.h>
+#include <linux/dma-direction.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
 #include <asm/unaligned.h>
-#include <asm/dma-mapping.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
