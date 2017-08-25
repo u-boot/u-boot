@@ -13,6 +13,7 @@
 
 #include <common.h>
 #include <linux/errno.h>
+#include <asm/arch/crm_regs.h>
 #include <asm/global_data.h>
 #include <linux/string.h>
 #include <linux/list.h>
@@ -568,8 +569,18 @@ err0:
 
 void ipuv3_fb_shutdown(void)
 {
-	int i;
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 	struct ipu_stat *stat = (struct ipu_stat *)IPU_STAT;
+	u32 reg;
+	int i;
+
+	/*
+	 * Check if IPU clock was enabled before. Won't access
+	 * IPU registers if clock is not enabled.
+	 */
+	reg = readl(&mxc_ccm->CCGR3);
+	if ((reg & MXC_CCM_CCGR3_IPU1_IPU_MASK) == 0)
+		return;
 
 	for (i = 0; i < ARRAY_SIZE(mxcfb_info); i++) {
 		struct fb_info *fbi = mxcfb_info[i];
