@@ -414,6 +414,13 @@ config MXC_UART
 	  If you have a machine based on a Motorola IMX CPU you
 	  can enable its onboard serial port by enabling this option.
 
+config NULLDEV_SERIAL
+	bool "Null serial device"
+	help
+	  Select this to enable null serial device support. A null serial
+	  device merely acts as a placeholder for a serial device and does
+	  nothing for all it's operation.
+
 config PIC32_SERIAL
 	bool "Support for Microchip PIC32 on-chip UART"
 	depends on DM_SERIAL && MACH_PIC32
