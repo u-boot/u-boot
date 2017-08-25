@@ -41,10 +41,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 /* usb otg */
-#define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_GADGET_DWC2_OTG
-#define CONFIG_USB_GADGET_VBUS_DRAW	0
 
 /* fastboot  */
 #define CONFIG_CMD_FASTBOOT
@@ -57,11 +53,6 @@
 /* usb mass storage */
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 #define CONFIG_CMD_USB_MASS_STORAGE
-
-#define CONFIG_USB_GADGET_DOWNLOAD
-#define CONFIG_G_DNL_MANUFACTURER	"Rockchip"
-#define CONFIG_G_DNL_VENDOR_NUM		0x2207
-#define CONFIG_G_DNL_PRODUCT_NUM	0x320a
 
 /* usb host */
 #ifdef CONFIG_CMD_USB

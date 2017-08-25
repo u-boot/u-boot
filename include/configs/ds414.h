@@ -54,7 +54,6 @@
 
 /* USB/EHCI/XHCI configuration */
 
-#define CONFIG_DM_USB
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 
 /* FIXME: broken XHCI support
@@ -63,10 +62,6 @@
  * - xhci-pci seems to not support DM_USB, so with that enabled it is not
  *   found.
  * - USB init fails, controller does not respond in time */
-#if 0
-#undef CONFIG_DM_USB
-#define CONFIG_USB_XHCI_PCI
-#endif
 
 #if !defined(CONFIG_USB_XHCI_HCD)
 #define CONFIG_EHCI_IS_TDI

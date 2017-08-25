@@ -88,9 +88,6 @@
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_SYS_MONITOR_LEN)
 #endif
 
-/* USB */
-#undef CONFIG_CMD_USB
-
 /* Module stop status bits */
 /* INTC-RT */
 #define CONFIG_SMSTP0_ENA	0x00400000

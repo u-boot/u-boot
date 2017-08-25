@@ -184,7 +184,6 @@
 #ifdef CONFIG_SPL_BUILD
 #undef CONFIG_DM_MMC
 #undef CONFIG_TIMER
-#undef CONFIG_DM_USB
 #endif
 
 #if defined(CONFIG_ENV_IS_IN_NAND)

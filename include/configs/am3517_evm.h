@@ -74,7 +74,6 @@
 #ifdef CONFIG_USB_MUSB_HOST
 
 #ifdef CONFIG_USB_KEYBOARD
-#define CONFIG_SYS_USB_EVENT_POLL
 #define CONFIG_PREBOOT "usb start"
 #endif /* CONFIG_USB_KEYBOARD */
 

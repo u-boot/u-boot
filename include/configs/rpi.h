@@ -75,7 +75,6 @@
 #define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_TFTP_TSIZE
 #define CONFIG_MISC_INIT_R
-#define CONFIG_SYS_USB_EVENT_POLL
 #endif
 
 /* Console UART */
