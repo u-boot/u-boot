@@ -776,6 +776,7 @@ static inline u8 is_dra76x(void)
 #define DRA752_ES2_0	0x07520200
 #define DRA722_ES1_0	0x07220100
 #define DRA722_ES2_0	0x07220200
+#define DRA722_ES2_1	0x07220210
 
 /*
  * silicon device type

@@ -380,6 +380,9 @@ void init_omap_revision(void)
 	case DRA722_CONTROL_ID_CODE_ES2_0:
 		*omap_si_rev = DRA722_ES2_0;
 		break;
+	case DRA722_CONTROL_ID_CODE_ES2_1:
+		*omap_si_rev = DRA722_ES2_1;
+		break;
 	default:
 		*omap_si_rev = OMAP5430_SILICON_ID_INVALID;
 	}
