@@ -148,10 +148,18 @@ struct dm_serial_ops {
 /**
  * struct serial_dev_priv - information about a device used by the uclass
  *
- * @sdev: stdio device attached to this uart
+ * @sdev:	stdio device attached to this uart
+ *
+ * @buf:	Pointer to the RX buffer
+ * @rd_ptr:	Read pointer in the RX buffer
+ * @wr_ptr:	Write pointer in the RX buffer
  */
 struct serial_dev_priv {
 	struct stdio_dev *sdev;
+
+	char *buf;
+	int rd_ptr;
+	int wr_ptr;
 };
 
 /* Access the serial operations for a device */

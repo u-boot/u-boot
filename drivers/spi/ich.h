@@ -177,8 +177,6 @@ struct ich_spi_platdata {
 };
 
 struct ich_spi_priv {
-	int ichspi_lock;
-	int locked;
 	int opmenu;
 	int menubytes;
 	void *base;		/* Base of register set */

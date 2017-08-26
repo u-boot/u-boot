@@ -64,15 +64,20 @@ config DM_SERIAL
 	  implements serial_putc() etc. The uclass interface is
 	  defined in include/serial.h.
 
-config SERIAL_IRQ_BUFFER
-	bool "Enable RX interrupt buffer for serial input"
+config SERIAL_RX_BUFFER
+	bool "Enable RX buffer for serial input"
 	depends on DM_SERIAL
-	default n
 	help
-	  Enable RX interrupt buffer support for the serial driver.
-	  This enables pasting longer strings, even when the RX FIFO
-	  of the UART is not big enough (e.g. 16 bytes on the normal
-	  NS16550).
+	  Enable RX buffer support for the serial driver. This enables
+	  pasting longer strings, even when the RX FIFO of the UART is
+	  not big enough (e.g. 16 bytes on the normal NS16550).
+
+config SERIAL_RX_BUFFER_SIZE
+	int "RX buffer size"
+	depends on SERIAL_RX_BUFFER
+	default 256
+	help
+	  The size of the RX buffer (needs to be power of 2)
 
 config SPL_DM_SERIAL
 	bool "Enable Driver Model for serial drivers in SPL"

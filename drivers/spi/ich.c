@@ -126,8 +126,6 @@ static int ich_init_controller(struct udevice *dev,
 	if (plat->ich_version == ICHV_7) {
 		struct ich7_spi_regs *ich7_spi = sbase;
 
-		ich7_spi = (struct ich7_spi_regs *)sbase;
-		ctlr->ichspi_lock = readw(&ich7_spi->spis) & SPIS_LOCK;
 		ctlr->opmenu = offsetof(struct ich7_spi_regs, opmenu);
 		ctlr->menubytes = sizeof(ich7_spi->opmenu);
 		ctlr->optype = offsetof(struct ich7_spi_regs, optype);
@@ -142,7 +140,6 @@ static int ich_init_controller(struct udevice *dev,
 	} else if (plat->ich_version == ICHV_9) {
 		struct ich9_spi_regs *ich9_spi = sbase;
 
-		ctlr->ichspi_lock = readw(&ich9_spi->hsfs) & HSFS_FLOCKDN;
 		ctlr->opmenu = offsetof(struct ich9_spi_regs, opmenu);
 		ctlr->menubytes = sizeof(ich9_spi->opmenu);
 		ctlr->optype = offsetof(struct ich9_spi_regs, optype);
@@ -187,6 +184,23 @@ static inline void spi_use_in(struct spi_trans *trans, unsigned bytes)
 	trans->bytesin -= bytes;
 }
 
+static bool spi_lock_status(struct ich_spi_platdata *plat, void *sbase)
+{
+	int lock = 0;
+
+	if (plat->ich_version == ICHV_7) {
+		struct ich7_spi_regs *ich7_spi = sbase;
+
+		lock = readw(&ich7_spi->spis) & SPIS_LOCK;
+	} else if (plat->ich_version == ICHV_9) {
+		struct ich9_spi_regs *ich9_spi = sbase;
+
+		lock = readw(&ich9_spi->hsfs) & HSFS_FLOCKDN;
+	}
+
+	return lock != 0;
+}
+
 static void spi_setup_type(struct spi_trans *trans, int data_bytes)
 {
 	trans->type = 0xFF;
@@ -220,14 +234,15 @@ static void spi_setup_type(struct spi_trans *trans, int data_bytes)
 	}
 }
 
-static int spi_setup_opcode(struct ich_spi_priv *ctlr, struct spi_trans *trans)
+static int spi_setup_opcode(struct ich_spi_priv *ctlr, struct spi_trans *trans,
+			    bool lock)
 {
 	uint16_t optypes;
 	uint8_t opmenu[ctlr->menubytes];
 
 	trans->opcode = trans->out[0];
 	spi_use_out(trans, 1);
-	if (!ctlr->ichspi_lock) {
+	if (!lock) {
 		/* The lock is off, so just use index 0. */
 		ich_writeb(ctlr, trans->opcode, ctlr->opmenu);
 		optypes = ich_readw(ctlr, ctlr->optype);
@@ -323,6 +338,21 @@ static int ich_status_poll(struct ich_spi_priv *ctlr, u16 bitmask,
 	return -ETIMEDOUT;
 }
 
+void ich_spi_config_opcode(struct udevice *dev)
+{
+	struct ich_spi_priv *ctlr = dev_get_priv(dev);
+
+	/*
+	 * PREOP, OPTYPE, OPMENU1/OPMENU2 registers can be locked down
+	 * to prevent accidental or intentional writes. Before they get
+	 * locked down, these registers should be initialized properly.
+	 */
+	ich_writew(ctlr, SPI_OPPREFIX, ctlr->preop);
+	ich_writew(ctlr, SPI_OPTYPE, ctlr->optype);
+	ich_writel(ctlr, SPI_OPMENU_LOWER, ctlr->opmenu);
+	ich_writel(ctlr, SPI_OPMENU_UPPER, ctlr->opmenu + sizeof(u32));
+}
+
 static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			const void *dout, void *din, unsigned long flags)
 {
@@ -337,6 +367,7 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	struct spi_trans *trans = &ctlr->trans;
 	unsigned type = flags & (SPI_XFER_BEGIN | SPI_XFER_END);
 	int using_cmd = 0;
+	bool lock = spi_lock_status(plat, ctlr->base);
 	int ret;
 
 	/* We don't support writing partial bytes */
@@ -400,7 +431,7 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		ich_writeb(ctlr, SPIS_CDS | SPIS_FCERR, ctlr->status);
 
 	spi_setup_type(trans, using_cmd ? bytes : 0);
-	opcode_index = spi_setup_opcode(ctlr, trans);
+	opcode_index = spi_setup_opcode(ctlr, trans, lock);
 	if (opcode_index < 0)
 		return -EINVAL;
 	with_address = spi_setup_offset(trans);
@@ -413,7 +444,7 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		 * in order to prevent the Management Engine from
 		 * issuing a transaction between WREN and DATA.
 		 */
-		if (!ctlr->ichspi_lock)
+		if (!lock)
 			ich_writew(ctlr, trans->opcode, ctlr->preop);
 		return 0;
 	}
@@ -539,56 +570,6 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	return 0;
 }
 
-/*
- * This uses the SPI controller from the Intel Cougar Point and Panther Point
- * PCH to write-protect portions of the SPI flash until reboot. The changes
- * don't actually take effect until the HSFS[FLOCKDN] bit is set, but that's
- * done elsewhere.
- */
-int spi_write_protect_region(struct udevice *dev, uint32_t lower_limit,
-			     uint32_t length, int hint)
-{
-	struct udevice *bus = dev->parent;
-	struct ich_spi_priv *ctlr = dev_get_priv(bus);
-	uint32_t tmplong;
-	uint32_t upper_limit;
-
-	if (!ctlr->pr) {
-		printf("%s: operation not supported on this chipset\n",
-		       __func__);
-		return -ENOSYS;
-	}
-
-	if (length == 0 ||
-	    lower_limit > (0xFFFFFFFFUL - length) + 1 ||
-	    hint < 0 || hint > 4) {
-		printf("%s(0x%x, 0x%x, %d): invalid args\n", __func__,
-		       lower_limit, length, hint);
-		return -EPERM;
-	}
-
-	upper_limit = lower_limit + length - 1;
-
-	/*
-	 * Determine bits to write, as follows:
-	 *  31     Write-protection enable (includes erase operation)
-	 *  30:29  reserved
-	 *  28:16  Upper Limit (FLA address bits 24:12, with 11:0 == 0xfff)
-	 *  15     Read-protection enable
-	 *  14:13  reserved
-	 *  12:0   Lower Limit (FLA address bits 24:12, with 11:0 == 0x000)
-	 */
-	tmplong = 0x80000000 |
-		((upper_limit & 0x01fff000) << 4) |
-		((lower_limit & 0x01fff000) >> 12);
-
-	printf("%s: writing 0x%08x to %p\n", __func__, tmplong,
-	       &ctlr->pr[hint]);
-	ctlr->pr[hint] = tmplong;
-
-	return 0;
-}
-
 static int ich_spi_probe(struct udevice *dev)
 {
 	struct ich_spi_platdata *plat = dev_get_platdata(dev);
@@ -619,16 +600,11 @@ static int ich_spi_probe(struct udevice *dev)
 
 static int ich_spi_remove(struct udevice *bus)
 {
-	struct ich_spi_priv *ctlr = dev_get_priv(bus);
-
 	/*
 	 * Configure SPI controller so that the Linux MTD driver can fully
 	 * access the SPI NOR chip
 	 */
-	ich_writew(ctlr, SPI_OPPREFIX, ctlr->preop);
-	ich_writew(ctlr, SPI_OPTYPE, ctlr->optype);
-	ich_writel(ctlr, SPI_OPMENU_LOWER, ctlr->opmenu);
-	ich_writel(ctlr, SPI_OPMENU_UPPER, ctlr->opmenu + sizeof(u32));
+	ich_spi_config_opcode(bus);
 
 	return 0;
 }
