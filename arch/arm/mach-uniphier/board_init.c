@@ -78,7 +78,6 @@ static void uniphier_ld20_misc_init(void)
 
 struct uniphier_initdata {
 	unsigned int soc_id;
-	bool nand_2cs;
 	void (*sbc_init)(void);
 	void (*pll_init)(void);
 	void (*clk_init)(void);
@@ -89,7 +88,6 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #if defined(CONFIG_ARCH_UNIPHIER_LD4)
 	{
 		.soc_id = UNIPHIER_LD4_ID,
-		.nand_2cs = true,
 		.sbc_init = uniphier_ld4_sbc_init,
 		.pll_init = uniphier_ld4_pll_init,
 		.clk_init = uniphier_ld4_clk_init,
@@ -98,7 +96,6 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #if defined(CONFIG_ARCH_UNIPHIER_PRO4)
 	{
 		.soc_id = UNIPHIER_PRO4_ID,
-		.nand_2cs = false,
 		.sbc_init = uniphier_sbc_init_savepin,
 		.pll_init = uniphier_pro4_pll_init,
 		.clk_init = uniphier_pro4_clk_init,
@@ -107,7 +104,6 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #if defined(CONFIG_ARCH_UNIPHIER_SLD8)
 	{
 		.soc_id = UNIPHIER_SLD8_ID,
-		.nand_2cs = true,
 		.sbc_init = uniphier_ld4_sbc_init,
 		.pll_init = uniphier_ld4_pll_init,
 		.clk_init = uniphier_ld4_clk_init,
@@ -116,7 +112,6 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #if defined(CONFIG_ARCH_UNIPHIER_PRO5)
 	{
 		.soc_id = UNIPHIER_PRO5_ID,
-		.nand_2cs = true,
 		.sbc_init = uniphier_sbc_init_savepin,
 		.clk_init = uniphier_pro5_clk_init,
 	},
@@ -124,7 +119,6 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #if defined(CONFIG_ARCH_UNIPHIER_PXS2)
 	{
 		.soc_id = UNIPHIER_PXS2_ID,
-		.nand_2cs = true,
 		.sbc_init = uniphier_pxs2_sbc_init,
 		.clk_init = uniphier_pxs2_clk_init,
 	},
@@ -132,7 +126,6 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #if defined(CONFIG_ARCH_UNIPHIER_LD6B)
 	{
 		.soc_id = UNIPHIER_LD6B_ID,
-		.nand_2cs = true,
 		.sbc_init = uniphier_pxs2_sbc_init,
 		.clk_init = uniphier_pxs2_clk_init,
 	},
@@ -140,7 +133,6 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #if defined(CONFIG_ARCH_UNIPHIER_LD11)
 	{
 		.soc_id = UNIPHIER_LD11_ID,
-		.nand_2cs = false,
 		.sbc_init = uniphier_ld11_sbc_init,
 		.pll_init = uniphier_ld11_pll_init,
 		.clk_init = uniphier_ld11_clk_init,
@@ -150,7 +142,6 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #if defined(CONFIG_ARCH_UNIPHIER_LD20)
 	{
 		.soc_id = UNIPHIER_LD20_ID,
-		.nand_2cs = false,
 		.sbc_init = uniphier_ld11_sbc_init,
 		.pll_init = uniphier_ld20_pll_init,
 		.clk_init = uniphier_ld20_clk_init,
@@ -160,7 +151,6 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 #if defined(CONFIG_ARCH_UNIPHIER_PXS3)
 	{
 		.soc_id = UNIPHIER_PXS3_ID,
-		.nand_2cs = false,
 		.sbc_init = uniphier_pxs2_sbc_init,
 		.pll_init = uniphier_pxs3_pll_init,
 		.clk_init = uniphier_pxs3_clk_init,
@@ -172,7 +162,6 @@ UNIPHIER_DEFINE_SOCDATA_FUNC(uniphier_get_initdata, uniphier_initdata)
 int board_init(void)
 {
 	const struct uniphier_initdata *initdata;
-	int ret;
 
 	led_puts("U0");
 
@@ -188,33 +177,24 @@ int board_init(void)
 
 	led_puts("U0");
 
-	if (IS_ENABLED(CONFIG_NAND_DENALI)) {
-		ret = uniphier_pin_init(initdata->nand_2cs ?
-					"nand2cs_grp" : "nand_grp");
-		if (ret)
-			pr_err("failed to init NAND pins\n");
-	}
-
-	led_puts("U1");
-
 	if (initdata->pll_init)
 		initdata->pll_init();
 
-	led_puts("U2");
+	led_puts("U1");
 
 	if (initdata->clk_init)
 		initdata->clk_init();
 
-	led_puts("U3");
+	led_puts("U2");
 
 	if (initdata->misc_init)
 		initdata->misc_init();
 
-	led_puts("U4");
+	led_puts("U3");
 
 	uniphier_setup_xirq();
 
-	led_puts("U5");
+	led_puts("U4");
 
 	support_card_late_init();
 
