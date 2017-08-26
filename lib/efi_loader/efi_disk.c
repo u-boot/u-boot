@@ -47,7 +47,7 @@ enum efi_disk_direction {
 	EFI_DISK_WRITE,
 };
 
-static efi_status_t EFIAPI efi_disk_rw_blocks(struct efi_block_io *this,
+static efi_status_t efi_disk_rw_blocks(struct efi_block_io *this,
 			u32 media_id, u64 lba, unsigned long buffer_size,
 			void *buffer, enum efi_disk_direction direction)
 {
