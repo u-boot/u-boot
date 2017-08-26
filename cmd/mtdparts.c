@@ -1751,6 +1751,7 @@ int mtdparts_init(void)
 	/* save it for later parsing, cannot rely on current partition pointer
 	 * as 'partition' variable may be updated during init */
 	memset(tmp_parts, 0, sizeof(tmp_parts));
+	memset(tmp_ep, 0, sizeof(tmp_ep));
 	if (current_partition)
 		strncpy(tmp_ep, current_partition, PARTITION_MAXLEN);
 
