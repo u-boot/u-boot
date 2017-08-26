@@ -165,8 +165,6 @@ extern int cfi_flash_num_flash_banks;
 #define CFI_MAX_FLASH_BANKS	CONFIG_SYS_MAX_FLASH_BANKS
 #endif
 
-void flash_write_cmd(flash_info_t * info, flash_sect_t sect,
-		     uint offset, u32 cmd);
 phys_addr_t cfi_flash_bank_addr(int i);
 unsigned long cfi_flash_bank_size(int i);
 void flash_cmd_reset(flash_info_t *info);

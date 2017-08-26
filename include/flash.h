@@ -81,7 +81,6 @@ typedef unsigned long flash_sect_t;
 /* Prototypes */
 
 extern unsigned long flash_init (void);
-extern void flash_protect_default(void);
 extern void flash_print_info (flash_info_t *);
 extern int flash_erase	(flash_info_t *, int, int);
 extern int flash_sect_erase (ulong addr_first, ulong addr_last);
@@ -112,10 +111,6 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 extern ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info);
 extern int jedec_flash_match(flash_info_t *info, ulong base);
 #define CFI_CMDSET_AMD_LEGACY		0xFFF0
-#endif
-
-#if defined(CONFIG_SYS_FLASH_CFI)
-extern flash_info_t *flash_get_info(ulong base);
 #endif
 
 /*-----------------------------------------------------------------------
