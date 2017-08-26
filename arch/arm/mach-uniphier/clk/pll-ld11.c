@@ -11,6 +11,17 @@
 #include "../sc64-regs.h"
 #include "pll.h"
 
+/* PLL type: SSC */
+#define SC_CPLLCTRL	(SC_BASE_ADDR | 0x1400)	/* CPU/ARM */
+#define SC_SPLLCTRL	(SC_BASE_ADDR | 0x1410)	/* misc */
+#define SC_MPLLCTRL	(SC_BASE_ADDR | 0x1430)	/* DSP */
+#define SC_VSPLLCTRL	(SC_BASE_ADDR | 0x1440)	/* Video codec, VPE etc. */
+#define SC_DPLLCTRL	(SC_BASE_ADDR | 0x1460)	/* DDR memory */
+
+/* PLL type: VPLL27 */
+#define SC_VPLL27FCTRL	(SC_BASE_ADDR | 0x1500)
+#define SC_VPLL27ACTRL	(SC_BASE_ADDR | 0x1520)
+
 void uniphier_ld11_pll_init(void)
 {
 	uniphier_ld20_sscpll_init(SC_CPLLCTRL, 1960, 1, 2);	/* 2000MHz -> 1960MHz */

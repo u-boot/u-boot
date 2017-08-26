@@ -12,27 +12,6 @@
 
 #define SC_BASE_ADDR		0x61840000
 
-/* PLL type: SSC */
-#define SC_CPLLCTRL	(SC_BASE_ADDR | 0x1400)	/* LD11/20: CPU/ARM */
-#define SC_SPLLCTRL	(SC_BASE_ADDR | 0x1410)	/* LD11/20: misc */
-#define SC_SPLL2CTRL	(SC_BASE_ADDR | 0x1420)	/* LD20: IPP */
-#define SC_MPLLCTRL	(SC_BASE_ADDR | 0x1430)	/* LD11/20: Video codec */
-#define SC_VSPLLCTRL	(SC_BASE_ADDR | 0x1440)	/* LD11 */
-#define SC_VPPLLCTRL	(SC_BASE_ADDR | 0x1440)	/* LD20: VPE etc. */
-#define SC_GPPLLCTRL	(SC_BASE_ADDR | 0x1450)	/* LD20: GPU/Mali */
-#define SC_DPLLCTRL	(SC_BASE_ADDR | 0x1460)	/* LD11: DDR memory */
-#define SC_DPLL0CTRL	(SC_BASE_ADDR | 0x1460)	/* LD20: DDR memory 0 */
-#define SC_DPLL1CTRL	(SC_BASE_ADDR | 0x1470)	/* LD20: DDR memory 1 */
-#define SC_DPLL2CTRL	(SC_BASE_ADDR | 0x1480)	/* LD20: DDR memory 2 */
-
-/* PLL type: VPLL27 */
-#define SC_VPLL27FCTRL	(SC_BASE_ADDR | 0x1500)
-#define SC_VPLL27ACTRL	(SC_BASE_ADDR | 0x1520)
-
-/* PLL type: DSPLL */
-#define SC_VPLL8KCTRL	(SC_BASE_ADDR | 0x1540)
-#define SC_A2PLLCTRL	(SC_BASE_ADDR | 0x15C0)
-
 #define SC_RSTCTRL		(SC_BASE_ADDR | 0x2000)
 #define SC_RSTCTRL3		(SC_BASE_ADDR | 0x2008)
 #define SC_RSTCTRL4		(SC_BASE_ADDR | 0x200c)
