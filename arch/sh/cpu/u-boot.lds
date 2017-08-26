@@ -9,7 +9,12 @@
 
 #include "config.h"
 
+#ifdef CONFIG_SYS_BIG_ENDIAN
+OUTPUT_FORMAT("elf32-shbig-linux", "elf32-shbig-linux", "elf32-sh-linux")
+#else
 OUTPUT_FORMAT("elf32-sh-linux", "elf32-sh-linux", "elf32-sh-linux")
+#endif
+
 OUTPUT_ARCH(sh)
 
 MEMORY
@@ -32,10 +37,6 @@ SECTIONS
 		KEEP(*/start.o		(.text))
 		KEEP(CONFIG_BOARDDIR/lowlevel_init.o	(.text .spiboot1.text))
 		KEEP(*(.spiboot2.text))
-		. = ALIGN(8192);
-		env/embedded.o	(.ppcenv)
-		. = ALIGN(8192);
-		env/embedded.o	(.ppcenvr)
 		. = ALIGN(8192);
 		*(.text)
 		. = ALIGN(4);
