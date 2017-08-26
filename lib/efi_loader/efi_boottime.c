@@ -266,6 +266,23 @@ static efi_status_t EFIAPI efi_free_pool_ext(void *buffer)
 	return EFI_EXIT(r);
 }
 
+static efi_status_t efi_create_handle(void **handle)
+{
+	struct efi_object *obj;
+	efi_status_t r;
+
+	r = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES,
+			      sizeof(struct efi_object),
+			      (void **)&obj);
+	if (r != EFI_SUCCESS)
+		return r;
+	memset(obj, 0, sizeof(struct efi_object));
+	obj->handle = obj;
+	list_add_tail(&obj->link, &efi_obj_list);
+	*handle = obj;
+	return r;
+}
+
 /*
  * Our event capabilities are very limited. Only a small limited
  * number of events is allowed to coexist.
@@ -520,8 +537,9 @@ static efi_status_t EFIAPI efi_install_protocol_interface(void **handle,
 
 	/* Create new handle if requested. */
 	if (!*handle) {
-		r = EFI_OUT_OF_RESOURCES;
-		goto out;
+		r = efi_create_handle(handle);
+		if (r != EFI_SUCCESS)
+			goto out;
 	}
 	/* Find object. */
 	list_for_each(lhandle, &efi_obj_list) {
