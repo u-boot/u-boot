@@ -468,8 +468,6 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	}
 
 	/* Preset control fields */
-	control = ich_readw(ctlr, ctlr->control);
-	control &= ~SSFC_RESERVED;
 	control = SPIC_SCGO | ((opcode_index & 0x07) << 4);
 
 	/* Issue atomic preop cycle if needed */
