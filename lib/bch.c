@@ -117,7 +117,7 @@ struct gf_poly_deg1 {
 };
 
 #ifdef USE_HOSTCC
-#ifndef __BSD_VISIBLE
+#if !defined(__DragonFly__) && !defined(__FreeBSD__)
 static int fls(int x)
 {
 	int r = 32;
