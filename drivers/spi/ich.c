@@ -563,7 +563,8 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	}
 
 	/* Clear atomic preop now that xfer is done */
-	ich_writew(ctlr, 0, ctlr->preop);
+	if (!lock)
+		ich_writew(ctlr, 0, ctlr->preop);
 
 	return 0;
 }
