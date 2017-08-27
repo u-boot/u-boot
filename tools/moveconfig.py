@@ -1170,7 +1170,7 @@ class Slot:
             toolchain = self.toolchains.Select(arch)
         except ValueError:
             self.log += color_text(self.options.color, COLOR_YELLOW,
-                    "Tool chain for '%s' is missing.  Do nothing.\n % arch")
+                    "Tool chain for '%s' is missing.  Do nothing.\n" % arch)
             self.finish(False)
             return
 	env = toolchain.MakeEnvironment(False)
