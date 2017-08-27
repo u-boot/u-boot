@@ -1088,14 +1088,16 @@ static int flash_io (int mode)
 
 		rc = flash_write (fd_current, fd_target, dev_target);
 
-		if (fsync (fd_current)) {
+		if (fsync(fd_current) &&
+		    !(errno == EINVAL || errno == EROFS)) {
 			fprintf (stderr,
 				 "fsync failed on %s: %s\n",
 				 DEVNAME (dev_current), strerror (errno));
 		}
 
 		if (HaveRedundEnv) {
-			if (fsync (fd_target)) {
+			if (fsync(fd_target) &&
+			    !(errno == EINVAL || errno == EROFS)) {
 				fprintf (stderr,
 					 "fsync failed on %s: %s\n",
 					 DEVNAME (dev_current), strerror (errno));
