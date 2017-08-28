@@ -70,9 +70,6 @@
 #define CONFIG_SYS_EEPROM_SIZE			256
 
 /* USB Networking options */
-#define CONFIG_USB_ETHER_SMSC95XX
-#define CONFIG_USB_ETHER_ASIX
-#define CONFIG_USB_ETHER_MCS7830
 
 /*
  * Miscellaneous configurable options

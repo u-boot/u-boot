@@ -72,10 +72,4 @@
 
 /* enable usb config for usb ether */
 
-#define CONFIG_USB_ETHER_ASIX
-#define CONFIG_USB_ETHER_ASIX88179
-#define CONFIG_USB_ETHER_MCS7830
-#define CONFIG_USB_ETHER_SMSC95XX
-#define CONFIG_USB_ETHER_RTL8152
-
 #endif

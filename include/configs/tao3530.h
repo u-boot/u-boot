@@ -215,8 +215,6 @@
 /* USB EHCI */
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	162
 
-#define CONFIG_USB_ETHER_SMSC95XX
-
 #define CONFIG_USB_ETHER
 
 /* Defines for SPL */

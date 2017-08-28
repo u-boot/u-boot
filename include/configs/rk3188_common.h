@@ -74,10 +74,6 @@
 #define CONFIG_ROCKCHIP_USB2_PHY
 
 /* usb host support */
-#ifdef CONFIG_CMD_USB
-#define CONFIG_USB_ETHER_SMSC95XX
-#define CONFIG_USB_ETHER_ASIX
-#endif
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x60000000\0" \
 	"pxefile_addr_r=0x60100000\0" \

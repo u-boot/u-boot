@@ -132,9 +132,6 @@
 /* Enable Time Command */
 
 /* USB */
-#define CONFIG_USB_ETHER_ASIX
-#define CONFIG_USB_ETHER_SMSC95XX
-#define CONFIG_USB_ETHER_RTL8152
 
 /* USB boot mode */
 #define CONFIG_USB_BOOTING

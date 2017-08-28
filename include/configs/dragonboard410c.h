@@ -37,10 +37,6 @@
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 
 /* Support all possible USB ethernet dongles */
-#define CONFIG_USB_ETHER_ASIX
-#define CONFIG_USB_ETHER_ASIX88179
-#define CONFIG_USB_ETHER_MCS7830
-#define CONFIG_USB_ETHER_SMSC95XX
 
 /* Extra Commands */
 /* Enable that for switching of boot partitions */

@@ -30,9 +30,6 @@
 
 #define CONFIG_USB_XHCI_EXYNOS
 
-#define CONFIG_USB_ETHER_ASIX
-#define CONFIG_USB_ETHER_ASIX88179
-
 /* DRAM Memory Banks */
 #define CONFIG_NR_DRAM_BANKS	8
 #define SDRAM_BANK_SIZE		(256UL << 20UL)	/* 256 MB */

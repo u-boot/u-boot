@@ -83,9 +83,6 @@
 #define CONFIG_OMAP_USB3PHY1_HOST
 
 /* USB Networking options */
-#define CONFIG_USB_ETHER_SMSC95XX
-#define CONFIG_USB_ETHER_ASIX
-#define CONFIG_USB_ETHER_MCS7830
 
 /* CPSW Ethernet */
 #define CONFIG_DRIVER_TI_CPSW

@@ -20,11 +20,6 @@
 					"stdout=serial\0" \
 					"stderr=serial\0"
 
-#define CONFIG_USB_ETHER_ASIX
-#define CONFIG_USB_ETHER_SMSC95XX
-#define CONFIG_USB_ETHER_MCS7830
-#define CONFIG_USB_ETHER_RTL8152
-
 #define VIDEO_IO_OFFSET				0
 #define CONFIG_X86EMU_RAW_IO
 #define CONFIG_CMD_BMP

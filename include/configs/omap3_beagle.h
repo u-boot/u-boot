@@ -52,10 +52,6 @@
 
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	147
 
-#define CONFIG_USB_ETHER_ASIX
-#define CONFIG_USB_ETHER_MCS7830
-#define CONFIG_USB_ETHER_SMSC95XX
-
 /* commands to include */
 
 #define MTDIDS_DEFAULT			"nand0=nand"

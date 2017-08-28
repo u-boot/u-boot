@@ -74,8 +74,6 @@
 
 /* EHCI */
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	57
-#define	CONFIG_USB_ETHER_ASIX
-#define CONFIG_USB_ETHER_MCS7830
 
 /* commands to include */
 

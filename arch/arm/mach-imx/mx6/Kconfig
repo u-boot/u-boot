@@ -308,6 +308,9 @@ config TARGET_MX6ULL_14X14_EVK
 config TARGET_NITROGEN6X
 	bool "nitrogen6x"
 	imply USB_HOST_ETHER
+	imply USB_ETHER_ASIX
+	imply USB_ETHER_SMSC95XX
+	imply USB_ETHER_MCS7830
 
 config TARGET_OPOS6ULDEV
 	bool "Armadeus OPOS6ULDev board"

@@ -21,6 +21,9 @@ config ARCH_EXYNOS5
 	imply CRC32_VERIFY
 	imply CMD_HASH
 	imply HASH_VERIFY
+	imply USB_ETHER_RTL8152
+	imply USB_ETHER_ASIX
+	imply USB_ETHER_SMSC95XX
 	help
 	  Samsung Exynos5 SoC family are based on ARM Cortex-A15 CPU (and
 	  Cortex-A7 CPU in big.LITTLE configuration). There are multiple SoCs

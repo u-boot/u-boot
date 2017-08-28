@@ -62,10 +62,6 @@
 #define CONFIG_CMD_USB_MASS_STORAGE
 
 /* usb host support */
-#ifdef CONFIG_CMD_USB
-#define CONFIG_USB_ETHER_SMSC95XX
-#define CONFIG_USB_ETHER_ASIX
-#endif
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x00000000\0" \
 	"pxefile_addr_r=0x00100000\0" \

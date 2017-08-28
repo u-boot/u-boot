@@ -183,8 +183,6 @@
 /* USB */
 #define CONFIG_USB_EHCI_EXYNOS
 
-#define CONFIG_USB_ETHER_SMSC95XX
-
 /*
  * Supported Odroid boards: X3, U3
  * TODO: Add Odroid X support
