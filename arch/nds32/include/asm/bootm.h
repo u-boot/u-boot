@@ -11,6 +11,8 @@
 #ifndef NDS32_BOOTM_H
 #define NDS32_BOOTM_H
 
+#include <asm/setup.h>
+
 extern void udc_disconnect(void);
 
 #if defined(CONFIG_SETUP_MEMORY_TAGS) || \
