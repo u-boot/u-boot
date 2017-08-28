@@ -115,6 +115,7 @@ config X86
 	imply CMD_PCI
 	imply CMD_SF_TEST
 	imply CMD_ZBOOT
+	imply USB_HOST_ETHER
 
 config XTENSA
 	bool "Xtensa architecture"

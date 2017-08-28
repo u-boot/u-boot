@@ -36,8 +36,6 @@
  * it has to be done after each HCD reset */
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 
-#define CONFIG_USB_HOST_ETHER /* Enable USB Networking */
-
 /* Support all possible USB ethernet dongles */
 #define CONFIG_USB_ETHER_ASIX
 #define CONFIG_USB_ETHER_ASIX88179

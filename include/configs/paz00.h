@@ -31,7 +31,6 @@
 #define CONFIG_USB_EHCI_TEGRA
 
 /* USB networking support */
-#define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
 
 #include "tegra-common-post.h"
