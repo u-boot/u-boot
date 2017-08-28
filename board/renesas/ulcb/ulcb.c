@@ -105,7 +105,7 @@ int board_init(void)
 	/* USB1 pull-up */
 	setbits_le32(PFC_PUEN6, PUEN_USB1_OVC | PUEN_USB1_PWEN);
 
-#ifdef CONFIG_RAVB
+#ifdef CONFIG_RENESAS_RAVB
 	/* EtherAVB Enable */
 	/* GPSR2 */
 	gpio_request(GPIO_GFN_AVB_AVTP_CAPTURE_A, NULL);
