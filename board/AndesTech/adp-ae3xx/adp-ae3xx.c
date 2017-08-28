@@ -6,6 +6,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <asm/mach-types.h>
 #include <common.h>
 #if defined(CONFIG_FTMAC100) && !defined(CONFIG_DM_ETH)
 #include <netdev.h>
