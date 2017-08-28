@@ -219,7 +219,6 @@
 #define CONFIG_USB_ETHER_SMSC95XX
 
 #define CONFIG_USB_ETHER
-#define CONFIG_USB_ETHER_RNDIS
 
 /* Defines for SPL */
 #define CONFIG_SPL_FRAMEWORK
