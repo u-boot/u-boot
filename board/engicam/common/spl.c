@@ -39,6 +39,17 @@ static iomux_v3_cfg_t const uart_pads[] = {
 #endif
 };
 
+#ifdef CONFIG_SPL_OS_BOOT
+int spl_start_uboot(void)
+{
+	/* break into full u-boot on 'c' */
+	if (serial_tstc() && serial_getc() == 'c')
+		return 1;
+
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_MX6QDL
 /*
  * Driving strength:
