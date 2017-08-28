@@ -15,6 +15,8 @@
 #include <spl.h>
 #include <asm/mach-imx/hab.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_MX6)
 /* determine boot device from SRC_SBMR1 (BOOT_CFG[4:1]) or SRC_GPR9 register */
 u32 spl_boot_device(void)
@@ -127,4 +129,14 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	}
 }
 
+#endif
+
+#if defined(CONFIG_MX6) && defined(CONFIG_SPL_OS_BOOT)
+int dram_init_banksize(void)
+{
+	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].size = imx_ddr_size();
+
+	return 0;
+}
 #endif
