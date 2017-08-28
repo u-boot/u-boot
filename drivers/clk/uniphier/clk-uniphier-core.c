@@ -146,6 +146,36 @@ static int uniphier_clk_probe(struct udevice *dev)
 }
 
 static const struct udevice_id uniphier_clk_match[] = {
+	/* System clock */
+	{
+		.compatible = "socionext,uniphier-ld4-clock",
+		.data = (ulong)&uniphier_pxs2_sys_clk_data,
+	},
+	{
+		.compatible = "socionext,uniphier-pro4-clock",
+		.data = (ulong)&uniphier_pxs2_sys_clk_data,
+	},
+	{
+		.compatible = "socionext,uniphier-sld8-clock",
+		.data = (ulong)&uniphier_pxs2_sys_clk_data,
+	},
+	{
+		.compatible = "socionext,uniphier-pro5-clock",
+		.data = (ulong)&uniphier_pxs2_sys_clk_data,
+	},
+	{
+		.compatible = "socionext,uniphier-pxs2-clock",
+		.data = (ulong)&uniphier_pxs2_sys_clk_data,
+	},
+	{
+		.compatible = "socionext,uniphier-ld11-clock",
+		.data = (ulong)&uniphier_ld20_sys_clk_data,
+	},
+	{
+		.compatible = "socionext,uniphier-ld20-clock",
+		.data = (ulong)&uniphier_ld20_sys_clk_data,
+	},
+	/* Media I/O clock */
 	{
 		.compatible = "socionext,uniphier-ld4-mio-clock",
 		.data = (ulong)&uniphier_mio_clk_data,
