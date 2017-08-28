@@ -210,6 +210,13 @@ config FSL_QSPI
 	  used to access the SPI NOR flash on platforms embedding this
 	  Freescale IP core.
 
+config NDS_AE3XX_SPI
+	bool "Andestech AE3XX SPI driver"
+	help
+	  Enable the Andestech AE3XX SPI driver. This driver can be
+	  used to access the SPI flash on platforms embedding this
+	  Andestech IP core.
+
 config TI_QSPI
 	bool "TI QSPI driver"
 	help
