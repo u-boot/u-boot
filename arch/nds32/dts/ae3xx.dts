@@ -8,6 +8,7 @@
 	aliases {
 		uart0 = &serial0;
 		ethernet0 = &mac0;
+		spi0 = &spi;
 	} ;
 
 	chosen {
@@ -20,6 +21,12 @@
 	memory@0 {
 		device_type = "memory";
 		reg = <0x00000000 0x40000000>;
+	};
+
+	spiclk: virt_100mhz {
+		#clock-cells = <0>;
+		compatible = "fixed-clock";
+		clock-frequency = <100000000>;
 	};
 
 	cpus {
@@ -69,4 +76,20 @@
 		device-width = <1>;
 	};
 
+	spi: spi@f0b00000 {
+		compatible = "andestech,atcspi200";
+		reg = <0xf0b00000 0x1000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		num-cs = <1>;
+		clocks = <&spiclk>;
+		interrupts = <3 4>;
+			flash@0 {
+			compatible = "spi-flash";
+			spi-max-frequency = <50000000>;
+			reg = <0>;
+			spi-cpol;
+			spi-cpha;
+		};
+	};
 };

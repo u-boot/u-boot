@@ -220,13 +220,24 @@
 
 /* max number of sectors on one chip */
 #define CONFIG_FLASH_SECTOR_SIZE	(0x10000*2)
-#define CONFIG_ENV_SECT_SIZE		CONFIG_FLASH_SECTOR_SIZE
 #define CONFIG_SYS_MAX_FLASH_SECT	512
 
 /* environments */
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_MONITOR_BASE + 0x140000)
+#define CONFIG_ENV_SPI_BUS		0
+#define CONFIG_ENV_SPI_CS		0
+#define CONFIG_ENV_SPI_MAX_HZ		50000000
+#define CONFIG_ENV_SPI_MODE		0
+#define CONFIG_ENV_SECT_SIZE		0x1000
+#define CONFIG_ENV_OFFSET		0x140000
 #define CONFIG_ENV_SIZE			8192
 #define CONFIG_ENV_OVERWRITE
+
+
+/* SPI FLASH */
+#define CONFIG_SF_DEFAULT_BUS		0
+#define CONFIG_SF_DEFAULT_CS		0
+#define CONFIG_SF_DEFAULT_SPEED		1000000
+#define CONFIG_SF_DEFAULT_MODE		0
 
 /*
  * For booting Linux, the board info and command line data
