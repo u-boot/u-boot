@@ -551,6 +551,7 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 }
 #endif
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * cfg_val will be used for
  * Boot_cfg4[7:0]:Boot_cfg3[7:0]:Boot_cfg2[7:0]:Boot_cfg1[7:0]
@@ -577,6 +578,7 @@ const struct boot_mode soc_boot_modes[] = {
 	{"esdhc4",	MAKE_CFGVAL(0x40, 0x38, 0x00, 0x00)},
 	{NULL,		0},
 };
+#endif
 
 void reset_misc(void)
 {
