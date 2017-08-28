@@ -336,9 +336,6 @@ void board_init_f(ulong dummy)
 		puts("!!!ERROR!!! DRAM detection failed!!!\n");
 		hang();
 	}
-
-	memset(__bss_start, 0, __bss_end - __bss_start);
-	board_init_r(NULL, 0);
 }
 
 void board_boot_order(u32 *spl_boot_list)
