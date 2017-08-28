@@ -39,7 +39,6 @@
 #define CONFIG_USB_HOST_ETHER /* Enable USB Networking */
 
 /* Support all possible USB ethernet dongles */
-#define CONFIG_USB_ETHER_DM9601
 #define CONFIG_USB_ETHER_ASIX
 #define CONFIG_USB_ETHER_ASIX88179
 #define CONFIG_USB_ETHER_MCS7830
