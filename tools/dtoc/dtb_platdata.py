@@ -385,7 +385,12 @@ class DtbPlatdata(object):
                 else:
                     for val in prop.value:
                         vals.append(get_value(prop.type, val))
-                self.buf(', '.join(vals))
+
+                # Put 8 values per line to avoid very long lines.
+                for i in xrange(0, len(vals), 8):
+                    if i:
+                        self.buf(',\n\t\t')
+                    self.buf(', '.join(vals[i:i + 8]))
                 self.buf('}')
             else:
                 self.buf(get_value(prop.type, prop.value))
