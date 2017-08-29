@@ -45,8 +45,10 @@ u32 spl_boot_device(void)
 	case IMX6_BMODE_RESERVED:
 		return BOOT_DEVICE_BOARD;
 	/* SATA: See 8.5.4, Table 8-20 */
+#if !defined(CONFIG_MX6UL) && !defined(CONFIG_MX6ULL)
 	case IMX6_BMODE_SATA:
 		return BOOT_DEVICE_SATA;
+#endif
 	/* Serial ROM: See 8.5.5.1, Table 8-22 */
 	case IMX6_BMODE_SERIAL_ROM:
 		/* BOOT_CFG4[2:0] */
