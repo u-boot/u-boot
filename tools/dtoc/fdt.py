@@ -174,8 +174,9 @@ class Node:
         props: A dict of properties for this node, each a Prop object.
             Keyed by property name
     """
-    def __init__(self, fdt, offset, name, path):
+    def __init__(self, fdt, parent, offset, name, path):
         self._fdt = fdt
+        self.parent = parent
         self._offset = offset
         self.name = name
         self.path = path
@@ -217,7 +218,7 @@ class Node:
             sep = '' if self.path[-1] == '/' else '/'
             name = self._fdt._fdt_obj.get_name(offset)
             path = self.path + sep + name
-            node = Node(self._fdt, offset, name, path)
+            node = Node(self._fdt, self, offset, name, path)
             self.subnodes.append(node)
 
             node.Scan()
@@ -279,7 +280,7 @@ class Fdt:
 
         TODO(sjg@chromium.org): Implement the 'root' parameter
         """
-        self._root = self.Node(self, 0, '/', '/')
+        self._root = self.Node(self, None, 0, '/', '/')
         self._root.Scan()
 
     def GetRoot(self):
@@ -386,7 +387,7 @@ class Fdt:
         return libfdt.fdt_off_dt_struct(self._fdt) + offset
 
     @classmethod
-    def Node(self, fdt, offset, name, path):
+    def Node(self, fdt, parent, offset, name, path):
         """Create a new node
 
         This is used by Fdt.Scan() to create a new node using the correct
@@ -394,11 +395,12 @@ class Fdt:
 
         Args:
             fdt: Fdt object
+            parent: Parent node, or None if this is the root node
             offset: Offset of node
             name: Node name
             path: Full path to node
         """
-        node = Node(fdt, offset, name, path)
+        node = Node(fdt, parent, offset, name, path)
         return node
 
 def FdtScan(fname):
