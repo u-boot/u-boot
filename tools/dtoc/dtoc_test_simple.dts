@@ -9,6 +9,8 @@
  /dts-v1/;
 
 / {
+	#address-cells = <1>;
+	#size-cells = <1>;
 	spl-test {
 		u-boot,dm-pre-reloc;
 		compatible = "sandbox,spl-test";
@@ -45,4 +47,16 @@
 		compatible = "sandbox,spl-test.2";
 	};
 
+	i2c@0 {
+		compatible = "sandbox,i2c-test";
+		u-boot,dm-pre-reloc;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		pmic@9 {
+			compatible = "sandbox,pmic-test";
+			u-boot,dm-pre-reloc;
+			reg = <9>;
+			low-power;
+		};
+	};
 };

@@ -121,6 +121,12 @@ class TestDtoc(unittest.TestCase):
             data = infile.read()
         self.assertEqual('''#include <stdbool.h>
 #include <libfdt.h>
+struct dtd_sandbox_i2c_test {
+};
+struct dtd_sandbox_pmic_test {
+\tbool\t\tlow_power;
+\tfdt64_t\t\treg[2];
+};
 struct dtd_sandbox_spl_test {
 \tbool\t\tboolval;
 \tunsigned char\tbytearray[3];
@@ -190,6 +196,24 @@ U_BOOT_DEVICE(spl_test4) = {
 \t.name\t\t= "sandbox_spl_test_2",
 \t.platdata\t= &dtv_spl_test4,
 \t.platdata_size\t= sizeof(dtv_spl_test4),
+};
+
+static struct dtd_sandbox_i2c_test dtv_i2c_at_0 = {
+};
+U_BOOT_DEVICE(i2c_at_0) = {
+\t.name\t\t= "sandbox_i2c_test",
+\t.platdata\t= &dtv_i2c_at_0,
+\t.platdata_size\t= sizeof(dtv_i2c_at_0),
+};
+
+static struct dtd_sandbox_pmic_test dtv_pmic_at_9 = {
+\t.low_power\t\t= true,
+\t.reg\t\t\t= {0x9, 0x0},
+};
+U_BOOT_DEVICE(pmic_at_9) = {
+\t.name\t\t= "sandbox_pmic_test",
+\t.platdata\t= &dtv_pmic_at_9,
+\t.platdata_size\t= sizeof(dtv_pmic_at_9),
 };
 
 ''', data)
