@@ -130,6 +130,23 @@ class Fdt:
         self._fdt = bytearray(data)
         check_err(fdt_check_header(self._fdt));
 
+    def subnode_offset(self, parentoffset, name, quiet=()):
+        """Get the offset of a named subnode
+
+        Args:
+            parentoffset: Offset of the parent node to check
+            name: Name of the required subnode, e.g. 'subnode@1'
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Returns:
+            The node offset of the found node, if any
+
+        Raises
+            FdtException if there is no node with that name, or other error
+        """
+        return check_err(fdt_subnode_offset(self._fdt, parentoffset, name),
+                         quiet)
+
     def path_offset(self, path, quiet=()):
         """Get the offset for a given path
 
@@ -304,6 +321,47 @@ class Fdt:
             return pdata
         return bytearray(pdata[0])
 
+    def get_phandle(self, nodeoffset):
+        """Get the phandle of a node
+
+        Args:
+            nodeoffset: Node offset to check
+
+        Returns:
+            phandle of node, or 0 if the node has no phandle or another error
+            occurs
+        """
+        return fdt_get_phandle(self._fdt, nodeoffset)
+
+    def parent_offset(self, nodeoffset, quiet=()):
+        """Get the offset of a node's parent
+
+        Args:
+            nodeoffset: Node offset to check
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Returns:
+            The offset of the parent node, if any
+
+        Raises:
+            FdtException if no parent found or other error occurs
+        """
+        return check_err(fdt_parent_offset(self._fdt, nodeoffset), quiet)
+
+    def node_offset_by_phandle(self, phandle, quiet=()):
+        """Get the offset of a node with the given phandle
+
+        Args:
+            phandle: Phandle to search for
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Returns:
+            The offset of node with that phandle, if any
+
+        Raises:
+            FdtException if no node found or other error occurs
+        """
+        return check_err(fdt_node_offset_by_phandle(self._fdt, phandle), quiet)
 
 class Property:
     """Holds a device tree property name and value.
