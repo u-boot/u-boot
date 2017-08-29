@@ -465,7 +465,7 @@ int fec_init(struct eth_device *dev, bd_t * bd)
 	fecp->emrbr = PKT_MAXBLR_SIZE;
 
 	/*
-	 * Setup Buffers and Buffer Desriptors
+	 * Setup Buffers and Buffer Descriptors
 	 */
 	info->rxIdx = 0;
 	info->txIdx = 0;
