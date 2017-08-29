@@ -38,6 +38,7 @@ TYPE_NAMES = {
     fdt.TYPE_BYTE: 'unsigned char',
     fdt.TYPE_STRING: 'const char *',
     fdt.TYPE_BOOL: 'bool',
+    fdt.TYPE_INT64: 'fdt64_t',
 }
 
 STRUCT_PREFIX = 'dtd_'
@@ -95,6 +96,8 @@ def get_value(ftype, value):
         return '"%s"' % value
     elif ftype == fdt.TYPE_BOOL:
         return 'true'
+    elif ftype == fdt.TYPE_INT64:
+        return '%#x' % value
 
 def get_compat_name(node):
     """Get a node's first compatible string as a C identifier
