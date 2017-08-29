@@ -387,6 +387,7 @@ unsigned long get_board_sys_clk(void);
 	"load_addr=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
 	"console=ttyAMA0,38400n8\0"		\
+	"mcmemsize=0x70000000\0"		\
 	MC_INIT_CMD				\
 	BOOTENV					\
 	"boot_scripts=ls2088ardb_boot.scr\0"	\
