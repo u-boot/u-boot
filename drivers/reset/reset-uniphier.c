@@ -294,7 +294,11 @@ static const struct udevice_id uniphier_reset_match[] = {
 		.data = (ulong)uniphier_mio_reset_data,
 	},
 	{
-		.compatible = "socionext,uniphier-ld20-mio-reset",
+		.compatible = "socionext,uniphier-ld11-sd-reset",
+		.data = (ulong)uniphier_mio_reset_data,
+	},
+	{
+		.compatible = "socionext,uniphier-ld20-sd-reset",
 		.data = (ulong)uniphier_mio_reset_data,
 	},
 	/* Peripheral reset */
