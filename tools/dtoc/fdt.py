@@ -212,6 +212,10 @@ class Node:
         searching into subnodes so that the entire tree is built.
         """
         self.props = self._fdt.GetProps(self)
+        phandle = self.props.get('phandle')
+        if phandle:
+            val = fdt_util.fdt32_to_cpu(phandle.value)
+            self._fdt.phandle_to_node[val] = self
 
         offset = libfdt.fdt_first_subnode(self._fdt.GetFdt(), self.Offset())
         while offset >= 0:
@@ -263,6 +267,7 @@ class Fdt:
     def __init__(self, fname):
         self._fname = fname
         self._cached_offsets = False
+        self.phandle_to_node = {}
         if self._fname:
             self._fname = fdt_util.EnsureCompiled(self._fname)
 
