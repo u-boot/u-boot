@@ -144,17 +144,14 @@ class DtbPlatdata(object):
         _dtb_fname: Filename of the input device tree binary file
         _valid_nodes: A list of Node object with compatible strings
         _include_disabled: true to include nodes marked status = "disabled"
-        _phandle_nodes: A dict of nodes indexed by phandle number (1, 2...)
         _outfile: The current output file (sys.stdout or a real file)
         _lines: Stashed list of output lines for outputting in the future
-        _phandle_nodes: A dict of Nodes indexed by phandle (an integer)
     """
     def __init__(self, dtb_fname, include_disabled):
         self._fdt = None
         self._dtb_fname = dtb_fname
         self._valid_nodes = None
         self._include_disabled = include_disabled
-        self._phandle_nodes = {}
         self._outfile = None
         self._lines = []
         self._aliases = {}
@@ -210,8 +207,7 @@ class DtbPlatdata(object):
     def scan_node(self, root):
         """Scan a node and subnodes to build a tree of node and phandle info
 
-        This adds each node to self._valid_nodes and each phandle to
-        self._phandle_nodes.
+        This adds each node to self._valid_nodes.
 
         Args:
             root: Root node for scan
@@ -222,10 +218,6 @@ class DtbPlatdata(object):
                 if (not self._include_disabled and not status or
                         status.value != 'disabled'):
                     self._valid_nodes.append(node)
-                    phandle_prop = node.props.get('phandle')
-                    if phandle_prop:
-                        phandle = phandle_prop.GetPhandle()
-                        self._phandle_nodes[phandle] = node
 
             # recurse to handle any subnodes
             self.scan_node(node)
@@ -234,11 +226,9 @@ class DtbPlatdata(object):
         """Scan the device tree for useful information
 
         This fills in the following properties:
-            _phandle_nodes: A dict of Nodes indexed by phandle (an integer)
             _valid_nodes: A list of nodes we wish to consider include in the
                 platform data
         """
-        self._phandle_nodes = {}
         self._valid_nodes = []
         return self.scan_node(self._fdt.GetRoot())
 
@@ -374,7 +364,7 @@ class DtbPlatdata(object):
                         value_it = iter(prop.value)
                         for phandle_cell, _ in zip(value_it, value_it):
                             phandle = fdt_util.fdt32_to_cpu(phandle_cell)
-                            target_node = self._phandle_nodes[phandle]
+                            target_node = self._fdt.phandle_to_node[phandle]
                             node.phandles.add(target_node)
 
 
@@ -439,7 +429,7 @@ class DtbPlatdata(object):
                     for phandle_cell, id_cell in zip(value_it, value_it):
                         phandle = fdt_util.fdt32_to_cpu(phandle_cell)
                         id_num = fdt_util.fdt32_to_cpu(id_cell)
-                        target_node = self._phandle_nodes[phandle]
+                        target_node = self._fdt.phandle_to_node[phandle]
                         name = conv_name_to_c(target_node.name)
                         vals.append('{&%s%s, %d}' % (VAL_PREFIX, name, id_num))
                 else:
