@@ -477,7 +477,7 @@
 		sdctrl@59810000 {
 			compatible = "socionext,uniphier-pxs2-sdctrl",
 				     "simple-mfd", "syscon";
-			reg = <0x59810000 0x800>;
+			reg = <0x59810000 0x400>;
 			u-boot,dm-pre-reloc;
 
 			sd_clk: clock {
@@ -554,9 +554,11 @@
 			};
 		};
 
-		aidet@5fc20000 {
-			compatible = "simple-mfd", "syscon";
+		aidet: aidet@5fc20000 {
+			compatible = "socionext,uniphier-pxs2-aidet";
 			reg = <0x5fc20000 0x200>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
 		};
 
 		timer@60000200 {
@@ -640,11 +642,10 @@
 			reg = <0x68000000 0x20>, <0x68100000 0x1000>;
 			interrupts = <0 65 4>;
 			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_nand>;
+			pinctrl-0 = <&pinctrl_nand2cs>;
 			clocks = <&sys_clk 2>;
-			nand-ecc-strength = <8>;
 		};
 	};
 };
 
-/include/ "uniphier-pinctrl.dtsi"
+#include "uniphier-pinctrl.dtsi"

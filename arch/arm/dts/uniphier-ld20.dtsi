@@ -313,7 +313,7 @@
 		sdctrl@59810000 {
 			compatible = "socionext,uniphier-ld20-sdctrl",
 				     "simple-mfd", "syscon";
-			reg = <0x59810000 0x800>;
+			reg = <0x59810000 0x400>;
 
 			sd_clk: clock {
 				compatible = "socionext,uniphier-ld20-sd-clock";
@@ -383,9 +383,11 @@
 			};
 		};
 
-		aidet@5fc20000 {
-			compatible = "simple-mfd", "syscon";
+		aidet: aidet@5fc20000 {
+			compatible = "socionext,uniphier-ld20-aidet";
 			reg = <0x5fc20000 0x200>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
 		};
 
 		gic: interrupt-controller@5fe00000 {
@@ -410,6 +412,10 @@
 			sys_rst: reset {
 				compatible = "socionext,uniphier-ld20-reset";
 				#reset-cells = <1>;
+			};
+
+			watchdog {
+				compatible = "socionext,uniphier-wdt";
 			};
 		};
 
@@ -440,9 +446,8 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_nand>;
 			clocks = <&sys_clk 2>;
-			nand-ecc-strength = <8>;
 		};
 	};
 };
 
-/include/ "uniphier-pinctrl.dtsi"
+#include "uniphier-pinctrl.dtsi"
