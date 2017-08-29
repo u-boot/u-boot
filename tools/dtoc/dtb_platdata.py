@@ -467,7 +467,7 @@ class DtbPlatdata(object):
                         id_num = fdt_util.fdt32_to_cpu(id_cell)
                         target_node = self._fdt.phandle_to_node[phandle]
                         name = conv_name_to_c(target_node.name)
-                        vals.append('{&%s%s, %d}' % (VAL_PREFIX, name, id_num))
+                        vals.append('{&%s%s, {%d}}' % (VAL_PREFIX, name, id_num))
                     for val in vals:
                         self.buf('\n\t\t%s,' % val)
                 else:

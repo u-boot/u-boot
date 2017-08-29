@@ -11,12 +11,12 @@
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 struct phandle_0_arg {
 	const void *node;
-	int id[0];
+	int arg[0];
 };
 
 struct phandle_1_arg {
 	const void *node;
-	int id;
+	int arg[1];
 };
 #include <generated/dt-structs.h>
 #endif

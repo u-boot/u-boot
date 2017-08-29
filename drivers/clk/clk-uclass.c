@@ -32,7 +32,7 @@ int clk_get_by_index_platdata(struct udevice *dev, int index,
 	ret = uclass_get_device(UCLASS_CLK, 0, &clk->dev);
 	if (ret)
 		return ret;
-	clk->id = cells[0].id;
+	clk->id = cells[0].arg[0];
 
 	return 0;
 }
