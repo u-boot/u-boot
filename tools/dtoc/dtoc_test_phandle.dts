@@ -13,6 +13,7 @@
 		u-boot,dm-pre-reloc;
 		compatible = "target";
 		intval = <1>;
+                #clock-cells = <1>;
 	};
 
 	phandle-source {

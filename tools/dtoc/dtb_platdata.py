@@ -12,6 +12,7 @@ This supports converting device tree data to C structures definitions and
 static data.
 """
 
+import collections
 import copy
 import sys
 
@@ -43,6 +44,14 @@ TYPE_NAMES = {
 
 STRUCT_PREFIX = 'dtd_'
 VAL_PREFIX = 'dtv_'
+
+# This holds information about a property which includes phandles.
+#
+# max_args: integer: Maximum number or arguments that any phandle uses (int).
+# args: Number of args for each phandle in the property. The total number of
+#     phandles is len(args). This is a list of integers.
+PhandleInfo = collections.namedtuple('PhandleInfo', ['max_args', 'args'])
+
 
 def conv_name_to_c(name):
     """Convert a device-tree name to a C identifier
@@ -181,20 +190,42 @@ class DtbPlatdata(object):
         self._lines = []
         return lines
 
-    def is_phandle(self, prop):
-	"""Check if a node contains phandles
+    def get_phandle_argc(self, prop, node_name):
+        """Check if a node contains phandles
 
-	We have no reliable way of detecting whether a node uses a phandle
-	or not. As an interim measure, use a list of known property names.
+        We have no reliable way of detecting whether a node uses a phandle
+        or not. As an interim measure, use a list of known property names.
 
-	Args:
-	    prop: Prop object to check
-	Return:
-	    True if the object value contains phandles, else False
-	"""
-	if prop.name in ['clocks']:
-	    return True
-	return False
+        Args:
+            prop: Prop object to check
+        Return:
+            Number of argument cells is this is a phandle, else None
+        """
+        if prop.name in ['clocks']:
+            val = prop.value
+            if not isinstance(val, list):
+                val = [val]
+            i = 0
+
+            max_args = 0
+            args = []
+            while i < len(val):
+                phandle = fdt_util.fdt32_to_cpu(val[i])
+                target = self._fdt.phandle_to_node.get(phandle)
+                if not target:
+                    raise ValueError("Cannot parse '%s' in node '%s'" %
+                                     (prop.name, node_name))
+                prop_name = '#clock-cells'
+                cells = target.props.get(prop_name)
+                if not cells:
+                    raise ValueError("Node '%s' has no '%s' property" %
+                            (target.name, prop_name))
+                num_args = fdt_util.fdt32_to_cpu(cells.value)
+                max_args = max(max_args, num_args)
+                args.append(num_args)
+                i += 1 + num_args
+            return PhandleInfo(max_args, args)
+        return None
 
     def scan_dtb(self):
         """Scan the device tree to obtain a tree of nodes and properties
@@ -358,14 +389,16 @@ class DtbPlatdata(object):
             for pname, prop in node.props.items():
                 if pname in PROP_IGNORE_LIST or pname[0] == '#':
                     continue
-                if isinstance(prop.value, list):
-                    if self.is_phandle(prop):
-                        # Process the list as pairs of (phandle, id)
-                        value_it = iter(prop.value)
-                        for phandle_cell, _ in zip(value_it, value_it):
-                            phandle = fdt_util.fdt32_to_cpu(phandle_cell)
-                            target_node = self._fdt.phandle_to_node[phandle]
-                            node.phandles.add(target_node)
+                info = self.get_phandle_argc(prop, node.name)
+                if info:
+                    if not isinstance(prop.value, list):
+                        prop.value = [prop.value]
+                    # Process the list as pairs of (phandle, id)
+                    value_it = iter(prop.value)
+                    for phandle_cell, _ in zip(value_it, value_it):
+                        phandle = fdt_util.fdt32_to_cpu(phandle_cell)
+                        target_node = self._fdt.phandle_to_node[phandle]
+                        node.phandles.add(target_node)
 
 
     def generate_structs(self, structs):
@@ -383,7 +416,8 @@ class DtbPlatdata(object):
             self.out('struct %s%s {\n' % (STRUCT_PREFIX, name))
             for pname in sorted(structs[name]):
                 prop = structs[name][pname]
-                if self.is_phandle(prop):
+                info = self.get_phandle_argc(prop, structs[name])
+                if info:
                     # For phandles, include a reference to the target
                     self.out('\t%s%s[%d]' % (tab_to(2, 'struct phandle_2_cell'),
                                              conv_name_to_c(prop.name),
@@ -423,7 +457,8 @@ class DtbPlatdata(object):
                 vals = []
                 # For phandles, output a reference to the platform data
                 # of the target node.
-                if self.is_phandle(prop):
+                info = self.get_phandle_argc(prop, node.name)
+                if info:
                     # Process the list as pairs of (phandle, id)
                     value_it = iter(prop.value)
                     for phandle_cell, id_cell in zip(value_it, value_it):
