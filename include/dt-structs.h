@@ -9,7 +9,12 @@
 
 /* These structures may only be used in SPL */
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-struct phandle_2_cell {
+struct phandle_0_arg {
+	const void *node;
+	int id[0];
+};
+
+struct phandle_1_arg {
 	const void *node;
 	int id;
 };

@@ -228,7 +228,7 @@ U_BOOT_DEVICE(pmic_at_9) = {
         self.assertEqual('''#include <stdbool.h>
 #include <libfdt.h>
 struct dtd_source {
-\tstruct phandle_2_cell clocks[1];
+\tstruct phandle_1_arg clocks[1];
 };
 struct dtd_target {
 \tfdt32_t\t\tintval;

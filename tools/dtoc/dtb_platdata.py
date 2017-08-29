@@ -419,7 +419,8 @@ class DtbPlatdata(object):
                 info = self.get_phandle_argc(prop, structs[name])
                 if info:
                     # For phandles, include a reference to the target
-                    self.out('\t%s%s[%d]' % (tab_to(2, 'struct phandle_2_cell'),
+                    struct_name = 'struct phandle_%d_arg' % info.max_args
+                    self.out('\t%s%s[%d]' % (tab_to(2, struct_name),
                                              conv_name_to_c(prop.name),
                                              len(prop.value) / 2))
                 else:

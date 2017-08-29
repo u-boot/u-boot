@@ -23,7 +23,7 @@ static inline struct clk_ops *clk_dev_ops(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 # if CONFIG_IS_ENABLED(OF_PLATDATA)
 int clk_get_by_index_platdata(struct udevice *dev, int index,
-			      struct phandle_2_cell *cells, struct clk *clk)
+			      struct phandle_1_arg *cells, struct clk *clk)
 {
 	int ret;
 
