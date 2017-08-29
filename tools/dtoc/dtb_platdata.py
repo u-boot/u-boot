@@ -394,11 +394,13 @@ class DtbPlatdata(object):
                     if not isinstance(prop.value, list):
                         prop.value = [prop.value]
                     # Process the list as pairs of (phandle, id)
-                    value_it = iter(prop.value)
-                    for phandle_cell, _ in zip(value_it, value_it):
+                    pos = 0
+                    for args in info.args:
+                        phandle_cell = prop.value[pos]
                         phandle = fdt_util.fdt32_to_cpu(phandle_cell)
                         target_node = self._fdt.phandle_to_node[phandle]
                         node.phandles.add(target_node)
+                        pos += 1 + args
 
 
     def generate_structs(self, structs):
@@ -422,7 +424,7 @@ class DtbPlatdata(object):
                     struct_name = 'struct phandle_%d_arg' % info.max_args
                     self.out('\t%s%s[%d]' % (tab_to(2, struct_name),
                                              conv_name_to_c(prop.name),
-                                             len(prop.value) / 2))
+                                             len(info.args)))
                 else:
                     ptype = TYPE_NAMES[prop.type]
                     self.out('\t%s%s' % (tab_to(2, ptype),
@@ -461,13 +463,18 @@ class DtbPlatdata(object):
                 info = self.get_phandle_argc(prop, node.name)
                 if info:
                     # Process the list as pairs of (phandle, id)
-                    value_it = iter(prop.value)
-                    for phandle_cell, id_cell in zip(value_it, value_it):
+                    pos = 0
+                    for args in info.args:
+                        phandle_cell = prop.value[pos]
                         phandle = fdt_util.fdt32_to_cpu(phandle_cell)
-                        id_num = fdt_util.fdt32_to_cpu(id_cell)
                         target_node = self._fdt.phandle_to_node[phandle]
                         name = conv_name_to_c(target_node.name)
-                        vals.append('{&%s%s, {%d}}' % (VAL_PREFIX, name, id_num))
+                        arg_values = []
+                        for i in range(args):
+                            arg_values.append(str(fdt_util.fdt32_to_cpu(prop.value[pos + 1 + i])))
+                        pos += 1 + args
+                        vals.append('\t{&%s%s, {%s}}' % (VAL_PREFIX, name,
+                                                     ', '.join(arg_values)))
                     for val in vals:
                         self.buf('\n\t\t%s,' % val)
                 else:

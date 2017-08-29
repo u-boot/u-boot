@@ -228,7 +228,7 @@ U_BOOT_DEVICE(pmic_at_9) = {
         self.assertEqual('''#include <stdbool.h>
 #include <libfdt.h>
 struct dtd_source {
-\tstruct phandle_1_arg clocks[1];
+\tstruct phandle_2_arg clocks[4];
 };
 struct dtd_target {
 \tfdt32_t\t\tintval;
@@ -243,7 +243,7 @@ struct dtd_target {
 #include <dt-structs.h>
 
 static struct dtd_target dtv_phandle_target = {
-\t.intval\t\t\t= 0x1,
+\t.intval\t\t\t= 0x0,
 };
 U_BOOT_DEVICE(phandle_target) = {
 \t.name\t\t= "target",
@@ -251,9 +251,30 @@ U_BOOT_DEVICE(phandle_target) = {
 \t.platdata_size\t= sizeof(dtv_phandle_target),
 };
 
+static struct dtd_target dtv_phandle2_target = {
+\t.intval\t\t\t= 0x1,
+};
+U_BOOT_DEVICE(phandle2_target) = {
+\t.name\t\t= "target",
+\t.platdata\t= &dtv_phandle2_target,
+\t.platdata_size\t= sizeof(dtv_phandle2_target),
+};
+
+static struct dtd_target dtv_phandle3_target = {
+\t.intval\t\t\t= 0x2,
+};
+U_BOOT_DEVICE(phandle3_target) = {
+\t.name\t\t= "target",
+\t.platdata\t= &dtv_phandle3_target,
+\t.platdata_size\t= sizeof(dtv_phandle3_target),
+};
+
 static struct dtd_source dtv_phandle_source = {
 \t.clocks\t\t\t= {
-\t\t{&dtv_phandle_target, {1}},},
+\t\t\t{&dtv_phandle_target, {}},
+\t\t\t{&dtv_phandle2_target, {11}},
+\t\t\t{&dtv_phandle3_target, {12, 13}},
+\t\t\t{&dtv_phandle_target, {}},},
 };
 U_BOOT_DEVICE(phandle_source) = {
 \t.name\t\t= "source",

@@ -18,6 +18,11 @@ struct phandle_1_arg {
 	const void *node;
 	int arg[1];
 };
+
+struct phandle_2_arg {
+	const void *node;
+	int arg[2];
+};
 #include <generated/dt-structs.h>
 #endif
 
