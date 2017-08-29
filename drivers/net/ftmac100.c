@@ -40,7 +40,12 @@ static void ftmac100_reset(struct ftmac100_data *priv)
 	writel (FTMAC100_MACCR_SW_RST, &ftmac100->maccr);
 
 	while (readl (&ftmac100->maccr) & FTMAC100_MACCR_SW_RST)
-		;
+		mdelay(1);
+	/*
+	 * When soft reset complete, write mac address immediately maybe fail somehow
+	 *  Wait for a while can avoid this problem
+	 */
+	mdelay(1);
 }
 
 /*
