@@ -23,7 +23,7 @@ struct phandle_2_arg {
 	const void *node;
 	int arg[2];
 };
-#include <generated/dt-structs.h>
+#include <generated/dt-structs-gen.h>
 #endif
 
 #endif
