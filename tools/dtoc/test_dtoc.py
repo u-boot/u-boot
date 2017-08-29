@@ -271,3 +271,215 @@ U_BOOT_DEVICE(spl_test) = {
 };
 
 ''', data)
+
+    def test_addresses64(self):
+        """Test output from a node with a 'reg' property with na=2, ns=2"""
+        dtb_file = get_dtb_file('dtoc_test_addr64.dts')
+        output = tools.GetOutputFilename('output')
+        dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        with open(output) as infile:
+            data = infile.read()
+        self.assertEqual('''#include <stdbool.h>
+#include <libfdt.h>
+struct dtd_test1 {
+\tfdt64_t\t\treg[2];
+};
+struct dtd_test2 {
+\tfdt64_t\t\treg[2];
+};
+struct dtd_test3 {
+\tfdt64_t\t\treg[4];
+};
+''', data)
+
+        dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
+        with open(output) as infile:
+            data = infile.read()
+        self.assertEqual('''#include <common.h>
+#include <dm.h>
+#include <dt-structs.h>
+
+static struct dtd_test1 dtv_test1 = {
+\t.reg\t\t\t= {0x1234, 0x5678},
+};
+U_BOOT_DEVICE(test1) = {
+\t.name\t\t= "test1",
+\t.platdata\t= &dtv_test1,
+\t.platdata_size\t= sizeof(dtv_test1),
+};
+
+static struct dtd_test2 dtv_test2 = {
+\t.reg\t\t\t= {0x1234567890123456, 0x9876543210987654},
+};
+U_BOOT_DEVICE(test2) = {
+\t.name\t\t= "test2",
+\t.platdata\t= &dtv_test2,
+\t.platdata_size\t= sizeof(dtv_test2),
+};
+
+static struct dtd_test3 dtv_test3 = {
+\t.reg\t\t\t= {0x1234567890123456, 0x9876543210987654, 0x2, 0x3},
+};
+U_BOOT_DEVICE(test3) = {
+\t.name\t\t= "test3",
+\t.platdata\t= &dtv_test3,
+\t.platdata_size\t= sizeof(dtv_test3),
+};
+
+''', data)
+
+    def test_addresses32(self):
+        """Test output from a node with a 'reg' property with na=1, ns=1"""
+        dtb_file = get_dtb_file('dtoc_test_addr32.dts')
+        output = tools.GetOutputFilename('output')
+        dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        with open(output) as infile:
+            data = infile.read()
+        self.assertEqual('''#include <stdbool.h>
+#include <libfdt.h>
+struct dtd_test1 {
+\tfdt32_t\t\treg[2];
+};
+struct dtd_test2 {
+\tfdt32_t\t\treg[4];
+};
+''', data)
+
+        dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
+        with open(output) as infile:
+            data = infile.read()
+        self.assertEqual('''#include <common.h>
+#include <dm.h>
+#include <dt-structs.h>
+
+static struct dtd_test1 dtv_test1 = {
+\t.reg\t\t\t= {0x1234, 0x5678},
+};
+U_BOOT_DEVICE(test1) = {
+\t.name\t\t= "test1",
+\t.platdata\t= &dtv_test1,
+\t.platdata_size\t= sizeof(dtv_test1),
+};
+
+static struct dtd_test2 dtv_test2 = {
+\t.reg\t\t\t= {0x12345678, 0x98765432, 0x2, 0x3},
+};
+U_BOOT_DEVICE(test2) = {
+\t.name\t\t= "test2",
+\t.platdata\t= &dtv_test2,
+\t.platdata_size\t= sizeof(dtv_test2),
+};
+
+''', data)
+
+    def test_addresses64_32(self):
+        """Test output from a node with a 'reg' property with na=2, ns=1"""
+        dtb_file = get_dtb_file('dtoc_test_addr64_32.dts')
+        output = tools.GetOutputFilename('output')
+        dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        with open(output) as infile:
+            data = infile.read()
+        self.assertEqual('''#include <stdbool.h>
+#include <libfdt.h>
+struct dtd_test1 {
+\tfdt64_t\t\treg[2];
+};
+struct dtd_test2 {
+\tfdt64_t\t\treg[2];
+};
+struct dtd_test3 {
+\tfdt64_t\t\treg[4];
+};
+''', data)
+
+        dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
+        with open(output) as infile:
+            data = infile.read()
+        self.assertEqual('''#include <common.h>
+#include <dm.h>
+#include <dt-structs.h>
+
+static struct dtd_test1 dtv_test1 = {
+\t.reg\t\t\t= {0x123400000000, 0x5678},
+};
+U_BOOT_DEVICE(test1) = {
+\t.name\t\t= "test1",
+\t.platdata\t= &dtv_test1,
+\t.platdata_size\t= sizeof(dtv_test1),
+};
+
+static struct dtd_test2 dtv_test2 = {
+\t.reg\t\t\t= {0x1234567890123456, 0x98765432},
+};
+U_BOOT_DEVICE(test2) = {
+\t.name\t\t= "test2",
+\t.platdata\t= &dtv_test2,
+\t.platdata_size\t= sizeof(dtv_test2),
+};
+
+static struct dtd_test3 dtv_test3 = {
+\t.reg\t\t\t= {0x1234567890123456, 0x98765432, 0x2, 0x3},
+};
+U_BOOT_DEVICE(test3) = {
+\t.name\t\t= "test3",
+\t.platdata\t= &dtv_test3,
+\t.platdata_size\t= sizeof(dtv_test3),
+};
+
+''', data)
+
+    def test_addresses32_64(self):
+        """Test output from a node with a 'reg' property with na=1, ns=2"""
+        dtb_file = get_dtb_file('dtoc_test_addr32_64.dts')
+        output = tools.GetOutputFilename('output')
+        dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        with open(output) as infile:
+            data = infile.read()
+        self.assertEqual('''#include <stdbool.h>
+#include <libfdt.h>
+struct dtd_test1 {
+\tfdt64_t\t\treg[2];
+};
+struct dtd_test2 {
+\tfdt64_t\t\treg[2];
+};
+struct dtd_test3 {
+\tfdt64_t\t\treg[4];
+};
+''', data)
+
+        dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
+        with open(output) as infile:
+            data = infile.read()
+        self.assertEqual('''#include <common.h>
+#include <dm.h>
+#include <dt-structs.h>
+
+static struct dtd_test1 dtv_test1 = {
+\t.reg\t\t\t= {0x1234, 0x567800000000},
+};
+U_BOOT_DEVICE(test1) = {
+\t.name\t\t= "test1",
+\t.platdata\t= &dtv_test1,
+\t.platdata_size\t= sizeof(dtv_test1),
+};
+
+static struct dtd_test2 dtv_test2 = {
+\t.reg\t\t\t= {0x12345678, 0x9876543210987654},
+};
+U_BOOT_DEVICE(test2) = {
+\t.name\t\t= "test2",
+\t.platdata\t= &dtv_test2,
+\t.platdata_size\t= sizeof(dtv_test2),
+};
+
+static struct dtd_test3 dtv_test3 = {
+\t.reg\t\t\t= {0x12345678, 0x9876543210987654, 0x2, 0x3},
+};
+U_BOOT_DEVICE(test3) = {
+\t.name\t\t= "test3",
+\t.platdata\t= &dtv_test3,
+\t.platdata_size\t= sizeof(dtv_test3),
+};
+
+''', data)

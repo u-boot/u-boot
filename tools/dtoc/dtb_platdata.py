@@ -242,6 +242,66 @@ class DtbPlatdata(object):
         self._valid_nodes = []
         return self.scan_node(self._fdt.GetRoot())
 
+    @staticmethod
+    def get_num_cells(node):
+        """Get the number of cells in addresses and sizes for this node
+
+        Args:
+            node: Node to check
+
+        Returns:
+            Tuple:
+                Number of address cells for this node
+                Number of size cells for this node
+        """
+        parent = node.parent
+        na, ns = 2, 2
+        if parent:
+            na_prop = parent.props.get('#address-cells')
+            ns_prop = parent.props.get('#size-cells')
+            if na_prop:
+                na = fdt_util.fdt32_to_cpu(na_prop.value)
+            if ns_prop:
+                ns = fdt_util.fdt32_to_cpu(ns_prop.value)
+        return na, ns
+
+    def scan_reg_sizes(self):
+        """Scan for 64-bit 'reg' properties and update the values
+
+        This finds 'reg' properties with 64-bit data and converts the value to
+        an array of 64-values. This allows it to be output in a way that the
+        C code can read.
+        """
+        for node in self._valid_nodes:
+            reg = node.props.get('reg')
+            if not reg:
+                continue
+            na, ns = self.get_num_cells(node)
+            total = na + ns
+
+            if reg.type != fdt.TYPE_INT:
+                raise ValueError("Node '%s' reg property is not an int")
+            if len(reg.value) % total:
+                raise ValueError("Node '%s' reg property has %d cells "
+                        'which is not a multiple of na + ns = %d + %d)' %
+                        (node.name, len(reg.value), na, ns))
+            reg.na = na
+            reg.ns = ns
+            if na != 1 or ns != 1:
+                reg.type = fdt.TYPE_INT64
+                i = 0
+                new_value = []
+                val = reg.value
+                if not isinstance(val, list):
+                    val = [val]
+                while i < len(val):
+                    addr = fdt_util.fdt_cells_to_cpu(val[i:], reg.na)
+                    i += na
+                    size = fdt_util.fdt_cells_to_cpu(val[i:], reg.ns)
+                    i += ns
+                    new_value += [addr, size]
+                reg.value = new_value
+
     def scan_structs(self):
         """Scan the device tree building up the C structures we will use.
 
@@ -450,6 +510,7 @@ def run_steps(args, dtb_file, include_disabled, output):
     plat = DtbPlatdata(dtb_file, include_disabled)
     plat.scan_dtb()
     plat.scan_tree()
+    plat.scan_reg_sizes()
     plat.setup_output(output)
     structs = plat.scan_structs()
     plat.scan_phandles()

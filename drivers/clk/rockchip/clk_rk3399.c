@@ -963,7 +963,7 @@ static int rk3399_clk_probe(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3399_clk_plat *plat = dev_get_platdata(dev);
 
-	priv->cru = map_sysmem(plat->dtd.reg[1], plat->dtd.reg[3]);
+	priv->cru = map_sysmem(plat->dtd.reg[0], plat->dtd.reg[1]);
 #endif
 	rkclk_init(priv->cru);
 #endif
@@ -1145,7 +1145,7 @@ static int rk3399_pmuclk_probe(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3399_pmuclk_plat *plat = dev_get_platdata(dev);
 
-	priv->pmucru = map_sysmem(plat->dtd.reg[1], plat->dtd.reg[3]);
+	priv->pmucru = map_sysmem(plat->dtd.reg[0], plat->dtd.reg[1]);
 #endif
 
 #ifndef CONFIG_SPL_BUILD

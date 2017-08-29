@@ -38,6 +38,8 @@ def fdt_cells_to_cpu(val, cells):
     Return:
         A native-endian long value
     """
+    if not cells:
+        return 0
     out = long(fdt32_to_cpu(val[0]))
     if cells == 2:
         out = out << 32 | fdt32_to_cpu(val[1])
