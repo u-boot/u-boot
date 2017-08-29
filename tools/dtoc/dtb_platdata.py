@@ -116,21 +116,6 @@ def get_compat_name(node):
         compat, aliases = compat[0], compat[1:]
     return conv_name_to_c(compat), [conv_name_to_c(a) for a in aliases]
 
-def is_phandle(prop):
-    """Check if a node contains phandles
-
-    We have no reliable way of detecting whether a node uses a phandle
-    or not. As an interim measure, use a list of known property names.
-
-    Args:
-        prop: Prop object to check
-    Return:
-        True if the object value contains phandles, else False
-    """
-    if prop.name in ['clocks']:
-        return True
-    return False
-
 
 class DtbPlatdata(object):
     """Provide a means to convert device tree binary data to platform data
@@ -195,6 +180,21 @@ class DtbPlatdata(object):
         lines = self._lines
         self._lines = []
         return lines
+
+    def is_phandle(self, prop):
+	"""Check if a node contains phandles
+
+	We have no reliable way of detecting whether a node uses a phandle
+	or not. As an interim measure, use a list of known property names.
+
+	Args:
+	    prop: Prop object to check
+	Return:
+	    True if the object value contains phandles, else False
+	"""
+	if prop.name in ['clocks']:
+	    return True
+	return False
 
     def scan_dtb(self):
         """Scan the device tree to obtain a tree of nodes and properties
@@ -359,7 +359,7 @@ class DtbPlatdata(object):
                 if pname in PROP_IGNORE_LIST or pname[0] == '#':
                     continue
                 if isinstance(prop.value, list):
-                    if is_phandle(prop):
+                    if self.is_phandle(prop):
                         # Process the list as pairs of (phandle, id)
                         value_it = iter(prop.value)
                         for phandle_cell, _ in zip(value_it, value_it):
@@ -383,7 +383,7 @@ class DtbPlatdata(object):
             self.out('struct %s%s {\n' % (STRUCT_PREFIX, name))
             for pname in sorted(structs[name]):
                 prop = structs[name][pname]
-                if is_phandle(prop):
+                if self.is_phandle(prop):
                     # For phandles, include a reference to the target
                     self.out('\t%s%s[%d]' % (tab_to(2, 'struct phandle_2_cell'),
                                              conv_name_to_c(prop.name),
@@ -423,7 +423,7 @@ class DtbPlatdata(object):
                 vals = []
                 # For phandles, output a reference to the platform data
                 # of the target node.
-                if is_phandle(prop):
+                if self.is_phandle(prop):
                     # Process the list as pairs of (phandle, id)
                     value_it = iter(prop.value)
                     for phandle_cell, id_cell in zip(value_it, value_it):
