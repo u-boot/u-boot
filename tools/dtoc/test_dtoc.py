@@ -252,7 +252,8 @@ U_BOOT_DEVICE(phandle_target) = {
 };
 
 static struct dtd_source dtv_phandle_source = {
-\t.clocks\t\t\t= {{&dtv_phandle_target, 1}},
+\t.clocks\t\t\t= {
+\t\t{&dtv_phandle_target, 1},},
 };
 U_BOOT_DEVICE(phandle_source) = {
 \t.name\t\t= "source",

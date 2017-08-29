@@ -468,15 +468,17 @@ class DtbPlatdata(object):
                         target_node = self._fdt.phandle_to_node[phandle]
                         name = conv_name_to_c(target_node.name)
                         vals.append('{&%s%s, %d}' % (VAL_PREFIX, name, id_num))
+                    for val in vals:
+                        self.buf('\n\t\t%s,' % val)
                 else:
                     for val in prop.value:
                         vals.append(get_value(prop.type, val))
 
-                # Put 8 values per line to avoid very long lines.
-                for i in xrange(0, len(vals), 8):
-                    if i:
-                        self.buf(',\n\t\t')
-                    self.buf(', '.join(vals[i:i + 8]))
+                    # Put 8 values per line to avoid very long lines.
+                    for i in xrange(0, len(vals), 8):
+                        if i:
+                            self.buf(',\n\t\t')
+                        self.buf(', '.join(vals[i:i + 8]))
                 self.buf('}')
             else:
                 self.buf(get_value(prop.type, prop.value))
