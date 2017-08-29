@@ -5,19 +5,17 @@
  */
 
 #include <common.h>
-#include <debug_uart.h>
-#include <dm.h>
-#include <ram.h>
-#include <spl.h>
-#include <asm/gpio.h>
-#include <asm/io.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/grf_rk3399.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/periph.h>
-#include <asm/arch/sdram.h>
-#include <asm/arch/timer.h>
+#include <asm/io.h>
+#include <debug_uart.h>
+#include <dm.h>
 #include <dm/pinctrl.h>
-#include <power/regulator.h>
+#include <ram.h>
+#include <spl.h>
+#include <syscon.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -53,7 +51,6 @@ void secure_timer_init(void)
 
 void board_debug_uart_init(void)
 {
-#include <asm/arch/grf_rk3399.h>
 #define GRF_BASE	0xff770000
 	struct rk3399_grf_regs * const grf = (void *)GRF_BASE;
 
@@ -80,13 +77,12 @@ void board_debug_uart_init(void)
 #endif
 }
 
-#define GRF_EMMCCORE_CON11 0xff77f02c
-#define SGRF_DDR_RGN_CON16 0xff330040
-#define SGRF_SLV_SECURE_CON4 0xff33e3d0
 void board_init_f(ulong dummy)
 {
 	struct udevice *pinctrl;
 	struct udevice *dev;
+	struct rk3399_pmusgrf_regs *sgrf;
+	struct rk3399_grf_regs *grf;
 	int ret;
 
 #define EARLY_UART
@@ -103,9 +99,6 @@ void board_init_f(ulong dummy)
 	printascii("U-Boot SPL board init");
 #endif
 
-	/*  Emmc clock generator: disable the clock multipilier */
-	rk_clrreg(GRF_EMMCCORE_CON11, 0x0ff);
-
 	ret = spl_early_init();
 	if (ret) {
 		debug("spl_early_init() failed: %d\n", ret);
@@ -121,8 +114,13 @@ void board_init_f(ulong dummy)
 	 * driver, which tries to DMA from/to the stack (likely)
 	 * located in this range.
 	 */
-	rk_clrsetreg(SGRF_DDR_RGN_CON16, 0x1FF, 0);
-	rk_clrreg(SGRF_SLV_SECURE_CON4, 0x2000);
+	sgrf = syscon_get_first_range(ROCKCHIP_SYSCON_PMUSGRF);
+	rk_clrsetreg(&sgrf->ddr_rgn_con[16], 0x1ff, 0);
+	rk_clrreg(&sgrf->slv_secure_con4, 0x2000);
+
+	/*  eMMC clock generator: disable the clock multipilier */
+	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+	rk_clrreg(&grf->emmccore_con[11], 0x0ff);
 
 	secure_timer_init();
 
