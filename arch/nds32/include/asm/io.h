@@ -48,6 +48,27 @@ static inline void sync(void)
 #define MAP_WRBACK	(0)
 #define MAP_WRTHROUGH	(0)
 
+#ifdef CONFIG_ARCH_MAP_SYSMEM
+static inline void *map_sysmem(phys_addr_t paddr, unsigned long len)
+{
+	if(paddr <PHYS_SDRAM_0_SIZE + PHYS_SDRAM_1_SIZE)
+	paddr = paddr | 0x40000000;
+	return (void *)(uintptr_t)paddr;
+}
+
+static inline void *unmap_sysmem(const void *vaddr)
+{
+	phys_addr_t paddr = (phys_addr_t)vaddr;
+	paddr = paddr & ~0x40000000;
+	return (void *)(uintptr_t)paddr;
+}
+
+static inline phys_addr_t map_to_sysmem(const void *ptr)
+{
+	return (phys_addr_t)(uintptr_t)ptr;
+}
+#endif
+
 static inline void *
 map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 {

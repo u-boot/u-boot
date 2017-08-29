@@ -119,17 +119,44 @@ set_ivb:
 	/* set IVIC, vector size: 4 bytes, base: 0x0 */
 	mtsr	$r0, $ivb
 /*
- * MMU_CTL NTC0 Cacheable/Write-Back
+ * MMU_CTL NTC0 Non-cacheable
  */
+	li	$r0, ~0x6
+	mfsr	$r1, $mr0
+	and	$r1, $r1, $r0
+	mtsr	$r1, $mr0
+
 	li	$r0, ~0x3
 	mfsr	$r1, $mr8
 	and	$r1, $r1, $r0
 	mtsr	$r1, $mr8
 #if (!defined(CONFIG_SYS_ICACHE_OFF) || !defined(CONFIG_SYS_DCACHE_OFF))
+/*
+ * MMU_CTL NTC0 Cacheable/Write-Back
+ */
 	li	$r0, 0x4
 	mfsr	$r1, $mr0
 	or	$r1, $r1, $r0
 	mtsr	$r1, $mr0
+#endif
+
+#ifndef CONFIG_SYS_DCACHE_OFF
+#ifdef CONFIG_ARCH_MAP_SYSMEM
+/*
+ * MMU_CTL NTC1 Non-cacheable
+ */
+	li	$r0, ~0x18
+	mfsr	$r1, $mr0
+	and	$r1, $r1, $r0
+	mtsr	$r1, $mr0
+/*
+ * MMU_CTL NTM1 mapping for partition 0
+ */
+	li	$r0, ~0x6000
+	mfsr	$r1, $mr0
+	and	$r1, $r1, $r0
+	mtsr	$r1, $mr0
+#endif
 #endif
 
 #if !defined(CONFIG_SYS_ICACHE_OFF)
