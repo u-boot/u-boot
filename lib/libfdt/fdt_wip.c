@@ -115,7 +115,7 @@ int fdt_find_regions(const void *fdt, char * const inc[], int inc_count,
 		     struct fdt_region region[], int max_regions,
 		     char *path, int path_len, int add_string_tab)
 {
-	int stack[FDT_MAX_DEPTH];
+	int stack[FDT_MAX_DEPTH] = { 0 };
 	char *end;
 	int nextoffset = 0;
 	uint32_t tag;
