@@ -672,6 +672,7 @@
 			interrupt-controller;
 			#interrupt-cells = <2>;
 			reg = <0x0 0xff0a0000 0x0 0x1000>;
+			gpio-controller;
 			power-domains = <&pd_gpio>;
 		};
 
