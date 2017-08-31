@@ -130,19 +130,28 @@ static void fdt_pcie_set_iommu_map_entry(void *blob, struct ls_pcie *pcie,
 	u32 iommu_map[4];
 	int nodeoffset;
 	int lenp;
+	uint svr;
+	char *compat = NULL;
 
 	/* find pci controller node */
 	nodeoffset = fdt_node_offset_by_compat_reg(blob, "fsl,ls-pcie",
 						   pcie->dbi_res.start);
 	if (nodeoffset < 0) {
 #ifdef CONFIG_FSL_PCIE_COMPAT /* Compatible with older version of dts node */
-		nodeoffset = fdt_node_offset_by_compat_reg(blob,
-				CONFIG_FSL_PCIE_COMPAT, pcie->dbi_res.start);
+		svr = (get_svr() >> SVR_VAR_PER_SHIFT) & 0xFFFFFE;
+		if (svr == SVR_LS2088A || svr == SVR_LS2084A ||
+		    svr == SVR_LS2048A || svr == SVR_LS2044A ||
+		    svr == SVR_LS2081A || svr == SVR_LS2041A)
+			compat = "fsl,ls2088a-pcie";
+		else
+			compat = CONFIG_FSL_PCIE_COMPAT;
+
+		if (compat)
+			nodeoffset = fdt_node_offset_by_compat_reg(blob,
+						compat, pcie->dbi_res.start);
+#endif
 		if (nodeoffset < 0)
 			return;
-#else
-		return;
-#endif
 	}
 
 	/* get phandle to iommu controller */
