@@ -50,6 +50,29 @@ config ARCH_LS1046A
 	select BOARD_EARLY_INIT_F
 	imply SCSI
 
+config ARCH_LS1088A
+	bool
+	select ARMV8_SET_SMPEN
+	select FSL_LSCH3
+	select SYS_FSL_DDR
+	select SYS_FSL_DDR_LE
+	select SYS_FSL_DDR_VER_50
+	select SYS_FSL_ERRATUM_A009803
+	select SYS_FSL_ERRATUM_A009942
+	select SYS_FSL_ERRATUM_A010165
+	select SYS_FSL_ERRATUM_A008511
+	select SYS_FSL_ERRATUM_A008850
+	select SYS_FSL_HAS_CCI400
+	select SYS_FSL_HAS_DDR4
+	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_COMPAT_5
+	select SYS_FSL_SEC_LE
+	select SYS_FSL_SRDS_1
+	select SYS_FSL_SRDS_2
+	select FSL_TZASC_1
+	select ARCH_EARLY_INIT_R
+	select BOARD_EARLY_INIT_F
+
 config ARCH_LS2080A
 	bool
 	select ARMV8_SET_SMPEN
@@ -100,7 +123,7 @@ config FSL_LSCH3
 
 config FSL_MC_ENET
 	bool "Management Complex network"
-	depends on ARCH_LS2080A
+	depends on ARCH_LS2080A || ARCH_LS1088A
 	default y
 	select RESV_RAM
 	help
@@ -116,6 +139,7 @@ config FSL_PCIE_COMPAT
 	default "fsl,ls1043a-pcie" if ARCH_LS1043A
 	default "fsl,ls1046a-pcie" if ARCH_LS1046A
 	default "fsl,ls2080a-pcie" if ARCH_LS2080A
+	default "fsl,ls1088a-pcie" if ARCH_LS1088A
 	help
 	  This compatible is used to find pci controller node in Kernel DT
 	  to complete fixup.
@@ -231,6 +255,7 @@ config MAX_CPUS
 	default 4 if ARCH_LS1043A
 	default 4 if ARCH_LS1046A
 	default 16 if ARCH_LS2080A
+	default 8 if ARCH_LS1088A
 	default 1
 	help
 	  Set this number to the maximum number of possible CPUs in the SoC.
@@ -262,10 +287,10 @@ config SYS_CCI400_OFFSET
 
 config SYS_FSL_IFC_BANK_COUNT
 	int "Maximum banks of Integrated flash controller"
-	depends on ARCH_LS1043A || ARCH_LS1046A || ARCH_LS2080A
+	depends on ARCH_LS1043A || ARCH_LS1046A || ARCH_LS2080A || ARCH_LS1088A
 	default 4 if ARCH_LS1043A
 	default 4 if ARCH_LS1046A
-	default 8 if ARCH_LS2080A
+	default 8 if ARCH_LS2080A || ARCH_LS1088A
 
 config SYS_FSL_HAS_CCI400
 	bool
@@ -314,6 +339,7 @@ config SYS_FSL_PCLK_DIV
 	int "Platform clock divider"
 	default 1 if ARCH_LS1043A
 	default 1 if ARCH_LS1046A
+	default 1 if ARCH_LS1088A
 	default 2
 	help
 	  This is the divider that is used to derive Platform clock from
@@ -407,7 +433,8 @@ config SYS_FSL_ERRATUM_A009929
 config SYS_MC_RSV_MEM_ALIGN
 	hex "Management Complex reserved memory alignment"
 	depends on RESV_RAM
-	default 0x20000000
+	default 0x20000000 if ARCH_LS2080A
+	default 0x70000000 if ARCH_LS1088A
 	help
 	  Reserved memory needs to be aligned for MC to use. Default value
 	  is 512MB.

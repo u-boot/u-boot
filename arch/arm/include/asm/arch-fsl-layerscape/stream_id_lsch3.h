@@ -66,12 +66,26 @@
 #define FSL_USB2_STREAM_ID		2
 #define FSL_SDMMC_STREAM_ID		3
 #define FSL_SATA1_STREAM_ID		4
+
+#if defined(CONFIG_ARCH_LS2080A)
 #define FSL_SATA2_STREAM_ID		5
+#endif
+
+#if defined(CONFIG_ARCH_LS2080A)
 #define FSL_DMA_STREAM_ID		6
+#elif defined(CONFIG_ARCH_LS1088A)
+#define FSL_DMA_STREAM_ID		5
+#endif
 
 /* PCI - programmed in PEXn_LUT */
 #define FSL_PEX_STREAM_ID_START		7
+
+#if defined(CONFIG_ARCH_LS2080A)
 #define FSL_PEX_STREAM_ID_END		22
+#elif defined(CONFIG_ARCH_LS1088A)
+#define FSL_PEX_STREAM_ID_END		18
+#endif
+
 
 /* DPAA2 - set in MC DPC and alloced by MC */
 #define FSL_DPAA2_STREAM_ID_START	23

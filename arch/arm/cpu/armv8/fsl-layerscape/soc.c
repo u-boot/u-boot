@@ -24,6 +24,7 @@
 #ifdef CONFIG_CHAIN_OF_TRUST
 #include <fsl_validate.h>
 #endif
+#include <fsl_immap.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
