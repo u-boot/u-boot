@@ -576,6 +576,37 @@ void ls1088a_handle_phy_interface_xsgmii(int i)
 		break;
 	}
 }
+
+static void ls1088a_handle_phy_interface_rgmii(int dpmac_id)
+{
+	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+	u32 serdes1_prtcl, cfg;
+	struct mii_dev *bus;
+
+	cfg = in_le32(&gur->rcwsr[FSL_CHASSIS3_SRDS1_REGSR - 1]) &
+				FSL_CHASSIS3_SRDS1_PRTCL_MASK;
+	cfg >>= FSL_CHASSIS3_SRDS1_PRTCL_SHIFT;
+	serdes1_prtcl = serdes_get_number(FSL_SRDS_1, cfg);
+
+	switch (dpmac_id) {
+	case 4:
+		wriop_set_phy_address(dpmac_id, RGMII_PHY1_ADDR);
+		dpmac_info[dpmac_id].board_mux = EMI1_RGMII1;
+		bus = mii_dev_for_muxval(EMI1_RGMII1);
+		wriop_set_mdio(dpmac_id, bus);
+		break;
+	case 5:
+		wriop_set_phy_address(dpmac_id, RGMII_PHY2_ADDR);
+		dpmac_info[dpmac_id].board_mux = EMI1_RGMII2;
+		bus = mii_dev_for_muxval(EMI1_RGMII2);
+		wriop_set_mdio(dpmac_id, bus);
+		break;
+	default:
+		printf("qds: WRIOP: Unsupported RGMII SerDes Protocol 0x%02x\n",
+		       serdes1_prtcl);
+		break;
+	}
+}
 #endif
 
 int board_eth_init(bd_t *bis)
@@ -604,6 +635,9 @@ int board_eth_init(bd_t *bis)
 
 	for (i = WRIOP1_DPMAC1; i < NUM_WRIOP_PORTS; i++) {
 		switch (wriop_get_enet_if(i)) {
+		case PHY_INTERFACE_MODE_RGMII:
+			ls1088a_handle_phy_interface_rgmii(i);
+			break;
 		case PHY_INTERFACE_MODE_QSGMII:
 			ls1088a_handle_phy_interface_qsgmii(i);
 			break;
