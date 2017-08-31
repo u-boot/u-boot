@@ -50,14 +50,20 @@ int checkboard(void)
 					    "100 separate SSCG"};
 	int clock;
 
-
+#ifdef CONFIG_TARGET_LS1088AQDS
+	printf("Board: LS1088A-QDS, ");
+#else
 	printf("Board: LS1088A-RDB, ");
+#endif
 
 	sw = QIXIS_READ(arch);
 	printf("Board Arch: V%d, ", sw >> 4);
 
+#ifdef CONFIG_TARGET_LS1088AQDS
+	printf("Board version: %c, boot from ", (sw & 0xf) + 'A' - 1);
+#else
 	printf("Board version: %c, boot from ", (sw & 0xf) + 'A');
-
+#endif
 
 	memset((u8 *)buf, 0x00, ARRAY_SIZE(buf));
 
@@ -68,8 +74,27 @@ int checkboard(void)
 	puts("SD card\n");
 #endif
 	switch (sw) {
+#ifdef CONFIG_TARGET_LS1088AQDS
 	case 0:
-
+	case 1:
+	case 2:
+	case 3:
+	case 4:
+	case 5:
+	case 6:
+	case 7:
+		printf("vBank: %d\n", sw);
+		break;
+	case 8:
+		puts("PromJet\n");
+		break;
+	case 15:
+		puts("IFCCard\n");
+		break;
+	case 14:
+#else
+	case 0:
+#endif
 		puts("QSPI:");
 		sw = QIXIS_READ(brdcfg[0]);
 		sw = (sw & QIXIS_QMAP_MASK) >> QIXIS_QMAP_SHIFT;
@@ -86,9 +111,15 @@ int checkboard(void)
 		break;
 	}
 
-
+#ifdef CONFIG_TARGET_LS1088AQDS
+	printf("FPGA: v%d (%s), build %d",
+	       (int)QIXIS_READ(scver), qixis_read_tag(buf),
+	       (int)qixis_read_minor());
+	/* the timestamp string contains "\n" at the end */
+	printf(" on %s", qixis_read_time(buf));
+#else
 	printf("CPLD: v%d.%d\n", QIXIS_READ(scver), QIXIS_READ(tagdata));
-
+#endif
 
 	/*
 	 * Display the actual SERDES reference clocks as configured by the
@@ -116,8 +147,13 @@ int checkboard(void)
 
 bool if_board_diff_clk(void)
 {
+#ifdef CONFIG_TARGET_LS1088AQDS
+	u8 diff_conf = QIXIS_READ(brdcfg[11]);
+	return diff_conf & 0x40;
+#else
 	u8 diff_conf = QIXIS_READ(dutcfg[11]);
 	return diff_conf & 0x80;
+#endif
 }
 
 unsigned long get_board_sys_clk(void)
@@ -217,7 +253,45 @@ void board_retimer_init(void)
 	reg |= 0x70;
 	i2c_write(I2C_RETIMER_ADDR, 0x2F, 1, &reg, 1);
 
+#ifdef	CONFIG_TARGET_LS1088AQDS
+	/* Retimer is connected to I2C1_CH5 */
+	select_i2c_ch_pca9547(I2C_MUX_CH5);
 
+	/* Access to Control/Shared register */
+	reg = 0x0;
+	i2c_write(I2C_RETIMER_ADDR2, 0xff, 1, &reg, 1);
+
+	/* Read device revision and ID */
+	i2c_read(I2C_RETIMER_ADDR2, 1, 1, &reg, 1);
+	debug("Retimer version id = 0x%x\n", reg);
+
+	/* Enable Broadcast. All writes target all channel register sets */
+	reg = 0x0c;
+	i2c_write(I2C_RETIMER_ADDR2, 0xff, 1, &reg, 1);
+
+	/* Reset Channel Registers */
+	i2c_read(I2C_RETIMER_ADDR2, 0, 1, &reg, 1);
+	reg |= 0x4;
+	i2c_write(I2C_RETIMER_ADDR2, 0, 1, &reg, 1);
+
+	/* Set data rate as 10.3125 Gbps */
+	reg = 0x90;
+	i2c_write(I2C_RETIMER_ADDR2, 0x60, 1, &reg, 1);
+	reg = 0xb3;
+	i2c_write(I2C_RETIMER_ADDR2, 0x61, 1, &reg, 1);
+	reg = 0x90;
+	i2c_write(I2C_RETIMER_ADDR2, 0x62, 1, &reg, 1);
+	reg = 0xb3;
+	i2c_write(I2C_RETIMER_ADDR2, 0x63, 1, &reg, 1);
+	reg = 0xcd;
+	i2c_write(I2C_RETIMER_ADDR2, 0x64, 1, &reg, 1);
+
+	/* Select VCO Divider to full rate (000) */
+	i2c_read(I2C_RETIMER_ADDR2, 0x2F, 1, &reg, 1);
+	reg &= 0x0f;
+	reg |= 0x70;
+	i2c_write(I2C_RETIMER_ADDR2, 0x2F, 1, &reg, 1);
+#endif
 	/*return the default channel*/
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 }

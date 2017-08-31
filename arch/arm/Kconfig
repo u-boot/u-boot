@@ -808,6 +808,19 @@ config TARGET_LS2080A_SIMU
 	  development platform that supports the QorIQ LS2080A
 	  Layerscape Architecture processor.
 
+config TARGET_LS1088AQDS
+	bool "Support ls1088aqds"
+	select ARCH_LS1088A
+	select ARM64
+	select ARMV8_MULTIENTRY
+	select ARCH_MISC_INIT
+	select BOARD_LATE_INIT
+	help
+	  Support for NXP LS1088AQDS platform
+	  The LS1088A Development System (QDS) is a high-performance
+	  development platform that supports the QorIQ LS1088A
+	  Layerscape Architecture processor.
+
 config TARGET_LS2080AQDS
 	bool "Support ls2080aqds"
 	select ARCH_LS2080A
