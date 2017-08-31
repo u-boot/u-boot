@@ -8,6 +8,7 @@
 #include <fsl-mc/ldpaa_wriop.h>
 #include <asm/io.h>
 #include <asm/arch/fsl_serdes.h>
+#include <asm/arch/soc.h>
 
 u32 dpmac_to_devdisr[] = {
 	[WRIOP1_DPMAC1] = FSL_CHASSIS3_DEVDISR2_DPMAC1,
@@ -85,3 +86,29 @@ void wriop_init_dpmac_qsgmii(int sd, int lane_prtcl)
 		break;
 	}
 }
+
+#ifdef CONFIG_SYS_FSL_HAS_RGMII
+void fsl_rgmii_init(void)
+{
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	u32 ec;
+
+#ifdef CONFIG_SYS_FSL_EC1
+	ec = gur_in32(&gur->rcwsr[FSL_CHASSIS3_EC1_REGSR - 1])
+		& FSL_CHASSIS3_RCWSR25_EC1_PRTCL_MASK;
+	ec >>= FSL_CHASSIS3_RCWSR25_EC1_PRTCL_SHIFT;
+
+	if (!ec)
+		wriop_init_dpmac_enet_if(4, PHY_INTERFACE_MODE_RGMII);
+#endif
+
+#ifdef CONFIG_SYS_FSL_EC2
+	ec = gur_in32(&gur->rcwsr[FSL_CHASSIS3_EC2_REGSR - 1])
+		& FSL_CHASSIS3_RCWSR25_EC2_PRTCL_MASK;
+	ec >>= FSL_CHASSIS3_RCWSR25_EC2_PRTCL_SHIFT;
+
+	if (!ec)
+		wriop_init_dpmac_enet_if(5, PHY_INTERFACE_MODE_RGMII);
+#endif
+}
+#endif

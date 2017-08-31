@@ -597,7 +597,6 @@ int board_eth_init(bd_t *bis)
 
 	/* Register the real MDIO1 bus */
 	fm_memac_mdio_init(bis, memac_mdio0_info);
-
 	/* Register the muxing front-ends to the MDIO buses */
 	ls1088a_qds_mdio_init(DEFAULT_WRIOP_MDIO1_NAME, EMI1_RGMII1);
 	ls1088a_qds_mdio_init(DEFAULT_WRIOP_MDIO1_NAME, EMI1_RGMII2);

@@ -517,6 +517,10 @@ int arch_early_init_r(void)
 			printf("Did not wake secondary cores\n");
 	}
 
+#ifdef CONFIG_SYS_FSL_HAS_RGMII
+	fsl_rgmii_init();
+#endif
+
 #ifdef CONFIG_SYS_HAS_SERDES
 	fsl_serdes_init();
 #endif

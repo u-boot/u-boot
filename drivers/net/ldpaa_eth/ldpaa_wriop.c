@@ -37,6 +37,15 @@ void wriop_init_dpmac(int sd, int dpmac_id, int lane_prtcl)
 	}
 }
 
+void wriop_init_dpmac_enet_if(int dpmac_id, phy_interface_t enet_if)
+{
+	dpmac_info[dpmac_id].enabled = 1;
+	dpmac_info[dpmac_id].id = dpmac_id;
+	dpmac_info[dpmac_id].phy_addr = -1;
+	dpmac_info[dpmac_id].enet_if = enet_if;
+}
+
+
 /*TODO what it do */
 static int wriop_dpmac_to_index(int dpmac_id)
 {

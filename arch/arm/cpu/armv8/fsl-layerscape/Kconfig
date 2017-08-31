@@ -57,6 +57,8 @@ config ARCH_LS1088A
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_LE
 	select SYS_FSL_DDR_VER_50
+	select SYS_FSL_EC1
+	select SYS_FSL_EC2
 	select SYS_FSL_ERRATUM_A009803
 	select SYS_FSL_ERRATUM_A009942
 	select SYS_FSL_ERRATUM_A010165
@@ -64,6 +66,7 @@ config ARCH_LS1088A
 	select SYS_FSL_ERRATUM_A008850
 	select SYS_FSL_HAS_CCI400
 	select SYS_FSL_HAS_DDR4
+	select SYS_FSL_HAS_RGMII
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_5
 	select SYS_FSL_SEC_LE
@@ -407,6 +410,18 @@ config RESV_RAM
 	  be at the high end of physical memory. The reserve RAM may be
 	  excluded from memory bank(s) passed to OS, or marked as reserved.
 
+config SYS_FSL_EC1
+	bool
+	help
+	  Ethernet controller 1, this is connected to MAC3.
+	  Provides DPAA2 capabilities
+
+config SYS_FSL_EC2
+	bool
+	help
+	  Ethernet controller 2, this is connected to MAC4.
+	  Provides DPAA2 capabilities
+
 config SYS_FSL_ERRATUM_A008336
 	bool
 
@@ -430,6 +445,12 @@ config SYS_FSL_ERRATUM_A009660
 
 config SYS_FSL_ERRATUM_A009929
 	bool
+
+
+config SYS_FSL_HAS_RGMII
+	bool
+	depends on SYS_FSL_EC1 || SYS_FSL_EC2
+
 
 config SYS_MC_RSV_MEM_ALIGN
 	hex "Management Complex reserved memory alignment"
