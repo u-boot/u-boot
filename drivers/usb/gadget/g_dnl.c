@@ -19,6 +19,8 @@
 #include <dfu.h>
 #include <thor.h>
 
+#include <env_callback.h>
+
 #include "gadget_chips.h"
 #include "composite.c"
 
@@ -201,6 +203,19 @@ static int g_dnl_get_bcd_device_number(struct usb_composite_dev *cdev)
 
 	return g_dnl_get_board_bcd_device_number(gcnum);
 }
+
+/**
+ * Update internal serial number variable when the "serial#" env var changes.
+ *
+ * Handle all cases, even when flags == H_PROGRAMMATIC or op == env_op_delete.
+ */
+static int on_serialno(const char *name, const char *value, enum env_op op,
+		int flags)
+{
+	g_dnl_set_serialnumber((char *)value);
+	return 0;
+}
+U_BOOT_ENV_CALLBACK(serialno, on_serialno);
 
 static int g_dnl_bind(struct usb_composite_dev *cdev)
 {

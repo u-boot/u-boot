@@ -72,6 +72,7 @@
 	SILENT_CALLBACK \
 	SPLASHIMAGE_CALLBACK \
 	"stdin:console,stdout:console,stderr:console," \
+	"serial#:serialno," \
 	CONFIG_ENV_CALLBACK_LIST_STATIC
 
 struct env_clbk_tbl {
