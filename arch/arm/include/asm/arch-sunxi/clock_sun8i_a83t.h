@@ -220,6 +220,7 @@ struct sunxi_ccm_reg {
 #define CCM_MMC_CTRL_SCLK_DLY(x)	((x) << 20)
 #define CCM_MMC_CTRL_OSCM24		(0x0 << 24)
 #define CCM_MMC_CTRL_PLL6		(0x1 << 24)
+#define CCM_MMC_CTRL_MODE_SEL_NEW	(0x1 << 30)
 #define CCM_MMC_CTRL_ENABLE		(0x1 << 31)
 
 #define CCM_USB_CTRL_PHY0_RST (0x1 << 0)
