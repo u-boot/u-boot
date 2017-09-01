@@ -13,10 +13,10 @@ export LC_ALL=C LC_COLLATE=C
 # There are two independent greps. The first pulls out the component parts
 # of CONFIG_SYS_EXTRA_OPTIONS. An example is:
 #
-#	SUNXI_GMAC,AHCI,SATAPWR=SUNXI_GPB(8)
+#	SUN7I_GMAC,AHCI,SATAPWR=SUNXI_GPB(8)
 #
 # We want this to produce:
-#	CONFIG_SUNXI_GMAC
+#	CONFIG_SUN7I_GMAC
 #	CONFIG_AHCI
 #	CONFIG_SATAPWR
 #
