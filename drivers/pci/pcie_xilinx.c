@@ -87,7 +87,7 @@ static int pcie_xilinx_config_address(struct xilinx_pcie *pcie, pci_dev_t bdf,
 
 /**
  * pcie_xilinx_read_config() - Read from configuration space
- * @pcie: Pointer to the PCI controller state
+ * @bus: Pointer to the PCI bus
  * @bdf: Identifies the PCIe device to access
  * @offset: The offset into the device's configuration space
  * @valuep: A pointer at which to store the read value
@@ -130,7 +130,7 @@ static int pcie_xilinx_read_config(struct udevice *bus, pci_dev_t bdf,
 
 /**
  * pcie_xilinx_write_config() - Write to configuration space
- * @pcie: Pointer to the PCI controller state
+ * @bus: Pointer to the PCI bus
  * @bdf: Identifies the PCIe device to access
  * @offset: The offset into the device's configuration space
  * @value: The value to write
