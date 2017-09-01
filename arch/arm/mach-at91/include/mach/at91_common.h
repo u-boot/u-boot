@@ -36,4 +36,6 @@ void matrix_init(void);
 void redirect_int_from_saic_to_aic(void);
 void configure_2nd_sram_as_l2_cache(void);
 
+int at91_set_ethaddr(int offset);
+
 #endif /* AT91_COMMON_H */
