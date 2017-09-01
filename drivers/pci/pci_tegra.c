@@ -218,8 +218,6 @@ struct tegra_pcie_soc {
 };
 
 struct tegra_pcie {
-	struct pci_controller hose;
-
 	struct resource pads;
 	struct resource afi;
 	struct resource cs;
