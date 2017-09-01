@@ -145,7 +145,6 @@ struct ls_pcie {
 	bool big_endian;
 	bool enabled;
 	int next_lut_index;
-	struct pci_controller hose;
 };
 
 extern struct list_head ls_pcie_list;
