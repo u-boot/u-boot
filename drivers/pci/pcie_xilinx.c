@@ -14,11 +14,9 @@
 
 /**
  * struct xilinx_pcie - Xilinx PCIe controller state
- * @hose: The parent classes PCI controller state
  * @cfg_base: The base address of memory mapped configuration space
  */
 struct xilinx_pcie {
-	struct pci_controller hose;
 	void *cfg_base;
 };
 
