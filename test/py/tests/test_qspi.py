@@ -9,14 +9,27 @@ import u_boot_utils
 
 import test_net
 
+"""
+Note: This test relies on boardenv_* containing configuration values to define
+qspi minimum and maximum frequnecies at which the flash part can operate on and
+these tests run at 5 different qspi frequnecy randomised values in the range.
+with out this, this test runs with only one frequnecy value that is 0.
+
+Example:
+env__qspi_freq = {
+    "min_freq": 10000000,
+    "max_freq": 100000000,
+}
+
+"""
 page_size = 0
 erase_size = 0
 total_size = 0
 
 # Find out qspi memory parameters
-def qspi_pre_commands(u_boot_console):
+def qspi_pre_commands(u_boot_console, freq):
 
-    output = u_boot_console.run_command('sf probe')
+    output = u_boot_console.run_command('sf probe 0 %d 0' % (freq))
     if not "SF: Detected" in output:
         pytest.skip('No QSPI device available')
 
@@ -52,12 +65,37 @@ def qspi_pre_commands(u_boot_console):
         total_size *= 1024 * 1024
         print 'Total size is: ' + str(total_size) + " B"
 
+# Find out minimum and maximum frequnecies that device can operate
+def qspi_find_freq_range(u_boot_console):
+    f = u_boot_console.config.env.get('env__qspi_freq', None)
+    global min_f
+    global max_f
+    global loop
+
+    if not f:
+        min_f = 0
+        max_f = 0
+        loop = 1
+        return
+
+    min_f = f.get('min_freq', None)
+    if not min_f:
+        min_f = 0
+    max_f = f.get('max_freq', None)
+    if not max_f:
+        max_f = 0
+
+    if max_f < min_f:
+        max_f = min_f
+
+    if min_f == 0 and max_f == 0:
+        loop = 1
+        return
+
+    loop = 5
+
 # Read the whole QSPI flash twice, random_size till full flash size, random till page size
-@pytest.mark.buildconfigspec('cmd_bdi')
-@pytest.mark.buildconfigspec('cmd_sf')
-@pytest.mark.buildconfigspec('cmd_memory')
-def test_qspi_read_twice(u_boot_console):
-    qspi_pre_commands(u_boot_console)
+def qspi_read_twice(u_boot_console):
 
     expected_read = "Read: OK"
 
@@ -77,22 +115,36 @@ def test_qspi_read_twice(u_boot_console):
         output = u_boot_console.run_command('crc32 %x %x' % (addr + total_size + 10, size))
         assert expected_crc32 in output
 
+@pytest.mark.buildconfigspec("cmd_sf")
+@pytest.mark.buildconfigspec("cmd_bdi")
+@pytest.mark.buildconfigspec("cmd_memory")
+def test_qspi_read_twice(u_boot_console):
+    qspi_find_freq_range(u_boot_console)
+    i = 0
+    while i < loop:
+        qspi_pre_commands(u_boot_console, random.randint(min_f, max_f))
+        qspi_read_twice(u_boot_console)
+        i = i + 1
+
 # This test check crossing boundary for dual/parralel configurations
-@pytest.mark.buildconfigspec('cmd_sf')
-def test_qspi_erase_block(u_boot_console):
-    qspi_pre_commands(u_boot_console)
+def qspi_erase_block(u_boot_console):
 
     expected_erase = "Erased: OK"
     for start in range(0, total_size, erase_size):
         output = u_boot_console.run_command('sf erase %x %x' % (start, erase_size))
         assert expected_erase in output
 
-# Random write till page size, random till size and full size
-@pytest.mark.buildconfigspec('cmd_bdi')
 @pytest.mark.buildconfigspec('cmd_sf')
-@pytest.mark.buildconfigspec('cmd_memory')
-def test_qspi_write_twice(u_boot_console):
-    qspi_pre_commands(u_boot_console)
+def test_qspi_erase_block(u_boot_console):
+    qspi_find_freq_range(u_boot_console)
+    i = 0
+    while i < loop:
+        qspi_pre_commands(u_boot_console, random.randint(min_f, max_f))
+        qspi_erase_block(u_boot_console)
+        i = i + 1
+
+# Random write till page size, random till size and full size
+def qspi_write_twice(u_boot_console):
 
     expected_write = "Written: OK"
     expected_read = "Read: OK"
@@ -117,10 +169,18 @@ def test_qspi_write_twice(u_boot_console):
         assert expected_crc32 in output
         old_size = size
 
+@pytest.mark.buildconfigspec('cmd_bdi')
 @pytest.mark.buildconfigspec('cmd_sf')
-def test_qspi_erase_all(u_boot_console):
-    qspi_pre_commands(u_boot_console)
+@pytest.mark.buildconfigspec('cmd_memory')
+def test_qspi_write_twice(u_boot_console):
+    qspi_find_freq_range(u_boot_console)
+    i = 0
+    while i < loop:
+        qspi_pre_commands(u_boot_console, random.randint(min_f, max_f))
+        qspi_write_twice(u_boot_console)
+        i = i + 1
 
+def qspi_erase_all(u_boot_console):
     timeout = 10000000
 
     expected_erase = "Erased: OK"
@@ -129,11 +189,17 @@ def test_qspi_erase_all(u_boot_console):
         output = u_boot_console.run_command('sf erase 0 ' + str(hex(total_size)))
         assert expected_erase in output
 
+@pytest.mark.buildconfigspec("cmd_sf")
+def test_qspi_erase_all(u_boot_console):
+    qspi_find_freq_range(u_boot_console)
+    i = 0
+    while i < loop:
+        qspi_pre_commands(u_boot_console, random.randint(min_f, max_f))
+        qspi_erase_all(u_boot_console)
+        i = i + 1
+
 # Load FIT image and write boot.bin to start of qspi to be ready for qspi boot
-@pytest.mark.buildconfigspec('cmd_bdi')
-@pytest.mark.buildconfigspec('cmd_sf')
-def test_qspi_boot_images(u_boot_console):
-    qspi_pre_commands(u_boot_console)
+def qspi_boot_images(u_boot_console):
 
     if not test_net.net_set_up:
         pytest.skip('Network not initialized')
@@ -177,3 +243,13 @@ def test_qspi_boot_images(u_boot_console):
     expected_write = "Written: OK"
     output = u_boot_console.run_command('sf write %x %x $filesize' % (temp, map))
     assert expected_write in output
+
+@pytest.mark.buildconfigspec("cmd_bdi")
+@pytest.mark.buildconfigspec("cmd_sf")
+def test_qspi_boot_images(u_boot_console):
+    qspi_find_freq_range(u_boot_console)
+    i = 0
+    while i < loop:
+        qspi_pre_commands(u_boot_console, random.randint(min_f, max_f))
+        qspi_boot_images(u_boot_console)
+        i = i + 1
