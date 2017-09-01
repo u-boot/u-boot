@@ -317,6 +317,11 @@ static int splash_load_fit(struct splash_location *location, u32 bmp_load_addr)
 		return res;
 
 	img_header = (struct image_header *)bmp_load_addr;
+	if (image_get_magic(img_header) != FDT_MAGIC) {
+		printf("Could not find FDT magic\n");
+		return -EINVAL;
+	}
+
 	fit_size = fdt_totalsize(img_header);
 
 	/* Read in entire FIT */
