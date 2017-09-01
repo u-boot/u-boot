@@ -69,8 +69,13 @@ enum imx6_bmode_emi {
 
 enum imx6_bmode {
 	IMX6_BMODE_EMI,
-	IMX6_BMODE_UART,
+#if defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL)
+	IMX6_BMODE_QSPI,
+	IMX6_BMODE_RESERVED,
+#else
+	IMX6_BMODE_RESERVED,
 	IMX6_BMODE_SATA,
+#endif
 	IMX6_BMODE_SERIAL_ROM,
 	IMX6_BMODE_SD,
 	IMX6_BMODE_ESD,
@@ -85,6 +90,8 @@ static inline u8 imx6_is_bmode_from_gpr9(void)
 }
 
 u32 imx6_src_get_boot_mode(void);
+void gpr_init(void);
+
 #endif /* CONFIG_MX6 */
 
 u32 get_nr_cpus(void);

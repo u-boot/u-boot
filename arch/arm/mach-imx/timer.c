@@ -74,8 +74,7 @@ int timer_init(void)
 	__raw_writel(GPTCR_SWR, &cur_gpt->control);
 
 	/* We have no udelay by now */
-	for (i = 0; i < 100; i++)
-		__raw_writel(0, &cur_gpt->control);
+	__raw_writel(0, &cur_gpt->control);
 
 	i = __raw_readl(&cur_gpt->control);
 	i &= ~GPTCR_CLKSOURCE_MASK;

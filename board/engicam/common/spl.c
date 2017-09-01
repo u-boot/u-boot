@@ -39,6 +39,17 @@ static iomux_v3_cfg_t const uart_pads[] = {
 #endif
 };
 
+#ifdef CONFIG_SPL_OS_BOOT
+int spl_start_uboot(void)
+{
+	/* break into full u-boot on 'c' */
+	if (serial_tstc() && serial_getc() == 'c')
+		return 1;
+
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_MX6QDL
 /*
  * Driving strength:
@@ -330,17 +341,6 @@ static void ccgr_init(void)
 	writel(0x033f30ff, &ccm->CCGR5);
 	writel(0x00c00fff, &ccm->CCGR6);
 #endif
-}
-
-static void gpr_init(void)
-{
-	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-
-	/* enable AXI cache for VDOA/VPU/IPU */
-	writel(0xF00000CF, &iomux->gpr[4]);
-	/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
-	writel(0x007F007F, &iomux->gpr[6]);
-	writel(0x007F007F, &iomux->gpr[7]);
 }
 
 static void spl_dram_init(void)

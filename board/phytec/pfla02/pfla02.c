@@ -485,9 +485,9 @@ static const struct mx6_mmdc_calibration mx6_mmcd_calib = {
 
 /* Index in RAM Chip array */
 enum {
-	RAM_1GB,
-	RAM_2GB,
-	RAM_4GB
+	RAM_MT64K,
+	RAM_MT128K,
+	RAM_MT256K
 };
 
 static struct mx6_ddr3_cfg mt41k_xx[] = {
@@ -550,42 +550,11 @@ static void ccgr_init(void)
 	writel(0x000003FF, &ccm->CCGR6);
 }
 
-static void gpr_init(void)
+static void spl_dram_init(struct mx6_ddr_sysinfo *sysinfo,
+				struct mx6_ddr3_cfg *mem_ddr)
 {
-	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-
-	/* enable AXI cache for VDOA/VPU/IPU */
-	writel(0xF00000CF, &iomux->gpr[4]);
-	/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
-	writel(0x007F007F, &iomux->gpr[6]);
-	writel(0x007F007F, &iomux->gpr[7]);
-}
-
-static void spl_dram_init(struct mx6_ddr3_cfg *mem_ddr)
-{
-	struct mx6_ddr_sysinfo sysinfo = {
-		/* width of data bus:0=16,1=32,2=64 */
-		.dsize = 2,
-		/* config for full 4GB range so that get_mem_size() works */
-		.cs_density = 32, /* 32Gb per CS */
-		/* single chip select */
-		.ncs = 2,
-		.cs1_mirror = 0,
-		.rtt_wr = 1 /*DDR3_RTT_60_OHM*/,	/* RTT_Wr = RZQ/4 */
-		.rtt_nom = 1 /*DDR3_RTT_60_OHM*/,	/* RTT_Nom = RZQ/4 */
-		.walat = 1,	/* Write additional latency */
-		.ralat = 5,	/* Read additional latency */
-		.mif3_mode = 3,	/* Command prediction working mode */
-		.bi_on = 1,	/* Bank interleaving enabled */
-		.sde_to_rst = 0x10,	/* 14 cycles, 200us (JEDEC default) */
-		.rst_to_cke = 0x23,	/* 33 cycles, 500us (JEDEC default) */
-		.ddr_type = DDR_TYPE_DDR3,
-		.refsel = 1,	/* Refresh cycles at 32KHz */
-		.refr = 7,	/* 8 refresh commands per refresh cycle */
-	};
-
 	mx6dq_dram_iocfg(64, &mx6_ddr_ioregs, &mx6_grp_ioregs);
-	mx6_dram_cfg(&sysinfo, &mx6_mmcd_calib, mem_ddr);
+	mx6_dram_cfg(sysinfo, &mx6_mmcd_calib, mem_ddr);
 }
 
 int board_mmc_init(bd_t *bis)
@@ -627,10 +596,12 @@ void board_boot_order(u32 *spl_boot_list)
  * Function checks for mirrors in the first CS
  */
 #define RAM_TEST_PATTERN	0xaa5555aa
-static unsigned int pfla02_detect_ramsize(void)
+#define MIN_BANK_SIZE		(512 * 1024 * 1024)
+
+static unsigned int pfla02_detect_chiptype(void)
 {
 	u32 *p, *p1;
-	unsigned int offset = 512 * 1024 * 1024;
+	unsigned int offset = MIN_BANK_SIZE;
 	int i;
 
 	for (i = 0; i < 2; i++) {
@@ -649,12 +620,38 @@ static unsigned int pfla02_detect_ramsize(void)
 		if (*p == *p1)
 			return i;
 	}
-	return RAM_4GB;
+	return RAM_MT256K;
 }
 
 void board_init_f(ulong dummy)
 {
 	unsigned int ramchip;
+
+	struct mx6_ddr_sysinfo sysinfo = {
+		/* width of data bus:0=16,1=32,2=64 */
+		.dsize = 2,
+		/* config for full 4GB range so that get_mem_size() works */
+		.cs_density = 32, /* 512 MB */
+		/* single chip select */
+#if IS_ENABLED(CONFIG_SPL_DRAM_1_BANK)
+		.ncs = 1,
+#else
+		.ncs = 2,
+#endif
+		.cs1_mirror = 1,
+		.rtt_wr = 1 /*DDR3_RTT_60_OHM*/,	/* RTT_Wr = RZQ/4 */
+		.rtt_nom = 1 /*DDR3_RTT_60_OHM*/,	/* RTT_Nom = RZQ/4 */
+		.walat = 1,	/* Write additional latency */
+		.ralat = 5,	/* Read additional latency */
+		.mif3_mode = 3,	/* Command prediction working mode */
+		.bi_on = 1,	/* Bank interleaving enabled */
+		.sde_to_rst = 0x10,	/* 14 cycles, 200us (JEDEC default) */
+		.rst_to_cke = 0x23,	/* 33 cycles, 500us (JEDEC default) */
+		.ddr_type = DDR_TYPE_DDR3,
+		.refsel = 1,	/* Refresh cycles at 32KHz */
+		.refr = 7,	/* 8 refresh commands per refresh cycle */
+	};
+
 #ifdef CONFIG_CMD_NAND
 	/* Enable NAND */
 	setup_gpmi_nand();
@@ -682,10 +679,23 @@ void board_init_f(ulong dummy)
 	setup_gpios();
 
 	/* DDR initialization */
-	spl_dram_init(&mt41k_xx[RAM_4GB]);
-	ramchip = pfla02_detect_ramsize();
-	if (ramchip != RAM_4GB)
-		spl_dram_init(&mt41k_xx[ramchip]);
+	spl_dram_init(&sysinfo, &mt41k_xx[RAM_MT256K]);
+	ramchip = pfla02_detect_chiptype();
+	debug("Detected chip %d\n", ramchip);
+#if !IS_ENABLED(CONFIG_SPL_DRAM_1_BANK)
+	switch (ramchip) {
+		case RAM_MT64K:
+			sysinfo.cs_density = 6;
+			break;
+		case RAM_MT128K:
+			sysinfo.cs_density = 10;
+			break;
+		case RAM_MT256K:
+			sysinfo.cs_density = 18;
+			break;
+	}
+#endif
+	spl_dram_init(&sysinfo, &mt41k_xx[ramchip]);
 
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);

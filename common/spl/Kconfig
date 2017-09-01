@@ -668,6 +668,12 @@ config SPL_DFU_RAM
 
 endchoice
 
+config SPL_USB_SDP_SUPPORT
+	bool "Support SDP (Serial Download Protocol)"
+	help
+	  Enable Serial Download Protocol (SDP) device support in SPL. This
+	  allows to download images into memory and execute (jump to) them
+	  using the same protocol as implemented by the i.MX family's boot ROM.
 endif
 
 config SPL_WATCHDOG_SUPPORT

@@ -103,6 +103,13 @@ config USB_GADGET_DOWNLOAD
 
 if USB_GADGET_DOWNLOAD
 
+config USB_FUNCTION_SDP
+	bool "Enable USB SDP (Serial Download Protocol)"
+	help
+	  Enable Serial Download Protocol (SDP) device support in U-Boot. This
+	  allows to download images into memory and execute (jump to) them
+	  using the same protocol as implemented by the i.MX family's boot ROM.
+
 config G_DNL_MANUFACTURER
 	string "Vendor name of USB device"
 

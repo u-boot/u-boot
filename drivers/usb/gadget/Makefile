@@ -11,6 +11,7 @@ obj-$(CONFIG_USB_ETHER) += epautoconf.o config.o usbstring.o
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_USB_GADGET_SUPPORT) += g_dnl.o
 obj-$(CONFIG_SPL_DFU_SUPPORT) += f_dfu.o
+obj-$(CONFIG_SPL_USB_SDP_SUPPORT) += f_sdp.o
 endif
 
 # new USB gadget layer dependencies
@@ -28,6 +29,7 @@ obj-$(CONFIG_USB_FUNCTION_THOR) += f_thor.o
 obj-$(CONFIG_USB_FUNCTION_DFU) += f_dfu.o
 obj-$(CONFIG_USB_FUNCTION_MASS_STORAGE) += f_mass_storage.o
 obj-$(CONFIG_USB_FUNCTION_FASTBOOT) += f_fastboot.o
+obj-$(CONFIG_USB_FUNCTION_SDP) += f_sdp.o
 endif
 endif
 ifdef CONFIG_USB_ETHER

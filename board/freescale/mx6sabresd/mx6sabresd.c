@@ -747,23 +747,6 @@ static void ccgr_init(void)
 	writel(0x000003FF, &ccm->CCGR6);
 }
 
-static void gpr_init(void)
-{
-	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-
-	/* enable AXI cache for VDOA/VPU/IPU */
-	writel(0xF00000CF, &iomux->gpr[4]);
-	if (is_mx6dqp()) {
-		/* set IPU AXI-id1 Qos=0x1 AXI-id0/2/3 Qos=0x7 */
-		writel(0x77177717, &iomux->gpr[6]);
-		writel(0x77177717, &iomux->gpr[7]);
-	} else {
-		/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
-		writel(0x007F007F, &iomux->gpr[6]);
-		writel(0x007F007F, &iomux->gpr[7]);
-	}
-}
-
 static int mx6q_dcd_table[] = {
 	0x020e0798, 0x000C0000,
 	0x020e0758, 0x00000000,

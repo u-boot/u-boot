@@ -12,7 +12,11 @@
 
 #include "pinctrl-imx.h"
 
-static struct imx_pinctrl_soc_info imx7ulp_pinctrl_soc_info = {
+static struct imx_pinctrl_soc_info imx7ulp_pinctrl_soc_info0 = {
+	.flags = ZERO_OFFSET_VALID | SHARE_MUX_CONF_REG | CONFIG_IBE_OBE,
+};
+
+static struct imx_pinctrl_soc_info imx7ulp_pinctrl_soc_info1 = {
 	.flags = ZERO_OFFSET_VALID | SHARE_MUX_CONF_REG | CONFIG_IBE_OBE,
 };
 
@@ -25,8 +29,8 @@ static int imx7ulp_pinctrl_probe(struct udevice *dev)
 }
 
 static const struct udevice_id imx7ulp_pinctrl_match[] = {
-	{ .compatible = "fsl,imx7ulp-iomuxc-0", .data = (ulong)&imx7ulp_pinctrl_soc_info },
-	{ .compatible = "fsl,imx7ulp-iomuxc-1", .data = (ulong)&imx7ulp_pinctrl_soc_info },
+	{ .compatible = "fsl,imx7ulp-iomuxc-0", .data = (ulong)&imx7ulp_pinctrl_soc_info0 },
+	{ .compatible = "fsl,imx7ulp-iomuxc-1", .data = (ulong)&imx7ulp_pinctrl_soc_info1 },
 	{ /* sentinel */ }
 };
 

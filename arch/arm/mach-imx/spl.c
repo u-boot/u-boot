@@ -15,6 +15,8 @@
 #include <spl.h>
 #include <asm/mach-imx/hab.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_MX6)
 /* determine boot device from SRC_SBMR1 (BOOT_CFG[4:1]) or SRC_GPR9 register */
 u32 spl_boot_device(void)
@@ -27,7 +29,7 @@ u32 spl_boot_device(void)
 	 * BOOT_MODE - see IMX6DQRM Table 8-1
 	 */
 	if (((bmode >> 24) & 0x03) == 0x01) /* Serial Downloader */
-		return BOOT_DEVICE_UART;
+		return BOOT_DEVICE_BOARD;
 
 	/* BOOT_CFG1[7:4] - see IMX6DQRM Table 8-8 */
 	switch ((reg & IMX6_BMODE_MASK) >> IMX6_BMODE_SHIFT) {
@@ -42,11 +44,13 @@ u32 spl_boot_device(void)
 		break;
 		}
 	/* Reserved: Used to force Serial Downloader */
-	case IMX6_BMODE_UART:
-		return BOOT_DEVICE_UART;
+	case IMX6_BMODE_RESERVED:
+		return BOOT_DEVICE_BOARD;
 	/* SATA: See 8.5.4, Table 8-20 */
+#if !defined(CONFIG_MX6UL) && !defined(CONFIG_MX6ULL)
 	case IMX6_BMODE_SATA:
 		return BOOT_DEVICE_SATA;
+#endif
 	/* Serial ROM: See 8.5.5.1, Table 8-22 */
 	case IMX6_BMODE_SERIAL_ROM:
 		/* BOOT_CFG4[2:0] */
@@ -125,4 +129,14 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	}
 }
 
+#endif
+
+#if defined(CONFIG_MX6) && defined(CONFIG_SPL_OS_BOOT)
+int dram_init_banksize(void)
+{
+	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].size = imx_ddr_size();
+
+	return 0;
+}
 #endif
