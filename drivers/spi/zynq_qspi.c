@@ -166,7 +166,11 @@ static int zynq_qspi_ofdata_to_platdata(struct udevice *bus)
 	else if (is_dual == 1)
 		plat->is_dual = SF_DUAL_PARALLEL_FLASH;
 	else
-		plat->is_dual = SF_DUAL_STACKED_FLASH;
+		if (fdtdec_get_int(gd->fdt_blob, bus->of_offset,
+				   "is-stacked", -1) < 0)
+			plat->is_dual = SF_SINGLE_FLASH;
+		else
+			plat->is_dual = SF_DUAL_STACKED_FLASH;
 
 	offset = fdt_first_subnode(gd->fdt_blob, bus->of_offset);
 
