@@ -121,7 +121,7 @@ def test_qspi_write_twice(u_boot_console):
 def test_qspi_erase_all(u_boot_console):
     qspi_pre_commands(u_boot_console)
 
-    timeout = 100000
+    timeout = 10000000
 
     expected_erase = "Erased: OK"
     start = 0
