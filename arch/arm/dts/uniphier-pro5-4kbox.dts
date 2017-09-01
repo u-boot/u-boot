@@ -8,7 +8,7 @@
  */
 
 /dts-v1/;
-/include/ "uniphier-pro5.dtsi"
+#include "uniphier-pro5.dtsi"
 
 / {
 	model = "UniPhier Pro5 4KBOX Board";
@@ -26,7 +26,7 @@
 		i2c6 = &i2c6;
 	};
 
-	memory {
+	memory@80000000 {
 		device_type = "memory";
 		reg = <0x80000000 0x40000000>;
 	};

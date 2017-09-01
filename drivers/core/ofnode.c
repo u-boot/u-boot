@@ -627,3 +627,15 @@ int ofnode_read_resource(ofnode node, uint index, struct resource *res)
 		return 0;
 	}
 }
+
+int ofnode_read_resource_byname(ofnode node, const char *name,
+				struct resource *res)
+{
+	int index;
+
+	index = ofnode_stringlist_search(node, "reg-names", name);
+	if (index < 0)
+		return index;
+
+	return ofnode_read_resource(node, index, res);
+}

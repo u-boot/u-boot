@@ -16,6 +16,13 @@ config NAND_DENALI
 	help
 	  Enable support for the Denali NAND controller.
 
+config NAND_DENALI_DT
+	bool "Support Denali NAND controller as a DT device"
+	depends on NAND_DENALI && OF_CONTROL && DM
+	help
+	  Enable the driver for NAND flash on platforms using a Denali NAND
+	  controller as a DT device.
+
 config SYS_NAND_DENALI_64BIT
 	bool "Use 64-bit variant of Denali NAND controller"
 	depends on NAND_DENALI

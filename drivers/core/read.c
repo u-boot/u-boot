@@ -164,3 +164,9 @@ int dev_read_resource(struct udevice *dev, uint index, struct resource *res)
 {
 	return ofnode_read_resource(dev_ofnode(dev), index, res);
 }
+
+int dev_read_resource_byname(struct udevice *dev, const char *name,
+			     struct resource *res)
+{
+	return ofnode_read_resource_byname(dev_ofnode(dev), name, res);
+}

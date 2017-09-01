@@ -424,9 +424,11 @@
 			interrupt-controller;
 		};
 
-		aidet@61830000 {
-			compatible = "simple-mfd", "syscon";
+		aidet: aidet@61830000 {
+			compatible = "socionext,uniphier-ld4-aidet";
 			reg = <0x61830000 0x200>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
 		};
 
 		sysctrl@61840000 {
@@ -452,11 +454,10 @@
 			reg = <0x68000000 0x20>, <0x68100000 0x1000>;
 			interrupts = <0 65 4>;
 			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_nand>;
+			pinctrl-0 = <&pinctrl_nand2cs>;
 			clocks = <&sys_clk 2>;
-			nand-ecc-strength = <8>;
 		};
 	};
 };
 
-/include/ "uniphier-pinctrl.dtsi"
+#include "uniphier-pinctrl.dtsi"

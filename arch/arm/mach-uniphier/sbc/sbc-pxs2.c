@@ -16,4 +16,6 @@ void uniphier_pxs2_sbc_init(void)
 	/* necessary for ROM boot ?? */
 	/* system bus output enable */
 	writel(0x17, PC0CTRL);
+
+	uniphier_pin_init("system_bus_grp");	/* PXs3 */
 }

@@ -1175,7 +1175,7 @@ static void denali_hw_init(struct denali_nand_info *denali)
 
 static struct nand_ecclayout nand_oob;
 
-static int denali_init(struct denali_nand_info *denali)
+int denali_init(struct denali_nand_info *denali)
 {
 	struct mtd_info *mtd = nand_to_mtd(&denali->nand);
 	int ret;
@@ -1273,6 +1273,7 @@ fail:
 	return ret;
 }
 
+#ifndef CONFIG_NAND_DENALI_DT
 static int __board_nand_init(void)
 {
 	struct denali_nand_info *denali;
@@ -1296,3 +1297,4 @@ void board_nand_init(void)
 	if (__board_nand_init() < 0)
 		pr_warn("Failed to initialize Denali NAND controller.\n");
 }
+#endif

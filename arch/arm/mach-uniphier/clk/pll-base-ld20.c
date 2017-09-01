@@ -88,7 +88,7 @@ int uniphier_ld20_sscpll_set_regi(unsigned long reg_base, unsigned regi)
 	if (!base)
 		return -ENOMEM;
 
-	tmp = readl(base + 8);	/* SSCPLLCTRL */
+	tmp = readl(base + 8);	/* SSCPLLCTRL3 */
 	tmp &= ~SC_PLLCTRL3_REGI_MASK;
 	tmp |= regi << SC_PLLCTRL3_REGI_SHIFT;
 	writel(tmp, base + 8);
@@ -133,9 +133,9 @@ int uniphier_ld20_dspll_init(unsigned long reg_base)
 	if (!base)
 		return -ENOMEM;
 
-	tmp = readl(base + 8);		/* DSPLLCTRL2 */
+	tmp = readl(base + 4);		/* DSPLLCTRL2 */
 	tmp |= SC_DSPLLCTRL2_K_LD;
-	writel(tmp, base + 8);
+	writel(tmp, base + 4);
 
 	iounmap(base);
 
