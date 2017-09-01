@@ -9,15 +9,12 @@ import u_boot_utils
 
 import test_net
 
-qspi_detected = False
 page_size = 0
 erase_size = 0
 total_size = 0
 
 # Find out qspi memory parameters
 def qspi_pre_commands(u_boot_console):
-    if qspi_detected:
-        return
 
     output = u_boot_console.run_command('sf probe')
     if not "SF: Detected" in output:
@@ -54,9 +51,6 @@ def qspi_pre_commands(u_boot_console):
 
         total_size *= 1024 * 1024
         print 'Total size is: ' + str(total_size) + " B"
-
-    global qspi_detected
-    qspi_detected = True
 
 # Read the whole QSPI flash twice, random_size till full flash size, random till page size
 @pytest.mark.buildconfigspec('cmd_bdi')
