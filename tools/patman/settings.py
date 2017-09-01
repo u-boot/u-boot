@@ -269,6 +269,19 @@ def _ReadAliasFile(fname):
         if bad_line:
             print(bad_line)
 
+def _ReadBouncesFile(fname):
+    """Read in the bounces file if it exists
+
+    Args:
+        fname: Filename to read.
+    """
+    if os.path.exists(fname):
+        with open(fname) as fd:
+            for line in fd:
+                if line.startswith('#'):
+                    continue
+                bounces.add(line.strip())
+
 def Setup(parser, project_name, config_fname=''):
     """Set up the settings module by reading config files.
 
@@ -293,10 +306,15 @@ def Setup(parser, project_name, config_fname=''):
     for name, value in config.items('alias'):
         alias[name] = value.split(',')
 
+    _ReadBouncesFile('doc/bounces')
+    for name, value in config.items('bounces'):
+        bounces.add(value)
+
     _UpdateDefaults(parser, config)
 
 # These are the aliases we understand, indexed by alias. Each member is a list.
 alias = {}
+bounces = set()
 
 if __name__ == "__main__":
     import doctest
