@@ -12,6 +12,8 @@
 
 #include "at91-sama5_common.h"
 
+#define CONFIG_MISC_INIT_R
+
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE           ATMEL_BASE_DDRCS

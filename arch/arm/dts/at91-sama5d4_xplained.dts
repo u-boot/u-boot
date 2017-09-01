@@ -88,6 +88,11 @@
 
 			i2c0: i2c@f8014000 {
 				status = "okay";
+
+				i2c_eeprom: i2c_eeprom@5c {
+					compatible = "atmel,24mac402";
+					reg = <0x5c>;
+				};
 			};
 
 			macb0: ethernet@f8020000 {
