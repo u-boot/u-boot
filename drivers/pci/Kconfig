@@ -35,7 +35,6 @@ config PCI_PNP
 
 config PCIE_DW_MVEBU
 	bool "Enable Armada-8K PCIe driver (DesignWare core)"
-	default n
 	depends on DM_PCI
 	depends on ARMADA_8K
 	help
