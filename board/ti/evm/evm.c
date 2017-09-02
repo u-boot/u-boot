@@ -122,6 +122,17 @@ int board_init(void)
 	return 0;
 }
 
+#if defined(CONFIG_SPL_OS_BOOT)
+int spl_start_uboot(void)
+{
+	/* break into full u-boot on 'c' */
+	if (serial_tstc() && serial_getc() == 'c')
+		return 1;
+
+	return 0;
+}
+#endif /* CONFIG_SPL_OS_BOOT */
+
 #if defined(CONFIG_SPL_BUILD)
 /*
  * Routine: get_board_mem_timings
@@ -323,7 +334,14 @@ void board_mmc_power_init(void)
 }
 #endif /* CONFIG_MMC */
 
-#if defined(CONFIG_USB_EHCI_HCD)
+#if defined(CONFIG_USB_EHCI_HCD) && !defined(CONFIG_SPL_BUILD)
+/* Call usb_stop() before starting the kernel */
+void show_boot_progress(int val)
+{
+	if (val == BOOTSTAGE_ID_RUN_OS)
+		usb_stop();
+}
+
 static struct omap_usbhs_board_data usbhs_bdata = {
 	.port_mode[0] = OMAP_USBHS_PORT_MODE_UNUSED,
 	.port_mode[1] = OMAP_EHCI_PORT_MODE_PHY,

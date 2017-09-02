@@ -36,7 +36,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
-
 /* Override OMAP3 serial console configuration */
 #undef CONFIG_CONS_INDEX
 #define CONFIG_CONS_INDEX               1
@@ -72,13 +71,15 @@
 #define CONFIG_ENV_OFFSET               SMNAND_ENV_OFFSET
 #define CONFIG_ENV_ADDR                 SMNAND_ENV_OFFSET
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_MTD_DEVICE               /* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS           /* required for UBI partition support */
+/* NAND: SPL falcon mode configs */
+#if defined(CONFIG_SPL_OS_BOOT)
+#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS 0x280000
+#endif /* CONFIG_SPL_OS_BOOT */
 #endif /* CONFIG_NAND */
 
-#define CONFIG_USB_OMAP3
-
 /* MUSB */
+#define CONFIG_USB_OMAP3
 #define CONFIG_USB_MUSB_OMAP2PLUS
 #define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_ETHER
@@ -99,28 +100,32 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"	\
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
-	"loadaddr=0x82000000\0" \
-	"usbtty=cdc_acm\0" \
+	"bootenv=uEnv.txt\0" \
+	"optargs=\0" \
 	"mmcdev=0\0" \
 	"console=ttyO0,115200n8\0" \
 	"mmcargs=setenv bootargs console=${console} " \
+		"${mtdparts} " \
 		"${optargs} " \
 		"root=/dev/mmcblk0p2 rw " \
 		"rootfstype=ext4 rootwait\0" \
 	"nandargs=setenv bootargs console=${console} " \
+		"${mtdparts} " \
 		"${optargs} " \
 		"root=ubi0:rootfs rw ubi.mtd=rootfs noinitrd " \
 		"rootfstype=ubifs rootwait\0" \
-	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
+	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
+	"importbootenv=echo Importing environment from mmc ...; " \
+		"env import -t ${loadaddr} ${filesize}\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source ${loadaddr}\0" \
 	"loaduimage=setenv bootfile uImage; " \
 		"fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
 	"loadzimage=setenv bootfile zImage; " \
 		"fatload mmc ${mmcdev} ${loadaddr} zImage\0" \
-	"loaddtb=fatload mmc ${mmcdev} ${fdtaddr} omap3-evm.dtb\0" \
+	"loaddtb=fatload mmc ${mmcdev} ${fdtaddr} " CONFIG_DEFAULT_FDT_FILE "\0" \
 	"mmcboot=echo Booting ${bootfile} from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr} - ${fdtaddr}\0" \
@@ -135,8 +140,12 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
-		"if run loadbootscript; then " \
-			"run bootscript; " \
+		"if run loadbootenv; then " \
+			"run importbootenv; " \
+			"if test -n $uenvcmd; then " \
+				"echo Running uenvcmd ...; " \
+				"run uenvcmd; " \
+			"fi; " \
 		"else " \
 			"if run loadzimage && run loaddtb; then " \
 				"run mmcbootz; fi; " \
