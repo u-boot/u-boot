@@ -562,9 +562,6 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
 	if (result <= 0)
 		return result;
 
-	if (result < nr_io_queues)
-		nr_io_queues = result;
-
 	dev->max_qid = nr_io_queues;
 
 	/* Free previously allocated queues */
