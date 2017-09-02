@@ -791,8 +791,7 @@ static int nvme_probe(struct udevice *udev)
 		printf("Error: %s: Out of memory!\n", udev->name);
 		goto free_nvme;
 	}
-	memset(ndev->queues, 0,
-	       sizeof(NVME_Q_NUM * sizeof(struct nvme_queue *)));
+	memset(ndev->queues, 0, NVME_Q_NUM * sizeof(struct nvme_queue *));
 
 	ndev->prp_pool = malloc(MAX_PRP_POOL);
 	if (!ndev->prp_pool) {
