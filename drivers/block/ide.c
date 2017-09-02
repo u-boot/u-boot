@@ -792,15 +792,6 @@ void ide_init(void)
 	/* ATAPI Drives seems to need a proper IDE Reset */
 	ide_reset();
 
-#ifdef CONFIG_IDE_INIT_POSTRESET
-	WATCHDOG_RESET();
-
-	if (ide_init_postreset()) {
-		puts("ide_preinit_postreset failed\n");
-		return;
-	}
-#endif /* CONFIG_IDE_INIT_POSTRESET */
-
 	/*
 	 * Wait for IDE to get ready.
 	 * According to spec, this can take up to 31 seconds!
