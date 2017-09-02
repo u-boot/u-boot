@@ -723,7 +723,7 @@ static ulong nvme_blk_rw(struct udevice *udev, lbaint_t blknr,
 				&c, NULL, IO_TIMEOUT);
 		if (status)
 			break;
-		temp_len -= lbas << ns->lba_shift;
+		temp_len -= (u32)lbas << ns->lba_shift;
 		buffer += lbas << ns->lba_shift;
 	}
 
