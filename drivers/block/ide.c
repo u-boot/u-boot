@@ -44,12 +44,6 @@ struct blk_desc ide_dev_desc[CONFIG_SYS_IDE_MAXDEVICE];
 #define CONFIG_SYS_ATA_PORT_ADDR(port) (port)
 #endif
 
-#ifndef CONFIG_IDE_LED	/* define LED macros, they are not used anyways */
-# define DEVICE_LED(x) 0
-# define LED_IDE1 1
-# define LED_IDE2 2
-#endif
-
 #ifdef CONFIG_IDE_RESET
 extern void ide_set_reset(int idereset);
 
@@ -217,8 +211,6 @@ unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 	unsigned char c, err, mask, res;
 	int n;
 
-	ide_led(DEVICE_LED(device), 1);	/* LED on       */
-
 	/* Select device
 	 */
 	mask = ATA_STAT_BUSY | ATA_STAT_DRQ;
@@ -326,7 +318,6 @@ unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 		err = 0;
 	}
 AI_OUT:
-	ide_led(DEVICE_LED(device), 0);	/* LED off      */
 	return err;
 }
 
@@ -560,7 +551,6 @@ static void ide_ident(struct blk_desc *dev_desc)
 	device = dev_desc->devnum;
 	printf("  Device %d: ", device);
 
-	ide_led(DEVICE_LED(device), 1);	/* LED on       */
 	/* Select device
 	 */
 	ide_outb(device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
@@ -600,7 +590,6 @@ static void ide_ident(struct blk_desc *dev_desc)
 			 */
 			c = ide_wait(device, IDE_TIME_OUT);
 		}
-		ide_led(DEVICE_LED(device), 0);	/* LED off      */
 
 		if (((c & ATA_STAT_DRQ) == 0) ||
 		    ((c & (ATA_STAT_FAULT | ATA_STAT_ERR)) != 0)) {
@@ -716,22 +705,6 @@ static void ide_ident(struct blk_desc *dev_desc)
 #endif
 }
 
-__weak void ide_led(uchar led, uchar status)
-{
-#if defined(CONFIG_IDE_LED) && defined(PER8_BASE) /* required by LED_PORT */
-	static uchar led_buffer;	/* Buffer for current LED status */
-
-	uchar *led_port = LED_PORT;
-
-	if (status)		/* switch LED on        */
-		led_buffer |= led;
-	else			/* switch LED off       */
-		led_buffer &= ~led;
-
-	*led_port = led_buffer;
-#endif
-}
-
 __weak void ide_outb(int dev, int port, unsigned char val)
 {
 	debug("ide_outb (dev= %d, port= 0x%x, val= 0x%02x) : @ 0x%08lx\n",
@@ -783,12 +756,6 @@ void ide_init(void)
 
 	WATCHDOG_RESET();
 
-	/*
-	 * Reset the IDE just to be sure.
-	 * Light LED's to show
-	 */
-	ide_led((LED_IDE1 | LED_IDE2), 1);	/* LED's on     */
-
 	/* ATAPI Drives seems to need a proper IDE Reset */
 	ide_reset();
 
@@ -818,8 +785,6 @@ void ide_init(void)
 			i++;
 			if (i > (ATA_RESET_TIME * 100)) {
 				puts("** Timeout **\n");
-				/* LED's off */
-				ide_led((LED_IDE1 | LED_IDE2), 0);
 				return;
 			}
 			if ((i >= 100) && ((i % 100) == 0))
@@ -844,10 +809,7 @@ void ide_init(void)
 
 	putc('\n');
 
-	ide_led((LED_IDE1 | LED_IDE2), 0);	/* LED's off    */
-
 	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; ++i) {
-		int led = (IDE_BUS(i) == 0) ? LED_IDE1 : LED_IDE2;
 		ide_dev_desc[i].type = DEV_TYPE_UNKNOWN;
 		ide_dev_desc[i].if_type = IF_TYPE_IDE;
 		ide_dev_desc[i].devnum = i;
@@ -862,9 +824,7 @@ void ide_init(void)
 #endif
 		if (!ide_bus_ok[IDE_BUS(i)])
 			continue;
-		ide_led(led, 1);	/* LED on       */
 		ide_ident(&ide_dev_desc[i]);
-		ide_led(led, 0);	/* LED off      */
 		dev_print(&ide_dev_desc[i]);
 
 		if ((ide_dev_desc[i].lba > 0) && (ide_dev_desc[i].blksz > 0)) {
@@ -987,8 +947,6 @@ ulong ide_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 	debug("ide_read dev %d start " LBAF ", blocks " LBAF " buffer at %lX\n",
 	      device, blknr, blkcnt, (ulong) buffer);
 
-	ide_led(DEVICE_LED(device), 1);	/* LED on       */
-
 	/* Select device
 	 */
 	ide_outb(device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
@@ -1086,7 +1044,6 @@ ulong ide_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 		buffer += ATA_BLOCKSIZE;
 	}
 IDE_READ_E:
-	ide_led(DEVICE_LED(device), 0);	/* LED off      */
 	return n;
 }
 
@@ -1113,8 +1070,6 @@ ulong ide_write(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 		lba48 = 1;
 	}
 #endif
-
-	ide_led(DEVICE_LED(device), 1);	/* LED on       */
 
 	/* Select device
 	 */
@@ -1179,7 +1134,6 @@ ulong ide_write(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 		buffer += ATA_BLOCKSIZE;
 	}
 WR_OUT:
-	ide_led(DEVICE_LED(device), 0);	/* LED off      */
 	return n;
 }
 
