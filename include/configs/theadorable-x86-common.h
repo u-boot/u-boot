@@ -88,7 +88,7 @@
 		"/boot/initrd.img-${kernel-ver}-generic;"	\
 		"run boot\0"					\
 	"yocto_args=setenv bootargs root=/dev/sda${yocto_part} " \
-		"ip=dhcp panic=1\0"				\
+		"panic=1\0"				\
 	"yocto_args_fast=setenv bootargs root=/dev/sda${yocto_part} " \
 		"quiet panic=1\0"				\
 	"yocto_boot=run yocto_args addmtd addmisc addtty_yocto;" \
@@ -110,7 +110,7 @@
 		"fi\0"						\
 	"swupdate-initrd=/boot/swupdate-image-theadorable.ext4.gz\0" \
 	"swupdate-kernel=/boot/bzImage\0"			\
-	"swupdate_args=setenv bootargs root=/dev/ram rw ip=dhcp panic=1\0" \
+	"swupdate_args=setenv bootargs root=/dev/ram rw panic=1\0" \
 	"swupdate_dev=0\0"					\
 	"swupdate_factory=0\0"					\
 	"swupdate_interface=usb\0"				\
