@@ -146,6 +146,9 @@ config SHA_PROG_HW_ACCEL
 config MD5
 	bool
 
+config CRC32C
+	bool
+
 endmenu
 
 menu "Compression Support"
