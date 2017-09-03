@@ -14,6 +14,7 @@
 #include <fs.h>
 #include <sandboxfs.h>
 #include <ubifs_uboot.h>
+#include <btrfs.h>
 #include <asm/io.h>
 #include <div64.h>
 #include <linux/math64.h>
@@ -217,6 +218,21 @@ static struct fstype_info fstypes[] = {
 		.write = fs_write_unsupported,
 		.uuid = fs_uuid_unsupported,
 		.opendir = fs_opendir_unsupported,
+	},
+#endif
+#ifdef CONFIG_FS_BTRFS
+	{
+		.fstype = FS_TYPE_BTRFS,
+		.name = "btrfs",
+		.null_dev_desc_ok = false,
+		.probe = btrfs_probe,
+		.close = btrfs_close,
+		.ls = btrfs_ls,
+		.exists = btrfs_exists,
+		.size = btrfs_size,
+		.read = btrfs_read,
+		.write = fs_write_unsupported,
+		.uuid = btrfs_uuid,
 	},
 #endif
 	{

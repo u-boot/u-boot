@@ -13,6 +13,7 @@
 #define FS_TYPE_EXT	2
 #define FS_TYPE_SANDBOX	3
 #define FS_TYPE_UBIFS	4
+#define FS_TYPE_BTRFS	5
 
 /*
  * Tell the fs layer which block device an partition to use for future
