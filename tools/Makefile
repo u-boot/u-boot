@@ -138,7 +138,7 @@ tools/_libfdt.so: $(LIBFDT_SRCS) $(LIBFDT_SWIG)
 		CPPFLAGS="$(_hostc_flags)" OBJDIR=tools \
 		SOURCES="$(LIBFDT_SRCS) tools/libfdt.i" \
 		SWIG_OPTS="-I$(srctree)/lib/libfdt -I$(srctree)/lib" \
-		$(PYTHON) $(libfdt_tree)/pylibfdt/setup.py build_ext \
+		$(PYTHON) $(libfdt_tree)/pylibfdt/setup.py --quiet build_ext \
 			--build-lib tools
 
 ifneq ($(CONFIG_MX23)$(CONFIG_MX28),)
