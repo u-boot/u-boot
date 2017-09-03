@@ -1313,6 +1313,16 @@ config CMD_CROS_EC
 endmenu
 
 menu "Filesystem commands"
+config CMD_BTRFS
+	bool "Enable the 'btrsubvol' command"
+	select FS_BTRFS
+	help
+	  This enables the 'btrsubvol' command to list subvolumes
+	  of a BTRFS filesystem. There are no special commands for
+	  listing BTRFS directories or loading BTRFS files - this
+	  can be done by the generic 'fs' commands (see CMD_FS_GENERIC)
+	  when BTRFS is enabled (see FS_BTRFS).
+
 config CMD_CBFS
 	bool "Enable the 'cbfs' command"
 	depends on FS_CBFS
