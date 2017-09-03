@@ -131,8 +131,8 @@ fit_check_sign-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
 # all three files in $(obj)/tools: _libfdt.so, libfdt.py and libfdt_wrap.c
 # The latter is a temporary file which we could actually remove.
 tools/_libfdt.so: $(LIBFDT_SRCS) $(LIBFDT_SWIG)
-	cp $(LIBFDT_SWIG) tools/.
-	unset CC; \
+	$(Q)cp $(LIBFDT_SWIG) tools/.
+	$(Q)unset CC; \
 	unset CROSS_COMPILE; \
 	LDFLAGS="$(HOSTLDFLAGS)" CFLAGS= VERSION="u-boot-$(UBOOTVERSION)" \
 		CPPFLAGS="$(_hostc_flags)" OBJDIR=tools \
