@@ -392,8 +392,6 @@ cmd_efi_ld = $(LD) -nostdlib -znocombreloc -T $(EFI_LDS_PATH) -shared \
 
 EFI_LDS_PATH = $(srctree)/arch/$(ARCH)/lib/$(EFI_LDS)
 
-$(obj)/helloworld.so: $(EFI_LDS_PATH)
-
 $(obj)/helloworld.so: $(obj)/helloworld.o arch/$(ARCH)/lib/$(EFI_CRT0) \
 		arch/$(ARCH)/lib/$(EFI_RELOC)
 	$(call cmd,efi_ld)
