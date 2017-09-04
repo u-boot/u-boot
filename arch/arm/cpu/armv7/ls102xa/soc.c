@@ -71,6 +71,15 @@ static void erratum_a009008(void)
 #endif /* CONFIG_SYS_FSL_ERRATUM_A009008 */
 }
 
+static void erratum_a009798(void)
+{
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009798
+	u32 __iomem *scfg = (u32 __iomem *)SCFG_BASE;
+
+	clrbits_be32(scfg + SCFG_USB3PRM1CR / 4,
+			SCFG_USB_SQRXTUNE_MASK << 23);
+#endif /* CONFIG_SYS_FSL_ERRATUM_A009798 */
+}
 
 void s_init(void)
 {
@@ -161,6 +170,7 @@ int arch_soc_init(void)
 
 	/* Erratum */
 	erratum_a009008();
+	erratum_a009798();
 
 	return 0;
 }

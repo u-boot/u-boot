@@ -177,6 +177,7 @@ struct ccsr_gur {
 #define SCFG_BASE			0x01570000
 #define SCFG_USB3PRM1CR			0x070
 #define SCFG_USB_TXVREFTUNE		0x9
+#define SCFG_USB_SQRXTUNE_MASK		0x7
 
 /* Supplemental Configuration Unit */
 struct ccsr_scfg {
