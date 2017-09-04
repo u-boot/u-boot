@@ -1484,18 +1484,30 @@ int fit_conf_get_node(const void *fit, const char *conf_uname)
 	return noffset;
 }
 
-int fit_conf_get_prop_node(const void *fit, int noffset,
+int fit_conf_get_prop_node_count(const void *fit, int noffset,
 		const char *prop_name)
 {
-	char *uname;
+	return fdt_stringlist_count(fit, noffset, prop_name);
+}
+
+int fit_conf_get_prop_node_index(const void *fit, int noffset,
+		const char *prop_name, int index)
+{
+	const char *uname;
 	int len;
 
 	/* get kernel image unit name from configuration kernel property */
-	uname = (char *)fdt_getprop(fit, noffset, prop_name, &len);
+	uname = fdt_stringlist_get(fit, noffset, prop_name, index, &len);
 	if (uname == NULL)
 		return len;
 
 	return fit_image_get_node(fit, uname);
+}
+
+int fit_conf_get_prop_node(const void *fit, int noffset,
+		const char *prop_name)
+{
+	return fit_conf_get_prop_node_index(fit, noffset, prop_name, 0);
 }
 
 /**
