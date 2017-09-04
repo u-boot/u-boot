@@ -384,6 +384,14 @@ config GENERIC_ATMEL_MCI
 	  the SD Memory Card Specification V2.0, the SDIO V2.0 specification
 	  and CE-ATA V1.1.
 
+config STM32_SDMMC2
+	bool "STMicroelectronics STM32H7 SD/MMC Host Controller support"
+	depends on DM_MMC && BLK && OF_CONTROL && DM_MMC_OPS
+	help
+	  This selects support for the SD/MMC controller on STM32H7 SoCs.
+	  If you have a board based on such a SoC and with a SD/MMC slot,
+	  say Y or M here.
+
 endif
 
 config TEGRA124_MMC_DISABLE_EXT_LOOPBACK
