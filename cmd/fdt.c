@@ -284,16 +284,14 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			len = 0;
 		} else {
 			ptmp = fdt_getprop(working_fdt, nodeoffset, prop, &len);
-			if (!ptmp) {
-				printf("prop (%s) not found!\n", prop);
-				return 1;
-			}
 			if (len > SCRATCHPAD) {
 				printf("prop (%d) doesn't fit in scratchpad!\n",
 				       len);
 				return 1;
 			}
-			memcpy(data, ptmp, len);
+			if (ptmp != NULL)
+				memcpy(data, ptmp, len);
+
 			ret = fdt_parse_prop(&argv[4], argc - 4, data, &len);
 			if (ret != 0)
 				return ret;
