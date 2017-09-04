@@ -65,6 +65,7 @@ static void erratum_a009008(void)
 {
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009008
 	u32 __iomem *scfg = (u32 __iomem *)SCFG_BASE;
+
 #if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
 	set_usb_txvreftune(scfg, SCFG_USB3PRM1CR_USB1);
 	set_usb_txvreftune(scfg, SCFG_USB3PRM1CR_USB2);
@@ -73,6 +74,27 @@ static void erratum_a009008(void)
 	set_usb_txvreftune(scfg, SCFG_USB3PRM1CR);
 #endif
 #endif /* CONFIG_SYS_FSL_ERRATUM_A009008 */
+}
+
+static inline void set_usb_sqrxtune(u32 __iomem *scfg, u32 offset)
+{
+	scfg_clrbits32(scfg + offset / 4,
+			SCFG_USB_SQRXTUNE_MASK << 23);
+}
+
+static void erratum_a009798(void)
+{
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009798
+	u32 __iomem *scfg = (u32 __iomem *)SCFG_BASE;
+
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
+	set_usb_sqrxtune(scfg, SCFG_USB3PRM1CR_USB1);
+	set_usb_sqrxtune(scfg, SCFG_USB3PRM1CR_USB2);
+	set_usb_sqrxtune(scfg, SCFG_USB3PRM1CR_USB3);
+#elif defined(CONFIG_ARCH_LS2080A)
+	set_usb_sqrxtune(scfg, SCFG_USB3PRM1CR);
+#endif
+#endif /* CONFIG_SYS_FSL_ERRATUM_A009798 */
 }
 
 #if defined(CONFIG_FSL_LSCH3)
@@ -222,6 +244,7 @@ void fsl_lsch3_early_init_f(void)
 	erratum_a008514();
 	erratum_a008336();
 	erratum_a009008();
+	erratum_a009798();
 #ifdef CONFIG_CHAIN_OF_TRUST
 	/* In case of Secure Boot, the IBR configures the SMMU
 	* to allow only Secure transactions.
@@ -501,6 +524,7 @@ void fsl_lsch2_early_init_f(void)
 	erratum_a009660();
 	erratum_a010539();
 	erratum_a009008();
+	erratum_a009798();
 }
 #endif
 

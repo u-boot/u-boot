@@ -134,6 +134,7 @@
 #define SCFG_USB3PRM1CR			0x000
 #define SCFG_USB3PRM1CR_INIT		0x27672b2a
 #define SCFG_USB_TXVREFTUNE		0x9
+#define SCFG_USB_SQRXTUNE_MASK	0x7
 #define SCFG_QSPICLKCTLR	0x10
 
 #define TP_ITYP_AV		0x00000001	/* Initiator available */
