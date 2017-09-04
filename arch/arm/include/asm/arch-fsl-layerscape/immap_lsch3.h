@@ -137,6 +137,15 @@
 #define SCFG_USB_SQRXTUNE_MASK	0x7
 #define SCFG_QSPICLKCTLR	0x10
 
+#define DCSR_BASE		0x700000000ULL
+#define DCSR_USB_PHY1			0x4600000
+#define DCSR_USB_PHY2			0x4610000
+#define DCSR_USB_PHY_RX_OVRD_IN_HI	0x200C
+#define USB_PHY_RX_EQ_VAL_1		0x0000
+#define USB_PHY_RX_EQ_VAL_2		0x0080
+#define USB_PHY_RX_EQ_VAL_3		0x0380
+#define USB_PHY_RX_EQ_VAL_4		0x0b80
+
 #define TP_ITYP_AV		0x00000001	/* Initiator available */
 #define TP_ITYP_TYPE(x)	(((x) & 0x6) >> 1)	/* Initiator Type */
 #define TP_ITYP_TYPE_ARM	0x0
