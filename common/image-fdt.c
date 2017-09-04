@@ -356,17 +356,16 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 			if (fit_check_format(buf)) {
 				ulong load, len;
 
-				fdt_noffset = fit_image_load(images,
+				fdt_noffset = boot_get_fdt_fit(images,
 					fdt_addr, &fit_uname_fdt,
 					&fit_uname_config,
-					arch, IH_TYPE_FLATDT,
-					BOOTSTAGE_ID_FIT_FDT_START,
-					FIT_LOAD_OPTIONAL, &load, &len);
+					arch, &load, &len);
 
 				images->fit_hdr_fdt = map_sysmem(fdt_addr, 0);
 				images->fit_uname_fdt = fit_uname_fdt;
 				images->fit_noffset_fdt = fdt_noffset;
 				fdt_addr = load;
+
 				break;
 			} else
 #endif
