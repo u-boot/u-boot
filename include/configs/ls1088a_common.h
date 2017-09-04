@@ -44,6 +44,10 @@
  */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
+#ifdef CONFIG_PCI
+#define CONFIG_CMD_PCI
+#endif
+
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2048 * 1024)
 
