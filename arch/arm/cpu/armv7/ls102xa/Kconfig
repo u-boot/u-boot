@@ -3,6 +3,7 @@ config ARCH_LS1021A
 	select SYS_FSL_ERRATUM_A008378
 	select SYS_FSL_ERRATUM_A008407
 	select SYS_FSL_ERRATUM_A008997
+	select SYS_FSL_ERRATUM_A009007
 	select SYS_FSL_ERRATUM_A009008
 	select SYS_FSL_ERRATUM_A009663
 	select SYS_FSL_ERRATUM_A009798
@@ -65,6 +66,11 @@ config SYS_FSL_ERRATUM_A008997
 	bool
 	help
 	  Workaround for USB PHY erratum A008997
+
+config SYS_FSL_ERRATUM_A009007
+	bool
+	help
+	  Workaround for USB PHY erratum A009007
 
 config SYS_FSL_ERRATUM_A009008
 	bool

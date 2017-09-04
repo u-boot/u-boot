@@ -182,6 +182,13 @@ struct ccsr_gur {
 #define SCFG_USB_PCSTXSWINGFULL_MASK	0x0000FE00
 #define SCFG_USB_PCSTXSWINGFULL_VAL		0x00008E00
 
+#define USB_PHY_BASE			0x08510000
+#define USB_PHY_RX_OVRD_IN_HI	0x200c
+#define USB_PHY_RX_EQ_VAL_1		0x0000
+#define USB_PHY_RX_EQ_VAL_2		0x8000
+#define USB_PHY_RX_EQ_VAL_3		0x8004
+#define USB_PHY_RX_EQ_VAL_4		0x800C
+
 /* Supplemental Configuration Unit */
 struct ccsr_scfg {
 	u32 dpslpcr;
