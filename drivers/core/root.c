@@ -312,7 +312,37 @@ int dm_scan_fdt(const void *blob, bool pre_reloc_only)
 #endif
 	return dm_scan_fdt_node(gd->dm_root, blob, 0, pre_reloc_only);
 }
+#else
+static int dm_scan_fdt_node(struct udevice *parent, const void *blob,
+			    int offset, bool pre_reloc_only)
+{
+	return 0;
+}
 #endif
+
+int dm_extended_scan_fdt(const void *blob, bool pre_reloc_only)
+{
+	int node, ret;
+
+	ret = dm_scan_fdt(gd->fdt_blob, pre_reloc_only);
+	if (ret) {
+		debug("dm_scan_fdt() failed: %d\n", ret);
+		return ret;
+	}
+
+	/* bind fixed-clock */
+	node = ofnode_to_offset(ofnode_path("/clocks"));
+	/* if no DT "clocks" node, no need to go further */
+	if (node < 0)
+		return ret;
+
+	ret = dm_scan_fdt_node(gd->dm_root, gd->fdt_blob, node,
+			       pre_reloc_only);
+	if (ret)
+		debug("dm_scan_fdt_node() failed: %d\n", ret);
+
+	return ret;
+}
 
 __weak int dm_scan_other(bool pre_reloc_only)
 {
@@ -335,9 +365,9 @@ int dm_init_and_scan(bool pre_reloc_only)
 	}
 
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
-		ret = dm_scan_fdt(gd->fdt_blob, pre_reloc_only);
+		ret = dm_extended_scan_fdt(gd->fdt_blob, pre_reloc_only);
 		if (ret) {
-			debug("dm_scan_fdt() failed: %d\n", ret);
+			debug("dm_extended_scan_dt() failed: %d\n", ret);
 			return ret;
 		}
 	}
