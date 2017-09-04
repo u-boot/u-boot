@@ -216,6 +216,35 @@ static int ecc_enabled(void)
 
 	return 0;
 }
+
+/* Return the width of the DRAM bus, or 0 for unknown. */
+static int bus_width(void)
+{
+	int full_width = 0;
+
+	if (reg_read(REG_SDRAM_CONFIG_ADDR) & (1 << REG_SDRAM_CONFIG_WIDTH_OFFS))
+		full_width = 1;
+
+	switch (mvebu_soc_family()) {
+	case MVEBU_SOC_AXP:
+	    return full_width ? 64 : 32;
+	    break;
+	case MVEBU_SOC_A375:
+	case MVEBU_SOC_A38X:
+	case MVEBU_SOC_MSYS:
+	    return full_width ? 32 : 16;
+	default:
+	    return 0;
+	}
+}
+
+static int cycle_mode(void)
+{
+	int val = reg_read(REG_DUNIT_CTRL_LOW_ADDR);
+
+	return (val >> REG_DUNIT_CTRL_LOW_2T_OFFS) & REG_DUNIT_CTRL_LOW_2T_MASK;
+}
+
 #else
 static void dram_ecc_scrubbing(void)
 {
@@ -295,9 +324,25 @@ int dram_init_banksize(void)
 void board_add_ram_info(int use_default)
 {
 	struct sar_freq_modes sar_freq;
+	int mode;
+	int width;
 
 	get_sar_freq(&sar_freq);
 	printf(" (%d MHz, ", sar_freq.d_clk);
+
+	width = bus_width();
+	if (width)
+		printf("%d-bit, ", width);
+
+	mode = cycle_mode();
+	/* Mode 0 = Single cycle
+	 * Mode 1 = Two cycles   (2T)
+	 * Mode 2 = Three cycles (3T)
+	 */
+	if (mode == 1)
+		printf("2T, ");
+	if (mode == 2)
+		printf("3T, ");
 
 	if (ecc_enabled())
 		printf("ECC");
