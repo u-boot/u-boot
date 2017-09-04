@@ -21,7 +21,7 @@
 extern u32 __dtb_test_fdt_base_begin;
 extern u32 __dtb_test_fdt_overlay_begin;
 
-static int fdt_getprop_u32_by_index(void *fdt, const char *path,
+static int ut_fdt_getprop_u32_by_index(void *fdt, const char *path,
 				    const char *name, int index,
 				    u32 *out)
 {
@@ -42,10 +42,10 @@ static int fdt_getprop_u32_by_index(void *fdt, const char *path,
 	return 0;
 }
 
-static int fdt_getprop_u32(void *fdt, const char *path, const char *name,
+static int ut_fdt_getprop_u32(void *fdt, const char *path, const char *name,
 			   u32 *out)
 {
-	return fdt_getprop_u32_by_index(fdt, path, name, 0, out);
+	return ut_fdt_getprop_u32_by_index(fdt, path, name, 0, out);
 }
 
 static int fdt_getprop_str(void *fdt, const char *path, const char *name,
@@ -68,7 +68,7 @@ static int fdt_overlay_change_int_property(struct unit_test_state *uts)
 	void *fdt = uts->priv;
 	u32 val = 0;
 
-	ut_assertok(fdt_getprop_u32(fdt, "/test-node", "test-int-property",
+	ut_assertok(ut_fdt_getprop_u32(fdt, "/test-node", "test-int-property",
 				    &val));
 	ut_asserteq(43, val);
 
@@ -158,11 +158,11 @@ static int fdt_overlay_local_phandle(struct unit_test_state *uts)
 	local_phandle = fdt_get_phandle(fdt, off);
 	ut_assert(local_phandle);
 
-	ut_assertok(fdt_getprop_u32_by_index(fdt, "/", "test-several-phandle",
+	ut_assertok(ut_fdt_getprop_u32_by_index(fdt, "/", "test-several-phandle",
 					     0, &val));
 	ut_asserteq(local_phandle, val);
 
-	ut_assertok(fdt_getprop_u32_by_index(fdt, "/", "test-several-phandle",
+	ut_assertok(ut_fdt_getprop_u32_by_index(fdt, "/", "test-several-phandle",
 					     1, &val));
 	ut_asserteq(local_phandle, val);
 
@@ -189,11 +189,11 @@ static int fdt_overlay_local_phandles(struct unit_test_state *uts)
 	test_phandle = fdt_get_phandle(fdt, off);
 	ut_assert(test_phandle);
 
-	ut_assertok(fdt_getprop_u32_by_index(fdt, "/", "test-phandle", 0,
+	ut_assertok(ut_fdt_getprop_u32_by_index(fdt, "/", "test-phandle", 0,
 					     &val));
 	ut_asserteq(test_phandle, val);
 
-	ut_assertok(fdt_getprop_u32_by_index(fdt, "/", "test-phandle", 1,
+	ut_assertok(ut_fdt_getprop_u32_by_index(fdt, "/", "test-phandle", 1,
 					     &val));
 	ut_asserteq(local_phandle, val);
 
