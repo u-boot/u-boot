@@ -62,6 +62,11 @@ int mvebu_soc_family(void)
 	case SOC_88F6820_ID:
 	case SOC_88F6828_ID:
 		return MVEBU_SOC_A38X;
+
+	case SOC_98DX3236_ID:
+	case SOC_98DX3336_ID:
+	case SOC_98DX4251_ID:
+		return MVEBU_SOC_MSYS;
 	}
 
 	return MVEBU_SOC_UNKNOWN;
@@ -207,6 +212,15 @@ int print_cpuinfo(void)
 		break;
 	case SOC_88F6828_ID:
 		puts("MV88F6828-");
+		break;
+	case SOC_98DX3236_ID:
+		puts("98DX3236-");
+		break;
+	case SOC_98DX3336_ID:
+		puts("98DX3336-");
+		break;
+	case SOC_98DX4251_ID:
+		puts("98DX4251-");
 		break;
 	default:
 		puts("Unknown-");
