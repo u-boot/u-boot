@@ -97,6 +97,28 @@ static void erratum_a009798(void)
 #endif /* CONFIG_SYS_FSL_ERRATUM_A009798 */
 }
 
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
+static inline void set_usb_pcstxswingfull(u32 __iomem *scfg, u32 offset)
+{
+	scfg_clrsetbits32(scfg + offset / 4,
+			0x7F << 9,
+			SCFG_USB_PCSTXSWINGFULL << 9);
+}
+#endif
+
+static void erratum_a008997(void)
+{
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008997
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
+	u32 __iomem *scfg = (u32 __iomem *)SCFG_BASE;
+
+	set_usb_pcstxswingfull(scfg, SCFG_USB3PRM2CR_USB1);
+	set_usb_pcstxswingfull(scfg, SCFG_USB3PRM2CR_USB2);
+	set_usb_pcstxswingfull(scfg, SCFG_USB3PRM2CR_USB3);
+#endif
+#endif /* CONFIG_SYS_FSL_ERRATUM_A008997 */
+}
+
 #if defined(CONFIG_FSL_LSCH3)
 /*
  * This erratum requires setting a value to eddrtqcr1 to
@@ -245,6 +267,7 @@ void fsl_lsch3_early_init_f(void)
 	erratum_a008336();
 	erratum_a009008();
 	erratum_a009798();
+	erratum_a008997();
 #ifdef CONFIG_CHAIN_OF_TRUST
 	/* In case of Secure Boot, the IBR configures the SMMU
 	* to allow only Secure transactions.
@@ -525,6 +548,7 @@ void fsl_lsch2_early_init_f(void)
 	erratum_a010539();
 	erratum_a009008();
 	erratum_a009798();
+	erratum_a008997();
 }
 #endif
 
