@@ -1,0 +1,37 @@
+U-Boot FDT Overlay usage (without FIT images)
+=============================================
+
+FDT overlays are now available for use even without FIT images.
+It is not as automagic as with FIT images though and require a few
+manual steps.
+
+1. Figure out where to place both the base device tree blob and the
+overlay. Make sure you have enough space to grow the base tree without
+overlapping anything.
+
+=> setenv fdtaddr 0x87f00000
+=> setenv fdtovaddr 0x87fc0000
+
+2. Load the base blob and overlay blobs
+
+=> load ${devtype} ${bootpart} ${fdtaddr} ${bootdir}/base.dtb
+=> load ${devtype} ${bootpart} ${fdtovaddr} ${bootdir}/overlay.dtb
+
+3. Set it as the working fdt tree.
+
+=> fdtaddr $fdtaddr
+
+4. Grow it enough so it can 'fit' all the applied overlays
+
+=> fdt resize 8192
+
+5. You are now ready to apply the overlay.
+
+=> fdt apply $fdtovaddr
+
+Please note that in case of an error, both the base and overlays are going
+to be invalidated, so keep copies to avoid reloading.
+
+Pantelis Antoniou
+pantelis.antoniou@konsulko.com
+11/7/2017
