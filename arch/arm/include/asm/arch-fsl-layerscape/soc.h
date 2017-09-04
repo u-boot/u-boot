@@ -29,9 +29,13 @@
 #ifdef CONFIG_SYS_FSL_CCSR_SCFG_LE
 #define scfg_in32(a)       in_le32(a)
 #define scfg_out32(a, v)   out_le32(a, v)
+#define scfg_clrbits32(addr, clear) clrbits_le32(addr, clear)
+#define scfg_clrsetbits32(addr, clear, set) clrsetbits_le32(addr, clear, set)
 #elif defined(CONFIG_SYS_FSL_CCSR_SCFG_BE)
 #define scfg_in32(a)       in_be32(a)
 #define scfg_out32(a, v)   out_be32(a, v)
+#define scfg_clrbits32(addr, clear) clrbits_be32(addr, clear)
+#define scfg_clrsetbits32(addr, clear, set) clrsetbits_be32(addr, clear, set)
 #endif
 
 #ifdef CONFIG_SYS_FSL_PEX_LUT_LE
