@@ -60,6 +60,18 @@ unsigned int get_soc_major_rev(void)
 	return major;
 }
 
+static void erratum_a009008(void)
+{
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009008
+	u32 __iomem *scfg = (u32 __iomem *)SCFG_BASE;
+
+	clrsetbits_be32(scfg + SCFG_USB3PRM1CR / 4,
+			0xF << 6,
+			SCFG_USB_TXVREFTUNE << 6);
+#endif /* CONFIG_SYS_FSL_ERRATUM_A009008 */
+}
+
+
 void s_init(void)
 {
 }
@@ -146,6 +158,9 @@ int arch_soc_init(void)
 	 * Workaround: Write a value of 63b2_0042h to address: 157_020Ch.
 	 */
 	out_be32(&scfg->eddrtqcfg, 0x63b20042);
+
+	/* Erratum */
+	erratum_a009008();
 
 	return 0;
 }
