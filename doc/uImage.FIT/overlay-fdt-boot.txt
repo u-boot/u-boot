@@ -1,5 +1,5 @@
-U-Boot FDT Overlay usage
-========================
+U-Boot FDT Overlay FIT usage
+============================
 
 Introduction
 ------------
@@ -7,6 +7,10 @@ In many cases it is desirable to have a single FIT image support a multitude
 of similar boards and their expansion options. The same kernel on DT enabled
 platforms can support this easily enough by providing a DT blob upon boot
 that matches the desired configuration.
+
+This document focuses on specifically using overlays as part of a FIT image.
+General information regarding overlays including its syntax and building it
+can be found in doc/README.fdt-overlays
 
 Configuration without overlays
 ------------------------------
