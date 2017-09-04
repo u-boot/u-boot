@@ -92,7 +92,7 @@ static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 	if (test->flags & DM_TESTF_PROBE_TEST)
 		ut_assertok(do_autoprobe(uts));
 	if (test->flags & DM_TESTF_SCAN_FDT)
-		ut_assertok(dm_scan_fdt(gd->fdt_blob, false));
+		ut_assertok(dm_extended_scan_fdt(gd->fdt_blob, false));
 
 	/*
 	 * Silence the console and rely on console reocrding to get

@@ -127,10 +127,12 @@
 		compatible = "denx,u-boot-fdt-test";
 	};
 
-	clk_fixed: clk-fixed {
-		compatible = "fixed-clock";
-		#clock-cells = <0>;
-		clock-frequency = <1234>;
+	clocks {
+		clk_fixed: clk-fixed {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <1234>;
+		};
 	};
 
 	clk_sandbox: clk-sbox {
