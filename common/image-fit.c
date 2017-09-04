@@ -1653,6 +1653,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	int cfg_noffset, noffset;
 	const char *fit_uname;
 	const char *fit_uname_config;
+	const char *fit_base_uname_config;
 	const void *fit;
 	const void *buf;
 	size_t size;
@@ -1668,6 +1669,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	fit = map_sysmem(addr, 0);
 	fit_uname = fit_unamep ? *fit_unamep : NULL;
 	fit_uname_config = fit_uname_configp ? *fit_uname_configp : NULL;
+	fit_base_uname_config = NULL;
 	prop_name = fit_get_image_type_property(image_type);
 	printf("## Loading %s from FIT Image at %08lx ...\n", prop_name, addr);
 
@@ -1701,11 +1703,11 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 					BOOTSTAGE_SUB_NO_UNIT_NAME);
 			return -ENOENT;
 		}
-		fit_uname_config = fdt_get_name(fit, cfg_noffset, NULL);
-		printf("   Using '%s' configuration\n", fit_uname_config);
+		fit_base_uname_config = fdt_get_name(fit, cfg_noffset, NULL);
+		printf("   Using '%s' configuration\n", fit_base_uname_config);
 		if (image_type == IH_TYPE_KERNEL) {
 			/* Remember (and possibly verify) this config */
-			images->fit_uname_cfg = fit_uname_config;
+			images->fit_uname_cfg = fit_base_uname_config;
 			if (IMAGE_ENABLE_VERIFY && images->verify) {
 				puts("   Verifying Hash Integrity ... ");
 				if (fit_config_verify(fit, cfg_noffset)) {
@@ -1861,7 +1863,8 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	if (fit_unamep)
 		*fit_unamep = (char *)fit_uname;
 	if (fit_uname_configp)
-		*fit_uname_configp = (char *)fit_uname_config;
+		*fit_uname_configp = (char *)(fit_uname_config ? :
+					      fit_base_uname_config);
 
 	return noffset;
 }
