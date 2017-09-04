@@ -2,6 +2,7 @@ config ARCH_LS1021A
 	bool
 	select SYS_FSL_ERRATUM_A008378
 	select SYS_FSL_ERRATUM_A008407
+	select SYS_FSL_ERRATUM_A008997
 	select SYS_FSL_ERRATUM_A009008
 	select SYS_FSL_ERRATUM_A009663
 	select SYS_FSL_ERRATUM_A009798
@@ -59,6 +60,11 @@ config SYS_CCI400_OFFSET
 	help
 	  Offset for CCI400 base.
 	  CCI400 base addr = CCSRBAR + CCI400_OFFSET
+
+config SYS_FSL_ERRATUM_A008997
+	bool
+	help
+	  Workaround for USB PHY erratum A008997
 
 config SYS_FSL_ERRATUM_A009008
 	bool

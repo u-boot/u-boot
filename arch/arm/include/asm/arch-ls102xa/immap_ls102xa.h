@@ -178,6 +178,9 @@ struct ccsr_gur {
 #define SCFG_USB3PRM1CR			0x070
 #define SCFG_USB_TXVREFTUNE		0x9
 #define SCFG_USB_SQRXTUNE_MASK		0x7
+#define SCFG_USB3PRM2CR			0x074
+#define SCFG_USB_PCSTXSWINGFULL_MASK	0x0000FE00
+#define SCFG_USB_PCSTXSWINGFULL_VAL		0x00008E00
 
 /* Supplemental Configuration Unit */
 struct ccsr_scfg {
