@@ -367,11 +367,11 @@ cmd_S_efi=						\
 (							\
 	echo '.section .rodata.efi.init,"a"';		\
 	echo '.balign 16';				\
-	echo '.global __efi_hello_world_begin';		\
-	echo '__efi_hello_world_begin:';		\
+	echo '.global __efi_helloworld_begin';		\
+	echo '__efi_helloworld_begin:';		\
 	echo '.incbin "$<" ';				\
-	echo '__efi_hello_world_end:';			\
-	echo '.global __efi_hello_world_end';		\
+	echo '__efi_helloworld_end:';			\
+	echo '.global __efi_helloworld_end';		\
 	echo '.balign 16';				\
 ) > $@
 

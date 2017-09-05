@@ -297,14 +297,14 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return CMD_RET_USAGE;
 #ifdef CONFIG_CMD_BOOTEFI_HELLO
 	if (!strcmp(argv[1], "hello")) {
-		ulong size = __efi_hello_world_end - __efi_hello_world_begin;
+		ulong size = __efi_helloworld_end - __efi_helloworld_begin;
 
 		saddr = env_get("loadaddr");
 		if (saddr)
 			addr = simple_strtoul(saddr, NULL, 16);
 		else
 			addr = CONFIG_SYS_LOAD_ADDR;
-		memcpy((char *)addr, __efi_hello_world_begin, size);
+		memcpy((char *)addr, __efi_helloworld_begin, size);
 	} else
 #endif
 	{
