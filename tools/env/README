@@ -7,6 +7,9 @@ In order to cross-compile fw_printenv, run
 in the root directory of the U-Boot distribution. For example,
     make CROSS_COMPILE=arm-linux- envtools
 
+You should then create a symlink from fw_setenv to fw_printenv. They use
+the same program and its function depends on its basename.
+
 For the run-time utility configuration uncomment the line
 #define CONFIG_FILE  "/etc/fw_env.config"
 in fw_env.h.

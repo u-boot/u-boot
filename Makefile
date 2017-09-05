@@ -1586,6 +1586,7 @@ help:
 	@echo  '  ubootrelease	  - Output the release version string (use with make -s)'
 	@echo  '  ubootversion	  - Output the version stored in Makefile (use with make -s)'
 	@echo  "  cfg		  - Don't build, just create the .cfg files"
+	@echo  "  envtools	  - Build only the target-side environment tools"
 	@echo  ''
 	@echo  'Static analysers'
 	@echo  '  checkstack      - Generate a list of stack hogs'
