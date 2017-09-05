@@ -655,7 +655,7 @@
 				compatible	= "snps,dwc3";
 				reg		= <0x09900000 0x100000>;
 				interrupts	= <GIC_SPI 155 IRQ_TYPE_NONE>;
-				dr_mode		= "host";
+				dr_mode		= "peripheral";
 				phy-names	= "usb2-phy", "usb3-phy";
 				phys		= <&usb2_picophy0>,
 						  <&phy_port2 PHY_TYPE_USB3>;
