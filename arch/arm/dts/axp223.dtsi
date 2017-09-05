@@ -1,7 +1,7 @@
 /*
- * Copyright 2014 Chen-Yu Tsai
+ * Copyright 2016 Free Electrons
  *
- * Chen-Yu Tsai <wens@csie.org>
+ * Quentin Schulz <quentin.schulz@free-electrons.com>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -42,47 +42,17 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "sun8i-a23-a33.dtsi"
+/*
+ * AXP223 Integrated Power Management Chip
+ * http://www.x-powers.com/product/AXP22X.php
+ * http://dl.linux-sunxi.org/AXP/AXP223-en.pdf
+ *
+ * The AXP223 shares most of its logic with the AXP221 but it has some
+ * differences, for the VBUS driver for example.
+ */
 
-/ {
-	memory {
-		reg = <0x40000000 0x40000000>;
-	};
+#include "axp22x.dtsi"
 
-	soc@01c00000 {
-		codec: codec@01c22c00 {
-			#sound-dai-cells = <0>;
-			compatible = "allwinner,sun8i-a23-codec";
-			reg = <0x01c22c00 0x400>;
-			interrupts = <GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&ccu CLK_BUS_CODEC>, <&ccu CLK_AC_DIG>;
-			clock-names = "apb", "codec";
-			resets = <&ccu RST_BUS_CODEC>;
-			dmas = <&dma 15>, <&dma 15>;
-			dma-names = "rx", "tx";
-			allwinner,codec-analog-controls = <&codec_analog>;
-			status = "disabled";
-		};
-	};
-};
-
-&ccu {
-	compatible = "allwinner,sun8i-a23-ccu";
-};
-
-&pio {
-	compatible = "allwinner,sun8i-a23-pinctrl";
-	interrupts = <GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>,
-		     <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>,
-		     <GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>;
-};
-
-&usb_otg {
-	compatible = "allwinner,sun6i-a31-musb";
-};
-
-&usbphy {
-	compatible = "allwinner,sun8i-a23-usb-phy";
-	reg = <0x01c19400 0x10>, <0x01c1a800 0x4>;
-	reg-names = "phy_ctrl", "pmu1";
+&usb_power_supply {
+	compatible = "x-powers,axp223-usb-power-supply";
 };

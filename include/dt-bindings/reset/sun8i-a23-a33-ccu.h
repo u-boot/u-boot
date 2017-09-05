@@ -1,7 +1,5 @@
 /*
- * Copyright 2014 Chen-Yu Tsai
- *
- * Chen-Yu Tsai <wens@csie.org>
+ * Copyright (C) 2016 Maxime Ripard <maxime.ripard@free-electrons.com>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -42,47 +40,48 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "sun8i-a23-a33.dtsi"
+#ifndef _DT_BINDINGS_RST_SUN8I_A23_A33_H_
+#define _DT_BINDINGS_RST_SUN8I_A23_A33_H_
 
-/ {
-	memory {
-		reg = <0x40000000 0x40000000>;
-	};
+#define RST_USB_PHY0		0
+#define RST_USB_PHY1		1
+#define RST_USB_HSIC		2
+#define RST_MBUS		3
+#define RST_BUS_MIPI_DSI	4
+#define RST_BUS_SS		5
+#define RST_BUS_DMA		6
+#define RST_BUS_MMC0		7
+#define RST_BUS_MMC1		8
+#define RST_BUS_MMC2		9
+#define RST_BUS_NAND		10
+#define RST_BUS_DRAM		11
+#define RST_BUS_HSTIMER		12
+#define RST_BUS_SPI0		13
+#define RST_BUS_SPI1		14
+#define RST_BUS_OTG		15
+#define RST_BUS_EHCI		16
+#define RST_BUS_OHCI		17
+#define RST_BUS_VE		18
+#define RST_BUS_LCD		19
+#define RST_BUS_CSI		20
+#define RST_BUS_DE_BE		21
+#define RST_BUS_DE_FE		22
+#define RST_BUS_GPU		23
+#define RST_BUS_MSGBOX		24
+#define RST_BUS_SPINLOCK	25
+#define RST_BUS_DRC		26
+#define RST_BUS_SAT		27
+#define RST_BUS_LVDS		28
+#define RST_BUS_CODEC		29
+#define RST_BUS_I2S0		30
+#define RST_BUS_I2S1		31
+#define RST_BUS_I2C0		32
+#define RST_BUS_I2C1		33
+#define RST_BUS_I2C2		34
+#define RST_BUS_UART0		35
+#define RST_BUS_UART1		36
+#define RST_BUS_UART2		37
+#define RST_BUS_UART3		38
+#define RST_BUS_UART4		39
 
-	soc@01c00000 {
-		codec: codec@01c22c00 {
-			#sound-dai-cells = <0>;
-			compatible = "allwinner,sun8i-a23-codec";
-			reg = <0x01c22c00 0x400>;
-			interrupts = <GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&ccu CLK_BUS_CODEC>, <&ccu CLK_AC_DIG>;
-			clock-names = "apb", "codec";
-			resets = <&ccu RST_BUS_CODEC>;
-			dmas = <&dma 15>, <&dma 15>;
-			dma-names = "rx", "tx";
-			allwinner,codec-analog-controls = <&codec_analog>;
-			status = "disabled";
-		};
-	};
-};
-
-&ccu {
-	compatible = "allwinner,sun8i-a23-ccu";
-};
-
-&pio {
-	compatible = "allwinner,sun8i-a23-pinctrl";
-	interrupts = <GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>,
-		     <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>,
-		     <GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>;
-};
-
-&usb_otg {
-	compatible = "allwinner,sun6i-a31-musb";
-};
-
-&usbphy {
-	compatible = "allwinner,sun8i-a23-usb-phy";
-	reg = <0x01c19400 0x10>, <0x01c1a800 0x4>;
-	reg-names = "phy_ctrl", "pmu1";
-};
+#endif /* _DT_BINDINGS_RST_SUN8I_A23_A33_H_ */
