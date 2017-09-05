@@ -236,16 +236,6 @@ board/sandbox/README.sandbox:
 =>host bind 0 ./disk.raw
 => gpt read host 0
 [ . . . ]
-=> gpt flip host 0
-[ . . . ]
-
-The GPT functionality may be tested with the 'sandbox' board by
-creating a disk image as described under 'Block Device Emulation' in
-board/sandbox/README.sandbox:
-
-=>host bind 0 ./disk.raw
-=> gpt read host 0
-[ . . . ]
 => gpt swap host 0 name othername
 [ . . . ]
 
