@@ -77,4 +77,12 @@ config SPL_PIPE3_PHY
 	  This PHY is found on omap devices supporting SATA such as dra7, am57x
 	  and omap5
 
+config STI_USB_PHY
+	bool "STMicroelectronics USB2 picoPHY driver for STiH407 family"
+	depends on PHY && ARCH_STI
+	help
+	  This is the generic phy driver for the picoPHY ports
+	  used by USB2 and USB3 Host controllers available on
+	  STiH407 SoC families.
+
 endmenu
