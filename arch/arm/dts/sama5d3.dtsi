@@ -998,6 +998,8 @@
 					interrupt-parent = <&pmc>;
 					interrupts = <AT91_PMC_LOCKU>;
 					clocks = <&main>;
+					regmap-sfr = <&sfr>;
+					u-boot,dm-pre-reloc;
 				};
 
 				mck: masterck {
