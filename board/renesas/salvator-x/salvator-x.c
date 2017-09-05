@@ -74,10 +74,10 @@ int board_early_init_f(void)
 	/* SDHI0, 3 */
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD0_MSTP314 | SD3_MSTP311);
 
-	writel(0, SD0CKCR);
-	writel(0, SD1CKCR);
-	writel(0, SD2CKCR);
-	writel(0, SD3CKCR);
+	writel(1, SD0CKCR);
+	writel(1, SD1CKCR);
+	writel(1, SD2CKCR);
+	writel(1, SD3CKCR);
 
 #if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
 	/* DVFS for reset */
