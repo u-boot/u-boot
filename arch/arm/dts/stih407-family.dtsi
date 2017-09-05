@@ -563,6 +563,7 @@
 			clocks = <&clk_s_c0_flexgen CLK_MMC_1>,
 				 <&clk_s_c0_flexgen CLK_RX_ICN_HVA>;
 			resets = <&softreset STIH407_MMC1_SOFTRESET>;
+			reset-names = "softreset";
 			bus-width = <4>;
 		};
 
