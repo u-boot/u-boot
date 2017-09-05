@@ -14,7 +14,11 @@ config CLK_AT91
 
 config AT91_UTMI
 	bool "Support UTMI PLL Clock"
-	depends on CLK_AT91
+	depends on CLK_AT91 && SPL_DM
+	select REGMAP
+	select SPL_REGMAP
+	select SYSCON
+	select SPL_SYSCON
 	help
 	  This option is used to enable the AT91 UTMI PLL clock
 	  driver. It is the clock provider of USB, and UPLLCK is the
