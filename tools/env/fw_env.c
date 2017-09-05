@@ -755,7 +755,7 @@ static int flash_read_buf (int dev, int fd, void *buf, size_t count,
 
 		/*
 		 * If a block is bad, we retry in the next block at the same
-		 * offset - see common/env_nand.c::writeenv()
+		 * offset - see env/nand.c::writeenv()
 		 */
 		lseek (fd, blockstart + block_seek, SEEK_SET);
 

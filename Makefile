@@ -1466,7 +1466,7 @@ checkarmreloc: u-boot
 	fi
 
 environ: scripts_basic
-	$(Q)$(MAKE) $(build)=tools/$@
+	$(Q)$(MAKE) $(build)=tools/env
 
 tools-only: scripts_basic $(version_h) $(timestamp_h)
 	$(Q)$(MAKE) $(build)=tools
