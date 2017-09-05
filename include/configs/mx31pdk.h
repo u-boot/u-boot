@@ -79,10 +79,6 @@
 		"nand erase 0x0 0x40000; "				\
 		"nand write 0x81000000 0x0 0x40000\0"
 
-#define CONFIG_SMC911X
-#define CONFIG_SMC911X_BASE	0xB6000000
-#define CONFIG_SMC911X_32_BIT
-
 /*
  * Miscellaneous configurable options
  */

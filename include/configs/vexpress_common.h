@@ -55,7 +55,6 @@
 #define V2M_NOR1		(V2M_PA_CS1)
 #define V2M_SRAM		(V2M_PA_CS2)
 #define V2M_VIDEO_SRAM		(V2M_PA_CS3 + 0x00000000)
-#define V2M_LAN9118		(V2M_PA_CS3 + 0x02000000)
 #define V2M_ISP1761		(V2M_PA_CS3 + 0x03000000)
 
 /* Common peripherals relative to CS7. */
@@ -132,11 +131,6 @@
 #define CONFIG_SYS_TIMER_RATE		1000000
 #define CONFIG_SYS_TIMER_COUNTER	(V2M_TIMER01 + 0x4)
 #define CONFIG_SYS_TIMER_COUNTS_DOWN
-
-/* SMSC9115 Ethernet from SMSC9118 family */
-#define CONFIG_SMC911X			1
-#define CONFIG_SMC911X_32_BIT		1
-#define CONFIG_SMC911X_BASE		V2M_LAN9118
 
 /* PL011 Serial Configuration */
 #define CONFIG_PL011_SERIAL

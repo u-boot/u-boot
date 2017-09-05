@@ -28,14 +28,6 @@
 /* FLASH related */
 #define CONFIG_MTD_DEVICE
 
-#define CONFIG_SMC911X_32_BIT
-/* dummy: referenced by examples/standalone/smc911x_eeprom.c */
-#define CONFIG_SMC911X_BASE	0
-
-#ifdef CONFIG_MICRO_SUPPORT_CARD
-#define CONFIG_SMC911X
-#endif
-
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
 

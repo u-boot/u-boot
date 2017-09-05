@@ -101,15 +101,6 @@
 
 #endif
 
-/*
- * SMSC911x Ethernet
- */
-#if defined(CONFIG_CMD_NET)
-#define CONFIG_SMC911X
-#define CONFIG_SMC911X_32_BIT
-#define CONFIG_SMC911X_BASE		0x2C000000
-#endif /* (CONFIG_CMD_NET) */
-
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_SYS_MTDPARTS_RUNTIME
 

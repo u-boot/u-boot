@@ -174,9 +174,6 @@
  * Ethernet Contoller driver
  */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_SMC911X         1       /* we have a SMC9115 on-board   */
-#define CONFIG_SMC911X_16_BIT  1       /* SMC911X_16_BIT Mode          */
-#define CONFIG_SMC911X_BASE    0x98800300      /* SMC911X Drive Base   */
 #define CONFIG_ENV_SROM_BANK   3       /* Select SROM Bank-3 for Ethernet*/
 #endif /* CONFIG_CMD_NET */
 

@@ -179,13 +179,6 @@
 #define CONFIG_ENV_OFFSET		0x240000
 #define CONFIG_ENV_ADDR			0x240000
 
-/* Configure SMSC9211 ethernet */
-#if defined(CONFIG_CMD_NET)
-#define CONFIG_SMC911X
-#define CONFIG_SMC911X_32_BIT
-#define CONFIG_SMC911X_BASE		0x2C000000
-#endif /* (CONFIG_CMD_NET) */
-
 /* Initial RAM setup */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
 #define CONFIG_SYS_INIT_RAM_SIZE	0x800

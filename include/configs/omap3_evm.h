@@ -83,13 +83,6 @@
 /* USB EHCI */
 #define CONFIG_SYS_USB_FAT_BOOT_PARTITION  1
 
-/* SMSC911x Ethernet */
-#if defined(CONFIG_CMD_NET)
-#define CONFIG_SMC911X
-#define CONFIG_SMC911X_32_BIT
-#define CONFIG_SMC911X_BASE             0x2C000000
-#endif /* CONFIG_CMD_NET */
-
 /* Environment */
 #define CONFIG_PREBOOT                  "usb start"
 

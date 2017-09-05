@@ -24,14 +24,6 @@
 
 #define CONFIG_HOSTNAME twister
 
-/*
- * Miscellaneous configurable options
- */
-#define CONFIG_SMC911X
-#define CONFIG_SMC911X_16_BIT
-#define CONFIG_SMC911X_BASE		0x2C000000
-#define CONFIG_SMC911X_NO_EEPROM
-
 #define	CONFIG_EXTRA_ENV_SETTINGS	CONFIG_TAM3517_SETTINGS \
 	"bootcmd=run nandboot\0"
 

@@ -65,11 +65,7 @@
 #undef  CONFIG_CMD_SPI
 #endif
 
-/* BLANCHE on board LANC: SMC89218 (ExCS0) */
 #define CONFIG_NET_MULTI
-#define CONFIG_SMC911X                  1
-#define CONFIG_SMC911X_16_BIT           1
-#define CONFIG_SMC911X_BASE             0x18000000
 
 /* Board Clock */
 #define RMOBILE_XTAL_CLK	20000000u

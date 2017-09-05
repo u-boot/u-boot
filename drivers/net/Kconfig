@@ -211,6 +211,34 @@ config RTL8169
 	  This driver supports Realtek 8169 series gigabit ethernet family of
 	  PCI/PCIe chipsets/adapters.
 
+config SMC911X
+	bool "SMSC LAN911x and LAN921x controller driver"
+
+if SMC911X
+
+config SMC911X_BASE
+	hex "SMC911X Base Address"
+	help
+	  Define this to hold the physical address
+	  of the device (I/O space)
+
+choice
+	prompt "SMC911X bus width"
+	default SMC911X_16_BIT
+
+config SMC911X_32_BIT
+	bool "Enable 32-bit interface"
+
+config SMC911X_16_BIT
+	bool "Enable 16-bit interface"
+	help
+	  Define this if data bus is 16 bits. If your processor
+	  automatically converts one 32 bit word to two 16 bit
+	  words you may also try CONFIG_SMC911X_32_BIT.
+
+endchoice
+endif #SMC911X
+
 config SUN7I_GMAC
 	bool "Enable Allwinner GMAC Ethernet support"
 	help

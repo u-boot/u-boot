@@ -1028,21 +1028,6 @@ The following options need to be configured:
 			control registers. This behavior won't affect the
 			correctnessof 10/100 link speed update.
 
-		CONFIG_SMC911X
-		Support for SMSC's LAN911x and LAN921x chips
-
-			CONFIG_SMC911X_BASE
-			Define this to hold the physical address
-			of the device (I/O space)
-
-			CONFIG_SMC911X_32_BIT
-			Define this if data bus is 32 bits
-
-			CONFIG_SMC911X_16_BIT
-			Define this if data bus is 16 bits. If your processor
-			automatically converts one 32 bit word to two 16 bit
-			words you may also try CONFIG_SMC911X_32_BIT.
-
 		CONFIG_SH_ETHER
 		Support for Renesas on-chip Ethernet controller
 

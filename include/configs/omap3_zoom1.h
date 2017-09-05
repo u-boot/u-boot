@@ -153,12 +153,4 @@
 #define CONFIG_ENV_OFFSET		0x260000
 #define CONFIG_ENV_ADDR			0x260000
 
-#ifdef CONFIG_CMD_NET
-/* Ethernet (LAN9211 from SMSC9118 family) */
-#define CONFIG_SMC911X
-#define CONFIG_SMC911X_32_BIT
-#define CONFIG_SMC911X_BASE		DEBUG_BASE
-
-#endif
-
 #endif				/* __CONFIG_H */

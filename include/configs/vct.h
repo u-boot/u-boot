@@ -65,33 +65,12 @@
 #define CONFIG_SYS_LOAD_ADDR		0x80400000	/* default load address */
 
 #if defined(CONFIG_VCT_PREMIUM) || defined(CONFIG_VCT_PLATINUM)
-/*
- * SMSC91C11x Network Card
- */
-#define CONFIG_SMC911X
-#define CONFIG_SMC911X_BASE	0x00000000
-#define CONFIG_SMC911X_32_BIT
 #define CONFIG_NET_RETRY_COUNT		20
 #endif
 
 /*
  * Commands
  */
-
-/*
- * Only Premium/Platinum have ethernet support right now
- */
-#if (defined(CONFIG_VCT_PREMIUM) || defined(CONFIG_VCT_PLATINUM)) && \
-	!defined(CONFIG_VCT_SMALL_IMAGE)
-#endif
-
-/*
- * Only Premium/Platinum have USB-EHCI support right now
- */
-#if (defined(CONFIG_VCT_PREMIUM) || defined(CONFIG_VCT_PLATINUM)) && \
-	!defined(CONFIG_VCT_SMALL_IMAGE)
-#endif
-
 #if defined(CONFIG_CMD_USB)
 #define CONFIG_SUPPORT_VFAT
 
@@ -236,7 +215,6 @@ int vct_gpio_get(int pin);
  * (NOR/OneNAND) usage and Linux kernel booting.
  */
 #if defined(CONFIG_VCT_SMALL_IMAGE)
-#undef CONFIG_SMC911X
 #undef CONFIG_SYS_I2C_SOFT
 #undef CONFIG_SOURCE
 #undef CONFIG_SYS_LONGHELP

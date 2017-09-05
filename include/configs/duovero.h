@@ -30,10 +30,6 @@
 
 #define CONFIG_SYS_ENABLE_PADS_ALL
 
-#define CONFIG_SMC911X
-#define CONFIG_SMC911X_32_BIT
-#define CONFIG_SMC911X_BASE		0x2C000000
-
 /* GPIO */
 
 /* ENV related config options */

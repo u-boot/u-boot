@@ -60,11 +60,6 @@
 
 #define CONFIG_ETHPRIME		"smc911x"
 
-/*Support LAN9217*/
-#define CONFIG_SMC911X
-#define CONFIG_SMC911X_16_BIT
-#define CONFIG_SMC911X_BASE CS1_BASE_ADDR
-
 #define CONFIG_LOADADDR		0x72000000	/* loadaddr env var */
 #define CONFIG_SYS_TEXT_BASE    0x77800000
 

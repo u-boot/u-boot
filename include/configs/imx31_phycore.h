@@ -85,10 +85,6 @@
 		"pclk:185925,le:9,ri:17,up:7,lo:10,hs:1,vs:1,"		\
 		"sync:1241513985,vmode:0\0"
 
-#define CONFIG_SMC911X
-#define CONFIG_SMC911X_BASE	0xa8000000
-#define CONFIG_SMC911X_32_BIT
-
 /*
  * Miscellaneous configurable options
  */

@@ -102,13 +102,7 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (8 << 20))
 
-/* Ethernet Configuration */
-#ifdef CONFIG_TARGET_VEXPRESS64_JUNO
-/* The real hardware Versatile express uses SMSC9118 */
-#define CONFIG_SMC911X			1
-#define CONFIG_SMC911X_32_BIT		1
-#define CONFIG_SMC911X_BASE		(0x018000000)
-#else
+#ifndef CONFIG_TARGET_VEXPRESS64_JUNO
 /* The Vexpress64 simulators use SMSC91C111 */
 #define CONFIG_SMC91111			1
 #define CONFIG_SMC91111_BASE		(0x01A000000)
