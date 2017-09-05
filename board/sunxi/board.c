@@ -736,7 +736,6 @@ int misc_init_r(void)
 	if (ret)
 		return ret;
 #endif
-	sunxi_musb_board_init();
 
 	return 0;
 }
