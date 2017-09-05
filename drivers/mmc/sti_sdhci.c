@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <mmc.h>
+#include <reset-uclass.h>
 #include <sdhci.h>
 #include <asm/arch/sdhci.h>
 
@@ -16,14 +17,9 @@ DECLARE_GLOBAL_DATA_PTR;
 struct sti_sdhci_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
+	struct reset_ctl reset;
 	int instance;
 };
-
-/*
- * used to get access to MMC1 reset,
- * will be removed when STi reset driver will be available
- */
-#define STIH410_SYSCONF5_BASE		0x092b0000
 
 /**
  * sti_mmc_core_config: configure the Arasan HC
@@ -37,17 +33,19 @@ struct sti_sdhci_plat {
  * W/o these settings the SDHCI could configure and use the embedded controller
  * with limited features.
  */
-static void sti_mmc_core_config(struct udevice *dev)
+static int sti_mmc_core_config(struct udevice *dev)
 {
 	struct sti_sdhci_plat *plat = dev_get_platdata(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
-	unsigned long *sysconf;
+	int ret;
 
 	/* only MMC1 has a reset line */
 	if (plat->instance) {
-		sysconf = (unsigned long *)(STIH410_SYSCONF5_BASE +
-			  ST_MMC_CCONFIG_REG_5);
-		generic_set_bit(SYSCONF_MMC1_ENABLE_BIT, sysconf);
+		ret = reset_deassert(&plat->reset);
+		if (ret < 0) {
+			error("MMC1 deassert failed: %d", ret);
+			return ret;
+		}
 	}
 
 	writel(STI_FLASHSS_MMC_CORE_CONFIG_1,
@@ -66,6 +64,8 @@ static void sti_mmc_core_config(struct udevice *dev)
 	}
 	writel(STI_FLASHSS_MMC_CORE_CONFIG4,
 	       host->ioaddr + FLASHSS_MMC_CORE_CONFIG_4);
+
+	return 0;
 }
 
 static int sti_sdhci_probe(struct udevice *dev)
@@ -80,13 +80,18 @@ static int sti_sdhci_probe(struct udevice *dev)
 	 * MMC0 is wired to the SD slot,
 	 * MMC1 is wired on the high speed connector
 	 */
-
-	if (fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "resets", NULL))
+	ret = reset_get_by_index(dev, 0, &plat->reset);
+	if (!ret)
 		plat->instance = 1;
 	else
-		plat->instance = 0;
+		if (ret == -ENOENT)
+			plat->instance = 0;
+		else
+			return ret;
 
-	sti_mmc_core_config(dev);
+	ret = sti_mmc_core_config(dev);
+	if (ret)
+		return ret;
 
 	host->quirks = SDHCI_QUIRK_WAIT_SEND_CMD |
 		       SDHCI_QUIRK_32BIT_DMA_ADDR |
