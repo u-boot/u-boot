@@ -207,11 +207,10 @@
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 
 #define CONFIG_NAND_OMAP_GPMC
-#define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB sector */
-#define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET
-#define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
+#define CONFIG_ENV_OFFSET		0x260000
+#define CONFIG_ENV_ADDR			0x260000
 
 /*-----------------------------------------------------------------------
  * CFI FLASH driver setup

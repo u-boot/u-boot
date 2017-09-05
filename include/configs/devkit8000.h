@@ -174,9 +174,8 @@
 					0x01000000) /* 16MB */
 
 /* NAND and environment organization  */
-#define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 
-#define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET
+#define CONFIG_ENV_OFFSET		0x260000
 
 /* SRAM config */
 #define CONFIG_SYS_SRAM_START              0x40200000

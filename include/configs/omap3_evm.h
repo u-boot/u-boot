@@ -66,10 +66,9 @@
 #define CONFIG_SYS_NAND_U_BOOT_OFFS     0x80000
 #define CONFIG_ENV_IS_IN_NAND           1
 #define CONFIG_ENV_SIZE                 (128 << 10) /* 128 KiB */
-#define SMNAND_ENV_OFFSET               0x260000    /* environment starts here */
 #define CONFIG_SYS_ENV_SECT_SIZE        (128 << 10) /* 128 KiB */
-#define CONFIG_ENV_OFFSET               SMNAND_ENV_OFFSET
-#define CONFIG_ENV_ADDR                 SMNAND_ENV_OFFSET
+#define CONFIG_ENV_OFFSET               0x260000
+#define CONFIG_ENV_ADDR                 0x260000
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_MTD_PARTITIONS           /* required for UBI partition support */
 /* NAND: SPL falcon mode configs */

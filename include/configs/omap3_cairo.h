@@ -170,11 +170,10 @@
 
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 #define ONENAND_ENV_OFFSET		0x260000 /* environment starts here */
-#define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
-#define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET
-#define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
+#define CONFIG_ENV_OFFSET		0x260000
+#define CONFIG_ENV_ADDR			0x260000
 
 /* Defines for SPL */
 
