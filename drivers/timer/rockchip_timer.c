@@ -92,7 +92,7 @@ static const struct udevice_id rockchip_timer_ids[] = {
 	{}
 };
 
-U_BOOT_DRIVER(arc_timer) = {
+U_BOOT_DRIVER(rockchip_rk3368_timer) = {
 	.name	= "rockchip_rk3368_timer",
 	.id	= UCLASS_TIMER,
 	.of_match = rockchip_timer_ids,
