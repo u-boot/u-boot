@@ -1465,14 +1465,14 @@ checkarmreloc: u-boot
 		false; \
 	fi
 
-environ: scripts_basic
+envtools: scripts_basic
 	$(Q)$(MAKE) $(build)=tools/env
 
 tools-only: scripts_basic $(version_h) $(timestamp_h)
 	$(Q)$(MAKE) $(build)=tools
 
 tools-all: export HOST_TOOLS_ALL=y
-tools-all: environ tools ;
+tools-all: envtools tools ;
 
 cross_tools: export CROSS_BUILD_TOOLS=y
 cross_tools: tools ;
