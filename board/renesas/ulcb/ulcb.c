@@ -105,7 +105,7 @@ int board_init(void)
 	/* USB1 pull-up */
 	setbits_le32(PFC_PUEN6, PUEN_USB1_OVC | PUEN_USB1_PWEN);
 
-#ifdef CONFIG_RAVB
+#ifdef CONFIG_RENESAS_RAVB
 	/* EtherAVB Enable */
 	/* GPSR2 */
 	gpio_request(GPIO_GFN_AVB_AVTP_CAPTURE_A, NULL);
@@ -137,12 +137,7 @@ int board_init(void)
 	udelay(1);
 #endif
 
-	return 0;
-}
-
-#ifdef CONFIG_SH_SDHI
-int board_mmc_init(bd_t *bis)
-{
+#ifdef CONFIG_MMC
 	/* SDHI0 */
 	gpio_request(GPIO_GFN_SD0_DAT0, NULL);
 	gpio_request(GPIO_GFN_SD0_DAT1, NULL);
@@ -179,10 +174,10 @@ int board_mmc_init(bd_t *bis)
 	gpio_request(GPIO_GP_5_9, NULL);
 	gpio_direction_output(GPIO_GP_5_3, 0);	/* 1: 3.3V, 0: 1.8V */
 	gpio_direction_output(GPIO_GP_5_9, 0);	/* 1: 3.3V, 0: 1.8V */
+#endif
 
 	return 0;
 }
-#endif
 
 int dram_init(void)
 {
