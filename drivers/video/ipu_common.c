@@ -1243,3 +1243,8 @@ int ipu_set_ldb_clock(int rate)
 
 	return 0;
 }
+
+bool ipu_clk_enabled(void)
+{
+	return g_ipu_clk_enabled;
+}
