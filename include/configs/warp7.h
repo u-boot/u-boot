@@ -139,7 +139,6 @@
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_CDC
 #define CONFIG_USB_ETH_RNDIS
-#define CONFIG_USBNET_HOST_ADDR		"de:ad:be:af:00:00"
 #define CONFIG_USBNET_DEV_ADDR		"de:ad:be:af:00:01"
 
 #endif

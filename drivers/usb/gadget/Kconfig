@@ -128,4 +128,11 @@ config USBNET_DEVADDR
 	  Ethernet MAC address of the device-side (ie. local board's) MAC
 	  address of the usb_ether interface
 
+config USBNET_HOST_ADDR
+	string "USB Gadget Ethernet host mac address"
+	default "de:ad:be:ef:00:00"
+	help
+	  Ethernet MAC address of the host-side (ie. remote device's) MAC
+	  address of the usb_ether interface
+
 endif # USB_GADGET
