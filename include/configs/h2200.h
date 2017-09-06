@@ -123,7 +123,6 @@
 	"bootm ; "
 
 #define CONFIG_USB_GADGET_PXA2XX
-#define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_SUBSET
 
 #define CONFIG_USBNET_DEV_ADDR		"de:ad:be:ef:00:01"

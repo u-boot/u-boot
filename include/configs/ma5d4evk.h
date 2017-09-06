@@ -100,7 +100,6 @@
 #ifdef CONFIG_CMD_USB
 
 /* USB device */
-#define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_RNDIS
 #define CONFIG_USBNET_MANUFACTURER      "AriesEmbedded"
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
