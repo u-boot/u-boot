@@ -1,3 +1,4 @@
+/_libfdt.so
 /atmel_pmecc_params
 /bin2header
 /bmp_logo
@@ -16,6 +17,9 @@
 /img2srec
 /kwboot
 /lib/
+/libfdt.py
+/libfdt.pyc
+/libfdt_wrap.c
 /mips-relocs
 /mkenvimage
 /mkexynosspl

@@ -57,14 +57,6 @@ fit-dtb.blob
 /include/config/
 /include/generated/
 
-# Since "ee95d10 fdt: Build the new python libfdt module", a number of
-# build artifacts and intermediated from the python libfdt module are
-# installed into the /tools directory.
-/tools/_libfdt.so
-/tools/libfdt.py
-/tools/libfdt.pyc
-/tools/libfdt_wrap.c
-
 # stgit generated dirs
 patches-*
 .stgit-edit.txt
