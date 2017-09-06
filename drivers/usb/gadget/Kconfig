@@ -119,10 +119,10 @@ config G_DNL_VENDOR_NUM
 config G_DNL_PRODUCT_NUM
 	hex "Product ID of USB device"
 
+endif # USB_GADGET_DOWNLOAD
+
 config USBNET_DEVADDR
 	string "USB Gadget Ethernet device mac address"
 	default "de:ad:be:ef:00:01"
-
-endif # USB_GADGET_DOWNLOAD
 
 endif # USB_GADGET
