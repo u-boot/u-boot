@@ -197,6 +197,14 @@ config I2C_EEPROM
 	help
 	  Enable a generic driver for EEPROMs attached via I2C.
 
+
+config SPL_I2C_EEPROM
+	bool "Enable driver for generic I2C-attached EEPROMs for SPL"
+	depends on MISC && SPL && SPL_DM
+	help
+	  This option is an SPL-variant of the I2C_EEPROM option.
+	  See the help of I2C_EEPROM for details.
+
 if I2C_EEPROM
 
 config SYS_I2C_EEPROM_ADDR

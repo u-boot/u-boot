@@ -20,7 +20,7 @@ obj-$(CONFIG_CROS_EC_SPI) += cros_ec_spi.o
 endif
 obj-$(CONFIG_FSL_IIM) += fsl_iim.o
 obj-$(CONFIG_LED_STATUS_GPIO) += gpio_led.o
-obj-$(CONFIG_I2C_EEPROM) += i2c_eeprom.o
+obj-$(CONFIG_$(SPL_)I2C_EEPROM) += i2c_eeprom.o
 obj-$(CONFIG_FSL_MC9SDZ60) += mc9sdz60.o
 obj-$(CONFIG_MXC_OCOTP) += mxc_ocotp.o
 obj-$(CONFIG_MXS_OCOTP) += mxs_ocotp.o
