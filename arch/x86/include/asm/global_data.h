@@ -77,6 +77,7 @@ struct arch_global_data {
 	uint8_t x86_mask;
 	uint32_t x86_device;
 	uint64_t tsc_base;		/* Initial value returned by rdtsc() */
+	unsigned long clock_rate;	/* Clock rate of timer in Hz */
 	void *new_fdt;			/* Relocated FDT */
 	uint32_t bist;			/* Built-in self test value */
 	enum pei_boot_mode_t pei_boot_mode;

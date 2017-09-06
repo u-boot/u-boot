@@ -331,17 +331,17 @@ static int tsc_timer_get_count(struct udevice *dev, u64 *count)
 	return 0;
 }
 
-static int tsc_timer_probe(struct udevice *dev)
+static void tsc_timer_ensure_setup(void)
 {
-	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-
+	if (gd->arch.tsc_base)
+		return;
 	gd->arch.tsc_base = rdtsc();
 
 	/*
 	 * If there is no clock frequency specified in the device tree,
 	 * calibrate it by ourselves.
 	 */
-	if (!uc_priv->clock_rate) {
+	if (!gd->arch.clock_rate) {
 		unsigned long fast_calibrate;
 
 		fast_calibrate = cpu_mhz_from_msr();
@@ -351,10 +351,30 @@ static int tsc_timer_probe(struct udevice *dev)
 				panic("TSC frequency is ZERO");
 		}
 
-		uc_priv->clock_rate = fast_calibrate * 1000000;
+		gd->arch.clock_rate = fast_calibrate * 1000000;
 	}
+}
+
+static int tsc_timer_probe(struct udevice *dev)
+{
+	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	tsc_timer_ensure_setup();
+	uc_priv->clock_rate = gd->arch.clock_rate;
 
 	return 0;
+}
+
+unsigned long notrace timer_early_get_rate(void)
+{
+	tsc_timer_ensure_setup();
+
+	return gd->arch.clock_rate;
+}
+
+u64 notrace timer_early_get_count(void)
+{
+	return rdtsc() - gd->arch.tsc_base;
 }
 
 static const struct timer_ops tsc_timer_ops = {
