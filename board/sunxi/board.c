@@ -737,6 +737,8 @@ int misc_init_r(void)
 		return ret;
 #endif
 
+	usb_ether_init();
+
 	return 0;
 }
 
