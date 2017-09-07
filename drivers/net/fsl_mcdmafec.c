@@ -391,7 +391,7 @@ static int fec_init(struct eth_device *dev, bd_t * bd)
 	/* Set Opcode/Pause Duration Register */
 	fecp->opd = 0x00010020;
 
-	/* Setup Buffers and Buffer Desriptors */
+	/* Setup Buffers and Buffer Descriptors */
 	info->rxIdx = 0;
 	info->txIdx = 0;
 
