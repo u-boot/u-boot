@@ -939,10 +939,14 @@ do_retry:
 	return USB_STOR_TRANSPORT_FAILED;
 }
 
-static void usb_stor_set_max_xfer_blk(struct us_data *us)
+static void usb_stor_set_max_xfer_blk(struct usb_device *udev,
+				      struct us_data *us)
 {
 	unsigned short blk;
+	size_t __maybe_unused size;
+	int __maybe_unused ret;
 
+#ifndef CONFIG_DM_USB
 #ifdef CONFIG_USB_EHCI_HCD
 	/*
 	 * The U-Boot EHCI driver can handle any transfer length as long as
@@ -952,6 +956,17 @@ static void usb_stor_set_max_xfer_blk(struct us_data *us)
 	blk = USHRT_MAX;
 #else
 	blk = 20;
+#endif
+#else
+	ret = usb_get_max_xfer_size(udev, (size_t *)&size);
+	if (ret < 0) {
+		/* unimplemented, let's use default 20 */
+		blk = 20;
+	} else {
+		if (size > USHRT_MAX * 512)
+			blk = USHRT_MAX;
+		blk = size / 512;
+	}
 #endif
 
 	us->max_xfer_blk = blk;
@@ -1393,7 +1408,7 @@ int usb_storage_probe(struct usb_device *dev, unsigned int ifnum,
 	}
 
 	/* Set the maximum transfer size per host controller setting */
-	usb_stor_set_max_xfer_blk(ss);
+	usb_stor_set_max_xfer_blk(dev, ss);
 
 	dev->privptr = (void *)ss;
 	return 1;
