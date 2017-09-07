@@ -696,7 +696,7 @@ config SPL_ATF_SUPPORT
 	bool "Support ARM Trusted Firmware"
 	depends on ARM64
 	help
-	  ATF(ARM Trusted Firmware) is a component for ARM arch64 which which
+	  ATF(ARM Trusted Firmware) is a component for ARM arch64 which
 	  is loaded by SPL(which is considered as BL2 in ATF terminology).
 	  More detail at: https://github.com/ARM-software/arm-trusted-firmware
 
