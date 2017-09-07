@@ -45,7 +45,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	struct dtd_rockchip_rk3399_sdhci_5_1 *dtplat = &plat->dtplat;
 
 	host->name = dev->name;
-	host->ioaddr = map_sysmem(dtplat->reg[1], dtplat->reg[3]);
+	host->ioaddr = map_sysmem(dtplat->reg[0], dtplat->reg[1]);
 	max_frequency = dtplat->max_frequency;
 	ret = clk_get_by_index_platdata(dev, 0, dtplat->clocks, &clk);
 #else
