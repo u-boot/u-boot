@@ -1596,6 +1596,17 @@ static int ehci_destroy_int_queue(struct udevice *dev, struct usb_device *udev,
 	return _ehci_destroy_int_queue(udev, queue);
 }
 
+static int ehci_get_max_xfer_size(struct udevice *dev, size_t *size)
+{
+	/*
+	 * EHCD can handle any transfer length as long as there is enough
+	 * free heap space left, hence set the theoretical max number here.
+	 */
+	*size = SIZE_MAX;
+
+	return 0;
+}
+
 int ehci_register(struct udevice *dev, struct ehci_hccr *hccr,
 		  struct ehci_hcor *hcor, const struct ehci_ops *ops,
 		  uint tweaks, enum usb_init_type init)
@@ -1658,6 +1669,7 @@ struct dm_usb_ops ehci_usb_ops = {
 	.create_int_queue = ehci_create_int_queue,
 	.poll_int_queue = ehci_poll_int_queue,
 	.destroy_int_queue = ehci_destroy_int_queue,
+	.get_max_xfer_size  = ehci_get_max_xfer_size,
 };
 
 #endif
