@@ -133,6 +133,34 @@ config USB_ETHER
 
 if USB_ETHER
 
+choice
+	prompt "USB Ethernet Gadget Model"
+	default USB_ETH_RNDIS
+	help
+	  There is several models (protocols) to implement Ethernet over USB
+	  devices. The main ones are Microsoft's RNDIS and USB's CDC-Ethernet
+	  (also called CDC-ECM). RNDIS is obviously compatible with Windows,
+	  while CDC-ECM is not. Most other operating systems support both, so
+	  if inter-operability is a concern, RNDIS is to be preferred.
+
+config USB_ETH_CDC
+	bool "CDC-ECM Protocol"
+	help
+	  CDC (Communications Device Class) is the standard for Ethernet over
+	  USB devices. While there's several alternatives, the most widely used
+	  protocol is ECM (Ethernet Control Model). However, compatibility with
+	  Windows is not that great.
+
+config USB_ETH_RNDIS
+	bool "RNDIS Protocol"
+	help
+	  The RNDIS (Remote Network Driver Interface Specification) is a
+	  Microsoft proprietary protocol to create an Ethernet device over USB.
+	  Windows obviously supports it, as well as all the major operating
+	  systems, so it's the best option for compatibility.
+
+endchoice
+
 config USBNET_DEVADDR
 	string "USB Gadget Ethernet device mac address"
 	default "de:ad:be:ef:00:01"

@@ -283,10 +283,6 @@
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE MUSB_OTG
 
-#ifdef CONFIG_USB_MUSB_GADGET
-#define CONFIG_USB_ETH_RNDIS
-#endif /* CONFIG_USB_MUSB_GADGET */
-
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
 /* disable host part of MUSB in SPL */
 /* disable EFI partitions and partition UUID support */

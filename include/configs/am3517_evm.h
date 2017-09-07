@@ -55,10 +55,6 @@
 
 #endif /* CONFIG_USB_MUSB_HOST */
 
-#ifdef CONFIG_USB_MUSB_GADGET
-#define CONFIG_USB_ETH_RNDIS
-#endif /* CONFIG_USB_MUSB_GADGET */
-
 #endif /* CONFIG_USB_MUSB_AM35X */
 
 /* I2C */
