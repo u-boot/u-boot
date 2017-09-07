@@ -36,6 +36,27 @@ menuconfig USB_GADGET
 
 if USB_GADGET
 
+config USB_GADGET_MANUFACTURER
+	string "Vendor name of the USB device"
+	default "U-Boot"
+	help
+	  Vendor name of the USB device emulated, reported to the host device.
+	  This is usually either the manufacturer of the device or the SoC.
+
+config USB_GADGET_VENDOR_NUM
+	hex "Vendor ID of the USB device"
+	default 0x0
+	help
+	  Vendor ID of the USB device emulated, reported to the host device.
+	  This is usually the board or SoC vendor's, unless you've registered
+	  for one.
+
+config USB_GADGET_PRODUCT_NUM
+	hex "Product ID of the USB device"
+	default 0x0
+	help
+	  Product ID of the USB device emulated, reported to the host device.
+
 config USB_GADGET_ATMEL_USBA
 	bool "Atmel USBA"
 	select USB_GADGET_DUALSPEED
@@ -109,15 +130,6 @@ config USB_FUNCTION_SDP
 	  Enable Serial Download Protocol (SDP) device support in U-Boot. This
 	  allows to download images into memory and execute (jump to) them
 	  using the same protocol as implemented by the i.MX family's boot ROM.
-
-config G_DNL_MANUFACTURER
-	string "Vendor name of USB device"
-
-config G_DNL_VENDOR_NUM
-	hex "Vendor ID of USB device"
-
-config G_DNL_PRODUCT_NUM
-	hex "Product ID of USB device"
 
 endif # USB_GADGET_DOWNLOAD
 

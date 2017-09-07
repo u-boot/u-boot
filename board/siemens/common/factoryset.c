@@ -145,8 +145,8 @@ int factoryset_read_eeprom(int i2c_addr)
 	unsigned char *cp, *cp1;
 
 #if defined(CONFIG_USB_FUNCTION_DFU)
-	factory_dat.usb_vendor_id = CONFIG_G_DNL_VENDOR_NUM;
-	factory_dat.usb_product_id = CONFIG_G_DNL_PRODUCT_NUM;
+	factory_dat.usb_vendor_id = CONFIG_USB_GADGET_VENDOR_NUM;
+	factory_dat.usb_product_id = CONFIG_USB_GADGET_PRODUCT_NUM;
 #endif
 	if (i2c_probe(i2c_addr))
 		goto err;
