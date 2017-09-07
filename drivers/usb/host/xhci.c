@@ -1228,6 +1228,20 @@ static int xhci_update_hub_device(struct udevice *dev, struct usb_device *udev)
 	return xhci_configure_endpoints(udev, false);
 }
 
+static int xhci_get_max_xfer_size(struct udevice *dev, size_t *size)
+{
+	/*
+	 * xHCD allocates one segment which includes 64 TRBs for each endpoint
+	 * and the last TRB in this segment is configured as a link TRB to form
+	 * a TRB ring. Each TRB can transfer up to 64K bytes, however data
+	 * buffers referenced by transfer TRBs shall not span 64KB boundaries.
+	 * Hence the maximum number of TRBs we can use in one transfer is 62.
+	 */
+	*size = (TRBS_PER_SEGMENT - 2) * TRB_MAX_BUFF_SIZE;
+
+	return 0;
+}
+
 int xhci_register(struct udevice *dev, struct xhci_hccr *hccr,
 		  struct xhci_hcor *hcor)
 {
@@ -1281,6 +1295,7 @@ struct dm_usb_ops xhci_usb_ops = {
 	.interrupt = xhci_submit_int_msg,
 	.alloc_device = xhci_alloc_device,
 	.update_hub_device = xhci_update_hub_device,
+	.get_max_xfer_size  = xhci_get_max_xfer_size,
 };
 
 #endif
