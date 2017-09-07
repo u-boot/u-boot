@@ -3,11 +3,16 @@ comment "FASTBOOT"
 menuconfig FASTBOOT
 	bool "Fastboot support"
 	depends on USB_GADGET
+	default y if ARCH_SUNXI && USB_MUSB_GADGET
 
 if FASTBOOT
 
 config USB_FUNCTION_FASTBOOT
 	bool "Enable USB fastboot gadget"
+	default y
+	select USB_GADGET_DOWNLOAD
+	imply ANDROID_BOOT_IMAGE
+	imply CMD_FASTBOOT
 	help
 	  This enables the USB part of the fastboot gadget.
 
