@@ -67,7 +67,6 @@
 #endif
 
 /* USB device */
-#define CONFIG_USBNET_MANUFACTURER      "L+G VInCo"
 
 /* Ethernet Hardware */
 #define CONFIG_PHY_SMSC
