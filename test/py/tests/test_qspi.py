@@ -246,6 +246,7 @@ def qspi_boot_images(u_boot_console):
 
 @pytest.mark.buildconfigspec("cmd_bdi")
 @pytest.mark.buildconfigspec("cmd_sf")
+@pytest.mark.buildconfigspec("cmd_ximg")
 def test_qspi_boot_images(u_boot_console):
     qspi_find_freq_range(u_boot_console)
     i = 0
