@@ -1087,6 +1087,7 @@ config ARCH_ROCKCHIP
 	imply FASTBOOT
 	imply FAT_WRITE
 	imply USB_FUNCTION_FASTBOOT
+	imply SPL_SYSRESET
 
 config TARGET_THUNDERX_88XX
 	bool "Support ThunderX 88xx"
