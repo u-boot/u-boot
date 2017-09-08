@@ -396,9 +396,6 @@ ENTRY(__asm_flush_l3_dcache)
 	mov	x29, lr
 	mov	x8, #0
 
-	switch_el x0, 1f, 100f, 100f	/* skip if not in EL3 */
-
-1:
 	dsb	sy
 	mov	x0, #0x1		/* HNFPSTAT_SFONLY */
 	bl	hnf_set_pstate
@@ -416,7 +413,6 @@ ENTRY(__asm_flush_l3_dcache)
 	bl	hnf_pstate_poll
 	cbz	x0, 1f
 	add	x8, x8, #0x2
-100:
 1:
 	mov	x0, x8
 	mov	lr, x29
