@@ -72,6 +72,10 @@ def test_net_tftpboot_boot_config2(u_boot_console):
     if not addr:
       addr = u_boot_utils.find_ram_base(u_boot_console)
 
+    response = u_boot_console.run_command('imi %x' % addr)
+    if not "config@2" in response:
+	pytest.skip("Second configuration not found");
+
     timeout = 50000
     with u_boot_console.temporary_timeout(timeout):
 	try:
