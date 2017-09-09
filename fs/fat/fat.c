@@ -14,6 +14,7 @@
 #include <config.h>
 #include <exports.h>
 #include <fat.h>
+#include <fs.h>
 #include <asm/byteorder.h>
 #include <part.h>
 #include <malloc.h>
@@ -1144,6 +1145,66 @@ int fat_read_file(const char *filename, void *buf, loff_t offset, loff_t len,
 		printf("** Unable to read file %s **\n", filename);
 
 	return ret;
+}
+
+typedef struct {
+	struct fs_dir_stream parent;
+	struct fs_dirent dirent;
+	fsdata fsdata;
+	fat_itr itr;
+} fat_dir;
+
+int fat_opendir(const char *filename, struct fs_dir_stream **dirsp)
+{
+	fat_dir *dir = malloc(sizeof(*dir));
+	int ret;
+
+	if (!dir)
+		return -ENOMEM;
+
+	ret = fat_itr_root(&dir->itr, &dir->fsdata);
+	if (ret)
+		goto fail;
+
+	ret = fat_itr_resolve(&dir->itr, filename, TYPE_DIR);
+	if (ret)
+		goto fail;
+
+	*dirsp = (struct fs_dir_stream *)dir;
+	return 0;
+
+fail:
+	free(dir);
+	return ret;
+}
+
+int fat_readdir(struct fs_dir_stream *dirs, struct fs_dirent **dentp)
+{
+	fat_dir *dir = (fat_dir *)dirs;
+	struct fs_dirent *dent = &dir->dirent;
+
+	if (!fat_itr_next(&dir->itr))
+		return -ENOENT;
+
+	memset(dent, 0, sizeof(*dent));
+	strcpy(dent->name, dir->itr.name);
+
+	if (fat_itr_isdir(&dir->itr)) {
+		dent->type = FS_DT_DIR;
+	} else {
+		dent->type = FS_DT_REG;
+		dent->size = FAT2CPU32(dir->itr.dent->size);
+	}
+
+	*dentp = dent;
+
+	return 0;
+}
+
+void fat_closedir(struct fs_dir_stream *dirs)
+{
+	fat_dir *dir = (fat_dir *)dirs;
+	free(dir);
 }
 
 void fat_close(void)
