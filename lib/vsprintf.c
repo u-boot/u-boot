@@ -18,6 +18,7 @@
 
 #include <common.h>
 #include <charset.h>
+#include <uuid.h>
 
 #include <div64.h>
 #define noinline __attribute__((noinline))
@@ -366,6 +367,40 @@ static char *ip4_addr_string(char *buf, char *end, u8 *addr, int field_width,
 }
 #endif
 
+#ifdef CONFIG_LIB_UUID
+/*
+ * This works (roughly) the same way as linux's, but we currently always
+ * print lower-case (ie. we just keep %pUB and %pUL for compat with linux),
+ * mostly just because that is what uuid_bin_to_str() supports.
+ *
+ *   %pUb:   01020304-0506-0708-090a-0b0c0d0e0f10
+ *   %pUl:   04030201-0605-0807-090a-0b0c0d0e0f10
+ */
+static char *uuid_string(char *buf, char *end, u8 *addr, int field_width,
+			 int precision, int flags, const char *fmt)
+{
+	char uuid[UUID_STR_LEN + 1];
+	int str_format = UUID_STR_FORMAT_STD;
+
+	switch (*(++fmt)) {
+	case 'L':
+	case 'l':
+		str_format = UUID_STR_FORMAT_GUID;
+		break;
+	case 'B':
+	case 'b':
+		/* this is the default */
+		break;
+	default:
+		break;
+	}
+
+	uuid_bin_to_str(addr, uuid, str_format);
+
+	return string(buf, end, uuid, field_width, precision, flags);
+}
+#endif
+
 /*
  * Show a '%p' thing.  A kernel extension is that the '%p' is followed
  * by an extra set of alphanumeric characters that are extended format
@@ -399,8 +434,8 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 			      flags);
 #endif
 
-#ifdef CONFIG_CMD_NET
 	switch (*fmt) {
+#ifdef CONFIG_CMD_NET
 	case 'a':
 		flags |= SPECIAL | ZEROPAD;
 
@@ -430,8 +465,15 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 					       precision, flags);
 		flags &= ~SPECIAL;
 		break;
-	}
 #endif
+#ifdef CONFIG_LIB_UUID
+	case 'U':
+		return uuid_string(buf, end, ptr, field_width, precision,
+				   flags, fmt);
+#endif
+	default:
+		break;
+	}
 	flags |= SMALL;
 	if (field_width == -1) {
 		field_width = 2*sizeof(void *);
