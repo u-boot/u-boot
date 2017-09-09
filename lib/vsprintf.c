@@ -17,6 +17,7 @@
 #include <linux/ctype.h>
 
 #include <common.h>
+#include <charset.h>
 
 #include <div64.h>
 #define noinline __attribute__((noinline))
@@ -266,6 +267,26 @@ static char *string(char *buf, char *end, char *s, int field_width,
 	for (i = 0; i < len; ++i)
 		ADDCH(buf, *s++);
 	while (len < field_width--)
+		ADDCH(buf, ' ');
+	return buf;
+}
+
+static char *string16(char *buf, char *end, u16 *s, int field_width,
+		int precision, int flags)
+{
+	u16 *str = s ? s : L"<NULL>";
+	int utf16_len = utf16_strnlen(str, precision);
+	u8 utf8[utf16_len * MAX_UTF8_PER_UTF16];
+	int utf8_len, i;
+
+	utf8_len = utf16_to_utf8(utf8, str, utf16_len) - utf8;
+
+	if (!(flags & LEFT))
+		while (utf8_len < field_width--)
+			ADDCH(buf, ' ');
+	for (i = 0; i < utf8_len; ++i)
+		ADDCH(buf, utf8[i]);
+	while (utf8_len < field_width--)
 		ADDCH(buf, ' ');
 	return buf;
 }
@@ -528,8 +549,13 @@ repeat:
 			continue;
 
 		case 's':
-			str = string(str, end, va_arg(args, char *),
-				     field_width, precision, flags);
+			if (qualifier == 'l' && !IS_ENABLED(CONFIG_SPL_BUILD)) {
+				str = string16(str, end, va_arg(args, u16 *),
+					       field_width, precision, flags);
+			} else {
+				str = string(str, end, va_arg(args, char *),
+					     field_width, precision, flags);
+			}
 			continue;
 
 		case 'p':
