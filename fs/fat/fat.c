@@ -257,8 +257,7 @@ get_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer, unsigned long size)
 	int ret;
 
 	if (clustnum > 0) {
-		startsect = mydata->data_begin +
-				clustnum * mydata->clust_size;
+		startsect = clust_to_sect(mydata, clustnum);
 	} else {
 		startsect = mydata->rootdir_sect;
 	}
@@ -594,9 +593,8 @@ static int get_fs_info(fsdata *mydata)
 		mydata->data_begin = mydata->rootdir_sect +
 					mydata->rootdir_size -
 					(mydata->clust_size * 2);
-		mydata->root_cluster = (mydata->rootdir_sect -
-					mydata->data_begin) /
-					mydata->clust_size;
+		mydata->root_cluster =
+			sect_to_clust(mydata, mydata->rootdir_sect);
 	}
 
 	mydata->fatbufnum = -1;

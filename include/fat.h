@@ -177,10 +177,14 @@ typedef struct {
 	__u32	root_cluster;	/* First cluster of root dir for FAT32 */
 } fsdata;
 
-/* TODO clean up places that are open-coding this: */
 static inline u32 clust_to_sect(fsdata *fsdata, u32 clust)
 {
 	return fsdata->data_begin + clust * fsdata->clust_size;
+}
+
+static inline u32 sect_to_clust(fsdata *fsdata, u32 sect)
+{
+	return (sect - fsdata->data_begin) / fsdata->clust_size;
 }
 
 int file_fat_detectfs(void);
