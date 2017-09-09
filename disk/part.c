@@ -331,6 +331,24 @@ int part_get_info(struct blk_desc *dev_desc, int part,
 	return -1;
 }
 
+int part_get_info_whole_disk(struct blk_desc *dev_desc, disk_partition_t *info)
+{
+	info->start = 0;
+	info->size = dev_desc->lba;
+	info->blksz = dev_desc->blksz;
+	info->bootable = 0;
+	strcpy((char *)info->type, BOOT_PART_TYPE);
+	strcpy((char *)info->name, "Whole Disk");
+#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
+	info->uuid[0] = 0;
+#endif
+#ifdef CONFIG_PARTITION_TYPE_GUID
+	info->type_guid[0] = 0;
+#endif
+
+	return 0;
+}
+
 int blk_get_device_by_str(const char *ifname, const char *dev_hwpart_str,
 			  struct blk_desc **dev_desc)
 {
@@ -523,18 +541,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 
 		(*dev_desc)->log2blksz = LOG2((*dev_desc)->blksz);
 
-		info->start = 0;
-		info->size = (*dev_desc)->lba;
-		info->blksz = (*dev_desc)->blksz;
-		info->bootable = 0;
-		strcpy((char *)info->type, BOOT_PART_TYPE);
-		strcpy((char *)info->name, "Whole Disk");
-#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
-		info->uuid[0] = 0;
-#endif
-#ifdef CONFIG_PARTITION_TYPE_GUID
-		info->type_guid[0] = 0;
-#endif
+		part_get_info_whole_disk(*dev_desc, info);
 
 		ret = 0;
 		goto cleanup;

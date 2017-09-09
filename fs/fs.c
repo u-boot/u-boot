@@ -21,6 +21,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct blk_desc *fs_dev_desc;
+static int fs_dev_part;
 static disk_partition_t fs_partition;
 static int fs_type = FS_TYPE_ANY;
 
@@ -69,6 +70,12 @@ static inline int fs_uuid_unsupported(char *uuid_str)
 	return -1;
 }
 
+static inline int fs_opendir_unsupported(const char *filename,
+					 struct fs_dir_stream **dirs)
+{
+	return -EACCES;
+}
+
 struct fstype_info {
 	int fstype;
 	char *name;
@@ -92,6 +99,20 @@ struct fstype_info {
 		     loff_t len, loff_t *actwrite);
 	void (*close)(void);
 	int (*uuid)(char *uuid_str);
+	/*
+	 * Open a directory stream.  On success return 0 and directory
+	 * stream pointer via 'dirsp'.  On error, return -errno.  See
+	 * fs_opendir().
+	 */
+	int (*opendir)(const char *filename, struct fs_dir_stream **dirsp);
+	/*
+	 * Read next entry from directory stream.  On success return 0
+	 * and directory entry pointer via 'dentp'.  On error return
+	 * -errno.  See fs_readdir().
+	 */
+	int (*readdir)(struct fs_dir_stream *dirs, struct fs_dirent **dentp);
+	/* see fs_closedir() */
+	void (*closedir)(struct fs_dir_stream *dirs);
 };
 
 static struct fstype_info fstypes[] = {
@@ -112,6 +133,7 @@ static struct fstype_info fstypes[] = {
 		.write = fs_write_unsupported,
 #endif
 		.uuid = fs_uuid_unsupported,
+		.opendir = fs_opendir_unsupported,
 	},
 #endif
 #ifdef CONFIG_FS_EXT4
@@ -131,6 +153,7 @@ static struct fstype_info fstypes[] = {
 		.write = fs_write_unsupported,
 #endif
 		.uuid = ext4fs_uuid,
+		.opendir = fs_opendir_unsupported,
 	},
 #endif
 #ifdef CONFIG_SANDBOX
@@ -146,6 +169,7 @@ static struct fstype_info fstypes[] = {
 		.read = fs_read_sandbox,
 		.write = fs_write_sandbox,
 		.uuid = fs_uuid_unsupported,
+		.opendir = fs_opendir_unsupported,
 	},
 #endif
 #ifdef CONFIG_CMD_UBIFS
@@ -161,6 +185,7 @@ static struct fstype_info fstypes[] = {
 		.read = ubifs_read,
 		.write = fs_write_unsupported,
 		.uuid = fs_uuid_unsupported,
+		.opendir = fs_opendir_unsupported,
 	},
 #endif
 	{
@@ -175,6 +200,7 @@ static struct fstype_info fstypes[] = {
 		.read = fs_read_unsupported,
 		.write = fs_write_unsupported,
 		.uuid = fs_uuid_unsupported,
+		.opendir = fs_opendir_unsupported,
 	},
 };
 
@@ -226,6 +252,31 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype)
 		if (!fs_dev_desc && !info->null_dev_desc_ok)
 			continue;
 
+		if (!info->probe(fs_dev_desc, &fs_partition)) {
+			fs_type = info->fstype;
+			fs_dev_part = part;
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
+/* set current blk device w/ blk_desc + partition # */
+int fs_set_blk_dev_with_part(struct blk_desc *desc, int part)
+{
+	struct fstype_info *info;
+	int ret, i;
+
+	if (part >= 1)
+		ret = part_get_info(desc, part, &fs_partition);
+	else
+		ret = part_get_info_whole_disk(desc, &fs_partition);
+	if (ret)
+		return ret;
+	fs_dev_desc = desc;
+
+	for (i = 0, info = fstypes; i < ARRAY_SIZE(fstypes); i++, info++) {
 		if (!info->probe(fs_dev_desc, &fs_partition)) {
 			fs_type = info->fstype;
 			return 0;
@@ -333,6 +384,59 @@ int fs_write(const char *filename, ulong addr, loff_t offset, loff_t len,
 
 	return ret;
 }
+
+struct fs_dir_stream *fs_opendir(const char *filename)
+{
+	struct fstype_info *info = fs_get_info(fs_type);
+	struct fs_dir_stream *dirs = NULL;
+	int ret;
+
+	ret = info->opendir(filename, &dirs);
+	fs_close();
+	if (ret) {
+		errno = -ret;
+		return NULL;
+	}
+
+	dirs->desc = fs_dev_desc;
+	dirs->part = fs_dev_part;
+
+	return dirs;
+}
+
+struct fs_dirent *fs_readdir(struct fs_dir_stream *dirs)
+{
+	struct fstype_info *info;
+	struct fs_dirent *dirent;
+	int ret;
+
+	fs_set_blk_dev_with_part(dirs->desc, dirs->part);
+	info = fs_get_info(fs_type);
+
+	ret = info->readdir(dirs, &dirent);
+	fs_close();
+	if (ret) {
+		errno = -ret;
+		return NULL;
+	}
+
+	return dirent;
+}
+
+void fs_closedir(struct fs_dir_stream *dirs)
+{
+	struct fstype_info *info;
+
+	if (!dirs)
+		return;
+
+	fs_set_blk_dev_with_part(dirs->desc, dirs->part);
+	info = fs_get_info(fs_type);
+
+	info->closedir(dirs);
+	fs_close();
+}
+
 
 int do_size(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		int fstype)
