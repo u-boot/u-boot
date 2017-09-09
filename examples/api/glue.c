@@ -416,3 +416,15 @@ void ub_display_clear(void)
 {
 	syscall(API_DISPLAY_CLEAR, NULL);
 }
+
+__weak void *memcpy(void *dest, const void *src, size_t size)
+{
+	unsigned char *dptr = dest;
+	const unsigned char *ptr = src;
+	const unsigned char *end = src + size;
+
+	while (ptr < end)
+		*dptr++ = *ptr++;
+
+	return dest;
+}
