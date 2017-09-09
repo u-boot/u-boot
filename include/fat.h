@@ -178,25 +178,6 @@ static inline u32 clust_to_sect(fsdata *fsdata, u32 clust)
 	return fsdata->data_begin + clust * fsdata->clust_size;
 }
 
-typedef int	(file_detectfs_func)(void);
-typedef int	(file_ls_func)(const char *dir);
-typedef int	(file_read_func)(const char *filename, void *buffer,
-				 int maxsize);
-
-struct filesystem {
-	file_detectfs_func	*detect;
-	file_ls_func		*ls;
-	file_read_func		*read;
-	const char		name[12];
-};
-
-/* FAT tables */
-file_detectfs_func	file_fat_detectfs;
-file_ls_func		file_fat_ls;
-file_read_func		file_fat_read;
-
-/* Currently this doesn't check if the dir exists or is valid... */
-int file_cd(const char *path);
 int file_fat_detectfs(void);
 int file_fat_ls(const char *dir);
 int fat_exists(const char *filename);
@@ -204,7 +185,6 @@ int fat_size(const char *filename, loff_t *size);
 int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
 		     loff_t maxsize, loff_t *actread);
 int file_fat_read(const char *filename, void *buffer, int maxsize);
-const char *file_getfsname(int idx);
 int fat_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info);
 int fat_register_device(struct blk_desc *dev_desc, int part_no);
 
