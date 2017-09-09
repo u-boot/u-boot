@@ -175,7 +175,14 @@ typedef struct {
 	int	data_begin;	/* The sector of the first cluster, can be negative */
 	int	fatbufnum;	/* Used by get_fatent, init to -1 */
 	int	rootdir_size;	/* Size of root dir for non-FAT32 */
+	__u32	root_cluster;	/* First cluster of root dir for FAT32 */
 } fsdata;
+
+/* TODO clean up places that are open-coding this: */
+static inline u32 clust_to_sect(fsdata *fsdata, u32 clust)
+{
+	return fsdata->data_begin + clust * fsdata->clust_size;
+}
 
 typedef int	(file_detectfs_func)(void);
 typedef int	(file_ls_func)(const char *dir);

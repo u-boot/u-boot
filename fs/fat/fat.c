@@ -812,7 +812,6 @@ static int get_fs_info(fsdata *mydata)
 {
 	boot_sector bs;
 	volume_info volinfo;
-	__u32 root_cluster = 0;
 	int ret;
 
 	ret = read_bootsectandvi(&bs, &volinfo, &mydata->fatsize);
@@ -822,7 +821,6 @@ static int get_fs_info(fsdata *mydata)
 	}
 
 	if (mydata->fatsize == 32) {
-		root_cluster = bs.root_cluster;
 		mydata->fatlength = bs.fat32_length;
 	} else {
 		mydata->fatlength = bs.fat_length;
@@ -843,6 +841,7 @@ static int get_fs_info(fsdata *mydata)
 	if (mydata->fatsize == 32) {
 		mydata->data_begin = mydata->rootdir_sect -
 					(mydata->clust_size * 2);
+		mydata->root_cluster = bs.root_cluster;
 	} else {
 		mydata->rootdir_size = ((bs.dir_entries[1]  * (int)256 +
 					 bs.dir_entries[0]) *
@@ -851,6 +850,9 @@ static int get_fs_info(fsdata *mydata)
 		mydata->data_begin = mydata->rootdir_sect +
 					mydata->rootdir_size -
 					(mydata->clust_size * 2);
+		mydata->root_cluster = (mydata->rootdir_sect -
+					mydata->data_begin) /
+					mydata->clust_size;
 	}
 
 	mydata->fatbufnum = -1;
@@ -868,7 +870,7 @@ static int get_fs_info(fsdata *mydata)
 	       mydata->fatsize, mydata->fat_sect, mydata->fatlength);
 	debug("Rootdir begins at cluster: %d, sector: %d, offset: %x\n"
 	       "Data begins at: %d\n",
-	       root_cluster,
+	       mydata->root_cluster,
 	       mydata->rootdir_sect,
 	       mydata->rootdir_sect * mydata->sect_size, mydata->data_begin);
 	debug("Sector size: %d, cluster size: %d\n", mydata->sect_size,
@@ -1243,6 +1245,354 @@ rootdir_done:
 exit:
 	free(mydata->fatbuf);
 	return ret;
+}
+
+
+/*
+ * Directory iterator, to simplify filesystem traversal
+ *
+ * Implements an iterator pattern to traverse directory tables,
+ * transparently handling directory tables split across multiple
+ * clusters, and the difference between FAT12/FAT16 root directory
+ * (contiguous) and subdirectories + FAT32 root (chained).
+ *
+ * Rough usage:
+ *
+ *   for (fat_itr_root(&itr, fsdata); fat_itr_next(&itr); ) {
+ *      // to traverse down to a subdirectory pointed to by
+ *      // current iterator position:
+ *      fat_itr_child(&itr, &itr);
+ *   }
+ *
+ * For more complete example, see fat_itr_resolve()
+ */
+
+typedef struct {
+	fsdata    *fsdata;        /* filesystem parameters */
+	unsigned   clust;         /* current cluster */
+	int        last_cluster;  /* set once we've read last cluster */
+	int        is_root;       /* is iterator at root directory */
+	int        remaining;     /* remaining dent's in current cluster */
+
+	/* current iterator position values: */
+	dir_entry *dent;          /* current directory entry */
+	char       l_name[VFAT_MAXLEN_BYTES];    /* long (vfat) name */
+	char       s_name[14];    /* short 8.3 name */
+	char      *name;          /* l_name if there is one, else s_name */
+
+	/* storage for current cluster in memory: */
+	u8         block[MAX_CLUSTSIZE] __aligned(ARCH_DMA_MINALIGN);
+} fat_itr;
+
+static int fat_itr_isdir(fat_itr *itr);
+
+/**
+ * fat_itr_root() - initialize an iterator to start at the root
+ * directory
+ *
+ * @itr: iterator to initialize
+ * @fsdata: filesystem data for the partition
+ * @return 0 on success, else -errno
+ */
+static int fat_itr_root(fat_itr *itr, fsdata *fsdata)
+{
+	if (get_fs_info(fsdata))
+		return -ENXIO;
+
+	itr->fsdata = fsdata;
+	itr->clust = fsdata->root_cluster;
+	itr->dent = NULL;
+	itr->remaining = 0;
+	itr->last_cluster = 0;
+	itr->is_root = 1;
+
+	return 0;
+}
+
+/**
+ * fat_itr_child() - initialize an iterator to descend into a sub-
+ * directory
+ *
+ * Initializes 'itr' to iterate the contents of the directory at
+ * the current cursor position of 'parent'.  It is an error to
+ * call this if the current cursor of 'parent' is pointing at a
+ * regular file.
+ *
+ * Note that 'itr' and 'parent' can be the same pointer if you do
+ * not need to preserve 'parent' after this call, which is useful
+ * for traversing directory structure to resolve a file/directory.
+ *
+ * @itr: iterator to initialize
+ * @parent: the iterator pointing at a directory entry in the
+ *    parent directory of the directory to iterate
+ */
+static void fat_itr_child(fat_itr *itr, fat_itr *parent)
+{
+	fsdata *mydata = parent->fsdata;  /* for silly macros */
+	unsigned clustnum = START(parent->dent);
+
+	assert(fat_itr_isdir(parent));
+
+	itr->fsdata = parent->fsdata;
+	if (clustnum > 0) {
+		itr->clust = clustnum;
+	} else {
+		itr->clust = parent->fsdata->root_cluster;
+	}
+	itr->dent = NULL;
+	itr->remaining = 0;
+	itr->last_cluster = 0;
+	itr->is_root = 0;
+}
+
+static void *next_cluster(fat_itr *itr)
+{
+	fsdata *mydata = itr->fsdata;  /* for silly macros */
+	int ret;
+	u32 sect;
+
+	/* have we reached the end? */
+	if (itr->last_cluster)
+		return NULL;
+
+	sect = clust_to_sect(itr->fsdata, itr->clust);
+
+	debug("FAT read(sect=%d), clust_size=%d, DIRENTSPERBLOCK=%zd\n",
+	      sect, itr->fsdata->clust_size, DIRENTSPERBLOCK);
+
+	/*
+	 * NOTE: do_fat_read_at() had complicated logic to deal w/
+	 * vfat names that span multiple clusters in the fat16 case,
+	 * which get_dentfromdir() probably also needed (and was
+	 * missing).  And not entirely sure what fat32 didn't have
+	 * the same issue..  We solve that by only caring about one
+	 * dent at a time and iteratively constructing the vfat long
+	 * name.
+	 */
+	ret = disk_read(sect, itr->fsdata->clust_size,
+			itr->block);
+	if (ret < 0) {
+		debug("Error: reading block\n");
+		return NULL;
+	}
+
+	if (itr->is_root && itr->fsdata->fatsize != 32) {
+		itr->clust++;
+		sect = clust_to_sect(itr->fsdata, itr->clust);
+		if (sect - itr->fsdata->rootdir_sect >=
+		    itr->fsdata->rootdir_size) {
+			debug("cursect: 0x%x\n", itr->clust);
+			itr->last_cluster = 1;
+		}
+	} else {
+		itr->clust = get_fatent(itr->fsdata, itr->clust);
+		if (CHECK_CLUST(itr->clust, itr->fsdata->fatsize)) {
+			debug("cursect: 0x%x\n", itr->clust);
+			itr->last_cluster = 1;
+		}
+	}
+
+	return itr->block;
+}
+
+static dir_entry *next_dent(fat_itr *itr)
+{
+	if (itr->remaining == 0) {
+		struct dir_entry *dent = next_cluster(itr);
+		unsigned nbytes = itr->fsdata->sect_size *
+			itr->fsdata->clust_size;
+
+		/* have we reached the last cluster? */
+		if (!dent)
+			return NULL;
+
+		itr->remaining = nbytes / sizeof(dir_entry) - 1;
+		itr->dent = dent;
+	} else {
+		itr->remaining--;
+		itr->dent++;
+	}
+
+	/* have we reached the last valid entry? */
+	if (itr->dent->name[0] == 0)
+		return NULL;
+
+	return itr->dent;
+}
+
+static dir_entry *extract_vfat_name(fat_itr *itr)
+{
+	struct dir_entry *dent = itr->dent;
+	int seqn = itr->dent->name[0] & ~LAST_LONG_ENTRY_MASK;
+	u8 chksum, alias_checksum = ((dir_slot *)dent)->alias_checksum;
+	int n = 0;
+
+	while (seqn--) {
+		char buf[13];
+		int idx = 0;
+
+		slot2str((dir_slot *)dent, buf, &idx);
+
+		/* shift accumulated long-name up and copy new part in: */
+		memmove(itr->l_name + idx, itr->l_name, n);
+		memcpy(itr->l_name, buf, idx);
+		n += idx;
+
+		dent = next_dent(itr);
+		if (!dent)
+			return NULL;
+	}
+
+	itr->l_name[n] = '\0';
+
+	chksum = mkcksum(dent->name, dent->ext);
+
+	/* checksum mismatch could mean deleted file, etc.. skip it: */
+	if (chksum != alias_checksum) {
+		debug("** chksum=%x, alias_checksum=%x, l_name=%s, s_name=%8s.%3s\n",
+		      chksum, alias_checksum, itr->l_name, dent->name, dent->ext);
+		return NULL;
+	}
+
+	return dent;
+}
+
+/**
+ * fat_itr_next() - step to the next entry in a directory
+ *
+ * Must be called once on a new iterator before the cursor is valid.
+ *
+ * @itr: the iterator to iterate
+ * @return boolean, 1 if success or 0 if no more entries in the
+ *    current directory
+ */
+static int fat_itr_next(fat_itr *itr)
+{
+	dir_entry *dent;
+
+	itr->name = NULL;
+
+	while (1) {
+		dent = next_dent(itr);
+		if (!dent)
+			return 0;
+
+		if (dent->name[0] == DELETED_FLAG ||
+		    dent->name[0] == aRING)
+			continue;
+
+		if (dent->attr & ATTR_VOLUME) {
+			if (vfat_enabled &&
+			    (dent->attr & ATTR_VFAT) == ATTR_VFAT &&
+			    (dent->name[0] & LAST_LONG_ENTRY_MASK)) {
+				dent = extract_vfat_name(itr);
+				if (!dent)
+					continue;
+				itr->name = itr->l_name;
+				break;
+			} else {
+				/* Volume label or VFAT entry, skip */
+				continue;
+			}
+		}
+
+		break;
+	}
+
+	get_name(dent, itr->s_name);
+	if (!itr->name)
+		itr->name = itr->s_name;
+
+	return 1;
+}
+
+/**
+ * fat_itr_isdir() - is current cursor position pointing to a directory
+ *
+ * @itr: the iterator
+ * @return true if cursor is at a directory
+ */
+static int fat_itr_isdir(fat_itr *itr)
+{
+	return !!(itr->dent->attr & ATTR_DIR);
+}
+
+/*
+ * Helpers:
+ */
+
+#define TYPE_FILE 0x1
+#define TYPE_DIR  0x2
+#define TYPE_ANY  (TYPE_FILE | TYPE_DIR)
+
+/**
+ * fat_itr_resolve() - traverse directory structure to resolve the
+ * requested path.
+ *
+ * Traverse directory structure to the requested path.  If the specified
+ * path is to a directory, this will descend into the directory and
+ * leave it iterator at the start of the directory.  If the path is to a
+ * file, it will leave the iterator in the parent directory with current
+ * cursor at file's entry in the directory.
+ *
+ * @itr: iterator initialized to root
+ * @path: the requested path
+ * @type: bitmask of allowable file types
+ * @return 0 on success or -errno
+ */
+static int fat_itr_resolve(fat_itr *itr, const char *path, unsigned type)
+{
+	const char *next;
+
+	/* chomp any extra leading slashes: */
+	while (path[0] && ISDIRDELIM(path[0]))
+		path++;
+
+	/* are we at the end? */
+	if (strlen(path) == 0) {
+		if (!(type & TYPE_DIR))
+			return -ENOENT;
+		return 0;
+	}
+
+	/* find length of next path entry: */
+	next = path;
+	while (next[0] && !ISDIRDELIM(next[0]))
+		next++;
+
+	while (fat_itr_next(itr)) {
+		int match = 0;
+		unsigned n = max(strlen(itr->name), (size_t)(next - path));
+
+		/* check both long and short name: */
+		if (!strncasecmp(path, itr->name, n))
+			match = 1;
+		else if (itr->name != itr->s_name &&
+			 !strncasecmp(path, itr->s_name, n))
+			match = 1;
+
+		if (!match)
+			continue;
+
+		if (fat_itr_isdir(itr)) {
+			/* recurse into directory: */
+			fat_itr_child(itr, itr);
+			return fat_itr_resolve(itr, next, type);
+		} else if (next[0]) {
+			/*
+			 * If next is not empty then we have a case
+			 * like: /path/to/realfile/nonsense
+			 */
+			debug("bad trailing path: %s\n", next);
+			return -ENOENT;
+		} else if (!(type & TYPE_FILE)) {
+			return -ENOTDIR;
+		} else {
+			return 0;
+		}
+	}
+
+	return -ENOENT;
 }
 
 int do_fat_read(const char *filename, void *buffer, loff_t maxsize, int dols,
