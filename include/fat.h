@@ -174,6 +174,7 @@ typedef struct {
 	__u16	clust_size;	/* Size of clusters in sectors */
 	int	data_begin;	/* The sector of the first cluster, can be negative */
 	int	fatbufnum;	/* Used by get_fatent, init to -1 */
+	int	rootdir_size;	/* Size of root dir for non-FAT32 */
 } fsdata;
 
 typedef int	(file_detectfs_func)(void);

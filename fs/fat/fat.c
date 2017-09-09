@@ -808,35 +808,17 @@ exit:
 	return ret;
 }
 
-__u8 do_fat_read_at_block[MAX_CLUSTSIZE]
-	__aligned(ARCH_DMA_MINALIGN);
-
-int do_fat_read_at(const char *filename, loff_t pos, void *buffer,
-		   loff_t maxsize, int dols, int dogetsize, loff_t *size)
+static int get_fs_info(fsdata *mydata)
 {
-	char fnamecopy[2048];
 	boot_sector bs;
 	volume_info volinfo;
-	fsdata datablock;
-	fsdata *mydata = &datablock;
-	dir_entry *dentptr = NULL;
-	__u16 prevcksum = 0xffff;
-	char *subname = "";
-	__u32 cursect;
-	int idx, isdir = 0;
-	int files = 0, dirs = 0;
-	int ret = -1;
-	int firsttime;
 	__u32 root_cluster = 0;
-	__u32 read_blk;
-	int rootdir_size = 0;
-	int buffer_blk_cnt;
-	int do_read;
-	__u8 *dir_ptr;
+	int ret;
 
-	if (read_bootsectandvi(&bs, &volinfo, &mydata->fatsize)) {
+	ret = read_bootsectandvi(&bs, &volinfo, &mydata->fatsize);
+	if (ret) {
 		debug("Error: reading boot sector\n");
-		return -1;
+		return ret;
 	}
 
 	if (mydata->fatsize == 32) {
@@ -848,8 +830,7 @@ int do_fat_read_at(const char *filename, loff_t pos, void *buffer,
 
 	mydata->fat_sect = bs.reserved;
 
-	cursect = mydata->rootdir_sect
-		= mydata->fat_sect + mydata->fatlength * bs.fats;
+	mydata->rootdir_sect = mydata->fat_sect + mydata->fatlength * bs.fats;
 
 	mydata->sect_size = (bs.sector_size[1] << 8) + bs.sector_size[0];
 	mydata->clust_size = bs.cluster_size;
@@ -863,12 +844,12 @@ int do_fat_read_at(const char *filename, loff_t pos, void *buffer,
 		mydata->data_begin = mydata->rootdir_sect -
 					(mydata->clust_size * 2);
 	} else {
-		rootdir_size = ((bs.dir_entries[1]  * (int)256 +
-				 bs.dir_entries[0]) *
-				 sizeof(dir_entry)) /
-				 mydata->sect_size;
+		mydata->rootdir_size = ((bs.dir_entries[1]  * (int)256 +
+					 bs.dir_entries[0]) *
+					 sizeof(dir_entry)) /
+					 mydata->sect_size;
 		mydata->data_begin = mydata->rootdir_sect +
-					rootdir_size -
+					mydata->rootdir_size -
 					(mydata->clust_size * 2);
 	}
 
@@ -892,6 +873,38 @@ int do_fat_read_at(const char *filename, loff_t pos, void *buffer,
 	       mydata->rootdir_sect * mydata->sect_size, mydata->data_begin);
 	debug("Sector size: %d, cluster size: %d\n", mydata->sect_size,
 	      mydata->clust_size);
+
+	return 0;
+}
+
+__u8 do_fat_read_at_block[MAX_CLUSTSIZE]
+	__aligned(ARCH_DMA_MINALIGN);
+
+int do_fat_read_at(const char *filename, loff_t pos, void *buffer,
+		   loff_t maxsize, int dols, int dogetsize, loff_t *size)
+{
+	char fnamecopy[2048];
+	fsdata datablock;
+	fsdata *mydata = &datablock;
+	dir_entry *dentptr = NULL;
+	__u16 prevcksum = 0xffff;
+	char *subname = "";
+	__u32 cursect;
+	int idx, isdir = 0;
+	int files = 0, dirs = 0;
+	int ret = -1;
+	int firsttime;
+	__u32 root_cluster = 0;
+	__u32 read_blk;
+	int rootdir_size = 0;
+	int buffer_blk_cnt;
+	int do_read;
+	__u8 *dir_ptr;
+
+	if (get_fs_info(mydata))
+		return -1;
+
+	cursect = mydata->rootdir_sect;
 
 	/* "cwd" is always the root... */
 	while (ISDIRDELIM(*filename))
