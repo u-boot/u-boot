@@ -345,7 +345,7 @@ get_long_file_name(fsdata *mydata, int curclust, __u8 *cluster,
 		*l_name = '\0';
 	else if (*l_name == aRING)
 		*l_name = DELETED_FLAG;
-	downcase(l_name);
+	downcase(l_name, INT_MAX);
 
 	/* Return the real directory entry */
 	*retdent = realdent;
@@ -981,7 +981,7 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 
 	memcpy(l_filename, filename, name_len);
 	l_filename[name_len] = 0; /* terminate the string */
-	downcase(l_filename);
+	downcase(l_filename, INT_MAX);
 
 	startsect = mydata->rootdir_sect;
 	retdent = find_directory_entry(mydata, startsect,

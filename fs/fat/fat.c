@@ -29,11 +29,13 @@ static const int vfat_enabled = 0;
 #endif
 
 /*
- * Convert a string to lowercase.
+ * Convert a string to lowercase.  Converts at most 'len' characters,
+ * 'len' may be larger than the length of 'str' if 'str' is NULL
+ * terminated.
  */
-static void downcase(char *str)
+static void downcase(char *str, size_t len)
 {
-	while (*str != '\0') {
+	while (*str != '\0' && len--) {
 		*str = tolower(*str);
 		str++;
 	}
@@ -131,10 +133,13 @@ static void get_name(dir_entry *dirent, char *s_name)
 	ptr = s_name;
 	while (*ptr && *ptr != ' ')
 		ptr++;
+	if (dirent->lcase & CASE_LOWER_BASE)
+		downcase(s_name, (unsigned)(ptr - s_name));
 	if (dirent->ext[0] && dirent->ext[0] != ' ') {
-		*ptr = '.';
-		ptr++;
+		*ptr++ = '.';
 		memcpy(ptr, dirent->ext, 3);
+		if (dirent->lcase & CASE_LOWER_EXT)
+			downcase(ptr, 3);
 		ptr[3] = '\0';
 		while (*ptr && *ptr != ' ')
 			ptr++;
@@ -144,7 +149,6 @@ static void get_name(dir_entry *dirent, char *s_name)
 		*s_name = '\0';
 	else if (*s_name == aRING)
 		*s_name = DELETED_FLAG;
-	downcase(s_name);
 }
 
 static int flush_dirty_fat_buffer(fsdata *mydata);
