@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <charset.h>
 #include <efi_loader.h>
 
 static bool console_size_queried;
@@ -138,20 +139,8 @@ static efi_status_t EFIAPI efi_cout_reset(
 
 static void print_unicode_in_utf8(u16 c)
 {
-	char utf8[4] = { 0 };
-	char *b = utf8;
-
-	if (c < 0x80) {
-		*(b++) = c;
-	} else if (c < 0x800) {
-		*(b++) = 192 + c / 64;
-		*(b++) = 128 + c % 64;
-	} else {
-		*(b++) = 224 + c / 4096;
-		*(b++) = 128 + c / 64 % 64;
-		*(b++) = 128 + c % 64;
-	}
-
+	char utf8[MAX_UTF8_PER_UTF16] = { 0 };
+	utf16_to_utf8((u8 *)utf8, &c, 1);
 	puts(utf8);
 }
 

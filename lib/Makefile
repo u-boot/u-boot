@@ -18,6 +18,7 @@ obj-$(CONFIG_OF_LIVE) += of_live.o
 obj-$(CONFIG_CMD_DHRYSTONE) += dhry/
 
 obj-$(CONFIG_AES) += aes.o
+obj-y += charset.o
 obj-$(CONFIG_USB_TTY) += circbuf.o
 obj-y += crc7.o
 obj-y += crc8.o
