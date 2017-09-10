@@ -827,12 +827,20 @@ void ide_init(void)
 		ide_ident(&ide_dev_desc[i]);
 		dev_print(&ide_dev_desc[i]);
 
+#ifndef CONFIG_BLK
 		if ((ide_dev_desc[i].lba > 0) && (ide_dev_desc[i].blksz > 0)) {
 			/* initialize partition type */
 			part_init(&ide_dev_desc[i]);
 		}
+#endif
 	}
 	WATCHDOG_RESET();
+
+#ifdef CONFIG_BLK
+	struct udevice *dev;
+
+	uclass_first_device(UCLASS_IDE, &dev);
+#endif
 }
 
 /* We only need to swap data if we are running on a big endian cpu. */
@@ -1147,6 +1155,26 @@ int ide_device_present(int dev)
 #endif
 
 #ifdef CONFIG_BLK
+static int ide_blk_probe(struct udevice *udev)
+{
+	struct blk_desc *desc = dev_get_uclass_platdata(udev);
+
+	/* fill in device vendor/product/rev strings */
+	strncpy(desc->vendor, ide_dev_desc[desc->devnum].vendor,
+		BLK_VEN_SIZE);
+	desc->vendor[BLK_VEN_SIZE] = '\0';
+	strncpy(desc->product, ide_dev_desc[desc->devnum].product,
+		BLK_PRD_SIZE);
+	desc->product[BLK_PRD_SIZE] = '\0';
+	strncpy(desc->revision, ide_dev_desc[desc->devnum].revision,
+		BLK_REV_SIZE);
+	desc->revision[BLK_REV_SIZE] = '\0';
+
+	part_init(desc);
+
+	return 0;
+}
+
 static const struct blk_ops ide_blk_ops = {
 	.read	= ide_read,
 	.write	= ide_write,
@@ -1156,6 +1184,51 @@ U_BOOT_DRIVER(ide_blk) = {
 	.name		= "ide_blk",
 	.id		= UCLASS_BLK,
 	.ops		= &ide_blk_ops,
+	.probe		= ide_blk_probe,
+};
+
+static int ide_probe(struct udevice *udev)
+{
+	struct udevice *blk_dev;
+	char name[20];
+	int blksz;
+	lbaint_t size;
+	int i;
+	int ret;
+
+	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; i++) {
+		if (ide_dev_desc[i].type != DEV_TYPE_UNKNOWN) {
+			sprintf(name, "blk#%d", i);
+
+			blksz = ide_dev_desc[i].blksz;
+			size = blksz * ide_dev_desc[i].lba;
+			ret = blk_create_devicef(udev, "ide_blk", name,
+						 IF_TYPE_IDE, i,
+						 blksz, size, &blk_dev);
+			if (ret)
+				return ret;
+		}
+	}
+
+	return 0;
+}
+
+U_BOOT_DRIVER(ide) = {
+	.name		= "ide",
+	.id		= UCLASS_IDE,
+	.probe		= ide_probe,
+};
+
+struct pci_device_id ide_supported[] = {
+	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_IDE << 8, 0xffff00) },
+	{ }
+};
+
+U_BOOT_PCI_DEVICE(ide, ide_supported);
+
+UCLASS_DRIVER(ide) = {
+	.name		= "ide",
+	.id		= UCLASS_IDE,
 };
 #else
 U_BOOT_LEGACY_BLK(ide) = {
