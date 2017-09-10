@@ -1202,6 +1202,13 @@ static int ide_probe(struct udevice *udev)
 
 			blksz = ide_dev_desc[i].blksz;
 			size = blksz * ide_dev_desc[i].lba;
+
+			/*
+			 * With CDROM, if there is no CD inserted, blksz will
+			 * be zero, don't bother to create IDE block device.
+			 */
+			if (!blksz)
+				continue;
 			ret = blk_create_devicef(udev, "ide_blk", name,
 						 IF_TYPE_IDE, i,
 						 blksz, size, &blk_dev);
