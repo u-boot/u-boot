@@ -337,6 +337,11 @@ $> lodev=`sudo losetup -P -f --show ./disk.raw`
 $> sudo mkfs.vfat -n EFI -v ${lodev}p1
 $> sudo mkfs.ext4 -L ROOT -v ${lodev}p2
 
+or utilize the device described in test/py/make_test_disk.py:
+
+   #!/usr/bin/python
+   import make_test_disk
+   make_test_disk.makeDisk()
 
 Writing Sandbox Drivers
 -----------------------
