@@ -36,6 +36,10 @@ enum if_type {
 	IF_TYPE_COUNT,			/* Number of interface types */
 };
 
+#define BLK_VEN_SIZE		40
+#define BLK_PRD_SIZE		20
+#define BLK_REV_SIZE		8
+
 /*
  * With driver model (CONFIG_BLK) this is uclass platform data, accessible
  * with dev_get_uclass_platdata(dev)
@@ -60,9 +64,9 @@ struct blk_desc {
 	lbaint_t	lba;		/* number of blocks */
 	unsigned long	blksz;		/* block size */
 	int		log2blksz;	/* for convenience: log2(blksz) */
-	char		vendor[40+1];	/* IDE model, SCSI Vendor */
-	char		product[20+1];	/* IDE Serial no, SCSI product */
-	char		revision[8+1];	/* firmware revision */
+	char		vendor[BLK_VEN_SIZE + 1]; /* device vendor string */
+	char		product[BLK_PRD_SIZE + 1]; /* device product number */
+	char		revision[BLK_REV_SIZE + 1]; /* firmware revision */
 #if CONFIG_IS_ENABLED(BLK)
 	/*
 	 * For now we have a few functions which take struct blk_desc as a
