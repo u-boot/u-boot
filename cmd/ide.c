@@ -30,7 +30,7 @@
 #endif
 
 /* Current I/O Device	*/
-static int curr_device = -1;
+static int curr_device;
 
 int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
