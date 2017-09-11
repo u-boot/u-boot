@@ -101,7 +101,9 @@ static int rockchip_clk_ofdata_to_platdata(struct udevice *dev)
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rockchip_timer_priv *priv = dev_get_priv(dev);
 
-	priv->timer = (struct rk_timer *)devfdt_get_addr(dev);
+	priv->timer = dev_read_addr_ptr(dev);
+	if (!priv->timer)
+		return -ENOENT;
 #endif
 
 	return 0;
