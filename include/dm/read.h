@@ -113,6 +113,16 @@ fdt_addr_t dev_read_addr_index(struct udevice *dev, int index);
 fdt_addr_t dev_read_addr(struct udevice *dev);
 
 /**
+ * dev_read_addr_ptr() - Get the reg property of a device
+ *                       as a pointer
+ *
+ * @dev: Device to read from
+ *
+ * @return pointer or NULL if not found
+ */
+void *dev_read_addr_ptr(struct udevice *dev);
+
+/**
  * dev_read_addr_size() - get address and size from a device property
  *
  * This does no address translation. It simply reads an property that contains
@@ -415,6 +425,11 @@ static inline fdt_addr_t dev_read_addr_index(struct udevice *dev, int index)
 static inline fdt_addr_t dev_read_addr(struct udevice *dev)
 {
 	return devfdt_get_addr(dev);
+}
+
+static inline void *dev_read_addr_ptr(struct udevice *dev)
+{
+	return devfdt_get_addr_ptr(dev);
 }
 
 static inline fdt_addr_t dev_read_addr_size(struct udevice *dev,
