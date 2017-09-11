@@ -156,7 +156,6 @@
 /* Framebuffer and LCD */
 #define CONFIG_VIDEO_IPUV3
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_IPUV3_CLK          260000000
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 #define CONFIG_VIDEO_BMP_LOGO

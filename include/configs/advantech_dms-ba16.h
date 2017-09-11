@@ -253,7 +253,6 @@
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
-#define CONFIG_IPUV3_CLK                260000000
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 #endif

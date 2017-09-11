@@ -19,6 +19,7 @@
 #include <linux/errno.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/arch/sys_proto.h>
 #include <div64.h>
 #include "ipu.h"
 #include "ipu_regs.h"
@@ -80,6 +81,11 @@ struct ipu_ch_param {
 })
 
 #define IPU_SW_RST_TOUT_USEC	(10000)
+
+#define IPUV3_CLK_MX51		133000000
+#define IPUV3_CLK_MX53		200000000
+#define IPUV3_CLK_MX6Q		264000000
+#define IPUV3_CLK_MX6DL		198000000
 
 void clk_enable(struct clk *clk)
 {
@@ -196,7 +202,6 @@ static void clk_ipu_disable(struct clk *clk)
 
 static struct clk ipu_clk = {
 	.name = "ipu_clk",
-	.rate = CONFIG_IPUV3_CLK,
 #if defined(CONFIG_MX51) || defined(CONFIG_MX53)
 	.enable_reg = (u32 *)(CCM_BASE_ADDR +
 		offsetof(struct mxc_ccm_reg, CCGR5)),
@@ -476,6 +481,13 @@ int ipu_probe(void)
 	g_pixel_clk[1] = &pixel_clk[1];
 
 	g_ipu_clk = &ipu_clk;
+#if defined(CONFIG_MX51)
+	g_ipu_clk->rate = IPUV3_CLK_MX51;
+#elif defined(CONFIG_MX53)
+	g_ipu_clk->rate = IPUV3_CLK_MX53;
+#else
+	g_ipu_clk->rate = is_mx6sdl() ? IPUV3_CLK_MX6DL : IPUV3_CLK_MX6Q;
+#endif
 	debug("ipu_clk = %u\n", clk_get_rate(g_ipu_clk));
 	g_ldb_clk = &ldb_clk;
 	debug("ldb_clk = %u\n", clk_get_rate(g_ldb_clk));
