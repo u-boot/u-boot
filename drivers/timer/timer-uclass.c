@@ -92,6 +92,13 @@ int notrace dm_timer_init(void)
 	if (gd->timer)
 		return 0;
 
+	/*
+	 * Directly access gd->dm_root to suppress error messages, if the
+	 * virtual root driver does not yet exist.
+	 */
+	if (gd->dm_root == NULL)
+		return -EAGAIN;
+
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	/* Check for a chosen timer to be used for tick */
 	node = ofnode_get_chosen_node("tick-timer");
