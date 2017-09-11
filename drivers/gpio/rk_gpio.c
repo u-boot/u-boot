@@ -103,7 +103,6 @@ static int rockchip_gpio_probe(struct udevice *dev)
 	char *end;
 	int ret;
 
-	/* This only supports RK3288 at present */
 	priv->regs = dev_read_addr_ptr(dev);
 	ret = uclass_first_device_err(UCLASS_PINCTRL, &priv->pinctrl);
 	if (ret)
