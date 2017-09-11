@@ -13,6 +13,7 @@
 	chosen {
 		stdout-path = "serial0:115200n8";
 		u-boot,spl-boot-order = &emmc, &sdmmc;
+		tick-timer = "/timer@ff810000";
 	};
 
 };
@@ -88,6 +89,7 @@
 &timer0 {
 	u-boot,dm-pre-reloc;
 	clock-frequency = <24000000>;
+	status = "okay";
 };
 
 
