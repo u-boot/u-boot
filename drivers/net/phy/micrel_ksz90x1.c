@@ -9,11 +9,11 @@
  * (C) Copyright 2017 Adaptrum, Inc.
  * Written by Alexandru Gagniuc <alex.g@adaptrum.com> for Adaptrum, Inc.
  */
+
 #include <config.h>
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-#include <fdtdec.h>
 #include <micrel.h>
 #include <phy.h>
 
@@ -120,8 +120,7 @@ static int ksz90x1_of_config_group(struct phy_device *phydev,
 		return -EOPNOTSUPP;
 
 	for (i = 0; i < ofcfg->grpsz; i++) {
-		val[i] = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
-					 ofcfg->grp[i].name, -1);
+		val[i] = dev_read_u32_default(dev, ofcfg->grp[i].name, ~0);
 		offset = ofcfg->grp[i].off;
 		if (val[i] == -1) {
 			/* Default register value for KSZ9021 */
