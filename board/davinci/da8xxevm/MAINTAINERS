@@ -1,13 +1,7 @@
-DA8XXEVM BOARD
-M:	Nick Thompson <nick.thompson@gefanuc.com>
+DA850_AM18XXEVM BOARD
+M:	Adam Ford <aford173@gmail.com>
 S:	Maintained
 F:	board/davinci/da8xxevm/
-F:	include/configs/da830evm.h
-F:	configs/da830evm_defconfig
-
-DA850_AM18XXEVM BOARD
-M:	Sudhakar Rajashekhara <sudhakar.raj@ti.com>
-S:	Maintained
 F:	include/configs/da850evm.h
 F:	configs/da850_am18xxevm_defconfig
 F:	configs/da850evm_defconfig
