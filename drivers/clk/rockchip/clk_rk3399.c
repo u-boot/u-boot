@@ -990,7 +990,7 @@ static int rk3399_clk_ofdata_to_platdata(struct udevice *dev)
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3399_clk_priv *priv = dev_get_priv(dev);
 
-	priv->cru = (struct rk3399_cru *)devfdt_get_addr(dev);
+	priv->cru = dev_read_addr_ptr(dev);
 #endif
 	return 0;
 }
@@ -1174,7 +1174,7 @@ static int rk3399_pmuclk_ofdata_to_platdata(struct udevice *dev)
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3399_pmuclk_priv *priv = dev_get_priv(dev);
 
-	priv->pmucru = (struct rk3399_pmucru *)devfdt_get_addr(dev);
+	priv->pmucru = dev_read_addr_ptr(dev);
 #endif
 	return 0;
 }
