@@ -89,6 +89,17 @@
 		};
 	};
 
+	usbhub_enable: usbhub_enable {
+		compatible = "regulator-fixed";
+		regulator-name = "usbhub_enable";
+		enable-active-low;
+		gpio = <&gpio4 3 GPIO_ACTIVE_HIGH>;
+		regulator-always-on;
+		regulator-boot-on;
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+
 	vccadc_ref: vccadc-ref {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc1v8_sys";
@@ -514,7 +525,6 @@
 };
 
 &dwc3_typec1 {
-	rockchip,vbus-gpio = <&gpio4 3 GPIO_ACTIVE_LOW>;
 	status = "okay";
 };
 
