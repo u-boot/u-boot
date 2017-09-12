@@ -1045,9 +1045,9 @@ struct xhci_scratchpad {
  * (1K bytes * 8bytes/bit) / (4*32 bits) = 64 segment entries in the table,
  * meaning 64 ring segments.
  * Initial allocated size of the ERST, in number of entries */
-#define	ERST_NUM_SEGS	3
+#define	ERST_NUM_SEGS	1
 /* Initial number of event segment rings allocated */
-#define	ERST_ENTRIES	3
+#define	ERST_ENTRIES	1
 /* Initial allocated size of the ERST, in number of entries */
 #define	ERST_SIZE	64
 /* Poll every 60 seconds */
