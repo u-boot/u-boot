@@ -34,16 +34,6 @@ int bridge_silicon_revision(struct udevice *dev)
 	return bridge_id | stepping;
 }
 
-/*
- * Reserve everything between A segment and 1MB:
- *
- * 0xa0000 - 0xbffff: legacy VGA
- * 0xc0000 - 0xcffff: VGA OPROM (needed by kernel)
- * 0xe0000 - 0xfffff: SeaBIOS, if used, otherwise DMI
- */
-static const int legacy_hole_base_k = 0xa0000 / 1024;
-static const int legacy_hole_size_k = 384;
-
 static int get_pcie_bar(struct udevice *dev, u32 *base, u32 *len)
 {
 	u32 pciexbar_reg;
