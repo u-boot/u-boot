@@ -14,7 +14,6 @@
 #define __CONFIG_H
 
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
-#define CONFIG_EMIF4	/* The chip has EMIF4 controller */
 
 /*
  * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM

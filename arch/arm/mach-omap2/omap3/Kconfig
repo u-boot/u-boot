@@ -150,6 +150,21 @@ config TARGET_SNIPER
 
 endchoice
 
+choice
+	prompt "Memory Controller"
+	default SDRC
+
+config SDRC
+	bool "SDRC controller"
+	help
+	  The default memory controller on most OMAP3 boards is SDRC.
+
+config EMIF4
+	bool "EMIF4 controller"
+	help
+	  Enable this on boards like AM3517 which use EMIF4 controller
+endchoice
+
 config SPL_OMAP3_ID_NAND
 	bool "Support OMAP3-specific ID and MFR function"
 	help

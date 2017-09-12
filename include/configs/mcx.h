@@ -15,8 +15,6 @@
 
 #define CONFIG_MACH_TYPE	MACH_TYPE_MCX
 
-#define CONFIG_EMIF4	/* The chip has EMIF4 controller */
-
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
 

@@ -24,8 +24,6 @@
  */
 #define CONFIG_CM_T3X	/* working with CM-T35 and CM-T3730 */
 
-#define CONFIG_SDRC	/* The chip has SDRC controller */
-
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
 

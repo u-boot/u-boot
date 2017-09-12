@@ -25,8 +25,6 @@
  */
 #define CONFIG_SYS_TEXT_BASE		0x80100000
 
-#define CONFIG_SDRC			/* The chip has SDRC controller */
-
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
 

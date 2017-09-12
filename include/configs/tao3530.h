@@ -17,8 +17,6 @@
  * High Level Configuration Options
  */
 
-#define CONFIG_SDRC			/* Has an SDRC controller */
-
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
 
