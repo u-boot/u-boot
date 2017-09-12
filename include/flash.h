@@ -47,6 +47,10 @@ typedef struct {
 #ifdef CONFIG_MTD
 	struct mtd_info *mtd;
 #endif
+#ifdef CONFIG_CFI_FLASH			/* DM-specific parts */
+	struct udevice *dev;
+	phys_addr_t base;
+#endif
 } flash_info_t;
 
 extern flash_info_t flash_info[]; /* info for FLASH chips	*/

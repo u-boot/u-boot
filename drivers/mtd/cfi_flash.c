@@ -111,11 +111,9 @@ static void cfi_flash_init_dm(void)
 	}
 }
 
-static phys_addr_t cfi_flash_base[CFI_MAX_FLASH_BANKS];
-
 phys_addr_t cfi_flash_bank_addr(int i)
 {
-	return cfi_flash_base[i];
+	return flash_info[i].base;
 }
 #else
 __weak phys_addr_t cfi_flash_bank_addr(int i)
@@ -2458,10 +2456,12 @@ static int cfi_flash_probe(struct udevice *dev)
 	while (idx < len) {
 		addr = fdt_translate_address((void *)blob,
 					     node, cell + idx);
-		cfi_flash_base[cfi_flash_num_flash_banks++] = addr;
+		flash_info[cfi_flash_num_flash_banks].dev = dev;
+		flash_info[cfi_flash_num_flash_banks].base = addr;
+		cfi_flash_num_flash_banks++;
 		idx += addrc + sizec;
 	}
-	gd->bd->bi_flashstart = cfi_flash_base[0];
+	gd->bd->bi_flashstart = flash_info[0].base;
 
 	return 0;
 }
