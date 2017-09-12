@@ -950,9 +950,24 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 	return ret;
 }
 
+static int rk3399_clk_enable(struct clk *clk)
+{
+	switch (clk->id) {
+	case HCLK_HOST0:
+	case HCLK_HOST0_ARB:
+	case HCLK_HOST1:
+	case HCLK_HOST1_ARB:
+		return 0;
+	}
+
+	debug("%s: unsupported clk %ld\n", __func__, clk->id);
+	return -ENOENT;
+}
+
 static struct clk_ops rk3399_clk_ops = {
 	.get_rate = rk3399_clk_get_rate,
 	.set_rate = rk3399_clk_set_rate,
+	.enable = rk3399_clk_enable,
 };
 
 static int rk3399_clk_probe(struct udevice *dev)
