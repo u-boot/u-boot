@@ -157,14 +157,6 @@ config USB_EHCI_PCI
 	help
 	  Enables support for the PCI-based EHCI controller.
 
-config USB_EHCI_RCAR_GEN3
-	bool "Support for Renesas RCar M3/H3 EHCI USB controller"
-	depends on RCAR_GEN3
-	default y
-	---help---
-	  Enables support for the on-chip EHCI controller on Renesas
-	  R8A7795 and R8A7796 SoCs.
-
 config USB_EHCI_ZYNQ
 	bool "Support for Xilinx Zynq on-chip EHCI USB controller"
 	depends on ARCH_ZYNQ
