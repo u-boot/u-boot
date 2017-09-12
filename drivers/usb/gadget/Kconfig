@@ -38,6 +38,7 @@ if USB_GADGET
 
 config USB_GADGET_MANUFACTURER
 	string "Vendor name of the USB device"
+	default "Allwinner Technology" if ARCH_SUNXI
 	default "U-Boot"
 	help
 	  Vendor name of the USB device emulated, reported to the host device.
@@ -45,6 +46,7 @@ config USB_GADGET_MANUFACTURER
 
 config USB_GADGET_VENDOR_NUM
 	hex "Vendor ID of the USB device"
+	default 0x1f3a if ARCH_SUNXI
 	default 0x0
 	help
 	  Vendor ID of the USB device emulated, reported to the host device.
@@ -53,6 +55,7 @@ config USB_GADGET_VENDOR_NUM
 
 config USB_GADGET_PRODUCT_NUM
 	hex "Product ID of the USB device"
+	default 0x1010 if ARCH_SUNXI
 	default 0x0
 	help
 	  Product ID of the USB device emulated, reported to the host device.
