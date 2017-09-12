@@ -124,5 +124,8 @@ endif # USB_GADGET_DOWNLOAD
 config USBNET_DEVADDR
 	string "USB Gadget Ethernet device mac address"
 	default "de:ad:be:ef:00:01"
+	help
+	  Ethernet MAC address of the device-side (ie. local board's) MAC
+	  address of the usb_ether interface
 
 endif # USB_GADGET
