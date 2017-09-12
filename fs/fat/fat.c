@@ -1042,6 +1042,7 @@ int fat_exists(const char *filename)
 		return 0;
 
 	ret = fat_itr_resolve(itr, filename, TYPE_ANY);
+	free(fsdata.fatbuf);
 	return ret == 0;
 }
 
@@ -1061,17 +1062,19 @@ int fat_size(const char *filename, loff_t *size)
 		 * Directories don't have size, but fs_size() is not
 		 * expected to fail if passed a directory path:
 		 */
+		free(fsdata.fatbuf);
 		fat_itr_root(itr, &fsdata);
 		if (!fat_itr_resolve(itr, filename, TYPE_DIR)) {
 			*size = 0;
-			return 0;
+			ret = 0;
 		}
-		return ret;
+		goto out;
 	}
 
 	*size = FAT2CPU32(itr->dent->size);
-
-	return 0;
+out:
+	free(fsdata.fatbuf);
+	return ret;
 }
 
 int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
@@ -1087,10 +1090,14 @@ int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
 
 	ret = fat_itr_resolve(itr, filename, TYPE_FILE);
 	if (ret)
-		return ret;
+		goto out;
 
 	printf("reading %s\n", filename);
-	return get_contents(&fsdata, itr->dent, pos, buffer, maxsize, actread);
+	ret = get_contents(&fsdata, itr->dent, pos, buffer, maxsize, actread);
+
+out:
+	free(fsdata.fatbuf);
+	return ret;
 }
 
 int file_fat_read(const char *filename, void *buffer, int maxsize)
@@ -1126,7 +1133,7 @@ typedef struct {
 
 int fat_opendir(const char *filename, struct fs_dir_stream **dirsp)
 {
-	fat_dir *dir = malloc(sizeof(*dir));
+	fat_dir *dir = calloc(1, sizeof(*dir));
 	int ret;
 
 	if (!dir)
@@ -1144,6 +1151,7 @@ int fat_opendir(const char *filename, struct fs_dir_stream **dirsp)
 	return 0;
 
 fail:
+	free(dir->fsdata.fatbuf);
 	free(dir);
 	return ret;
 }
@@ -1174,6 +1182,7 @@ int fat_readdir(struct fs_dir_stream *dirs, struct fs_dirent **dentp)
 void fat_closedir(struct fs_dir_stream *dirs)
 {
 	fat_dir *dir = (fat_dir *)dirs;
+	free(dir->fsdata.fatbuf);
 	free(dir);
 }
 
