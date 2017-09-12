@@ -315,12 +315,12 @@ int blk_next_device(struct udevice **devp);
  * @devnum:	Device number, specific to the interface type, or -1 to
  *		allocate the next available number
  * @blksz:	Block size of the device in bytes (typically 512)
- * @size:	Total size of the device in bytes
+ * @lba:	Total number of blocks of the device
  * @devp:	the new device (which has not been probed)
  */
 int blk_create_device(struct udevice *parent, const char *drv_name,
 		      const char *name, int if_type, int devnum, int blksz,
-		      lbaint_t size, struct udevice **devp);
+		      lbaint_t lba, struct udevice **devp);
 
 /**
  * blk_create_devicef() - Create a new named block device
@@ -332,12 +332,12 @@ int blk_create_device(struct udevice *parent, const char *drv_name,
  * @devnum:	Device number, specific to the interface type, or -1 to
  *		allocate the next available number
  * @blksz:	Block size of the device in bytes (typically 512)
- * @size:	Total size of the device in bytes
+ * @lba:	Total number of blocks of the device
  * @devp:	the new device (which has not been probed)
  */
 int blk_create_devicef(struct udevice *parent, const char *drv_name,
 		       const char *name, int if_type, int devnum, int blksz,
-		       lbaint_t size, struct udevice **devp);
+		       lbaint_t lba, struct udevice **devp);
 
 /**
  * blk_prepare_device() - Prepare a block device for use

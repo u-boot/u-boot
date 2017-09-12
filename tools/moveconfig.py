@@ -1877,10 +1877,10 @@ def main():
     if options.build_db:
         with open(CONFIG_DATABASE, 'w') as fd:
             for defconfig, configs in config_db.iteritems():
-                print >>fd, '%s' % defconfig
+                fd.write('%s\n' % defconfig)
                 for config in sorted(configs.keys()):
-                    print >>fd, '   %s=%s' % (config, configs[config])
-                print >>fd
+                    fd.write('   %s=%s\n' % (config, configs[config]))
+                fd.write('\n')
 
 if __name__ == '__main__':
     main()

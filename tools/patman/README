@@ -84,6 +84,18 @@ Aliases are recursive.
 The checkpatch.pl in the U-Boot tools/ subdirectory will be located and
 used. Failing that you can put it into your path or ~/bin/checkpatch.pl
 
+If you want to avoid sending patches to email addresses that are picked up
+by patman but are known to bounce you can add a [bounces] section to your
+.patman file. Unlike the [alias] section these are simple key: value pairs
+that are not recursive.
+
+>>>
+
+[bounces]
+gonefishing: Fred Bloggs <f.bloggs@napier.net>
+
+<<<
+
 
 If you want to change the defaults for patman's command-line arguments,
 you can add a [settings] section to your .patman file.  This can be used

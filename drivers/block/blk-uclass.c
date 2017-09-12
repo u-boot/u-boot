@@ -546,7 +546,7 @@ static int blk_claim_devnum(enum if_type if_type, int devnum)
 
 int blk_create_device(struct udevice *parent, const char *drv_name,
 		      const char *name, int if_type, int devnum, int blksz,
-		      lbaint_t size, struct udevice **devp)
+		      lbaint_t lba, struct udevice **devp)
 {
 	struct blk_desc *desc;
 	struct udevice *dev;
@@ -567,7 +567,7 @@ int blk_create_device(struct udevice *parent, const char *drv_name,
 	desc = dev_get_uclass_platdata(dev);
 	desc->if_type = if_type;
 	desc->blksz = blksz;
-	desc->lba = size / blksz;
+	desc->lba = lba;
 	desc->part_type = PART_TYPE_UNKNOWN;
 	desc->bdev = dev;
 	desc->devnum = devnum;
@@ -578,7 +578,7 @@ int blk_create_device(struct udevice *parent, const char *drv_name,
 
 int blk_create_devicef(struct udevice *parent, const char *drv_name,
 		       const char *name, int if_type, int devnum, int blksz,
-		       lbaint_t size, struct udevice **devp)
+		       lbaint_t lba, struct udevice **devp)
 {
 	char dev_name[30], *str;
 	int ret;
@@ -589,7 +589,7 @@ int blk_create_devicef(struct udevice *parent, const char *drv_name,
 		return -ENOMEM;
 
 	ret = blk_create_device(parent, drv_name, str, if_type, devnum,
-				blksz, size, devp);
+				blksz, lba, devp);
 	if (ret) {
 		free(str);
 		return ret;

@@ -56,6 +56,20 @@ int dm_scan_platdata(bool pre_reloc_only);
 int dm_scan_fdt(const void *blob, bool pre_reloc_only);
 
 /**
+ * dm_extended_scan_fdt() - Scan the device tree and bind drivers
+ *
+ * This calls dm_scna_dft() which scans the device tree and creates a driver
+ * for each node. the top-level subnodes are examined and also all sub-nodes
+ * of "clocks" node.
+ *
+ * @blob: Pointer to device tree blob
+ * @pre_reloc_only: If true, bind only drivers with the DM_FLAG_PRE_RELOC
+ * flag. If false bind all drivers.
+ * @return 0 if OK, -ve on error
+ */
+int dm_extended_scan_fdt(const void *blob, bool pre_reloc_only);
+
+/**
  * dm_scan_other() - Scan for other devices
  *
  * Some devices may not be visible to Driver Model. This weak function can

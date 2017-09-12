@@ -628,4 +628,28 @@ int ofnode_read_resource(ofnode node, uint index, struct resource *res);
 int ofnode_read_resource_byname(ofnode node, const char *name,
 				struct resource *res);
 
+/**
+ * ofnode_for_each_subnode() - iterate over all subnodes of a parent
+ *
+ * @node:       child node (ofnode, lvalue)
+ * @parent:     parent node (ofnode)
+ *
+ * This is a wrapper around a for loop and is used like so:
+ *
+ *	ofnode node;
+ *
+ *	ofnode_for_each_subnode(node, parent) {
+ *		Use node
+ *		...
+ *	}
+ *
+ * Note that this is implemented as a macro and @node is used as
+ * iterator in the loop. The parent variable can be a constant or even a
+ * literal.
+ */
+#define ofnode_for_each_subnode(node, parent) \
+	for (node = ofnode_first_subnode(parent); \
+	     ofnode_valid(node); \
+	     node = ofnode_next_subnode(node))
+
 #endif

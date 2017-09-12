@@ -34,9 +34,7 @@ int pmic_bind_children(struct udevice *pmic, ofnode parent,
 	debug("%s for '%s' at node offset: %d\n", __func__, pmic->name,
 	      dev_of_offset(pmic));
 
-	for (node = ofnode_first_subnode(parent);
-	     ofnode_valid(node);
-	     node = ofnode_next_subnode(node)) {
+	ofnode_for_each_subnode(node, parent) {
 		node_name = ofnode_get_name(node);
 
 		debug("* Found child node: '%s'\n", node_name);

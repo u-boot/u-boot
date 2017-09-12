@@ -23,9 +23,9 @@ static int dm_test_blk_base(struct unit_test_state *uts)
 
 	/* Create two, one the parent of the other */
 	ut_assertok(blk_create_device(gd->dm_root, "sandbox_host_blk", "test",
-				      IF_TYPE_HOST, 1, 512, 1024, &blk));
+				      IF_TYPE_HOST, 1, 512, 2, &blk));
 	ut_assertok(blk_create_device(blk, "usb_storage_blk", "test",
-				      IF_TYPE_USB, 3, 512, 1024, &usb_blk));
+				      IF_TYPE_USB, 3, 512, 2, &usb_blk));
 
 	/* Check we can find them */
 	ut_asserteq(-ENODEV, blk_get_device(IF_TYPE_HOST, 0, &dev));
@@ -101,7 +101,7 @@ static int dm_test_blk_find(struct unit_test_state *uts)
 	struct udevice *blk, *dev;
 
 	ut_assertok(blk_create_device(gd->dm_root, "sandbox_host_blk", "test",
-				      IF_TYPE_HOST, 1, 512, 1024, &blk));
+				      IF_TYPE_HOST, 1, 512, 2, &blk));
 	ut_asserteq(-ENODEV, blk_find_device(IF_TYPE_HOST, 0, &dev));
 	ut_assertok(blk_find_device(IF_TYPE_HOST, 1, &dev));
 	ut_asserteq_ptr(blk, dev);

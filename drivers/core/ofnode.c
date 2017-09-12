@@ -390,10 +390,11 @@ int ofnode_decode_display_timing(ofnode parent, int index,
 	if (!ofnode_valid(timings))
 		return -EINVAL;
 
-	for (i = 0, node = ofnode_first_subnode(timings);
-	     ofnode_valid(node) && i != index;
-	     node = ofnode_first_subnode(node))
-		i++;
+	i = 0;
+	ofnode_for_each_subnode(node, timings) {
+		if (i++ == index)
+			break;
+	}
 
 	if (!ofnode_valid(node))
 		return -EINVAL;

@@ -129,7 +129,7 @@ int host_dev_bind(int devnum, char *filename)
 	}
 	ret = blk_create_device(gd->dm_root, "sandbox_host_blk", str,
 				IF_TYPE_HOST, devnum, 512,
-				os_lseek(fd, 0, OS_SEEK_END), &dev);
+				os_lseek(fd, 0, OS_SEEK_END) / 512, &dev);
 	if (ret)
 		goto err_file;
 	ret = device_probe(dev);
