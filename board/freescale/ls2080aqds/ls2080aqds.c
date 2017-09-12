@@ -226,13 +226,12 @@ int board_init(void)
 #endif
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 	rtc_enable_32khz_output();
+#ifdef CONFIG_FSL_CAAM
+	sec_init();
+#endif
 
 #ifdef CONFIG_FSL_LS_PPA
 	ppa_init();
-#endif
-
-#ifdef CONFIG_FSL_CAAM
-	sec_init();
 #endif
 
 	return 0;

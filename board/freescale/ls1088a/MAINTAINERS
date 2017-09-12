@@ -1,0 +1,15 @@
+LS1088ARDB BOARD
+M:	Prabhakar Kushwaha <prabhakar.kushwaha@nxp.com>
+M:	Ashish Kumar <Ashish.Kumar@nxp.com>
+S:	Maintained
+F:	board/freescale/ls1088a/
+F:	include/configs/ls1088ardb.h
+F:	configs/ls1088ardb_qspi_defconfig
+
+LS1088AQDS BOARD
+M:	Prabhakar Kushwaha <prabhakar.kushwaha@nxp.com>
+M:	Ashish Kumar <Ashish.Kumar@nxp.com>
+S:	Maintained
+F:	board/freescale/ls1088a/
+F:	include/configs/ls1088aqds.h
+F:	configs/ls1088aqds_qspi_defconfig

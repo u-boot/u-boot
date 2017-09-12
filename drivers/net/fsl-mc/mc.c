@@ -800,12 +800,19 @@ int get_dpl_apply_status(void)
 	return mc_dpl_applied;
 }
 
-/**
+/*
  * Return the MC address of private DRAM block.
+ * As per MC design document, MC initial base address
+ * should be least significant 512MB address of MC private
+ * memory, i.e. address should point to end address masked
+ * with 512MB offset in private DRAM block.
  */
 u64 mc_get_dram_addr(void)
 {
-	return gd->arch.resv_ram;
+	size_t mc_ram_size = mc_get_dram_block_size();
+
+	return (gd->arch.resv_ram + mc_ram_size - 1) &
+		MC_RAM_BASE_ADDR_ALIGNMENT_MASK;
 }
 
 /**

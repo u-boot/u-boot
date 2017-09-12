@@ -808,6 +808,19 @@ config TARGET_LS2080A_SIMU
 	  development platform that supports the QorIQ LS2080A
 	  Layerscape Architecture processor.
 
+config TARGET_LS1088AQDS
+	bool "Support ls1088aqds"
+	select ARCH_LS1088A
+	select ARM64
+	select ARMV8_MULTIENTRY
+	select ARCH_MISC_INIT
+	select BOARD_LATE_INIT
+	help
+	  Support for NXP LS1088AQDS platform
+	  The LS1088A Development System (QDS) is a high-performance
+	  development platform that supports the QorIQ LS1088A
+	  Layerscape Architecture processor.
+
 config TARGET_LS2080AQDS
 	bool "Support ls2080aqds"
 	select ARCH_LS2080A
@@ -907,6 +920,19 @@ config TARGET_LS1012AFRDM
 	  Support for Freescale LS1012AFRDM platform.
 	  The LS1012A Freedom  board (FRDM) is a high-performance
 	  development platform that supports the QorIQ LS1012A
+	  Layerscape Architecture processor.
+
+config TARGET_LS1088ARDB
+	bool "Support ls1088ardb"
+	select ARCH_LS1088A
+	select ARM64
+	select ARMV8_MULTIENTRY
+	select ARCH_MISC_INIT
+	select BOARD_LATE_INIT
+	help
+	  Support for NXP LS1088ARDB platform.
+	  The LS1088A Reference design board (RDB) is a high-performance
+	  development platform that supports the QorIQ LS1088A
 	  Layerscape Architecture processor.
 
 config TARGET_LS1021AQDS
@@ -1192,6 +1218,7 @@ source "board/creative/xfi3/Kconfig"
 source "board/freescale/ls2080a/Kconfig"
 source "board/freescale/ls2080aqds/Kconfig"
 source "board/freescale/ls2080ardb/Kconfig"
+source "board/freescale/ls1088a/Kconfig"
 source "board/freescale/ls1021aqds/Kconfig"
 source "board/freescale/ls1043aqds/Kconfig"
 source "board/freescale/ls1021atwr/Kconfig"

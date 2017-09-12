@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <fsl_immap.h>
 #include <fsl_ifc.h>
 #include <ahci.h>
 #include <scsi.h>
@@ -23,6 +24,7 @@
 #ifdef CONFIG_CHAIN_OF_TRUST
 #include <fsl_validate.h>
 #endif
+#include <fsl_immap.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -50,6 +52,109 @@ bool soc_has_aiop(void)
 		return true;
 
 	return false;
+}
+
+static inline void set_usb_txvreftune(u32 __iomem *scfg, u32 offset)
+{
+	scfg_clrsetbits32(scfg + offset / 4,
+			0xF << 6,
+			SCFG_USB_TXVREFTUNE << 6);
+}
+
+static void erratum_a009008(void)
+{
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009008
+	u32 __iomem *scfg = (u32 __iomem *)SCFG_BASE;
+
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
+	set_usb_txvreftune(scfg, SCFG_USB3PRM1CR_USB1);
+	set_usb_txvreftune(scfg, SCFG_USB3PRM1CR_USB2);
+	set_usb_txvreftune(scfg, SCFG_USB3PRM1CR_USB3);
+#elif defined(CONFIG_ARCH_LS2080A)
+	set_usb_txvreftune(scfg, SCFG_USB3PRM1CR);
+#endif
+#endif /* CONFIG_SYS_FSL_ERRATUM_A009008 */
+}
+
+static inline void set_usb_sqrxtune(u32 __iomem *scfg, u32 offset)
+{
+	scfg_clrbits32(scfg + offset / 4,
+			SCFG_USB_SQRXTUNE_MASK << 23);
+}
+
+static void erratum_a009798(void)
+{
+#ifdef CONFIG_SYS_FSL_ERRATUM_A009798
+	u32 __iomem *scfg = (u32 __iomem *)SCFG_BASE;
+
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
+	set_usb_sqrxtune(scfg, SCFG_USB3PRM1CR_USB1);
+	set_usb_sqrxtune(scfg, SCFG_USB3PRM1CR_USB2);
+	set_usb_sqrxtune(scfg, SCFG_USB3PRM1CR_USB3);
+#elif defined(CONFIG_ARCH_LS2080A)
+	set_usb_sqrxtune(scfg, SCFG_USB3PRM1CR);
+#endif
+#endif /* CONFIG_SYS_FSL_ERRATUM_A009798 */
+}
+
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
+static inline void set_usb_pcstxswingfull(u32 __iomem *scfg, u32 offset)
+{
+	scfg_clrsetbits32(scfg + offset / 4,
+			0x7F << 9,
+			SCFG_USB_PCSTXSWINGFULL << 9);
+}
+#endif
+
+static void erratum_a008997(void)
+{
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008997
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
+	u32 __iomem *scfg = (u32 __iomem *)SCFG_BASE;
+
+	set_usb_pcstxswingfull(scfg, SCFG_USB3PRM2CR_USB1);
+	set_usb_pcstxswingfull(scfg, SCFG_USB3PRM2CR_USB2);
+	set_usb_pcstxswingfull(scfg, SCFG_USB3PRM2CR_USB3);
+#endif
+#endif /* CONFIG_SYS_FSL_ERRATUM_A008997 */
+}
+
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
+
+#define PROGRAM_USB_PHY_RX_OVRD_IN_HI(phy)	\
+	out_be16((phy) + SCFG_USB_PHY_RX_OVRD_IN_HI, USB_PHY_RX_EQ_VAL_1);	\
+	out_be16((phy) + SCFG_USB_PHY_RX_OVRD_IN_HI, USB_PHY_RX_EQ_VAL_2);	\
+	out_be16((phy) + SCFG_USB_PHY_RX_OVRD_IN_HI, USB_PHY_RX_EQ_VAL_3);	\
+	out_be16((phy) + SCFG_USB_PHY_RX_OVRD_IN_HI, USB_PHY_RX_EQ_VAL_4)
+
+#elif defined(CONFIG_ARCH_LS2080A)
+
+#define PROGRAM_USB_PHY_RX_OVRD_IN_HI(phy)	\
+	out_le16((phy) + DCSR_USB_PHY_RX_OVRD_IN_HI, USB_PHY_RX_EQ_VAL_1); \
+	out_le16((phy) + DCSR_USB_PHY_RX_OVRD_IN_HI, USB_PHY_RX_EQ_VAL_2); \
+	out_le16((phy) + DCSR_USB_PHY_RX_OVRD_IN_HI, USB_PHY_RX_EQ_VAL_3); \
+	out_le16((phy) + DCSR_USB_PHY_RX_OVRD_IN_HI, USB_PHY_RX_EQ_VAL_4)
+
+#endif
+
+static void erratum_a009007(void)
+{
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
+	void __iomem *usb_phy = (void __iomem *)SCFG_USB_PHY1;
+
+	PROGRAM_USB_PHY_RX_OVRD_IN_HI(usb_phy);
+
+	usb_phy = (void __iomem *)SCFG_USB_PHY2;
+	PROGRAM_USB_PHY_RX_OVRD_IN_HI(usb_phy);
+
+	usb_phy = (void __iomem *)SCFG_USB_PHY3;
+	PROGRAM_USB_PHY_RX_OVRD_IN_HI(usb_phy);
+#elif defined(CONFIG_ARCH_LS2080A)
+	void __iomem *dcsr = (void __iomem *)DCSR_BASE;
+
+	PROGRAM_USB_PHY_RX_OVRD_IN_HI(dcsr + DCSR_USB_PHY1);
+	PROGRAM_USB_PHY_RX_OVRD_IN_HI(dcsr + DCSR_USB_PHY2);
+#endif /* CONFIG_SYS_FSL_ERRATUM_A009007 */
 }
 
 #if defined(CONFIG_FSL_LSCH3)
@@ -198,6 +303,10 @@ void fsl_lsch3_early_init_f(void)
 #endif
 	erratum_a008514();
 	erratum_a008336();
+	erratum_a009008();
+	erratum_a009798();
+	erratum_a008997();
+	erratum_a009007();
 #ifdef CONFIG_CHAIN_OF_TRUST
 	/* In case of Secure Boot, the IBR configures the SMMU
 	* to allow only Secure transactions.
@@ -285,7 +394,8 @@ static void erratum_a008850_early(void)
 {
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008850
 	/* part 1 of 2 */
-	struct ccsr_cci400 __iomem *cci = (void *)CONFIG_SYS_CCI400_ADDR;
+	struct ccsr_cci400 __iomem *cci = (void *)(CONFIG_SYS_IMMR +
+						CONFIG_SYS_CCI400_OFFSET);
 	struct ccsr_ddr __iomem *ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
 
 	/* Skip if running at lower exception level */
@@ -304,7 +414,8 @@ void erratum_a008850_post(void)
 {
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008850
 	/* part 2 of 2 */
-	struct ccsr_cci400 __iomem *cci = (void *)CONFIG_SYS_CCI400_ADDR;
+	struct ccsr_cci400 __iomem *cci = (void *)(CONFIG_SYS_IMMR +
+						CONFIG_SYS_CCI400_OFFSET);
 	struct ccsr_ddr __iomem *ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
 	u32 tmp;
 
@@ -439,7 +550,8 @@ int setup_chip_volt(void)
 
 void fsl_lsch2_early_init_f(void)
 {
-	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
+	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)(CONFIG_SYS_IMMR +
+					CONFIG_SYS_CCI400_OFFSET);
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
 
 #ifdef CONFIG_LAYERSCAPE_NS_ACCESS
@@ -473,6 +585,10 @@ void fsl_lsch2_early_init_f(void)
 	erratum_a009929();
 	erratum_a009660();
 	erratum_a010539();
+	erratum_a009008();
+	erratum_a009798();
+	erratum_a008997();
+	erratum_a009007();
 }
 #endif
 

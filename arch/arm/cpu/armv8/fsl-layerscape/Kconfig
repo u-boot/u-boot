@@ -16,8 +16,12 @@ config ARCH_LS1043A
 	select SYS_FSL_DDR_BE
 	select SYS_FSL_DDR_VER_50
 	select SYS_FSL_ERRATUM_A008850
+	select SYS_FSL_ERRATUM_A008997
+	select SYS_FSL_ERRATUM_A009007
+	select SYS_FSL_ERRATUM_A009008
 	select SYS_FSL_ERRATUM_A009660
 	select SYS_FSL_ERRATUM_A009663
+	select SYS_FSL_ERRATUM_A009798
 	select SYS_FSL_ERRATUM_A009929
 	select SYS_FSL_ERRATUM_A009942
 	select SYS_FSL_ERRATUM_A010315
@@ -39,6 +43,10 @@ config ARCH_LS1046A
 	select SYS_FSL_ERRATUM_A008336
 	select SYS_FSL_ERRATUM_A008511
 	select SYS_FSL_ERRATUM_A008850
+	select SYS_FSL_ERRATUM_A008997
+	select SYS_FSL_ERRATUM_A009007
+	select SYS_FSL_ERRATUM_A009008
+	select SYS_FSL_ERRATUM_A009798
 	select SYS_FSL_ERRATUM_A009801
 	select SYS_FSL_ERRATUM_A009803
 	select SYS_FSL_ERRATUM_A009942
@@ -49,6 +57,32 @@ config ARCH_LS1046A
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
 	imply SCSI
+
+config ARCH_LS1088A
+	bool
+	select ARMV8_SET_SMPEN
+	select FSL_LSCH3
+	select SYS_FSL_DDR
+	select SYS_FSL_DDR_LE
+	select SYS_FSL_DDR_VER_50
+	select SYS_FSL_EC1
+	select SYS_FSL_EC2
+	select SYS_FSL_ERRATUM_A009803
+	select SYS_FSL_ERRATUM_A009942
+	select SYS_FSL_ERRATUM_A010165
+	select SYS_FSL_ERRATUM_A008511
+	select SYS_FSL_ERRATUM_A008850
+	select SYS_FSL_HAS_CCI400
+	select SYS_FSL_HAS_DDR4
+	select SYS_FSL_HAS_RGMII
+	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_COMPAT_5
+	select SYS_FSL_SEC_LE
+	select SYS_FSL_SRDS_1
+	select SYS_FSL_SRDS_2
+	select FSL_TZASC_1
+	select ARCH_EARLY_INIT_R
+	select BOARD_EARLY_INIT_F
 
 config ARCH_LS2080A
 	bool
@@ -61,6 +95,7 @@ config ARCH_LS2080A
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_LE
 	select SYS_FSL_DDR_VER_50
+	select SYS_FSL_HAS_CCN504
 	select SYS_FSL_HAS_DP_DDR
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_HAS_DDR4
@@ -73,8 +108,12 @@ config ARCH_LS2080A
 	select SYS_FSL_ERRATUM_A008511
 	select SYS_FSL_ERRATUM_A008514
 	select SYS_FSL_ERRATUM_A008585
+	select SYS_FSL_ERRATUM_A008997
+	select SYS_FSL_ERRATUM_A009007
+	select SYS_FSL_ERRATUM_A009008
 	select SYS_FSL_ERRATUM_A009635
 	select SYS_FSL_ERRATUM_A009663
+	select SYS_FSL_ERRATUM_A009798
 	select SYS_FSL_ERRATUM_A009801
 	select SYS_FSL_ERRATUM_A009803
 	select SYS_FSL_ERRATUM_A009942
@@ -85,6 +124,7 @@ config ARCH_LS2080A
 
 config FSL_LSCH2
 	bool
+	select SYS_FSL_HAS_CCI400
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_5
 	select SYS_FSL_SEC_BE
@@ -98,7 +138,7 @@ config FSL_LSCH3
 
 config FSL_MC_ENET
 	bool "Management Complex network"
-	depends on ARCH_LS2080A
+	depends on ARCH_LS2080A || ARCH_LS1088A
 	default y
 	select RESV_RAM
 	help
@@ -114,6 +154,7 @@ config FSL_PCIE_COMPAT
 	default "fsl,ls1043a-pcie" if ARCH_LS1043A
 	default "fsl,ls1046a-pcie" if ARCH_LS1046A
 	default "fsl,ls2080a-pcie" if ARCH_LS2080A
+	default "fsl,ls1088a-pcie" if ARCH_LS1088A
 	help
 	  This compatible is used to find pci controller node in Kernel DT
 	  to complete fixup.
@@ -182,6 +223,7 @@ config SYS_LS_PPA_FW_ADDR
 	default 0x20400000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT && ARCH_LS2080A
 	default 0x40400000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT
 	default 0x580400000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS2080A
+	default 0x20400000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1088A
 	default 0x60400000 if SYS_LS_PPA_FW_IN_XIP
 	default 0x400000 if SYS_LS_PPA_FW_IN_MMC
 	default 0x400000 if SYS_LS_PPA_FW_IN_NAND
@@ -195,12 +237,13 @@ config SYS_LS_PPA_FW_ADDR
 config SYS_LS_PPA_ESBC_ADDR
 	hex "hdr address of PPA firmware loading from"
 	depends on FSL_LS_PPA && CHAIN_OF_TRUST
-	default 0x600c0000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1043A
-	default 0x40740000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1046A
-	default 0x40480000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1012A
-	default 0x580c40000 if SYS_LS_PPA_FW_IN_XIP && FSL_LSCH3
-	default 0x700000 if SYS_LS_PPA_FW_IN_MMC
-	default 0x700000 if SYS_LS_PPA_FW_IN_NAND
+	default 0x60680000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1043A
+	default 0x40680000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1046A
+	default 0x40680000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1012A
+	default 0x20680000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT && ARCH_LS2080A
+	default 0x580680000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS2080A
+	default 0x680000 if SYS_LS_PPA_FW_IN_MMC
+	default 0x680000 if SYS_LS_PPA_FW_IN_NAND
 	help
 	  If the PPA header firmware locate at XIP flash, such as NOR or
 	  QSPI flash, this address is a directly memory-mapped.
@@ -217,6 +260,20 @@ config LS_PPA_ESBC_HDR_SIZE
 
 endmenu
 
+config SYS_FSL_ERRATUM_A008997
+	bool "Workaround for USB PHY erratum A008997"
+
+config SYS_FSL_ERRATUM_A009007
+	bool
+	help
+	  Workaround for USB PHY erratum A009007
+
+config SYS_FSL_ERRATUM_A009008
+	bool "Workaround for USB PHY erratum A009008"
+
+config SYS_FSL_ERRATUM_A009798
+	bool "Workaround for USB PHY erratum A009798"
+
 config SYS_FSL_ERRATUM_A010315
 	bool "Workaround for PCIe erratum A010315"
 
@@ -228,6 +285,7 @@ config MAX_CPUS
 	default 4 if ARCH_LS1043A
 	default 4 if ARCH_LS1046A
 	default 16 if ARCH_LS2080A
+	default 8 if ARCH_LS1088A
 	default 1
 	help
 	  Set this number to the maximum number of possible CPUs in the SoC.
@@ -248,12 +306,27 @@ config QSPI_AHB_INIT
 	  But some QSPI flash size up to 64MBytes, so initialize the QSPI AHB
 	  bus for those flashes to support the full QSPI flash size.
 
+config SYS_CCI400_OFFSET
+	hex "Offset for CCI400 base"
+	depends on SYS_FSL_HAS_CCI400
+	default 0x3090000 if ARCH_LS1088A
+	default 0x180000 if FSL_LSCH2
+	help
+	  Offset for CCI400 base
+	  CCI400 base addr = CCSRBAR + CCI400_OFFSET
+
 config SYS_FSL_IFC_BANK_COUNT
 	int "Maximum banks of Integrated flash controller"
-	depends on ARCH_LS1043A || ARCH_LS1046A || ARCH_LS2080A
+	depends on ARCH_LS1043A || ARCH_LS1046A || ARCH_LS2080A || ARCH_LS1088A
 	default 4 if ARCH_LS1043A
 	default 4 if ARCH_LS1046A
-	default 8 if ARCH_LS2080A
+	default 8 if ARCH_LS2080A || ARCH_LS1088A
+
+config SYS_FSL_HAS_CCI400
+	bool
+
+config SYS_FSL_HAS_CCN504
+	bool
 
 config SYS_FSL_HAS_DP_DDR
 	bool
@@ -296,6 +369,7 @@ config SYS_FSL_PCLK_DIV
 	int "Platform clock divider"
 	default 1 if ARCH_LS1043A
 	default 1 if ARCH_LS1046A
+	default 1 if ARCH_LS1088A
 	default 2
 	help
 	  This is the divider that is used to derive Platform clock from
@@ -362,6 +436,18 @@ config RESV_RAM
 	  be at the high end of physical memory. The reserve RAM may be
 	  excluded from memory bank(s) passed to OS, or marked as reserved.
 
+config SYS_FSL_EC1
+	bool
+	help
+	  Ethernet controller 1, this is connected to MAC3.
+	  Provides DPAA2 capabilities
+
+config SYS_FSL_EC2
+	bool
+	help
+	  Ethernet controller 2, this is connected to MAC4.
+	  Provides DPAA2 capabilities
+
 config SYS_FSL_ERRATUM_A008336
 	bool
 
@@ -386,10 +472,17 @@ config SYS_FSL_ERRATUM_A009660
 config SYS_FSL_ERRATUM_A009929
 	bool
 
+
+config SYS_FSL_HAS_RGMII
+	bool
+	depends on SYS_FSL_EC1 || SYS_FSL_EC2
+
+
 config SYS_MC_RSV_MEM_ALIGN
 	hex "Management Complex reserved memory alignment"
 	depends on RESV_RAM
-	default 0x20000000
+	default 0x20000000 if ARCH_LS2080A
+	default 0x70000000 if ARCH_LS1088A
 	help
 	  Reserved memory needs to be aligned for MC to use. Default value
 	  is 512MB.

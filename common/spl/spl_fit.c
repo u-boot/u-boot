@@ -11,6 +11,10 @@
 #include <libfdt.h>
 #include <spl.h>
 
+#ifndef CONFIG_SYS_BOOTM_LEN
+#define CONFIG_SYS_BOOTM_LEN	(64 << 20)
+#endif
+
 /**
  * spl_fit_get_image_node(): By using the matching configuration subnode,
  * retrieve the name of an image, specified by a property name and an index
@@ -128,41 +132,79 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 			      void *fit, ulong base_offset, int node,
 			      struct spl_image_info *image_info)
 {
-	ulong offset;
+	int offset;
 	size_t length;
+	int len;
 	ulong load_addr, load_ptr;
 	void *src;
 	ulong overhead;
 	int nr_sectors;
 	int align_len = ARCH_DMA_MINALIGN - 1;
+	uint8_t image_comp = -1, type = -1;
+	const void *data;
 
-	offset = fdt_getprop_u32(fit, node, "data-offset");
-	if (offset == FDT_ERROR)
-		return -ENOENT;
-	offset += base_offset;
-	length = fdt_getprop_u32(fit, node, "data-size");
-	if (length == FDT_ERROR)
-		return -ENOENT;
-	load_addr = fdt_getprop_u32(fit, node, "load");
-	if (load_addr == FDT_ERROR && image_info)
+	if (IS_ENABLED(CONFIG_SPL_OS_BOOT) && IS_ENABLED(CONFIG_SPL_GZIP)) {
+		if (fit_image_get_comp(fit, node, &image_comp))
+			puts("Cannot get image compression format.\n");
+		else
+			debug("%s ", genimg_get_comp_name(image_comp));
+
+		if (fit_image_get_type(fit, node, &type))
+			puts("Cannot get image type.\n");
+		else
+			debug("%s ", genimg_get_type_name(type));
+	}
+
+	if (fit_image_get_load(fit, node, &load_addr))
 		load_addr = image_info->load_addr;
-	load_ptr = (load_addr + align_len) & ~align_len;
 
-	overhead = get_aligned_image_overhead(info, offset);
-	nr_sectors = get_aligned_image_size(info, length, offset);
+	if (!fit_image_get_data_offset(fit, node, &offset)) {
+		/* External data */
+		offset += base_offset;
+		if (fit_image_get_data_size(fit, node, &len))
+			return -ENOENT;
 
-	if (info->read(info, sector + get_aligned_image_offset(info, offset),
-		       nr_sectors, (void*)load_ptr) != nr_sectors)
-		return -EIO;
-	debug("image: dst=%lx, offset=%lx, size=%lx\n", load_ptr, offset,
-	      (unsigned long)length);
+		load_ptr = (load_addr + align_len) & ~align_len;
+		length = len;
 
-	src = (void *)load_ptr + overhead;
+		overhead = get_aligned_image_overhead(info, offset);
+		nr_sectors = get_aligned_image_size(info, length, offset);
+
+		if (info->read(info,
+			       sector + get_aligned_image_offset(info, offset),
+			       nr_sectors, (void *)load_ptr) != nr_sectors)
+			return -EIO;
+
+		debug("External data: dst=%lx, offset=%x, size=%lx\n",
+		      load_ptr, offset, (unsigned long)length);
+		src = (void *)load_ptr + overhead;
+	} else {
+		/* Embedded data */
+		if (fit_image_get_data(fit, node, &data, &length)) {
+			puts("Cannot get image data/size\n");
+			return -ENOENT;
+		}
+		debug("Embedded data: dst=%lx, size=%lx\n", load_addr,
+		      (unsigned long)length);
+		src = (void *)data;
+	}
+
 #ifdef CONFIG_SPL_FIT_IMAGE_POST_PROCESS
 	board_fit_image_post_process(&src, &length);
 #endif
 
-	memcpy((void*)load_addr, src, length);
+	if (IS_ENABLED(CONFIG_SPL_OS_BOOT)	&&
+	    IS_ENABLED(CONFIG_SPL_GZIP)		&&
+	    image_comp == IH_COMP_GZIP		&&
+	    type == IH_TYPE_KERNEL) {
+		if (gunzip((void *)load_addr, CONFIG_SYS_BOOTM_LEN,
+			   src, &length)) {
+			puts("Uncompressing error\n");
+			return -EIO;
+		}
+	} else {
+		memcpy((void *)load_addr, src, length);
+	}
 
 	if (image_info) {
 		image_info->load_addr = load_addr;
@@ -180,13 +222,16 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	ulong size;
 	unsigned long count;
 	struct spl_image_info image_info;
-	int node, images, ret;
+	bool boot_os = false;
+	int node = -1;
+	int images, ret;
 	int base_offset, align_len = ARCH_DMA_MINALIGN - 1;
 	int index = 0;
 
 	/*
-	 * Figure out where the external images start. This is the base for the
-	 * data-offset properties in each image.
+	 * For FIT with external data, figure out where the external images
+	 * start. This is the base for the data-offset properties in each
+	 * image.
 	 */
 	size = fdt_totalsize(fit);
 	size = (size + 3) & ~3;
@@ -205,6 +250,9 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	 *
 	 * In fact the FIT has its own load address, but we assume it cannot
 	 * be before CONFIG_SYS_TEXT_BASE.
+	 *
+	 * For FIT with data embedded, data is loaded as part of FIT image.
+	 * For FIT with external data, data is not loaded in this step.
 	 */
 	fit = (void *)((CONFIG_SYS_TEXT_BASE - size - info->bl_len -
 			align_len) & ~align_len);
@@ -222,8 +270,17 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 		return -1;
 	}
 
+#ifdef CONFIG_SPL_OS_BOOT
+	/* Find OS image first */
+	node = spl_fit_get_image_node(fit, images, FIT_KERNEL_PROP, 0);
+	if (node < 0)
+		debug("No kernel image.\n");
+	else
+		boot_os = true;
+#endif
 	/* find the U-Boot image */
-	node = spl_fit_get_image_node(fit, images, "firmware", 0);
+	if (node < 0)
+		node = spl_fit_get_image_node(fit, images, "firmware", 0);
 	if (node < 0) {
 		debug("could not find firmware image, trying loadables...\n");
 		node = spl_fit_get_image_node(fit, images, "loadables", 0);
@@ -245,24 +302,31 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	if (ret)
 		return ret;
 
+#ifdef CONFIG_SPL_OS_BOOT
+	if (!fit_image_get_os(fit, node, &spl_image->os))
+		debug("Image OS is %s\n", genimg_get_os_name(spl_image->os));
+#else
 	spl_image->os = IH_OS_U_BOOT;
+#endif
 
-	/* Figure out which device tree the board wants to use */
-	node = spl_fit_get_image_node(fit, images, FIT_FDT_PROP, 0);
-	if (node < 0) {
-		debug("%s: cannot find FDT node\n", __func__);
-		return node;
+	if (!boot_os) {
+		/* Figure out which device tree the board wants to use */
+		node = spl_fit_get_image_node(fit, images, FIT_FDT_PROP, 0);
+		if (node < 0) {
+			debug("%s: cannot find FDT node\n", __func__);
+			return node;
+		}
+
+		/*
+		 * Read the device tree and place it after the image.
+		 * Align the destination address to ARCH_DMA_MINALIGN.
+		 */
+		image_info.load_addr = spl_image->load_addr + spl_image->size;
+		ret = spl_load_fit_image(info, sector, fit, base_offset, node,
+					 &image_info);
+		if (ret < 0)
+			return ret;
 	}
-
-	/*
-	 * Read the device tree and place it after the image.
-	 * Align the destination address to ARCH_DMA_MINALIGN.
-	 */
-	image_info.load_addr = spl_image->load_addr + spl_image->size;
-	ret = spl_load_fit_image(info, sector, fit, base_offset, node,
-				 &image_info);
-	if (ret < 0)
-		return ret;
 
 	/* Now check if there are more images for us to load */
 	for (; ; index++) {

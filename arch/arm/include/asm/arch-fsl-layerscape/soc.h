@@ -29,9 +29,13 @@
 #ifdef CONFIG_SYS_FSL_CCSR_SCFG_LE
 #define scfg_in32(a)       in_le32(a)
 #define scfg_out32(a, v)   out_le32(a, v)
+#define scfg_clrbits32(addr, clear) clrbits_le32(addr, clear)
+#define scfg_clrsetbits32(addr, clear, set) clrsetbits_le32(addr, clear, set)
 #elif defined(CONFIG_SYS_FSL_CCSR_SCFG_BE)
 #define scfg_in32(a)       in_be32(a)
 #define scfg_out32(a, v)   out_be32(a, v)
+#define scfg_clrbits32(addr, clear) clrbits_be32(addr, clear)
+#define scfg_clrsetbits32(addr, clear, set) clrsetbits_be32(addr, clear, set)
 #endif
 
 #ifdef CONFIG_SYS_FSL_PEX_LUT_LE
@@ -57,6 +61,10 @@ struct cpu_type {
 #define SVR_LS1023A		0x879208
 #define SVR_LS1046A		0x870700
 #define SVR_LS1026A		0x870708
+#define SVR_LS1048A		0x870320
+#define SVR_LS1084A		0x870302
+#define SVR_LS1088A		0x870300
+#define SVR_LS1044A		0x870322
 #define SVR_LS2045A		0x870120
 #define SVR_LS2080A		0x870110
 #define SVR_LS2085A		0x870100

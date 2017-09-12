@@ -288,6 +288,10 @@ The 'data-offset' property can be substituted with 'data-position', which
 defines an absolute position or address as the offset. This is helpful when
 booting U-Boot proper before performing relocation.
 
+Normal kernel FIT image has data embedded within FIT structure. U-Boot image
+for SPL boot has external data. Existence of 'data-offset' can be used to
+identify which format is used.
+
 9) Examples
 -----------
 

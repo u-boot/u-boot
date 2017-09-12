@@ -225,8 +225,8 @@ void u_qe_init(void)
 		flush_cache((ulong)addr, cnt * 512);
 	}
 #endif
-	u_qe_upload_firmware(addr);
-	out_be32(&qe_immr->iram.iready, QE_IRAM_READY);
+	if (!u_qe_upload_firmware(addr))
+		out_be32(&qe_immr->iram.iready, QE_IRAM_READY);
 #ifdef CONFIG_SYS_QE_FMAN_FW_IN_MMC
 	free(addr);
 #endif

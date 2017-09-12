@@ -16,6 +16,7 @@
 #include <asm/arch/soc.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/speed.h>
+#include <fsl_immap.h>
 #include <asm/arch/mp.h>
 #include <efi_loader.h>
 #include <fm_eth.h>
@@ -516,6 +517,10 @@ int arch_early_init_r(void)
 			printf("Did not wake secondary cores\n");
 	}
 
+#ifdef CONFIG_SYS_FSL_HAS_RGMII
+	fsl_rgmii_init();
+#endif
+
 #ifdef CONFIG_SYS_HAS_SERDES
 	fsl_serdes_init();
 #endif
@@ -614,13 +619,22 @@ void efi_reset_system_init(void)
 
 #endif
 
+/*
+ * Calculate reserved memory with given memory bank
+ * Return aligned memory size on success
+ * Return (ram_size + needed size) for failure
+ */
 phys_size_t board_reserve_ram_top(phys_size_t ram_size)
 {
 	phys_size_t ram_top = ram_size;
 
 #if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+	ram_top = mc_get_dram_block_size();
+	if (ram_top > ram_size)
+		return ram_size + ram_top;
+
+	ram_top = ram_size - ram_top;
 	/* The start address of MC reserved memory needs to be aligned. */
-	ram_top -= mc_get_dram_block_size();
 	ram_top &= ~(CONFIG_SYS_MC_RSV_MEM_ALIGN - 1);
 #endif
 
@@ -664,8 +678,8 @@ phys_size_t get_effective_memsize(void)
 	/* Check if we have enough memory for MC */
 	if (rem < board_reserve_ram_top(rem)) {
 		/* Not enough memory in high region to reserve */
-		if (ea_size > board_reserve_ram_top(rem))
-			ea_size -= board_reserve_ram_top(rem);
+		if (ea_size > board_reserve_ram_top(ea_size))
+			ea_size -= board_reserve_ram_top(ea_size);
 		else
 			printf("Error: No enough space for reserved memory.\n");
 	}
