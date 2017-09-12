@@ -53,6 +53,7 @@ void s_init(void)
 #define SD0_MSTP314		BIT(14)
 #define SD1_MSTP313		BIT(13)
 #define SD2_MSTP312		BIT(12)	/* either MMC0 */
+#define HSUSB_MSTP704		BIT(4)	/* HSUSB */
 
 #define SD0CKCR			0xE6150074
 #define SD1CKCR			0xE6150078
@@ -90,6 +91,13 @@ int board_early_init_f(void)
 /* -/W 32 Power resume control register 2 (3DG) */
 #define	SYSC_PWRONCR2	0xE618010C
 
+/* HSUSB block registers */
+#define HSUSB_REG_LPSTS			0xE6590102
+#define HSUSB_REG_LPSTS_SUSPM_NORMAL	BIT(14)
+#define HSUSB_REG_UGCTRL2		0xE6590184
+#define HSUSB_REG_UGCTRL2_USB0SEL	0x30
+#define HSUSB_REG_UGCTRL2_USB0SEL_EHCI	0x10
+
 int board_init(void)
 {
 	/* adress of boot parameters */
@@ -104,6 +112,14 @@ int board_init(void)
 
 	/* USB1 pull-up */
 	setbits_le32(PFC_PUEN6, PUEN_USB1_OVC | PUEN_USB1_PWEN);
+
+	/* Configure the HSUSB block */
+	mstp_clrbits_le32(MSTPSR7, SMSTPCR7, HSUSB_MSTP704);
+	/* Choice USB0SEL */
+	clrsetbits_le32(HSUSB_REG_UGCTRL2, HSUSB_REG_UGCTRL2_USB0SEL,
+			HSUSB_REG_UGCTRL2_USB0SEL_EHCI);
+	/* low power status */
+	setbits_le16(HSUSB_REG_LPSTS, HSUSB_REG_LPSTS_SUSPM_NORMAL);
 
 #ifdef CONFIG_RENESAS_RAVB
 	/* EtherAVB Enable */
