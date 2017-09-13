@@ -99,6 +99,19 @@ config TARGET_SAMA5D2_XPLAINED
 	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
 
+config TARGET_SAMA5D27_SOM1_EK
+	bool "SAMA5D27 SOM1 EK board"
+	select CPU_V7
+	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
+	help
+	  The SAMA5D27 SOM1 embeds SAMA5D2 SiP(System in Package),
+	  a 64Mbit QSPI flash, KSZ8081 Phy and a Mac-address EEPROM
+	  24AA02E48. The SAMA5D2 SiP integrates the ARM Cortex-A5
+	  processor-based SAMA5D2 MPU with up to 1 Gbit DDR2-SDRAM
+	  in a single package.
+
 config TARGET_SAMA5D3_XPLAINED
 	bool "SAMA5D3 Xplained board"
 	select CPU_V7
@@ -181,6 +194,7 @@ source "board/atmel/at91sam9rlek/Kconfig"
 source "board/atmel/at91sam9x5ek/Kconfig"
 source "board/atmel/sama5d2_ptc/Kconfig"
 source "board/atmel/sama5d2_xplained/Kconfig"
+source "board/atmel/sama5d27_som1_ek/Kconfig"
 source "board/atmel/sama5d3_xplained/Kconfig"
 source "board/atmel/sama5d3xek/Kconfig"
 source "board/atmel/sama5d4_xplained/Kconfig"

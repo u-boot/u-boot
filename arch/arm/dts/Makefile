@@ -420,6 +420,9 @@ dtb-$(CONFIG_TARGET_OMAP3_LOGIC) += \
 dtb-$(CONFIG_TARGET_SAMA5D2_XPLAINED) += \
 	at91-sama5d2_xplained.dtb
 
+dtb-$(CONFIG_TARGET_SAMA5D27_SOM1_EK) += \
+	at91-sama5d27_som1_ek.dtb
+
 dtb-$(CONFIG_TARGET_SAMA5D3XEK) += \
 	sama5d31ek.dtb \
 	sama5d33ek.dtb \
