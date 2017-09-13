@@ -28,6 +28,10 @@
 
 struct efi_device_path;
 
+typedef struct {
+	u8 b[16];
+} efi_guid_t;
+
 #define EFI_BITS_PER_LONG	BITS_PER_LONG
 
 /*

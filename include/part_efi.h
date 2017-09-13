@@ -58,10 +58,6 @@
 /* linux/include/efi.h */
 typedef u16 efi_char16_t;
 
-typedef struct {
-	u8 b[16];
-} efi_guid_t;
-
 /* based on linux/include/genhd.h */
 struct partition {
 	u8 boot_ind;		/* 0x80 - active */
