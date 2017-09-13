@@ -5,6 +5,7 @@
  * reserved.
  * Copyright (C) 2016 Rockchip Electronic Co.,Ltd
  * Written by Kever Yang <kever.yang@rock-chips.com>
+ * Copyright (C) 2017 Theobroma Systems Design und Consulting GmbH
  *
  * SPDX-License-Identifier:     BSD-3-Clause
  */
@@ -30,7 +31,7 @@ static struct bl31_params *bl2_to_bl31_params;
  *
  * @return bl31 params structure pointer
  */
-struct bl31_params *bl2_plat_get_bl31_params(void)
+static struct bl31_params *bl2_plat_get_bl31_params(uintptr_t bl33_entry)
 {
 	struct entry_point_info *bl33_ep_info;
 
@@ -66,7 +67,7 @@ struct bl31_params *bl2_plat_get_bl31_params(void)
 
 	/* BL33 expects to receive the primary CPU MPID (through x0) */
 	bl33_ep_info->args.arg0 = 0xffff & read_mpidr();
-	bl33_ep_info->pc = CONFIG_SYS_TEXT_BASE;
+	bl33_ep_info->pc = bl33_entry;
 	bl33_ep_info->spsr = SPSR_64(MODE_EL2, MODE_SP_ELX,
 				     DISABLE_ALL_EXECPTIONS);
 
@@ -77,21 +78,88 @@ struct bl31_params *bl2_plat_get_bl31_params(void)
 	return bl2_to_bl31_params;
 }
 
-void raw_write_daif(unsigned int daif)
+static inline void raw_write_daif(unsigned int daif)
 {
 	__asm__ __volatile__("msr DAIF, %0\n\t" : : "r" (daif) : "memory");
 }
 
-void bl31_entry(void)
+typedef void (*atf_entry_t)(struct bl31_params *params, void *plat_params);
+
+static void bl31_entry(uintptr_t bl31_entry, uintptr_t bl33_entry,
+		       uintptr_t fdt_addr)
 {
 	struct bl31_params *bl31_params;
-	void (*entry)(struct bl31_params *params, void *plat_params) = NULL;
+	atf_entry_t  atf_entry = (atf_entry_t)bl31_entry;
 
-	bl31_params = bl2_plat_get_bl31_params();
-	entry = (void *)CONFIG_SPL_ATF_TEXT_BASE;
+	bl31_params = bl2_plat_get_bl31_params(bl33_entry);
 
 	raw_write_daif(SPSR_EXCEPTION_MASK);
 	dcache_disable();
 
-	entry(bl31_params, NULL);
+	atf_entry((void *)bl31_params, (void *)fdt_addr);
+}
+
+static int spl_fit_images_find_uboot(void *blob)
+{
+	int parent, node, ndepth;
+	const void *data;
+
+	if (!blob)
+		return -FDT_ERR_BADMAGIC;
+
+	parent = fdt_path_offset(blob, "/fit-images");
+	if (parent < 0)
+		return -FDT_ERR_NOTFOUND;
+
+	for (node = fdt_next_node(blob, parent, &ndepth);
+	     (node >= 0) && (ndepth > 0);
+	     node = fdt_next_node(blob, node, &ndepth)) {
+		if (ndepth != 1)
+			continue;
+
+		data = fdt_getprop(blob, node, FIT_OS_PROP, NULL);
+		if (!data)
+			continue;
+
+		if (genimg_get_os_id(data) == IH_OS_U_BOOT)
+			return node;
+	};
+
+	return -FDT_ERR_NOTFOUND;
+}
+
+uintptr_t spl_fit_images_get_entry(void *blob, int node)
+{
+	ulong  val;
+
+	val = fdt_getprop_u32(blob, node, "entry-point");
+	if (val == FDT_ERROR)
+		val = fdt_getprop_u32(blob, node, "load-addr");
+
+	debug("%s: entry point 0x%lx\n", __func__, val);
+	return val;
+}
+
+void spl_invoke_atf(struct spl_image_info *spl_image)
+{
+	uintptr_t  bl33_entry = CONFIG_SYS_TEXT_BASE;
+	void *blob = spl_image->fdt_addr;
+	int node;
+
+	/*
+	 * Find the U-Boot binary (in /fit-images) load addreess or
+	 * entry point (if different) and pass it as the BL3-3 entry
+	 * point.
+	 * This will need to be extended to support Falcon mode.
+	 */
+
+	node = spl_fit_images_find_uboot(blob);
+	if (node >= 0)
+		bl33_entry = spl_fit_images_get_entry(blob, node);
+
+	/*
+	 * We don't provide a BL3-2 entry yet, but this will be possible
+	 * using similar logic.
+	 */
+	bl31_entry(spl_image->entry_point, bl33_entry, (uintptr_t)blob);
 }
