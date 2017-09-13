@@ -218,6 +218,30 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	return 0;
 }
 
+static int spl_fit_append_fdt(struct spl_image_info *spl_image,
+			      struct spl_load_info *info, ulong sector,
+			      void *fit, int images, ulong base_offset)
+{
+	struct spl_image_info image_info;
+	int node, ret;
+
+	/* Figure out which device tree the board wants to use */
+	node = spl_fit_get_image_node(fit, images, FIT_FDT_PROP, 0);
+	if (node < 0) {
+		debug("%s: cannot find FDT node\n", __func__);
+		return node;
+	}
+
+	/*
+	 * Read the device tree and place it after the image.
+	 * Align the destination address to ARCH_DMA_MINALIGN.
+	 */
+	image_info.load_addr = spl_image->load_addr + spl_image->size;
+	ret = spl_load_fit_image(info, sector, fit, base_offset, node,
+				 &image_info);
+	return ret;
+}
+
 int spl_load_simple_fit(struct spl_image_info *spl_image,
 			struct spl_load_info *info, ulong sector, void *fit)
 {
@@ -225,7 +249,6 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	ulong size;
 	unsigned long count;
 	struct spl_image_info image_info;
-	bool boot_os = false;
 	int node = -1;
 	int images, ret;
 	int base_offset, align_len = ARCH_DMA_MINALIGN - 1;
@@ -273,17 +296,18 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 		return -1;
 	}
 
-#ifdef CONFIG_SPL_OS_BOOT
-	/* Find OS image first */
-	node = spl_fit_get_image_node(fit, images, FIT_KERNEL_PROP, 0);
-	if (node < 0)
-		debug("No kernel image.\n");
-	else
-		boot_os = true;
-#endif
-	/* find the U-Boot image */
+	/*
+	 * Find the U-Boot image using the following search order:
+	 *   - start at 'firmware' (e.g. an ARM Trusted Firmware)
+	 *   - fall back 'kernel' (e.g. a Falcon-mode OS boot
+	 *   - fall back to using the first 'loadables' entry
+	 */
 	if (node < 0)
 		node = spl_fit_get_image_node(fit, images, "firmware", 0);
+#ifdef CONFIG_SPL_OS_BOOT
+	if (node < 0)
+		node = spl_fit_get_image_node(fit, images, FIT_KERNEL_PROP, 0);
+#endif
 	if (node < 0) {
 		debug("could not find firmware image, trying loadables...\n");
 		node = spl_fit_get_image_node(fit, images, "loadables", 0);
@@ -305,34 +329,29 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	if (ret)
 		return ret;
 
-#ifdef CONFIG_SPL_OS_BOOT
+	/*
+	 * For backward compatibility, we treat the first node that is
+	 * as a U-Boot image, if no OS-type has been declared.
+	 */
 	if (!fit_image_get_os(fit, node, &spl_image->os))
 		debug("Image OS is %s\n", genimg_get_os_name(spl_image->os));
-#else
-	spl_image->os = IH_OS_U_BOOT;
+#if !defined(CONFIG_SPL_OS_BOOT)
+	else
+		spl_image->os = IH_OS_U_BOOT;
 #endif
 
-	if (!boot_os) {
-		/* Figure out which device tree the board wants to use */
-		node = spl_fit_get_image_node(fit, images, FIT_FDT_PROP, 0);
-		if (node < 0) {
-			debug("%s: cannot find FDT node\n", __func__);
-			return node;
-		}
-
-		/*
-		 * Read the device tree and place it after the image.
-		 * Align the destination address to ARCH_DMA_MINALIGN.
-		 */
-		image_info.load_addr = spl_image->load_addr + spl_image->size;
-		ret = spl_load_fit_image(info, sector, fit, base_offset, node,
-					 &image_info);
-		if (ret < 0)
-			return ret;
-	}
+	/*
+	 * Booting a next-stage U-Boot may require us to append the FDT.
+	 * We allow this to fail, as the U-Boot image might embed its FDT.
+	 */
+	if (spl_image->os == IH_OS_U_BOOT)
+		spl_fit_append_fdt(spl_image, info, sector, fit,
+				   images, base_offset);
 
 	/* Now check if there are more images for us to load */
 	for (; ; index++) {
+		uint8_t os_type = IH_OS_INVALID;
+
 		node = spl_fit_get_image_node(fit, images, "loadables", index);
 		if (node < 0)
 			break;
@@ -341,6 +360,13 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 					 &image_info);
 		if (ret < 0)
 			continue;
+
+		if (!fit_image_get_os(fit, node, &os_type))
+			debug("Loadable is %s\n", genimg_get_os_name(os_type));
+
+		if (spl_image->os == IH_OS_U_BOOT)
+			spl_fit_append_fdt(spl_image, info, sector,
+					   fit, images, base_offset);
 
 		/*
 		 * If the "firmware" image did not provide an entry point,
