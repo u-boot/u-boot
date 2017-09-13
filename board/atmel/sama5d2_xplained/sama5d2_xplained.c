@@ -247,6 +247,16 @@ void at91_pmc_init(void)
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 	u32 tmp;
 
+	/*
+	 * while coming from the ROM code, we run on PLLA @ 492 MHz / 164 MHz
+	 * so we need to slow down and configure MCKR accordingly.
+	 * This is why we have a special flavor of the switching function.
+	 */
+	tmp = AT91_PMC_MCKR_PLLADIV_2 |
+	      AT91_PMC_MCKR_MDIV_3 |
+	      AT91_PMC_MCKR_CSS_MAIN;
+	at91_mck_init_down(tmp);
+
 	tmp = AT91_PMC_PLLAR_29 |
 	      AT91_PMC_PLLXR_PLLCOUNT(0x3f) |
 	      AT91_PMC_PLLXR_MUL(82) |
