@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <linux/ctype.h>
 #include <dm.h>
 #include <video.h>
 #include <video_console.h>
@@ -107,12 +108,119 @@ static void vidconsole_newline(struct udevice *dev)
 	video_sync(dev->parent);
 }
 
+static char *parsenum(char *s, int *num)
+{
+	char *end;
+	*num = simple_strtol(s, &end, 10);
+	return end;
+}
+
+/*
+ * Process a character while accumulating an escape string.  Chars are
+ * accumulated into escape_buf until the end of escape sequence is
+ * found, at which point the sequence is parsed and processed.
+ */
+static void vidconsole_escape_char(struct udevice *dev, char ch)
+{
+	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
+
+	if (!IS_ENABLED(CONFIG_VIDEO_ANSI))
+		goto error;
+
+	/* Sanity checking for bogus ESC sequences: */
+	if (priv->escape_len >= sizeof(priv->escape_buf))
+		goto error;
+	if (priv->escape_len == 0 && ch != '[')
+		goto error;
+
+	priv->escape_buf[priv->escape_len++] = ch;
+
+	/*
+	 * Escape sequences are terminated by a letter, so keep
+	 * accumulating until we get one:
+	 */
+	if (!isalpha(ch))
+		return;
+
+	/*
+	 * clear escape mode first, otherwise things will get highly
+	 * surprising if you hit any debug prints that come back to
+	 * this console.
+	 */
+	priv->escape = 0;
+
+	switch (ch) {
+	case 'H':
+	case 'f': {
+		int row, col;
+		char *s = priv->escape_buf;
+
+		/*
+		 * Set cursor position: [%d;%df or [%d;%dH
+		 */
+		s++;    /* [ */
+		s = parsenum(s, &row);
+		s++;    /* ; */
+		s = parsenum(s, &col);
+
+		priv->ycur = row * priv->y_charsize;
+		priv->xcur_frac = priv->xstart_frac +
+			VID_TO_POS(col * priv->x_charsize);
+
+		break;
+	}
+	case 'J': {
+		int mode;
+
+		/*
+		 * Clear part/all screen:
+		 *   [J or [0J - clear screen from cursor down
+		 *   [1J       - clear screen from cursor up
+		 *   [2J       - clear entire screen
+		 *
+		 * TODO we really only handle entire-screen case, others
+		 * probably require some additions to video-uclass (and
+		 * are not really needed yet by efi_console)
+		 */
+		parsenum(priv->escape_buf + 1, &mode);
+
+		if (mode == 2) {
+			video_clear(dev->parent);
+			video_sync(dev->parent);
+			priv->ycur = 0;
+			priv->xcur_frac = priv->xstart_frac;
+		} else {
+			debug("unsupported clear mode: %d\n", mode);
+		}
+		break;
+	}
+	default:
+		debug("unrecognized escape sequence: %*s\n",
+		      priv->escape_len, priv->escape_buf);
+	}
+
+	return;
+
+error:
+	/* something went wrong, just revert to normal mode: */
+	priv->escape = 0;
+}
+
 int vidconsole_put_char(struct udevice *dev, char ch)
 {
 	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
 	int ret;
 
+	if (priv->escape) {
+		vidconsole_escape_char(dev, ch);
+		return 0;
+	}
+
 	switch (ch) {
+	case '\x1b':
+		priv->escape_len = 0;
+		priv->escape = 1;
+		break;
 	case '\a':
 		/* beep */
 		break;
