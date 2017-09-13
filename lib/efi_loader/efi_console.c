@@ -8,7 +8,10 @@
 
 #include <common.h>
 #include <charset.h>
+#include <dm/device.h>
 #include <efi_loader.h>
+#include <stdio_dev.h>
+#include <video_console.h>
 
 static bool console_size_queried;
 
@@ -222,12 +225,23 @@ static efi_status_t EFIAPI efi_cout_query_mode(
 	EFI_ENTRY("%p, %ld, %p, %p", this, mode_number, columns, rows);
 
 	if (!console_size_queried) {
+		const char *stdout_name = env_get("stdout");
 		int rows, cols;
 
 		console_size_queried = true;
 
-		if (query_console_serial(&rows, &cols))
+		if (stdout_name && !strcmp(stdout_name, "vidconsole") &&
+		    IS_ENABLED(CONFIG_DM_VIDEO)) {
+			struct stdio_dev *stdout_dev =
+				stdio_get_by_name("vidconsole");
+			struct udevice *dev = stdout_dev->priv;
+			struct vidconsole_priv *priv =
+				dev_get_uclass_priv(dev);
+			rows = priv->rows;
+			cols = priv->cols;
+		} else if (query_console_serial(&rows, &cols)) {
 			goto out;
+		}
 
 		/* Test if we can have Mode 1 */
 		if (cols >= 80 && rows >= 50) {
