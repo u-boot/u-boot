@@ -68,9 +68,8 @@ int blk_common_cmd(int argc, char * const argv[], enum if_type if_type,
 			ulong cnt = simple_strtoul(argv[4], NULL, 16);
 			ulong n;
 
-			printf("\n%s read: device %d block # %lld, count %ld ... ",
-			       if_name, *cur_devnump, (unsigned long long)blk,
-			       cnt);
+			printf("\n%s read: device %d block # "LBAFU", count %lu ... ",
+			       if_name, *cur_devnump, blk, cnt);
 
 			n = blk_read_devnum(if_type, *cur_devnump, blk, cnt,
 					    (ulong *)addr);
@@ -84,9 +83,8 @@ int blk_common_cmd(int argc, char * const argv[], enum if_type if_type,
 			ulong cnt = simple_strtoul(argv[4], NULL, 16);
 			ulong n;
 
-			printf("\n%s write: device %d block # %lld, count %ld ... ",
-			       if_name, *cur_devnump, (unsigned long long)blk,
-			       cnt);
+			printf("\n%s write: device %d block # "LBAFU", count %lu ... ",
+			       if_name, *cur_devnump, blk, cnt);
 
 			n = blk_write_devnum(if_type, *cur_devnump, blk, cnt,
 					     (ulong *)addr);
