@@ -487,22 +487,14 @@ struct efi_console_control_protocol
 	EFI_GUID(0x8b843e20, 0x8132, 0x4852, \
 		 0x90, 0xcc, 0x55, 0x1a, 0x4e, 0x4a, 0x7f, 0x1c)
 
-struct efi_device_path_protocol
-{
-	uint8_t type;
-	uint8_t sub_type;
-	uint16_t length;
-	uint8_t data[];
-};
-
 struct efi_device_path_to_text_protocol
 {
 	uint16_t *(EFIAPI *convert_device_node_to_text)(
-			struct efi_device_path_protocol *device_node,
+			struct efi_device_path *device_node,
 			bool display_only,
 			bool allow_shortcuts);
 	uint16_t *(EFIAPI *convert_device_path_to_text)(
-			struct efi_device_path_protocol *device_path,
+			struct efi_device_path *device_path,
 			bool display_only,
 			bool allow_shortcuts);
 };

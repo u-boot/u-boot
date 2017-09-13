@@ -16,7 +16,7 @@ const efi_guid_t efi_guid_device_path_to_text_protocol =
 		EFI_DEVICE_PATH_TO_TEXT_PROTOCOL_GUID;
 
 static uint16_t *efi_convert_device_node_to_text(
-		struct efi_device_path_protocol *device_node,
+		struct efi_device_path *device_node,
 		bool display_only,
 		bool allow_shortcuts)
 {
@@ -55,14 +55,17 @@ static uint16_t *efi_convert_device_node_to_text(
 		break;
 	case DEVICE_PATH_TYPE_MEDIA_DEVICE:
 		switch (device_node->sub_type) {
-		case DEVICE_PATH_SUB_TYPE_FILE_PATH:
+		case DEVICE_PATH_SUB_TYPE_FILE_PATH: {
+			struct efi_device_path_file_path *fp =
+				(struct efi_device_path_file_path *)device_node;
 			buffer_size = device_node->length - 4;
 			r = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES,
 					      buffer_size, (void **) &buffer);
 			if (r != EFI_SUCCESS)
 				return NULL;
-			memcpy(buffer, device_node->data, buffer_size);
+			memcpy(buffer, fp->str, buffer_size);
 			break;
+		}
 		}
 		break;
 	}
@@ -89,7 +92,7 @@ static uint16_t *efi_convert_device_node_to_text(
 }
 
 static uint16_t EFIAPI *efi_convert_device_node_to_text_ext(
-		struct efi_device_path_protocol *device_node,
+		struct efi_device_path *device_node,
 		bool display_only,
 		bool allow_shortcuts)
 {
@@ -105,7 +108,7 @@ static uint16_t EFIAPI *efi_convert_device_node_to_text_ext(
 }
 
 static uint16_t EFIAPI *efi_convert_device_path_to_text(
-		struct efi_device_path_protocol *device_path,
+		struct efi_device_path *device_path,
 		bool display_only,
 		bool allow_shortcuts)
 {
