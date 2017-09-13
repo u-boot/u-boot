@@ -666,4 +666,69 @@ struct efi_pxe {
 	struct efi_pxe_mode *mode;
 };
 
+#define EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID \
+	EFI_GUID(0x964e5b22, 0x6459, 0x11d2, \
+		 0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
+#define EFI_FILE_PROTOCOL_REVISION 0x00010000
+
+struct efi_file_handle {
+	u64 rev;
+	efi_status_t (EFIAPI *open)(struct efi_file_handle *file,
+			struct efi_file_handle **new_handle,
+			s16 *file_name, u64 open_mode, u64 attributes);
+	efi_status_t (EFIAPI *close)(struct efi_file_handle *file);
+	efi_status_t (EFIAPI *delete)(struct efi_file_handle *file);
+	efi_status_t (EFIAPI *read)(struct efi_file_handle *file,
+			u64 *buffer_size, void *buffer);
+	efi_status_t (EFIAPI *write)(struct efi_file_handle *file,
+			u64 *buffer_size, void *buffer);
+	efi_status_t (EFIAPI *getpos)(struct efi_file_handle *file,
+			u64 *pos);
+	efi_status_t (EFIAPI *setpos)(struct efi_file_handle *file,
+			u64 pos);
+	efi_status_t (EFIAPI *getinfo)(struct efi_file_handle *file,
+			efi_guid_t *info_type, u64 *buffer_size, void *buffer);
+	efi_status_t (EFIAPI *setinfo)(struct efi_file_handle *file,
+			efi_guid_t *info_type, u64 buffer_size, void *buffer);
+	efi_status_t (EFIAPI *flush)(struct efi_file_handle *file);
+};
+
+#define EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID \
+	EFI_GUID(0x964e5b22, 0x6459, 0x11d2, \
+		 0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
+#define EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_REVISION 0x00010000
+
+struct efi_simple_file_system_protocol {
+	u64 rev;
+	efi_status_t (EFIAPI *open_volume)(struct efi_simple_file_system_protocol *this,
+			struct efi_file_handle **root);
+};
+
+#define EFI_FILE_INFO_GUID \
+	EFI_GUID(0x9576e92, 0x6d3f, 0x11d2, \
+		 0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
+
+#define EFI_FILE_MODE_READ	0x0000000000000001
+#define EFI_FILE_MODE_WRITE	0x0000000000000002
+#define EFI_FILE_MODE_CREATE	0x8000000000000000
+
+#define EFI_FILE_READ_ONLY	0x0000000000000001
+#define EFI_FILE_HIDDEN		0x0000000000000002
+#define EFI_FILE_SYSTEM		0x0000000000000004
+#define EFI_FILE_RESERVED	0x0000000000000008
+#define EFI_FILE_DIRECTORY	0x0000000000000010
+#define EFI_FILE_ARCHIVE	0x0000000000000020
+#define EFI_FILE_VALID_ATTR	0x0000000000000037
+
+struct efi_file_info {
+	u64 size;
+	u64 file_size;
+	u64 physical_size;
+	struct efi_time create_time;
+	struct efi_time last_access_time;
+	struct efi_time modification_time;
+	u64 attribute;
+	s16 file_name[0];
+};
+
 #endif

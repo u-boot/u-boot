@@ -31,6 +31,8 @@ struct efi_disk_obj {
 	struct efi_device_path *dp;
 	/* partition # */
 	unsigned int part;
+	/* handle to filesys proto (for partition objects) */
+	struct efi_simple_file_system_protocol *volume;
 	/* Offset into disk for simple partitions */
 	lbaint_t offset;
 	/* Internal block device */
@@ -172,6 +174,28 @@ static const struct efi_block_io block_io_disk_template = {
 	.flush_blocks = &efi_disk_flush_blocks,
 };
 
+/*
+ * Find filesystem from a device-path.  The passed in path 'p' probably
+ * contains one or more /File(name) nodes, so the comparison stops at
+ * the first /File() node, and returns the pointer to that via 'rp'.
+ * This is mostly intended to be a helper to map a device-path to an
+ * efi_file_handle object.
+ */
+struct efi_simple_file_system_protocol *
+efi_fs_from_path(struct efi_device_path *fp)
+{
+	struct efi_object *efiobj;
+	struct efi_disk_obj *diskobj;
+
+	efiobj = efi_dp_find_obj(fp, NULL);
+	if (!efiobj)
+		return NULL;
+
+	diskobj = container_of(efiobj, struct efi_disk_obj, parent);
+
+	return diskobj->volume;
+}
+
 static void efi_disk_add_dev(const char *name,
 			     const char *if_typename,
 			     struct blk_desc *desc,
@@ -194,6 +218,14 @@ static void efi_disk_add_dev(const char *name,
 	diskobj->parent.protocols[0].protocol_interface = &diskobj->ops;
 	diskobj->parent.protocols[1].guid = &efi_guid_device_path;
 	diskobj->parent.protocols[1].protocol_interface = diskobj->dp;
+	if (part >= 1) {
+		diskobj->volume = efi_simple_file_system(desc, part,
+							 diskobj->dp);
+		diskobj->parent.protocols[2].guid =
+			&efi_simple_file_system_protocol_guid;
+		diskobj->parent.protocols[2].protocol_interface =
+			diskobj->volume;
+	}
 	diskobj->parent.handle = diskobj;
 	diskobj->ops = block_io_disk_template;
 	diskobj->ifname = if_typename;
