@@ -108,6 +108,41 @@ static void vidconsole_newline(struct udevice *dev)
 	video_sync(dev->parent);
 }
 
+static const struct {
+	unsigned r;
+	unsigned g;
+	unsigned b;
+} colors[] = {
+	{ 0x00, 0x00, 0x00 },  /* black */
+	{ 0xff, 0x00, 0x00 },  /* red */
+	{ 0x00, 0xff, 0x00 },  /* green */
+	{ 0xff, 0xff, 0x00 },  /* yellow */
+	{ 0x00, 0x00, 0xff },  /* blue */
+	{ 0xff, 0x00, 0xff },  /* magenta */
+	{ 0x00, 0xff, 0xff },  /* cyan */
+	{ 0xff, 0xff, 0xff },  /* white */
+};
+
+static void set_color(struct video_priv *priv, unsigned idx, unsigned *c)
+{
+	switch (priv->bpix) {
+	case VIDEO_BPP16:
+		*c = ((colors[idx].r >> 3) << 0) |
+		     ((colors[idx].g >> 2) << 5) |
+		     ((colors[idx].b >> 3) << 11);
+		break;
+	case VIDEO_BPP32:
+		*c = 0xff000000 |
+		     (colors[idx].r << 0) |
+		     (colors[idx].g << 8) |
+		     (colors[idx].b << 16);
+		break;
+	default:
+		/* unsupported, leave current color in place */
+		break;
+	}
+}
+
 static char *parsenum(char *s, int *num)
 {
 	char *end;
@@ -192,6 +227,65 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 		} else {
 			debug("unsupported clear mode: %d\n", mode);
 		}
+		break;
+	}
+	case 'm': {
+		struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
+		char *s = priv->escape_buf;
+		char *end = &priv->escape_buf[priv->escape_len];
+
+		/*
+		 * Set graphics mode: [%d;...;%dm
+		 *
+		 * Currently only supports the color attributes:
+		 *
+		 * Foreground Colors:
+		 *
+		 *   30	Black
+		 *   31	Red
+		 *   32	Green
+		 *   33	Yellow
+		 *   34	Blue
+		 *   35	Magenta
+		 *   36	Cyan
+		 *   37	White
+		 *
+		 * Background Colors:
+		 *
+		 *   40	Black
+		 *   41	Red
+		 *   42	Green
+		 *   43	Yellow
+		 *   44	Blue
+		 *   45	Magenta
+		 *   46	Cyan
+		 *   47	White
+		 */
+
+		s++;    /* [ */
+		while (s < end) {
+			int val;
+
+			s = parsenum(s, &val);
+			s++;
+
+			switch (val) {
+			case 30 ... 37:
+				/* fg color */
+				set_color(vid_priv, val - 30,
+					  (unsigned *)&vid_priv->colour_fg);
+				break;
+			case 40 ... 47:
+				/* bg color */
+				set_color(vid_priv, val - 40,
+					  (unsigned *)&vid_priv->colour_bg);
+				break;
+			default:
+				/* unknown/unsupported */
+				break;
+			}
+		}
+
 		break;
 	}
 	default:
