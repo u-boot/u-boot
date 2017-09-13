@@ -373,7 +373,7 @@ struct efi_device_path_cdrom_path {
 
 struct efi_device_path_file_path {
 	struct efi_device_path dp;
-	u16 str[32];
+	u16 str[];
 } __packed;
 
 #define BLOCK_IO_GUID \
