@@ -25,6 +25,7 @@ void at91_lcd_hw_init(void);
 void at91_plla_init(u32 pllar);
 void at91_pllb_init(u32 pllar);
 void at91_mck_init(u32 mckr);
+void at91_mck_init_down(u32 mckr);
 void at91_pmc_init(void);
 void mem_init(void);
 void at91_phy_reset(void);
