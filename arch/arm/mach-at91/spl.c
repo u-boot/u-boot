@@ -56,6 +56,8 @@ u32 spl_boot_device(void)
 	if (dev == ATMEL_SAMA5_BOOT_FROM_SPI)
 		return BOOT_DEVICE_SPI;
 #endif
+	if (dev == ATMEL_SAMA5_BOOT_FROM_QSPI)
+		return BOOT_DEVICE_SPI;
 
 	if (dev == ATMEL_SAMA5_BOOT_FROM_SMC)
 		return BOOT_DEVICE_NAND;
