@@ -80,6 +80,8 @@ extern struct efi_simple_input_interface efi_con_in;
 extern const struct efi_console_control_protocol efi_console_control;
 extern const struct efi_device_path_to_text_protocol efi_device_path_to_text;
 
+uint16_t *efi_dp_str(struct efi_device_path *dp);
+
 extern const efi_guid_t efi_guid_console_control;
 extern const efi_guid_t efi_guid_device_path;
 extern const efi_guid_t efi_guid_loaded_image;

@@ -304,6 +304,7 @@ struct efi_device_path_vendor {
 
 #define EFI_PNP_ID(ID)				(u32)(((ID) << 16) | 0x41D0)
 #define EISA_PNP_ID(ID)				EFI_PNP_ID(ID)
+#define EISA_PNP_NUM(ID)			((ID) >> 16)
 
 struct efi_device_path_acpi_path {
 	struct efi_device_path dp;
