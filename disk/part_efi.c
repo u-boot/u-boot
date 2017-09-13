@@ -923,8 +923,16 @@ static int is_pmbr_valid(legacy_mbr * mbr)
 static int is_gpt_valid(struct blk_desc *dev_desc, u64 lba,
 			gpt_header *pgpt_head, gpt_entry **pgpt_pte)
 {
+	ALLOC_CACHE_ALIGN_BUFFER(legacy_mbr, mbr, dev_desc->blksz);
+
 	if (!dev_desc || !pgpt_head) {
 		printf("%s: Invalid Argument(s)\n", __func__);
+		return 0;
+	}
+
+	/* Read MBR Header from device */
+	if (blk_dread(dev_desc, 0, 1, (ulong *)mbr) != 1) {
+		printf("*** ERROR: Can't read MBR header ***\n");
 		return 0;
 	}
 
@@ -936,6 +944,18 @@ static int is_gpt_valid(struct blk_desc *dev_desc, u64 lba,
 
 	if (validate_gpt_header(pgpt_head, (lbaint_t)lba, dev_desc->lba))
 		return 0;
+
+	if (dev_desc->sig_type == SIG_TYPE_NONE) {
+		efi_guid_t empty = {};
+		if (memcmp(&pgpt_head->disk_guid, &empty, sizeof(empty))) {
+			dev_desc->sig_type = SIG_TYPE_GUID;
+			memcpy(&dev_desc->guid_sig, &pgpt_head->disk_guid,
+			      sizeof(empty));
+		} else if (mbr->unique_mbr_signature != 0) {
+			dev_desc->sig_type = SIG_TYPE_MBR;
+			dev_desc->mbr_sig = mbr->unique_mbr_signature;
+		}
+	}
 
 	/* Read and allocate Partition Table Entries */
 	*pgpt_pte = alloc_read_gpt_entries(dev_desc, pgpt_head);
