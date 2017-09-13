@@ -232,9 +232,6 @@ ulong blk_read_devnum(enum if_type if_type, int devnum, lbaint_t start,
 	if (IS_ERR_VALUE(n))
 		return n;
 
-	/* flush cache after read */
-	flush_cache((ulong)buffer, blkcnt * desc->blksz);
-
 	return n;
 }
 

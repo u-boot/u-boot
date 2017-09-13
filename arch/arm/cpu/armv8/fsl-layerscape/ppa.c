@@ -107,9 +107,6 @@ int ppa_init(void)
 		return -EIO;
 	}
 
-	/* flush cache after read */
-	flush_cache((ulong)fitp, cnt * 512);
-
 	ret = fdt_check_header(fitp);
 	if (ret) {
 		free(fitp);
@@ -133,9 +130,6 @@ int ppa_init(void)
 		return -EIO;
 	}
 	debug("Read PPA header to 0x%p\n", ppa_hdr_ddr);
-
-	/* flush cache after read */
-	flush_cache((ulong)ppa_hdr_ddr, cnt * 512);
 
 	ppa_esbc_hdr = (uintptr_t)ppa_hdr_ddr;
 #endif
@@ -163,9 +157,6 @@ int ppa_init(void)
 		       CONFIG_SYS_LS_PPA_FW_ADDR);
 		return -EIO;
 	}
-
-	/* flush cache after read */
-	flush_cache((ulong)ppa_fit_addr, cnt * 512);
 
 #elif defined(CONFIG_SYS_LS_PPA_FW_IN_NAND)
 	struct fdt_header fit;
@@ -208,9 +199,6 @@ int ppa_init(void)
 	}
 	debug("Read PPA header to 0x%p\n", ppa_hdr_ddr);
 
-	/* flush cache after read */
-	flush_cache((ulong)ppa_hdr_ddr, fw_length);
-
 	ppa_esbc_hdr = (uintptr_t)ppa_hdr_ddr;
 #endif
 
@@ -232,9 +220,6 @@ int ppa_init(void)
 		       CONFIG_SYS_LS_PPA_FW_ADDR);
 		return -EIO;
 	}
-
-	/* flush cache after read */
-	flush_cache((ulong)ppa_fit_addr, fw_length);
 #else
 #error "No CONFIG_SYS_LS_PPA_FW_IN_xxx defined"
 #endif

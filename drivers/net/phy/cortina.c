@@ -177,8 +177,6 @@ void cs4340_upload_firmware(struct phy_device *phydev)
 		mmc_init(mmc);
 		(void)mmc->block_dev.block_read(&mmc->block_dev, blk, cnt,
 						addr);
-		/* flush cache after read */
-		flush_cache((ulong)addr, cnt * 512);
 	}
 #endif
 

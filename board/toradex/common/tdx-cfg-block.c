@@ -129,8 +129,6 @@ static int tdx_cfg_block_mmc_storage(u8 *config_block, int write)
 			ret = -EIO;
 			goto out;
 		}
-		/* Flush cache after read */
-		flush_cache((ulong)(unsigned char *)config_block, 512);
 	} else {
 		/* Just writing one 512 byte block */
 		if (blk_dwrite(mmc_get_blk_desc(mmc), blk_start, 1,
