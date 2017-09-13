@@ -94,6 +94,7 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 	unsigned long virt_size = 0;
 	bool can_run_nt64 = true;
 	bool can_run_nt32 = true;
+	uint16_t image_type;
 
 #if defined(CONFIG_ARM64)
 	can_run_nt32 = false;
@@ -139,6 +140,7 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 		entry = efi_reloc + opt->AddressOfEntryPoint;
 		rel_size = opt->DataDirectory[rel_idx].Size;
 		rel = efi_reloc + opt->DataDirectory[rel_idx].VirtualAddress;
+		image_type = opt->Subsystem;
 	} else if (can_run_nt32 &&
 		   (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC)) {
 		IMAGE_OPTIONAL_HEADER32 *opt = &nt->OptionalHeader;
@@ -152,10 +154,30 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 		entry = efi_reloc + opt->AddressOfEntryPoint;
 		rel_size = opt->DataDirectory[rel_idx].Size;
 		rel = efi_reloc + opt->DataDirectory[rel_idx].VirtualAddress;
+		image_type = opt->Subsystem;
 	} else {
 		printf("%s: Invalid optional header magic %x\n", __func__,
 		       nt->OptionalHeader.Magic);
 		return NULL;
+	}
+
+	switch (image_type) {
+	case IMAGE_SUBSYSTEM_EFI_APPLICATION:
+		loaded_image_info->image_code_type = EFI_LOADER_CODE;
+		loaded_image_info->image_data_type = EFI_LOADER_DATA;
+		break;
+	case IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER:
+		loaded_image_info->image_code_type = EFI_BOOT_SERVICES_CODE;
+		loaded_image_info->image_data_type = EFI_BOOT_SERVICES_DATA;
+		break;
+	case IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER:
+	case IMAGE_SUBSYSTEM_SAL_RUNTIME_DRIVER:
+		loaded_image_info->image_code_type = EFI_RUNTIME_SERVICES_CODE;
+		loaded_image_info->image_data_type = EFI_RUNTIME_SERVICES_DATA;
+		break;
+	default:
+		printf("%s: invalid image type: %u\n", __func__, image_type);
+		break;
 	}
 
 	/* Load sections into RAM */
