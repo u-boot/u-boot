@@ -813,6 +813,47 @@ void efi_setup_loaded_image(struct efi_loaded_image *info, struct efi_object *ob
 	list_add_tail(&obj->link, &efi_obj_list);
 }
 
+static efi_status_t load_image_from_path(struct efi_device_path *file_path,
+					 void **buffer)
+{
+	struct efi_file_info *info = NULL;
+	struct efi_file_handle *f;
+	static efi_status_t ret;
+	uint64_t bs;
+
+	f = efi_file_from_path(file_path);
+	if (!f)
+		return EFI_DEVICE_ERROR;
+
+	bs = 0;
+	EFI_CALL(ret = f->getinfo(f, (efi_guid_t *)&efi_file_info_guid,
+				  &bs, info));
+	if (ret == EFI_BUFFER_TOO_SMALL) {
+		info = malloc(bs);
+		EFI_CALL(ret = f->getinfo(f, (efi_guid_t *)&efi_file_info_guid,
+					  &bs, info));
+	}
+	if (ret != EFI_SUCCESS)
+		goto error;
+
+	ret = efi_allocate_pool(EFI_LOADER_DATA, info->file_size, buffer);
+	if (ret)
+		goto error;
+
+	EFI_CALL(ret = f->read(f, &info->file_size, *buffer));
+
+error:
+	free(info);
+	EFI_CALL(f->close(f));
+
+	if (ret != EFI_SUCCESS) {
+		efi_free_pool(*buffer);
+		*buffer = NULL;
+	}
+
+	return ret;
+}
+
 static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 					  efi_handle_t parent_image,
 					  struct efi_device_path *file_path,
@@ -820,25 +861,40 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 					  unsigned long source_size,
 					  efi_handle_t *image_handle)
 {
-	static struct efi_object loaded_image_info_obj = {
-		.protocols = {
-			{
-				.guid = &efi_guid_loaded_image,
-			},
-		},
-	};
 	struct efi_loaded_image *info;
 	struct efi_object *obj;
 
 	EFI_ENTRY("%d, %p, %p, %p, %ld, %p", boot_policy, parent_image,
 		  file_path, source_buffer, source_size, image_handle);
-	info = malloc(sizeof(*info));
-	loaded_image_info_obj.protocols[0].protocol_interface = info;
-	obj = malloc(sizeof(loaded_image_info_obj));
-	memset(info, 0, sizeof(*info));
-	memcpy(obj, &loaded_image_info_obj, sizeof(loaded_image_info_obj));
-	obj->handle = info;
-	info->file_path = file_path;
+
+	info = calloc(1, sizeof(*info));
+	obj = calloc(1, sizeof(*obj));
+
+	if (!source_buffer) {
+		struct efi_device_path *dp, *fp;
+		efi_status_t ret;
+
+		ret = load_image_from_path(file_path, &source_buffer);
+		if (ret != EFI_SUCCESS) {
+			free(info);
+			free(obj);
+			return EFI_EXIT(ret);
+		}
+
+		/*
+		 * split file_path which contains both the device and
+		 * file parts:
+		 */
+		efi_dp_split_file_path(file_path, &dp, &fp);
+
+		efi_setup_loaded_image(info, obj, dp, fp);
+	} else {
+		/* In this case, file_path is the "device" path, ie.
+		 * something like a HARDWARE_DEVICE:MEMORY_MAPPED
+		 */
+		efi_setup_loaded_image(info, obj, file_path, NULL);
+	}
+
 	info->reserved = efi_load_pe(source_buffer, info);
 	if (!info->reserved) {
 		free(info);
@@ -847,7 +903,6 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 	}
 
 	*image_handle = info;
-	list_add_tail(&obj->link, &efi_obj_list);
 
 	return EFI_EXIT(EFI_SUCCESS);
 }
