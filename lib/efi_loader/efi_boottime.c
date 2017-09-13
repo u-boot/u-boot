@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <efi_loader.h>
+#include <environment.h>
 #include <malloc.h>
 #include <asm/global_data.h>
 #include <libfdt_env.h>
@@ -1012,6 +1013,11 @@ static efi_status_t EFIAPI efi_exit_boot_services(void *image_handle,
 	}
 	/* Make sure that notification functions are not called anymore */
 	efi_tpl = TPL_HIGH_LEVEL;
+
+#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
+	/* save any EFI variables that have been written: */
+	env_save();
+#endif
 
 	board_quiesce_devices();
 
