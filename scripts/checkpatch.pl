@@ -5616,6 +5616,13 @@ sub process {
 			     "__packed is preferred over __attribute__((packed))\n" . $herecurr);
 		}
 
+# Check for new packed members, warn to use care
+		if ($realfile !~ m@\binclude/uapi/@ &&
+		    $line =~ /\b(__attribute__\s*\(\s*\(.*\bpacked|__packed)\b/) {
+			WARN("NEW_PACKED",
+			     "Adding new packed members is to be done with care\n" . $herecurr);
+		}
+
 # Check for __attribute__ aligned, prefer __aligned
 		if ($realfile !~ m@\binclude/uapi/@ &&
 		    $line =~ /\b__attribute__\s*\(\s*\(.*aligned/) {
