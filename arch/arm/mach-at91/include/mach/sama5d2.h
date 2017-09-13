@@ -222,7 +222,11 @@
 #define ARCH_EXID_SAMA5D28CU	0x00000010
 #define ARCH_EXID_SAMA5D28CN	0x00000020
 
-#define cpu_is_sama5d2()	(get_chip_id() == ARCH_ID_SAMA5D2)
+#define ARCH_ID_SAMA5D2_SIP		0x8a5c08c2
+#define ARCH_EXID_SAMA5D225C_D1M	0x00000053
+#define ARCH_EXID_SAMA5D27C_D5M		0x00000032
+#define ARCH_EXID_SAMA5D27C_D1G		0x00000033
+#define ARCH_EXID_SAMA5D28C_D1G		0x00000013
 
 /* PIT Timer(PIT_PIIR) */
 #define CONFIG_SYS_TIMER_COUNTER	0xf804803c
@@ -233,6 +237,7 @@
 #ifndef __ASSEMBLY__
 unsigned int get_chip_id(void);
 unsigned int get_extension_chip_id(void);
+int cpu_is_sama5d2(void);
 unsigned int has_lcdc(void);
 char *get_cpu_name(void);
 #endif
