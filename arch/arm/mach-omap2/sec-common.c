@@ -305,12 +305,8 @@ int secure_tee_install(u32 addr)
 
 	if ((hdr->magic != OPTEE_MAGIC) ||
 	    (hdr->version != OPTEE_VERSION) ||
-	    (hdr->init_load_addr_hi != 0) ||
-	    (hdr->init_load_addr_lo < (sec_mem_start + sizeof(struct optee_header))) ||
-	    (tee_file_size > size) ||
-	    ((hdr->init_load_addr_lo + tee_file_size - 1) >
-	     (sec_mem_start + size - 1))) {
-		printf("Error in TEE header. Check load address and sizes\n");
+	    (tee_file_size > size)) {
+		printf("Error in TEE header. Check firewall and TEE sizes\n");
 		unmap_sysmem(hdr);
 		return CMD_RET_FAILURE;
 	}
