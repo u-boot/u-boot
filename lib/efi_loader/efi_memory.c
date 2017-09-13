@@ -43,7 +43,7 @@ void *efi_bounce_buffer;
  */
 struct efi_pool_allocation {
 	u64 num_pages;
-	char data[];
+	char data[] __aligned(ARCH_DMA_MINALIGN);
 };
 
 /*
@@ -356,7 +356,8 @@ efi_status_t efi_allocate_pool(int pool_type, unsigned long size,
 {
 	efi_status_t r;
 	efi_physical_addr_t t;
-	u64 num_pages = (size + sizeof(u64) + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
+	u64 num_pages = (size + sizeof(struct efi_pool_allocation) +
+			 EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
 
 	if (size == 0) {
 		*buffer = NULL;
