@@ -207,7 +207,7 @@ void efi_net_set_dhcp_ack(void *pkt, int len)
 }
 
 /* This gets called from do_bootefi_exec(). */
-int efi_net_register(void **handle)
+int efi_net_register(void)
 {
 	struct efi_net_obj *netobj;
 
@@ -252,9 +252,6 @@ int efi_net_register(void **handle)
 
 	/* Hook net up to the device list */
 	list_add_tail(&netobj->parent.link, &efi_obj_list);
-
-	if (handle)
-		*handle = &netobj->net;
 
 	return 0;
 }

@@ -22,97 +22,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static uint8_t efi_obj_list_initalized;
 
-/*
- * When booting using the "bootefi" command, we don't know which
- * physical device the file came from. So we create a pseudo-device
- * called "bootefi" with the device path /bootefi.
- *
- * In addition to the originating device we also declare the file path
- * of "bootefi" based loads to be /bootefi.
- */
-static struct efi_device_path_file_path bootefi_image_path[] = {
-	{
-		.dp.type = DEVICE_PATH_TYPE_MEDIA_DEVICE,
-		.dp.sub_type = DEVICE_PATH_SUB_TYPE_FILE_PATH,
-		.dp.length = sizeof(bootefi_image_path[0]),
-		.str = { 'b','o','o','t','e','f','i' },
-	}, {
-		.dp.type = DEVICE_PATH_TYPE_END,
-		.dp.sub_type = DEVICE_PATH_SUB_TYPE_END,
-		.dp.length = sizeof(bootefi_image_path[0]),
-	}
-};
-
-static struct efi_device_path_file_path bootefi_device_path[] = {
-	{
-		.dp.type = DEVICE_PATH_TYPE_MEDIA_DEVICE,
-		.dp.sub_type = DEVICE_PATH_SUB_TYPE_FILE_PATH,
-		.dp.length = sizeof(bootefi_image_path[0]),
-		.str = { 'b','o','o','t','e','f','i' },
-	}, {
-		.dp.type = DEVICE_PATH_TYPE_END,
-		.dp.sub_type = DEVICE_PATH_SUB_TYPE_END,
-		.dp.length = sizeof(bootefi_image_path[0]),
-	}
-};
-
-/* The EFI loaded_image interface for the image executed via "bootefi" */
-static struct efi_loaded_image loaded_image_info = {
-	.device_handle = bootefi_device_path,
-	.file_path = bootefi_image_path,
-};
-
-/* The EFI object struct for the image executed via "bootefi" */
-static struct efi_object loaded_image_info_obj = {
-	.handle = &loaded_image_info,
-	.protocols = {
-		{
-			/*
-			 * When asking for the loaded_image interface, just
-			 * return handle which points to loaded_image_info
-			 */
-			.guid = &efi_guid_loaded_image,
-			.protocol_interface = &loaded_image_info,
-		},
-		{
-			/*
-			 * When asking for the device path interface, return
-			 * bootefi_device_path
-			 */
-			.guid = &efi_guid_device_path,
-			.protocol_interface = bootefi_device_path,
-		},
-		{
-			.guid = &efi_guid_console_control,
-			.protocol_interface = (void *) &efi_console_control
-		},
-		{
-			.guid = &efi_guid_device_path_to_text_protocol,
-			.protocol_interface = (void *) &efi_device_path_to_text
-		},
-	},
-};
-
-/* The EFI object struct for the device the "bootefi" image was loaded from */
-static struct efi_object bootefi_device_obj = {
-	.handle = bootefi_device_path,
-	.protocols = {
-		{
-			/* When asking for the device path interface, return
-			 * bootefi_device_path */
-			.guid = &efi_guid_device_path,
-			.protocol_interface = bootefi_device_path
-		}
-	},
-};
+static struct efi_device_path *bootefi_image_path;
+static struct efi_device_path *bootefi_device_path;
 
 /* Initialize and populate EFI object list */
 static void efi_init_obj_list(void)
 {
 	efi_obj_list_initalized = 1;
 
-	list_add_tail(&loaded_image_info_obj.link, &efi_obj_list);
-	list_add_tail(&bootefi_device_obj.link, &efi_obj_list);
 	efi_console_register();
 #ifdef CONFIG_PARTITIONS
 	efi_disk_register();
@@ -121,13 +38,7 @@ static void efi_init_obj_list(void)
 	efi_gop_register();
 #endif
 #ifdef CONFIG_NET
-	void *nethandle = loaded_image_info.device_handle;
-	efi_net_register(&nethandle);
-
-	if (!memcmp(bootefi_device_path[0].str, "N\0e\0t", 6))
-		loaded_image_info.device_handle = nethandle;
-	else
-		loaded_image_info.device_handle = bootefi_device_path;
+	efi_net_register();
 #endif
 #ifdef CONFIG_GENERATE_SMBIOS_TABLE
 	efi_smbios_register();
@@ -210,13 +121,26 @@ static unsigned long efi_run_in_el2(asmlinkage ulong (*entry)(
  * Load an EFI payload into a newly allocated piece of memory, register all
  * EFI objects it would want to access and jump to it.
  */
-static unsigned long do_bootefi_exec(void *efi, void *fdt)
+static unsigned long do_bootefi_exec(void *efi, void *fdt,
+				     struct efi_device_path *device_path,
+				     struct efi_device_path *image_path)
 {
+	struct efi_loaded_image loaded_image_info = {};
+	struct efi_object loaded_image_info_obj = {};
+	ulong ret;
+
 	ulong (*entry)(void *image_handle, struct efi_system_table *st)
 		asmlinkage;
 	ulong fdt_pages, fdt_size, fdt_start, fdt_end;
 	const efi_guid_t fdt_guid = EFI_FDT_GUID;
 	bootm_headers_t img = { 0 };
+
+	/* Initialize and populate EFI object list */
+	if (!efi_obj_list_initalized)
+		efi_init_obj_list();
+
+	efi_setup_loaded_image(&loaded_image_info, &loaded_image_info_obj,
+			       device_path, image_path);
 
 	/*
 	 * gd lives in a fixed register which may get clobbered while we execute
@@ -252,18 +176,18 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 
 	/* Load the EFI payload */
 	entry = efi_load_pe(efi, &loaded_image_info);
-	if (!entry)
-		return -ENOENT;
-
-	/* Initialize and populate EFI object list */
-	if (!efi_obj_list_initalized)
-		efi_init_obj_list();
+	if (!entry) {
+		ret = -ENOENT;
+		goto exit;
+	}
 
 	/* Call our payload! */
 	debug("%s:%d Jumping to 0x%lx\n", __func__, __LINE__, (long)entry);
 
 	if (setjmp(&loaded_image_info.exit_jmp)) {
-		return loaded_image_info.exit_status;
+		ret = loaded_image_info.exit_status;
+		EFI_EXIT(ret);
+		goto exit;
 	}
 
 #ifdef CONFIG_ARM64
@@ -282,7 +206,13 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 	}
 #endif
 
-	return efi_do_enter(&loaded_image_info, &systab, entry);
+	ret = efi_do_enter(&loaded_image_info, &systab, entry);
+
+exit:
+	/* image has returned, loaded-image obj goes *poof*: */
+	list_del(&loaded_image_info_obj.link);
+
+	return ret;
 }
 
 /* Interpreter command to boot an arbitrary EFI image from memory */
@@ -334,7 +264,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	printf("## Starting EFI application at %08lx ...\n", addr);
-	r = do_bootefi_exec((void *)addr, (void*)fdt_addr);
+	r = do_bootefi_exec((void *)addr, (void *)fdt_addr,
+			    bootefi_device_path, bootefi_image_path);
 	printf("## Application terminated, r = %lu\n",
 	       r & ~EFI_ERROR_MASK);
 
@@ -367,58 +298,44 @@ U_BOOT_CMD(
 	bootefi_help_text
 );
 
+static int parse_partnum(const char *devnr)
+{
+	const char *str = strchr(devnr, ':');
+	if (str) {
+		str++;
+		return simple_strtoul(str, NULL, 16);
+	}
+	return 0;
+}
+
 void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 {
-	__maybe_unused struct blk_desc *desc;
-	char devname[32] = { 0 }; /* dp->str is u16[32] long */
-	char *colon, *s;
+	char filename[32] = { 0 }; /* dp->str is u16[32] long */
+	char *s;
 
-#if defined(CONFIG_BLK) || CONFIG_IS_ENABLED(ISO_PARTITION)
-	desc = blk_get_dev(dev, simple_strtol(devnr, NULL, 10));
+	if (strcmp(dev, "Net")) {
+		struct blk_desc *desc;
+		int part;
+
+		desc = blk_get_dev(dev, simple_strtol(devnr, NULL, 10));
+		part = parse_partnum(devnr);
+
+		bootefi_device_path = efi_dp_from_part(desc, part);
+	} else {
+#ifdef CONFIG_NET
+		bootefi_device_path = efi_dp_from_eth();
 #endif
-
-#ifdef CONFIG_BLK
-	if (desc) {
-		snprintf(devname, sizeof(devname), "%s", desc->bdev->name);
-	} else
-#endif
-
-	{
-		/* Assemble the condensed device name we use in efi_disk.c */
-		snprintf(devname, sizeof(devname), "%s%s", dev, devnr);
 	}
 
-	colon = strchr(devname, ':');
-
-#if CONFIG_IS_ENABLED(ISO_PARTITION)
-	/* For ISOs we create partition block devices */
-	if (desc && (desc->type != DEV_TYPE_UNKNOWN) &&
-	    (desc->part_type == PART_TYPE_ISO)) {
-		if (!colon)
-			snprintf(devname, sizeof(devname), "%s:1", devname);
-
-		colon = NULL;
-	}
-#endif
-
-	if (colon)
-		*colon = '\0';
-
-	/* Patch bootefi_device_path to the target device */
-	memset(bootefi_device_path[0].str, 0, sizeof(bootefi_device_path[0].str));
-	ascii2unicode(bootefi_device_path[0].str, devname);
-
-	/* Patch bootefi_image_path to the target file path */
-	memset(bootefi_image_path[0].str, 0, sizeof(bootefi_image_path[0].str));
 	if (strcmp(dev, "Net")) {
 		/* Add leading / to fs paths, because they're absolute */
-		snprintf(devname, sizeof(devname), "/%s", path);
+		snprintf(filename, sizeof(filename), "/%s", path);
 	} else {
-		snprintf(devname, sizeof(devname), "%s", path);
+		snprintf(filename, sizeof(filename), "%s", path);
 	}
 	/* DOS style file path: */
-	s = devname;
+	s = filename;
 	while ((s = strchr(s, '/')))
 		*s++ = '\\';
-	ascii2unicode(bootefi_image_path[0].str, devname);
+	bootefi_image_path = efi_dp_from_file(NULL, 0, filename);
 }

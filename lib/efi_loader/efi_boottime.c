@@ -777,6 +777,42 @@ static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
 	return EFI_EXIT(efi_install_configuration_table(guid, table));
 }
 
+/* Initialize a loaded_image_info + loaded_image_info object with correct
+ * protocols, boot-device, etc.
+ */
+void efi_setup_loaded_image(struct efi_loaded_image *info, struct efi_object *obj,
+			    struct efi_device_path *device_path,
+			    struct efi_device_path *file_path)
+{
+	obj->handle = info;
+
+	/*
+	 * When asking for the device path interface, return
+	 * bootefi_device_path
+	 */
+	obj->protocols[0].guid = &efi_guid_device_path;
+	obj->protocols[0].protocol_interface = device_path;
+
+	/*
+	 * When asking for the loaded_image interface, just
+	 * return handle which points to loaded_image_info
+	 */
+	obj->protocols[1].guid = &efi_guid_loaded_image;
+	obj->protocols[1].protocol_interface = info;
+
+	obj->protocols[2].guid = &efi_guid_console_control;
+	obj->protocols[2].protocol_interface = (void *)&efi_console_control;
+
+	obj->protocols[3].guid = &efi_guid_device_path_to_text_protocol;
+	obj->protocols[3].protocol_interface =
+		(void *)&efi_device_path_to_text;
+
+	info->file_path = file_path;
+	info->device_handle = efi_dp_find_obj(device_path, NULL);
+
+	list_add_tail(&obj->link, &efi_obj_list);
+}
+
 static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 					  efi_handle_t parent_image,
 					  struct efi_device_path *file_path,
