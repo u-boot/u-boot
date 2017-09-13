@@ -37,5 +37,6 @@ void redirect_int_from_saic_to_aic(void);
 void configure_2nd_sram_as_l2_cache(void);
 
 int at91_set_ethaddr(int offset);
+int at91_video_show_board_info(void);
 
 #endif /* AT91_COMMON_H */
