@@ -29,6 +29,8 @@ enum efi_timer_delay {
 };
 
 #define UINTN size_t
+typedef long INTN;
+typedef uint16_t *efi_string_t;
 
 #define EVT_TIMER				0x80000000
 #define EVT_RUNTIME				0x40000000
@@ -427,10 +429,10 @@ struct efi_simple_text_output_protocol {
 	void *reset;
 	efi_status_t (EFIAPI *output_string)(
 			struct efi_simple_text_output_protocol *this,
-			const unsigned short *str);
+			const efi_string_t str);
 	efi_status_t (EFIAPI *test_string)(
 			struct efi_simple_text_output_protocol *this,
-			const unsigned short *str);
+			const efi_string_t str);
 	efi_status_t(EFIAPI *query_mode)(
 			struct efi_simple_text_output_protocol *this,
 			unsigned long mode_number, unsigned long *columns,

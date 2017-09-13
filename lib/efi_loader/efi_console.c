@@ -140,34 +140,46 @@ static efi_status_t EFIAPI efi_cout_reset(
 	return EFI_EXIT(EFI_UNSUPPORTED);
 }
 
-static void print_unicode_in_utf8(u16 c)
-{
-	char utf8[MAX_UTF8_PER_UTF16] = { 0 };
-	utf16_to_utf8((u8 *)utf8, &c, 1);
-	puts(utf8);
-}
-
 static efi_status_t EFIAPI efi_cout_output_string(
 			struct efi_simple_text_output_protocol *this,
-			const unsigned short *string)
+			const efi_string_t string)
 {
-	struct cout_mode *mode;
-	u16 ch;
+	struct simple_text_output_mode *con = &efi_con_mode;
+	struct cout_mode *mode = &efi_cout_modes[con->mode];
 
-	mode = &efi_cout_modes[efi_con_mode.mode];
 	EFI_ENTRY("%p, %p", this, string);
-	for (;(ch = *string); string++) {
-		print_unicode_in_utf8(ch);
-		efi_con_mode.cursor_column++;
-		if (ch == '\n') {
-			efi_con_mode.cursor_column = 1;
-			efi_con_mode.cursor_row++;
-		} else if (efi_con_mode.cursor_column > mode->columns) {
-			efi_con_mode.cursor_column = 1;
-			efi_con_mode.cursor_row++;
+
+	unsigned int n16 = utf16_strlen(string);
+	char buf[MAX_UTF8_PER_UTF16 * n16 + 1];
+	char *p;
+
+	*utf16_to_utf8((u8 *)buf, string, n16) = '\0';
+
+	fputs(stdout, buf);
+
+	for (p = buf; *p; p++) {
+		switch (*p) {
+		case '\r':   /* carriage-return */
+			con->cursor_column = 0;
+			break;
+		case '\n':   /* newline */
+			con->cursor_column = 0;
+			con->cursor_row++;
+			break;
+		case '\t':   /* tab, assume 8 char align */
+			break;
+		case '\b':   /* backspace */
+			con->cursor_column = max(0, con->cursor_column - 1);
+			break;
+		default:
+			con->cursor_column++;
+			break;
 		}
-		if (efi_con_mode.cursor_row > mode->rows)
-			efi_con_mode.cursor_row = mode->rows;
+		if (con->cursor_column >= mode->columns) {
+			con->cursor_column = 0;
+			con->cursor_row++;
+		}
+		con->cursor_row = min(con->cursor_row, (s32)mode->rows - 1);
 	}
 
 	return EFI_EXIT(EFI_SUCCESS);
@@ -175,7 +187,7 @@ static efi_status_t EFIAPI efi_cout_output_string(
 
 static efi_status_t EFIAPI efi_cout_test_string(
 			struct efi_simple_text_output_protocol *this,
-			const unsigned short *string)
+			const efi_string_t string)
 {
 	EFI_ENTRY("%p, %p", this, string);
 	return EFI_EXIT(EFI_SUCCESS);
