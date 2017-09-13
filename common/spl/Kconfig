@@ -710,12 +710,6 @@ config SPL_ATF
 	  is loaded by SPL(which is considered as BL2 in ATF terminology).
 	  More detail at: https://github.com/ARM-software/arm-trusted-firmware
 
-config SPL_ATF_TEXT_BASE
-	depends on SPL_ATF_SUPPORT
-	hex "ATF BL31 base address"
-	help
-	  This is the base address in memory for ATF BL31 text and entry point.
-
 config TPL
 	bool
 	depends on SUPPORT_TPL
