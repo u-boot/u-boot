@@ -28,6 +28,13 @@ config STI_RESET
 	  Say Y if you want to control reset signals provided by system config
 	  block.
 
+config STM32_RESET
+	bool "Enable the STM32 reset"
+	depends on STM32
+	help
+	  Support for reset controllers on STMicroelectronics STM32 family SoCs.
+	  This resset driver is compatible with STM32 F4/F7 and H7 SoCs.
+
 config TEGRA_CAR_RESET
 	bool "Enable Tegra CAR-based reset driver"
 	depends on TEGRA_CAR
