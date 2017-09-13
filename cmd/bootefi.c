@@ -219,6 +219,37 @@ exit:
 	return ret;
 }
 
+static int do_bootefi_bootmgr_exec(unsigned long fdt_addr)
+{
+	struct efi_device_path *device_path, *file_path;
+	void *addr;
+	efi_status_t r;
+
+	/* Initialize and populate EFI object list */
+	if (!efi_obj_list_initalized)
+		efi_init_obj_list();
+
+	/*
+	 * gd lives in a fixed register which may get clobbered while we execute
+	 * the payload. So save it here and restore it on every callback entry
+	 */
+	efi_save_gd();
+
+	addr = efi_bootmgr_load(&device_path, &file_path);
+	if (!addr)
+		return 1;
+
+	printf("## Starting EFI application at %p ...\n", addr);
+	r = do_bootefi_exec(addr, (void *)fdt_addr, device_path, file_path);
+	printf("## Application terminated, r = %lu\n",
+	       r & ~EFI_ERROR_MASK);
+
+	if (r != EFI_SUCCESS)
+		return 1;
+
+	return 0;
+}
+
 /* Interpreter command to boot an arbitrary EFI image from memory */
 static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -256,7 +287,14 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return efi_selftest(&loaded_image_info, &systab);
 	} else
 #endif
-	{
+	if (!strcmp(argv[1], "bootmgr")) {
+		unsigned long fdt_addr = 0;
+
+		if (argc > 2)
+			fdt_addr = simple_strtoul(argv[2], NULL, 16);
+
+		return do_bootefi_bootmgr_exec(fdt_addr);
+	} else {
 		saddr = argv[1];
 
 		addr = simple_strtoul(saddr, NULL, 16);
@@ -293,7 +331,11 @@ static char bootefi_help_text[] =
 	"bootefi selftest\n"
 	"  - boot an EFI selftest application stored within U-Boot\n"
 #endif
-	;
+	"bootmgr [fdt addr]\n"
+	"  - load and boot EFI payload based on BootOrder/BootXXXX variables.\n"
+	"\n"
+	"    If specified, the device tree located at <fdt address> gets\n"
+	"    exposed as EFI configuration table.\n";
 #endif
 
 U_BOOT_CMD(
@@ -330,6 +372,9 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 		bootefi_device_path = efi_dp_from_eth();
 #endif
 	}
+
+	if (!path)
+		return;
 
 	if (strcmp(dev, "Net")) {
 		/* Add leading / to fs paths, because they're absolute */

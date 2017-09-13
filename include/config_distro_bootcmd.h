@@ -112,6 +112,11 @@
 
 #define BOOTENV_SHARED_EFI                                                \
 	"boot_efi_binary="                                                \
+		"if fdt addr ${fdt_addr_r}; then "                        \
+			"bootefi bootmgr ${fdt_addr_r};"                  \
+		"else "                                                   \
+			"bootefi bootmgr ${fdtcontroladdr};"              \
+		"fi;"                                                     \
 		"load ${devtype} ${devnum}:${distro_bootpart} "           \
 			"${kernel_addr_r} efi/boot/"BOOTEFI_NAME"; "      \
 		"if fdt addr ${fdt_addr_r}; then "                        \

@@ -814,8 +814,8 @@ void efi_setup_loaded_image(struct efi_loaded_image *info, struct efi_object *ob
 	list_add_tail(&obj->link, &efi_obj_list);
 }
 
-static efi_status_t load_image_from_path(struct efi_device_path *file_path,
-					 void **buffer)
+efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
+				      void **buffer)
 {
 	struct efi_file_info *info = NULL;
 	struct efi_file_handle *f;
@@ -875,7 +875,7 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 		struct efi_device_path *dp, *fp;
 		efi_status_t ret;
 
-		ret = load_image_from_path(file_path, &source_buffer);
+		ret = efi_load_image_from_path(file_path, &source_buffer);
 		if (ret != EFI_SUCCESS) {
 			free(info);
 			free(obj);

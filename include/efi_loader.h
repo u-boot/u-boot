@@ -82,6 +82,7 @@ extern const struct efi_device_path_to_text_protocol efi_device_path_to_text;
 
 uint16_t *efi_dp_str(struct efi_device_path *dp);
 
+extern const efi_guid_t efi_global_variable_guid;
 extern const efi_guid_t efi_guid_console_control;
 extern const efi_guid_t efi_guid_device_path;
 extern const efi_guid_t efi_guid_loaded_image;
@@ -232,6 +233,8 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid, void *table
 void efi_setup_loaded_image(struct efi_loaded_image *info, struct efi_object *obj,
 			    struct efi_device_path *device_path,
 			    struct efi_device_path *file_path);
+efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
+				      void **buffer);
 
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
 extern void *efi_bounce_buffer;
@@ -318,6 +321,9 @@ efi_status_t EFIAPI efi_get_next_variable(
 efi_status_t EFIAPI efi_set_variable(s16 *variable_name,
 		efi_guid_t *vendor, u32 attributes,
 		unsigned long data_size, void *data);
+
+void *efi_bootmgr_load(struct efi_device_path **device_path,
+		       struct efi_device_path **file_path);
 
 #else /* defined(EFI_LOADER) && !defined(CONFIG_SPL_BUILD) */
 
