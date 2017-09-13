@@ -36,6 +36,9 @@ static int do_ut_print(cmd_tbl_t *cmdtp, int flag, int argc,
 	snprintf(str, 0, "testing none");
 	assert(*str == 'x');
 
+	sprintf(big_str, "_%ls_", L"foo");
+	assert(!strcmp("_foo_", big_str));
+
 	/* Test the banner function */
 	s = display_options_get_banner(true, str, sizeof(str));
 	assert(s == str);
