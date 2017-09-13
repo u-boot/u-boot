@@ -186,6 +186,34 @@ static bool cout_mode_matches(struct cout_mode *mode, int rows, int cols)
 	return (mode->rows == rows) && (mode->columns == cols);
 }
 
+static int query_console_serial(int *rows, int *cols)
+{
+	/* Ask the terminal about its size */
+	int n[3];
+	u64 timeout;
+
+	/* Empty input buffer */
+	while (tstc())
+		getc();
+
+	printf(ESC"[18t");
+
+	/* Check if we have a terminal that understands */
+	timeout = timer_get_us() + 1000000;
+	while (!tstc())
+		if (timer_get_us() > timeout)
+			return -1;
+
+	/* Read {depth,rows,cols} */
+	if (term_read_reply(n, 3, 't'))
+		return -1;
+
+	*cols = n[2];
+	*rows = n[1];
+
+	return 0;
+}
+
 static efi_status_t EFIAPI efi_cout_query_mode(
 			struct efi_simple_text_output_protocol *this,
 			unsigned long mode_number, unsigned long *columns,
@@ -194,33 +222,12 @@ static efi_status_t EFIAPI efi_cout_query_mode(
 	EFI_ENTRY("%p, %ld, %p, %p", this, mode_number, columns, rows);
 
 	if (!console_size_queried) {
-		/* Ask the terminal about its size */
-		int n[3];
-		int cols;
-		int rows;
-		u64 timeout;
+		int rows, cols;
 
 		console_size_queried = true;
 
-		/* Empty input buffer */
-		while (tstc())
-			getc();
-
-		printf(ESC"[18t");
-
-		/* Check if we have a terminal that understands */
-		timeout = timer_get_us() + 1000000;
-		while (!tstc())
-			if (timer_get_us() > timeout)
-				goto out;
-
-		/* Read {depth,rows,cols} */
-		if (term_read_reply(n, 3, 't')) {
+		if (query_console_serial(&rows, &cols))
 			goto out;
-		}
-
-		cols = n[2];
-		rows = n[1];
 
 		/* Test if we can have Mode 1 */
 		if (cols >= 80 && rows >= 50) {
