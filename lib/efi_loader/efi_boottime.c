@@ -565,7 +565,7 @@ static efi_status_t EFIAPI efi_install_protocol_interface_ext(void **handle,
 			efi_guid_t *protocol, int protocol_interface_type,
 			void *protocol_interface)
 {
-	EFI_ENTRY("%p, %p, %d, %p", handle, protocol, protocol_interface_type,
+	EFI_ENTRY("%p, %pUl, %d, %p", handle, protocol, protocol_interface_type,
 		  protocol_interface);
 
 	return EFI_EXIT(efi_install_protocol_interface(handle, protocol,
@@ -577,7 +577,7 @@ static efi_status_t EFIAPI efi_reinstall_protocol_interface(void *handle,
 			efi_guid_t *protocol, void *old_interface,
 			void *new_interface)
 {
-	EFI_ENTRY("%p, %p, %p, %p", handle, protocol, old_interface,
+	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, old_interface,
 		  new_interface);
 	return EFI_EXIT(EFI_ACCESS_DENIED);
 }
@@ -626,7 +626,7 @@ out:
 static efi_status_t EFIAPI efi_uninstall_protocol_interface_ext(void *handle,
 			efi_guid_t *protocol, void *protocol_interface)
 {
-	EFI_ENTRY("%p, %p, %p", handle, protocol, protocol_interface);
+	EFI_ENTRY("%p, %pUl, %p", handle, protocol, protocol_interface);
 
 	return EFI_EXIT(efi_uninstall_protocol_interface(handle, protocol,
 							 protocol_interface));
@@ -636,7 +636,7 @@ static efi_status_t EFIAPI efi_register_protocol_notify(efi_guid_t *protocol,
 							struct efi_event *event,
 							void **registration)
 {
-	EFI_ENTRY("%p, %p, %p", protocol, event, registration);
+	EFI_ENTRY("%pUl, %p, %p", protocol, event, registration);
 	return EFI_EXIT(EFI_OUT_OF_RESOURCES);
 }
 
@@ -706,7 +706,7 @@ static efi_status_t EFIAPI efi_locate_handle_ext(
 			efi_guid_t *protocol, void *search_key,
 			unsigned long *buffer_size, efi_handle_t *buffer)
 {
-	EFI_ENTRY("%d, %p, %p, %p, %p", search_type, protocol, search_key,
+	EFI_ENTRY("%d, %pUl, %p, %p, %p", search_type, protocol, search_key,
 		  buffer_size, buffer);
 
 	return EFI_EXIT(efi_locate_handle(search_type, protocol, search_key,
@@ -774,7 +774,7 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid, void *table
 static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
 							       void *table)
 {
-	EFI_ENTRY("%p, %p", guid, table);
+	EFI_ENTRY("%pUl, %p", guid, table);
 	return EFI_EXIT(efi_install_configuration_table(guid, table));
 }
 
@@ -1083,7 +1083,7 @@ static efi_status_t EFIAPI efi_close_protocol(void *handle,
 					      void *agent_handle,
 					      void *controller_handle)
 {
-	EFI_ENTRY("%p, %p, %p, %p", handle, protocol, agent_handle,
+	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, agent_handle,
 		  controller_handle);
 	return EFI_EXIT(EFI_NOT_FOUND);
 }
@@ -1093,7 +1093,7 @@ static efi_status_t EFIAPI efi_open_protocol_information(efi_handle_t handle,
 			struct efi_open_protocol_info_entry **entry_buffer,
 			unsigned long *entry_count)
 {
-	EFI_ENTRY("%p, %p, %p, %p", handle, protocol, entry_buffer,
+	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, entry_buffer,
 		  entry_count);
 	return EFI_EXIT(EFI_NOT_FOUND);
 }
@@ -1159,7 +1159,7 @@ static efi_status_t EFIAPI efi_locate_handle_buffer(
 	efi_status_t r;
 	unsigned long buffer_size = 0;
 
-	EFI_ENTRY("%d, %p, %p, %p, %p", search_type, protocol, search_key,
+	EFI_ENTRY("%d, %pUl, %p, %p, %p", search_type, protocol, search_key,
 		  no_handles, buffer);
 
 	if (!no_handles || !buffer) {
@@ -1191,7 +1191,7 @@ static efi_status_t EFIAPI efi_locate_protocol(efi_guid_t *protocol,
 	struct list_head *lhandle;
 	int i;
 
-	EFI_ENTRY("%p, %p, %p", protocol, registration, protocol_interface);
+	EFI_ENTRY("%pUl, %p, %p", protocol, registration, protocol_interface);
 
 	if (!protocol || !protocol_interface)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
@@ -1301,7 +1301,7 @@ static efi_status_t EFIAPI efi_open_protocol(
 	int i;
 	efi_status_t r = EFI_INVALID_PARAMETER;
 
-	EFI_ENTRY("%p, %p, %p, %p, %p, 0x%x", handle, protocol,
+	EFI_ENTRY("%p, %pUl, %p, %p, %p, 0x%x", handle, protocol,
 		  protocol_interface, agent_handle, controller_handle,
 		  attributes);
 

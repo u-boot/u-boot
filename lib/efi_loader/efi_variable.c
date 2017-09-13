@@ -187,7 +187,7 @@ efi_status_t EFIAPI efi_get_variable(s16 *variable_name,
 	const char *val, *s;
 	u32 attr;
 
-	EFI_ENTRY("%p %p %p %p %p", variable_name, vendor, attributes,
+	EFI_ENTRY("\"%ls\" %pUl %p %p %p", variable_name, vendor, attributes,
 		  data_size, data);
 
 	if (!variable_name || !vendor || !data_size)
@@ -255,7 +255,7 @@ efi_status_t EFIAPI efi_get_next_variable(
 		unsigned long *variable_name_size,
 		s16 *variable_name, efi_guid_t *vendor)
 {
-	EFI_ENTRY("%p %p %p", variable_name_size, variable_name, vendor);
+	EFI_ENTRY("%p \"%ls\" %pUl", variable_name_size, variable_name, vendor);
 
 	return EFI_EXIT(EFI_DEVICE_ERROR);
 }
@@ -270,7 +270,7 @@ efi_status_t EFIAPI efi_set_variable(s16 *variable_name,
 	char *val, *s;
 	u32 attr;
 
-	EFI_ENTRY("%p %p %x %lu %p", variable_name, vendor, attributes,
+	EFI_ENTRY("\"%ls\" %pUl %x %lu %p", variable_name, vendor, attributes,
 		  data_size, data);
 
 	if (!variable_name || !vendor)
