@@ -314,6 +314,7 @@ struct efi_device_path_acpi_path {
 #define DEVICE_PATH_TYPE_MESSAGING_DEVICE	0x03
 #  define DEVICE_PATH_SUB_TYPE_MSG_USB		0x05
 #  define DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR	0x0b
+#  define DEVICE_PATH_SUB_TYPE_MSG_USB_CLASS	0x0f
 #  define DEVICE_PATH_SUB_TYPE_MSG_SD		0x1a
 #  define DEVICE_PATH_SUB_TYPE_MSG_MMC		0x1d
 
@@ -327,6 +328,15 @@ struct efi_device_path_mac_addr {
 	struct efi_device_path dp;
 	struct efi_mac_addr mac;
 	u8 if_type;
+} __packed;
+
+struct efi_device_path_usb_class {
+	struct efi_device_path dp;
+	u16 vendor_id;
+	u16 product_id;
+	u8 device_class;
+	u8 device_subclass;
+	u8 device_protocol;
 } __packed;
 
 struct efi_device_path_sd_mmc_path {

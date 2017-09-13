@@ -16,7 +16,7 @@ endif
 
 obj-$(CONFIG_CMD_BOOTEFI_HELLO) += helloworld_efi.o
 obj-y += efi_image_loader.o efi_boottime.o efi_runtime.o efi_console.o
-obj-y += efi_memory.o efi_device_path_to_text.o
+obj-y += efi_memory.o efi_device_path_to_text.o efi_device_path.o
 obj-$(CONFIG_LCD) += efi_gop.o
 obj-$(CONFIG_DM_VIDEO) += efi_gop.o
 obj-$(CONFIG_PARTITIONS) += efi_disk.o

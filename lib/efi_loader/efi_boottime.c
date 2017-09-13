@@ -716,8 +716,17 @@ static efi_status_t EFIAPI efi_locate_device_path(efi_guid_t *protocol,
 			struct efi_device_path **device_path,
 			efi_handle_t *device)
 {
-	EFI_ENTRY("%p, %p, %p", protocol, device_path, device);
-	return EFI_EXIT(EFI_NOT_FOUND);
+	struct efi_object *efiobj;
+
+	EFI_ENTRY("%pUl, %p, %p", protocol, device_path, device);
+
+	efiobj = efi_dp_find_obj(*device_path, device_path);
+	if (!efiobj)
+		return EFI_EXIT(EFI_NOT_FOUND);
+
+	*device = efiobj->handle;
+
+	return EFI_EXIT(EFI_SUCCESS);
 }
 
 /* Collapses configuration table entries, removing index i */
