@@ -702,7 +702,7 @@ config SPL_YMODEM_SUPPORT
 	  means of transmitting U-Boot over a serial line for using in SPL,
 	  with a checksum to ensure correctness.
 
-config SPL_ATF_SUPPORT
+config SPL_ATF
 	bool "Support ARM Trusted Firmware"
 	depends on ARM64
 	help
