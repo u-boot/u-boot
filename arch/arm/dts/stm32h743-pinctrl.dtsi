@@ -54,88 +54,99 @@
 			gpioa: gpio@58020000 {
 				gpio-controller;
 				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
 				reg = <0x0 0x400>;
-				clocks = <&timer_clk>;
+				clocks = <&rcc GPIOA_CK>;
 				st,bank-name = "GPIOA";
 			};
 
 			gpiob: gpio@58020400 {
 				gpio-controller;
 				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
 				reg = <0x400 0x400>;
-				clocks = <&timer_clk>;
+				clocks = <&rcc GPIOB_CK>;
 				st,bank-name = "GPIOB";
 			};
 
 			gpioc: gpio@58020800 {
 				gpio-controller;
 				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
 				reg = <0x800 0x400>;
-				clocks = <&timer_clk>;
+				clocks = <&rcc GPIOC_CK>;
 				st,bank-name = "GPIOC";
 			};
 
 			gpiod: gpio@58020c00 {
 				gpio-controller;
 				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
 				reg = <0xc00 0x400>;
-				clocks = <&timer_clk>;
+				clocks = <&rcc GPIOD_CK>;
 				st,bank-name = "GPIOD";
 			};
 
 			gpioe: gpio@58021000 {
 				gpio-controller;
 				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
 				reg = <0x1000 0x400>;
-				clocks = <&timer_clk>;
+				clocks = <&rcc GPIOE_CK>;
 				st,bank-name = "GPIOE";
 			};
 
 			gpiof: gpio@58021400 {
 				gpio-controller;
 				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
 				reg = <0x1400 0x400>;
-				clocks = <&timer_clk>;
+				clocks = <&rcc GPIOF_CK>;
 				st,bank-name = "GPIOF";
 			};
 
 			gpiog: gpio@58021800 {
 				gpio-controller;
 				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
 				reg = <0x1800 0x400>;
-				clocks = <&timer_clk>;
+				clocks = <&rcc GPIOG_CK>;
 				st,bank-name = "GPIOG";
 			};
 
 			gpioh: gpio@58021c00 {
 				gpio-controller;
 				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
 				reg = <0x1c00 0x400>;
-				clocks = <&timer_clk>;
+				clocks = <&rcc GPIOH_CK>;
 				st,bank-name = "GPIOH";
 			};
 
 			gpioi: gpio@58022000 {
 				gpio-controller;
 				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
 				reg = <0x2000 0x400>;
-				clocks = <&timer_clk>;
+				clocks = <&rcc GPIOI_CK>;
 				st,bank-name = "GPIOI";
 			};
 
 			gpioj: gpio@58022400 {
 				gpio-controller;
 				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
 				reg = <0x2400 0x400>;
-				clocks = <&timer_clk>;
+				clocks = <&rcc GPIOJ_CK>;
 				st,bank-name = "GPIOJ";
 			};
 
 			gpiok: gpio@58022800 {
 				gpio-controller;
 				#gpio-cells = <2>;
+				compatible = "st,stm32-gpio";
 				reg = <0x2800 0x400>;
-				clocks = <&timer_clk>;
+				clocks = <&rcc GPIOK_CK>;
 				st,bank-name = "GPIOK";
 			};
 
@@ -162,6 +173,75 @@
 				pins2 {
 					pinmux = <STM32H7_PD6_FUNC_USART2_RX>;
 					bias-disable;
+				};
+			};
+
+			fmc_pins: fmc@0 {
+				  pins {
+					  pinmux = <STM32H7_PD0_FUNC_FMC_D2_FMC_DA2>,
+						  <STM32H7_PD1_FUNC_FMC_D3_FMC_DA3>,
+						  <STM32H7_PD8_FUNC_FMC_D13_FMC_DA13>,
+						  <STM32H7_PD9_FUNC_FMC_D14_FMC_DA14>,
+						  <STM32H7_PD10_FUNC_FMC_D15_FMC_DA15>,
+						  <STM32H7_PD14_FUNC_FMC_D0_FMC_DA0>,
+						  <STM32H7_PD15_FUNC_FMC_D1_FMC_DA1>,
+
+						  <STM32H7_PE0_FUNC_FMC_NBL0>,
+						  <STM32H7_PE1_FUNC_FMC_NBL1>,
+						  <STM32H7_PE7_FUNC_FMC_D4_FMC_DA4>,
+						  <STM32H7_PE8_FUNC_FMC_D5_FMC_DA5>,
+						  <STM32H7_PE9_FUNC_FMC_D6_FMC_DA6>,
+						  <STM32H7_PE10_FUNC_FMC_D7_FMC_DA7>,
+						  <STM32H7_PE11_FUNC_FMC_D8_FMC_DA8>,
+						  <STM32H7_PE12_FUNC_FMC_D9_FMC_DA9>,
+						  <STM32H7_PE13_FUNC_FMC_D10_FMC_DA10>,
+						  <STM32H7_PE14_FUNC_FMC_D11_FMC_DA11>,
+						  <STM32H7_PE15_FUNC_FMC_D12_FMC_DA12>,
+
+						  <STM32H7_PF0_FUNC_FMC_A0>,
+						  <STM32H7_PF1_FUNC_FMC_A1>,
+						  <STM32H7_PF2_FUNC_FMC_A2>,
+						  <STM32H7_PF3_FUNC_FMC_A3>,
+						  <STM32H7_PF4_FUNC_FMC_A4>,
+						  <STM32H7_PF5_FUNC_FMC_A5>,
+						  <STM32H7_PF11_FUNC_FMC_SDNRAS>,
+						  <STM32H7_PF12_FUNC_FMC_A6>,
+						  <STM32H7_PF13_FUNC_FMC_A7>,
+						  <STM32H7_PF14_FUNC_FMC_A8>,
+						  <STM32H7_PF15_FUNC_FMC_A9>,
+
+						  <STM32H7_PG0_FUNC_FMC_A10>,
+						  <STM32H7_PG1_FUNC_FMC_A11>,
+						  <STM32H7_PG2_FUNC_FMC_A12>,
+						  <STM32H7_PG4_FUNC_FMC_A14_FMC_BA0>,
+						  <STM32H7_PG5_FUNC_FMC_A15_FMC_BA1>,
+						  <STM32H7_PG8_FUNC_FMC_SDCLK>,
+						  <STM32H7_PG15_FUNC_FMC_SDNCAS>,
+
+						  <STM32H7_PH5_FUNC_FMC_SDNWE>,
+						  <STM32H7_PH6_FUNC_FMC_SDNE1>,
+						  <STM32H7_PH7_FUNC_FMC_SDCKE1>,
+						  <STM32H7_PH8_FUNC_FMC_D16>,
+						  <STM32H7_PH9_FUNC_FMC_D17>,
+						  <STM32H7_PH10_FUNC_FMC_D18>,
+						  <STM32H7_PH11_FUNC_FMC_D19>,
+						  <STM32H7_PH12_FUNC_FMC_D20>,
+						  <STM32H7_PH13_FUNC_FMC_D21>,
+						  <STM32H7_PH14_FUNC_FMC_D22>,
+						  <STM32H7_PH15_FUNC_FMC_D23>,
+
+						  <STM32H7_PI0_FUNC_FMC_D24>,
+						  <STM32H7_PI1_FUNC_FMC_D25>,
+						  <STM32H7_PI2_FUNC_FMC_D26>,
+						  <STM32H7_PI3_FUNC_FMC_D27>,
+						  <STM32H7_PI4_FUNC_FMC_NBL2>,
+						  <STM32H7_PI5_FUNC_FMC_NBL3>,
+						  <STM32H7_PI6_FUNC_FMC_D28>,
+						  <STM32H7_PI7_FUNC_FMC_D29>,
+						  <STM32H7_PI9_FUNC_FMC_D30>,
+						  <STM32H7_PI10_FUNC_FMC_D31>;
+
+					  slew-rate = <3>;
 				};
 			};
 		};
