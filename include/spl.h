@@ -25,6 +25,9 @@ struct spl_image_info {
 	u8 os;
 	ulong load_addr;
 	ulong entry_point;
+#if CONFIG_IS_ENABLED(LOAD_FIT)
+	void *fdt_addr;
+#endif
 	u32 size;
 	u32 flags;
 	void *arg;
