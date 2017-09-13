@@ -158,6 +158,15 @@ config PCA9551_I2C_ADDR
 	help
 	  The I2C address of the PCA9551 LED controller.
 
+config STM32_RCC
+	bool "Enable RCC driver for the STM32 SoC's family"
+	depends on STM32 && MISC
+	help
+	  Enable the STM32 RCC driver. The RCC block (Reset and Clock Control
+	  block) is responsible of the management of the clock and reset
+	  generation.
+	  This driver is similar to an MFD driver in the Linux kernel.
+
 config TEGRA_CAR
 	bool "Enable support for the Tegra CAR driver"
 	depends on TEGRA_NO_BPMP
