@@ -148,7 +148,7 @@ def test_hush_if_test_host_file_exists(u_boot_console):
     exec_hush_if(u_boot_console, expr, False)
 
     try:
-        with file(test_file, 'wb'):
+        with open(test_file, 'wb'):
             pass
         assert os.path.exists(test_file)
 
