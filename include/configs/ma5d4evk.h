@@ -14,11 +14,14 @@
 #define CONFIG_SYS_USE_SERIALFLASH	1
 #define CONFIG_BOARD_LATE_INIT
 
+/* Timer */
+#define CONFIG_SYS_TIMER_COUNTER	0xfc06863c
+
 /*
  * Memory configurations
  */
 #define CONFIG_NR_DRAM_BANKS		1
-#define CONFIG_SYS_SDRAM_BASE           ATMEL_BASE_DDRCS
+#define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_SDRAM_SIZE		0x10000000
 
 #ifdef CONFIG_SPL_BUILD
@@ -45,8 +48,8 @@
  * Serial Driver
  */
 #define CONFIG_ATMEL_USART
-#define CONFIG_USART_BASE		ATMEL_BASE_USART0
-#define CONFIG_USART_ID			ATMEL_ID_USART0
+#define CONFIG_USART_BASE		0xf802c000
+#define CONFIG_USART_ID			6
 
 /*
  * Ethernet

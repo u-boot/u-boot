@@ -21,12 +21,12 @@
  * This needs to be defined for the OHCI code to work but it is defined as
  * ATMEL_ID_UHPHS in the CPU specific header files.
  */
-#define ATMEL_ID_UHP			ATMEL_ID_UHPHS
+#define ATMEL_ID_UHP			32
 
 /*
  * Specify the clock enable bit in the PMC_SCER register.
  */
-#define ATMEL_PMC_UHP			AT91SAM926x_PMC_UHP
+#define ATMEL_PMC_UHP			(1 <<  6)
 
 /* LCD */
 #define LCD_BPP				LCD_COLOR16
@@ -52,7 +52,7 @@
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1
-#define CONFIG_SYS_SDRAM_BASE           ATMEL_BASE_DDRCS
+#define CONFIG_SYS_SDRAM_BASE           0x20000000
 #define CONFIG_SYS_SDRAM_SIZE		0x20000000
 
 #ifdef CONFIG_SPL_BUILD
@@ -72,7 +72,7 @@
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_NAND_ATMEL
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_BASE		ATMEL_BASE_CS3
+#define CONFIG_SYS_NAND_BASE		0x60000000
 /* our ALE is AD21 */
 #define CONFIG_SYS_NAND_MASK_ALE	(1 << 21)
 /* our CLE is AD22 */

@@ -11,8 +11,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/hardware.h>
-
 #define CONFIG_SYS_TEXT_BASE		0x73f00000
 
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
@@ -52,7 +50,7 @@
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1
-#define CONFIG_SYS_SDRAM_BASE           ATMEL_BASE_CS6
+#define CONFIG_SYS_SDRAM_BASE           0x70000000
 #define CONFIG_SYS_SDRAM_SIZE		0x08000000
 
 #define CONFIG_SYS_INIT_SP_ADDR \

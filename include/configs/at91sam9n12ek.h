@@ -10,12 +10,6 @@
 #ifndef __AT91SAM9N12_CONFIG_H_
 #define __AT91SAM9N12_CONFIG_H_
 
-/*
- * SoC must be defined first, before hardware.h is included.
- * In this case SoC is defined in boards.cfg.
- */
-#include <asm/hardware.h>
-
 #define CONFIG_SYS_TEXT_BASE		0x26f00000
 
 /* ARM asynchronous clock */
@@ -55,7 +49,7 @@
  * that address while providing maximum stack area below.
  */
 # define CONFIG_SYS_INIT_SP_ADDR \
-	(ATMEL_BASE_SRAM + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
+	(0x00300000 + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
 
 /* DataFlash */
 #ifdef CONFIG_CMD_SF

@@ -10,8 +10,6 @@
 #ifndef __AT91_SAMA5_COMMON_H
 #define __AT91_SAMA5_COMMON_H
 
-#include <asm/hardware.h>
-
 #define CONFIG_SYS_TEXT_BASE		0x26f00000
 
 /* ARM asynchronous clock */
