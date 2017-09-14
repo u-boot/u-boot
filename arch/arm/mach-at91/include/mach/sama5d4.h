@@ -11,11 +11,6 @@
 #define __SAMA5D4_H
 
 /*
- * defines to be used in other places
- */
-#define CONFIG_AT91FAMILY	/* It's a member of AT91 */
-
-/*
  * Peripheral identifiers/interrupts.
  */
 #define ATMEL_ID_FIQ	0	/* FIQ Interrupt */

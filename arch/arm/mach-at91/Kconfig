@@ -1,5 +1,8 @@
 if ARCH_AT91
 
+config AT91FAMILY
+	def_bool y
+
 choice
 	prompt "Atmel AT91 board select"
 	optional

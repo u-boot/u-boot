@@ -12,8 +12,6 @@
 #ifndef __AT91SAM9X5_H__
 #define __AT91SAM9X5_H__
 
-#define CONFIG_AT91FAMILY	/* it's a member of AT91 family */
-
 /*
  * Peripheral identifiers/interrupts.
  */
