@@ -143,7 +143,7 @@ def test_fit(u_boot_console):
         Returns:
             Contents of file as a string
         """
-        with open(fname, 'r') as fd:
+        with open(fname, 'rb') as fd:
             return fd.read()
 
     def make_dtb():
