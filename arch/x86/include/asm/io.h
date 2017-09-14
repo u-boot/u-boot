@@ -231,40 +231,13 @@ static inline void sync(void)
 }
 
 /*
- * Given a physical address and a length, return a virtual address
- * that can be used to access the memory range with the caching
- * properties specified by "flags".
- */
-#define MAP_NOCACHE	(0)
-#define MAP_WRCOMBINE	(0)
-#define MAP_WRBACK	(0)
-#define MAP_WRTHROUGH	(0)
-
-static inline void *
-map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
-{
-	return (void *)(uintptr_t)paddr;
-}
-
-/*
- * Take down a mapping set up by map_physmem().
- */
-static inline void unmap_physmem(void *vaddr, unsigned long flags)
-{
-
-}
-
-static inline phys_addr_t virt_to_phys(void * vaddr)
-{
-	return (phys_addr_t)(uintptr_t)(vaddr);
-}
-
-/*
  * TODO: The kernel offers some more advanced versions of barriers, it might
  * have some advantages to use them instead of the simple one here.
  */
 #define dmb()		__asm__ __volatile__ ("" : : : "memory")
 #define __iormb()	dmb()
 #define __iowmb()	dmb()
+
+#include <asm-generic/io.h>
 
 #endif /* _ASM_IO_H */
