@@ -160,7 +160,7 @@ class ConsoleBase(object):
 
         Args:
             cmd: The command to send.
-            wait_for_each: Boolean indicating whether to wait for U-Boot to
+            wait_for_echo: Boolean indicating whether to wait for U-Boot to
                 echo the command text back to its output.
             send_nl: Boolean indicating whether to send a newline character
                 after the command string.
