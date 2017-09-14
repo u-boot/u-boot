@@ -7,22 +7,22 @@
 #ifndef __SANDBOX_ASM_IO_H
 #define __SANDBOX_ASM_IO_H
 
-/*
- * Given a physical address and a length, return a virtual address
- * that can be used to access the memory range with the caching
- * properties specified by "flags".
- */
-#define MAP_NOCACHE	(0)
-#define MAP_WRCOMBINE	(0)
-#define MAP_WRBACK	(0)
-#define MAP_WRTHROUGH	(0)
+void *phys_to_virt(phys_addr_t paddr);
+#define phys_to_virt phys_to_virt
+
+phys_addr_t virt_to_phys(void *vaddr);
+#define virt_to_phys virt_to_phys
 
 void *map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags);
+#define map_physmem map_physmem
 
 /*
  * Take down a mapping set up by map_physmem().
  */
 void unmap_physmem(const void *vaddr, unsigned long flags);
+#define unmap_physmem unmap_physmem
+
+#include <asm-generic/io.h>
 
 /* For sandbox, we want addresses to point into our RAM buffer */
 static inline void *map_sysmem(phys_addr_t paddr, unsigned long len)

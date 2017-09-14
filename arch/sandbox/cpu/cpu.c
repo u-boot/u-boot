@@ -56,6 +56,16 @@ int cleanup_before_linux_select(int flags)
 	return 0;
 }
 
+void *phys_to_virt(phys_addr_t paddr)
+{
+	return (void *)(gd->arch.ram_buf + paddr);
+}
+
+phys_addr_t virt_to_phys(void *vaddr)
+{
+	return (phys_addr_t)((uint8_t *)vaddr - gd->arch.ram_buf);
+}
+
 void *map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 {
 #if defined(CONFIG_PCI) && !defined(CONFIG_SPL_BUILD)
@@ -73,7 +83,7 @@ void *map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 	}
 #endif
 
-	return (void *)(gd->arch.ram_buf + paddr);
+	return phys_to_virt(paddr);
 }
 
 void unmap_physmem(const void *vaddr, unsigned long flags)
