@@ -586,7 +586,7 @@ def pytest_runtest_protocol(item, nextitem):
         # is fixed, if this exception still exists, it will then be logged as
         # part of the test's stdout.
         import traceback
-        print 'Exception occurred while logging runtest status:'
+        print('Exception occurred while logging runtest status:')
         traceback.print_exc()
         # FIXME: Can we force a test failure here?
 

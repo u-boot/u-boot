@@ -58,7 +58,7 @@ class Spawn(object):
                     os.chdir(cwd)
                 os.execvp(args[0], args)
             except:
-                print 'CHILD EXECEPTION:'
+                print('CHILD EXECEPTION:')
                 import traceback
                 traceback.print_exc()
             finally:

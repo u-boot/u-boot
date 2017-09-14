@@ -41,7 +41,7 @@ class ConsoleSandbox(ConsoleBase):
         bcfg = self.config.buildconfig
         config_spl = bcfg.get('config_spl', 'n') == 'y'
         fname = '/spl/u-boot-spl' if config_spl else '/u-boot'
-        print fname
+        print(fname)
         cmd = []
         if self.config.gdbserver:
             cmd += ['gdbserver', self.config.gdbserver]
