@@ -235,9 +235,9 @@ int dram_init(void)
 
 void at91_spl_board_init(void)
 {
-#ifdef CONFIG_SYS_USE_MMC
+#ifdef CONFIG_SD_BOOT
 	at91_mci_hw_init();
-#elif CONFIG_SYS_USE_NANDFLASH
+#elif CONFIG_NAND_BOOT
 	at91sam9x5ek_nand_hw_init();
 #endif
 }

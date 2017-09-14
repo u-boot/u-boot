@@ -196,11 +196,11 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_SPL_BUILD
 void spl_board_init(void)
 {
-#ifdef CONFIG_SYS_USE_SERIALFLASH
+#ifdef CONFIG_SPI_BOOT
 	board_spi0_hw_init();
 #endif
 
-#ifdef CONFIG_SYS_USE_NANDFLASH
+#ifdef CONFIG_NAND_BOOT
 	board_nand_hw_init();
 #endif
 }

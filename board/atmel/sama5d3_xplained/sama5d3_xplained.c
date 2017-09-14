@@ -112,11 +112,11 @@ int dram_init(void)
 #ifdef CONFIG_SPL_BUILD
 void spl_board_init(void)
 {
-#ifdef CONFIG_SYS_USE_MMC
+#ifdef CONFIG_SD_BOOT
 #ifdef CONFIG_GENERIC_ATMEL_MCI
 	sama5d3_xplained_mci0_hw_init();
 #endif
-#elif CONFIG_SYS_USE_NANDFLASH
+#elif CONFIG_NAND_BOOT
 	sama5d3_xplained_nand_hw_init();
 #endif
 }

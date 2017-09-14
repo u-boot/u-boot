@@ -4,7 +4,7 @@ CONFIG_TARGET_AT91SAM9M10G45EK=y
 CONFIG_SYS_MALLOC_F_LEN=0x2000
 CONFIG_DEFAULT_DEVICE_TREE="at91sam9m10g45ek"
 CONFIG_DEBUG_UART=y
-CONFIG_SYS_EXTRA_OPTIONS="AT91SAM9M10G45,SYS_USE_NANDFLASH"
+CONFIG_NAND_BOOT=y
 CONFIG_BOOTDELAY=3
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyS0,115200 earlyprintk mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,256k(env),256k(env_redundant),256k(spare),512k(dtb),6M(kernel)ro,-(rootfs) root=/dev/mtdblock7 rw rootfstype=jffs2"

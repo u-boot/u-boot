@@ -11,7 +11,7 @@ CONFIG_SPL_NAND_SUPPORT=y
 CONFIG_DEFAULT_DEVICE_TREE="at91-sama5d4_xplained"
 CONFIG_DEBUG_UART=y
 CONFIG_FIT=y
-CONFIG_SYS_EXTRA_OPTIONS="SAMA5D4,SYS_USE_NANDFLASH"
+CONFIG_NAND_BOOT=y
 CONFIG_BOOTDELAY=3
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyS0,115200 earlyprintk mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,256K(env),256k(env_redundant),256k(spare),512k(dtb),6M(kernel)ro,-(rootfs) rootfstype=ubifs ubi.mtd=7 root=ubi0:rootfs"

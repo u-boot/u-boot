@@ -217,7 +217,7 @@ int dram_init(void)
 #ifdef CONFIG_SPL_BUILD
 void spl_board_init(void)
 {
-#if CONFIG_SYS_USE_NANDFLASH
+#if CONFIG_NAND_BOOT
 	sama5d4ek_nand_hw_init();
 #endif
 }

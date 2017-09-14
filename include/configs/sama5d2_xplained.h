@@ -47,7 +47,7 @@
 #define CONFIG_ATMEL_LCD_RGB565
 #endif
 
-#ifdef CONFIG_SYS_USE_MMC
+#ifdef CONFIG_SD_BOOT
 
 /* bootstrap + u-boot + env in sd card */
 #undef CONFIG_BOOTCOMMAND
@@ -69,11 +69,11 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(512 << 10)
 
-#ifdef CONFIG_SYS_USE_MMC
+#ifdef CONFIG_SD_BOOT
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 
-#elif CONFIG_SYS_USE_SERIALFLASH
+#elif CONFIG_SPI_BOOT
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x10000
 

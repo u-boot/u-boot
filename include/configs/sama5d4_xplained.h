@@ -58,14 +58,6 @@
 #define CONFIG_ATMEL_LCD_RGB565
 #endif
 
-#ifdef CONFIG_SYS_USE_SERIALFLASH
-/* override the bootcmd, bootargs and other configuration for spi flash env */
-#elif CONFIG_SYS_USE_NANDFLASH
-/* override the bootcmd, bootargs and other configuration for nandflash env */
-#elif CONFIG_SYS_USE_MMC
-/* override the bootcmd, bootargs and other configuration for sd/mmc env */
-#endif
-
 /* SPL */
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		0x200000
@@ -77,13 +69,19 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(512 << 10)
 
-#ifdef CONFIG_SYS_USE_MMC
+#ifdef CONFIG_SD_BOOT
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 
 #elif CONFIG_SYS_USE_NANDFLASH
+#elif CONFIG_SPI_BOOT
+#define CONFIG_SPL_SPI_LOAD
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x10000
+
+#elif CONFIG_NAND_BOOT
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_BASE
+#endif
 #define CONFIG_PMECC_CAP		8
 #define CONFIG_PMECC_SECTOR_SIZE	512
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x40000
@@ -95,9 +93,4 @@
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	0x0
 #define CONFIG_SPL_GENERATE_ATMEL_PMECC_HEADER
 
-#elif CONFIG_SYS_USE_SERIALFLASH
-#define CONFIG_SPL_SPI_LOAD
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x10000
-
-#endif
 #endif

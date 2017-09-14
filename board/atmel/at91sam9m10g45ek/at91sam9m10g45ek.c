@@ -84,9 +84,9 @@ void at91_spl_board_init(void)
 	at91_set_pio_pullup(AT91_PIO_PORTD, 7, 1);
 	at91_set_pio_pullup(AT91_PIO_PORTD, 8, 1);
 
-#ifdef CONFIG_SYS_USE_MMC
+#ifdef CONFIG_SD_BOOT
 	at91_mci_hw_init();
-#elif CONFIG_SYS_USE_NANDFLASH
+#elif CONFIG_NAND_BOOT
 	at91sam9m10g45ek_nand_hw_init();
 #endif
 }
