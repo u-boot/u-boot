@@ -92,6 +92,13 @@ config SYS_MALLOC_F_LEN
 	  particular needs this to operate, so that it can allocate the
 	  initial serial device and any others that are needed.
 
+config SYS_MALLOC_LEN
+	hex "Define memory for Dynamic allocation"
+	depends on ARCH_ZYNQ
+	help
+	  This defines memory to be allocated for Dynamic allocation
+	  TODO: Use for other architectures
+
 menuconfig EXPERT
 	bool "Configure standard U-Boot features (expert users)"
 	default y
