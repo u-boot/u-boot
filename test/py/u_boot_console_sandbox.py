@@ -81,7 +81,7 @@ class ConsoleSandbox(ConsoleBase):
 
         p = self.p
         self.p = None
-        for i in xrange(100):
+        for i in range(100):
             ret = not p.isalive()
             if ret:
                 break
