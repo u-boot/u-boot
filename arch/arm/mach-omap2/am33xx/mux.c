@@ -31,3 +31,17 @@ void configure_module_pin_mux(struct module_pin_mux *mod_pin_mux)
 	for (i = 0; mod_pin_mux[i].reg_offset != -1; i++)
 		MUX_CFG(mod_pin_mux[i].val, mod_pin_mux[i].reg_offset);
 }
+
+/*
+ * provide a default over-writable definition
+*/
+void __weak set_uart_mux_conf(void)
+{
+}
+
+/*
+* provide a default over-writable definition
+*/
+void __weak set_mux_conf_regs(void)
+{
+}
