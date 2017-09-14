@@ -212,7 +212,12 @@ def CreatePatmanConfigFile(config_fname):
         print("Couldn't create patman config file\n")
         raise
 
-    print("[alias]\nme: %s <%s>" % (name, email), file=f)
+    print('''[alias]
+me: %s <%s>
+
+[bounces]
+nxp = Zhikang Zhang <zhikang.zhang@nxp.com>
+''' % (name, email), file=f)
     f.close();
 
 def _UpdateDefaults(parser, config):
@@ -282,6 +287,23 @@ def _ReadBouncesFile(fname):
                     continue
                 bounces.add(line.strip())
 
+def GetItems(config, section):
+    """Get the items from a section of the config.
+
+    Args:
+        config: _ProjectConfigParser object containing settings
+        section: name of section to retrieve
+
+    Returns:
+        List of (name, value) tuples for the section
+    """
+    try:
+        return config.items(section)
+    except ConfigParser.NoSectionError as e:
+        return []
+    except:
+        raise
+
 def Setup(parser, project_name, config_fname=''):
     """Set up the settings module by reading config files.
 
@@ -303,11 +325,11 @@ def Setup(parser, project_name, config_fname=''):
 
     config.read(config_fname)
 
-    for name, value in config.items('alias'):
+    for name, value in GetItems(config, 'alias'):
         alias[name] = value.split(',')
 
     _ReadBouncesFile('doc/bounces')
-    for name, value in config.items('bounces'):
+    for name, value in GetItems(config, 'bounces'):
         bounces.add(value)
 
     _UpdateDefaults(parser, config)
