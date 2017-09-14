@@ -115,34 +115,13 @@ void outsl(unsigned long port, const void *src, unsigned long count);
  */
 #define xlate_dev_kmem_ptr(p)   p
 
-#define MAP_NOCACHE	(0)
-#define MAP_WRCOMBINE	(0)
-#define MAP_WRBACK	(0)
-#define MAP_WRTHROUGH	(0)
-
-static inline void *
-map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
-{
-	return (void *)paddr;
-}
-
-/*
- * Take down a mapping set up by map_physmem().
- */
-static inline void unmap_physmem(void *vaddr, unsigned long flags)
-{
-}
-
-static inline phys_addr_t virt_to_phys(void *vaddr)
-{
-	return (phys_addr_t)((unsigned long)vaddr);
-}
-
 /*
  * Dummy function to keep U-Boot's cfi_flash.c driver happy.
  */
 static inline void sync(void)
 {
 }
+
+#include <asm-generic/io.h>
 
 #endif	/* _XTENSA_IO_H */
