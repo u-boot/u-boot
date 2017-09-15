@@ -363,6 +363,7 @@ efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
 		}
 		event->trigger_type = type;
 		event->trigger_time = trigger_time;
+		event->signaled = 0;
 		return EFI_SUCCESS;
 	}
 	return EFI_INVALID_PARAMETER;
