@@ -42,9 +42,22 @@ const char *__efi_nesting_dec(void);
 	})
 
 /*
- * Callback into UEFI world from u-boot:
+ * Call non-void UEFI function from u-boot and retrieve return value:
  */
-#define EFI_CALL(exp) do { \
+#define EFI_CALL(exp) ({ \
+	debug("%sEFI: Call: %s\n", __efi_nesting_inc(), #exp); \
+	assert(__efi_exit_check()); \
+	typeof(exp) _r = exp; \
+	assert(__efi_entry_check()); \
+	debug("%sEFI: %lu returned by %s\n", __efi_nesting_dec(), \
+	      (unsigned long)((uintptr_t)_r & ~EFI_ERROR_MASK), #exp); \
+	_r; \
+})
+
+/*
+ * Call void UEFI function from u-boot:
+ */
+#define EFI_CALL_VOID(exp) do { \
 	debug("%sEFI: Call: %s\n", __efi_nesting_inc(), #exp); \
 	assert(__efi_exit_check()); \
 	exp; \

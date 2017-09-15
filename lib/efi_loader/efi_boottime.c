@@ -163,7 +163,8 @@ void efi_signal_event(struct efi_event *event)
 		return;
 	event->signaled = 1;
 	if (event->type & EVT_NOTIFY_SIGNAL) {
-		EFI_CALL(event->notify_function(event, event->notify_context));
+		EFI_CALL_VOID(event->notify_function(event,
+						     event->notify_context));
 	}
 }
 
