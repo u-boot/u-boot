@@ -217,7 +217,7 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
-#if defined(CONFIG_FIT_EMBED)
+#if defined(CONFIG_MULTI_DTB_FIT)
 int board_fit_config_name_match(const char *name)
 {
 	bool eeprom_read = board_ti_was_eeprom_read();

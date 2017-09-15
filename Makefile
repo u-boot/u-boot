@@ -878,7 +878,7 @@ dts/dt.dtb: u-boot
 quiet_cmd_copy = COPY    $@
       cmd_copy = cp $< $@
 
-ifeq ($(CONFIG_FIT_EMBED),y)
+ifeq ($(CONFIG_MULTI_DTB_FIT),y)
 
 fit-dtb.blob: dts/dt.dtb FORCE
 	$(call if_changed,mkimage)

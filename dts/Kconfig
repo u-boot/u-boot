@@ -102,7 +102,7 @@ config DEFAULT_DEVICE_TREE
 
 config OF_LIST
 	string "List of device tree files to include for DT control"
-	depends on SPL_LOAD_FIT || FIT_EMBED
+	depends on SPL_LOAD_FIT || MULTI_DTB_FIT
 	default DEFAULT_DEVICE_TREE
 	help
 	  This option specifies a list of device tree files to use for DT
@@ -111,6 +111,24 @@ config OF_LIST
 	  hardware (e.g. reading a board ID value). This is a list of
 	  device tree files (without the directory or .dtb suffix)
 	  separated by <space>.
+
+
+config DTB_RESELECT
+	bool "Support swapping dtbs at a later point in boot"
+	depends on MULTI_DTB_FIT
+	help
+	  It is possible during initial boot you may need to use a generic
+	  dtb until you can fully determine the board your running on. This
+	  config allows boards to implement a function at a later point
+	  during boot to switch to the "correct" dtb.
+
+config MULTI_DTB_FIT
+	bool "Support embedding several DTBs in a FIT image for u-boot"
+	help
+	  This option provides hooks to allow U-boot to parse an
+	  appended FIT image and enable board specific code to then select
+	  the correct DTB to be used. Use this if you need to support
+	  multiple DTBs but don't use the SPL.
 
 config OF_SPL_REMOVE_PROPS
 	string "List of device tree properties to drop for SPL"

@@ -1217,7 +1217,7 @@ int fdtdec_setup(void)
 	else
 		gd->fdt_blob = (ulong *)&__bss_end;
 
-#  elif defined CONFIG_FIT_EMBED
+#  elif defined CONFIG_MULTI_DTB_FIT
 	gd->fdt_blob = locate_dtb_in_fit(&_end);
 
 	if (gd->fdt_blob == NULL || gd->fdt_blob <= ((void *)&_end)) {

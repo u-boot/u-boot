@@ -1,0 +1,15 @@
+MULTI DTB FIT
+
+The purpose of this feature is to enable u-boot to select its DTB from a FIT
+appended at the end of the binary.
+
+Usually the DTB is selected by the SPL and passed down to U-Boot. But some
+platforms don't use the SPL. In this case MULTI_DTB_FIT can used to provide
+U-Boot with a choice of DTBs.
+The relevant DTBs are packed into a FIT (list provided by CONFIG__OF_LIST). The
+FIT is automatically generated at the end of the compilation and appended to
+u-boot.bin so that U-Boot can locate it and select the correct DTB from inside
+the FIT.
+The selection is done using board_fit_config_name_match() (same as what the SPL
+uses to select the DTB for U-Boot). The selection happens during fdtdec_setup()
+which is called during before relocation by board_init_f().
