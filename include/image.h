@@ -1299,6 +1299,19 @@ void board_fit_image_post_process(void **p_image, size_t *p_size);
 #define FDT_ERROR	((ulong)(-1))
 
 ulong fdt_getprop_u32(const void *fdt, int node, const char *prop);
+
+/**
+ * fit_find_config_node() - Find the node for the best DTB in a FIT image
+ *
+ * A FIT image contains one or more DTBs. This function parses the
+ * configurations described in the FIT images and returns the node of
+ * the first matching DTB. To check if a DTB matches a board, this function
+ * calls board_fit_config_name_match(). If no matching DTB is found, it returns
+ * the node described by the default configuration if it exists.
+ *
+ * @fdt: pointer to flat device tree
+ * @return the node if found, -ve otherwise
+ */
 int fit_find_config_node(const void *fdt);
 
 /**
