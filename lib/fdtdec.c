@@ -4,16 +4,16 @@
  */
 
 #ifndef USE_HOSTCC
-#include <boot_fit.h>
 #include <common.h>
+#include <boot_fit.h>
 #include <dm.h>
-#include <errno.h>
-#include <serial.h>
-#include <libfdt.h>
-#include <fdt_support.h>
-#include <fdtdec.h>
-#include <asm/sections.h>
 #include <dm/of_extra.h>
+#include <errno.h>
+#include <fdtdec.h>
+#include <fdt_support.h>
+#include <libfdt.h>
+#include <serial.h>
+#include <asm/sections.h>
 #include <linux/ctype.h>
 
 DECLARE_GLOBAL_DATA_PTR;
