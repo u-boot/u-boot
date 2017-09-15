@@ -49,7 +49,6 @@ void s_init(void)
 #define TMU0_MSTP125		BIT(25)	/* secure */
 #define TMU1_MSTP124		BIT(24)	/* non-secure */
 #define SCIF2_MSTP310		BIT(10)	/* SCIF2 */
-#define ETHERAVB_MSTP812	BIT(12)
 #define DVFS_MSTP926		BIT(26)
 #define HSUSB_MSTP704		BIT(4)	/* HSUSB */
 
@@ -59,8 +58,6 @@ int board_early_init_f(void)
 	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125 | TMU1_MSTP124);
 	/* SCIF2 */
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SCIF2_MSTP310);
-	/* EHTERAVB */
-	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, ETHERAVB_MSTP812);
 
 #if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
 	/* DVFS for reset */
