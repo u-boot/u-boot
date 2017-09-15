@@ -27,8 +27,8 @@
 			type = "firmware";
 			arch = "arm64";
 			compression = "none";
-			load = <0x00010000>;
-			entry = <0x00010000>;
+			load = <0x00100000>;
+			entry = <0x00100000>;
 		};
 
 		fdt {
