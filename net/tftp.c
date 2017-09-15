@@ -805,7 +805,9 @@ void tftp_start(enum proto_t protocol)
 		printf("Load address: 0x%lx\n", load_addr);
 		puts("Loading: *\b");
 		tftp_state = STATE_SEND_RRQ;
+#ifdef CONFIG_CMD_BOOTEFI
 		efi_set_bootdev("Net", "", tftp_filename);
+#endif
 	}
 
 	time_start = get_timer(0);
