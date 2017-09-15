@@ -251,6 +251,8 @@ int misc_init_r(void)
 	char *env_hwconfig;
 	u32 __iomem *dcfg_ccsr = (u32 __iomem *)DCFG_BASE;
 	u32 val;
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	u32 svr = gur_in32(&gur->svr);
 
 	val = in_le32(dcfg_ccsr + DCFG_RCWSR13 / 4);
 
@@ -278,6 +280,16 @@ int misc_init_r(void)
 
 	if (adjust_vdd(0))
 		printf("Warning: Adjusting core voltage failed.\n");
+	/*
+	 * Default value of board env is based on filename which is
+	 * ls2080ardb. Modify board env for other supported SoCs
+	 */
+	if ((SVR_SOC_VER(svr) == SVR_LS2088A) ||
+	    (SVR_SOC_VER(svr) == SVR_LS2048A))
+		env_set("board", "ls2088ardb");
+	else if ((SVR_SOC_VER(svr) == SVR_LS2081A) ||
+	    (SVR_SOC_VER(svr) == SVR_LS2041A))
+		env_set("board", "ls2081ardb");
 
 	return 0;
 }
