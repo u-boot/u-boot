@@ -130,6 +130,89 @@ config MULTI_DTB_FIT
 	  the correct DTB to be used. Use this if you need to support
 	  multiple DTBs but don't use the SPL.
 
+
+config SPL_MULTI_DTB_FIT
+	depends on SPL_LOAD_FIT && SPL_OF_CONTROL && !SPL_OF_PLATDATA
+	bool "Support embedding several DTBs in a FIT image for the SPL"
+	help
+	  This option provides the SPL with the ability to select its own
+	  DTB at runtime from an appended FIT image containing several DTBs.
+	  This allows using the same SPL binary on multiple platforms.
+	  The primary purpose is to handle different versions of
+	  the same platform without tweaking the platform code if the
+	  differences can be expressed in the DTBs (common examples are: bus
+	  capabilities, pad configurations).
+
+config SPL_OF_LIST
+	string "List of device tree files to include for DT control in SPL"
+	depends on SPL_MULTI_DTB_FIT
+	default OF_LIST
+	help
+	  This option specifies a list of device tree files to use for DT
+	  control in the SPL. These will be packaged into a FIT. At run-time,
+	  the SPL will select the correct DT to use by examining the
+	  hardware (e.g. reading a board ID value). This is a list of
+	  device tree files (without the directory or .dtb suffix)
+	  separated by <space>.
+
+choice
+	prompt "SPL OF LIST compression"
+	depends on SPL_MULTI_DTB_FIT
+	default SPL_MULTI_DTB_FIT_LZO
+
+config SPL_MULTI_DTB_FIT_LZO
+	bool "LZO"
+	depends on SYS_MALLOC_F
+	select SPL_LZO
+	help
+	  Compress the FIT image containing the DTBs available for the SPL
+	  using LZO compression. (requires lzop on host).
+
+config SPL_MULTI_DTB_FIT_GZIP
+	bool "GZIP"
+	depends on SYS_MALLOC_F
+	select SPL_GZIP
+	help
+	  Compress the FIT image containing the DTBs available for the SPL
+	  using GZIP compression. (requires gzip on host)
+
+config SPL_MULTI_DTB_FIT_NO_COMPRESSION
+	bool "No compression"
+	help
+	  Do not compress the FIT image containing the DTBs available for the SPL.
+	  Use this options only if LZO is not available and the DTBs are very small.
+endchoice
+
+choice
+	prompt "Location of uncompressed DTBs "
+	depends on (SPL_MULTI_DTB_FIT_GZIP || SPL_MULTI_DTB_FIT_LZO)
+	default SPL_MULTI_DTB_FIT_DYN_ALLOC if SYS_MALLOC_F
+
+config SPL_MULTI_DTB_FIT_DYN_ALLOC
+	bool "Dynamically allocate the memory"
+	depends on SYS_MALLOC_F
+
+config SPL_MULTI_DTB_FIT_USER_DEFINED_AREA
+	bool "User-defined location"
+endchoice
+
+config SPL_MULTI_DTB_FIT_UNCOMPRESS_SZ
+	hex "Size of memory reserved to uncompress the DTBs"
+	depends on (SPL_MULTI_DTB_FIT_GZIP || SPL_MULTI_DTB_FIT_LZO)
+	default 0x8000
+	help
+	   This is the size of this area where the DTBs are uncompressed.
+	   If this area is dynamically allocated, make sure that
+	   SPL_SYS_MALLOC_F_LEN is big enough to contain it.
+
+config SPL_MULTI_DTB_FIT_USER_DEF_ADDR
+	hex "Address of memory where dtbs are uncompressed"
+	depends on SPL_MULTI_DTB_FIT_USER_DEFINED_AREA
+	help
+	   the FIT image containing the DTBs is uncompressed in an area defined
+	   at compilation time. This is the address of this area. It must be
+	   aligned on 2-byte boundary.
+
 config OF_SPL_REMOVE_PROPS
 	string "List of device tree properties to drop for SPL"
 	depends on SPL_OF_CONTROL
