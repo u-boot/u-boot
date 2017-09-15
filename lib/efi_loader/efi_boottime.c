@@ -18,6 +18,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* Task priority level */
+static UINTN efi_tpl = TPL_APPLICATION;
+
 /* This list contains all the EFI objects our payload has access to */
 LIST_HEAD(efi_obj_list);
 
@@ -161,7 +164,9 @@ void efi_signal_event(struct efi_event *event)
 {
 	if (event->notify_function) {
 		event->queued = 1;
-		/* Put missing TPL check here */
+		/* Check TPL */
+		if (efi_tpl >= event->notify_tpl)
+			return;
 		EFI_CALL_VOID(event->notify_function(event,
 						     event->notify_context));
 	}
@@ -176,14 +181,31 @@ static efi_status_t efi_unsupported(const char *funcname)
 
 static unsigned long EFIAPI efi_raise_tpl(UINTN new_tpl)
 {
+	UINTN old_tpl = efi_tpl;
+
 	EFI_ENTRY("0x%zx", new_tpl);
-	return EFI_EXIT(0);
+
+	if (new_tpl < efi_tpl)
+		debug("WARNING: new_tpl < current_tpl in %s\n", __func__);
+	efi_tpl = new_tpl;
+	if (efi_tpl > TPL_HIGH_LEVEL)
+		efi_tpl = TPL_HIGH_LEVEL;
+
+	EFI_EXIT(EFI_SUCCESS);
+	return old_tpl;
 }
 
 static void EFIAPI efi_restore_tpl(UINTN old_tpl)
 {
 	EFI_ENTRY("0x%zx", old_tpl);
-	efi_unsupported(__func__);
+
+	if (old_tpl > efi_tpl)
+		debug("WARNING: old_tpl > current_tpl in %s\n", __func__);
+	efi_tpl = old_tpl;
+	if (efi_tpl > TPL_HIGH_LEVEL)
+		efi_tpl = TPL_HIGH_LEVEL;
+
+	EFI_EXIT(EFI_SUCCESS);
 }
 
 static efi_status_t EFIAPI efi_allocate_pages_ext(int type, int memory_type,
@@ -388,7 +410,9 @@ static efi_status_t EFIAPI efi_wait_for_event(unsigned long num_events,
 	/* Check parameters */
 	if (!num_events || !event)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
-	/* Put missing TPL check here */
+	/* Check TPL */
+	if (efi_tpl != TPL_APPLICATION)
+		return EFI_EXIT(EFI_UNSUPPORTED);
 	for (i = 0; i < num_events; ++i) {
 		for (j = 0; j < ARRAY_SIZE(efi_events); ++j) {
 			if (event[i] == &efi_events[j])
