@@ -13,7 +13,7 @@
 #include <image.h>
 #include <libfdt.h>
 
-int fdt_offset(void *fit)
+static int fdt_offset(const void *fit)
 {
 	int images, node, fdt_len, fdt_node, fdt_offset;
 	const char *fdt_name;
@@ -55,7 +55,7 @@ int fdt_offset(void *fit)
 	return fdt_offset;
 }
 
-void *locate_dtb_in_fit(void *fit)
+void *locate_dtb_in_fit(const void *fit)
 {
 	struct image_header *header;
 	int size;

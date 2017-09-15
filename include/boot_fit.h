@@ -5,5 +5,10 @@
  * SPDX-License-Identifier:     GPL-2.0+
  */
 
-int fdt_offset(void *fit);
-void *locate_dtb_in_fit(void *fit);
+/**
+ * locate_dtb_in_fit - Find a DTB matching the board in a FIT image
+ * @fit:	pointer to the FIT image
+ *
+ * @return a pointer to a matching DTB blob if found, NULL otherwise
+ */
+void *locate_dtb_in_fit(const void *fit);
