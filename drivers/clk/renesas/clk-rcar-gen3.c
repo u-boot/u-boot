@@ -752,6 +752,36 @@ static int gen3_clk_get_parent(struct clk *clk, struct clk *parent)
 	return 0;
 }
 
+static int gen3_clk_setup_sdif_div(struct clk *clk)
+{
+	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
+	const struct cpg_core_clk *core;
+	struct clk parent;
+	int ret;
+
+	ret = gen3_clk_get_parent(clk, &parent);
+	if (ret) {
+		printf("%s[%i] parent fail, ret=%i\n", __func__, __LINE__, ret);
+		return ret;
+	}
+
+	if (gen3_clk_is_mod(&parent))
+		return 0;
+
+	ret = gen3_clk_get_core(&parent, &core);
+	if (ret)
+		return ret;
+
+	if (core->type != CLK_TYPE_GEN3_SD)
+		return 0;
+
+	debug("%s[%i] SDIF offset=%x\n", __func__, __LINE__, core->offset);
+
+	writel(1, priv->base + core->offset);
+
+	return 0;
+}
+
 static int gen3_clk_endisable(struct clk *clk, bool enable)
 {
 	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
@@ -759,6 +789,7 @@ static int gen3_clk_endisable(struct clk *clk, bool enable)
 	const unsigned int reg = clkid / 100;
 	const unsigned int bit = clkid % 100;
 	const u32 bitmask = BIT(bit);
+	int ret;
 
 	if (!gen3_clk_is_mod(clk))
 		return -EINVAL;
@@ -767,6 +798,9 @@ static int gen3_clk_endisable(struct clk *clk, bool enable)
 	      clkid, reg, bit, enable ? "ON" : "OFF");
 
 	if (enable) {
+		ret = gen3_clk_setup_sdif_div(clk);
+		if (ret)
+			return ret;
 		clrbits_le32(priv->base + SMSTPCR(reg), bitmask);
 		return wait_for_bit("MSTP", priv->base + MSTPSR(reg),
 				    bitmask, 0, 100, 0);
