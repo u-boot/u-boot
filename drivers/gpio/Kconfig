@@ -135,6 +135,12 @@ config PCF8575_GPIO
 	 Support for PCF8575 I2C 16-bit GPIO expander. Most of these
 	 chips are from NXP and TI.
 
+config RCAR_GPIO
+	bool "Renesas RCar GPIO driver"
+	depends on DM_GPIO && ARCH_RMOBILE
+	help
+	  This driver supports the GPIO banks on Renesas RCar SoCs.
+
 config ROCKCHIP_GPIO
 	bool "Rockchip GPIO driver"
 	depends on DM_GPIO
