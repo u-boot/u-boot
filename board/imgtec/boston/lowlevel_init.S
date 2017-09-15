@@ -51,5 +51,5 @@ LEAF(lowlevel_display)
 	sw	k1, 4(AT)
 #endif
 	.set	pop
-1:	jr	ra
+	jr	ra
 	END(lowlevel_display)
