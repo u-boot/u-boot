@@ -900,7 +900,18 @@ static void efi_exit_caches(void)
 static efi_status_t EFIAPI efi_exit_boot_services(void *image_handle,
 						  unsigned long map_key)
 {
+	int i;
+
 	EFI_ENTRY("%p, %ld", image_handle, map_key);
+
+	/* Notify that ExitBootServices is invoked. */
+	for (i = 0; i < ARRAY_SIZE(efi_events); ++i) {
+		if (efi_events[i].type != EVT_SIGNAL_EXIT_BOOT_SERVICES)
+			continue;
+		efi_signal_event(&efi_events[i]);
+	}
+	/* Make sure that notification functions are not called anymore */
+	efi_tpl = TPL_HIGH_LEVEL;
 
 	board_quiesce_devices();
 
