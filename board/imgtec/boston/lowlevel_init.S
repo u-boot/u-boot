@@ -34,7 +34,6 @@ LEAF(lowlevel_init)
 	PTR_LA	a0, msg_ddr_ok
 	bal	lowlevel_display
 
-	move	v0, zero
 	jr	s0
 	END(lowlevel_init)
 
