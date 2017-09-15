@@ -81,11 +81,13 @@ int board_init(void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_TEXT_BASE + 0x50000;
 
+#ifdef CONFIG_SH_GPIO_PFC
 	/* Init PFC controller */
 #if defined(CONFIG_R8A7795)
 	r8a7795_pinmux_init();
 #elif defined(CONFIG_R8A7796)
 	r8a7796_pinmux_init();
+#endif
 #endif
 
 	/* USB1 pull-up */

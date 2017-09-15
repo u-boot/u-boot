@@ -31,8 +31,6 @@
 
 #define CONFIG_ARCH_CPU_INIT
 
-#define CONFIG_SH_GPIO_PFC
-
 /* console */
 #define CONFIG_SYS_CBSIZE		2048
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
