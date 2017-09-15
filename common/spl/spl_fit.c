@@ -135,6 +135,7 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	int offset;
 	size_t length;
 	int len;
+	ulong size;
 	ulong load_addr, load_ptr;
 	void *src;
 	ulong overhead;
@@ -197,11 +198,13 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	    IS_ENABLED(CONFIG_SPL_GZIP)		&&
 	    image_comp == IH_COMP_GZIP		&&
 	    type == IH_TYPE_KERNEL) {
+		size = length;
 		if (gunzip((void *)load_addr, CONFIG_SYS_BOOTM_LEN,
-			   src, &length)) {
+			   src, &size)) {
 			puts("Uncompressing error\n");
 			return -EIO;
 		}
+		length = size;
 	} else {
 		memcpy((void *)load_addr, src, length);
 	}
