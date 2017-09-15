@@ -73,7 +73,7 @@ void *locate_dtb_in_fit(const void *fit)
 
 	ret = fdt_offset(fit);
 
-	if (ret <= 0)
+	if (ret < 0)
 		return NULL;
 	else
 		return (void *)fit+size+ret;
