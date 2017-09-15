@@ -1,0 +1,3 @@
+obj-$(CONFIG_PINCTRL_PFC) += pfc.o
+obj-$(CONFIG_PINCTRL_PFC_R8A7795) += pfc-r8a7795.o
+obj-$(CONFIG_PINCTRL_PFC_R8A7796) += pfc-r8a7796.o
