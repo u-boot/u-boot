@@ -11,7 +11,10 @@ CFLAGS_efi_selftest.o := $(CFLAGS_EFI)
 CFLAGS_REMOVE_efi_selftest.o := $(CFLAGS_NON_EFI)
 CFLAGS_efi_selftest_console.o := $(CFLAGS_EFI)
 CFLAGS_REMOVE_efi_selftest_console.o := $(CFLAGS_NON_EFI)
+CFLAGS_efi_selftest_events.o := $(CFLAGS_EFI)
+CFLAGS_REMOVE_efi_selftest_events.o := $(CFLAGS_NON_EFI)
 
 obj-$(CONFIG_CMD_BOOTEFI_SELFTEST) += \
 efi_selftest.o \
-efi_selftest_console.o
+efi_selftest_console.o \
+efi_selftest_events.o
