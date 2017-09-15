@@ -50,15 +50,7 @@ void s_init(void)
 #define SCIF2_MSTP310		BIT(10)	/* SCIF2 */
 #define ETHERAVB_MSTP812	BIT(12)
 #define DVFS_MSTP926		BIT(26)
-#define SD0_MSTP314		BIT(14)
-#define SD1_MSTP313		BIT(13)
-#define SD2_MSTP312		BIT(12)	/* either MMC0 */
 #define HSUSB_MSTP704		BIT(4)	/* HSUSB */
-
-#define SD0CKCR			0xE6150074
-#define SD1CKCR			0xE6150078
-#define SD2CKCR			0xE6150268
-#define SD3CKCR			0xE615026C
 
 int board_early_init_f(void)
 {
@@ -68,15 +60,6 @@ int board_early_init_f(void)
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SCIF2_MSTP310);
 	/* EHTERAVB */
 	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, ETHERAVB_MSTP812);
-	/* eMMC */
-	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD1_MSTP313 | SD2_MSTP312);
-	/* SDHI0 */
-	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD0_MSTP314);
-
-	writel(1, SD0CKCR);
-	writel(1, SD1CKCR);
-	writel(1, SD2CKCR);
-	writel(1, SD3CKCR);
 
 #if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
 	/* DVFS for reset */
