@@ -81,15 +81,6 @@ int board_init(void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_TEXT_BASE + 0x50000;
 
-#ifdef CONFIG_SH_GPIO_PFC
-	/* Init PFC controller */
-#if defined(CONFIG_R8A7795)
-	r8a7795_pinmux_init();
-#elif defined(CONFIG_R8A7796)
-	r8a7796_pinmux_init();
-#endif
-#endif
-
 	/* USB1 pull-up */
 	setbits_le32(PFC_PUEN6, PUEN_USB1_OVC | PUEN_USB1_PWEN);
 
@@ -100,77 +91,6 @@ int board_init(void)
 			HSUSB_REG_UGCTRL2_USB0SEL_EHCI);
 	/* low power status */
 	setbits_le16(HSUSB_REG_LPSTS, HSUSB_REG_LPSTS_SUSPM_NORMAL);
-
-#ifdef CONFIG_RENESAS_RAVB
-	/* EtherAVB Enable */
-	/* GPSR2 */
-	gpio_request(GPIO_GFN_AVB_AVTP_CAPTURE_A, NULL);
-	gpio_request(GPIO_GFN_AVB_AVTP_MATCH_A, NULL);
-	gpio_request(GPIO_GFN_AVB_LINK, NULL);
-	gpio_request(GPIO_GFN_AVB_PHY_INT, NULL);
-	gpio_request(GPIO_GFN_AVB_MAGIC, NULL);
-	gpio_request(GPIO_GFN_AVB_MDC, NULL);
-
-	/* IPSR0 */
-	gpio_request(GPIO_IFN_AVB_MDC, NULL);
-	gpio_request(GPIO_IFN_AVB_MAGIC, NULL);
-	gpio_request(GPIO_IFN_AVB_PHY_INT, NULL);
-	gpio_request(GPIO_IFN_AVB_LINK, NULL);
-	gpio_request(GPIO_IFN_AVB_AVTP_MATCH_A, NULL);
-	gpio_request(GPIO_IFN_AVB_AVTP_CAPTURE_A, NULL);
-	/* IPSR1 */
-	gpio_request(GPIO_FN_AVB_AVTP_PPS, NULL);
-	/* IPSR2 */
-	gpio_request(GPIO_FN_AVB_AVTP_MATCH_B, NULL);
-	/* IPSR3 */
-	gpio_request(GPIO_FN_AVB_AVTP_CAPTURE_B, NULL);
-
-	/* AVB_PHY_RST */
-	gpio_request(GPIO_GP_2_10, NULL);
-	gpio_direction_output(GPIO_GP_2_10, 0);
-	mdelay(20);
-	gpio_set_value(GPIO_GP_2_10, 1);
-	udelay(1);
-#endif
-
-#ifdef CONFIG_MMC
-	/* SDHI0 */
-	gpio_request(GPIO_GFN_SD0_DAT0, NULL);
-	gpio_request(GPIO_GFN_SD0_DAT1, NULL);
-	gpio_request(GPIO_GFN_SD0_DAT2, NULL);
-	gpio_request(GPIO_GFN_SD0_DAT3, NULL);
-	gpio_request(GPIO_GFN_SD0_CLK, NULL);
-	gpio_request(GPIO_GFN_SD0_CMD, NULL);
-	gpio_request(GPIO_GFN_SD0_CD, NULL);
-	gpio_request(GPIO_GFN_SD0_WP, NULL);
-
-	gpio_request(GPIO_GP_5_2, NULL);
-	gpio_request(GPIO_GP_5_1, NULL);
-	gpio_direction_output(GPIO_GP_5_2, 1);	/* power on */
-	gpio_direction_output(GPIO_GP_5_1, 1);	/* 1: 3.3V, 0: 1.8V */
-
-	/* SDHI1/SDHI2 eMMC */
-	gpio_request(GPIO_GFN_SD1_DAT0, NULL);
-	gpio_request(GPIO_GFN_SD1_DAT1, NULL);
-	gpio_request(GPIO_GFN_SD1_DAT2, NULL);
-	gpio_request(GPIO_GFN_SD1_DAT3, NULL);
-	gpio_request(GPIO_GFN_SD2_DAT0, NULL);
-	gpio_request(GPIO_GFN_SD2_DAT1, NULL);
-	gpio_request(GPIO_GFN_SD2_DAT2, NULL);
-	gpio_request(GPIO_GFN_SD2_DAT3, NULL);
-	gpio_request(GPIO_GFN_SD2_CLK, NULL);
-#if defined(CONFIG_R8A7795)
-	gpio_request(GPIO_GFN_SD2_CMD, NULL);
-#elif defined(CONFIG_R8A7796)
-	gpio_request(GPIO_FN_SD2_CMD, NULL);
-#else
-#error Only R8A7795 and R87796 is supported
-#endif
-	gpio_request(GPIO_GP_5_3, NULL);
-	gpio_request(GPIO_GP_5_9, NULL);
-	gpio_direction_output(GPIO_GP_5_3, 0);	/* 1: 3.3V, 0: 1.8V */
-	gpio_direction_output(GPIO_GP_5_9, 0);	/* 1: 3.3V, 0: 1.8V */
-#endif
 
 	return 0;
 }
