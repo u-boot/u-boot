@@ -30,16 +30,29 @@ static const unsigned char lzop_magic[] = {
 
 #define HEADER_HAS_FILTER	0x00000800L
 
+
+bool lzop_is_valid_header(const unsigned char *src)
+{
+	int i;
+	/* read magic: 9 first bytes */
+	for (i = 0; i < ARRAY_SIZE(lzop_magic); i++) {
+		if (*src++ != lzop_magic[i])
+			return false;
+	}
+	return true;
+}
+
 static inline const unsigned char *parse_header(const unsigned char *src)
 {
 	u16 version;
 	int i;
 
-	/* read magic: 9 first bytes */
-	for (i = 0; i < ARRAY_SIZE(lzop_magic); i++) {
-		if (*src++ != lzop_magic[i])
-			return NULL;
-	}
+	if (!lzop_is_valid_header(src))
+		return NULL;
+
+	/* skip header */
+	src += 9;
+
 	/* get version (2bytes), skip library version (2),
 	 * 'need to be extracted' version (2) and
 	 * method (1) */
