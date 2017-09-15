@@ -165,9 +165,11 @@ void early_system_init(void)
 	 * to prevent overwrites.
 	 */
 	save_omap_boot_params();
-	spl_early_init();
 #endif
 	do_board_detect();
+#ifdef CONFIG_SPL_BUILD
+	spl_early_init();
+#endif
 	vcores_init();
 #ifdef CONFIG_DEBUG_UART_OMAP
 	debug_uart_init();
