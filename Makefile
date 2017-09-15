@@ -1448,8 +1448,8 @@ System.map:	u-boot
 		@$(call SYSTEM_MAP,$<) > $@
 
 checkdtc:
-	@if test $(call dtc-version) -lt 0104; then \
-		echo '*** Your dtc is too old, please upgrade to dtc 1.4 or newer'; \
+	@if test $(call dtc-version) -lt 010403; then \
+		echo '*** Your dtc is too old, please upgrade to dtc 1.4.3 or newer'; \
 		false; \
 	fi
 
