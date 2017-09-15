@@ -27,17 +27,17 @@ The following tables show <defconfig> and <device-tree> for each board.
 
 32bit SoC boards:
 
- Board         | <defconfig>                  | <device-tree>
----------------|------------------------------|------------------------------
-LD4 reference  | uniphier_ld4_sld8_defconfig  | uniphier-ld4-ref (default)
-sld8 reference | uniphier_ld4_sld8_defconfig  | uniphier-sld8-def
-Pro4 reference | uniphier_pro4_defconfig      | uniphier-pro4-ref (default)
-Pro4 Ace       | uniphier_pro4_defconfig      | uniphier-pro4-ace
-Pro4 Sanji     | uniphier_pro4_defconfig      | uniphier-pro4-sanji
-Pro5 4KBOX     | uniphier_pxs2_ld6b_defconfig | uniphier-pro5-4kbox
-PXs2 Gentil    | uniphier_pxs2_ld6b_defconfig | uniphier-pxs2-gentil
-PXs2 Vodka     | uniphier_pxs2_ld6b_defconfig | uniphier-pxs2-vodka (default)
-LD6b reference | uniphier_pxs2_ld6b_defconfig | uniphier-ld6b-ref
+ Board         | <defconfig>                 | <device-tree>
+---------------|-----------------------------|------------------------------
+LD4 reference  | uniphier_ld4_sld8_defconfig | uniphier-ld4-ref (default)
+sld8 reference | uniphier_ld4_sld8_defconfig | uniphier-sld8-def
+Pro4 reference | uniphier_v7_defconfig       | uniphier-pro4-ref
+Pro4 Ace       | uniphier_v7_defconfig       | uniphier-pro4-ace
+Pro4 Sanji     | uniphier_v7_defconfig       | uniphier-pro4-sanji
+Pro5 4KBOX     | uniphier_v7_defconfig       | uniphier-pro5-4kbox
+PXs2 Gentil    | uniphier_v7_defconfig       | uniphier-pxs2-gentil
+PXs2 Vodka     | uniphier_v7_defconfig       | uniphier-pxs2-vodka (default)
+LD6b reference | uniphier_v7_defconfig       | uniphier-ld6b-ref
 
 64bit SoC boards:
 
@@ -47,17 +47,18 @@ LD11 reference | uniphier_v8_defconfig | uniphier-ld11-ref
 LD11 Global    | uniphier_v8_defconfig | uniphier-ld11-global
 LD20 reference | uniphier_v8_defconfig | uniphier-ld20-ref (default)
 LD20 Global    | uniphier_v8_defconfig | uniphier-ld20-global
+PXs3 reference | uniphier_v8_defconfig | uniphier-pxs3-ref
 
 For example, to compile the source for PXs2 Vodka board, run the following:
 
-    $ make uniphier_pxs2_ld6b_defconfig
+    $ make uniphier_v7_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabihf- DEVICE_TREE=uniphier-pxs2-vodka
 
 The device tree marked as (default) can be omitted.  `uniphier-pxs2-vodka` is
-the default device tree for the configuration `uniphier_pxs2_ld6b_defconfig`,
-so the following gives the same result.
+the default device tree for the configuration `uniphier_v7_defconfig`, so the
+following gives the same result.
 
-    $ make uniphier_pxs2_ld6b_defconfig
+    $ make uniphier_v7_defconfig
     $ make CROSS_COMPILE=arm-linux-gnueabihf-
 
 
@@ -178,4 +179,4 @@ newer SoCs.  Even if it is, EA[25] is not connected on most of the boards.
 
 --
 Masahiro Yamada <yamada.masahiro@socionext.com>
-Jul. 2017
+Sep. 2017
