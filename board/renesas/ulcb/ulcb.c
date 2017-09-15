@@ -55,8 +55,6 @@ int board_early_init_f(void)
 {
 	/* TMU0,1 */		/* which use ? */
 	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125 | TMU1_MSTP124);
-	/* SCIF2 */
-	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SCIF2_MSTP310);
 
 #if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
 	/* DVFS for reset */
