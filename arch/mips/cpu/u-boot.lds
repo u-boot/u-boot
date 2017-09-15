@@ -5,12 +5,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#if defined(CONFIG_64BIT)
-#define PTR_COUNT_SHIFT	3
-#else
-#define PTR_COUNT_SHIFT	2
-#endif
-
 OUTPUT_ARCH(mips)
 ENTRY(_start)
 SECTIONS
