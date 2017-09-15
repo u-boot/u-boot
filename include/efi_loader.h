@@ -254,6 +254,15 @@ efi_status_t __efi_runtime EFIAPI efi_get_time(
 			struct efi_time_cap *capabilities);
 void efi_get_time_init(void);
 
+#ifdef CONFIG_CMD_BOOTEFI_SELFTEST
+/*
+ * Entry point for the tests of the EFI API.
+ * It is called by 'bootefi selftest'
+ */
+efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
+				 struct efi_system_table *systab);
+#endif
+
 #else /* defined(EFI_LOADER) && !defined(CONFIG_SPL_BUILD) */
 
 /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */

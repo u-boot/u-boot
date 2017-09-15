@@ -285,7 +285,6 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt)
 	return efi_do_enter(&loaded_image_info, &systab, entry);
 }
 
-
 /* Interpreter command to boot an arbitrary EFI image from memory */
 static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -305,6 +304,22 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		else
 			addr = CONFIG_SYS_LOAD_ADDR;
 		memcpy((char *)addr, __efi_helloworld_begin, size);
+	} else
+#endif
+#ifdef CONFIG_CMD_BOOTEFI_SELFTEST
+	if (!strcmp(argv[1], "selftest")) {
+		/*
+		 * gd lives in a fixed register which may get clobbered while we
+		 * execute the payload. So save it here and restore it on every
+		 * callback entry
+		 */
+		efi_save_gd();
+		/* Initialize and populate EFI object list */
+		if (!efi_obj_list_initalized)
+			efi_init_obj_list();
+		loaded_image_info.device_handle = bootefi_device_path;
+		loaded_image_info.file_path = bootefi_image_path;
+		return efi_selftest(&loaded_image_info, &systab);
 	} else
 #endif
 	{
@@ -336,8 +351,12 @@ static char bootefi_help_text[] =
 	"    If specified, the device tree located at <fdt address> gets\n"
 	"    exposed as EFI configuration table.\n"
 #ifdef CONFIG_CMD_BOOTEFI_HELLO
-	"hello\n"
-	"  - boot a sample Hello World application stored within U-Boot"
+	"bootefi hello\n"
+	"  - boot a sample Hello World application stored within U-Boot\n"
+#endif
+#ifdef CONFIG_CMD_BOOTEFI_SELFTEST
+	"bootefi selftest\n"
+	"  - boot an EFI selftest application stored within U-Boot\n"
 #endif
 	;
 #endif
