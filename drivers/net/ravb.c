@@ -18,6 +18,7 @@
 #include <linux/mii.h>
 #include <wait_bit.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 
 /* Registers */
 #define RAVB_REG_CCC		0x000
@@ -122,6 +123,7 @@ struct ravb_priv {
 	struct mii_dev		*bus;
 	void __iomem		*iobase;
 	struct clk		clk;
+	struct gpio_desc	reset_gpio;
 };
 
 static inline void ravb_flush_dcache(u32 addr, u32 len)
@@ -301,6 +303,13 @@ static int ravb_phy_config(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct phy_device *phydev;
 	int mask = 0xffffffff, reg;
+
+	if (dm_gpio_is_valid(&eth->reset_gpio)) {
+		dm_gpio_set_value(&eth->reset_gpio, 1);
+		mdelay(20);
+		dm_gpio_set_value(&eth->reset_gpio, 0);
+		mdelay(1);
+	}
 
 	phydev = phy_find_by_mask(eth->bus, mask, pdata->phy_interface);
 	if (!phydev)
@@ -483,6 +492,9 @@ static int ravb_probe(struct udevice *dev)
 	if (ret < 0)
 		goto err_mdio_alloc;
 
+	gpio_request_by_name_nodev(dev_ofnode(dev), "reset-gpios", 0,
+				   &eth->reset_gpio, GPIOD_IS_OUT);
+
 	mdiodev = mdio_alloc();
 	if (!mdiodev) {
 		ret = -ENOMEM;
@@ -516,6 +528,7 @@ static int ravb_remove(struct udevice *dev)
 	free(eth->phydev);
 	mdio_unregister(eth->bus);
 	mdio_free(eth->bus);
+	dm_gpio_free(dev, &eth->reset_gpio);
 	unmap_physmem(eth->iobase, MAP_NOCACHE);
 
 	return 0;
