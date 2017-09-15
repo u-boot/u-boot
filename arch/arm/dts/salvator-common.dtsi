@@ -257,6 +257,7 @@
 	pinctrl-names = "default";
 	renesas,no-ether-link;
 	phy-handle = <&phy0>;
+	reset-gpios = <&gpio2 10 GPIO_ACTIVE_LOW>;
 	status = "okay";
 
 	phy0: ethernet-phy@0 {
