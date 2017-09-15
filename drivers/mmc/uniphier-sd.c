@@ -14,6 +14,7 @@
 #include <linux/dma-direction.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
+#include <power/regulator.h>
 #include <asm/unaligned.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -756,6 +757,9 @@ static int uniphier_sd_probe(struct udevice *dev)
 	fdt_addr_t base;
 	struct clk clk;
 	int ret;
+#ifdef CONFIG_DM_REGULATOR
+	struct udevice *vqmmc_dev;
+#endif
 
 	base = devfdt_get_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
@@ -764,6 +768,15 @@ static int uniphier_sd_probe(struct udevice *dev)
 	priv->regbase = devm_ioremap(dev, base, SZ_2K);
 	if (!priv->regbase)
 		return -ENOMEM;
+
+#ifdef CONFIG_DM_REGULATOR
+	ret = device_get_supply_regulator(dev, "vqmmc-supply", &vqmmc_dev);
+	if (!ret) {
+		/* Set the regulator to 3.3V until we support 1.8V modes */
+		regulator_set_value(vqmmc_dev, 3300000);
+		regulator_set_enable(vqmmc_dev, true);
+	}
+#endif
 
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret < 0) {
