@@ -36,7 +36,7 @@ Old uImage:
 New uImage:
 8.  bootm <addr1>
 9.  bootm [<addr1>]:<subimg1>
-10. bootm [<addr1>]#<conf>
+10. bootm [<addr1>]#<conf>[#<extra-conf[#...]]
 11. bootm [<addr1>]:<subimg1> [<addr2>]:<subimg2>
 12. bootm [<addr1>]:<subimg1> [<addr2>]:<subimg2> [<addr3>]:<subimg3>
 13. bootm [<addr1>]:<subimg1> [<addr2>]:<subimg2> <addr3>
@@ -129,6 +129,12 @@ following syntax:
 - new uImage configuration specification
 <addr>#<configuration unit_name>
 
+- new uImage configuration specification with extra configuration components
+<addr>#<configuration unit_name>[#<extra configuration unit_name>[#..]]
+
+The extra configuration currently is supported only for additional device tree
+overlays to apply on the base device tree supplied by the first configuration
+unit.
 
 Examples:
 
@@ -137,6 +143,10 @@ bootm 200000:kernel@1
 
 - boot configuration "cfg@1" from a new uImage located at 200000:
 bootm 200000#cfg@1
+
+- boot configuration "cfg@1" with extra "cfg@2" from a new uImage located
+  at 200000:
+bootm 200000#cfg@1#cfg@2
 
 - boot "kernel@1" from a new uImage at 200000 with initrd "ramdisk@2" found in
   some other new uImage stored at address 800000:

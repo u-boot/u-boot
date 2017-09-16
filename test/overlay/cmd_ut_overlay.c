@@ -20,8 +20,9 @@
 
 extern u32 __dtb_test_fdt_base_begin;
 extern u32 __dtb_test_fdt_overlay_begin;
+extern u32 __dtb_test_fdt_overlay_stacked_begin;
 
-static int fdt_getprop_u32_by_index(void *fdt, const char *path,
+static int ut_fdt_getprop_u32_by_index(void *fdt, const char *path,
 				    const char *name, int index,
 				    u32 *out)
 {
@@ -42,10 +43,10 @@ static int fdt_getprop_u32_by_index(void *fdt, const char *path,
 	return 0;
 }
 
-static int fdt_getprop_u32(void *fdt, const char *path, const char *name,
+static int ut_fdt_getprop_u32(void *fdt, const char *path, const char *name,
 			   u32 *out)
 {
-	return fdt_getprop_u32_by_index(fdt, path, name, 0, out);
+	return ut_fdt_getprop_u32_by_index(fdt, path, name, 0, out);
 }
 
 static int fdt_getprop_str(void *fdt, const char *path, const char *name,
@@ -68,7 +69,7 @@ static int fdt_overlay_change_int_property(struct unit_test_state *uts)
 	void *fdt = uts->priv;
 	u32 val = 0;
 
-	ut_assertok(fdt_getprop_u32(fdt, "/test-node", "test-int-property",
+	ut_assertok(ut_fdt_getprop_u32(fdt, "/test-node", "test-int-property",
 				    &val));
 	ut_asserteq(43, val);
 
@@ -158,11 +159,11 @@ static int fdt_overlay_local_phandle(struct unit_test_state *uts)
 	local_phandle = fdt_get_phandle(fdt, off);
 	ut_assert(local_phandle);
 
-	ut_assertok(fdt_getprop_u32_by_index(fdt, "/", "test-several-phandle",
+	ut_assertok(ut_fdt_getprop_u32_by_index(fdt, "/", "test-several-phandle",
 					     0, &val));
 	ut_asserteq(local_phandle, val);
 
-	ut_assertok(fdt_getprop_u32_by_index(fdt, "/", "test-several-phandle",
+	ut_assertok(ut_fdt_getprop_u32_by_index(fdt, "/", "test-several-phandle",
 					     1, &val));
 	ut_asserteq(local_phandle, val);
 
@@ -189,17 +190,30 @@ static int fdt_overlay_local_phandles(struct unit_test_state *uts)
 	test_phandle = fdt_get_phandle(fdt, off);
 	ut_assert(test_phandle);
 
-	ut_assertok(fdt_getprop_u32_by_index(fdt, "/", "test-phandle", 0,
+	ut_assertok(ut_fdt_getprop_u32_by_index(fdt, "/", "test-phandle", 0,
 					     &val));
 	ut_asserteq(test_phandle, val);
 
-	ut_assertok(fdt_getprop_u32_by_index(fdt, "/", "test-phandle", 1,
+	ut_assertok(ut_fdt_getprop_u32_by_index(fdt, "/", "test-phandle", 1,
 					     &val));
 	ut_asserteq(local_phandle, val);
 
 	return CMD_RET_SUCCESS;
 }
 OVERLAY_TEST(fdt_overlay_local_phandles, 0);
+
+static int fdt_overlay_stacked(struct unit_test_state *uts)
+{
+	void *fdt = uts->priv;
+	u32 val = 0;
+
+	ut_assertok(ut_fdt_getprop_u32(fdt, "/new-local-node",
+				       "stacked-test-int-property", &val));
+	ut_asserteq(43, val);
+
+	return CMD_RET_SUCCESS;
+}
+OVERLAY_TEST(fdt_overlay_stacked, 0);
 
 int do_ut_overlay(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -210,7 +224,8 @@ int do_ut_overlay(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	struct unit_test *test;
 	void *fdt_base = &__dtb_test_fdt_base_begin;
 	void *fdt_overlay = &__dtb_test_fdt_overlay_begin;
-	void *fdt_base_copy, *fdt_overlay_copy;
+	void *fdt_overlay_stacked = &__dtb_test_fdt_overlay_stacked_begin;
+	void *fdt_base_copy, *fdt_overlay_copy, *fdt_overlay_stacked_copy;
 
 	uts = calloc(1, sizeof(*uts));
 	if (!uts)
@@ -226,6 +241,10 @@ int do_ut_overlay(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	fdt_overlay_copy = malloc(FDT_COPY_SIZE);
 	if (!fdt_overlay_copy)
+		return -ENOMEM;
+
+	fdt_overlay_stacked_copy = malloc(FDT_COPY_SIZE);
+	if (!fdt_overlay_stacked_copy)
 		return -ENOMEM;
 
 	/*
@@ -245,8 +264,20 @@ int do_ut_overlay(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	ut_assertok(fdt_open_into(fdt_overlay, fdt_overlay_copy,
 				  FDT_COPY_SIZE));
 
+	/*
+	 * Resize the stacked overlay to 4k so that we have room to operate on
+	 *
+	 * (and relocate it since the memory might be mapped
+	 * read-only)
+	 */
+	ut_assertok(fdt_open_into(fdt_overlay_stacked, fdt_overlay_stacked_copy,
+				  FDT_COPY_SIZE));
+
 	/* Apply the overlay */
 	ut_assertok(fdt_overlay_apply(fdt_base_copy, fdt_overlay_copy));
+
+	/* Apply the stacked overlay */
+	ut_assertok(fdt_overlay_apply(fdt_base_copy, fdt_overlay_stacked_copy));
 
 	if (argc == 1)
 		printf("Running %d environment tests\n", n_ents);
@@ -263,6 +294,7 @@ int do_ut_overlay(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	printf("Failures: %d\n", uts->fail_count);
 
+	free(fdt_overlay_stacked_copy);
 	free(fdt_overlay_copy);
 	free(fdt_base_copy);
 	free(uts);

@@ -257,14 +257,15 @@ cmd_dtoch = $(pythonpath) $(srctree)/tools/dtoc/dtoc -d $(obj)/$(SPL_BIN).dtb -o
 quiet_cmd_plat = PLAT    $@
 cmd_plat = $(CC) $(c_flags) -c $< -o $@
 
-$(obj)/dts/dt-platdata.o: $(obj)/dts/dt-platdata.c include/generated/dt-structs.h
+$(obj)/dts/dt-platdata.o: $(obj)/dts/dt-platdata.c \
+		include/generated/dt-structs-gen.h
 	$(call if_changed,plat)
 
 PHONY += dts_dir
 dts_dir:
 	$(shell [ -d $(obj)/dts ] || mkdir -p $(obj)/dts)
 
-include/generated/dt-structs.h: $(obj)/$(SPL_BIN).dtb dts_dir checkdtoc
+include/generated/dt-structs-gen.h: $(obj)/$(SPL_BIN).dtb dts_dir checkdtoc
 	$(call if_changed,dtoch)
 
 $(obj)/dts/dt-platdata.c: $(obj)/$(SPL_BIN).dtb dts_dir checkdtoc

@@ -29,6 +29,22 @@ def fdt32_to_cpu(val):
         val = val.encode('raw_unicode_escape')
     return struct.unpack('>I', val)[0]
 
+def fdt_cells_to_cpu(val, cells):
+    """Convert one or two cells to a long integer
+
+    Args:
+        Value to convert (array of one or more 4-character strings)
+
+    Return:
+        A native-endian long value
+    """
+    if not cells:
+        return 0
+    out = long(fdt32_to_cpu(val[0]))
+    if cells == 2:
+        out = out << 32 | fdt32_to_cpu(val[1])
+    return out
+
 def EnsureCompiled(fname):
     """Compile an fdt .dts source file into a .dtb binary blob if needed.
 

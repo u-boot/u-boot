@@ -111,7 +111,7 @@ struct dtd_rockchip_rk3288_dw_mshc {
         bool            cap_sd_highspeed;
         fdt32_t         card_detect_delay;
         fdt32_t         clock_freq_min_max[2];
-        struct phandle_2_cell clocks[4];
+        struct phandle_1_arg clocks[4];
         bool            disable_wp;
         fdt32_t         fifo_depth;
         fdt32_t         interrupts[3];

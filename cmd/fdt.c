@@ -667,11 +667,10 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (!fdt_valid(&blob))
 			return CMD_RET_FAILURE;
 
-		ret = fdt_overlay_apply(working_fdt, blob);
-		if (ret) {
-			printf("fdt_overlay_apply(): %s\n", fdt_strerror(ret));
+		/* apply method prints messages on error */
+		ret = fdt_overlay_apply_verbose(working_fdt, blob);
+		if (ret)
 			return CMD_RET_FAILURE;
-		}
 	}
 #endif
 	/* resize the fdt */

@@ -61,9 +61,9 @@ struct clk {
 };
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && CONFIG_IS_ENABLED(CLK)
-struct phandle_2_cell;
+struct phandle_1_arg;
 int clk_get_by_index_platdata(struct udevice *dev, int index,
-			      struct phandle_2_cell *cells, struct clk *clk);
+			      struct phandle_1_arg *cells, struct clk *clk);
 
 /**
  * clock_get_by_index - Get/request a clock by integer index.

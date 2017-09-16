@@ -471,7 +471,7 @@ static int rk3368_clk_probe(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3368_clk_plat *plat = dev_get_platdata(dev);
 
-	priv->cru = map_sysmem(plat->dtd.reg[1], plat->dtd.reg[3]);
+	priv->cru = map_sysmem(plat->dtd.reg[0], plat->dtd.reg[1]);
 #endif
 #if IS_ENABLED(CONFIG_SPL_BUILD) || IS_ENABLED(CONFIG_TPL_BUILD)
 	rkclk_init(priv->cru);
