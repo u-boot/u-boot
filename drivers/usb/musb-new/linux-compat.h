@@ -5,8 +5,6 @@
 #include <linux/list.h>
 #include <linux/compat.h>
 
-#define pr_debug(fmt, args...) debug(fmt, ##args)
-
 #define WARN(condition, fmt, args...) ({	\
 	int ret_warn = !!condition;		\
 	if (ret_warn)				\

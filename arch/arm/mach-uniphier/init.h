@@ -104,9 +104,4 @@ int uniphier_have_internal_stm(void);
 int uniphier_boot_from_backend(void);
 int uniphier_pin_init(const char *pinconfig_name);
 
-#undef pr_warn
-#define pr_warn(fmt, args...)	printf(fmt, ##args)
-#undef pr_err
-#define pr_err(fmt, args...)	printf(fmt, ##args)
-
 #endif /* __MACH_INIT_H */

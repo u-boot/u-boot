@@ -12,7 +12,6 @@
 #ifndef __DWC3_LINUX_COMPAT__
 #define __DWC3_LINUX_COMPAT__
 
-#define pr_debug(format)                debug(format)
 #define WARN(val, format, arg...)	debug(format, ##arg)
 #define dev_WARN(dev, format, arg...)	debug(format, ##arg)
 #define WARN_ON_ONCE(val)		debug("Error %d\n", val)

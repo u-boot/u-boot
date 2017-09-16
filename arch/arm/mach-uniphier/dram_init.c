@@ -15,9 +15,6 @@
 #include "sg-regs.h"
 #include "soc-info.h"
 
-#define pr_warn(fmt, args...)	printf(fmt, ##args)
-#define pr_err(fmt, args...)	printf(fmt, ##args)
-
 DECLARE_GLOBAL_DATA_PTR;
 
 struct uniphier_memif_data {

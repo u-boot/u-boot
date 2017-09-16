@@ -25,6 +25,7 @@ typedef volatile unsigned char	vu_char;
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/types.h>
+#include <linux/printk.h>
 #include <linux/string.h>
 #include <linux/stringify.h>
 #include <asm/ptrace.h>
@@ -53,11 +54,6 @@ typedef volatile unsigned char	vu_char;
 #define _SPL_BUILD	1
 #else
 #define _SPL_BUILD	0
-#endif
-
-/* Define this at the top of a file to add a prefix to debug messages */
-#ifndef pr_fmt
-#define pr_fmt(fmt) fmt
 #endif
 
 /*

@@ -25,17 +25,6 @@ extern struct p_current *current;
 	printf(fmt, ##args)
 #define dev_warn(dev, fmt, args...)		\
 	printf(fmt, ##args)
-#define printk	printf
-#define printk_once	printf
-
-#define KERN_EMERG
-#define KERN_ALERT
-#define KERN_CRIT
-#define KERN_ERR
-#define KERN_WARNING
-#define KERN_NOTICE
-#define KERN_INFO
-#define KERN_DEBUG
 
 #define GFP_ATOMIC ((gfp_t) 0)
 #define GFP_KERNEL ((gfp_t) 0)
