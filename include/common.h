@@ -23,6 +23,7 @@ typedef volatile unsigned char	vu_char;
 #include <time.h>
 #include <asm-offsets.h>
 #include <linux/bitops.h>
+#include <linux/bug.h>
 #include <linux/delay.h>
 #include <linux/types.h>
 #include <linux/printk.h>
@@ -89,14 +90,6 @@ void __assert_fail(const char *assertion, const char *file, unsigned line,
 #define assert(x) \
 	({ if (!(x) && _DEBUG) \
 		__assert_fail(#x, __FILE__, __LINE__, __func__); })
-
-#ifndef BUG
-#define BUG() do { \
-	printf("BUG: failure at %s:%d/%s()!\n", __FILE__, __LINE__, __FUNCTION__); \
-	panic("BUG!"); \
-} while (0)
-#define BUG_ON(condition) do { if (unlikely((condition)!=0)) BUG(); } while(0)
-#endif /* BUG */
 
 typedef void (interrupt_handler_t)(void *);
 

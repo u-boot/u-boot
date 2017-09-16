@@ -87,21 +87,6 @@ static inline void kmem_cache_destroy(struct kmem_cache *cachep)
 
 #define KERNEL_VERSION(a,b,c)	(((a) << 16) + ((b) << 8) + (c))
 
-#ifndef BUG
-#define BUG() do { \
-	printf("U-Boot BUG at %s:%d!\n", __FILE__, __LINE__); \
-} while (0)
-
-#define BUG_ON(condition) do { if (condition) BUG(); } while(0)
-#endif /* BUG */
-
-#define WARN_ON(condition) ({						\
-	int __ret_warn_on = !!(condition);				\
-	if (unlikely(__ret_warn_on))					\
-		printf("WARNING in %s line %d\n", __FILE__, __LINE__);	\
-	unlikely(__ret_warn_on);					\
-})
-
 #define PAGE_SIZE	4096
 
 /* drivers/char/random.c */
