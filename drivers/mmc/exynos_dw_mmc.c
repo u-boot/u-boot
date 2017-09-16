@@ -155,7 +155,7 @@ static int exynos_dwmci_get_config(const void *blob, int node,
 
 	priv = malloc(sizeof(struct dwmci_exynos_priv_data));
 	if (!priv) {
-		error("dwmci_exynos_priv_data malloc fail!\n");
+		pr_err("dwmci_exynos_priv_data malloc fail!\n");
 		return -ENOMEM;
 	}
 

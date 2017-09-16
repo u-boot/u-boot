@@ -43,7 +43,7 @@ static int sti_mmc_core_config(struct udevice *dev)
 	if (plat->instance) {
 		ret = reset_deassert(&plat->reset);
 		if (ret < 0) {
-			error("MMC1 deassert failed: %d", ret);
+			pr_err("MMC1 deassert failed: %d", ret);
 			return ret;
 		}
 	}

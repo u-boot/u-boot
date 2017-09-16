@@ -29,7 +29,7 @@ static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 
 	mmc = find_mmc_device(dfu->data.mmc.dev_num);
 	if (!mmc) {
-		error("Device MMC %d - not found!", dfu->data.mmc.dev_num);
+		pr_err("Device MMC %d - not found!", dfu->data.mmc.dev_num);
 		return -ENODEV;
 	}
 
@@ -69,11 +69,11 @@ static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 			       buf);
 		break;
 	default:
-		error("Operation not supported\n");
+		pr_err("Operation not supported\n");
 	}
 
 	if (n != blk_count) {
-		error("MMC operation failed");
+		pr_err("MMC operation failed");
 		if (dfu->data.mmc.hw_partition >= 0)
 			blk_select_hwpart_devnum(IF_TYPE_MMC,
 						 dfu->data.mmc.dev_num,
@@ -312,7 +312,7 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 	for (; parg < argv + sizeof(argv) / sizeof(*argv); ++parg) {
 		*parg = strsep(&s, " ");
 		if (*parg == NULL) {
-			error("Invalid number of arguments.\n");
+			pr_err("Invalid number of arguments.\n");
 			return -ENODEV;
 		}
 	}
@@ -327,13 +327,13 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 
 	mmc = find_mmc_device(dfu->data.mmc.dev_num);
 	if (mmc == NULL) {
-		error("Couldn't find MMC device no. %d.\n",
+		pr_err("Couldn't find MMC device no. %d.\n",
 		      dfu->data.mmc.dev_num);
 		return -ENODEV;
 	}
 
 	if (mmc_init(mmc)) {
-		error("Couldn't init MMC device.\n");
+		pr_err("Couldn't init MMC device.\n");
 		return -ENODEV;
 	}
 
@@ -360,7 +360,7 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 		int mmcpart = third_arg;
 
 		if (part_get_info(blk_dev, mmcpart, &partinfo) != 0) {
-			error("Couldn't find part #%d on mmc device #%d\n",
+			pr_err("Couldn't find part #%d on mmc device #%d\n",
 			      mmcpart, mmcdev);
 			return -ENODEV;
 		}
@@ -374,7 +374,7 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 	} else if (!strcmp(entity_type, "ext4")) {
 		dfu->layout = DFU_FS_EXT4;
 	} else {
-		error("Memory layout (%s) not supported!\n", entity_type);
+		pr_err("Memory layout (%s) not supported!\n", entity_type);
 		return -ENODEV;
 	}
 
@@ -397,7 +397,7 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 		dfu_file_buf = memalign(CONFIG_SYS_CACHELINE_SIZE,
 					CONFIG_SYS_DFU_MAX_FILE_SIZE);
 		if (!dfu_file_buf) {
-			error("Could not memalign 0x%x bytes",
+			pr_err("Could not memalign 0x%x bytes",
 			      CONFIG_SYS_DFU_MAX_FILE_SIZE);
 			return -ENOMEM;
 		}

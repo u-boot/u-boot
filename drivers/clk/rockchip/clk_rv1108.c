@@ -227,7 +227,7 @@ static int rv1108_clk_bind(struct udevice *dev)
 	/* The reset driver does not have a device node, so bind it here */
 	ret = device_bind_driver(gd->dm_root, "rv1108_sysreset", "reset", &dev);
 	if (ret)
-		error("No Rv1108 reset driver: ret=%d\n", ret);
+		pr_err("No Rv1108 reset driver: ret=%d\n", ret);
 
 	return 0;
 }

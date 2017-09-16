@@ -236,7 +236,7 @@ static int env_sf_load(void)
 
 	ret = env_import((char *)ep, 0);
 	if (!ret) {
-		error("Cannot import environment: errno = %d\n", errno);
+		pr_err("Cannot import environment: errno = %d\n", errno);
 		set_default_env("!env_import failed");
 	}
 

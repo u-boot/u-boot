@@ -179,7 +179,7 @@ static int dwc_vbus_supply_init(struct udevice *dev)
 
 	ret = regulator_set_enable(vbus_supply, true);
 	if (ret) {
-		error("Error enabling vbus supply\n");
+		pr_err("Error enabling vbus supply\n");
 		return ret;
 	}
 

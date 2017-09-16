@@ -241,7 +241,7 @@ int arch_misc_init(void)
 #if defined(CONFIG_DM_ETH) && defined(CONFIG_USB_ETHER)
 	ret = usb_ether_init();
 	if (ret) {
-		error("USB ether init failed\n");
+		pr_err("USB ether init failed\n");
 		return ret;
 	}
 #endif

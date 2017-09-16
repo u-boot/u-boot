@@ -755,7 +755,7 @@ static uint omap24_i2c_setspeed(struct i2c_adapter *adap, uint speed)
 
 	ret = __omap24_i2c_setspeed(i2c_base, speed, &adap->waitdelay);
 	if (ret) {
-		error("%s: set i2c speed failed\n", __func__);
+		pr_err("%s: set i2c speed failed\n", __func__);
 		return ret;
 	}
 

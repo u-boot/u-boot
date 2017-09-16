@@ -43,7 +43,7 @@ int dfu_tftp_write(char *dfu_entity_name, unsigned int addr, unsigned int len,
 	alt_setting_num = dfu_get_alt(sb);
 	free(sb);
 	if (alt_setting_num < 0) {
-		error("Alt setting [%d] to write not found!",
+		pr_err("Alt setting [%d] to write not found!",
 		      alt_setting_num);
 		ret = -ENODEV;
 		goto done;
@@ -51,7 +51,7 @@ int dfu_tftp_write(char *dfu_entity_name, unsigned int addr, unsigned int len,
 
 	dfu = dfu_get_entity(alt_setting_num);
 	if (!dfu) {
-		error("DFU entity for alt: %d not found!", alt_setting_num);
+		pr_err("DFU entity for alt: %d not found!", alt_setting_num);
 		ret = -ENODEV;
 		goto done;
 	}

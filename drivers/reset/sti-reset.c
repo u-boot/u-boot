@@ -201,20 +201,20 @@ phys_addr_t sti_reset_get_regmap(const char *compatible)
 	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1,
 					     compatible);
 	if (node < 0) {
-		error("unable to find %s node\n", compatible);
+		pr_err("unable to find %s node\n", compatible);
 		return node;
 	}
 
 	ret = uclass_get_device_by_of_offset(UCLASS_SYSCON, node, &syscon);
 	if (ret) {
-		error("%s: uclass_get_device_by_of_offset failed: %d\n",
+		pr_err("%s: uclass_get_device_by_of_offset failed: %d\n",
 		      __func__, ret);
 		return ret;
 	}
 
 	regmap = syscon_get_regmap(syscon);
 	if (!regmap) {
-		error("unable to get regmap for %s\n", syscon->name);
+		pr_err("unable to get regmap for %s\n", syscon->name);
 		return -ENODEV;
 	}
 
@@ -251,7 +251,7 @@ static int sti_reset_program_hw(struct reset_ctl *reset_ctl, int assert)
 			if (ch->deassert_cnt > 0)
 				return 0;
 		} else
-			error("Reset balancing error: reset_ctl=%p dev=%p id=%lu\n",
+			pr_err("Reset balancing error: reset_ctl=%p dev=%p id=%lu\n",
 			      reset_ctl, reset_ctl->dev, reset_ctl->id);
 	}
 
@@ -268,7 +268,7 @@ static int sti_reset_program_hw(struct reset_ctl *reset_ctl, int assert)
 	reg = (void __iomem *)base + ch->ack_offset;
 	if (wait_for_bit(__func__, reg, BIT(ch->ack_bit), ctrl_val,
 			 1000, false)) {
-		error("Stuck on waiting ack reset_ctl=%p dev=%p id=%lu\n",
+		pr_err("Stuck on waiting ack reset_ctl=%p dev=%p id=%lu\n",
 		      reset_ctl, reset_ctl->dev, reset_ctl->id);
 
 		return -ETIMEDOUT;

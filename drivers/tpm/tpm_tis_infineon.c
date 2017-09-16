@@ -539,7 +539,7 @@ static int tpm_tis_i2c_init(struct udevice *dev)
 	}
 
 	if (chip->chip_type != UNKNOWN && vendor != expected_did_vid) {
-		error("Vendor id did not match! ID was %08x\n", vendor);
+		pr_err("Vendor id did not match! ID was %08x\n", vendor);
 		return -ENODEV;
 	}
 

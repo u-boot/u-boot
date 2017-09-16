@@ -33,7 +33,7 @@ int do_thor_down(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int controller_index = simple_strtoul(usb_controller, NULL, 0);
 	ret = board_usb_init(controller_index, USB_INIT_DEVICE);
 	if (ret) {
-		error("USB init failed: %d", ret);
+		pr_err("USB init failed: %d", ret);
 		ret = CMD_RET_FAILURE;
 		goto exit;
 	}
@@ -42,14 +42,14 @@ int do_thor_down(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	ret = thor_init();
 	if (ret) {
-		error("THOR DOWNLOAD failed: %d", ret);
+		pr_err("THOR DOWNLOAD failed: %d", ret);
 		ret = CMD_RET_FAILURE;
 		goto exit;
 	}
 
 	ret = thor_handle();
 	if (ret) {
-		error("THOR failed: %d", ret);
+		pr_err("THOR failed: %d", ret);
 		ret = CMD_RET_FAILURE;
 		goto exit;
 	}

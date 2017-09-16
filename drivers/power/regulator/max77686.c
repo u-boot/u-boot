@@ -98,7 +98,7 @@ static int max77686_buck_volt2hex(int buck, int uV)
 	if (hex >= 0 && hex <= hex_max)
 		return hex;
 
-	error("Value: %d uV is wrong for BUCK%d", uV, buck);
+	pr_err("Value: %d uV is wrong for BUCK%d", uV, buck);
 	return -EINVAL;
 }
 
@@ -134,7 +134,7 @@ static int max77686_buck_hex2volt(int buck, int hex)
 	return uV;
 
 bad_hex:
-	error("Value: %#x is wrong for BUCK%d", hex, buck);
+	pr_err("Value: %#x is wrong for BUCK%d", hex, buck);
 	return -EINVAL;
 }
 
@@ -160,7 +160,7 @@ static int max77686_ldo_volt2hex(int ldo, int uV)
 	if (hex >= 0 && hex <= MAX77686_LDO_VOLT_MAX_HEX)
 		return hex;
 
-	error("Value: %d uV is wrong for LDO%d", uV, ldo);
+	pr_err("Value: %d uV is wrong for LDO%d", uV, ldo);
 	return -EINVAL;
 }
 
@@ -189,7 +189,7 @@ static int max77686_ldo_hex2volt(int ldo, int hex)
 	return uV;
 
 bad_hex:
-	error("Value: %#x is wrong for ldo%d", hex, ldo);
+	pr_err("Value: %#x is wrong for ldo%d", hex, ldo);
 	return -EINVAL;
 }
 
@@ -328,7 +328,7 @@ static int max77686_ldo_val(struct udevice *dev, int op, int *uV)
 
 	ldo = dev->driver_data;
 	if (ldo < 1 || ldo > MAX77686_LDO_NUM) {
-		error("Wrong ldo number: %d", ldo);
+		pr_err("Wrong ldo number: %d", ldo);
 		return -EINVAL;
 	}
 
@@ -366,7 +366,7 @@ static int max77686_buck_val(struct udevice *dev, int op, int *uV)
 
 	buck = dev->driver_data;
 	if (buck < 1 || buck > MAX77686_BUCK_NUM) {
-		error("Wrong buck number: %d", buck);
+		pr_err("Wrong buck number: %d", buck);
 		return -EINVAL;
 	}
 
@@ -423,7 +423,7 @@ static int max77686_ldo_mode(struct udevice *dev, int op, int *opmode)
 
 	ldo = dev->driver_data;
 	if (ldo < 1 || ldo > MAX77686_LDO_NUM) {
-		error("Wrong ldo number: %d", ldo);
+		pr_err("Wrong ldo number: %d", ldo);
 		return -EINVAL;
 	}
 
@@ -493,7 +493,7 @@ static int max77686_ldo_mode(struct udevice *dev, int op, int *opmode)
 	}
 
 	if (mode == 0xff) {
-		error("Wrong mode: %d for ldo%d", *opmode, ldo);
+		pr_err("Wrong mode: %d for ldo%d", *opmode, ldo);
 		return -EINVAL;
 	}
 
@@ -545,7 +545,7 @@ static int max77686_buck_mode(struct udevice *dev, int op, int *opmode)
 
 	buck = dev->driver_data;
 	if (buck < 1 || buck > MAX77686_BUCK_NUM) {
-		error("Wrong buck number: %d", buck);
+		pr_err("Wrong buck number: %d", buck);
 		return -EINVAL;
 	}
 
@@ -614,7 +614,7 @@ static int max77686_buck_mode(struct udevice *dev, int op, int *opmode)
 	}
 
 	if (mode == 0xff) {
-		error("Wrong mode: %d for buck: %d\n", *opmode, buck);
+		pr_err("Wrong mode: %d for buck: %d\n", *opmode, buck);
 		return -EINVAL;
 	}
 

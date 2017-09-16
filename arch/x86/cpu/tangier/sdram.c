@@ -39,7 +39,7 @@ static int sfi_table_check(struct sfi_table_header *sbh)
 		chksum += *pos++;
 
 	if (chksum)
-		error("sfi: Invalid checksum\n");
+		pr_err("sfi: Invalid checksum\n");
 
 	/* Checksum is OK if zero */
 	return chksum ? -EILSEQ : 0;
@@ -76,7 +76,7 @@ static struct sfi_table_simple *sfi_search_mmap(void)
 	/* Find SYST table */
 	sb = sfi_get_table_by_sig(SFI_BASE_ADDR, SFI_SIG_SYST);
 	if (!sb) {
-		error("sfi: failed to locate SYST table\n");
+		pr_err("sfi: failed to locate SYST table\n");
 		return NULL;
 	}
 
@@ -90,7 +90,7 @@ static struct sfi_table_simple *sfi_search_mmap(void)
 			return (struct sfi_table_simple *)sbh;
 	}
 
-	error("sfi: failed to locate SFI MMAP table\n");
+	pr_err("sfi: failed to locate SFI MMAP table\n");
 	return NULL;
 }
 

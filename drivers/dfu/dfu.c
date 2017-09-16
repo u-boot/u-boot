@@ -64,14 +64,14 @@ int dfu_init_env_entities(char *interface, char *devstr)
 #endif
 	str_env = env_get("dfu_alt_info");
 	if (!str_env) {
-		error("\"dfu_alt_info\" env variable not defined!\n");
+		pr_err("\"dfu_alt_info\" env variable not defined!\n");
 		return -EINVAL;
 	}
 
 	env_bkp = strdup(str_env);
 	ret = dfu_config_entities(env_bkp, interface, devstr);
 	if (ret) {
-		error("DFU entities configuration failed!\n");
+		pr_err("DFU entities configuration failed!\n");
 		return ret;
 	}
 
@@ -132,7 +132,7 @@ static char *dfu_get_hash_algo(void)
 		return s;
 	}
 
-	error("DFU hash method: %s not supported!\n", s);
+	pr_err("DFU hash method: %s not supported!\n", s);
 	return NULL;
 }
 
@@ -273,7 +273,7 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 
 	/* we should be in buffer now (if not then size too large) */
 	if ((dfu->i_buf + size) > dfu->i_buf_end) {
-		error("Buffer overflow! (0x%p + 0x%x > 0x%p)\n", dfu->i_buf,
+		pr_err("Buffer overflow! (0x%p + 0x%x > 0x%p)\n", dfu->i_buf,
 		      size, dfu->i_buf_end);
 		dfu_transaction_cleanup(dfu);
 		return -1;
@@ -451,7 +451,7 @@ int dfu_config_entities(char *env, char *interface, char *devstr)
 	if (s) {
 		ret = hash_lookup_algo(s, &dfu_hash_algo);
 		if (ret)
-			error("Hash algorithm %s not supported\n", s);
+			pr_err("Hash algorithm %s not supported\n", s);
 	}
 
 	dfu = calloc(sizeof(*dfu), dfu_alt_num);
@@ -576,7 +576,7 @@ int dfu_write_from_mem_addr(struct dfu_entity *dfu, void *buf, int size)
 		      dp, left, write);
 		ret = dfu_write(dfu, dp, write, i);
 		if (ret) {
-			error("DFU write failed\n");
+			pr_err("DFU write failed\n");
 			return ret;
 		}
 
@@ -586,7 +586,7 @@ int dfu_write_from_mem_addr(struct dfu_entity *dfu, void *buf, int size)
 
 	ret = dfu_flush(dfu, NULL, 0, i);
 	if (ret)
-		error("DFU flush failed!");
+		pr_err("DFU flush failed!");
 
 	return ret;
 }

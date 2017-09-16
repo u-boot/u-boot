@@ -51,7 +51,7 @@ static int ehci_usb_probe(struct udevice *dev)
 				break;
 			err = clk_enable(&priv->clocks[i]);
 			if (err) {
-				error("failed to enable clock %d\n", i);
+				pr_err("failed to enable clock %d\n", i);
 				clk_free(&priv->clocks[i]);
 				goto clk_err;
 			}
@@ -59,7 +59,7 @@ static int ehci_usb_probe(struct udevice *dev)
 		}
 	} else {
 		if (clock_nb != -ENOENT) {
-			error("failed to get clock phandle(%d)\n", clock_nb);
+			pr_err("failed to get clock phandle(%d)\n", clock_nb);
 			return clock_nb;
 		}
 	}
@@ -80,7 +80,7 @@ static int ehci_usb_probe(struct udevice *dev)
 				break;
 
 			if (reset_deassert(&priv->resets[i])) {
-				error("failed to deassert reset %d\n", i);
+				pr_err("failed to deassert reset %d\n", i);
 				reset_free(&priv->resets[i]);
 				goto reset_err;
 			}
@@ -88,7 +88,7 @@ static int ehci_usb_probe(struct udevice *dev)
 		}
 	} else {
 		if (reset_nb != -ENOENT) {
-			error("failed to get reset phandle(%d)\n", reset_nb);
+			pr_err("failed to get reset phandle(%d)\n", reset_nb);
 			goto clk_err;
 		}
 	}
@@ -96,14 +96,14 @@ static int ehci_usb_probe(struct udevice *dev)
 	err = generic_phy_get_by_index(dev, 0, &priv->phy);
 	if (err) {
 		if (err != -ENOENT) {
-			error("failed to get usb phy\n");
+			pr_err("failed to get usb phy\n");
 			goto reset_err;
 		}
 	} else {
 
 		err = generic_phy_init(&priv->phy);
 		if (err) {
-			error("failed to init usb phy\n");
+			pr_err("failed to init usb phy\n");
 			goto reset_err;
 		}
 	}
@@ -122,17 +122,17 @@ phy_err:
 	if (generic_phy_valid(&priv->phy)) {
 		ret = generic_phy_exit(&priv->phy);
 		if (ret)
-			error("failed to release phy\n");
+			pr_err("failed to release phy\n");
 	}
 
 reset_err:
 	ret = reset_release_all(priv->resets, priv->reset_count);
 	if (ret)
-		error("failed to assert all resets\n");
+		pr_err("failed to assert all resets\n");
 clk_err:
 	ret = clk_release_all(priv->clocks, priv->clock_count);
 	if (ret)
-		error("failed to disable all clocks\n");
+		pr_err("failed to disable all clocks\n");
 
 	return err;
 }

@@ -44,7 +44,7 @@ int hi6220_dwmci_add_port(int index, u32 regbase, int bus_width)
 
 	host = calloc(1, sizeof(struct dwmci_host));
 	if (!host) {
-		error("dwmci_host calloc failed!\n");
+		pr_err("dwmci_host calloc failed!\n");
 		return -ENOMEM;
 	}
 

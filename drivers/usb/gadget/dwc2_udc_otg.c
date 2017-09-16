@@ -835,7 +835,7 @@ int dwc2_udc_probe(struct dwc2_plat_otg_data *pdata)
 			    ROUND(sizeof(struct usb_ctrlrequest),
 				  CONFIG_SYS_CACHELINE_SIZE));
 	if (!usb_ctrl) {
-		error("No memory available for UDC!\n");
+		pr_err("No memory available for UDC!\n");
 		return -ENOMEM;
 	}
 

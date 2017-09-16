@@ -47,13 +47,13 @@ static int sti_usb_phy_deassert(struct sti_usb_phy *phy)
 
 	ret = reset_deassert(&phy->global_ctl);
 	if (ret < 0) {
-		error("PHY global deassert failed: %d", ret);
+		pr_err("PHY global deassert failed: %d", ret);
 		return ret;
 	}
 
 	ret = reset_deassert(&phy->port_ctl);
 	if (ret < 0)
-		error("PHY port deassert failed: %d", ret);
+		pr_err("PHY port deassert failed: %d", ret);
 
 	return ret;
 }
@@ -85,13 +85,13 @@ static int sti_usb_phy_exit(struct phy *usb_phy)
 
 	ret = reset_assert(&phy->port_ctl);
 	if (ret < 0) {
-		error("PHY port assert failed: %d", ret);
+		pr_err("PHY port assert failed: %d", ret);
 		return ret;
 	}
 
 	ret = reset_assert(&phy->global_ctl);
 	if (ret < 0)
-		error("PHY global assert failed: %d", ret);
+		pr_err("PHY global assert failed: %d", ret);
 
 	return ret;
 }
@@ -114,20 +114,20 @@ int sti_usb_phy_probe(struct udevice *dev)
 					 &syscfg_phandle);
 
 	if (ret < 0) {
-		error("Can't get syscfg phandle: %d\n", ret);
+		pr_err("Can't get syscfg phandle: %d\n", ret);
 		return ret;
 	}
 
 	ret = uclass_get_device_by_ofnode(UCLASS_SYSCON, syscfg_phandle.node,
 					  &syscon);
 	if (ret) {
-		error("unable to find syscon device (%d)\n", ret);
+		pr_err("unable to find syscon device (%d)\n", ret);
 		return ret;
 	}
 
 	priv->regmap = syscon_get_regmap(syscon);
 	if (!priv->regmap) {
-		error("unable to find regmap\n");
+		pr_err("unable to find regmap\n");
 		return -ENODEV;
 	}
 
@@ -137,12 +137,12 @@ int sti_usb_phy_probe(struct udevice *dev)
 					   ARRAY_SIZE(cells));
 
 	if (count < 0) {
-		error("Bad PHY st,syscfg property %d\n", count);
+		pr_err("Bad PHY st,syscfg property %d\n", count);
 		return -EINVAL;
 	}
 
 	if (count > PHYPARAM_NB) {
-		error("Unsupported PHY param count %d\n", count);
+		pr_err("Unsupported PHY param count %d\n", count);
 		return -EINVAL;
 	}
 
@@ -152,14 +152,14 @@ int sti_usb_phy_probe(struct udevice *dev)
 	/* get global reset control */
 	ret = reset_get_by_name(dev, "global", &priv->global_ctl);
 	if (ret) {
-		error("can't get global reset for %s (%d)", dev->name, ret);
+		pr_err("can't get global reset for %s (%d)", dev->name, ret);
 		return ret;
 	}
 
 	/* get port reset control */
 	ret = reset_get_by_name(dev, "port", &priv->port_ctl);
 	if (ret) {
-		error("can't get port reset for %s (%d)", dev->name, ret);
+		pr_err("can't get port reset for %s (%d)", dev->name, ret);
 		return ret;
 	}
 

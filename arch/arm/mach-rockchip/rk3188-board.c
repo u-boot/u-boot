@@ -26,7 +26,7 @@ int board_late_init(void)
 
 	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	if (IS_ERR(grf)) {
-		error("grf syscon returned %ld\n", PTR_ERR(grf));
+		pr_err("grf syscon returned %ld\n", PTR_ERR(grf));
 	} else {
 		/* enable noc remap to mimic legacy loaders */
 		rk_clrsetreg(&grf->soc_con0,

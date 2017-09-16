@@ -38,13 +38,13 @@ void board_init_f(ulong dummy)
 	/* Set up our preloader console */
 	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
 	if (ret) {
-		error("%s: pinctrl init failed: %d\n", __func__, ret);
+		pr_err("%s: pinctrl init failed: %d\n", __func__, ret);
 		hang();
 	}
 
 	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_UART0);
 	if (ret) {
-		error("%s: failed to set up console UART\n", __func__);
+		pr_err("%s: failed to set up console UART\n", __func__);
 		hang();
 	}
 

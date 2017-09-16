@@ -757,7 +757,7 @@ static int ks2_eth_start(struct udevice *dev)
 	qm_init();
 
 	if (ksnav_init(priv->netcp_pktdma, &priv->net_rx_buffs)) {
-		error("ksnav_init failed\n");
+		pr_err("ksnav_init failed\n");
 		goto err_knav_init;
 	}
 
@@ -773,7 +773,7 @@ static int ks2_eth_start(struct udevice *dev)
 
 		phy_startup(priv->phydev);
 		if (priv->phydev->link == 0) {
-			error("phy startup failed\n");
+			pr_err("phy startup failed\n");
 			goto err_phy_start;
 		}
 	}
@@ -923,7 +923,7 @@ static int ks2_eth_probe(struct udevice *dev)
 		 */
 		mdio_bus = mdio_alloc();
 		if (!mdio_bus) {
-			error("MDIO alloc failed\n");
+			pr_err("MDIO alloc failed\n");
 			return -ENOMEM;
 		}
 		priv->mdio_bus = mdio_bus;
@@ -935,7 +935,7 @@ static int ks2_eth_probe(struct udevice *dev)
 
 		ret = mdio_register(mdio_bus);
 		if (ret) {
-			error("MDIO bus register failed\n");
+			pr_err("MDIO bus register failed\n");
 			return ret;
 		}
 	} else {
@@ -1011,7 +1011,7 @@ static int ks2_eth_bind_slaves(struct udevice *dev, int gbe, int *gbe_0)
 					slave_name, offset_to_ofnode(slave),
 					&sl_dev);
 			if (ret) {
-				error("ks2_net - not able to bind slave interfaces\n");
+				pr_err("ks2_net - not able to bind slave interfaces\n");
 				return ret;
 			}
 		}
@@ -1031,7 +1031,7 @@ static int ks2_eth_bind_slaves(struct udevice *dev, int gbe, int *gbe_0)
 		ret = device_bind_driver_to_node(dev, "eth_ks2_sl", slave_name,
 					offset_to_ofnode(slave), &sl_dev);
 		if (ret) {
-			error("ks2_net - not able to bind slave interfaces\n");
+			pr_err("ks2_net - not able to bind slave interfaces\n");
 			return ret;
 		}
 	}
@@ -1074,7 +1074,7 @@ static int ks2_eth_parse_slave_interface(int netcp, int slave,
 
 		mdio = fdt_parent_offset(fdt, phy);
 		if (mdio < 0) {
-			error("mdio dt not found\n");
+			pr_err("mdio dt not found\n");
 			return -ENODEV;
 		}
 		priv->mdio_base = (void *)fdtdec_get_addr(fdt, mdio, "reg");

@@ -261,7 +261,7 @@ static int pipe3_exit(struct phy *phy)
 	} while (--timeout);
 
 	if (!(val & PLL_TICOPWDN) || !(val & PLL_LDOPWDN)) {
-		error("%s: Failed to power down DPLL: PLL_STATUS 0x%x\n",
+		pr_err("%s: Failed to power down DPLL: PLL_STATUS 0x%x\n",
 		      __func__, val);
 		return -EBUSY;
 	}
@@ -284,14 +284,14 @@ static void *get_reg(struct udevice *dev, const char *name)
 	err = uclass_get_device_by_phandle(UCLASS_SYSCON, dev,
 					   name, &syscon);
 	if (err) {
-		error("unable to find syscon device for %s (%d)\n",
+		pr_err("unable to find syscon device for %s (%d)\n",
 		      name, err);
 		return NULL;
 	}
 
 	regmap = syscon_get_regmap(syscon);
 	if (IS_ERR(regmap)) {
-		error("unable to find regmap for %s (%ld)\n",
+		pr_err("unable to find regmap for %s (%ld)\n",
 		      name, PTR_ERR(regmap));
 		return NULL;
 	}
@@ -299,7 +299,7 @@ static void *get_reg(struct udevice *dev, const char *name)
 	cell = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), name,
 			   &len);
 	if (len < 2*sizeof(fdt32_t)) {
-		error("offset not available for %s\n", name);
+		pr_err("offset not available for %s\n", name);
 		return NULL;
 	}
 
@@ -318,13 +318,13 @@ static int pipe3_phy_probe(struct udevice *dev)
 
 	addr = devfdt_get_addr_size_index(dev, 2, &sz);
 	if (addr == FDT_ADDR_T_NONE) {
-		error("missing pll ctrl address\n");
+		pr_err("missing pll ctrl address\n");
 		return -EINVAL;
 	}
 
 	pipe3->pll_ctrl_base = map_physmem(addr, sz, MAP_NOCACHE);
 	if (!pipe3->pll_ctrl_base) {
-		error("unable to remap pll ctrl\n");
+		pr_err("unable to remap pll ctrl\n");
 		return -EINVAL;
 	}
 

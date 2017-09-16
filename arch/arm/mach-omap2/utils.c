@@ -87,13 +87,13 @@ static u32 omap_mmc_get_part_size(const char *part)
 
 	dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
 	if (!dev_desc || dev_desc->type == DEV_TYPE_UNKNOWN) {
-		error("invalid mmc device\n");
+		pr_err("invalid mmc device\n");
 		return 0;
 	}
 
 	res = part_get_info_by_name(dev_desc, part, &info);
 	if (res < 0) {
-		error("cannot find partition: '%s'\n", part);
+		pr_err("cannot find partition: '%s'\n", part);
 		return 0;
 	}
 

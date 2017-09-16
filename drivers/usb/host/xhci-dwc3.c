@@ -128,13 +128,13 @@ static int xhci_dwc3_probe(struct udevice *dev)
 	ret = generic_phy_get_by_index(dev, 0, &plat->usb_phy);
 	if (ret) {
 		if (ret != -ENOENT) {
-			error("Failed to get USB PHY for %s\n", dev->name);
+			pr_err("Failed to get USB PHY for %s\n", dev->name);
 			return ret;
 		}
 	} else {
 		ret = generic_phy_init(&plat->usb_phy);
 		if (ret) {
-			error("Can't init USB PHY for %s\n", dev->name);
+			pr_err("Can't init USB PHY for %s\n", dev->name);
 			return ret;
 		}
 	}
@@ -161,7 +161,7 @@ static int xhci_dwc3_remove(struct udevice *dev)
 	if (generic_phy_valid(&plat->usb_phy)) {
 		ret = generic_phy_exit(&plat->usb_phy);
 		if (ret) {
-			error("Can't deinit USB PHY for %s\n", dev->name);
+			pr_err("Can't deinit USB PHY for %s\n", dev->name);
 			return ret;
 		}
 	}

@@ -45,13 +45,13 @@ int syscon_reboot_probe(struct udevice *dev)
 	err = uclass_get_device_by_phandle(UCLASS_SYSCON, dev,
 					   "regmap", &syscon);
 	if (err) {
-		error("unable to find syscon device\n");
+		pr_err("unable to find syscon device\n");
 		return err;
 	}
 
 	priv->regmap = syscon_get_regmap(syscon);
 	if (!priv->regmap) {
-		error("unable to find regmap\n");
+		pr_err("unable to find regmap\n");
 		return -ENODEV;
 	}
 

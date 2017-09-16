@@ -160,7 +160,7 @@ static int stm32_pinctrl_set_state_simple(struct udevice *dev,
 
 		config_node = fdt_node_offset_by_phandle(fdt, phandle);
 		if (config_node < 0) {
-			error("prop pinctrl-0 index %d invalid phandle\n", i);
+			pr_err("prop pinctrl-0 index %d invalid phandle\n", i);
 			return -EINVAL;
 		}
 

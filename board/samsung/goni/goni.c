@@ -102,7 +102,7 @@ int board_mmc_init(bd_t *bis)
 
 	ret = s5p_mmc_init(0, 4);
 	if (ret)
-		error("MMC: Failed to init MMC:0.\n");
+		pr_err("MMC: Failed to init MMC:0.\n");
 
 	/*
 	 * SD card (T_FLASH) detect and init
@@ -127,7 +127,7 @@ int board_mmc_init(bd_t *bis)
 
 		ret_sd = s5p_mmc_init(2, 4);
 		if (ret_sd)
-			error("MMC: Failed to init SD card (MMC:2).\n");
+			pr_err("MMC: Failed to init SD card (MMC:2).\n");
 	}
 
 	return ret & ret_sd;

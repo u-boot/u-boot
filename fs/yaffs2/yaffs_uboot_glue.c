@@ -168,7 +168,7 @@ void cmd_yaffs_devconfig(char *_mp, int flash_dev,
 
 	mtd = get_nand_dev_by_index(flash_dev);
 	if (!mtd) {
-		error("\nno NAND devices available\n");
+		pr_err("\nno NAND devices available\n");
 		return;
 	}
 

@@ -142,7 +142,7 @@ void sti_pin_configure(struct udevice *dev, struct sti_pin_desc *pin_desc)
 		break;
 
 	default:
-		error("%s invalid direction value: 0x%x\n",
+		pr_err("%s invalid direction value: 0x%x\n",
 		      __func__, pin_desc->dir);
 		BUG();
 		break;
@@ -237,14 +237,14 @@ static int sti_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 						     prop_name, "#gpio-cells",
 						     0, 0, &args);
 		if (ret < 0) {
-			error("Can't get the gpio bank phandle: %d\n", ret);
+			pr_err("Can't get the gpio bank phandle: %d\n", ret);
 			return ret;
 		}
 
 		bank_name = fdt_getprop(blob, args.node, "st,bank-name",
 					&count);
 		if (count < 0) {
-			error("Can't find bank-name property %d\n", count);
+			pr_err("Can't find bank-name property %d\n", count);
 			return -EINVAL;
 		}
 
@@ -254,12 +254,12 @@ static int sti_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 						   prop_name, cells,
 						   ARRAY_SIZE(cells));
 		if (count < 0) {
-			error("Bad pin configuration array %d\n", count);
+			pr_err("Bad pin configuration array %d\n", count);
 			return -EINVAL;
 		}
 
 		if (count > MAX_STI_PINCONF_ENTRIES) {
-			error("Unsupported pinconf array count %d\n", count);
+			pr_err("Unsupported pinconf array count %d\n", count);
 			return -EINVAL;
 		}
 
@@ -284,13 +284,13 @@ static int sti_pinctrl_probe(struct udevice *dev)
 	err = uclass_get_device_by_phandle(UCLASS_SYSCON, dev,
 					   "st,syscfg", &syscon);
 	if (err) {
-		error("unable to find syscon device\n");
+		pr_err("unable to find syscon device\n");
 		return err;
 	}
 
 	plat->regmap = syscon_get_regmap(syscon);
 	if (!plat->regmap) {
-		error("unable to find regmap\n");
+		pr_err("unable to find regmap\n");
 		return -ENODEV;
 	}
 

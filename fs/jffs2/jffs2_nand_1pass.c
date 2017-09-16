@@ -798,7 +798,7 @@ jffs2_1pass_build_lists(struct part_info * part)
 	struct mtdids *id = part->dev->id;
 	mtd = get_nand_dev_by_index(id->num);
 	if (!mtd) {
-		error("\nno NAND devices available\n");
+		pr_err("\nno NAND devices available\n");
 		return 0;
 	}
 

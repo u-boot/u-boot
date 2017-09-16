@@ -491,7 +491,7 @@ static int ti_edma3_transfer(struct udevice *dev, int direction, void *dst,
 		__edma3_transfer(priv->base, 1, dst, src, len);
 		break;
 	default:
-		error("Transfer type not implemented in DMA driver\n");
+		pr_err("Transfer type not implemented in DMA driver\n");
 		break;
 	}
 

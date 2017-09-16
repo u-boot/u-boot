@@ -71,7 +71,7 @@ static int sti_dwc3_glue_drd_init(struct sti_dwc3_glue_platdata *plat)
 		break;
 
 	default:
-		error("Unsupported mode of operation %d\n", plat->mode);
+		pr_err("Unsupported mode of operation %d\n", plat->mode);
 		return -EINVAL;
 	}
 	writel(val, plat->syscfg_base + plat->syscfg_offset);
@@ -113,7 +113,7 @@ static int sti_dwc3_glue_ofdata_to_platdata(struct udevice *dev)
 	ret = fdtdec_get_int_array(gd->fdt_blob, dev_of_offset(dev),
 				   "reg", reg, ARRAY_SIZE(reg));
 	if (ret) {
-		error("unable to find st,stih407-dwc3 reg property(%d)\n", ret);
+		pr_err("unable to find st,stih407-dwc3 reg property(%d)\n", ret);
 		return ret;
 	}
 
@@ -124,14 +124,14 @@ static int sti_dwc3_glue_ofdata_to_platdata(struct udevice *dev)
 	ret = uclass_get_device_by_phandle(UCLASS_SYSCON, dev, "st,syscfg",
 					   &syscon);
 	if (ret) {
-		error("unable to find syscon device (%d)\n", ret);
+		pr_err("unable to find syscon device (%d)\n", ret);
 		return ret;
 	}
 
 	/* get syscfg-reg base address */
 	regmap = syscon_get_regmap(syscon);
 	if (!regmap) {
-		error("unable to find regmap\n");
+		pr_err("unable to find regmap\n");
 		return -ENODEV;
 	}
 	plat->syscfg_base = regmap->base;
@@ -139,14 +139,14 @@ static int sti_dwc3_glue_ofdata_to_platdata(struct udevice *dev)
 	/* get powerdown reset */
 	ret = reset_get_by_name(dev, "powerdown", &plat->powerdown_ctl);
 	if (ret) {
-		error("can't get powerdown reset for %s (%d)", dev->name, ret);
+		pr_err("can't get powerdown reset for %s (%d)", dev->name, ret);
 		return ret;
 	}
 
 	/* get softreset reset */
 	ret = reset_get_by_name(dev, "softreset", &plat->softreset_ctl);
 	if (ret)
-		error("can't get soft reset for %s (%d)", dev->name, ret);
+		pr_err("can't get soft reset for %s (%d)", dev->name, ret);
 
 	return ret;
 };
@@ -159,14 +159,14 @@ static int sti_dwc3_glue_bind(struct udevice *dev)
 	/* check if one subnode is present */
 	dwc3_node = fdt_first_subnode(gd->fdt_blob, dev_of_offset(dev));
 	if (dwc3_node <= 0) {
-		error("Can't find subnode for %s\n", dev->name);
+		pr_err("Can't find subnode for %s\n", dev->name);
 		return -ENODEV;
 	}
 
 	/* check if the subnode compatible string is the dwc3 one*/
 	if (fdt_node_check_compatible(gd->fdt_blob, dwc3_node,
 				      "snps,dwc3") != 0) {
-		error("Can't find dwc3 subnode for %s\n", dev->name);
+		pr_err("Can't find dwc3 subnode for %s\n", dev->name);
 		return -ENODEV;
 	}
 
@@ -187,13 +187,13 @@ static int sti_dwc3_glue_probe(struct udevice *dev)
 	/* deassert both powerdown and softreset */
 	ret = reset_deassert(&plat->powerdown_ctl);
 	if (ret < 0) {
-		error("DWC3 powerdown reset deassert failed: %d", ret);
+		pr_err("DWC3 powerdown reset deassert failed: %d", ret);
 		return ret;
 	}
 
 	ret = reset_deassert(&plat->softreset_ctl);
 	if (ret < 0) {
-		error("DWC3 soft reset deassert failed: %d", ret);
+		pr_err("DWC3 soft reset deassert failed: %d", ret);
 		goto softreset_err;
 	}
 
@@ -208,14 +208,14 @@ static int sti_dwc3_glue_probe(struct udevice *dev)
 init_err:
 	ret = reset_assert(&plat->softreset_ctl);
 	if (ret < 0) {
-		error("DWC3 soft reset deassert failed: %d", ret);
+		pr_err("DWC3 soft reset deassert failed: %d", ret);
 		return ret;
 	}
 
 softreset_err:
 	ret = reset_assert(&plat->powerdown_ctl);
 	if (ret < 0)
-		error("DWC3 powerdown reset deassert failed: %d", ret);
+		pr_err("DWC3 powerdown reset deassert failed: %d", ret);
 
 	return ret;
 }
@@ -228,13 +228,13 @@ static int sti_dwc3_glue_remove(struct udevice *dev)
 	/* assert both powerdown and softreset */
 	ret = reset_assert(&plat->powerdown_ctl);
 	if (ret < 0) {
-		error("DWC3 powerdown reset deassert failed: %d", ret);
+		pr_err("DWC3 powerdown reset deassert failed: %d", ret);
 		return ret;
 	}
 
 	ret = reset_assert(&plat->softreset_ctl);
 	if (ret < 0)
-		error("DWC3 soft reset deassert failed: %d", ret);
+		pr_err("DWC3 soft reset deassert failed: %d", ret);
 
 	return ret;
 }

@@ -610,7 +610,7 @@ int gmac_miiphy_read(struct mii_dev *bus, int phyaddr, int devad, int reg)
 
 	/* Busy wait timeout is 1ms */
 	if (gmac_mii_busywait(1000)) {
-		error("%s: Prepare MII read: MII/MDIO busy\n", __func__);
+		pr_err("%s: Prepare MII read: MII/MDIO busy\n", __func__);
 		return -1;
 	}
 
@@ -622,7 +622,7 @@ int gmac_miiphy_read(struct mii_dev *bus, int phyaddr, int devad, int reg)
 	writel(tmp, GMAC_MII_DATA_ADDR);
 
 	if (gmac_mii_busywait(1000)) {
-		error("%s: MII read failure: MII/MDIO busy\n", __func__);
+		pr_err("%s: MII read failure: MII/MDIO busy\n", __func__);
 		return -1;
 	}
 
@@ -638,7 +638,7 @@ int gmac_miiphy_write(struct mii_dev *bus, int phyaddr, int devad, int reg,
 
 	/* Busy wait timeout is 1ms */
 	if (gmac_mii_busywait(1000)) {
-		error("%s: Prepare MII write: MII/MDIO busy\n", __func__);
+		pr_err("%s: Prepare MII write: MII/MDIO busy\n", __func__);
 		return -1;
 	}
 
@@ -651,7 +651,7 @@ int gmac_miiphy_write(struct mii_dev *bus, int phyaddr, int devad, int reg,
 	writel(tmp, GMAC_MII_DATA_ADDR);
 
 	if (gmac_mii_busywait(1000)) {
-		error("%s: MII write failure: MII/MDIO busy\n", __func__);
+		pr_err("%s: MII write failure: MII/MDIO busy\n", __func__);
 		return -1;
 	}
 
@@ -742,7 +742,7 @@ int gmac_set_speed(int speed, int duplex)
 	} else if (speed == 10) {
 		speed_cfg = 0;
 	} else {
-		error("%s: Invalid GMAC speed(%d)!\n", __func__, speed);
+		pr_err("%s: Invalid GMAC speed(%d)!\n", __func__, speed);
 		return -1;
 	}
 
@@ -820,7 +820,7 @@ int gmac_mac_init(struct eth_device *dev)
 	writel(0, GMAC0_INT_STATUS_ADDR);
 
 	if (dma_init(dma) < 0) {
-		error("%s: GMAC dma_init failed\n", __func__);
+		pr_err("%s: GMAC dma_init failed\n", __func__);
 		goto err_exit;
 	}
 
@@ -855,7 +855,7 @@ int gmac_mac_init(struct eth_device *dev)
 	writel(tmp, GMAC_MII_CTRL_ADDR);
 
 	if (gmac_mii_busywait(1000)) {
-		error("%s: Configure MDIO: MII/MDIO busy\n", __func__);
+		pr_err("%s: Configure MDIO: MII/MDIO busy\n", __func__);
 		goto err_exit;
 	}
 

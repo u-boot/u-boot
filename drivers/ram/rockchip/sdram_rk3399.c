@@ -551,7 +551,7 @@ static int pctl_cfg(const struct chan_info *chan, u32 channel,
 	tmp = get_timer(0);
 	do {
 		if (get_timer(tmp) > timeout_ms) {
-			error("DRAM (%s): phy failed to lock within  %ld ms\n",
+			pr_err("DRAM (%s): phy failed to lock within  %ld ms\n",
 			      __func__, timeout_ms);
 			return -ETIME;
 		}

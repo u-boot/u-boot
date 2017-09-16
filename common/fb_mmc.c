@@ -84,7 +84,7 @@ static void write_raw_image(struct blk_desc *dev_desc, disk_partition_t *info,
 	blkcnt = lldiv(blkcnt, info->blksz);
 
 	if (blkcnt > info->size) {
-		error("too large for partition: '%s'\n", part_name);
+		pr_err("too large for partition: '%s'\n", part_name);
 		fastboot_fail("too large for partition");
 		return;
 	}
@@ -93,7 +93,7 @@ static void write_raw_image(struct blk_desc *dev_desc, disk_partition_t *info,
 
 	blks = blk_dwrite(dev_desc, info->start, blkcnt, buffer);
 	if (blks != blkcnt) {
-		error("failed writing to device %d\n", dev_desc->devnum);
+		pr_err("failed writing to device %d\n", dev_desc->devnum);
 		fastboot_fail("failed writing to device");
 		return;
 	}
@@ -125,7 +125,7 @@ static lbaint_t fb_mmc_get_boot_header(struct blk_desc *dev_desc,
 	sector_size = info->blksz;
 	hdr_sectors = DIV_ROUND_UP(sizeof(struct andr_img_hdr), sector_size);
 	if (hdr_sectors == 0) {
-		error("invalid number of boot sectors: 0");
+		pr_err("invalid number of boot sectors: 0");
 		fastboot_fail("invalid number of boot sectors: 0");
 		return 0;
 	}
@@ -133,7 +133,7 @@ static lbaint_t fb_mmc_get_boot_header(struct blk_desc *dev_desc,
 	/* Read the boot image header */
 	res = blk_dread(dev_desc, info->start, hdr_sectors, (void *)hdr);
 	if (res != hdr_sectors) {
-		error("cannot read header from boot partition");
+		pr_err("cannot read header from boot partition");
 		fastboot_fail("cannot read header from boot partition");
 		return 0;
 	}
@@ -141,7 +141,7 @@ static lbaint_t fb_mmc_get_boot_header(struct blk_desc *dev_desc,
 	/* Check boot header magic string */
 	res = android_image_check_header(hdr);
 	if (res != 0) {
-		error("bad boot image magic");
+		pr_err("bad boot image magic");
 		fastboot_fail("boot partition not initialized");
 		return 0;
 	}
@@ -179,7 +179,7 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
 	/* Get boot partition info */
 	res = part_get_info_by_name(dev_desc, BOOT_PARTITION_NAME, &info);
 	if (res < 0) {
-		error("cannot find boot partition");
+		pr_err("cannot find boot partition");
 		fastboot_fail("cannot find boot partition");
 		return -1;
 	}
@@ -191,14 +191,14 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
 	/* Read boot image header */
 	hdr_sectors = fb_mmc_get_boot_header(dev_desc, &info, hdr);
 	if (hdr_sectors == 0) {
-		error("unable to read boot image header");
+		pr_err("unable to read boot image header");
 		fastboot_fail("unable to read boot image header");
 		return -1;
 	}
 
 	/* Check if boot image has second stage in it (we don't support it) */
 	if (hdr->second_size > 0) {
-		error("moving second stage is not supported yet");
+		pr_err("moving second stage is not supported yet");
 		fastboot_fail("moving second stage is not supported yet");
 		return -1;
 	}
@@ -216,7 +216,7 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
 	res = blk_dread(dev_desc, ramdisk_sector_start, ramdisk_sectors,
 			ramdisk_buffer);
 	if (res != ramdisk_sectors) {
-		error("cannot read ramdisk from boot partition");
+		pr_err("cannot read ramdisk from boot partition");
 		fastboot_fail("cannot read ramdisk from boot partition");
 		return -1;
 	}
@@ -225,7 +225,7 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
 	hdr->kernel_size = download_bytes;
 	res = blk_dwrite(dev_desc, info.start, hdr_sectors, (void *)hdr);
 	if (res == 0) {
-		error("cannot writeback boot image header");
+		pr_err("cannot writeback boot image header");
 		fastboot_fail("cannot write back boot image header");
 		return -1;
 	}
@@ -237,7 +237,7 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
 	res = blk_dwrite(dev_desc, kernel_sector_start, kernel_sectors,
 			 download_buffer);
 	if (res == 0) {
-		error("cannot write new kernel");
+		pr_err("cannot write new kernel");
 		fastboot_fail("cannot write new kernel");
 		return -1;
 	}
@@ -249,7 +249,7 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
 	res = blk_dwrite(dev_desc, ramdisk_sector_start, ramdisk_sectors,
 			 ramdisk_buffer);
 	if (res == 0) {
-		error("cannot write back original ramdisk");
+		pr_err("cannot write back original ramdisk");
 		fastboot_fail("cannot write back original ramdisk");
 		return -1;
 	}
@@ -268,7 +268,7 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 
 	dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
 	if (!dev_desc || dev_desc->type == DEV_TYPE_UNKNOWN) {
-		error("invalid mmc device\n");
+		pr_err("invalid mmc device\n");
 		fastboot_fail("invalid mmc device");
 		return;
 	}
@@ -322,7 +322,7 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 #endif
 
 	if (part_get_info_by_name_or_alias(dev_desc, cmd, &info) < 0) {
-		error("cannot find partition: '%s'\n", cmd);
+		pr_err("cannot find partition: '%s'\n", cmd);
 		fastboot_fail("cannot find partition");
 		return;
 	}
@@ -360,21 +360,21 @@ void fb_mmc_erase(const char *cmd)
 	struct mmc *mmc = find_mmc_device(CONFIG_FASTBOOT_FLASH_MMC_DEV);
 
 	if (mmc == NULL) {
-		error("invalid mmc device");
+		pr_err("invalid mmc device");
 		fastboot_fail("invalid mmc device");
 		return;
 	}
 
 	dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
 	if (!dev_desc || dev_desc->type == DEV_TYPE_UNKNOWN) {
-		error("invalid mmc device");
+		pr_err("invalid mmc device");
 		fastboot_fail("invalid mmc device");
 		return;
 	}
 
 	ret = part_get_info_by_name_or_alias(dev_desc, cmd, &info);
 	if (ret < 0) {
-		error("cannot find partition: '%s'", cmd);
+		pr_err("cannot find partition: '%s'", cmd);
 		fastboot_fail("cannot find partition");
 		return;
 	}
@@ -393,7 +393,7 @@ void fb_mmc_erase(const char *cmd)
 
 	blks = blk_derase(dev_desc, blks_start, blks_size);
 	if (blks != blks_size) {
-		error("failed erasing from device %d", dev_desc->devnum);
+		pr_err("failed erasing from device %d", dev_desc->devnum);
 		fastboot_fail("failed erasing from device");
 		return;
 	}

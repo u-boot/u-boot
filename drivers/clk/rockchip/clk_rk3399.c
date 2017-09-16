@@ -663,7 +663,7 @@ static ulong rk3399_spi_get_clk(struct rk3399_cru *cru, ulong clk_id)
 		break;
 
 	default:
-		error("%s: SPI clk-id %ld not supported\n", __func__, clk_id);
+		pr_err("%s: SPI clk-id %ld not supported\n", __func__, clk_id);
 		return -EINVAL;
 	}
 
@@ -687,7 +687,7 @@ static ulong rk3399_spi_set_clk(struct rk3399_cru *cru, ulong clk_id, uint hz)
 		break;
 
 	default:
-		error("%s: SPI clk-id %ld not supported\n", __func__, clk_id);
+		pr_err("%s: SPI clk-id %ld not supported\n", __func__, clk_id);
 		return -EINVAL;
 	}
 
@@ -856,7 +856,7 @@ static ulong rk3399_ddr_set_clk(struct rk3399_cru *cru,
 		{.refdiv = 1, .fbdiv = 116, .postdiv1 = 3, .postdiv2 = 1};
 		break;
 	default:
-		error("Unsupported SDRAM frequency!,%ld\n", set_rate);
+		pr_err("Unsupported SDRAM frequency!,%ld\n", set_rate);
 	}
 	rkclk_set_pll(&cru->dpll_con[0], &dpll_cfg);
 

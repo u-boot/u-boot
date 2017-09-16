@@ -578,7 +578,7 @@ int armada_37xx_pinctrl_probe(struct udevice *dev)
 
 	info->base = (void __iomem *)devfdt_get_addr(dev);
 	if (!info->base) {
-		error("unable to find regmap\n");
+		pr_err("unable to find regmap\n");
 		return -ENODEV;
 	}
 

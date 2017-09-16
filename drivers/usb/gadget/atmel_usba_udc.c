@@ -1228,7 +1228,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 
 	ret = driver->bind(&udc->gadget);
 	if (ret) {
-		error("driver->bind() returned %d\n", ret);
+		pr_err("driver->bind() returned %d\n", ret);
 		udc->driver = NULL;
 	}
 
@@ -1240,7 +1240,7 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 	struct usba_udc *udc = &controller;
 
 	if (!driver || !driver->unbind || !driver->disconnect) {
-		error("bad paramter\n");
+		pr_err("bad paramter\n");
 		return -EINVAL;
 	}
 
@@ -1261,7 +1261,7 @@ static struct usba_ep *usba_udc_pdata(struct usba_platform_data *pdata,
 
 	eps = malloc(sizeof(struct usba_ep) * pdata->num_ep);
 	if (!eps) {
-		error("failed to alloc eps\n");
+		pr_err("failed to alloc eps\n");
 		return NULL;
 	}
 

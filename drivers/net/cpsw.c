@@ -1368,7 +1368,7 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 
 			mdio_base = cpsw_get_addr_by_node(fdt, subnode);
 			if (mdio_base == FDT_ADDR_T_NONE) {
-				error("Not able to get MDIO address space\n");
+				pr_err("Not able to get MDIO address space\n");
 				return -ENOENT;
 			}
 			priv->data.mdio_base = mdio_base;
@@ -1407,7 +1407,7 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 								    subnode);
 
 			if (priv->data.gmii_sel == FDT_ADDR_T_NONE) {
-				error("Not able to get gmii_sel reg address\n");
+				pr_err("Not able to get gmii_sel reg address\n");
 				return -ENOENT;
 			}
 
@@ -1418,7 +1418,7 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 			phy_sel_compat = fdt_getprop(fdt, subnode, "compatible",
 						     NULL);
 			if (!phy_sel_compat) {
-				error("Not able to get gmii_sel compatible\n");
+				pr_err("Not able to get gmii_sel compatible\n");
 				return -ENOENT;
 			}
 		}
@@ -1434,7 +1434,7 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 
 	ret = ti_cm_get_macid(dev, active_slave, pdata->enetaddr);
 	if (ret < 0) {
-		error("cpsw read efuse mac failed\n");
+		pr_err("cpsw read efuse mac failed\n");
 		return ret;
 	}
 

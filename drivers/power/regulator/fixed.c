@@ -117,7 +117,7 @@ static int fixed_regulator_set_enable(struct udevice *dev, bool enable)
 
 	ret = dm_gpio_set_value(&dev_pdata->gpio, enable);
 	if (ret) {
-		error("Can't set regulator : %s gpio to: %d\n", dev->name,
+		pr_err("Can't set regulator : %s gpio to: %d\n", dev->name,
 		      enable);
 		return ret;
 	}

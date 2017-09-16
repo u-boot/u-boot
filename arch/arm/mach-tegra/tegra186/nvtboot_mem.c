@@ -45,12 +45,12 @@ int dram_init(void)
 
 	node = fdt_path_offset(nvtboot_blob, "/memory");
 	if (node < 0) {
-		error("Can't find /memory node in nvtboot DTB");
+		pr_err("Can't find /memory node in nvtboot DTB");
 		hang();
 	}
 	prop = fdt_getprop(nvtboot_blob, node, "reg", &len);
 	if (!prop) {
-		error("Can't find /memory/reg property in nvtboot DTB");
+		pr_err("Can't find /memory/reg property in nvtboot DTB");
 		hang();
 	}
 

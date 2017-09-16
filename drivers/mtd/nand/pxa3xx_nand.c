@@ -1559,7 +1559,7 @@ static int pxa3xx_nand_probe_dt(struct pxa3xx_nand_info *info)
 
 		pdata->num_cs = fdtdec_get_int(blob, node, "num-cs", 1);
 		if (pdata->num_cs != 1) {
-			error("pxa3xx driver supports single CS only\n");
+			pr_err("pxa3xx driver supports single CS only\n");
 			break;
 		}
 

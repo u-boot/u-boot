@@ -70,14 +70,14 @@ static int pbias_ofdata_to_platdata(struct udevice *dev)
 	err = uclass_get_device_by_phandle(UCLASS_SYSCON, dev,
 					   "syscon", &syscon);
 	if (err) {
-		error("%s: unable to find syscon device (%d)\n", __func__,
+		pr_err("%s: unable to find syscon device (%d)\n", __func__,
 		      err);
 		return err;
 	}
 
 	regmap = syscon_get_regmap(syscon);
 	if (IS_ERR(regmap)) {
-		error("%s: unable to find regmap (%ld)\n", __func__,
+		pr_err("%s: unable to find regmap (%ld)\n", __func__,
 		      PTR_ERR(regmap));
 		return PTR_ERR(regmap);
 	}
@@ -85,7 +85,7 @@ static int pbias_ofdata_to_platdata(struct udevice *dev)
 
 	err = dev_read_resource(dev, 0, &res);
 	if (err) {
-		error("%s: unable to find offset (%d)\n", __func__, err);
+		pr_err("%s: unable to find offset (%d)\n", __func__, err);
 		return err;
 	}
 	priv->offset = res.start;

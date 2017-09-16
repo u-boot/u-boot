@@ -29,14 +29,14 @@ static int davinci_emac_3517_get_macid(struct udevice *dev, u16 offset,
 
 	syscon = fdtdec_lookup_phandle(fdt, node, "syscon");
 	if (syscon < 0) {
-		error("Syscon offset not found\n");
+		pr_err("Syscon offset not found\n");
 		return -ENOENT;
 	}
 
 	addr = (u32)map_physmem(fdt_translate_address(fdt, syscon, &gmii),
 				sizeof(u32), MAP_NOCACHE);
 	if (addr == FDT_ADDR_T_NONE) {
-		error("Not able to get syscon address to get mac efuse address\n");
+		pr_err("Not able to get syscon address to get mac efuse address\n");
 		return -ENOENT;
 	}
 
@@ -69,14 +69,14 @@ static int cpsw_am33xx_cm_get_macid(struct udevice *dev, u16 offset, int slave,
 
 	syscon = fdtdec_lookup_phandle(fdt, node, "syscon");
 	if (syscon < 0) {
-		error("Syscon offset not found\n");
+		pr_err("Syscon offset not found\n");
 		return -ENOENT;
 	}
 
 	addr = (u32)map_physmem(fdt_translate_address(fdt, syscon, &gmii),
 				sizeof(u32), MAP_NOCACHE);
 	if (addr == FDT_ADDR_T_NONE) {
-		error("Not able to get syscon address to get mac efuse address\n");
+		pr_err("Not able to get syscon address to get mac efuse address\n");
 		return -ENOENT;
 	}
 

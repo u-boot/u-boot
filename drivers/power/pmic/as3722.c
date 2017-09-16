@@ -46,14 +46,14 @@ static int as3722_read_id(struct udevice *dev, uint *idp, uint *revisionp)
 
 	ret = pmic_reg_read(dev, AS3722_ASIC_ID1);
 	if (ret < 0) {
-		error("failed to read ID1 register: %d", ret);
+		pr_err("failed to read ID1 register: %d", ret);
 		return ret;
 	}
 	*idp = ret;
 
 	ret = pmic_reg_read(dev, AS3722_ASIC_ID2);
 	if (ret < 0) {
-		error("failed to read ID2 register: %d", ret);
+		pr_err("failed to read ID2 register: %d", ret);
 		return ret;
 	}
 	*revisionp = ret;
@@ -71,7 +71,7 @@ int as3722_sd_set_voltage(struct udevice *dev, unsigned int sd, u8 value)
 
 	ret = pmic_reg_write(dev, AS3722_SD_VOLTAGE(sd), value);
 	if (ret < 0) {
-		error("failed to write SD%u voltage register: %d", sd, ret);
+		pr_err("failed to write SD%u voltage register: %d", sd, ret);
 		return ret;
 	}
 
@@ -87,7 +87,7 @@ int as3722_ldo_set_voltage(struct udevice *dev, unsigned int ldo, u8 value)
 
 	ret = pmic_reg_write(dev, AS3722_LDO_VOLTAGE(ldo), value);
 	if (ret < 0) {
-		error("failed to write LDO%u voltage register: %d", ldo,
+		pr_err("failed to write LDO%u voltage register: %d", ldo,
 		      ret);
 		return ret;
 	}
@@ -102,12 +102,12 @@ static int as3722_probe(struct udevice *dev)
 
 	ret = as3722_read_id(dev, &id, &revision);
 	if (ret < 0) {
-		error("failed to read ID: %d", ret);
+		pr_err("failed to read ID: %d", ret);
 		return ret;
 	}
 
 	if (id != AS3722_DEVICE_ID) {
-		error("unknown device");
+		pr_err("unknown device");
 		return -ENOENT;
 	}
 

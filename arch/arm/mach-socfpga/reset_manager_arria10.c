@@ -174,7 +174,7 @@ void socfpga_emac_manage_reset(ulong emacbase, u32 state)
 		emacmask = ALT_RSTMGR_PER0MODRST_EMAC2_SET_MSK;
 		break;
 	default:
-		error("emac base address unexpected! %lx", emacbase);
+		pr_err("emac base address unexpected! %lx", emacbase);
 		hang();
 		break;
 	}

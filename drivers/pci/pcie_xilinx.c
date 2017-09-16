@@ -187,7 +187,7 @@ static int pcie_xilinx_ofdata_to_platdata(struct udevice *dev)
 	err = fdt_get_resource(gd->fdt_blob, dev_of_offset(dev), "reg",
 			       0, &reg_res);
 	if (err < 0) {
-		error("\"reg\" resource not found\n");
+		pr_err("\"reg\" resource not found\n");
 		return err;
 	}
 

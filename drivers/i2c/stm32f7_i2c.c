@@ -549,7 +549,7 @@ static int stm32_i2c_compute_solutions(struct stm32_i2c_setup *setup,
 	}
 
 	if (list_empty(solutions)) {
-		error("%s: no Prescaler solution\n", __func__);
+		pr_err("%s: no Prescaler solution\n", __func__);
 		ret = -EPERM;
 	}
 
@@ -627,7 +627,7 @@ static int stm32_i2c_choose_solution(struct stm32_i2c_setup *setup,
 	}
 
 	if (!s) {
-		error("%s: no solution at all\n", __func__);
+		pr_err("%s: no solution at all\n", __func__);
 		ret = -EPERM;
 	}
 
@@ -643,14 +643,14 @@ static int stm32_i2c_compute_timing(struct stm32_i2c_priv *i2c_priv,
 	int ret;
 
 	if (setup->speed >= STM32_I2C_SPEED_END) {
-		error("%s: speed out of bound {%d/%d}\n", __func__,
+		pr_err("%s: speed out of bound {%d/%d}\n", __func__,
 		      setup->speed, STM32_I2C_SPEED_END - 1);
 		return -EINVAL;
 	}
 
 	if ((setup->rise_time > i2c_specs[setup->speed].rise_max) ||
 	    (setup->fall_time > i2c_specs[setup->speed].fall_max)) {
-		error("%s :timings out of bound Rise{%d>%d}/Fall{%d>%d}\n",
+		pr_err("%s :timings out of bound Rise{%d>%d}/Fall{%d>%d}\n",
 		      __func__,
 		      setup->rise_time, i2c_specs[setup->speed].rise_max,
 		      setup->fall_time, i2c_specs[setup->speed].fall_max);
@@ -658,13 +658,13 @@ static int stm32_i2c_compute_timing(struct stm32_i2c_priv *i2c_priv,
 	}
 
 	if (setup->dnf > STM32_I2C_DNF_MAX) {
-		error("%s: DNF out of bound %d/%d\n", __func__,
+		pr_err("%s: DNF out of bound %d/%d\n", __func__,
 		      setup->dnf, STM32_I2C_DNF_MAX);
 		return -EINVAL;
 	}
 
 	if (setup->speed_freq > i2c_specs[setup->speed].rate) {
-		error("%s: Freq {%d/%d}\n", __func__,
+		pr_err("%s: Freq {%d/%d}\n", __func__,
 		      setup->speed_freq, i2c_specs[setup->speed].rate);
 		return -EINVAL;
 	}
@@ -711,7 +711,7 @@ static int stm32_i2c_setup_timing(struct stm32_i2c_priv *i2c_priv,
 	setup->clock_src = clk_get_rate(&i2c_priv->clk);
 
 	if (!setup->clock_src) {
-		error("%s: clock rate is 0\n", __func__);
+		pr_err("%s: clock rate is 0\n", __func__);
 		return -EINVAL;
 	}
 
@@ -734,7 +734,7 @@ static int stm32_i2c_setup_timing(struct stm32_i2c_priv *i2c_priv,
 	} while (ret);
 
 	if (ret) {
-		error("%s: impossible to compute I2C timings.\n", __func__);
+		pr_err("%s: impossible to compute I2C timings.\n", __func__);
 		return ret;
 	}
 

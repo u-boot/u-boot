@@ -472,13 +472,13 @@ static ulong stm32_get_rate(struct stm32_rcc_regs *regs, enum pllsrc pllsrc)
 	clk.id = 0;
 	ret = uclass_get_device_by_name(UCLASS_CLK, name, &fixed_clock_dev);
 	if (ret) {
-		error("Can't find clk %s (%d)", name, ret);
+		pr_err("Can't find clk %s (%d)", name, ret);
 		return 0;
 	}
 
 	ret = clk_request(fixed_clock_dev, &clk);
 	if (ret) {
-		error("Can't request %s clk (%d)", name, ret);
+		pr_err("Can't request %s clk (%d)", name, ret);
 		return 0;
 	}
 
@@ -518,7 +518,7 @@ static u32 stm32_get_PLL1_rate(struct stm32_rcc_regs *regs,
 		break;
 	case RCC_PLLCKSELR_PLLSRC_NO_CLK:
 		/* shouldn't happen */
-		error("wrong value for RCC_PLLCKSELR register\n");
+		pr_err("wrong value for RCC_PLLCKSELR register\n");
 		pllsrc = 0;
 		break;
 	}
@@ -695,7 +695,7 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 		break;
 
 	default:
-		error("unexpected gate_offset value (0x%x)\n", gate_offset);
+		pr_err("unexpected gate_offset value (0x%x)\n", gate_offset);
 		return -EINVAL;
 		break;
 	}
@@ -739,13 +739,13 @@ static int stm32_clk_probe(struct udevice *dev)
 					   "st,syscfg", &syscon);
 
 	if (err) {
-		error("unable to find syscon device\n");
+		pr_err("unable to find syscon device\n");
 		return err;
 	}
 
 	priv->pwr_regmap = syscon_get_regmap(syscon);
 	if (!priv->pwr_regmap) {
-		error("unable to find regmap\n");
+		pr_err("unable to find regmap\n");
 		return -ENODEV;
 	}
 

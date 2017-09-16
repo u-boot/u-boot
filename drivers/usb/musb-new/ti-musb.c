@@ -106,7 +106,7 @@ static int ti_musb_ofdata_to_platdata(struct udevice *dev)
 							  "mentor,multipoint",
 							  -1);
 	if (platdata->musb_config.multipoint < 0) {
-		error("MUSB multipoint DT entry missing\n");
+		pr_err("MUSB multipoint DT entry missing\n");
 		return -ENOENT;
 	}
 
@@ -115,14 +115,14 @@ static int ti_musb_ofdata_to_platdata(struct udevice *dev)
 	platdata->musb_config.num_eps = fdtdec_get_int(fdt, node,
 						       "mentor,num-eps", -1);
 	if (platdata->musb_config.num_eps < 0) {
-		error("MUSB num-eps DT entry missing\n");
+		pr_err("MUSB num-eps DT entry missing\n");
 		return -ENOENT;
 	}
 
 	platdata->musb_config.ram_bits = fdtdec_get_int(fdt, node,
 							"mentor,ram-bits", -1);
 	if (platdata->musb_config.ram_bits < 0) {
-		error("MUSB ram-bits DT entry missing\n");
+		pr_err("MUSB ram-bits DT entry missing\n");
 		return -ENOENT;
 	}
 
@@ -132,7 +132,7 @@ static int ti_musb_ofdata_to_platdata(struct udevice *dev)
 
 	platdata->plat.power = fdtdec_get_int(fdt, node, "mentor,power", -1);
 	if (platdata->plat.power < 0) {
-		error("MUSB mentor,power DT entry missing\n");
+		pr_err("MUSB mentor,power DT entry missing\n");
 		return -ENOENT;
 	}
 
@@ -183,7 +183,7 @@ static int ti_musb_host_ofdata_to_platdata(struct udevice *dev)
 
 	ret = ti_musb_ofdata_to_platdata(dev);
 	if (ret) {
-		error("platdata dt parse error\n");
+		pr_err("platdata dt parse error\n");
 		return ret;
 	}
 
@@ -229,7 +229,7 @@ static int ti_musb_wrapper_bind(struct udevice *parent)
 			ret = device_bind_driver_to_node(parent, "ti-musb-host",
 					name, offset_to_ofnode(node), &dev);
 			if (ret) {
-				error("musb - not able to bind usb host node\n");
+				pr_err("musb - not able to bind usb host node\n");
 				return ret;
 			}
 			break;

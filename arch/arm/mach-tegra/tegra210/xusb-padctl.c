@@ -125,7 +125,7 @@ static int tegra_xusb_padctl_disable(struct tegra_xusb_padctl *padctl)
 	u32 value;
 
 	if (padctl->enable == 0) {
-		error("unbalanced enable/disable");
+		pr_err("unbalanced enable/disable");
 		return 0;
 	}
 

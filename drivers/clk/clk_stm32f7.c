@@ -224,7 +224,7 @@ static unsigned long stm32_clk_get_rate(struct clk *clk)
 		return sysclk >>= shift;
 		break;
 	default:
-		error("clock index %ld out of range\n", clk->id);
+		pr_err("clock index %ld out of range\n", clk->id);
 		return -EINVAL;
 		break;
 	}

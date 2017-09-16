@@ -29,7 +29,7 @@ static int tps65090_write(struct udevice *dev, uint reg, const uint8_t *buff,
 			  int len)
 {
 	if (dm_i2c_write(dev, reg, buff, len)) {
-		error("write error to device: %p register: %#x!", dev, reg);
+		pr_err("write error to device: %p register: %#x!", dev, reg);
 		return -EIO;
 	}
 
@@ -42,7 +42,7 @@ static int tps65090_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 
 	ret = dm_i2c_read(dev, reg, buff, len);
 	if (ret) {
-		error("read error %d from device: %p register: %#x!", ret, dev,
+		pr_err("read error %d from device: %p register: %#x!", ret, dev,
 		      reg);
 		return -EIO;
 	}

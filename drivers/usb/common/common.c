@@ -28,7 +28,7 @@ enum usb_dr_mode usb_get_dr_mode(int node)
 
 	dr_mode = fdt_getprop(fdt, node, "dr_mode", NULL);
 	if (!dr_mode) {
-		error("usb dr_mode not found\n");
+		pr_err("usb dr_mode not found\n");
 		return USB_DR_MODE_UNKNOWN;
 	}
 

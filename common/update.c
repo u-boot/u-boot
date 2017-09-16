@@ -242,7 +242,7 @@ int update_tftp(ulong addr, char *interface, char *devstring)
 	} else if (interface && devstring) {
 		update_tftp_dfu = true;
 	} else {
-		error("Interface: %s and devstring: %s not supported!\n",
+		pr_err("Interface: %s and devstring: %s not supported!\n",
 		      interface, devstring);
 		return -EINVAL;
 	}

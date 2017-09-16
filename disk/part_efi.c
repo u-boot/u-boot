@@ -360,7 +360,7 @@ static int set_protective_mbr(struct blk_desc *dev_desc)
 
 	/* Read MBR to backup boot code if it exists */
 	if (blk_dread(dev_desc, 0, 1, p_mbr) != 1) {
-		error("** Can't read from device %d **\n", dev_desc->devnum);
+		pr_err("** Can't read from device %d **\n", dev_desc->devnum);
 		return -1;
 	}
 
@@ -716,7 +716,7 @@ int gpt_verify_partitions(struct blk_desc *dev_desc,
 
 	for (i = 0; i < parts; i++) {
 		if (i == gpt_head->num_partition_entries) {
-			error("More partitions than allowed!\n");
+			pr_err("More partitions than allowed!\n");
 			return -1;
 		}
 
@@ -729,7 +729,7 @@ int gpt_verify_partitions(struct blk_desc *dev_desc,
 
 		if (strncmp(efi_str, (char *)partitions[i].name,
 			    sizeof(partitions->name))) {
-			error("Partition name: %s does not match %s!\n",
+			pr_err("Partition name: %s does not match %s!\n",
 			      efi_str, (char *)partitions[i].name);
 			return -1;
 		}
@@ -746,7 +746,7 @@ int gpt_verify_partitions(struct blk_desc *dev_desc,
 			if ((i == parts - 1) && (partitions[i].size == 0))
 				continue;
 
-			error("Partition %s size: %llu does not match %llu!\n",
+			pr_err("Partition %s size: %llu does not match %llu!\n",
 			      efi_str, (unsigned long long)gpt_part_size,
 			      (unsigned long long)partitions[i].size);
 			return -1;
@@ -767,7 +767,7 @@ int gpt_verify_partitions(struct blk_desc *dev_desc,
 		      (unsigned long long)partitions[i].start);
 
 		if (le64_to_cpu(gpt_e[i].starting_lba) != partitions[i].start) {
-			error("Partition %s start: %llu does not match %llu!\n",
+			pr_err("Partition %s start: %llu does not match %llu!\n",
 			      efi_str, le64_to_cpu(gpt_e[i].starting_lba),
 			      (unsigned long long)partitions[i].start);
 			return -1;

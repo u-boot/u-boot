@@ -39,7 +39,7 @@ static int sti_sysreset_probe(struct udevice *dev)
 					     "st,syscfg", NULL, 0, 0,
 					     &syscfg_phandle);
 	if (ret < 0) {
-		error("Can't get syscfg phandle: %d\n", ret);
+		pr_err("Can't get syscfg phandle: %d\n", ret);
 		return ret;
 	}
 
@@ -47,14 +47,14 @@ static int sti_sysreset_probe(struct udevice *dev)
 					     syscfg_phandle.node,
 					     &syscon);
 	if (ret) {
-		error("%s: uclass_get_device_by_of_offset failed: %d\n",
+		pr_err("%s: uclass_get_device_by_of_offset failed: %d\n",
 		      __func__, ret);
 		return ret;
 	}
 
 	regmap = syscon_get_regmap(syscon);
 	if (!regmap) {
-		error("unable to get regmap for %s\n", syscon->name);
+		pr_err("unable to get regmap for %s\n", syscon->name);
 		return -ENODEV;
 	}
 

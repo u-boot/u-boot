@@ -369,7 +369,7 @@ static int tegra_pcie_port_parse_dt(ofnode node, struct tegra_pcie_port *port)
 
 	addr = ofnode_get_property(node, "assigned-addresses", &len);
 	if (!addr) {
-		error("property \"assigned-addresses\" not found");
+		pr_err("property \"assigned-addresses\" not found");
 		return -FDT_ERR_NOTFOUND;
 	}
 
@@ -460,7 +460,7 @@ static int tegra_pcie_parse_port_info(ofnode node, uint *index, uint *lanes)
 
 	err = ofnode_read_u32_default(node, "nvidia,num-lanes", -1);
 	if (err < 0) {
-		error("failed to parse \"nvidia,num-lanes\" property");
+		pr_err("failed to parse \"nvidia,num-lanes\" property");
 		return err;
 	}
 
@@ -468,7 +468,7 @@ static int tegra_pcie_parse_port_info(ofnode node, uint *index, uint *lanes)
 
 	err = ofnode_read_pci_addr(node, 0, "reg", &addr);
 	if (err < 0) {
-		error("failed to parse \"reg\" property");
+		pr_err("failed to parse \"reg\" property");
 		return err;
 	}
 
@@ -491,25 +491,25 @@ static int tegra_pcie_parse_dt(struct udevice *dev, enum tegra_pci_id id,
 
 	err = dev_read_resource(dev, 0, &pcie->pads);
 	if (err < 0) {
-		error("resource \"pads\" not found");
+		pr_err("resource \"pads\" not found");
 		return err;
 	}
 
 	err = dev_read_resource(dev, 1, &pcie->afi);
 	if (err < 0) {
-		error("resource \"afi\" not found");
+		pr_err("resource \"afi\" not found");
 		return err;
 	}
 
 	err = dev_read_resource(dev, 2, &pcie->cs);
 	if (err < 0) {
-		error("resource \"cs\" not found");
+		pr_err("resource \"cs\" not found");
 		return err;
 	}
 
 	err = tegra_pcie_board_init();
 	if (err < 0) {
-		error("tegra_pcie_board_init() failed: err=%d", err);
+		pr_err("tegra_pcie_board_init() failed: err=%d", err);
 		return err;
 	}
 
@@ -518,7 +518,7 @@ static int tegra_pcie_parse_dt(struct udevice *dev, enum tegra_pci_id id,
 	if (pcie->phy) {
 		err = tegra_xusb_phy_prepare(pcie->phy);
 		if (err < 0) {
-			error("failed to prepare PHY: %d", err);
+			pr_err("failed to prepare PHY: %d", err);
 			return err;
 		}
 	}
@@ -530,7 +530,7 @@ static int tegra_pcie_parse_dt(struct udevice *dev, enum tegra_pci_id id,
 
 		err = tegra_pcie_parse_port_info(subnode, &index, &num_lanes);
 		if (err < 0) {
-			error("failed to obtain root port info");
+			pr_err("failed to obtain root port info");
 			continue;
 		}
 
@@ -560,7 +560,7 @@ static int tegra_pcie_parse_dt(struct udevice *dev, enum tegra_pci_id id,
 	err = tegra_pcie_get_xbar_config(dev_ofnode(dev), lanes, id,
 					 &pcie->xbar);
 	if (err < 0) {
-		error("invalid lane configuration");
+		pr_err("invalid lane configuration");
 		return err;
 	}
 
@@ -574,31 +574,31 @@ static int tegra_pcie_power_on(struct tegra_pcie *pcie)
 
 	ret = power_domain_on(&pcie->pwrdom);
 	if (ret) {
-		error("power_domain_on() failed: %d\n", ret);
+		pr_err("power_domain_on() failed: %d\n", ret);
 		return ret;
 	}
 
 	ret = clk_enable(&pcie->clk_afi);
 	if (ret) {
-		error("clk_enable(afi) failed: %d\n", ret);
+		pr_err("clk_enable(afi) failed: %d\n", ret);
 		return ret;
 	}
 
 	ret = clk_enable(&pcie->clk_pex);
 	if (ret) {
-		error("clk_enable(pex) failed: %d\n", ret);
+		pr_err("clk_enable(pex) failed: %d\n", ret);
 		return ret;
 	}
 
 	ret = reset_deassert(&pcie->reset_afi);
 	if (ret) {
-		error("reset_deassert(afi) failed: %d\n", ret);
+		pr_err("reset_deassert(afi) failed: %d\n", ret);
 		return ret;
 	}
 
 	ret = reset_deassert(&pcie->reset_pex);
 	if (ret) {
-		error("reset_deassert(pex) failed: %d\n", ret);
+		pr_err("reset_deassert(pex) failed: %d\n", ret);
 		return ret;
 	}
 
@@ -618,14 +618,14 @@ static int tegra_pcie_power_on(struct tegra_pcie *pcie)
 
 	err = tegra_powergate_power_off(TEGRA_POWERGATE_PCIE);
 	if (err < 0) {
-		error("failed to power off PCIe partition: %d", err);
+		pr_err("failed to power off PCIe partition: %d", err);
 		return err;
 	}
 
 	err = tegra_powergate_sequence_power_up(TEGRA_POWERGATE_PCIE,
 						PERIPH_ID_PCIE);
 	if (err < 0) {
-		error("failed to power up PCIe partition: %d", err);
+		pr_err("failed to power up PCIe partition: %d", err);
 		return err;
 	}
 
@@ -645,7 +645,7 @@ static int tegra_pcie_power_on(struct tegra_pcie *pcie)
 
 	err = tegra_plle_enable();
 	if (err < 0) {
-		error("failed to enable PLLE: %d\n", err);
+		pr_err("failed to enable PLLE: %d\n", err);
 		return err;
 	}
 
@@ -705,7 +705,7 @@ static int tegra_pcie_phy_enable(struct tegra_pcie *pcie)
 	/* wait for the PLL to lock */
 	err = tegra_pcie_pll_wait(pcie, 500);
 	if (err < 0) {
-		error("PLL failed to lock: %d", err);
+		pr_err("PLL failed to lock: %d", err);
 		return err;
 	}
 
@@ -769,7 +769,7 @@ static int tegra_pcie_enable_controller(struct tegra_pcie *pcie)
 		err = tegra_pcie_phy_enable(pcie);
 
 	if (err < 0) {
-		error("failed to power on PHY: %d\n", err);
+		pr_err("failed to power on PHY: %d\n", err);
 		return err;
 	}
 #endif
@@ -778,7 +778,7 @@ static int tegra_pcie_enable_controller(struct tegra_pcie *pcie)
 #ifdef CONFIG_TEGRA186
 	err = reset_deassert(&pcie->reset_pcie_x);
 	if (err) {
-		error("reset_deassert(pcie_x) failed: %d\n", err);
+		pr_err("reset_deassert(pcie_x) failed: %d\n", err);
 		return err;
 	}
 #else
@@ -1143,25 +1143,25 @@ static int pci_tegra_probe(struct udevice *dev)
 
 	err = tegra_pcie_power_on(pcie);
 	if (err < 0) {
-		error("failed to power on");
+		pr_err("failed to power on");
 		return err;
 	}
 
 	err = tegra_pcie_enable_controller(pcie);
 	if (err < 0) {
-		error("failed to enable controller");
+		pr_err("failed to enable controller");
 		return err;
 	}
 
 	err = tegra_pcie_setup_translations(dev);
 	if (err < 0) {
-		error("failed to decode ranges");
+		pr_err("failed to decode ranges");
 		return err;
 	}
 
 	err = tegra_pcie_enable(pcie);
 	if (err < 0) {
-		error("failed to enable PCIe");
+		pr_err("failed to enable PCIe");
 		return err;
 	}
 

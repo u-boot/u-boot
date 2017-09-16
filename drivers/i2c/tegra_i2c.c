@@ -372,12 +372,12 @@ static int tegra_i2c_probe(struct udevice *dev)
 
 	ret = reset_get_by_name(dev, "i2c", &i2c_bus->reset_ctl);
 	if (ret) {
-		error("reset_get_by_name() failed: %d\n", ret);
+		pr_err("reset_get_by_name() failed: %d\n", ret);
 		return ret;
 	}
 	ret = clk_get_by_name(dev, "div-clk", &i2c_bus->clk);
 	if (ret) {
-		error("clk_get_by_name() failed: %d\n", ret);
+		pr_err("clk_get_by_name() failed: %d\n", ret);
 		return ret;
 	}
 
