@@ -94,6 +94,7 @@ config SPL_STACK_R
 config SPL_STACK_R_ADDR
 	depends on SPL_STACK_R
 	hex "SDRAM location for SPL stack"
+	default 0x82000000 if ARCH_OMAP2PLUS
 	help
 	  Specify the address in SDRAM for the SPL stack. This will be set up
 	  before board_init_r() is called.
