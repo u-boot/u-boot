@@ -29,7 +29,7 @@ addons:
 
 install:
  # install latest device tree compiler
- - git clone --depth=1 git://git.kernel.org/pub/scm/utils/dtc/dtc.git /tmp/dtc
+ - git clone --depth=1 -b v1.4.3 git://git.kernel.org/pub/scm/utils/dtc/dtc.git /tmp/dtc
  - make -j4 -C /tmp/dtc
  # Clone uboot-test-hooks
  - git clone --depth=1 git://github.com/swarren/uboot-test-hooks.git /tmp/uboot-test-hooks
