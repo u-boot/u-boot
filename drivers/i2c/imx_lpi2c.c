@@ -412,7 +412,7 @@ static int imx_lpi2c_probe(struct udevice *bus)
 
 	addr = devfdt_get_addr(bus);
 	if (addr == FDT_ADDR_T_NONE)
-		return -ENODEV;
+		return -EINVAL;
 
 	i2c_bus->base = addr;
 	i2c_bus->index = bus->seq;

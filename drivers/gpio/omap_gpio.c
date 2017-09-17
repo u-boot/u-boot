@@ -307,7 +307,7 @@ static int omap_gpio_bind(struct udevice *dev)
 
 	base_addr = devfdt_get_addr(dev);
 	if (base_addr == FDT_ADDR_T_NONE)
-		return -ENODEV;
+		return -EINVAL;
 
 	/*
 	* TODO:
