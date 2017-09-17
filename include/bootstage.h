@@ -12,11 +12,6 @@
 #ifndef _BOOTSTAGE_H
 #define _BOOTSTAGE_H
 
-/* Define this for host tools */
-#ifndef CONFIG_BOOTSTAGE_USER_COUNT
-#define CONFIG_BOOTSTAGE_USER_COUNT	20
-#endif
-
 /* Flags for each bootstage record */
 enum bootstage_flags {
 	BOOTSTAGEF_ERROR	= 1 << 0,	/* Error record */
@@ -208,7 +203,6 @@ enum bootstage_id {
 
 	/* a few spare for the user, from here */
 	BOOTSTAGE_ID_USER,
-	BOOTSTAGE_ID_COUNT = BOOTSTAGE_ID_USER + CONFIG_BOOTSTAGE_USER_COUNT,
 	BOOTSTAGE_ID_ALLOC,
 };
 

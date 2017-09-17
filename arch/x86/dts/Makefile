@@ -3,6 +3,7 @@
 #
 
 dtb-y += bayleybay.dtb \
+	cherryhill.dtb \
 	chromebook_link.dtb \
 	chromebox_panther.dtb \
 	chromebook_samus.dtb \

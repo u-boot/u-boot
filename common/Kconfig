@@ -46,18 +46,16 @@ config BOOTSTAGE_REPORT
 		 29,916,167 26,005,792  bootm_start
 		 30,361,327    445,160  start_kernel
 
-config BOOTSTAGE_USER_COUNT
-	int "Number of boot ID numbers available for user use"
-	default 20
-	help
-	  This is the number of available user bootstage records.
-	  Each time you call bootstage_mark(BOOTSTAGE_ID_ALLOC, ...)
-	  a new ID will be allocated from this stash. If you exceed
-	  the limit, recording will stop.
-
 config BOOTSTAGE_RECORD_COUNT
 	int "Number of boot stage records to store"
 	default 30
+	help
+	  This is the size of the bootstage record list and is the maximum
+	  number of bootstage records that can be recorded.
+
+config SPL_BOOTSTAGE_RECORD_COUNT
+	int "Number of boot stage records to store for SPL"
+	default 5
 	help
 	  This is the size of the bootstage record list and is the maximum
 	  number of bootstage records that can be recorded.

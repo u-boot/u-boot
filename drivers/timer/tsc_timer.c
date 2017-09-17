@@ -18,7 +18,7 @@
 #include <asm/msr.h>
 #include <asm/u-boot-x86.h>
 
-#define MAX_NUM_FREQS	8
+#define MAX_NUM_FREQS	9
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -40,17 +40,20 @@ struct freq_desc {
 
 static struct freq_desc freq_desc_tables[] = {
 	/* PNW */
-	{ 6, 0x27, 0, { 0, 0, 0, 0, 0, 99840, 0, 83200 } },
+	{ 6, 0x27, 0, { 0, 0, 0, 0, 0, 99840, 0, 83200, 0 } },
 	/* CLV+ */
-	{ 6, 0x35, 0, { 0, 133200, 0, 0, 0, 99840, 0, 83200 } },
+	{ 6, 0x35, 0, { 0, 133200, 0, 0, 0, 99840, 0, 83200, 0 } },
 	/* TNG - Intel Atom processor Z3400 series */
-	{ 6, 0x4a, 1, { 0, 100000, 133300, 0, 0, 0, 0, 0 } },
+	{ 6, 0x4a, 1, { 0, 100000, 133300, 0, 0, 0, 0, 0, 0 } },
 	/* VLV2 - Intel Atom processor E3000, Z3600, Z3700 series */
-	{ 6, 0x37, 1, { 83300, 100000, 133300, 116700, 80000, 0, 0, 0 } },
+	{ 6, 0x37, 1, { 83300, 100000, 133300, 116700, 80000, 0, 0, 0, 0 } },
 	/* ANN - Intel Atom processor Z3500 series */
-	{ 6, 0x5a, 1, { 83300, 100000, 133300, 100000, 0, 0, 0, 0 } },
+	{ 6, 0x5a, 1, { 83300, 100000, 133300, 100000, 0, 0, 0, 0, 0 } },
+	/* AMT - Intel Atom processor X7-Z8000 and X5-Z8000 series */
+	{ 6, 0x4c, 1, { 83300, 100000, 133300, 116700,
+			80000, 93300, 90000, 88900, 87500 } },
 	/* Ivybridge */
-	{ 6, 0x3a, 2, { 0, 0, 0, 0, 0, 0, 0, 0 } },
+	{ 6, 0x3a, 2, { 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
 };
 
 static int match_cpu(u8 family, u8 model)
@@ -328,17 +331,17 @@ static int tsc_timer_get_count(struct udevice *dev, u64 *count)
 	return 0;
 }
 
-static int tsc_timer_probe(struct udevice *dev)
+static void tsc_timer_ensure_setup(void)
 {
-	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-
+	if (gd->arch.tsc_base)
+		return;
 	gd->arch.tsc_base = rdtsc();
 
 	/*
 	 * If there is no clock frequency specified in the device tree,
 	 * calibrate it by ourselves.
 	 */
-	if (!uc_priv->clock_rate) {
+	if (!gd->arch.clock_rate) {
 		unsigned long fast_calibrate;
 
 		fast_calibrate = cpu_mhz_from_msr();
@@ -348,10 +351,30 @@ static int tsc_timer_probe(struct udevice *dev)
 				panic("TSC frequency is ZERO");
 		}
 
-		uc_priv->clock_rate = fast_calibrate * 1000000;
+		gd->arch.clock_rate = fast_calibrate * 1000000;
 	}
+}
+
+static int tsc_timer_probe(struct udevice *dev)
+{
+	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	tsc_timer_ensure_setup();
+	uc_priv->clock_rate = gd->arch.clock_rate;
 
 	return 0;
+}
+
+unsigned long notrace timer_early_get_rate(void)
+{
+	tsc_timer_ensure_setup();
+
+	return gd->arch.clock_rate;
+}
+
+u64 notrace timer_early_get_count(void)
+{
+	return rdtsc() - gd->arch.tsc_base;
 }
 
 static const struct timer_ops tsc_timer_ops = {

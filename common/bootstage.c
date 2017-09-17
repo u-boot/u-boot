@@ -18,7 +18,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 enum {
-	RECORD_COUNT = CONFIG_BOOTSTAGE_RECORD_COUNT,
+	RECORD_COUNT = CONFIG_VAL(BOOTSTAGE_RECORD_COUNT),
 };
 
 struct bootstage_record {
@@ -327,7 +327,7 @@ void bootstage_report(void)
 	}
 	if (data->rec_count > RECORD_COUNT)
 		printf("Overflowed internal boot id table by %d entries\n"
-		       "- please increase CONFIG_BOOTSTAGE_RECORD_COUNT\n",
+		       "Please increase CONFIG_(SPL_)BOOTSTAGE_RECORD_COUNT\n",
 		       data->rec_count - RECORD_COUNT);
 
 	puts("\nAccumulated time:\n");
@@ -456,7 +456,7 @@ int bootstage_unstash(const void *base, int size)
 
 	if (data->rec_count + hdr->count > RECORD_COUNT) {
 		debug("%s: Bootstage has %d records, we have space for %d\n"
-			"- please increase CONFIG_BOOTSTAGE_USER_COUNT\n",
+			"Please increase CONFIG_(SPL_)BOOTSTAGE_RECORD_COUNT\n",
 		      __func__, hdr->count, RECORD_COUNT - data->rec_count);
 		return -ENOSPC;
 	}

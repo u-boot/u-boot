@@ -38,17 +38,37 @@ static int do_hdr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	for (i = 0; i < sizeof(hdr->sign); i++)
 		printf("%c", *sign++);
 	printf(", size %d, rev %d\n", hdr->hdr_len, hdr->hdr_rev);
-	printf("Image  : rev %d.%d, id ",
-	       (hdr->img_rev >> 8) & 0xff, hdr->img_rev & 0xff);
+	printf("Image  : rev ");
+	if (hdr->hdr_rev == FSP_HEADER_REVISION_1) {
+		printf("%d.%d",
+		       (hdr->img_rev >> 8) & 0xff, hdr->img_rev & 0xff);
+	} else {
+		printf("%d.%d.%d.%d",
+		       (hdr->img_rev >> 24) & 0xff, (hdr->img_rev >> 16) & 0xff,
+		       (hdr->img_rev >> 8) & 0xff, hdr->img_rev & 0xff);
+	}
+	printf(", id ");
 	for (i = 0; i < ARRAY_SIZE(hdr->img_id); i++)
 		printf("%c", hdr->img_id[i]);
 	printf(", addr 0x%08x, size %d\n", img_addr, hdr->img_size);
+	if (hdr->hdr_rev == FSP_HEADER_REVISION_2) {
+		printf("GFX    :%ssupported\n",
+		       hdr->img_attr & FSP_ATTR_GRAPHICS_SUPPORT ? " " : " un");
+	}
 	printf("VPD    : addr 0x%08x, size %d\n",
 	       hdr->cfg_region_off + img_addr, hdr->cfg_region_size);
 	printf("\nNumber of APIs Supported : %d\n", hdr->api_num);
 	printf("\tTempRamInit : 0x%08x\n", hdr->fsp_tempram_init + img_addr);
 	printf("\tFspInit     : 0x%08x\n", hdr->fsp_init + img_addr);
 	printf("\tFspNotify   : 0x%08x\n", hdr->fsp_notify + img_addr);
+	if (hdr->hdr_rev == FSP_HEADER_REVISION_2) {
+		printf("\tMemoryInit  : 0x%08x\n",
+		       hdr->fsp_mem_init + img_addr);
+		printf("\tTempRamExit : 0x%08x\n",
+		       hdr->fsp_tempram_exit + img_addr);
+		printf("\tSiliconInit : 0x%08x\n",
+		       hdr->fsp_silicon_init + img_addr);
+	}
 
 	return 0;
 }

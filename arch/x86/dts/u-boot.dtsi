@@ -67,6 +67,12 @@
 			pos = <CONFIG_VGA_BIOS_ADDR>;
 		};
 #endif
+#ifdef CONFIG_HAVE_VBT
+		intel-vbt {
+			filename = CONFIG_VBT_FILE;
+			pos = <CONFIG_VBT_ADDR>;
+		};
+#endif
 #ifdef CONFIG_HAVE_REFCODE
 		intel-refcode {
 			pos = <CONFIG_X86_REFCODE_ADDR>;

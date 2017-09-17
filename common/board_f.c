@@ -952,6 +952,9 @@ void board_init_f_r(void)
 	 * UART if available.
 	 */
 	gd->flags &= ~GD_FLG_SERIAL_READY;
+#ifdef CONFIG_TIMER
+	gd->timer = NULL;
+#endif
 
 	/*
 	 * U-Boot has been copied into SDRAM, the BSS has been cleared etc.
