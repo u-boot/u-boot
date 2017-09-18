@@ -365,13 +365,13 @@ $(document).ready(function () {
 
         self._terminate_stream()
         self.f.write('<div class="' + note_type + '">\n')
-        if anchor:
-            self.f.write('<a href="#%s">\n' % anchor)
         self.f.write('<pre>')
-        self.f.write(self._escape(msg))
-        self.f.write('\n</pre>\n')
         if anchor:
-            self.f.write('</a>\n')
+            self.f.write('<a href="#%s">' % anchor)
+        self.f.write(self._escape(msg))
+        if anchor:
+            self.f.write('</a>')
+        self.f.write('\n</pre>\n')
         self.f.write('</div>\n')
 
     def start_section(self, marker, anchor=None):
