@@ -22,12 +22,17 @@ need to implement various "hook" scripts that are called by the test suite at
 the appropriate time.
 
 On Debian or Debian-like distributions, the following packages are required.
-Similar package names should exist in other distributions.
+Some packages are required to execute any test, and others only for specific
+tests. Similar package names should exist in other distributions.
 
 | Package        | Version tested (Ubuntu 14.04) |
 | -------------- | ----------------------------- |
 | python         | 2.7.5-5ubuntu3                |
 | python-pytest  | 2.5.1-1                       |
+| gdisk          | 0.8.8-1ubuntu0.1              |
+| dfu-util       | 0.5-1                         |
+| dtc            | 1.4.0+dfsg-1                  |
+| openssl        | 1.0.1f-1ubuntu2.22            |
 
 The test script supports either:
 
