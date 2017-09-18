@@ -21,6 +21,16 @@
 #endif
 
 /*
+* Disable DM_* for SPL build and can be re-enabled after adding
+* DM support in SPL
+*/
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_DM_SPI
+#undef CONFIG_DM_SPI_FLASH
+#undef CONFIG_DM_I2C
+#undef CONFIG_DM_I2C_COMPAT
+#endif
+/*
  * SoC Configuration
  */
 #define CONFIG_MACH_DAVINCI_DA850_EVM
@@ -130,18 +140,23 @@
 /*
  * Serial Driver info
  */
+
+#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_DIRECT_NOR_BOOT)
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	-4	/* NS16550 register size */
 #define CONFIG_SYS_NS16550_COM1	DAVINCI_UART2_BASE /* Base address of UART2 */
+#endif
 #define CONFIG_SYS_NS16550_CLK	clk_get(DAVINCI_UART2_CLKID)
 #define CONFIG_CONS_INDEX	1		/* use UART0 for console */
 
 #define CONFIG_SPI
 #define CONFIG_DAVINCI_SPI
-#define CONFIG_SYS_SPI_BASE		DAVINCI_SPI1_BASE
 #define CONFIG_SYS_SPI_CLK		clk_get(DAVINCI_SPI1_CLKID)
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_SPI_BASE		DAVINCI_SPI1_BASE
 #define CONFIG_SF_DEFAULT_SPEED		30000000
 #define CONFIG_ENV_SPI_MAX_HZ	CONFIG_SF_DEFAULT_SPEED
+#endif
 
 #ifdef CONFIG_USE_SPIFLASH
 #define CONFIG_SPL_SPI_LOAD
@@ -257,7 +272,29 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_REVISION_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_EXTRA_ENV_SETTINGS	"hwconfig=dsp:wake=yes"
+
+#define CONFIG_BOOTCOMMAND \
+		"run envboot; " \
+		"run mmcboot; "
+
+#define DEFAULT_LINUX_BOOT_ENV \
+	"loadaddr=0xc0700000\0" \
+	"fdtaddr=0xc0600000\0" \
+	"scriptaddr=0xc0600000\0"
+
+#include <environment/ti/mmc.h>
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	DEFAULT_LINUX_BOOT_ENV \
+	DEFAULT_MMC_TI_ARGS \
+	"bootpart=0:2\0" \
+	"bootdir=/boot\0" \
+	"bootfile=zImage\0" \
+	"fdtfile=da850-evm.dtb\0" \
+	"boot_fdt=yes\0" \
+	"boot_fit=0\0" \
+	"console=ttyS2,115200n8\0" \
+	"hwconfig=dsp:wake=yes"
 
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS

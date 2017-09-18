@@ -33,6 +33,8 @@ config MAC_ADDR_IN_EEPROM
 
 endif
 
+source "board/ti/common/Kconfig"
+
 endif
 
 if TARGET_OMAPL138_LCDK

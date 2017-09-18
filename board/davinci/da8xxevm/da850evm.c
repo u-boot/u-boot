@@ -60,7 +60,7 @@ static int get_mac_addr(u8 *addr)
 		return -1;
 	}
 
-	ret = spi_flash_read(flash, CFG_MAC_ADDR_OFFSET, 6, addr);
+	ret = spi_flash_read(flash, (CFG_MAC_ADDR_OFFSET) + 1, 7, addr);
 	if (ret) {
 		printf("Error - unable to read MAC address from SPI flash.\n");
 		return -1;
@@ -140,6 +140,7 @@ int misc_init_r(void)
 	uchar buff[6];
 
 	spi_mac_read = get_mac_addr(buff);
+	buff[0] = 0;
 
 	/*
 	 * MAC address not present in the environment
