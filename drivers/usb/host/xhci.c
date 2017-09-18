@@ -395,6 +395,22 @@ static u32 xhci_get_endpoint_mult(struct usb_device *udev,
 	return ss_ep_comp_desc->bmAttributes;
 }
 
+static u32 xhci_get_endpoint_max_burst(struct usb_device *udev,
+	struct usb_endpoint_descriptor *endpt_desc,
+	struct usb_ss_ep_comp_descriptor *ss_ep_comp_desc)
+{
+	/* Super speed and Plus have max burst in ep companion desc */
+	if (udev->speed >= USB_SPEED_SUPER)
+		return ss_ep_comp_desc->bMaxBurst;
+
+	if (udev->speed == USB_SPEED_HIGH &&
+	    (usb_endpoint_xfer_isoc(endpt_desc) ||
+	     usb_endpoint_xfer_int(endpt_desc)))
+		return usb_endpoint_maxp_mult(endpt_desc) - 1;
+
+	return 0;
+}
+
 /*
  * Return the maximum endpoint service interval time (ESIT) payload.
  * Basically, this is the maxpacket size, multiplied by the burst size
@@ -493,6 +509,7 @@ static int xhci_set_configuration(struct usb_device *udev)
 	u32 max_esit_payload;
 	unsigned int interval;
 	unsigned int mult;
+	unsigned int max_burst;
 	unsigned int avg_trb_len;
 
 	out_ctx = virt_dev->out_ctx;
@@ -545,6 +562,8 @@ static int xhci_set_configuration(struct usb_device *udev)
 		interval = xhci_get_endpoint_interval(udev, endpt_desc);
 		mult = xhci_get_endpoint_mult(udev, endpt_desc,
 					      ss_ep_comp_desc);
+		max_burst = xhci_get_endpoint_max_burst(udev, endpt_desc,
+							ss_ep_comp_desc);
 		avg_trb_len = max_esit_payload;
 
 		ep_index = xhci_get_ep_index(endpt_desc);
@@ -570,7 +589,7 @@ static int xhci_set_configuration(struct usb_device *udev)
 			(get_unaligned(&endpt_desc->wMaxPacketSize)));
 
 		ep_ctx[ep_index]->ep_info2 |=
-			cpu_to_le32(((0 & MAX_BURST_MASK) << MAX_BURST_SHIFT) |
+			cpu_to_le32(MAX_BURST(max_burst) |
 			((3 & ERROR_COUNT_MASK) << ERROR_COUNT_SHIFT));
 
 		trb_64 = (uintptr_t)
