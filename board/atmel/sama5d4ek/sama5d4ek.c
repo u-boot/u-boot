@@ -14,11 +14,7 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/sama5d3_smc.h>
 #include <asm/arch/sama5d4.h>
-#include <atmel_hlcdc.h>
 #include <debug_uart.h>
-#include <lcd.h>
-#include <nand.h>
-#include <version.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -74,93 +70,15 @@ static void sama5d4ek_usb_hw_init(void)
 }
 #endif
 
-#ifdef CONFIG_LCD
-vidinfo_t panel_info = {
-	.vl_col = 800,
-	.vl_row = 480,
-	.vl_clk = 33260000,
-	.vl_bpix = LCD_BPP,
-	.vl_tft = 1,
-	.vl_hsync_len = 5,
-	.vl_left_margin = 128,
-	.vl_right_margin = 0,
-	.vl_vsync_len = 5,
-	.vl_upper_margin = 23,
-	.vl_lower_margin = 22,
-	.mmio = ATMEL_BASE_LCDC,
-};
-
-/* No power up/down pin for the LCD pannel */
-void lcd_enable(void)	{ /* Empty! */ }
-void lcd_disable(void)	{ /* Empty! */ }
-
-unsigned int has_lcdc(void)
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
 {
-	return 1;
-}
-
-static void sama5d4ek_lcd_hw_init(void)
-{
-	at91_pio3_set_a_periph(AT91_PIO_PORTA, 24, 0);	/* LCDPWM */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA, 25, 0);	/* LCDDISP */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA, 26, 0);	/* LCDVSYNC */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA, 27, 0);	/* LCDHSYNC */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA, 28, 0);	/* LCDDOTCK */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA, 29, 0);	/* LCDDEN */
-
-	at91_pio3_set_a_periph(AT91_PIO_PORTA,  2, 0);	/* LCDD2 */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA,  3, 0);	/* LCDD3 */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA,  4, 0);	/* LCDD4 */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA,  5, 0);	/* LCDD5 */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA,  6, 0);	/* LCDD6 */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA,  7, 0);	/* LCDD7 */
-
-	at91_pio3_set_a_periph(AT91_PIO_PORTA, 10, 0);	/* LCDD10 */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA, 11, 0);	/* LCDD11 */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA, 12, 0);	/* LCDD12 */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA, 13, 0);	/* LCDD13 */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA, 14, 0);	/* LCDD14 */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA, 15, 0);	/* LCDD15 */
-
-	at91_pio3_set_a_periph(AT91_PIO_PORTA, 18, 0);	/* LCDD18 */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA, 19, 0);	/* LCDD19 */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA, 20, 0);	/* LCDD20 */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA, 21, 0);	/* LCDD21 */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA, 22, 0);	/* LCDD22 */
-	at91_pio3_set_a_periph(AT91_PIO_PORTA, 23, 0);	/* LCDD23 */
-
-	/* Enable clock */
-	at91_periph_clk_enable(ATMEL_ID_LCDC);
-}
-
-#ifdef CONFIG_LCD_INFO
-void lcd_show_board_info(void)
-{
-	ulong dram_size, nand_size;
-	int i;
-	char temp[32];
-
-	lcd_printf("%s\n", U_BOOT_VERSION);
-	lcd_printf("2014 ATMEL Corp\n");
-	lcd_printf("at91@atmel.com\n");
-	lcd_printf("%s CPU at %s MHz\n", get_cpu_name(),
-		   strmhz(temp, get_cpu_clk_rate()));
-
-	dram_size = 0;
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
-		dram_size += gd->bd->bi_dram[i].size;
-
-	nand_size = 0;
-#ifdef CONFIG_NAND_ATMEL
-	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
-		nand_size += get_nand_dev_by_index(i)->size;
+#ifdef CONFIG_DM_VIDEO
+	at91_video_show_board_info();
 #endif
-	lcd_printf("%ld MB SDRAM, %ld MB NAND\n",
-		   dram_size >> 20, nand_size >> 20);
+	return 0;
 }
-#endif /* CONFIG_LCD_INFO */
-
-#endif /* CONFIG_LCD */
+#endif
 
 #ifdef CONFIG_DEBUG_UART_BOARD_INIT
 static void sama5d4ek_serial3_hw_init(void)
@@ -195,9 +113,6 @@ int board_init(void)
 
 #ifdef CONFIG_NAND_ATMEL
 	sama5d4ek_nand_hw_init();
-#endif
-#ifdef CONFIG_LCD
-	sama5d4ek_lcd_hw_init();
 #endif
 #ifdef CONFIG_CMD_USB
 	sama5d4ek_usb_hw_init();

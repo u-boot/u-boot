@@ -192,6 +192,7 @@ config TARGET_SAMA5D4EK
 	select SAMA5D4
 	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
 
 config TARGET_MA5D4EVK
 	bool "Aries MA5D4EVK Evaluation Kit"
