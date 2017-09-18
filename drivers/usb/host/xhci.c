@@ -511,6 +511,7 @@ static int xhci_set_configuration(struct usb_device *udev)
 	unsigned int mult;
 	unsigned int max_burst;
 	unsigned int avg_trb_len;
+	unsigned int err_count = 0;
 
 	out_ctx = virt_dev->out_ctx;
 	in_ctx = virt_dev->in_ctx;
@@ -588,9 +589,12 @@ static int xhci_set_configuration(struct usb_device *udev)
 			cpu_to_le32(MAX_PACKET
 			(get_unaligned(&endpt_desc->wMaxPacketSize)));
 
+		/* Allow 3 retries for everything but isoc, set CErr = 3 */
+		if (!usb_endpoint_xfer_isoc(endpt_desc))
+			err_count = 3;
 		ep_ctx[ep_index]->ep_info2 |=
 			cpu_to_le32(MAX_BURST(max_burst) |
-			((3 & ERROR_COUNT_MASK) << ERROR_COUNT_SHIFT));
+			ERROR_COUNT(err_count));
 
 		trb_64 = (uintptr_t)
 				virt_dev->eps[ep_index].ring->enqueue;
