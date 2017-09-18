@@ -13,6 +13,7 @@
 	chosen {
 		stdout-path = "serial0:115200n8";
 		u-boot,spl-boot-order = &emmc, &sdmmc;
+		tick-timer = "/timer@ff810000";
 	};
 
 };
@@ -70,24 +71,25 @@
 };
 
 &emmc {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
 &sdmmc {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
 &spi1 {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 
 	spiflash: w25q32dw@0 {
-		u-boot,dm-pre-reloc;
+		u-boot,dm-spl;
 	};
 };
 
 &timer0 {
 	u-boot,dm-pre-reloc;
 	clock-frequency = <24000000>;
+	status = "okay";
 };
 
 

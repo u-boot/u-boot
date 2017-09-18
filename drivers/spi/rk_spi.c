@@ -184,7 +184,7 @@ static int rockchip_spi_ofdata_to_platdata(struct udevice *bus)
 	struct rockchip_spi_priv *priv = dev_get_priv(bus);
 	int ret;
 
-	plat->base = devfdt_get_addr(bus);
+	plat->base = dev_read_addr(bus);
 
 	ret = clk_get_by_index(bus, 0, &priv->clk);
 	if (ret < 0) {

@@ -142,7 +142,7 @@ static int rockchip_efuse_ofdata_to_platdata(struct udevice *dev)
 {
 	struct rockchip_efuse_platdata *plat = dev_get_platdata(dev);
 
-	plat->base = (void *)dev_read_addr(dev);
+	plat->base = dev_read_addr_ptr(dev);
 	return 0;
 }
 

@@ -107,7 +107,7 @@ static void setup_serial(void)
 	u8 low[cpuid_length/2], high[cpuid_length/2];
 	char cpuid_str[cpuid_length * 2 + 1];
 	u64 serialno;
-	char serialno_str[16];
+	char serialno_str[17];
 
 	/* retrieve the device */
 	ret = uclass_get_device_by_driver(UCLASS_MISC,

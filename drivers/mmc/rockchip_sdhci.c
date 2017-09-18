@@ -9,7 +9,6 @@
 #include <common.h>
 #include <dm.h>
 #include <dt-structs.h>
-#include <fdtdec.h>
 #include <libfdt.h>
 #include <malloc.h>
 #include <mapmem.h>
@@ -46,7 +45,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	struct dtd_rockchip_rk3399_sdhci_5_1 *dtplat = &plat->dtplat;
 
 	host->name = dev->name;
-	host->ioaddr = map_sysmem(dtplat->reg[1], dtplat->reg[3]);
+	host->ioaddr = map_sysmem(dtplat->reg[0], dtplat->reg[1]);
 	max_frequency = dtplat->max_frequency;
 	ret = clk_get_by_index_platdata(dev, 0, dtplat->clocks, &clk);
 #else
@@ -82,7 +81,7 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 	struct sdhci_host *host = dev_get_priv(dev);
 
 	host->name = dev->name;
-	host->ioaddr = devfdt_get_addr_ptr(dev);
+	host->ioaddr = dev_read_addr_ptr(dev);
 #endif
 
 	return 0;

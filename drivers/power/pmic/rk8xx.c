@@ -8,8 +8,6 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-#include <fdtdec.h>
-#include <libfdt.h>
 #include <power/rk8xx_pmic.h>
 #include <power/pmic.h>
 

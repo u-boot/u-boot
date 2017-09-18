@@ -20,6 +20,15 @@
 	chosen {
 		stdout-path = "serial2:1500000n8";
 	};
+
+	vcc5v0_otg: vcc5v0-otg-drv {
+		compatible = "regulator-fixed";
+		enable-active-high;
+		regulator-name = "vcc5v0_otg";
+		gpio = <&gpio0 RK_PB0 GPIO_ACTIVE_HIGH>;
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+	};
 };
 
 &gmac {
@@ -50,5 +59,18 @@
 };
 
 &uart2 {
+	status = "okay";
+};
+
+&usb20_otg {
+	vbus-supply = <&vcc5v0_otg>;
+	status = "okay";
+};
+
+&usb_host_ehci {
+	status = "okay";
+};
+
+&usb_host_ohci {
 	status = "okay";
 };

@@ -950,9 +950,24 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 	return ret;
 }
 
+static int rk3399_clk_enable(struct clk *clk)
+{
+	switch (clk->id) {
+	case HCLK_HOST0:
+	case HCLK_HOST0_ARB:
+	case HCLK_HOST1:
+	case HCLK_HOST1_ARB:
+		return 0;
+	}
+
+	debug("%s: unsupported clk %ld\n", __func__, clk->id);
+	return -ENOENT;
+}
+
 static struct clk_ops rk3399_clk_ops = {
 	.get_rate = rk3399_clk_get_rate,
 	.set_rate = rk3399_clk_set_rate,
+	.enable = rk3399_clk_enable,
 };
 
 static int rk3399_clk_probe(struct udevice *dev)
@@ -975,7 +990,7 @@ static int rk3399_clk_ofdata_to_platdata(struct udevice *dev)
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3399_clk_priv *priv = dev_get_priv(dev);
 
-	priv->cru = (struct rk3399_cru *)devfdt_get_addr(dev);
+	priv->cru = dev_read_addr_ptr(dev);
 #endif
 	return 0;
 }
@@ -1159,7 +1174,7 @@ static int rk3399_pmuclk_ofdata_to_platdata(struct udevice *dev)
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3399_pmuclk_priv *priv = dev_get_priv(dev);
 
-	priv->pmucru = (struct rk3399_pmucru *)devfdt_get_addr(dev);
+	priv->pmucru = dev_read_addr_ptr(dev);
 #endif
 	return 0;
 }

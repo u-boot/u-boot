@@ -175,6 +175,30 @@
 		status = "disabled";
 	};
 
+	usb_host_ehci: usb@30140000 {
+		compatible = "generic-ehci";
+		reg = <0x30140000 0x20000>;
+		interrupts = <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
+	};
+
+	usb_host_ohci: usb@30160000 {
+		compatible = "generic-ohci";
+		reg = <0x30160000 0x20000>;
+		interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
+	};
+
+	usb20_otg: usb@30180000 {
+		compatible = "rockchip,rv1108-usb", "rockchip,rk3288-usb",
+			     "snps,dwc2";
+		reg = <0x30180000 0x40000>;
+		interrupts = <GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH>;
+		hnp-srp-disable;
+		dr_mode = "otg";
+		status = "disabled";
+	};
+
 	sfc: sfc@301c0000 {
 		compatible = "rockchip,sfc";
 		reg = <0x301c0000 0x200>;

@@ -893,17 +893,10 @@ static int conv_of_platdata(struct udevice *dev)
 {
 	struct rk3368_sdram_params *plat = dev_get_platdata(dev);
 	struct dtd_rockchip_rk3368_dmc *of_plat = &plat->of_plat;
-	int ret;
 
 	plat->ddr_freq = of_plat->rockchip_ddr_frequency;
 	plat->ddr_speed_bin = of_plat->rockchip_ddr_speed_bin;
 	plat->memory_schedule = of_plat->rockchip_memory_schedule;
-
-	ret = regmap_init_mem_platdata(dev, of_plat->reg,
-				       ARRAY_SIZE(of_plat->reg) / 2,
-				       &plat->map);
-	if (ret)
-		return ret;
 
 	return 0;
 }
@@ -933,8 +926,8 @@ static int rk3368_dmc_probe(struct udevice *dev)
 	debug("%s: pmugrf=%p\n", __func__, priv->pmugrf);
 
 #ifdef CONFIG_TPL_BUILD
-	pctl = regmap_get_range(plat->map, 0);
-	ddrphy = regmap_get_range(plat->map, 1);
+	pctl = (struct rk3368_ddr_pctl *)plat->of_plat.reg[0];
+	ddrphy = (struct rk3368_ddrphy *)plat->of_plat.reg[2];
 	msch = syscon_get_first_range(ROCKCHIP_SYSCON_MSCH);
 	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 

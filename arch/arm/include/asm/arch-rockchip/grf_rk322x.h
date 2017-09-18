@@ -54,6 +54,32 @@ struct rk322x_grf {
 	unsigned int os_reg[8];
 	unsigned int reserved9[(0x604 - 0x5e4) / 4 - 1];
 	unsigned int ddrc_stat;
+	unsigned int reserved10[(0x680 - 0x604) / 4 - 1];
+	unsigned int sig_detect_con[2];
+	unsigned int reserved11[(0x690 - 0x684) / 4 - 1];
+	unsigned int sig_detect_status[2];
+	unsigned int reserved12[(0x6a0 - 0x694) / 4 - 1];
+	unsigned int sig_detect_clr[2];
+	unsigned int reserved13[(0x6b0 - 0x6a4) / 4 - 1];
+	unsigned int emmc_det;
+	unsigned int reserved14[(0x700 - 0x6b0) / 4 - 1];
+	unsigned int host0_con[3];
+	unsigned int reserved15;
+	unsigned int host1_con[3];
+	unsigned int reserved16;
+	unsigned int host2_con[3];
+	unsigned int reserved17[(0x760 - 0x728) / 4 - 1];
+	unsigned int usbphy0_con[27];
+	unsigned int reserved18[(0x800 - 0x7c8) / 4 - 1];
+	unsigned int usbphy1_con[27];
+	unsigned int reserved19[(0x880 - 0x868) / 4 - 1];
+	unsigned int otg_con0;
+	unsigned int uoc_status0;
+	unsigned int reserved20[(0x900 - 0x884) / 4 - 1];
+	unsigned int mac_con[2];
+	unsigned int reserved21[(0xb00 - 0x904) / 4 - 1];
+	unsigned int macphy_con[4];
+	unsigned int macphy_status;
 };
 check_member(rk322x_grf, ddrc_stat, 0x604);
 
@@ -515,5 +541,11 @@ enum {
 	CON_IOMUX_PWM1SEL_MASK	= 1 << CON_IOMUX_PWM1SEL_SHIFT,
 	CON_IOMUX_PWM0SEL_SHIFT	= 0,
 	CON_IOMUX_PWM0SEL_MASK	= 1 << CON_IOMUX_PWM0SEL_SHIFT,
+};
+
+/* GRF_MACPHY_CON0 */
+enum {
+	MACPHY_CFG_ENABLE_SHIFT = 0,
+	MACPHY_CFG_ENABLE_MASK  = 1 << MACPHY_CFG_ENABLE_SHIFT,
 };
 #endif

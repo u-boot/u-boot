@@ -84,6 +84,15 @@ config TARGET_POPMETAL_RK3288
 	  2GB DDR3. Expansion connectors provide access to I2C, SPI, UART,
 	  GPIOs and display interface.
 
+config TARGET_VYASA_RK3288
+	bool "Vyasa-RK3288"
+	select BOARD_LATE_INIT
+	help
+	  Vyasa is a RK3288-based development board with 2 USB ports,
+	  HDMI, VGA, micro-SD card, audio, WiFi  and Gigabit Ethernet, It
+	  also includes on-board eMMC and 2GB of SDRAM. Expansion connectors
+	  provide access to display pins, I2C, SPI, UART and GPIOs.
+
 config TARGET_ROCK2
 	bool "Radxa Rock 2"
 	select BOARD_LATE_INIT
@@ -128,6 +137,8 @@ config SPL_LIBGENERIC_SUPPORT
 
 config SPL_SERIAL_SUPPORT
 	default y
+
+source "board/amarula/vyasa-rk3288/Kconfig"
 
 source "board/chipspark/popmetal_rk3288/Kconfig"
 

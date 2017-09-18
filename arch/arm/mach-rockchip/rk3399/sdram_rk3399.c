@@ -1115,7 +1115,7 @@ static int conv_of_platdata(struct udevice *dev)
 	int ret;
 
 	ret = regmap_init_mem_platdata(dev, dtplat->reg,
-			ARRAY_SIZE(dtplat->reg) / 4,
+			ARRAY_SIZE(dtplat->reg) / 2,
 			&plat->map);
 	if (ret)
 		return ret;

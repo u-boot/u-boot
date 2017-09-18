@@ -737,16 +737,14 @@ int designware_eth_ofdata_to_platdata(struct udevice *dev)
 #endif
 	struct eth_pdata *pdata = &dw_pdata->eth_pdata;
 	const char *phy_mode;
-	const fdt32_t *cell;
 #ifdef CONFIG_DM_GPIO
 	int reset_flags = GPIOD_IS_OUT;
 #endif
 	int ret = 0;
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 	pdata->phy_interface = -1;
-	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
-			       NULL);
+	phy_mode = dev_read_string(dev, "phy-mode");
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (pdata->phy_interface == -1) {
@@ -754,10 +752,7 @@ int designware_eth_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	pdata->max_speed = 0;
-	cell = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "max-speed", NULL);
-	if (cell)
-		pdata->max_speed = fdt32_to_cpu(*cell);
+	pdata->max_speed = dev_read_u32_default(dev, "max-speed", 0);
 
 #ifdef CONFIG_DM_GPIO
 	if (dev_read_bool(dev, "snps,reset-active-low"))

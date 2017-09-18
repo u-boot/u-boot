@@ -55,18 +55,53 @@ Compile the U-Boot
 Package the image
 =================
 
-	> tools/mkimage -n rk3399 -T rksd -d spl/u-boot-spl.bin spl.img
-	> make CROSS_COMPILE=aarch64-linux-gnu- u-boot.itb
+Creating a SPL image for SD-Card/eMMC
+  > tools/mkimage -n rk3399 -T rksd -d spl/u-boot-spl.bin spl_mmc.img
+Creating a SPL image for SPI-NOR
+  > tools/mkimage -n rk3399 -T rkspi -d spl/u-boot-spl.bin spl_nor.img
+Create the FIT image containing U-Boot proper, ATF, M0 Firmware, devicetree
+  > make CROSS_COMPILE=aarch64-linux-gnu- u-boot.itb
 
 Flash the image
 ===============
 
-Copy the SPL to offset 32k and the FIT image containing the payloads
-(U-Boot proper, ATF, M0 Firmware, devicetree) to offset 256k on a SD
-card.
+Copy the SPL to offset 32k for SD/eMMC, offset 0 for NOR-Flash and the FIT
+image to offset 256k card.
 
-  > dd if=spl.img of=/dev/sdb seek=64
+SD-Card
+-------
+
+  > dd if=spl_mmc.img of=/dev/sdb seek=64
   > dd if=u-boot.itb of=/dev/sdb seek=512
 
-After powering up the board (with the inserted SD card), you should see
-a U-Boot console on UART0 (115200n8).
+eMMC
+----
+
+rkdeveloptool allows to flash the on-board eMMC via the USB OTG interface with
+help of the Rockchip loader binary.
+
+  > git clone https://github.com/rockchip-linux/rkdeveloptool
+  > cd rkdeveloptool
+  > autoreconf -i && ./configure && make
+  > git clone https://github.com/rockchip-linux/rkbin.git
+  > ./rkdeveloptool db rkbin/rk33/rk3399_loader_v1.08.106.bin
+  > ./rkdeveloptool wl 64 ../spl_mmc.img
+  > ./rkdeveloptool wl 512 ../u-boot.itb
+
+NOR-Flash
+---------
+
+Writing the SPI NOR Flash requires a running U-Boot. For the sake of simplicity
+we assume you have a SD-Card with a partition containing the required files
+ready.
+
+  > load mmc 1:1 ${kernel_addr_r} spl_nor.img
+  > sf probe
+  > sf erase 0 +$filesize
+  > sf write $kernel_addr_r 0 ${filesize}
+  > load mmc 1:1 ${kernel_addr_r} u-boot.itb
+  > sf erase 0x40000 +$filesize
+  > sf write $kernel_addr_r 0x40000 ${filesize}
+
+
+Reboot the system and you should see a U-Boot console on UART0 (115200n8).

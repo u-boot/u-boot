@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
+#include <dm/root.h>
 #include <clk.h>
 #include <errno.h>
 #include <timer.h>
@@ -54,9 +55,10 @@ static int timer_pre_probe(struct udevice *dev)
 		if (IS_ERR_VALUE(ret))
 			return ret;
 		uc_priv->clock_rate = ret;
-	} else
-		uc_priv->clock_rate = fdtdec_get_int(gd->fdt_blob,
-				dev_of_offset(dev),	"clock-frequency", 0);
+	} else {
+		uc_priv->clock_rate =
+			dev_read_u32_default(dev, "clock-frequency", 0);
+	}
 #endif
 
 	return 0;
@@ -83,37 +85,43 @@ u64 timer_conv_64(u32 count)
 
 int notrace dm_timer_init(void)
 {
-	__maybe_unused const void *blob = gd->fdt_blob;
 	struct udevice *dev = NULL;
-	int node = -ENOENT;
+	__maybe_unused ofnode node;
 	int ret;
 
 	if (gd->timer)
 		return 0;
 
+	/*
+	 * Directly access gd->dm_root to suppress error messages, if the
+	 * virtual root driver does not yet exist.
+	 */
+	if (gd->dm_root == NULL)
+		return -EAGAIN;
+
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	/* Check for a chosen timer to be used for tick */
-	node = fdtdec_get_chosen_node(blob, "tick-timer");
+	node = ofnode_get_chosen_node("tick-timer");
+
+	if (ofnode_valid(node) &&
+	    uclass_get_device_by_ofnode(UCLASS_TIMER, node, &dev)) {
+		/*
+		 * If the timer is not marked to be bound before
+		 * relocation, bind it anyway.
+		 */
+		if (!lists_bind_fdt(dm_root(), node, &dev)) {
+			ret = device_probe(dev);
+			if (ret)
+				return ret;
+		}
+	}
 #endif
-	if (node < 0) {
-		/* No chosen timer, trying first available timer */
+
+	if (!dev) {
+		/* Fall back to the first available timer */
 		ret = uclass_first_device_err(UCLASS_TIMER, &dev);
 		if (ret)
 			return ret;
-	} else {
-		if (uclass_get_device_by_of_offset(UCLASS_TIMER, node, &dev)) {
-			/*
-			 * If the timer is not marked to be bound before
-			 * relocation, bind it anyway.
-			 */
-			if (node > 0 &&
-			    !lists_bind_fdt(gd->dm_root, offset_to_ofnode(node),
-					    &dev)) {
-				ret = device_probe(dev);
-				if (ret)
-					return ret;
-			}
-		}
 	}
 
 	if (dev) {
