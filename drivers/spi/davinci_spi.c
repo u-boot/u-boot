@@ -563,6 +563,7 @@ static const struct dm_spi_ops davinci_spi_ops = {
 static const struct udevice_id davinci_spi_ids[] = {
 	{ .compatible = "ti,keystone-spi" },
 	{ .compatible = "ti,dm6441-spi" },
+	{ .compatible = "ti,da830-spi" },
 	{ }
 };
 
