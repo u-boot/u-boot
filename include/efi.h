@@ -116,7 +116,7 @@ enum efi_mem_type {
 	/* The code portions of a loaded Boot Services Driver */
 	EFI_BOOT_SERVICES_CODE,
 	/*
-	 * The data portions of a loaded Boot Serves Driver and
+	 * The data portions of a loaded Boot Services Driver and
 	 * the default data allocation type used by a Boot Services
 	 * Driver to allocate pool memory.
 	 */
