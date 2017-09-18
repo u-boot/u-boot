@@ -429,12 +429,12 @@ def setup_boardspec(item):
     for board in mark.args:
         if board.startswith('!'):
             if ubconfig.board_type == board[1:]:
-                pytest.skip('board not supported')
+                pytest.skip('board "%s" not supported' % ubconfig.board_type)
                 return
         else:
             required_boards.append(board)
     if required_boards and ubconfig.board_type not in required_boards:
-        pytest.skip('board not supported')
+        pytest.skip('board "%s" not supported' % ubconfig.board_type)
 
 def setup_buildconfigspec(item):
     """Process any 'buildconfigspec' marker for a test.
@@ -455,7 +455,7 @@ def setup_buildconfigspec(item):
         return
     for option in mark.args:
         if not ubconfig.buildconfig.get('config_' + option.lower(), None):
-            pytest.skip('.config feature not enabled')
+            pytest.skip('.config feature "%s" not enabled' % option.lower())
 
 def start_test_section(item):
     anchors[item.name] = log.start_section(item.name)
