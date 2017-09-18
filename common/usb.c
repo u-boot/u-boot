@@ -1052,6 +1052,17 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 
 	mdelay(10);	/* Let the SET_ADDRESS settle */
 
+	/*
+	 * If we haven't read device descriptor before, read it here
+	 * after device is assigned an address. This is only applicable
+	 * to xHCI so far.
+	 */
+	if (!do_read) {
+		err = usb_setup_descriptor(dev, true);
+		if (err)
+			return err;
+	}
+
 	return 0;
 }
 
