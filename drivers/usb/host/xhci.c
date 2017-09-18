@@ -546,16 +546,13 @@ int xhci_check_maxpacket(struct usb_device *udev)
 	int max_packet_size;
 	int hw_max_packet_size;
 	int ret = 0;
-	struct usb_interface *ifdesc;
-
-	ifdesc = &udev->config.if_desc[0];
 
 	out_ctx = ctrl->devs[slot_id]->out_ctx;
 	xhci_inval_cache((uintptr_t)out_ctx->bytes, out_ctx->size);
 
 	ep_ctx = xhci_get_ep_ctx(ctrl, out_ctx, ep_index);
 	hw_max_packet_size = MAX_PACKET_DECODED(le32_to_cpu(ep_ctx->ep_info2));
-	max_packet_size = usb_endpoint_maxp(&ifdesc->ep_desc[0]);
+	max_packet_size = udev->epmaxpacketin[0];
 	if (hw_max_packet_size != max_packet_size) {
 		debug("Max Packet Size for ep 0 changed.\n");
 		debug("Max packet size in usb_device = %d\n", max_packet_size);
@@ -567,7 +564,8 @@ int xhci_check_maxpacket(struct usb_device *udev)
 				ctrl->devs[slot_id]->out_ctx, ep_index);
 		in_ctx = ctrl->devs[slot_id]->in_ctx;
 		ep_ctx = xhci_get_ep_ctx(ctrl, in_ctx, ep_index);
-		ep_ctx->ep_info2 &= cpu_to_le32(~MAX_PACKET_MASK);
+		ep_ctx->ep_info2 &= cpu_to_le32(~((0xffff & MAX_PACKET_MASK)
+						<< MAX_PACKET_SHIFT));
 		ep_ctx->ep_info2 |= cpu_to_le32(MAX_PACKET(max_packet_size));
 
 		/*
