@@ -249,6 +249,17 @@
 #define CONFIG_ENV_SIZE			(64 << 10)
 #define CONFIG_ENV_OFFSET		(512 << 10)
 #define CONFIG_ENV_SECT_SIZE		(64 << 10)
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_SPI_FLASH_MTD
+#endif
+#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
+#define CONFIG_MTD_PARTITIONS		/* required for UBI partition support */
+#define MTDIDS_DEFAULT			"nor0=spi0.0"
+#define MTDPARTS_DEFAULT		"mtdparts=spi0.0:"\
+						"512k(u-boot.ais),"\
+						"64k(u-boot-env),"\
+						"7552k(kernel-spare),"\
+						"64k(MAC-Address)"
 #endif
 
 /*
