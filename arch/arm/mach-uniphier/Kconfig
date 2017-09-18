@@ -12,18 +12,14 @@ config ARCH_UNIPHIER_32BIT
 
 choice
         prompt "UniPhier SoC select"
-        default ARCH_UNIPHIER_PRO4
+        default ARCH_UNIPHIER_V8_MULTI
 
 config ARCH_UNIPHIER_LD4_SLD8
 	bool "UniPhier LD4/sLD8 SoCs"
 	select ARCH_UNIPHIER_32BIT
 
-config ARCH_UNIPHIER_PRO4
-	bool "UniPhier Pro4 SoC"
-	select ARCH_UNIPHIER_32BIT
-
-config ARCH_UNIPHIER_PRO5_PXS2_LD6B
-	bool "UniPhier Pro5/PXs2/LD6b SoCs"
+config ARCH_UNIPHIER_V7_MULTI
+	bool "UniPhier Pro4/Pro5/PXs2/LD6b SoCs"
 	select ARCH_UNIPHIER_32BIT
 
 config ARCH_UNIPHIER_V8_MULTI
@@ -44,19 +40,24 @@ config ARCH_UNIPHIER_SLD8
 	depends on ARCH_UNIPHIER_LD4_SLD8
 	default y
 
+config ARCH_UNIPHIER_PRO4
+	bool "Enable UniPhier Pro4 SoC support"
+	depends on ARCH_UNIPHIER_V7_MULTI
+	default y
+
 config ARCH_UNIPHIER_PRO5
 	bool "Enable UniPhier Pro5 SoC support"
-	depends on ARCH_UNIPHIER_PRO5_PXS2_LD6B
+	depends on ARCH_UNIPHIER_V7_MULTI
 	default y
 
 config ARCH_UNIPHIER_PXS2
 	bool "Enable UniPhier Pxs2 SoC support"
-	depends on ARCH_UNIPHIER_PRO5_PXS2_LD6B
+	depends on ARCH_UNIPHIER_V7_MULTI
 	default y
 
 config ARCH_UNIPHIER_LD6B
 	bool "Enable UniPhier LD6b SoC support"
-	depends on ARCH_UNIPHIER_PRO5_PXS2_LD6B
+	depends on ARCH_UNIPHIER_V7_MULTI
 	default y
 
 config ARCH_UNIPHIER_LD11

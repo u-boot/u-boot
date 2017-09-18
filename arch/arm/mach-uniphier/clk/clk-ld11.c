@@ -40,7 +40,7 @@ void uniphier_ld11_clk_init(void)
 		int ch;
 
 		tmp = readl(SC_CLKCTRL4);
-		tmp |= SC_CLKCTRL4_MIO | SC_CLKCTRL4_STDMAC;
+		tmp |= BIT(10) | BIT(8);	/* MIO, STDMAC */
 		writel(tmp, SC_CLKCTRL4);
 
 		for (ch = 0; ch < 3; ch++) {
