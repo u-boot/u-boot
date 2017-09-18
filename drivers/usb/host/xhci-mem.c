@@ -850,6 +850,12 @@ void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl,
 	trb_64 = (uintptr_t)virt_dev->eps[0].ring->first_seg->trbs;
 	ep0_ctx->deq = cpu_to_le64(trb_64 | virt_dev->eps[0].ring->cycle_state);
 
+	/*
+	 * xHCI spec 6.2.3:
+	 * software shall set 'Average TRB Length' to 8 for control endpoints.
+	 */
+	ep0_ctx->tx_info = cpu_to_le32(EP_AVG_TRB_LENGTH(8));
+
 	/* Steps 7 and 8 were done in xhci_alloc_virt_device() */
 
 	xhci_flush_cache((uintptr_t)ep0_ctx, sizeof(struct xhci_ep_ctx));

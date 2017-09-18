@@ -601,6 +601,12 @@ static int xhci_set_configuration(struct usb_device *udev)
 		ep_ctx[ep_index]->deq = cpu_to_le64(trb_64 |
 				virt_dev->eps[ep_index].ring->cycle_state);
 
+		/*
+		 * xHCI spec 6.2.3:
+		 * 'Average TRB Length' should be 8 for control endpoints.
+		 */
+		if (usb_endpoint_xfer_control(endpt_desc))
+			avg_trb_len = 8;
 		ep_ctx[ep_index]->tx_info =
 			cpu_to_le32(EP_MAX_ESIT_PAYLOAD_LO(max_esit_payload) |
 			EP_AVG_TRB_LENGTH(avg_trb_len));
