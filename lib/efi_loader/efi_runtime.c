@@ -243,7 +243,8 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 
 		/* Check if the relocation is inside bounds */
 		if (map && ((newaddr < map->virtual_start) ||
-		    newaddr > (map->virtual_start + (map->num_pages << 12)))) {
+		    newaddr > (map->virtual_start +
+			      (map->num_pages << EFI_PAGE_SHIFT)))) {
 			if (!efi_runtime_tobedetached(p))
 				printf("U-Boot EFI: Relocation at %p is out of "
 				       "range (%lx)\n", p, newaddr);
@@ -269,7 +270,8 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 			uint32_t descriptor_version,
 			struct efi_mem_desc *virtmap)
 {
-	ulong runtime_start = (ulong)&__efi_runtime_start & ~0xfffULL;
+	ulong runtime_start = (ulong)&__efi_runtime_start &
+			      ~(ulong)EFI_PAGE_MASK;
 	int n = memory_map_size / descriptor_size;
 	int i;
 
