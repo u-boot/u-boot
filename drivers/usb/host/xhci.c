@@ -890,11 +890,18 @@ unknown:
 static int _xhci_submit_int_msg(struct usb_device *udev, unsigned long pipe,
 				void *buffer, int length, int interval)
 {
+	if (usb_pipetype(pipe) != PIPE_INTERRUPT) {
+		printf("non-interrupt pipe (type=%lu)", usb_pipetype(pipe));
+		return -EINVAL;
+	}
+
 	/*
-	 * TODO: Not addressing any interrupt type transfer requests
-	 * Add support for it later.
+	 * xHCI uses normal TRBs for both bulk and interrupt. When the
+	 * interrupt endpoint is to be serviced, the xHC will consume
+	 * (at most) one TD. A TD (comprised of sg list entries) can
+	 * take several service intervals to transmit.
 	 */
-	return -EINVAL;
+	return xhci_bulk_tx(udev, pipe, length, buffer);
 }
 
 /**
