@@ -437,12 +437,13 @@ static int usb_parse_config(struct usb_device *dev,
 			}
 			break;
 		case USB_DT_ENDPOINT:
-			if (head->bLength != USB_DT_ENDPOINT_SIZE) {
+			if (head->bLength != USB_DT_ENDPOINT_SIZE &&
+			    head->bLength != USB_DT_ENDPOINT_AUDIO_SIZE) {
 				printf("ERROR: Invalid USB EP length (%d)\n",
 					head->bLength);
 				break;
 			}
-			if (index + USB_DT_ENDPOINT_SIZE >
+			if (index + head->bLength >
 			    dev->config.desc.wTotalLength) {
 				puts("USB EP descriptor overflowed buffer!\n");
 				break;
