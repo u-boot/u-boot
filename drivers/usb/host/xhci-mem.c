@@ -786,12 +786,22 @@ void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl,
 #ifdef CONFIG_DM_USB
 	/* Set up TT fields to support FS/LS devices */
 	if (speed == USB_SPEED_LOW || speed == USB_SPEED_FULL) {
-		dev = dev_get_parent_priv(udev->dev);
-		if (dev->speed == USB_SPEED_HIGH) {
-			hub = dev_get_uclass_priv(udev->dev);
+		struct udevice *parent = udev->dev;
+
+		dev = udev;
+		do {
+			port_num = dev->portnr;
+			dev = dev_get_parent_priv(parent);
+			if (usb_hub_is_root_hub(dev->dev))
+				break;
+			parent = dev->dev->parent;
+		} while (dev->speed != USB_SPEED_HIGH);
+
+		if (!usb_hub_is_root_hub(dev->dev)) {
+			hub = dev_get_uclass_priv(dev->dev);
 			if (hub->tt.multi)
 				slot_ctx->dev_info |= cpu_to_le32(DEV_MTT);
-			slot_ctx->tt_info |= cpu_to_le32(TT_PORT(udev->portnr));
+			slot_ctx->tt_info |= cpu_to_le32(TT_PORT(port_num));
 			slot_ctx->tt_info |= cpu_to_le32(TT_SLOT(dev->slot_id));
 		}
 	}
