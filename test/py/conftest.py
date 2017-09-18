@@ -457,6 +457,34 @@ def setup_buildconfigspec(item):
         if not ubconfig.buildconfig.get('config_' + option.lower(), None):
             pytest.skip('.config feature "%s" not enabled' % option.lower())
 
+def tool_is_in_path(tool):
+    for path in os.environ["PATH"].split(os.pathsep):
+        fn = os.path.join(path, tool)
+        if os.path.isfile(fn) and os.access(fn, os.X_OK):
+            return True
+    return False
+
+def setup_requiredtool(item):
+    """Process any 'requiredtool' marker for a test.
+
+    Such a marker lists some external tool (binary, executable, application)
+    that the test requires. If tests are being executed on a system that
+    doesn't have the required tool, the test is marked to be skipped.
+
+    Args:
+        item: The pytest test item.
+
+    Returns:
+        Nothing.
+    """
+
+    mark = item.get_marker('requiredtool')
+    if not mark:
+        return
+    for tool in mark.args:
+        if not tool_is_in_path(tool):
+            pytest.skip('tool "%s" not in $PATH' % tool)
+
 def start_test_section(item):
     anchors[item.name] = log.start_section(item.name)
 
@@ -476,6 +504,7 @@ def pytest_runtest_setup(item):
     start_test_section(item)
     setup_boardspec(item)
     setup_buildconfigspec(item)
+    setup_requiredtool(item)
 
 def pytest_runtest_protocol(item, nextitem):
     """pytest hook: Called to execute a test.

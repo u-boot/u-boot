@@ -38,15 +38,14 @@ class GptTestDiskImage(object):
             fd = os.open(self.path, os.O_RDWR | os.O_CREAT)
             os.ftruncate(fd, 4194304)
             os.close(fd)
-            sgdisk = '/sbin/sgdisk'
-            cmd = (sgdisk, '-U', '375a56f7-d6c9-4e81-b5f0-09d41ca89efe',
+            cmd = ('sgdisk', '-U', '375a56f7-d6c9-4e81-b5f0-09d41ca89efe',
                 self.path)
             u_boot_utils.run_and_log(u_boot_console, cmd)
-            cmd = (sgdisk, '--new=1:2048:2560', self.path)
+            cmd = ('sgdisk', '--new=1:2048:2560', self.path)
             u_boot_utils.run_and_log(u_boot_console, cmd)
-            cmd = (sgdisk, '--new=2:4096:4608', self.path)
+            cmd = ('sgdisk', '--new=2:4096:4608', self.path)
             u_boot_utils.run_and_log(u_boot_console, cmd)
-            cmd = (sgdisk, '-l', self.path)
+            cmd = ('sgdisk', '-l', self.path)
             u_boot_utils.run_and_log(u_boot_console, cmd)
 
 gtdi = None
@@ -64,6 +63,7 @@ def state_disk_image(u_boot_console):
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_gpt')
+@pytest.mark.requiredtool('sgdisk')
 def test_gpt_guid(state_disk_image, u_boot_console):
     """Test the gpt guid command."""
 
@@ -73,6 +73,7 @@ def test_gpt_guid(state_disk_image, u_boot_console):
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_gpt')
+@pytest.mark.requiredtool('sgdisk')
 def test_gpt_save_guid(state_disk_image, u_boot_console):
     """Test the gpt guid command to save GUID into a string."""
 
@@ -86,6 +87,7 @@ def test_gpt_save_guid(state_disk_image, u_boot_console):
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_gpt')
 @pytest.mark.buildconfigspec('cmd_gpt_rename')
+@pytest.mark.requiredtool('sgdisk')
 def test_gpt_rename_partition(state_disk_image, u_boot_console):
     """Test the gpt rename command to write partition names."""
 
@@ -101,6 +103,7 @@ def test_gpt_rename_partition(state_disk_image, u_boot_console):
 @pytest.mark.buildconfigspec('cmd_gpt')
 @pytest.mark.buildconfigspec('cmd_gpt_rename')
 @pytest.mark.buildconfigspec('cmd_part')
+@pytest.mark.requiredtool('sgdisk')
 def test_gpt_swap_partitions(state_disk_image, u_boot_console):
     """Test the gpt swap command to exchange two partition names."""
 

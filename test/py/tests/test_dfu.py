@@ -113,6 +113,7 @@ test_sizes_default = (
 first_usb_dev_port = None
 
 @pytest.mark.buildconfigspec('cmd_dfu')
+@pytest.mark.requiredtool('dfu-util')
 def test_dfu(u_boot_console, env__usb_dev_port, env__dfu_config):
     """Test the "dfu" command; the host system must be able to enumerate a USB
     device when "dfu" is running, various DFU transfers are tested, and the

@@ -31,6 +31,10 @@ import u_boot_utils as util
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('fit_signature')
+@pytest.mark.requiredtool('dtc')
+@pytest.mark.requiredtool('fdtget')
+@pytest.mark.requiredtool('fdtput')
+@pytest.mark.requiredtool('openssl')
 def test_vboot(u_boot_console):
     """Test verified boot signing with mkimage and verification with 'bootm'.
 

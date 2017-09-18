@@ -111,6 +111,7 @@ sb save hostfs 0 %(loadables2_addr)x %(loadables2_out)s %(loadables2_size)x
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('fit_signature')
+@pytest.mark.requiredtool('dtc')
 def test_fit(u_boot_console):
     def make_fname(leaf):
         """Make a temporary filename
