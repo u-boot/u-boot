@@ -74,6 +74,31 @@
 
 	ahb {
 		apb {
+			hlcdc: hlcdc@f0000000 {
+				atmel,vl-bpix = <4>;
+				atmel,guard-time = <1>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_lcd_base &pinctrl_lcd_pwm &pinctrl_lcd_rgb888>;
+				status = "okay";
+				u-boot,dm-pre-reloc;
+
+				display-timings {
+					u-boot,dm-pre-reloc;
+					480x272 {
+						clock-frequency = <9000000>;
+						hactive = <480>;
+						vactive = <272>;
+						hsync-len = <41>;
+						hfront-porch = <2>;
+						hback-porch = <2>;
+						vfront-porch = <2>;
+						vback-porch = <2>;
+						vsync-len = <11>;
+						u-boot,dm-pre-reloc;
+					};
+				};
+			};
+
 			spi0: spi@f8010000 {
 				u-boot,dm-pre-reloc;
 				cs-gpios = <&pioC 3 0>, <0>, <0>, <0>;

@@ -43,7 +43,7 @@ int at91_video_show_board_info(void)
 	nand_size = 0;
 #ifdef CONFIG_NAND_ATMEL
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
-		nand_size += nand_info[i]->size;
+		nand_size += get_nand_dev_by_index(i)->size;
 #endif
 
 	len += sprintf(&buf[len], "%ld MB SDRAM, %ld MB NAND\n",

@@ -320,31 +320,12 @@
 			u-boot,dm-pre-reloc;
 
 			hlcdc: hlcdc@f0000000 {
-				compatible = "atmel,sama5d4-hlcdc";
+				compatible = "atmel,at91sam9x5-hlcdc";
 				reg = <0xf0000000 0x4000>;
 				interrupts = <51 IRQ_TYPE_LEVEL_HIGH 0>;
 				clocks = <&lcdc_clk>, <&lcdck>, <&clk32k>;
 				clock-names = "periph_clk","sys_clk", "slow_clk";
 				status = "disabled";
-
-				hlcdc-display-controller {
-					compatible = "atmel,hlcdc-display-controller";
-					#address-cells = <1>;
-					#size-cells = <0>;
-
-					port@0 {
-						#address-cells = <1>;
-						#size-cells = <0>;
-						reg = <0>;
-					};
-				};
-
-				hlcdc_pwm: hlcdc-pwm {
-					compatible = "atmel,hlcdc-pwm";
-					pinctrl-names = "default";
-					pinctrl-0 = <&pinctrl_lcd_pwm>;
-					#pwm-cells = <3>;
-				};
 			};
 
 			dma1: dma-controller@f0004000 {
