@@ -167,11 +167,10 @@
 /*
  * I2C Configuration
  */
-#define CONFIG_SYS_I2C
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_I2C_DAVINCI
-#define CONFIG_SYS_DAVINCI_I2C_SPEED		25000
-#define CONFIG_SYS_DAVINCI_I2C_SLAVE   10 /* Bogus, master-only in U-Boot */
 #define CONFIG_SYS_I2C_EXPANDER_ADDR   0x20
+#endif
 
 /*
  * Flash & Environment
