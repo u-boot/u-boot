@@ -631,6 +631,14 @@ config ARCH_MX5
 	select CPU_V7
 	select BOARD_EARLY_INIT_F
 
+config ARCH_QEMU
+	bool "QEMU Virtual Platform"
+	select CPU_V7
+	select ARCH_SUPPORT_PSCI
+	select DM
+	select DM_SERIAL
+	select OF_CONTROL
+
 config ARCH_RMOBILE
 	bool "Renesas ARM SoCs"
 	select DM
@@ -1170,6 +1178,8 @@ source "arch/arm/mach-orion5x/Kconfig"
 source "arch/arm/mach-rmobile/Kconfig"
 
 source "arch/arm/mach-meson/Kconfig"
+
+source "arch/arm/mach-qemu/Kconfig"
 
 source "arch/arm/mach-rockchip/Kconfig"
 
