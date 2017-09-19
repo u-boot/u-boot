@@ -98,9 +98,7 @@ void aes_cbc_decrypt_blocks(u8 *key_exp, u8 *src, u8 *dst, u32 num_aes_blocks);
  * @src_ptr		Source data to decrypt
  * @dst_ptr		Destination buffer
  * @len			Length of encrypted image
- * @devkey		Key to be used from device ex:efuse/BBRAM
  */
-int aes_decrypt_hw(u8 *key_ptr, u8 *src_ptr, u8 *dst_ptr, u32 len,
-		   bool devkey);
+int aes_decrypt_hw(u8 *key_ptr, u8 *src_ptr, u8 *dst_ptr, u32 len);
 
 #endif /* _AES_REF_H_ */
