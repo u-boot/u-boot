@@ -307,6 +307,10 @@
 		#reset-cells = <1>;
 	};
 
+	xlnx_rsa: zynqmp_rsa {
+		compatible = "xlnx,zynqmp-rsa";
+	};
+
 	xlnx_keccak_384: sha384 {
 		compatible = "xlnx,zynqmp-keccak-384";
 	};
