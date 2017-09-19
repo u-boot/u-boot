@@ -237,7 +237,6 @@ static int zynqmp_loads(xilinx_desc *desc, const void *buf, size_t bsize,
 	u32 buf_lo, buf_hi;
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 	u8 flag;
-	bool use_devkey = false;
 
 	size_str = strchr(fpga_sec_info->keyaddr_size, ':');
 	if (size_str) {
@@ -252,10 +251,6 @@ static int zynqmp_loads(xilinx_desc *desc, const void *buf, size_t bsize,
 
 	keyaddr = simple_strtoul(key_str, NULL, 16);
 	keysize = simple_strtoul(size_str, NULL, 16);
-
-	if ((fpga_sec_info->sec_img_type == 0) &&
-	    (keyaddr == DUMMY_WORD) && (keysize == DUMMY_WORD))
-		use_devkey = true;
 
 	size_str = strchr(fpga_sec_info->ivaddr_size, ':');
 	if (size_str) {
@@ -274,10 +269,7 @@ static int zynqmp_loads(xilinx_desc *desc, const void *buf, size_t bsize,
 	debug("Keyaddr:0x%x, keysize:P0x%x\n", keyaddr, keysize);
 	debug("ivaddr:0x%x, ivsize:P0x%x\n", ivaddr, ivsize);
 
-	if (use_devkey)
-		key_iv_size = ivsize;
-	else
-		key_iv_size = keysize + ivsize;
+	key_iv_size = keysize + ivsize;
 
 	if (bsize % 4)
 		bsize = bsize / 4 + 1;
@@ -286,20 +278,14 @@ static int zynqmp_loads(xilinx_desc *desc, const void *buf, size_t bsize,
 
 	tmpbuf += bsize;
 
-	/*
-	 * If device key is not being used then only fill buffer
-	 * with key and keysize.
-	 */
-	if (!use_devkey) {
-		memcpy(tmpbuf, (const void *)(uintptr_t)keyaddr, keysize);
+	memcpy(tmpbuf, (const void *)(uintptr_t)keyaddr, keysize);
 
-		if (keysize % 4)
-			keysize = keysize / 4 + 1;
-		else
-			keysize = keysize / 4;
+	if (keysize % 4)
+		keysize = keysize / 4 + 1;
+	else
+		keysize = keysize / 4;
 
-		tmpbuf += keysize;
-	}
+	tmpbuf += keysize;
 
 	memcpy(tmpbuf, (const void *)(uintptr_t)ivaddr, ivsize);
 
@@ -311,10 +297,7 @@ static int zynqmp_loads(xilinx_desc *desc, const void *buf, size_t bsize,
 
 	switch (fpga_sec_info->sec_img_type) {
 	case 0:
-		if (use_devkey)
-			flag = ZYNQMP_FPGA_FLAG_ENCRYPTED_USRKEY;
-		else
-			flag = ZYNQMP_FPGA_FLAG_ENCRYPTED;
+		flag = ZYNQMP_FPGA_FLAG_ENCRYPTED;
 		break;
 	case 1:
 		flag = ZYNQMP_FPGA_FLAG_AUTHENTICATED;
