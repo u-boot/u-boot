@@ -307,6 +307,10 @@
 		#reset-cells = <1>;
 	};
 
+	xlnx_keccak_384: sha384 {
+		compatible = "xlnx,zynqmp-keccak-384";
+	};
+
 	xlnx_dp_snd_card: dp_snd_card {
 		compatible = "xlnx,dp-snd-card";
 		status = "disabled";
