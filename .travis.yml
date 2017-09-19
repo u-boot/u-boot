@@ -286,6 +286,11 @@ matrix:
           QEMU_TARGET="arm-softmmu"
           BUILDMAN="^integratorcp_cm926ejs$"
     - env:
+        - TEST_PY_BD="qemu_arm"
+          TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="arm-softmmu"
+          BUILDMAN="^qemu_arm$"
+    - env:
         - TEST_PY_BD="qemu_mips"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="mips-softmmu"
