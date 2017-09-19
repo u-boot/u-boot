@@ -1472,7 +1472,7 @@ def find_kconfig_rules(kconf, config, imply_config):
     """
     sym = kconf.get_symbol(imply_config)
     if sym:
-        for sel in sym.get_selected_symbols():
+        for sel in sym.get_selected_symbols() | sym.get_implied_symbols():
             if sel.get_name() == config:
                 return sym
     return None
