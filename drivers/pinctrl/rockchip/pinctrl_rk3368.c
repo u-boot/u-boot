@@ -208,6 +208,29 @@ enum {
 	GPIO2A0_FLASH_CSN0      = (1 << GPIO2A0_SHIFT),
 };
 
+/*GRF_GPIO2B_IOMUX*/
+enum {
+	GPIO2B3_SHIFT           = 6,
+	GPIO2B3_MASK            = GENMASK(GPIO2B3_SHIFT + 1, GPIO2B3_SHIFT),
+	GPIO2B3_GPIO            = 0,
+	GPIO2B3_SDMMC0_DTECTN   = (1 << GPIO2B3_SHIFT),
+
+	GPIO2B2_SHIFT           = 4,
+	GPIO2B2_MASK            = GENMASK(GPIO2B2_SHIFT + 1, GPIO2B2_SHIFT),
+	GPIO2B2_GPIO            = 0,
+	GPIO2B2_SDMMC0_CMD      = (1 << GPIO2B2_SHIFT),
+
+	GPIO2B1_SHIFT           = 2,
+	GPIO2B1_MASK            = GENMASK(GPIO2B1_SHIFT + 1, GPIO2B1_SHIFT),
+	GPIO2B1_GPIO            = 0,
+	GPIO2B1_SDMMC0_CLKOUT   = (1 << GPIO2B1_SHIFT),
+
+	GPIO2B0_SHIFT           = 0,
+	GPIO2B0_MASK            = GENMASK(GPIO2B0_SHIFT + 1, GPIO2B0_SHIFT),
+	GPIO2B0_GPIO            = 0,
+	GPIO2B0_SDMMC0_D3       = (1 << GPIO2B0_SHIFT),
+};
+
 /*GRF_GPIO2D_IOMUX*/
 enum {
 	GPIO2D7_SHIFT           = 14,
@@ -580,11 +603,17 @@ static void pinctrl_rk3368_sdmmc_config(struct rk3368_grf *grf, int mmc_id)
 			     GPIO2A4_EMMC_CLKOUT);
 		break;
 	case PERIPH_ID_SDCARD:
-		/*
-		 * We assume that the BROM has already set this up
-		 * correctly for us and that there's nothing to do
-		 * here.
-		 */
+		debug("mmc id = %d setting registers!\n", mmc_id);
+		rk_clrsetreg(&grf->gpio2a_iomux,
+			     GPIO2A5_MASK | GPIO2A7_MASK |
+			     GPIO2A7_MASK,
+			     GPIO2A5_SDMMC0_D0 | GPIO2A6_SDMMC0_D1 |
+			     GPIO2A7_SDMMC0_D2);
+		rk_clrsetreg(&grf->gpio2b_iomux,
+			     GPIO2B0_MASK | GPIO2B1_MASK |
+			     GPIO2B2_MASK | GPIO2B3_MASK,
+			     GPIO2B0_SDMMC0_D3 | GPIO2B1_SDMMC0_CLKOUT |
+			     GPIO2B2_SDMMC0_CMD | GPIO2B3_SDMMC0_DTECTN);
 		break;
 	default:
 		debug("mmc id = %d iomux error!\n", mmc_id);
