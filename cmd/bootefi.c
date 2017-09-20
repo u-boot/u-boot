@@ -190,7 +190,6 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt,
 
 	if (setjmp(&loaded_image_info.exit_jmp)) {
 		ret = loaded_image_info.exit_status;
-		EFI_EXIT(ret);
 		goto exit;
 	}
 
