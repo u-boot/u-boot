@@ -28,3 +28,12 @@ config ADC_SANDBOX
 	  - 4 analog input channels
 	  - 16-bit resolution
 	  - single and multi-channel conversion mode
+
+config SARADC_ROCKCHIP
+	bool "Enable Rockchip SARADC driver"
+	help
+	  This enables driver for Rockchip SARADC.
+	  It provides:
+	  - 2~6 analog input channels
+	  - 1O or 12 bits resolution
+	  - Up to 1MSPS of sample rate
