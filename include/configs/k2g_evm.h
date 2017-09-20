@@ -38,7 +38,7 @@
 			 "setenv name_fdt keystone-k2g-ice.dtb; " \
 		"else if test $name_fdt = undefined; then " \
 			"echo WARNING: Could not determine device tree to use;"\
-		"fi;fi;fi;\0" \
+		"fi;fi;fi; setenv fdtfile ${name_fdt}\0" \
 	"name_mon=skern-k2g.bin\0"					\
 	"name_ubi=k2g-evm-ubifs.ubi\0"					\
 	"name_uboot=u-boot-spi-k2g-evm.gph\0"				\
