@@ -39,6 +39,7 @@
 #define SCLK_MAC_TX			88
 #define SCLK_MACREF			89
 #define SCLK_MACREF_OUT			90
+#define SCLK_SARADC			91
 
 
 /* aclk gates */
@@ -67,6 +68,7 @@
 #define PCLK_TIMER			270
 #define PCLK_PERI			271
 #define PCLK_GMAC			272
+#define PCLK_SARADC			273
 
 /* hclk gates */
 #define HCLK_I2S0_8CH			320

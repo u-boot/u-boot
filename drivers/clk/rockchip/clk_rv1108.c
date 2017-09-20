@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <bitfield.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>
@@ -36,7 +37,7 @@ enum {
 			 #hz "Hz cannot be hit with PLL "\
 			 "divisors on line " __stringify(__LINE__));
 
-/* use interge mode*/
+/* use integer mode */
 static inline int rv1108_pll_id(enum rk_clk_id clk_id)
 {
 	int id = 0;
@@ -130,6 +131,31 @@ static int rv1108_sfc_set_clk(struct rv1108_cru *cru, uint rate)
 	return DIV_TO_RATE(pll_rate, div);
 }
 
+static ulong rv1108_saradc_get_clk(struct rv1108_cru *cru)
+{
+	u32 div, val;
+
+	val = readl(&cru->clksel_con[22]);
+	div = bitfield_extract(val, CLK_SARADC_DIV_CON_SHIFT,
+			       CLK_SARADC_DIV_CON_WIDTH);
+
+	return DIV_TO_RATE(OSC_HZ, div);
+}
+
+static ulong rv1108_saradc_set_clk(struct rv1108_cru *cru, uint hz)
+{
+	int src_clk_div;
+
+	src_clk_div = DIV_ROUND_UP(OSC_HZ, hz) - 1;
+	assert(src_clk_div < 128);
+
+	rk_clrsetreg(&cru->clksel_con[22],
+		     CLK_SARADC_DIV_CON_MASK,
+		     src_clk_div << CLK_SARADC_DIV_CON_SHIFT);
+
+	return rv1108_saradc_get_clk(cru);
+}
+
 static ulong rv1108_clk_get_rate(struct clk *clk)
 {
 	struct rv1108_clk_priv *priv = dev_get_priv(clk->dev);
@@ -137,6 +163,8 @@ static ulong rv1108_clk_get_rate(struct clk *clk)
 	switch (clk->id) {
 	case 0 ... 63:
 		return rkclk_pll_get_rate(priv->cru, clk->id);
+	case SCLK_SARADC:
+		return rv1108_saradc_get_clk(priv->cru);
 	default:
 		return -ENOENT;
 	}
@@ -153,6 +181,9 @@ static ulong rv1108_clk_set_rate(struct clk *clk, ulong rate)
 		break;
 	case SCLK_SFC:
 		new_rate = rv1108_sfc_set_clk(priv->cru, rate);
+		break;
+	case SCLK_SARADC:
+		new_rate = rv1108_saradc_set_clk(priv->cru, rate);
 		break;
 	default:
 		return -ENOENT;
