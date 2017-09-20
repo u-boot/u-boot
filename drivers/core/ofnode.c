@@ -468,8 +468,10 @@ fdt_addr_t ofnode_get_addr_size(ofnode node, const char *property,
 		int na, ns;
 		int psize;
 		const struct device_node *np = ofnode_to_np(node);
-		const __be32 *prop = of_get_property(np, "reg", &psize);
+		const __be32 *prop = of_get_property(np, property, &psize);
 
+		if (!prop)
+			return FDT_ADDR_T_NONE;
 		na = of_n_addr_cells(np);
 		ns = of_n_addr_cells(np);
 		*sizep = of_read_number(prop + na, ns);
