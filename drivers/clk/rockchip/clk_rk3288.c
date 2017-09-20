@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <bitfield.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <dt-structs.h>
@@ -110,6 +111,15 @@ enum {
 	 */
 	PERI_ACLK_DIV_SHIFT	= 0,
 	PERI_ACLK_DIV_MASK	= 0x1f << PERI_ACLK_DIV_SHIFT,
+
+	/*
+	 * CLKSEL24
+	 * saradc_div_con:
+	 * clk_saradc=24MHz/(saradc_div_con+1)
+	 */
+	CLK_SARADC_DIV_CON_SHIFT	= 8,
+	CLK_SARADC_DIV_CON_MASK		= GENMASK(15, 8),
+	CLK_SARADC_DIV_CON_WIDTH	= 8,
 
 	SOCSTS_DPLL_LOCK	= 1 << 5,
 	SOCSTS_APLL_LOCK	= 1 << 6,
@@ -634,6 +644,31 @@ static ulong rockchip_spi_set_clk(struct rk3288_cru *cru, uint gclk_rate,
 	return rockchip_spi_get_clk(cru, gclk_rate, periph);
 }
 
+static ulong rockchip_saradc_get_clk(struct rk3288_cru *cru)
+{
+	u32 div, val;
+
+	val = readl(&cru->cru_clksel_con[24]);
+	div = bitfield_extract(val, CLK_SARADC_DIV_CON_SHIFT,
+			       CLK_SARADC_DIV_CON_WIDTH);
+
+	return DIV_TO_RATE(OSC_HZ, div);
+}
+
+static ulong rockchip_saradc_set_clk(struct rk3288_cru *cru, uint hz)
+{
+	int src_clk_div;
+
+	src_clk_div = DIV_ROUND_UP(OSC_HZ, hz) - 1;
+	assert(src_clk_div < 128);
+
+	rk_clrsetreg(&cru->cru_clksel_con[24],
+		     CLK_SARADC_DIV_CON_MASK,
+		     src_clk_div << CLK_SARADC_DIV_CON_SHIFT);
+
+	return rockchip_saradc_get_clk(cru);
+}
+
 static ulong rk3288_clk_get_rate(struct clk *clk)
 {
 	struct rk3288_clk_priv *priv = dev_get_priv(clk->dev);
@@ -666,6 +701,9 @@ static ulong rk3288_clk_get_rate(struct clk *clk)
 		return gclk_rate;
 	case PCLK_PWM:
 		return PD_BUS_PCLK_HZ;
+	case SCLK_SARADC:
+		new_rate = rockchip_saradc_get_clk(priv->cru);
+		break;
 	default:
 		return -ENOENT;
 	}
@@ -756,6 +794,9 @@ static ulong rk3288_clk_set_rate(struct clk *clk, ulong rate)
 		new_rate = rate;
 		break;
 #endif
+	case SCLK_SARADC:
+		new_rate = rockchip_saradc_set_clk(priv->cru, rate);
+		break;
 	default:
 		return -ENOENT;
 	}
