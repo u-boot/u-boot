@@ -349,6 +349,7 @@ static bool is_hummingboard(void)
 	 * Machine selection -
 	 * Machine        val1, val2
 	 * -------------------------
+	 * HB2            x     x
 	 * HB rev 3.x     x     0
 	 * CBi            0     1
 	 * HB             1     1
@@ -362,9 +363,37 @@ static bool is_hummingboard(void)
 		return true;
 }
 
+static bool is_hummingboard2(void)
+{
+	int val1;
+
+	SETUP_IOMUX_PADS(hb_cbi_sense);
+
+	gpio_direction_input(IMX_GPIO_NR(2, 8));
+
+        val1 = gpio_get_value(IMX_GPIO_NR(2, 8));
+
+	/*
+	 * Machine selection -
+	 * Machine        val1
+	 * -------------------
+	 * HB2            0
+	 * HB rev 3.x     x
+	 * CBi            x
+	 * HB             x
+	 */
+
+	if (val1 == 0)
+		return true;
+	else
+		return false;
+}
+
 int checkboard(void)
 {
-	if (is_hummingboard())
+	if (is_hummingboard2())
+		puts("Board: MX6 Hummingboard2\n");
+	else if (is_hummingboard())
 		puts("Board: MX6 Hummingboard\n");
 	else
 		puts("Board: MX6 Cubox-i\n");
@@ -375,7 +404,9 @@ int checkboard(void)
 int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	if (is_hummingboard())
+	if (is_hummingboard2())
+		env_set("board_name", "HUMMINGBOARD2");
+	else if (is_hummingboard())
 		env_set("board_name", "HUMMINGBOARD");
 	else
 		env_set("board_name", "CUBOXI");

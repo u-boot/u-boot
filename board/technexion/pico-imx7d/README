@@ -47,3 +47,20 @@ Remove power from the pico board.
 Put pico board into normal boot mode.
 
 Power up the board and the new updated U-Boot should boot from eMMC.
+
+Building U-Boot to boot with NXP 4.1 kernel:
+
+The NXP 4.1 kernel boots only in secure boot mode on mx7.
+
+Follow the next steps to enable secure boot:
+
+$ make mrproper
+$ make pico-imx7d_defconfig
+$ make menuconfig
+	-> ARM architecture
+	-> [*] Enable support for booting in non-secure mode
+	-> [*]   Boot in secure mode by default
+	-> Exit
+$ make
+
+Flash u-boot.imx using the imx_usb_loader tool.

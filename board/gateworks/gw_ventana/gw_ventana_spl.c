@@ -626,9 +626,6 @@ void board_init_f(ulong dummy)
 	spl_dram_init(8 << ventana_info.sdram_width,
 		      16 << ventana_info.sdram_size,
 		      board_model);
-
-	/* Clear the BSS. */
-	memset(__bss_start, 0, __bss_end - __bss_start);
 }
 
 void board_boot_order(u32 *spl_boot_list)

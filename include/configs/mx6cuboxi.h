@@ -106,6 +106,10 @@
 			"fi; "	\
 		"fi\0" \
 	"findfdt="\
+		"if test $board_name = HUMMINGBOARD2 && test $board_rev = MX6Q ; then " \
+			"setenv fdtfile imx6q-hummingboard2.dtb; fi; " \
+		"if test $board_name = HUMMINGBOARD2 && test $board_rev = MX6DL ; then " \
+			"setenv fdtfile imx6dl-hummingboard2.dtb; fi; " \
 		"if test $board_name = HUMMINGBOARD && test $board_rev = MX6Q ; then " \
 			"setenv fdtfile imx6q-hummingboard.dtb; fi; " \
 		"if test $board_name = HUMMINGBOARD && test $board_rev = MX6DL ; then " \
