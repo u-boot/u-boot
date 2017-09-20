@@ -110,34 +110,8 @@ issue the command:
 
 	sudo ../imx_usb_loader/imx_usb -v u-boot.imx
 
-Getting U-Boot when SPL support is active, it requires
-two downloads. imx_usb_loader downloads the SPL into
-OCRAM and starts it. SPL will check for a valid u-boot.img, and
-because it is not found, it will wait for it using the y-modem
-protocol via the console.
-
-A first install is then possible by combining imx_usb_loader with
-another tool such as kermit.
-
-sudo ../imx_usb_loader/imx_usb -v SPL
-kermit kermit_uboot
-
-and kermit_uboot contains something like this (set line should be adjusted):
-
-set line /dev/ttyUSB1
-set speed 115200
-SET CARRIER-WATCH OFF
-set flow-control none
-set handshake none
-set prefixing all
-set file type bin
-set protocol ymodem
-send u-boot.img
-c
-
-The last "c" command tells kermit (from ckermit package in most distros)
-to switch from command line mode to communication mode, and when the
-script is finished, the U-Boot prompt is shown in the same shell.
+In order to load SPL and u-boot.img via imx_usb_loader tool,
+please refer to doc/README.sdp.
 
 3. Using Secure Boot on i.MX6 machines with SPL support
 -------------------------------------------------------
