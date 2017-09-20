@@ -22,6 +22,11 @@ choice
 
 config TARGET_AM3517_EVM
 	bool "AM3517 EVM"
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+	select DM_I2C
+	select DM_MMC
 
 config TARGET_MT_VENTOUX
 	bool "TeeJet Mt.Ventoux"

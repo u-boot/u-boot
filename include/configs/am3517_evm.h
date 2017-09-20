@@ -21,6 +21,7 @@
  * header. That is 0x800FFFC0--0x80100000 should not be used for any
  * other needs.
  */
+
 #define CONFIG_SYS_TEXT_BASE		0x80100000
 #define CONFIG_SYS_SPL_MALLOC_START	0x80208000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
@@ -32,16 +33,6 @@
 #define CONFIG_REVISION_TAG
 
 /* Hardware drivers */
-
-/* NS16550 Configuration */
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-
-/* select serial console configuration */
-#define CONFIG_CONS_INDEX		3
-#define CONFIG_SYS_NS16550_COM3		OMAP34XX_UART3
-#define CONFIG_SERIAL3			3	/* UART3 on AM3517 EVM */
-
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -72,7 +63,6 @@
 #endif /* CONFIG_USB_MUSB_AM35X */
 
 /* I2C */
-#define CONFIG_SYS_I2C
 #define CONFIG_SYS_OMAP24_I2C_SPEED	100000
 #define CONFIG_SYS_OMAP24_I2C_SLAVE	1
 
@@ -250,8 +240,6 @@
 #define CONFIG_SPL_FRAMEWORK
 #undef CONFIG_SPL_TEXT_BASE
 #define CONFIG_SPL_TEXT_BASE		0x40200000
-#define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
-					 CONFIG_SPL_TEXT_BASE)
 
 #undef CONFIG_SPL_BSS_START_ADDR
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000
