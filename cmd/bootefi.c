@@ -273,6 +273,12 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
 	if (!strcmp(argv[1], "selftest")) {
+		struct efi_loaded_image loaded_image_info = {};
+		struct efi_object loaded_image_info_obj = {};
+
+		efi_setup_loaded_image(&loaded_image_info,
+				       &loaded_image_info_obj,
+				       bootefi_device_path, bootefi_image_path);
 		/*
 		 * gd lives in a fixed register which may get clobbered while we
 		 * execute the payload. So save it here and restore it on every
@@ -282,8 +288,6 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		/* Initialize and populate EFI object list */
 		if (!efi_obj_list_initalized)
 			efi_init_obj_list();
-		loaded_image_info.device_handle = bootefi_device_path;
-		loaded_image_info.file_path = bootefi_image_path;
 		return efi_selftest(&loaded_image_info, &systab);
 	} else
 #endif
