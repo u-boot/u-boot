@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <mapmem.h>
 #include <syscon.h>
+#include <bitfield.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/cru_rk3399.h>
@@ -181,7 +182,8 @@ enum {
 
 	/* CLKSEL_CON26 */
 	CLK_SARADC_DIV_CON_SHIFT	= 8,
-	CLK_SARADC_DIV_CON_MASK		= 0xff << CLK_SARADC_DIV_CON_SHIFT,
+	CLK_SARADC_DIV_CON_MASK		= GENMASK(15, 8),
+	CLK_SARADC_DIV_CON_WIDTH	= 8,
 
 	/* CLKSEL_CON27 */
 	CLK_TSADC_SEL_X24M		= 0x0,
@@ -860,6 +862,32 @@ static ulong rk3399_ddr_set_clk(struct rk3399_cru *cru,
 
 	return set_rate;
 }
+
+static ulong rk3399_saradc_get_clk(struct rk3399_cru *cru)
+{
+	u32 div, val;
+
+	val = readl(&cru->clksel_con[26]);
+	div = bitfield_extract(val, CLK_SARADC_DIV_CON_SHIFT,
+			       CLK_SARADC_DIV_CON_WIDTH);
+
+	return DIV_TO_RATE(OSC_HZ, div);
+}
+
+static ulong rk3399_saradc_set_clk(struct rk3399_cru *cru, uint hz)
+{
+	int src_clk_div;
+
+	src_clk_div = DIV_ROUND_UP(OSC_HZ, hz) - 1;
+	assert(src_clk_div < 128);
+
+	rk_clrsetreg(&cru->clksel_con[26],
+		     CLK_SARADC_DIV_CON_MASK,
+		     src_clk_div << CLK_SARADC_DIV_CON_SHIFT);
+
+	return rk3399_saradc_get_clk(cru);
+}
+
 static ulong rk3399_clk_get_rate(struct clk *clk)
 {
 	struct rk3399_clk_priv *priv = dev_get_priv(clk->dev);
@@ -894,6 +922,9 @@ static ulong rk3399_clk_get_rate(struct clk *clk)
 	case DCLK_VOP1:
 		break;
 	case PCLK_EFUSE1024NS:
+		break;
+	case SCLK_SARADC:
+		rate = rk3399_saradc_get_clk(priv->cru);
 		break;
 	default:
 		return -ENOENT;
@@ -942,6 +973,9 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 		ret = rk3399_ddr_set_clk(priv->cru, rate);
 		break;
 	case PCLK_EFUSE1024NS:
+		break;
+	case SCLK_SARADC:
+		ret = rk3399_saradc_set_clk(priv->cru, rate);
 		break;
 	default:
 		return -ENOENT;
