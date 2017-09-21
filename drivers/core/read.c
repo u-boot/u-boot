@@ -81,6 +81,17 @@ int dev_read_stringlist_search(struct udevice *dev, const char *property,
 	return ofnode_stringlist_search(dev_ofnode(dev), property, string);
 }
 
+int dev_read_string_index(struct udevice *dev, const char *propname, int index,
+			  const char **outp)
+{
+	return ofnode_read_string_index(dev_ofnode(dev), propname, index, outp);
+}
+
+int dev_read_string_count(struct udevice *dev, const char *propname)
+{
+	return ofnode_read_string_count(dev_ofnode(dev), propname);
+}
+
 int dev_read_phandle_with_args(struct udevice *dev, const char *list_name,
 				const char *cells_name, int cell_count,
 				int index,
