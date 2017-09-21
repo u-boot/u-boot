@@ -1146,9 +1146,10 @@ static int sd_select_bus_freq_width(struct mmc *mmc)
 	return 0;
 }
 
-static int mmc_select_bus_freq_width(struct mmc *mmc, const u8 *ext_csd)
+static int mmc_select_bus_freq_width(struct mmc *mmc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(u8, test_csd, MMC_MAX_BLOCK_LEN);
+	const u8 *ext_csd = mmc->ext_csd;
 	/* An array of possible bus widths in order of preference */
 	static const unsigned int ext_csd_bits[] = {
 		EXT_CSD_DDR_BUS_WIDTH_8,
@@ -1183,6 +1184,11 @@ static int mmc_select_bus_freq_width(struct mmc *mmc, const u8 *ext_csd)
 	/* Only version 4 of MMC supports wider bus widths */
 	if (mmc->version < MMC_VERSION_4)
 		return 0;
+
+	if (!mmc->ext_csd) {
+		debug("No ext_csd found!\n"); /* this should enver happen */
+		return -ENOTSUPP;
+	}
 
 	for (idx = 0; idx < ARRAY_SIZE(ext_csd_bits); idx++) {
 		unsigned int extw = ext_csd_bits[idx];
@@ -1249,15 +1255,22 @@ static int mmc_select_bus_freq_width(struct mmc *mmc, const u8 *ext_csd)
 	return err;
 }
 
-static int mmc_startup_v4(struct mmc *mmc, u8 *ext_csd)
+static int mmc_startup_v4(struct mmc *mmc)
 {
 	int err, i;
 	u64 capacity;
 	bool has_parts = false;
 	bool part_completed;
+	u8 *ext_csd;
 
 	if (IS_SD(mmc) || (mmc->version < MMC_VERSION_4))
 		return 0;
+
+	ext_csd = malloc_cache_aligned(MMC_MAX_BLOCK_LEN);
+	if (!ext_csd)
+		return -ENOMEM;
+
+	mmc->ext_csd = ext_csd;
 
 	/* check  ext_csd version and capacity */
 	err = mmc_send_ext_csd(mmc, ext_csd);
@@ -1418,7 +1431,6 @@ static int mmc_startup(struct mmc *mmc)
 	uint mult, freq;
 	u64 cmult, csize;
 	struct mmc_cmd cmd;
-	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
 	struct blk_desc *bdesc;
 
 #ifdef CONFIG_MMC_SPI_CRC_ON
@@ -1567,7 +1579,7 @@ static int mmc_startup(struct mmc *mmc)
 	mmc->erase_grp_size = 1;
 	mmc->part_config = MMCPART_NOAVAILABLE;
 
-	err = mmc_startup_v4(mmc, ext_csd);
+	err = mmc_startup_v4(mmc);
 	if (err)
 		return err;
 
@@ -1578,7 +1590,7 @@ static int mmc_startup(struct mmc *mmc)
 	if (IS_SD(mmc))
 		err = sd_select_bus_freq_width(mmc);
 	else
-		err = mmc_select_bus_freq_width(mmc, ext_csd);
+		err = mmc_select_bus_freq_width(mmc);
 
 	if (err)
 		return err;

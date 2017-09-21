@@ -462,6 +462,7 @@ struct mmc {
 	struct udevice *vqmmc_supply;	/* IO voltage regulator (Vccq)*/
 #endif
 #endif
+	u8 *ext_csd;
 };
 
 struct mmc_hwpart_conf {
