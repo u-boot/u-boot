@@ -279,6 +279,7 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 int mmc_set_blocklen(struct mmc *mmc, int len)
 {
 	struct mmc_cmd cmd;
+	int err;
 
 	if (mmc->ddr_mode)
 		return 0;
@@ -287,7 +288,24 @@ int mmc_set_blocklen(struct mmc *mmc, int len)
 	cmd.resp_type = MMC_RSP_R1;
 	cmd.cmdarg = len;
 
-	return mmc_send_cmd(mmc, &cmd, NULL);
+	err = mmc_send_cmd(mmc, &cmd, NULL);
+
+#ifdef CONFIG_MMC_QUIRKS
+	if (err && (mmc->quirks & MMC_QUIRK_RETRY_SET_BLOCKLEN)) {
+		int retries = 4;
+		/*
+		 * It has been seen that SET_BLOCKLEN may fail on the first
+		 * attempt, let's try a few more time
+		 */
+		do {
+			err = mmc_send_cmd(mmc, &cmd, NULL);
+			if (!err)
+				break;
+		} while (retries--);
+	}
+#endif
+
+	return err;
 }
 
 static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
@@ -1881,7 +1899,6 @@ static int mmc_startup(struct mmc *mmc)
 		cmd.resp_type = MMC_RSP_R1;
 		cmd.cmdarg = 1;
 		err = mmc_send_cmd(mmc, &cmd, NULL);
-
 		if (err)
 			return err;
 	}
@@ -1894,6 +1911,21 @@ static int mmc_startup(struct mmc *mmc)
 	cmd.cmdarg = 0;
 
 	err = mmc_send_cmd(mmc, &cmd, NULL);
+
+#ifdef CONFIG_MMC_QUIRKS
+	if (err && (mmc->quirks & MMC_QUIRK_RETRY_SEND_CID)) {
+		int retries = 4;
+		/*
+		 * It has been seen that SEND_CID may fail on the first
+		 * attempt, let's try a few more time
+		 */
+		do {
+			err = mmc_send_cmd(mmc, &cmd, NULL);
+			if (!err)
+				break;
+		} while (retries--);
+	}
+#endif
 
 	if (err)
 		return err;
@@ -2238,6 +2270,11 @@ int mmc_start_init(struct mmc *mmc)
 	err = mmc_power_init(mmc);
 	if (err)
 		return err;
+
+#ifdef CONFIG_MMC_QUIRKS
+	mmc->quirks = MMC_QUIRK_RETRY_SET_BLOCKLEN |
+		      MMC_QUIRK_RETRY_SEND_CID;
+#endif
 
 	err = mmc_power_cycle(mmc);
 	if (err) {

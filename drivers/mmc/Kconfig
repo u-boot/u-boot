@@ -42,6 +42,15 @@ config ARM_PL180_MMCI
 	  If you have an ARM(R) platform with a Multimedia Card slot,
 	  say Y or M here.
 
+config MMC_QUIRKS
+	bool "Enable quirks"
+	default y
+	help
+	  Some cards and hosts may sometimes behave unexpectedly (quirks).
+	  This option enable workarounds to handle those quirks. Some of them
+	  are enabled by default, other may require additionnal flags or are
+	  enabled by the host driver.
+
 config MMC_VERBOSE
 	bool "Output more information about the MMC"
 	default y
