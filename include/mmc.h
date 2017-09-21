@@ -87,6 +87,7 @@
 #define MMC_CMD_SET_BLOCKLEN		16
 #define MMC_CMD_READ_SINGLE_BLOCK	17
 #define MMC_CMD_READ_MULTIPLE_BLOCK	18
+#define MMC_CMD_SEND_TUNING_BLOCK		19
 #define MMC_CMD_SEND_TUNING_BLOCK_HS200	21
 #define MMC_CMD_SET_BLOCK_COUNT         23
 #define MMC_CMD_WRITE_SINGLE_BLOCK	24
@@ -117,7 +118,8 @@
 
 static inline bool mmc_is_tuning_cmd(uint cmdidx)
 {
-	if (cmdidx == MMC_CMD_SEND_TUNING_BLOCK_HS200)
+	if ((cmdidx == MMC_CMD_SEND_TUNING_BLOCK_HS200) ||
+	    (cmdidx == MMC_CMD_SEND_TUNING_BLOCK))
 		return true;
 	return false;
 }
@@ -126,8 +128,22 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 #define SD_HIGHSPEED_BUSY	0x00020000
 #define SD_HIGHSPEED_SUPPORTED	0x00020000
 
+#define UHS_SDR12_BUS_SPEED	0
+#define HIGH_SPEED_BUS_SPEED	1
+#define UHS_SDR25_BUS_SPEED	1
+#define UHS_SDR50_BUS_SPEED	2
+#define UHS_SDR104_BUS_SPEED	3
+#define UHS_DDR50_BUS_SPEED	4
+
+#define SD_MODE_UHS_SDR12	BIT(UHS_SDR12_BUS_SPEED)
+#define SD_MODE_UHS_SDR25	BIT(UHS_SDR25_BUS_SPEED)
+#define SD_MODE_UHS_SDR50	BIT(UHS_SDR50_BUS_SPEED)
+#define SD_MODE_UHS_SDR104	BIT(UHS_SDR104_BUS_SPEED)
+#define SD_MODE_UHS_DDR50	BIT(UHS_DDR50_BUS_SPEED)
+
 #define OCR_BUSY		0x80000000
 #define OCR_HCS			0x40000000
+#define OCR_S18R		0x1000000
 #define OCR_VOLTAGE_MASK	0x007FFF80
 #define OCR_ACCESS_MODE		0x60000000
 
@@ -410,6 +426,17 @@ struct dm_mmc_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*execute_tuning)(struct udevice *dev, uint opcode);
+
+	/**
+	 * wait_dat0() - wait until dat0 is in the target state
+	 *		(CLK must be running during the wait)
+	 *
+	 * @dev:	Device to check
+	 * @state:	target state
+	 * @timeout:	timeout in us
+	 * @return 0 if dat0 is in the target state, -ve on error
+	 */
+	int (*wait_dat0)(struct udevice *dev, int state, int timeout);
 };
 
 #define mmc_get_ops(dev)        ((struct dm_mmc_ops *)(dev)->driver->ops)
@@ -421,6 +448,7 @@ void dm_mmc_send_init_stream(struct udevice *dev);
 int dm_mmc_get_cd(struct udevice *dev);
 int dm_mmc_get_wp(struct udevice *dev);
 int dm_mmc_execute_tuning(struct udevice *dev, uint opcode);
+int dm_mmc_wait_dat0(struct udevice *dev, int state, int timeout);
 
 /* Transition functions for compatibility */
 int mmc_set_ios(struct mmc *mmc);
@@ -428,6 +456,7 @@ void mmc_send_init_stream(struct mmc *mmc);
 int mmc_getcd(struct mmc *mmc);
 int mmc_getwp(struct mmc *mmc);
 int mmc_execute_tuning(struct mmc *mmc, uint opcode);
+int mmc_wait_dat0(struct mmc *mmc, int state, int timeout);
 
 #else
 struct mmc_ops {
@@ -484,6 +513,15 @@ static inline bool mmc_is_mode_ddr(enum bus_mode mode)
 		return true;
 	else
 		return false;
+}
+
+#define UHS_CAPS (MMC_CAP(UHS_SDR12) | MMC_CAP(UHS_SDR25) | \
+		  MMC_CAP(UHS_SDR50) | MMC_CAP(UHS_SDR104) | \
+		  MMC_CAP(UHS_DDR50))
+
+static inline bool supports_uhs(uint caps)
+{
+	return (caps & UHS_CAPS) ? true : false;
 }
 
 /*

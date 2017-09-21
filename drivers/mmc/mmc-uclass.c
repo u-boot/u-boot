@@ -64,6 +64,20 @@ void mmc_send_init_stream(struct mmc *mmc)
 	dm_mmc_send_init_stream(mmc->dev);
 }
 
+int dm_mmc_wait_dat0(struct udevice *dev, int state, int timeout)
+{
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+
+	if (!ops->wait_dat0)
+		return -ENOSYS;
+	return ops->wait_dat0(dev, state, timeout);
+}
+
+int mmc_wait_dat0(struct mmc *mmc, int state, int timeout)
+{
+	return dm_mmc_wait_dat0(mmc->dev, state, timeout);
+}
+
 int dm_mmc_get_wp(struct udevice *dev)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
