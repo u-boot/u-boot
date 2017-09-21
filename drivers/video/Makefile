@@ -11,9 +11,8 @@ obj-$(CONFIG_DM_VIDEO) += backlight-uclass.o
 obj-$(CONFIG_DM_VIDEO) += panel-uclass.o simple_panel.o
 obj-$(CONFIG_DM_VIDEO) += video-uclass.o vidconsole-uclass.o
 obj-$(CONFIG_DM_VIDEO) += video_bmp.o
-ifdef CONFIG_DM_VIDEO
-obj-$(CONFIG_DM_PWM) += pwm_backlight.o
-endif
+obj-$(CONFIG_BACKLIGHT_PWM) += pwm_backlight.o
+obj-$(CONFIG_BACKLIGHT_GPIO) += backlight_gpio.o
 obj-$(CONFIG_CONSOLE_NORMAL) += console_normal.o
 obj-$(CONFIG_CONSOLE_ROTATION) += console_rotate.o
 obj-$(CONFIG_CONSOLE_TRUETYPE) += console_truetype.o fonts/
@@ -53,10 +52,11 @@ obj-$(CONFIG_FORMIKE) += formike.o
 obj-$(CONFIG_LG4573) += lg4573.o
 obj-$(CONFIG_AM335X_LCD) += am335x-fb.o
 obj-$(CONFIG_VIDEO_DW_HDMI) += dw_hdmi.o
-
+obj-$(CONFIG_VIDEO_SIMPLE) += simplefb.o
 obj-${CONFIG_VIDEO_TEGRA124} += tegra124/
 obj-${CONFIG_EXYNOS_FB} += exynos/
 obj-${CONFIG_VIDEO_ROCKCHIP} += rockchip/
+obj-${CONFIG_VIDEO_STM32} += stm32/
 
 obj-y += bridge/
 obj-y += sunxi/
