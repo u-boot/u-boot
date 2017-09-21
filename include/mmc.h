@@ -544,6 +544,7 @@ struct mmc {
 	uint clock;
 	enum mmc_voltage signal_voltage;
 	uint card_caps;
+	uint host_caps;
 	uint ocr;
 	uint dsr;
 	uint dsr_imp;

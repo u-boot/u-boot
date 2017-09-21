@@ -1451,7 +1451,7 @@ static int sd_select_mode_and_width(struct mmc *mmc)
 	if (err)
 		return err;
 	/* Restrict card's capabilities by what the host can do */
-	caps = mmc->card_caps & (mmc->cfg->host_caps | MMC_MODE_1BIT);
+	caps = mmc->card_caps & (mmc->host_caps | MMC_MODE_1BIT);
 
 	if (!uhs_en)
 		caps &= ~UHS_CAPS;
@@ -1599,7 +1599,7 @@ static int mmc_select_mode_and_width(struct mmc *mmc)
 		return err;
 
 	/* Restrict card's capabilities by what the host can do */
-	mmc->card_caps &= (mmc->cfg->host_caps | MMC_MODE_1BIT);
+	mmc->card_caps &= (mmc->host_caps | MMC_MODE_1BIT);
 
 	/* Only version 4 of MMC supports wider bus widths */
 	if (mmc->version < MMC_VERSION_4)
@@ -2182,6 +2182,8 @@ int mmc_start_init(struct mmc *mmc)
 	bool uhs_en = supports_uhs(mmc->cfg->host_caps);
 	int err;
 
+	mmc->host_caps = mmc->cfg->host_caps;
+
 	/* we pretend there's no card when init is NULL */
 	no_card = mmc_getcd(mmc) == 0;
 #if !CONFIG_IS_ENABLED(DM_MMC)
@@ -2205,7 +2207,18 @@ int mmc_start_init(struct mmc *mmc)
 	if (err)
 		return err;
 
-	err = mmc_power_on(mmc);
+	err = mmc_power_cycle(mmc);
+	if (err) {
+		/*
+		 * if power cycling is not supported, we should not try
+		 * to use the UHS modes, because we wouldn't be able to
+		 * recover from an error during the UHS initialization.
+		 */
+		debug("Unable to do a full power cycle. Disabling the UHS modes for safety\n");
+		uhs_en = false;
+		mmc->host_caps &= ~UHS_CAPS;
+		err = mmc_power_on(mmc);
+	}
 	if (err)
 		return err;
 
