@@ -29,7 +29,10 @@
 
 struct hsmmc {
 #ifndef CONFIG_OMAP34XX
-	unsigned char res0[0x100];
+	unsigned int hl_rev;
+	unsigned int hl_hwinfo;
+	unsigned int hl_sysconfig;
+	unsigned char res0[0xf4];
 #endif
 	unsigned char res1[0x10];
 	unsigned int sysconfig;		/* 0x10 */
@@ -52,6 +55,9 @@ struct hsmmc {
 	unsigned int ie;		/* 0x134 */
 	unsigned char res4[0x8];
 	unsigned int capa;		/* 0x140 */
+	unsigned char res5[0x10];
+	unsigned int admaes;		/* 0x154 */
+	unsigned int admasal;		/* 0x158 */
 };
 
 struct omap_hsmmc_plat {
@@ -64,6 +70,7 @@ struct omap_hsmmc_plat {
 /*
  * OMAP HS MMC Bit definitions
  */
+#define MADMA_EN			(0x1 << 0)
 #define MMC_SOFTRESET			(0x1 << 1)
 #define RESETDONE			(0x1 << 0)
 #define NOOPENDRAIN			(0x0 << 0)
@@ -80,6 +87,7 @@ struct omap_hsmmc_plat {
 #define WPP_ACTIVEHIGH			(0x0 << 8)
 #define RESERVED_MASK			(0x3 << 9)
 #define CTPL_MMC_SD			(0x0 << 11)
+#define DMA_MASTER			(0x1 << 20)
 #define BLEN_512BYTESLEN		(0x200 << 0)
 #define NBLK_STPCNT			(0x0 << 16)
 #define DE_DISABLE			(0x0 << 0)
@@ -119,6 +127,7 @@ struct omap_hsmmc_plat {
 #define SDBP_PWRON			(0x1 << 8)
 #define SDVS_1V8			(0x5 << 9)
 #define SDVS_3V0			(0x6 << 9)
+#define DMA_SELECT			(0x2 << 3)
 #define ICE_MASK			(0x1 << 0)
 #define ICE_STOP			(0x0 << 0)
 #define ICS_MASK			(0x1 << 1)
@@ -148,6 +157,7 @@ struct omap_hsmmc_plat {
 #define IE_DTO				(0x01 << 20)
 #define IE_DCRC				(0x01 << 21)
 #define IE_DEB				(0x01 << 22)
+#define IE_ADMAE			(0x01 << 25)
 #define IE_CERR				(0x01 << 28)
 #define IE_BADA				(0x01 << 29)
 
