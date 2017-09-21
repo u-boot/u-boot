@@ -31,6 +31,7 @@ static const unsigned int sd_au_size[] = {
 };
 
 static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage);
+static int mmc_power_cycle(struct mmc *mmc);
 
 #if CONFIG_IS_ENABLED(MMC_TINY)
 static struct mmc mmc_static;
@@ -1920,14 +1921,6 @@ static int mmc_power_init(struct mmc *mmc)
 					  &mmc->vqmmc_supply);
 	if (ret)
 		debug("%s: No vqmmc supply\n", mmc->dev->name);
-
-	if (mmc->vmmc_supply) {
-		ret = regulator_set_enable(mmc->vmmc_supply, true);
-		if (ret) {
-			puts("Error enabling VMMC supply\n");
-			return ret;
-		}
-	}
 #endif
 #else /* !CONFIG_DM_MMC */
 	/*
@@ -1937,6 +1930,72 @@ static int mmc_power_init(struct mmc *mmc)
 	board_mmc_power_init();
 #endif
 	return 0;
+}
+
+/*
+ * put the host in the initial state:
+ * - turn on Vdd (card power supply)
+ * - configure the bus width and clock to minimal values
+ */
+static void mmc_set_initial_state(struct mmc *mmc)
+{
+	int err;
+
+	/* First try to set 3.3V. If it fails set to 1.8V */
+	err = mmc_set_signal_voltage(mmc, MMC_SIGNAL_VOLTAGE_330);
+	if (err != 0)
+		err = mmc_set_signal_voltage(mmc, MMC_SIGNAL_VOLTAGE_180);
+	if (err != 0)
+		printf("mmc: failed to set signal voltage\n");
+
+	mmc_select_mode(mmc, MMC_LEGACY);
+	mmc_set_bus_width(mmc, 1);
+	mmc_set_clock(mmc, 0);
+}
+
+static int mmc_power_on(struct mmc *mmc)
+{
+#if CONFIG_IS_ENABLED(DM_MMC) && CONFIG_IS_ENABLED(DM_REGULATOR)
+	if (mmc->vmmc_supply) {
+		int ret = regulator_set_enable(mmc->vmmc_supply, true);
+
+		if (ret) {
+			puts("Error enabling VMMC supply\n");
+			return ret;
+		}
+	}
+#endif
+	return 0;
+}
+
+static int mmc_power_off(struct mmc *mmc)
+{
+#if CONFIG_IS_ENABLED(DM_MMC) && CONFIG_IS_ENABLED(DM_REGULATOR)
+	if (mmc->vmmc_supply) {
+		int ret = regulator_set_enable(mmc->vmmc_supply, false);
+
+		if (ret) {
+			puts("Error disabling VMMC supply\n");
+			return ret;
+		}
+	}
+#endif
+	return 0;
+}
+
+static int mmc_power_cycle(struct mmc *mmc)
+{
+	int ret;
+
+	ret = mmc_power_off(mmc);
+	if (ret)
+		return ret;
+	/*
+	 * SD spec recommends at least 1ms of delay. Let's wait for 2ms
+	 * to be on the safer side.
+	 */
+	udelay(2000);
+	return mmc_power_on(mmc);
 }
 
 int mmc_start_init(struct mmc *mmc)
@@ -1967,6 +2026,10 @@ int mmc_start_init(struct mmc *mmc)
 	if (err)
 		return err;
 
+	err = mmc_power_on(mmc);
+	if (err)
+		return err;
+
 #if CONFIG_IS_ENABLED(DM_MMC)
 	/* The device has already been probed ready for use */
 #else
@@ -1977,16 +2040,7 @@ int mmc_start_init(struct mmc *mmc)
 #endif
 	mmc->ddr_mode = 0;
 
-	/* First try to set 3.3V. If it fails set to 1.8V */
-	err = mmc_set_signal_voltage(mmc, MMC_SIGNAL_VOLTAGE_330);
-	if (err != 0)
-		err = mmc_set_signal_voltage(mmc, MMC_SIGNAL_VOLTAGE_180);
-	if (err != 0)
-		printf("failed to set signal voltage\n");
-
-	mmc_set_bus_width(mmc, 1);
-	mmc_set_clock(mmc, 1);
-
+	mmc_set_initial_state(mmc);
 	mmc_send_init_stream(mmc);
 
 	/* Reset the Card */
