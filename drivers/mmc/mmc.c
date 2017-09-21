@@ -1103,6 +1103,152 @@ static void mmc_set_bus_width(struct mmc *mmc, uint width)
 	mmc_set_ios(mmc);
 }
 
+static int sd_select_bus_freq_width(struct mmc *mmc)
+{
+	int err;
+	struct mmc_cmd cmd;
+
+	err = sd_change_freq(mmc);
+	if (err)
+		return err;
+
+	/* Restrict card's capabilities by what the host can do */
+	mmc->card_caps &= mmc->cfg->host_caps;
+
+	if (mmc->card_caps & MMC_MODE_4BIT) {
+		cmd.cmdidx = MMC_CMD_APP_CMD;
+		cmd.resp_type = MMC_RSP_R1;
+		cmd.cmdarg = mmc->rca << 16;
+
+		err = mmc_send_cmd(mmc, &cmd, NULL);
+		if (err)
+			return err;
+
+		cmd.cmdidx = SD_CMD_APP_SET_BUS_WIDTH;
+		cmd.resp_type = MMC_RSP_R1;
+		cmd.cmdarg = 2;
+		err = mmc_send_cmd(mmc, &cmd, NULL);
+		if (err)
+			return err;
+
+		mmc_set_bus_width(mmc, 4);
+	}
+
+	err = sd_read_ssr(mmc);
+	if (err)
+		return err;
+
+	if (mmc->card_caps & MMC_MODE_HS)
+		mmc->tran_speed = 50000000;
+	else
+		mmc->tran_speed = 25000000;
+
+	return 0;
+}
+
+static int mmc_select_bus_freq_width(struct mmc *mmc, const u8 *ext_csd)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(u8, test_csd, MMC_MAX_BLOCK_LEN);
+	/* An array of possible bus widths in order of preference */
+	static const unsigned int ext_csd_bits[] = {
+		EXT_CSD_DDR_BUS_WIDTH_8,
+		EXT_CSD_DDR_BUS_WIDTH_4,
+		EXT_CSD_BUS_WIDTH_8,
+		EXT_CSD_BUS_WIDTH_4,
+		EXT_CSD_BUS_WIDTH_1,
+	};
+	/* An array to map CSD bus widths to host cap bits */
+	static const unsigned int ext_to_hostcaps[] = {
+		[EXT_CSD_DDR_BUS_WIDTH_4] =
+			MMC_MODE_DDR_52MHz | MMC_MODE_4BIT,
+		[EXT_CSD_DDR_BUS_WIDTH_8] =
+			MMC_MODE_DDR_52MHz | MMC_MODE_8BIT,
+		[EXT_CSD_BUS_WIDTH_4] = MMC_MODE_4BIT,
+		[EXT_CSD_BUS_WIDTH_8] = MMC_MODE_8BIT,
+	};
+	/* An array to map chosen bus width to an integer */
+	static const unsigned int widths[] = {
+		8, 4, 8, 4, 1,
+	};
+	int err;
+	int idx;
+
+	err = mmc_change_freq(mmc);
+	if (err)
+		return err;
+
+	/* Restrict card's capabilities by what the host can do */
+	mmc->card_caps &= mmc->cfg->host_caps;
+
+	/* Only version 4 of MMC supports wider bus widths */
+	if (mmc->version < MMC_VERSION_4)
+		return 0;
+
+	for (idx = 0; idx < ARRAY_SIZE(ext_csd_bits); idx++) {
+		unsigned int extw = ext_csd_bits[idx];
+		unsigned int caps = ext_to_hostcaps[extw];
+		/*
+		 * If the bus width is still not changed,
+		 * don't try to set the default again.
+		 * Otherwise, recover from switch attempts
+		 * by switching to 1-bit bus width.
+		 */
+		if (extw == EXT_CSD_BUS_WIDTH_1 &&
+		    mmc->bus_width == 1) {
+			err = 0;
+			break;
+		}
+
+		/*
+		 * Check to make sure the card and controller support
+		 * these capabilities
+		 */
+		if ((mmc->card_caps & caps) != caps)
+			continue;
+
+		err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+				 EXT_CSD_BUS_WIDTH, extw);
+
+		if (err)
+			continue;
+
+		mmc->ddr_mode = (caps & MMC_MODE_DDR_52MHz) ? 1 : 0;
+		mmc_set_bus_width(mmc, widths[idx]);
+
+		err = mmc_send_ext_csd(mmc, test_csd);
+
+		if (err)
+			continue;
+
+		/* Only compare read only fields */
+		if (ext_csd[EXT_CSD_PARTITIONING_SUPPORT]
+			== test_csd[EXT_CSD_PARTITIONING_SUPPORT] &&
+		    ext_csd[EXT_CSD_HC_WP_GRP_SIZE]
+			== test_csd[EXT_CSD_HC_WP_GRP_SIZE] &&
+		    ext_csd[EXT_CSD_REV]
+			== test_csd[EXT_CSD_REV] &&
+		    ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE]
+			== test_csd[EXT_CSD_HC_ERASE_GRP_SIZE] &&
+		    memcmp(&ext_csd[EXT_CSD_SEC_CNT],
+			   &test_csd[EXT_CSD_SEC_CNT], 4) == 0)
+			break;
+
+		err = -EBADMSG;
+	}
+
+	if (err)
+		return err;
+
+	if (mmc->card_caps & MMC_MODE_HS) {
+		if (mmc->card_caps & MMC_MODE_HS_52MHz)
+			mmc->tran_speed = 52000000;
+		else
+			mmc->tran_speed = 26000000;
+	}
+
+	return err;
+}
+
 static int mmc_startup(struct mmc *mmc)
 {
 	int err, i;
@@ -1110,7 +1256,6 @@ static int mmc_startup(struct mmc *mmc)
 	u64 cmult, csize, capacity;
 	struct mmc_cmd cmd;
 	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
-	ALLOC_CACHE_ALIGN_BUFFER(u8, test_csd, MMC_MAX_BLOCK_LEN);
 	bool has_parts = false;
 	bool part_completed;
 	struct blk_desc *bdesc;
@@ -1415,135 +1560,12 @@ static int mmc_startup(struct mmc *mmc)
 		return err;
 
 	if (IS_SD(mmc))
-		err = sd_change_freq(mmc);
+		err = sd_select_bus_freq_width(mmc);
 	else
-		err = mmc_change_freq(mmc);
+		err = mmc_select_bus_freq_width(mmc, ext_csd);
 
 	if (err)
 		return err;
-
-	/* Restrict card's capabilities by what the host can do */
-	mmc->card_caps &= mmc->cfg->host_caps;
-
-	if (IS_SD(mmc)) {
-		if (mmc->card_caps & MMC_MODE_4BIT) {
-			cmd.cmdidx = MMC_CMD_APP_CMD;
-			cmd.resp_type = MMC_RSP_R1;
-			cmd.cmdarg = mmc->rca << 16;
-
-			err = mmc_send_cmd(mmc, &cmd, NULL);
-			if (err)
-				return err;
-
-			cmd.cmdidx = SD_CMD_APP_SET_BUS_WIDTH;
-			cmd.resp_type = MMC_RSP_R1;
-			cmd.cmdarg = 2;
-			err = mmc_send_cmd(mmc, &cmd, NULL);
-			if (err)
-				return err;
-
-			mmc_set_bus_width(mmc, 4);
-		}
-
-		err = sd_read_ssr(mmc);
-		if (err)
-			return err;
-
-		if (mmc->card_caps & MMC_MODE_HS)
-			mmc->tran_speed = 50000000;
-		else
-			mmc->tran_speed = 25000000;
-	} else if (mmc->version >= MMC_VERSION_4) {
-		/* Only version 4 of MMC supports wider bus widths */
-		int idx;
-
-		/* An array of possible bus widths in order of preference */
-		static unsigned ext_csd_bits[] = {
-			EXT_CSD_DDR_BUS_WIDTH_8,
-			EXT_CSD_DDR_BUS_WIDTH_4,
-			EXT_CSD_BUS_WIDTH_8,
-			EXT_CSD_BUS_WIDTH_4,
-			EXT_CSD_BUS_WIDTH_1,
-		};
-
-		/* An array to map CSD bus widths to host cap bits */
-		static unsigned ext_to_hostcaps[] = {
-			[EXT_CSD_DDR_BUS_WIDTH_4] =
-				MMC_MODE_DDR_52MHz | MMC_MODE_4BIT,
-			[EXT_CSD_DDR_BUS_WIDTH_8] =
-				MMC_MODE_DDR_52MHz | MMC_MODE_8BIT,
-			[EXT_CSD_BUS_WIDTH_4] = MMC_MODE_4BIT,
-			[EXT_CSD_BUS_WIDTH_8] = MMC_MODE_8BIT,
-		};
-
-		/* An array to map chosen bus width to an integer */
-		static unsigned widths[] = {
-			8, 4, 8, 4, 1,
-		};
-
-		for (idx=0; idx < ARRAY_SIZE(ext_csd_bits); idx++) {
-			unsigned int extw = ext_csd_bits[idx];
-			unsigned int caps = ext_to_hostcaps[extw];
-
-			/*
-			 * If the bus width is still not changed,
-			 * don't try to set the default again.
-			 * Otherwise, recover from switch attempts
-			 * by switching to 1-bit bus width.
-			 */
-			if (extw == EXT_CSD_BUS_WIDTH_1 &&
-					mmc->bus_width == 1) {
-				err = 0;
-				break;
-			}
-
-			/*
-			 * Check to make sure the card and controller support
-			 * these capabilities
-			 */
-			if ((mmc->card_caps & caps) != caps)
-				continue;
-
-			err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
-					EXT_CSD_BUS_WIDTH, extw);
-
-			if (err)
-				continue;
-
-			mmc->ddr_mode = (caps & MMC_MODE_DDR_52MHz) ? 1 : 0;
-			mmc_set_bus_width(mmc, widths[idx]);
-
-			err = mmc_send_ext_csd(mmc, test_csd);
-
-			if (err)
-				continue;
-
-			/* Only compare read only fields */
-			if (ext_csd[EXT_CSD_PARTITIONING_SUPPORT]
-				== test_csd[EXT_CSD_PARTITIONING_SUPPORT] &&
-			    ext_csd[EXT_CSD_HC_WP_GRP_SIZE]
-				== test_csd[EXT_CSD_HC_WP_GRP_SIZE] &&
-			    ext_csd[EXT_CSD_REV]
-				== test_csd[EXT_CSD_REV] &&
-			    ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE]
-				== test_csd[EXT_CSD_HC_ERASE_GRP_SIZE] &&
-			    memcmp(&ext_csd[EXT_CSD_SEC_CNT],
-				   &test_csd[EXT_CSD_SEC_CNT], 4) == 0)
-				break;
-			else
-				err = -EBADMSG;
-		}
-
-		if (err)
-			return err;
-
-		if (mmc->card_caps & MMC_MODE_HS) {
-			if (mmc->card_caps & MMC_MODE_HS_52MHz)
-				mmc->tran_speed = 52000000;
-			else
-				mmc->tran_speed = 26000000;
-		}
-	}
 
 	mmc_set_clock(mmc, mmc->tran_speed);
 
