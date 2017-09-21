@@ -29,6 +29,11 @@
 	"partitions=" PARTS_DEFAULT "\0" \
 	"optargs=\0" \
 	"dofastboot=0\0" \
+	"emmc_linux_boot=" \
+		"setenv mmcdev 1; " \
+		"setenv bootpart 1:2; " \
+		"setenv mmcroot /dev/mmcblk0p2 rw; " \
+		"run mmcboot;\0" \
 	"emmc_android_boot=" \
 		"setenv eval_bootargs setenv bootargs $bootargs; " \
 		"run eval_bootargs; " \
@@ -93,10 +98,7 @@
 	"run findfdt; " \
 	"run envboot; " \
 	"run mmcboot;" \
-	"setenv mmcdev 1; " \
-	"setenv bootpart 1:2; " \
-	"setenv mmcroot /dev/mmcblk0p2 rw; " \
-	"run mmcboot;" \
+	"run emmc_linux_boot; " \
 	"run emmc_android_boot; " \
 	""
 
