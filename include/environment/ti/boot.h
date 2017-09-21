@@ -30,11 +30,13 @@
 	"optargs=\0" \
 	"dofastboot=0\0" \
 	"emmc_linux_boot=" \
+		"echo Trying to boot Linux from eMMC ...; " \
 		"setenv mmcdev 1; " \
 		"setenv bootpart 1:2; " \
 		"setenv mmcroot /dev/mmcblk0p2 rw; " \
 		"run mmcboot;\0" \
 	"emmc_android_boot=" \
+		"echo Trying to boot Android from eMMC ...; " \
 		"setenv eval_bootargs setenv bootargs $bootargs; " \
 		"run eval_bootargs; " \
 		"setenv mmcdev 1; " \
@@ -49,7 +51,6 @@
 		"part size mmc ${mmcdev} ${boot_part} boot_size; " \
 		"mmc read ${fdtaddr} ${fdt_start} ${fdt_size}; " \
 		"mmc read ${loadaddr} ${boot_start} ${boot_size}; " \
-		"echo Booting from eMMC ...; " \
 		"bootm $loadaddr $loadaddr $fdtaddr;\0"
 
 #ifdef CONFIG_OMAP54XX
