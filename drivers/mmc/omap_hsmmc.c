@@ -494,6 +494,10 @@ static int omap_hsmmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 	ulong start;
 
 	mmc_base = priv->base_addr;
+
+	if (cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION)
+		return 0;
+
 	start = get_timer(0);
 	while ((readl(&mmc_base->pstate) & (DATI_MASK | CMDI_MASK)) != 0) {
 		if (get_timer(0) - start > MAX_RETRY_MS) {
@@ -550,7 +554,7 @@ static int omap_hsmmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 	if (data) {
 		if ((cmd->cmdidx == MMC_CMD_READ_MULTIPLE_BLOCK) ||
 			 (cmd->cmdidx == MMC_CMD_WRITE_MULTIPLE_BLOCK)) {
-			flags |= (MSBS_MULTIBLK | BCE_ENABLE);
+			flags |= (MSBS_MULTIBLK | BCE_ENABLE | ACEN_ENABLE);
 			data->blocksize = 512;
 			writel(data->blocksize | (data->blocks << 16),
 							&mmc_base->blk);
