@@ -1249,15 +1249,176 @@ static int mmc_select_bus_freq_width(struct mmc *mmc, const u8 *ext_csd)
 	return err;
 }
 
+static int mmc_startup_v4(struct mmc *mmc, u8 *ext_csd)
+{
+	int err, i;
+	u64 capacity;
+	bool has_parts = false;
+	bool part_completed;
+
+	if (IS_SD(mmc) || (mmc->version < MMC_VERSION_4))
+		return 0;
+
+	/* check  ext_csd version and capacity */
+	err = mmc_send_ext_csd(mmc, ext_csd);
+	if (err)
+		return err;
+	if (ext_csd[EXT_CSD_REV] >= 2) {
+		/*
+		 * According to the JEDEC Standard, the value of
+		 * ext_csd's capacity is valid if the value is more
+		 * than 2GB
+		 */
+		capacity = ext_csd[EXT_CSD_SEC_CNT] << 0
+				| ext_csd[EXT_CSD_SEC_CNT + 1] << 8
+				| ext_csd[EXT_CSD_SEC_CNT + 2] << 16
+				| ext_csd[EXT_CSD_SEC_CNT + 3] << 24;
+		capacity *= MMC_MAX_BLOCK_LEN;
+		if ((capacity >> 20) > 2 * 1024)
+			mmc->capacity_user = capacity;
+	}
+
+	switch (ext_csd[EXT_CSD_REV]) {
+	case 1:
+		mmc->version = MMC_VERSION_4_1;
+		break;
+	case 2:
+		mmc->version = MMC_VERSION_4_2;
+		break;
+	case 3:
+		mmc->version = MMC_VERSION_4_3;
+		break;
+	case 5:
+		mmc->version = MMC_VERSION_4_41;
+		break;
+	case 6:
+		mmc->version = MMC_VERSION_4_5;
+		break;
+	case 7:
+		mmc->version = MMC_VERSION_5_0;
+		break;
+	case 8:
+		mmc->version = MMC_VERSION_5_1;
+		break;
+	}
+
+	/* The partition data may be non-zero but it is only
+	 * effective if PARTITION_SETTING_COMPLETED is set in
+	 * EXT_CSD, so ignore any data if this bit is not set,
+	 * except for enabling the high-capacity group size
+	 * definition (see below).
+	 */
+	part_completed = !!(ext_csd[EXT_CSD_PARTITION_SETTING] &
+			    EXT_CSD_PARTITION_SETTING_COMPLETED);
+
+	/* store the partition info of emmc */
+	mmc->part_support = ext_csd[EXT_CSD_PARTITIONING_SUPPORT];
+	if ((ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & PART_SUPPORT) ||
+	    ext_csd[EXT_CSD_BOOT_MULT])
+		mmc->part_config = ext_csd[EXT_CSD_PART_CONF];
+	if (part_completed &&
+	    (ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & ENHNCD_SUPPORT))
+		mmc->part_attr = ext_csd[EXT_CSD_PARTITIONS_ATTRIBUTE];
+
+	mmc->capacity_boot = ext_csd[EXT_CSD_BOOT_MULT] << 17;
+
+	mmc->capacity_rpmb = ext_csd[EXT_CSD_RPMB_MULT] << 17;
+
+	for (i = 0; i < 4; i++) {
+		int idx = EXT_CSD_GP_SIZE_MULT + i * 3;
+		uint mult = (ext_csd[idx + 2] << 16) +
+			(ext_csd[idx + 1] << 8) + ext_csd[idx];
+		if (mult)
+			has_parts = true;
+		if (!part_completed)
+			continue;
+		mmc->capacity_gp[i] = mult;
+		mmc->capacity_gp[i] *=
+			ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE];
+		mmc->capacity_gp[i] *= ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
+		mmc->capacity_gp[i] <<= 19;
+	}
+
+	if (part_completed) {
+		mmc->enh_user_size =
+			(ext_csd[EXT_CSD_ENH_SIZE_MULT + 2] << 16) +
+			(ext_csd[EXT_CSD_ENH_SIZE_MULT + 1] << 8) +
+			ext_csd[EXT_CSD_ENH_SIZE_MULT];
+		mmc->enh_user_size *= ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE];
+		mmc->enh_user_size *= ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
+		mmc->enh_user_size <<= 19;
+		mmc->enh_user_start =
+			(ext_csd[EXT_CSD_ENH_START_ADDR + 3] << 24) +
+			(ext_csd[EXT_CSD_ENH_START_ADDR + 2] << 16) +
+			(ext_csd[EXT_CSD_ENH_START_ADDR + 1] << 8) +
+			ext_csd[EXT_CSD_ENH_START_ADDR];
+		if (mmc->high_capacity)
+			mmc->enh_user_start <<= 9;
+	}
+
+	/*
+	 * Host needs to enable ERASE_GRP_DEF bit if device is
+	 * partitioned. This bit will be lost every time after a reset
+	 * or power off. This will affect erase size.
+	 */
+	if (part_completed)
+		has_parts = true;
+	if ((ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & PART_SUPPORT) &&
+	    (ext_csd[EXT_CSD_PARTITIONS_ATTRIBUTE] & PART_ENH_ATTRIB))
+		has_parts = true;
+	if (has_parts) {
+		err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+				 EXT_CSD_ERASE_GROUP_DEF, 1);
+
+		if (err)
+			return err;
+
+		ext_csd[EXT_CSD_ERASE_GROUP_DEF] = 1;
+	}
+
+	if (ext_csd[EXT_CSD_ERASE_GROUP_DEF] & 0x01) {
+		/* Read out group size from ext_csd */
+		mmc->erase_grp_size =
+			ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] * 1024;
+		/*
+		 * if high capacity and partition setting completed
+		 * SEC_COUNT is valid even if it is smaller than 2 GiB
+		 * JEDEC Standard JESD84-B45, 6.2.4
+		 */
+		if (mmc->high_capacity && part_completed) {
+			capacity = (ext_csd[EXT_CSD_SEC_CNT]) |
+				(ext_csd[EXT_CSD_SEC_CNT + 1] << 8) |
+				(ext_csd[EXT_CSD_SEC_CNT + 2] << 16) |
+				(ext_csd[EXT_CSD_SEC_CNT + 3] << 24);
+			capacity *= MMC_MAX_BLOCK_LEN;
+			mmc->capacity_user = capacity;
+		}
+	} else {
+		/* Calculate the group size from the csd value. */
+		int erase_gsz, erase_gmul;
+
+		erase_gsz = (mmc->csd[2] & 0x00007c00) >> 10;
+		erase_gmul = (mmc->csd[2] & 0x000003e0) >> 5;
+		mmc->erase_grp_size = (erase_gsz + 1)
+			* (erase_gmul + 1);
+	}
+
+	mmc->hc_wp_grp_size = 1024
+		* ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE]
+		* ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
+
+	mmc->wr_rel_set = ext_csd[EXT_CSD_WR_REL_SET];
+
+	return 0;
+}
+
 static int mmc_startup(struct mmc *mmc)
 {
 	int err, i;
 	uint mult, freq;
-	u64 cmult, csize, capacity;
+	u64 cmult, csize;
 	struct mmc_cmd cmd;
 	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
-	bool has_parts = false;
-	bool part_completed;
 	struct blk_desc *bdesc;
 
 #ifdef CONFIG_MMC_SPI_CRC_ON
@@ -1405,155 +1566,10 @@ static int mmc_startup(struct mmc *mmc)
 	 */
 	mmc->erase_grp_size = 1;
 	mmc->part_config = MMCPART_NOAVAILABLE;
-	if (!IS_SD(mmc) && (mmc->version >= MMC_VERSION_4)) {
-		/* check  ext_csd version and capacity */
-		err = mmc_send_ext_csd(mmc, ext_csd);
-		if (err)
-			return err;
-		if (ext_csd[EXT_CSD_REV] >= 2) {
-			/*
-			 * According to the JEDEC Standard, the value of
-			 * ext_csd's capacity is valid if the value is more
-			 * than 2GB
-			 */
-			capacity = ext_csd[EXT_CSD_SEC_CNT] << 0
-					| ext_csd[EXT_CSD_SEC_CNT + 1] << 8
-					| ext_csd[EXT_CSD_SEC_CNT + 2] << 16
-					| ext_csd[EXT_CSD_SEC_CNT + 3] << 24;
-			capacity *= MMC_MAX_BLOCK_LEN;
-			if ((capacity >> 20) > 2 * 1024)
-				mmc->capacity_user = capacity;
-		}
 
-		switch (ext_csd[EXT_CSD_REV]) {
-		case 1:
-			mmc->version = MMC_VERSION_4_1;
-			break;
-		case 2:
-			mmc->version = MMC_VERSION_4_2;
-			break;
-		case 3:
-			mmc->version = MMC_VERSION_4_3;
-			break;
-		case 5:
-			mmc->version = MMC_VERSION_4_41;
-			break;
-		case 6:
-			mmc->version = MMC_VERSION_4_5;
-			break;
-		case 7:
-			mmc->version = MMC_VERSION_5_0;
-			break;
-		case 8:
-			mmc->version = MMC_VERSION_5_1;
-			break;
-		}
-
-		/* The partition data may be non-zero but it is only
-		 * effective if PARTITION_SETTING_COMPLETED is set in
-		 * EXT_CSD, so ignore any data if this bit is not set,
-		 * except for enabling the high-capacity group size
-		 * definition (see below). */
-		part_completed = !!(ext_csd[EXT_CSD_PARTITION_SETTING] &
-				    EXT_CSD_PARTITION_SETTING_COMPLETED);
-
-		/* store the partition info of emmc */
-		mmc->part_support = ext_csd[EXT_CSD_PARTITIONING_SUPPORT];
-		if ((ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & PART_SUPPORT) ||
-		    ext_csd[EXT_CSD_BOOT_MULT])
-			mmc->part_config = ext_csd[EXT_CSD_PART_CONF];
-		if (part_completed &&
-		    (ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & ENHNCD_SUPPORT))
-			mmc->part_attr = ext_csd[EXT_CSD_PARTITIONS_ATTRIBUTE];
-
-		mmc->capacity_boot = ext_csd[EXT_CSD_BOOT_MULT] << 17;
-
-		mmc->capacity_rpmb = ext_csd[EXT_CSD_RPMB_MULT] << 17;
-
-		for (i = 0; i < 4; i++) {
-			int idx = EXT_CSD_GP_SIZE_MULT + i * 3;
-			uint mult = (ext_csd[idx + 2] << 16) +
-				(ext_csd[idx + 1] << 8) + ext_csd[idx];
-			if (mult)
-				has_parts = true;
-			if (!part_completed)
-				continue;
-			mmc->capacity_gp[i] = mult;
-			mmc->capacity_gp[i] *=
-				ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE];
-			mmc->capacity_gp[i] *= ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
-			mmc->capacity_gp[i] <<= 19;
-		}
-
-		if (part_completed) {
-			mmc->enh_user_size =
-				(ext_csd[EXT_CSD_ENH_SIZE_MULT+2] << 16) +
-				(ext_csd[EXT_CSD_ENH_SIZE_MULT+1] << 8) +
-				ext_csd[EXT_CSD_ENH_SIZE_MULT];
-			mmc->enh_user_size *= ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE];
-			mmc->enh_user_size *= ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
-			mmc->enh_user_size <<= 19;
-			mmc->enh_user_start =
-				(ext_csd[EXT_CSD_ENH_START_ADDR+3] << 24) +
-				(ext_csd[EXT_CSD_ENH_START_ADDR+2] << 16) +
-				(ext_csd[EXT_CSD_ENH_START_ADDR+1] << 8) +
-				ext_csd[EXT_CSD_ENH_START_ADDR];
-			if (mmc->high_capacity)
-				mmc->enh_user_start <<= 9;
-		}
-
-		/*
-		 * Host needs to enable ERASE_GRP_DEF bit if device is
-		 * partitioned. This bit will be lost every time after a reset
-		 * or power off. This will affect erase size.
-		 */
-		if (part_completed)
-			has_parts = true;
-		if ((ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & PART_SUPPORT) &&
-		    (ext_csd[EXT_CSD_PARTITIONS_ATTRIBUTE] & PART_ENH_ATTRIB))
-			has_parts = true;
-		if (has_parts) {
-			err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
-				EXT_CSD_ERASE_GROUP_DEF, 1);
-
-			if (err)
-				return err;
-			else
-				ext_csd[EXT_CSD_ERASE_GROUP_DEF] = 1;
-		}
-
-		if (ext_csd[EXT_CSD_ERASE_GROUP_DEF] & 0x01) {
-			/* Read out group size from ext_csd */
-			mmc->erase_grp_size =
-				ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] * 1024;
-			/*
-			 * if high capacity and partition setting completed
-			 * SEC_COUNT is valid even if it is smaller than 2 GiB
-			 * JEDEC Standard JESD84-B45, 6.2.4
-			 */
-			if (mmc->high_capacity && part_completed) {
-				capacity = (ext_csd[EXT_CSD_SEC_CNT]) |
-					(ext_csd[EXT_CSD_SEC_CNT + 1] << 8) |
-					(ext_csd[EXT_CSD_SEC_CNT + 2] << 16) |
-					(ext_csd[EXT_CSD_SEC_CNT + 3] << 24);
-				capacity *= MMC_MAX_BLOCK_LEN;
-				mmc->capacity_user = capacity;
-			}
-		} else {
-			/* Calculate the group size from the csd value. */
-			int erase_gsz, erase_gmul;
-			erase_gsz = (mmc->csd[2] & 0x00007c00) >> 10;
-			erase_gmul = (mmc->csd[2] & 0x000003e0) >> 5;
-			mmc->erase_grp_size = (erase_gsz + 1)
-				* (erase_gmul + 1);
-		}
-
-		mmc->hc_wp_grp_size = 1024
-			* ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE]
-			* ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
-
-		mmc->wr_rel_set = ext_csd[EXT_CSD_WR_REL_SET];
-	}
+	err = mmc_startup_v4(mmc, ext_csd);
+	if (err)
+		return err;
 
 	err = mmc_set_capacity(mmc, mmc_get_blk_desc(mmc)->hwpart);
 	if (err)
