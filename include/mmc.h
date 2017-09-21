@@ -272,6 +272,13 @@
 #define ENHNCD_SUPPORT		(0x2)
 #define PART_ENH_ATTRIB		(0x1f)
 
+enum mmc_voltage {
+	MMC_SIGNAL_VOLTAGE_000 = 0,
+	MMC_SIGNAL_VOLTAGE_120,
+	MMC_SIGNAL_VOLTAGE_180,
+	MMC_SIGNAL_VOLTAGE_330
+};
+
 /* Maximum block size for MMC */
 #define MMC_MAX_BLOCK_LEN	512
 
@@ -457,6 +464,7 @@ struct mmc {
 	int high_capacity;
 	uint bus_width;
 	uint clock;
+	enum mmc_voltage signal_voltage;
 	uint card_caps;
 	uint ocr;
 	uint dsr;

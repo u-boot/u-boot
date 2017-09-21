@@ -30,6 +30,8 @@ static const unsigned int sd_au_size[] = {
 	SZ_16M / 512,	(SZ_16M + SZ_8M) / 512,	SZ_32M / 512,	SZ_64M / 512,
 };
 
+static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage);
+
 #if CONFIG_IS_ENABLED(MMC_TINY)
 static struct mmc mmc_static;
 struct mmc *find_mmc_device(int dev_num)
@@ -1257,6 +1259,12 @@ struct mode_width_tuning {
 	uint widths;
 };
 
+static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage)
+{
+	mmc->signal_voltage = signal_voltage;
+	return mmc_set_ios(mmc);
+}
+
 static const struct mode_width_tuning sd_modes_by_pref[] = {
 	{
 		.mode = SD_HS,
@@ -1964,6 +1972,14 @@ int mmc_start_init(struct mmc *mmc)
 		return err;
 #endif
 	mmc->ddr_mode = 0;
+
+	/* First try to set 3.3V. If it fails set to 1.8V */
+	err = mmc_set_signal_voltage(mmc, MMC_SIGNAL_VOLTAGE_330);
+	if (err != 0)
+		err = mmc_set_signal_voltage(mmc, MMC_SIGNAL_VOLTAGE_180);
+	if (err != 0)
+		printf("failed to set signal voltage\n");
+
 	mmc_set_bus_width(mmc, 1);
 	mmc_set_clock(mmc, 1);
 
