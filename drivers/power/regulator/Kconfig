@@ -151,6 +151,19 @@ config DM_REGULATOR_PALMAS
 	features for REGULATOR PALMAS and the family of PALMAS PMICs.
 	The driver implements get/set api for: value and enable.
 
+config DM_REGULATOR_PBIAS
+	bool "Enable driver for PBIAS regulator"
+	depends on DM_REGULATOR
+	select REGMAP
+	select SYSCON
+	---help---
+	This enables implementation of driver-model regulator uclass
+	features for pseudo-regulator PBIAS found in the OMAP SOCs.
+	This pseudo-regulator is used to provide a BIAS voltage to MMC1
+	signal pads and must be configured properly during a voltage switch.
+	Voltage switching is required by some operating modes of SDcards and
+	eMMC.
+
 config DM_REGULATOR_LP873X
 	bool "Enable driver for LP873X PMIC regulators"
         depends on PMIC_LP873X

@@ -18,5 +18,6 @@ obj-$(CONFIG_REGULATOR_S5M8767) += s5m8767.o
 obj-$(CONFIG_DM_REGULATOR_SANDBOX) += sandbox.o
 obj-$(CONFIG_REGULATOR_TPS65090) += tps65090_regulator.o
 obj-$(CONFIG_$(SPL_)DM_REGULATOR_PALMAS) += palmas_regulator.o
+obj-$(CONFIG_$(SPL_)DM_REGULATOR_PBIAS) += pbias_regulator.o
 obj-$(CONFIG_$(SPL_)DM_REGULATOR_LP873X) += lp873x_regulator.o
 obj-$(CONFIG_$(SPL_)DM_REGULATOR_LP87565) += lp87565_regulator.o
