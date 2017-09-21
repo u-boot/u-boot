@@ -92,10 +92,8 @@ static u32 omap_mmc_get_part_size(const char *part)
 	}
 
 	res = part_get_info_by_name(dev_desc, part, &info);
-	if (res < 0) {
-		pr_err("cannot find partition: '%s'\n", part);
+	if (res < 0)
 		return 0;
-	}
 
 	/* Calculate size in bytes */
 	sz = (info.size * (u64)info.blksz);
@@ -111,13 +109,10 @@ static void omap_set_fastboot_userdata_size(void)
 	u32 sz_kb;
 
 	sz_kb = omap_mmc_get_part_size("userdata");
-	if (sz_kb == 0) {
-		buf[0] = '\0';
-		printf("Warning: fastboot.userdata_size: unable to calc\n");
-	} else {
-		sprintf(buf, "%u", sz_kb);
-	}
+	if (sz_kb == 0)
+		return; /* probably it's not Android partition table */
 
+	sprintf(buf, "%u", sz_kb);
 	env_set("fastboot.userdata_size", buf);
 }
 #else
