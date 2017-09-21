@@ -16,7 +16,7 @@
  * OMAP HSMMC register definitions
  */
 
-#define OMAP_HSMMC1_BASE	0x23000100
-#define OMAP_HSMMC2_BASE	0x23100100
+#define OMAP_HSMMC1_BASE	0x23000000
+#define OMAP_HSMMC2_BASE	0x23100000
 
 #endif /* K2G_MMC_HOST_DEF_H */

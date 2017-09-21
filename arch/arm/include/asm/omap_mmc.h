@@ -28,7 +28,7 @@
 #include <mmc.h>
 
 struct hsmmc {
-#ifdef CONFIG_DM_MMC
+#ifndef CONFIG_OMAP34XX
 	unsigned char res0[0x100];
 #endif
 	unsigned char res1[0x10];
