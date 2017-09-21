@@ -21,6 +21,9 @@
 #define PRINTF(fmt,args...)
 #endif
 
+/* Check all partition types */
+#define PART_TYPE_ALL		-1
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef HAVE_BLOCK_DEVICE
@@ -626,8 +629,8 @@ cleanup:
 	return ret;
 }
 
-int part_get_info_by_name(struct blk_desc *dev_desc, const char *name,
-	disk_partition_t *info)
+int part_get_info_by_name_type(struct blk_desc *dev_desc, const char *name,
+			       disk_partition_t *info, int part_type)
 {
 	struct part_driver *first_drv =
 		ll_entry_start(struct part_driver, part_driver);
@@ -638,6 +641,8 @@ int part_get_info_by_name(struct blk_desc *dev_desc, const char *name,
 		int ret;
 		int i;
 		for (i = 1; i < part_drv->max_entries; i++) {
+			if (part_type >= 0 && part_type != part_drv->part_type)
+				break;
 			ret = part_drv->get_info(dev_desc, i, info);
 			if (ret != 0) {
 				/* no more entries in table */
@@ -650,6 +655,12 @@ int part_get_info_by_name(struct blk_desc *dev_desc, const char *name,
 		}
 	}
 	return -1;
+}
+
+int part_get_info_by_name(struct blk_desc *dev_desc, const char *name,
+			  disk_partition_t *info)
+{
+	return part_get_info_by_name_type(dev_desc, name, info, PART_TYPE_ALL);
 }
 
 void part_set_generic_name(const struct blk_desc *dev_desc,
