@@ -42,6 +42,20 @@ config ARM_PL180_MMCI
 	  If you have an ARM(R) platform with a Multimedia Card slot,
 	  say Y or M here.
 
+config MMC_VERBOSE
+	bool "Output more information about the MMC"
+	default y
+	help
+	  Enable the output of more information about the card such as the
+	  operating mode.
+
+config SPL_MMC_VERBOSE
+	bool "Output more information about the MMC in SPL"
+	default n
+	help
+	  Enable the output of more information about the card such as the
+	  operating mode.
+
 config SPL_MMC_TINY
 	bool "Tiny MMC framework in SPL"
 	help

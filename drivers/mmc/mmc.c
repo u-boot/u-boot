@@ -149,6 +149,39 @@ void mmc_trace_state(struct mmc *mmc, struct mmc_cmd *cmd)
 }
 #endif
 
+#if CONFIG_IS_ENABLED(MMC_VERBOSE) || defined(DEBUG)
+const char *mmc_mode_name(enum bus_mode mode)
+{
+	static const char *const names[] = {
+	      [MMC_LEGACY]	= "MMC legacy",
+	      [SD_LEGACY]	= "SD Legacy",
+	      [MMC_HS]		= "MMC High Speed (26MHz)",
+	      [SD_HS]		= "SD High Speed (50MHz)",
+	      [UHS_SDR12]	= "UHS SDR12 (25MHz)",
+	      [UHS_SDR25]	= "UHS SDR25 (50MHz)",
+	      [UHS_SDR50]	= "UHS SDR50 (100MHz)",
+	      [UHS_SDR104]	= "UHS SDR104 (208MHz)",
+	      [UHS_DDR50]	= "UHS DDR50 (50MHz)",
+	      [MMC_HS_52]	= "MMC High Speed (52MHz)",
+	      [MMC_DDR_52]	= "MMC DDR52 (52MHz)",
+	      [MMC_HS_200]	= "HS200 (200MHz)",
+	};
+
+	if (mode >= MMC_MODES_END)
+		return "Unknown mode";
+	else
+		return names[mode];
+}
+#endif
+
+static int mmc_select_mode(struct mmc *mmc, enum bus_mode mode)
+{
+	mmc->selected_mode = mode;
+	debug("selecting mode %s (freq : %d MHz)\n", mmc_mode_name(mode),
+	      mmc->tran_speed / 1000000);
+	return 0;
+}
+
 #if !CONFIG_IS_ENABLED(DM_MMC)
 int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 {
@@ -1138,10 +1171,13 @@ static int sd_select_bus_freq_width(struct mmc *mmc)
 	if (err)
 		return err;
 
-	if (mmc->card_caps & MMC_MODE_HS)
+	if (mmc->card_caps & MMC_MODE_HS) {
+		mmc_select_mode(mmc, SD_HS);
 		mmc->tran_speed = 50000000;
-	else
+	} else {
+		mmc_select_mode(mmc, SD_LEGACY);
 		mmc->tran_speed = 25000000;
+	}
 
 	return 0;
 }
@@ -1258,11 +1294,15 @@ static int mmc_select_bus_freq_width(struct mmc *mmc)
 	if (err)
 		return err;
 
-	if (mmc->card_caps & MMC_MODE_HS) {
-		if (mmc->card_caps & MMC_MODE_HS_52MHz)
-			mmc->tran_speed = 52000000;
+	if (mmc->card_caps & MMC_MODE_HS_52MHz) {
+		if (mmc->ddr_mode)
+			mmc_select_mode(mmc, MMC_DDR_52);
 		else
-			mmc->tran_speed = 26000000;
+			mmc_select_mode(mmc, MMC_HS_52);
+		mmc->tran_speed = 52000000;
+	} else if (mmc->card_caps & MMC_MODE_HS) {
+		mmc_select_mode(mmc, MMC_HS);
+		mmc->tran_speed = 26000000;
 	}
 
 	return err;
@@ -1534,7 +1574,9 @@ static int mmc_startup(struct mmc *mmc)
 	freq = fbase[(cmd.response[0] & 0x7)];
 	mult = multipliers[((cmd.response[0] >> 3) & 0xf)];
 
-	mmc->tran_speed = freq * mult;
+	mmc->legacy_speed = freq * mult;
+	mmc->tran_speed = mmc->legacy_speed;
+	mmc_select_mode(mmc, MMC_LEGACY);
 
 	mmc->dsr_imp = ((cmd.response[1] >> 12) & 0x1);
 	mmc->read_bl_len = 1 << ((cmd.response[1] >> 16) & 0xf);

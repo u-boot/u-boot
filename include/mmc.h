@@ -52,12 +52,15 @@
 #define MMC_VERSION_5_0		MAKE_MMC_VERSION(5, 0, 0)
 #define MMC_VERSION_5_1		MAKE_MMC_VERSION(5, 1, 0)
 
-#define MMC_MODE_HS		(1 << 0)
-#define MMC_MODE_HS_52MHz	(1 << 1)
-#define MMC_MODE_4BIT		(1 << 2)
-#define MMC_MODE_8BIT		(1 << 3)
-#define MMC_MODE_SPI		(1 << 4)
-#define MMC_MODE_DDR_52MHz	(1 << 5)
+#define MMC_CAP(mode)		(1 << mode)
+#define MMC_MODE_HS		(MMC_CAP(MMC_HS) | MMC_CAP(SD_HS))
+#define MMC_MODE_HS_52MHz	MMC_CAP(MMC_HS_52)
+#define MMC_MODE_DDR_52MHz	MMC_CAP(MMC_DDR_52)
+
+#define MMC_MODE_8BIT		BIT(30)
+#define MMC_MODE_4BIT		BIT(29)
+#define MMC_MODE_SPI		BIT(27)
+
 
 #define SD_DATA_4BIT	0x00040000
 
@@ -406,6 +409,24 @@ struct sd_ssr {
 	unsigned int erase_offset;	/* In milliseconds */
 };
 
+enum bus_mode {
+	MMC_LEGACY,
+	SD_LEGACY,
+	MMC_HS,
+	SD_HS,
+	UHS_SDR12,
+	UHS_SDR25,
+	UHS_SDR50,
+	UHS_SDR104,
+	UHS_DDR50,
+	MMC_HS_52,
+	MMC_DDR_52,
+	MMC_HS_200,
+	MMC_MODES_END
+};
+
+const char *mmc_mode_name(enum bus_mode mode);
+
 /*
  * With CONFIG_DM_MMC enabled, struct mmc can be accessed from the MMC device
  * with mmc_get_mmc_dev().
@@ -436,6 +457,7 @@ struct mmc {
 	u8 wr_rel_set;
 	u8 part_config;
 	uint tran_speed;
+	uint legacy_speed; /* speed for the legacy mode provided by the card */
 	uint read_bl_len;
 	uint write_bl_len;
 	uint erase_grp_size;	/* in 512-byte sectors */
@@ -463,6 +485,7 @@ struct mmc {
 #endif
 #endif
 	u8 *ext_csd;
+	enum bus_mode selected_mode;
 };
 
 struct mmc_hwpart_conf {
