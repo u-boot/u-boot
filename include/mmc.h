@@ -651,6 +651,7 @@ int mmc_unbind(struct udevice *dev);
 int mmc_initialize(bd_t *bis);
 int mmc_init(struct mmc *mmc);
 int mmc_send_tuning(struct mmc *mmc, u32 opcode, int *cmd_error);
+int mmc_of_parse(const void *fdt, int node, struct mmc_config *cfg);
 int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size);
 
 /**

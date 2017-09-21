@@ -120,6 +120,52 @@ int mmc_execute_tuning(struct mmc *mmc, uint opcode)
 	return dm_mmc_execute_tuning(mmc->dev, opcode);
 }
 
+int mmc_of_parse(const void *fdt, int node, struct mmc_config *cfg)
+{
+	int val;
+
+	val = fdtdec_get_int(fdt, node, "bus-width", 1);
+
+	switch (val) {
+	case 0x8:
+		cfg->host_caps |= MMC_MODE_8BIT;
+		/* fall through */
+	case 0x4:
+		cfg->host_caps |= MMC_MODE_4BIT;
+		/* fall through */
+	case 0x1:
+		cfg->host_caps |= MMC_MODE_1BIT;
+		break;
+	default:
+		printf("error: %s invalid bus-width property %d\n",
+		       fdt_get_name(fdt, node, NULL), val);
+		return -ENOENT;
+	}
+
+	cfg->f_max = fdtdec_get_int(fdt, node, "max-frequency", 52000000);
+
+	if (fdtdec_get_bool(fdt, node, "cap-sd-highspeed"))
+		cfg->host_caps |= MMC_CAP(SD_HS);
+	if (fdtdec_get_bool(fdt, node, "cap-mmc-highspeed"))
+		cfg->host_caps |= MMC_CAP(MMC_HS);
+	if (fdtdec_get_bool(fdt, node, "sd-uhs-sdr12"))
+		cfg->host_caps |= MMC_CAP(UHS_SDR12);
+	if (fdtdec_get_bool(fdt, node, "sd-uhs-sdr25"))
+		cfg->host_caps |= MMC_CAP(UHS_SDR25);
+	if (fdtdec_get_bool(fdt, node, "sd-uhs-sdr50"))
+		cfg->host_caps |= MMC_CAP(UHS_SDR50);
+	if (fdtdec_get_bool(fdt, node, "sd-uhs-sdr104"))
+		cfg->host_caps |= MMC_CAP(UHS_SDR104);
+	if (fdtdec_get_bool(fdt, node, "sd-uhs-ddr50"))
+		cfg->host_caps |= MMC_CAP(UHS_DDR50);
+	if (fdtdec_get_bool(fdt, node, "mmc-ddr-1_8v"))
+		cfg->host_caps |= MMC_CAP(MMC_DDR_52);
+	if (fdtdec_get_bool(fdt, node, "mmc-hs200-1_8v"))
+		cfg->host_caps |= MMC_CAP(MMC_HS_200);
+
+	return 0;
+}
+
 struct mmc *mmc_get_mmc_dev(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv;
