@@ -51,7 +51,8 @@
 #define PARTS_DEFAULT \
 	/* Linux partitions */ \
 	"uuid_disk=${uuid_gpt_disk};" \
-	"name=rootfs,start=2MiB,size=-,uuid=${uuid_gpt_rootfs}\0" \
+	"name=bootloader,start=384K,size=1792K,uuid=${uuid_gpt_bootloader};" \
+	"name=rootfs,start=2688K,size=-,uuid=${uuid_gpt_rootfs}\0" \
 	/* Android partitions */ \
 	"partitions_android=" \
 	"uuid_disk=${uuid_gpt_disk};" \
