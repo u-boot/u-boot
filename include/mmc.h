@@ -472,6 +472,7 @@ struct mmc {
 	void *priv;
 	uint has_init;
 	int high_capacity;
+	bool clk_disable; /* true if the clock can be turned off */
 	uint bus_width;
 	uint clock;
 	enum mmc_voltage signal_voltage;
@@ -567,7 +568,16 @@ int mmc_unbind(struct udevice *dev);
 int mmc_initialize(bd_t *bis);
 int mmc_init(struct mmc *mmc);
 int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size);
-int mmc_set_clock(struct mmc *mmc, uint clock);
+
+/**
+ * mmc_set_clock() - change the bus clock
+ * @mmc:	MMC struct
+ * @clock:	bus frequency in Hz
+ * @disable:	flag indicating if the clock must on or off
+ * @return 0 if OK, -ve on error
+ */
+int mmc_set_clock(struct mmc *mmc, uint clock, bool disable);
+
 struct mmc *find_mmc_device(int dev_num);
 int mmc_set_dev(int dev_num);
 void print_mmc_devices(char separator);
