@@ -1198,6 +1198,10 @@ static inline int bus_width(uint cap)
 }
 
 #if !CONFIG_IS_ENABLED(DM_MMC)
+static void mmc_send_init_stream(struct mmc *mmc)
+{
+}
+
 static int mmc_set_ios(struct mmc *mmc)
 {
 	int ret = 0;
@@ -1982,6 +1986,8 @@ int mmc_start_init(struct mmc *mmc)
 
 	mmc_set_bus_width(mmc, 1);
 	mmc_set_clock(mmc, 1);
+
+	mmc_send_init_stream(mmc);
 
 	/* Reset the Card */
 	err = mmc_go_idle(mmc);
