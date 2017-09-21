@@ -1199,6 +1199,11 @@ static inline int bus_width(uint cap)
 }
 
 #if !CONFIG_IS_ENABLED(DM_MMC)
+static int mmc_execute_tuning(struct mmc *mmc, uint opcode)
+{
+	return -ENOTSUPP;
+}
+
 static void mmc_send_init_stream(struct mmc *mmc)
 {
 }
