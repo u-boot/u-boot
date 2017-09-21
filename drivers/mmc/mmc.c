@@ -202,6 +202,7 @@ static int mmc_select_mode(struct mmc *mmc, enum bus_mode mode)
 {
 	mmc->selected_mode = mode;
 	mmc->tran_speed = mmc_mode2freq(mmc, mode);
+	mmc->ddr_mode = mmc_is_mode_ddr(mode);
 	debug("selecting mode %s (freq : %d MHz)\n", mmc_mode_name(mode),
 	      mmc->tran_speed / 1000000);
 	return 0;
@@ -605,11 +606,47 @@ int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 
 }
 
-static int mmc_change_freq(struct mmc *mmc)
+static int mmc_set_card_speed(struct mmc *mmc, enum bus_mode mode)
 {
-	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
-	char cardtype;
 	int err;
+	int speed_bits;
+
+	ALLOC_CACHE_ALIGN_BUFFER(u8, test_csd, MMC_MAX_BLOCK_LEN);
+
+	switch (mode) {
+	case MMC_HS:
+	case MMC_HS_52:
+	case MMC_DDR_52:
+		speed_bits = EXT_CSD_TIMING_HS;
+	case MMC_LEGACY:
+		speed_bits = EXT_CSD_TIMING_LEGACY;
+		break;
+	default:
+		return -EINVAL;
+	}
+	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_HS_TIMING,
+			 speed_bits);
+	if (err)
+		return err;
+
+	if ((mode == MMC_HS) || (mode == MMC_HS_52)) {
+		/* Now check to see that it worked */
+		err = mmc_send_ext_csd(mmc, test_csd);
+		if (err)
+			return err;
+
+		/* No high-speed support */
+		if (!test_csd[EXT_CSD_HS_TIMING])
+			return -ENOTSUPP;
+	}
+
+	return 0;
+}
+
+static int mmc_get_capabilities(struct mmc *mmc)
+{
+	u8 *ext_csd = mmc->ext_csd;
+	char cardtype;
 
 	mmc->card_caps = MMC_MODE_1BIT;
 
@@ -620,38 +657,23 @@ static int mmc_change_freq(struct mmc *mmc)
 	if (mmc->version < MMC_VERSION_4)
 		return 0;
 
+	if (!ext_csd) {
+		printf("No ext_csd found!\n"); /* this should enver happen */
+		return -ENOTSUPP;
+	}
+
 	mmc->card_caps |= MMC_MODE_4BIT | MMC_MODE_8BIT;
-
-	err = mmc_send_ext_csd(mmc, ext_csd);
-
-	if (err)
-		return err;
 
 	cardtype = ext_csd[EXT_CSD_CARD_TYPE] & 0xf;
 
-	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_HS_TIMING, 1);
-
-	if (err)
-		return err;
-
-	/* Now check to see that it worked */
-	err = mmc_send_ext_csd(mmc, ext_csd);
-
-	if (err)
-		return err;
-
-	/* No high-speed support */
-	if (!ext_csd[EXT_CSD_HS_TIMING])
-		return 0;
-
 	/* High Speed is set, there are two types: 52MHz and 26MHz */
 	if (cardtype & EXT_CSD_CARD_TYPE_52) {
-		if (cardtype & EXT_CSD_CARD_TYPE_DDR_1_8V)
+		if (cardtype & EXT_CSD_CARD_TYPE_DDR_52)
 			mmc->card_caps |= MMC_MODE_DDR_52MHz;
-		mmc->card_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
-	} else {
-		mmc->card_caps |= MMC_MODE_HS;
+		mmc->card_caps |= MMC_MODE_HS_52MHz;
 	}
+	if (cardtype & EXT_CSD_CARD_TYPE_26)
+		mmc->card_caps |= MMC_MODE_HS;
 
 	return 0;
 }
@@ -1334,33 +1356,60 @@ static int mmc_read_and_compare_ext_csd(struct mmc *mmc)
 	return -EBADMSG;
 }
 
-static int mmc_select_bus_freq_width(struct mmc *mmc)
-{
-	/* An array of possible bus widths in order of preference */
-	static const unsigned int ext_csd_bits[] = {
-		EXT_CSD_DDR_BUS_WIDTH_8,
-		EXT_CSD_DDR_BUS_WIDTH_4,
-		EXT_CSD_BUS_WIDTH_8,
-		EXT_CSD_BUS_WIDTH_4,
-		EXT_CSD_BUS_WIDTH_1,
-	};
-	/* An array to map CSD bus widths to host cap bits */
-	static const unsigned int ext_to_hostcaps[] = {
-		[EXT_CSD_DDR_BUS_WIDTH_4] =
-			MMC_MODE_DDR_52MHz | MMC_MODE_4BIT,
-		[EXT_CSD_DDR_BUS_WIDTH_8] =
-			MMC_MODE_DDR_52MHz | MMC_MODE_8BIT,
-		[EXT_CSD_BUS_WIDTH_4] = MMC_MODE_4BIT,
-		[EXT_CSD_BUS_WIDTH_8] = MMC_MODE_8BIT,
-	};
-	/* An array to map chosen bus width to an integer */
-	static const unsigned int widths[] = {
-		8, 4, 8, 4, 1,
-	};
-	int err;
-	int idx;
+static const struct mode_width_tuning mmc_modes_by_pref[] = {
+	{
+		.mode = MMC_HS_200,
+		.widths = MMC_MODE_8BIT | MMC_MODE_4BIT,
+	},
+	{
+		.mode = MMC_DDR_52,
+		.widths = MMC_MODE_8BIT | MMC_MODE_4BIT,
+	},
+	{
+		.mode = MMC_HS_52,
+		.widths = MMC_MODE_8BIT | MMC_MODE_4BIT | MMC_MODE_1BIT,
+	},
+	{
+		.mode = MMC_HS,
+		.widths = MMC_MODE_8BIT | MMC_MODE_4BIT | MMC_MODE_1BIT,
+	},
+	{
+		.mode = MMC_LEGACY,
+		.widths = MMC_MODE_8BIT | MMC_MODE_4BIT | MMC_MODE_1BIT,
+	}
+};
 
-	err = mmc_change_freq(mmc);
+#define for_each_mmc_mode_by_pref(caps, mwt) \
+	for (mwt = mmc_modes_by_pref;\
+	    mwt < mmc_modes_by_pref + ARRAY_SIZE(mmc_modes_by_pref);\
+	    mwt++) \
+		if (caps & MMC_CAP(mwt->mode))
+
+static const struct ext_csd_bus_width {
+	uint cap;
+	bool is_ddr;
+	uint ext_csd_bits;
+} ext_csd_bus_width[] = {
+	{MMC_MODE_8BIT, true, EXT_CSD_DDR_BUS_WIDTH_8},
+	{MMC_MODE_4BIT, true, EXT_CSD_DDR_BUS_WIDTH_4},
+	{MMC_MODE_8BIT, false, EXT_CSD_BUS_WIDTH_8},
+	{MMC_MODE_4BIT, false, EXT_CSD_BUS_WIDTH_4},
+	{MMC_MODE_1BIT, false, EXT_CSD_BUS_WIDTH_1},
+};
+
+#define for_each_supported_width(caps, ddr, ecbv) \
+	for (ecbv = ext_csd_bus_width;\
+	    ecbv < ext_csd_bus_width + ARRAY_SIZE(ext_csd_bus_width);\
+	    ecbv++) \
+		if ((ddr == ecbv->is_ddr) && (caps & ecbv->cap))
+
+static int mmc_select_mode_and_width(struct mmc *mmc)
+{
+	int err;
+	const struct mode_width_tuning *mwt;
+	const struct ext_csd_bus_width *ecbw;
+
+	err = mmc_get_capabilities(mmc);
 	if (err)
 		return err;
 
@@ -1376,54 +1425,58 @@ static int mmc_select_bus_freq_width(struct mmc *mmc)
 		return -ENOTSUPP;
 	}
 
-	for (idx = 0; idx < ARRAY_SIZE(ext_csd_bits); idx++) {
-		unsigned int extw = ext_csd_bits[idx];
-		unsigned int caps = ext_to_hostcaps[extw];
-		/*
-		 * If the bus width is still not changed,
-		 * don't try to set the default again.
-		 * Otherwise, recover from switch attempts
-		 * by switching to 1-bit bus width.
-		 */
-		if (extw == EXT_CSD_BUS_WIDTH_1 &&
-		    mmc->bus_width == 1) {
-			err = 0;
-			break;
+	for_each_mmc_mode_by_pref(mmc->card_caps, mwt) {
+		for_each_supported_width(mmc->card_caps & mwt->widths,
+					 mmc_is_mode_ddr(mwt->mode), ecbw) {
+			debug("trying mode %s width %d (at %d MHz)\n",
+			      mmc_mode_name(mwt->mode),
+			      bus_width(ecbw->cap),
+			      mmc_mode2freq(mmc, mwt->mode) / 1000000);
+			/* configure the bus width (card + host) */
+			err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+				    EXT_CSD_BUS_WIDTH,
+				    ecbw->ext_csd_bits & ~EXT_CSD_DDR_FLAG);
+			if (err)
+				goto error;
+			mmc_set_bus_width(mmc, bus_width(ecbw->cap));
+
+			/* configure the bus speed (card) */
+			err = mmc_set_card_speed(mmc, mwt->mode);
+			if (err)
+				goto error;
+
+			/*
+			 * configure the bus width AND the ddr mode (card)
+			 * The host side will be taken care of in the next step
+			 */
+			if (ecbw->ext_csd_bits & EXT_CSD_DDR_FLAG) {
+				err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+						 EXT_CSD_BUS_WIDTH,
+						 ecbw->ext_csd_bits);
+				if (err)
+					goto error;
+			}
+
+			/* configure the bus mode (host) */
+			mmc_select_mode(mmc, mwt->mode);
+			mmc_set_clock(mmc, mmc->tran_speed);
+
+			/* do a transfer to check the configuration */
+			err = mmc_read_and_compare_ext_csd(mmc);
+			if (!err)
+				return 0;
+error:
+			/* if an error occured, revert to a safer bus mode */
+			mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+				   EXT_CSD_BUS_WIDTH, EXT_CSD_BUS_WIDTH_1);
+			mmc_select_mode(mmc, MMC_LEGACY);
+			mmc_set_bus_width(mmc, 1);
 		}
-
-		/*
-		 * Check to make sure the card and controller support
-		 * these capabilities
-		 */
-		if ((mmc->card_caps & caps) != caps)
-			continue;
-
-		err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
-				 EXT_CSD_BUS_WIDTH, extw);
-
-		if (err)
-			continue;
-
-		mmc->ddr_mode = (caps & MMC_MODE_DDR_52MHz) ? 1 : 0;
-		mmc_set_bus_width(mmc, widths[idx]);
-
-		err = mmc_read_and_compare_ext_csd(mmc);
-		if (!err)
-			break;
 	}
 
-	if (err)
-		return err;
+	printf("unable to select a mode\n");
 
-	if (mmc->card_caps & MMC_MODE_HS_52MHz) {
-		if (mmc->ddr_mode)
-			mmc_select_mode(mmc, MMC_DDR_52);
-		else
-			mmc_select_mode(mmc, MMC_HS_52);
-	} else if (mmc->card_caps & MMC_MODE_HS)
-		mmc_select_mode(mmc, MMC_HS);
-
-	return err;
+	return -ENOTSUPP;
 }
 
 static int mmc_startup_v4(struct mmc *mmc)
@@ -1762,7 +1815,7 @@ static int mmc_startup(struct mmc *mmc)
 	if (IS_SD(mmc))
 		err = sd_select_mode_and_width(mmc);
 	else
-		err = mmc_select_bus_freq_width(mmc);
+		err = mmc_select_mode_and_width(mmc);
 
 	if (err)
 		return err;
