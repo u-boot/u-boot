@@ -1146,10 +1146,39 @@ static int sd_select_bus_freq_width(struct mmc *mmc)
 	return 0;
 }
 
+/*
+ * read the compare the part of ext csd that is constant.
+ * This can be used to check that the transfer is working
+ * as expected.
+ */
+static int mmc_read_and_compare_ext_csd(struct mmc *mmc)
+{
+	int err;
+	const u8 *ext_csd = mmc->ext_csd;
+	ALLOC_CACHE_ALIGN_BUFFER(u8, test_csd, MMC_MAX_BLOCK_LEN);
+
+	err = mmc_send_ext_csd(mmc, test_csd);
+	if (err)
+		return err;
+
+	/* Only compare read only fields */
+	if (ext_csd[EXT_CSD_PARTITIONING_SUPPORT]
+		== test_csd[EXT_CSD_PARTITIONING_SUPPORT] &&
+	    ext_csd[EXT_CSD_HC_WP_GRP_SIZE]
+		== test_csd[EXT_CSD_HC_WP_GRP_SIZE] &&
+	    ext_csd[EXT_CSD_REV]
+		== test_csd[EXT_CSD_REV] &&
+	    ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE]
+		== test_csd[EXT_CSD_HC_ERASE_GRP_SIZE] &&
+	    memcmp(&ext_csd[EXT_CSD_SEC_CNT],
+		   &test_csd[EXT_CSD_SEC_CNT], 4) == 0)
+		return 0;
+
+	return -EBADMSG;
+}
+
 static int mmc_select_bus_freq_width(struct mmc *mmc)
 {
-	ALLOC_CACHE_ALIGN_BUFFER(u8, test_csd, MMC_MAX_BLOCK_LEN);
-	const u8 *ext_csd = mmc->ext_csd;
 	/* An array of possible bus widths in order of preference */
 	static const unsigned int ext_csd_bits[] = {
 		EXT_CSD_DDR_BUS_WIDTH_8,
@@ -1221,25 +1250,9 @@ static int mmc_select_bus_freq_width(struct mmc *mmc)
 		mmc->ddr_mode = (caps & MMC_MODE_DDR_52MHz) ? 1 : 0;
 		mmc_set_bus_width(mmc, widths[idx]);
 
-		err = mmc_send_ext_csd(mmc, test_csd);
-
-		if (err)
-			continue;
-
-		/* Only compare read only fields */
-		if (ext_csd[EXT_CSD_PARTITIONING_SUPPORT]
-			== test_csd[EXT_CSD_PARTITIONING_SUPPORT] &&
-		    ext_csd[EXT_CSD_HC_WP_GRP_SIZE]
-			== test_csd[EXT_CSD_HC_WP_GRP_SIZE] &&
-		    ext_csd[EXT_CSD_REV]
-			== test_csd[EXT_CSD_REV] &&
-		    ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE]
-			== test_csd[EXT_CSD_HC_ERASE_GRP_SIZE] &&
-		    memcmp(&ext_csd[EXT_CSD_SEC_CNT],
-			   &test_csd[EXT_CSD_SEC_CNT], 4) == 0)
+		err = mmc_read_and_compare_ext_csd(mmc);
+		if (!err)
 			break;
-
-		err = -EBADMSG;
 	}
 
 	if (err)
