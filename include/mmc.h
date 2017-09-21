@@ -56,6 +56,7 @@
 #define MMC_MODE_HS		(MMC_CAP(MMC_HS) | MMC_CAP(SD_HS))
 #define MMC_MODE_HS_52MHz	MMC_CAP(MMC_HS_52)
 #define MMC_MODE_DDR_52MHz	MMC_CAP(MMC_DDR_52)
+#define MMC_MODE_HS200		MMC_CAP(MMC_HS_200)
 
 #define MMC_MODE_8BIT		BIT(30)
 #define MMC_MODE_4BIT		BIT(29)
@@ -86,6 +87,7 @@
 #define MMC_CMD_SET_BLOCKLEN		16
 #define MMC_CMD_READ_SINGLE_BLOCK	17
 #define MMC_CMD_READ_MULTIPLE_BLOCK	18
+#define MMC_CMD_SEND_TUNING_BLOCK_HS200	21
 #define MMC_CMD_SET_BLOCK_COUNT         23
 #define MMC_CMD_WRITE_SINGLE_BLOCK	24
 #define MMC_CMD_WRITE_MULTIPLE_BLOCK	25
@@ -112,6 +114,13 @@
 #define SD_CMD_ERASE_WR_BLK_END		33
 #define SD_CMD_APP_SEND_OP_COND		41
 #define SD_CMD_APP_SEND_SCR		51
+
+static inline bool mmc_is_tuning_cmd(uint cmdidx)
+{
+	if (cmdidx == MMC_CMD_SEND_TUNING_BLOCK_HS200)
+		return true;
+	return false;
+}
 
 /* SCR definitions in different words */
 #define SD_HIGHSPEED_BUSY	0x00020000
@@ -210,6 +219,13 @@
 #define EXT_CSD_CARD_TYPE_DDR_52	(EXT_CSD_CARD_TYPE_DDR_1_8V \
 					| EXT_CSD_CARD_TYPE_DDR_1_2V)
 
+#define EXT_CSD_CARD_TYPE_HS200_1_8V	BIT(4)	/* Card can run at 200MHz */
+						/* SDR mode @1.8V I/O */
+#define EXT_CSD_CARD_TYPE_HS200_1_2V	BIT(5)	/* Card can run at 200MHz */
+						/* SDR mode @1.2V I/O */
+#define EXT_CSD_CARD_TYPE_HS200		(EXT_CSD_CARD_TYPE_HS200_1_8V | \
+					 EXT_CSD_CARD_TYPE_HS200_1_2V)
+
 #define EXT_CSD_BUS_WIDTH_1	0	/* Card is in 1 bit mode */
 #define EXT_CSD_BUS_WIDTH_4	1	/* Card is in 4 bit mode */
 #define EXT_CSD_BUS_WIDTH_8	2	/* Card is in 8 bit mode */
@@ -219,6 +235,8 @@
 
 #define EXT_CSD_TIMING_LEGACY	0	/* no high speed */
 #define EXT_CSD_TIMING_HS	1	/* HS */
+#define EXT_CSD_TIMING_HS200	2	/* HS200 */
+
 #define EXT_CSD_BOOT_ACK_ENABLE			(1 << 6)
 #define EXT_CSD_BOOT_PARTITION_ENABLE		(1 << 3)
 #define EXT_CSD_PARTITION_ACCESS_ENABLE		(1 << 0)

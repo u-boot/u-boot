@@ -621,6 +621,10 @@ static int mmc_set_card_speed(struct mmc *mmc, enum bus_mode mode)
 	case MMC_HS_52:
 	case MMC_DDR_52:
 		speed_bits = EXT_CSD_TIMING_HS;
+		break;
+	case MMC_HS_200:
+		speed_bits = EXT_CSD_TIMING_HS200;
+		break;
 	case MMC_LEGACY:
 		speed_bits = EXT_CSD_TIMING_LEGACY;
 		break;
@@ -667,9 +671,12 @@ static int mmc_get_capabilities(struct mmc *mmc)
 
 	mmc->card_caps |= MMC_MODE_4BIT | MMC_MODE_8BIT;
 
-	cardtype = ext_csd[EXT_CSD_CARD_TYPE] & 0xf;
+	cardtype = ext_csd[EXT_CSD_CARD_TYPE] & 0x3f;
 
-	/* High Speed is set, there are two types: 52MHz and 26MHz */
+	if (cardtype & (EXT_CSD_CARD_TYPE_HS200_1_2V |
+			EXT_CSD_CARD_TYPE_HS200_1_8V)) {
+		mmc->card_caps |= MMC_MODE_HS200;
+	}
 	if (cardtype & EXT_CSD_CARD_TYPE_52) {
 		if (cardtype & EXT_CSD_CARD_TYPE_DDR_52)
 			mmc->card_caps |= MMC_MODE_DDR_52MHz;
@@ -1268,6 +1275,7 @@ void mmc_dump_capabilities(const char *text, uint caps)
 struct mode_width_tuning {
 	enum bus_mode mode;
 	uint widths;
+	uint tuning;
 };
 
 static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage)
@@ -1383,6 +1391,7 @@ static const struct mode_width_tuning mmc_modes_by_pref[] = {
 	{
 		.mode = MMC_HS_200,
 		.widths = MMC_MODE_8BIT | MMC_MODE_4BIT,
+		.tuning = MMC_CMD_SEND_TUNING_BLOCK_HS200
 	},
 	{
 		.mode = MMC_DDR_52,
@@ -1483,6 +1492,15 @@ static int mmc_select_mode_and_width(struct mmc *mmc)
 			/* configure the bus mode (host) */
 			mmc_select_mode(mmc, mwt->mode);
 			mmc_set_clock(mmc, mmc->tran_speed, false);
+
+			/* execute tuning if needed */
+			if (mwt->tuning) {
+				err = mmc_execute_tuning(mmc, mwt->tuning);
+				if (err) {
+					debug("tuning failed\n");
+					goto error;
+				}
+			}
 
 			/* do a transfer to check the configuration */
 			err = mmc_read_and_compare_ext_csd(mmc);
