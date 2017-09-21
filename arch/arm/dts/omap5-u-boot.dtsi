@@ -60,7 +60,27 @@
 	};
 };
 
+&gpio1 {
+	u-boot,dm-spl;
+};
+
 &gpio2 {
+	u-boot,dm-spl;
+};
+
+&gpio3 {
+	u-boot,dm-spl;
+};
+
+&gpio4 {
+	u-boot,dm-spl;
+};
+
+&gpio5 {
+	u-boot,dm-spl;
+};
+
+&gpio6 {
 	u-boot,dm-spl;
 };
 
