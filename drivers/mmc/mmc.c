@@ -32,6 +32,7 @@ static const unsigned int sd_au_size[] = {
 
 static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage);
 static int mmc_power_cycle(struct mmc *mmc);
+static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps);
 
 #if CONFIG_IS_ENABLED(MMC_TINY)
 static struct mmc mmc_static;
@@ -792,9 +793,37 @@ static int mmc_set_capacity(struct mmc *mmc, int part_num)
 	return 0;
 }
 
+static int mmc_boot_part_access_chk(struct mmc *mmc, unsigned int part_num)
+{
+	int forbidden = 0;
+	bool change = false;
+
+	if (part_num & PART_ACCESS_MASK)
+		forbidden = MMC_CAP(MMC_HS_200);
+
+	if (MMC_CAP(mmc->selected_mode) & forbidden) {
+		debug("selected mode (%s) is forbidden for part %d\n",
+		      mmc_mode_name(mmc->selected_mode), part_num);
+		change = true;
+	} else if (mmc->selected_mode != mmc->best_mode) {
+		debug("selected mode is not optimal\n");
+		change = true;
+	}
+
+	if (change)
+		return mmc_select_mode_and_width(mmc,
+						 mmc->card_caps & ~forbidden);
+
+	return 0;
+}
+
 int mmc_switch_part(struct mmc *mmc, unsigned int part_num)
 {
 	int ret;
+
+	ret = mmc_boot_part_access_chk(mmc, part_num);
+	if (ret)
+		return ret;
 
 	ret = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CONF,
 			 (mmc->part_config & ~PART_ACCESS_MASK)
@@ -1438,7 +1467,7 @@ static const struct mode_width_tuning sd_modes_by_pref[] = {
 	     mwt++) \
 		if (caps & MMC_CAP(mwt->mode))
 
-static int sd_select_mode_and_width(struct mmc *mmc)
+static int sd_select_mode_and_width(struct mmc *mmc, uint card_caps)
 {
 	int err;
 	uint widths[] = {MMC_MODE_4BIT, MMC_MODE_1BIT};
@@ -1447,11 +1476,8 @@ static int sd_select_mode_and_width(struct mmc *mmc)
 	uint caps;
 
 
-	err = sd_get_capabilities(mmc);
-	if (err)
-		return err;
 	/* Restrict card's capabilities by what the host can do */
-	caps = mmc->card_caps & (mmc->host_caps | MMC_MODE_1BIT);
+	caps = card_caps & (mmc->host_caps | MMC_MODE_1BIT);
 
 	if (!uhs_en)
 		caps &= ~UHS_CAPS;
@@ -1588,18 +1614,14 @@ static const struct ext_csd_bus_width {
 	    ecbv++) \
 		if ((ddr == ecbv->is_ddr) && (caps & ecbv->cap))
 
-static int mmc_select_mode_and_width(struct mmc *mmc)
+static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 {
 	int err;
 	const struct mode_width_tuning *mwt;
 	const struct ext_csd_bus_width *ecbw;
 
-	err = mmc_get_capabilities(mmc);
-	if (err)
-		return err;
-
 	/* Restrict card's capabilities by what the host can do */
-	mmc->card_caps &= (mmc->host_caps | MMC_MODE_1BIT);
+	card_caps &= (mmc->host_caps | MMC_MODE_1BIT);
 
 	/* Only version 4 of MMC supports wider bus widths */
 	if (mmc->version < MMC_VERSION_4)
@@ -1610,8 +1632,10 @@ static int mmc_select_mode_and_width(struct mmc *mmc)
 		return -ENOTSUPP;
 	}
 
-	for_each_mmc_mode_by_pref(mmc->card_caps, mwt) {
-		for_each_supported_width(mmc->card_caps & mwt->widths,
+	mmc_set_clock(mmc, mmc->legacy_speed, false);
+
+	for_each_mmc_mode_by_pref(card_caps, mwt) {
+		for_each_supported_width(card_caps & mwt->widths,
 					 mmc_is_mode_ddr(mwt->mode), ecbw) {
 			debug("trying mode %s width %d (at %d MHz)\n",
 			      mmc_mode_name(mwt->mode),
@@ -2006,14 +2030,22 @@ static int mmc_startup(struct mmc *mmc)
 	if (err)
 		return err;
 
-	if (IS_SD(mmc))
-		err = sd_select_mode_and_width(mmc);
-	else
-		err = mmc_select_mode_and_width(mmc);
+	if (IS_SD(mmc)) {
+		err = sd_get_capabilities(mmc);
+		if (err)
+			return err;
+		err = sd_select_mode_and_width(mmc, mmc->card_caps);
+	} else {
+		err = mmc_get_capabilities(mmc);
+		if (err)
+			return err;
+		mmc_select_mode_and_width(mmc, mmc->card_caps);
+	}
 
 	if (err)
 		return err;
 
+	mmc->best_mode = mmc->selected_mode;
 
 	/* Fix the block length for DDR mode */
 	if (mmc->ddr_mode) {

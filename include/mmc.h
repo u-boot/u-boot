@@ -585,7 +585,12 @@ struct mmc {
 #endif
 #endif
 	u8 *ext_csd;
-	enum bus_mode selected_mode;
+	enum bus_mode selected_mode; /* mode currently used */
+	enum bus_mode best_mode; /* best mode is the supported mode with the
+				  * highest bandwidth. It may not always be the
+				  * operating mode due to limitations when
+				  * accessing the boot partitions
+				  */
 };
 
 struct mmc_hwpart_conf {
