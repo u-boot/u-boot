@@ -311,10 +311,14 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 
 enum mmc_voltage {
 	MMC_SIGNAL_VOLTAGE_000 = 0,
-	MMC_SIGNAL_VOLTAGE_120,
-	MMC_SIGNAL_VOLTAGE_180,
-	MMC_SIGNAL_VOLTAGE_330
+	MMC_SIGNAL_VOLTAGE_120 = 1,
+	MMC_SIGNAL_VOLTAGE_180 = 2,
+	MMC_SIGNAL_VOLTAGE_330 = 4,
 };
+
+#define MMC_ALL_SIGNAL_VOLTAGE (MMC_SIGNAL_VOLTAGE_120 |\
+				MMC_SIGNAL_VOLTAGE_180 |\
+				MMC_SIGNAL_VOLTAGE_330)
 
 /* Maximum block size for MMC */
 #define MMC_MAX_BLOCK_LEN	512
@@ -588,6 +592,8 @@ struct mmc {
 #endif
 #endif
 	u8 *ext_csd;
+	u32 cardtype;		/* cardtype read from the MMC */
+	enum mmc_voltage current_voltage;
 	enum bus_mode selected_mode; /* mode currently used */
 	enum bus_mode best_mode; /* best mode is the supported mode with the
 				  * highest bandwidth. It may not always be the
@@ -645,6 +651,14 @@ int mmc_unbind(struct udevice *dev);
 int mmc_initialize(bd_t *bis);
 int mmc_init(struct mmc *mmc);
 int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size);
+
+/**
+ * mmc_voltage_to_mv() - Convert a mmc_voltage in mV
+ *
+ * @voltage:	The mmc_voltage to convert
+ * @return the value in mV if OK, -EINVAL on error (invalid mmc_voltage value)
+ */
+int mmc_voltage_to_mv(enum mmc_voltage voltage);
 
 /**
  * mmc_set_clock() - change the bus clock

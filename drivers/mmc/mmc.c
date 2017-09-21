@@ -767,6 +767,7 @@ static int mmc_get_capabilities(struct mmc *mmc)
 	mmc->card_caps |= MMC_MODE_4BIT | MMC_MODE_8BIT;
 
 	cardtype = ext_csd[EXT_CSD_CARD_TYPE] & 0x3f;
+	mmc->cardtype = cardtype;
 
 	if (cardtype & (EXT_CSD_CARD_TYPE_HS200_1_2V |
 			EXT_CSD_CARD_TYPE_HS200_1_8V)) {
@@ -1441,10 +1442,30 @@ struct mode_width_tuning {
 	uint tuning;
 };
 
+int mmc_voltage_to_mv(enum mmc_voltage voltage)
+{
+	switch (voltage) {
+	case MMC_SIGNAL_VOLTAGE_000: return 0;
+	case MMC_SIGNAL_VOLTAGE_330: return 3300;
+	case MMC_SIGNAL_VOLTAGE_180: return 1800;
+	case MMC_SIGNAL_VOLTAGE_120: return 1200;
+	}
+	return -EINVAL;
+}
+
 static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage)
 {
+	int err;
+
+	if (mmc->signal_voltage == signal_voltage)
+		return 0;
+
 	mmc->signal_voltage = signal_voltage;
-	return mmc_set_ios(mmc);
+	err = mmc_set_ios(mmc);
+	if (err)
+		debug("unable to set voltage (err %d)\n", err);
+
+	return err;
 }
 
 static const struct mode_width_tuning sd_modes_by_pref[] = {
@@ -1584,6 +1605,43 @@ static int mmc_read_and_compare_ext_csd(struct mmc *mmc)
 	return -EBADMSG;
 }
 
+static int mmc_set_lowest_voltage(struct mmc *mmc, enum bus_mode mode,
+				  uint32_t allowed_mask)
+{
+	u32 card_mask = 0;
+
+	switch (mode) {
+	case MMC_HS_200:
+		if (mmc->cardtype & EXT_CSD_CARD_TYPE_HS200_1_8V)
+			card_mask |= MMC_SIGNAL_VOLTAGE_180;
+		if (mmc->cardtype & EXT_CSD_CARD_TYPE_HS200_1_2V)
+			card_mask |= MMC_SIGNAL_VOLTAGE_120;
+		break;
+	case MMC_DDR_52:
+		if (mmc->cardtype & EXT_CSD_CARD_TYPE_DDR_1_8V)
+			card_mask |= MMC_SIGNAL_VOLTAGE_330 |
+				     MMC_SIGNAL_VOLTAGE_180;
+		if (mmc->cardtype & EXT_CSD_CARD_TYPE_DDR_1_2V)
+			card_mask |= MMC_SIGNAL_VOLTAGE_120;
+		break;
+	default:
+		card_mask |= MMC_SIGNAL_VOLTAGE_330;
+		break;
+	}
+
+	while (card_mask & allowed_mask) {
+		enum mmc_voltage best_match;
+
+		best_match = 1 << (ffs(card_mask & allowed_mask) - 1);
+		if (!mmc_set_signal_voltage(mmc,  best_match))
+			return 0;
+
+		allowed_mask &= ~best_match;
+	}
+
+	return -ENOTSUPP;
+}
+
 static const struct mode_width_tuning mmc_modes_by_pref[] = {
 	{
 		.mode = MMC_HS_200,
@@ -1655,10 +1713,17 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 	for_each_mmc_mode_by_pref(card_caps, mwt) {
 		for_each_supported_width(card_caps & mwt->widths,
 					 mmc_is_mode_ddr(mwt->mode), ecbw) {
+			enum mmc_voltage old_voltage;
 			debug("trying mode %s width %d (at %d MHz)\n",
 			      mmc_mode_name(mwt->mode),
 			      bus_width(ecbw->cap),
 			      mmc_mode2freq(mmc, mwt->mode) / 1000000);
+			old_voltage = mmc->signal_voltage;
+			err = mmc_set_lowest_voltage(mmc, mwt->mode,
+						     MMC_ALL_SIGNAL_VOLTAGE);
+			if (err)
+				continue;
+
 			/* configure the bus width (card + host) */
 			err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
 				    EXT_CSD_BUS_WIDTH,
@@ -1702,6 +1767,7 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 			if (!err)
 				return 0;
 error:
+			mmc_set_signal_voltage(mmc, old_voltage);
 			/* if an error occured, revert to a safer bus mode */
 			mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
 				   EXT_CSD_BUS_WIDTH, EXT_CSD_BUS_WIDTH_1);
