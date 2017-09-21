@@ -190,10 +190,9 @@ static void del_gpt_info(void)
 static struct disk_part *allocate_disk_part(disk_partition_t *info, int partnum)
 {
 	struct disk_part *newpart;
-	newpart = malloc(sizeof(*newpart));
+	newpart = calloc(1, sizeof(struct disk_part));
 	if (!newpart)
 		return ERR_PTR(-ENOMEM);
-	memset(newpart, '\0', sizeof(newpart));
 
 	newpart->gpt_part_info.start = info->start;
 	newpart->gpt_part_info.size = info->size;
