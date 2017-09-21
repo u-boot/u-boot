@@ -457,6 +457,10 @@ struct mmc {
 	int ddr_mode;
 #if CONFIG_IS_ENABLED(DM_MMC)
 	struct udevice *dev;	/* Device for this MMC controller */
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
+	struct udevice *vmmc_supply;	/* Main voltage regulator (Vcc)*/
+	struct udevice *vqmmc_supply;	/* IO voltage regulator (Vccq)*/
+#endif
 #endif
 };
 

@@ -1618,21 +1618,25 @@ __weak void board_mmc_power_init(void)
 static int mmc_power_init(struct mmc *mmc)
 {
 #if CONFIG_IS_ENABLED(DM_MMC)
-#if defined(CONFIG_DM_REGULATOR) && !defined(CONFIG_SPL_BUILD)
-	struct udevice *vmmc_supply;
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
 	int ret;
 
 	ret = device_get_supply_regulator(mmc->dev, "vmmc-supply",
-					  &vmmc_supply);
-	if (ret) {
+					  &mmc->vmmc_supply);
+	if (ret)
 		debug("%s: No vmmc supply\n", mmc->dev->name);
-		return 0;
-	}
 
-	ret = regulator_set_enable(vmmc_supply, true);
-	if (ret) {
-		puts("Error enabling VMMC supply\n");
-		return ret;
+	ret = device_get_supply_regulator(mmc->dev, "vqmmc-supply",
+					  &mmc->vqmmc_supply);
+	if (ret)
+		debug("%s: No vqmmc supply\n", mmc->dev->name);
+
+	if (mmc->vmmc_supply) {
+		ret = regulator_set_enable(mmc->vmmc_supply, true);
+		if (ret) {
+			puts("Error enabling VMMC supply\n");
+			return ret;
+		}
 	}
 #endif
 #else /* !CONFIG_DM_MMC */
