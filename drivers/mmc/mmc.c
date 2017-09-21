@@ -174,9 +174,34 @@ const char *mmc_mode_name(enum bus_mode mode)
 }
 #endif
 
+static uint mmc_mode2freq(struct mmc *mmc, enum bus_mode mode)
+{
+	static const int freqs[] = {
+	      [SD_LEGACY]	= 25000000,
+	      [MMC_HS]		= 26000000,
+	      [SD_HS]		= 50000000,
+	      [UHS_SDR12]	= 25000000,
+	      [UHS_SDR25]	= 50000000,
+	      [UHS_SDR50]	= 100000000,
+	      [UHS_SDR104]	= 208000000,
+	      [UHS_DDR50]	= 50000000,
+	      [MMC_HS_52]	= 52000000,
+	      [MMC_DDR_52]	= 52000000,
+	      [MMC_HS_200]	= 200000000,
+	};
+
+	if (mode == MMC_LEGACY)
+		return mmc->legacy_speed;
+	else if (mode >= MMC_MODES_END)
+		return 0;
+	else
+		return freqs[mode];
+}
+
 static int mmc_select_mode(struct mmc *mmc, enum bus_mode mode)
 {
 	mmc->selected_mode = mode;
+	mmc->tran_speed = mmc_mode2freq(mmc, mode);
 	debug("selecting mode %s (freq : %d MHz)\n", mmc_mode_name(mode),
 	      mmc->tran_speed / 1000000);
 	return 0;
@@ -1195,13 +1220,10 @@ static int sd_select_bus_freq_width(struct mmc *mmc)
 	if (err)
 		return err;
 
-	if (mmc->card_caps & MMC_MODE_HS) {
+	if (mmc->card_caps & MMC_MODE_HS)
 		mmc_select_mode(mmc, SD_HS);
-		mmc->tran_speed = 50000000;
-	} else {
+	else
 		mmc_select_mode(mmc, SD_LEGACY);
-		mmc->tran_speed = 25000000;
-	}
 
 	return 0;
 }
@@ -1323,11 +1345,8 @@ static int mmc_select_bus_freq_width(struct mmc *mmc)
 			mmc_select_mode(mmc, MMC_DDR_52);
 		else
 			mmc_select_mode(mmc, MMC_HS_52);
-		mmc->tran_speed = 52000000;
-	} else if (mmc->card_caps & MMC_MODE_HS) {
+	} else if (mmc->card_caps & MMC_MODE_HS)
 		mmc_select_mode(mmc, MMC_HS);
-		mmc->tran_speed = 26000000;
-	}
 
 	return err;
 }
@@ -1599,7 +1618,6 @@ static int mmc_startup(struct mmc *mmc)
 	mult = multipliers[((cmd.response[0] >> 3) & 0xf)];
 
 	mmc->legacy_speed = freq * mult;
-	mmc->tran_speed = mmc->legacy_speed;
 	mmc_select_mode(mmc, MMC_LEGACY);
 
 	mmc->dsr_imp = ((cmd.response[1] >> 12) & 0x1);
@@ -1674,7 +1692,6 @@ static int mmc_startup(struct mmc *mmc)
 	if (err)
 		return err;
 
-	mmc_set_clock(mmc, mmc->tran_speed);
 
 	/* Fix the block length for DDR mode */
 	if (mmc->ddr_mode) {
