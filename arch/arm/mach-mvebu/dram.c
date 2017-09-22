@@ -179,11 +179,11 @@ static void dram_ecc_scrubbing(void)
 	reg_write(REG_SDRAM_CONFIG_ADDR, temp);
 
 	for (cs = 0; cs < CONFIG_NR_DRAM_BANKS; cs++) {
-		size = mvebu_sdram_bs(cs) - 1;
+		size = mvebu_sdram_bs(cs);
 		if (size == 0)
 			continue;
 
-		total = (u64)size + 1;
+		total = (u64)size;
 		total_mem += (u32)(total / (1 << 30));
 		start_addr = 0;
 		mv_xor_init2(cs);
@@ -194,7 +194,7 @@ static void dram_ecc_scrubbing(void)
 			size -= start_addr;
 		}
 
-		mv_xor_mem_init(SCRB_XOR_CHAN, start_addr, size,
+		mv_xor_mem_init(SCRB_XOR_CHAN, start_addr, size - 1,
 				SCRUB_MAGIC, SCRUB_MAGIC);
 
 		/* Wait for previous transfer completion */
