@@ -29,6 +29,7 @@
 #include <dm/platdata.h>
 #include <fsl_esdhc.h>
 #include <i2c.h>
+#include <input.h>
 #include <imx_thermal.h>
 #include <linux/errno.h>
 #include <malloc.h>

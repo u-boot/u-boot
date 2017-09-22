@@ -18,6 +18,7 @@
 #include <asm/arch/clock.h>
 #include <asm/mach-imx/mx5_video.h>
 #include <mmc.h>
+#include <input.h>
 #include <fsl_esdhc.h>
 #include <mc13892.h>
 

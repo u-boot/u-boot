@@ -26,6 +26,7 @@
 #include <asm/gpio.h>
 #include <linux/fb.h>
 #include <ipu_pixfmt.h>
+#include <input.h>
 #include <fs.h>
 #include <dm/platform_data/serial_mxc.h>
 

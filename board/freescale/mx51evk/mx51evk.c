@@ -15,6 +15,7 @@
 #include <asm/arch/clock.h>
 #include <asm/mach-imx/mx5_video.h>
 #include <i2c.h>
+#include <input.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <power/pmic.h>

@@ -24,6 +24,7 @@
 #include <netdev.h>
 #include <asm/arch/sys_proto.h>
 #include <i2c.h>
+#include <input.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/mach-imx/video.h>
 #include <asm/arch/crm_regs.h>

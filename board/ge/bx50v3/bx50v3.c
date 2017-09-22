@@ -25,6 +25,7 @@
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <i2c.h>
+#include <input.h>
 #include <pwm.h>
 #include <stdlib.h>
 #include "vpd_reader.h"

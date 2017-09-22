@@ -26,6 +26,7 @@
 #include <asm/mach-imx/spi.h>
 #include <asm/mach-imx/video.h>
 #include <i2c.h>
+#include <input.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <miiphy.h>

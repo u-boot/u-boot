@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <miiphy.h>
+#include <input.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <asm/io.h>

@@ -24,6 +24,7 @@
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <i2c.h>
+#include <input.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
 #include <linux/fb.h>
