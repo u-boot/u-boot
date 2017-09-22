@@ -57,7 +57,7 @@
 		misc_clk: misc_clk {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
-			clock-frequency = <25000000>;
+			clock-frequency = <125000000>;
 		};
 	};
 };
