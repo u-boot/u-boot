@@ -10,10 +10,10 @@ pmic: drivers/power/pmic/max77686.c
 regulator: drivers/power/regulator/max77686.c
 
 For the node name e.g.: "prefix[:alpha:]num { ... }":
-- the driver prefix should be: "prefix" or "PREFIX" - case insensitive
+- the driver prefix should be: "prefix" - case sensitive
 - the node name's "num" is set as "dev->driver_data" on bind
 
-Example the prefix "ldo" will pass for: "ldo1", "ldo@1", "LDO1", "LDOREG@1"...
+Example the prefix "ldo" will pass for: "ldo1", "ldo@1", "ldoreg@1, ...
 
 Optional properties:
 - regulator-name: a string, required by the regulator uclass
