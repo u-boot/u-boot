@@ -1034,24 +1034,27 @@ int file_fat_detectfs(void)
 int fat_exists(const char *filename)
 {
 	fsdata fsdata;
-	fat_itr itrblock, *itr = &itrblock;
+	fat_itr *itr;
 	int ret;
 
+	itr = malloc(sizeof(fat_itr));
 	ret = fat_itr_root(itr, &fsdata);
 	if (ret)
 		return 0;
 
 	ret = fat_itr_resolve(itr, filename, TYPE_ANY);
 	free(fsdata.fatbuf);
+	free(itr);
 	return ret == 0;
 }
 
 int fat_size(const char *filename, loff_t *size)
 {
 	fsdata fsdata;
-	fat_itr itrblock, *itr = &itrblock;
+	fat_itr *itr;
 	int ret;
 
+	itr = malloc(sizeof(fat_itr));
 	ret = fat_itr_root(itr, &fsdata);
 	if (ret)
 		return ret;
@@ -1072,8 +1075,9 @@ int fat_size(const char *filename, loff_t *size)
 	}
 
 	*size = FAT2CPU32(itr->dent->size);
-out:
 	free(fsdata.fatbuf);
+out:
+	free(itr);
 	return ret;
 }
 
@@ -1081,9 +1085,10 @@ int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
 		     loff_t maxsize, loff_t *actread)
 {
 	fsdata fsdata;
-	fat_itr itrblock, *itr = &itrblock;
+	fat_itr *itr;
 	int ret;
 
+	itr = malloc(sizeof(fat_itr));
 	ret = fat_itr_root(itr, &fsdata);
 	if (ret)
 		return ret;
@@ -1097,6 +1102,7 @@ int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
 
 out:
 	free(fsdata.fatbuf);
+	free(itr);
 	return ret;
 }
 
