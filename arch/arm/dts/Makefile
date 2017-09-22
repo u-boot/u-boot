@@ -313,8 +313,8 @@ dtb-$(CONFIG_MACH_SUN8I_A33) += \
 	sun8i-r16-parrot.dtb
 dtb-$(CONFIG_MACH_SUN8I_A83T) += \
 	sun8i-a83t-allwinner-h8homlet-v2.dtb \
-	sun8i-a83t-cubietruck-plus.dtb \
-	sun8i-a83t-sinovoip-bpi-m3.dtb
+	sun8i-a83t-bananapi-m3.dtb \
+	sun8i-a83t-cubietruck-plus.dtb
 dtb-$(CONFIG_MACH_SUN8I_H3) += \
 	sun8i-h2-plus-orangepi-zero.dtb \
 	sun8i-h3-bananapi-m2-plus.dtb \
