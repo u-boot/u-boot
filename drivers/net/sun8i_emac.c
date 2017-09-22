@@ -604,6 +604,8 @@ static void sun8i_emac_board_setup(struct emac_eth_dev *priv)
 {
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
+#ifdef CONFIG_MACH_SUNXI_H3_H5
+	/* Only H3/H5 have clock controls for internal EPHY */
 	if (priv->use_internal_phy) {
 		/* Set clock gating for ephy */
 		setbits_le32(&ccm->bus_gate4, BIT(AHB_GATE_OFFSET_EPHY));
@@ -611,6 +613,7 @@ static void sun8i_emac_board_setup(struct emac_eth_dev *priv)
 		/* Deassert EPHY */
 		setbits_le32(&ccm->ahb_reset2_cfg, BIT(AHB_RESET_OFFSET_EPHY));
 	}
+#endif
 
 	/* Set clock gating for emac */
 	setbits_le32(&ccm->ahb_gate0, BIT(AHB_GATE_OFFSET_GMAC));
