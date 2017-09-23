@@ -144,7 +144,7 @@ static const struct {
 	const u16	pn;
 	const char	*name;
 	const char	*var;
-} const socfpga_fpga_model[] = {
+} socfpga_fpga_model[] = {
 	/* Cyclone V E */
 	{ 0x2b15, "Cyclone V, E/A2", "cv_e_a2" },
 	{ 0x2b05, "Cyclone V, E/A4", "cv_e_a4" },
