@@ -376,9 +376,6 @@ int board_eth_init(bd_t *bis)
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
-#if defined(CONFIG_VIDEO_IPUV3)
-	setup_display();
-#endif
 #ifdef CONFIG_SATA
 	/* Only mx6q wandboard has SATA */
 	if (is_cpu_type(MXC_CPU_MX6Q))
@@ -448,6 +445,8 @@ int board_init(void)
 		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c2_pad_info);
 	else
 		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c2_pad_info);
+
+	setup_display();
 #endif
 
 	return 0;
