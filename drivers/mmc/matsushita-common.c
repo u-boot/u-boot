@@ -703,23 +703,14 @@ int matsu_sd_probe(struct udevice *dev, u32 quirks)
 		return ret;
 	}
 
-	plat->cfg.name = dev->name;
-	plat->cfg.host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS;
-
-	switch (fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "bus-width",
-			       1)) {
-	case 8:
-		plat->cfg.host_caps |= MMC_MODE_8BIT;
-		break;
-	case 4:
-		plat->cfg.host_caps |= MMC_MODE_4BIT;
-		break;
-	case 1:
-		break;
-	default:
-		dev_err(dev, "Invalid \"bus-width\" value\n");
-		return -EINVAL;
+	ret = mmc_of_parse(dev, &plat->cfg);
+	if (ret < 0) {
+		dev_err(dev, "failed to parse host caps\n");
+		return ret;
 	}
+
+	plat->cfg.name = dev->name;
+	plat->cfg.host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
 	if (quirks) {
 		priv->caps = quirks;
