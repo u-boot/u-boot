@@ -41,7 +41,7 @@
 	bus-num = <0>;
 	status = "okay";
 
-	qflash0: n25q512a@0 {
+	qflash0: s25fs512s@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "spi-flash";
@@ -49,7 +49,7 @@
 		reg = <0>;
 	};
 
-	qflash1: n25q512a@1 {
+	qflash1: s25fs512s@1 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "spi-flash";

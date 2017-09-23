@@ -260,8 +260,8 @@ static void erratum_rcw_src(void)
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009203
 static void erratum_a009203(void)
 {
-	u8 __iomem *ptr;
 #ifdef CONFIG_SYS_I2C
+	u8 __iomem *ptr;
 #ifdef I2C1_BASE_ADDR
 	ptr = (u8 __iomem *)(I2C1_BASE_ADDR + I2C_DEBUG_REG);
 
@@ -297,7 +297,9 @@ void bypass_smmu(void)
 void fsl_lsch3_early_init_f(void)
 {
 	erratum_rcw_src();
+#ifdef CONFIG_FSL_IFC
 	init_early_memctl_regs();	/* tighten IFC timing */
+#endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009203
 	erratum_a009203();
 #endif
@@ -323,11 +325,14 @@ int sata_init(void)
 {
 	struct ccsr_ahci __iomem *ccsr_ahci;
 
+#ifdef CONFIG_SYS_SATA2
 	ccsr_ahci  = (void *)CONFIG_SYS_SATA2;
 	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
 	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
 	out_le32(&ccsr_ahci->axicc, AHCI_PORT_AXICC_CFG);
+#endif
 
+#ifdef CONFIG_SYS_SATA1
 	ccsr_ahci  = (void *)CONFIG_SYS_SATA1;
 	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
 	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
@@ -335,6 +340,7 @@ int sata_init(void)
 
 	ahci_init((void __iomem *)CONFIG_SYS_SATA1);
 	scsi_scan(false);
+#endif
 
 	return 0;
 }
