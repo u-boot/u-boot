@@ -5,11 +5,15 @@
 config SUPPORT_OF_CONTROL
 	bool
 
+config DTC
+	bool
+
 menu "Device Tree Control"
 	depends on SUPPORT_OF_CONTROL
 
 config OF_CONTROL
 	bool "Run-time configuration via Device Tree"
+	select DTC
 	help
 	  This feature provides for run-time configuration of U-Boot
 	  via a flattened device tree.

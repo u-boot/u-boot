@@ -26,11 +26,9 @@ addons:
     - grub-efi-ia32-bin
     - rpm2cpio
     - wget
+    - device-tree-compiler
 
 install:
- # install latest device tree compiler
- - git clone --depth=1 -b v1.4.3 git://git.kernel.org/pub/scm/utils/dtc/dtc.git /tmp/dtc
- - make -j4 -C /tmp/dtc
  # Clone uboot-test-hooks
  - git clone --depth=1 git://github.com/swarren/uboot-test-hooks.git /tmp/uboot-test-hooks
  - ln -s travis-ci /tmp/uboot-test-hooks/bin/`hostname`
@@ -51,7 +49,7 @@ install:
 
 env:
   global:
-    - PATH=/tmp/dtc:/tmp/qemu-install/bin:/tmp/uboot-test-hooks/bin:/usr/bin:/bin
+    - PATH=/tmp/qemu-install/bin:/tmp/uboot-test-hooks/bin:/usr/bin:/bin
     - PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci
     - BUILD_DIR=build
     - HOSTCC="cc"
