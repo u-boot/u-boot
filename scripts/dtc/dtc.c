@@ -138,7 +138,7 @@ static const char *guess_type_by_name(const char *fname, const char *fallback)
 static const char *guess_input_format(const char *fname, const char *fallback)
 {
 	struct stat statbuf;
-	uint32_t magic;
+	fdt32_t magic;
 	FILE *f;
 
 	if (stat(fname, &statbuf) != 0)
@@ -159,8 +159,7 @@ static const char *guess_input_format(const char *fname, const char *fallback)
 	}
 	fclose(f);
 
-	magic = fdt32_to_cpu(magic);
-	if (magic == FDT_MAGIC)
+	if (fdt32_to_cpu(magic) == FDT_MAGIC)
 		return "dtb";
 
 	return guess_type_by_name(fname, fallback);

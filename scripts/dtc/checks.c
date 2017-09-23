@@ -72,12 +72,8 @@ struct check {
 #define CHECK(_nm, _fn, _d, ...) \
 	CHECK_ENTRY(_nm, _fn, _d, false, false, __VA_ARGS__)
 
-#ifdef __GNUC__
-static inline void check_msg(struct check *c, struct dt_info *dti,
-			     const char *fmt, ...) __attribute__((format (printf, 3, 4)));
-#endif
-static inline void check_msg(struct check *c, struct dt_info *dti,
-			     const char *fmt, ...)
+static inline void  PRINTF(3, 4) check_msg(struct check *c, struct dt_info *dti,
+					   const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
@@ -538,13 +534,13 @@ static void fixup_phandle_references(struct check *c, struct dt_info *dti,
 					FAIL(c, dti, "Reference to non-existent node or "
 							"label \"%s\"\n", m->ref);
 				else /* mark the entry as unresolved */
-					*((cell_t *)(prop->val.val + m->offset)) =
+					*((fdt32_t *)(prop->val.val + m->offset)) =
 						cpu_to_fdt32(0xffffffff);
 				continue;
 			}
 
 			phandle = get_node_phandle(dt, refnode);
-			*((cell_t *)(prop->val.val + m->offset)) = cpu_to_fdt32(phandle);
+			*((fdt32_t *)(prop->val.val + m->offset)) = cpu_to_fdt32(phandle);
 		}
 	}
 }
