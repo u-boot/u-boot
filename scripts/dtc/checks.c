@@ -681,6 +681,229 @@ static void check_ranges_format(struct check *c, struct dt_info *dti,
 }
 WARNING(ranges_format, check_ranges_format, NULL, &addr_size_cells);
 
+static const struct bus_type pci_bus = {
+	.name = "PCI",
+};
+
+static void check_pci_bridge(struct check *c, struct dt_info *dti, struct node *node)
+{
+	struct property *prop;
+	cell_t *cells;
+
+	prop = get_property(node, "device_type");
+	if (!prop || !streq(prop->val.val, "pci"))
+		return;
+
+	node->bus = &pci_bus;
+
+	if (!strneq(node->name, "pci", node->basenamelen) &&
+	    !strneq(node->name, "pcie", node->basenamelen))
+		FAIL(c, dti, "Node %s node name is not \"pci\" or \"pcie\"",
+			     node->fullpath);
+
+	prop = get_property(node, "ranges");
+	if (!prop)
+		FAIL(c, dti, "Node %s missing ranges for PCI bridge (or not a bridge)",
+			     node->fullpath);
+
+	if (node_addr_cells(node) != 3)
+		FAIL(c, dti, "Node %s incorrect #address-cells for PCI bridge",
+			     node->fullpath);
+	if (node_size_cells(node) != 2)
+		FAIL(c, dti, "Node %s incorrect #size-cells for PCI bridge",
+			     node->fullpath);
+
+	prop = get_property(node, "bus-range");
+	if (!prop) {
+		FAIL(c, dti, "Node %s missing bus-range for PCI bridge",
+			     node->fullpath);
+		return;
+	}
+	if (prop->val.len != (sizeof(cell_t) * 2)) {
+		FAIL(c, dti, "Node %s bus-range must be 2 cells",
+			     node->fullpath);
+		return;
+	}
+	cells = (cell_t *)prop->val.val;
+	if (fdt32_to_cpu(cells[0]) > fdt32_to_cpu(cells[1]))
+		FAIL(c, dti, "Node %s bus-range 1st cell must be less than or equal to 2nd cell",
+			     node->fullpath);
+	if (fdt32_to_cpu(cells[1]) > 0xff)
+		FAIL(c, dti, "Node %s bus-range maximum bus number must be less than 256",
+			     node->fullpath);
+}
+WARNING(pci_bridge, check_pci_bridge, NULL,
+	&device_type_is_string, &addr_size_cells);
+
+static void check_pci_device_bus_num(struct check *c, struct dt_info *dti, struct node *node)
+{
+	struct property *prop;
+	unsigned int bus_num, min_bus, max_bus;
+	cell_t *cells;
+
+	if (!node->parent || (node->parent->bus != &pci_bus))
+		return;
+
+	prop = get_property(node, "reg");
+	if (!prop)
+		return;
+
+	cells = (cell_t *)prop->val.val;
+	bus_num = (fdt32_to_cpu(cells[0]) & 0x00ff0000) >> 16;
+
+	prop = get_property(node->parent, "bus-range");
+	if (!prop) {
+		min_bus = max_bus = 0;
+	} else {
+		cells = (cell_t *)prop->val.val;
+		min_bus = fdt32_to_cpu(cells[0]);
+		max_bus = fdt32_to_cpu(cells[0]);
+	}
+	if ((bus_num < min_bus) || (bus_num > max_bus))
+		FAIL(c, dti, "Node %s PCI bus number %d out of range, expected (%d - %d)",
+		     node->fullpath, bus_num, min_bus, max_bus);
+}
+WARNING(pci_device_bus_num, check_pci_device_bus_num, NULL, &reg_format, &pci_bridge);
+
+static void check_pci_device_reg(struct check *c, struct dt_info *dti, struct node *node)
+{
+	struct property *prop;
+	const char *unitname = get_unitname(node);
+	char unit_addr[5];
+	unsigned int dev, func, reg;
+	cell_t *cells;
+
+	if (!node->parent || (node->parent->bus != &pci_bus))
+		return;
+
+	prop = get_property(node, "reg");
+	if (!prop) {
+		FAIL(c, dti, "Node %s missing PCI reg property", node->fullpath);
+		return;
+	}
+
+	cells = (cell_t *)prop->val.val;
+	if (cells[1] || cells[2])
+		FAIL(c, dti, "Node %s PCI reg config space address cells 2 and 3 must be 0",
+			     node->fullpath);
+
+	reg = fdt32_to_cpu(cells[0]);
+	dev = (reg & 0xf800) >> 11;
+	func = (reg & 0x700) >> 8;
+
+	if (reg & 0xff000000)
+		FAIL(c, dti, "Node %s PCI reg address is not configuration space",
+			     node->fullpath);
+	if (reg & 0x000000ff)
+		FAIL(c, dti, "Node %s PCI reg config space address register number must be 0",
+			     node->fullpath);
+
+	if (func == 0) {
+		snprintf(unit_addr, sizeof(unit_addr), "%x", dev);
+		if (streq(unitname, unit_addr))
+			return;
+	}
+
+	snprintf(unit_addr, sizeof(unit_addr), "%x,%x", dev, func);
+	if (streq(unitname, unit_addr))
+		return;
+
+	FAIL(c, dti, "Node %s PCI unit address format error, expected \"%s\"",
+	     node->fullpath, unit_addr);
+}
+WARNING(pci_device_reg, check_pci_device_reg, NULL, &reg_format, &pci_bridge);
+
+static const struct bus_type simple_bus = {
+	.name = "simple-bus",
+};
+
+static bool node_is_compatible(struct node *node, const char *compat)
+{
+	struct property *prop;
+	const char *str, *end;
+
+	prop = get_property(node, "compatible");
+	if (!prop)
+		return false;
+
+	for (str = prop->val.val, end = str + prop->val.len; str < end;
+	     str += strnlen(str, end - str) + 1) {
+		if (strneq(str, compat, end - str))
+			return true;
+	}
+	return false;
+}
+
+static void check_simple_bus_bridge(struct check *c, struct dt_info *dti, struct node *node)
+{
+	if (node_is_compatible(node, "simple-bus"))
+		node->bus = &simple_bus;
+}
+WARNING(simple_bus_bridge, check_simple_bus_bridge, NULL, &addr_size_cells);
+
+static void check_simple_bus_reg(struct check *c, struct dt_info *dti, struct node *node)
+{
+	struct property *prop;
+	const char *unitname = get_unitname(node);
+	char unit_addr[17];
+	unsigned int size;
+	uint64_t reg = 0;
+	cell_t *cells = NULL;
+
+	if (!node->parent || (node->parent->bus != &simple_bus))
+		return;
+
+	prop = get_property(node, "reg");
+	if (prop)
+		cells = (cell_t *)prop->val.val;
+	else {
+		prop = get_property(node, "ranges");
+		if (prop && prop->val.len)
+			/* skip of child address */
+			cells = ((cell_t *)prop->val.val) + node_addr_cells(node);
+	}
+
+	if (!cells) {
+		if (node->parent->parent && !(node->bus == &simple_bus))
+			FAIL(c, dti, "Node %s missing or empty reg/ranges property", node->fullpath);
+		return;
+	}
+
+	size = node_addr_cells(node->parent);
+	while (size--)
+		reg = (reg << 32) | fdt32_to_cpu(*(cells++));
+
+	snprintf(unit_addr, sizeof(unit_addr), "%"PRIx64, reg);
+	if (!streq(unitname, unit_addr))
+		FAIL(c, dti, "Node %s simple-bus unit address format error, expected \"%s\"",
+		     node->fullpath, unit_addr);
+}
+WARNING(simple_bus_reg, check_simple_bus_reg, NULL, &reg_format, &simple_bus_bridge);
+
+static void check_unit_address_format(struct check *c, struct dt_info *dti,
+				      struct node *node)
+{
+	const char *unitname = get_unitname(node);
+
+	if (node->parent && node->parent->bus)
+		return;
+
+	if (!unitname[0])
+		return;
+
+	if (!strncmp(unitname, "0x", 2)) {
+		FAIL(c, dti, "Node %s unit name should not have leading \"0x\"",
+		    node->fullpath);
+		/* skip over 0x for next test */
+		unitname += 2;
+	}
+	if (unitname[0] == '0' && isxdigit(unitname[1]))
+		FAIL(c, dti, "Node %s unit name should not have leading 0s",
+		    node->fullpath);
+}
+WARNING(unit_address_format, check_unit_address_format, NULL,
+	&node_name_format, &pci_bridge, &simple_bus_bridge);
+
 /*
  * Style checks
  */
@@ -752,6 +975,14 @@ static struct check *check_table[] = {
 	&addr_size_cells, &reg_format, &ranges_format,
 
 	&unit_address_vs_reg,
+	&unit_address_format,
+
+	&pci_bridge,
+	&pci_device_reg,
+	&pci_device_bus_num,
+
+	&simple_bus_bridge,
+	&simple_bus_reg,
 
 	&avoid_default_addr_size,
 	&obsolete_chosen_interrupt_controller,

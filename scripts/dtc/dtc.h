@@ -31,6 +31,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <unistd.h>
+#include <inttypes.h>
 
 #include <libfdt_env.h>
 #include <fdt.h>
@@ -135,6 +136,10 @@ struct label {
 	struct label *next;
 };
 
+struct bus_type {
+	const char *name;
+};
+
 struct property {
 	bool deleted;
 	char *name;
@@ -161,6 +166,7 @@ struct node {
 	int addr_cells, size_cells;
 
 	struct label *labels;
+	const struct bus_type *bus;
 };
 
 #define for_each_label_withdel(l0, l) \
