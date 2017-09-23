@@ -620,9 +620,6 @@ int board_ehci_power(int port, int on)
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
-#if defined(CONFIG_VIDEO_IPUV3)
-	setup_display();
-#endif
 
 	return 0;
 }
@@ -639,6 +636,9 @@ int board_init(void)
 		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c_pad_info1);
 	else
 		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c_pad_info1);
+#if defined(CONFIG_VIDEO_IPUV3)
+	setup_display();
+#endif
 #ifdef CONFIG_USB_EHCI_MX6
 	setup_usb();
 #endif
