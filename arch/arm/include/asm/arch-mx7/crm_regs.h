@@ -2055,6 +2055,11 @@ struct mxc_ccm_anatop_reg {
 #define HW_CCM_ROOT_TARGET_TOGGLE(i, v)	writel((v), CCM_ROOT_TARGET_TOGGLE(i))
 
 #define CCM_CLK_ON_MSK	0x03
+#define CCM_CLK_ON_N_N	0x00 /* Domain clocks not needed */
+#define CCM_CLK_ON_R_W	0x02 /* Domain clocks needed when in RUN and WAIT */
+
+/* CCGR Mapping */
+#define CCGR_IDX_DDR 19 /* CCM_CCGR19 */
 
 #define CCM_ROOT_TGT_POST_DIV_SHIFT	0
 #define CCM_ROOT_TGT_PRE_DIV_SHIFT	15
