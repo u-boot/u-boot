@@ -142,6 +142,7 @@
 #define BOOT_DEV_SEL_MASK	(0x3f << BOOT_DEV_SEL_OFFS)
 
 #define BOOT_FROM_UART		0x28
+#define BOOT_FROM_UART_ALT	0x3f
 #define BOOT_FROM_SPI		0x32
 #define BOOT_FROM_MMC		0x30
 #define BOOT_FROM_MMC_ALT	0x31
