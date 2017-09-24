@@ -18,6 +18,13 @@ choice
 	prompt "MX7 board select"
 	optional
 
+config TARGET_CL_SOM_IMX7
+	bool "CL-SOM-iMX7"
+	select MX7D
+	select DM
+	select DM_THERMAL
+	select SUPPORT_SPL
+
 config TARGET_MX7DSABRESD
 	bool "mx7dsabresd"
 	select BOARD_LATE_INIT
@@ -51,6 +58,7 @@ endchoice
 config SYS_SOC
 	default "mx7"
 
+source "board/compulab/cl-som-imx7/Kconfig"
 source "board/freescale/mx7dsabresd/Kconfig"
 source "board/technexion/pico-imx7d/Kconfig"
 source "board/toradex/colibri_imx7/Kconfig"
