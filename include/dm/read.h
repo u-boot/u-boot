@@ -166,6 +166,29 @@ int dev_read_stringlist_search(struct udevice *dev, const char *property,
 			  const char *string);
 
 /**
+ * dev_read_string_index() - obtain an indexed string from a string list
+ *
+ * @dev: device to examine
+ * @propname: name of the property containing the string list
+ * @index: index of the string to return
+ * @out: return location for the string
+ *
+ * @return:
+ *   length of string, if found or -ve error value if not found
+ */
+int dev_read_string_index(struct udevice *dev, const char *propname, int index,
+			  const char **outp);
+
+/**
+ * dev_read_string_count() - find the number of strings in a string list
+ *
+ * @dev: device to examine
+ * @propname: name of the property containing the string list
+ * @return:
+ *   number of strings in the list, or -ve error value if not found
+ */
+int dev_read_string_count(struct udevice *dev, const char *propname);
+/**
  * dev_read_phandle_with_args() - Find a node pointed by phandle in a list
  *
  * This function is useful to parse lists of phandles and their arguments.
@@ -449,6 +472,19 @@ static inline int dev_read_stringlist_search(struct udevice *dev,
 					     const char *string)
 {
 	return ofnode_stringlist_search(dev_ofnode(dev), propname, string);
+}
+
+static inline int dev_read_string_index(struct udevice *dev,
+					const char *propname, int index,
+					const char **outp)
+{
+	return ofnode_read_string_index(dev_ofnode(dev), propname, index, outp);
+}
+
+static inline int dev_read_string_count(struct udevice *dev,
+					const char *propname)
+{
+	return ofnode_read_string_count(dev_ofnode(dev), propname);
 }
 
 static inline int dev_read_phandle_with_args(struct udevice *dev,
