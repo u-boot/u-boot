@@ -18,10 +18,28 @@
 
 #define CONFIG_SYS_HZ_CLOCK		1000000000	/* 1 GHz */
 
+#include <config_distro_defaults.h>
 /* Environment */
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"board= B2260" \
-	"load_addr= #CONFIG_SYS_LOAD_ADDR \0"
+
+#define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR
+
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(USB, usb, 0) \
+	func(DHCP, dhcp, na)
+#include <config_distro_bootcmd.h>
+#define CONFIG_BOOTFILE			"uImage"
+#define CONFIG_EXTRA_ENV_SETTINGS				\
+			"kernel_addr_r=0x40000000\0"		\
+			"fdtfile=stih410-b2260.dtb\0"		\
+			"fdt_addr_r=0x47000000\0"		\
+			"scriptaddr=0x50000000\0"		\
+			"fdt_high=0xffffffffffffffff\0"		\
+			"initrd_high=0xffffffffffffffff\0"	\
+			BOOTENV
+
 
 #define CONFIG_ENV_SIZE 0x4000
 

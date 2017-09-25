@@ -6,7 +6,7 @@ CONFIG_DISTRO_DEFAULTS=y
 CONFIG_FIT=y
 CONFIG_FIT_VERBOSE=y
 CONFIG_USE_BOOTARGS=y
-CONFIG_BOOTARGS="console=ttyS0,115200 earlyprintk consoleblank=0 ignore_loglevel"
+CONFIG_BOOTARGS="console=ttyAS1,115200 CONSOLE=/dev/ttyAS1 consoleblank=0 root=/dev/mmcblk0p2 rootfstype=ext4 rw rootwait mem=992M@0x40000000 vmalloc=256m"
 # CONFIG_DISPLAY_CPUINFO is not set
 CONFIG_SYS_PROMPT="stih410-b2260 => "
 CONFIG_FASTBOOT=y
