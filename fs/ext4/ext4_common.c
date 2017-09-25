@@ -432,6 +432,10 @@ uint16_t ext4fs_checksum_update(uint32_t i)
 		crc = ext2fs_crc16(crc, desc, offset);
 		offset += sizeof(desc->bg_checksum);	/* skip checksum */
 		assert(offset == sizeof(*desc));
+		if (offset < fs->gdsize) {
+			crc = ext2fs_crc16(crc, (__u8 *)desc + offset,
+					   fs->gdsize - offset);
+		}
 	}
 
 	return crc;
