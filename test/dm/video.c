@@ -159,6 +159,40 @@ static int dm_test_video_chars(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_video_chars, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
+#ifdef CONFIG_VIDEO_ANSI
+#define ANSI_ESC "\x1b"
+/* Test handling of ANSI escape sequences */
+static int dm_test_video_ansi(struct unit_test_state *uts)
+{
+	struct udevice *dev, *con;
+
+	ut_assertok(select_vidconsole(uts, "vidconsole0"));
+	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
+
+	/* reference clear: */
+	video_clear(con->parent);
+	video_sync(con->parent);
+	ut_asserteq(46, compress_frame_buffer(dev));
+
+	/* test clear escape sequence: [2J */
+	vidconsole_put_string(con, "A\tB\tC"ANSI_ESC"[2J");
+	ut_asserteq(46, compress_frame_buffer(dev));
+
+	/* test set-cursor: [%d;%df */
+	vidconsole_put_string(con, "abc"ANSI_ESC"[2;2fab"ANSI_ESC"[4;4fcd");
+	ut_asserteq(142, compress_frame_buffer(dev));
+
+	/* test colors (30-37 fg color, 40-47 bg color) */
+	vidconsole_put_string(con, ANSI_ESC"[30;41mfoo"); /* black on red */
+	vidconsole_put_string(con, ANSI_ESC"[33;44mbar"); /* yellow on blue */
+	ut_asserteq(268, compress_frame_buffer(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_video_ansi, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+#endif
+
 /**
  * check_vidconsole_output() - Run a text console test
  *
