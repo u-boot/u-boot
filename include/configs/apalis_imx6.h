@@ -23,7 +23,6 @@
 
 #ifdef CONFIG_SPL
 #include "imx6_spl.h"
-#define CONFIG_SPL_PAD_TO		0x11000 /* 4k IVT/DCD, 64k SPL */
 #endif
 
 #define CONFIG_CMDLINE_TAG
