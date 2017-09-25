@@ -10,6 +10,7 @@
 #include <fdtdec.h>
 #include <mmc.h>
 #include <dm.h>
+#include <dm/pinctrl.h>
 #include <linux/compat.h>
 #include <linux/dma-direction.h>
 #include <linux/io.h>
@@ -593,6 +594,46 @@ static void matsu_sd_set_clk_rate(struct matsu_sd_priv *priv,
 	udelay(1000);
 }
 
+static void matsu_sd_set_pins(struct udevice *dev)
+{
+	__maybe_unused struct mmc *mmc = mmc_get_mmc_dev(dev);
+
+#ifdef CONFIG_DM_REGULATOR
+	struct matsu_sd_priv *priv = dev_get_priv(dev);
+
+	if (priv->vqmmc_dev) {
+		if (mmc->signal_voltage == MMC_SIGNAL_VOLTAGE_180)
+			regulator_set_value(priv->vqmmc_dev, 1800000);
+		else
+			regulator_set_value(priv->vqmmc_dev, 3300000);
+		regulator_set_enable(priv->vqmmc_dev, true);
+	}
+#endif
+
+#ifdef CONFIG_PINCTRL
+	switch (mmc->selected_mode) {
+	case MMC_LEGACY:
+	case SD_LEGACY:
+	case MMC_HS:
+	case SD_HS:
+	case MMC_HS_52:
+	case MMC_DDR_52:
+		pinctrl_select_state(dev, "default");
+		break;
+	case UHS_SDR12:
+	case UHS_SDR25:
+	case UHS_SDR50:
+	case UHS_DDR50:
+	case UHS_SDR104:
+	case MMC_HS_200:
+		pinctrl_select_state(dev, "state_uhs");
+		break;
+	default:
+		break;
+	}
+#endif
+}
+
 int matsu_sd_set_ios(struct udevice *dev)
 {
 	struct matsu_sd_priv *priv = dev_get_priv(dev);
@@ -607,6 +648,7 @@ int matsu_sd_set_ios(struct udevice *dev)
 		return ret;
 	matsu_sd_set_ddr_mode(priv, mmc);
 	matsu_sd_set_clk_rate(priv, mmc);
+	matsu_sd_set_pins(dev);
 
 	return 0;
 }
@@ -671,9 +713,6 @@ int matsu_sd_probe(struct udevice *dev, u32 quirks)
 	fdt_addr_t base;
 	struct clk clk;
 	int ret;
-#ifdef CONFIG_DM_REGULATOR
-	struct udevice *vqmmc_dev;
-#endif
 
 	base = devfdt_get_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
@@ -684,12 +723,7 @@ int matsu_sd_probe(struct udevice *dev, u32 quirks)
 		return -ENOMEM;
 
 #ifdef CONFIG_DM_REGULATOR
-	ret = device_get_supply_regulator(dev, "vqmmc-supply", &vqmmc_dev);
-	if (!ret) {
-		/* Set the regulator to 3.3V until we support 1.8V modes */
-		regulator_set_value(vqmmc_dev, 3300000);
-		regulator_set_enable(vqmmc_dev, true);
-	}
+	device_get_supply_regulator(dev, "vqmmc-supply", &priv->vqmmc_dev);
 #endif
 
 	ret = clk_get_by_index(dev, 0, &clk);

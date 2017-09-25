@@ -130,6 +130,9 @@ struct matsu_sd_priv {
 #define MATSU_SD_CAP_RCAR_UHS		BIT(7)	/* Renesas RCar UHS/SDR modes */
 #define MATSU_SD_CAP_RCAR		\
 	(MATSU_SD_CAP_RCAR_GEN2 | MATSU_SD_CAP_RCAR_GEN3)
+#ifdef CONFIG_DM_REGULATOR
+	struct udevice *vqmmc_dev;
+#endif
 };
 
 int matsu_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
