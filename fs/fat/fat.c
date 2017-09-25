@@ -710,13 +710,14 @@ static void fat_itr_child(fat_itr *itr, fat_itr *parent)
 	itr->fsdata = parent->fsdata;
 	if (clustnum > 0) {
 		itr->clust = clustnum;
+		itr->is_root = 0;
 	} else {
 		itr->clust = parent->fsdata->root_cluster;
+		itr->is_root = 1;
 	}
 	itr->dent = NULL;
 	itr->remaining = 0;
 	itr->last_cluster = 0;
-	itr->is_root = 0;
 }
 
 static void *next_cluster(fat_itr *itr)
