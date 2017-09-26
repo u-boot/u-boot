@@ -62,6 +62,11 @@ int mvebu_soc_family(void)
 	case SOC_88F6820_ID:
 	case SOC_88F6828_ID:
 		return MVEBU_SOC_A38X;
+
+	case SOC_98DX3236_ID:
+	case SOC_98DX3336_ID:
+	case SOC_98DX4251_ID:
+		return MVEBU_SOC_MSYS;
 	}
 
 	return MVEBU_SOC_UNKNOWN;
@@ -107,13 +112,15 @@ static const struct sar_freq_modes sar_freq_tab[] = {
 #elif defined(CONFIG_ARMADA_38X)
 /* SAR frequency values for Armada 38x */
 static const struct sar_freq_modes sar_freq_tab[] = {
-	{  0x0,  0x0,  666, 333, 333 },
-	{  0x2,  0x0,  800, 400, 400 },
-	{  0x4,  0x0, 1066, 533, 533 },
-	{  0x6,  0x0, 1200, 600, 600 },
-	{  0x8,  0x0, 1332, 666, 666 },
-	{  0xc,  0x0, 1600, 800, 800 },
-	{ 0xff, 0xff,    0,   0,   0 }	/* 0xff marks end of array */
+	{  0x0,  0x0,  666,  333, 333 },
+	{  0x2,  0x0,  800,  400, 400 },
+	{  0x4,  0x0, 1066,  533, 533 },
+	{  0x6,  0x0, 1200,  600, 600 },
+	{  0x8,  0x0, 1332,  666, 666 },
+	{  0xc,  0x0, 1600,  800, 800 },
+	{ 0x10,  0x0, 1866,  933, 933 },
+	{ 0x13,  0x0, 2000, 1000, 933 },
+	{ 0xff, 0xff,    0,    0,   0 }	/* 0xff marks end of array */
 };
 #else
 /* SAR frequency values for Armada XP */
@@ -207,6 +214,15 @@ int print_cpuinfo(void)
 		break;
 	case SOC_88F6828_ID:
 		puts("MV88F6828-");
+		break;
+	case SOC_98DX3236_ID:
+		puts("98DX3236-");
+		break;
+	case SOC_98DX3336_ID:
+		puts("98DX3336-");
+		break;
+	case SOC_98DX4251_ID:
+		puts("98DX4251-");
 		break;
 	default:
 		puts("Unknown-");

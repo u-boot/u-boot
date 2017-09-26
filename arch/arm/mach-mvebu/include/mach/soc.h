@@ -18,6 +18,9 @@
 #define SOC_88F6810_ID		0x6810
 #define SOC_88F6820_ID		0x6820
 #define SOC_88F6828_ID		0x6828
+#define SOC_98DX3236_ID		0xf410
+#define SOC_98DX3336_ID		0xf400
+#define SOC_98DX4251_ID		0xfc00
 
 /* A375 revisions */
 #define MV_88F67XX_A0_ID	0x3
@@ -139,6 +142,7 @@
 #define BOOT_DEV_SEL_MASK	(0x3f << BOOT_DEV_SEL_OFFS)
 
 #define BOOT_FROM_UART		0x28
+#define BOOT_FROM_UART_ALT	0x3f
 #define BOOT_FROM_SPI		0x32
 #define BOOT_FROM_MMC		0x30
 #define BOOT_FROM_MMC_ALT	0x31
