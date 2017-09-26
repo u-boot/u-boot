@@ -15,6 +15,23 @@ struct p_current{
 
 extern struct p_current *current;
 
+/* avoid conflict with <dm/device.h> */
+#ifdef dev_dbg
+#undef dev_dbg
+#endif
+#ifdef dev_vdbg
+#undef dev_vdbg
+#endif
+#ifdef dev_info
+#undef dev_info
+#endif
+#ifdef dev_err
+#undef dev_err
+#endif
+#ifdef dev_warn
+#undef dev_warn
+#endif
+
 #define dev_dbg(dev, fmt, args...)		\
 	debug(fmt, ##args)
 #define dev_vdbg(dev, fmt, args...)		\
