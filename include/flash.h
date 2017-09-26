@@ -42,10 +42,15 @@ typedef struct {
 	ushort	cfi_offset;		/* offset for cfi query			*/
 	ulong   addr_unlock1;		/* unlock address 1 for AMD flash roms  */
 	ulong   addr_unlock2;		/* unlock address 2 for AMD flash roms  */
+	uchar   sr_supported;		/* status register supported            */
 	const char *name;		/* human-readable name	                */
 #endif
 #ifdef CONFIG_MTD
 	struct mtd_info *mtd;
+#endif
+#ifdef CONFIG_CFI_FLASH			/* DM-specific parts */
+	struct udevice *dev;
+	phys_addr_t base;
 #endif
 } flash_info_t;
 

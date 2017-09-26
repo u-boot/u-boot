@@ -111,11 +111,9 @@ static void cfi_flash_init_dm(void)
 	}
 }
 
-static phys_addr_t cfi_flash_base[CFI_MAX_FLASH_BANKS];
-
 phys_addr_t cfi_flash_bank_addr(int i)
 {
-	return cfi_flash_base[i];
+	return flash_info[i].base;
 }
 #else
 __weak phys_addr_t cfi_flash_bank_addr(int i)
@@ -546,7 +544,16 @@ static int flash_is_busy (flash_info_t * info, flash_sect_t sect)
 #ifdef CONFIG_FLASH_CFI_LEGACY
 	case CFI_CMDSET_AMD_LEGACY:
 #endif
-		retval = flash_toggle (info, sect, 0, AMD_STATUS_TOGGLE);
+		if (info->sr_supported) {
+			flash_write_cmd (info, sect, info->addr_unlock1,
+					 FLASH_CMD_READ_STATUS);
+			retval = !flash_isset (info, sect, 0,
+					       FLASH_STATUS_DONE);
+		} else {
+			retval = flash_toggle (info, sect, 0,
+					       AMD_STATUS_TOGGLE);
+		}
+
 		break;
 	default:
 		retval = 0;
@@ -1687,6 +1694,7 @@ static void cmdset_amd_read_jedec_ids(flash_info_t *info)
 {
 	ushort bankId = 0;
 	uchar  manuId;
+	uchar  lsbits;
 
 	flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
 	flash_unlock_seq(info, 0);
@@ -1701,6 +1709,9 @@ static void cmdset_amd_read_jedec_ids(flash_info_t *info)
 			bankId | FLASH_OFFSET_MANUFACTURER_ID);
 	}
 	info->manufacturer_id = manuId;
+
+	lsbits = flash_read_uchar(info, FLASH_OFFSET_LOWER_SW_BITS);
+	info->sr_supported = lsbits & BIT(0);
 
 	switch (info->chipwidth){
 	case FLASH_CFI_8BIT:
@@ -2458,10 +2469,12 @@ static int cfi_flash_probe(struct udevice *dev)
 	while (idx < len) {
 		addr = fdt_translate_address((void *)blob,
 					     node, cell + idx);
-		cfi_flash_base[cfi_flash_num_flash_banks++] = addr;
+		flash_info[cfi_flash_num_flash_banks].dev = dev;
+		flash_info[cfi_flash_num_flash_banks].base = addr;
+		cfi_flash_num_flash_banks++;
 		idx += addrc + sizec;
 	}
-	gd->bd->bi_flashstart = cfi_flash_base[0];
+	gd->bd->bi_flashstart = flash_info[0].base;
 
 	return 0;
 }
