@@ -393,15 +393,18 @@ int do_env_ask(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		sprintf(message, "Please enter '%s': ", argv[1]);
 	} else {
 		/* env_ask envname message1 ... messagen [size] */
-		for (i = 2, pos = 0; i < argc; i++) {
+		for (i = 2, pos = 0; i < argc && pos < sizeof(message); i++) {
 			if (pos)
 				message[pos++] = ' ';
 
-			strcpy(message + pos, argv[i]);
+			strncpy(message + pos, argv[i], sizeof(message) - pos);
 			pos += strlen(argv[i]);
 		}
-		message[pos++] = ' ';
-		message[pos] = '\0';
+		if (pos < sizeof(message) - 1) {
+			message[pos++] = ' ';
+			message[pos] = '\0';
+		} else
+			message[CONFIG_SYS_CBSIZE - 1] = '\0';
 	}
 
 	if (size >= CONFIG_SYS_CBSIZE)
