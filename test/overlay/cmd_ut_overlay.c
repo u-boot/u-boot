@@ -226,6 +226,7 @@ int do_ut_overlay(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	void *fdt_overlay = &__dtb_test_fdt_overlay_begin;
 	void *fdt_overlay_stacked = &__dtb_test_fdt_overlay_stacked_begin;
 	void *fdt_base_copy, *fdt_overlay_copy, *fdt_overlay_stacked_copy;
+	int ret = -ENOMEM;
 
 	uts = calloc(1, sizeof(*uts));
 	if (!uts)
@@ -236,16 +237,16 @@ int do_ut_overlay(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	fdt_base_copy = malloc(FDT_COPY_SIZE);
 	if (!fdt_base_copy)
-		return -ENOMEM;
+		goto err1;
 	uts->priv = fdt_base_copy;
 
 	fdt_overlay_copy = malloc(FDT_COPY_SIZE);
 	if (!fdt_overlay_copy)
-		return -ENOMEM;
+		goto err2;
 
 	fdt_overlay_stacked_copy = malloc(FDT_COPY_SIZE);
 	if (!fdt_overlay_stacked_copy)
-		return -ENOMEM;
+		goto err3;
 
 	/*
 	 * Resize the FDT to 4k so that we have room to operate on
@@ -293,11 +294,18 @@ int do_ut_overlay(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	printf("Failures: %d\n", uts->fail_count);
+	if (!uts->fail_count)
+		ret = 0;
+	else
+		ret = CMD_RET_FAILURE;
 
 	free(fdt_overlay_stacked_copy);
+err3:
 	free(fdt_overlay_copy);
+err2:
 	free(fdt_base_copy);
+err1:
 	free(uts);
 
-	return uts->fail_count ? CMD_RET_FAILURE : 0;
+	return ret;
 }
