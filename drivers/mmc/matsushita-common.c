@@ -542,7 +542,8 @@ static void matsu_sd_set_clk_rate(struct matsu_sd_priv *priv,
 	divisor = DIV_ROUND_UP(priv->mclk, mmc->clock);
 
 	if (divisor <= 1)
-		val = MATSU_SD_CLKCTL_DIV1;
+		val = (priv->caps & MATSU_SD_CAP_RCAR) ?
+		      MATSU_SD_CLKCTL_RCAR_DIV1 : MATSU_SD_CLKCTL_DIV1;
 	else if (divisor <= 2)
 		val = MATSU_SD_CLKCTL_DIV2;
 	else if (divisor <= 4)

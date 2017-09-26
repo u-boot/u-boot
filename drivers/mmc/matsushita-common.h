@@ -63,6 +63,7 @@
 #define   MATSU_SD_CLKCTL_DIV4		BIT(0)	/* SDCLK = CLK / 4 */
 #define   MATSU_SD_CLKCTL_DIV2		0	/* SDCLK = CLK / 2 */
 #define   MATSU_SD_CLKCTL_DIV1		BIT(10)	/* SDCLK = CLK */
+#define   MATSU_SD_CLKCTL_RCAR_DIV1	0xff	/* SDCLK = CLK (RCar ver.) */
 #define   MATSU_SD_CLKCTL_OFFEN		BIT(9)	/* stop SDCLK when unused */
 #define   MATSU_SD_CLKCTL_SCLKEN	BIT(8)	/* SDCLK output enable */
 #define MATSU_SD_SIZE			0x04c	/* block size */
