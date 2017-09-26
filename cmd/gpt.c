@@ -633,6 +633,21 @@ static int do_disk_guid(struct blk_desc *dev_desc, char * const namestr)
 }
 
 #ifdef CONFIG_CMD_GPT_RENAME
+/*
+ * There are 3 malloc() calls in set_gpt_info() and there is no info about which
+ * failed.
+ */
+static void set_gpt_cleanup(char **str_disk_guid,
+			    disk_partition_t **partitions)
+{
+#ifdef CONFIG_RANDOM_UUID
+	if (str_disk_guid)
+		free(str_disk_guid);
+#endif
+	if (partitions)
+		free(partitions);
+}
+
 static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
 			       char *name1, char *name2)
 {
@@ -651,19 +666,27 @@ static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
 	ret = get_disk_guid(dev_desc, disk_guid);
 	if (ret < 0)
 		return ret;
+	/*
+	 * Allocates disk_partitions, requiring matching call to del_gpt_info()
+	 * if successful.
+	 */
 	numparts = get_gpt_info(dev_desc);
 	if (numparts <=  0)
 		return numparts ? numparts : -ENODEV;
 
 	partlistlen = calc_parts_list_len(numparts);
 	partitions_list = malloc(partlistlen);
-	if (partitions_list == NULL)
+	if (!partitions_list) {
+		del_gpt_info();
 		return -ENOMEM;
+	}
 	memset(partitions_list, '\0', partlistlen);
 
 	ret = create_gpt_partitions_list(numparts, disk_guid, partitions_list);
-	if (ret < 0)
+	if (ret < 0) {
+		free(partitions_list);
 		return ret;
+	}
 	/*
 	 * Uncomment the following line to print a string that 'gpt write'
 	 * or 'gpt verify' will accept as input.
@@ -671,15 +694,23 @@ static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
 	debug("OLD partitions_list is %s with %u chars\n", partitions_list,
 	      (unsigned)strlen(partitions_list));
 
+	/* set_gpt_info allocates new_partitions and str_disk_guid */
 	ret = set_gpt_info(dev_desc, partitions_list, &str_disk_guid,
 			   &new_partitions, &part_count);
-	if (ret < 0)
-		return ret;
+	if (ret < 0) {
+		del_gpt_info();
+		free(partitions_list);
+		if (ret == -ENOMEM)
+			set_gpt_cleanup(&str_disk_guid, &new_partitions);
+		else
+			goto out;
+	}
 
 	if (!strcmp(subcomm, "swap")) {
 		if ((strlen(name1) > PART_NAME_LEN) || (strlen(name2) > PART_NAME_LEN)) {
 			printf("Names longer than %d characters are truncated.\n", PART_NAME_LEN);
-			return -EINVAL;
+			ret = -EINVAL;
+			goto out;
 		}
 		list_for_each(pos, &disk_partitions) {
 			curr = list_entry(pos, struct disk_part, list);
@@ -693,21 +724,24 @@ static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
 		}
 		if ((ctr1 + ctr2 < 2) || (ctr1 != ctr2)) {
 			printf("Cannot swap partition names except in pairs.\n");
-			return -EINVAL;
+			ret = -EINVAL;
+			goto out;
 		}
 	} else { /* rename */
 		if (strlen(name2) > PART_NAME_LEN) {
 			printf("Names longer than %d characters are truncated.\n", PART_NAME_LEN);
-			return -EINVAL;
+			ret = -EINVAL;
+			goto out;
 		}
 		partnum = (int)simple_strtol(name1, NULL, 10);
 		if ((partnum < 0) || (partnum > numparts)) {
 			printf("Illegal partition number %s\n", name1);
-			return -EINVAL;
+			ret = -EINVAL;
+			goto out;
 		}
 		ret = part_get_info(dev_desc, partnum, new_partitions);
 		if (ret < 0)
-			return ret;
+			goto out;
 
 		/* U-Boot partition numbering starts at 1 */
 		list_for_each(pos, &disk_partitions) {
@@ -722,33 +756,50 @@ static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
 
 	ret = create_gpt_partitions_list(numparts, disk_guid, partitions_list);
 	if (ret < 0)
-		return ret;
+		goto out;
 	debug("NEW partitions_list is %s with %u chars\n", partitions_list,
 	      (unsigned)strlen(partitions_list));
 
 	ret = set_gpt_info(dev_desc, partitions_list, &str_disk_guid,
 			   &new_partitions, &part_count);
-	if (ret < 0)
-		return ret;
+	/*
+	 * Even though valid pointers are here passed into set_gpt_info(),
+	 * it mallocs again, and there's no way to tell which failed.
+	 */
+	if (ret < 0) {
+		del_gpt_info();
+		free(partitions_list);
+		if (ret == -ENOMEM)
+			set_gpt_cleanup(&str_disk_guid, &new_partitions);
+		else
+			goto out;
+	}
 
 	debug("Writing new partition table\n");
 	ret = gpt_restore(dev_desc, disk_guid, new_partitions, numparts);
 	if (ret < 0) {
 		printf("Writing new partition table failed\n");
-		return ret;
+		goto out;
 	}
 
 	debug("Reading back new partition table\n");
+	/*
+	 * Empty the existing disk_partitions list, as otherwise the memory in
+	 * the original list is unreachable.
+	 */
+	del_gpt_info();
 	numparts = get_gpt_info(dev_desc);
-	if (numparts <=  0)
-		return numparts ? numparts : -ENODEV;
+	if (numparts <=  0) {
+		ret = numparts ? numparts : -ENODEV;
+		goto out;
+	}
 	printf("new partition table with %d partitions is:\n", numparts);
 	print_gpt_info();
-
 	del_gpt_info();
-	free(partitions_list);
-	free(str_disk_guid);
+ out:
 	free(new_partitions);
+	free(str_disk_guid);
+	free(partitions_list);
 	return ret;
 }
 #endif
