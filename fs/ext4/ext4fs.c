@@ -167,6 +167,7 @@ int ext4fs_ls(const char *dirname)
 				  FILETYPE_DIRECTORY);
 	if (status != 1) {
 		printf("** Can not find directory. **\n");
+		ext4fs_free_node(dirnode, &ext4fs_root->diropen);
 		return 1;
 	}
 
