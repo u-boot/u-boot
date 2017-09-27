@@ -389,7 +389,7 @@ static int rk322x_clk_bind(struct udevice *dev)
 	/* The reset driver does not have a device node, so bind it here */
 	ret = device_bind_driver(gd->dm_root, "rk322x_sysreset", "reset", &dev);
 	if (ret)
-		debug("Warning: No RK3036 reset driver: ret=%d\n", ret);
+		debug("Warning: No RK322x reset driver: ret=%d\n", ret);
 
 	return 0;
 }
