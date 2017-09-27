@@ -27,6 +27,13 @@ struct stm32_uart_info {
 	bool has_fifo;
 };
 
+struct stm32_uart_info stm32f4_info = {
+	.stm32f4 = true,
+	.uart_enable_bit = 13,
+	.has_overrun_disable = false,
+	.has_fifo = false,
+};
+
 struct stm32_uart_info stm32f7_info = {
 	.uart_enable_bit = 0,
 	.stm32f4 = false,

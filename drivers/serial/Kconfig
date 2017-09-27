@@ -531,9 +531,9 @@ config STI_ASC_SERIAL
 
 config STM32X7_SERIAL
 	bool "STMicroelectronics STM32 SoCs on-chip UART"
-	depends on DM_SERIAL && (STM32F7 || STM32H7)
+	depends on DM_SERIAL && (STM32F4 || STM32F7 || STM32H7)
 	help
-	  If you have a machine based on a STM32 F7 or H7 SoC you can
+	  If you have a machine based on a STM32 F4, F7 or H7 SoC you can
 	  enable its onboard serial ports, say Y to this option.
 	  If unsure, say N.
 

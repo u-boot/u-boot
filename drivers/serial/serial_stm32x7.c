@@ -127,6 +127,7 @@ static int stm32_serial_probe(struct udevice *dev)
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct udevice_id stm32_serial_id[] = {
+	{ .compatible = "st,stm32-uart", .data = (ulong)&stm32f4_info},
 	{ .compatible = "st,stm32f7-uart", .data = (ulong)&stm32f7_info},
 	{ .compatible = "st,stm32h7-uart", .data = (ulong)&stm32h7_info},
 	{}
