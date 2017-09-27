@@ -150,6 +150,24 @@ Note: rk3036 SDMMC and debug uart use the same iomux, so if you boot from SD, th
       debug uart must be disabled
 
 
+Booting from an SD card on RK3288 with TPL
+==========================================
+
+Since the size of SPL can't be exceeded 0x8000 bytes in RK3288, it is not possible add
+new SPL features like Falcon mode or etc.
+
+So introduce TPL so-that adding new features to SPL is possible because now TPL should
+run minimal with code like DDR, clock etc and rest of new features in SPL.
+
+As of now TPL is added on Vyasa-RK3288 board.
+
+To write an image that boots from an SD card (assumed to be /dev/mmcblk0):
+
+   ./tools/mkimage -n rk3288 -T rksd -d ./tpl/u-boot-tpl.bin out &&
+    cat ./spl/u-boot-spl-dtb.bin >> out &&
+    sudo dd if=out of=/dev/mmcblk0 seek=64 &&
+    sudo dd if=u-boot-dtb.img of=/dev/mmcblk0 seek=256
+
 Booting from an SD card on RK3188
 =================================
 

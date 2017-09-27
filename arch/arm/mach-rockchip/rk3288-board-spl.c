@@ -204,12 +204,15 @@ void board_init_f(ulong dummy)
 	}
 #endif
 
+#if !defined(CONFIG_SUPPORT_TPL)
 	debug("\nspl:init dram\n");
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {
 		debug("DRAM init failed: %d\n", ret);
 		return;
 	}
+#endif
+
 #if CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM) && !defined(CONFIG_SPL_BOARD_INIT)
 	back_to_bootrom();
 #endif
