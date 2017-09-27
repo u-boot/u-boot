@@ -616,7 +616,7 @@ static int label_localboot(struct pxe_label *label)
 static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 {
 	char *bootm_argv[] = { "bootm", NULL, NULL, NULL, NULL };
-	char initrd_str[22];
+	char initrd_str[28];
 	char mac_str[29] = "";
 	char ip_str[68] = "";
 	int bootm_argc = 2;
@@ -648,9 +648,9 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		}
 
 		bootm_argv[2] = initrd_str;
-		strcpy(bootm_argv[2], env_get("ramdisk_addr_r"));
+		strncpy(bootm_argv[2], env_get("ramdisk_addr_r"), 18);
 		strcat(bootm_argv[2], ":");
-		strcat(bootm_argv[2], env_get("filesize"));
+		strncat(bootm_argv[2], env_get("filesize"), 9);
 	}
 
 	if (get_relfile_envaddr(cmdtp, label->kernel, "kernel_addr_r") < 0) {
@@ -689,9 +689,9 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		}
 
 		if (label->append)
-			strcpy(bootargs, label->append);
-		strcat(bootargs, ip_str);
-		strcat(bootargs, mac_str);
+			strncpy(bootargs, label->append, sizeof(bootargs));
+		strncat(bootargs, ip_str, sizeof(bootargs) - strlen(bootargs));
+		strncat(bootargs, mac_str, sizeof(bootargs) - strlen(bootargs));
 
 		cli_simple_process_macros(bootargs, finalbootargs);
 		env_set("bootargs", finalbootargs);
