@@ -19,7 +19,9 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/periph.h>
+#include <asm/arch/pmu_rk3288.h>
 #include <asm/arch/sdram.h>
+#include <asm/arch/sdram_common.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/timer.h>
 #include <dm/pinctrl.h>
@@ -290,3 +292,18 @@ err:
 	/* No way to report error here */
 	hang();
 }
+
+#ifdef CONFIG_SPL_OS_BOOT
+
+#define PMU_BASE		0xff730000
+int dram_init_banksize(void)
+{
+	struct rk3288_pmu *const pmu = (void *)PMU_BASE;
+	size_t size = rockchip_sdram_size((phys_addr_t)&pmu->sys_reg[2]);
+
+	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].size = size;
+
+	return 0;
+}
+#endif
