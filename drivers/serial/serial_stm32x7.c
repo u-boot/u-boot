@@ -117,6 +117,8 @@ static int stm32_serial_probe(struct udevice *dev)
 		     BIT(uart_enable_bit));
 	if (plat->uart_info->has_overrun_disable)
 		setbits_le32(base + CR3_OFFSET(stm32f4), USART_CR3_OVRDIS);
+	if (plat->uart_info->has_fifo)
+		setbits_le32(base + CR1_OFFSET(stm32f4), USART_CR1_FIFOEN);
 	setbits_le32(base + CR1_OFFSET(stm32f4), USART_CR1_RE | USART_CR1_TE |
 		     BIT(uart_enable_bit));
 
@@ -125,8 +127,8 @@ static int stm32_serial_probe(struct udevice *dev)
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct udevice_id stm32_serial_id[] = {
-	{ .compatible = "st,stm32f7-uart", .data = (ulong)&stm32x7_info},
-	{ .compatible = "st,stm32h7-uart", .data = (ulong)&stm32x7_info},
+	{ .compatible = "st,stm32f7-uart", .data = (ulong)&stm32f7_info},
+	{ .compatible = "st,stm32h7-uart", .data = (ulong)&stm32h7_info},
 	{}
 };
 

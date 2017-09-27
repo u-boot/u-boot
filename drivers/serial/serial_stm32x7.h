@@ -24,12 +24,21 @@ struct stm32_uart_info {
 	u8 uart_enable_bit;	/* UART_CR1_UE */
 	bool stm32f4;		/* true for STM32F4, false otherwise */
 	bool has_overrun_disable;
+	bool has_fifo;
 };
 
-struct stm32_uart_info stm32x7_info = {
+struct stm32_uart_info stm32f7_info = {
 	.uart_enable_bit = 0,
 	.stm32f4 = false,
 	.has_overrun_disable = true,
+	.has_fifo = false,
+};
+
+struct stm32_uart_info stm32h7_info = {
+	.uart_enable_bit = 0,
+	.stm32f4 = false,
+	.has_overrun_disable = true,
+	.has_fifo = true,
 };
 
 /* Information about a serial port */
@@ -39,6 +48,7 @@ struct stm32x7_serial_platdata {
 	unsigned long int clock_rate;
 };
 
+#define USART_CR1_FIFOEN		BIT(29)
 #define USART_CR1_OVER8			BIT(15)
 #define USART_CR1_TE			BIT(3)
 #define USART_CR1_RE			BIT(2)
