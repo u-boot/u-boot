@@ -28,18 +28,18 @@ struct stm32x7_serial_platdata {
 	unsigned long int clock_rate;
 };
 
-#define USART_CR1_OVER8			(1 << 15)
-#define USART_CR1_TE			(1 << 3)
-#define USART_CR1_RE			(1 << 2)
-#define USART_CR1_UE			(1 << 0)
+#define USART_CR1_OVER8			BIT(15)
+#define USART_CR1_TE			BIT(3)
+#define USART_CR1_RE			BIT(2)
+#define USART_CR1_UE			BIT(0)
 
-#define USART_CR3_OVRDIS		(1 << 12)
+#define USART_CR3_OVRDIS		BIT(12)
 
-#define USART_SR_FLAG_RXNE		(1 << 5)
-#define USART_SR_FLAG_TXE		(1 << 7)
+#define USART_SR_FLAG_RXNE		BIT(5)
+#define USART_SR_FLAG_TXE		BIT(7)
 
-#define USART_BRR_F_MASK		0xFF
+#define USART_BRR_F_MASK		GENMASK(7, 0)
 #define USART_BRR_M_SHIFT		4
-#define USART_BRR_M_MASK		0xFFF0
+#define USART_BRR_M_MASK		GENMASK(15, 4)
 
 #endif
