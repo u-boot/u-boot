@@ -83,17 +83,15 @@ static int stm32_serial_pending(struct udevice *dev, bool input)
 static int stm32_serial_probe(struct udevice *dev)
 {
 	struct stm32x7_serial_platdata *plat = dev_get_platdata(dev);
+	struct clk clk;
 	fdt_addr_t base = plat->base;
+	int ret;
 	bool stm32f4;
 	u8 uart_enable_bit;
 
 	plat->uart_info = (struct stm32_uart_info *)dev_get_driver_data(dev);
 	stm32f4 = plat->uart_info->stm32f4;
 	uart_enable_bit = plat->uart_info->uart_enable_bit;
-
-#ifdef CONFIG_CLK
-	int ret;
-	struct clk clk;
 
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret < 0)
@@ -104,7 +102,6 @@ static int stm32_serial_probe(struct udevice *dev)
 		dev_err(dev, "failed to enable clock\n");
 		return ret;
 	}
-#endif
 
 	plat->clock_rate = clk_get_rate(&clk);
 	if (plat->clock_rate < 0) {
@@ -125,7 +122,6 @@ static int stm32_serial_probe(struct udevice *dev)
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct udevice_id stm32_serial_id[] = {
 	{ .compatible = "st,stm32-uart", .data = (ulong)&stm32f4_info},
 	{ .compatible = "st,stm32f7-uart", .data = (ulong)&stm32f7_info},
@@ -143,7 +139,6 @@ static int stm32_serial_ofdata_to_platdata(struct udevice *dev)
 
 	return 0;
 }
-#endif
 
 static const struct dm_serial_ops stm32_serial_ops = {
 	.putc = stm32_serial_putc,
