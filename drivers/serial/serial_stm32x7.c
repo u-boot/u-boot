@@ -17,67 +17,79 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int stm32_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct stm32x7_serial_platdata *plat = dev->platdata;
-	struct stm32_usart *const usart = plat->base;
+	struct stm32x7_serial_platdata *plat = dev_get_platdata(dev);
+	bool stm32f4 = plat->uart_info->stm32f4;
+	fdt_addr_t base = plat->base;
 	u32 int_div, mantissa, fraction, oversampling;
 
 	int_div = DIV_ROUND_CLOSEST(plat->clock_rate, baudrate);
 
 	if (int_div < 16) {
 		oversampling = 8;
-		setbits_le32(&usart->cr1, USART_CR1_OVER8);
+		setbits_le32(base + CR1_OFFSET(stm32f4), USART_CR1_OVER8);
 	} else {
 		oversampling = 16;
-		clrbits_le32(&usart->cr1, USART_CR1_OVER8);
+		clrbits_le32(base + CR1_OFFSET(stm32f4), USART_CR1_OVER8);
 	}
 
 	mantissa = (int_div / oversampling) << USART_BRR_M_SHIFT;
 	fraction = int_div % oversampling;
 
-	writel(mantissa | fraction, &usart->brr);
+	writel(mantissa | fraction, base + BRR_OFFSET(stm32f4));
 
 	return 0;
 }
 
 static int stm32_serial_getc(struct udevice *dev)
 {
-	struct stm32x7_serial_platdata *plat = dev->platdata;
-	struct stm32_usart *const usart = plat->base;
+	struct stm32x7_serial_platdata *plat = dev_get_platdata(dev);
+	bool stm32f4 = plat->uart_info->stm32f4;
+	fdt_addr_t base = plat->base;
 
-	if ((readl(&usart->sr) & USART_SR_FLAG_RXNE) == 0)
+	if ((readl(base + ISR_OFFSET(stm32f4)) & USART_SR_FLAG_RXNE) == 0)
 		return -EAGAIN;
 
-	return readl(&usart->rd_dr);
+	return readl(base + RDR_OFFSET(stm32f4));
 }
 
 static int stm32_serial_putc(struct udevice *dev, const char c)
 {
-	struct stm32x7_serial_platdata *plat = dev->platdata;
-	struct stm32_usart *const usart = plat->base;
+	struct stm32x7_serial_platdata *plat = dev_get_platdata(dev);
+	bool stm32f4 = plat->uart_info->stm32f4;
+	fdt_addr_t base = plat->base;
 
-	if ((readl(&usart->sr) & USART_SR_FLAG_TXE) == 0)
+	if ((readl(base + ISR_OFFSET(stm32f4)) & USART_SR_FLAG_TXE) == 0)
 		return -EAGAIN;
 
-	writel(c, &usart->tx_dr);
+	writel(c, base + TDR_OFFSET(stm32f4));
 
 	return 0;
 }
 
 static int stm32_serial_pending(struct udevice *dev, bool input)
 {
-	struct stm32x7_serial_platdata *plat = dev->platdata;
-	struct stm32_usart *const usart = plat->base;
+	struct stm32x7_serial_platdata *plat = dev_get_platdata(dev);
+	bool stm32f4 = plat->uart_info->stm32f4;
+	fdt_addr_t base = plat->base;
 
 	if (input)
-		return readl(&usart->sr) & USART_SR_FLAG_RXNE ? 1 : 0;
+		return readl(base + ISR_OFFSET(stm32f4)) &
+			USART_SR_FLAG_RXNE ? 1 : 0;
 	else
-		return readl(&usart->sr) & USART_SR_FLAG_TXE ? 0 : 1;
+		return readl(base + ISR_OFFSET(stm32f4)) &
+			USART_SR_FLAG_TXE ? 0 : 1;
 }
 
 static int stm32_serial_probe(struct udevice *dev)
 {
-	struct stm32x7_serial_platdata *plat = dev->platdata;
-	struct stm32_usart *const usart = plat->base;
+	struct stm32x7_serial_platdata *plat = dev_get_platdata(dev);
+	fdt_addr_t base = plat->base;
+	bool stm32f4;
+	u8 uart_enable_bit;
+
+	plat->uart_info = (struct stm32_uart_info *)dev_get_driver_data(dev);
+	stm32f4 = plat->uart_info->stm32f4;
+	uart_enable_bit = plat->uart_info->uart_enable_bit;
 
 #ifdef CONFIG_CLK
 	int ret;
@@ -100,31 +112,31 @@ static int stm32_serial_probe(struct udevice *dev)
 		return plat->clock_rate;
 	};
 
-	/* Disable usart-> disable overrun-> enable usart */
-	clrbits_le32(&usart->cr1, USART_CR1_RE | USART_CR1_TE | USART_CR1_UE);
-	setbits_le32(&usart->cr3, USART_CR3_OVRDIS);
-	setbits_le32(&usart->cr1, USART_CR1_RE | USART_CR1_TE | USART_CR1_UE);
+	/* Disable uart-> disable overrun-> enable uart */
+	clrbits_le32(base + CR1_OFFSET(stm32f4), USART_CR1_RE | USART_CR1_TE |
+		     BIT(uart_enable_bit));
+	if (plat->uart_info->has_overrun_disable)
+		setbits_le32(base + CR3_OFFSET(stm32f4), USART_CR3_OVRDIS);
+	setbits_le32(base + CR1_OFFSET(stm32f4), USART_CR1_RE | USART_CR1_TE |
+		     BIT(uart_enable_bit));
 
 	return 0;
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct udevice_id stm32_serial_id[] = {
-	{.compatible = "st,stm32f7-uart"},
-	{.compatible = "st,stm32h7-uart"},
+	{ .compatible = "st,stm32f7-uart", .data = (ulong)&stm32x7_info},
+	{ .compatible = "st,stm32h7-uart", .data = (ulong)&stm32x7_info},
 	{}
 };
 
 static int stm32_serial_ofdata_to_platdata(struct udevice *dev)
 {
 	struct stm32x7_serial_platdata *plat = dev_get_platdata(dev);
-	fdt_addr_t addr;
 
-	addr = devfdt_get_addr(dev);
-	if (addr == FDT_ADDR_T_NONE)
+	plat->base = devfdt_get_addr(dev);
+	if (plat->base == FDT_ADDR_T_NONE)
 		return -EINVAL;
-
-	plat->base = (struct stm32_usart *)addr;
 
 	return 0;
 }
