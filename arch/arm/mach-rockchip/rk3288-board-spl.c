@@ -13,7 +13,6 @@
 #include <malloc.h>
 #include <ram.h>
 #include <spl.h>
-#include <asm/armv7.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/bootrom.h>
@@ -21,6 +20,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/periph.h>
 #include <asm/arch/sdram.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/arch/timer.h>
 #include <dm/pinctrl.h>
 #include <dm/root.h>
@@ -79,25 +79,6 @@ fallback:
 u32 spl_boot_mode(const u32 boot_device)
 {
 	return MMCSD_MODE_RAW;
-}
-
-static void configure_l2ctlr(void)
-{
-	uint32_t l2ctlr;
-
-	l2ctlr = read_l2ctlr();
-	l2ctlr &= 0xfffc0000; /* clear bit0~bit17 */
-
-	/*
-	* Data RAM write latency: 2 cycles
-	* Data RAM read latency: 2 cycles
-	* Data RAM setup latency: 1 cycle
-	* Tag RAM write latency: 1 cycle
-	* Tag RAM read latency: 1 cycle
-	* Tag RAM setup latency: 1 cycle
-	*/
-	l2ctlr |= (1 << 3 | 1 << 0);
-	write_l2ctlr(l2ctlr);
 }
 
 #ifdef CONFIG_SPL_MMC_SUPPORT
