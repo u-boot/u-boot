@@ -150,6 +150,17 @@ int usb_update_hub_device(struct usb_device *udev)
 	return ops->update_hub_device(bus, udev);
 }
 
+int usb_get_max_xfer_size(struct usb_device *udev, size_t *size)
+{
+	struct udevice *bus = udev->controller_dev;
+	struct dm_usb_ops *ops = usb_get_ops(bus);
+
+	if (!ops->get_max_xfer_size)
+		return -ENOSYS;
+
+	return ops->get_max_xfer_size(bus, size);
+}
+
 int usb_stop(void)
 {
 	struct udevice *bus;

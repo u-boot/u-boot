@@ -766,6 +766,14 @@ struct dm_usb_ops {
 	 * representation of this hub can be updated (xHCI)
 	 */
 	int (*update_hub_device)(struct udevice *bus, struct usb_device *udev);
+
+	/**
+	 * get_max_xfer_size() - Get HCD's maximum transfer bytes
+	 *
+	 * The HCD may have limitation on the maximum bytes to be transferred
+	 * in a USB transfer. USB class driver needs to be aware of this.
+	 */
+	int (*get_max_xfer_size)(struct udevice *bus, size_t *size);
 };
 
 #define usb_get_ops(dev)	((struct dm_usb_ops *)(dev)->driver->ops)
@@ -939,7 +947,7 @@ int usb_new_device(struct usb_device *dev);
 int usb_alloc_device(struct usb_device *dev);
 
 /**
- * update_hub_device() - Update HCD's internal representation of hub
+ * usb_update_hub_device() - Update HCD's internal representation of hub
  *
  * After a hub descriptor is fetched, notify HCD so that its internal
  * representation of this hub can be updated.
@@ -948,6 +956,18 @@ int usb_alloc_device(struct usb_device *dev);
  * @return 0 if OK, -ve on error
  */
 int usb_update_hub_device(struct usb_device *dev);
+
+/**
+ * usb_get_max_xfer_size() - Get HCD's maximum transfer bytes
+ *
+ * The HCD may have limitation on the maximum bytes to be transferred
+ * in a USB transfer. USB class driver needs to be aware of this.
+ *
+ * @dev:		USB device
+ * @size:		maximum transfer bytes
+ * @return 0 if OK, -ve on error
+ */
+int usb_get_max_xfer_size(struct usb_device *dev, size_t *size);
 
 /**
  * usb_emul_setup_device() - Set up a new USB device emulation
