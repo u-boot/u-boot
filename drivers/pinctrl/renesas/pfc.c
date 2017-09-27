@@ -477,6 +477,188 @@ static int sh_pfc_pinctrl_group_set(struct udevice *dev, unsigned group_selector
 done:
 	return ret;
 }
+#if CONFIG_IS_ENABLED(PINCONF)
+static const struct pinconf_param sh_pfc_pinconf_params[] = {
+	{ "bias-disable",	PIN_CONFIG_BIAS_DISABLE,	0 },
+	{ "bias-pull-up",	PIN_CONFIG_BIAS_PULL_UP,	1 },
+	{ "bias-pull-down",	PIN_CONFIG_BIAS_PULL_DOWN,	1 },
+	{ "drive-strength",	PIN_CONFIG_DRIVE_STRENGTH,	0 },
+	{ "power-source",	PIN_CONFIG_POWER_SOURCE,	3300 },
+};
+
+static void __iomem *
+sh_pfc_pinconf_find_drive_strength_reg(struct sh_pfc *pfc, unsigned int pin,
+				       unsigned int *offset, unsigned int *size)
+{
+	const struct pinmux_drive_reg_field *field;
+	const struct pinmux_drive_reg *reg;
+	unsigned int i;
+
+	for (reg = pfc->info->drive_regs; reg->reg; ++reg) {
+		for (i = 0; i < ARRAY_SIZE(reg->fields); ++i) {
+			field = &reg->fields[i];
+
+			if (field->size && field->pin == pin) {
+				*offset = field->offset;
+				*size = field->size;
+
+				return (void __iomem *)(uintptr_t)reg->reg;
+			}
+		}
+	}
+
+	return NULL;
+}
+
+static int sh_pfc_pinconf_set_drive_strength(struct sh_pfc *pfc,
+					     unsigned int pin, u16 strength)
+{
+	unsigned int offset;
+	unsigned int size;
+	unsigned int step;
+	void __iomem *reg;
+	void __iomem *unlock_reg =
+		(void __iomem *)(uintptr_t)pfc->info->unlock_reg;
+	u32 val;
+
+	reg = sh_pfc_pinconf_find_drive_strength_reg(pfc, pin, &offset, &size);
+	if (!reg)
+		return -EINVAL;
+
+	step = size == 2 ? 6 : 3;
+
+	if (strength < step || strength > 24)
+		return -EINVAL;
+
+	/* Convert the value from mA based on a full drive strength value of
+	 * 24mA. We can make the full value configurable later if needed.
+	 */
+	strength = strength / step - 1;
+
+	val = sh_pfc_read_raw_reg(reg, 32);
+	val &= ~GENMASK(offset + size - 1, offset);
+	val |= strength << offset;
+
+	if (unlock_reg)
+		sh_pfc_write_raw_reg(unlock_reg, 32, ~val);
+
+	sh_pfc_write_raw_reg(reg, 32, val);
+
+	return 0;
+}
+
+/* Check whether the requested parameter is supported for a pin. */
+static bool sh_pfc_pinconf_validate(struct sh_pfc *pfc, unsigned int _pin,
+				    unsigned int param)
+{
+	int idx = sh_pfc_get_pin_index(pfc, _pin);
+	const struct sh_pfc_pin *pin = &pfc->info->pins[idx];
+
+	switch (param) {
+	case PIN_CONFIG_BIAS_DISABLE:
+		return pin->configs &
+			(SH_PFC_PIN_CFG_PULL_UP | SH_PFC_PIN_CFG_PULL_DOWN);
+
+	case PIN_CONFIG_BIAS_PULL_UP:
+		return pin->configs & SH_PFC_PIN_CFG_PULL_UP;
+
+	case PIN_CONFIG_BIAS_PULL_DOWN:
+		return pin->configs & SH_PFC_PIN_CFG_PULL_DOWN;
+
+	case PIN_CONFIG_DRIVE_STRENGTH:
+		return pin->configs & SH_PFC_PIN_CFG_DRIVE_STRENGTH;
+
+	case PIN_CONFIG_POWER_SOURCE:
+		return pin->configs & SH_PFC_PIN_CFG_IO_VOLTAGE;
+
+	default:
+		return false;
+	}
+}
+
+static int sh_pfc_pinconf_set(struct sh_pfc_pinctrl *pmx, unsigned _pin,
+			      unsigned int param, unsigned int arg)
+{
+	struct sh_pfc *pfc = pmx->pfc;
+	void __iomem *pocctrl;
+	void __iomem *unlock_reg =
+		(void __iomem *)(uintptr_t)pfc->info->unlock_reg;
+	u32 addr, val;
+	int bit, ret;
+
+	if (!sh_pfc_pinconf_validate(pfc, _pin, param))
+		return -ENOTSUPP;
+
+	switch (param) {
+	case PIN_CONFIG_BIAS_PULL_UP:
+	case PIN_CONFIG_BIAS_PULL_DOWN:
+	case PIN_CONFIG_BIAS_DISABLE:
+		if (!pfc->info->ops || !pfc->info->ops->set_bias)
+			return -ENOTSUPP;
+
+		pfc->info->ops->set_bias(pfc, _pin, param);
+
+		break;
+
+	case PIN_CONFIG_DRIVE_STRENGTH:
+		ret = sh_pfc_pinconf_set_drive_strength(pfc, _pin, arg);
+		if (ret < 0)
+			return ret;
+
+		break;
+
+	case PIN_CONFIG_POWER_SOURCE:
+		if (!pfc->info->ops || !pfc->info->ops->pin_to_pocctrl)
+			return -ENOTSUPP;
+
+		bit = pfc->info->ops->pin_to_pocctrl(pfc, _pin, &addr);
+		if (bit < 0) {
+			printf("invalid pin %#x", _pin);
+			return bit;
+		}
+
+		if (arg != 1800 && arg != 3300)
+			return -EINVAL;
+
+		pocctrl = (void __iomem *)(uintptr_t)addr;
+
+		val = sh_pfc_read_raw_reg(pocctrl, 32);
+		if (arg == 3300)
+			val |= BIT(bit);
+		else
+			val &= ~BIT(bit);
+
+		if (unlock_reg)
+			sh_pfc_write_raw_reg(unlock_reg, 32, ~val);
+
+		sh_pfc_write_raw_reg(pocctrl, 32, val);
+
+		break;
+
+	default:
+		return -ENOTSUPP;
+	}
+
+	return 0;
+}
+
+
+static int sh_pfc_pinconf_group_set(struct udevice *dev,
+				      unsigned int group_selector,
+				      unsigned int param, unsigned int arg)
+{
+	struct sh_pfc_pinctrl_priv *priv = dev_get_priv(dev);
+	struct sh_pfc_pinctrl *pmx = &priv->pmx;
+	struct sh_pfc *pfc = &priv->pfc;
+	const struct sh_pfc_pin_group *grp = &pfc->info->groups[group_selector];
+	unsigned int i;
+
+	for (i = 0; i < grp->nr_pins; i++)
+		sh_pfc_pinconf_set(pmx, grp->pins[i], param, arg);
+
+	return 0;
+}
+#endif
 
 static struct pinctrl_ops sh_pfc_pinctrl_ops = {
 	.get_pins_count		= sh_pfc_pinctrl_get_pins_count,
@@ -486,6 +668,11 @@ static struct pinctrl_ops sh_pfc_pinctrl_ops = {
 	.get_functions_count	= sh_pfc_pinctrl_get_functions_count,
 	.get_function_name	= sh_pfc_pinctrl_get_function_name,
 
+#if CONFIG_IS_ENABLED(PINCONF)
+	.pinconf_num_params	= ARRAY_SIZE(sh_pfc_pinconf_params),
+	.pinconf_params		= sh_pfc_pinconf_params,
+	.pinconf_group_set	= sh_pfc_pinconf_group_set,
+#endif
 	.pinmux_group_set	= sh_pfc_pinctrl_group_set,
 	.set_state		= pinctrl_generic_set_state,
 };
