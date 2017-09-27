@@ -13,6 +13,7 @@
 #include <malloc.h>
 #include <ram.h>
 #include <spl.h>
+#include <asm/armv7.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/bootrom.h>
@@ -78,27 +79,6 @@ fallback:
 u32 spl_boot_mode(const u32 boot_device)
 {
 	return MMCSD_MODE_RAW;
-}
-
-/* read L2 control register (L2CTLR) */
-static inline uint32_t read_l2ctlr(void)
-{
-	uint32_t val = 0;
-
-	asm volatile ("mrc p15, 1, %0, c9, c0, 2" : "=r" (val));
-
-	return val;
-}
-
-/* write L2 control register (L2CTLR) */
-static inline void write_l2ctlr(uint32_t val)
-{
-	/*
-	 * Note: L2CTLR can only be written when the L2 memory system
-	 * is idle, ie before the MMU is enabled.
-	 */
-	asm volatile("mcr p15, 1, %0, c9, c0, 2" : : "r" (val) : "memory");
-	isb();
 }
 
 static void configure_l2ctlr(void)
