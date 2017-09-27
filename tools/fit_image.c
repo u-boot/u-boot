@@ -372,7 +372,7 @@ static int fit_build(struct image_tool_params *params, const char *fname)
 	if (fd < 0) {
 		fprintf(stderr, "%s: Can't open %s: %s\n",
 			params->cmdname, fname, strerror(errno));
-		goto err;
+		goto err_buf;
 	}
 	ret = write(fd, buf, size);
 	if (ret != size) {
@@ -501,6 +501,7 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 		ret = -EIO;
 		goto err;
 	}
+	free(buf);
 	close(fd);
 	return 0;
 
@@ -601,6 +602,7 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 	ret = 0;
 
 err:
+	munmap(old_fdt, sbuf.st_size);
 	free(fdt);
 	close(fd);
 	return ret;
