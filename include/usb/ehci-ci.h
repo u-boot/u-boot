@@ -280,6 +280,7 @@ struct usb_ehci {
 int usb_phy_mode(int port);
 /* Board-specific initialization */
 int board_ehci_hcd_init(int port);
+int board_ehci_power(int port, int on);
 int board_usb_phy_mode(int port);
 
 #endif /* _EHCI_CI_H */
