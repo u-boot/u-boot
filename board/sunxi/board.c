@@ -733,7 +733,9 @@ int misc_init_r(void)
 		return ret;
 #endif
 
+#ifdef CONFIG_USB_ETHER
 	usb_ether_init();
+#endif
 
 	return 0;
 }
