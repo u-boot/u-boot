@@ -23,6 +23,18 @@
 #define   SDHCI_CDNS_HRS04_WDATA_SHIFT		8
 #define   SDHCI_CDNS_HRS04_ADDR_SHIFT		0
 
+#define SDHCI_CDNS_HRS06		0x18		/* eMMC control */
+#define   SDHCI_CDNS_HRS06_TUNE_UP		BIT(15)
+#define   SDHCI_CDNS_HRS06_TUNE_SHIFT		8
+#define   SDHCI_CDNS_HRS06_TUNE_MASK		0x3f
+#define   SDHCI_CDNS_HRS06_MODE_MASK		0x7
+#define   SDHCI_CDNS_HRS06_MODE_SD		0x0
+#define   SDHCI_CDNS_HRS06_MODE_MMC_SDR		0x2
+#define   SDHCI_CDNS_HRS06_MODE_MMC_DDR		0x3
+#define   SDHCI_CDNS_HRS06_MODE_MMC_HS200	0x4
+#define   SDHCI_CDNS_HRS06_MODE_MMC_HS400	0x5
+#define   SDHCI_CDNS_HRS06_MODE_MMC_HS400ES	0x6
+
 /* SRS - Slot Register Set (SDHCI-compatible) */
 #define SDHCI_CDNS_SRS_BASE		0x200
 
@@ -111,6 +123,44 @@ static int sdhci_cdns_phy_init(struct sdhci_cdns_plat *plat,
 	return 0;
 }
 
+static void sdhci_cdns_set_control_reg(struct sdhci_host *host)
+{
+	struct mmc *mmc = host->mmc;
+	struct sdhci_cdns_plat *plat = dev_get_platdata(mmc->dev);
+	unsigned int clock = mmc->clock;
+	u32 mode, tmp;
+
+	/*
+	 * REVISIT:
+	 * The mode should be decided by MMC_TIMING_* like Linux, but
+	 * U-Boot does not support timing.  Use the clock frequency instead.
+	 */
+	if (clock <= 26000000)
+		mode = SDHCI_CDNS_HRS06_MODE_SD; /* use this for Legacy */
+	else if (clock <= 52000000) {
+		if (mmc->ddr_mode)
+			mode = SDHCI_CDNS_HRS06_MODE_MMC_DDR;
+		else
+			mode = SDHCI_CDNS_HRS06_MODE_MMC_SDR;
+	} else {
+		/*
+		 * REVISIT:
+		 * The IP supports HS200/HS400, revisit once U-Boot support it
+		 */
+		printf("unsupported frequency %d\n", clock);
+		return;
+	}
+
+	tmp = readl(plat->hrs_addr + SDHCI_CDNS_HRS06);
+	tmp &= ~SDHCI_CDNS_HRS06_MODE_MASK;
+	tmp |= mode;
+	writel(tmp, plat->hrs_addr + SDHCI_CDNS_HRS06);
+}
+
+static const struct sdhci_ops sdhci_cdns_ops = {
+	.set_control_reg = sdhci_cdns_set_control_reg,
+};
+
 static int sdhci_cdns_bind(struct udevice *dev)
 {
 	struct sdhci_cdns_plat *plat = dev_get_platdata(dev);
@@ -137,6 +187,7 @@ static int sdhci_cdns_probe(struct udevice *dev)
 
 	host->name = dev->name;
 	host->ioaddr = plat->hrs_addr + SDHCI_CDNS_SRS_BASE;
+	host->ops = &sdhci_cdns_ops;
 	host->quirks |= SDHCI_QUIRK_WAIT_SEND_CMD;
 
 	ret = sdhci_cdns_phy_init(plat, gd->fdt_blob, dev_of_offset(dev));
