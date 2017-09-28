@@ -215,8 +215,8 @@ void __asm_switch_ttbr(u64 new_ttbr);
  * @entry_point: kernel entry point
  * @es_flag:     execution state flag, ES_TO_AARCH64 or ES_TO_AARCH32
  */
-void armv8_switch_to_el2(u64 args, u64 mach_nr, u64 fdt_addr,
-			 u64 arg4, u64 entry_point, u64 es_flag);
+void __noreturn armv8_switch_to_el2(u64 args, u64 mach_nr, u64 fdt_addr,
+				    u64 arg4, u64 entry_point, u64 es_flag);
 /*
  * Switch from EL2 to EL1 for ARMv8
  *
