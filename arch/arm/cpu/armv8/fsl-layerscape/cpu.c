@@ -693,8 +693,19 @@ int dram_init_banksize(void)
 	 * memory. The DDR extends from low region to high region(s) presuming
 	 * no hole is created with DDR configuration. gd->arch.secure_ram tracks
 	 * the location of secure memory. gd->arch.resv_ram tracks the location
-	 * of reserved memory for Management Complex (MC).
+	 * of reserved memory for Management Complex (MC). Because gd->ram_size
+	 * is reduced by this function if secure memory is reserved, checking
+	 * gd->arch.secure_ram should be done to avoid running it repeatedly.
 	 */
+
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+	if (gd->arch.secure_ram & MEM_RESERVE_SECURE_MAINTAINED) {
+		debug("No need to run again, skip %s\n", __func__);
+
+		return 0;
+	}
+#endif
+
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	if (gd->ram_size > CONFIG_SYS_DDR_BLOCK1_SIZE) {
 		gd->bd->bi_dram[0].size = CONFIG_SYS_DDR_BLOCK1_SIZE;
@@ -772,6 +783,11 @@ int dram_init_banksize(void)
 			puts("Not detected");
 		}
 	}
+#endif
+
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+	debug("%s is called. gd->ram_size is reduced to %lu\n",
+	      __func__, (ulong)gd->ram_size);
 #endif
 
 	return 0;
