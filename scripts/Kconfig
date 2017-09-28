@@ -1,2 +1,0 @@
-config BUILD_BIN2C
-	bool

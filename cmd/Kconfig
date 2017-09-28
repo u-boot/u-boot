@@ -116,6 +116,9 @@ endmenu
 
 source "cmd/fastboot/Kconfig"
 
+config BUILD_BIN2C
+	bool
+
 comment "Commands"
 
 menu "Info commands"
