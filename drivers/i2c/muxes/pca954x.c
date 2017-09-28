@@ -27,6 +27,7 @@ struct chip_desc {
 		pca954x_ismux = 0,
 		pca954x_isswi,
 	} muxtype;
+	u32 width;
 };
 
 struct pca954x_priv {
@@ -39,14 +40,17 @@ static const struct chip_desc chips[] = {
 	[PCA9544] = {
 		.enable = 0x4,
 		.muxtype = pca954x_ismux,
+		.width = 4,
 	},
 	[PCA9547] = {
 		.enable = 0x8,
 		.muxtype = pca954x_ismux,
+		.width = 8,
 	},
 	[PCA9548] = {
 		.enable = 0x8,
 		.muxtype = pca954x_isswi,
+		.width = 8,
 	},
 };
 
@@ -89,13 +93,14 @@ static const struct udevice_id pca954x_ids[] = {
 static int pca954x_ofdata_to_platdata(struct udevice *dev)
 {
 	struct pca954x_priv *priv = dev_get_priv(dev);
+	const struct chip_desc *chip = &chips[dev_get_driver_data(dev)];
 
 	priv->addr = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "reg", 0);
 	if (!priv->addr) {
 		debug("MUX not found\n");
 		return -ENODEV;
 	}
-	priv->width = dev_get_driver_data(dev);
+	priv->width = chip->width;
 
 	if (!priv->width) {
 		debug("No I2C MUX width specified\n");
