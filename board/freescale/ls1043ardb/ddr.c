@@ -169,17 +169,63 @@ int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,
 
 	return 0;
 }
+#else
+
+phys_size_t fixed_sdram(void)
+{
+	int i;
+	char buf[32];
+	fsl_ddr_cfg_regs_t ddr_cfg_regs;
+	phys_size_t ddr_size;
+	ulong ddr_freq, ddr_freq_mhz;
+
+	ddr_freq = get_ddr_freq(0);
+	ddr_freq_mhz = ddr_freq / 1000000;
+
+	printf("Configuring DDR for %s MT/s data rate\n",
+	       strmhz(buf, ddr_freq));
+
+	for (i = 0; fixed_ddr_parm_0[i].max_freq > 0; i++) {
+		if ((ddr_freq_mhz > fixed_ddr_parm_0[i].min_freq) &&
+		    (ddr_freq_mhz <= fixed_ddr_parm_0[i].max_freq)) {
+			memcpy(&ddr_cfg_regs,
+			       fixed_ddr_parm_0[i].ddr_settings,
+			       sizeof(ddr_cfg_regs));
+			break;
+		}
+	}
+
+	if (fixed_ddr_parm_0[i].max_freq == 0)
+		panic("Unsupported DDR data rate %s MT/s data rate\n",
+		      strmhz(buf, ddr_freq));
+
+	ddr_size = (phys_size_t)2048 * 1024 * 1024;
+	fsl_ddr_set_memctl_regs(&ddr_cfg_regs, 0, 0);
+
+	return ddr_size;
+}
 #endif
 
 int fsl_initdram(void)
 {
 	phys_size_t dram_size;
 
+#ifdef CONFIG_SYS_DDR_RAW_TIMING
 #if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_SPL)
 	puts("Initializing DDR....\n");
 	dram_size = fsl_ddr_sdram();
 #else
 	dram_size =  fsl_ddr_sdram_size();
+#endif
+#else
+#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_SPL)
+	puts("Initialzing DDR using fixed setting\n");
+	dram_size = fixed_sdram();
+#else
+	gd->ram_size = 0x80000000;
+
+	return 0;
+#endif
 #endif
 	erratum_a008850_post();
 

@@ -28,13 +28,13 @@
 
 #define CONFIG_SYS_SPD_BUS_NUM		0
 
-#define CONFIG_FSL_DDR_BIST
 #ifndef CONFIG_SPL
-#define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
-#endif
 #define CONFIG_SYS_DDR_RAW_TIMING
+#define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
+#define CONFIG_FSL_DDR_BIST
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
+#endif
 
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/ls1043ardb/ls1043ardb_pbi.cfg
