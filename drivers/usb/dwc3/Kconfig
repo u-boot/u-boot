@@ -37,6 +37,13 @@ config USB_DWC3_OMAP
 
 	  Say 'Y' here if you have one such device
 
+config USB_DWC3_UNIPHIER
+	bool "DesignWare USB3 Host Support on UniPhier Platforms"
+	depends on ARCH_UNIPHIER && USB_XHCI_DWC3
+	help
+	  Support of USB2/3 functionality in Socionext UniPhier platforms.
+	  Say 'Y' here if you have one such device.
+
 menu "PHY Subsystem"
 
 config USB_DWC3_PHY_OMAP
