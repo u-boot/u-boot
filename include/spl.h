@@ -68,6 +68,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 void preloader_console_init(void);
 u32 spl_boot_device(void);
 u32 spl_boot_mode(const u32 boot_device);
+void spl_set_bd(void);
 
 /**
  * spl_set_header_raw_uboot() - Set up a standard SPL image structure
