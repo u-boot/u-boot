@@ -121,9 +121,11 @@ static int spl_export(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				(void *)images.ft_addr);
 			env_set_addr("fdtargsaddr", images.ft_addr);
 			env_set_hex("fdtargslen", fdt_totalsize(images.ft_addr));
+#ifdef CONFIG_CMD_SPL_WRITE_SIZE
 			if (fdt_totalsize(images.ft_addr) >
 			    CONFIG_CMD_SPL_WRITE_SIZE)
 				puts("WARN: FDT size > CMD_SPL_WRITE_SIZE\n");
+#endif
 			break;
 #endif
 		case SPL_EXPORT_ATAGS:
