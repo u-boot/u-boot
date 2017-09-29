@@ -14,6 +14,7 @@
 #include <linux/dma-direction.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
+#include <power/regulator.h>
 #include <asm/unaligned.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -135,7 +136,7 @@ struct uniphier_sd_priv {
 #define UNIPHIER_SD_CAP_64BIT		BIT(3)	/* Controller is 64bit */
 };
 
-static u64 uniphier_sd_readq(struct uniphier_sd_priv *priv, const u32 reg)
+static u64 uniphier_sd_readq(struct uniphier_sd_priv *priv, unsigned int reg)
 {
 	if (priv->caps & UNIPHIER_SD_CAP_64BIT)
 		return readq(priv->regbase + (reg << 1));
@@ -144,7 +145,7 @@ static u64 uniphier_sd_readq(struct uniphier_sd_priv *priv, const u32 reg)
 }
 
 static void uniphier_sd_writeq(struct uniphier_sd_priv *priv,
-			       const u64 val, const u32 reg)
+			       u64 val, unsigned int reg)
 {
 	if (priv->caps & UNIPHIER_SD_CAP_64BIT)
 		writeq(val, priv->regbase + (reg << 1));
@@ -152,7 +153,7 @@ static void uniphier_sd_writeq(struct uniphier_sd_priv *priv,
 		writeq(val, priv->regbase + reg);
 }
 
-static u32 uniphier_sd_readl(struct uniphier_sd_priv *priv, const u32 reg)
+static u32 uniphier_sd_readl(struct uniphier_sd_priv *priv, unsigned int reg)
 {
 	if (priv->caps & UNIPHIER_SD_CAP_64BIT)
 		return readl(priv->regbase + (reg << 1));
@@ -161,7 +162,7 @@ static u32 uniphier_sd_readl(struct uniphier_sd_priv *priv, const u32 reg)
 }
 
 static void uniphier_sd_writel(struct uniphier_sd_priv *priv,
-			       const u32 val, const u32 reg)
+			       u32 val, unsigned int reg)
 {
 	if (priv->caps & UNIPHIER_SD_CAP_64BIT)
 		writel(val, priv->regbase + (reg << 1));
@@ -246,7 +247,7 @@ static int uniphier_sd_wait_for_irq(struct udevice *dev, unsigned int reg,
 	return 0;
 }
 
-static int uniphier_sd_pio_read_one_block(struct udevice *dev, u32 **pbuf,
+static int uniphier_sd_pio_read_one_block(struct udevice *dev, char *pbuf,
 					  uint blocksize)
 {
 	struct uniphier_sd_priv *priv = dev_get_priv(dev);
@@ -264,36 +265,33 @@ static int uniphier_sd_pio_read_one_block(struct udevice *dev, u32 **pbuf,
 	 */
 	uniphier_sd_writel(priv, 0, UNIPHIER_SD_INFO2);
 
-	if (likely(IS_ALIGNED((unsigned long)*pbuf, 4))) {
-		if (priv->caps & UNIPHIER_SD_CAP_64BIT) {
+	if (priv->caps & UNIPHIER_SD_CAP_64BIT) {
+		u64 *buf = (u64 *)pbuf;
+		if (likely(IS_ALIGNED((uintptr_t)buf, 8))) {
+			for (i = 0; i < blocksize / 8; i++) {
+				*buf++ = uniphier_sd_readq(priv,
+							   UNIPHIER_SD_BUF);
+			}
+		} else {
 			for (i = 0; i < blocksize / 8; i++) {
 				u64 data;
 				data = uniphier_sd_readq(priv,
 							 UNIPHIER_SD_BUF);
-				*(*pbuf)++ = data;
-				*(*pbuf)++ = data >> 32;
-			}
-		} else {
-			for (i = 0; i < blocksize / 4; i++) {
-				u32 data;
-				data = uniphier_sd_readl(priv, UNIPHIER_SD_BUF);
-				*(*pbuf)++ = data;
+				put_unaligned(data, buf++);
 			}
 		}
 	} else {
-		if (priv->caps & UNIPHIER_SD_CAP_64BIT) {
-			for (i = 0; i < blocksize / 8; i++) {
-				u64 data;
-				data = uniphier_sd_readq(priv,
-							 UNIPHIER_SD_BUF);
-				put_unaligned(data, (*pbuf)++);
-				put_unaligned(data >> 32, (*pbuf)++);
+		u32 *buf = (u32 *)pbuf;
+		if (likely(IS_ALIGNED((uintptr_t)buf, 4))) {
+			for (i = 0; i < blocksize / 4; i++) {
+				*buf++ = uniphier_sd_readl(priv,
+							   UNIPHIER_SD_BUF);
 			}
 		} else {
 			for (i = 0; i < blocksize / 4; i++) {
 				u32 data;
 				data = uniphier_sd_readl(priv, UNIPHIER_SD_BUF);
-				put_unaligned(data, (*pbuf)++);
+				put_unaligned(data, buf++);
 			}
 		}
 	}
@@ -302,7 +300,7 @@ static int uniphier_sd_pio_read_one_block(struct udevice *dev, u32 **pbuf,
 }
 
 static int uniphier_sd_pio_write_one_block(struct udevice *dev,
-					   const u32 **pbuf, uint blocksize)
+					   const char *pbuf, uint blocksize)
 {
 	struct uniphier_sd_priv *priv = dev_get_priv(dev);
 	int i, ret;
@@ -315,31 +313,30 @@ static int uniphier_sd_pio_write_one_block(struct udevice *dev,
 
 	uniphier_sd_writel(priv, 0, UNIPHIER_SD_INFO2);
 
-	if (likely(IS_ALIGNED((unsigned long)*pbuf, 4))) {
-		if (priv->caps & UNIPHIER_SD_CAP_64BIT) {
+	if (priv->caps & UNIPHIER_SD_CAP_64BIT) {
+		const u64 *buf = (const u64 *)pbuf;
+		if (likely(IS_ALIGNED((uintptr_t)buf, 8))) {
 			for (i = 0; i < blocksize / 8; i++) {
-				u64 data = *(*pbuf)++;
-				data |= (u64)*(*pbuf)++ << 32;
-				uniphier_sd_writeq(priv, data,
+				uniphier_sd_writeq(priv, *buf++,
 						   UNIPHIER_SD_BUF);
 			}
 		} else {
-			for (i = 0; i < blocksize / 4; i++) {
-				uniphier_sd_writel(priv, *(*pbuf)++,
+			for (i = 0; i < blocksize / 8; i++) {
+				u64 data = get_unaligned(buf++);
+				uniphier_sd_writeq(priv, data,
 						   UNIPHIER_SD_BUF);
 			}
 		}
 	} else {
-		if (priv->caps & UNIPHIER_SD_CAP_64BIT) {
-			for (i = 0; i < blocksize / 8; i++) {
-				u64 data = get_unaligned((*pbuf)++);
-				data |= (u64)get_unaligned((*pbuf)++) << 32;
-				uniphier_sd_writeq(priv, data,
+		const u32 *buf = (const u32 *)pbuf;
+		if (likely(IS_ALIGNED((uintptr_t)buf, 4))) {
+			for (i = 0; i < blocksize / 4; i++) {
+				uniphier_sd_writel(priv, *buf++,
 						   UNIPHIER_SD_BUF);
 			}
 		} else {
 			for (i = 0; i < blocksize / 4; i++) {
-				u32 data = get_unaligned((*pbuf)++);
+				u32 data = get_unaligned(buf++);
 				uniphier_sd_writel(priv, data,
 						   UNIPHIER_SD_BUF);
 			}
@@ -351,19 +348,24 @@ static int uniphier_sd_pio_write_one_block(struct udevice *dev,
 
 static int uniphier_sd_pio_xfer(struct udevice *dev, struct mmc_data *data)
 {
-	u32 *dest = (u32 *)data->dest;
-	const u32 *src = (const u32 *)data->src;
+	const char *src = data->src;
+	char *dest = data->dest;
 	int i, ret;
 
 	for (i = 0; i < data->blocks; i++) {
 		if (data->flags & MMC_DATA_READ)
-			ret = uniphier_sd_pio_read_one_block(dev, &dest,
+			ret = uniphier_sd_pio_read_one_block(dev, dest,
 							     data->blocksize);
 		else
-			ret = uniphier_sd_pio_write_one_block(dev, &src,
+			ret = uniphier_sd_pio_write_one_block(dev, src,
 							      data->blocksize);
 		if (ret)
 			return ret;
+
+		if (data->flags & MMC_DATA_READ)
+			dest += data->blocksize;
+		else
+			src += data->blocksize;
 	}
 
 	return 0;
@@ -755,6 +757,9 @@ static int uniphier_sd_probe(struct udevice *dev)
 	fdt_addr_t base;
 	struct clk clk;
 	int ret;
+#ifdef CONFIG_DM_REGULATOR
+	struct udevice *vqmmc_dev;
+#endif
 
 	base = devfdt_get_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
@@ -763,6 +768,15 @@ static int uniphier_sd_probe(struct udevice *dev)
 	priv->regbase = devm_ioremap(dev, base, SZ_2K);
 	if (!priv->regbase)
 		return -ENOMEM;
+
+#ifdef CONFIG_DM_REGULATOR
+	ret = device_get_supply_regulator(dev, "vqmmc-supply", &vqmmc_dev);
+	if (!ret) {
+		/* Set the regulator to 3.3V until we support 1.8V modes */
+		regulator_set_value(vqmmc_dev, 3300000);
+		regulator_set_enable(vqmmc_dev, true);
+	}
+#endif
 
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret < 0) {

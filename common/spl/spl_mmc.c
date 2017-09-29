@@ -52,8 +52,9 @@ static ulong h_spl_load_read(struct spl_load_info *load, ulong sector,
 	return blk_dread(mmc_get_blk_desc(mmc), sector, count, buf);
 }
 
-static int mmc_load_image_raw_sector(struct spl_image_info *spl_image,
-				     struct mmc *mmc, unsigned long sector)
+static __maybe_unused
+int mmc_load_image_raw_sector(struct spl_image_info *spl_image,
+			      struct mmc *mmc, unsigned long sector)
 {
 	unsigned long count;
 	struct image_header *header;
