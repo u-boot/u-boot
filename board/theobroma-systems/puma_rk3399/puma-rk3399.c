@@ -34,6 +34,16 @@ int board_init(void)
 
 void spl_board_init(void)
 {
+	int  ret;
+
+	/*
+	 * Turning the eMMC and SPI back on (if disabled via the Qseven
+	 * BIOS_ENABLE) signal is done through a always-on regulator).
+	 */
+	ret = regulators_enable_boot_on(false);
+	if (ret)
+		debug("%s: Cannot enable boot on regulator\n", __func__);
+
 	preloader_console_init();
 }
 
