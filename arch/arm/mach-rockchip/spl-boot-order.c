@@ -76,6 +76,24 @@ static int spl_node_to_boot_device(int node)
 	return -1;
 }
 
+/**
+ * board_spl_was_booted_from() - retrieves the of-path the SPL was loaded from
+ *
+ * To support a 'same-as-spl' specification in the search-order for the next
+ * stage, we need a SoC- or board-specific way to handshake with what 'came
+ * before us' (either a BROM or TPL stage) and map the info retrieved onto
+ * a OF path.
+ *
+ * Returns
+ *   NULL, on failure or if the device could not be identified
+ *   a of_path (a string), on success
+ */
+__weak const char *board_spl_was_booted_from(void)
+{
+	debug("%s: no support for 'same-as-spl' for this board\n", __func__);
+	return NULL;
+}
+
 void board_boot_order(u32 *spl_boot_list)
 {
 	const void *blob = gd->fdt_blob;
@@ -97,8 +115,17 @@ void board_boot_order(u32 *spl_boot_list)
 	     (conf = fdt_stringlist_get(blob, chosen_node,
 					"u-boot,spl-boot-order", elem, NULL));
 	     elem++) {
+		const char *alias;
+
+		/* Handle the case of 'same device the SPL was loaded from' */
+		if (strncmp(conf, "same-as-spl", 11) == 0) {
+			conf = board_spl_was_booted_from();
+			if (!conf)
+				continue;
+		}
+
 		/* First check if the list element is an alias */
-		const char *alias = fdt_get_alias(blob, conf);
+		alias = fdt_get_alias(blob, conf);
 		if (alias)
 			conf = alias;
 
