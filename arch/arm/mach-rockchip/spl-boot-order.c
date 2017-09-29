@@ -10,6 +10,25 @@
 #include <spl.h>
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
+/**
+ * spl_node_to_boot_device() - maps from a DT-node to a SPL boot device
+ * @node:	of_offset of the node
+ *
+ * The SPL framework uses BOOT_DEVICE_... constants to identify its boot
+ * sources.  These may take on a device-specific meaning, depending on
+ * what nodes are enabled in a DTS (e.g. BOOT_DEVICE_MMC1 may refer to
+ * different controllers/block-devices, depending on which SD/MMC controllers
+ * are enabled in any given DTS).  This function maps from a DT-node back
+ * onto a BOOT_DEVICE_... constant, considering the currently active devices.
+ *
+ * Returns
+ *   -ENOENT, if no device matching the node could be found
+ *   -ENOSYS, if the device matching the node can not be mapped onto a
+ *            SPL boot device (e.g. the third MMC device)
+ *   -1, for unspecified failures
+ *   a positive integer (from the BOOT_DEVICE_... family) on succes.
+ */
+
 static int spl_node_to_boot_device(int node)
 {
 	struct udevice *parent;
