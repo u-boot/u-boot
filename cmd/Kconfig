@@ -531,6 +531,7 @@ menu "Compression commands"
 
 config CMD_LZMADEC
 	bool "lzmadec"
+	default y if CMD_BOOTI
 	select LZMA
 	help
 	  Support decompressing an LZMA (Lempel-Ziv-Markov chain algorithm)
@@ -538,6 +539,7 @@ config CMD_LZMADEC
 
 config CMD_UNZIP
 	bool "unzip"
+	default y if CMD_BOOTI
 	help
 	  Uncompress a zip-compressed memory region.
 
