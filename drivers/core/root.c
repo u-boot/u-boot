@@ -227,7 +227,7 @@ static int dm_scan_fdt_live(struct udevice *parent,
 		    !of_find_property(np, "u-boot,dm-pre-reloc", NULL))
 			continue;
 		if (!of_device_is_available(np)) {
-			dm_dbg("   - ignoring disabled device\n");
+			pr_debug("   - ignoring disabled device\n");
 			continue;
 		}
 		err = lists_bind_fdt(parent, np_to_ofnode(np), NULL);
@@ -270,7 +270,7 @@ static int dm_scan_fdt_node(struct udevice *parent, const void *blob,
 		    !dm_fdt_pre_reloc(blob, offset))
 			continue;
 		if (!fdtdec_get_is_enabled(blob, offset)) {
-			dm_dbg("   - ignoring disabled device\n");
+			pr_debug("   - ignoring disabled device\n");
 			continue;
 		}
 		err = lists_bind_fdt(parent, offset_to_ofnode(offset), NULL);

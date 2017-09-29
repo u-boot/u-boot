@@ -15,14 +15,6 @@ static inline void dm_warn(const char *fmt, ...)
 }
 #endif
 
-#ifdef DEBUG
-void dm_dbg(const char *fmt, ...);
-#else
-static inline void dm_dbg(const char *fmt, ...)
-{
-}
-#endif
-
 struct list_head;
 
 /**

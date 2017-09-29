@@ -161,7 +161,7 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 	}
 
 	if (parent)
-		dm_dbg("Bound device %s to %s\n", dev->name, parent->name);
+		pr_debug("Bound device %s to %s\n", dev->name, parent->name);
 	if (devp)
 		*devp = dev;
 

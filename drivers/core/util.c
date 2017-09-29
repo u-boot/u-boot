@@ -20,17 +20,6 @@ void dm_warn(const char *fmt, ...)
 }
 #endif
 
-#ifdef DEBUG
-void dm_dbg(const char *fmt, ...)
-{
-	va_list args;
-
-	va_start(args, fmt);
-	vprintf(fmt, args);
-	va_end(args);
-}
-#endif
-
 int list_count_items(struct list_head *head)
 {
 	struct list_head *node;

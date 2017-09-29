@@ -45,6 +45,12 @@ config DM_WARN
 	  This will cause dm_warn() to be compiled out - it will do nothing
 	  when called.
 
+config DM_DEBUG
+	bool "Enable debug messages in driver model core"
+	depends on DM
+	help
+	  Say Y here if you want to compile in debug messages in DM core.
+
 config DM_DEVICE_REMOVE
 	bool "Support device removal"
 	depends on DM
