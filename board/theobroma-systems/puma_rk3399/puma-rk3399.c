@@ -3,15 +3,16 @@
  *
  * SPDX-License-Identifier:     GPL-2.0+
  */
+
 #include <common.h>
 #include <dm.h>
 #include <misc.h>
-#include <ram.h>
 #include <dm/pinctrl.h>
 #include <dm/uclass-internal.h>
 #include <asm/setup.h>
 #include <asm/arch/periph.h>
 #include <power/regulator.h>
+#include <spl.h>
 #include <u-boot/sha256.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -59,6 +60,11 @@ out:
 	return 0;
 }
 
+void spl_board_init(void)
+{
+	preloader_console_init();
+}
+
 static void setup_macaddr(void)
 {
 #if CONFIG_IS_ENABLED(CMD_NET)
@@ -91,8 +97,6 @@ static void setup_macaddr(void)
 	mac_addr[0] |= 0x02;  /* set local assignment bit (IEEE802) */
 	eth_env_set_enetaddr("ethaddr", mac_addr);
 #endif
-
-	return;
 }
 
 static void setup_serial(void)
@@ -147,8 +151,6 @@ static void setup_serial(void)
 	env_set("cpuid#", cpuid_str);
 	env_set("serial#", serialno_str);
 #endif
-
-	return;
 }
 
 int misc_init_r(void)

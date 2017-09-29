@@ -149,33 +149,6 @@ void board_init_f(ulong dummy)
 	}
 }
 
-void spl_board_init(void)
-{
-	struct udevice *pinctrl;
-	int ret;
-
-	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
-	if (ret) {
-		debug("%s: Cannot find pinctrl device\n", __func__);
-		goto err;
-	}
-
-	/* Enable debug UART */
-	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_UART_DBG);
-	if (ret) {
-		debug("%s: Failed to set up console UART\n", __func__);
-		goto err;
-	}
-
-	preloader_console_init();
-	return;
-err:
-	printf("spl_board_init: Error %d\n", ret);
-
-	/* No way to report error here */
-	hang();
-}
-
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
