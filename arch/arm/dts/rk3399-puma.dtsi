@@ -20,7 +20,8 @@
 
 	chosen {
 		stdout-path = "serial0:115200n8";
-		u-boot,spl-boot-order = &spiflash, &sdhci, &sdmmc;
+		u-boot,spl-boot-order = \
+			"same-as-spl", &spiflash, &sdhci, &sdmmc;
 	};
 
 	aliases {
