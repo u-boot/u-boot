@@ -26,6 +26,30 @@ void board_return_to_bootrom(void)
 	back_to_bootrom();
 }
 
+static const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
+	[BROM_BOOTSOURCE_EMMC] = "/sdhci@fe330000",
+	[BROM_BOOTSOURCE_SPINOR] = "/spi@ff1d0000",
+	[BROM_BOOTSOURCE_SD] = "/dwmmc@fe320000",
+};
+
+const char *board_spl_was_booted_from(void)
+{
+	u32  bootdevice_brom_id = readl(RK3399_BROM_BOOTSOURCE_ID_ADDR);
+	const char *bootdevice_ofpath = NULL;
+
+	if (bootdevice_brom_id < ARRAY_SIZE(boot_devices))
+		bootdevice_ofpath = boot_devices[bootdevice_brom_id];
+
+	if (bootdevice_ofpath)
+		debug("%s: brom_bootdevice_id %x maps to '%s'\n",
+		      __func__, bootdevice_brom_id, bootdevice_ofpath);
+	else
+		debug("%s: failed to resolve brom_bootdevice_id %x\n",
+		      __func__, bootdevice_brom_id);
+
+	return bootdevice_ofpath;
+}
+
 u32 spl_boot_device(void)
 {
 	u32 boot_device = BOOT_DEVICE_MMC1;
