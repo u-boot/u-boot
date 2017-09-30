@@ -495,7 +495,7 @@ read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 		return -1;
 	}
 
-	block = memalign(ARCH_DMA_MINALIGN, cur_dev->blksz);
+	block = malloc_cache_aligned(cur_dev->blksz);
 	if (block == NULL) {
 		debug("Error: allocating block\n");
 		return -1;
@@ -599,7 +599,7 @@ static int get_fs_info(fsdata *mydata)
 
 	mydata->fatbufnum = -1;
 	mydata->fat_dirty = 0;
-	mydata->fatbuf = memalign(ARCH_DMA_MINALIGN, FATBUFSIZE);
+	mydata->fatbuf = malloc_cache_aligned(FATBUFSIZE);
 	if (mydata->fatbuf == NULL) {
 		debug("Error: allocating memory\n");
 		return -1;
@@ -1038,7 +1038,7 @@ int fat_exists(const char *filename)
 	fat_itr *itr;
 	int ret;
 
-	itr = malloc(sizeof(fat_itr));
+	itr = malloc_cache_aligned(sizeof(fat_itr));
 	ret = fat_itr_root(itr, &fsdata);
 	if (ret)
 		return 0;
@@ -1055,7 +1055,7 @@ int fat_size(const char *filename, loff_t *size)
 	fat_itr *itr;
 	int ret;
 
-	itr = malloc(sizeof(fat_itr));
+	itr = malloc_cache_aligned(sizeof(fat_itr));
 	ret = fat_itr_root(itr, &fsdata);
 	if (ret)
 		return ret;
@@ -1089,7 +1089,7 @@ int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
 	fat_itr *itr;
 	int ret;
 
-	itr = malloc(sizeof(fat_itr));
+	itr = malloc_cache_aligned(sizeof(fat_itr));
 	ret = fat_itr_root(itr, &fsdata);
 	if (ret)
 		return ret;
