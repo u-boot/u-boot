@@ -58,8 +58,6 @@
 #define CONFIG_ENV_SIZE        (8 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
-#define CONFIG_SYS_MMC_ENV_DEV 0
-
 /* U-Boot general configuration */
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size  */
