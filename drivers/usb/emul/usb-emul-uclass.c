@@ -229,8 +229,8 @@ int usb_emul_int(struct udevice *emul, struct usb_device *udev,
 	return ops->interrupt(emul, udev, pipe, buffer, length, interval);
 }
 
-int usb_emul_setup_device(struct udevice *dev, int maxpacketsize,
-			  struct usb_string *strings, void **desc_list)
+int usb_emul_setup_device(struct udevice *dev, struct usb_string *strings,
+			  void **desc_list)
 {
 	struct usb_dev_platdata *plat = dev_get_parent_platdata(dev);
 	struct usb_generic_descriptor **ptr;

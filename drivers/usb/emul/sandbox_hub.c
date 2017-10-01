@@ -274,8 +274,7 @@ static int sandbox_hub_submit_control_msg(struct udevice *bus,
 
 static int sandbox_hub_bind(struct udevice *dev)
 {
-	return usb_emul_setup_device(dev, PACKET_SIZE_64, hub_strings,
-				     hub_desc_list);
+	return usb_emul_setup_device(dev, hub_strings, hub_desc_list);
 }
 
 static int sandbox_child_post_bind(struct udevice *dev)
