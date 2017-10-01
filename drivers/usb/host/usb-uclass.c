@@ -193,11 +193,7 @@ int usb_stop(void)
 				err = ret;
 		}
 	}
-#ifdef CONFIG_BLK
-	ret = blk_unbind_all(IF_TYPE_USB);
-	if (ret && !err)
-		err = ret;
-#endif
+
 #ifdef CONFIG_SANDBOX
 	struct udevice *dev;
 
