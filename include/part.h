@@ -280,8 +280,9 @@ struct part_driver {
 #define U_BOOT_PART_TYPE(__name)					\
 	ll_entry_declare(struct part_driver, __name, part_driver)
 
-#if CONFIG_IS_ENABLED(EFI_PARTITION)
 #include <part_efi.h>
+
+#if CONFIG_IS_ENABLED(EFI_PARTITION)
 /* disk/part_efi.c */
 /**
  * write_gpt_table() - Write the GUID Partition Table to disk

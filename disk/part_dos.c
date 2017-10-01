@@ -44,7 +44,7 @@ static inline int is_extended(int part_type)
 
 static inline int is_bootable(dos_partition_t *p)
 {
-	return p->boot_ind == 0x80;
+	return (p->sys_ind == 0xef) || (p->boot_ind == 0x80);
 }
 
 static void print_one_part(dos_partition_t *p, lbaint_t ext_part_sector,
@@ -89,13 +89,19 @@ static int test_block_type(unsigned char *buffer)
 
 static int part_test_dos(struct blk_desc *dev_desc)
 {
-	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
+	ALLOC_CACHE_ALIGN_BUFFER(legacy_mbr, mbr, dev_desc->blksz);
 
-	if (blk_dread(dev_desc, 0, 1, (ulong *)buffer) != 1)
+	if (blk_dread(dev_desc, 0, 1, (ulong *)mbr) != 1)
 		return -1;
 
-	if (test_block_type(buffer) != DOS_MBR)
+	if (test_block_type((unsigned char *)mbr) != DOS_MBR)
 		return -1;
+
+	if (dev_desc->sig_type == SIG_TYPE_NONE &&
+	    mbr->unique_mbr_signature != 0) {
+		dev_desc->sig_type = SIG_TYPE_MBR;
+		dev_desc->mbr_sig = mbr->unique_mbr_signature;
+	}
 
 	return 0;
 }

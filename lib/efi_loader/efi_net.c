@@ -26,9 +26,6 @@ struct efi_net_obj {
 	/* EFI Interface callback struct for network */
 	struct efi_simple_network net;
 	struct efi_simple_network_mode net_mode;
-	/* Device path to the network adapter */
-	struct efi_device_path_mac_addr dp_mac;
-	struct efi_device_path_file_path dp_end;
 	/* PXE struct to transmit dhcp data */
 	struct efi_pxe pxe;
 	struct efi_pxe_mode pxe_mode;
@@ -210,19 +207,9 @@ void efi_net_set_dhcp_ack(void *pkt, int len)
 }
 
 /* This gets called from do_bootefi_exec(). */
-int efi_net_register(void **handle)
+int efi_net_register(void)
 {
 	struct efi_net_obj *netobj;
-	struct efi_device_path_mac_addr dp_net = {
-		.dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE,
-		.dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR,
-		.dp.length = sizeof(dp_net),
-	};
-	struct efi_device_path_file_path dp_end = {
-		.dp.type = DEVICE_PATH_TYPE_END,
-		.dp.sub_type = DEVICE_PATH_SUB_TYPE_END,
-		.dp.length = sizeof(dp_end),
-	};
 
 	if (!eth_get_dev()) {
 		/* No eth device active, don't expose any */
@@ -236,7 +223,8 @@ int efi_net_register(void **handle)
 	netobj->parent.protocols[0].guid = &efi_net_guid;
 	netobj->parent.protocols[0].protocol_interface = &netobj->net;
 	netobj->parent.protocols[1].guid = &efi_guid_device_path;
-	netobj->parent.protocols[1].protocol_interface = &netobj->dp_mac;
+	netobj->parent.protocols[1].protocol_interface =
+		efi_dp_from_eth();
 	netobj->parent.protocols[2].guid = &efi_pxe_guid;
 	netobj->parent.protocols[2].protocol_interface = &netobj->pxe;
 	netobj->parent.handle = &netobj->net;
@@ -255,9 +243,6 @@ int efi_net_register(void **handle)
 	netobj->net.receive = efi_net_receive;
 	netobj->net.mode = &netobj->net_mode;
 	netobj->net_mode.state = EFI_NETWORK_STARTED;
-	netobj->dp_mac = dp_net;
-	netobj->dp_end = dp_end;
-	memcpy(netobj->dp_mac.mac.addr, eth_get_ethaddr(), 6);
 	memcpy(netobj->net_mode.current_address.mac_addr, eth_get_ethaddr(), 6);
 	netobj->net_mode.max_packet_size = PKTSIZE;
 
@@ -267,9 +252,6 @@ int efi_net_register(void **handle)
 
 	/* Hook net up to the device list */
 	list_add_tail(&netobj->parent.link, &efi_obj_list);
-
-	if (handle)
-		*handle = &netobj->net;
 
 	return 0;
 }

@@ -222,6 +222,8 @@ config CMD_BOOTEFI_HELLO
 	  for testing that EFI is working at a basic level, and for bringing
 	  up EFI support on a new architecture.
 
+source lib/efi_selftest/Kconfig
+
 config CMD_BOOTMENU
 	bool "bootmenu"
 	select MENU

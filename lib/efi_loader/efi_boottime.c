@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <efi_loader.h>
+#include <environment.h>
 #include <malloc.h>
 #include <asm/global_data.h>
 #include <libfdt_env.h>
@@ -17,6 +18,9 @@
 #include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/* Task priority level */
+static UINTN efi_tpl = TPL_APPLICATION;
 
 /* This list contains all the EFI objects our payload has access to */
 LIST_HEAD(efi_obj_list);
@@ -109,6 +113,11 @@ static const char *indent_string(int level)
 	return &indent[max - level];
 }
 
+const char *__efi_nesting(void)
+{
+	return indent_string(nesting_level);
+}
+
 const char *__efi_nesting_inc(void)
 {
 	return indent_string(nesting_level++);
@@ -154,12 +163,15 @@ static u64 efi_div10(u64 a)
 
 void efi_signal_event(struct efi_event *event)
 {
-	if (event->signaled)
-		return;
-	event->signaled = 1;
-	if (event->type & EVT_NOTIFY_SIGNAL) {
-		EFI_CALL(event->notify_function(event, event->notify_context));
+	if (event->notify_function) {
+		event->queued = 1;
+		/* Check TPL */
+		if (efi_tpl >= event->notify_tpl)
+			return;
+		EFI_CALL_VOID(event->notify_function(event,
+						     event->notify_context));
 	}
+	event->queued = 0;
 }
 
 static efi_status_t efi_unsupported(const char *funcname)
@@ -170,14 +182,31 @@ static efi_status_t efi_unsupported(const char *funcname)
 
 static unsigned long EFIAPI efi_raise_tpl(UINTN new_tpl)
 {
+	UINTN old_tpl = efi_tpl;
+
 	EFI_ENTRY("0x%zx", new_tpl);
-	return EFI_EXIT(0);
+
+	if (new_tpl < efi_tpl)
+		debug("WARNING: new_tpl < current_tpl in %s\n", __func__);
+	efi_tpl = new_tpl;
+	if (efi_tpl > TPL_HIGH_LEVEL)
+		efi_tpl = TPL_HIGH_LEVEL;
+
+	EFI_EXIT(EFI_SUCCESS);
+	return old_tpl;
 }
 
 static void EFIAPI efi_restore_tpl(UINTN old_tpl)
 {
 	EFI_ENTRY("0x%zx", old_tpl);
-	efi_unsupported(__func__);
+
+	if (old_tpl > efi_tpl)
+		debug("WARNING: old_tpl > current_tpl in %s\n", __func__);
+	efi_tpl = old_tpl;
+	if (efi_tpl > TPL_HIGH_LEVEL)
+		efi_tpl = TPL_HIGH_LEVEL;
+
+	EFI_EXIT(EFI_SUCCESS);
 }
 
 static efi_status_t EFIAPI efi_allocate_pages_ext(int type, int memory_type,
@@ -270,6 +299,7 @@ efi_status_t efi_create_event(uint32_t type, UINTN notify_tpl,
 		efi_events[i].notify_context = notify_context;
 		/* Disable timers on bootup */
 		efi_events[i].trigger_next = -1ULL;
+		efi_events[i].queued = 0;
 		efi_events[i].signaled = 0;
 		*event = &efi_events[i];
 		return EFI_SUCCESS;
@@ -301,16 +331,25 @@ void efi_timer_check(void)
 	u64 now = timer_get_us();
 
 	for (i = 0; i < ARRAY_SIZE(efi_events); ++i) {
-		if (!efi_events[i].type ||
-		    !(efi_events[i].type & EVT_TIMER) ||
-		    efi_events[i].trigger_type == EFI_TIMER_STOP ||
+		if (!efi_events[i].type)
+			continue;
+		if (efi_events[i].queued)
+			efi_signal_event(&efi_events[i]);
+		if (!(efi_events[i].type & EVT_TIMER) ||
 		    now < efi_events[i].trigger_next)
 			continue;
-		if (efi_events[i].trigger_type == EFI_TIMER_PERIODIC) {
+		switch (efi_events[i].trigger_type) {
+		case EFI_TIMER_RELATIVE:
+			efi_events[i].trigger_type = EFI_TIMER_STOP;
+			break;
+		case EFI_TIMER_PERIODIC:
 			efi_events[i].trigger_next +=
 				efi_events[i].trigger_time;
-			efi_events[i].signaled = 0;
+			break;
+		default:
+			continue;
 		}
+		efi_events[i].signaled = 1;
 		efi_signal_event(&efi_events[i]);
 	}
 	WATCHDOG_RESET();
@@ -347,6 +386,7 @@ efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
 		}
 		event->trigger_type = type;
 		event->trigger_time = trigger_time;
+		event->signaled = 0;
 		return EFI_SUCCESS;
 	}
 	return EFI_INVALID_PARAMETER;
@@ -371,6 +411,9 @@ static efi_status_t EFIAPI efi_wait_for_event(unsigned long num_events,
 	/* Check parameters */
 	if (!num_events || !event)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
+	/* Check TPL */
+	if (efi_tpl != TPL_APPLICATION)
+		return EFI_EXIT(EFI_UNSUPPORTED);
 	for (i = 0; i < num_events; ++i) {
 		for (j = 0; j < ARRAY_SIZE(efi_events); ++j) {
 			if (event[i] == &efi_events[j])
@@ -380,6 +423,8 @@ static efi_status_t EFIAPI efi_wait_for_event(unsigned long num_events,
 known_event:
 		if (!event[i]->type || event[i]->type & EVT_NOTIFY_SIGNAL)
 			return EFI_EXIT(EFI_INVALID_PARAMETER);
+		if (!event[i]->signaled)
+			efi_signal_event(event[i]);
 	}
 
 	/* Wait for signal */
@@ -412,7 +457,11 @@ static efi_status_t EFIAPI efi_signal_event_ext(struct efi_event *event)
 	for (i = 0; i < ARRAY_SIZE(efi_events); ++i) {
 		if (event != &efi_events[i])
 			continue;
-		efi_signal_event(event);
+		if (event->signaled)
+			break;
+		event->signaled = 1;
+		if (event->type & EVT_NOTIFY_SIGNAL)
+			efi_signal_event(event);
 		break;
 	}
 	return EFI_EXIT(EFI_SUCCESS);
@@ -427,6 +476,7 @@ static efi_status_t EFIAPI efi_close_event(struct efi_event *event)
 		if (event == &efi_events[i]) {
 			event->type = 0;
 			event->trigger_next = -1ULL;
+			event->queued = 0;
 			event->signaled = 0;
 			return EFI_EXIT(EFI_SUCCESS);
 		}
@@ -445,6 +495,8 @@ static efi_status_t EFIAPI efi_check_event(struct efi_event *event)
 			continue;
 		if (!event->type || event->type & EVT_NOTIFY_SIGNAL)
 			break;
+		if (!event->signaled)
+			efi_signal_event(event);
 		if (event->signaled)
 			return EFI_EXIT(EFI_SUCCESS);
 		return EFI_EXIT(EFI_NOT_READY);
@@ -513,7 +565,7 @@ static efi_status_t EFIAPI efi_install_protocol_interface_ext(void **handle,
 			efi_guid_t *protocol, int protocol_interface_type,
 			void *protocol_interface)
 {
-	EFI_ENTRY("%p, %p, %d, %p", handle, protocol, protocol_interface_type,
+	EFI_ENTRY("%p, %pUl, %d, %p", handle, protocol, protocol_interface_type,
 		  protocol_interface);
 
 	return EFI_EXIT(efi_install_protocol_interface(handle, protocol,
@@ -525,7 +577,7 @@ static efi_status_t EFIAPI efi_reinstall_protocol_interface(void *handle,
 			efi_guid_t *protocol, void *old_interface,
 			void *new_interface)
 {
-	EFI_ENTRY("%p, %p, %p, %p", handle, protocol, old_interface,
+	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, old_interface,
 		  new_interface);
 	return EFI_EXIT(EFI_ACCESS_DENIED);
 }
@@ -574,7 +626,7 @@ out:
 static efi_status_t EFIAPI efi_uninstall_protocol_interface_ext(void *handle,
 			efi_guid_t *protocol, void *protocol_interface)
 {
-	EFI_ENTRY("%p, %p, %p", handle, protocol, protocol_interface);
+	EFI_ENTRY("%p, %pUl, %p", handle, protocol, protocol_interface);
 
 	return EFI_EXIT(efi_uninstall_protocol_interface(handle, protocol,
 							 protocol_interface));
@@ -584,7 +636,7 @@ static efi_status_t EFIAPI efi_register_protocol_notify(efi_guid_t *protocol,
 							struct efi_event *event,
 							void **registration)
 {
-	EFI_ENTRY("%p, %p, %p", protocol, event, registration);
+	EFI_ENTRY("%pUl, %p, %p", protocol, event, registration);
 	return EFI_EXIT(EFI_OUT_OF_RESOURCES);
 }
 
@@ -654,7 +706,7 @@ static efi_status_t EFIAPI efi_locate_handle_ext(
 			efi_guid_t *protocol, void *search_key,
 			unsigned long *buffer_size, efi_handle_t *buffer)
 {
-	EFI_ENTRY("%d, %p, %p, %p, %p", search_type, protocol, search_key,
+	EFI_ENTRY("%d, %pUl, %p, %p, %p", search_type, protocol, search_key,
 		  buffer_size, buffer);
 
 	return EFI_EXIT(efi_locate_handle(search_type, protocol, search_key,
@@ -665,8 +717,17 @@ static efi_status_t EFIAPI efi_locate_device_path(efi_guid_t *protocol,
 			struct efi_device_path **device_path,
 			efi_handle_t *device)
 {
-	EFI_ENTRY("%p, %p, %p", protocol, device_path, device);
-	return EFI_EXIT(EFI_NOT_FOUND);
+	struct efi_object *efiobj;
+
+	EFI_ENTRY("%pUl, %p, %p", protocol, device_path, device);
+
+	efiobj = efi_dp_find_obj(*device_path, device_path);
+	if (!efiobj)
+		return EFI_EXIT(EFI_NOT_FOUND);
+
+	*device = efiobj->handle;
+
+	return EFI_EXIT(EFI_SUCCESS);
 }
 
 /* Collapses configuration table entries, removing index i */
@@ -713,8 +774,85 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid, void *table
 static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
 							       void *table)
 {
-	EFI_ENTRY("%p, %p", guid, table);
+	EFI_ENTRY("%pUl, %p", guid, table);
 	return EFI_EXIT(efi_install_configuration_table(guid, table));
+}
+
+/* Initialize a loaded_image_info + loaded_image_info object with correct
+ * protocols, boot-device, etc.
+ */
+void efi_setup_loaded_image(struct efi_loaded_image *info, struct efi_object *obj,
+			    struct efi_device_path *device_path,
+			    struct efi_device_path *file_path)
+{
+	obj->handle = info;
+
+	/*
+	 * When asking for the device path interface, return
+	 * bootefi_device_path
+	 */
+	obj->protocols[0].guid = &efi_guid_device_path;
+	obj->protocols[0].protocol_interface = device_path;
+
+	/*
+	 * When asking for the loaded_image interface, just
+	 * return handle which points to loaded_image_info
+	 */
+	obj->protocols[1].guid = &efi_guid_loaded_image;
+	obj->protocols[1].protocol_interface = info;
+
+	obj->protocols[2].guid = &efi_guid_console_control;
+	obj->protocols[2].protocol_interface = (void *)&efi_console_control;
+
+	obj->protocols[3].guid = &efi_guid_device_path_to_text_protocol;
+	obj->protocols[3].protocol_interface =
+		(void *)&efi_device_path_to_text;
+
+	info->file_path = file_path;
+	info->device_handle = efi_dp_find_obj(device_path, NULL);
+
+	list_add_tail(&obj->link, &efi_obj_list);
+}
+
+efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
+				      void **buffer)
+{
+	struct efi_file_info *info = NULL;
+	struct efi_file_handle *f;
+	static efi_status_t ret;
+	uint64_t bs;
+
+	f = efi_file_from_path(file_path);
+	if (!f)
+		return EFI_DEVICE_ERROR;
+
+	bs = 0;
+	EFI_CALL(ret = f->getinfo(f, (efi_guid_t *)&efi_file_info_guid,
+				  &bs, info));
+	if (ret == EFI_BUFFER_TOO_SMALL) {
+		info = malloc(bs);
+		EFI_CALL(ret = f->getinfo(f, (efi_guid_t *)&efi_file_info_guid,
+					  &bs, info));
+	}
+	if (ret != EFI_SUCCESS)
+		goto error;
+
+	ret = efi_allocate_pool(EFI_LOADER_DATA, info->file_size, buffer);
+	if (ret)
+		goto error;
+
+	EFI_CALL(ret = f->read(f, &info->file_size, *buffer));
+
+error:
+	free(info);
+	EFI_CALL(f->close(f));
+
+	if (ret != EFI_SUCCESS) {
+		efi_free_pool(*buffer);
+		*buffer = NULL;
+	}
+
+	return ret;
 }
 
 static efi_status_t EFIAPI efi_load_image(bool boot_policy,
@@ -724,25 +862,40 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 					  unsigned long source_size,
 					  efi_handle_t *image_handle)
 {
-	static struct efi_object loaded_image_info_obj = {
-		.protocols = {
-			{
-				.guid = &efi_guid_loaded_image,
-			},
-		},
-	};
 	struct efi_loaded_image *info;
 	struct efi_object *obj;
 
 	EFI_ENTRY("%d, %p, %p, %p, %ld, %p", boot_policy, parent_image,
 		  file_path, source_buffer, source_size, image_handle);
-	info = malloc(sizeof(*info));
-	loaded_image_info_obj.protocols[0].protocol_interface = info;
-	obj = malloc(sizeof(loaded_image_info_obj));
-	memset(info, 0, sizeof(*info));
-	memcpy(obj, &loaded_image_info_obj, sizeof(loaded_image_info_obj));
-	obj->handle = info;
-	info->file_path = file_path;
+
+	info = calloc(1, sizeof(*info));
+	obj = calloc(1, sizeof(*obj));
+
+	if (!source_buffer) {
+		struct efi_device_path *dp, *fp;
+		efi_status_t ret;
+
+		ret = efi_load_image_from_path(file_path, &source_buffer);
+		if (ret != EFI_SUCCESS) {
+			free(info);
+			free(obj);
+			return EFI_EXIT(ret);
+		}
+
+		/*
+		 * split file_path which contains both the device and
+		 * file parts:
+		 */
+		efi_dp_split_file_path(file_path, &dp, &fp);
+
+		efi_setup_loaded_image(info, obj, dp, fp);
+	} else {
+		/* In this case, file_path is the "device" path, ie.
+		 * something like a HARDWARE_DEVICE:MEMORY_MAPPED
+		 */
+		efi_setup_loaded_image(info, obj, file_path, NULL);
+	}
+
 	info->reserved = efi_load_pe(source_buffer, info);
 	if (!info->reserved) {
 		free(info);
@@ -751,7 +904,6 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 	}
 
 	*image_handle = info;
-	list_add_tail(&obj->link, &efi_obj_list);
 
 	return EFI_EXIT(EFI_SUCCESS);
 }
@@ -792,6 +944,15 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 
 	EFI_ENTRY("%p, %ld, %ld, %p", image_handle, exit_status,
 		  exit_data_size, exit_data);
+
+	/* Make sure entry/exit counts for EFI world cross-overs match */
+	__efi_exit_check();
+
+	/*
+	 * But longjmp out with the U-Boot gd, not the application's, as
+	 * the other end is a setjmp call inside EFI context.
+	 */
+	efi_restore_gd();
 
 	loaded_image_info->exit_status = exit_status;
 	longjmp(&loaded_image_info->exit_jmp, 1);
@@ -840,7 +1001,23 @@ static void efi_exit_caches(void)
 static efi_status_t EFIAPI efi_exit_boot_services(void *image_handle,
 						  unsigned long map_key)
 {
+	int i;
+
 	EFI_ENTRY("%p, %ld", image_handle, map_key);
+
+	/* Notify that ExitBootServices is invoked. */
+	for (i = 0; i < ARRAY_SIZE(efi_events); ++i) {
+		if (efi_events[i].type != EVT_SIGNAL_EXIT_BOOT_SERVICES)
+			continue;
+		efi_signal_event(&efi_events[i]);
+	}
+	/* Make sure that notification functions are not called anymore */
+	efi_tpl = TPL_HIGH_LEVEL;
+
+#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
+	/* save any EFI variables that have been written: */
+	env_save();
+#endif
 
 	board_quiesce_devices();
 
@@ -906,7 +1083,7 @@ static efi_status_t EFIAPI efi_close_protocol(void *handle,
 					      void *agent_handle,
 					      void *controller_handle)
 {
-	EFI_ENTRY("%p, %p, %p, %p", handle, protocol, agent_handle,
+	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, agent_handle,
 		  controller_handle);
 	return EFI_EXIT(EFI_NOT_FOUND);
 }
@@ -916,7 +1093,7 @@ static efi_status_t EFIAPI efi_open_protocol_information(efi_handle_t handle,
 			struct efi_open_protocol_info_entry **entry_buffer,
 			unsigned long *entry_count)
 {
-	EFI_ENTRY("%p, %p, %p, %p", handle, protocol, entry_buffer,
+	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, entry_buffer,
 		  entry_count);
 	return EFI_EXIT(EFI_NOT_FOUND);
 }
@@ -982,7 +1159,7 @@ static efi_status_t EFIAPI efi_locate_handle_buffer(
 	efi_status_t r;
 	unsigned long buffer_size = 0;
 
-	EFI_ENTRY("%d, %p, %p, %p, %p", search_type, protocol, search_key,
+	EFI_ENTRY("%d, %pUl, %p, %p, %p", search_type, protocol, search_key,
 		  no_handles, buffer);
 
 	if (!no_handles || !buffer) {
@@ -1014,10 +1191,12 @@ static efi_status_t EFIAPI efi_locate_protocol(efi_guid_t *protocol,
 	struct list_head *lhandle;
 	int i;
 
-	EFI_ENTRY("%p, %p, %p", protocol, registration, protocol_interface);
+	EFI_ENTRY("%pUl, %p, %p", protocol, registration, protocol_interface);
 
 	if (!protocol || !protocol_interface)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
+	EFI_PRINT_GUID("protocol", protocol);
 
 	list_for_each(lhandle, &efi_obj_list) {
 		struct efi_object *efiobj;
@@ -1122,7 +1301,7 @@ static efi_status_t EFIAPI efi_open_protocol(
 	int i;
 	efi_status_t r = EFI_INVALID_PARAMETER;
 
-	EFI_ENTRY("%p, %p, %p, %p, %p, 0x%x", handle, protocol,
+	EFI_ENTRY("%p, %pUl, %p, %p, %p, 0x%x", handle, protocol,
 		  protocol_interface, agent_handle, controller_handle,
 		  attributes);
 
@@ -1131,6 +1310,8 @@ static efi_status_t EFIAPI efi_open_protocol(
 	     EFI_OPEN_PROTOCOL_TEST_PROTOCOL)) {
 		goto out;
 	}
+
+	EFI_PRINT_GUID("protocol", protocol);
 
 	switch (attributes) {
 	case EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL:

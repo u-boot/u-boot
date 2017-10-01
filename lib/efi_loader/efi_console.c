@@ -8,7 +8,10 @@
 
 #include <common.h>
 #include <charset.h>
+#include <dm/device.h>
 #include <efi_loader.h>
+#include <stdio_dev.h>
+#include <video_console.h>
 
 static bool console_size_queried;
 
@@ -137,34 +140,46 @@ static efi_status_t EFIAPI efi_cout_reset(
 	return EFI_EXIT(EFI_UNSUPPORTED);
 }
 
-static void print_unicode_in_utf8(u16 c)
-{
-	char utf8[MAX_UTF8_PER_UTF16] = { 0 };
-	utf16_to_utf8((u8 *)utf8, &c, 1);
-	puts(utf8);
-}
-
 static efi_status_t EFIAPI efi_cout_output_string(
 			struct efi_simple_text_output_protocol *this,
-			const unsigned short *string)
+			const efi_string_t string)
 {
-	struct cout_mode *mode;
-	u16 ch;
+	struct simple_text_output_mode *con = &efi_con_mode;
+	struct cout_mode *mode = &efi_cout_modes[con->mode];
 
-	mode = &efi_cout_modes[efi_con_mode.mode];
 	EFI_ENTRY("%p, %p", this, string);
-	for (;(ch = *string); string++) {
-		print_unicode_in_utf8(ch);
-		efi_con_mode.cursor_column++;
-		if (ch == '\n') {
-			efi_con_mode.cursor_column = 1;
-			efi_con_mode.cursor_row++;
-		} else if (efi_con_mode.cursor_column > mode->columns) {
-			efi_con_mode.cursor_column = 1;
-			efi_con_mode.cursor_row++;
+
+	unsigned int n16 = utf16_strlen(string);
+	char buf[MAX_UTF8_PER_UTF16 * n16 + 1];
+	char *p;
+
+	*utf16_to_utf8((u8 *)buf, string, n16) = '\0';
+
+	fputs(stdout, buf);
+
+	for (p = buf; *p; p++) {
+		switch (*p) {
+		case '\r':   /* carriage-return */
+			con->cursor_column = 0;
+			break;
+		case '\n':   /* newline */
+			con->cursor_column = 0;
+			con->cursor_row++;
+			break;
+		case '\t':   /* tab, assume 8 char align */
+			break;
+		case '\b':   /* backspace */
+			con->cursor_column = max(0, con->cursor_column - 1);
+			break;
+		default:
+			con->cursor_column++;
+			break;
 		}
-		if (efi_con_mode.cursor_row > mode->rows)
-			efi_con_mode.cursor_row = mode->rows;
+		if (con->cursor_column >= mode->columns) {
+			con->cursor_column = 0;
+			con->cursor_row++;
+		}
+		con->cursor_row = min(con->cursor_row, (s32)mode->rows - 1);
 	}
 
 	return EFI_EXIT(EFI_SUCCESS);
@@ -172,7 +187,7 @@ static efi_status_t EFIAPI efi_cout_output_string(
 
 static efi_status_t EFIAPI efi_cout_test_string(
 			struct efi_simple_text_output_protocol *this,
-			const unsigned short *string)
+			const efi_string_t string)
 {
 	EFI_ENTRY("%p, %p", this, string);
 	return EFI_EXIT(EFI_SUCCESS);
@@ -186,6 +201,34 @@ static bool cout_mode_matches(struct cout_mode *mode, int rows, int cols)
 	return (mode->rows == rows) && (mode->columns == cols);
 }
 
+static int query_console_serial(int *rows, int *cols)
+{
+	/* Ask the terminal about its size */
+	int n[3];
+	u64 timeout;
+
+	/* Empty input buffer */
+	while (tstc())
+		getc();
+
+	printf(ESC"[18t");
+
+	/* Check if we have a terminal that understands */
+	timeout = timer_get_us() + 1000000;
+	while (!tstc())
+		if (timer_get_us() > timeout)
+			return -1;
+
+	/* Read {depth,rows,cols} */
+	if (term_read_reply(n, 3, 't'))
+		return -1;
+
+	*cols = n[2];
+	*rows = n[1];
+
+	return 0;
+}
+
 static efi_status_t EFIAPI efi_cout_query_mode(
 			struct efi_simple_text_output_protocol *this,
 			unsigned long mode_number, unsigned long *columns,
@@ -194,33 +237,23 @@ static efi_status_t EFIAPI efi_cout_query_mode(
 	EFI_ENTRY("%p, %ld, %p, %p", this, mode_number, columns, rows);
 
 	if (!console_size_queried) {
-		/* Ask the terminal about its size */
-		int n[3];
-		int cols;
-		int rows;
-		u64 timeout;
+		const char *stdout_name = env_get("stdout");
+		int rows, cols;
 
 		console_size_queried = true;
 
-		/* Empty input buffer */
-		while (tstc())
-			getc();
-
-		printf(ESC"[18t");
-
-		/* Check if we have a terminal that understands */
-		timeout = timer_get_us() + 1000000;
-		while (!tstc())
-			if (timer_get_us() > timeout)
-				goto out;
-
-		/* Read {depth,rows,cols} */
-		if (term_read_reply(n, 3, 't')) {
+		if (stdout_name && !strcmp(stdout_name, "vidconsole") &&
+		    IS_ENABLED(CONFIG_DM_VIDEO)) {
+			struct stdio_dev *stdout_dev =
+				stdio_get_by_name("vidconsole");
+			struct udevice *dev = stdout_dev->priv;
+			struct vidconsole_priv *priv =
+				dev_get_uclass_priv(dev);
+			rows = priv->rows;
+			cols = priv->cols;
+		} else if (query_console_serial(&rows, &cols)) {
 			goto out;
 		}
-
-		cols = n[2];
-		rows = n[1];
 
 		/* Test if we can have Mode 1 */
 		if (cols >= 80 && rows >= 50) {
@@ -426,8 +459,10 @@ static void EFIAPI efi_console_timer_notify(struct efi_event *event,
 					    void *context)
 {
 	EFI_ENTRY("%p, %p", event, context);
-	if (tstc())
+	if (tstc()) {
+		efi_con_in.wait_for_key->signaled = 1;
 		efi_signal_event(efi_con_in.wait_for_key);
+		}
 	EFI_EXIT(EFI_SUCCESS);
 }
 

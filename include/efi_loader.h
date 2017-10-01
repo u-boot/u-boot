@@ -17,6 +17,7 @@
 
 int __efi_entry_check(void);
 int __efi_exit_check(void);
+const char *__efi_nesting(void);
 const char *__efi_nesting_inc(void);
 const char *__efi_nesting_dec(void);
 
@@ -41,15 +42,35 @@ const char *__efi_nesting_dec(void);
 	})
 
 /*
- * Callback into UEFI world from u-boot:
+ * Call non-void UEFI function from u-boot and retrieve return value:
  */
-#define EFI_CALL(exp) do { \
+#define EFI_CALL(exp) ({ \
+	debug("%sEFI: Call: %s\n", __efi_nesting_inc(), #exp); \
+	assert(__efi_exit_check()); \
+	typeof(exp) _r = exp; \
+	assert(__efi_entry_check()); \
+	debug("%sEFI: %lu returned by %s\n", __efi_nesting_dec(), \
+	      (unsigned long)((uintptr_t)_r & ~EFI_ERROR_MASK), #exp); \
+	_r; \
+})
+
+/*
+ * Call void UEFI function from u-boot:
+ */
+#define EFI_CALL_VOID(exp) do { \
 	debug("%sEFI: Call: %s\n", __efi_nesting_inc(), #exp); \
 	assert(__efi_exit_check()); \
 	exp; \
 	assert(__efi_entry_check()); \
 	debug("%sEFI: Return From: %s\n", __efi_nesting_dec(), #exp); \
 	} while(0)
+
+/*
+ * Write GUID
+ */
+#define EFI_PRINT_GUID(txt, guid) ({ \
+	debug("%sEFI: %s %pUl\n", __efi_nesting(), txt, guid); \
+	})
 
 extern struct efi_runtime_services efi_runtime_services;
 extern struct efi_system_table systab;
@@ -59,10 +80,15 @@ extern struct efi_simple_input_interface efi_con_in;
 extern const struct efi_console_control_protocol efi_console_control;
 extern const struct efi_device_path_to_text_protocol efi_device_path_to_text;
 
+uint16_t *efi_dp_str(struct efi_device_path *dp);
+
+extern const efi_guid_t efi_global_variable_guid;
 extern const efi_guid_t efi_guid_console_control;
 extern const efi_guid_t efi_guid_device_path;
 extern const efi_guid_t efi_guid_loaded_image;
 extern const efi_guid_t efi_guid_device_path_to_text_protocol;
+extern const efi_guid_t efi_simple_file_system_protocol_guid;
+extern const efi_guid_t efi_file_info_guid;
 
 extern unsigned int __efi_runtime_start, __efi_runtime_stop;
 extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
@@ -110,7 +136,8 @@ struct efi_object {
  * @nofify_function:	Function to call when the event is triggered
  * @notify_context:	Data to be passed to the notify function
  * @trigger_type:	Type of timer, see efi_set_timer
- * @signaled:		The notify function was already called
+ * @queued:		The notification functionis queued
+ * @signaled:		The event occured
  */
 struct efi_event {
 	uint32_t type;
@@ -120,6 +147,7 @@ struct efi_event {
 	u64 trigger_next;
 	u64 trigger_time;
 	enum efi_timer_delay trigger_type;
+	int queued;
 	int signaled;
 };
 
@@ -134,9 +162,12 @@ int efi_disk_register(void);
 /* Called by bootefi to make GOP (graphical) interface available */
 int efi_gop_register(void);
 /* Called by bootefi to make the network interface available */
-int efi_net_register(void **handle);
+int efi_net_register(void);
 /* Called by bootefi to make SMBIOS tables available */
 void efi_smbios_register(void);
+
+struct efi_simple_file_system_protocol *
+efi_fs_from_path(struct efi_device_path *fp);
 
 /* Called by networking code to memorize the dhcp ack package */
 void efi_net_set_dhcp_ack(void *pkt, int len);
@@ -166,6 +197,14 @@ efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
 /* Call this to signal an event */
 void efi_signal_event(struct efi_event *event);
 
+/* open file system: */
+struct efi_simple_file_system_protocol *efi_simple_file_system(
+		struct blk_desc *desc, int part, struct efi_device_path *dp);
+
+/* open file from device-path: */
+struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp);
+
+
 /* Generic EFI memory allocator, call this to get memory */
 void *efi_alloc(uint64_t len, int memory_type);
 /* More specific EFI memory allocator, called by EFI payloads */
@@ -191,11 +230,42 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 int efi_memory_init(void);
 /* Adds new or overrides configuration table entry to the system table */
 efi_status_t efi_install_configuration_table(const efi_guid_t *guid, void *table);
+void efi_setup_loaded_image(struct efi_loaded_image *info, struct efi_object *obj,
+			    struct efi_device_path *device_path,
+			    struct efi_device_path *file_path);
+efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
+				      void **buffer);
 
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
 extern void *efi_bounce_buffer;
 #define EFI_LOADER_BOUNCE_BUFFER_SIZE (64 * 1024 * 1024)
 #endif
+
+
+struct efi_device_path *efi_dp_next(const struct efi_device_path *dp);
+int efi_dp_match(struct efi_device_path *a, struct efi_device_path *b);
+struct efi_object *efi_dp_find_obj(struct efi_device_path *dp,
+				   struct efi_device_path **rem);
+unsigned efi_dp_size(const struct efi_device_path *dp);
+struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp);
+struct efi_device_path *efi_dp_append(const struct efi_device_path *dp1,
+				      const struct efi_device_path *dp2);
+struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
+					   const struct efi_device_path *node);
+
+
+struct efi_device_path *efi_dp_from_dev(struct udevice *dev);
+struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part);
+struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
+					 const char *path);
+struct efi_device_path *efi_dp_from_eth(void);
+void efi_dp_split_file_path(struct efi_device_path *full_path,
+			    struct efi_device_path **device_path,
+			    struct efi_device_path **file_path);
+
+#define EFI_DP_TYPE(_dp, _type, _subtype) \
+	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \
+	 ((_dp)->sub_type == DEVICE_PATH_SUB_TYPE_##_subtype))
 
 /* Convert strings from normal C strings to uEFI strings */
 static inline void ascii2unicode(u16 *unicode, const char *ascii)
@@ -232,6 +302,28 @@ efi_status_t __efi_runtime EFIAPI efi_get_time(
 			struct efi_time *time,
 			struct efi_time_cap *capabilities);
 void efi_get_time_init(void);
+
+#ifdef CONFIG_CMD_BOOTEFI_SELFTEST
+/*
+ * Entry point for the tests of the EFI API.
+ * It is called by 'bootefi selftest'
+ */
+efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
+				 struct efi_system_table *systab);
+#endif
+
+efi_status_t EFIAPI efi_get_variable(s16 *variable_name,
+		efi_guid_t *vendor, u32 *attributes,
+		unsigned long *data_size, void *data);
+efi_status_t EFIAPI efi_get_next_variable(
+		unsigned long *variable_name_size,
+		s16 *variable_name, efi_guid_t *vendor);
+efi_status_t EFIAPI efi_set_variable(s16 *variable_name,
+		efi_guid_t *vendor, u32 attributes,
+		unsigned long data_size, void *data);
+
+void *efi_bootmgr_load(struct efi_device_path **device_path,
+		       struct efi_device_path **file_path);
 
 #else /* defined(EFI_LOADER) && !defined(CONFIG_SPL_BUILD) */
 
