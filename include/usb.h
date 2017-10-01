@@ -1035,7 +1035,6 @@ int usb_emul_find(struct udevice *bus, ulong pipe, struct udevice **emulp);
 /**
  * usb_emul_find_for_dev() - Find an emulator for a particular device
  *
- * @bus:	USB bus (controller)
  * @dev:	USB device to check
  * @emulp:	Returns pointer to emulator, or NULL if not found
  * @return 0 if found, -ve on error
