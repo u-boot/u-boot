@@ -164,6 +164,7 @@ int usb_get_max_xfer_size(struct usb_device *udev, size_t *size)
 int usb_stop(void)
 {
 	struct udevice *bus;
+	struct udevice *rh;
 	struct uclass *uc;
 	struct usb_uclass_priv *uc_priv;
 	int err = 0, ret;
@@ -179,6 +180,18 @@ int usb_stop(void)
 		ret = device_remove(bus, DM_REMOVE_NORMAL);
 		if (ret && !err)
 			err = ret;
+
+		/* Locate root hub device */
+		device_find_first_child(bus, &rh);
+		if (rh) {
+			/*
+			 * All USB devices are children of root hub.
+			 * Unbinding root hub will unbind all of its children.
+			 */
+			ret = device_unbind(rh);
+			if (ret && !err)
+				err = ret;
+		}
 	}
 #ifdef CONFIG_BLK
 	ret = blk_unbind_all(IF_TYPE_USB);
@@ -262,6 +275,21 @@ int usb_init(void)
 		/* init low_level USB */
 		printf("USB%d:   ", count);
 		count++;
+
+#ifdef CONFIG_SANDBOX
+		/*
+		 * For Sandbox, we need scan the device tree each time when we
+		 * start the USB stack, in order to re-create the emulated USB
+		 * devices and bind drivers for them before we actually do the
+		 * driver probe.
+		 */
+		ret = dm_scan_fdt_dev(bus);
+		if (ret) {
+			printf("Sandbox USB device scan failed (%d)\n", ret);
+			continue;
+		}
+#endif
+
 		ret = device_probe(bus);
 		if (ret == -ENODEV) {	/* No such device. */
 			puts("Port not available.\n");
