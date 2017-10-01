@@ -964,7 +964,7 @@ static void usb_stor_set_max_xfer_blk(struct usb_device *udev,
 		blk = 20;
 	} else {
 		if (size > USHRT_MAX * 512)
-			blk = USHRT_MAX;
+			size = USHRT_MAX * 512;
 		blk = size / 512;
 	}
 #endif

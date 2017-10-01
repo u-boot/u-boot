@@ -257,6 +257,188 @@ static unsigned int xhci_get_ep_index(struct usb_endpoint_descriptor *desc)
 	return index;
 }
 
+/*
+ * Convert bInterval expressed in microframes (in 1-255 range) to exponent of
+ * microframes, rounded down to nearest power of 2.
+ */
+static unsigned int xhci_microframes_to_exponent(unsigned int desc_interval,
+						 unsigned int min_exponent,
+						 unsigned int max_exponent)
+{
+	unsigned int interval;
+
+	interval = fls(desc_interval) - 1;
+	interval = clamp_val(interval, min_exponent, max_exponent);
+	if ((1 << interval) != desc_interval)
+		debug("rounding interval to %d microframes, "\
+		      "ep desc says %d microframes\n",
+		      1 << interval, desc_interval);
+
+	return interval;
+}
+
+static unsigned int xhci_parse_microframe_interval(struct usb_device *udev,
+	struct usb_endpoint_descriptor *endpt_desc)
+{
+	if (endpt_desc->bInterval == 0)
+		return 0;
+
+	return xhci_microframes_to_exponent(endpt_desc->bInterval, 0, 15);
+}
+
+static unsigned int xhci_parse_frame_interval(struct usb_device *udev,
+	struct usb_endpoint_descriptor *endpt_desc)
+{
+	return xhci_microframes_to_exponent(endpt_desc->bInterval * 8, 3, 10);
+}
+
+/*
+ * Convert interval expressed as 2^(bInterval - 1) == interval into
+ * straight exponent value 2^n == interval.
+ */
+static unsigned int xhci_parse_exponent_interval(struct usb_device *udev,
+	struct usb_endpoint_descriptor *endpt_desc)
+{
+	unsigned int interval;
+
+	interval = clamp_val(endpt_desc->bInterval, 1, 16) - 1;
+	if (interval != endpt_desc->bInterval - 1)
+		debug("ep %#x - rounding interval to %d %sframes\n",
+		      endpt_desc->bEndpointAddress, 1 << interval,
+		      udev->speed == USB_SPEED_FULL ? "" : "micro");
+
+	if (udev->speed == USB_SPEED_FULL) {
+		/*
+		 * Full speed isoc endpoints specify interval in frames,
+		 * not microframes. We are using microframes everywhere,
+		 * so adjust accordingly.
+		 */
+		interval += 3;	/* 1 frame = 2^3 uframes */
+	}
+
+	return interval;
+}
+
+/*
+ * Return the polling or NAK interval.
+ *
+ * The polling interval is expressed in "microframes". If xHCI's Interval field
+ * is set to N, it will service the endpoint every 2^(Interval)*125us.
+ *
+ * The NAK interval is one NAK per 1 to 255 microframes, or no NAKs if interval
+ * is set to 0.
+ */
+static unsigned int xhci_get_endpoint_interval(struct usb_device *udev,
+	struct usb_endpoint_descriptor *endpt_desc)
+{
+	unsigned int interval = 0;
+
+	switch (udev->speed) {
+	case USB_SPEED_HIGH:
+		/* Max NAK rate */
+		if (usb_endpoint_xfer_control(endpt_desc) ||
+		    usb_endpoint_xfer_bulk(endpt_desc)) {
+			interval = xhci_parse_microframe_interval(udev,
+								  endpt_desc);
+			break;
+		}
+		/* Fall through - SS and HS isoc/int have same decoding */
+
+	case USB_SPEED_SUPER:
+		if (usb_endpoint_xfer_int(endpt_desc) ||
+		    usb_endpoint_xfer_isoc(endpt_desc)) {
+			interval = xhci_parse_exponent_interval(udev,
+								endpt_desc);
+		}
+		break;
+
+	case USB_SPEED_FULL:
+		if (usb_endpoint_xfer_isoc(endpt_desc)) {
+			interval = xhci_parse_exponent_interval(udev,
+								endpt_desc);
+			break;
+		}
+		/*
+		 * Fall through for interrupt endpoint interval decoding
+		 * since it uses the same rules as low speed interrupt
+		 * endpoints.
+		 */
+
+	case USB_SPEED_LOW:
+		if (usb_endpoint_xfer_int(endpt_desc) ||
+		    usb_endpoint_xfer_isoc(endpt_desc)) {
+			interval = xhci_parse_frame_interval(udev, endpt_desc);
+		}
+		break;
+
+	default:
+		BUG();
+	}
+
+	return interval;
+}
+
+/*
+ * The "Mult" field in the endpoint context is only set for SuperSpeed isoc eps.
+ * High speed endpoint descriptors can define "the number of additional
+ * transaction opportunities per microframe", but that goes in the Max Burst
+ * endpoint context field.
+ */
+static u32 xhci_get_endpoint_mult(struct usb_device *udev,
+	struct usb_endpoint_descriptor *endpt_desc,
+	struct usb_ss_ep_comp_descriptor *ss_ep_comp_desc)
+{
+	if (udev->speed < USB_SPEED_SUPER ||
+	    !usb_endpoint_xfer_isoc(endpt_desc))
+		return 0;
+
+	return ss_ep_comp_desc->bmAttributes;
+}
+
+static u32 xhci_get_endpoint_max_burst(struct usb_device *udev,
+	struct usb_endpoint_descriptor *endpt_desc,
+	struct usb_ss_ep_comp_descriptor *ss_ep_comp_desc)
+{
+	/* Super speed and Plus have max burst in ep companion desc */
+	if (udev->speed >= USB_SPEED_SUPER)
+		return ss_ep_comp_desc->bMaxBurst;
+
+	if (udev->speed == USB_SPEED_HIGH &&
+	    (usb_endpoint_xfer_isoc(endpt_desc) ||
+	     usb_endpoint_xfer_int(endpt_desc)))
+		return usb_endpoint_maxp_mult(endpt_desc) - 1;
+
+	return 0;
+}
+
+/*
+ * Return the maximum endpoint service interval time (ESIT) payload.
+ * Basically, this is the maxpacket size, multiplied by the burst size
+ * and mult size.
+ */
+static u32 xhci_get_max_esit_payload(struct usb_device *udev,
+	struct usb_endpoint_descriptor *endpt_desc,
+	struct usb_ss_ep_comp_descriptor *ss_ep_comp_desc)
+{
+	int max_burst;
+	int max_packet;
+
+	/* Only applies for interrupt or isochronous endpoints */
+	if (usb_endpoint_xfer_control(endpt_desc) ||
+	    usb_endpoint_xfer_bulk(endpt_desc))
+		return 0;
+
+	/* SuperSpeed Isoc ep with less than 48k per esit */
+	if (udev->speed >= USB_SPEED_SUPER)
+		return le16_to_cpu(ss_ep_comp_desc->wBytesPerInterval);
+
+	max_packet = usb_endpoint_maxp(endpt_desc);
+	max_burst = usb_endpoint_maxp_mult(endpt_desc);
+
+	/* A 0 in max burst means 1 transfer per ESIT */
+	return max_packet * max_burst;
+}
+
 /**
  * Issue a configure endpoint command or evaluate context command
  * and wait for it to finish.
@@ -324,6 +506,12 @@ static int xhci_set_configuration(struct usb_device *udev)
 	int slot_id = udev->slot_id;
 	struct xhci_virt_device *virt_dev = ctrl->devs[slot_id];
 	struct usb_interface *ifdesc;
+	u32 max_esit_payload;
+	unsigned int interval;
+	unsigned int mult;
+	unsigned int max_burst;
+	unsigned int avg_trb_len;
+	unsigned int err_count = 0;
 
 	out_ctx = virt_dev->out_ctx;
 	in_ctx = virt_dev->in_ctx;
@@ -357,9 +545,27 @@ static int xhci_set_configuration(struct usb_device *udev)
 	/* filling up ep contexts */
 	for (cur_ep = 0; cur_ep < num_of_ep; cur_ep++) {
 		struct usb_endpoint_descriptor *endpt_desc = NULL;
+		struct usb_ss_ep_comp_descriptor *ss_ep_comp_desc = NULL;
 
 		endpt_desc = &ifdesc->ep_desc[cur_ep];
+		ss_ep_comp_desc = &ifdesc->ss_ep_comp_desc[cur_ep];
 		trb_64 = 0;
+
+		/*
+		 * Get values to fill the endpoint context, mostly from ep
+		 * descriptor. The average TRB buffer lengt for bulk endpoints
+		 * is unclear as we have no clue on scatter gather list entry
+		 * size. For Isoc and Int, set it to max available.
+		 * See xHCI 1.1 spec 4.14.1.1 for details.
+		 */
+		max_esit_payload = xhci_get_max_esit_payload(udev, endpt_desc,
+							     ss_ep_comp_desc);
+		interval = xhci_get_endpoint_interval(udev, endpt_desc);
+		mult = xhci_get_endpoint_mult(udev, endpt_desc,
+					      ss_ep_comp_desc);
+		max_burst = xhci_get_endpoint_max_burst(udev, endpt_desc,
+							ss_ep_comp_desc);
+		avg_trb_len = max_esit_payload;
 
 		ep_index = xhci_get_ep_index(endpt_desc);
 		ep_ctx[ep_index] = xhci_get_ep_ctx(ctrl, in_ctx, ep_index);
@@ -372,20 +578,38 @@ static int xhci_set_configuration(struct usb_device *udev)
 		/*NOTE: ep_desc[0] actually represents EP1 and so on */
 		dir = (((endpt_desc->bEndpointAddress) & (0x80)) >> 7);
 		ep_type = (((endpt_desc->bmAttributes) & (0x3)) | (dir << 2));
+
+		ep_ctx[ep_index]->ep_info =
+			cpu_to_le32(EP_MAX_ESIT_PAYLOAD_HI(max_esit_payload) |
+			EP_INTERVAL(interval) | EP_MULT(mult));
+
 		ep_ctx[ep_index]->ep_info2 =
 			cpu_to_le32(ep_type << EP_TYPE_SHIFT);
 		ep_ctx[ep_index]->ep_info2 |=
 			cpu_to_le32(MAX_PACKET
 			(get_unaligned(&endpt_desc->wMaxPacketSize)));
 
+		/* Allow 3 retries for everything but isoc, set CErr = 3 */
+		if (!usb_endpoint_xfer_isoc(endpt_desc))
+			err_count = 3;
 		ep_ctx[ep_index]->ep_info2 |=
-			cpu_to_le32(((0 & MAX_BURST_MASK) << MAX_BURST_SHIFT) |
-			((3 & ERROR_COUNT_MASK) << ERROR_COUNT_SHIFT));
+			cpu_to_le32(MAX_BURST(max_burst) |
+			ERROR_COUNT(err_count));
 
 		trb_64 = (uintptr_t)
 				virt_dev->eps[ep_index].ring->enqueue;
 		ep_ctx[ep_index]->deq = cpu_to_le64(trb_64 |
 				virt_dev->eps[ep_index].ring->cycle_state);
+
+		/*
+		 * xHCI spec 6.2.3:
+		 * 'Average TRB Length' should be 8 for control endpoints.
+		 */
+		if (usb_endpoint_xfer_control(endpt_desc))
+			avg_trb_len = 8;
+		ep_ctx[ep_index]->tx_info =
+			cpu_to_le32(EP_MAX_ESIT_PAYLOAD_LO(max_esit_payload) |
+			EP_AVG_TRB_LENGTH(avg_trb_len));
 	}
 
 	return xhci_configure_endpoints(udev, false);
@@ -546,16 +770,13 @@ int xhci_check_maxpacket(struct usb_device *udev)
 	int max_packet_size;
 	int hw_max_packet_size;
 	int ret = 0;
-	struct usb_interface *ifdesc;
-
-	ifdesc = &udev->config.if_desc[0];
 
 	out_ctx = ctrl->devs[slot_id]->out_ctx;
 	xhci_inval_cache((uintptr_t)out_ctx->bytes, out_ctx->size);
 
 	ep_ctx = xhci_get_ep_ctx(ctrl, out_ctx, ep_index);
 	hw_max_packet_size = MAX_PACKET_DECODED(le32_to_cpu(ep_ctx->ep_info2));
-	max_packet_size = usb_endpoint_maxp(&ifdesc->ep_desc[0]);
+	max_packet_size = udev->epmaxpacketin[0];
 	if (hw_max_packet_size != max_packet_size) {
 		debug("Max Packet Size for ep 0 changed.\n");
 		debug("Max packet size in usb_device = %d\n", max_packet_size);
@@ -567,7 +788,8 @@ int xhci_check_maxpacket(struct usb_device *udev)
 				ctrl->devs[slot_id]->out_ctx, ep_index);
 		in_ctx = ctrl->devs[slot_id]->in_ctx;
 		ep_ctx = xhci_get_ep_ctx(ctrl, in_ctx, ep_index);
-		ep_ctx->ep_info2 &= cpu_to_le32(~MAX_PACKET_MASK);
+		ep_ctx->ep_info2 &= cpu_to_le32(~((0xffff & MAX_PACKET_MASK)
+						<< MAX_PACKET_SHIFT));
 		ep_ctx->ep_info2 |= cpu_to_le32(MAX_PACKET(max_packet_size));
 
 		/*
@@ -890,11 +1112,18 @@ unknown:
 static int _xhci_submit_int_msg(struct usb_device *udev, unsigned long pipe,
 				void *buffer, int length, int interval)
 {
+	if (usb_pipetype(pipe) != PIPE_INTERRUPT) {
+		printf("non-interrupt pipe (type=%lu)", usb_pipetype(pipe));
+		return -EINVAL;
+	}
+
 	/*
-	 * TODO: Not addressing any interrupt type transfer requests
-	 * Add support for it later.
+	 * xHCI uses normal TRBs for both bulk and interrupt. When the
+	 * interrupt endpoint is to be serviced, the xHC will consume
+	 * (at most) one TD. A TD (comprised of sg list entries) can
+	 * take several service intervals to transmit.
 	 */
-	return -EINVAL;
+	return xhci_bulk_tx(udev, pipe, length, buffer);
 }
 
 /**

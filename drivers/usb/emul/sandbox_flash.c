@@ -390,8 +390,7 @@ static int sandbox_flash_bind(struct udevice *dev)
 	fs[2].id = STRINGID_SERIAL;
 	fs[2].s = dev->name;
 
-	return usb_emul_setup_device(dev, PACKET_SIZE_64, plat->flash_strings,
-				     flash_desc_list);
+	return usb_emul_setup_device(dev, plat->flash_strings, flash_desc_list);
 }
 
 static int sandbox_flash_probe(struct udevice *dev)

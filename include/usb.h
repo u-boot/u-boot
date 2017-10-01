@@ -653,6 +653,18 @@ struct usb_bus_priv {
 };
 
 /**
+ * struct usb_emul_platdata - platform data about the USB emulator
+ *
+ * Given a USB emulator (UCLASS_USB_EMUL) 'dev', this is
+ * dev_get_uclass_platdata(dev).
+ *
+ * @port1:	USB emulator device port number on the parent hub
+ */
+struct usb_emul_platdata {
+	int port1;	/* Port number (numbered from 1) */
+};
+
+/**
  * struct dm_usb_ops - USB controller operations
  *
  * This defines the operations supoorted on a USB controller. Common
@@ -976,7 +988,6 @@ int usb_get_max_xfer_size(struct usb_device *dev, size_t *size);
  * the USB emulation uclass about the features of the emulator.
  *
  * @dev:		Emulation device
- * @maxpacketsize:	Maximum packet size (e.g. PACKET_SIZE_64)
  * @strings:		List of USB string descriptors, terminated by a NULL
  *			entry
  * @desc_list:		List of points or USB descriptors, terminated by NULL.
@@ -984,8 +995,8 @@ int usb_get_max_xfer_size(struct usb_device *dev, size_t *size);
  *			and others follow on after that.
  * @return 0 if OK, -ENOSYS if not implemented, other -ve on error
  */
-int usb_emul_setup_device(struct udevice *dev, int maxpacketsize,
-			  struct usb_string *strings, void **desc_list);
+int usb_emul_setup_device(struct udevice *dev, struct usb_string *strings,
+			  void **desc_list);
 
 /**
  * usb_emul_control() - Send a control packet to an emulator
@@ -1024,19 +1035,20 @@ int usb_emul_int(struct udevice *emul, struct usb_device *udev,
 /**
  * usb_emul_find() - Find an emulator for a particular device
  *
- * Check @pipe to find a device number on bus @bus and return it.
+ * Check @pipe and @port1 to find a device number on bus @bus and return it.
  *
  * @bus:	USB bus (controller)
  * @pipe:	Describes pipe being used, and includes the device number
+ * @port1:	Describes port number on the parent hub
  * @emulp:	Returns pointer to emulator, or NULL if not found
  * @return 0 if found, -ve on error
  */
-int usb_emul_find(struct udevice *bus, ulong pipe, struct udevice **emulp);
+int usb_emul_find(struct udevice *bus, ulong pipe, int port1,
+		  struct udevice **emulp);
 
 /**
  * usb_emul_find_for_dev() - Find an emulator for a particular device
  *
- * @bus:	USB bus (controller)
  * @dev:	USB device to check
  * @emulp:	Returns pointer to emulator, or NULL if not found
  * @return 0 if found, -ve on error
@@ -1044,12 +1056,15 @@ int usb_emul_find(struct udevice *bus, ulong pipe, struct udevice **emulp);
 int usb_emul_find_for_dev(struct udevice *dev, struct udevice **emulp);
 
 /**
- * usb_emul_reset() - Reset all emulators ready for use
+ * usb_emul_find_descriptor() - Find a USB descriptor of a particular device
  *
- * Clear out any address information in the emulators and make then ready for
- * a new USB scan
+ * @ptr:	a pointer to a list of USB descriptor pointers
+ * @type:	type of USB descriptor to find
+ * @index:	if @type is USB_DT_CONFIG, this is the configuration value
+ * @return a pointer to the USB descriptor found, NULL if not found
  */
-void usb_emul_reset(struct udevice *dev);
+struct usb_generic_descriptor **usb_emul_find_descriptor(
+		struct usb_generic_descriptor **ptr, int type, int index);
 
 /**
  * usb_show_tree() - show the USB device tree

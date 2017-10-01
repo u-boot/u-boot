@@ -489,6 +489,17 @@ static int usb_scan_port(struct usb_device_scan *usb_scan)
 		return 0;
 	}
 
+	if (portchange & USB_PORT_STAT_C_RESET) {
+		debug("port %d reset change\n", i + 1);
+		usb_clear_port_feature(dev, i + 1, USB_PORT_FEAT_C_RESET);
+	}
+
+	if ((portchange & USB_SS_PORT_STAT_C_BH_RESET) &&
+	    usb_hub_is_superspeed(dev)) {
+		debug("port %d BH reset change\n", i + 1);
+		usb_clear_port_feature(dev, i + 1, USB_SS_PORT_FEAT_C_BH_RESET);
+	}
+
 	/* A new USB device is ready at this point */
 	debug("devnum=%d port=%d: USB dev found\n", dev->devnum, i + 1);
 
@@ -541,11 +552,6 @@ static int usb_scan_port(struct usb_device_scan *usb_scan)
 		/* Otherwise the device will get removed */
 		printf("Port %d over-current occurred %d times\n", i + 1,
 		       hub->overcurrent_count[i]);
-	}
-
-	if (portchange & USB_PORT_STAT_C_RESET) {
-		debug("port %d reset change\n", i + 1);
-		usb_clear_port_feature(dev, i + 1, USB_PORT_FEAT_C_RESET);
 	}
 
 	/*

@@ -12,6 +12,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+struct sandbox_usb_ctrl {
+	int rootdev;
+};
+
 static void usbmon_trace(struct udevice *bus, ulong pipe,
 			 struct devrequest *setup, struct udevice *emul)
 {
@@ -40,15 +44,24 @@ static int sandbox_submit_control(struct udevice *bus,
 				      void *buffer, int length,
 				      struct devrequest *setup)
 {
+	struct sandbox_usb_ctrl *ctrl = dev_get_priv(bus);
 	struct udevice *emul;
 	int ret;
 
 	/* Just use child of dev as emulator? */
 	debug("%s: bus=%s\n", __func__, bus->name);
-	ret = usb_emul_find(bus, pipe, &emul);
+	ret = usb_emul_find(bus, pipe, udev->portnr, &emul);
 	usbmon_trace(bus, pipe, setup, emul);
 	if (ret)
 		return ret;
+
+	if (usb_pipedevice(pipe) == ctrl->rootdev) {
+		if (setup->request == USB_REQ_SET_ADDRESS) {
+			debug("%s: Set root hub's USB address\n", __func__);
+			ctrl->rootdev = le16_to_cpu(setup->value);
+		}
+	}
+
 	ret = usb_emul_control(emul, udev, pipe, buffer, length, setup);
 	if (ret < 0) {
 		debug("ret=%d\n", ret);
@@ -70,7 +83,7 @@ static int sandbox_submit_bulk(struct udevice *bus, struct usb_device *udev,
 
 	/* Just use child of dev as emulator? */
 	debug("%s: bus=%s\n", __func__, bus->name);
-	ret = usb_emul_find(bus, pipe, &emul);
+	ret = usb_emul_find(bus, pipe, udev->portnr, &emul);
 	usbmon_trace(bus, pipe, NULL, emul);
 	if (ret)
 		return ret;
@@ -96,7 +109,7 @@ static int sandbox_submit_int(struct udevice *bus, struct usb_device *udev,
 
 	/* Just use child of dev as emulator? */
 	debug("%s: bus=%s\n", __func__, bus->name);
-	ret = usb_emul_find(bus, pipe, &emul);
+	ret = usb_emul_find(bus, pipe, udev->portnr, &emul);
 	usbmon_trace(bus, pipe, NULL, emul);
 	if (ret)
 		return ret;
@@ -107,6 +120,16 @@ static int sandbox_submit_int(struct udevice *bus, struct usb_device *udev,
 
 static int sandbox_alloc_device(struct udevice *dev, struct usb_device *udev)
 {
+	struct sandbox_usb_ctrl *ctrl = dev_get_priv(dev);
+
+	/*
+	 * Root hub will be the first device to be initailized.
+	 * If this device is a root hub, initialize its device speed
+	 * to high speed as we are a USB 2.0 controller.
+	 */
+	if (ctrl->rootdev == 0)
+		udev->speed = USB_SPEED_HIGH;
+
 	return 0;
 }
 
@@ -133,4 +156,5 @@ U_BOOT_DRIVER(usb_sandbox) = {
 	.of_match = sandbox_usb_ids,
 	.probe = sandbox_usb_probe,
 	.ops	= &sandbox_usb_ops,
+	.priv_auto_alloc_size = sizeof(struct sandbox_usb_ctrl),
 };
