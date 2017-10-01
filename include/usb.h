@@ -1067,14 +1067,6 @@ struct usb_generic_descriptor **usb_emul_find_descriptor(
 		struct usb_generic_descriptor **ptr, int type, int index);
 
 /**
- * usb_emul_reset() - Reset all emulators ready for use
- *
- * Clear out any address information in the emulators and make then ready for
- * a new USB scan
- */
-void usb_emul_reset(struct udevice *dev);
-
-/**
  * usb_show_tree() - show the USB device tree
  *
  * This shows a list of active USB devices along with basic information about

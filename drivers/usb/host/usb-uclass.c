@@ -194,17 +194,6 @@ int usb_stop(void)
 		}
 	}
 
-#ifdef CONFIG_SANDBOX
-	struct udevice *dev;
-
-	/* Reset all enulation devices */
-	ret = uclass_get(UCLASS_USB_EMUL, &uc);
-	if (ret)
-		return ret;
-
-	uclass_foreach_dev(dev, uc)
-		usb_emul_reset(dev);
-#endif
 #ifdef CONFIG_USB_STORAGE
 	usb_stor_reset();
 #endif

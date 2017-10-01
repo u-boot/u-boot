@@ -294,14 +294,6 @@ int usb_emul_setup_device(struct udevice *dev, struct usb_string *strings,
 	return 0;
 }
 
-void usb_emul_reset(struct udevice *dev)
-{
-	struct usb_dev_platdata *plat = dev_get_parent_platdata(dev);
-
-	plat->devnum = 0;
-	plat->configno = 0;
-}
-
 UCLASS_DRIVER(usb_emul) = {
 	.id		= UCLASS_USB_EMUL,
 	.name		= "usb_emul",
