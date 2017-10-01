@@ -1056,6 +1056,17 @@ int usb_emul_find(struct udevice *bus, ulong pipe, int port1,
 int usb_emul_find_for_dev(struct udevice *dev, struct udevice **emulp);
 
 /**
+ * usb_emul_find_descriptor() - Find a USB descriptor of a particular device
+ *
+ * @ptr:	a pointer to a list of USB descriptor pointers
+ * @type:	type of USB descriptor to find
+ * @index:	if @type is USB_DT_CONFIG, this is the configuration value
+ * @return a pointer to the USB descriptor found, NULL if not found
+ */
+struct usb_generic_descriptor **usb_emul_find_descriptor(
+		struct usb_generic_descriptor **ptr, int type, int index);
+
+/**
  * usb_emul_reset() - Reset all emulators ready for use
  *
  * Clear out any address information in the emulators and make then ready for

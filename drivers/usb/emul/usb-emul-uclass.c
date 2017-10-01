@@ -52,7 +52,7 @@ static int usb_emul_get_string(struct usb_string *strings, int index,
 	return -EINVAL;
 }
 
-static struct usb_generic_descriptor **find_descriptor(
+struct usb_generic_descriptor **usb_emul_find_descriptor(
 		struct usb_generic_descriptor **ptr, int type, int index)
 {
 	debug("%s: type=%x, index=%d\n", __func__, type, index);
@@ -91,8 +91,7 @@ static int usb_emul_get_descriptor(struct usb_dev_platdata *plat, int value,
 					   length);
 	}
 
-	ptr = find_descriptor((struct usb_generic_descriptor **)plat->desc_list,
-			      type, index);
+	ptr = usb_emul_find_descriptor(plat->desc_list, type, index);
 	if (!ptr) {
 		debug("%s: Could not find descriptor type %d, index %d\n",
 		      __func__, type, index);
