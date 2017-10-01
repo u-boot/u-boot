@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <mapmem.h>
 #include <syscon.h>
+#include <bitfield.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/cru_rk3368.h>
 #include <asm/arch/hardware.h>
@@ -397,6 +398,31 @@ static ulong rk3368_spi_set_clk(struct rk3368_cru *cru, ulong clk_id, uint hz)
 	return rk3368_spi_get_clk(cru, clk_id);
 }
 
+static ulong rk3368_saradc_get_clk(struct rk3368_cru *cru)
+{
+	u32 div, val;
+
+	val = readl(&cru->clksel_con[25]);
+	div = bitfield_extract(val, CLK_SARADC_DIV_CON_SHIFT,
+			       CLK_SARADC_DIV_CON_WIDTH);
+
+	return DIV_TO_RATE(OSC_HZ, div);
+}
+
+static ulong rk3368_saradc_set_clk(struct rk3368_cru *cru, uint hz)
+{
+	int src_clk_div;
+
+	src_clk_div = DIV_ROUND_UP(OSC_HZ, hz) - 1;
+	assert(src_clk_div < 128);
+
+	rk_clrsetreg(&cru->clksel_con[25],
+		     CLK_SARADC_DIV_CON_MASK,
+		     src_clk_div << CLK_SARADC_DIV_CON_SHIFT);
+
+	return rk3368_saradc_get_clk(cru);
+}
+
 static ulong rk3368_clk_get_rate(struct clk *clk)
 {
 	struct rk3368_clk_priv *priv = dev_get_priv(clk->dev);
@@ -419,6 +445,9 @@ static ulong rk3368_clk_get_rate(struct clk *clk)
 		rate = rk3368_mmc_get_clk(priv->cru, clk->id);
 		break;
 #endif
+	case SCLK_SARADC:
+		rate = rk3368_saradc_get_clk(priv->cru);
+		break;
 	default:
 		return -ENOENT;
 	}
@@ -453,6 +482,9 @@ static ulong rk3368_clk_set_rate(struct clk *clk, ulong rate)
 		ret = rk3368_gmac_set_clk(priv->cru, clk->id, rate);
 		break;
 #endif
+	case SCLK_SARADC:
+		ret =  rk3368_saradc_set_clk(priv->cru, rate);
+		break;
 	default:
 		return -ENOENT;
 	}

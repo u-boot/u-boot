@@ -1,10 +1,12 @@
 /*
  * (C) Copyright 2016 Rockchip Electronics Co., Ltd
+ * (C) Copyright 2017 Theobroma Systems Design und Consulting GmbH
  *
  * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
+#include <asm/arch/bootrom.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/grf_rk3399.h>
 #include <asm/arch/hardware.h>
@@ -19,9 +21,43 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+void board_return_to_bootrom(void)
+{
+	back_to_bootrom();
+}
+
+static const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
+	[BROM_BOOTSOURCE_EMMC] = "/sdhci@fe330000",
+	[BROM_BOOTSOURCE_SPINOR] = "/spi@ff1d0000",
+	[BROM_BOOTSOURCE_SD] = "/dwmmc@fe320000",
+};
+
+const char *board_spl_was_booted_from(void)
+{
+	u32  bootdevice_brom_id = readl(RK3399_BROM_BOOTSOURCE_ID_ADDR);
+	const char *bootdevice_ofpath = NULL;
+
+	if (bootdevice_brom_id < ARRAY_SIZE(boot_devices))
+		bootdevice_ofpath = boot_devices[bootdevice_brom_id];
+
+	if (bootdevice_ofpath)
+		debug("%s: brom_bootdevice_id %x maps to '%s'\n",
+		      __func__, bootdevice_brom_id, bootdevice_ofpath);
+	else
+		debug("%s: failed to resolve brom_bootdevice_id %x\n",
+		      __func__, bootdevice_brom_id);
+
+	return bootdevice_ofpath;
+}
+
 u32 spl_boot_device(void)
 {
-	return BOOT_DEVICE_MMC1;
+	u32 boot_device = BOOT_DEVICE_MMC1;
+
+	if (CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM))
+		return BOOT_DEVICE_BOOTROM;
+
+	return boot_device;
 }
 
 u32 spl_boot_mode(const u32 boot_device)
@@ -135,37 +171,6 @@ void board_init_f(ulong dummy)
 		debug("DRAM init failed: %d\n", ret);
 		return;
 	}
-}
-
-void spl_board_init(void)
-{
-	struct udevice *pinctrl;
-	int ret;
-
-	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
-	if (ret) {
-		debug("%s: Cannot find pinctrl device\n", __func__);
-		goto err;
-	}
-
-	/* Enable debug UART */
-	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_UART_DBG);
-	if (ret) {
-		debug("%s: Failed to set up console UART\n", __func__);
-		goto err;
-	}
-
-	preloader_console_init();
-#if CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM)
-	back_to_bootrom();
-#endif
-
-	return;
-err:
-	printf("spl_board_init: Error %d\n", ret);
-
-	/* No way to report error here */
-	hang();
 }
 
 #ifdef CONFIG_SPL_LOAD_FIT

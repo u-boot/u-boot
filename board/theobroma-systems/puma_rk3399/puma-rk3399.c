@@ -3,60 +3,48 @@
  *
  * SPDX-License-Identifier:     GPL-2.0+
  */
+
 #include <common.h>
 #include <dm.h>
 #include <misc.h>
-#include <ram.h>
 #include <dm/pinctrl.h>
 #include <dm/uclass-internal.h>
 #include <asm/setup.h>
 #include <asm/arch/periph.h>
 #include <power/regulator.h>
+#include <spl.h>
 #include <u-boot/sha256.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
 {
-	struct udevice *pinctrl, *regulator;
 	int ret;
 
 	/*
-	 * The PWM does not have decicated interrupt number in dts and can
-	 * not get periph_id by pinctrl framework, so let's init them here.
-	 * The PWM2 and PWM3 are for pwm regulators.
+	 * We need to call into regulators_enable_boot_on() again, as the call
+	 * during SPL may have not included all regulators.
 	 */
-	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
-	if (ret) {
-		debug("%s: Cannot find pinctrl device\n", __func__);
-		goto out;
-	}
-
-	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_PWM2);
-	if (ret) {
-		debug("%s PWM2 pinctrl init fail!\n", __func__);
-		goto out;
-	}
-
-	/* rk3399 need to init vdd_center to get the correct output voltage */
-	ret = regulator_get_by_platname("vdd_center", &regulator);
+	ret = regulators_enable_boot_on(false);
 	if (ret)
-		debug("%s: Cannot get vdd_center regulator\n", __func__);
+		debug("%s: Cannot enable boot on regulator\n", __func__);
 
-	ret = regulator_get_by_platname("vcc5v0_host", &regulator);
-	if (ret) {
-		debug("%s vcc5v0_host init fail! ret %d\n", __func__, ret);
-		goto out;
-	}
-
-	ret = regulator_set_enable(regulator, true);
-	if (ret) {
-		debug("%s vcc5v0-host-en set fail!\n", __func__);
-		goto out;
-	}
-
-out:
 	return 0;
+}
+
+void spl_board_init(void)
+{
+	int  ret;
+
+	/*
+	 * Turning the eMMC and SPI back on (if disabled via the Qseven
+	 * BIOS_ENABLE) signal is done through a always-on regulator).
+	 */
+	ret = regulators_enable_boot_on(false);
+	if (ret)
+		debug("%s: Cannot enable boot on regulator\n", __func__);
+
+	preloader_console_init();
 }
 
 static void setup_macaddr(void)
@@ -91,8 +79,6 @@ static void setup_macaddr(void)
 	mac_addr[0] |= 0x02;  /* set local assignment bit (IEEE802) */
 	eth_env_set_enetaddr("ethaddr", mac_addr);
 #endif
-
-	return;
 }
 
 static void setup_serial(void)
@@ -147,8 +133,6 @@ static void setup_serial(void)
 	env_set("cpuid#", cpuid_str);
 	env_set("serial#", serialno_str);
 #endif
-
-	return;
 }
 
 int misc_init_r(void)

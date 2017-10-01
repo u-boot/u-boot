@@ -77,6 +77,13 @@ config DM_REGULATOR_FIXED
 	features for fixed value regulators. The driver implements get/set api
 	for enable and get only for voltage value.
 
+config SPL_DM_REGULATOR_FIXED
+	bool "Enable Driver Model for REGULATOR Fixed value in SPL"
+	depends on DM_REGULATOR_FIXED
+	---help---
+	This config enables implementation of driver-model regulator uclass
+	features for fixed value regulators in SPL.
+
 config DM_REGULATOR_GPIO
 	bool "Enable Driver Model for GPIO REGULATOR"
 	depends on DM_REGULATOR

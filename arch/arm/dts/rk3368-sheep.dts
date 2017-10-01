@@ -260,6 +260,10 @@
 	};
 };
 
+&saradc {
+	status = "okay";
+};
+
 &tsadc {
 	status = "okay";
 	rockchip,hw-tshut-mode = <0>; /* CRU */

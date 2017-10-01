@@ -20,7 +20,8 @@
 
 	chosen {
 		stdout-path = "serial0:115200n8";
-		u-boot,spl-boot-order = &spiflash, &sdhci, &sdmmc;
+		u-boot,spl-boot-order = \
+			"same-as-spl", &spiflash, &sdhci, &sdmmc;
 	};
 
 	aliases {
@@ -98,6 +99,24 @@
 		regulator-boot-on;
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
+	};
+
+	/*
+	 * The Qseven BIOS_DISABLE signal on the RK3399-Q7 keeps the on-module
+	 * eMMC and SPI flash powered-down initially (in fact it keeps the
+	 * reset signal asserted).  Even though it is an enable signal, we
+	 * model this as a regulator.
+	 */
+	bios_enable: bios_enable {
+		compatible = "regulator-fixed";
+		u-boot,dm-pre-reloc;
+		regulator-name = "bios_enable";
+		enable-active-low;
+		gpio = <&gpio3 29 GPIO_ACTIVE_HIGH>;
+		regulator-always-on;
+		regulator-boot-on;
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
 	};
 
 	vccadc_ref: vccadc-ref {
@@ -458,7 +477,7 @@
 };
 
 &pcie_phy {
-	        status = "okay";
+		status = "okay";
 };
 
 &pmu_io_domains {
@@ -485,7 +504,7 @@
 };
 
 &sdmmc {
-        u-boot,dm-pre-reloc;
+	u-boot,dm-pre-reloc;
 	clock-frequency = <150000000>;
 	clock-freq-min-max = <100000 150000000>;
 	supports-sd;
@@ -532,10 +551,15 @@
 	status = "okay";
 };
 
+&gpio3 {
+	u-boot,dm-pre-reloc;
+};
+
 &pinctrl {
 	/* Pins that are not explicitely used by any devices */
 	pinctrl-names = "default";
 	pinctrl-0 = <&puma_pin_hog>;
+
 	hog {
 		puma_pin_hog: puma_pin_hog {
 			rockchip,pins =
@@ -575,7 +599,7 @@
 	i2c8 {
 		i2c8_xfer_a: i2c8-xfer {
 			rockchip,pins = <1 21 RK_FUNC_1 &pcfg_pull_up>,
-			                <1 20 RK_FUNC_1 &pcfg_pull_up>;
+					<1 20 RK_FUNC_1 &pcfg_pull_up>;
 		};
 	};
 };
@@ -651,4 +675,3 @@
 &spi5 {
 	status = "okay";
 };
-

@@ -61,6 +61,27 @@
 #include <asm/io.h>
 #include <asm/barriers.h>
 
+/* read L2 control register (L2CTLR) */
+static inline uint32_t read_l2ctlr(void)
+{
+	uint32_t val = 0;
+
+	asm volatile ("mrc p15, 1, %0, c9, c0, 2" : "=r" (val));
+
+	return val;
+}
+
+/* write L2 control register (L2CTLR) */
+static inline void write_l2ctlr(uint32_t val)
+{
+	/*
+	 * Note: L2CTLR can only be written when the L2 memory system
+	 * is idle, ie before the MMU is enabled.
+	 */
+	asm volatile("mcr p15, 1, %0, c9, c0, 2" : : "r" (val) : "memory");
+	isb();
+}
+
 /*
  * Workaround for ARM errata # 798870
  * Set L2ACTLR[7] to reissue any memory transaction in the L2 that has been

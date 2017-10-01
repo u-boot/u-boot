@@ -19,7 +19,10 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/periph.h>
+#include <asm/arch/pmu_rk3288.h>
 #include <asm/arch/sdram.h>
+#include <asm/arch/sdram_common.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/arch/timer.h>
 #include <dm/pinctrl.h>
 #include <dm/root.h>
@@ -78,46 +81,6 @@ fallback:
 u32 spl_boot_mode(const u32 boot_device)
 {
 	return MMCSD_MODE_RAW;
-}
-
-/* read L2 control register (L2CTLR) */
-static inline uint32_t read_l2ctlr(void)
-{
-	uint32_t val = 0;
-
-	asm volatile ("mrc p15, 1, %0, c9, c0, 2" : "=r" (val));
-
-	return val;
-}
-
-/* write L2 control register (L2CTLR) */
-static inline void write_l2ctlr(uint32_t val)
-{
-	/*
-	 * Note: L2CTLR can only be written when the L2 memory system
-	 * is idle, ie before the MMU is enabled.
-	 */
-	asm volatile("mcr p15, 1, %0, c9, c0, 2" : : "r" (val) : "memory");
-	isb();
-}
-
-static void configure_l2ctlr(void)
-{
-	uint32_t l2ctlr;
-
-	l2ctlr = read_l2ctlr();
-	l2ctlr &= 0xfffc0000; /* clear bit0~bit17 */
-
-	/*
-	* Data RAM write latency: 2 cycles
-	* Data RAM read latency: 2 cycles
-	* Data RAM setup latency: 1 cycle
-	* Tag RAM write latency: 1 cycle
-	* Tag RAM read latency: 1 cycle
-	* Tag RAM setup latency: 1 cycle
-	*/
-	l2ctlr |= (1 << 3 | 1 << 0);
-	write_l2ctlr(l2ctlr);
 }
 
 #ifdef CONFIG_SPL_MMC_SUPPORT
@@ -243,12 +206,15 @@ void board_init_f(ulong dummy)
 	}
 #endif
 
+#if !defined(CONFIG_SUPPORT_TPL)
 	debug("\nspl:init dram\n");
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {
 		debug("DRAM init failed: %d\n", ret);
 		return;
 	}
+#endif
+
 #if CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM) && !defined(CONFIG_SPL_BOARD_INIT)
 	back_to_bootrom();
 #endif
@@ -326,3 +292,18 @@ err:
 	/* No way to report error here */
 	hang();
 }
+
+#ifdef CONFIG_SPL_OS_BOOT
+
+#define PMU_BASE		0xff730000
+int dram_init_banksize(void)
+{
+	struct rk3288_pmu *const pmu = (void *)PMU_BASE;
+	size_t size = rockchip_sdram_size((phys_addr_t)&pmu->sys_reg[2]);
+
+	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].size = size;
+
+	return 0;
+}
+#endif

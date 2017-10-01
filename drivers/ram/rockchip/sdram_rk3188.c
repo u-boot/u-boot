@@ -682,11 +682,18 @@ out:
 
 static int sdram_get_niu_config(struct rk3188_sdram_params *sdram_params)
 {
-	int i, tmp, size, ret = 0;
+	int i, tmp, size, row, ret = 0;
 
+	row = sdram_params->ch[0].cs0_row;
+	/*
+	 * RK3188 share the rank and row bit15, we use same ddr config for 15bit
+	 * and 16bit row
+	 */
+	if (row == 16)
+		row = 15;
 	tmp = sdram_params->ch[0].col - 9;
 	tmp -= (sdram_params->ch[0].bw == 2) ? 0 : 1;
-	tmp |= ((sdram_params->ch[0].cs0_row - 13) << 4);
+	tmp |= ((row - 13) << 4);
 	size = sizeof(ddrconf_table)/sizeof(ddrconf_table[0]);
 	for (i = 0; i < size; i++)
 		if (tmp == ddrconf_table[i])
