@@ -653,6 +653,18 @@ struct usb_bus_priv {
 };
 
 /**
+ * struct usb_emul_platdata - platform data about the USB emulator
+ *
+ * Given a USB emulator (UCLASS_USB_EMUL) 'dev', this is
+ * dev_get_uclass_platdata(dev).
+ *
+ * @port1:	USB emulator device port number on the parent hub
+ */
+struct usb_emul_platdata {
+	int port1;	/* Port number (numbered from 1) */
+};
+
+/**
  * struct dm_usb_ops - USB controller operations
  *
  * This defines the operations supoorted on a USB controller. Common
@@ -1023,14 +1035,16 @@ int usb_emul_int(struct udevice *emul, struct usb_device *udev,
 /**
  * usb_emul_find() - Find an emulator for a particular device
  *
- * Check @pipe to find a device number on bus @bus and return it.
+ * Check @pipe and @port1 to find a device number on bus @bus and return it.
  *
  * @bus:	USB bus (controller)
  * @pipe:	Describes pipe being used, and includes the device number
+ * @port1:	Describes port number on the parent hub
  * @emulp:	Returns pointer to emulator, or NULL if not found
  * @return 0 if found, -ve on error
  */
-int usb_emul_find(struct udevice *bus, ulong pipe, struct udevice **emulp);
+int usb_emul_find(struct udevice *bus, ulong pipe, int port1,
+		  struct udevice **emulp);
 
 /**
  * usb_emul_find_for_dev() - Find an emulator for a particular device

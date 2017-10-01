@@ -280,8 +280,10 @@ static int sandbox_hub_bind(struct udevice *dev)
 static int sandbox_child_post_bind(struct udevice *dev)
 {
 	struct sandbox_hub_platdata *plat = dev_get_parent_platdata(dev);
+	struct usb_emul_platdata *emul = dev_get_uclass_platdata(dev);
 
 	plat->port = dev_read_u32_default(dev, "reg", -1);
+	emul->port1 = plat->port + 1;
 
 	return 0;
 }

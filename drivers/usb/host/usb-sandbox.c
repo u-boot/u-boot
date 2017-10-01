@@ -50,7 +50,7 @@ static int sandbox_submit_control(struct udevice *bus,
 
 	/* Just use child of dev as emulator? */
 	debug("%s: bus=%s\n", __func__, bus->name);
-	ret = usb_emul_find(bus, pipe, &emul);
+	ret = usb_emul_find(bus, pipe, udev->portnr, &emul);
 	usbmon_trace(bus, pipe, setup, emul);
 	if (ret)
 		return ret;
@@ -83,7 +83,7 @@ static int sandbox_submit_bulk(struct udevice *bus, struct usb_device *udev,
 
 	/* Just use child of dev as emulator? */
 	debug("%s: bus=%s\n", __func__, bus->name);
-	ret = usb_emul_find(bus, pipe, &emul);
+	ret = usb_emul_find(bus, pipe, udev->portnr, &emul);
 	usbmon_trace(bus, pipe, NULL, emul);
 	if (ret)
 		return ret;
@@ -109,7 +109,7 @@ static int sandbox_submit_int(struct udevice *bus, struct usb_device *udev,
 
 	/* Just use child of dev as emulator? */
 	debug("%s: bus=%s\n", __func__, bus->name);
-	ret = usb_emul_find(bus, pipe, &emul);
+	ret = usb_emul_find(bus, pipe, udev->portnr, &emul);
 	usbmon_trace(bus, pipe, NULL, emul);
 	if (ret)
 		return ret;
