@@ -273,7 +273,7 @@ config SPL_LOAD_FIT
 
 config SPL_FIT_IMAGE_POST_PROCESS
 	bool "Enable post-processing of FIT artifacts after loading by the SPL"
-	depends on SPL_LOAD_FIT && TI_SECURE_DEVICE
+	depends on SPL_LOAD_FIT
 	help
 	  Allows doing any sort of manipulation to blobs after they got extracted
 	  from the U-Boot FIT image like stripping off headers or modifying the
