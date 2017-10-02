@@ -53,9 +53,9 @@
 	"ip_dyn=yes\0" \
 	"mmcdev=1\0" \
 	"mmcpart=1\0" \
-	"mmcroot=/dev/mmcblk0p2 rootwait rw\0" \
+	"finduuid=part uuid mmc 1:2 uuid\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
-		"root=${mmcroot}\0" \
+		"root=PARTUUID=${uuid} rootwait rw\0" \
 	"loadbootscript=" \
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
@@ -63,6 +63,7 @@
 	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
 	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
+		"run finduuid; " \
 		"run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
 			"if run loadfdt; then " \
