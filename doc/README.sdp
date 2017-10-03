@@ -14,7 +14,7 @@ SoC's recovery mechanism is using.
 The SDP protocol over USB is a USB HID class protocol. USB HID class
 protocols allow to access a USB device without OS specific drivers. The
 U-Boot implementation has primarly been tested using the open source
-imx_loader utility (https://github.com/toradex/imx_loader).
+imx_loader utility (https://github.com/boundarydevices/imx_usb_loader).
 
 The host side utilities are typically capable to interpret the i.MX
 specific image header (see doc/README.imximage). There are extensions
