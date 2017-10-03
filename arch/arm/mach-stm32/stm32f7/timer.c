@@ -26,7 +26,7 @@ int timer_init(void)
 	/* Stop the timer */
 	writel(readl(&gpt1_regs_ptr->cr1) & ~GPT_CR1_CEN, &gpt1_regs_ptr->cr1);
 
-	writel((CONFIG_SYS_CLK_FREQ/CONFIG_SYS_HZ_CLOCK) - 1,
+	writel((CONFIG_SYS_CLK_FREQ / 2 / CONFIG_SYS_HZ_CLOCK) - 1,
 						&gpt1_regs_ptr->psc);
 
 	/* Configure timer for auto-reload */
