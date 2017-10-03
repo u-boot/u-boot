@@ -84,9 +84,12 @@ enum tpm_capability_areas {
 };
 
 #define TPM_NV_PER_GLOBALLOCK		(1U << 15)
+#define TPM_NV_PER_PPREAD		(1U << 16)
 #define TPM_NV_PER_PPWRITE		(1U << 0)
 #define TPM_NV_PER_READ_STCLEAR		(1U << 31)
 #define TPM_NV_PER_WRITE_STCLEAR	(1U << 14)
+#define TPM_NV_PER_WRITEDEFINE		(1U << 13)
+#define TPM_NV_PER_WRITEALL		(1U << 12)
 
 enum {
 	TPM_PUBEK_SIZE			= 256,
