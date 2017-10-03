@@ -259,6 +259,17 @@
 					bias-disable;
 				};
 			};
+
+			pinctrl_sdmmc1_level_shifter: sdmmc0_ls@0 {
+				pins {
+					pinmux = <STM32H7_PB8_FUNC_SDMMC1_CKIN>,
+						 <STM32H7_PB9_FUNC_SDMMC1_CDIR>,
+						 <STM32H7_PC6_FUNC_SDMMC1_D0DIR>,
+						 <STM32H7_PC7_FUNC_SDMMC1_D123DIR>;
+					drive-push-pull;
+					slew-rate = <3>;
+				};
+			};
 		};
 	};
 };

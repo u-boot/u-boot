@@ -98,3 +98,12 @@
 		st,sdram-refcount = <1539>;
 	};
 };
+
+&sdmmc1 {
+	status = "okay";
+	pinctrl-0 = <&sdmmc1_pins>,
+		    <&pinctrl_sdmmc1_level_shifter>;
+	pinctrl-names = "default";
+	bus-width = <4>;
+	st,dirpol;
+};
