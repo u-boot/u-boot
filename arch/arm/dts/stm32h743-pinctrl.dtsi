@@ -244,6 +244,21 @@
 					  slew-rate = <3>;
 				};
 			};
+
+			sdmmc1_pins: sdmmc@0 {
+				pins {
+					pinmux = <STM32H7_PC8_FUNC_SDMMC1_D0>,
+						 <STM32H7_PC9_FUNC_SDMMC1_D1>,
+						 <STM32H7_PC10_FUNC_SDMMC1_D2>,
+						 <STM32H7_PC11_FUNC_SDMMC1_D3>,
+						 <STM32H7_PC12_FUNC_SDMMC1_CK>,
+						 <STM32H7_PD2_FUNC_SDMMC1_CMD>;
+
+					slew-rate = <3>;
+					drive-push-pull;
+					bias-disable;
+				};
+			};
 		};
 	};
 };

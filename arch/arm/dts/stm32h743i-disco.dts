@@ -60,6 +60,7 @@
 
 	aliases {
 		serial0 = &usart2;
+		mmc0 = &sdmmc1;
 		gpio0 = &gpioa;
 		gpio1 = &gpiob;
 		gpio2 = &gpioc;
@@ -97,4 +98,12 @@
 				  TWR_1 TRCD_1>;
 		st,sdram-refcount = <1539>;
 	};
+};
+
+&sdmmc1 {
+	status = "okay";
+	pinctrl-0 = <&sdmmc1_pins>;
+	pinctrl-names = "default";
+	bus-width = <4>;
+	cd-gpios = <&gpioi 8 1>;
 };
