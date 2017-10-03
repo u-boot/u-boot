@@ -651,4 +651,16 @@ uint32_t tpm_flush_specific(uint32_t key_handle, uint32_t resource_type);
 uint32_t tpm_find_key_sha1(const uint8_t auth[20], const uint8_t
 			   pubkey_digest[20], uint32_t *handle);
 #endif /* CONFIG_TPM_LOAD_KEY_BY_SHA1 */
+
+/**
+ * Read random bytes from the TPM RNG. The implementation deals with the fact
+ * that the TPM may legally return fewer bytes than requested by retrying
+ * until @p count bytes have been received.
+ *
+ * @param data		output buffer for the random bytes
+ * @param count		size of output buffer
+ * @return return code of the operation
+ */
+uint32_t tpm_get_random(void *data, uint32_t count);
+
 #endif /* __TPM_H */
