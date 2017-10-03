@@ -15,6 +15,12 @@ config SYS_CONFIG_NAME
 config SYS_TEXT_BASE
 	default 0x01101000
 
+config ROM_TABLE_ADDR
+	default 0x0e4500
+
+config ROM_TABLE_SIZE
+	default 0x007b00
+
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select X86_LOAD_FROM_32_BIT

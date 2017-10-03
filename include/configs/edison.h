@@ -9,6 +9,9 @@
 
 #include <asm/ibmpc.h>
 
+/* ACPI */
+#define CONFIG_LAST_STAGE_INIT
+
 /* Boot */
 #define CONFIG_BOOTCOMMAND "run bootcmd"
 
