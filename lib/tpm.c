@@ -607,14 +607,24 @@ uint32_t tpm_get_permanent_flags(struct tpm_permanent_flags *pflags)
 		0x0, 0x0, 0x0, 0x4,	/* subcap size */
 		0x0, 0x0, 0x1, 0x8,	/* subcap value */
 	};
+	const size_t data_size_offset = TPM_HEADER_SIZE;
+	const size_t data_offset = TPM_HEADER_SIZE + sizeof (uint32_t);
 	uint8_t response[COMMAND_BUFFER_SIZE];
 	size_t response_length = sizeof(response);
 	uint32_t err;
+	uint32_t data_size;
 
 	err = tpm_sendrecv_command(command, response, &response_length);
 	if (err)
 		return err;
-	memcpy(pflags, response + TPM_HEADER_SIZE, sizeof(*pflags));
+	if (unpack_byte_string(response, response_length, "d",
+			       data_size_offset, &data_size))
+		return TPM_LIB_ERROR;
+	if (data_size < sizeof(*pflags))
+		return TPM_LIB_ERROR;
+	if (unpack_byte_string(response, response_length, "s",
+			       data_offset, pflags, sizeof(*pflags)))
+		return TPM_LIB_ERROR;
 
 	return 0;
 }
