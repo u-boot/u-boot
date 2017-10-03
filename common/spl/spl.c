@@ -154,7 +154,7 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 		spl_image->os = image_get_os(header);
 		spl_image->name = image_get_name(header);
 		debug("spl: payload image: %.*s load addr: 0x%lx size: %d\n",
-			(int)sizeof(spl_image->name), spl_image->name,
+			IH_NMLEN, spl_image->name,
 			spl_image->load_addr, spl_image->size);
 #else
 		/* LEGACY image not supported */
