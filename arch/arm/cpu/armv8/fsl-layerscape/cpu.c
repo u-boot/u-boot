@@ -647,13 +647,14 @@ phys_size_t get_effective_memsize(void)
 
 	/*
 	 * For ARMv8 SoCs, DDR memory is split into two or three regions. The
-	 * first region is 2GB space at 0x8000_0000. If the memory extends to
-	 * the second region (or the third region if applicable), the secure
-	 * memory and Management Complex (MC) memory should be put into the
-	 * highest region, i.e. the end of DDR memory. CONFIG_MAX_MEM_MAPPED
-	 * is set to the size of first region so U-Boot doesn't relocate itself
-	 * into higher address. Should DDR be configured to skip the first
-	 * region, this function needs to be adjusted.
+	 * first region is 2GB space at 0x8000_0000. Secure memory needs to
+	 * allocated from first region. If the memory extends to  the second
+	 * region (or the third region if applicable), Management Complex (MC)
+	 * memory should be put into the highest region, i.e. the end of DDR
+	 * memory. CONFIG_MAX_MEM_MAPPED is set to the size of first region so
+	 * U-Boot doesn't relocate itself into higher address. Should DDR be
+	 * configured to skip the first region, this function needs to be
+	 * adjusted.
 	 */
 	if (gd->ram_size > CONFIG_MAX_MEM_MAPPED) {
 		ea_size = CONFIG_MAX_MEM_MAPPED;
@@ -664,16 +665,10 @@ phys_size_t get_effective_memsize(void)
 
 #ifdef CONFIG_SYS_MEM_RESERVE_SECURE
 	/* Check if we have enough space for secure memory */
-	if (rem > CONFIG_SYS_MEM_RESERVE_SECURE) {
-		rem -= CONFIG_SYS_MEM_RESERVE_SECURE;
-	} else {
-		if (ea_size > CONFIG_SYS_MEM_RESERVE_SECURE) {
-			ea_size -= CONFIG_SYS_MEM_RESERVE_SECURE;
-			rem = 0;	/* Presume MC requires more memory */
-		} else {
-			printf("Error: No enough space for secure memory.\n");
-		}
-	}
+	if (ea_size > CONFIG_SYS_MEM_RESERVE_SECURE)
+		ea_size -= CONFIG_SYS_MEM_RESERVE_SECURE;
+	else
+		printf("Error: No enough space for secure memory.\n");
 #endif
 	/* Check if we have enough memory for MC */
 	if (rem < board_reserve_ram_top(rem)) {
@@ -718,32 +713,14 @@ int dram_init_banksize(void)
 		gd->bd->bi_dram[0].size = gd->ram_size;
 	}
 #ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-#ifdef CONFIG_SYS_DDR_BLOCK3_BASE
-	if (gd->bd->bi_dram[2].size >= CONFIG_SYS_MEM_RESERVE_SECURE) {
-		gd->bd->bi_dram[2].size -= CONFIG_SYS_MEM_RESERVE_SECURE;
-		gd->arch.secure_ram = gd->bd->bi_dram[2].start +
-				      gd->bd->bi_dram[2].size;
+	if (gd->bd->bi_dram[0].size >
+				CONFIG_SYS_MEM_RESERVE_SECURE) {
+		gd->bd->bi_dram[0].size -=
+				CONFIG_SYS_MEM_RESERVE_SECURE;
+		gd->arch.secure_ram = gd->bd->bi_dram[0].start +
+				      gd->bd->bi_dram[0].size;
 		gd->arch.secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
 		gd->ram_size -= CONFIG_SYS_MEM_RESERVE_SECURE;
-	} else
-#endif
-	{
-		if (gd->bd->bi_dram[1].size >= CONFIG_SYS_MEM_RESERVE_SECURE) {
-			gd->bd->bi_dram[1].size -=
-					CONFIG_SYS_MEM_RESERVE_SECURE;
-			gd->arch.secure_ram = gd->bd->bi_dram[1].start +
-					      gd->bd->bi_dram[1].size;
-			gd->arch.secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
-			gd->ram_size -= CONFIG_SYS_MEM_RESERVE_SECURE;
-		} else if (gd->bd->bi_dram[0].size >
-					CONFIG_SYS_MEM_RESERVE_SECURE) {
-			gd->bd->bi_dram[0].size -=
-					CONFIG_SYS_MEM_RESERVE_SECURE;
-			gd->arch.secure_ram = gd->bd->bi_dram[0].start +
-					      gd->bd->bi_dram[0].size;
-			gd->arch.secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
-			gd->ram_size -= CONFIG_SYS_MEM_RESERVE_SECURE;
-		}
 	}
 #endif	/* CONFIG_SYS_MEM_RESERVE_SECURE */
 
