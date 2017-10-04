@@ -35,8 +35,8 @@ void efi_st_exit_boot_services(void)
 	ret = boottime->get_memory_map(&map_size, NULL, &map_key, &desc_size,
 				       &desc_version);
 	if (ret != EFI_BUFFER_TOO_SMALL) {
-		efi_st_printf("ERROR: GetMemoryMap did not return "
-			      "EFI_BUFFER_TOO_SMALL\n");
+		efi_st_error(
+			"GetMemoryMap did not return EFI_BUFFER_TOO_SMALL\n");
 		return;
 	}
 	/* Allocate extra space for newly allocated memory */
@@ -44,21 +44,18 @@ void efi_st_exit_boot_services(void)
 	ret = boottime->allocate_pool(EFI_BOOT_SERVICES_DATA, map_size,
 				      (void **)&memory_map);
 	if (ret != EFI_SUCCESS) {
-		efi_st_printf("ERROR: AllocatePool did not return "
-			      "EFI_SUCCESS\n");
+		efi_st_error("AllocatePool did not return EFI_SUCCESS\n");
 		return;
 	}
 	ret = boottime->get_memory_map(&map_size, memory_map, &map_key,
 				       &desc_size, &desc_version);
 	if (ret != EFI_SUCCESS) {
-		efi_st_printf("ERROR: GetMemoryMap did not return "
-			      "EFI_SUCCESS\n");
+		efi_st_error("GetMemoryMap did not return EFI_SUCCESS\n");
 		return;
 	}
 	ret = boottime->exit_boot_services(handle, map_key);
 	if (ret != EFI_SUCCESS) {
-		efi_st_printf("ERROR: ExitBootServices did not return "
-			      "EFI_SUCCESS\n");
+		efi_st_error("ExitBootServices did not return EFI_SUCCESS\n");
 		return;
 	}
 	efi_st_printf("\nBoot services terminated\n");
@@ -79,7 +76,7 @@ static int setup(struct efi_unit_test *test, unsigned int *failures)
 	efi_st_printf("\nSetting up '%s'\n", test->name);
 	ret = test->setup(handle, systable);
 	if (ret) {
-		efi_st_printf("ERROR: Setting up '%s' failed\n", test->name);
+		efi_st_error("Setting up '%s' failed\n", test->name);
 		++*failures;
 	} else {
 		efi_st_printf("Setting up '%s' succeeded\n", test->name);
@@ -102,7 +99,7 @@ static int execute(struct efi_unit_test *test, unsigned int *failures)
 	efi_st_printf("\nExecuting '%s'\n", test->name);
 	ret = test->execute();
 	if (ret) {
-		efi_st_printf("ERROR: Executing '%s' failed\n", test->name);
+		efi_st_error("Executing '%s' failed\n", test->name);
 		++*failures;
 	} else {
 		efi_st_printf("Executing '%s' succeeded\n", test->name);
@@ -125,7 +122,7 @@ static int teardown(struct efi_unit_test *test, unsigned int *failures)
 	efi_st_printf("\nTearing down '%s'\n", test->name);
 	ret = test->teardown();
 	if (ret) {
-		efi_st_printf("ERROR: Tearing down '%s' failed\n", test->name);
+		efi_st_error("Tearing down '%s' failed\n", test->name);
 		++*failures;
 	} else {
 		efi_st_printf("Tearing down '%s' succeeded\n", test->name);
@@ -213,7 +210,8 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 	efi_st_get_key();
 	runtime->reset_system(EFI_RESET_WARM, EFI_NOT_READY,
 			      sizeof(reset_message), reset_message);
-	efi_st_printf("\nERROR: reset failed.\n");
+	efi_st_printf("\n");
+	efi_st_error("Reset failed.\n");
 
 	return EFI_UNSUPPORTED;
 }
