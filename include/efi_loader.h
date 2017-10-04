@@ -136,8 +136,8 @@ struct efi_object {
  * @nofify_function:	Function to call when the event is triggered
  * @notify_context:	Data to be passed to the notify function
  * @trigger_type:	Type of timer, see efi_set_timer
- * @queued:		The notification functionis queued
- * @signaled:		The event occured
+ * @queued:		The notification function is queued
+ * @signaled:		The event occurred. The event is in the signaled state.
  */
 struct efi_event {
 	uint32_t type;
@@ -147,8 +147,8 @@ struct efi_event {
 	u64 trigger_next;
 	u64 trigger_time;
 	enum efi_timer_delay trigger_type;
-	int queued;
-	int signaled;
+	bool is_queued;
+	bool is_signaled;
 };
 
 

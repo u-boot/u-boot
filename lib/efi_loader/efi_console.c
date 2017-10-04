@@ -460,7 +460,7 @@ static void EFIAPI efi_console_timer_notify(struct efi_event *event,
 {
 	EFI_ENTRY("%p, %p", event, context);
 	if (tstc()) {
-		efi_con_in.wait_for_key->signaled = 1;
+		efi_con_in.wait_for_key->is_signaled = true;
 		efi_signal_event(efi_con_in.wait_for_key);
 		}
 	EFI_EXIT(EFI_SUCCESS);

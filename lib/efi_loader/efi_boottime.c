@@ -164,14 +164,14 @@ static u64 efi_div10(u64 a)
 void efi_signal_event(struct efi_event *event)
 {
 	if (event->notify_function) {
-		event->queued = 1;
+		event->is_queued = true;
 		/* Check TPL */
 		if (efi_tpl >= event->notify_tpl)
 			return;
 		EFI_CALL_VOID(event->notify_function(event,
 						     event->notify_context));
 	}
-	event->queued = 0;
+	event->is_queued = false;
 }
 
 static efi_status_t efi_unsupported(const char *funcname)
@@ -316,8 +316,8 @@ efi_status_t efi_create_event(uint32_t type, UINTN notify_tpl,
 		efi_events[i].notify_context = notify_context;
 		/* Disable timers on bootup */
 		efi_events[i].trigger_next = -1ULL;
-		efi_events[i].queued = 0;
-		efi_events[i].signaled = 0;
+		efi_events[i].is_queued = false;
+		efi_events[i].is_signaled = false;
 		*event = &efi_events[i];
 		return EFI_SUCCESS;
 	}
@@ -350,7 +350,7 @@ void efi_timer_check(void)
 	for (i = 0; i < ARRAY_SIZE(efi_events); ++i) {
 		if (!efi_events[i].type)
 			continue;
-		if (efi_events[i].queued)
+		if (efi_events[i].is_queued)
 			efi_signal_event(&efi_events[i]);
 		if (!(efi_events[i].type & EVT_TIMER) ||
 		    now < efi_events[i].trigger_next)
@@ -366,7 +366,7 @@ void efi_timer_check(void)
 		default:
 			continue;
 		}
-		efi_events[i].signaled = 1;
+		efi_events[i].is_signaled = true;
 		efi_signal_event(&efi_events[i]);
 	}
 	WATCHDOG_RESET();
@@ -403,7 +403,7 @@ efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
 		}
 		event->trigger_type = type;
 		event->trigger_time = trigger_time;
-		event->signaled = 0;
+		event->is_signaled = false;
 		return EFI_SUCCESS;
 	}
 	return EFI_INVALID_PARAMETER;
@@ -440,14 +440,14 @@ static efi_status_t EFIAPI efi_wait_for_event(unsigned long num_events,
 known_event:
 		if (!event[i]->type || event[i]->type & EVT_NOTIFY_SIGNAL)
 			return EFI_EXIT(EFI_INVALID_PARAMETER);
-		if (!event[i]->signaled)
+		if (!event[i]->is_signaled)
 			efi_signal_event(event[i]);
 	}
 
 	/* Wait for signal */
 	for (;;) {
 		for (i = 0; i < num_events; ++i) {
-			if (event[i]->signaled)
+			if (event[i]->is_signaled)
 				goto out;
 		}
 		/* Allow events to occur. */
@@ -459,7 +459,7 @@ out:
 	 * Reset the signal which is passed to the caller to allow periodic
 	 * events to occur.
 	 */
-	event[i]->signaled = 0;
+	event[i]->is_signaled = false;
 	if (index)
 		*index = i;
 
@@ -474,9 +474,9 @@ static efi_status_t EFIAPI efi_signal_event_ext(struct efi_event *event)
 	for (i = 0; i < ARRAY_SIZE(efi_events); ++i) {
 		if (event != &efi_events[i])
 			continue;
-		if (event->signaled)
+		if (event->is_signaled)
 			break;
-		event->signaled = 1;
+		event->is_signaled = true;
 		if (event->type & EVT_NOTIFY_SIGNAL)
 			efi_signal_event(event);
 		break;
@@ -493,8 +493,8 @@ static efi_status_t EFIAPI efi_close_event(struct efi_event *event)
 		if (event == &efi_events[i]) {
 			event->type = 0;
 			event->trigger_next = -1ULL;
-			event->queued = 0;
-			event->signaled = 0;
+			event->is_queued = false;
+			event->is_signaled = false;
 			return EFI_EXIT(EFI_SUCCESS);
 		}
 	}
@@ -512,9 +512,9 @@ static efi_status_t EFIAPI efi_check_event(struct efi_event *event)
 			continue;
 		if (!event->type || event->type & EVT_NOTIFY_SIGNAL)
 			break;
-		if (!event->signaled)
+		if (!event->is_signaled)
 			efi_signal_event(event);
-		if (event->signaled)
+		if (event->is_signaled)
 			return EFI_EXIT(EFI_SUCCESS);
 		return EFI_EXIT(EFI_NOT_READY);
 	}
