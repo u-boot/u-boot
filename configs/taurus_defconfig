@@ -16,7 +16,6 @@ CONFIG_SPL_SPI_SUPPORT=y
 CONFIG_DEFAULT_DEVICE_TREE="at91sam9g20-taurus"
 CONFIG_SYS_EXTRA_OPTIONS="AT91SAM9G20,MACH_TYPE=2067,BOARD_TAURUS"
 CONFIG_BOOTDELAY=3
-CONFIG_LOGLEVEL=4
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyS0,115200 earlyprintk mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,256k(env),256k(env_redundant),256k(spare),512k(dtb),6M(kernel)ro,-(rootfs) root=/dev/mtdblock7 rw rootfstype=jffs2"
 # CONFIG_DISPLAY_BOARDINFO is not set
