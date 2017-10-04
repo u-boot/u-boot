@@ -1,5 +1,5 @@
 /*
- * efi_selftest_events
+ * efi_selftest_exitbootservices
  *
  * Copyright (c) 2017 Heinrich Schuchardt <xypron.glpk@gmx.de>
  *
@@ -13,19 +13,19 @@
 
 static struct efi_boot_services *boottime;
 static struct efi_event *event_notify;
-static unsigned int counter;
+static unsigned int notification_count;
 
 /*
- * Notification function, increments a counter.
+ * Notification function, increments the notification count.
  *
  * @event	notified event
- * @context	pointer to the counter
+ * @context	pointer to the notification count
  */
 static void EFIAPI notify(struct efi_event *event, void *context)
 {
-	if (!context)
-		return;
-	++*(unsigned int *)context;
+	unsigned int *count = context;
+
+	++*count;
 }
 
 /*
@@ -35,6 +35,7 @@ static void EFIAPI notify(struct efi_event *event, void *context)
  *
  * @handle:	handle of the loaded image
  * @systable:	system table
+ * @return:	EFI_ST_SUCCESS for success
  */
 static int setup(const efi_handle_t handle,
 		 const struct efi_system_table *systable)
@@ -43,21 +44,24 @@ static int setup(const efi_handle_t handle,
 
 	boottime = systable->boottime;
 
-	counter = 0;
+	notification_count = 0;
 	ret = boottime->create_event(EVT_SIGNAL_EXIT_BOOT_SERVICES,
-				     TPL_CALLBACK, notify, (void *)&counter,
+				     TPL_CALLBACK, notify,
+				     (void *)&notification_count,
 				     &event_notify);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("could not create event\n");
-		return 1;
+		return EFI_ST_FAILURE;
 	}
-	return 0;
+	return EFI_ST_SUCCESS;
 }
 
 /*
  * Tear down unit test.
  *
  * Close the event created in setup.
+ *
+ * @return:	EFI_ST_SUCCESS for success
  */
 static int teardown(void)
 {
@@ -68,10 +72,10 @@ static int teardown(void)
 		event_notify = NULL;
 		if (ret != EFI_SUCCESS) {
 			efi_st_error("could not close event\n");
-			return 1;
+			return EFI_ST_FAILURE;
 		}
 	}
-	return 0;
+	return EFI_ST_SUCCESS;
 }
 
 /*
@@ -82,19 +86,21 @@ static int teardown(void)
  *
  * Call ExitBootServices again and check that the notification function is
  * not called again.
+ *
+ * @return:	EFI_ST_SUCCESS for success
  */
 static int execute(void)
 {
-	if (counter != 1) {
-		efi_st_error("ExitBootServices was not notified");
-		return 1;
+	if (notification_count != 1) {
+		efi_st_error("ExitBootServices was not notified\n");
+		return EFI_ST_FAILURE;
 	}
 	efi_st_exit_boot_services();
-	if (counter != 1) {
-		efi_st_error("ExitBootServices was notified twice");
-		return 1;
+	if (notification_count != 1) {
+		efi_st_error("ExitBootServices was notified twice\n");
+		return EFI_ST_FAILURE;
 	}
-	return 0;
+	return EFI_ST_SUCCESS;
 }
 
 EFI_UNIT_TEST(exitbootservices) = {

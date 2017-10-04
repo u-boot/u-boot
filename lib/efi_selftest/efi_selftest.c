@@ -66,16 +66,17 @@ void efi_st_exit_boot_services(void)
  *
  * @test	the test to be executed
  * @failures	counter that will be incremented if a failure occurs
+ * @return	EFI_ST_SUCCESS for success
  */
 static int setup(struct efi_unit_test *test, unsigned int *failures)
 {
 	int ret;
 
 	if (!test->setup)
-		return 0;
+		return EFI_ST_SUCCESS;
 	efi_st_printf("\nSetting up '%s'\n", test->name);
 	ret = test->setup(handle, systable);
-	if (ret) {
+	if (ret != EFI_ST_SUCCESS) {
 		efi_st_error("Setting up '%s' failed\n", test->name);
 		++*failures;
 	} else {
@@ -89,16 +90,17 @@ static int setup(struct efi_unit_test *test, unsigned int *failures)
  *
  * @test	the test to be executed
  * @failures	counter that will be incremented if a failure occurs
+ * @return	EFI_ST_SUCCESS for success
  */
 static int execute(struct efi_unit_test *test, unsigned int *failures)
 {
 	int ret;
 
 	if (!test->execute)
-		return 0;
+		return EFI_ST_SUCCESS;
 	efi_st_printf("\nExecuting '%s'\n", test->name);
 	ret = test->execute();
-	if (ret) {
+	if (ret != EFI_ST_SUCCESS) {
 		efi_st_error("Executing '%s' failed\n", test->name);
 		++*failures;
 	} else {
@@ -112,16 +114,17 @@ static int execute(struct efi_unit_test *test, unsigned int *failures)
  *
  * @test	the test to be torn down
  * @failures	counter that will be incremented if a failure occurs
+ * @return	EFI_ST_SUCCESS for success
  */
 static int teardown(struct efi_unit_test *test, unsigned int *failures)
 {
 	int ret;
 
 	if (!test->teardown)
-		return 0;
+		return EFI_ST_SUCCESS;
 	efi_st_printf("\nTearing down '%s'\n", test->name);
 	ret = test->teardown();
-	if (ret) {
+	if (ret != EFI_ST_SUCCESS) {
 		efi_st_error("Tearing down '%s' failed\n", test->name);
 		++*failures;
 	} else {
