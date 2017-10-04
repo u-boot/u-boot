@@ -89,6 +89,7 @@ static int test_block_type(unsigned char *buffer)
 
 static int part_test_dos(struct blk_desc *dev_desc)
 {
+#ifndef CONFIG_SPL_BUILD
 	ALLOC_CACHE_ALIGN_BUFFER(legacy_mbr, mbr, dev_desc->blksz);
 
 	if (blk_dread(dev_desc, 0, 1, (ulong *)mbr) != 1)
@@ -102,6 +103,15 @@ static int part_test_dos(struct blk_desc *dev_desc)
 		dev_desc->sig_type = SIG_TYPE_MBR;
 		dev_desc->mbr_sig = mbr->unique_mbr_signature;
 	}
+#else
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
+
+	if (blk_dread(dev_desc, 0, 1, (ulong *)buffer) != 1)
+		return -1;
+
+	if (test_block_type(buffer) != DOS_MBR)
+		return -1;
+#endif
 
 	return 0;
 }
