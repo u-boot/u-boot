@@ -245,6 +245,7 @@ int efi_net_register(void)
 	netobj->net.mode = &netobj->net_mode;
 	netobj->net_mode.state = EFI_NETWORK_STARTED;
 	memcpy(netobj->net_mode.current_address.mac_addr, eth_get_ethaddr(), 6);
+	netobj->net_mode.hwaddr_size = ARP_HLEN;
 	netobj->net_mode.max_packet_size = PKTSIZE;
 
 	netobj->pxe.mode = &netobj->pxe_mode;
