@@ -23,8 +23,8 @@
  * @...	format string followed by fields to print
  */
 #define efi_st_error(...) \
-	efi_st_printf("%s(%u):\nERROR: ", __FILE__, __LINE__); \
-	efi_st_printf(__VA_ARGS__) \
+	(efi_st_printf("%s(%u):\nERROR: ", __FILE__, __LINE__), \
+	efi_st_printf(__VA_ARGS__)) \
 
 /*
  * A test may be setup and executed at boottime,
