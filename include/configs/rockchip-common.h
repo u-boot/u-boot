@@ -27,8 +27,6 @@
 	func(DHCP, dchp, na)
 #endif
 
-#define CONFIG_RANDOM_UUID
-
 #ifdef CONFIG_ARM64
 #define ROOT_UUID "B921B045-1DF0-41C3-AF44-4C6F280D3FAE;\0"
 #else

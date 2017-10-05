@@ -3,11 +3,16 @@ comment "FASTBOOT"
 menuconfig FASTBOOT
 	bool "Fastboot support"
 	depends on USB_GADGET
+	default y if ARCH_SUNXI && USB_MUSB_GADGET
 
 if FASTBOOT
 
 config USB_FUNCTION_FASTBOOT
 	bool "Enable USB fastboot gadget"
+	default y
+	select USB_GADGET_DOWNLOAD
+	imply ANDROID_BOOT_IMAGE
+	imply CMD_FASTBOOT
 	help
 	  This enables the USB part of the fastboot gadget.
 
@@ -69,6 +74,8 @@ config FASTBOOT_FLASH
 config FASTBOOT_FLASH_MMC_DEV
 	int "Define FASTBOOT MMC FLASH default device"
 	depends on FASTBOOT_FLASH && MMC
+	default 0 if ARCH_SUNXI && MMC_SUNXI_SLOT_EXTRA = -1
+	default 1 if ARCH_SUNXI && MMC_SUNXI_SLOT_EXTRA != -1
 	help
 	  The fastboot "flash" command requires additional information
 	  regarding the non-volatile storage device. Define this to

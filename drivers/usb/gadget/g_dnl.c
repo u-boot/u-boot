@@ -26,9 +26,9 @@
 
 /*
  * One needs to define the following:
- * CONFIG_G_DNL_VENDOR_NUM
- * CONFIG_G_DNL_PRODUCT_NUM
- * CONFIG_G_DNL_MANUFACTURER
+ * CONFIG_USB_GADGET_VENDOR_NUM
+ * CONFIG_USB_GADGET_PRODUCT_NUM
+ * CONFIG_USB_GADGET_MANUFACTURER
  * at e.g. ./configs/<board>_defconfig
  */
 
@@ -46,7 +46,7 @@
 
 static const char product[] = "USB download gadget";
 static char g_dnl_serial[MAX_STRING_SERIAL];
-static const char manufacturer[] = CONFIG_G_DNL_MANUFACTURER;
+static const char manufacturer[] = CONFIG_USB_GADGET_MANUFACTURER;
 
 void g_dnl_set_serialnumber(char *s)
 {
@@ -62,8 +62,8 @@ static struct usb_device_descriptor device_desc = {
 	.bDeviceClass = USB_CLASS_PER_INTERFACE,
 	.bDeviceSubClass = 0, /*0x02:CDC-modem , 0x00:CDC-serial*/
 
-	.idVendor = __constant_cpu_to_le16(CONFIG_G_DNL_VENDOR_NUM),
-	.idProduct = __constant_cpu_to_le16(CONFIG_G_DNL_PRODUCT_NUM),
+	.idVendor = __constant_cpu_to_le16(CONFIG_USB_GADGET_VENDOR_NUM),
+	.idProduct = __constant_cpu_to_le16(CONFIG_USB_GADGET_PRODUCT_NUM),
 	/* .iProduct = DYNAMIC */
 	/* .iSerialNumber = DYNAMIC */
 	.bNumConfigurations = 1,

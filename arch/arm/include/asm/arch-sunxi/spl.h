@@ -78,4 +78,6 @@ typedef char boot_file_head_not_multiple_of_32[1 - 2*(sizeof(struct boot_file_he
 
 #define is_boot0_magic(addr)	(memcmp((void *)addr, BOOT0_MAGIC, 8) == 0)
 
+uint32_t sunxi_get_boot_device(void);
+
 #endif

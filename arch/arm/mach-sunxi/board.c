@@ -14,9 +14,7 @@
 #include <mmc.h>
 #include <i2c.h>
 #include <serial.h>
-#ifdef CONFIG_SPL_BUILD
 #include <spl.h>
-#endif
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
@@ -212,11 +210,12 @@ void s_init(void)
 
 #ifdef CONFIG_SPL_BUILD
 DECLARE_GLOBAL_DATA_PTR;
+#endif
 
 /* The sunxi internal brom will try to loader external bootloader
  * from mmc0, nand flash, mmc2.
  */
-u32 spl_boot_device(void)
+uint32_t sunxi_get_boot_device(void)
 {
 	int boot_source;
 
@@ -253,6 +252,12 @@ u32 spl_boot_device(void)
 
 	panic("Unknown boot source %d\n", boot_source);
 	return -1;		/* Never reached */
+}
+
+#ifdef CONFIG_SPL_BUILD
+u32 spl_boot_device(void)
+{
+	return sunxi_get_boot_device();
 }
 
 /* No confirmation data available in SPL yet. Hardcode bootmode */

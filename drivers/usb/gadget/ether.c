@@ -273,8 +273,8 @@ static inline int BITRATE(struct usb_gadget *g)
  * static ushort idProduct;
  */
 
-#if defined(CONFIG_USBNET_MANUFACTURER)
-static char *iManufacturer = CONFIG_USBNET_MANUFACTURER;
+#if defined(CONFIG_USB_GADGET_MANUFACTURER)
+static char *iManufacturer = CONFIG_USB_GADGET_MANUFACTURER;
 #else
 static char *iManufacturer = "U-Boot";
 #endif
@@ -2073,11 +2073,11 @@ static int eth_bind(struct usb_gadget *gadget)
 	 * to choose the right configuration otherwise.
 	 */
 	if (rndis) {
-#if defined(CONFIG_USB_RNDIS_VENDOR_ID) && defined(CONFIG_USB_RNDIS_PRODUCT_ID)
+#if defined(CONFIG_USB_GADGET_VENDOR_NUM) && defined(CONFIG_USB_GADGET_PRODUCT_NUM)
 		device_desc.idVendor =
-			__constant_cpu_to_le16(CONFIG_USB_RNDIS_VENDOR_ID);
+			__constant_cpu_to_le16(CONFIG_USB_GADGET_VENDOR_NUM);
 		device_desc.idProduct =
-			__constant_cpu_to_le16(CONFIG_USB_RNDIS_PRODUCT_ID);
+			__constant_cpu_to_le16(CONFIG_USB_GADGET_PRODUCT_NUM);
 #else
 		device_desc.idVendor =
 			__constant_cpu_to_le16(RNDIS_VENDOR_NUM);
@@ -2092,9 +2092,9 @@ static int eth_bind(struct usb_gadget *gadget)
 	 * supporting one submode of the "SAFE" variant of MDLM.)
 	 */
 	} else {
-#if defined(CONFIG_USB_CDC_VENDOR_ID) && defined(CONFIG_USB_CDC_PRODUCT_ID)
-		device_desc.idVendor = cpu_to_le16(CONFIG_USB_CDC_VENDOR_ID);
-		device_desc.idProduct = cpu_to_le16(CONFIG_USB_CDC_PRODUCT_ID);
+#if defined(CONFIG_USB_GADGET_VENDOR_NUM) && defined(CONFIG_USB_GADGET_PRODUCT_NUM)
+		device_desc.idVendor = cpu_to_le16(CONFIG_USB_GADGET_VENDOR_NUM);
+		device_desc.idProduct = cpu_to_le16(CONFIG_USB_GADGET_PRODUCT_NUM);
 #else
 		if (!cdc) {
 			device_desc.idVendor =

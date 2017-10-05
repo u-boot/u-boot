@@ -150,7 +150,6 @@
 	"fdtaddr=40800000\0" \
 
 /* GPT */
-#define CONFIG_RANDOM_UUID
 
 /* Security subsystem - enable hw_rand() */
 #define CONFIG_EXYNOS_ACE_SHA
