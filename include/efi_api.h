@@ -71,7 +71,7 @@ struct efi_boot_services {
 					 enum efi_timer_delay type,
 					 uint64_t trigger_time);
 	efi_status_t (EFIAPI *wait_for_event)(unsigned long number_of_events,
-			struct efi_event **event, unsigned long *index);
+			struct efi_event **event, size_t *index);
 	efi_status_t (EFIAPI *signal_event)(struct efi_event *event);
 	efi_status_t (EFIAPI *close_event)(struct efi_event *event);
 	efi_status_t (EFIAPI *check_event)(struct efi_event *event);

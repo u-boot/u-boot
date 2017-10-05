@@ -110,7 +110,7 @@ static int teardown(void)
  */
 static int execute(void)
 {
-	unsigned long index;
+	size_t index;
 	efi_status_t ret;
 	UINTN old_tpl;
 

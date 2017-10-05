@@ -553,7 +553,7 @@ static efi_status_t EFIAPI efi_set_timer_ext(struct efi_event *event,
  */
 static efi_status_t EFIAPI efi_wait_for_event(unsigned long num_events,
 					      struct efi_event **event,
-					      unsigned long *index)
+					      size_t *index)
 {
 	int i, j;
 
