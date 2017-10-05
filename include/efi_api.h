@@ -633,7 +633,7 @@ struct efi_simple_network
 			ulong *header_size, ulong *buffer_size, void *buffer,
 			struct efi_mac_address *src_addr,
 			struct efi_mac_address *dest_addr, u16 *protocol);
-	void (EFIAPI *waitforpacket)(void);
+	struct efi_event *wait_for_packet;
 	struct efi_simple_network_mode *mode;
 };
 
