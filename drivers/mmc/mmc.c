@@ -882,8 +882,8 @@ static int sd_change_freq(struct mmc *mmc)
 {
 	int err;
 	struct mmc_cmd cmd;
-	ALLOC_CACHE_ALIGN_BUFFER(uint, scr, 2);
-	ALLOC_CACHE_ALIGN_BUFFER(uint, switch_status, 16);
+	ALLOC_CACHE_ALIGN_BUFFER(__be32, scr, 2);
+	ALLOC_CACHE_ALIGN_BUFFER(__be32, switch_status, 16);
 	struct mmc_data data;
 	int timeout;
 
