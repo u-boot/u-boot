@@ -893,9 +893,9 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 /* SD1 with level shifter */
 &sdhci1 {
 	status = "okay";
-	no-1-8-v;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_sdhci1_default>;
+	no-1-8-v;
 	xlnx,mio_bank = <1>;
 };
 
