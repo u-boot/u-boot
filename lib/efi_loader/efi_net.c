@@ -204,6 +204,10 @@ static efi_status_t EFIAPI efi_net_receive(struct efi_simple_network *this,
 		struct efi_mac_address *src_addr,
 		struct efi_mac_address *dest_addr, u16 *protocol)
 {
+	struct ethernet_hdr *eth_hdr;
+	size_t hdr_size = sizeof(struct ethernet_hdr);
+	u16 protlen;
+
 	EFI_ENTRY("%p, %p, %p, %p, %p, %p, %p", this, header_size,
 		  buffer_size, buffer, src_addr, dest_addr, protocol);
 
@@ -211,13 +215,32 @@ static efi_status_t EFIAPI efi_net_receive(struct efi_simple_network *this,
 
 	if (!new_rx_packet)
 		return EFI_EXIT(EFI_NOT_READY);
-
+	/* Check that we at least received an Ethernet header */
+	if (net_rx_packet_len < sizeof(struct ethernet_hdr)) {
+		new_rx_packet = false;
+		return EFI_EXIT(EFI_NOT_READY);
+	}
+	/* Fill export parameters */
+	eth_hdr = (struct ethernet_hdr *)net_rx_packet;
+	protlen = ntohs(eth_hdr->et_protlen);
+	if (protlen == 0x8100) {
+		hdr_size += 4;
+		protlen = ntohs(*(u16 *)&net_rx_packet[hdr_size - 2]);
+	}
+	if (header_size)
+		*header_size = hdr_size;
+	if (dest_addr)
+		memcpy(dest_addr, eth_hdr->et_dest, ARP_HLEN);
+	if (src_addr)
+		memcpy(src_addr, eth_hdr->et_src, ARP_HLEN);
+	if (protocol)
+		*protocol = protlen;
 	if (*buffer_size < net_rx_packet_len) {
 		/* Packet doesn't fit, try again with bigger buf */
 		*buffer_size = net_rx_packet_len;
 		return EFI_EXIT(EFI_BUFFER_TOO_SMALL);
 	}
-
+	/* Copy packet */
 	memcpy(buffer, net_rx_packet, net_rx_packet_len);
 	*buffer_size = net_rx_packet_len;
 	new_rx_packet = false;
