@@ -24,6 +24,10 @@ static void *new_tx_packet;
  * to check if a new network packet has been received.
  */
 static struct efi_event *network_timer_event;
+/*
+ * This event is signaled when a packet has been received.
+ */
+static struct efi_event *wait_for_packet;
 
 struct efi_net_obj {
 	/* Generic EFI object parent class data */
@@ -171,6 +175,7 @@ static efi_status_t EFIAPI efi_net_transmit(struct efi_simple_network *this,
 static void efi_net_push(void *pkt, int len)
 {
 	new_rx_packet = true;
+	wait_for_packet->is_signaled = true;
 }
 
 static efi_status_t EFIAPI efi_net_receive(struct efi_simple_network *this,
@@ -280,6 +285,17 @@ int efi_net_register(void)
 	/* Hook net up to the device list */
 	list_add_tail(&netobj->parent.link, &efi_obj_list);
 
+	/*
+	 * Create WaitForPacket event.
+	 */
+	r = efi_create_event(EVT_NOTIFY_WAIT, TPL_CALLBACK,
+			     efi_network_timer_notify, NULL,
+			     &wait_for_packet);
+	if (r != EFI_SUCCESS) {
+		printf("ERROR: Failed to register network event\n");
+		return r;
+	}
+	netobj->net.wait_for_packet = wait_for_packet;
 	/*
 	 * Create a timer event.
 	 *
