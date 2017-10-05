@@ -228,6 +228,7 @@ int efi_net_register(void)
 	netobj->parent.protocols[2].guid = &efi_pxe_guid;
 	netobj->parent.protocols[2].protocol_interface = &netobj->pxe;
 	netobj->parent.handle = &netobj->net;
+	netobj->net.revision = EFI_SIMPLE_NETWORK_PROTOCOL_REVISION;
 	netobj->net.start = efi_net_start;
 	netobj->net.stop = efi_net_stop;
 	netobj->net.initialize = efi_net_initialize;

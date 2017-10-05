@@ -600,6 +600,9 @@ struct efi_simple_network_mode {
 #define EFI_SIMPLE_NETWORK_RECEIVE_PROMISCUOUS           0x08
 #define EFI_SIMPLE_NETWORK_RECEIVE_PROMISCUOUS_MULTICAST 0x10
 
+/* revision of the simple network protocol */
+#define EFI_SIMPLE_NETWORK_PROTOCOL_REVISION	0x00010000
+
 struct efi_simple_network
 {
 	u64 revision;
