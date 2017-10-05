@@ -76,7 +76,7 @@ int main (int argc, char *argv[])
 	FILE	*fp;
 	bitmap_t bmp;
 	bitmap_t *b = &bmp;
-	uint16_t data_offset, n_colors;
+	uint16_t data_offset, n_colors, hdr_size;
 
 	if (argc < 3) {
 		usage(argv[0]);
@@ -108,7 +108,12 @@ int main (int argc, char *argv[])
 	skip_bytes (fp, 8);
 	if (fread (&data_offset, sizeof (uint16_t), 1, fp) != 1)
 		error ("Couldn't read bitmap data offset", fp);
-	skip_bytes (fp, 6);
+	skip_bytes(fp, 2);
+	if (fread(&hdr_size,   sizeof(uint16_t), 1, fp) != 1)
+		error("Couldn't read bitmap header size", fp);
+	if (hdr_size < 40)
+		error("Invalid bitmap header", fp);
+	skip_bytes(fp, 2);
 	if (fread (&b->width,   sizeof (uint16_t), 1, fp) != 1)
 		error ("Couldn't read bitmap width", fp);
 	skip_bytes (fp, 2);
@@ -117,7 +122,7 @@ int main (int argc, char *argv[])
 	skip_bytes (fp, 22);
 	if (fread (&n_colors, sizeof (uint16_t), 1, fp) != 1)
 		error ("Couldn't read bitmap colors", fp);
-	skip_bytes (fp, 6);
+	skip_bytes(fp, hdr_size - 34);
 
 	/*
 	 * Repair endianess.
