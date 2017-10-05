@@ -431,7 +431,7 @@ static int imx_pcie_write_config(struct pci_controller *hose, pci_dev_t d,
 /*
  * Initial bus setup
  */
-static int imx6_pcie_assert_core_reset(void)
+static int imx6_pcie_assert_core_reset(bool prepare_for_boot)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
 
@@ -459,7 +459,7 @@ static int imx6_pcie_assert_core_reset(void)
 	 * If both LTSSM_ENABLE and REF_SSP_ENABLE are active we have a strong
 	 * indication that the bootloader activated the link.
 	 */
-	if (is_mx6dq()) {
+	if (is_mx6dq() && prepare_for_boot) {
 		u32 val, gpr1, gpr12;
 
 		gpr1 = readl(&iomuxc_regs->gpr[1]);
@@ -605,7 +605,7 @@ static int imx_pcie_link_up(void)
 	uint32_t tmp;
 	int count = 0;
 
-	imx6_pcie_assert_core_reset();
+	imx6_pcie_assert_core_reset(false);
 	imx6_pcie_init_phy();
 	imx6_pcie_deassert_core_reset();
 
@@ -687,7 +687,7 @@ void imx_pcie_init(void)
 
 void imx_pcie_remove(void)
 {
-	imx6_pcie_assert_core_reset();
+	imx6_pcie_assert_core_reset(true);
 }
 
 /* Probe function. */
