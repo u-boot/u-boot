@@ -1868,6 +1868,7 @@ static void EFIAPI efi_copy_mem(void *destination, void *source,
 {
 	EFI_ENTRY("%p, %p, %ld", destination, source, length);
 	memcpy(destination, source, length);
+	EFI_EXIT(EFI_SUCCESS);
 }
 
 /*
@@ -1885,6 +1886,7 @@ static void EFIAPI efi_set_mem(void *buffer, unsigned long size, uint8_t value)
 {
 	EFI_ENTRY("%p, %ld, 0x%x", buffer, size, value);
 	memset(buffer, value, size);
+	EFI_EXIT(EFI_SUCCESS);
 }
 
 /*
