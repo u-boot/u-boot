@@ -593,11 +593,12 @@ struct efi_simple_network_mode {
 	u8 media_present;
 };
 
-#define EFI_SIMPLE_NETWORK_RECEIVE_UNICAST               0x01,
-#define EFI_SIMPLE_NETWORK_RECEIVE_MULTICAST             0x02,
-#define EFI_SIMPLE_NETWORK_RECEIVE_BROADCAST             0x04,
-#define EFI_SIMPLE_NETWORK_RECEIVE_PROMISCUOUS           0x08,
-#define EFI_SIMPLE_NETWORK_RECEIVE_PROMISCUOUS_MULTICAST 0x10,
+/* receive_filters bit mask */
+#define EFI_SIMPLE_NETWORK_RECEIVE_UNICAST               0x01
+#define EFI_SIMPLE_NETWORK_RECEIVE_MULTICAST             0x02
+#define EFI_SIMPLE_NETWORK_RECEIVE_BROADCAST             0x04
+#define EFI_SIMPLE_NETWORK_RECEIVE_PROMISCUOUS           0x08
+#define EFI_SIMPLE_NETWORK_RECEIVE_PROMISCUOUS_MULTICAST 0x10
 
 struct efi_simple_network
 {
