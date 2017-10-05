@@ -133,9 +133,14 @@ static efi_status_t EFIAPI efi_net_get_status(struct efi_simple_network *this,
 {
 	EFI_ENTRY("%p, %p, %p", this, int_status, txbuf);
 
-	/* We send packets synchronously, so nothing is outstanding */
-	if (int_status)
-		*int_status = 0;
+	efi_timer_check();
+
+	if (int_status) {
+		/* We send packets synchronously, so nothing is outstanding */
+		*int_status = EFI_SIMPLE_NETWORK_TRANSMIT_INTERRUPT;
+		if (new_rx_packet)
+			*int_status |= EFI_SIMPLE_NETWORK_RECEIVE_INTERRUPT;
+	}
 	if (txbuf)
 		*txbuf = new_tx_packet;
 
