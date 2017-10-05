@@ -150,12 +150,13 @@ static efi_status_t EFIAPI efi_net_get_status(struct efi_simple_network *this,
 }
 
 static efi_status_t EFIAPI efi_net_transmit(struct efi_simple_network *this,
-		ulong header_size, ulong buffer_size, void *buffer,
+		size_t header_size, size_t buffer_size, void *buffer,
 		struct efi_mac_address *src_addr,
 		struct efi_mac_address *dest_addr, u16 *protocol)
 {
-	EFI_ENTRY("%p, %lx, %lx, %p, %p, %p, %p", this, header_size,
-		  buffer_size, buffer, src_addr, dest_addr, protocol);
+	EFI_ENTRY("%p, %lu, %lu, %p, %p, %p, %p", this,
+		  (unsigned long)header_size, (unsigned long)buffer_size,
+		  buffer, src_addr, dest_addr, protocol);
 
 	efi_timer_check();
 
@@ -183,8 +184,23 @@ static void efi_net_push(void *pkt, int len)
 	wait_for_packet->is_signaled = true;
 }
 
+/*
+ * Receive a packet from a network interface.
+ *
+ * This function implements the Receive service of the Simple Network Protocol.
+ * See the UEFI spec for details.
+ *
+ * @this	the instance of the Simple Network Protocol
+ * @header_size	size of the media header
+ * @buffer_size	size of the buffer to receive the packet
+ * @buffer	buffer to receive the packet
+ * @src_addr	source MAC address
+ * @dest_addr	destination MAC address
+ * @protocol	protocol
+ * @return	status code
+ */
 static efi_status_t EFIAPI efi_net_receive(struct efi_simple_network *this,
-		ulong *header_size, ulong *buffer_size, void *buffer,
+		size_t *header_size, size_t *buffer_size, void *buffer,
 		struct efi_mac_address *src_addr,
 		struct efi_mac_address *dest_addr, u16 *protocol)
 {

@@ -636,11 +636,11 @@ struct efi_simple_network
 	efi_status_t (EFIAPI *get_status)(struct efi_simple_network *this,
 			u32 *int_status, void **txbuf);
 	efi_status_t (EFIAPI *transmit)(struct efi_simple_network *this,
-			ulong header_size, ulong buffer_size, void *buffer,
+			size_t header_size, size_t buffer_size, void *buffer,
 			struct efi_mac_address *src_addr,
 			struct efi_mac_address *dest_addr, u16 *protocol);
 	efi_status_t (EFIAPI *receive)(struct efi_simple_network *this,
-			ulong *header_size, ulong *buffer_size, void *buffer,
+			size_t *header_size, size_t *buffer_size, void *buffer,
 			struct efi_mac_address *src_addr,
 			struct efi_mac_address *dest_addr, u16 *protocol);
 	struct efi_event *wait_for_packet;
