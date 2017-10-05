@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <div64.h>
 #include <efi_loader.h>
 #include <environment.h>
 #include <malloc.h>
@@ -126,39 +127,6 @@ const char *__efi_nesting_inc(void)
 const char *__efi_nesting_dec(void)
 {
 	return indent_string(--nesting_level);
-}
-
-/* Low 32 bit */
-#define EFI_LOW32(a) (a & 0xFFFFFFFFULL)
-/* High 32 bit */
-#define EFI_HIGH32(a) (a >> 32)
-
-/*
- * 64bit division by 10 implemented as multiplication by 1 / 10
- *
- * Decimals of one tenth: 0x1 / 0xA = 0x0.19999...
- */
-#define EFI_TENTH 0x199999999999999A
-static u64 efi_div10(u64 a)
-{
-	u64 prod;
-	u64 rem;
-	u64 ret;
-
-	ret  = EFI_HIGH32(a) * EFI_HIGH32(EFI_TENTH);
-	prod = EFI_HIGH32(a) * EFI_LOW32(EFI_TENTH);
-	rem  = EFI_LOW32(prod);
-	ret += EFI_HIGH32(prod);
-	prod = EFI_LOW32(a) * EFI_HIGH32(EFI_TENTH);
-	rem += EFI_LOW32(prod);
-	ret += EFI_HIGH32(prod);
-	prod = EFI_LOW32(a) * EFI_LOW32(EFI_TENTH);
-	rem += EFI_HIGH32(prod);
-	ret += EFI_HIGH32(rem);
-	/* Round to nearest integer */
-	if (rem >= (1 << 31))
-		++ret;
-	return ret;
 }
 
 /*
@@ -523,7 +491,7 @@ efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
 	 * The parameter defines a multiple of 100ns.
 	 * We use multiples of 1000ns. So divide by 10.
 	 */
-	trigger_time = efi_div10(trigger_time);
+	do_div(trigger_time, 10);
 
 	for (i = 0; i < ARRAY_SIZE(efi_events); ++i) {
 		if (event != &efi_events[i])
