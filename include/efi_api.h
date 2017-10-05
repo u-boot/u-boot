@@ -156,10 +156,9 @@ struct efi_boot_services {
 			void *handle, ...);
 	efi_status_t (EFIAPI *calculate_crc32)(void *data,
 			unsigned long data_size, uint32_t *crc32);
-	void (EFIAPI *copy_mem)(void *destination, void *source,
-			unsigned long length);
-	void (EFIAPI *set_mem)(void *buffer, unsigned long size,
-			uint8_t value);
+	void (EFIAPI *copy_mem)(void *destination, const void *source,
+			size_t length);
+	void (EFIAPI *set_mem)(void *buffer, size_t size, uint8_t value);
 	void *create_event_ex;
 };
 

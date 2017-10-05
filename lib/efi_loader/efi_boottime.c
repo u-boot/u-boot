@@ -1863,10 +1863,10 @@ static efi_status_t EFIAPI efi_calculate_crc32(void *data,
  * @source		source of the copy operation
  * @length		number of bytes to copy
  */
-static void EFIAPI efi_copy_mem(void *destination, void *source,
-				unsigned long length)
+static void EFIAPI efi_copy_mem(void *destination, const void *source,
+				size_t length)
 {
-	EFI_ENTRY("%p, %p, %ld", destination, source, length);
+	EFI_ENTRY("%p, %p, %ld", destination, source, (unsigned long)length);
 	memcpy(destination, source, length);
 	EFI_EXIT(EFI_SUCCESS);
 }
@@ -1882,9 +1882,9 @@ static void EFIAPI efi_copy_mem(void *destination, void *source,
  * @size		size of buffer in bytes
  * @value		byte to copy to the buffer
  */
-static void EFIAPI efi_set_mem(void *buffer, unsigned long size, uint8_t value)
+static void EFIAPI efi_set_mem(void *buffer, size_t size, uint8_t value)
 {
-	EFI_ENTRY("%p, %ld, 0x%x", buffer, size, value);
+	EFI_ENTRY("%p, %ld, 0x%x", buffer, (unsigned long)size, value);
 	memset(buffer, value, size);
 	EFI_EXIT(EFI_SUCCESS);
 }
