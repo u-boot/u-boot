@@ -19,6 +19,11 @@ static const efi_guid_t efi_pxe_guid = EFI_PXE_GUID;
 static struct efi_pxe_packet *dhcp_ack;
 static bool new_rx_packet;
 static void *new_tx_packet;
+/*
+ * The notification function of this event is called in every timer cycle
+ * to check if a new network packet has been received.
+ */
+static struct efi_event *network_timer_event;
 
 struct efi_net_obj {
 	/* Generic EFI object parent class data */
@@ -143,6 +148,8 @@ static efi_status_t EFIAPI efi_net_transmit(struct efi_simple_network *this,
 	EFI_ENTRY("%p, %lx, %lx, %p, %p, %p, %p", this, header_size,
 		  buffer_size, buffer, src_addr, dest_addr, protocol);
 
+	efi_timer_check();
+
 	if (header_size) {
 		/* We would need to create the header if header_size != 0 */
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
@@ -174,9 +181,7 @@ static efi_status_t EFIAPI efi_net_receive(struct efi_simple_network *this,
 	EFI_ENTRY("%p, %p, %p, %p, %p, %p, %p", this, header_size,
 		  buffer_size, buffer, src_addr, dest_addr, protocol);
 
-	push_packet = efi_net_push;
-	eth_rx();
-	push_packet = NULL;
+	efi_timer_check();
 
 	if (!new_rx_packet)
 		return EFI_EXIT(EFI_NOT_READY);
@@ -204,10 +209,32 @@ void efi_net_set_dhcp_ack(void *pkt, int len)
 	memcpy(dhcp_ack, pkt, min(len, maxsize));
 }
 
+/*
+ * Check if a new network packet has been received.
+ *
+ * This notification function is called in every timer cycle.
+ *
+ * @event	the event for which this notification function is registered
+ * @context	event context - not used in this function
+ */
+static void EFIAPI efi_network_timer_notify(struct efi_event *event,
+					    void *context)
+{
+	EFI_ENTRY("%p, %p", event, context);
+
+	if (!new_rx_packet) {
+		push_packet = efi_net_push;
+		eth_rx();
+		push_packet = NULL;
+	}
+	EFI_EXIT(EFI_SUCCESS);
+}
+
 /* This gets called from do_bootefi_exec(). */
 int efi_net_register(void)
 {
 	struct efi_net_obj *netobj;
+	efi_status_t r;
 
 	if (!eth_get_dev()) {
 		/* No eth device active, don't expose any */
@@ -252,6 +279,26 @@ int efi_net_register(void)
 
 	/* Hook net up to the device list */
 	list_add_tail(&netobj->parent.link, &efi_obj_list);
+
+	/*
+	 * Create a timer event.
+	 *
+	 * The notification function is used to check if a new network packet
+	 * has been received.
+	 */
+	r = efi_create_event(EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK,
+			     efi_network_timer_notify, NULL,
+			     &network_timer_event);
+	if (r != EFI_SUCCESS) {
+		printf("ERROR: Failed to register network event\n");
+		return r;
+	}
+	/* Network is time critical, create event in every timer cyle */
+	r = efi_set_timer(network_timer_event, EFI_TIMER_PERIODIC, 0);
+	if (r != EFI_SUCCESS) {
+		printf("ERROR: Failed to set network timer\n");
+		return r;
+	}
 
 	return 0;
 }
