@@ -156,7 +156,11 @@ matrix:
         - JOB="i.MX (non-Freescale, non-i.MX6)"
           BUILDMAN="mx -x freescale,mx6,toradex"
     - env:
+        - BUILDMAN="k2"
+    - env:
         - BUILDMAN="samsung"
+    - env:
+        - BUILDMAN="socfpga"
     - env:
         - BUILDMAN="sun4i"
     - env:
@@ -173,7 +177,7 @@ matrix:
         - BUILDMAN="sun50i"
     - env:
         - JOB="Catch-all ARM"
-          BUILDMAN="arm -x arm11,arm7,arm9,aarch64,atmel,aries,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap3,omap4,omap5,pxa,rockchip,toradex"
+          BUILDMAN="arm -x arm11,arm7,arm9,aarch64,atmel,aries,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap3,omap4,omap5,pxa,rockchip,toradex,socfpga,k2,xilinx"
     - env:
         - BUILDMAN="sandbox x86"
           TOOLCHAIN="x86_64"
@@ -190,7 +194,8 @@ matrix:
         - BUILDMAN="m68k"
           TOOLCHAIN="m68k"
     - env:
-        - BUILDMAN="microblaze"
+        - JOB="Xilinx (ARM and MicroBlaze)"
+          BUILDMAN="xilinx"
           TOOLCHAIN="microblaze"
     - env:
         - BUILDMAN="mips"
