@@ -138,6 +138,12 @@ matrix:
     - env:
         - BUILDMAN="aries"
     - env:
+        - JOB="Boundary Devices"
+          BUILDMAN="boundary"
+    - env:
+        - JOB="engicam"
+          BUILDMAN="engicam"
+    - env:
         - JOB="Freescale ARM32"
           BUILDMAN="freescale -x powerpc,m68k,aarch64"
     - env:
@@ -145,7 +151,7 @@ matrix:
           BUILDMAN="freescale&aarch64"
     - env:
         - JOB="i.MX6 (non-Freescale)"
-          BUILDMAN="mx6 -x freescale,toradex"
+          BUILDMAN="mx6 -x freescale,toradex,boundary,engicam"
     - env:
         - JOB="i.MX (non-Freescale, non-i.MX6)"
           BUILDMAN="mx -x freescale,mx6,toradex"
