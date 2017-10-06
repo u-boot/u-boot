@@ -93,7 +93,7 @@ int btrfs_readdir(const struct btrfs_root *root, u64 dir,
 	struct btrfs_path path;
 	struct btrfs_key key, *found_key;
 	struct btrfs_dir_item *item;
-	int res;
+	int res = 0;
 
 	key.objectid = dir;
 	key.type = BTRFS_DIR_INDEX_KEY;

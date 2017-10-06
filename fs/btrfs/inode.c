@@ -324,7 +324,7 @@ u64 btrfs_file_read(const struct btrfs_root *root, u64 inr, u64 offset,
 	struct btrfs_path path;
 	struct btrfs_key key;
 	struct btrfs_file_extent_item *extent;
-	int res;
+	int res = 0;
 	u64 rd, rd_all = -1ULL;
 
 	key.objectid = inr;

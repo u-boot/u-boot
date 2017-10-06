@@ -147,7 +147,7 @@ int btrfs_read_chunk_tree(void)
 	struct btrfs_path path;
 	struct btrfs_key key, *found_key;
 	struct btrfs_chunk *chunk;
-	int res;
+	int res = 0;
 
 	key.objectid = BTRFS_FIRST_CHUNK_TREE_OBJECTID;
 	key.type = BTRFS_CHUNK_ITEM_KEY;
