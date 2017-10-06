@@ -202,7 +202,7 @@ found:
 static int part_get_info_iso(struct blk_desc *dev_desc, int part_num,
 				  disk_partition_t *info)
 {
-	return part_get_info_iso_verb(dev_desc, part_num, info, 1);
+	return part_get_info_iso_verb(dev_desc, part_num, info, 0);
 }
 
 static void part_print_iso(struct blk_desc *dev_desc)
@@ -228,7 +228,7 @@ static int part_test_iso(struct blk_desc *dev_desc)
 {
 	disk_partition_t info;
 
-	return part_get_info_iso_verb(dev_desc, 1, &info, 1);
+	return part_get_info_iso_verb(dev_desc, 1, &info, 0);
 }
 
 U_BOOT_PART_TYPE(iso) = {
