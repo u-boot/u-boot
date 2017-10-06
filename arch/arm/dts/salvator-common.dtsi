@@ -570,7 +570,10 @@
 	wp-gpios = <&gpio3 13 GPIO_ACTIVE_HIGH>;
 	bus-width = <4>;
 	sd-uhs-sdr50;
+	sd-uhs-sdr104;
 	status = "okay";
+
+	max-frequency = <208000000>;
 };
 
 &sdhi2 {
@@ -582,9 +585,12 @@
 	vmmc-supply = <&reg_3p3v>;
 	vqmmc-supply = <&reg_1p8v>;
 	bus-width = <8>;
+	mmc-ddr-1_8v;
 	mmc-hs200-1_8v;
 	non-removable;
 	status = "okay";
+
+	max-frequency = <200000000>;
 };
 
 &sdhi3 {
@@ -598,7 +604,10 @@
 	wp-gpios = <&gpio4 16 GPIO_ACTIVE_HIGH>;
 	bus-width = <4>;
 	sd-uhs-sdr50;
+	sd-uhs-sdr104;
 	status = "okay";
+
+	max-frequency = <208000000>;
 };
 
 &ssi1 {
