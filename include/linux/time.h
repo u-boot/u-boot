@@ -93,11 +93,6 @@ _DEFUN (localtime_r, (tim_p, res),
 	rem += SECSPERDAY;
 	--days;
     }
-    while (rem >= SECSPERDAY)
-    {
-	rem -= SECSPERDAY;
-	++days;
-    }
 
     /* compute hour, min, and sec */
     res->tm_hour = (int) (rem / SECSPERHOUR);
