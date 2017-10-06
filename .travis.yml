@@ -145,10 +145,10 @@ matrix:
           BUILDMAN="freescale&aarch64"
     - env:
         - JOB="i.MX6 (non-Freescale)"
-          BUILDMAN="mx6 -x freescale"
+          BUILDMAN="mx6 -x freescale,toradex"
     - env:
         - JOB="i.MX (non-Freescale, non-i.MX6)"
-          BUILDMAN="mx -x freescale,mx6"
+          BUILDMAN="mx -x freescale,mx6,toradex"
     - env:
         - BUILDMAN="samsung"
     - env:
@@ -167,16 +167,19 @@ matrix:
         - BUILDMAN="sun50i"
     - env:
         - JOB="Catch-all ARM"
-          BUILDMAN="arm -x arm11,arm7,arm9,aarch64,atmel,aries,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap3,omap4,omap5,pxa,rockchip"
+          BUILDMAN="arm -x arm11,arm7,arm9,aarch64,atmel,aries,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap3,omap4,omap5,pxa,rockchip,toradex"
     - env:
         - BUILDMAN="sandbox x86"
           TOOLCHAIN="x86_64"
+    - env:
+        - BUILDMAN="toradex"
     - env:
         - BUILDMAN="kirkwood"
     - env:
         - BUILDMAN="mvebu"
     - env:
-        - BUILDMAN="pxa"
+        - JOB="PXA"
+        - BUILDMAN="pxa -x toradex"
     - env:
         - BUILDMAN="m68k"
           TOOLCHAIN="m68k"
@@ -207,7 +210,8 @@ matrix:
     - env:
         - BUILDMAN="siemens"
     - env:
-        - BUILDMAN="tegra"
+        - JOB="tegra"
+          BUILDMAN="tegra -x toradex"
     - env:
         - JOB="am33xx"
           BUILDMAN="am33xx -x siemens"
@@ -220,7 +224,8 @@ matrix:
     - env:
         - BUILDMAN="uniphier"
     - env:
-        - BUILDMAN="aarch64 -x tegra,freescale,mvebu,uniphier,sunxi,samsung,rockchip"
+        - JOB="aarch64"
+          BUILDMAN="aarch64 -x tegra,freescale,mvebu,uniphier,sunxi,samsung,rockchip"
     - env:
         - BUILDMAN="rockchip"
     - env:
