@@ -17,7 +17,7 @@ int efi_st_memcmp(const void *buf1, const void *buf2, size_t length)
 
 	for (; length; --length) {
 		if (*pos1 != *pos2)
-			return pos1 - pos2;
+			return *pos1 - *pos2;
 		++pos1;
 		++pos2;
 	}
