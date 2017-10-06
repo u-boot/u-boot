@@ -210,7 +210,6 @@ static inline const char *skip_current_directories(const char *cur)
 	return cur;
 }
 
-/* inode.c, musi vratit aj root stromu kde sa inoda najde */
 u64 btrfs_lookup_path(struct btrfs_root *root, u64 inr, const char *path,
 		      u8 *type_p, struct btrfs_inode_item *inode_item_p,
 		      int symlink_limit)
