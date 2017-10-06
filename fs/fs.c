@@ -233,6 +233,7 @@ static struct fstype_info fstypes[] = {
 		.read = btrfs_read,
 		.write = fs_write_unsupported,
 		.uuid = btrfs_uuid,
+		.opendir = fs_opendir_unsupported,
 	},
 #endif
 	{
