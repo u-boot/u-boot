@@ -58,7 +58,8 @@
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"	\
 	"addmisc=setenv bootargs ${bootargs} "			\
 		"intel-spi.writeable=1 vmalloc=300M "		\
-		"pci=realloc=on,hpmemsize=0x12000000\0"		\
+		"pci=realloc=on,hpmemsize=0x12000000,"		\
+		"hpmemprefsize=0,hpiosize=0\0"	    		\
 	"bootcmd=if env exists recovery_status;"		\
 		"then run swupdate;"				\
 		"else run yocto_boot;run swupdate;"		\
