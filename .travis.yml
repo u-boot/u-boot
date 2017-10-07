@@ -194,8 +194,7 @@ matrix:
         - BUILDMAN="m68k"
           TOOLCHAIN="m68k"
     - env:
-        - JOB="Xilinx (ARM and MicroBlaze)"
-          BUILDMAN="xilinx"
+        - BUILDMAN="microblaze"
           TOOLCHAIN="microblaze"
     - env:
         - BUILDMAN="mips"
@@ -242,6 +241,9 @@ matrix:
     - env:
         - BUILDMAN="sh4"
           TOOLCHAIN="sh4"
+    - env:
+        - JOB="Xilinx (ARM)"
+          BUILDMAN="xilinx -x microblaze"
     - env:
         - BUILDMAN="xtensa"
           TOOLCHAIN="xtensa"
