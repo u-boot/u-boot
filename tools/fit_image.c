@@ -537,21 +537,21 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 		fprintf(stderr, "%s: Failed to allocate memory (%d bytes)\n",
 			__func__, size);
 		ret = -ENOMEM;
-		goto err;
+		goto err_has_fd;
 	}
 	ret = fdt_open_into(old_fdt, fdt, size);
 	if (ret) {
 		debug("%s: Failed to expand FIT: %s\n", __func__,
 		      fdt_strerror(errno));
 		ret = -EINVAL;
-		goto err;
+		goto err_has_fd;
 	}
 
 	images = fdt_path_offset(fdt, FIT_IMAGES_PATH);
 	if (images < 0) {
 		debug("%s: Cannot find /images node: %d\n", __func__, images);
 		ret = -EINVAL;
-		goto err;
+		goto err_has_fd;
 	}
 
 	for (node = fdt_first_subnode(fdt, images);
@@ -572,11 +572,11 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 			debug("%s: Failed to write property: %s\n", __func__,
 			      fdt_strerror(ret));
 			ret = -EINVAL;
-			goto err;
+			goto err_has_fd;
 		}
 	}
 
-	munmap(old_fdt, sbuf.st_size);
+	/* Close the old fd so we can re-use it. */
 	close(fd);
 
 	/* Pack the FDT and place the data after it */
@@ -589,22 +589,23 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 	if (fd < 0) {
 		fprintf(stderr, "%s: Can't open %s: %s\n",
 			params->cmdname, fname, strerror(errno));
-		free(fdt);
-		return -EIO;
+		ret = -EIO;
+		goto err_no_fd;
 	}
 	if (write(fd, fdt, new_size) != new_size) {
 		debug("%s: Failed to write external data to file %s\n",
 		      __func__, strerror(errno));
 		ret = -EIO;
-		goto err;
+		goto err_has_fd;
 	}
 
 	ret = 0;
 
-err:
+err_has_fd:
+	close(fd);
+err_no_fd:
 	munmap(old_fdt, sbuf.st_size);
 	free(fdt);
-	close(fd);
 	return ret;
 }
 

@@ -393,7 +393,7 @@ int do_env_ask(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		sprintf(message, "Please enter '%s': ", argv[1]);
 	} else {
 		/* env_ask envname message1 ... messagen [size] */
-		for (i = 2, pos = 0; i < argc && pos < sizeof(message); i++) {
+		for (i = 2, pos = 0; i < argc && pos+1 < sizeof(message); i++) {
 			if (pos)
 				message[pos++] = ' ';
 

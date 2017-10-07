@@ -402,7 +402,7 @@ static int set_gpt_info(struct blk_desc *dev_desc,
 	if (!val) {
 #ifdef CONFIG_RANDOM_UUID
 		*str_disk_guid = malloc(UUID_STR_LEN + 1);
-		if (str_disk_guid == NULL)
+		if (*str_disk_guid == NULL)
 			return -ENOMEM;
 		gen_rand_uuid_str(*str_disk_guid, UUID_STR_FORMAT_STD);
 #else
