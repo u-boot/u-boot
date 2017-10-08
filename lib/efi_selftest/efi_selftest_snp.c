@@ -198,7 +198,7 @@ static int setup(const efi_handle_t handle,
 	 */
 	ret = boottime->set_timer(timer, EFI_TIMER_PERIODIC, 10000000);
 	if (ret != EFI_SUCCESS) {
-		efi_st_error("Failed to locate simple network protocol\n");
+		efi_st_error("Failed to set timer\n");
 		return EFI_ST_FAILURE;
 	}
 	/*
@@ -206,6 +206,7 @@ static int setup(const efi_handle_t handle,
 	 */
 	ret = boottime->locate_protocol(&efi_net_guid, NULL, (void **)&net);
 	if (ret != EFI_SUCCESS) {
+		net = NULL;
 		efi_st_error("Failed to locate simple network protocol\n");
 		return EFI_ST_FAILURE;
 	}
@@ -272,6 +273,12 @@ static int execute(void)
 	 * The timeout is to occur after 10 s.
 	 */
 	unsigned int timeout = 10;
+
+	/* Setup may have failed */
+	if (!net || !timer) {
+		efi_st_error("Cannot execute test after setup failure\n");
+		return EFI_ST_FAILURE;
+	}
 
 	/*
 	 * Send DHCP discover message
