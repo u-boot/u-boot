@@ -10,7 +10,6 @@ CONFIG_BOOTARGS="console=ttyAMA0,115200n8 root=/dev/sda2 rw rootwait earlyprintk
 # CONFIG_DISPLAY_BOARDINFO is not set
 CONFIG_SYS_PROMPT="VExpress64# "
 # CONFIG_CMD_CONSOLE is not set
-# CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_XIMG is not set
 # CONFIG_CMD_EDITENV is not set
 # CONFIG_CMD_ENV_EXISTS is not set

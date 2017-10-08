@@ -7,7 +7,6 @@ CONFIG_BOOTARGS="root=/dev/nfs rw nfsroot=192.168.1.1:/tftpboot/192.168.1.2  ip=
 # CONFIG_DISPLAY_BOARDINFO is not set
 CONFIG_HUSH_PARSER=y
 CONFIG_SYS_PROMPT="-> "
-# CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set

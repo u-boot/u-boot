@@ -266,7 +266,6 @@ config CMD_IMI
 
 config CMD_IMLS
 	bool "imls"
-	default y
 	help
 	  List all images found in flash
 

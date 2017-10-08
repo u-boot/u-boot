@@ -11,7 +11,6 @@ CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyS0,115200 root=/dev/ram0 earlycon=uart8250,mmio,0x21c0500 mtdparts=spi0.0:1m(uboot),5m(kernel),1m(dtb),9m(file_system)"
 CONFIG_HUSH_PARSER=y
 CONFIG_CMD_BOOTZ=y
-# CONFIG_CMD_IMLS is not set
 CONFIG_CMD_GREPENV=y
 CONFIG_CMD_MEMINFO=y
 CONFIG_CMD_MEMTEST=y

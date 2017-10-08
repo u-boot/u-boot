@@ -13,7 +13,6 @@ CONFIG_SYS_PROMPT="ap143 # "
 # CONFIG_CMD_BDI is not set
 # CONFIG_CMD_CONSOLE is not set
 # CONFIG_CMD_ELF is not set
-# CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_XIMG is not set
 # CONFIG_CMD_EXPORTENV is not set
 # CONFIG_CMD_IMPORTENV is not set

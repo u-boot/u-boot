@@ -15,7 +15,6 @@ CONFIG_CMD_CPU=y
 CONFIG_CMD_LICENSE=y
 # CONFIG_CMD_BOOTD is not set
 # CONFIG_CMD_ELF is not set
-# CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_XIMG is not set
 # CONFIG_CMD_EXPORTENV is not set
 # CONFIG_CMD_IMPORTENV is not set

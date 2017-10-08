@@ -6,6 +6,7 @@ CONFIG_BOOTDELAY=1
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="root=/dev/mtdblock1 rw rootfstype=jffs2 ip=none mtdparts=physmap-flash.0:2M(kernel)ro,-(jffs2)"
 CONFIG_SYS_PROMPT="-> "
+CONFIG_CMD_IMLS=y
 CONFIG_CMD_I2C=y
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set

@@ -14,7 +14,6 @@ CONFIG_BOOTARGS="console=ttyS0,57600 earlyprintk mtdparts=atmel_nand:6M(bootstra
 # CONFIG_DISPLAY_BOARDINFO is not set
 CONFIG_SPL=y
 # CONFIG_CMD_IMI is not set
-# CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_FPGA is not set
 # CONFIG_CMD_LOADS is not set

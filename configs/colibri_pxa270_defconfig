@@ -5,7 +5,6 @@ CONFIG_BOOTARGS="console=tty0 console=ttyS0,115200"
 # CONFIG_DISPLAY_BOARDINFO is not set
 CONFIG_SYS_PROMPT="$ "
 # CONFIG_CMD_ELF is not set
-# CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_EXPORTENV is not set
 # CONFIG_CMD_IMPORTENV is not set
 # CONFIG_CMD_FPGA is not set

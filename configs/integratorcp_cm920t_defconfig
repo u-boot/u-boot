@@ -8,6 +8,7 @@ CONFIG_BOOTARGS="root=/dev/mtdblock0 console=ttyAMA0 console=tty ip=dhcp netdev=
 # CONFIG_DISPLAY_BOARDINFO is not set
 CONFIG_HUSH_PARSER=y
 CONFIG_SYS_PROMPT="Integrator-CP # "
+CONFIG_CMD_IMLS=y
 CONFIG_CMD_ARMFLASH=y
 # CONFIG_CMD_SETEXPR is not set
 # CONFIG_MMC is not set

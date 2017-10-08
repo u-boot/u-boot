@@ -8,6 +8,7 @@ CONFIG_SYS_PROMPT="$ "
 # CONFIG_CMD_BDI is not set
 # CONFIG_CMD_CONSOLE is not set
 # CONFIG_CMD_ELF is not set
+CONFIG_CMD_IMLS=y
 # CONFIG_CMD_CRC32 is not set
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set

@@ -8,7 +8,6 @@ CONFIG_BOOTARGS="console=ttySC0,38400"
 # CONFIG_CMD_BOOTD is not set
 # CONFIG_CMD_RUN is not set
 # CONFIG_CMD_IMI is not set
-# CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_XIMG is not set
 # CONFIG_CMD_EDITENV is not set
 # CONFIG_CMD_ENV_EXISTS is not set

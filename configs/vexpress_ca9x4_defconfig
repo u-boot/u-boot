@@ -5,7 +5,6 @@ CONFIG_DISTRO_DEFAULTS=y
 # CONFIG_DISPLAY_BOARDINFO is not set
 # CONFIG_CMD_CONSOLE is not set
 # CONFIG_CMD_BOOTD is not set
-# CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_XIMG is not set
 # CONFIG_CMD_EDITENV is not set
 # CONFIG_CMD_ENV_EXISTS is not set

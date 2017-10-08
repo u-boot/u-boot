@@ -14,7 +14,6 @@ CONFIG_SYS_CONSOLE_IS_IN_ENV=y
 CONFIG_SYS_PROMPT="U-Boot> "
 # CONFIG_CMD_BDI is not set
 # CONFIG_CMD_IMI is not set
-# CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_FPGA is not set
 # CONFIG_CMD_LOADS is not set
 CONFIG_CMD_NAND=y

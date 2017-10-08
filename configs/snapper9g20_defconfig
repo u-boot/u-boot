@@ -10,7 +10,6 @@ CONFIG_BOOTARGS="console=ttyS0,115200 ip=any"
 CONFIG_HUSH_PARSER=y
 # CONFIG_CMD_BDI is not set
 # CONFIG_CMD_IMI is not set
-# CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_FPGA is not set
 CONFIG_CMD_GPIO=y
