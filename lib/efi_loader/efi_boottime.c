@@ -1154,7 +1154,8 @@ void efi_setup_loaded_image(struct efi_loaded_image *info, struct efi_object *ob
 		(void *)&efi_device_path_to_text;
 
 	info->file_path = file_path;
-	info->device_handle = efi_dp_find_obj(device_path, NULL);
+	if (device_path)
+		info->device_handle = efi_dp_find_obj(device_path, NULL);
 
 	list_add_tail(&obj->link, &efi_obj_list);
 }
