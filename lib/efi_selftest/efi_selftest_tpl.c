@@ -26,7 +26,8 @@ static void EFIAPI notify(struct efi_event *event, void *context)
 {
 	unsigned int *count = context;
 
-	++*count;
+	if (count)
+		++*count;
 }
 
 /*
