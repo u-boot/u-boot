@@ -340,6 +340,8 @@ int efi_disk_register(void)
 		for (i = 0; i < 4; i++) {
 			struct blk_desc *desc;
 			char devname[32] = { 0 }; /* dp->str is u16[32] long */
+			disk_partition_t info;
+			int part = 1;
 
 			desc = blk_get_devnum_by_type(if_type, i);
 			if (!desc)
@@ -349,6 +351,15 @@ int efi_disk_register(void)
 
 			snprintf(devname, sizeof(devname), "%s%d",
 				 if_typename, i);
+
+			/* add devices for each partition: */
+			while (!part_get_info(desc, part, &info)) {
+				efi_disk_add_dev(devname, if_typename, desc,
+						 i, 0, part);
+				part++;
+			}
+
+			/* ... and add block device: */
 			efi_disk_add_dev(devname, if_typename, desc, i, 0, 0);
 			disks++;
 
