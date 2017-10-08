@@ -21,6 +21,11 @@ choice
 	prompt "Renesus ARM64 SoCs board select"
 	optional
 
+config TARGET_DRAAK
+	bool "Draak board"
+	help
+          Support for Renesas R-Car Gen3 Draak platform
+
 config TARGET_EAGLE
 	bool "Eagle board"
 	help
@@ -41,6 +46,7 @@ endchoice
 config SYS_SOC
 	default "rmobile"
 
+source "board/renesas/draak/Kconfig"
 source "board/renesas/eagle/Kconfig"
 source "board/renesas/salvator-x/Kconfig"
 source "board/renesas/ulcb/Kconfig"
