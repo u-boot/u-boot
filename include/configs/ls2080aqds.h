@@ -16,7 +16,6 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #ifdef CONFIG_FSL_QSPI
-#undef CONFIG_CMD_IMLS
 #define CONFIG_QIXIS_I2C_ACCESS
 #define CONFIG_SYS_I2C_EARLY_INIT
 #define CONFIG_SYS_I2C_IFDR_DIV		0x7e

@@ -35,7 +35,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_QIXIS_I2C_ACCESS
 #define SYS_NO_FLASH
 
-#undef CONFIG_CMD_IMLS
 #define CONFIG_SYS_CLK_FREQ		100000000
 #define CONFIG_DDR_CLK_FREQ		100000000
 #else

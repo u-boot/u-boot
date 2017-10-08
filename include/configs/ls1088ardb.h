@@ -26,7 +26,6 @@
 #if defined(CONFIG_QSPI_BOOT)
 #define CONFIG_QIXIS_I2C_ACCESS
 #define SYS_NO_FLASH
-#undef CONFIG_CMD_IMLS
 #endif
 
 #define CONFIG_SYS_CLK_FREQ		100000000
