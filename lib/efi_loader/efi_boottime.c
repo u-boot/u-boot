@@ -611,6 +611,7 @@ out:
  * notification function for execution.
  *
  * @event	event to signal
+ * @return	status code
  */
 static efi_status_t EFIAPI efi_signal_event_ext(struct efi_event *event)
 {
@@ -1120,7 +1121,7 @@ static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
  * Initialize a loaded_image_info + loaded_image_info object with correct
  * protocols, boot-device, etc.
  *
- * @info		loaded image info to be passed to the enty point of the
+ * @info		loaded image info to be passed to the entry point of the
  *			image
  * @obj			internal object associated with the loaded image
  * @device_path		device path of the loaded image
@@ -1165,6 +1166,7 @@ void efi_setup_loaded_image(struct efi_loaded_image *info, struct efi_object *ob
  *
  * @file_path		the path of the image to load
  * @buffer		buffer containing the loaded image
+ * @return		status code
  */
 efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
 				      void **buffer)
@@ -1286,6 +1288,7 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
  * @image_handle	handle of the image
  * @exit_data_size	size of the buffer
  * @exit_data		buffer to receive the exit data of the called image
+ * @return		status code
  */
 static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 					   unsigned long *exit_data_size,
@@ -1326,6 +1329,7 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
  * @exit_status		status code
  * @exit_data_size	size of the buffer in bytes
  * @exit_data		buffer with data describing an error
+ * @return		status code
  */
 static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 			efi_status_t exit_status, unsigned long exit_data_size,
@@ -1500,6 +1504,7 @@ static efi_status_t EFIAPI efi_stall(unsigned long microseconds)
  * @watchdog_code	code to be logged when resetting
  * @data_size		size of buffer in bytes
  * @watchdog_data	buffer with data describing the reset reason
+ * @return		status code
  */
 static efi_status_t EFIAPI efi_set_watchdog_timer(unsigned long timeout,
 						  uint64_t watchdog_code,
@@ -1612,6 +1617,7 @@ static efi_status_t EFIAPI efi_open_protocol_information(efi_handle_t handle,
  * @handle			handle for which the information is retrieved
  * @protocol_buffer		buffer with protocol GUIDs
  * @protocol_buffer_count	number of entries in the buffer
+ * @return			status code
  */
 static efi_status_t EFIAPI efi_protocols_per_handle(void *handle,
 			efi_guid_t ***protocol_buffer,
@@ -1723,6 +1729,7 @@ out:
  * @protocol		GUID of the protocol
  * @registration	registration key passed to the notification function
  * @protocol_interface	interface implementing the protocol
+ * @return		status code
  */
 static efi_status_t EFIAPI efi_locate_protocol(const efi_guid_t *protocol,
 					       void *registration,
