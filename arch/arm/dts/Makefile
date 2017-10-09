@@ -393,7 +393,8 @@ dtb-$(CONFIG_RCAR_GEN3) += \
 	r8a7795-h3ulcb.dtb \
 	r8a7795-salvator-x.dtb \
 	r8a7796-m3ulcb.dtb \
-	r8a7796-salvator-x.dtb
+	r8a7796-salvator-x.dtb \
+	r8a77970-eagle.dtb
 
 dtb-$(CONFIG_SOC_KEYSTONE) += keystone-k2hk-evm.dtb \
 	keystone-k2l-evm.dtb \
