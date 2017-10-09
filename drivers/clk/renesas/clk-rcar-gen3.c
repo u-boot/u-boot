@@ -1,5 +1,5 @@
 /*
- * Renesas RCar Gen3 R8A7795/R8A7796 CPG MSSR driver
+ * Renesas RCar Gen3 CPG MSSR driver
  *
  * Copyright (C) 2017 Marek Vasut <marek.vasut@gmail.com>
  *
@@ -20,6 +20,7 @@
 
 #include <dt-bindings/clock/r8a7795-cpg-mssr.h>
 #include <dt-bindings/clock/r8a7796-cpg-mssr.h>
+#include <dt-bindings/clock/r8a77970-cpg-mssr.h>
 
 #define CPG_RST_MODEMR		0x0060
 
@@ -154,6 +155,7 @@ enum rcar_gen3_clk_types {
 	CLK_TYPE_GEN3_SD,
 	CLK_TYPE_GEN3_RPC,
 	CLK_TYPE_GEN3_R,
+	CLK_TYPE_GEN3_Z2,
 };
 
 struct rcar_gen3_cpg_pll_config {
@@ -595,6 +597,97 @@ static const struct mssr_mod_clk r8a7796_mod_clks[] = {
 	DEF_MOD("scu-src0",		1031,	MOD_CLK_ID(1017)),
 };
 
+static const struct cpg_core_clk r8a77970_core_clks[] = {
+	/* External Clock Inputs */
+	DEF_INPUT("extal",  CLK_EXTAL),
+	DEF_INPUT("extalr", CLK_EXTALR),
+
+	/* Internal Core Clocks */
+	DEF_BASE(".main",       CLK_MAIN, CLK_TYPE_GEN3_MAIN, CLK_EXTAL),
+	DEF_BASE(".pll0",       CLK_PLL0, CLK_TYPE_GEN3_PLL0, CLK_MAIN),
+	DEF_BASE(".pll1",       CLK_PLL1, CLK_TYPE_GEN3_PLL1, CLK_MAIN),
+	DEF_BASE(".pll3",       CLK_PLL3, CLK_TYPE_GEN3_PLL3, CLK_MAIN),
+
+	DEF_FIXED(".pll1_div2", CLK_PLL1_DIV2,     CLK_PLL1,       2, 1),
+	DEF_FIXED(".pll1_div4", CLK_PLL1_DIV4,     CLK_PLL1_DIV2,  2, 1),
+	DEF_FIXED(".s1",        CLK_S1,            CLK_PLL1_DIV2,  4, 1),
+	DEF_FIXED(".s2",        CLK_S2,            CLK_PLL1_DIV2,  6, 1),
+	DEF_FIXED(".rpcsrc",    CLK_RPCSRC,        CLK_PLL1,       2, 1),
+
+	/* Core Clock Outputs */
+	DEF_BASE("z2",          R8A77970_CLK_Z2,    CLK_TYPE_GEN3_Z2, CLK_PLL1_DIV4),
+	DEF_FIXED("ztr",        R8A77970_CLK_ZTR,   CLK_PLL1_DIV2,  6, 1),
+	DEF_FIXED("ztrd2",      R8A77970_CLK_ZTRD2, CLK_PLL1_DIV2, 12, 1),
+	DEF_FIXED("zt",         R8A77970_CLK_ZT,    CLK_PLL1_DIV2,  4, 1),
+	DEF_FIXED("zx",         R8A77970_CLK_ZX,    CLK_PLL1_DIV2,  3, 1),
+	DEF_FIXED("s1d1",       R8A77970_CLK_S1D1,  CLK_S1,         1, 1),
+	DEF_FIXED("s1d2",       R8A77970_CLK_S1D2,  CLK_S1,         2, 1),
+	DEF_FIXED("s1d4",       R8A77970_CLK_S1D4,  CLK_S1,         4, 1),
+	DEF_FIXED("s2d1",       R8A77970_CLK_S2D1,  CLK_S2,         1, 1),
+	DEF_FIXED("s2d2",       R8A77970_CLK_S2D2,  CLK_S2,         2, 1),
+	DEF_FIXED("s2d4",       R8A77970_CLK_S2D4,  CLK_S2,         4, 1),
+
+	DEF_GEN3_SD("sd0",      R8A77970_CLK_SD0,   CLK_PLL1_DIV4, 0x0074),
+
+	DEF_GEN3_RPC("rpc",     R8A77970_CLK_RPC,   CLK_RPCSRC,    0x238),
+
+	DEF_FIXED("cl",         R8A77970_CLK_CL,    CLK_PLL1_DIV2, 48, 1),
+	DEF_FIXED("cp",         R8A77970_CLK_CP,    CLK_EXTAL,      2, 1),
+
+	/* NOTE: HDMI, CSI, CAN etc. clock are missing */
+
+	DEF_BASE("r",           R8A77970_CLK_R, CLK_TYPE_GEN3_R, CLK_RINT),
+};
+
+static const struct mssr_mod_clk r8a77970_mod_clks[] = {
+	DEF_MOD("ivcp1e",		 127,	R8A77970_CLK_S2D1),
+	DEF_MOD("scif4",		 203,	R8A77970_CLK_S2D4),	/* @@ H3=S3D4 */
+	DEF_MOD("scif3",		 204,	R8A77970_CLK_S2D4),	/* @@ H3=S3D4 */
+	DEF_MOD("scif1",		 206,	R8A77970_CLK_S2D4),	/* @@ H3=S3D4 */
+	DEF_MOD("scif0",		 207,	R8A77970_CLK_S2D4),	/* @@ H3=S3D4 */
+	DEF_MOD("msiof3",		 208,	R8A77970_CLK_MSO),
+	DEF_MOD("msiof2",		 209,	R8A77970_CLK_MSO),
+	DEF_MOD("msiof1",		 210,	R8A77970_CLK_MSO),
+	DEF_MOD("msiof0",		 211,	R8A77970_CLK_MSO),
+	DEF_MOD("mfis",			 213,	R8A77970_CLK_S2D2),	/* @@ H3=S3D2 */
+	DEF_MOD("sys-dmac2",	 217,	R8A77970_CLK_S2D1),	/* @@ H3=S3D1 */
+	DEF_MOD("sys-dmac1",	 218,	R8A77970_CLK_S2D1),	/* @@ H3=S3D1 */
+	DEF_MOD("sdif",			 314,	R8A77970_CLK_SD0),
+	DEF_MOD("rwdt0",		 402,	R8A77970_CLK_R),
+	DEF_MOD("intc-ex",		 407,	R8A77970_CLK_CP),
+	DEF_MOD("intc-ap",		 408,	R8A77970_CLK_S2D1),	/* @@ H3=S3D1 */
+	DEF_MOD("hscif3",		 517,	R8A77970_CLK_S2D1),	/* @@ H3=S3D1 */
+	DEF_MOD("hscif2",		 518,	R8A77970_CLK_S2D1),	/* @@ H3=S3D1 */
+	DEF_MOD("hscif1",		 519,	R8A77970_CLK_S2D1),	/* @@ H3=S3D1 */
+	DEF_MOD("hscif0",		 520,	R8A77970_CLK_S2D1),	/* @@ H3=S3D1 */
+	DEF_MOD("thermal",		 522,	R8A77970_CLK_CP),
+	DEF_MOD("pwm",			 523,	R8A77970_CLK_S2D4),
+	DEF_MOD("fcpvd0",		 603,	R8A77970_CLK_S2D1),
+	DEF_MOD("vspd0",		 623,	R8A77970_CLK_S2D1),
+	DEF_MOD("csi40",		 716,	R8A77970_CLK_CSI0),
+	DEF_MOD("du0",			 724,	R8A77970_CLK_S2D1),
+	DEF_MOD("lvds",			 727,	R8A77970_CLK_S2D1),
+	DEF_MOD("vin3",			 808,	R8A77970_CLK_S2D1),
+	DEF_MOD("vin2",			 809,	R8A77970_CLK_S2D1),
+	DEF_MOD("vin1",			 810,	R8A77970_CLK_S2D1),
+	DEF_MOD("vin0",			 811,	R8A77970_CLK_S2D1),
+	DEF_MOD("etheravb",		 812,	R8A77970_CLK_S2D2),
+	DEF_MOD("isp",			 817,	R8A77970_CLK_S2D1),
+	DEF_MOD("gpio5",		 907,	R8A77970_CLK_CP),
+	DEF_MOD("gpio4",		 908,	R8A77970_CLK_CP),
+	DEF_MOD("gpio3",		 909,	R8A77970_CLK_CP),
+	DEF_MOD("gpio2",		 910,	R8A77970_CLK_CP),
+	DEF_MOD("gpio1",		 911,	R8A77970_CLK_CP),
+	DEF_MOD("gpio0",		 912,	R8A77970_CLK_CP),
+	DEF_MOD("can-fd",		 914,	R8A77970_CLK_S2D2),
+	DEF_MOD("rpc",			 917,	R8A77970_CLK_RPC),
+	DEF_MOD("i2c4",			 927,	R8A77970_CLK_S2D2),
+	DEF_MOD("i2c3",			 928,	R8A77970_CLK_S2D2),
+	DEF_MOD("i2c2",			 929,	R8A77970_CLK_S2D2),
+	DEF_MOD("i2c1",			 930,	R8A77970_CLK_S2D2),
+	DEF_MOD("i2c0",			 931,	R8A77970_CLK_S2D2),
+};
+
 /*
  * CPG Clock Data
  */
@@ -1015,6 +1108,7 @@ static const struct clk_ops gen3_clk_ops = {
 enum gen3_clk_model {
 	CLK_R8A7795,
 	CLK_R8A7796,
+	CLK_R8A77970,
 };
 
 static int gen3_clk_probe(struct udevice *dev)
@@ -1047,6 +1141,16 @@ static int gen3_clk_probe(struct udevice *dev)
 		priv->mod_clk_size = ARRAY_SIZE(r8a7796_mod_clks);
 		ret = fdt_node_offset_by_compatible(gd->fdt_blob, -1,
 						    "renesas,r8a7796-rst");
+		if (ret < 0)
+			return ret;
+		break;
+	case CLK_R8A77970:
+		priv->core_clk = r8a77970_core_clks;
+		priv->core_clk_size = ARRAY_SIZE(r8a77970_core_clks);
+		priv->mod_clk = r8a77970_mod_clks;
+		priv->mod_clk_size = ARRAY_SIZE(r8a77970_mod_clks);
+		ret = fdt_node_offset_by_compatible(gd->fdt_blob, -1,
+						    "renesas,r8a77970-rst");
 		if (ret < 0)
 			return ret;
 		break;
@@ -1098,6 +1202,15 @@ static struct mstp_stop_table r8a7796_mstp_table[] = {
 	{ 0xFFFEFFE0, 0x0 },	{ 0x000000B7, 0x0 },
 };
 
+static struct mstp_stop_table r8a77970_mstp_table[] = {
+	{ 0x00230000, 0x0 },	{ 0xFFFFFFFF, 0x0 },
+	{ 0x14062FD8, 0x2040 },	{ 0xFFFFFFDF, 0x400 },
+	{ 0x80000184, 0x180 },	{ 0x83FFFFFF, 0x0 },
+	{ 0xFFFFFFFF, 0x0 },	{ 0xFFFFFFFF, 0x0 },
+	{ 0x7FF3FFF4, 0x0 },	{ 0xFBF7FF97, 0x0 },
+	{ 0xFFFEFFE0, 0x0 },	{ 0x000000B7, 0x0 },
+};
+
 #define TSTR0		0x04
 #define TSTR0_STR0	BIT(0)
 
@@ -1116,6 +1229,10 @@ static int gen3_clk_remove(struct udevice *dev)
 	case CLK_R8A7796:
 		tbl = r8a7796_mstp_table;
 		tbl_size = ARRAY_SIZE(r8a7796_mstp_table);
+		break;
+	case CLK_R8A77970:
+		tbl = r8a77970_mstp_table;
+		tbl_size = ARRAY_SIZE(r8a77970_mstp_table);
 		break;
 	default:
 		return -EINVAL;
@@ -1136,6 +1253,7 @@ static int gen3_clk_remove(struct udevice *dev)
 static const struct udevice_id gen3_clk_ids[] = {
 	{ .compatible = "renesas,r8a7795-cpg-mssr", .data = CLK_R8A7795 },
 	{ .compatible = "renesas,r8a7796-cpg-mssr", .data = CLK_R8A7796 },
+	{ .compatible = "renesas,r8a77970-cpg-mssr", .data = CLK_R8A77970 },
 	{ }
 };
 
