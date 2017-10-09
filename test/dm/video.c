@@ -100,6 +100,14 @@ static int select_vidconsole(struct unit_test_state *uts, const char *drv_name)
 	return 0;
 }
 
+static void vidconsole_put_string(struct udevice *dev, const char *str)
+{
+	const char *s;
+
+	for (s = str; *s; s++)
+		vidconsole_put_char(dev, *s);
+}
+
 /* Test text output works on the video console */
 static int dm_test_video_text(struct unit_test_state *uts)
 {
@@ -140,18 +148,50 @@ static int dm_test_video_chars(struct unit_test_state *uts)
 {
 	struct udevice *dev, *con;
 	const char *test_string = "Well\b\b\b\bxhe is\r \n\ta very \amodest  \bman\n\t\tand Has much to\b\bto be modest about.";
-	const char *s;
 
 	ut_assertok(select_vidconsole(uts, "vidconsole0"));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
-	for (s = test_string; *s; s++)
-		vidconsole_put_char(con, *s);
+	vidconsole_put_string(con, test_string);
 	ut_asserteq(466, compress_frame_buffer(dev));
 
 	return 0;
 }
 DM_TEST(dm_test_video_chars, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+#ifdef CONFIG_VIDEO_ANSI
+#define ANSI_ESC "\x1b"
+/* Test handling of ANSI escape sequences */
+static int dm_test_video_ansi(struct unit_test_state *uts)
+{
+	struct udevice *dev, *con;
+
+	ut_assertok(select_vidconsole(uts, "vidconsole0"));
+	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
+
+	/* reference clear: */
+	video_clear(con->parent);
+	video_sync(con->parent);
+	ut_asserteq(46, compress_frame_buffer(dev));
+
+	/* test clear escape sequence: [2J */
+	vidconsole_put_string(con, "A\tB\tC"ANSI_ESC"[2J");
+	ut_asserteq(46, compress_frame_buffer(dev));
+
+	/* test set-cursor: [%d;%df */
+	vidconsole_put_string(con, "abc"ANSI_ESC"[2;2fab"ANSI_ESC"[4;4fcd");
+	ut_asserteq(142, compress_frame_buffer(dev));
+
+	/* test colors (30-37 fg color, 40-47 bg color) */
+	vidconsole_put_string(con, ANSI_ESC"[30;41mfoo"); /* black on red */
+	vidconsole_put_string(con, ANSI_ESC"[33;44mbar"); /* yellow on blue */
+	ut_asserteq(268, compress_frame_buffer(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_video_ansi, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+#endif
 
 /**
  * check_vidconsole_output() - Run a text console test
@@ -294,12 +334,10 @@ static int dm_test_video_truetype(struct unit_test_state *uts)
 {
 	struct udevice *dev, *con;
 	const char *test_string = "Criticism may not be agreeable, but it is necessary. It fulfils the same function as pain in the human body. It calls attention to an unhealthy state of things. Some see private enterprise as a predatory target to be shot, others as a cow to be milked, but few are those who see it as a sturdy horse pulling the wagon. The \aprice OF\b\bof greatness\n\tis responsibility.\n\nBye";
-	const char *s;
 
 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
-	for (s = test_string; *s; s++)
-		vidconsole_put_char(con, *s);
+	vidconsole_put_string(con, test_string);
 	ut_asserteq(12619, compress_frame_buffer(dev));
 
 	return 0;
@@ -312,7 +350,6 @@ static int dm_test_video_truetype_scroll(struct unit_test_state *uts)
 	struct sandbox_sdl_plat *plat;
 	struct udevice *dev, *con;
 	const char *test_string = "Criticism may not be agreeable, but it is necessary. It fulfils the same function as pain in the human body. It calls attention to an unhealthy state of things. Some see private enterprise as a predatory target to be shot, others as a cow to be milked, but few are those who see it as a sturdy horse pulling the wagon. The \aprice OF\b\bof greatness\n\tis responsibility.\n\nBye";
-	const char *s;
 
 	ut_assertok(uclass_find_device(UCLASS_VIDEO, 0, &dev));
 	ut_assert(!device_active(dev));
@@ -321,8 +358,7 @@ static int dm_test_video_truetype_scroll(struct unit_test_state *uts)
 
 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
-	for (s = test_string; *s; s++)
-		vidconsole_put_char(con, *s);
+	vidconsole_put_string(con, test_string);
 	ut_asserteq(33849, compress_frame_buffer(dev));
 
 	return 0;
@@ -335,7 +371,6 @@ static int dm_test_video_truetype_bs(struct unit_test_state *uts)
 	struct sandbox_sdl_plat *plat;
 	struct udevice *dev, *con;
 	const char *test_string = "...Criticism may or may\b\b\b\b\b\bnot be agreeable, but seldom it is necessary\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bit is necessary. It fulfils the same function as pain in the human body. It calls attention to an unhealthy state of things.";
-	const char *s;
 
 	ut_assertok(uclass_find_device(UCLASS_VIDEO, 0, &dev));
 	ut_assert(!device_active(dev));
@@ -344,8 +379,7 @@ static int dm_test_video_truetype_bs(struct unit_test_state *uts)
 
 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
-	for (s = test_string; *s; s++)
-		vidconsole_put_char(con, *s);
+	vidconsole_put_string(con, test_string);
 	ut_asserteq(34871, compress_frame_buffer(dev));
 
 	return 0;

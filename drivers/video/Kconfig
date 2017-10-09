@@ -65,6 +65,14 @@ config VIDEO_BPP32
 	  this option, such displays will not be supported and console output
 	  will be empty.
 
+config VIDEO_ANSI
+	bool "Support ANSI escape sequences in video console"
+	depends on DM_VIDEO
+	default y if DM_VIDEO
+	help
+	  Enable ANSI escape sequence decoding for a more fully functional
+	  console.
+
 config CONSOLE_NORMAL
 	bool "Support a simple text console"
 	depends on DM_VIDEO

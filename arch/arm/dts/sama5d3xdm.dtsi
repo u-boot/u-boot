@@ -10,6 +10,32 @@
 / {
 	ahb {
 		apb {
+			hlcdc: hlcdc@f0030000 {
+				atmel,vl-bpix = <4>;
+				atmel,output-mode = <24>;
+				atmel,guard-time = <1>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_lcd_base &pinctrl_lcd_pwm &pinctrl_lcd_rgb888_alt>;
+				status = "okay";
+				u-boot,dm-pre-reloc;
+
+				display-timings {
+					u-boot,dm-pre-reloc;
+					800x480 {
+						clock-frequency = <24000000>;
+						hactive = <800>;
+						vactive = <480>;
+						hsync-len = <5>;
+						hfront-porch = <64>;
+						hback-porch = <64>;
+						vfront-porch = <22>;
+						vback-porch = <21>;
+						vsync-len = <5>;
+						u-boot,dm-pre-reloc;
+					};
+				};
+			};
+
 			i2c1: i2c@f0018000 {
 				qt1070: keyboard@1b {
 					compatible = "qt1070";

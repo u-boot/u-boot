@@ -23,16 +23,6 @@
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 
-/* LCD */
-#define LCD_BPP			LCD_COLOR16
-#define LCD_OUTPUT_BPP		24
-#define CONFIG_LCD_LOGO
-#define CONFIG_LCD_INFO
-#define CONFIG_LCD_INFO_BELOW_LOGO
-#define CONFIG_ATMEL_HLCD
-#define CONFIG_ATMEL_LCD_RGB565
-
-
 /*
  * BOOTP options
  */

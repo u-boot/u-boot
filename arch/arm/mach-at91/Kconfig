@@ -141,6 +141,7 @@ config TARGET_AT91SAM9X5EK
 	select AT91SAM9X5
 	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
 
 config TARGET_SAMA5D2_PTC
 	bool "SAMA5D2 PTC board"
@@ -153,6 +154,7 @@ config TARGET_SAMA5D2_XPLAINED
 	select SAMA5D2
 	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
 
 config TARGET_SAMA5D27_SOM1_EK
 	bool "SAMA5D27 SOM1 EK board"
@@ -185,12 +187,14 @@ config TARGET_SAMA5D4_XPLAINED
 	select SAMA5D4
 	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
 
 config TARGET_SAMA5D4EK
 	bool "SAMA5D4 Evaluation Kit"
 	select SAMA5D4
 	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
 
 config TARGET_MA5D4EVK
 	bool "Aries MA5D4EVK Evaluation Kit"
