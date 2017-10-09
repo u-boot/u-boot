@@ -49,6 +49,26 @@ static struct mm_region r8a7796_mem_map[] = {
 	}
 };
 
+static struct mm_region r8a77970_mem_map[] = {
+	{
+		.virt = 0x0UL,
+		.phys = 0x0UL,
+		.size = 0xe0000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.virt = 0xe0000000UL,
+		.phys = 0xe0000000UL,
+		.size = 0xe0000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		/* List terminator */
+		0,
+	}
+};
+
 struct mm_region *mem_map = r8a7795_mem_map;
 
 void rcar_gen3_memmap_fixup(void)
@@ -61,6 +81,9 @@ void rcar_gen3_memmap_fixup(void)
 		break;
 	case RMOBILE_CPU_TYPE_R8A7796:
 		mem_map = r8a7796_mem_map;
+		break;
+	case RMOBILE_CPU_TYPE_R8A77970:
+		mem_map = r8a77970_mem_map;
 		break;
 	}
 }
