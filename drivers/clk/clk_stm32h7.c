@@ -109,7 +109,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define		QSPISRC_PER_CK		3
 
 #define PWR_CR3				0x0c
-#define PWR_CR3_SDEN			BIT(2)
+#define PWR_CR3_SCUEN			BIT(2)
 #define PWR_D3CR			0x18
 #define PWR_D3CR_VOS_MASK		GENMASK(15, 14)
 #define PWR_D3CR_VOS_SHIFT		14
@@ -361,11 +361,11 @@ int configure_clocks(struct udevice *dev)
 	writel(0x0, &regs->d2ccip1r);
 	writel(0x0, &regs->d2ccip2r);
 
-	/* Set voltage scaling at scale 1 */
+	/* Set voltage scaling at scale 1 (1,15 - 1,26 Volts) */
 	clrsetbits_le32(pwr_base + PWR_D3CR, PWR_D3CR_VOS_MASK,
 			VOS_SCALE_1 << PWR_D3CR_VOS_SHIFT);
-	/* disable step down converter */
-	clrbits_le32(pwr_base + PWR_CR3, PWR_CR3_SDEN);
+	/* Lock supply configuration update */
+	clrbits_le32(pwr_base + PWR_CR3, PWR_CR3_SCUEN);
 	while (!(readl(pwr_base + PWR_D3CR) & PWR_D3CR_VOSREADY))
 		;
 
