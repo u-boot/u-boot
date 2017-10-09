@@ -276,7 +276,7 @@ static int stm32_sdmmc2_end_cmd(struct stm32_sdmmc2_priv *priv,
 
 	/* Polling status register */
 	ret = readl_poll_timeout(priv->base + SDMMC_STA, status, status & mask,
-				 300);
+				 10000);
 
 	if (ret < 0) {
 		debug("%s: timeout reading SDMMC_STA register\n", __func__);
