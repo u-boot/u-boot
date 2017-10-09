@@ -26,6 +26,7 @@ DECLARE_GLOBAL_DATA_PTR;
 enum sh_pfc_model {
 	SH_PFC_R8A7795 = 0,
 	SH_PFC_R8A7796,
+	SH_PFC_R8A77970,
 };
 
 struct sh_pfc_pin_config {
@@ -778,6 +779,10 @@ static int sh_pfc_pinctrl_probe(struct udevice *dev)
 	if (model == SH_PFC_R8A7796)
 		priv->pfc.info = &r8a7796_pinmux_info;
 #endif
+#ifdef CONFIG_PINCTRL_PFC_R8A77970
+	if (model == SH_PFC_R8A77970)
+		priv->pfc.info = &r8a77970_pinmux_info;
+#endif
 
 	priv->pmx.pfc = &priv->pfc;
 	sh_pfc_init_ranges(&priv->pfc);
@@ -797,6 +802,12 @@ static const struct udevice_id sh_pfc_pinctrl_ids[] = {
 	{
 		.compatible = "renesas,pfc-r8a7796",
 		.data = SH_PFC_R8A7796,
+	},
+#endif
+#ifdef CONFIG_PINCTRL_PFC_R8A77970
+	{
+		.compatible = "renesas,pfc-r8a77970",
+		.data = SH_PFC_R8A77970,
 	},
 #endif
 	{ },
