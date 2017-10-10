@@ -385,9 +385,6 @@ void image_print_contents(const void *ptr)
  * flag. Verification done covers data and header integrity and os/type/arch
  * fields checking.
  *
- * If dataflash support is enabled routine checks for dataflash addresses
- * and handles required dataflash reads.
- *
  * returns:
  *     pointer to a ramdisk image header, if image was found and valid
  *     otherwise, return NULL
@@ -886,23 +883,6 @@ int genimg_get_format(const void *img_addr)
 }
 
 /**
- * genimg_get_image - get image from special storage (if necessary)
- * @img_addr: image start address
- *
- * genimg_get_image() checks if provided image start address is located
- * in a dataflash storage. If so, image is moved to a system RAM memory.
- *
- * returns:
- *     image start address after possible relocation from special storage
- */
-ulong genimg_get_image(ulong img_addr)
-{
-	ulong ram_addr = img_addr;
-
-	return ram_addr;
-}
-
-/**
  * fit_has_config - check if there is a valid FIT configuration
  * @images: pointer to the bootm command headers structure
  *
@@ -1033,9 +1013,6 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 				return 1;
 		}
 #endif
-
-		/* copy from dataflash if needed */
-		rd_addr = genimg_get_image(rd_addr);
 
 		/*
 		 * Check if there is an initrd image at the
@@ -1268,10 +1245,8 @@ int boot_get_fpga(int argc, char * const argv[], bootm_headers_t *images,
 
 	/*
 	 * Obtain the os FIT header from the images struct
-	 * copy from dataflash if needed
 	 */
 	tmp_img_addr = map_to_sysmem(images->fit_hdr_os);
-	tmp_img_addr = genimg_get_image(tmp_img_addr);
 	buf = map_sysmem(tmp_img_addr, 0);
 	/*
 	 * Check image type. For FIT images get FIT node
@@ -1380,10 +1355,8 @@ int boot_get_loadable(int argc, char * const argv[], bootm_headers_t *images,
 
 	/*
 	 * Obtain the os FIT header from the images struct
-	 * copy from dataflash if needed
 	 */
 	tmp_img_addr = map_to_sysmem(images->fit_hdr_os);
-	tmp_img_addr = genimg_get_image(tmp_img_addr);
 	buf = map_sysmem(tmp_img_addr, 0);
 	/*
 	 * Check image type. For FIT images get FIT node

@@ -294,9 +294,6 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 		debug("## Checking for 'FDT'/'FDT Image' at %08lx\n",
 		      fdt_addr);
 
-		/* copy from dataflash if needed */
-		fdt_addr = genimg_get_image(fdt_addr);
-
 		/*
 		 * Check if there is an FDT image at the
 		 * address provided in the second bootm argument

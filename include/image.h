@@ -558,7 +558,6 @@ ulong genimg_get_kernel_addr_fit(char * const img_addr,
 ulong genimg_get_kernel_addr(char * const img_addr);
 int genimg_get_format(const void *img_addr);
 int genimg_has_config(bootm_headers_t *images);
-ulong genimg_get_image(ulong img_addr);
 
 int boot_get_fpga(int argc, char * const argv[], bootm_headers_t *images,
 		uint8_t arch, const ulong *ld_start, ulong * const ld_len);
