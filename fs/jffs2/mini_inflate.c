@@ -16,7 +16,7 @@
 static unsigned char huffman_order[] = {16, 17, 18,  0,  8,  7,  9,  6, 10,  5,
 					11,  4, 12,  3, 13,  2, 14,  1, 15};
 
-inline void cramfs_memset(int *s, const int c, size n)
+static inline void cramfs_memset(int *s, const int c, size n)
 {
 	n--;
 	for (;n > 0; n--) s[n] = c;
@@ -65,8 +65,8 @@ static void init_stream(struct bitstream *stream, unsigned char *data,
 /* pull 'bits' bits out of the stream. The last bit pulled it returned as the
  * msb. (section 3.1.1)
  */
-inline unsigned long pull_bits(struct bitstream *stream,
-			       const unsigned int bits)
+static inline unsigned long pull_bits(struct bitstream *stream,
+				      const unsigned int bits)
 {
 	unsigned long ret;
 	int i;
@@ -85,7 +85,7 @@ inline unsigned long pull_bits(struct bitstream *stream,
 	return ret;
 }
 
-inline int pull_bit(struct bitstream *stream)
+static inline int pull_bit(struct bitstream *stream)
 {
 	int ret = ((*(stream->data) >> stream->bit) & 1);
 	if (stream->bit++ == 7) {
