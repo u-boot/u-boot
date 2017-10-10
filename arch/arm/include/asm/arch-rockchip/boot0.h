@@ -6,12 +6,13 @@
 
 /*
  * Execution starts on the instruction following this 4-byte header
- * (containing the magic 'RK33').
+ * (containing the magic 'RK30', 'RK31', 'RK32' or 'RK33').  This
+ * magic constant will be written into the final image by the rkimage
+ * tool, but we need to reserve space for it here.
  *
  * To make life easier for everyone, we build the SPL binary with
  * space for this 4-byte header already included in the binary.
  */
-
 #ifdef CONFIG_SPL_BUILD
 	/*
 	 * We need to add 4 bytes of space for the 'RK33' at the
@@ -26,6 +27,15 @@
 	b reset	 /* may be overwritten --- should be 'nop' or a 'b reset' */
 #endif
 	b reset
+#if !defined(CONFIG_ARM64)
+	/*
+	 * For armv7, the addr '_start' will used as vector start address
+	 * and write to VBAR register, which needs to aligned to 0x20.
+	 */
+	.align(5)
+_start:
+	ARM_VECTORS
+#endif
 
 #if defined(CONFIG_ROCKCHIP_RK3399) && defined(CONFIG_SPL_BUILD)
 	.space CONFIG_ROCKCHIP_SPL_RESERVE_IRAM	/* space for the ATF data */
