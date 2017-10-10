@@ -18,7 +18,7 @@ config ROCKCHIP_RK3188
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select SPL
-	select TPL
+	select SPL_ROCKCHIP_EARLYRETURN_TO_BROM
 	select BOARD_LATE_INIT
 	select ROCKCHIP_BROM_HELPER
 	help

@@ -176,17 +176,17 @@ described above, but the image creation needs a bit more care.
 
 The bootrom of rk3188 expects to find a small 1kb loader which returns
 control to the bootrom, after which it will load the real loader, which
-can then be up to 29kb in size and does the regular ddr init.
+can then be up to 29kb in size and does the regular ddr init.  This is
+handled by a single image (built as the SPL stage) that tests whether
+it is handled for the first or second time via code executed from the
+boot0-hook.
 
 Additionally the rk3188 requires everything the bootrom loads to be
 rc4-encrypted. Except for the very first stage the bootrom always reads
 and decodes 2kb pages, so files should be sized accordingly.
 
 # copy tpl, pad to 1020 bytes and append spl
-cat tpl/u-boot-tpl.bin > tplspl.bin
-truncate -s 1020 tplspl.bin
-cat spl/u-boot-spl.bin >> tplspl.bin
-tools/mkimage -n rk3188 -T rksd -d tplspl.bin out
+tools/mkimage -n rk3188 -T rksd -d spl/u-boot-spl.bin out
 
 # truncate, encode and append u-boot.bin
 truncate -s %2048 u-boot.bin
