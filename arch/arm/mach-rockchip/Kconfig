@@ -16,8 +16,13 @@ config ROCKCHIP_RK3188
 	select CPU_V7
 	select SPL_BOARD_INIT if SPL
 	select SUPPORT_SPL
-	select SUPPORT_TPL
 	select SPL
+	select SPL_CLK
+	select SPL_PINCTRL
+	select SPL_REGMAP
+	select SPL_SYSCON
+	select SPL_RAM
+	select SPL_DRIVERS_MISC_SUPPORT
 	select SPL_ROCKCHIP_EARLYRETURN_TO_BROM
 	select BOARD_LATE_INIT
 	select ROCKCHIP_BROM_HELPER
