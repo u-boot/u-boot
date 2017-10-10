@@ -332,37 +332,6 @@ void psci_arch_init(void);
 
 #ifndef __ASSEMBLY__
 
-/**
- * save_boot_params() - Save boot parameters before starting reset sequence
- *
- * If you provide this function it will be called immediately U-Boot starts,
- * both for SPL and U-Boot proper.
- *
- * All registers are unchanged from U-Boot entry. No registers need be
- * preserved.
- *
- * This is not a normal C function. There is no stack. Return by branching to
- * save_boot_params_ret.
- *
- * void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3);
- */
-
-/**
- * save_boot_params_ret() - Return from save_boot_params()
- *
- * If you provide save_boot_params(), then you should jump back to this
- * function when done. Try to preserve all registers.
- *
- * If your implementation of save_boot_params() is in C then it is acceptable
- * to simply call save_boot_params_ret() at the end of your function. Since
- * there is no link register set up, you cannot just exit the function. U-Boot
- * will return to the (initialised) value of lr, and likely crash/hang.
- *
- * If your implementation of save_boot_params() is in assembler then you
- * should use 'b' or 'bx' to return to save_boot_params_ret.
- */
-void save_boot_params_ret(void);
-
 #ifdef CONFIG_ARMV7_LPAE
 void switch_to_hypervisor_ret(void);
 #endif
@@ -555,6 +524,37 @@ void mmu_page_table_flush(unsigned long start, unsigned long stop);
 #endif /* CONFIG_ARM64 */
 
 #ifndef __ASSEMBLY__
+/**
+ * save_boot_params() - Save boot parameters before starting reset sequence
+ *
+ * If you provide this function it will be called immediately U-Boot starts,
+ * both for SPL and U-Boot proper.
+ *
+ * All registers are unchanged from U-Boot entry. No registers need be
+ * preserved.
+ *
+ * This is not a normal C function. There is no stack. Return by branching to
+ * save_boot_params_ret.
+ *
+ * void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3);
+ */
+
+/**
+ * save_boot_params_ret() - Return from save_boot_params()
+ *
+ * If you provide save_boot_params(), then you should jump back to this
+ * function when done. Try to preserve all registers.
+ *
+ * If your implementation of save_boot_params() is in C then it is acceptable
+ * to simply call save_boot_params_ret() at the end of your function. Since
+ * there is no link register set up, you cannot just exit the function. U-Boot
+ * will return to the (initialised) value of lr, and likely crash/hang.
+ *
+ * If your implementation of save_boot_params() is in assembler then you
+ * should use 'b' or 'bx' to return to save_boot_params_ret.
+ */
+void save_boot_params_ret(void);
+
 /**
  * Change the cache settings for a region.
  *
