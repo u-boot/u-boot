@@ -201,7 +201,7 @@ static int read_nand_cached(u32 off, u32 size, u_char *buf)
 
 			retlen = NAND_CACHE_SIZE;
 			if (nand_read(mtd, nand_cache_off,
-				      &retlen, nand_cache) != 0 ||
+				      &retlen, nand_cache) < 0 ||
 					retlen != NAND_CACHE_SIZE) {
 				printf("read_nand_cached: error reading nand off %#x size %d bytes\n",
 						nand_cache_off, NAND_CACHE_SIZE);
@@ -300,7 +300,7 @@ static int read_onenand_cached(u32 off, u32 size, u_char *buf)
 
 			retlen = ONENAND_CACHE_SIZE;
 			if (onenand_read(&onenand_mtd, onenand_cache_off, retlen,
-						&retlen, onenand_cache) != 0 ||
+						&retlen, onenand_cache) < 0 ||
 					retlen != ONENAND_CACHE_SIZE) {
 				printf("read_onenand_cached: error reading nand off %#x size %d bytes\n",
 					onenand_cache_off, ONENAND_CACHE_SIZE);
