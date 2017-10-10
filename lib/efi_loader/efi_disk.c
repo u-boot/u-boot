@@ -254,18 +254,19 @@ static int efi_disk_create_eltorito(struct blk_desc *desc,
 #if CONFIG_IS_ENABLED(ISO_PARTITION)
 	char devname[32] = { 0 }; /* dp->str is u16[32] long */
 	disk_partition_t info;
-	int part = 1;
+	int part;
 
 	if (desc->part_type != PART_TYPE_ISO)
 		return 0;
 
 	/* and devices for each partition: */
-	while (!part_get_info(desc, part, &info)) {
+	for (part = 1; part <= MAX_SEARCH_PARTITIONS; part++) {
+		if (part_get_info(desc, part, &info))
+			continue;
 		snprintf(devname, sizeof(devname), "%s:%d", pdevname,
 			 part);
 		efi_disk_add_dev(devname, if_typename, desc, diskid,
 				 info.start, part);
-		part++;
 		disks++;
 	}
 
@@ -299,15 +300,16 @@ int efi_disk_register(void)
 		struct blk_desc *desc = dev_get_uclass_platdata(dev);
 		const char *if_typename = dev->driver->name;
 		disk_partition_t info;
-		int part = 1;
+		int part;
 
 		printf("Scanning disk %s...\n", dev->name);
 
 		/* add devices for each partition: */
-		while (!part_get_info(desc, part, &info)) {
+		for (part = 1; part <= MAX_SEARCH_PARTITIONS; part++) {
+			if (part_get_info(desc, part, &info))
+				continue;
 			efi_disk_add_dev(dev->name, if_typename, desc,
 					 desc->devnum, 0, part);
-			part++;
 		}
 
 		/* ... and add block device: */
@@ -341,7 +343,7 @@ int efi_disk_register(void)
 			struct blk_desc *desc;
 			char devname[32] = { 0 }; /* dp->str is u16[32] long */
 			disk_partition_t info;
-			int part = 1;
+			int part;
 
 			desc = blk_get_devnum_by_type(if_type, i);
 			if (!desc)
@@ -353,7 +355,9 @@ int efi_disk_register(void)
 				 if_typename, i);
 
 			/* add devices for each partition: */
-			while (!part_get_info(desc, part, &info)) {
+			for (part = 1; part <= MAX_SEARCH_PARTITIONS; part++) {
+				if (part_get_info(desc, part, &info))
+					continue;
 				efi_disk_add_dev(devname, if_typename, desc,
 						 i, 0, part);
 				part++;
