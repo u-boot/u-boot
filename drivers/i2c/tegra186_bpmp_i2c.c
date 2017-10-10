@@ -94,7 +94,7 @@ static int tegra186_bpmp_i2c_probe(struct udevice *dev)
 					    "nvidia,bpmp-bus-id", U32_MAX);
 	if (priv->bpmp_bus_id == U32_MAX) {
 		debug("%s: could not parse nvidia,bpmp-bus-id\n", __func__);
-		return -ENODEV;
+		return -EINVAL;
 	}
 
 	return 0;

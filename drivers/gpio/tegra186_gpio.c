@@ -181,7 +181,7 @@ static int tegra186_gpio_bind(struct udevice *parent)
 
 	regs = (uint32_t *)devfdt_get_addr_name(parent, "gpio");
 	if (regs == (uint32_t *)FDT_ADDR_T_NONE)
-		return -ENODEV;
+		return -EINVAL;
 
 	for (port = 0; port < ctlr_data->port_count; port++) {
 		struct tegra186_gpio_platdata *plat;
