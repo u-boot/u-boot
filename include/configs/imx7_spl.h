@@ -41,12 +41,6 @@
 #define CONFIG_SYS_MONITOR_LEN			409600	/* 400 KB */
 #endif
 
-/* SATA support */
-#if defined(CONFIG_SPL_SATA_SUPPORT)
-#define CONFIG_SPL_SATA_BOOT_DEVICE		0
-#define CONFIG_SYS_SATA_FAT_BOOT_PARTITION	1
-#endif
-
 /* Define the payload for FAT/EXT support */
 #if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
 # ifdef CONFIG_OF_CONTROL
