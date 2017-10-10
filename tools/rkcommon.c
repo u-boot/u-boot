@@ -72,15 +72,15 @@ struct spl_info {
 };
 
 static struct spl_info spl_infos[] = {
-	{ "rk3036", "RK30", 0x1000, false, false },
-	{ "rk3128", "RK31", 0x1800, false, false },
-	{ "rk3188", "RK31", 0x8000 - 0x800, true, false },
-	{ "rk322x", "RK32", 0x8000 - 0x1000, false, false },
-	{ "rk3288", "RK32", 0x8000, false, false },
-	{ "rk3328", "RK32", 0x8000 - 0x1000, false, false },
+	{ "rk3036", "RK30", 0x1000, false, true },
+	{ "rk3128", "RK31", 0x1800, false, true },
+	{ "rk3188", "RK31", 0x8000 - 0x800, true, true },
+	{ "rk322x", "RK32", 0x8000 - 0x1000, false, true },
+	{ "rk3288", "RK32", 0x8000, false, true },
+	{ "rk3328", "RK32", 0x8000 - 0x1000, false, true },
 	{ "rk3368", "RK33", 0x8000 - 0x1000, false, true },
 	{ "rk3399", "RK33", 0x30000 - 0x2000, false, true },
-	{ "rv1108", "RK11", 0x1800, false, false},
+	{ "rv1108", "RK11", 0x1800, false, true },
 };
 
 static unsigned char rc4_key[16] = {
