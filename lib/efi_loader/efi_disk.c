@@ -360,7 +360,6 @@ int efi_disk_register(void)
 					continue;
 				efi_disk_add_dev(devname, if_typename, desc,
 						 i, 0, part);
-				part++;
 			}
 
 			/* ... and add block device: */
