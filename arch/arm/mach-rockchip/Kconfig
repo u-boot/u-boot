@@ -158,6 +158,34 @@ config ROCKCHIP_SPL_RESERVE_IRAM
 config ROCKCHIP_BROM_HELPER
 	bool
 
+config SPL_ROCKCHIP_EARLYRETURN_TO_BROM
+        bool "SPL requires early-return (for RK3188-style BROM) to BROM"
+	depends on SPL && ENABLE_ARM_SOC_BOOT0_HOOK
+	help
+	  Some Rockchip BROM variants (e.g. on the RK3188) load the
+	  first stage in segments and enter multiple times. E.g. on
+	  the RK3188, the first 1KB of the first stage are loaded
+	  first and entered; after returning to the BROM, the
+	  remainder of the first stage is loaded, but the BROM
+	  re-enters at the same address/to the same code as previously.
+
+	  This enables support code in the BOOT0 hook for the SPL stage
+	  to allow multiple entries.
+
+config TPL_ROCKCHIP_EARLYRETURN_TO_BROM
+        bool "TPL requires early-return (for RK3188-style BROM) to BROM"
+	depends on TPL && ENABLE_ARM_SOC_BOOT0_HOOK
+	help
+	  Some Rockchip BROM variants (e.g. on the RK3188) load the
+	  first stage in segments and enter multiple times. E.g. on
+	  the RK3188, the first 1KB of the first stage are loaded
+	  first and entered; after returning to the BROM, the
+	  remainder of the first stage is loaded, but the BROM
+	  re-enters at the same address/to the same code as previously.
+
+	  This enables support code in the BOOT0 hook for the TPL stage
+	  to allow multiple entries.
+
 config SPL_MMC_SUPPORT
 	default y if !SPL_ROCKCHIP_BACK_TO_BROM
 

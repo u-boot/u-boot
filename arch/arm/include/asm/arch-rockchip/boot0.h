@@ -19,12 +19,25 @@
 	 * beginning of the executable.	 However, as we want to keep
 	 * this generic and make it applicable to builds that are like
 	 * the RK3368 (TPL needs this, SPL doesn't) or the RK3399 (no
-	 * TPL, but extra space needed in the SPL), we simply repeat
-	 * the 'b reset' with the expectation that the first one will
-	 * be overwritten, if this is the first stage contained in the
-	 * final image created with mkimage)...
+	 * TPL, but extra space needed in the SPL), we simply insert
+	 * a branch-to-next-instruction-word with the expectation that
+	 * the first one may be overwritten, if this is the first stage
+	 * contained in the final image created with mkimage)...
 	 */
-	b reset	 /* may be overwritten --- should be 'nop' or a 'b reset' */
+	b 1f	 /* if overwritten, entry-address is at the next word */
+1:
+#endif
+#if CONFIG_IS_ENABLED(ROCKCHIP_EARLYRETURN_TO_BROM)
+	adr     r3, entry_counter
+	ldr	r0, [r3]
+	cmp	r0, #1           /* check if entry_counter == 1 */
+	beq	reset            /* regular bootup */
+	add     r0, #1
+	str	r0, [r3]         /* increment the entry_counter in memory */
+	mov     r0, #0           /* return 0 to the BROM to signal 'OK' */
+	bx	lr               /* return control to the BROM */
+entry_counter:
+	.word   0
 #endif
 	b reset
 #if !defined(CONFIG_ARM64)
@@ -32,7 +45,7 @@
 	 * For armv7, the addr '_start' will used as vector start address
 	 * and write to VBAR register, which needs to aligned to 0x20.
 	 */
-	.align(5)
+	.align(5), 0x0
 _start:
 	ARM_VECTORS
 #endif
