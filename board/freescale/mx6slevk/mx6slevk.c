@@ -273,12 +273,15 @@ int board_mmc_getcd(struct mmc *mmc)
 
 	switch (cfg->esdhc_base) {
 	case USDHC1_BASE_ADDR:
+		gpio_request(USDHC1_CD_GPIO, "cd1_gpio");
 		ret = !gpio_get_value(USDHC1_CD_GPIO);
 		break;
 	case USDHC2_BASE_ADDR:
+		gpio_request(USDHC2_CD_GPIO, "cd2_gpio");
 		ret = !gpio_get_value(USDHC2_CD_GPIO);
 		break;
 	case USDHC3_BASE_ADDR:
+		gpio_request(USDHC3_CD_GPIO, "cd3_gpio");
 		ret = !gpio_get_value(USDHC3_CD_GPIO);
 		break;
 	}
