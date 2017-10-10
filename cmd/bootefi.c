@@ -127,6 +127,7 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt,
 {
 	struct efi_loaded_image loaded_image_info = {};
 	struct efi_object loaded_image_info_obj = {};
+	struct efi_device_path *memdp = NULL;
 	ulong ret;
 
 	ulong (*entry)(void *image_handle, struct efi_system_table *st)
@@ -134,6 +135,20 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt,
 	ulong fdt_pages, fdt_size, fdt_start, fdt_end;
 	const efi_guid_t fdt_guid = EFI_FDT_GUID;
 	bootm_headers_t img = { 0 };
+
+	/*
+	 * Special case for efi payload not loaded from disk, such as
+	 * 'bootefi hello' or for example payload loaded directly into
+	 * memory via jtag/etc:
+	 */
+	if (!device_path && !image_path) {
+		printf("WARNING: using memory device/image path, this may confuse some payloads!\n");
+		/* actual addresses filled in after efi_load_pe() */
+		memdp = efi_dp_from_mem(0, 0, 0);
+		device_path = image_path = memdp;
+	} else {
+		assert(device_path && image_path);
+	}
 
 	/* Initialize and populate EFI object list */
 	if (!efi_obj_list_initalized)
@@ -179,6 +194,14 @@ static unsigned long do_bootefi_exec(void *efi, void *fdt,
 	if (!entry) {
 		ret = -ENOENT;
 		goto exit;
+	}
+
+	if (memdp) {
+		struct efi_device_path_memory *mdp = (void *)memdp;
+		mdp->memory_type = loaded_image_info.image_code_type;
+		mdp->start_address = (uintptr_t)loaded_image_info.image_base;
+		mdp->end_address = mdp->start_address +
+				loaded_image_info.image_size;
 	}
 
 	/* we don't support much: */
