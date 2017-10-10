@@ -10,4 +10,3 @@
 #
 
 obj-y	+= meesc.o
-obj-$(CONFIG_HAS_DATAFLASH) += partition.o

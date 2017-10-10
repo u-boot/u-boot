@@ -15,10 +15,6 @@
 #include <status_led.h>
 #endif
 
-#ifdef CONFIG_HAS_DATAFLASH
-#include <dataflash.h>
-#endif
-
 #ifdef CONFIG_LOGBUFFER
 #include <logbuff.h>
 #endif
@@ -902,64 +898,6 @@ int genimg_get_format(const void *img_addr)
 ulong genimg_get_image(ulong img_addr)
 {
 	ulong ram_addr = img_addr;
-
-#ifdef CONFIG_HAS_DATAFLASH
-	ulong h_size, d_size;
-
-	if (addr_dataflash(img_addr)) {
-		void *buf;
-
-		/* ger RAM address */
-		ram_addr = CONFIG_SYS_LOAD_ADDR;
-
-		/* get header size */
-		h_size = image_get_header_size();
-#if IMAGE_ENABLE_FIT
-		if (sizeof(struct fdt_header) > h_size)
-			h_size = sizeof(struct fdt_header);
-#endif
-
-		/* read in header */
-		debug("   Reading image header from dataflash address "
-			"%08lx to RAM address %08lx\n", img_addr, ram_addr);
-
-		buf = map_sysmem(ram_addr, 0);
-		read_dataflash(img_addr, h_size, buf);
-
-		/* get data size */
-		switch (genimg_get_format(buf)) {
-#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
-		case IMAGE_FORMAT_LEGACY:
-			d_size = image_get_data_size(buf);
-			debug("   Legacy format image found at 0x%08lx, "
-					"size 0x%08lx\n",
-					ram_addr, d_size);
-			break;
-#endif
-#if IMAGE_ENABLE_FIT
-		case IMAGE_FORMAT_FIT:
-			d_size = fit_get_size(buf) - h_size;
-			debug("   FIT/FDT format image found at 0x%08lx, "
-					"size 0x%08lx\n",
-					ram_addr, d_size);
-			break;
-#endif
-		default:
-			printf("   No valid image found at 0x%08lx\n",
-				img_addr);
-			return ram_addr;
-		}
-
-		/* read in image data */
-		debug("   Reading image remaining data from dataflash address "
-			"%08lx to RAM address %08lx\n", img_addr + h_size,
-			ram_addr + h_size);
-
-		read_dataflash(img_addr + h_size, d_size,
-				(char *)(buf + h_size));
-
-	}
-#endif /* CONFIG_HAS_DATAFLASH */
 
 	return ram_addr;
 }

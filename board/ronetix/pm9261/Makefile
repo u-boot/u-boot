@@ -12,4 +12,3 @@
 
 obj-y += pm9261.o
 obj-$(CONFIG_RED_LED) += led.o
-obj-$(CONFIG_HAS_DATAFLASH) += partition.o

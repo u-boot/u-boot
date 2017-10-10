@@ -11,4 +11,3 @@
 
 obj-y += at91sam9261ek.o
 obj-$(CONFIG_AT91_LED) += led.o
-obj-$(CONFIG_HAS_DATAFLASH) += partition.o

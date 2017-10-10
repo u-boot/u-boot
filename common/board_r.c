@@ -18,9 +18,6 @@
 #endif
 #include <command.h>
 #include <console.h>
-#ifdef CONFIG_HAS_DATAFLASH
-#include <dataflash.h>
-#endif
 #include <dm.h>
 #include <environment.h>
 #include <fdtdec.h>
@@ -447,15 +444,6 @@ static int initr_mmc(void)
 }
 #endif
 
-#ifdef CONFIG_HAS_DATAFLASH
-static int initr_dataflash(void)
-{
-	AT91F_DataflashInit();
-	dataflash_print_info();
-	return 0;
-}
-#endif
-
 /*
  * Tell if it's OK to load the environment early in boot.
  *
@@ -802,9 +790,6 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 #ifdef CONFIG_MMC
 	initr_mmc,
-#endif
-#ifdef CONFIG_HAS_DATAFLASH
-	initr_dataflash,
 #endif
 	initr_env,
 #ifdef CONFIG_SYS_BOOTPARAMS_LEN

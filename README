@@ -2312,13 +2312,6 @@ The following options need to be configured:
 		this is instead controlled by the value of
 		/config/load-environment.
 
-- DataFlash Support:
-		CONFIG_HAS_DATAFLASH
-
-		Defining this option enables DataFlash features and
-		allows to read/write in Dataflash via the standard
-		commands cp, md...
-
 - Serial Flash support
 		Usage requires an initial 'sf probe' to define the serial
 		flash parameters, followed by read/write/erase/update

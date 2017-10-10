@@ -11,10 +11,6 @@
 #include <common.h>
 #include <command.h>
 
-#ifdef CONFIG_HAS_DATAFLASH
-#include <dataflash.h>
-#endif
-
 #if defined(CONFIG_CMD_MTDPARTS)
 #include <jffs2/jffs2.h>
 
@@ -279,10 +275,6 @@ static int do_flinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	ulong bank;
 #endif
 
-#ifdef CONFIG_HAS_DATAFLASH
-	dataflash_print_info();
-#endif
-
 #ifdef CONFIG_MTD_NOR_FLASH
 	if (argc == 1) {	/* print info for all FLASH banks */
 		for (bank=0; bank <CONFIG_SYS_MAX_FLASH_BANKS; ++bank) {
@@ -451,10 +443,7 @@ static int do_protect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	u8 dev_type, dev_num, pnum;
 #endif
 #endif /* CONFIG_MTD_NOR_FLASH */
-#ifdef CONFIG_HAS_DATAFLASH
-	int status;
-#endif
-#if defined(CONFIG_MTD_NOR_FLASH) || defined(CONFIG_HAS_DATAFLASH)
+#if defined(CONFIG_MTD_NOR_FLASH)
 	int p;
 	ulong addr_first, addr_last;
 #endif
@@ -462,31 +451,13 @@ static int do_protect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc < 3)
 		return CMD_RET_USAGE;
 
-#if defined(CONFIG_MTD_NOR_FLASH) || defined(CONFIG_HAS_DATAFLASH)
+#if defined(CONFIG_MTD_NOR_FLASH)
 	if (strcmp(argv[1], "off") == 0)
 		p = 0;
 	else if (strcmp(argv[1], "on") == 0)
 		p = 1;
 	else
 		return CMD_RET_USAGE;
-#endif
-
-#ifdef CONFIG_HAS_DATAFLASH
-	if ((strcmp(argv[2], "all") != 0) && (strcmp(argv[2], "bank") != 0)) {
-		addr_first = simple_strtoul(argv[2], NULL, 16);
-		addr_last  = simple_strtoul(argv[3], NULL, 16);
-
-		if (addr_dataflash(addr_first) && addr_dataflash(addr_last)) {
-			status = dataflash_real_protect(p,addr_first,addr_last);
-			if (status < 0){
-				puts ("Bad DataFlash sector specification\n");
-				return 1;
-			}
-			printf("%sProtect %d DataFlash Sectors\n",
-				p ? "" : "Un-", status);
-			return 0;
-		}
-	}
 #endif
 
 #ifdef CONFIG_MTD_NOR_FLASH
