@@ -433,6 +433,39 @@ struct simple_text_output_mode {
 	EFI_GUID(0x387477c2, 0x69c7, 0x11d2, \
 		 0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
 
+#define EFI_BLACK                0x00
+#define EFI_BLUE                 0x01
+#define EFI_GREEN                0x02
+#define EFI_CYAN                 0x03
+#define EFI_RED                  0x04
+#define EFI_MAGENTA              0x05
+#define EFI_BROWN                0x06
+#define EFI_LIGHTGRAY            0x07
+#define EFI_BRIGHT               0x08
+#define EFI_DARKGRAY             0x08
+#define EFI_LIGHTBLUE            0x09
+#define EFI_LIGHTGREEN           0x0a
+#define EFI_LIGHTCYAN            0x0b
+#define EFI_LIGHTRED             0x0c
+#define EFI_LIGHTMAGENTA         0x0d
+#define EFI_YELLOW               0x0e
+#define EFI_WHITE                0x0f
+#define EFI_BACKGROUND_BLACK     0x00
+#define EFI_BACKGROUND_BLUE      0x10
+#define EFI_BACKGROUND_GREEN     0x20
+#define EFI_BACKGROUND_CYAN      0x30
+#define EFI_BACKGROUND_RED       0x40
+#define EFI_BACKGROUND_MAGENTA   0x50
+#define EFI_BACKGROUND_BROWN     0x60
+#define EFI_BACKGROUND_LIGHTGRAY 0x70
+
+/* extract foreground color from EFI attribute */
+#define EFI_ATTR_FG(attr)        ((attr) & 0x07)
+/* treat high bit of FG as bright/bold (similar to edk2) */
+#define EFI_ATTR_BOLD(attr)      (((attr) >> 3) & 0x01)
+/* extract background color from EFI attribute */
+#define EFI_ATTR_BG(attr)        (((attr) >> 4) & 0x7)
+
 struct efi_simple_text_output_protocol {
 	void *reset;
 	efi_status_t (EFIAPI *output_string)(
