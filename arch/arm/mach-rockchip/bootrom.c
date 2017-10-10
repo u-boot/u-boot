@@ -15,12 +15,12 @@
  */
 static jmp_buf brom_ctx __section(".data");
 
-void back_to_bootrom(void)
+void back_to_bootrom(enum rockchip_bootrom_cmd brom_cmd)
 {
 #if CONFIG_IS_ENABLED(LIBCOMMON_SUPPORT)
 	puts("Returning to boot ROM...\n");
 #endif
-	longjmp(brom_ctx, BROM_BOOT_NEXTSTAGE);
+	longjmp(brom_ctx, brom_cmd);
 }
 
 /*

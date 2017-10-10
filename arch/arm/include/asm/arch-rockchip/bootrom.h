@@ -24,6 +24,9 @@ extern u32 SAVE_SP_ADDR;
  * download mode, ...).
  *
  * This function does not return.
+ *
+ * @brom_cmd: indicates how the bootrom should continue the boot
+ *            sequence (e.g. load the next stage)
  */
 enum rockchip_bootrom_cmd {
 	/*
@@ -35,7 +38,7 @@ enum rockchip_bootrom_cmd {
 	BROM_BOOT_ENTER_DNL,      /* have BROM enter download-mode */
 };
 
-void back_to_bootrom(void);
+void back_to_bootrom(enum rockchip_bootrom_cmd brom_cmd);
 
 /**
  * Boot-device identifiers as used by the BROM

@@ -23,7 +23,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void board_return_to_bootrom(void)
 {
-	back_to_bootrom();
+	back_to_bootrom(BROM_BOOT_NEXTSTAGE);
 }
 
 static const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {

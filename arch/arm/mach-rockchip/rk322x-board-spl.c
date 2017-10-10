@@ -76,6 +76,6 @@ void board_init_f(ulong dummy)
 	/* Disable the ddr secure region setting to make it non-secure */
 	rk_clrreg(SGRF_DDR_CON0, 0x4000);
 #if defined(CONFIG_ROCKCHIP_SPL_BACK_TO_BROM) && !defined(CONFIG_SPL_BOARD_INIT)
-	back_to_bootrom();
+	back_to_bootrom(BROM_BOOT_NEXTSTAGE);
 #endif
 }
