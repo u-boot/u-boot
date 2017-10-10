@@ -28,9 +28,7 @@ static struct env_driver *env_driver_lookup(enum env_location loc)
 
 static enum env_location env_get_default_location(void)
 {
-	if IS_ENABLED(CONFIG_ENV_IS_IN_DATAFLASH)
-		return ENVL_DATAFLASH;
-	else if IS_ENABLED(CONFIG_ENV_IS_IN_EEPROM)
+	if IS_ENABLED(CONFIG_ENV_IS_IN_EEPROM)
 		return ENVL_EEPROM;
 	else if IS_ENABLED(CONFIG_ENV_IS_IN_FAT)
 		return ENVL_FAT;

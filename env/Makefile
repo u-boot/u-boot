@@ -11,7 +11,6 @@ ifndef CONFIG_SPL_BUILD
 obj-y += attr.o
 obj-y += callback.o
 obj-y += flags.o
-obj-$(CONFIG_ENV_IS_IN_DATAFLASH) += dataflash.o
 obj-$(CONFIG_ENV_IS_IN_EEPROM) += eeprom.o
 extra-$(CONFIG_ENV_IS_EMBEDDED) += embedded.o
 obj-$(CONFIG_ENV_IS_IN_EEPROM) += embedded.o

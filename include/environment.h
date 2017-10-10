@@ -198,7 +198,6 @@ enum env_valid {
 };
 
 enum env_location {
-	ENVL_DATAFLASH,
 	ENVL_EEPROM,
 	ENVL_EXT4,
 	ENVL_FAT,
