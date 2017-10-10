@@ -16,6 +16,22 @@
 #include <config.h>
 
 /*
+ * A macro to allow insertion of an ARM exception vector either
+ * for the non-boot0 case or by a boot0-header.
+ */
+        .macro ARM_VECTORS
+	b	reset
+	ldr	pc, _undefined_instruction
+	ldr	pc, _software_interrupt
+	ldr	pc, _prefetch_abort
+	ldr	pc, _data_abort
+	ldr	pc, _not_used
+	ldr	pc, _irq
+	ldr	pc, _fiq
+	.endm
+
+
+/*
  *************************************************************************
  *
  * Symbol _start is referenced elsewhere, so make it global
@@ -35,6 +51,23 @@
 
 	.section ".vectors", "ax"
 
+#if defined(CONFIG_ENABLE_ARM_SOC_BOOT0_HOOK)
+/*
+ * Various SoCs need something special and SoC-specific up front in
+ * order to boot, allow them to set that in their boot0.h file and then
+ * use it here.
+ *
+ * To allow a boot0 hook to insert a 'special' sequence after the vector
+ * table (e.g. for the socfpga), the presence of a boot0 hook supresses
+ * the below vector table and assumes that the vector table is filled in
+ * by the boot0 hook.  The requirements for a boot0 hook thus are:
+ *   (1) defines '_start:' as appropriate
+ *   (2) inserts the vector table using ARM_VECTORS as appropriate
+ */
+#include <asm/arch/boot0.h>
+
+#else
+
 /*
  *************************************************************************
  *
@@ -46,28 +79,11 @@
  */
 
 _start:
-
 #ifdef CONFIG_SYS_DV_NOR_BOOT_CFG
 	.word	CONFIG_SYS_DV_NOR_BOOT_CFG
 #endif
-
-	b	reset
-	ldr	pc, _undefined_instruction
-	ldr	pc, _software_interrupt
-	ldr	pc, _prefetch_abort
-	ldr	pc, _data_abort
-	ldr	pc, _not_used
-	ldr	pc, _irq
-	ldr	pc, _fiq
-
-#ifdef CONFIG_ENABLE_ARM_SOC_BOOT0_HOOK
-/*
- * Various SoCs need something special and SoC-specific up front in
- * order to boot, allow them to set that in their boot0.h file and then
- * use it here.
- */
-#include <asm/arch/boot0.h>
-#endif
+	ARM_VECTORS
+#endif /* !defined(CONFIG_ENABLE_ARM_SOC_BOOT0_HOOK) */
 
 /*
  *************************************************************************
