@@ -22,10 +22,16 @@ obj-spl-$(CONFIG_ROCKCHIP_RK3368) += rk3368-board-spl.o spl-boot-order.o
 obj-spl-$(CONFIG_ROCKCHIP_RK3399) += rk3399-board-spl.o spl-boot-order.o
 
 ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_TPL_BUILD),)
+
+ifneq ($(CONFIG_ROCKCHIP_BOOT_MODE_REG),0)
+obj-y += boot_mode.o
+endif
+
 obj-$(CONFIG_ROCKCHIP_RK3188) += rk3188-board.o
 obj-$(CONFIG_ROCKCHIP_RK322X) += rk322x-board.o
 obj-$(CONFIG_ROCKCHIP_RK3288) += rk3288-board.o
 obj-$(CONFIG_ROCKCHIP_RK3036) += rk3036-board.o
+obj-$(CONFIG_ROCKCHIP_RK3399) += rk3399-board.o
 endif
 
 obj-$(CONFIG_$(SPL_TPL_)RAM) += sdram_common.o

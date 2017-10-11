@@ -16,4 +16,6 @@
 /* enter usb mass storage mode */
 #define BOOT_UMS		(REBOOT_FLAG + 12)
 
+int setup_boot_mode(void);
+
 #endif

@@ -16,30 +16,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define GRF_BASE	0x11000000
-
-static void setup_boot_mode(void)
-{
-	struct rk322x_grf *const grf = (void *)GRF_BASE;
-	int boot_mode = readl(&grf->os_reg[0]);
-
-	debug("boot mode %x.\n", boot_mode);
-
-	/* Clear boot mode */
-	writel(BOOT_NORMAL, &grf->os_reg[0]);
-
-	switch (boot_mode) {
-	case BOOT_FASTBOOT:
-		printf("enter fastboot!\n");
-		env_set("preboot", "setenv preboot; fastboot usb0");
-		break;
-	case BOOT_UMS:
-		printf("enter UMS!\n");
-		env_set("preboot", "setenv preboot; ums mmc 0");
-		break;
-	}
-}
-
 __weak int rk_board_late_init(void)
 {
 	return 0;
