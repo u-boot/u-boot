@@ -28,9 +28,9 @@
 #include <mmc.h>
 #include <part.h>
 #include <i2c.h>
-#include <twl4030.h>
-#include <twl6030.h>
+#if defined(CONFIG_OMAP54XX) || defined(CONFIG_OMAP44XX)
 #include <palmas.h>
+#endif
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
 #if !defined(CONFIG_SOC_KEYSTONE)
