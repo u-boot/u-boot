@@ -686,16 +686,17 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 			       strlen(ip_str), strlen(mac_str),
 			       sizeof(bootargs));
 			return 1;
+		} else {
+			if (label->append)
+				strncpy(bootargs, label->append,
+					sizeof(bootargs));
+			strcat(bootargs, ip_str);
+			strcat(bootargs, mac_str);
+
+			cli_simple_process_macros(bootargs, finalbootargs);
+			env_set("bootargs", finalbootargs);
+			printf("append: %s\n", finalbootargs);
 		}
-
-		if (label->append)
-			strncpy(bootargs, label->append, sizeof(bootargs));
-		strncat(bootargs, ip_str, sizeof(bootargs) - strlen(bootargs));
-		strncat(bootargs, mac_str, sizeof(bootargs) - strlen(bootargs));
-
-		cli_simple_process_macros(bootargs, finalbootargs);
-		env_set("bootargs", finalbootargs);
-		printf("append: %s\n", finalbootargs);
 	}
 
 	bootm_argv[1] = env_get("kernel_addr_r");
