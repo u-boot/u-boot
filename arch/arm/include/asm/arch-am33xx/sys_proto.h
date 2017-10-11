@@ -40,6 +40,7 @@ void enable_norboot_pin_mux(void);
 #endif
 void am33xx_spl_board_init(void);
 int am335x_get_efuse_mpu_max_freq(struct ctrl_dev *cdev);
+int am335x_get_mpu_vdd(int sil_rev, int frequency);
 int am335x_get_tps65910_mpu_vdd(int sil_rev, int frequency);
 #endif
 
