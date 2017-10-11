@@ -118,6 +118,7 @@ config ROCKCHIP_RK3399
 	select SPL_DRIVERS_MISC_SUPPORT
 	select DEBUG_UART_BOARD_INIT
 	select BOARD_LATE_INIT
+	select ROCKCHIP_BROM_HELPER
 	help
 	  The Rockchip RK3399 is a ARM-based SoC with a dual-core Cortex-A72
 	  and quad-core Cortex-A53.
