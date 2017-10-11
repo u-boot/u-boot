@@ -27,6 +27,11 @@
 #define CPG_PLL2CR		0x002c
 #define CPG_PLL4CR		0x01f4
 
+#define CPG_RPC_PREDIV_MASK	0x3
+#define CPG_RPC_PREDIV_OFFSET	3
+#define CPG_RPC_POSTDIV_MASK	0x7
+#define CPG_RPC_POSTDIV_OFFSET	0
+
 /*
  * Module Standby and Software Reset register offets.
  *
@@ -119,6 +124,8 @@ enum clk_types {
 	DEF_BASE(_name, _id, CLK_TYPE_FF, _parent, .div = _div, .mult = _mult)
 #define DEF_GEN3_SD(_name, _id, _parent, _offset)	\
 	DEF_BASE(_name, _id, CLK_TYPE_GEN3_SD, _parent, .offset = _offset)
+#define DEF_GEN3_RPC(_name, _id, _parent, _offset)	\
+	DEF_BASE(_name, _id, CLK_TYPE_GEN3_RPC, _parent, .offset = _offset)
 
 /*
  * Definitions of Module Clocks
@@ -145,6 +152,7 @@ enum rcar_gen3_clk_types {
 	CLK_TYPE_GEN3_PLL3,
 	CLK_TYPE_GEN3_PLL4,
 	CLK_TYPE_GEN3_SD,
+	CLK_TYPE_GEN3_RPC,
 	CLK_TYPE_GEN3_R,
 };
 
@@ -176,6 +184,7 @@ enum clk_ids {
 	CLK_S2,
 	CLK_S3,
 	CLK_SDSRC,
+	CLK_RPCSRC,
 	CLK_SSPSRC,
 	CLK_RINT,
 
@@ -203,6 +212,7 @@ static const struct cpg_core_clk r8a7795_core_clks[] = {
 	DEF_FIXED(".s2",        CLK_S2,            CLK_PLL1_DIV2,  4, 1),
 	DEF_FIXED(".s3",        CLK_S3,            CLK_PLL1_DIV2,  6, 1),
 	DEF_FIXED(".sdsrc",     CLK_SDSRC,         CLK_PLL1_DIV2,  2, 1),
+	DEF_FIXED(".rpcsrc",    CLK_RPCSRC,        CLK_PLL1,       2, 1),
 
 	/* Core Clock Outputs */
 	DEF_FIXED("ztr",        R8A7795_CLK_ZTR,   CLK_PLL1_DIV2,  6, 1),
@@ -230,6 +240,8 @@ static const struct cpg_core_clk r8a7795_core_clks[] = {
 	DEF_GEN3_SD("sd1",      R8A7795_CLK_SD1,   CLK_SDSRC,     0x078),
 	DEF_GEN3_SD("sd2",      R8A7795_CLK_SD2,   CLK_SDSRC,     0x268),
 	DEF_GEN3_SD("sd3",      R8A7795_CLK_SD3,   CLK_SDSRC,     0x26c),
+
+	DEF_GEN3_RPC("rpc",     R8A7795_CLK_RPC,   CLK_RPCSRC,    0x238),
 
 	DEF_FIXED("cl",         R8A7795_CLK_CL,    CLK_PLL1_DIV2, 48, 1),
 	DEF_FIXED("cp",         R8A7795_CLK_CP,    CLK_EXTAL,      2, 1),
@@ -358,6 +370,7 @@ static const struct mssr_mod_clk r8a7795_mod_clks[] = {
 	DEF_MOD("can-fd",		 914,	R8A7795_CLK_S3D2),
 	DEF_MOD("can-if1",		 915,	R8A7795_CLK_S3D4),
 	DEF_MOD("can-if0",		 916,	R8A7795_CLK_S3D4),
+	DEF_MOD("rpc",			 917,	R8A7795_CLK_RPC),
 	DEF_MOD("i2c6",			 918,	R8A7795_CLK_S0D6),
 	DEF_MOD("i2c5",			 919,	R8A7795_CLK_S0D6),
 	DEF_MOD("i2c-dvfs",		 926,	R8A7795_CLK_CP),
@@ -414,6 +427,7 @@ static const struct cpg_core_clk r8a7796_core_clks[] = {
 	DEF_FIXED(".s2",        CLK_S2,            CLK_PLL1_DIV2,  4, 1),
 	DEF_FIXED(".s3",        CLK_S3,            CLK_PLL1_DIV2,  6, 1),
 	DEF_FIXED(".sdsrc",     CLK_SDSRC,         CLK_PLL1_DIV2,  2, 1),
+	DEF_FIXED(".rpcsrc",    CLK_RPCSRC,        CLK_PLL1,       2, 1),
 
 	/* Core Clock Outputs */
 	DEF_FIXED("ztr",        R8A7796_CLK_ZTR,   CLK_PLL1_DIV2,  6, 1),
@@ -441,6 +455,8 @@ static const struct cpg_core_clk r8a7796_core_clks[] = {
 	DEF_GEN3_SD("sd1",      R8A7796_CLK_SD1,   CLK_SDSRC,     0x078),
 	DEF_GEN3_SD("sd2",      R8A7796_CLK_SD2,   CLK_SDSRC,     0x268),
 	DEF_GEN3_SD("sd3",      R8A7796_CLK_SD3,   CLK_SDSRC,     0x26c),
+
+	DEF_GEN3_RPC("rpc",     R8A7796_CLK_RPC,   CLK_RPCSRC,    0x238),
 
 	DEF_FIXED("cl",         R8A7796_CLK_CL,    CLK_PLL1_DIV2, 48, 1),
 	DEF_FIXED("cp",         R8A7796_CLK_CP,    CLK_EXTAL,      2, 1),
@@ -541,6 +557,7 @@ static const struct mssr_mod_clk r8a7796_mod_clks[] = {
 	DEF_MOD("can-fd",		 914,	R8A7796_CLK_S3D2),
 	DEF_MOD("can-if1",		 915,	R8A7796_CLK_S3D4),
 	DEF_MOD("can-if0",		 916,	R8A7796_CLK_S3D4),
+	DEF_MOD("rpc",			 917,	R8A7795_CLK_RPC),
 	DEF_MOD("i2c6",			 918,	R8A7796_CLK_S0D6),
 	DEF_MOD("i2c5",			 919,	R8A7796_CLK_S0D6),
 	DEF_MOD("i2c-dvfs",		 926,	R8A7796_CLK_CP),
@@ -752,6 +769,36 @@ static int gen3_clk_get_parent(struct clk *clk, struct clk *parent)
 	return 0;
 }
 
+static int gen3_clk_setup_sdif_div(struct clk *clk)
+{
+	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
+	const struct cpg_core_clk *core;
+	struct clk parent;
+	int ret;
+
+	ret = gen3_clk_get_parent(clk, &parent);
+	if (ret) {
+		printf("%s[%i] parent fail, ret=%i\n", __func__, __LINE__, ret);
+		return ret;
+	}
+
+	if (gen3_clk_is_mod(&parent))
+		return 0;
+
+	ret = gen3_clk_get_core(&parent, &core);
+	if (ret)
+		return ret;
+
+	if (core->type != CLK_TYPE_GEN3_SD)
+		return 0;
+
+	debug("%s[%i] SDIF offset=%x\n", __func__, __LINE__, core->offset);
+
+	writel(1, priv->base + core->offset);
+
+	return 0;
+}
+
 static int gen3_clk_endisable(struct clk *clk, bool enable)
 {
 	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
@@ -759,6 +806,7 @@ static int gen3_clk_endisable(struct clk *clk, bool enable)
 	const unsigned int reg = clkid / 100;
 	const unsigned int bit = clkid % 100;
 	const u32 bitmask = BIT(bit);
+	int ret;
 
 	if (!gen3_clk_is_mod(clk))
 		return -EINVAL;
@@ -767,6 +815,9 @@ static int gen3_clk_endisable(struct clk *clk, bool enable)
 	      clkid, reg, bit, enable ? "ON" : "OFF");
 
 	if (enable) {
+		ret = gen3_clk_setup_sdif_div(clk);
+		if (ret)
+			return ret;
 		clrbits_le32(priv->base + SMSTPCR(reg), bitmask);
 		return wait_for_bit("MSTP", priv->base + MSTPSR(reg),
 				    bitmask, 0, 100, 0);
@@ -793,7 +844,7 @@ static ulong gen3_clk_get_rate(struct clk *clk)
 	const struct cpg_core_clk *core;
 	const struct rcar_gen3_cpg_pll_config *pll_config =
 					priv->cpg_pll_config;
-	u32 value, mult, rate = 0;
+	u32 value, mult, prediv, postdiv, rate = 0;
 	int i, ret;
 
 	debug("%s[%i] Clock: id=%lu\n", __func__, __LINE__, clk->id);
@@ -903,6 +954,31 @@ static ulong gen3_clk_get_rate(struct clk *clk)
 		}
 
 		return -EINVAL;
+
+	case CLK_TYPE_GEN3_RPC:
+		rate = gen3_clk_get_rate(&parent);
+
+		value = readl(priv->base + core->offset);
+
+		prediv = (value >> CPG_RPC_PREDIV_OFFSET) &
+			 CPG_RPC_PREDIV_MASK;
+		if (prediv == 2)
+			rate /= 5;
+		else if (prediv == 3)
+			rate /= 6;
+		else
+			return -EINVAL;
+
+		postdiv = (value >> CPG_RPC_POSTDIV_OFFSET) &
+			  CPG_RPC_POSTDIV_MASK;
+		rate /= postdiv + 1;
+
+		debug("%s[%i] RPC clk: parent=%i prediv=%i postdiv=%i => rate=%u\n",
+		      __func__, __LINE__,
+		      core->parent, prediv, postdiv, rate);
+
+		return -EINVAL;
+
 	}
 
 	printf("%s[%i] unknown fail\n", __func__, __LINE__);

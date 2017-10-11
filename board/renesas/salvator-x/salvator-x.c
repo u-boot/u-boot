@@ -49,35 +49,13 @@ void s_init(void)
 #define TMU0_MSTP125		BIT(25)	/* secure */
 #define TMU1_MSTP124		BIT(24)	/* non-secure */
 #define SCIF2_MSTP310		BIT(10)	/* SCIF2 */
-#define ETHERAVB_MSTP812	BIT(12)
 #define DVFS_MSTP926		BIT(26)
-#define SD0_MSTP314		BIT(14)
-#define SD1_MSTP313		BIT(13)
-#define SD2_MSTP312		BIT(12)	/* either MMC0 */
-#define SD3_MSTP311		BIT(11)	/* either MMC1 */
-
-#define SD0CKCR			0xE6150074
-#define SD1CKCR			0xE6150078
-#define SD2CKCR			0xE6150268
-#define SD3CKCR			0xE615026C
+#define HSUSB_MSTP704		BIT(4)	/* HSUSB */
 
 int board_early_init_f(void)
 {
 	/* TMU0,1 */		/* which use ? */
 	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125 | TMU1_MSTP124);
-	/* SCIF2 */
-	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SCIF2_MSTP310);
-	/* EHTERAVB */
-	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, ETHERAVB_MSTP812);
-	/* eMMC */
-	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD1_MSTP313 | SD2_MSTP312);
-	/* SDHI0, 3 */
-	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD0_MSTP314 | SD3_MSTP311);
-
-	writel(1, SD0CKCR);
-	writel(1, SD1CKCR);
-	writel(1, SD2CKCR);
-	writel(1, SD3CKCR);
 
 #if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
 	/* DVFS for reset */
@@ -92,17 +70,17 @@ int board_early_init_f(void)
 /* -/W 32 Power resume control register 2 (3DG) */
 #define	SYSC_PWRONCR2	0xE618010C
 
+/* HSUSB block registers */
+#define HSUSB_REG_LPSTS			0xE6590102
+#define HSUSB_REG_LPSTS_SUSPM_NORMAL	BIT(14)
+#define HSUSB_REG_UGCTRL2		0xE6590184
+#define HSUSB_REG_UGCTRL2_USB0SEL	0x30
+#define HSUSB_REG_UGCTRL2_USB0SEL_EHCI	0x10
+
 int board_init(void)
 {
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_TEXT_BASE + 0x50000;
-
-	/* Init PFC controller */
-#if defined(CONFIG_R8A7795)
-	r8a7795_pinmux_init();
-#elif defined(CONFIG_R8A7796)
-	r8a7796_pinmux_init();
-#endif
 
 #if defined(CONFIG_R8A7795)
 	/* GSX: force power and clock supply */
@@ -116,113 +94,13 @@ int board_init(void)
 	/* USB1 pull-up */
 	setbits_le32(PFC_PUEN6, PUEN_USB1_OVC | PUEN_USB1_PWEN);
 
-#ifdef CONFIG_RENESAS_RAVB
-	/* EtherAVB Enable */
-	/* GPSR2 */
-	gpio_request(GPIO_GFN_AVB_AVTP_CAPTURE_A, NULL);
-	gpio_request(GPIO_GFN_AVB_AVTP_MATCH_A, NULL);
-	gpio_request(GPIO_GFN_AVB_LINK, NULL);
-	gpio_request(GPIO_GFN_AVB_PHY_INT, NULL);
-	gpio_request(GPIO_GFN_AVB_MAGIC, NULL);
-	gpio_request(GPIO_GFN_AVB_MDC, NULL);
-
-	/* IPSR0 */
-	gpio_request(GPIO_IFN_AVB_MDC, NULL);
-	gpio_request(GPIO_IFN_AVB_MAGIC, NULL);
-	gpio_request(GPIO_IFN_AVB_PHY_INT, NULL);
-	gpio_request(GPIO_IFN_AVB_LINK, NULL);
-	gpio_request(GPIO_IFN_AVB_AVTP_MATCH_A, NULL);
-	gpio_request(GPIO_IFN_AVB_AVTP_CAPTURE_A, NULL);
-	/* IPSR1 */
-	gpio_request(GPIO_FN_AVB_AVTP_PPS, NULL);
-	/* IPSR2 */
-	gpio_request(GPIO_FN_AVB_AVTP_MATCH_B, NULL);
-	/* IPSR3 */
-	gpio_request(GPIO_FN_AVB_AVTP_CAPTURE_B, NULL);
-
-#if defined(CONFIG_R8A7795)
-	/* USB2_OVC */
-	gpio_request(GPIO_GP_6_15, NULL);
-	gpio_direction_input(GPIO_GP_6_15);
-
-	/* USB2_PWEN */
-	gpio_request(GPIO_GP_6_14, NULL);
-	gpio_direction_output(GPIO_GP_6_14, 1);
-	gpio_set_value(GPIO_GP_6_14, 1);
-#endif
-	/* AVB_PHY_RST */
-	gpio_request(GPIO_GP_2_10, NULL);
-	gpio_direction_output(GPIO_GP_2_10, 0);
-	mdelay(20);
-	gpio_set_value(GPIO_GP_2_10, 1);
-	udelay(1);
-#endif
-
-#ifdef CONFIG_MMC
-	/* SDHI0 */
-	gpio_request(GPIO_GFN_SD0_DAT0, NULL);
-	gpio_request(GPIO_GFN_SD0_DAT1, NULL);
-	gpio_request(GPIO_GFN_SD0_DAT2, NULL);
-	gpio_request(GPIO_GFN_SD0_DAT3, NULL);
-	gpio_request(GPIO_GFN_SD0_CLK, NULL);
-	gpio_request(GPIO_GFN_SD0_CMD, NULL);
-	gpio_request(GPIO_GFN_SD0_CD, NULL);
-	gpio_request(GPIO_GFN_SD0_WP, NULL);
-
-	gpio_request(GPIO_GP_5_2, NULL);
-	gpio_request(GPIO_GP_5_1, NULL);
-	gpio_direction_output(GPIO_GP_5_2, 1);	/* power on */
-	gpio_direction_output(GPIO_GP_5_1, 1);	/* 1: 3.3V, 0: 1.8V */
-
-	/* SDHI1/SDHI2 eMMC */
-	gpio_request(GPIO_GFN_SD1_DAT0, NULL);
-	gpio_request(GPIO_GFN_SD1_DAT1, NULL);
-	gpio_request(GPIO_GFN_SD1_DAT2, NULL);
-	gpio_request(GPIO_GFN_SD1_DAT3, NULL);
-	gpio_request(GPIO_GFN_SD2_DAT0, NULL);
-	gpio_request(GPIO_GFN_SD2_DAT1, NULL);
-	gpio_request(GPIO_GFN_SD2_DAT2, NULL);
-	gpio_request(GPIO_GFN_SD2_DAT3, NULL);
-	gpio_request(GPIO_GFN_SD2_CLK, NULL);
-#if defined(CONFIG_R8A7795)
-	gpio_request(GPIO_GFN_SD2_CMD, NULL);
-#elif defined(CONFIG_R8A7796)
-	gpio_request(GPIO_FN_SD2_CMD, NULL);
-#else
-#error Only R8A7795 and R87796 is supported
-#endif
-	gpio_request(GPIO_GP_5_3, NULL);
-	gpio_request(GPIO_GP_5_9, NULL);
-	gpio_direction_output(GPIO_GP_5_3, 0);	/* 1: 3.3V, 0: 1.8V */
-	gpio_direction_output(GPIO_GP_5_9, 0);	/* 1: 3.3V, 0: 1.8V */
-
-#if defined(CONFIG_R8A7795)
-	/* SDHI3 */
-	gpio_request(GPIO_GFN_SD3_DAT0, NULL);	/* GP_4_9 */
-	gpio_request(GPIO_GFN_SD3_DAT1, NULL);	/* GP_4_10 */
-	gpio_request(GPIO_GFN_SD3_DAT2, NULL);	/* GP_4_11 */
-	gpio_request(GPIO_GFN_SD3_DAT3, NULL);	/* GP_4_12 */
-	gpio_request(GPIO_GFN_SD3_CLK, NULL);	/* GP_4_7 */
-	gpio_request(GPIO_GFN_SD3_CMD, NULL);	/* GP_4_8 */
-#elif defined(CONFIG_R8A7796)
-	gpio_request(GPIO_FN_SD3_DAT0, NULL);	/* GP_4_9 */
-	gpio_request(GPIO_FN_SD3_DAT1, NULL);	/* GP_4_10 */
-	gpio_request(GPIO_FN_SD3_DAT2, NULL);	/* GP_4_11 */
-	gpio_request(GPIO_FN_SD3_DAT3, NULL);	/* GP_4_12 */
-	gpio_request(GPIO_FN_SD3_CLK, NULL);	/* GP_4_7 */
-	gpio_request(GPIO_FN_SD3_CMD, NULL);	/* GP_4_8 */
-#else
-#error Only R8A7795 and R87796 is supported
-#endif
-	/* IPSR10 */
-	gpio_request(GPIO_FN_SD3_CD, NULL);
-	gpio_request(GPIO_FN_SD3_WP, NULL);
-
-	gpio_request(GPIO_GP_3_15, NULL);
-	gpio_request(GPIO_GP_3_14, NULL);
-	gpio_direction_output(GPIO_GP_3_15, 1);	/* power on */
-	gpio_direction_output(GPIO_GP_3_14, 1);	/* 1: 3.3V, 0: 1.8V */
-#endif
+	/* Configure the HSUSB block */
+	mstp_clrbits_le32(MSTPSR7, SMSTPCR7, HSUSB_MSTP704);
+	/* Choice USB0SEL */
+	clrsetbits_le32(HSUSB_REG_UGCTRL2, HSUSB_REG_UGCTRL2_USB0SEL,
+			HSUSB_REG_UGCTRL2_USB0SEL_EHCI);
+	/* low power status */
+	setbits_le16(HSUSB_REG_LPSTS, HSUSB_REG_LPSTS_SUSPM_NORMAL);
 
 	return 0;
 }

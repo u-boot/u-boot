@@ -226,11 +226,14 @@ static int sh_serial_ofdata_to_platdata(struct udevice *dev)
 	plat->base = addr;
 
 	ret = clk_get_by_name(dev, "fck", &sh_serial_clk);
-	if (!ret)
-		plat->clk = clk_get_rate(&sh_serial_clk);
-	else
+	if (!ret) {
+		ret = clk_enable(&sh_serial_clk);
+		if (!ret)
+			plat->clk = clk_get_rate(&sh_serial_clk);
+	} else {
 		plat->clk = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					   "clock", 1);
+	}
 
 	plat->type = dev_get_driver_data(dev);
 	return 0;

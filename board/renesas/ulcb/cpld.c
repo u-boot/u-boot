@@ -12,10 +12,10 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 
-#define SCLK			GPIO_GP_6_8
-#define SSTBZ			GPIO_GP_2_3
-#define MOSI			GPIO_GP_6_7
-#define MISO			GPIO_GP_6_10
+#define SCLK			(192 + 8)	/* GPIO6 8 */
+#define SSTBZ			(64 + 3)	/* GPIO2 3 */
+#define MOSI			(192 + 7)	/* GPIO6 8 */
+#define MISO			(192 + 10)	/* GPIO6 10 */
 
 #define CPLD_ADDR_MODE		0x00 /* RW */
 #define CPLD_ADDR_MUX		0x02 /* RW */

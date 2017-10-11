@@ -2,8 +2,8 @@ Summary
 =======
 
 This README is about U-Boot support for Renesas's ARM Cortex-A9 based RMOBILE[1]
-and R-Car[2]family of SoCs. Renesas's RMOBILE/R-Car SoC family contains an ARM
-Cortex-A9.
+and Cortex-A9/A53/A57 based R-Car[2] family of SoCs. Renesas's RMOBILE/R-Car SoC
+family contains an ARM Cortex-A9/A53/A57.
 
 Currently the following boards are supported:
 
@@ -11,16 +11,21 @@ Currently the following boards are supported:
 * Atmark-Techno Armadillo-800-EVA [4]
 * Renesas Electronics Lager
 * Renesas Electronics Koelsch
+* Renesas Electronics Salvator-X  M3
+* Renesas Electronics Salvator-XS H3 ES2.0+
+* Renesas Electronics ULCB M3 / H3 ES2.0+
 
 Toolchain
 =========
 
-ARM Cortex-A9 support ARM v7 instruction set (-march=armv7a).
-But currently we compile with -march=armv5 to allow more compilers to work.
-(For U-Boot code this has no performance impact.)
-Because there was no compiler which is supporting armv7a not much before.
-Currently, ELDK[5], Linaro[6], CodeSourcey[7] and Emdebian[8] supports -march=armv7a
-and you can get.
+Either ARMv7 toolchain for 32bit Cortex-A9 systems or ARMv8 (aarch64)
+toolchain for 64bit Cortex-A53/A57 systems. Currently we compile the
+32bit systems with -march=armv5 to allow more compilers to work. (For
+U-Boot code this has no performance impact.)
+
+Currently, ELDK[5], Linaro[6], CodeSourcery[7] and Emdebian[8] supports
+ARMv7. Modern distributions also contain ARMv7 and ARMv8 crosstoolchains
+in their package feeds.
 
 Build
 =====
@@ -46,6 +51,26 @@ Build
 * Koelsch
 
   make koelsch_config
+  make
+
+* Salvator-X M3
+
+  make r8a7796_salvator-x_defconfig
+  make
+
+* Salvator-XS H3 ES2.0
+
+  make r8a7795_salvator-x_defconfig
+  make
+
+* ULCB M3
+
+  make r8a7796_ulcb_defconfig
+  make
+
+* ULCB H3 ES2.0
+
+  make r8a7795_ulcb_defconfig
   make
 
 Links
