@@ -198,7 +198,7 @@ int zynqmp_mmio_write(const u32 address,
 {
 	if (IS_ENABLED(CONFIG_SPL_BUILD) || current_el() == 3)
 		return zynqmp_mmio_rawwrite(address, mask, value);
-	else if (!IS_ENABLED(CONFIG_SPL_BUILD))
+	else
 		return invoke_smc(ZYNQMP_MMIO_WRITE, address, mask,
 				  value, 0, NULL);
 
@@ -215,7 +215,7 @@ int zynqmp_mmio_read(const u32 address, u32 *value)
 
 	if (IS_ENABLED(CONFIG_SPL_BUILD) || current_el() == 3) {
 		ret = zynqmp_mmio_rawread(address, value);
-	} else if (!IS_ENABLED(CONFIG_SPL_BUILD)) {
+	} else {
 		ret = invoke_smc(ZYNQMP_MMIO_READ, address, 0, 0,
 				 0, ret_payload);
 		*value = ret_payload[1];
