@@ -398,84 +398,6 @@ static int pll_para_config(u32 freq_hz, struct pll_div *div)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
-static void rkclk_init(struct rk3399_cru *cru)
-{
-	u32 aclk_div;
-	u32 hclk_div;
-	u32 pclk_div;
-
-	/*
-	 * some cru registers changed by bootrom, we'd better reset them to
-	 * reset/default values described in TRM to avoid confusion in kernel.
-	 * Please consider these three lines as a fix of bootrom bug.
-	 */
-	rk_clrsetreg(&cru->clksel_con[12], 0xffff, 0x4101);
-	rk_clrsetreg(&cru->clksel_con[19], 0xffff, 0x033f);
-	rk_clrsetreg(&cru->clksel_con[56], 0x0003, 0x0003);
-
-	/* configure gpll cpll */
-	rkclk_set_pll(&cru->gpll_con[0], &gpll_init_cfg);
-	rkclk_set_pll(&cru->cpll_con[0], &cpll_init_cfg);
-
-	/* configure perihp aclk, hclk, pclk */
-	aclk_div = GPLL_HZ / PERIHP_ACLK_HZ - 1;
-	assert((aclk_div + 1) * PERIHP_ACLK_HZ == GPLL_HZ && aclk_div < 0x1f);
-
-	hclk_div = PERIHP_ACLK_HZ / PERIHP_HCLK_HZ - 1;
-	assert((hclk_div + 1) * PERIHP_HCLK_HZ ==
-	       PERIHP_ACLK_HZ && (hclk_div < 0x4));
-
-	pclk_div = PERIHP_ACLK_HZ / PERIHP_PCLK_HZ - 1;
-	assert((pclk_div + 1) * PERIHP_PCLK_HZ ==
-	       PERIHP_ACLK_HZ && (pclk_div < 0x7));
-
-	rk_clrsetreg(&cru->clksel_con[14],
-		     PCLK_PERIHP_DIV_CON_MASK | HCLK_PERIHP_DIV_CON_MASK |
-		     ACLK_PERIHP_PLL_SEL_MASK | ACLK_PERIHP_DIV_CON_MASK,
-		     pclk_div << PCLK_PERIHP_DIV_CON_SHIFT |
-		     hclk_div << HCLK_PERIHP_DIV_CON_SHIFT |
-		     ACLK_PERIHP_PLL_SEL_GPLL << ACLK_PERIHP_PLL_SEL_SHIFT |
-		     aclk_div << ACLK_PERIHP_DIV_CON_SHIFT);
-
-	/* configure perilp0 aclk, hclk, pclk */
-	aclk_div = GPLL_HZ / PERILP0_ACLK_HZ - 1;
-	assert((aclk_div + 1) * PERILP0_ACLK_HZ == GPLL_HZ && aclk_div < 0x1f);
-
-	hclk_div = PERILP0_ACLK_HZ / PERILP0_HCLK_HZ - 1;
-	assert((hclk_div + 1) * PERILP0_HCLK_HZ ==
-	       PERILP0_ACLK_HZ && (hclk_div < 0x4));
-
-	pclk_div = PERILP0_ACLK_HZ / PERILP0_PCLK_HZ - 1;
-	assert((pclk_div + 1) * PERILP0_PCLK_HZ ==
-	       PERILP0_ACLK_HZ && (pclk_div < 0x7));
-
-	rk_clrsetreg(&cru->clksel_con[23],
-		     PCLK_PERILP0_DIV_CON_MASK | HCLK_PERILP0_DIV_CON_MASK |
-		     ACLK_PERILP0_PLL_SEL_MASK | ACLK_PERILP0_DIV_CON_MASK,
-		     pclk_div << PCLK_PERILP0_DIV_CON_SHIFT |
-		     hclk_div << HCLK_PERILP0_DIV_CON_SHIFT |
-		     ACLK_PERILP0_PLL_SEL_GPLL << ACLK_PERILP0_PLL_SEL_SHIFT |
-		     aclk_div << ACLK_PERILP0_DIV_CON_SHIFT);
-
-	/* perilp1 hclk select gpll as source */
-	hclk_div = GPLL_HZ / PERILP1_HCLK_HZ - 1;
-	assert((hclk_div + 1) * PERILP1_HCLK_HZ ==
-	       GPLL_HZ && (hclk_div < 0x1f));
-
-	pclk_div = PERILP1_HCLK_HZ / PERILP1_HCLK_HZ - 1;
-	assert((pclk_div + 1) * PERILP1_HCLK_HZ ==
-	       PERILP1_HCLK_HZ && (hclk_div < 0x7));
-
-	rk_clrsetreg(&cru->clksel_con[25],
-		     PCLK_PERILP1_DIV_CON_MASK | HCLK_PERILP1_DIV_CON_MASK |
-		     HCLK_PERILP1_PLL_SEL_MASK,
-		     pclk_div << PCLK_PERILP1_DIV_CON_SHIFT |
-		     hclk_div << HCLK_PERILP1_DIV_CON_SHIFT |
-		     HCLK_PERILP1_PLL_SEL_GPLL << HCLK_PERILP1_PLL_SEL_SHIFT);
-}
-#endif
-
 void rk3399_configure_cpu(struct rk3399_cru *cru,
 			  enum apll_l_frequencies apll_l_freq)
 {
@@ -1003,6 +925,85 @@ static struct clk_ops rk3399_clk_ops = {
 	.set_rate = rk3399_clk_set_rate,
 	.enable = rk3399_clk_enable,
 };
+
+#ifdef CONFIG_SPL_BUILD
+static void rkclk_init(struct rk3399_cru *cru)
+{
+	u32 aclk_div;
+	u32 hclk_div;
+	u32 pclk_div;
+
+	rk3399_configure_cpu(cru, APLL_L_600_MHZ);
+	/*
+	 * some cru registers changed by bootrom, we'd better reset them to
+	 * reset/default values described in TRM to avoid confusion in kernel.
+	 * Please consider these three lines as a fix of bootrom bug.
+	 */
+	rk_clrsetreg(&cru->clksel_con[12], 0xffff, 0x4101);
+	rk_clrsetreg(&cru->clksel_con[19], 0xffff, 0x033f);
+	rk_clrsetreg(&cru->clksel_con[56], 0x0003, 0x0003);
+
+	/* configure gpll cpll */
+	rkclk_set_pll(&cru->gpll_con[0], &gpll_init_cfg);
+	rkclk_set_pll(&cru->cpll_con[0], &cpll_init_cfg);
+
+	/* configure perihp aclk, hclk, pclk */
+	aclk_div = GPLL_HZ / PERIHP_ACLK_HZ - 1;
+	assert((aclk_div + 1) * PERIHP_ACLK_HZ == GPLL_HZ && aclk_div < 0x1f);
+
+	hclk_div = PERIHP_ACLK_HZ / PERIHP_HCLK_HZ - 1;
+	assert((hclk_div + 1) * PERIHP_HCLK_HZ ==
+	       PERIHP_ACLK_HZ && (hclk_div < 0x4));
+
+	pclk_div = PERIHP_ACLK_HZ / PERIHP_PCLK_HZ - 1;
+	assert((pclk_div + 1) * PERIHP_PCLK_HZ ==
+	       PERIHP_ACLK_HZ && (pclk_div < 0x7));
+
+	rk_clrsetreg(&cru->clksel_con[14],
+		     PCLK_PERIHP_DIV_CON_MASK | HCLK_PERIHP_DIV_CON_MASK |
+		     ACLK_PERIHP_PLL_SEL_MASK | ACLK_PERIHP_DIV_CON_MASK,
+		     pclk_div << PCLK_PERIHP_DIV_CON_SHIFT |
+		     hclk_div << HCLK_PERIHP_DIV_CON_SHIFT |
+		     ACLK_PERIHP_PLL_SEL_GPLL << ACLK_PERIHP_PLL_SEL_SHIFT |
+		     aclk_div << ACLK_PERIHP_DIV_CON_SHIFT);
+
+	/* configure perilp0 aclk, hclk, pclk */
+	aclk_div = GPLL_HZ / PERILP0_ACLK_HZ - 1;
+	assert((aclk_div + 1) * PERILP0_ACLK_HZ == GPLL_HZ && aclk_div < 0x1f);
+
+	hclk_div = PERILP0_ACLK_HZ / PERILP0_HCLK_HZ - 1;
+	assert((hclk_div + 1) * PERILP0_HCLK_HZ ==
+	       PERILP0_ACLK_HZ && (hclk_div < 0x4));
+
+	pclk_div = PERILP0_ACLK_HZ / PERILP0_PCLK_HZ - 1;
+	assert((pclk_div + 1) * PERILP0_PCLK_HZ ==
+	       PERILP0_ACLK_HZ && (pclk_div < 0x7));
+
+	rk_clrsetreg(&cru->clksel_con[23],
+		     PCLK_PERILP0_DIV_CON_MASK | HCLK_PERILP0_DIV_CON_MASK |
+		     ACLK_PERILP0_PLL_SEL_MASK | ACLK_PERILP0_DIV_CON_MASK,
+		     pclk_div << PCLK_PERILP0_DIV_CON_SHIFT |
+		     hclk_div << HCLK_PERILP0_DIV_CON_SHIFT |
+		     ACLK_PERILP0_PLL_SEL_GPLL << ACLK_PERILP0_PLL_SEL_SHIFT |
+		     aclk_div << ACLK_PERILP0_DIV_CON_SHIFT);
+
+	/* perilp1 hclk select gpll as source */
+	hclk_div = GPLL_HZ / PERILP1_HCLK_HZ - 1;
+	assert((hclk_div + 1) * PERILP1_HCLK_HZ ==
+	       GPLL_HZ && (hclk_div < 0x1f));
+
+	pclk_div = PERILP1_HCLK_HZ / PERILP1_HCLK_HZ - 1;
+	assert((pclk_div + 1) * PERILP1_HCLK_HZ ==
+	       PERILP1_HCLK_HZ && (hclk_div < 0x7));
+
+	rk_clrsetreg(&cru->clksel_con[25],
+		     PCLK_PERILP1_DIV_CON_MASK | HCLK_PERILP1_DIV_CON_MASK |
+		     HCLK_PERILP1_PLL_SEL_MASK,
+		     pclk_div << PCLK_PERILP1_DIV_CON_SHIFT |
+		     hclk_div << HCLK_PERILP1_DIV_CON_SHIFT |
+		     HCLK_PERILP1_PLL_SEL_GPLL << HCLK_PERILP1_PLL_SEL_SHIFT);
+}
+#endif
 
 static int rk3399_clk_probe(struct udevice *dev)
 {
