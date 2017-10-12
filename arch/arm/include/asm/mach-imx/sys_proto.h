@@ -107,6 +107,8 @@ void init_aips(void);
 void init_src(void);
 void imx_set_wdog_powerdown(bool enable);
 
+int board_mmc_get_env_dev(int devno);
+
 /*
  * Initializes on-chip ethernet controllers.
  * to override, implement board_eth_init()

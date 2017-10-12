@@ -129,6 +129,15 @@ config TARGET_COLIBRI_IMX6
 	select DM_SERIAL
 	select DM_THERMAL
 
+config TARGET_DHCOMIMX6
+	bool "dh_imx6"
+	select BOARD_LATE_INIT
+	select BOARD_EARLY_INIT_F
+	select SUPPORT_SPL
+	select DM
+	select DM_THERMAL
+	imply CMD_SPL
+
 config TARGET_EMBESTMX6BOARDS
 	bool "embestmx6boards"
 	select BOARD_LATE_INIT
@@ -428,6 +437,7 @@ source "board/boundary/nitrogen6x/Kconfig"
 source "board/ccv/xpress/Kconfig"
 source "board/compulab/cm_fx6/Kconfig"
 source "board/congatec/cgtqmx6eval/Kconfig"
+source "board/dhelectronics/dh_imx6/Kconfig"
 source "board/el/el6x/Kconfig"
 source "board/embest/mx6boards/Kconfig"
 source "board/engicam/geam6ul/Kconfig"

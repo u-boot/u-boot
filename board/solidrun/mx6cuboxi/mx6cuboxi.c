@@ -308,12 +308,7 @@ int board_ehci_hcd_init(int port)
 
 int board_early_init_f(void)
 {
-	int ret = 0;
 	setup_iomux_uart();
-
-#ifdef CONFIG_VIDEO_IPUV3
-	ret = setup_display();
-#endif
 
 #ifdef CONFIG_CMD_SATA
 	setup_sata();
@@ -322,15 +317,21 @@ int board_early_init_f(void)
 #ifdef CONFIG_USB_EHCI_MX6
 	setup_usb();
 #endif
-	return ret;
+	return 0;
 }
 
 int board_init(void)
 {
+	int ret = 0;
+
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
-	return 0;
+#ifdef CONFIG_VIDEO_IPUV3
+	ret = setup_display();
+#endif
+
+	return ret;
 }
 
 static bool is_hummingboard(void)

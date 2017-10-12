@@ -28,6 +28,7 @@
 #include <asm/arch/crm_regs.h>
 #include <linux/fb.h>
 #include <ipu_pixfmt.h>
+#include <input.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <pwm.h>
