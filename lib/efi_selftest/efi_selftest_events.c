@@ -186,7 +186,7 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 	ret = boottime->set_timer(event_wait, EFI_TIMER_STOP, 0);
-	if (index != 0) {
+	if (ret != EFI_SUCCESS) {
 		efi_st_error("Could not cancel timer\n");
 		return EFI_ST_FAILURE;
 	}
