@@ -525,7 +525,7 @@ int drv_usbtty_init (void)
 	char * tt;
 	int snlen;
 
-	/* Ger seiral number */
+	/* Get serial number */
 	sn = env_get("serial#");
 	if (!sn)
 		sn = "000000000000";
