@@ -258,6 +258,12 @@ static int spl_common_init(bool setup_malloc)
 	return 0;
 }
 
+void spl_set_bd(void)
+{
+	if (!gd->bd)
+		gd->bd = &bdata;
+}
+
 int spl_early_init(void)
 {
 	int ret;
@@ -365,7 +371,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	struct spl_image_info spl_image;
 
 	debug(">>spl:board_init_r()\n");
-	gd->bd = &bdata;
+
+	spl_set_bd();
+
 #ifdef CONFIG_SPL_OS_BOOT
 	dram_init_banksize();
 #endif

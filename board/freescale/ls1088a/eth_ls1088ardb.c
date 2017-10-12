@@ -15,15 +15,14 @@
 #include <asm/io.h>
 #include <exports.h>
 #include <asm/arch/fsl_serdes.h>
+#include <fsl-mc/fsl_mc.h>
 #include <fsl-mc/ldpaa_wriop.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define MC_BOOT_ENV_VAR "mcinitcmd"
 int board_eth_init(bd_t *bis)
 {
 #if defined(CONFIG_FSL_MC_ENET)
-	char *mc_boot_env_var;
 	int i, interface;
 	struct memac_mdio_info mdio_info;
 	struct mii_dev *dev;
@@ -92,11 +91,15 @@ int board_eth_init(bd_t *bis)
 	dev = miiphy_get_dev_by_name(DEFAULT_WRIOP_MDIO2_NAME);
 	wriop_set_mdio(WRIOP1_DPMAC2, dev);
 
-	mc_boot_env_var = env_get(MC_BOOT_ENV_VAR);
-	if (mc_boot_env_var)
-		run_command_list(mc_boot_env_var, -1, 0);
 	cpu_eth_init(bis);
 #endif /* CONFIG_FMAN_ENET */
 
 	return pci_eth_init(bis);
 }
+
+#if defined(CONFIG_RESET_PHY_R)
+void reset_phy(void)
+{
+	mc_env_boot();
+}
+#endif /* CONFIG_RESET_PHY_R */

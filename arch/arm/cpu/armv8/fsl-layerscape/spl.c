@@ -80,6 +80,7 @@ void board_init_f(ulong dummy)
 	get_clocks();
 
 	preloader_console_init();
+	spl_set_bd();
 
 #ifdef CONFIG_SPL_I2C_SUPPORT
 	i2c_init_all();
@@ -116,4 +117,29 @@ void board_init_f(ulong dummy)
 	gd->arch.tlb_allocated = gd->arch.tlb_addr;
 #endif	/* CONFIG_SPL_FSL_LS_PPA */
 }
+
+#ifdef CONFIG_SPL_OS_BOOT
+/*
+ * Return
+ * 0 if booting into OS is selected
+ * 1 if booting into U-Boot is selected
+ */
+int spl_start_uboot(void)
+{
+	env_init();
+	if (env_get_yesno("boot_os") != 0)
+		return 0;
+
+	return 1;
+}
+#endif	/* CONFIG_SPL_OS_BOOT */
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	/* Just empty function now - can't decide what to choose */
+	debug("%s: %s\n", __func__, name);
+
+	return 0;
+}
+#endif
 #endif /* CONFIG_SPL_BUILD */
