@@ -672,6 +672,13 @@ int board_late_init(void)
 
 	omap_die_id_serial();
 	omap_set_fastboot_vars();
+
+	/*
+	 * Hook the LDO1 regulator to EN pin. This applies only to LP8733
+	 * Rest all regulators are hooked to EN Pin at reset.
+	 */
+	if (board_is_dra71x_evm())
+		palmas_i2c_write_u8(LP873X_I2C_SLAVE_ADDR, 0x9, 0x7);
 #endif
 	return 0;
 }
