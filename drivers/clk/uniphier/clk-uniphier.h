@@ -73,6 +73,7 @@ struct uniphier_clk_data {
 
 extern const struct uniphier_clk_data uniphier_pxs2_sys_clk_data[];
 extern const struct uniphier_clk_data uniphier_ld20_sys_clk_data[];
+extern const struct uniphier_clk_data uniphier_pxs3_sys_clk_data[];
 extern const struct uniphier_clk_data uniphier_mio_clk_data[];
 
 #endif /* __CLK_UNIPHIER_H__ */

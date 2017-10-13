@@ -296,6 +296,10 @@ static const struct udevice_id uniphier_clk_match[] = {
 		.compatible = "socionext,uniphier-ld20-clock",
 		.data = (ulong)uniphier_ld20_sys_clk_data,
 	},
+	{
+		.compatible = "socionext,uniphier-pxs3-clock",
+		.data = (ulong)uniphier_pxs3_sys_clk_data,
+	},
 	/* Media I/O clock */
 	{
 		.compatible = "socionext,uniphier-ld4-mio-clock",
@@ -323,6 +327,10 @@ static const struct udevice_id uniphier_clk_match[] = {
 	},
 	{
 		.compatible = "socionext,uniphier-ld20-sd-clock",
+		.data = (ulong)uniphier_mio_clk_data,
+	},
+	{
+		.compatible = "socionext,uniphier-pxs3-sd-clock",
 		.data = (ulong)uniphier_mio_clk_data,
 	},
 	{ /* sentinel */ }

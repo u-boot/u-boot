@@ -30,3 +30,17 @@ const struct uniphier_clk_data uniphier_ld20_sys_clk_data[] = {
 	{ /* sentinel */ }
 #endif
 };
+
+const struct uniphier_clk_data uniphier_pxs3_sys_clk_data[] = {
+#if defined(CONFIG_ARCH_UNIPHIER_PXS3)
+	UNIPHIER_CLK_GATE_SIMPLE(12, 0x210c, 4),	/* usb30 (gio0) */
+	UNIPHIER_CLK_GATE_SIMPLE(13, 0x210c, 5),	/* usb31-0 (gio1) */
+	UNIPHIER_CLK_GATE_SIMPLE(14, 0x210c, 6),	/* usb31-1 (gio1-1) */
+	UNIPHIER_CLK_GATE_SIMPLE(16, 0x210c, 16),	/* usb30-phy0 */
+	UNIPHIER_CLK_GATE_SIMPLE(17, 0x210c, 18),	/* usb30-phy1 */
+	UNIPHIER_CLK_GATE_SIMPLE(18, 0x210c, 20),	/* usb30-phy2 */
+	UNIPHIER_CLK_GATE_SIMPLE(20, 0x210c, 17),	/* usb31-phy0 */
+	UNIPHIER_CLK_GATE_SIMPLE(21, 0x210c, 19),	/* usb31-phy1 */
+	{ /* sentinel */ }
+#endif
+};
