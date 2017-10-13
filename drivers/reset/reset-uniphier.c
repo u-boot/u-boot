@@ -210,7 +210,8 @@ static int uniphier_reset_update(struct reset_ctl *reset_ctl, int assert)
 		return 0;
 	}
 
-	dev_err(priv->dev, "reset_id=%lu was not handled\n", id);
+	dev_err(reset_ctl->dev, "reset_id=%lu was not handled\n", id);
+
 	return -EINVAL;
 }
 
