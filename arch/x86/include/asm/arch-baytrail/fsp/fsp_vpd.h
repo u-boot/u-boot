@@ -45,7 +45,7 @@ struct __packed upd_region {
 	uint8_t enable_sata;			/* Offset 0x002d */
 	uint8_t sata_mode;			/* Offset 0x002e */
 	uint8_t enable_azalia;			/* Offset 0x002f */
-	uint32_t azalia_config_ptr;		/* Offset 0x0030 */
+	struct azalia_config *azalia_cfg_ptr;	/* Offset 0x0030 */
 	uint8_t enable_xhci;			/* Offset 0x0034 */
 	uint8_t lpe_mode;			/* Offset 0x0035 */
 	uint8_t lpss_sio_mode;			/* Offset 0x0036 */

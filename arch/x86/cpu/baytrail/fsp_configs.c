@@ -120,6 +120,17 @@ const struct azalia_config azalia_config = {
 };
 
 /**
+ * Override the FSP's Azalia configuration data
+ *
+ * @azalia:	pointer to be updated to point to a ROM address where Azalia
+ *		configuration data is stored
+ */
+static void update_fsp_azalia_configs(struct azalia_config **azalia)
+{
+	*azalia = (struct azalia_config *)&azalia_config;
+}
+
+/**
  * Override the FSP's configuration data.
  * If the device tree does not specify an integer setting, use the default
  * provided in Intel's Baytrail_FSP_Gold4.tgz release FSP/BayleyBayFsp.bsf file.
@@ -136,8 +147,6 @@ void update_fsp_configs(struct fsp_config_data *config,
 	rt_buf->common.stack_top = config->common.stack_top - 32;
 	rt_buf->common.boot_mode = config->common.boot_mode;
 	rt_buf->common.upd_data = &config->fsp_upd;
-
-	fsp_upd->azalia_config_ptr = (uint32_t)&azalia_config;
 
 	node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_BAYTRAIL_FSP);
 	if (node < 0) {
@@ -173,6 +182,8 @@ void update_fsp_configs(struct fsp_config_data *config,
 					    SATA_MODE_AHCI);
 	fsp_upd->enable_azalia = fdtdec_get_bool(blob, node,
 						 "fsp,enable-azalia");
+	if (fsp_upd->enable_azalia)
+		update_fsp_azalia_configs(&fsp_upd->azalia_cfg_ptr);
 	fsp_upd->enable_xhci = fdtdec_get_bool(blob, node, "fsp,enable-xhci");
 	fsp_upd->lpe_mode = fdtdec_get_int(blob, node, "fsp,lpe-mode",
 					   LPE_MODE_PCI);
