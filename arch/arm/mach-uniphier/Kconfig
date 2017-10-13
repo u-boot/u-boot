@@ -12,7 +12,7 @@ config ARCH_UNIPHIER_32BIT
 
 choice
         prompt "UniPhier SoC select"
-        default ARCH_UNIPHIER_V8_MULTI
+        default ARCH_UNIPHIER_V7_MULTI
 
 config ARCH_UNIPHIER_LD4_SLD8
 	bool "UniPhier LD4/sLD8 SoCs"
