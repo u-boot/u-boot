@@ -12,8 +12,6 @@
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define I2C_MAX_OFFSET_LEN	4
 
 /* Useful debugging function */
