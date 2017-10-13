@@ -10,7 +10,9 @@
 #include <spl.h>
 #include <libfdt.h>
 #include <nand.h>
+#include <stdio.h>
 #include <linux/io.h>
+#include <linux/printk.h>
 #include <../drivers/mtd/nand/denali.h>
 
 #include "init.h"
@@ -92,7 +94,7 @@ int board_late_init(void)
 	printf("\n");
 
 	if (uniphier_set_fdt_file())
-		printf("fdt_file environment was not set correctly\n");
+		pr_warn("fdt_file environment was not set correctly\n");
 
 	return 0;
 }

@@ -7,7 +7,9 @@
  */
 
 #include <common.h>
+#include <stdio.h>
 #include <linux/io.h>
+#include <linux/printk.h>
 #include <linux/sizes.h>
 
 #include "../soc-info.h"
@@ -267,7 +269,7 @@ static int do_ddr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	param = uniphier_get_ddrphy_param();
 	if (!param) {
-		printf("unsupported SoC\n");
+		pr_err("unsupported SoC\n");
 		return CMD_RET_FAILURE;
 	}
 

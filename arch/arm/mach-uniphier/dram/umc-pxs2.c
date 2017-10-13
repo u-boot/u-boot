@@ -8,11 +8,13 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <common.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/io.h>
+#include <linux/printk.h>
 #include <linux/sizes.h>
 #include <asm/processor.h>
+#include <time.h>
 
 #include "../init.h"
 #include "../soc-info.h"
@@ -134,7 +136,7 @@ static int ddrphy_get_system_latency(void __iomem *phy_base, int width)
 	}
 
 	if (dgsl_min != dgsl_max)
-		printf("DQS Gateing System Latencies are not all leveled.\n");
+		pr_warn("DQS Gateing System Latencies are not all leveled.\n");
 
 	return dgsl_max;
 }
@@ -149,7 +151,7 @@ static void ddrphy_init(void __iomem *phy_base, enum dram_freq freq, int width,
 
 	nr_dx = width / 8;
 
-	writel(MPHY_PIR_ZCALBYP,        phy_base + MPHY_PIR);
+	writel(MPHY_PIR_ZCALBYP, phy_base + MPHY_PIR);
 	/*
 	 * Disable RGLVT bit (Read DQS Gating LCDL Delay VT Compensation)
 	 * to avoid read error issue.
@@ -315,8 +317,10 @@ static int __ddrphy_training(void __iomem *phy_base,
 	u32 init_flag = MPHY_PIR_INIT;
 	u32 done_flag = MPHY_PGSR0_IDONE;
 	int timeout = 50000; /* 50 msec is long enough */
-#ifdef DISPLAY_ELAPSED_TIME
-	ulong start = get_timer(0);
+	unsigned long start = 0;
+
+#ifdef DEBUG
+	start = get_timer(0);
 #endif
 
 	for (s = seq; s->description; s++) {
@@ -344,9 +348,7 @@ static int __ddrphy_training(void __iomem *phy_base,
 		}
 	}
 
-#ifdef DISPLAY_ELAPSED_TIME
-	printf("%s: info: elapsed time %ld msec\n", get_timer(start));
-#endif
+	pr_debug("DDRPHY training: elapsed time %ld msec\n", get_timer(start));
 
 	return 0;
 }

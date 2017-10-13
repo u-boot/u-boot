@@ -7,8 +7,10 @@
 
 #include <common.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/io.h>
 #include <linux/kernel.h>
+#include <linux/printk.h>
 #include <linux/psci.h>
 #include <linux/sizes.h>
 #include <asm/processor.h>
@@ -91,7 +93,7 @@ static void uniphier_smp_kick_all_cpus(void)
 	}
 
 	if (!timeout)
-		printf("warning: some of secondary CPUs may not boot\n");
+		pr_warn("warning: some of secondary CPUs may not boot\n");
 
 	uniphier_cache_disable();
 }
