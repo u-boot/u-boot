@@ -3,7 +3,6 @@ menu "Environment"
 choice
 	prompt "Select the location of the environment"
 	default ENV_IS_IN_MMC if ARCH_SUNXI
-	default ENV_IS_IN_MMC if ARCH_UNIPHIER
 	default ENV_IS_IN_MMC if ARCH_EXYNOS4
 	default ENV_IS_IN_MMC if MX6SX || MX7D
 	default ENV_IS_IN_MMC if TEGRA30 || TEGRA124
