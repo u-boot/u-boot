@@ -17,7 +17,7 @@ def test_sleep(u_boot_console):
     u_boot_console.run_command('sleep %d' % sleep_time)
     tend = time.time()
     elapsed = tend - tstart
-    assert elapsed >= sleep_time
+    assert elapsed >= (sleep_time - 0.01)
     if not u_boot_console.config.gdbserver:
         # 0.25s margin is hopefully enough to account for any system overhead.
         assert elapsed < (sleep_time + 0.25)
