@@ -307,14 +307,37 @@ static efi_status_t EFIAPI efi_cout_set_mode(
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
+static const struct {
+	unsigned int fg;
+	unsigned int bg;
+} color[] = {
+	{ 30, 40 },     /* 0: black */
+	{ 34, 44 },     /* 1: blue */
+	{ 32, 42 },     /* 2: green */
+	{ 36, 46 },     /* 3: cyan */
+	{ 31, 41 },     /* 4: red */
+	{ 35, 45 },     /* 5: magenta */
+	{ 33, 43 },     /* 6: brown, map to yellow as edk2 does*/
+	{ 37, 47 },     /* 7: light grey, map to white */
+};
+
+/* See EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.SetAttribute(). */
 static efi_status_t EFIAPI efi_cout_set_attribute(
 			struct efi_simple_text_output_protocol *this,
 			unsigned long attribute)
 {
+	unsigned int bold = EFI_ATTR_BOLD(attribute);
+	unsigned int fg = EFI_ATTR_FG(attribute);
+	unsigned int bg = EFI_ATTR_BG(attribute);
+
 	EFI_ENTRY("%p, %lx", this, attribute);
 
-	/* Just ignore attributes (colors) for now */
-	return EFI_EXIT(EFI_UNSUPPORTED);
+	if (attribute)
+		printf(ESC"[%u;%u;%um", bold, color[fg].fg, color[bg].bg);
+	else
+		printf(ESC"[0;37;40m");
+
+	return EFI_EXIT(EFI_SUCCESS);
 }
 
 static efi_status_t EFIAPI efi_cout_clear_screen(
@@ -460,7 +483,7 @@ static void EFIAPI efi_console_timer_notify(struct efi_event *event,
 {
 	EFI_ENTRY("%p, %p", event, context);
 	if (tstc()) {
-		efi_con_in.wait_for_key->signaled = 1;
+		efi_con_in.wait_for_key->is_signaled = true;
 		efi_signal_event(efi_con_in.wait_for_key);
 		}
 	EFI_EXIT(EFI_SUCCESS);

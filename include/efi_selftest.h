@@ -14,14 +14,17 @@
 #include <efi_api.h>
 #include <linker_lists.h>
 
+#define EFI_ST_SUCCESS 0
+#define EFI_ST_FAILURE 1
+
 /*
  * Prints an error message.
  *
  * @...	format string followed by fields to print
  */
 #define efi_st_error(...) \
-	efi_st_printf("%s(%u):\nERROR: ", __FILE__, __LINE__); \
-	efi_st_printf(__VA_ARGS__) \
+	(efi_st_printf("%s(%u):\nERROR: ", __FILE__, __LINE__), \
+	efi_st_printf(__VA_ARGS__)) \
 
 /*
  * A test may be setup and executed at boottime,
@@ -56,6 +59,17 @@ void efi_st_exit_boot_services(void);
  */
 void efi_st_printf(const char *fmt, ...)
 		 __attribute__ ((format (__printf__, 1, 2)));
+
+/*
+ * Compare memory.
+ * We cannot use lib/string.c due to different CFLAGS values.
+ *
+ * @buf1:	first buffer
+ * @buf2:	second buffer
+ * @length:	number of bytes to compare
+ * @return:	0 if both buffers contain the same bytes
+ */
+int efi_st_memcmp(const void *buf1, const void *buf2, size_t length);
 
 /*
  * Reads an Unicode character from the input device.

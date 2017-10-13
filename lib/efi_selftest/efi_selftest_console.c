@@ -13,6 +13,37 @@ struct efi_simple_text_output_protocol *con_out;
 struct efi_simple_input_interface *con_in;
 
 /*
+ * Print a MAC address to an u16 string
+ *
+ * @pointer: mac address
+ * @buf: pointer to buffer address
+ * on return position of terminating zero word
+ */
+static void mac(void *pointer, u16 **buf)
+{
+	int i, j;
+	u16 c;
+	u8 *p = (u8 *)pointer;
+	u8 byte;
+	u16 *pos = *buf;
+
+	for (i = 0; i < ARP_HLEN; ++i) {
+		if (i)
+			*pos++ = ':';
+		byte = p[i];
+		for (j = 4; j >= 0; j -= 4) {
+			c = (byte >> j) & 0x0f;
+			c += '0';
+			if (c > '9')
+				c += 'a' - '9' - 1;
+			*pos++ = c;
+		}
+	}
+	*pos = 0;
+	*buf = pos;
+}
+
+/*
  * Print a pointer to an u16 string
  *
  * @pointer: pointer
@@ -146,7 +177,15 @@ void efi_st_printf(const char *fmt, ...)
 				int2dec(va_arg(args, s32), &pos);
 				break;
 			case 'p':
-				pointer(va_arg(args, void*), &pos);
+				++c;
+				switch (*c) {
+				case 'm':
+					mac(va_arg(args, void*), &pos);
+					break;
+				default:
+					--c;
+					pointer(va_arg(args, void*), &pos);
+				}
 				break;
 			case 's':
 				s = va_arg(args, const char *);

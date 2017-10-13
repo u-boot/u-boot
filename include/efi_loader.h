@@ -112,8 +112,8 @@ struct efi_handler {
 struct efi_object {
 	/* Every UEFI object is part of a global object list */
 	struct list_head link;
-	/* We support up to 8 "protocols" an object can be accessed through */
-	struct efi_handler protocols[8];
+	/* We support up to 16 "protocols" an object can be accessed through */
+	struct efi_handler protocols[16];
 	/* The object spawner can either use this for data or as identifier */
 	void *handle;
 };
@@ -136,8 +136,8 @@ struct efi_object {
  * @nofify_function:	Function to call when the event is triggered
  * @notify_context:	Data to be passed to the notify function
  * @trigger_type:	Type of timer, see efi_set_timer
- * @queued:		The notification functionis queued
- * @signaled:		The event occured
+ * @queued:		The notification function is queued
+ * @signaled:		The event occurred. The event is in the signaled state.
  */
 struct efi_event {
 	uint32_t type;
@@ -147,8 +147,8 @@ struct efi_event {
 	u64 trigger_next;
 	u64 trigger_time;
 	enum efi_timer_delay trigger_type;
-	int queued;
-	int signaled;
+	bool is_queued;
+	bool is_signaled;
 };
 
 
@@ -259,6 +259,9 @@ struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part);
 struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
 					 const char *path);
 struct efi_device_path *efi_dp_from_eth(void);
+struct efi_device_path *efi_dp_from_mem(uint32_t mem_type,
+					uint64_t start_address,
+					uint64_t end_address);
 void efi_dp_split_file_path(struct efi_device_path *full_path,
 			    struct efi_device_path **device_path,
 			    struct efi_device_path **file_path);

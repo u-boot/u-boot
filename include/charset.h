@@ -9,7 +9,7 @@
 #ifndef __CHARSET_H_
 #define __CHARSET_H_
 
-#define MAX_UTF8_PER_UTF16 4
+#define MAX_UTF8_PER_UTF16 3
 
 /**
  * utf16_strlen() - Get the length of an utf16 string
@@ -52,7 +52,7 @@ uint16_t *utf16_strdup(const uint16_t *s);
  * Converts 'size' characters of the utf16 string 'src' to utf8
  * written to the 'dest' buffer.
  *
- * NOTE that a single utf16 character can generate up to 4 utf8
+ * NOTE that a single utf16 character can generate up to 3 utf8
  * characters.  See MAX_UTF8_PER_UTF16.
  *
  * @dest   the destination buffer to write the utf8 characters

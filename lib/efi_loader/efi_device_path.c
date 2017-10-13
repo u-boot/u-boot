@@ -538,6 +538,30 @@ struct efi_device_path *efi_dp_from_eth(void)
 }
 #endif
 
+/* Construct a device-path for memory-mapped image */
+struct efi_device_path *efi_dp_from_mem(uint32_t memory_type,
+					uint64_t start_address,
+					uint64_t end_address)
+{
+	struct efi_device_path_memory *mdp;
+	void *buf, *start;
+
+	start = buf = dp_alloc(sizeof(*mdp) + sizeof(END));
+
+	mdp = buf;
+	mdp->dp.type = DEVICE_PATH_TYPE_HARDWARE_DEVICE;
+	mdp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MEMORY;
+	mdp->dp.length = sizeof(*mdp);
+	mdp->memory_type = memory_type;
+	mdp->start_address = start_address;
+	mdp->end_address = end_address;
+	buf = &mdp[1];
+
+	*((struct efi_device_path *)buf) = END;
+
+	return start;
+}
+
 /*
  * Helper to split a full device path (containing both device and file
  * parts) into it's constituent parts.

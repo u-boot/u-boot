@@ -24,6 +24,15 @@ static char *dp_unknown(char *s, struct efi_device_path *dp)
 static char *dp_hardware(char *s, struct efi_device_path *dp)
 {
 	switch (dp->sub_type) {
+	case DEVICE_PATH_SUB_TYPE_MEMORY: {
+		struct efi_device_path_memory *mdp =
+			(struct efi_device_path_memory *)dp;
+		s += sprintf(s, "/MemoryMapped(0x%x,0x%llx,0x%llx)",
+			     mdp->memory_type,
+			     mdp->start_address,
+			     mdp->end_address);
+		break;
+	}
 	case DEVICE_PATH_SUB_TYPE_VENDOR: {
 		struct efi_device_path_vendor *vdp =
 			(struct efi_device_path_vendor *)dp;
