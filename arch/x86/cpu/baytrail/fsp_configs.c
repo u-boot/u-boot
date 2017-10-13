@@ -8,13 +8,12 @@
 
 #include <common.h>
 #include <fdtdec.h>
-#include <asm/arch/fsp/azalia.h>
 #include <asm/fsp/fsp_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 /* ALC262 Verb Table - 10EC0262 */
-static const uint32_t verb_table_data13[] = {
+static const u32 verb_table_data13[] = {
 	/* Pin Complex (NID 0x11) */
 	0x01171cf0,
 	0x01171d11,
@@ -94,7 +93,7 @@ static const uint32_t verb_table_data13[] = {
  * Codec Address: CAd value (0/1/2)
  * Codec Vendor: 0x10EC0262
  */
-static const struct pch_azalia_verb_table azalia_verb_table[] = {
+static const struct azalia_verb_table azalia_verb_table[] = {
 	{
 		{
 			0x10ec0262,
@@ -108,16 +107,16 @@ static const struct pch_azalia_verb_table azalia_verb_table[] = {
 	}
 };
 
-const struct pch_azalia_config azalia_config = {
+const struct azalia_config azalia_config = {
 	.pme_enable = 1,
 	.docking_supported = 1,
 	.docking_attached = 0,
 	.hdmi_codec_enable = 1,
 	.azalia_v_ci_enable = 1,
 	.rsvdbits = 0,
-	.azalia_verb_table_num = 1,
-	.azalia_verb_table = azalia_verb_table,
-	.reset_wait_timer_us = 300
+	.verb_table_num = 1,
+	.verb_table = azalia_verb_table,
+	.reset_wait_timer_ms = 300
 };
 
 /**

@@ -15,6 +15,7 @@
 #include "fsp_hob.h"
 #include "fsp_infoheader.h"
 #include "fsp_bootmode.h"
+#include "fsp_azalia.h"
 #include <asm/arch/fsp/fsp_vpd.h>
 #include <asm/arch/fsp/fsp_configs.h>
 
