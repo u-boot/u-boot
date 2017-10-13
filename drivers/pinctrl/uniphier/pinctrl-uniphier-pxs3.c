@@ -118,7 +118,8 @@ static struct uniphier_pinctrl_socdata uniphier_pxs3_pinctrl_socdata = {
 	.groups_count = ARRAY_SIZE(uniphier_pxs3_groups),
 	.functions = uniphier_pxs3_functions,
 	.functions_count = ARRAY_SIZE(uniphier_pxs3_functions),
-	.caps = UNIPHIER_PINCTRL_CAPS_PERPIN_IECTRL,
+	.caps = UNIPHIER_PINCTRL_CAPS_PUPD_SIMPLE |
+		UNIPHIER_PINCTRL_CAPS_PERPIN_IECTRL,
 };
 
 static int uniphier_pxs3_pinctrl_probe(struct udevice *dev)
