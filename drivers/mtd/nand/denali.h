@@ -435,6 +435,7 @@ struct nand_buf {
 
 struct denali_nand_info {
 	struct nand_chip nand;
+	unsigned long clk_x_rate;	/* bus interface clock rate */
 	int flash_bank; /* currently selected chip */
 	int status;
 	int platform;

@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <linux/io.h>
 #include <linux/ioport.h>
@@ -52,6 +53,7 @@ static int denali_dt_probe(struct udevice *dev)
 {
 	struct denali_nand_info *denali = dev_get_priv(dev);
 	const struct denali_dt_data *data;
+	struct clk clk;
 	struct resource res;
 	int ret;
 
@@ -72,6 +74,16 @@ static int denali_dt_probe(struct udevice *dev)
 		return ret;
 
 	denali->flash_mem = devm_ioremap(dev, res.start, resource_size(&res));
+
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret)
+		return ret;
+
+	ret = clk_enable(&clk);
+	if (ret)
+		return ret;
+
+	denali->clk_x_rate = clk_get_rate(&clk);
 
 	return denali_init(denali);
 }
