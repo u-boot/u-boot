@@ -108,116 +108,17 @@
 			clock-frequency = <36864000>;
 		};
 
-		port0x: gpio@55000008 {
+		gpio: gpio@55000000 {
 			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000008 0x8>;
+			reg = <0x55000000 0x200>;
+			interrupt-parent = <&aidet>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
 			gpio-controller;
 			#gpio-cells = <2>;
-		};
-
-		port1x: gpio@55000010 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000010 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port2x: gpio@55000018 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000018 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port3x: gpio@55000020 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000020 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port4: gpio@55000028 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000028 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port5x: gpio@55000030 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000030 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port6x: gpio@55000038 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000038 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port7x: gpio@55000040 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000040 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port8x: gpio@55000048 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000048 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port9x: gpio@55000050 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000050 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port10x: gpio@55000058 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000058 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port11x: gpio@55000060 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000060 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port12x: gpio@55000068 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000068 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port13x: gpio@55000070 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000070 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port14x: gpio@55000078 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000078 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port16x: gpio@55000088 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000088 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
+			gpio-ranges = <&pinctrl 0 0 0>;
+			gpio-ranges-group-names = "gpio_range";
+			ngpios = <136>;
 		};
 
 		i2c0: i2c@58400000 {
