@@ -11,13 +11,6 @@
 
 #include "pinctrl-uniphier.h"
 
-static const struct uniphier_pinctrl_pin uniphier_pxs2_pins[] = {
-	UNIPHIER_PINCTRL_PIN(113, 0),
-	UNIPHIER_PINCTRL_PIN(114, 0),
-	UNIPHIER_PINCTRL_PIN(115, 0),
-	UNIPHIER_PINCTRL_PIN(116, 0),
-};
-
 static const unsigned emmc_pins[] = {36, 37, 38, 39, 40, 41, 42};
 static const int emmc_muxvals[] = {9, 9, 9, 9, 9, 9, 9};
 static const unsigned emmc_dat8_pins[] = {43, 44, 45, 46};
@@ -135,8 +128,6 @@ static const char * const uniphier_pxs2_functions[] = {
 };
 
 static struct uniphier_pinctrl_socdata uniphier_pxs2_pinctrl_socdata = {
-	.pins = uniphier_pxs2_pins,
-	.pins_count = ARRAY_SIZE(uniphier_pxs2_pins),
 	.groups = uniphier_pxs2_groups,
 	.groups_count = ARRAY_SIZE(uniphier_pxs2_groups),
 	.functions = uniphier_pxs2_functions,
