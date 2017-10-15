@@ -435,9 +435,7 @@ int board_early_init_f(void)
 {
 	setup_iomux_uart();
 #ifdef CONFIG_SATA
-	/* Only mx6q wandboard has SATA */
-	if (is_cpu_type(MXC_CPU_MX6Q))
-		setup_sata();
+	setup_sata();
 #endif
 
 	return 0;
