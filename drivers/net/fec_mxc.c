@@ -882,7 +882,7 @@ static int fec_recv(struct eth_device *dev)
 			len = frame_length;
 		} else {
 			if (bd_status & FEC_RBD_ERR)
-				printf("error frame: 0x%08x 0x%08x\n",
+				debug("error frame: 0x%08x 0x%08x\n",
 				       addr, bd_status);
 		}
 
