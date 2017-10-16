@@ -21,7 +21,6 @@
  * access CS0 at is 0x8000000.
  */
 #ifdef CONFIG_NAND
-#define CONFIG_NAND_OMAP_GPMC
 #ifndef CONFIG_SYS_NAND_BASE
 #define CONFIG_SYS_NAND_BASE		0x8000000
 #endif

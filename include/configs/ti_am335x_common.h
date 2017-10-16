@@ -74,10 +74,6 @@
  * s_init when we have SPL used.
  */
 
-#ifdef CONFIG_NAND
-#define CONFIG_SPL_NAND_AM33XX_BCH	/* ELM support */
-#endif
-
 /* Now bring in the rest of the common code. */
 #include <configs/ti_armv7_omap.h>
 

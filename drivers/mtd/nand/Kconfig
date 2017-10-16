@@ -43,6 +43,34 @@ config NAND_DENALI_SPARE_AREA_SKIP_BYTES
 	  of OOB area before last ECC sector data starts.  This is potentially
 	  used to preserve the bad block marker in the OOB area.
 
+config NAND_OMAP_GPMC
+	bool "Support OMAP GPMC NAND controller"
+	depends on ARCH_OMAP2PLUS
+	help
+	  Enables omap_gpmc.c driver for OMAPx and AMxxxx platforms.
+	  GPMC controller is used for parallel NAND flash devices, and can
+	  do ECC calculation (not ECC error detection) for HAM1, BCH4, BCH8
+	  and BCH16 ECC algorithms.
+
+config NAND_OMAP_GPMC_PREFETCH
+	bool "Enable GPMC Prefetch"
+	depends on NAND_OMAP_GPMC
+	help
+	  On OMAP platforms that use the GPMC controller
+	  (CONFIG_NAND_OMAP_GPMC_PREFETCH), this options enables the code that
+	  uses the prefetch mode to speed up read operations.
+
+config NAND_OMAP_ELM
+	bool "Enable ELM driver for OMAPxx and AMxx platforms."
+	depends on NAND_OMAP_GPMC && !OMAP34XX
+	help
+	  ELM controller is used for ECC error detection (not ECC calculation)
+	  of BCH4, BCH8 and BCH16 ECC algorithms.
+	  Some legacy platforms like OMAP3xx do not have in-built ELM h/w engine,
+	  thus such SoC platforms need to depend on software library for ECC error
+	  detection. However ECC calculation on such plaforms would still be
+	  done by GPMC controller.
+
 config NAND_VF610_NFC
 	bool "Support for Freescale NFC for VF610"
 	select SYS_NAND_SELF_INIT
@@ -112,6 +140,14 @@ config NAND_ARASAN
 	  controller. This uses the hardware ECC for read and
 	  write operations.
 
+config NAND_MXC
+	bool "MXC NAND support"
+	depends on CPU_ARM926EJS || CPU_ARM1136 || MX5
+	imply CMD_NAND
+	help
+	  This enables the NAND driver for the NAND flash controller on the
+	  i.MX27 / i.MX31 / i.MX5 rocessors.
+
 config NAND_MXS
 	bool "MXS NAND support"
 	depends on MX6 || MX7
@@ -134,7 +170,7 @@ comment "Generic NAND options"
 # option (mxc_nand, ndfc, omap_gpmc).
 config SYS_NAND_BUSWIDTH_16BIT
 	bool "Use 16-bit NAND interface"
-	depends on NAND_VF610_NFC
+	depends on NAND_VF610_NFC || NAND_OMAP_GPMC || NAND_MXC || ARCH_DAVINCI
 	help
 	  Indicates that NAND device has 16-bit wide data-bus. In absence of this
 	  config, bus-width of NAND device is assumed to be either 8-bit and later
@@ -175,12 +211,29 @@ config SYS_NAND_U_BOOT_OFFS_REDUND
 	Set the offset from the start of the nand where the redundant u-boot
 	should be loaded from.
 
+config SPL_NAND_AM33XX_BCH
+	bool "Enables SPL-NAND driver which supports ELM based"
+	depends on NAND_OMAP_GPMC && !OMAP34XX
+	default y
+        help
+	  Hardware ECC correction. This is useful for platforms which have ELM
+	  hardware engine and use NAND boot mode.
+	  Some legacy platforms like OMAP3xx do not have in-built ELM h/w engine,
+	  so those platforms should use CONFIG_SPL_NAND_SIMPLE for enabling
+          SPL-NAND driver with software ECC correction support.
+
 config SPL_NAND_DENALI
 	bool "Support Denali NAND controller for SPL"
 	help
 	  This is a small implementation of the Denali NAND controller
 	  for use on SPL.
 
+config SPL_NAND_SIMPLE
+	bool "Use simple SPL NAND driver"
+	depends on !SPL_NAND_AM33XX_BCH
+	help
+	  Support for NAND boot using simple NAND drivers that
+	  expose the cmd_ctrl() interface.
 endif
 
 endif   # if NAND

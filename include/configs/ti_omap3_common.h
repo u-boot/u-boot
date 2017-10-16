@@ -61,7 +61,6 @@
 					 (64 << 20))
 
 #ifdef CONFIG_NAND
-#define CONFIG_SPL_NAND_SIMPLE
 #define CONFIG_SYS_NAND_BASE		0x30000000
 #endif
 

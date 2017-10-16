@@ -179,7 +179,6 @@
 /* SPL will use serial */
 
 /* SPL loads an image from NAND */
-#define CONFIG_SPL_NAND_SIMPLE
 #define CONFIG_SPL_NAND_RAW_ONLY
 #define CONFIG_SPL_NAND_DRIVERS
 

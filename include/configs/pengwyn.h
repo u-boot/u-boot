@@ -113,8 +113,6 @@
 /* SPL */
 
 /* NAND support */
-#define CONFIG_NAND_OMAP_GPMC
-#define CONFIG_NAND_OMAP_ELM
 
 /* NAND Configuration. */
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE

@@ -103,10 +103,6 @@
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
 					 (128 << 20))
 
-#ifdef CONFIG_NAND
-#define CONFIG_SPL_NAND_AM33XX_BCH	/* ELM support */
-#endif
-
 #ifdef CONFIG_SPL_BUILD
 #undef CONFIG_TIMER
 #endif

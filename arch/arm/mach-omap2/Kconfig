@@ -11,6 +11,7 @@ config OMAP34XX
 	select ARM_ERRATA_621766
 	select ARM_ERRATA_725233
 	select USE_TINY_PRINTF
+	imply NAND_OMAP_GPMC
 	imply SPL_EXT_SUPPORT
 	imply SPL_FAT_SUPPORT
 	imply SPL_GPIO_SUPPORT
@@ -30,6 +31,8 @@ config OMAP34XX
 config OMAP44XX
 	bool "OMAP44XX SoC"
 	select USE_TINY_PRINTF
+	imply NAND_OMAP_ELM
+	imply NAND_OMAP_GPMC
 	imply SPL_DISPLAY_PRINT
 	imply SPL_EXT_SUPPORT
 	imply SPL_FAT_SUPPORT
@@ -39,6 +42,7 @@ config OMAP44XX
 	imply SPL_LIBDISK_SUPPORT
 	imply SPL_LIBGENERIC_SUPPORT
 	imply SPL_MMC_SUPPORT
+	imply SPL_NAND_SIMPLE
 	imply SPL_NAND_SUPPORT
 	imply SPL_POWER_SUPPORT
 	imply SPL_SERIAL_SUPPORT
@@ -49,6 +53,8 @@ config OMAP54XX
 	bool "OMAP54XX SoC"
 	select ARM_ERRATA_798870
 	select SYS_THUMB_BUILD
+	imply NAND_OMAP_ELM
+	imply NAND_OMAP_GPMC
 	imply SPL_DISPLAY_PRINT
 	imply SPL_ENV_SUPPORT
 	imply SPL_EXT_SUPPORT
@@ -59,6 +65,8 @@ config OMAP54XX
 	imply SPL_LIBDISK_SUPPORT
 	imply SPL_LIBGENERIC_SUPPORT
 	imply SPL_MMC_SUPPORT
+	imply SPL_NAND_AM33XX_BCH
+	imply SPL_NAND_AM33XX_BCH
 	imply SPL_NAND_SUPPORT
 	imply SPL_POWER_SUPPORT
 	imply SPL_SERIAL_SUPPORT
@@ -73,6 +81,8 @@ config TI814X
 
 config TI816X
 	bool "TI816X SoC"
+	imply NAND_OMAP_ELM
+	imply NAND_OMAP_GPMC
 	help
 	  Support for AM335x SOC from Texas Instruments.
 	  The AM335x high performance SOC features a Cortex-A8
@@ -80,8 +90,12 @@ config TI816X
 
 config AM43XX
 	bool "AM43XX SoC"
+	imply NAND_OMAP_ELM
+	imply NAND_OMAP_GPMC
 	imply SPL_DM
 	imply SPL_DM_SEQ_ALIAS
+	imply SPL_NAND_AM33XX_BCH
+	imply SPL_NAND_SUPPORT
 	imply SPL_OF_CONTROL
 	imply SPL_OF_TRANSLATE
 	imply SPL_SEPARATE_BSS
@@ -97,6 +111,10 @@ config AM43XX
 
 config AM33XX
 	bool "AM33XX SoC"
+	imply NAND_OMAP_ELM
+	imply NAND_OMAP_GPMC
+	imply SPL_NAND_AM33XX_BCH
+	imply SPL_NAND_SUPPORT
 	imply SYS_I2C_OMAP24XX
 	imply SYS_THUMB_BUILD
 	imply USE_TINY_PRINTF

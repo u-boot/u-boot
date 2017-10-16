@@ -122,7 +122,6 @@
 /*
  * NAND driver
  */
-#define CONFIG_NAND_MXC
 #define CONFIG_MXC_NAND_REGS_BASE      NFC_BASE_ADDR
 #define CONFIG_SYS_MAX_NAND_DEVICE     1
 #define CONFIG_SYS_NAND_BASE           NFC_BASE_ADDR
