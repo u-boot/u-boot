@@ -59,6 +59,12 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-arc.git
 F:	arch/arc/
 
+ARC HSDK CREG GPIO
+M:	Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+S:	Maintained
+L:	uboot-snps-arc@synopsys.com
+F:	drivers/gpio/hsdk-creg-gpio.c
+
 ARM
 M:	Albert Aribaud <albert.u.boot@aribaud.net>
 S:	Maintained
