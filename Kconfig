@@ -158,6 +158,15 @@ config PHYS_64BIT
 	  This can be used not only for 64bit SoCs, but also for
 	  large physical address extention on 32bit SoCs.
 
+config BUILD_ROM
+	bool "Build U-Boot as BIOS replacement"
+	depends on X86
+	help
+	  This option allows to build a ROM version of U-Boot.
+	  The build process generally requires several binary blobs
+	  which are not shipped in the U-Boot source tree.
+	  Please, see doc/README.x86 for details.
+
 endmenu		# General setup
 
 menu "Boot images"
