@@ -7,8 +7,6 @@
 #include <common.h>
 #include <dm.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct simple_bus_plat {
 	u32 base;
 	u32 size;
