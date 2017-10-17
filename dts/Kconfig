@@ -8,6 +8,17 @@ config SUPPORT_OF_CONTROL
 config DTC
 	bool
 
+config PYLIBFDT
+	bool
+
+config DTOC
+	bool
+	select PYLIBFDT
+
+config BINMAN
+	bool
+	select DTOC
+
 menu "Device Tree Control"
 	depends on SUPPORT_OF_CONTROL
 
@@ -231,6 +242,7 @@ config OF_SPL_REMOVE_PROPS
 config SPL_OF_PLATDATA
 	bool "Generate platform data for use in SPL"
 	depends on SPL_OF_CONTROL
+	select DTOC
 	help
 	  For very constrained SPL environments the overhead of decoding
 	  device tree nodes and converting their contents into platform data
@@ -252,6 +264,7 @@ config SPL_OF_PLATDATA
 config TPL_OF_PLATDATA
 	bool "Generate platform data for use in TPL"
 	depends on TPL_OF_CONTROL
+	select DTOC
 	help
 	  For very constrained SPL environments the overhead of decoding
 	  device tree nodes and converting their contents into platform data

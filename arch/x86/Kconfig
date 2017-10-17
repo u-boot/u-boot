@@ -152,6 +152,7 @@ config SMM_TSEG_SIZE
 config X86_RESET_VECTOR
 	bool
 	default n
+	select BINMAN
 
 # The following options control where the 16-bit and 32-bit init lies
 # If SPL is enabled then it normally holds this init code, and U-Boot proper

@@ -276,10 +276,10 @@ PHONY += dts_dir
 dts_dir:
 	$(shell [ -d $(obj)/dts ] || mkdir -p $(obj)/dts)
 
-include/generated/dt-structs-gen.h: $(obj)/$(SPL_BIN).dtb dts_dir checkdtoc
+include/generated/dt-structs-gen.h: $(obj)/$(SPL_BIN).dtb dts_dir FORCE
 	$(call if_changed,dtoch)
 
-$(obj)/dts/dt-platdata.c: $(obj)/$(SPL_BIN).dtb dts_dir checkdtoc
+$(obj)/dts/dt-platdata.c: $(obj)/$(SPL_BIN).dtb dts_dir FORCE
 	$(call if_changed,dtocc)
 
 ifdef CONFIG_SAMSUNG
@@ -379,17 +379,6 @@ ifneq ($(cmd_files),)
   $(cmd_files): ;	# Do not try to update included dependency files
   include $(cmd_files)
 endif
-
-checkdtoc: tools
-	@if ! ( echo 'import libfdt' | ( PYTHONPATH=scripts/dtc/pylibfdt $(PYTHON) )); then \
-		echo '*** dtoc needs the Python libfdt library. Either '; \
-		echo '*** install it on your system, or try:'; \
-		echo '***'; \
-		echo '*** sudo apt-get install swig libpython-dev'; \
-		echo '***'; \
-		echo '*** to have U-Boot build its own version.'; \
-		false; \
-	fi
 
 PHONY += FORCE
 FORCE:
