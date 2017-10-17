@@ -79,8 +79,8 @@
 #define CONFIG_SYS_LOAD_ADDR		0x82000000
 
 /* We boot from the gfxRAM area of the OCRAM. */
-#define CONFIG_SYS_TEXT_BASE		0x3f408000
-#define CONFIG_BOARD_SIZE_LIMIT		524288
+#define CONFIG_SYS_TEXT_BASE		0x3f401000
+#define CONFIG_BOARD_SIZE_LIMIT		520192
 
 /*
  * We do have 128MB of memory on the Vybrid Tower board. Leave the last
