@@ -58,7 +58,6 @@
 		#size-cells = <1>;
 		ranges;
 		interrupt-parent = <&intc>;
-		u-boot,dm-pre-reloc;
 
 		l2: l2-cache@500c0000 {
 			compatible = "socionext,uniphier-system-cache";
@@ -224,7 +223,6 @@
 			compatible = "socionext,uniphier-pro4-mioctrl",
 				     "simple-mfd", "syscon";
 			reg = <0x59810000 0x800>;
-			u-boot,dm-pre-reloc;
 
 			mio_clk: clock {
 				compatible = "socionext,uniphier-pro4-mio-clock";
@@ -333,11 +331,9 @@
 			compatible = "socionext,uniphier-pro4-soc-glue",
 				     "simple-mfd", "syscon";
 			reg = <0x5f800000 0x2000>;
-			u-boot,dm-pre-reloc;
 
 			pinctrl: pinctrl {
 				compatible = "socionext,uniphier-pro4-pinctrl";
-				u-boot,dm-pre-reloc;
 			};
 		};
 

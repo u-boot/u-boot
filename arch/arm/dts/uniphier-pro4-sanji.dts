@@ -85,24 +85,3 @@
 &usb3 {
 	status = "okay";
 };
-
-/* for U-Boot only */
-&serial0 {
-	u-boot,dm-pre-reloc;
-};
-
-&mio_clk {
-	u-boot,dm-pre-reloc;
-};
-
-&emmc {
-	u-boot,dm-pre-reloc;
-};
-
-&pinctrl_uart0 {
-	u-boot,dm-pre-reloc;
-};
-
-&pinctrl_emmc {
-	u-boot,dm-pre-reloc;
-};

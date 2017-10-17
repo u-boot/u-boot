@@ -55,12 +55,3 @@
 &sd {
 	status = "okay";
 };
-
-/* for U-Boot only */
-&serial1 {
-	u-boot,dm-pre-reloc;
-};
-
-&pinctrl_uart1 {
-	u-boot,dm-pre-reloc;
-};
