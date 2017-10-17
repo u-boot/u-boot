@@ -702,7 +702,7 @@ static int pmecc_choose_ecc(struct atmel_nand_host *host,
 	if (chip->onfi_version) {
 		*cap = chip->ecc_strength_ds;
 		*sector_size = chip->ecc_step_ds;
-		MTDDEBUG(MTD_DEBUG_LEVEL1, "ONFI params, minimum required ECC: %d bits in %d bytes\n",
+		pr_debug("ONFI params, minimum required ECC: %d bits in %d bytes\n",
 			 *cap, *sector_size);
 	}
 
@@ -863,9 +863,8 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 		host->pmecc_index_table_offset = ATMEL_PMECC_INDEX_OFFSET_1024;
 #endif
 
-	MTDDEBUG(MTD_DEBUG_LEVEL1,
-		"Initialize PMECC params, cap: %d, sector: %d\n",
-		cap, sector_size);
+	pr_debug("Initialize PMECC params, cap: %d, sector: %d\n",
+		 cap, sector_size);
 
 	host->pmecc = (struct pmecc_regs __iomem *) ATMEL_BASE_PMECC;
 	host->pmerrloc = (struct pmecc_errloc_regs __iomem *)

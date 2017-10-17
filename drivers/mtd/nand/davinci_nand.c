@@ -238,7 +238,7 @@ static int nand_davinci_correct_data(struct mtd_info *mtd, u_char *dat,
 				uint32_t find_byte = diff >> (12 + 3);
 
 				dat[find_byte] ^= find_bit;
-				MTDDEBUG(MTD_DEBUG_LEVEL0, "Correcting single "
+				pr_debug("Correcting single "
 					 "bit ECC error at offset: %d, bit: "
 					 "%d\n", find_byte, find_bit);
 				return 1;
@@ -248,12 +248,11 @@ static int nand_davinci_correct_data(struct mtd_info *mtd, u_char *dat,
 		} else if (!(diff & (diff - 1))) {
 			/* Single bit ECC error in the ECC itself,
 			   nothing to fix */
-			MTDDEBUG(MTD_DEBUG_LEVEL0, "Single bit ECC error in "
-				 "ECC.\n");
+			pr_debug("Single bit ECC error in " "ECC.\n");
 			return 1;
 		} else {
 			/* Uncorrectable error */
-			MTDDEBUG(MTD_DEBUG_LEVEL0, "ECC UNCORRECTED_ERROR 1\n");
+			pr_debug("ECC UNCORRECTED_ERROR 1\n");
 			return -EBADMSG;
 		}
 	}
