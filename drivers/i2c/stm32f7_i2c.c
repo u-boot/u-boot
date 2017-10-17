@@ -640,7 +640,7 @@ static int stm32_i2c_compute_timing(struct stm32_i2c_priv *i2c_priv,
 				      struct stm32_i2c_setup *setup,
 				      struct stm32_i2c_timings *output)
 {
-	struct stm32_i2c_timings *v, *_v, s;
+	struct stm32_i2c_timings *v, *_v;
 	struct list_head solutions;
 	int ret;
 
@@ -676,15 +676,9 @@ static int stm32_i2c_compute_timing(struct stm32_i2c_priv *i2c_priv,
 	if (ret)
 		goto exit;
 
-	ret = stm32_i2c_choose_solution(setup, &solutions, &s);
+	ret = stm32_i2c_choose_solution(setup, &solutions, output);
 	if (ret)
 		goto exit;
-
-	output->presc = s.presc;
-	output->scldel = s.scldel;
-	output->sdadel = s.sdadel;
-	output->scll = s.scll;
-	output->sclh = s.sclh;
 
 	debug("%s: Presc: %i, scldel: %i, sdadel: %i, scll: %i, sclh: %i\n",
 	      __func__, output->presc,
