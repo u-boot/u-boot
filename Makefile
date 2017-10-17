@@ -1380,7 +1380,7 @@ $(timestamp_h): $(srctree)/Makefile FORCE
 	$(call filechk,timestamp.h)
 
 checkbinman: tools
-	@if ! ( echo 'import libfdt' | ( PYTHONPATH=tools $(PYTHON) )); then \
+	@if ! ( echo 'import libfdt' | ( PYTHONPATH=scripts/dtc/pylibfdt $(PYTHON) )); then \
 		echo >&2; \
 		echo >&2 '*** binman needs the Python libfdt library.'; \
 		echo >&2 '*** Either install it on your system, or try:'; \

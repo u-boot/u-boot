@@ -29,3 +29,6 @@ $(obj)/dtc-lexer.lex.o: $(obj)/dtc-parser.tab.h
 
 # generated files need to be cleaned explicitly
 clean-files	:= dtc-lexer.lex.c dtc-parser.tab.c dtc-parser.tab.h
+
+# Added for U-Boot
+subdir-y += pylibfdt

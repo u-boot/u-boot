@@ -257,7 +257,7 @@ quiet_cmd_fdtgrep = FDTGREP $@
 $(obj)/$(SPL_BIN).dtb: dts/dt.dtb $(objtree)/tools/fdtgrep FORCE
 	$(call if_changed,fdtgrep)
 
-pythonpath = PYTHONPATH=tools
+pythonpath = PYTHONPATH=scripts/dtc/pylibfdt
 
 quiet_cmd_dtocc = DTOC C  $@
 cmd_dtocc = $(pythonpath) $(srctree)/tools/dtoc/dtoc -d $(obj)/$(SPL_BIN).dtb -o $@ platdata
@@ -381,7 +381,7 @@ ifneq ($(cmd_files),)
 endif
 
 checkdtoc: tools
-	@if ! ( echo 'import libfdt' | ( PYTHONPATH=tools $(PYTHON) )); then \
+	@if ! ( echo 'import libfdt' | ( PYTHONPATH=scripts/dtc/pylibfdt $(PYTHON) )); then \
 		echo '*** dtoc needs the Python libfdt library. Either '; \
 		echo '*** install it on your system, or try:'; \
 		echo '***'; \
