@@ -45,7 +45,7 @@
 	"boot_fdt=try\0" \
 	"console=ttyO0,115200n8\0" \
 	"image=zImage\0" \
-	"fdt_file=am335x-chiliboard.dtb\0" \
+	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"ip_dyn=yes\0" \
 	"optargs=\0" \
 	"loadbootscript=" \
