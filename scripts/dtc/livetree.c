@@ -216,6 +216,28 @@ struct node *merge_nodes(struct node *old_node, struct node *new_node)
 	return old_node;
 }
 
+void add_orphan_node(struct node *dt, struct node *new_node, char *ref)
+{
+	static unsigned int next_orphan_fragment = 0;
+	struct node *node;
+	struct property *p;
+	struct data d = empty_data;
+	char *name;
+
+	d = data_add_marker(d, REF_PHANDLE, ref);
+	d = data_append_integer(d, 0xffffffff, 32);
+
+	p = build_property("target", d);
+
+	xasprintf(&name, "fragment@%u",
+			next_orphan_fragment++);
+	name_node(new_node, "__overlay__");
+	node = build_node(p, new_node);
+	name_node(node, name);
+
+	add_child(dt, node);
+}
+
 struct node *chain_node(struct node *first, struct node *list)
 {
 	assert(first->next_sibling == NULL);
@@ -394,6 +416,12 @@ cell_t propval_cell(struct property *prop)
 {
 	assert(prop->val.len == sizeof(cell_t));
 	return fdt32_to_cpu(*((fdt32_t *)prop->val.val));
+}
+
+cell_t propval_cell_n(struct property *prop, int n)
+{
+	assert(prop->val.len / sizeof(cell_t) >= n);
+	return fdt32_to_cpu(*((fdt32_t *)prop->val.val + n));
 }
 
 struct property *get_property_by_label(struct node *tree, const char *label,
