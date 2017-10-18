@@ -6,10 +6,12 @@
  *  SPDX-License-Identifier:     GPL-2.0+
  */
 
+#include <charset.h>
 #include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <efi_loader.h>
+#include <efi_selftest.h>
 #include <errno.h>
 #include <libfdt.h>
 #include <libfdt_env.h>
@@ -48,6 +50,32 @@ static void efi_init_obj_list(void)
 	/* Initialize EFI runtime services */
 	efi_reset_system_init();
 	efi_get_time_init();
+}
+
+/*
+ * Set the load options of an image from an environment variable.
+ *
+ * @loaded_image_info:	the image
+ * @env_var:		name of the environment variable
+ */
+static void set_load_options(struct efi_loaded_image *loaded_image_info,
+			     const char *env_var)
+{
+	size_t size;
+	const char *env = env_get(env_var);
+
+	loaded_image_info->load_options = NULL;
+	loaded_image_info->load_options_size = 0;
+	if (!env)
+		return;
+	size = strlen(env) + 1;
+	loaded_image_info->load_options = calloc(size, sizeof(u16));
+	if (!loaded_image_info->load_options) {
+		printf("ERROR: Out of memory\n");
+		return;
+	}
+	utf8_to_utf16(loaded_image_info->load_options, (u8 *)env, size);
+	loaded_image_info->load_options_size = size * 2;
 }
 
 static void *copy_fdt(void *fdt)
@@ -317,7 +345,12 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		/* Initialize and populate EFI object list */
 		if (!efi_obj_list_initalized)
 			efi_init_obj_list();
-		return efi_selftest(&loaded_image_info, &systab);
+		/* Transfer environment variable efi_selftest as load options */
+		set_load_options(&loaded_image_info, "efi_selftest");
+		/* Execute the test */
+		r = efi_selftest(&loaded_image_info, &systab);
+		free(loaded_image_info.load_options);
+		return r;
 	} else
 #endif
 	if (!strcmp(argv[1], "bootmgr")) {
@@ -363,6 +396,8 @@ static char bootefi_help_text[] =
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
 	"bootefi selftest\n"
 	"  - boot an EFI selftest application stored within U-Boot\n"
+	"    Use environment variable efi_selftest to select a single test.\n"
+	"    Use 'setenv efi_selftest list' to enumerate all tests.\n"
 #endif
 	"bootmgr [fdt addr]\n"
 	"  - load and boot EFI payload based on BootOrder/BootXXXX variables.\n"

@@ -141,19 +141,58 @@ static int teardown(struct efi_unit_test *test, unsigned int *failures)
 }
 
 /*
- * Execute test steps of one phase.
+ * Check that a test exists.
  *
- * @phase	test phase
- * @steps	steps to execute
- * failures	returns EFI_ST_SUCCESS if all test steps succeeded
+ * @testname:	name of the test
+ * @return:	test
  */
-void efi_st_do_tests(unsigned int phase, unsigned int steps,
-		     unsigned int *failures)
+static struct efi_unit_test *find_test(const u16 *testname)
 {
 	struct efi_unit_test *test;
 
 	for (test = ll_entry_start(struct efi_unit_test, efi_unit_test);
 	     test < ll_entry_end(struct efi_unit_test, efi_unit_test); ++test) {
+		if (!efi_st_strcmp_16_8(testname, test->name))
+			return test;
+	}
+	efi_st_printf("\nTest '%ps' not found\n", testname);
+	return NULL;
+}
+
+/*
+ * List all available tests.
+ */
+static void list_all_tests(void)
+{
+	struct efi_unit_test *test;
+
+	/* List all tests */
+	efi_st_printf("\nAvailable tests:\n");
+	for (test = ll_entry_start(struct efi_unit_test, efi_unit_test);
+	     test < ll_entry_end(struct efi_unit_test, efi_unit_test); ++test) {
+		efi_st_printf("'%s'%s\n", test->name,
+			      test->on_request ? " - on request" : "");
+	}
+}
+
+/*
+ * Execute test steps of one phase.
+ *
+ * @testname	name of a single selected test or NULL
+ * @phase	test phase
+ * @steps	steps to execute
+ * failures	returns EFI_ST_SUCCESS if all test steps succeeded
+ */
+void efi_st_do_tests(const u16 *testname, unsigned int phase,
+		     unsigned int steps, unsigned int *failures)
+{
+	struct efi_unit_test *test;
+
+	for (test = ll_entry_start(struct efi_unit_test, efi_unit_test);
+	     test < ll_entry_end(struct efi_unit_test, efi_unit_test); ++test) {
+		if (testname ?
+		    efi_st_strcmp_16_8(testname, test->name) : test->on_request)
+			continue;
 		if (test->phase != phase)
 			continue;
 		if (steps & EFI_ST_SETUP)
@@ -186,6 +225,9 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 				 struct efi_system_table *systab)
 {
 	unsigned int failures = 0;
+	const u16 *testname = NULL;
+	struct efi_loaded_image *loaded_image;
+	efi_status_t ret;
 
 	systable = systab;
 	boottime = systable->boottime;
@@ -194,27 +236,57 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 	con_out = systable->con_out;
 	con_in = systable->con_in;
 
+	ret = boottime->handle_protocol(image_handle, &efi_guid_loaded_image,
+					(void **)&loaded_image);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Cannot open loaded image protocol");
+		return ret;
+	}
+
+	if (loaded_image->load_options)
+		testname = (u16 *)loaded_image->load_options;
+
+	if (testname) {
+		if (!efi_st_strcmp_16_8(testname, "list") ||
+		    !find_test(testname)) {
+			list_all_tests();
+			/*
+			 * TODO:
+			 * Once the Exit boottime service is correctly
+			 * implemented we should call
+			 *   boottime->exit(image_handle, EFI_SUCCESS, 0, NULL);
+			 * here, cf.
+			 * https://lists.denx.de/pipermail/u-boot/2017-October/308720.html
+			 */
+			return EFI_SUCCESS;
+		}
+	}
+
 	efi_st_printf("\nTesting EFI API implementation\n");
 
-	efi_st_printf("\nNumber of tests to execute: %u\n",
-		      ll_entry_count(struct efi_unit_test, efi_unit_test));
+	if (testname)
+		efi_st_printf("\nSelected test: '%ps'\n", testname);
+	else
+		efi_st_printf("\nNumber of tests to execute: %u\n",
+			      ll_entry_count(struct efi_unit_test,
+					     efi_unit_test));
 
 	/* Execute boottime tests */
-	efi_st_do_tests(EFI_EXECUTE_BEFORE_BOOTTIME_EXIT,
+	efi_st_do_tests(testname, EFI_EXECUTE_BEFORE_BOOTTIME_EXIT,
 			EFI_ST_SETUP | EFI_ST_EXECUTE | EFI_ST_TEARDOWN,
 			&failures);
 
 	/* Execute mixed tests */
-	efi_st_do_tests(EFI_SETUP_BEFORE_BOOTTIME_EXIT,
+	efi_st_do_tests(testname, EFI_SETUP_BEFORE_BOOTTIME_EXIT,
 			EFI_ST_SETUP, &failures);
 
 	efi_st_exit_boot_services();
 
-	efi_st_do_tests(EFI_SETUP_BEFORE_BOOTTIME_EXIT,
+	efi_st_do_tests(testname, EFI_SETUP_BEFORE_BOOTTIME_EXIT,
 			EFI_ST_EXECUTE | EFI_ST_TEARDOWN, &failures);
 
 	/* Execute runtime tests */
-	efi_st_do_tests(EFI_SETUP_AFTER_BOOTTIME_EXIT,
+	efi_st_do_tests(testname, EFI_SETUP_AFTER_BOOTTIME_EXIT,
 			EFI_ST_SETUP | EFI_ST_EXECUTE | EFI_ST_TEARDOWN,
 			&failures);
 
