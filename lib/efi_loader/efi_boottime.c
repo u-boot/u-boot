@@ -691,6 +691,27 @@ static efi_status_t EFIAPI efi_check_event(struct efi_event *event)
 }
 
 /*
+ * Find the internal EFI object for a handle.
+ *
+ * @handle	handle to find
+ * @return	EFI object
+ */
+static struct efi_object *efi_search_obj(void *handle)
+{
+	struct list_head *lhandle;
+
+	list_for_each(lhandle, &efi_obj_list) {
+		struct efi_object *efiobj;
+
+		efiobj = list_entry(lhandle, struct efi_object, link);
+		if (efiobj->handle == handle)
+			return efiobj;
+	}
+
+	return NULL;
+}
+
+/*
  * Install protocol interface.
  *
  * This is the function for internal calls. For the API implementation of the
@@ -1353,26 +1374,6 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 	longjmp(&loaded_image_info->exit_jmp, 1);
 
 	panic("EFI application exited");
-}
-
-/*
- * Find the internal EFI object for a handle.
- *
- * @handle	handle to find
- * @return	EFI object
- */
-static struct efi_object *efi_search_obj(void *handle)
-{
-	struct list_head *lhandle;
-
-	list_for_each(lhandle, &efi_obj_list) {
-		struct efi_object *efiobj;
-		efiobj = list_entry(lhandle, struct efi_object, link);
-		if (efiobj->handle == handle)
-			return efiobj;
-	}
-
-	return NULL;
 }
 
 /*
