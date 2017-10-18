@@ -12,7 +12,7 @@ import u_boot_utils
 
 """
 Note: This test relies on boardenv_* containing configuration values to define
-which the network environment available for testing. Without this, the parts
+which network environment is available for testing. Without this, the parts
 that rely on network will be automatically skipped.
 
 For example:
