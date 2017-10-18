@@ -218,6 +218,8 @@ static efi_status_t do_bootefi_exec(void *efi, void *fdt,
 		efi_install_configuration_table(&fdt_guid, NULL);
 	}
 
+	/* Transfer environment variable bootargs as load options */
+	set_load_options(&loaded_image_info, "bootargs");
 	/* Load the EFI payload */
 	entry = efi_load_pe(efi, &loaded_image_info);
 	if (!entry) {
