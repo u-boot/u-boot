@@ -12,6 +12,8 @@
 
 #define CONFIG_MISC_INIT_R
 
+#define CONFIG_PHY_ADDR 		8
+
 /* Serial setup */
 #define CONFIG_CONS_INDEX		0
 
