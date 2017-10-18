@@ -147,3 +147,23 @@ def test_gpt_swap_partitions(state_disk_image, u_boot_console):
     output = u_boot_console.run_command('part list host 0')
     assert '0x000007ff	"second"' in output
     assert '0x000017ff	"first"' in output
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('cmd_gpt')
+@pytest.mark.buildconfigspec('cmd_part')
+@pytest.mark.requiredtool('sgdisk')
+def test_gpt_write(state_disk_image, u_boot_console):
+    """Test the gpt write command."""
+
+    u_boot_console.run_command('host bind 0 ' + state_disk_image.path)
+    output = u_boot_console.run_command('gpt write host 0 "name=all,size=0"')
+    assert 'Writing GPT: success!' in output
+    output = u_boot_console.run_command('part list host 0')
+    assert '0x00000022	0x00001fde	"all"' in output
+    output = u_boot_console.run_command('gpt write host 0 "uuid_disk=375a56f7-d6c9-4e81-b5f0-09d41ca89efe;name=first,start=0x100000,size=0x40200;name=second,start=0x200000,size=0x40200;"')
+    assert 'Writing GPT: success!' in output
+    output = u_boot_console.run_command('part list host 0')
+    assert '0x00000800	0x00000a00	"first"' in output
+    assert '0x00001000	0x00001200	"second"' in output
+    output = u_boot_console.run_command('gpt guid host 0')
+    assert '375a56f7-d6c9-4e81-b5f0-09d41ca89efe' in output
