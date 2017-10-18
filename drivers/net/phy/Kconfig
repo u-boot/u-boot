@@ -55,6 +55,9 @@ config PHY_LXT
 config PHY_MARVELL
 	bool "Marvell Ethernet PHYs support"
 
+config PHY_MESON_GXL
+	bool "Amlogic Meson GXL Internal PHY support"
+
 config PHY_MICREL
 	bool "Micrel Ethernet PHYs support"
 	help

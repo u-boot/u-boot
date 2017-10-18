@@ -494,6 +494,9 @@ int phy_init(void)
 #ifdef CONFIG_PHY_MICREL_KSZ90X1
 	phy_micrel_ksz90x1_init();
 #endif
+#ifdef CONFIG_PHY_MESON_GXL
+	phy_meson_gxl_init();
+#endif
 #ifdef CONFIG_PHY_NATSEMI
 	phy_natsemi_init();
 #endif
