@@ -21,5 +21,5 @@ int efi_st_memcmp(const void *buf1, const void *buf2, size_t length)
 		++pos1;
 		++pos2;
 	}
-	return EFI_ST_SUCCESS;
+	return 0;
 }
