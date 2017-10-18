@@ -299,6 +299,12 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		struct efi_loaded_image loaded_image_info = {};
 		struct efi_object loaded_image_info_obj = {};
 
+		/* Construct a dummy device path. */
+		bootefi_device_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
+						      (uintptr_t)&efi_selftest,
+						      (uintptr_t)&efi_selftest);
+		bootefi_image_path = efi_dp_from_file(NULL, 0, "\\selftest");
+
 		efi_setup_loaded_image(&loaded_image_info,
 				       &loaded_image_info_obj,
 				       bootefi_device_path, bootefi_image_path);
