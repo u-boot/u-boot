@@ -28,25 +28,30 @@ class GptTestDiskImage(object):
         """
 
         filename = 'test_gpt_disk_image.bin'
-        self.path = u_boot_console.config.persistent_data_dir + '/' + filename
 
-        if os.path.exists(self.path):
-            u_boot_console.log.action('Disk image file ' + self.path +
+        persistent = u_boot_console.config.persistent_data_dir + '/' + filename
+        self.path = u_boot_console.config.result_dir  + '/' + filename
+
+        if os.path.exists(persistent):
+            u_boot_console.log.action('Disk image file ' + persistent +
                 ' already exists')
         else:
-            u_boot_console.log.action('Generating ' + self.path)
-            fd = os.open(self.path, os.O_RDWR | os.O_CREAT)
+            u_boot_console.log.action('Generating ' + persistent)
+            fd = os.open(persistent, os.O_RDWR | os.O_CREAT)
             os.ftruncate(fd, 4194304)
             os.close(fd)
             cmd = ('sgdisk', '-U', '375a56f7-d6c9-4e81-b5f0-09d41ca89efe',
-                self.path)
+                persistent)
             u_boot_utils.run_and_log(u_boot_console, cmd)
-            cmd = ('sgdisk', '--new=1:2048:2560', self.path)
+            cmd = ('sgdisk', '--new=1:2048:2560', persistent)
             u_boot_utils.run_and_log(u_boot_console, cmd)
-            cmd = ('sgdisk', '--new=2:4096:4608', self.path)
+            cmd = ('sgdisk', '--new=2:4096:4608', persistent)
             u_boot_utils.run_and_log(u_boot_console, cmd)
-            cmd = ('sgdisk', '-l', self.path)
+            cmd = ('sgdisk', '-l', persistent)
             u_boot_utils.run_and_log(u_boot_console, cmd)
+
+        cmd = ('cp', persistent, self.path)
+        u_boot_utils.run_and_log(u_boot_console, cmd)
 
 gtdi = None
 @pytest.fixture(scope='function')
