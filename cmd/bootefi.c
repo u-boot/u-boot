@@ -93,10 +93,10 @@ static void *copy_fdt(void *fdt)
 	return new_fdt;
 }
 
-static ulong efi_do_enter(void *image_handle,
-			  struct efi_system_table *st,
-			  asmlinkage ulong (*entry)(void *image_handle,
-				struct efi_system_table *st))
+static efi_status_t efi_do_enter(
+			void *image_handle, struct efi_system_table *st,
+			asmlinkage ulong (*entry)(void *image_handle,
+						  struct efi_system_table *st))
 {
 	efi_status_t ret = EFI_LOAD_ERROR;
 
@@ -107,7 +107,7 @@ static ulong efi_do_enter(void *image_handle,
 }
 
 #ifdef CONFIG_ARM64
-static unsigned long efi_run_in_el2(asmlinkage ulong (*entry)(
+static efi_status_t efi_run_in_el2(asmlinkage ulong (*entry)(
 			void *image_handle, struct efi_system_table *st),
 			void *image_handle, struct efi_system_table *st)
 {
@@ -122,9 +122,9 @@ static unsigned long efi_run_in_el2(asmlinkage ulong (*entry)(
  * Load an EFI payload into a newly allocated piece of memory, register all
  * EFI objects it would want to access and jump to it.
  */
-static unsigned long do_bootefi_exec(void *efi, void *fdt,
-				     struct efi_device_path *device_path,
-				     struct efi_device_path *image_path)
+static efi_status_t do_bootefi_exec(void *efi, void *fdt,
+				    struct efi_device_path *device_path,
+				    struct efi_device_path *image_path)
 {
 	struct efi_loaded_image loaded_image_info = {};
 	struct efi_object loaded_image_info_obj = {};
@@ -278,7 +278,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *saddr, *sfdt;
 	unsigned long addr, fdt_addr = 0;
-	unsigned long r;
+	efi_status_t r;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
