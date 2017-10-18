@@ -9,6 +9,13 @@
 #include <efi_selftest.h>
 #include <vsprintf.h>
 
+/*
+ * Constants for test step bitmap
+ */
+#define EFI_ST_SETUP	1
+#define EFI_ST_EXECUTE	2
+#define EFI_ST_TEARDOWN	4
+
 static const struct efi_system_table *systable;
 static const struct efi_boot_services *boottime;
 static const struct efi_runtime_services *runtime;
@@ -134,6 +141,31 @@ static int teardown(struct efi_unit_test *test, unsigned int *failures)
 }
 
 /*
+ * Execute test steps of one phase.
+ *
+ * @phase	test phase
+ * @steps	steps to execute
+ * failures	returns EFI_ST_SUCCESS if all test steps succeeded
+ */
+void efi_st_do_tests(unsigned int phase, unsigned int steps,
+		     unsigned int *failures)
+{
+	struct efi_unit_test *test;
+
+	for (test = ll_entry_start(struct efi_unit_test, efi_unit_test);
+	     test < ll_entry_end(struct efi_unit_test, efi_unit_test); ++test) {
+		if (test->phase != phase)
+			continue;
+		if (steps & EFI_ST_SETUP)
+			setup(test, failures);
+		if (steps & EFI_ST_EXECUTE)
+			execute(test, failures);
+		if (steps & EFI_ST_TEARDOWN)
+			teardown(test, failures);
+	}
+}
+
+/*
  * Execute selftest of the EFI API
  *
  * This is the main entry point of the EFI selftest application.
@@ -153,7 +185,6 @@ static int teardown(struct efi_unit_test *test, unsigned int *failures)
 efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 				 struct efi_system_table *systab)
 {
-	struct efi_unit_test *test;
 	unsigned int failures = 0;
 
 	systable = systab;
@@ -169,41 +200,23 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 		      ll_entry_count(struct efi_unit_test, efi_unit_test));
 
 	/* Execute boottime tests */
-	for (test = ll_entry_start(struct efi_unit_test, efi_unit_test);
-	     test < ll_entry_end(struct efi_unit_test, efi_unit_test); ++test) {
-		if (test->phase == EFI_EXECUTE_BEFORE_BOOTTIME_EXIT) {
-			setup(test, &failures);
-			execute(test, &failures);
-			teardown(test, &failures);
-		}
-	}
+	efi_st_do_tests(EFI_EXECUTE_BEFORE_BOOTTIME_EXIT,
+			EFI_ST_SETUP | EFI_ST_EXECUTE | EFI_ST_TEARDOWN,
+			&failures);
 
 	/* Execute mixed tests */
-	for (test = ll_entry_start(struct efi_unit_test, efi_unit_test);
-	     test < ll_entry_end(struct efi_unit_test, efi_unit_test); ++test) {
-		if (test->phase == EFI_SETUP_BEFORE_BOOTTIME_EXIT)
-			setup(test, &failures);
-	}
+	efi_st_do_tests(EFI_SETUP_BEFORE_BOOTTIME_EXIT,
+			EFI_ST_SETUP, &failures);
 
 	efi_st_exit_boot_services();
 
-	for (test = ll_entry_start(struct efi_unit_test, efi_unit_test);
-	     test < ll_entry_end(struct efi_unit_test, efi_unit_test); ++test) {
-		if (test->phase == EFI_SETUP_BEFORE_BOOTTIME_EXIT) {
-			execute(test, &failures);
-			teardown(test, &failures);
-		}
-	}
+	efi_st_do_tests(EFI_SETUP_BEFORE_BOOTTIME_EXIT,
+			EFI_ST_EXECUTE | EFI_ST_TEARDOWN, &failures);
 
 	/* Execute runtime tests */
-	for (test = ll_entry_start(struct efi_unit_test, efi_unit_test);
-	     test < ll_entry_end(struct efi_unit_test, efi_unit_test); ++test) {
-		if (test->phase == EFI_SETUP_AFTER_BOOTTIME_EXIT) {
-			setup(test, &failures);
-			execute(test, &failures);
-			teardown(test, &failures);
-		}
-	}
+	efi_st_do_tests(EFI_SETUP_AFTER_BOOTTIME_EXIT,
+			EFI_ST_SETUP | EFI_ST_EXECUTE | EFI_ST_TEARDOWN,
+			&failures);
 
 	/* Give feedback */
 	efi_st_printf("\nSummary: %u failures\n\n", failures);
