@@ -6,7 +6,6 @@
  *  SPDX-License-Identifier:     GPL-2.0+
  */
 
-#include <common.h>
 #include <charset.h>
 #include <malloc.h>
 
@@ -97,5 +96,61 @@ uint8_t *utf16_to_utf8(uint8_t *dest, const uint16_t *src, size_t size)
 		}
 	}
 
+	return dest;
+}
+
+uint16_t *utf8_to_utf16(uint16_t *dest, const uint8_t *src, size_t size)
+{
+	while (size--) {
+		int extension_bytes;
+		uint32_t code;
+
+		extension_bytes = 0;
+		if (*src <= 0x7f) {
+			code = *src++;
+			/* Exit on zero byte */
+			if (!code)
+				size = 0;
+		} else if (*src <= 0xbf) {
+			/* Illegal code */
+			code = '?';
+		} else if (*src <= 0xdf) {
+			code = *src++ & 0x1f;
+			extension_bytes = 1;
+		} else if (*src <= 0xef) {
+			code = *src++ & 0x0f;
+			extension_bytes = 2;
+		} else if (*src <= 0xf7) {
+			code = *src++ & 0x07;
+			extension_bytes = 3;
+		} else {
+			/* Illegal code */
+			code = '?';
+		}
+
+		for (; extension_bytes && size; --size, --extension_bytes) {
+			if ((*src & 0xc0) == 0x80) {
+				code <<= 6;
+				code |= *src++ & 0x3f;
+			} else {
+				/* Illegal code */
+				code = '?';
+				++src;
+				--size;
+				break;
+			}
+		}
+
+		if (code < 0x10000) {
+			*dest++ = code;
+		} else {
+			/*
+			 * Simplified expression for
+			 * (((code - 0x10000) >> 10) & 0x3ff) | 0xd800
+			 */
+			*dest++ = (code >> 10) + 0xd7c0;
+			*dest++ = (code & 0x3ff) | 0xdc00;
+		}
+	}
 	return dest;
 }
