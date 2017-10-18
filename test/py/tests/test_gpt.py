@@ -43,9 +43,9 @@ class GptTestDiskImage(object):
             cmd = ('sgdisk', '-U', '375a56f7-d6c9-4e81-b5f0-09d41ca89efe',
                 persistent)
             u_boot_utils.run_and_log(u_boot_console, cmd)
-            cmd = ('sgdisk', '--new=1:2048:2560', persistent)
+            cmd = ('sgdisk', '--new=1:2048:2560', '-c 1:part1', persistent)
             u_boot_utils.run_and_log(u_boot_console, cmd)
-            cmd = ('sgdisk', '--new=2:4096:4608', persistent)
+            cmd = ('sgdisk', '--new=2:4096:4608', '-c 2:part2', persistent)
             u_boot_utils.run_and_log(u_boot_console, cmd)
             cmd = ('sgdisk', '-l', persistent)
             u_boot_utils.run_and_log(u_boot_console, cmd)
@@ -65,6 +65,33 @@ def state_disk_image(u_boot_console):
     if not gtdi:
         gtdi = GptTestDiskImage(u_boot_console)
     return gtdi
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('cmd_gpt')
+@pytest.mark.buildconfigspec('cmd_part')
+@pytest.mark.requiredtool('sgdisk')
+def test_gpt_read(state_disk_image, u_boot_console):
+    """Test the gpt read command."""
+
+    u_boot_console.run_command('host bind 0 ' + state_disk_image.path)
+    output = u_boot_console.run_command('gpt read host 0')
+    assert 'Start 1MiB, size 0MiB' in output
+    assert 'Block size 512, name part1' in output
+    assert 'Start 2MiB, size 0MiB' in output
+    assert 'Block size 512, name part2' in output
+    output = u_boot_console.run_command('part list host 0')
+    assert '0x00000800	0x00000a00	"part1"' in output
+    assert '0x00001000	0x00001200	"part2"' in output
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('cmd_gpt')
+@pytest.mark.requiredtool('sgdisk')
+def test_gpt_verify(state_disk_image, u_boot_console):
+    """Test the gpt verify command."""
+
+    u_boot_console.run_command('host bind 0 ' + state_disk_image.path)
+    output = u_boot_console.run_command('gpt verify host 0')
+    assert 'Verify GPT: success!' in output
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_gpt')
