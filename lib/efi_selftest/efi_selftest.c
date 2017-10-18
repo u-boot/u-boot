@@ -25,8 +25,8 @@ static u16 reset_message[] = L"Selftest completed";
  */
 void efi_st_exit_boot_services(void)
 {
-	unsigned long  map_size = 0;
-	unsigned long  map_key;
+	unsigned long map_size = 0;
+	unsigned long map_key;
 	unsigned long desc_size;
 	u32 desc_version;
 	efi_status_t ret;
