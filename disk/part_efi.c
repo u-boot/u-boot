@@ -469,8 +469,8 @@ int gpt_fill_pte(struct blk_desc *dev_desc,
 		 * If our partition overlaps with either the GPT
 		 * header, or the partition entry, reject it.
 		 */
-		if (((start <= hdr_end && hdr_start <= (start + size)) ||
-		     (start <= pte_end && pte_start <= (start + size)))) {
+		if (((start < hdr_end && hdr_start < (start + size)) ||
+		     (start < pte_end && pte_start < (start + size)))) {
 			printf("Partition overlap\n");
 			return -1;
 		}
