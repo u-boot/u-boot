@@ -5,11 +5,16 @@
  *
  * SPDX-License-Identifier:     GPL-2.0+
  *
- * This unit test checks that the watchdog timer will not cause
- * a system restart during the timeout period after a timer reset.
+ * The 'watchdog timer' unit test checks that the watchdog timer
+ * will not cause a system restart during the timeout period after
+ * a timer reset.
  *
- * Testing that the watchdog timer actually will reset the system
- * after a timeout is not possible within the used framework.
+ * The 'watchdog reboot' unit test checks that the watchdog timer
+ * actually reboots the system after a timeout. The test is only
+ * executed on explicit request. Use the following commands:
+ *
+ *	setenv efi_selftest watchdog reboot
+ *	bootefi selftest
  */
 
 #include <efi_selftest.h>
@@ -28,6 +33,7 @@ static struct efi_event *event_notify;
 static struct efi_event *event_wait;
 static struct efi_boot_services *boottime;
 static struct notify_context notification_context;
+static bool watchdog_reset;
 
 /*
  * Notification function, increments the notfication count if parameter
@@ -89,6 +95,34 @@ static int setup(const efi_handle_t handle,
 }
 
 /*
+ * Execute the test resetting the watchdog in a timely manner. No reboot occurs.
+ *
+ * @handle:	handle of the loaded image
+ * @systable:	system table
+ * @return:	EFI_ST_SUCCESS for success
+ */
+static int setup_timer(const efi_handle_t handle,
+		       const struct efi_system_table *systable)
+{
+	watchdog_reset = true;
+	return setup(handle, systable);
+}
+
+/*
+ * Execute the test without resetting the watchdog. A system reboot occurs.
+ *
+ * @handle:	handle of the loaded image
+ * @systable:	system table
+ * @return:	EFI_ST_SUCCESS for success
+ */
+static int setup_reboot(const efi_handle_t handle,
+			const struct efi_system_table *systable)
+{
+	watchdog_reset = false;
+	return setup(handle, systable);
+}
+
+/*
  * Tear down unit test.
  *
  * Close the events created in setup.
@@ -146,11 +180,14 @@ static int execute(void)
 		efi_st_error("Setting watchdog timer failed\n");
 		return EFI_ST_FAILURE;
 	}
-	/* Set 600 ms timer */
-	ret = boottime->set_timer(event_notify, EFI_TIMER_PERIODIC, 6000000);
-	if (ret != EFI_SUCCESS) {
-		efi_st_error("Could not set timer\n");
-		return EFI_ST_FAILURE;
+	if (watchdog_reset) {
+		/* Set 600 ms timer */
+		ret = boottime->set_timer(event_notify, EFI_TIMER_PERIODIC,
+					  6000000);
+		if (ret != EFI_SUCCESS) {
+			efi_st_error("Could not set timer\n");
+			return EFI_ST_FAILURE;
+		}
 	}
 	/* Set 1350 ms timer */
 	ret = boottime->set_timer(event_wait, EFI_TIMER_RELATIVE, 13500000);
@@ -176,10 +213,19 @@ static int execute(void)
 	return EFI_ST_SUCCESS;
 }
 
-EFI_UNIT_TEST(watchdog) = {
+EFI_UNIT_TEST(watchdog1) = {
 	.name = "watchdog timer",
 	.phase = EFI_EXECUTE_BEFORE_BOOTTIME_EXIT,
-	.setup = setup,
+	.setup = setup_timer,
 	.execute = execute,
 	.teardown = teardown,
+};
+
+EFI_UNIT_TEST(watchdog2) = {
+	.name = "watchdog reboot",
+	.phase = EFI_EXECUTE_BEFORE_BOOTTIME_EXIT,
+	.setup = setup_reboot,
+	.execute = execute,
+	.teardown = teardown,
+	.on_request = true,
 };
