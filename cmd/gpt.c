@@ -282,14 +282,14 @@ static int create_gpt_partitions_list(int numparts, const char *guid,
 		strcat(partitions_list, "name=");
 		strncat(partitions_list, (const char *)curr->gpt_part_info.name,
 			PART_NAME_LEN + 1);
-		strcat(partitions_list, ",start=");
-		prettyprint_part_size(partstr, (unsigned long)curr->gpt_part_info.start,
-				      (unsigned long) curr->gpt_part_info.blksz);
+		sprintf(partstr, ",start=0x%llx",
+			(unsigned long long)curr->gpt_part_info.start *
+					    curr->gpt_part_info.blksz);
 		/* one extra byte for NULL */
 		strncat(partitions_list, partstr, PART_NAME_LEN + 1);
-		strcat(partitions_list, ",size=");
-		prettyprint_part_size(partstr, curr->gpt_part_info.size,
-				      curr->gpt_part_info.blksz);
+		sprintf(partstr, ",size=0x%llx",
+			(unsigned long long)curr->gpt_part_info.size *
+					    curr->gpt_part_info.blksz);
 		strncat(partitions_list, partstr, PART_NAME_LEN + 1);
 
 		strcat(partitions_list, ",uuid=");

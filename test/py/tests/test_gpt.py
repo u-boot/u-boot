@@ -132,12 +132,8 @@ def test_gpt_rename_partition(state_disk_image, u_boot_console):
     output = u_boot_console.run_command('gpt read host 0')
     assert 'name second' in output
     output = u_boot_console.run_command('part list host 0')
-    assert '0x00000800	0x000007ff	"first"' in output
-    assert '0x00001000	0x000017ff	"second"' in output
-    # command error here because 'end LBA' (column 2) change after rename
-    # (previous value can be found in test_gpt_read)
-    # "first" 0xa00 => 0x7ff : it is an invalid value < start LBA !
-    # "seconf" 0x1200 => 0x17ff : size is increasing !
+    assert '0x00000800	0x00000a00	"first"' in output
+    assert '0x00001000	0x00001200	"second"' in output
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_gpt')
@@ -149,12 +145,12 @@ def test_gpt_swap_partitions(state_disk_image, u_boot_console):
 
     u_boot_console.run_command('host bind 0 ' + state_disk_image.path)
     output = u_boot_console.run_command('part list host 0')
-    assert '0x00000800	0x000007ff	"first"' in output
-    assert '0x00001000	0x000017ff	"second"' in output
+    assert '0x00000800	0x00000a00	"first"' in output
+    assert '0x00001000	0x00001200	"second"' in output
     u_boot_console.run_command('gpt swap host 0 first second')
     output = u_boot_console.run_command('part list host 0')
-    assert '0x00000800	0x000007ff	"second"' in output
-    assert '0x00001000	0x000017ff	"first"' in output
+    assert '0x00000800	0x00000a00	"second"' in output
+    assert '0x00001000	0x00001200	"first"' in output
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_gpt')
