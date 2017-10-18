@@ -6,6 +6,9 @@
  *  SPDX-License-Identifier:     GPL-2.0+
  */
 
+#ifndef _EFI_LOADER_H
+#define _EFI_LOADER_H 1
+
 #include <common.h>
 #include <part_efi.h>
 #include <efi_api.h>
@@ -345,4 +348,6 @@ static inline void efi_set_bootdev(const char *dev, const char *devnr,
 				   const char *path) { }
 static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
 
-#endif
+#endif /* CONFIG_EFI_LOADER && !CONFIG_SPL_BUILD */
+
+#endif /* _EFI_LOADER_H */
