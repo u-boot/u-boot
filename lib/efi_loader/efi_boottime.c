@@ -1282,6 +1282,8 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 		return EFI_EXIT(EFI_UNSUPPORTED);
 	}
 
+	info->system_table = &systab;
+	info->parent_handle = parent_image;
 	*image_handle = info;
 
 	return EFI_EXIT(EFI_SUCCESS);
