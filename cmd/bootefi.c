@@ -43,6 +43,7 @@ static void efi_init_obj_list(void)
 #ifdef CONFIG_GENERATE_SMBIOS_TABLE
 	efi_smbios_register();
 #endif
+	efi_watchdog_register();
 
 	/* Initialize EFI runtime services */
 	efi_reset_system_init();

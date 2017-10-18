@@ -156,18 +156,6 @@ void efi_signal_event(struct efi_event *event)
 }
 
 /*
- * Write a debug message for an EPI API service that is not implemented yet.
- *
- * @funcname	function that is not yet implemented
- * @return	EFI_UNSUPPORTED
- */
-static efi_status_t efi_unsupported(const char *funcname)
-{
-	debug("EFI: App called into unimplemented function %s\n", funcname);
-	return EFI_EXIT(EFI_UNSUPPORTED);
-}
-
-/*
  * Raise the task priority level.
  *
  * This function implements the RaiseTpl service.
@@ -1451,6 +1439,7 @@ static efi_status_t EFIAPI efi_exit_boot_services(void *image_handle,
 	bootm_disable_interrupts();
 
 	/* Give the payload some time to boot */
+	efi_set_watchdog(0);
 	WATCHDOG_RESET();
 
 	return EFI_EXIT(EFI_SUCCESS);
@@ -1494,7 +1483,7 @@ static efi_status_t EFIAPI efi_stall(unsigned long microseconds)
 /*
  * Reset the watchdog timer.
  *
- * This function implements the WatchdogTimer service.
+ * This function implements the SetWatchdogTimer service.
  * See the Unified Extensible Firmware Interface (UEFI) specification
  * for details.
  *
@@ -1511,7 +1500,7 @@ static efi_status_t EFIAPI efi_set_watchdog_timer(unsigned long timeout,
 {
 	EFI_ENTRY("%ld, 0x%"PRIx64", %ld, %p", timeout, watchdog_code,
 		  data_size, watchdog_data);
-	return efi_unsupported(__func__);
+	return EFI_EXIT(efi_set_watchdog(timeout));
 }
 
 /*
