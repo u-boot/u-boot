@@ -349,8 +349,10 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		set_load_options(&loaded_image_info, "efi_selftest");
 		/* Execute the test */
 		r = efi_selftest(&loaded_image_info, &systab);
+		efi_restore_gd();
 		free(loaded_image_info.load_options);
-		return r;
+		list_del(&loaded_image_info_obj.link);
+		return r != EFI_SUCCESS;
 	} else
 #endif
 	if (!strcmp(argv[1], "bootmgr")) {
