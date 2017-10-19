@@ -664,6 +664,7 @@ endmenu
 
 config HAVE_ACPI_RESUME
 	bool "Enable ACPI S3 resume"
+	select ENABLE_MRC_CACHE
 	help
 	  Select this to enable ACPI S3 resume. S3 is an ACPI-defined sleeping
 	  state where all system context is lost except system memory. U-Boot
