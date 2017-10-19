@@ -11,7 +11,7 @@ results. Advantages of this approach are:
   U-Boot; there can be no disconnect.
 - There is no need to write or embed test-related code into U-Boot itself.
   It is asserted that writing test-related code in Python is simpler and more
-  flexible that writing it all in C.
+  flexible than writing it all in C.
 - It is reasonably simple to interact with U-Boot in this way.
 
 ## Requirements
@@ -183,7 +183,7 @@ The following environment variables are set when running hook scripts:
 - `UBOOT_TEST_PY_DIR` the full path to `test/py/` in the source directory.
 - `UBOOT_BUILD_DIR` the U-Boot build directory.
 - `UBOOT_RESULT_DIR` the test result directory.
-- `UBOOT_PERSISTENT_DATA_DIR` the test peristent data directory.
+- `UBOOT_PERSISTENT_DATA_DIR` the test persistent data directory.
 
 #### `u-boot-test-console`
 
@@ -222,7 +222,7 @@ the following cases:
   from there. Use of this feature will reduce wear on the board's flash, so
   may be preferable if available, and if cold boot testing of U-Boot is not
   required. If this feature is used, the `u-boot-test-reset` script should
-  peform this download, since the board could conceivably be reset multiple
+  perform this download, since the board could conceivably be reset multiple
   times in a single test run.
 
 It is up to the user to determine if those situations exist, and to code this
