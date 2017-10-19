@@ -85,7 +85,7 @@ allow the signer to operate. These should be added to the .its file.
 Signature nodes sit at the same level as hash nodes and are called
 signature@1, signature@2, etc.
 
-- algo: Algorithm name (e.g. "sha1,rs2048")
+- algo: Algorithm name (e.g. "sha1,rsa2048")
 
 - key-name-hint: Name of key to use for signing. The keys will normally be in
 a single directory (parameter -k to mkimage). For a given key <name>, its
@@ -139,7 +139,7 @@ public key in U-Boot's control FDT (using CONFIG_OF_CONTROL).
 Public keys should be stored as sub-nodes in a /signature node. Required
 properties are:
 
-- algo: Algorithm name (e.g. "sha1,rs2048")
+- algo: Algorithm name (e.g. "sha1,rsa2048")
 
 Optional properties are:
 
