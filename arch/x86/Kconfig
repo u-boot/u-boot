@@ -677,7 +677,6 @@ config HAVE_ACPI_RESUME
 config S3_VGA_ROM_RUN
 	bool "Re-run VGA option ROMs on S3 resume"
 	depends on HAVE_ACPI_RESUME
-	default y if HAVE_ACPI_RESUME
 	help
 	  Execute VGA option ROMs in U-Boot when resuming from S3. Normally
 	  this is needed when graphics console is being used in the kernel.

@@ -8,117 +8,20 @@
 
 #include <common.h>
 #include <fdtdec.h>
-#include <asm/arch/fsp/azalia.h>
 #include <asm/fsp/fsp_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* ALC262 Verb Table - 10EC0262 */
-static const uint32_t verb_table_data13[] = {
-	/* Pin Complex (NID 0x11) */
-	0x01171cf0,
-	0x01171d11,
-	0x01171e11,
-	0x01171f41,
-	/* Pin Complex (NID 0x12) */
-	0x01271cf0,
-	0x01271d11,
-	0x01271e11,
-	0x01271f41,
-	/* Pin Complex (NID 0x14) */
-	0x01471c10,
-	0x01471d40,
-	0x01471e01,
-	0x01471f01,
-	/* Pin Complex (NID 0x15) */
-	0x01571cf0,
-	0x01571d11,
-	0x01571e11,
-	0x01571f41,
-	/* Pin Complex (NID 0x16) */
-	0x01671cf0,
-	0x01671d11,
-	0x01671e11,
-	0x01671f41,
-	/* Pin Complex (NID 0x18) */
-	0x01871c20,
-	0x01871d98,
-	0x01871ea1,
-	0x01871f01,
-	/* Pin Complex (NID 0x19) */
-	0x01971c21,
-	0x01971d98,
-	0x01971ea1,
-	0x01971f02,
-	/* Pin Complex (NID 0x1A) */
-	0x01a71c2f,
-	0x01a71d30,
-	0x01a71e81,
-	0x01a71f01,
-	/* Pin Complex */
-	0x01b71c1f,
-	0x01b71d40,
-	0x01b71e21,
-	0x01b71f02,
-	/* Pin Complex */
-	0x01c71cf0,
-	0x01c71d11,
-	0x01c71e11,
-	0x01c71f41,
-	/* Pin Complex */
-	0x01d71c01,
-	0x01d71dc6,
-	0x01d71e14,
-	0x01d71f40,
-	/* Pin Complex */
-	0x01e71cf0,
-	0x01e71d11,
-	0x01e71e11,
-	0x01e71f41,
-	/* Pin Complex */
-	0x01f71cf0,
-	0x01f71d11,
-	0x01f71e11,
-	0x01f71f41,
-};
-
-/*
- * This needs to be in ROM since if we put it in CAR, FSP init loses it when
- * it drops CAR.
+/**
+ * Override the FSP's Azalia configuration data
  *
- * TODO(sjg@chromium.org): Move to device tree when FSP allows it
- *
- * VerbTable: (RealTek ALC262)
- * Revision ID = 0xFF, support all steps
- * Codec Verb Table For AZALIA
- * Codec Address: CAd value (0/1/2)
- * Codec Vendor: 0x10EC0262
+ * @azalia:	pointer to be updated to point to a ROM address where Azalia
+ *		configuration data is stored
  */
-static const struct pch_azalia_verb_table azalia_verb_table[] = {
-	{
-		{
-			0x10ec0262,
-			0x0000,
-			0xff,
-			0x01,
-			0x000b,
-			0x0002,
-		},
-		verb_table_data13
-	}
-};
-
-const struct pch_azalia_config azalia_config = {
-	.pme_enable = 1,
-	.docking_supported = 1,
-	.docking_attached = 0,
-	.hdmi_codec_enable = 1,
-	.azalia_v_ci_enable = 1,
-	.rsvdbits = 0,
-	.azalia_verb_table_num = 1,
-	.azalia_verb_table = azalia_verb_table,
-	.reset_wait_timer_us = 300
-};
+__weak void update_fsp_azalia_configs(struct azalia_config **azalia)
+{
+	*azalia = NULL;
+}
 
 /**
  * Override the FSP's configuration data.
@@ -137,8 +40,6 @@ void update_fsp_configs(struct fsp_config_data *config,
 	rt_buf->common.stack_top = config->common.stack_top - 32;
 	rt_buf->common.boot_mode = config->common.boot_mode;
 	rt_buf->common.upd_data = &config->fsp_upd;
-
-	fsp_upd->azalia_config_ptr = (uint32_t)&azalia_config;
 
 	node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_BAYTRAIL_FSP);
 	if (node < 0) {
@@ -174,6 +75,8 @@ void update_fsp_configs(struct fsp_config_data *config,
 					    SATA_MODE_AHCI);
 	fsp_upd->enable_azalia = fdtdec_get_bool(blob, node,
 						 "fsp,enable-azalia");
+	if (fsp_upd->enable_azalia)
+		update_fsp_azalia_configs(&fsp_upd->azalia_cfg_ptr);
 	fsp_upd->enable_xhci = fdtdec_get_bool(blob, node, "fsp,enable-xhci");
 	fsp_upd->lpe_mode = fdtdec_get_int(blob, node, "fsp,lpe-mode",
 					   LPE_MODE_PCI);

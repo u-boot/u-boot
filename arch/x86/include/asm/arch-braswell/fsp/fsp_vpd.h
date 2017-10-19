@@ -29,32 +29,6 @@ struct __packed memory_upd {
 	u8 reserved[189];			/* Offset 0x0043 */
 };
 
-struct __packed azalia_verb_table_header {
-	u32 vendor_device_id;
-	u16 sub_system_id;
-	u8 revision_id;
-	u8 front_panel_support;
-	u16 number_of_rear_jacks;
-	u16 number_of_front_jacks;
-};
-
-struct __packed azalia_verb_table {
-	struct azalia_verb_table_header header;
-	u32 *data;
-};
-
-struct __packed azalia_config {
-	u8 pme_enable:1;
-	u8 docking_supported:1;
-	u8 docking_attached:1;
-	u8 hdmi_codec_enable:1;
-	u8 azalia_v_ci_enable:1;
-	u8 reserved:3;
-	u8 verb_table_num;
-	struct azalia_verb_table *verb_table;
-	u16 reset_wait_timer_ms;
-};
-
 struct gpio_family {
 	u32 confg;
 	u32 confg_changes;
