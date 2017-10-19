@@ -31,8 +31,4 @@ config FSP_ADDR
 	hex
 	default 0xfff20000
 
-config FSP_LOCKDOWN_SPI
-	bool
-	default y
-
 endif

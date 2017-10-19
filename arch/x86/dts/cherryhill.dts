@@ -143,6 +143,7 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				compatible = "intel,ich9-spi";
+				intel,spi-lock-down;
 
 				spi-flash@0 {
 					#address-cells = <1>;
