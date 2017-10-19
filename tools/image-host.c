@@ -513,7 +513,7 @@ static int fit_config_get_data(void *fit, int conf_noffset, int noffset,
 	int ret, len;
 
 	conf_name = fit_get_name(fit, conf_noffset, NULL);
-	sig_name = fit_get_name(fit, conf_noffset, NULL);
+	sig_name = fit_get_name(fit, noffset, NULL);
 	debug("%s: conf='%s', sig='%s'\n", __func__, conf_name, sig_name);
 
 	/* Get a list of nodes we want to hash */
