@@ -181,8 +181,8 @@ void dm_pciauto_prescan_setup_bridge(struct udevice *dev, int sub_bus)
 
 	/* Configure bus number registers */
 	dm_pci_write_config8(dev, PCI_PRIMARY_BUS,
-			     PCI_BUS(dm_pci_get_bdf(dev)));
-	dm_pci_write_config8(dev, PCI_SECONDARY_BUS, sub_bus);
+			     PCI_BUS(dm_pci_get_bdf(dev)) - ctlr->seq);
+	dm_pci_write_config8(dev, PCI_SECONDARY_BUS, sub_bus - ctlr->seq);
 	dm_pci_write_config8(dev, PCI_SUBORDINATE_BUS, 0xff);
 
 	if (pci_mem) {
@@ -257,7 +257,7 @@ void dm_pciauto_postscan_setup_bridge(struct udevice *dev, int sub_bus)
 	pci_io = ctlr_hose->pci_io;
 
 	/* Configure bus number registers */
-	dm_pci_write_config8(dev, PCI_SUBORDINATE_BUS, sub_bus);
+	dm_pci_write_config8(dev, PCI_SUBORDINATE_BUS, sub_bus - ctlr->seq);
 
 	if (pci_mem) {
 		/* Round memory allocator to 1MB boundary */

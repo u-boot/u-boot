@@ -162,6 +162,7 @@ static uintptr_t set_cfg_address(struct pcie_dw_mvebu *pcie,
 		/* Accessing root port configuration space. */
 		va_address = (uintptr_t)pcie->ctrl_base;
 	} else {
+		d = PCI_MASK_BUS(d) | (PCI_BUS(d) - pcie->first_busno);
 		writel(d << 8, pcie->ctrl_base + PCIE_ATU_LOWER_TARGET);
 		va_address = (uintptr_t)pcie->cfg_base;
 	}
