@@ -55,6 +55,7 @@ config NAND_OMAP_GPMC
 config NAND_OMAP_GPMC_PREFETCH
 	bool "Enable GPMC Prefetch"
 	depends on NAND_OMAP_GPMC
+	default y
 	help
 	  On OMAP platforms that use the GPMC controller
 	  (CONFIG_NAND_OMAP_GPMC_PREFETCH), this options enables the code that
