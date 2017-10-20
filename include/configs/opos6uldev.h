@@ -17,6 +17,7 @@
 #ifdef CONFIG_SPL_BUILD
 #undef CONFIG_DM_GPIO
 #undef CONFIG_DM_MMC
+#undef CONFIG_BLK
 
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 #endif
