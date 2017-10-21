@@ -3,3 +3,4 @@ M:	Thomas Abraham <thomas.ab@samsung.com>
 S:	Maintained
 F:	board/samsung/espresso7420/
 F:	include/configs/espresso7420.h
+F:	configs/espresso7420_defconfig

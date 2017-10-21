@@ -8,6 +8,7 @@ F:	configs/ls1046aqds_nand_defconfig
 F:	configs/ls1046aqds_sdcard_ifc_defconfig
 F:	configs/ls1046aqds_sdcard_qspi_defconfig
 F:	configs/ls1046aqds_qspi_defconfig
+F:	configs/ls1046aqds_lpuart_defconfig
 
 M:	Sumit Garg <sumit.garg@nxp.com>
 S:	Maintained
