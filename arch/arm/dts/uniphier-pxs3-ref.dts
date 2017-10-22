@@ -68,3 +68,7 @@
 &usb1 {
 	status = "okay";
 };
+
+&nand {
+	status = "okay";
+};

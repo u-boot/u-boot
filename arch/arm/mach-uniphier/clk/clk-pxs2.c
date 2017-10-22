@@ -19,9 +19,6 @@ void uniphier_pxs2_clk_init(void)
 #ifdef CONFIG_USB_DWC3_UNIPHIER
 	tmp |= SC_RSTCTRL_NRST_USB3B0 | SC_RSTCTRL_NRST_GIO;
 #endif
-#ifdef CONFIG_UNIPHIER_ETH
-	tmp |= SC_RSTCTRL_NRST_ETHER;
-#endif
 #ifdef CONFIG_NAND_DENALI
 	tmp |= SC_RSTCTRL_NRST_NAND;
 #endif
@@ -44,9 +41,6 @@ void uniphier_pxs2_clk_init(void)
 #ifdef CONFIG_USB_DWC3_UNIPHIER
 	tmp |= BIT(20) | BIT(19) | SC_CLKCTRL_CEN_USB31 | SC_CLKCTRL_CEN_USB30 |
 		SC_CLKCTRL_CEN_GIO;
-#endif
-#ifdef CONFIG_UNIPHIER_ETH
-	tmp |= SC_CLKCTRL_CEN_ETHER;
 #endif
 #ifdef CONFIG_NAND_DENALI
 	tmp |= SC_CLKCTRL_CEN_NAND;

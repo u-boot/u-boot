@@ -1,0 +1,61 @@
+/ {
+	soc {
+		u-boot,dm-pre-reloc;
+
+		serial@54006800 {
+			u-boot,dm-pre-reloc;
+		};
+
+		serial@54006900 {
+			u-boot,dm-pre-reloc;
+		};
+
+		serial@54006a00 {
+			u-boot,dm-pre-reloc;
+		};
+
+		mioctrl@59810000 {
+			u-boot,dm-pre-reloc;
+
+			clock {
+				u-boot,dm-pre-reloc;
+			};
+		};
+
+		sdctrl@59810000 {
+			u-boot,dm-pre-reloc;
+
+			clock {
+				u-boot,dm-pre-reloc;
+			};
+		};
+
+		soc-glue@5f800000 {
+			u-boot,dm-pre-reloc;
+
+			pinctrl {
+				u-boot,dm-pre-reloc;
+
+				emmc_grp {
+					u-boot,dm-pre-reloc;
+				};
+
+				uart0_grp {
+					u-boot,dm-pre-reloc;
+				};
+
+				uart1_grp {
+					u-boot,dm-pre-reloc;
+				};
+
+				uart2_grp {
+					u-boot,dm-pre-reloc;
+				};
+			};
+		};
+	};
+};
+
+&emmc {
+	u-boot,dm-pre-reloc;
+};

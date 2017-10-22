@@ -69,11 +69,6 @@
 	status = "okay";
 };
 
-/* for U-Boot only */
-&serial0 {
-	u-boot,dm-pre-reloc;
-};
-
-&pinctrl_uart0 {
-	u-boot,dm-pre-reloc;
+&nand {
+	status = "okay";
 };

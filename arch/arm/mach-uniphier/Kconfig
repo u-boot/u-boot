@@ -117,4 +117,6 @@ config CMD_DDRMPHY_DUMP
 	  The command "ddrmphy" shows the resulting parameters of DDR Multi PHY
 	  training; it is useful for the evaluation of DDR Multi PHY training.
 
+config SYS_SOC
+	default "uniphier-v7" if ARCH_UNIPHIER_LD4_SLD8 || ARCH_UNIPHIER_V7_MULTI
 endif
