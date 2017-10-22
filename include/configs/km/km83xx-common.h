@@ -12,19 +12,6 @@
 #include "keymile-common.h"
 #include "km-powerpc.h"
 
-#ifndef MTDIDS_DEFAULT
-# define MTDIDS_DEFAULT	"nor0=boot"
-#endif /* MTDIDS_DEFAULT */
-
-#ifndef MTDPARTS_DEFAULT
-# define MTDPARTS_DEFAULT	"mtdparts="			\
-	"boot:"							\
-		"768k(u-boot),"					\
-		"128k(env),"					\
-		"128k(envred),"					\
-		"-(" CONFIG_KM_UBI_PARTITION_NAME_BOOT ");"
-#endif /* MTDPARTS_DEFAULT */
-
 #define CONFIG_MISC_INIT_R
 /*
  * System Clock Setup

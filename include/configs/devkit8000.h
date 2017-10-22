@@ -67,13 +67,6 @@
 #define CONFIG_TWL4030_LED		1
 
 /* Board NAND Info */
-#define MTDIDS_DEFAULT			"nand0=nand"
-#define MTDPARTS_DEFAULT		"mtdparts=nand:" \
-						"512k(x-loader)," \
-						"1920k(u-boot)," \
-						"128k(u-boot-env)," \
-						"4m(kernel)," \
-						"-(fs)"
 
 #define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
 							/* to access nand */

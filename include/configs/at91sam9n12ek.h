@@ -75,15 +75,10 @@
 
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
-#define MTDIDS_DEFAULT			"nand0=atmel_nand"
-#define MTDPARTS_DEFAULT						\
-	"mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,"		\
-	"256k(env),256k(env_redundant),256k(spare),"			\
-	"512k(dtb),6M(kernel)ro,-(rootfs)"
 
 #define CONFIG_EXTRA_ENV_SETTINGS                                       \
 	"console=console=ttyS0,115200\0"                                \
-	"mtdparts="MTDPARTS_DEFAULT"\0"					\
+	"mtdparts="CONFIG_MTDPARTS_DEFAULT"\0"					\
 	"bootargs_nand=rootfstype=ubifs ubi.mtd=7 root=ubi0:rootfs rw\0"\
 	"bootargs_mmc=root=/dev/mmcblk0p2 rw rootfstype=ext4 rootwait\0"
 

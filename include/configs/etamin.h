@@ -139,26 +139,6 @@
 	"u-boot.env1 mtddev;" \
 	"rootfs mtddevubi" \
 
-#undef MTDIDS_NAME_STR
-#define MTDIDS_NAME_STR		"omap2-nand_concat"
-#undef MTDIDS_DEFAULT
-#define MTDIDS_DEFAULT		"nand2=" MTDIDS_NAME_STR
-
-#undef MTDPARTS_DEFAULT_V2
-#define MTDPARTS_DEFAULT_V2     "mtdparts=" MTDIDS_NAME_STR ":" \
-				"512k(spl)," \
-				"512k(spl.backup1)," \
-				"512k(spl.backup2)," \
-				"512k(spl.backup3)," \
-				"7680k(u-boot)," \
-				"2048k(u-boot.env0)," \
-				"2048k(u-boot.env1)," \
-				"2048k(mtdoops)," \
-				"-(rootfs)"
-
-#undef MTDPARTS_DEFAULT
-#define MTDPARTS_DEFAULT	MTDPARTS_DEFAULT_V2
-
 #undef CONFIG_ENV_SETTINGS_NAND_V2
 #define CONFIG_ENV_SETTINGS_NAND_V2 \
 	"nand_active_ubi_vol=rootfs_a\0" \

@@ -73,9 +73,6 @@
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_FLASH_CFI_MTD
-#define MTDIDS_DEFAULT "nor0=ec000000.nor"
-#define MTDPARTS_DEFAULT "mtdparts=ec000000.nor:128k(dtb),6016k(kernel)," \
-			"57088k(fs),1m(vsc7385-firmware),1280k(u-boot)"
 #endif
 
 #if defined(CONFIG_TARGET_P1021RDB)
@@ -98,17 +95,6 @@
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_FLASH_CFI_MTD
-#ifdef CONFIG_PHYS_64BIT
-#define MTDIDS_DEFAULT "nor0=fef000000.nor"
-#define MTDPARTS_DEFAULT "mtdparts=fef000000.nor:256k(vsc7385-firmware)," \
-			"256k(dtb),4608k(kernel),9728k(fs)," \
-			"256k(qe-ucode-firmware),1280k(u-boot)"
-#else
-#define MTDIDS_DEFAULT "nor0=ef000000.nor"
-#define MTDPARTS_DEFAULT "mtdparts=ef000000.nor:256k(vsc7385-firmware)," \
-			"256k(dtb),4608k(kernel),9728k(fs)," \
-			"256k(qe-ucode-firmware),1280k(u-boot)"
-#endif
 #endif
 
 #if defined(CONFIG_TARGET_P1024RDB)
@@ -156,15 +142,6 @@
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_FLASH_CFI_MTD
-#ifdef CONFIG_PHYS_64BIT
-#define MTDIDS_DEFAULT "nor0=fef000000.nor"
-#define MTDPARTS_DEFAULT "mtdparts=fef000000.nor:256k(vsc7385-firmware)," \
-			"256k(dtb),4608k(kernel),9984k(fs),1280k(u-boot)"
-#else
-#define MTDIDS_DEFAULT "nor0=ef000000.nor"
-#define MTDPARTS_DEFAULT "mtdparts=ef000000.nor:256k(vsc7385-firmware)," \
-			"256k(dtb),4608k(kernel),9984k(fs),1280k(u-boot)"
-#endif
 #endif
 
 #ifdef CONFIG_SDCARD

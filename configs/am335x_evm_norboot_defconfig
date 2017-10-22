@@ -14,6 +14,8 @@ CONFIG_BOARD_EARLY_INIT_F=y
 CONFIG_FASTBOOT=y
 # CONFIG_CMD_SETEXPR is not set
 CONFIG_CMD_MTDPARTS=y
+CONFIG_MTDIDS_DEFAULT="nor0=physmap-flash.0"
+CONFIG_MTDPARTS_DEFAULT="mtdparts=physmap-flash.0:512k(u-boot),128k(u-boot-env1),128k(u-boot-env2),4m(kernel),-(rootfs)"
 CONFIG_ENV_IS_IN_FLASH=y
 CONFIG_DFU_MMC=y
 CONFIG_DFU_RAM=y

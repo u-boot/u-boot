@@ -49,10 +49,6 @@
  * Command definition
  ***********************************************************/
 
-
-#define MTDPARTS_DEFAULT	"mtdparts=physmap-flash.0:128k(uboot)ro," \
-					"1536k(kernel),-(root)"
-
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_IPADDR		192.168.23.168
 #define CONFIG_SERVERIP		192.168.23.2
@@ -70,7 +66,7 @@
 	"bootcmd_flash=run bootargs_base bootargs_mtd bootargs_flash;"	\
 		"bootm 0x80000000\0"					\
 	"unlock=yes\0"							\
-	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"				\
 	"prg_uboot=tftpboot 0x80000000 $(uboot);"			\
 		"protect off 0xa0000000 +0x20000;"			\
 		"erase 0xa0000000 +0x20000;"				\

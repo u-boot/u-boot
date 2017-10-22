@@ -44,6 +44,8 @@ CONFIG_CMD_PING=y
 CONFIG_CMD_CACHE=y
 CONFIG_CMD_TIME=y
 CONFIG_CMD_EXT2=y
+CONFIG_MTDIDS_DEFAULT="nand0=omap2-nand.0"
+CONFIG_MTDPARTS_DEFAULT="mtdparts=omap2-nand.0:128k(spl),128k(spl.backup1),128k(spl.backup2),128k(spl.backup3),1920k(u-boot),512k(u-boot.env0),512k(u-boot.env1),300m(rootfs),512k(mtdoops),-(configuration)"
 CONFIG_CMD_UBI=y
 # CONFIG_DOS_PARTITION is not set
 CONFIG_OF_CONTROL=y

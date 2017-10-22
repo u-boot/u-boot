@@ -23,6 +23,8 @@ CONFIG_CMD_USB=y
 CONFIG_CMD_DHCP=y
 CONFIG_CMD_PING=y
 CONFIG_CMD_CACHE=y
+CONFIG_MTDIDS_DEFAULT="nor0=physmap-flash.0,nand0=nand"
+CONFIG_MTDPARTS_DEFAULT="mtdparts=physmap-flash.0:256k(u-boot)ro,64k(u-boot-env)ro,1408k(kernel),-(rootfs);nand:-(nand)"
 CONFIG_OF_CONTROL=y
 CONFIG_ENV_IS_IN_FLASH=y
 CONFIG_DM=y

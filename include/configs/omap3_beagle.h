@@ -53,11 +53,6 @@
 
 /* commands to include */
 
-#define MTDIDS_DEFAULT			"nand0=nand"
-#define MTDPARTS_DEFAULT		"mtdparts=nand:512k(x-loader),"\
-					"1920k(u-boot),128k(u-boot-env),"\
-					"4m(kernel),-(fs)"
-
 #define CONFIG_VIDEO_OMAP3	/* DSS Support			*/
 
 /*

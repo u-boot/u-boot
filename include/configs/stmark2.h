@@ -57,16 +57,9 @@
 #define CONFIG_SYS_MCFRRTC_BASE		0xFC0A8000
 
 /* spi not partitions */
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE
 #define CONFIG_JFFS2_CMDLINE
 #define CONFIG_JFFS2_DEV		"nor0"
-#define MTDIDS_DEFAULT			"nor0=spi-flash.0"
-#define MTDPARTS_DEFAULT					\
-	"mtdparts=spi-flash.0:"					\
-		"1m(u-boot),"					\
-		"7m(kernel),"					\
-		"-(rootfs)"
 
 /* Timer */
 #define CONFIG_MCFTMR

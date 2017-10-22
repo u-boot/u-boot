@@ -167,15 +167,6 @@
 		"else echo \"Unsupported boot mode: \"${bootmode} ; "	\
 		"fi\0"							\
 
-#define MTDPARTS_DEFAULT			\
-	"mtdparts=ff705000.spi.0:"		\
-		"1m(u-boot),"			\
-		"64k(env1),"			\
-		"64k(env2),"			\
-		"256k(samtec1),"		\
-		"256k(samtec2),"		\
-		"-(rcvrfs);"	/* Recovery */	\
-
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 #define CONFIG_ENV_SECT_SIZE		(64 * 1024)

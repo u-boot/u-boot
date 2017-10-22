@@ -201,12 +201,6 @@ int vct_gpio_get(int pin);
 #if defined(CONFIG_VCT_ONENAND)
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS
-
-#define MTDIDS_DEFAULT		"onenand0=onenand"
-#define MTDPARTS_DEFAULT	"mtdparts=onenand:128k(u-boot),"	\
-					"128k(env),"		\
-					"20m(kernel),"		\
-					"-(rootfs)"
 #endif
 
 /*

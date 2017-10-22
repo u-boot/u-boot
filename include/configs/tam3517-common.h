@@ -206,10 +206,6 @@
 #define CONFIG_MTD_DEVICE
 
 /* Setup MTD for NAND on the SOM */
-#define MTDIDS_DEFAULT		"nand0=omap2-nand.0"
-#define MTDPARTS_DEFAULT	"mtdparts=omap2-nand.0:512k(MLO)," \
-				"1m(u-boot),256k(env1)," \
-				"256k(env2),6m(kernel),-(rootfs)"
 
 #define	CONFIG_TAM3517_SETTINGS						\
 	"netdev=eth0\0"							\

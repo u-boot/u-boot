@@ -106,17 +106,6 @@
  *  DTB                  4 * NAND_BLOCK_SIZE = 512 KiB  @ 0xAA0000
  *  RootFS              Remaining Flash Space           @ 0xB20000
  */
-#define MTDIDS_DEFAULT "nand0=omap2-nand.0"
-#define MTDPARTS_DEFAULT "mtdparts=omap2-nand.0:"	\
-	"512k(MLO),"					\
-	"1920k(u-boot),"				\
-	"256k(u-boot-env),"				\
-	"8m(kernel),"					\
-	"512k(dtb),"					\
-	"-(rootfs)"
-#else
-#define MTDIDS_DEFAULT
-#define MTDPARTS_DEFAULT
 #endif /* CONFIG_NAND */
 
 /* Environment information */
@@ -132,8 +121,8 @@
 	"bootenv=uEnv.txt\0" \
 	"cmdline=\0" \
 	"optargs=\0" \
-	"mtdids=" MTDIDS_DEFAULT "\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"mmcdev=0\0" \
 	"mmcpart=1\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \

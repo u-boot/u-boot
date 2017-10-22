@@ -227,16 +227,6 @@ int get_scl(void);
 #define FLASH_GPIO_PIN			0x00010000
 #define KM_FLASH_GPIO_PIN	16
 
-#ifndef MTDIDS_DEFAULT
-# define MTDIDS_DEFAULT		"nand0=orion_nand"
-#endif /* MTDIDS_DEFAULT */
-
-#ifndef MTDPARTS_DEFAULT
-# define MTDPARTS_DEFAULT	"mtdparts="			\
-	"orion_nand:"						\
-		"-(" CONFIG_KM_UBI_PARTITION_NAME_BOOT ");"
-#endif /* MTDPARTS_DEFAULT */
-
 #define	CONFIG_KM_UPDATE_UBOOT						\
 	"update="							\
 		"sf probe 0;sf erase 0 +${filesize};"			\

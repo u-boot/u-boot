@@ -27,6 +27,7 @@ CONFIG_CMD_PING=y
 CONFIG_CMD_CACHE=y
 CONFIG_CMD_EXT2=y
 CONFIG_CMD_FAT=y
+CONFIG_MTDPARTS_DEFAULT="mtdparts=1550000.quadspi:1m(rcw),15m(u-boot),48m(kernel.itb);7e800000.flash:16m(nand_uboot),48m(nand_kernel),448m(nand_free)"
 # CONFIG_SPL_EFI_PARTITION is not set
 CONFIG_OF_CONTROL=y
 CONFIG_ENV_IS_IN_MMC=y

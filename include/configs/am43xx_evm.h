@@ -124,19 +124,6 @@
 #define CONFIG_ENV_SECT_SIZE           (64 << 10) /* 64 KB sectors */
 #define CONFIG_ENV_OFFSET              0x110000
 #define CONFIG_ENV_OFFSET_REDUND       0x120000
-#ifdef MTDIDS_DEFAULT
-#undef MTDIDS_DEFAULT
-#endif
-#ifdef MTDPARTS_DEFAULT
-#undef MTDPARTS_DEFAULT
-#endif
-#define MTDPARTS_DEFAULT		"mtdparts=qspi.0:512k(QSPI.u-boot)," \
-					"512k(QSPI.u-boot.backup)," \
-					"512k(QSPI.u-boot-spl-os)," \
-					"64k(QSPI.u-boot-env)," \
-					"64k(QSPI.u-boot-env.backup)," \
-					"8m(QSPI.kernel)," \
-					"-(QSPI.file-system)"
 #endif
 
 /* SPI */
@@ -283,18 +270,6 @@
 			}
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	26
-#define MTDIDS_DEFAULT			"nand0=nand.0"
-#define MTDPARTS_DEFAULT		"mtdparts=nand.0:" \
-					"256k(NAND.SPL)," \
-					"256k(NAND.SPL.backup1)," \
-					"256k(NAND.SPL.backup2)," \
-					"256k(NAND.SPL.backup3)," \
-					"512k(NAND.u-boot-spl-os)," \
-					"1m(NAND.u-boot)," \
-					"256k(NAND.u-boot-env)," \
-					"256k(NAND.u-boot-env.backup1)," \
-					"7m(NAND.kernel)," \
-					"-(NAND.file-system)"
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x00180000
 /* NAND: SPL related configs */
 /* NAND: SPL falcon mode configs */
@@ -302,8 +277,8 @@
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x00300000 /* kernel offset */
 #endif
 #define NANDARGS \
-	"mtdids=" MTDIDS_DEFAULT "\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"nandargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"root=${nandroot} " \

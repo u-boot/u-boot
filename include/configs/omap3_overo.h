@@ -51,15 +51,6 @@
  *  linux               64 * NAND_BLOCK_SIZE = 8 MiB
  *  rootfs              remainder
  */
-#define MTDIDS_DEFAULT "nand0=omap2-nand.0"
-#define MTDPARTS_DEFAULT "mtdparts=omap2-nand.0:"	\
-	"512k(xloader),"				\
-	"1792k(u-boot),"				\
-	"256k(environ),"				\
-	"8m(linux),"					\
-	"-(rootfs)"
-#else /* CONFIG_NAND */
-#define MTDPARTS_DEFAULT
 #endif /* CONFIG_NAND */
 
 /* Board NAND Info. */
@@ -82,7 +73,7 @@
 	"mmcrootfstype=ext4 rootwait\0" \
 	"nandroot=ubi0:rootfs ubi.mtd=4\0" \
 	"nandrootfstype=ubifs\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"mmcargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"mpurate=${mpurate} " \

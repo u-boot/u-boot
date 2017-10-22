@@ -35,19 +35,6 @@
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
 
-#ifndef MTDIDS_DEFAULT
-#define MTDIDS_DEFAULT			"nand0=NAND"
-#endif
-
-#ifndef MTDPARTS_DEFAULT
-#define MTDPARTS_DEFAULT		"mtdparts=NAND:640k(bootloader)"\
-					",128k(env1)"\
-					",128k(env2)"\
-					",128k(dtb)"\
-					",6144k(kernel)"\
-					",-(root)"
-#endif
-
 #endif
 
 #define CONFIG_FSL_ESDHC
@@ -133,7 +120,7 @@
 	"nfs_root=/path/to/nfs/root\0" \
 	"tftptimeout=1000\0" \
 	"tftptimeoutcountmax=1000000\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"bootargs_base=setenv bootargs rw " \
 		" mem=" __stringify(CONFIG_PCM052_DDR_SIZE) "M " \
 		"console=ttyLP1,115200n8\0" \

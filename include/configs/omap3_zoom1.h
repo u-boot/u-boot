@@ -48,11 +48,6 @@
 #define CONFIG_USBD_MANUFACTURER	"Texas Instruments"
 #define CONFIG_USBD_PRODUCT_NAME	"Zoom1"
 
-#define MTDIDS_DEFAULT			"nand0=nand"
-#define MTDPARTS_DEFAULT		"mtdparts=nand:512k(x-loader),"\
-					"1920k(u-boot),128k(u-boot-env),"\
-					"4m(kernel),-(fs)"
-
 #if defined(CONFIG_CMD_NAND)
 /* NAND: SPL falcon mode configs */
 #ifdef CONFIG_SPL_OS_BOOT

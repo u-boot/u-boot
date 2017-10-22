@@ -19,14 +19,6 @@
 #define PCM052_NET_INIT "run set_gpio122; "
 
 /* add NOR to MTD env */
-#define MTDIDS_DEFAULT			"nand0=NAND,nor0=NOR"
-#define MTDPARTS_DEFAULT		"mtdparts=NAND:640k(bootloader)"\
-					",128k(env1)"\
-					",128k(env2)"\
-					",128k(dtb)"\
-					",6144k(kernel)"\
-					",-(root);"\
-					"NOR:-(nor)"
 
 /* now include standard PCM052 config */
 

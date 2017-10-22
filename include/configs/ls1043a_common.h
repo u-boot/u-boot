@@ -238,23 +238,6 @@
 #define HWCONFIG_BUFFER_SIZE		128
 
 #ifndef SPL_NO_MISC
-#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#define MTDPARTS_DEFAULT "mtdparts=spi0.0:1m(uboot)," \
-			"5m(kernel),1m(dtb),9m(file_system)"
-#else
-#define MTDPARTS_DEFAULT "mtdparts=60000000.nor:" \
-			"2m@0x100000(nor_bank0_uboot),"\
-			"40m@0x1100000(nor_bank0_fit)," \
-			"7m(nor_bank0_user)," \
-			"2m@0x4100000(nor_bank4_uboot)," \
-			"40m@0x5100000(nor_bank4_fit),"\
-			"-(nor_bank4_user);" \
-			"7e800000.flash:" \
-			"1m(nand_uboot),1m(nand_uboot_env)," \
-			"20m(nand_fit);spi0.0:1m(uboot)," \
-			"5m(kernel),1m(dtb),9m(file_system)"
-#endif
-
 #include <config_distro_defaults.h>
 #ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
@@ -280,7 +263,7 @@
 	"kernel_size=0x2800000\0"		\
 	"console=ttyS0,115200\0"		\
 	"boot_os=y\0"				\
-	"mtdparts=" MTDPARTS_DEFAULT "\0"	\
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"	\
 	BOOTENV					\
 	"boot_scripts=ls1043ardb_boot.scr\0"	\
 	"boot_script_hdr=hdr_ls1043ardb_bs.out\0"	\

@@ -63,8 +63,8 @@
 				"bootz ${loadaddr} - ${fdtaddr};" \
 			"fi;" \
 		"fi;\0" \
-	"mtdids=" MTDIDS_DEFAULT "\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"nandroot=ubi0:rootfs rw ubi.mtd=1\0" \
 	"nandrootfstype=ubifs rootwait\0" \
 	"nandload=ubi part UBI; " \
@@ -117,9 +117,6 @@
 
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
-
-#define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
-#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:512k(SPL),-(UBI)"
 
 /* SPL */
 

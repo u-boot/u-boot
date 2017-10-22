@@ -65,9 +65,6 @@
 #define CONFIG_SYS_NAND_READY_PIN		GPIO_PIN_PA(22)
 #endif
 
-#define MTDPARTS_DEFAULT \
-	"mtdparts=atmel_nand:16m(kernel)ro,120m(root1),-(root2)"
-
 /* Ethernet */
 #define CONFIG_MACB
 #define CONFIG_RMII
@@ -96,7 +93,7 @@
 #define CONFIG_ENV_SPI_MAX_HZ	15000000
 #define CONFIG_BOOTCOMMAND	"nboot 21000000 0"
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE

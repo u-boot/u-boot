@@ -58,10 +58,6 @@
 #define CONFIG_UBI_PART			ubi
 #define CONFIG_UBIFS_VOLUME		rootfs0
 
-#define MTDIDS_DEFAULT		"nand0=gpmi-nand"
-#define MTDPARTS_DEFAULT	"mtdparts=gpmi-nand:16M(uboot),512k(env1)," \
-				"512k(env2),-(ubi)"
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"kernel=" __stringify(CONFIG_HOSTNAME) "/uImage\0"		\
 	"kernel_fs=/boot/uImage\0"					\
@@ -107,8 +103,8 @@
 	"upd_ubifs=run load_ubifs update_ubifs\0"			\
 	"init_ubi=nand erase.part ubi;ubi part ${part};"		\
 		"ubi create ${vol} c800000\0"				\
-	"mtdids=" MTDIDS_DEFAULT "\0"					\
-	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"					\
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"				\
 	"nand_ubifs=run ubifs_mount ubifs_load ubifsargs addip"		\
 		" addcon addmtd;"					\
 		"bootm ${kernel_addr} - ${dtb_addr}\0"			\

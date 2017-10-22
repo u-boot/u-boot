@@ -491,11 +491,6 @@
 /* mtdparts command line support */
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_FLASH_CFI_MTD
-#define MTDIDS_DEFAULT		"nor0=TQM834x-0"
 
 /* default mtd partition table */
-#define MTDPARTS_DEFAULT	"mtdparts=TQM834x-0:256k(u-boot),256k(env)," \
-						"1m(kernel),2m(initrd)," \
-						"-(user);" \
-
 #endif	/* __CONFIG_H */

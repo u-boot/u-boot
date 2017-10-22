@@ -20,8 +20,8 @@
 #define V_SCLK				(V_OSCK)
 
 #define NANDARGS \
-	"mtdids=" MTDIDS_DEFAULT "\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"nandargs=setenv bootargs console=${console} ${optargs} " \
 		"${mtdparts} " \
 		"root=${nandroot} " \
@@ -148,18 +148,6 @@
 #define CONFIG_SYS_NAND_ECCBYTES	14
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW
-#define MTDIDS_DEFAULT			"nand0=8000000.nand"
-#define MTDPARTS_DEFAULT		"mtdparts=8000000.nand:" \
-					"128k(NAND.SPL)," \
-					"128k(NAND.SPL.backup1)," \
-					"128k(NAND.SPL.backup2)," \
-					"128k(NAND.SPL.backup3)," \
-					"256k(NAND.u-boot-spl-os)," \
-					"1m(NAND.u-boot)," \
-					"128k(NAND.u-boot-env)," \
-					"128k(NAND.u-boot-env.backup1)," \
-					"8m(NAND.kernel)," \
-					"-(NAND.file-system)"
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x000c0000
 /* NAND: SPL related configs */
 

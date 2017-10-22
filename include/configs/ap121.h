@@ -31,12 +31,6 @@
 					"mtdparts default;" \
 					"bootm 0x9f650000"
 
-#define MTDIDS_DEFAULT                  "nor0=spi-flash.0"
-#define MTDPARTS_DEFAULT                "mtdparts=spi-flash.0:" \
-					"256k(u-boot),64k(u-boot-env)," \
-					"6144k(rootfs),1600k(uImage)," \
-					"64k(NVRAM),64k(ART)"
-
 #define CONFIG_ENV_SPI_MAX_HZ           25000000
 #define CONFIG_ENV_OFFSET               0x40000
 #define CONFIG_ENV_SECT_SIZE            0x10000

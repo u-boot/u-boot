@@ -534,10 +534,6 @@ combinations. this should be removed later
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_FLASH_CFI_MTD
-#define MTDIDS_DEFAULT "nor0=88000000.nor,nand0=ff800000.flash,"
-#define MTDPARTS_DEFAULT "mtdparts=88000000.nor:256k(dtb),7m(kernel)," \
-			"55m(fs),1m(uboot);ff800000.flash:1m(uboot)," \
-			"8m(kernel),512k(dtb),-(fs)"
 #endif
 /*
  * Environment Configuration

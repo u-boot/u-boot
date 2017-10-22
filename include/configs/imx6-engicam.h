@@ -161,9 +161,6 @@
 /* MTD device */
 # define CONFIG_MTD_DEVICE
 # define CONFIG_MTD_PARTITIONS
-# define MTDIDS_DEFAULT			"nand0=gpmi-nand"
-# define MTDPARTS_DEFAULT		"mtdparts=gpmi-nand:2m(spl),2m(uboot)," \
-					"1m(env),8m(kernel),1m(dtb),-(rootfs)"
 
 # define CONFIG_APBH_DMA
 # define CONFIG_APBH_DMA_BURST

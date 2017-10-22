@@ -17,6 +17,8 @@ CONFIG_FASTBOOT=y
 # CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_SETEXPR is not set
 CONFIG_CMD_MTDPARTS=y
+CONFIG_MTDIDS_DEFAULT="nor0=m25p80-flash.0"
+CONFIG_MTDPARTS_DEFAULT="mtdparts=m25p80-flash.0:128k(SPL),512k(u-boot),128k(u-boot-env1),128k(u-boot-env2),3464k(kernel),-(rootfs)"
 CONFIG_ENV_IS_IN_SPI_FLASH=y
 CONFIG_DFU_MMC=y
 CONFIG_DFU_RAM=y

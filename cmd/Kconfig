@@ -1404,13 +1404,14 @@ config CMD_MTDPARTS
 
 config MTDIDS_DEFAULT
 	string "Default MTD IDs"
-	depends on CMD_MTDPARTS
+	depends on CMD_MTDPARTS || CMD_NAND || CMD_FLASH
 	help
-	  Defines a default MTD ID
+	  Defines a default MTD IDs list for use with MTD partitions in the
+	  Linux MTD command line partitions format.
 
 config MTDPARTS_DEFAULT
 	string "Default MTD partition scheme"
-	depends on CMD_MTDPARTS
+	depends on CMD_MTDPARTS || CMD_NAND || CMD_FLASH
 	help
 	  Defines a default MTD partitioning scheme in the Linux MTD command
 	  line partitions format

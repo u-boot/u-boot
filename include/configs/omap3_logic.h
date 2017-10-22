@@ -87,13 +87,6 @@
 #define CONFIG_SYS_NAND_MAX_ECCPOS	56
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS		/* required for UBI partition support */
-#define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
-#define MTDPARTS_DEFAULT	"mtdparts=omap2-nand.0:"\
-							"512k(MLO),"\
-							"1792k(u-boot),"\
-							"128k(spl-os)," \
-							"128k(u-boot-env),"\
-							"6m(kernel),-(fs)"
 #endif
 
 /* Environment information */
@@ -105,8 +98,8 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
-	"mtdids=" MTDIDS_DEFAULT "\0"	\
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"	\
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext4 rootwait\0" \

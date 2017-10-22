@@ -48,8 +48,8 @@
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS 0x00200000 /* kernel offset */
 #endif
 #define NANDARGS \
-	"mtdids=" MTDIDS_DEFAULT "\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"nandargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"${mtdparts} " \
@@ -297,15 +297,6 @@
 /* NAND support */
 #ifdef CONFIG_NAND
 #define GPMC_NAND_ECC_LP_x8_LAYOUT	1
-#if !defined(CONFIG_SPI_BOOT) && !defined(CONFIG_NOR_BOOT)
-#define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
-#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:128k(SPL)," \
-					"128k(SPL.backup1)," \
-					"128k(SPL.backup2)," \
-					"128k(SPL.backup3)," \
-					"1920k(u-boot)," \
-					"-(UBI)"
-#endif
 #endif
 
 #endif	/* ! __CONFIG_BALTOS_H */

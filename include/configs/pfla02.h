@@ -72,9 +72,6 @@
 /* Filesystem support */
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
-#define MTDIDS_DEFAULT    "nand0=gpmi-nand"
-#define MTDPARTS_DEFAULT  "mtdparts=gpmi-nand:-(nand);" \
-	"spi2.0:1024k(bootloader),64k(env1),64k(env2),-(rescue)"
 
 /* Various command support */
 

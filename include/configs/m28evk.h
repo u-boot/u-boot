@@ -33,15 +33,6 @@
 
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define MTDIDS_DEFAULT			"nand0=gpmi-nand"
-#define MTDPARTS_DEFAULT			\
-	"mtdparts=gpmi-nand:"			\
-		"3m(u-boot),"			\
-		"512k(env1),"			\
-		"512k(env2),"			\
-		"14m(boot),"			\
-		"238m(data),"			\
-		"-@4096k(UBI)"
 #endif
 
 /* FEC Ethernet on SoC */

@@ -92,15 +92,6 @@
 #define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PC13
 
 #define CONFIG_MTD_DEVICE
-#define MTDIDS_NAME_STR		"atmel_nand"
-#define MTDIDS_DEFAULT		"nand0=" MTDIDS_NAME_STR
-#define MTDPARTS_DEFAULT	"mtdparts=" MTDIDS_NAME_STR ":" \
-					"128k(Bootstrap),"		\
-					"896k(U-Boot),"	\
-					"512k(ENV0),"	\
-					"512k(ENV1),"	\
-					"4M(Linux),"	\
-					"-(Root-FS)"
 
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
@@ -188,7 +179,7 @@
 									\
 	"basicargs=console=ttyS0,115200\0"				\
 									\
-	"mtdparts="MTDPARTS_DEFAULT"\0"
+	"mtdparts="CONFIG_MTDPARTS_DEFAULT"\0"
 
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_INIT_SP_ADDR		0x301000

@@ -27,6 +27,8 @@ CONFIG_CMD_NAND=y
 # CONFIG_CMD_MII is not set
 CONFIG_CMD_CACHE=y
 # CONFIG_CMD_TIME is not set
+CONFIG_MTDIDS_DEFAULT="nand0=omap2-nand.0"
+CONFIG_MTDPARTS_DEFAULT="mtdparts=omap2-nand.0:512k(MLO),1920k(u-boot),256k(u-boot-env),8m(kernel),512k(dtb),-(rootfs)"
 CONFIG_CMD_UBI=y
 CONFIG_SPL_PARTITION_UUIDS=y
 CONFIG_OF_CONTROL=y

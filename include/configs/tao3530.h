@@ -61,10 +61,6 @@
 
 /* commands to include */
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
-#define MTDIDS_DEFAULT			"nand0=nand"
-#define MTDPARTS_DEFAULT		"mtdparts=nand:512k(x-loader),"\
-					"1920k(u-boot),128k(u-boot-env),"\
-					"4m(kernel),-(fs)"
 
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_OMAP24_I2C_SPEED	100000

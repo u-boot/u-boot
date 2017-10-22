@@ -27,6 +27,8 @@ CONFIG_CMD_EXT4_WRITE=y
 CONFIG_CMD_FAT=y
 CONFIG_CMD_FS_GENERIC=y
 CONFIG_CMD_MTDPARTS=y
+CONFIG_MTDIDS_DEFAULT="nor0=8000000.nor"
+CONFIG_MTDPARTS_DEFAULT="mtdparts=8000000.nor:32m@0x0(mccmon6-image.nor),256k@0x40000(u-boot-env.nor),1m@0x80000(u-boot.nor),8m@0x180000(kernel.nor),8m@0x980000(swupdate-kernel.nor),8m@0x1180000(swupdate-rootfs.nor),128k@0x1980000(kernel-dtb.nor),128k@0x19C0000(swupdate-kernel-dtb.nor)"
 CONFIG_ENV_IS_IN_FLASH=y
 CONFIG_DM=y
 CONFIG_MTD=y

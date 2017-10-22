@@ -19,6 +19,8 @@ CONFIG_CMD_SPL_WRITE_SIZE=0x40000
 CONFIG_CMD_NAND=y
 # CONFIG_CMD_SETEXPR is not set
 CONFIG_CMD_MTDPARTS=y
+CONFIG_MTDIDS_DEFAULT="nand0=nand.0"
+CONFIG_MTDPARTS_DEFAULT="mtdparts=nand.0:256k(NAND.SPL),256k(NAND.SPL.backup1),256k(NAND.SPL.backup2),256k(NAND.SPL.backup3),512k(NAND.u-boot-spl-os),1m(NAND.u-boot),256k(NAND.u-boot-env),256k(NAND.u-boot-env.backup1),7m(NAND.kernel),-(NAND.file-system)"
 CONFIG_ISO_PARTITION=y
 CONFIG_OF_CONTROL=y
 CONFIG_OF_LIST="am437x-gp-evm am437x-sk-evm am43x-epos-evm am437x-idk-evm"

@@ -83,8 +83,8 @@
 
 #ifdef CONFIG_NAND
 #define NANDARGS \
-	"mtdids=" MTDIDS_DEFAULT "\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"nandargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"${optargs_rot} " \
@@ -206,16 +206,6 @@ MMCARGS
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 
-#define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
-#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:" \
-					"128k(MLO)," \
-					"128k(MLO.backup)," \
-					"128k(dtb)," \
-					"128k(u-boot-env)," \
-					"512k(u-boot)," \
-					"4m(kernel),"\
-					"128m(rootfs),"\
-					"-(user)"
 #define CONFIG_NAND_OMAP_GPMC_WSCFG	1
 #endif /* CONFIG_NAND */
 

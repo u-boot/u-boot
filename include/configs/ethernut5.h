@@ -152,10 +152,6 @@
 /* File systems */
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#if defined(CONFIG_CMD_MTDPARTS) || defined(CONFIG_CMD_NAND)
-#define MTDIDS_DEFAULT		"nand0=atmel_nand"
-#define MTDPARTS_DEFAULT	"mtdparts=atmel_nand:-(root)"
-#endif
 
 /* Boot command */
 #define CONFIG_CMDLINE_TAG

@@ -472,11 +472,6 @@
 /* mtdparts command line support */
 #define CONFIG_FLASH_CFI_MTD
 #define CONFIG_MTD_DEVICE
-#define MTDIDS_DEFAULT		"nor0=ff800000.flash,nand0=e1000000.flash"
-#define MTDPARTS_DEFAULT	"mtdparts=ff800000.flash:7m(dum)," \
-					"768k(BOOT-BIN)," \
-					"128k(BOOT-ENV),128k(BOOT-REDENV);" \
-					"e1000000.flash:-(ubi)"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"netdev=" __stringify(CONFIG_NETDEV) "\0"			\
@@ -506,8 +501,8 @@
 			"${netmask}:${hostname}:${netdev}:off "		\
 			"console=${console},${baudrate} ${othbootargs}\0" \
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
-	"mtdids=" MTDIDS_DEFAULT "\0"					\
-	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"					\
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"				\
 	"\0"
 
 #define CONFIG_NFSBOOTCOMMAND						\

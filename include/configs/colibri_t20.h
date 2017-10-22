@@ -45,12 +45,6 @@
 /* Dynamic MTD partition support */
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
-#define MTDIDS_DEFAULT		"nand0=tegra_nand"
-#define MTDPARTS_DEFAULT	"mtdparts=tegra_nand:"		\
-				"2m(u-boot)ro,"			\
-				"1m(u-boot-env),"		\
-				"1m(cfgblock)ro,"		\
-				"-(ubi)"
 
 /* Environment in NAND, 64K is a bit excessive but erase block is 512K anyway */
 #define CONFIG_ENV_OFFSET		(SZ_2M)
@@ -58,7 +52,7 @@
 #define CONFIG_ENV_SIZE			(SZ_64K)
 
 #define BOARD_EXTRA_ENV_SETTINGS \
-	"mtdparts=" MTDPARTS_DEFAULT "\0"
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"
 
 /* Increase console I/O buffer size */
 #undef CONFIG_SYS_CBSIZE

@@ -120,14 +120,6 @@
 #define CONFIG_MTD_DEVICE
 #define CONFIG_FLASH_CFI_MTD
 #define CONFIG_MTD_PARTITIONS
-#define MTDIDS_DEFAULT		"nand0=mxc_nand,nor0=physmap-flash.0"
-#define MTDPARTS_DEFAULT	"mtdparts=mxc_nand:50m(root1)," \
-				"32m(rootfb)," \
-				"64m(pcache)," \
-				"64m(app1)," \
-				"10m(app2),-(spool);" \
-				"physmap-flash.0:512k(u-boot),64k(env1)," \
-				"64k(env2),3776k(kernel1),3776k(kernel2)"
 
 /*
  * FLASH and environment organization

@@ -50,12 +50,6 @@
 /* Dynamic MTD partition support */
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
-#define MTDIDS_DEFAULT		"nand0=vf610_nfc"
-#define MTDPARTS_DEFAULT	"mtdparts=vf610_nfc:"		\
-				"128k(vf-bcb)ro,"		\
-				"1408k(u-boot)ro,"		\
-				"512k(u-boot-env),"		\
-				"-(ubi)"
 
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
@@ -129,7 +123,7 @@
 	"fatload ${interface} 0:1 ${loadaddr} flash_blk.img && " \
 	"source ${loadaddr}\0" \
 	"setupdate=run setsdupdate || run setusbupdate\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"dfu_alt_info=" DFU_ALT_NAND_INFO "\0" \
 	"video-mode=dcufb:640x480-16@60,monitor=lcd\0" \
 	"splashpos=m,m\0" \

@@ -221,8 +221,8 @@
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"	\
 	"mtddevname=uboot-env\0" \
 	"mtddevnum=0\0" \
-	"mtdids=" MTDIDS_DEFAULT "\0"				\
-	"mtdparts=" MTDPARTS_DEFAULT "\0"			\
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"				\
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"			\
 	"u-boot=/tftpboot/ipam390/u-boot.ais\0"			\
 	"upd_uboot=tftp c0000000 ${u-boot};nand erase.part u-boot;" \
 		"nand write c0000000 20000 ${filesize}\0"	\
@@ -242,16 +242,6 @@
 
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-
-#define MTDIDS_NAME_STR		"davinci_nand.0"
-#define MTDIDS_DEFAULT		"nand0=" MTDIDS_NAME_STR
-#define MTDPARTS_DEFAULT	"mtdparts=" MTDIDS_NAME_STR ":" \
-					"128k(u-boot-env),"	\
-					"1408k(u-boot),"	\
-					"128k(bootparms),"	\
-					"384k(factory-info),"	\
-					"4M(kernel),"	\
-					"-(rootfs)"
 
 /* defines for SPL */
 #define CONFIG_SPL_FRAMEWORK

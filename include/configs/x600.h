@@ -136,9 +136,6 @@
 #define CONFIG_UBI_PART				ubi0
 #define CONFIG_UBIFS_VOLUME			rootfs
 
-#define MTDIDS_DEFAULT		"nand0=nand"
-#define MTDPARTS_DEFAULT	"mtdparts=nand:64M(ubi0),64M(ubi1)"
-
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"u-boot_addr=1000000\0"						\
 	"u-boot=" __stringify(CONFIG_HOSTNAME) "/u-boot.spr\0"		\
@@ -194,8 +191,8 @@
 	"net_nfs=run load_dtb load_kernel; "				\
 		"run nfsargs addip addcon addmtd addmisc;"		\
 		"bootm ${kernel_addr} - ${dtb_addr}\0"			\
-	"mtdids=" MTDIDS_DEFAULT "\0"					\
-	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"					\
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"				\
 	"nand_ubifs=run ubifs_mount ubifs_load ubifsargs addip"		\
 		" addcon addmisc addmtd;"				\
 		"bootm ${kernel_addr} - ${dtb_addr}\0"			\

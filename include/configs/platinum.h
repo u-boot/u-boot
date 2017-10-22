@@ -116,18 +116,6 @@
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 
-#if (CONFIG_SYS_NAND_MAX_CHIPS == 1)
-#define MTDIDS_DEFAULT		"nand0=gpmi-nand"
-#define MTDPARTS_DEFAULT	"mtdparts=gpmi-nand:14M(spl),2M(uboot)," \
-				"512k(env1),512k(env2),-(ubi)"
-#elif (CONFIG_SYS_NAND_MAX_CHIPS == 2)
-#define MTDIDS_DEFAULT		"nand0=gpmi-nand"
-#define MTDPARTS_DEFAULT	"mtdparts=gpmi-nand:14M(spl),2M(uboot)," \
-				"512k(env1),512k(env2),495M(ubi0)," \
-				"14M(res0),2M(res1)," \
-				"512k(res2),512k(res3),-(ubi1)"
-#endif
-
 /*
  * Environment configuration
  */
@@ -155,8 +143,8 @@
 	"baudrate=115200\0"						\
 	"boot_scr=boot.uboot\0"						\
 	"boot_vol=0\0"							\
-	"mtdids="MTDIDS_DEFAULT"\0"					\
-	"mtdparts="MTDPARTS_DEFAULT"\0"					\
+	"mtdids="CONFIG_MTDIDS_DEFAULT"\0"					\
+	"mtdparts="CONFIG_MTDPARTS_DEFAULT"\0"					\
 	"mmcfs=ext2\0"							\
 	"mmcrootpart=1\0"						\
 	\

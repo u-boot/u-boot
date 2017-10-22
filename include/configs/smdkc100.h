@@ -59,15 +59,6 @@
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 
-#define MTDIDS_DEFAULT		"onenand0=s3c-onenand"
-#define MTDPARTS_DEFAULT	"mtdparts=s3c-onenand:256k(bootloader)"\
-				",128k@0x40000(params)"\
-				",3m@0x60000(kernel)"\
-				",16m@0x360000(test)"\
-				",-(UBI)"
-
-#define NORMAL_MTDPARTS_DEFAULT MTDPARTS_DEFAULT
-
 #define CONFIG_BOOTCOMMAND	"run ubifsboot"
 
 #define CONFIG_RAMDISK_BOOT	"root=/dev/ram0 rw rootfstype=ext2" \
@@ -76,7 +67,7 @@
 
 #define CONFIG_COMMON_BOOT	"console=ttySAC0,115200n8" \
 				" mem=128M " \
-				" " MTDPARTS_DEFAULT
+				" " CONFIG_MTDPARTS_DEFAULT
 
 #define CONFIG_UPDATEB	"updateb=onenand erase 0x0 0x40000;" \
 			" onenand write 0x32008000 0x0 0x40000\0"
@@ -117,7 +108,7 @@
 		"set bootargs " CONFIG_RAMDISK_BOOT \
 		" initrd=0x33000000,8M ramdisk=8192\0" \
 	"rootfstype=cramfs\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"meminfo=mem=128M\0" \
 	"nfsroot=/nfsroot/arm\0" \
 	"bootblock=5\0" \

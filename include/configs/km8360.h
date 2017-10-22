@@ -29,16 +29,6 @@
 
 #define CONFIG_KM_UBI_PARTITION_NAME_BOOT	"ubi0"
 #define CONFIG_KM_UBI_PARTITION_NAME_APP	"ubi1"
-#define MTDIDS_DEFAULT			"nor0=boot,nand0=app"
-
-#define MTDPARTS_DEFAULT		"mtdparts="			\
-	"boot:"								\
-		"768k(u-boot),"						\
-		"128k(env),"						\
-		"128k(envred),"						\
-		"-(" CONFIG_KM_UBI_PARTITION_NAME_BOOT ");"		\
-	"app:"								\
-		"-(" CONFIG_KM_UBI_PARTITION_NAME_APP ");"
 #else
 #error ("Board not supported")
 #endif

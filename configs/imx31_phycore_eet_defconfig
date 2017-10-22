@@ -10,6 +10,7 @@ CONFIG_CMD_SPI=y
 # CONFIG_CMD_SETEXPR is not set
 CONFIG_CMD_PING=y
 CONFIG_CMD_BMP=y
+CONFIG_MTDPARTS_DEFAULT="mtdparts=physmap-flash.0:128k(uboot)ro,1536k(kernel),-(root)"
 CONFIG_ENV_IS_IN_EEPROM=y
 # CONFIG_MMC is not set
 CONFIG_MTD_NOR_FLASH=y

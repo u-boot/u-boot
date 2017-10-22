@@ -105,7 +105,7 @@
 	"m4boot=;\0" \
 	"ip_dyn=yes\0" \
 	"kernel_file=zImage\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"setethupdate=if env exists ethaddr; then; else setenv ethaddr " \
 		"00:14:2d:00:00:00; fi; tftpboot ${loadaddr} " \
 		"${board}/flash_eth.img && source ${loadaddr}\0" \
@@ -170,13 +170,6 @@
 /* Dynamic MTD partition support */
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
-#define MTDIDS_DEFAULT		"nand0=gpmi-nand"
-#define MTDPARTS_DEFAULT	"mtdparts=gpmi-nand:"		\
-				"512k(mx7-bcb),"		\
-				"1536k(u-boot1)ro,"		\
-				"1536k(u-boot2)ro,"		\
-				"512k(u-boot-env),"		\
-				"-(ubi)"
 
 /* DMA stuff, needed for GPMI/MXS NAND support */
 #define CONFIG_APBH_DMA

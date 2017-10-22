@@ -178,18 +178,6 @@
 					 50, 51, 52, 53, 54, 55, 56, 57, }
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	14
-#define MTDIDS_DEFAULT			"nand0=nand.0"
-#define MTDPARTS_DEFAULT		"mtdparts=nand.0:" \
-					"128k(NAND.SPL)," \
-					"128k(NAND.SPL.backup1)," \
-					"128k(NAND.SPL.backup2)," \
-					"128k(NAND.SPL.backup3)," \
-					"256k(NAND.u-boot-spl-os)," \
-					"1m(NAND.u-boot)," \
-					"128k(NAND.u-boot-env)," \
-					"128k(NAND.u-boot-env.backup1)," \
-					"8m(NAND.kernel)," \
-					"-(NAND.file-system)"
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x000c0000
 /* NAND: SPL related configs */
 /* NAND: SPL falcon mode configs */
@@ -216,18 +204,6 @@
 /* Reduce SPL size by removing unlikey targets */
 #ifdef CONFIG_NOR_BOOT
 #define CONFIG_ENV_SECT_SIZE		(128 * 1024)	/* 128 KiB */
-#define MTDIDS_DEFAULT			"nor0=physmap-flash.0"
-#define MTDPARTS_DEFAULT		"mtdparts=physmap-flash.0:" \
-					"128k(NOR.SPL)," \
-					"128k(NOR.SPL.backup1)," \
-					"128k(NOR.SPL.backup2)," \
-					"128k(NOR.SPL.backup3)," \
-					"256k(NOR.u-boot-spl-os)," \
-					"1m(NOR.u-boot)," \
-					"128k(NOR.u-boot-env)," \
-					"128k(NOR.u-boot-env.backup1)," \
-					"8m(NOR.kernel)," \
-					"-(NOR.rootfs)"
 #define CONFIG_ENV_OFFSET		0x001c0000
 #define CONFIG_ENV_OFFSET_REDUND	0x001e0000
 #endif

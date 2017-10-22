@@ -454,23 +454,6 @@ unsigned long get_board_ddr_clk(void);
 					"$kernel_size && bootm $kernel_load"
 #endif
 
-#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#define MTDPARTS_DEFAULT "mtdparts=1550000.quadspi:2m(uboot)," \
-			"14m(free)"
-#else
-#define MTDPARTS_DEFAULT "mtdparts=60000000.nor:" \
-			"2m@0x100000(nor_bank0_uboot),"\
-			"40m@0x1100000(nor_bank0_fit)," \
-			"7m(nor_bank0_user)," \
-			"2m@0x4100000(nor_bank4_uboot)," \
-			"40m@0x5100000(nor_bank4_fit),"\
-			"-(nor_bank4_user);" \
-			"7e800000.flash:" \
-			"4m(nand_uboot),36m(nand_kernel)," \
-			"472m(nand_free);spi0.0:2m(uboot)," \
-			"14m(free)"
-#endif
-
 #include <asm/fsl_secure_boot.h>
 
 #endif /* __LS1046AQDS_H__ */

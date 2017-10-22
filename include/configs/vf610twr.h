@@ -40,14 +40,6 @@
 /* Dynamic MTD partition support */
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
-#define MTDIDS_DEFAULT			"nand0=fsl_nfc"
-#define MTDPARTS_DEFAULT		"mtdparts=fsl_nfc:"		\
-					"128k(vf-bcb)ro,"		\
-					"1408k(u-boot)ro,"		\
-					"512k(u-boot-env),"		\
-					"4m(kernel),"			\
-					"512k(fdt),"		\
-					"-(rootfs)"
 #endif
 
 #define CONFIG_FSL_ESDHC

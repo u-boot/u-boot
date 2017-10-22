@@ -27,6 +27,8 @@ CONFIG_CMD_NAND_TRIMFFS=y
 CONFIG_CMD_DHCP=y
 CONFIG_CMD_MII=y
 CONFIG_CMD_PING=y
+CONFIG_MTDIDS_DEFAULT="nand0=davinci_nand.0"
+CONFIG_MTDPARTS_DEFAULT="mtdparts=davinci_nand.0:128k(u-boot-env),1408k(u-boot),128k(bootparms),384k(factory-info),4M(kernel),-(rootfs)"
 CONFIG_CMD_DIAG=y
 CONFIG_CMD_UBI=y
 CONFIG_ENV_IS_IN_NAND=y

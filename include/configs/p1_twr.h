@@ -347,10 +347,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_FLASH_CFI_MTD
-#define MTDIDS_DEFAULT "nor0=ec000000.nor"
-#define MTDPARTS_DEFAULT "mtdparts=ec000000.nor:256k(vsc7385-firmware)," \
-			"256k(dtb),5632k(kernel),57856k(fs)," \
-			"256k(qe-ucode-firmware),1280k(u-boot)"
 
 /*
  * Environment

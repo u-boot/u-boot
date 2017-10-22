@@ -305,10 +305,8 @@
  *|      mtdoops |   8.000 MiB | 0x  c80000..0x 147ffff |
  *|       rootfs | 235.500 MiB | 0x 1480000..0x fffffff |
  *-------------------------------------------------------
- */
-#define MTDIDS_NAME_STR		"omap2-nand.0"
-#define MTDIDS_DEFAULT		"nand0=" MTDIDS_NAME_STR
-#define MTDPARTS_DEFAULT_V1	"mtdparts=" MTDIDS_NAME_STR ":" \
+
+					"mtdparts=omap2-nand.0:" \
 					"128k(spl),"		\
 					"128k(spl.backup1),"	\
 					"128k(spl.backup2),"	\
@@ -319,6 +317,7 @@
 					"5120k(kernel_b),"	\
 					"8192k(mtdoops),"	\
 					"-(rootfs)"
+ */
 
 #define DFU_ALT_INFO_NAND_V1 \
 	"spl part 0 1;" \
@@ -381,7 +380,7 @@
 		"bootm ${kloadaddr}\0"
 
 /*
- * Variant 2 partition layout
+ * Variant 2 partition layout (default)
  * chip-size = 256MiB or 512 MiB
  *|         name |        size |           address area |
  *-------------------------------------------------------
@@ -397,17 +396,6 @@
  *| (512) rootfs | 508.125 MiB | 0x  3E0000..0x1fffffff |
  *-------------------------------------------------------
  */
-
-#define MTDPARTS_DEFAULT_V2	"mtdparts=" MTDIDS_NAME_STR ":" \
-					"128k(spl)," \
-					"128k(spl.backup1)," \
-					"128k(spl.backup2)," \
-					"128k(spl.backup3)," \
-					"1920k(u-boot)," \
-					"512k(u-boot.env0)," \
-					"512k(u-boot.env1)," \
-					"512k(mtdoops)," \
-					"-(rootfs)"
 
 #define DFU_ALT_INFO_NAND_V2 \
 	"spl part 0 1;" \
@@ -486,9 +474,8 @@
  *|      mtdoops | 512.000 KiB | 0x12f60000..0x12fdffff |
  *|configuration | 104.125 MiB | 0x12fe0000..0x1fffffff |
  *-------------------------------------------------------
- */
 
-#define MTDPARTS_DEFAULT_V3	"mtdparts=" MTDIDS_NAME_STR ":" \
+					"mtdparts=omap2-nand.0:" \
 					"128k(spl),"		\
 					"128k(spl.backup1),"	\
 					"128k(spl.backup2),"	\
@@ -499,6 +486,8 @@
 					"300m(rootfs),"		\
 					"512k(mtdoops),"	\
 					"-(configuration)"
+
+ */
 
 #define CONFIG_SYS_NAND_BASE		(0x08000000)	/* physical address */
 							/* to access nand at */

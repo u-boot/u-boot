@@ -252,12 +252,6 @@
 #endif
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS		/* required for UBI partition support */
-#define MTDIDS_DEFAULT			"nor0=spi0.0"
-#define MTDPARTS_DEFAULT		"mtdparts=spi0.0:"\
-						"512k(u-boot.ais),"\
-						"64k(u-boot-env),"\
-						"7552k(kernel-spare),"\
-						"64k(MAC-Address)"
 #endif
 
 /*

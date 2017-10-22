@@ -54,13 +54,6 @@
 
 #ifdef CONFIG_NAND
 #define CONFIG_MTD_PARTITIONS	/* required for UBI partition support */
-
-#define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
-#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:512k(xloader),"\
-					"1920k(uboot),128k(uboot-env),"\
-					"10m(boot),-(rootfs)"
-#else
-#define MTDPARTS_DEFAULT
 #endif
 
 
@@ -83,7 +76,7 @@
 	"usbtty=cdc_acm\0" \
 	"bootargs_ubi=ubi.mtd=4 ubi.mtd=3 root=ubi0:rootfs rootfstype=ubifs " \
 		"rw rootflags=bulk_read vram=6272K omapfb.vram=0:3000K\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	BOOTENV \
 
 /* memtest works on */

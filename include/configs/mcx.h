@@ -109,11 +109,6 @@
 #define CONFIG_BOOTFILE		"uImage"
 
 /* Setup MTD for NAND on the SOM */
-#define MTDIDS_DEFAULT		"nand0=omap2-nand.0"
-#define MTDPARTS_DEFAULT	"mtdparts=omap2-nand.0:512k(MLO),"	\
-				"1m(u-boot),256k(env1),"		\
-				"256k(env2),6m(kernel),6m(k_recovery),"	\
-				"8m(fs_recovery),-(common_data)"
 
 #define CONFIG_HOSTNAME mcx
 #define CONFIG_EXTRA_ENV_SETTINGS \

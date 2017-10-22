@@ -43,7 +43,6 @@
 #ifndef CONFIG_SPL_BUILD
 
 /* Use common default */
-#define MTDPARTS_DEFAULT	MTDPARTS_DEFAULT_V1
 
 /* Default env settings */
 #define CONFIG_EXTRA_ENV_SETTINGS \

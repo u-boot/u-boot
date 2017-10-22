@@ -164,15 +164,6 @@
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 
-#define MTDIDS_DEFAULT			"onenand0=onenand"
-#define MTDPARTS_DEFAULT		"mtdparts=onenand:" \
-		__stringify(PART1_SIZE) PART1_SUFF "(" PART1_NAME ")ro," \
-		__stringify(PART2_SIZE) PART2_SUFF "(" PART2_NAME ")," \
-		__stringify(PART3_SIZE) PART3_SUFF "(" PART3_NAME ")," \
-		__stringify(PART4_SIZE) PART4_SUFF "(" PART4_NAME ")," \
-		__stringify(PART5_SIZE) PART5_SUFF "(" PART5_NAME ")," \
-		"-(" PART6_NAME ")"
-
 #endif
 
 /* Watchdog support */
@@ -198,13 +189,14 @@ int rx51_kp_tstc(struct stdio_dev *sdev);
 int rx51_kp_getc(struct stdio_dev *sdev);
 #endif
 
-#ifndef MTDPARTS_DEFAULT
-#define MTDPARTS_DEFAULT
-#endif
-
 /* Environment information */
+#ifdef CONFIG_MTDPARTS_DEFAULT
+#define MTDPARTS "mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"
+#else
+#define MTDPARTS
+#endif
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	MTDPARTS \
 	"usbtty=cdc_acm\0" \
 	"stdin=vga\0" \
 	"stdout=vga\0" \

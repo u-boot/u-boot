@@ -278,18 +278,9 @@
 
 #define CONFIG_CON_ROT			"fbcon=rotate:3 "
 
-#define MTDIDS_DEFAULT			"nor0=physmap-flash.0,nand0=nand"
-#define MTDPARTS_DEFAULT		\
-	"mtdparts=physmap-flash.0:"	\
-		"256k(u-boot)ro,"	\
-		"64k(u-boot-env)ro,"	\
-		"1408k(kernel),"	\
-		"-(rootfs);"		\
-	"nand:-(nand)"
-
 #define CONFIG_EXTRA_ENV_SETTINGS				\
-	"mtdids=" MTDIDS_DEFAULT "\0"				\
-	"mtdparts=" MTDPARTS_DEFAULT "\0"			\
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"				\
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"			\
 	"partition=nand0,0\0"					\
 	"ramargs=setenv bootargs $(bootargs) $(mtdparts)\0"	\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "		\

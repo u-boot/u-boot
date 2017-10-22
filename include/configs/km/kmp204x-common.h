@@ -391,16 +391,6 @@ int get_scl(void);
 #define CONFIG_KM_DEF_ENV "km-common=empty\0"
 #endif
 
-#ifndef MTDIDS_DEFAULT
-# define MTDIDS_DEFAULT		"nand0=fsl_elbc_nand"
-#endif /* MTDIDS_DEFAULT */
-
-#ifndef MTDPARTS_DEFAULT
-# define MTDPARTS_DEFAULT	"mtdparts="			\
-	"fsl_elbc_nand:"						\
-		"-(" CONFIG_KM_UBI_PARTITION_NAME_BOOT ");"
-#endif /* MTDPARTS_DEFAULT */
-
 /* architecture specific default bootargs */
 #define CONFIG_KM_DEF_BOOT_ARGS_CPU		""
 

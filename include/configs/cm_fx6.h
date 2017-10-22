@@ -53,12 +53,6 @@
 #define CONFIG_SPI_FLASH_MTD
 #endif
 
-#define MTDIDS_DEFAULT		"nor0=spi0.0"
-#define MTDPARTS_DEFAULT	"mtdparts=spi0.0:" \
-				"768k(uboot)," \
-				"256k(uboot-environment)," \
-				"-(reserved)"
-
 /* Environment */
 #define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
 #define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
@@ -88,8 +82,8 @@
 	"video_dvi=mxcfb0:dev=dvi,1280x800M-32@50,if=RGB32\0" \
 	"doboot=bootm ${loadaddr}\0" \
 	"doloadfdt=false\0" \
-	"mtdids=" MTDIDS_DEFAULT "\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"setboottypez=setenv kernel ${zImage};" \
 		"setenv doboot bootz ${loadaddr} - ${fdtaddr};" \
 		"setenv doloadfdt true;\0" \
