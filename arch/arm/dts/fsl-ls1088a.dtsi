@@ -76,6 +76,20 @@
 		num-cs = <4>;
 	};
 
+	usb0: usb3@3100000 {
+		compatible = "fsl,layerscape-dwc3";
+		reg = <0x0 0x3100000 0x0 0x10000>;
+		interrupts = <0 80 0x4>; /* Level high type */
+		dr_mode = "host";
+	};
+
+	usb1: usb3@3110000 {
+		compatible = "fsl,layerscape-dwc3";
+		reg = <0x0 0x3110000 0x0 0x10000>;
+		interrupts = <0 81 0x4>; /* Level high type */
+		dr_mode = "host";
+	};
+
 	pcie@3400000 {
 		compatible = "fsl,ls-pcie", "snps,dw-pcie";
 		reg = <0x00 0x03400000 0x0 0x80000   /* dbi registers */
