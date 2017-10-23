@@ -190,6 +190,6 @@ struct pl180_mmc_host {
 	struct mmc_config cfg;
 };
 
-int arm_pl180_mmci_init(struct pl180_mmc_host *);
+int arm_pl180_mmci_init(struct pl180_mmc_host *host, struct mmc **mmc);
 
 #endif

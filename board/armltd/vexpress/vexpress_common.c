@@ -76,6 +76,7 @@ int cpu_mmc_init(bd_t *bis)
 	(void) bis;
 #ifdef CONFIG_ARM_PL180_MMCI
 	struct pl180_mmc_host *host;
+	struct mmc *mmc;
 
 	host = malloc(sizeof(struct pl180_mmc_host));
 	if (!host)
@@ -91,7 +92,7 @@ int cpu_mmc_init(bd_t *bis)
 	host->clock_in = ARM_MCLK;
 	host->clock_min = ARM_MCLK / (2 * (SDI_CLKCR_CLKDIV_INIT_V1 + 1));
 	host->clock_max = CONFIG_ARM_PL180_MMCI_CLOCK_FREQ;
-	rc = arm_pl180_mmci_init(host);
+	rc = arm_pl180_mmci_init(host, &mmc);
 #endif
 	return rc;
 }

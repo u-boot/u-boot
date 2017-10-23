@@ -348,9 +348,8 @@ static const struct mmc_ops arm_pl180_mmci_ops = {
  * Set initial clock and power for mmc slot.
  * Initialize mmc struct and register with mmc framework.
  */
-int arm_pl180_mmci_init(struct pl180_mmc_host *host)
+int arm_pl180_mmci_init(struct pl180_mmc_host *host, struct mmc **mmc)
 {
-	struct mmc *mmc;
 	u32 sdi_u32;
 
 	writel(host->pwr_init, &host->base->power);
@@ -373,11 +372,12 @@ int arm_pl180_mmci_init(struct pl180_mmc_host *host)
 	else
 		host->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
-	mmc = mmc_create(&host->cfg, host);
-	if (mmc == NULL)
+	*mmc = mmc_create(&host->cfg, host);
+	if (!*mmc)
 		return -1;
 
-	debug("registered mmc interface number is:%d\n", mmc->block_dev.devnum);
+	debug("registered mmc interface number is:%d\n",
+	      (*mmc)->block_dev.devnum);
 
 	return 0;
 }
