@@ -142,6 +142,9 @@
 
 #define SDI_FIFO_BURST_SIZE	8
 
+#define VERSION1	false
+#define VERSION2	true
+
 struct sdi_registers {
 	u32 power;		/* 0x00*/
 	u32 clock;		/* 0x04*/

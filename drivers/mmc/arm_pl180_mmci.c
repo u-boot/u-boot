@@ -12,12 +12,27 @@
 
 /* #define DEBUG */
 
-#include <asm/io.h>
 #include "common.h"
 #include <errno.h>
-#include <mmc.h>
-#include "arm_pl180_mmci.h"
 #include <malloc.h>
+#include <mmc.h>
+
+#include "arm_pl180_mmci.h"
+
+#include <asm/io.h>
+
+#ifdef CONFIG_DM_MMC
+#include <dm.h>
+DECLARE_GLOBAL_DATA_PTR;
+
+#define MMC_CLOCK_MAX	48000000
+#define MMC_CLOCK_MIN	400000
+
+struct arm_pl180_mmc_plat {
+	struct mmc_config cfg;
+	struct mmc mmc;
+};
+#endif
 
 static int wait_for_command_end(struct mmc *dev, struct mmc_cmd *cmd)
 {
@@ -265,16 +280,6 @@ static int host_request(struct mmc *dev,
 	return result;
 }
 
-/* MMC uses open drain drivers in the enumeration phase */
-static int mmc_host_reset(struct mmc *dev)
-{
-	struct pl180_mmc_host *host = dev->priv;
-
-	writel(host->pwr_init, &host->base->power);
-
-	return 0;
-}
-
 static int  host_set_ios(struct mmc *dev)
 {
 	struct pl180_mmc_host *host = dev->priv;
@@ -337,11 +342,23 @@ static int  host_set_ios(struct mmc *dev)
 	return 0;
 }
 
+#ifndef CONFIG_DM_MMC
+/* MMC uses open drain drivers in the enumeration phase */
+static int mmc_host_reset(struct mmc *dev)
+{
+	struct pl180_mmc_host *host = dev->priv;
+
+	writel(host->pwr_init, &host->base->power);
+
+	return 0;
+}
+
 static const struct mmc_ops arm_pl180_mmci_ops = {
 	.send_cmd = host_request,
 	.set_ios = host_set_ios,
 	.init = mmc_host_reset,
 };
+#endif
 
 /*
  * mmc_host_init - initialize the mmc controller.
@@ -361,7 +378,9 @@ int arm_pl180_mmci_init(struct pl180_mmc_host *host, struct mmc **mmc)
 	writel(sdi_u32, &host->base->mask0);
 
 	host->cfg.name = host->name;
+#ifndef CONFIG_DM_MMC
 	host->cfg.ops = &arm_pl180_mmci_ops;
+#endif
 	/* TODO remove the duplicates */
 	host->cfg.host_caps = host->caps;
 	host->cfg.voltages = host->voltages;
@@ -381,3 +400,89 @@ int arm_pl180_mmci_init(struct pl180_mmc_host *host, struct mmc **mmc)
 
 	return 0;
 }
+
+#ifdef CONFIG_DM_MMC
+static int arm_pl180_mmc_probe(struct udevice *dev)
+{
+	struct arm_pl180_mmc_plat *pdata = dev_get_platdata(dev);
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct mmc *mmc = &pdata->mmc;
+	struct pl180_mmc_host *host = mmc->priv;
+	int ret;
+
+	strcpy(host->name, "MMC");
+	host->pwr_init = INIT_PWR;
+	host->clkdiv_init = SDI_CLKCR_CLKDIV_INIT_V1 | SDI_CLKCR_CLKEN |
+			    SDI_CLKCR_HWFC_EN;
+	host->voltages = VOLTAGE_WINDOW_SD;
+	host->caps = 0;
+	host->clock_in = MMC_CLOCK_MAX;
+	host->clock_min = MMC_CLOCK_MIN;
+	host->clock_max = dev_read_u32_default(dev, "max-frequency",
+					       MMC_CLOCK_MAX);
+	host->version2 = dev_get_driver_data(dev);
+	ret = arm_pl180_mmci_init(host, &mmc);
+	if (ret) {
+		dev_err(dev, "arm_pl180_mmci init failed\n");
+		return ret;
+	}
+
+	mmc->dev = dev;
+	dev->priv = host;
+	upriv->mmc = mmc;
+
+	return 0;
+}
+
+static int dm_host_request(struct udevice *dev, struct mmc_cmd *cmd,
+			   struct mmc_data *data)
+{
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+
+	return host_request(mmc, cmd, data);
+}
+
+static int dm_host_set_ios(struct udevice *dev)
+{
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+
+	return host_set_ios(mmc);
+}
+
+static const struct dm_mmc_ops arm_pl180_dm_mmc_ops = {
+	.send_cmd = dm_host_request,
+	.set_ios = dm_host_set_ios,
+};
+
+static int arm_pl180_mmc_ofdata_to_platdata(struct udevice *dev)
+{
+	struct arm_pl180_mmc_plat *pdata = dev_get_platdata(dev);
+	struct mmc *mmc = &pdata->mmc;
+	struct pl180_mmc_host *host = mmc->priv;
+	fdt_addr_t addr;
+
+	addr = devfdt_get_addr(dev);
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	host->base = (void *)addr;
+
+	return 0;
+}
+
+static const struct udevice_id arm_pl180_mmc_match[] = {
+	{ .compatible = "st,stm32f4xx-sdio", .data = VERSION1 },
+	{ /* sentinel */ }
+};
+
+U_BOOT_DRIVER(arm_pl180_mmc) = {
+	.name = "arm_pl180_mmc",
+	.id = UCLASS_MMC,
+	.of_match = arm_pl180_mmc_match,
+	.ops = &arm_pl180_dm_mmc_ops,
+	.probe = arm_pl180_mmc_probe,
+	.ofdata_to_platdata = arm_pl180_mmc_ofdata_to_platdata,
+	.priv_auto_alloc_size = sizeof(struct pl180_mmc_host),
+	.platdata_auto_alloc_size = sizeof(struct arm_pl180_mmc_plat),
+};
+#endif
