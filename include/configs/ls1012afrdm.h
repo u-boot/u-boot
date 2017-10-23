@@ -31,11 +31,6 @@
        "kernel_load=0x96000000\0"              \
        "kernel_size=0x2800000\0"
 
-/*
-* USB
-*/
-#define CONFIG_USB_MAX_CONTROLLER_COUNT         1
-
 #define CONFIG_CMD_MEMINFO
 #define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80000000

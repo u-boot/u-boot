@@ -333,11 +333,6 @@ unsigned long get_board_sys_clk(void);
 
 #define CONFIG_MISC_INIT_R
 
-/*
- * USB
- */
-#define CONFIG_USB_MAX_CONTROLLER_COUNT         2
-
 #undef CONFIG_CMDLINE_EDITING
 #include <config_distro_defaults.h>
 

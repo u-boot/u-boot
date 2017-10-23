@@ -136,9 +136,6 @@ unsigned long get_board_ddr_clk(void);
 #define CFG_LPUART_EN		0x2
 #endif
 
-/* USB */
-#define CONFIG_USB_MAX_CONTROLLER_COUNT         3
-
 /* SATA */
 #define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI

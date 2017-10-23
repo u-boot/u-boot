@@ -284,11 +284,6 @@
 #endif
 #endif
 
-/* USB */
-#ifndef SPL_NO_USB
-#define CONFIG_USB_MAX_CONTROLLER_COUNT		3
-#endif
-
 /* SATA */
 #ifndef SPL_NO_SATA
 #define CONFIG_LIBATA
