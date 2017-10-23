@@ -18,9 +18,10 @@
 #include <malloc.h>
 #include <mmc.h>
 
-#include "arm_pl180_mmci.h"
-
 #include <asm/io.h>
+#include <asm-generic/gpio.h>
+
+#include "arm_pl180_mmci.h"
 
 #ifdef CONFIG_DM_MMC
 #include <dm.h>
@@ -435,6 +436,8 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 					       MMC_CLOCK_MAX);
 	host->version2 = dev_get_driver_data(dev);
 
+	gpio_request_by_name(dev, "cd-gpios", 0, &host->cd_gpio, GPIOD_IS_IN);
+
 	bus_width = dev_read_u32_default(dev, "bus-width", 1);
 	switch (bus_width) {
 	case 8:
@@ -477,9 +480,26 @@ static int dm_host_set_ios(struct udevice *dev)
 	return host_set_ios(mmc);
 }
 
+static int dm_mmc_getcd(struct udevice *dev)
+{
+	struct arm_pl180_mmc_plat *pdata = dev_get_platdata(dev);
+	struct mmc *mmc = &pdata->mmc;
+	struct pl180_mmc_host *host = mmc->priv;
+	int value = 1;
+
+	if (dm_gpio_is_valid(&host->cd_gpio)) {
+		value = dm_gpio_get_value(&host->cd_gpio);
+		if (host->cd_inverted)
+			return !value;
+	}
+
+	return value;
+}
+
 static const struct dm_mmc_ops arm_pl180_dm_mmc_ops = {
 	.send_cmd = dm_host_request,
 	.set_ios = dm_host_set_ios,
+	.get_cd = dm_mmc_getcd,
 };
 
 static int arm_pl180_mmc_ofdata_to_platdata(struct udevice *dev)
