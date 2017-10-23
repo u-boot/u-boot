@@ -71,6 +71,12 @@ config USB_XHCI_DRA7XX_INDEX
 	  Select the DRA7XX xHCI USB index.
 	  Current supported values: 0, 1.
 
+config USB_XHCI_FSL
+	bool "Support for NXP Layerscape on-chip xHCI USB controller"
+	default y if ARCH_LS1021A || FSL_LSCH3 || FSL_LSCH2
+	depends on !SPL_NO_USB
+	help
+	  Enables support for the on-chip xHCI controller on NXP Layerscape SoCs.
 endif # USB_XHCI_HCD
 
 config USB_EHCI_HCD

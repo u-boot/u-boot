@@ -438,7 +438,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * USB
  */
-#define CONFIG_USB_XHCI_FSL
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		2
 
 #include <asm/fsl_secure_boot.h>
