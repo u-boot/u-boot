@@ -13,6 +13,7 @@
 /* #define DEBUG */
 
 #include "common.h"
+#include <clk.h>
 #include <errno.h>
 #include <malloc.h>
 #include <mmc.h>
@@ -408,8 +409,19 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct mmc *mmc = &pdata->mmc;
 	struct pl180_mmc_host *host = mmc->priv;
+	struct clk clk;
 	u32 bus_width;
 	int ret;
+
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret < 0)
+		return ret;
+
+	ret = clk_enable(&clk);
+	if (ret) {
+		dev_err(dev, "failed to enable clock\n");
+		return ret;
+	}
 
 	strcpy(host->name, "MMC");
 	host->pwr_init = INIT_PWR;
@@ -417,8 +429,8 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 			    SDI_CLKCR_HWFC_EN;
 	host->voltages = VOLTAGE_WINDOW_SD;
 	host->caps = 0;
-	host->clock_in = MMC_CLOCK_MAX;
-	host->clock_min = MMC_CLOCK_MIN;
+	host->clock_in = clk_get_rate(&clk);
+	host->clock_min = host->clock_in / (2 * (SDI_CLKCR_CLKDIV_INIT_V1 + 1));
 	host->clock_max = dev_read_u32_default(dev, "max-frequency",
 					       MMC_CLOCK_MAX);
 	host->version2 = dev_get_driver_data(dev);
