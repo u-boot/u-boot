@@ -1,9 +1,10 @@
 /*
- * (C) Copyright 2017
- * Vikas Manocha, <vikas.manocha@st.com>
+ * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
+ * Author(s): Vikas Manocha, <vikas.manocha@st.com> for STMicroelectronics.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
+
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
