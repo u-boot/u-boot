@@ -408,6 +408,7 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct mmc *mmc = &pdata->mmc;
 	struct pl180_mmc_host *host = mmc->priv;
+	u32 bus_width;
 	int ret;
 
 	strcpy(host->name, "MMC");
@@ -421,6 +422,21 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 	host->clock_max = dev_read_u32_default(dev, "max-frequency",
 					       MMC_CLOCK_MAX);
 	host->version2 = dev_get_driver_data(dev);
+
+	bus_width = dev_read_u32_default(dev, "bus-width", 1);
+	switch (bus_width) {
+	case 8:
+		host->caps |= MMC_MODE_8BIT;
+		/* Hosts capable of 8-bit transfers can also do 4 bits */
+	case 4:
+		host->caps |= MMC_MODE_4BIT;
+		break;
+	case 1:
+		break;
+	default:
+		dev_err(dev, "Invalid bus-width value %u\n", bus_width);
+	}
+
 	ret = arm_pl180_mmci_init(host, &mmc);
 	if (ret) {
 		dev_err(dev, "arm_pl180_mmci init failed\n");
