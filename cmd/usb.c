@@ -349,6 +349,16 @@ static void usb_show_tree_graph(struct usb_device *dev, char *pre)
 	printf(" %s", pre);
 #ifdef CONFIG_DM_USB
 	has_child = device_has_active_children(dev->dev);
+	if (device_get_uclass_id(dev->dev) == UCLASS_MASS_STORAGE) {
+		struct udevice *child;
+
+		for (device_find_first_child(dev->dev, &child);
+		     child;
+		     device_find_next_child(&child)) {
+			if (device_get_uclass_id(child) == UCLASS_BLK)
+				has_child = 0;
+		}
+	}
 #else
 	/* check if the device has connected children */
 	int i;
@@ -414,8 +424,12 @@ static void usb_show_tree_graph(struct usb_device *dev, char *pre)
 
 		udev = dev_get_parent_priv(child);
 
-		/* Ignore emulators, we only want real devices */
-		if (device_get_uclass_id(child) != UCLASS_USB_EMUL) {
+		/*
+		 * Ignore emulators and block child devices, we only want
+		 * real devices
+		 */
+		if ((device_get_uclass_id(child) != UCLASS_USB_EMUL) &&
+		    (device_get_uclass_id(child) != UCLASS_BLK)) {
 			usb_show_tree_graph(udev, pre);
 			pre[index] = 0;
 		}
@@ -605,7 +619,9 @@ static void usb_show_info(struct usb_device *udev)
 	for (device_find_first_child(udev->dev, &child);
 	     child;
 	     device_find_next_child(&child)) {
-		if (device_active(child)) {
+		if (device_active(child) &&
+		    (device_get_uclass_id(child) != UCLASS_USB_EMUL) &&
+		    (device_get_uclass_id(child) != UCLASS_BLK)) {
 			udev = dev_get_parent_priv(child);
 			usb_show_info(udev);
 		}
