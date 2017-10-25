@@ -15,6 +15,11 @@
 
 /* UART Base Address */
 #define UART0_BASE			0x44E09000
+#define UART1_BASE			0x48022000
+#define UART2_BASE			0x48024000
+#define UART3_BASE			0x481A6000
+#define UART4_BASE			0x481A8000
+#define UART5_BASE			0x481AA000
 
 /* GPIO Base address */
 #define GPIO2_BASE			0x481AC000
