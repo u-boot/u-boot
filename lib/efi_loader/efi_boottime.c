@@ -1778,29 +1778,23 @@ static efi_status_t EFIAPI efi_locate_protocol(const efi_guid_t *protocol,
 					       void **protocol_interface)
 {
 	struct list_head *lhandle;
-	int i;
+	efi_status_t ret;
 
 	EFI_ENTRY("%pUl, %p, %p", protocol, registration, protocol_interface);
 
 	if (!protocol || !protocol_interface)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-	EFI_PRINT_GUID("protocol", protocol);
-
 	list_for_each(lhandle, &efi_obj_list) {
 		struct efi_object *efiobj;
+		struct efi_handler *handler;
 
 		efiobj = list_entry(lhandle, struct efi_object, link);
-		for (i = 0; i < ARRAY_SIZE(efiobj->protocols); i++) {
-			struct efi_handler *handler = &efiobj->protocols[i];
 
-			if (!handler->guid)
-				continue;
-			if (!guidcmp(handler->guid, protocol)) {
-				*protocol_interface =
-					handler->protocol_interface;
-				return EFI_EXIT(EFI_SUCCESS);
-			}
+		ret = efi_search_protocol(efiobj->handle, protocol, &handler);
+		if (ret == EFI_SUCCESS) {
+			*protocol_interface = handler->protocol_interface;
+			return EFI_EXIT(EFI_SUCCESS);
 		}
 	}
 	*protocol_interface = NULL;
