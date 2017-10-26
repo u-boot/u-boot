@@ -136,13 +136,15 @@ static int configure_clocks(struct udevice *dev)
 		| (sys_pll_psc.apb2_psc << RCC_CFGR_PPRE2_SHIFT)));
 
 	/* Configure the main PLL */
-	uint32_t pllcfgr = 0;
-	pllcfgr = RCC_PLLCFGR_PLLSRC; /* pll source HSE */
-	pllcfgr |= sys_pll_psc.pll_m << RCC_PLLCFGR_PLLM_SHIFT;
-	pllcfgr |= sys_pll_psc.pll_n << RCC_PLLCFGR_PLLN_SHIFT;
-	pllcfgr |= ((sys_pll_psc.pll_p >> 1) - 1) << RCC_PLLCFGR_PLLP_SHIFT;
-	pllcfgr |= sys_pll_psc.pll_q << RCC_PLLCFGR_PLLQ_SHIFT;
-	writel(pllcfgr, &regs->pllcfgr);
+	setbits_le32(&regs->pllcfgr, RCC_PLLCFGR_PLLSRC); /* pll source HSE */
+	clrsetbits_le32(&regs->pllcfgr, RCC_PLLCFGR_PLLM_MASK,
+			sys_pll_psc.pll_m << RCC_PLLCFGR_PLLM_SHIFT);
+	clrsetbits_le32(&regs->pllcfgr, RCC_PLLCFGR_PLLN_MASK,
+			sys_pll_psc.pll_n << RCC_PLLCFGR_PLLN_SHIFT);
+	clrsetbits_le32(&regs->pllcfgr, RCC_PLLCFGR_PLLP_MASK,
+			((sys_pll_psc.pll_p >> 1) - 1) << RCC_PLLCFGR_PLLP_SHIFT);
+	clrsetbits_le32(&regs->pllcfgr, RCC_PLLCFGR_PLLQ_MASK,
+			sys_pll_psc.pll_q << RCC_PLLCFGR_PLLQ_SHIFT);
 
 	/* Enable the main PLL */
 	setbits_le32(&regs->cr, RCC_CR_PLLON);
