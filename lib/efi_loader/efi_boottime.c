@@ -732,6 +732,11 @@ static efi_status_t EFIAPI efi_install_protocol_interface(
 		r = efi_create_handle(handle);
 		if (r != EFI_SUCCESS)
 			goto out;
+		debug("%sEFI: new handle %p\n", indent_string(nesting_level),
+		      *handle);
+	} else {
+		debug("%sEFI: handle %p\n", indent_string(nesting_level),
+		      *handle);
 	}
 	/* Find object. */
 	list_for_each(lhandle, &efi_obj_list) {
