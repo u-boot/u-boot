@@ -292,6 +292,10 @@ int efi_net_register(void)
 
 	/* We only expose the "active" eth device, so one is enough */
 	netobj = calloc(1, sizeof(*netobj));
+	if (!netobj) {
+		printf("ERROR: Out of memory\n");
+		return 1;
+	}
 
 	/* Fill in object data */
 	netobj->parent.protocols[0].guid = &efi_net_guid;
