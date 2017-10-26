@@ -46,6 +46,10 @@ static struct cout_mode efi_cout_modes[] = {
 };
 
 const efi_guid_t efi_guid_console_control = CONSOLE_CONTROL_GUID;
+const efi_guid_t efi_guid_text_output_protocol =
+			EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL_GUID;
+const efi_guid_t efi_guid_text_input_protocol =
+			EFI_SIMPLE_TEXT_INPUT_PROTOCOL_GUID;
 
 #define cESC '\x1b'
 #define ESC "\x1b"
@@ -81,7 +85,7 @@ static efi_status_t EFIAPI efi_cin_lock_std_in(
 	return EFI_EXIT(EFI_UNSUPPORTED);
 }
 
-const struct efi_console_control_protocol efi_console_control = {
+struct efi_console_control_protocol efi_console_control = {
 	.get_mode = efi_cin_get_mode,
 	.set_mode = efi_cin_set_mode,
 	.lock_std_in = efi_cin_lock_std_in,
@@ -374,7 +378,7 @@ static efi_status_t EFIAPI efi_cout_enable_cursor(
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
-const struct efi_simple_text_output_protocol efi_con_out = {
+struct efi_simple_text_output_protocol efi_con_out = {
 	.reset = efi_cout_reset,
 	.output_string = efi_cout_output_string,
 	.test_string = efi_cout_test_string,
@@ -490,23 +494,38 @@ static void EFIAPI efi_console_timer_notify(struct efi_event *event,
 }
 
 
-static struct efi_object efi_console_control_obj =
-	EFI_PROTOCOL_OBJECT(efi_guid_console_control, &efi_console_control);
-static struct efi_object efi_console_output_obj =
-	EFI_PROTOCOL_OBJECT(EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL_GUID, &efi_con_out);
-static struct efi_object efi_console_input_obj =
-	EFI_PROTOCOL_OBJECT(EFI_SIMPLE_TEXT_INPUT_PROTOCOL_GUID, &efi_con_in);
-
 /* This gets called from do_bootefi_exec(). */
 int efi_console_register(void)
 {
 	efi_status_t r;
+	struct efi_object *efi_console_control_obj;
+	struct efi_object *efi_console_output_obj;
+	struct efi_object *efi_console_input_obj;
 
-	/* Hook up to the device list */
-	list_add_tail(&efi_console_control_obj.link, &efi_obj_list);
-	list_add_tail(&efi_console_output_obj.link, &efi_obj_list);
-	list_add_tail(&efi_console_input_obj.link, &efi_obj_list);
+	/* Create handles */
+	r = efi_create_handle((void **)&efi_console_control_obj);
+	if (r != EFI_SUCCESS)
+		goto out_of_memory;
+	r = efi_add_protocol(efi_console_control_obj->handle,
+			     &efi_guid_console_control, &efi_console_control);
+	if (r != EFI_SUCCESS)
+		goto out_of_memory;
+	r = efi_create_handle((void **)&efi_console_output_obj);
+	if (r != EFI_SUCCESS)
+		goto out_of_memory;
+	r = efi_add_protocol(efi_console_output_obj->handle,
+			     &efi_guid_text_output_protocol, &efi_con_out);
+	if (r != EFI_SUCCESS)
+		goto out_of_memory;
+	r = efi_create_handle((void **)&efi_console_input_obj);
+	if (r != EFI_SUCCESS)
+		goto out_of_memory;
+	r = efi_add_protocol(efi_console_input_obj->handle,
+			     &efi_guid_text_input_protocol, &efi_con_in);
+	if (r != EFI_SUCCESS)
+		goto out_of_memory;
 
+	/* Create console events */
 	r = efi_create_event(EVT_NOTIFY_WAIT, TPL_CALLBACK,
 			     efi_key_notify, NULL, &efi_con_in.wait_for_key);
 	if (r != EFI_SUCCESS) {
@@ -524,5 +543,8 @@ int efi_console_register(void)
 	r = efi_set_timer(console_timer_event, EFI_TIMER_PERIODIC, 50);
 	if (r != EFI_SUCCESS)
 		printf("ERROR: Failed to set console timer\n");
+	return r;
+out_of_memory:
+	printf("ERROR: Out of meemory\n");
 	return r;
 }
