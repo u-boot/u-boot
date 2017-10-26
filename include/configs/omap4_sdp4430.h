@@ -16,7 +16,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_4430SDP		1	/* working with SDP */
 #define CONFIG_MACH_TYPE	MACH_TYPE_OMAP_4430SDP
 
 #include <configs/ti_omap4_common.h>
