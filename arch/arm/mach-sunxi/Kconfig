@@ -770,6 +770,7 @@ config VIDEO_DE2
 	depends on SUNXI_DE2
 	select DM_VIDEO
 	select DISPLAY
+	imply VIDEO_DT_SIMPLEFB
 	default y
 	---help---
 	Say y here if you want to build DE2 video driver which is present on
