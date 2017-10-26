@@ -20,7 +20,6 @@ obj-$(CONFIG_SYS_I2C_CADENCE) += i2c-cdns.o
 obj-$(CONFIG_SYS_I2C_DAVINCI) += davinci_i2c.o
 obj-$(CONFIG_SYS_I2C_DW) += designware_i2c.o
 obj-$(CONFIG_SYS_I2C_FSL) += fsl_i2c.o
-obj-$(CONFIG_SYS_I2C_FTI2C010) += fti2c010.o
 obj-$(CONFIG_SYS_I2C_IHS) += ihs_i2c.o
 obj-$(CONFIG_SYS_I2C_INTEL) += intel_i2c.o
 obj-$(CONFIG_SYS_I2C_IMX_LPI2C) += imx_lpi2c.o
