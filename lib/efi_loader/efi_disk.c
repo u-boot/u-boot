@@ -196,6 +196,15 @@ efi_fs_from_path(struct efi_device_path *fp)
 	return diskobj->volume;
 }
 
+/*
+ * Create a device for a disk
+ *
+ * @name	not used
+ * @if_typename interface name for block device
+ * @desc	internal block device
+ * @dev_index   device index for block device
+ * @offset	offset into disk for simple partitions
+ */
 static void efi_disk_add_dev(const char *name,
 			     const char *if_typename,
 			     struct blk_desc *desc,
@@ -210,6 +219,10 @@ static void efi_disk_add_dev(const char *name,
 		return;
 
 	diskobj = calloc(1, sizeof(*diskobj));
+	if (!diskobj) {
+		printf("ERROR: Out of memory\n");
+		return;
+	}
 
 	/* Fill in object data */
 	diskobj->dp = efi_dp_from_part(desc, part);
