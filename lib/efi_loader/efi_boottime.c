@@ -1809,7 +1809,45 @@ static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
 			void *handle, ...)
 {
 	EFI_ENTRY("%p", handle);
-	return EFI_EXIT(EFI_INVALID_PARAMETER);
+
+	va_list argptr;
+	const efi_guid_t *protocol;
+	void *protocol_interface;
+	efi_status_t r = EFI_SUCCESS;
+	size_t i = 0;
+
+	if (!handle)
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
+	va_start(argptr, handle);
+	for (;;) {
+		protocol = va_arg(argptr, efi_guid_t*);
+		if (!protocol)
+			break;
+		protocol_interface = va_arg(argptr, void*);
+		r = EFI_CALL(efi_uninstall_protocol_interface(
+						handle, protocol,
+						protocol_interface));
+		if (r != EFI_SUCCESS)
+			break;
+		i++;
+	}
+	va_end(argptr);
+	if (r == EFI_SUCCESS)
+		return EFI_EXIT(r);
+
+	/* If an error occurred undo all changes. */
+	va_start(argptr, handle);
+	for (; i; --i) {
+		protocol = va_arg(argptr, efi_guid_t*);
+		protocol_interface = va_arg(argptr, void*);
+		EFI_CALL(efi_install_protocol_interface(&handle, protocol,
+							EFI_NATIVE_INTERFACE,
+							protocol_interface));
+	}
+	va_end(argptr);
+
+	return EFI_EXIT(r);
 }
 
 /*
