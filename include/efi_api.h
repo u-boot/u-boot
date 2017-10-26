@@ -585,14 +585,14 @@ struct efi_gop_mode
 struct efi_gop
 {
 	efi_status_t (EFIAPI *query_mode)(struct efi_gop *this, u32 mode_number,
-					  unsigned long *size_of_info,
+					  efi_uintn_t *size_of_info,
 					  struct efi_gop_mode_info **info);
 	efi_status_t (EFIAPI *set_mode)(struct efi_gop *this, u32 mode_number);
 	efi_status_t (EFIAPI *blt)(struct efi_gop *this, void *buffer,
-				   unsigned long operation, unsigned long sx,
-				   unsigned long sy, unsigned long dx,
-				   unsigned long dy, unsigned long width,
-				   unsigned long height, unsigned long delta);
+				   u32 operation, efi_uintn_t sx,
+				   efi_uintn_t sy, efi_uintn_t dx,
+				   efi_uintn_t dy, efi_uintn_t width,
+				   efi_uintn_t height, efi_uintn_t delta);
 	struct efi_gop_mode *mode;
 };
 

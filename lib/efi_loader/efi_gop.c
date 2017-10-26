@@ -32,7 +32,7 @@ struct efi_gop_obj {
 };
 
 static efi_status_t EFIAPI gop_query_mode(struct efi_gop *this, u32 mode_number,
-					  unsigned long *size_of_info,
+					  efi_uintn_t *size_of_info,
 					  struct efi_gop_mode_info **info)
 {
 	struct efi_gop_obj *gopobj;
@@ -56,17 +56,17 @@ static efi_status_t EFIAPI gop_set_mode(struct efi_gop *this, u32 mode_number)
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
-static efi_status_t EFIAPI gop_blt(struct efi_gop *this, void *buffer,
-				   unsigned long operation, unsigned long sx,
-				   unsigned long sy, unsigned long dx,
-				   unsigned long dy, unsigned long width,
-				   unsigned long height, unsigned long delta)
+efi_status_t EFIAPI gop_blt(struct efi_gop *this, void *buffer,
+			    u32 operation, efi_uintn_t sx,
+			    efi_uintn_t sy, efi_uintn_t dx,
+			    efi_uintn_t dy, efi_uintn_t width,
+			    efi_uintn_t height, efi_uintn_t delta)
 {
 	struct efi_gop_obj *gopobj = container_of(this, struct efi_gop_obj, ops);
 	int i, j, line_len16, line_len32;
 	void *fb;
 
-	EFI_ENTRY("%p, %p, %lx, %lx, %lx, %lx, %lx, %lx, %lx, %lx", this,
+	EFI_ENTRY("%p, %p, %u, %zu, %zu, %zu, %zu, %zu, %zu, %zu", this,
 		  buffer, operation, sx, sy, dx, dy, width, height, delta);
 
 	if (operation != EFI_BLT_BUFFER_TO_VIDEO)
