@@ -1193,34 +1193,45 @@ void efi_setup_loaded_image(struct efi_loaded_image *info, struct efi_object *ob
 			    struct efi_device_path *device_path,
 			    struct efi_device_path *file_path)
 {
+	efi_status_t ret;
+
 	obj->handle = info;
-
-	/*
-	 * When asking for the device path interface, return
-	 * bootefi_device_path
-	 */
-	obj->protocols[0].guid = &efi_guid_device_path;
-	obj->protocols[0].protocol_interface = device_path;
-
-	/*
-	 * When asking for the loaded_image interface, just
-	 * return handle which points to loaded_image_info
-	 */
-	obj->protocols[1].guid = &efi_guid_loaded_image;
-	obj->protocols[1].protocol_interface = info;
-
-	obj->protocols[2].guid = &efi_guid_console_control;
-	obj->protocols[2].protocol_interface = (void *)&efi_console_control;
-
-	obj->protocols[3].guid = &efi_guid_device_path_to_text_protocol;
-	obj->protocols[3].protocol_interface =
-		(void *)&efi_device_path_to_text;
 
 	info->file_path = file_path;
 	if (device_path)
 		info->device_handle = efi_dp_find_obj(device_path, NULL);
 
 	list_add_tail(&obj->link, &efi_obj_list);
+	/*
+	 * When asking for the device path interface, return
+	 * bootefi_device_path
+	 */
+	ret = efi_add_protocol(obj->handle, &efi_guid_device_path, device_path);
+	if (ret != EFI_SUCCESS)
+		goto failure;
+
+	/*
+	 * When asking for the loaded_image interface, just
+	 * return handle which points to loaded_image_info
+	 */
+	ret = efi_add_protocol(obj->handle, &efi_guid_loaded_image, info);
+	if (ret != EFI_SUCCESS)
+		goto failure;
+
+	ret = efi_add_protocol(obj->handle, &efi_guid_console_control,
+			       (void *)&efi_console_control);
+	if (ret != EFI_SUCCESS)
+		goto failure;
+
+	ret = efi_add_protocol(obj->handle,
+			       &efi_guid_device_path_to_text_protocol,
+			       (void *)&efi_device_path_to_text);
+	if (ret != EFI_SUCCESS)
+		goto failure;
+
+	return;
+failure:
+	printf("ERROR: Failure to install protocols for loaded image\n");
 }
 
 /*
