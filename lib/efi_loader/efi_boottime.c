@@ -690,7 +690,7 @@ static efi_status_t EFIAPI efi_check_event(struct efi_event *event)
  * @handle	handle to find
  * @return	EFI object
  */
-struct efi_object *efi_search_obj(void *handle)
+struct efi_object *efi_search_obj(const void *handle)
 {
 	struct efi_object *efiobj;
 

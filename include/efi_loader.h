@@ -195,7 +195,7 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path);
 /* Create handle */
 efi_status_t efi_create_handle(void **handle);
 /* Call this to validate a handle and find the EFI object for it */
-struct efi_object *efi_search_obj(void *handle);
+struct efi_object *efi_search_obj(const void *handle);
 /* Call this to create an event */
 efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 			      void (EFIAPI *notify_function) (
