@@ -192,6 +192,8 @@ void efi_restore_gd(void);
 void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map);
 /* Call this to set the current device name */
 void efi_set_bootdev(const char *dev, const char *devnr, const char *path);
+/* Create handle */
+efi_status_t efi_create_handle(void **handle);
 /* Call this to validate a handle and find the EFI object for it */
 struct efi_object *efi_search_obj(void *handle);
 /* Call this to create an event */

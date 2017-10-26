@@ -321,7 +321,13 @@ static efi_status_t EFIAPI efi_free_pool_ext(void *buffer)
 	return EFI_EXIT(r);
 }
 
-static efi_status_t efi_create_handle(void **handle)
+/*
+ * Create handle.
+ *
+ * @handle	new handle
+ * @return	status code
+ */
+efi_status_t efi_create_handle(void **handle)
 {
 	struct efi_object *obj;
 	efi_status_t r;
