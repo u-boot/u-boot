@@ -30,7 +30,6 @@
  *
  */
 #define CONFIG_ARC_SERIAL
-#define CONFIG_ARC_UART_BASE		0xC0FC1000
 
 /*
  * Command line configuration
