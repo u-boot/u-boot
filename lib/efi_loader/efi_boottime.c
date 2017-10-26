@@ -1775,7 +1775,7 @@ static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces(
 	if (r == EFI_SUCCESS)
 		return EFI_EXIT(r);
 
-	/* If an error occured undo all changes. */
+	/* If an error occurred undo all changes. */
 	va_start(argptr, handle);
 	for (; i; --i) {
 		protocol = va_arg(argptr, efi_guid_t*);
