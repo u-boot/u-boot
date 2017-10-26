@@ -15,6 +15,8 @@ CFLAGS_efi_selftest_events.o := $(CFLAGS_EFI)
 CFLAGS_REMOVE_efi_selftest_events.o := $(CFLAGS_NON_EFI)
 CFLAGS_efi_selftest_exitbootservices.o := $(CFLAGS_EFI)
 CFLAGS_REMOVE_efi_selftest_exitbootservices.o := $(CFLAGS_NON_EFI)
+CFLAGS_efi_selftest_gop.o := $(CFLAGS_EFI)
+CFLAGS_REMOVE_efi_selftest_gop.o := $(CFLAGS_NON_EFI)
 CFLAGS_efi_selftest_manageprotocols.o := $(CFLAGS_EFI)
 CFLAGS_REMOVE_efi_selftest_manageprotocols.o := $(CFLAGS_NON_EFI)
 CFLAGS_efi_selftest_snp.o := $(CFLAGS_EFI)
@@ -33,6 +35,7 @@ efi_selftest.o \
 efi_selftest_console.o \
 efi_selftest_events.o \
 efi_selftest_exitbootservices.o \
+efi_selftest_gop.o \
 efi_selftest_manageprotocols.o \
 efi_selftest_snp.o \
 efi_selftest_textoutput.o \
