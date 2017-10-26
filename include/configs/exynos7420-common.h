@@ -43,9 +43,6 @@
 #define CONFIG_IRAM_END			(CONFIG_IRAM_BASE + CONFIG_IRAM_SIZE)
 #define CPU_RELEASE_ADDR		secondary_boot_addr
 
-/* Number of CPUs available */
-#define CONFIG_CORE_COUNT		0x8
-
 /* select serial console configuration */
 
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
