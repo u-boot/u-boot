@@ -839,8 +839,6 @@ static efi_status_t EFIAPI efi_install_protocol_interface(
 			void **handle, const efi_guid_t *protocol,
 			int protocol_interface_type, void *protocol_interface)
 {
-	struct list_head *lhandle;
-	int i;
 	efi_status_t r;
 
 	EFI_ENTRY("%p, %pUl, %d, %p", handle, protocol, protocol_interface_type,
@@ -863,40 +861,8 @@ static efi_status_t EFIAPI efi_install_protocol_interface(
 		debug("%sEFI: handle %p\n", indent_string(nesting_level),
 		      *handle);
 	}
-	/* Find object. */
-	list_for_each(lhandle, &efi_obj_list) {
-		struct efi_object *efiobj;
-		efiobj = list_entry(lhandle, struct efi_object, link);
-
-		if (efiobj->handle != *handle)
-			continue;
-		/* Check if protocol is already installed on the handle. */
-		for (i = 0; i < ARRAY_SIZE(efiobj->protocols); i++) {
-			struct efi_handler *handler = &efiobj->protocols[i];
-
-			if (!handler->guid)
-				continue;
-			if (!guidcmp(handler->guid, protocol)) {
-				r = EFI_INVALID_PARAMETER;
-				goto out;
-			}
-		}
-		/* Install protocol in first empty slot. */
-		for (i = 0; i < ARRAY_SIZE(efiobj->protocols); i++) {
-			struct efi_handler *handler = &efiobj->protocols[i];
-
-			if (handler->guid)
-				continue;
-
-			handler->guid = protocol;
-			handler->protocol_interface = protocol_interface;
-			r = EFI_SUCCESS;
-			goto out;
-		}
-		r = EFI_OUT_OF_RESOURCES;
-		goto out;
-	}
-	r = EFI_INVALID_PARAMETER;
+	/* Add new protocol */
+	r = efi_add_protocol(*handle, protocol, protocol_interface);
 out:
 	return EFI_EXIT(r);
 }
