@@ -173,6 +173,10 @@ int efi_gop_register(void)
 	}
 
 	gopobj = calloc(1, sizeof(*gopobj));
+	if (!gopobj) {
+		printf("ERROR: Out of memory\n");
+		return 1;
+	}
 
 	/* Fill in object data */
 	gopobj->parent.protocols[0].guid = &efi_gop_guid;
