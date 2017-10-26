@@ -29,6 +29,7 @@
 #include "../anx9804.h"
 #include "../hitachi_tx18d42vm_lcd.h"
 #include "../ssd2828.h"
+#include "simplefb_common.h"
 
 #ifdef CONFIG_VIDEO_LCD_BL_PWM_ACTIVE_LOW
 #define PWM_ON 0
@@ -1377,17 +1378,7 @@ int sunxi_simplefb_setup(void *blob)
 		break;
 	}
 
-	/* Find a prefilled simpefb node, matching out pipeline config */
-	offset = fdt_node_offset_by_compatible(blob, -1,
-					       "allwinner,simple-framebuffer");
-	while (offset >= 0) {
-		ret = fdt_stringlist_search(blob, offset, "allwinner,pipeline",
-					    pipeline);
-		if (ret == 0)
-			break;
-		offset = fdt_node_offset_by_compatible(blob, offset,
-					       "allwinner,simple-framebuffer");
-	}
+	offset = sunxi_simplefb_fdt_match(blob, pipeline);
 	if (offset < 0) {
 		eprintf("Cannot setup simplefb: node not found\n");
 		return 0; /* Keep older kernels working */
