@@ -983,24 +983,21 @@ static int efi_search(enum efi_locate_search_type search_type,
 		      const efi_guid_t *protocol, void *search_key,
 		      struct efi_object *efiobj)
 {
-	int i;
+	efi_status_t ret;
 
 	switch (search_type) {
 	case ALL_HANDLES:
 		return 0;
 	case BY_REGISTER_NOTIFY:
-		/* RegisterProtocolNotify is not implemented yet */
+		/* TODO: RegisterProtocolNotify is not implemented yet */
 		return -1;
 	case BY_PROTOCOL:
-		for (i = 0; i < ARRAY_SIZE(efiobj->protocols); i++) {
-			const efi_guid_t *guid = efiobj->protocols[i].guid;
-			if (guid && !guidcmp(guid, protocol))
-				return 0;
-		}
+		ret = efi_search_protocol(efiobj->handle, protocol, NULL);
+		return (ret != EFI_SUCCESS);
+	default:
+		/* Invalid search type */
 		return -1;
 	}
-
-	return -1;
 }
 
 /*
