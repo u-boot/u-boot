@@ -252,7 +252,8 @@ extern void *efi_bounce_buffer;
 
 
 struct efi_device_path *efi_dp_next(const struct efi_device_path *dp);
-int efi_dp_match(struct efi_device_path *a, struct efi_device_path *b);
+int efi_dp_match(const struct efi_device_path *a,
+		 const struct efi_device_path *b);
 struct efi_object *efi_dp_find_obj(struct efi_device_path *dp,
 				   struct efi_device_path **rem);
 unsigned efi_dp_size(const struct efi_device_path *dp);

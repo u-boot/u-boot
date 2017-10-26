@@ -68,7 +68,8 @@ struct efi_device_path *efi_dp_next(const struct efi_device_path *dp)
  * representing a device with one representing a file on the device, or
  * a device with a parent device.
  */
-int efi_dp_match(struct efi_device_path *a, struct efi_device_path *b)
+int efi_dp_match(const struct efi_device_path *a,
+		 const struct efi_device_path *b)
 {
 	while (1) {
 		int ret;
