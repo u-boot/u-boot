@@ -615,6 +615,7 @@ config VIDEO_SUNXI
 	depends on !MACH_SUN9I
 	depends on !MACH_SUN50I
 	select VIDEO
+	imply VIDEO_DT_SIMPLEFB
 	default y
 	---help---
 	Say Y here to add support for using a cfb console on the HDMI, LCD

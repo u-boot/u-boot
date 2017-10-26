@@ -650,4 +650,12 @@ config VIDEO_SIMPLE
 	  before u-boot starts, and u-boot will simply render to the pre-
 	  allocated frame buffer surface.
 
+config VIDEO_DT_SIMPLEFB
+	bool "Enable SimpleFB support for passing framebuffer to OS"
+	help
+	  Enables the code to pass the framebuffer to the kernel as a
+	  simple framebuffer in the device tree.
+	  The video output is initialized by U-Boot, and kept by the
+	  kernel.
+
 endmenu
