@@ -703,6 +703,125 @@ struct efi_object *efi_search_obj(const void *handle)
 }
 
 /*
+ * Find a protocol on a handle.
+ *
+ * @handle		handle
+ * @protocol_guid	GUID of the protocol
+ * @handler		reference to the protocol
+ * @return		status code
+ */
+efi_status_t efi_search_protocol(const void *handle,
+				 const efi_guid_t *protocol_guid,
+				 struct efi_handler **handler)
+{
+	struct efi_object *efiobj;
+	size_t i;
+	struct efi_handler *protocol;
+
+	if (!handle || !protocol_guid)
+		return EFI_INVALID_PARAMETER;
+	efiobj = efi_search_obj(handle);
+	if (!efiobj)
+		return EFI_INVALID_PARAMETER;
+	for (i = 0; i < ARRAY_SIZE(efiobj->protocols); i++) {
+		protocol = &efiobj->protocols[i];
+		if (!protocol->guid)
+			continue;
+		if (!guidcmp(protocol->guid, protocol_guid)) {
+			if (handler)
+				*handler = protocol;
+			return EFI_SUCCESS;
+		}
+	}
+	return EFI_NOT_FOUND;
+}
+
+/*
+ * Install new protocol on a handle.
+ *
+ * @handle			handle on which the protocol shall be installed
+ * @protocol			GUID of the protocol to be installed
+ * @protocol_interface		interface of the protocol implementation
+ * @return			status code
+ */
+efi_status_t efi_add_protocol(const void *handle, const efi_guid_t *protocol,
+			      void *protocol_interface)
+{
+	struct efi_object *efiobj;
+	struct efi_handler *handler;
+	efi_status_t ret;
+	size_t i;
+
+	efiobj = efi_search_obj(handle);
+	if (!efiobj)
+		return EFI_INVALID_PARAMETER;
+	ret = efi_search_protocol(handle, protocol, NULL);
+	if (ret != EFI_NOT_FOUND)
+		return EFI_INVALID_PARAMETER;
+	handler = calloc(1, sizeof(struct efi_handler));
+	if (!handler)
+		return EFI_OUT_OF_RESOURCES;
+	/* Install protocol in first empty slot. */
+	for (i = 0; i < ARRAY_SIZE(efiobj->protocols); i++) {
+		handler = &efiobj->protocols[i];
+		if (handler->guid)
+			continue;
+		handler->guid = protocol;
+		handler->protocol_interface = protocol_interface;
+		return EFI_SUCCESS;
+	}
+	return EFI_OUT_OF_RESOURCES;
+}
+
+/*
+ * Delete protocol from a handle.
+ *
+ * @handle			handle from which the protocol shall be deleted
+ * @protocol			GUID of the protocol to be deleted
+ * @protocol_interface		interface of the protocol implementation
+ * @return			status code
+ */
+efi_status_t efi_remove_protocol(const void *handle, const efi_guid_t *protocol,
+				 void *protocol_interface)
+{
+	struct efi_handler *handler;
+	efi_status_t ret;
+
+	ret = efi_search_protocol(handle, protocol, &handler);
+	if (ret != EFI_SUCCESS)
+		return ret;
+	if (handler->protocol_interface != protocol_interface)
+		return EFI_NOT_FOUND;
+	handler->guid = NULL;
+	handler->protocol_interface = NULL;
+	return EFI_SUCCESS;
+}
+
+/*
+ * Delete all protocols from a handle.
+ *
+ * @handle			handle from which the protocols shall be deleted
+ * @return			status code
+ */
+efi_status_t efi_remove_all_protocols(const void *handle)
+{
+	struct efi_object *efiobj;
+	struct efi_handler *handler;
+	size_t i;
+
+	efiobj = efi_search_obj(handle);
+	if (!efiobj)
+		return EFI_INVALID_PARAMETER;
+
+	for (i = 0; i < ARRAY_SIZE(efiobj->protocols); i++) {
+		handler = &efiobj->protocols[i];
+		handler->guid = NULL;
+		handler->protocol_interface = NULL;
+	}
+	return EFI_SUCCESS;
+}
+
+/*
  * Install protocol interface.
  *
  * This function implements the InstallProtocolInterface service.

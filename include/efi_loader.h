@@ -196,6 +196,18 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path);
 efi_status_t efi_create_handle(void **handle);
 /* Call this to validate a handle and find the EFI object for it */
 struct efi_object *efi_search_obj(const void *handle);
+/* Find a protocol on a handle */
+efi_status_t efi_search_protocol(const void *handle,
+				 const efi_guid_t *protocol_guid,
+				 struct efi_handler **handler);
+/* Install new protocol on a handle */
+efi_status_t efi_add_protocol(const void *handle, const efi_guid_t *protocol,
+			      void *protocol_interface);
+/* Delete protocol from a handle */
+efi_status_t efi_remove_protocol(const void *handle, const efi_guid_t *protocol,
+				 void *protocol_interface);
+/* Delete all protocols from a handle */
+efi_status_t efi_remove_all_protocols(const void *handle);
 /* Call this to create an event */
 efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 			      void (EFIAPI *notify_function) (
