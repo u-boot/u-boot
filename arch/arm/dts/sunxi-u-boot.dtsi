@@ -1,5 +1,14 @@
 #include <config.h>
 
+/*
+ * This is the maximum size the U-Boot binary can be, which is basically
+ * the start of the environment, minus the start of the U-Boot binary in
+ * the MMC. This makes the assumption that the MMC is using 512-bytes
+ * blocks, but devices using something other than that remains to be
+ * seen.
+ */
+#define UBOOT_MMC_MAX_SIZE	(CONFIG_ENV_OFFSET - (CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512))
+
 / {
 	binman {
 		filename = "u-boot-sunxi-with-spl.bin";
@@ -8,6 +17,9 @@
 			filename = "spl/sunxi-spl.bin";
 		};
 		u-boot-img {
+#ifdef CONFIG_MMC
+			size = <UBOOT_MMC_MAX_SIZE>;
+#endif
 			pos = <CONFIG_SPL_PAD_TO>;
 		};
 	};
