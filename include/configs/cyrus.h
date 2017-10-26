@@ -370,7 +370,6 @@
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
-#define CONFIG_NET_MULTI
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #endif	/* CONFIG_PCI */

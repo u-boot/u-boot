@@ -182,9 +182,6 @@
 /* Disable CPSW SPL support so we fit within the 101KiB limit. */
 #endif
 
-/* CPSW ethernet */
-#define CONFIG_NET_MULTI
-
 /* Network */
 #define CONFIG_PHY_RESET	1
 #define CONFIG_PHY_NATSEMI

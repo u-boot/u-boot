@@ -65,7 +65,6 @@
 #undef  CONFIG_CMD_SPI
 #endif
 
-#define CONFIG_NET_MULTI
 
 /* Board Clock */
 #define RMOBILE_XTAL_CLK	20000000u

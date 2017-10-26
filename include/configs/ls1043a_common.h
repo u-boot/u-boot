@@ -165,7 +165,6 @@
 #define CONFIG_PCIE3		/* PCIE controller 3 */
 
 #ifdef CONFIG_PCI
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_SCAN_SHOW
 #endif
 #endif

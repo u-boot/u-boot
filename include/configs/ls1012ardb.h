@@ -62,7 +62,6 @@
 
 #define CONFIG_PCIE1		/* PCIE controller 1 */
 
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_SCAN_SHOW
 
 #define CONFIG_CMD_MEMINFO
