@@ -215,6 +215,8 @@ class ConsoleBase(object):
             self.log.error(str(ex))
             self.cleanup_spawn()
             raise
+        finally:
+            self.log.timestamp()
 
     def run_command_list(self, cmds):
         """Run a list of commands.
@@ -370,6 +372,7 @@ class ConsoleBase(object):
             self.cleanup_spawn()
             raise
         finally:
+            self.log.timestamp()
             self.log.end_section('Starting U-Boot')
 
     def cleanup_spawn(self):
