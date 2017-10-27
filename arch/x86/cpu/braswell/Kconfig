@@ -12,7 +12,6 @@ config INTEL_BRASWELL
 	imply HAVE_INTEL_ME
 	imply HAVE_VBT
 	imply ENABLE_MRC_CACHE
-	imply ENV_IS_IN_SPI_FLASH
 	imply AHCI_PCI
 	imply ICH_SPI
 	imply MMC
@@ -31,9 +30,5 @@ if INTEL_BRASWELL
 config FSP_ADDR
 	hex
 	default 0xfff20000
-
-config FSP_LOCKDOWN_SPI
-	bool
-	default y
 
 endif

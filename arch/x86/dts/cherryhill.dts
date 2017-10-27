@@ -37,28 +37,28 @@
 
 		cpu@0 {
 			device_type = "cpu";
-			compatible = "intel,braswell-cpu";
+			compatible = "cpu-x86";
 			reg = <0>;
 			intel,apic-id = <0>;
 		};
 
 		cpu@1 {
 			device_type = "cpu";
-			compatible = "intel,braswell-cpu";
+			compatible = "cpu-x86";
 			reg = <1>;
 			intel,apic-id = <2>;
 		};
 
 		cpu@2 {
 			device_type = "cpu";
-			compatible = "intel,braswell-cpu";
+			compatible = "cpu-x86";
 			reg = <2>;
 			intel,apic-id = <4>;
 		};
 
 		cpu@3 {
 			device_type = "cpu";
-			compatible = "intel,braswell-cpu";
+			compatible = "cpu-x86";
 			reg = <3>;
 			intel,apic-id = <6>;
 		};
@@ -143,6 +143,7 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				compatible = "intel,ich9-spi";
+				intel,spi-lock-down;
 
 				spi-flash@0 {
 					#address-cells = <1>;
@@ -194,7 +195,6 @@
 			fsp,pmic-i2c-bus = <0>;
 			fsp,enable-isp;
 			fsp,isp-pci-dev-config = <ISP_PCI_DEV_CONFIG_2>;
-			fsp,turbo-mode;
 			fsp,pnp-settings = <PNP_SETTING_POWER_AND_PERF>;
 			fsp,sd-detect-chk;
 		};
