@@ -682,7 +682,7 @@ config VIDEO_LCD_MODE
 
 config VIDEO_LCD_DCLK_PHASE
 	int "LCD panel display clock phase"
-	depends on VIDEO_SUNXI
+	depends on VIDEO_SUNXI || DM_VIDEO
 	default 1
 	---help---
 	Select LCD panel display clock phase shift, range 0-3.
