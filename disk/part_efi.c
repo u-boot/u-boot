@@ -622,25 +622,27 @@ int gpt_fill_header(struct blk_desc *dev_desc, gpt_header *gpt_h,
 int gpt_restore(struct blk_desc *dev_desc, char *str_disk_guid,
 		disk_partition_t *partitions, int parts_count)
 {
-	int ret;
-
-	gpt_header *gpt_h = calloc(1, PAD_TO_BLOCKSIZE(sizeof(gpt_header),
-						       dev_desc));
+	gpt_header *gpt_h;
 	gpt_entry *gpt_e;
+	int ret, size;
 
+	size = PAD_TO_BLOCKSIZE(sizeof(gpt_header), dev_desc);
+	gpt_h = malloc_cache_aligned(size);
 	if (gpt_h == NULL) {
 		printf("%s: calloc failed!\n", __func__);
 		return -1;
 	}
+	memset(gpt_h, 0, size);
 
-	gpt_e = calloc(1, PAD_TO_BLOCKSIZE(GPT_ENTRY_NUMBERS
-					       * sizeof(gpt_entry),
-					       dev_desc));
+	size = PAD_TO_BLOCKSIZE(GPT_ENTRY_NUMBERS * sizeof(gpt_entry),
+				dev_desc);
+	gpt_e = malloc_cache_aligned(size);
 	if (gpt_e == NULL) {
 		printf("%s: calloc failed!\n", __func__);
 		free(gpt_h);
 		return -1;
 	}
+	memset(gpt_e, 0, size);
 
 	/* Generate Primary GPT header (LBA1) */
 	ret = gpt_fill_header(dev_desc, gpt_h, str_disk_guid, parts_count);
