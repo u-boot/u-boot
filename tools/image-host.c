@@ -626,10 +626,8 @@ static int fit_config_process_sig(const char *keydir, void *keydest,
 	/* Write the public key into the supplied FDT file */
 	if (keydest) {
 		ret = info.crypto->add_verify_data(&info, keydest);
-		if (ret == -ENOSPC)
-			return -ENOSPC;
 		if (ret) {
-			printf("Failed to add verification data for '%s' signature node in '%s' image node\n",
+			printf("Failed to add verification data for '%s' signature node in '%s' configuration node\n",
 			       node_name, conf_name);
 		}
 		return ret;
