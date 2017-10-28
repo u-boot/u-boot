@@ -1075,7 +1075,7 @@ static const struct udevice_id exynos_dp_ids[] = {
 };
 
 U_BOOT_DRIVER(exynos_dp) = {
-	.name	= "eexynos_dp",
+	.name	= "exynos_dp",
 	.id	= UCLASS_DISPLAY,
 	.of_match = exynos_dp_ids,
 	.ops	= &exynos_dp_ops,
