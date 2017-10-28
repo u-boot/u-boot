@@ -59,7 +59,7 @@ my $from_filename = 0;
 my $pattern_depth = 0;
 my $version = 0;
 my $help = 0;
-my $find_maintainer_files = 0;
+my $find_maintainer_files = 1;
 
 my $vcs_used = 0;
 
