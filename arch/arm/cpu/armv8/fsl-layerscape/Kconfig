@@ -490,3 +490,10 @@ config SYS_MC_RSV_MEM_ALIGN
 
 config SPL_LDSCRIPT
 	default "arch/arm/cpu/armv8/u-boot-spl.lds" if ARCH_LS1043A || ARCH_LS1046A || ARCH_LS2080A
+
+config HAS_FSL_XHCI_USB
+	bool
+	default y if ARCH_LS1043A || ARCH_LS1046A
+	help
+	  For some SoC(such as LS1043A and LS1046A), USB and QE-HDLC multiplex use
+	  pins, select it when the pins are assigned to USB.

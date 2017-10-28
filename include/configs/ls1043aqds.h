@@ -370,13 +370,6 @@ unsigned long get_board_ddr_clk(void);
 #endif
 #endif
 
-/* USB */
-#define CONFIG_HAS_FSL_XHCI_USB
-#ifdef CONFIG_HAS_FSL_XHCI_USB
-#define CONFIG_USB_XHCI_FSL
-#define CONFIG_USB_MAX_CONTROLLER_COUNT		3
-#endif
-
 /*
  * Miscellaneous configurable options
  */
