@@ -25,6 +25,7 @@ obj-$(CONFIG_SYS_I2C_INTEL) += intel_i2c.o
 obj-$(CONFIG_SYS_I2C_IMX_LPI2C) += imx_lpi2c.o
 obj-$(CONFIG_SYS_I2C_KONA) += kona_i2c.o
 obj-$(CONFIG_SYS_I2C_LPC32XX) += lpc32xx_i2c.o
+obj-$(CONFIG_SYS_I2C_MESON) += meson_i2c.o
 obj-$(CONFIG_SYS_I2C_MVTWSI) += mvtwsi.o
 obj-$(CONFIG_SYS_I2C_MXC) += mxc_i2c.o
 obj-$(CONFIG_SYS_I2C_MXS) += mxs_i2c.o
