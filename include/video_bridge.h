@@ -53,6 +53,16 @@ struct video_bridge_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*set_backlight)(struct udevice *dev, int percent);
+
+	/**
+	 * read_edid() - Read information from EDID
+	 *
+	 * @dev:	Device to read from
+	 * @buf:	Buffer to read into
+	 * @buf_size:	Buffer size
+	 * @return number of bytes read, <=0 for error
+	 */
+	int (*read_edid)(struct udevice *dev, u8 *buf, int buf_size);
 };
 
 #define video_bridge_get_ops(dev) \
@@ -88,5 +98,15 @@ int video_bridge_set_active(struct udevice *dev, bool active);
  * @return 0 if attached, -EENOTCONN if not, or other -ve error
  */
 int video_bridge_check_attached(struct udevice *dev);
+
+/**
+ * video_bridge_read_edid() - Read information from EDID
+ *
+ * @dev:	Device to read from
+ * @buf:	Buffer to read into
+ * @buf_size:	Buffer size
+ * @return number of bytes read, <=0 for error
+ */
+int video_bridge_read_edid(struct udevice *dev, u8 *buf, int buf_size);
 
 #endif

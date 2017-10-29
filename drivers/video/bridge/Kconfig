@@ -25,3 +25,11 @@ config VIDEO_BRIDGE_NXP_PTN3460
 	  signalling) converter. It enables an LVDS LCD panel to be connected
 	  to an eDP output device such as an SoC that lacks LVDS capability,
 	  or where LVDS requires too many signals to route on the PCB.
+
+config VIDEO_BRIDGE_ANALOGIX_ANX6345
+	bool "Support Analogix ANX6345 RGB->DP bridge"
+	depends on VIDEO_BRIDGE
+	select DM_I2C
+	help
+	 The Analogix ANX6345 is RGB-to-DP converter. It enables an eDP LCD
+	 panel to be connected to an parallel LCD interface.

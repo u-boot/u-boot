@@ -606,7 +606,7 @@ config AXP_GPIO
 	---help---
 	Say Y here to enable support for the gpio pins of the axp PMIC ICs.
 
-config VIDEO
+config VIDEO_SUNXI
 	bool "Enable graphical uboot console on HDMI, LCD or VGA"
 	depends on !MACH_SUN8I_A83T
 	depends on !MACH_SUNXI_H3_H5
@@ -614,6 +614,8 @@ config VIDEO
 	depends on !MACH_SUN8I_V3S
 	depends on !MACH_SUN9I
 	depends on !MACH_SUN50I
+	select VIDEO
+	imply VIDEO_DT_SIMPLEFB
 	default y
 	---help---
 	Say Y here to add support for using a cfb console on the HDMI, LCD
@@ -622,21 +624,21 @@ config VIDEO
 
 config VIDEO_HDMI
 	bool "HDMI output support"
-	depends on VIDEO && !MACH_SUN8I
+	depends on VIDEO_SUNXI && !MACH_SUN8I
 	default y
 	---help---
 	Say Y here to add support for outputting video over HDMI.
 
 config VIDEO_VGA
 	bool "VGA output support"
-	depends on VIDEO && (MACH_SUN4I || MACH_SUN7I)
+	depends on VIDEO_SUNXI && (MACH_SUN4I || MACH_SUN7I)
 	default n
 	---help---
 	Say Y here to add support for outputting video over VGA.
 
 config VIDEO_VGA_VIA_LCD
 	bool "VGA via LCD controller support"
-	depends on VIDEO && (MACH_SUN5I || MACH_SUN6I || MACH_SUN8I)
+	depends on VIDEO_SUNXI && (MACH_SUN5I || MACH_SUN6I || MACH_SUN8I)
 	default n
 	---help---
 	Say Y here to add support for external DACs connected to the parallel
@@ -663,14 +665,14 @@ config VIDEO_VGA_EXTERNAL_DAC_EN
 
 config VIDEO_COMPOSITE
 	bool "Composite video output support"
-	depends on VIDEO && (MACH_SUN4I || MACH_SUN5I || MACH_SUN7I)
+	depends on VIDEO_SUNXI && (MACH_SUN4I || MACH_SUN5I || MACH_SUN7I)
 	default n
 	---help---
 	Say Y here to add support for outputting composite video.
 
 config VIDEO_LCD_MODE
 	string "LCD panel timing details"
-	depends on VIDEO
+	depends on VIDEO_SUNXI
 	default ""
 	---help---
 	LCD panel timing details string, leave empty if there is no LCD panel.
@@ -680,14 +682,14 @@ config VIDEO_LCD_MODE
 
 config VIDEO_LCD_DCLK_PHASE
 	int "LCD panel display clock phase"
-	depends on VIDEO
+	depends on VIDEO_SUNXI || DM_VIDEO
 	default 1
 	---help---
 	Select LCD panel display clock phase shift, range 0-3.
 
 config VIDEO_LCD_POWER
 	string "LCD panel power enable pin"
-	depends on VIDEO
+	depends on VIDEO_SUNXI
 	default ""
 	---help---
 	Set the power enable pin for the LCD panel. This takes a string in the
@@ -695,7 +697,7 @@ config VIDEO_LCD_POWER
 
 config VIDEO_LCD_RESET
 	string "LCD panel reset pin"
-	depends on VIDEO
+	depends on VIDEO_SUNXI
 	default ""
 	---help---
 	Set the reset pin for the LCD panel. This takes a string in the format
@@ -703,7 +705,7 @@ config VIDEO_LCD_RESET
 
 config VIDEO_LCD_BL_EN
 	string "LCD panel backlight enable pin"
-	depends on VIDEO
+	depends on VIDEO_SUNXI
 	default ""
 	---help---
 	Set the backlight enable pin for the LCD panel. This takes a string in the
@@ -712,7 +714,7 @@ config VIDEO_LCD_BL_EN
 
 config VIDEO_LCD_BL_PWM
 	string "LCD panel backlight pwm pin"
-	depends on VIDEO
+	depends on VIDEO_SUNXI
 	default ""
 	---help---
 	Set the backlight pwm pin for the LCD panel. This takes a string in the
@@ -720,14 +722,14 @@ config VIDEO_LCD_BL_PWM
 
 config VIDEO_LCD_BL_PWM_ACTIVE_LOW
 	bool "LCD panel backlight pwm is inverted"
-	depends on VIDEO
+	depends on VIDEO_SUNXI
 	default y
 	---help---
 	Set this if the backlight pwm output is active low.
 
 config VIDEO_LCD_PANEL_I2C
 	bool "LCD panel needs to be configured via i2c"
-	depends on VIDEO
+	depends on VIDEO_SUNXI
 	default n
 	select CMD_I2C
 	---help---
@@ -768,6 +770,7 @@ config VIDEO_DE2
 	depends on SUNXI_DE2
 	select DM_VIDEO
 	select DISPLAY
+	imply VIDEO_DT_SIMPLEFB
 	default y
 	---help---
 	Say y here if you want to build DE2 video driver which is present on
@@ -776,7 +779,7 @@ config VIDEO_DE2
 
 choice
 	prompt "LCD panel support"
-	depends on VIDEO
+	depends on VIDEO_SUNXI
 	---help---
 	Select which type of LCD panel to support.
 

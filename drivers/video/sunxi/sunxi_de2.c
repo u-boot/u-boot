@@ -10,6 +10,8 @@
 #include <display.h>
 #include <dm.h>
 #include <edid.h>
+#include <fdtdec.h>
+#include <fdt_support.h>
 #include <video.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
@@ -17,6 +19,7 @@
 #include <asm/arch/display2.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
+#include "simplefb_common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -233,6 +236,23 @@ static int sunxi_de2_probe(struct udevice *dev)
 		return 0;
 
 	ret = uclass_find_device_by_name(UCLASS_DISPLAY,
+					 "sunxi_lcd", &disp);
+	if (!ret) {
+		int mux;
+
+		mux = 0;
+
+		ret = sunxi_de2_init(dev, plat->base, VIDEO_BPP32, disp, mux,
+				     false);
+		if (!ret) {
+			video_set_flush_dcache(dev, 1);
+			return 0;
+		}
+	}
+
+	debug("%s: lcd display not found (ret=%d)\n", __func__, ret);
+
+	ret = uclass_find_device_by_name(UCLASS_DISPLAY,
 					 "sunxi_dw_hdmi", &disp);
 	if (!ret) {
 		int mux;
@@ -292,3 +312,72 @@ U_BOOT_DRIVER(sunxi_de2) = {
 U_BOOT_DEVICE(sunxi_de2) = {
 	.name = "sunxi_de2"
 };
+
+/*
+ * Simplefb support.
+ */
+#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_VIDEO_DT_SIMPLEFB)
+int sunxi_simplefb_setup(void *blob)
+{
+	struct udevice *de2, *hdmi;
+	struct video_priv *de2_priv;
+	struct video_uc_platdata *de2_plat;
+	int mux;
+	int offset, ret;
+	u64 start, size;
+	const char *pipeline = NULL;
+
+	debug("Setting up simplefb\n");
+
+	if (IS_ENABLED(CONFIG_MACH_SUNXI_H3_H5))
+		mux = 0;
+	else
+		mux = 1;
+
+	/* Skip simplefb setting if DE2 / HDMI is not present */
+	ret = uclass_find_device_by_name(UCLASS_VIDEO,
+					 "sunxi_de2", &de2);
+	if (ret) {
+		debug("DE2 not present\n");
+		return 0;
+	}
+
+	ret = uclass_find_device_by_name(UCLASS_DISPLAY,
+					 "sunxi_dw_hdmi", &hdmi);
+	if (ret) {
+		debug("HDMI not present\n");
+		return 0;
+	}
+
+	if (mux == 0)
+		pipeline = "mixer0-lcd0-hdmi";
+	else
+		pipeline = "mixer1-lcd1-hdmi";
+
+	de2_priv = dev_get_uclass_priv(de2);
+	de2_plat = dev_get_uclass_platdata(de2);
+
+	offset = sunxi_simplefb_fdt_match(blob, pipeline);
+	if (offset < 0) {
+		eprintf("Cannot setup simplefb: node not found\n");
+		return 0; /* Keep older kernels working */
+	}
+
+	start = gd->bd->bi_dram[0].start;
+	size = de2_plat->base - start;
+	ret = fdt_fixup_memory_banks(blob, &start, &size, 1);
+	if (ret) {
+		eprintf("Cannot setup simplefb: Error reserving memory\n");
+		return ret;
+	}
+
+	ret = fdt_setup_simplefb_node(blob, offset, de2_plat->base,
+			de2_priv->xsize, de2_priv->ysize,
+			VNBYTES(de2_priv->bpix) * de2_priv->xsize,
+			"x8r8g8b8");
+	if (ret)
+		eprintf("Cannot setup simplefb: Error setting properties\n");
+
+	return ret;
+}
+#endif /* CONFIG_OF_BOARD_SETUP && CONFIG_VIDEO_DT_SIMPLEFB */

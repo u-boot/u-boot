@@ -10,6 +10,7 @@
 
 #include <common.h>
 
+#include <asm/arch/clock.h>
 #include <asm/arch/lcdc.h>
 #include <asm/io.h>
 
@@ -100,7 +101,7 @@ void lcdc_tcon0_mode_set(struct sunxi_lcdc_reg * const lcdc,
 	writel(SUNXI_LCDC_TCON0_TIMING_V_TOTAL(total) |
 	       SUNXI_LCDC_TCON0_TIMING_V_BP(bp), &lcdc->tcon0_timing_v);
 
-#ifdef CONFIG_VIDEO_LCD_IF_PARALLEL
+#if defined(CONFIG_VIDEO_LCD_IF_PARALLEL) || defined(CONFIG_VIDEO_DE2)
 	writel(SUNXI_LCDC_X(mode->hsync_len.typ) |
 	       SUNXI_LCDC_Y(mode->vsync_len.typ), &lcdc->tcon0_timing_sync);
 
@@ -206,4 +207,123 @@ void lcdc_tcon1_mode_set(struct sunxi_lcdc_reg * const lcdc,
 		clrsetbits_le32(&lcdc->mux_ctrl, SUNXI_LCDC_MUX_CTRL_SRC0_MASK,
 				SUNXI_LCDC_MUX_CTRL_SRC0(1));
 #endif
+}
+
+void lcdc_pll_set(struct sunxi_ccm_reg *ccm, int tcon, int dotclock,
+		  int *clk_div, int *clk_double, bool is_composite)
+{
+	int value, n, m, min_m, max_m, diff;
+	int best_n = 0, best_m = 0, best_diff = 0x0FFFFFFF;
+	int best_double = 0;
+	bool use_mipi_pll = false;
+
+	if (tcon == 0) {
+#if defined(CONFIG_VIDEO_LCD_IF_PARALLEL) || defined(CONFIG_SUNXI_DE2)
+		min_m = 6;
+		max_m = 127;
+#endif
+#ifdef CONFIG_VIDEO_LCD_IF_LVDS
+		min_m = 7;
+		max_m = 7;
+#endif
+	} else {
+		min_m = 1;
+		max_m = 15;
+	}
+
+	/*
+	 * Find the lowest divider resulting in a matching clock, if there
+	 * is no match, pick the closest lower clock, as monitors tend to
+	 * not sync to higher frequencies.
+	 */
+	for (m = min_m; m <= max_m; m++) {
+#ifndef CONFIG_SUNXI_DE2
+		n = (m * dotclock) / 3000;
+
+		if ((n >= 9) && (n <= 127)) {
+			value = (3000 * n) / m;
+			diff = dotclock - value;
+			if (diff < best_diff) {
+				best_diff = diff;
+				best_m = m;
+				best_n = n;
+				best_double = 0;
+			}
+		}
+
+		/* These are just duplicates */
+		if (!(m & 1))
+			continue;
+#endif
+
+		/* No double clock on DE2 */
+		n = (m * dotclock) / 6000;
+		if ((n >= 9) && (n <= 127)) {
+			value = (6000 * n) / m;
+			diff = dotclock - value;
+			if (diff < best_diff) {
+				best_diff = diff;
+				best_m = m;
+				best_n = n;
+				best_double = 1;
+			}
+		}
+	}
+
+#ifdef CONFIG_MACH_SUN6I
+	/*
+	 * Use the MIPI pll if we've been unable to find any matching setting
+	 * for PLL3, this happens with high dotclocks because of min_m = 6.
+	 */
+	if (tcon == 0 && best_n == 0) {
+		use_mipi_pll = true;
+		best_m = 6;  /* Minimum m for tcon0 */
+	}
+
+	if (use_mipi_pll) {
+		clock_set_pll3(297000000); /* Fix the video pll at 297 MHz */
+		clock_set_mipi_pll(best_m * dotclock * 1000);
+		debug("dotclock: %dkHz = %dkHz via mipi pll\n",
+		      dotclock, clock_get_mipi_pll() / best_m / 1000);
+	} else
+#endif
+	{
+		clock_set_pll3(best_n * 3000000);
+		debug("dotclock: %dkHz = %dkHz: (%d * 3MHz * %d) / %d\n",
+		      dotclock,
+		      (best_double + 1) * clock_get_pll3() / best_m / 1000,
+		      best_double + 1, best_n, best_m);
+	}
+
+	if (tcon == 0) {
+		u32 pll;
+
+		if (use_mipi_pll)
+			pll = CCM_LCD_CH0_CTRL_MIPI_PLL;
+		else if (best_double)
+			pll = CCM_LCD_CH0_CTRL_PLL3_2X;
+		else
+			pll = CCM_LCD_CH0_CTRL_PLL3;
+#ifndef CONFIG_SUNXI_DE2
+		writel(CCM_LCD_CH0_CTRL_GATE | CCM_LCD_CH0_CTRL_RST | pll,
+		       &ccm->lcd0_ch0_clk_cfg);
+#else
+		writel(CCM_LCD_CH0_CTRL_GATE | CCM_LCD_CH0_CTRL_RST | pll,
+		       &ccm->lcd0_clk_cfg);
+#endif
+	}
+#ifndef CONFIG_SUNXI_DE2
+	else {
+		writel(CCM_LCD_CH1_CTRL_GATE |
+		       (best_double ? CCM_LCD_CH1_CTRL_PLL3_2X :
+				      CCM_LCD_CH1_CTRL_PLL3) |
+		       CCM_LCD_CH1_CTRL_M(best_m), &ccm->lcd0_ch1_clk_cfg);
+		if (is_composite)
+			setbits_le32(&ccm->lcd0_ch1_clk_cfg,
+				     CCM_LCD_CH1_CTRL_HALF_SCLK1);
+	}
+#endif
+
+	*clk_div = best_m;
+	*clk_double = best_double;
 }

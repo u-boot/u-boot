@@ -124,5 +124,8 @@ void lcdc_tcon0_mode_set(struct sunxi_lcdc_reg * const lcdc,
 void lcdc_tcon1_mode_set(struct sunxi_lcdc_reg * const lcdc,
 			 const struct display_timing *mode,
 			 bool ext_hvsync, bool is_composite);
+void lcdc_pll_set(struct sunxi_ccm_reg * const ccm, int tcon,
+		  int dotclock, int *clk_div, int *clk_double,
+		  bool is_composite);
 
 #endif /* _LCDC_H */

@@ -268,17 +268,12 @@ extern int soft_i2c_gpio_scl;
 /* GPIO */
 #define CONFIG_SUNXI_GPIO
 
-#ifdef CONFIG_VIDEO
+#ifdef CONFIG_VIDEO_SUNXI
 /*
  * The amount of RAM to keep free at the top of RAM when relocating u-boot,
  * to use as framebuffer. This must be a multiple of 4096.
  */
 #define CONFIG_SUNXI_MAX_FB_SIZE (16 << 20)
-
-/* Do we want to initialize a simple FB? */
-#define CONFIG_VIDEO_DT_SIMPLEFB
-
-#define CONFIG_VIDEO_SUNXI
 
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_STD_TIMINGS
@@ -288,7 +283,7 @@ extern int soft_i2c_gpio_scl;
 /* allow both serial and cfb console. */
 /* stop x86 thinking in cfbconsole from trying to init a pc keyboard */
 
-#endif /* CONFIG_VIDEO */
+#endif /* CONFIG_VIDEO_SUNXI */
 
 /* Ethernet support */
 #ifdef CONFIG_SUNXI_EMAC
