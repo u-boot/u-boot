@@ -47,6 +47,7 @@
 #define GXBB_GCLK_MPEG_OTHER	GXBB_HIU_ADDR(0x53)
 #define GXBB_GCLK_MPEG_AO	GXBB_HIU_ADDR(0x54)
 
+#define GXBB_GCLK_MPEG_0_I2C   BIT(9)
 #define GXBB_GCLK_MPEG_1_ETH	BIT(3)
 
 #endif /* __GXBB_H__ */
