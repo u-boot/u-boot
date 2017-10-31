@@ -37,8 +37,6 @@ static inline void zynq_slcr_gem_clk_setup(u32 gem_id, unsigned long clk_rate)
 }
 #endif
 
-int zynq_slcr_get_mio_pin_status(const char *periph);
-
 int zynq_board_read_rom_ethaddr(unsigned char *ethaddr);
 unsigned int zynqmp_get_silicon_version(void);
 
