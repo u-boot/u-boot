@@ -11,8 +11,6 @@
 
 
 /* Store env in emmc */
-#undef CONFIG_ENV_SIZE
-#define CONFIG_ENV_SIZE                 (32 << 10)
 #define CONFIG_SYS_MMC_ENV_DEV          0
 #define CONFIG_SYS_MMC_ENV_PART         0
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT

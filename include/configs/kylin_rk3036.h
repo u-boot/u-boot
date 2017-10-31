@@ -13,8 +13,6 @@
 #ifndef CONFIG_SPL_BUILD
 
 /* Store env in emmc */
-#undef CONFIG_ENV_SIZE
-#define CONFIG_ENV_SIZE			SZ_32K
 #define CONFIG_SYS_MMC_ENV_DEV		0 /* emmc */
 #define CONFIG_SYS_MMC_ENV_PART		0 /* user area */
 
