@@ -27,8 +27,6 @@
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
 #include "../common/pfuze.h"
-#include <usb.h>
-#include <usb/ehci-ci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -223,49 +221,6 @@ static int setup_fec(void)
 }
 #endif
 
-#ifdef CONFIG_USB_EHCI_MX6
-#define USB_OTHERREGS_OFFSET	0x800
-#define UCTRL_PWR_POL		(1 << 9)
-
-static iomux_v3_cfg_t const usb_otg_pads[] = {
-	/* OTG1 */
-	MX6_PAD_KEY_COL4__USB_USBOTG1_PWR | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_EPDC_PWRCOM__ANATOP_USBOTG1_ID | MUX_PAD_CTRL(OTGID_PAD_CTRL),
-	/* OTG2 */
-	MX6_PAD_KEY_COL5__USB_USBOTG2_PWR | MUX_PAD_CTRL(NO_PAD_CTRL)
-};
-
-static void setup_usb(void)
-{
-	imx_iomux_v3_setup_multiple_pads(usb_otg_pads,
-					 ARRAY_SIZE(usb_otg_pads));
-}
-
-int board_usb_phy_mode(int port)
-{
-	if (port == 1)
-		return USB_INIT_HOST;
-	else
-		return usb_phy_mode(port);
-}
-
-int board_ehci_hcd_init(int port)
-{
-	u32 *usbnc_usb_ctrl;
-
-	if (port > 1)
-		return -EINVAL;
-
-	usbnc_usb_ctrl = (u32 *)(USB_BASE_ADDR + USB_OTHERREGS_OFFSET +
-				 port * 4);
-
-	/* Set Power polarity */
-	setbits_le32(usbnc_usb_ctrl, UCTRL_PWR_POL);
-
-	return 0;
-}
-#endif
-
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
@@ -285,10 +240,6 @@ int board_init(void)
 
 #ifdef	CONFIG_FEC_MXC
 	setup_fec();
-#endif
-
-#ifdef CONFIG_USB_EHCI_MX6
-	setup_usb();
 #endif
 
 	return 0;
@@ -322,12 +273,15 @@ int board_mmc_getcd(struct mmc *mmc)
 
 	switch (cfg->esdhc_base) {
 	case USDHC1_BASE_ADDR:
+		gpio_request(USDHC1_CD_GPIO, "cd1_gpio");
 		ret = !gpio_get_value(USDHC1_CD_GPIO);
 		break;
 	case USDHC2_BASE_ADDR:
+		gpio_request(USDHC2_CD_GPIO, "cd2_gpio");
 		ret = !gpio_get_value(USDHC2_CD_GPIO);
 		break;
 	case USDHC3_BASE_ADDR:
+		gpio_request(USDHC3_CD_GPIO, "cd3_gpio");
 		ret = !gpio_get_value(USDHC3_CD_GPIO);
 		break;
 	}

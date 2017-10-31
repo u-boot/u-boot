@@ -435,9 +435,7 @@ int board_early_init_f(void)
 {
 	setup_iomux_uart();
 #ifdef CONFIG_SATA
-	/* Only mx6q wandboard has SATA */
-	if (is_cpu_type(MXC_CPU_MX6Q))
-		setup_sata();
+	setup_sata();
 #endif
 
 	return 0;
@@ -512,7 +510,9 @@ int board_late_init(void)
 #endif
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	if (is_mx6dq())
+	if (is_mx6dqp())
+		env_set("board_rev", "MX6QP");
+	else if (is_mx6dq())
 		env_set("board_rev", "MX6Q");
 	else
 		env_set("board_rev", "MX6DL");
@@ -534,7 +534,7 @@ int board_init(void)
 
 #if defined(CONFIG_VIDEO_IPUV3)
 	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c2_pad_info);
-	if (is_mx6dq()) {
+	if (is_mx6dq() || is_mx6dqp()) {
 		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c2_pad_info);
 		setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c3_pad_info);
 	} else {

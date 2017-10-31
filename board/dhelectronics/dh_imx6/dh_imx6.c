@@ -253,16 +253,10 @@ static void setup_usb(void)
 
 int board_usb_phy_mode(int port)
 {
-	return USB_INIT_HOST;
-}
-
-/* Use only Port 1 == DHCOM USB Host 1 */
-int board_ehci_hcd_init(int port)
-{
 	if (port == 1)
-		return 0;
+		return USB_INIT_HOST;
 	else
-		return -ENODEV;
+		return USB_INIT_DEVICE;
 }
 
 int board_ehci_power(int port, int on)
