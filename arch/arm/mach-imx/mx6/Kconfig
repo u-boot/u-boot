@@ -138,6 +138,12 @@ config TARGET_DHCOMIMX6
 	select DM_THERMAL
 	imply CMD_SPL
 
+config TARGET_DISPLAY5
+	bool "LWN DISPLAY5 board"
+	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+
 config TARGET_EMBESTMX6BOARDS
 	bool "embestmx6boards"
 	select BOARD_LATE_INIT
@@ -459,6 +465,7 @@ source "board/phytec/pfla02/Kconfig"
 source "board/gateworks/gw_ventana/Kconfig"
 source "board/kosagi/novena/Kconfig"
 source "board/samtec/vining_2000/Kconfig"
+source "board/liebherr/display5/Kconfig"
 source "board/liebherr/mccmon6/Kconfig"
 source "board/logicpd/imx6/Kconfig"
 source "board/seco/Kconfig"
