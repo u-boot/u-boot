@@ -319,7 +319,7 @@ U_BOOT_DEVICE(sunxi_de2) = {
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_VIDEO_DT_SIMPLEFB)
 int sunxi_simplefb_setup(void *blob)
 {
-	struct udevice *de2, *hdmi;
+	struct udevice *de2, *hdmi, *lcd;
 	struct video_priv *de2_priv;
 	struct video_uc_platdata *de2_plat;
 	int mux;
@@ -354,6 +354,15 @@ int sunxi_simplefb_setup(void *blob)
 	} else {
 		debug("HDMI present but not probed\n");
 	}
+
+	ret = uclass_find_device_by_name(UCLASS_DISPLAY,
+					 "sunxi_lcd", &lcd);
+	if (ret)
+		debug("LCD not present\n");
+	else if (device_active(lcd))
+		pipeline = "mixer0-lcd0";
+	else
+		debug("LCD present but not probed\n");
 
 	if (!pipeline) {
 		debug("No active display present\n");
