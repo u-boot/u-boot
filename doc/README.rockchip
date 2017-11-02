@@ -99,13 +99,13 @@ To write an image that boots from an SD card (assumed to be /dev/sdc):
    ./firefly-rk3288/tools/mkimage -n rk3288 -T rksd -d \
 	firefly-rk3288/spl/u-boot-spl-dtb.bin out && \
    sudo dd if=out of=/dev/sdc seek=64 && \
-   sudo dd if=firefly-rk3288/u-boot-dtb.img of=/dev/sdc seek=256
+   sudo dd if=firefly-rk3288/u-boot-dtb.img of=/dev/sdc seek=16384
 
 This puts the Rockchip header and SPL image first and then places the U-Boot
-image at block 256 (i.e. 128KB from the start of the SD card). This
+image at block 16384 (i.e. 4MB from the start of the SD card). This
 corresponds with this setting in U-Boot:
 
-   #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	256
+   #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x4000
 
 Put this SD (or micro-SD) card into your board and reset it. You should see
 something like:
