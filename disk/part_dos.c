@@ -220,7 +220,7 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 		if (((pt->boot_ind & ~0x80) == 0) &&
 		    (pt->sys_ind != 0) &&
 		    (part_num == which_part) &&
-		    (is_extended(pt->sys_ind) == 0)) {
+		    (ext_part_sector == 0 || is_extended(pt->sys_ind) == 0)) {
 			info->blksz = DOS_PART_DEFAULT_SECTOR;
 			info->start = (lbaint_t)(ext_part_sector +
 					le32_to_int(pt->start4));
