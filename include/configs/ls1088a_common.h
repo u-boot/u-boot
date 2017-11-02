@@ -148,6 +148,19 @@ unsigned long long get_qixis_addr(void);
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)
 
+/* SATA */
+#ifdef CONFIG_SCSI
+#define CONFIG_LIBATA
+#define CONFIG_SCSI_AHCI
+#define CONFIG_SCSI_AHCI_PLAT
+#define CONFIG_SYS_SATA1		AHCI_BASE_ADDR1
+
+#define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
+#define CONFIG_SYS_SCSI_MAX_LUN		1
+#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
+					CONFIG_SYS_SCSI_MAX_LUN)
+#endif
+
 /* Physical Memory Map */
 #define CONFIG_CHIP_SELECTS_PER_CTRL	4
 
