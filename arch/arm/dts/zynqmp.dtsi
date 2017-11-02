@@ -830,6 +830,12 @@
 			power-domains = <&pd_sd1>;
 		};
 
+		pinctrl0: pinctrl@ff180000 {
+			compatible = "xlnx,pinctrl-zynqmp";
+			status = "disabled";
+			reg = <0x0 0xff180000 0x0 0x1000>;
+		};
+
 		smmu: smmu@fd800000 {
 			compatible = "arm,mmu-500";
 			reg = <0x0 0xfd800000 0x0 0x20000>;
