@@ -125,6 +125,7 @@ dtb-$(CONFIG_ARCH_UNIPHIER_SLD8) += \
 	uniphier-sld8-ref.dtb
 
 dtb-$(CONFIG_ARCH_ZYNQ) += zynq-zc702.dtb \
+	zynq-cc108.dtb \
 	zynq-zc706.dtb \
 	zynq-zed.dtb \
 	zynq-zybo.dtb \
