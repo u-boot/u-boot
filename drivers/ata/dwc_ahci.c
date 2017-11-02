@@ -85,7 +85,7 @@ static int dwc_ahci_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	return achi_start_ports_dm(dev);
+	return ahci_start_ports_dm(dev);
 }
 
 static const struct udevice_id dwc_ahci_ids[] = {

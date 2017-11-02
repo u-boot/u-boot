@@ -118,11 +118,11 @@ static int sata_ceva_probe(struct udevice *dev)
 
 	ceva_init_sata(plat->base);
 
-	ret = achi_init_one_dm(dev);
+	ret = ahci_init_one_dm(dev);
 	if (ret)
 		return ret;
 
-	return achi_start_ports_dm(dev);
+	return ahci_start_ports_dm(dev);
 }
 
 static const struct udevice_id sata_ceva_ids[] = {
