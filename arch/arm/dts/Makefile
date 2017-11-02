@@ -146,6 +146,7 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-ep108.dtb			\
 	zynqmp-zcu102-revA.dtb			\
 	zynqmp-zcu102-revB.dtb			\
+	zynqmp-zcu102-rev1.0.dtb		\
 	zynqmp-zc1751-xm015-dc1.dtb		\
 	zynqmp-zc1751-xm016-dc2.dtb		\
 	zynqmp-zc1751-xm018-dc4.dtb		\
