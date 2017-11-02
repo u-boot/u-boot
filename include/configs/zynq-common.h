@@ -157,12 +157,6 @@
 
 /* Environment */
 #ifndef CONFIG_ENV_IS_NOWHERE
-# ifdef CONFIG_MTD_NOR_FLASH
-/* Environment in NOR flash */
-# elif defined(CONFIG_ZYNQ_QSPI)
-/* Environment in Serial Flash */
-# endif
-
 # define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
 # define CONFIG_ENV_OFFSET		0xE0000
 #endif
