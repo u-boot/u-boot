@@ -113,11 +113,16 @@ static int ceva_init_sata(ulong mmio)
 
 static int sata_ceva_probe(struct udevice *dev)
 {
+	int ret;
 	struct scsi_platdata *plat = dev_get_uclass_platdata(dev);
 
 	ceva_init_sata(plat->base);
 
-	return achi_init_one_dm(dev);
+	ret = achi_init_one_dm(dev);
+	if (ret)
+		return ret;
+
+	return achi_start_ports_dm(dev);
 }
 
 static const struct udevice_id sata_ceva_ids[] = {
