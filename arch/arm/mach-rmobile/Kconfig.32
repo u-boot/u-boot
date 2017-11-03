@@ -1,7 +1,7 @@
 if RCAR_32
 
 choice
-	prompt "Renesus ARM SoCs board select"
+	prompt "Renesas ARM SoCs board select"
 	optional
 
 config TARGET_ARMADILLO_800EVA
