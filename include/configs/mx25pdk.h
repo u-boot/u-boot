@@ -11,7 +11,6 @@
 
 /* High Level Configuration Options */
 
-#define CONFIG_MX25
 #define CONFIG_SYS_TEXT_BASE		0x81200000
 #define CONFIG_MXC_GPIO
 #define CONFIG_SYS_FSL_CLK

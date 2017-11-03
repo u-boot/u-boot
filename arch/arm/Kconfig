@@ -341,17 +341,6 @@ config TARGET_WORK_92105
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
-config TARGET_MX25PDK
-	bool "Support mx25pdk"
-	select BOARD_LATE_INIT
-	select CPU_ARM926EJS
-	select BOARD_EARLY_INIT_F
-
-config TARGET_ZMX25
-	bool "Support zmx25"
-	select BOARD_LATE_INIT
-	select CPU_ARM926EJS
-
 config TARGET_APF27
 	bool "Support apf27"
 	select CPU_ARM926EJS
@@ -598,6 +587,10 @@ config ARCH_MESON
 	  Support for the Meson SoC family developed by Amlogic Inc.,
 	  targeted at media players and tablet computers. We currently
 	  support the S905 (GXBaby) 64-bit SoC.
+
+config ARCH_MX25
+	bool "NXP MX25"
+	select CPU_ARM926EJS
 
 config ARCH_MX7ULP
         bool "NXP MX7ULP"
@@ -1162,6 +1155,8 @@ source "arch/arm/mach-mvebu/Kconfig"
 
 source "arch/arm/cpu/armv7/ls102xa/Kconfig"
 
+source "arch/arm/mach-imx/mx2/Kconfig"
+
 source "arch/arm/mach-imx/mx7ulp/Kconfig"
 
 source "arch/arm/mach-imx/mx7/Kconfig"
@@ -1244,7 +1239,6 @@ source "board/freescale/ls1012aqds/Kconfig"
 source "board/freescale/ls1012ardb/Kconfig"
 source "board/freescale/ls1012afrdm/Kconfig"
 source "board/freescale/mx23evk/Kconfig"
-source "board/freescale/mx25pdk/Kconfig"
 source "board/freescale/mx28evk/Kconfig"
 source "board/freescale/mx31ads/Kconfig"
 source "board/freescale/mx31pdk/Kconfig"
@@ -1270,7 +1264,6 @@ source "board/spear/spear320/Kconfig"
 source "board/spear/spear600/Kconfig"
 source "board/spear/x600/Kconfig"
 source "board/st/stv0991/Kconfig"
-source "board/syteco/zmx25/Kconfig"
 source "board/tcl/sl50/Kconfig"
 source "board/birdland/bav335x/Kconfig"
 source "board/timll/devkit3250/Kconfig"
