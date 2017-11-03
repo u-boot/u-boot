@@ -3,6 +3,7 @@ if ARCH_MX25
 config MX25
 	bool
 	default y
+	select SYS_FSL_ERRATUM_ESDHC_A001
 choice
 	prompt "MX25 board select"
 	optional
