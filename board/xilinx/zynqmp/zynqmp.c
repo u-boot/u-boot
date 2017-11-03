@@ -226,9 +226,7 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 #if !defined(CONFIG_SYS_SDRAM_BASE) && !defined(CONFIG_SYS_SDRAM_SIZE)
 int dram_init_banksize(void)
 {
-	fdtdec_setup_memory_banksize();
-
-	return 0;
+	return fdtdec_setup_memory_banksize();
 }
 
 int dram_init(void)
