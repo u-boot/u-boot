@@ -33,7 +33,11 @@ void eth_init_board(void)
 
 #ifndef CONFIG_MACH_SUN6I
 	/* Configure pin mux settings for GMAC */
+#ifdef CONFIG_SUN7I_GMAC_FORCE_TXERR
+	for (pin = SUNXI_GPA(0); pin <= SUNXI_GPA(17); pin++) {
+#else
 	for (pin = SUNXI_GPA(0); pin <= SUNXI_GPA(16); pin++) {
+#endif
 #ifdef CONFIG_RGMII
 		/* skip unused pins in RGMII mode */
 		if (pin == SUNXI_GPA(9) || pin == SUNXI_GPA(14))
