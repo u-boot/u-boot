@@ -287,8 +287,6 @@
 					GENERATED_GBL_DATA_SIZE)
 
 /* Enable the PL to be downloaded */
-#define CONFIG_FPGA
-#define CONFIG_FPGA_XILINX
 #define CONFIG_FPGA_ZYNQPL
 
 /* FIT support */
@@ -319,7 +317,6 @@
 /* Disable dcache for SPL just for sure */
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_DCACHE_OFF
-#undef CONFIG_FPGA
 #endif
 
 /* Address in RAM where the parameters must be copied by SPL. */
