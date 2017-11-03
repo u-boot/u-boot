@@ -10,10 +10,6 @@
 #define CONFIG_LMB
 #define CONFIG_SYS_BOOT_RAMDISK_HIGH
 
-#ifdef CONFIG_ARM64
-#define CONFIG_STATIC_RELA
-#endif
-
 #if defined(CONFIG_ARCH_LS1021A) || \
 	defined(CONFIG_CPU_PXA27X) || \
 	defined(CONFIG_CPU_MONAHANS) || \
