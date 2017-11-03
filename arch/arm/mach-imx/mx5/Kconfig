@@ -6,6 +6,7 @@ config MX5
 
 config MX51
 	bool
+	select SYS_FSL_ERRATUM_ESDHC_A001
 
 config MX53
 	bool
@@ -52,7 +53,6 @@ config TARGET_MX53SMD
 config TARGET_TS4800
 	bool "Support TS4800"
 	select MX51
-	select SYS_FSL_ERRATUM_ESDHC_A001
 
 config TARGET_USBARMORY
 	bool "Support USB armory"
