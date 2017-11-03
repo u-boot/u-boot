@@ -18,6 +18,11 @@ static int nulldev_serial_getc(struct udevice *dev)
 	return -EAGAIN;
 }
 
+static int nulldev_serial_pending(struct udevice *dev, bool input)
+{
+	return 0;
+}
+
 static int nulldev_serial_input(struct udevice *dev)
 {
 	return 0;
@@ -36,6 +41,7 @@ static const struct udevice_id nulldev_serial_ids[] = {
 
 const struct dm_serial_ops nulldev_serial_ops = {
 	.putc = nulldev_serial_putc,
+	.pending = nulldev_serial_pending,
 	.getc = nulldev_serial_getc,
 	.setbrg = nulldev_serial_setbrg,
 };
