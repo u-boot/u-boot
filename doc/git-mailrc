@@ -133,6 +133,7 @@ alias spi            uboot, jagan
 alias spmi           uboot, mateusz
 alias ubi            uboot, hs
 alias usb            uboot, marex
+alias xhci           uboot, bmeng
 alias video          uboot, ag
 alias patman         uboot, sjg
 alias buildman       uboot, sjg
