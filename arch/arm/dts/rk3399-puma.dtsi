@@ -523,23 +523,23 @@
 };
 
 &usb_host0_ehci {
-	status = "okay";
-};
-
-&usb_host0_ohci {
-	status = "okay";
-};
-
-&dwc3_typec0 {
 	status = "disabled";
 };
 
-&usb_host1_ehci {
+&usb_host0_ohci {
+	status = "disabled";
+};
+
+&dwc3_typec0 {
 	status = "okay";
 };
 
+&usb_host1_ehci {
+	status = "disabled";
+};
+
 &usb_host1_ohci {
-	status = "okay";
+	status = "disabled";
 };
 
 &dwc3_typec1 {
