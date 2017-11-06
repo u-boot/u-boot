@@ -554,6 +554,47 @@ void scsi_init(void)
 }
 #endif
 
+#ifdef CONFIG_USB_XHCI_MVEBU
+#define USB3_MAX_WINDOWS        4
+#define USB3_WIN_CTRL(w)        (0x0 + ((w) * 8))
+#define USB3_WIN_BASE(w)        (0x4 + ((w) * 8))
+
+static void xhci_mvebu_mbus_config(void __iomem *base,
+			const struct mbus_dram_target_info *dram)
+{
+	int i;
+
+	for (i = 0; i < USB3_MAX_WINDOWS; i++) {
+		writel(0, base + USB3_WIN_CTRL(i));
+		writel(0, base + USB3_WIN_BASE(i));
+	}
+
+	for (i = 0; i < dram->num_cs; i++) {
+		const struct mbus_dram_window *cs = dram->cs + i;
+
+		/* Write size, attributes and target id to control register */
+		writel(((cs->size - 1) & 0xffff0000) | (cs->mbus_attr << 8) |
+			(dram->mbus_dram_target_id << 4) | 1,
+			base + USB3_WIN_CTRL(i));
+
+		/* Write base address to base register */
+		writel((cs->base & 0xffff0000), base + USB3_WIN_BASE(i));
+	}
+}
+
+int board_xhci_enable(fdt_addr_t base)
+{
+	const struct mbus_dram_target_info *dram;
+
+	printf("MVEBU XHCI INIT controller @ 0x%lx\n", base);
+
+	dram = mvebu_mbus_dram_info();
+	xhci_mvebu_mbus_config((void __iomem *)base, dram);
+
+	return 0;
+}
+#endif
+
 void enable_caches(void)
 {
 	/* Avoid problem with e.g. neta ethernet driver */
