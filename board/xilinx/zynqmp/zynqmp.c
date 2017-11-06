@@ -28,8 +28,8 @@ DECLARE_GLOBAL_DATA_PTR;
 static xilinx_desc zynqmppl = XILINX_ZYNQMP_DESC;
 
 static const struct {
-	uint32_t id;
-	uint32_t ver;
+	u32 id;
+	u32 ver;
 	char *name;
 } zynqmp_devices[] = {
 	{
@@ -223,7 +223,7 @@ int chip_id(unsigned char id)
 	!defined(CONFIG_SPL_BUILD)
 static char *zynqmp_get_silicon_idcode_name(void)
 {
-	uint32_t i, id, ver;
+	u32 i, id, ver;
 
 	id = chip_id(IDCODE);
 	ver = chip_id(IDCODE2);
