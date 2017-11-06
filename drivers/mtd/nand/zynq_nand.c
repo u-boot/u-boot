@@ -35,6 +35,8 @@
 				(0x1 << 4)   |	/* Clear interrupt */ \
 				(0x1 << 6))	/* Disable ECC interrupt */
 
+#ifndef CONFIG_NAND_ZYNQ_USE_BOOTLOADER1_TIMINGS
+
 /* Assuming 50MHz clock (20ns cycle time) and 3V operation */
 #define ZYNQ_NAND_SET_CYCLES	((0x2 << 20) |	/* t_rr from nand_cycles */ \
 				(0x2 << 17)  |	/* t_ar from nand_cycles */ \
@@ -43,6 +45,7 @@
 				(0x2 << 8)   |	/* t_rea from nand_cycles */ \
 				(0x5 << 4)   |	/* t_wc from nand_cycles */ \
 				(0x5 << 0))	/* t_rc from nand_cycles */
+#endif
 
 
 #define ZYNQ_NAND_DIRECT_CMD	((0x4 << 23) |	/* Chip 0 from interface 1 */ \
@@ -245,8 +248,10 @@ static int zynq_nand_init_nand_flash(int option)
 
 	/* disable interrupts */
 	writel(ZYNQ_NAND_CLR_CONFIG, &zynq_nand_smc_base->cfr);
+#ifndef CONFIG_NAND_ZYNQ_USE_BOOTLOADER1_TIMINGS
 	/* Initialize the NAND interface by setting cycles and operation mode */
 	writel(ZYNQ_NAND_SET_CYCLES, &zynq_nand_smc_base->scr);
+#endif
 	if (option & NAND_BUSWIDTH_16)
 		writel(ZYNQ_NAND_SET_OPMODE_16BIT, &zynq_nand_smc_base->sor);
 	else
