@@ -94,8 +94,7 @@
 		compatible = "regulator-fixed";
 		regulator-name = "usbhub_enable";
 		enable-active-low;
-		gpio = <&gpio4 3 GPIO_ACTIVE_HIGH>;
-		regulator-always-on;
+		gpio = <&gpio4 3 GPIO_ACTIVE_LOW>;
 		regulator-boot-on;
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
