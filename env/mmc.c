@@ -15,8 +15,12 @@
 #include <malloc.h>
 #include <memalign.h>
 #include <mmc.h>
+#include <part.h>
 #include <search.h>
 #include <errno.h>
+
+#define __STR(X) #X
+#define STR(X) __STR(X)
 
 #if defined(CONFIG_ENV_SIZE_REDUND) &&  \
 	(CONFIG_ENV_SIZE_REDUND != CONFIG_ENV_SIZE)
@@ -30,18 +34,68 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
+static inline int mmc_offset_try_partition(const char *str, s64 *val)
+{
+	disk_partition_t info;
+	struct blk_desc *desc;
+	int len, i, ret;
+
+	ret = blk_get_device_by_str("mmc", STR(CONFIG_SYS_MMC_ENV_DEV), &desc);
+	if (ret < 0)
+		return (ret);
+
+	for (i = 1;;i++) {
+		ret = part_get_info(desc, i, &info);
+		if (ret < 0)
+			return ret;
+
+		if (!strncmp((const char *)info.name, str, sizeof(str)))
+			break;
+	}
+
+	/* round up to info.blksz */
+	len = (CONFIG_ENV_SIZE + info.blksz - 1) & ~(info.blksz - 1);
+
+	/* use the top of the partion for the environment */
+	*val = (info.start + info.size - 1) - len / info.blksz;
+
+	return 0;
+}
+
 static inline s64 mmc_offset(int copy)
 {
-	const char *propname = "u-boot,mmc-env-offset";
-	s64 defvalue = CONFIG_ENV_OFFSET;
+	const struct {
+		const char *offset_redund;
+		const char *partition;
+		const char *offset;
+	} dt_prop = {
+		.offset_redund = "u-boot,mmc-env-offset-redundant",
+		.partition = "u-boot,mmc-env-partition",
+		.offset = "u-boot,mmc-env-offset",
+	};
+	s64 val, defvalue;
+	const char *propname;
+	const char *str;
+	int err;
+
+	/* look for the partition in mmc CONFIG_SYS_MMC_ENV_DEV */
+	str = fdtdec_get_config_string(gd->fdt_blob, dt_prop.partition);
+	if (str) {
+		/* try to place the environment at end of the partition */
+		err = mmc_offset_try_partition(str, &val);
+		if (!err)
+			return val;
+	}
+
+	defvalue = CONFIG_ENV_OFFSET;
+	propname = dt_prop.offset;
 
 #if defined(CONFIG_ENV_OFFSET_REDUND)
 	if (copy) {
-		propname = "u-boot,mmc-env-offset-redundant";
 		defvalue = CONFIG_ENV_OFFSET_REDUND;
+		propname = dt_prop.offset_redund;
 	}
 #endif
-
 	return fdtdec_get_config_int(gd->fdt_blob, propname, defvalue);
 }
 #else

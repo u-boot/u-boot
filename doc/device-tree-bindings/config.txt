@@ -21,6 +21,15 @@ u-boot,efi-partition-entries-offset
 
 	This setting will override any values configured via Kconfig.
 
+u-boot,mmc-env-partition
+	if present, the environment shall be placed at the last
+	CONFIG_ENV_SIZE blocks of the partition on the
+	CONFIG_SYS_MMC_ENV_DEV.
+
+	if u-boot,mmc-env-offset* is present, this setting will take
+	precedence. In that case, only if the partition is not found,
+	mmc-env-offset* will be tried.
+
 u-boot,mmc-env-offset
 u-boot,mmc-env-offset-redundant
 	If present, the values of the 'u-boot,mmc-env-offset' and/or
