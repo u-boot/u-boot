@@ -28,6 +28,15 @@
 	efi_st_printf(__VA_ARGS__)) \
 
 /*
+ * Prints a TODO message.
+ *
+ * @...	format string followed by fields to print
+ */
+#define efi_st_todo(...) \
+	(efi_st_printf("%s(%u):\nTODO: ", __FILE__, __LINE__), \
+	efi_st_printf(__VA_ARGS__)) \
+
+/*
  * A test may be setup and executed at boottime,
  * it may be setup at boottime and executed at runtime,
  * or it may be setup and executed at runtime.
