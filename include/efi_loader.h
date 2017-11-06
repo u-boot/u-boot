@@ -215,20 +215,20 @@ struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp);
 /* Generic EFI memory allocator, call this to get memory */
 void *efi_alloc(uint64_t len, int memory_type);
 /* More specific EFI memory allocator, called by EFI payloads */
-efi_status_t efi_allocate_pages(int type, int memory_type, unsigned long pages,
+efi_status_t efi_allocate_pages(int type, int memory_type, efi_uintn_t pages,
 				uint64_t *memory);
 /* EFI memory free function. */
-efi_status_t efi_free_pages(uint64_t memory, unsigned long pages);
+efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages);
 /* EFI memory allocator for small allocations */
-efi_status_t efi_allocate_pool(int pool_type, unsigned long size,
+efi_status_t efi_allocate_pool(int pool_type, efi_uintn_t size,
 			       void **buffer);
 /* EFI pool memory free function. */
 efi_status_t efi_free_pool(void *buffer);
 /* Returns the EFI memory map */
-efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
+efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 				struct efi_mem_desc *memory_map,
-				unsigned long *map_key,
-				unsigned long *descriptor_size,
+				efi_uintn_t *map_key,
+				efi_uintn_t *descriptor_size,
 				uint32_t *descriptor_version);
 /* Adds a range into the EFI memory map */
 uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,

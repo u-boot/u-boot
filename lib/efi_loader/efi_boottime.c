@@ -217,12 +217,12 @@ static void EFIAPI efi_restore_tpl(efi_uintn_t old_tpl)
  * @return		status code
  */
 static efi_status_t EFIAPI efi_allocate_pages_ext(int type, int memory_type,
-						  unsigned long pages,
+						  efi_uintn_t pages,
 						  uint64_t *memory)
 {
 	efi_status_t r;
 
-	EFI_ENTRY("%d, %d, 0x%lx, %p", type, memory_type, pages, memory);
+	EFI_ENTRY("%d, %d, 0x%zx, %p", type, memory_type, pages, memory);
 	r = efi_allocate_pages(type, memory_type, pages, memory);
 	return EFI_EXIT(r);
 }
@@ -239,11 +239,11 @@ static efi_status_t EFIAPI efi_allocate_pages_ext(int type, int memory_type,
  * @return	status code
  */
 static efi_status_t EFIAPI efi_free_pages_ext(uint64_t memory,
-					      unsigned long pages)
+					      efi_uintn_t pages)
 {
 	efi_status_t r;
 
-	EFI_ENTRY("%"PRIx64", 0x%lx", memory, pages);
+	EFI_ENTRY("%"PRIx64", 0x%zx", memory, pages);
 	r = efi_free_pages(memory, pages);
 	return EFI_EXIT(r);
 }
@@ -264,10 +264,10 @@ static efi_status_t EFIAPI efi_free_pages_ext(uint64_t memory,
  * @return		status code
  */
 static efi_status_t EFIAPI efi_get_memory_map_ext(
-					unsigned long *memory_map_size,
+					efi_uintn_t *memory_map_size,
 					struct efi_mem_desc *memory_map,
-					unsigned long *map_key,
-					unsigned long *descriptor_size,
+					efi_uintn_t *map_key,
+					efi_uintn_t *descriptor_size,
 					uint32_t *descriptor_version)
 {
 	efi_status_t r;
@@ -292,12 +292,12 @@ static efi_status_t EFIAPI efi_get_memory_map_ext(
  * @return	status code
  */
 static efi_status_t EFIAPI efi_allocate_pool_ext(int pool_type,
-						 unsigned long size,
+						 efi_uintn_t size,
 						 void **buffer)
 {
 	efi_status_t r;
 
-	EFI_ENTRY("%d, %ld, %p", pool_type, size, buffer);
+	EFI_ENTRY("%d, %zd, %p", pool_type, size, buffer);
 	r = efi_allocate_pool(pool_type, size, buffer);
 	return EFI_EXIT(r);
 }
@@ -539,13 +539,13 @@ static efi_status_t EFIAPI efi_set_timer_ext(struct efi_event *event,
  * @index	index of the event that was signaled
  * @return	status code
  */
-static efi_status_t EFIAPI efi_wait_for_event(unsigned long num_events,
+static efi_status_t EFIAPI efi_wait_for_event(efi_uintn_t num_events,
 					      struct efi_event **event,
-					      size_t *index)
+					      efi_uintn_t *index)
 {
 	int i, j;
 
-	EFI_ENTRY("%ld, %p, %p", num_events, event, index);
+	EFI_ENTRY("%zd, %p, %p", num_events, event, index);
 
 	/* Check parameters */
 	if (!num_events || !event)
@@ -925,10 +925,10 @@ static int efi_search(enum efi_locate_search_type search_type,
 static efi_status_t efi_locate_handle(
 			enum efi_locate_search_type search_type,
 			const efi_guid_t *protocol, void *search_key,
-			unsigned long *buffer_size, efi_handle_t *buffer)
+			efi_uintn_t *buffer_size, efi_handle_t *buffer)
 {
 	struct list_head *lhandle;
-	unsigned long size = 0;
+	efi_uintn_t size = 0;
 
 	/* Count how much space we need */
 	list_for_each(lhandle, &efi_obj_list) {
@@ -977,7 +977,7 @@ static efi_status_t efi_locate_handle(
 static efi_status_t EFIAPI efi_locate_handle_ext(
 			enum efi_locate_search_type search_type,
 			const efi_guid_t *protocol, void *search_key,
-			unsigned long *buffer_size, efi_handle_t *buffer)
+			efi_uintn_t *buffer_size, efi_handle_t *buffer)
 {
 	EFI_ENTRY("%d, %pUl, %p, %p, %p", search_type, protocol, search_key,
 		  buffer_size, buffer);
@@ -1548,7 +1548,7 @@ static efi_status_t EFIAPI efi_close_protocol(void *handle,
 static efi_status_t EFIAPI efi_open_protocol_information(efi_handle_t handle,
 			const efi_guid_t *protocol,
 			struct efi_open_protocol_info_entry **entry_buffer,
-			unsigned long *entry_count)
+			efi_uintn_t *entry_count)
 {
 	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, entry_buffer,
 		  entry_count);
@@ -1569,7 +1569,7 @@ static efi_status_t EFIAPI efi_open_protocol_information(efi_handle_t handle,
  */
 static efi_status_t EFIAPI efi_protocols_per_handle(void *handle,
 			efi_guid_t ***protocol_buffer,
-			unsigned long *protocol_buffer_count)
+			efi_uintn_t *protocol_buffer_count)
 {
 	unsigned long buffer_size;
 	struct efi_object *efiobj;
@@ -1637,10 +1637,10 @@ static efi_status_t EFIAPI efi_protocols_per_handle(void *handle,
 static efi_status_t EFIAPI efi_locate_handle_buffer(
 			enum efi_locate_search_type search_type,
 			const efi_guid_t *protocol, void *search_key,
-			unsigned long *no_handles, efi_handle_t **buffer)
+			efi_uintn_t *no_handles, efi_handle_t **buffer)
 {
 	efi_status_t r;
-	unsigned long buffer_size = 0;
+	efi_uintn_t buffer_size = 0;
 
 	EFI_ENTRY("%d, %pUl, %p, %p, %p", search_type, protocol, search_key,
 		  no_handles, buffer);

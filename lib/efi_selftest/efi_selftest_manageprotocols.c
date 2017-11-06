@@ -138,9 +138,9 @@ static int execute(void)
 	efi_status_t ret;
 	efi_handle_t *buffer;
 	size_t buffer_size;
-	unsigned long int count = 0;
+	efi_uintn_t count = 0;
 	efi_guid_t **prot_buffer;
-	unsigned long int prot_count;
+	efi_uintn_t prot_count;
 
 	/*
 	 * Test HandleProtocol

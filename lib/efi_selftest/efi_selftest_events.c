@@ -108,7 +108,7 @@ static int teardown(void)
  */
 static int execute(void)
 {
-	size_t index;
+	efi_uintn_t index;
 	efi_status_t ret;
 
 	/* Set 10 ms timer */
