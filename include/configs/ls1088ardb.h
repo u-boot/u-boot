@@ -258,40 +258,102 @@
 
 /* Initial environment variables */
 #if defined(CONFIG_QSPI_BOOT)
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS		\
-	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
-	"loadaddr=0x90100000\0"			\
-	"kernel_addr=0x100000\0"		\
-	"ramdisk_addr=0x800000\0"		\
-	"ramdisk_size=0x2000000\0"		\
-	"fdt_high=0xa0000000\0"			\
-	"initrd_high=0xffffffffffffffff\0"	\
-	"kernel_start=0x1000000\0"		\
-	"kernel_load=0xa0000000\0"		\
-	"kernel_size=0x2800000\0"		\
+#define MC_INIT_CMD				\
 	"mcinitcmd=sf probe 0:0;sf read 0x80000000 0xA00000 0x100000;"	\
-	"sf read 0x80100000 0xE00000 0x100000;" \
-	"fsl_mc start mc 0x80000000 0x80100000\0"	\
-	"mcmemsize=0x70000000 \0"
+	"sf read 0x80100000 0xE00000 0x100000;"				\
+	"fsl_mc start mc 0x80000000 0x80100000\0"			\
+	"mcmemsize=0x70000000\0"
 #elif defined(CONFIG_SD_BOOT)
+#define MC_INIT_CMD				\
+	"mcinitcmd=mmcinfo;mmc read 0x80000000 0x5000 0x800;"		\
+	"mmc read 0x80100000 0x7000 0x800;"				\
+	"fsl_mc start mc 0x80000000 0x80100000\0"			\
+	"mcmemsize=0x70000000\0"
+#endif
+
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS		\
+	"BOARD=ls1088ardb\0"			\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
-	"loadaddr=0x90100000\0"			\
-	"kernel_addr=0x800\0"			\
 	"ramdisk_addr=0x800000\0"		\
 	"ramdisk_size=0x2000000\0"		\
 	"fdt_high=0xa0000000\0"			\
 	"initrd_high=0xffffffffffffffff\0"	\
-	"kernel_start=0x8000\0"			\
-	"kernel_load=0xa0000000\0"		\
-	"kernel_size=0x14000\0"			\
-	"mcinitcmd=mmcinfo;mmc read 0x80000000 0x5000 0x800;"	\
-	"mmc read 0x80100000 0x7000 0x800;"	\
-	"fsl_mc start mc 0x80000000 0x80100000\0"	\
-	"mcmemsize=0x70000000 \0"
+	"fdt_addr=0x64f00000\0"			\
+	"kernel_addr=0x1000000\0"		\
+	"kernel_addr_sd=0x8000\0"		\
+	"kernel_start=0x580100000\0"		\
+	"kernelheader_start=0x580800000\0"	\
+	"scriptaddr=0x80000000\0"		\
+	"scripthdraddr=0x80080000\0"		\
+	"fdtheader_addr_r=0x80100000\0"		\
+	"kernelheader_addr=0x800000\0"		\
+	"kernelheader_addr_r=0x80200000\0"	\
+	"kernel_addr_r=0x81000000\0"		\
+	"kernelheader_size=0x40000\0"		\
+	"fdt_addr_r=0x90000000\0"		\
+	"load_addr=0xa0000000\0"		\
+	"kernel_size=0x2800000\0"		\
+	"kernel_size_sd=0x14000\0"		\
+	MC_INIT_CMD				\
+	BOOTENV					\
+	"boot_scripts=ls1088ardb_boot.scr\0"	\
+	"boot_script_hdr=hdr_ls1088ardb_bs.out\0"	\
+	"scan_dev_for_boot_part="		\
+		"part list ${devtype} ${devnum} devplist; "	\
+		"env exists devplist || setenv devplist 1; "	\
+		"for distro_bootpart in ${devplist}; do "	\
+			"if fstype ${devtype} "			\
+				"${devnum}:${distro_bootpart} "	\
+				"bootfstype; then "		\
+				"run scan_dev_for_boot; "	\
+			"fi; "					\
+		"done\0"					\
+	"scan_dev_for_boot="					\
+		"echo Scanning ${devtype} "			\
+		"${devnum}:${distro_bootpart}...; "		\
+		"for prefix in ${boot_prefixes}; do "		\
+			"run scan_dev_for_scripts; "		\
+		"done;\0"					\
+	"boot_a_script="					\
+		"load ${devtype} ${devnum}:${distro_bootpart} " \
+		"${scriptaddr} ${prefix}${script}; "		\
+	"env exists secureboot && load ${devtype} "		\
+		"${devnum}:${distro_bootpart} "			\
+		"${scripthdraddr} ${prefix}${boot_script_hdr} " \
+		"&& esbc_validate ${scripthdraddr};"		\
+		"source ${scriptaddr}\0"			\
+	"installer=load mmc 0:2 $load_addr "			\
+		"/flex_installer_arm64.itb; "			\
+		"env exists mcinitcmd && run mcinitcmd && "	\
+		"mmc read 0x80200000 0x6800 0x800;"		\
+		"fsl_mc apply dpl 0x80200000;"			\
+		"bootm $load_addr#ls1088ardb\0"			\
+	"qspi_bootcmd=echo Trying load from qspi..;"		\
+		"sf probe && sf read $load_addr "		\
+		"$kernel_addr $kernel_size &&"			\
+		"bootm $load_addr#$BOARD\0"			\
+	"sd_bootcmd=echo Trying load from sd card..;"		\
+		"mmcinfo; mmc read $load_addr "			\
+		"$kernel_addr_sd $kernel_size_sd ;"		\
+		"bootm $load_addr#$BOARD\0"
 
+#undef CONFIG_BOOTCOMMAND
+#if defined(CONFIG_QSPI_BOOT)
+/* Try to boot an on-QSPI kernel first, then do normal distro boot */
+#define CONFIG_BOOTCOMMAND                                      \
+		"env exists mcinitcmd && run mcinitcmd && "	\
+		"sf read 0x80200000 0xd00000 0x100000;"	\
+		" fsl_mc apply dpl 0x80200000;"		\
+		"run distro_bootcmd;run qspi_bootcmd"
+/* Try to boot an on-SD kernel first, then do normal distro boot */
+#elif defined(CONFIG_SD_BOOT)
+#define CONFIG_BOOTCOMMAND                                      \
+		"env exists mcinitcmd && run mcinitcmd ;"	\
+		"&& env exists mcinitcmd && mmcinfo; "		\
+		"mmc read 0x88000000 0x6800 0x800; "		\
+		"&& fsl_mc apply dpl 0x88000000;"		\
+		"run distro_bootcmd;run sd_bootcmd"
 #endif
 
 /* MAC/PHY configuration */
@@ -329,7 +391,6 @@
 #include <config_distro_defaults.h>
 
 #define BOOT_TARGET_DEVICES(func) \
-	func(USB, usb, 0) \
 	func(MMC, mmc, 0) \
 	func(SCSI, scsi, 0) \
 	func(DHCP, dhcp, na)
