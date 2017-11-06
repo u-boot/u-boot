@@ -934,11 +934,11 @@ static int efi_search(enum efi_locate_search_type search_type,
 	int i;
 
 	switch (search_type) {
-	case all_handles:
+	case ALL_HANDLES:
 		return 0;
-	case by_register_notify:
+	case BY_REGISTER_NOTIFY:
 		return -1;
-	case by_protocol:
+	case BY_PROTOCOL:
 		for (i = 0; i < ARRAY_SIZE(efiobj->protocols); i++) {
 			const efi_guid_t *guid = efiobj->protocols[i].guid;
 			if (guid && !guidcmp(guid, protocol))
