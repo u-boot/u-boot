@@ -537,6 +537,13 @@ config STM32X7_SERIAL
 	  enable its onboard serial ports, say Y to this option.
 	  If unsure, say N.
 
+config ZYNQ_SERIAL
+	bool "Cadence (Xilinx Zynq) UART support"
+	depends on DM_SERIAL && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)
+	help
+	  This driver supports the Cadence UART. It is found e.g. in Xilinx
+	  Zynq/ZynqMP.
+
 config MPC8XX_CONS
 	bool "Console driver for MPC8XX"
 	depends on 8xx

@@ -33,7 +33,6 @@
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
 #define CONFIG_ARM_DCC
-#define CONFIG_ZYNQ_SERIAL
 
 /* Ethernet driver */
 #if defined(CONFIG_ZYNQ_GEM)
