@@ -800,21 +800,24 @@ static efi_status_t EFIAPI efi_reinstall_protocol_interface(void *handle,
 /*
  * Uninstall protocol interface.
  *
- * This is the function for internal calls. For the API implementation of the
- * UninstallProtocolInterface service see function
- * efi_uninstall_protocol_interface_ext.
+ * This function implements the UninstallProtocolInterface service.
+ * See the Unified Extensible Firmware Interface (UEFI) specification
+ * for details.
  *
  * @handle			handle from which the protocol shall be removed
  * @protocol			GUID of the protocol to be removed
  * @protocol_interface		interface to be removed
  * @return			status code
  */
-static efi_status_t EFIAPI efi_uninstall_protocol_interface(void *handle,
-			const efi_guid_t *protocol, void *protocol_interface)
+static efi_status_t EFIAPI efi_uninstall_protocol_interface(
+				void *handle, const efi_guid_t *protocol,
+				void *protocol_interface)
 {
 	struct list_head *lhandle;
 	int i;
 	efi_status_t r = EFI_NOT_FOUND;
+
+	EFI_ENTRY("%p, %pUl, %p", handle, protocol, protocol_interface);
 
 	if (!handle || !protocol) {
 		r = EFI_INVALID_PARAMETER;
@@ -847,28 +850,7 @@ static efi_status_t EFIAPI efi_uninstall_protocol_interface(void *handle,
 	}
 
 out:
-	return r;
-}
-
-/*
- * Uninstall protocol interface.
- *
- * This function implements the UninstallProtocolInterface service.
- * See the Unified Extensible Firmware Interface (UEFI) specification
- * for details.
- *
- * @handle			handle from which the protocol shall be removed
- * @protocol			GUID of the protocol to be removed
- * @protocol_interface		interface to be removed
- * @return			status code
- */
-static efi_status_t EFIAPI efi_uninstall_protocol_interface_ext(void *handle,
-			const efi_guid_t *protocol, void *protocol_interface)
-{
-	EFI_ENTRY("%p, %pUl, %p", handle, protocol, protocol_interface);
-
-	return EFI_EXIT(efi_uninstall_protocol_interface(handle, protocol,
-							 protocol_interface));
+	return EFI_EXIT(r);
 }
 
 /*
@@ -1781,8 +1763,8 @@ static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces(
 	for (; i; --i) {
 		protocol = va_arg(argptr, efi_guid_t*);
 		protocol_interface = va_arg(argptr, void*);
-		efi_uninstall_protocol_interface(handle, protocol,
-						 protocol_interface);
+		EFI_CALL(efi_uninstall_protocol_interface(handle, protocol,
+							  protocol_interface));
 	}
 	va_end(argptr);
 
@@ -1992,7 +1974,7 @@ static const struct efi_boot_services efi_boot_services = {
 	.check_event = efi_check_event,
 	.install_protocol_interface = efi_install_protocol_interface,
 	.reinstall_protocol_interface = efi_reinstall_protocol_interface,
-	.uninstall_protocol_interface = efi_uninstall_protocol_interface_ext,
+	.uninstall_protocol_interface = efi_uninstall_protocol_interface,
 	.handle_protocol = efi_handle_protocol,
 	.reserved = NULL,
 	.register_protocol_notify = efi_register_protocol_notify,
