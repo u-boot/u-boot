@@ -100,6 +100,7 @@ REFLASH(dragonboard/u-boot.img, 8)\
 	BOOTENV
 
 #define CONFIG_ENV_SIZE			0x2000
+#define CONFIG_SYS_MMC_ENV_DEV		0	/* mmc0 = emmc, mmc1 = sd */
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 
 /* Size of malloc() pool */
