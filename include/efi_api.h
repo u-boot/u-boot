@@ -29,7 +29,6 @@ enum efi_timer_delay {
 };
 
 #define UINTN size_t
-typedef long INTN;
 typedef uint16_t *efi_string_t;
 
 #define EVT_TIMER				0x80000000
