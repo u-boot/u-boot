@@ -111,8 +111,8 @@
 		compatible = "regulator-fixed";
 		u-boot,dm-pre-reloc;
 		regulator-name = "bios_enable";
-		enable-active-low;
-		gpio = <&gpio3 29 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		gpio = <&gpio3 29 GPIO_ACTIVE_LOW>;
 		regulator-always-on;
 		regulator-boot-on;
 		regulator-min-microvolt = <1800000>;
