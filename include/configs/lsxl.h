@@ -70,7 +70,6 @@
  * Default environment variables
  */
 #define CONFIG_LOADADDR		0x00800000
-#define CONFIG_BOOTCOMMAND	"run bootcmd_${bootsource}"
 
 #if defined(CONFIG_LSXHL)
 #define CONFIG_FDTFILE "kirkwood-lsxhl.dtb"

@@ -177,10 +177,6 @@
 #include <config_distro_defaults.h>
 
 /* Basic environment settings */
-#define CONFIG_BOOTCOMMAND \
-	"run distro_bootcmd; " \
-	"run bootflash; "
-
 #define BOOT_TARGET_DEVICES(func) \
         func(MMC, mmc, 1) \
         func(MMC, mmc, 0) \

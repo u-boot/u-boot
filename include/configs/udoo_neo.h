@@ -60,10 +60,6 @@
 	func(MMC, mmc, 0) \
 	func(DHCP, dhcp, na)
 
-#define CONFIG_BOOTCOMMAND \
-	"run findfdt; " \
-	"run distro_bootcmd"
-
 #include <config_distro_bootcmd.h>
 
 /* Miscellaneous configurable options */

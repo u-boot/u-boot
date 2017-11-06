@@ -74,8 +74,6 @@
 	func(HOST, host, 1) \
 	func(HOST, host, 0)
 
-#define CONFIG_BOOTCOMMAND ""
-
 #include <config_distro_bootcmd.h>
 
 #define CONFIG_KEEP_SERVERADDR

@@ -72,10 +72,6 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)
 
-#define CONFIG_BOOTCOMMAND \
-	"run findfdt; " \
-	"run distro_bootcmd"
-
 #include <config_distro_bootcmd.h>
 
 #define ENV_FINDFDT \

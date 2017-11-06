@@ -80,10 +80,6 @@
 	func(PXE, PXE, na) \
 	func(DHCP, dhcp, na)
 
-#define CONFIG_BOOTCOMMAND \
-	   "run findfdt; " \
-	   "run distro_bootcmd"
-
 #include <config_distro_bootcmd.h>
 
 #define CONFIG_ARP_TIMEOUT     200UL

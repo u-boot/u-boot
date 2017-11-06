@@ -14,6 +14,7 @@ CONFIG_NAND_BOOT=y
 CONFIG_BOOTDELAY=10
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyS1,115200 root=/dev/ram0 earlycon=uart8250,mmio,0x21c0600 ramdisk_size=0x2000000 default_hugepagesz=2m hugepagesz=2m hugepages=256"
+# CONFIG_USE_BOOTCOMMAND is not set
 CONFIG_SPL=y
 CONFIG_SPL_ENV_SUPPORT=y
 CONFIG_SPL_I2C_SUPPORT=y

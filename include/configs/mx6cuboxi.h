@@ -122,11 +122,6 @@
 			"echo WARNING: Could not determine dtb to use; fi; \0" \
 	BOOTENV
 
-#define CONFIG_BOOTCOMMAND \
-	"run findfdt; " \
-	"run finduuid; " \
-	"run distro_bootcmd"
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(SATA, sata, 0) \

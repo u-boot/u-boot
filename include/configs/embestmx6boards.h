@@ -132,10 +132,6 @@
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 
-#define CONFIG_BOOTCOMMAND \
-	"run finduuid; " \
-	"run distro_bootcmd"
-
 #include <config_distro_bootcmd.h>
 
 #define CONSOLE_STDIN_SETTINGS \

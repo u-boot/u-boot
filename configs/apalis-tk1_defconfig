@@ -6,6 +6,7 @@ CONFIG_DEFAULT_DEVICE_TREE="tegra124-apalis"
 CONFIG_FIT=y
 CONFIG_OF_SYSTEM_SETUP=y
 CONFIG_BOOTDELAY=1
+CONFIG_BOOTCOMMAND="run emmcboot; setenv fdtfile ${soc}-apalis-${fdt_board}.dtb && run distro_bootcmd"
 CONFIG_CONSOLE_MUX=y
 CONFIG_SYS_STDIO_DEREGISTER=y
 CONFIG_VERSION_VARIABLE=y

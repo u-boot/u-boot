@@ -54,10 +54,6 @@
 #undef CONFIG_SERVERIP
 #define CONFIG_SERVERIP		192.168.10.1
 
-#define CONFIG_BOOTCOMMAND \
-	"run emmcboot; setenv fdtfile ${soc}-apalis-${fdt_board}.dtb && " \
-		"run distro_bootcmd"
-
 #define DFU_ALT_EMMC_INFO	"apalis-tk1.img raw 0x0 0x500 mmcpart 1; " \
 				"boot part 0 1 mmcpart 0; " \
 				"rootfs part 0 2 mmcpart 0; " \

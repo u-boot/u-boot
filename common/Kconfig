@@ -200,6 +200,23 @@ config BOOTARGS
 	  CONFIG_BOOTARGS goes into the environment value "bootargs". Note that
 	  this value will also override the "chosen" node in FDT blob.
 
+config USE_BOOTCOMMAND
+	bool "Enable a default value for bootcmd"
+	help
+	  Provide a default value for the bootcmd entry in the environment.  If
+	  autoboot is enabled this is what will be run automatically.  Enable
+	  this option to be able to specify CONFIG_BOOTCOMMAND as a string.  If
+	  this option is disabled, CONFIG_BOOTCOMMAND will be undefined and
+	  won't take any space in U-Boot image.
+
+config BOOTCOMMAND
+	string "bootcmd value"
+	depends on USE_BOOTCOMMAND
+	default "run distro_bootcmd" if DISTRO_DEFAULTS
+	help
+	  This is the string of commands that will be used as bootcmd and if
+	  AUTOBOOT is set, automatically run.
+
 menu "Console"
 
 config MENU

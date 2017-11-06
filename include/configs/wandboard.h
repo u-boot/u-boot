@@ -140,11 +140,6 @@
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 
-#define CONFIG_BOOTCOMMAND \
-	   "run findfdt; " \
-	   "run finduuid; " \
-	   "run distro_bootcmd"
-
 #include <config_distro_bootcmd.h>
 
 /* Physical Memory Map */

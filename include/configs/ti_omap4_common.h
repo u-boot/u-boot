@@ -91,14 +91,6 @@
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 
-#define CONFIG_BOOTCOMMAND \
-	"if test ${boot_fit} -eq 1; then "	\
-		"run update_to_fit;"	\
-	"fi;"	\
-	"run findfdt; " \
-	"run envboot; " \
-	"run distro_bootcmd"
-
 #include <config_distro_bootcmd.h>
 #include <environment/ti/mmc.h>
 

@@ -66,6 +66,7 @@ config DISTRO_DEFAULTS
 	default y if ARCH_MESON
 	default y if ARCH_ROCKCHIP
 	default n
+	imply USE_BOOTCOMMAND
 	select CMD_BOOTZ if ARM && !ARM64
 	select CMD_BOOTI if ARM64
 	select CMD_DHCP
