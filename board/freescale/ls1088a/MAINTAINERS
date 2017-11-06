@@ -14,3 +14,4 @@ S:	Maintained
 F:	board/freescale/ls1088a/
 F:	include/configs/ls1088aqds.h
 F:	configs/ls1088aqds_qspi_defconfig
+F:	configs/ls1088aqds_sdcard_qspi_defconfig
