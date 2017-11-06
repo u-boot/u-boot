@@ -28,7 +28,7 @@ enum efi_timer_delay {
 	EFI_TIMER_RELATIVE = 2
 };
 
-#define UINTN size_t
+#define efi_uintn_t size_t
 typedef uint16_t *efi_string_t;
 
 #define EVT_TIMER				0x80000000
@@ -48,8 +48,8 @@ struct efi_event;
 /* EFI Boot Services table */
 struct efi_boot_services {
 	struct efi_table_hdr hdr;
-	efi_status_t (EFIAPI *raise_tpl)(UINTN new_tpl);
-	void (EFIAPI *restore_tpl)(UINTN old_tpl);
+	efi_status_t (EFIAPI *raise_tpl)(efi_uintn_t new_tpl);
+	void (EFIAPI *restore_tpl)(efi_uintn_t old_tpl);
 
 	efi_status_t (EFIAPI *allocate_pages)(int, int, unsigned long,
 					      efi_physical_addr_t *);
@@ -61,7 +61,7 @@ struct efi_boot_services {
 	efi_status_t (EFIAPI *free_pool)(void *);
 
 	efi_status_t (EFIAPI *create_event)(uint32_t type,
-			UINTN notify_tpl,
+			efi_uintn_t notify_tpl,
 			void (EFIAPI *notify_function) (
 					struct efi_event *event,
 					void *context),

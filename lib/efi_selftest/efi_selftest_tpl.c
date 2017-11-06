@@ -113,7 +113,7 @@ static int execute(void)
 {
 	size_t index;
 	efi_status_t ret;
-	UINTN old_tpl;
+	efi_uintn_t old_tpl;
 
 	/* Set 10 ms timer */
 	notification_count = 0;

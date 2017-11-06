@@ -144,7 +144,7 @@ struct efi_object {
  */
 struct efi_event {
 	uint32_t type;
-	UINTN notify_tpl;
+	efi_uintn_t notify_tpl;
 	void (EFIAPI *notify_function)(struct efi_event *event, void *context);
 	void *notify_context;
 	u64 trigger_next;
@@ -193,7 +193,7 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map);
 /* Call this to set the current device name */
 void efi_set_bootdev(const char *dev, const char *devnr, const char *path);
 /* Call this to create an event */
-efi_status_t efi_create_event(uint32_t type, UINTN notify_tpl,
+efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 			      void (EFIAPI *notify_function) (
 					struct efi_event *event,
 					void *context),

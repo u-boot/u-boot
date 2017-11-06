@@ -21,7 +21,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* Task priority level */
-static UINTN efi_tpl = TPL_APPLICATION;
+static efi_uintn_t efi_tpl = TPL_APPLICATION;
 
 /* This list contains all the EFI objects our payload has access to */
 LIST_HEAD(efi_obj_list);
@@ -165,9 +165,9 @@ void efi_signal_event(struct efi_event *event)
  * @new_tpl	new value of the task priority level
  * @return	old value of the task priority level
  */
-static unsigned long EFIAPI efi_raise_tpl(UINTN new_tpl)
+static unsigned long EFIAPI efi_raise_tpl(efi_uintn_t new_tpl)
 {
-	UINTN old_tpl = efi_tpl;
+	efi_uintn_t old_tpl = efi_tpl;
 
 	EFI_ENTRY("0x%zx", new_tpl);
 
@@ -190,7 +190,7 @@ static unsigned long EFIAPI efi_raise_tpl(UINTN new_tpl)
  *
  * @old_tpl	value of the task priority level to be restored
  */
-static void EFIAPI efi_restore_tpl(UINTN old_tpl)
+static void EFIAPI efi_restore_tpl(efi_uintn_t old_tpl)
 {
 	EFI_ENTRY("0x%zx", old_tpl);
 
@@ -359,7 +359,7 @@ static struct efi_event efi_events[16];
  * @event		created event
  * @return		status code
  */
-efi_status_t efi_create_event(uint32_t type, UINTN notify_tpl,
+efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 			      void (EFIAPI *notify_function) (
 					struct efi_event *event,
 					void *context),
@@ -409,7 +409,7 @@ efi_status_t efi_create_event(uint32_t type, UINTN notify_tpl,
  * @return		status code
  */
 static efi_status_t EFIAPI efi_create_event_ext(
-			uint32_t type, UINTN notify_tpl,
+			uint32_t type, efi_uintn_t notify_tpl,
 			void (EFIAPI *notify_function) (
 					struct efi_event *event,
 					void *context),
