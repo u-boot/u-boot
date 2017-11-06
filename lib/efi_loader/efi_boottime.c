@@ -684,14 +684,11 @@ static efi_status_t EFIAPI efi_check_event(struct efi_event *event)
  * @handle	handle to find
  * @return	EFI object
  */
-static struct efi_object *efi_search_obj(void *handle)
+struct efi_object *efi_search_obj(void *handle)
 {
-	struct list_head *lhandle;
+	struct efi_object *efiobj;
 
-	list_for_each(lhandle, &efi_obj_list) {
-		struct efi_object *efiobj;
-
-		efiobj = list_entry(lhandle, struct efi_object, link);
+	list_for_each_entry(efiobj, &efi_obj_list, link) {
 		if (efiobj->handle == handle)
 			return efiobj;
 	}
