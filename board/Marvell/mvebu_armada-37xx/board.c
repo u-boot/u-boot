@@ -123,7 +123,7 @@ int board_ahci_enable(void)
 }
 
 /* Board specific xHCI enable code */
-int board_xhci_enable(void)
+int board_xhci_enable(fdt_addr_t base)
 {
 	struct udevice *dev;
 	int ret;
