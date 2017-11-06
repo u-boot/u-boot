@@ -68,7 +68,7 @@
 	phy-supply = <&vcc33_io>;
 	phy-mode = "rgmii";
 	clock_in_out = "input";
-	snps,reset-gpio = <&gpio3 11 GPIO_ACTIVE_LOW>;
+	snps,reset-gpio = <&gpio3 RK_PB3 GPIO_ACTIVE_LOW>;
 	snps,reset-active-low;
 	snps,reset-delays-us = <2 10000 50000>;
 	assigned-clocks = <&cru SCLK_MAC>;

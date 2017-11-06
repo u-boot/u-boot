@@ -36,13 +36,13 @@
 
 		module_led {
 			label = "module_led";
-			gpios = <&gpio2 25 GPIO_ACTIVE_HIGH>;
+			gpios = <&gpio2 RK_PD1 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "heartbeat";
 		};
 
 		sd_card_led {
 			label = "sd_card_led";
-			gpios = <&gpio1 2 GPIO_ACTIVE_HIGH>;
+			gpios = <&gpio1 RK_PA2 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "mmc0";
 		};
 	};
@@ -94,7 +94,7 @@
 		compatible = "regulator-fixed";
 		regulator-name = "usbhub_enable";
 		enable-active-low;
-		gpio = <&gpio4 3 GPIO_ACTIVE_LOW>;
+		gpio = <&gpio4 RK_PA3 GPIO_ACTIVE_LOW>;
 		regulator-boot-on;
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
@@ -111,7 +111,7 @@
 		u-boot,dm-pre-reloc;
 		regulator-name = "bios_enable";
 		enable-active-high;
-		gpio = <&gpio3 29 GPIO_ACTIVE_LOW>;
+		gpio = <&gpio3 RK_PD5 GPIO_ACTIVE_LOW>;
 		regulator-always-on;
 		regulator-boot-on;
 		regulator-min-microvolt = <1800000>;
@@ -139,7 +139,7 @@
 	vcc5v0_otg: vcc5v0-otg-regulator {
 		compatible = "regulator-fixed";
 		enable-active-high;
-		gpio = <&gpio0 2 GPIO_ACTIVE_HIGH>;
+		gpio = <&gpio0 RK_PA2 GPIO_ACTIVE_HIGH>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&otg_vbus_drv>;
 		regulator-name = "vcc5v0_otg";
@@ -149,7 +149,7 @@
 	vcc5v0_host: vcc5v0-host-regulator {
 		compatible = "regulator-fixed";
 		enable-active-low;
-		gpio = <&gpio4 3 GPIO_ACTIVE_HIGH>;
+		gpio = <&gpio4 RK_PA3 GPIO_ACTIVE_HIGH>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&host_vbus_drv>;
 		regulator-name = "vcc5v0_host";
@@ -195,7 +195,7 @@
 	phy-supply = <&vcc_phy>;
 	phy-mode = "rgmii";
 	clock_in_out = "input";
-	snps,reset-gpio = <&gpio3 16 GPIO_ACTIVE_LOW>;
+	snps,reset-gpio = <&gpio3 RK_PC0 GPIO_ACTIVE_LOW>;
 	snps,reset-active-low;
 	snps,reset-delays-us = <2 10000 50000>;
 	assigned-clocks = <&cru SCLK_RMII_SRC>;
@@ -223,7 +223,7 @@
 	vdd_gpu: fan535555@60 {
 		compatible = "fcs,fan53555";
 		reg = <0x60>;
-		vsel-gpios = <&gpio1 14 GPIO_ACTIVE_HIGH>;
+		vsel-gpios = <&gpio1 RK_PB6 GPIO_ACTIVE_HIGH>;
 		vin-supply = <&vcc5v0_sys>;
 		regulator-compatible = "fan53555-reg";
 		regulator-name = "vdd_gpu";
@@ -425,7 +425,7 @@
 	vdd_cpu_b: fan53555@60 {
 		compatible = "fcs,fan53555";
 		reg = <0x60>;
-		vsel-gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
+		vsel-gpios = <&gpio1 RK_PA4 GPIO_ACTIVE_HIGH>;
 		vin-supply = <&vcc5v0_sys>;
 		regulator-compatible = "fan53555-reg";
 		regulator-name = "vdd_cpu_b";
@@ -468,7 +468,7 @@
 	assigned-clocks = <&cru SCLK_PCIEPHY_REF>;
 	assigned-clock-parents = <&cru SCLK_PCIEPHY_REF100M>;
 	assigned-clock-rates = <100000000>;
-	ep-gpios = <&gpio4 22 GPIO_ACTIVE_HIGH>;
+	ep-gpios = <&gpio4 RK_PC6 GPIO_ACTIVE_HIGH>;
 	num-lanes = <4>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pcie_clkreqn>;
@@ -563,42 +563,43 @@
 		puma_pin_hog: puma_pin_hog {
 			rockchip,pins =
 				/* We need pull-ups on Q7 buttons */
-				<0  4 RK_FUNC_GPIO &pcfg_pull_up>, /* LID_BTN# */
-				<0 10 RK_FUNC_GPIO &pcfg_pull_up>, /* BATLOW# */
-				<0 11 RK_FUNC_GPIO &pcfg_pull_up>, /* SLP_BTN# */
-				<0  9 RK_FUNC_GPIO &pcfg_pull_up>; /* BIOS_DISABLE# */
+				<RK_GPIO0 RK_PA4 RK_FUNC_GPIO &pcfg_pull_up>, /* LID_BTN# */
+				<RK_GPIO0 RK_PB2 RK_FUNC_GPIO &pcfg_pull_up>, /* BATLOW# */
+				<RK_GPIO0 RK_PB3 RK_FUNC_GPIO &pcfg_pull_up>, /* SLP_BTN# */
+				<RK_GPIO0 RK_PB1 RK_FUNC_GPIO &pcfg_pull_up>; /* BIOS_DISABLE# */
 		};
 	};
 
 	pmic {
 		pmic_int_l: pmic-int-l {
 			rockchip,pins =
-				<1 22 RK_FUNC_GPIO &pcfg_pull_up>;
+				<RK_GPIO1 RK_PC6 RK_FUNC_GPIO &pcfg_pull_up>;
 		};
 	};
 
 	leds_pins_puma: led_pins@0 {
 			rockchip,pins =
-				<2 25 RK_FUNC_GPIO &pcfg_pull_none>,
-				<1 2 RK_FUNC_GPIO &pcfg_pull_none>;
+				<RK_GPIO2 RK_PD1 RK_FUNC_GPIO &pcfg_pull_none>,
+				<RK_GPIO1 RK_PA2 RK_FUNC_GPIO &pcfg_pull_none>;
 	};
 
 	usb2 {
 		otg_vbus_drv: otg-vbus-drv {
 			rockchip,pins =
-				<0 2 RK_FUNC_GPIO &pcfg_pull_none>;
+				<RK_GPIO0 RK_PA2 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 
 		host_vbus_drv: host-vbus-drv {
 			rockchip,pins =
-				<0 2 RK_FUNC_GPIO &pcfg_pull_none>;
+				<RK_GPIO4 RK_PA3 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
 
 	i2c8 {
 		i2c8_xfer_a: i2c8-xfer {
-			rockchip,pins = <1 21 RK_FUNC_1 &pcfg_pull_up>,
-					<1 20 RK_FUNC_1 &pcfg_pull_up>;
+			rockchip,pins =
+				<RK_GPIO1 RK_PC5 RK_FUNC_1 &pcfg_pull_up>,
+				<RK_GPIO1 RK_PC4 RK_FUNC_1 &pcfg_pull_up>;
 		};
 	};
 };
@@ -623,8 +624,8 @@
 &i2c6_xfer {
 	/* Enable pull-ups, the pins would float otherwise. */
 	rockchip,pins =
-		<2 10 RK_FUNC_2 &pcfg_pull_up>,
-		<2 9 RK_FUNC_2 &pcfg_pull_up>;
+		<RK_GPIO2 RK_PB2 RK_FUNC_2 &pcfg_pull_up>,
+		<RK_GPIO2 RK_PB1 RK_FUNC_2 &pcfg_pull_up>;
 };
 
 &i2c7 {
