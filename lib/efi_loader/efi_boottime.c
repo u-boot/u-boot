@@ -702,9 +702,9 @@ static struct efi_object *efi_search_obj(void *handle)
 /*
  * Install protocol interface.
  *
- * This is the function for internal calls. For the API implementation of the
- * InstallProtocolInterface service see function
- * efi_install_protocol_interface_ext.
+ * This function implements the InstallProtocolInterface service.
+ * See the Unified Extensible Firmware Interface (UEFI) specification
+ * for details.
  *
  * @handle			handle on which the protocol shall be installed
  * @protocol			GUID of the protocol to be installed
@@ -713,13 +713,16 @@ static struct efi_object *efi_search_obj(void *handle)
  * @protocol_interface		interface of the protocol implementation
  * @return			status code
  */
-static efi_status_t EFIAPI efi_install_protocol_interface(void **handle,
-			const efi_guid_t *protocol, int protocol_interface_type,
-			void *protocol_interface)
+static efi_status_t EFIAPI efi_install_protocol_interface(
+			void **handle, const efi_guid_t *protocol,
+			int protocol_interface_type, void *protocol_interface)
 {
 	struct list_head *lhandle;
 	int i;
 	efi_status_t r;
+
+	EFI_ENTRY("%p, %pUl, %d, %p", handle, protocol, protocol_interface_type,
+		  protocol_interface);
 
 	if (!handle || !protocol ||
 	    protocol_interface_type != EFI_NATIVE_INTERFACE) {
@@ -768,33 +771,7 @@ static efi_status_t EFIAPI efi_install_protocol_interface(void **handle,
 	}
 	r = EFI_INVALID_PARAMETER;
 out:
-	return r;
-}
-
-/*
- * Install protocol interface.
- *
- * This function implements the InstallProtocolInterface service.
- * See the Unified Extensible Firmware Interface (UEFI) specification
- * for details.
- *
- * @handle			handle on which the protocol shall be installed
- * @protocol			GUID of the protocol to be installed
- * @protocol_interface_type	type of the interface to be installed,
- *				always EFI_NATIVE_INTERFACE
- * @protocol_interface		interface of the protocol implementation
- * @return			status code
- */
-static efi_status_t EFIAPI efi_install_protocol_interface_ext(void **handle,
-			const efi_guid_t *protocol, int protocol_interface_type,
-			void *protocol_interface)
-{
-	EFI_ENTRY("%p, %pUl, %d, %p", handle, protocol, protocol_interface_type,
-		  protocol_interface);
-
-	return EFI_EXIT(efi_install_protocol_interface(handle, protocol,
-						       protocol_interface_type,
-						       protocol_interface));
+	return EFI_EXIT(r);
 }
 
 /*
@@ -1787,9 +1764,10 @@ static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces(
 		if (!protocol)
 			break;
 		protocol_interface = va_arg(argptr, void*);
-		r = efi_install_protocol_interface(handle, protocol,
-						   EFI_NATIVE_INTERFACE,
-						   protocol_interface);
+		r = EFI_CALL(efi_install_protocol_interface(
+						handle, protocol,
+						EFI_NATIVE_INTERFACE,
+						protocol_interface));
 		if (r != EFI_SUCCESS)
 			break;
 		i++;
@@ -2012,7 +1990,7 @@ static const struct efi_boot_services efi_boot_services = {
 	.signal_event = efi_signal_event_ext,
 	.close_event = efi_close_event,
 	.check_event = efi_check_event,
-	.install_protocol_interface = efi_install_protocol_interface_ext,
+	.install_protocol_interface = efi_install_protocol_interface,
 	.reinstall_protocol_interface = efi_reinstall_protocol_interface,
 	.uninstall_protocol_interface = efi_uninstall_protocol_interface_ext,
 	.handle_protocol = efi_handle_protocol,
