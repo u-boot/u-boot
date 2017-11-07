@@ -5,6 +5,9 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#ifndef __SYS_PROTO_IMX6_
+#define __SYS_PROTO_IMX6_
+
 #include <asm/mach-imx/sys_proto.h>
 #include <asm/arch/iomux.h>
 
@@ -27,3 +30,5 @@ static inline void iomuxc_set_rgmii_io_voltage(int io_vol)
 {
 	__raw_writel(io_vol, IOMUXC_SW_PAD_CTL_GRP_DDR_TYPE_RGMII);
 }
+
+#endif /* __SYS_PROTO_IMX6_ */
