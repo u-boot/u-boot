@@ -84,6 +84,13 @@
 #define ZYNQ_NAND_ECC_BUSY	(1 << 6)	/* ECC block is busy */
 #define ZYNQ_NAND_ECC_MASK	0x00FFFFFF	/* ECC value mask */
 
+#ifndef NAND_CMD_LOCK_TIGHT
+#define NAND_CMD_LOCK_TIGHT 0x2c
+#endif
+
+#ifndef NAND_CMD_LOCK_STATUS
+#define NAND_CMD_LOCK_STATUS 0x7a
+#endif
 
 /* SMC register set */
 struct zynq_nand_smc_regs {
@@ -144,6 +151,11 @@ static const struct zynq_nand_command_format zynq_nand_commands[] = {
 	{NAND_CMD_PARAM, NAND_CMD_NONE, 1, 0},
 	{NAND_CMD_GET_FEATURES, NAND_CMD_NONE, 1, 0},
 	{NAND_CMD_SET_FEATURES, NAND_CMD_NONE, 1, 0},
+	{NAND_CMD_LOCK, NAND_CMD_NONE, 0, 0},
+	{NAND_CMD_LOCK_TIGHT, NAND_CMD_NONE, 0, 0},
+	{NAND_CMD_UNLOCK1, NAND_CMD_NONE, 3, 0},
+	{NAND_CMD_UNLOCK2, NAND_CMD_NONE, 3, 0},
+	{NAND_CMD_LOCK_STATUS, NAND_CMD_NONE, 3, 0},
 	{NAND_CMD_NONE, NAND_CMD_NONE, 0, 0},
 	/* Add all the flash commands supported by the flash device */
 };
