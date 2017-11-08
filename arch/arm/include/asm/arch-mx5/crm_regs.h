@@ -210,6 +210,14 @@ struct mxc_ccm_reg {
 #define MXC_CCM_CSCMR1_SSI_EXT2_COM_CLK_SEL		(0x1 << 1)
 #define MXC_CCM_CSCMR1_SSI_EXT1_COM_CLK_SEL		0x1
 
+/* Define the bits in register CSCMR2 */
+#define MXC_CCM_CSCMR2_DI0_CLK_SEL_OFFSET		26
+#define MXC_CCM_CSCMR2_DI0_CLK_SEL_MASK		(0x7 << 26)
+#define MXC_CCM_CSCMR2_DI0_CLK_SEL(v)		(((v) & 0x7) << 26)
+#define MXC_CCM_CSCMR2_DI0_CLK_SEL_RD(r)	(((r) >> 26) & 0x7)
+
+#define MXC_CCM_CSCMR2_DI0_CLK_SEL_LDB_DI0_CLK 5
+
 /* Define the bits in register CSCDR2 */
 #define MXC_CCM_CSCDR2_CSPI_CLK_PRED_OFFSET		25
 #define MXC_CCM_CSCDR2_CSPI_CLK_PRED_MASK		(0x7 << 25)
