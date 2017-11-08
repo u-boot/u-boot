@@ -10,6 +10,8 @@ source "drivers/ata/Kconfig"
 
 source "drivers/block/Kconfig"
 
+source "drivers/bootcount/Kconfig"
+
 source "drivers/clk/Kconfig"
 
 source "drivers/cpu/Kconfig"
