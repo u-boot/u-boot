@@ -20,8 +20,4 @@ extern unsigned int zynq_get_silicon_version(void);
 
 int zynq_board_read_rom_ethaddr(unsigned char *ethaddr);
 
-/* Driver extern functions */
-extern void ps7_init(void);
-int ps7_post_config(void);
-
 #endif /* _SYS_PROTO_H_ */

@@ -11,6 +11,7 @@
 #include <asm/spl.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/ps7_init_gpl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -82,23 +83,6 @@ int spl_start_uboot(void)
 	return 0;
 }
 #endif
-
-__weak void ps7_init(void)
-{
-	/*
-	 * This function is overridden by the one in
-	 * board/xilinx/zynq/(platform)/ps7_init_gpl.c, if it exists.
-	 */
-}
-
-__weak int ps7_post_config(void)
-{
-	/*
-	 * This function is overridden by the one in
-	 * board/xilinx/zynq/(platform)/ps7_init_gpl.c, if it exists.
-	 */
-	return 0;
-}
 
 void spl_board_prepare_for_boot(void)
 {
