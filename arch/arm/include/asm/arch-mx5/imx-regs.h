@@ -508,6 +508,23 @@ struct fuse_bank4_regs {
 };
 #endif
 
+#define PWMCR_PRESCALER(x)	(((x - 1) & 0xFFF) << 4)
+#define PWMCR_DOZEEN		(1 << 24)
+#define PWMCR_WAITEN		(1 << 23)
+#define PWMCR_DBGEN		(1 << 22)
+#define PWMCR_CLKSRC_IPG_HIGH	(2 << 16)
+#define PWMCR_CLKSRC_IPG	(1 << 16)
+#define PWMCR_EN		(1 << 0)
+
+struct pwm_regs {
+	u32	cr;
+	u32	sr;
+	u32	ir;
+	u32	sar;
+	u32	pr;
+	u32	cnr;
+};
+
 #endif /* __ASSEMBLER__*/
 
 #endif				/* __ASM_ARCH_MX5_IMX_REGS_H__ */
