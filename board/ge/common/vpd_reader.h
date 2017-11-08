@@ -12,14 +12,6 @@
  *
  * Returns Non-zero on error.  Negative numbers encode errno.
  */
-int vpd_reader(
-	size_t size,
-	uint8_t * data,
-	void * userdata,
-	int (*fn)(
-	    void * userdata,
-	    uint8_t id,
-	    uint8_t version,
-	    uint8_t type,
-	    size_t size,
-	    uint8_t const * data));
+int vpd_reader(size_t size, u8 *data, void *userdata,
+	       int (*fn)(void *userdata, u8 id, u8 version, u8 type,
+			 size_t size, u8 const *data));

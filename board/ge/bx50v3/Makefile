@@ -5,4 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y  := bx50v3.o vpd_reader.o
+obj-y  := bx50v3.o

@@ -28,7 +28,7 @@
 #include <input.h>
 #include <pwm.h>
 #include <stdlib.h>
-#include "vpd_reader.h"
+#include "../common/vpd_reader.h"
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_SYS_I2C_EEPROM_ADDR
