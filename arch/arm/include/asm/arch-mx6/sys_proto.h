@@ -5,7 +5,11 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#ifndef __SYS_PROTO_IMX6_
+#define __SYS_PROTO_IMX6_
+
 #include <asm/mach-imx/sys_proto.h>
+#include <asm/arch/iomux.h>
 
 #define USBPHY_PWD		0x00000000
 
@@ -16,3 +20,15 @@
 
 int imx6_pcie_toggle_power(void);
 int imx6_pcie_toggle_reset(void);
+
+/**
+ * iomuxc_set_rgmii_io_voltage - set voltage level of RGMII/USB pins
+ *
+ * @param io_vol - the voltage IO level of pins
+ */
+static inline void iomuxc_set_rgmii_io_voltage(int io_vol)
+{
+	__raw_writel(io_vol, IOMUXC_SW_PAD_CTL_GRP_DDR_TYPE_RGMII);
+}
+
+#endif /* __SYS_PROTO_IMX6_ */

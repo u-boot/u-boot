@@ -178,4 +178,17 @@
 				|IOMUXC_GPR13_SATA_PHY_3_MASK \
 				|IOMUXC_GPR13_SATA_PHY_2_MASK \
 				|IOMUXC_GPR13_SATA_PHY_1_MASK)
+
+/*
+ * Setup RGMII voltage levels on iMX6 SoC - the
+ *
+ * IOMUXC_SW_PAD_CTL_GRP_DDR_TYPE_RGMII - register
+ *
+ * 1P2V_IO - USB_HSIC, MIPI_HSI
+ * 1P5V_IO - ENET pins
+ */
+#define IOMUXC_SW_PAD_CTL_GRP_DDR_TYPE_RGMII	0x020e0790
+#define DDR_SEL_1P2V_IO (0x2 << 18)
+#define DDR_SEL_1P5V_IO (0x3 << 18)
+
 #endif	/* __ASM_ARCH_IOMUX_H__ */

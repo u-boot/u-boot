@@ -3,11 +3,8 @@ How to use U-Boot on Engicam i.CoreM6 Solo/DualLite and Quad/Dual Starter Kit:
 
 $ make mrproper
 
-- Configure U-Boot for Engicam i.CoreM6 Quad/Dual:
-$ make imx6q_icore_mmc_defconfig
-
-- Configure U-Boot for Engicam i.CoreM6 Solo/DualLite:
-$ make imx6dl_icore_mmc_defconfig
+- Configure U-Boot for Engicam i.CoreM6 Quad/Dual/Solo/DualLite:
+$ make imx6qdl_icore_mmc_defconfig
 
 - Build U-Boot
 $ make

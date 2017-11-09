@@ -171,20 +171,20 @@ static void esdhc_pio_read_write(struct fsl_esdhc_priv *priv,
 	uint databuf;
 	uint size;
 	uint irqstat;
-	uint timeout;
+	ulong start;
 
 	if (data->flags & MMC_DATA_READ) {
 		blocks = data->blocks;
 		buffer = data->dest;
 		while (blocks) {
-			timeout = PIO_TIMEOUT;
+			start = get_timer(0);
 			size = data->blocksize;
 			irqstat = esdhc_read32(&regs->irqstat);
-			while (!(esdhc_read32(&regs->prsstat) & PRSSTAT_BREN)
-				&& --timeout);
-			if (timeout <= 0) {
-				printf("\nData Read Failed in PIO Mode.");
-				return;
+			while (!(esdhc_read32(&regs->prsstat) & PRSSTAT_BREN)) {
+				if (get_timer(start) > PIO_TIMEOUT) {
+					printf("\nData Read Failed in PIO Mode.");
+					return;
+				}
 			}
 			while (size && (!(irqstat & IRQSTAT_TC))) {
 				udelay(100); /* Wait before last byte transfer complete */
@@ -200,14 +200,14 @@ static void esdhc_pio_read_write(struct fsl_esdhc_priv *priv,
 		blocks = data->blocks;
 		buffer = (char *)data->src;
 		while (blocks) {
-			timeout = PIO_TIMEOUT;
+			start = get_timer(0);
 			size = data->blocksize;
 			irqstat = esdhc_read32(&regs->irqstat);
-			while (!(esdhc_read32(&regs->prsstat) & PRSSTAT_BWEN)
-				&& --timeout);
-			if (timeout <= 0) {
-				printf("\nData Write Failed in PIO Mode.");
-				return;
+			while (!(esdhc_read32(&regs->prsstat) & PRSSTAT_BWEN)) {
+				if (get_timer(start) > PIO_TIMEOUT) {
+					printf("\nData Write Failed in PIO Mode.");
+					return;
+				}
 			}
 			while (size && (!(irqstat & IRQSTAT_TC))) {
 				udelay(100); /* Wait before last byte transfer complete */

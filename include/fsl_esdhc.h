@@ -130,7 +130,7 @@
 #define XFERTYP_DMAEN		0x00000001
 
 #define CINS_TIMEOUT		1000
-#define PIO_TIMEOUT		100000
+#define PIO_TIMEOUT		500
 
 #define DSADDR		0x2e004
 
