@@ -45,7 +45,7 @@ struct resource;
  * the DT.
  *
  * @np: Pointer to device node, used for live tree
- * @flat_ptr: Pointer into flat device tree, used for flat tree. Note that this
+ * @of_offset: Pointer into flat device tree, used for flat tree. Note that this
  *	is not a really a pointer to a node: it is an offset value. See above.
  */
 typedef union ofnode_union {
