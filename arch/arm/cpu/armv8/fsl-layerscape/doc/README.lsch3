@@ -118,7 +118,7 @@ Environment Variables
 mcboottimeout:	MC boot timeout in milliseconds. If this variable is not defined
 		the value CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS will be assumed.
 
-mcmemsize:	MC DRAM block size. If this variable is not defined, the value
+mcmemsize:	MC DRAM block size in hex. If this variable is not defined, the value
 		CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE will be assumed.
 
 mcinitcmd:	This environment variable is defined to initiate MC and DPL deployment
