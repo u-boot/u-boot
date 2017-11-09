@@ -438,7 +438,7 @@
 	sdhi2_pins: sd2 {
 		groups = "sdhi2_data8", "sdhi2_ctrl";
 		function = "sdhi2";
-		power-source = <3300>;
+		power-source = <1800>;
 	};
 
 	sdhi2_pins_uhs: sd2_uhs {
