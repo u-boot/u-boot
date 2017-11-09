@@ -346,13 +346,19 @@ int sunxi_simplefb_setup(void *blob)
 					 "sunxi_dw_hdmi", &hdmi);
 	if (ret) {
 		debug("HDMI not present\n");
-		return 0;
+	} else if (device_active(hdmi)) {
+		if (mux == 0)
+			pipeline = "mixer0-lcd0-hdmi";
+		else
+			pipeline = "mixer1-lcd1-hdmi";
+	} else {
+		debug("HDMI present but not probed\n");
 	}
 
-	if (mux == 0)
-		pipeline = "mixer0-lcd0-hdmi";
-	else
-		pipeline = "mixer1-lcd1-hdmi";
+	if (!pipeline) {
+		debug("No active display present\n");
+		return 0;
+	}
 
 	de2_priv = dev_get_uclass_priv(de2);
 	de2_plat = dev_get_uclass_platdata(de2);

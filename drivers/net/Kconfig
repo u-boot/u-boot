@@ -247,6 +247,7 @@ config SUN7I_GMAC
 config SUN4I_EMAC
 	bool "Allwinner Sun4i Ethernet MAC support"
 	depends on DM_ETH
+	select PHYLIB
 	help
 	  This driver supports the Allwinner based SUN4I Ethernet MAC.
 
