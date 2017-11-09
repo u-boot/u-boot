@@ -140,40 +140,39 @@ static const struct mx6sdl_iomux_grp_regs dhcom6sdl_grp_ioregs = {
 };
 
 static const struct mx6_mmdc_calibration dhcom_mmdc_calib = {
-	.p0_mpwldectrl0	= 0x001F001F,
-	.p0_mpwldectrl1	= 0x001F001F,
-	.p1_mpwldectrl0	= 0x00440044,
-	.p1_mpwldectrl1	= 0x00440044,
-	.p0_mpdgctrl0	= 0x434B0350,
-	.p0_mpdgctrl1	= 0x034C0359,
-	.p1_mpdgctrl0	= 0x434B0350,
-	.p1_mpdgctrl1	= 0x03650348,
-	.p0_mprddlctl	= 0x4436383B,
-	.p1_mprddlctl	= 0x39393341,
-	.p0_mpwrdlctl	= 0x35373933,
-	.p1_mpwrdlctl	= 0x48254A36,
+	.p0_mpwldectrl0	= 0x0011000E,
+	.p0_mpwldectrl1	= 0x000E001B,
+	.p1_mpwldectrl0	= 0x00190015,
+	.p1_mpwldectrl1	= 0x00070018,
+	.p0_mpdgctrl0	= 0x42720306,
+	.p0_mpdgctrl1	= 0x026F0266,
+	.p1_mpdgctrl0	= 0x4273030A,
+	.p1_mpdgctrl1	= 0x02740240,
+	.p0_mprddlctl	= 0x45393B3E,
+	.p1_mprddlctl	= 0x403A3747,
+	.p0_mpwrdlctl	= 0x40434541,
+	.p1_mpwrdlctl	= 0x473E4A3B,
 };
 
 static const struct mx6_ddr3_cfg dhcom_mem_ddr = {
 	.mem_speed	= 1600,
-	.density	= 4,
+	.density	= 2,
 	.width		= 64,
 	.banks		= 8,
 	.rowaddr	= 14,
 	.coladdr	= 10,
 	.pagesz		= 2,
-	.trcd		= 1375,
-	.trcmin		= 4875,
-	.trasmin	= 3500,
+	.trcd		= 1312,
+	.trcmin		= 5863,
+	.trasmin	= 3750,
 };
 
 static const struct mx6_ddr_sysinfo dhcom_ddr_info = {
 	/* width of data bus:0=16,1=32,2=64 */
 	.dsize		= 2,
-	/* config for full 4GB range so that get_mem_size() works */
-	.cs_density	= 32,	/* 32Gb per CS */
+	.cs_density	= 16,
 	.ncs		= 1,	/* single chip select */
-	.cs1_mirror	= 0,
+	.cs1_mirror	= 1,
 	.rtt_wr		= 1,	/* DDR3_RTT_60_OHM, RTT_Wr = RZQ/4 */
 	.rtt_nom	= 1,	/* DDR3_RTT_60_OHM, RTT_Nom = RZQ/4 */
 	.walat		= 1,	/* Write additional latency */
@@ -182,6 +181,8 @@ static const struct mx6_ddr_sysinfo dhcom_ddr_info = {
 	.bi_on		= 1,	/* Bank interleaving enabled */
 	.sde_to_rst	= 0x10,	/* 14 cycles, 200us (JEDEC default) */
 	.rst_to_cke	= 0x23,	/* 33 cycles, 500us (JEDEC default) */
+	.refsel		= 1,	/* Refresh cycles at 32KHz */
+	.refr		= 3,	/* 4 refresh commands per refresh cycle */
 };
 
 static void ccgr_init(void)
@@ -388,7 +389,6 @@ void board_init_f(ulong dummy)
 
 	/* Perform DDR DRAM calibration */
 	udelay(100);
-	mmdc_do_write_level_calibration(&dhcom_ddr_info);
 	mmdc_do_dqs_calibration(&dhcom_ddr_info);
 
 	/* Clear the BSS. */
