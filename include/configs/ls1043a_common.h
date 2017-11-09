@@ -261,6 +261,8 @@
 	"fdt_addr_r=0x90000000\0"		\
 	"load_addr=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
+	"kernel_addr_sd=0x8000\0"		\
+	"kernel_size_sd=0x14000\0"		\
 	"console=ttyS0,115200\0"		\
 	"boot_os=y\0"				\
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"	\
@@ -291,20 +293,25 @@
 			"${scripthdraddr} ${prefix}${boot_script_hdr} "	\
 			"&& esbc_validate ${scripthdraddr};"	\
 		"source ${scriptaddr}\0"			\
-	"installer=load mmc 0:2 $load_addr "	\
-		"/flex_installer_arm64.itb; "	\
-		"bootm $load_addr#ls1043ardb\0"	\
 	"qspi_bootcmd=echo Trying load from qspi..;"	\
 		"sf probe && sf read $load_addr "	\
 		"$kernel_addr $kernel_size && bootm $load_addr#$board\0" \
 	"nor_bootcmd=echo Trying load from nor..;"	\
 		"cp.b $kernel_addr $load_addr "	\
-		"$kernel_size && bootm $load_addr#$board\0"
+		"$kernel_size && bootm $load_addr#$board\0" \
+	"sd_bootcmd=echo Trying load from SD ..;"       \
+		"mmcinfo; mmc read $load_addr "         \
+		"$kernel_addr_sd $kernel_size_sd && "     \
+		"bootm $load_addr#$board\0"
+
 
 #undef CONFIG_BOOTCOMMAND
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_BOOTCOMMAND "run distro_bootcmd; env exists secureboot"	\
 			   "&& esbc_halt; run qspi_bootcmd;"
+#elif defined(CONFIG_SD_BOOT)
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; env exists secureboot"  \
+			   "&& esbc_halt; run sd_bootcmd;"
 #else
 #define CONFIG_BOOTCOMMAND "run distro_bootcmd; env exists secureboot"	\
 			   "&& esbc_halt; run nor_bootcmd;"
