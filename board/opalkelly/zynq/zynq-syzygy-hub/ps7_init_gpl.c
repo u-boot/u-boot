@@ -5,8 +5,7 @@
 * SPDX-License-Identifier: GPL-2.0+
  *****************************************************************************/
 
-#include "ps7_init_gpl.h"
-#include "asm/io.h"
+#include <asm/arch/ps7_init_gpl.h>
 
 unsigned long ps7_pll_init_data_3_0[] = {
 	EMIT_WRITE(0XF8000008, 0x0000DF0DU),
@@ -255,92 +254,11 @@ unsigned long ps7_post_config_3_0[] = {
 	EMIT_EXIT(),
 };
 
-
 unsigned long ps7_reset_apu_3_0[] = {
 	EMIT_MASKWRITE(0xF8000244, 0x00000022U, 0x00000022U),
 	EMIT_EXIT(),
 };
 
-#define PS7_MASK_POLL_TIME 100000000
-
-static inline void iowrite(unsigned long val, unsigned long addr)
-{
-	__raw_writel(val, addr);
-}
-
-static inline unsigned long ioread(unsigned long addr)
-{
-	return __raw_readl(addr);
-}
-
-int ps7_config(unsigned long *ps7_config_init)
-{
-	unsigned long *ptr = ps7_config_init;
-
-	unsigned long opcode;	/* current instruction .. */
-	unsigned long args[16];	/* no opcode has so many args ... */
-	int numargs;		/* number of arguments of this instruction */
-	int j;			/* general purpose index */
-
-	unsigned long addr;
-	unsigned long val, mask;
-
-	int finish = -1;	/* loop while this is negative ! */
-	int i = 0;		/* Timeout variable */
-
-	while (finish < 0) {
-		numargs = ptr[0] & 0xF;
-		opcode = ptr[0] >> 4;
-
-		for (j = 0; j < numargs; j++)
-			args[j] = ptr[j + 1];
-		ptr += numargs + 1;
-
-		switch (opcode) {
-		case OPCODE_EXIT:
-			finish = PS7_INIT_SUCCESS;
-			break;
-
-		case OPCODE_WRITE:
-			addr = args[0];
-			val = args[1];
-			iowrite(val, addr);
-			break;
-
-		case OPCODE_MASKWRITE:
-			addr = args[0];
-			mask = args[1];
-			val = args[2];
-			iowrite((val & mask) | (ioread(addr) & ~mask) , addr);
-			break;
-
-		case OPCODE_MASKPOLL:
-			addr = args[0];
-			mask = args[1];
-			i = 0;
-			while (!(ioread(addr) & mask)) {
-				if (i == PS7_MASK_POLL_TIME) {
-					finish = PS7_INIT_TIMEOUT;
-					break;
-				}
-				i++;
-			}
-			break;
-		case OPCODE_MASKDELAY:
-			addr = args[0];
-			mask = args[1];
-			int delay = get_number_of_cycles_for_delay(mask);
-			perf_reset_and_start_timer();
-			while (ioread(addr) < delay)
-				;
-			break;
-		default:
-			finish = PS7_INIT_CORRUPT;
-			break;
-		}
-	}
-	return finish;
-}
 
 int ps7_post_config(void)
 {
@@ -377,39 +295,3 @@ int ps7_init(void)
 	return PS7_INIT_SUCCESS;
 }
 
-/* For delay calculation using global timer */
-
-/* start timer */
-void perf_start_clock(void)
-{
-	iowrite((1 << 0) | /* Timer Enable */
-		(1 << 3) | /* Auto-increment */
-		(0 << 8),  /* Pre-scale */
-		SCU_GLOBAL_TIMER_CONTROL);
-}
-
-/* stop timer and reset timer count regs */
-void perf_reset_clock(void)
-{
-	perf_disable_clock();
-	iowrite(0, SCU_GLOBAL_TIMER_COUNT_L32);
-	iowrite(0, SCU_GLOBAL_TIMER_COUNT_U32);
-}
-
-/* Compute mask for given delay in miliseconds*/
-int get_number_of_cycles_for_delay(unsigned int delay)
-{
-	return APU_FREQ * delay / (2 * 1000);
-}
-
-/* stop timer */
-void perf_disable_clock(void)
-{
-	iowrite(0, SCU_GLOBAL_TIMER_CONTROL);
-}
-
-void perf_reset_and_start_timer(void)
-{
-	perf_reset_clock();
-	perf_start_clock();
-}
