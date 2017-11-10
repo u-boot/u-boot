@@ -30,11 +30,17 @@
 #define PS7_POLL_FAILED_DMA		(4)
 #define PS7_POLL_FAILED_PLL		(5)
 
+#define PCW_SILICON_VERSION_1	0
+#define PCW_SILICON_VERSION_2	1
+#define PCW_SILICON_VERSION_3	2
+
 /* Called by spl.c */
 int ps7_init(void);
 int ps7_post_config(void);
 
 /* Defined in ps7_init_common.c */
 int ps7_config(unsigned long *ps7_config_init);
+
+unsigned long ps7GetSiliconVersion(void);
 
 #endif /* _ASM_ARCH_PS7_INIT_GPL_H */

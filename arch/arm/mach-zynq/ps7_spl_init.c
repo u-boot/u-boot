@@ -7,6 +7,7 @@
 
 #include <asm/io.h>
 #include <asm/spl.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/arch/ps7_init_gpl.h>
 
 __weak int ps7_init(void)
@@ -133,4 +134,9 @@ int __weak ps7_config(unsigned long *ps7_config_init)
 
 		ptr += numargs;
 	}
+}
+
+unsigned long __weak __maybe_unused ps7GetSiliconVersion(void)
+{
+	return zynq_get_silicon_version();
 }
