@@ -13,6 +13,7 @@
 #define OPCODE_MASKWRITE	0U
 #define OPCODE_MASKPOLL		1U
 #define OPCODE_MASKDELAY	2U
+#define OPCODE_WRITE		3U
 #define OPCODE_ADDRESS_MASK	(~3U)
 
 /* Sentinel */
@@ -21,6 +22,7 @@
 #define EMIT_MASKWRITE(addr, mask, val)	OPCODE_MASKWRITE | addr, mask, val
 #define EMIT_MASKPOLL(addr, mask)	OPCODE_MASKPOLL | addr, mask
 #define EMIT_MASKDELAY(addr, mask)	OPCODE_MASKDELAY | addr, mask
+#define EMIT_WRITE(addr, val)		OPCODE_WRITE | addr, val
 
 /* Returns codes of ps7_init* */
 #define PS7_INIT_SUCCESS		(0)

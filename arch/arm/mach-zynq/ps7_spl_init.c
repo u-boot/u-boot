@@ -108,6 +108,12 @@ int __weak ps7_config(unsigned long *ps7_config_init)
 			iowrite((ioread(addr) & ~mask) | (val & mask), addr);
 			break;
 
+		case OPCODE_WRITE:
+			numargs = 2;
+			val = ptr[1];
+			iowrite(val, addr);
+			break;
+
 		case OPCODE_MASKPOLL:
 			numargs = 2;
 			mask = ptr[1];
