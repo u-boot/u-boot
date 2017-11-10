@@ -7,4 +7,4 @@ obj-y	:= board.o
 # Remove quotes
 hw-platform-y :=$(shell echo $(CONFIG_DEFAULT_DEVICE_TREE))
 
-obj-$(CONFIG_SPL_BUILD) += $(hw-platform-y)/ps7_init_gpl.o ps7_init_common.o
+obj-$(CONFIG_SPL_BUILD) += $(hw-platform-y)/ps7_init_gpl.o
