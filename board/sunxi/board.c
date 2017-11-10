@@ -217,6 +217,8 @@ int board_init(void)
 	satapwr_pin = sunxi_name_to_gpio(CONFIG_SATAPWR);
 	gpio_request(satapwr_pin, "satapwr");
 	gpio_direction_output(satapwr_pin, 1);
+	/* Give attached sata device time to power-up to avoid link timeouts */
+	mdelay(500);
 #endif
 #ifdef CONFIG_MACPWR
 	macpwr_pin = sunxi_name_to_gpio(CONFIG_MACPWR);
