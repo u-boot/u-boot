@@ -202,7 +202,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 		flags |= SDHCI_CMD_DATA;
 
 	/* Set Transfer mode regarding to data flag */
-	if (data != 0) {
+	if (data) {
 		sdhci_writeb(host, 0xe, SDHCI_TIMEOUT_CONTROL);
 		mode = SDHCI_TRNS_BLK_CNT_EN;
 		trans_bytes = data->blocks * data->blocksize;
@@ -250,7 +250,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	sdhci_writel(host, cmd->cmdarg, SDHCI_ARGUMENT);
 #ifdef CONFIG_MMC_SDHCI_SDMA
-	if (data != 0) {
+	if (data) {
 		trans_bytes = ALIGN(trans_bytes, CONFIG_SYS_CACHELINE_SIZE);
 		flush_cache(start_addr, trans_bytes);
 	}
