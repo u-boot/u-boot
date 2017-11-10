@@ -104,7 +104,6 @@ extern unsigned long  * ps7_peripherals_init_data;
 int ps7_config( unsigned long*);
 int ps7_init();
 int ps7_post_config();
-int ps7_debug();
 char* getPS7MessageInfo(unsigned key);
 
 void perf_start_clock(void);

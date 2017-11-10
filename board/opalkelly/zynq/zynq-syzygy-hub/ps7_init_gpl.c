@@ -255,12 +255,6 @@ unsigned long ps7_post_config_3_0[] = {
 	EMIT_EXIT(),
 };
 
-unsigned long ps7_debug_3_0[] = {
-	EMIT_WRITE(0XF8898FB0, 0xC5ACCE55U),
-	EMIT_WRITE(0XF8899FB0, 0xC5ACCE55U),
-	EMIT_WRITE(0XF8809FB0, 0xC5ACCE55U),
-	EMIT_EXIT(),
-};
 
 unsigned long ps7_reset_apu_3_0[] = {
 	EMIT_MASKWRITE(0xF8000244, 0x00000022U, 0x00000022U),
@@ -353,10 +347,6 @@ int ps7_post_config(void)
 	return ps7_config(ps7_post_config_3_0);
 }
 
-int ps7_debug(void)
-{
-	return ps7_config(ps7_debug_3_0);
-}
 
 int ps7_reset_apu(void)
 {

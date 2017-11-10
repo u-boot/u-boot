@@ -69,7 +69,6 @@ extern "C" {
 int ps7_config(unsigned long *);
 int ps7_init(void);
 int ps7_post_config(void);
-int ps7_debug(void);
 
 void perf_start_clock(void);
 void perf_disable_clock(void);

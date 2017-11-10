@@ -4228,37 +4228,6 @@ unsigned long ps7_post_config_3_0[] = {
     //
 };
 
-unsigned long ps7_debug_3_0[] = {
-    // START: top
-    // .. START: CROSS TRIGGER CONFIGURATIONS
-    // .. .. START: UNLOCKING CTI REGISTERS
-    // .. .. KEY = 0XC5ACCE55
-    // .. .. ==> 0XF8898FB0[31:0] = 0xC5ACCE55U
-    // .. ..     ==> MASK : 0xFFFFFFFFU    VAL : 0xC5ACCE55U
-    // .. ..
-    EMIT_MASKWRITE(0XF8898FB0, 0xFFFFFFFFU ,0xC5ACCE55U),
-    // .. .. KEY = 0XC5ACCE55
-    // .. .. ==> 0XF8899FB0[31:0] = 0xC5ACCE55U
-    // .. ..     ==> MASK : 0xFFFFFFFFU    VAL : 0xC5ACCE55U
-    // .. ..
-    EMIT_MASKWRITE(0XF8899FB0, 0xFFFFFFFFU ,0xC5ACCE55U),
-    // .. .. KEY = 0XC5ACCE55
-    // .. .. ==> 0XF8809FB0[31:0] = 0xC5ACCE55U
-    // .. ..     ==> MASK : 0xFFFFFFFFU    VAL : 0xC5ACCE55U
-    // .. ..
-    EMIT_MASKWRITE(0XF8809FB0, 0xFFFFFFFFU ,0xC5ACCE55U),
-    // .. .. FINISH: UNLOCKING CTI REGISTERS
-    // .. .. START: ENABLING CTI MODULES AND CHANNELS
-    // .. .. FINISH: ENABLING CTI MODULES AND CHANNELS
-    // .. .. START: MAPPING CPU0, CPU1 AND FTM EVENTS TO CTM CHANNELS
-    // .. .. FINISH: MAPPING CPU0, CPU1 AND FTM EVENTS TO CTM CHANNELS
-    // .. FINISH: CROSS TRIGGER CONFIGURATIONS
-    // FINISH: top
-    //
-    EMIT_EXIT(),
-
-    //
-};
 
 unsigned long ps7_pll_init_data_2_0[] = {
     // START: top
@@ -8639,37 +8608,6 @@ unsigned long ps7_post_config_2_0[] = {
     //
 };
 
-unsigned long ps7_debug_2_0[] = {
-    // START: top
-    // .. START: CROSS TRIGGER CONFIGURATIONS
-    // .. .. START: UNLOCKING CTI REGISTERS
-    // .. .. KEY = 0XC5ACCE55
-    // .. .. ==> 0XF8898FB0[31:0] = 0xC5ACCE55U
-    // .. ..     ==> MASK : 0xFFFFFFFFU    VAL : 0xC5ACCE55U
-    // .. ..
-    EMIT_MASKWRITE(0XF8898FB0, 0xFFFFFFFFU ,0xC5ACCE55U),
-    // .. .. KEY = 0XC5ACCE55
-    // .. .. ==> 0XF8899FB0[31:0] = 0xC5ACCE55U
-    // .. ..     ==> MASK : 0xFFFFFFFFU    VAL : 0xC5ACCE55U
-    // .. ..
-    EMIT_MASKWRITE(0XF8899FB0, 0xFFFFFFFFU ,0xC5ACCE55U),
-    // .. .. KEY = 0XC5ACCE55
-    // .. .. ==> 0XF8809FB0[31:0] = 0xC5ACCE55U
-    // .. ..     ==> MASK : 0xFFFFFFFFU    VAL : 0xC5ACCE55U
-    // .. ..
-    EMIT_MASKWRITE(0XF8809FB0, 0xFFFFFFFFU ,0xC5ACCE55U),
-    // .. .. FINISH: UNLOCKING CTI REGISTERS
-    // .. .. START: ENABLING CTI MODULES AND CHANNELS
-    // .. .. FINISH: ENABLING CTI MODULES AND CHANNELS
-    // .. .. START: MAPPING CPU0, CPU1 AND FTM EVENTS TO CTM CHANNELS
-    // .. .. FINISH: MAPPING CPU0, CPU1 AND FTM EVENTS TO CTM CHANNELS
-    // .. FINISH: CROSS TRIGGER CONFIGURATIONS
-    // FINISH: top
-    //
-    EMIT_EXIT(),
-
-    //
-};
 
 unsigned long ps7_pll_init_data_1_0[] = {
     // START: top
@@ -12983,37 +12921,6 @@ unsigned long ps7_post_config_1_0[] = {
     //
 };
 
-unsigned long ps7_debug_1_0[] = {
-    // START: top
-    // .. START: CROSS TRIGGER CONFIGURATIONS
-    // .. .. START: UNLOCKING CTI REGISTERS
-    // .. .. KEY = 0XC5ACCE55
-    // .. .. ==> 0XF8898FB0[31:0] = 0xC5ACCE55U
-    // .. ..     ==> MASK : 0xFFFFFFFFU    VAL : 0xC5ACCE55U
-    // .. ..
-    EMIT_MASKWRITE(0XF8898FB0, 0xFFFFFFFFU ,0xC5ACCE55U),
-    // .. .. KEY = 0XC5ACCE55
-    // .. .. ==> 0XF8899FB0[31:0] = 0xC5ACCE55U
-    // .. ..     ==> MASK : 0xFFFFFFFFU    VAL : 0xC5ACCE55U
-    // .. ..
-    EMIT_MASKWRITE(0XF8899FB0, 0xFFFFFFFFU ,0xC5ACCE55U),
-    // .. .. KEY = 0XC5ACCE55
-    // .. .. ==> 0XF8809FB0[31:0] = 0xC5ACCE55U
-    // .. ..     ==> MASK : 0xFFFFFFFFU    VAL : 0xC5ACCE55U
-    // .. ..
-    EMIT_MASKWRITE(0XF8809FB0, 0xFFFFFFFFU ,0xC5ACCE55U),
-    // .. .. FINISH: UNLOCKING CTI REGISTERS
-    // .. .. START: ENABLING CTI MODULES AND CHANNELS
-    // .. .. FINISH: ENABLING CTI MODULES AND CHANNELS
-    // .. .. START: MAPPING CPU0, CPU1 AND FTM EVENTS TO CTM CHANNELS
-    // .. .. FINISH: MAPPING CPU0, CPU1 AND FTM EVENTS TO CTM CHANNELS
-    // .. FINISH: CROSS TRIGGER CONFIGURATIONS
-    // FINISH: top
-    //
-    EMIT_EXIT(),
-
-    //
-};
 
 
 #include "xil_io.h"
@@ -13171,25 +13078,6 @@ ps7_post_config()
       if (ret != PS7_INIT_SUCCESS) return ret;
   } else {
       ret = ps7_config (ps7_post_config_3_0);
-      if (ret != PS7_INIT_SUCCESS) return ret;
-  }
-  return PS7_INIT_SUCCESS;
-}
-
-int
-ps7_debug()
-{
-  // Get the PS_VERSION on run time
-  unsigned long si_ver = ps7GetSiliconVersion ();
-  int ret = -1;
-  if (si_ver == PCW_SILICON_VERSION_1) {
-      ret = ps7_config (ps7_debug_1_0);
-      if (ret != PS7_INIT_SUCCESS) return ret;
-  } else if (si_ver == PCW_SILICON_VERSION_2) {
-      ret = ps7_config (ps7_debug_2_0);
-      if (ret != PS7_INIT_SUCCESS) return ret;
-  } else {
-      ret = ps7_config (ps7_debug_3_0);
       if (ret != PS7_INIT_SUCCESS) return ret;
   }
   return PS7_INIT_SUCCESS;
