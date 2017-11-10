@@ -171,6 +171,15 @@ int fpga_add(fpga_type devtype, void *desc)
 }
 
 /*
+ * Return 1 if the fpga data is partial.
+ * This is only required for fpga drivers that support bitstream_type.
+ */
+int __weak fpga_is_partial_data(int devnum, size_t img_len)
+{
+	return 0;
+}
+
+/*
  * Convert bitstream data and load into the fpga
  */
 int __weak fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
