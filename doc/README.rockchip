@@ -166,7 +166,7 @@ To write an image that boots from an SD card (assumed to be /dev/mmcblk0):
    ./tools/mkimage -n rk3288 -T rksd -d ./tpl/u-boot-tpl.bin out &&
     cat ./spl/u-boot-spl-dtb.bin >> out &&
     sudo dd if=out of=/dev/mmcblk0 seek=64 &&
-    sudo dd if=u-boot-dtb.img of=/dev/mmcblk0 seek=256
+    sudo dd if=u-boot-dtb.img of=/dev/mmcblk0 seek=16384
 
 Booting from an SD card on RK3188
 =================================
