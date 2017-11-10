@@ -347,17 +347,11 @@ int ps7_post_config(void)
 	return ps7_config(ps7_post_config_3_0);
 }
 
-
-int ps7_reset_apu(void)
-{
-	return ps7_config(ps7_reset_apu_3_0);
-}
-
 int ps7_init(void)
 {
 	int ret;
 
-	ret = ps7_reset_apu();
+	ret = ps7_config(ps7_reset_apu_3_0);
 	if (ret != PS7_INIT_SUCCESS)
 		return ret;
 
