@@ -291,9 +291,6 @@
 /* FIT support */
 #define CONFIG_IMAGE_FORMAT_LEGACY /* enable also legacy image format */
 
-/* FDT support */
-#define CONFIG_DISPLAY_BOARDINFO_LATE
-
 /* Extend size of kernel image for uncompression */
 #define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
 
