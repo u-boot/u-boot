@@ -548,7 +548,8 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	}
 
 	if (max_hz > OMAP3_MCSPI_MAX_FREQ) {
-		printf("SPI error: unsupported frequency %i Hz. Max frequency is 48 Mhz\n", max_hz);
+		printf("SPI error: unsupported frequency %i Hz. Max frequency is 48 MHz\n",
+		       max_hz);
 		return NULL;
 	}
 
