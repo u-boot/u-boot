@@ -66,10 +66,13 @@ static void erratum_a009008(void)
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009008
 	u32 __iomem *scfg = (u32 __iomem *)SCFG_BASE;
 
-#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A) || \
+	defined(CONFIG_ARCH_LS1012A)
 	set_usb_txvreftune(scfg, SCFG_USB3PRM1CR_USB1);
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
 	set_usb_txvreftune(scfg, SCFG_USB3PRM1CR_USB2);
 	set_usb_txvreftune(scfg, SCFG_USB3PRM1CR_USB3);
+#endif
 #elif defined(CONFIG_ARCH_LS2080A)
 	set_usb_txvreftune(scfg, SCFG_USB3PRM1CR);
 #endif
@@ -87,17 +90,21 @@ static void erratum_a009798(void)
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009798
 	u32 __iomem *scfg = (u32 __iomem *)SCFG_BASE;
 
-#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A) || \
+	defined(CONFIG_ARCH_LS1012A)
 	set_usb_sqrxtune(scfg, SCFG_USB3PRM1CR_USB1);
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
 	set_usb_sqrxtune(scfg, SCFG_USB3PRM1CR_USB2);
 	set_usb_sqrxtune(scfg, SCFG_USB3PRM1CR_USB3);
+#endif
 #elif defined(CONFIG_ARCH_LS2080A)
 	set_usb_sqrxtune(scfg, SCFG_USB3PRM1CR);
 #endif
 #endif /* CONFIG_SYS_FSL_ERRATUM_A009798 */
 }
 
-#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A) || \
+	defined(CONFIG_ARCH_LS1012A)
 static inline void set_usb_pcstxswingfull(u32 __iomem *scfg, u32 offset)
 {
 	scfg_clrsetbits32(scfg + offset / 4,
@@ -109,17 +116,21 @@ static inline void set_usb_pcstxswingfull(u32 __iomem *scfg, u32 offset)
 static void erratum_a008997(void)
 {
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008997
-#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A) || \
+	defined(CONFIG_ARCH_LS1012A)
 	u32 __iomem *scfg = (u32 __iomem *)SCFG_BASE;
 
 	set_usb_pcstxswingfull(scfg, SCFG_USB3PRM2CR_USB1);
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
 	set_usb_pcstxswingfull(scfg, SCFG_USB3PRM2CR_USB2);
 	set_usb_pcstxswingfull(scfg, SCFG_USB3PRM2CR_USB3);
+#endif
 #endif
 #endif /* CONFIG_SYS_FSL_ERRATUM_A008997 */
 }
 
-#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A) || \
+	defined(CONFIG_ARCH_LS1012A)
 
 #define PROGRAM_USB_PHY_RX_OVRD_IN_HI(phy)	\
 	out_be16((phy) + SCFG_USB_PHY_RX_OVRD_IN_HI, USB_PHY_RX_EQ_VAL_1);	\
@@ -139,16 +150,18 @@ static void erratum_a008997(void)
 
 static void erratum_a009007(void)
 {
-#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A) || \
+	defined(CONFIG_ARCH_LS1012A)
 	void __iomem *usb_phy = (void __iomem *)SCFG_USB_PHY1;
 
 	PROGRAM_USB_PHY_RX_OVRD_IN_HI(usb_phy);
-
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
 	usb_phy = (void __iomem *)SCFG_USB_PHY2;
 	PROGRAM_USB_PHY_RX_OVRD_IN_HI(usb_phy);
 
 	usb_phy = (void __iomem *)SCFG_USB_PHY3;
 	PROGRAM_USB_PHY_RX_OVRD_IN_HI(usb_phy);
+#endif
 #elif defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LS1088A)
 	void __iomem *dcsr = (void __iomem *)DCSR_BASE;
 
