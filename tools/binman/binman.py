@@ -10,6 +10,7 @@
 
 """See README for more information"""
 
+import glob
 import os
 import sys
 import traceback
@@ -67,12 +68,27 @@ def RunTestCoverage():
             'tools/binman/binman.py -t' % options.build_dir)
     os.system(cmd)
     stdout = command.Output('coverage', 'report')
-    coverage = stdout.splitlines()[-1].split(' ')[-1]
+    lines = stdout.splitlines()
+
+    test_set= set([os.path.basename(line.split()[0])
+                     for line in lines if '/etype/' in line])
+    glob_list = glob.glob(os.path.join(our_path, 'etype/*.py'))
+    all_set = set([os.path.basename(item) for item in glob_list])
+    missing_list = all_set
+    missing_list.difference_update(test_set)
+    missing_list.remove('_testing.py')
+    coverage = lines[-1].split(' ')[-1]
+    ok = True
+    if missing_list:
+        print 'Missing tests for %s' % (', '.join(missing_list))
+        ok = False
     if coverage != '100%':
         print stdout
         print "Type 'coverage html' to get a report in htmlcov/index.html"
-        raise ValueError('Coverage error: %s, but should be 100%%' % coverage)
-
+        print 'Coverage error: %s, but should be 100%%' % coverage
+        ok = False
+    if not ok:
+      raise ValueError('Test coverage failure')
 
 def RunBinman(options, args):
     """Main entry point to binman once arguments are parsed
