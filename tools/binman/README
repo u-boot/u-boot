@@ -446,7 +446,8 @@ If you are having trouble figuring out what is going on, you can uncomment
 the 'warning' line in scripts/Makefile.lib to see what it has found:
 
    # Uncomment for debugging
-   # $(warning binman_dtsi_options: $(binman_dtsi_options))
+   # This shows all the files that were considered and the one that we chose.
+   # u_boot_dtsi_options_debug = $(u_boot_dtsi_options_raw)
 
 
 Code coverage
