@@ -40,6 +40,7 @@ U_BOOT_SPL_NODTB_DATA = 'splnodtb with microcode pointer somewhere in here'
 FSP_DATA              = 'fsp'
 CMC_DATA              = 'cmc'
 VBT_DATA              = 'vbt'
+MRC_DATA              = 'mrc'
 
 class TestFunctional(unittest.TestCase):
     """Functional tests for binman
@@ -84,6 +85,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('fsp.bin', FSP_DATA)
         TestFunctional._MakeInputFile('cmc.bin', CMC_DATA)
         TestFunctional._MakeInputFile('vbt.bin', VBT_DATA)
+        TestFunctional._MakeInputFile('mrc.bin', MRC_DATA)
         self._output_setup = False
 
         # ELF file with a '_dt_ucode_base_size' symbol
@@ -854,6 +856,11 @@ class TestFunctional(unittest.TestCase):
                                                      U_BOOT_SPL_NODTB_DATA)
         self.assertEqual('splnodtb with microc' + pos_and_size +
                          'ter somewhere in here', first)
+
+    def testPackMrc(self):
+        """Test that an image with an MRC binary can be created"""
+        data = self._DoReadFile('50_intel_mrc.dts')
+        self.assertEqual(MRC_DATA, data[:len(MRC_DATA)])
 
 
 if __name__ == "__main__":
