@@ -58,7 +58,7 @@ def RunTests():
 def RunTestCoverage():
     """Run the tests and check that we get 100% coverage"""
     # This uses the build output from sandbox_spl to get _libfdt.so
-    cmd = ('PYTHONPATH=%s/sandbox_spl/tools coverage run '
+    cmd = ('PYTHONPATH=$PYTHONPATH:%s/sandbox_spl/tools coverage run '
             '--include "tools/binman/*.py" --omit "*test*,*binman.py" '
             'tools/binman/binman.py -t' % options.build_dir)
     os.system(cmd)
