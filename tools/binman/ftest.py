@@ -34,6 +34,7 @@ ME_DATA             = '0abcd'
 VGA_DATA            = 'vga'
 U_BOOT_DTB_DATA     = 'udtb'
 X86_START16_DATA    = 'start16'
+X86_START16_SPL_DATA = 'start16spl'
 U_BOOT_NODTB_DATA   = 'nodtb with microcode pointer somewhere in here'
 FSP_DATA            = 'fsp'
 CMC_DATA            = 'cmc'
@@ -74,6 +75,8 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('vga.bin', VGA_DATA)
         TestFunctional._MakeInputFile('u-boot.dtb', U_BOOT_DTB_DATA)
         TestFunctional._MakeInputFile('u-boot-x86-16bit.bin', X86_START16_DATA)
+        TestFunctional._MakeInputFile('spl/u-boot-x86-16bit-spl.bin',
+                                      X86_START16_SPL_DATA)
         TestFunctional._MakeInputFile('u-boot-nodtb.bin', U_BOOT_NODTB_DATA)
         TestFunctional._MakeInputFile('fsp.bin', FSP_DATA)
         TestFunctional._MakeInputFile('cmc.bin', CMC_DATA)
@@ -677,7 +680,7 @@ class TestFunctional(unittest.TestCase):
 
         # Check that the microcode appears immediately after the Fdt
         # This matches the concatenation of the data properties in
-        # the /microcode/update@xxx nodes in x86_ucode.dts.
+        # the /microcode/update@xxx nodes in 34_x86_ucode.dts.
         ucode_data = struct.pack('>4L', 0x12345678, 0x12345679, 0xabcd0000,
                                  0x78235609)
         self.assertEqual(ucode_data, third[:len(ucode_data)])
@@ -822,6 +825,11 @@ class TestFunctional(unittest.TestCase):
         """Test that we can pad SPL's BSS with zeros"""
         data = self._DoReadFile('47_spl_bss_pad.dts')
         self.assertEqual(U_BOOT_SPL_DATA + (chr(0) * 10) + U_BOOT_DATA, data)
+
+    def testPackStart16Spl(self):
+        """Test that an image with an x86 start16 region can be created"""
+        data = self._DoReadFile('48_x86-start16-spl.dts')
+        self.assertEqual(X86_START16_SPL_DATA, data[:len(X86_START16_SPL_DATA)])
 
 
 if __name__ == "__main__":
