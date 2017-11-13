@@ -55,3 +55,7 @@ class TestEntry(unittest.TestCase):
             entry.Entry.Create(None, node, node.name)
         self.assertIn("Unknown entry type 'invalid-name' in node "
                       "'invalid-path'", str(e.exception))
+
+
+if __name__ == "__main__":
+    unittest.main()

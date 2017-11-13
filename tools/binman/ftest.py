@@ -813,3 +813,7 @@ class TestFunctional(unittest.TestCase):
         """Test that an image with a VBT binary can be created"""
         data = self._DoReadFile('46_intel-vbt.dts')
         self.assertEqual(VBT_DATA, data[:len(VBT_DATA)])
+
+
+if __name__ == "__main__":
+    unittest.main()
