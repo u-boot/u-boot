@@ -34,7 +34,7 @@ def RunTests():
     """Run the functional tests and any embedded doctests"""
     import entry_test
     import fdt_test
-    import func_test
+    import ftest
     import test
     import doctest
 
@@ -44,7 +44,7 @@ def RunTests():
         suite.run(result)
 
     sys.argv = [sys.argv[0]]
-    for module in (func_test.TestFunctional, fdt_test.TestFdt,
+    for module in (ftest.TestFunctional, fdt_test.TestFdt,
                    entry_test.TestEntry):
         suite = unittest.TestLoader().loadTestsFromTestCase(module)
         suite.run(result)
