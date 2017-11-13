@@ -44,8 +44,12 @@ def RunTests():
         suite.run(result)
 
     sys.argv = [sys.argv[0]]
-    for module in (ftest.TestFunctional, fdt_test.TestFdt,
-                   entry_test.TestEntry):
+
+    # Run the entry tests first ,since these need to be the first to import the
+    # 'entry' module.
+    suite = unittest.TestLoader().loadTestsFromTestCase(entry_test.TestEntry)
+    suite.run(result)
+    for module in (ftest.TestFunctional, fdt_test.TestFdt):
         suite = unittest.TestLoader().loadTestsFromTestCase(module)
         suite.run(result)
 
