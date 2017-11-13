@@ -11,7 +11,7 @@ CFLAGS := -march=i386 -m32 -nostdlib -I ../../../include
 
 LDS_UCODE := -T u_boot_ucode_ptr.lds
 
-TARGETS = u_boot_ucode_ptr u_boot_no_ucode_ptr
+TARGETS = u_boot_ucode_ptr u_boot_no_ucode_ptr bss_data
 
 all: $(TARGETS)
 
@@ -20,6 +20,9 @@ u_boot_no_ucode_ptr: u_boot_no_ucode_ptr.c
 
 u_boot_ucode_ptr: CFLAGS += $(LDS_UCODE)
 u_boot_ucode_ptr: u_boot_ucode_ptr.c
+
+bss_data: CFLAGS += bss_data.lds
+bss_data: bss_data.c
 
 clean:
 	rm -f $(TARGETS)

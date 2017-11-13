@@ -88,6 +88,10 @@ class TestFunctional(unittest.TestCase):
         with open(self.TestFile('descriptor.bin')) as fd:
             TestFunctional._MakeInputFile('descriptor.bin', fd.read())
 
+        # ELF file with a '__bss_size' symbol
+        with open(self.TestFile('bss_data')) as fd:
+            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+
     @classmethod
     def tearDownClass(self):
         """Remove the temporary input directory and its contents"""
@@ -813,6 +817,11 @@ class TestFunctional(unittest.TestCase):
         """Test that an image with a VBT binary can be created"""
         data = self._DoReadFile('46_intel-vbt.dts')
         self.assertEqual(VBT_DATA, data[:len(VBT_DATA)])
+
+    def testSplBssPad(self):
+        """Test that we can pad SPL's BSS with zeros"""
+        data = self._DoReadFile('47_spl_bss_pad.dts')
+        self.assertEqual(U_BOOT_SPL_DATA + (chr(0) * 10) + U_BOOT_DATA, data)
 
 
 if __name__ == "__main__":
