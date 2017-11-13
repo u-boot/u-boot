@@ -25,4 +25,4 @@ class Entry_u_boot_spl_with_ucode_ptr(Entry_u_boot_with_ucode_ptr):
         self.elf_fname = 'spl/u-boot-spl'
 
     def GetDefaultFilename(self):
-        return 'spl/u-boot-spl.bin'
+        return 'spl/u-boot-spl-nodtb.bin'
