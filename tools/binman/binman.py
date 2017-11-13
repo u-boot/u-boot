@@ -58,7 +58,11 @@ def RunTests():
     for test, err in result.errors:
         print test.id(), err
     for test, err in result.failures:
-        print err
+        print err, result.failures
+    if result.errors or result.failures:
+      print 'binman tests FAILED'
+      return 1
+    return 0
 
 def RunTestCoverage():
     """Run the tests and check that we get 100% coverage"""
@@ -106,7 +110,7 @@ def RunBinman(options, args):
         sys.tracebacklimit = 0
 
     if options.test:
-        RunTests()
+        ret_code = RunTests()
 
     elif options.test_coverage:
         RunTestCoverage()
