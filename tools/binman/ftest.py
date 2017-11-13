@@ -20,7 +20,6 @@ import binman
 import cmdline
 import command
 import control
-import entry
 import fdt
 import fdt_util
 import tools
@@ -56,6 +55,9 @@ class TestFunctional(unittest.TestCase):
     """
     @classmethod
     def setUpClass(self):
+        global entry
+        import entry
+
         # Handle the case where argv[0] is 'python'
         self._binman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
         self._binman_pathname = os.path.join(self._binman_dir, 'binman')
