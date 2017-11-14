@@ -18,6 +18,10 @@
 		ocp2scp@4a090000 {
 			compatible = "ti,omap-ocp2scp", "simple-bus";
 		};
+
+		bandgap@4a0021e0 {
+			u-boot,dm-spl;
+		};
 	};
 };
 
