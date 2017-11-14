@@ -1,0 +1,40 @@
+#include <config.h>
+
+/ {
+	binman {
+		multiple-images;
+		image1 {
+			filename = "u-boot-tegra.bin";
+			pad-byte = <0xff>;
+			u-boot-spl {
+			};
+			u-boot {
+				pos = <(CONFIG_SYS_TEXT_BASE -
+					CONFIG_SPL_TEXT_BASE)>;
+			};
+		};
+
+		/* Same as image1 - some tools still expect the -dtb suffix */
+		image2 {
+			filename = "u-boot-dtb-tegra.bin";
+			pad-byte = <0xff>;
+			u-boot-spl {
+			};
+			u-boot {
+				pos = <(CONFIG_SYS_TEXT_BASE -
+					CONFIG_SPL_TEXT_BASE)>;
+			};
+		};
+
+		image3 {
+			filename = "u-boot-nodtb-tegra.bin";
+			pad-byte = <0xff>;
+			u-boot-spl {
+			};
+			u-boot-nodtb {
+				pos = <(CONFIG_SYS_TEXT_BASE -
+					CONFIG_SPL_TEXT_BASE)>;
+			};
+		};
+	};
+};
