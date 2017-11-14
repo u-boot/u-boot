@@ -304,7 +304,6 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(0, len(result.stderr))
         self.assertEqual(0, result.return_code)
 
-    # Not yet available.
     def testBoard(self):
         """Test that we can run it with a specific board"""
         self._SetupDtb('05_simple.dts', 'sandbox/u-boot.dtb')
