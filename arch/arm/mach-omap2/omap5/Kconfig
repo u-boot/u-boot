@@ -30,6 +30,9 @@ config TARGET_DRA7XX_EVM
 	imply PMIC_LP87565
 	imply DM_REGULATOR
 	imply DM_REGULATOR_LP87565
+	imply SPL_THERMAL
+	imply DM_THERMAL
+	imply TI_DRA7_THERMAL
 
 config TARGET_AM57XX_EVM
 	bool "AM57XX"
@@ -37,6 +40,9 @@ config TARGET_AM57XX_EVM
 	select DRA7XX
 	select TI_I2C_BOARD_DETECT
 	imply SCSI
+	imply SPL_THERMAL
+	imply DM_THERMAL
+	imply TI_DRA7_THERMAL
 
 endchoice
 
