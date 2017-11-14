@@ -28,7 +28,7 @@ import tout
 # Contents of test files, corresponding to different entry types
 U_BOOT_DATA           = '1234'
 U_BOOT_IMG_DATA       = 'img'
-U_BOOT_SPL_DATA       = '567'
+U_BOOT_SPL_DATA       = '56780123456789abcde'
 BLOB_DATA             = '89'
 ME_DATA               = '0abcd'
 VGA_DATA              = 'vga'
@@ -565,7 +565,7 @@ class TestFunctional(unittest.TestCase):
     def testImagePadByte(self):
         """Test that the image pad byte can be specified"""
         data = self._DoReadFile('21_image_pad.dts')
-        self.assertEqual(U_BOOT_SPL_DATA + (chr(0xff) * 9) + U_BOOT_DATA, data)
+        self.assertEqual(U_BOOT_SPL_DATA + (chr(0xff) * 1) + U_BOOT_DATA, data)
 
     def testImageName(self):
         """Test that image files can be named"""
@@ -587,7 +587,7 @@ class TestFunctional(unittest.TestCase):
     def testPackSorted(self):
         """Test that entries can be sorted"""
         data = self._DoReadFile('24_sorted.dts')
-        self.assertEqual(chr(0) * 5 + U_BOOT_SPL_DATA + chr(0) * 2 +
+        self.assertEqual(chr(0) * 1 + U_BOOT_SPL_DATA + chr(0) * 2 +
                          U_BOOT_DATA, data)
 
     def testPackZeroPosition(self):
@@ -615,14 +615,14 @@ class TestFunctional(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('28_pack_4gb_outside.dts')
         self.assertIn("Node '/binman/u-boot': Position 0x0 (0) is outside "
-                      "the image starting at 0xfffffff0 (4294967280)",
+                      "the image starting at 0xffffffe0 (4294967264)",
                       str(e.exception))
 
     def testPackX86Rom(self):
         """Test that a basic x86 ROM can be created"""
         data = self._DoReadFile('29_x86-rom.dts')
-        self.assertEqual(U_BOOT_DATA + chr(0) * 3 + U_BOOT_SPL_DATA +
-                         chr(0) * 6, data)
+        self.assertEqual(U_BOOT_DATA + chr(0) * 7 + U_BOOT_SPL_DATA +
+                         chr(0) * 2, data)
 
     def testPackX86RomMeNoDesc(self):
         """Test that an invalid Intel descriptor entry is detected"""
