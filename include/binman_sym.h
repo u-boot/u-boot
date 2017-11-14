@@ -38,6 +38,17 @@
 		__attribute__((aligned(4), unused, section(".binman_sym")))
 
 /**
+ * binman_sym_extern() - Declare a extern symbol that will be used at run-time
+ *
+ * @_type: Type f the symbol (e.g. unsigned long)
+ * @entry_name: Name of the entry to look for (e.g. 'u_boot_spl')
+ * @_prop_name: Property value to get from that entry (e.g. 'pos')
+ */
+#define binman_sym_extern(_type, _entry_name, _prop_name) \
+	extern _type binman_symname(_entry_name, _prop_name) \
+		__attribute__((aligned(4), unused, section(".binman_sym")))
+
+/**
  * binman_sym_declare_optional() - Declare an optional symbol
  *
  * If this symbol cannot be provided by binman, an error will not be generated.
@@ -72,6 +83,8 @@
 #define binman_sym_declare(_type, _entry_name, _prop_name)
 
 #define binman_sym_declare_optional(_type, _entry_name, _prop_name)
+
+#define binman_sym_extern(_type, _entry_name, _prop_name)
 
 #define binman_sym(_type, _entry_name, _prop_name) BINMAN_SYM_MISSING
 
