@@ -103,52 +103,6 @@ int set_default_vars(int nvars, char * const vars[])
 				H_NOCLEAR | H_INTERACTIVE, 0, nvars, vars);
 }
 
-#ifdef CONFIG_ENV_AES
-#include <uboot_aes.h>
-/**
- * env_aes_cbc_get_key() - Get AES-128-CBC key for the environment
- *
- * This function shall return 16-byte array containing AES-128 key used
- * to encrypt and decrypt the environment. This function must be overridden
- * by the implementer as otherwise the environment encryption will not
- * work.
- */
-__weak uint8_t *env_aes_cbc_get_key(void)
-{
-	return NULL;
-}
-
-static int env_aes_cbc_crypt(env_t *env, const int enc)
-{
-	unsigned char *data = env->data;
-	uint8_t *key;
-	uint8_t key_exp[AES_EXPAND_KEY_LENGTH];
-	uint32_t aes_blocks;
-
-	key = env_aes_cbc_get_key();
-	if (!key)
-		return -EINVAL;
-
-	/* First we expand the key. */
-	aes_expand_key(key, key_exp);
-
-	/* Calculate the number of AES blocks to encrypt. */
-	aes_blocks = ENV_SIZE / AES_KEY_LENGTH;
-
-	if (enc)
-		aes_cbc_encrypt_blocks(key_exp, data, data, aes_blocks);
-	else
-		aes_cbc_decrypt_blocks(key_exp, data, data, aes_blocks);
-
-	return 0;
-}
-#else
-static inline int env_aes_cbc_crypt(env_t *env, const int enc)
-{
-	return 0;
-}
-#endif
-
 /*
  * Check if CRC is valid and (if yes) import the environment.
  * Note that "buf" may or may not be aligned.
@@ -156,7 +110,6 @@ static inline int env_aes_cbc_crypt(env_t *env, const int enc)
 int env_import(const char *buf, int check)
 {
 	env_t *ep = (env_t *)buf;
-	int ret;
 
 	if (check) {
 		uint32_t crc;
@@ -167,14 +120,6 @@ int env_import(const char *buf, int check)
 			set_default_env("!bad CRC");
 			return 0;
 		}
-	}
-
-	/* Decrypt the env if desired. */
-	ret = env_aes_cbc_crypt(ep, 0);
-	if (ret) {
-		pr_err("Failed to decrypt env!\n");
-		set_default_env("!import failed");
-		return ret;
 	}
 
 	if (himport_r(&env_htab, (char *)ep->data, ENV_SIZE, '\0', 0, 0,
@@ -242,7 +187,6 @@ int env_export(env_t *env_out)
 {
 	char *res;
 	ssize_t	len;
-	int ret;
 
 	res = (char *)env_out->data;
 	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
@@ -250,11 +194,6 @@ int env_export(env_t *env_out)
 		pr_err("Cannot export environment: errno = %d\n", errno);
 		return 1;
 	}
-
-	/* Encrypt the env if desired. */
-	ret = env_aes_cbc_crypt(env_out, 1);
-	if (ret)
-		return ret;
 
 	env_out->crc = crc32(0, env_out->data, ENV_SIZE);
 

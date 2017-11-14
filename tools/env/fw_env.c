@@ -111,8 +111,6 @@ static struct environment environment = {
 	.flag_scheme = FLAG_NONE,
 };
 
-static int env_aes_cbc_crypt(char *data, const int enc, uint8_t *key);
-
 static int HaveRedundEnv = 0;
 
 static unsigned char active_flag = 1;
@@ -217,34 +215,6 @@ char *fw_getdefenv(char *name)
 	return NULL;
 }
 
-int parse_aes_key(char *key, uint8_t *bin_key)
-{
-	char tmp[5] = { '0', 'x', 0, 0, 0 };
-	unsigned long ul;
-	int i;
-
-	if (strnlen(key, 64) != 32) {
-		fprintf(stderr,
-			"## Error: '-a' option requires 16-byte AES key\n");
-		return -1;
-	}
-
-	for (i = 0; i < 16; i++) {
-		tmp[2] = key[0];
-		tmp[3] = key[1];
-		errno = 0;
-		ul = strtoul(tmp, NULL, 16);
-		if (errno) {
-			fprintf(stderr,
-				"## Error: '-a' option requires valid AES key\n");
-			return -1;
-		}
-		bin_key[i] = ul & 0xff;
-		key += 2;
-	}
-	return 0;
-}
-
 /*
  * Print the current definition of one, or more, or all
  * environment variables
@@ -312,16 +282,6 @@ int fw_env_flush(struct env_opts *opts)
 
 	if (!opts)
 		opts = &default_opts;
-
-	if (opts->aes_flag) {
-		ret = env_aes_cbc_crypt(environment.data, 1,
-					opts->aes_key);
-		if (ret) {
-			fprintf(stderr,
-				"Error: can't encrypt env for flash\n");
-			return ret;
-		}
-	}
 
 	/*
 	 * Update CRC
@@ -976,28 +936,6 @@ static int flash_flag_obsolete (int dev, int fd, off_t offset)
 	return rc;
 }
 
-/* Encrypt or decrypt the environment before writing or reading it. */
-static int env_aes_cbc_crypt(char *payload, const int enc, uint8_t *key)
-{
-	uint8_t *data = (uint8_t *)payload;
-	const int len = usable_envsize;
-	uint8_t key_exp[AES_EXPAND_KEY_LENGTH];
-	uint32_t aes_blocks;
-
-	/* First we expand the key. */
-	aes_expand_key(key, key_exp);
-
-	/* Calculate the number of AES blocks to encrypt. */
-	aes_blocks = DIV_ROUND_UP(len, AES_KEY_LENGTH);
-
-	if (enc)
-		aes_cbc_encrypt_blocks(key_exp, data, data, aes_blocks);
-	else
-		aes_cbc_decrypt_blocks(key_exp, data, data, aes_blocks);
-
-	return 0;
-}
-
 static int flash_write (int fd_current, int fd_target, int dev_target)
 {
 	int rc;
@@ -1182,13 +1120,6 @@ int fw_env_open(struct env_opts *opts)
 
 	crc0 = crc32 (0, (uint8_t *) environment.data, ENV_SIZE);
 
-	if (opts->aes_flag) {
-		ret = env_aes_cbc_crypt(environment.data, 0,
-					opts->aes_key);
-		if (ret)
-			goto open_cleanup;
-	}
-
 	crc0_ok = (crc0 == *environment.crc);
 	if (!HaveRedundEnv) {
 		if (!crc0_ok) {
@@ -1243,13 +1174,6 @@ int fw_env_open(struct env_opts *opts)
 		}
 
 		crc1 = crc32 (0, (uint8_t *) redundant->data, ENV_SIZE);
-
-		if (opts->aes_flag) {
-			ret = env_aes_cbc_crypt(redundant->data, 0,
-						opts->aes_key);
-			if (ret)
-				goto open_cleanup;
-		}
 
 		crc1_ok = (crc1 == redundant->crc);
 		flag1 = redundant->flags;
@@ -1497,9 +1421,6 @@ static int parse_config(struct env_opts *opts)
 	usable_envsize = CUR_ENVSIZE - sizeof(uint32_t);
 	if (HaveRedundEnv)
 		usable_envsize -= sizeof(char);
-
-	if (opts->aes_flag)
-		usable_envsize &= ~(AES_KEY_LENGTH - 1);
 
 	return 0;
 }

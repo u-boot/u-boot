@@ -25,7 +25,7 @@ hostprogs-y := fw_printenv
 
 lib-y += fw_env.o \
 	crc32.o ctype.o linux_string.o \
-	env_attr.o env_flags.o aes.o
+	env_attr.o env_flags.o
 
 fw_printenv-objs := fw_env_main.o $(lib-y)
 
