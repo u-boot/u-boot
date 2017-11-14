@@ -14,6 +14,9 @@ import struct
 
 import tools
 
+# This is enabled from control.py
+debug = False
+
 Symbol = namedtuple('Symbol', ['section', 'address', 'size', 'weak'])
 
 # Used for tests which don't have an ELF file to read

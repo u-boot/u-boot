@@ -136,7 +136,10 @@ class TestFunctional(unittest.TestCase):
         Returns:
             Return value (0 for success)
         """
-        (options, args) = cmdline.ParseArgs(list(args))
+        args = list(args)
+        if '-D' in sys.argv:
+            args = args + ['-D']
+        (options, args) = cmdline.ParseArgs(args)
         options.pager = 'binman-invalid-pager'
         options.build_dir = self._indir
 
@@ -144,14 +147,16 @@ class TestFunctional(unittest.TestCase):
         # options.verbosity = tout.DEBUG
         return control.Binman(options, args)
 
-    def _DoTestFile(self, fname):
+    def _DoTestFile(self, fname, debug=False):
         """Run binman with a given test file
 
         Args:
             fname: Device tree source filename to use (e.g. 05_simple.dts)
         """
-        return self._DoBinman('-p', '-I', self._indir,
-                              '-d', self.TestFile(fname))
+        args = ['-p', '-I', self._indir, '-d', self.TestFile(fname)]
+        if debug:
+            args.append('-D')
+        return self._DoBinman(*args)
 
     def _SetupDtb(self, fname, outfile='u-boot.dtb'):
         """Set up a new test device-tree file
@@ -362,6 +367,10 @@ class TestFunctional(unittest.TestCase):
         """Test a simple binman with a single file"""
         data = self._DoReadFile('05_simple.dts')
         self.assertEqual(U_BOOT_DATA, data)
+
+    def testSimpleDebug(self):
+        """Test a simple binman run with debugging enabled"""
+        data = self._DoTestFile('05_simple.dts', debug=True)
 
     def testDual(self):
         """Test that we can handle creating two images

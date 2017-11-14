@@ -31,7 +31,7 @@ import cmdline
 import command
 import control
 
-def RunTests():
+def RunTests(debug):
     """Run the functional tests and any embedded doctests"""
     import elf_test
     import entry_test
@@ -46,6 +46,8 @@ def RunTests():
         suite.run(result)
 
     sys.argv = [sys.argv[0]]
+    if debug:
+        sys.argv.append('-D')
 
     # Run the entry tests first ,since these need to be the first to import the
     # 'entry' module.
@@ -111,7 +113,7 @@ def RunBinman(options, args):
         sys.tracebacklimit = 0
 
     if options.test:
-        ret_code = RunTests()
+        ret_code = RunTests(options.debug)
 
     elif options.test_coverage:
         RunTestCoverage()

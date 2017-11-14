@@ -12,6 +12,7 @@ import sys
 import tools
 
 import command
+import elf
 import fdt
 import fdt_util
 from image import Image
@@ -89,6 +90,8 @@ def Binman(options, args):
 
     try:
         tout.Init(options.verbosity)
+        if options.debug:
+            elf.debug = True
         try:
             tools.SetInputDirs(options.indir)
             tools.PrepareOutputDir(options.outdir, options.preserve)
