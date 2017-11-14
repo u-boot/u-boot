@@ -605,6 +605,14 @@ config SPL_SPI_SUPPORT
 	  enable SPI drivers that are needed for other purposes also, such
 	  as a SPI PMIC.
 
+config SPL_THERMAL
+	bool "Driver support for thermal devices"
+	help
+	  Enable support for temperature-sensing devices. Some SoCs have on-chip
+	  temperature sensors to permit warnings, speed throttling or even
+	  automatic power-off when the temperature gets too high or low. Other
+	  devices may be discrete but connected on a suitable bus.
+
 config SPL_USB_HOST_SUPPORT
 	bool "Support USB host drivers"
 	help
