@@ -33,6 +33,7 @@ import control
 
 def RunTests():
     """Run the functional tests and any embedded doctests"""
+    import elf_test
     import entry_test
     import fdt_test
     import ftest
@@ -50,7 +51,7 @@ def RunTests():
     # 'entry' module.
     suite = unittest.TestLoader().loadTestsFromTestCase(entry_test.TestEntry)
     suite.run(result)
-    for module in (ftest.TestFunctional, fdt_test.TestFdt):
+    for module in (ftest.TestFunctional, fdt_test.TestFdt, elf_test.TestElf):
         suite = unittest.TestLoader().loadTestsFromTestCase(module)
         suite.run(result)
 
