@@ -11,6 +11,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <binman_sym.h>
+#include <mapmem.h>
 #include <spl.h>
 #include <libfdt.h>
 
@@ -48,15 +50,24 @@ static int spl_ram_load_image(struct spl_image_info *spl_image,
 		load.read = spl_ram_load_read;
 		spl_load_simple_fit(spl_image, &load, 0, header);
 	} else {
+		ulong u_boot_pos = binman_sym(ulong, u_boot_any, pos);
+
 		debug("Legacy image\n");
 		/*
 		 * Get the header.  It will point to an address defined by
 		 * handoff which will tell where the image located inside
-		 * the flash. For now, it will temporary fixed to address
-		 * pointed by U-Boot.
+		 * the flash.
 		 */
-		header = (struct image_header *)
-			(CONFIG_SYS_TEXT_BASE -	sizeof(struct image_header));
+		debug("u_boot_pos = %lx\n", u_boot_pos);
+		if (u_boot_pos == BINMAN_SYM_MISSING) {
+			/*
+			 * No binman support or no information. For now, fix it
+			 * to the address pointed to by U-Boot.
+			 */
+			u_boot_pos = CONFIG_SYS_TEXT_BASE -
+					sizeof(struct image_header);
+		}
+		header = (struct image_header *)map_sysmem(u_boot_pos, 0);
 
 		spl_parse_image_header(spl_image, header);
 	}
