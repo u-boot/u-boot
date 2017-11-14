@@ -90,8 +90,7 @@ def Binman(options, args):
 
     try:
         tout.Init(options.verbosity)
-        if options.debug:
-            elf.debug = True
+        elf.debug = options.debug
         try:
             tools.SetInputDirs(options.indir)
             tools.PrepareOutputDir(options.outdir, options.preserve)
@@ -112,6 +111,7 @@ def Binman(options, args):
                 image.CheckSize()
                 image.CheckEntries()
                 image.ProcessEntryContents()
+                image.WriteSymbols()
                 image.BuildImage()
         finally:
             tools.FinaliseOutputDir()

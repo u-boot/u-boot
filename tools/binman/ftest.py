@@ -20,6 +20,7 @@ import binman
 import cmdline
 import command
 import control
+import elf
 import fdt
 import fdt_util
 import tools
@@ -573,6 +574,8 @@ class TestFunctional(unittest.TestCase):
 
     def testImagePadByte(self):
         """Test that the image pad byte can be specified"""
+        with open(self.TestFile('bss_data')) as fd:
+            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
         data = self._DoReadFile('21_image_pad.dts')
         self.assertEqual(U_BOOT_SPL_DATA + (chr(0xff) * 1) + U_BOOT_DATA, data)
 
@@ -888,6 +891,22 @@ class TestFunctional(unittest.TestCase):
         """Test that an image with spl/u-boot-spl-nodtb.bin can be created"""
         data = self._DoReadFile('52_u_boot_spl_nodtb.dts')
         self.assertEqual(U_BOOT_SPL_NODTB_DATA, data[:len(U_BOOT_SPL_NODTB_DATA)])
+
+    def testSymbols(self):
+        """Test binman can assign symbols embedded in U-Boot"""
+        elf_fname = self.TestFile('u_boot_binman_syms')
+        syms = elf.GetSymbols(elf_fname, ['binman', 'image'])
+        addr = elf.GetSymbolAddress(elf_fname, '__image_copy_start')
+        self.assertEqual(syms['_binman_u_boot_spl_prop_pos'].address, addr)
+
+        with open(self.TestFile('u_boot_binman_syms')) as fd:
+            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        data = self._DoReadFile('53_symbols.dts')
+        sym_values = struct.pack('<LQL', 0x24 + 0, 0x24 + 24, 0x24 + 20)
+        expected = (sym_values + U_BOOT_SPL_DATA[16:] + chr(0xff) +
+                    U_BOOT_DATA +
+                    sym_values + U_BOOT_SPL_DATA[16:])
+        self.assertEqual(expected, data)
 
 
 if __name__ == "__main__":

@@ -37,6 +37,7 @@ def RunTests(debug):
     import entry_test
     import fdt_test
     import ftest
+    import image_test
     import test
     import doctest
 
@@ -53,7 +54,8 @@ def RunTests(debug):
     # 'entry' module.
     suite = unittest.TestLoader().loadTestsFromTestCase(entry_test.TestEntry)
     suite.run(result)
-    for module in (ftest.TestFunctional, fdt_test.TestFdt, elf_test.TestElf):
+    for module in (ftest.TestFunctional, fdt_test.TestFdt, elf_test.TestElf,
+                   image_test.TestImage):
         suite = unittest.TestLoader().loadTestsFromTestCase(module)
         suite.run(result)
 

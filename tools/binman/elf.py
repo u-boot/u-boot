@@ -19,9 +19,6 @@ debug = False
 
 Symbol = namedtuple('Symbol', ['section', 'address', 'size', 'weak'])
 
-# Used for tests which don't have an ELF file to read
-ignore_missing_files = False
-
 
 def GetSymbols(fname, patterns):
     """Get the symbols from an ELF file
@@ -78,3 +75,55 @@ def GetSymbolAddress(fname, sym_name):
     if not sym:
         return None
     return sym.address
+
+def LookupAndWriteSymbols(elf_fname, entry, image):
+    """Replace all symbols in an entry with their correct values
+
+    The entry contents is updated so that values for referenced symbols will be
+    visible at run time. This is done by finding out the symbols positions in
+    the entry (using the ELF file) and replacing them with values from binman's
+    data structures.
+
+    Args:
+        elf_fname: Filename of ELF image containing the symbol information for
+            entry
+        entry: Entry to process
+        image: Image which can be used to lookup symbol values
+    """
+    fname = tools.GetInputFilename(elf_fname)
+    syms = GetSymbols(fname, ['image', 'binman'])
+    if not syms:
+        return
+    base = syms.get('__image_copy_start')
+    if not base:
+        return
+    for name, sym in syms.iteritems():
+        if name.startswith('_binman'):
+            msg = ("Image '%s': Symbol '%s'\n   in entry '%s'" %
+                   (image.GetPath(), name, entry.GetPath()))
+            offset = sym.address - base.address
+            if offset < 0 or offset + sym.size > entry.contents_size:
+                raise ValueError('%s has offset %x (size %x) but the contents '
+                                 'size is %x' % (entry.GetPath(), offset,
+                                                 sym.size, entry.contents_size))
+            if sym.size == 4:
+                pack_string = '<I'
+            elif sym.size == 8:
+                pack_string = '<Q'
+            else:
+                raise ValueError('%s has size %d: only 4 and 8 are supported' %
+                                 (msg, sym.size))
+
+            # Look up the symbol in our entry tables.
+            value = image.LookupSymbol(name, sym.weak, msg)
+            if value is not None:
+                value += base.address
+            else:
+                value = -1
+                pack_string = pack_string.lower()
+            value_bytes = struct.pack(pack_string, value)
+            if debug:
+                print('%s:\n   insert %s, offset %x, value %x, length %d' %
+                      (msg, name, offset, value, len(value_bytes)))
+            entry.data = (entry.data[:offset] + value_bytes +
+                        entry.data[offset + sym.size:])
