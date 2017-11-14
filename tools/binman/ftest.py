@@ -33,6 +33,7 @@ BLOB_DATA             = '89'
 ME_DATA               = '0abcd'
 VGA_DATA              = 'vga'
 U_BOOT_DTB_DATA       = 'udtb'
+U_BOOT_SPL_DTB_DATA   = 'spldtb'
 X86_START16_DATA      = 'start16'
 X86_START16_SPL_DATA  = 'start16spl'
 U_BOOT_NODTB_DATA     = 'nodtb with microcode pointer somewhere in here'
@@ -76,6 +77,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('me.bin', ME_DATA)
         TestFunctional._MakeInputFile('vga.bin', VGA_DATA)
         TestFunctional._MakeInputFile('u-boot.dtb', U_BOOT_DTB_DATA)
+        TestFunctional._MakeInputFile('spl/u-boot-spl.dtb', U_BOOT_SPL_DTB_DATA)
         TestFunctional._MakeInputFile('u-boot-x86-16bit.bin', X86_START16_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-x86-16bit-spl.bin',
                                       X86_START16_SPL_DATA)
@@ -868,6 +870,11 @@ class TestFunctional(unittest.TestCase):
         """Test that an image with an MRC binary can be created"""
         data = self._DoReadFile('50_intel_mrc.dts')
         self.assertEqual(MRC_DATA, data[:len(MRC_DATA)])
+
+    def testSplDtb(self):
+        """Test that an image with spl/u-boot-spl.dtb can be created"""
+        data = self._DoReadFile('51_u_boot_spl_dtb.dts')
+        self.assertEqual(U_BOOT_SPL_DTB_DATA, data[:len(U_BOOT_SPL_DTB_DATA)])
 
 
 if __name__ == "__main__":
