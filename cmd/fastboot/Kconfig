@@ -66,6 +66,7 @@ config FASTBOOT_USB_DEV
 
 config FASTBOOT_FLASH
 	bool "Enable FASTBOOT FLASH command"
+	default y if ARCH_SUNXI
 	help
 	  The fastboot protocol includes a "flash" command for writing
 	  the downloaded image to a non-volatile storage device. Define
