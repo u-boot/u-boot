@@ -876,6 +876,11 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('51_u_boot_spl_dtb.dts')
         self.assertEqual(U_BOOT_SPL_DTB_DATA, data[:len(U_BOOT_SPL_DTB_DATA)])
 
+    def testSplNoDtb(self):
+        """Test that an image with spl/u-boot-spl-nodtb.bin can be created"""
+        data = self._DoReadFile('52_u_boot_spl_nodtb.dts')
+        self.assertEqual(U_BOOT_SPL_NODTB_DATA, data[:len(U_BOOT_SPL_NODTB_DATA)])
+
 
 if __name__ == "__main__":
     unittest.main()
