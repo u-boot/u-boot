@@ -92,6 +92,7 @@ struct stm32_rcc_regs {
 	u32 plli2scfgr;	/* RCC PLLI2S configuration */
 	u32 pllsaicfgr;	/* PLLSAI configuration */
 	u32 dckcfgr;	/* dedicated clocks configuration register */
+	u32 dckcfgr2;	/* dedicated clocks configuration register */
 };
 #define STM32_RCC		((struct stm32_rcc_regs *)RCC_BASE)
 

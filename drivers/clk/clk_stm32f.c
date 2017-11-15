@@ -24,6 +24,8 @@
 #define RCC_CR_CSSON			BIT(19)
 #define RCC_CR_PLLON			BIT(24)
 #define RCC_CR_PLLRDY			BIT(25)
+#define RCC_CR_PLLSAION			BIT(28)
+#define RCC_CR_PLLSAIRDY		BIT(29)
 
 #define RCC_PLLCFGR_PLLM_MASK		GENMASK(5, 0)
 #define RCC_PLLCFGR_PLLN_MASK		GENMASK(14, 6)
@@ -53,6 +55,20 @@
 #define RCC_CFGR_HPRE_SHIFT		4
 #define RCC_CFGR_PPRE1_SHIFT		10
 #define RCC_CFGR_PPRE2_SHIFT		13
+
+#define RCC_PLLCFGR_PLLSAIN_MASK	GENMASK(14, 6)
+#define RCC_PLLCFGR_PLLSAIP_MASK	GENMASK(17, 16)
+#define RCC_PLLSAICFGR_PLLSAIN_SHIFT	6
+#define RCC_PLLSAICFGR_PLLSAIP_SHIFT	16
+#define RCC_PLLSAICFGR_PLLSAIP_4	BIT(17)
+#define RCC_PLLSAICFGR_PLLSAIQ_4	BIT(26)
+#define RCC_PLLSAICFGR_PLLSAIR_2	BIT(29)
+
+#define RCC_DCKCFGRX_CK48MSEL		BIT(27)
+#define RCC_DCKCFGRX_SDMMC1SEL		BIT(28)
+#define RCC_DCKCFGR2_SDMMC2SEL		BIT(29)
+
+#define RCC_APB2ENR_SAI1EN		BIT(22)
 
 /*
  * RCC AHB1ENR specific definitions
@@ -84,6 +100,7 @@ struct stm32_clk_info stm32f4_clk_info = {
 		.apb2_psc = APB_PSC_2,
 	},
 	.has_overdrive = false,
+	.v2 = false,
 };
 
 struct stm32_clk_info stm32f7_clk_info = {
@@ -98,6 +115,7 @@ struct stm32_clk_info stm32f7_clk_info = {
 		.apb2_psc = APB_PSC_2,
 	},
 	.has_overdrive = true,
+	.v2 = true,
 };
 
 struct stm32_clk {
@@ -112,12 +130,13 @@ static int configure_clocks(struct udevice *dev)
 	struct stm32_rcc_regs *regs = priv->base;
 	struct stm32_pwr_regs *pwr = priv->pwr_regs;
 	struct pll_psc sys_pll_psc = priv->info->sys_pll_psc;
+	u32 pllsaicfgr = 0;
 
 	/* Reset RCC configuration */
 	setbits_le32(&regs->cr, RCC_CR_HSION);
 	writel(0, &regs->cfgr); /* Reset CFGR */
 	clrbits_le32(&regs->cr, (RCC_CR_HSEON | RCC_CR_CSSON
-		| RCC_CR_PLLON));
+		| RCC_CR_PLLON | RCC_CR_PLLSAION));
 	writel(0x24003010, &regs->pllcfgr); /* Reset value from RM */
 	clrbits_le32(&regs->cr, RCC_CR_HSEBYP);
 	writel(0, &regs->cir); /* Disable all interrupts */
@@ -143,9 +162,37 @@ static int configure_clocks(struct udevice *dev)
 	clrsetbits_le32(&regs->pllcfgr, RCC_PLLCFGR_PLLQ_MASK,
 			sys_pll_psc.pll_q << RCC_PLLCFGR_PLLQ_SHIFT);
 
+	/* Configure the SAI PLL to get a 48 MHz source */
+	pllsaicfgr = RCC_PLLSAICFGR_PLLSAIR_2 | RCC_PLLSAICFGR_PLLSAIQ_4 |
+		     RCC_PLLSAICFGR_PLLSAIP_4;
+	pllsaicfgr |= 192 << RCC_PLLSAICFGR_PLLSAIN_SHIFT;
+	writel(pllsaicfgr, &regs->pllsaicfgr);
+
 	/* Enable the main PLL */
 	setbits_le32(&regs->cr, RCC_CR_PLLON);
 	while (!(readl(&regs->cr) & RCC_CR_PLLRDY))
+		;
+
+	if (priv->info->v2) { /*stm32f7 case */
+		/* select PLLSAI as 48MHz clock source */
+		setbits_le32(&regs->dckcfgr2, RCC_DCKCFGRX_CK48MSEL);
+
+		/* select 48MHz as SDMMC1 clock source */
+		clrbits_le32(&regs->dckcfgr2, RCC_DCKCFGRX_SDMMC1SEL);
+
+		/* select 48MHz as SDMMC2 clock source */
+		clrbits_le32(&regs->dckcfgr2, RCC_DCKCFGR2_SDMMC2SEL);
+	} else  { /* stm32f4 case */
+		/* select PLLSAI as 48MHz clock source */
+		setbits_le32(&regs->dckcfgr, RCC_DCKCFGRX_CK48MSEL);
+
+		/* select 48MHz as SDMMC1 clock source */
+		clrbits_le32(&regs->dckcfgr, RCC_DCKCFGRX_SDMMC1SEL);
+	}
+
+	/* Enable the SAI PLL */
+	setbits_le32(&regs->cr, RCC_CR_PLLSAION);
+	while (!(readl(&regs->cr) & RCC_CR_PLLSAIRDY))
 		;
 
 	setbits_le32(&regs->apb1enr, RCC_APB1ENR_PWREN);
@@ -173,8 +220,38 @@ static int configure_clocks(struct udevice *dev)
 	while ((readl(&regs->cfgr) & RCC_CFGR_SWS_MASK) !=
 			RCC_CFGR_SWS_PLL)
 		;
+	/* gate the SAI clock, needed for MMC 1&2 clocks */
+	setbits_le32(&regs->apb2enr, RCC_APB2ENR_SAI1EN);
 
 	return 0;
+}
+
+static unsigned long stm32_clk_pll48clk_rate(struct stm32_clk *priv,
+					     u32 sysclk)
+{
+	struct stm32_rcc_regs *regs = priv->base;
+	u16 pllq, pllm, pllsain, pllsaip;
+	bool pllsai;
+
+	pllq = (readl(&regs->pllcfgr) & RCC_PLLCFGR_PLLQ_MASK)
+	       >> RCC_PLLCFGR_PLLQ_SHIFT;
+
+	if (priv->info->v2) /*stm32f7 case */
+		pllsai = readl(&regs->dckcfgr2) & RCC_DCKCFGRX_CK48MSEL;
+	else
+		pllsai = readl(&regs->dckcfgr) & RCC_DCKCFGRX_CK48MSEL;
+
+	if (pllsai) {
+		/* PLL48CLK is selected from PLLSAI, get PLLSAI value */
+		pllm = (readl(&regs->pllcfgr) & RCC_PLLCFGR_PLLM_MASK);
+		pllsain = ((readl(&regs->pllsaicfgr) & RCC_PLLCFGR_PLLSAIN_MASK)
+			>> RCC_PLLSAICFGR_PLLSAIN_SHIFT);
+		pllsaip = ((((readl(&regs->pllsaicfgr) & RCC_PLLCFGR_PLLSAIP_MASK)
+			>> RCC_PLLSAICFGR_PLLSAIP_SHIFT) + 1) << 1);
+		return ((CONFIG_STM32_HSE_HZ / pllm) * pllsain) / pllsaip;
+	}
+	/* PLL48CLK is selected from PLLQ */
+	return sysclk / pllq;
 }
 
 static unsigned long stm32_clk_get_rate(struct clk *clk)
@@ -222,6 +299,28 @@ static unsigned long stm32_clk_get_rate(struct clk *clk)
 		return sysclk >>= shift;
 	/* APB2 CLOCK */
 	case STM32F7_APB2_CLOCK(TIM1) ... STM32F7_APB2_CLOCK(LTDC):
+		/*
+		 * particular case for SDMMC1 and SDMMC2 :
+		 * 48Mhz source clock can be from main PLL or from
+		 * SAI PLL
+		 */
+		switch (clk->id) {
+		case STM32F7_APB2_CLOCK(SDMMC1):
+			if (readl(&regs->dckcfgr2) & RCC_DCKCFGRX_SDMMC1SEL)
+				/* System clock is selected as SDMMC1 clock */
+				return sysclk;
+			else
+				return stm32_clk_pll48clk_rate(priv, sysclk);
+			break;
+		case STM32F7_APB2_CLOCK(SDMMC2):
+			if (readl(&regs->dckcfgr2) & RCC_DCKCFGR2_SDMMC2SEL)
+				/* System clock is selected as SDMMC2 clock */
+				return sysclk;
+			else
+				return stm32_clk_pll48clk_rate(priv, sysclk);
+			break;
+		}
+
 		shift = apb_psc_table[(
 			(readl(&regs->cfgr) & RCC_CFGR_APB2_PSC_MASK)
 			>> RCC_CFGR_PPRE2_SHIFT)];

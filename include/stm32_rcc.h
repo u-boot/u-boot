@@ -37,6 +37,7 @@ struct pll_psc {
 struct stm32_clk_info {
 	struct pll_psc sys_pll_psc;
 	bool has_overdrive;
+	bool v2;
 };
 
 enum soc_family {
