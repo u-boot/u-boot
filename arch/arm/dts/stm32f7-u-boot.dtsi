@@ -22,3 +22,7 @@
 		 u-boot,dm-pre-reloc;
 	};
 };
+
+&pwrcfg {
+	u-boot,dm-pre-reloc;
+};
