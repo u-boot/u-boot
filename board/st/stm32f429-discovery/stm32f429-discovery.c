@@ -13,6 +13,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <stm32_rcc.h>
 #include <asm/io.h>
 #include <asm/armv7m.h>
 #include <asm/arch/stm32.h>
