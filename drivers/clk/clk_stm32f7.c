@@ -319,6 +319,7 @@ static struct clk_ops stm32_clk_ops = {
 
 static const struct udevice_id stm32_clk_ids[] = {
 	{ .compatible = "st,stm32f42xx-rcc"},
+	{ .compatible = "st,stm32f746-rcc"},
 	{}
 };
 
