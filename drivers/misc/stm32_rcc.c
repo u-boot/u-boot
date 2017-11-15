@@ -8,31 +8,63 @@
 #include <common.h>
 #include <dm.h>
 #include <misc.h>
+#include <stm32_rcc.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
+
+struct stm32_rcc_clk stm32_rcc_clk_f4 = {
+	.drv_name = "stm32fx_rcc_clock",
+	.soc = STM32F4,
+};
+
+struct stm32_rcc_clk stm32_rcc_clk_f7 = {
+	.drv_name = "stm32fx_rcc_clock",
+	.soc = STM32F7,
+};
+
+struct stm32_rcc_clk stm32_rcc_clk_h7 = {
+	.drv_name = "stm32h7_rcc_clock",
+};
 
 static int stm32_rcc_bind(struct udevice *dev)
 {
-	int ret;
 	struct udevice *child;
+	struct driver *drv;
+	struct stm32_rcc_clk *rcc_clk =
+		(struct stm32_rcc_clk *)dev_get_driver_data(dev);
+	int ret;
 
 	debug("%s(dev=%p)\n", __func__, dev);
 
-	ret = device_bind_driver_to_node(dev, "stm32h7_rcc_clock",
-					 "stm32h7_rcc_clock",
-					 dev_ofnode(dev), &child);
+	drv = lists_driver_lookup_name(rcc_clk->drv_name);
+	if (!drv) {
+		debug("Cannot find driver '%s'\n", rcc_clk->drv_name);
+		return -ENOENT;
+	}
+
+	ret = device_bind_with_driver_data(dev, drv, rcc_clk->drv_name,
+					   rcc_clk->soc,
+					   dev_ofnode(dev), &child);
+
 	if (ret)
 		return ret;
 
+#ifdef CONFIG_SPL_BUILD
+	return 0;
+#else
 	return device_bind_driver_to_node(dev, "stm32_rcc_reset",
 					  "stm32_rcc_reset",
 					  dev_ofnode(dev), &child);
+#endif
 }
 
 static const struct misc_ops stm32_rcc_ops = {
 };
 
 static const struct udevice_id stm32_rcc_ids[] = {
-	{.compatible = "st,stm32h743-rcc"},
+	{.compatible = "st,stm32f42xx-rcc", .data = (ulong)&stm32_rcc_clk_f4 },
+	{.compatible = "st,stm32f746-rcc", .data = (ulong)&stm32_rcc_clk_f7 },
+	{.compatible = "st,stm32h743-rcc", .data = (ulong)&stm32_rcc_clk_h7 },
 	{ }
 };
 

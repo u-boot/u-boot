@@ -8,6 +8,7 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <stm32_rcc.h>
 
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
@@ -70,38 +71,6 @@
  * RCC APB2ENR specific definitions
  */
 #define RCC_APB2ENR_SYSCFGEN		BIT(14)
-
-
-struct pll_psc {
-	u8	pll_m;
-	u16	pll_n;
-	u8	pll_p;
-	u8	pll_q;
-	u8	ahb_psc;
-	u8	apb1_psc;
-	u8	apb2_psc;
-};
-
-#define AHB_PSC_1			0
-#define AHB_PSC_2			0x8
-#define AHB_PSC_4			0x9
-#define AHB_PSC_8			0xA
-#define AHB_PSC_16			0xB
-#define AHB_PSC_64			0xC
-#define AHB_PSC_128			0xD
-#define AHB_PSC_256			0xE
-#define AHB_PSC_512			0xF
-
-#define APB_PSC_1			0
-#define APB_PSC_2			0x4
-#define APB_PSC_4			0x5
-#define APB_PSC_8			0x6
-#define APB_PSC_16			0x7
-
-struct stm32_clk_info {
-	struct pll_psc sys_pll_psc;
-	bool has_overdrive;
-};
 
 struct stm32_clk_info stm32f4_clk_info = {
 	/* 180 MHz */
@@ -311,7 +280,17 @@ static int stm32_clk_probe(struct udevice *dev)
 		return -EINVAL;
 
 	priv->base = (struct stm32_rcc_regs *)addr;
-	priv->info = (struct stm32_clk_info *)dev_get_driver_data(dev);
+
+	switch (dev_get_driver_data(dev)) {
+	case STM32F4:
+		priv->info = &stm32f4_clk_info;
+		break;
+	case STM32F7:
+		priv->info = &stm32f7_clk_info;
+		break;
+	default:
+		return -EINVAL;
+	}
 
 	if (priv->info->has_overdrive) {
 		err = dev_read_phandle_with_args(dev, "st,syscfg", NULL, 0, 0,
@@ -353,16 +332,9 @@ static struct clk_ops stm32_clk_ops = {
 	.get_rate	= stm32_clk_get_rate,
 };
 
-static const struct udevice_id stm32_clk_ids[] = {
-	{ .compatible = "st,stm32f42xx-rcc", .data = (ulong)&stm32f4_clk_info},
-	{ .compatible = "st,stm32f746-rcc", .data = (ulong)&stm32f7_clk_info},
-	{}
-};
-
 U_BOOT_DRIVER(stm32fx_clk) = {
-	.name			= "stm32fx_clk",
+	.name			= "stm32fx_rcc_clock",
 	.id			= UCLASS_CLK,
-	.of_match		= stm32_clk_ids,
 	.ops			= &stm32_clk_ops,
 	.probe			= stm32_clk_probe,
 	.priv_auto_alloc_size	= sizeof(struct stm32_clk),
