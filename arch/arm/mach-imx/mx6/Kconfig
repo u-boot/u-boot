@@ -109,6 +109,7 @@ config TARGET_ARISTAINETOS2B
 
 config TARGET_CGTQMX6EVAL
 	bool "cgtqmx6eval"
+	select MX6QDL
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	select DM
@@ -117,6 +118,7 @@ config TARGET_CGTQMX6EVAL
 config TARGET_CM_FX6
 	bool "CM-FX6"
 	select SUPPORT_SPL
+	select MX6QDL
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
@@ -131,6 +133,7 @@ config TARGET_COLIBRI_IMX6
 
 config TARGET_DHCOMIMX6
 	bool "dh_imx6"
+	select MX6QDL
 	select BOARD_LATE_INIT
 	select BOARD_EARLY_INIT_F
 	select SUPPORT_SPL
@@ -165,6 +168,7 @@ config TARGET_GE_B850V3
 
 config TARGET_GW_VENTANA
 	bool "gw_ventana"
+	select MX6QDL
 	select SUPPORT_SPL
 	imply CMD_SATA
 	imply CMD_SPL
@@ -176,10 +180,12 @@ config TARGET_KOSAGI_NOVENA
 
 config TARGET_MCCMON6
 	bool "mccmon6"
+	select MX6QDL
 	select SUPPORT_SPL
 
 config TARGET_MX6CUBOXI
 	bool "Solid-run mx6 boards"
+	select MX6QDL
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 
@@ -231,6 +237,7 @@ config TARGET_MX6Q_ICORE_RQS
 
 config TARGET_MX6SABREAUTO
 	bool "mx6sabreauto"
+	select MX6QDL
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	select DM
@@ -239,6 +246,7 @@ config TARGET_MX6SABREAUTO
 
 config TARGET_MX6SABRESD
 	bool "mx6sabresd"
+	select MX6QDL
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	select DM
@@ -360,6 +368,7 @@ config TARGET_PCM058
 
 config TARGET_PFLA02
 	bool "Phytec PFLA02 (PhyFlex) i.MX6 Quad"
+	select MX6QDL
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 
@@ -378,6 +387,7 @@ config TARGET_TQMA6
 
 config TARGET_UDOO
 	bool "udoo"
+	select MX6QDL
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 
@@ -398,6 +408,7 @@ config TARGET_SAMTEC_VINING_2000
 
 config TARGET_WANDBOARD
 	bool "wandboard"
+	select MX6QDL
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 
