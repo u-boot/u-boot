@@ -10,7 +10,6 @@
 #include <dm.h>
 
 #include <asm/io.h>
-#include <asm/arch/rcc.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/stm32_periph.h>
 #include <asm/arch/stm32_pwr.h>
@@ -53,6 +52,24 @@
 #define RCC_CFGR_HPRE_SHIFT		4
 #define RCC_CFGR_PPRE1_SHIFT		10
 #define RCC_CFGR_PPRE2_SHIFT		13
+
+/*
+ * RCC AHB1ENR specific definitions
+ */
+#define RCC_AHB1ENR_ETHMAC_EN		BIT(25)
+#define RCC_AHB1ENR_ETHMAC_TX_EN	BIT(26)
+#define RCC_AHB1ENR_ETHMAC_RX_EN	BIT(27)
+
+/*
+ * RCC APB1ENR specific definitions
+ */
+#define RCC_APB1ENR_TIM2EN		BIT(0)
+#define RCC_APB1ENR_PWREN		BIT(28)
+
+/*
+ * RCC APB2ENR specific definitions
+ */
+#define RCC_APB2ENR_SYSCFGEN		BIT(14)
 
 
 struct pll_psc {
