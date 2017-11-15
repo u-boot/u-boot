@@ -20,10 +20,14 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
 
 /* Link Definitions */
+#ifdef CONFIG_SPL
+#define CONFIG_SYS_TEXT_BASE		0x80400000
+#else
 #ifdef CONFIG_QSPI_BOOT
 #define CONFIG_SYS_TEXT_BASE            0x20100000
 #else
 #define CONFIG_SYS_TEXT_BASE		0x30100000
+#endif
 #endif
 
 #define CONFIG_SUPPORT_RAW_INITRD
@@ -31,7 +35,9 @@
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
+#if !defined(CONFIG_SD_BOOT)
 #define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
+#endif
 
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000UL
@@ -148,6 +154,19 @@ unsigned long long get_qixis_addr(void);
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)
 
+/* SATA */
+#ifdef CONFIG_SCSI
+#define CONFIG_LIBATA
+#define CONFIG_SCSI_AHCI
+#define CONFIG_SCSI_AHCI_PLAT
+#define CONFIG_SYS_SATA1		AHCI_BASE_ADDR1
+
+#define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
+#define CONFIG_SYS_SCSI_MAX_LUN		1
+#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
+					CONFIG_SYS_SCSI_MAX_LUN)
+#endif
+
 /* Physical Memory Map */
 #define CONFIG_CHIP_SELECTS_PER_CTRL	4
 
@@ -187,6 +206,11 @@ unsigned long long get_qixis_addr(void);
 				" fsl_mc apply dpl 0x80200000 &&" \
 				" sf read $kernel_load $kernel_start" \
 				" $kernel_size && bootm $kernel_load"
+#elif defined(CONFIG_SD_BOOT)
+#define CONFIG_BOOTCOMMAND	"mmcinfo;mmc read 0x80200000 0x6800 0x800;"\
+				" fsl_mc apply dpl 0x80200000 &&" \
+				" mmc read $kernel_load $kernel_start" \
+				" $kernel_size && bootm $kernel_load"
 #else /* NOR BOOT*/
 #define CONFIG_BOOTCOMMAND	"fsl_mc apply dpl 0x580d00000 &&" \
 				" cp.b $kernel_start $kernel_load" \
@@ -206,6 +230,20 @@ unsigned long long get_qixis_addr(void);
 
 #define CONFIG_PANIC_HANG	/* do not reset board on panic */
 
+#ifdef CONFIG_SPL
+#define CONFIG_SPL_BSS_START_ADDR      0x80100000
+#define CONFIG_SPL_BSS_MAX_SIZE                0x00100000
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv8/u-boot-spl.lds"
+#define CONFIG_SPL_MAX_SIZE            0x16000
+#define CONFIG_SPL_STACK               (CONFIG_SYS_FSL_OCRAM_BASE + 0x9ff0)
+#define CONFIG_SPL_TARGET              "u-boot-with-spl.bin"
+#define CONFIG_SPL_TEXT_BASE           0x1800a000
+
+#define CONFIG_SYS_SPL_MALLOC_SIZE     0x00100000
+#define CONFIG_SYS_SPL_MALLOC_START    0x80200000
+#define CONFIG_SYS_MONITOR_LEN         (512 * 1024)
+#endif
 #define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */
 
 #endif /* __LS1088_COMMON_H */

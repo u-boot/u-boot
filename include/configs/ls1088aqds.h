@@ -23,6 +23,10 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ENV_SIZE			0x2000          /* 8KB */
 #define CONFIG_ENV_OFFSET		0x300000        /* 3MB */
 #define CONFIG_ENV_SECT_SIZE		0x40000
+#elif defined(CONFIG_SD_BOOT)
+#define CONFIG_ENV_OFFSET		(3 * 1024 * 1024)
+#define CONFIG_SYS_MMC_ENV_DEV		0
+#define CONFIG_ENV_SIZE			0x2000
 #else
 #define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x300000)
@@ -30,10 +34,11 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ENV_SIZE			0x20000
 #endif
 
-#if defined(CONFIG_QSPI_BOOT)
+#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_QIXIS_I2C_ACCESS
 #define SYS_NO_FLASH
 
+#undef CONFIG_CMD_IMLS
 #define CONFIG_SYS_CLK_FREQ		100000000
 #define CONFIG_DDR_CLK_FREQ		100000000
 #else
@@ -190,7 +195,7 @@ unsigned long get_board_ddr_clk(void);
 					| CSPR_V)
 
 #define CONFIG_SYS_FPGA_AMASK		IFC_AMASK(64*1024)
-#if defined(CONFIG_QSPI_BOOT)
+#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_SYS_FPGA_CSOR		CSOR_GPCM_ADM_SHIFT(0)
 #else
 #define CONFIG_SYS_FPGA_CSOR		CSOR_GPCM_ADM_SHIFT(12)
@@ -293,9 +298,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
 
 /* QSPI device */
-#if defined(CONFIG_QSPI_BOOT)
+#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_FSL_QSPI
-#define CONFIG_SPI_FLASH_SPANSION
 #define FSL_QSPI_FLASH_SIZE		(1 << 26)
 #define FSL_QSPI_FLASH_NUM		2
 
@@ -316,7 +320,11 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		0x9fffffff
 
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_MONITOR_BASE CONFIG_SPL_TEXT_BASE
+#else
 #define CONFIG_SYS_MONITOR_BASE CONFIG_SYS_TEXT_BASE
+#endif
 
 #define CONFIG_FSL_MEMAC
 
@@ -343,6 +351,23 @@ unsigned long get_board_ddr_clk(void);
 	"mcinitcmd=sf probe 0:0;sf read 0x80000000 0xA00000 0x100000;"	\
 	"sf read 0x80100000 0xE00000 0x100000;" \
 	"fsl_mc start mc 0x80000000 0x80100000\0"	\
+	"mcmemsize=0x70000000 \0"
+#elif defined(CONFIG_SD_BOOT)
+#undef CONFIG_EXTRA_ENV_SETTINGS
+#define CONFIG_EXTRA_ENV_SETTINGS               \
+	"hwconfig=fsl_ddr:bank_intlv=auto\0"    \
+	"loadaddr=0x90100000\0"                 \
+	"kernel_addr=0x800\0"                \
+	"ramdisk_addr=0x800000\0"               \
+	"ramdisk_size=0x2000000\0"              \
+	"fdt_high=0xa0000000\0"                 \
+	"initrd_high=0xffffffffffffffff\0"      \
+	"kernel_start=0x8000\0"              \
+	"kernel_load=0xa0000000\0"              \
+	"kernel_size=0x14000\0"               \
+	"mcinitcmd=mmcinfo;mmc read 0x80000000 0x5000 0x800;"  \
+	"mmc read 0x80100000 0x7000 0x800;" \
+	"fsl_mc start mc 0x80000000 0x80100000\0"       \
 	"mcmemsize=0x70000000 \0"
 #else	/* NOR BOOT */
 #undef CONFIG_EXTRA_ENV_SETTINGS

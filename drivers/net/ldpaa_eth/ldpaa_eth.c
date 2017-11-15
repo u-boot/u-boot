@@ -334,7 +334,7 @@ static int ldpaa_eth_tx(struct eth_device *net_dev, void *buf, int len)
 					&buffer_start, 1);
 	} while (err == -EBUSY);
 
-	if (err < 0) {
+	if (err <= 0) {
 		printf("qbman_swp_acquire() failed\n");
 		return -ENOMEM;
 	}
