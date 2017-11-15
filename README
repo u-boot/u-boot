@@ -5152,7 +5152,7 @@ may be rejected, even when they contain important and valuable stuff.
 Please see http://www.denx.de/wiki/U-Boot/Patches for details.
 
 Patches shall be sent to the u-boot mailing list <u-boot@lists.denx.de>;
-see http://lists.denx.de/mailman/listinfo/u-boot
+see https://lists.denx.de/listinfo/u-boot
 
 When you send a patch, please include the following information with
 it:
