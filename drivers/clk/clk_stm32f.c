@@ -197,6 +197,7 @@ static unsigned long stm32_clk_get_rate(struct clk *clk)
 	struct stm32_rcc_regs *regs = priv->base;
 	u32 sysclk = 0;
 	u32 shift = 0;
+	u16 pllm, plln, pllp;
 	/* Prescaler table lookups for clock computation */
 	u8 ahb_psc_table[16] = {
 		0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9
@@ -207,7 +208,6 @@ static unsigned long stm32_clk_get_rate(struct clk *clk)
 
 	if ((readl(&regs->cfgr) & RCC_CFGR_SWS_MASK) ==
 			RCC_CFGR_SWS_PLL) {
-		u16 pllm, plln, pllp;
 		pllm = (readl(&regs->pllcfgr) & RCC_PLLCFGR_PLLM_MASK);
 		plln = ((readl(&regs->pllcfgr) & RCC_PLLCFGR_PLLN_MASK)
 			>> RCC_PLLCFGR_PLLN_SHIFT);
@@ -228,25 +228,21 @@ static unsigned long stm32_clk_get_rate(struct clk *clk)
 			(readl(&regs->cfgr) & RCC_CFGR_AHB_PSC_MASK)
 			>> RCC_CFGR_HPRE_SHIFT)];
 		return sysclk >>= shift;
-		break;
 	/* APB1 CLOCK */
 	case STM32F7_APB1_CLOCK(TIM2) ... STM32F7_APB1_CLOCK(UART8):
 		shift = apb_psc_table[(
 			(readl(&regs->cfgr) & RCC_CFGR_APB1_PSC_MASK)
 			>> RCC_CFGR_PPRE1_SHIFT)];
 		return sysclk >>= shift;
-		break;
 	/* APB2 CLOCK */
 	case STM32F7_APB2_CLOCK(TIM1) ... STM32F7_APB2_CLOCK(LTDC):
 		shift = apb_psc_table[(
 			(readl(&regs->cfgr) & RCC_CFGR_APB2_PSC_MASK)
 			>> RCC_CFGR_PPRE2_SHIFT)];
 		return sysclk >>= shift;
-		break;
 	default:
 		pr_err("clock index %ld out of range\n", clk->id);
 		return -EINVAL;
-		break;
 	}
 }
 
@@ -288,7 +284,7 @@ static int stm32_clk_probe(struct udevice *dev)
 	struct ofnode_phandle_args args;
 	int err;
 
-	debug("%s: stm32_clk_probe\n", __func__);
+	debug("%s\n", __func__);
 
 	struct stm32_clk *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
@@ -346,8 +342,8 @@ static const struct udevice_id stm32_clk_ids[] = {
 	{}
 };
 
-U_BOOT_DRIVER(stm32f7_clk) = {
-	.name			= "stm32f7_clk",
+U_BOOT_DRIVER(stm32fx_clk) = {
+	.name			= "stm32fx_clk",
 	.id			= UCLASS_CLK,
 	.of_match		= stm32_clk_ids,
 	.ops			= &stm32_clk_ops,
