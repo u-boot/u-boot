@@ -1,8 +1,8 @@
 /*
  * Freescale Layerscape MC I/O wrapper
  *
- * Copyright (C) 2013-2015 Freescale Semiconductor, Inc.
- * Author: German Rivera <German.Rivera@freescale.com>
+ * Copyright (C) 2013-2016 Freescale Semiconductor, Inc.
+ * Copyright 2017 NXP
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -10,29 +10,30 @@
 #define _FSL_DPRC_H
 
 /* DPRC Version */
-#define DPRC_VER_MAJOR				5
+#define DPRC_VER_MAJOR				6
 #define DPRC_VER_MINOR				1
 
 /* Command IDs */
-#define DPRC_CMDID_CLOSE			0x800
-#define DPRC_CMDID_OPEN				0x805
-#define DPRC_CMDID_CREATE			0x905
+#define DPRC_CMDID_CLOSE			0x8001
+#define DPRC_CMDID_OPEN				0x8051
+#define DPRC_CMDID_CREATE			0x9051
 
-#define DPRC_CMDID_GET_ATTR			0x004
-#define DPRC_CMDID_RESET_CONT			0x005
+#define DPRC_CMDID_GET_ATTR			0x0041
+#define DPRC_CMDID_RESET_CONT			0x0051
+#define DPRC_CMDID_GET_API_VERSION              0xa051
 
-#define DPRC_CMDID_CREATE_CONT			0x151
-#define DPRC_CMDID_DESTROY_CONT			0x152
-#define DPRC_CMDID_GET_CONT_ID			0x830
-#define DPRC_CMDID_GET_OBJ_COUNT		0x159
-#define DPRC_CMDID_GET_OBJ			0x15A
-#define DPRC_CMDID_GET_RES_COUNT		0x15B
-#define DPRC_CMDID_GET_RES_IDS			0x15C
-#define DPRC_CMDID_GET_OBJ_REG			0x15E
+#define DPRC_CMDID_CREATE_CONT			0x1511
+#define DPRC_CMDID_DESTROY_CONT			0x1521
+#define DPRC_CMDID_GET_CONT_ID			0x8301
+#define DPRC_CMDID_GET_OBJ_COUNT		0x1591
+#define DPRC_CMDID_GET_OBJ			0x15A1
+#define DPRC_CMDID_GET_RES_COUNT		0x15B1
+#define DPRC_CMDID_GET_RES_IDS			0x15C1
+#define DPRC_CMDID_GET_OBJ_REG			0x15E1
 
-#define DPRC_CMDID_CONNECT			0x167
-#define DPRC_CMDID_DISCONNECT			0x168
-#define DPRC_CMDID_GET_CONNECTION		0x16C
+#define DPRC_CMDID_CONNECT			0x1671
+#define DPRC_CMDID_DISCONNECT			0x1681
+#define DPRC_CMDID_GET_CONNECTION		0x16C1
 
 /*                cmd, param, offset, width, type, arg_name */
 #define DPRC_RSP_GET_CONTAINER_ID(cmd, container_id) \
@@ -88,8 +89,6 @@ do { \
 	MC_RSP_OP(cmd, 0, 32, 16, uint16_t, attr->icid); \
 	MC_RSP_OP(cmd, 1, 0,  32, uint32_t, attr->options);\
 	MC_RSP_OP(cmd, 1, 32, 32, int,      attr->portal_id); \
-	MC_RSP_OP(cmd, 2, 0,  16, uint16_t, attr->version.major);\
-	MC_RSP_OP(cmd, 2, 16, 16, uint16_t, attr->version.minor);\
 } while (0)
 
 /*                cmd, param, offset, width, type, arg_name */
@@ -345,9 +344,9 @@ do { \
 #define DPRC_CMD_CONNECT(cmd, endpoint1, endpoint2, cfg) \
 do { \
 	MC_CMD_OP(cmd, 0, 0,  32, int,      endpoint1->id); \
-	MC_CMD_OP(cmd, 0, 32, 16, uint16_t, endpoint1->if_id); \
+	MC_CMD_OP(cmd, 0, 32, 32, int, endpoint1->if_id); \
 	MC_CMD_OP(cmd, 1, 0,  32, int,	    endpoint2->id); \
-	MC_CMD_OP(cmd, 1, 32, 16, uint16_t, endpoint2->if_id); \
+	MC_CMD_OP(cmd, 1, 32, 32, int, endpoint2->if_id); \
 	MC_CMD_OP(cmd, 2, 0,  8,  char,     endpoint1->type[0]); \
 	MC_CMD_OP(cmd, 2, 8,  8,  char,	    endpoint1->type[1]); \
 	MC_CMD_OP(cmd, 2, 16, 8,  char,	    endpoint1->type[2]); \
@@ -410,8 +409,8 @@ do { \
 /*                cmd, param, offset, width, type, arg_name */
 #define DPRC_CMD_GET_CONNECTION(cmd, endpoint1) \
 do { \
-	MC_CMD_OP(cmd, 0, 0,  32, int,      endpoint1->id); \
-	MC_CMD_OP(cmd, 0, 32, 16, uint16_t, endpoint1->if_id); \
+	MC_CMD_OP(cmd, 0, 0,  32, int,	    endpoint1->id); \
+	MC_CMD_OP(cmd, 0, 32, 32, int,	    endpoint1->if_id); \
 	MC_CMD_OP(cmd, 1, 0,  8,  char,     endpoint1->type[0]); \
 	MC_CMD_OP(cmd, 1, 8,  8,  char,	    endpoint1->type[1]); \
 	MC_CMD_OP(cmd, 1, 16, 8,  char,	    endpoint1->type[2]); \
@@ -657,15 +656,6 @@ struct dprc_attributes {
 	uint16_t icid;
 	int portal_id;
 	uint64_t options;
-	/**
-	 * struct version - DPRC version
-	 * @major: DPRC major version
-	 * @minor: DPRC minor version
-	 */
-	struct {
-		uint16_t major;
-		uint16_t minor;
-	} version;
 };
 
 /**
@@ -949,5 +939,20 @@ int dprc_get_connection(struct fsl_mc_io		*mc_io,
 			const struct dprc_endpoint	*endpoint1,
 			struct dprc_endpoint		*endpoint2,
 			int				*state);
+
+/**
+ * dprc_get_api_version - Retrieve DPRC Major and Minor version info.
+ *
+ * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
+ * @major_ver:	DPRC major version
+ * @minor_ver:	DPRC minor version
+ *
+ * Return:     '0' on Success; Error code otherwise.
+ */
+int dprc_get_api_version(struct fsl_mc_io *mc_io,
+			 u32 cmd_flags,
+			 u16 *major_ver,
+			 u16 *minor_ver);
 
 #endif /* _FSL_DPRC_H */
