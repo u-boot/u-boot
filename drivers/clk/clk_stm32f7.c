@@ -81,37 +81,51 @@ struct pll_psc {
 #define APB_PSC_8			0x6
 #define APB_PSC_16			0x7
 
+struct stm32_clk_info {
+	struct pll_psc sys_pll_psc;
+	bool has_overdrive;
+};
+
+struct stm32_clk_info stm32f4_clk_info = {
+	/* 180 MHz */
+	.sys_pll_psc = {
+		.pll_m = 8,
+		.pll_n = 360,
+		.pll_p = 2,
+		.pll_q = 8,
+		.ahb_psc = AHB_PSC_1,
+		.apb1_psc = APB_PSC_4,
+		.apb2_psc = APB_PSC_2,
+	},
+	.has_overdrive = false,
+};
+
+struct stm32_clk_info stm32f7_clk_info = {
+	/* 200 MHz */
+	.sys_pll_psc = {
+		.pll_m = 25,
+		.pll_n = 400,
+		.pll_p = 2,
+		.pll_q = 8,
+		.ahb_psc = AHB_PSC_1,
+		.apb1_psc = APB_PSC_4,
+		.apb2_psc = APB_PSC_2,
+	},
+	.has_overdrive = true,
+};
+
 struct stm32_clk {
 	struct stm32_rcc_regs *base;
 	struct stm32_pwr_regs *pwr_regs;
+	struct stm32_clk_info *info;
 };
-
-#if !defined(CONFIG_STM32_HSE_HZ)
-#error "CONFIG_STM32_HSE_HZ not defined!"
-#else
-#if (CONFIG_STM32_HSE_HZ == 25000000)
-#if (CONFIG_SYS_CLK_FREQ == 200000000)
-/* 200 MHz */
-struct pll_psc sys_pll_psc = {
-	.pll_m = 25,
-	.pll_n = 400,
-	.pll_p = 2,
-	.pll_q = 8,
-	.ahb_psc = AHB_PSC_1,
-	.apb1_psc = APB_PSC_4,
-	.apb2_psc = APB_PSC_2
-};
-#endif
-#else
-#error "No PLL/Prescaler configuration for given CONFIG_STM32_HSE_HZ exists"
-#endif
-#endif
 
 static int configure_clocks(struct udevice *dev)
 {
 	struct stm32_clk *priv = dev_get_priv(dev);
 	struct stm32_rcc_regs *regs = priv->base;
 	struct stm32_pwr_regs *pwr = priv->pwr_regs;
+	struct pll_psc sys_pll_psc = priv->info->sys_pll_psc;
 
 	/* Reset RCC configuration */
 	setbits_le32(&regs->cr, RCC_CR_HSION);
@@ -148,17 +162,23 @@ static int configure_clocks(struct udevice *dev)
 	while (!(readl(&regs->cr) & RCC_CR_PLLRDY))
 		;
 
-	/* Enable high performance mode, System frequency up to 200 MHz */
 	setbits_le32(&regs->apb1enr, RCC_APB1ENR_PWREN);
-	setbits_le32(&pwr->cr1, PWR_CR1_ODEN);
-	/* Infinite wait! */
-	while (!(readl(&pwr->csr1) & PWR_CSR1_ODRDY))
-		;
-	/* Enable the Over-drive switch */
-	setbits_le32(&pwr->cr1, PWR_CR1_ODSWEN);
-	/* Infinite wait! */
-	while (!(readl(&pwr->csr1) & PWR_CSR1_ODSWRDY))
-		;
+
+	if (priv->info->has_overdrive) {
+		/*
+		 * Enable high performance mode
+		 * System frequency up to 200 MHz
+		 */
+		setbits_le32(&pwr->cr1, PWR_CR1_ODEN);
+		/* Infinite wait! */
+		while (!(readl(&pwr->csr1) & PWR_CSR1_ODRDY))
+			;
+		/* Enable the Over-drive switch */
+		setbits_le32(&pwr->cr1, PWR_CR1_ODSWEN);
+		/* Infinite wait! */
+		while (!(readl(&pwr->csr1) & PWR_CSR1_ODSWRDY))
+			;
+	}
 
 	stm32_flash_latency_cfg(5);
 	clrbits_le32(&regs->cfgr, (RCC_CFGR_SW0 | RCC_CFGR_SW1));
@@ -273,21 +293,24 @@ static int stm32_clk_probe(struct udevice *dev)
 	struct stm32_clk *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
 
-	addr = devfdt_get_addr(dev);
+	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
 	priv->base = (struct stm32_rcc_regs *)addr;
+	priv->info = (struct stm32_clk_info *)dev_get_driver_data(dev);
 
-	err = dev_read_phandle_with_args(dev, "st,syscfg", NULL, 0, 0,
-					 &args);
-	if (err) {
-		debug("%s: can't find syscon device (%d)\n", __func__,
-		      err);
-		return err;
+	if (priv->info->has_overdrive) {
+		err = dev_read_phandle_with_args(dev, "st,syscfg", NULL, 0, 0,
+						 &args);
+		if (err) {
+			debug("%s: can't find syscon device (%d)\n", __func__,
+			      err);
+			return err;
+		}
+
+		priv->pwr_regs = (struct stm32_pwr_regs *)ofnode_get_addr(args.node);
 	}
-
-	priv->pwr_regs = (struct stm32_pwr_regs *)ofnode_get_addr(args.node);
 
 	configure_clocks(dev);
 
@@ -318,8 +341,8 @@ static struct clk_ops stm32_clk_ops = {
 };
 
 static const struct udevice_id stm32_clk_ids[] = {
-	{ .compatible = "st,stm32f42xx-rcc"},
-	{ .compatible = "st,stm32f746-rcc"},
+	{ .compatible = "st,stm32f42xx-rcc", .data = (ulong)&stm32f4_clk_info},
+	{ .compatible = "st,stm32f746-rcc", .data = (ulong)&stm32f7_clk_info},
 	{}
 };
 
