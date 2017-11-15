@@ -994,7 +994,7 @@ static int zynq_nand_device_ready(struct mtd_info *mtd)
 	return 0;
 }
 
-static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
+int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 {
 	struct zynq_nand_info *xnand;
 	struct mtd_info *mtd;
@@ -1180,12 +1180,14 @@ fail:
 	return err;
 }
 
+#ifdef CONFIG_SYS_NAND_SELF_INIT
 static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
 
-void board_nand_init(void)
+void __weak board_nand_init(void)
 {
 	struct nand_chip *nand = &nand_chip[0];
 
 	if (zynq_nand_init(nand, 0))
 		puts("ZYNQ NAND init failed\n");
 }
+#endif
