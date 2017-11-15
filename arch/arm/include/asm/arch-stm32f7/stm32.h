@@ -95,13 +95,6 @@ struct stm32_rcc_regs {
 };
 #define STM32_RCC		((struct stm32_rcc_regs *)RCC_BASE)
 
-struct stm32_pwr_regs {
-	u32 cr1;   /* power control register 1 */
-	u32 csr1;  /* power control/status register 2 */
-	u32 cr2;   /* power control register 2 */
-	u32 csr2;  /* power control/status register 2 */
-};
-#define STM32_PWR		((struct stm32_pwr_regs *)PWR_BASE)
 
 void stm32_flash_latency_cfg(int latency);
 

@@ -8,10 +8,12 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+
 #include <asm/io.h>
 #include <asm/arch/rcc.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/stm32_periph.h>
+#include <asm/arch/stm32_pwr.h>
 
 #include <dt-bindings/mfd/stm32f7-rcc.h>
 
@@ -52,13 +54,6 @@
 #define RCC_CFGR_PPRE1_SHIFT		10
 #define RCC_CFGR_PPRE2_SHIFT		13
 
-/*
- * Offsets of some PWR registers
- */
-#define PWR_CR1_ODEN			BIT(16)
-#define PWR_CR1_ODSWEN			BIT(17)
-#define PWR_CSR1_ODRDY			BIT(16)
-#define PWR_CSR1_ODSWRDY		BIT(17)
 
 struct pll_psc {
 	u8	pll_m;
@@ -88,6 +83,7 @@ struct pll_psc {
 
 struct stm32_clk {
 	struct stm32_rcc_regs *base;
+	struct stm32_pwr_regs *pwr_regs;
 };
 
 #if !defined(CONFIG_STM32_HSE_HZ)
@@ -115,6 +111,7 @@ static int configure_clocks(struct udevice *dev)
 {
 	struct stm32_clk *priv = dev_get_priv(dev);
 	struct stm32_rcc_regs *regs = priv->base;
+	struct stm32_pwr_regs *pwr = priv->pwr_regs;
 
 	/* Reset RCC configuration */
 	setbits_le32(&regs->cr, RCC_CR_HSION);
@@ -153,14 +150,14 @@ static int configure_clocks(struct udevice *dev)
 
 	/* Enable high performance mode, System frequency up to 200 MHz */
 	setbits_le32(&regs->apb1enr, RCC_APB1ENR_PWREN);
-	setbits_le32(&STM32_PWR->cr1, PWR_CR1_ODEN);
+	setbits_le32(&pwr->cr1, PWR_CR1_ODEN);
 	/* Infinite wait! */
-	while (!(readl(&STM32_PWR->csr1) & PWR_CSR1_ODRDY))
+	while (!(readl(&pwr->csr1) & PWR_CSR1_ODRDY))
 		;
 	/* Enable the Over-drive switch */
-	setbits_le32(&STM32_PWR->cr1, PWR_CR1_ODSWEN);
+	setbits_le32(&pwr->cr1, PWR_CR1_ODSWEN);
 	/* Infinite wait! */
-	while (!(readl(&STM32_PWR->csr1) & PWR_CSR1_ODSWRDY))
+	while (!(readl(&pwr->csr1) & PWR_CSR1_ODSWRDY))
 		;
 
 	stm32_flash_latency_cfg(5);
@@ -268,6 +265,9 @@ void clock_setup(int peripheral)
 
 static int stm32_clk_probe(struct udevice *dev)
 {
+	struct ofnode_phandle_args args;
+	int err;
+
 	debug("%s: stm32_clk_probe\n", __func__);
 
 	struct stm32_clk *priv = dev_get_priv(dev);
@@ -278,6 +278,16 @@ static int stm32_clk_probe(struct udevice *dev)
 		return -EINVAL;
 
 	priv->base = (struct stm32_rcc_regs *)addr;
+
+	err = dev_read_phandle_with_args(dev, "st,syscfg", NULL, 0, 0,
+					 &args);
+	if (err) {
+		debug("%s: can't find syscon device (%d)\n", __func__,
+		      err);
+		return err;
+	}
+
+	priv->pwr_regs = (struct stm32_pwr_regs *)ofnode_get_addr(args.node);
 
 	configure_clocks(dev);
 
