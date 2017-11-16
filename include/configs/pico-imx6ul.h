@@ -48,7 +48,11 @@
 #define DFU_DEFAULT_POLL_TIMEOUT 300
 
 #define CONFIG_DFU_ENV_SETTINGS \
-	"dfu_alt_info=boot raw 0x2 0x400 mmcpart 1\0" \
+	"dfu_alt_info=uboot raw 0x2 0x400 mmcpart 1;" \
+		"boot part 0 1;" \
+		"/zImage ext4 0 1;" \
+		"/imx6ul-pico-hobbit.dtb ext4 0 1;" \
+		"rootfs part 0 2\0" \
 
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
