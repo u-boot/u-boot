@@ -47,6 +47,9 @@
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_16M
 #define DFU_DEFAULT_POLL_TIMEOUT 300
 
+#define CONFIG_DFU_ENV_SETTINGS \
+	"dfu_alt_info=boot raw 0x2 0x400 mmcpart 1\0" \
+
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -60,7 +63,7 @@
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
 	"mmcautodetect=yes\0" \
-	"dfu_alt_info=boot raw 0x2 0x400 mmcpart 1\0" \
+	CONFIG_DFU_ENV_SETTINGS \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
 	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
