@@ -61,14 +61,15 @@
 	"fdt_addr=0x83000000\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
-	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
 	"mmcautodetect=yes\0" \
 	CONFIG_DFU_ENV_SETTINGS \
+	"finduuid=part uuid mmc 0:2 uuid\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
-		"root=${mmcroot}\0" \
+		"root=PARTUUID=${uuid} rootwait rw\0" \
 	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
 	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
+		"run finduuid; " \
 		"run mmcargs; " \
 		"if run loadfdt; then " \
 			"bootz ${loadaddr} - ${fdt_addr}; " \
@@ -147,6 +148,5 @@
 
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		0
-#define CONFIG_MMCROOT			"/dev/mmcblk0p2"
 
 #endif /* __PICO_IMX6UL_CONFIG_H */
