@@ -9,11 +9,6 @@
 #include <asm/io.h>
 #include <asm/armv7m_mpu.h>
 
-u32 get_cpu_rev(void)
-{
-	return 0;
-}
-
 int arch_cpu_init(void)
 {
 	int i;
@@ -30,11 +25,11 @@ int arch_cpu_init(void)
 		{ 0x00000000, REGION_0, XN_DIS, PRIV_RW_USR_RW,
 		O_I_WB_RD_WR_ALLOC, REGION_4GB },
 
-		/* Code area, executable & strongly ordered */
-		{ 0xD0000000, REGION_1, XN_EN, PRIV_RW_USR_RW,
-		STRONG_ORDER, REGION_8MB },
+		/* armv7m code area */
+		{ 0x00000000, REGION_1, XN_DIS, PRIV_RW_USR_RW,
+		STRONG_ORDER, REGION_512MB },
 
-		/* Device area in all H7 : Not executable */
+		/* Device area : Not executable */
 		{ 0x40000000, REGION_2, XN_EN, PRIV_RW_USR_RW,
 		DEVICE_NON_SHARED, REGION_512MB },
 
@@ -42,8 +37,14 @@ int arch_cpu_init(void)
 		 * Armv7m fixed configuration: strongly ordered & not
 		 * executable, not cacheable
 		 */
-		{ 0xE0000000, REGION_4, XN_EN, PRIV_RW_USR_RW,
+		{ 0xE0000000, REGION_3, XN_EN, PRIV_RW_USR_RW,
 		STRONG_ORDER, REGION_512MB },
+
+#if !defined(CONFIG_STM32H7)
+		/* Device area : Not executable */
+		{ 0xA0000000, REGION_4, XN_EN, PRIV_RW_USR_RW,
+		DEVICE_NON_SHARED, REGION_512MB },
+#endif
 	};
 
 	disable_mpu();
@@ -52,8 +53,4 @@ int arch_cpu_init(void)
 	enable_mpu();
 
 	return 0;
-}
-
-void s_init(void)
-{
 }

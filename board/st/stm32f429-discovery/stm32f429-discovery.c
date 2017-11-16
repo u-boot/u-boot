@@ -294,6 +294,8 @@ int board_early_init_f(void)
 {
 	int res;
 
+	configure_clocks();
+
 	res = uart_setup_gpio();
 	if (res)
 		return res;
