@@ -436,6 +436,8 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 		int part;
 
 		desc = blk_get_dev(dev, simple_strtol(devnr, NULL, 10));
+		if (!desc)
+			return;
 		part = parse_partnum(devnr);
 
 		bootefi_device_path = efi_dp_from_part(desc, part);
