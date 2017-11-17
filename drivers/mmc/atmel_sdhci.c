@@ -13,6 +13,7 @@
 #include <asm/arch/clk.h>
 
 #define ATMEL_SDHC_MIN_FREQ	400000
+#define ATMEL_SDHC_GCK_RATE	240000000
 
 #ifndef CONFIG_DM_MMC
 int atmel_sdhci_init(void *regbase, u32 id)
@@ -57,9 +58,6 @@ static int atmel_sdhci_probe(struct udevice *dev)
 	struct atmel_sdhci_plat *plat = dev_get_platdata(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 	u32 max_clk;
-	u32 caps, caps_1;
-	u32 clk_base, clk_mul;
-	ulong gck_rate;
 	struct clk clk;
 	int ret;
 
@@ -78,17 +76,11 @@ static int atmel_sdhci_probe(struct udevice *dev)
 	host->bus_width	= fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					 "bus-width", 4);
 
-	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
-	clk_base = (caps & SDHCI_CLOCK_V3_BASE_MASK) >> SDHCI_CLOCK_BASE_SHIFT;
-	caps_1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
-	clk_mul = (caps_1 & SDHCI_CLOCK_MUL_MASK) >> SDHCI_CLOCK_MUL_SHIFT;
-	gck_rate = clk_base * 1000000 * (clk_mul + 1);
-
 	ret = clk_get_by_index(dev, 1, &clk);
 	if (ret)
 		return ret;
 
-	ret = clk_set_rate(&clk, gck_rate);
+	ret = clk_set_rate(&clk, ATMEL_SDHC_GCK_RATE);
 	if (ret)
 		return ret;
 
