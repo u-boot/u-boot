@@ -98,9 +98,7 @@ static ulong generic_clk_set_rate(struct clk *clk, ulong rate)
 
 		for (div = 1; div < GENERATED_MAX_DIV + 2; div++) {
 			tmp_rate = DIV_ROUND_CLOSEST(parent_rate, div);
-			if (rate < tmp_rate)
-				continue;
-			tmp_diff = rate - tmp_rate;
+			tmp_diff = abs(rate - tmp_rate);
 
 			if (best_diff < 0 || best_diff > tmp_diff) {
 				best_rate = tmp_rate;
