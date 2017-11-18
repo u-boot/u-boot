@@ -1694,7 +1694,7 @@ static void cmdset_amd_read_jedec_ids(flash_info_t *info)
 {
 	ushort bankId = 0;
 	uchar  manuId;
-	uchar  lsbits;
+	uchar  feature;
 
 	flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
 	flash_unlock_seq(info, 0);
@@ -1710,8 +1710,14 @@ static void cmdset_amd_read_jedec_ids(flash_info_t *info)
 	}
 	info->manufacturer_id = manuId;
 
-	lsbits = flash_read_uchar(info, FLASH_OFFSET_LOWER_SW_BITS);
-	info->sr_supported = lsbits & BIT(0);
+	debug("info->ext_addr = 0x%x, cfi_version = 0x%x\n",
+	      info->ext_addr, info->cfi_version);
+	if (info->ext_addr && info->cfi_version >= 0x3134) {
+		/* read software feature (at 0x53) */
+		feature = flash_read_uchar(info, info->ext_addr + 0x13);
+		debug("feature = 0x%x\n", feature);
+		info->sr_supported = feature & 0x1;
+	}
 
 	switch (info->chipwidth){
 	case FLASH_CFI_8BIT:
