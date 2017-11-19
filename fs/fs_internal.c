@@ -15,12 +15,13 @@ int fs_devread(struct blk_desc *blk, disk_partition_t *partition,
 	       lbaint_t sector, int byte_offset, int byte_len, char *buf)
 {
 	unsigned block_len;
-	int log2blksz = blk->log2blksz;
+	int log2blksz;
 	ALLOC_CACHE_ALIGN_BUFFER(char, sec_buf, (blk ? blk->blksz : 0));
 	if (blk == NULL) {
 		printf("** Invalid Block Device Descriptor (NULL)\n");
 		return 0;
 	}
+	log2blksz = blk->log2blksz;
 
 	/* Check partition boundaries */
 	if ((sector + ((byte_offset + byte_len - 1) >> log2blksz))
