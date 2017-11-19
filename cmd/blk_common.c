@@ -95,8 +95,6 @@ int blk_common_cmd(int argc, char * const argv[], enum if_type if_type,
 		} else {
 			return CMD_RET_USAGE;
 		}
-
-		return 0;
 	}
 }
 #endif
