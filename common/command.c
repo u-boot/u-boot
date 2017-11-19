@@ -318,7 +318,7 @@ static int find_common_prefix(char * const argv[])
 	return len;
 }
 
-static char tmp_buf[CONFIG_SYS_CBSIZE];	/* copy of console I/O buffer	*/
+static char tmp_buf[CONFIG_SYS_CBSIZE + 1];	/* copy of console I/O buffer */
 
 int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *colp)
 {
