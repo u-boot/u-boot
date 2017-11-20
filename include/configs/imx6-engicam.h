@@ -215,19 +215,6 @@
 # endif
 
 # include "imx6_spl.h"
-# ifdef CONFIG_SPL_BUILD
-#  if defined(CONFIG_IMX6UL)
-#   if defined(CONFIG_TARGET_MX6UL_ISIOT)
-#    define CONFIG_SYS_FSL_USDHC_NUM	2
-#   else
-#    define CONFIG_SYS_FSL_USDHC_NUM	1
-#   endif
-
-#   define CONFIG_SYS_FSL_ESDHC_ADDR	0
-#   undef CONFIG_DM_GPIO
-#   undef CONFIG_DM_MMC
-#  endif /* CONFIG_IMX6UL */
-# endif /* CONFIG_SPL_BUILD */
 #endif
 
 #endif /* __IMX6_ENGICAM_CONFIG_H */
