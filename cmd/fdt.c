@@ -256,7 +256,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		char *pathp;		/* path */
 		char *prop;		/* property */
 		int  nodeoffset;	/* node offset from libfdt */
-		static char data[SCRATCHPAD];	/* storage for the property */
+		static char data[SCRATCHPAD] __aligned(4);/* property storage */
 		const void *ptmp;
 		int  len;		/* new length of the property */
 		int  ret;		/* return value */

@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <mapmem.h>
 #include <dm/of_access.h>
 
 int dev_read_u32_default(struct udevice *dev, const char *propname, int def)
@@ -61,7 +62,7 @@ void *dev_read_addr_ptr(struct udevice *dev)
 {
 	fdt_addr_t addr = dev_read_addr(dev);
 
-	return (addr == FDT_ADDR_T_NONE) ? NULL : (void *)addr;
+	return (addr == FDT_ADDR_T_NONE) ? NULL : map_sysmem(addr, 0);
 }
 
 fdt_addr_t dev_read_addr_size(struct udevice *dev, const char *property,
