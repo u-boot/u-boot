@@ -35,6 +35,7 @@ int misc_init_r(void)
 				     GXBB_ETH_REG_0_CLK_EN);
 
 	/* Enable power and clock gate */
+	setbits_le32(GXBB_GCLK_MPEG_0, GXBB_GCLK_MPEG_0_I2C);
 	setbits_le32(GXBB_GCLK_MPEG_1, GXBB_GCLK_MPEG_1_ETH);
 	clrbits_le32(GXBB_MEM_PD_REG_0, GXBB_MEM_PD_REG_0_ETH_MASK);
 

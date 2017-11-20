@@ -137,6 +137,12 @@ config SYS_I2C_IMX_LPI2C
 	help
 	  Add support for the NXP i.MX LPI2C driver.
 
+config SYS_I2C_MESON
+	bool "Amlogic Meson I2C driver"
+	depends on DM_I2C && ARCH_MESON
+	help
+	  Add support for the Amlogic Meson I2C driver.
+
 config SYS_I2C_MXC
 	bool "NXP i.MX I2C driver"
 	depends on MX6
