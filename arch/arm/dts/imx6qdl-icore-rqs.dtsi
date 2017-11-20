@@ -43,6 +43,11 @@
 #include <dt-bindings/clock/imx6qdl-clock.h>
 
 / {
+	aliases {
+		mmc1 = &usdhc3;
+		mmc2 = &usdhc4;
+	};
+
 	memory {
 		reg = <0x10000000 0x80000000>;
 	};

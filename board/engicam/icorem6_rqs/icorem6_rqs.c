@@ -13,7 +13,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_ENV_IS_IN_MMC
 int board_mmc_get_env_dev(int devno)
 {
-	return devno;
+	return devno - 1;
 }
 #endif
 
