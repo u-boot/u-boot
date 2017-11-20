@@ -25,13 +25,12 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_NAND_MXS
-
 #define GPMI_PAD_CTRL0	(PAD_CTL_PKE | PAD_CTL_PUE | PAD_CTL_PUS_100K_UP)
 #define GPMI_PAD_CTRL1	(PAD_CTL_DSE_40ohm | PAD_CTL_SPEED_MED | \
 			PAD_CTL_SRE_FAST)
 #define GPMI_PAD_CTRL2	(GPMI_PAD_CTRL0 | GPMI_PAD_CTRL1)
 
-iomux_v3_cfg_t gpmi_pads[] = {
+static iomux_v3_cfg_t gpmi_pads[] = {
 	IOMUX_PADS(PAD_NANDF_CLE__NAND_CLE	| MUX_PAD_CTRL(GPMI_PAD_CTRL2)),
 	IOMUX_PADS(PAD_NANDF_ALE__NAND_ALE	| MUX_PAD_CTRL(GPMI_PAD_CTRL2)),
 	IOMUX_PADS(PAD_NANDF_WP_B__NAND_WP_B	| MUX_PAD_CTRL(GPMI_PAD_CTRL2)),
@@ -190,3 +189,10 @@ void setup_display(void)
 	writel(reg, &iomux->gpr[3]);
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
+
+#ifdef CONFIG_ENV_IS_IN_MMC
+int board_mmc_get_env_dev(int devno)
+{
+	return devno - 1;
+}
+#endif

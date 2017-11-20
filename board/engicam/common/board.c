@@ -49,7 +49,7 @@ static void setenv_fdt_file(void)
 	} else if (!strcmp(cmp_dtb, "imx6ul-geam-kit"))
 		env_set("fdt_file", "imx6ul-geam-kit.dtb");
 	else if (!strcmp(cmp_dtb, "imx6ul-isiot-mmc"))
-		env_set("fdt_file", "imx6ul-isiot-mmc.dtb");
+		env_set("fdt_file", "imx6ul-isiot-emmc.dtb");
 	else if (!strcmp(cmp_dtb, "imx6ul-isiot-emmc"))
 		env_set("fdt_file", "imx6ul-isiot-emmc.dtb");
 	else if (!strcmp(cmp_dtb, "imx6ul-isiot-nand"))

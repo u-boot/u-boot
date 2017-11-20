@@ -1,7 +1,7 @@
-if TARGET_MX6Q_ICORE
+if TARGET_MX6UL_ENGICAM
 
 config SYS_BOARD
-	default "icorem6"
+	default "imx6ul"
 
 config SYS_VENDOR
 	default "engicam"

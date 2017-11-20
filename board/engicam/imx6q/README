@@ -1,10 +1,15 @@
-How to use U-Boot on Engicam Is.IoT MX6UL Starter Kit:
------------------------------------------------------
-
-- Configure U-Boot for Engicam Is.IoT MX6UL
+Hsow to use U-Boot on Engicam i.CoreM6 (RQS) Solo/DualLite/Quad/Dual Starter Kit:
+--------------------------------------------------------------------------------
 
 $ make mrproper
-$ make imx6ul_isiot_mmc_defconfig
+
+- Configure U-Boot for Engicam i.CoreM6 Quad/Duali/Solo/DualLite:
+$ make imx6qdl_icore_mmc_defconfig
+
+- Configure U-Boot for Engicam i.CoreM6 RQS Quad/Duali/Solo/DualLite:
+$ make imx6qdl_icore_rqs_defconfig
+
+- Build U-Boot
 $ make
 
 This will generate the SPL image called SPL and the u-boot-dtb.img.
