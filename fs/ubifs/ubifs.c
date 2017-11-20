@@ -462,14 +462,10 @@ out:
 		dbg_gen("cannot find next direntry, error %d", err);
 
 out_free:
-	if (file->private_data)
-		kfree(file->private_data);
-	if (file)
-		free(file);
-	if (dentry)
-		free(dentry);
-	if (dir)
-		free(dir);
+	kfree(file->private_data);
+	free(file);
+	free(dentry);
+	free(dir);
 
 	return ret;
 }
