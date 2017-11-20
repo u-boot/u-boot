@@ -192,14 +192,6 @@ void setup_display(void)
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
 
-void setenv_fdt_file(void)
-{
-	if (is_mx6dq())
-		env_set("fdt_file", "imx6q-icore.dtb");
-	else if(is_mx6dl() || is_mx6solo())
-		env_set("fdt_file", "imx6dl-icore.dtb");
-}
-
 #ifdef CONFIG_SPL_BUILD
 /* MMC board initialization is needed till adding DM support in SPL */
 #if defined(CONFIG_FSL_ESDHC) && !defined(CONFIG_DM_MMC)

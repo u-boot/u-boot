@@ -90,12 +90,6 @@ void setup_gpmi_nand(void)
 }
 #endif /* CONFIG_NAND_MXS */
 
-void setenv_fdt_file(void)
-{
-	if (is_mx6ul())
-		env_set("fdt_file", "imx6ul-geam-kit.dtb");
-}
-
 #ifdef CONFIG_SPL_BUILD
 /* MMC board initialization is needed till adding DM support in SPL */
 #if defined(CONFIG_FSL_ESDHC) && !defined(CONFIG_DM_MMC)

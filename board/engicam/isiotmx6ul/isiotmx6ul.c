@@ -98,17 +98,6 @@ int board_mmc_get_env_dev(int devno)
 }
 #endif
 
-void setenv_fdt_file(void)
-{
-	if (is_mx6ul()) {
-#ifdef CONFIG_ENV_IS_IN_MMC
-		env_set("fdt_file", "imx6ul-isiot-emmc.dtb");
-#else
-		env_set("fdt_file", "imx6ul-isiot-nand.dtb");
-#endif
-	}
-}
-
 #ifdef CONFIG_SPL_BUILD
 #include <spl.h>
 
