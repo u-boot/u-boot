@@ -193,6 +193,7 @@ void setup_display(void)
 #ifdef CONFIG_ENV_IS_IN_MMC
 int board_mmc_get_env_dev(int devno)
 {
-	return devno - 1;
+	/* i.CoreM6 RQS has USDHC3 for SD and USDHC4 for eMMC */
+	return (devno == 0) ? 0: (devno - 1);
 }
 #endif
