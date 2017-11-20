@@ -7,7 +7,6 @@
  */
 
 #include <common.h>
-#include <mmc.h>
 
 #include <asm/io.h>
 #include <asm/gpio.h>
@@ -191,77 +190,3 @@ void setup_display(void)
 	writel(reg, &iomux->gpr[3]);
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
-
-#ifdef CONFIG_SPL_BUILD
-/* MMC board initialization is needed till adding DM support in SPL */
-#if defined(CONFIG_FSL_ESDHC) && !defined(CONFIG_DM_MMC)
-#include <mmc.h>
-#include <fsl_esdhc.h>
-
-#define USDHC_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE |             \
-	PAD_CTL_PUS_22K_UP  | PAD_CTL_SPEED_LOW |               \
-	PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
-
-static iomux_v3_cfg_t const usdhc1_pads[] = {
-	IOMUX_PADS(PAD_SD1_CLK__SD1_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD1_CMD__SD1_CMD	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD1_DAT0__SD1_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD1_DAT1__SD1_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD1_DAT2__SD1_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD1_DAT3__SD1_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_GPIO_1__GPIO1_IO01 | MUX_PAD_CTRL(NO_PAD_CTRL)),/* CD */
-};
-
-#define USDHC1_CD_GPIO	IMX_GPIO_NR(1, 1)
-
-struct fsl_esdhc_cfg usdhc_cfg[1] = {
-	{USDHC1_BASE_ADDR, 0, 4},
-};
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
-	int ret = 0;
-
-	switch (cfg->esdhc_base) {
-	case USDHC1_BASE_ADDR:
-		ret = !gpio_get_value(USDHC1_CD_GPIO);
-		break;
-	}
-
-	return ret;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	int i, ret;
-
-	/*
-	* According to the board_mmc_init() the following map is done:
-	* (U-boot device node)    (Physical Port)
-	* mmc0				USDHC1
-	*/
-	for (i = 0; i < CONFIG_SYS_FSL_USDHC_NUM; i++) {
-		switch (i) {
-		case 0:
-			SETUP_IOMUX_PADS(usdhc1_pads);
-			gpio_direction_input(USDHC1_CD_GPIO);
-			usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-			break;
-		default:
-			printf("Warning - USDHC%d controller not supporting\n",
-			       i + 1);
-			return 0;
-		}
-
-		ret = fsl_esdhc_initialize(bis, &usdhc_cfg[i]);
-		if (ret) {
-			printf("Warning: failed to initialize mmc dev %d\n", i);
-			return ret;
-		}
-	}
-
-	return 0;
-}
-#endif
-#endif /* CONFIG_SPL_BUILD */

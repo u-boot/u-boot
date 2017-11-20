@@ -100,6 +100,7 @@
 };
 
 &usdhc3 {
+	u-boot,dm-spl;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usdhc3>;
 	cd-gpios = <&gpio1 1 GPIO_ACTIVE_LOW>;
@@ -165,6 +166,7 @@
 	};
 
 	pinctrl_usdhc3: usdhc3grp {
+		u-boot,dm-spl;
 		fsl,pins = <
 			MX6QDL_PAD_SD3_CMD__SD3_CMD    0x17070
 			MX6QDL_PAD_SD3_CLK__SD3_CLK    0x10070
