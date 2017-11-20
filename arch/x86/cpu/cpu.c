@@ -143,8 +143,8 @@ const char *cpu_vendor_name(int vendor)
 {
 	const char *name;
 	name = "<invalid cpu vendor>";
-	if ((vendor < (ARRAY_SIZE(x86_vendor_name))) &&
-	    (x86_vendor_name[vendor] != 0))
+	if (vendor < ARRAY_SIZE(x86_vendor_name) &&
+	    x86_vendor_name[vendor])
 		name = x86_vendor_name[vendor];
 
 	return name;
