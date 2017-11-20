@@ -6,6 +6,8 @@
  */
 
 / {
+	model = "LogicPD Zoom OMAP3 Development Kit";
+
 	chosen {
 		stdout-path = &uart1;
 	};
