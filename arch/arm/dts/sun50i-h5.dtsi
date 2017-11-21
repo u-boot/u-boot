@@ -72,6 +72,38 @@
 	};
 };
 
+&ccu {
+	compatible = "allwinner,sun50i-h5-ccu";
+};
+
 &gic {
 	compatible = "arm,gic-400";
+};
+
+&mmc0 {
+	compatible = "allwinner,sun50i-h5-mmc",
+		     "allwinner,sun50i-a64-mmc";
+	clocks = <&ccu CLK_BUS_MMC0>, <&ccu CLK_MMC0>;
+	clock-names = "ahb", "mmc";
+};
+
+&mmc1 {
+	compatible = "allwinner,sun50i-h5-mmc",
+		     "allwinner,sun50i-a64-mmc";
+	clocks = <&ccu CLK_BUS_MMC1>, <&ccu CLK_MMC1>;
+	clock-names = "ahb", "mmc";
+};
+
+&mmc2 {
+	compatible = "allwinner,sun50i-h5-emmc",
+		     "allwinner,sun50i-a64-emmc";
+	clocks = <&ccu CLK_BUS_MMC2>, <&ccu CLK_MMC2>;
+	clock-names = "ahb", "mmc";
+};
+
+&pio {
+	interrupts = <GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>,
+		     <GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>,
+		   <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
+	compatible = "allwinner,sun50i-h5-pinctrl";
 };
