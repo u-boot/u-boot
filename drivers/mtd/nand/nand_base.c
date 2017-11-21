@@ -3817,6 +3817,9 @@ static int nand_dt_init(struct mtd_info *mtd, struct nand_chip *chip, int node)
 	if (ecc_step > 0)
 		chip->ecc.size = ecc_step;
 
+	if (fdt_getprop(blob, node, "nand-ecc-maximize", NULL))
+		chip->ecc.options |= NAND_ECC_MAXIMIZE;
+
 	return 0;
 }
 #else
