@@ -14,8 +14,10 @@
 #ifndef _ASM_SYSTEM_H
 #define _ASM_SYSTEM_H
 
+#include <asm/asm.h>
 #include <asm/sgidefs.h>
 #include <asm/ptrace.h>
+#include <linux/stringify.h>
 #if 0
 #include <linux/kernel.h>
 #endif
@@ -268,6 +270,17 @@ static inline void execution_hazard_barrier(void)
 		".set noreorder\n"
 		"ehb\n"
 		".set reorder");
+}
+
+static inline void instruction_hazard_barrier(void)
+{
+	unsigned long tmp;
+
+	asm volatile(
+	__stringify(PTR_LA) "\t%0, 1f\n"
+	"	jr.hb	%0\n"
+	"1:	.insn"
+	: "=&r"(tmp));
 }
 
 #endif /* _ASM_SYSTEM_H */

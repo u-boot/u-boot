@@ -12,6 +12,7 @@
 #endif
 #include <asm/io.h>
 #include <asm/mipsregs.h>
+#include <asm/system.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -134,6 +135,9 @@ void flush_cache(ulong start_addr, ulong size)
 ops_done:
 	/* ensure cache ops complete before any further memory accesses */
 	sync();
+
+	/* ensure the pipeline doesn't contain now-invalid instructions */
+	instruction_hazard_barrier();
 }
 
 void flush_dcache_range(ulong start_addr, ulong stop)
