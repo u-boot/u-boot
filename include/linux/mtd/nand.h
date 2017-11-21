@@ -741,9 +741,7 @@ struct nand_chip {
 
 	int onfi_version;
 	int jedec_version;
-#ifdef CONFIG_SYS_NAND_ONFI_DETECTION
 	struct nand_onfi_params	onfi_params;
-#endif
 	struct nand_jedec_params jedec_params;
  
 	int read_retries;
@@ -1000,6 +998,21 @@ static inline int onfi_get_sync_timing_mode(struct nand_chip *chip)
 	if (!chip->onfi_version)
 		return ONFI_TIMING_MODE_UNKNOWN;
 	return le16_to_cpu(chip->onfi_params.src_sync_timing_mode);
+}
+#else
+static inline int onfi_feature(struct nand_chip *chip)
+{
+	return 0;
+}
+
+static inline int onfi_get_async_timing_mode(struct nand_chip *chip)
+{
+	return ONFI_TIMING_MODE_UNKNOWN;
+}
+
+static inline int onfi_get_sync_timing_mode(struct nand_chip *chip)
+{
+	return ONFI_TIMING_MODE_UNKNOWN;
 }
 #endif
 
