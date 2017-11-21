@@ -1198,6 +1198,6 @@ int nand_check_erased_ecc_chunk(void *data, int datalen,
 				int threshold);
 
 /* Reset and initialize a NAND device */
-int nand_reset(struct nand_chip *chip);
+int nand_reset(struct nand_chip *chip, int chipnr);
 
 #endif /* __LINUX_MTD_NAND_H */
