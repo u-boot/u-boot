@@ -73,7 +73,7 @@ static inline s64 mmc_offset(int copy)
 		.partition = "u-boot,mmc-env-partition",
 		.offset = "u-boot,mmc-env-offset",
 	};
-	s64 val, defvalue;
+	s64 val = 0, defvalue;
 	const char *propname;
 	const char *str;
 	int err;
