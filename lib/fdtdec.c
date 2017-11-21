@@ -1268,7 +1268,11 @@ int fdtdec_setup(void)
 # endif
 # ifdef CONFIG_OF_EMBED
 	/* Get a pointer to the FDT */
+#  ifdef CONFIG_SPL_BUILD
+	gd->fdt_blob = __dtb_dt_spl_begin;
+#  else
 	gd->fdt_blob = __dtb_dt_begin;
+#  endif
 # elif defined CONFIG_OF_SEPARATE
 #  ifdef CONFIG_SPL_BUILD
 	/* FDT is at end of BSS unless it is in a different memory region */

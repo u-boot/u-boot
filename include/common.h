@@ -201,6 +201,7 @@ int last_stage_init(void);
 extern ulong monitor_flash_len;
 int mac_read_from_eeprom(void);
 extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
+extern u8 __dtb_dt_spl_begin[];	/* embedded device tree blob for SPL/TPL */
 int set_cpu_clk_info(void);
 int mdm_init(void);
 int print_cpuinfo(void);
