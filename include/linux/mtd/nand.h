@@ -1134,6 +1134,11 @@ static inline int onfi_get_sync_timing_mode(struct nand_chip *chip)
 }
 #endif
 
+int onfi_init_data_interface(struct nand_chip *chip,
+			     struct nand_data_interface *iface,
+			     enum nand_data_interface_type type,
+			     int timing_mode);
+
 /*
  * Check if it is a SLC nand.
  * The !nand_is_slc() can be used to check the MLC/TLC nand chips.
