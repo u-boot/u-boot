@@ -901,8 +901,6 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *chip)
 	return status;
 }
 
-#define BITS_PER_BYTE 8
-
 /**
  * nand_check_erased_buf - check if a buffer contains (almost) only 0xff data
  * @buf: buffer to test
