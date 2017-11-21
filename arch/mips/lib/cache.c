@@ -98,6 +98,9 @@ static inline unsigned long scache_line_size(void)
 	const unsigned int cache_ops[] = { ops };			\
 	unsigned int i;							\
 									\
+	if (!lsize)							\
+		break;							\
+									\
 	for (; addr <= aend; addr += lsize) {				\
 		for (i = 0; i < ARRAY_SIZE(cache_ops); i++)		\
 			mips_cache(cache_ops[i], addr);			\
@@ -125,9 +128,7 @@ void flush_cache(ulong start_addr, ulong size)
 	cache_loop(start_addr, start_addr + size, dlsize, HIT_WRITEBACK_INV_D);
 
 	/* flush L2 cache */
-	if (slsize)
-		cache_loop(start_addr, start_addr + size, slsize,
-			   HIT_WRITEBACK_INV_SD);
+	cache_loop(start_addr, start_addr + size, slsize, HIT_WRITEBACK_INV_SD);
 
 	/* flush I-cache */
 	cache_loop(start_addr, start_addr + size, ilsize, HIT_INVALIDATE_I);
@@ -152,8 +153,7 @@ void flush_dcache_range(ulong start_addr, ulong stop)
 	cache_loop(start_addr, stop, lsize, HIT_WRITEBACK_INV_D);
 
 	/* flush L2 cache */
-	if (slsize)
-		cache_loop(start_addr, stop, slsize, HIT_WRITEBACK_INV_SD);
+	cache_loop(start_addr, stop, slsize, HIT_WRITEBACK_INV_SD);
 
 	/* ensure cache ops complete before any further memory accesses */
 	sync();
@@ -169,8 +169,7 @@ void invalidate_dcache_range(ulong start_addr, ulong stop)
 		return;
 
 	/* invalidate L2 cache */
-	if (slsize)
-		cache_loop(start_addr, stop, slsize, HIT_INVALIDATE_SD);
+	cache_loop(start_addr, stop, slsize, HIT_INVALIDATE_SD);
 
 	cache_loop(start_addr, stop, lsize, HIT_INVALIDATE_D);
 
