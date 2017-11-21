@@ -286,6 +286,11 @@ M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
 F:	configs/nanopi_neo2_defconfig
 
+NANOPI-NEO-PLUS2 BOARD
+M:	Antony Antony <antony@phenome.org>
+S:	Maintained
+F:	configs/nanopi_neo_plus2_defconfig
+
 NANOPI-NEO-AIR BOARD
 M:	Jelle van der Waa <jelle@vdwaa.nl>
 S:	Maintained
