@@ -394,13 +394,6 @@ static int nand_davinci_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 	chip->cmdfunc(mtd, NAND_CMD_PAGEPROG, -1, -1);
 	status = chip->waitfunc(mtd, chip);
 
-	/*
-	 * See if operation failed and additional status checks are
-	 * available.
-	 */
-	if ((status & NAND_STATUS_FAIL) && (chip->errstat))
-		status = chip->errstat(mtd, chip, FL_WRITING, status, page);
-
 	if (status & NAND_STATUS_FAIL) {
 		ret = -EIO;
 		goto err;
