@@ -569,11 +569,6 @@ static const struct spi_clkreg spi_clkregs[] = {
 		.sel_shift = CLK_SPI5_PLL_SEL_SHIFT, },
 };
 
-static inline u32 extract_bits(u32 val, unsigned width, unsigned shift)
-{
-	return (val >> shift) & ((1 << width) - 1);
-}
-
 static ulong rk3399_spi_get_clk(struct rk3399_cru *cru, ulong clk_id)
 {
 	const struct spi_clkreg *spiclk = NULL;
@@ -590,7 +585,8 @@ static ulong rk3399_spi_get_clk(struct rk3399_cru *cru, ulong clk_id)
 	}
 
 	val = readl(&cru->clksel_con[spiclk->reg]);
-	div = extract_bits(val, CLK_SPI_PLL_DIV_CON_WIDTH, spiclk->div_shift);
+	div = bitfield_extract(val, spiclk->div_shift,
+			       CLK_SPI_PLL_DIV_CON_WIDTH);
 
 	return DIV_TO_RATE(GPLL_HZ, div);
 }
