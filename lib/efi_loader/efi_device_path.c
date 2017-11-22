@@ -428,10 +428,27 @@ static void *dp_part_fill(void *buf, struct blk_desc *desc, int part)
 			hddp->partmap_type = 2;
 		else
 			hddp->partmap_type = 1;
-		hddp->signature_type = desc->sig_type;
-		if (hddp->signature_type != 0)
+
+		switch (desc->sig_type) {
+		case SIG_TYPE_NONE:
+		default:
+			hddp->signature_type = 0;
+			memset(hddp->partition_signature, 0,
+			       sizeof(hddp->partition_signature));
+			break;
+		case SIG_TYPE_MBR:
+			hddp->signature_type = 1;
+			memset(hddp->partition_signature, 0,
+			       sizeof(hddp->partition_signature));
+			memcpy(hddp->partition_signature, &desc->mbr_sig,
+			       sizeof(desc->mbr_sig));
+			break;
+		case SIG_TYPE_GUID:
+			hddp->signature_type = 2;
 			memcpy(hddp->partition_signature, &desc->guid_sig,
 			       sizeof(hddp->partition_signature));
+			break;
+		}
 
 		buf = &hddp[1];
 	}
