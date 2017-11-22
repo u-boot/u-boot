@@ -526,11 +526,22 @@ static int rk3368_clk_ofdata_to_platdata(struct udevice *dev)
 static int rk3368_clk_bind(struct udevice *dev)
 {
 	int ret;
+	struct udevice *sys_child;
+	struct sysreset_reg *priv;
 
 	/* The reset driver does not have a device node, so bind it here */
-	ret = device_bind_driver(gd->dm_root, "rk3368_sysreset", "reset", &dev);
-	if (ret)
-		pr_err("bind RK3368 reset driver failed: ret=%d\n", ret);
+	ret = device_bind_driver(dev, "rockchip_sysreset", "sysreset",
+				 &sys_child);
+	if (ret) {
+		debug("Warning: No sysreset driver: ret=%d\n", ret);
+	} else {
+		priv = malloc(sizeof(struct sysreset_reg));
+		priv->glb_srst_fst_value = offsetof(struct rk3368_cru,
+						    glb_srst_fst_val);
+		priv->glb_srst_snd_value = offsetof(struct rk3368_cru,
+						    glb_srst_snd_val);
+		sys_child->priv = priv;
+	}
 
 	return ret;
 }

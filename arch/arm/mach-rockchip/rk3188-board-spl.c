@@ -101,7 +101,6 @@ static int setup_arm_clock(void)
 void board_init_f(ulong dummy)
 {
 	struct udevice *pinctrl, *dev;
-	struct rk3188_pmu *pmu;
 	int ret;
 
 	/* Example code showing how to enable the debug UART on RK3188 */
@@ -145,15 +144,6 @@ void board_init_f(ulong dummy)
 		return;
 	}
 
-	/*
-	 * Recover the bootrom's stackpointer.
-	 * For whatever reason needs to run after rockchip_get_clk.
-	 */
-	pmu = syscon_get_first_range(ROCKCHIP_SYSCON_PMU);
-	if (IS_ERR(pmu))
-		pr_err("pmu syscon returned %ld\n", PTR_ERR(pmu));
-	SAVE_SP_ADDR = readl(&pmu->sys_reg[2]);
-
 	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
 	if (ret) {
 		debug("Pinctrl init failed: %d\n", ret);
@@ -168,7 +158,7 @@ void board_init_f(ulong dummy)
 
 	setup_arm_clock();
 #if CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM) && !defined(CONFIG_SPL_BOARD_INIT)
-	back_to_bootrom();
+	back_to_bootrom(BROM_BOOT_NEXTSTAGE);
 #endif
 }
 
@@ -229,7 +219,7 @@ void spl_board_init(void)
 
 	preloader_console_init();
 #if CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM)
-	back_to_bootrom();
+	back_to_bootrom(BROM_BOOT_NEXTSTAGE);
 #endif
 	return;
 

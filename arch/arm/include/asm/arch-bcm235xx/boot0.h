@@ -5,5 +5,7 @@
  */
 
 /* BOOT0 header information */
+_start:
+	ARM_VECTORS
 	.word	0xbabeface
 	.word	_end - _start

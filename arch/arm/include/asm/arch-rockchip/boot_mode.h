@@ -15,5 +15,11 @@
 #define BOOT_CHARGING		(REBOOT_FLAG + 11)
 /* enter usb mass storage mode */
 #define BOOT_UMS		(REBOOT_FLAG + 12)
+/* enter bootrom download mode */
+#define BOOT_BROM_DOWNLOAD	0xEF08A53C
+
+#ifndef __ASSEMBLY__
+int setup_boot_mode(void);
+#endif
 
 #endif

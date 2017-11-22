@@ -40,7 +40,7 @@ void board_init_f(ulong dummy)
 	sdram_init();
 
 	/* return to maskrom */
-	back_to_bootrom();
+	back_to_bootrom(BROM_BOOT_NEXTSTAGE);
 }
 
 /* Place Holders */

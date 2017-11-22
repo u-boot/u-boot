@@ -16,9 +16,14 @@ config ROCKCHIP_RK3188
 	select CPU_V7
 	select SPL_BOARD_INIT if SPL
 	select SUPPORT_SPL
-	select SUPPORT_TPL
 	select SPL
-	select TPL
+	select SPL_CLK
+	select SPL_PINCTRL
+	select SPL_REGMAP
+	select SPL_SYSCON
+	select SPL_RAM
+	select SPL_DRIVERS_MISC_SUPPORT
+	select SPL_ROCKCHIP_EARLYRETURN_TO_BROM
 	select BOARD_LATE_INIT
 	select ROCKCHIP_BROM_HELPER
 	help
@@ -74,7 +79,6 @@ config ROCKCHIP_RK3368
 	imply SPL_SEPARATE_BSS
 	imply SPL_SERIAL_SUPPORT
 	imply TPL_SERIAL_SUPPORT
-	select ENABLE_ARM_SOC_BOOT0_HOOK
 	select DEBUG_UART_BOARD_INIT
 	select SYS_NS16550
 	help
@@ -112,8 +116,9 @@ config ROCKCHIP_RK3399
 	select SPL_SEPARATE_BSS
 	select SPL_SERIAL_SUPPORT
 	select SPL_DRIVERS_MISC_SUPPORT
-	select ENABLE_ARM_SOC_BOOT0_HOOK
 	select DEBUG_UART_BOARD_INIT
+	select BOARD_LATE_INIT
+	select ROCKCHIP_BROM_HELPER
 	help
 	  The Rockchip RK3399 is a ARM-based SoC with a dual-core Cortex-A72
 	  and quad-core Cortex-A53.
@@ -149,6 +154,20 @@ config TPL_ROCKCHIP_BACK_TO_BROM
           SPL will return to the boot rom, which will then load the U-Boot
           binary to keep going on.
 
+config ROCKCHIP_BOOT_MODE_REG
+	hex "Rockchip boot mode flag register address"
+	default 0x200081c8 if ROCKCHIP_RK3036
+	default 0x20004040 if ROCKCHIP_RK3188
+	default 0x110005c8 if ROCKCHIP_RK322X
+	default 0xff730094 if ROCKCHIP_RK3288
+	default 0xff738200 if ROCKCHIP_RK3368
+	default 0xff320300 if ROCKCHIP_RK3399
+	default 0x10300580 if ROCKCHIP_RV1108
+	default 0
+	help
+	  The Soc will enter to different boot mode(defined in asm/arch/boot_mode.h)
+	  according to the value from this register.
+
 config ROCKCHIP_SPL_RESERVE_IRAM
 	hex "Size of IRAM reserved in SPL"
 	default 0x4000
@@ -159,6 +178,34 @@ config ROCKCHIP_SPL_RESERVE_IRAM
 
 config ROCKCHIP_BROM_HELPER
 	bool
+
+config SPL_ROCKCHIP_EARLYRETURN_TO_BROM
+        bool "SPL requires early-return (for RK3188-style BROM) to BROM"
+	depends on SPL && ENABLE_ARM_SOC_BOOT0_HOOK
+	help
+	  Some Rockchip BROM variants (e.g. on the RK3188) load the
+	  first stage in segments and enter multiple times. E.g. on
+	  the RK3188, the first 1KB of the first stage are loaded
+	  first and entered; after returning to the BROM, the
+	  remainder of the first stage is loaded, but the BROM
+	  re-enters at the same address/to the same code as previously.
+
+	  This enables support code in the BOOT0 hook for the SPL stage
+	  to allow multiple entries.
+
+config TPL_ROCKCHIP_EARLYRETURN_TO_BROM
+        bool "TPL requires early-return (for RK3188-style BROM) to BROM"
+	depends on TPL && ENABLE_ARM_SOC_BOOT0_HOOK
+	help
+	  Some Rockchip BROM variants (e.g. on the RK3188) load the
+	  first stage in segments and enter multiple times. E.g. on
+	  the RK3188, the first 1KB of the first stage are loaded
+	  first and entered; after returning to the BROM, the
+	  remainder of the first stage is loaded, but the BROM
+	  re-enters at the same address/to the same code as previously.
+
+	  This enables support code in the BOOT0 hook for the TPL stage
+	  to allow multiple entries.
 
 config SPL_MMC_SUPPORT
 	default y if !SPL_ROCKCHIP_BACK_TO_BROM

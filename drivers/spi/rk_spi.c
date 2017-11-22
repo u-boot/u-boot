@@ -94,7 +94,7 @@ static void rkspi_set_clk(struct rockchip_spi_priv *priv, uint speed)
 	 */
 	if (clk_div > 0xfffe) {
 		clk_div = 0xfffe;
-		debug("%s: can't divide down to %d hz (actual will be %d hz)\n",
+		debug("%s: can't divide down to %d Hz (actual will be %d Hz)\n",
 		      __func__, speed, priv->input_rate / clk_div);
 	}
 

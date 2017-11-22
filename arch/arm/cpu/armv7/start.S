@@ -31,6 +31,7 @@
 
 	.globl	reset
 	.globl	save_boot_params_ret
+	.type   save_boot_params_ret,%function
 #ifdef CONFIG_ARMV7_LPAE
 	.global	switch_to_hypervisor_ret
 #endif

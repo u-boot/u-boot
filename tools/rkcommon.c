@@ -58,9 +58,6 @@ struct header1_info {
  * @spl_hdr:		Boot ROM requires a 4-bytes spl header
  * @spl_size:		Spl size(include extra 4-bytes spl header)
  * @spl_rc4:		RC4 encode the SPL binary (same key as header)
- * @spl_boot0:          A new-style (ARM_SOC_BOOT0_HOOK) image that should
- *                      have the boot magic (e.g. 'RK33') written to its first
- *                      word.
  */
 
 struct spl_info {
@@ -68,19 +65,18 @@ struct spl_info {
 	const char *spl_hdr;
 	const uint32_t spl_size;
 	const bool spl_rc4;
-	const bool spl_boot0;
 };
 
 static struct spl_info spl_infos[] = {
-	{ "rk3036", "RK30", 0x1000, false, false },
-	{ "rk3128", "RK31", 0x1800, false, false },
-	{ "rk3188", "RK31", 0x8000 - 0x800, true, false },
-	{ "rk322x", "RK32", 0x8000 - 0x1000, false, false },
-	{ "rk3288", "RK32", 0x8000, false, false },
-	{ "rk3328", "RK32", 0x8000 - 0x1000, false, false },
-	{ "rk3368", "RK33", 0x8000 - 0x1000, false, true },
-	{ "rk3399", "RK33", 0x30000 - 0x2000, false, true },
-	{ "rv1108", "RK11", 0x1800, false, false},
+	{ "rk3036", "RK30", 0x1000, false },
+	{ "rk3128", "RK31", 0x1800, false },
+	{ "rk3188", "RK31", 0x8000 - 0x800, true },
+	{ "rk322x", "RK32", 0x8000 - 0x1000, false },
+	{ "rk3288", "RK32", 0x8000, false },
+	{ "rk3328", "RK32", 0x8000 - 0x1000, false },
+	{ "rk3368", "RK33", 0x8000 - 0x1000, false },
+	{ "rk3399", "RK33", 0x30000 - 0x2000, false },
+	{ "rv1108", "RK11", 0x1800, false },
 };
 
 static unsigned char rc4_key[16] = {
@@ -156,16 +152,6 @@ bool rkcommon_need_rc4_spl(struct image_tool_params *params)
 	 * info would not be NULL, because of we checked params before.
 	 */
 	return info->spl_rc4;
-}
-
-bool rkcommon_spl_is_boot0(struct image_tool_params *params)
-{
-	struct spl_info *info = rkcommon_get_spl_info(params->imagename);
-
-	/*
-	 * info would not be NULL, because of we checked params before.
-	 */
-	return info->spl_boot0;
 }
 
 static void rkcommon_set_header0(void *buf, uint file_size,
@@ -366,15 +352,12 @@ int rkcommon_vrec_header(struct image_tool_params *params,
 	 * have the first 4 bytes reserved for the spl_name).  Reserving
 	 * these 4 bytes is done using the BOOT0_HOOK infrastructure.
 	 *
-	 * Depending on this, the header is either 0x800 (if this is a
-	 * 'boot0'-style payload, which has reserved 4 bytes at the
-	 * beginning for the 'spl_name' and expects us to overwrite
-	 * its first 4 bytes) or 0x804 bytes in length.
+	 * The header is always at 0x800 (as we now use a payload
+	 * prepadded using the boot0 hook for all targets): the first
+	 * 4 bytes of these images can safely be overwritten using the
+	 * boot magic.
 	 */
-	if (rkcommon_spl_is_boot0(params))
-		tparams->header_size = RK_SPL_HDR_START;
-	else
-		tparams->header_size = RK_SPL_HDR_START + 4;
+	tparams->header_size = RK_SPL_HDR_START;
 
 	/* Allocate, clear and install the header */
 	tparams->hdr = malloc(tparams->header_size);

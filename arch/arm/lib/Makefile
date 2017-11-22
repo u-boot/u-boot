@@ -17,6 +17,12 @@ else
 obj-y	+= vectors.o crt0.o
 endif
 
+ifdef CONFIG_ARM64
+obj-y   += setjmp_aarch64.o
+else
+obj-y   += setjmp.o
+endif
+
 ifndef CONFIG_SPL_BUILD
 ifdef CONFIG_ARM64
 obj-y	+= relocate_64.o

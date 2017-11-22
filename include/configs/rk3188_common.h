@@ -36,23 +36,11 @@
 #define CONFIG_ROCKCHIP_MAX_INIT_SIZE	(0x8000 - 0x800)
 #define CONFIG_ROCKCHIP_CHIP_TAG	"RK31"
 
-#ifdef CONFIG_TPL_BUILD
-#define CONFIG_SPL_TEXT_BASE		0x10080804
-/* tpl size 1kb - 4byte RK31 header */
-#define CONFIG_SPL_MAX_SIZE		(0x400 - 0x4)
-#elif defined(CONFIG_SPL_BUILD)
-/* spl size 32kb sram - 2kb bootrom - 1kb spl */
-#define CONFIG_SPL_MAX_SIZE		(0x8000 - 0xC00)
-#define CONFIG_SPL_TEXT_BASE		0x10080C00
+#define CONFIG_SPL_TEXT_BASE		0x10080800
+/* spl size 32kb sram - 2kb bootrom */
+#define CONFIG_SPL_MAX_SIZE		(0x8000 - 0x800)
 #define CONFIG_SPL_FRAMEWORK		1
-#define CONFIG_SPL_CLK			1
-#define CONFIG_SPL_PINCTRL		1
-#define CONFIG_SPL_REGMAP		1
-#define CONFIG_SPL_SYSCON		1
-#define CONFIG_SPL_RAM			1
-#define CONFIG_SPL_DRIVERS_MISC_SUPPORT	1
 #define CONFIG_ROCKCHIP_SERIAL		1
-#endif
 
 #define CONFIG_SPL_STACK		0x10087fff
 

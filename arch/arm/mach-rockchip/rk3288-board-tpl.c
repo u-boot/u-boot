@@ -69,7 +69,7 @@ void board_init_f(ulong dummy)
 
 void board_return_to_bootrom(void)
 {
-	back_to_bootrom();
+	back_to_bootrom(BROM_BOOT_NEXTSTAGE);
 }
 
 u32 spl_boot_device(void)

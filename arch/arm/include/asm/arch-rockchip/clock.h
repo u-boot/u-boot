@@ -39,6 +39,11 @@ static inline int rk_pll_id(enum rk_clk_id clk_id)
 	return clk_id - 1;
 }
 
+struct sysreset_reg {
+	unsigned int glb_srst_fst_value;
+	unsigned int glb_srst_snd_value;
+};
+
 /**
  * clk_get_divisor() - Calculate the required clock divisior
  *

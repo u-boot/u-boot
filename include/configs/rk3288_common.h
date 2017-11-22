@@ -34,7 +34,7 @@
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_TPL_BOOTROM_SUPPORT)
 # define CONFIG_SPL_TEXT_BASE		0x0
 #else
-# define CONFIG_SPL_TEXT_BASE		0xff704004
+# define CONFIG_SPL_TEXT_BASE		0xff704000
 #endif
 
 /* MMC/SD IP block */

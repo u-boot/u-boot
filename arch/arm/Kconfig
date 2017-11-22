@@ -1130,6 +1130,7 @@ config ARCH_ROCKCHIP
 	select DM_USB if USB
 	select DM_PWM
 	select DM_REGULATOR
+	select ENABLE_ARM_SOC_BOOT0_HOOK
 	imply CMD_FASTBOOT
 	imply FASTBOOT
 	imply FAT_WRITE

@@ -1,5 +1,6 @@
 /*
  * (C) Copyright 2017 Heiko Stuebner <heiko@sntech.de>
+ * (C) Copyright 2017 Theobroma Systems Design und Consulting GmbH
  *
  * SPDX-License-Identifier:	GPL-2.0
  */
@@ -14,15 +15,30 @@
 extern u32 SAVE_SP_ADDR;
 
 /**
- * Hand control back to the bootrom to load another
- * boot stage.
+ * back_to_bootrom() - return to bootrom (for TPL/SPL), passing a
+ *                     result code
+ *
+ * Transfer control back to the Rockchip BROM, restoring necessary
+ * register context and passing a command/result code to the BROM
+ * to instruct its next actions (e.g. continue boot sequence, enter
+ * download mode, ...).
+ *
+ * This function does not return.
+ *
+ * @brom_cmd: indicates how the bootrom should continue the boot
+ *            sequence (e.g. load the next stage)
  */
-void back_to_bootrom(void);
+enum rockchip_bootrom_cmd {
+	/*
+	 * These can not start at 0, as 0 has a special meaning
+	 * for setjmp().
+	 */
 
-/**
- * Assembler component for the above (do not call this directly)
- */
-void _back_to_bootrom_s(void);
+	BROM_BOOT_NEXTSTAGE = 1,  /* continue boot-sequence */
+	BROM_BOOT_ENTER_DNL,      /* have BROM enter download-mode */
+};
+
+void back_to_bootrom(enum rockchip_bootrom_cmd brom_cmd);
 
 /**
  * Boot-device identifiers as used by the BROM
