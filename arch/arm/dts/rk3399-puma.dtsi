@@ -544,6 +544,7 @@
 
 &dwc3_typec1 {
 	status = "okay";
+	tsd,usb-port-power = "usbhub_enable";
 };
 
 &vopb {
