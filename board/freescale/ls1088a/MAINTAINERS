@@ -15,3 +15,15 @@ F:	board/freescale/ls1088a/
 F:	include/configs/ls1088aqds.h
 F:	configs/ls1088aqds_qspi_defconfig
 F:	configs/ls1088aqds_sdcard_qspi_defconfig
+
+LS1088AQDS_QSPI_SECURE_BOOT BOARD
+M:	Udit Agarwal <udit.agarwal@nxp.com>
+M:	Vinitha Pillai-B57223 <vinitha.pillai@nxp.com>
+S:	Maintained
+F:	configs/ls1088aqds_qspi_SECURE_BOOT_defconfig
+
+LS1088ARDB_QSPI_SECURE_BOOT BOARD
+M:	Udit Agarwal <udit.agarwal@nxp.com>
+M:	Vinitha Pillai-B57223 <vinitha.pillai@nxp.com>
+S:	Maintained
+F:	configs/ls1088ardb_qspi_SECURE_BOOT_defconfig
