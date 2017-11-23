@@ -236,6 +236,11 @@ config TARGET_VINCO
 	select SAMA5D4
 	select SUPPORT_SPL
 
+config TARGET_WB45N
+	bool "Support Laird WB45N"
+	select CPU_ARM926EJS
+	select SUPPORT_SPL
+
 endchoice
 
 config SYS_SOC
@@ -270,6 +275,7 @@ source "board/ronetix/pm9g45/Kconfig"
 source "board/siemens/corvus/Kconfig"
 source "board/siemens/taurus/Kconfig"
 source "board/siemens/smartweb/Kconfig"
+source "board/laird/wb45n/Kconfig"
 
 config SPL_LDSCRIPT
 	default "arch/arm/mach-at91/arm926ejs/u-boot-spl.lds" if CPU_ARM926EJS

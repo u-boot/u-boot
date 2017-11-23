@@ -219,6 +219,8 @@ static inline unsigned pin_to_mask(unsigned pin)
 	at91_set_a_periph((x - PIN_BASE) / 32,(x % 32), y)
 #define at91_set_B_periph(x, y) \
 	at91_set_b_periph((x - PIN_BASE) / 32,(x % 32), y)
+#define at91_set_gpio_deglitch(x, y) \
+	at91_set_pio_deglitch((x - PIN_BASE) / 32,(x % 32), y)
 #define at91_set_gpio_output(x, y) \
 	at91_set_pio_output((x - PIN_BASE) / 32,(x % 32), y)
 #define at91_set_gpio_input(x, y) \
