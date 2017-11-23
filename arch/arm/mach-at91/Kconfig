@@ -241,6 +241,13 @@ config TARGET_WB45N
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
+config TARGET_WB50N
+	bool "Support Laird WB50N"
+	select BOARD_LATE_INIT
+	select CPU_V7
+	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
+
 endchoice
 
 config SYS_SOC
@@ -276,6 +283,7 @@ source "board/siemens/corvus/Kconfig"
 source "board/siemens/taurus/Kconfig"
 source "board/siemens/smartweb/Kconfig"
 source "board/laird/wb45n/Kconfig"
+source "board/laird/wb50n/Kconfig"
 
 config SPL_LDSCRIPT
 	default "arch/arm/mach-at91/arm926ejs/u-boot-spl.lds" if CPU_ARM926EJS
