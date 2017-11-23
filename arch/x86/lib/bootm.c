@@ -109,7 +109,7 @@ static int boot_prep_linux(bootm_headers_t *images)
 		}
 		is_zimage = 1;
 #if defined(CONFIG_FIT)
-	} else if (images->fit_uname_os) {
+	} else if (images->fit_uname_os && is_zimage) {
 		ret = fit_image_get_data(images->fit_hdr_os,
 				images->fit_noffset_os,
 				(const void **)&data, &len);
