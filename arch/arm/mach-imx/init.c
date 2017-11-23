@@ -78,7 +78,7 @@ void imx_set_wdog_powerdown(bool enable)
 	writew(enable, &wdog1->wmcr);
 	writew(enable, &wdog2->wmcr);
 
-	if (is_mx6sx() || is_mx6ul() || is_mx7())
+	if (is_mx6sx() || is_mx6ul() || is_mx6ull() || is_mx7())
 		writew(enable, &wdog3->wmcr);
 #ifdef CONFIG_MX7D
 	writew(enable, &wdog4->wmcr);
