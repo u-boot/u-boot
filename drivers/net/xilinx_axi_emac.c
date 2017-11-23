@@ -163,7 +163,7 @@ static inline int mdio_wait(struct axi_regs *regs)
 	u32 timeout = 200;
 
 	/* Wait till MDIO interface is ready to accept a new transaction. */
-	while (timeout && (!(in_be32(&regs->mdio_mcr)
+	while (timeout && (!(readl(&regs->mdio_mcr)
 						& XAE_MDIO_MCR_READY_MASK))) {
 		timeout--;
 		udelay(1);
@@ -191,13 +191,13 @@ static u32 phyread(struct axidma_priv *priv, u32 phyaddress, u32 registernum,
 			XAE_MDIO_MCR_INITIATE_MASK |
 			XAE_MDIO_MCR_OP_READ_MASK;
 
-	out_be32(&regs->mdio_mcr, mdioctrlreg);
+	writel(mdioctrlreg, &regs->mdio_mcr);
 
 	if (mdio_wait(regs))
 		return 1;
 
 	/* Read data */
-	*val = in_be32(&regs->mdio_mrd);
+	*val = readl(&regs->mdio_mrd);
 	return 0;
 }
 
@@ -218,9 +218,9 @@ static u32 phywrite(struct axidma_priv *priv, u32 phyaddress, u32 registernum,
 			XAE_MDIO_MCR_OP_WRITE_MASK;
 
 	/* Write data */
-	out_be32(&regs->mdio_mwd, data);
+	writel(data, &regs->mdio_mwd);
 
-	out_be32(&regs->mdio_mcr, mdioctrlreg);
+	writel(mdioctrlreg, &regs->mdio_mcr);
 
 	if (mdio_wait(regs))
 		return 1;
@@ -244,7 +244,7 @@ static int axiemac_phy_init(struct udevice *dev)
 			SUPPORTED_1000baseT_Full;
 
 	/* Set default MDIO divisor */
-	out_be32(&regs->mdio_mc, XAE_MDIO_DIV_DFT | XAE_MDIO_MC_MDIOEN_MASK);
+	writel(XAE_MDIO_DIV_DFT | XAE_MDIO_MC_MDIOEN_MASK, &regs->mdio_mc);
 
 	if (priv->phyaddr == -1) {
 		/* Detect the PHY address */
@@ -323,12 +323,12 @@ static int setup_phy(struct udevice *dev)
 	}
 
 	/* Setup the emac for the phy speed */
-	emmc_reg = in_be32(&regs->emmc);
+	emmc_reg = readl(&regs->emmc);
 	emmc_reg &= ~XAE_EMMC_LINKSPEED_MASK;
 	emmc_reg |= speed;
 
 	/* Write new speed setting out to Axi Ethernet */
-	out_be32(&regs->emmc, emmc_reg);
+	writel(emmc_reg, &regs->emmc);
 
 	/*
 	* Setting the operating speed of the MAC needs a delay. There
@@ -347,13 +347,13 @@ static void axiemac_stop(struct udevice *dev)
 	u32 temp;
 
 	/* Stop the hardware */
-	temp = in_be32(&priv->dmatx->control);
+	temp = readl(&priv->dmatx->control);
 	temp &= ~XAXIDMA_CR_RUNSTOP_MASK;
-	out_be32(&priv->dmatx->control, temp);
+	writel(temp, &priv->dmatx->control);
 
-	temp = in_be32(&priv->dmarx->control);
+	temp = readl(&priv->dmarx->control);
 	temp &= ~XAXIDMA_CR_RUNSTOP_MASK;
-	out_be32(&priv->dmarx->control, temp);
+	writel(temp, &priv->dmarx->control);
 
 	debug("axiemac: Halted\n");
 }
@@ -384,11 +384,11 @@ static int axi_ethernet_init(struct axidma_priv *priv)
 		 * Stop the device and reset HW
 		 * Disable interrupts
 		 */
-		out_be32(&regs->ie, 0);
+		writel(0, &regs->ie);
 	}
 
 	/* Disable the receiver */
-	out_be32(&regs->rcw1, in_be32(&regs->rcw1) & ~XAE_RCW1_RX_MASK);
+	writel(readl(&regs->rcw1) & ~XAE_RCW1_RX_MASK, &regs->rcw1);
 
 	/*
 	 * Stopping the receiver in mid-packet causes a dropped packet
@@ -396,12 +396,12 @@ static int axi_ethernet_init(struct axidma_priv *priv)
 	 */
 	if (!priv->eth_hasnobuf) {
 		/* Set the interrupt status register to clear the interrupt */
-		out_be32(&regs->is, XAE_INT_RXRJECT_MASK);
+		writel(XAE_INT_RXRJECT_MASK, &regs->is);
 	}
 
 	/* Setup HW */
 	/* Set default MDIO divisor */
-	out_be32(&regs->mdio_mc, XAE_MDIO_DIV_DFT | XAE_MDIO_MC_MDIOEN_MASK);
+	writel(XAE_MDIO_DIV_DFT | XAE_MDIO_MC_MDIOEN_MASK, &regs->mdio_mc);
 
 	debug("axiemac: InitHw done\n");
 	return 0;
@@ -416,11 +416,11 @@ static int axiemac_write_hwaddr(struct udevice *dev)
 	/* Set the MAC address */
 	int val = ((pdata->enetaddr[3] << 24) | (pdata->enetaddr[2] << 16) |
 		(pdata->enetaddr[1] << 8) | (pdata->enetaddr[0]));
-	out_be32(&regs->uaw0, val);
+	writel(val, &regs->uaw0);
 
 	val = (pdata->enetaddr[5] << 8) | pdata->enetaddr[4];
-	val |= in_be32(&regs->uaw1) & ~XAE_UAW1_UNICASTADDR_MASK;
-	out_be32(&regs->uaw1, val);
+	val |= readl(&regs->uaw1) & ~XAE_UAW1_UNICASTADDR_MASK;
+	writel(val, &regs->uaw1);
 	return 0;
 }
 
@@ -430,15 +430,15 @@ static void axi_dma_init(struct axidma_priv *priv)
 	u32 timeout = 500;
 
 	/* Reset the engine so the hardware starts from a known state */
-	out_be32(&priv->dmatx->control, XAXIDMA_CR_RESET_MASK);
-	out_be32(&priv->dmarx->control, XAXIDMA_CR_RESET_MASK);
+	writel(XAXIDMA_CR_RESET_MASK, &priv->dmatx->control);
+	writel(XAXIDMA_CR_RESET_MASK, &priv->dmarx->control);
 
 	/* At the initialization time, hardware should finish reset quickly */
 	while (timeout--) {
 		/* Check transmit/receive channel */
 		/* Reset is done when the reset bit is low */
-		if (!((in_be32(&priv->dmatx->control) |
-				in_be32(&priv->dmarx->control))
+		if (!((readl(&priv->dmatx->control) |
+				readl(&priv->dmarx->control))
 						& XAXIDMA_CR_RESET_MASK)) {
 			break;
 		}
@@ -467,12 +467,12 @@ static int axiemac_start(struct udevice *dev)
 		return -1;
 
 	/* Disable all RX interrupts before RxBD space setup */
-	temp = in_be32(&priv->dmarx->control);
+	temp = readl(&priv->dmarx->control);
 	temp &= ~XAXIDMA_IRQ_ALL_MASK;
-	out_be32(&priv->dmarx->control, temp);
+	writel(temp, &priv->dmarx->control);
 
 	/* Start DMA RX channel. Now it's ready to receive data.*/
-	out_be32(&priv->dmarx->current, (u32)&rx_bd);
+	writel((u32)&rx_bd, &priv->dmarx->current);
 
 	/* Setup the BD. */
 	memset(&rx_bd, 0, sizeof(rx_bd));
@@ -487,17 +487,17 @@ static int axiemac_start(struct udevice *dev)
 	flush_cache((u32)&rxframe, sizeof(rxframe));
 
 	/* Start the hardware */
-	temp = in_be32(&priv->dmarx->control);
+	temp = readl(&priv->dmarx->control);
 	temp |= XAXIDMA_CR_RUNSTOP_MASK;
-	out_be32(&priv->dmarx->control, temp);
+	writel(temp, &priv->dmarx->control);
 
 	/* Rx BD is ready - start */
-	out_be32(&priv->dmarx->tail, (u32)&rx_bd);
+	writel((u32)&rx_bd, &priv->dmarx->tail);
 
 	/* Enable TX */
-	out_be32(&regs->tc, XAE_TC_TX_MASK);
+	writel(XAE_TC_TX_MASK, &regs->tc);
 	/* Enable RX */
-	out_be32(&regs->rcw1, XAE_RCW1_RX_MASK);
+	writel(XAE_RCW1_RX_MASK, &regs->rcw1);
 
 	/* PHY setup */
 	if (!setup_phy(dev)) {
@@ -532,22 +532,22 @@ static int axiemac_send(struct udevice *dev, void *ptr, int len)
 	/* Flush the last BD so DMA core could see the updates */
 	flush_cache((u32)&tx_bd, sizeof(tx_bd));
 
-	if (in_be32(&priv->dmatx->status) & XAXIDMA_HALTED_MASK) {
+	if (readl(&priv->dmatx->status) & XAXIDMA_HALTED_MASK) {
 		u32 temp;
-		out_be32(&priv->dmatx->current, (u32)&tx_bd);
+		writel((u32)&tx_bd, &priv->dmatx->current);
 		/* Start the hardware */
-		temp = in_be32(&priv->dmatx->control);
+		temp = readl(&priv->dmatx->control);
 		temp |= XAXIDMA_CR_RUNSTOP_MASK;
-		out_be32(&priv->dmatx->control, temp);
+		writel(temp, &priv->dmatx->control);
 	}
 
 	/* Start transfer */
-	out_be32(&priv->dmatx->tail, (u32)&tx_bd);
+	writel((u32)&tx_bd, &priv->dmatx->tail);
 
 	/* Wait for transmission to complete */
 	debug("axiemac: Waiting for tx to be done\n");
 	timeout = 200;
-	while (timeout && (!(in_be32(&priv->dmatx->status) &
+	while (timeout && (!(readl(&priv->dmatx->status) &
 			(XAXIDMA_IRQ_DELAY_MASK | XAXIDMA_IRQ_IOC_MASK)))) {
 		timeout--;
 		udelay(1);
@@ -566,10 +566,10 @@ static int isrxready(struct axidma_priv *priv)
 	u32 status;
 
 	/* Read pending interrupts */
-	status = in_be32(&priv->dmarx->status);
+	status = readl(&priv->dmarx->status);
 
 	/* Acknowledge pending interrupts */
-	out_be32(&priv->dmarx->status, status & XAXIDMA_IRQ_ALL_MASK);
+	writel(status & XAXIDMA_IRQ_ALL_MASK, &priv->dmarx->status);
 
 	/*
 	 * If Reception done interrupt is asserted, call RX call back function
@@ -594,9 +594,9 @@ static int axiemac_recv(struct udevice *dev, int flags, uchar **packetp)
 	debug("axiemac: RX data ready\n");
 
 	/* Disable IRQ for a moment till packet is handled */
-	temp = in_be32(&priv->dmarx->control);
+	temp = readl(&priv->dmarx->control);
 	temp &= ~XAXIDMA_IRQ_ALL_MASK;
-	out_be32(&priv->dmarx->control, temp);
+	writel(temp, &priv->dmarx->control);
 	if (!priv->eth_hasnobuf)
 		length = rx_bd.app4 & 0xFFFF; /* max length mask */
 	else
@@ -633,7 +633,7 @@ static int axiemac_free_pkt(struct udevice *dev, uchar *packet, int length)
 	flush_cache((u32)&rxframe, sizeof(rxframe));
 
 	/* Rx BD is ready - start again */
-	out_be32(&priv->dmarx->tail, (u32)&rx_bd);
+	writel((u32)&rx_bd, &priv->dmarx->tail);
 
 	debug("axiemac: RX completed, framelength = %d\n", length);
 
