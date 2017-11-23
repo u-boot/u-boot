@@ -218,6 +218,18 @@ static char *efi_convert_single_device_node_to_text(
 	return str;
 }
 
+/*
+ * This function implements the ConvertDeviceNodeToText service of the
+ * EFI_DEVICE_PATH_TO_TEXT_PROTOCOL.
+ * See the Unified Extensible Firmware Interface (UEFI) specification
+ * for details.
+ *
+ * device_node		device node to be converted
+ * display_only		true if the shorter text represenation shall be used
+ * allow_shortcuts	true if shortcut forms may be used
+ * @return		text represenation of the device path
+ *			NULL if out of memory of device_path is NULL
+ */
 static uint16_t EFIAPI *efi_convert_device_node_to_text(
 		struct efi_device_path *device_node,
 		bool display_only,
@@ -239,6 +251,18 @@ out:
 	return text;
 }
 
+/*
+ * This function implements the ConvertDevicePathToText service of the
+ * EFI_DEVICE_PATH_TO_TEXT_PROTOCOL.
+ * See the Unified Extensible Firmware Interface (UEFI) specification
+ * for details.
+ *
+ * device_path		device path to be converted
+ * display_only		true if the shorter text represenation shall be used
+ * allow_shortcuts	true if shortcut forms may be used
+ * @return		text represenation of the device path
+ *			NULL if out of memory of device_path is NULL
+ */
 static uint16_t EFIAPI *efi_convert_device_path_to_text(
 		struct efi_device_path *device_path,
 		bool display_only,
