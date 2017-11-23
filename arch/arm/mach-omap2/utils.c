@@ -215,6 +215,9 @@ void omap_die_id_usbethaddr(void)
 		mac[5] = (die_id[0] >> 8) & 0xff;
 
 		eth_env_set_enetaddr("usbethaddr", mac);
+
+		if (!env_get("ethaddr"))
+			eth_env_set_enetaddr("ethaddr", mac);
 	}
 }
 
