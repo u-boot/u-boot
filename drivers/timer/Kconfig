@@ -107,7 +107,7 @@ config AG101P_TIMER
 
 config ATCPIT100_TIMER
 	bool "ATCPIT100 timer support"
-	depends on TIMER && NDS32
+	depends on TIMER
 	help
 	  Select this to enable a ATCPIT100 timer which will be embeded
 		in AE3XX, AE250 boards.
