@@ -14,7 +14,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define REG32_TMR(x)	(*(unsigned long *)	((plat->regs) + (x>>2)))
+#define REG32_TMR(x)	(*(u32 *)	((plat->regs) + (x>>2)))
 
 /*
  * Definition of register offsets
@@ -68,7 +68,7 @@ struct atctmr_timer_regs {
 };
 
 struct atftmr_timer_platdata {
-	unsigned long *regs;
+	u32 *regs;
 };
 
 static int atftmr_timer_get_count(struct udevice *dev, u64 *count)
