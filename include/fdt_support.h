@@ -290,4 +290,7 @@ int fdt_overlay_apply_verbose(void *fdt, void *fdto);
 int fdtdec_get_int(const void *blob, int node, const char *prop_name,
 		int default_val);
 #endif
+#ifdef CONFIG_FMAN_ENET
+int fdt_update_ethernet_dt(void *blob);
+#endif
 #endif /* ifndef __FDT_SUPPORT_H */
