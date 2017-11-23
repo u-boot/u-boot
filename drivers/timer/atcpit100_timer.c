@@ -67,51 +67,51 @@ struct atctmr_timer_regs {
 	u32	int_mask;	/* 0x38 */
 };
 
-struct atftmr_timer_platdata {
+struct atcpit_timer_platdata {
 	u32 *regs;
 };
 
-static int atftmr_timer_get_count(struct udevice *dev, u64 *count)
+static int atcpit_timer_get_count(struct udevice *dev, u64 *count)
 {
-	struct atftmr_timer_platdata *plat = dev->platdata;
+	struct atcpit_timer_platdata *plat = dev->platdata;
 	u32 val;
 	val = ~(REG32_TMR(CH_CNT(1))+0xffffffff);
 	*count = timer_conv_64(val);
 	return 0;
 }
 
-static int atctmr_timer_probe(struct udevice *dev)
+static int atcpit_timer_probe(struct udevice *dev)
 {
-	struct atftmr_timer_platdata *plat = dev->platdata;
+	struct atcpit_timer_platdata *plat = dev->platdata;
 	REG32_TMR(CH_REL(1)) = 0xffffffff;
 	REG32_TMR(CH_CTL(1)) = APB_CLK|TMR_32;
 	REG32_TMR(CH_EN) |= CH_TMR_EN(1 , 0);
 	return 0;
 }
 
-static int atctme_timer_ofdata_to_platdata(struct udevice *dev)
+static int atcpit_timer_ofdata_to_platdata(struct udevice *dev)
 {
-	struct atftmr_timer_platdata *plat = dev_get_platdata(dev);
+	struct atcpit_timer_platdata *plat = dev_get_platdata(dev);
 	plat->regs = map_physmem(devfdt_get_addr(dev) , 0x100 , MAP_NOCACHE);
 	return 0;
 }
 
-static const struct timer_ops ag101p_timer_ops = {
-	.get_count = atftmr_timer_get_count,
+static const struct timer_ops atcpit_timer_ops = {
+	.get_count = atcpit_timer_get_count,
 };
 
-static const struct udevice_id ag101p_timer_ids[] = {
+static const struct udevice_id atcpit_timer_ids[] = {
 	{ .compatible = "andestech,atcpit100" },
 	{}
 };
 
-U_BOOT_DRIVER(altera_timer) = {
-	.name	= "ae3xx_timer",
+U_BOOT_DRIVER(atcpit100_timer) = {
+	.name	= "atcpit100_timer",
 	.id	= UCLASS_TIMER,
-	.of_match = ag101p_timer_ids,
-	.ofdata_to_platdata = atctme_timer_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct atftmr_timer_platdata),
-	.probe = atctmr_timer_probe,
-	.ops	= &ag101p_timer_ops,
+	.of_match = atcpit_timer_ids,
+	.ofdata_to_platdata = atcpit_timer_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct atcpit_timer_platdata),
+	.probe = atcpit_timer_probe,
+	.ops	= &atcpit_timer_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
