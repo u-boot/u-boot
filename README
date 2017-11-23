@@ -1603,6 +1603,15 @@ The following options need to be configured:
 
 		See doc/README.link-local for more information.
 
+ - MAC address from environment variables
+
+		FDT_SEQ_MACADDR_FROM_ENV
+
+		Fix-up device tree with MAC addresses fetched sequentially from
+		environment variables. This config work on assumption that
+		non-usable ethernet node of device-tree are either not present
+		or their status has been marked as "disabled".
+
  - CDP Options:
 		CONFIG_CDP_DEVICE_ID
 
