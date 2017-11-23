@@ -236,7 +236,7 @@ int arch_cpu_init(void)
 
 	init_csu();
 	/* Disable PDE bit of WMCR register */
-	imx_set_wdog_powerdown(false);
+	imx_wdog_disable_powerdown();
 
 	imx_enet_mdio_fixup();
 

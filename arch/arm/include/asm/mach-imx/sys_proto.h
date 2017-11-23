@@ -105,7 +105,7 @@ void set_chipselect_size(int const);
 
 void init_aips(void);
 void init_src(void);
-void imx_set_wdog_powerdown(bool enable);
+void imx_wdog_disable_powerdown(void);
 
 int board_mmc_get_env_dev(int devno);
 
