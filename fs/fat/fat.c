@@ -1149,11 +1149,13 @@ typedef struct {
 
 int fat_opendir(const char *filename, struct fs_dir_stream **dirsp)
 {
-	fat_dir *dir = calloc(1, sizeof(*dir));
+	fat_dir *dir;
 	int ret;
 
+	dir = malloc_cache_aligned(sizeof(*dir));
 	if (!dir)
 		return -ENOMEM;
+	memset(dir, 0, sizeof(*dir));
 
 	ret = fat_itr_root(&dir->itr, &dir->fsdata);
 	if (ret)
