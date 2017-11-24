@@ -165,17 +165,27 @@ cpp_flags      = -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(UBOOTINCLUDE)     \
 ld_flags       = $(LDFLAGS) $(ldflags-y)
 
 # Try these files in order to find the U-Boot-specific .dtsi include file
-u_boot_dtsi_options = $(wildcard $(dir $<)$(basename $(notdir $<))-u-boot.dtsi) \
+u_boot_dtsi_options = $(strip $(wildcard $(dir $<)$(basename $(notdir $<))-u-boot.dtsi) \
 	$(wildcard $(dir $<)$(subst $\",,$(CONFIG_SYS_SOC))-u-boot.dtsi) \
 	$(wildcard $(dir $<)$(subst $\",,$(CONFIG_SYS_CPU))-u-boot.dtsi) \
 	$(wildcard $(dir $<)$(subst $\",,$(CONFIG_SYS_VENDOR))-u-boot.dtsi) \
-	$(wildcard $(dir $<)u-boot.dtsi)
+	$(wildcard $(dir $<)u-boot.dtsi))
+
+u_boot_dtsi_options_raw = $(warning Automatic .dtsi inclusion: options: \
+	$(dir $<)$(basename $(notdir $<))-u-boot.dtsi \
+	$(dir $<)$(subst $\",,$(CONFIG_SYS_SOC))-u-boot.dtsi \
+	$(dir $<)$(subst $\",,$(CONFIG_SYS_CPU))-u-boot.dtsi \
+	$(dir $<)$(subst $\",,$(CONFIG_SYS_VENDOR))-u-boot.dtsi \
+	$(dir $<)u-boot.dtsi ... \
+	found: $(if $(u_boot_dtsi_options),"$(u_boot_dtsi_options)",nothing!))
 
 # Uncomment for debugging
-# $(warning u_boot_dtsi_options: $(u_boot_dtsi_options))
+# This shows all the files that were considered and the one that we chose.
+# u_boot_dtsi_options_debug = $(u_boot_dtsi_options_raw)
 
 # We use the first match
-u_boot_dtsi = $(notdir $(firstword $(u_boot_dtsi_options)))
+u_boot_dtsi = $(strip $(u_boot_dtsi_options_debug) \
+	$(notdir $(firstword $(u_boot_dtsi_options))))
 
 # Modified for U-Boot
 dtc_cpp_flags  = -Wp,-MD,$(depfile).pre.tmp -nostdinc                    \

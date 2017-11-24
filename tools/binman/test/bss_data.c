@@ -7,5 +7,12 @@
  * by 'nm'. This is used by binman tests.
  */
 
-static unsigned long _dt_ucode_base_size[2]
-		__attribute__((section(".ucode"))) = {1, 2};
+int bss_data[10];
+int __bss_size = sizeof(bss_data);
+
+int main()
+{
+	bss_data[2] = 2;
+
+	return 0;
+}

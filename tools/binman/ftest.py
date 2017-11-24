@@ -20,25 +20,27 @@ import binman
 import cmdline
 import command
 import control
-import entry
 import fdt
 import fdt_util
 import tools
 import tout
 
 # Contents of test files, corresponding to different entry types
-U_BOOT_DATA         = '1234'
-U_BOOT_IMG_DATA     = 'img'
-U_BOOT_SPL_DATA     = '567'
-BLOB_DATA           = '89'
-ME_DATA             = '0abcd'
-VGA_DATA            = 'vga'
-U_BOOT_DTB_DATA     = 'udtb'
-X86_START16_DATA    = 'start16'
-U_BOOT_NODTB_DATA   = 'nodtb with microcode pointer somewhere in here'
-FSP_DATA            = 'fsp'
-CMC_DATA            = 'cmc'
-VBT_DATA            = 'vbt'
+U_BOOT_DATA           = '1234'
+U_BOOT_IMG_DATA       = 'img'
+U_BOOT_SPL_DATA       = '567'
+BLOB_DATA             = '89'
+ME_DATA               = '0abcd'
+VGA_DATA              = 'vga'
+U_BOOT_DTB_DATA       = 'udtb'
+X86_START16_DATA      = 'start16'
+X86_START16_SPL_DATA  = 'start16spl'
+U_BOOT_NODTB_DATA     = 'nodtb with microcode pointer somewhere in here'
+U_BOOT_SPL_NODTB_DATA = 'splnodtb with microcode pointer somewhere in here'
+FSP_DATA              = 'fsp'
+CMC_DATA              = 'cmc'
+VBT_DATA              = 'vbt'
+MRC_DATA              = 'mrc'
 
 class TestFunctional(unittest.TestCase):
     """Functional tests for binman
@@ -56,6 +58,9 @@ class TestFunctional(unittest.TestCase):
     """
     @classmethod
     def setUpClass(self):
+        global entry
+        import entry
+
         # Handle the case where argv[0] is 'python'
         self._binman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
         self._binman_pathname = os.path.join(self._binman_dir, 'binman')
@@ -72,10 +77,15 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('vga.bin', VGA_DATA)
         TestFunctional._MakeInputFile('u-boot.dtb', U_BOOT_DTB_DATA)
         TestFunctional._MakeInputFile('u-boot-x86-16bit.bin', X86_START16_DATA)
+        TestFunctional._MakeInputFile('spl/u-boot-x86-16bit-spl.bin',
+                                      X86_START16_SPL_DATA)
         TestFunctional._MakeInputFile('u-boot-nodtb.bin', U_BOOT_NODTB_DATA)
+        TestFunctional._MakeInputFile('spl/u-boot-spl-nodtb.bin',
+                                      U_BOOT_SPL_NODTB_DATA)
         TestFunctional._MakeInputFile('fsp.bin', FSP_DATA)
         TestFunctional._MakeInputFile('cmc.bin', CMC_DATA)
         TestFunctional._MakeInputFile('vbt.bin', VBT_DATA)
+        TestFunctional._MakeInputFile('mrc.bin', MRC_DATA)
         self._output_setup = False
 
         # ELF file with a '_dt_ucode_base_size' symbol
@@ -644,19 +654,11 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('33_x86-start16.dts')
         self.assertEqual(X86_START16_DATA, data[:len(X86_START16_DATA)])
 
-    def testPackUbootMicrocode(self):
-        """Test that x86 microcode can be handled correctly
-
-        We expect to see the following in the image, in order:
-            u-boot-nodtb.bin with a microcode pointer inserted at the correct
-                place
-            u-boot.dtb with the microcode removed
-            the microcode
-        """
-        data = self._DoReadFile('34_x86_ucode.dts', True)
+    def _RunMicrocodeTest(self, dts_fname, nodtb_data):
+        data = self._DoReadFile(dts_fname, True)
 
         # Now check the device tree has no microcode
-        second = data[len(U_BOOT_NODTB_DATA):]
+        second = data[len(nodtb_data):]
         fname = tools.GetOutputFilename('test.dtb')
         with open(fname, 'wb') as fd:
             fd.write(second)
@@ -671,17 +673,30 @@ class TestFunctional(unittest.TestCase):
 
         # Check that the microcode appears immediately after the Fdt
         # This matches the concatenation of the data properties in
-        # the /microcode/update@xxx nodes in x86_ucode.dts.
+        # the /microcode/update@xxx nodes in 34_x86_ucode.dts.
         ucode_data = struct.pack('>4L', 0x12345678, 0x12345679, 0xabcd0000,
                                  0x78235609)
         self.assertEqual(ucode_data, third[:len(ucode_data)])
-        ucode_pos = len(U_BOOT_NODTB_DATA) + fdt_len
+        ucode_pos = len(nodtb_data) + fdt_len
 
         # Check that the microcode pointer was inserted. It should match the
         # expected position and size
         pos_and_size = struct.pack('<2L', 0xfffffe00 + ucode_pos,
                                    len(ucode_data))
-        first = data[:len(U_BOOT_NODTB_DATA)]
+        first = data[:len(nodtb_data)]
+        return first, pos_and_size
+
+    def testPackUbootMicrocode(self):
+        """Test that x86 microcode can be handled correctly
+
+        We expect to see the following in the image, in order:
+            u-boot-nodtb.bin with a microcode pointer inserted at the correct
+                place
+            u-boot.dtb with the microcode removed
+            the microcode
+        """
+        first, pos_and_size = self._RunMicrocodeTest('34_x86_ucode.dts',
+                                                     U_BOOT_NODTB_DATA)
         self.assertEqual('nodtb with microcode' + pos_and_size +
                          ' somewhere in here', first)
 
@@ -811,3 +826,42 @@ class TestFunctional(unittest.TestCase):
         """Test that an image with a VBT binary can be created"""
         data = self._DoReadFile('46_intel-vbt.dts')
         self.assertEqual(VBT_DATA, data[:len(VBT_DATA)])
+
+    def testSplBssPad(self):
+        """Test that we can pad SPL's BSS with zeros"""
+        # ELF file with a '__bss_size' symbol
+        with open(self.TestFile('bss_data')) as fd:
+            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        data = self._DoReadFile('47_spl_bss_pad.dts')
+        self.assertEqual(U_BOOT_SPL_DATA + (chr(0) * 10) + U_BOOT_DATA, data)
+
+    def testPackStart16Spl(self):
+        """Test that an image with an x86 start16 region can be created"""
+        data = self._DoReadFile('48_x86-start16-spl.dts')
+        self.assertEqual(X86_START16_SPL_DATA, data[:len(X86_START16_SPL_DATA)])
+
+    def testPackUbootSplMicrocode(self):
+        """Test that x86 microcode can be handled correctly in SPL
+
+        We expect to see the following in the image, in order:
+            u-boot-spl-nodtb.bin with a microcode pointer inserted at the
+                correct place
+            u-boot.dtb with the microcode removed
+            the microcode
+        """
+        # ELF file with a '_dt_ucode_base_size' symbol
+        with open(self.TestFile('u_boot_ucode_ptr')) as fd:
+            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        first, pos_and_size = self._RunMicrocodeTest('49_x86_ucode_spl.dts',
+                                                     U_BOOT_SPL_NODTB_DATA)
+        self.assertEqual('splnodtb with microc' + pos_and_size +
+                         'ter somewhere in here', first)
+
+    def testPackMrc(self):
+        """Test that an image with an MRC binary can be created"""
+        data = self._DoReadFile('50_intel_mrc.dts')
+        self.assertEqual(MRC_DATA, data[:len(MRC_DATA)])
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -75,7 +75,8 @@ def EnsureCompiled(fname):
     search_list = []
     for path in search_paths:
         search_list.extend(['-i', path])
-    args = ['-I', 'dts', '-o', dtb_output, '-O', 'dtb']
+    args = ['-I', 'dts', '-o', dtb_output, '-O', 'dtb',
+            '-W', 'no-unit_address_vs_reg']
     args.extend(search_list)
     args.append(dts_input)
     command.Run('dtc', *args)

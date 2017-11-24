@@ -206,6 +206,27 @@ for its instructions in the 'binman' node.
 Binman has a few other options which you can see by running 'binman -h'.
 
 
+Enabling binman for a board
+---------------------------
+
+At present binman is invoked from a rule in the main Makefile. Typically you
+will have a rule like:
+
+ifneq ($(CONFIG_ARCH_<something>),)
+u-boot-<your_suffix>.bin: <input_file_1> <input_file_2> checkbinman FORCE
+	$(call if_changed,binman)
+endif
+
+This assumes that u-boot-<your_suffix>.bin is a target, and is the final file
+that you need to produce. You can make it a target by adding it to ALL-y
+either in the main Makefile or in a config.mk file in your arch subdirectory.
+
+Once binman is executed it will pick up its instructions from a device-tree
+file, typically <soc>-u-boot.dtsi, where <soc> is your CONFIG_SYS_SOC value.
+You can use other, more specific CONFIG options - see 'Automatic .dtsi
+inclusion' below.
+
+
 Image description format
 ------------------------
 
@@ -446,7 +467,8 @@ If you are having trouble figuring out what is going on, you can uncomment
 the 'warning' line in scripts/Makefile.lib to see what it has found:
 
    # Uncomment for debugging
-   # $(warning binman_dtsi_options: $(binman_dtsi_options))
+   # This shows all the files that were considered and the one that we chose.
+   # u_boot_dtsi_options_debug = $(u_boot_dtsi_options_raw)
 
 
 Code coverage

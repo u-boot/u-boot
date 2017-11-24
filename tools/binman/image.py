@@ -9,8 +9,6 @@
 from collections import OrderedDict
 from operator import attrgetter
 
-import entry
-from entry import Entry
 import fdt_util
 import tools
 
@@ -48,6 +46,11 @@ class Image:
         _entries: OrderedDict() of entries
     """
     def __init__(self, name, node):
+        global entry
+        global Entry
+        import entry
+        from entry import Entry
+
         self._node = node
         self._name = name
         self._size = None
