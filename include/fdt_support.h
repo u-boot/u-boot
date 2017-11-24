@@ -133,7 +133,6 @@ void fdt_fixup_crypto_node(void *blob, int sec_rev);
 static inline void fdt_fixup_crypto_node(void *blob, int sec_rev) {}
 #endif
 
-#if CONFIG_IS_ENABLED(LOAD_FIT)
 /**
  * Record information about a processed loadable in /fit-images (creating
  * /fit-images if necessary).
@@ -151,7 +150,6 @@ static inline void fdt_fixup_crypto_node(void *blob, int sec_rev) {}
 int fdt_record_loadable(void *blob, u32 index, const char *name,
 			uintptr_t load_addr, u32 size, uintptr_t entry_point,
 			const char *type, const char *os);
-#endif
 
 #ifdef CONFIG_PCI
 #include <pci.h>

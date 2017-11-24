@@ -275,8 +275,10 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 
 	/* Make the load-address of the FDT available for the SPL framework */
 	spl_image->fdt_addr = (void *)image_info.load_addr;
+#if !CONFIG_IS_ENABLED(FIT_IMAGE_TINY)
 	/* Try to make space, so we can inject details on the loadables */
 	ret = fdt_shrink_to_minimum(spl_image->fdt_addr, 8192);
+#endif
 
 	return ret;
 }
@@ -284,8 +286,10 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 static int spl_fit_record_loadable(const void *fit, int images, int index,
 				   void *blob, struct spl_image_info *image)
 {
+	int ret = 0;
+#if !CONFIG_IS_ENABLED(FIT_IMAGE_TINY)
 	char *name;
-	int node, ret;
+	int node;
 
 	ret = spl_fit_get_image_name(fit, images, "loadables",
 				     index, &name);
@@ -298,7 +302,17 @@ static int spl_fit_record_loadable(const void *fit, int images, int index,
 				  image->size, image->entry_point,
 				  fdt_getprop(fit, node, "type", NULL),
 				  fdt_getprop(fit, node, "os", NULL));
+#endif
 	return ret;
+}
+
+static int spl_fit_image_get_os(const void *fit, int noffset, uint8_t *os)
+{
+#if CONFIG_IS_ENABLED(FIT_IMAGE_TINY)
+	return -ENOTSUPP;
+#else
+	return fit_image_get_os(fit, noffset, os);
+#endif
 }
 
 int spl_load_simple_fit(struct spl_image_info *spl_image,
@@ -392,7 +406,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	 * For backward compatibility, we treat the first node that is
 	 * as a U-Boot image, if no OS-type has been declared.
 	 */
-	if (!fit_image_get_os(fit, node, &spl_image->os))
+	if (!spl_fit_image_get_os(fit, node, &spl_image->os))
 		debug("Image OS is %s\n", genimg_get_os_name(spl_image->os));
 #if !defined(CONFIG_SPL_OS_BOOT)
 	else
@@ -420,7 +434,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 		if (ret < 0)
 			continue;
 
-		if (!fit_image_get_os(fit, node, &os_type))
+		if (!spl_fit_image_get_os(fit, node, &os_type))
 			debug("Loadable is %s\n", genimg_get_os_name(os_type));
 
 		if (os_type == IH_OS_U_BOOT) {
