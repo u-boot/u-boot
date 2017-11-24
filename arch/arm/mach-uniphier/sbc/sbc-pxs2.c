@@ -17,5 +17,5 @@ void uniphier_pxs2_sbc_init(void)
 	/* system bus output enable */
 	writel(0x17, PC0CTRL);
 
-	uniphier_pin_init("system_bus_grp");	/* PXs3 */
+	uniphier_pin_init("system-bus");	/* PXs3 */
 }

@@ -21,5 +21,5 @@ void uniphier_ld11_sbc_init(void)
 
 	/* pins for NAND and System Bus are multiplexed */
 	if (spl_boot_device() != BOOT_DEVICE_NAND)
-		uniphier_pin_init("system_bus_grp");
+		uniphier_pin_init("system-bus");
 }

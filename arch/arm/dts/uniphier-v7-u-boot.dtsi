@@ -36,19 +36,19 @@
 			pinctrl {
 				u-boot,dm-pre-reloc;
 
-				emmc_grp {
+				emmc {
 					u-boot,dm-pre-reloc;
 				};
 
-				uart0_grp {
+				uart0 {
 					u-boot,dm-pre-reloc;
 				};
 
-				uart1_grp {
+				uart1 {
 					u-boot,dm-pre-reloc;
 				};
 
-				uart2_grp {
+				uart2 {
 					u-boot,dm-pre-reloc;
 				};
 			};
