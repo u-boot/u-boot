@@ -17,37 +17,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static void uniphier_setup_xirq(void)
-{
-	const void *fdt = gd->fdt_blob;
-	int soc_node, aidet_node;
-	const fdt32_t *val;
-	unsigned long aidet_base;
-	u32 tmp;
-
-	soc_node = fdt_path_offset(fdt, "/soc");
-	if (soc_node < 0)
-		return;
-
-	aidet_node = fdt_subnode_offset_namelen(fdt, soc_node, "aidet", 5);
-	if (aidet_node < 0)
-		return;
-
-	val = fdt_getprop(fdt, aidet_node, "reg", NULL);
-	if (!val)
-		return;
-
-	aidet_base = fdt32_to_cpu(*val);
-
-	tmp = readl(aidet_base + 8);	/* AIDET DETCONFR2 */
-	tmp |= 0x00ff0000;		/* Set XIRQ0-7 low active */
-	writel(tmp, aidet_base + 8);
-
-	tmp = readl(0x55000090);	/* IRQCTL */
-	tmp |= 0x000000ff;
-	writel(tmp, 0x55000090);
-}
-
 #ifdef CONFIG_ARCH_UNIPHIER_LD11
 static void uniphier_ld11_misc_init(void)
 {
@@ -191,10 +160,6 @@ int board_init(void)
 		initdata->misc_init();
 
 	led_puts("U3");
-
-	uniphier_setup_xirq();
-
-	led_puts("U4");
 
 	support_card_late_init();
 
