@@ -17,24 +17,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_ARCH_UNIPHIER_LD11
-static void uniphier_ld11_misc_init(void)
-{
-	sg_set_pinsel(149, 14, 8, 4);	/* XIRQ0    -> XIRQ0 */
-	sg_set_iectrl(149);
-	sg_set_pinsel(153, 14, 8, 4);	/* XIRQ4    -> XIRQ4 */
-	sg_set_iectrl(153);
-}
-#endif
-
 #ifdef CONFIG_ARCH_UNIPHIER_LD20
 static void uniphier_ld20_misc_init(void)
 {
-	sg_set_pinsel(149, 14, 8, 4);	/* XIRQ0    -> XIRQ0 */
-	sg_set_iectrl(149);
-	sg_set_pinsel(153, 14, 8, 4);	/* XIRQ4    -> XIRQ4 */
-	sg_set_iectrl(153);
-
 	/* ES1 errata: increase VDD09 supply to suppress VBO noise */
 	if (uniphier_get_soc_revision() == 1) {
 		writel(0x00000003, 0x6184e004);
@@ -105,7 +90,6 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 		.sbc_init = uniphier_ld11_sbc_init,
 		.pll_init = uniphier_ld11_pll_init,
 		.clk_init = uniphier_ld11_clk_init,
-		.misc_init = uniphier_ld11_misc_init,
 	},
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD20)
