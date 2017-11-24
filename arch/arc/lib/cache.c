@@ -278,6 +278,13 @@ void invalidate_icache_all(void)
 	/* Any write to IC_IVIC register triggers invalidation of entire I$ */
 	if (icache_status()) {
 		write_aux_reg(ARC_AUX_IC_IVIC, 1);
+		/*
+		 * As per ARC HS databook (see chapter 5.3.3.2)
+		 * it is required to add 3 NOPs after each write to IC_IVIC.
+		 */
+		__builtin_arc_nop();
+		__builtin_arc_nop();
+		__builtin_arc_nop();
 		read_aux_reg(ARC_AUX_IC_CTRL);	/* blocks */
 	}
 }

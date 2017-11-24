@@ -80,6 +80,13 @@ config IMX_RGPIO2P
 	help
 	  This driver supports i.MX7ULP Rapid GPIO2P controller.
 
+config HSDK_CREG_GPIO
+	bool "HSDK CREG GPIO griver"
+	depends on DM
+	default n
+	help
+	  This driver supports CREG GPIOs on Synopsys HSDK SOC.
+
 config LPC32XX_GPIO
 	bool "LPC32XX GPIO driver"
 	depends on DM
