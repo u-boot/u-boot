@@ -16,10 +16,8 @@
 #include <asm/arch/r8a7793.h>
 #elif defined(CONFIG_R8A7794)
 #include <asm/arch/r8a7794.h>
-#elif defined(CONFIG_R8A7795)
-#include <asm/arch/r8a7795.h>
-#elif defined(CONFIG_R8A7796)
-#include <asm/arch/r8a7796.h>
+#elif defined(CONFIG_RCAR_GEN3)
+#include <asm/arch/rcar-gen3-base.h>
 #else
 #error "SOC Name not defined"
 #endif
