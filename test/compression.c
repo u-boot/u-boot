@@ -288,73 +288,68 @@ static int uncompress_using_lz4(void *in, unsigned long in_size,
 	goto out; \
 }
 
-static int run_test(char *name, mutate_func compress, mutate_func uncompress)
-{
-	ulong orig_size, compressed_size, uncompressed_size;
+struct buf_state {
+	ulong orig_size;
+	ulong compressed_size;
+	ulong uncompressed_size;
 	void *orig_buf;
-	void *compressed_buf = NULL;
-	void *uncompressed_buf = NULL;
-	void *compare_buf = NULL;
+	void *compressed_buf;
+	void *uncompressed_buf;
+	void *compare_buf;
+};
+
+static int run_test_internal(char *name,
+			     mutate_func compress, mutate_func uncompress,
+			     struct buf_state *buf)
+{
 	int ret;
 
-	printf(" testing %s ...\n", name);
-
-	orig_buf = (void *)plain;
-	orig_size = strlen(orig_buf); /* Trailing NULL not included. */
-	errcheck(orig_size > 0);
-
-	compressed_size = uncompressed_size = TEST_BUFFER_SIZE;
-	compressed_buf = malloc(compressed_size);
-	errcheck(compressed_buf != NULL);
-	uncompressed_buf = malloc(uncompressed_size);
-	errcheck(uncompressed_buf != NULL);
-	compare_buf = malloc(uncompressed_size);
-	errcheck(compare_buf != NULL);
-
 	/* Compress works as expected. */
-	printf("\torig_size:%lu\n", orig_size);
-	memset(compressed_buf, 'A', TEST_BUFFER_SIZE);
-	errcheck(compress(orig_buf, orig_size,
-			compressed_buf, compressed_size,
-			&compressed_size) == 0);
-	printf("\tcompressed_size:%lu\n", compressed_size);
-	errcheck(compressed_size > 0);
-	errcheck(compressed_size < orig_size);
-	errcheck(((char *)compressed_buf)[compressed_size-1] != 'A');
-	errcheck(((char *)compressed_buf)[compressed_size] == 'A');
+	printf("\torig_size:%lu\n", buf->orig_size);
+	memset(buf->compressed_buf, 'A', TEST_BUFFER_SIZE);
+	errcheck(compress(buf->orig_buf, buf->orig_size, buf->compressed_buf,
+			  buf->compressed_size, &buf->compressed_size) == 0);
+	printf("\tcompressed_size:%lu\n", buf->compressed_size);
+	errcheck(buf->compressed_size > 0);
+	errcheck(buf->compressed_size < buf->orig_size);
+	errcheck(((char *)buf->compressed_buf)[buf->compressed_size - 1] !=
+			'A');
+	errcheck(((char *)buf->compressed_buf)[buf->compressed_size] == 'A');
 
 	/* Uncompresses with space remaining. */
-	errcheck(uncompress(compressed_buf, compressed_size,
-			  uncompressed_buf, uncompressed_size,
-			  &uncompressed_size) == 0);
-	printf("\tuncompressed_size:%lu\n", uncompressed_size);
-	errcheck(uncompressed_size == orig_size);
-	errcheck(memcmp(orig_buf, uncompressed_buf, orig_size) == 0);
+	errcheck(uncompress(buf->compressed_buf, buf->compressed_size,
+			    buf->uncompressed_buf, buf->uncompressed_size,
+			    &buf->uncompressed_size) == 0);
+	printf("\tuncompressed_size:%lu\n", buf->uncompressed_size);
+	errcheck(buf->uncompressed_size == buf->orig_size);
+	errcheck(memcmp(buf->orig_buf, buf->uncompressed_buf,
+			buf->orig_size) == 0);
 
 	/* Uncompresses with exactly the right size output buffer. */
-	memset(uncompressed_buf, 'A', TEST_BUFFER_SIZE);
-	errcheck(uncompress(compressed_buf, compressed_size,
-			  uncompressed_buf, orig_size,
-			  &uncompressed_size) == 0);
-	errcheck(uncompressed_size == orig_size);
-	errcheck(memcmp(orig_buf, uncompressed_buf, orig_size) == 0);
-	errcheck(((char *)uncompressed_buf)[orig_size] == 'A');
+	memset(buf->uncompressed_buf, 'A', TEST_BUFFER_SIZE);
+	errcheck(uncompress(buf->compressed_buf, buf->compressed_size,
+			    buf->uncompressed_buf, buf->orig_size,
+			    &buf->uncompressed_size) == 0);
+	errcheck(buf->uncompressed_size == buf->orig_size);
+	errcheck(memcmp(buf->orig_buf, buf->uncompressed_buf,
+			buf->orig_size) == 0);
+	errcheck(((char *)buf->uncompressed_buf)[buf->orig_size] == 'A');
 
 	/* Make sure compression does not over-run. */
-	memset(compare_buf, 'A', TEST_BUFFER_SIZE);
-	ret = compress(orig_buf, orig_size,
-		       compare_buf, compressed_size - 1,
+	memset(buf->compare_buf, 'A', TEST_BUFFER_SIZE);
+	ret = compress(buf->orig_buf, buf->orig_size,
+		       buf->compare_buf, buf->compressed_size - 1,
 		       NULL);
-	errcheck(((char *)compare_buf)[compressed_size] == 'A');
+	errcheck(((char *)buf->compare_buf)[buf->compressed_size] == 'A');
 	errcheck(ret != 0);
 	printf("\tcompress does not overrun\n");
 
 	/* Make sure decompression does not over-run. */
-	memset(compare_buf, 'A', TEST_BUFFER_SIZE);
-	ret = uncompress(compressed_buf, compressed_size,
-			 compare_buf, uncompressed_size - 1,
+	memset(buf->compare_buf, 'A', TEST_BUFFER_SIZE);
+	ret = uncompress(buf->compressed_buf, buf->compressed_size,
+			 buf->compare_buf, buf->uncompressed_size - 1,
 			 NULL);
-	errcheck(((char *)compare_buf)[uncompressed_size - 1] == 'A');
+	errcheck(((char *)buf->compare_buf)[buf->uncompressed_size - 1] == 'A');
 	errcheck(ret != 0);
 	printf("\tuncompress does not overrun\n");
 
@@ -362,11 +357,36 @@ static int run_test(char *name, mutate_func compress, mutate_func uncompress)
 	ret = 0;
 
 out:
+	return ret;
+}
+
+static int run_test(char *name, mutate_func compress, mutate_func uncompress)
+{
+	struct buf_state sbuf, *buf = &sbuf;
+	int ret;
+
+	printf(" testing %s ...\n", name);
+
+	buf->orig_buf = (void *)plain;
+	buf->orig_size = strlen(buf->orig_buf); /* Trailing NUL not included */
+	errcheck(buf->orig_size > 0);
+
+	buf->compressed_size = TEST_BUFFER_SIZE;
+	buf->uncompressed_size = TEST_BUFFER_SIZE;
+	buf->compressed_buf = malloc(buf->compressed_size);
+	errcheck(buf->compressed_buf);
+	buf->uncompressed_buf = malloc(buf->uncompressed_size);
+	errcheck(buf->uncompressed_buf);
+	buf->compare_buf = malloc(buf->uncompressed_size);
+	errcheck(buf->compare_buf);
+
+	ret = run_test_internal(name, compress, uncompress, buf);
+out:
 	printf(" %s: %s\n", name, ret == 0 ? "ok" : "FAILED");
 
-	free(compare_buf);
-	free(uncompressed_buf);
-	free(compressed_buf);
+	free(buf->compare_buf);
+	free(buf->uncompressed_buf);
+	free(buf->compressed_buf);
 
 	return ret;
 }
