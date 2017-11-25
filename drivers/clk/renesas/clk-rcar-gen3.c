@@ -1074,6 +1074,64 @@ static int gen3_clk_probe(struct udevice *dev)
 	return 0;
 }
 
+struct mstp_stop_table {
+	u32	dis;
+	u32	en;
+};
+
+static struct mstp_stop_table r8a7795_mstp_table[] = {
+	{ 0x00640800, 0x0 },	{ 0xF3EE9390, 0x0 },
+	{ 0x340FAFDC, 0x2040 },	{ 0xD80C7CDF, 0x400 },
+	{ 0x80000184, 0x180 },	{ 0x40BFFF46, 0x0 },
+	{ 0xE5FBEECF, 0x0 },	{ 0x39FFFF0E, 0x0 },
+	{ 0x01F19FF4, 0x0 },	{ 0xFFDFFFFF, 0x0 },
+	{ 0xFFFEFFE0, 0x0 },	{ 0x00000000, 0x0 },
+};
+
+static struct mstp_stop_table r8a7796_mstp_table[] = {
+	{ 0x00200000, 0x0 },	{ 0xFFFFFFFF, 0x0 },
+	{ 0x340E2FDC, 0x2040 },	{ 0xFFFFFFDF, 0x400 },
+	{ 0x80000184, 0x180 },	{ 0xC3FFFFFF, 0x0 },
+	{ 0xFFFFFFFF, 0x0 },	{ 0xFFFFFFFF, 0x0 },
+	{ 0x01F1FFF7, 0x0 },	{ 0xFFFFFFFE, 0x0 },
+	{ 0xFFFEFFE0, 0x0 },	{ 0x000000B7, 0x0 },
+};
+
+#define TSTR0		0x04
+#define TSTR0_STR0	BIT(0)
+
+static int gen3_clk_remove(struct udevice *dev)
+{
+	struct gen3_clk_priv *priv = dev_get_priv(dev);
+	enum gen3_clk_model model = dev_get_driver_data(dev);
+	struct mstp_stop_table *tbl;
+	unsigned int i, tbl_size;
+
+	switch (model) {
+	case CLK_R8A7795:
+		tbl = r8a7795_mstp_table;
+		tbl_size = ARRAY_SIZE(r8a7795_mstp_table);
+		break;
+	case CLK_R8A7796:
+		tbl = r8a7796_mstp_table;
+		tbl_size = ARRAY_SIZE(r8a7796_mstp_table);
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	/* Stop TMU0 */
+	clrbits_le32(TMU_BASE + TSTR0, TSTR0_STR0);
+
+	/* Stop module clock */
+	for (i = 0; i < tbl_size; i++) {
+		clrsetbits_le32(priv->base + SMSTPCR(i), tbl[i].dis, tbl[i].en);
+		clrsetbits_le32(priv->base + RMSTPCR(i), tbl[i].dis, 0x0);
+	}
+
+	return 0;
+}
+
 static const struct udevice_id gen3_clk_ids[] = {
 	{ .compatible = "renesas,r8a7795-cpg-mssr", .data = CLK_R8A7795 },
 	{ .compatible = "renesas,r8a7796-cpg-mssr", .data = CLK_R8A7796 },
@@ -1087,4 +1145,5 @@ U_BOOT_DRIVER(clk_gen3) = {
 	.priv_auto_alloc_size = sizeof(struct gen3_clk_priv),
 	.ops		= &gen3_clk_ops,
 	.probe		= gen3_clk_probe,
+	.remove		= gen3_clk_remove,
 };
