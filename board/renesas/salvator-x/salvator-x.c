@@ -79,17 +79,19 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
+	u32 cpu_type = rmobile_get_cpu_type();
+
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_TEXT_BASE + 0x50000;
 
-#if defined(CONFIG_R8A7795)
-	/* GSX: force power and clock supply */
-	writel(0x0000001F, SYSC_PWRONCR2);
-	while (readl(SYSC_PWRSR2) != 0x000003E0)
-		mdelay(20);
+	if (cpu_type == RMOBILE_CPU_TYPE_R8A7795) {
+		/* GSX: force power and clock supply */
+		writel(0x0000001F, SYSC_PWRONCR2);
+		while (readl(SYSC_PWRSR2) != 0x000003E0)
+			mdelay(20);
 
-	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, GSX_MSTP112);
-#endif
+		mstp_clrbits_le32(MSTPSR1, SMSTPCR1, GSX_MSTP112);
+	}
 
 	/* USB1 pull-up */
 	setbits_le32(PFC_PUEN6, PUEN_USB1_OVC | PUEN_USB1_PWEN);
