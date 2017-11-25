@@ -50,6 +50,10 @@ static cmd_tbl_t cmd_ut_sub[] = {
 #ifdef CONFIG_UT_TIME
 	U_BOOT_CMD_MKENT(time, CONFIG_SYS_MAXARGS, 1, do_ut_time, "", ""),
 #endif
+#ifdef CONFIG_SANDBOX
+	U_BOOT_CMD_MKENT(compression, CONFIG_SYS_MAXARGS, 1, do_ut_compression,
+			 "", ""),
+#endif
 };
 
 static int do_ut_all(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -101,6 +105,9 @@ static char ut_help_text[] =
 #endif
 #ifdef CONFIG_UT_TIME
 	"ut time - Very basic test of time functions\n"
+#endif
+#ifdef CONFIG_SANDBOX
+	"ut compression - Test compressors and bootm decompression\n"
 #endif
 	;
 #endif
