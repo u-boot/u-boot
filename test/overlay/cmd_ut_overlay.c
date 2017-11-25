@@ -14,6 +14,7 @@
 
 #include <test/ut.h>
 #include <test/overlay.h>
+#include <test/suites.h>
 
 /* 4k ought to be enough for anybody */
 #define FDT_COPY_SIZE	(4 * SZ_1K)
@@ -221,7 +222,6 @@ int do_ut_overlay(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 						 overlay_test);
 	const int n_ents = ll_entry_count(struct unit_test, overlay_test);
 	struct unit_test_state *uts;
-	struct unit_test *test;
 	void *fdt_base = &__dtb_test_fdt_base_begin;
 	void *fdt_overlay = &__dtb_test_fdt_overlay_begin;
 	void *fdt_overlay_stacked = &__dtb_test_fdt_overlay_stacked_begin;
@@ -280,24 +280,7 @@ int do_ut_overlay(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* Apply the stacked overlay */
 	ut_assertok(fdt_overlay_apply(fdt_base_copy, fdt_overlay_stacked_copy));
 
-	if (argc == 1)
-		printf("Running %d environment tests\n", n_ents);
-
-	for (test = tests; test < tests + n_ents; test++) {
-		if (argc > 1 && strcmp(argv[1], test->name))
-			continue;
-		printf("Test: %s\n", test->name);
-
-		uts->start = mallinfo();
-
-		test->func(uts);
-	}
-
-	printf("Failures: %d\n", uts->fail_count);
-	if (!uts->fail_count)
-		ret = 0;
-	else
-		ret = CMD_RET_FAILURE;
+	ret = cmd_ut_category("overlay", tests, n_ents, argc, argv);
 
 	free(fdt_overlay_stacked_copy);
 err3:
