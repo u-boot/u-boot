@@ -83,12 +83,4 @@ unsigned char ulcb_softspi_read(void);
 #define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2
 
-/* Module stop status bits */
-/* MFIS, SCIF1 */
-#define CONFIG_SMSTP2_ENA	0x00002040
-/* SCIF2 */
-#define CONFIG_SMSTP3_ENA	0x00000400
-/* INTC-AP, IRQC */
-#define CONFIG_SMSTP4_ENA	0x00000180
-
 #endif /* __ULCB_H */
