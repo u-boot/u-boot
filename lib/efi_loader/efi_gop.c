@@ -180,11 +180,9 @@ int efi_gop_register(void)
 	}
 
 	/* Hook up to the device list */
-	INIT_LIST_HEAD(&gopobj->parent.protocols);
-	list_add_tail(&gopobj->parent.link, &efi_obj_list);
+	efi_add_handle(&gopobj->parent);
 
 	/* Fill in object data */
-	gopobj->parent.handle = &gopobj->ops;
 	ret = efi_add_protocol(gopobj->parent.handle, &efi_gop_guid,
 			       &gopobj->ops);
 	if (ret != EFI_SUCCESS) {

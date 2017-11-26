@@ -296,11 +296,9 @@ int efi_net_register(void)
 		goto out_of_memory;
 
 	/* Hook net up to the device list */
-	INIT_LIST_HEAD(&netobj->parent.protocols);
-	list_add_tail(&netobj->parent.link, &efi_obj_list);
+	efi_add_handle(&netobj->parent);
 
 	/* Fill in object data */
-	netobj->parent.handle = &netobj->net;
 	r = efi_add_protocol(netobj->parent.handle, &efi_net_guid,
 			     &netobj->net);
 	if (r != EFI_SUCCESS)

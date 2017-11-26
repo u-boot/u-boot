@@ -322,6 +322,23 @@ static efi_status_t EFIAPI efi_free_pool_ext(void *buffer)
 }
 
 /*
+ * Add a new object to the object list.
+ *
+ * The protocols list is initialized.
+ * The object handle is set.
+ *
+ * @obj	object to be added
+ */
+void efi_add_handle(struct efi_object *obj)
+{
+	if (!obj)
+		return;
+	INIT_LIST_HEAD(&obj->protocols);
+	obj->handle = obj;
+	list_add_tail(&obj->link, &efi_obj_list);
+}
+
+/*
  * Create handle.
  *
  * @handle	new handle
@@ -337,11 +354,8 @@ efi_status_t efi_create_handle(void **handle)
 			      (void **)&obj);
 	if (r != EFI_SUCCESS)
 		return r;
-	memset(obj, 0, sizeof(struct efi_object));
-	obj->handle = obj;
-	INIT_LIST_HEAD(&obj->protocols);
-	list_add_tail(&obj->link, &efi_obj_list);
-	*handle = obj;
+	efi_add_handle(obj);
+	*handle = obj->handle;
 	return r;
 }
 
@@ -1163,14 +1177,15 @@ void efi_setup_loaded_image(struct efi_loaded_image *info, struct efi_object *ob
 {
 	efi_status_t ret;
 
+	/* Add internal object to object list */
+	efi_add_handle(obj);
+	/* efi_exit() assumes that the handle points to the info */
 	obj->handle = info;
 
 	info->file_path = file_path;
 	if (device_path)
 		info->device_handle = efi_dp_find_obj(device_path, NULL);
 
-	INIT_LIST_HEAD(&obj->protocols);
-	list_add_tail(&obj->link, &efi_obj_list);
 	/*
 	 * When asking for the device path interface, return
 	 * bootefi_device_path
@@ -1379,6 +1394,17 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 			efi_status_t exit_status, unsigned long exit_data_size,
 			int16_t *exit_data)
 {
+	/*
+	 * We require that the handle points to the original loaded
+	 * image protocol interface.
+	 *
+	 * For getting the longjmp address this is safer than locating
+	 * the protocol because the protocol may have been reinstalled
+	 * pointing to another memory location.
+	 *
+	 * TODO: We should call the unload procedure of the loaded
+	 *	 image protocol.
+	 */
 	struct efi_loaded_image *loaded_image_info = (void*)image_handle;
 
 	EFI_ENTRY("%p, %ld, %ld, %p", image_handle, exit_status,

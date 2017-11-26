@@ -224,13 +224,11 @@ static void efi_disk_add_dev(const char *name,
 		goto out_of_memory;
 
 	/* Hook up to the device list */
-	INIT_LIST_HEAD(&diskobj->parent.protocols);
-	list_add_tail(&diskobj->parent.link, &efi_obj_list);
+	efi_add_handle(&diskobj->parent);
 
 	/* Fill in object data */
 	diskobj->dp = efi_dp_from_part(desc, part);
 	diskobj->part = part;
-	diskobj->parent.handle = diskobj;
 	ret = efi_add_protocol(diskobj->parent.handle, &efi_block_io_guid,
 			       &diskobj->ops);
 	if (ret != EFI_SUCCESS)
