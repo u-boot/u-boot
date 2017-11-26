@@ -132,6 +132,7 @@ int efi_gop_register(void)
 	u32 bpix, col, row;
 	u64 fb_base, fb_size;
 	void *fb;
+	efi_status_t ret;
 
 #ifdef CONFIG_DM_VIDEO
 	struct udevice *vdev;
@@ -178,10 +179,17 @@ int efi_gop_register(void)
 		return 1;
 	}
 
+	/* Hook up to the device list */
+	list_add_tail(&gopobj->parent.link, &efi_obj_list);
+
 	/* Fill in object data */
-	gopobj->parent.protocols[0].guid = &efi_gop_guid;
-	gopobj->parent.protocols[0].protocol_interface = &gopobj->ops;
 	gopobj->parent.handle = &gopobj->ops;
+	ret = efi_add_protocol(gopobj->parent.handle, &efi_gop_guid,
+			       &gopobj->ops);
+	if (ret != EFI_SUCCESS) {
+		printf("ERROR: Out of memory\n");
+		return 1;
+	}
 	gopobj->ops.query_mode = gop_query_mode;
 	gopobj->ops.set_mode = gop_set_mode;
 	gopobj->ops.blt = gop_blt;
@@ -209,9 +217,6 @@ int efi_gop_register(void)
 
 	gopobj->bpix = bpix;
 	gopobj->fb = fb;
-
-	/* Hook up to the device list */
-	list_add_tail(&gopobj->parent.link, &efi_obj_list);
 
 	return 0;
 }
