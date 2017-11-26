@@ -101,6 +101,8 @@ extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
  * interface (usually a struct with callback functions), this struct maps the
  * protocol GUID to the respective protocol interface */
 struct efi_handler {
+	/* Link to the list of protocols of a handle */
+	struct list_head link;
 	const efi_guid_t *guid;
 	void *protocol_interface;
 };
@@ -115,8 +117,8 @@ struct efi_handler {
 struct efi_object {
 	/* Every UEFI object is part of a global object list */
 	struct list_head link;
-	/* We support up to 16 "protocols" an object can be accessed through */
-	struct efi_handler protocols[16];
+	/* The list of protocols */
+	struct list_head protocols;
 	/* The object spawner can either use this for data or as identifier */
 	void *handle;
 };

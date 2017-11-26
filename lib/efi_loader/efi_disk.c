@@ -224,6 +224,7 @@ static void efi_disk_add_dev(const char *name,
 		goto out_of_memory;
 
 	/* Hook up to the device list */
+	INIT_LIST_HEAD(&diskobj->parent.protocols);
 	list_add_tail(&diskobj->parent.link, &efi_obj_list);
 
 	/* Fill in object data */

@@ -296,6 +296,7 @@ int efi_net_register(void)
 		goto out_of_memory;
 
 	/* Hook net up to the device list */
+	INIT_LIST_HEAD(&netobj->parent.protocols);
 	list_add_tail(&netobj->parent.link, &efi_obj_list);
 
 	/* Fill in object data */

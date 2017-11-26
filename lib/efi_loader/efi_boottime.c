@@ -339,6 +339,7 @@ efi_status_t efi_create_handle(void **handle)
 		return r;
 	memset(obj, 0, sizeof(struct efi_object));
 	obj->handle = obj;
+	INIT_LIST_HEAD(&obj->protocols);
 	list_add_tail(&obj->link, &efi_obj_list);
 	*handle = obj;
 	return r;
@@ -715,18 +716,17 @@ efi_status_t efi_search_protocol(const void *handle,
 				 struct efi_handler **handler)
 {
 	struct efi_object *efiobj;
-	size_t i;
-	struct efi_handler *protocol;
+	struct list_head *lhandle;
 
 	if (!handle || !protocol_guid)
 		return EFI_INVALID_PARAMETER;
 	efiobj = efi_search_obj(handle);
 	if (!efiobj)
 		return EFI_INVALID_PARAMETER;
-	for (i = 0; i < ARRAY_SIZE(efiobj->protocols); i++) {
-		protocol = &efiobj->protocols[i];
-		if (!protocol->guid)
-			continue;
+	list_for_each(lhandle, &efiobj->protocols) {
+		struct efi_handler *protocol;
+
+		protocol = list_entry(lhandle, struct efi_handler, link);
 		if (!guidcmp(protocol->guid, protocol_guid)) {
 			if (handler)
 				*handler = protocol;
@@ -750,7 +750,6 @@ efi_status_t efi_add_protocol(const void *handle, const efi_guid_t *protocol,
 	struct efi_object *efiobj;
 	struct efi_handler *handler;
 	efi_status_t ret;
-	size_t i;
 
 	efiobj = efi_search_obj(handle);
 	if (!efiobj)
@@ -761,16 +760,10 @@ efi_status_t efi_add_protocol(const void *handle, const efi_guid_t *protocol,
 	handler = calloc(1, sizeof(struct efi_handler));
 	if (!handler)
 		return EFI_OUT_OF_RESOURCES;
-	/* Install protocol in first empty slot. */
-	for (i = 0; i < ARRAY_SIZE(efiobj->protocols); i++) {
-		handler = &efiobj->protocols[i];
-		if (handler->guid)
-			continue;
-		handler->guid = protocol;
-		handler->protocol_interface = protocol_interface;
-		return EFI_SUCCESS;
-	}
-	return EFI_OUT_OF_RESOURCES;
+	handler->guid = protocol;
+	handler->protocol_interface = protocol_interface;
+	list_add_tail(&handler->link, &efiobj->protocols);
+	return EFI_SUCCESS;
 }
 
 /*
@@ -790,10 +783,10 @@ efi_status_t efi_remove_protocol(const void *handle, const efi_guid_t *protocol,
 	ret = efi_search_protocol(handle, protocol, &handler);
 	if (ret != EFI_SUCCESS)
 		return ret;
-	if (handler->protocol_interface != protocol_interface)
-		return EFI_NOT_FOUND;
-	handler->guid = NULL;
-	handler->protocol_interface = NULL;
+	if (guidcmp(handler->guid, protocol))
+		return EFI_INVALID_PARAMETER;
+	list_del(&handler->link);
+	free(handler);
 	return EFI_SUCCESS;
 }
 
@@ -806,17 +799,22 @@ efi_status_t efi_remove_protocol(const void *handle, const efi_guid_t *protocol,
 efi_status_t efi_remove_all_protocols(const void *handle)
 {
 	struct efi_object *efiobj;
-	struct efi_handler *handler;
-	size_t i;
+	struct list_head *lhandle;
+	struct list_head *pos;
 
 	efiobj = efi_search_obj(handle);
 	if (!efiobj)
 		return EFI_INVALID_PARAMETER;
+	list_for_each_safe(lhandle, pos, &efiobj->protocols) {
+		struct efi_handler *protocol;
+		efi_status_t ret;
 
-	for (i = 0; i < ARRAY_SIZE(efiobj->protocols); i++) {
-		handler = &efiobj->protocols[i];
-		handler->guid = NULL;
-		handler->protocol_interface = NULL;
+		protocol = list_entry(lhandle, struct efi_handler, link);
+
+		ret = efi_remove_protocol(handle, protocol->guid,
+					  protocol->protocol_interface);
+		if (ret != EFI_SUCCESS)
+			return ret;
 	}
 	return EFI_SUCCESS;
 }
@@ -1171,6 +1169,7 @@ void efi_setup_loaded_image(struct efi_loaded_image *info, struct efi_object *ob
 	if (device_path)
 		info->device_handle = efi_dp_find_obj(device_path, NULL);
 
+	INIT_LIST_HEAD(&obj->protocols);
 	list_add_tail(&obj->link, &efi_obj_list);
 	/*
 	 * When asking for the device path interface, return
@@ -1648,8 +1647,7 @@ static efi_status_t EFIAPI efi_protocols_per_handle(void *handle,
 {
 	unsigned long buffer_size;
 	struct efi_object *efiobj;
-	unsigned long i, j;
-	struct list_head *lhandle;
+	struct list_head *protocol_handle;
 	efi_status_t r;
 
 	EFI_ENTRY("%p, %p, %p", handle, protocol_buffer,
@@ -1660,36 +1658,33 @@ static efi_status_t EFIAPI efi_protocols_per_handle(void *handle,
 
 	*protocol_buffer = NULL;
 	*protocol_buffer_count = 0;
-	list_for_each(lhandle, &efi_obj_list) {
-		efiobj = list_entry(lhandle, struct efi_object, link);
 
-		if (efiobj->handle != handle)
-			continue;
+	efiobj = efi_search_obj(handle);
+	if (!efiobj)
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-		/* Count protocols */
-		for (i = 0; i < ARRAY_SIZE(efiobj->protocols); i++) {
-			if (efiobj->protocols[i].guid)
-				++*protocol_buffer_count;
+	/* Count protocols */
+	list_for_each(protocol_handle, &efiobj->protocols) {
+		++*protocol_buffer_count;
+	}
+
+	/* Copy guids */
+	if (*protocol_buffer_count) {
+		size_t j = 0;
+
+		buffer_size = sizeof(efi_guid_t *) * *protocol_buffer_count;
+		r = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, buffer_size,
+				      (void **)protocol_buffer);
+		if (r != EFI_SUCCESS)
+			return EFI_EXIT(r);
+		list_for_each(protocol_handle, &efiobj->protocols) {
+			struct efi_handler *protocol;
+
+			protocol = list_entry(protocol_handle,
+					      struct efi_handler, link);
+			(*protocol_buffer)[j] = (void *)protocol->guid;
+			++j;
 		}
-		/* Copy guids */
-		if (*protocol_buffer_count) {
-			buffer_size = sizeof(efi_guid_t *) *
-					*protocol_buffer_count;
-			r = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES,
-					      buffer_size,
-					      (void **)protocol_buffer);
-			if (r != EFI_SUCCESS)
-				return EFI_EXIT(r);
-			j = 0;
-			for (i = 0; i < ARRAY_SIZE(efiobj->protocols); ++i) {
-				if (efiobj->protocols[i].guid) {
-					(*protocol_buffer)[j] = (void *)
-						efiobj->protocols[i].guid;
-					++j;
-				}
-			}
-		}
-		break;
 	}
 
 	return EFI_EXIT(EFI_SUCCESS);
