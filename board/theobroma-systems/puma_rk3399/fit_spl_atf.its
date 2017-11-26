@@ -17,6 +17,7 @@
 			description = "U-Boot (64-bit)";
 			data = /incbin/("../../../u-boot-nodtb.bin");
 			type = "standalone";
+			os = "U-Boot";
 			arch = "arm64";
 			compression = "none";
 			load = <0x00200000>;
@@ -26,16 +27,17 @@
 			data = /incbin/("../../../bl31-rk3399.bin");
 			type = "firmware";
 			arch = "arm64";
+			os = "arm-trusted-firmware";
 			compression = "none";
-			load = <0x00001000>;
-			entry = <0x00001000>;
+			load = <0x1000>;
+			entry = <0x1000>;
 		};
 		pmu {
 		        description = "Cortex-M0 firmware";
 			data = /incbin/("../../../rk3399m0.bin");
 			type = "pmu-firmware";
 			compression = "none";
-			load = <0xff8c0000>;
+			load = <0x180000>;
                 };
 		fdt {
 			description = "RK3399-Q7 (Puma) flat device-tree";
@@ -49,8 +51,8 @@
 		default = "conf";
 		conf {
 			description = "Theobroma Systems RK3399-Q7 (Puma) SoM";
-			firmware = "uboot";
-			loadables = "atf";
+			firmware = "atf";
+			loadables = "uboot", "pmu";
 			fdt = "fdt";
 		};
 	};

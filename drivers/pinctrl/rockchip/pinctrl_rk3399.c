@@ -70,11 +70,21 @@ static void pinctrl_rk3399_i2c_config(struct rk3399_grf_regs *grf,
 			     PMUGRF_GPIO1C0_SEL_MASK,
 			     PMUGRF_I2C0PMU_SCL << PMUGRF_GPIO1C0_SEL_SHIFT);
 		break;
+	case PERIPH_ID_I2C8:
+		rk_clrsetreg(&pmugrf->gpio1c_iomux,
+			     PMUGRF_GPIO1C4_SEL_MASK,
+			     PMUGRF_I2C8PMU_SDA << PMUGRF_GPIO1C4_SEL_SHIFT);
+		rk_clrsetreg(&pmugrf->gpio1c_iomux,
+			     PMUGRF_GPIO1C5_SEL_MASK,
+			     PMUGRF_I2C8PMU_SCL << PMUGRF_GPIO1C5_SEL_SHIFT);
+		break;
 	case PERIPH_ID_I2C1:
 	case PERIPH_ID_I2C2:
 	case PERIPH_ID_I2C3:
 	case PERIPH_ID_I2C4:
 	case PERIPH_ID_I2C5:
+	case PERIPH_ID_I2C6:
+	case PERIPH_ID_I2C7:
 	default:
 		debug("i2c id = %d iomux error!\n", i2c_id);
 		break;
@@ -301,6 +311,9 @@ static int rk3399_pinctrl_request(struct udevice *dev, int func, int flags)
 	case PERIPH_ID_I2C3:
 	case PERIPH_ID_I2C4:
 	case PERIPH_ID_I2C5:
+	case PERIPH_ID_I2C6:
+	case PERIPH_ID_I2C7:
+	case PERIPH_ID_I2C8:
 		pinctrl_rk3399_i2c_config(priv->grf, priv->pmugrf, func);
 		break;
 	case PERIPH_ID_SPI0:
@@ -375,6 +388,12 @@ static int rk3399_pinctrl_get_periph_id(struct udevice *dev,
 		return PERIPH_ID_I2C4;
 	case 38:
 		return PERIPH_ID_I2C5;
+	case 37:
+		return PERIPH_ID_I2C6;
+	case 36:
+		return PERIPH_ID_I2C7;
+	case 58:
+		return PERIPH_ID_I2C8;
 	case 65:
 		return PERIPH_ID_SDMMC1;
 #if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)

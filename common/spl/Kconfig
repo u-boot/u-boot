@@ -228,6 +228,22 @@ config SPL_SHA256_SUPPORT
 	  SHA256 variant is supported: SHA512 and others are not currently
 	  supported in U-Boot.
 
+config SPL_FIT_IMAGE_TINY
+	bool "Remove functionality from SPL FIT loading to reduce size"
+	depends on SPL_FIT
+	default y if MACH_SUN50I || MACH_SUN50I_H5
+	default y if ARCH_OMAP2PLUS
+	help
+	  Enable this to reduce the size of the FIT image loading code
+	  in SPL, if space for the SPL binary is very tight.
+
+	  This removes the detection of image types (which forces the
+	  first image to be treated as having a U-Boot style calling
+	  convention) and skips the recording of each loaded payload
+	  (i.e. loadable) into the FDT (modifying the loaded FDT to
+	  ensure this information is available to the next image
+	  invoked).
+
 config SPL_CPU_SUPPORT
 	bool "Support CPU drivers"
 	help
@@ -702,19 +718,13 @@ config SPL_YMODEM_SUPPORT
 	  means of transmitting U-Boot over a serial line for using in SPL,
 	  with a checksum to ensure correctness.
 
-config SPL_ATF_SUPPORT
+config SPL_ATF
 	bool "Support ARM Trusted Firmware"
 	depends on ARM64
 	help
 	  ATF(ARM Trusted Firmware) is a component for ARM arch64 which
 	  is loaded by SPL(which is considered as BL2 in ATF terminology).
 	  More detail at: https://github.com/ARM-software/arm-trusted-firmware
-
-config SPL_ATF_TEXT_BASE
-	depends on SPL_ATF_SUPPORT
-	hex "ATF BL31 base address"
-	help
-	  This is the base address in memory for ATF BL31 text and entry point.
 
 config TPL
 	bool

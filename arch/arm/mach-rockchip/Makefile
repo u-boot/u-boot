@@ -23,9 +23,11 @@ obj-spl-$(CONFIG_ROCKCHIP_RK3399) += rk3399-board-spl.o spl-boot-order.o
 
 ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_TPL_BUILD),)
 
-ifneq ($(CONFIG_ROCKCHIP_BOOT_MODE_REG),0)
+# Always include boot_mode.o, as we bypass it (i.e. turn it off)
+# inside of boot_mode.c when CONFIG_BOOT_MODE_REG is 0.  This way,
+# we can have the preprocessor correctly recognise both 0x0 and 0
+# meaning "turn it off".
 obj-y += boot_mode.o
-endif
 
 obj-$(CONFIG_ROCKCHIP_RK3188) += rk3188-board.o
 obj-$(CONFIG_ROCKCHIP_RK322X) += rk322x-board.o
