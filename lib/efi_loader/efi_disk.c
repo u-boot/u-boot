@@ -213,33 +213,40 @@ static void efi_disk_add_dev(const char *name,
 			     unsigned int part)
 {
 	struct efi_disk_obj *diskobj;
+	efi_status_t ret;
 
 	/* Don't add empty devices */
 	if (!desc->lba)
 		return;
 
 	diskobj = calloc(1, sizeof(*diskobj));
-	if (!diskobj) {
-		printf("ERROR: Out of memory\n");
-		return;
-	}
+	if (!diskobj)
+		goto out_of_memory;
+
+	/* Hook up to the device list */
+	list_add_tail(&diskobj->parent.link, &efi_obj_list);
 
 	/* Fill in object data */
 	diskobj->dp = efi_dp_from_part(desc, part);
 	diskobj->part = part;
-	diskobj->parent.protocols[0].guid = &efi_block_io_guid;
-	diskobj->parent.protocols[0].protocol_interface = &diskobj->ops;
-	diskobj->parent.protocols[1].guid = &efi_guid_device_path;
-	diskobj->parent.protocols[1].protocol_interface = diskobj->dp;
+	diskobj->parent.handle = diskobj;
+	ret = efi_add_protocol(diskobj->parent.handle, &efi_block_io_guid,
+			       &diskobj->ops);
+	if (ret != EFI_SUCCESS)
+		goto out_of_memory;
+	ret = efi_add_protocol(diskobj->parent.handle, &efi_guid_device_path,
+			       diskobj->dp);
+	if (ret != EFI_SUCCESS)
+		goto out_of_memory;
 	if (part >= 1) {
 		diskobj->volume = efi_simple_file_system(desc, part,
 							 diskobj->dp);
-		diskobj->parent.protocols[2].guid =
-			&efi_simple_file_system_protocol_guid;
-		diskobj->parent.protocols[2].protocol_interface =
-			diskobj->volume;
+		ret = efi_add_protocol(diskobj->parent.handle,
+				       &efi_simple_file_system_protocol_guid,
+				       &diskobj->volume);
+		if (ret != EFI_SUCCESS)
+			goto out_of_memory;
 	}
-	diskobj->parent.handle = diskobj;
 	diskobj->ops = block_io_disk_template;
 	diskobj->ifname = if_typename;
 	diskobj->dev_index = dev_index;
@@ -253,9 +260,9 @@ static void efi_disk_add_dev(const char *name,
 	diskobj->media.io_align = desc->blksz;
 	diskobj->media.last_block = desc->lba - offset;
 	diskobj->ops.media = &diskobj->media;
-
-	/* Hook up to the device list */
-	list_add_tail(&diskobj->parent.link, &efi_obj_list);
+	return;
+out_of_memory:
+	printf("ERROR: Out of memory\n");
 }
 
 static int efi_disk_create_eltorito(struct blk_desc *desc,
