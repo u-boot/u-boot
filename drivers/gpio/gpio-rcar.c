@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include "../pinctrl/renesas/sh_pfc.h"
 
 #define GPIO_IOINTSEL	0x00	/* General IO/Interrupt Switching Register */
 #define GPIO_INOUTSEL	0x04	/* General Input/Output Switching Register */
@@ -29,7 +30,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 struct rcar_gpio_priv {
-	void __iomem *regs;
+	void __iomem		*regs;
+	int			pfc_offset;
 };
 
 static int rcar_gpio_get_value(struct udevice *dev, unsigned offset)
@@ -113,7 +115,22 @@ static int rcar_gpio_get_function(struct udevice *dev, unsigned offset)
 		return GPIOF_INPUT;
 }
 
+static int rcar_gpio_request(struct udevice *dev, unsigned offset,
+			     const char *label)
+{
+	struct rcar_gpio_priv *priv = dev_get_priv(dev);
+	struct udevice *pctldev;
+	int ret;
+
+	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pctldev);
+	if (ret)
+		return ret;
+
+	return sh_pfc_config_mux_for_gpio(pctldev, priv->pfc_offset + offset);
+}
+
 static const struct dm_gpio_ops rcar_gpio_ops = {
+	.request		= rcar_gpio_request,
 	.direction_input	= rcar_gpio_direction_input,
 	.direction_output	= rcar_gpio_direction_output,
 	.get_value		= rcar_gpio_get_value,
@@ -135,6 +152,7 @@ static int rcar_gpio_probe(struct udevice *dev)
 
 	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, node, "gpio-ranges",
 					     NULL, 3, 0, &args);
+	priv->pfc_offset = ret == 0 ? args.args[1] : -1;
 	uc_priv->gpio_count = ret == 0 ? args.args[2] : RCAR_MAX_GPIO_PER_BANK;
 
 	ret = clk_get_by_index(dev, 0, &clk);
