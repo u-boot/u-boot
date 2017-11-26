@@ -128,32 +128,27 @@ static struct efi_object *find_obj(struct efi_device_path *dp, bool short_path,
 	struct efi_object *efiobj;
 
 	list_for_each_entry(efiobj, &efi_obj_list, link) {
-		int i;
+		struct efi_handler *handler;
+		struct efi_device_path *obj_dp;
+		efi_status_t ret;
 
-		for (i = 0; i < ARRAY_SIZE(efiobj->protocols); i++) {
-			struct efi_handler *handler = &efiobj->protocols[i];
-			struct efi_device_path *obj_dp;
+		ret = efi_search_protocol(efiobj->handle,
+					  &efi_guid_device_path, &handler);
+		if (ret != EFI_SUCCESS)
+			continue;
+		obj_dp = handler->protocol_interface;
 
-			if (!handler->guid)
-				break;
-
-			if (guidcmp(handler->guid, &efi_guid_device_path))
-				continue;
-
-			obj_dp = handler->protocol_interface;
-
-			do {
-				if (efi_dp_match(dp, obj_dp) == 0) {
-					if (rem) {
-						*rem = ((void *)dp) +
-							efi_dp_size(obj_dp);
-					}
-					return efiobj;
+		do {
+			if (efi_dp_match(dp, obj_dp) == 0) {
+				if (rem) {
+					*rem = ((void *)dp) +
+						efi_dp_size(obj_dp);
 				}
+				return efiobj;
+			}
 
-				obj_dp = shorten_path(efi_dp_next(obj_dp));
-			} while (short_path && obj_dp);
-		}
+			obj_dp = shorten_path(efi_dp_next(obj_dp));
+		} while (short_path && obj_dp);
 	}
 
 	return NULL;
