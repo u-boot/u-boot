@@ -178,7 +178,7 @@ static int meson_i2c_xfer_msg(struct meson_i2c *i2c, struct i2c_msg *msg,
 
 		if (readl(&i2c->regs->ctrl) & REG_CTRL_ERROR) {
 			debug("meson i2c: error\n");
-			return -ENXIO;
+			return -EREMOTEIO;
 		}
 
 		if ((msg->flags & I2C_M_RD) && i2c->count) {
@@ -200,7 +200,7 @@ static int meson_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 	for (i = 0; i < nmsgs; i++) {
 		ret = meson_i2c_xfer_msg(i2c, msg + i, i == nmsgs - 1);
 		if (ret)
-			return -EREMOTEIO;
+			return ret;
 	}
 
 	return 0;
