@@ -2051,8 +2051,7 @@ static efi_status_t EFIAPI efi_open_protocol(
 			void **protocol_interface, void *agent_handle,
 			void *controller_handle, uint32_t attributes)
 {
-	struct list_head *lhandle;
-	int i;
+	struct efi_handler *handler;
 	efi_status_t r = EFI_INVALID_PARAMETER;
 
 	EFI_ENTRY("%p, %pUl, %p, %p, %p, 0x%x", handle, protocol,
@@ -2064,8 +2063,6 @@ static efi_status_t EFIAPI efi_open_protocol(
 	     EFI_OPEN_PROTOCOL_TEST_PROTOCOL)) {
 		goto out;
 	}
-
-	EFI_PRINT_GUID("protocol", protocol);
 
 	switch (attributes) {
 	case EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL:
@@ -2087,33 +2084,12 @@ static efi_status_t EFIAPI efi_open_protocol(
 		goto out;
 	}
 
-	list_for_each(lhandle, &efi_obj_list) {
-		struct efi_object *efiobj;
-		efiobj = list_entry(lhandle, struct efi_object, link);
+	r = efi_search_protocol(handle, protocol, &handler);
+	if (r != EFI_SUCCESS)
+		goto out;
 
-		if (efiobj->handle != handle)
-			continue;
-
-		for (i = 0; i < ARRAY_SIZE(efiobj->protocols); i++) {
-			struct efi_handler *handler = &efiobj->protocols[i];
-			const efi_guid_t *hprotocol = handler->guid;
-			if (!hprotocol)
-				continue;
-			if (!guidcmp(hprotocol, protocol)) {
-				if (attributes !=
-				    EFI_OPEN_PROTOCOL_TEST_PROTOCOL) {
-					*protocol_interface =
-						handler->protocol_interface;
-				}
-				r = EFI_SUCCESS;
-				goto out;
-			}
-		}
-		goto unsupported;
-	}
-
-unsupported:
-	r = EFI_UNSUPPORTED;
+	if (attributes != EFI_OPEN_PROTOCOL_TEST_PROTOCOL)
+		*protocol_interface = handler->protocol_interface;
 out:
 	return EFI_EXIT(r);
 }
