@@ -208,13 +208,6 @@ static uint16_t *efi_convert_device_node_to_text(
 	return out;
 }
 
-/* helper for debug prints.. efi_free_pool() the result. */
-uint16_t *efi_dp_str(struct efi_device_path *dp)
-{
-	return efi_convert_device_node_to_text(dp, true, true);
-}
-
-
 static uint16_t EFIAPI *efi_convert_device_node_to_text_ext(
 		struct efi_device_path *device_node,
 		bool display_only,
@@ -249,6 +242,12 @@ static uint16_t EFIAPI *efi_convert_device_path_to_text(
 
 	EFI_EXIT(EFI_SUCCESS);
 	return buffer;
+}
+
+/* helper for debug prints.. efi_free_pool() the result. */
+uint16_t *efi_dp_str(struct efi_device_path *dp)
+{
+	return EFI_CALL(efi_convert_device_path_to_text(dp, true, true));
 }
 
 const struct efi_device_path_to_text_protocol efi_device_path_to_text = {
