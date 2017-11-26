@@ -254,7 +254,8 @@ static efi_status_t do_bootefi_exec(void *efi, void *fdt,
 		dcache_disable();	/* flush cache before switch to EL2 */
 
 		/* Move into EL2 and keep running there */
-		armv8_switch_to_el2((ulong)entry, (ulong)&loaded_image_info,
+		armv8_switch_to_el2((ulong)entry,
+				    (ulong)&loaded_image_info_obj.handle,
 				    (ulong)&systab, 0, (ulong)efi_run_in_el2,
 				    ES_TO_AARCH64);
 
@@ -263,7 +264,7 @@ static efi_status_t do_bootefi_exec(void *efi, void *fdt,
 	}
 #endif
 
-	ret = efi_do_enter(&loaded_image_info, &systab, entry);
+	ret = efi_do_enter(loaded_image_info_obj.handle, &systab, entry);
 
 exit:
 	/* image has returned, loaded-image obj goes *poof*: */
@@ -350,7 +351,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		/* Transfer environment variable efi_selftest as load options */
 		set_load_options(&loaded_image_info, "efi_selftest");
 		/* Execute the test */
-		r = efi_selftest(&loaded_image_info, &systab);
+		r = efi_selftest(loaded_image_info_obj.handle, &systab);
 		efi_restore_gd();
 		free(loaded_image_info.load_options);
 		list_del(&loaded_image_info_obj.link);
