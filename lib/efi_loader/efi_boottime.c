@@ -1080,36 +1080,6 @@ static efi_status_t EFIAPI efi_locate_handle_ext(
 			buffer_size, buffer));
 }
 
-/*
- * Get the device path and handle of an device implementing a protocol.
- *
- * This function implements the LocateDevicePath service.
- * See the Unified Extensible Firmware Interface (UEFI) specification
- * for details.
- *
- * @protocol		GUID of the protocol
- * @device_path		device path
- * @device		handle of the device
- * @return		status code
- */
-static efi_status_t EFIAPI efi_locate_device_path(
-			const efi_guid_t *protocol,
-			struct efi_device_path **device_path,
-			efi_handle_t *device)
-{
-	struct efi_object *efiobj;
-
-	EFI_ENTRY("%pUl, %p, %p", protocol, device_path, device);
-
-	efiobj = efi_dp_find_obj(*device_path, device_path);
-	if (!efiobj)
-		return EFI_EXIT(EFI_NOT_FOUND);
-
-	*device = efiobj->handle;
-
-	return EFI_EXIT(EFI_SUCCESS);
-}
-
 /* Collapses configuration table entries, removing index i */
 static void efi_remove_configuration_table(int i)
 {
@@ -1811,6 +1781,82 @@ static efi_status_t EFIAPI efi_locate_protocol(const efi_guid_t *protocol,
 	*protocol_interface = NULL;
 
 	return EFI_EXIT(EFI_NOT_FOUND);
+}
+
+/*
+ * Get the device path and handle of an device implementing a protocol.
+ *
+ * This function implements the LocateDevicePath service.
+ * See the Unified Extensible Firmware Interface (UEFI) specification
+ * for details.
+ *
+ * @protocol		GUID of the protocol
+ * @device_path		device path
+ * @device		handle of the device
+ * @return		status code
+ */
+static efi_status_t EFIAPI efi_locate_device_path(
+			const efi_guid_t *protocol,
+			struct efi_device_path **device_path,
+			efi_handle_t *device)
+{
+	struct efi_device_path *dp;
+	size_t i;
+	struct efi_handler *handler;
+	efi_handle_t *handles;
+	size_t len, len_dp;
+	size_t len_best = 0;
+	efi_uintn_t no_handles;
+	u8 *remainder;
+	efi_status_t ret;
+
+	EFI_ENTRY("%pUl, %p, %p", protocol, device_path, device);
+
+	if (!protocol || !device_path || !*device_path || !device) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	/* Find end of device path */
+	len = efi_dp_size(*device_path);
+
+	/* Get all handles implementing the protocol */
+	ret = EFI_CALL(efi_locate_handle_buffer(BY_PROTOCOL, protocol, NULL,
+						&no_handles, &handles));
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	for (i = 0; i < no_handles; ++i) {
+		/* Find the device path protocol */
+		ret = efi_search_protocol(handles[i], &efi_guid_device_path,
+					  &handler);
+		if (ret != EFI_SUCCESS)
+			continue;
+		dp = (struct efi_device_path *)handler->protocol_interface;
+		len_dp = efi_dp_size(dp);
+		/*
+		 * This handle can only be a better fit
+		 * if its device path length is longer than the best fit and
+		 * if its device path length is shorter of equal the searched
+		 * device path.
+		 */
+		if (len_dp <= len_best || len_dp > len)
+			continue;
+		/* Check if dp is a subpath of device_path */
+		if (memcmp(*device_path, dp, len_dp))
+			continue;
+		*device = handles[i];
+		len_best = len_dp;
+	}
+	if (len_best) {
+		remainder = (u8 *)*device_path + len_best;
+		*device_path = (struct efi_device_path *)remainder;
+		ret = EFI_SUCCESS;
+	} else {
+		ret = EFI_NOT_FOUND;
+	}
+out:
+	return EFI_EXIT(ret);
 }
 
 /*
