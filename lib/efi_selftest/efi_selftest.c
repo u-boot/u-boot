@@ -239,7 +239,7 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 	ret = boottime->handle_protocol(image_handle, &efi_guid_loaded_image,
 					(void **)&loaded_image);
 	if (ret != EFI_SUCCESS) {
-		efi_st_error("Cannot open loaded image protocol");
+		efi_st_error("Cannot open loaded image protocol\n");
 		return ret;
 	}
 
