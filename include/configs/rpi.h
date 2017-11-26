@@ -76,7 +76,7 @@
 #endif
 
 /* Console UART */
-#ifdef CONFIG_BCM2837
+#if defined (CONFIG_BCM2837) || defined(CONFIG_TARGET_RPI_0_W)
 #define CONFIG_BCM283X_MU_SERIAL
 #else
 #define CONFIG_PL01X_SERIAL
