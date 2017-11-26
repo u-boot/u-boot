@@ -141,7 +141,12 @@ config SYS_I2C_MESON
 	bool "Amlogic Meson I2C driver"
 	depends on DM_I2C && ARCH_MESON
 	help
-	  Add support for the Amlogic Meson I2C driver.
+	  Add support for the I2C controller available in Amlogic Meson
+	  SoCs. The controller supports programmable bus speed including
+	  standard (100kbits/s) and fast (400kbit/s) speed and allows the
+	  software to define a flexible format of the bit streams. It has an
+	  internal buffer holding up to 8 bytes for transfers and supports
+	  both 7-bit and 10-bit addresses.
 
 config SYS_I2C_MXC
 	bool "NXP i.MX I2C driver"
