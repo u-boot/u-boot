@@ -243,6 +243,7 @@ void sh_pfc_write_reg(struct sh_pfc *pfc, u32 reg, unsigned int width, u32 data)
 const struct sh_pfc_bias_info *
 sh_pfc_pin_to_bias_info(const struct sh_pfc_bias_info *info,
 			unsigned int num, unsigned int pin);
+int sh_pfc_config_mux_for_gpio(struct udevice *dev, unsigned pin_selector);
 
 extern const struct sh_pfc_soc_info r8a7795_pinmux_info;
 extern const struct sh_pfc_soc_info r8a7796_pinmux_info;

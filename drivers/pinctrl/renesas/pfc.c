@@ -448,6 +448,35 @@ static const char *sh_pfc_pinctrl_get_function_name(struct udevice *dev,
 	return priv->pfc.info->functions[selector].name;
 }
 
+int sh_pfc_config_mux_for_gpio(struct udevice *dev, unsigned pin_selector)
+{
+	struct sh_pfc_pinctrl_priv *priv = dev_get_priv(dev);
+	struct sh_pfc_pinctrl *pmx = &priv->pmx;
+	struct sh_pfc *pfc = &priv->pfc;
+	struct sh_pfc_pin_config *cfg;
+	const struct sh_pfc_pin *pin = NULL;
+	int i, idx;
+
+	for (i = 1; i < pfc->info->nr_pins; i++) {
+		if (priv->pfc.info->pins[i].pin != pin_selector)
+			continue;
+
+		pin = &priv->pfc.info->pins[i];
+		break;
+	}
+
+	if (!pin)
+		return -EINVAL;
+
+	idx = sh_pfc_get_pin_index(pfc, pin->pin);
+	cfg = &pmx->configs[idx];
+
+	if (cfg->type != PINMUX_TYPE_NONE)
+		return -EBUSY;
+
+	return sh_pfc_config_mux(pfc, pin->enum_id, PINMUX_TYPE_GPIO);
+}
+
 static int sh_pfc_pinctrl_pin_set(struct udevice *dev, unsigned pin_selector,
 				  unsigned func_selector)
 {
