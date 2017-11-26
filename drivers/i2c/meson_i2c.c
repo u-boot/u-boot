@@ -9,7 +9,7 @@
 #include <dm.h>
 #include <i2c.h>
 
-#define I2C_TIMEOUT_MS		500
+#define I2C_TIMEOUT_MS		100
 
 /* Control register fields */
 #define REG_CTRL_START		BIT(0)
