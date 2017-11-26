@@ -8,7 +8,6 @@
  */
 
 #include <common.h>
-#include <part_efi.h>
 #include <efi_api.h>
 
 efi_status_t EFIAPI efi_main(efi_handle_t handle,
