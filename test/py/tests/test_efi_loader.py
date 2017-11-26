@@ -154,6 +154,8 @@ def test_efi_helloworld_net(u_boot_console):
     output = u_boot_console.run_command('bootefi %x' % addr)
     expected_text = 'Hello, world'
     assert expected_text in output
+    expected_text = '## Application terminated, r = 0'
+    assert expected_text in output
 
 @pytest.mark.buildconfigspec('cmd_bootefi_hello')
 def test_efi_helloworld_builtin(u_boot_console):
