@@ -153,7 +153,7 @@ static char *dp_media(char *s, struct efi_device_path *dp)
 		struct efi_device_path_file_path *fp =
 			(struct efi_device_path_file_path *)dp;
 		int slen = (dp->length - sizeof(*dp)) / 2;
-		s += sprintf(s, "/%-*ls", slen, fp->str);
+		s += sprintf(s, "/%-.*ls", slen, fp->str);
 		break;
 	}
 	default:
