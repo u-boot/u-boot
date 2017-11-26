@@ -7,31 +7,6 @@
 # This file only gets included with CONFIG_EFI_LOADER set, so all
 # object inclusion implicitly depends on it
 
-CFLAGS_efi_selftest.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_efi_selftest.o := $(CFLAGS_NON_EFI)
-CFLAGS_efi_selftest_console.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_efi_selftest_console.o := $(CFLAGS_NON_EFI)
-CFLAGS_efi_selftest_devicepathe.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_efi_selftest_devicepath.o := $(CFLAGS_NON_EFI)
-CFLAGS_efi_selftest_events.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_efi_selftest_events.o := $(CFLAGS_NON_EFI)
-CFLAGS_efi_selftest_exitbootservices.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_efi_selftest_exitbootservices.o := $(CFLAGS_NON_EFI)
-CFLAGS_efi_selftest_gop.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_efi_selftest_gop.o := $(CFLAGS_NON_EFI)
-CFLAGS_efi_selftest_manageprotocols.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_efi_selftest_manageprotocols.o := $(CFLAGS_NON_EFI)
-CFLAGS_efi_selftest_snp.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_efi_selftest_snp.o := $(CFLAGS_NON_EFI)
-CFLAGS_efi_selftest_textoutput.o := $(CFLAGS_EFI)
-CFLAGS_REVMOE_efi_selftest_textoutput.o := $(CFLAGS_NON_EFI)
-CFLAGS_efi_selftest_tpl.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_efi_selftest_tpl.o := $(CFLAGS_NON_EFI)
-CFLAGS_efi_selftest_util.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_efi_selftest_util.o := $(CFLAGS_NON_EFI)
-CFLAGS_efi_selftest_watchdog.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_efi_selftest_watchdog.o := $(CFLAGS_NON_EFI)
-
 obj-$(CONFIG_CMD_BOOTEFI_SELFTEST) += \
 efi_selftest.o \
 efi_selftest_console.o \
