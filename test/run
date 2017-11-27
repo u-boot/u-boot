@@ -20,6 +20,7 @@ run_test ./test/py/test.py --bd sandbox_spl --build -k \
 PYTHONPATH=build-sandbox_spl/scripts/dtc/pylibfdt run_test \
 	./tools/binman/binman -t
 run_test ./tools/patman/patman --test
+run_test ./tools/buildman/buildman -t
 
 if [ $result == 0 ]; then
 	echo "Tests passed!"
