@@ -11,6 +11,8 @@
 
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
+#define CONFIG_MISC_INIT_R
+
 #if defined(CONFIG_QSPI_BOOT)
 #define CONFIG_ENV_SIZE			0x2000          /* 8KB */
 #define CONFIG_ENV_OFFSET		0x300000        /* 3MB */
