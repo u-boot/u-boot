@@ -45,6 +45,13 @@ config TARGET_LIBRETECH_CC
 	  with 2 GiB of RAM, Ethernet, HDMI, 4 USB, micro-SD slot,
 	  eMMC, IR receiver and a 40-pin GPIO header.
 
+config TARGET_KHADAS_VIM
+	bool "KHADAS-VIM"
+	help
+	  Khadas VIM is a single board computer based on Meson GXL
+	  with 2 GiB of RAM, Ethernet, HDMI, 4 USB, micro-SD slot,
+	  eMMC, IR receiver and a 40-pin GPIO header.
+
 endif
 
 config SYS_SOC
@@ -58,5 +65,7 @@ source "board/amlogic/odroid-c2/Kconfig"
 source "board/amlogic/p212/Kconfig"
 
 source "board/amlogic/libretech-cc/Kconfig"
+
+source "board/amlogic/khadas-vim/Kconfig"
 
 endif
