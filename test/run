@@ -23,6 +23,13 @@ run_test ./tools/patman/patman --test
 run_test ./tools/buildman/buildman -t
 PYTHONPATH=build-sandbox_spl/scripts/dtc/pylibfdt run_test ./tools/dtoc/dtoc -t
 
+# This needs you to set up Python test coverage tools.
+# To enable Python test coverage on Debian-type distributions (e.g. Ubuntu):
+#   $ sudo apt-get install python-pip python-pytest
+#   $ sudo pip install coverage
+PYTHONPATH=build-sandbox_spl/scripts/dtc/pylibfdt run_test \
+	./tools/binman/binman -T
+
 if [ $result == 0 ]; then
 	echo "Tests passed!"
 else
