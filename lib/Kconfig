@@ -80,6 +80,9 @@ config TPL_TINY_MEMSET
 config RBTREE
 	bool
 
+config BITREVERSE
+	bool "Bit reverse library from Linux"
+
 source lib/dhry/Kconfig
 
 menu "Security support"

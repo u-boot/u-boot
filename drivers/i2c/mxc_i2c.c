@@ -317,16 +317,19 @@ static int i2c_init_transfer_(struct mxc_i2c_bus *i2c_bus, u8 chip,
 	temp |= I2CR_MTX | I2CR_TX_NO_AK;
 	writeb(temp, base + (I2CR << reg_shift));
 
-	/* write slave address */
-	ret = tx_byte(i2c_bus, chip << 1);
-	if (ret < 0)
-		return ret;
-
-	while (alen--) {
-		ret = tx_byte(i2c_bus, (addr >> (alen * 8)) & 0xff);
+	if (alen >= 0)	{
+		/* write slave address */
+		ret = tx_byte(i2c_bus, chip << 1);
 		if (ret < 0)
 			return ret;
+
+		while (alen--) {
+			ret = tx_byte(i2c_bus, (addr >> (alen * 8)) & 0xff);
+			if (ret < 0)
+				return ret;
+		}
 	}
+
 	return 0;
 }
 
@@ -537,9 +540,11 @@ static int bus_i2c_read(struct mxc_i2c_bus *i2c_bus, u8 chip, u32 addr,
 	if (ret < 0)
 		return ret;
 
-	temp = readb(base + (I2CR << reg_shift));
-	temp |= I2CR_RSTA;
-	writeb(temp, base + (I2CR << reg_shift));
+	if (alen >= 0) {
+		temp = readb(base + (I2CR << reg_shift));
+		temp |= I2CR_RSTA;
+		writeb(temp, base + (I2CR << reg_shift));
+	}
 
 	ret = tx_byte(i2c_bus, (chip << 1) | 1);
 	if (ret < 0) {

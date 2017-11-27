@@ -2362,6 +2362,13 @@ The following options need to be configured:
 			CONFIG_SYS_BOOTCOUNT_ADDR = i2c addr which is used for
 						    the bootcounter.
 			CONFIG_BOOTCOUNT_ALEN = address len
+		CONFIG_BOOTCOUNT_EXT
+		enable support for the bootcounter in EXT filesystem
+			CONFIG_SYS_BOOTCOUNT_ADDR = RAM address used for read
+                                                    and write.
+			CONFIG_SYS_BOOTCOUNT_EXT_INTERFACE = interface
+			CONFIG_SYS_BOOTCOUNT_EXT_DEVPART = device and part
+			CONFIG_SYS_BOOTCOUNT_EXT_NAME = filename
 
 - Show boot progress:
 		CONFIG_SHOW_BOOT_PROGRESS

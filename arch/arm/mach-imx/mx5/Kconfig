@@ -46,6 +46,12 @@ config TARGET_MX53LOCO
 	select BOARD_LATE_INIT
 	select MX53
 
+config TARGET_MX53PPD
+	bool "Support mx53ppd"
+	select MX53
+	help
+	  Enable support for the GE Healthcare PPD.
+
 config TARGET_MX53SMD
 	bool "Support mx53smd"
 	select MX53
@@ -70,6 +76,7 @@ source "board/freescale/mx53ard/Kconfig"
 source "board/freescale/mx53evk/Kconfig"
 source "board/freescale/mx53loco/Kconfig"
 source "board/freescale/mx53smd/Kconfig"
+source "board/ge/mx53ppd/Kconfig"
 source "board/inversepath/usbarmory/Kconfig"
 source "board/technologic/ts4800/Kconfig"
 

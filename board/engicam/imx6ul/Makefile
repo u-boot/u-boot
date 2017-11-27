@@ -3,4 +3,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y  := geam6ul.o
+obj-y  := imx6ul.o

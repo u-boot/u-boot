@@ -399,6 +399,8 @@ static void spl_dram_init(void)
 		mx6dq_dram_iocfg(64, &mx6dq_ddr_ioregs, &mx6dq_grp_ioregs);
 		mx6_dram_cfg(&mem_q, &mx6q_2g_mmdc_calib, &h5t04g63afr);
 	}
+
+	udelay(100);
 }
 
 void board_init_f(ulong dummy)

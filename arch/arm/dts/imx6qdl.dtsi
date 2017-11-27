@@ -77,6 +77,7 @@
 		compatible = "simple-bus";
 		interrupt-parent = <&gpc>;
 		ranges;
+		u-boot,dm-spl;
 
 		dma_apbh: dma-apbh@00110000 {
 			compatible = "fsl,imx6q-dma-apbh", "fsl,imx28-dma-apbh";
@@ -225,6 +226,7 @@
 			#size-cells = <1>;
 			reg = <0x02000000 0x100000>;
 			ranges;
+			u-boot,dm-spl;
 
 			spba-bus@02000000 {
 				compatible = "fsl,spba-bus", "simple-bus";
@@ -516,6 +518,7 @@
 				#gpio-cells = <2>;
 				interrupt-controller;
 				#interrupt-cells = <2>;
+				u-boot,dm-spl;
 			};
 
 			gpio2: gpio@020a0000 {
@@ -805,6 +808,7 @@
 			iomuxc: iomuxc@020e0000 {
 				compatible = "fsl,imx6dl-iomuxc", "fsl,imx6q-iomuxc";
 				reg = <0x020e0000 0x4000>;
+				u-boot,dm-spl;
 			};
 
 			ldb: ldb@020e0008 {
@@ -889,6 +893,7 @@
 			#size-cells = <1>;
 			reg = <0x02100000 0x100000>;
 			ranges;
+			u-boot,dm-spl;
 
 			crypto: caam@2100000 {
 				compatible = "fsl,sec-v4.0";

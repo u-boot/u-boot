@@ -3,4 +3,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y  := icorem6_rqs.o
+obj-y  := imx6q.o

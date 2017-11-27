@@ -65,7 +65,7 @@ void init_aips(void)
 	}
 }
 
-void imx_set_wdog_powerdown(bool enable)
+void imx_wdog_disable_powerdown(void)
 {
 	struct wdog_regs *wdog1 = (struct wdog_regs *)WDOG1_BASE_ADDR;
 	struct wdog_regs *wdog2 = (struct wdog_regs *)WDOG2_BASE_ADDR;
@@ -75,13 +75,13 @@ void imx_set_wdog_powerdown(bool enable)
 #endif
 
 	/* Write to the PDE (Power Down Enable) bit */
-	writew(enable, &wdog1->wmcr);
-	writew(enable, &wdog2->wmcr);
+	writew(0, &wdog1->wmcr);
+	writew(0, &wdog2->wmcr);
 
-	if (is_mx6sx() || is_mx6ul() || is_mx7())
-		writew(enable, &wdog3->wmcr);
+	if (is_mx6sx() || is_mx6ul() || is_mx6ull() || is_mx7())
+		writew(0, &wdog3->wmcr);
 #ifdef CONFIG_MX7D
-	writew(enable, &wdog4->wmcr);
+	writew(0, &wdog4->wmcr);
 #endif
 }
 

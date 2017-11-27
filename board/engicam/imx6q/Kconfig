@@ -1,7 +1,7 @@
-if TARGET_MX6UL_ISIOT
+if TARGET_MX6Q_ENGICAM
 
 config SYS_BOARD
-	default "isiotmx6ul"
+	default "imx6q"
 
 config SYS_VENDOR
 	default "engicam"
