@@ -2,7 +2,8 @@ Voltage/Current regulator
 
 Binding:
 The regulator devices don't use the "compatible" property. The binding is done
-by the prefix of regulator node's name. Usually the pmic I/O driver will provide
+by the prefix of regulator node's name, or, if this fails, by the prefix of the
+regulator's "regulator-name" property. Usually the pmic I/O driver will provide
 the array of 'struct pmic_child_info' with the prefixes and compatible drivers.
 The bind is done by calling function: pmic_bind_childs().
 Example drivers:
@@ -15,8 +16,19 @@ For the node name e.g.: "prefix[:alpha:]num { ... }":
 
 Example the prefix "ldo" will pass for: "ldo1", "ldo@1", "ldoreg@1, ...
 
+Binding by means of the node's name is preferred. However if the node names
+would produce ambiguous prefixes (like "regulator@1" and "regualtor@11") and you
+can't or do not want to change them then binding against the "regulator-name"
+property is possible. The syntax for the prefix of the "regulator-name" property
+is the same as the one for the regulator's node name.
+Use case: a regulator named "regulator@1" to be bound to a driver named
+"LDO_DRV" and a regulator named "regualator@11" to be bound to an other driver
+named "BOOST_DRV". Using prefix "regualtor@1" for driver matching would load
+the same driver for both regulators, hence the prefix is ambiguous.
+
 Optional properties:
-- regulator-name: a string, required by the regulator uclass
+- regulator-name: a string, required by the regulator uclass, used for driver
+                  binding if binding by node's name prefix fails
 - regulator-min-microvolt: a minimum allowed Voltage value
 - regulator-max-microvolt: a maximum allowed Voltage value
 - regulator-min-microamp: a minimum allowed Current value
