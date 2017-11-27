@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <asm/io.h>
 #include <asm/arch/gxbb.h>
+#include <asm/arch/mem.h>
 #include <asm/arch/sm.h>
 #include <asm/arch/eth.h>
 
@@ -44,6 +45,13 @@ int misc_init_r(void)
 		if (len == EFUSE_SN_SIZE)
 			env_set("serial#", serial);
 	}
+
+	return 0;
+}
+
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	meson_gx_init_reserved_memory(blob);
 
 	return 0;
 }

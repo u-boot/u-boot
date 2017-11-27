@@ -7,9 +7,26 @@
 #ifndef __GXBB_H__
 #define __GXBB_H__
 
+#define GXBB_FIRMWARE_MEM_SIZE	0x1000000
+
+#define GXBB_AOBUS_BASE		0xc8100000
 #define GXBB_PERIPHS_BASE	0xc8834400
 #define GXBB_HIU_BASE		0xc883c000
 #define GXBB_ETH_BASE		0xc9410000
+
+/* Always-On Peripherals registers */
+#define GXBB_AO_ADDR(off)	(GXBB_AOBUS_BASE + ((off) << 2))
+
+#define GXBB_AO_SEC_GP_CFG0	GXBB_AO_ADDR(0x90)
+#define GXBB_AO_SEC_GP_CFG3	GXBB_AO_ADDR(0x93)
+#define GXBB_AO_SEC_GP_CFG4	GXBB_AO_ADDR(0x94)
+#define GXBB_AO_SEC_GP_CFG5	GXBB_AO_ADDR(0x95)
+
+#define GXBB_AO_MEM_SIZE_MASK	0xFFFF0000
+#define GXBB_AO_MEM_SIZE_SHIFT	16
+#define GXBB_AO_BL31_RSVMEM_SIZE_MASK	0xFFFF0000
+#define GXBB_AO_BL31_RSVMEM_SIZE_SHIFT	16
+#define GXBB_AO_BL32_RSVMEM_SIZE_MASK	0xFFFF
 
 /* Peripherals registers */
 #define GXBB_PERIPHS_ADDR(off)	(GXBB_PERIPHS_BASE + ((off) << 2))
