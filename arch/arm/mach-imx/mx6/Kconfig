@@ -244,6 +244,7 @@ config TARGET_MX6SABRESD
 
 config TARGET_MX6SLEVK
 	bool "mx6slevk"
+	select MX6SL
 	select SUPPORT_SPL
 
 config TARGET_MX6SLLEVK
@@ -396,6 +397,7 @@ config TARGET_WANDBOARD
 
 config TARGET_WARP
 	bool "WaRP"
+	select MX6SL
 	select BOARD_LATE_INIT
 
 config TARGET_XPRESS
