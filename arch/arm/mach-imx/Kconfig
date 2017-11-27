@@ -61,3 +61,11 @@ config CMD_HDMIDETECT
 	help
 	  This enables the 'hdmidet' command which detects if an HDMI monitor
 	  is connected.
+
+config NXP_BOARD_REVISION
+	bool "Read NXP board revision from fuses"
+	depends on ARCH_MX6 || ARCH_MX7
+	help
+	  NXP boards based on i.MX6/7 contain the board revision information
+	  stored in the fuses. Select this option if you want to be able to
+	  retrieve the board revision information.

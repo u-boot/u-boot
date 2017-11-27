@@ -109,6 +109,9 @@ void imx_wdog_disable_powerdown(void);
 
 int board_mmc_get_env_dev(int devno);
 
+int nxp_board_rev(void);
+char nxp_board_rev_string(void);
+
 /*
  * Initializes on-chip ethernet controllers.
  * to override, implement board_eth_init()
