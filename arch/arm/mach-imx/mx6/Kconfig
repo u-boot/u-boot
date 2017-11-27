@@ -255,6 +255,7 @@ config TARGET_MX6SLLEVK
 
 config TARGET_MX6SXSABRESD
 	bool "mx6sxsabresd"
+	select BOARD_LATE_INIT
 	select MX6SX
 	select SUPPORT_SPL
 	select DM

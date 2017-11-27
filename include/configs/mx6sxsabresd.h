@@ -43,6 +43,7 @@
 #define UPDATE_M4_ENV ""
 #endif
 
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	UPDATE_M4_ENV \
 	"script=boot.scr\0" \
@@ -105,10 +106,13 @@
 			"fi; " \
 		"else " \
 			"bootz; " \
-		"fi;\0"
+		"fi;\0" \
+	"findfdt="\
+		"if test test $board_rev = REVA ; then " \
+			"setenv fdt_file imx6sx-sdb-reva.dtb; fi; " \
 
 #define CONFIG_BOOTCOMMAND \
-	   "mmc dev ${mmcdev};" \
+	   "run findfdt; " \
 	   "mmc dev ${mmcdev}; if mmc rescan; then " \
 		   "if run loadbootscript; then " \
 			   "run bootscript; " \
