@@ -8,6 +8,7 @@
 # Use upstream code.
 obj-y += \
 	fdt.o \
+	fdt_wip.o \
 	fdt_strerror.o \
 	fdt_sw.o \
 	fdt_empty_tree.o \
@@ -19,8 +20,7 @@ obj-$(CONFIG_OF_LIBFDT_OVERLAY) += fdt_overlay.o
 # TODO: split out the local modifiction.
 obj-y += \
 	fdt_ro.o \
-	fdt_rw.o \
-	fdt_wip.o \
+	fdt_rw.o
 
 # U-Boot own file
 obj-y += fdt_region.o
