@@ -129,7 +129,3 @@ int dram_init_banksize(void)
 #endif
 	return 0;
 }
-
-const struct rmobile_sysinfo sysinfo = {
-	CONFIG_RCAR_BOARD_STRING
-};

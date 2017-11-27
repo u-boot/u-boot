@@ -12,8 +12,6 @@
 
 #undef DEBUG
 
-#define CONFIG_RCAR_BOARD_STRING "ULCB"
-
 #include "rcar-gen3-common.h"
 
 /* M3 ULCB has 2 banks, each with 1 GiB of RAM */

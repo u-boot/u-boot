@@ -142,10 +142,6 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-const struct rmobile_sysinfo sysinfo = {
-	CONFIG_RCAR_BOARD_STRING
-};
-
 #define RST_BASE	0xE6160000
 #define RST_CA57RESCNT	(RST_BASE + 0x40)
 #define RST_CA53RESCNT	(RST_BASE + 0x44)

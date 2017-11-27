@@ -12,8 +12,6 @@
 
 #undef DEBUG
 
-#define CONFIG_RCAR_BOARD_STRING "Salvator-X"
-
 #include "rcar-gen3-common.h"
 
 /* SCIF */
