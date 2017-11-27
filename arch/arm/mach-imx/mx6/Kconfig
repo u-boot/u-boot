@@ -66,8 +66,9 @@ config MX6UL_OPOS6UL
 	select SUPPORT_SPL
 
 config MX6ULL
+	select SYS_L2CACHE_OFF
+	select ROM_UNIFIED_SECTIONS
 	bool
-	select MX6UL
 
 config MX6_DDRCAL
 	bool "Include dynamic DDR calibration routines"
