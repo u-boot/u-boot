@@ -14,28 +14,34 @@ config MX6
 	imply CMD_FUSE
 
 config MX6D
+	select HAS_CAAM
 	select MX6_SMP
 	bool
 
 config MX6DL
+	select HAS_CAAM
 	select MX6_SMP
 	bool
 
 config MX6Q
+	select HAS_CAAM
 	select MX6_SMP
 	bool
 
 config MX6QDL
+	select HAS_CAAM
 	select MX6_SMP
 	bool
 
 config MX6S
+	select HAS_CAAM
 	bool
 
 config MX6SL
 	bool
 
 config MX6SX
+	select HAS_CAAM
 	select ROM_UNIFIED_SECTIONS
 	bool
 
@@ -44,6 +50,7 @@ config MX6SLL
 	bool
 
 config MX6UL
+	select HAS_CAAM
 	select SYS_L2CACHE_OFF
 	select ROM_UNIFIED_SECTIONS
 	bool

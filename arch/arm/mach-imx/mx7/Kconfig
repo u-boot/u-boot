@@ -10,6 +10,7 @@ config MX7
 	default y
 
 config MX7D
+	select HAS_CAAM
 	select ROM_UNIFIED_SECTIONS
 	imply CMD_FUSE
 	bool
