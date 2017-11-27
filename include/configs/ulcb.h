@@ -17,7 +17,6 @@
 /* SCIF */
 #define CONFIG_CONS_SCIF2
 #define CONFIG_CONS_INDEX	2
-#define CONFIG_SH_SCIF_CLK_FREQ        CONFIG_S3D4_CLK_FREQ
 
 /* [A] Hyper Flash */
 /* use to RPC(SPI Multi I/O Bus Controller) */
@@ -28,14 +27,7 @@
 
 /* Board Clock */
 /* XTAL_CLK : 33.33MHz */
-#define RCAR_XTAL_CLK		33333333u
-#define CONFIG_SYS_CLK_FREQ	RCAR_XTAL_CLK
-/* ch0to2 CPclk, ch3to11 S3D2_PEREclk, ch12to14 S3D2_RTclk */
-/* CPclk 16.66MHz, S3D2 133.33MHz , S3D4 66.66MHz          */
-#define CONFIG_CP_CLK_FREQ	(CONFIG_SYS_CLK_FREQ / 2)
-#define CONFIG_PLL1_CLK_FREQ	(CONFIG_SYS_CLK_FREQ * 192 / 2)
-#define CONFIG_S3D2_CLK_FREQ	(266666666u/2)
-#define CONFIG_S3D4_CLK_FREQ	(266666666u/4)
+#define CONFIG_SYS_CLK_FREQ	33333333u
 
 /* Generic Timer Definitions (use in assembler source) */
 #define COUNTER_FREQUENCY	0xFE502A	/* 16.66MHz from CPclk */
@@ -64,9 +56,6 @@ unsigned char ulcb_softspi_read(void);
 #define CONFIG_SH_I2C_CLOCK		10000000
 
 #define CONFIG_SYS_I2C_POWERIC_ADDR	0x30
-
-/* SDHI */
-#define CONFIG_SH_SDHI_FREQ		200000000
 
 /* Environment in eMMC, at the end of 2nd "boot sector" */
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
