@@ -1211,8 +1211,9 @@ static int set_quad_mode(struct spi_flash *flash,
 			 const struct spi_flash_info *info)
 {
 	switch (JEDEC_MFR(info)) {
-#ifdef CONFIG_SPI_FLASH_MACRONIX
+#if defined(CONFIG_SPI_FLASH_MACRONIX) || defined(CONFIG_SPI_FLASH_ISSI)
 	case SPI_FLASH_CFI_MFR_MACRONIX:
+	case SPI_FLASH_CFI_MFR_ISSI:
 		return macronix_quad_enable(flash);
 #endif
 #if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
@@ -1445,7 +1446,8 @@ int spi_flash_scan(struct spi_flash *flash)
 		flash->read_cmd = CMD_READ_QUAD_OUTPUT_FAST;
 		if (((JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_SPANSION) &&
 		     (info->id[5] == SPI_FLASH_SPANSION_S25FS_FMLY)) ||
-		    (JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_ISSI))
+		    ((JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_ISSI) &&
+		      info->flags & RD_QUADIO))
 			flash->read_cmd = CMD_READ_QUAD_IO_FAST;
 	} else if (spi->mode & SPI_RX_DUAL && info->flags & RD_DUAL) {
 		flash->read_cmd = CMD_READ_DUAL_OUTPUT_FAST;
