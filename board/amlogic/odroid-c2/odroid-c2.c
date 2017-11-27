@@ -9,7 +9,7 @@
 #include <asm/io.h>
 #include <asm/arch/gxbb.h>
 #include <asm/arch/sm.h>
-#include <phy.h>
+#include <asm/arch/eth.h>
 
 #define EFUSE_SN_OFFSET		20
 #define EFUSE_SN_SIZE		16
@@ -27,17 +27,10 @@ int misc_init_r(void)
 	char serial[EFUSE_SN_SIZE];
 	ssize_t len;
 
-	/* Set RGMII mode */
-	setbits_le32(GXBB_ETH_REG_0, GXBB_ETH_REG_0_PHY_INTF |
-				     GXBB_ETH_REG_0_TX_PHASE(1) |
-				     GXBB_ETH_REG_0_TX_RATIO(4) |
-				     GXBB_ETH_REG_0_PHY_CLK_EN |
-				     GXBB_ETH_REG_0_CLK_EN);
+	meson_gx_eth_init(PHY_INTERFACE_MODE_RGMII, 0);
 
 	/* Enable power and clock gate */
 	setbits_le32(GXBB_GCLK_MPEG_0, GXBB_GCLK_MPEG_0_I2C);
-	setbits_le32(GXBB_GCLK_MPEG_1, GXBB_GCLK_MPEG_1_ETH);
-	clrbits_le32(GXBB_MEM_PD_REG_0, GXBB_MEM_PD_REG_0_ETH_MASK);
 
 	/* Reset PHY on GPIOZ_14 */
 	clrbits_le32(GXBB_GPIO_EN(3), BIT(14));
