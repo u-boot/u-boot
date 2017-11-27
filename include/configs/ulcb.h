@@ -14,14 +14,6 @@
 
 #include "rcar-gen3-common.h"
 
-/* M3 ULCB has 2 banks, each with 1 GiB of RAM */
-#if defined(CONFIG_R8A7796)
-#undef PHYS_SDRAM_1_SIZE
-#undef PHYS_SDRAM_2_SIZE
-#define PHYS_SDRAM_1_SIZE		(0x40000000u - DRAM_RSV_SIZE)
-#define PHYS_SDRAM_2_SIZE		0x40000000u
-#endif
-
 /* SCIF */
 #define CONFIG_CONS_SCIF2
 #define CONFIG_CONS_INDEX	2
