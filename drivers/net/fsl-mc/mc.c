@@ -1436,12 +1436,13 @@ int fsl_mc_ldpaa_exit(bd_t *bd)
 	 */
 	if (bd && mc_boot_status && !is_dpl_apply_status) {
 		printf("fsl-mc: DPL not deployed, DPAA2 ethernet not work\n");
-		return 0;
+		goto mc_obj_cleanup;
 	}
 
 	if (bd && mc_boot_status && is_dpl_apply_status)
 		return 0;
 
+mc_obj_cleanup:
 	err = dpbp_exit();
 	if (err < 0) {
 		printf("dpbp_exit() failed: %d\n", err);
