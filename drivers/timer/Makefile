@@ -13,6 +13,6 @@ obj-$(CONFIG_AST_TIMER)	+= ast_timer.o
 obj-$(CONFIG_STI_TIMER)		+= sti-timer.o
 obj-$(CONFIG_ARC_TIMER)	+= arc_timer.o
 obj-$(CONFIG_AG101P_TIMER) += ag101p_timer.o
-obj-$(CONFIG_AE3XX_TIMER) += ae3xx_timer.o
+obj-$(CONFIG_ATCPIT100_TIMER) += atcpit100_timer.o
 obj-$(CONFIG_ROCKCHIP_TIMER) += rockchip_timer.o
 obj-$(CONFIG_ATMEL_PIT_TIMER) += atmel_pit_timer.o
