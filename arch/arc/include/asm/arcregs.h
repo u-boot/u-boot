@@ -72,6 +72,9 @@
 /* gcc builtin sr needs reg param to be long immediate */
 #define write_aux_reg(reg_immed, val)		\
 		__builtin_arc_sr((unsigned int)val, reg_immed)
+
+/* ARCNUM [15:8] - field to identify each core in a multi-core system */
+#define CPU_ID_GET()	((read_aux_reg(ARC_AUX_IDENTITY) & 0xFF00) >> 8)
 #endif /* __ASSEMBLY__ */
 
 #endif /* _ASM_ARC_ARCREGS_H */
