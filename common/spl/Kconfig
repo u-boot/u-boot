@@ -232,7 +232,6 @@ config SPL_FIT_IMAGE_TINY
 	bool "Remove functionality from SPL FIT loading to reduce size"
 	depends on SPL_FIT
 	default y if MACH_SUN50I || MACH_SUN50I_H5
-	default y if ARCH_OMAP2PLUS
 	help
 	  Enable this to reduce the size of the FIT image loading code
 	  in SPL, if space for the SPL binary is very tight.
