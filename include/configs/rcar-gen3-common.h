@@ -31,6 +31,11 @@
 
 #define CONFIG_ARCH_CPU_INIT
 
+/* Generic Interrupt Controller Definitions */
+#define CONFIG_GICV2
+#define GICD_BASE	0xF1010000
+#define GICC_BASE	0xF1020000
+
 /* console */
 #define CONFIG_SYS_CBSIZE		2048
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE

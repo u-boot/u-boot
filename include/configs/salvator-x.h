@@ -42,11 +42,6 @@
 /* Generic Timer Definitions (use in assembler source) */
 #define COUNTER_FREQUENCY	0xFE502A	/* 16.66MHz from CPclk */
 
-/* Generic Interrupt Controller Definitions */
-#define CONFIG_GICV2
-#define GICD_BASE	0xF1010000
-#define GICC_BASE	0xF1020000
-
 /* i2c */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_SH

@@ -50,11 +50,6 @@
 /* Generic Timer Definitions (use in assembler source) */
 #define COUNTER_FREQUENCY	0xFE502A	/* 16.66MHz from CPclk */
 
-/* Generic Interrupt Controller Definitions */
-#define CONFIG_GICV2
-#define GICD_BASE	0xF1010000
-#define GICC_BASE	0xF1020000
-
 /* CPLD SPI */
 #define CONFIG_CMD_SPI
 #define CONFIG_SOFT_SPI
