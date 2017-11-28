@@ -13,8 +13,7 @@
 #include <linux/errno.h>
 #include <asm/global_data.h>
 #include <asm/gpio.h>
-
-#define UNIPHIER_GPIO_LINES_PER_BANK	8
+#include <dt-bindings/gpio/uniphier-gpio.h>
 
 #define UNIPHIER_GPIO_PORT_DATA		0x0	/* data */
 #define UNIPHIER_GPIO_PORT_DIR		0x4	/* direction (1:in, 0:out) */
