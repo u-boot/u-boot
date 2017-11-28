@@ -29,6 +29,7 @@ dtb-$(CONFIG_EXYNOS5) += exynos5250-arndale.dtb \
 dtb-$(CONFIG_EXYNOS7420) += exynos7420-espresso7420.dtb
 dtb-$(CONFIG_ARCH_ROCKCHIP) += \
 	rk3036-sdk.dtb \
+	rk3128-evb.dtb \
 	rk3188-radxarock.dtb \
 	rk3288-evb.dtb \
 	rk3288-fennec.dtb \
