@@ -27,6 +27,12 @@
 #define ARC_AUX_IC_PTAG		0x1E
 #endif
 #define ARC_BCR_IC_BUILD	0x77
+#define AUX_AUX_CACHE_LIMIT		0x5D
+#define ARC_AUX_NON_VOLATILE_LIMIT	0x5E
+
+/* ICCM and DCCM auxiliary registers */
+#define ARC_AUX_DCCM_BASE	0x18	/* DCCM Base Addr ARCv2 */
+#define ARC_AUX_ICCM_BASE	0x208	/* ICCM Base Addr ARCv2 */
 
 /* Timer related auxiliary registers */
 #define ARC_AUX_TIMER0_CNT	0x21	/* Timer 0 count */
