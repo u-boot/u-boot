@@ -1654,7 +1654,11 @@ static int mvneta_recv(struct udevice *dev, int flags, uchar **packetp)
 		 */
 		*packetp = data;
 
-		mvneta_rxq_desc_num_update(pp, rxq, rx_done, rx_done);
+		/*
+		 * Only mark one descriptor as free
+		 * since only one was processed
+		 */
+		mvneta_rxq_desc_num_update(pp, rxq, 1, 1);
 	}
 
 	return rx_bytes;
