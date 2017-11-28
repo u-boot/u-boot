@@ -16,6 +16,7 @@
 		u-boot,mmc-env-offset = <0x4000>;      /* @  16KB */
 		u-boot,efi-partition-entries-offset = <0x200000>; /* 2MB */
 		u-boot,boot-led = "module_led";
+		sysreset-gpio = <&gpio1 RK_PA6 GPIO_ACTIVE_HIGH>;
 	};
 
 	chosen {
@@ -549,6 +550,10 @@
 
 &vopb {
 	status = "okay";
+};
+
+&gpio1 {
+	u-boot,dm-pre-reloc;
 };
 
 &gpio3 {
