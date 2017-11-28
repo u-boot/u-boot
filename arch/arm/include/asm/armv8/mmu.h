@@ -43,6 +43,7 @@
 #define PTE_TYPE_MASK		(3 << 0)
 #define PTE_TYPE_FAULT		(0 << 0)
 #define PTE_TYPE_TABLE		(3 << 0)
+#define PTE_TYPE_PAGE		(3 << 0)
 #define PTE_TYPE_BLOCK		(1 << 0)
 #define PTE_TYPE_VALID		(1 << 0)
 

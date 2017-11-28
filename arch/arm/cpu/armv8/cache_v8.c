@@ -230,7 +230,10 @@ static void add_map(struct mm_region *map)
 				/* Page fits, create block PTE */
 				debug("Setting PTE %p to block virt=%llx\n",
 				      pte, virt);
-				*pte = phys | attrs;
+				if (level == 3)
+					*pte = phys | attrs | PTE_TYPE_PAGE;
+				else
+					*pte = phys | attrs;
 				virt += blocksize;
 				phys += blocksize;
 				size -= blocksize;
