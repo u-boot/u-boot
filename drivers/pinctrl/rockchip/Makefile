@@ -1,11 +1,11 @@
 #
-# Copyright (c) 2015 Google, Inc
-# Written by Simon Glass <sjg@chromium.org>
+# Copyright (c) 2017 Rockchip Electronics Co., Ltd
 #
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
 obj-$(CONFIG_PINCTRL_ROCKCHIP_RK3036) += pinctrl_rk3036.o
+obj-$(CONFIG_PINCTRL_ROCKCHIP_RK3128) += pinctrl_rk3128.o
 obj-$(CONFIG_PINCTRL_ROCKCHIP_RK3188) += pinctrl_rk3188.o
 obj-$(CONFIG_PINCTRL_ROCKCHIP_RK322X) += pinctrl_rk322x.o
 obj-$(CONFIG_PINCTRL_ROCKCHIP_RK3288) += pinctrl_rk3288.o
