@@ -41,14 +41,6 @@
 		cpu-offset = <0x8000>;
 	};
 
-	combiner: interrupt-controller@10440000 {
-		samsung,combiner-nr = <16>;
-		interrupts = <0 0 0>, <0 1 0>, <0 2 0>, <0 3 0>,
-			     <0 4 0>, <0 5 0>, <0 6 0>, <0 7 0>,
-			     <0 8 0>, <0 9 0>, <0 10 0>, <0 11 0>,
-			     <0 12 0>, <0 13 0>, <0 14 0>, <0 15 0>;
-	};
-
 	mct@10050000 {
 		compatible = "samsung,exynos4210-mct";
 		reg = <0x10050000 0x800>;
@@ -85,12 +77,14 @@
 	pinctrl_0: pinctrl@11400000 {
 		compatible = "samsung,exynos4210-pinctrl";
 		reg = <0x11400000 0x1000>;
+		interrupt-parent = <&gic>;
 		interrupts = <0 47 0>;
 	};
 
 	pinctrl_1: pinctrl@11000000 {
 		compatible = "samsung,exynos4210-pinctrl";
 		reg = <0x11000000 0x1000>;
+		interrupt-parent = <&gic>;
 		interrupts = <0 46 0>;
 
 		wakup_eint: wakeup-interrupt-controller {
@@ -118,6 +112,7 @@
 	g2d@12800000 {
 		compatible = "samsung,s5pv210-g2d";
 		reg = <0x12800000 0x1000>;
+		interrupt-parent = <&gic>;
 		interrupts = <0 89 0>;
 		clocks = <&clock 177>, <&clock 277>;
 		clock-names = "sclk_fimg2d", "fimg2d";
@@ -153,4 +148,13 @@
 			samsung,lcd-wb;
 		};
 	};
+};
+
+&combiner {
+	samsung,combiner-nr = <16>;
+	interrupt-parent = <&gic>;
+	interrupts = <0 0 0>, <0 1 0>, <0 2 0>, <0 3 0>,
+		     <0 4 0>, <0 5 0>, <0 6 0>, <0 7 0>,
+		     <0 8 0>, <0 9 0>, <0 10 0>, <0 11 0>,
+		     <0 12 0>, <0 13 0>, <0 14 0>, <0 15 0>;
 };
