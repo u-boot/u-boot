@@ -47,6 +47,14 @@ config USB_XHCI_ROCKCHIP
 	help
 	  Enables support for the on-chip xHCI controller on Rockchip SoCs.
 
+config USB_XHCI_RCAR
+	bool "Renesas RCar USB 3.0 support"
+	default y
+	depends on ARCH_RMOBILE
+	help
+	  Choose this option to add support for USB 3.0 driver on Renesas
+	  RCar Gen3 SoCs.
+
 config USB_XHCI_STI
 	bool "Support for STMicroelectronics STiH407 family on-chip xHCI USB controller"
 	depends on ARCH_STI

@@ -32,6 +32,7 @@
 #include <spl.h>
 #include <image.h>
 #include <imximage.h>
+#include <watchdog.h>
 
 #define HID_REPORT_ID_MASK	0x000000ff
 
@@ -602,6 +603,8 @@ int sdp_init(int controller_index)
 			puts("\rCTRL+C - Operation aborted.\n");
 			return 1;
 		}
+
+		WATCHDOG_RESET();
 		usb_gadget_handle_interrupts(controller_index);
 	}
 
@@ -712,6 +715,7 @@ void sdp_handle(int controller_index)
 			return;
 		}
 
+		WATCHDOG_RESET();
 		usb_gadget_handle_interrupts(controller_index);
 
 		sdp_handle_in_ep();

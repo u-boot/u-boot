@@ -57,7 +57,7 @@ struct usb_device_scan {
 
 static LIST_HEAD(usb_scan_list);
 
-__weak void usb_hub_reset_devices(int port)
+__weak void usb_hub_reset_devices(struct usb_hub_device *hub, int port)
 {
 	return;
 }
@@ -853,7 +853,7 @@ static int usb_hub_configure(struct usb_device *dev)
 	 * should occur in the board file of the device.
 	 */
 	for (i = 0; i < dev->maxchild; i++)
-		usb_hub_reset_devices(i + 1);
+		usb_hub_reset_devices(hub, i + 1);
 
 	/*
 	 * Only add the connected USB devices, including potential hubs,
