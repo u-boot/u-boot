@@ -14,13 +14,6 @@
 
 #include "rcar-gen3-common.h"
 
-/* SCIF */
-#define CONFIG_CONS_SCIF2
-#define CONFIG_CONS_INDEX	2
-
-/* [A] Hyper Flash */
-/* use to RPC(SPI Multi I/O Bus Controller) */
-
 /* Ethernet RAVB */
 #define CONFIG_BITBANGMII
 #define CONFIG_BITBANGMII_MULTI
