@@ -938,7 +938,7 @@ static int denali_erase(struct mtd_info *mtd, int page)
 	return irq_status & INTR__ERASE_COMP ? 0 : NAND_STATUS_FAIL;
 }
 
-static int __maybe_unused denali_setup_data_interface(struct mtd_info *mtd, int chipnr,
+static int denali_setup_data_interface(struct mtd_info *mtd, int chipnr,
 				       const struct nand_data_interface *conf)
 {
 	struct denali_nand_info *denali = mtd_to_denali(mtd);
