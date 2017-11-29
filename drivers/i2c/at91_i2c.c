@@ -72,6 +72,8 @@ static int at91_i2c_xfer_msg(struct at91_i2c_bus *bus, struct i2c_msg *msg)
 
 	} else {
 		writel(msg->buf[0], &reg->thr);
+		ret = at91_wait_for_xfer(bus, TWI_SR_TXRDY);
+
 		for (i = 1; !ret && (i < msg->len); i++) {
 			writel(msg->buf[i], &reg->thr);
 			ret = at91_wait_for_xfer(bus, TWI_SR_TXRDY);
