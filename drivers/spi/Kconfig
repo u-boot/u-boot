@@ -114,6 +114,14 @@ config PIC32_SPI
 	  to access the SPI NOR flash, MMC-over-SPI on platforms based on
 	  Microchip PIC32 family devices.
 
+config RENESAS_RPC_SPI
+	bool "Renesas RPC SPI driver"
+	depends on RCAR_GEN3
+	help
+	  Enable the Renesas RPC SPI driver, used to access SPI NOR flash
+	  on Renesas RCar Gen3 SoCs. This uses driver model and requires a
+	  device tree binding to operate.
+
 config ROCKCHIP_SPI
 	bool "Rockchip SPI driver"
 	help
