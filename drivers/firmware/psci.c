@@ -13,6 +13,7 @@
 #include <libfdt.h>
 #include <linux/arm-smccc.h>
 #include <linux/errno.h>
+#include <linux/printk.h>
 #include <linux/psci.h>
 
 psci_fn *invoke_psci_fn;
@@ -48,7 +49,7 @@ static int psci_bind(struct udevice *dev)
 		ret = device_bind_driver(dev, "psci-sysreset", "psci-sysreset",
 					 NULL);
 		if (ret)
-			debug("PSCI System Reset was not bound.\n");
+			pr_debug("PSCI System Reset was not bound.\n");
 	}
 
 	return 0;
@@ -62,7 +63,7 @@ static int psci_probe(struct udevice *dev)
 	method = fdt_stringlist_get(gd->fdt_blob, dev_of_offset(dev), "method",
 				    0, NULL);
 	if (!method) {
-		printf("missing \"method\" property\n");
+		pr_warn("missing \"method\" property\n");
 		return -ENXIO;
 	}
 
@@ -71,7 +72,7 @@ static int psci_probe(struct udevice *dev)
 	} else if (!strcmp("smc", method)) {
 		invoke_psci_fn = __invoke_psci_fn_smc;
 	} else {
-		printf("invalid \"method\" property: %s\n", method);
+		pr_warn("invalid \"method\" property: %s\n", method);
 		return -EINVAL;
 	}
 
