@@ -3,12 +3,8 @@
  *
  * Copyright (C) 2015 Renesas Electronics Corp.
  *
- * This file is licensed under the terms of the GNU General Public License
- * version 2.  This program is licensed "as is" without any warranty of any
- * kind, whether express or implied.
+ * SPDX-License-Identifier:	GPL-2.0
  */
-
-#define CPG_AUDIO_CLK_I		R8A7795_CLK_S0D4
 
 /dts-v1/;
 #include "r8a7795.dtsi"
