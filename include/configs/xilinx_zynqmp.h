@@ -42,7 +42,6 @@
 /* Serial setup */
 #define CONFIG_ARM_DCC
 #define CONFIG_CPU_ARMV8
-#define CONFIG_ZYNQ_SERIAL
 
 #define CONFIG_CONS_INDEX		0
 #define CONFIG_SYS_BAUDRATE_TABLE \

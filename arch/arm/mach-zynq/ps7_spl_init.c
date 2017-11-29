@@ -1,12 +1,32 @@
 /*
- * (c) Copyright 2010-2014 Xilinx, Inc. All rights reserved.
+ * (c) Copyright 2010-2017 Xilinx, Inc. All rights reserved.
  * (c) Copyright 2016 Topic Embedded Products.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include "ps7_init_gpl.h"
 #include <asm/io.h>
+#include <asm/spl.h>
+#include <asm/arch/sys_proto.h>
+#include <asm/arch/ps7_init_gpl.h>
+
+__weak int ps7_init(void)
+{
+	/*
+	 * This function is overridden by the one in
+	 * board/xilinx/zynq/(platform)/ps7_init_gpl.c, if it exists.
+	 */
+	return 0;
+}
+
+__weak int ps7_post_config(void)
+{
+	/*
+	 * This function is overridden by the one in
+	 * board/xilinx/zynq/(platform)/ps7_init_gpl.c, if it exists.
+	 */
+	return 0;
+}
 
 /* For delay calculation using global registers*/
 #define SCU_GLOBAL_TIMER_COUNT_L32	0xF8F00200
@@ -63,7 +83,7 @@ static void perf_reset_and_start_timer(void)
 	perf_start_clock();
 }
 
-int ps7_config(unsigned long *ps7_config_init)
+int __weak ps7_config(unsigned long *ps7_config_init)
 {
 	unsigned long *ptr = ps7_config_init;
 	unsigned long opcode;
@@ -86,6 +106,12 @@ int ps7_config(unsigned long *ps7_config_init)
 			mask = ptr[1];
 			val = ptr[2];
 			iowrite((ioread(addr) & ~mask) | (val & mask), addr);
+			break;
+
+		case OPCODE_WRITE:
+			numargs = 2;
+			val = ptr[1];
+			iowrite(val, addr);
 			break;
 
 		case OPCODE_MASKPOLL:
@@ -114,4 +140,9 @@ int ps7_config(unsigned long *ps7_config_init)
 
 		ptr += numargs;
 	}
+}
+
+unsigned long __weak __maybe_unused ps7GetSiliconVersion(void)
+{
+	return zynq_get_silicon_version();
 }

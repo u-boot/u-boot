@@ -12,6 +12,7 @@
 
 / {
 	model = "ZynqMP ZCU102 RevB";
+	compatible = "xlnx,zynqmp-zcu102-revB", "xlnx,zynqmp-zcu102", "xlnx,zynqmp";
 };
 
 &gem3 {

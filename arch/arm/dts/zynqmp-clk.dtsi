@@ -8,7 +8,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-&amba {
+/ {
 	clk100: clk100 {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;

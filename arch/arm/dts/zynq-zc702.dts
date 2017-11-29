@@ -96,6 +96,7 @@
 
 	ethernet_phy: ethernet-phy@7 {
 		reg = <7>;
+		device_type = "ethernet-phy";
 	};
 };
 
@@ -107,8 +108,11 @@
 &i2c0 {
 	status = "okay";
 	clock-frequency = <400000>;
-	pinctrl-names = "default";
+	pinctrl-names = "default", "gpio";
 	pinctrl-0 = <&pinctrl_i2c0_default>;
+	pinctrl-1 = <&pinctrl_i2c0_gpio>;
+	scl-gpios = <&gpio0 50 0>;
+	sda-gpios = <&gpio0 51 0>;
 
 	i2cswitch@74 {
 		compatible = "nxp,pca9548";
@@ -294,6 +298,19 @@
 		conf {
 			groups = "i2c0_10_grp";
 			bias-pull-up;
+			slew-rate = <0>;
+			io-standard = <1>;
+		};
+	};
+
+	pinctrl_i2c0_gpio: i2c0-gpio {
+		mux {
+			groups = "gpio0_50_grp", "gpio0_51_grp";
+			function = "gpio0";
+		};
+
+		conf {
+			groups = "gpio0_50_grp", "gpio0_51_grp";
 			slew-rate = <0>;
 			io-standard = <1>;
 		};

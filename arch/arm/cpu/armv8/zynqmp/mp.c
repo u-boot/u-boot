@@ -257,22 +257,36 @@ int cpu_release(int nr, int argc, char * const argv[])
 			boot_addr = ZYNQMP_R5_LOVEC_ADDR;
 		}
 
+		/*
+		 * Since we don't know where the user may have loaded the image
+		 * for an R5 we have to flush all the data cache to ensure
+		 * the R5 sees it.
+		 */
+		flush_dcache_all();
+
 		if (!strncmp(argv[1], "lockstep", 8)) {
 			printf("R5 lockstep mode\n");
+			set_r5_reset(LOCK);
 			set_r5_tcm_mode(LOCK);
 			set_r5_halt_mode(HALT, LOCK);
 			set_r5_start(boot_addr);
 			enable_clock_r5();
 			release_r5_reset(LOCK);
+			dcache_disable();
 			write_tcm_boot_trampoline(boot_addr_uniq);
+			dcache_enable();
 			set_r5_halt_mode(RELEASE, LOCK);
 		} else if (!strncmp(argv[1], "split", 5)) {
 			printf("R5 split mode\n");
+			set_r5_reset(SPLIT);
 			set_r5_tcm_mode(SPLIT);
 			set_r5_halt_mode(HALT, SPLIT);
+			set_r5_start(boot_addr);
 			enable_clock_r5();
 			release_r5_reset(SPLIT);
+			dcache_disable();
 			write_tcm_boot_trampoline(boot_addr_uniq);
+			dcache_enable();
 			set_r5_halt_mode(RELEASE, SPLIT);
 		} else {
 			printf("Unsupported mode\n");

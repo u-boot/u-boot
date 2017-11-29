@@ -1026,7 +1026,7 @@ void scsi_low_level_init(int busdevfunc)
 
 #ifndef CONFIG_SCSI_AHCI_PLAT
 # if defined(CONFIG_DM_PCI) || defined(CONFIG_DM_SCSI)
-int achi_init_one_dm(struct udevice *dev)
+int ahci_init_one_dm(struct udevice *dev)
 {
 	struct ahci_uc_priv *uc_priv = dev_get_uclass_priv(dev);
 
@@ -1035,7 +1035,7 @@ int achi_init_one_dm(struct udevice *dev)
 #endif
 #endif
 
-int achi_start_ports_dm(struct udevice *dev)
+int ahci_start_ports_dm(struct udevice *dev)
 {
 	struct ahci_uc_priv *uc_priv = dev_get_uclass_priv(dev);
 

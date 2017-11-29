@@ -234,18 +234,18 @@ int ahci_init(void __iomem *base);
 int ahci_reset(void __iomem *base);
 
 /**
- * achi_init_one_dm() - set up a single AHCI port
+ * ahci_init_one_dm() - set up a single AHCI port
  *
  * @dev: Controller to init
  */
-int achi_init_one_dm(struct udevice *dev);
+int ahci_init_one_dm(struct udevice *dev);
 
 /**
- * achi_start_ports_dm() - start all AHCI ports for a controller
+ * ahci_start_ports_dm() - start all AHCI ports for a controller
  *
  * @dev: Controller containing ports to start
  */
-int achi_start_ports_dm(struct udevice *dev);
+int ahci_start_ports_dm(struct udevice *dev);
 
 /**
  * ahci_init_dm() - init AHCI for a controller, finding all ports

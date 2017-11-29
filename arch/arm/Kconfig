@@ -738,7 +738,7 @@ config ARCH_VF610
 	imply NAND
 
 config ARCH_ZYNQ
-	bool "Xilinx Zynq Platform"
+	bool "Xilinx Zynq based platform"
 	select BOARD_LATE_INIT
 	select CPU_V7
 	select SUPPORT_SPL
@@ -764,7 +764,7 @@ config ARCH_ZYNQ
 	imply CMD_SPL
 
 config ARCH_ZYNQMP
-	bool "Support Xilinx ZynqMP Platform"
+	bool "Xilinx ZynqMP based platform"
 	select ARM64
 	select BOARD_LATE_INIT
 	select DM

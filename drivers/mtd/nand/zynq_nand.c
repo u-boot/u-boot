@@ -35,6 +35,8 @@
 				(0x1 << 4)   |	/* Clear interrupt */ \
 				(0x1 << 6))	/* Disable ECC interrupt */
 
+#ifndef CONFIG_NAND_ZYNQ_USE_BOOTLOADER1_TIMINGS
+
 /* Assuming 50MHz clock (20ns cycle time) and 3V operation */
 #define ZYNQ_NAND_SET_CYCLES	((0x2 << 20) |	/* t_rr from nand_cycles */ \
 				(0x2 << 17)  |	/* t_ar from nand_cycles */ \
@@ -43,6 +45,7 @@
 				(0x2 << 8)   |	/* t_rea from nand_cycles */ \
 				(0x5 << 4)   |	/* t_wc from nand_cycles */ \
 				(0x5 << 0))	/* t_rc from nand_cycles */
+#endif
 
 
 #define ZYNQ_NAND_DIRECT_CMD	((0x4 << 23) |	/* Chip 0 from interface 1 */ \
@@ -81,6 +84,13 @@
 #define ZYNQ_NAND_ECC_BUSY	(1 << 6)	/* ECC block is busy */
 #define ZYNQ_NAND_ECC_MASK	0x00FFFFFF	/* ECC value mask */
 
+#ifndef NAND_CMD_LOCK_TIGHT
+#define NAND_CMD_LOCK_TIGHT 0x2c
+#endif
+
+#ifndef NAND_CMD_LOCK_STATUS
+#define NAND_CMD_LOCK_STATUS 0x7a
+#endif
 
 /* SMC register set */
 struct zynq_nand_smc_regs {
@@ -141,6 +151,11 @@ static const struct zynq_nand_command_format zynq_nand_commands[] = {
 	{NAND_CMD_PARAM, NAND_CMD_NONE, 1, 0},
 	{NAND_CMD_GET_FEATURES, NAND_CMD_NONE, 1, 0},
 	{NAND_CMD_SET_FEATURES, NAND_CMD_NONE, 1, 0},
+	{NAND_CMD_LOCK, NAND_CMD_NONE, 0, 0},
+	{NAND_CMD_LOCK_TIGHT, NAND_CMD_NONE, 0, 0},
+	{NAND_CMD_UNLOCK1, NAND_CMD_NONE, 3, 0},
+	{NAND_CMD_UNLOCK2, NAND_CMD_NONE, 3, 0},
+	{NAND_CMD_LOCK_STATUS, NAND_CMD_NONE, 3, 0},
 	{NAND_CMD_NONE, NAND_CMD_NONE, 0, 0},
 	/* Add all the flash commands supported by the flash device */
 };
@@ -245,8 +260,10 @@ static int zynq_nand_init_nand_flash(int option)
 
 	/* disable interrupts */
 	writel(ZYNQ_NAND_CLR_CONFIG, &zynq_nand_smc_base->cfr);
+#ifndef CONFIG_NAND_ZYNQ_USE_BOOTLOADER1_TIMINGS
 	/* Initialize the NAND interface by setting cycles and operation mode */
 	writel(ZYNQ_NAND_SET_CYCLES, &zynq_nand_smc_base->scr);
+#endif
 	if (option & NAND_BUSWIDTH_16)
 		writel(ZYNQ_NAND_SET_OPMODE_16BIT, &zynq_nand_smc_base->sor);
 	else
@@ -989,7 +1006,7 @@ static int zynq_nand_device_ready(struct mtd_info *mtd)
 	return 0;
 }
 
-static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
+int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 {
 	struct zynq_nand_info *xnand;
 	struct mtd_info *mtd;
@@ -1175,12 +1192,14 @@ fail:
 	return err;
 }
 
+#ifdef CONFIG_SYS_NAND_SELF_INIT
 static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
 
-void board_nand_init(void)
+void __weak board_nand_init(void)
 {
 	struct nand_chip *nand = &nand_chip[0];
 
 	if (zynq_nand_init(nand, 0))
 		puts("ZYNQ NAND init failed\n");
 }
+#endif

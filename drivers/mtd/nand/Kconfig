@@ -154,6 +154,13 @@ config NAND_ZYNQ
 	  This enables Nand driver support for Nand flash controller
 	  found on Zynq SoC.
 
+config NAND_ZYNQ_USE_BOOTLOADER1_TIMINGS
+	bool "Enable use of 1st stage bootloader timing for NAND"
+	depends on NAND_ZYNQ
+	help
+	  This flag prevent U-boot reconfigure NAND flash controller and reuse
+	  the NAND timing from 1st stage bootloader.
+
 comment "Generic NAND options"
 
 # Enhance depends when converting drivers to Kconfig which use this config

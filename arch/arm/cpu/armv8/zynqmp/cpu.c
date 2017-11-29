@@ -77,6 +77,18 @@ u64 get_page_table_size(void)
 	return 0x14000;
 }
 
+#ifdef CONFIG_SYS_MEM_RSVD_FOR_MMU
+int reserve_mmu(void)
+{
+	initialize_tcm(TCM_LOCK);
+	memset((void *)ZYNQMP_TCM_BASE_ADDR, 0, ZYNQMP_TCM_SIZE);
+	gd->arch.tlb_size = PGTABLE_SIZE;
+	gd->arch.tlb_addr = ZYNQMP_TCM_BASE_ADDR;
+
+	return 0;
+}
+#endif
+
 static unsigned int zynqmp_get_silicon_version_secure(void)
 {
 	u32 ver;
@@ -198,7 +210,7 @@ int zynqmp_mmio_write(const u32 address,
 {
 	if (IS_ENABLED(CONFIG_SPL_BUILD) || current_el() == 3)
 		return zynqmp_mmio_rawwrite(address, mask, value);
-	else if (!IS_ENABLED(CONFIG_SPL_BUILD))
+	else
 		return invoke_smc(ZYNQMP_MMIO_WRITE, address, mask,
 				  value, 0, NULL);
 
@@ -215,7 +227,7 @@ int zynqmp_mmio_read(const u32 address, u32 *value)
 
 	if (IS_ENABLED(CONFIG_SPL_BUILD) || current_el() == 3) {
 		ret = zynqmp_mmio_rawread(address, value);
-	} else if (!IS_ENABLED(CONFIG_SPL_BUILD)) {
+	} else {
 		ret = invoke_smc(ZYNQMP_MMIO_READ, address, 0, 0,
 				 0, ret_payload);
 		*value = ret_payload[1];

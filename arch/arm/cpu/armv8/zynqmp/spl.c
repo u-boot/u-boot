@@ -102,6 +102,11 @@ u32 spl_boot_device(void)
 	case SW_SATA_MODE:
 		return BOOT_DEVICE_SATA;
 #endif
+#ifdef CONFIG_SPL_SPI_SUPPORT
+	case QSPI_MODE_24BIT:
+	case QSPI_MODE_32BIT:
+		return BOOT_DEVICE_SPI;
+#endif
 	default:
 		printf("Invalid Boot Mode:0x%x\n", bootmode);
 		break;

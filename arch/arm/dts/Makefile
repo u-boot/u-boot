@@ -124,24 +124,29 @@ dtb-$(CONFIG_ARCH_UNIPHIER_PXS3) += \
 dtb-$(CONFIG_ARCH_UNIPHIER_SLD8) += \
 	uniphier-sld8-ref.dtb
 
-dtb-$(CONFIG_ARCH_ZYNQ) += zynq-zc702.dtb \
-	zynq-zc706.dtb \
-	zynq-zed.dtb \
-	zynq-zybo.dtb \
+dtb-$(CONFIG_ARCH_ZYNQ) += \
+	zynq-cc108.dtb \
+	zynq-cse-qspi-single.dtb \
 	zynq-microzed.dtb \
 	zynq-picozed.dtb \
+	zynq-syzygy-hub.dtb \
 	zynq-topic-miami.dtb \
 	zynq-topic-miamilite.dtb \
 	zynq-topic-miamiplus.dtb \
-	zynq-zturn-myir.dtb \
+	zynq-zc702.dtb \
+	zynq-zc706.dtb \
 	zynq-zc770-xm010.dtb \
 	zynq-zc770-xm011.dtb \
 	zynq-zc770-xm012.dtb \
-	zynq-zc770-xm013.dtb
+	zynq-zc770-xm013.dtb \
+	zynq-zed.dtb \
+	zynq-zturn-myir.dtb \
+	zynq-zybo.dtb
 dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-ep108.dtb			\
 	zynqmp-zcu102-revA.dtb			\
 	zynqmp-zcu102-revB.dtb			\
+	zynqmp-zcu102-rev1.0.dtb		\
 	zynqmp-zc1751-xm015-dc1.dtb		\
 	zynqmp-zc1751-xm016-dc2.dtb		\
 	zynqmp-zc1751-xm018-dc4.dtb		\

@@ -31,8 +31,8 @@
 	};
 
 	usb_phy0: phy0 {
-		compatible = "usb-nop-xceiv";
 		#phy-cells = <0>;
+		compatible = "usb-nop-xceiv";
 		reset-gpios = <&gpio0 46 1>;
 	};
 };
@@ -48,6 +48,7 @@
 
 	ethernet_phy: ethernet-phy@0 {
 		reg = <0>;
+		device_type = "ethernet-phy";
 	};
 };
 

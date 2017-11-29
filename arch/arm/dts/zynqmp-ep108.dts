@@ -17,6 +17,7 @@
 	model = "ZynqMP EP108";
 
 	aliases {
+		ethernet0 = &gem0;
 		mmc0 = &sdhci0;
 		mmc1 = &sdhci1;
 		serial0 = &uart0;
@@ -173,7 +174,7 @@
 		spi-max-frequency = <50000000>;
 		reg = <0>;
 
-		spi0_flash0@00000000 {
+		spi0_flash0@0 {
 			label = "spi0_flash0";
 			reg = <0x0 0x100000>;
 		};
@@ -190,7 +191,7 @@
 		spi-max-frequency = <50000000>;
 		reg = <0>;
 
-		spi1_flash0@00000000 {
+		spi1_flash0@0 {
 			label = "spi1_flash0";
 			reg = <0x0 0x100000>;
 		};

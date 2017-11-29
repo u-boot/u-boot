@@ -33,7 +33,6 @@
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
 #define CONFIG_ARM_DCC
-#define CONFIG_ZYNQ_SERIAL
 
 /* Ethernet driver */
 #if defined(CONFIG_ZYNQ_GEM)
@@ -157,12 +156,6 @@
 
 /* Environment */
 #ifndef CONFIG_ENV_IS_NOWHERE
-# ifdef CONFIG_MTD_NOR_FLASH
-/* Environment in NOR flash */
-# elif defined(CONFIG_ZYNQ_QSPI)
-/* Environment in Serial Flash */
-# endif
-
 # define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
 # define CONFIG_ENV_OFFSET		0xE0000
 #endif
@@ -293,15 +286,10 @@
 					GENERATED_GBL_DATA_SIZE)
 
 /* Enable the PL to be downloaded */
-#define CONFIG_FPGA
-#define CONFIG_FPGA_XILINX
 #define CONFIG_FPGA_ZYNQPL
 
 /* FIT support */
 #define CONFIG_IMAGE_FORMAT_LEGACY /* enable also legacy image format */
-
-/* FDT support */
-#define CONFIG_DISPLAY_BOARDINFO_LATE
 
 /* Extend size of kernel image for uncompression */
 #define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
@@ -325,7 +313,6 @@
 /* Disable dcache for SPL just for sure */
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_DCACHE_OFF
-#undef CONFIG_FPGA
 #endif
 
 /* Address in RAM where the parameters must be copied by SPL. */

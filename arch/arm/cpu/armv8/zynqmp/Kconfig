@@ -42,6 +42,13 @@ config SYS_CONFIG_NAME
 	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
 	  will be used for board configuration.
 
+config SYS_MEM_RSVD_FOR_MMU
+	bool "Reserve memory for MMU Table"
+	help
+	  If defined this option is used to setup different space for
+	  MMU table than the one which will be allocated during
+	  relocation.
+
 config BOOT_INIT_FILE
 	string "boot.bin init register filename"
 	depends on SPL
@@ -49,6 +56,14 @@ config BOOT_INIT_FILE
 	help
 	  Add register writes to boot.bin format (max 256 pairs).
 	  Expect a table of register-value pairs, e.g. "0x12345678 0x4321"
+
+config PMUFW_INIT_FILE
+	string "PMU firmware"
+	depends on SPL
+	default ""
+	help
+	  Include external PMUFW (Platform Management Unit FirmWare) to
+	  a Xilinx bootable image (boot.bin).
 
 config ZYNQMP_USB
 	bool "Configure ZynqMP USB"
@@ -58,6 +73,7 @@ config SYS_MALLOC_F_LEN
 
 config DEFINE_TCM_OCM_MMAP
 	bool "Define TCM and OCM memory in MMU Table"
+	default y if MP
 	help
 	  This option if enabled defines the TCM and OCM memory and its
 	  memory attributes in MMU table entry.
@@ -86,6 +102,7 @@ config SPL_ZYNQMP_ALT_BOOTMODE
 	default 0x7 if USB_MODE
 	default 0xa if SW_USBHOST_MODE
 	default 0xb if SW_SATA_MODE
+	default 0xe if SD1_LSHFT_MODE
 
 choice
 	prompt "Boot mode"
@@ -121,6 +138,9 @@ config SW_USBHOST_MODE
 
 config SW_SATA_MODE
 	bool "SW SATA_MODE"
+
+config SD1_LSHFT_MODE
+	bool "SD1_LSHFT_MODE"
 
 endchoice
 

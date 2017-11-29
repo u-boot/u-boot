@@ -27,7 +27,8 @@ DECLARE_GLOBAL_DATA_PTR;
 static xilinx_desc zynqmppl = XILINX_ZYNQMP_DESC;
 
 static const struct {
-	uint32_t id;
+	u32 id;
+	u32 ver;
 	char *name;
 } zynqmp_devices[] = {
 	{
@@ -35,32 +36,87 @@ static const struct {
 		.name = "3eg",
 	},
 	{
+		.id = 0x10,
+		.ver = 0x2c,
+		.name = "3cg",
+	},
+	{
 		.id = 0x11,
 		.name = "2eg",
+	},
+	{
+		.id = 0x11,
+		.ver = 0x2c,
+		.name = "2cg",
 	},
 	{
 		.id = 0x20,
 		.name = "5ev",
 	},
 	{
+		.id = 0x20,
+		.ver = 0x100,
+		.name = "5eg",
+	},
+	{
+		.id = 0x20,
+		.ver = 0x12c,
+		.name = "5cg",
+	},
+	{
 		.id = 0x21,
 		.name = "4ev",
+	},
+	{
+		.id = 0x21,
+		.ver = 0x100,
+		.name = "4eg",
+	},
+	{
+		.id = 0x21,
+		.ver = 0x12c,
+		.name = "4cg",
 	},
 	{
 		.id = 0x30,
 		.name = "7ev",
 	},
 	{
+		.id = 0x30,
+		.ver = 0x100,
+		.name = "7eg",
+	},
+	{
+		.id = 0x30,
+		.ver = 0x12c,
+		.name = "7cg",
+	},
+	{
 		.id = 0x38,
 		.name = "9eg",
+	},
+	{
+		.id = 0x38,
+		.ver = 0x2c,
+		.name = "9cg",
 	},
 	{
 		.id = 0x39,
 		.name = "6eg",
 	},
 	{
+		.id = 0x39,
+		.ver = 0x2c,
+		.name = "6cg",
+	},
+	{
 		.id = 0x40,
 		.name = "11eg",
+	},
+	{ /* For testing purpose only */
+		.id = 0x50,
+		.ver = 0x2c,
+		.name = "15cg",
 	},
 	{
 		.id = 0x50,
@@ -73,6 +129,30 @@ static const struct {
 	{
 		.id = 0x59,
 		.name = "17eg",
+	},
+	{
+		.id = 0x61,
+		.name = "21dr",
+	},
+	{
+		.id = 0x63,
+		.name = "23dr",
+	},
+	{
+		.id = 0x65,
+		.name = "25dr",
+	},
+	{
+		.id = 0x64,
+		.name = "27dr",
+	},
+	{
+		.id = 0x60,
+		.name = "28dr",
+	},
+	{
+		.id = 0x62,
+		.name = "29dr",
 	},
 };
 #endif
@@ -95,6 +175,7 @@ int chip_id(unsigned char id)
 		 * regs[0][31:0]  = status of the operation
 		 * regs[0][63:32] = CSU.IDCODE register
 		 * regs[1][31:0]  = CSU.version register
+		 * regs[1][63:32] = CSU.IDCODE2 register
 		 */
 		switch (id) {
 		case IDCODE:
@@ -107,6 +188,11 @@ int chip_id(unsigned char id)
 		case VERSION:
 			regs.regs[1] = lower_32_bits(regs.regs[1]);
 			regs.regs[1] &= ZYNQMP_CSU_SILICON_VER_MASK;
+			val = regs.regs[1];
+			break;
+		case IDCODE2:
+			regs.regs[1] = lower_32_bits(regs.regs[1]);
+			regs.regs[1] >>= ZYNQMP_CSU_VERSION_EMPTY_SHIFT;
 			val = regs.regs[1];
 			break;
 		default:
@@ -136,11 +222,13 @@ int chip_id(unsigned char id)
 	!defined(CONFIG_SPL_BUILD)
 static char *zynqmp_get_silicon_idcode_name(void)
 {
-	uint32_t i, id;
+	u32 i, id, ver;
 
 	id = chip_id(IDCODE);
+	ver = chip_id(IDCODE2);
+
 	for (i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
-		if (zynqmp_devices[i].id == id)
+		if (zynqmp_devices[i].id == id && zynqmp_devices[i].ver == ver)
 			return zynqmp_devices[i].name;
 	}
 	return "unknown";
@@ -226,9 +314,7 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 #if !defined(CONFIG_SYS_SDRAM_BASE) && !defined(CONFIG_SYS_SDRAM_SIZE)
 int dram_init_banksize(void)
 {
-	fdtdec_setup_memory_banksize();
-
-	return 0;
+	return fdtdec_setup_memory_banksize();
 }
 
 int dram_init(void)

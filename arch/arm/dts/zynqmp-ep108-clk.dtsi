@@ -8,7 +8,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-&amba {
+/ {
 	misc_clk: misc_clk {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
