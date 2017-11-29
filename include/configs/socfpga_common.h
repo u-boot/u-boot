@@ -293,7 +293,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 
 /* SPL NAND boot support */
 #ifdef CONFIG_SPL_NAND_SUPPORT
-#define CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x40000
 #endif
