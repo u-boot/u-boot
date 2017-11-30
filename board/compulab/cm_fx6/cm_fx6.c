@@ -506,35 +506,6 @@ static void cm_fx6_setup_gpmi_nand(void)
 static void cm_fx6_setup_gpmi_nand(void) {}
 #endif
 
-#ifdef CONFIG_FSL_ESDHC
-static struct fsl_esdhc_cfg usdhc_cfg[3] = {
-	{USDHC1_BASE_ADDR},
-	{USDHC2_BASE_ADDR},
-	{USDHC3_BASE_ADDR},
-};
-
-static enum mxc_clock usdhc_clk[3] = {
-	MXC_ESDHC_CLK,
-	MXC_ESDHC2_CLK,
-	MXC_ESDHC3_CLK,
-};
-
-int board_mmc_init(bd_t *bis)
-{
-	int i;
-
-	cm_fx6_set_usdhc_iomux();
-	for (i = 0; i < CONFIG_SYS_FSL_USDHC_NUM; i++) {
-		usdhc_cfg[i].sdhc_clk = mxc_get_clock(usdhc_clk[i]);
-		usdhc_cfg[i].max_bus_width = 4;
-		fsl_esdhc_initialize(bis, &usdhc_cfg[i]);
-		enable_usdhc_clk(1, i);
-	}
-
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_MXC_SPI
 int cm_fx6_setup_ecspi(void)
 {
