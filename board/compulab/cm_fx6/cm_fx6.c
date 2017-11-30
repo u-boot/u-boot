@@ -210,48 +210,6 @@ static int cm_fx6_setup_issd(void)
 
 #define CM_FX6_SATA_INIT_RETRIES	10
 
-# if !CONFIG_IS_ENABLED(AHCI)
-int sata_initialize(void)
-{
-	int err, i;
-
-	/* Make sure this gpio has logical 0 value */
-	gpio_direction_output(CM_FX6_SATA_PWLOSS_INT, 0);
-	udelay(100);
-	cm_fx6_sata_power(1);
-
-	for (i = 0; i < CM_FX6_SATA_INIT_RETRIES; i++) {
-		err = setup_sata();
-		if (err) {
-			printf("SATA setup failed: %d\n", err);
-			return err;
-		}
-
-		udelay(100);
-
-		err = __sata_initialize();
-		if (!err)
-			break;
-
-		/* There is no device on the SATA port */
-		if (sata_port_status(0, 0) == 0)
-			break;
-
-		/* There's a device, but link not established. Retry */
-	}
-
-	return err;
-}
-
-int sata_stop(void)
-{
-	__sata_stop();
-	cm_fx6_sata_power(0);
-	mdelay(250);
-
-	return 0;
-}
-# endif
 #else
 static int cm_fx6_setup_issd(void) { return 0; }
 #endif
