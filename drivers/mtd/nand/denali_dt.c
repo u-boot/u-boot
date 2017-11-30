@@ -5,11 +5,11 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <linux/io.h>
 #include <linux/ioport.h>
+#include <linux/printk.h>
 
 #include "denali.h"
 
@@ -118,6 +118,6 @@ void board_nand_init(void)
 					  DM_GET_DRIVER(denali_nand_dt),
 					  &dev);
 	if (ret && ret != -ENODEV)
-		printf("Failed to initialize Denali NAND controller. (error %d)\n",
+		pr_err("Failed to initialize Denali NAND controller. (error %d)\n",
 		       ret);
 }
