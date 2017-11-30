@@ -1584,11 +1584,11 @@ static int sd_select_mode_and_width(struct mmc *mmc, uint card_caps)
 
 #ifdef DEBUG
 	mmc_dump_capabilities("sd card", card_caps);
-	mmc_dump_capabilities("host", mmc->host_caps | MMC_MODE_1BIT);
+	mmc_dump_capabilities("host", mmc->host_caps);
 #endif
 
 	/* Restrict card's capabilities by what the host can do */
-	caps = card_caps & (mmc->host_caps | MMC_MODE_1BIT);
+	caps = card_caps & mmc->host_caps;
 
 	if (!uhs_en)
 		caps &= ~UHS_CAPS;
@@ -1770,11 +1770,11 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 
 #ifdef DEBUG
 	mmc_dump_capabilities("mmc", card_caps);
-	mmc_dump_capabilities("host", mmc->host_caps | MMC_MODE_1BIT);
+	mmc_dump_capabilities("host", mmc->host_caps);
 #endif
 
 	/* Restrict card's capabilities by what the host can do */
-	card_caps &= (mmc->host_caps | MMC_MODE_1BIT);
+	card_caps &= mmc->host_caps;
 
 	/* Only version 4 of MMC supports wider bus widths */
 	if (mmc->version < MMC_VERSION_4)
@@ -2389,7 +2389,12 @@ int mmc_start_init(struct mmc *mmc)
 	bool uhs_en = supports_uhs(mmc->cfg->host_caps);
 	int err;
 
-	mmc->host_caps = mmc->cfg->host_caps;
+	/*
+	 * all hosts are capable of 1 bit bus-width and able to use the legacy
+	 * timings.
+	 */
+	mmc->host_caps = mmc->cfg->host_caps | MMC_CAP(SD_LEGACY) |
+			 MMC_CAP(MMC_LEGACY) | MMC_MODE_1BIT;
 
 	/* we pretend there's no card when init is NULL */
 	no_card = mmc_getcd(mmc) == 0;
