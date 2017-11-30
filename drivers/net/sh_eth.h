@@ -92,6 +92,7 @@ struct sh_eth_info {
 	u8 phy_addr;
 	struct eth_device *dev;
 	struct phy_device *phydev;
+	void __iomem *iobase;
 };
 
 struct sh_eth_dev {
@@ -601,7 +602,7 @@ enum FIFO_SIZE_BIT {
 	FIFO_SIZE_T = 0x00000700, FIFO_SIZE_R = 0x00000007,
 };
 
-static inline unsigned long sh_eth_reg_addr(struct sh_eth_dev *eth,
+static inline unsigned long sh_eth_reg_addr(struct sh_eth_info *port,
 					    int enum_index)
 {
 #if defined(SH_ETH_TYPE_GETHER) || defined(SH_ETH_TYPE_RZ)
@@ -611,17 +612,17 @@ static inline unsigned long sh_eth_reg_addr(struct sh_eth_dev *eth,
 #else
 #error
 #endif
-	return BASE_IO_ADDR + reg_offset[enum_index] + 0x800 * eth->port;
+	return (unsigned long)port->iobase + reg_offset[enum_index];
 }
 
-static inline void sh_eth_write(struct sh_eth_dev *eth, unsigned long data,
+static inline void sh_eth_write(struct sh_eth_info *port, unsigned long data,
 				int enum_index)
 {
-	outl(data, sh_eth_reg_addr(eth, enum_index));
+	outl(data, sh_eth_reg_addr(port, enum_index));
 }
 
-static inline unsigned long sh_eth_read(struct sh_eth_dev *eth,
+static inline unsigned long sh_eth_read(struct sh_eth_info *port,
 					int enum_index)
 {
-	return inl(sh_eth_reg_addr(eth, enum_index));
+	return inl(sh_eth_reg_addr(port, enum_index));
 }
