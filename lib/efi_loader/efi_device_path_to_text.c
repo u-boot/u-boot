@@ -154,10 +154,12 @@ static char *dp_media(char *s, struct efi_device_path *dp)
 		case SIG_TYPE_GUID:
 			s += sprintf(s, "HD(Part%d,Sig%pUl)",
 				     hddp->partition_number, sig);
+			break;
 		default:
 			s += sprintf(s, "HD(Part%d,MBRType=%02x,SigType=%02x)",
 				     hddp->partition_number, hddp->partmap_type,
 				     hddp->signature_type);
+			break;
 		}
 
 		break;
