@@ -1657,6 +1657,9 @@ static int mmc_read_and_compare_ext_csd(struct mmc *mmc)
 	const u8 *ext_csd = mmc->ext_csd;
 	ALLOC_CACHE_ALIGN_BUFFER(u8, test_csd, MMC_MAX_BLOCK_LEN);
 
+	if (mmc->version < MMC_VERSION_4)
+		return 0;
+
 	err = mmc_send_ext_csd(mmc, test_csd);
 	if (err)
 		return err;
