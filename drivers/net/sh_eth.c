@@ -67,7 +67,7 @@ int sh_eth_send(struct eth_device *dev, void *packet, int len)
 
 	/* packet must be a 4 byte boundary */
 	if ((int)packet & 3) {
-		printf(SHETHER_NAME ": %s: packet not 4 byte alligned\n"
+		printf(SHETHER_NAME ": %s: packet not 4 byte aligned\n"
 				, __func__);
 		ret = -EFAULT;
 		goto err;
@@ -222,8 +222,10 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 	cur_tx_desc--;
 	cur_tx_desc->td0 |= TD_TDLE;
 
-	/* Point the controller to the tx descriptor list. Must use physical
-	   addresses */
+	/*
+	 * Point the controller to the tx descriptor list. Must use physical
+	 * addresses
+	 */
 	sh_eth_write(eth, ADDR_TO_PHY(port_info->tx_desc_base), TDLAR);
 #if defined(SH_ETH_TYPE_GETHER) || defined(SH_ETH_TYPE_RZ)
 	sh_eth_write(eth, ADDR_TO_PHY(port_info->tx_desc_base), TDFAR);
@@ -237,7 +239,7 @@ err:
 
 static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 {
-	int port = eth->port, i , ret = 0;
+	int port = eth->port, i, ret = 0;
 	u32 alloc_desc_size = NUM_RX_DESC * sizeof(struct rx_desc_s);
 	struct sh_eth_info *port_info = &eth->port_info[port];
 	struct rx_desc_s *cur_rx_desc;
@@ -283,7 +285,7 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 	     i < NUM_RX_DESC; cur_rx_desc++, rx_buf += MAX_BUF_SIZE, i++) {
 		cur_rx_desc->rd0 = RD_RACT;
 		cur_rx_desc->rd1 = MAX_BUF_SIZE << 16;
-		cur_rx_desc->rd2 = (u32) ADDR_TO_PHY(rx_buf);
+		cur_rx_desc->rd2 = (u32)ADDR_TO_PHY(rx_buf);
 	}
 
 	/* Mark the end of the descriptors */
@@ -465,11 +467,14 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	/* Check if full duplex mode is supported by the phy */
 	if (phy->duplex) {
 		printf("Full\n");
-		sh_eth_write(eth, val | (ECMR_CHG_DM|ECMR_RE|ECMR_TE|ECMR_DM),
+		sh_eth_write(eth,
+			     val | (ECMR_CHG_DM | ECMR_RE | ECMR_TE | ECMR_DM),
 			     ECMR);
 	} else {
 		printf("Half\n");
-		sh_eth_write(eth, val | (ECMR_CHG_DM|ECMR_RE|ECMR_TE), ECMR);
+		sh_eth_write(eth,
+			     val | (ECMR_CHG_DM | ECMR_RE | ECMR_TE),
+			     ECMR);
 	}
 
 	return ret;
@@ -524,6 +529,7 @@ err:
 void sh_eth_halt(struct eth_device *dev)
 {
 	struct sh_eth_dev *eth = dev->priv;
+
 	sh_eth_stop(eth);
 }
 
@@ -532,6 +538,7 @@ int sh_eth_initialize(bd_t *bd)
 	int ret = 0;
 	struct sh_eth_dev *eth = NULL;
 	struct eth_device *dev = NULL;
+	struct mii_dev *mdiodev;
 
 	eth = (struct sh_eth_dev *)malloc(sizeof(struct sh_eth_dev));
 	if (!eth) {
@@ -566,17 +573,16 @@ int sh_eth_initialize(bd_t *bd)
 	eth_register(dev);
 
 	bb_miiphy_buses[0].priv = eth;
-	int retval;
-	struct mii_dev *mdiodev = mdio_alloc();
+	mdiodev = mdio_alloc();
 	if (!mdiodev)
 		return -ENOMEM;
 	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
 	mdiodev->read = bb_miiphy_read;
 	mdiodev->write = bb_miiphy_write;
 
-	retval = mdio_register(mdiodev);
-	if (retval < 0)
-		return retval;
+	ret = mdio_register(mdiodev);
+	if (ret < 0)
+		return ret;
 
 	if (!eth_env_get_enetaddr("ethaddr", dev->enetaddr))
 		puts("Please set MAC address\n");
@@ -670,4 +676,5 @@ struct bb_miiphy_bus bb_miiphy_buses[] = {
 		.delay		= sh_eth_bb_delay,
 	}
 };
+
 int bb_miiphy_buses_num = ARRAY_SIZE(bb_miiphy_buses);
