@@ -9,7 +9,7 @@
 #define __DENALI_H__
 
 #include <linux/bitops.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 #include <linux/types.h>
 
 #define DEVICE_RESET				0x0

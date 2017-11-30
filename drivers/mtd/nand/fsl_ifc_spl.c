@@ -10,7 +10,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <fsl_ifc.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 #ifdef CONFIG_CHAIN_OF_TRUST
 #include <fsl_validate.h>
 #endif

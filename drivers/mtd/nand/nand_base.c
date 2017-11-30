@@ -37,7 +37,7 @@
 #include <linux/err.h>
 #include <linux/compat.h>
 #include <linux/mtd/mtd.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 #include <linux/mtd/nand_ecc.h>
 #include <linux/mtd/nand_bch.h>
 #ifdef CONFIG_MTD_PARTITIONS

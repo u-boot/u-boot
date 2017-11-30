@@ -10,7 +10,7 @@
 #ifndef __LINUX_MTD_NAND_FSL_UPM
 #define __LINUX_MTD_NAND_FSL_UPM
 
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 
 #define FSL_UPM_WAIT_RUN_PATTERN  0x1
 #define FSL_UPM_WAIT_WRITE_BYTE   0x2

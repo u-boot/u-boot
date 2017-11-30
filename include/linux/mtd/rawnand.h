@@ -1,6 +1,4 @@
 /*
- *  linux/include/linux/mtd/nand.h
- *
  *  Copyright © 2000-2010 David Woodhouse <dwmw2@infradead.org>
  *                        Steven J. Hill <sjhill@realitydiluted.com>
  *		          Thomas Gleixner <tglx@linutronix.de>
@@ -13,8 +11,8 @@
  * Changelog:
  *	See git changelog.
  */
-#ifndef __LINUX_MTD_NAND_H
-#define __LINUX_MTD_NAND_H
+#ifndef __LINUX_MTD_RAWNAND_H
+#define __LINUX_MTD_RAWNAND_H
 
 #include <config.h>
 
@@ -1270,5 +1268,4 @@ int nand_maximize_ecc(struct nand_chip *chip,
 
 /* Reset and initialize a NAND device */
 int nand_reset(struct nand_chip *chip, int chipnr);
-
-#endif /* __LINUX_MTD_NAND_H */
+#endif /* __LINUX_MTD_RAWNAND_H */

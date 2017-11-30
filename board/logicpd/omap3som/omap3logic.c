@@ -26,7 +26,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/mach-types.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 #include <asm/omap_musb.h>
 #include <linux/errno.h>
 #include <linux/usb/ch9.h>

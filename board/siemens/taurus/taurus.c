@@ -26,7 +26,7 @@
 #include <asm/arch/atmel_serial.h>
 #include <asm/arch/clk.h>
 #include <asm/gpio.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 #include <atmel_mci.h>
 #include <asm/arch/at91_spi.h>
 #include <spi.h>
