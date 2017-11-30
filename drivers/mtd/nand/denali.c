@@ -6,14 +6,14 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <common.h>
-#include <malloc.h>
-#include <nand.h>
 #include <dm.h>
+#include <nand.h>
 #include <linux/bitfield.h>
 #include <linux/dma-direction.h>
 #include <linux/errno.h>
 #include <linux/io.h>
+#include <linux/mtd/mtd.h>
+#include <linux/mtd/rawnand.h>
 
 #include "denali.h"
 
