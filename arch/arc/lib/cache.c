@@ -32,15 +32,15 @@
  * relocation but will be used after being zeroed.
  */
 int l1_line_sz __section(".data");
-int dcache_exists __section(".data");
-int icache_exists __section(".data");
+bool dcache_exists __section(".data") = false;
+bool icache_exists __section(".data") = false;
 
 #define CACHE_LINE_MASK		(~(l1_line_sz - 1))
 
 #ifdef CONFIG_ISA_ARCV2
 int slc_line_sz __section(".data");
-int slc_exists __section(".data");
-int ioc_exists __section(".data");
+bool slc_exists __section(".data") = false;
+bool ioc_exists __section(".data") = false;
 
 static unsigned int __before_slc_op(const int op)
 {
@@ -152,7 +152,7 @@ static void read_decode_cache_bcr_arcv2(void)
 	sbcr.word = read_aux_reg(ARC_BCR_SLC);
 	if (sbcr.fields.ver) {
 		slc_cfg.word = read_aux_reg(ARC_AUX_SLC_CONFIG);
-		slc_exists = 1;
+		slc_exists = true;
 		slc_line_sz = (slc_cfg.fields.lsz == 0) ? 128 : 64;
 	}
 
@@ -169,7 +169,7 @@ static void read_decode_cache_bcr_arcv2(void)
 
 	cbcr.word = read_aux_reg(ARC_BCR_CLUSTER);
 	if (cbcr.fields.c)
-		ioc_exists = 1;
+		ioc_exists = true;
 }
 #endif
 
@@ -190,7 +190,7 @@ void read_decode_cache_bcr(void)
 
 	ibcr.word = read_aux_reg(ARC_BCR_IC_BUILD);
 	if (ibcr.fields.ver) {
-		icache_exists = 1;
+		icache_exists = true;
 		l1_line_sz = ic_line_sz = 8 << ibcr.fields.line_len;
 		if (!ic_line_sz)
 			panic("Instruction exists but line length is 0\n");
@@ -198,7 +198,7 @@ void read_decode_cache_bcr(void)
 
 	dbcr.word = read_aux_reg(ARC_BCR_DC_BUILD);
 	if (dbcr.fields.ver){
-		dcache_exists = 1;
+		dcache_exists = true;
 		l1_line_sz = dc_line_sz = 16 << dbcr.fields.line_len;
 		if (!dc_line_sz)
 			panic("Data cache exists but line length is 0\n");
