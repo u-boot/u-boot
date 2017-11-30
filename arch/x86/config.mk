@@ -34,9 +34,6 @@ PLATFORM_RELFLAGS += -ffunction-sections -fvisibility=hidden
 PLATFORM_LDFLAGS += -Bsymbolic -Bsymbolic-functions
 PLATFORM_LDFLAGS += -m $(if $(IS_32BIT),elf_i386,elf_x86_64)
 
-LDFLAGS_FINAL += --wrap=__divdi3 --wrap=__udivdi3
-LDFLAGS_FINAL += --wrap=__moddi3 --wrap=__umoddi3
-
 # This is used in the top-level Makefile which does not include
 # PLATFORM_LDFLAGS
 LDFLAGS_EFI_PAYLOAD := -Bsymbolic -Bsymbolic-functions -shared --no-undefined

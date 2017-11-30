@@ -91,6 +91,10 @@
 #define BOOTEFI_NAME "bootaa64.efi"
 #elif defined(CONFIG_ARM)
 #define BOOTEFI_NAME "bootarm.efi"
+#elif defined(CONFIG_X86_RUN_32BIT)
+#define BOOTEFI_NAME "bootia32.efi"
+#elif defined(CONFIG_X86_RUN_64BIT)
+#define BOOTEFI_NAME "bootx64.efi"
 #endif
 #endif
 

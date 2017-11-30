@@ -18,7 +18,7 @@ if QEMU
 
 config SYS_CAR_ADDR
 	hex
-	default 0xd0000
+	default 0x10000
 
 config SYS_CAR_SIZE
 	hex
