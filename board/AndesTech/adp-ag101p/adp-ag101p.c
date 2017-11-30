@@ -85,8 +85,10 @@ ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
 
 int board_mmc_init(bd_t *bis)
 {
+#ifndef CONFIG_DM_MMC
 #ifdef CONFIG_FTSDC010
 	ftsdc010_mmc_init(0);
+#endif
 #endif
 	return 0;
 }

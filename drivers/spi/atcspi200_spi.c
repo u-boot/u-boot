@@ -1,5 +1,5 @@
 /*
- * NDS SPI controller driver.
+ * Andestech ATCSPI200 SPI controller driver.
  *
  * Copyright 2017 Andes Technology, Inc.
  * Author: Rick Chen (rick@andestech.com)
@@ -25,7 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SPI1_BASE		0xf0f00000
 #define NSPI_MAX_CS_NUM		1
 
-struct ae3xx_spi_regs {
+struct atcspi200_spi_regs {
 	u32	rev;
 	u32	reserve1[3];
 	u32	format;		/* 0x10 */
@@ -78,7 +78,7 @@ struct nds_spi_slave {
 #ifndef CONFIG_DM_SPI
 	struct spi_slave slave;
 #endif
-	volatile struct ae3xx_spi_regs *regs;
+	volatile struct atcspi200_spi_regs *regs;
 	int		to;
 	unsigned int	freq;
 	ulong		clock;
@@ -94,7 +94,7 @@ struct nds_spi_slave {
 	unsigned int    max_transfer_length;
 };
 
-static int __ae3xx_spi_set_speed(struct nds_spi_slave *ns)
+static int __atcspi200_spi_set_speed(struct nds_spi_slave *ns)
 {
 	u32 tm;
 	u8 div;
@@ -117,7 +117,7 @@ static int __ae3xx_spi_set_speed(struct nds_spi_slave *ns)
 
 }
 
-static int __ae3xx_spi_claim_bus(struct nds_spi_slave *ns)
+static int __atcspi200_spi_claim_bus(struct nds_spi_slave *ns)
 {
 		unsigned int format=0;
 		ns->regs->ctrl |= (TXFRST|RXFRST|SPIRST);
@@ -128,18 +128,18 @@ static int __ae3xx_spi_claim_bus(struct nds_spi_slave *ns)
 		ns->cmd_len = 0;
 		format = ns->mode|DATA_LENGTH(8);
 		ns->regs->format = format;
-		__ae3xx_spi_set_speed(ns);
+		__atcspi200_spi_set_speed(ns);
 
 		return 0;
 }
 
-static int __ae3xx_spi_release_bus(struct nds_spi_slave *ns)
+static int __atcspi200_spi_release_bus(struct nds_spi_slave *ns)
 {
 	/* do nothing */
 	return 0;
 }
 
-static int __ae3xx_spi_start(struct nds_spi_slave *ns)
+static int __atcspi200_spi_start(struct nds_spi_slave *ns)
 {
 	int i,olen=0;
 	int tc = ns->regs->tctrl;
@@ -168,7 +168,7 @@ static int __ae3xx_spi_start(struct nds_spi_slave *ns)
 	return 0;
 }
 
-static int __ae3xx_spi_stop(struct nds_spi_slave *ns)
+static int __atcspi200_spi_stop(struct nds_spi_slave *ns)
 {
 	ns->regs->timing = ns->mtiming;
 	while ((ns->regs->status & SPIBSY)&&(ns->to--))
@@ -190,7 +190,7 @@ static int __nspi_espi_rx(struct nds_spi_slave *ns, void *din, unsigned int byte
 }
 
 
-static int __ae3xx_spi_xfer(struct nds_spi_slave *ns,
+static int __atcspi200_spi_xfer(struct nds_spi_slave *ns,
 		unsigned int bitlen,  const void *data_out, void *data_in,
 		unsigned long flags)
 {
@@ -230,7 +230,7 @@ static int __ae3xx_spi_xfer(struct nds_spi_slave *ns,
 			memcpy(cmd_buf, data_out, cmd_len);
 			data_out = 0;
 			data_len = 0;
-			__ae3xx_spi_start(ns);
+			__atcspi200_spi_start(ns);
 			break;
 		}
 		debug("spi_xfer: data_out %08X(%p) data_in %08X(%p) data_len %u\n",
@@ -245,7 +245,7 @@ static int __ae3xx_spi_xfer(struct nds_spi_slave *ns,
 			num_bytes = (tran_len) % CHUNK_SIZE;
 			if(num_bytes == 0)
 				num_bytes = CHUNK_SIZE;
-			__ae3xx_spi_start(ns);
+			__atcspi200_spi_start(ns);
 
 			while (num_blks) {
 				event = in_le32(&ns->regs->status);
@@ -279,9 +279,9 @@ static int __ae3xx_spi_xfer(struct nds_spi_slave *ns,
 				ns->cmd_buf[3] += ((tran_len)&0xff);
 				ns->data_len = data_len;
 			}
-			ret = __ae3xx_spi_stop(ns);
+			ret = __atcspi200_spi_stop(ns);
 		}
-		ret = __ae3xx_spi_stop(ns);
+		ret = __atcspi200_spi_stop(ns);
 
 		return ret;
 }
@@ -300,11 +300,11 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	switch (bus) {
 	case SPI0_BUS:
-			ns->regs = (struct ae3xx_spi_regs *)SPI0_BASE;
+			ns->regs = (struct atcspi200_spi_regs *)SPI0_BASE;
 			break;
 
 		case SPI1_BUS:
-			ns->regs = (struct ae3xx_spi_regs *)SPI1_BASE;
+			ns->regs = (struct atcspi200_spi_regs *)SPI1_BASE;
 			break;
 
 		default:
@@ -336,20 +336,20 @@ void spi_init(void)
 int spi_claim_bus(struct spi_slave *slave)
 {
 	struct nds_spi_slave *ns = to_nds_spi_slave(slave);
-	return __ae3xx_spi_claim_bus(ns);
+	return __atcspi200_spi_claim_bus(ns);
 }
 
 void spi_release_bus(struct spi_slave *slave)
 {
 	struct nds_spi_slave *ns = to_nds_spi_slave(slave);
-	__ae3xx_spi_release_bus(ns);
+	__atcspi200_spi_release_bus(ns);
 }
 
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *data_out,
 		void *data_in, unsigned long flags)
 {
 	struct nds_spi_slave *ns = to_nds_spi_slave(slave);
-	return __ae3xx_spi_xfer(ns, bitlen, data_out, data_in, flags);
+	return __atcspi200_spi_xfer(ns, bitlen, data_out, data_in, flags);
 }
 
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
@@ -360,28 +360,28 @@ int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 void spi_cs_activate(struct spi_slave *slave)
 {
 	struct nds_spi_slave *ns = to_nds_spi_slave(slave);
-	__ae3xx_spi_start(ns);
+	__atcspi200_spi_start(ns);
 }
 
 void spi_cs_deactivate(struct spi_slave *slave)
 {
 	struct nds_spi_slave *ns = to_nds_spi_slave(slave);
-	__ae3xx_spi_stop(ns);
+	__atcspi200_spi_stop(ns);
 }
 #else
-static int ae3xx_spi_set_speed(struct udevice *bus, uint max_hz)
+static int atcspi200_spi_set_speed(struct udevice *bus, uint max_hz)
 {
 	struct nds_spi_slave *ns = dev_get_priv(bus);
 
 	debug("%s speed %u\n", __func__, max_hz);
 
 	ns->freq = max_hz;
-	__ae3xx_spi_set_speed(ns);
+	__atcspi200_spi_set_speed(ns);
 
 	return 0;
 }
 
-static int ae3xx_spi_set_mode(struct udevice *bus, uint mode)
+static int atcspi200_spi_set_mode(struct udevice *bus, uint mode)
 {
 	struct nds_spi_slave *ns = dev_get_priv(bus);
 
@@ -391,7 +391,7 @@ static int ae3xx_spi_set_mode(struct udevice *bus, uint mode)
 	return 0;
 }
 
-static int ae3xx_spi_claim_bus(struct udevice *dev)
+static int atcspi200_spi_claim_bus(struct udevice *dev)
 {
 	struct dm_spi_slave_platdata *slave_plat =
 		dev_get_parent_platdata(dev);
@@ -403,27 +403,27 @@ static int ae3xx_spi_claim_bus(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	return __ae3xx_spi_claim_bus(ns);
+	return __atcspi200_spi_claim_bus(ns);
 }
 
-static int ae3xx_spi_release_bus(struct udevice *dev)
+static int atcspi200_spi_release_bus(struct udevice *dev)
 {
 	struct nds_spi_slave *ns = dev_get_priv(dev->parent);
 
-	return __ae3xx_spi_release_bus(ns);
+	return __atcspi200_spi_release_bus(ns);
 }
 
-static int ae3xx_spi_xfer(struct udevice *dev, unsigned int bitlen,
+static int atcspi200_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			    const void *dout, void *din,
 			    unsigned long flags)
 {
 	struct udevice *bus = dev->parent;
 	struct nds_spi_slave *ns = dev_get_priv(bus);
 
-	return __ae3xx_spi_xfer(ns, bitlen, dout, din, flags);
+	return __atcspi200_spi_xfer(ns, bitlen, dout, din, flags);
 }
 
-static int ae3xx_spi_get_clk(struct udevice *bus)
+static int atcspi200_spi_get_clk(struct udevice *bus)
 {
 	struct nds_spi_slave *ns = dev_get_priv(bus);
 	struct clk clk;
@@ -444,26 +444,26 @@ static int ae3xx_spi_get_clk(struct udevice *bus)
 	return 0;
 }
 
-static int ae3xx_spi_probe(struct udevice *bus)
+static int atcspi200_spi_probe(struct udevice *bus)
 {
 	struct nds_spi_slave *ns = dev_get_priv(bus);
 
 	ns->to = SPI_TIMEOUT;
 	ns->max_transfer_length = MAX_TRANSFER_LEN;
 	ns->mtiming = ns->regs->timing;
-	ae3xx_spi_get_clk(bus);
+	atcspi200_spi_get_clk(bus);
 
 	return 0;
 }
 
-static int ae3xx_ofdata_to_platadata(struct udevice *bus)
+static int atcspi200_ofdata_to_platadata(struct udevice *bus)
 {
 	struct nds_spi_slave *ns = dev_get_priv(bus);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
 	ns->regs = map_physmem(devfdt_get_addr(bus),
-				 sizeof(struct ae3xx_spi_regs),
+				 sizeof(struct atcspi200_spi_regs),
 				 MAP_NOCACHE);
 	if (!ns->regs) {
 		printf("%s: could not map device address\n", __func__);
@@ -474,26 +474,26 @@ static int ae3xx_ofdata_to_platadata(struct udevice *bus)
 	return 0;
 }
 
-static const struct dm_spi_ops ae3xx_spi_ops = {
-	.claim_bus	= ae3xx_spi_claim_bus,
-	.release_bus	= ae3xx_spi_release_bus,
-	.xfer		= ae3xx_spi_xfer,
-	.set_speed	= ae3xx_spi_set_speed,
-	.set_mode	= ae3xx_spi_set_mode,
+static const struct dm_spi_ops atcspi200_spi_ops = {
+	.claim_bus	= atcspi200_spi_claim_bus,
+	.release_bus	= atcspi200_spi_release_bus,
+	.xfer		= atcspi200_spi_xfer,
+	.set_speed	= atcspi200_spi_set_speed,
+	.set_mode	= atcspi200_spi_set_mode,
 };
 
-static const struct udevice_id ae3xx_spi_ids[] = {
+static const struct udevice_id atcspi200_spi_ids[] = {
 	{ .compatible = "andestech,atcspi200" },
 	{ }
 };
 
-U_BOOT_DRIVER(ae3xx_spi) = {
-	.name = "ae3xx_spi",
+U_BOOT_DRIVER(atcspi200_spi) = {
+	.name = "atcspi200_spi",
 	.id = UCLASS_SPI,
-	.of_match = ae3xx_spi_ids,
-	.ops = &ae3xx_spi_ops,
-	.ofdata_to_platdata = ae3xx_ofdata_to_platadata,
+	.of_match = atcspi200_spi_ids,
+	.ops = &atcspi200_spi_ops,
+	.ofdata_to_platdata = atcspi200_ofdata_to_platadata,
 	.priv_auto_alloc_size = sizeof(struct nds_spi_slave),
-	.probe = ae3xx_spi_probe,
+	.probe = atcspi200_spi_probe,
 };
 #endif
