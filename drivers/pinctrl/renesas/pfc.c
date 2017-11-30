@@ -448,6 +448,51 @@ static const char *sh_pfc_pinctrl_get_function_name(struct udevice *dev,
 	return priv->pfc.info->functions[selector].name;
 }
 
+int sh_pfc_config_mux_for_gpio(struct udevice *dev, unsigned pin_selector)
+{
+	struct sh_pfc_pinctrl_priv *priv = dev_get_priv(dev);
+	struct sh_pfc_pinctrl *pmx = &priv->pmx;
+	struct sh_pfc *pfc = &priv->pfc;
+	struct sh_pfc_pin_config *cfg;
+	const struct sh_pfc_pin *pin = NULL;
+	int i, idx;
+
+	for (i = 1; i < pfc->info->nr_pins; i++) {
+		if (priv->pfc.info->pins[i].pin != pin_selector)
+			continue;
+
+		pin = &priv->pfc.info->pins[i];
+		break;
+	}
+
+	if (!pin)
+		return -EINVAL;
+
+	idx = sh_pfc_get_pin_index(pfc, pin->pin);
+	cfg = &pmx->configs[idx];
+
+	if (cfg->type != PINMUX_TYPE_NONE)
+		return -EBUSY;
+
+	return sh_pfc_config_mux(pfc, pin->enum_id, PINMUX_TYPE_GPIO);
+}
+
+static int sh_pfc_pinctrl_pin_set(struct udevice *dev, unsigned pin_selector,
+				  unsigned func_selector)
+{
+	struct sh_pfc_pinctrl_priv *priv = dev_get_priv(dev);
+	struct sh_pfc_pinctrl *pmx = &priv->pmx;
+	struct sh_pfc *pfc = &priv->pfc;
+	const struct sh_pfc_pin *pin = &priv->pfc.info->pins[pin_selector];
+	int idx = sh_pfc_get_pin_index(pfc, pin->pin);
+	struct sh_pfc_pin_config *cfg = &pmx->configs[idx];
+
+	if (cfg->type != PINMUX_TYPE_NONE)
+		return -EBUSY;
+
+	return sh_pfc_config_mux(pfc, pin->enum_id, PINMUX_TYPE_FUNCTION);
+}
+
 static int sh_pfc_pinctrl_group_set(struct udevice *dev, unsigned group_selector,
 				     unsigned func_selector)
 {
@@ -642,6 +687,19 @@ static int sh_pfc_pinconf_set(struct sh_pfc_pinctrl *pmx, unsigned _pin,
 	return 0;
 }
 
+static int sh_pfc_pinconf_pin_set(struct udevice *dev,
+				  unsigned int pin_selector,
+				  unsigned int param, unsigned int arg)
+{
+	struct sh_pfc_pinctrl_priv *priv = dev_get_priv(dev);
+	struct sh_pfc_pinctrl *pmx = &priv->pmx;
+	struct sh_pfc *pfc = &priv->pfc;
+	const struct sh_pfc_pin *pin = &pfc->info->pins[pin_selector];
+
+	sh_pfc_pinconf_set(pmx, pin->pin, param, arg);
+
+	return 0;
+}
 
 static int sh_pfc_pinconf_group_set(struct udevice *dev,
 				      unsigned int group_selector,
@@ -671,8 +729,10 @@ static struct pinctrl_ops sh_pfc_pinctrl_ops = {
 #if CONFIG_IS_ENABLED(PINCONF)
 	.pinconf_num_params	= ARRAY_SIZE(sh_pfc_pinconf_params),
 	.pinconf_params		= sh_pfc_pinconf_params,
+	.pinconf_set		= sh_pfc_pinconf_pin_set,
 	.pinconf_group_set	= sh_pfc_pinconf_group_set,
 #endif
+	.pinmux_set		= sh_pfc_pinctrl_pin_set,
 	.pinmux_group_set	= sh_pfc_pinctrl_group_set,
 	.set_state		= pinctrl_generic_set_state,
 };

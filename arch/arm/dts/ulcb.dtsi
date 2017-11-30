@@ -24,6 +24,15 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+	cpld {
+		compatible = "renesas,ulcb-cpld";
+		status = "okay";
+		gpio-sck = <&gpio6 8 0>;
+		gpio-mosi = <&gpio6 7 0>;
+		gpio-miso = <&gpio6 10 0>;
+		gpio-sstbz = <&gpio2 3 0>;
+	};
+
 	audio_clkout: audio-clkout {
 		/*
 		 * This is same as <&rcar_sound 0>
@@ -190,6 +199,10 @@
 	};
 };
 
+&i2c_dvfs {
+	status = "okay";
+};
+
 &ohci1 {
 	status = "okay";
 };
@@ -247,7 +260,7 @@
 	sdhi2_pins: sd2 {
 		groups = "sdhi2_data8", "sdhi2_ctrl";
 		function = "sdhi2";
-		power-source = <3300>;
+		power-source = <1800>;
 	};
 
 	sdhi2_pins_uhs: sd2_uhs {

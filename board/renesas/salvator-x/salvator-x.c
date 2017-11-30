@@ -79,17 +79,19 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
+	u32 cpu_type = rmobile_get_cpu_type();
+
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_TEXT_BASE + 0x50000;
 
-#if defined(CONFIG_R8A7795)
-	/* GSX: force power and clock supply */
-	writel(0x0000001F, SYSC_PWRONCR2);
-	while (readl(SYSC_PWRSR2) != 0x000003E0)
-		mdelay(20);
+	if (cpu_type == RMOBILE_CPU_TYPE_R8A7795) {
+		/* GSX: force power and clock supply */
+		writel(0x0000001F, SYSC_PWRONCR2);
+		while (readl(SYSC_PWRSR2) != 0x000003E0)
+			mdelay(20);
 
-	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, GSX_MSTP112);
-#endif
+		mstp_clrbits_le32(MSTPSR1, SMSTPCR1, GSX_MSTP112);
+	}
 
 	/* USB1 pull-up */
 	setbits_le32(PFC_PUEN6, PUEN_USB1_OVC | PUEN_USB1_PWEN);
@@ -107,42 +109,18 @@ int board_init(void)
 
 int dram_init(void)
 {
-	gd->ram_size = PHYS_SDRAM_1_SIZE;
-#if (CONFIG_NR_DRAM_BANKS >= 2)
-	gd->ram_size += PHYS_SDRAM_2_SIZE;
-#endif
-#if (CONFIG_NR_DRAM_BANKS >= 3)
-	gd->ram_size += PHYS_SDRAM_3_SIZE;
-#endif
-#if (CONFIG_NR_DRAM_BANKS >= 4)
-	gd->ram_size += PHYS_SDRAM_4_SIZE;
-#endif
+	if (fdtdec_setup_memory_size() != 0)
+		return -EINVAL;
 
 	return 0;
 }
 
 int dram_init_banksize(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-#if (CONFIG_NR_DRAM_BANKS >= 2)
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
-	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
-#endif
-#if (CONFIG_NR_DRAM_BANKS >= 3)
-	gd->bd->bi_dram[2].start = PHYS_SDRAM_3;
-	gd->bd->bi_dram[2].size = PHYS_SDRAM_3_SIZE;
-#endif
-#if (CONFIG_NR_DRAM_BANKS >= 4)
-	gd->bd->bi_dram[3].start = PHYS_SDRAM_4;
-	gd->bd->bi_dram[3].size = PHYS_SDRAM_4_SIZE;
-#endif
+	fdtdec_setup_memory_banksize();
+
 	return 0;
 }
-
-const struct rmobile_sysinfo sysinfo = {
-	CONFIG_RCAR_BOARD_STRING
-};
 
 #define RST_BASE	0xE6160000
 #define RST_CA57RESCNT	(RST_BASE + 0x40)

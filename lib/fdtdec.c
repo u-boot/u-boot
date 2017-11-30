@@ -1176,21 +1176,33 @@ int fdtdec_setup_memory_size(void)
 #if defined(CONFIG_NR_DRAM_BANKS)
 int fdtdec_setup_memory_banksize(void)
 {
-	int bank, ret, mem;
+	int bank, ret, mem, reg = 0;
 	struct fdt_resource res;
 
-	mem = fdt_path_offset(gd->fdt_blob, "/memory");
+	mem = fdt_node_offset_by_prop_value(gd->fdt_blob, -1, "device_type",
+					    "memory", 7);
 	if (mem < 0) {
 		debug("%s: Missing /memory node\n", __func__);
 		return -EINVAL;
 	}
 
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
-		ret = fdt_get_resource(gd->fdt_blob, mem, "reg", bank, &res);
-		if (ret == -FDT_ERR_NOTFOUND)
-			break;
-		if (ret != 0)
+		ret = fdt_get_resource(gd->fdt_blob, mem, "reg", reg++, &res);
+		if (ret == -FDT_ERR_NOTFOUND) {
+			reg = 0;
+			mem = fdt_node_offset_by_prop_value(gd->fdt_blob, mem,
+							    "device_type",
+							    "memory", 7);
+			if (mem == -FDT_ERR_NOTFOUND)
+				break;
+
+			ret = fdt_get_resource(gd->fdt_blob, mem, "reg", reg++, &res);
+			if (ret == -FDT_ERR_NOTFOUND)
+				break;
+		}
+		if (ret != 0) {
 			return -EINVAL;
+		}
 
 		gd->bd->bi_dram[bank].start = (phys_addr_t)res.start;
 		gd->bd->bi_dram[bank].size =
