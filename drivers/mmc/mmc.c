@@ -1867,21 +1867,23 @@ static int mmc_startup_v4(struct mmc *mmc)
 	u64 capacity;
 	bool has_parts = false;
 	bool part_completed;
-	u8 *ext_csd;
+	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
 
 	if (IS_SD(mmc) || (mmc->version < MMC_VERSION_4))
 		return 0;
 
-	ext_csd = malloc_cache_aligned(MMC_MAX_BLOCK_LEN);
-	if (!ext_csd)
-		return -ENOMEM;
-
-	mmc->ext_csd = ext_csd;
-
 	/* check  ext_csd version and capacity */
 	err = mmc_send_ext_csd(mmc, ext_csd);
 	if (err)
-		return err;
+		goto error;
+
+	/* store the ext csd for future reference */
+	if (!mmc->ext_csd)
+		mmc->ext_csd = malloc(MMC_MAX_BLOCK_LEN);
+	if (!mmc->ext_csd)
+		return -ENOMEM;
+	memcpy(mmc->ext_csd, ext_csd, MMC_MAX_BLOCK_LEN);
+
 	if (ext_csd[EXT_CSD_REV] >= 2) {
 		/*
 		 * According to the JEDEC Standard, the value of
@@ -1990,7 +1992,7 @@ static int mmc_startup_v4(struct mmc *mmc)
 				 EXT_CSD_ERASE_GROUP_DEF, 1);
 
 		if (err)
-			return err;
+			goto error;
 
 		ext_csd[EXT_CSD_ERASE_GROUP_DEF] = 1;
 	}
@@ -2029,6 +2031,12 @@ static int mmc_startup_v4(struct mmc *mmc)
 	mmc->wr_rel_set = ext_csd[EXT_CSD_WR_REL_SET];
 
 	return 0;
+error:
+	if (mmc->ext_csd) {
+		free(mmc->ext_csd);
+		mmc->ext_csd = NULL;
+	}
+	return err;
 }
 
 static int mmc_startup(struct mmc *mmc)
