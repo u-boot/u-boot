@@ -26,7 +26,16 @@ static u32 get_boot_device(void)
 	val = readl(CONFIG_BOOTROM_ERR_REG);
 	boot_device = (val & BOOTROM_ERR_MODE_MASK) >> BOOTROM_ERR_MODE_OFFS;
 	debug("BOOTROM_REG=0x%08x boot_device=0x%x\n", val, boot_device);
+#if defined(CONFIG_ARMADA_38X)
+	/*
+	 * If the bootrom error register contains any else than zeros
+	 * in the first 8 bits it's an error condition. And in that case
+	 * try to boot from UART.
+	 */
+	if (boot_device)
+#else
 	if (boot_device == BOOTROM_ERR_MODE_UART)
+#endif
 		return BOOT_DEVICE_UART;
 
 	/*
@@ -36,6 +45,10 @@ static u32 get_boot_device(void)
 	boot_device = (val & BOOT_DEV_SEL_MASK) >> BOOT_DEV_SEL_OFFS;
 	debug("SAR_REG=0x%08x boot_device=0x%x\n", val, boot_device);
 	switch (boot_device) {
+#if defined(CONFIG_ARMADA_38X)
+	case BOOT_FROM_NAND:
+		return BOOT_DEVICE_NAND;
+#endif
 #ifdef CONFIG_SPL_MMC_SUPPORT
 	case BOOT_FROM_MMC:
 	case BOOT_FROM_MMC_ALT:
@@ -119,7 +132,15 @@ void board_init_f(ulong dummy)
 	 * SPL has no chance to receive this information. So we
 	 * need to return to the BootROM to enable this xmodem
 	 * UART download.
+	 *
+	 * If booting from NAND lets let the BootROM load the
+	 * rest of the bootloader.
 	 */
-	if (get_boot_device() == BOOT_DEVICE_UART)
-		return_to_bootrom();
+	switch (get_boot_device()) {
+		case BOOT_DEVICE_UART:
+#if defined(CONFIG_ARMADA_38X)
+		case BOOT_DEVICE_NAND:
+#endif
+			return_to_bootrom();
+	}
 }

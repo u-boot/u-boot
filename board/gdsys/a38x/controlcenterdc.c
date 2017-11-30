@@ -52,7 +52,7 @@ static struct hws_topology_map ddr_topology_map = {
 	    BUS_WIDTH_16,		/* memory_width */
 	    MEM_4G,			/* mem_size */
 	    DDR_FREQ_533,		/* frequency */
-	    0, 0,			/* cas_l cas_wl */
+	    0, 0,			/* cas_wl cas_l */
 	    HWS_TEMP_LOW,		/* temperature */
 	    HWS_TIM_DEFAULT} },		/* timing */
 	5,				/* Num Of Bus Per Interface*/

@@ -233,6 +233,7 @@ static struct pxa3xx_nand_flash builtin_flash_types[] = {
 	{ 0xba20, 16, 16, &timing[3] },
 };
 
+#ifdef CONFIG_SYS_NAND_USE_FLASH_BBT
 static u8 bbt_pattern[] = {'M', 'V', 'B', 'b', 't', '0' };
 static u8 bbt_mirror_pattern[] = {'1', 't', 'b', 'B', 'V', 'M' };
 
@@ -255,6 +256,7 @@ static struct nand_bbt_descr bbt_mirror_descr = {
 	.maxblocks = 8,		/* Last 8 blocks in each chip */
 	.pattern = bbt_mirror_pattern
 };
+#endif
 
 static struct nand_ecclayout ecc_layout_2KB_bch4bit = {
 	.eccbytes = 32,

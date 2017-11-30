@@ -258,6 +258,19 @@
 					marvell,function = "i2c0";
 				};
 
+				nand_pins: nand-pins {
+					marvell,pins = "mpp22", "mpp34", "mpp23", "mpp33",
+						       "mpp38", "mpp28", "mpp40", "mpp42",
+						       "mpp35", "mpp36", "mpp25", "mpp30",
+						       "mpp32";
+					marvell,function = "dev";
+				};
+
+				nand_rb: nand-rb {
+					marvell,pins = "mpp41";
+					marvell,function = "nand";
+				};
+
 				mdio_pins: mdio-pins {
 					marvell,pins = "mpp4", "mpp5";
 					marvell,function = "ge";
@@ -545,7 +558,7 @@
 			};
 
 			flash@d0000 {
-				compatible = "marvell,armada370-nand";
+				compatible = "marvell,armada370-nand","marvell,mvebu-pxa3xx-nand";
 				reg = <0xd0000 0x54>;
 				#address-cells = <1>;
 				#size-cells = <1>;

@@ -212,7 +212,7 @@ static struct hws_topology_map board_topology_map_1g = {
 	    BUS_WIDTH_16,		/* memory_width */
 	    MEM_4G,			/* mem_size */
 	    DDR_FREQ_800,		/* frequency */
-	    0, 0,			/* cas_l cas_wl */
+	    0, 0,			/* cas_wl cas_l */
 	    HWS_TEMP_NORMAL,		/* temperature */
 	    HWS_TIM_2T} },		/* timing (force 2t) */
 	5,				/* Num Of Bus Per Interface*/
@@ -231,7 +231,7 @@ static struct hws_topology_map board_topology_map_2g = {
 	    BUS_WIDTH_16,		/* memory_width */
 	    MEM_8G,			/* mem_size */
 	    DDR_FREQ_800,		/* frequency */
-	    0, 0,			/* cas_l cas_wl */
+	    0, 0,			/* cas_wl cas_l */
 	    HWS_TEMP_NORMAL,		/* temperature */
 	    HWS_TIM_2T} },		/* timing (force 2t) */
 	5,				/* Num Of Bus Per Interface*/

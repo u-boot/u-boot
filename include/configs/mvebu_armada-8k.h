@@ -73,11 +73,6 @@
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
 
-/* Environment in SPI NOR flash */
-#ifdef CONFIG_MVEBU_SPI_BOOT
-/* Environment in NAND flash */
-#endif
-
 #define CONFIG_ENV_OFFSET		0x180000 /* as Marvell U-Boot version */
 #define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
 #define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB sectors */

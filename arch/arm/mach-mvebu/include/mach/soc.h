@@ -111,10 +111,16 @@
 #define COMPHY_REFCLK_ALIGNMENT	(MVEBU_REGISTER(0x182f8))
 
 /* BootROM error register (also includes some status infos) */
+#if defined(CONFIG_ARMADA_38X)
+#define CONFIG_BOOTROM_ERR_REG	(MVEBU_REGISTER(0x182d0))
+#define BOOTROM_ERR_MODE_OFFS	0
+#define BOOTROM_ERR_MODE_MASK	(0xf << BOOTROM_ERR_MODE_OFFS)
+#else
 #define CONFIG_BOOTROM_ERR_REG	(MVEBU_REGISTER(0x182d0))
 #define BOOTROM_ERR_MODE_OFFS	28
 #define BOOTROM_ERR_MODE_MASK	(0xf << BOOTROM_ERR_MODE_OFFS)
 #define BOOTROM_ERR_MODE_UART	0x6
+#endif
 
 #if defined(CONFIG_ARMADA_375)
 /* SAR values for Armada 375 */
@@ -141,6 +147,7 @@
 #define BOOT_DEV_SEL_OFFS	4
 #define BOOT_DEV_SEL_MASK	(0x3f << BOOT_DEV_SEL_OFFS)
 
+#define BOOT_FROM_NAND		0x0A
 #define BOOT_FROM_UART		0x28
 #define BOOT_FROM_UART_ALT	0x3f
 #define BOOT_FROM_SPI		0x32
