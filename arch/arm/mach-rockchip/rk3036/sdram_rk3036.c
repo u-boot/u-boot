@@ -334,7 +334,7 @@ static void rkdclk_init(struct rk3036_sdram_priv *priv)
 		     DPLL_MODE_SLOW << DPLL_MODE_SHIFT);
 
 	/* use integer mode */
-	rk_clrreg(&pll->con1, 1 << PLL_DSMPD_SHIFT);
+	rk_setreg(&pll->con1, 1 << PLL_DSMPD_SHIFT);
 
 	rk_clrsetreg(&pll->con0,
 		     PLL_POSTDIV1_MASK | PLL_FBDIV_MASK,
