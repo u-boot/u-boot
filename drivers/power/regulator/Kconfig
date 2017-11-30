@@ -188,3 +188,11 @@ config DM_REGULATOR_LP87565
 	LP87565 series of PMICs have 4 single phase BUCKs that can also
 	be configured in multi phase modes. The driver implements
 	get/set api for value and enable.
+
+config DM_REGULATOR_TPS65910
+	bool "Enable driver for TPS65910 PMIC regulators"
+	depends on DM_PMIC_TPS65910
+	---help---
+	The TPS65910 PMIC provides 4 SMPSs and 8 LDOs. This driver supports all
+	regulator types of the TPS65910 (BUCK, BOOST and LDO). It implements
+	the get/set api for value and enable.
