@@ -58,13 +58,6 @@ config MMC_VERBOSE
 	  Enable the output of more information about the card such as the
 	  operating mode.
 
-config SPL_MMC_VERBOSE
-	bool "Output more information about the MMC in SPL"
-	default n
-	help
-	  Enable the output of more information about the card such as the
-	  operating mode.
-
 config SPL_MMC_TINY
 	bool "Tiny MMC framework in SPL"
 	help

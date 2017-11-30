@@ -251,8 +251,8 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 
 			if (cmd.response[0] & MMC_STATUS_MASK) {
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-				printf("Status Error: 0x%08X\n",
-					cmd.response[0]);
+				pr_err("Status Error: 0x%08X\n",
+				       cmd.response[0]);
 #endif
 				return -ECOMM;
 			}
@@ -268,7 +268,7 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 	mmc_trace_state(mmc, &cmd);
 	if (timeout <= 0) {
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-		printf("Timeout waiting card ready\n");
+		pr_err("Timeout waiting card ready\n");
 #endif
 		return -ETIMEDOUT;
 	}
@@ -408,7 +408,7 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 		cmd.resp_type = MMC_RSP_R1b;
 		if (mmc_send_cmd(mmc, &cmd, NULL)) {
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-			printf("mmc fail to send stop cmd\n");
+			pr_err("mmc fail to send stop cmd\n");
 #endif
 			return 0;
 		}
@@ -448,8 +448,8 @@ ulong mmc_bread(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 
 	if ((start + blkcnt) > block_dev->lba) {
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-		printf("MMC: block number 0x" LBAF " exceeds max(0x" LBAF ")\n",
-			start + blkcnt, block_dev->lba);
+		pr_err("MMC: block number 0x" LBAF " exceeds max(0x" LBAF ")\n",
+		       start + blkcnt, block_dev->lba);
 #endif
 		return 0;
 	}
@@ -828,7 +828,7 @@ static int mmc_get_capabilities(struct mmc *mmc)
 		return 0;
 
 	if (!ext_csd) {
-		printf("No ext_csd found!\n"); /* this should enver happen */
+		pr_err("No ext_csd found!\n"); /* this should enver happen */
 		return -ENOTSUPP;
 	}
 
@@ -946,17 +946,17 @@ int mmc_hwpart_config(struct mmc *mmc,
 		return -EINVAL;
 
 	if (IS_SD(mmc) || (mmc->version < MMC_VERSION_4_41)) {
-		printf("eMMC >= 4.4 required for enhanced user data area\n");
+		pr_err("eMMC >= 4.4 required for enhanced user data area\n");
 		return -EMEDIUMTYPE;
 	}
 
 	if (!(mmc->part_support & PART_SUPPORT)) {
-		printf("Card does not support partitioning\n");
+		pr_err("Card does not support partitioning\n");
 		return -EMEDIUMTYPE;
 	}
 
 	if (!mmc->hc_wp_grp_size) {
-		printf("Card does not define HC WP group size\n");
+		pr_err("Card does not define HC WP group size\n");
 		return -EMEDIUMTYPE;
 	}
 
@@ -964,7 +964,7 @@ int mmc_hwpart_config(struct mmc *mmc,
 	if (conf->user.enh_size) {
 		if (conf->user.enh_size % mmc->hc_wp_grp_size ||
 		    conf->user.enh_start % mmc->hc_wp_grp_size) {
-			printf("User data enhanced area not HC WP group "
+			pr_err("User data enhanced area not HC WP group "
 			       "size aligned\n");
 			return -EINVAL;
 		}
@@ -983,7 +983,7 @@ int mmc_hwpart_config(struct mmc *mmc,
 
 	for (pidx = 0; pidx < 4; pidx++) {
 		if (conf->gp_part[pidx].size % mmc->hc_wp_grp_size) {
-			printf("GP%i partition not HC WP group size "
+			pr_err("GP%i partition not HC WP group size "
 			       "aligned\n", pidx+1);
 			return -EINVAL;
 		}
@@ -995,7 +995,7 @@ int mmc_hwpart_config(struct mmc *mmc,
 	}
 
 	if (part_attrs && ! (mmc->part_support & ENHNCD_SUPPORT)) {
-		printf("Card does not support enhanced attribute\n");
+		pr_err("Card does not support enhanced attribute\n");
 		return -EMEDIUMTYPE;
 	}
 
@@ -1008,7 +1008,7 @@ int mmc_hwpart_config(struct mmc *mmc,
 		(ext_csd[EXT_CSD_MAX_ENH_SIZE_MULT+1] << 8) +
 		ext_csd[EXT_CSD_MAX_ENH_SIZE_MULT];
 	if (tot_enh_size_mult > max_enh_size_mult) {
-		printf("Total enhanced size exceeds maximum (%u > %u)\n",
+		pr_err("Total enhanced size exceeds maximum (%u > %u)\n",
 		       tot_enh_size_mult, max_enh_size_mult);
 		return -EMEDIUMTYPE;
 	}
@@ -1042,7 +1042,7 @@ int mmc_hwpart_config(struct mmc *mmc,
 
 	if (ext_csd[EXT_CSD_PARTITION_SETTING] &
 	    EXT_CSD_PARTITION_SETTING_COMPLETED) {
-		printf("Card already partitioned\n");
+		pr_err("Card already partitioned\n");
 		return -EPERM;
 	}
 
@@ -1433,7 +1433,7 @@ static inline int bus_width(uint cap)
 		return 4;
 	if (cap == MMC_MODE_1BIT)
 		return 1;
-	printf("invalid bus witdh capability 0x%x\n", cap);
+	pr_warn("invalid bus witdh capability 0x%x\n", cap);
 	return 0;
 }
 
@@ -1632,7 +1632,7 @@ static int sd_select_mode_and_width(struct mmc *mmc, uint card_caps)
 				if (!err)
 					return 0;
 
-				printf("bad ssr\n");
+				pr_warn("bad ssr\n");
 
 error:
 				/* revert to a safer bus speed */
@@ -1856,7 +1856,7 @@ error:
 		}
 	}
 
-	printf("unable to select a mode\n");
+	pr_err("unable to select a mode\n");
 
 	return -ENOTSUPP;
 }
@@ -2188,7 +2188,7 @@ static int mmc_startup(struct mmc *mmc)
 		cmd.cmdarg = (mmc->dsr & 0xffff) << 16;
 		cmd.resp_type = MMC_RSP_NONE;
 		if (mmc_send_cmd(mmc, &cmd, NULL))
-			printf("MMC: SET_DSR failed\n");
+			pr_warn("MMC: SET_DSR failed\n");
 	}
 
 	/* Select the card, and put it into Transfer Mode */
@@ -2341,7 +2341,7 @@ static void mmc_set_initial_state(struct mmc *mmc)
 	if (err != 0)
 		err = mmc_set_signal_voltage(mmc, MMC_SIGNAL_VOLTAGE_180);
 	if (err != 0)
-		printf("mmc: failed to set signal voltage\n");
+		pr_warn("mmc: failed to set signal voltage\n");
 
 	mmc_select_mode(mmc, MMC_LEGACY);
 	mmc_set_bus_width(mmc, 1);
@@ -2490,7 +2490,7 @@ retry:
 
 		if (err) {
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-			printf("Card did not respond to voltage select!\n");
+			pr_err("Card did not respond to voltage select!\n");
 #endif
 			return -EOPNOTSUPP;
 		}
@@ -2596,7 +2596,7 @@ static int mmc_probe(bd_t *bis)
 	uclass_foreach_dev(dev, uc) {
 		ret = device_probe(dev);
 		if (ret)
-			printf("%s - probe failed: %d\n", dev->name, ret);
+			pr_err("%s - probe failed: %d\n", dev->name, ret);
 	}
 
 	return 0;
