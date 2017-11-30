@@ -950,6 +950,7 @@ int mmc_switch_part(struct mmc *mmc, unsigned int part_num)
 	return ret;
 }
 
+#if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
 int mmc_hwpart_config(struct mmc *mmc,
 		      const struct mmc_hwpart_conf *conf,
 		      enum mmc_hwpart_conf_mode mode)
@@ -1143,6 +1144,7 @@ int mmc_hwpart_config(struct mmc *mmc,
 
 	return 0;
 }
+#endif
 
 #if !CONFIG_IS_ENABLED(DM_MMC)
 int mmc_getcd(struct mmc *mmc)

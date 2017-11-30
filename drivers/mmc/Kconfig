@@ -51,6 +51,13 @@ config MMC_QUIRKS
 	  are enabled by default, other may require additionnal flags or are
 	  enabled by the host driver.
 
+config MMC_HW_PARTITIONING
+	bool "Support for HW partitioning command(eMMC)"
+	default y
+	help
+	  This adds a command and an API to do hardware partitioning on eMMC
+	  devices.
+
 config MMC_IO_VOLTAGE
 	bool "Support IO voltage configuration"
 	help
