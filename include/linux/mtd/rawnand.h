@@ -20,6 +20,7 @@
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/flashchip.h>
 #include <linux/mtd/bbm.h>
+#include <asm/cache.h>
 
 struct mtd_info;
 struct nand_flash_dev;
