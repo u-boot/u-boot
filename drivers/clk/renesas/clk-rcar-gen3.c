@@ -558,7 +558,7 @@ static const struct mssr_mod_clk r8a7796_mod_clks[] = {
 	DEF_MOD("can-fd",		 914,	R8A7796_CLK_S3D2),
 	DEF_MOD("can-if1",		 915,	R8A7796_CLK_S3D4),
 	DEF_MOD("can-if0",		 916,	R8A7796_CLK_S3D4),
-	DEF_MOD("rpc",			 917,	R8A7795_CLK_RPC),
+	DEF_MOD("rpc",			 917,	R8A7796_CLK_RPC),
 	DEF_MOD("i2c6",			 918,	R8A7796_CLK_S0D6),
 	DEF_MOD("i2c5",			 919,	R8A7796_CLK_S0D6),
 	DEF_MOD("i2c-dvfs",		 926,	R8A7796_CLK_CP),
