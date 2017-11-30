@@ -63,6 +63,7 @@ void mmc_send_init_stream(struct mmc *mmc)
 	dm_mmc_send_init_stream(mmc->dev);
 }
 
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
 int dm_mmc_wait_dat0(struct udevice *dev, int state, int timeout)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
@@ -76,6 +77,7 @@ int mmc_wait_dat0(struct mmc *mmc, int state, int timeout)
 {
 	return dm_mmc_wait_dat0(mmc->dev, state, timeout);
 }
+#endif
 
 int dm_mmc_get_wp(struct udevice *dev)
 {
@@ -105,6 +107,7 @@ int mmc_getcd(struct mmc *mmc)
 	return dm_mmc_get_cd(mmc->dev);
 }
 
+#ifdef MMC_SUPPORTS_TUNING
 int dm_mmc_execute_tuning(struct udevice *dev, uint opcode)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
@@ -118,6 +121,7 @@ int mmc_execute_tuning(struct mmc *mmc, uint opcode)
 {
 	return dm_mmc_execute_tuning(mmc->dev, opcode);
 }
+#endif
 
 int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
 {

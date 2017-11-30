@@ -51,6 +51,52 @@ config MMC_QUIRKS
 	  are enabled by default, other may require additionnal flags or are
 	  enabled by the host driver.
 
+config MMC_IO_VOLTAGE
+	bool "Support IO voltage configuration"
+	help
+	  IO voltage configuration allows selecting the voltage level of the IO
+	  lines (not the level of main supply). This is required for UHS
+	  support. For eMMC this not mandatory, but not enabling this option may
+	  prevent the driver of using the faster modes.
+
+config SPL_MMC_IO_VOLTAGE
+	bool "Support IO voltage configuration in SPL"
+	default n
+	help
+	  IO voltage configuration allows selecting the voltage level of the IO
+	  lines (not the level of main supply). This is required for UHS
+	  support. For eMMC this not mandatory, but not enabling this option may
+	  prevent the driver of using the faster modes.
+
+config MMC_UHS_SUPPORT
+	bool "enable UHS support"
+	depends on MMC_IO_VOLTAGE
+	help
+	  The Ultra High Speed (UHS) bus is available on some SDHC and SDXC
+	  cards. The IO voltage must be switchable from 3.3v to 1.8v. The bus
+	  frequency can go up to 208MHz (SDR104)
+
+config SPL_MMC_UHS_SUPPORT
+	bool "enable UHS support in SPL"
+	depends on SPL_MMC_IO_VOLTAGE
+	help
+	  The Ultra High Speed (UHS) bus is available on some SDHC and SDXC
+	  cards. The IO voltage must be switchable from 3.3v to 1.8v. The bus
+	  frequency can go up to 208MHz (SDR104)
+
+config MMC_HS200_SUPPORT
+	bool "enable HS200 support"
+	help
+	  The HS200 mode is support by some eMMC. The bus frequency is up to
+	  200MHz. This mode requires tuning the IO.
+
+
+config SPL_MMC_HS200_SUPPORT
+	bool "enable HS200 support in SPL"
+	help
+	  The HS200 mode is support by some eMMC. The bus frequency is up to
+	  200MHz. This mode requires tuning the IO.
+
 config MMC_VERBOSE
 	bool "Output more information about the MMC"
 	default y

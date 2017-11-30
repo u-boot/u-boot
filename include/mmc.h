@@ -15,6 +15,13 @@
 #include <linux/compiler.h>
 #include <part.h>
 
+#if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT)
+#define MMC_SUPPORTS_TUNING
+#endif
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
+#define MMC_SUPPORTS_TUNING
+#endif
+
 /* SD/MMC version bits; 8 flags, 8 major, 8 minor, 8 change */
 #define SD_VERSION_SD	(1U << 31)
 #define MMC_VERSION_MMC	(1U << 30)
@@ -425,6 +432,7 @@ struct dm_mmc_ops {
 	 */
 	int (*get_wp)(struct udevice *dev);
 
+#ifdef MMC_SUPPORTS_TUNING
 	/**
 	 * execute_tuning() - Start the tuning process
 	 *
@@ -433,7 +441,9 @@ struct dm_mmc_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*execute_tuning)(struct udevice *dev, uint opcode);
+#endif
 
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
 	/**
 	 * wait_dat0() - wait until dat0 is in the target state
 	 *		(CLK must be running during the wait)
@@ -444,6 +454,7 @@ struct dm_mmc_ops {
 	 * @return 0 if dat0 is in the target state, -ve on error
 	 */
 	int (*wait_dat0)(struct udevice *dev, int state, int timeout);
+#endif
 };
 
 #define mmc_get_ops(dev)        ((struct dm_mmc_ops *)(dev)->driver->ops)
@@ -500,13 +511,13 @@ enum bus_mode {
 	SD_LEGACY,
 	MMC_HS,
 	SD_HS,
+	MMC_HS_52,
+	MMC_DDR_52,
 	UHS_SDR12,
 	UHS_SDR25,
 	UHS_SDR50,
-	UHS_SDR104,
 	UHS_DDR50,
-	MMC_HS_52,
-	MMC_DDR_52,
+	UHS_SDR104,
 	MMC_HS_200,
 	MMC_MODES_END
 };
@@ -516,8 +527,12 @@ void mmc_dump_capabilities(const char *text, uint caps);
 
 static inline bool mmc_is_mode_ddr(enum bus_mode mode)
 {
-	if ((mode == MMC_DDR_52) || (mode == UHS_DDR50))
+	if (mode == MMC_DDR_52)
 		return true;
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
+	else if (mode == UHS_DDR50)
+		return true;
+#endif
 	else
 		return false;
 }
@@ -528,7 +543,11 @@ static inline bool mmc_is_mode_ddr(enum bus_mode mode)
 
 static inline bool supports_uhs(uint caps)
 {
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
 	return (caps & UHS_CAPS) ? true : false;
+#else
+	return false;
+#endif
 }
 
 /*
