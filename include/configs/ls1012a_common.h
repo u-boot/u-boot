@@ -87,6 +87,14 @@
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 
+#include <config_distro_defaults.h>
+#ifndef CONFIG_SPL_BUILD
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(USB, usb, 0)
+#include <config_distro_bootcmd.h>
+#endif
+
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"verify=no\0"				\
@@ -98,6 +106,7 @@
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
 
+#undef CONFIG_BOOTCOMMAND
 #define CONFIG_BOOTCOMMAND		"sf probe 0:0; sf read $kernel_load "\
 					"$kernel_start $kernel_size && "\
 					"bootm $kernel_load"
@@ -105,7 +114,6 @@
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING		1
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_MAXARGS		64	/* max command args */
 
