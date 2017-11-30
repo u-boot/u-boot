@@ -373,7 +373,7 @@ static int sh_eth_phy_config(struct sh_eth_dev *eth)
 	return ret;
 }
 
-static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
+static int sh_eth_config(struct sh_eth_dev *eth)
 {
 	int port = eth->port, ret = 0;
 	u32 val;
@@ -510,7 +510,7 @@ int sh_eth_init(struct eth_device *dev, bd_t *bd)
 	if (ret)
 		goto err;
 
-	ret = sh_eth_config(eth, bd);
+	ret = sh_eth_config(eth);
 	if (ret)
 		goto err_config;
 
