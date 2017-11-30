@@ -651,7 +651,16 @@ int mmc_unbind(struct udevice *dev);
 int mmc_initialize(bd_t *bis);
 int mmc_init(struct mmc *mmc);
 int mmc_send_tuning(struct mmc *mmc, u32 opcode, int *cmd_error);
-int mmc_of_parse(const void *fdt, int node, struct mmc_config *cfg);
+
+/**
+ * mmc_of_parse() - Parse the device tree to get the capabilities of the host
+ *
+ * @dev:	MMC device
+ * @cfg:	MMC configuration
+ * @return 0 if OK, -ve on error
+ */
+int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg);
+
 int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size);
 
 /**

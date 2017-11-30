@@ -10,7 +10,6 @@
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
-#include <dm/root.h>
 #include "mmc_private.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -120,11 +119,11 @@ int mmc_execute_tuning(struct mmc *mmc, uint opcode)
 	return dm_mmc_execute_tuning(mmc->dev, opcode);
 }
 
-int mmc_of_parse(const void *fdt, int node, struct mmc_config *cfg)
+int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
 {
 	int val;
 
-	val = fdtdec_get_int(fdt, node, "bus-width", 1);
+	val = dev_read_u32_default(dev, "bus-width", 1);
 
 	switch (val) {
 	case 0x8:
@@ -137,30 +136,35 @@ int mmc_of_parse(const void *fdt, int node, struct mmc_config *cfg)
 		cfg->host_caps |= MMC_MODE_1BIT;
 		break;
 	default:
-		printf("error: %s invalid bus-width property %d\n",
-		       fdt_get_name(fdt, node, NULL), val);
-		return -ENOENT;
+		debug("warning: %s invalid bus-width property. using 1-bit\n",
+		      dev_read_name(dev));
+		cfg->host_caps |= MMC_MODE_1BIT;
+		break;
 	}
 
-	cfg->f_max = fdtdec_get_int(fdt, node, "max-frequency", 52000000);
+	cfg->f_max = dev_read_u32_default(dev, "max-frequency", 52000000);
 
-	if (fdtdec_get_bool(fdt, node, "cap-sd-highspeed"))
+	if (dev_read_bool(dev, "cap-sd-highspeed"))
 		cfg->host_caps |= MMC_CAP(SD_HS);
-	if (fdtdec_get_bool(fdt, node, "cap-mmc-highspeed"))
+	if (dev_read_bool(dev, "cap-mmc-highspeed"))
 		cfg->host_caps |= MMC_CAP(MMC_HS);
-	if (fdtdec_get_bool(fdt, node, "sd-uhs-sdr12"))
+	if (dev_read_bool(dev, "sd-uhs-sdr12"))
 		cfg->host_caps |= MMC_CAP(UHS_SDR12);
-	if (fdtdec_get_bool(fdt, node, "sd-uhs-sdr25"))
+	if (dev_read_bool(dev, "sd-uhs-sdr25"))
 		cfg->host_caps |= MMC_CAP(UHS_SDR25);
-	if (fdtdec_get_bool(fdt, node, "sd-uhs-sdr50"))
+	if (dev_read_bool(dev, "sd-uhs-sdr50"))
 		cfg->host_caps |= MMC_CAP(UHS_SDR50);
-	if (fdtdec_get_bool(fdt, node, "sd-uhs-sdr104"))
+	if (dev_read_bool(dev, "sd-uhs-sdr104"))
 		cfg->host_caps |= MMC_CAP(UHS_SDR104);
-	if (fdtdec_get_bool(fdt, node, "sd-uhs-ddr50"))
+	if (dev_read_bool(dev, "sd-uhs-ddr50"))
 		cfg->host_caps |= MMC_CAP(UHS_DDR50);
-	if (fdtdec_get_bool(fdt, node, "mmc-ddr-1_8v"))
+	if (dev_read_bool(dev, "mmc-ddr-1_8v"))
 		cfg->host_caps |= MMC_CAP(MMC_DDR_52);
-	if (fdtdec_get_bool(fdt, node, "mmc-hs200-1_8v"))
+	if (dev_read_bool(dev, "mmc-ddr-1_2v"))
+		cfg->host_caps |= MMC_CAP(MMC_DDR_52);
+	if (dev_read_bool(dev, "mmc-hs200-1_8v"))
+		cfg->host_caps |= MMC_CAP(MMC_HS_200);
+	if (dev_read_bool(dev, "mmc-hs200-1_2v"))
 		cfg->host_caps |= MMC_CAP(MMC_HS_200);
 
 	return 0;
