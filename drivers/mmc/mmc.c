@@ -1582,6 +1582,10 @@ static int sd_select_mode_and_width(struct mmc *mmc, uint card_caps)
 	bool uhs_en = (mmc->ocr & OCR_S18R) ? true : false;
 	uint caps;
 
+#ifdef DEBUG
+	mmc_dump_capabilities("sd card", card_caps);
+	mmc_dump_capabilities("host", mmc->host_caps | MMC_MODE_1BIT);
+#endif
 
 	/* Restrict card's capabilities by what the host can do */
 	caps = card_caps & (mmc->host_caps | MMC_MODE_1BIT);
@@ -1763,6 +1767,11 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 	int err;
 	const struct mode_width_tuning *mwt;
 	const struct ext_csd_bus_width *ecbw;
+
+#ifdef DEBUG
+	mmc_dump_capabilities("mmc", card_caps);
+	mmc_dump_capabilities("host", mmc->host_caps | MMC_MODE_1BIT);
+#endif
 
 	/* Restrict card's capabilities by what the host can do */
 	card_caps &= (mmc->host_caps | MMC_MODE_1BIT);
