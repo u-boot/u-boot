@@ -818,7 +818,7 @@ static int mmc_get_capabilities(struct mmc *mmc)
 	u8 *ext_csd = mmc->ext_csd;
 	char cardtype;
 
-	mmc->card_caps = MMC_MODE_1BIT;
+	mmc->card_caps = MMC_MODE_1BIT | MMC_CAP(MMC_LEGACY);
 
 	if (mmc_host_is_spi(mmc))
 		return 0;
@@ -1171,7 +1171,7 @@ static int sd_get_capabilities(struct mmc *mmc)
 	int timeout;
 	u32 sd3_bus_mode;
 
-	mmc->card_caps = MMC_MODE_1BIT;
+	mmc->card_caps = MMC_MODE_1BIT | MMC_CAP(SD_LEGACY);
 
 	if (mmc_host_is_spi(mmc))
 		return 0;
