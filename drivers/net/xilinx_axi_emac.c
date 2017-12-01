@@ -72,13 +72,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define DMAALIGN	128
 
-#if defined(CONFIG_ARCH_ZYNQMP) || defined(CONFIG_ARCH_ZYNQ)
-#undef out_be32
-#undef in_be32
-#define out_be32(off, val)	writel(val, off)
-#define in_be32(off)		readl(off)
-#endif
-
 static u8 rxframe[PKTSIZE_ALIGN] __attribute((aligned(DMAALIGN)));
 
 /* Reflect dma offsets */
