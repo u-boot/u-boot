@@ -261,7 +261,7 @@
 		method = "smc";
 	};
 
-	firmware {
+	pmufw: firmware {
 		compatible = "xlnx,zynqmp-pm";
 		method = "smc";
 		interrupt-parent = <&gic>;
