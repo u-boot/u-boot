@@ -773,7 +773,7 @@ config ARCH_ZYNQMP
 	select SUPPORT_SPL
 	select CLK
 	select SPL_BOARD_INIT if SPL
-	select SPL_CLK
+	select SPL_CLK if SPL
 	select DM_USB if USB
 	imply FAT_WRITE
 
