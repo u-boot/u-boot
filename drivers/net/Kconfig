@@ -276,6 +276,12 @@ config SUN8I_EMAC
 	  It can be found in H3/A64/A83T based SoCs and compatible with both
 	  External and Internal PHYs.
 
+config SH_ETHER
+	bool "Renesas SH Ethernet MAC"
+	select PHYLIB
+	help
+	  This driver supports the Ethernet for Renesas SH and ARM SoCs.
+
 config XILINX_AXIEMAC
 	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)
 	select PHYLIB

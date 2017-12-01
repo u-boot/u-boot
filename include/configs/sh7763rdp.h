@@ -77,7 +77,6 @@
 #define CONFIG_SYS_TMU_CLK_DIV		(4)	/* 4 (default), 16, 64, 256 or 1024 */
 
 /* Ether */
-#define CONFIG_SH_ETHER 1
 #define CONFIG_SH_ETHER_USE_PORT (1)
 #define CONFIG_SH_ETHER_PHY_ADDR (0x01)
 #define CONFIG_BITBANGMII
