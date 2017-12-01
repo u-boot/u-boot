@@ -264,21 +264,17 @@ out_of_memory:
 	printf("ERROR: Out of memory\n");
 }
 
-static int efi_disk_create_eltorito(struct blk_desc *desc,
-				    const char *if_typename,
-				    int diskid,
-				    const char *pdevname)
+static int efi_disk_create_partitions(struct blk_desc *desc,
+				      const char *if_typename,
+				      int diskid,
+				      const char *pdevname)
 {
 	int disks = 0;
-#if CONFIG_IS_ENABLED(ISO_PARTITION)
 	char devname[32] = { 0 }; /* dp->str is u16[32] long */
 	disk_partition_t info;
 	int part;
 
-	if (desc->part_type != PART_TYPE_ISO)
-		return 0;
-
-	/* and devices for each partition: */
+	/* Add devices for each partition */
 	for (part = 1; part <= MAX_SEARCH_PARTITIONS; part++) {
 		if (part_get_info(desc, part, &info))
 			continue;
@@ -288,10 +284,6 @@ static int efi_disk_create_eltorito(struct blk_desc *desc,
 				 info.start, part);
 		disks++;
 	}
-
-	/* ... and add block device: */
-	efi_disk_add_dev(devname, if_typename, desc, diskid, 0, 0);
-#endif
 
 	return disks;
 }
@@ -318,31 +310,18 @@ int efi_disk_register(void)
 	     uclass_next_device_check(&dev)) {
 		struct blk_desc *desc = dev_get_uclass_platdata(dev);
 		const char *if_typename = dev->driver->name;
-		disk_partition_t info;
-		int part;
 
 		printf("Scanning disk %s...\n", dev->name);
 
-		/* add devices for each partition: */
-		for (part = 1; part <= MAX_SEARCH_PARTITIONS; part++) {
-			if (part_get_info(desc, part, &info))
-				continue;
-			efi_disk_add_dev(dev->name, if_typename, desc,
-					 desc->devnum, 0, part);
-		}
-
-		/* ... and add block device: */
+		/* Add block device for the full device */
 		efi_disk_add_dev(dev->name, if_typename, desc,
 				 desc->devnum, 0, 0);
 
 		disks++;
 
-		/*
-		* El Torito images show up as block devices in an EFI world,
-		* so let's create them here
-		*/
-		disks += efi_disk_create_eltorito(desc, if_typename,
-						  desc->devnum, dev->name);
+		/* Partitions show up as block devices in EFI */
+		disks += efi_disk_create_partitions(desc, if_typename,
+						    desc->devnum, dev->name);
 	}
 #else
 	int i, if_type;
@@ -361,8 +340,6 @@ int efi_disk_register(void)
 		for (i = 0; i < 4; i++) {
 			struct blk_desc *desc;
 			char devname[32] = { 0 }; /* dp->str is u16[32] long */
-			disk_partition_t info;
-			int part;
 
 			desc = blk_get_devnum_by_type(if_type, i);
 			if (!desc)
@@ -373,24 +350,13 @@ int efi_disk_register(void)
 			snprintf(devname, sizeof(devname), "%s%d",
 				 if_typename, i);
 
-			/* add devices for each partition: */
-			for (part = 1; part <= MAX_SEARCH_PARTITIONS; part++) {
-				if (part_get_info(desc, part, &info))
-					continue;
-				efi_disk_add_dev(devname, if_typename, desc,
-						 i, 0, part);
-			}
-
-			/* ... and add block device: */
+			/* Add block device for the full device */
 			efi_disk_add_dev(devname, if_typename, desc, i, 0, 0);
 			disks++;
 
-			/*
-			 * El Torito images show up as block devices
-			 * in an EFI world, so let's create them here
-			 */
-			disks += efi_disk_create_eltorito(desc, if_typename,
-							  i, devname);
+			/* Partitions show up as block devices in EFI */
+			disks += efi_disk_create_partitions(desc, if_typename,
+							    i, devname);
 		}
 	}
 #endif
