@@ -344,12 +344,9 @@
 /* 3 * 64kB blocks of OCM - one is on the top because of bootrom */
 #define CONFIG_SPL_MAX_SIZE	0x30000
 
-/* The highest 64k OCM address */
-#define OCM_HIGH_ADDR	0xffff0000
-
 /* On the top of OCM space */
-#define CONFIG_SYS_SPL_MALLOC_START	OCM_HIGH_ADDR
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x2000
+#define CONFIG_SYS_SPL_MALLOC_START	CONFIG_SPL_STACK_R_ADDR
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x2000000
 
 /*
  * SPL stack position - and stack goes down
