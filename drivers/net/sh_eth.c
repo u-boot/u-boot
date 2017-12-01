@@ -29,7 +29,8 @@
 
 #if defined(CONFIG_SH_ETHER_CACHE_WRITEBACK) && !defined(CONFIG_SYS_DCACHE_OFF)
 #define flush_cache_wback(addr, len)    \
-		flush_dcache_range((u32)addr, (u32)(addr + len - 1))
+		flush_dcache_range((u32)addr, \
+		(u32)(addr + ALIGN(len, CONFIG_SH_ETHER_ALIGNE_SIZE)))
 #else
 #define flush_cache_wback(...)
 #endif
@@ -205,7 +206,7 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 		goto err;
 	}
 
-	flush_cache_wback((u32)port_info->tx_desc_alloc, alloc_desc_size);
+	flush_cache_wback(port_info->tx_desc_alloc, alloc_desc_size);
 
 	/* Make sure we use a P2 address (non-cacheable) */
 	port_info->tx_desc_base =
