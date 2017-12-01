@@ -364,23 +364,28 @@ int board_late_init(void)
 	case USB_MODE:
 		puts("USB_MODE\n");
 		mode = "usb";
+		env_set("modeboot", "usb_dfu_spl");
 		break;
 	case JTAG_MODE:
 		puts("JTAG_MODE\n");
 		mode = "pxe dhcp";
+		env_set("modeboot", "jtagboot");
 		break;
 	case QSPI_MODE_24BIT:
 	case QSPI_MODE_32BIT:
 		mode = "qspi0";
 		puts("QSPI_MODE\n");
+		env_set("modeboot", "qspiboot");
 		break;
 	case EMMC_MODE:
 		puts("EMMC_MODE\n");
 		mode = "mmc0";
+		env_set("modeboot", "emmcboot");
 		break;
 	case SD_MODE:
 		puts("SD_MODE\n");
 		mode = "mmc0";
+		env_set("modeboot", "sdboot");
 		break;
 	case SD1_LSHFT_MODE:
 		puts("LVL_SHFT_");
@@ -389,13 +394,16 @@ int board_late_init(void)
 		puts("SD_MODE1\n");
 #if defined(CONFIG_ZYNQ_SDHCI0) && defined(CONFIG_ZYNQ_SDHCI1)
 		mode = "mmc1";
+		env_set("sdbootdev", "1");
 #else
 		mode = "mmc0";
 #endif
+		env_set("modeboot", "sdboot");
 		break;
 	case NAND_MODE:
 		puts("NAND_MODE\n");
 		mode = "nand0";
+		env_set("modeboot", "nandboot");
 		break;
 	default:
 		mode = "";
