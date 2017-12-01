@@ -187,7 +187,7 @@ enum {
 	DCLK_VOP_SEL_MASK          = 1 << DCLK_VOP_SEL_SHIFT,
 	DCLK_VOP_PLL_SEL_CPLL           = 0,
 	DCLK_VOP_DIV_CON_SHIFT          = 8,
-	DCLK_VOP_DIV_CON_MASK           = 0xfff << DCLK_VOP_DIV_CON_SHIFT,
+	DCLK_VOP_DIV_CON_MASK           = 0xff << DCLK_VOP_DIV_CON_SHIFT,
 
 	/* CRU_CLKSEL31_CON */
 	VIO0_PLL_SHIFT		= 5,
