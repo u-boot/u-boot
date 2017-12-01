@@ -7,8 +7,8 @@
 # This file only gets included with CONFIG_EFI_LOADER set, so all
 # object inclusion implicitly depends on it
 
-CFLAGS_helloworld.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_helloworld.o := $(CFLAGS_NON_EFI)
+CFLAGS_helloworld.o := $(CFLAGS_EFI) -Os -ffreestanding
+CFLAGS_REMOVE_helloworld.o := $(CFLAGS_NON_EFI) -Os
 
 ifneq ($(CONFIG_CMD_BOOTEFI_HELLO_COMPILE),)
 always += helloworld.efi
