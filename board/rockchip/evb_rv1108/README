@@ -3,12 +3,11 @@ Here is the step-by-step to boot U-Boot on rv1108 evb.
 Get ddr init binary
 ==============================================================================
   > git clone  https://github.com/rockchip-linux/rkbin.git
-  > dd if=./rkbin/rv1x/rv1108ddr.bin of=ddr.bin bs=4 skip=1
 
 Compile  U-Boot
 ===========================
   > make CROSS_COMPILE=arm-linux-gnueabi- evb-rv1108_defconfig  all
-  > ./tools/mkimage  -n rv1108 -T rksd -d ddr.bin spl.bin
+  > ./tools/mkimage  -n rv1108 -T rksd -d ../rkbin/rv1x/rv1108ddr_v1.00.bin spl.bin
   > cat spl.bin u-boot.bin > u-boot.img
 
 Flash the image by rkdeveloptool
@@ -16,7 +15,7 @@ Flash the image by rkdeveloptool
 rkdeveloptool can get from https://github.com/rockchip-linux/rkdeveloptool.git
 
 Power on(or reset with RESET KEY) with MASKROM KEY preesed, and then:
-  > rkdeveloptool db ./rkbin/rv1x/RV1108_usb_boot.bin
+  > rkdeveloptool db ./rkbin/rv1x/rv1108usbboot_v1.00.bin
   > rkdeveloptool wl 0x40 u-boot.img
   > rkdeveloptool RD
 

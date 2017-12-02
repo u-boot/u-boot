@@ -1,10 +1,11 @@
 #
-# Copyright (c) 2016 Google, Inc
+# Copyright (c) 2017 Rockchip Electronics Co., Ltd
 #
 # SPDX-License-Identifier:      GPL-2.0+
 #
 
 obj-$(CONFIG_ROCKCHIP_RK3036) += clk_rk3036.o
+obj-$(CONFIG_ROCKCHIP_RK3128) += clk_rk3128.o
 obj-$(CONFIG_ROCKCHIP_RK3188) += clk_rk3188.o
 obj-$(CONFIG_ROCKCHIP_RK322X) += clk_rk322x.o
 obj-$(CONFIG_ROCKCHIP_RK3288) += clk_rk3288.o

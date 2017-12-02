@@ -46,3 +46,9 @@ u-boot,spl-payload-offset
 	If present (and SPL is controlled by the device-tree), this allows
 	to override the CONFIG_SYS_SPI_U_BOOT_OFFS setting using a value
 	from the device-tree.
+
+sysreset-gpio
+	If present (and supported by the specific board), indicates a
+	GPIO that can be set to trigger a system reset.  It is assumed
+	that such a system reset will effect a complete platform reset,
+	being roughly equivalent to a power-on reset.

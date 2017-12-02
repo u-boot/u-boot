@@ -34,10 +34,11 @@ struct rk3036_sdram_priv {
 	struct rk3036_ddr_config ddr_config;
 };
 
-/* use integer mode, 396MHz dpll setting
+/*
+ * use integer mode, dpll output 792MHz and ddr get 396MHz
  * refdiv, fbdiv, postdiv1, postdiv2
  */
-const struct pll_div dpll_init_cfg = {1, 50, 3, 1};
+const struct pll_div dpll_init_cfg = {1, 66, 2, 1};
 
 /* 396Mhz ddr timing */
 const struct rk3036_ddr_timing ddr_timing = {0x18c,
@@ -329,29 +330,26 @@ static void rkdclk_init(struct rk3036_sdram_priv *priv)
 	struct rk3036_pll *pll = &priv->cru->pll[1];
 
 	/* pll enter slow-mode */
-	rk_clrsetreg(&priv->cru->cru_mode_con,
-		     DPLL_MODE_MASK << DPLL_MODE_SHIFT,
+	rk_clrsetreg(&priv->cru->cru_mode_con, DPLL_MODE_MASK,
 		     DPLL_MODE_SLOW << DPLL_MODE_SHIFT);
 
 	/* use integer mode */
-	rk_clrreg(&pll->con1, 1 << PLL_DSMPD_SHIFT);
+	rk_setreg(&pll->con1, 1 << PLL_DSMPD_SHIFT);
 
 	rk_clrsetreg(&pll->con0,
-		     PLL_POSTDIV1_MASK << PLL_POSTDIV1_SHIFT | PLL_FBDIV_MASK,
+		     PLL_POSTDIV1_MASK | PLL_FBDIV_MASK,
 		     (dpll_init_cfg.postdiv1 << PLL_POSTDIV1_SHIFT) |
 			dpll_init_cfg.fbdiv);
-	rk_clrsetreg(&pll->con1, PLL_POSTDIV2_MASK << PLL_POSTDIV2_SHIFT |
-			PLL_REFDIV_MASK << PLL_REFDIV_SHIFT,
-			(dpll_init_cfg.postdiv2 << PLL_POSTDIV2_SHIFT |
-			 dpll_init_cfg.refdiv << PLL_REFDIV_SHIFT));
+	rk_clrsetreg(&pll->con1, PLL_POSTDIV2_MASK | PLL_REFDIV_MASK,
+		     (dpll_init_cfg.postdiv2 << PLL_POSTDIV2_SHIFT |
+		      dpll_init_cfg.refdiv << PLL_REFDIV_SHIFT));
 
 	/* waiting for pll lock */
 	while (readl(&pll->con1) & (1 << PLL_LOCK_STATUS_SHIFT))
 		rockchip_udelay(1);
 
 	/* PLL enter normal-mode */
-	rk_clrsetreg(&priv->cru->cru_mode_con,
-		     DPLL_MODE_MASK << DPLL_MODE_SHIFT,
+	rk_clrsetreg(&priv->cru->cru_mode_con, DPLL_MODE_MASK,
 		     DPLL_MODE_NORM << DPLL_MODE_SHIFT);
 }
 
