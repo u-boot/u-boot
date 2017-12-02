@@ -106,11 +106,22 @@
 
 #include <config_distro_defaults.h>
 
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 1) \
+	func(MMC, mmc, 0) \
+	func(USB, usb, 0) \
+	func(SCSI, scsi, 0) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
+
+#include <config_distro_bootcmd.h>
+
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"scriptaddr=0x4d00000\0"	\
 	"pxefile_addr_r=0x4e00000\0"	\
 	"fdt_addr_r=0x4f00000\0"	\
 	"kernel_addr_r=0x5000000\0"	\
-	"ramdisk_addr_r=0x8000000"
+	"ramdisk_addr_r=0x8000000\0"	\
+	BOOTENV
 
 #endif /* _CONFIG_MVEBU_ARMADA_37XX_H */
