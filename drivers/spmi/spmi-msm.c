@@ -161,7 +161,7 @@ static int msm_spmi_probe(struct udevice *dev)
 		return -EINVAL;
 
 	/* Scan peripherals connected to each SPMI channel */
-	for (i = 0; i < SPMI_MAX_CHANNELS ; i++) {
+	for (i = 0; i < SPMI_MAX_PERIPH ; i++) {
 		uint32_t periph = readl(priv->arb_chnl + ARB_CHANNEL_OFFSET(i));
 		uint8_t slave_id = (periph & 0xf0000) >> 16;
 		uint8_t pid = (periph & 0xff00) >> 8;
