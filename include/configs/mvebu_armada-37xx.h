@@ -106,4 +106,11 @@
 
 #include <config_distro_defaults.h>
 
+#define CONFIG_EXTRA_ENV_SETTINGS	\
+	"scriptaddr=0x4d00000\0"	\
+	"pxefile_addr_r=0x4e00000\0"	\
+	"fdt_addr_r=0x4f00000\0"	\
+	"kernel_addr_r=0x5000000\0"	\
+	"ramdisk_addr_r=0x8000000"
+
 #endif /* _CONFIG_MVEBU_ARMADA_37XX_H */
