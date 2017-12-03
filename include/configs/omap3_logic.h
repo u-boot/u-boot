@@ -93,7 +93,6 @@
 
 #define CONFIG_PREBOOT \
 	"setenv preboot;"						\
-	"nand unlock;"							\
 	"saveenv;"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -192,7 +191,6 @@
 		"tftpboot $loadaddr zImage;" \
 		"bootz $loadaddr\0" \
 	"nandbootcommon=echo 'Booting kernel from NAND...';" \
-		"nand unlock;" \
 		"run nandargs;" \
 		"run common_bootargs;" \
 		"run dump_bootargs;" \

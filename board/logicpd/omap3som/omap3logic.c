@@ -207,6 +207,16 @@ int board_init(void)
 }
 
 #ifdef CONFIG_BOARD_LATE_INIT
+
+static void unlock_nand(void)
+{
+	int dev = nand_curr_device;
+	struct mtd_info *mtd;
+
+	mtd = get_nand_dev_by_index(dev);
+	nand_unlock(mtd, 0, mtd->size, 0);
+}
+
 int board_late_init(void)
 {
 	struct board_id *board;
@@ -256,6 +266,10 @@ int board_late_init(void)
 
 	/* restore hsusb0_data5 pin as hsusb0_data5 */
 	MUX_VAL(CP(HSUSB0_DATA5),	(IEN  | PTD | DIS | M0));
+
+#ifdef CONFIG_CMD_NAND_LOCK_UNLOCK
+	unlock_nand();
+#endif
 	return 0;
 }
 #endif
