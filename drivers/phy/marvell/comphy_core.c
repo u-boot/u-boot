@@ -186,8 +186,7 @@ static int comphy_probe(struct udevice *dev)
 	/* PHY power UP sequence */
 	chip_cfg->ptr_comphy_chip_init(chip_cfg, chip_cfg->comphy_map_data);
 	/* PHY print SerDes status */
-	if (of_machine_is_compatible("marvell,armada8040"))
-		printf("Comphy chip #%d:\n", chip_cfg->cp_index);
+	printf("Comphy chip #%d:\n", chip_cfg->cp_index);
 	comphy_print(chip_cfg, chip_cfg->comphy_map_data);
 
 	/*
