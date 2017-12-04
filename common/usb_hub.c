@@ -625,7 +625,7 @@ static int usb_hub_configure(struct usb_device *dev)
 	short hubCharacteristics;
 	struct usb_hub_descriptor *descriptor;
 	struct usb_hub_device *hub;
-	__maybe_unused struct usb_hub_status *hubsts;
+	struct usb_hub_status *hubsts;
 	int ret;
 
 	hub = usb_get_hub_device(dev);
@@ -779,9 +779,7 @@ static int usb_hub_configure(struct usb_device *dev)
 		return ret;
 	}
 
-#ifdef DEBUG
 	hubsts = (struct usb_hub_status *)buffer;
-#endif
 
 	debug("get_hub_status returned status %X, change %X\n",
 	      le16_to_cpu(hubsts->wHubStatus),
