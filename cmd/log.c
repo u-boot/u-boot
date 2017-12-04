@@ -23,6 +23,9 @@ static int do_log_level(cmd_tbl_t *cmdtp, int flag, int argc,
 
 static cmd_tbl_t log_sub[] = {
 	U_BOOT_CMD_MKENT(level, CONFIG_SYS_MAXARGS, 1, do_log_level, "", ""),
+#ifdef CONFIG_LOG_TEST
+	U_BOOT_CMD_MKENT(test, 2, 1, do_log_test, "", ""),
+#endif
 };
 
 static int do_log(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -46,6 +49,9 @@ static int do_log(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_SYS_LONGHELP
 static char log_help_text[] =
 	"level - get/set log level\n"
+#ifdef CONFIG_LOG_TEST
+	"log test - run log tests\n"
+#endif
 	;
 #endif
 

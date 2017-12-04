@@ -256,6 +256,9 @@ struct log_filter {
 #define LOG_DRIVER(_name) \
 	ll_entry_declare(struct log_driver, _name, log_driver)
 
+/* Handle the 'log test' command */
+int do_log_test(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
+
 /**
  * log_add_filter() - Add a new filter to a log device
  *

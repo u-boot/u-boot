@@ -1507,7 +1507,8 @@ config CMD_LOG
 	help
 	  This provides access to logging features. It allows the output of
 	  log data to be controlled to a limited extent (setting up the default
-	  maximum log level for emitting of records).
+	  maximum log level for emitting of records). It also provides access
+	  to a command used for testing the log system.
 
 config CMD_TRACE
 	bool "trace - Support tracing of function calls and timing"

@@ -494,6 +494,16 @@ config LOG_SPL_CONSOLE
 	  log message is shown - other details like level, category, file and
 	  line number are omitted.
 
+config LOG_TEST
+	bool "Provide a test for logging"
+	depends on LOG
+	default y if SANDBOX
+	help
+	  This enables a 'log test' command to test logging. It is normally
+	  executed from a pytest and simply outputs logging information
+	  in various different ways to test that the logging system works
+	  correctly with varoius settings.
+
 endmenu
 
 config DEFAULT_FDT_FILE
