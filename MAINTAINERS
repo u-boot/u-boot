@@ -317,6 +317,7 @@ T:	git git://git.denx.de/u-boot.git
 F:	common/log.c
 F:	cmd/log.c
 F:	test/log/log_test.c
+F:	test/py/tests/test_log.py
 
 MICROBLAZE
 M:	Michal Simek <monstr@monstr.eu>
