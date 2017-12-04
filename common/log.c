@@ -238,6 +238,7 @@ int log_init(void)
 			      (struct list_head *)&gd->log_head);
 		drv++;
 	}
+	gd->flags |= GD_FLG_LOG_READY;
 	gd->default_log_level = LOGL_INFO;
 
 	return 0;

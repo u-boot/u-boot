@@ -691,6 +691,7 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 	initr_barrier,
 	initr_malloc,
+	log_init,
 	initr_bootstage,	/* Needs malloc() but has its own timer */
 	initr_console_record,
 #ifdef CONFIG_SYS_NONCACHED_MEMORY
@@ -884,6 +885,7 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 #if !defined(CONFIG_X86) && !defined(CONFIG_ARM) && !defined(CONFIG_ARM64)
 	gd = new_gd;
 #endif
+	gd->flags &= ~GD_FLG_LOG_READY;
 
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	for (i = 0; i < ARRAY_SIZE(init_sequence_r); i++)

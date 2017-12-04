@@ -751,6 +751,7 @@ static const init_fnc_t init_sequence_f[] = {
 	trace_early_init,
 #endif
 	initf_malloc,
+	log_init,
 	initf_bootstage,	/* uses its own timer, so does not need DM */
 	initf_console_record,
 #if defined(CONFIG_HAVE_FSP)
@@ -932,8 +933,10 @@ void board_init_f_r(void)
 	 * The pre-relocation drivers may be using memory that has now gone
 	 * away. Mark serial as unavailable - this will fall back to the debug
 	 * UART if available.
+	 *
+	 * Do the same with log drivers since the memory may not be available.
 	 */
-	gd->flags &= ~GD_FLG_SERIAL_READY;
+	gd->flags &= ~(GD_FLG_SERIAL_READY | GD_FLG_LOG_READY);
 #ifdef CONFIG_TIMER
 	gd->timer = NULL;
 #endif
