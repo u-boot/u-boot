@@ -474,6 +474,26 @@ config SPL_LOG_MAX_LEVEL
 	    6 - detail
 	    7 - debug
 
+config LOG_CONSOLE
+	bool "Allow log output to the console"
+	depends on LOG
+	default y
+	help
+	  Enables a log driver which writes log records to the console.
+	  Generally the console is the serial port or LCD display. Only the
+	  log message is shown - other details like level, category, file and
+	  line number are omitted.
+
+config LOG_SPL_CONSOLE
+	bool "Allow log output to the console in SPL"
+	depends on LOG_SPL
+	default y
+	help
+	  Enables a log driver which writes log records to the console.
+	  Generally the console is the serial port or LCD display. Only the
+	  log message is shown - other details like level, category, file and
+	  line number are omitted.
+
 endmenu
 
 config DEFAULT_FDT_FILE
