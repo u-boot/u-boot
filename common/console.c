@@ -489,6 +489,13 @@ static inline void print_pre_console_buffer(int flushpoint) {}
 
 void putc(const char c)
 {
+#ifdef CONFIG_SANDBOX
+	/* sandbox can send characters to stdout before it has a console */
+	if (!gd || !(gd->flags & GD_FLG_SERIAL_READY)) {
+		os_putc(c);
+		return;
+	}
+#endif
 #ifdef CONFIG_DEBUG_UART
 	/* if we don't have a console yet, use the debug UART */
 	if (!gd || !(gd->flags & GD_FLG_SERIAL_READY)) {
