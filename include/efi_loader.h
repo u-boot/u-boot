@@ -190,6 +190,8 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path);
 void efi_add_handle(struct efi_object *obj);
 /* Create handle */
 efi_status_t efi_create_handle(void **handle);
+/* Delete handle */
+void efi_delete_handle(struct efi_object *obj);
 /* Call this to validate a handle and find the EFI object for it */
 struct efi_object *efi_search_obj(const void *handle);
 /* Find a protocol on a handle */
