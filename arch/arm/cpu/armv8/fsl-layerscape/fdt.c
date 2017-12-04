@@ -145,7 +145,7 @@ static void fdt_fixup_gic(void *blob)
 
 	val = gur_in32(&gur->svr);
 
-	if (SVR_SOC_VER(val) != SVR_LS1043A) {
+	if (!IS_SVR_DEV(val, SVR_DEV(SVR_LS1043A))) {
 		align_64k = 1;
 	} else if (SVR_REV(val) != REV1_0) {
 		val = scfg_in32(&scfg->gic_align) & (0x01 << GIC_ADDR_BIT);
@@ -327,7 +327,7 @@ static void fdt_fixup_msi(void *blob)
 
 	rev = gur_in32(&gur->svr);
 
-	if (SVR_SOC_VER(rev) != SVR_LS1043A)
+	if (!IS_SVR_DEV(rev, SVR_DEV(SVR_LS1043A)))
 		return;
 
 	rev = SVR_REV(rev);

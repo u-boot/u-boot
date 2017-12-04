@@ -175,8 +175,8 @@ void qbman_version(u32 *major, u32 *minor)
 	 * LS2080A SoC and its personalities has qbman cotroller version 4.0
 	 * New SoCs like LS2088A, LS1088A has qbman conroller version 4.1
 	 */
-	svr_dev_id = get_svr() >> 16;
-	if (svr_dev_id == SVR_DEV_LS2080A) {
+	svr_dev_id = get_svr();
+	if (IS_SVR_DEV(svr_dev_id, SVR_DEV(SVR_LS2080A))) {
 		*major = 4;
 		*minor = 0;
 	} else {

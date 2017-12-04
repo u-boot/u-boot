@@ -538,8 +538,8 @@ int arch_early_init_r(void)
 	 * erratum A009635 is valid only for LS2080A SoC and
 	 * its personalitiesi
 	 */
-	svr_dev_id = get_svr() >> 16;
-	if (svr_dev_id == SVR_DEV_LS2080A)
+	svr_dev_id = get_svr();
+	if (IS_SVR_DEV(svr_dev_id, SVR_DEV(SVR_LS2080A)))
 		erratum_a009635();
 #endif
 #if defined(CONFIG_SYS_FSL_ERRATUM_A009942) && defined(CONFIG_SYS_FSL_DDR)
@@ -604,8 +604,8 @@ int timer_init(void)
 	 * For LS2080A SoC and its personalities, timer controller
 	 * offset is different
 	 */
-	svr_dev_id = get_svr() >> 16;
-	if (svr_dev_id == SVR_DEV_LS2080A)
+	svr_dev_id = get_svr();
+	if (IS_SVR_DEV(svr_dev_id, SVR_DEV(SVR_LS2080A)))
 		cntcr = (u32 *)SYS_FSL_LS2080A_LS2085A_TIMER_ADDR;
 
 #endif
