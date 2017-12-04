@@ -215,7 +215,6 @@
 
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x1fffffff
-#define CONFIG_PANIC_HANG		/* do not reset board on panic */
 
 /* DDR Setup */
 #define CONFIG_SYS_DDR_RAW_TIMING

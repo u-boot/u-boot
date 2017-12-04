@@ -58,7 +58,6 @@
 
 #define CONFIG_SYS_MEMTEST_START	0x00000000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x7fffffff
-#define CONFIG_PANIC_HANG	/* do not reset board on panic */
 
 /*
  * Config the L2 Cache as L2 SRAM

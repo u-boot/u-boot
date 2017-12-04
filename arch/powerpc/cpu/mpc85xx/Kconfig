@@ -29,6 +29,7 @@ config TARGET_B4420QDS
 	select ARCH_B4420
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply PANIC_HANG
 
 config TARGET_B4860QDS
 	bool "Support B4860QDS"
@@ -36,6 +37,7 @@ config TARGET_B4860QDS
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply PANIC_HANG
 
 config TARGET_BSC9131RDB
 	bool "Support BSC9131RDB"
@@ -57,6 +59,7 @@ config TARGET_C29XPCIE
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select PHYS_64BIT
+	imply PANIC_HANG
 
 config TARGET_P3041DS
 	bool "Support P3041DS"
@@ -64,6 +67,7 @@ config TARGET_P3041DS
 	select ARCH_P3041
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P4080DS
 	bool "Support P4080DS"
@@ -71,6 +75,7 @@ config TARGET_P4080DS
 	select ARCH_P4080
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P5020DS
 	bool "Support P5020DS"
@@ -78,6 +83,7 @@ config TARGET_P5020DS
 	select ARCH_P5020
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P5040DS
 	bool "Support P5040DS"
@@ -85,6 +91,7 @@ config TARGET_P5040DS
 	select ARCH_P5040
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_MPC8536DS
 	bool "Support MPC8536DS"
@@ -101,6 +108,7 @@ config TARGET_MPC8541CDS
 config TARGET_MPC8544DS
 	bool "Support MPC8544DS"
 	select ARCH_MPC8544
+	imply PANIC_HANG
 
 config TARGET_MPC8548CDS
 	bool "Support MPC8548CDS"
@@ -124,6 +132,7 @@ config TARGET_MPC8572DS
 # Use DDR3 controller with DDR2 DIMMs on this board
 	select SYS_FSL_DDRC_GEN3
 	imply SCSI
+	imply PANIC_HANG
 
 config TARGET_P1010RDB_PA
 	bool "Support P1010RDB_PA"
@@ -133,6 +142,7 @@ config TARGET_P1010RDB_PA
 	select SUPPORT_TPL
 	imply CMD_EEPROM
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P1010RDB_PB
 	bool "Support P1010RDB_PB"
@@ -142,6 +152,7 @@ config TARGET_P1010RDB_PB
 	select SUPPORT_TPL
 	imply CMD_EEPROM
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P1022DS
 	bool "Support P1022DS"
@@ -155,6 +166,7 @@ config TARGET_P1023RDB
 	bool "Support P1023RDB"
 	select ARCH_P1023
 	imply CMD_EEPROM
+	imply PANIC_HANG
 
 config TARGET_P1020MBG
 	bool "Support P1020MBG-PC"
@@ -163,6 +175,7 @@ config TARGET_P1020MBG
 	select ARCH_P1020
 	imply CMD_EEPROM
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P1020RDB_PC
 	bool "Support P1020RDB-PC"
@@ -171,6 +184,7 @@ config TARGET_P1020RDB_PC
 	select ARCH_P1020
 	imply CMD_EEPROM
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P1020RDB_PD
 	bool "Support P1020RDB-PD"
@@ -179,6 +193,7 @@ config TARGET_P1020RDB_PD
 	select ARCH_P1020
 	imply CMD_EEPROM
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P1020UTM
 	bool "Support P1020UTM"
@@ -187,6 +202,7 @@ config TARGET_P1020UTM
 	select ARCH_P1020
 	imply CMD_EEPROM
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P1021RDB
 	bool "Support P1021RDB"
@@ -195,6 +211,7 @@ config TARGET_P1021RDB
 	select ARCH_P1021
 	imply CMD_EEPROM
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P1024RDB
 	bool "Support P1024RDB"
@@ -203,6 +220,7 @@ config TARGET_P1024RDB
 	select ARCH_P1024
 	imply CMD_EEPROM
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P1025RDB
 	bool "Support P1025RDB"
@@ -256,6 +274,7 @@ config TARGET_T1023RDB
 	select SUPPORT_SPL
 	select PHYS_64BIT
 	imply CMD_EEPROM
+	imply PANIC_HANG
 
 config TARGET_T1024RDB
 	bool "Support T1024RDB"
@@ -264,6 +283,7 @@ config TARGET_T1024RDB
 	select SUPPORT_SPL
 	select PHYS_64BIT
 	imply CMD_EEPROM
+	imply PANIC_HANG
 
 config TARGET_T1040QDS
 	bool "Support T1040QDS"
@@ -272,6 +292,7 @@ config TARGET_T1040QDS
 	select PHYS_64BIT
 	imply CMD_EEPROM
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_T1040RDB
 	bool "Support T1040RDB"
@@ -280,6 +301,7 @@ config TARGET_T1040RDB
 	select SUPPORT_SPL
 	select PHYS_64BIT
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_T1040D4RDB
 	bool "Support T1040D4RDB"
@@ -288,6 +310,7 @@ config TARGET_T1040D4RDB
 	select SUPPORT_SPL
 	select PHYS_64BIT
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_T1042RDB
 	bool "Support T1042RDB"
@@ -304,6 +327,7 @@ config TARGET_T1042D4RDB
 	select SUPPORT_SPL
 	select PHYS_64BIT
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_T1042RDB_PI
 	bool "Support T1042RDB_PI"
@@ -312,6 +336,7 @@ config TARGET_T1042RDB_PI
 	select SUPPORT_SPL
 	select PHYS_64BIT
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_T2080QDS
 	bool "Support T2080QDS"
@@ -328,6 +353,7 @@ config TARGET_T2080RDB
 	select SUPPORT_SPL
 	select PHYS_64BIT
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_T2081QDS
 	bool "Support T2081QDS"
@@ -342,12 +368,14 @@ config TARGET_T4160QDS
 	select SUPPORT_SPL
 	select PHYS_64BIT
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_T4160RDB
 	bool "Support T4160RDB"
 	select ARCH_T4160
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply PANIC_HANG
 
 config TARGET_T4240QDS
 	bool "Support T4240QDS"
@@ -356,6 +384,7 @@ config TARGET_T4240QDS
 	select SUPPORT_SPL
 	select PHYS_64BIT
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_T4240RDB
 	bool "Support T4240RDB"
@@ -363,6 +392,7 @@ config TARGET_T4240RDB
 	select SUPPORT_SPL
 	select PHYS_64BIT
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_CONTROLCENTERD
 	bool "Support controlcenterd"
@@ -393,16 +423,19 @@ config TARGET_UCP1020
 	bool "Support uCP1020"
 	select ARCH_P1020
 	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_CYRUS_P5020
 	bool "Support Varisys Cyrus P5020"
 	select ARCH_P5020
 	select PHYS_64BIT
+	imply PANIC_HANG
 
 config TARGET_CYRUS_P5040
 	 bool "Support Varisys Cyrus P5040"
 	select ARCH_P5040
 	select PHYS_64BIT
+	imply PANIC_HANG
 
 endchoice
 

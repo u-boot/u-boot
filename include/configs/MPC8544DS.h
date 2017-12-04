@@ -46,7 +46,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
-#define CONFIG_PANIC_HANG	/* do not reset board on panic */
 
 #define CONFIG_SYS_CCSRBAR		0xe0000000
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR

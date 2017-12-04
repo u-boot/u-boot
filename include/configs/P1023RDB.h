@@ -52,8 +52,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_MEMTEST_START	0x01000000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x02000000
 
-#define CONFIG_PANIC_HANG	/* do not reset board on panic */
-
 /* Implement conversion of addresses in the LBC */
 #define CONFIG_SYS_LBC_LBCR		0x00000000
 #define CONFIG_SYS_LBC_LCRR		LCRR_CLKDIV_8

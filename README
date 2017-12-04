@@ -2168,16 +2168,6 @@ The following options need to be configured:
 		currently only supports clearing the memory.
 
 - Error Recovery:
-		CONFIG_PANIC_HANG
-
-		Define this variable to stop the system in case of a
-		fatal error, so that you have to reset it manually.
-		This is probably NOT a good idea for an embedded
-		system where you want the system to reboot
-		automatically as fast as possible, but it may be
-		useful during development since you can try to debug
-		the conditions that lead to the situation.
-
 		CONFIG_NET_RETRY_COUNT
 
 		This variable defines the number of retries for

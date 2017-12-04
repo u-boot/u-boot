@@ -11,6 +11,7 @@ config ARCH_LS1012A
 	select SYS_FSL_ERRATUM_A009008
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
+	imply PANIC_HANG
 
 config ARCH_LS1043A
 	bool
@@ -91,6 +92,7 @@ config ARCH_LS1088A
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
 	imply SCSI
+	imply PANIC_HANG
 
 config ARCH_LS2080A
 	bool
@@ -129,6 +131,7 @@ config ARCH_LS2080A
 	select SYS_FSL_ERRATUM_A009203
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
+	imply PANIC_HANG
 
 config FSL_LSCH2
 	bool

@@ -173,7 +173,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
 #define CONFIG_SYS_ALT_MEMTEST
-#define CONFIG_PANIC_HANG	/* do not reset board on panic */
 
 /*
  *  Config the L3 Cache as L3 SRAM

@@ -291,7 +291,6 @@
 #define CONFIG_CMDLINE_EDITING	1		/* add command line history	*/
 #define CONFIG_AUTO_COMPLETE	1		/* add autocompletion support */
 #define CONFIG_LOADADDR		0x1000000	/* default location for tftp and bootm */
-#define CONFIG_PANIC_HANG			/* do not reset board on panic */
 #define CONFIG_PREBOOT				/* enable preboot variable */
 #define CONFIG_INTEGRITY			/* support booting INTEGRITY OS */
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */

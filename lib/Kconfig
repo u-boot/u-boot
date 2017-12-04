@@ -45,6 +45,16 @@ config USE_TINY_PRINTF
 
 	  The supported format specifiers are %c, %s, %u/%d and %x.
 
+config PANIC_HANG
+	bool "Do not reset the system on fatal error"
+	help
+	  Define this option to stop the system in case of a fatal error,
+	  so that you have to reset it manually. This is probably NOT a good
+	  idea for an embedded system where you want the system to reboot
+	  automatically as fast as possible, but it may be useful during
+	  development since you can try to debug the conditions that lead to
+	  the situation.
+
 config REGEX
 	bool "Enable regular expression support"
 	default y if NET

@@ -130,10 +130,6 @@
 #define CONFIG_MX_CYCLIC
 #define CONFIG_SHOW_BOOT_PROGRESS
 
-#ifdef DEBUG
-#define CONFIG_PANIC_HANG		1	/* Require manual reboot */
-#endif
-
 
 /*=========================================*/
 /* FPGA Registers (board info and control) */

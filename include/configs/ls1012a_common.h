@@ -117,7 +117,6 @@
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_MAXARGS		64	/* max command args */
 
-#define CONFIG_PANIC_HANG
 #define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */
 
 #include <asm/arch/soc.h>

@@ -90,7 +90,6 @@
 
 
 /* hang() the board on panic() */
-#define CONFIG_PANIC_HANG
 
 /* environment placement (for NAND), is different for FLASHCARD but does not
  * harm there */

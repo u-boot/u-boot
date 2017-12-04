@@ -223,8 +223,6 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_MAXARGS		64	/* max command args */
 
-#define CONFIG_PANIC_HANG	/* do not reset board on panic */
-
 #ifdef CONFIG_SPL
 #define CONFIG_SPL_BSS_START_ADDR      0x80100000
 #define CONFIG_SPL_BSS_MAX_SIZE                0x00100000
