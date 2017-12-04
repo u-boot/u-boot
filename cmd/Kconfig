@@ -1502,6 +1502,13 @@ config CMD_KGDB
 	  single-stepping, inspecting variables, etc. This is supported only
 	  on PowerPC at present.
 
+config CMD_LOG
+	bool "log - Generation, control and access to logging"
+	help
+	  This provides access to logging features. It allows the output of
+	  log data to be controlled to a limited extent (setting up the default
+	  maximum log level for emitting of records).
+
 config CMD_TRACE
 	bool "trace - Support tracing of function calls and timing"
 	help

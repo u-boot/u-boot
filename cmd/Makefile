@@ -76,6 +76,7 @@ obj-$(CONFIG_LED_STATUS_CMD) += legacy_led.o
 obj-$(CONFIG_CMD_LED) += led.o
 obj-$(CONFIG_CMD_LICENSE) += license.o
 obj-y += load.o
+obj-$(CONFIG_CMD_LOG) += log.o
 obj-$(CONFIG_ID_EEPROM) += mac.o
 obj-$(CONFIG_CMD_MD5SUM) += md5sum.o
 obj-$(CONFIG_CMD_MEMORY) += mem.o
