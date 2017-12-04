@@ -10,13 +10,13 @@
 	#address-cells = <1>;
 
 	images {
-		update@1 {
+		update-1 {
 			description = "U-Boot binary";
 			data = /incbin/("./u-boot.bin");
 			compression = "none";
 			type = "firmware";
 			load = <FFFC0000>;
-			hash@1 {
+			hash-1 {
 				algo = "sha1";
 			};
 		};
