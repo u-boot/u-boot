@@ -19,7 +19,6 @@
 #include <i2c.h>
 #include <initcall.h>
 #include <init_helpers.h>
-#include <logbuff.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <os.h>
@@ -295,20 +294,6 @@ static int setup_dest_addr(void)
 #endif
 	return 0;
 }
-
-#if defined(CONFIG_LOGBUFFER)
-static int reserve_logbuffer(void)
-{
-#ifndef CONFIG_ALT_LB_ADDR
-	/* reserve kernel log buffer */
-	gd->relocaddr -= LOGBUFF_RESERVE;
-	debug("Reserving %dk for kernel logbuffer at %08lx\n", LOGBUFF_LEN,
-		gd->relocaddr);
-#endif
-
-	return 0;
-}
-#endif
 
 #ifdef CONFIG_PRAM
 /* reserve protected RAM */
@@ -846,9 +831,6 @@ static const init_fnc_t init_sequence_f[] = {
 	 *  - board info struct
 	 */
 	setup_dest_addr,
-#if defined(CONFIG_LOGBUFFER)
-	reserve_logbuffer,
-#endif
 #ifdef CONFIG_PRAM
 	reserve_pram,
 #endif

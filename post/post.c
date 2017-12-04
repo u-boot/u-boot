@@ -15,10 +15,6 @@
 #include <asm/gpio.h>
 #endif
 
-#ifdef CONFIG_LOGBUFFER
-#include <logbuff.h>
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #define POST_MAX_NUMBER		32
@@ -407,13 +403,8 @@ int post_log(char *format, ...)
 	vsprintf(printbuffer, format, args);
 	va_end(args);
 
-#ifdef CONFIG_LOGBUFFER
-	/* Send to the logbuffer */
-	logbuff_log(printbuffer);
-#else
 	/* Send to the stdout file */
 	puts(printbuffer);
-#endif
 
 	return 0;
 }

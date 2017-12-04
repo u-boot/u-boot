@@ -17,9 +17,6 @@
 #include <malloc.h>
 #include <stdio_dev.h>
 #include <serial.h>
-#ifdef CONFIG_LOGBUFFER
-#include <logbuff.h>
-#endif
 
 #if defined(CONFIG_SYS_I2C)
 #include <i2c.h>
@@ -380,9 +377,6 @@ int stdio_add_devices(void)
 #endif /* CONFIG_DM_VIDEO */
 #if defined(CONFIG_KEYBOARD) && !defined(CONFIG_DM_KEYBOARD)
 	drv_keyboard_init ();
-#endif
-#ifdef CONFIG_LOGBUFFER
-	drv_logbuff_init ();
 #endif
 	drv_system_init ();
 	serial_stdio_init ();
