@@ -6,16 +6,13 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <common.h>
-#include <libfdt.h>
+#include <linux/errno.h>
 #include <linux/io.h>
+#include <linux/printk.h>
 
 #include "init.h"
 #include "micro-support-card.h"
-#include "sg-regs.h"
 #include "soc-info.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_ARCH_UNIPHIER_LD20
 static void uniphier_ld20_misc_init(void)

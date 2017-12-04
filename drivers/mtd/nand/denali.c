@@ -6,14 +6,14 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <common.h>
-#include <malloc.h>
-#include <nand.h>
 #include <dm.h>
+#include <nand.h>
 #include <linux/bitfield.h>
 #include <linux/dma-direction.h>
 #include <linux/errno.h>
 #include <linux/io.h>
+#include <linux/mtd/mtd.h>
+#include <linux/mtd/rawnand.h>
 
 #include "denali.h"
 
@@ -938,7 +938,7 @@ static int denali_erase(struct mtd_info *mtd, int page)
 	return irq_status & INTR__ERASE_COMP ? 0 : NAND_STATUS_FAIL;
 }
 
-static int __maybe_unused denali_setup_data_interface(struct mtd_info *mtd, int chipnr,
+static int denali_setup_data_interface(struct mtd_info *mtd, int chipnr,
 				       const struct nand_data_interface *conf)
 {
 	struct denali_nand_info *denali = mtd_to_denali(mtd);
@@ -1366,29 +1366,3 @@ free_buf:
 
 	return ret;
 }
-
-#ifndef CONFIG_NAND_DENALI_DT
-static int __board_nand_init(void)
-{
-	struct denali_nand_info *denali;
-
-	denali = kzalloc(sizeof(*denali), GFP_KERNEL);
-	if (!denali)
-		return -ENOMEM;
-
-	/*
-	 * In the future, these base addresses should be taken from
-	 * Device Tree or platform data.
-	 */
-	denali->reg = (void  __iomem *)CONFIG_SYS_NAND_REGS_BASE;
-	denali->host = (void  __iomem *)CONFIG_SYS_NAND_DATA_BASE;
-
-	return denali_init(denali);
-}
-
-void board_nand_init(void)
-{
-	if (__board_nand_init() < 0)
-		pr_warn("Failed to initialize Denali NAND controller.\n");
-}
-#endif

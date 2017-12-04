@@ -32,7 +32,7 @@ unsigned long nand_size(void);
 
 #include <linux/compat.h>
 #include <linux/mtd/mtd.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 
 int nand_mtd_to_devnum(struct mtd_info *mtd);
 

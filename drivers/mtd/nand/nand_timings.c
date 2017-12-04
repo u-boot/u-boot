@@ -10,7 +10,7 @@
  */
 #include <common.h>
 #include <linux/kernel.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 
 static const struct nand_data_interface onfi_sdr_timings[] = {
 	/* Mode 0 */

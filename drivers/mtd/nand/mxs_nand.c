@@ -15,7 +15,7 @@
 
 #include <common.h>
 #include <linux/mtd/mtd.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 #include <linux/types.h>
 #include <malloc.h>
 #include <linux/errno.h>

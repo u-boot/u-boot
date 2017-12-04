@@ -8,7 +8,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/unaligned.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 #include "denali.h"
 
 #define DENALI_MAP01		(1 << 26)	/* read/write pages in PIO */

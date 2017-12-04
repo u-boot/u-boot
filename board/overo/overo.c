@@ -17,7 +17,7 @@
 #include <ns16550.h>
 #include <netdev.h>
 #include <twl4030.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/mux.h>
