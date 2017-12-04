@@ -1308,6 +1308,7 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 {
 	struct efi_loaded_image *info;
 	struct efi_object *obj;
+	efi_status_t ret;
 
 	EFI_ENTRY("%d, %p, %p, %p, %ld, %p", boot_policy, parent_image,
 		  file_path, source_buffer, source_size, image_handle);
@@ -1317,41 +1318,39 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 
 	if (!source_buffer) {
 		struct efi_device_path *dp, *fp;
-		efi_status_t ret;
 
 		ret = efi_load_image_from_path(file_path, &source_buffer);
-		if (ret != EFI_SUCCESS) {
-			free(info);
-			free(obj);
-			return EFI_EXIT(ret);
-		}
-
+		if (ret != EFI_SUCCESS)
+			goto failure;
 		/*
 		 * split file_path which contains both the device and
 		 * file parts:
 		 */
 		efi_dp_split_file_path(file_path, &dp, &fp);
-
-		efi_setup_loaded_image(info, obj, dp, fp);
+		ret = efi_setup_loaded_image(info, obj, dp, fp);
+		if (ret != EFI_SUCCESS)
+			goto failure;
 	} else {
 		/* In this case, file_path is the "device" path, ie.
 		 * something like a HARDWARE_DEVICE:MEMORY_MAPPED
 		 */
-		efi_setup_loaded_image(info, obj, file_path, NULL);
+		ret = efi_setup_loaded_image(info, obj, file_path, NULL);
+		if (ret != EFI_SUCCESS)
+			goto failure;
 	}
-
 	info->reserved = efi_load_pe(source_buffer, info);
 	if (!info->reserved) {
-		free(info);
-		free(obj);
-		return EFI_EXIT(EFI_UNSUPPORTED);
+		ret = EFI_UNSUPPORTED;
+		goto failure;
 	}
-
 	info->system_table = &systab;
 	info->parent_handle = parent_image;
 	*image_handle = obj->handle;
-
 	return EFI_EXIT(EFI_SUCCESS);
+failure:
+	free(info);
+	efi_delete_handle(obj);
+	return EFI_EXIT(ret);
 }
 
 /*
