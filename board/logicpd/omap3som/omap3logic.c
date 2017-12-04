@@ -114,6 +114,47 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 	timings->ctrlb = MICRON_V_ACTIMB_200;
 	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
 }
+
+#define GPMC_NAND_COMMAND_0 (OMAP34XX_GPMC_BASE + 0x7c)
+#define GPMC_NAND_DATA_0 (OMAP34XX_GPMC_BASE + 0x84)
+#define GPMC_NAND_ADDRESS_0 (OMAP34XX_GPMC_BASE + 0x80)
+
+void spl_board_prepare_for_linux(void)
+{
+	/* The Micron NAND starts locked which
+	 * prohibits mounting the NAND as RW
+	 * The following commands are what unlocks
+	 * the NAND to become RW Falcon Mode does not
+	 * have as many smarts as U-Boot, but Logic PD
+	 * only makes NAND with 512MB so these hard coded
+	 * values should work for all current models
+	 */
+
+	writeb(0x70, GPMC_NAND_COMMAND_0);
+	writeb(-1, GPMC_NAND_DATA_0);
+	writeb(0x7a, GPMC_NAND_COMMAND_0);
+	writeb(0x00, GPMC_NAND_ADDRESS_0);
+	writeb(0x00, GPMC_NAND_ADDRESS_0);
+	writeb(0x00, GPMC_NAND_ADDRESS_0);
+	writeb(-1, GPMC_NAND_COMMAND_0);
+
+	/* Begin address 0 */
+	writeb(NAND_CMD_UNLOCK1, 0x6e00007c);
+	writeb(0x00, GPMC_NAND_ADDRESS_0);
+	writeb(0x00, GPMC_NAND_ADDRESS_0);
+	writeb(0x00, GPMC_NAND_ADDRESS_0);
+	writeb(-1, GPMC_NAND_DATA_0);
+
+	/* Ending address at the end of Flash */
+	writeb(NAND_CMD_UNLOCK2, GPMC_NAND_COMMAND_0);
+	writeb(0xc0, GPMC_NAND_ADDRESS_0);
+	writeb(0xff, GPMC_NAND_ADDRESS_0);
+	writeb(0x03, GPMC_NAND_ADDRESS_0);
+	writeb(-1, GPMC_NAND_DATA_0);
+	writeb(0x79, GPMC_NAND_COMMAND_0);
+	writeb(-1, GPMC_NAND_DATA_0);
+	writeb(-1, GPMC_NAND_DATA_0);
+}
 #endif
 
 #ifdef CONFIG_USB_MUSB_OMAP2PLUS
