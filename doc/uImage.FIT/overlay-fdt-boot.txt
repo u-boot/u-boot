@@ -24,7 +24,7 @@ Without using overlays the configuration would be as follows for every case.
 	/dts-v1/;
 	/ {
 		images {
-			kernel@1 {
+			kernel {
 				data = /incbin/("./zImage");
 				type = "kernel";
 				arch = "arm";
@@ -32,32 +32,32 @@ Without using overlays the configuration would be as follows for every case.
 				load = <0x82000000>;
 				entry = <0x82000000>;
 			};
-			fdt@1 {
+			fdt-1 {
 				data = /incbin/("./foo-reva.dtb");
 				type = "flat_dt";
 				arch = "arm";
 			};
-			fdt@2 {
+			fdt-2 {
 				data = /incbin/("./foo-revb.dtb");
 				type = "flat_dt";
 				arch = "arm";
 			};
-			fdt@3 {
+			fdt-3 {
 				data = /incbin/("./foo-reva-bar.dtb");
 				type = "flat_dt";
 				arch = "arm";
 			};
-			fdt@4 {
+			fdt-4 {
 				data = /incbin/("./foo-revb-bar.dtb");
 				type = "flat_dt";
 				arch = "arm";
 			};
-			fdt@5 {
+			fdt-5 {
 				data = /incbin/("./foo-revb-baz.dtb");
 				type = "flat_dt";
 				arch = "arm";
 			};
-			fdt@6 {
+			fdt-6 {
 				data = /incbin/("./foo-revb-bar-baz.dtb");
 				type = "flat_dt";
 				arch = "arm";
@@ -67,28 +67,28 @@ Without using overlays the configuration would be as follows for every case.
 		configurations {
 			default = "foo-reva.dtb;
 			foo-reva.dtb {
-				kernel = "kernel@1";
-				fdt = "fdt@1";
+				kernel = "kernel";
+				fdt = "fdt-1";
 			};
 			foo-revb.dtb {
-				kernel = "kernel@1";
-				fdt = "fdt@2";
+				kernel = "kernel";
+				fdt = "fdt-2";
 			};
 			foo-reva-bar.dtb {
-				kernel = "kernel@1";
-				fdt = "fdt@3";
+				kernel = "kernel";
+				fdt = "fdt-3";
 			};
 			foo-revb-bar.dtb {
-				kernel = "kernel@1";
-				fdt = "fdt@4";
+				kernel = "kernel";
+				fdt = "fdt-4";
 			};
 			foo-revb-baz.dtb {
-				kernel = "kernel@1";
-				fdt = "fdt@5";
+				kernel = "kernel";
+				fdt = "fdt-5";
 			};
 			foo-revb-bar-baz.dtb {
-				kernel = "kernel@1";
-				fdt = "fdt@6";
+				kernel = "kernel";
+				fdt = "fdt-6";
 			};
 		};
 	};
@@ -117,7 +117,7 @@ explosion problem.
 	/dts-v1/;
 	/ {
 		images {
-			kernel@1 {
+			kernel {
 				data = /incbin/("./zImage");
 				type = "kernel";
 				arch = "arm";
@@ -125,31 +125,31 @@ explosion problem.
 				load = <0x82000000>;
 				entry = <0x82000000>;
 			};
-			fdt@1 {
+			fdt-1 {
 				data = /incbin/("./foo.dtb");
 				type = "flat_dt";
 				arch = "arm";
 				load = <0x87f00000>;
 			};
-			fdt@2 {
+			fdt-2 {
 				data = /incbin/("./reva.dtbo");
 				type = "flat_dt";
 				arch = "arm";
 				load = <0x87fc0000>;
 			};
-			fdt@3 {
+			fdt-3 {
 				data = /incbin/("./revb.dtbo");
 				type = "flat_dt";
 				arch = "arm";
 				load = <0x87fc0000>;
 			};
-			fdt@4 {
+			fdt-4 {
 				data = /incbin/("./bar.dtbo");
 				type = "flat_dt";
 				arch = "arm";
 				load = <0x87fc0000>;
 			};
-			fdt@5 {
+			fdt-5 {
 				data = /incbin/("./baz.dtbo");
 				type = "flat_dt";
 				arch = "arm";
@@ -160,34 +160,34 @@ explosion problem.
 		configurations {
 			default = "foo-reva.dtb;
 			foo-reva.dtb {
-				kernel = "kernel@1";
-				fdt = "fdt@1", "fdt@2";
+				kernel = "kernel";
+				fdt = "fdt-1", "fdt-2";
 			};
 			foo-revb.dtb {
-				kernel = "kernel@1";
-				fdt = "fdt@1", "fdt@3";
+				kernel = "kernel";
+				fdt = "fdt-1", "fdt-3";
 			};
 			foo-reva-bar.dtb {
-				kernel = "kernel@1";
-				fdt = "fdt@1", "fdt@2", "fdt@4";
+				kernel = "kernel";
+				fdt = "fdt-1", "fdt-2", "fdt-4";
 			};
 			foo-revb-bar.dtb {
-				kernel = "kernel@1";
-				fdt = "fdt@1", "fdt@3", "fdt@4";
+				kernel = "kernel";
+				fdt = "fdt-1", "fdt-3", "fdt-4";
 			};
 			foo-revb-baz.dtb {
-				kernel = "kernel@1";
-				fdt = "fdt@1", "fdt@3", "fdt@5";
+				kernel = "kernel";
+				fdt = "fdt-1", "fdt-3", "fdt-5";
 			};
 			foo-revb-bar-baz.dtb {
-				kernel = "kernel@1";
-				fdt = "fdt@1", "fdt@3", "fdt@4", "fdt@5";
+				kernel = "kernel";
+				fdt = "fdt-1", "fdt-3", "fdt-4", "fdt-5";
 			};
 			bar {
-				fdt = "fdt@4";
+				fdt = "fdt-4";
 			};
 			baz {
-				fdt = "fdt@5";
+				fdt = "fdt-5";
 			};
 		};
 	};

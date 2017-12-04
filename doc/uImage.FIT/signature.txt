@@ -83,7 +83,7 @@ Device Tree Bindings
 The following properties are required in the FIT's signature node(s) to
 allow the signer to operate. These should be added to the .its file.
 Signature nodes sit at the same level as hash nodes and are called
-signature@1, signature@2, etc.
+signature-1, signature-2, etc.
 
 - algo: Algorithm name (e.g. "sha1,rsa2048")
 
@@ -118,9 +118,9 @@ For config bindings, these properties are added by the signer:
 - hashed-nodes: A list of nodes which were hashed by the signer. Each is
 	a string - the full path to node. A typical value might be:
 
-	hashed-nodes = "/", "/configurations/conf@1", "/images/kernel@1",
-		"/images/kernel@1/hash@1", "/images/fdt@1",
-		"/images/fdt@1/hash@1";
+	hashed-nodes = "/", "/configurations/conf-1", "/images/kernel",
+		"/images/kernel/hash-1", "/images/fdt-1",
+		"/images/fdt-1/hash-1";
 
 - hashed-strings: The start and size of the string region of the FIT that
 	was hashed
@@ -178,44 +178,44 @@ As an example, consider this FIT:
 
 / {
 	images {
-		kernel@1 {
+		kernel-1 {
 			data = <data for kernel1>
-			signature@1 {
+			signature-1 {
 				algo = "sha1,rsa2048";
 				value = <...kernel signature 1...>
 			};
 		};
-		kernel@2 {
+		kernel-2 {
 			data = <data for kernel2>
-			signature@1 {
+			signature-1 {
 				algo = "sha1,rsa2048";
 				value = <...kernel signature 2...>
 			};
 		};
-		fdt@1 {
+		fdt-1 {
 			data = <data for fdt1>;
-			signature@1 {
+			signature-1 {
 				algo = "sha1,rsa2048";
 				vaue = <...fdt signature 1...>
 			};
 		};
-		fdt@2 {
+		fdt-2 {
 			data = <data for fdt2>;
-			signature@1 {
+			signature-1 {
 				algo = "sha1,rsa2048";
 				vaue = <...fdt signature 2...>
 			};
 		};
 	};
 	configurations {
-		default = "conf@1";
-		conf@1 {
-			kernel = "kernel@1";
-			fdt = "fdt@1";
+		default = "conf-1";
+		conf-1 {
+			kernel = "kernel-1";
+			fdt = "fdt-1";
 		};
-		conf@1 {
-			kernel = "kernel@2";
-			fdt = "fdt@2";
+		conf-1 {
+			kernel = "kernel-2";
+			fdt = "fdt-2";
 		};
 	};
 };
@@ -224,18 +224,18 @@ Since both kernels are signed it is easy for an attacker to add a new
 configuration 3 with kernel 1 and fdt 2:
 
 	configurations {
-		default = "conf@1";
-		conf@1 {
-			kernel = "kernel@1";
-			fdt = "fdt@1";
+		default = "conf-1";
+		conf-1 {
+			kernel = "kernel-1";
+			fdt = "fdt-1";
 		};
-		conf@1 {
-			kernel = "kernel@2";
-			fdt = "fdt@2";
+		conf-1 {
+			kernel = "kernel-2";
+			fdt = "fdt-2";
 		};
-		conf@3 {
-			kernel = "kernel@1";
-			fdt = "fdt@2";
+		conf-3 {
+			kernel = "kernel-1";
+			fdt = "fdt-2";
 		};
 	};
 
@@ -250,49 +250,49 @@ So the above example is adjusted to look like this:
 
 / {
 	images {
-		kernel@1 {
+		kernel-1 {
 			data = <data for kernel1>
-			hash@1 {
+			hash-1 {
 				algo = "sha1";
 				value = <...kernel hash 1...>
 			};
 		};
-		kernel@2 {
+		kernel-2 {
 			data = <data for kernel2>
-			hash@1 {
+			hash-1 {
 				algo = "sha1";
 				value = <...kernel hash 2...>
 			};
 		};
-		fdt@1 {
+		fdt-1 {
 			data = <data for fdt1>;
-			hash@1 {
+			hash-1 {
 				algo = "sha1";
 				value = <...fdt hash 1...>
 			};
 		};
-		fdt@2 {
+		fdt-2 {
 			data = <data for fdt2>;
-			hash@1 {
+			hash-1 {
 				algo = "sha1";
 				value = <...fdt hash 2...>
 			};
 		};
 	};
 	configurations {
-		default = "conf@1";
-		conf@1 {
-			kernel = "kernel@1";
-			fdt = "fdt@1";
-			signature@1 {
+		default = "conf-1";
+		conf-1 {
+			kernel = "kernel-1";
+			fdt = "fdt-1";
+			signature-1 {
 				algo = "sha1,rsa2048";
 				value = <...conf 1 signature...>;
 			};
 		};
-		conf@2 {
-			kernel = "kernel@2";
-			fdt = "fdt@2";
-			signature@1 {
+		conf-2 {
+			kernel = "kernel-2";
+			fdt = "fdt-2";
+			signature-1 {
 				algo = "sha1,rsa2048";
 				value = <...conf 1 signature...>;
 			};
@@ -303,11 +303,11 @@ So the above example is adjusted to look like this:
 
 You can see that we have added hashes for all images (since they are no
 longer signed), and a signature to each configuration. In the above example,
-mkimage will sign configurations/conf@1, the kernel and fdt that are
-pointed to by the configuration (/images/kernel@1, /images/kernel@1/hash@1,
-/images/fdt@1, /images/fdt@1/hash@1) and the root structure of the image
+mkimage will sign configurations/conf-1, the kernel and fdt that are
+pointed to by the configuration (/images/kernel-1, /images/kernel-1/hash-1,
+/images/fdt-1, /images/fdt-1/hash-1) and the root structure of the image
 (so that it isn't possible to add or remove root nodes). The signature is
-written into /configurations/conf@1/signature@1/value. It can easily be
+written into /configurations/conf-1/signature-1/value. It can easily be
 verified later even if the FIT has been signed with other keys in the
 meantime.
 
