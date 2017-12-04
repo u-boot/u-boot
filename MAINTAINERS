@@ -310,6 +310,13 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-i2c.git
 F:	drivers/i2c/
 
+LOGGING
+M:	Simon Glass <sjg@chromium.org>
+S:	Maintained
+T:	git git://git.denx.de/u-boot.git
+F:	common/log.c
+F:	cmd/log.c
+
 MICROBLAZE
 M:	Michal Simek <monstr@monstr.eu>
 S:	Maintained

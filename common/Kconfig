@@ -420,6 +420,62 @@ config SYS_STDIO_DEREGISTER
 
 endmenu
 
+menu "Logging"
+
+config LOG
+	bool "Enable logging support"
+	help
+	  This enables support for logging of status and debug messages. These
+	  can be displayed on the console, recorded in a memory buffer, or
+	  discarded if not needed. Logging supports various categories and
+	  levels of severity.
+
+config SPL_LOG
+	bool "Enable logging support in SPL"
+	help
+	  This enables support for logging of status and debug messages. These
+	  can be displayed on the console, recorded in a memory buffer, or
+	  discarded if not needed. Logging supports various categories and
+	  levels of severity.
+
+config LOG_MAX_LEVEL
+	int "Maximum log level to record"
+	depends on LOG
+	default 5
+	help
+	  This selects the maximum log level that will be recorded. Any value
+	  higher than this will be ignored. If possible log statements below
+	  this level will be discarded at build time. Levels:
+
+	    0 - panic
+	    1 - critical
+	    2 - error
+	    3 - warning
+	    4 - note
+	    5 - info
+	    6 - detail
+	    7 - debug
+
+config SPL_LOG_MAX_LEVEL
+	int "Maximum log level to record in SPL"
+	depends on SPL_LOG
+	default 3
+	help
+	  This selects the maximum log level that will be recorded. Any value
+	  higher than this will be ignored. If possible log statements below
+	  this level will be discarded at build time. Levels:
+
+	    0 - panic
+	    1 - critical
+	    2 - error
+	    3 - warning
+	    4 - note
+	    5 - info
+	    6 - detail
+	    7 - debug
+
+endmenu
+
 config DEFAULT_FDT_FILE
 	string "Default fdt file"
 	help

@@ -128,5 +128,6 @@ obj-y += cli.o
 obj-$(CONFIG_FSL_DDR_INTERACTIVE) += cli_simple.o cli_readline.o
 obj-$(CONFIG_CMD_DFU) += dfu.o
 obj-y += command.o
+obj-$(CONFIG_$(SPL_)LOG) += log.o
 obj-y += s_record.o
 obj-y += xyzModem.o
