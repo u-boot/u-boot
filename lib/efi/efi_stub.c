@@ -182,7 +182,7 @@ static int get_codeseg32(void)
 				<< 16;
 		base <<= 12;	/* 4KB granularity */
 		limit <<= 12;
-		if ((desc & GDT_PRESENT) && (desc && GDT_NOTSYS) &&
+		if ((desc & GDT_PRESENT) && (desc & GDT_NOTSYS) &&
 		    !(desc & GDT_LONG) && (desc & GDT_4KB) &&
 		    (desc & GDT_32BIT) && (desc & GDT_CODE) &&
 		    CONFIG_SYS_TEXT_BASE > base &&
