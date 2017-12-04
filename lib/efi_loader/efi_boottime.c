@@ -1170,10 +1170,12 @@ static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
  * @obj			internal object associated with the loaded image
  * @device_path		device path of the loaded image
  * @file_path		file path of the loaded image
+ * @return		status code
  */
-void efi_setup_loaded_image(struct efi_loaded_image *info, struct efi_object *obj,
-			    struct efi_device_path *device_path,
-			    struct efi_device_path *file_path)
+efi_status_t efi_setup_loaded_image(
+			struct efi_loaded_image *info, struct efi_object *obj,
+			struct efi_device_path *device_path,
+			struct efi_device_path *file_path)
 {
 	efi_status_t ret;
 
@@ -1213,9 +1215,10 @@ void efi_setup_loaded_image(struct efi_loaded_image *info, struct efi_object *ob
 	if (ret != EFI_SUCCESS)
 		goto failure;
 
-	return;
+	return ret;
 failure:
 	printf("ERROR: Failure to install protocols for loaded image\n");
+	return ret;
 }
 
 /*
