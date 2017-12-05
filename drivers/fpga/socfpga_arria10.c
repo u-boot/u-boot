@@ -111,12 +111,12 @@ static int wait_for_nconfig_pin_and_nstatus_pin(void)
 	unsigned long mask = ALT_FPGAMGR_IMGCFG_STAT_F2S_NCONFIG_PIN_SET_MSK |
 				ALT_FPGAMGR_IMGCFG_STAT_F2S_NSTATUS_PIN_SET_MSK;
 
-	/* Poll until f2s_nconfig_pin and f2s_nstatus_pin; loop until de-asserted,
-	 * timeout at 1000ms
+	/*
+	 * Poll until f2s_nconfig_pin and f2s_nstatus_pin; loop until
+	 * de-asserted, timeout at 1000ms
 	 */
-	return wait_for_bit_le32(&fpga_manager_base->imgcfg_stat,
-		mask,
-		false, FPGA_TIMEOUT_MSEC, false);
+	return wait_for_bit_le32(&fpga_manager_base->imgcfg_stat, mask,
+				 true, FPGA_TIMEOUT_MSEC, false);
 }
 
 static int wait_for_f2s_nstatus_pin(unsigned long value)
