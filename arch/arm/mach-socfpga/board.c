@@ -10,6 +10,7 @@
 #include <fdtdec.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/clock_manager.h>
+#include <asm/arch/misc.h>
 #include <asm/io.h>
 
 #include <usb.h>
@@ -30,6 +31,9 @@ int board_init(void)
 #if defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
 	/* configuring the clock based on handoff */
 	cm_basic_init(gd->fdt_blob);
+
+	/* Add device descriptor to FPGA device table */
+	socfpga_fpga_add();
 #endif
 
 	return 0;

@@ -104,11 +104,6 @@ int arch_early_init_r(void)
 	/* assert reset to all except L4WD0 and L4TIMER0 */
 	socfpga_per_reset_all();
 
-	/* configuring the clock based on handoff */
-	/* TODO: Add call to cm_basic_init() */
-
-	/* Add device descriptor to FPGA device table */
-	socfpga_fpga_add();
 	return 0;
 }
 #else
