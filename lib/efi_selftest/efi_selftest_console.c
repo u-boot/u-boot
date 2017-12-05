@@ -142,6 +142,7 @@ void efi_st_printf(const char *fmt, ...)
 	const char *c;
 	u16 *pos = buf;
 	const char *s;
+	const u16 *u;
 
 	va_start(args, fmt);
 
@@ -179,8 +180,17 @@ void efi_st_printf(const char *fmt, ...)
 			case 'p':
 				++c;
 				switch (*c) {
+				/* MAC address */
 				case 'm':
 					mac(va_arg(args, void*), &pos);
+					break;
+
+				/* u16 string */
+				case 's':
+					u = va_arg(args, u16*);
+					/* Ensure string fits into buffer */
+					for (; *u && pos < buf + 120; ++u)
+						*pos++ = *u;
 					break;
 				default:
 					--c;

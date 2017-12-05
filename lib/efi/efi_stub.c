@@ -277,7 +277,7 @@ efi_status_t efi_main(efi_handle_t image, struct efi_system_table *sys_table)
 	struct efi_boot_services *boot = sys_table->boottime;
 	struct efi_mem_desc *desc;
 	struct efi_entry_memmap map;
-	ulong key, desc_size, size;
+	efi_uintn_t key, desc_size, size;
 	efi_status_t ret;
 	u32 version;
 	int cs32;

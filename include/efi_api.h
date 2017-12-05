@@ -28,8 +28,7 @@ enum efi_timer_delay {
 	EFI_TIMER_RELATIVE = 2
 };
 
-#define UINTN size_t
-typedef long INTN;
+#define efi_uintn_t size_t
 typedef uint16_t *efi_string_t;
 
 #define EVT_TIMER				0x80000000
@@ -49,20 +48,22 @@ struct efi_event;
 /* EFI Boot Services table */
 struct efi_boot_services {
 	struct efi_table_hdr hdr;
-	efi_status_t (EFIAPI *raise_tpl)(UINTN new_tpl);
-	void (EFIAPI *restore_tpl)(UINTN old_tpl);
+	efi_status_t (EFIAPI *raise_tpl)(efi_uintn_t new_tpl);
+	void (EFIAPI *restore_tpl)(efi_uintn_t old_tpl);
 
-	efi_status_t (EFIAPI *allocate_pages)(int, int, unsigned long,
+	efi_status_t (EFIAPI *allocate_pages)(int, int, efi_uintn_t,
 					      efi_physical_addr_t *);
-	efi_status_t (EFIAPI *free_pages)(efi_physical_addr_t, unsigned long);
-	efi_status_t (EFIAPI *get_memory_map)(unsigned long *memory_map_size,
-			struct efi_mem_desc *desc, unsigned long *key,
-			unsigned long *desc_size, u32 *desc_version);
-	efi_status_t (EFIAPI *allocate_pool)(int, unsigned long, void **);
+	efi_status_t (EFIAPI *free_pages)(efi_physical_addr_t, efi_uintn_t);
+	efi_status_t (EFIAPI *get_memory_map)(efi_uintn_t *memory_map_size,
+					      struct efi_mem_desc *desc,
+					      efi_uintn_t *key,
+					      efi_uintn_t *desc_size,
+					      u32 *desc_version);
+	efi_status_t (EFIAPI *allocate_pool)(int, efi_uintn_t, void **);
 	efi_status_t (EFIAPI *free_pool)(void *);
 
 	efi_status_t (EFIAPI *create_event)(uint32_t type,
-			UINTN notify_tpl,
+			efi_uintn_t notify_tpl,
 			void (EFIAPI *notify_function) (
 					struct efi_event *event,
 					void *context),
@@ -70,8 +71,9 @@ struct efi_boot_services {
 	efi_status_t (EFIAPI *set_timer)(struct efi_event *event,
 					 enum efi_timer_delay type,
 					 uint64_t trigger_time);
-	efi_status_t (EFIAPI *wait_for_event)(unsigned long number_of_events,
-			struct efi_event **event, size_t *index);
+	efi_status_t (EFIAPI *wait_for_event)(efi_uintn_t number_of_events,
+					      struct efi_event **event,
+					      efi_uintn_t *index);
 	efi_status_t (EFIAPI *signal_event)(struct efi_event *event);
 	efi_status_t (EFIAPI *close_event)(struct efi_event *event);
 	efi_status_t (EFIAPI *check_event)(struct efi_event *event);
@@ -94,7 +96,7 @@ struct efi_boot_services {
 	efi_status_t (EFIAPI *locate_handle)(
 			enum efi_locate_search_type search_type,
 			const efi_guid_t *protocol, void *search_key,
-			unsigned long *buffer_size, efi_handle_t *buffer);
+			efi_uintn_t *buffer_size, efi_handle_t *buffer);
 	efi_status_t (EFIAPI *locate_device_path)(const efi_guid_t *protocol,
 			struct efi_device_path **device_path,
 			efi_handle_t *device);
@@ -141,14 +143,14 @@ struct efi_boot_services {
 	efi_status_t(EFIAPI *open_protocol_information)(efi_handle_t handle,
 			const efi_guid_t *protocol,
 			struct efi_open_protocol_info_entry **entry_buffer,
-			unsigned long *entry_count);
+			efi_uintn_t *entry_count);
 	efi_status_t (EFIAPI *protocols_per_handle)(efi_handle_t handle,
 			efi_guid_t ***protocol_buffer,
-			unsigned long *protocols_buffer_count);
+			efi_uintn_t *protocols_buffer_count);
 	efi_status_t (EFIAPI *locate_handle_buffer) (
 			enum efi_locate_search_type search_type,
 			const efi_guid_t *protocol, void *search_key,
-			unsigned long *no_handles, efi_handle_t **buffer);
+			efi_uintn_t *no_handles, efi_handle_t **buffer);
 	efi_status_t (EFIAPI *locate_protocol)(const efi_guid_t *protocol,
 			void *registration, void **protocol_interface);
 	efi_status_t (EFIAPI *install_multiple_protocol_interfaces)(
@@ -249,7 +251,7 @@ struct efi_system_table {
 	struct efi_simple_text_output_protocol *std_err;
 	struct efi_runtime_services *runtime;
 	struct efi_boot_services *boottime;
-	unsigned long nr_tables;
+	efi_uintn_t nr_tables;
 	struct efi_configuration_table *tables;
 };
 
@@ -583,14 +585,14 @@ struct efi_gop_mode
 struct efi_gop
 {
 	efi_status_t (EFIAPI *query_mode)(struct efi_gop *this, u32 mode_number,
-					  unsigned long *size_of_info,
+					  efi_uintn_t *size_of_info,
 					  struct efi_gop_mode_info **info);
 	efi_status_t (EFIAPI *set_mode)(struct efi_gop *this, u32 mode_number);
 	efi_status_t (EFIAPI *blt)(struct efi_gop *this, void *buffer,
-				   unsigned long operation, unsigned long sx,
-				   unsigned long sy, unsigned long dx,
-				   unsigned long dy, unsigned long width,
-				   unsigned long height, unsigned long delta);
+				   u32 operation, efi_uintn_t sx,
+				   efi_uintn_t sy, efi_uintn_t dx,
+				   efi_uintn_t dy, efi_uintn_t width,
+				   efi_uintn_t height, efi_uintn_t delta);
 	struct efi_gop_mode *mode;
 };
 

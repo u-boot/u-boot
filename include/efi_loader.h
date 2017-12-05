@@ -6,6 +6,9 @@
  *  SPDX-License-Identifier:     GPL-2.0+
  */
 
+#ifndef _EFI_LOADER_H
+#define _EFI_LOADER_H 1
+
 #include <common.h>
 #include <part_efi.h>
 #include <efi_api.h>
@@ -75,9 +78,9 @@ const char *__efi_nesting_dec(void);
 extern struct efi_runtime_services efi_runtime_services;
 extern struct efi_system_table systab;
 
-extern const struct efi_simple_text_output_protocol efi_con_out;
+extern struct efi_simple_text_output_protocol efi_con_out;
 extern struct efi_simple_input_interface efi_con_in;
-extern const struct efi_console_control_protocol efi_console_control;
+extern struct efi_console_control_protocol efi_console_control;
 extern const struct efi_device_path_to_text_protocol efi_device_path_to_text;
 
 uint16_t *efi_dp_str(struct efi_device_path *dp);
@@ -98,6 +101,8 @@ extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
  * interface (usually a struct with callback functions), this struct maps the
  * protocol GUID to the respective protocol interface */
 struct efi_handler {
+	/* Link to the list of protocols of a handle */
+	struct list_head link;
 	const efi_guid_t *guid;
 	void *protocol_interface;
 };
@@ -112,19 +117,11 @@ struct efi_handler {
 struct efi_object {
 	/* Every UEFI object is part of a global object list */
 	struct list_head link;
-	/* We support up to 16 "protocols" an object can be accessed through */
-	struct efi_handler protocols[16];
+	/* The list of protocols */
+	struct list_head protocols;
 	/* The object spawner can either use this for data or as identifier */
 	void *handle;
 };
-
-#define EFI_PROTOCOL_OBJECT(_guid, _protocol) (struct efi_object){	\
-	.protocols = {{							\
-		.guid = &(_guid),	 				\
-		.protocol_interface = (void *)(_protocol), 		\
-	}},								\
-	.handle = (void *)(_protocol),					\
-}
 
 /**
  * struct efi_event
@@ -141,7 +138,7 @@ struct efi_object {
  */
 struct efi_event {
 	uint32_t type;
-	UINTN notify_tpl;
+	efi_uintn_t notify_tpl;
 	void (EFIAPI *notify_function)(struct efi_event *event, void *context);
 	void *notify_context;
 	u64 trigger_next;
@@ -163,6 +160,8 @@ int efi_disk_register(void);
 int efi_gop_register(void);
 /* Called by bootefi to make the network interface available */
 int efi_net_register(void);
+/* Called by bootefi to make the watchdog available */
+int efi_watchdog_register(void);
 /* Called by bootefi to make SMBIOS tables available */
 void efi_smbios_register(void);
 
@@ -171,6 +170,8 @@ efi_fs_from_path(struct efi_device_path *fp);
 
 /* Called by networking code to memorize the dhcp ack package */
 void efi_net_set_dhcp_ack(void *pkt, int len);
+/* Called by efi_set_watchdog_timer to reset the timer */
+efi_status_t efi_set_watchdog(unsigned long timeout);
 
 /* Called from places to check whether a timer expired */
 void efi_timer_check(void);
@@ -185,8 +186,26 @@ void efi_restore_gd(void);
 void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map);
 /* Call this to set the current device name */
 void efi_set_bootdev(const char *dev, const char *devnr, const char *path);
+/* Add a new object to the object list. */
+void efi_add_handle(struct efi_object *obj);
+/* Create handle */
+efi_status_t efi_create_handle(void **handle);
+/* Call this to validate a handle and find the EFI object for it */
+struct efi_object *efi_search_obj(const void *handle);
+/* Find a protocol on a handle */
+efi_status_t efi_search_protocol(const void *handle,
+				 const efi_guid_t *protocol_guid,
+				 struct efi_handler **handler);
+/* Install new protocol on a handle */
+efi_status_t efi_add_protocol(const void *handle, const efi_guid_t *protocol,
+			      void *protocol_interface);
+/* Delete protocol from a handle */
+efi_status_t efi_remove_protocol(const void *handle, const efi_guid_t *protocol,
+				 void *protocol_interface);
+/* Delete all protocols from a handle */
+efi_status_t efi_remove_all_protocols(const void *handle);
 /* Call this to create an event */
-efi_status_t efi_create_event(uint32_t type, UINTN notify_tpl,
+efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 			      void (EFIAPI *notify_function) (
 					struct efi_event *event,
 					void *context),
@@ -208,20 +227,20 @@ struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp);
 /* Generic EFI memory allocator, call this to get memory */
 void *efi_alloc(uint64_t len, int memory_type);
 /* More specific EFI memory allocator, called by EFI payloads */
-efi_status_t efi_allocate_pages(int type, int memory_type, unsigned long pages,
+efi_status_t efi_allocate_pages(int type, int memory_type, efi_uintn_t pages,
 				uint64_t *memory);
 /* EFI memory free function. */
-efi_status_t efi_free_pages(uint64_t memory, unsigned long pages);
+efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages);
 /* EFI memory allocator for small allocations */
-efi_status_t efi_allocate_pool(int pool_type, unsigned long size,
+efi_status_t efi_allocate_pool(int pool_type, efi_uintn_t size,
 			       void **buffer);
 /* EFI pool memory free function. */
 efi_status_t efi_free_pool(void *buffer);
 /* Returns the EFI memory map */
-efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
+efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 				struct efi_mem_desc *memory_map,
-				unsigned long *map_key,
-				unsigned long *descriptor_size,
+				efi_uintn_t *map_key,
+				efi_uintn_t *descriptor_size,
 				uint32_t *descriptor_version);
 /* Adds a range into the EFI memory map */
 uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
@@ -243,7 +262,8 @@ extern void *efi_bounce_buffer;
 
 
 struct efi_device_path *efi_dp_next(const struct efi_device_path *dp);
-int efi_dp_match(struct efi_device_path *a, struct efi_device_path *b);
+int efi_dp_match(const struct efi_device_path *a,
+		 const struct efi_device_path *b);
 struct efi_object *efi_dp_find_obj(struct efi_device_path *dp,
 				   struct efi_device_path **rem);
 unsigned efi_dp_size(const struct efi_device_path *dp);
@@ -341,4 +361,6 @@ static inline void efi_set_bootdev(const char *dev, const char *devnr,
 				   const char *path) { }
 static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
 
-#endif
+#endif /* CONFIG_EFI_LOADER && !CONFIG_SPL_BUILD */
+
+#endif /* _EFI_LOADER_H */

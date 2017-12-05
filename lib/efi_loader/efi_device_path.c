@@ -68,7 +68,8 @@ struct efi_device_path *efi_dp_next(const struct efi_device_path *dp)
  * representing a device with one representing a file on the device, or
  * a device with a parent device.
  */
-int efi_dp_match(struct efi_device_path *a, struct efi_device_path *b)
+int efi_dp_match(const struct efi_device_path *a,
+		 const struct efi_device_path *b)
 {
 	while (1) {
 		int ret;
@@ -127,32 +128,27 @@ static struct efi_object *find_obj(struct efi_device_path *dp, bool short_path,
 	struct efi_object *efiobj;
 
 	list_for_each_entry(efiobj, &efi_obj_list, link) {
-		int i;
+		struct efi_handler *handler;
+		struct efi_device_path *obj_dp;
+		efi_status_t ret;
 
-		for (i = 0; i < ARRAY_SIZE(efiobj->protocols); i++) {
-			struct efi_handler *handler = &efiobj->protocols[i];
-			struct efi_device_path *obj_dp;
+		ret = efi_search_protocol(efiobj->handle,
+					  &efi_guid_device_path, &handler);
+		if (ret != EFI_SUCCESS)
+			continue;
+		obj_dp = handler->protocol_interface;
 
-			if (!handler->guid)
-				break;
-
-			if (guidcmp(handler->guid, &efi_guid_device_path))
-				continue;
-
-			obj_dp = handler->protocol_interface;
-
-			do {
-				if (efi_dp_match(dp, obj_dp) == 0) {
-					if (rem) {
-						*rem = ((void *)dp) +
-							efi_dp_size(obj_dp);
-					}
-					return efiobj;
+		do {
+			if (efi_dp_match(dp, obj_dp) == 0) {
+				if (rem) {
+					*rem = ((void *)dp) +
+						efi_dp_size(obj_dp);
 				}
+				return efiobj;
+			}
 
-				obj_dp = shorten_path(efi_dp_next(obj_dp));
-			} while (short_path && obj_dp);
-		}
+			obj_dp = shorten_path(efi_dp_next(obj_dp));
+		} while (short_path && obj_dp);
 	}
 
 	return NULL;
@@ -427,10 +423,27 @@ static void *dp_part_fill(void *buf, struct blk_desc *desc, int part)
 			hddp->partmap_type = 2;
 		else
 			hddp->partmap_type = 1;
-		hddp->signature_type = desc->sig_type;
-		if (hddp->signature_type != 0)
+
+		switch (desc->sig_type) {
+		case SIG_TYPE_NONE:
+		default:
+			hddp->signature_type = 0;
+			memset(hddp->partition_signature, 0,
+			       sizeof(hddp->partition_signature));
+			break;
+		case SIG_TYPE_MBR:
+			hddp->signature_type = 1;
+			memset(hddp->partition_signature, 0,
+			       sizeof(hddp->partition_signature));
+			memcpy(hddp->partition_signature, &desc->mbr_sig,
+			       sizeof(desc->mbr_sig));
+			break;
+		case SIG_TYPE_GUID:
+			hddp->signature_type = 2;
 			memcpy(hddp->partition_signature, &desc->guid_sig,
 			       sizeof(hddp->partition_signature));
+			break;
+		}
 
 		buf = &hddp[1];
 	}

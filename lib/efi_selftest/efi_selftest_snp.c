@@ -260,7 +260,7 @@ static int execute(void)
 {
 	efi_status_t ret;
 	struct efi_event *events[2];
-	size_t index;
+	efi_uintn_t index;
 	union {
 		struct dhcp p;
 		u8 b[PKTSIZE];

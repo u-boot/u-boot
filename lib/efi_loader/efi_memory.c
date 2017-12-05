@@ -276,7 +276,7 @@ static uint64_t efi_find_free_memory(uint64_t len, uint64_t max_addr)
 }
 
 efi_status_t efi_allocate_pages(int type, int memory_type,
-				unsigned long pages, uint64_t *memory)
+				efi_uintn_t pages, uint64_t *memory)
 {
 	u64 len = pages << EFI_PAGE_SHIFT;
 	efi_status_t r = EFI_SUCCESS;
@@ -338,7 +338,7 @@ void *efi_alloc(uint64_t len, int memory_type)
 	return NULL;
 }
 
-efi_status_t efi_free_pages(uint64_t memory, unsigned long pages)
+efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 {
 	uint64_t r = 0;
 
@@ -351,7 +351,7 @@ efi_status_t efi_free_pages(uint64_t memory, unsigned long pages)
 	return EFI_NOT_FOUND;
 }
 
-efi_status_t efi_allocate_pool(int pool_type, unsigned long size,
+efi_status_t efi_allocate_pool(int pool_type, efi_uintn_t size,
 			       void **buffer)
 {
 	efi_status_t r;
@@ -392,16 +392,16 @@ efi_status_t efi_free_pool(void *buffer)
 	return r;
 }
 
-efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
-			       struct efi_mem_desc *memory_map,
-			       unsigned long *map_key,
-			       unsigned long *descriptor_size,
-			       uint32_t *descriptor_version)
+efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
+				struct efi_mem_desc *memory_map,
+				efi_uintn_t *map_key,
+				efi_uintn_t *descriptor_size,
+				uint32_t *descriptor_version)
 {
-	ulong map_size = 0;
+	efi_uintn_t map_size = 0;
 	int map_entries = 0;
 	struct list_head *lhandle;
-	unsigned long provided_map_size = *memory_map_size;
+	efi_uintn_t provided_map_size = *memory_map_size;
 
 	list_for_each(lhandle, &efi_mem)
 		map_entries++;

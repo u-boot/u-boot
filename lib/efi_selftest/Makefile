@@ -7,26 +7,16 @@
 # This file only gets included with CONFIG_EFI_LOADER set, so all
 # object inclusion implicitly depends on it
 
-CFLAGS_efi_selftest.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_efi_selftest.o := $(CFLAGS_NON_EFI)
-CFLAGS_efi_selftest_console.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_efi_selftest_console.o := $(CFLAGS_NON_EFI)
-CFLAGS_efi_selftest_events.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_efi_selftest_events.o := $(CFLAGS_NON_EFI)
-CFLAGS_efi_selftest_exitbootservices.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_efi_selftest_exitbootservices.o := $(CFLAGS_NON_EFI)
-CFLAGS_efi_selftest_snp.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_efi_selftest_snp.o := $(CFLAGS_NON_EFI)
-CFLAGS_efi_selftest_tpl.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_efi_selftest_tpl.o := $(CFLAGS_NON_EFI)
-CFLAGS_efi_selftest_util.o := $(CFLAGS_EFI)
-CFLAGS_REMOVE_efi_selftest_util.o := $(CFLAGS_NON_EFI)
-
 obj-$(CONFIG_CMD_BOOTEFI_SELFTEST) += \
 efi_selftest.o \
 efi_selftest_console.o \
+efi_selftest_devicepath.o \
 efi_selftest_events.o \
 efi_selftest_exitbootservices.o \
+efi_selftest_gop.o \
+efi_selftest_manageprotocols.o \
 efi_selftest_snp.o \
+efi_selftest_textoutput.o \
 efi_selftest_tpl.o \
-efi_selftest_util.o
+efi_selftest_util.o \
+efi_selftest_watchdog.o

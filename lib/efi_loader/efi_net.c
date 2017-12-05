@@ -292,16 +292,25 @@ int efi_net_register(void)
 
 	/* We only expose the "active" eth device, so one is enough */
 	netobj = calloc(1, sizeof(*netobj));
+	if (!netobj)
+		goto out_of_memory;
+
+	/* Hook net up to the device list */
+	efi_add_handle(&netobj->parent);
 
 	/* Fill in object data */
-	netobj->parent.protocols[0].guid = &efi_net_guid;
-	netobj->parent.protocols[0].protocol_interface = &netobj->net;
-	netobj->parent.protocols[1].guid = &efi_guid_device_path;
-	netobj->parent.protocols[1].protocol_interface =
-		efi_dp_from_eth();
-	netobj->parent.protocols[2].guid = &efi_pxe_guid;
-	netobj->parent.protocols[2].protocol_interface = &netobj->pxe;
-	netobj->parent.handle = &netobj->net;
+	r = efi_add_protocol(netobj->parent.handle, &efi_net_guid,
+			     &netobj->net);
+	if (r != EFI_SUCCESS)
+		goto out_of_memory;
+	r = efi_add_protocol(netobj->parent.handle, &efi_guid_device_path,
+			     efi_dp_from_eth());
+	if (r != EFI_SUCCESS)
+		goto out_of_memory;
+	r = efi_add_protocol(netobj->parent.handle, &efi_pxe_guid,
+			     &netobj->pxe);
+	if (r != EFI_SUCCESS)
+		goto out_of_memory;
 	netobj->net.revision = EFI_SIMPLE_NETWORK_PROTOCOL_REVISION;
 	netobj->net.start = efi_net_start;
 	netobj->net.stop = efi_net_stop;
@@ -325,9 +334,6 @@ int efi_net_register(void)
 	netobj->pxe.mode = &netobj->pxe_mode;
 	if (dhcp_ack)
 		netobj->pxe_mode.dhcp_ack = *dhcp_ack;
-
-	/* Hook net up to the device list */
-	list_add_tail(&netobj->parent.link, &efi_obj_list);
 
 	/*
 	 * Create WaitForPacket event.
@@ -361,4 +367,7 @@ int efi_net_register(void)
 	}
 
 	return 0;
+out_of_memory:
+	printf("ERROR: Out of memory\n");
+	return 1;
 }

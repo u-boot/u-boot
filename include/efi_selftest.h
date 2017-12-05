@@ -12,6 +12,7 @@
 #include <common.h>
 #include <efi.h>
 #include <efi_api.h>
+#include <efi_loader.h>
 #include <linker_lists.h>
 
 #define EFI_ST_SUCCESS 0
@@ -24,6 +25,15 @@
  */
 #define efi_st_error(...) \
 	(efi_st_printf("%s(%u):\nERROR: ", __FILE__, __LINE__), \
+	efi_st_printf(__VA_ARGS__)) \
+
+/*
+ * Prints a TODO message.
+ *
+ * @...	format string followed by fields to print
+ */
+#define efi_st_todo(...) \
+	(efi_st_printf("%s(%u):\nTODO: ", __FILE__, __LINE__), \
 	efi_st_printf(__VA_ARGS__)) \
 
 /*
@@ -72,6 +82,15 @@ void efi_st_printf(const char *fmt, ...)
 int efi_st_memcmp(const void *buf1, const void *buf2, size_t length);
 
 /*
+ * Compare an u16 string to a char string.
+ *
+ * @buf1:	u16 string
+ * @buf2:	char string
+ * @return:	0 if both buffers contain the same bytes
+ */
+int efi_st_strcmp_16_8(const u16 *buf1, const char *buf2);
+
+/*
  * Reads an Unicode character from the input device.
  *
  * @return: Unicode character
@@ -88,6 +107,7 @@ u16 efi_st_get_key(void);
  * @setup:	set up the unit test
  * @teardown:	tear down the unit test
  * @execute:	execute the unit test
+ * @on_request:	test is only executed on request
  */
 struct efi_unit_test {
 	const char *name;
@@ -96,6 +116,7 @@ struct efi_unit_test {
 		     const struct efi_system_table *systable);
 	int (*execute)(void);
 	int (*teardown)(void);
+	bool on_request;
 };
 
 /* Declare a new EFI unit test */
