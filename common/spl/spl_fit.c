@@ -173,6 +173,7 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	int align_len = ARCH_DMA_MINALIGN - 1;
 	uint8_t image_comp = -1, type = -1;
 	const void *data;
+	bool external_data = false;
 
 	if (IS_ENABLED(CONFIG_SPL_OS_BOOT) && IS_ENABLED(CONFIG_SPL_GZIP)) {
 		if (fit_image_get_comp(fit, node, &image_comp))
@@ -189,9 +190,15 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	if (fit_image_get_load(fit, node, &load_addr))
 		load_addr = image_info->load_addr;
 
-	if (!fit_image_get_data_offset(fit, node, &offset)) {
-		/* External data */
+	if (!fit_image_get_data_position(fit, node, &offset)) {
+		external_data = true;
+	} else if (!fit_image_get_data_offset(fit, node, &offset)) {
 		offset += base_offset;
+		external_data = true;
+	}
+
+	if (external_data) {
+		/* External data */
 		if (fit_image_get_data_size(fit, node, &len))
 			return -ENOENT;
 
