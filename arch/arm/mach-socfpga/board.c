@@ -28,6 +28,13 @@ int board_init(void)
 	return 0;
 }
 
+int dram_init_banksize(void)
+{
+	fdtdec_setup_memory_banksize();
+
+	return 0;
+}
+
 #ifdef CONFIG_USB_GADGET
 struct dwc2_plat_otg_data socfpga_otg_data = {
 	.usb_gusbcfg	= 0x1417,
