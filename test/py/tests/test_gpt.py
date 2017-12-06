@@ -44,9 +44,11 @@ class GptTestDiskImage(object):
                 cmd = ('sgdisk', '-U', '375a56f7-d6c9-4e81-b5f0-09d41ca89efe',
                     persistent)
                 u_boot_utils.run_and_log(u_boot_console, cmd)
-                cmd = ('sgdisk', '--new=1:2048:2560', '-c 1:part1', persistent)
+                # part1 offset 1MB size 1MB
+                cmd = ('sgdisk', '--new=1:2048:4095', '-c 1:part1', persistent)
+                # part2 offset 2MB size 1.5MB
                 u_boot_utils.run_and_log(u_boot_console, cmd)
-                cmd = ('sgdisk', '--new=2:4096:4608', '-c 2:part2', persistent)
+                cmd = ('sgdisk', '--new=2:4096:7167', '-c 2:part2', persistent)
                 u_boot_utils.run_and_log(u_boot_console, cmd)
                 cmd = ('sgdisk', '-l', persistent)
                 u_boot_utils.run_and_log(u_boot_console, cmd)
@@ -76,13 +78,13 @@ def test_gpt_read(state_disk_image, u_boot_console):
 
     u_boot_console.run_command('host bind 0 ' + state_disk_image.path)
     output = u_boot_console.run_command('gpt read host 0')
-    assert 'Start 1MiB, size 0MiB' in output
+    assert 'Start 1MiB, size 1MiB' in output
     assert 'Block size 512, name part1' in output
-    assert 'Start 2MiB, size 0MiB' in output
+    assert 'Start 2MiB, size 1MiB' in output
     assert 'Block size 512, name part2' in output
     output = u_boot_console.run_command('part list host 0')
-    assert '0x00000800	0x00000a00	"part1"' in output
-    assert '0x00001000	0x00001200	"part2"' in output
+    assert '0x00000800	0x00000fff	"part1"' in output
+    assert '0x00001000	0x00001bff	"part2"' in output
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_gpt')
@@ -133,8 +135,8 @@ def test_gpt_rename_partition(state_disk_image, u_boot_console):
     output = u_boot_console.run_command('gpt read host 0')
     assert 'name second' in output
     output = u_boot_console.run_command('part list host 0')
-    assert '0x00000800	0x00000a00	"first"' in output
-    assert '0x00001000	0x00001200	"second"' in output
+    assert '0x00000800	0x00000fff	"first"' in output
+    assert '0x00001000	0x00001bff	"second"' in output
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_gpt')
@@ -146,12 +148,12 @@ def test_gpt_swap_partitions(state_disk_image, u_boot_console):
 
     u_boot_console.run_command('host bind 0 ' + state_disk_image.path)
     output = u_boot_console.run_command('part list host 0')
-    assert '0x00000800	0x00000a00	"first"' in output
-    assert '0x00001000	0x00001200	"second"' in output
+    assert '0x00000800	0x00000fff	"first"' in output
+    assert '0x00001000	0x00001bff	"second"' in output
     u_boot_console.run_command('gpt swap host 0 first second')
     output = u_boot_console.run_command('part list host 0')
-    assert '0x00000800	0x00000a00	"second"' in output
-    assert '0x00001000	0x00001200	"first"' in output
+    assert '0x00000800	0x00000fff	"second"' in output
+    assert '0x00001000	0x00001bff	"first"' in output
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_gpt')
@@ -165,10 +167,10 @@ def test_gpt_write(state_disk_image, u_boot_console):
     assert 'Writing GPT: success!' in output
     output = u_boot_console.run_command('part list host 0')
     assert '0x00000022	0x00001fde	"all"' in output
-    output = u_boot_console.run_command('gpt write host 0 "uuid_disk=375a56f7-d6c9-4e81-b5f0-09d41ca89efe;name=first,start=0x100000,size=0x40200;name=second,start=0x200000,size=0x40200;"')
+    output = u_boot_console.run_command('gpt write host 0 "uuid_disk=375a56f7-d6c9-4e81-b5f0-09d41ca89efe;name=first,start=1M,size=1M;name=second,start=0x200000,size=0x180000;"')
     assert 'Writing GPT: success!' in output
     output = u_boot_console.run_command('part list host 0')
-    assert '0x00000800	0x00000a00	"first"' in output
-    assert '0x00001000	0x00001200	"second"' in output
+    assert '0x00000800	0x00000fff	"first"' in output
+    assert '0x00001000	0x00001bff	"second"' in output
     output = u_boot_console.run_command('gpt guid host 0')
     assert '375a56f7-d6c9-4e81-b5f0-09d41ca89efe' in output
