@@ -5,6 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <linux/bitfield.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/kernel.h>
@@ -19,7 +20,6 @@
 #define SC_PLLCTRL_SSC_EN		BIT(31)
 #define SC_PLLCTRL2_NRSTDS		BIT(28)
 #define SC_PLLCTRL2_SSC_JK_MASK		GENMASK(26, 0)
-#define SC_PLLCTRL3_REGI_SHIFT		16
 #define SC_PLLCTRL3_REGI_MASK		GENMASK(19, 16)
 
 /* PLL type: VPLL27 */
@@ -42,14 +42,16 @@ int uniphier_ld20_sscpll_init(unsigned long reg_base, unsigned int freq,
 	if (freq != UNIPHIER_PLL_FREQ_DEFAULT) {
 		tmp = readl(base);	/* SSCPLLCTRL */
 		tmp &= ~SC_PLLCTRL_SSC_DK_MASK;
-		tmp |= DIV_ROUND_CLOSEST(487UL * freq * ssc_rate, divn * 512) &
-							SC_PLLCTRL_SSC_DK_MASK;
+		tmp |= FIELD_PREP(SC_PLLCTRL_SSC_DK_MASK,
+				  DIV_ROUND_CLOSEST(487UL * freq * ssc_rate,
+						    divn * 512));
 		writel(tmp, base);
 
 		tmp = readl(base + 4);
 		tmp &= ~SC_PLLCTRL2_SSC_JK_MASK;
-		tmp |= DIV_ROUND_CLOSEST(21431887UL * freq, divn * 512) &
-							SC_PLLCTRL2_SSC_JK_MASK;
+		tmp |= FIELD_PREP(SC_PLLCTRL2_SSC_JK_MASK,
+				  DIV_ROUND_CLOSEST(21431887UL * freq,
+						    divn * 512));
 		writel(tmp, base + 4);
 
 		udelay(50);
@@ -93,7 +95,7 @@ int uniphier_ld20_sscpll_set_regi(unsigned long reg_base, unsigned regi)
 
 	tmp = readl(base + 8);	/* SSCPLLCTRL3 */
 	tmp &= ~SC_PLLCTRL3_REGI_MASK;
-	tmp |= regi << SC_PLLCTRL3_REGI_SHIFT;
+	tmp |= FIELD_PREP(SC_PLLCTRL3_REGI_MASK, regi);
 	writel(tmp, base + 8);
 
 	iounmap(base);
