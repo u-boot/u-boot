@@ -27,3 +27,4 @@ endif
 
 obj-$(CONFIG_ARCH_UNIPHIER_LD11)	+= pll-base-ld20.o
 obj-$(CONFIG_ARCH_UNIPHIER_LD20)	+= pll-base-ld20.o
+obj-$(CONFIG_ARCH_UNIPHIER_PXS3)	+= pll-base-ld20.o
