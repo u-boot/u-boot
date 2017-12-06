@@ -48,6 +48,7 @@ int uniphier_ld20_sscpll_init(unsigned long reg_base, unsigned int freq,
 		tmp = readl(base + 4);
 		tmp &= ~SC_PLLCTRL2_SSC_JK_MASK;
 		tmp |= (41859 * freq / divn) & SC_PLLCTRL2_SSC_JK_MASK;
+		writel(tmp, base + 4);
 
 		udelay(50);
 	}
