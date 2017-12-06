@@ -208,74 +208,6 @@
 	};
 };
 
-&rtc {
-	status = "okay";
-};
-
-&spi0 {
-	status = "okay";
-	num-cs = <1>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_spi0_default>;
-
-	spi0_flash0: spi0_flash0@0 {
-		compatible = "m25p80";
-		#address-cells = <1>;
-		#size-cells = <1>;
-		spi-max-frequency = <50000000>;
-		reg = <0>;
-
-		spi0_flash0@0 {
-			label = "spi0_flash0";
-			reg = <0x0 0x100000>;
-		};
-	};
-};
-
-&spi1 {
-	status = "okay";
-	num-cs = <1>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_spi1_default>;
-
-	spi1_flash0: spi1_flash0@0 {
-		compatible = "mtd_dataflash";
-		#address-cells = <1>;
-		#size-cells = <1>;
-		spi-max-frequency = <20000000>;
-		reg = <0>;
-
-		spi1_flash0@0 {
-			label = "spi1_flash0";
-			reg = <0x0 0x84000>;
-		};
-	};
-};
-
-/* ULPI SMSC USB3320 */
-&usb1 {
-	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_usb1_default>;
-};
-
-&dwc3_1 {
-	status = "okay";
-	dr_mode = "host";
-};
-
-&uart0 {
-	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart0_default>;
-};
-
-&uart1 {
-	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart1_default>;
-};
-
 &pinctrl0 {
 	status = "okay";
 	pinctrl_can0_default: can0-default {
@@ -553,4 +485,72 @@
 			bias-disable;
 		};
 	};
+};
+
+&rtc {
+	status = "okay";
+};
+
+&spi0 {
+	status = "okay";
+	num-cs = <1>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_spi0_default>;
+
+	spi0_flash0: spi0_flash0@0 {
+		compatible = "m25p80";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		spi-max-frequency = <50000000>;
+		reg = <0>;
+
+		spi0_flash0@0 {
+			label = "spi0_flash0";
+			reg = <0x0 0x100000>;
+		};
+	};
+};
+
+&spi1 {
+	status = "okay";
+	num-cs = <1>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_spi1_default>;
+
+	spi1_flash0: spi1_flash0@0 {
+		compatible = "mtd_dataflash";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		spi-max-frequency = <20000000>;
+		reg = <0>;
+
+		spi1_flash0@0 {
+			label = "spi1_flash0";
+			reg = <0x0 0x84000>;
+		};
+	};
+};
+
+/* ULPI SMSC USB3320 */
+&usb1 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usb1_default>;
+};
+
+&dwc3_1 {
+	status = "okay";
+	dr_mode = "host";
+};
+
+&uart0 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart0_default>;
+};
+
+&uart1 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart1_default>;
 };
