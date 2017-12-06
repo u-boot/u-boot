@@ -261,10 +261,10 @@ int board_init(void)
 	if (current_el() != 3) {
 		static char version[ZYNQMP_VERSION_SIZE];
 
-		strncat(version, "xczu", 4);
+		strncat(version, "zu", 2);
 		zynqmppl.name = strncat(version,
 					zynqmp_get_silicon_idcode_name(),
-					ZYNQMP_VERSION_SIZE - 5);
+					ZYNQMP_VERSION_SIZE - 3);
 		printf("Chip ID:\t%s\n", zynqmppl.name);
 		fpga_init();
 		fpga_add(fpga_xilinx, &zynqmppl);
