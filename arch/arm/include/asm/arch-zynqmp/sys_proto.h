@@ -30,13 +30,6 @@ enum {
 	TCM_SPLIT,
 };
 
-#ifndef CONFIG_CLK_ZYNQMP
-/* Setup clk for network */
-static inline void zynq_slcr_gem_clk_setup(u32 gem_id, unsigned long clk_rate)
-{
-}
-#endif
-
 int zynq_board_read_rom_ethaddr(unsigned char *ethaddr);
 unsigned int zynqmp_get_silicon_version(void);
 
