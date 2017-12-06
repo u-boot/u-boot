@@ -462,7 +462,7 @@
 		i2c@5 { /* i2c mw 74 0 11 */
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <4>; /* FAN controller */
+			reg = <5>; /* FAN controller */
 			temp@4c {/* lm96163 - u128 */
 				compatible = "national,lm96163";
 				reg = <0x4c>; /* FIXME */
