@@ -7,6 +7,7 @@
 
 #include <linux/bitops.h>
 #include <linux/delay.h>
+#include <linux/kernel.h>
 #include <linux/errno.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
@@ -41,13 +42,14 @@ int uniphier_ld20_sscpll_init(unsigned long reg_base, unsigned int freq,
 	if (freq != UNIPHIER_PLL_FREQ_DEFAULT) {
 		tmp = readl(base);	/* SSCPLLCTRL */
 		tmp &= ~SC_PLLCTRL_SSC_DK_MASK;
-		tmp |= (487 * freq * ssc_rate / divn / 512) &
+		tmp |= DIV_ROUND_CLOSEST(487UL * freq * ssc_rate, divn * 512) &
 							SC_PLLCTRL_SSC_DK_MASK;
 		writel(tmp, base);
 
 		tmp = readl(base + 4);
 		tmp &= ~SC_PLLCTRL2_SSC_JK_MASK;
-		tmp |= (41859 * freq / divn) & SC_PLLCTRL2_SSC_JK_MASK;
+		tmp |= DIV_ROUND_CLOSEST(21431887UL * freq, divn * 512) &
+							SC_PLLCTRL2_SSC_JK_MASK;
 		writel(tmp, base + 4);
 
 		udelay(50);
