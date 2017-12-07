@@ -72,6 +72,8 @@ static int at91_i2c_xfer_msg(struct at91_i2c_bus *bus, struct i2c_msg *msg)
 
 	} else {
 		writel(msg->buf[0], &reg->thr);
+		ret = at91_wait_for_xfer(bus, TWI_SR_TXRDY);
+
 		for (i = 1; !ret && (i < msg->len); i++) {
 			writel(msg->buf[i], &reg->thr);
 			ret = at91_wait_for_xfer(bus, TWI_SR_TXRDY);
@@ -199,27 +201,6 @@ static int at91_i2c_enable_clk(struct udevice *dev)
 	return 0;
 }
 
-static int at91_i2c_probe_chip(struct udevice *dev, uint chip, uint chip_flags)
-{
-	struct at91_i2c_bus *bus = dev_get_priv(dev);
-	struct at91_i2c_regs *reg = bus->regs;
-	int ret;
-
-	ret = at91_i2c_enable_clk(dev);
-	if (ret)
-		return ret;
-
-	writel(TWI_CR_SWRST, &reg->cr);
-
-	at91_calc_i2c_clock(dev, bus->clock_frequency);
-
-	writel(bus->cwgr_val, &reg->cwgr);
-	writel(TWI_CR_MSEN, &reg->cr);
-	writel(TWI_CR_SVDIS, &reg->cr);
-
-	return 0;
-}
-
 static int at91_i2c_set_bus_speed(struct udevice *dev, unsigned int speed)
 {
 	struct at91_i2c_bus *bus = dev_get_priv(dev);
@@ -254,7 +235,6 @@ static int at91_i2c_ofdata_to_platdata(struct udevice *dev)
 
 static const struct dm_i2c_ops at91_i2c_ops = {
 	.xfer		= at91_i2c_xfer,
-	.probe_chip	= at91_i2c_probe_chip,
 	.set_bus_speed	= at91_i2c_set_bus_speed,
 	.get_bus_speed	= at91_i2c_get_bus_speed,
 };
