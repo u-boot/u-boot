@@ -120,8 +120,9 @@ relocation_return:
 #endif /* !CONFIG_SPL_BUILD */
 #if defined(CONFIG_SPL_BUILD)
 	bl	spl_relocate_stack_gd           /* may return NULL */
-	/* set up gd here, outside any C code */
-	mov	x18, x0
+	/* set up gd here, outside any C code, if new stack is returned */
+	cmp	x0, #0
+	csel	x18, x0, x18, ne
 	/*
 	 * Perform 'sp = (x0 != NULL) ? x0 : sp' while working
 	 * around the constraint that conditional moves can not
