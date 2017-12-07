@@ -72,9 +72,23 @@ config FASTBOOT_FLASH
 	  the downloaded image to a non-volatile storage device. Define
 	  this to enable the "fastboot flash" command.
 
+choice
+	prompt "Flash provider for FASTBOOT"
+	depends on FASTBOOT_FLASH
+
+config FASTBOOT_FLASH_MMC
+	bool "FASTBOOT on MMC"
+	depends on MMC
+
+config FASTBOOT_FLASH_NAND
+	bool "FASTBOOT on NAND"
+	depends on NAND
+
+endchoice
+
 config FASTBOOT_FLASH_MMC_DEV
 	int "Define FASTBOOT MMC FLASH default device"
-	depends on FASTBOOT_FLASH && MMC
+	depends on FASTBOOT_FLASH_MMC
 	default 0 if ARCH_SUNXI && MMC_SUNXI_SLOT_EXTRA = -1
 	default 1 if ARCH_SUNXI && MMC_SUNXI_SLOT_EXTRA != -1
 	help
@@ -84,7 +98,7 @@ config FASTBOOT_FLASH_MMC_DEV
 
 config FASTBOOT_FLASH_NAND_DEV
 	int "Define FASTBOOT NAND FLASH default device"
-	depends on FASTBOOT_FLASH && NAND
+	depends on FASTBOOT_FLASH_NAND
 	depends on CMD_MTDPARTS
 	default 0 if ARCH_SUNXI && NAND_SUNXI
 	help
