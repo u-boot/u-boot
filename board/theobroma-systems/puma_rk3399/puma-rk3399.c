@@ -173,7 +173,7 @@ static void setup_serial(void)
 
 	serialno = crc32_no_comp(0, low, 8);
 	serialno |= (u64)crc32_no_comp(serialno, high, 8) << 32;
-	snprintf(serialno_str, sizeof(serialno_str), "%llx", serialno);
+	snprintf(serialno_str, sizeof(serialno_str), "%016llx", serialno);
 
 	env_set("cpuid#", cpuid_str);
 	env_set("serial#", serialno_str);
