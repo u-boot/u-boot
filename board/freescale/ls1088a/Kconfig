@@ -12,6 +12,7 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "ls1088aqds"
 
+source "board/freescale/common/Kconfig"
 endif
 
 if TARGET_LS1088ARDB
@@ -28,4 +29,5 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "ls1088ardb"
 
+source "board/freescale/common/Kconfig"
 endif

@@ -95,6 +95,7 @@
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE }
 #endif
 #endif
+#define CONFIG_NAND_FSL_IFC
 #define CONFIG_SYS_NAND_MAX_ECCPOS	256
 #define CONFIG_SYS_NAND_MAX_OOBFREE	2
 
@@ -132,6 +133,7 @@
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
+#define CONFIG_CMD_NAND
 
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
 
@@ -261,13 +263,23 @@
 #define MC_INIT_CMD				\
 	"mcinitcmd=sf probe 0:0;sf read 0x80000000 0xA00000 0x100000;"	\
 	"sf read 0x80100000 0xE00000 0x100000;"				\
-	"fsl_mc start mc 0x80000000 0x80100000\0"			\
+	"env exists secureboot && "			\
+	"sf read 0x80700000 0x700000 0x40000 && "	\
+	"sf read 0x80740000 0x740000 0x40000 && "	\
+	"esbc_validate 0x80700000 && "			\
+	"esbc_validate 0x80740000 ;"			\
+	"fsl_mc start mc 0x80000000 0x80100000\0"	\
 	"mcmemsize=0x70000000\0"
 #elif defined(CONFIG_SD_BOOT)
 #define MC_INIT_CMD				\
 	"mcinitcmd=mmcinfo;mmc read 0x80000000 0x5000 0x800;"		\
 	"mmc read 0x80100000 0x7000 0x800;"				\
-	"fsl_mc start mc 0x80000000 0x80100000\0"			\
+	"env exists secureboot && "			\
+	"mmc read 0x80700000 0x3800 0x10 && "		\
+	"mmc read 0x80740000 0x3A00 0x10 && "		\
+	"esbc_validate 0x80700000 && "			\
+	"esbc_validate 0x80740000 ;"			\
+	"fsl_mc start mc 0x80000000 0x80100000\0"	\
 	"mcmemsize=0x70000000\0"
 #endif
 
@@ -282,6 +294,7 @@
 	"fdt_addr=0x64f00000\0"			\
 	"kernel_addr=0x1000000\0"		\
 	"kernel_addr_sd=0x8000\0"		\
+	"kernelhdr_addr_sd=0x4000\0"		\
 	"kernel_start=0x580100000\0"		\
 	"kernelheader_start=0x580800000\0"	\
 	"scriptaddr=0x80000000\0"		\
@@ -295,6 +308,7 @@
 	"load_addr=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
 	"kernel_size_sd=0x14000\0"		\
+	"kernelhdr_size_sd=0x10\0"		\
 	MC_INIT_CMD				\
 	BOOTENV					\
 	"boot_scripts=ls1088ardb_boot.scr\0"	\
@@ -331,29 +345,41 @@
 		"bootm $load_addr#ls1088ardb\0"			\
 	"qspi_bootcmd=echo Trying load from qspi..;"		\
 		"sf probe && sf read $load_addr "		\
-		"$kernel_addr $kernel_size &&"			\
+		"$kernel_addr $kernel_size ; env exists secureboot "	\
+		"&& sf read $kernelheader_addr_r $kernelheader_addr "	\
+		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; "\
 		"bootm $load_addr#$BOARD\0"			\
-	"sd_bootcmd=echo Trying load from sd card..;"		\
+		"sd_bootcmd=echo Trying load from sd card..;"		\
 		"mmcinfo; mmc read $load_addr "			\
 		"$kernel_addr_sd $kernel_size_sd ;"		\
+		"env exists secureboot && mmc read $kernelheader_addr_r "\
+		"$kernelhdr_addr_sd $kernelhdr_size_sd "	\
+		" && esbc_validate ${kernelheader_addr_r};"	\
 		"bootm $load_addr#$BOARD\0"
 
 #undef CONFIG_BOOTCOMMAND
 #if defined(CONFIG_QSPI_BOOT)
 /* Try to boot an on-QSPI kernel first, then do normal distro boot */
 #define CONFIG_BOOTCOMMAND                                      \
-		"env exists mcinitcmd && run mcinitcmd && "	\
-		"sf read 0x80200000 0xd00000 0x100000;"	\
-		" fsl_mc apply dpl 0x80200000;"		\
-		"run distro_bootcmd;run qspi_bootcmd"
+		"sf read 0x80200000 0xd00000 0x100000;"		\
+		"env exists mcinitcmd && env exists secureboot "	\
+		" && sf read 0x80780000 0x780000 0x100000 "	\
+		"&& esbc_validate 0x80780000;env exists mcinitcmd "	\
+		"&& fsl_mc apply dpl 0x80200000;"		\
+		"run distro_bootcmd;run qspi_bootcmd;"		\
+		"env exists secureboot && esbc_halt;"
+
 /* Try to boot an on-SD kernel first, then do normal distro boot */
 #elif defined(CONFIG_SD_BOOT)
 #define CONFIG_BOOTCOMMAND                                      \
-		"env exists mcinitcmd && run mcinitcmd ;"	\
-		"&& env exists mcinitcmd && mmcinfo; "		\
-		"mmc read 0x88000000 0x6800 0x800; "		\
-		"&& fsl_mc apply dpl 0x88000000;"		\
-		"run distro_bootcmd;run sd_bootcmd"
+		"env exists mcinitcmd && mmcinfo; "		\
+		"mmc read 0x80200000 0x6800 0x800; "		\
+		"env exists mcinitcmd && env exists secureboot "	\
+		" && mmc read 0x80780000 0x3800 0x10 "		\
+		"&& esbc_validate 0x80780000;env exists mcinitcmd "	\
+		"&& fsl_mc apply dpl 0x80200000;"		\
+		"run distro_bootcmd;run sd_bootcmd;"		\
+		"env exists secureboot && esbc_halt;"
 #endif
 
 /* MAC/PHY configuration */

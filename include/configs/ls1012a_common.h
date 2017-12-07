@@ -65,7 +65,7 @@
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_ENV_SIZE			0x40000          /* 256KB */
-#define CONFIG_ENV_OFFSET		0x200000        /* 2MB */
+#define CONFIG_ENV_OFFSET		0x300000        /* 3MB */
 #define CONFIG_ENV_SECT_SIZE		0x40000
 #endif
 
@@ -94,7 +94,7 @@
 	"kernel_addr=0x100000\0"		\
 	"fdt_high=0xffffffffffffffff\0"		\
 	"initrd_high=0xffffffffffffffff\0"	\
-	"kernel_start=0xa00000\0"		\
+	"kernel_start=0x1000000\0"		\
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
 
