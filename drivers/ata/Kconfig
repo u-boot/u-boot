@@ -47,6 +47,12 @@ config DWC_AHCI
 	  Enable this driver to support Sata devices through
 	  Synopsys DWC AHCI module.
 
+config SATA_MV
+	bool "Enable Marvell SATA controller driver support"
+	help
+	  Enable this driver to support the SATA controller found in
+	  some Marvell SoCs.
+
 config SATA_SIL
 	bool "Enable Silicon Image SIL3131 / SIL3132 / SIL3124 SATA driver support"
 	help
