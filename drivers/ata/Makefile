@@ -16,7 +16,6 @@ obj-$(CONFIG_MVSATA_IDE) += mvsata_ide.o
 obj-$(CONFIG_MX51_PATA) += mxc_ata.o
 obj-$(CONFIG_SATA) += sata.o
 obj-$(CONFIG_SATA_CEVA) += sata_ceva.o
-obj-$(CONFIG_SATA_DWC) += sata_dwc.o
 obj-$(CONFIG_SATA_MV) += sata_mv.o
 obj-$(CONFIG_SATA_SIL3114) += sata_sil3114.o
 obj-$(CONFIG_SATA_SIL) += sata_sil.o
