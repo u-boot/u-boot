@@ -469,7 +469,6 @@ unsigned long get_board_ddr_clk(void);
 /* SATA */
 #ifdef CONFIG_FSL_SATA_V2
 #define CONFIG_LIBATA
-#define CONFIG_FSL_SATA
 
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
 #define CONFIG_SATA1

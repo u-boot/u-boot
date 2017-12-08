@@ -615,7 +615,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_FSL_SATA_V2
 #ifdef CONFIG_FSL_SATA_V2
 #define CONFIG_LIBATA
-#define CONFIG_FSL_SATA
 
 #define CONFIG_SYS_SATA_MAX_DEVICE	1
 #define CONFIG_SATA1

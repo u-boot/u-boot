@@ -634,7 +634,6 @@ extern unsigned long get_sdram_size(void);
 #endif	/* CONFIG_TSEC_ENET */
 
 /* SATA */
-#define CONFIG_FSL_SATA
 #define CONFIG_FSL_SATA_V2
 #define CONFIG_LIBATA
 
