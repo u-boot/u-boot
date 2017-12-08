@@ -53,4 +53,9 @@ config SATA_SIL
 	  Enable this driver to support the SIL3131, SIL3132 and SIL3124
 	  SATA controllers.
 
+config SATA_SIL3114
+	bool "Enable Silicon Image SIL3114 SATA driver support"
+	help
+	  Enable this driver to support the SIL3114 SATA controllers.
+
 endmenu

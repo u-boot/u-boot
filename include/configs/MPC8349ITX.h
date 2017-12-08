@@ -67,7 +67,6 @@
 /* The CF card interface on the back of the board */
 #define CONFIG_COMPACT_FLASH
 #define CONFIG_VSC7385_ENET	/* VSC7385 ethernet support */
-#define CONFIG_SATA_SIL3114	/* SIL3114 SATA controller */
 #define CONFIG_SYS_USB_HOST	/* use the EHCI USB controller */
 #endif
 
