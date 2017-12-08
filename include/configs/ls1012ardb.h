@@ -24,14 +24,16 @@
  * I2C IO expander
  */
 
-#define I2C_MUX_IO1_ADDR	0x24
-#define __SW_BOOT_MASK		0xFC
-#define __SW_BOOT_EMU		0x10
-#define __SW_BOOT_BANK1		0x00
-#define __SW_BOOT_BANK2		0x01
-#define __SW_REV_MASK		0x07
-#define __SW_REV_A		0xF8
-#define __SW_REV_B		0xF0
+#define I2C_MUX_IO_ADDR		0x24
+#define I2C_MUX_IO_0		0
+#define I2C_MUX_IO_1		1
+#define SW_BOOT_MASK		0x03
+#define SW_BOOT_EMU		0x02
+#define SW_BOOT_BANK1		0x00
+#define SW_BOOT_BANK2		0x01
+#define SW_REV_MASK		0xF8
+#define SW_REV_A		0xF8
+#define SW_REV_B		0xF0
 
 /*  MMC  */
 #ifdef CONFIG_MMC

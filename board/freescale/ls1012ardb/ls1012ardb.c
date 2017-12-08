@@ -35,25 +35,25 @@ int checkboard(void)
 	/* Initialize i2c early for Serial flash bank information */
 	i2c_set_bus_num(0);
 
-	if (i2c_read(I2C_MUX_IO1_ADDR, 1, 1, &in1, 1) < 0) {
+	if (i2c_read(I2C_MUX_IO_ADDR, I2C_MUX_IO_1, 1, &in1, 1) < 0) {
 		printf("Error reading i2c boot information!\n");
 		return 0; /* Don't want to hang() on this error */
 	}
 
 	puts("Version");
-	if ((in1 & (~__SW_REV_MASK)) == __SW_REV_A)
+	if ((in1 & SW_REV_MASK) == SW_REV_A)
 		puts(": RevA");
-	else if ((in1 & (~__SW_REV_MASK)) == __SW_REV_B)
+	else if ((in1 & SW_REV_MASK) == SW_REV_B)
 		puts(": RevB");
 	else
 		puts(": unknown");
 
 	printf(", boot from QSPI");
-	if ((in1 & (~__SW_BOOT_MASK)) == __SW_BOOT_EMU)
+	if ((in1 & SW_BOOT_MASK) == SW_BOOT_EMU)
 		puts(": emu\n");
-	else if ((in1 & (~__SW_BOOT_MASK)) == __SW_BOOT_BANK1)
+	else if ((in1 & SW_BOOT_MASK) == SW_BOOT_BANK1)
 		puts(": bank1\n");
-	else if ((in1 & (~__SW_BOOT_MASK)) == __SW_BOOT_BANK2)
+	else if ((in1 & SW_BOOT_MASK) == SW_BOOT_BANK2)
 		puts(": bank2\n");
 	else
 		puts("unknown\n");
@@ -152,7 +152,7 @@ int esdhc_status_fixup(void *blob, const char *compat)
 	 *	10 - eMMC Memory
 	 *	11 - SPI
 	 */
-	if (i2c_read(I2C_MUX_IO1_ADDR, 0, 1, &io, 1) < 0) {
+	if (i2c_read(I2C_MUX_IO_ADDR, I2C_MUX_IO_0, 1, &io, 1) < 0) {
 		printf("Error reading i2c boot information!\n");
 		return 0; /* Don't want to hang() on this error */
 	}
