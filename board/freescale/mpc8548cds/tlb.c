@@ -48,7 +48,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 */
 	SET_TLB_ENTRY(1, CONFIG_SYS_LBC_SDRAM_BASE,
 		      CONFIG_SYS_LBC_SDRAM_BASE_PHYS,
-		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
+		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_M,
 		      0, 2, BOOKE_PAGESZ_64M, 1),
 
 	/*
