@@ -118,9 +118,19 @@ dtb-$(CONFIG_ARCH_ZYNQ) += zynq-zc702.dtb \
 	zynq-zc770-xm013.dtb
 dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-ep108.dtb			\
-	zynqmp-zcu100-revC.dtb			\
-	zynqmp-zcu100-revB.dtb			\
+	zynqmp-mini.dtb				\
+	zynqmp-mini-qspi-parallel.dtb		\
+	zynqmp-mini-qspi-single.dtb		\
+	zynqmp-mini-qspi-stacked.dtb		\
+	zynqmp-mini-qspi-x1-single.dtb		\
+	zynqmp-mini-qspi-x1-stacked.dtb		\
+	zynqmp-mini-qspi-x2-single.dtb		\
+	zynqmp-mini-qspi-x2-stacked.dtb		\
+	zynqmp-mini-nand.dtb			\
+	zynqmp-mini-emmc.dtb			\
 	zynqmp-zcu100-revA.dtb			\
+	zynqmp-zcu100-revB.dtb			\
+	zynqmp-zcu100-revC.dtb			\
 	zynqmp-zcu102-revA.dtb			\
 	zynqmp-zcu102-revB.dtb			\
 	zynqmp-zcu102-rev1.0.dtb		\
@@ -133,17 +143,7 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-zc1751-xm016-dc2.dtb		\
 	zynqmp-zc1751-xm017-dc3.dtb		\
 	zynqmp-zc1751-xm018-dc4.dtb		\
-	zynqmp-zc1751-xm019-dc5.dtb		\
-	zynqmp-mini.dtb				\
-	zynqmp-mini-qspi-parallel.dtb		\
-	zynqmp-mini-qspi-single.dtb		\
-	zynqmp-mini-qspi-stacked.dtb		\
-	zynqmp-mini-qspi-x1-single.dtb		\
-	zynqmp-mini-qspi-x1-stacked.dtb		\
-	zynqmp-mini-qspi-x2-single.dtb		\
-	zynqmp-mini-qspi-x2-stacked.dtb		\
-	zynqmp-mini-nand.dtb			\
-	zynqmp-mini-emmc.dtb
+	zynqmp-zc1751-xm019-dc5.dtb
 dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-bone.dtb \
 	am335x-draco.dtb \
 	am335x-evm.dtb \
