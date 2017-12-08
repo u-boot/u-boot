@@ -209,6 +209,7 @@ config TARGET_P1025RDB
 	select ARCH_P1025
 	imply CMD_EEPROM
 	imply CMD_SATA
+	imply SATA_SIL
 
 config TARGET_P2020RDB
 	bool "Support P2020RDB-PC"
@@ -217,6 +218,7 @@ config TARGET_P2020RDB
 	select ARCH_P2020
 	imply CMD_EEPROM
 	imply CMD_SATA
+	imply SATA_SIL
 
 config TARGET_P1_TWR
 	bool "Support p1_twr"
@@ -672,6 +674,7 @@ config ARCH_P1020
 	imply CMD_SATA
 	imply CMD_PCI
 	imply CMD_REGINFO
+	imply SATA_SIL
 
 config ARCH_P1021
 	bool
@@ -690,6 +693,7 @@ config ARCH_P1021
 	imply CMD_NAND
 	imply CMD_SATA
 	imply CMD_REGINFO
+	imply SATA_SIL
 
 config ARCH_P1022
 	bool
@@ -737,6 +741,7 @@ config ARCH_P1024
 	imply CMD_SATA
 	imply CMD_PCI
 	imply CMD_REGINFO
+	imply SATA_SIL
 
 config ARCH_P1025
 	bool
@@ -858,6 +863,7 @@ config ARCH_P4080
 	select FSL_ELBC
 	imply CMD_SATA
 	imply CMD_REGINFO
+	imply SATA_SIL
 
 config ARCH_P5020
 	bool
