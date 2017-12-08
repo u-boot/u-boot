@@ -18,6 +18,7 @@ config INTEL_QUEENSBAY
 	imply MMC_SDHCI_SDMA
 	imply PCH_GBE
 	imply SCSI
+	imply SCSI_AHCI
 	imply SPI_FLASH
 	imply SYS_NS16550
 	imply USB

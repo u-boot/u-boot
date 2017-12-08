@@ -20,6 +20,7 @@ config ARCH_LS1021A
 	select SYS_FSL_SEC_COMPAT_5
 	select SYS_FSL_SEC_LE
 	imply SCSI
+	imply SCSI_AHCI
 	imply CMD_PCI
 
 menu "LS102xA architecture"

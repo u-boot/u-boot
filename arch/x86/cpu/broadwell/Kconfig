@@ -13,6 +13,7 @@ config INTEL_BROADWELL
 	imply ICH_SPI
 	imply INTEL_BROADWELL_GPIO
 	imply SCSI
+	imply SCSI_AHCI
 	imply SPI_FLASH
 	imply USB
 	imply USB_EHCI_HCD

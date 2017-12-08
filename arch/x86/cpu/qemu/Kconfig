@@ -9,6 +9,7 @@ config QEMU
 	select ARCH_EARLY_INIT_R
 	imply AHCI_PCI
 	imply E1000
+	imply SCSI_AHCI
 	imply SYS_NS16550
 	imply USB
 	imply USB_EHCI_HCD

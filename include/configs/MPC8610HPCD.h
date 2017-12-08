@@ -281,8 +281,6 @@
 #define PCI_IDSEL_NUMBER	0x0c	/* slot0->3(IDSEL)=12->15 */
 #endif
 
-#define CONFIG_SCSI_AHCI
-
 #ifdef CONFIG_SCSI_AHCI
 #define CONFIG_LIBATA
 #define CONFIG_SATA_ULI5288

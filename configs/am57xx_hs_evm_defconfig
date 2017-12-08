@@ -42,6 +42,7 @@ CONFIG_OF_LIST="am57xx-beagle-x15 am57xx-beagle-x15-revb1 am57xx-beagle-x15-revc
 CONFIG_ENV_IS_IN_MMC=y
 CONFIG_DM=y
 CONFIG_SPL_DM=y
+CONFIG_SCSI_AHCI=y
 # CONFIG_BLK is not set
 CONFIG_DFU_MMC=y
 CONFIG_DFU_RAM=y

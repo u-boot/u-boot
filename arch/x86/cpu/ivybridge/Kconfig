@@ -14,6 +14,7 @@ config NORTHBRIDGE_INTEL_IVYBRIDGE
 	imply ICH_SPI
 	imply INTEL_ICH6_GPIO
 	imply SCSI
+	imply SCSI_AHCI
 	imply SPI_FLASH
 	imply USB
 	imply USB_EHCI_HCD

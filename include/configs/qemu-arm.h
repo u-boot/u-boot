@@ -31,7 +31,6 @@
 
 /* For block devices, QEMU emulates an ICH9 AHCI controller over PCI */
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID 6
-#define CONFIG_SCSI_AHCI
 #define CONFIG_LIBATA
 
 /* Environment options */

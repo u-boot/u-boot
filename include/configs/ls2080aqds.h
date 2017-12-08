@@ -47,7 +47,6 @@ unsigned long get_board_ddr_clk(void);
 
 /* SATA */
 #define CONFIG_LIBATA
-#define CONFIG_SCSI_AHCI
 #define CONFIG_SCSI_AHCI_PLAT
 
 #define CONFIG_SYS_SATA1			AHCI_BASE_ADDR1

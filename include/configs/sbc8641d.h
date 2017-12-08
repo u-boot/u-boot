@@ -300,8 +300,6 @@
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
-#undef CONFIG_SCSI_AHCI
-
 #ifdef CONFIG_SCSI_AHCI
 #define CONFIG_SATA_ULI5288
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID	4

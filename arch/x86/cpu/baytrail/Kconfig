@@ -19,6 +19,7 @@ config INTEL_BAYTRAIL
 	imply MMC_SDHCI
 	imply MMC_SDHCI_SDMA
 	imply SCSI
+	imply SCSI_AHCI
 	imply SPI_FLASH
 	imply SYS_NS16550
 	imply USB
