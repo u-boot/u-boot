@@ -5,6 +5,16 @@
 import pytest
 import random
 
+"""
+Note: This test doesn't rely on boardenv_* configuration value but they can
+change test behavior.
+
+# Setup env__i2c_device_test_skip to True if tests with i2c devices should be
+# skipped. For example: Missing QEMU model or broken i2c device
+env__i2c_device_test_skip = True
+
+"""
+
 @pytest.mark.buildconfigspec("cmd_i2c")
 def test_i2c_bus(u_boot_console):
     expected_response = "Bus"
@@ -28,6 +38,10 @@ def test_i2c_probe(u_boot_console):
 @pytest.mark.boardspec("zynq_zc706")
 @pytest.mark.buildconfigspec("cmd_i2c")
 def test_i2c_probe_zc70x(u_boot_console):
+    test_skip = u_boot_console.config.env.get('env__i2c_device_test_skip', False)
+    if test_skip:
+        pytest.skip('i2c device test skipped')
+
     # Enable i2c mux bridge
     u_boot_console.run_command("i2c mw 74 0 4")
     u_boot_console.run_command("i2c probe")
@@ -40,6 +54,10 @@ def test_i2c_probe_zc70x(u_boot_console):
 @pytest.mark.boardspec("xilinx_zynqmp_zcu102")
 @pytest.mark.buildconfigspec("cmd_i2c")
 def test_i2c_probe_zcu102(u_boot_console):
+    test_skip = u_boot_console.config.env.get('env__i2c_device_test_skip', False)
+    if test_skip:
+        pytest.skip('i2c device test skipped')
+
     # This is using i2c mux wiring from config file
     u_boot_console.run_command("i2c dev 5")
     u_boot_console.run_command("i2c probe")
