@@ -125,7 +125,6 @@
 #endif
 
 /* SATA */
-#define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI_PLAT
 
 #define CONFIG_SYS_SATA				AHCI_BASE_ADDR

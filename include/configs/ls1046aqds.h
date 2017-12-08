@@ -137,7 +137,6 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 /* SATA */
-#define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI_PLAT
 
 /* EEPROM */

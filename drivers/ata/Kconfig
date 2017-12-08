@@ -20,8 +20,14 @@ config SATA
 
 	  See also CMD_SATA which provides command-line support.
 
+config LIBATA
+	bool
+	help
+	  Select this to build and link the libata helper functions.
+
 config SCSI_AHCI
 	bool "Enable SCSI interface to SATA devices"
+	select LIBATA
 	help
 	  Enable this to allow interfacing SATA devices via the SCSI layer.
 
@@ -54,30 +60,35 @@ config DWC_AHCI
 
 config DWC_AHSATA
 	bool "Enable DWC AHSATA driver support"
+	select LIBATA
 	help
 	  Enable this driver to support the DWC AHSATA SATA controller found
 	  in i.MX5 and i.MX6 SoCs.
 
 config FSL_SATA
 	bool "Enable Freescale SATA controller driver support"
+	select LIBATA
 	help
 	  Enable this driver to support the SATA controller found in
 	  some Freescale PowerPC SoCs.
 
 config SATA_MV
 	bool "Enable Marvell SATA controller driver support"
+	select LIBATA
 	help
 	  Enable this driver to support the SATA controller found in
 	  some Marvell SoCs.
 
 config SATA_SIL
 	bool "Enable Silicon Image SIL3131 / SIL3132 / SIL3124 SATA driver support"
+	select LIBATA
 	help
 	  Enable this driver to support the SIL3131, SIL3132 and SIL3124
 	  SATA controllers.
 
 config SATA_SIL3114
 	bool "Enable Silicon Image SIL3114 SATA driver support"
+	select LIBATA
 	help
 	  Enable this driver to support the SIL3114 SATA controllers.
 

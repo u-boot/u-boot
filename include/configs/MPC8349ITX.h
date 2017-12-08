@@ -138,7 +138,6 @@
 #ifdef CONFIG_SATA_SIL3114
 
 #define CONFIG_SYS_SATA_MAX_DEVICE      4
-#define CONFIG_LIBATA
 #define CONFIG_LBA48
 
 #endif

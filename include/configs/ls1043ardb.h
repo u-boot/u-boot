@@ -286,7 +286,6 @@
 
 /* SATA */
 #ifndef SPL_NO_SATA
-#define CONFIG_LIBATA
 #ifndef CONFIG_CMD_EXT2
 #define CONFIG_CMD_EXT2
 #endif

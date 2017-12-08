@@ -482,7 +482,6 @@
 #endif
 
 /* SATA */
-#define CONFIG_LIBATA
 #define CONFIG_FSL_SATA_V2
 
 #define CONFIG_SYS_SATA_MAX_DEVICE	2

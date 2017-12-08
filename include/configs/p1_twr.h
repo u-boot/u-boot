@@ -51,7 +51,6 @@
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
-#define CONFIG_LIBATA
 #define CONFIG_LBA48
 
 #ifndef __ASSEMBLY__

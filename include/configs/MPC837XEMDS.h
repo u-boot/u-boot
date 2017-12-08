@@ -420,8 +420,6 @@ extern int board_pci_host_broken(void);
 /*
  * SATA
  */
-#define CONFIG_LIBATA
-
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
 #define CONFIG_SATA1
 #define CONFIG_SYS_SATA1_OFFSET	0x18000

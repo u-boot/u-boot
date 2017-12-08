@@ -97,7 +97,6 @@
  * SATA/SCSI/AHCI configuration
  */
 #define CONFIG_SCSI_AHCI_PLAT
-#define CONFIG_LIBATA
 #define CONFIG_LBA48
 #define CONFIG_SYS_64BIT_LBA
 

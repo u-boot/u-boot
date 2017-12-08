@@ -27,7 +27,6 @@
 #define CONFIG_DWC_AHSATA_PORT_ID       0
 #define CONFIG_DWC_AHSATA_BASE_ADDR     SATA_ARB_BASE_ADDR
 #define CONFIG_LBA48
-#define CONFIG_LIBATA
 #endif
 
 /* Ethernet Configuration */
