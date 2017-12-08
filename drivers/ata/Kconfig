@@ -47,6 +47,12 @@ config DWC_AHCI
 	  Enable this driver to support Sata devices through
 	  Synopsys DWC AHCI module.
 
+config DWC_AHSATA
+	bool "Enable DWC AHSATA driver support"
+	help
+	  Enable this driver to support the DWC AHSATA SATA controller found
+	  in i.MX5 and i.MX6 SoCs.
+
 config FSL_SATA
 	bool "Enable Freescale SATA controller driver support"
 	help
