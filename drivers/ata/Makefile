@@ -13,7 +13,6 @@ obj-$(CONFIG_DWC_AHSATA) += dwc_ahsata.o
 obj-$(CONFIG_FSL_SATA) += fsl_sata.o
 obj-$(CONFIG_LIBATA) += libata.o
 obj-$(CONFIG_MVSATA_IDE) += mvsata_ide.o
-obj-$(CONFIG_MX51_PATA) += mxc_ata.o
 obj-$(CONFIG_SATA) += sata.o
 obj-$(CONFIG_SATA_CEVA) += sata_ceva.o
 obj-$(CONFIG_SATA_MV) += sata_mv.o
