@@ -41,12 +41,32 @@ int checkboard(void)
 	}
 
 	puts("Version");
-	if ((in1 & SW_REV_MASK) == SW_REV_A)
+	switch (in1 & SW_REV_MASK) {
+	case SW_REV_A:
 		puts(": RevA");
-	else if ((in1 & SW_REV_MASK) == SW_REV_B)
+		break;
+	case SW_REV_B:
 		puts(": RevB");
-	else
+		break;
+	case SW_REV_C:
+		puts(": RevC");
+		break;
+	case SW_REV_C1:
+		puts(": RevC1");
+		break;
+	case SW_REV_C2:
+		puts(": RevC2");
+		break;
+	case SW_REV_D:
+		puts(": RevD");
+		break;
+	case SW_REV_E:
+		puts(": RevE");
+		break;
+	default:
 		puts(": unknown");
+		break;
+	}
 
 	printf(", boot from QSPI");
 	if ((in1 & SW_BOOT_MASK) == SW_BOOT_EMU)

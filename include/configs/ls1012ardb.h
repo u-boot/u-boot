@@ -34,6 +34,11 @@
 #define SW_REV_MASK		0xF8
 #define SW_REV_A		0xF8
 #define SW_REV_B		0xF0
+#define SW_REV_C		0xE8
+#define SW_REV_C1		0xE0
+#define SW_REV_C2		0xD8
+#define SW_REV_D		0xD0
+#define SW_REV_E		0xC8
 
 /*  MMC  */
 #ifdef CONFIG_MMC
