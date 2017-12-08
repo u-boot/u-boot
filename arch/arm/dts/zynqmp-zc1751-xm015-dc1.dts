@@ -11,7 +11,7 @@
 /dts-v1/;
 
 #include "zynqmp.dtsi"
-#include "zynqmp-clk.dtsi"
+#include "zynqmp-clk-ccf.dtsi"
 
 / {
 	model = "ZynqMP zc1751-xm015-dc1 RevA";
