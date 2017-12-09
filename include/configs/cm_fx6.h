@@ -13,6 +13,10 @@
 
 #include "mx6_common.h"
 
+#ifndef CONFIG_SPL_BUILD
+#include <config_distro_defaults.h>
+#endif
+
 /* Machine config */
 #define CONFIG_SYS_LITTLE_ENDIAN
 #define CONFIG_MACH_TYPE		4273
@@ -62,6 +66,7 @@
 #define CONFIG_ENV_SIZE			(8 * 1024)
 #define CONFIG_ENV_OFFSET		(768 * 1024)
 
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
@@ -126,7 +131,6 @@
 	"setupmmcboot=setenv storagetype mmc; setenv storagedev 2;\0" \
 	"setupsataboot=setenv storagetype sata; setenv storagedev 0;\0" \
 	"setupnandboot=setenv storagetype nand;\0" \
-	"setupusbboot=setenv storagetype usb; setenv storagedev 0;\0" \
 	"storagebootcmd=echo Booting from ${storagetype} ...;" \
 			"run ${storagetype}args; run doboot;\0" \
 	"trybootk=if run loadkernel; then " \
@@ -141,28 +145,32 @@
 		"run setboottypem;" \
 		"run trybootk;" \
 		"run setboottypez;" \
-		"run trybootk;\0"
-
-#define CONFIG_BOOTCOMMAND \
-	"run setupmmcboot;" \
-	"mmc dev ${storagedev};" \
-	"if mmc rescan; then " \
-		"run trybootsmz;" \
-	"fi;" \
-	"run setupusbboot;" \
-	"if usb start; then "\
-		"if run loadscript; then " \
-			"run bootscript;" \
+		"run trybootk;\0" \
+	"legacy_bootcmd=" \
+		"run setupmmcboot;" \
+		"mmc dev ${storagedev};" \
+		"if mmc rescan; then " \
+			"run trybootsmz;" \
 		"fi;" \
-	"fi;" \
-	"run setupsataboot;" \
-	"if sata init; then " \
-		"run trybootsmz;" \
-	"fi;" \
-	"run setupnandboot;" \
-	"run nandboot;"
+		"run setupsataboot;" \
+		"if sata init; then " \
+			"run trybootsmz;" \
+		"fi;" \
+		"run setupnandboot;" \
+		"run nandboot;\0" \
+	BOOTENV
 
 #define CONFIG_PREBOOT		"usb start;sf probe"
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(USB, usb, 0) \
+	func(MMC, mmc, 2) \
+	func(SATA, sata, 0)
+
+#include <config_distro_bootcmd.h>
+#else
+#define CONFIG_EXTRA_ENV_SETTINGS
+#endif
 
 /* SPI */
 #define CONFIG_SPI
