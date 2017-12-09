@@ -12,6 +12,23 @@ menuconfig PHYLIB
 
 if PHYLIB
 
+config B53_SWITCH
+	bool "Broadcom BCM53xx (RoboSwitch) Ethernet switch PHY support."
+	help
+	  Enable support for Broadcom BCM53xx (RoboSwitch) Ethernet switches.
+	  This currently supports BCM53125 and similar models.
+
+if B53_SWITCH
+
+config B53_CPU_PORT
+	int "CPU port"
+	default 8
+
+config B53_PHY_PORTS
+	hex "Bitmask of PHY ports"
+
+endif # B53_SWITCH
+
 config MV88E61XX_SWITCH
 	bool "Marvel MV88E61xx Ethernet switch PHY support."
 
