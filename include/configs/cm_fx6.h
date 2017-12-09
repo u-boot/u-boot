@@ -63,6 +63,13 @@
 #define CONFIG_ENV_OFFSET		(768 * 1024)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"fdt_high=0xffffffff\0" \
+	"initrd_high=0xffffffff\0" \
+	"fdt_addr_r=0x18000000\0" \
+	"ramdisk_addr_r=0x13000000\0" \
+	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
 	"stdin=serial,usbkbd\0" \
 	"stdout=serial,vga\0" \
 	"stderr=serial,vga\0" \
@@ -73,22 +80,19 @@
 	"kernel=uImage-cm-fx6\0" \
 	"script=boot.scr\0" \
 	"dtb=cm-fx6.dtb\0" \
-	"bootm_low=18000000\0" \
-	"loadaddr=0x10800000\0" \
-	"fdtaddr=0x11000000\0" \
 	"console=ttymxc3,115200\0" \
 	"ethprime=FEC0\0" \
 	"video_hdmi=mxcfb0:dev=hdmi,1920x1080M-32@50,if=RGB32\0" \
 	"video_dvi=mxcfb0:dev=dvi,1280x800M-32@50,if=RGB32\0" \
-	"doboot=bootm ${loadaddr}\0" \
+	"doboot=bootm ${kernel_addr_r}\0" \
 	"doloadfdt=false\0" \
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"setboottypez=setenv kernel ${zImage};" \
-		"setenv doboot bootz ${loadaddr} - ${fdtaddr};" \
+		"setenv doboot bootz ${kernel_addr_r} - ${fdt_addr_r};" \
 		"setenv doloadfdt true;\0" \
 	"setboottypem=setenv kernel ${uImage};" \
-		"setenv doboot bootm ${loadaddr};" \
+		"setenv doboot bootm ${kernel_addr_r};" \
 		"setenv doloadfdt false;\0"\
 	"mmcroot=/dev/mmcblk0p2 rw rootwait\0" \
 	"sataroot=/dev/sda2 rw rootwait\0" \
@@ -112,13 +116,13 @@
 	"run_eboot=echo Starting EBOOT ...; "\
 		"mmc dev 2 && " \
 		"mmc rescan && mmc read 10042000 a 400 && go 10042000\0" \
-	"loadscript=load ${storagetype} ${storagedev} ${loadaddr} ${script};\0"\
-	"loadkernel=load ${storagetype} ${storagedev} ${loadaddr} ${kernel};\0"\
-	"loadfdt=load ${storagetype} ${storagedev} ${fdtaddr} ${dtb};\0" \
+	"loadscript=load ${storagetype} ${storagedev} ${scriptaddr} ${script};\0"\
+	"loadkernel=load ${storagetype} ${storagedev} ${kernel_addr_r} ${kernel};\0"\
+	"loadfdt=load ${storagetype} ${storagedev} ${fdt_addr_r} ${dtb};\0" \
 	"bootscript=echo Running bootscript from ${storagetype} ...;" \
-		   "source ${loadaddr};\0" \
-	"nandloadkernel=nand read ${loadaddr} 0 780000;\0" \
-	"nandloadfdt=nand read ${fdtaddr} 780000 80000;\0" \
+		   "source ${scriptaddr};\0" \
+	"nandloadkernel=nand read ${kernel_addr_r} 0 780000;\0" \
+	"nandloadfdt=nand read ${fdt_addr_r} 780000 80000;\0" \
 	"setupmmcboot=setenv storagetype mmc; setenv storagedev 2;\0" \
 	"setupsataboot=setenv storagetype sata; setenv storagedev 0;\0" \
 	"setupnandboot=setenv storagetype nand;\0" \
