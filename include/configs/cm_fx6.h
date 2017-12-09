@@ -83,7 +83,6 @@
 	"uImage=uImage-cm-fx6\0" \
 	"zImage=zImage-cm-fx6\0" \
 	"kernel=uImage-cm-fx6\0" \
-	"script=boot.scr\0" \
 	"dtb=cm-fx6.dtb\0" \
 	"console=ttymxc3,115200\0" \
 	"ethprime=FEC0\0" \
@@ -121,11 +120,8 @@
 	"run_eboot=echo Starting EBOOT ...; "\
 		"mmc dev 2 && " \
 		"mmc rescan && mmc read 10042000 a 400 && go 10042000\0" \
-	"loadscript=load ${storagetype} ${storagedev} ${scriptaddr} ${script};\0"\
 	"loadkernel=load ${storagetype} ${storagedev} ${kernel_addr_r} ${kernel};\0"\
 	"loadfdt=load ${storagetype} ${storagedev} ${fdt_addr_r} ${dtb};\0" \
-	"bootscript=echo Running bootscript from ${storagetype} ...;" \
-		   "source ${scriptaddr};\0" \
 	"nandloadkernel=nand read ${kernel_addr_r} 0 780000;\0" \
 	"nandloadfdt=nand read ${fdt_addr_r} 780000 80000;\0" \
 	"setupmmcboot=setenv storagetype mmc; setenv storagedev 2;\0" \
@@ -139,9 +135,7 @@
 		"fi;" \
 		"run storagebootcmd;" \
 		"fi;\0" \
-	"trybootsmz=if run loadscript; then " \
-			"run bootscript;" \
-		"fi;" \
+	"trybootsmz=" \
 		"run setboottypem;" \
 		"run trybootk;" \
 		"run setboottypez;" \
