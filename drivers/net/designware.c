@@ -18,6 +18,7 @@
 #include <pci.h>
 #include <linux/compiler.h>
 #include <linux/err.h>
+#include <linux/kernel.h>
 #include <asm/io.h>
 #include <power/regulator.h>
 #include "designware.h"
@@ -344,6 +345,8 @@ int designware_eth_enable(struct dw_eth_dev *priv)
 	return 0;
 }
 
+#define ETH_ZLEN	60
+
 static int _dw_eth_send(struct dw_eth_dev *priv, void *packet, int length)
 {
 	struct eth_dma_regs *dma_p = priv->dma_regs_p;
@@ -369,6 +372,8 @@ static int _dw_eth_send(struct dw_eth_dev *priv, void *packet, int length)
 		printf("CPU not owner of tx frame\n");
 		return -EPERM;
 	}
+
+	length = max(length, ETH_ZLEN);
 
 	memcpy((void *)data_start, packet, length);
 
