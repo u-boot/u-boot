@@ -627,3 +627,142 @@ int phy_b53_init(void)
 
 	return 0;
 }
+
+int do_b53_reg_read(const char *name, int argc, char * const argv[])
+{
+	u8 page, offset, width;
+	struct mii_dev *bus;
+	int ret = -EINVAL;
+	u64 value64 = 0;
+	u32 value32 = 0;
+	u16 value16 = 0;
+	u8 value8 = 0;
+
+	bus = miiphy_get_dev_by_name(name);
+	if (!bus) {
+		printf("unable to find MDIO bus: %s\n", name);
+		return ret;
+	}
+
+	page = simple_strtoul(argv[1], NULL, 16);
+	offset = simple_strtoul(argv[2], NULL, 16);
+	width = simple_strtoul(argv[3], NULL, 10);
+
+	switch (width) {
+	case 8:
+		ret = b53_mdio_read8(bus, page, offset, &value8);
+		printf("page=0x%02x, offset=0x%02x, value=0x%02x\n",
+		       page, offset, value8);
+		break;
+	case 16:
+		ret = b53_mdio_read16(bus, page, offset, &value16);
+		printf("page=0x%02x, offset=0x%02x, value=0x%04x\n",
+		       page, offset, value16);
+		break;
+	case 32:
+		ret = b53_mdio_read32(bus, page, offset, &value32);
+		printf("page=0x%02x, offset=0x%02x, value=0x%08x\n",
+		       page, offset, value32);
+		break;
+	case 48:
+		ret = b53_mdio_read48(bus, page, offset, &value64);
+		printf("page=0x%02x, offset=0x%02x, value=0x%012llx\n",
+		       page, offset, value64);
+		break;
+	case 64:
+		ret = b53_mdio_read48(bus, page, offset, &value64);
+		printf("page=0x%02x, offset=0x%02x, value=0x%016llx\n",
+		       page, offset, value64);
+		break;
+	default:
+		printf("Unsupported width: %d\n", width);
+		break;
+	}
+
+	return ret;
+}
+
+int do_b53_reg_write(const char *name, int argc, char * const argv[])
+{
+	u8 page, offset, width;
+	struct mii_dev *bus;
+	int ret = -EINVAL;
+	u64 value64 = 0;
+	u32 value = 0;
+
+	bus = miiphy_get_dev_by_name(name);
+	if (!bus) {
+		printf("unable to find MDIO bus: %s\n", name);
+		return ret;
+	}
+
+	page = simple_strtoul(argv[1], NULL, 16);
+	offset = simple_strtoul(argv[2], NULL, 16);
+	width = simple_strtoul(argv[3], NULL, 10);
+	if (width == 48 || width == 64)
+		value64 = simple_strtoull(argv[4], NULL, 16);
+	else
+		value = simple_strtoul(argv[4], NULL, 16);
+
+	switch (width) {
+	case 8:
+		ret = b53_mdio_write8(bus, page, offset, value & 0xff);
+		break;
+	case 16:
+		ret = b53_mdio_write16(bus, page, offset, value);
+		break;
+	case 32:
+		ret = b53_mdio_write32(bus, page, offset, value);
+		break;
+	case 48:
+		ret = b53_mdio_write48(bus, page, offset, value64);
+		break;
+	case 64:
+		ret = b53_mdio_write64(bus, page, offset, value64);
+		break;
+	default:
+		printf("Unsupported width: %d\n", width);
+		break;
+	}
+
+	return ret;
+}
+
+int do_b53_reg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	const char *cmd, *mdioname;
+	int ret = 0;
+
+	if (argc < 2)
+		return cmd_usage(cmdtp);
+
+	cmd = argv[1];
+	--argc;
+	++argv;
+
+	if (!strcmp(cmd, "write")) {
+		if (argc < 4)
+			return cmd_usage(cmdtp);
+		mdioname = argv[1];
+		--argc;
+		++argv;
+		ret = do_b53_reg_write(mdioname, argc, argv);
+	} else if (!strcmp(cmd, "read")) {
+		if (argc < 5)
+			return cmd_usage(cmdtp);
+		mdioname = argv[1];
+		--argc;
+		++argv;
+		ret = do_b53_reg_read(mdioname, argc, argv);
+	} else {
+		return cmd_usage(cmdtp);
+	}
+
+	return ret;
+}
+
+U_BOOT_CMD(b53_reg, 7, 1, do_b53_reg,
+	   "Broadcom B53 switch register access",
+	   "write mdioname page (hex) offset (hex) width (dec) value (hex)\n"
+	   "read mdioname page (hex) offset (hex) width (dec)\n"
+	  );
