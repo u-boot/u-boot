@@ -54,6 +54,12 @@ config CLK_STM32F
 	  This clock driver adds support for RCC clock management
 	  for STM32F4 and STM32F7 SoCs.
 
+config CLK_HSDK
+	bool "Enable cgu clock driver for HSDK"
+	depends on CLK
+	help
+	  Enable this to support the cgu clocks on Synopsys ARC HSDK
+
 config CLK_ZYNQ
 	bool "Enable clock driver support for Zynq"
 	depends on CLK && ARCH_ZYNQ
