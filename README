@@ -5126,8 +5126,9 @@ Coding Standards:
 -----------------
 
 All contributions to U-Boot should conform to the Linux kernel
-coding style; see the file "Documentation/CodingStyle" and the script
-"scripts/Lindent" in your Linux kernel source directory.
+coding style; see the kernel coding style guide at
+https://www.kernel.org/doc/html/latest/process/coding-style.html, and the
+script "scripts/Lindent" in your Linux kernel source directory.
 
 Source files originating from a different project (for example the
 MTD subsystem) are generally exempt from these guidelines and are not
