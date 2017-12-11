@@ -36,6 +36,24 @@ static const struct efi_device_path_vendor ROOT = {
 	.guid = U_BOOT_GUID,
 };
 
+#if defined(CONFIG_DM_MMC) && defined(CONFIG_MMC)
+/*
+ * Determine if an MMC device is an SD card.
+ *
+ * @desc	block device descriptor
+ * @return	true if the device is an SD card
+ */
+static bool is_sd(struct blk_desc *desc)
+{
+	struct mmc *mmc = find_mmc_device(desc->devnum);
+
+	if (!mmc)
+		return false;
+
+	return IS_SD(mmc) != 0U;
+}
+#endif
+
 static void *dp_alloc(size_t sz)
 {
 	void *buf;
@@ -313,9 +331,9 @@ static void *dp_fill(void *buf, struct udevice *dev)
 		struct blk_desc *desc = mmc_get_blk_desc(mmc);
 
 		sddp->dp.type     = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
-		sddp->dp.sub_type = (desc->if_type == IF_TYPE_MMC) ?
-			DEVICE_PATH_SUB_TYPE_MSG_MMC :
-			DEVICE_PATH_SUB_TYPE_MSG_SD;
+		sddp->dp.sub_type = is_sd(desc) ?
+			DEVICE_PATH_SUB_TYPE_MSG_SD :
+			DEVICE_PATH_SUB_TYPE_MSG_MMC;
 		sddp->dp.length   = sizeof(*sddp);
 		sddp->slot_number = dev->seq;
 
