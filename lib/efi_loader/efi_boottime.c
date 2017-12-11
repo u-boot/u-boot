@@ -2201,8 +2201,7 @@ static const struct efi_boot_services efi_boot_services = {
 };
 
 
-static uint16_t __efi_runtime_data firmware_vendor[] =
-	{ 'D','a','s',' ','U','-','b','o','o','t',0 };
+static uint16_t __efi_runtime_data firmware_vendor[] = L"Das U-Boot";
 
 struct efi_system_table __efi_runtime_data systab = {
 	.hdr = {
