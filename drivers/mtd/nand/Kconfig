@@ -10,15 +10,14 @@ config SYS_NAND_SELF_INIT
 	  NAND initialization process.
 
 config NAND_DENALI
-	bool "Support Denali NAND controller"
+	bool
 	select SYS_NAND_SELF_INIT
 	imply CMD_NAND
-	help
-	  Enable support for the Denali NAND controller.
 
 config NAND_DENALI_DT
 	bool "Support Denali NAND controller as a DT device"
-	depends on NAND_DENALI && OF_CONTROL && DM
+	select NAND_DENALI
+	depends on OF_CONTROL && DM
 	help
 	  Enable the driver for NAND flash on platforms using a Denali NAND
 	  controller as a DT device.
