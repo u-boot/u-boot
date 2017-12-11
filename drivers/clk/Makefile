@@ -20,6 +20,7 @@ obj-$(CONFIG_CLK_EXYNOS) += exynos/
 obj-$(CONFIG_CLK_AT91) += at91/
 obj-$(CONFIG_CLK_BCM6345) += clk_bcm6345.o
 obj-$(CONFIG_CLK_BOSTON) += clk_boston.o
+obj-$(CONFIG_CLK_HSDK) += clk-hsdk-cgu.o
 obj-$(CONFIG_ARCH_ASPEED) += aspeed/
 obj-$(CONFIG_CLK_STM32F) += clk_stm32f.o
 obj-$(CONFIG_STM32H7) += clk_stm32h7.o

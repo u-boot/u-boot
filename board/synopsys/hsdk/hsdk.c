@@ -26,6 +26,10 @@ int board_early_init_f(void)
 	return 0;
 }
 
+#define SDIO_BASE              (ARC_PERIPHERAL_BASE + 0xA000)
+#define SDIO_UHS_REG_EXT       (SDIO_BASE + 0x108)
+#define SDIO_UHS_REG_EXT_DIV_2 (2 << 30)
+
 int board_mmc_init(bd_t *bis)
 {
 	struct dwmci_host *host = NULL;
@@ -36,12 +40,18 @@ int board_mmc_init(bd_t *bis)
 		return 1;
 	}
 
+	/*
+	 * Switch SDIO external ciu clock divider from default div-by-8 to
+	 * minimum possible div-by-2.
+	 */
+	writel(SDIO_UHS_REG_EXT_DIV_2, (void __iomem *) SDIO_UHS_REG_EXT);
+
 	memset(host, 0, sizeof(struct dwmci_host));
 	host->name = "Synopsys Mobile storage";
 	host->ioaddr = (void *)ARC_DWMMC_BASE;
 	host->buswidth = 4;
 	host->dev_index = 0;
-	host->bus_hz = 100000000;
+	host->bus_hz = 50000000;
 
 	add_dwmci(host, host->bus_hz / 2, 400000);
 

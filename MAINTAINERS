@@ -65,6 +65,14 @@ S:	Maintained
 L:	uboot-snps-arc@synopsys.com
 F:	drivers/gpio/hsdk-creg-gpio.c
 
+ARC HSDK CGU CLOCK
+M:	Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+S:	Maintained
+L:	uboot-snps-arc@synopsys.com
+F:	drivers/clk/clk-hsdk-cgu.c
+F:	include/dt-bindings/clock/snps,hsdk-cgu.h
+F:	doc/device-tree-bindings/clock/snps,hsdk-cgu.txt
+
 ARM
 M:	Albert Aribaud <albert.u.boot@aribaud.net>
 S:	Maintained
