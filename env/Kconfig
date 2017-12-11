@@ -427,4 +427,22 @@ config ENV_UBI_VOLUME
 
 endif
 
+if ARCH_ROCKCHIP
+
+config ENV_OFFSET
+	hex
+	depends on !ENV_IS_IN_UBI
+	depends on !ENV_IS_NOWHERE
+	default 0x3f8000
+	help
+	  Offset from the start of the device (or partition)
+
+config ENV_SIZE
+	hex
+	default 0x8000
+	help
+	  Size of the environment storage area
+
+endif
+
 endmenu
