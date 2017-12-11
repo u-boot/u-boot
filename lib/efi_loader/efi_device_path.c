@@ -383,7 +383,14 @@ static unsigned dp_part_size(struct blk_desc *desc, int part)
 	unsigned dpsize;
 
 #ifdef CONFIG_BLK
-	dpsize = dp_size(desc->bdev->parent);
+	{
+		struct udevice *dev;
+		int ret = blk_find_device(desc->if_type, desc->devnum, &dev);
+
+		if (ret)
+			dev = desc->bdev->parent;
+		dpsize = dp_size(dev);
+	}
 #else
 	dpsize = sizeof(ROOT) + sizeof(struct efi_device_path_usb);
 #endif
@@ -411,7 +418,14 @@ static void *dp_part_fill(void *buf, struct blk_desc *desc, int part)
 	disk_partition_t info;
 
 #ifdef CONFIG_BLK
-	buf = dp_fill(buf, desc->bdev->parent);
+	{
+		struct udevice *dev;
+		int ret = blk_find_device(desc->if_type, desc->devnum, &dev);
+
+		if (ret)
+			dev = desc->bdev->parent;
+		buf = dp_fill(buf, dev);
+	}
 #else
 	/*
 	 * We *could* make a more accurate path, by looking at if_type
