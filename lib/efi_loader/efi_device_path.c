@@ -399,6 +399,13 @@ static unsigned dp_part_size(struct blk_desc *desc, int part)
 	return dpsize;
 }
 
+/*
+ * Create a device path for a block device or one of its partitions.
+ *
+ * @buf		buffer to which the device path is wirtten
+ * @desc	block device descriptor
+ * @part	partition number, 0 identifies a block device
+ */
 static void *dp_part_fill(void *buf, struct blk_desc *desc, int part)
 {
 	disk_partition_t info;
@@ -411,7 +418,7 @@ static void *dp_part_fill(void *buf, struct blk_desc *desc, int part)
 	 * and handling all the different cases like we do for non-
 	 * legacy (ie CONFIG_BLK=y) case.  But most important thing
 	 * is just to have a unique device-path for if_type+devnum.
-	 * So map things to a fictional USB device:
+	 * So map things to a fictitious USB device.
 	 */
 	struct efi_device_path_usb *udp;
 
