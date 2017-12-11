@@ -435,7 +435,7 @@ static void *dp_part_fill(void *buf, struct blk_desc *desc, int part)
 	if (desc->part_type == PART_TYPE_ISO) {
 		struct efi_device_path_cdrom_path *cddp = buf;
 
-		cddp->boot_entry = part - 1;
+		cddp->boot_entry = part;
 		cddp->dp.type = DEVICE_PATH_TYPE_MEDIA_DEVICE;
 		cddp->dp.sub_type = DEVICE_PATH_SUB_TYPE_CDROM_PATH;
 		cddp->dp.length = sizeof(*cddp);
@@ -449,7 +449,7 @@ static void *dp_part_fill(void *buf, struct blk_desc *desc, int part)
 		hddp->dp.type = DEVICE_PATH_TYPE_MEDIA_DEVICE;
 		hddp->dp.sub_type = DEVICE_PATH_SUB_TYPE_HARD_DRIVE_PATH;
 		hddp->dp.length = sizeof(*hddp);
-		hddp->partition_number = part - 1;
+		hddp->partition_number = part;
 		hddp->partition_start = info.start;
 		hddp->partition_end = info.size;
 		if (desc->part_type == PART_TYPE_EFI)
