@@ -341,6 +341,8 @@ int sata_init(void)
 #ifdef CONFIG_SYS_SATA2
 	ccsr_ahci  = (void *)CONFIG_SYS_SATA2;
 	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
+	out_le32(&ccsr_ahci->pp2c, AHCI_PORT_PHY2_CFG);
+	out_le32(&ccsr_ahci->pp3c, AHCI_PORT_PHY3_CFG);
 	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
 	out_le32(&ccsr_ahci->axicc, AHCI_PORT_AXICC_CFG);
 #endif
@@ -348,6 +350,8 @@ int sata_init(void)
 #ifdef CONFIG_SYS_SATA1
 	ccsr_ahci  = (void *)CONFIG_SYS_SATA1;
 	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
+	out_le32(&ccsr_ahci->pp2c, AHCI_PORT_PHY2_CFG);
+	out_le32(&ccsr_ahci->pp3c, AHCI_PORT_PHY3_CFG);
 	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
 	out_le32(&ccsr_ahci->axicc, AHCI_PORT_AXICC_CFG);
 
@@ -368,6 +372,8 @@ int sata_init(void)
 	/* Disable SATA ECC */
 	out_le32((void *)CONFIG_SYS_DCSR_DCFG_ADDR + 0x520, 0x80000000);
 	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
+	out_le32(&ccsr_ahci->pp2c, AHCI_PORT_PHY2_CFG);
+	out_le32(&ccsr_ahci->pp3c, AHCI_PORT_PHY3_CFG);
 	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
 	out_le32(&ccsr_ahci->axicc, AHCI_PORT_AXICC_CFG);
 
