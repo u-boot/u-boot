@@ -126,6 +126,7 @@ static struct efi_object *find_obj(struct efi_device_path *dp, bool short_path,
 				   struct efi_device_path **rem)
 {
 	struct efi_object *efiobj;
+	unsigned int dp_size = efi_dp_size(dp);
 
 	list_for_each_entry(efiobj, &efi_obj_list, link) {
 		struct efi_handler *handler;
@@ -141,10 +142,18 @@ static struct efi_object *find_obj(struct efi_device_path *dp, bool short_path,
 		do {
 			if (efi_dp_match(dp, obj_dp) == 0) {
 				if (rem) {
+					/*
+					 * Allow partial matches, but inform
+					 * the caller.
+					 */
 					*rem = ((void *)dp) +
 						efi_dp_size(obj_dp);
+					return efiobj;
+				} else {
+					/* Only return on exact matches */
+					if (efi_dp_size(obj_dp) == dp_size)
+						return efiobj;
 				}
-				return efiobj;
 			}
 
 			obj_dp = shorten_path(efi_dp_next(obj_dp));
@@ -164,8 +173,14 @@ struct efi_object *efi_dp_find_obj(struct efi_device_path *dp,
 {
 	struct efi_object *efiobj;
 
-	efiobj = find_obj(dp, false, rem);
+	/* Search for an exact match first */
+	efiobj = find_obj(dp, false, NULL);
 
+	/* Then for a fuzzy match */
+	if (!efiobj)
+		efiobj = find_obj(dp, false, rem);
+
+	/* And now for a fuzzy short match */
 	if (!efiobj)
 		efiobj = find_obj(dp, true, rem);
 
