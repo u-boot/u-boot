@@ -87,6 +87,20 @@ static char *dp_acpi(char *s, struct efi_device_path *dp)
 static char *dp_msging(char *s, struct efi_device_path *dp)
 {
 	switch (dp->sub_type) {
+	case DEVICE_PATH_SUB_TYPE_MSG_ATAPI: {
+		struct efi_device_path_atapi *ide =
+			(struct efi_device_path_atapi *)dp;
+		s += sprintf(s, "Ata(%d,%d,%d)", ide->primary_secondary,
+			     ide->slave_master, ide->logical_unit_number);
+		break;
+	}
+	case DEVICE_PATH_SUB_TYPE_MSG_SCSI: {
+		struct efi_device_path_scsi *ide =
+			(struct efi_device_path_scsi *)dp;
+		s += sprintf(s, "Scsi(%u,%u)", ide->target_id,
+			     ide->logical_unit_number);
+		break;
+	}
 	case DEVICE_PATH_SUB_TYPE_MSG_USB: {
 		struct efi_device_path_usb *udp =
 			(struct efi_device_path_usb *)dp;

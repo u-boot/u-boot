@@ -329,11 +329,26 @@ struct efi_device_path_acpi_path {
 } __packed;
 
 #define DEVICE_PATH_TYPE_MESSAGING_DEVICE	0x03
+#  define DEVICE_PATH_SUB_TYPE_MSG_ATAPI	0x01
+#  define DEVICE_PATH_SUB_TYPE_MSG_SCSI		0x02
 #  define DEVICE_PATH_SUB_TYPE_MSG_USB		0x05
 #  define DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR	0x0b
 #  define DEVICE_PATH_SUB_TYPE_MSG_USB_CLASS	0x0f
 #  define DEVICE_PATH_SUB_TYPE_MSG_SD		0x1a
 #  define DEVICE_PATH_SUB_TYPE_MSG_MMC		0x1d
+
+struct efi_device_path_atapi {
+	struct efi_device_path dp;
+	u8 primary_secondary;
+	u8 slave_master;
+	u16 logical_unit_number;
+} __packed;
+
+struct efi_device_path_scsi {
+	struct efi_device_path dp;
+	u16 target_id;
+	u16 logical_unit_number;
+} __packed;
 
 struct efi_device_path_usb {
 	struct efi_device_path dp;

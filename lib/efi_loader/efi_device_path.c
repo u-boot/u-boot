@@ -297,6 +297,23 @@ static unsigned dp_size(struct udevice *dev)
 	case UCLASS_SIMPLE_BUS:
 		/* stop traversing parents at this point: */
 		return sizeof(ROOT);
+#ifdef CONFIG_BLK
+	case UCLASS_BLK:
+		switch (dev->parent->uclass->uc_drv->id) {
+#ifdef CONFIG_IDE
+		case UCLASS_IDE:
+			return dp_size(dev->parent) +
+				sizeof(struct efi_device_path_atapi);
+#endif
+#if defined(CONFIG_SCSI) && defined(CONFIG_DM_SCSI)
+		case UCLASS_SCSI:
+			return dp_size(dev->parent) +
+				sizeof(struct efi_device_path_scsi);
+#endif
+		default:
+			return dp_size(dev->parent);
+		}
+#endif
 	case UCLASS_MMC:
 		return dp_size(dev->parent) +
 			sizeof(struct efi_device_path_sd_mmc_path);
@@ -310,6 +327,13 @@ static unsigned dp_size(struct udevice *dev)
 	}
 }
 
+/*
+ * Recursively build a device path.
+ *
+ * @buf		pointer to the end of the device path
+ * @dev		device
+ * @return	pointer to the end of the device path
+ */
 static void *dp_fill(void *buf, struct udevice *dev)
 {
 	if (!dev || !dev->driver)
@@ -323,6 +347,46 @@ static void *dp_fill(void *buf, struct udevice *dev)
 		*vdp = ROOT;
 		return &vdp[1];
 	}
+#ifdef CONFIG_BLK
+	case UCLASS_BLK:
+		switch (dev->parent->uclass->uc_drv->id) {
+#ifdef CONFIG_IDE
+		case UCLASS_IDE: {
+			struct efi_device_path_atapi *dp =
+			dp_fill(buf, dev->parent);
+			struct blk_desc *desc = dev_get_uclass_platdata(dev);
+
+			dp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_ATAPI;
+			dp->dp.length = sizeof(*dp);
+			dp->logical_unit_number = desc->devnum;
+			dp->primary_secondary = IDE_BUS(desc->devnum);
+			dp->slave_master = desc->devnum %
+				(CONFIG_SYS_IDE_MAXDEVICE /
+				 CONFIG_SYS_IDE_MAXBUS);
+			return &dp[1];
+			}
+#endif
+#if defined(CONFIG_SCSI) && defined(CONFIG_DM_SCSI)
+		case UCLASS_SCSI: {
+			struct efi_device_path_scsi *dp =
+				dp_fill(buf, dev->parent);
+			struct blk_desc *desc = dev_get_uclass_platdata(dev);
+
+			dp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_SCSI;
+			dp->dp.length = sizeof(*dp);
+			dp->logical_unit_number = desc->lun;
+			dp->target_id = desc->target;
+			return &dp[1];
+			}
+#endif
+		default:
+			printf("unhandled parent class: %s (%u)\n",
+			       dev->name, dev->driver->id);
+			return dp_fill(buf, dev->parent);
+		}
+#endif
 #if defined(CONFIG_DM_MMC) && defined(CONFIG_MMC)
 	case UCLASS_MMC: {
 		struct efi_device_path_sd_mmc_path *sddp =
