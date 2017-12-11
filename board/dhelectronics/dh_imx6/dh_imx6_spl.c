@@ -387,10 +387,6 @@ void board_init_f(ulong dummy)
 				  &dhcom6sdl_grp_ioregs);
 	mx6_dram_cfg(&dhcom_ddr_info, &dhcom_mmdc_calib, &dhcom_mem_ddr);
 
-	/* Perform DDR DRAM calibration */
-	udelay(100);
-	mmdc_do_dqs_calibration(&dhcom_ddr_info);
-
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
