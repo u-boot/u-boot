@@ -255,7 +255,7 @@
 /* USB Device Firmware Update support */
 #ifndef CONFIG_SPL_BUILD
 #define DFUARGS \
-	"dfu_alt_info_emmc=rawemmc raw 0 3751936\0" \
+	DFU_ALT_INFO_EMMC \
 	DFU_ALT_INFO_MMC \
 	DFU_ALT_INFO_RAM \
 	DFU_ALT_INFO_NAND
