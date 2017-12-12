@@ -19494,7 +19494,7 @@ static u32 mask_read(u32 add, u32 mask)
 	return val;
 }
 
-static void dpll_prog(int ddr_pll_fbdiv, int d_lock_dly, int d_lock_cnt,
+static void __maybe_unused dpll_prog(int ddr_pll_fbdiv, int d_lock_dly, int d_lock_cnt,
 	int d_lfhf, int d_cp, int d_res) {
 
 	unsigned int pll_ctrl_regval;
