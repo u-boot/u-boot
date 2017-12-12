@@ -17,7 +17,6 @@
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/gpio.h>
-#include <dm/platform_data/serial_stm32.h>
 #include <asm/arch/stm32_periph.h>
 #include <asm/arch/stm32_defs.h>
 
@@ -167,15 +166,6 @@ int dram_init_banksize(void)
 
 	return 0;
 }
-
-static const struct stm32_serial_platdata serial_platdata = {
-	.base = (struct stm32_usart *)STM32_USART1_BASE,
-};
-
-U_BOOT_DEVICE(stm32_serials) = {
-	.name = "serial_stm32",
-	.platdata = &serial_platdata,
-};
 
 u32 get_board_rev(void)
 {
