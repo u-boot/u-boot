@@ -60,6 +60,7 @@
 	aliases {
 		serial0 = &usart1;
 		spi0 = &qspi;
+		mmc0 = &sdio2;
 		/* Aliases for gpios so as to use sequence */
 		gpio0 = &gpioa;
 		gpio1 = &gpiob;
@@ -251,4 +252,15 @@
 			memory-map = <0x90000000 0x1000000>;
 			reg = <0>;
 	};
+};
+
+&sdio2 {
+	status = "okay";
+	cd-gpios = <&gpioi 15 0>;
+	cd-inverted;
+	pinctrl-names = "default", "opendrain";
+	pinctrl-0 = <&sdio_pins_b>;
+	pinctrl-1 = <&sdio_pins_od_b>;
+	bus-width = <4>;
+	max-frequency = <25000000>;
 };
