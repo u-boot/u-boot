@@ -20494,9 +20494,6 @@ unsigned long psu_ps_pl_reset_config_data(void)
 
 unsigned long psu_ddr_phybringup_data(void)
 {
-	unsigned int tmp_regval = 0;
-
-
 	unsigned int regval = 0;
 
 	unsigned int pll_retry = 10;
