@@ -351,4 +351,7 @@
 #define NMIN_DSP	0x460
 #define RSTOUTN		0x464
 
+#define MCAN_SEL_ALT_MASK	0x6000
+#define MCAN_SEL		0x2000
+
 #endif /* _MUX_DRA7XX_H_ */

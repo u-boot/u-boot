@@ -823,6 +823,11 @@ void recalibrate_iodelay(void)
 		do_set_mux32((*ctrl)->control_padconf_core_base,
 			     delta_pads, delta_npads);
 
+	if (is_dra76x())
+		/* Set mux for MCAN instead of DCAN1 */
+		clrsetbits_le32((*ctrl)->control_core_control_spare_rw,
+				MCAN_SEL_ALT_MASK, MCAN_SEL);
+
 	/* Setup IOdelay configuration */
 	ret = do_set_iodelay((*ctrl)->iodelay_config_base, iodelay, niodelays);
 err:
