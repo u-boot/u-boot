@@ -82,7 +82,7 @@ config IMX_RGPIO2P
 
 config HSDK_CREG_GPIO
 	bool "HSDK CREG GPIO griver"
-	depends on DM
+	depends on DM_GPIO
 	default n
 	help
 	  This driver supports CREG GPIOs on Synopsys HSDK SOC.
