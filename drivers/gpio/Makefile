@@ -48,7 +48,6 @@ obj-$(CONFIG_ADI_GPIO2)	+= adi_gpio2.o
 obj-$(CONFIG_TCA642X)		+= tca642x.o
 obj-$(CONFIG_SUNXI_GPIO)	+= sunxi_gpio.o
 obj-$(CONFIG_LPC32XX_GPIO)	+= lpc32xx_gpio.o
-obj-$(CONFIG_STM32_GPIO)	+= stm32_gpio.o
 obj-$(CONFIG_STM32F7_GPIO)	+= stm32f7_gpio.o
 obj-$(CONFIG_GPIO_UNIPHIER)	+= gpio-uniphier.o
 obj-$(CONFIG_ZYNQ_GPIO)		+= zynq_gpio.o
