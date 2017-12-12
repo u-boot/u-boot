@@ -38,8 +38,8 @@ void meson_gx_eth_init(phy_interface_t mode, unsigned int flags)
 		/* Use GXL RMII Internal PHY */
 		if (IS_ENABLED(CONFIG_MESON_GXL) &&
 		    (flags & MESON_GXL_USE_INTERNAL_RMII_PHY)) {
-			writel(GXBB_ETH_REG_2, 0x10110181);
-			writel(GXBB_ETH_REG_3, 0xe40908ff);
+			writel(0x10110181, GXBB_ETH_REG_2);
+			writel(0xe40908ff, GXBB_ETH_REG_3);
 		}
 
 		break;
