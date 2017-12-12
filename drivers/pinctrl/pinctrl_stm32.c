@@ -182,6 +182,8 @@ static struct pinctrl_ops stm32_pinctrl_ops = {
 };
 
 static const struct udevice_id stm32_pinctrl_ids[] = {
+	{ .compatible = "st,stm32f429-pinctrl" },
+	{ .compatible = "st,stm32f469-pinctrl" },
 	{ .compatible = "st,stm32f746-pinctrl" },
 	{ .compatible = "st,stm32h743-pinctrl" },
 	{ }
