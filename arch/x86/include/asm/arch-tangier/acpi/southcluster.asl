@@ -264,7 +264,7 @@ Device (PCI0)
 
 Device (FLIS)
 {
-    Name (_HID, "PRP0001")
+    Name (_HID, "INTC1002")
     Name (_DDN, "Intel Merrifield Family-Level Interface Shim")
     Name (RBUF, ResourceTemplate()
     {
@@ -283,13 +283,6 @@ Device (FLIS)
     {
         Return (RBUF)
     }
-
-    Name (_DSD, Package () {
-        ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-        Package () {
-            Package () {"compatible", "intel,merrifield-pinctrl"},
-        }
-    })
 
     Method (_STA, 0, NotSerialized)
     {
