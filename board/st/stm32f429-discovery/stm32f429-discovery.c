@@ -13,12 +13,10 @@
 
 #include <common.h>
 #include <dm.h>
-#include <stm32_rcc.h>
+
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch/stm32_periph.h>
-#include <asm/arch/stm32_defs.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -48,7 +46,6 @@ int uart_setup_gpio(void)
 	int i;
 	int rv = 0;
 
-	clock_setup(GPIO_A_CLOCK_CFG);
 	for (i = 0; i < ARRAY_SIZE(usart_gpio); i++) {
 		rv = stm32_gpio_config(&usart_gpio[i], &gpio_ctl_usart);
 		if (rv)
@@ -114,13 +111,6 @@ static int fmc_setup_gpio(void)
 	int rv = 0;
 	int i;
 
-	clock_setup(GPIO_B_CLOCK_CFG);
-	clock_setup(GPIO_C_CLOCK_CFG);
-	clock_setup(GPIO_D_CLOCK_CFG);
-	clock_setup(GPIO_E_CLOCK_CFG);
-	clock_setup(GPIO_F_CLOCK_CFG);
-	clock_setup(GPIO_G_CLOCK_CFG);
-
 	for (i = 0; i < ARRAY_SIZE(ext_ram_fmc_gpio); i++) {
 		rv = stm32_gpio_config(&ext_ram_fmc_gpio[i],
 				&gpio_ctl_fmc);
@@ -132,11 +122,6 @@ out:
 	return rv;
 }
 
-/*
- * STM32 RCC FMC specific definitions
- */
-#define STM32_RCC_ENR_FMC	(1 << 0)	/* FMC module clock  */
-
 int dram_init(void)
 {
 	int rv;
@@ -145,9 +130,6 @@ int dram_init(void)
 	rv = fmc_setup_gpio();
 	if (rv)
 		return rv;
-
-	setbits_le32(&STM32_RCC->ahb3enr, STM32_RCC_ENR_FMC);
-
 	rv = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (rv) {
 		debug("DRAM init failed: %d\n", rv);
@@ -176,13 +158,9 @@ int board_early_init_f(void)
 {
 	int res;
 
-	configure_clocks();
-
 	res = uart_setup_gpio();
 	if (res)
 		return res;
-	clock_setup(USART1_CLOCK_CFG);
-
 	return 0;
 }
 

@@ -8,4 +8,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y += clock.o timer.o
+obj-y += timer.o

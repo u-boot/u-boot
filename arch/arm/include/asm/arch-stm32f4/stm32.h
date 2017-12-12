@@ -42,11 +42,6 @@ struct stm32_u_id_regs {
 	u32 u_id_high;
 };
 
-struct stm32_pwr_regs {
-	u32 cr;
-	u32 csr;
-};
-
 /*
  * Registers access macros
  */
@@ -56,9 +51,6 @@ struct stm32_pwr_regs {
 #define STM32_RCC_BASE		(STM32_AHB1PERIPH_BASE + 0x3800)
 #define STM32_RCC		((struct stm32_rcc_regs *)STM32_RCC_BASE)
 
-#define STM32_PWR_BASE		(STM32_APB1PERIPH_BASE + 0x7000)
-#define STM32_PWR		((struct stm32_pwr_regs *)STM32_PWR_BASE)
-
 #define FLASH_CNTL_BASE		(STM32_AHB1PERIPH_BASE + 0x3C00)
 
 static const u32 sect_sz_kb[CONFIG_SYS_MAX_FLASH_SECT] = {
@@ -67,15 +59,6 @@ static const u32 sect_sz_kb[CONFIG_SYS_MAX_FLASH_SECT] = {
 	[5 ... 11] =	128 * 1024
 };
 
-enum clock {
-	CLOCK_CORE,
-	CLOCK_AHB,
-	CLOCK_APB1,
-	CLOCK_APB2
-};
-
-int configure_clocks(void);
-unsigned long clock_get(enum clock clck);
 void stm32_flash_latency_cfg(int latency);
 
 #endif /* _MACH_STM32_H_ */

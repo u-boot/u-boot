@@ -12,7 +12,6 @@
 
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
-#include <asm/arch/stm32_periph.h>
 #include <asm/arch/stm32_pwr.h>
 
 #include <dt-bindings/mfd/stm32f7-rcc.h>
@@ -87,6 +86,12 @@
  * RCC APB2ENR specific definitions
  */
 #define RCC_APB2ENR_SYSCFGEN		BIT(14)
+
+enum periph_clock {
+	SYSCFG_CLOCK_CFG,
+	TIMER2_CLOCK_CFG,
+	STMMAC_CLOCK_CFG,
+};
 
 struct stm32_clk_info stm32f4_clk_info = {
 	/* 180 MHz */
