@@ -51,12 +51,8 @@ int timer_init(void)
 
 	setbits_le32(&STM32_RCC->apb1enr, RCC_APB1ENR_TIM2EN);
 
-	if (clock_get(CLOCK_AHB) == clock_get(CLOCK_APB1))
-		writel((clock_get(CLOCK_APB1) / CONFIG_SYS_HZ_CLOCK) - 1,
-		       &tim->psc);
-	else
-		writel(((clock_get(CLOCK_APB1) * 2) / CONFIG_SYS_HZ_CLOCK) - 1,
-		       &tim->psc);
+	writel(((CONFIG_SYS_CLK_FREQ / 2) / CONFIG_SYS_HZ_CLOCK) - 1,
+	       &tim->psc);
 
 	writel(0xFFFFFFFF, &tim->arr);
 	writel(TIM_CR1_CEN, &tim->cr1);
