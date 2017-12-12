@@ -11,6 +11,9 @@
 #include <ram.h>
 #include <asm/io.h>
 
+#define MEM_MODE_MASK	GENMASK(2, 0)
+#define NOT_FOUND	0xff
+
 DECLARE_GLOBAL_DATA_PTR;
 
 struct stm32_fmc_regs {
@@ -253,9 +256,31 @@ static int stm32_fmc_ofdata_to_platdata(struct udevice *dev)
 {
 	struct stm32_sdram_params *params = dev_get_platdata(dev);
 	struct bank_params *bank_params;
+	struct ofnode_phandle_args args;
+	u32 *syscfg_base;
+	u32 mem_remap;
 	ofnode bank_node;
 	char *bank_name;
 	u8 bank = 0;
+	int ret;
+
+	mem_remap = dev_read_u32_default(dev, "st,mem_remap", NOT_FOUND);
+	if (mem_remap != NOT_FOUND) {
+		ret = dev_read_phandle_with_args(dev, "st,syscfg", NULL, 0, 0,
+						 &args);
+		if (ret) {
+			debug("%s: can't find syscon device (%d)\n", __func__,
+			      ret);
+			return ret;
+		}
+
+		syscfg_base = (u32 *)ofnode_get_addr(args.node);
+
+		/* set memory mapping selection */
+		clrsetbits_le32(syscfg_base, MEM_MODE_MASK, mem_remap);
+	} else {
+		debug("%s: cannot find st,mem_remap property\n", __func__);
+	}
 
 	dev_for_each_subnode(bank_node, dev) {
 		/* extract the bank index from DT */
