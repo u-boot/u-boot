@@ -10,6 +10,7 @@
 #include <console.h>
 #include <usb.h>
 #include <asm/io.h>
+#include <linux/iopoll.h>
 
 #include "r8a66597.h"
 
@@ -297,7 +298,6 @@ static int send_setup_packet(struct r8a66597 *r8a66597, struct usb_device *dev,
 	int timeout = 3000;
 #if defined(CONFIG_RZA_USB)
 	u16 dcpctr;
-	int timeout2 = 10000;
 #endif
 	u16 devsel = setup->request == USB_REQ_SET_ADDRESS ? 0 : dev->devnum;
 
@@ -308,13 +308,10 @@ static int send_setup_packet(struct r8a66597 *r8a66597, struct usb_device *dev,
 #if defined(CONFIG_RZA_USB)
 	dcpctr = r8a66597_read(r8a66597, DCPCTR);
 	if ((dcpctr & PID) == PID_BUF) {
-		timeout2 = 10000;
-		while (!(dcpctr & BSTS)) {
-			dcpctr = r8a66597_read(r8a66597, DCPCTR);
-			if (timeout2-- < 0) {
-				printf("DCPCTR clear timeout!\n");
-				break;
-			}
+		if (readw_poll_timeout(r8a66597->reg + DCPCTR, dcpctr,
+				       dcpctr & BSTS, 1000) < 0) {
+			printf("DCPCTR BSTS timeout!\n");
+			return -ETIMEDOUT;
 		}
 	}
 #endif
