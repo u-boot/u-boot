@@ -174,6 +174,9 @@ static int rcar_gpio_probe(struct udevice *dev)
 static const struct udevice_id rcar_gpio_ids[] = {
 	{ .compatible = "renesas,gpio-r8a7795" },
 	{ .compatible = "renesas,gpio-r8a7796" },
+	{ .compatible = "renesas,gpio-r8a77970" },
+	{ .compatible = "renesas,gpio-r8a77995" },
+	{ .compatible = "renesas,rcar-gen3-gpio" },
 	{ /* sentinel */ }
 };
 
