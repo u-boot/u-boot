@@ -38,6 +38,7 @@ config TEGRA_COMMON
 	select OF_CONTROL
 	select VIDCONSOLE_AS_LCD if DM_VIDEO
 	select BOARD_EARLY_INIT_F
+	select BINMAN
 	imply CRC32_VERIFY
 
 config TEGRA_NO_BPMP

@@ -5,15 +5,16 @@
 	#size-cells = <1>;
 
 	binman {
-		sort-by-pos;
-		end-at-4gb;
-		size = <32>;
-		u-boot {
-			pos = <0>;
+		pad-byte = <0xff>;
+		u-boot-spl {
 		};
 
-		u-boot-spl {
-			pos = <0xffffffeb>;
+		u-boot {
+			pos = <20>;
+		};
+
+		u-boot-spl2 {
+			type = "u-boot-spl";
 		};
 	};
 };

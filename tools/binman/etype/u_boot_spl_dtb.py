@@ -3,21 +3,15 @@
 #
 # SPDX-License-Identifier:      GPL-2.0+
 #
-# Entry-type module for spl/u-boot-spl.bin
+# Entry-type module for U-Boot device tree
 #
-
-import elf
 
 from entry import Entry
 from blob import Entry_blob
 
-class Entry_u_boot_spl(Entry_blob):
+class Entry_u_boot_spl_dtb(Entry_blob):
     def __init__(self, image, etype, node):
         Entry_blob.__init__(self, image, etype, node)
-        self.elf_fname = 'spl/u-boot-spl'
 
     def GetDefaultFilename(self):
-        return 'spl/u-boot-spl.bin'
-
-    def WriteSymbols(self, image):
-        elf.LookupAndWriteSymbols(self.elf_fname, self, image)
+        return 'spl/u-boot-spl.dtb'

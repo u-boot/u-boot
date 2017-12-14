@@ -201,3 +201,11 @@ config POWER_MC34VR500
 	The MC34VR500 is used in conjunction with the FSL T1 and LS1 series
 	SoC. It provides 4 buck DC-DC convertors and 5 LDOs, and it is accessed
 	via an I2C interface.
+
+config DM_PMIC_TPS65910
+	bool "Enable driver for Texas Instruments TPS65910 PMIC"
+	depends on DM_PMIC
+	---help---
+	The TPS65910 is a PMIC containing 3 buck DC-DC converters, one boost
+	DC-DC converter, 8 LDOs and a RTC. This driver binds the SMPS and LDO
+	pmic children.

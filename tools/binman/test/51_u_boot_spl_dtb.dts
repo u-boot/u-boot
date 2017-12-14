@@ -5,13 +5,9 @@
 	#size-cells = <1>;
 
 	binman {
-		sort-by-pos;
-		u-boot {
-			pos = <22>;
-		};
+		size = <16>;
 
-		u-boot-spl {
-			pos = <1>;
+		u-boot-spl-dtb {
 		};
 	};
 };

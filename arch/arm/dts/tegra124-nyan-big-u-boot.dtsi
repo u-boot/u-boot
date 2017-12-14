@@ -5,6 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include "tegra-u-boot.dtsi"
+
 / {
 	host1x@50000000 {
 		u-boot,dm-pre-reloc;

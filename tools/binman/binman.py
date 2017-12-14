@@ -31,11 +31,13 @@ import cmdline
 import command
 import control
 
-def RunTests():
+def RunTests(debug):
     """Run the functional tests and any embedded doctests"""
+    import elf_test
     import entry_test
     import fdt_test
     import ftest
+    import image_test
     import test
     import doctest
 
@@ -45,12 +47,15 @@ def RunTests():
         suite.run(result)
 
     sys.argv = [sys.argv[0]]
+    if debug:
+        sys.argv.append('-D')
 
     # Run the entry tests first ,since these need to be the first to import the
     # 'entry' module.
     suite = unittest.TestLoader().loadTestsFromTestCase(entry_test.TestEntry)
     suite.run(result)
-    for module in (ftest.TestFunctional, fdt_test.TestFdt):
+    for module in (ftest.TestFunctional, fdt_test.TestFdt, elf_test.TestElf,
+                   image_test.TestImage):
         suite = unittest.TestLoader().loadTestsFromTestCase(module)
         suite.run(result)
 
@@ -110,7 +115,7 @@ def RunBinman(options, args):
         sys.tracebacklimit = 0
 
     if options.test:
-        ret_code = RunTests()
+        ret_code = RunTests(options.debug)
 
     elif options.test_coverage:
         RunTestCoverage()

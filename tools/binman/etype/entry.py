@@ -198,3 +198,11 @@ class Entry(object):
 
     def ProcessContents(self):
         pass
+
+    def WriteSymbols(self, image):
+        """Write symbol values into binary files for access at run time
+
+        Args:
+          image: Image containing the entry
+        """
+        pass

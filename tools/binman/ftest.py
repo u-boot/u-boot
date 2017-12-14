@@ -20,6 +20,7 @@ import binman
 import cmdline
 import command
 import control
+import elf
 import fdt
 import fdt_util
 import tools
@@ -28,11 +29,12 @@ import tout
 # Contents of test files, corresponding to different entry types
 U_BOOT_DATA           = '1234'
 U_BOOT_IMG_DATA       = 'img'
-U_BOOT_SPL_DATA       = '567'
+U_BOOT_SPL_DATA       = '56780123456789abcde'
 BLOB_DATA             = '89'
 ME_DATA               = '0abcd'
 VGA_DATA              = 'vga'
 U_BOOT_DTB_DATA       = 'udtb'
+U_BOOT_SPL_DTB_DATA   = 'spldtb'
 X86_START16_DATA      = 'start16'
 X86_START16_SPL_DATA  = 'start16spl'
 U_BOOT_NODTB_DATA     = 'nodtb with microcode pointer somewhere in here'
@@ -76,6 +78,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('me.bin', ME_DATA)
         TestFunctional._MakeInputFile('vga.bin', VGA_DATA)
         TestFunctional._MakeInputFile('u-boot.dtb', U_BOOT_DTB_DATA)
+        TestFunctional._MakeInputFile('spl/u-boot-spl.dtb', U_BOOT_SPL_DTB_DATA)
         TestFunctional._MakeInputFile('u-boot-x86-16bit.bin', X86_START16_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-x86-16bit-spl.bin',
                                       X86_START16_SPL_DATA)
@@ -134,7 +137,10 @@ class TestFunctional(unittest.TestCase):
         Returns:
             Return value (0 for success)
         """
-        (options, args) = cmdline.ParseArgs(list(args))
+        args = list(args)
+        if '-D' in sys.argv:
+            args = args + ['-D']
+        (options, args) = cmdline.ParseArgs(args)
         options.pager = 'binman-invalid-pager'
         options.build_dir = self._indir
 
@@ -142,14 +148,16 @@ class TestFunctional(unittest.TestCase):
         # options.verbosity = tout.DEBUG
         return control.Binman(options, args)
 
-    def _DoTestFile(self, fname):
+    def _DoTestFile(self, fname, debug=False):
         """Run binman with a given test file
 
         Args:
             fname: Device tree source filename to use (e.g. 05_simple.dts)
         """
-        return self._DoBinman('-p', '-I', self._indir,
-                              '-d', self.TestFile(fname))
+        args = ['-p', '-I', self._indir, '-d', self.TestFile(fname)]
+        if debug:
+            args.append('-D')
+        return self._DoBinman(*args)
 
     def _SetupDtb(self, fname, outfile='u-boot.dtb'):
         """Set up a new test device-tree file
@@ -302,7 +310,6 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(0, len(result.stderr))
         self.assertEqual(0, result.return_code)
 
-    # Not yet available.
     def testBoard(self):
         """Test that we can run it with a specific board"""
         self._SetupDtb('05_simple.dts', 'sandbox/u-boot.dtb')
@@ -361,6 +368,10 @@ class TestFunctional(unittest.TestCase):
         """Test a simple binman with a single file"""
         data = self._DoReadFile('05_simple.dts')
         self.assertEqual(U_BOOT_DATA, data)
+
+    def testSimpleDebug(self):
+        """Test a simple binman run with debugging enabled"""
+        data = self._DoTestFile('05_simple.dts', debug=True)
 
     def testDual(self):
         """Test that we can handle creating two images
@@ -563,8 +574,10 @@ class TestFunctional(unittest.TestCase):
 
     def testImagePadByte(self):
         """Test that the image pad byte can be specified"""
+        with open(self.TestFile('bss_data')) as fd:
+            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
         data = self._DoReadFile('21_image_pad.dts')
-        self.assertEqual(U_BOOT_SPL_DATA + (chr(0xff) * 9) + U_BOOT_DATA, data)
+        self.assertEqual(U_BOOT_SPL_DATA + (chr(0xff) * 1) + U_BOOT_DATA, data)
 
     def testImageName(self):
         """Test that image files can be named"""
@@ -586,7 +599,7 @@ class TestFunctional(unittest.TestCase):
     def testPackSorted(self):
         """Test that entries can be sorted"""
         data = self._DoReadFile('24_sorted.dts')
-        self.assertEqual(chr(0) * 5 + U_BOOT_SPL_DATA + chr(0) * 2 +
+        self.assertEqual(chr(0) * 1 + U_BOOT_SPL_DATA + chr(0) * 2 +
                          U_BOOT_DATA, data)
 
     def testPackZeroPosition(self):
@@ -614,14 +627,14 @@ class TestFunctional(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('28_pack_4gb_outside.dts')
         self.assertIn("Node '/binman/u-boot': Position 0x0 (0) is outside "
-                      "the image starting at 0xfffffff0 (4294967280)",
+                      "the image starting at 0xffffffe0 (4294967264)",
                       str(e.exception))
 
     def testPackX86Rom(self):
         """Test that a basic x86 ROM can be created"""
         data = self._DoReadFile('29_x86-rom.dts')
-        self.assertEqual(U_BOOT_DATA + chr(0) * 3 + U_BOOT_SPL_DATA +
-                         chr(0) * 6, data)
+        self.assertEqual(U_BOOT_DATA + chr(0) * 7 + U_BOOT_SPL_DATA +
+                         chr(0) * 2, data)
 
     def testPackX86RomMeNoDesc(self):
         """Test that an invalid Intel descriptor entry is detected"""
@@ -835,6 +848,13 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('47_spl_bss_pad.dts')
         self.assertEqual(U_BOOT_SPL_DATA + (chr(0) * 10) + U_BOOT_DATA, data)
 
+        with open(self.TestFile('u_boot_ucode_ptr')) as fd:
+            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        with self.assertRaises(ValueError) as e:
+            data = self._DoReadFile('47_spl_bss_pad.dts')
+        self.assertIn('Expected __bss_size symbol in spl/u-boot-spl',
+                      str(e.exception))
+
     def testPackStart16Spl(self):
         """Test that an image with an x86 start16 region can be created"""
         data = self._DoReadFile('48_x86-start16-spl.dts')
@@ -861,6 +881,32 @@ class TestFunctional(unittest.TestCase):
         """Test that an image with an MRC binary can be created"""
         data = self._DoReadFile('50_intel_mrc.dts')
         self.assertEqual(MRC_DATA, data[:len(MRC_DATA)])
+
+    def testSplDtb(self):
+        """Test that an image with spl/u-boot-spl.dtb can be created"""
+        data = self._DoReadFile('51_u_boot_spl_dtb.dts')
+        self.assertEqual(U_BOOT_SPL_DTB_DATA, data[:len(U_BOOT_SPL_DTB_DATA)])
+
+    def testSplNoDtb(self):
+        """Test that an image with spl/u-boot-spl-nodtb.bin can be created"""
+        data = self._DoReadFile('52_u_boot_spl_nodtb.dts')
+        self.assertEqual(U_BOOT_SPL_NODTB_DATA, data[:len(U_BOOT_SPL_NODTB_DATA)])
+
+    def testSymbols(self):
+        """Test binman can assign symbols embedded in U-Boot"""
+        elf_fname = self.TestFile('u_boot_binman_syms')
+        syms = elf.GetSymbols(elf_fname, ['binman', 'image'])
+        addr = elf.GetSymbolAddress(elf_fname, '__image_copy_start')
+        self.assertEqual(syms['_binman_u_boot_spl_prop_pos'].address, addr)
+
+        with open(self.TestFile('u_boot_binman_syms')) as fd:
+            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        data = self._DoReadFile('53_symbols.dts')
+        sym_values = struct.pack('<LQL', 0x24 + 0, 0x24 + 24, 0x24 + 20)
+        expected = (sym_values + U_BOOT_SPL_DATA[16:] + chr(0xff) +
+                    U_BOOT_DATA +
+                    sym_values + U_BOOT_SPL_DATA[16:])
+        self.assertEqual(expected, data)
 
 
 if __name__ == "__main__":
