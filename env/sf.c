@@ -34,6 +34,7 @@
 
 #ifndef CONFIG_SPL_BUILD
 #define CMD_SAVEENV
+#define INITENV
 #endif
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
@@ -348,11 +349,31 @@ out:
 }
 #endif
 
+#if defined(INITENV) && defined(CONFIG_ENV_ADDR)
+static int env_sf_init(void)
+{
+	env_t *env_ptr = (env_t *)(CONFIG_ENV_ADDR);
+
+	if (crc32(0, env_ptr->data, ENV_SIZE) == env_ptr->crc) {
+		gd->env_addr	= (ulong)&(env_ptr->data);
+		gd->env_valid	= 1;
+	} else {
+		gd->env_addr = (ulong)&default_environment[0];
+		gd->env_valid = 1;
+	}
+
+	return 0;
+}
+#endif
+
 U_BOOT_ENV_LOCATION(sf) = {
 	.location	= ENVL_SPI_FLASH,
 	ENV_NAME("SPI Flash")
 	.load		= env_sf_load,
 #ifdef CMD_SAVEENV
 	.save		= env_save_ptr(env_sf_save),
+#endif
+#if defined(INITENV) && defined(CONFIG_ENV_ADDR)
+	.init		= env_sf_init,
 #endif
 };
