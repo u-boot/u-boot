@@ -91,7 +91,7 @@ u32 spl_boot_device(void)
 	case IMX6_BMODE_EMMC:
 		return BOOT_DEVICE_MMC1;
 	/* NAND Flash: 8.5.2, Table 8-10 */
-	case IMX6_BMODE_NAND:
+	case IMX6_BMODE_NAND_MIN ... IMX6_BMODE_NAND_MAX:
 		return BOOT_DEVICE_NAND;
 	}
 	return BOOT_DEVICE_NONE;
