@@ -373,4 +373,28 @@ config FEC2_PHY_NORXERR
 	  The PHY does not have a RXERR line (RMII only).
 	  (so program the FEC to ignore it).
 
+config SYS_DPAA_QBMAN
+	bool "Device tree fixup for QBMan on freescale SOCs"
+	depends on (ARM || PPC) && !SPL_BUILD
+	default y if ARCH_B4860 || \
+		     ARCH_B4420 || \
+		     ARCH_P1023 || \
+		     ARCH_P2041 || \
+		     ARCH_T1023 || \
+		     ARCH_T1024 || \
+		     ARCH_T1040 || \
+		     ARCH_T1042 || \
+		     ARCH_T2080 || \
+		     ARCH_T2081 || \
+		     ARCH_T4240 || \
+		     ARCH_T4160 || \
+		     ARCH_P4080 || \
+		     ARCH_P3041 || \
+		     ARCH_P5040 || \
+		     ARCH_P5020 || \
+		     ARCH_LS1043A || \
+		     ARCH_LS1046A
+	help
+	  QBman fixups to allow deep sleep in DPAA 1 SOCs
+
 endif # NETDEVICES

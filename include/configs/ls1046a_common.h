@@ -155,10 +155,6 @@
 #endif
 #endif
 
-#ifndef SPL_NO_QBMAN
-#define CONFIG_SYS_DPAA_QBMAN		/* Support Q/Bman */
-#endif
-
 /* FMan ucode */
 #ifndef SPL_NO_FMAN
 #define CONFIG_SYS_DPAA_FMAN

@@ -270,7 +270,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_LOADADDR		1000000
 
 /* Qman/Bman */
-#define CONFIG_SYS_DPAA_QBMAN		/* support Q/Bman */
 #define CONFIG_SYS_QMAN_MEM_BASE	0xff000000
 #define CONFIG_SYS_QMAN_MEM_PHYS	CONFIG_SYS_QMAN_MEM_BASE
 #define CONFIG_SYS_QMAN_MEM_SIZE	0x00200000
