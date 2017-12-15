@@ -18,8 +18,8 @@ evb key features:
 * PMIC: rk808
 * debug console: UART2
 
-In order to support Arm Trust Firmware(ATF), we need to use the
-miniloader from rockchip which:
+In order to support Arm Trust Firmware(ATF), we can use either SPL or
+miniloader from rockchip to do:
 * do DRAM init
 * load and verify ATF image
 * load and verify U-Boot image
@@ -32,8 +32,8 @@ Get the Source and prebuild binary
   > mkdir ~/evb_rk3399
   > cd ~/evb_rk3399
   > git clone https://github.com/ARM-software/arm-trusted-firmware.git
-  > git clone https://github.com/rockchip-linux/rkbin
-  > git clone https://github.com/rockchip-linux/rkflashtool
+  > git clone https://github.com/rockchip-linux/rkbin.git
+  > git clone https://github.com/rockchip-linux/rkdeveloptool.git
 
 Compile the ATF
 ===============
@@ -42,32 +42,79 @@ Compile the ATF
   > make realclean
   > make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399 bl31
 
+  Or you can get the bl31.elf directly from Rockchip:
+  cp rkbin/rk33/rk3399_bl31_v1.00.elf ../u-boot/bl31.elf
+
+  Get bl31.elf in this step, copy it to U-Boot root dir:
+  > cp bl31.elf ../u-boot/
+
 Compile the U-Boot
 ==================
 
   > cd ../u-boot
-  > make CROSS_COMPILE=aarch64-linux-gnu- evb-rk3399_defconfig all
-
-Compile the rkflashtool
-=======================
-
-  > cd ../rkflashtool
+  > export ARCH=arm64
+  > export CROSS_COMPILE=aarch64-linux-gnu-
+  > make evb-rk3399_defconfig
+  for firefly-rk3399, use below instead:
+  > make firefly-rk3399_defconfig
   > make
+  > make u-boot.itb
 
-Package the image for miniloader
-================================
+  Get spl/u-boot-spl.bin and u-boot.itb in this step.
+
+Compile the rkdeveloptool
+=======================
+  Follow instructions in latest README
+  > cd ../rkflashtool
+  > autoreconf -i
+  > ./configure
+  > make
+  > sudo make install
+
+  Get rkdeveloptool in you Host in this step.
+
+Both origin binaries and Tool are ready now, choose either option 1 or
+option 2 to deploy U-Boot.
+
+Package the image
+=================
+
+Package the image for U-Boot SPL(option 1)
+--------------------------------
   > cd ..
-  > cp arm-trusted-firmware/build/rk3399/release/bl31.bin rkbin/rk33
+  > tools/mkimage -n rk3399 -T rksd -d spl/u-boot-spl.bin idbspl.img
+
+  Get idbspl.img in this step.
+
+Package the image for Rockchip miniloader(option 2)
+------------------------------------------
+  > cd ..
+  > cp arm-trusted-firmware/build/rk3399/release/bl31.elf rkbin/rk33
   > ./rkbin/tools/trust_merger rkbin/tools/RK3399TRUST.ini
   > ./rkbin/tools/loaderimage --pack --uboot u-boot/u-boot-dtb.bin uboot.img
-  > mkdir image
-  > mv trust.img ./image/
-  > mv uboot.img ./image/rk3399evb-uboot.bin
 
-Flash the image
-===============
+  Get trust.img and uboot.img in this step.
+
+Flash the image to eMMC
+=======================
+
+Flash the image with U-Boot SPL(option 1)
+-------------------------------
 Power on(or reset with RESET KEY) with MASKROM KEY preesed, and then:
+  > rkdeveloptool db rkbin/rk33/rk3399_loader_v1.08.106.bin
+  > rkdeveloptool wl 64 u-boot/idbspl.img
+  > rkdeveloptool wl 0x4000 u-boot/u-boot.itb
+  > rkdeveloptool rd
 
-  > ./rkflashtool/rkflashloader rk3399evb
+Flash the image with Rockchip miniloader(option 2)
+----------------------------------------
+Power on(or reset with RESET KEY) with MASKROM KEY preesed, and then:
+  > rkdeveloptool db rkbin/rk33/rk3399_loader_v1.08.106.bin
+  > rkdeveloptool ul rkbin/rk33/rk3399_loader_v1.08.106.bin
+  > rkdeveloptool wl 0x4000 u-boot/uboot.img
+  > rkdeveloptool wl 0x6000 u-boot/trust.img
+  > rkdeveloptool rd
 
-You should be able to get U-Boot log message in console/UART2 now.
+You should be able to get U-Boot log in console/UART2(baurdrate 1500000)
+For more detail, please reference to:
+http://opensource.rock-chips.com/wiki_Boot_option
