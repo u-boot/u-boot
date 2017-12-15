@@ -493,6 +493,7 @@ M:	Eddie Cai <eddie.cai.linux@gmail.com>
 S:	Maintained
 F:	drivers/usb/gadget/f_rockusb.c
 F:	cmd/rockusb.c
+F:	doc/README.rockusb
 
 VIDEO
 M:	Anatolij Gustschin <agust@denx.de>
