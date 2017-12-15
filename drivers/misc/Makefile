@@ -53,3 +53,4 @@ obj-$(CONFIG_WINBOND_W83627) += winbond_w83627.o
 obj-$(CONFIG_QFW) += qfw.o
 obj-$(CONFIG_ROCKCHIP_EFUSE) += rockchip-efuse.o
 obj-$(CONFIG_STM32_RCC) += stm32_rcc.o
+obj-$(CONFIG_SYS_DPAA_QBMAN) += fsl_portals.o

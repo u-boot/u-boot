@@ -69,7 +69,7 @@ int board_early_init_r(void)
 	set_liodns();
 
 #ifdef CONFIG_SYS_DPAA_QBMAN
-	setup_portals();
+	setup_qbman_portals();
 #endif
 	print_lbc_regs();
 	return 0;

@@ -15,6 +15,7 @@
 #include <asm/io.h>
 #include <asm/fsl_fdt.h>
 #include <asm/fsl_portals.h>
+#include <fsl_qbman.h>
 #include <hwconfig.h>
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>

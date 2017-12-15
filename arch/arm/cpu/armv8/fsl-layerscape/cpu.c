@@ -30,6 +30,7 @@
 #endif
 #include <asm/arch/clock.h>
 #include <hwconfig.h>
+#include <fsl_qbman.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -564,6 +565,9 @@ int arch_early_init_r(void)
 #endif
 #ifdef CONFIG_FMAN_ENET
 	fman_enet_init();
+#endif
+#ifdef CONFIG_SYS_DPAA_QBMAN
+	setup_qbman_portals();
 #endif
 	return 0;
 }
