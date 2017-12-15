@@ -134,6 +134,14 @@ config USB_FUNCTION_SDP
 	  allows to download images into memory and execute (jump to) them
 	  using the same protocol as implemented by the i.MX family's boot ROM.
 
+config USB_FUNCTION_ROCKUSB
+        bool "Enable USB rockusb gadget"
+        help
+          Rockusb protocol is widely used by Rockchip SoC based devices. It can
+          read/write info, image to/from devices. This enables the USB part of
+          the rockusb gadget.for more detail about Rockusb protocol, please see
+          doc/README.rockusb
+
 endif # USB_GADGET_DOWNLOAD
 
 config USB_ETHER
