@@ -61,6 +61,8 @@ config ROCKCHIP_RK3288
 	select SPL_BOARD_INIT if SPL
 	select SUPPORT_SPL
 	select SPL
+	imply USB_FUNCTION_ROCKUSB
+	imply CMD_ROCKUSB
 	help
 	  The Rockchip RK3288 is a ARM-based SoC with a quad-core Cortex-A17
 	  including NEON and GPU, 1MB L2 cache, Mali-T7 graphics, two
