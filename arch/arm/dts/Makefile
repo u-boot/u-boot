@@ -434,6 +434,10 @@ dtb-$(CONFIG_TARGET_OMAP3_LOGIC) += \
 	logicpd-torpedo-37xx-devkit.dtb \
 	logicpd-som-lv-37xx-devkit.dtb
 
+dtb-$(CONFIG_TARGET_OMAP3_EVM) += \
+	omap3-evm-37xx.dtb \
+	omap3-evm.dtb
+
 dtb-$(CONFIG_TARGET_SAMA5D2_PTC_EK) += \
 	at91-sama5d2_ptc_ek.dtb
 
