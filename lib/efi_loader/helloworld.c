@@ -13,6 +13,8 @@
 #include <common.h>
 #include <efi_api.h>
 
+static const efi_guid_t loaded_image_guid = LOADED_IMAGE_GUID;
+
 /*
  * Entry point of the EFI application.
  *
@@ -26,7 +28,6 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
 	struct efi_simple_text_output_protocol *con_out = systable->con_out;
 	struct efi_boot_services *boottime = systable->boottime;
 	struct efi_loaded_image *loaded_image;
-	const efi_guid_t loaded_image_guid = LOADED_IMAGE_GUID;
 	efi_status_t ret;
 
 	con_out->output_string(con_out, L"Hello, world!\n");

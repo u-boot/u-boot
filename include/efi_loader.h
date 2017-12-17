@@ -190,6 +190,8 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path);
 void efi_add_handle(struct efi_object *obj);
 /* Create handle */
 efi_status_t efi_create_handle(void **handle);
+/* Delete handle */
+void efi_delete_handle(struct efi_object *obj);
 /* Call this to validate a handle and find the EFI object for it */
 struct efi_object *efi_search_obj(const void *handle);
 /* Find a protocol on a handle */
@@ -249,9 +251,11 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 int efi_memory_init(void);
 /* Adds new or overrides configuration table entry to the system table */
 efi_status_t efi_install_configuration_table(const efi_guid_t *guid, void *table);
-void efi_setup_loaded_image(struct efi_loaded_image *info, struct efi_object *obj,
-			    struct efi_device_path *device_path,
-			    struct efi_device_path *file_path);
+/* Sets up a loaded image */
+efi_status_t efi_setup_loaded_image(
+			struct efi_loaded_image *info, struct efi_object *obj,
+			struct efi_device_path *device_path,
+			struct efi_device_path *file_path);
 efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
 				      void **buffer);
 

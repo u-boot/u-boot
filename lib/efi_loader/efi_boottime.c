@@ -360,6 +360,106 @@ efi_status_t efi_create_handle(void **handle)
 }
 
 /*
+ * Find a protocol on a handle.
+ *
+ * @handle		handle
+ * @protocol_guid	GUID of the protocol
+ * @handler		reference to the protocol
+ * @return		status code
+ */
+efi_status_t efi_search_protocol(const void *handle,
+				 const efi_guid_t *protocol_guid,
+				 struct efi_handler **handler)
+{
+	struct efi_object *efiobj;
+	struct list_head *lhandle;
+
+	if (!handle || !protocol_guid)
+		return EFI_INVALID_PARAMETER;
+	efiobj = efi_search_obj(handle);
+	if (!efiobj)
+		return EFI_INVALID_PARAMETER;
+	list_for_each(lhandle, &efiobj->protocols) {
+		struct efi_handler *protocol;
+
+		protocol = list_entry(lhandle, struct efi_handler, link);
+		if (!guidcmp(protocol->guid, protocol_guid)) {
+			if (handler)
+				*handler = protocol;
+			return EFI_SUCCESS;
+		}
+	}
+	return EFI_NOT_FOUND;
+}
+
+/*
+ * Delete protocol from a handle.
+ *
+ * @handle			handle from which the protocol shall be deleted
+ * @protocol			GUID of the protocol to be deleted
+ * @protocol_interface		interface of the protocol implementation
+ * @return			status code
+ */
+efi_status_t efi_remove_protocol(const void *handle, const efi_guid_t *protocol,
+				 void *protocol_interface)
+{
+	struct efi_handler *handler;
+	efi_status_t ret;
+
+	ret = efi_search_protocol(handle, protocol, &handler);
+	if (ret != EFI_SUCCESS)
+		return ret;
+	if (guidcmp(handler->guid, protocol))
+		return EFI_INVALID_PARAMETER;
+	list_del(&handler->link);
+	free(handler);
+	return EFI_SUCCESS;
+}
+
+/*
+ * Delete all protocols from a handle.
+ *
+ * @handle	handle from which the protocols shall be deleted
+ * @return	status code
+ */
+efi_status_t efi_remove_all_protocols(const void *handle)
+{
+	struct efi_object *efiobj;
+	struct list_head *lhandle;
+	struct list_head *pos;
+
+	efiobj = efi_search_obj(handle);
+	if (!efiobj)
+		return EFI_INVALID_PARAMETER;
+	list_for_each_safe(lhandle, pos, &efiobj->protocols) {
+		struct efi_handler *protocol;
+		efi_status_t ret;
+
+		protocol = list_entry(lhandle, struct efi_handler, link);
+
+		ret = efi_remove_protocol(handle, protocol->guid,
+					  protocol->protocol_interface);
+		if (ret != EFI_SUCCESS)
+			return ret;
+	}
+	return EFI_SUCCESS;
+}
+
+/*
+ * Delete handle.
+ *
+ * @handle	handle to delete
+ */
+void efi_delete_handle(struct efi_object *obj)
+{
+	if (!obj)
+		return;
+	efi_remove_all_protocols(obj->handle);
+	list_del(&obj->link);
+	free(obj);
+}
+
+/*
  * Our event capabilities are very limited. Only a small limited
  * number of events is allowed to coexist.
  */
@@ -718,39 +818,6 @@ struct efi_object *efi_search_obj(const void *handle)
 }
 
 /*
- * Find a protocol on a handle.
- *
- * @handle		handle
- * @protocol_guid	GUID of the protocol
- * @handler		reference to the protocol
- * @return		status code
- */
-efi_status_t efi_search_protocol(const void *handle,
-				 const efi_guid_t *protocol_guid,
-				 struct efi_handler **handler)
-{
-	struct efi_object *efiobj;
-	struct list_head *lhandle;
-
-	if (!handle || !protocol_guid)
-		return EFI_INVALID_PARAMETER;
-	efiobj = efi_search_obj(handle);
-	if (!efiobj)
-		return EFI_INVALID_PARAMETER;
-	list_for_each(lhandle, &efiobj->protocols) {
-		struct efi_handler *protocol;
-
-		protocol = list_entry(lhandle, struct efi_handler, link);
-		if (!guidcmp(protocol->guid, protocol_guid)) {
-			if (handler)
-				*handler = protocol;
-			return EFI_SUCCESS;
-		}
-	}
-	return EFI_NOT_FOUND;
-}
-
-/*
  * Install new protocol on a handle.
  *
  * @handle			handle on which the protocol shall be installed
@@ -777,59 +844,6 @@ efi_status_t efi_add_protocol(const void *handle, const efi_guid_t *protocol,
 	handler->guid = protocol;
 	handler->protocol_interface = protocol_interface;
 	list_add_tail(&handler->link, &efiobj->protocols);
-	return EFI_SUCCESS;
-}
-
-/*
- * Delete protocol from a handle.
- *
- * @handle			handle from which the protocol shall be deleted
- * @protocol			GUID of the protocol to be deleted
- * @protocol_interface		interface of the protocol implementation
- * @return			status code
- */
-efi_status_t efi_remove_protocol(const void *handle, const efi_guid_t *protocol,
-				 void *protocol_interface)
-{
-	struct efi_handler *handler;
-	efi_status_t ret;
-
-	ret = efi_search_protocol(handle, protocol, &handler);
-	if (ret != EFI_SUCCESS)
-		return ret;
-	if (guidcmp(handler->guid, protocol))
-		return EFI_INVALID_PARAMETER;
-	list_del(&handler->link);
-	free(handler);
-	return EFI_SUCCESS;
-}
-
-/*
- * Delete all protocols from a handle.
- *
- * @handle			handle from which the protocols shall be deleted
- * @return			status code
- */
-efi_status_t efi_remove_all_protocols(const void *handle)
-{
-	struct efi_object *efiobj;
-	struct list_head *lhandle;
-	struct list_head *pos;
-
-	efiobj = efi_search_obj(handle);
-	if (!efiobj)
-		return EFI_INVALID_PARAMETER;
-	list_for_each_safe(lhandle, pos, &efiobj->protocols) {
-		struct efi_handler *protocol;
-		efi_status_t ret;
-
-		protocol = list_entry(lhandle, struct efi_handler, link);
-
-		ret = efi_remove_protocol(handle, protocol->guid,
-					  protocol->protocol_interface);
-		if (ret != EFI_SUCCESS)
-			return ret;
-	}
 	return EFI_SUCCESS;
 }
 
@@ -1170,10 +1184,12 @@ static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
  * @obj			internal object associated with the loaded image
  * @device_path		device path of the loaded image
  * @file_path		file path of the loaded image
+ * @return		status code
  */
-void efi_setup_loaded_image(struct efi_loaded_image *info, struct efi_object *obj,
-			    struct efi_device_path *device_path,
-			    struct efi_device_path *file_path)
+efi_status_t efi_setup_loaded_image(
+			struct efi_loaded_image *info, struct efi_object *obj,
+			struct efi_device_path *device_path,
+			struct efi_device_path *file_path)
 {
 	efi_status_t ret;
 
@@ -1213,9 +1229,10 @@ void efi_setup_loaded_image(struct efi_loaded_image *info, struct efi_object *ob
 	if (ret != EFI_SUCCESS)
 		goto failure;
 
-	return;
+	return ret;
 failure:
 	printf("ERROR: Failure to install protocols for loaded image\n");
+	return ret;
 }
 
 /*
@@ -1291,6 +1308,7 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 {
 	struct efi_loaded_image *info;
 	struct efi_object *obj;
+	efi_status_t ret;
 
 	EFI_ENTRY("%d, %p, %p, %p, %ld, %p", boot_policy, parent_image,
 		  file_path, source_buffer, source_size, image_handle);
@@ -1300,41 +1318,39 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 
 	if (!source_buffer) {
 		struct efi_device_path *dp, *fp;
-		efi_status_t ret;
 
 		ret = efi_load_image_from_path(file_path, &source_buffer);
-		if (ret != EFI_SUCCESS) {
-			free(info);
-			free(obj);
-			return EFI_EXIT(ret);
-		}
-
+		if (ret != EFI_SUCCESS)
+			goto failure;
 		/*
 		 * split file_path which contains both the device and
 		 * file parts:
 		 */
 		efi_dp_split_file_path(file_path, &dp, &fp);
-
-		efi_setup_loaded_image(info, obj, dp, fp);
+		ret = efi_setup_loaded_image(info, obj, dp, fp);
+		if (ret != EFI_SUCCESS)
+			goto failure;
 	} else {
 		/* In this case, file_path is the "device" path, ie.
 		 * something like a HARDWARE_DEVICE:MEMORY_MAPPED
 		 */
-		efi_setup_loaded_image(info, obj, file_path, NULL);
+		ret = efi_setup_loaded_image(info, obj, file_path, NULL);
+		if (ret != EFI_SUCCESS)
+			goto failure;
 	}
-
 	info->reserved = efi_load_pe(source_buffer, info);
 	if (!info->reserved) {
-		free(info);
-		free(obj);
-		return EFI_EXIT(EFI_UNSUPPORTED);
+		ret = EFI_UNSUPPORTED;
+		goto failure;
 	}
-
 	info->system_table = &systab;
 	info->parent_handle = parent_image;
 	*image_handle = obj->handle;
-
 	return EFI_EXIT(EFI_SUCCESS);
+failure:
+	free(info);
+	efi_delete_handle(obj);
+	return EFI_EXIT(ret);
 }
 
 /*

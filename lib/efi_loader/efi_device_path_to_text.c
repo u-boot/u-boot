@@ -90,7 +90,7 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 	case DEVICE_PATH_SUB_TYPE_MSG_USB: {
 		struct efi_device_path_usb *udp =
 			(struct efi_device_path_usb *)dp;
-		s += sprintf(s, "Usb(0x%x,0x%x)", udp->parent_port_number,
+		s += sprintf(s, "USB(0x%x,0x%x)", udp->parent_port_number,
 			     udp->usb_interface);
 		break;
 	}
@@ -124,10 +124,10 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 	case DEVICE_PATH_SUB_TYPE_MSG_MMC: {
 		const char *typename =
 			(dp->sub_type == DEVICE_PATH_SUB_TYPE_MSG_SD) ?
-					"SDCard" : "MMC";
+					"SD" : "eMMC";
 		struct efi_device_path_sd_mmc_path *sddp =
 			(struct efi_device_path_sd_mmc_path *)dp;
-		s += sprintf(s, "%s(Slot%u)", typename, sddp->slot_number);
+		s += sprintf(s, "%s(%u)", typename, sddp->slot_number);
 		break;
 	}
 	default:
@@ -137,6 +137,13 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 	return s;
 }
 
+/*
+ * Convert a media device path node to text.
+ *
+ * @s		output buffer
+ * @dp		device path node
+ * @return	next unused buffer address
+ */
 static char *dp_media(char *s, struct efi_device_path *dp)
 {
 	switch (dp->sub_type) {
@@ -144,21 +151,33 @@ static char *dp_media(char *s, struct efi_device_path *dp)
 		struct efi_device_path_hard_drive_path *hddp =
 			(struct efi_device_path_hard_drive_path *)dp;
 		void *sig = hddp->partition_signature;
+		u64 start;
+		u64 end;
+
+		/* Copy from packed structure to aligned memory */
+		memcpy(&start, &hddp->partition_start, sizeof(start));
+		memcpy(&end, &hddp->partition_end, sizeof(end));
 
 		switch (hddp->signature_type) {
-		case SIG_TYPE_MBR:
-			s += sprintf(s, "HD(Part%d,Sig%08x)",
-				     hddp->partition_number,
-				     *(uint32_t *)sig);
+		case SIG_TYPE_MBR: {
+			u32 signature;
+
+			memcpy(&signature, sig, sizeof(signature));
+			s += sprintf(
+				s, "HD(%d,MBR,0x%08x,0x%llx,0x%llx)",
+				hddp->partition_number, signature, start, end);
 			break;
+			}
 		case SIG_TYPE_GUID:
-			s += sprintf(s, "HD(Part%d,Sig%pUl)",
-				     hddp->partition_number, sig);
+			s += sprintf(
+				s, "HD(%d,GPT,%pUl,0x%llx,0x%llx)",
+				hddp->partition_number, sig, start, end);
 			break;
 		default:
-			s += sprintf(s, "HD(Part%d,MBRType=%02x,SigType=%02x)",
-				     hddp->partition_number, hddp->partmap_type,
-				     hddp->signature_type);
+			s += sprintf(
+				s, "HD(%d,0x%02x,0,0x%llx,0x%llx)",
+				hddp->partition_number, hddp->partmap_type,
+				start, end);
 			break;
 		}
 
