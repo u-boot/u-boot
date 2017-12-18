@@ -76,8 +76,6 @@ struct cpu_type {
 #define SVR_LS2081A		0x870918
 #define SVR_LS2041A		0x870914
 
-#define SVR_DEV_LS2080A		0x8701
-
 #define SVR_MAJ(svr)		(((svr) >> 4) & 0xf)
 #define SVR_MIN(svr)		(((svr) >> 0) & 0xf)
 #define SVR_REV(svr)		(((svr) >> 0) & 0xff)
@@ -85,6 +83,8 @@ struct cpu_type {
 #define IS_E_PROCESSOR(svr)	(!((svr >> 8) & 0x1))
 #define IS_SVR_REV(svr, maj, min) \
 		((SVR_MAJ(svr) == (maj)) && (SVR_MIN(svr) == (min)))
+#define SVR_DEV(svr)		((svr) >> 8)
+#define IS_SVR_DEV(svr, dev)	(((svr) >> 16) == (dev))
 
 /* ahci port register default value */
 #define AHCI_PORT_PHY_1_CFG    0xa003fffe

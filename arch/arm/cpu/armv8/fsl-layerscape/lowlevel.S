@@ -37,9 +37,8 @@ ENTRY(get_gic_offset)
 	ldr     x2, =DCFG_CCSR_SVR
 	ldr	w2, [x2]
 	rev	w2, w2
-	mov	w3, w2
-	ands	w3, w3, #SVR_WO_E << 8
-	mov	w4, #SVR_LS1043A << 8
+	lsr	w3, w2, #16
+	ldr	w4, =SVR_DEV(SVR_LS1043A)
 	cmp	w3, w4
 	b.ne	1f
 	ands	w2, w2, #0xff
@@ -92,7 +91,7 @@ ENTRY(lowlevel_init)
 	 */
 	bl	get_svr
 	lsr	w0, w0, #16
-	ldr	w1, =SVR_DEV_LS2080A
+	ldr	w1, =SVR_DEV(SVR_LS2080A)
 	cmp	w0, w1
 	b.eq	1f
 
@@ -224,7 +223,7 @@ ENTRY(lowlevel_init)
 	 */
 	bl	get_svr
 	lsr	w0, w0, #16
-	ldr	w1, =SVR_DEV_LS2080A
+	ldr	w1, =SVR_DEV(SVR_LS2080A)
 	cmp	w0, w1
 	b.eq	1f
 

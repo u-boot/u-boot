@@ -18,6 +18,7 @@
 #include <environment.h>
 #include <asm/arch-fsl-layerscape/soc.h>
 #include <asm/arch/ppa.h>
+#include <hwconfig.h>
 
 #include "../common/qixis.h"
 #include "ls1088a_qixis.h"
@@ -296,6 +297,23 @@ void board_retimer_init(void)
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 }
 
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
+{
+#ifdef CONFIG_TARGET_LS1088ARDB
+	u8 brdcfg5;
+
+	if (hwconfig("esdhc-force-sd")) {
+		brdcfg5 = QIXIS_READ(brdcfg[5]);
+		brdcfg5 &= ~BRDCFG5_SPISDHC_MASK;
+		brdcfg5 |= BRDCFG5_FORCE_SD;
+		QIXIS_WRITE(brdcfg[5], brdcfg5);
+	}
+#endif
+	return 0;
+}
+#endif
+
 int board_init(void)
 {
 	init_final_memctl_regs();
@@ -360,7 +378,7 @@ void fdt_fixup_board_enet(void *fdt)
 		return;
 	}
 
-	if (get_mc_boot_status() == 0)
+	if ((get_mc_boot_status() == 0) && (get_dpl_apply_status() == 0))
 		fdt_status_okay(fdt, offset);
 	else
 		fdt_status_fail(fdt, offset);

@@ -42,6 +42,33 @@ void ft_fixup_cpu(void *blob)
 	int addr_cells;
 	u64 val, core_id;
 	size_t *boot_code_size = &(__secondary_boot_code_size);
+	u32 mask = cpu_pos_mask();
+	int off_prev = -1;
+
+	off = fdt_path_offset(blob, "/cpus");
+	if (off < 0) {
+		puts("couldn't find /cpus node\n");
+		return;
+	}
+
+	fdt_support_default_count_cells(blob, off, &addr_cells, NULL);
+
+	off = fdt_node_offset_by_prop_value(blob, off_prev, "device_type",
+					    "cpu", 4);
+	while (off != -FDT_ERR_NOTFOUND) {
+		reg = (fdt32_t *)fdt_getprop(blob, off, "reg", 0);
+		if (reg) {
+			core_id = fdt_read_number(reg, addr_cells);
+			if (!test_bit(id_to_core(core_id), &mask)) {
+				fdt_del_node(blob, off);
+				off = off_prev;
+			}
+		}
+		off_prev = off;
+		off = fdt_node_offset_by_prop_value(blob, off_prev,
+						    "device_type", "cpu", 4);
+	}
+
 #if defined(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT) && \
 	defined(CONFIG_SEC_FIRMWARE_ARMV8_PSCI)
 	int node;
@@ -145,7 +172,7 @@ static void fdt_fixup_gic(void *blob)
 
 	val = gur_in32(&gur->svr);
 
-	if (SVR_SOC_VER(val) != SVR_LS1043A) {
+	if (!IS_SVR_DEV(val, SVR_DEV(SVR_LS1043A))) {
 		align_64k = 1;
 	} else if (SVR_REV(val) != REV1_0) {
 		val = scfg_in32(&scfg->gic_align) & (0x01 << GIC_ADDR_BIT);
@@ -327,7 +354,7 @@ static void fdt_fixup_msi(void *blob)
 
 	rev = gur_in32(&gur->svr);
 
-	if (SVR_SOC_VER(rev) != SVR_LS1043A)
+	if (!IS_SVR_DEV(rev, SVR_DEV(SVR_LS1043A)))
 		return;
 
 	rev = SVR_REV(rev);

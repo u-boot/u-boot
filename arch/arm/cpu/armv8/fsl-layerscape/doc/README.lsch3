@@ -154,8 +154,8 @@ Booting from NAND
 -------------------
 Booting from NAND requires two images, RCW and u-boot-with-spl.bin.
 The difference between NAND boot RCW image and NOR boot image is the PBI
-command sequence. Below is one example for PBI commands for QDS which uses
-NAND device with 2KB/page, block size 128KB.
+command sequence. Below is one example for PBI commands for LS2085AQDS which
+uses NAND device with 2KB/page, block size 128KB.
 
 1) CCSR 4-byte write to 0x00e00404, data=0x00000000
 2) CCSR 4-byte write to 0x00e00400, data=0x1800a000
@@ -188,7 +188,7 @@ nand write <u-boot image in memory> 200000 <size of u-boot image>
 
 With these two images in NAND device, the board can boot from NAND.
 
-Another example for RDB boards,
+Another example for LS2085ARDB boards,
 
 1) CCSR 4-byte write to 0x00e00404, data=0x00000000
 2) CCSR 4-byte write to 0x00e00400, data=0x1800a000
@@ -200,6 +200,8 @@ nand write <u-boot image in memory> 80000 <size of u-boot image>
 
 Notice the difference from QDS is SRC, SRC_ADDR and the offset of u-boot image
 to match board NAND device with 4KB/page, block size 512KB.
+
+Note, LS2088A and LS1088A don't support booting from NAND.
 
 Booting from SD/eMMC
 -------------------

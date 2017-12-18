@@ -36,4 +36,10 @@
 #define BRDCFG9_SFPTX_MASK		0x10
 #define BRDCFG9_SFPTX_SHIFT		4
 
+/* Definitions of QIXIS Registers for LS1088ARDB */
+
+/* BRDCFG5 */
+#define BRDCFG5_SPISDHC_MASK		0x0C
+#define BRDCFG5_FORCE_SD		0x08
+
 #endif
