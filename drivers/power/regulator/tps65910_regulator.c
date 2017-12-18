@@ -340,11 +340,11 @@ static int buck_set_vdd1_vdd2_value(struct udevice *dev, int uV)
 
 	/* check setpoint is within limits */
 	if (uV < uc_pdata->min_uV) {
-		error("voltage %duV for %s too low\n", uV, dev->name);
+		pr_err("voltage %duV for %s too low\n", uV, dev->name);
 		return -EINVAL;
 	}
 	if (uV > uc_pdata->max_uV) {
-		error("voltage %duV for %s too high\n", uV, dev->name);
+		pr_err("voltage %duV for %s too high\n", uV, dev->name);
 		return -EINVAL;
 	}
 

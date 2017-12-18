@@ -32,7 +32,7 @@ static int pmic_tps65910_write(struct udevice *dev, uint reg, const u8 *buffer,
 
 	ret = dm_i2c_write(dev, reg, buffer, len);
 	if (ret)
-		error("%s write error on register %02x\n", dev->name, reg);
+		pr_err("%s write error on register %02x\n", dev->name, reg);
 
 	return ret;
 }
@@ -44,7 +44,7 @@ static int pmic_tps65910_read(struct udevice *dev, uint reg, u8 *buffer,
 
 	ret = dm_i2c_read(dev, reg, buffer, len);
 	if (ret)
-		error("%s read error on register %02x\n", dev->name, reg);
+		pr_err("%s read error on register %02x\n", dev->name, reg);
 
 	return ret;
 }
