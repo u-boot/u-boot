@@ -14,6 +14,7 @@
 #include "zynqmp-clk.dtsi"
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/pinctrl/pinctrl-zynqmp.h>
+#include <dt-bindings/phy/phy.h>
 
 / {
 	model = "ZynqMP ZCU102 RevA";
@@ -80,16 +81,10 @@
 /* fpd_dma clk 667MHz, lpd_dma 500MHz */
 &fpd_dma_chan1 {
 	status = "okay";
-	xlnx,include-sg; /* for testing purpose */
-	xlnx,overfetch; /* for testing purpose */
-	xlnx,ratectrl = <0>; /* for testing purpose */
-	xlnx,src-issue = <31>;
 };
 
 &fpd_dma_chan2 {
 	status = "okay";
-	xlnx,ratectrl = <100>; /* for testing purpose */
-	xlnx,src-issue = <4>; /* for testing purpose */
 };
 
 &fpd_dma_chan3 {
@@ -98,7 +93,6 @@
 
 &fpd_dma_chan4 {
 	status = "okay";
-	xlnx,include-sg; /* for testing purpose */
 };
 
 &fpd_dma_chan5 {
@@ -107,7 +101,6 @@
 
 &fpd_dma_chan6 {
 	status = "okay";
-	xlnx,include-sg; /* for testing purpose */
 };
 
 &fpd_dma_chan7 {
@@ -116,7 +109,6 @@
 
 &fpd_dma_chan8 {
 	status = "okay";
-	xlnx,include-sg; /* for testing purpose */
 };
 
 &gem3 {
@@ -884,6 +876,8 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 	ceva,p1-comwake-params = /bits/ 8 <0x06 0x14 0x08 0x0E>;
 	ceva,p1-burst-params = /bits/ 8 <0x13 0x08 0x4A 0x06>;
 	ceva,p1-retry-params = /bits/ 16 <0x96A4 0x3FFC>;
+	phy-names = "sata-phy";
+	phys = <&lane3 PHY_TYPE_SATA 1 1 125000000>;
 };
 
 /* SD1 with level shifter */
@@ -893,6 +887,10 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 	pinctrl-0 = <&pinctrl_sdhci1_default>;
 	no-1-8-v;	/* for 1.0 silicon */
 	xlnx,mio_bank = <1>;
+};
+
+&serdes {
+	status = "okay";
 };
 
 &uart0 {
@@ -917,6 +915,10 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 &dwc3_0 {
 	status = "okay";
 	dr_mode = "host";
+	snps,usb3_lpm_capable;
+	phy-names = "usb3-phy";
+	phys = <&lane2 PHY_TYPE_USB3 0 2 26000000>;
+	maximum-speed = "super-speed";
 };
 
 &watchdog0 {

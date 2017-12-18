@@ -260,10 +260,10 @@ int board_init(void)
 	if (current_el() != 3) {
 		static char version[ZYNQMP_VERSION_SIZE];
 
-		strncat(version, "xczu", 4);
+		strncat(version, "zu", 2);
 		zynqmppl.name = strncat(version,
 					zynqmp_get_silicon_idcode_name(),
-					ZYNQMP_VERSION_SIZE - 5);
+					ZYNQMP_VERSION_SIZE - 3);
 		printf("Chip ID:\t%s\n", zynqmppl.name);
 		fpga_init();
 		fpga_add(fpga_xilinx, &zynqmppl);
@@ -277,10 +277,13 @@ int board_early_init_r(void)
 {
 	u32 val;
 
+	if (current_el() != 3)
+		return 0;
+
 	val = readl(&crlapb_base->timestamp_ref_ctrl);
 	val &= ZYNQMP_CRL_APB_TIMESTAMP_REF_CTRL_CLKACT;
 
-	if (current_el() == 3 && !val) {
+	if (!val) {
 		val = readl(&crlapb_base->timestamp_ref_ctrl);
 		val |= ZYNQMP_CRL_APB_TIMESTAMP_REF_CTRL_CLKACT;
 		writel(val, &crlapb_base->timestamp_ref_ctrl);
@@ -343,13 +346,17 @@ int board_late_init(void)
 	u8 bootmode;
 	const char *mode;
 	char *new_targets;
+	int ret;
 
 	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
 		debug("Saved variables - Skipping\n");
 		return 0;
 	}
 
-	reg = readl(&crlapb_base->boot_mode);
+	ret = zynqmp_mmio_read((ulong)&crlapb_base->boot_mode, &reg);
+	if (ret)
+		return -EINVAL;
+
 	if (reg >> BOOT_MODE_ALT_SHIFT)
 		reg >>= BOOT_MODE_ALT_SHIFT;
 
@@ -360,23 +367,28 @@ int board_late_init(void)
 	case USB_MODE:
 		puts("USB_MODE\n");
 		mode = "usb";
+		env_set("modeboot", "usb_dfu_spl");
 		break;
 	case JTAG_MODE:
 		puts("JTAG_MODE\n");
 		mode = "pxe dhcp";
+		env_set("modeboot", "jtagboot");
 		break;
 	case QSPI_MODE_24BIT:
 	case QSPI_MODE_32BIT:
 		mode = "qspi0";
 		puts("QSPI_MODE\n");
+		env_set("modeboot", "qspiboot");
 		break;
 	case EMMC_MODE:
 		puts("EMMC_MODE\n");
 		mode = "mmc0";
+		env_set("modeboot", "emmcboot");
 		break;
 	case SD_MODE:
 		puts("SD_MODE\n");
 		mode = "mmc0";
+		env_set("modeboot", "sdboot");
 		break;
 	case SD1_LSHFT_MODE:
 		puts("LVL_SHFT_");
@@ -385,13 +397,16 @@ int board_late_init(void)
 		puts("SD_MODE1\n");
 #if defined(CONFIG_ZYNQ_SDHCI0) && defined(CONFIG_ZYNQ_SDHCI1)
 		mode = "mmc1";
+		env_set("sdbootdev", "1");
 #else
 		mode = "mmc0";
 #endif
+		env_set("modeboot", "sdboot");
 		break;
 	case NAND_MODE:
 		puts("NAND_MODE\n");
 		mode = "nand0";
+		env_set("modeboot", "nandboot");
 		break;
 	default:
 		mode = "";

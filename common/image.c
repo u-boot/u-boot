@@ -1215,7 +1215,7 @@ int boot_get_setup(bootm_headers_t *images, uint8_t arch,
 }
 
 #if IMAGE_ENABLE_FIT
-#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_XILINX)
+#if defined(CONFIG_FPGA)
 int boot_get_fpga(int argc, char * const argv[], bootm_headers_t *images,
 		  uint8_t arch, const ulong *ld_start, ulong * const ld_len)
 {
@@ -1226,8 +1226,6 @@ int boot_get_fpga(int argc, char * const argv[], bootm_headers_t *images,
 	const char *uname, *name;
 	int err;
 	int devnum = 0; /* TODO support multi fpga platforms */
-	const fpga_desc * const desc = fpga_get_desc(devnum);
-	xilinx_desc *desc_xilinx = desc->devdesc;
 
 	/* Check to see if the images struct has a FIT configuration */
 	if (!genimg_has_config(images)) {
@@ -1272,7 +1270,7 @@ int boot_get_fpga(int argc, char * const argv[], bootm_headers_t *images,
 			return fit_img_result;
 		}
 
-		if (img_len >= desc_xilinx->size) {
+		if (!fpga_is_partial_data(devnum, img_len)) {
 			name = "full";
 			err = fpga_loadbitstream(devnum, (char *)img_data,
 						 img_len, BIT_FULL);
