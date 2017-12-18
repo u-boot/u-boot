@@ -39,7 +39,12 @@
 entry_counter:
 	.word   0
 #endif
+
+#if (defined(CONFIG_SPL_BUILD) || defined(CONFIG_ARM64))
+	/* U-Boot proper of armv7 do not need this */
 	b reset
+#endif
+
 #if !defined(CONFIG_ARM64)
 	/*
 	 * For armv7, the addr '_start' will used as vector start address
@@ -50,6 +55,6 @@ _start:
 	ARM_VECTORS
 #endif
 
-#if defined(CONFIG_ROCKCHIP_RK3399) && defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_SPL_BUILD) && (CONFIG_ROCKCHIP_SPL_RESERVE_IRAM > 0)
 	.space CONFIG_ROCKCHIP_SPL_RESERVE_IRAM	/* space for the ATF data */
 #endif

@@ -52,20 +52,12 @@
 #define PARTS_DEFAULT \
 	"uuid_disk=${uuid_gpt_disk};" \
 	"name=loader1,start=32K,size=4000K,uuid=${uuid_gpt_loader1};" \
-	"name=reserved1,size=64K,uuid=${uuid_gpt_reserved1};" \
-	"name=reserved2,size=4M,uuid=${uuid_gpt_reserved2};" \
-	"name=loader2,size=4MB,uuid=${uuid_gpt_loader2};" \
-	"name=atf,size=4M,uuid=${uuid_gpt_atf};" \
+	"name=loader2,start=8MB,size=4MB,uuid=${uuid_gpt_loader2};" \
+	"name=trust,size=4M,uuid=${uuid_gpt_atf};" \
 	"name=boot,size=112M,bootable,uuid=${uuid_gpt_boot};" \
 	"name=rootfs,size=-,uuid="ROOT_UUID
 
 #endif
-
-/*
- * Rockchip SoCs use fixed ENV 32KB@(4MB-32KB)
- */
-#define CONFIG_ENV_OFFSET	(SZ_4M - SZ_32K)
-#define CONFIG_ENV_SIZE		SZ_32K
 
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
