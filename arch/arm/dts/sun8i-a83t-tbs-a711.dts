@@ -1,17 +1,18 @@
 /*
- * Copyright (c) 2016 ARM Ltd.
+ * Copyright 2017 Ondřej Jirman
+ * Ondřej Jirman <megous@megous.com>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
  * licensing only applies to this file, and not this project as a
  * whole.
  *
- *  a) This library is free software; you can redistribute it and/or
+ *  a) This file is free software; you can redistribute it and/or
  *     modify it under the terms of the GNU General Public License as
  *     published by the Free Software Foundation; either version 2 of the
  *     License, or (at your option) any later version.
  *
- *     This library is distributed in the hope that it will be useful,
+ *     This file is distributed in the hope that it will be useful,
  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
@@ -40,70 +41,36 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "sun8i-h3.dtsi"
+/dts-v1/;
+#include "sun8i-a83t.dtsi"
 
 / {
-	cpus {
-		cpu@0 {
-			compatible = "arm,cortex-a53", "arm,armv8";
-			enable-method = "psci";
-		};
-		cpu@1 {
-			compatible = "arm,cortex-a53", "arm,armv8";
-			enable-method = "psci";
-		};
-		cpu@2 {
-			compatible = "arm,cortex-a53", "arm,armv8";
-			enable-method = "psci";
-		};
-		cpu@3 {
-			compatible = "arm,cortex-a53", "arm,armv8";
-			enable-method = "psci";
-		};
+	model = "TBS A711 Tablet";
+	compatible = "tbs-biometrics,a711", "allwinner,sun8i-a83t";
+
+	aliases {
+		serial0 = &uart0;
 	};
 
-	psci {
-		compatible = "arm,psci-0.2";
-		method = "smc";
-	};
-
-	timer {
-		compatible = "arm,armv8-timer";
+	chosen {
+		stdout-path = "serial0:115200n8";
 	};
 };
 
-&ccu {
-	compatible = "allwinner,sun50i-h5-ccu";
+&ehci0 {
+	status = "okay";
 };
 
-&gic {
-	compatible = "arm,gic-400";
+&ohci0 {
+	status = "okay";
 };
 
-&mmc0 {
-	compatible = "allwinner,sun50i-h5-mmc",
-		     "allwinner,sun50i-a64-mmc";
-	clocks = <&ccu CLK_BUS_MMC0>, <&ccu CLK_MMC0>;
-	clock-names = "ahb", "mmc";
+&uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart0_pins_b>;
+	status = "okay";
 };
 
-&mmc1 {
-	compatible = "allwinner,sun50i-h5-mmc",
-		     "allwinner,sun50i-a64-mmc";
-	clocks = <&ccu CLK_BUS_MMC1>, <&ccu CLK_MMC1>;
-	clock-names = "ahb", "mmc";
-};
-
-&mmc2 {
-	compatible = "allwinner,sun50i-h5-emmc",
-		     "allwinner,sun50i-a64-emmc";
-	clocks = <&ccu CLK_BUS_MMC2>, <&ccu CLK_MMC2>;
-	clock-names = "ahb", "mmc";
-};
-
-&pio {
-	interrupts = <GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>,
-		     <GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>,
-		   <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
-	compatible = "allwinner,sun50i-h5-pinctrl";
+&usb_otg {
+	status = "okay";
 };

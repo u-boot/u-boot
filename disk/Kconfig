@@ -78,6 +78,20 @@ config EFI_PARTITION
 	  common when EFI is the bootloader.  Note 2TB partition limit;
 	  see disk/part_efi.c
 
+config EFI_PARTITION_ENTRIES_NUMBERS
+	int "Number of the EFI partition entries"
+	depends on EFI_PARTITION
+	default 56 if ARCH_SUNXI
+	default 128
+	help
+	  Specify the number of partition entries in the GPT. This is
+	  meant to allow less than the standard specifies for devices
+	  that might need to place their first-stage bootloader in the
+	  middle of a regular GPT.
+
+	  If unsure, leave at 128 entries, which is the standard
+	  number.
+
 config EFI_PARTITION_ENTRIES_OFF
         int "Offset (in bytes) of the EFI partition entries"
 	depends on EFI_PARTITION

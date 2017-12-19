@@ -244,6 +244,14 @@ config SUN7I_GMAC
 	help
 	  Enable the support for Sun7i GMAC Ethernet controller
 
+config SUN7I_GMAC_FORCE_TXERR
+	bool "Force PA17 as gmac function"
+	depends on SUN7I_GMAC
+	help
+	  Some ethernet phys needs TXERR control. Since the GMAC
+	  doesn't have such signal, setting PA17 as GMAC function
+	  makes the pin output low, which enables data transmission.
+
 config SUN4I_EMAC
 	bool "Allwinner Sun4i Ethernet MAC support"
 	depends on DM_ETH

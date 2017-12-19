@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2017 Antony Antony <antony@phenome.org>
  * Copyright (c) 2016 ARM Ltd.
  *
  * This file is dual-licensed: you can use it either under the terms
@@ -40,70 +41,66 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "sun8i-h3.dtsi"
+/dts-v1/;
+
+#include "sun50i-h5.dtsi"
+
+#include <dt-bindings/gpio/gpio.h>
 
 / {
-	cpus {
-		cpu@0 {
-			compatible = "arm,cortex-a53", "arm,armv8";
-			enable-method = "psci";
-		};
-		cpu@1 {
-			compatible = "arm,cortex-a53", "arm,armv8";
-			enable-method = "psci";
-		};
-		cpu@2 {
-			compatible = "arm,cortex-a53", "arm,armv8";
-			enable-method = "psci";
-		};
-		cpu@3 {
-			compatible = "arm,cortex-a53", "arm,armv8";
-			enable-method = "psci";
-		};
+	model = "FriendlyARM NanoPi NEO Plus 2";
+	compatible = "friendlyarm,nanopi-neo-plus2", "allwinner,sun50i-h5";
+
+	aliases {
+		serial0 = &uart0;
 	};
 
-	psci {
-		compatible = "arm,psci-0.2";
-		method = "smc";
+	chosen {
+		stdout-path = "serial0:115200n8";
 	};
 
-	timer {
-		compatible = "arm,armv8-timer";
+	reg_vcc3v3: vcc3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
 	};
 };
 
-&ccu {
-	compatible = "allwinner,sun50i-h5-ccu";
-};
-
-&gic {
-	compatible = "arm,gic-400";
+&ehci1 {
+	status = "okay";
 };
 
 &mmc0 {
-	compatible = "allwinner,sun50i-h5-mmc",
-		     "allwinner,sun50i-a64-mmc";
-	clocks = <&ccu CLK_BUS_MMC0>, <&ccu CLK_MMC0>;
-	clock-names = "ahb", "mmc";
-};
-
-&mmc1 {
-	compatible = "allwinner,sun50i-h5-mmc",
-		     "allwinner,sun50i-a64-mmc";
-	clocks = <&ccu CLK_BUS_MMC1>, <&ccu CLK_MMC1>;
-	clock-names = "ahb", "mmc";
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin>;
+	vmmc-supply = <&reg_vcc3v3>;
+	bus-width = <4>;
+	cd-gpios = <&pio 5 6 GPIO_ACTIVE_HIGH>;
+	cd-inverted;
+	status = "okay";
 };
 
 &mmc2 {
-	compatible = "allwinner,sun50i-h5-emmc",
-		     "allwinner,sun50i-a64-emmc";
-	clocks = <&ccu CLK_BUS_MMC2>, <&ccu CLK_MMC2>;
-	clock-names = "ahb", "mmc";
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc2_8bit_pins>;
+	vmmc-supply = <&reg_vcc3v3>;
+	bus-width = <8>;
+	non-removable;
+	cap-mmc-hw-reset;
+	status = "okay";
 };
 
-&pio {
-	interrupts = <GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>,
-		     <GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>,
-		   <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
-	compatible = "allwinner,sun50i-h5-pinctrl";
+&ohci1 {
+	status = "okay";
+};
+
+&uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart0_pins_a>;
+	status = "okay";
+};
+
+&usbphy {
+	status = "okay";
 };

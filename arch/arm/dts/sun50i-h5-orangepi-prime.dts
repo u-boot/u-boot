@@ -72,6 +72,10 @@
 	};
 };
 
+&ehci1 {
+	status = "okay";
+};
+
 &mmc0 {
 	compatible = "allwinner,sun50i-h5-mmc",
 		     "allwinner,sun50i-a64-mmc",
@@ -85,6 +89,10 @@
 	status = "okay";
 };
 
+&ohci1 {
+	status = "okay";
+};
+
 &uart0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart0_pins_a>;
@@ -92,13 +100,5 @@
 };
 
 &usbphy {
-	status = "okay";
-};
-
-&ohci1 {
-	status = "okay";
-};
-
-&ehci1 {
 	status = "okay";
 };

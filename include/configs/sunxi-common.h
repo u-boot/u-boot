@@ -34,6 +34,7 @@
 
 #ifdef CONFIG_ARM64
 #define CONFIG_BUILD_TARGET "u-boot.itb"
+#define CONFIG_SYS_BOOTM_LEN		(32 << 20)
 #endif
 
 /* Serial & console */
@@ -491,6 +492,20 @@ extern int soft_i2c_gpio_scl;
 #define SUNXI_MTDPARTS_DEFAULT
 #endif
 
+#define PARTS_DEFAULT \
+	"name=loader1,start=8k,size=32k,uuid=${uuid_gpt_loader1};" \
+	"name=loader2,size=984k,uuid=${uuid_gpt_loader2};" \
+	"name=esp,size=128M,bootable,uuid=${uuid_gpt_esp};" \
+	"name=system,size=-,uuid=${uuid_gpt_system};"
+
+#define UUID_GPT_ESP "c12a7328-f81f-11d2-ba4b-00a0c93ec93b"
+
+#ifdef CONFIG_ARM64
+#define UUID_GPT_SYSTEM "b921b045-1df0-41c3-af44-4c6f280d3fae"
+#else
+#define UUID_GPT_SYSTEM "69dad710-2ce4-4e3c-b16c-21a1d49abed3"
+#endif
+
 #define CONSOLE_ENV_SETTINGS \
 	CONSOLE_STDIN_SETTINGS \
 	CONSOLE_STDOUT_SETTINGS
@@ -509,6 +524,9 @@ extern int soft_i2c_gpio_scl;
 	"console=ttyS0,115200\0" \
 	SUNXI_MTDIDS_DEFAULT \
 	SUNXI_MTDPARTS_DEFAULT \
+	"uuid_gpt_esp=" UUID_GPT_ESP "\0" \
+	"uuid_gpt_system=" UUID_GPT_SYSTEM "\0" \
+	"partitions=" PARTS_DEFAULT "\0" \
 	BOOTCMD_SUNXI_COMPAT \
 	BOOTENV
 
