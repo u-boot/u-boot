@@ -12,3 +12,4 @@ obj-$(CONFIG_TEGRA186_RESET) += tegra186-reset.o
 obj-$(CONFIG_RESET_BCM6345) += reset-bcm6345.o
 obj-$(CONFIG_RESET_UNIPHIER) += reset-uniphier.o
 obj-$(CONFIG_AST2500_RESET) += ast2500-reset.o
+obj-$(CONFIG_RESET_ROCKCHIP) += reset-rockchip.o
