@@ -205,8 +205,13 @@ fdt_addr_t ofnode_get_addr_index(ofnode node, int index)
 					  &flags);
 		if (!prop_val)
 			return FDT_ADDR_T_NONE;
-		na = of_n_addr_cells(ofnode_to_np(node));
-		return of_read_number(prop_val, na);
+
+		if (IS_ENABLED(CONFIG_OF_TRANSLATE)) {
+			return of_translate_address(ofnode_to_np(node), prop_val);
+		} else {
+			na = of_n_addr_cells(ofnode_to_np(node));
+			return of_read_number(prop_val, na);
+		}
 	} else {
 		return fdt_get_base_address(gd->fdt_blob,
 					    ofnode_to_offset(node));
