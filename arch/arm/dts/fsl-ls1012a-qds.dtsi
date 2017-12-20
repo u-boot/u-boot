@@ -121,3 +121,8 @@
 &duart0 {
 	status = "okay";
 };
+
+&usb0 {
+	status = "okay";
+	phy_type = "ulpi";
+};
