@@ -206,7 +206,11 @@ matrix:
     - env:
         - BUILDMAN="mpc85xx -x t208xrdb -x t4qds -x t102* -x p1_p2_rdb_pc -x p1010rdb -x corenet_ds -x b4860qds -x sbc8548 -x bsc91*"
     - env:
-        - BUILDMAN="t208xrdb t4qds t102*"
+        - BUILDMAN="t208xrdb"
+    - env:
+        - BUILDMAN="t4qds"
+    - env:
+        - BUILDMAN="t102*"
     - env:
         - BUILDMAN="p1_p2_rdb_pc"
     - env:
