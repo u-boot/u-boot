@@ -15,11 +15,6 @@
  */
 #define V_NS16550_CLK		408000000	/* 408MHz (pllp_out0) */
 
-/*
- * Miscellaneous configurable options
- */
-#define CONFIG_STACKBASE	0x82800000	/* 40MB */
-
 /*-----------------------------------------------------------------------
  * Physical Memory Map
  */
