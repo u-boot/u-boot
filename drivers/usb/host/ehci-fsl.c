@@ -106,14 +106,14 @@ static int ehci_fsl_probe(struct udevice *dev)
 	ehci = (struct usb_ehci *)priv->hcd_base;
 	hccr = (struct ehci_hccr *)(&ehci->caplength);
 	hcor = (struct ehci_hcor *)
-		((u32)hccr + HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+		((void *)hccr + HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
 	if (ehci_fsl_init(priv, ehci, hccr, hcor) < 0)
 		return -ENXIO;
 
-	debug("ehci-fsl: init hccr %x and hcor %x hc_length %d\n",
-	      (u32)hccr, (u32)hcor,
-	      (u32)HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+	debug("ehci-fsl: init hccr %p and hcor %p hc_length %d\n",
+	      (void *)hccr, (void *)hcor,
+	      HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
 	return ehci_register(dev, hccr, hcor, &fsl_ehci_ops, 0, USB_INIT_HOST);
 }
