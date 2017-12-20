@@ -60,11 +60,6 @@
 	"fdt_addr_r=0x82000000\0" \
 	"ramdisk_addr_r=0x82100000\0"
 
-/* Defines for SPL */
-#define CONFIG_SPL_TEXT_BASE		0x80108000
-#define CONFIG_SYS_SPL_MALLOC_START	0x80090000
-#define CONFIG_SPL_STACK		0x800ffffc
-
 /* For USB EHCI controller */
 #define CONFIG_EHCI_IS_TDI
 #define CONFIG_USB_EHCI_TXFIFO_THRESH	0x10
