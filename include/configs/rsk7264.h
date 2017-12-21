@@ -12,7 +12,6 @@
 #define __RSK7264_H
 
 #define CONFIG_CPU_SH7264	1
-#define CONFIG_RSK7264		1
 
 #define CONFIG_DISPLAY_BOARDINFO
 

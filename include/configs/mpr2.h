@@ -18,7 +18,6 @@
 
 /* CPU and platform */
 #define CONFIG_CPU_SH7720	1
-#define CONFIG_MPR2		1
 
 #define CONFIG_DISPLAY_BOARDINFO
 

@@ -11,7 +11,6 @@
 #define __SH7763RDP_H
 
 #define CONFIG_CPU_SH7763	1
-#define CONFIG_SH7763RDP	1
 #define __LITTLE_ENDIAN		1
 
 #define CONFIG_ENV_OVERWRITE    1

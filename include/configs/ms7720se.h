@@ -10,7 +10,6 @@
 #define __MS7720SE_H
 
 #define CONFIG_CPU_SH7720	1
-#define CONFIG_MS7720SE		1
 
 #define CONFIG_BOOTFILE		"/boot/zImage"
 #define CONFIG_LOADADDR		0x8E000000

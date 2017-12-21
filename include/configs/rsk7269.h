@@ -11,7 +11,6 @@
 #define __RSK7269_H
 
 #define CONFIG_CPU_SH7269	1
-#define CONFIG_RSK7269		1
 
 #define CONFIG_DISPLAY_BOARDINFO
 

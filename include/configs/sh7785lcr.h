@@ -10,7 +10,6 @@
 #define __SH7785LCR_H
 
 #define CONFIG_CPU_SH7785	1
-#define CONFIG_SH7785LCR	1
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"bootdevice=0:1\0"						\

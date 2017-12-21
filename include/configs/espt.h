@@ -11,7 +11,6 @@
 #define __ESPT_H
 
 #define CONFIG_CPU_SH7763	1
-#define CONFIG_ESPT	1
 #define __LITTLE_ENDIAN		1
 
 #define CONFIG_ENV_OVERWRITE    1

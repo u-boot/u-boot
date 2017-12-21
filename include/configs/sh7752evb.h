@@ -10,7 +10,6 @@
 #define __SH7752EVB_H
 
 #define CONFIG_CPU_SH7752	1
-#define CONFIG_SH7752EVB	1
 
 #define CONFIG_SYS_TEXT_BASE	0x5ff80000
 

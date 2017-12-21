@@ -2,8 +2,6 @@
 #define __CONFIG_H
 
 #define CONFIG_CPU_SH7751	1
-#define CONFIG_CPU_SH_TYPE_R	1
-#define CONFIG_R2DPLUS		1
 #define __LITTLE_ENDIAN__	1
 
 #define CONFIG_DISPLAY_BOARDINFO
