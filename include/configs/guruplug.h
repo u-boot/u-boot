@@ -14,7 +14,6 @@
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */
-#define CONFIG_MACH_GURUPLUG	/* Machine type */
 
 /*
  * Standard filesystems

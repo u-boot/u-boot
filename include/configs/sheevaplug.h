@@ -14,7 +14,6 @@
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_FEROCEON_88FR131	1	/* CPU Core subversion */
-#define CONFIG_MACH_SHEEVAPLUG	/* Machine type */
 
 /*
  * Commands configuration

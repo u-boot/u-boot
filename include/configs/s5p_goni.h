@@ -15,7 +15,6 @@
 #define CONFIG_SAMSUNG		1	/* in a SAMSUNG core */
 #define CONFIG_S5P		1	/* which is in a S5P Family */
 #define CONFIG_S5PC110		1	/* which is in a S5PC110 */
-#define CONFIG_MACH_GONI	1	/* working with Goni */
 
 #include <linux/sizes.h>
 #include <asm/arch/cpu.h>		/* get chip and board defs */

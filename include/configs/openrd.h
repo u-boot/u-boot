@@ -19,7 +19,6 @@
  */
 #define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */
 #define CONFIG_KW88F6281	1	/* SOC Name */
-#define CONFIG_MACH_OPENRD_BASE	/* Machine type */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*

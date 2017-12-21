@@ -16,7 +16,6 @@
 #define CONFIG_SHEEVA_88SV331xV5	1	/* CPU Core subversion */
 #define CONFIG_ARMADA100		1	/* SOC Family Name */
 #define CONFIG_ARMADA168		1	/* SOC Used on this Board */
-#define CONFIG_MACH_ASPENITE			/* Machine type */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*

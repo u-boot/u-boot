@@ -35,7 +35,6 @@
 #define CONFIG_MARVELL		1
 #define CONFIG_FEROCEON		1	/* CPU Core subversion */
 #define CONFIG_88F5182		1	/* SOC Name */
-#define CONFIG_MACH_EDMINIV2	1	/* Machine type */
 
 #include <asm/arch/orion5x.h>
 /*
