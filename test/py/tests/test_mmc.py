@@ -22,7 +22,7 @@ def test_mmc_list(u_boot_console):
 
     global devices
     global controllers
-    controllers = len(array) / 2
+    controllers = len(array) / 3
     for x in range(0, controllers):
         y = x * 2
         devices[x] = {}
