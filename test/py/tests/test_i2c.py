@@ -29,6 +29,9 @@ def test_i2c_dev(u_boot_console):
 
 @pytest.mark.buildconfigspec("cmd_i2c")
 def test_i2c_probe(u_boot_console):
+    expected_response = "Setting bus to 0"
+    response = u_boot_console.run_command("i2c dev 0")
+    assert(expected_response in response)
     expected_response = "Valid chip addresses:"
     response = u_boot_console.run_command("i2c probe")
     assert(expected_response in response)
