@@ -379,6 +379,11 @@ S:	Maintained
 F:	configs/Sunchip_CX-A99_defconfig
 W:	https://linux-sunxi.org/Sunchip_CX-A99
 
+TBS A711 BOARD
+M:	Maxime Ripard <maxime.ripard@free-electrons.com>
+S:	Maintained
+F:	configs/tbs_a711_defconfig
+
 WEXLER-TAB7200 BOARD
 M:	Aleksei Mamlin <mamlinav@gmail.com>
 S:	Maintained
