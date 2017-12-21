@@ -199,7 +199,7 @@ static int zynqmp_qspi_ofdata_to_platdata(struct udevice *bus)
 		dev_err(dev, "failed to get rate\n");
 		return clock;
 	}
-	printf("%s: CLK %ld\n", __func__, clock);
+	debug("%s: CLK %ld\n", __func__, clock);
 
 	ret = clk_enable(&clk);
 	if (ret && ret != -ENOSYS) {
