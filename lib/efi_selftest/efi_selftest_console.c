@@ -142,7 +142,7 @@ void efi_st_printf(const char *fmt, ...)
 	const char *c;
 	u16 *pos = buf;
 	const char *s;
-	const u16 *u;
+	u16 *u;
 
 	va_start(args, fmt);
 
@@ -188,9 +188,13 @@ void efi_st_printf(const char *fmt, ...)
 				/* u16 string */
 				case 's':
 					u = va_arg(args, u16*);
-					/* Ensure string fits into buffer */
-					for (; *u && pos < buf + 120; ++u)
-						*pos++ = *u;
+					if (pos > buf) {
+						*pos = 0;
+						con_out->output_string(con_out,
+								       buf);
+					}
+					con_out->output_string(con_out, u);
+					pos = buf;
 					break;
 				default:
 					--c;
