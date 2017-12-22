@@ -30,14 +30,10 @@ static struct pl310_regs *const pl310 =
 	(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
 static struct socfpga_system_manager *sysmgr_regs =
 	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
-static struct socfpga_reset_manager *reset_manager_base =
-	(struct socfpga_reset_manager *)SOCFPGA_RSTMGR_ADDRESS;
 static struct nic301_registers *nic301_regs =
 	(struct nic301_registers *)SOCFPGA_L3REGS_ADDRESS;
 static struct scu_registers *scu_regs =
 	(struct scu_registers *)SOCFPGA_MPUSCU_ADDRESS;
-static struct socfpga_sdr_ctrl *sdr_ctrl =
-	(struct socfpga_sdr_ctrl *)SDR_CTRLGRP_ADDRESS;
 
 /*
  * DesignWare Ethernet initialization
@@ -292,6 +288,12 @@ int arch_early_init_r(void)
 	return 0;
 }
 
+#ifndef CONFIG_SPL_BUILD
+static struct socfpga_reset_manager *reset_manager_base =
+	(struct socfpga_reset_manager *)SOCFPGA_RSTMGR_ADDRESS;
+static struct socfpga_sdr_ctrl *sdr_ctrl =
+	(struct socfpga_sdr_ctrl *)SDR_CTRLGRP_ADDRESS;
+
 static void socfpga_sdram_apply_static_cfg(void)
 {
 	const u32 applymask = 0x8;
@@ -321,7 +323,7 @@ static void socfpga_sdram_apply_static_cfg(void)
 	: : "r"(val), "r"(&sdr_ctrl->static_cfg) : "memory", "cc");
 }
 
-int do_bridge(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_bridge(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc != 2)
 		return CMD_RET_USAGE;
@@ -357,3 +359,4 @@ U_BOOT_CMD(
 	"bridge disable - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
 	""
 );
+#endif
