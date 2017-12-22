@@ -133,8 +133,8 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 		image_size = opt->SizeOfImage;
 		efi_reloc = efi_alloc(virt_size, EFI_LOADER_DATA);
 		if (!efi_reloc) {
-			printf("%s: Could not allocate %ld bytes\n",
-				__func__, virt_size);
+			printf("%s: Could not allocate %lu bytes\n",
+			       __func__, virt_size);
 			return NULL;
 		}
 		entry = efi_reloc + opt->AddressOfEntryPoint;
@@ -147,8 +147,8 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 		image_size = opt->SizeOfImage;
 		efi_reloc = efi_alloc(virt_size, EFI_LOADER_DATA);
 		if (!efi_reloc) {
-			printf("%s: Could not allocate %ld bytes\n",
-				__func__, virt_size);
+			printf("%s: Could not allocate %lu bytes\n",
+			       __func__, virt_size);
 			return NULL;
 		}
 		entry = efi_reloc + opt->AddressOfEntryPoint;
