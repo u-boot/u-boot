@@ -6,7 +6,5 @@
 #
 
 obj-y += board.o
-ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_I2C_EEPROM) += mac_eeprom.o
 obj-$(CONFIG_DM_VIDEO) += video_display.o
-endif

@@ -8,7 +8,4 @@
 obj-y	+= generic.o
 obj-y	+= timer.o
 obj-y	+= devices.o
-
-ifndef CONFIG_SPL_BUILD
-obj-y  += relocate.o
-endif
+obj-y	+= relocate.o

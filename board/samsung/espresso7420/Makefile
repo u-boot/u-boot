@@ -5,6 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifndef CONFIG_SPL_BUILD
 obj-y	+= espresso7420.o
-endif

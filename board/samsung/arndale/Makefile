@@ -5,7 +5,4 @@
 #
 
 obj-y	+= arndale_spl.o
-
-ifndef CONFIG_SPL_BUILD
 obj-y	+= arndale.o
-endif

@@ -5,6 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifndef CONFIG_SPL_BUILD
-obj-y	:= spear600.o
-endif
+obj-y	+= spear600.o
