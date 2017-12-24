@@ -79,7 +79,8 @@ def EnsureCompiled(fname):
             '-W', 'no-unit_address_vs_reg']
     args.extend(search_list)
     args.append(dts_input)
-    command.Run('dtc', *args)
+    dtc = os.environ.get('DTC') or 'dtc'
+    command.Run(dtc, *args)
     return dtb_output
 
 def GetInt(node, propname, default=None):
