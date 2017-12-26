@@ -172,6 +172,18 @@ gd_t *global_data;
 "	lwi	$r16, [$r16 + (%1)]\n"	\
 "	jr	$r16\n"			\
 	: : "i"(offsetof(gd_t, jt)), "i"(FO(x)) : "$r16");
+#elif defined(CONFIG_RISCV)
+/*
+ * t7 holds the pointer to the global_data. gp is call clobbered.
+ */
+#define EXPORT_FUNC(f, a, x, ...)	\
+	asm volatile (			\
+"	.globl " #x "\n"		\
+#x ":\n"				\
+"	lw	x19, %0(gp)\n"		\
+"	lw	x19, %1(x19)\n"		\
+"	jr	x19\n"			\
+	: : "i"(offsetof(gd_t, jt)), "i"(FO(x)) : "x19");
 #elif defined(CONFIG_ARC)
 /*
  * r25 holds the pointer to the global_data. r10 is call clobbered.
