@@ -126,7 +126,7 @@ static int initr_reloc_global_data(void)
 {
 #ifdef __ARM__
 	monitor_flash_len = _end - __image_copy_start;
-#elif defined(CONFIG_NDS32)
+#elif defined(CONFIG_NDS32) || defined(CONFIG_RISCV)
 	monitor_flash_len = (ulong)&_end - (ulong)&_start;
 #elif !defined(CONFIG_SANDBOX) && !defined(CONFIG_NIOS2)
 	monitor_flash_len = (ulong)&__init_end - gd->relocaddr;
@@ -704,7 +704,7 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_DM
 	initr_dm,
 #endif
-#if defined(CONFIG_ARM) || defined(CONFIG_NDS32)
+#if defined(CONFIG_ARM) || defined(CONFIG_NDS32) || defined(CONFIG_RISCV)
 	board_init,	/* Setup chipselects */
 #endif
 	/*
