@@ -423,6 +423,13 @@ S:	Orphaned (Since 2017-01)
 T:	git git://git.denx.de/u-boot-onenand.git
 F:	drivers/mtd/onenand/
 
+RISC-V
+M:	Rick Chen <rick@andestech.com>
+S:	Maintained
+T:	git git://git.denx.de/u-boot-riscv.git
+F:	arch/riscv/
+F:	tools/prelink-riscv.c
+
 SANDBOX
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained

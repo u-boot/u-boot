@@ -1,0 +1,42 @@
+menu "RISCV architecture"
+	depends on RISCV
+
+config SYS_ARCH
+	default "riscv"
+
+choice
+	prompt "Target select"
+	optional
+
+config TARGET_NX25_AE250
+	bool "Support nx25-ae250"
+
+endchoice
+
+source "board/AndesTech/nx25-ae250/Kconfig"
+
+choice
+	prompt "CPU selection"
+	default CPU_RISCV_32
+
+config CPU_RISCV_32
+	bool "RISCV 32 bit"
+	select 32BIT
+	help
+	  Choose this option to build an U-Boot for RISCV32 architecture.
+
+config CPU_RISCV_64
+	bool "RISCV 64 bit"
+	select 64BIT
+	help
+	  Choose this option to build an U-Boot for RISCV64 architecture.
+
+endchoice
+
+config 32BIT
+	bool
+
+config 64BIT
+	bool
+
+endmenu
