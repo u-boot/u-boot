@@ -1264,6 +1264,10 @@ ifeq ($(CONFIG_KALLSYMS),y)
 	$(call cmd,u-boot__) common/system_map.o
 endif
 
+ifeq ($(CONFIG_RISCV),y)
+	@tools/prelink-riscv $@ 0
+endif
+
 quiet_cmd_sym ?= SYM     $@
       cmd_sym ?= $(OBJDUMP) -t $< > $@
 u-boot.sym: u-boot FORCE
