@@ -1,0 +1,6 @@
+NX25-AE250 BOARD
+M:	Rick Chen <rick@andestech.com>
+S:	Maintained
+F:	board/AndesTech/nx25-ae250/
+F:	include/configs/nx25-ae250.h
+F:	configs/nx25-ae250_defconfig
