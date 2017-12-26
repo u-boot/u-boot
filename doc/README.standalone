@@ -58,6 +58,7 @@ Design Notes on Exporting U-Boot Functions to Standalone Applications:
 	Blackfin	0x00001000	0x00001000
 	NDS32		0x00300000	0x00300000
 	Nios II		0x02000000	0x02000000
+	RISC-V		0x00600000	0x00600000
 
    For example, the "hello world" application may be loaded and
    executed on a PowerPC board with the following commands:

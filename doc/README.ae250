@@ -1,0 +1,137 @@
+Andes Technology SoC AE250
+===========================
+
+AE250 is the mainline SoC produced by Andes Technology using NX25 CPU core
+base on RISC-V architecture.
+
+AE250 has integrated both AHB and APB bus and many periphals for application
+and product development.
+
+NX25-AE250
+=========
+
+NX25-AE250 is the SoC with AE250 hardcore CPU.
+
+Configurations
+==============
+
+CONFIG_SKIP_LOWLEVEL_INIT:
+	If you want to boot this system from SPI ROM and bypass e-bios (the
+	other boot loader on ROM). You should undefine CONFIG_SKIP_LOWLEVEL_INIT
+	in "include/configs/nx25-ae250.h".
+
+Build and boot steps
+====================
+
+build:
+1. Prepare the toolchains and make sure the $PATH to toolchains is correct.
+2. Use `make nx25-ae250_defconfig` in u-boot root to build the image.
+
+Verification
+====================
+
+Target
+====================
+1. startup
+2. relocation
+3. timer driver
+4. uart driver
+5. mac driver
+6. mmc driver
+7. spi driver
+
+Steps
+====================
+1. Define CONFIG_SKIP_LOWLEVEL_INIT to build u-boot which is loaded via gdb from ram.
+2. Undefine CONFIG_SKIP_LOWLEVEL_INIT to build u-boot which is booted from spi rom.
+3. Ping a server by mac driver
+4. Scan sd card and copy u-boot image which is booted from flash to ram by sd driver.
+5. Burn this u-boot image to spi rom by spi driver
+6. Re-boot u-boot from spi flash with power off and power on.
+
+Messages
+====================
+U-Boot 2018.01-rc2-00033-g824f89a (Dec 21 2017 - 16:51:26 +0800)
+
+DRAM:  1 GiB
+MMC:   mmc@f0e00000: 0
+SF: Detected mx25u1635e with page size 256 Bytes, erase size 4 KiB, total 2 MiB
+In:    serial@f0300000
+Out:   serial@f0300000
+Err:   serial@f0300000
+Net:
+Warning: mac@e0100000 (eth0) using random MAC address - be:dd:d7:e4:e8:10
+eth0: mac@e0100000
+
+RISC-V # version
+U-Boot 2018.01-rc2-00033-gb265b91-dirty (Dec 22 2017 - 13:54:21 +0800)
+
+riscv32-unknown-linux-gnu-gcc (GCC) 7.2.0
+GNU ld (GNU Binutils) 2.29
+
+RISC-V # setenv ipaddr 10.0.4.200 ;
+RISC-V # setenv serverip 10.0.4.97 ;
+RISC-V # ping 10.0.4.97 ;
+Using mac@e0100000 device
+host 10.0.4.97 is alive
+
+RISC-V # mmc rescan
+RISC-V # fatls mmc 0:1
+   318907   u-boot-ae250-64.bin
+     1252   hello_world_ae250_32.bin
+   328787   u-boot-ae250-32.bin
+
+3 file(s), 0 dir(s)
+
+RISC-V # sf probe 0:0 50000000 0
+SF: Detected mx25u1635e with page size 256 Bytes, erase size 4 KiB, total 2 MiB
+
+RISC-V # sf test 0x100000 0x1000
+SPI flash test:
+0 erase: 36 ticks, 111 KiB/s 0.888 Mbps
+1 check: 29 ticks, 137 KiB/s 1.096 Mbps
+2 write: 40 ticks, 100 KiB/s 0.800 Mbps
+3 read: 20 ticks, 200 KiB/s 1.600 Mbps
+Test passed
+0 erase: 36 ticks, 111 KiB/s 0.888 Mbps
+1 check: 29 ticks, 137 KiB/s 1.096 Mbps
+2 write: 40 ticks, 100 KiB/s 0.800 Mbps
+3 read: 20 ticks, 200 KiB/s 1.600 Mbps
+
+RISC-V # fatload mmc 0:1 0x600000 u-boot-ae250-32.bin
+reading u-boot-ae250-32.bin
+328787 bytes read in 324 ms (990.2 KiB/s)
+
+RISC-V # sf erase 0x0 0x51000
+SF: 331776 bytes @ 0x0 Erased: OK
+
+RISC-V # sf write 0x600000 0x0 0x50453
+device 0 offset 0x0, size 0x50453
+SF: 328787 bytes @ 0x0 Written: OK
+
+RISC-V # crc32 0x600000 0x50453
+crc32 for 00600000 ... 00650452 ==> 692dc44a
+
+RISC-V # crc32 0x80000000 0x50453
+crc32 for 80000000 ... 80050452 ==> 692dc44a
+RISC-V #
+
+*** power-off and power-on, this U-Boot is booted from spi flash 	***
+
+U-Boot 2018.01-rc2-00032-gf67dd47-dirty (Dec 21 2017 - 13:56:03 +0800)
+
+DRAM:  1 GiB
+MMC:   mmc@f0e00000: 0
+SF: Detected mx25u1635e with page size 256 Bytes, erase size 4 KiB, total 2 MiB
+In:    serial@f0300000
+Out:   serial@f0300000
+Err:   serial@f0300000
+Net:
+Warning: mac@e0100000 (eth0) using random MAC address - ee:4c:58:29:32:f5
+eth0: mac@e0100000
+RISC-V #
+
+TODO
+====================
+
+Boot bbl and riscv-linux

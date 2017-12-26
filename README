@@ -143,6 +143,7 @@ Directory Hierarchy:
   /nios2		Files generic to Altera NIOS2 architecture
   /openrisc		Files generic to OpenRISC architecture
   /powerpc		Files generic to PowerPC architecture
+  /riscv		Files generic to RISC-V architecture
   /sandbox		Files generic to HW-independent "sandbox"
   /sh			Files generic to SH architecture
   /x86			Files generic to x86 architecture
@@ -3510,7 +3511,7 @@ Low Level (hardware related) configuration options:
 		globally (CONFIG_CMD_MEMORY).
 
 - CONFIG_SKIP_LOWLEVEL_INIT
-		[ARM, NDS32, MIPS only] If this variable is defined, then certain
+		[ARM, NDS32, MIPS, RISC-V only] If this variable is defined, then certain
 		low level initializations (like setting up the memory
 		controller) are omitted and/or U-Boot does not
 		relocate itself into RAM.
@@ -4963,6 +4964,22 @@ On NDS32, the following registers are used:
 
 NOTE: DECLARE_GLOBAL_DATA_PTR must be used with file-global scope,
 or current versions of GCC may "optimize" the code too much.
+
+On RISC-V, the following registers are used:
+
+	x0: hard-wired zero (zero)
+	x1: return address (ra)
+	x2:	stack pointer (sp)
+	x3:	global pointer (gp)
+	x4:	thread pointer (tp)
+	x5:	link register (t0)
+	x8:	frame pointer (fp)
+	x10-x11:	arguments/return values (a0-1)
+	x12-x17:	arguments (a2-7)
+	x28-31:	 temporaries (t3-6)
+	pc:	program counter (pc)
+
+    ==> U-Boot will use gp to hold a pointer to the global data
 
 Memory Management:
 ------------------
