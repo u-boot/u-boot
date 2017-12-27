@@ -195,6 +195,8 @@
 
 #define FM1_10GEC1_PHY_ADDR		0x0
 
+#define FDT_SEQ_MACADDR_FROM_ENV
+
 #define CONFIG_ETHPRIME			"FM1@DTSEC3"
 #endif
 

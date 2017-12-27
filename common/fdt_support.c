@@ -508,12 +508,16 @@ int fdt_fixup_memory(void *blob, u64 start, u64 size)
 
 void fdt_fixup_ethernet(void *fdt)
 {
-	int i, j, prop;
+	int i = 0, j, prop;
 	char *tmp, *end;
 	char mac[16];
 	const char *path;
 	unsigned char mac_addr[ARP_HLEN];
 	int offset;
+#ifdef FDT_SEQ_MACADDR_FROM_ENV
+	int nodeoff;
+	const struct fdt_property *fdt_prop;
+#endif
 
 	if (fdt_path_offset(fdt, "/aliases") < 0)
 		return;
@@ -526,7 +530,7 @@ void fdt_fixup_ethernet(void *fdt)
 		offset = fdt_first_property_offset(fdt,
 			fdt_path_offset(fdt, "/aliases"));
 		/* Select property number 'prop' */
-		for (i = 0; i < prop; i++)
+		for (j = 0; j < prop; j++)
 			offset = fdt_next_property_offset(fdt, offset);
 
 		if (offset < 0)
@@ -535,11 +539,16 @@ void fdt_fixup_ethernet(void *fdt)
 		path = fdt_getprop_by_offset(fdt, offset, &name, NULL);
 		if (!strncmp(name, "ethernet", 8)) {
 			/* Treat plain "ethernet" same as "ethernet0". */
-			if (!strcmp(name, "ethernet"))
+			if (!strcmp(name, "ethernet")
+#ifdef FDT_SEQ_MACADDR_FROM_ENV
+			 || !strcmp(name, "ethernet0")
+#endif
+			)
 				i = 0;
+#ifndef FDT_SEQ_MACADDR_FROM_ENV
 			else
 				i = trailing_strtol(name);
-
+#endif
 			if (i != -1) {
 				if (i == 0)
 					strcpy(mac, "ethaddr");
@@ -548,6 +557,14 @@ void fdt_fixup_ethernet(void *fdt)
 			} else {
 				continue;
 			}
+#ifdef FDT_SEQ_MACADDR_FROM_ENV
+			nodeoff = fdt_path_offset(fdt, path);
+			fdt_prop = fdt_get_property(fdt, nodeoff, "status",
+						    NULL);
+			if (fdt_prop && !strcmp(fdt_prop->data, "disabled"))
+				continue;
+			i++;
+#endif
 			tmp = env_get(mac);
 			if (!tmp)
 				continue;
