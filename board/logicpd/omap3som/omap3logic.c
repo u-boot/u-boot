@@ -40,21 +40,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* This is only needed until SPL gets OF support */
-#ifdef CONFIG_SPL_BUILD
-static const struct ns16550_platdata omap3logic_serial = {
-	.base = OMAP34XX_UART1,
-	.reg_shift = 2,
-	.clock = V_NS16550_CLK,
-	.fcr = UART_FCR_DEFVAL,
-};
-
-U_BOOT_DEVICE(omap3logic_uart) = {
-	"ns16550_serial",
-	&omap3logic_serial
-};
-#endif
-
 /*
  * two dimensional array of strucures containining board name and Linux
  * machine IDs; row it selected based on CPU column is slected based
