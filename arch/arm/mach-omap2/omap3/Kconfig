@@ -61,6 +61,10 @@ config TARGET_DEVKIT8000
 
 config TARGET_OMAP3_EVM
 	bool "TI OMAP3 EVM"
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+	select OMAP3_GPIO_3
 
 config TARGET_OMAP3_IGEP00X0
 	bool "IGEP"

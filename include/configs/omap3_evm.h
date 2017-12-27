@@ -42,8 +42,6 @@
 #define CONFIG_SYS_NS16550_COM1         OMAP34XX_UART1
 #if defined(CONFIG_SPL_BUILD)
 #undef CONFIG_SYS_NS16550_REG_SIZE
-#else /* !CONFIG_SPL_BUILD  */
-#define CONFIG_SYS_NS16550_REG_SIZE     (-1)
 #endif /* CONFIG_SPL_BUILD */
 
 /* NAND */
@@ -85,8 +83,6 @@
 
 /* Environment */
 #define CONFIG_PREBOOT                  "usb start"
-
-#if !defined(CONFIG_SPL_BUILD)
 
 #include <config_distro_defaults.h>
 
@@ -181,7 +177,5 @@
 		"nand read ${fdtaddr} dtb; " \
 		"bootm ${loadaddr} - ${fdtaddr}\0" \
 	BOOTENV
-
-#endif /* !CONFIG_SPL_BUILD */
 
 #endif /* __CONFIG_H */
