@@ -7,6 +7,7 @@
 #include <common.h>
 #include <fdtdec.h>
 #include <asm/io.h>
+#include <dm.h>
 #include <asm/arch/clock_manager.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -1074,6 +1075,14 @@ unsigned int cm_get_spi_controller_clk_hz(void)
 unsigned int cm_get_qspi_controller_clk_hz(void)
 {
 	return  cm_get_l4_noc_hz(CLKMGR_MAINPLL_NOCDIV_L4MAINCLK_LSB);
+}
+
+/* Override weak dw_spi_get_clk implementation in designware_spi.c driver */
+int dw_spi_get_clk(struct udevice *bus, ulong *rate)
+{
+	*rate = cm_get_spi_controller_clk_hz();
+
+	return 0;
 }
 
 void cm_print_clock_quick_summary(void)
