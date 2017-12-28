@@ -28,9 +28,9 @@ def test_log(u_boot_console):
         """
         for i in range(max_level):
             if mask & 1:
-                assert 'log %d' % i == lines.next()
+                assert 'log_run() log %d' % i == lines.next()
             if mask & 3:
-                assert '_log %d' % i == lines.next()
+                assert 'func() _log %d' % i == lines.next()
 
     def run_test(testnum):
         """Run a particular test number (the 'log test' command)
