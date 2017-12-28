@@ -882,7 +882,7 @@ const struct pad_conf_entry dra76x_core_padconf_array[] = {
 	{I2C2_SCL, (M1 | PIN_INPUT_PULLUP)},	/* i2c2_scl.hdmi1_ddc_sda */
 	{WAKEUP0, (M14 | PIN_OUTPUT)},	/* N/A.gpio1_0 */
 	{WAKEUP1, (M14 | PIN_OUTPUT)},	/* N/A.gpio1_1 */
-	{WAKEUP2, (M1 | PIN_OUTPUT)},	/* N/A.sys_nirq2 */
+	{WAKEUP2, (M14 | PIN_INPUT)},	/* N/A.gpio1_2 */
 	{WAKEUP3, (M1 | PIN_OUTPUT)},	/* N/A.sys_nirq1 */
 };
 
