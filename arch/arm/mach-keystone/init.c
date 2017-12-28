@@ -229,7 +229,19 @@ int print_cpuinfo(void)
 		puts("66AK2Ex SR");
 		break;
 	case CPU_66AK2Gx:
-		puts("66AK2Gx SR");
+		puts("66AK2Gx");
+#ifdef CONFIG_SOC_K2G
+		{
+			int speed = get_max_arm_speed(speeds);
+			if (speed == SPD1000)
+				puts("-100 ");
+			else if (speed == SPD600)
+				puts("-60 ");
+			else
+				puts("-xx ");
+		}
+#endif
+		puts("SR");
 		break;
 	default:
 		puts("Unknown\n");
@@ -241,7 +253,8 @@ int print_cpuinfo(void)
 		puts("1.1\n");
 	else if (rev == 0)
 		puts("1.0\n");
-
+	else if (rev == 8)
+		puts("1.0\n");
 	return 0;
 }
 #endif

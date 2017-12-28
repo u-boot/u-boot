@@ -326,6 +326,9 @@ typedef volatile unsigned int   *dv_reg_p;
 #define CPU_66AK2Lx	0xb9a7
 #define CPU_66AK2Gx	0xbb06
 
+/* Variant definitions */
+#define CPU_66AK2G1x	0x08
+
 /* DEVSPEED register */
 #define DEVSPEED_DEVSPEED_SHIFT	16
 #define DEVSPEED_DEVSPEED_MASK	(0xfff << 16)

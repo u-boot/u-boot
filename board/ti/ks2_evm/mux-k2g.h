@@ -345,7 +345,7 @@ void k2g_mux_config(void)
 {
 	if (!board_ti_was_eeprom_read()) {
 		configure_pin_mux(k2g_generic_pin_cfg);
-	} else if (board_is_k2g_gp()) {
+	} else if (board_is_k2g_gp() || board_is_k2g_g1()) {
 		configure_pin_mux(k2g_evm_pin_cfg);
 	} else if (board_is_k2g_ice()) {
 		configure_pin_mux(k2g_ice_evm_pin_cfg);
