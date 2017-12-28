@@ -119,6 +119,7 @@ typedef struct global_data {
 	int log_drop_count;		/* Number of dropped log messages */
 	int default_log_level;		/* For devices with no filters */
 	struct list_head log_head;	/* List of struct log_device */
+	int log_fmt;			/* Mask containing log format info */
 #endif
 } gd_t;
 #endif

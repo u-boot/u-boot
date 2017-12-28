@@ -291,6 +291,20 @@ const char *log_get_level_name(enum log_level_t level);
  */
 enum log_level_t log_get_level_by_name(const char *name);
 
+/* Log format flags (bit numbers) for gd->log_fmt. See log_fmt_chars */
+enum log_fmt {
+	LOGF_CAT	= 0,
+	LOGF_LEVEL,
+	LOGF_FILE,
+	LOGF_LINE,
+	LOGF_FUNC,
+	LOGF_MSG,
+
+	LOGF_COUNT,
+	LOGF_DEFAULT = (1 << LOGF_FUNC) | (1 << LOGF_MSG),
+	LOGF_ALL = 0x3f,
+};
+
 /* Handle the 'log test' command */
 int do_log_test(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
 
