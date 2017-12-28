@@ -159,6 +159,17 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 	({ if (!(x) && _DEBUG) \
 		__assert_fail(#x, __FILE__, __LINE__, __func__); })
 
+#ifdef CONFIG_LOG_ERROR_RETURN
+#define log_ret(_ret) ({ \
+	int __ret = (_ret); \
+	if (__ret < 0) \
+		log(LOG_CATEGORY, LOGL_ERR, "returning err=%d\n", __ret); \
+	__ret; \
+	})
+#else
+#define log_ret(_ret) (_ret)
+#endif
+
 /**
  * struct log_rec - a single log record
  *

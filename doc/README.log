@@ -148,6 +148,14 @@ Also debug() and error() will generate log records  - these use LOG_CATEGORY
 as the category, so you should #define this right at the top of the source
 file to ensure the category is correct.
 
+You can also define CONFIG_LOG_ERROR_RETURN to enable the log_ret() macro. This
+can be used whenever your function returns an error value:
+
+   return log_ret(uclass_first_device(UCLASS_MMC, &dev));
+
+This will write a log record when an error code is detected (a value < 0). This
+can make it easier to trace errors that are generated deep in the call stack.
+
 
 Code size
 ---------
