@@ -14,7 +14,7 @@
 #include "board.h"
 
 /* K2G GP EVM DDR3 Configuration */
-struct ddr3_phy_config ddr3phy_800_2g = {
+static struct ddr3_phy_config ddr3phy_800_2g = {
 	.pllcr          = 0x000DC000ul,
 	.pgcr1_mask     = (IODDRM_MASK | ZCKSEL_MASK),
 	.pgcr1_val      = ((1 << 2) | (1 << 7) | (1 << 23)),
@@ -94,7 +94,7 @@ static struct ddr3_phy_config ddr3phy_1066_2g = {
 	.pir_v2         = 0x00000F81ul,
 };
 
-struct ddr3_emif_config ddr3_800_2g = {
+static struct ddr3_emif_config ddr3_800_2g = {
 	.sdcfg          = 0x62005662ul,
 	.sdtim1         = 0x0A385033ul,
 	.sdtim2         = 0x00001CA5ul,
@@ -104,7 +104,7 @@ struct ddr3_emif_config ddr3_800_2g = {
 	.sdrfc          = 0x00000C34ul,
 };
 
-struct ddr3_emif_config ddr3_1066_2g = {
+static struct ddr3_emif_config ddr3_1066_2g = {
 	.sdcfg          = 0x62005662ul,
 	.sdtim1         = 0x0E4C6843ul,
 	.sdtim2         = 0x00001CC6ul,
@@ -115,7 +115,7 @@ struct ddr3_emif_config ddr3_1066_2g = {
 };
 
 /* K2G ICE evm DDR3 Configuration */
-struct ddr3_phy_config ddr3phy_800_512mb = {
+static struct ddr3_phy_config ddr3phy_800_512mb = {
 	.pllcr          = 0x000DC000ul,
 	.pgcr1_mask     = (IODDRM_MASK | ZCKSEL_MASK),
 	.pgcr1_val      = ((1 << 2) | (2 << 7) | (1 << 23)),
@@ -155,7 +155,7 @@ struct ddr3_phy_config ddr3phy_800_512mb = {
 	.pir_v2         = 0x00000F81ul,
 };
 
-struct ddr3_emif_config ddr3_800_512mb = {
+static struct ddr3_emif_config ddr3_800_512mb = {
 	.sdcfg          = 0x62006662ul,
 	.sdtim1         = 0x0A385033ul,
 	.sdtim2         = 0x00001CA5ul,
