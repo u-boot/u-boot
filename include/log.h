@@ -27,8 +27,10 @@ enum log_level_t {
 	LOGL_DEBUG_IO,		/* Debug message showing hardware I/O access */
 
 	LOGL_COUNT,
+	LOGL_NONE,
+
 	LOGL_FIRST = LOGL_EMERG,
-	LOGL_MAX = LOGL_DEBUG,
+	LOGL_MAX = LOGL_DEBUG_IO,
 };
 
 /**
@@ -42,7 +44,8 @@ enum log_category_t {
 	LOGC_ARCH,
 	LOGC_BOARD,
 	LOGC_CORE,
-	LOGC_DT,
+	LOGC_DM,	/* Core driver-model */
+	LOGC_DT,	/* Device-tree */
 
 	LOGC_COUNT,
 	LOGC_END,
@@ -255,6 +258,38 @@ struct log_filter {
 
 #define LOG_DRIVER(_name) \
 	ll_entry_declare(struct log_driver, _name, log_driver)
+
+/**
+ * log_get_cat_name() - Get the name of a category
+ *
+ * @cat: Category to look up
+ * @return category name (which may be a uclass driver name)
+ */
+const char *log_get_cat_name(enum log_category_t cat);
+
+/**
+ * log_get_cat_by_name() - Look up a category by name
+ *
+ * @name: Name to look up
+ * @return category ID, or LOGC_NONE if not found
+ */
+enum log_category_t log_get_cat_by_name(const char *name);
+
+/**
+ * log_get_level_name() - Get the name of a log level
+ *
+ * @level: Log level to look up
+ * @return log level name (in ALL CAPS)
+ */
+const char *log_get_level_name(enum log_level_t level);
+
+/**
+ * log_get_level_by_name() - Look up a log level by name
+ *
+ * @name: Name to look up
+ * @return log level ID, or LOGL_NONE if not found
+ */
+enum log_level_t log_get_level_by_name(const char *name);
 
 /* Handle the 'log test' command */
 int do_log_test(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
