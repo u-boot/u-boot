@@ -68,6 +68,19 @@ If CONFIG_LOG is not set, then no logging will be available.
 The above have SPL versions also, e.g. CONFIG_SPL_MAX_LOG_LEVEL.
 
 
+Log commands
+------------
+
+The 'log' command provides access to several features:
+
+   level - access the default log level
+   format - access the console log format
+   rec - output a log record
+   test - run tests
+
+Type 'help log' for details.
+
+
 Using DEBUG
 -----------
 
@@ -92,6 +105,20 @@ several possible determinations for logging information, all of which can be
 enabled or disabled independently:
 
    console - goes to stdout
+
+
+Log format
+----------
+
+You can control the log format using the 'log format' command. The basic
+format is:
+
+   LEVEL.category,file.c:123-func() message
+
+In the above, file.c:123 is the filename where the log record was generated and
+func() is the function name. By default ('log format default') only the
+function name and message are displayed on the console. You can control which
+fields are present, but not the field order.
 
 
 Filters
