@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
@@ -18,7 +19,6 @@
 #include <fdtdec.h>
 #include <linux/compat.h>
 #include <asm/io.h>
-#include <asm/arch/clock_manager.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -94,6 +94,8 @@ struct dw_spi_priv {
 	void __iomem *regs;
 	unsigned int freq;		/* Default frequency */
 	unsigned int mode;
+	struct clk clk;
+	unsigned long bus_clk_rate;
 
 	int bits_per_word;
 	u8 cs;			/* chip select pin */
@@ -176,13 +178,52 @@ static void spi_hw_init(struct dw_spi_priv *priv)
 	debug("%s: fifo_len=%d\n", __func__, priv->fifo_len);
 }
 
+/*
+ * We define dw_spi_get_clk function as 'weak' as some targets
+ * (like SOCFPGA_GEN5 and SOCFPGA_ARRIA10) don't use standard clock API
+ * and implement dw_spi_get_clk their own way in their clock manager.
+ */
+__weak int dw_spi_get_clk(struct udevice *bus, ulong *rate)
+{
+	struct dw_spi_priv *priv = dev_get_priv(bus);
+	int ret;
+
+	ret = clk_get_by_index(bus, 0, &priv->clk);
+	if (ret)
+		return ret;
+
+	ret = clk_enable(&priv->clk);
+	if (ret && ret != -ENOSYS && ret != -ENOTSUPP)
+		return ret;
+
+	*rate = clk_get_rate(&priv->clk);
+	if (!*rate)
+		goto err_rate;
+
+	debug("%s: get spi controller clk via device tree: %lu Hz\n",
+	      __func__, *rate);
+
+	return 0;
+
+err_rate:
+	clk_disable(&priv->clk);
+	clk_free(&priv->clk);
+
+	return -EINVAL;
+}
+
 static int dw_spi_probe(struct udevice *bus)
 {
 	struct dw_spi_platdata *plat = dev_get_platdata(bus);
 	struct dw_spi_priv *priv = dev_get_priv(bus);
+	int ret;
 
 	priv->regs = plat->regs;
 	priv->freq = plat->frequency;
+
+	ret = dw_spi_get_clk(bus, &priv->bus_clk_rate);
+	if (ret)
+		return ret;
 
 	/* Currently only bits_per_word == 8 supported */
 	priv->bits_per_word = 8;
@@ -369,7 +410,7 @@ static int dw_spi_set_speed(struct udevice *bus, uint speed)
 	spi_enable_chip(priv, 0);
 
 	/* clk_div doesn't support odd number */
-	clk_div = cm_get_spi_controller_clk_hz() / speed;
+	clk_div = priv->bus_clk_rate / speed;
 	clk_div = (clk_div + 1) & 0xfffe;
 	dw_writel(priv, DW_SPI_BAUDR, clk_div);
 
