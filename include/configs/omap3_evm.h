@@ -131,6 +131,7 @@
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
+	"fdt_high=0xffffffff\0" \
 	"bootenv=uEnv.txt\0" \
 	"optargs=\0" \
 	"mmcdev=0\0" \
