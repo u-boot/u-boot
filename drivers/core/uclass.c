@@ -158,6 +158,20 @@ const char *uclass_get_name(enum uclass_id id)
 	return uc->uc_drv->name;
 }
 
+enum uclass_id uclass_get_by_name(const char *name)
+{
+	int i;
+
+	for (i = 0; i < UCLASS_COUNT; i++) {
+		struct uclass_driver *uc_drv = lists_uclass_lookup(i);
+
+		if (uc_drv && !strcmp(uc_drv->name, name))
+			return i;
+	}
+
+	return UCLASS_INVALID;
+}
+
 int uclass_find_device(enum uclass_id id, int index, struct udevice **devp)
 {
 	struct uclass *uc;
