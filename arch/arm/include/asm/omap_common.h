@@ -597,6 +597,7 @@ extern struct prcm_regs const dra7xx_prcm;
 extern struct dplls const **dplls_data;
 extern struct dplls dra7xx_dplls;
 extern struct dplls dra72x_dplls;
+extern struct dplls dra76x_dplls;
 extern struct vcores_data const **omap_vcores;
 extern const u32 sys_clk_array[8];
 extern struct omap_sys_ctrl_regs const **ctrl;

@@ -535,7 +535,7 @@ invalid_eeprom:
 
 void vcores_init(void)
 {
-	if (board_is_am572x_idk())
+	if (board_is_am572x_idk() || board_is_am574x_idk())
 		*omap_vcores = &am572x_idk_volts;
 	else if (board_is_am571x_idk())
 		*omap_vcores = &am571x_idk_volts;
@@ -548,6 +548,8 @@ void hw_data_init(void)
 	*prcm = &dra7xx_prcm;
 	if (is_dra72x())
 		*dplls_data = &dra72x_dplls;
+	else if (is_dra76x())
+		*dplls_data = &dra76x_dplls;
 	else
 		*dplls_data = &dra7xx_dplls;
 	*ctrl = &dra7xx_ctrl;
@@ -688,7 +690,7 @@ void recalibrate_iodelay(void)
 	int pconf_sz, iod_sz, delta_iod_sz = 0;
 	int ret;
 
-	if (board_is_am572x_idk()) {
+	if (board_is_am572x_idk() || board_is_am574x_idk()) {
 		pconf = core_padconf_array_essential_am572x_idk;
 		pconf_sz = ARRAY_SIZE(core_padconf_array_essential_am572x_idk);
 		iod = iodelay_cfg_array_am572x_idk;
@@ -995,7 +997,8 @@ int board_eth_init(bd_t *bis)
 	writel(ctrl_val, (*ctrl)->control_core_control_io1);
 
 	/* The phy address for the AM57xx IDK are different than x15 */
-	if (board_is_am572x_idk() || board_is_am571x_idk()) {
+	if (board_is_am572x_idk() || board_is_am571x_idk() ||
+	    board_is_am574x_idk()) {
 		cpsw_data.slave_data[0].phy_addr = 0;
 		cpsw_data.slave_data[1].phy_addr = 1;
 	}
