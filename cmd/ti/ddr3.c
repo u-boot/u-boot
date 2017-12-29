@@ -1,8 +1,7 @@
 /*
- * Keystone2: DDR3 test commands
+ * EMIF: DDR3 test commands
  *
- * (C) Copyright 2012-2014
- *     Texas Instruments Incorporated, <www.ti.com>
+ * Copyright (C) 2012-2017 Texas Instruments Incorporated, <www.ti.com>
  *
  * SPDX-License-Identifier:     GPL-2.0+
  */

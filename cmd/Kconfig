@@ -1184,6 +1184,8 @@ config CMD_UUID
 
 endmenu
 
+source "cmd/ti/Kconfig"
+
 config CMD_BOOTSTAGE
 	bool "Enable the 'bootstage' command"
 	depends on BOOTSTAGE
