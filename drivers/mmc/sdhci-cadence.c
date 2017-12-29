@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <linux/bitfield.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
 #include <linux/sizes.h>
@@ -19,15 +20,14 @@
 #define   SDHCI_CDNS_HRS04_ACK			BIT(26)
 #define   SDHCI_CDNS_HRS04_RD			BIT(25)
 #define   SDHCI_CDNS_HRS04_WR			BIT(24)
-#define   SDHCI_CDNS_HRS04_RDATA_SHIFT		16
-#define   SDHCI_CDNS_HRS04_WDATA_SHIFT		8
-#define   SDHCI_CDNS_HRS04_ADDR_SHIFT		0
+#define   SDHCI_CDNS_HRS04_RDATA		GENMASK(23, 16)
+#define   SDHCI_CDNS_HRS04_WDATA		GENMASK(15, 8)
+#define   SDHCI_CDNS_HRS04_ADDR			GENMASK(5, 0)
 
 #define SDHCI_CDNS_HRS06		0x18		/* eMMC control */
 #define   SDHCI_CDNS_HRS06_TUNE_UP		BIT(15)
-#define   SDHCI_CDNS_HRS06_TUNE_SHIFT		8
-#define   SDHCI_CDNS_HRS06_TUNE_MASK		0x3f
-#define   SDHCI_CDNS_HRS06_MODE_MASK		0x7
+#define   SDHCI_CDNS_HRS06_TUNE			GENMASK(13, 8)
+#define   SDHCI_CDNS_HRS06_MODE			GENMASK(2, 0)
 #define   SDHCI_CDNS_HRS06_MODE_SD		0x0
 #define   SDHCI_CDNS_HRS06_MODE_MMC_SDR		0x2
 #define   SDHCI_CDNS_HRS06_MODE_MMC_DDR		0x3
@@ -84,8 +84,8 @@ static int sdhci_cdns_write_phy_reg(struct sdhci_cdns_plat *plat,
 	u32 tmp;
 	int ret;
 
-	tmp = (data << SDHCI_CDNS_HRS04_WDATA_SHIFT) |
-	      (addr << SDHCI_CDNS_HRS04_ADDR_SHIFT);
+	tmp = FIELD_PREP(SDHCI_CDNS_HRS04_WDATA, data) |
+	      FIELD_PREP(SDHCI_CDNS_HRS04_ADDR, addr);
 	writel(tmp, reg);
 
 	tmp |= SDHCI_CDNS_HRS04_WR;
@@ -152,8 +152,8 @@ static void sdhci_cdns_set_control_reg(struct sdhci_host *host)
 	}
 
 	tmp = readl(plat->hrs_addr + SDHCI_CDNS_HRS06);
-	tmp &= ~SDHCI_CDNS_HRS06_MODE_MASK;
-	tmp |= mode;
+	tmp &= ~SDHCI_CDNS_HRS06_MODE;
+	tmp |= FIELD_PREP(SDHCI_CDNS_HRS06_MODE, mode);
 	writel(tmp, plat->hrs_addr + SDHCI_CDNS_HRS06);
 }
 
