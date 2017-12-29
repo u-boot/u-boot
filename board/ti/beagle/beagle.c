@@ -103,6 +103,17 @@ int board_init(void)
 	return 0;
 }
 
+#if defined(CONFIG_SPL_OS_BOOT)
+int spl_start_uboot(void)
+{
+	/* break into full u-boot on 'c' */
+	if (serial_tstc() && serial_getc() == 'c')
+		return 1;
+
+	return 0;
+}
+#endif /* CONFIG_SPL_OS_BOOT */
+
 /*
  * Routine: get_board_revision
  * Description: Detect if we are running on a Beagle revision Ax/Bx,
