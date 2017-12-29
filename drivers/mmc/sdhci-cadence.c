@@ -190,6 +190,10 @@ static int sdhci_cdns_probe(struct udevice *dev)
 	host->ops = &sdhci_cdns_ops;
 	host->quirks |= SDHCI_QUIRK_WAIT_SEND_CMD;
 
+	ret = mmc_of_parse(dev, &plat->cfg);
+	if (ret)
+		return ret;
+
 	ret = sdhci_cdns_phy_init(plat, gd->fdt_blob, dev_of_offset(dev));
 	if (ret)
 		return ret;
