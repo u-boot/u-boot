@@ -664,12 +664,27 @@ struct emif_reg_struct {
 	u32 emif_prio_class_serv_map;
 	u32 emif_connect_id_serv_1_map;
 	u32 emif_connect_id_serv_2_map;
-	u32 padding8[5];
+	u32 padding8;
+	u32 emif_ecc_ctrl_reg;
+	u32 emif_ecc_address_range_1;
+	u32 emif_ecc_address_range_2;
+	u32 padding8_1;
 	u32 emif_rd_wr_exec_thresh;
 	u32 emif_cos_config;
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_ARCH_KEYSTONE)
+	u32 padding9[2];
+	u32 emif_1b_ecc_err_cnt;
+	u32 emif_1b_ecc_err_thrush;
+	u32 emif_1b_ecc_err_dist_1;
+	u32 emif_1b_ecc_err_addr_log;
+	u32 emif_2b_ecc_err_addr_log;
+	u32 emif_ddr_phy_status[28];
+	u32 padding10[19];
+#else
 	u32 padding9[6];
 	u32 emif_ddr_phy_status[28];
 	u32 padding10[20];
+#endif
 	u32 emif_ddr_ext_phy_ctrl_1;
 	u32 emif_ddr_ext_phy_ctrl_1_shdw;
 	u32 emif_ddr_ext_phy_ctrl_2;
