@@ -72,8 +72,6 @@
  * Enable CONFIG_USB_MUSB_HCD for Host functionalities MSC, keyboard
  * Enable CONFIG_USB_MUSB_UDC for Device functionalities.
  */
-#define CONFIG_USB_AM35X		1
-#define CONFIG_USB_MUSB_HCD			1
 
 #ifdef CONFIG_USB_AM35X
 

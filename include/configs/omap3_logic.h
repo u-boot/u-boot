@@ -49,8 +49,6 @@
 
 /* Hardware drivers */
 
-#define CONFIG_USB_OMAP3
-
 /* I2C */
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* EEPROM AT24C64      */
 

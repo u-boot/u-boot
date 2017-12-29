@@ -1,0 +1,29 @@
+#
+# (C) Copyright 2017
+# Adam Ford, Logic PD, aford173@gmail.com
+#
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
+comment "Legacy MUSB Support"
+
+config USB_MUSB_HCD
+	bool "Legacy MUSB Host Controller"
+
+config USB_MUSB_UDC
+	bool "Legacy USB Device Controller"
+
+config USB_DAVINCI
+	bool "Legacy MUSB DaVinci"
+	
+config USB_OMAP3
+	bool "Legacy MUSB OMAP3 / OMAP4"
+	depends on ARCH_OMAP2PLUS
+
+config USB_DA8XX
+	bool "Legacy MUSB DA8xx/OMAP-L1x"
+	depends on ARCH_DAVINCI
+
+config USB_AM35X
+	bool"Legacy MUSB AM35x"
+	depends on ARCH_OMAP2PLUS && !USB_OMAP3

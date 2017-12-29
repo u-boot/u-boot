@@ -15,8 +15,6 @@
 
 #include "tam3517-common.h"
 
-#undef CONFIG_USB_OMAP3
-
 /* Our console port is port3 */
 #undef CONFIG_CONS_INDEX
 #undef CONFIG_SYS_NS16550_COM1

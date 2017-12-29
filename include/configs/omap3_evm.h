@@ -74,7 +74,6 @@
 #endif /* CONFIG_NAND */
 
 /* MUSB */
-#define CONFIG_USB_OMAP3
 
 /* USB EHCI */
 #define CONFIG_SYS_USB_FAT_BOOT_PARTITION  1

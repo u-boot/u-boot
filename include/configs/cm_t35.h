@@ -72,8 +72,6 @@
 					115200}
 
 /* USB */
-#define CONFIG_USB_OMAP3
-#define CONFIG_USB_MUSB_UDC
 #define CONFIG_TWL4030_USB
 
 /* USB device configuration */
