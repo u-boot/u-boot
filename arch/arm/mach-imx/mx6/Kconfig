@@ -14,28 +14,34 @@ config MX6
 	imply CMD_FUSE
 
 config MX6D
+	select HAS_CAAM
 	select MX6_SMP
 	bool
 
 config MX6DL
+	select HAS_CAAM
 	select MX6_SMP
 	bool
 
 config MX6Q
+	select HAS_CAAM
 	select MX6_SMP
 	bool
 
 config MX6QDL
+	select HAS_CAAM
 	select MX6_SMP
 	bool
 
 config MX6S
+	select HAS_CAAM
 	bool
 
 config MX6SL
 	bool
 
 config MX6SX
+	select HAS_CAAM
 	select ROM_UNIFIED_SECTIONS
 	bool
 
@@ -44,6 +50,7 @@ config MX6SLL
 	bool
 
 config MX6UL
+	select HAS_CAAM
 	select SYS_L2CACHE_OFF
 	select ROM_UNIFIED_SECTIONS
 	bool
@@ -66,8 +73,9 @@ config MX6UL_OPOS6UL
 	select SUPPORT_SPL
 
 config MX6ULL
+	select SYS_L2CACHE_OFF
+	select ROM_UNIFIED_SECTIONS
 	bool
-	select MX6UL
 
 config MX6_DDRCAL
 	bool "Include dynamic DDR calibration routines"
@@ -244,6 +252,7 @@ config TARGET_MX6SABRESD
 
 config TARGET_MX6SLEVK
 	bool "mx6slevk"
+	select MX6SL
 	select SUPPORT_SPL
 
 config TARGET_MX6SLLEVK
@@ -255,6 +264,7 @@ config TARGET_MX6SLLEVK
 
 config TARGET_MX6SXSABRESD
 	bool "mx6sxsabresd"
+	select BOARD_LATE_INIT
 	select MX6SX
 	select SUPPORT_SPL
 	select DM
@@ -395,6 +405,7 @@ config TARGET_WANDBOARD
 
 config TARGET_WARP
 	bool "WaRP"
+	select MX6SL
 	select BOARD_LATE_INIT
 
 config TARGET_XPRESS

@@ -23,10 +23,18 @@
 		serial1 = &uart2;
 	};
 
+	tzic: tz-interrupt-controller@fffc000 {
+		compatible = "fsl,imx53-tzic", "fsl,tzic";
+		interrupt-controller;
+		#interrupt-cells = <1>;
+		reg = <0x0fffc000 0x4000>;
+	};
+
 	soc {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "simple-bus";
+		interrupt-parent = <&tzic>;
 		ranges;
 
 		aips@50000000 { /* AIPS1 */

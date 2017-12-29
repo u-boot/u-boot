@@ -1,3 +1,6 @@
+config HAS_CAAM
+	bool
+
 config IMX_CONFIG
 	string
 
@@ -28,7 +31,7 @@ config USE_IMXIMG_PLUGIN
 config SECURE_BOOT
 	bool "Support i.MX HAB features"
 	depends on ARCH_MX7 || ARCH_MX6 || ARCH_MX5
-	select FSL_CAAM
+	select FSL_CAAM if HAS_CAAM
 	imply CMD_DEKBLOB
 	help
 	  This option enables the support for secure boot (HAB).
@@ -61,3 +64,11 @@ config CMD_HDMIDETECT
 	help
 	  This enables the 'hdmidet' command which detects if an HDMI monitor
 	  is connected.
+
+config NXP_BOARD_REVISION
+	bool "Read NXP board revision from fuses"
+	depends on ARCH_MX6 || ARCH_MX7
+	help
+	  NXP boards based on i.MX6/7 contain the board revision information
+	  stored in the fuses. Select this option if you want to be able to
+	  retrieve the board revision information.
