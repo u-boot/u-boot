@@ -604,6 +604,34 @@
 
 #define EMIF_EXT_PHY_CTRL_TIMING_REG	0x5
 
+/* EMIF ECC CTRL reg */
+#define EMIF_ECC_CTRL_REG_ECC_EN_SHIFT			31
+#define EMIF_ECC_CTRL_REG_ECC_EN_MASK			(1 << 31)
+#define EMIF_ECC_CTRL_REG_ECC_ADDR_RGN_PROT_SHIFT	30
+#define EMIF_ECC_CTRL_REG_ECC_ADDR_RGN_PROT_MASK	(1 << 30)
+#define EMIF_ECC_CTRL_REG_ECC_VERIFY_DIS_SHIFT		29
+#define EMIF_ECC_CTRL_REG_ECC_VERIFY_DIS_MASK		(1 << 29)
+#define EMIF_ECC_REG_RMW_EN_SHIFT			28
+#define EMIF_ECC_REG_RMW_EN_MASK			(1 << 28)
+#define EMIF_ECC_REG_ECC_ADDR_RGN_2_EN_SHIFT		1
+#define EMIF_ECC_REG_ECC_ADDR_RGN_2_EN_MASK		(1 << 1)
+#define EMIF_ECC_REG_ECC_ADDR_RGN_1_EN_SHIFT		0
+#define EMIF_ECC_REG_ECC_ADDR_RGN_1_EN_MASK		(1 << 0)
+
+/* EMIF ECC ADDRESS RANGE */
+#define EMIF_ECC_REG_ECC_END_ADDR_SHIFT			16
+#define EMIF_ECC_REG_ECC_END_ADDR_MASK			(0xffff << 16)
+#define EMIF_ECC_REG_ECC_START_ADDR_SHIFT		0
+#define EMIF_ECC_REG_ECC_START_ADDR_MASK		(0xffff << 0)
+
+/* EMIF_SYSTEM_OCP_INTERRUPT_RAW_STATUS */
+#define EMIF_INT_ONEBIT_ECC_ERR_SYS_SHIFT		5
+#define EMIF_INT_ONEBIT_ECC_ERR_SYS_MASK		(1 << 5)
+#define EMIF_INT_TWOBIT_ECC_ERR_SYS_SHIFT		4
+#define EMIF_INT_TWOBIT_ECC_ERR_SYS_MASK		(1 << 4)
+#define EMIF_INT_WR_ECC_ERR_SYS_SHIFT			3
+#define EMIF_INT_WR_ECC_ERR_SYS_MASK			(1 << 3)
+
 /* Reg mapping structure */
 struct emif_reg_struct {
 	u32 emif_mod_id_rev;
@@ -1205,6 +1233,9 @@ struct emif_regs {
 	u32 emif_connect_id_serv_1_map;
 	u32 emif_connect_id_serv_2_map;
 	u32 emif_cos_config;
+	u32 emif_ecc_ctrl_reg;
+	u32 emif_ecc_address_range_1;
+	u32 emif_ecc_address_range_2;
 };
 
 struct lpddr2_mr_regs {
