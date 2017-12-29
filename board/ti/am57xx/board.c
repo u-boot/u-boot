@@ -731,11 +731,16 @@ void recalibrate_iodelay(void)
 	int pconf_sz, iod_sz, delta_iod_sz = 0;
 	int ret;
 
-	if (board_is_am572x_idk() || board_is_am574x_idk()) {
+	if (board_is_am572x_idk()) {
 		pconf = core_padconf_array_essential_am572x_idk;
 		pconf_sz = ARRAY_SIZE(core_padconf_array_essential_am572x_idk);
 		iod = iodelay_cfg_array_am572x_idk;
 		iod_sz = ARRAY_SIZE(iodelay_cfg_array_am572x_idk);
+	} else if (board_is_am574x_idk()) {
+		pconf = core_padconf_array_essential_am574x_idk;
+		pconf_sz = ARRAY_SIZE(core_padconf_array_essential_am574x_idk);
+		iod = iodelay_cfg_array_am574x_idk;
+		iod_sz = ARRAY_SIZE(iodelay_cfg_array_am574x_idk);
 	} else if (board_is_am571x_idk()) {
 		pconf = core_padconf_array_essential_am571x_idk;
 		pconf_sz = ARRAY_SIZE(core_padconf_array_essential_am571x_idk);
