@@ -78,6 +78,7 @@ typedef volatile unsigned int   *dv_reg_p;
 #define KS2_DDR3A_EMIF_CTRL_BASE	0x21010000
 #define KS2_DDR3A_EMIF_DATA_BASE	0x80000000
 #define KS2_DDR3A_DDRPHYC		0x02329000
+#define EMIF1_BASE			KS2_DDR3A_EMIF_CTRL_BASE
 
 #define KS2_DDR3_MIDR_OFFSET            0x00
 #define KS2_DDR3_STATUS_OFFSET          0x04

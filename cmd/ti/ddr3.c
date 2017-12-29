@@ -7,12 +7,15 @@
  */
 
 #include <asm/arch/hardware.h>
-#include <asm/arch/ddr3.h>
+#include <asm/cache.h>
+#include <asm/emif.h>
 #include <common.h>
 #include <command.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_ARCH_KEYSTONE
+#include <asm/arch/ddr3.h>
 #define DDR_MIN_ADDR		CONFIG_SYS_SDRAM_BASE
 #define STACKSIZE		(512 << 10)     /* 512 KiB */
 
@@ -21,6 +24,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define ECC_END_ADDR1		(((gd->start_addr_sp - DDR_REMAP_ADDR - \
 				 STACKSIZE) >> 17) - 2)
+#endif
 
 #define DDR_TEST_BURST_SIZE	1024
 
@@ -153,32 +157,121 @@ static int ddr_memory_compare(u32 address1, u32 address2, u32 size)
 	return 0;
 }
 
-static int ddr_memory_ecc_err(u32 base, u32 address, u32 ecc_err)
+static void ddr_check_ecc_status(void)
 {
-	u32 value1, value2, value3;
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)EMIF1_BASE;
+	u32 err_1b = readl(&emif->emif_1b_ecc_err_cnt);
+	u32 int_status = readl(&emif->emif_irqstatus_raw_sys);
+	int ecc_test = 0;
+	char *env;
 
-	puts("Disabling DDR ECC ...\n");
-	ddr3_disable_ecc(base);
+	env = env_get("ecc_test");
+	if (env)
+		ecc_test = simple_strtol(env, NULL, 0);
 
-	value1 = __raw_readl(address);
-	value2 = value1 ^ ecc_err;
-	__raw_writel(value2, address);
+	puts("ECC test Status:\n");
+	if (int_status & EMIF_INT_WR_ECC_ERR_SYS_MASK)
+		puts("\tECC test: DDR ECC write error interrupted\n");
 
-	value3 = __raw_readl(address);
-	printf("ECC err test, addr 0x%x, read data 0x%x, wrote data 0x%x, err pattern: 0x%x, read after write data 0x%x\n",
-	       address, value1, value2, ecc_err, value3);
+	if (int_status & EMIF_INT_TWOBIT_ECC_ERR_SYS_MASK)
+		if (!ecc_test)
+			panic("\tECC test: DDR ECC 2-bit error interrupted");
 
-	__raw_writel(ECC_START_ADDR1 | (ECC_END_ADDR1 << 16),
-		     base + KS2_DDR3_ECC_ADDR_RANGE1_OFFSET);
+	if (int_status & EMIF_INT_ONEBIT_ECC_ERR_SYS_MASK)
+		puts("\tECC test: DDR ECC 1-bit error interrupted\n");
 
-	puts("Enabling DDR ECC ...\n");
-	ddr3_enable_ecc(base, 1);
+	if (err_1b)
+		printf("\tECC test: 1-bit ECC err count: 0x%x\n", err_1b);
+}
 
-	value1 = __raw_readl(address);
-	printf("ECC err test, addr 0x%x, read data 0x%x\n", address, value1);
+static int ddr_memory_ecc_err(u32 addr, u32 ecc_err)
+{
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)EMIF1_BASE;
+	u32 ecc_ctrl = readl(&emif->emif_ecc_ctrl_reg);
+	u32 val1, val2, val3;
 
-	ddr3_check_ecc_int(base);
+	debug("Disabling D-Cache before ECC test\n");
+	dcache_disable();
+	invalidate_dcache_all();
+
+	puts("Testing DDR ECC:\n");
+	puts("\tECC test: Disabling DDR ECC ...\n");
+	writel(0, &emif->emif_ecc_ctrl_reg);
+
+	val1 = readl(addr);
+	val2 = val1 ^ ecc_err;
+	writel(val2, addr);
+
+	val3 = readl(addr);
+	printf("\tECC test: addr 0x%x, read data 0x%x, written data 0x%x, err pattern: 0x%x, read after write data 0x%x\n",
+	       addr, val1, val2, ecc_err, val3);
+
+	puts("\tECC test: Enabling DDR ECC ...\n");
+#ifdef CONFIG_ARCH_KEYSTONE
+	ecc_ctrl = ECC_START_ADDR1 | (ECC_END_ADDR1 << 16);
+	writel(ecc_ctrl, EMIF1_BASE + KS2_DDR3_ECC_ADDR_RANGE1_OFFSET);
+	ddr3_enable_ecc(EMIF1_BASE, 1);
+#else
+	writel(ecc_ctrl, &emif->emif_ecc_ctrl_reg);
+#endif
+
+	val1 = readl(addr);
+	printf("\tECC test: addr 0x%x, read data 0x%x\n", addr, val1);
+
+	ddr_check_ecc_status();
+
+	debug("Enabling D-cache back after ECC test\n");
+	enable_caches();
+
 	return 0;
+}
+
+static int is_addr_valid(u32 addr)
+{
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)EMIF1_BASE;
+	u32 start_addr, end_addr, range, ecc_ctrl;
+
+#ifdef CONFIG_ARCH_KEYSTONE
+	ecc_ctrl = EMIF_ECC_REG_ECC_ADDR_RGN_1_EN_MASK;
+	range = ECC_START_ADDR1 | (ECC_END_ADDR1 << 16);
+#else
+	ecc_ctrl = readl(&emif->emif_ecc_ctrl_reg);
+	range = readl(&emif->emif_ecc_address_range_1);
+#endif
+
+	/* Check in ecc address range 1 */
+	if (ecc_ctrl & EMIF_ECC_REG_ECC_ADDR_RGN_1_EN_MASK) {
+		start_addr = ((range & EMIF_ECC_REG_ECC_START_ADDR_MASK) << 16)
+				+ CONFIG_SYS_SDRAM_BASE;
+		end_addr = start_addr + (range & EMIF_ECC_REG_ECC_END_ADDR_MASK)
+				+ 0xFFFF;
+		if ((addr >= start_addr) && (addr <= end_addr))
+			/* addr within ecc address range 1 */
+			return 1;
+	}
+
+	/* Check in ecc address range 2 */
+	if (ecc_ctrl & EMIF_ECC_REG_ECC_ADDR_RGN_2_EN_MASK) {
+		range = readl(&emif->emif_ecc_address_range_2);
+		start_addr = ((range & EMIF_ECC_REG_ECC_START_ADDR_MASK) << 16)
+				+ CONFIG_SYS_SDRAM_BASE;
+		end_addr = start_addr + (range & EMIF_ECC_REG_ECC_END_ADDR_MASK)
+				+ 0xFFFF;
+		if ((addr >= start_addr) && (addr <= end_addr))
+			/* addr within ecc address range 2 */
+			return 1;
+	}
+
+	return 0;
+}
+
+static int is_ecc_enabled(void)
+{
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)EMIF1_BASE;
+	u32 ecc_ctrl = readl(&emif->emif_ecc_ctrl_reg);
+
+	return (ecc_ctrl & EMIF_ECC_CTRL_REG_ECC_EN_MASK) &&
+		(ecc_ctrl & EMIF_ECC_REG_RMW_EN_MASK);
 }
 
 static int do_ddr_test(cmd_tbl_t *cmdtp,
@@ -187,23 +280,20 @@ static int do_ddr_test(cmd_tbl_t *cmdtp,
 	u32 start_addr, end_addr, size, ecc_err;
 
 	if ((argc == 4) && (strncmp(argv[1], "ecc_err", 8) == 0)) {
-		if (!ddr3_ecc_support_rmw(KS2_DDR3A_EMIF_CTRL_BASE)) {
-			puts("ECC RMW isn't supported for this SOC\n");
-			return 1;
+		if (!is_ecc_enabled()) {
+			puts("ECC not enabled. Please Enable ECC any try again\n");
+			return CMD_RET_FAILURE;
 		}
 
 		start_addr = simple_strtoul(argv[2], NULL, 16);
 		ecc_err = simple_strtoul(argv[3], NULL, 16);
 
-		if ((start_addr < CONFIG_SYS_SDRAM_BASE) ||
-		    (start_addr > (CONFIG_SYS_SDRAM_BASE +
-		     CONFIG_MAX_RAM_BANK_SIZE - 1))) {
-			puts("Invalid address!\n");
-			return cmd_usage(cmdtp);
+		if (!is_addr_valid(start_addr)) {
+			puts("Invalid address. Please enter ECC supported address!\n");
+			return CMD_RET_FAILURE;
 		}
 
-		ddr_memory_ecc_err(KS2_DDR3A_EMIF_CTRL_BASE,
-				   start_addr, ecc_err);
+		ddr_memory_ecc_err(start_addr, ecc_err);
 		return 0;
 	}
 
@@ -216,10 +306,10 @@ static int do_ddr_test(cmd_tbl_t *cmdtp,
 
 	if ((start_addr < CONFIG_SYS_SDRAM_BASE) ||
 	    (start_addr > (CONFIG_SYS_SDRAM_BASE +
-	     CONFIG_MAX_RAM_BANK_SIZE - 1)) ||
+	     get_effective_memsize() - 1)) ||
 	    (end_addr < CONFIG_SYS_SDRAM_BASE) ||
 	    (end_addr > (CONFIG_SYS_SDRAM_BASE +
-	     CONFIG_MAX_RAM_BANK_SIZE - 1)) || (start_addr >= end_addr)) {
+	     get_effective_memsize() - 1)) || (start_addr >= end_addr)) {
 		puts("Invalid start or end address!\n");
 		return cmd_usage(cmdtp);
 	}

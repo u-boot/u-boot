@@ -17,7 +17,9 @@
 #include <asm/io.h>
 
 /* Base address */
+#ifndef EMIF1_BASE
 #define EMIF1_BASE				0x4c000000
+#endif
 #define EMIF2_BASE				0x4d000000
 
 #define EMIF_4D					0x4
