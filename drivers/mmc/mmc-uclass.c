@@ -140,10 +140,8 @@ int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
 		cfg->host_caps |= MMC_MODE_1BIT;
 		break;
 	default:
-		debug("warning: %s invalid bus-width property. using 1-bit\n",
-		      dev_read_name(dev));
-		cfg->host_caps |= MMC_MODE_1BIT;
-		break;
+		dev_err(dev, "Invalid \"bus-width\" value %u!\n", val);
+		return -EINVAL;
 	}
 
 	/* f_max is obtained from the optional "max-frequency" property */
