@@ -43,6 +43,7 @@
 #define board_is_am572x_evm_reva3()	\
 				(board_ti_is("AM572PM_") && \
 				 !strncmp("A.30", board_ti_get_rev(), 3))
+#define board_is_am574x_idk()	board_ti_is("AM574IDK")
 #define board_is_am572x_idk()	board_ti_is("AM572IDK")
 #define board_is_am571x_idk()	board_ti_is("AM571IDK")
 
@@ -481,6 +482,8 @@ void do_board_detect(void)
 		bname = "BeagleBoard X15";
 	else if (board_is_am572x_evm())
 		bname = "AM572x EVM";
+	else if (board_is_am574x_idk())
+		bname = "AM574x IDK";
 	else if (board_is_am572x_idk())
 		bname = "AM572x IDK";
 	else if (board_is_am571x_idk())
@@ -513,6 +516,8 @@ static void setup_board_eeprom_env(void)
 			name = "am57xx_evm_reva3";
 		else
 			name = "am57xx_evm";
+	} else if (board_is_am574x_idk()) {
+		name = "am574x_idk";
 	} else if (board_is_am572x_idk()) {
 		name = "am572x_idk";
 	} else if (board_is_am571x_idk()) {
