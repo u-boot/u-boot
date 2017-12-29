@@ -1128,6 +1128,8 @@ int board_fit_config_name_match(const char *name)
 		return 0;
 	} else if (board_is_am572x_idk() && !strcmp(name, "am572x-idk")) {
 		return 0;
+	} else if (board_is_am574x_idk() && !strcmp(name, "am574x-idk")) {
+		return 0;
 	} else if (board_is_am571x_idk() && !strcmp(name, "am571x-idk")) {
 		return 0;
 	}
