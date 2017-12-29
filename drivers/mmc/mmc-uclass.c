@@ -146,7 +146,8 @@ int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
 		break;
 	}
 
-	cfg->f_max = dev_read_u32_default(dev, "max-frequency", 52000000);
+	/* f_max is obtained from the optional "max-frequency" property */
+	dev_read_u32(dev, "max-frequency", &cfg->f_max);
 
 	if (dev_read_bool(dev, "cap-sd-highspeed"))
 		cfg->host_caps |= MMC_CAP(SD_HS);
