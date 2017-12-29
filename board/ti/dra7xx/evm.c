@@ -285,6 +285,8 @@ void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
 			break;
 		}
 		break;
+	case DRA762_ABZ_ES1_0:
+	case DRA762_ACD_ES1_0:
 	case DRA762_ES1_0:
 		if (emif_nr == 1)
 			*regs = &emif_1_regs_ddr3_666_mhz_1cs_dra76;
@@ -347,6 +349,8 @@ void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 	ram_size = board_ti_get_emif_size();
 
 	switch (omap_revision()) {
+	case DRA762_ABZ_ES1_0:
+	case DRA762_ACD_ES1_0:
 	case DRA762_ES1_0:
 	case DRA752_ES1_0:
 	case DRA752_ES1_1:
@@ -655,8 +659,10 @@ int board_late_init(void)
 			name = "dra71x";
 		else
 			name = "dra72x";
-	} else if (is_dra76x()) {
-		name = "dra76x";
+	} else if (is_dra76x_abz()) {
+		name = "dra76x_abz";
+	} else if (is_dra76x_acd()) {
+		name = "dra76x_acd";
 	} else {
 		name = "dra7xx";
 	}
@@ -793,6 +799,7 @@ void recalibrate_iodelay(void)
 		iodelay = dra742_es1_1_iodelay_cfg_array;
 		niodelays = ARRAY_SIZE(dra742_es1_1_iodelay_cfg_array);
 		break;
+	case DRA762_ACD_ES1_0:
 	case DRA762_ES1_0:
 		pads = dra76x_core_padconf_array;
 		npads = ARRAY_SIZE(dra76x_core_padconf_array);
@@ -801,6 +808,7 @@ void recalibrate_iodelay(void)
 		break;
 	default:
 	case DRA752_ES2_0:
+	case DRA762_ABZ_ES1_0:
 		pads = dra74x_core_padconf_array;
 		npads = ARRAY_SIZE(dra74x_core_padconf_array);
 		iodelay = dra742_es2_0_iodelay_cfg_array;
@@ -1130,9 +1138,10 @@ int board_fit_config_name_match(const char *name)
 		} else if (!strcmp(name, "dra72-evm")) {
 			return 0;
 		}
-	} else if (is_dra76x() && !strcmp(name, "dra76-evm")) {
+	} else if (is_dra76x_acd() && !strcmp(name, "dra76-evm")) {
 		return 0;
-	} else if (!is_dra72x() && !is_dra76x() && !strcmp(name, "dra7-evm")) {
+	} else if (!is_dra72x() && !is_dra76x_acd() &&
+		   !strcmp(name, "dra7-evm")) {
 		return 0;
 	}
 

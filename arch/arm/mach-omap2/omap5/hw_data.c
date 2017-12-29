@@ -746,6 +746,8 @@ void __weak hw_data_init(void)
 	*ctrl = &omap5_ctrl;
 	break;
 
+	case DRA762_ABZ_ES1_0:
+	case DRA762_ACD_ES1_0:
 	case DRA762_ES1_0:
 	*prcm = &dra7xx_prcm;
 	*dplls_data = &dra76x_dplls;
@@ -792,6 +794,8 @@ void get_ioregs(const struct ctrl_ioregs **regs)
 	case DRA752_ES1_1:
 	case DRA752_ES2_0:
 	case DRA762_ES1_0:
+	case DRA762_ACD_ES1_0:
+	case DRA762_ABZ_ES1_0:
 		*regs = &ioregs_dra7xx_es1;
 		break;
 	case DRA722_ES1_0:

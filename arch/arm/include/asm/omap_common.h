@@ -743,6 +743,18 @@ static inline u8 is_dra76x(void)
 	extern u32 *const omap_si_rev;
 	return (*omap_si_rev & 0xFFF00000) == DRA76X;
 }
+
+static inline u8 is_dra76x_abz(void)
+{
+	extern u32 *const omap_si_rev;
+	return (*omap_si_rev & 0xF) == 2;
+}
+
+static inline u8 is_dra76x_acd(void)
+{
+	extern u32 *const omap_si_rev;
+	return (*omap_si_rev & 0xF) == 3;
+}
 #endif
 
 /*
@@ -778,6 +790,8 @@ static inline u8 is_dra76x(void)
 #define DRA722_ES2_0	0x07220200
 #define DRA722_ES2_1	0x07220210
 
+#define DRA762_ABZ_ES1_0	0x07620102
+#define DRA762_ACD_ES1_0	0x07620103
 /*
  * silicon device type
  * Moving to common from cpu.h, since it is shared by various omap devices

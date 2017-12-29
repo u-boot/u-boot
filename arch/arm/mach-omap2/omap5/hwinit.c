@@ -389,6 +389,27 @@ void init_omap_revision(void)
 	init_cpu_configuration();
 }
 
+void init_package_revision(void)
+{
+	unsigned int die_id[4] = { 0 };
+	u8 package;
+
+	omap_die_id(die_id);
+	package = (die_id[2] >> 16) & 0x3;
+
+	if (is_dra76x()) {
+		switch (package) {
+		case DRA762_ABZ_PACKAGE:
+			*omap_si_rev = DRA762_ABZ_ES1_0;
+			break;
+		case DRA762_ACD_PACKAGE:
+		default:
+			*omap_si_rev = DRA762_ACD_ES1_0;
+			break;
+		}
+	}
+}
+
 void omap_die_id(unsigned int *die_id)
 {
 	die_id[0] = readl((*ctrl)->control_std_fuse_die_id_0);
