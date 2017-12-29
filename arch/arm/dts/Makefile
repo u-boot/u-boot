@@ -446,6 +446,11 @@ dtb-$(CONFIG_TARGET_OMAP3_EVM) += \
 	omap3-evm-37xx.dtb \
 	omap3-evm.dtb
 
+dtb-$(CONFIG_TARGET_OMAP3_BEAGLE) += \
+	omap3-beagle-xm-ab.dtb \
+	omap3-beagle-xm.dtb \
+	omap3-beagle.dtb
+
 dtb-$(CONFIG_TARGET_SAMA5D2_PTC_EK) += \
 	at91-sama5d2_ptc_ek.dtb
 
