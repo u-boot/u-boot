@@ -46,6 +46,16 @@ static inline bool dev_of_valid(struct udevice *dev)
 
 #ifndef CONFIG_DM_DEV_READ_INLINE
 /**
+ * dev_read_u32() - read a 32-bit integer from a device's DT property
+ *
+ * @dev:	device to read DT property from
+ * @propname:	name of the property to read from
+ * @outp:	place to put value (if found)
+ * @return 0 if OK, -ve on error
+ */
+int dev_read_u32(struct udevice *dev, const char *propname, u32 *outp);
+
+/**
  * dev_read_u32_default() - read a 32-bit integer from a device's DT property
  *
  * @dev:	device to read DT property from
@@ -411,6 +421,12 @@ int dev_read_resource_byname(struct udevice *dev, const char *name,
 			     struct resource *res);
 
 #else /* CONFIG_DM_DEV_READ_INLINE is enabled */
+
+static inline int dev_read_u32(struct udevice *dev,
+			       const char *propname, u32 *outp)
+{
+	return ofnode_read_u32(dev_ofnode(dev), propname, outp);
+}
 
 static inline int dev_read_u32_default(struct udevice *dev,
 				       const char *propname, int def)
