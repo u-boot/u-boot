@@ -80,7 +80,6 @@
 /*--------------------------------------------------
  * USB Configuration
  */
-#define CONFIG_USB_MUSB_PIO_ONLY
 
 /*-----------------------------------------------------------------------
  * File System Configuration

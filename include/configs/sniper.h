@@ -113,8 +113,6 @@
  * USB gadget
  */
 
-#define CONFIG_USB_MUSB_PIO_ONLY
-#define CONFIG_USB_MUSB_OMAP2PLUS
 #define CONFIG_TWL4030_USB
 
 /*
