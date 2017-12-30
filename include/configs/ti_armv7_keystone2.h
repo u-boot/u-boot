@@ -78,7 +78,6 @@
 #endif
 
 /* SPI Configuration */
-#define CONFIG_DAVINCI_SPI
 #define CONFIG_SYS_SPI_CLK		ks_clk_get_rate(KS2_CLK1_6)
 #define CONFIG_SF_DEFAULT_SPEED		30000000
 #define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED

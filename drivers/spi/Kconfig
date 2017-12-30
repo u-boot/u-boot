@@ -217,6 +217,12 @@ config ATCSPI200_SPI
 	  used to access the SPI flash on AE3XX and AE250 platforms embedding
 	  this Andestech IP core.
 
+config DAVINCI_SPI
+	bool "Davinci & Keystone SPI driver"
+	depends on ARCH_DAVINCI || ARCH_KEYSTONE
+	help
+	  Enable the Davinci SPI driver
+
 config TI_QSPI
 	bool "TI QSPI driver"
 	help
