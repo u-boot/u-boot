@@ -44,4 +44,5 @@ def GetMaintainer(fname, verbose=False):
         return []
 
     stdout = command.Output(get_maintainer, '--norolestats', fname)
-    return stdout.splitlines()
+    lines = stdout.splitlines()
+    return [ x.replace('"', '') for x in lines ]
