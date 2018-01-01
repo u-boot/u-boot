@@ -407,7 +407,7 @@ int fs_read(const char *filename, ulong addr, loff_t offset, loff_t len,
 
 	/* If we requested a specific number of bytes, check we got it */
 	if (ret == 0 && len && *actread != len)
-		printf("** %s shorter than offset + len **\n", filename);
+		debug("** %s shorter than offset + len **\n", filename);
 	fs_close();
 
 	return ret;
