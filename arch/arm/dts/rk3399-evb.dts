@@ -17,6 +17,8 @@
 
 	chosen {
 		stdout-path = &uart2;
+		u-boot,spl-boot-order = \
+			&sdhci, &sdmmc;
 	};
 
 	vdd_center: vdd-center {
@@ -154,6 +156,7 @@
 };
 
 &sdmmc {
+	u-boot,dm-pre-reloc;
 	bus-width = <4>;
 	status = "okay";
 };
