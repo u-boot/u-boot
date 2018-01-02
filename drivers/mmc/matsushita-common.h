@@ -96,8 +96,8 @@
 #define   MATSU_SD_DMA_RST_RD		BIT(9)
 #define   MATSU_SD_DMA_RST_WR		BIT(8)
 #define MATSU_SD_DMA_INFO1		0x420
-#define   MATSU_SD_DMA_INFO1_END_RD2	BIT(20)	/* DMA from device is complete*/
-#define   MATSU_SD_DMA_INFO1_END_RD	BIT(17)	/* Don't use!  Hardware bug */
+#define   MATSU_SD_DMA_INFO1_END_RD2	BIT(20)	/* DMA from device is complete (uniphier) */
+#define   MATSU_SD_DMA_INFO1_END_RD	BIT(17)	/* DMA from device is complete (renesas) */
 #define   MATSU_SD_DMA_INFO1_END_WR	BIT(16)	/* DMA to device is complete */
 #define MATSU_SD_DMA_INFO1_MASK		0x424
 #define MATSU_SD_DMA_INFO2		0x428

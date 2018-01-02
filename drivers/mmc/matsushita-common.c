@@ -339,7 +339,15 @@ static int matsu_sd_dma_xfer(struct udevice *dev, struct mmc_data *data)
 	if (data->flags & MMC_DATA_READ) {
 		buf = data->dest;
 		dir = DMA_FROM_DEVICE;
-		poll_flag = MATSU_SD_DMA_INFO1_END_RD2;
+		/*
+		 * The DMA READ completion flag position differs on Socionext
+		 * and Renesas SoCs. It is bit 20 on Socionext SoCs and using
+		 * bit 17 is a hardware bug and forbidden. It is bit 17 on
+		 * Renesas SoCs and bit 20 does not work on them.
+		 */
+		poll_flag = (priv->caps & MATSU_SD_CAP_RCAR) ?
+			    MATSU_SD_DMA_INFO1_END_RD :
+			    MATSU_SD_DMA_INFO1_END_RD2;
 		tmp |= MATSU_SD_DMA_MODE_DIR_RD;
 	} else {
 		buf = (void *)data->src;
