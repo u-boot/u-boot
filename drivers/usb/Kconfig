@@ -57,6 +57,8 @@ source "drivers/usb/musb-new/Kconfig"
 
 source "drivers/usb/emul/Kconfig"
 
+source "drivers/usb/phy/Kconfig"
+
 source "drivers/usb/ulpi/Kconfig"
 
 comment "USB peripherals"

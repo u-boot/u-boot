@@ -34,9 +34,6 @@
  * Hardware drivers
  */
 
-/* USB */
-#define CONFIG_TWL4030_USB		1
-
 /* USB device configuration */
 #define CONFIG_USB_DEVICE		1
 #define CONFIG_USB_TTY			1

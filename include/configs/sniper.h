@@ -110,12 +110,6 @@
 					  115200 }
 
 /*
- * USB gadget
- */
-
-#define CONFIG_TWL4030_USB
-
-/*
  * Environment
  */
 

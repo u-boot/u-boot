@@ -41,9 +41,6 @@
 #define GPIO_IGEP00X0_BOARD_DETECTION		28
 #define GPIO_IGEP00X0_REVISION_DETECTION	129
 
-/* USB */
-#define CONFIG_TWL4030_USB		1
-
 /* USB device configuration */
 #define CONFIG_USB_DEVICE		1
 #define CONFIG_USB_TTY			1

@@ -52,11 +52,6 @@
 /* I2C */
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* EEPROM AT24C64      */
 
-/* USB */
-
-/* TWL4030 */
-#define CONFIG_TWL4030_USB
-
 /* Board NAND Info. */
 #ifdef CONFIG_NAND
 #define CONFIG_SYS_NAND_ADDR		NAND_BASE /* physical address */
