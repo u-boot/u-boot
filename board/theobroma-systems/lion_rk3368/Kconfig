@@ -12,4 +12,10 @@ config SYS_CONFIG_NAME
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 
+config ENV_SIZE
+	default 0x2000
+
+config ENV_OFFSET
+	default 0x3c000 if ENV_IS_IN_SPI_FLASH
+
 endif
