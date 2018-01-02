@@ -517,10 +517,12 @@ static int imx6_pcie_init_phy(void)
 __weak int imx6_pcie_toggle_power(void)
 {
 #ifdef CONFIG_PCIE_IMX_POWER_GPIO
+	gpio_request(CONFIG_PCIE_IMX_POWER_GPIO, "pcie_power");
 	gpio_direction_output(CONFIG_PCIE_IMX_POWER_GPIO, 0);
 	mdelay(20);
 	gpio_set_value(CONFIG_PCIE_IMX_POWER_GPIO, 1);
 	mdelay(20);
+	gpio_free(CONFIG_PCIE_IMX_POWER_GPIO);
 #endif
 	return 0;
 }
@@ -556,10 +558,12 @@ __weak int imx6_pcie_toggle_reset(void)
 	 * state due to being previously used in U-Boot.
 	 */
 #ifdef CONFIG_PCIE_IMX_PERST_GPIO
+	gpio_request(CONFIG_PCIE_IMX_PERST_GPIO, "pcie_reset");
 	gpio_direction_output(CONFIG_PCIE_IMX_PERST_GPIO, 0);
 	mdelay(20);
 	gpio_set_value(CONFIG_PCIE_IMX_PERST_GPIO, 1);
 	mdelay(20);
+	gpio_free(CONFIG_PCIE_IMX_PERST_GPIO);
 #else
 	puts("WARNING: Make sure the PCIe #PERST line is connected!\n");
 #endif
