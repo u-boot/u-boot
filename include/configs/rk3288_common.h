@@ -58,7 +58,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 /* usb otg */
-#define CONFIG_ROCKCHIP_USB2_PHY
 
 /* usb mass storage */
 #define CONFIG_USB_FUNCTION_MASS_STORAGE

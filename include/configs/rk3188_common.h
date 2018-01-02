@@ -58,7 +58,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 /* usb otg */
-#define CONFIG_ROCKCHIP_USB2_PHY
 
 /* usb host support */
 #define ENV_MEM_LAYOUT_SETTINGS \
