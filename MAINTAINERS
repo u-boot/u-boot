@@ -287,7 +287,7 @@ M:	Alexander Graf <agraf@suse.de>
 S:	Maintained
 T:	git git://github.com/agraf/u-boot.git
 F:	include/efi*
-F:	lib/efi*
+F:	lib/efi*/
 F:	test/py/tests/test_efi*
 F:	cmd/bootefi.c
 
