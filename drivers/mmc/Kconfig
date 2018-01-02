@@ -17,6 +17,11 @@ config MMC_WRITE
 	help
 	  Enable write access to MMC and SD Cards
 
+config MMC_BROKEN_CD
+	bool "Poll for broken card detection case"
+	help
+	  If card  detection feature is broken, just poll to detect.
+
 config DM_MMC
 	bool "Enable MMC controllers using Driver Model"
 	depends on DM
