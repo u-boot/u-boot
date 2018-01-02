@@ -10,3 +10,6 @@ comment "USB Phy"
 config TWL4030_USB
 	bool "TWL4030 PHY"
 
+config OMAP_USB_PHY
+	bool "OMAP PHY"
+

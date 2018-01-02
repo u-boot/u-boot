@@ -77,7 +77,6 @@
 /* USB xHCI HOST */
 #define CONFIG_USB_XHCI_OMAP
 
-#define CONFIG_OMAP_USB_PHY
 #define CONFIG_OMAP_USB3PHY1_HOST
 
 /* USB Networking options */

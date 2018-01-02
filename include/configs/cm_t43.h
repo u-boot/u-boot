@@ -55,7 +55,6 @@
 
 /* USB support */
 #define CONFIG_USB_XHCI_OMAP
-#define CONFIG_OMAP_USB_PHY
 #define CONFIG_AM437X_USB2PHY2_HOST
 
 /* SPI Flash support */
