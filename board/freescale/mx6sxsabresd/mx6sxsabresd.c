@@ -50,6 +50,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define LCD_PAD_CTRL    (PAD_CTL_HYS | PAD_CTL_PUS_100K_UP | PAD_CTL_PUE | \
 	PAD_CTL_PKE | PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm)
 
+#define WDOG_PAD_CTRL (PAD_CTL_PUE | PAD_CTL_PKE | PAD_CTL_SPEED_MED |	\
+	PAD_CTL_DSE_40ohm)
+
 int dram_init(void)
 {
 	gd->ram_size = imx_ddr_size();
@@ -62,6 +65,9 @@ static iomux_v3_cfg_t const uart1_pads[] = {
 	MX6_PAD_GPIO1_IO05__UART1_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
+static iomux_v3_cfg_t const wdog_b_pad = {
+	MX6_PAD_GPIO1_IO13__GPIO1_IO_13 | MUX_PAD_CTRL(WDOG_PAD_CTRL),
+};
 static iomux_v3_cfg_t const fec1_pads[] = {
 	MX6_PAD_ENET1_MDC__ENET1_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6_PAD_ENET1_MDIO__ENET1_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL),
@@ -294,6 +300,15 @@ int board_init(void)
 {
 	/* Address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+
+	/*
+	 * Because kernel set WDOG_B mux before pad with the common pinctrl
+	 * framwork now and wdog reset will be triggered once set WDOG_B mux
+	 * with default pad setting, we set pad setting here to workaround this.
+	 * Since imx_iomux_v3_setup_pad also set mux before pad setting, we set
+	 * as GPIO mux firstly here to workaround it.
+	 */
+	imx_iomux_v3_setup_pad(wdog_b_pad);
 
 	/* Active high for ncp692 */
 	gpio_request(IMX_GPIO_NR(4, 16), "ncp692_en");
