@@ -108,7 +108,11 @@ u32 spl_boot_device(void)
 	case MMC1_BOOT:
 	case SD2_BOOT:
 	case MMC2_BOOT:
+	case SD3_BOOT:
+	case MMC3_BOOT:
 		return BOOT_DEVICE_MMC1;
+	case NAND_BOOT:
+		return BOOT_DEVICE_NAND;
 	case SPI_NOR_BOOT:
 		return BOOT_DEVICE_SPI;
 	default:
