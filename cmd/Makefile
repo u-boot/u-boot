@@ -150,6 +150,8 @@ obj-$(CONFIG_CMD_PMIC) += pmic.o
 obj-$(CONFIG_CMD_REGULATOR) += regulator.o
 
 obj-$(CONFIG_CMD_BLOB) += blob.o
+
+obj-$(CONFIG_X86) += x86/
 endif # !CONFIG_SPL_BUILD
 
 # core command
