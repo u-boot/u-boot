@@ -550,6 +550,7 @@ int misc_init_r(void)
 	return 0;
 }
 
+#ifndef CONFIG_SPL_BUILD
 static int pin_mux_cmd(cmd_tbl_t *cmdtp, int flag, int argc,
 				char * const argv[])
 {
@@ -569,3 +570,4 @@ U_BOOT_CMD(
 	"configure multiplexing pin for IFC/SDHC bus in runtime",
 	"bus_type (e.g. mux sdhc)"
 );
+#endif
