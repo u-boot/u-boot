@@ -172,7 +172,7 @@ int gsc_boot_wd_disable(void)
 	return 1;
 }
 
-#ifdef CONFIG_CMD_GSC
+#if defined(CONFIG_CMD_GSC) && !defined(CONFIG_SPL_BUILD)
 static int do_gsc_sleep(cmd_tbl_t *cmdtp, int flag, int argc,
 			char * const argv[])
 {
