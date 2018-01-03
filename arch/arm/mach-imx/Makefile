@@ -28,7 +28,9 @@ obj-y 	+= cache.o init.o
 obj-$(CONFIG_SATA) += sata.o
 obj-$(CONFIG_IMX_VIDEO_SKIP) += video.o
 obj-$(CONFIG_IMX_RDC) += rdc-sema.o
+ifneq ($(CONFIG_SPL_BUILD),y)
 obj-$(CONFIG_IMX_BOOTAUX) += imx_bootaux.o
+endif
 obj-$(CONFIG_SECURE_BOOT)    += hab.o
 obj-$(CONFIG_SYSCOUNTER_TIMER) += syscounter.o
 endif

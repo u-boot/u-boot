@@ -6,26 +6,21 @@
 
 #include <common.h>
 #include <command.h>
+#include <linux/compiler.h>
 
 /* Allow for arch specific config before we boot */
-static int __arch_auxiliary_core_up(u32 core_id, u32 boot_private_data)
+int __weak arch_auxiliary_core_up(u32 core_id, u32 boot_private_data)
 {
 	/* please define platform specific arch_auxiliary_core_up() */
 	return CMD_RET_FAILURE;
 }
 
-int arch_auxiliary_core_up(u32 core_id, u32 boot_private_data)
-	__attribute__((weak, alias("__arch_auxiliary_core_up")));
-
 /* Allow for arch specific config before we boot */
-static int __arch_auxiliary_core_check_up(u32 core_id)
+int __weak arch_auxiliary_core_check_up(u32 core_id)
 {
 	/* please define platform specific arch_auxiliary_core_check_up() */
 	return 0;
 }
-
-int arch_auxiliary_core_check_up(u32 core_id)
-	__attribute__((weak, alias("__arch_auxiliary_core_check_up")));
 
 /*
  * To i.MX6SX and i.MX7D, the image supported by bootaux needs
@@ -40,7 +35,7 @@ int arch_auxiliary_core_check_up(u32 core_id)
  * The TCMUL is mapped to (M4_BOOTROM_BASE_ADDR) at A core side for
  * accessing the M4 TCMUL.
  */
-int do_bootaux(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_bootaux(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong addr;
 	int ret, up;

@@ -911,10 +911,11 @@ void mxc_set_sata_internal_clock(void)
 }
 #endif
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * Dump some core clockes.
  */
-int do_mx5_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mx5_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	u32 freq;
 
@@ -947,3 +948,4 @@ U_BOOT_CMD(
 	"display clocks",
 	""
 );
+#endif
