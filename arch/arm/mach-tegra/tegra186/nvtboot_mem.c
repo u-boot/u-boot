@@ -16,10 +16,10 @@ extern unsigned long nvtboot_boot_x0;
 /*
  * A parsed version of /memory/reg from the DTB that is passed to U-Boot in x0.
  *
- * We only support up to two banks since that's all the binary  bootloader
- * ever sets. We assume bank 0 is RAM below 4G and bank 1 is RAM  above 4G.
- * This is all a fairly safe assumption, since the L4T kernel makes  the same
- * assumptions, so the bootloader is unlikely to change.
+ * We assume bank 0 is RAM completely below 4G mostly ignore other banks;
+ * assuming they contain RAM above 4G. This is all a fairly safe assumption,
+ * since the L4T kernel makes the same assumption, so the bootloader is
+ * unlikely to change.
  *
  * This is written to before relocation, and hence cannot be in .bss, since
  * .bss overlaps the DTB that's appended to the U-Boot binary. The initializer
@@ -29,7 +29,7 @@ extern unsigned long nvtboot_boot_x0;
 static struct {
 	u64 start;
 	u64 size;
-} ram_banks[2] = {{1}};
+} ram_banks[CONFIG_NR_DRAM_BANKS] = {{1}};
 
 int dram_init(void)
 {
@@ -54,7 +54,9 @@ int dram_init(void)
 		hang();
 	}
 
-	len /= (na + ns);
+	/* Calculate the true # of base/size pairs to read */
+	len /= 4;		/* Convert bytes to number of cells */
+	len /= (na + ns);	/* Convert cells to number of banks */
 	if (len > ARRAY_SIZE(ram_banks))
 		len = ARRAY_SIZE(ram_banks);
 
@@ -76,10 +78,14 @@ int dram_init_banksize(void)
 {
 	int i;
 
-	for (i = 0; i < 2; i++) {
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		gd->bd->bi_dram[i].start = ram_banks[i].start;
 		gd->bd->bi_dram[i].size = ram_banks[i].size;
 	}
+
+#ifdef CONFIG_PCI
+	gd->pci_ram_top = gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size;
+#endif
 
 	return 0;
 }
