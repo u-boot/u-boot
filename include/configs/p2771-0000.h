@@ -29,4 +29,7 @@
 /* Crystal is 38.4MHz. clk_m runs at half that rate */
 #define COUNTER_FREQUENCY	19200000
 
+#undef CONFIG_NR_DRAM_BANKS
+#define CONFIG_NR_DRAM_BANKS	(1024 + 2)
+
 #endif
