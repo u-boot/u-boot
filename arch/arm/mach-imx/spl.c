@@ -106,10 +106,9 @@ u32 spl_boot_device(void)
 	switch (boot_device_spl) {
 	case SD1_BOOT:
 	case MMC1_BOOT:
-		return BOOT_DEVICE_MMC1;
 	case SD2_BOOT:
 	case MMC2_BOOT:
-		return BOOT_DEVICE_MMC2;
+		return BOOT_DEVICE_MMC1;
 	case SPI_NOR_BOOT:
 		return BOOT_DEVICE_SPI;
 	default:
