@@ -32,6 +32,23 @@ config SYS_INIT_SP_BSS_OFFSET
 	  calculate the stack pointer. This offset should be large enough so
 	  that the early malloc region, global data (gd), and early stack usage
 	  do not overlap any appended DTB.
+
+config LINUX_KERNEL_IMAGE_HEADER
+	bool
+	help
+	  Place a Linux kernel image header at the start of the U-Boot binary.
+	  The format of the header is described in the Linux kernel source at
+	  Documentation/arm64/booting.txt. This feature is useful since the
+	  image header reports the amount of memory (BSS and similar) that
+	  U-Boot needs to use, but which isn't part of the binary.
+
+if LINUX_KERNEL_IMAGE_HEADER
+config LNX_KRNL_IMG_TEXT_OFFSET_BASE
+	hex
+	help
+	  The value subtracted from CONFIG_SYS_TEXT_BASE to calculate the
+	  TEXT_OFFSET value written in to the Linux kernel image header.
+endif
 endif
 
 config STATIC_RELA
