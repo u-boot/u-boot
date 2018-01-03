@@ -419,6 +419,7 @@ void board_init_f(ulong dummy)
 	if (sysinfo.dsize != 1) {
 		if (is_cpu_type(MXC_CPU_MX6SX) ||
 		    is_cpu_type(MXC_CPU_MX6UL) ||
+		    is_cpu_type(MXC_CPU_MX6ULL) ||
 		    is_cpu_type(MXC_CPU_MX6SL)) {
 			printf("cpu type 0x%x doesn't support 64-bit bus\n",
 			       get_cpu_type());
