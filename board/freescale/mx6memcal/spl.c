@@ -446,7 +446,7 @@ void board_init_f(ulong dummy)
 	} else {
 		errs = mmdc_do_dqs_calibration(&sysinfo);
 		if (errs) {
-			printf("error %d from write level calibration\n", errs);
+			printf("error %d from dqs calibration\n", errs);
 		} else {
 			printf("completed successfully\n");
 			mmdc_read_calibration(&sysinfo, &calibration);
