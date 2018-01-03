@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <linux/compiler.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
@@ -23,7 +24,7 @@
 /*#define DEBUG */
 
 /* use Apalis GPIO1 to switch on VPGM, ON: 1 */
-static iomux_v3_cfg_t const pmic_prog_pads[] = {
+static __maybe_unused iomux_v3_cfg_t const pmic_prog_pads[] = {
 	MX6_PAD_NANDF_D4__GPIO2_IO04 | MUX_PAD_CTRL(NO_PAD_CTRL),
 #	define PMIC_PROG_VOLTAGE IMX_GPIO_NR(2, 4)
 };
@@ -161,7 +162,8 @@ unsigned pmic_init(void)
 	return programmed;
 }
 
-int pf0100_prog(void)
+#ifndef CONFIG_SPL_BUILD
+static int pf0100_prog(void)
 {
 	unsigned char bus = 1;
 	unsigned char val;
@@ -208,7 +210,7 @@ int pf0100_prog(void)
 	return CMD_RET_SUCCESS;
 }
 
-int do_pf0100_prog(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_pf0100_prog(cmd_tbl_t *cmdtp, int flag, int argc,
 		char * const argv[])
 {
 	int ret;
@@ -226,3 +228,4 @@ U_BOOT_CMD(
 	"Program the OTP fuses on the PMIC PF0100",
 	""
 );
+#endif
