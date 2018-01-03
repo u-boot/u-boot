@@ -144,6 +144,7 @@ void spl_invoke_atf(struct spl_image_info *spl_image)
 {
 	uintptr_t  bl33_entry = CONFIG_SYS_TEXT_BASE;
 	void *blob = spl_image->fdt_addr;
+	uintptr_t platform_param = (uintptr_t)blob;
 	int node;
 
 	/*
@@ -158,8 +159,17 @@ void spl_invoke_atf(struct spl_image_info *spl_image)
 		bl33_entry = spl_fit_images_get_entry(blob, node);
 
 	/*
+	 * If ATF_NO_PLATFORM_PARAM is set, we override the platform
+	 * parameter and always pass 0.  This is a workaround for
+	 * older ATF versions that have insufficiently robust (or
+	 * overzealous) argument validation.
+	 */
+	if (CONFIG_IS_ENABLED(ATF_NO_PLATFORM_PARAM))
+		platform_param = 0;
+
+	/*
 	 * We don't provide a BL3-2 entry yet, but this will be possible
 	 * using similar logic.
 	 */
-	bl31_entry(spl_image->entry_point, bl33_entry, (uintptr_t)blob);
+	bl31_entry(spl_image->entry_point, bl33_entry, platform_param);
 }

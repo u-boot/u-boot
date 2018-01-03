@@ -721,9 +721,23 @@ config SPL_ATF
 	bool "Support ARM Trusted Firmware"
 	depends on ARM64
 	help
-	  ATF(ARM Trusted Firmware) is a component for ARM arch64 which
-	  is loaded by SPL(which is considered as BL2 in ATF terminology).
+	  ATF(ARM Trusted Firmware) is a component for ARM AArch64 which
+	  is loaded by SPL (which is considered as BL2 in ATF terminology).
 	  More detail at: https://github.com/ARM-software/arm-trusted-firmware
+
+config SPL_ATF_NO_PLATFORM_PARAM
+        bool "Pass no platform parameter"
+	depends on SPL_ATF
+	help
+	  While we expect to call a pointer to a valid FDT (or NULL)
+	  as the platform parameter to an ATF, some ATF versions are
+	  not U-Boot aware and have an insufficiently robust parameter
+	  validation to gracefully reject a FDT being passed.
+
+	  If this option is enabled, the spl_atf os-type handler will
+	  always pass NULL for the platform parameter.
+
+	  If your ATF is affected, say Y.
 
 config TPL
 	bool
