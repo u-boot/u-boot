@@ -260,6 +260,57 @@ Device (PCI0)
             Return (STA_VISIBLE)
         }
     }
+
+    Device (HSU0)
+    {
+        Name (_ADR, 0x00040001)
+
+        Method (_STA, 0, NotSerialized)
+        {
+            Return (STA_VISIBLE)
+        }
+
+        Device (BTH0)
+        {
+            Name (_HID, "BCM2E95")
+            Name (_DEP, Package ()
+            {
+                GPIO,
+                HSU0
+            })
+
+            Method (_STA, 0, NotSerialized)
+            {
+                Return (STA_VISIBLE)
+            }
+
+            Method (_CRS, 0, NotSerialized)
+            {
+                Name (RBUF, ResourceTemplate ()
+                {
+                    UartSerialBus (0x0001C200, DataBitsEight, StopBitsOne,
+                        0xFC, LittleEndian, ParityTypeNone, FlowControlHardware,
+                        0x20, 0x20, "\\_SB.PCI0.HSU0", 0, ResourceConsumer, , )
+                    GpioInt (Level, ActiveHigh, Exclusive, PullNone, 0,
+                        "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 185 }
+                    GpioIo (Exclusive, PullDefault, 0, 0, IoRestrictionOutputOnly,
+                        "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 184 }
+                    GpioIo (Exclusive, PullDefault, 0, 0, IoRestrictionOutputOnly,
+                        "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 71 }
+                })
+                Return (RBUF)
+            }
+
+            Name (_DSD, Package () {
+                ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+                Package () {
+                    Package () { "host-wakeup-gpios", Package () { ^BTH0, 0, 0, 0 } },
+                    Package () { "device-wakeup-gpios", Package () { ^BTH0, 1, 0, 0 } },
+                    Package () { "shutdown-gpios", Package () { ^BTH0, 2, 0, 0 } },
+                }
+            })
+        }
+    }
 }
 
 Device (FLIS)
