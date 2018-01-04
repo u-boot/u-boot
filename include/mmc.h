@@ -598,8 +598,10 @@ struct mmc {
 	u64 capacity_boot;
 	u64 capacity_rpmb;
 	u64 capacity_gp[4];
+#ifndef CONFIG_SPL_BUILD
 	u64 enh_user_start;
 	u64 enh_user_size;
+#endif
 #if !CONFIG_IS_ENABLED(BLK)
 	struct blk_desc block_dev;
 #endif

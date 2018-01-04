@@ -2028,6 +2028,7 @@ static int mmc_startup_v4(struct mmc *mmc)
 		mmc->capacity_gp[i] <<= 19;
 	}
 
+#ifndef CONFIG_SPL_BUILD
 	if (part_completed) {
 		mmc->enh_user_size =
 			(ext_csd[EXT_CSD_ENH_SIZE_MULT + 2] << 16) +
@@ -2044,6 +2045,7 @@ static int mmc_startup_v4(struct mmc *mmc)
 		if (mmc->high_capacity)
 			mmc->enh_user_start <<= 9;
 	}
+#endif
 
 	/*
 	 * Host needs to enable ERASE_GRP_DEF bit if device is
