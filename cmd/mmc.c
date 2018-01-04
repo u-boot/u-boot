@@ -45,8 +45,10 @@ static void print_mmcinfo(struct mmc *mmc)
 	printf("Bus Width: %d-bit%s\n", mmc->bus_width,
 			mmc->ddr_mode ? " DDR" : "");
 
+#if CONFIG_IS_ENABLED(MMC_WRITE)
 	puts("Erase Group Size: ");
 	print_size(((u64)mmc->erase_grp_size) << 9, "\n");
+#endif
 
 	if (!IS_SD(mmc) && mmc->version >= MMC_VERSION_4_41) {
 		bool has_enh = (mmc->part_support & ENHNCD_SUPPORT) != 0;
@@ -302,6 +304,8 @@ static int do_mmc_read(cmd_tbl_t *cmdtp, int flag,
 
 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
 }
+
+#if CONFIG_IS_ENABLED(MMC_WRITE)
 static int do_mmc_write(cmd_tbl_t *cmdtp, int flag,
 			int argc, char * const argv[])
 {
@@ -360,6 +364,8 @@ static int do_mmc_erase(cmd_tbl_t *cmdtp, int flag,
 
 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
 }
+#endif
+
 static int do_mmc_rescan(cmd_tbl_t *cmdtp, int flag,
 			 int argc, char * const argv[])
 {
@@ -792,8 +798,10 @@ static int do_mmc_bkops_enable(cmd_tbl_t *cmdtp, int flag,
 static cmd_tbl_t cmd_mmc[] = {
 	U_BOOT_CMD_MKENT(info, 1, 0, do_mmcinfo, "", ""),
 	U_BOOT_CMD_MKENT(read, 4, 1, do_mmc_read, "", ""),
+#if CONFIG_IS_ENABLED(MMC_WRITE)
 	U_BOOT_CMD_MKENT(write, 4, 0, do_mmc_write, "", ""),
 	U_BOOT_CMD_MKENT(erase, 3, 0, do_mmc_erase, "", ""),
+#endif
 	U_BOOT_CMD_MKENT(rescan, 1, 1, do_mmc_rescan, "", ""),
 	U_BOOT_CMD_MKENT(part, 1, 1, do_mmc_part, "", ""),
 	U_BOOT_CMD_MKENT(dev, 3, 0, do_mmc_dev, "", ""),

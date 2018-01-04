@@ -585,8 +585,10 @@ struct mmc {
 	uint tran_speed;
 	uint legacy_speed; /* speed for the legacy mode provided by the card */
 	uint read_bl_len;
+#if CONFIG_IS_ENABLED(MMC_WRITE)
 	uint write_bl_len;
 	uint erase_grp_size;	/* in 512-byte sectors */
+#endif
 	uint hc_wp_grp_size;	/* in 512-byte sectors */
 #if CONFIG_IS_ENABLED(MMC_WRITE)
 	struct sd_ssr	ssr;	/* SD status register */

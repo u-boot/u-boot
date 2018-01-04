@@ -2066,9 +2066,11 @@ static int mmc_startup_v4(struct mmc *mmc)
 	}
 
 	if (ext_csd[EXT_CSD_ERASE_GROUP_DEF] & 0x01) {
+#if CONFIG_IS_ENABLED(MMC_WRITE)
 		/* Read out group size from ext_csd */
 		mmc->erase_grp_size =
 			ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] * 1024;
+#endif
 		/*
 		 * if high capacity and partition setting completed
 		 * SEC_COUNT is valid even if it is smaller than 2 GiB
@@ -2082,7 +2084,9 @@ static int mmc_startup_v4(struct mmc *mmc)
 			capacity *= MMC_MAX_BLOCK_LEN;
 			mmc->capacity_user = capacity;
 		}
-	} else {
+	}
+#if CONFIG_IS_ENABLED(MMC_WRITE)
+	else {
 		/* Calculate the group size from the csd value. */
 		int erase_gsz, erase_gmul;
 
@@ -2091,7 +2095,7 @@ static int mmc_startup_v4(struct mmc *mmc)
 		mmc->erase_grp_size = (erase_gsz + 1)
 			* (erase_gmul + 1);
 	}
-
+#endif
 	mmc->hc_wp_grp_size = 1024
 		* ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE]
 		* ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
@@ -2222,11 +2226,13 @@ static int mmc_startup(struct mmc *mmc)
 
 	mmc->dsr_imp = ((cmd.response[1] >> 12) & 0x1);
 	mmc->read_bl_len = 1 << ((cmd.response[1] >> 16) & 0xf);
+#if CONFIG_IS_ENABLED(MMC_WRITE)
 
 	if (IS_SD(mmc))
 		mmc->write_bl_len = mmc->read_bl_len;
 	else
 		mmc->write_bl_len = 1 << ((cmd.response[3] >> 22) & 0xf);
+#endif
 
 	if (mmc->high_capacity) {
 		csize = (mmc->csd[1] & 0x3f) << 16
@@ -2248,8 +2254,10 @@ static int mmc_startup(struct mmc *mmc)
 	if (mmc->read_bl_len > MMC_MAX_BLOCK_LEN)
 		mmc->read_bl_len = MMC_MAX_BLOCK_LEN;
 
+#if CONFIG_IS_ENABLED(MMC_WRITE)
 	if (mmc->write_bl_len > MMC_MAX_BLOCK_LEN)
 		mmc->write_bl_len = MMC_MAX_BLOCK_LEN;
+#endif
 
 	if ((mmc->dsr_imp) && (0xffffffff != mmc->dsr)) {
 		cmd.cmdidx = MMC_CMD_SET_DSR;
@@ -2273,7 +2281,9 @@ static int mmc_startup(struct mmc *mmc)
 	/*
 	 * For SD, its erase group is always one sector
 	 */
+#if CONFIG_IS_ENABLED(MMC_WRITE)
 	mmc->erase_grp_size = 1;
+#endif
 	mmc->part_config = MMCPART_NOAVAILABLE;
 
 	err = mmc_startup_v4(mmc);
@@ -2304,7 +2314,9 @@ static int mmc_startup(struct mmc *mmc)
 	/* Fix the block length for DDR mode */
 	if (mmc->ddr_mode) {
 		mmc->read_bl_len = MMC_MAX_BLOCK_LEN;
+#if CONFIG_IS_ENABLED(MMC_WRITE)
 		mmc->write_bl_len = MMC_MAX_BLOCK_LEN;
+#endif
 	}
 
 	/* fill in device description */
