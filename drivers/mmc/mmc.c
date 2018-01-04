@@ -1940,6 +1940,17 @@ static int mmc_startup_v4(struct mmc *mmc)
 	u64 capacity;
 	bool has_parts = false;
 	bool part_completed;
+	static const u32 mmc_versions[] = {
+		MMC_VERSION_4,
+		MMC_VERSION_4_1,
+		MMC_VERSION_4_2,
+		MMC_VERSION_4_3,
+		MMC_VERSION_4_41,
+		MMC_VERSION_4_5,
+		MMC_VERSION_5_0,
+		MMC_VERSION_5_1
+	};
+
 	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
 
 	if (IS_SD(mmc) || (mmc->version < MMC_VERSION_4))
@@ -1957,7 +1968,12 @@ static int mmc_startup_v4(struct mmc *mmc)
 		return -ENOMEM;
 	memcpy(mmc->ext_csd, ext_csd, MMC_MAX_BLOCK_LEN);
 
-	if (ext_csd[EXT_CSD_REV] >= 2) {
+	if (ext_csd[EXT_CSD_REV] > ARRAY_SIZE(mmc_versions))
+		return -EINVAL;
+
+	mmc->version = mmc_versions[ext_csd[EXT_CSD_REV]];
+
+	if (mmc->version >= MMC_VERSION_4_2) {
 		/*
 		 * According to the JEDEC Standard, the value of
 		 * ext_csd's capacity is valid if the value is more
@@ -1970,30 +1986,6 @@ static int mmc_startup_v4(struct mmc *mmc)
 		capacity *= MMC_MAX_BLOCK_LEN;
 		if ((capacity >> 20) > 2 * 1024)
 			mmc->capacity_user = capacity;
-	}
-
-	switch (ext_csd[EXT_CSD_REV]) {
-	case 1:
-		mmc->version = MMC_VERSION_4_1;
-		break;
-	case 2:
-		mmc->version = MMC_VERSION_4_2;
-		break;
-	case 3:
-		mmc->version = MMC_VERSION_4_3;
-		break;
-	case 5:
-		mmc->version = MMC_VERSION_4_41;
-		break;
-	case 6:
-		mmc->version = MMC_VERSION_4_5;
-		break;
-	case 7:
-		mmc->version = MMC_VERSION_5_0;
-		break;
-	case 8:
-		mmc->version = MMC_VERSION_5_1;
-		break;
 	}
 
 	/* The partition data may be non-zero but it is only
