@@ -616,6 +616,17 @@ static int imx_pcie_link_up(void)
 	imx_pcie_regions_setup();
 
 	/*
+	 * By default, the subordinate is set equally to the secondary
+	 * bus (0x01) when the RC boots.
+	 * This means that theoretically, only bus 1 is reachable from the RC.
+	 * Force the PCIe RC subordinate to 0xff, otherwise no downstream
+	 * devices will be detected if the enumeration is applied strictly.
+	 */
+	tmp = readl(MX6_DBI_ADDR + 0x18);
+	tmp |= (0xff << 16);
+	writel(tmp, MX6_DBI_ADDR + 0x18);
+
+	/*
 	 * FIXME: Force the PCIe RC to Gen1 operation
 	 * The RC must be forced into Gen1 mode before bringing the link
 	 * up, otherwise no downstream devices are detected. After the
