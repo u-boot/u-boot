@@ -173,13 +173,13 @@ Device (PCI0)
         Name (RBUF, ResourceTemplate()
         {
             GpioIo(Exclusive, PullUp, 0, 0, IoRestrictionOutputOnly,
-                "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 91 }
+                "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 110 }
             GpioIo(Exclusive, PullUp, 0, 0, IoRestrictionOutputOnly,
-                "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 92 }
+                "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 111 }
             GpioIo(Exclusive, PullUp, 0, 0, IoRestrictionOutputOnly,
-                "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 93 }
+                "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 112 }
             GpioIo(Exclusive, PullUp, 0, 0, IoRestrictionOutputOnly,
-                "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 94 }
+                "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 113 }
         })
 
         Method (_CRS, 0, NotSerialized)
@@ -245,7 +245,7 @@ Device (PCI0)
         {
             Connection (
                 GpioIo(Exclusive, PullDefault, 0, 0, IoRestrictionOutputOnly,
-                    "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 56 }
+                    "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 96 }
             ),
             WFD3, 1,
         }
