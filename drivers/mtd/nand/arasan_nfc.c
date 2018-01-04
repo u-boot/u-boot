@@ -1038,13 +1038,6 @@ static int arasan_nand_ecc_init(struct mtd_info *mtd)
 	u32 regval, eccpos_start, i;
 	struct nand_chip *nand_chip = mtd_to_nand(mtd);
 
-	nand_chip->ecc.mode = NAND_ECC_HW;
-	nand_chip->ecc.hwctl = NULL;
-	nand_chip->ecc.read_page = arasan_nand_read_page_hwecc;
-	nand_chip->ecc.write_page = arasan_nand_write_page_hwecc;
-	nand_chip->ecc.read_oob = arasan_nand_read_oob;
-	nand_chip->ecc.write_oob = arasan_nand_write_oob;
-
 	for (i = 0; i < ARRAY_SIZE(ecc_matrix); i++) {
 		if ((ecc_matrix[i].pagesize == mtd->writesize) &&
 		    (ecc_matrix[i].ecc_codeword_size >=
@@ -1125,6 +1118,13 @@ static int arasan_nand_init(struct nand_chip *nand_chip, int devnum)
 		printf("%s: nand_scan_ident failed\n", __func__);
 		goto fail;
 	}
+
+	nand_chip->ecc.mode = NAND_ECC_HW;
+	nand_chip->ecc.hwctl = NULL;
+	nand_chip->ecc.read_page = arasan_nand_read_page_hwecc;
+	nand_chip->ecc.write_page = arasan_nand_write_page_hwecc;
+	nand_chip->ecc.read_oob = arasan_nand_read_oob;
+	nand_chip->ecc.write_oob = arasan_nand_write_oob;
 
 	if (arasan_nand_ecc_init(mtd)) {
 		printf("%s: nand_ecc_init failed\n", __func__);
