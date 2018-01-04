@@ -54,8 +54,10 @@ static void print_mmcinfo(struct mmc *mmc)
 		bool has_enh = (mmc->part_support & ENHNCD_SUPPORT) != 0;
 		bool usr_enh = has_enh && (mmc->part_attr & EXT_CSD_ENH_USR);
 
+#if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
 		puts("HC WP Group Size: ");
 		print_size(((u64)mmc->hc_wp_grp_size) << 9, "\n");
+#endif
 
 		puts("User Capacity: ");
 		print_size(mmc->capacity_user, usr_enh ? " ENH" : "");

@@ -589,7 +589,9 @@ struct mmc {
 	uint write_bl_len;
 	uint erase_grp_size;	/* in 512-byte sectors */
 #endif
+#if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
 	uint hc_wp_grp_size;	/* in 512-byte sectors */
+#endif
 #if CONFIG_IS_ENABLED(MMC_WRITE)
 	struct sd_ssr	ssr;	/* SD status register */
 #endif

@@ -2098,9 +2098,11 @@ static int mmc_startup_v4(struct mmc *mmc)
 			* (erase_gmul + 1);
 	}
 #endif
+#if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
 	mmc->hc_wp_grp_size = 1024
 		* ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE]
 		* ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
+#endif
 
 	mmc->wr_rel_set = ext_csd[EXT_CSD_WR_REL_SET];
 
