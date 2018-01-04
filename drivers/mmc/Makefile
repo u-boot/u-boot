@@ -7,6 +7,7 @@
 
 obj-y += mmc.o
 obj-$(CONFIG_$(SPL_)DM_MMC) += mmc-uclass.o
+obj-$(CONFIG_$(SPL_)MMC_WRITE) += mmc_write.o
 
 ifndef CONFIG_$(SPL_)BLK
 obj-y += mmc_legacy.o
@@ -16,9 +17,6 @@ obj-$(CONFIG_SUPPORT_EMMC_BOOT) += mmc_boot.o
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_MMC_BOOT) += fsl_esdhc_spl.o
-obj-$(CONFIG_SPL_SAVEENV) += mmc_write.o
-else
-obj-y += mmc_write.o
 endif
 
 obj-$(CONFIG_ARM_PL180_MMCI) += arm_pl180_mmci.o

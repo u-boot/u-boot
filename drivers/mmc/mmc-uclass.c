@@ -370,7 +370,7 @@ static int mmc_blk_probe(struct udevice *dev)
 
 static const struct blk_ops mmc_blk_ops = {
 	.read	= mmc_bread,
-#ifndef CONFIG_SPL_BUILD
+#if CONFIG_IS_ENABLED(MMC_WRITE)
 	.write	= mmc_bwrite,
 	.erase	= mmc_berase,
 #endif

@@ -10,6 +10,13 @@ config MMC
 	  If you want MMC/SD/SDIO support, you should say Y here and
 	  also to your specific host controller driver.
 
+config MMC_WRITE
+	bool "support for MMC/SD write operations"
+	depends on MMC
+	default y
+	help
+	  Enable write access to MMC and SD Cards
+
 config DM_MMC
 	bool "Enable MMC controllers using Driver Model"
 	depends on DM
