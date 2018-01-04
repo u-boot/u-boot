@@ -22,14 +22,6 @@
 #include <div64.h>
 #include "mmc_private.h"
 
-static const unsigned int sd_au_size[] = {
-	0,		SZ_16K / 512,		SZ_32K / 512,
-	SZ_64K / 512,	SZ_128K / 512,		SZ_256K / 512,
-	SZ_512K / 512,	SZ_1M / 512,		SZ_2M / 512,
-	SZ_4M / 512,	SZ_8M / 512,		(SZ_8M + SZ_4M) / 512,
-	SZ_16M / 512,	(SZ_16M + SZ_8M) / 512,	SZ_32M / 512,	SZ_64M / 512,
-};
-
 static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage);
 static int mmc_power_cycle(struct mmc *mmc);
 static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps);
@@ -1376,8 +1368,17 @@ int sd_select_bus_width(struct mmc *mmc, int w)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(MMC_WRITE)
 static int sd_read_ssr(struct mmc *mmc)
 {
+	static const unsigned int sd_au_size[] = {
+		0,		SZ_16K / 512,		SZ_32K / 512,
+		SZ_64K / 512,	SZ_128K / 512,		SZ_256K / 512,
+		SZ_512K / 512,	SZ_1M / 512,		SZ_2M / 512,
+		SZ_4M / 512,	SZ_8M / 512,		(SZ_8M + SZ_4M) / 512,
+		SZ_16M / 512,	(SZ_16M + SZ_8M) / 512,	SZ_32M / 512,
+		SZ_64M / 512,
+	};
 	int err, i;
 	struct mmc_cmd cmd;
 	ALLOC_CACHE_ALIGN_BUFFER(uint, ssr, 16);
@@ -1431,7 +1432,7 @@ retry_ssr:
 
 	return 0;
 }
-
+#endif
 /* frequency bases */
 /* divided by 10 to be nice to platforms without floating point */
 static const int fbase[] = {
@@ -1689,11 +1690,13 @@ static int sd_select_mode_and_width(struct mmc *mmc, uint card_caps)
 				}
 #endif
 
+#if CONFIG_IS_ENABLED(MMC_WRITE)
 				err = sd_read_ssr(mmc);
 				if (!err)
+					pr_warn("unable to read ssr\n");
+#endif
+				if (!err)
 					return 0;
-
-				pr_warn("bad ssr\n");
 
 error:
 				/* revert to a safer bus speed */
