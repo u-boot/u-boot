@@ -799,9 +799,11 @@ static int mmc_set_card_speed(struct mmc *mmc, enum bus_mode mode)
 	case MMC_DDR_52:
 		speed_bits = EXT_CSD_TIMING_HS;
 		break;
+#if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT)
 	case MMC_HS_200:
 		speed_bits = EXT_CSD_TIMING_HS200;
 		break;
+#endif
 	case MMC_LEGACY:
 		speed_bits = EXT_CSD_TIMING_LEGACY;
 		break;
@@ -851,10 +853,12 @@ static int mmc_get_capabilities(struct mmc *mmc)
 	cardtype = ext_csd[EXT_CSD_CARD_TYPE] & 0x3f;
 	mmc->cardtype = cardtype;
 
+#if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT)
 	if (cardtype & (EXT_CSD_CARD_TYPE_HS200_1_2V |
 			EXT_CSD_CARD_TYPE_HS200_1_8V)) {
 		mmc->card_caps |= MMC_MODE_HS200;
 	}
+#endif
 	if (cardtype & EXT_CSD_CARD_TYPE_52) {
 		if (cardtype & EXT_CSD_CARD_TYPE_DDR_52)
 			mmc->card_caps |= MMC_MODE_DDR_52MHz;
@@ -1307,10 +1311,15 @@ static int sd_set_card_speed(struct mmc *mmc, enum bus_mode mode)
 
 	switch (mode) {
 	case SD_LEGACY:
-	case UHS_SDR12:
 		speed = UHS_SDR12_BUS_SPEED;
 		break;
 	case SD_HS:
+		speed = HIGH_SPEED_BUS_SPEED;
+		break;
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
+	case UHS_SDR12:
+		speed = UHS_SDR12_BUS_SPEED;
+		break;
 	case UHS_SDR25:
 		speed = UHS_SDR25_BUS_SPEED;
 		break;
@@ -1323,6 +1332,7 @@ static int sd_set_card_speed(struct mmc *mmc, enum bus_mode mode)
 	case UHS_SDR104:
 		speed = UHS_SDR104_BUS_SPEED;
 		break;
+#endif
 	default:
 		return -EINVAL;
 	}
