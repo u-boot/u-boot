@@ -66,7 +66,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_OFFSET		(0x780 * 512)	/* env_mmc_blknum */
 #define CONFIG_ENV_SIZE			0x10000	/* env_mmc_nblks bytes */
-#define CONFIG_FAT_WRITE
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 
 /* Monitor Command Prompt */
