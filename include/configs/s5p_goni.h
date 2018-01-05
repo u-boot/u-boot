@@ -187,11 +187,6 @@
 #define CONFIG_SAMSUNG_ONENAND		1
 #define CONFIG_SYS_ONENAND_BASE		0xB0000000
 
-/* write support for filesystems */
-#define CONFIG_EXT4_WRITE
-
-/* GPT */
-
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - 0x1000000)
 
 #define CONFIG_USB_GADGET_DWC2_OTG_PHY

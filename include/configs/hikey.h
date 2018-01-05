@@ -66,8 +66,6 @@
 /* SD/MMC configuration */
 #define CONFIG_BOUNCE_BUFFER
 
-#define CONFIG_FS_EXT4
-
 /* Command line configuration */
 
 #define CONFIG_MTD_PARTITIONS

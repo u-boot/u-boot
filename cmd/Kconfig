@@ -1367,17 +1367,20 @@ config CMD_CRAMFS
 
 config CMD_EXT2
 	bool "ext2 command support"
+	select FS_EXT4
 	help
 	  Enables EXT2 FS command
 
 config CMD_EXT4
 	bool "ext4 command support"
+	select FS_EXT4
 	help
 	  Enables EXT4 FS command
 
 config CMD_EXT4_WRITE
 	depends on CMD_EXT4
 	bool "ext4 write command support"
+	select EXT4_WRITE
 	help
 	  Enables EXT4 FS write command
 

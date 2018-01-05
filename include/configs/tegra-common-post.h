@@ -113,11 +113,6 @@
 #ifdef CONFIG_CMD_I2C
 #endif
 
-/* remove partitions/filesystems */
-#ifdef CONFIG_FS_EXT4
-#undef CONFIG_FS_EXT4
-#endif
-
 /* remove USB */
 #ifdef CONFIG_USB_EHCI_TEGRA
 #undef CONFIG_USB_EHCI_TEGRA

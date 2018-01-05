@@ -65,11 +65,6 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP
 
-/* U-Boot commands */
-
-/* Filesystem support */
-#define CONFIG_FS_EXT4
-
 /* Ethernet */
 #define CONFIG_FEC_MXC
 #define CONFIG_FEC_MXC_PHYADDR		0x1f

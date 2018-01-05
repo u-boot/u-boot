@@ -2,10 +2,10 @@ U-Boot supports access of both ext2 and ext4 filesystems, either in read-only
 mode or in read-write mode.
 
 First, to enable support for both ext4 (and, automatically, ext2 as well),
-but without selecting the corresponding commands, use one of:
+but without selecting the corresponding commands, enable one of the following:
 
-  #define CONFIG_FS_EXT4	(for read-only)
-  #define CONFIG_EXT4_WRITE	(for read-write)
+  CONFIG_FS_EXT4	(for read-only)
+  CONFIG_EXT4_WRITE	(for read-write)
 
 Next, to select the ext2-related commands:
 
@@ -20,22 +20,22 @@ or ext4-related commands:
 
 use one or both of:
 
-  #define CONFIG_CMD_EXT2
-  #define CONFIG_CMD_EXT4
+  CONFIG_CMD_EXT2
+  CONFIG_CMD_EXT4
 
-Selecting either of the above automatically defines CONFIG_FS_EXT4 if it
-wasn't defined already.
+Selecting either of the above automatically selects CONFIG_FS_EXT4 if it
+wasn't enabled already.
 
-In addition, to get the write access command "ext4write", use:
+In addition, to get the write access command "ext4write", enable:
 
-  #define CONFIG_CMD_EXT4_WRITE
+  CONFIG_CMD_EXT4_WRITE
 
-which automatically defines CONFIG_EXT4_WRITE if it wasn't defined
+which automatically selects CONFIG_EXT4_WRITE if it wasn't defined
 already.
 
 Also relevant are the generic filesystem commands, selected by:
 
-  #define CONFIG_CMD_FS_GENERIC
+  CONFIG_CMD_FS_GENERIC
 
 This does not automatically enable EXT4 support for you, you still need
 to do that yourself.

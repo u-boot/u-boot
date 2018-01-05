@@ -33,15 +33,6 @@
 #define CONFIG_FS_FAT
 #endif
 
-#if (defined(CONFIG_CMD_EXT4) || defined(CONFIG_CMD_EXT2)) && \
-						!defined(CONFIG_FS_EXT4)
-#define CONFIG_FS_EXT4
-#endif
-
-#if defined(CONFIG_CMD_EXT4_WRITE) && !defined(CONFIG_EXT4_WRITE)
-#define CONFIG_EXT4_WRITE
-#endif
-
 /* Rather than repeat this expression each time, add a define for it */
 #if defined(CONFIG_IDE) || \
 	defined(CONFIG_SATA) || \

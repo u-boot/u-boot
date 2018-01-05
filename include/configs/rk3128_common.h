@@ -31,7 +31,6 @@
 #define CONFIG_BOUNCE_BUFFER
 
 #define CONFIG_SUPPORT_VFAT
-#define CONFIG_FS_EXT4
 
 /* RAW SD card / eMMC locations. */
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(128 << 10)

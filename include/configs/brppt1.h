@@ -243,13 +243,5 @@ MMCARGS
 #else
 #error "no storage for Environment defined!"
 #endif
-/*
- * Common filesystems support.  When we have removable storage we
- * enabled a number of useful commands and support.
- */
-#if defined(CONFIG_MMC) || defined(CONFIG_USB_STORAGE)
-#define CONFIG_FS_EXT4
-#define CONFIG_EXT4_WRITE
-#endif /* CONFIG_MMC, ... */
 
 #endif	/* ! __CONFIG_BRPPT1_H__ */

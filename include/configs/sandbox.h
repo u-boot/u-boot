@@ -25,8 +25,6 @@
 
 #define CONFIG_LMB
 
-#define CONFIG_FS_EXT4
-#define CONFIG_EXT4_WRITE
 #define CONFIG_HOST_MAX_DEVICES 4
 
 /*
