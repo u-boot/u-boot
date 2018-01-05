@@ -67,9 +67,6 @@
 #define CONFIG_SYS_SATA_MAX_DEVICE	1
 #define CONFIG_LBA48
 
-/* Additional FS support/configuration */
-#define CONFIG_SUPPORT_VFAT
-
 /* PCIe support */
 #ifdef CONFIG_CMD_PCI
 #ifndef CONFIG_SPL_BUILD

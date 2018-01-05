@@ -22,12 +22,6 @@
 #include <linux/compiler.h>
 #include <linux/ctype.h>
 
-#ifdef CONFIG_SUPPORT_VFAT
-static const int vfat_enabled = 1;
-#else
-static const int vfat_enabled = 0;
-#endif
-
 /*
  * Convert a string to lowercase.  Converts at most 'len' characters,
  * 'len' may be larger than the length of 'str' if 'str' is NULL
@@ -605,9 +599,6 @@ static int get_fs_info(fsdata *mydata)
 		return -1;
 	}
 
-	if (vfat_enabled)
-		debug("VFAT Support enabled\n");
-
 	debug("FAT%d, fat_sect: %d, fatlength: %d\n",
 	       mydata->fatsize, mydata->fat_sect, mydata->fatlength);
 	debug("Rootdir begins at cluster: %d, sector: %d, offset: %x\n"
@@ -857,8 +848,7 @@ static int fat_itr_next(fat_itr *itr)
 			continue;
 
 		if (dent->attr & ATTR_VOLUME) {
-			if (vfat_enabled &&
-			    (dent->attr & ATTR_VFAT) == ATTR_VFAT &&
+			if ((dent->attr & ATTR_VFAT) == ATTR_VFAT &&
 			    (dent->name[0] & LAST_LONG_ENTRY_MASK)) {
 				dent = extract_vfat_name(itr);
 				if (!dent)

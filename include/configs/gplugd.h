@@ -85,6 +85,4 @@
 #define CONFIG_EHCI_IS_TDI
 #endif /* CONFIG_CMD_USB */
 
-#define CONFIG_SUPPORT_VFAT
-
 #endif	/* __CONFIG_GPLUGD_H */

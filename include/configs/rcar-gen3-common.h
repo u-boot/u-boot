@@ -17,9 +17,6 @@
 /* boot option */
 #define CONFIG_SUPPORT_RAW_INITRD
 
-/* Support File sytems */
-#define CONFIG_SUPPORT_VFAT
-
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG

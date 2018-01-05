@@ -40,11 +40,6 @@
  */
 #define CONFIG_SYS_MMC_BASE		MVEBU_SDIO_BASE
 
-/* Partition support */
-
-/* Additional FS support/configuration */
-#define CONFIG_SUPPORT_VFAT
-
 /* USB/EHCI configuration */
 #define CONFIG_EHCI_IS_TDI
 

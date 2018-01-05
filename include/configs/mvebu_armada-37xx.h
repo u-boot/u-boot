@@ -102,8 +102,6 @@
 #define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 					 CONFIG_SYS_SCSI_MAX_LUN)
 
-#define CONFIG_SUPPORT_VFAT
-
 #include <config_distro_defaults.h>
 
 #define BOOT_TARGET_DEVICES(func) \

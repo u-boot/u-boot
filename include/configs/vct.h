@@ -72,7 +72,6 @@
  * Commands
  */
 #if defined(CONFIG_CMD_USB)
-#define CONFIG_SUPPORT_VFAT
 
 /*
  * USB/EHCI

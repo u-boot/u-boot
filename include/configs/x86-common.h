@@ -58,8 +58,6 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
 
-#define CONFIG_SUPPORT_VFAT
-
 /*-----------------------------------------------------------------------
  * Command line configuration.
  */

@@ -124,10 +124,6 @@
 # define DFU_ALT_INFO
 #endif
 
-#if defined(CONFIG_MMC_SDHCI_ZYNQ) || defined(CONFIG_ZYNQ_USB)
-# define CONFIG_SUPPORT_VFAT
-#endif
-
 #if defined(CONFIG_ZYNQ_I2C0) || defined(CONFIG_ZYNQ_I2C1)
 #define CONFIG_SYS_I2C_ZYNQ
 #endif

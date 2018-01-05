@@ -81,12 +81,6 @@
  * USB Configuration
  */
 
-/*-----------------------------------------------------------------------
- * File System Configuration
- */
-/* FAT FS */
-#define CONFIG_SUPPORT_VFAT
-
 /* -------------------------------------------------
  * Environment
  */

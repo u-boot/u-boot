@@ -49,9 +49,6 @@
 
 #define CONFIG_SYS_ALT_MEMTEST
 
-/* Additional FS support/configuration */
-#define CONFIG_SUPPORT_VFAT
-
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros

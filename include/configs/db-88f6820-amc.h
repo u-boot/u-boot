@@ -30,11 +30,6 @@
 #define CONFIG_SF_DEFAULT_SPEED		1000000
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
 
-/* Partition support */
-
-/* Additional FS support/configuration */
-#define CONFIG_SUPPORT_VFAT
-
 /* USB/EHCI configuration */
 #define CONFIG_EHCI_IS_TDI
 

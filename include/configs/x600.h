@@ -96,10 +96,6 @@
 #define CONFIG_USB_EHCI_SPEAR
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 
-/* Filesystem support (for USB key) */
-#define CONFIG_SUPPORT_VFAT
-
-
 /*
  * U-Boot Environment placing definitions.
  */
