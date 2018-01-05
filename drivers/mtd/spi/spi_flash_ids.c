@@ -111,6 +111,7 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{"s25fl512s_256k", INFO(0x010220, 0x4d00, 256 * 1024,   256, RD_FULL | WR_QPP) },
 	{"s25fl512s_64k",  INFO(0x010220, 0x4d01,  64 * 1024,  1024, RD_FULL | WR_QPP) },
 	{"s25fl512s_512k", INFO(0x010220, 0x4f00, 256 * 1024,   256, RD_FULL | WR_QPP) },
+	{"s70fs01gs_256k", INFO(0x010221, 0x4d00, 256 * 1024,   512, RD_FULL | WR_QPP) },
 #endif
 #ifdef CONFIG_SPI_FLASH_STMICRO		/* STMICRO */
 	{"m25p10",	   INFO(0x202011, 0x0, 32 * 1024,     4, 0) },
