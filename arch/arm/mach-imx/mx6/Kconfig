@@ -9,7 +9,7 @@ config MX6_SMP
 
 config MX6
 	select ARM_ERRATA_743622 if !MX6UL && !MX6ULL
-	select GPT_TIMER
+	select GPT_TIMER if !MX6UL && !MX6ULL
 	bool
 	default y
 	imply CMD_FUSE
@@ -54,6 +54,7 @@ config MX6UL
 	select HAS_CAAM
 	select SYS_L2CACHE_OFF
 	select ROM_UNIFIED_SECTIONS
+	select SYSCOUNTER_TIMER
 	bool
 
 config MX6UL_LITESOM
@@ -76,6 +77,7 @@ config MX6UL_OPOS6UL
 config MX6ULL
 	select SYS_L2CACHE_OFF
 	select ROM_UNIFIED_SECTIONS
+	select SYSCOUNTER_TIMER
 	bool
 
 config MX6_DDRCAL

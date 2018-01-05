@@ -291,6 +291,7 @@
 #endif
 #define IP2APB_TZASC1_BASE_ADDR     (AIPS2_OFF_BASE_ADDR + 0x50000)
 #if (defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL))
+#define SCTR_BASE_ADDR              (AIPS2_OFF_BASE_ADDR + 0x5C000)
 #define QSPI0_BASE_ADDR             (AIPS2_OFF_BASE_ADDR + 0x60000)
 #define UART6_BASE_ADDR             (AIPS2_OFF_BASE_ADDR + 0x7C000)
 #elif defined(CONFIG_MX6SX)
