@@ -225,7 +225,6 @@
 #endif
 
 #define CONFIG_PREBOOT		"run setup"
-#define CONFIG_BOOTCOMMAND	"run $modeboot"
 
 /* Do not preserve environment */
 #define CONFIG_ENV_SIZE			0x8000
