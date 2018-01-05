@@ -74,12 +74,10 @@ config ENV_IS_IN_EEPROM
 config ENV_IS_IN_FAT
 	bool "Environment is in a FAT filesystem"
 	depends on !CHAIN_OF_TRUST
+	select FS_FAT
 	select FAT_WRITE
 	help
 	  Define this if you want to use the FAT file system for the environment.
-
-	  - CONFIG_FAT_WRITE:
-	  This must be enabled. Otherwise it cannot save the environment file.
 
 config ENV_IS_IN_EXT4
 	bool "Environment is in a EXT4 filesystem"

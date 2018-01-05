@@ -29,10 +29,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 #endif
 
-#if defined(CONFIG_ENV_IS_IN_FAT) && !defined(CONFIG_FS_FAT)
-#define CONFIG_FS_FAT
-#endif
-
 /* Rather than repeat this expression each time, add a define for it */
 #if defined(CONFIG_IDE) || \
 	defined(CONFIG_SATA) || \
