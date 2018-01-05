@@ -1,6 +1,7 @@
 if ARCH_MX5
 
 config MX5
+	select GPT_TIMER
 	bool
 	default y
 
