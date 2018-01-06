@@ -9,7 +9,9 @@
 
 #include "ls1088a_common.h"
 
+#ifndef SPL_NO_BOARDINFO
 #define CONFIG_DISPLAY_BOARDINFO_LATE
+#endif
 
 #define CONFIG_MISC_INIT_R
 
@@ -29,7 +31,9 @@
 #endif
 
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_QIXIS_I2C_ACCESS
+#endif
 #define SYS_NO_FLASH
 #undef CONFIG_CMD_IMLS
 #endif
@@ -97,7 +101,11 @@
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE }
 #endif
 #endif
+
+#ifndef SPL_NO_IFC
 #define CONFIG_NAND_FSL_IFC
+#endif
+
 #define CONFIG_SYS_NAND_MAX_ECCPOS	256
 #define CONFIG_SYS_NAND_MAX_OOBFREE	2
 
@@ -139,7 +147,10 @@
 
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
 
+#ifndef SPL_NO_QIXIS
 #define CONFIG_FSL_QIXIS
+#endif
+
 #define CONFIG_SYS_I2C_FPGA_ADDR	0x66
 #define QIXIS_LBMAP_SWITCH		2
 #define QIXIS_QMAP_MASK			0xe0
@@ -223,6 +234,8 @@
 #define I2C_RETIMER_ADDR		0x18
 #define I2C_MUX_CH_DEFAULT		0x8
 #define I2C_MUX_CH5			0xD
+
+#ifndef SPL_NO_RTC
 /*
 * RTC configuration
 */
@@ -230,6 +243,7 @@
 #define CONFIG_RTC_PCF8563 1
 #define CONFIG_SYS_I2C_RTC_ADDR         0x51  /* Channel 3*/
 #define CONFIG_CMD_DATE
+#endif
 
 /* EEPROM */
 #define CONFIG_ID_EEPROM
@@ -240,11 +254,13 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
 
+#ifndef SPL_NO_QSPI
 /* QSPI device */
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_FSL_QSPI
 #define FSL_QSPI_FLASH_SIZE		(1 << 26)
 #define FSL_QSPI_FLASH_NUM		2
+#endif
 #endif
 
 #define CONFIG_CMD_MEMINFO
@@ -260,6 +276,7 @@
 
 #define CONFIG_FSL_MEMAC
 
+#ifndef SPL_NO_ENV
 /* Initial environment variables */
 #if defined(CONFIG_QSPI_BOOT)
 #define MC_INIT_CMD				\
@@ -408,6 +425,7 @@
 #define CONFIG_ETHPRIME		"DPMAC1@xgmii"
 #define CONFIG_PHY_GIGE
 #endif
+#endif
 
 /*  MMC  */
 #ifdef CONFIG_MMC
@@ -415,6 +433,7 @@
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #endif
 
+#ifndef SPL_NO_ENV
 #undef CONFIG_CMDLINE_EDITING
 #include <config_distro_defaults.h>
 
@@ -423,6 +442,7 @@
 	func(SCSI, scsi, 0) \
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
+#endif
 
 #include <asm/fsl_secure_boot.h>
 

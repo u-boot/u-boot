@@ -7,6 +7,19 @@
 #ifndef __LS1088_COMMON_H
 #define __LS1088_COMMON_H
 
+/* SPL build */
+#ifdef CONFIG_SPL_BUILD
+#define SPL_NO_BOARDINFO
+#define SPL_NO_QIXIS
+#define SPL_NO_PCI
+#define SPL_NO_ENV
+#define SPL_NO_RTC
+#define SPL_NO_USB
+#define SPL_NO_SATA
+#define SPL_NO_QSPI
+#define SPL_NO_IFC
+#undef CONFIG_DISPLAY_CPUINFO
+#endif
 
 #define CONFIG_REMAKE_ELF
 #define CONFIG_FSL_LAYERSCAPE
@@ -74,8 +87,10 @@
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
+#if !defined(SPL_NO_IFC) || defined(CONFIG_TARGET_LS1088AQDS)
 /* IFC */
 #define CONFIG_FSL_IFC
+#endif
 
 /*
  * During booting, IFC is mapped at the region of 0x30000000.
@@ -172,6 +187,7 @@ unsigned long long get_qixis_addr(void);
 
 /* #define CONFIG_DISPLAY_CPUINFO */
 
+#ifndef SPL_NO_ENV
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
@@ -211,6 +227,7 @@ unsigned long long get_qixis_addr(void);
 				" cp.b $kernel_start $kernel_load" \
 				" $kernel_size && bootm $kernel_load"
 #endif
+#endif
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
@@ -219,7 +236,9 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Boot args buffer */
 #define CONFIG_SYS_LONGHELP
+#ifndef SPL_NO_ENV
 #define CONFIG_CMDLINE_EDITING		1
+#endif
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_MAXARGS		64	/* max command args */
 
