@@ -238,6 +238,13 @@ int dram_init(void)
 		gd->ram_size += dram_map[i].size;
 	}
 
+	/*
+	 * LD20 uses the last 64 byte for each channel for dynamic
+	 * DDR PHY training
+	 */
+	if (uniphier_get_soc_id() == UNIPHIER_LD20_ID)
+		gd->ram_size -= 64;
+
 	return 0;
 }
 
