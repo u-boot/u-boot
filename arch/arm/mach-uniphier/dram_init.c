@@ -205,6 +205,7 @@ int dram_init(void)
 		return ret;
 
 	for (i = 0; i < ARRAY_SIZE(dram_map); i++) {
+		unsigned long max_size;
 
 		if (!dram_map[i].size)
 			break;
@@ -217,6 +218,22 @@ int dram_init(void)
 		if (i > 0 && dram_map[i - 1].base + dram_map[i - 1].size <
 							dram_map[i].base)
 			break;
+
+		/*
+		 * Do not use memory that exceeds 32bit address range.  U-Boot
+		 * relocates itself to the end of the effectively available RAM.
+		 * This could be a problem for DMA engines that do not support
+		 * 64bit address (SDMA of SDHCI, UniPhier AV-ether, etc.)
+		 */
+		if (dram_map[i].base >= 1ULL << 32)
+			break;
+
+		max_size = (1ULL << 32) - dram_map[i].base;
+
+		if (dram_map[i].size > max_size) {
+			gd->ram_size += max_size;
+			break;
+		}
 
 		gd->ram_size += dram_map[i].size;
 	}
