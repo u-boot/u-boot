@@ -254,7 +254,20 @@ unsigned long long get_qixis_addr(void);
 
 #define CONFIG_SYS_SPL_MALLOC_SIZE     0x00100000
 #define CONFIG_SYS_SPL_MALLOC_START    0x80200000
-#define CONFIG_SYS_MONITOR_LEN         (512 * 1024)
+
+#ifdef CONFIG_SECURE_BOOT
+#define CONFIG_U_BOOT_HDR_SIZE		(16 << 10)
+/*
+ * HDR would be appended at end of image and copied to DDR along
+ * with U-Boot image. Here u-boot max. size is 512K. So if binary
+ * size increases then increase this size in case of secure boot as
+ * it uses raw u-boot image instead of fit image.
+ */
+#define CONFIG_SYS_MONITOR_LEN         (0x100000 + CONFIG_U_BOOT_HDR_SIZE)
+#else
+#define CONFIG_SYS_MONITOR_LEN         0x100000
+#endif /* ifdef CONFIG_SECURE_BOOT */
+
 #endif
 #define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */
 
