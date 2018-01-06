@@ -624,9 +624,7 @@ int initr_mem(void)
 	ulong pram = 0;
 	char memsz[32];
 
-# ifdef CONFIG_PRAM
 	pram = env_get_ulong("pram", 10, CONFIG_PRAM);
-# endif
 	sprintf(memsz, "%ldk", (long int) ((gd->ram_size / 1024) - pram));
 	env_set("mem", memsz);
 
