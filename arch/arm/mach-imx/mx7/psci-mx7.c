@@ -10,7 +10,7 @@
 #include <asm/secure.h>
 #include <asm/arch/imx-regs.h>
 #include <common.h>
-
+#include <fsl_wdog.h>
 
 #define GPC_CPU_PGC_SW_PDN_REQ	0xfc
 #define GPC_CPU_PGC_SW_PUP_REQ	0xf0
@@ -25,6 +25,9 @@
 
 #define BP_SRC_A7RCR0_A7_CORE_RESET0	0
 #define BP_SRC_A7RCR1_A7_CORE1_ENABLE	1
+
+#define CCM_ROOT_WDOG		0xbb80
+#define CCM_CCGR_WDOG1		0x49c0
 
 static inline void imx_gpcv2_set_m_core_pgc(bool enable, u32 offset)
 {
@@ -73,4 +76,14 @@ __secure int imx_cpu_off(int cpu)
 	imx_gpcv2_set_core1_power(false);
 	writel(0, SRC_BASE_ADDR + cpu * 8 + SRC_GPR1_MX7D + 4);
 	return 0;
+}
+
+__secure void imx_system_reset(void)
+{
+	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
+
+	/* make sure WDOG1 clock is enabled */
+	writel(0x1 << 28, CCM_BASE_ADDR + CCM_ROOT_WDOG);
+	writel(0x3, CCM_BASE_ADDR + CCM_CCGR_WDOG1);
+	writew(WCR_WDE, &wdog->wcr);
 }
