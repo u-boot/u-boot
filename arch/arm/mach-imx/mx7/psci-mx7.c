@@ -26,6 +26,12 @@
 #define BP_SRC_A7RCR0_A7_CORE_RESET0	0
 #define BP_SRC_A7RCR1_A7_CORE1_ENABLE	1
 
+#define SNVS_LPCR		0x38
+#define BP_SNVS_LPCR_DP_EN	0x20
+#define BP_SNVS_LPCR_TOP	0x40
+
+#define CCM_CCGR_SNVS		0x4250
+
 #define CCM_ROOT_WDOG		0xbb80
 #define CCM_CCGR_WDOG1		0x49c0
 
@@ -86,4 +92,16 @@ __secure void imx_system_reset(void)
 	writel(0x1 << 28, CCM_BASE_ADDR + CCM_ROOT_WDOG);
 	writel(0x3, CCM_BASE_ADDR + CCM_CCGR_WDOG1);
 	writew(WCR_WDE, &wdog->wcr);
+}
+
+__secure void imx_system_off(void)
+{
+	u32 val;
+
+	/* make sure SNVS clock is enabled */
+	writel(0x3, CCM_BASE_ADDR + CCM_CCGR_SNVS);
+
+	val = readl(SNVS_BASE_ADDR + SNVS_LPCR);
+	val |= BP_SNVS_LPCR_DP_EN | BP_SNVS_LPCR_TOP;
+	writel(val, SNVS_BASE_ADDR + SNVS_LPCR);
 }

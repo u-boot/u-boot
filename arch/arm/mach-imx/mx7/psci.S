@@ -50,4 +50,11 @@ psci_system_reset:
 2: 	wfi
 	b 2b
 
+.globl psci_system_off
+psci_system_off:
+	bl	imx_system_off
+
+3: 	wfi
+	b 3b
+
 	.popsection
