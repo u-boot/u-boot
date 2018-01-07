@@ -61,6 +61,8 @@
 
 #define CONFIG_ARMV7_SECURE_BASE	0x00900000
 
+#define CONFIG_ARMV7_PSCI_1_0
+
 /* Secure boot (HAB) support */
 #ifdef CONFIG_SECURE_BOOT
 #define CONFIG_CSF_SIZE			0x2000
