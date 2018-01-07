@@ -1,5 +1,31 @@
 if RCAR_32
 
+config RCAR_GEN2
+	bool "Renesas RCar Gen2"
+
+config R8A7740
+	bool "Renesas SoC R8A7740"
+
+config R8A7790
+	bool "Renesas SoC R8A7790"
+	select RCAR_GEN2
+
+config R8A7791
+	bool "Renesas SoC R8A7791"
+	select RCAR_GEN2
+
+config R8A7792
+	bool "Renesas SoC R8A7792"
+	select RCAR_GEN2
+
+config R8A7793
+	bool "Renesas SoC R8A7793"
+	select RCAR_GEN2
+
+config R8A7794
+	bool "Renesas SoC R8A7794"
+	select RCAR_GEN2
+
 choice
 	prompt "Renesas ARM SoCs board select"
 	optional
