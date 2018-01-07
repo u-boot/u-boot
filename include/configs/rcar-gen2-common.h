@@ -21,7 +21,9 @@
 #define CONFIG_ARCH_CPU_INIT
 
 #define CONFIG_TMU_TIMER
+#ifndef CONFIG_PINCTRL_PFC
 #define CONFIG_SH_GPIO_PFC
+#endif
 
 /* console */
 
