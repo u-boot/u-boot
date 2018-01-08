@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <clk.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
 #include <malloc.h>
@@ -390,6 +391,11 @@ int device_probe(struct udevice *dev)
 		if (ret)
 			goto fail;
 	}
+
+	/* Process 'assigned-{clocks/clock-parents/clock-rates}' properties */
+	ret = clk_set_defaults(dev);
+	if (ret)
+		goto fail;
 
 	if (drv->probe) {
 		ret = drv->probe(dev);

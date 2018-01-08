@@ -133,6 +133,23 @@ static inline int clk_release_all(struct clk *clk, int count)
 
 #endif
 
+#if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) && \
+	CONFIG_IS_ENABLED(CLK)
+/**
+ * clk_set_defaults - Process 'assigned-{clocks/clock-parents/clock-rates}'
+ *                    properties to configure clocks
+ *
+ * @dev:        A device to process (the ofnode associated with this device
+ *              will be processed).
+ */
+int clk_set_defaults(struct udevice *dev);
+#else
+static inline int clk_set_defaults(struct udevice *dev)
+{
+	return 0;
+}
+#endif
+
 /**
  * clk_request - Request a clock by provider-specific ID.
  *
