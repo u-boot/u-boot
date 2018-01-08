@@ -127,7 +127,7 @@ typedef u64 iomux_v3_cfg_t;
 
 #define PAD_CTL_ODE		(1 << 11)
 
-#if defined(CONFIG_MX6SX) || defined(CONFIG_MX6UL)
+#if defined(CONFIG_MX6SX) || defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL)
 #define PAD_CTL_SPEED_LOW	(0 << 6)
 #else
 #define PAD_CTL_SPEED_LOW	(1 << 6)
@@ -253,7 +253,7 @@ if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D)) {				\
 	imx_iomux_v3_setup_pad(MX6Q_##def);
 #define SETUP_IOMUX_PADS(x)					\
 	imx_iomux_v3_setup_multiple_pads(x, ARRAY_SIZE(x))
-#elif defined(CONFIG_MX6UL)
+#elif defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL)
 #define IOMUX_PADS(x) MX6_##x
 #define SETUP_IOMUX_PAD(def)					\
 	imx_iomux_v3_setup_pad(MX6_##def);

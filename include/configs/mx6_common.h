@@ -7,7 +7,10 @@
 #ifndef __MX6_COMMON_H
 #define __MX6_COMMON_H
 
-#ifndef CONFIG_MX6UL
+#if (defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL))
+#define CONFIG_SC_TIMER_CLK 8000000 /* 8Mhz */
+#define COUNTER_FREQUENCY CONFIG_SC_TIMER_CLK
+#else
 #ifndef CONFIG_SYS_L2CACHE_OFF
 #define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE	L2_PL310_BASE
@@ -37,8 +40,9 @@
 #define CONFIG_REVISION_TAG
 
 /* Boot options */
-#if (defined(CONFIG_MX6SX) || defined(CONFIG_MX6SL) || \
-	defined(CONFIG_MX6UL) || defined(CONFIG_MX6SLL))
+#if defined(CONFIG_MX6SL) || defined(CONFIG_MX6SLL) || \
+	defined(CONFIG_MX6SX) || \
+	defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL)
 #define CONFIG_LOADADDR		0x82000000
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0x87800000

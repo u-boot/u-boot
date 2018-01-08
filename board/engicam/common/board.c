@@ -69,7 +69,7 @@ int board_late_init(void)
 #endif
 		env_set("modeboot", "mmcboot");
 		break;
-	case IMX6_BMODE_NAND:
+	case IMX6_BMODE_NAND_MIN ... IMX6_BMODE_NAND_MAX:
 		env_set("modeboot", "nandboot");
 		break;
 	default:

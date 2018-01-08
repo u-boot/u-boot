@@ -81,7 +81,8 @@ enum imx6_bmode {
 	IMX6_BMODE_ESD,
 	IMX6_BMODE_MMC,
 	IMX6_BMODE_EMMC,
-	IMX6_BMODE_NAND,
+	IMX6_BMODE_NAND_MIN,
+	IMX6_BMODE_NAND_MAX = 0xf,
 };
 
 static inline u8 imx6_is_bmode_from_gpr9(void)
