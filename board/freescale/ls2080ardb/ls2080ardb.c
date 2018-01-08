@@ -74,7 +74,7 @@ int checkboard(void)
 	printf("Board version: %c, ", (sw & 0xf) + 'A');
 
 	sw = QIXIS_READ(brdcfg[0]);
-	sw = (sw & QIXIS_QMAP_MASK) >> QIXIS_QMAP_SHIFT;
+	sw = (sw >> QIXIS_QMAP_SHIFT) & QIXIS_QMAP_MASK;
 	switch (sw) {
 	case 0:
 		puts("boot from QSPI DEV#0\n");
