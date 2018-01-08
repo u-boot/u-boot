@@ -23,9 +23,12 @@ struct cpg_mssr_info {
 	unsigned int			mstp_table_size;
 	const char			*reset_node;
 	const char			*extalr_node;
+	const char			*extal_usb_node;
 	unsigned int			mod_clk_base;
 	unsigned int			clk_extal_id;
 	unsigned int			clk_extalr_id;
+	unsigned int			clk_extal_usb_id;
+	unsigned int			pll0_div;
 	const void			*(*get_pll_config)(const u32 cpg_mode);
 };
 

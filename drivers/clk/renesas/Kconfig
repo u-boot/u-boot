@@ -4,6 +4,13 @@ config CLK_RENESAS
 	help
 	  Enable support for clock present on Renesas RCar SoCs.
 
+config CLK_RCAR_GEN2
+	bool "Renesas RCar Gen2 clock driver"
+	def_bool y if RCAR_32
+	depends on CLK_RENESAS
+	help
+	  Enable this to support the clocks on Renesas RCar Gen2 SoC.
+
 config CLK_RCAR_GEN3
 	bool "Renesas RCar Gen3 clock driver"
 	def_bool y if RCAR_GEN3
