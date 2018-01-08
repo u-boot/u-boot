@@ -78,6 +78,14 @@ struct clk_ops {
 	 */
 	ulong (*set_rate)(struct clk *clk, ulong rate);
 	/**
+	 * set_parent() - Set current clock parent
+	 *
+	 * @clk:        The clock to manipulate.
+	 * @parent:     New clock parent.
+	 * @return zero on success, or -ve error code.
+	 */
+	int (*set_parent)(struct clk *clk, struct clk *parent);
+	/**
 	 * enable() - Enable a clock.
 	 *
 	 * @clk:	The clock to manipulate.

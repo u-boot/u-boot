@@ -188,6 +188,18 @@ ulong clk_set_rate(struct clk *clk, ulong rate)
 	return ops->set_rate(clk, rate);
 }
 
+int clk_set_parent(struct clk *clk, struct clk *parent)
+{
+	const struct clk_ops *ops = clk_dev_ops(clk->dev);
+
+	debug("%s(clk=%p, parent=%p)\n", __func__, clk, parent);
+
+	if (!ops->set_parent)
+		return -ENOSYS;
+
+	return ops->set_parent(clk, parent);
+}
+
 int clk_enable(struct clk *clk)
 {
 	const struct clk_ops *ops = clk_dev_ops(clk->dev);

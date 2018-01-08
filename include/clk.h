@@ -178,6 +178,17 @@ ulong clk_get_rate(struct clk *clk);
 ulong clk_set_rate(struct clk *clk, ulong rate);
 
 /**
+ * clk_set_parent() - Set current clock parent.
+ *
+ * @clk:	A clock struct that was previously successfully requested by
+ *		clk_request/get_by_*().
+ * @parent:	A clock struct that was previously successfully requested by
+ *		clk_request/get_by_*().
+ * @return new rate, or -ve error code.
+ */
+int clk_set_parent(struct clk *clk, struct clk *parent);
+
+/**
  * clk_enable() - Enable (turn on) a clock.
  *
  * @clk:	A clock struct that was previously successfully requested by
