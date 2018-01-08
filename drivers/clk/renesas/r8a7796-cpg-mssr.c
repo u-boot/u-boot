@@ -18,6 +18,7 @@
 #include <dt-bindings/clock/r8a7796-cpg-mssr.h>
 
 #include "renesas-cpg-mssr.h"
+#include "rcar-gen3-cpg.h"
 
 enum clk_ids {
 	/* Core Clock Outputs exported to DT */

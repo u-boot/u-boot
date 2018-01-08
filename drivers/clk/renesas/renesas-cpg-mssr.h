@@ -29,14 +29,6 @@ struct cpg_mssr_info {
 	const void			*(*get_pll_config)(const u32 cpg_mode);
 };
 
-struct gen3_clk_priv {
-	void __iomem		*base;
-	struct cpg_mssr_info	*info;
-	struct clk		clk_extal;
-	struct clk		clk_extalr;
-	const struct rcar_gen3_cpg_pll_config *cpg_pll_config;
-};
-
 /*
  * Definitions of CPG Core Clocks
  *
@@ -75,14 +67,6 @@ enum clk_types {
 	DEF_TYPE(_name, _id, CLK_TYPE_IN)
 #define DEF_FIXED(_name, _id, _parent, _div, _mult)	\
 	DEF_BASE(_name, _id, CLK_TYPE_FF, _parent, .div = _div, .mult = _mult)
-#define DEF_GEN3_SD(_name, _id, _parent, _offset)	\
-	DEF_BASE(_name, _id, CLK_TYPE_GEN3_SD, _parent, .offset = _offset)
-#define DEF_GEN3_RPC(_name, _id, _parent, _offset)	\
-	DEF_BASE(_name, _id, CLK_TYPE_GEN3_RPC, _parent, .offset = _offset)
-#define DEF_GEN3_PE(_name, _id, _parent_sscg, _div_sscg, _parent_clean, \
-		    _div_clean) \
-	DEF_BASE(_name, _id, CLK_TYPE_FF,			\
-		 (_parent_clean), .div = (_div_clean), 1)
 
 /*
  * Definitions of Module Clocks
@@ -101,26 +85,6 @@ struct mssr_mod_clk {
 #define DEF_MOD(_name, _mod, _parent...)	\
 	{ .name = _name, .id = MOD_CLK_ID(_mod), .parent = _parent }
 
-enum rcar_gen3_clk_types {
-	CLK_TYPE_GEN3_MAIN = CLK_TYPE_CUSTOM,
-	CLK_TYPE_GEN3_PLL0,
-	CLK_TYPE_GEN3_PLL1,
-	CLK_TYPE_GEN3_PLL2,
-	CLK_TYPE_GEN3_PLL3,
-	CLK_TYPE_GEN3_PLL4,
-	CLK_TYPE_GEN3_SD,
-	CLK_TYPE_GEN3_RPC,
-	CLK_TYPE_GEN3_R,
-	CLK_TYPE_GEN3_PE,
-	CLK_TYPE_GEN3_Z2,
-};
-
-struct rcar_gen3_cpg_pll_config {
-	unsigned int extal_div;
-	unsigned int pll1_mult;
-	unsigned int pll3_mult;
-};
-
 struct mstp_stop_table {
 	u32	dis;
 	u32	en;
@@ -128,10 +92,5 @@ struct mstp_stop_table {
 
 #define TSTR0		0x04
 #define TSTR0_STR0	BIT(0)
-
-int gen3_clk_probe(struct udevice *dev);
-int gen3_clk_remove(struct udevice *dev);
-
-extern const struct clk_ops gen3_clk_ops;
 
 #endif /* __DRIVERS_CLK_RENESAS_CPG_MSSR__ */
