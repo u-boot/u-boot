@@ -23,6 +23,9 @@ struct cpg_mssr_info {
 	unsigned int			mstp_table_size;
 	const char			*reset_node;
 	const char			*extalr_node;
+	unsigned int			mod_clk_base;
+	unsigned int			clk_extal_id;
+	unsigned int			clk_extalr_id;
 };
 
 struct gen3_clk_priv {
@@ -115,43 +118,6 @@ struct rcar_gen3_cpg_pll_config {
 	unsigned int extal_div;
 	unsigned int pll1_mult;
 	unsigned int pll3_mult;
-};
-
-#include <dt-bindings/clock/r8a7796-cpg-mssr.h>
-
-enum clk_ids {
-	/* Core Clock Outputs exported to DT */
-	LAST_DT_CORE_CLK = R8A7796_CLK_OSC,
-
-	/* External Input Clocks */
-	CLK_EXTAL,
-	CLK_EXTALR,
-
-	/* Internal Core Clocks */
-	CLK_MAIN,
-	CLK_PLL0,
-	CLK_PLL1,
-	CLK_PLL2,
-	CLK_PLL3,
-	CLK_PLL4,
-	CLK_PLL1_DIV2,
-	CLK_PLL1_DIV4,
-	CLK_PLL0D2,
-	CLK_PLL0D3,
-	CLK_PLL0D5,
-	CLK_PLL1D2,
-	CLK_PE,
-	CLK_S0,
-	CLK_S1,
-	CLK_S2,
-	CLK_S3,
-	CLK_SDSRC,
-	CLK_RPCSRC,
-	CLK_SSPSRC,
-	CLK_RINT,
-
-	/* Module Clocks */
-	MOD_CLK_BASE
 };
 
 struct mstp_stop_table {

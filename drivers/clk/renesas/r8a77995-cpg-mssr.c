@@ -19,6 +19,34 @@
 
 #include "renesas-cpg-mssr.h"
 
+enum clk_ids {
+	/* Core Clock Outputs exported to DT */
+	LAST_DT_CORE_CLK = R8A77995_CLK_CP,
+
+	/* External Input Clocks */
+	CLK_EXTAL,
+
+	/* Internal Core Clocks */
+	CLK_MAIN,
+	CLK_PLL0,
+	CLK_PLL1,
+	CLK_PLL3,
+	CLK_PLL0D2,
+	CLK_PLL0D3,
+	CLK_PLL0D5,
+	CLK_PLL1D2,
+	CLK_PE,
+	CLK_S0,
+	CLK_S1,
+	CLK_S2,
+	CLK_S3,
+	CLK_SDSRC,
+	CLK_SSPSRC,
+
+	/* Module Clocks */
+	MOD_CLK_BASE
+};
+
 static const struct cpg_core_clk r8a77995_core_clks[] = {
 	/* External Clock Inputs */
 	DEF_INPUT("extal",     CLK_EXTAL),
@@ -158,6 +186,9 @@ static const struct cpg_mssr_info r8a77995_cpg_mssr_info = {
 	.mstp_table		= r8a77995_mstp_table,
 	.mstp_table_size	= ARRAY_SIZE(r8a77995_mstp_table),
 	.reset_node		= "renesas,r8a77995-rst",
+	.mod_clk_base		= MOD_CLK_BASE,
+	.clk_extal_id		= CLK_EXTAL,
+	.clk_extalr_id		= ~0,
 };
 
 static const struct udevice_id r8a77995_clk_ids[] = {

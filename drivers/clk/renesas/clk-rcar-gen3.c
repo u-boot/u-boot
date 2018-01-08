@@ -192,7 +192,8 @@ static int gen3_clk_get_mod(struct clk *clk, const struct mssr_mod_clk **mssr)
 		return -EINVAL;
 
 	for (i = 0; i < info->mod_clk_size; i++) {
-		if (info->mod_clk[i].id != MOD_CLK_ID(clkid))
+		if (info->mod_clk[i].id !=
+		    (info->mod_clk_base + MOD_CLK_PACK(clkid)))
 			continue;
 
 		*mssr = &info->mod_clk[i];
@@ -322,6 +323,7 @@ static int gen3_clk_disable(struct clk *clk)
 static ulong gen3_clk_get_rate(struct clk *clk)
 {
 	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
+	struct cpg_mssr_info *info = priv->info;
 	struct clk parent;
 	const struct cpg_core_clk *core;
 	const struct rcar_gen3_cpg_pll_config *pll_config =
@@ -350,14 +352,14 @@ static ulong gen3_clk_get_rate(struct clk *clk)
 
 	switch (core->type) {
 	case CLK_TYPE_IN:
-		if (core->id == CLK_EXTAL) {
+		if (core->id == info->clk_extal_id) {
 			rate = clk_get_rate(&priv->clk_extal);
 			debug("%s[%i] EXTAL clk: rate=%u\n",
 			      __func__, __LINE__, rate);
 			return rate;
 		}
 
-		if (core->id == CLK_EXTALR) {
+		if (core->id == info->clk_extalr_id) {
 			rate = clk_get_rate(&priv->clk_extalr);
 			debug("%s[%i] EXTALR clk: rate=%u\n",
 			      __func__, __LINE__, rate);
