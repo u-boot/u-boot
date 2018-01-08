@@ -53,7 +53,8 @@ static int clk_of_xlate_default(struct clk *clk,
 	return 0;
 }
 
-int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
+static int clk_get_by_indexed_prop(struct udevice *dev, const char *prop_name,
+				   int index, struct clk *clk)
 {
 	int ret;
 	struct ofnode_phandle_args args;
@@ -65,7 +66,7 @@ int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
 	assert(clk);
 	clk->dev = NULL;
 
-	ret = dev_read_phandle_with_args(dev, "clocks", "#clock-cells", 0,
+	ret = dev_read_phandle_with_args(dev, prop_name, "#clock-cells", 0,
 					 index, &args);
 	if (ret) {
 		debug("%s: fdtdec_parse_phandle_with_args failed: err=%d\n",
@@ -94,6 +95,11 @@ int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
 	}
 
 	return clk_request(dev_clk, clk);
+}
+
+int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
+{
+	return clk_get_by_indexed_prop(dev, "clocks", index, clk);
 }
 # endif /* OF_PLATDATA */
 
