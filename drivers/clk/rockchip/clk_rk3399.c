@@ -883,6 +883,24 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 	switch (clk->id) {
 	case 0 ... 63:
 		return 0;
+
+	case ACLK_PERIHP:
+	case HCLK_PERIHP:
+	case PCLK_PERIHP:
+		return 0;
+
+	case ACLK_PERILP0:
+	case HCLK_PERILP0:
+	case PCLK_PERILP0:
+		return 0;
+
+	case ACLK_CCI:
+		return 0;
+
+	case HCLK_PERILP1:
+	case PCLK_PERILP1:
+		return 0;
+
 	case HCLK_SDMMC:
 	case SCLK_SDMMC:
 	case SCLK_EMMC:
