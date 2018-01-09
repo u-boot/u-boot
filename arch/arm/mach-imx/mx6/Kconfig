@@ -130,6 +130,7 @@ config TARGET_CM_FX6
 	bool "CM-FX6"
 	select SUPPORT_SPL
 	select MX6QDL
+	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
