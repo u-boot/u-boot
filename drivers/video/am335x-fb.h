@@ -53,7 +53,7 @@ struct am335x_lcdpanel {
 	unsigned int	vfp;		/* Vertical front porch */
 	unsigned int	vbp;		/* Vertical back porch */
 	unsigned int	vsw;		/* Vertical Sync Pulse Width */
-	unsigned int	pxl_clk_div;	/* Pixel clock divider*/
+	unsigned int	pxl_clk;	/* Pixel clock */
 	unsigned int	pol;		/* polarity of sync, clock signals */
 	unsigned int	pup_delay;	/*
 					 * time in ms after power on to
