@@ -130,7 +130,7 @@ int secure_boot_verify_image(void **image, size_t *size)
 	*size = sig_addr - cert_addr;	/* Subtract out the signature size */
 	/* Subtract header if present */
 	if (strncmp((char *)sig_addr, "CERT_ISW_", 9) == 0)
-		*size = ((u32 *)*image)[HEADER_SIZE_OFFSET];
+		*size -= ((u32 *)*image)[HEADER_SIZE_OFFSET];
 	cert_size = *size;
 
 	/* Check if image load address is 32-bit aligned */
