@@ -780,7 +780,6 @@ config ARCH_ZYNQ
 	select SPL_OF_CONTROL if SPL
 	select DM
 	select DM_ETH if NET
-	select DM_GPIO
 	select SPL_DM if SPL
 	select DM_MMC if MMC
 	select DM_SPI
