@@ -28,7 +28,6 @@
 #define RCAR_GEN2_UBOOT_SDRAM_SIZE	(512 * 1024 * 1024)
 
 /* SCIF */
-#define CONFIG_SCIF_CONSOLE
 #define CONFIG_CONS_SCIF0
 
 #define CONFIG_SYS_MEMTEST_START	(RCAR_GEN2_SDRAM_BASE)
@@ -39,8 +38,7 @@
 #undef	CONFIG_SYS_LOADS_BAUD_CHANGE
 
 /* FLASH */
-/* #define CONFIG_SYS_NO_FLASH */	/* uncomment if use QSPI-FLASH */
-#if defined(CONFIG_SYS_NO_FLASH)
+#if !defined(CONFIG_MTD_NOR_FLASH)
 #define CONFIG_SYS_TEXT_BASE	0x40000000
 #define CONFIG_SPI
 #define CONFIG_SH_QSPI
@@ -67,11 +65,6 @@
 #undef  CONFIG_CMD_SPI
 #endif
 
-/* BLANCHE on board LANC: SMC89218 (ExCS0) */
-#define CONFIG_NET_MULTI
-#define CONFIG_SMC911X                  1
-#define CONFIG_SMC911X_16_BIT           1
-#define CONFIG_SMC911X_BASE             0x18000000
 
 /* Board Clock */
 #define RMOBILE_XTAL_CLK	20000000u
@@ -80,22 +73,15 @@
 #define CONFIG_SYS_TMU_CLK_DIV	4
 
 /* ENV setting */
-#if defined(CONFIG_SYS_NO_FLASH)
+#if !defined(CONFIG_MTD_NOR_FLASH)
 #else
-#undef  CONFIG_ENV_IS_IN_SPI_FLASH
 #undef  CONFIG_ENV_ADDR
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE	(256 * 1024)
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + CONFIG_SYS_MONITOR_LEN)
 #define CONFIG_ENV_OFFSET	(CONFIG_ENV_ADDR)
 #define CONFIG_ENV_SIZE		(CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_SYS_MONITOR_LEN)
 #endif
-
-/* USB */
-#undef CONFIG_CMD_USB
-
-#define CONFIG_GENERIC_MMC
 
 /* Module stop status bits */
 /* INTC-RT */

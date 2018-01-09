@@ -7,13 +7,13 @@
 	binman {
 		sort-by-pos;
 		end-at-4gb;
-		size = <16>;
+		size = <32>;
 		u-boot {
 			pos = <0>;
 		};
 
 		u-boot-spl {
-			pos = <0xfffffff7>;
+			pos = <0xffffffeb>;
 		};
 	};
 };

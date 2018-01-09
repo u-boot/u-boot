@@ -54,6 +54,22 @@
 			status = "disabled";
 		};
 
+		esdhc0: esdhc@1560000 {
+			compatible = "fsl,esdhc";
+			reg = <0x0 0x1560000 0x0 0x10000>;
+			interrupts = <0 62 0x4>;
+			big-endian;
+			bus-width = <4>;
+		};
+
+		esdhc1: esdhc@1580000 {
+			compatible = "fsl,esdhc";
+			reg = <0x0 0x1580000 0x0 0x10000>;
+			interrupts = <0 65 0x4>;
+			big-endian;
+			non-removable;
+			bus-width = <4>;
+		};
 
 		i2c0: i2c@2180000 {
 			compatible = "fsl,vf610-i2c";
@@ -98,10 +114,40 @@
 			reg = <0x0 0x1550000 0x0 0x10000>,
 				<0x0 0x40000000 0x0 0x4000000>;
 			reg-names = "QuadSPI", "QuadSPI-memory";
-			num-cs = <2>;
+			num-cs = <1>;
 			big-endian;
 			status = "disabled";
 		};
 
+		pcie@3400000 {
+			compatible = "fsl,ls-pcie", "snps,dw-pcie";
+			reg = <0x00 0x03400000 0x0 0x80000   /* dbi registers */
+			       0x00 0x03480000 0x0 0x40000   /* lut registers */
+			       0x00 0x034c0000 0x0 0x40000   /* pf controls registers */
+			       0x40 0x00000000 0x0 0x20000>; /* configuration space */
+			reg-names = "dbi", "lut", "ctrl", "config";
+			big-endian;
+			#address-cells = <3>;
+			#size-cells = <2>;
+			device_type = "pci";
+			bus-range = <0x0 0xff>;
+			ranges = <0x81000000 0x0 0x00000000 0x40 0x00020000 0x0 0x00010000   /* downstream I/O */
+				  0x82000000 0x0 0x40000000 0x40 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
+		};
+
+		usb0: usb2@8600000 {
+			compatible = "fsl-usb2-dr-v2.5", "fsl-usb2-dr";
+			reg = <0x0 0x8600000 0x0 0x1000>;
+			interrupts = <0 139 0x4>;
+			dr_mode = "host";
+			fsl,usb-erratum-a005697;
+		};
+
+		usb1: usb3@2f00000 {
+			compatible = "fsl,layerscape-dwc3";
+			reg = <0x0 0x2f00000 0x0 0x10000>;
+			interrupts = <0 61 0x4>;
+			dr_mode = "host";
+		};
 	};
 };

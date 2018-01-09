@@ -114,8 +114,8 @@ static int arc_serial_ofdata_to_platdata(struct udevice *dev)
 	struct arc_serial_platdata *plat = dev_get_platdata(dev);
 	DECLARE_GLOBAL_DATA_PTR;
 
-	plat->reg = (struct arc_serial_regs *)dev_get_addr(dev);
-	plat->uartclk = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	plat->reg = (struct arc_serial_regs *)devfdt_get_addr(dev);
+	plat->uartclk = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 				       "clock-frequency", 0);
 
 	return 0;

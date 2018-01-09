@@ -22,7 +22,9 @@
 /* NS16550 Configuration */
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_NS16550_SERIAL
+#ifndef CONFIG_DM_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
+#endif
 #endif
 #define CONFIG_SYS_NS16550_CLK		48000000
 
@@ -44,10 +46,6 @@
  * in the board config.
  */
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0x44E3E000
-
-/* Enable the HW watchdog, since we can use this with bootcount */
-#define CONFIG_HW_WATCHDOG
-#define CONFIG_OMAP_WATCHDOG
 
 /*
  * SPL related defines.  The Public RAM memory map the ROM defines the
@@ -75,13 +73,6 @@
  * we need to call board_early_init_f.  This is taken care of in
  * s_init when we have SPL used.
  */
-#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) && !defined(CONFIG_SPL)
-#define CONFIG_BOARD_EARLY_INIT_F
-#endif
-
-#ifdef CONFIG_NAND
-#define CONFIG_SPL_NAND_AM33XX_BCH	/* ELM support */
-#endif
 
 /* Now bring in the rest of the common code. */
 #include <configs/ti_armv7_omap.h>

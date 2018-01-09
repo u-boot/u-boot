@@ -64,7 +64,7 @@ void board_gpio_init(void)
 
 	for (i = 0; i < GPIO_MAX_NUM; i++) {
 		sprintf(envname, "GPIO%d", i);
-		val = getenv(envname);
+		val = env_get(envname);
 		if (val) {
 			char direction = toupper(val[0]);
 			char level = toupper(val[1]);
@@ -82,7 +82,7 @@ void board_gpio_init(void)
 		}
 	}
 
-	val = getenv("PCIE_OFF");
+	val = env_get("PCIE_OFF");
 	if (val) {
 		gpio_direction_input(GPIO_PCIE1_EN);
 		gpio_direction_input(GPIO_PCIE2_EN);
@@ -91,7 +91,7 @@ void board_gpio_init(void)
 		gpio_direction_output(GPIO_PCIE2_EN, 1);
 	}
 
-	val = getenv("SDHC_CDWP_OFF");
+	val = env_get("SDHC_CDWP_OFF");
 	if (!val) {
 		ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 
@@ -214,7 +214,7 @@ int last_stage_init(void)
 	else
 		printf("NCT72(0x%x): ready\n", id2);
 
-	kval = getenv("kernelargs");
+	kval = env_get("kernelargs");
 
 	mmc = find_mmc_device(0);
 	if (mmc)
@@ -230,21 +230,21 @@ int last_stage_init(void)
 				strcat(newkernelargs, mmckargs);
 				strcat(newkernelargs, " ");
 				strcat(newkernelargs, &tmp[n]);
-				setenv("kernelargs", newkernelargs);
+				env_set("kernelargs", newkernelargs);
 			} else {
-				setenv("kernelargs", mmckargs);
+				env_set("kernelargs", mmckargs);
 			}
 		}
 	get_arc_info();
 
 	if (kval) {
-		sval = getenv("SERIAL");
+		sval = env_get("SERIAL");
 		if (sval) {
 			strcpy(newkernelargs, "SN=");
 			strcat(newkernelargs, sval);
 			strcat(newkernelargs, " ");
 			strcat(newkernelargs, kval);
-			setenv("kernelargs", newkernelargs);
+			env_set("kernelargs", newkernelargs);
 		}
 	} else {
 		printf("Error reading kernelargs env variable!\n");
@@ -307,8 +307,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	ft_cpu_setup(blob, bd);
 
-	base = getenv_bootm_low();
-	size = getenv_bootm_size();
+	base = env_get_bootm_low();
+	size = env_get_bootm_size();
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
 

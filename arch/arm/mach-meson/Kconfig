@@ -9,6 +9,15 @@ config MESON_GXBB
 	  The Amlogic Meson GXBaby (S905) is an ARM SoC with a
 	  quad-core Cortex-A53 CPU and a Mali-450 GPU.
 
+config MESON_GXL
+	bool "Support Meson GXL"
+	select ARM64
+	select DM
+	select DM_SERIAL
+	help
+	  The Amlogic Meson GXL (S905X and S905X) is an ARM SoC with a
+	  quad-core Cortex-A53 CPU and a Mali-450 GPU.
+
 if MESON_GXBB
 
 config TARGET_ODROID_C2
@@ -20,6 +29,31 @@ config TARGET_ODROID_C2
 
 endif
 
+if MESON_GXL
+
+config TARGET_P212
+	bool "P212"
+	help
+	  P212 is a reference dessign board based on Meson GXL S905X SoC
+	  with 2 GiB of RAM, Ethernet, HDMI, 2 USB, micro-SD slot,
+	  eMMC, IR receiver, CVBS+Audio jack and a SDIO WiFi module.
+
+config TARGET_LIBRETECH_CC
+	bool "LIBRETECH-CC"
+	help
+	  LibreTech CC is a single board computer based on Meson GXL
+	  with 2 GiB of RAM, Ethernet, HDMI, 4 USB, micro-SD slot,
+	  eMMC, IR receiver and a 40-pin GPIO header.
+
+config TARGET_KHADAS_VIM
+	bool "KHADAS-VIM"
+	help
+	  Khadas VIM is a single board computer based on Meson GXL
+	  with 2 GiB of RAM, Ethernet, HDMI, 4 USB, micro-SD slot,
+	  eMMC, IR receiver and a 40-pin GPIO header.
+
+endif
+
 config SYS_SOC
 	default "meson"
 
@@ -27,5 +61,11 @@ config SYS_MALLOC_F_LEN
 	default 0x1000
 
 source "board/amlogic/odroid-c2/Kconfig"
+
+source "board/amlogic/p212/Kconfig"
+
+source "board/amlogic/libretech-cc/Kconfig"
+
+source "board/amlogic/khadas-vim/Kconfig"
 
 endif

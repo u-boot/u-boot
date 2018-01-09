@@ -20,6 +20,7 @@ endif
 endif
 obj-y	+= utils.o
 
+obj-y	+= sysinfo-common.o
 ifneq ($(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
 obj-y	+= hwinit-common.o
 obj-y	+= clocks-common.o
@@ -29,8 +30,10 @@ obj-y	+= abb.o
 endif
 
 ifneq ($(CONFIG_OMAP54XX),)
+ifeq ($(CONFIG_DM_SCSI),)
 obj-y	+= pipe3-phy.o
 obj-$(CONFIG_SCSI_AHCI_PLAT) += sata.o
+endif
 endif
 
 ifeq ($(CONFIG_SYS_DCACHE_OFF),)
@@ -41,5 +44,7 @@ obj-y	+= boot-common.o
 obj-y	+= lowlevel_init.o
 
 obj-y	+= mem-common.o
+
+obj-y	+= fdt-common.o
 
 obj-$(CONFIG_TI_SECURE_DEVICE) += sec-common.o

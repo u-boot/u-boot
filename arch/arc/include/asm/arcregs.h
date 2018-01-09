@@ -27,11 +27,21 @@
 #define ARC_AUX_IC_PTAG		0x1E
 #endif
 #define ARC_BCR_IC_BUILD	0x77
+#define AUX_AUX_CACHE_LIMIT		0x5D
+#define ARC_AUX_NON_VOLATILE_LIMIT	0x5E
+
+/* ICCM and DCCM auxiliary registers */
+#define ARC_AUX_DCCM_BASE	0x18	/* DCCM Base Addr ARCv2 */
+#define ARC_AUX_ICCM_BASE	0x208	/* ICCM Base Addr ARCv2 */
 
 /* Timer related auxiliary registers */
 #define ARC_AUX_TIMER0_CNT	0x21	/* Timer 0 count */
 #define ARC_AUX_TIMER0_CTRL	0x22	/* Timer 0 control */
 #define ARC_AUX_TIMER0_LIMIT	0x23	/* Timer 0 limit */
+
+#define ARC_AUX_TIMER1_CNT	0x100	/* Timer 1 count */
+#define ARC_AUX_TIMER1_CTRL	0x101	/* Timer 1 control */
+#define ARC_AUX_TIMER1_LIMIT	0x102	/* Timer 1 limit */
 
 #define ARC_AUX_INTR_VEC_BASE	0x25
 
@@ -68,6 +78,9 @@
 /* gcc builtin sr needs reg param to be long immediate */
 #define write_aux_reg(reg_immed, val)		\
 		__builtin_arc_sr((unsigned int)val, reg_immed)
+
+/* ARCNUM [15:8] - field to identify each core in a multi-core system */
+#define CPU_ID_GET()	((read_aux_reg(ARC_AUX_IDENTITY) & 0xFF00) >> 8)
 #endif /* __ASSEMBLY__ */
 
 #endif /* _ASM_ARC_ARCREGS_H */

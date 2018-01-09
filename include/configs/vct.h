@@ -38,8 +38,6 @@
 
 #if !defined(CONFIG_VCT_NAND) && !defined(CONFIG_VCT_ONENAND)
 #define CONFIG_VCT_NOR
-#else
-#define CONFIG_SYS_NO_FLASH
 #endif
 
 /*
@@ -56,7 +54,6 @@
 #define CONFIG_SYS_NS16550_COM1		UART_1_BASE
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550_CLK		921600
-#define CONFIG_BAUDRATE			115200
 
 /*
  * SDRAM
@@ -68,58 +65,24 @@
 #define CONFIG_SYS_LOAD_ADDR		0x80400000	/* default load address */
 
 #if defined(CONFIG_VCT_PREMIUM) || defined(CONFIG_VCT_PLATINUM)
-/*
- * SMSC91C11x Network Card
- */
-#define CONFIG_SMC911X
-#define CONFIG_SMC911X_BASE	0x00000000
-#define CONFIG_SMC911X_32_BIT
 #define CONFIG_NET_RETRY_COUNT		20
 #endif
 
 /*
  * Commands
  */
-#define CONFIG_CMD_EEPROM
-
-/*
- * Only Premium/Platinum have ethernet support right now
- */
-#if (defined(CONFIG_VCT_PREMIUM) || defined(CONFIG_VCT_PLATINUM)) && \
-	!defined(CONFIG_VCT_SMALL_IMAGE)
-#endif
-
-/*
- * Only Premium/Platinum have USB-EHCI support right now
- */
-#if (defined(CONFIG_VCT_PREMIUM) || defined(CONFIG_VCT_PLATINUM)) && \
-	!defined(CONFIG_VCT_SMALL_IMAGE)
-#endif
-
 #if defined(CONFIG_CMD_USB)
-#define CONFIG_DOS_PARTITION
-#define CONFIG_ISO_PARTITION
-
 #define CONFIG_SUPPORT_VFAT
 
 /*
  * USB/EHCI
  */
-#define CONFIG_USB_EHCI			/* Enable EHCI USB support	*/
 #define CONFIG_USB_EHCI_VCT		/* on VCT platform		*/
 #define CONFIG_EHCI_MMIO_BIG_ENDIAN
 #define CONFIG_EHCI_DESC_BIG_ENDIAN
 #define CONFIG_EHCI_IS_TDI
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET /* re-init HCD after CMD_RESET */
 #endif /* CONFIG_CMD_USB */
-
-#if defined(CONFIG_VCT_NAND)
-#define CONFIG_CMD_NAND
-#endif
-
-#if defined(CONFIG_VCT_ONENAND)
-#define CONFIG_CMD_ONENAND
-#endif
 
 /*
  * BOOTP options
@@ -135,9 +98,6 @@
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
 #define CONFIG_SYS_CBSIZE	512		/* Console I/O Buffer Size	*/
-#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + \
-				 sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS	16		/* max number of command args	*/
 #define CONFIG_TIMESTAMP			/* Print image info with timestamp */
 #define CONFIG_CMDLINE_EDITING			/* add command line history	*/
 
@@ -145,7 +105,6 @@
  * FLASH and environment organization
  */
 #if defined(CONFIG_VCT_NOR)
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_FLASH_NOT_MEM_MAPPED
 
 /*
@@ -192,7 +151,6 @@
 
 #if defined(CONFIG_VCT_ONENAND)
 #define CONFIG_USE_ONENAND_BOARD_INIT
-#define	CONFIG_ENV_IS_IN_ONENAND
 #define	CONFIG_SYS_ONENAND_BASE		0x00000000	/* this is not real address */
 #define CONFIG_SYS_FLASH_BASE		0x00000000
 #define CONFIG_ENV_ADDR			(128 << 10)	/* after compr. U-Boot image */
@@ -241,18 +199,8 @@ int vct_gpio_get(int pin);
  * UBI configuration
  */
 #if defined(CONFIG_VCT_ONENAND)
-#define CONFIG_SYS_USE_UBI
-#define	CONFIG_CMD_JFFS2
-#define	CONFIG_RBTREE
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_CMD_MTDPARTS
-
-#define MTDIDS_DEFAULT		"onenand0=onenand"
-#define MTDPARTS_DEFAULT	"mtdparts=onenand:128k(u-boot),"	\
-					"128k(env),"		\
-					"20m(kernel),"		\
-					"-(rootfs)"
 #endif
 
 /*
@@ -261,16 +209,6 @@ int vct_gpio_get(int pin);
  * (NOR/OneNAND) usage and Linux kernel booting.
  */
 #if defined(CONFIG_VCT_SMALL_IMAGE)
-#undef CONFIG_CMD_BEDBUG
-#undef CONFIG_CMD_EEPROM
-#undef CONFIG_CMD_EEPROM
-#undef CONFIG_CMD_IRQ
-#undef CONFIG_CMD_LOADY
-#undef CONFIG_CMD_REGINFO
-#undef CONFIG_CMD_STRINGS
-#undef CONFIG_CMD_TERMINAL
-
-#undef CONFIG_SMC911X
 #undef CONFIG_SYS_I2C_SOFT
 #undef CONFIG_SOURCE
 #undef CONFIG_SYS_LONGHELP

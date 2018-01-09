@@ -106,7 +106,7 @@ static int gen_74x164_get_function(struct udevice *dev, unsigned offset)
 }
 
 static int gen_74x164_xlate(struct udevice *dev, struct gpio_desc *desc,
-			    struct fdtdec_phandle_args *args)
+			    struct ofnode_phandle_args *args)
 {
 	desc->offset = args->args[0];
 	desc->flags = args->args[1] & GPIO_ACTIVE_LOW ? GPIOD_ACTIVE_LOW : 0;
@@ -130,7 +130,7 @@ static int gen_74x164_probe(struct udevice *dev)
 	char *str, name[32];
 	int ret;
 	const void *fdt = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 
 	snprintf(name, sizeof(name), "%s_", dev->name);
 	str = strdup(name);
@@ -156,8 +156,7 @@ static int gen_74x164_probe(struct udevice *dev)
 	ret = gpio_request_by_name(dev, "oe-gpios", 0, &priv->oe,
 				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 	if (ret) {
-		dev_err(dev, "No oe-pins property\n");
-		goto free_buf;
+		dev_dbg(dev, "No oe-pins property\n");
 	}
 
 	uc_priv->bank_name = str;

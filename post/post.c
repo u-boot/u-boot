@@ -15,10 +15,6 @@
 #include <asm/gpio.h>
 #endif
 
-#ifdef CONFIG_LOGBUFFER
-#include <logbuff.h>
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #define POST_MAX_NUMBER		32
@@ -180,7 +176,7 @@ static void post_get_env_flags(int *test_flags)
 	int i, j;
 
 	for (i = 0; i < varnum; i++) {
-		if (getenv_f(var[i], list, sizeof(list)) <= 0)
+		if (env_get_f(var[i], list, sizeof(list)) <= 0)
 			continue;
 
 		for (j = 0; j < post_list_size; j++)
@@ -407,13 +403,8 @@ int post_log(char *format, ...)
 	vsprintf(printbuffer, format, args);
 	va_end(args);
 
-#ifdef CONFIG_LOGBUFFER
-	/* Send to the logbuffer */
-	logbuff_log(printbuffer);
-#else
 	/* Send to the stdout file */
 	puts(printbuffer);
-#endif
 
 	return 0;
 }
@@ -474,7 +465,7 @@ void post_reloc(void)
  */
 unsigned long post_time_ms(unsigned long base)
 {
-#if defined(CONFIG_PPC) || defined(CONFIG_BLACKFIN) || defined(CONFIG_ARM)
+#if defined(CONFIG_PPC) || defined(CONFIG_ARM)
 	return (unsigned long)lldiv(get_ticks(), get_tbclk() / CONFIG_SYS_HZ)
 		- base;
 #else

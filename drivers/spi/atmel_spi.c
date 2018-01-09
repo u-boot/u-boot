@@ -296,6 +296,9 @@ static void atmel_spi_cs_activate(struct udevice *dev)
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
 	u32 cs = slave_plat->cs;
 
+	if (!dm_gpio_is_valid(&priv->cs_gpios[cs]))
+		return;
+
 	dm_gpio_set_value(&priv->cs_gpios[cs], 0);
 }
 
@@ -305,6 +308,9 @@ static void atmel_spi_cs_deactivate(struct udevice *dev)
 	struct atmel_spi_priv *priv = dev_get_priv(bus);
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
 	u32 cs = slave_plat->cs;
+
+	if (!dm_gpio_is_valid(&priv->cs_gpios[cs]))
+		return;
 
 	dm_gpio_set_value(&priv->cs_gpios[cs], 1);
 }
@@ -463,16 +469,19 @@ static int atmel_spi_probe(struct udevice *bus)
 	if (ret)
 		return ret;
 
-	bus_plat->regs = (struct at91_spi *)dev_get_addr(bus);
+	bus_plat->regs = (struct at91_spi *)devfdt_get_addr(bus);
 
 	ret = gpio_request_list_by_name(bus, "cs-gpios", priv->cs_gpios,
 					ARRAY_SIZE(priv->cs_gpios), 0);
 	if (ret < 0) {
-		error("Can't get %s gpios! Error: %d", bus->name, ret);
+		pr_err("Can't get %s gpios! Error: %d", bus->name, ret);
 		return ret;
 	}
 
 	for(i = 0; i < ARRAY_SIZE(priv->cs_gpios); i++) {
+		if (!dm_gpio_is_valid(&priv->cs_gpios[i]))
+			continue;
+
 		dm_gpio_set_dir_flags(&priv->cs_gpios[i],
 				      GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 	}

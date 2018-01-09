@@ -5,10 +5,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-/* This code should work for both the S3C2400 and the S3C2410
- * as they seem to have the same I2C controller inside.
- * The different address mapping is handled by the s3c24xx.h files below.
- */
 #include <common.h>
 #include <errno.h>
 #include <dm.h>
@@ -23,6 +19,12 @@
 #include <asm/io.h>
 #include <i2c.h>
 #include "s3c24x0_i2c.h"
+
+#ifndef CONFIG_SYS_I2C_S3C24X0_SLAVE
+#define SYS_I2C_S3C24X0_SLAVE_ADDR	0
+#else
+#define SYS_I2C_S3C24X0_SLAVE_ADDR	CONFIG_SYS_I2C_S3C24X0_SLAVE
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -87,7 +89,7 @@ static int s3c24x0_i2c_set_bus_speed(struct udevice *dev, unsigned int speed)
 	i2c_bus->clock_frequency = speed;
 
 	i2c_ch_init(i2c_bus->regs, i2c_bus->clock_frequency,
-		    CONFIG_SYS_I2C_S3C24X0_SLAVE);
+		    SYS_I2C_S3C24X0_SLAVE_ADDR);
 
 	return 0;
 }
@@ -306,9 +308,9 @@ static int s3c_i2c_ofdata_to_platdata(struct udevice *dev)
 	struct s3c24x0_i2c_bus *i2c_bus = dev_get_priv(dev);
 	int node;
 
-	node = dev->of_offset;
+	node = dev_of_offset(dev);
 
-	i2c_bus->regs = (struct s3c24x0_i2c *)dev_get_addr(dev);
+	i2c_bus->regs = (struct s3c24x0_i2c *)devfdt_get_addr(dev);
 
 	i2c_bus->id = pinmux_decode_periph_id(blob, node);
 

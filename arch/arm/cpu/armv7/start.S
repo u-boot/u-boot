@@ -31,6 +31,7 @@
 
 	.globl	reset
 	.globl	save_boot_params_ret
+	.type   save_boot_params_ret,%function
 #ifdef CONFIG_ARMV7_LPAE
 	.global	switch_to_hypervisor_ret
 #endif
@@ -187,6 +188,12 @@ ENTRY(cpu_init_cp15)
 	mcr	p15, 0, r0, c15, c0, 1	@ write diagnostic register
 #endif
 
+#ifdef CONFIG_ARM_ERRATA_845369
+	mrc     p15, 0, r0, c15, c0, 1	@ read diagnostic register
+	orr     r0, r0, #1 << 22	@ set bit #22
+	mcr     p15, 0, r0, c15, c0, 1	@ write diagnostic register
+#endif
+
 	mov	r5, lr			@ Store my Caller
 	mrc	p15, 0, r1, c0, c0, 0	@ r1 has Read Main ID Register (MIDR)
 	mov	r3, r1, lsr #20		@ get variant field
@@ -268,6 +275,31 @@ skip_errata_430973:
 	pop	{r1-r5}			@ Restore the cpu info - fall through
 
 skip_errata_621766:
+#endif
+
+#ifdef CONFIG_ARM_ERRATA_725233
+	cmp	r2, #0x21		@ Only on < r2p1 (Cortex A8)
+	bge	skip_errata_725233
+
+	mrc	p15, 1, r0, c9, c0, 2	@ Read L2ACR
+	orr	r0, r0, #(0x1 << 27)	@ L2 PLD data forwarding disable
+	push	{r1-r5}			@ Save the cpu info registers
+	bl	v7_arch_cp15_set_l2aux_ctrl
+	pop	{r1-r5}			@ Restore the cpu info - fall through
+
+skip_errata_725233:
+#endif
+
+#ifdef CONFIG_ARM_ERRATA_852421
+	mrc	p15, 0, r0, c15, c0, 1	@ read diagnostic register
+	orr	r0, r0, #1 << 24	@ set bit #24
+	mcr	p15, 0, r0, c15, c0, 1	@ write diagnostic register
+#endif
+
+#ifdef CONFIG_ARM_ERRATA_852423
+	mrc	p15, 0, r0, c15, c0, 1	@ read diagnostic register
+	orr	r0, r0, #1 << 12	@ set bit #12
+	mcr	p15, 0, r0, c15, c0, 1	@ write diagnostic register
 #endif
 
 	mov	pc, r5			@ back to my caller

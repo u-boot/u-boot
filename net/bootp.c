@@ -15,7 +15,7 @@
 #include <net/tftp.h>
 #include "bootp.h"
 #include "nfs.h"
-#ifdef CONFIG_STATUS_LED
+#ifdef CONFIG_LED_STATUS
 #include <status_led.h>
 #endif
 #ifdef CONFIG_BOOTP_RANDOM_DELAY
@@ -170,7 +170,7 @@ static void store_net_params(struct bootp_hdr *bp)
 	 * not contain a new value
 	 */
 	if (*net_boot_file_name)
-		setenv("bootfile", net_boot_file_name);
+		env_set("bootfile", net_boot_file_name);
 #endif
 	net_copy_ip(&net_ip, &bp->bp_yiaddr);
 }
@@ -359,8 +359,8 @@ static void bootp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	/*
 	 *	Got a good BOOTP reply.	 Copy the data into our variables.
 	 */
-#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
-	status_led_set(STATUS_LED_BOOT, STATUS_LED_OFF);
+#if defined(CONFIG_LED_STATUS) && defined(CONFIG_LED_STATUS_BOOT_ENABLE)
+	status_led_set(CONFIG_LED_STATUS_BOOT, CONFIG_LED_STATUS_OFF);
 #endif
 
 	store_net_params(bp);		/* Store net parameters from reply */
@@ -414,7 +414,7 @@ static void bootp_timeout_handler(void)
 static u8 *add_vci(u8 *e)
 {
 	char *vci = NULL;
-	char *env_vci = getenv("bootp_vci");
+	char *env_vci = env_get("bootp_vci");
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_NET_VCI_STRING)
 	vci = CONFIG_SPL_NET_VCI_STRING;
@@ -488,7 +488,7 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 		*e++ = tmp & 0xff;
 	}
 #if defined(CONFIG_BOOTP_SEND_HOSTNAME)
-	hostname = getenv("hostname");
+	hostname = env_get("hostname");
 	if (hostname) {
 		int hostnamelen = strlen(hostname);
 
@@ -503,8 +503,8 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 	clientarch = CONFIG_BOOTP_PXE_CLIENTARCH;
 #endif
 
-	if (getenv("bootp_arch"))
-		clientarch = getenv_ulong("bootp_arch", 16, clientarch);
+	if (env_get("bootp_arch"))
+		clientarch = env_get_ulong("bootp_arch", 16, clientarch);
 
 	if (clientarch > 0) {
 		*e++ = 93;	/* Client System Architecture */
@@ -520,7 +520,7 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 	*e++ = 0;	/* minor revision */
 
 #ifdef CONFIG_LIB_UUID
-	uuid = getenv("pxeuuid");
+	uuid = env_get("pxeuuid");
 
 	if (uuid) {
 		if (uuid_str_valid(uuid)) {
@@ -713,7 +713,7 @@ void bootp_request(void)
 	dhcp_state = INIT;
 #endif
 
-	ep = getenv("bootpretryperiod");
+	ep = env_get("bootpretryperiod");
 	if (ep != NULL)
 		time_taken_max = simple_strtoul(ep, NULL, 10);
 	else

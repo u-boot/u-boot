@@ -69,7 +69,9 @@ ENTRY(_main)
 /*
  * Set up initial C runtime environment and call board_init_f(0).
  */
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
+#if defined(CONFIG_TPL_BUILD) && defined(CONFIG_TPL_NEEDS_SEPARATE_STACK)
+	ldr	x0, =(CONFIG_TPL_STACK)
+#elif defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
 	ldr	x0, =(CONFIG_SPL_STACK)
 #else
 	ldr	x0, =(CONFIG_SYS_INIT_SP_ADDR)
@@ -93,10 +95,17 @@ ENTRY(_main)
  */
 	ldr	x0, [x18, #GD_START_ADDR_SP]	/* x0 <- gd->start_addr_sp */
 	bic	sp, x0, #0xf	/* 16-byte alignment for ABI compliance */
-	ldr	x18, [x18, #GD_BD]		/* x18 <- gd->bd */
-	sub	x18, x18, #GD_SIZE		/* new GD is below bd */
+	ldr	x18, [x18, #GD_NEW_GD]		/* x18 <- gd->new_gd */
 
 	adr	lr, relocation_return
+#if CONFIG_POSITION_INDEPENDENT
+	/* Add in link-vs-runtime offset */
+	adr	x0, _start		/* x0 <- Runtime value of _start */
+	ldr	x9, _TEXT_BASE		/* x9 <- Linked value of _start */
+	sub	x9, x9, x0		/* x9 <- Run-vs-link offset */
+	add	lr, lr, x9
+#endif
+	/* Add in link-vs-relocation offset */
 	ldr	x9, [x18, #GD_RELOC_OFF]	/* x9 <- gd->reloc_off */
 	add	lr, lr, x9	/* new return address after relocation */
 	ldr	x0, [x18, #GD_RELOCADDR]	/* x0 <- gd->relocaddr */
@@ -109,18 +118,29 @@ relocation_return:
  */
 	bl	c_runtime_cpu_setup		/* still call old routine */
 #endif /* !CONFIG_SPL_BUILD */
-
-/* TODO: For SPL, call spl_relocate_stack_gd() to alloc stack relocation */
+#if defined(CONFIG_SPL_BUILD)
+	bl	spl_relocate_stack_gd           /* may return NULL */
+	/* set up gd here, outside any C code, if new stack is returned */
+	cmp	x0, #0
+	csel	x18, x0, x18, ne
+	/*
+	 * Perform 'sp = (x0 != NULL) ? x0 : sp' while working
+	 * around the constraint that conditional moves can not
+	 * have 'sp' as an operand
+	 */
+	mov	x1, sp
+	cmp	x0, #0
+	csel	x0, x0, x1, ne
+	mov	sp, x0
+#endif
 
 /*
  * Clear BSS section
  */
 	ldr	x0, =__bss_start		/* this is auto-relocated! */
 	ldr	x1, =__bss_end			/* this is auto-relocated! */
-	mov	x2, #0
 clear_loop:
-	str	x2, [x0]
-	add	x0, x0, #8
+	str	xzr, [x0], #8
 	cmp	x0, x1
 	b.lo	clear_loop
 

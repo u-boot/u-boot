@@ -12,8 +12,9 @@
 #include <malloc.h>
 #include <mapmem.h>
 #include <regmap.h>
-
 #include <asm/io.h>
+#include <dm/of_addr.h>
+#include <linux/ioport.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -39,7 +40,7 @@ static struct regmap *regmap_alloc_count(int count)
 }
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-int regmap_init_mem_platdata(struct udevice *dev, u32 *reg, int count,
+int regmap_init_mem_platdata(struct udevice *dev, fdt_val_t *reg, int count,
 			     struct regmap **mapp)
 {
 	struct regmap_range *range;
@@ -62,37 +63,46 @@ int regmap_init_mem_platdata(struct udevice *dev, u32 *reg, int count,
 #else
 int regmap_init_mem(struct udevice *dev, struct regmap **mapp)
 {
-	const void *blob = gd->fdt_blob;
 	struct regmap_range *range;
-	const fdt32_t *cell;
 	struct regmap *map;
 	int count;
 	int addr_len, size_len, both_len;
-	int parent;
 	int len;
+	int index;
+	ofnode node = dev_ofnode(dev);
+	struct resource r;
 
-	parent = dev->parent->of_offset;
-	addr_len = fdt_address_cells(blob, parent);
-	size_len = fdt_size_cells(blob, parent);
+	addr_len = dev_read_simple_addr_cells(dev->parent);
+	size_len = dev_read_simple_size_cells(dev->parent);
 	both_len = addr_len + size_len;
 
-	cell = fdt_getprop(blob, dev->of_offset, "reg", &len);
-	len /= sizeof(*cell);
+	len = dev_read_size(dev, "reg");
+	if (len < 0)
+		return len;
+	len /= sizeof(fdt32_t);
 	count = len / both_len;
-	if (!cell || !count)
+	if (!count)
 		return -EINVAL;
 
 	map = regmap_alloc_count(count);
 	if (!map)
 		return -ENOMEM;
 
-	map->base = fdtdec_get_number(cell, addr_len);
-
-	for (range = map->range; count > 0;
-	     count--, cell += both_len, range++) {
-		range->start = fdtdec_get_number(cell, addr_len);
-		range->size = fdtdec_get_number(cell + addr_len, size_len);
+	for (range = map->range, index = 0; count > 0;
+	     count--, range++, index++) {
+		fdt_size_t sz;
+		if (of_live_active()) {
+			of_address_to_resource(ofnode_to_np(node), index, &r);
+			range->start = r.start;
+			range->size = r.end - r.start + 1;
+		} else {
+			range->start = fdtdec_get_addr_size_fixed(gd->fdt_blob,
+					dev_of_offset(dev), "reg", index,
+					addr_len, size_len, &sz, true);
+			range->size = sz;
+		}
 	}
+	map->base = map->range[0].start;
 
 	*mapp = map;
 

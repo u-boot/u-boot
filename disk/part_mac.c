@@ -47,7 +47,10 @@ static int part_test_mac(struct blk_desc *dev_desc)
 	ulong i, n;
 
 	if (part_mac_read_ddb (dev_desc, ddesc)) {
-		/* error reading Driver Desriptor Block, or no valid Signature */
+		/*
+		 * error reading Driver Descriptor Block,
+		 * or no valid Signature
+		 */
 		return (-1);
 	}
 
@@ -71,7 +74,10 @@ static void part_print_mac(struct blk_desc *dev_desc)
 	ldiv_t mb, gb;
 
 	if (part_mac_read_ddb (dev_desc, ddesc)) {
-		/* error reading Driver Desriptor Block, or no valid Signature */
+		/*
+		 * error reading Driver Descriptor Block,
+		 * or no valid Signature
+		 */
 		return;
 	}
 
@@ -153,15 +159,11 @@ static int part_mac_read_ddb(struct blk_desc *dev_desc,
 			     mac_driver_desc_t *ddb_p)
 {
 	if (blk_dread(dev_desc, 0, 1, (ulong *)ddb_p) != 1) {
-		printf ("** Can't read Driver Desriptor Block **\n");
+		debug("** Can't read Driver Descriptor Block **\n");
 		return (-1);
 	}
 
 	if (ddb_p->signature != MAC_DRIVER_MAGIC) {
-#if 0
-		printf ("** Bad Signature: expected 0x%04x, got 0x%04x\n",
-			MAC_DRIVER_MAGIC, ddb_p->signature);
-#endif
 		return (-1);
 	}
 	return (0);

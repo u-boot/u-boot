@@ -96,7 +96,7 @@ uint mmc_get_env_part(struct mmc *mmc)
 }
 #endif
 
-#if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_MMC)
 #define SB_T54_CD_GPIO 228
 #define SB_T54_WP_GPIO 229
 
@@ -126,7 +126,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 	uint8_t enetaddr[6];
 
 	/* MAC addr */
-	if (eth_getenv_enetaddr("usbethaddr", enetaddr)) {
+	if (eth_env_get_enetaddr("usbethaddr", enetaddr)) {
 		fdt_find_and_setprop(blob, "/smsc95xx@0", "mac-address",
 				     enetaddr, 6, 1);
 	}
@@ -161,7 +161,7 @@ static int handle_mac_address(void)
 	uint8_t enetaddr[6];
 	int ret;
 
-	ret = eth_getenv_enetaddr("usbethaddr", enetaddr);
+	ret = eth_env_get_enetaddr("usbethaddr", enetaddr);
 	if (ret)
 		return 0;
 
@@ -172,7 +172,7 @@ static int handle_mac_address(void)
 	if (!is_valid_ethaddr(enetaddr))
 		return -1;
 
-	return eth_setenv_enetaddr("usbethaddr", enetaddr);
+	return eth_env_set_enetaddr("usbethaddr", enetaddr);
 }
 
 int board_eth_init(bd_t *bis)
@@ -181,7 +181,7 @@ int board_eth_init(bd_t *bis)
 }
 #endif
 
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 static struct omap_usbhs_board_data usbhs_bdata = {
 	.port_mode[0] = OMAP_USBHS_PORT_MODE_UNUSED,
 	.port_mode[1] = OMAP_EHCI_PORT_MODE_HSIC,
@@ -246,7 +246,7 @@ int ehci_hcd_stop(void)
 	return ret;
 }
 
-void usb_hub_reset_devices(int port)
+void usb_hub_reset_devices(struct usb_hub_device *hub, int port)
 {
 	/* The LAN9730 needs to be reset after the port power has been set. */
 	if (port == 3) {

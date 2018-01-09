@@ -54,13 +54,6 @@
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX	1
-#define CONFIG_BAUDRATE		115200
-
-/***********************************************************
- * Command definition
- ***********************************************************/
-#define CONFIG_CMD_DATE
-
 
 #define CONFIG_LOADADDR		0x80800000	/* loadaddr env var */
 
@@ -102,11 +95,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size */
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS		16		/* max number of command args */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 
 #define CONFIG_SYS_MEMTEST_START	0		/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x10000
@@ -121,7 +109,6 @@
 #define CONFIG_NR_DRAM_BANKS	1
 #define PHYS_SDRAM_1		CSD0_BASE
 #define PHYS_SDRAM_1_SIZE	(128 * 1024 * 1024)
-#define CONFIG_BOARD_EARLY_INIT_F
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
@@ -140,7 +127,6 @@
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE	/* Monitor at beginning of flash */
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256KiB */
 
-#define	CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_SECT_SIZE	(128 * 1024)
 #define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
@@ -161,7 +147,6 @@
 /*
  * JFFS2 partitions
  */
-#undef CONFIG_CMD_MTDPARTS
 #define CONFIG_JFFS2_DEV	"nor0"
 
 #endif /* __CONFIG_H */

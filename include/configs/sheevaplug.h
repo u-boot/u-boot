@@ -35,10 +35,7 @@
  *  Environment variables configurations
  */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_ENV_IS_IN_NAND		1
 #define CONFIG_ENV_SECT_SIZE		0x20000	/* 128K */
-#else
-#define CONFIG_ENV_IS_NOWHERE		1	/* if env in SDRAM */
 #endif
 /*
  * max 4k env size is enough, but in case of nand
@@ -55,21 +52,11 @@
 	"setenv bootargs ${x_bootargs} ${x_bootargs_root}; "	\
 	"bootm 0x6400000;"
 
-#define CONFIG_MTDPARTS		\
-	"orion_nand:512K(uboot),"				\
-	"512K(env),4M(kernel),"					\
-	"-(rootfs)\0"
-
 #define CONFIG_EXTRA_ENV_SETTINGS	"x_bootargs=console"	\
-	"=ttyS0,115200 mtdparts="CONFIG_MTDPARTS	\
+	"=ttyS0,115200 mtdparts="CONFIG_MTDPARTS_DEFAULT	\
 	"x_bootcmd_kernel=nand read 0x6400000 0x100000 0x400000\0" \
 	"x_bootcmd_usb=usb start\0" \
 	"x_bootargs_root=root=/dev/mtdblock3 rw rootfstype=jffs2\0"
-
-#define MTDIDS_DEFAULT	"nand0=orion_nand"
-
-#define MTDPARTS_DEFAULT	\
-	"mtdparts="CONFIG_MTDPARTS
 
 /*
  * Ethernet Driver configuration
@@ -83,7 +70,6 @@
  * SDIO/MMC Card Configuration
  */
 #ifdef CONFIG_CMD_MMC
-#define CONFIG_GENERIC_MMC
 #define CONFIG_MVEBU_MMC
 #define CONFIG_SYS_MMC_BASE KW_SDIO_BASE
 #endif /* CONFIG_CMD_MMC */
@@ -91,14 +77,13 @@
 /*
  * SATA driver configuration
  */
-#ifdef CONFIG_CMD_IDE
+#ifdef CONFIG_IDE
 #define __io
 #define CONFIG_IDE_PREINIT
-#define CONFIG_DOS_PARTITION
 #define CONFIG_MVSATA_IDE_USE_PORT0
 #define CONFIG_MVSATA_IDE_USE_PORT1
 #define CONFIG_SYS_ATA_IDE0_OFFSET	MV_SATA_PORT0_OFFSET
 #define CONFIG_SYS_ATA_IDE1_OFFSET	MV_SATA_PORT1_OFFSET
-#endif /* CONFIG_CMD_IDE */
+#endif /* CONFIG_IDE */
 
 #endif /* _CONFIG_SHEEVAPLUG_H */

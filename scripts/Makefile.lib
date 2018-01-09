@@ -164,20 +164,28 @@ cpp_flags      = -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(UBOOTINCLUDE)     \
 
 ld_flags       = $(LDFLAGS) $(ldflags-y)
 
-dts_dir = $(srctree)/arch/$(ARCH)/dts
-
 # Try these files in order to find the U-Boot-specific .dtsi include file
-u_boot_dtsi_options = $(wildcard $(dts_dir)/$(basename $(notdir $<))-u-boot.dtsi) \
-	$(wildcard $(dts_dir)/$(subst $\",,$(CONFIG_SYS_SOC))-u-boot.dtsi) \
-	$(wildcard $(dts_dir)/$(subst $\",,$(CONFIG_SYS_CPU))-u-boot.dtsi) \
-	$(wildcard $(dts_dir)/$(subst $\",,$(CONFIG_SYS_VENDOR))-u-boot.dtsi) \
-	$(wildcard $(dts_dir)/u-boot.dtsi)
+u_boot_dtsi_options = $(strip $(wildcard $(dir $<)$(basename $(notdir $<))-u-boot.dtsi) \
+	$(wildcard $(dir $<)$(subst $\",,$(CONFIG_SYS_SOC))-u-boot.dtsi) \
+	$(wildcard $(dir $<)$(subst $\",,$(CONFIG_SYS_CPU))-u-boot.dtsi) \
+	$(wildcard $(dir $<)$(subst $\",,$(CONFIG_SYS_VENDOR))-u-boot.dtsi) \
+	$(wildcard $(dir $<)u-boot.dtsi))
+
+u_boot_dtsi_options_raw = $(warning Automatic .dtsi inclusion: options: \
+	$(dir $<)$(basename $(notdir $<))-u-boot.dtsi \
+	$(dir $<)$(subst $\",,$(CONFIG_SYS_SOC))-u-boot.dtsi \
+	$(dir $<)$(subst $\",,$(CONFIG_SYS_CPU))-u-boot.dtsi \
+	$(dir $<)$(subst $\",,$(CONFIG_SYS_VENDOR))-u-boot.dtsi \
+	$(dir $<)u-boot.dtsi ... \
+	found: $(if $(u_boot_dtsi_options),"$(u_boot_dtsi_options)",nothing!))
 
 # Uncomment for debugging
-# $(warning u_boot_dtsi_options: $(u_boot_dtsi_options))
+# This shows all the files that were considered and the one that we chose.
+# u_boot_dtsi_options_debug = $(u_boot_dtsi_options_raw)
 
 # We use the first match
-u_boot_dtsi = $(firstword $(u_boot_dtsi_options))
+u_boot_dtsi = $(strip $(u_boot_dtsi_options_debug) \
+	$(notdir $(firstword $(u_boot_dtsi_options))))
 
 # Modified for U-Boot
 dtc_cpp_flags  = -Wp,-MD,$(depfile).pre.tmp -nostdinc                    \
@@ -308,11 +316,10 @@ $(obj)/%.dtb.S: $(obj)/%.dtb
 
 quiet_cmd_dtc = DTC     $@
 # Modified for U-Boot
-# Bring in any U-Boot-specific include after the '/dts-v1/;' header
+# Bring in any U-Boot-specific include at the end of the file
 cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \
-	cat $< $(if $(u_boot_dtsi),\
-		| sed 's%^/ {$$%\#include \"$(u_boot_dtsi)\"\n&%')  | \
-		$(CPP) $(dtc_cpp_flags) -x assembler-with-cpp -o $(dtc-tmp) - ; \
+	(cat $<; $(if $(u_boot_dtsi),echo '\#include "$(u_boot_dtsi)"')) > $(pre-tmp); \
+	$(CPP) $(dtc_cpp_flags) -x assembler-with-cpp -o $(dtc-tmp) $(pre-tmp) ; \
 	$(DTC) -O dtb -o $@ -b 0 \
 		-i $(dir $<) $(DTC_FLAGS) \
 		-d $(depfile).dtc.tmp $(dtc-tmp) ; \
@@ -321,7 +328,25 @@ cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \
 $(obj)/%.dtb: $(src)/%.dts FORCE
 	$(call if_changed_dep,dtc)
 
+pre-tmp = $(subst $(comma),_,$(dot-target).pre.tmp)
 dtc-tmp = $(subst $(comma),_,$(dot-target).dts.tmp)
+
+# DTCO
+# ---------------------------------------------------------------------------
+
+quiet_cmd_dtco = DTCO    $@
+# Rule for objects only; does not put specific u-boot include at the end
+# No generation of assembly file either
+# Modified for U-Boot
+cmd_dtco = mkdir -p $(dir ${dtc-tmp}) ; \
+	$(CPP) $(dtc_cpp_flags) -x assembler-with-cpp -o $(dtc-tmp) - ; \
+	$(DTC) -@ -O dtb -o $@ -b 0 \
+		-i $(dir $<) $(DTC_FLAGS) \
+		-d $(depfile).dtc.tmp $(dtc-tmp) ; \
+	cat $(depfile).pre.tmp $(depfile).dtc.tmp > $(depfile)
+
+$(obj)/%.dtbo: $(src)/%.dts FORCE
+	$(call if_changed_dep,dtco)
 
 # Fonts
 # ---------------------------------------------------------------------------
@@ -344,45 +369,51 @@ cmd_S_ttf=						\
 $(obj)/%.S: $(src)/%.ttf
 	$(call cmd,S_ttf)
 
-# EFI Hello World application
+# EFI applications
+# A Makefile target *.efi is built as EFI application.
+# A Makefile target *_efi.S wraps *.efi as built-in EFI application.
 # ---------------------------------------------------------------------------
 
 # Generate an assembly file to wrap the EFI app
-cmd_S_efi=						\
-(							\
-	echo '.section .rodata.efi.init,"a"';		\
-	echo '.balign 16';				\
-	echo '.global __efi_hello_world_begin';		\
-	echo '__efi_hello_world_begin:';		\
-	echo '.incbin "$<" ';				\
-	echo '__efi_hello_world_end:';			\
-	echo '.global __efi_hello_world_end';		\
-	echo '.balign 16';				\
+cmd_S_efi=					\
+(						\
+	echo '.section .rodata.$*.init,"a"';	\
+	echo '.balign 16';			\
+	echo '.global __efi_$*_begin';		\
+	echo '__efi_$*_begin:';			\
+	echo '.incbin "$<" ';			\
+	echo '__efi_$*_end:';			\
+	echo '.global __efi_$*_end';		\
+	echo '.balign 16';			\
 ) > $@
 
 $(obj)/%_efi.S: $(obj)/%.efi
 	$(call cmd,S_efi)
 
-$(obj)/%.efi: $(obj)/%.so
-	$(OBJCOPY) -j .header -j .text -j .sdata -j .data -j .dynamic \
-		-j .dynsym  -j .rel* -j .rela* -j .reloc \
+quiet_cmd_efi_objcopy = OBJCOPY $@
+cmd_efi_objcopy = $(OBJCOPY) -j .header -j .text -j .sdata -j .data -j \
+		.dynamic -j .dynsym  -j .rel* -j .rela* -j .reloc \
 		$(if $(EFI_TARGET),$(EFI_TARGET),-O binary) $^ $@
+
+$(obj)/%.efi: $(obj)/%_efi.so
+	$(call cmd,efi_objcopy)
+
+quiet_cmd_efi_ld = LD      $@
+cmd_efi_ld = $(LD) -nostdlib -znocombreloc -T $(EFI_LDS_PATH) -shared \
+		-Bsymbolic $^ -o $@
 
 EFI_LDS_PATH = $(srctree)/arch/$(ARCH)/lib/$(EFI_LDS)
 
-$(obj)/helloworld.so: $(EFI_LDS_PATH)
-
-$(obj)/helloworld.so: $(obj)/helloworld.o arch/$(ARCH)/lib/$(EFI_CRT0) \
+$(obj)/%_efi.so: $(obj)/%.o arch/$(ARCH)/lib/$(EFI_CRT0) \
 		arch/$(ARCH)/lib/$(EFI_RELOC)
-	$(LD) -nostdlib -znocombreloc -T $(EFI_LDS_PATH) -shared -Bsymbolic \
-		$^ -o $@
+	$(call cmd,efi_ld)
 
 # ACPI
 # ---------------------------------------------------------------------------
 quiet_cmd_acpi_c_asl= ASL     $<
 cmd_acpi_c_asl=         \
 	$(CPP) -x assembler-with-cpp -D__ASSEMBLY__ -P $(UBOOTINCLUDE) -o $<.tmp $<; \
-	iasl -p $< -tc $<.tmp $(if $(KBUILD_VERBOSE:1=), >/dev/null); \
+	iasl -p $< -tc $<.tmp $(if $(KBUILD_VERBOSE:1=), >/dev/null) && \
 	mv $(patsubst %.asl,%.hex,$<) $@
 
 $(obj)/dsdt.c:    $(src)/dsdt.asl

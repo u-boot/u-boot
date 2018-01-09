@@ -70,7 +70,7 @@ static unsigned long pin_to_bank_base(struct udevice *dev, const char *pin_name,
 int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
 	const void *fdt = gd->fdt_blob;
-	int node = config->of_offset;
+	int node = dev_of_offset(config);
 	unsigned int count, idx, pin_num;
 	unsigned int pinfunc, pinpud, pindrv;
 	unsigned long reg, value;
@@ -128,7 +128,7 @@ int exynos_pinctrl_probe(struct udevice *dev)
 	if (!priv)
 		return -EINVAL;
 
-	base = dev_get_addr(dev);
+	base = devfdt_get_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

@@ -1,2 +1,3 @@
+embedded.c
 fw_printenv
 fw_printenv_unstripped

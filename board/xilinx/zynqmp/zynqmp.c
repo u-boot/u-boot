@@ -6,7 +6,7 @@
  */
 
 #include <common.h>
-#include <aes.h>
+#include <uboot_aes.h>
 #include <sata.h>
 #include <ahci.h>
 #include <scsi.h>
@@ -316,9 +316,9 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 }
 
 #if !defined(CONFIG_SYS_SDRAM_BASE) && !defined(CONFIG_SYS_SDRAM_SIZE)
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
-	fdtdec_setup_memory_banksize();
+	return fdtdec_setup_memory_banksize();
 }
 
 int dram_init(void)
@@ -358,14 +358,14 @@ int board_late_init(void)
 
 	switch (ver) {
 	case ZYNQMP_CSU_VERSION_VELOCE:
-		setenv("setup", "setenv baudrate 4800 && setenv bootcmd run veloce");
+		env_set("setup", "setenv baudrate 4800 && env_set bootcmd run veloce");
 	case ZYNQMP_CSU_VERSION_EP108:
 	case ZYNQMP_CSU_VERSION_SILICON:
 	case ZYNQMP_CSU_VERSION_QEMU:
-		setenv("setup", "setenv partid auto");
+		env_set("setup", "setenv partid auto");
 		break;
 	default:
-		setenv("setup", "setenv partid 0");
+		env_set("setup", "setenv partid 0");
 	}
 
 	ret = zynqmp_mmio_read((ulong)&crlapb_base->boot_mode, &reg);
@@ -382,28 +382,28 @@ int board_late_init(void)
 	case USB_MODE:
 		puts("USB_MODE\n");
 		mode = "usb";
-		setenv("modeboot", "usb_dfu_spl");
+		env_set("modeboot", "usb_dfu_spl");
 		break;
 	case JTAG_MODE:
 		puts("JTAG_MODE\n");
 		mode = "pxe dhcp";
-		setenv("modeboot", "jtagboot");
+		env_set("modeboot", "jtagboot");
 		break;
 	case QSPI_MODE_24BIT:
 	case QSPI_MODE_32BIT:
 		mode = "qspi0";
 		puts("QSPI_MODE\n");
-		setenv("modeboot", "qspiboot");
+		env_set("modeboot", "qspiboot");
 		break;
 	case EMMC_MODE:
 		puts("EMMC_MODE\n");
 		mode = "mmc0";
-		setenv("modeboot", "emmcboot");
+		env_set("modeboot", "emmcboot");
 		break;
 	case SD_MODE:
 		puts("SD_MODE\n");
 		mode = "mmc0";
-		setenv("modeboot", "sdboot");
+		env_set("modeboot", "sdboot");
 		break;
 	case SD1_LSHFT_MODE:
 		puts("LVL_SHFT_");
@@ -412,16 +412,16 @@ int board_late_init(void)
 		puts("SD_MODE1\n");
 #if defined(CONFIG_ZYNQ_SDHCI0) && defined(CONFIG_ZYNQ_SDHCI1)
 		mode = "mmc1";
-		setenv("sdbootdev", "1");
+		env_set("sdbootdev", "1");
 #else
 		mode = "mmc0";
 #endif
-		setenv("modeboot", "sdboot");
+		env_set("modeboot", "sdboot");
 		break;
 	case NAND_MODE:
 		puts("NAND_MODE\n");
 		mode = "nand0";
-		setenv("modeboot", "nandboot");
+		env_set("modeboot", "nandboot");
 		break;
 	default:
 		mode = "";
@@ -434,11 +434,17 @@ int board_late_init(void)
 	 * and default boot_targets
 	 */
 	new_targets = calloc(1, strlen(mode) +
-				strlen(getenv("boot_targets")) + 2);
+				strlen(env_get("boot_targets")) + 2);
 
-	sprintf(new_targets, "%s %s", mode, getenv("boot_targets"));
-	setenv("boot_targets", new_targets);
+	sprintf(new_targets, "%s %s", mode, env_get("boot_targets"));
+	env_set("boot_targets", new_targets);
 
+	return 0;
+}
+
+int checkboard(void)
+{
+	puts("Board: Xilinx ZynqMP\n");
 	return 0;
 }
 
@@ -477,9 +483,3 @@ int aes_decrypt_hw(u8 *key_ptr, u8 *src_ptr, u8 *dst_ptr, u32 len)
 	return ret;
 }
 #endif
-
-int checkboard(void)
-{
-	puts("Board: Xilinx ZynqMP\n");
-	return 0;
-}

@@ -49,7 +49,7 @@ struct bootp_hdr {
 	char		bp_sname[64];	/* Server host name		*/
 	char		bp_file[128];	/* Boot file name		*/
 	char		bp_vend[OPT_FIELD_SIZE]; /* Vendor information	*/
-};
+} __attribute__((packed));
 
 #define BOOTP_HDR_SIZE	sizeof(struct bootp_hdr)
 

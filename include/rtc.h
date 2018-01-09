@@ -128,6 +128,26 @@ int rtc_read8(struct udevice *dev, unsigned int reg);
 int rtc_write8(struct udevice *dev, unsigned int reg, int val);
 
 /**
+ * rtc_read16() - Read a 16-bit value from the RTC
+ *
+ * @dev:	Device to read from
+ * @reg:	Offset to start reading from
+ * @valuep:	Place to put the value that is read
+ * @return 0 if OK, -ve on error
+ */
+int rtc_read16(struct udevice *dev, unsigned int reg, u16 *valuep);
+
+/**
+ * rtc_write16() - Write a 16-bit value to the RTC
+ *
+ * @dev:	Device to write to
+ * @reg:	Register to start writing to
+ * @value:	Value to write
+ * @return 0 if OK, -ve on error
+ */
+int rtc_write16(struct udevice *dev, unsigned int reg, u16 value);
+
+/**
  * rtc_read32() - Read a 32-bit value from the RTC
  *
  * @dev:	Device to read from

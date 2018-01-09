@@ -17,6 +17,7 @@
 #include <asm/arch/mem.h>	/* get mem tables */
 #include <asm/arch/sys_proto.h>
 #include <asm/bootm.h>
+#include <asm/omap_common.h>
 
 #include <i2c.h>
 #include <linux/compiler.h>
@@ -236,14 +237,6 @@ u32 get_boot_type(void)
 	return (readl(&ctrl_base->status) & SYSBOOT_MASK);
 }
 
-/*************************************************************
- *  get_device_type(): tell if GP/HS/EMU/TST
- *************************************************************/
-u32 get_device_type(void)
-{
-	return ((readl(&ctrl_base->status) & (DEVICE_MASK)) >> 8);
-}
-
 #ifdef CONFIG_DISPLAY_CPUINFO
 /**
  * Print CPU information
@@ -292,24 +285,62 @@ int print_cpuinfo (void)
 			cpu_s = "35XX";
 			break;
 		}
-		max_clk = "600 Mhz";
+		max_clk = "600 MHz";
 		break;
 	case CPU_OMAP36XX:
-		cpu_family_s = "OMAP";
 		switch (get_cpu_type()) {
+		case AM3703:
+			cpu_family_s = "AM";
+			cpu_s = "3703";
+			max_clk = "800 MHz";
+			break;
+		case AM3703_1GHZ:
+			cpu_family_s = "AM";
+			cpu_s = "3703";
+			max_clk = "1 GHz";
+			break;
+		case AM3715:
+			cpu_family_s = "AM";
+			cpu_s = "3715";
+			max_clk = "800 MHz";
+			break;
+		case AM3715_1GHZ:
+			cpu_family_s = "AM";
+			cpu_s = "3715";
+			max_clk = "1 GHz";
+			break;
+		case OMAP3725:
+			cpu_family_s = "OMAP";
+			cpu_s = "3625/3725";
+			max_clk = "800 MHz";
+			break;
+		case OMAP3725_1GHZ:
+			cpu_family_s = "OMAP";
+			cpu_s = "3625/3725";
+			max_clk = "1 GHz";
+			break;
 		case OMAP3730:
+			cpu_family_s = "OMAP";
 			cpu_s = "3630/3730";
+			max_clk = "800 MHz";
+			break;
+		case OMAP3730_1GHZ:
+			cpu_family_s = "OMAP";
+			cpu_s = "3630/3730";
+			max_clk = "1 GHz";
 			break;
 		default:
+			cpu_family_s = "OMAP/AM";
 			cpu_s = "36XX/37XX";
+			max_clk = "1 GHz";
 			break;
 		}
-		max_clk = "1 Ghz";
+
 		break;
 	default:
 		cpu_family_s = "OMAP";
 		cpu_s = "35XX";
-		max_clk = "600 Mhz";
+		max_clk = "600 MHz";
 	}
 
 	switch (get_device_type()) {

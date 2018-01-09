@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <pci.h>
 #include <usb.h>
+#include <asm/io.h>
 
 #include "ehci.h"
 

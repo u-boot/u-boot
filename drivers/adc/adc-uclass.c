@@ -64,7 +64,7 @@ static int adc_supply_enable(struct udevice *dev)
 	}
 
 	if (ret)
-		error("%s: can't enable %s-supply!", dev->name, supply_type);
+		pr_err("%s: can't enable %s-supply!", dev->name, supply_type);
 
 	return ret;
 }
@@ -345,12 +345,11 @@ nodev:
 static int adc_vdd_platdata_set(struct udevice *dev)
 {
 	struct adc_uclass_platdata *uc_pdata = dev_get_uclass_platdata(dev);
-	int ret, offset = dev->of_offset;
-	const void *fdt = gd->fdt_blob;
+	int ret;
 	char *prop;
 
 	prop = "vdd-polarity-negative";
-	uc_pdata->vdd_polarity_negative = fdtdec_get_bool(fdt, offset, prop);
+	uc_pdata->vdd_polarity_negative = dev_read_bool(dev, prop);
 
 	ret = adc_vdd_platdata_update(dev);
 	if (ret != -ENOENT)
@@ -358,7 +357,7 @@ static int adc_vdd_platdata_set(struct udevice *dev)
 
 	/* No vdd-supply phandle. */
 	prop  = "vdd-microvolts";
-	uc_pdata->vdd_microvolts = fdtdec_get_int(fdt, offset, prop, -ENODATA);
+	uc_pdata->vdd_microvolts = dev_read_u32_default(dev, prop, -ENODATA);
 
 	return 0;
 }
@@ -366,12 +365,11 @@ static int adc_vdd_platdata_set(struct udevice *dev)
 static int adc_vss_platdata_set(struct udevice *dev)
 {
 	struct adc_uclass_platdata *uc_pdata = dev_get_uclass_platdata(dev);
-	int ret, offset = dev->of_offset;
-	const void *fdt = gd->fdt_blob;
+	int ret;
 	char *prop;
 
 	prop = "vss-polarity-negative";
-	uc_pdata->vss_polarity_negative = fdtdec_get_bool(fdt, offset, prop);
+	uc_pdata->vss_polarity_negative = dev_read_bool(dev, prop);
 
 	ret = adc_vss_platdata_update(dev);
 	if (ret != -ENOENT)
@@ -379,7 +377,7 @@ static int adc_vss_platdata_set(struct udevice *dev)
 
 	/* No vss-supply phandle. */
 	prop = "vss-microvolts";
-	uc_pdata->vss_microvolts = fdtdec_get_int(fdt, offset, prop, -ENODATA);
+	uc_pdata->vss_microvolts = dev_read_u32_default(dev, prop, -ENODATA);
 
 	return 0;
 }
@@ -391,12 +389,12 @@ static int adc_pre_probe(struct udevice *dev)
 	/* Set ADC VDD platdata: polarity, uV, regulator (phandle). */
 	ret = adc_vdd_platdata_set(dev);
 	if (ret)
-		error("%s: Can't update Vdd. Error: %d", dev->name, ret);
+		pr_err("%s: Can't update Vdd. Error: %d", dev->name, ret);
 
 	/* Set ADC VSS platdata: polarity, uV, regulator (phandle). */
 	ret = adc_vss_platdata_set(dev);
 	if (ret)
-		error("%s: Can't update Vss. Error: %d", dev->name, ret);
+		pr_err("%s: Can't update Vss. Error: %d", dev->name, ret);
 
 	return 0;
 }

@@ -14,8 +14,8 @@
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/mxc_i2c.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/io.h>
 #include <linux/sizes.h>
 #include <common.h>
@@ -62,7 +62,7 @@ static void setup_iomux_uart(void)
 }
 
 static struct fsl_esdhc_cfg usdhc_cfg[1] = {
-	{USDHC2_BASE_ADDR},
+	{USDHC2_BASE_ADDR, 0, 0, 0, 1},
 };
 
 int board_mmc_getcd(struct mmc *mmc)

@@ -202,7 +202,7 @@ static int soft_spi_ofdata_to_platdata(struct udevice *dev)
 {
 	struct soft_spi_platdata *plat = dev->platdata;
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 
 	plat->spi_delay_us = fdtdec_get_int(blob, node, "spi-delay-us", 0);
 

@@ -47,24 +47,6 @@ int bedbug_puts (const char *str)
 void bedbug_init (void)
 {
 	/* -------------------------------------------------- */
-
-#if defined(CONFIG_4xx)
-	void bedbug405_init (void);
-
-	bedbug405_init ();
-#elif defined(CONFIG_8xx)
-	void bedbug860_init (void);
-
-	bedbug860_init ();
-#endif
-
-#if defined(CONFIG_MPC824X) || defined(CONFIG_MPC8260)
-	/* Processors that are 603e core based */
-	void bedbug603e_init (void);
-
-	bedbug603e_init ();
-#endif
-
 	return;
 }				/* bedbug_init */
 

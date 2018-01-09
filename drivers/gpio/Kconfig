@@ -21,12 +21,31 @@ config ALTERA_PIO
 	  Select this to enable PIO for Altera devices. Please find
 	  details on the "Embedded Peripherals IP User Guide" of Altera.
 
+config BCM6345_GPIO
+	bool "BCM6345 GPIO driver"
+	depends on DM_GPIO && ARCH_BMIPS
+	help
+	  This driver supports the GPIO banks on BCM6345 SoCs.
+
 config DWAPB_GPIO
 	bool "DWAPB GPIO driver"
 	depends on DM && DM_GPIO
 	default n
 	help
 	  Support for the Designware APB GPIO driver.
+
+config AT91_GPIO
+	bool "AT91 PIO GPIO driver"
+	depends on DM_GPIO
+	default n
+	help
+	  Say yes here to select AT91 PIO GPIO driver. AT91 PIO
+	  controller manages up to 32 fully programmable input/output
+	  lines. Each I/O line may be dedicated as a general-purpose
+	  I/O or be assigned to a function of an embedded peripheral.
+	  The assignment to a function of an embedded peripheral is
+	  the responsibility of AT91 Pinctrl driver. This driver is
+	  responsible for the general-purpose I/O.
 
 config ATMEL_PIO4
 	bool "ATMEL PIO4 driver"
@@ -47,6 +66,26 @@ config INTEL_BROADWELL_GPIO
 	  GPIO feature set. The difference is large enough to merit a separate
 	  driver from the common Intel ICH6 driver. It supports a total of
 	  95 GPIOs which can be configured from the device tree.
+
+config INTEL_ICH6_GPIO
+	bool "Intel ICH6 compatible legacy GPIO driver"
+	depends on DM_GPIO
+	help
+	  Say yes here to select Intel ICH6 compatible legacy GPIO driver.
+
+config IMX_RGPIO2P
+	bool "i.MX7ULP RGPIO2P driver"
+	depends on DM
+	default n
+	help
+	  This driver supports i.MX7ULP Rapid GPIO2P controller.
+
+config HSDK_CREG_GPIO
+	bool "HSDK CREG GPIO griver"
+	depends on DM_GPIO
+	default n
+	help
+	  This driver supports CREG GPIOs on Synopsys HSDK SOC.
 
 config LPC32XX_GPIO
 	bool "LPC32XX GPIO driver"
@@ -69,6 +108,23 @@ config MSM_GPIO
 	  - APQ8016
 	  - MSM8916
 
+config OMAP_GPIO
+	bool "TI OMAP GPIO driver"
+	depends on ARCH_OMAP2PLUS
+	default y
+	help
+	  Support GPIO controllers on the TI OMAP3/4/5 and related (such as
+	  AM335x/AM43xx/AM57xx/DRA7xx/etc) families of SoCs.
+
+config CMD_PCA953X
+	bool "Enable the pca953x command"
+	help
+	  Deprecated: This should be converted to driver model.
+
+	  This command provides access to a pca953x GPIO device using the
+	  legacy GPIO interface. Several subcommands are provided which mirror
+	  the standard 'gpio' command. It should use that instead.
+
 config PM8916_GPIO
 	bool "Qualcomm PM8916 PMIC GPIO/keypad driver"
 	depends on DM_GPIO && PMIC_PM8916
@@ -85,6 +141,12 @@ config PCF8575_GPIO
 	help
 	 Support for PCF8575 I2C 16-bit GPIO expander. Most of these
 	 chips are from NXP and TI.
+
+config RCAR_GPIO
+	bool "Renesas RCar GPIO driver"
+	depends on DM_GPIO && ARCH_RMOBILE
+	help
+	  This driver supports the GPIO banks on Renesas RCar SoCs.
 
 config ROCKCHIP_GPIO
 	bool "Rockchip GPIO driver"
@@ -115,6 +177,15 @@ config SANDBOX_GPIO_COUNT
 	  are specified using the device tree. But you can also have a number
 	  of 'anonymous' GPIOs that do not belong to any device or bank.
 	  Select a suitable value depending on your needs.
+
+config CMD_TCA642X
+	bool "tca642x - Command to access tca642x state"
+	help
+	  DEPRECATED - This needs conversion to driver model
+
+	  This provides a way to looking at the pin state of this device.
+	  This mirrors the 'gpio' command and that should be used in preference
+	  to custom code.
 
 config TEGRA_GPIO
 	bool "Tegra20..210 GPIO driver"
@@ -150,6 +221,15 @@ config PIC32_GPIO
 	default y
 	help
 	  Say yes here to support Microchip PIC32 GPIOs.
+
+config STM32F7_GPIO
+	bool "ST STM32 GPIO driver"
+	depends on DM_GPIO && STM32
+	default y
+	help
+	  Device model driver support for STM32 GPIO controller. It should be
+	  usable on many stm32 families like stm32f4 & stm32H7.
+	  Tested on STM32F7.
 
 config MVEBU_GPIO
 	bool "Marvell MVEBU GPIO driver"

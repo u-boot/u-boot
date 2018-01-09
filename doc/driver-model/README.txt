@@ -684,7 +684,7 @@ steps (see device_probe()):
 
    g. If the driver provides an ofdata_to_platdata() method, then this is
    called to convert the device tree data into platform data. This should
-   do various calls like fdtdec_get_int(gd->fdt_blob, dev->of_offset, ...)
+   do various calls like fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), ...)
    to access the node and store the resulting information into dev->platdata.
    After this point, the device works the same way whether it was bound
    using a device tree node or U_BOOT_DEVICE() structure. In either case,
@@ -824,6 +824,10 @@ For pre-relocation we simply call the driver model init function. Only
 drivers marked with DM_FLAG_PRE_RELOC or the device tree
 'u-boot,dm-pre-reloc' flag are initialised prior to relocation. This helps
 to reduce the driver model overhead.
+
+It is possible to limit this to specific relocation steps, by using
+the more specialized 'u-boot,dm-spl' and 'u-boot,dm-tpl' flags
+in the devicetree.
 
 Then post relocation we throw that away and re-init driver model again.
 For drivers which require some sort of continuity between pre- and

@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <console.h>
+#include <environment.h>
 #include <ns16550.h>
 #include <malloc.h>
 #include <mmc.h>
@@ -16,11 +17,6 @@
 #include "../common/spl.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-static const u32 sysclk_tbl[] = {
-	66666000, 7499900, 83332500, 8999900,
-	99999000, 11111000, 12499800, 13333200
-};
 
 phys_size_t get_effective_memsize(void)
 {
@@ -80,7 +76,7 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 	bd->bi_memstart = CONFIG_SYS_INIT_L2_ADDR;
 	bd->bi_memsize = CONFIG_SYS_L2_SIZE;
 
-	probecpu();
+	arch_cpu_init();
 	get_clocks();
 	mem_malloc_init(CONFIG_SPL_RELOC_MALLOC_ADDR,
 			CONFIG_SPL_RELOC_MALLOC_SIZE);
@@ -97,7 +93,7 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 	nand_spl_load_image(CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
 			    (uchar *)CONFIG_ENV_ADDR);
 	gd->env_addr  = (ulong)(CONFIG_ENV_ADDR);
-	gd->env_valid = 1;
+	gd->env_valid = ENV_VALID;
 #else
 	env_relocate();
 #endif
@@ -108,7 +104,7 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 
-	gd->ram_size = initdram(0);
+	dram_init();
 #ifdef CONFIG_SPL_NAND_BOOT
 	puts("Tertiary program loader running in sram...");
 #else

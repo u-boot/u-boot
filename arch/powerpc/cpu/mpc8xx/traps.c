@@ -18,12 +18,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <kgdb.h>
 #include <asm/processor.h>
-
-#if defined(CONFIG_CMD_BEDBUG)
-extern void do_bedbug_breakpoint(struct pt_regs *);
-#endif
 
 /* Returns 0 if exception not found and fixup otherwise.  */
 extern unsigned long search_exception_table(unsigned long);
@@ -50,36 +45,33 @@ static void print_backtrace(unsigned long *sp)
 		if (cnt++ % 7 == 0)
 			printf("\n");
 		printf("%08lX ", i);
-		if (cnt > 32) break;
+		if (cnt > 32)
+			break;
 		sp = (unsigned long *)*sp;
 	}
 	printf("\n");
 }
 
-void show_regs(struct pt_regs *regs)
+static void show_regs(struct pt_regs *regs)
 {
 	int i;
 
 	printf("NIP: %08lX XER: %08lX LR: %08lX REGS: %p TRAP: %04lx DAR: %08lX\n",
 	       regs->nip, regs->xer, regs->link, regs, regs->trap, regs->dar);
 	printf("MSR: %08lx EE: %01x PR: %01x FP: %01x ME: %01x IR/DR: %01x%01x\n",
-	       regs->msr, regs->msr&MSR_EE ? 1 : 0, regs->msr&MSR_PR ? 1 : 0,
-	       regs->msr & MSR_FP ? 1 : 0,regs->msr&MSR_ME ? 1 : 0,
-	       regs->msr&MSR_IR ? 1 : 0,
-	       regs->msr&MSR_DR ? 1 : 0);
+	       regs->msr, regs->msr & MSR_EE ? 1 : 0,
+	       regs->msr & MSR_PR ? 1 : 0, regs->msr & MSR_FP ? 1 : 0,
+	       regs->msr & MSR_ME ? 1 : 0, regs->msr & MSR_IR ? 1 : 0,
+	       regs->msr & MSR_DR ? 1 : 0);
 
 	printf("\n");
 	for (i = 0;  i < 32;  i++) {
 		if ((i % 8) == 0)
-		{
 			printf("GPR%02d: ", i);
-		}
 
 		printf("%08lX ", regs->gpr[i]);
 		if ((i % 8) == 7)
-		{
 			printf("\n");
-		}
 	}
 }
 
@@ -88,42 +80,37 @@ static void _exception(int signr, struct pt_regs *regs)
 {
 	show_regs(regs);
 	print_backtrace((unsigned long *)regs->gpr[1]);
-	panic("Exception in kernel pc %lx signal %d",regs->nip,signr);
+	panic("Exception in kernel pc %lx signal %d", regs->nip, signr);
 }
 
 void MachineCheckException(struct pt_regs *regs)
 {
-	unsigned long fixup;
+	unsigned long fixup = search_exception_table(regs->nip);
 
 	/* Probing PCI using config cycles cause this exception
 	 * when a device is not present.  Catch it and return to
 	 * the PCI exception handler.
 	 */
-	if ((fixup = search_exception_table(regs->nip)) != 0) {
+	if (fixup != 0) {
 		regs->nip = fixup;
 		return;
 	}
 
-#if defined(CONFIG_CMD_KGDB)
-	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
-		return;
-#endif
-
 	printf("Machine check in kernel mode.\n");
 	printf("Caused by (from msr): ");
-	printf("regs %p ",regs);
-	switch( regs->msr & 0x000F0000) {
-	case (0x80000000>>12):
+	printf("regs %p ", regs);
+	switch (regs->msr & 0x000F0000) {
+	case (0x80000000 >> 12):
 		printf("Machine check signal - probably due to mm fault\n"
 			"with mmu off\n");
 		break;
-	case (0x80000000>>13):
+	case (0x80000000 >> 13):
 		printf("Transfer error ack signal\n");
 		break;
-	case (0x80000000>>14):
+	case (0x80000000 >> 14):
 		printf("Data parity signal\n");
 		break;
-	case (0x80000000>>15):
+	case (0x80000000 >> 15):
 		printf("Address parity signal\n");
 		break;
 	default:
@@ -136,10 +123,6 @@ void MachineCheckException(struct pt_regs *regs)
 
 void AlignmentException(struct pt_regs *regs)
 {
-#if defined(CONFIG_CMD_KGDB)
-	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
-		return;
-#endif
 	show_regs(regs);
 	print_backtrace((unsigned long *)regs->gpr[1]);
 	panic("Alignment Exception");
@@ -147,10 +130,6 @@ void AlignmentException(struct pt_regs *regs)
 
 void ProgramCheckException(struct pt_regs *regs)
 {
-#if defined(CONFIG_CMD_KGDB)
-	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
-		return;
-#endif
 	show_regs(regs);
 	print_backtrace((unsigned long *)regs->gpr[1]);
 	panic("Program Check Exception");
@@ -158,10 +137,6 @@ void ProgramCheckException(struct pt_regs *regs)
 
 void SoftEmuException(struct pt_regs *regs)
 {
-#if defined(CONFIG_CMD_KGDB)
-	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
-		return;
-#endif
 	show_regs(regs);
 	print_backtrace((unsigned long *)regs->gpr[1]);
 	panic("Software Emulation Exception");
@@ -170,10 +145,6 @@ void SoftEmuException(struct pt_regs *regs)
 
 void UnknownException(struct pt_regs *regs)
 {
-#if defined(CONFIG_CMD_KGDB)
-	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
-		return;
-#endif
 	printf("Bad trap at PC: %lx, SR: %lx, vector=%lx\n",
 	       regs->nip, regs->msr, regs->trap);
 	_exception(0, regs);
@@ -181,36 +152,6 @@ void UnknownException(struct pt_regs *regs)
 
 void DebugException(struct pt_regs *regs)
 {
-  printf("Debugger trap at @ %lx\n", regs->nip );
-  show_regs(regs);
-#if defined(CONFIG_CMD_BEDBUG)
-  do_bedbug_breakpoint( regs );
-#endif
-}
-
-/* Probe an address by reading.  If not present, return -1, otherwise
- * return 0.
- */
-int addr_probe(uint *addr)
-{
-#if 0
-	int	retval;
-
-	__asm__ __volatile__(			\
-		"1:	lwz %0,0(%1)\n"		\
-		"	eieio\n"		\
-		"	li %0,0\n"		\
-		"2:\n"				\
-		".section .fixup,\"ax\"\n"	\
-		"3:	li %0,-1\n"		\
-		"	b 2b\n"			\
-		".section __ex_table,\"a\"\n"	\
-		"	.align 2\n"		\
-		"	.long 1b,3b\n"		\
-		".text"				\
-		: "=r" (retval) : "r"(addr));
-
-	return (retval);
-#endif
-	return 0;
+	printf("Debugger trap at @ %lx\n", regs->nip);
+	show_regs(regs);
 }

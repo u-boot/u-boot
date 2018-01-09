@@ -10,18 +10,7 @@
 
 #define CONFIG_BOOTCOUNT_LIMIT
 
-/*
- * Command line configuration.
- */
-#define CONFIG_CMD_DEFAULTENV_VARS
-#define CONFIG_CMD_IMMAP
-#define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_MTDPARTS
-
 #undef	CONFIG_WATCHDOG		/* disable platform specific watchdog */
-
-#undef	CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
 /*
  * Miscellaneous configurable options
@@ -32,7 +21,6 @@
 #else
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size  */
 #endif
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 #define CONFIG_SYS_MAXARGS		32 /* max number of command args */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_CMDLINE_EDITING
@@ -42,7 +30,6 @@
 
 #define CONFIG_SYS_ALT_MEMTEST		/* memory test, takes time */
 
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE { 9600, 19200, 38400, 57600, 115200, 230400 }
 
 #define CONFIG_LOADS_ECHO
@@ -65,12 +52,9 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /* UBI Support for all Keymile boards */
-#define CONFIG_RBTREE
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_CONCAT
-
-#define CONFIG_CMD_CRAMFS
 
 #ifndef CONFIG_KM_DEF_ENV_BOOTPARAMS
 #define CONFIG_KM_DEF_ENV_BOOTPARAMS \
@@ -231,8 +215,8 @@
 	"init=/sbin/init-overlay.sh\0"					\
 	"load_addr_r="__stringify(CONFIG_KM_KERNEL_ADDR) "\0"		\
 	"load=tftpboot ${load_addr_r} ${u-boot}\0"			\
-	"mtdids=" MTDIDS_DEFAULT "\0"					\
-	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"					\
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"				\
 	""
 #endif /* CONFIG_KM_DEF_ENV */
 

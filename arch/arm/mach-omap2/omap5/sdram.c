@@ -480,7 +480,9 @@ void __weak emif_get_ext_phy_ctrl_const_regs(u32 emif_nr,
 		*regs = dra_ddr3_ext_phy_ctrl_const_base_666MHz;
 		*size = ARRAY_SIZE(dra_ddr3_ext_phy_ctrl_const_base_666MHz);
 		break;
+	case DRA762_ES1_0:
 	case DRA722_ES2_0:
+	case DRA722_ES2_1:
 		*regs = dra_ddr3_ext_phy_ctrl_const_base_666MHz_es2;
 		*size = ARRAY_SIZE(dra_ddr3_ext_phy_ctrl_const_base_666MHz_es2);
 		break;
@@ -709,11 +711,13 @@ const struct read_write_regs *get_bug_regs(u32 *iterations)
 		*iterations = sizeof(omap5_bug_00339_regs)/
 			     sizeof(omap5_bug_00339_regs[0]);
 		break;
+	case DRA762_ES1_0:
 	case DRA752_ES1_0:
 	case DRA752_ES1_1:
 	case DRA752_ES2_0:
 	case DRA722_ES1_0:
 	case DRA722_ES2_0:
+	case DRA722_ES2_1:
 		bug_00339_regs_ptr = dra_bug_00339_regs;
 		*iterations = sizeof(dra_bug_00339_regs)/
 			     sizeof(dra_bug_00339_regs[0]);

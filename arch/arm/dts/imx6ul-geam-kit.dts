@@ -87,6 +87,7 @@
 };
 
 &usdhc1 {
+	u-boot,dm-spl;
 	pinctrl-names = "default", "state_100mhz", "state_200mhz";
 	pinctrl-0 = <&pinctrl_usdhc1>;
 	pinctrl-1 = <&pinctrl_usdhc1_100mhz>;
@@ -134,6 +135,7 @@
 	};
 
 	pinctrl_usdhc1: usdhc1grp {
+		u-boot,dm-spl;
 		fsl,pins = <
 			MX6UL_PAD_SD1_CMD__USDHC1_CMD     0x17059
 			MX6UL_PAD_SD1_CLK__USDHC1_CLK     0x10059
@@ -145,6 +147,7 @@
 	};
 
 	pinctrl_usdhc1_100mhz: usdhc1grp100mhz {
+		u-boot,dm-spl;
 		fsl,pins = <
 			MX6UL_PAD_SD1_CMD__USDHC1_CMD     0x170b9
 			MX6UL_PAD_SD1_CLK__USDHC1_CLK     0x100b9
@@ -156,6 +159,7 @@
 	};
 
 	pinctrl_usdhc1_200mhz: usdhc1grp200mhz {
+		u-boot,dm-spl;
 		fsl,pins = <
 			MX6UL_PAD_SD1_CMD__USDHC1_CMD     0x170f9
 			MX6UL_PAD_SD1_CLK__USDHC1_CLK     0x100f9

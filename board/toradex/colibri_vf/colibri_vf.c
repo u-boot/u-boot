@@ -17,6 +17,7 @@
 #include <mmc.h>
 #include <fdt_support.h>
 #include <fsl_esdhc.h>
+#include <fsl_dcu_fb.h>
 #include <jffs2/load_kernel.h>
 #include <miiphy.h>
 #include <mtd_node.h>
@@ -295,6 +296,49 @@ static void setup_iomux_gpio(void)
 }
 #endif
 
+#ifdef CONFIG_VIDEO_FSL_DCU_FB
+static void setup_iomux_fsl_dcu(void)
+{
+	static const iomux_v3_cfg_t dcu0_pads[] = {
+		VF610_PAD_PTE0__DCU0_HSYNC,
+		VF610_PAD_PTE1__DCU0_VSYNC,
+		VF610_PAD_PTE2__DCU0_PCLK,
+		VF610_PAD_PTE4__DCU0_DE,
+		VF610_PAD_PTE5__DCU0_R0,
+		VF610_PAD_PTE6__DCU0_R1,
+		VF610_PAD_PTE7__DCU0_R2,
+		VF610_PAD_PTE8__DCU0_R3,
+		VF610_PAD_PTE9__DCU0_R4,
+		VF610_PAD_PTE10__DCU0_R5,
+		VF610_PAD_PTE11__DCU0_R6,
+		VF610_PAD_PTE12__DCU0_R7,
+		VF610_PAD_PTE13__DCU0_G0,
+		VF610_PAD_PTE14__DCU0_G1,
+		VF610_PAD_PTE15__DCU0_G2,
+		VF610_PAD_PTE16__DCU0_G3,
+		VF610_PAD_PTE17__DCU0_G4,
+		VF610_PAD_PTE18__DCU0_G5,
+		VF610_PAD_PTE19__DCU0_G6,
+		VF610_PAD_PTE20__DCU0_G7,
+		VF610_PAD_PTE21__DCU0_B0,
+		VF610_PAD_PTE22__DCU0_B1,
+		VF610_PAD_PTE23__DCU0_B2,
+		VF610_PAD_PTE24__DCU0_B3,
+		VF610_PAD_PTE25__DCU0_B4,
+		VF610_PAD_PTE26__DCU0_B5,
+		VF610_PAD_PTE27__DCU0_B6,
+		VF610_PAD_PTE28__DCU0_B7,
+	};
+
+	imx_iomux_v3_setup_multiple_pads(dcu0_pads, ARRAY_SIZE(dcu0_pads));
+}
+
+static void setup_tcon(void)
+{
+	setbits_le32(TCON0_BASE_ADDR, (1 << 29));
+}
+#endif
+
 #ifdef CONFIG_FSL_ESDHC
 struct fsl_esdhc_cfg esdhc_cfg[1] = {
 	{ESDHC1_BASE_ADDR},
@@ -431,6 +475,11 @@ static void clock_init(void)
 			CCM_CSCDR3_NFC_PRE_DIV(3));
 	clrsetbits_le32(&ccm->cscmr2, CCM_REG_CTRL_MASK,
 			CCM_CSCMR2_RMII_CLK_SEL(2));
+
+#ifdef CONFIG_VIDEO_FSL_DCU_FB
+		setbits_le32(&ccm->ccgr1, CCM_CCGR1_TCON0_CTRL_MASK);
+		setbits_le32(&ccm->ccgr3, CCM_CCGR3_DCU0_CTRL_MASK);
+#endif
 }
 
 static void mscm_init(void)
@@ -470,6 +519,11 @@ int board_early_init_f(void)
 	setup_iomux_dspi();
 #endif
 
+#ifdef CONFIG_VIDEO_FSL_DCU_FB
+	setup_tcon();
+	setup_iomux_fsl_dcu();
+#endif
+
 	return 0;
 }
 
@@ -478,26 +532,10 @@ int board_late_init(void)
 {
 	struct src *src = (struct src *)SRC_BASE_ADDR;
 
-	/* Default memory arguments */
-	if (!getenv("memargs")) {
-		switch (gd->ram_size) {
-		case 0x08000000:
-			/* 128 MB */
-			setenv("memargs", "mem=128M");
-			break;
-		case 0x10000000:
-			/* 256 MB */
-			setenv("memargs", "mem=256M");
-			break;
-		default:
-			printf("Failed detecting RAM size.\n");
-		}
-	}
-
 	if (((src->sbmr2 & SRC_SBMR2_BMOD_MASK) >> SRC_SBMR2_BMOD_SHIFT)
 			== SRC_SBMR2_BMOD_SERIAL) {
 		printf("Serial Downloader recovery mode, disable autoboot\n");
-		setenv("bootdelay", "-1");
+		env_set("bootdelay", "-1");
 	}
 
 	return 0;
@@ -541,6 +579,7 @@ int checkboard(void)
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, bd_t *bd)
 {
+	int ret = 0;
 #ifdef CONFIG_FDT_FIXUP_PARTITIONS
 	static struct node_info nodes[] = {
 		{ "fsl,vf610-nfc", MTD_DEV_TYPE_NAND, }, /* NAND flash */
@@ -549,6 +588,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 	/* Update partition nodes using info from mtdparts env var */
 	puts("   Updating MTD partitions...\n");
 	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+#endif
+#ifdef CONFIG_VIDEO_FSL_DCU_FB
+	ret = fsl_dcu_fixedfb_setup(blob);
+	if (ret)
+		return ret;
 #endif
 
 	return ft_common_board_setup(blob, bd);

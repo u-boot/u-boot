@@ -38,6 +38,13 @@ static struct blk_driver *blk_driver_lookup_typename(const char *if_typename)
 	return NULL;
 }
 
+const char *blk_get_if_type_name(enum if_type if_type)
+{
+	struct blk_driver *drv = blk_driver_lookup_type(if_type);
+
+	return drv ? drv->if_typename : NULL;
+}
+
 /**
  * get_desc() - Get the block device descriptor for the given device number
  *
@@ -224,9 +231,6 @@ ulong blk_read_devnum(enum if_type if_type, int devnum, lbaint_t start,
 	n = desc->block_read(desc, start, blkcnt, buffer);
 	if (IS_ERR_VALUE(n))
 		return n;
-
-	/* flush cache after read */
-	flush_cache((ulong)buffer, blkcnt * desc->blksz);
 
 	return n;
 }

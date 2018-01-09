@@ -23,11 +23,29 @@ enum onenand_spl_pagesize {
 	PAGE_4K = 4096,
 };
 
+static unsigned int density_mask;
+
 #define ONENAND_PAGES_PER_BLOCK			64
-#define onenand_block_address(block)		(block)
 #define onenand_sector_address(page)		(page << 2)
 #define onenand_buffer_address()		((1 << 3) << 8)
-#define onenand_bufferram_address(block)	(0)
+
+static inline int onenand_block_address(int block)
+{
+	/* Device Flash Core select, NAND Flash Block Address */
+	if (block & density_mask)
+		return ONENAND_DDP_CHIP1 | (block ^ density_mask);
+
+	return block;
+}
+
+static inline int onenand_bufferram_address(int block)
+{
+	/* Device BufferRAM Select */
+	if (block & density_mask)
+		return ONENAND_DDP_CHIP1;
+
+	return ONENAND_DDP_CHIP0;
+}
 
 static inline uint16_t onenand_readw(uint32_t addr)
 {
@@ -41,7 +59,7 @@ static inline void onenand_writew(uint16_t value, uint32_t addr)
 
 static enum onenand_spl_pagesize onenand_spl_get_geometry(void)
 {
-	uint32_t dev_id, density;
+	unsigned int dev_id, density, size;
 
 	if (!onenand_readw(ONENAND_REG_TECHNOLOGY)) {
 		dev_id = onenand_readw(ONENAND_REG_DEVICE_ID);
@@ -51,8 +69,11 @@ static enum onenand_spl_pagesize onenand_spl_get_geometry(void)
 		if (density < ONENAND_DEVICE_DENSITY_4Gb)
 			return PAGE_2K;
 
-		if (dev_id & ONENAND_DEVICE_IS_DDP)
+		if (dev_id & ONENAND_DEVICE_IS_DDP) {
+			size = onenand_readw(ONENAND_REG_DATA_BUFFER_SIZE);
+			density_mask = 1 << (18 + density - ffs(size));
 			return PAGE_2K;
+		}
 	}
 
 	return PAGE_4K;
@@ -110,9 +131,12 @@ static u8 scratch_buf[PAGE_4K];
  */
 int onenand_spl_read_block(int block, int offset, int len, void *dst)
 {
-	int page, read, psize;
+	int page, read;
+	static int psize;
 
-	psize = onenand_spl_get_geometry();
+	if (!psize)
+		psize = onenand_spl_get_geometry();
+
 	/* Calculate the page number */
 	page = offset / psize;
 	/* Offset to the start of a flash page */

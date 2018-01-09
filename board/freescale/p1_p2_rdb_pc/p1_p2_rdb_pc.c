@@ -350,7 +350,8 @@ int board_eth_init(bd_t *bis)
 
 #ifdef CONFIG_VSC7385_ENET
 	/* If a VSC7385 microcode image is present, then upload it. */
-	if ((tmp = getenv("vscfw_addr")) != NULL) {
+	tmp = env_get("vscfw_addr");
+	if (tmp) {
 		vscfw_addr = simple_strtoul(tmp, NULL, 16);
 		printf("uploading VSC7385 microcode from %x\n", vscfw_addr);
 		if (vsc7385_upload_firmware((void *) vscfw_addr,
@@ -438,8 +439,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	ft_cpu_setup(blob, bd);
 
-	base = getenv_bootm_low();
-	size = getenv_bootm_size();
+	base = env_get_bootm_low();
+	size = env_get_bootm_size();
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
 

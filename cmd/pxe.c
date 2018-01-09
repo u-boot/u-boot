@@ -33,15 +33,15 @@ const char *pxe_default_paths[] = {
 static bool is_pxe;
 
 /*
- * Like getenv, but prints an error if envvar isn't defined in the
- * environment.  It always returns what getenv does, so it can be used in
- * place of getenv without changing error handling otherwise.
+ * Like env_get, but prints an error if envvar isn't defined in the
+ * environment.  It always returns what env_get does, so it can be used in
+ * place of env_get without changing error handling otherwise.
  */
 static char *from_env(const char *envvar)
 {
 	char *ret;
 
-	ret = getenv(envvar);
+	ret = env_get(envvar);
 
 	if (!ret)
 		printf("missing environment variable: %s\n", envvar);
@@ -70,8 +70,7 @@ static int format_mac_pxe(char *outbuf, size_t outbuf_len)
 		return -EINVAL;
 	}
 
-	if (!eth_getenv_enetaddr_by_index("eth", eth_get_dev_index(),
-					  ethaddr))
+	if (!eth_env_get_enetaddr_by_index("eth", eth_get_dev_index(), ethaddr))
 		return -ENOENT;
 
 	sprintf(outbuf, "01-%02x-%02x-%02x-%02x-%02x-%02x",
@@ -591,7 +590,7 @@ static int label_localboot(struct pxe_label *label)
 		char bootargs[CONFIG_SYS_CBSIZE];
 
 		cli_simple_process_macros(label->append, bootargs);
-		setenv("bootargs", bootargs);
+		env_set("bootargs", bootargs);
 	}
 
 	debug("running: %s\n", localcmd);
@@ -617,7 +616,7 @@ static int label_localboot(struct pxe_label *label)
 static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 {
 	char *bootm_argv[] = { "bootm", NULL, NULL, NULL, NULL };
-	char initrd_str[22];
+	char initrd_str[28];
 	char mac_str[29] = "";
 	char ip_str[68] = "";
 	int bootm_argc = 2;
@@ -649,9 +648,9 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		}
 
 		bootm_argv[2] = initrd_str;
-		strcpy(bootm_argv[2], getenv("ramdisk_addr_r"));
+		strncpy(bootm_argv[2], env_get("ramdisk_addr_r"), 18);
 		strcat(bootm_argv[2], ":");
-		strcat(bootm_argv[2], getenv("filesize"));
+		strncat(bootm_argv[2], env_get("filesize"), 9);
 	}
 
 	if (get_relfile_envaddr(cmdtp, label->kernel, "kernel_addr_r") < 0) {
@@ -662,8 +661,8 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 
 	if (label->ipappend & 0x1) {
 		sprintf(ip_str, " ip=%s:%s:%s:%s",
-			getenv("ipaddr"), getenv("serverip"),
-			getenv("gatewayip"), getenv("netmask"));
+			env_get("ipaddr"), env_get("serverip"),
+			env_get("gatewayip"), env_get("netmask"));
 	}
 
 #ifdef CONFIG_CMD_NET
@@ -687,19 +686,20 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 			       strlen(ip_str), strlen(mac_str),
 			       sizeof(bootargs));
 			return 1;
+		} else {
+			if (label->append)
+				strncpy(bootargs, label->append,
+					sizeof(bootargs));
+			strcat(bootargs, ip_str);
+			strcat(bootargs, mac_str);
+
+			cli_simple_process_macros(bootargs, finalbootargs);
+			env_set("bootargs", finalbootargs);
+			printf("append: %s\n", finalbootargs);
 		}
-
-		if (label->append)
-			strcpy(bootargs, label->append);
-		strcat(bootargs, ip_str);
-		strcat(bootargs, mac_str);
-
-		cli_simple_process_macros(bootargs, finalbootargs);
-		setenv("bootargs", finalbootargs);
-		printf("append: %s\n", finalbootargs);
 	}
 
-	bootm_argv[1] = getenv("kernel_addr_r");
+	bootm_argv[1] = env_get("kernel_addr_r");
 
 	/*
 	 * fdt usage is optional:
@@ -714,7 +714,7 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	 *
 	 * Scenario 3: fdt blob is not available.
 	 */
-	bootm_argv[3] = getenv("fdt_addr_r");
+	bootm_argv[3] = env_get("fdt_addr_r");
 
 	/* if fdt label is defined then get fdt from server */
 	if (bootm_argv[3]) {
@@ -726,7 +726,7 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		} else if (label->fdtdir) {
 			char *f1, *f2, *f3, *f4, *slash;
 
-			f1 = getenv("fdtfile");
+			f1 = env_get("fdtfile");
 			if (f1) {
 				f2 = "";
 				f3 = "";
@@ -739,9 +739,9 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 				 * or the boot scripts should set $fdtfile
 				 * before invoking "pxe" or "sysboot".
 				 */
-				f1 = getenv("soc");
+				f1 = env_get("soc");
 				f2 = "-";
-				f3 = getenv("board");
+				f3 = env_get("board");
 				f4 = ".dtb";
 			}
 
@@ -781,7 +781,7 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	}
 
 	if (!bootm_argv[3])
-		bootm_argv[3] = getenv("fdt_addr");
+		bootm_argv[3] = env_get("fdt_addr");
 
 	if (bootm_argv[3]) {
 		if (!bootm_argv[2])
@@ -1671,10 +1671,10 @@ static int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	if (argc < 6)
-		filename = getenv("bootfile");
+		filename = env_get("bootfile");
 	else {
 		filename = argv[5];
-		setenv("bootfile", filename);
+		env_set("bootfile", filename);
 	}
 
 	if (strstr(argv[3], "ext2"))

@@ -152,8 +152,7 @@ enum musb_g_ep0_state {
  */
 
 #if defined(CONFIG_ARCH_DAVINCI) || defined(CONFIG_SOC_OMAP2430) \
-		|| defined(CONFIG_SOC_OMAP3430) || defined(CONFIG_BLACKFIN) \
-		|| defined(CONFIG_ARCH_OMAP4)
+		|| defined(CONFIG_SOC_OMAP3430) || defined(CONFIG_ARCH_OMAP4)
 /* REVISIT indexed access seemed to
  * misbehave (on DaVinci) for at least peripheral IN ...
  */
@@ -455,34 +454,6 @@ static inline struct musb *gadget_to_musb(struct usb_gadget *g)
 	return container_of(g, struct musb, g);
 }
 
-#ifdef CONFIG_BLACKFIN
-static inline int musb_read_fifosize(struct musb *musb,
-		struct musb_hw_ep *hw_ep, u8 epnum)
-{
-	musb->nr_endpoints++;
-	musb->epmask |= (1 << epnum);
-
-	if (epnum < 5) {
-		hw_ep->max_packet_sz_tx = 128;
-		hw_ep->max_packet_sz_rx = 128;
-	} else {
-		hw_ep->max_packet_sz_tx = 1024;
-		hw_ep->max_packet_sz_rx = 1024;
-	}
-	hw_ep->is_shared_fifo = false;
-
-	return 0;
-}
-
-static inline void musb_configure_ep0(struct musb *musb)
-{
-	musb->endpoints[0].max_packet_sz_tx = MUSB_EP0_FIFOSIZE;
-	musb->endpoints[0].max_packet_sz_rx = MUSB_EP0_FIFOSIZE;
-	musb->endpoints[0].is_shared_fifo = true;
-}
-
-#else
-
 static inline int musb_read_fifosize(struct musb *musb,
 		struct musb_hw_ep *hw_ep, u8 epnum)
 {
@@ -519,8 +490,6 @@ static inline void musb_configure_ep0(struct musb *musb)
 	musb->endpoints[0].max_packet_sz_rx = MUSB_EP0_FIFOSIZE;
 	musb->endpoints[0].is_shared_fifo = true;
 }
-#endif /* CONFIG_BLACKFIN */
-
 
 /***************************** Glue it together *****************************/
 

@@ -11,6 +11,7 @@
 #include <zynqpl.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/ps7_init_gpl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -92,22 +93,22 @@ int board_late_init(void)
 {
 	switch ((zynq_slcr_get_boot_mode()) & ZYNQ_BM_MASK) {
 	case ZYNQ_BM_QSPI:
-		setenv("modeboot", "qspiboot");
+		env_set("modeboot", "qspiboot");
 		break;
 	case ZYNQ_BM_NAND:
-		setenv("modeboot", "nandboot");
+		env_set("modeboot", "nandboot");
 		break;
 	case ZYNQ_BM_NOR:
-		setenv("modeboot", "norboot");
+		env_set("modeboot", "norboot");
 		break;
 	case ZYNQ_BM_SD:
-		setenv("modeboot", "sdboot");
+		env_set("modeboot", "sdboot");
 		break;
 	case ZYNQ_BM_JTAG:
-		setenv("modeboot", "jtagboot");
+		env_set("modeboot", "jtagboot");
 		break;
 	default:
-		setenv("modeboot", "");
+		env_set("modeboot", "");
 		break;
 	}
 
@@ -117,7 +118,15 @@ int board_late_init(void)
 #ifdef CONFIG_DISPLAY_BOARDINFO
 int checkboard(void)
 {
+	u32 version = zynq_get_silicon_version();
+
+	version <<= 1;
+	if (version > (PCW_SILICON_VERSION_3 << 1))
+		version += 1;
+
 	puts("Board: Xilinx Zynq\n");
+	printf("Silicon: v%d.%d\n", version >> 1, version & 1);
+
 	return 0;
 }
 #endif
@@ -136,9 +145,9 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 }
 
 #if !defined(CONFIG_SYS_SDRAM_BASE) && !defined(CONFIG_SYS_SDRAM_SIZE)
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
-	fdtdec_setup_memory_banksize();
+	return fdtdec_setup_memory_banksize();
 }
 
 int dram_init(void)

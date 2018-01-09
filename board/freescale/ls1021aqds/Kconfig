@@ -12,4 +12,6 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "ls1021aqds"
 
+source "board/freescale/common/Kconfig"
+
 endif

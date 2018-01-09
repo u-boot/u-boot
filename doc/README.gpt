@@ -156,10 +156,10 @@ Creating GPT partitions in U-Boot:
 To restore GUID partition table one needs to:
 1. Define partition layout in the environment.
    Format of partitions layout:
-     "partitions=uuid_disk=...;name=u-boot,size=60MiB,uuid=...;
+     "uuid_disk=...;name=u-boot,size=60MiB,uuid=...;
 	name=kernel,size=60MiB,uuid=...;"
      or
-     "partitions=uuid_disk=${uuid_gpt_disk};name=${uboot_name},
+     "uuid_disk=${uuid_gpt_disk};name=${uboot_name},
 	size=${uboot_size},uuid=${uboot_uuid};"
 
    The fields 'name' and 'size' are mandatory for every partition.
@@ -171,7 +171,8 @@ To restore GUID partition table one needs to:
    The fields 'uuid' and 'uuid_disk' are optional if CONFIG_RANDOM_UUID is
    enabled. A random uuid will be used if omitted or they point to an empty/
    non-existent environment variable. The environment variable will be set to
-   the generated UUID.
+   the generated UUID.  The 'gpt guid' command reads the current value of the
+   uuid_disk from the GPT.
 
    The field 'bootable' is optional, it is used to mark the GPT partition
    bootable (set attribute flags "Legacy BIOS bootable").
@@ -209,6 +210,34 @@ Following line can be used to assess if GPT verification has succeed:
 U-BOOT> gpt verify mmc 0 $partitions
 U-BOOT> if test $? = 0; then echo "GPT OK"; else echo "GPT ERR"; fi
 
+Renaming GPT partitions from U-Boot:
+====================================
+
+GPT partition names are a mechanism via which userspace and U-Boot can
+communicate about software updates and boot failure.  The 'gpt guid',
+'gpt read', 'gpt rename' and 'gpt swap' commands facilitate
+programmatic renaming of partitions from bootscripts by generating and
+modifying the partitions layout string.  Here is an illustration of
+employing 'swap' to exchange 'primary' and 'backup' partition names:
+
+U-BOOT> gpt swap mmc 0 primary backup
+
+Afterwards, all partitions previously named 'primary' will be named
+'backup', and vice-versa.  Alternatively, single partitions may be
+renamed.  In this example, mmc0's first partition will be renamed
+'primary':
+
+U-BOOT> gpt rename mmc 0 1 primary
+
+The GPT functionality may be tested with the 'sandbox' board by
+creating a disk image as described under 'Block Device Emulation' in
+board/sandbox/README.sandbox:
+
+=>host bind 0 ./disk.raw
+=> gpt read host 0
+[ . . . ]
+=> gpt swap host 0 name othername
+[ . . . ]
 
 Partition type GUID:
 ====================
@@ -219,7 +248,7 @@ PARTITION_BASIC_DATA_GUID (EBD0A0A2-B9E5-4433-87C0-68B6B72699C7).
 If you define 'CONFIG_PARTITION_TYPE_GUID', a optionnal parameter 'type'
 can specify a other partition type guid:
 
-     "partitions=uuid_disk=...;name=u-boot,size=60MiB,uuid=...;
+     "uuid_disk=...;name=u-boot,size=60MiB,uuid=...;
 	name=kernel,size=60MiB,uuid=...,
 	type=0FC63DAF-8483-4772-8E79-3D69D8477DE4;"
 
@@ -241,7 +270,7 @@ Some strings can be also used at the place of known GUID :
 	"lvm"    = PARTITION_LINUX_LVM_GUID
 	           (E6D6D379-F507-44C2-A23C-238F2A3DF928)
 
-    "partitions=uuid_disk=...;name=u-boot,size=60MiB,uuid=...;
+    "uuid_disk=...;name=u-boot,size=60MiB,uuid=...;
 	name=kernel,size=60MiB,uuid=...,type=linux;"
 
 They are also used to display the type of partition in "part list" command.

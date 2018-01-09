@@ -17,7 +17,9 @@ const char __weak version_string[] = U_BOOT_VERSION_STRING;
 
 static int do_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	printf("\n%s\n", version_string);
+	char buf[DISPLAY_OPTIONS_BANNER_LENGTH];
+
+	printf(display_options_get_banner(false, buf, sizeof(buf)));
 #ifdef CC_VERSION_STRING
 	puts(CC_VERSION_STRING "\n");
 #endif

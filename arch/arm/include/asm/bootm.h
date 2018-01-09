@@ -41,6 +41,7 @@ extern void udc_disconnect(void);
  #define BOOTM_ENABLE_INITRD_TAG	0
 #endif
 
+struct tag_serialnr;
 #ifdef CONFIG_SERIAL_TAG
  #define BOOTM_ENABLE_SERIAL_TAG	1
 void get_board_serial(struct tag_serialnr *serialnr);

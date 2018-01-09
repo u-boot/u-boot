@@ -66,17 +66,17 @@ struct spi_slave *spi_setup_slave(uint bus, uint cs, uint max_hz, uint mode)
 	/* we only set up SSP0 for now, so ignore bus */
 
 	if (mode & SPI_3WIRE) {
-		error("3-wire mode not supported");
+		pr_err("3-wire mode not supported");
 		return NULL;
 	}
 
 	if (mode & SPI_SLAVE) {
-		error("slave mode not supported\n");
+		pr_err("slave mode not supported\n");
 		return NULL;
 	}
 
 	if (mode & SPI_PREAMBLE) {
-		error("preamble byte skipping not supported\n");
+		pr_err("preamble byte skipping not supported\n");
 		return NULL;
 	}
 

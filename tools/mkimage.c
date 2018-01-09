@@ -98,21 +98,22 @@ static void usage(const char *msg)
 		"          -i => input filename for ramdisk file\n");
 #ifdef CONFIG_FIT_SIGNATURE
 	fprintf(stderr,
-		"Signing / verified boot options: [-E] [-k keydir] [-K dtb] [ -c <comment>] [-p addr] [-r]\n"
+		"Signing / verified boot options: [-E] [-k keydir] [-K dtb] [ -c <comment>] [-p addr] [-r] [-N engine]\n"
 		"          -E => place data outside of the FIT structure\n"
 		"          -k => set directory containing private keys\n"
 		"          -K => write public keys to this .dtb file\n"
 		"          -c => add comment in signature node\n"
 		"          -F => re-sign existing FIT image\n"
 		"          -p => place external data at a static position\n"
-		"          -r => mark keys used as 'required' in dtb\n");
+		"          -r => mark keys used as 'required' in dtb\n"
+		"          -N => engine to use for signing (pkcs11)\n");
 #else
 	fprintf(stderr,
 		"Signing / verified boot not supported (CONFIG_FIT_SIGNATURE undefined)\n");
 #endif
 	fprintf(stderr, "       %s -V ==> print version information and exit\n",
 		params.cmdname);
-	fprintf(stderr, "Use -T to see a list of available image types\n");
+	fprintf(stderr, "Use '-T list' to see a list of available image types\n");
 
 	exit(EXIT_FAILURE);
 }
@@ -143,7 +144,7 @@ static void process_args(int argc, char **argv)
 	int opt;
 
 	while ((opt = getopt(argc, argv,
-			     "a:A:b:c:C:d:D:e:Ef:Fk:i:K:ln:p:O:rR:qsT:vVx")) != -1) {
+			     "a:A:b:c:C:d:D:e:Ef:Fk:i:K:ln:N:p:O:rR:qsT:vVx")) != -1) {
 		switch (opt) {
 		case 'a':
 			params.addr = strtoull(optarg, &ptr, 16);
@@ -224,6 +225,9 @@ static void process_args(int argc, char **argv)
 		case 'n':
 			params.imagename = optarg;
 			break;
+		case 'N':
+			params.engine_id = optarg;
+			break;
 		case 'O':
 			params.os = genimg_get_os_id(optarg);
 			if (params.os < 0) {
@@ -256,6 +260,10 @@ static void process_args(int argc, char **argv)
 			params.skipcpy = 1;
 			break;
 		case 'T':
+			if (strcmp(optarg, "list") == 0) {
+				show_valid_options(IH_TYPE);
+				exit(EXIT_SUCCESS);
+			}
 			type = genimg_get_type_id(optarg);
 			if (type < 0) {
 				show_valid_options(IH_TYPE);
@@ -522,7 +530,7 @@ int main(int argc, char **argv)
 							+ 0x20, 0 };
 			int i = params.file_size;
 			for (; i < aligned_filesize; i++) {
-				if (write(ifd, &i, 1) != 1) {
+				if (write(ifd, (char *) &i, 1) != 1) {
 					fprintf(stderr,
 							"%s: Write error on %s: %s\n",
 							params.cmdname,

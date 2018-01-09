@@ -37,8 +37,8 @@ config ATMEL_SPI
 	depends on ARCH_AT91
 	help
 	  This enables driver for the Atmel SPI Controller, present on
-	  many AT32 (AVR32) and AT91 (ARM) chips. This driver can be
-	  used to access the SPI Flash, such as AT25DF321.
+	  many AT91 (ARM) chips. This driver can be used to access
+	  the SPI Flash, such as AT25DF321.
 
 config CADENCE_QSPI
 	bool "Cadence QSPI driver"
@@ -124,6 +124,14 @@ config SANDBOX_SPI
 		};
 	  };
 
+config STM32_QSPI
+	bool "STM32F7 QSPI driver"
+	depends on STM32F7
+	help
+	  Enable the STM32F7 Quad-SPI (QSPI) driver. This driver can be
+	  used to access the SPI NOR flash chips on platforms embedding
+	  this ST IP core.
+
 config TEGRA114_SPI
 	bool "nVidia Tegra114 SPI driver"
 	help
@@ -180,14 +188,13 @@ config ZYNQ_QSPI
 	  Zynq QSPI IP core. This IP is used to connect the flash in
 	  4-bit qspi, 8-bit dual stacked and shared 4-bit dual parallel.
 
-config OMAP3_SPI
-	bool "McSPI driver for OMAP"
-	help
-	  SPI master controller for OMAP24XX and later Multichannel SPI
-	  (McSPI). This driver be used to access SPI chips on platforms
-	  embedding this OMAP3 McSPI IP core.
-
 endif # if DM_SPI
+
+config SOFT_SPI
+	bool "Soft SPI driver"
+	help
+	 Enable Soft SPI driver. This driver is to use GPIO simulate
+	 the SPI protocol.
 
 config FSL_ESPI
 	bool "Freescale eSPI driver"
@@ -203,10 +210,30 @@ config FSL_QSPI
 	  used to access the SPI NOR flash on platforms embedding this
 	  Freescale IP core.
 
+config ATCSPI200_SPI
+	bool "Andestech ATCSPI200 SPI driver"
+	help
+	  Enable the Andestech ATCSPI200 SPI driver. This driver can be
+	  used to access the SPI flash on AE3XX and AE250 platforms embedding
+	  this Andestech IP core.
+
 config TI_QSPI
 	bool "TI QSPI driver"
 	help
 	  Enable the TI Quad-SPI (QSPI) driver for DRA7xx and AM43xx evms.
 	  This driver support spi flash single, quad and memory reads.
+
+config MPC8XX_SPI
+	bool "MPC8XX SPI Driver"
+	depends on 8xx
+	help
+	  Enable support for SPI on MPC8XX
+
+config OMAP3_SPI
+	bool "McSPI driver for OMAP"
+	help
+	  SPI master controller for OMAP24XX and later Multichannel SPI
+	  (McSPI). This driver be used to access SPI chips on platforms
+	  embedding this OMAP3 McSPI IP core.
 
 endmenu # menu "SPI Support"

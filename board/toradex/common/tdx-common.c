@@ -9,6 +9,7 @@
 #include <libfdt.h>
 
 #include "tdx-cfg-block.h"
+#include <asm/setup.h>
 #include "tdx-common.h"
 
 #ifdef CONFIG_TDX_CFG_BLOCK
@@ -79,24 +80,24 @@ int show_board_info(void)
 		tdx_hw_tag.ver_minor,
 		(char)tdx_hw_tag.ver_assembly + 'A');
 
-	setenv("serial#", tdx_serial_str);
+	env_set("serial#", tdx_serial_str);
 
 	/*
 	 * Check if environment contains a valid MAC address,
 	 * set the one from config block if not
 	 */
-	if (!eth_getenv_enetaddr("ethaddr", ethaddr))
-		eth_setenv_enetaddr("ethaddr", (u8 *)&tdx_eth_addr);
+	if (!eth_env_get_enetaddr("ethaddr", ethaddr))
+		eth_env_set_enetaddr("ethaddr", (u8 *)&tdx_eth_addr);
 
 #ifdef CONFIG_TDX_CFG_BLOCK_2ND_ETHADDR
-	if (!eth_getenv_enetaddr("eth1addr", ethaddr)) {
+	if (!eth_env_get_enetaddr("eth1addr", ethaddr)) {
 		/*
 		 * Secondary MAC address is allocated from block
 		 * 0x100000 higher then the first MAC address
 		 */
 		memcpy(ethaddr, &tdx_eth_addr, 6);
 		ethaddr[3] += 0x10;
-		eth_setenv_enetaddr("eth1addr", ethaddr);
+		eth_env_set_enetaddr("eth1addr", ethaddr);
 	}
 #endif
 

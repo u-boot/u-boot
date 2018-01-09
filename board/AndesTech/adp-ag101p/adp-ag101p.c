@@ -7,8 +7,12 @@
  */
 
 #include <common.h>
+#if defined(CONFIG_FTMAC100) && !defined(CONFIG_DM_ETH)
 #include <netdev.h>
+#endif
+#include <linux/io.h>
 #include <asm/io.h>
+#include <asm/mach-types.h>
 
 #include <faraday/ftsdc010.h>
 #include <faraday/ftsmc020.h>
@@ -25,6 +29,7 @@ int board_init(void)
 	 * refer to BOOT_PARAMETER_PA_BASE within
 	 * "linux/arch/nds32/include/asm/misc_spec.h"
 	 */
+	printf("Board: %s\n" , CONFIG_SYS_BOARD);
 	gd->bd->bi_arch_number = MACH_TYPE_ADPAG101P;
 	gd->bd->bi_boot_params = PHYS_SDRAM_0 + 0x400;
 
@@ -49,18 +54,22 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_0;
 	gd->bd->bi_dram[0].size =  PHYS_SDRAM_0_SIZE;
 	gd->bd->bi_dram[1].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[1].size =  PHYS_SDRAM_1_SIZE;
+
+	return 0;
 }
 
+#if defined(CONFIG_FTMAC100) && !defined(CONFIG_DM_ETH)
 int board_eth_init(bd_t *bd)
 {
 	return ftmac100_initialize(bd);
 }
+#endif
 
 ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
 {
@@ -76,6 +85,10 @@ ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
 
 int board_mmc_init(bd_t *bis)
 {
+#ifndef CONFIG_DM_MMC
+#ifdef CONFIG_FTSDC010
 	ftsdc010_mmc_init(0);
+#endif
+#endif
 	return 0;
 }

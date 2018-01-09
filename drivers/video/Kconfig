@@ -14,6 +14,27 @@ config DM_VIDEO
 	  option compiles in the video uclass and routes all LCD/video access
 	  through this.
 
+config BACKLIGHT_PWM
+	bool "Generic PWM based Backlight Driver"
+	depends on DM_VIDEO && DM_PWM
+	default y
+	help
+	  If you have a LCD backlight adjustable by PWM, say Y to enable
+	  this driver.
+	  This driver can be use with "simple-panel" and
+	  it understands the standard device tree
+	  (leds/backlight/pwm-backlight.txt)
+
+config BACKLIGHT_GPIO
+	bool "Generic GPIO based Backlight Driver"
+	depends on DM_VIDEO
+	help
+	  If you have a LCD backlight adjustable by GPIO, say Y to enable
+	  this driver.
+	  This driver can be used with "simple-panel" and
+	  it understands the standard device tree
+	  (leds/backlight/gpio-backlight.txt)
+
 config VIDEO_BPP8
 	bool "Support 8-bit-per-pixel displays"
 	depends on DM_VIDEO
@@ -43,6 +64,14 @@ config VIDEO_BPP32
 	  Enabling this will include code to support this display. Without
 	  this option, such displays will not be supported and console output
 	  will be empty.
+
+config VIDEO_ANSI
+	bool "Support ANSI escape sequences in video console"
+	depends on DM_VIDEO
+	default y if DM_VIDEO
+	help
+	  Enable ANSI escape sequence decoding for a more fully functional
+	  console.
 
 config CONSOLE_NORMAL
 	bool "Support a simple text console"
@@ -88,6 +117,23 @@ config CONSOLE_TRUETYPE_SIZE
 	  there is no standard display density. At present there is not a
 	  method to select the display's physical size, which would allow
 	  U-Boot to calculate the correct font size.
+
+config SYS_WHITE_ON_BLACK
+	bool "Display console as white on a black background"
+	default y if ARCH_AT91 || ARCH_EXYNOS || ARCH_ROCKCHIP || TEGRA || X86
+	help
+	 Normally the display is black on a white background, Enable this
+	 option to invert this, i.e. white on a black background. This can be
+	 better in low-light situations or to reduce eye strain in some
+	 cases.
+
+config NO_FB_CLEAR
+	bool "Skip framebuffer clear"
+	help
+	  If firmware (whatever loads u-boot) has already put a splash image
+	  on screen, you might want to preserve it until whatever u-boot
+	  loads takes over the screen.  This, for example, can be used to
+	  keep splash image on screen until grub graphical boot menu starts.
 
 source "drivers/video/fonts/Kconfig"
 
@@ -371,6 +417,12 @@ config DISPLAY
 	   The devices provide a simple interface to start up the display,
 	   read display information and enable it.
 
+config ATMEL_HLCD
+	bool "Enable ATMEL video support using HLCDC"
+	depends on DM_VIDEO
+	help
+	   HLCDC supports video output to an attached LCD panel.
+
 config VIDEO_BROADWELL_IGD
 	bool "Enable Intel Broadwell integrated graphics device"
 	depends on X86
@@ -395,15 +447,22 @@ config VIDEO_IVYBRIDGE_IGD
 	  a special tool which configures the VGA ROM, but the graphics
 	  resolution can be selected in U-Boot.
 
-config VIDEO_ROCKCHIP
-	bool "Enable Rockchip video support"
-	depends on DM_VIDEO
+config VIDEO_FSL_DCU_FB
+	bool "Enable Freescale Display Control Unit"
+	depends on VIDEO
 	help
-	   Rockchip SoCs provide video output capabilities for High-Definition
-	   Multimedia Interface (HDMI), Low-voltage Differential Signalling
-	   (LVDS), embedded DisplayPort (eDP) and Display Serial Interface
-	   (DSI). This driver supports the on-chip video output device, and
-	   targets the Rockchip RK3288.
+	 This enables support for Freescale Display Control Unit (DCU4)
+	 module found on Freescale Vybrid and QorIQ family of SoCs.
+
+config VIDEO_FSL_DCU_MAX_FB_SIZE_MB
+	int "Freescale DCU framebuffer size"
+	depends on VIDEO_FSL_DCU_FB
+	default 4194304
+	help
+	 Set maximum framebuffer size to be used for Freescale Display
+	 Controller Unit (DCU4).
+
+source "drivers/video/rockchip/Kconfig"
 
 config VIDEO_SANDBOX_SDL
 	bool "Enable sandbox video console using SDL"
@@ -413,6 +472,8 @@ config VIDEO_SANDBOX_SDL
 	  appears as an SDL (Simple DirectMedia Layer) window. This is a
 	  console device and can display stdout output. Within U-Boot is is
 	  a normal bitmap display and can display images as well as text.
+
+source "drivers/video/stm32/Kconfig"
 
 config VIDEO_TEGRA20
 	bool "Enable LCD support on Tegra20"
@@ -540,36 +601,9 @@ config CONSOLE_SCROLL_LINES
 	  console jump but can help speed up operation when scrolling
 	  is slow.
 
-config VIDEO_CT69000
-	bool "Enable Chips & Technologies 69000 video driver"
-	depends on VIDEO
-	help
-	  This enables a frame buffer driver for the Chips & Technologies
-	  ct69000, a fairly old graphics device (circa 2000) which is used
-	  on some hardware. It operates over the ISA bus, and supports
-	  some acceleration features.
-
-	  For the CT69000 and SMI_LYNXEM drivers, videomode is
-		selected via environment 'videomode'. Two different ways
-		are possible:
-		- "videomode=num"   'num' is a standard LiLo mode numbers.
-		Following standard modes are supported	(* is default):
-
-		      Colors	640x480 800x600 1024x768 1152x864 1280x1024
-		-------------+---------------------------------------------
-		      8 bits |	0x301*	0x303	 0x305	  0x161	    0x307
-		     15 bits |	0x310	0x313	 0x316	  0x162	    0x319
-		     16 bits |	0x311	0x314	 0x317	  0x163	    0x31A
-		     24 bits |	0x312	0x315	 0x318	    ?	    0x31B
-		-------------+---------------------------------------------
-		(i.e. setenv videomode 317; saveenv; reset;)
-
-		- "videomode=bootargs" all the video parameters are parsed
-		from the bootargs. (See drivers/video/videomodes.c)
-
 config SYS_CONSOLE_BG_COL
 	hex "Background colour"
-	depends on CFB_CONSOLE || VIDEO_CT69000
+	depends on CFB_CONSOLE
 	default 0x00
 	help
 	  Defines the background colour for the console. The value is from
@@ -580,7 +614,7 @@ config SYS_CONSOLE_BG_COL
 
 config SYS_CONSOLE_FG_COL
 	hex "Foreground colour"
-	depends on CFB_CONSOLE || VIDEO_CT69000
+	depends on CFB_CONSOLE
 	default 0xa0
 	help
 	  Defines the foreground colour for the console. The value is from
@@ -596,5 +630,32 @@ config LCD
 	  You will also need to select an LCD driver using an additional
 	  CONFIG option. See the README for details. Drives which have been
 	  converted to driver model will instead used CONFIG_DM_VIDEO.
+
+config VIDEO_DW_HDMI
+	bool
+	help
+	  Enables the common driver code for the Designware HDMI TX
+	  block found in SoCs from various vendors.
+	  As this does not provide any functionality by itself (but
+	  rather requires a SoC-specific glue driver to call it), it
+	  can not be enabled from the configuration menu.
+
+config VIDEO_SIMPLE
+	bool "Simple display driver for preconfigured display"
+	help
+	  Enables a simple generic display driver which utilizes the
+	  simple-framebuffer devicetree bindings.
+
+	  This driver assumes that the display hardware has been initialized
+	  before u-boot starts, and u-boot will simply render to the pre-
+	  allocated frame buffer surface.
+
+config VIDEO_DT_SIMPLEFB
+	bool "Enable SimpleFB support for passing framebuffer to OS"
+	help
+	  Enables the code to pass the framebuffer to the kernel as a
+	  simple framebuffer in the device tree.
+	  The video output is initialized by U-Boot, and kept by the
+	  kernel.
 
 endmenu

@@ -246,7 +246,8 @@ unsigned int card_init (void)
 	tmp = 0;
 	videomode = 0x310;
 	/* get video mode via environment */
-	if ((penv = getenv ("videomode")) != NULL) {
+	penv = env_get("videomode");
+	if (penv) {
 		/* decide if it is a string */
 		if (penv[0] <= '9') {
 			videomode = (int) simple_strtoul (penv, NULL, 16);

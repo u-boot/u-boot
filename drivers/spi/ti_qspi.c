@@ -17,6 +17,8 @@
 #include <asm/omap_common.h>
 #include <asm/ti-common/ti-edma3.h>
 #include <linux/kernel.h>
+#include <regmap.h>
+#include <syscon.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -549,21 +551,56 @@ static int ti_qspi_probe(struct udevice *bus)
 	return 0;
 }
 
+static void *map_syscon_chipselects(struct udevice *bus)
+{
+#if CONFIG_IS_ENABLED(SYSCON)
+	struct udevice *syscon;
+	struct regmap *regmap;
+	const fdt32_t *cell;
+	int len, err;
+
+	err = uclass_get_device_by_phandle(UCLASS_SYSCON, bus,
+					   "syscon-chipselects", &syscon);
+	if (err) {
+		debug("%s: unable to find syscon device (%d)\n", __func__,
+		      err);
+		return NULL;
+	}
+
+	regmap = syscon_get_regmap(syscon);
+	if (IS_ERR(regmap)) {
+		debug("%s: unable to find regmap (%ld)\n", __func__,
+		      PTR_ERR(regmap));
+		return NULL;
+	}
+
+	cell = fdt_getprop(gd->fdt_blob, dev_of_offset(bus),
+			   "syscon-chipselects", &len);
+	if (len < 2*sizeof(fdt32_t)) {
+		debug("%s: offset not available\n", __func__);
+		return NULL;
+	}
+
+	return fdtdec_get_number(cell + 1, 1) + regmap_get_range(regmap, 0);
+#else
+	fdt_addr_t addr;
+	addr = devfdt_get_addr_index(bus, 2);
+	return (addr == FDT_ADDR_T_NONE) ? NULL :
+		map_physmem(addr, 0, MAP_NOCACHE);
+#endif
+}
+
 static int ti_qspi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct ti_qspi_priv *priv = dev_get_priv(bus);
 	const void *blob = gd->fdt_blob;
-	int node = bus->of_offset;
-	fdt_addr_t addr;
-	void *mmap;
+	int node = dev_of_offset(bus);
 
-	priv->base = map_physmem(dev_get_addr(bus), sizeof(struct ti_qspi_regs),
-				 MAP_NOCACHE);
-	priv->memory_map = map_physmem(dev_get_addr_index(bus, 1), 0,
+	priv->ctrl_mod_mmap = map_syscon_chipselects(bus);
+	priv->base = map_physmem(devfdt_get_addr(bus),
+				 sizeof(struct ti_qspi_regs), MAP_NOCACHE);
+	priv->memory_map = map_physmem(devfdt_get_addr_index(bus, 1), 0,
 				       MAP_NOCACHE);
-	addr = dev_get_addr_index(bus, 2);
-	mmap = map_physmem(dev_get_addr_index(bus, 2), 0, MAP_NOCACHE);
-	priv->ctrl_mod_mmap = (addr == FDT_ADDR_T_NONE) ? NULL : mmap;
 
 	priv->max_hz = fdtdec_get_int(blob, node, "spi-max-frequency", -1);
 	if (priv->max_hz < 0) {

@@ -17,21 +17,16 @@ obj-$(CONFIG_USB_OHCI_DA8XX) += ohci-da8xx.o
 obj-$(CONFIG_USB_ISP116X_HCD) += isp116x-hcd.o
 obj-$(CONFIG_USB_R8A66597_HCD) += r8a66597-hcd.o
 obj-$(CONFIG_USB_SL811HS) += sl811-hcd.o
-obj-$(CONFIG_USB_OHCI_S3C24XX) += ohci-s3c24xx.o
 obj-$(CONFIG_USB_OHCI_EP93XX) += ohci-ep93xx.o
 obj-$(CONFIG_USB_OHCI_SUNXI) += ohci-sunxi.o
 obj-$(CONFIG_USB_OHCI_LPC32XX) += ohci-lpc32xx.o
 obj-$(CONFIG_USB_OHCI_GENERIC) += ohci-generic.o
 
 # echi
-obj-$(CONFIG_USB_EHCI) += ehci-hcd.o
+obj-$(CONFIG_USB_EHCI_HCD) += ehci-hcd.o
 obj-$(CONFIG_USB_EHCI_ARMADA100) += ehci-armada100.o utmi-armada100.o
 obj-$(CONFIG_USB_EHCI_ATMEL) += ehci-atmel.o
-ifdef CONFIG_MPC512X
-obj-$(CONFIG_USB_EHCI_FSL) += ehci-mpc512x.o
-else
 obj-$(CONFIG_USB_EHCI_FSL) += ehci-fsl.o
-endif
 obj-$(CONFIG_USB_EHCI_FARADAY) += ehci-faraday.o
 obj-$(CONFIG_USB_EHCI_GENERIC) += ehci-generic.o
 obj-$(CONFIG_USB_EHCI_EXYNOS) += ehci-exynos.o
@@ -64,6 +59,8 @@ obj-$(CONFIG_USB_XHCI_FSL) += xhci-fsl.o
 obj-$(CONFIG_USB_XHCI_MVEBU) += xhci-mvebu.o
 obj-$(CONFIG_USB_XHCI_OMAP) += xhci-omap.o
 obj-$(CONFIG_USB_XHCI_PCI) += xhci-pci.o
+obj-$(CONFIG_USB_XHCI_RCAR) += xhci-rcar.o
+obj-$(CONFIG_USB_XHCI_STI) += dwc3-sti-glue.o
 
 # designware
 obj-$(CONFIG_USB_DWC2) += dwc2.o

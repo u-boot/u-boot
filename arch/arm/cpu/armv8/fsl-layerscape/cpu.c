@@ -1,10 +1,12 @@
 /*
+ * Copyright 2017 NXP
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
+#include <fsl_ddr_sdram.h>
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <asm/system.h>
@@ -14,21 +16,20 @@
 #include <asm/arch/soc.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/speed.h>
-#ifdef CONFIG_MP
+#include <fsl_immap.h>
 #include <asm/arch/mp.h>
-#endif
 #include <efi_loader.h>
 #include <fm_eth.h>
 #include <fsl-mc/fsl_mc.h>
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
 #endif
-#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
 #include <asm/armv8/sec_firmware.h>
-#endif
 #ifdef CONFIG_SYS_FSL_DDR
 #include <fsl_ddr.h>
 #endif
+#include <asm/arch/clock.h>
+#include <hwconfig.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -89,6 +90,50 @@ static inline void early_mmu_setup(void)
 	set_sctlr(get_sctlr() | CR_M);
 }
 
+static void fix_pcie_mmu_map(void)
+{
+#ifdef CONFIG_ARCH_LS2080A
+	unsigned int i;
+	u32 svr, ver;
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+
+	svr = gur_in32(&gur->svr);
+	ver = SVR_SOC_VER(svr);
+
+	/* Fix PCIE base and size for LS2088A */
+	if ((ver == SVR_LS2088A) || (ver == SVR_LS2084A) ||
+	    (ver == SVR_LS2048A) || (ver == SVR_LS2044A) ||
+	    (ver == SVR_LS2081A) || (ver == SVR_LS2041A)) {
+		for (i = 0; i < ARRAY_SIZE(final_map); i++) {
+			switch (final_map[i].phys) {
+			case CONFIG_SYS_PCIE1_PHYS_ADDR:
+				final_map[i].phys = 0x2000000000ULL;
+				final_map[i].virt = 0x2000000000ULL;
+				final_map[i].size = 0x800000000ULL;
+				break;
+			case CONFIG_SYS_PCIE2_PHYS_ADDR:
+				final_map[i].phys = 0x2800000000ULL;
+				final_map[i].virt = 0x2800000000ULL;
+				final_map[i].size = 0x800000000ULL;
+				break;
+			case CONFIG_SYS_PCIE3_PHYS_ADDR:
+				final_map[i].phys = 0x3000000000ULL;
+				final_map[i].virt = 0x3000000000ULL;
+				final_map[i].size = 0x800000000ULL;
+				break;
+			case CONFIG_SYS_PCIE4_PHYS_ADDR:
+				final_map[i].phys = 0x3800000000ULL;
+				final_map[i].virt = 0x3800000000ULL;
+				final_map[i].size = 0x800000000ULL;
+				break;
+			default:
+				break;
+			}
+		}
+	}
+#endif
+}
+
 /*
  * The final tables look similar to early tables, but different in detail.
  * These tables are in DRAM. Sub tables are added to enable cache for
@@ -101,11 +146,52 @@ static inline void final_mmu_setup(void)
 {
 	u64 tlb_addr_save = gd->arch.tlb_addr;
 	unsigned int el = current_el();
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
 	int index;
-#endif
+
+	/* fix the final_map before filling in the block entries */
+	fix_pcie_mmu_map();
 
 	mem_map = final_map;
+
+	/* Update mapping for DDR to actual size */
+	for (index = 0; index < ARRAY_SIZE(final_map) - 2; index++) {
+		/*
+		 * Find the entry for DDR mapping and update the address and
+		 * size. Zero-sized mapping will be skipped when creating MMU
+		 * table.
+		 */
+		switch (final_map[index].virt) {
+		case CONFIG_SYS_FSL_DRAM_BASE1:
+			final_map[index].virt = gd->bd->bi_dram[0].start;
+			final_map[index].phys = gd->bd->bi_dram[0].start;
+			final_map[index].size = gd->bd->bi_dram[0].size;
+			break;
+#ifdef CONFIG_SYS_FSL_DRAM_BASE2
+		case CONFIG_SYS_FSL_DRAM_BASE2:
+#if (CONFIG_NR_DRAM_BANKS >= 2)
+			final_map[index].virt = gd->bd->bi_dram[1].start;
+			final_map[index].phys = gd->bd->bi_dram[1].start;
+			final_map[index].size = gd->bd->bi_dram[1].size;
+#else
+			final_map[index].size = 0;
+#endif
+		break;
+#endif
+#ifdef CONFIG_SYS_FSL_DRAM_BASE3
+		case CONFIG_SYS_FSL_DRAM_BASE3:
+#if (CONFIG_NR_DRAM_BANKS >= 3)
+			final_map[index].virt = gd->bd->bi_dram[2].start;
+			final_map[index].phys = gd->bd->bi_dram[2].start;
+			final_map[index].size = gd->bd->bi_dram[2].size;
+#else
+			final_map[index].size = 0;
+#endif
+		break;
+#endif
+		default:
+			break;
+		}
+	}
 
 #ifdef CONFIG_SYS_MEM_RESERVE_SECURE
 	if (gd->arch.secure_ram & MEM_RESERVE_SECURE_MAINTAINED) {
@@ -143,21 +229,14 @@ static inline void final_mmu_setup(void)
 	setup_pgtables();
 	gd->arch.tlb_addr = tlb_addr_save;
 
-	/* flush new MMU table */
-	flush_dcache_range(gd->arch.tlb_addr,
-			   gd->arch.tlb_addr + gd->arch.tlb_size);
+	/* Disable cache and MMU */
+	dcache_disable();	/* TLBs are invalidated */
+	invalidate_icache_all();
 
 	/* point TTBR to the new table */
 	set_ttbr_tcr_mair(el, gd->arch.tlb_addr, get_tcr(el, NULL, NULL),
 			  MEMORY_ATTRIBUTES);
-	/*
-	 * EL3 MMU is already enabled, just need to invalidate TLB to load the
-	 * new table. The new table is compatible with the current table, if
-	 * MMU somehow walks through the new table before invalidation TLB,
-	 * it still works. So we don't need to turn off MMU here.
-	 * When EL2 MMU table is created by calling this function, MMU needs
-	 * to be enabled.
-	 */
+
 	set_sctlr(get_sctlr() | CR_M);
 }
 
@@ -168,6 +247,14 @@ u64 get_page_table_size(void)
 
 int arch_cpu_init(void)
 {
+	/*
+	 * This function is called before U-Boot relocates itself to speed up
+	 * on system running. It is not necessary to run if performance is not
+	 * critical. Skip if MMU is already enabled by SPL or other means.
+	 */
+	if (get_sctlr() & CR_M)
+		return 0;
+
 	icache_enable();
 	__asm_invalidate_dcache_all();
 	__asm_invalidate_tlb_all();
@@ -345,8 +432,9 @@ int print_cpuinfo(void)
 		       (type == TY_ITYP_VER_A72 ? "A72" : "   "))),
 		       strmhz(buf, sysinfo.freq_processor[core]));
 	}
+	/* Display platform clock as Bus frequency. */
 	printf("\n       Bus:      %-4s MHz  ",
-	       strmhz(buf, sysinfo.freq_systembus));
+	       strmhz(buf, sysinfo.freq_systembus / CONFIG_SYS_FSL_PCLK_DIV));
 	printf("DDR:      %-4s MT/s", strmhz(buf, sysinfo.freq_ddrbus));
 #ifdef CONFIG_SYS_DPAA_FMAN
 	printf("  FMAN:     %-4s MHz", strmhz(buf, sysinfo.freq_fman[0]));
@@ -387,7 +475,7 @@ int cpu_eth_init(bd_t *bis)
 {
 	int error = 0;
 
-#ifdef CONFIG_FSL_MC_ENET
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
 	error = fsl_mc_ldpaa_init(bis);
 #endif
 #ifdef CONFIG_FMAN_ENET
@@ -396,31 +484,80 @@ int cpu_eth_init(bd_t *bis)
 	return error;
 }
 
+static inline int check_psci(void)
+{
+	unsigned int psci_ver;
+
+	psci_ver = sec_firmware_support_psci_version();
+	if (psci_ver == PSCI_INVALID_VER)
+		return 1;
+
+	return 0;
+}
+
+static void config_core_prefetch(void)
+{
+	char *buf = NULL;
+	char buffer[HWCONFIG_BUFFER_SIZE];
+	const char *prefetch_arg = NULL;
+	size_t arglen;
+	unsigned int mask;
+	struct pt_regs regs;
+
+	if (env_get_f("hwconfig", buffer, sizeof(buffer)) > 0)
+		buf = buffer;
+
+	prefetch_arg = hwconfig_subarg_f("core_prefetch", "disable",
+					 &arglen, buf);
+
+	if (prefetch_arg) {
+		mask = simple_strtoul(prefetch_arg, NULL, 0) & 0xff;
+		if (mask & 0x1) {
+			printf("Core0 prefetch can't be disabled\n");
+			return;
+		}
+
+#define SIP_PREFETCH_DISABLE_64 0xC200FF13
+		regs.regs[0] = SIP_PREFETCH_DISABLE_64;
+		regs.regs[1] = mask;
+		smc_call(&regs);
+
+		if (regs.regs[0])
+			printf("Prefetch disable config failed for mask ");
+		else
+			printf("Prefetch disable config passed for mask ");
+		printf("0x%x\n", mask);
+	}
+}
+
 int arch_early_init_r(void)
 {
-#ifdef CONFIG_MP
-	int rv = 1;
-	u32 psci_ver = 0xffffffff;
-#endif
-
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009635
-	erratum_a009635();
+	u32 svr_dev_id;
+	/*
+	 * erratum A009635 is valid only for LS2080A SoC and
+	 * its personalitiesi
+	 */
+	svr_dev_id = get_svr();
+	if (IS_SVR_DEV(svr_dev_id, SVR_DEV(SVR_LS2080A)))
+		erratum_a009635();
 #endif
 #if defined(CONFIG_SYS_FSL_ERRATUM_A009942) && defined(CONFIG_SYS_FSL_DDR)
 	erratum_a009942_check_cpo();
 #endif
-#ifdef CONFIG_MP
-#if defined(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT) && \
-	defined(CONFIG_FSL_PPA_ARMV8_PSCI)
-	/* Check the psci version to determine if the psci is supported */
-	psci_ver = sec_firmware_support_psci_version();
-#endif
-	if (psci_ver == 0xffffffff) {
-		rv = fsl_layerscape_wake_seconday_cores();
-		if (rv)
+	if (check_psci()) {
+		debug("PSCI: PSCI does not exist.\n");
+
+		/* if PSCI does not exist, boot secondary cores here */
+		if (fsl_layerscape_wake_seconday_cores())
 			printf("Did not wake secondary cores\n");
 	}
+
+#ifdef CONFIG_SYS_FSL_HAS_RGMII
+	fsl_rgmii_init();
 #endif
+
+	config_core_prefetch();
 
 #ifdef CONFIG_SYS_HAS_SERDES
 	fsl_serdes_init();
@@ -437,7 +574,7 @@ int timer_init(void)
 #ifdef CONFIG_FSL_LSCH3
 	u32 __iomem *cltbenr = (u32 *)CONFIG_SYS_FSL_PMU_CLTBENR;
 #endif
-#ifdef CONFIG_LS2080A
+#ifdef CONFIG_ARCH_LS2080A
 	u32 __iomem *pctbenr = (u32 *)FSL_PMU_PCTBENR_OFFSET;
 	u32 svr_dev_id;
 #endif
@@ -445,7 +582,8 @@ int timer_init(void)
 	unsigned long cntfrq = COUNTER_FREQUENCY_REAL;
 
 	/* Update with accurate clock frequency */
-	asm volatile("msr cntfrq_el0, %0" : : "r" (cntfrq) : "memory");
+	if (current_el() == 3)
+		asm volatile("msr cntfrq_el0, %0" : : "r" (cntfrq) : "memory");
 #endif
 
 #ifdef CONFIG_FSL_LSCH3
@@ -455,7 +593,7 @@ int timer_init(void)
 	out_le32(cltbenr, 0xf);
 #endif
 
-#ifdef CONFIG_LS2080A
+#ifdef CONFIG_ARCH_LS2080A
 	/*
 	 * In certain Layerscape SoCs, the clock for each core's
 	 * has an enable bit in the PMU Physical Core Time Base Enable
@@ -466,8 +604,8 @@ int timer_init(void)
 	 * For LS2080A SoC and its personalities, timer controller
 	 * offset is different
 	 */
-	svr_dev_id = get_svr() >> 16;
-	if (svr_dev_id == SVR_DEV_LS2080A)
+	svr_dev_id = get_svr();
+	if (IS_SVR_DEV(svr_dev_id, SVR_DEV(SVR_LS2080A)))
 		cntcr = (u32 *)SYS_FSL_LS2080A_LS2085A_TIMER_ADDR;
 
 #endif
@@ -519,19 +657,285 @@ void efi_reset_system_init(void)
 
 #endif
 
+/*
+ * Calculate reserved memory with given memory bank
+ * Return aligned memory size on success
+ * Return (ram_size + needed size) for failure
+ */
 phys_size_t board_reserve_ram_top(phys_size_t ram_size)
 {
 	phys_size_t ram_top = ram_size;
 
-#ifdef CONFIG_SYS_MEM_TOP_HIDE
-#error CONFIG_SYS_MEM_TOP_HIDE not to be used together with this function
-#endif
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+	ram_top = mc_get_dram_block_size();
+	if (ram_top > ram_size)
+		return ram_size + ram_top;
 
-/* Carve the MC private DRAM block from the end of DRAM */
-#ifdef CONFIG_FSL_MC_ENET
-	ram_top -= mc_get_dram_block_size();
+	ram_top = ram_size - ram_top;
+	/* The start address of MC reserved memory needs to be aligned. */
 	ram_top &= ~(CONFIG_SYS_MC_RSV_MEM_ALIGN - 1);
 #endif
 
-	return ram_top;
+	return ram_size - ram_top;
+}
+
+phys_size_t get_effective_memsize(void)
+{
+	phys_size_t ea_size, rem = 0;
+
+	/*
+	 * For ARMv8 SoCs, DDR memory is split into two or three regions. The
+	 * first region is 2GB space at 0x8000_0000. Secure memory needs to
+	 * allocated from first region. If the memory extends to  the second
+	 * region (or the third region if applicable), Management Complex (MC)
+	 * memory should be put into the highest region, i.e. the end of DDR
+	 * memory. CONFIG_MAX_MEM_MAPPED is set to the size of first region so
+	 * U-Boot doesn't relocate itself into higher address. Should DDR be
+	 * configured to skip the first region, this function needs to be
+	 * adjusted.
+	 */
+	if (gd->ram_size > CONFIG_MAX_MEM_MAPPED) {
+		ea_size = CONFIG_MAX_MEM_MAPPED;
+		rem = gd->ram_size - ea_size;
+	} else {
+		ea_size = gd->ram_size;
+	}
+
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+	/* Check if we have enough space for secure memory */
+	if (ea_size > CONFIG_SYS_MEM_RESERVE_SECURE)
+		ea_size -= CONFIG_SYS_MEM_RESERVE_SECURE;
+	else
+		printf("Error: No enough space for secure memory.\n");
+#endif
+	/* Check if we have enough memory for MC */
+	if (rem < board_reserve_ram_top(rem)) {
+		/* Not enough memory in high region to reserve */
+		if (ea_size > board_reserve_ram_top(ea_size))
+			ea_size -= board_reserve_ram_top(ea_size);
+		else
+			printf("Error: No enough space for reserved memory.\n");
+	}
+
+	return ea_size;
+}
+
+int dram_init_banksize(void)
+{
+#ifdef CONFIG_SYS_DP_DDR_BASE_PHY
+	phys_size_t dp_ddr_size;
+#endif
+
+	/*
+	 * gd->ram_size has the total size of DDR memory, less reserved secure
+	 * memory. The DDR extends from low region to high region(s) presuming
+	 * no hole is created with DDR configuration. gd->arch.secure_ram tracks
+	 * the location of secure memory. gd->arch.resv_ram tracks the location
+	 * of reserved memory for Management Complex (MC). Because gd->ram_size
+	 * is reduced by this function if secure memory is reserved, checking
+	 * gd->arch.secure_ram should be done to avoid running it repeatedly.
+	 */
+
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+	if (gd->arch.secure_ram & MEM_RESERVE_SECURE_MAINTAINED) {
+		debug("No need to run again, skip %s\n", __func__);
+
+		return 0;
+	}
+#endif
+
+	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	if (gd->ram_size > CONFIG_SYS_DDR_BLOCK1_SIZE) {
+		gd->bd->bi_dram[0].size = CONFIG_SYS_DDR_BLOCK1_SIZE;
+		gd->bd->bi_dram[1].start = CONFIG_SYS_DDR_BLOCK2_BASE;
+		gd->bd->bi_dram[1].size = gd->ram_size -
+					  CONFIG_SYS_DDR_BLOCK1_SIZE;
+#ifdef CONFIG_SYS_DDR_BLOCK3_BASE
+		if (gd->bi_dram[1].size > CONFIG_SYS_DDR_BLOCK2_SIZE) {
+			gd->bd->bi_dram[2].start = CONFIG_SYS_DDR_BLOCK3_BASE;
+			gd->bd->bi_dram[2].size = gd->bd->bi_dram[1].size -
+						  CONFIG_SYS_DDR_BLOCK2_SIZE;
+			gd->bd->bi_dram[1].size = CONFIG_SYS_DDR_BLOCK2_SIZE;
+		}
+#endif
+	} else {
+		gd->bd->bi_dram[0].size = gd->ram_size;
+	}
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+	if (gd->bd->bi_dram[0].size >
+				CONFIG_SYS_MEM_RESERVE_SECURE) {
+		gd->bd->bi_dram[0].size -=
+				CONFIG_SYS_MEM_RESERVE_SECURE;
+		gd->arch.secure_ram = gd->bd->bi_dram[0].start +
+				      gd->bd->bi_dram[0].size;
+		gd->arch.secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
+		gd->ram_size -= CONFIG_SYS_MEM_RESERVE_SECURE;
+	}
+#endif	/* CONFIG_SYS_MEM_RESERVE_SECURE */
+
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+	/* Assign memory for MC */
+#ifdef CONFIG_SYS_DDR_BLOCK3_BASE
+	if (gd->bd->bi_dram[2].size >=
+	    board_reserve_ram_top(gd->bd->bi_dram[2].size)) {
+		gd->arch.resv_ram = gd->bd->bi_dram[2].start +
+			    gd->bd->bi_dram[2].size -
+			    board_reserve_ram_top(gd->bd->bi_dram[2].size);
+	} else
+#endif
+	{
+		if (gd->bd->bi_dram[1].size >=
+		    board_reserve_ram_top(gd->bd->bi_dram[1].size)) {
+			gd->arch.resv_ram = gd->bd->bi_dram[1].start +
+				gd->bd->bi_dram[1].size -
+				board_reserve_ram_top(gd->bd->bi_dram[1].size);
+		} else if (gd->bd->bi_dram[0].size >
+			   board_reserve_ram_top(gd->bd->bi_dram[0].size)) {
+			gd->arch.resv_ram = gd->bd->bi_dram[0].start +
+				gd->bd->bi_dram[0].size -
+				board_reserve_ram_top(gd->bd->bi_dram[0].size);
+		}
+	}
+#endif	/* CONFIG_FSL_MC_ENET */
+
+#ifdef CONFIG_SYS_DP_DDR_BASE_PHY
+#ifdef CONFIG_SYS_DDR_BLOCK3_BASE
+#error "This SoC shouldn't have DP DDR"
+#endif
+	if (soc_has_dp_ddr()) {
+		/* initialize DP-DDR here */
+		puts("DP-DDR:  ");
+		/*
+		 * DDR controller use 0 as the base address for binding.
+		 * It is mapped to CONFIG_SYS_DP_DDR_BASE for core to access.
+		 */
+		dp_ddr_size = fsl_other_ddr_sdram(CONFIG_SYS_DP_DDR_BASE_PHY,
+					  CONFIG_DP_DDR_CTRL,
+					  CONFIG_DP_DDR_NUM_CTRLS,
+					  CONFIG_DP_DDR_DIMM_SLOTS_PER_CTLR,
+					  NULL, NULL, NULL);
+		if (dp_ddr_size) {
+			gd->bd->bi_dram[2].start = CONFIG_SYS_DP_DDR_BASE;
+			gd->bd->bi_dram[2].size = dp_ddr_size;
+		} else {
+			puts("Not detected");
+		}
+	}
+#endif
+
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+	debug("%s is called. gd->ram_size is reduced to %lu\n",
+	      __func__, (ulong)gd->ram_size);
+#endif
+
+	return 0;
+}
+
+#if defined(CONFIG_EFI_LOADER) && !defined(CONFIG_SPL_BUILD)
+void efi_add_known_memory(void)
+{
+	int i;
+	phys_addr_t ram_start, start;
+	phys_size_t ram_size;
+	u64 pages;
+
+	/* Add RAM */
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+#ifdef CONFIG_SYS_DP_DDR_BASE_PHY
+#ifdef CONFIG_SYS_DDR_BLOCK3_BASE
+#error "This SoC shouldn't have DP DDR"
+#endif
+		if (i == 2)
+			continue;	/* skip DP-DDR */
+#endif
+		ram_start = gd->bd->bi_dram[i].start;
+		ram_size = gd->bd->bi_dram[i].size;
+#ifdef CONFIG_RESV_RAM
+		if (gd->arch.resv_ram >= ram_start &&
+		    gd->arch.resv_ram < ram_start + ram_size)
+			ram_size = gd->arch.resv_ram - ram_start;
+#endif
+		start = (ram_start + EFI_PAGE_MASK) & ~EFI_PAGE_MASK;
+		pages = (ram_size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
+
+		efi_add_memory_map(start, pages, EFI_CONVENTIONAL_MEMORY,
+				   false);
+	}
+}
+#endif
+
+/*
+ * Before DDR size is known, early MMU table have DDR mapped as device memory
+ * to avoid speculative access. To relocate U-Boot to DDR, "normal memory"
+ * needs to be set for these mappings.
+ * If a special case configures DDR with holes in the mapping, the holes need
+ * to be marked as invalid. This is not implemented in this function.
+ */
+void update_early_mmu_table(void)
+{
+	if (!gd->arch.tlb_addr)
+		return;
+
+	if (gd->ram_size <= CONFIG_SYS_FSL_DRAM_SIZE1) {
+		mmu_change_region_attr(
+					CONFIG_SYS_SDRAM_BASE,
+					gd->ram_size,
+					PTE_BLOCK_MEMTYPE(MT_NORMAL)	|
+					PTE_BLOCK_OUTER_SHARE		|
+					PTE_BLOCK_NS			|
+					PTE_TYPE_VALID);
+	} else {
+		mmu_change_region_attr(
+					CONFIG_SYS_SDRAM_BASE,
+					CONFIG_SYS_DDR_BLOCK1_SIZE,
+					PTE_BLOCK_MEMTYPE(MT_NORMAL)	|
+					PTE_BLOCK_OUTER_SHARE		|
+					PTE_BLOCK_NS			|
+					PTE_TYPE_VALID);
+#ifdef CONFIG_SYS_DDR_BLOCK3_BASE
+#ifndef CONFIG_SYS_DDR_BLOCK2_SIZE
+#error "Missing CONFIG_SYS_DDR_BLOCK2_SIZE"
+#endif
+		if (gd->ram_size - CONFIG_SYS_DDR_BLOCK1_SIZE >
+		    CONFIG_SYS_DDR_BLOCK2_SIZE) {
+			mmu_change_region_attr(
+					CONFIG_SYS_DDR_BLOCK2_BASE,
+					CONFIG_SYS_DDR_BLOCK2_SIZE,
+					PTE_BLOCK_MEMTYPE(MT_NORMAL)	|
+					PTE_BLOCK_OUTER_SHARE		|
+					PTE_BLOCK_NS			|
+					PTE_TYPE_VALID);
+			mmu_change_region_attr(
+					CONFIG_SYS_DDR_BLOCK3_BASE,
+					gd->ram_size -
+					CONFIG_SYS_DDR_BLOCK1_SIZE -
+					CONFIG_SYS_DDR_BLOCK2_SIZE,
+					PTE_BLOCK_MEMTYPE(MT_NORMAL)	|
+					PTE_BLOCK_OUTER_SHARE		|
+					PTE_BLOCK_NS			|
+					PTE_TYPE_VALID);
+		} else
+#endif
+		{
+			mmu_change_region_attr(
+					CONFIG_SYS_DDR_BLOCK2_BASE,
+					gd->ram_size -
+					CONFIG_SYS_DDR_BLOCK1_SIZE,
+					PTE_BLOCK_MEMTYPE(MT_NORMAL)	|
+					PTE_BLOCK_OUTER_SHARE		|
+					PTE_BLOCK_NS			|
+					PTE_TYPE_VALID);
+		}
+	}
+}
+
+__weak int dram_init(void)
+{
+	fsl_initdram();
+#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
+	/* This will break-before-make MMU for DDR */
+	update_early_mmu_table();
+#endif
+
+	return 0;
 }

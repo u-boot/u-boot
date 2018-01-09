@@ -60,6 +60,36 @@ int rtc_write8(struct udevice *dev, unsigned int reg, int val)
 	return ops->write8(dev, reg, val);
 }
 
+int rtc_read16(struct udevice *dev, unsigned int reg, u16 *valuep)
+{
+	u16 value = 0;
+	int ret;
+	int i;
+
+	for (i = 0; i < sizeof(value); i++) {
+		ret = rtc_read8(dev, reg + i);
+		if (ret < 0)
+			return ret;
+		value |= ret << (i << 3);
+	}
+
+	*valuep = value;
+	return 0;
+}
+
+int rtc_write16(struct udevice *dev, unsigned int reg, u16 value)
+{
+	int i, ret;
+
+	for (i = 0; i < sizeof(value); i++) {
+		ret = rtc_write8(dev, reg + i, (value >> (i << 3)) & 0xff);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
 int rtc_read32(struct udevice *dev, unsigned int reg, u32 *valuep)
 {
 	u32 value = 0;

@@ -19,10 +19,3 @@ void sunxi_usb_phy_power_off(int index);
 int sunxi_usb_phy_vbus_detect(int index);
 int sunxi_usb_phy_id_detect(int index);
 void sunxi_usb_phy_enable_squelch_detect(int index, int enable);
-
-/* Not really phy related, but we have to declare this somewhere ... */
-#if defined(CONFIG_USB_MUSB_HOST) || defined(CONFIG_USB_MUSB_GADGET)
-void sunxi_musb_board_init(void);
-#else
-#define sunxi_musb_board_init()
-#endif

@@ -13,7 +13,7 @@
 #ifndef __MX23_REGS_CLKCTRL_H__
 #define __MX23_REGS_CLKCTRL_H__
 
-#include <asm/imx-common/regs-common.h>
+#include <asm/mach-imx/regs-common.h>
 
 #ifndef	__ASSEMBLY__
 struct mxs_clkctrl_regs {

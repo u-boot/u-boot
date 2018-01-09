@@ -1,40 +1,9 @@
 if OMAP54XX
 
-config SPL_EXT_SUPPORT
-	default y
-
-config SPL_FAT_SUPPORT
-	default y
-
-config SPL_GPIO_SUPPORT
-	default y
-
-config SPL_I2C_SUPPORT
-	default y
-
-config SPL_LIBCOMMON_SUPPORT
-	default y
-
-config SPL_LIBDISK_SUPPORT
-	default y
-
-config SPL_LIBGENERIC_SUPPORT
-	default y
-
-config SPL_MMC_SUPPORT
-	default y
-
-config SPL_NAND_SUPPORT
-	default y
-
-config SPL_POWER_SUPPORT
-	default y
-
-config SPL_SERIAL_SUPPORT
-	default y
-
-config SPL_DISPLAY_PRINT
-	default y
+config DRA7XX
+	bool
+	help
+	  DRA7xx is an OMAP based SOC with Dual Core A-15s.
 
 choice
 	prompt "OMAP5 board select"
@@ -42,6 +11,7 @@ choice
 
 config TARGET_CL_SOM_AM57X
 	bool "CompuLab CL-SOM-AM57x"
+	select DRA7XX
 
 config TARGET_CM_T54
 	bool "CompuLab CM-T54"
@@ -51,43 +21,50 @@ config TARGET_OMAP5_UEVM
 
 config TARGET_DRA7XX_EVM
 	bool "TI DRA7XX"
+	select BOARD_LATE_INIT
+	select DRA7XX
 	select TI_I2C_BOARD_DETECT
 	select PHYS_64BIT
+	imply SCSI
+	imply DM_PMIC
+	imply PMIC_LP87565
+	imply DM_REGULATOR
+	imply DM_REGULATOR_LP87565
+	imply SPL_THERMAL
+	imply DM_THERMAL
+	imply TI_DRA7_THERMAL
 
 config TARGET_AM57XX_EVM
 	bool "AM57XX"
+	select BOARD_LATE_INIT
+	select DRA7XX
 	select TI_I2C_BOARD_DETECT
+	imply SCSI
+	imply SPL_THERMAL
+	imply DM_THERMAL
+	imply TI_DRA7_THERMAL
 
 endchoice
 
 config SYS_SOC
 	default "omap5"
 
-config TI_SECURE_EMIF_REGION_START
-	hex "Reserved EMIF region start address"
-	depends on TI_SECURE_DEVICE
-	default 0x0
+config OMAP_PLATFORM_RESET_TIME_MAX_USEC
+	int "Something"
+	range 0  31219
+	default 31219
 	help
-	  Reserved EMIF region start address. Set to "0" to auto-select
-	  to be at the end of the external memory region.
-
-config TI_SECURE_EMIF_TOTAL_REGION_SIZE
-	hex "Reserved EMIF region size"
-	depends on TI_SECURE_DEVICE
-	default 0x0
-	help
-	  Total reserved EMIF region size. Default is 0, which means no reserved EMIF
-	  region on secure devices.
-
-config TI_SECURE_EMIF_PROTECTED_REGION_SIZE
-	hex "Size of protected region within reserved EMIF region"
-	depends on TI_SECURE_DEVICE
-	default 0x0
-	help
-	  This config option is used to specify the size of the portion of the total
-	  reserved EMIF region set aside for secure OS needs that will  be protected
-	  using hardware memory firewalls. This value must be smaller than the
-	  TI_SECURE_EMIF_TOTAL_REGION_SIZE value.
+	  Most OMAPs' provide a way to specify the time for which the reset
+	  should be held low while the voltages and Oscillator outputs
+	  stabilize.
+	  This time is mostly board and PMIC dependent. Hence the boards are
+	  expected to specify a pre-computed time using the above option.
+	  This value can be computed using a summation of the below 3
+	  parameters
+	  1: Time taken by the Osciallator to stop and restart
+	  2: PMIC OTP time
+	  3: Voltage ramp time, which can be derived using the PMIC slew rate
+	     and value of voltage ramp needed.
 
 if TARGET_DRA7XX_EVM || TARGET_AM57XX_EVM
 menu "Voltage Domain OPP selections"

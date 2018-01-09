@@ -374,7 +374,8 @@ static void __dw_i2c_init(struct i2c_regs *i2c_base, int speed, int slaveaddr)
 	/* Disable i2c */
 	dw_i2c_enable(i2c_base, false);
 
-	writel((IC_CON_SD | IC_CON_SPD_FS | IC_CON_MM), &i2c_base->ic_con);
+	writel(IC_CON_SD | IC_CON_RE | IC_CON_SPD_FS | IC_CON_MM,
+	       &i2c_base->ic_con);
 	writel(IC_RX_TL, &i2c_base->ic_rx_tl);
 	writel(IC_TX_TL, &i2c_base->ic_tx_tl);
 	writel(IC_STOP_DET, &i2c_base->ic_intr_mask);
@@ -545,7 +546,7 @@ static int designware_i2c_probe(struct udevice *bus)
 #endif
 #endif
 	} else {
-		priv->regs = (struct i2c_regs *)dev_get_addr_ptr(bus);
+		priv->regs = (struct i2c_regs *)devfdt_get_addr_ptr(bus);
 	}
 
 	__dw_i2c_init(priv->regs, 0, 0);

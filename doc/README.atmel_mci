@@ -11,8 +11,7 @@ to write blocks.
 - AT91SAM9260 (not tested, but MCI is to AT91SAM9XE)
 - AT91SAM9G20 (not tested, should work)
 
-It should work with all other ATMEL devices that have MCI,
-including AVR32.
+It should work with all other ATMEL devices that have MCI.
 
 The generic driver does NOT assign port pins to the MCI block
 nor does it start the MCI clock. This has to be handled in a
@@ -69,8 +68,6 @@ int board_mmc_getcd(struct mmc *mmc)
 and the board definition files needs:
 
 /* SD/MMC card */
-#define CONFIG_MMC			1
-#define CONFIG_GENERIC_MMC		1
 #define CONFIG_GENERIC_ATMEL_MCI	1
 #define CONFIG_ATMEL_MCI_PORTB		1	/* Atmel XE-EK uses port B */
 #define CONFIG_SYS_MMC_CD_PIN		AT91_PIN_PC9

@@ -21,7 +21,6 @@ subdir-$(HOST_TOOLS_ALL) += gdb
 
 # Merge all the different vars for envcrc into one
 ENVCRC-$(CONFIG_ENV_IS_EMBEDDED) = y
-ENVCRC-$(CONFIG_ENV_IS_IN_DATAFLASH) = y
 ENVCRC-$(CONFIG_ENV_IS_IN_EEPROM) = y
 ENVCRC-$(CONFIG_ENV_IS_IN_FLASH) = y
 ENVCRC-$(CONFIG_ENV_IS_IN_ONENAND) = y
@@ -32,16 +31,19 @@ CONFIG_BUILD_ENVCRC ?= $(ENVCRC-y)
 
 hostprogs-$(CONFIG_SPL_GENERATE_ATMEL_PMECC_HEADER) += atmel_pmecc_params
 
-hostprogs-$(CONFIG_CMD_LICENSE) += bin2header
 hostprogs-$(CONFIG_LCD_LOGO) += bmp_logo
 hostprogs-$(CONFIG_VIDEO_LOGO) += bmp_logo
 HOSTCFLAGS_bmp_logo.o := -pedantic
 
 hostprogs-$(CONFIG_BUILD_ENVCRC) += envcrc
-envcrc-objs := envcrc.o lib/crc32.o common/env_embedded.o lib/sha1.o
+envcrc-objs := envcrc.o lib/crc32.o env/embedded.o lib/sha1.o
 
 hostprogs-$(CONFIG_CMD_NET) += gen_eth_addr
 HOSTCFLAGS_gen_eth_addr.o := -pedantic
+
+hostprogs-$(CONFIG_CMD_NET) += gen_ethaddr_crc
+gen_ethaddr_crc-objs := gen_ethaddr_crc.o lib/crc8.o
+HOSTCFLAGS_gen_ethaddr_crc.o := -pedantic
 
 hostprogs-$(CONFIG_CMD_LOADS) += img2srec
 HOSTCFLAGS_img2srec.o := -pedantic
@@ -56,10 +58,18 @@ hostprogs-y += dumpimage mkimage
 hostprogs-$(CONFIG_FIT_SIGNATURE) += fit_info fit_check_sign
 
 FIT_SIG_OBJS-$(CONFIG_FIT_SIGNATURE) := common/image-sig.o
-# Flattened device tree objects
-LIBFDT_OBJS := $(addprefix lib/libfdt/, \
-			fdt.o fdt_ro.o fdt_rw.o fdt_strerror.o fdt_wip.o \
-			fdt_region.o fdt_sw.o)
+
+# The following files are synced with upstream DTC.
+# Use synced versions from scripts/dtc/libfdt/.
+LIBFDT_SRCS_SYNCED := fdt.c fdt_wip.c fdt_sw.c fdt_strerror.c fdt_empty_tree.c \
+		      fdt_addresses.c fdt_overlay.c
+# The following files are locally modified for U-Boot (unfotunately).
+# Use U-Boot own versions from lib/libfdt/.
+LIBFDT_SRCS_UNSYNCED := fdt_ro.c fdt_rw.c fdt_region.c
+
+LIBFDT_OBJS := $(addprefix libfdt/, $(patsubst %.c, %.o, $(LIBFDT_SRCS_SYNCED))) \
+	       $(addprefix lib/libfdt/, $(patsubst %.c, %.o, $(LIBFDT_SRCS_UNSYNCED)))
+
 RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/rsa/, \
 					rsa-sign.o rsa-verify.o rsa-checksum.o \
 					rsa-mod-exp.o)
@@ -109,22 +119,6 @@ mkimage-objs   := $(dumpimage-mkimage-objs) mkimage.o
 fit_info-objs   := $(dumpimage-mkimage-objs) fit_info.o
 fit_check_sign-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
 
-# Build a libfdt Python module if swig is available
-# Use 'sudo apt-get install swig libpython-dev' to enable this
-hostprogs-$(CONFIG_SPL_OF_PLATDATA) += \
-	$(if $(shell which swig 2> /dev/null),_libfdt.so)
-_libfdt.so-sharedobjs += $(LIBFDT_OBJS)
-libfdt:
-
-tools/_libfdt.so: $(patsubst %.o,%.c,$(LIBFDT_OBJS)) tools/libfdt_wrap.c
-	python $(srctree)/lib/libfdt/setup.py "$(_hostc_flags)" $^
-	mv _libfdt.so $@
-
-tools/libfdt_wrap.c: $(srctree)/lib/libfdt/libfdt.swig
-	swig -python -o $@ $<
-
-# TODO(sjg@chromium.org): Is this correct on Mac OS?
-
 ifneq ($(CONFIG_MX23)$(CONFIG_MX28),)
 # Add CONFIG_MXS into host CFLAGS, so we can check whether or not register
 # the mxsimage support within tools/mxsimage.c .
@@ -141,8 +135,12 @@ ifdef CONFIG_SYS_U_BOOT_OFFS
 HOSTCFLAGS_kwbimage.o += -DCONFIG_SYS_U_BOOT_OFFS=$(CONFIG_SYS_U_BOOT_OFFS)
 endif
 
+ifneq ($(CONFIG_ARMADA_38X)$(CONFIG_ARMADA_39X),)
+HOSTCFLAGS_kwbimage.o += -DCONFIG_KWB_SECURE
+endif
+
 # MXSImage needs LibSSL
-ifneq ($(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_FIT_SIGNATURE),)
+ifneq ($(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_ARMADA_38X)$(CONFIG_ARMADA_39X)$(CONFIG_FIT_SIGNATURE),)
 HOSTLOADLIBES_mkimage += \
 	$(shell pkg-config --libs libssl libcrypto 2> /dev/null || echo "-lssl -lcrypto")
 
@@ -154,6 +152,8 @@ HOSTCFLAGS_image-sig.o += -Wno-deprecated-declarations
 HOSTCFLAGS_rsa-sign.o += -Wno-deprecated-declarations
 endif
 endif
+
+HOSTCFLAGS_fit_image.o += -DMKIMAGE_DTC=\"$(CONFIG_MKIMAGE_DTC_PATH)\"
 
 HOSTLOADLIBES_dumpimage := $(HOSTLOADLIBES_mkimage)
 HOSTLOADLIBES_fit_info := $(HOSTLOADLIBES_mkimage)
@@ -171,6 +171,8 @@ hostprogs-$(CONFIG_MX28) += mxsboot
 HOSTCFLAGS_mxsboot.o := -pedantic
 
 hostprogs-$(CONFIG_ARCH_SUNXI) += mksunxiboot
+hostprogs-$(CONFIG_ARCH_SUNXI) += sunxi-spl-image-builder
+sunxi-spl-image-builder-objs := sunxi-spl-image-builder.o lib/bch.o
 
 hostprogs-$(CONFIG_NETCONSOLE) += ncb
 hostprogs-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1
@@ -187,10 +189,13 @@ hostprogs-$(CONFIG_STATIC_RELA) += relocate-rela
 hostprogs-y += fdtgrep
 fdtgrep-objs += $(LIBFDT_OBJS) fdtgrep.o
 
+hostprogs-$(CONFIG_MIPS) += mips-relocs
+
 # We build some files with extra pedantic flags to try to minimize things
 # that won't build on some weird host compiler -- though there are lots of
 # exceptions for files that aren't complaint.
 HOSTCFLAGS_crc32.o := -pedantic
+HOSTCFLAGS_crc8.o := -pedantic
 HOSTCFLAGS_md5.o := -pedantic
 HOSTCFLAGS_sha1.o := -pedantic
 HOSTCFLAGS_sha256.o := -pedantic
@@ -198,7 +203,7 @@ HOSTCFLAGS_sha256.o := -pedantic
 quiet_cmd_wrap = WRAP    $@
 cmd_wrap = echo "\#include <../$(patsubst $(obj)/%,%,$@)>" >$@
 
-$(obj)/lib/%.c $(obj)/common/%.c:
+$(obj)/lib/%.c $(obj)/common/%.c $(obj)/env/%.c:
 	$(call cmd,wrap)
 
 clean-dirs := lib common
@@ -228,10 +233,6 @@ endif
 
 endif # !LOGO_BMP
 
-# Generated gziped GPL-2.0 license text
-LICENSE_H = $(objtree)/include/license.h
-LICENSE-$(CONFIG_CMD_LICENSE) += $(LICENSE_H)
-
 #
 # Use native tools and options
 # Define __KERNEL_STRICT_NAMES to prevent typedef overlaps
@@ -241,12 +242,11 @@ HOST_EXTRACFLAGS += -include $(srctree)/include/libfdt_env.h \
 		$(patsubst -I%,-idirafter%, $(filter -I%, $(UBOOTINCLUDE))) \
 		-I$(srctree)/lib/libfdt \
 		-I$(srctree)/tools \
-		-DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
 		-DUSE_HOSTCC \
 		-D__KERNEL_STRICT_NAMES \
 		-D_GNU_SOURCE
 
-__build:	$(LOGO-y) $(LICENSE-y)
+__build:	$(LOGO-y)
 
 $(LOGO_H):	$(obj)/bmp_logo $(LOGO_BMP)
 	$(obj)/bmp_logo --gen-info $(LOGO_BMP) > $@
@@ -254,15 +254,11 @@ $(LOGO_H):	$(obj)/bmp_logo $(LOGO_BMP)
 $(LOGO_DATA_H):	$(obj)/bmp_logo $(LOGO_BMP)
 	$(obj)/bmp_logo --gen-data $(LOGO_BMP) > $@
 
-$(LICENSE_H): $(obj)/bin2header $(srctree)/Licenses/gpl-2.0.txt
-	cat $(srctree)/Licenses/gpl-2.0.txt | gzip -9 -c | \
-		$(obj)/bin2header license_gzip > $(LICENSE_H)
-
 # Let clean descend into subdirs
 subdir- += env
 
 ifneq ($(CROSS_BUILD_TOOLS),)
-HOSTCC = $(CC)
+override HOSTCC = $(CC)
 
 quiet_cmd_crosstools_strip = STRIP   $^
       cmd_crosstools_strip = $(STRIP) $^; touch $@

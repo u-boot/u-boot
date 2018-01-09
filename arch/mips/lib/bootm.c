@@ -80,7 +80,7 @@ static void linux_cmdline_legacy(bootm_headers_t *images)
 
 	linux_cmdline_init();
 
-	bootargs = getenv("bootargs");
+	bootargs = env_get("bootargs");
 	if (!bootargs)
 		return;
 
@@ -202,11 +202,11 @@ static void linux_env_legacy(bootm_headers_t *images)
 	sprintf(env_buf, "0x%X", (uint) (gd->bd->bi_flashsize));
 	linux_env_set("flash_size", env_buf);
 
-	cp = getenv("ethaddr");
+	cp = env_get("ethaddr");
 	if (cp)
 		linux_env_set("ethaddr", cp);
 
-	cp = getenv("eth1addr");
+	cp = env_get("eth1addr");
 	if (cp)
 		linux_env_set("eth1addr", cp);
 
@@ -279,17 +279,17 @@ static void boot_prep_linux(bootm_headers_t *images)
 		boot_reloc_fdt(images);
 		boot_setup_fdt(images);
 	} else {
-		if (CONFIG_IS_ENABLED(CONFIG_MIPS_BOOT_ENV_LEGACY))
-			linux_env_legacy(images);
-
 		if (CONFIG_IS_ENABLED(MIPS_BOOT_CMDLINE_LEGACY)) {
 			linux_cmdline_legacy(images);
 
-			if (!CONFIG_IS_ENABLED(CONFIG_MIPS_BOOT_ENV_LEGACY))
+			if (!CONFIG_IS_ENABLED(MIPS_BOOT_ENV_LEGACY))
 				linux_cmdline_append(images);
 
 			linux_cmdline_dump();
 		}
+
+		if (CONFIG_IS_ENABLED(MIPS_BOOT_ENV_LEGACY))
+			linux_env_legacy(images);
 	}
 }
 

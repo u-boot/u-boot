@@ -5,10 +5,12 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <asm/assembler.h>
+
 .globl	reset
 .type reset, %function
 reset:
-	b	_main
+	W(b)	_main
 
 .globl	c_runtime_cpu_setup
 c_runtime_cpu_setup:

@@ -1,0 +1,12 @@
+if TARGET_P212
+
+config SYS_BOARD
+	default "p212"
+
+config SYS_VENDOR
+	default "amlogic"
+
+config SYS_CONFIG_NAME
+	default "p212"
+
+endif

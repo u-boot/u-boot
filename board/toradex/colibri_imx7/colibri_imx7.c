@@ -10,19 +10,23 @@
 #include <asm/arch/mx7-pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/boot_mode.h>
-#include <asm/imx-common/iomux-v3.h>
+#include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
 #include <common.h>
 #include <dm.h>
 #include <dm/platform_data/serial_mxc.h>
+#include <fdt_support.h>
 #include <fsl_esdhc.h>
+#include <jffs2/load_kernel.h>
 #include <linux/sizes.h>
 #include <mmc.h>
 #include <miiphy.h>
+#include <mtd_node.h>
 #include <netdev.h>
 #include <power/pmic.h>
 #include <power/rn5t567_pmic.h>
+#include <usb.h>
 #include <usb/ehci-ci.h>
 #include "../common/tdx-common.h"
 
@@ -45,6 +49,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define NAND_PAD_CTRL (PAD_CTL_DSE_3P3V_49OHM | PAD_CTL_SRE_SLOW | PAD_CTL_HYS)
 
 #define NAND_PAD_READY0_CTRL (PAD_CTL_DSE_3P3V_49OHM | PAD_CTL_PUS_PU5KOHM)
+
+#define USB_CDET_GPIO	IMX_GPIO_NR(7, 14)
 
 int dram_init(void)
 {
@@ -70,6 +76,12 @@ static iomux_v3_cfg_t const usdhc1_pads[] = {
 
 	MX7D_PAD_GPIO1_IO00__GPIO1_IO0 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
+
+#ifdef CONFIG_USB_EHCI_MX7
+static iomux_v3_cfg_t const usb_cdet_pads[] = {
+	MX7D_PAD_ENET1_CRS__GPIO7_IO14 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+#endif
 
 #ifdef CONFIG_NAND_MXS
 static iomux_v3_cfg_t const gpmi_pads[] = {
@@ -98,22 +110,6 @@ static void setup_gpmi_nand(void)
 	set_clk_nand();
 }
 #endif
-
-static iomux_v3_cfg_t const usdhc3_emmc_pads[] = {
-	MX7D_PAD_SD3_CLK__SD3_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_CMD__SD3_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA0__SD3_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA1__SD3_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA2__SD3_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA3__SD3_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA4__SD3_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA5__SD3_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA6__SD3_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA7__SD3_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_STROBE__SD3_STROBE	 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-
-	MX7D_PAD_SD3_RESET_B__GPIO6_IO11 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-};
 
 #ifdef CONFIG_VIDEO_MXS
 static iomux_v3_cfg_t const lcd_pads[] = {
@@ -284,7 +280,7 @@ static int setup_fec(void)
 			IOMUXC_GPR_GPR1_GPR_ENET1_TX_CLK_SEL_MASK);
 #endif
 
-	return set_clk_enet(ENET_50MHz);
+	return set_clk_enet(ENET_50MHZ);
 }
 
 int board_phy_config(struct phy_device *phydev)
@@ -317,6 +313,11 @@ int board_init(void)
 
 #ifdef CONFIG_VIDEO_MXS
 	setup_lcd();
+#endif
+
+#ifdef CONFIG_USB_EHCI_MX7
+	imx_iomux_v3_setup_multiple_pads(usb_cdet_pads, ARRAY_SIZE(usb_cdet_pads));
+	gpio_request(USB_CDET_GPIO, "usb-cdet-gpio");
 #endif
 
 	return 0;
@@ -359,6 +360,22 @@ int power_init_board(void)
 	/* set judge and press timer of N_OE to minimal values */
 	pmic_clrsetbits(dev, RN5T567_NOETIMSETCNT, 0x7, 0);
 
+	/* configure sleep slot for 3.3V Ethernet */
+	reg = pmic_reg_read(dev, RN5T567_LDO1_SLOT);
+	reg = (reg & 0xf0) | reg >> 4;
+	pmic_reg_write(dev, RN5T567_LDO1_SLOT, reg);
+
+	/* disable DCDC2 discharge to avoid backfeeding through VFB2 */
+	pmic_clrsetbits(dev, RN5T567_DC2CTL, 0x2, 0);
+
+	/* configure sleep slot for ARM rail */
+	reg = pmic_reg_read(dev, RN5T567_DC2_SLOT);
+	reg = (reg & 0xf0) | reg >> 4;
+	pmic_reg_write(dev, RN5T567_DC2_SLOT, reg);
+
+	/* disable LDO2 discharge to avoid backfeeding from +V3.3_SD */
+	pmic_clrsetbits(dev, RN5T567_LDODIS1, 0x2, 0);
+
 	return 0;
 }
 
@@ -391,6 +408,16 @@ int checkboard(void)
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, bd_t *bd)
 {
+#if defined(CONFIG_FDT_FIXUP_PARTITIONS)
+	static struct node_info nodes[] = {
+		{ "fsl,imx7d-gpmi-nand", MTD_DEV_TYPE_NAND, }, /* NAND flash */
+	};
+
+	/* Update partition nodes using info from mtdparts env var */
+	puts("   Updating MTD partitions...\n");
+	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+#endif
+
 	return ft_common_board_setup(blob, bd);
 }
 #endif
@@ -416,5 +443,19 @@ int board_ehci_hcd_init(int port)
 		return -EINVAL;
 	}
 	return 0;
+}
+
+int board_usb_phy_mode(int port)
+{
+	switch (port) {
+	case 0:
+		if (gpio_get_value(USB_CDET_GPIO))
+			return USB_INIT_DEVICE;
+		else
+			return USB_INIT_HOST;
+	case 1:
+	default:
+		return USB_INIT_HOST;
+	}
 }
 #endif

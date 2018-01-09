@@ -10,7 +10,6 @@
 #define __CONFIG_H
 
 #include "mx6_common.h"
-#define CONFIG_SYS_THUMB_BUILD
 
 #undef CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
@@ -18,11 +17,10 @@
 #define CONFIG_SYS_GENERIC_BOARD
 
 #include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
+#include <asm/mach-imx/gpio.h>
 
 #ifdef CONFIG_SPL
 #include "imx6_spl.h"
-#define CONFIG_SPL_PAD_TO		0x11000 /* 4k IVT/DCD, 64k SPL */
 #endif
 
 #define CONFIG_CMDLINE_TAG
@@ -34,8 +32,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(32 * 1024 * 1024)
 
-#define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_MXC_UART
@@ -55,7 +51,6 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /* OCOTP Configs */
-#define CONFIG_CMD_FUSE
 #ifdef CONFIG_CMD_FUSE
 #define CONFIG_MXC_OCOTP
 #endif
@@ -67,10 +62,7 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 
 #define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
-#define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_FAT_WRITE
-#define CONFIG_DOS_PARTITION
 
 /* Network */
 #define CONFIG_FEC_MXC
@@ -79,35 +71,25 @@
 #define CONFIG_FEC_XCV_TYPE		RMII
 #define CONFIG_ETHPRIME			"FEC"
 #define CONFIG_FEC_MXC_PHYADDR		1
-#define CONFIG_PHYLIB
-#define CONFIG_PHY_MICREL
 #define CONFIG_IP_DEFRAG
 #define CONFIG_TFTP_BLOCKSIZE		16352
 #define CONFIG_TFTP_TSIZE
 
 /* USB Configs */
 /* Host */
-#define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		2
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET	/* For OTG port */
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS		0
-#define CONFIG_USB_KEYBOARD
-#ifdef CONFIG_USB_KEYBOARD
-#define CONFIG_SYS_USB_EVENT_POLL
-#endif /* CONFIG_USB_KEYBOARD */
 /* Client */
-#define CONFIG_USB_GADGET_VBUS_DRAW	2
 #define CONFIG_USBD_HS
 
 #define CONFIG_USB_GADGET_MASS_STORAGE
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
-#define CONFIG_G_DNL_MANUFACTURER	"Toradex"
 /* USB DFU */
 #define CONFIG_DFU_MMC
 
 /* Miscellaneous commands */
-#define CONFIG_CMD_BMODE
 #define CONFIG_MXC_GPIO
 
 /* Framebuffer and LCD */
@@ -120,17 +102,13 @@
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
-#define CONFIG_IPUV3_CLK		260000000
-#define CONFIG_CMD_HDMIDETECT
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
-#define CONFIG_CMD_BMP
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX		1
-#define CONFIG_BAUDRATE			115200
 
 /* Command definition */
 #undef CONFIG_CMD_LOADB
@@ -176,6 +154,7 @@
 		"${fdt_file} && setenv dtbparam \" - ${fdt_addr_r}\" && true\0"
 
 #define MEM_LAYOUT_ENV_SETTINGS \
+	"bootm_size=0x10000000\0" \
 	"fdt_addr_r=0x12000000\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
@@ -278,12 +257,8 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH
-
+/* environment organization */
 #define CONFIG_ENV_SIZE			(8 * 1024)
-
-#define CONFIG_ENV_IS_IN_MMC
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
 /* Environment in eMMC, before config block at the end of 1st "boot sector" */
@@ -298,7 +273,5 @@
 #define CONFIG_CMD_TIME
 
 #define CONFIG_SUPPORT_RAW_INITRD
-
-#define CONFIG_CRC32_VERIFY
 
 #endif	/* __CONFIG_H */

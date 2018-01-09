@@ -6,18 +6,23 @@ choice
 
 config TARGET_APALIS_T30
 	bool "Toradex Apalis T30 board"
+	select BOARD_LATE_INIT
 
 config TARGET_BEAVER
 	bool "NVIDIA Tegra30 Beaver evaluation board"
+	select BOARD_LATE_INIT
 
 config TARGET_CARDHU
 	bool "NVIDIA Tegra30 Cardhu evaluation board"
+	select BOARD_LATE_INIT
 
 config TARGET_COLIBRI_T30
 	bool "Toradex Colibri T30 board"
+	select BOARD_LATE_INIT
 
 config TARGET_TEC_NG
 	bool "Avionic Design TEC-NG board"
+	select BOARD_LATE_INIT
 
 endchoice
 

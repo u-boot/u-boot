@@ -10,67 +10,70 @@ config ARCH_UNIPHIER_32BIT
 	select ARMV7_NONSEC
 	select ARCH_SUPPORT_PSCI
 
-config ARCH_UNIPHIER_64BIT
-	bool
-	select ARM64
-	select SPL_SEPARATE_BSS
-	select ARMV8_MULTIENTRY
-	select ARMV8_SPIN_TABLE
-
 choice
         prompt "UniPhier SoC select"
-        default ARCH_UNIPHIER_PRO4
-
-config ARCH_UNIPHIER_SLD3
-	bool "UniPhier PH1-sLD3 SoC"
-	select ARCH_UNIPHIER_32BIT
+        default ARCH_UNIPHIER_V7_MULTI
 
 config ARCH_UNIPHIER_LD4_SLD8
-	bool "UniPhier PH1-LD4/PH1-sLD8 SoC"
+	bool "UniPhier LD4/sLD8 SoCs"
 	select ARCH_UNIPHIER_32BIT
 
-config ARCH_UNIPHIER_PRO4
-	bool "UniPhier PH1-Pro4 SoC"
+config ARCH_UNIPHIER_V7_MULTI
+	bool "UniPhier Pro4/Pro5/PXs2/LD6b SoCs"
 	select ARCH_UNIPHIER_32BIT
 
-config ARCH_UNIPHIER_PRO5_PXS2_LD6B
-	bool "UniPhier PH1-Pro5/ProXstream2/PH1-LD6b SoC"
-	select ARCH_UNIPHIER_32BIT
-
-config ARCH_UNIPHIER_LD11
-	bool "UniPhier PH1-LD11 SoC"
-	select ARCH_UNIPHIER_64BIT
-
-config ARCH_UNIPHIER_LD20
-	bool "UniPhier PH1-LD20 SoC"
-	select ARCH_UNIPHIER_64BIT
-	select OF_BOARD_SETUP
+config ARCH_UNIPHIER_V8_MULTI
+	bool "UniPhier V8 SoCs"
+	depends on !SPL
+	select ARM64
+	select CMD_UNZIP
 
 endchoice
 
 config ARCH_UNIPHIER_LD4
-	bool "Enable UniPhier PH1-LD4 SoC support"
+	bool "Enable UniPhier LD4 SoC support"
 	depends on ARCH_UNIPHIER_LD4_SLD8
 	default y
 
 config ARCH_UNIPHIER_SLD8
-	bool "Enable UniPhier PH1-sLD8 SoC support"
+	bool "Enable UniPhier sLD8 SoC support"
 	depends on ARCH_UNIPHIER_LD4_SLD8
 	default y
 
+config ARCH_UNIPHIER_PRO4
+	bool "Enable UniPhier Pro4 SoC support"
+	depends on ARCH_UNIPHIER_V7_MULTI
+	default y
+
 config ARCH_UNIPHIER_PRO5
-	bool "Enable UniPhier PH1-Pro5 SoC support"
-	depends on ARCH_UNIPHIER_PRO5_PXS2_LD6B
+	bool "Enable UniPhier Pro5 SoC support"
+	depends on ARCH_UNIPHIER_V7_MULTI
 	default y
 
 config ARCH_UNIPHIER_PXS2
-	bool "Enable UniPhier ProXstream2 SoC support"
-	depends on ARCH_UNIPHIER_PRO5_PXS2_LD6B
+	bool "Enable UniPhier Pxs2 SoC support"
+	depends on ARCH_UNIPHIER_V7_MULTI
 	default y
 
 config ARCH_UNIPHIER_LD6B
-	bool "Enable UniPhier PH1-LD6b SoC support"
-	depends on ARCH_UNIPHIER_PRO5_PXS2_LD6B
+	bool "Enable UniPhier LD6b SoC support"
+	depends on ARCH_UNIPHIER_V7_MULTI
+	default y
+
+config ARCH_UNIPHIER_LD11
+	bool "Enable UniPhier LD11 SoC support"
+	depends on ARCH_UNIPHIER_V8_MULTI
+	default y
+
+config ARCH_UNIPHIER_LD20
+	bool "Enable UniPhier LD20 SoC support"
+	depends on ARCH_UNIPHIER_V8_MULTI
+	select OF_BOARD_SETUP
+	default y
+
+config ARCH_UNIPHIER_PXS3
+	bool "Enable UniPhier PXs3 SoC support"
+	depends on ARCH_UNIPHIER_V8_MULTI
 	default y
 
 config CACHE_UNIPHIER
@@ -114,4 +117,6 @@ config CMD_DDRMPHY_DUMP
 	  The command "ddrmphy" shows the resulting parameters of DDR Multi PHY
 	  training; it is useful for the evaluation of DDR Multi PHY training.
 
+config SYS_SOC
+	default "uniphier-v7" if ARCH_UNIPHIER_LD4_SLD8 || ARCH_UNIPHIER_V7_MULTI
 endif

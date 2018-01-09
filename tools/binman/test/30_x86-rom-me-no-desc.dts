@@ -9,6 +9,7 @@
 		end-at-4gb;
 		size = <16>;
 		intel-me {
+			filename = "me.bin";
 			pos-unset;
 		};
 	};

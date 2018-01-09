@@ -158,7 +158,7 @@ struct sunxi_ccm_reg {
 #define CPU_CLK_SRC_OSC24M		0
 #define CPU_CLK_SRC_PLL1		1
 
-#define CCM_PLL1_CTRL_N(n)		((((n) - 1) & 0xff) << 8)
+#define CCM_PLL1_CTRL_N(n)		(((n) & 0xff) << 8)
 #define CCM_PLL1_CTRL_P(n)		(((n) & 0x1) << 16)
 #define CCM_PLL1_CTRL_EN		(0x1 << 31)
 #define CMM_PLL1_CLOCK_TIME_2		(0x2 << 24)
@@ -220,6 +220,7 @@ struct sunxi_ccm_reg {
 #define CCM_MMC_CTRL_SCLK_DLY(x)	((x) << 20)
 #define CCM_MMC_CTRL_OSCM24		(0x0 << 24)
 #define CCM_MMC_CTRL_PLL6		(0x1 << 24)
+#define CCM_MMC_CTRL_MODE_SEL_NEW	(0x1 << 30)
 #define CCM_MMC_CTRL_ENABLE		(0x1 << 31)
 
 #define CCM_USB_CTRL_PHY0_RST (0x1 << 0)

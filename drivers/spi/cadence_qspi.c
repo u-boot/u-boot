@@ -282,7 +282,7 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct cadence_spi_platdata *plat = bus->platdata;
 	const void *blob = gd->fdt_blob;
-	int node = bus->of_offset;
+	int node = dev_of_offset(bus);
 	int subnode;
 	u32 data[4];
 	int ret;

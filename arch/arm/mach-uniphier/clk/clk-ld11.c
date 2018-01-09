@@ -9,16 +9,17 @@
 #include <linux/bitops.h>
 #include <linux/io.h>
 
-#include "../boot-mode/boot-device.h"
 #include "../init.h"
 #include "../sc64-regs.h"
 #include "../sg-regs.h"
+
+#define SDCTRL_EMMC_HW_RESET	0x59810280
 
 void uniphier_ld11_clk_init(void)
 {
 	/* if booted from a device other than USB, without stand-by MPU */
 	if ((readl(SG_PINMON0) & BIT(27)) &&
-	    spl_boot_device_raw() != BOOT_DEVICE_USB) {
+	    uniphier_boot_device_raw() != BOOT_DEVICE_USB) {
 		writel(1, SG_ETPHYPSHUT);
 		writel(1, SG_ETPHYCNT);
 
@@ -29,13 +30,25 @@ void uniphier_ld11_clk_init(void)
 		writel(7, SG_ETPHYCNT);
 	}
 
-#ifdef CONFIG_USB_EHCI
+	/* TODO: use "mmc-pwrseq-emmc" */
+	writel(1, SDCTRL_EMMC_HW_RESET);
+
+#ifdef CONFIG_USB_EHCI_HCD
 	{
 		/* FIXME: the current clk driver can not handle parents */
 		u32 tmp;
+		int ch;
+
 		tmp = readl(SC_CLKCTRL4);
-		tmp |= SC_CLKCTRL4_MIO | SC_CLKCTRL4_STDMAC;
+		tmp |= BIT(10) | BIT(8);	/* MIO, STDMAC */
 		writel(tmp, SC_CLKCTRL4);
+
+		for (ch = 0; ch < 3; ch++) {
+			void __iomem *phyctrl = (void __iomem *)SG_USBPHYCTRL;
+
+			writel(0x82280600, phyctrl + 8 * ch);
+			writel(0x00000106, phyctrl + 8 * ch + 4);
+		}
 	}
 #endif
 }

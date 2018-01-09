@@ -130,6 +130,10 @@ u-boot-dtb.bin which does the above step for you also. If you are using
 CONFIG_SPL_FRAMEWORK, then u-boot.img will be built to include the device
 tree binary.
 
+If CONFIG_OF_BOARD is defined, a board-specific routine will provide the
+device tree at runtime, for example if an earlier bootloader stage creates
+it and passes it to U-Boot.
+
 If CONFIG_OF_HOSTFILE is defined, then it will be read from a file on
 startup. This is only useful for sandbox. Use the -d flag to U-Boot to
 specify the file to read.
@@ -166,22 +170,6 @@ After board configuration is done, fdt supported u-boot can be build in two ways
     $ make
 2)  build the user specified dts file
     $ make DEVICE_TREE=<dts-file-name>
-
-
-Configuration Options
----------------------
-
-A number of run-time configuration options are provided in the /config node
-of the control device tree. You can access these using fdtdec_get_config_int(),
-fdtdec_get_config_bool() and fdtdec_get_config_string().
-
-Available options are:
-
-silent-console
-	If present and non-zero, the console is silenced by default on boot.
-
-no-keyboard
-	Tells U-Boot not to expect an attached keyboard with a VGA console
 
 
 Limitations

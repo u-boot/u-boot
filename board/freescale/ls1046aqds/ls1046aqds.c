@@ -7,10 +7,13 @@
 #include <common.h>
 #include <i2c.h>
 #include <fdt_support.h>
+#include <fsl_ddr_sdram.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
+#include <asm/arch/ppa.h>
 #include <asm/arch/fdt.h>
+#include <asm/arch/mmu.h>
 #include <asm/arch/soc.h>
 #include <ahci.h>
 #include <hwconfig.h>
@@ -20,6 +23,7 @@
 #include <fsl_csu.h>
 #include <fsl_esdhc.h>
 #include <fsl_ifc.h>
+#include <fsl_sec.h>
 #include <spl.h>
 
 #include "../common/vid.h"
@@ -148,7 +152,11 @@ int dram_init(void)
 	 * before accessing DDR SPD.
 	 */
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
-	gd->ram_size = initdram(0);
+	fsl_initdram();
+#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
+	/* This will break-before-make MMU for DDR */
+	update_early_mmu_table();
+#endif
 
 	return 0;
 }
@@ -253,12 +261,30 @@ int board_init(void)
 	config_serdes_mux();
 #endif
 
-#ifdef CONFIG_LAYERSCAPE_NS_ACCESS
-	enable_layerscape_ns_access();
-#endif
-
 	if (adjust_vdd(0))
 		printf("Warning: Adjusting core voltage failed.\n");
+
+#ifdef CONFIG_FSL_LS_PPA
+	ppa_init();
+#endif
+
+#ifdef CONFIG_SECURE_BOOT
+	/*
+	 * In case of Secure Boot, the IBR configures the SMMU
+	 * to allow only Secure transactions.
+	 * SMMU must be reset in bypass mode.
+	 * Set the ClientPD bit and Clear the USFCFG Bit
+	 */
+	u32 val;
+	val = (in_le32(SMMU_SCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
+	out_le32(SMMU_SCR0, val);
+	val = (in_le32(SMMU_NSCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
+	out_le32(SMMU_NSCR0, val);
+#endif
+
+#ifdef CONFIG_FSL_CAAM
+	sec_init();
+#endif
 
 	return 0;
 }

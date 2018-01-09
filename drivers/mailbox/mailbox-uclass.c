@@ -6,7 +6,6 @@
 
 #include <common.h>
 #include <dm.h>
-#include <fdtdec.h>
 #include <mailbox.h>
 #include <mailbox-uclass.h>
 
@@ -18,7 +17,7 @@ static inline struct mbox_ops *mbox_dev_ops(struct udevice *dev)
 }
 
 static int mbox_of_xlate_default(struct mbox_chan *chan,
-				 struct fdtdec_phandle_args *args)
+				 struct ofnode_phandle_args *args)
 {
 	debug("%s(chan=%p)\n", __func__, chan);
 
@@ -34,24 +33,22 @@ static int mbox_of_xlate_default(struct mbox_chan *chan,
 
 int mbox_get_by_index(struct udevice *dev, int index, struct mbox_chan *chan)
 {
-	struct fdtdec_phandle_args args;
+	struct ofnode_phandle_args args;
 	int ret;
 	struct udevice *dev_mbox;
 	struct mbox_ops *ops;
 
 	debug("%s(dev=%p, index=%d, chan=%p)\n", __func__, dev, index, chan);
 
-	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev->of_offset,
-					     "mboxes", "#mbox-cells", 0,
-					     index, &args);
+	ret = dev_read_phandle_with_args(dev, "mboxes", "#mbox-cells", 0, index,
+					 &args);
 	if (ret) {
-		debug("%s: fdtdec_parse_phandle_with_args failed: %d\n",
-		      __func__, ret);
+		debug("%s: dev_read_phandle_with_args failed: %d\n", __func__,
+		      ret);
 		return ret;
 	}
 
-	ret = uclass_get_device_by_of_offset(UCLASS_MAILBOX, args.node,
-					     &dev_mbox);
+	ret = uclass_get_device_by_ofnode(UCLASS_MAILBOX, args.node, &dev_mbox);
 	if (ret) {
 		debug("%s: uclass_get_device_by_of_offset failed: %d\n",
 		      __func__, ret);
@@ -85,8 +82,7 @@ int mbox_get_by_name(struct udevice *dev, const char *name,
 
 	debug("%s(dev=%p, name=%s, chan=%p)\n", __func__, dev, name, chan);
 
-	index = fdt_stringlist_search(gd->fdt_blob, dev->of_offset,
-				      "mbox-names", name);
+	index = dev_read_stringlist_search(dev, "mbox-names", name);
 	if (index < 0) {
 		debug("fdt_stringlist_search() failed: %d\n", index);
 		return index;

@@ -5,12 +5,17 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+# If clock.c is compiled for Thumb2, then it fails on OMAP3530
+CFLAGS_clock.o += -marm
+
 obj-y	:= lowlevel_init.o
 
 obj-y	+= board.o
 obj-y	+= boot.o
 obj-y	+= clock.o
 obj-y	+= sys_info.o
+obj-y	+= prcm-regs.o
+obj-y	+= hw_data.o
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_OMAP3_ID_NAND)	+= spl_id_nand.o
 endif

@@ -37,7 +37,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x88000000
 #define CONFIG_SYS_MALLOC_LEN		(256 << 10)
 #define CONFIG_SYS_BOOTPARAMS_LEN	(4 << 10)
-#define CONFIG_STACKSIZE		(4 << 10) /* regular stack */
 
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(192 << 10)
@@ -54,21 +53,11 @@
  * Commands
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_CMD_CLK
-
-/*-------------------------------------------------
- * FLASH configuration
- */
-#define CONFIG_SYS_NO_FLASH
 
 /*------------------------------------------------------------
  * Console Configuration
  */
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_CBSIZE		1024 /* Console I/O Buffer Size   */
-#define CONFIG_SYS_MAXARGS		16   /* max number of command args*/
-#define CONFIG_SYS_PBSIZE		\
-		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_CMDLINE_EDITING		1
 
 /*-----------------------------------------------------------------------
@@ -88,11 +77,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-/*-----------------------------------------------------------------------
- * SDHC Configuration
- */
-#define CONFIG_GENERIC_MMC
-
 /*--------------------------------------------------
  * USB Configuration
  */
@@ -102,12 +86,7 @@
  * File System Configuration
  */
 /* FAT FS */
-#define CONFIG_DOS_PARTITION
-#define CONFIG_PARTITION_UUIDS
 #define CONFIG_SUPPORT_VFAT
-#define CONFIG_FS_FAT
-#define CONFIG_FAT_WRITE
-#define CONFIG_CMD_PART
 
 /* EXT4 FS */
 #define CONFIG_FS_EXT4
@@ -115,7 +94,6 @@
 /* -------------------------------------------------
  * Environment
  */
-#define CONFIG_ENV_IS_NOWHERE	1
 #define CONFIG_ENV_SIZE		0x4000
 
 /* ---------------------------------------------------------------------

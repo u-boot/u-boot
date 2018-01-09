@@ -81,11 +81,15 @@
 };
 
 &eth0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&rgmii_pins>;
 	status = "okay";
 	phy-mode = "rgmii";
 };
 
 &i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c1_pins>;
 	status = "okay";
 };
 
@@ -94,8 +98,31 @@
 	status = "okay";
 };
 
+&sdhci0 {
+	bus-width = <4>;
+	status = "okay";
+};
+
+&sdhci1 {
+	non-removable;
+	bus-width = <8>;
+	mmc-ddr-1_8v;
+	mmc-hs400-1_8v;
+	marvell,pad-type = "fixed-1-8v";
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+	mmccard: mmccard@0 {
+		compatible = "mmc-card";
+		reg = <0>;
+	};
+};
+
 &spi0 {
 	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi_quad_pins>;
 
 	spi-flash@0 {
 		#address-cells = <1>;
@@ -109,6 +136,8 @@
 
 /* Exported on the micro USB connector CON32 through an FTDI */
 &uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart1_pins>;
 	status = "okay";
 };
 

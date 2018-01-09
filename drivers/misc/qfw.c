@@ -32,7 +32,7 @@ static LIST_HEAD(fw_list);
  *          be ignored.
  * @return: 0 on success, or negative value on failure
  */
-static int bios_linker_allocate(struct bios_linker_entry *entry, u32 *addr)
+static int bios_linker_allocate(struct bios_linker_entry *entry, ulong *addr)
 {
 	uint32_t size, align;
 	struct fw_file *file;
@@ -147,7 +147,7 @@ static int bios_linker_add_checksum(struct bios_linker_entry *entry)
 }
 
 /* This function loads and patches ACPI tables provided by QEMU */
-u32 write_acpi_tables(u32 addr)
+ulong write_acpi_tables(ulong addr)
 {
 	int i, ret = 0;
 	struct fw_file *file;

@@ -1,5 +1,5 @@
 BOSTON BOARD
-M:	Paul Burton <paul.burton@imgtec.com>
+M:	Paul Burton <paul.burton@mips.com>
 S:	Maintained
 F:	board/imgtec/boston/
 F:	include/configs/boston.h

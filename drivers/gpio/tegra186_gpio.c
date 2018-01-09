@@ -139,7 +139,7 @@ static int tegra186_gpio_get_function(struct udevice *dev, unsigned offset)
 }
 
 static int tegra186_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
-			    struct fdtdec_phandle_args *args)
+			       struct ofnode_phandle_args *args)
 {
 	int gpio, port, ret;
 
@@ -179,9 +179,9 @@ static int tegra186_gpio_bind(struct udevice *parent)
 	if (parent_plat)
 		return 0;
 
-	regs = (uint32_t *)dev_get_addr_name(parent, "gpio");
+	regs = (uint32_t *)devfdt_get_addr_name(parent, "gpio");
 	if (regs == (uint32_t *)FDT_ADDR_T_NONE)
-		return -ENODEV;
+		return -EINVAL;
 
 	for (port = 0; port < ctlr_data->port_count; port++) {
 		struct tegra186_gpio_platdata *plat;
@@ -197,7 +197,7 @@ static int tegra186_gpio_bind(struct udevice *parent)
 				  -1, &dev);
 		if (ret)
 			return ret;
-		dev->of_offset = parent->of_offset;
+		dev_set_of_offset(dev, dev_of_offset(parent));
 	}
 
 	return 0;

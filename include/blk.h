@@ -8,6 +8,8 @@
 #ifndef BLK_H
 #define BLK_H
 
+#include <efi.h>
+
 #ifdef CONFIG_SYS_64BIT_LBA
 typedef uint64_t lbaint_t;
 #define LBAFlength "ll"
@@ -31,8 +33,24 @@ enum if_type {
 	IF_TYPE_SATA,
 	IF_TYPE_HOST,
 	IF_TYPE_SYSTEMACE,
+	IF_TYPE_NVME,
 
 	IF_TYPE_COUNT,			/* Number of interface types */
+};
+
+#define BLK_VEN_SIZE		40
+#define BLK_PRD_SIZE		20
+#define BLK_REV_SIZE		8
+
+/*
+ * Identifies the partition table type (ie. MBR vs GPT GUID) signature
+ */
+enum sig_type {
+	SIG_TYPE_NONE,
+	SIG_TYPE_MBR,
+	SIG_TYPE_GUID,
+
+	SIG_TYPE_COUNT			/* Number of signature types */
 };
 
 /*
@@ -59,10 +77,15 @@ struct blk_desc {
 	lbaint_t	lba;		/* number of blocks */
 	unsigned long	blksz;		/* block size */
 	int		log2blksz;	/* for convenience: log2(blksz) */
-	char		vendor[40+1];	/* IDE model, SCSI Vendor */
-	char		product[20+1];	/* IDE Serial no, SCSI product */
-	char		revision[8+1];	/* firmware revision */
-#ifdef CONFIG_BLK
+	char		vendor[BLK_VEN_SIZE + 1]; /* device vendor string */
+	char		product[BLK_PRD_SIZE + 1]; /* device product number */
+	char		revision[BLK_REV_SIZE + 1]; /* firmware revision */
+	enum sig_type	sig_type;	/* Partition table signature type */
+	union {
+		uint32_t mbr_sig;	/* MBR integer signature */
+		efi_guid_t guid_sig;	/* GPT GUID Signature */
+	};
+#if CONFIG_IS_ENABLED(BLK)
 	/*
 	 * For now we have a few functions which take struct blk_desc as a
 	 * parameter. This field allows them to look up the associated
@@ -174,7 +197,7 @@ static inline void blkcache_invalidate(int iftype, int dev) {}
 
 #endif
 
-#ifdef CONFIG_BLK
+#if CONFIG_IS_ENABLED(BLK)
 struct udevice;
 
 /* Operations on block devices */
@@ -253,12 +276,25 @@ unsigned long blk_derase(struct blk_desc *block_dev, lbaint_t start,
 			 lbaint_t blkcnt);
 
 /**
+ * blk_find_device() - Find a block device
+ *
+ * This function does not activate the device. The device will be returned
+ * whether or not it is activated.
+ *
+ * @if_type:	Interface type (enum if_type_t)
+ * @devnum:	Device number (specific to each interface type)
+ * @devp:	the device, if found
+ * @return 0 if found, -ENODEV if no device found, or other -ve error value
+ */
+int blk_find_device(int if_type, int devnum, struct udevice **devp);
+
+/**
  * blk_get_device() - Find and probe a block device ready for use
  *
  * @if_type:	Interface type (enum if_type_t)
  * @devnum:	Device number (specific to each interface type)
  * @devp:	the device, if found
- * @return - if found, -ENODEV if no device found, or other -ve error value
+ * @return 0 if found, -ENODEV if no device found, or other -ve error value
  */
 int blk_get_device(int if_type, int devnum, struct udevice **devp);
 
@@ -297,12 +333,12 @@ int blk_next_device(struct udevice **devp);
  * @devnum:	Device number, specific to the interface type, or -1 to
  *		allocate the next available number
  * @blksz:	Block size of the device in bytes (typically 512)
- * @size:	Total size of the device in bytes
+ * @lba:	Total number of blocks of the device
  * @devp:	the new device (which has not been probed)
  */
 int blk_create_device(struct udevice *parent, const char *drv_name,
 		      const char *name, int if_type, int devnum, int blksz,
-		      lbaint_t size, struct udevice **devp);
+		      lbaint_t lba, struct udevice **devp);
 
 /**
  * blk_create_devicef() - Create a new named block device
@@ -314,12 +350,12 @@ int blk_create_device(struct udevice *parent, const char *drv_name,
  * @devnum:	Device number, specific to the interface type, or -1 to
  *		allocate the next available number
  * @blksz:	Block size of the device in bytes (typically 512)
- * @size:	Total size of the device in bytes
+ * @lba:	Total number of blocks of the device
  * @devp:	the new device (which has not been probed)
  */
 int blk_create_devicef(struct udevice *parent, const char *drv_name,
 		       const char *name, int if_type, int devnum, int blksz,
-		       lbaint_t size, struct udevice **devp);
+		       lbaint_t lba, struct udevice **devp);
 
 /**
  * blk_prepare_device() - Prepare a block device for use
@@ -363,6 +399,13 @@ int blk_find_max_devnum(enum if_type if_type);
  * @return 0 if OK, -ve on error
  */
 int blk_select_hwpart(struct udevice *dev, int hwpart);
+
+/**
+ * blk_get_from_parent() - obtain a block device by looking up its parent
+ *
+ * All devices with
+ */
+int blk_get_from_parent(struct udevice *parent, struct udevice **devp);
 
 #else
 #include <errno.h>
@@ -602,5 +645,25 @@ ulong blk_write_devnum(enum if_type if_type, int devnum, lbaint_t start,
  * @return 0 if OK, -ve on error
  */
 int blk_select_hwpart_devnum(enum if_type if_type, int devnum, int hwpart);
+
+/**
+ * blk_get_if_type_name() - Get the name of an interface type
+ *
+ * @if_type: Interface type to check
+ * @return name of interface, or NULL if none
+ */
+const char *blk_get_if_type_name(enum if_type if_type);
+
+/**
+ * blk_common_cmd() - handle common commands with block devices
+ *
+ * @args: Number of arguments to the command (argv[0] is the command itself)
+ * @argv: Command arguments
+ * @if_type: Interface type
+ * @cur_devnump: Current device number for this interface type
+ * @return 0 if OK, CMD_RET_ERROR on error
+ */
+int blk_common_cmd(int argc, char * const argv[], enum if_type if_type,
+		   int *cur_devnump);
 
 #endif

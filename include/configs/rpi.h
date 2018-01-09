@@ -63,73 +63,36 @@
 #define CONFIG_SYS_MEMTEST_END		0x00200000
 #define CONFIG_LOADADDR			0x00200000
 
-/* Flash */
-#define CONFIG_SYS_NO_FLASH
-
 /* Devices */
 /* GPIO */
 #define CONFIG_BCM2835_GPIO
 /* LCD */
 #define CONFIG_LCD_DT_SIMPLEFB
-#define LCD_BPP				LCD_COLOR32
-/*
- * Prevent allocation of RAM for FB; the real FB address is queried
- * dynamically from the VideoCore co-processor, and comes from RAM
- * not owned by the ARM CPU.
- */
-#define CONFIG_FB_ADDR			0
 #define CONFIG_VIDEO_BCM2835
-#define CONFIG_SYS_WHITE_ON_BLACK
-
-/* SD/MMC configuration */
-#define CONFIG_GENERIC_MMC
 
 #ifdef CONFIG_CMD_USB
-#define CONFIG_USB_DWC2
-#ifndef CONFIG_BCM2835
-#define CONFIG_USB_DWC2_REG_ADDR 0x3f980000
-#else
-#define CONFIG_USB_DWC2_REG_ADDR 0x20980000
-#endif
-#define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_TFTP_TSIZE
 #define CONFIG_MISC_INIT_R
-#define CONFIG_SYS_USB_EVENT_POLL
 #endif
 
 /* Console UART */
-#ifdef CONFIG_BCM2837
+#if defined (CONFIG_BCM2837) || defined(CONFIG_TARGET_RPI_0_W)
 #define CONFIG_BCM283X_MU_SERIAL
 #else
 #define CONFIG_PL01X_SERIAL
 #endif
-#define CONFIG_CONS_INDEX		0
-#define CONFIG_BAUDRATE			115200
 
 /* Console configuration */
 #define CONFIG_SYS_CBSIZE		1024
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE +		\
-					 sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* Environment */
 #define CONFIG_ENV_SIZE			SZ_16K
-#define CONFIG_ENV_IS_IN_FAT
-#define FAT_ENV_INTERFACE		"mmc"
-#define FAT_ENV_DEVICE_AND_PART		"0:1"
-#define FAT_ENV_FILE			"uboot.env"
-#define CONFIG_FAT_WRITE
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_SYS_LOAD_ADDR		0x1000000
 #define CONFIG_PREBOOT			"usb start"
 
 /* Shell */
-#define CONFIG_SYS_MAXARGS		16
-#define CONFIG_COMMAND_HISTORY
-
-/* Commands */
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_CMD_PART
+#define CONFIG_CMDLINE_EDITING
 
 /* ATAGs support for bootm/bootz */
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -142,8 +105,8 @@
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define ENV_DEVICE_SETTINGS \
 	"stdin=serial,usbkbd\0" \
-	"stdout=serial,lcd\0" \
-	"stderr=serial,lcd\0"
+	"stdout=serial,vidconsole\0" \
+	"stderr=serial,vidconsole\0"
 
 /*
  * Memory layout for where various images get loaded by boot scripts:

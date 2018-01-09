@@ -10,11 +10,16 @@
 
 #include "boston-regs.h"
 
-phys_size_t initdram(int board_type)
+DECLARE_GLOBAL_DATA_PTR;
+
+int dram_init(void)
 {
 	u32 ddrconf0 = __raw_readl((uint32_t *)BOSTON_PLAT_DDRCONF0);
 
-	return (phys_size_t)(ddrconf0 & BOSTON_PLAT_DDRCONF0_SIZE) << 30;
+	gd->ram_size = (phys_size_t)(ddrconf0 & BOSTON_PLAT_DDRCONF0_SIZE) <<
+			30;
+
+	return 0;
 }
 
 ulong board_get_usable_ram_top(ulong total_size)

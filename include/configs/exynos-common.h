@@ -18,13 +18,12 @@
 
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_BOARD_EARLY_INIT_F
 
 /* Keep L2 Cache Disabled */
 
 /* input clock of PLL: 24MHz input clock */
 #define CONFIG_SYS_CLK_FREQ		24000000
-#define CONFIG_TIMER_CLK_FREQ		CONFIG_SYS_CLK_FREQ
+#define COUNTER_FREQUENCY		CONFIG_SYS_CLK_FREQ
 
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
@@ -35,33 +34,19 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 << 20))
 
 /* select serial console configuration */
-#define CONFIG_BAUDRATE			115200
 
 /* SD/MMC configuration */
-#define CONFIG_GENERIC_MMC
-#define CONFIG_DWMMC
-#define CONFIG_EXYNOS_DWMMC
 #define CONFIG_BOUNCE_BUFFER
 
 /* PWM */
 #define CONFIG_PWM
 
-/* Command definition*/
-#define CONFIG_FAT_WRITE
-
-#define CONFIG_CMD_PART
-#define CONFIG_PARTITION_UUIDS
-
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		1024	/* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
 
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
-/* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH
 
 #include <config_distro_defaults.h>
 

@@ -28,7 +28,7 @@ static int do_time(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong cycles = 0;
 	int retval = 0;
-	int repeatable;
+	int repeatable = 0;
 
 	if (argc == 1)
 		return CMD_RET_USAGE;

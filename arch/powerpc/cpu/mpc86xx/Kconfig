@@ -11,14 +11,17 @@ choice
 config TARGET_SBC8641D
 	bool "Support sbc8641d"
 	select ARCH_MPC8641
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MPC8610HPCD
 	bool "Support MPC8610HPCD"
 	select ARCH_MPC8610
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MPC8641HPCN
 	bool "Support MPC8641HPCN"
 	select ARCH_MPC8641
+	imply SCSI
 
 config TARGET_XPEDITE517X
 	bool "Support xpedite517x"

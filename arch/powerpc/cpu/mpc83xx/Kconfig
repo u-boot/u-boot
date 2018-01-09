@@ -27,30 +27,39 @@ config TARGET_MPC8308RDB
 config TARGET_MPC8313ERDB
 	bool "Support MPC8313ERDB"
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MPC8315ERDB
 	bool "Support MPC8315ERDB"
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MPC8323ERDB
 	bool "Support MPC8323ERDB"
 
 config TARGET_MPC832XEMDS
 	bool "Support MPC832XEMDS"
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MPC8349EMDS
 	bool "Support MPC8349EMDS"
 	select SYS_FSL_DDR
 	select SYS_FSL_HAS_DDR2
 	select SYS_FSL_DDR_BE
+	select BOARD_EARLY_INIT_F
 
 config TARGET_MPC8349ITX
 	bool "Support MPC8349ITX"
+	imply CMD_IRQ
 
 config TARGET_MPC837XEMDS
 	bool "Support MPC837XEMDS"
+	select BOARD_EARLY_INIT_F
+	imply CMD_SATA
+	imply FSL_SATA
 
 config TARGET_MPC837XERDB
 	bool "Support MPC837XERDB"
+	select BOARD_EARLY_INIT_F
 
 config TARGET_IDS8313
 	bool "Support ids8313"
@@ -58,12 +67,19 @@ config TARGET_IDS8313
 
 config TARGET_KM8360
 	bool "Support km8360"
+	imply CMD_CRAMFS
+	imply CMD_DIAG
+	imply FS_CRAMFS
 
 config TARGET_SUVD3
 	bool "Support suvd3"
+	imply CMD_CRAMFS
+	imply FS_CRAMFS
 
 config TARGET_TUXX1
 	bool "Support tuxx1"
+	imply CMD_CRAMFS
+	imply FS_CRAMFS
 
 config TARGET_TQM834X
 	bool "Support TQM834x"
@@ -75,6 +91,7 @@ config TARGET_HRCON
 config TARGET_STRIDER
 	bool "Support strider"
 	select SYS_FSL_ERRATUM_ESDHC111
+	imply CMD_PCA953X
 
 endchoice
 

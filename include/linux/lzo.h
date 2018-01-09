@@ -31,6 +31,9 @@ int lzo1x_decompress_safe(const unsigned char *src, size_t src_len,
 int lzop_decompress(const unsigned char *src, size_t src_len,
 		    unsigned char *dst, size_t *dst_len);
 
+/* check if the header is valid (based on magic numbers) */
+bool lzop_is_valid_header(const unsigned char *src);
+
 /*
  * Return values (< 0 = Error)
  */

@@ -21,14 +21,6 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/omap.h>
 
-/* Common ARM Erratas */
-#define CONFIG_ARM_ERRATA_454179
-#define CONFIG_ARM_ERRATA_430973
-#define CONFIG_ARM_ERRATA_621766
-
-/* The chip has SDRC controller */
-#define CONFIG_SDRC
-
 /* Clock Defines */
 #define V_OSCK			26000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
@@ -63,17 +55,12 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)
 
-/* TWL4030 */
-#define CONFIG_TWL4030_POWER
-
 /* SPL */
 #define CONFIG_SPL_TEXT_BASE		0x40200800
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
 					 (64 << 20))
 
 #ifdef CONFIG_NAND
-#define CONFIG_SPL_NAND_SIMPLE
 #define CONFIG_SYS_NAND_BASE		0x30000000
 #endif
 

@@ -13,4 +13,28 @@ config SYSRESET
 	  to effect a reset. The uclass will try all available drivers when
 	  reset_walk() is called.
 
+if SYSRESET
+
+config SYSRESET_PSCI
+	bool "Enable support for PSCI System Reset"
+	depends on ARM_PSCI_FW
+	help
+	  Enable PSCI SYSTEM_RESET function call.  To use this, PSCI firmware
+	  must be running on your system.
+
+endif
+
+config SYSRESET_SYSCON
+	bool "Enable support for mfd syscon reboot driver"
+	select REGMAP
+	select SYSCON
+	help
+	  Reboot support for generic SYSCON mapped register reset.
+
+config SYSRESET_WATCHDOG
+	bool "Enable support for watchdog reboot driver"
+	select WDT
+	help
+	  Reboot support for generic watchdog reset.
+
 endmenu

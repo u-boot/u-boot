@@ -73,7 +73,7 @@ static int smbios_string_table_len(char *start)
 	return len + 1;
 }
 
-static int smbios_write_type0(uintptr_t *current, int handle)
+static int smbios_write_type0(ulong *current, int handle)
 {
 	struct smbios_type0 *t = (struct smbios_type0 *)*current;
 	int len = sizeof(struct smbios_type0);
@@ -108,11 +108,11 @@ static int smbios_write_type0(uintptr_t *current, int handle)
 	return len;
 }
 
-static int smbios_write_type1(uintptr_t *current, int handle)
+static int smbios_write_type1(ulong *current, int handle)
 {
 	struct smbios_type1 *t = (struct smbios_type1 *)*current;
 	int len = sizeof(struct smbios_type1);
-	char *serial_str = getenv("serial#");
+	char *serial_str = env_get("serial#");
 
 	memset(t, 0, sizeof(struct smbios_type1));
 	fill_smbios_header(t, SMBIOS_SYSTEM_INFORMATION, len, handle);
@@ -129,7 +129,7 @@ static int smbios_write_type1(uintptr_t *current, int handle)
 	return len;
 }
 
-static int smbios_write_type2(uintptr_t *current, int handle)
+static int smbios_write_type2(ulong *current, int handle)
 {
 	struct smbios_type2 *t = (struct smbios_type2 *)*current;
 	int len = sizeof(struct smbios_type2);
@@ -147,7 +147,7 @@ static int smbios_write_type2(uintptr_t *current, int handle)
 	return len;
 }
 
-static int smbios_write_type3(uintptr_t *current, int handle)
+static int smbios_write_type3(ulong *current, int handle)
 {
 	struct smbios_type3 *t = (struct smbios_type3 *)*current;
 	int len = sizeof(struct smbios_type3);
@@ -199,7 +199,7 @@ static void smbios_write_type4_dm(struct smbios_type4 *t)
 	t->processor_version = smbios_add_string(t->eos, name);
 }
 
-static int smbios_write_type4(uintptr_t *current, int handle)
+static int smbios_write_type4(ulong *current, int handle)
 {
 	struct smbios_type4 *t = (struct smbios_type4 *)*current;
 	int len = sizeof(struct smbios_type4);
@@ -221,7 +221,7 @@ static int smbios_write_type4(uintptr_t *current, int handle)
 	return len;
 }
 
-static int smbios_write_type32(uintptr_t *current, int handle)
+static int smbios_write_type32(ulong *current, int handle)
 {
 	struct smbios_type32 *t = (struct smbios_type32 *)*current;
 	int len = sizeof(struct smbios_type32);
@@ -234,7 +234,7 @@ static int smbios_write_type32(uintptr_t *current, int handle)
 	return len;
 }
 
-static int smbios_write_type127(uintptr_t *current, int handle)
+static int smbios_write_type127(ulong *current, int handle)
 {
 	struct smbios_type127 *t = (struct smbios_type127 *)*current;
 	int len = sizeof(struct smbios_type127);
@@ -257,10 +257,10 @@ static smbios_write_type smbios_write_funcs[] = {
 	smbios_write_type127
 };
 
-uintptr_t write_smbios_table(uintptr_t addr)
+ulong write_smbios_table(ulong addr)
 {
 	struct smbios_entry *se;
-	u32 tables;
+	ulong tables;
 	int len = 0;
 	int max_struct_size = 0;
 	int handle = 0;
@@ -271,7 +271,7 @@ uintptr_t write_smbios_table(uintptr_t addr)
 	/* 16 byte align the table address */
 	addr = ALIGN(addr, 16);
 
-	se = (struct smbios_entry *)addr;
+	se = (struct smbios_entry *)(uintptr_t)addr;
 	memset(se, 0, sizeof(struct smbios_entry));
 
 	addr += sizeof(struct smbios_entry);
@@ -280,7 +280,7 @@ uintptr_t write_smbios_table(uintptr_t addr)
 
 	/* populate minimum required tables */
 	for (i = 0; i < ARRAY_SIZE(smbios_write_funcs); i++) {
-		int tmp = smbios_write_funcs[i](&addr, handle++);
+		int tmp = smbios_write_funcs[i]((ulong *)&addr, handle++);
 		max_struct_size = max(max_struct_size, tmp);
 		len += tmp;
 	}

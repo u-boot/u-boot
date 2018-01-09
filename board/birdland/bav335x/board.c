@@ -162,8 +162,8 @@ int spl_start_uboot(void)
 
 #ifdef CONFIG_SPL_ENV_SUPPORT
 	env_init();
-	env_relocate_spec();
-	if (getenv_yesno("boot_os") != 1)
+	env_load();
+	if (env_get_yesno("boot_os") != 1)
 		return 1;
 #endif
 
@@ -301,8 +301,8 @@ int board_init(void)
 int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	setenv("board_name", "BAV335xB");
-	setenv("board_rev", "B"); /* Fix me, but why bother.. */
+	env_set("board_name", "BAV335xB");
+	env_set("board_rev", "B"); /* Fix me, but why bother.. */
 #endif
 	return 0;
 }
@@ -392,11 +392,11 @@ int board_eth_init(bd_t *bis)
 #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
 	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
 
-	if (!getenv("ethaddr")) {
+	if (!env_get("ethaddr")) {
 		printf("<ethaddr> not set. Validating first E-fuse MAC\n");
 
 		if (is_valid_ethaddr(mac_addr))
-			eth_setenv_enetaddr("ethaddr", mac_addr);
+			eth_env_set_enetaddr("ethaddr", mac_addr);
 	}
 
 #ifdef CONFIG_DRIVER_TI_CPSW

@@ -913,11 +913,6 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
 			nextlen = ((len-txlen) < dev->epmaxpacketout[ep]) ?
 					(len-txlen) : dev->epmaxpacketout[ep];
 
-#ifdef CONFIG_USB_BLACKFIN
-			/* Set the transfer data size */
-			writew(nextlen, &musbr->txcount);
-#endif
-
 			/* Write the data to the FIFO */
 			write_fifo(MUSB_BULK_EP, nextlen,
 					(void *)(((u8 *)buffer) + txlen));

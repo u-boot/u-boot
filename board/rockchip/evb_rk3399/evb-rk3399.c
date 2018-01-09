@@ -3,12 +3,14 @@
  *
  * SPDX-License-Identifier:     GPL-2.0+
  */
+
 #include <common.h>
 #include <dm.h>
 #include <dm/pinctrl.h>
 #include <dm/uclass-internal.h>
 #include <asm/arch/periph.h>
 #include <power/regulator.h>
+#include <spl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -28,6 +30,13 @@ int board_init(void)
 		goto out;
 	}
 
+	/* Enable pwm0 for panel backlight */
+	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_PWM0);
+	if (ret) {
+		debug("%s PWM0 pinctrl init fail! (ret=%d)\n", __func__, ret);
+		goto out;
+	}
+
 	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_PWM2);
 	if (ret) {
 		debug("%s PWM2 pinctrl init fail!\n", __func__);
@@ -40,10 +49,9 @@ int board_init(void)
 		goto out;
 	}
 
-	/* rk3399 need init vdd_center to get correct output voltage */
-	ret = regulator_get_by_platname("vdd_center", &regulator);
+	ret = regulators_enable_boot_on(false);
 	if (ret)
-		debug("%s: Cannot get vdd_center regulator\n", __func__);
+		debug("%s: Cannot enable boot on regulator\n", __func__);
 
 	ret = regulator_get_by_platname("vcc5v0_host", &regulator);
 	if (ret) {
@@ -61,15 +69,29 @@ out:
 	return 0;
 }
 
-int dram_init(void)
+void spl_board_init(void)
 {
-	gd->ram_size = 0x80000000;
-	return 0;
-}
+	struct udevice *pinctrl;
+	int ret;
 
-void dram_init_banksize(void)
-{
-	/* Reserve 0x200000 for ATF bl31 */
-	gd->bd->bi_dram[0].start = 0x200000;
-	gd->bd->bi_dram[0].size = 0x7e000000;
+	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
+	if (ret) {
+		debug("%s: Cannot find pinctrl device\n", __func__);
+		goto err;
+	}
+
+	/* Enable debug UART */
+	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_UART_DBG);
+	if (ret) {
+		debug("%s: Failed to set up console UART\n", __func__);
+		goto err;
+	}
+
+	preloader_console_init();
+	return;
+err:
+	printf("%s: Error %d\n", __func__, ret);
+
+	/* No way to report error here */
+	hang();
 }

@@ -52,6 +52,8 @@ typedef volatile unsigned int   *dv_reg_p;
 #define KS2_DDRPHY_ZQ2CR1_OFFSET        0x1A4
 #define KS2_DDRPHY_ZQ3CR1_OFFSET        0x1B4
 
+#define KS2_DDRPHY_DATX8_2_OFFSET       0x240
+#define KS2_DDRPHY_DATX8_3_OFFSET       0x280
 #define KS2_DDRPHY_DATX8_4_OFFSET       0x2C0
 #define KS2_DDRPHY_DATX8_5_OFFSET       0x300
 #define KS2_DDRPHY_DATX8_6_OFFSET       0x340
@@ -70,6 +72,7 @@ typedef volatile unsigned int   *dv_reg_p;
 #define PDQ_MASK                        0x00000070
 #define NOSRA_MASK                      0x08000000
 #define ECC_MASK                        0x00000001
+#define DXEN_MASK                       0x00000001
 
 /* DDR3 definitions */
 #define KS2_DDR3A_EMIF_CTRL_BASE	0x21010000

@@ -49,13 +49,6 @@ void detail_board_ddr_info(void)
 #endif
 }
 
-int dram_init(void)
-{
-	gd->ram_size = initdram(0);
-
-	return 0;
-}
-
 #if defined(CONFIG_ARCH_MISC_INIT)
 int arch_misc_init(void)
 {
@@ -71,13 +64,13 @@ int board_eth_init(bd_t *bis)
 	error = smc91111_initialize(0, CONFIG_SMC91111_BASE);
 #endif
 
-#ifdef CONFIG_FSL_MC_ENET
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
 	error = cpu_eth_init(bis);
 #endif
 	return error;
 }
 
-#ifdef CONFIG_FSL_MC_ENET
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
 void fdt_fixup_board_enet(void *fdt)
 {
 	int offset;
@@ -97,7 +90,7 @@ void fdt_fixup_board_enet(void *fdt)
 		return;
 	}
 
-	if (get_mc_boot_status() == 0)
+	if ((get_mc_boot_status() == 0) && (get_dpl_apply_status() == 0))
 		fdt_status_okay(fdt, offset);
 	else
 		fdt_status_fail(fdt, offset);
@@ -123,12 +116,28 @@ int ft_board_setup(void *blob, bd_t *bd)
 	base[1] = gd->bd->bi_dram[1].start;
 	size[1] = gd->bd->bi_dram[1].size;
 
+#ifdef CONFIG_RESV_RAM
+	/* reduce size if reserved memory is within this bank */
+	if (gd->arch.resv_ram >= base[0] &&
+	    gd->arch.resv_ram < base[0] + size[0])
+		size[0] = gd->arch.resv_ram - base[0];
+	else if (gd->arch.resv_ram >= base[1] &&
+		 gd->arch.resv_ram < base[1] + size[1])
+		size[1] = gd->arch.resv_ram - base[1];
+#endif
+
 	fdt_fixup_memory_banks(blob, base, size, 2);
 
-#ifdef CONFIG_FSL_MC_ENET
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
 	fdt_fixup_board_enet(blob);
 #endif
 
 	return 0;
+}
+#endif
+
+#if defined(CONFIG_RESET_PHY_R)
+void reset_phy(void)
+{
 }
 #endif

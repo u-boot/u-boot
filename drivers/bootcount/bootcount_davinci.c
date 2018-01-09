@@ -18,9 +18,9 @@ void bootcount_store(ulong a)
 		(struct davinci_rtc *)CONFIG_SYS_BOOTCOUNT_ADDR;
 
 	/*
-	 * write RTC kick register to enable write
-	 * for RTC Scratch registers. Scratch0 and 1 are
-	 * used for bootcount values.
+	 * write RTC kick registers to enable write
+	 * for RTC Scratch registers. Scratch register 2 is
+	 * used for bootcount value.
 	 */
 	writel(RTC_KICK0R_WE, &reg->kick0r);
 	writel(RTC_KICK1R_WE, &reg->kick1r);

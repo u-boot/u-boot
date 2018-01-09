@@ -19,14 +19,16 @@
 #include <dfu.h>
 #include <thor.h>
 
+#include <env_callback.h>
+
 #include "gadget_chips.h"
 #include "composite.c"
 
 /*
  * One needs to define the following:
- * CONFIG_G_DNL_VENDOR_NUM
- * CONFIG_G_DNL_PRODUCT_NUM
- * CONFIG_G_DNL_MANUFACTURER
+ * CONFIG_USB_GADGET_VENDOR_NUM
+ * CONFIG_USB_GADGET_PRODUCT_NUM
+ * CONFIG_USB_GADGET_MANUFACTURER
  * at e.g. ./configs/<board>_defconfig
  */
 
@@ -36,7 +38,7 @@
 #define STRING_USBDOWN 2
 /* Index of String serial */
 #define STRING_SERIAL  3
-#define MAX_STRING_SERIAL	32
+#define MAX_STRING_SERIAL	256
 /* Number of supported configurations */
 #define CONFIGURATION_NUMBER 1
 
@@ -44,13 +46,12 @@
 
 static const char product[] = "USB download gadget";
 static char g_dnl_serial[MAX_STRING_SERIAL];
-static const char manufacturer[] = CONFIG_G_DNL_MANUFACTURER;
+static const char manufacturer[] = CONFIG_USB_GADGET_MANUFACTURER;
 
 void g_dnl_set_serialnumber(char *s)
 {
 	memset(g_dnl_serial, 0, MAX_STRING_SERIAL);
-	if (strlen(s) < MAX_STRING_SERIAL)
-		strncpy(g_dnl_serial, s, strlen(s));
+	strncpy(g_dnl_serial, s, MAX_STRING_SERIAL - 1);
 }
 
 static struct usb_device_descriptor device_desc = {
@@ -61,10 +62,10 @@ static struct usb_device_descriptor device_desc = {
 	.bDeviceClass = USB_CLASS_PER_INTERFACE,
 	.bDeviceSubClass = 0, /*0x02:CDC-modem , 0x00:CDC-serial*/
 
-	.idVendor = __constant_cpu_to_le16(CONFIG_G_DNL_VENDOR_NUM),
-	.idProduct = __constant_cpu_to_le16(CONFIG_G_DNL_PRODUCT_NUM),
-	.iProduct = STRING_PRODUCT,
-	.iSerialNumber = STRING_SERIAL,
+	.idVendor = __constant_cpu_to_le16(CONFIG_USB_GADGET_VENDOR_NUM),
+	.idProduct = __constant_cpu_to_le16(CONFIG_USB_GADGET_PRODUCT_NUM),
+	/* .iProduct = DYNAMIC */
+	/* .iSerialNumber = DYNAMIC */
 	.bNumConfigurations = 1,
 };
 
@@ -203,6 +204,19 @@ static int g_dnl_get_bcd_device_number(struct usb_composite_dev *cdev)
 	return g_dnl_get_board_bcd_device_number(gcnum);
 }
 
+/**
+ * Update internal serial number variable when the "serial#" env var changes.
+ *
+ * Handle all cases, even when flags == H_PROGRAMMATIC or op == env_op_delete.
+ */
+static int on_serialno(const char *name, const char *value, enum env_op op,
+		int flags)
+{
+	g_dnl_set_serialnumber((char *)value);
+	return 0;
+}
+U_BOOT_ENV_CALLBACK(serialno, on_serialno);
+
 static int g_dnl_bind(struct usb_composite_dev *cdev)
 {
 	struct usb_gadget *gadget = cdev->gadget;
@@ -225,14 +239,17 @@ static int g_dnl_bind(struct usb_composite_dev *cdev)
 	g_dnl_string_defs[1].id = id;
 	device_desc.iProduct = id;
 
-	id = usb_string_id(cdev);
-	if (id < 0)
-		return id;
-
-	g_dnl_string_defs[2].id = id;
-	device_desc.iSerialNumber = id;
-
 	g_dnl_bind_fixup(&device_desc, cdev->driver->name);
+
+	if (strlen(g_dnl_serial)) {
+		id = usb_string_id(cdev);
+		if (id < 0)
+			return id;
+
+		g_dnl_string_defs[2].id = id;
+		device_desc.iSerialNumber = id;
+	}
+
 	ret = g_dnl_config_register(cdev);
 	if (ret)
 		goto error;

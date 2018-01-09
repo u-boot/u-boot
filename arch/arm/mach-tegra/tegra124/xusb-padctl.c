@@ -8,6 +8,8 @@
 
 #include <common.h>
 #include <errno.h>
+#include <dm/of_access.h>
+#include <dm/ofnode.h>
 
 #include "../xusb-padctl-common.h"
 
@@ -135,7 +137,7 @@ static int tegra_xusb_padctl_disable(struct tegra_xusb_padctl *padctl)
 	u32 value;
 
 	if (padctl->enable == 0) {
-		error("unbalanced enable/disable");
+		pr_err("unbalanced enable/disable");
 		return 0;
 	}
 
@@ -317,13 +319,33 @@ static const struct tegra_xusb_padctl_soc tegra124_socdata = {
 	.num_phys = ARRAY_SIZE(tegra124_phys),
 };
 
-void tegra_xusb_padctl_init(const void *fdt)
+void tegra_xusb_padctl_init(void)
 {
-	int count, nodes[1];
+	ofnode nodes[1];
+	int count = 0;
+	int ret;
 
-	count = fdtdec_find_aliases_for_id(fdt, "padctl",
-					   COMPAT_NVIDIA_TEGRA124_XUSB_PADCTL,
-					   nodes, ARRAY_SIZE(nodes));
-	if (tegra_xusb_process_nodes(fdt, nodes, count, &tegra124_socdata))
-		return;
+	debug("%s: start\n", __func__);
+	if (of_live_active()) {
+		struct device_node *np = of_find_compatible_node(NULL, NULL,
+						"nvidia,tegra124-xusb-padctl");
+
+		debug("np=%p\n", np);
+		if (np) {
+			nodes[0] = np_to_ofnode(np);
+			count = 1;
+		}
+	} else {
+		int node_offsets[1];
+		int i;
+
+		count = fdtdec_find_aliases_for_id(gd->fdt_blob, "padctl",
+				COMPAT_NVIDIA_TEGRA124_XUSB_PADCTL,
+				node_offsets, ARRAY_SIZE(node_offsets));
+		for (i = 0; i < count; i++)
+			nodes[i] = offset_to_ofnode(node_offsets[i]);
+	}
+
+	ret = tegra_xusb_process_nodes(nodes, count, &tegra124_socdata);
+	debug("%s: done, ret=%d\n", __func__, ret);
 }

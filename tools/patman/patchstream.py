@@ -308,15 +308,6 @@ class PatchStream:
 
         # Well that means this is an ordinary line
         else:
-            pos = 1
-            # Look for ugly ASCII characters
-            for ch in line:
-                # TODO: Would be nicer to report source filename and line
-                if ord(ch) > 0x80:
-                    self.warn.append("Line %d/%d ('%s') has funny ascii char" %
-                        (self.linenum, pos, line))
-                pos += 1
-
             # Look for space before tab
             m = re_space_before_tab.match(line)
             if m:
@@ -433,6 +424,19 @@ def GetMetaData(start, count):
     """
     return GetMetaDataForList('HEAD~%d' % start, None, count)
 
+def GetMetaDataForTest(text):
+    """Process metadata from a file containing a git log. Used for tests
+
+    Args:
+        text:
+    """
+    series = Series()
+    ps = PatchStream(series, is_log=True)
+    for line in text.splitlines():
+        ps.ProcessLine(line)
+    ps.Finalize()
+    return series
+
 def FixPatch(backup_dir, fname, series, commit):
     """Fix up a patch file, by adding/removing as required.
 
@@ -486,7 +490,6 @@ def FixPatches(series, fnames):
             print
         count += 1
     print('Cleaned %d patches' % count)
-    return series
 
 def InsertCoverLetter(fname, series, count):
     """Inserts a cover letter with the required info into patch 0

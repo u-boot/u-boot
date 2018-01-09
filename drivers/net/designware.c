@@ -18,6 +18,7 @@
 #include <linux/compiler.h>
 #include <linux/err.h>
 #include <asm/io.h>
+#include <power/regulator.h>
 #include "designware.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -230,14 +231,14 @@ static int _dw_write_hwaddr(struct dw_eth_dev *priv, u8 *mac_id)
 	return 0;
 }
 
-static void dw_adjust_link(struct eth_mac_regs *mac_p,
-			   struct phy_device *phydev)
+static int dw_adjust_link(struct dw_eth_dev *priv, struct eth_mac_regs *mac_p,
+			  struct phy_device *phydev)
 {
 	u32 conf = readl(&mac_p->conf) | FRAMEBURSTENABLE | DISABLERXOWN;
 
 	if (!phydev->link) {
 		printf("%s: No link.\n", phydev->dev->name);
-		return;
+		return 0;
 	}
 
 	if (phydev->speed != 1000)
@@ -256,6 +257,8 @@ static void dw_adjust_link(struct eth_mac_regs *mac_p,
 	printf("Speed: %d, %s duplex%s\n", phydev->speed,
 	       (phydev->duplex) ? "full" : "half",
 	       (phydev->port == PORT_FIBRE) ? ", fiber mode" : "");
+
+	return 0;
 }
 
 static void _dw_eth_halt(struct dw_eth_dev *priv)
@@ -269,7 +272,7 @@ static void _dw_eth_halt(struct dw_eth_dev *priv)
 	phy_shutdown(priv->phydev);
 }
 
-static int _dw_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
+int designware_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
 {
 	struct eth_mac_regs *mac_p = priv->mac_regs_p;
 	struct eth_dma_regs *dma_p = priv->dma_regs_p;
@@ -321,7 +324,16 @@ static int _dw_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
 		return ret;
 	}
 
-	dw_adjust_link(mac_p, priv->phydev);
+	ret = dw_adjust_link(priv, mac_p, priv->phydev);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+int designware_eth_enable(struct dw_eth_dev *priv)
+{
+	struct eth_mac_regs *mac_p = priv->mac_regs_p;
 
 	if (!priv->phydev->link)
 		return -EIO;
@@ -480,7 +492,13 @@ static int dw_phy_init(struct dw_eth_dev *priv, void *dev)
 #ifndef CONFIG_DM_ETH
 static int dw_eth_init(struct eth_device *dev, bd_t *bis)
 {
-	return _dw_eth_init(dev->priv, dev->enetaddr);
+	int ret;
+
+	ret = designware_eth_init(dev->priv, dev->enetaddr);
+	if (!ret)
+		ret = designware_eth_enable(dev->priv);
+
+	return ret;
 }
 
 static int dw_eth_send(struct eth_device *dev, void *packet, int length)
@@ -571,40 +589,48 @@ int designware_initialize(ulong base_addr, u32 interface)
 static int designware_eth_start(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct dw_eth_dev *priv = dev_get_priv(dev);
+	int ret;
 
-	return _dw_eth_init(dev->priv, pdata->enetaddr);
+	ret = designware_eth_init(priv, pdata->enetaddr);
+	if (ret)
+		return ret;
+	ret = designware_eth_enable(priv);
+	if (ret)
+		return ret;
+
+	return 0;
 }
 
-static int designware_eth_send(struct udevice *dev, void *packet, int length)
+int designware_eth_send(struct udevice *dev, void *packet, int length)
 {
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 
 	return _dw_eth_send(priv, packet, length);
 }
 
-static int designware_eth_recv(struct udevice *dev, int flags, uchar **packetp)
+int designware_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 
 	return _dw_eth_recv(priv, packetp);
 }
 
-static int designware_eth_free_pkt(struct udevice *dev, uchar *packet,
-				   int length)
+int designware_eth_free_pkt(struct udevice *dev, uchar *packet, int length)
 {
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 
 	return _dw_free_pkt(priv);
 }
 
-static void designware_eth_stop(struct udevice *dev)
+void designware_eth_stop(struct udevice *dev)
 {
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 
 	return _dw_eth_halt(priv);
 }
 
-static int designware_eth_write_hwaddr(struct udevice *dev)
+int designware_eth_write_hwaddr(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct dw_eth_dev *priv = dev_get_priv(dev);
@@ -628,13 +654,29 @@ static int designware_eth_bind(struct udevice *dev)
 	return 0;
 }
 
-static int designware_eth_probe(struct udevice *dev)
+int designware_eth_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 	u32 iobase = pdata->iobase;
 	ulong ioaddr;
 	int ret;
+
+#if defined(CONFIG_DM_REGULATOR)
+	struct udevice *phy_supply;
+
+	ret = device_get_supply_regulator(dev, "phy-supply",
+					  &phy_supply);
+	if (ret) {
+		debug("%s: No phy supply\n", dev->name);
+	} else {
+		ret = regulator_set_enable(phy_supply, true);
+		if (ret) {
+			puts("Error enabling phy supply\n");
+			return ret;
+		}
+	}
+#endif
 
 #ifdef CONFIG_DM_PCI
 	/*
@@ -678,7 +720,7 @@ static int designware_eth_remove(struct udevice *dev)
 	return 0;
 }
 
-static const struct eth_ops designware_eth_ops = {
+const struct eth_ops designware_eth_ops = {
 	.start			= designware_eth_start,
 	.send			= designware_eth_send,
 	.recv			= designware_eth_recv,
@@ -687,7 +729,7 @@ static const struct eth_ops designware_eth_ops = {
 	.write_hwaddr		= designware_eth_write_hwaddr,
 };
 
-static int designware_eth_ofdata_to_platdata(struct udevice *dev)
+int designware_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dw_eth_pdata *dw_pdata = dev_get_platdata(dev);
 #ifdef CONFIG_DM_GPIO
@@ -695,15 +737,14 @@ static int designware_eth_ofdata_to_platdata(struct udevice *dev)
 #endif
 	struct eth_pdata *pdata = &dw_pdata->eth_pdata;
 	const char *phy_mode;
-	const fdt32_t *cell;
 #ifdef CONFIG_DM_GPIO
 	int reset_flags = GPIOD_IS_OUT;
 #endif
 	int ret = 0;
 
-	pdata->iobase = dev_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 	pdata->phy_interface = -1;
-	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy-mode", NULL);
+	phy_mode = dev_read_string(dev, "phy-mode");
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (pdata->phy_interface == -1) {
@@ -711,21 +752,17 @@ static int designware_eth_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	pdata->max_speed = 0;
-	cell = fdt_getprop(gd->fdt_blob, dev->of_offset, "max-speed", NULL);
-	if (cell)
-		pdata->max_speed = fdt32_to_cpu(*cell);
+	pdata->max_speed = dev_read_u32_default(dev, "max-speed", 0);
 
 #ifdef CONFIG_DM_GPIO
-	if (fdtdec_get_bool(gd->fdt_blob, dev->of_offset,
-			    "snps,reset-active-low"))
+	if (dev_read_bool(dev, "snps,reset-active-low"))
 		reset_flags |= GPIOD_ACTIVE_LOW;
 
 	ret = gpio_request_by_name(dev, "snps,reset-gpio", 0,
 		&priv->reset_gpio, reset_flags);
 	if (ret == 0) {
-		ret = fdtdec_get_int_array(gd->fdt_blob, dev->of_offset,
-			"snps,reset-delays-us", dw_pdata->reset_delays, 3);
+		ret = dev_read_u32_array(dev, "snps,reset-delays-us",
+					 dw_pdata->reset_delays, 3);
 	} else if (ret == -ENOENT) {
 		ret = 0;
 	}
@@ -738,6 +775,8 @@ static const struct udevice_id designware_eth_ids[] = {
 	{ .compatible = "allwinner,sun7i-a20-gmac" },
 	{ .compatible = "altr,socfpga-stmmac" },
 	{ .compatible = "amlogic,meson6-dwmac" },
+	{ .compatible = "amlogic,meson-gx-dwmac" },
+	{ .compatible = "st,stm32-dwmac" },
 	{ }
 };
 

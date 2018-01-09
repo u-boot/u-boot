@@ -1,0 +1,6 @@
+M53EVK BOARD
+#M:	Marek Vasut <marek.vasut@gmail.com>
+S:	Orphan (since 2017-07)
+F:	board/aries/m53evk/
+F:	include/configs/m53evk.h
+F:	configs/m53evk_defconfig

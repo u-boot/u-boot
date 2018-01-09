@@ -67,15 +67,30 @@ u-boot-spl_HS_2ND: $(obj)/u-boot-spl.bin FORCE
 u-boot-spl_HS_ULO: $(obj)/u-boot-spl.bin FORCE
 	$(call if_changed,mkomapsecimg)
 
-# Standard ISSW target (certain devices, various boot modes)
+# Standard ISSW target (certain devices, various boot modes), when copied to
+# an SD card FAT partition this file must be called "MLO", we make a copy with
+# this name to make this clear
 u-boot-spl_HS_ISSW: $(obj)/u-boot-spl.bin FORCE
 	$(call if_changed,mkomapsecimg)
+	@if [ -f $@ ]; then \
+		cp -f $@ MLO; \
+	fi
 
 # For SPI flash on AM335x and AM43xx, these require special byte swap handling
 # so we use the SPI_X-LOADER target instead of X-LOADER and let the
 # create-boot-image.sh script handle that
 u-boot-spl_HS_SPI_X-LOADER: $(obj)/u-boot-spl.bin FORCE
 	$(call if_changed,mkomapsecimg)
+
+# For supporting single stage boot on keystone, the image is a full u-boot
+# file, not an SPL. This will work for all boot devices, other than SPI
+# flash. On Keystone devices when booting from an SD card FAT partition this
+# file must be called "MLO"
+u-boot_HS_MLO: $(obj)/u-boot.bin
+	$(call if_changed,mkomapsecimg)
+	@if [ -f $@ ]; then \
+		cp -f $@ MLO; \
+	fi
 
 # For supporting single stage XiP QSPI on AM43xx, the image is a full u-boot
 # file, not an SPL. In this case the mkomapsecimg command looks for a

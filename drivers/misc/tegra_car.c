@@ -22,12 +22,12 @@ static int tegra_car_bpmp_bind(struct udevice *dev)
 	debug("%s(dev=%p)\n", __func__, dev);
 
 	ret = device_bind_driver_to_node(dev, "tegra_car_clk", "tegra_car_clk",
-					 dev->of_offset, &child);
+					 dev_ofnode(dev), &child);
 	if (ret)
 		return ret;
 
 	ret = device_bind_driver_to_node(dev, "tegra_car_reset",
-					 "tegra_car_reset", dev->of_offset,
+					 "tegra_car_reset", dev_ofnode(dev),
 					 &child);
 	if (ret)
 		return ret;

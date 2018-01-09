@@ -17,22 +17,7 @@
 #define cfg_read(val, addr, type, op)	*val = op((type)(addr))
 #define cfg_write(val, addr, type, op)	op((type *)(addr), (val))
 
-#if defined(CONFIG_MPC8260)
-#define INDIRECT_PCI_OP(rw, size, type, op, mask)			 \
-static int								 \
-indirect_##rw##_config_##size(struct pci_controller *hose,		 \
-			      pci_dev_t dev, int offset, type val)	 \
-{									 \
-	u32 b, d,f;							 \
-	b = PCI_BUS(dev); d = PCI_DEV(dev); f = PCI_FUNC(dev);		 \
-	b = b - hose->first_busno;					 \
-	dev = PCI_BDF(b, d, f);						 \
-	out_le32(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000000);	 \
-	sync();								 \
-	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);	 \
-	return 0;							 \
-}
-#elif defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
+#if defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 #define INDIRECT_PCI_OP(rw, size, type, op, mask)                        \
 static int                                                               \
 indirect_##rw##_config_##size(struct pci_controller *hose,               \
@@ -47,24 +32,6 @@ indirect_##rw##_config_##size(struct pci_controller *hose,               \
 	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);       \
 	return 0;                                                        \
 }
-#elif defined(CONFIG_440GX)  || defined(CONFIG_440GP) || defined(CONFIG_440SP) || \
-      defined(CONFIG_440SPE) || defined(CONFIG_460EX) || defined(CONFIG_460GT)
-#define INDIRECT_PCI_OP(rw, size, type, op, mask)			 \
-static int								 \
-indirect_##rw##_config_##size(struct pci_controller *hose,		 \
-			      pci_dev_t dev, int offset, type val)	 \
-{									 \
-	u32 b, d,f;							 \
-	b = PCI_BUS(dev); d = PCI_DEV(dev); f = PCI_FUNC(dev);		 \
-	b = b - hose->first_busno;					 \
-	dev = PCI_BDF(b, d, f);						 \
-	if (PCI_BUS(dev) > 0)                                            \
-		out_le32(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000001); \
-	else                                                             \
-		out_le32(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000000); \
-	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);	 \
-	return 0;							 \
-}
 #else
 #define INDIRECT_PCI_OP(rw, size, type, op, mask)			 \
 static int								 \
@@ -80,33 +47,13 @@ indirect_##rw##_config_##size(struct pci_controller *hose,		 \
 	return 0;							 \
 }
 #endif
-
-#define INDIRECT_PCI_OP_ERRATA6(rw, size, type, op, mask)		 \
-static int								 \
-indirect_##rw##_config_##size(struct pci_controller *hose,		 \
-			      pci_dev_t dev, int offset, type val)	 \
-{									 \
-	unsigned int msr = mfmsr();					 \
-	mtmsr(msr & ~(MSR_EE | MSR_CE));				 \
-	out_le32(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000000);	 \
-	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);	 \
-	out_le32(hose->cfg_addr, 0x00000000);				 \
-	mtmsr(msr);							 \
-	return 0;							 \
-}
 
 INDIRECT_PCI_OP(read, byte, u8 *, in_8, 3)
 INDIRECT_PCI_OP(read, word, u16 *, in_le16, 2)
 INDIRECT_PCI_OP(read, dword, u32 *, in_le32, 0)
-#ifdef CONFIG_405GP
-INDIRECT_PCI_OP_ERRATA6(write, byte, u8, out_8, 3)
-INDIRECT_PCI_OP_ERRATA6(write, word, u16, out_le16, 2)
-INDIRECT_PCI_OP_ERRATA6(write, dword, u32, out_le32, 0)
-#else
 INDIRECT_PCI_OP(write, byte, u8, out_8, 3)
 INDIRECT_PCI_OP(write, word, u16, out_le16, 2)
 INDIRECT_PCI_OP(write, dword, u32, out_le32, 0)
-#endif
 
 void pci_setup_indirect(struct pci_controller* hose, u32 cfg_addr, u32 cfg_data)
 {

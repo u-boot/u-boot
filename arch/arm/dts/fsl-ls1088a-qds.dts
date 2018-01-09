@@ -1,0 +1,70 @@
+/*
+ * NXP ls1088a QDS board device tree source
+ *
+ * Copyright 2017 NXP
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+
+#include "fsl-ls1088a.dtsi"
+
+/ {
+	model = "NXP Layerscape 1088a QDS Board";
+	compatible = "fsl,ls1088a-qds", "fsl,ls1088a";
+	aliases {
+		spi0 = &qspi;
+		spi1 = &dspi;
+	};
+};
+
+&dspi {
+	bus-num = <0>;
+	status = "okay";
+
+	dflash0: n25q128a {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		reg = <0>;
+		spi-max-frequency = <1000000>; /* input clock */
+	};
+
+	dflash1: sst25wf040b {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		spi-max-frequency = <3500000>;
+		reg = <1>;
+	};
+
+	dflash2: en25s64 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		spi-max-frequency = <3500000>;
+		reg = <2>;
+	};
+};
+
+&qspi {
+	bus-num = <0>;
+	status = "okay";
+
+	qflash0: s25fs512s@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		spi-max-frequency = <50000000>;
+		reg = <0>;
+	};
+
+	qflash1: s25fs512s@1 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		spi-max-frequency = <50000000>;
+		reg = <1>;
+	 };
+};

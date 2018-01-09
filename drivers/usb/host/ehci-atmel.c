@@ -96,7 +96,7 @@ static int ehci_atmel_probe(struct udevice *dev)
 	/*
 	 * Get the base address for EHCI controller from the device node
 	 */
-	hcd_base = dev_get_addr(dev);
+	hcd_base = devfdt_get_addr(dev);
 	if (hcd_base == FDT_ADDR_T_NONE) {
 		debug("Can't get the EHCI register base address\n");
 		return -ENXIO;

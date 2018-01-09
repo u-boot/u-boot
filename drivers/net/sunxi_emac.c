@@ -327,6 +327,20 @@ static void emac_reset(struct emac_eth_dev *priv)
 	udelay(200);
 }
 
+static int _sunxi_write_hwaddr(struct emac_eth_dev *priv, u8 *enetaddr)
+{
+	struct emac_regs *regs = priv->regs;
+	u32 enetaddr_lo, enetaddr_hi;
+
+	enetaddr_lo = enetaddr[2] | (enetaddr[1] << 8) | (enetaddr[0] << 16);
+	enetaddr_hi = enetaddr[5] | (enetaddr[4] << 8) | (enetaddr[3] << 16);
+
+	writel(enetaddr_hi, &regs->mac_a1);
+	writel(enetaddr_lo, &regs->mac_a0);
+
+	return 0;
+}
+
 static int _sunxi_emac_eth_init(struct emac_eth_dev *priv, u8 *enetaddr)
 {
 	struct emac_regs *regs = priv->regs;
@@ -350,10 +364,7 @@ static int _sunxi_emac_eth_init(struct emac_eth_dev *priv, u8 *enetaddr)
 	/* Set up EMAC */
 	emac_setup(priv);
 
-	writel(enetaddr[0] << 16 | enetaddr[1] << 8 | enetaddr[2],
-	       &regs->mac_a1);
-	writel(enetaddr[3] << 16 | enetaddr[4] << 8 | enetaddr[5],
-	       &regs->mac_a0);
+	_sunxi_write_hwaddr(priv, enetaddr);
 
 	mdelay(1);
 
@@ -565,7 +576,7 @@ static int sunxi_emac_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 
-	pdata->iobase = dev_get_addr(dev);
+	pdata->iobase = devfdt_get_addr(dev);
 
 	return 0;
 }

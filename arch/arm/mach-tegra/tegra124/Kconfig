@@ -4,14 +4,22 @@ choice
 	prompt "Tegra124 board select"
 	optional
 
+config TARGET_APALIS_TK1
+	bool "Toradex Apalis TK1 module"
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
+	select ARCH_SUPPORT_PSCI
+
 config TARGET_JETSON_TK1
 	bool "NVIDIA Tegra124 Jetson TK1 board"
+	select BOARD_LATE_INIT
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
 
 config TARGET_CEI_TK1_SOM
 	bool "Colorado Engineering Inc Tegra124 TK1-som board"
+	select BOARD_LATE_INIT
 	select CPU_V7_HAS_NONSEC if !SPL_BUILD
 	select CPU_V7_HAS_VIRT if !SPL_BUILD
 	help
@@ -23,6 +31,7 @@ config TARGET_CEI_TK1_SOM
 
 config TARGET_NYAN_BIG
 	bool "Google/NVIDIA Nyan-big Chromebook"
+	select BOARD_LATE_INIT
 	help
 	  Nyan Big is a Tegra124 clamshell board that is very similar
 	  to venice2, but it has a different panel, the sdcard CD and WP
@@ -32,6 +41,7 @@ config TARGET_NYAN_BIG
 
 config TARGET_VENICE2
 	bool "NVIDIA Tegra124 Venice2"
+	select BOARD_LATE_INIT
 
 endchoice
 
@@ -42,5 +52,6 @@ source "board/cei/cei-tk1-som/Kconfig"
 source "board/nvidia/jetson-tk1/Kconfig"
 source "board/nvidia/nyan-big/Kconfig"
 source "board/nvidia/venice2/Kconfig"
+source "board/toradex/apalis-tk1/Kconfig"
 
 endif

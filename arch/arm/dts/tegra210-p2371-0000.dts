@@ -58,3 +58,7 @@
 		};
 	};
 };
+
+&uarta {
+	status = "okay";
+};

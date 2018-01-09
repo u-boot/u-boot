@@ -12,12 +12,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <command.h>
-#include <ds4510.h>
-
-/* Default to an address that hopefully won't corrupt other i2c devices */
-#ifndef CONFIG_SYS_I2C_DS4510_ADDR
-#define CONFIG_SYS_I2C_DS4510_ADDR	(~0)
-#endif
+#include "ds4510.h"
 
 enum {
 	DS4510_CMD_INFO,
@@ -35,7 +30,7 @@ enum {
 /*
  * Write to DS4510, taking page boundaries into account
  */
-int ds4510_mem_write(uint8_t chip, int offset, uint8_t *buf, int count)
+static int ds4510_mem_write(uint8_t chip, int offset, uint8_t *buf, int count)
 {
 	int wrlen;
 	int i = 0;
@@ -64,7 +59,7 @@ int ds4510_mem_write(uint8_t chip, int offset, uint8_t *buf, int count)
 /*
  * General read from DS4510
  */
-int ds4510_mem_read(uint8_t chip, int offset, uint8_t *buf, int count)
+static int ds4510_mem_read(uint8_t chip, int offset, uint8_t *buf, int count)
 {
 	return i2c_read(chip, offset, 1, buf, count);
 }
@@ -74,7 +69,7 @@ int ds4510_mem_read(uint8_t chip, int offset, uint8_t *buf, int count)
  * nv = 0 - Writes to SEEPROM registers behave like EEPROM
  * nv = 1 - Writes to SEEPROM registers behave like SRAM
  */
-int ds4510_see_write(uint8_t chip, uint8_t nv)
+static int ds4510_see_write(uint8_t chip, uint8_t nv)
 {
 	uint8_t data;
 
@@ -92,7 +87,7 @@ int ds4510_see_write(uint8_t chip, uint8_t nv)
 /*
  * Write de-assertion of reset signal delay
  */
-int ds4510_rstdelay_write(uint8_t chip, uint8_t delay)
+static int ds4510_rstdelay_write(uint8_t chip, uint8_t delay)
 {
 	uint8_t data;
 
@@ -108,7 +103,7 @@ int ds4510_rstdelay_write(uint8_t chip, uint8_t delay)
 /*
  * Write pullup characteristics of IO pins
  */
-int ds4510_pullup_write(uint8_t chip, uint8_t val)
+static int ds4510_pullup_write(uint8_t chip, uint8_t val)
 {
 	val &= DS4510_IO_MASK;
 
@@ -118,7 +113,7 @@ int ds4510_pullup_write(uint8_t chip, uint8_t val)
 /*
  * Read pullup characteristics of IO pins
  */
-int ds4510_pullup_read(uint8_t chip)
+static int ds4510_pullup_read(uint8_t chip)
 {
 	uint8_t val;
 
@@ -131,7 +126,7 @@ int ds4510_pullup_read(uint8_t chip)
 /*
  * Write drive level of IO pins
  */
-int ds4510_gpio_write(uint8_t chip, uint8_t val)
+static int ds4510_gpio_write(uint8_t chip, uint8_t val)
 {
 	uint8_t data;
 	int i;
@@ -155,7 +150,7 @@ int ds4510_gpio_write(uint8_t chip, uint8_t val)
 /*
  * Read drive level of IO pins
  */
-int ds4510_gpio_read(uint8_t chip)
+static int ds4510_gpio_read(uint8_t chip)
 {
 	uint8_t data;
 	int val = 0;
@@ -175,7 +170,7 @@ int ds4510_gpio_read(uint8_t chip)
 /*
  * Read physical level of IO pins
  */
-int ds4510_gpio_read_val(uint8_t chip)
+static int ds4510_gpio_read_val(uint8_t chip)
 {
 	uint8_t val;
 
@@ -185,8 +180,6 @@ int ds4510_gpio_read_val(uint8_t chip)
 	return val & DS4510_IO_MASK;
 }
 
-#ifdef CONFIG_CMD_DS4510
-#ifdef CONFIG_CMD_DS4510_INFO
 /*
  * Display DS4510 information
  */
@@ -240,7 +233,6 @@ static int ds4510_info(uint8_t chip)
 
 	return 0;
 }
-#endif /* CONFIG_CMD_DS4510_INFO */
 
 cmd_tbl_t cmd_ds4510[] = {
 	U_BOOT_CMD_MKENT(device, 3, 0, (void *)DS4510_CMD_DEVICE, "", ""),
@@ -248,33 +240,25 @@ cmd_tbl_t cmd_ds4510[] = {
 	U_BOOT_CMD_MKENT(output, 4, 0, (void *)DS4510_CMD_OUTPUT, "", ""),
 	U_BOOT_CMD_MKENT(input, 3, 0, (void *)DS4510_CMD_INPUT, "", ""),
 	U_BOOT_CMD_MKENT(pullup, 4, 0, (void *)DS4510_CMD_PULLUP, "", ""),
-#ifdef CONFIG_CMD_DS4510_INFO
 	U_BOOT_CMD_MKENT(info, 2, 0, (void *)DS4510_CMD_INFO, "", ""),
-#endif
-#ifdef CONFIG_CMD_DS4510_RST
 	U_BOOT_CMD_MKENT(rstdelay, 3, 0, (void *)DS4510_CMD_RSTDELAY, "", ""),
-#endif
-#ifdef CONFIG_CMD_DS4510_MEM
 	U_BOOT_CMD_MKENT(eeprom, 6, 0, (void *)DS4510_CMD_EEPROM, "", ""),
 	U_BOOT_CMD_MKENT(seeprom, 6, 0, (void *)DS4510_CMD_SEEPROM, "", ""),
 	U_BOOT_CMD_MKENT(sram, 6, 0, (void *)DS4510_CMD_SRAM, "", ""),
-#endif
 };
 
 int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	static uint8_t chip = CONFIG_SYS_I2C_DS4510_ADDR;
+	static uint8_t chip = 0x51;
 	cmd_tbl_t *c;
 	ulong ul_arg2 = 0;
 	ulong ul_arg3 = 0;
 	int tmp;
-#ifdef CONFIG_CMD_DS4510_MEM
 	ulong addr;
 	ulong off;
 	ulong cnt;
 	int end;
 	int (*rw_func)(uint8_t, int, uint8_t *, int);
-#endif
 
 	c = find_cmd_tbl(argv[1], cmd_ds4510, ARRAY_SIZE(cmd_ds4510));
 
@@ -324,15 +308,10 @@ int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		else
 			tmp &= ~(1 << ul_arg2);
 		return ds4510_pullup_write(chip, tmp);
-#ifdef CONFIG_CMD_DS4510_INFO
 	case DS4510_CMD_INFO:
 		return ds4510_info(chip);
-#endif
-#ifdef CONFIG_CMD_DS4510_RST
 	case DS4510_CMD_RSTDELAY:
 		return ds4510_rstdelay_write(chip, ul_arg2);
-#endif
-#ifdef CONFIG_CMD_DS4510_MEM
 	case DS4510_CMD_EEPROM:
 		end = DS4510_EEPROM + DS4510_EEPROM_SIZE;
 		off = DS4510_EEPROM;
@@ -345,13 +324,11 @@ int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		end = DS4510_SRAM + DS4510_SRAM_SIZE;
 		off = DS4510_SRAM;
 		break;
-#endif
 	default:
 		/* We should never get here... */
 		return 1;
 	}
 
-#ifdef CONFIG_CMD_DS4510_MEM
 	/* Only eeprom, seeprom, and sram commands should make it here */
 	if (strcmp(argv[2], "read") == 0)
 		rw_func = ds4510_mem_read;
@@ -370,7 +347,6 @@ int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	return rw_func(chip, off, (uint8_t *)addr, cnt);
-#endif
 }
 
 U_BOOT_CMD(
@@ -378,10 +354,8 @@ U_BOOT_CMD(
 	"ds4510 eeprom/seeprom/sram/gpio access",
 	"device [dev]\n"
 	"	- show or set current device address\n"
-#ifdef CONFIG_CMD_DS4510_INFO
 	"ds4510 info\n"
 	"	- display ds4510 info\n"
-#endif
 	"ds4510 output pin 0|1\n"
 	"	- set pin low or high-Z\n"
 	"ds4510 input pin\n"
@@ -390,12 +364,9 @@ U_BOOT_CMD(
 	"	- disable/enable pullup on specified pin\n"
 	"ds4510 nv 0|1\n"
 	"	- make gpio and seeprom writes volatile/non-volatile"
-#ifdef CONFIG_CMD_DS4510_RST
 	"\n"
 	"ds4510 rstdelay 0-3\n"
 	"	- set reset output delay"
-#endif
-#ifdef CONFIG_CMD_DS4510_MEM
 	"\n"
 	"ds4510 eeprom read addr off cnt\n"
 	"ds4510 eeprom write addr off cnt\n"
@@ -406,6 +377,4 @@ U_BOOT_CMD(
 	"ds4510 sram read addr off cnt\n"
 	"ds4510 sram write addr off cnt\n"
 	"	- read/write 'cnt' bytes at SRAM offset 'off'"
-#endif
 );
-#endif /* CONFIG_CMD_DS4510 */

@@ -17,7 +17,7 @@ flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 void stm32_flash_latency_cfg(int latency)
 {
 	/* 5 wait states, Prefetch enabled, D-Cache enabled, I-Cache enabled */
-	writel(FLASH_ACR_WS(5) | FLASH_ACR_PRFTEN | FLASH_ACR_ICEN
+	writel(FLASH_ACR_WS(latency) | FLASH_ACR_PRFTEN | FLASH_ACR_ICEN
 		| FLASH_ACR_DCEN, &STM32_FLASH->acr);
 }
 

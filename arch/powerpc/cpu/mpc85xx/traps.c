@@ -286,11 +286,3 @@ void DebugException(struct pt_regs *regs)
 	do_bedbug_breakpoint( regs );
 #endif
 }
-
-/* Probe an address by reading.	 If not present, return -1, otherwise
- * return 0.
- */
-int addr_probe(uint *addr)
-{
-	return 0;
-}

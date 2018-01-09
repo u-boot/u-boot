@@ -34,11 +34,11 @@ The fastboot gadget relies on the USB download gadget, so the following
 options must be configured:
 
 CONFIG_USB_GADGET_DOWNLOAD
-CONFIG_G_DNL_VENDOR_NUM
-CONFIG_G_DNL_PRODUCT_NUM
-CONFIG_G_DNL_MANUFACTURER
+CONFIG_USB_GADGET_VENDOR_NUM
+CONFIG_USB_GADGET_PRODUCT_NUM
+CONFIG_USB_GADGET_MANUFACTURER
 
-NOTE: The CONFIG_G_DNL_VENDOR_NUM must be one of the numbers supported by
+NOTE: The CONFIG_USB_GADGET_VENDOR_NUM must be one of the numbers supported by
 the fastboot client. The list of vendor IDs supported can be found in the
 fastboot client source code (fastboot.c) mentioned above.
 

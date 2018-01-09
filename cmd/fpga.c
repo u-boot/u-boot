@@ -18,16 +18,18 @@
 static int fpga_get_op(char *opstr);
 
 /* Local defines */
-#define FPGA_NONE   -1
-#define FPGA_INFO   0
-#define FPGA_LOAD   1
-#define FPGA_LOADB  2
-#define FPGA_DUMP   3
-#define FPGA_LOADMK 4
-#define FPGA_LOADP  5
-#define FPGA_LOADBP 6
-#define FPGA_LOADFS 7
-#define FPGA_LOADS  8
+enum {
+	FPGA_NONE = -1,
+	FPGA_INFO,
+	FPGA_LOAD,
+	FPGA_LOADB,
+	FPGA_DUMP,
+	FPGA_LOADMK,
+	FPGA_LOADP,
+	FPGA_LOADBP,
+	FPGA_LOADFS,
+	FPGA_LOADS,
+};
 
 /* ------------------------------------------------------------------------- */
 /* command form:
@@ -42,8 +44,8 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	int op, dev = FPGA_INVALID_DEVICE;
 	size_t data_size = 0;
 	void *fpga_data = NULL;
-	char *devstr = getenv("fpga");
-	char *datastr = getenv("fpgadata");
+	char *devstr = env_get("fpga");
+	char *datastr = env_get("fpgadata");
 	int rc = FPGA_FAIL;
 	int wrong_parms = 0;
 #if defined(CONFIG_FIT)

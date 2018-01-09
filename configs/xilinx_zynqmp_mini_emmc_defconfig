@@ -16,7 +16,6 @@ CONFIG_SYS_PROMPT="ZynqMP> "
 # CONFIG_CMD_GO is not set
 # CONFIG_CMD_RUN is not set
 # CONFIG_CMD_IMI is not set
-# CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_XIMG is not set
 # CONFIG_CMD_EXPORTENV is not set
 # CONFIG_CMD_IMPORTENV is not set
@@ -25,11 +24,11 @@ CONFIG_SYS_PROMPT="ZynqMP> "
 # CONFIG_CMD_ENV_EXISTS is not set
 # CONFIG_CMD_CRC32 is not set
 # CONFIG_CMD_DM is not set
+# CONFIG_CMD_FLASH is not set
+# CONFIG_CMD_FPGA is not set
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set
-# CONFIG_CMD_FLASH is not set
 CONFIG_CMD_MMC=y
-# CONFIG_CMD_FPGA is not set
 # CONFIG_CMD_ECHO is not set
 # CONFIG_CMD_ITEST is not set
 # CONFIG_CMD_SOURCE is not set
@@ -42,6 +41,5 @@ CONFIG_OF_EMBED=y
 # CONFIG_DM_WARN is not set
 # CONFIG_DM_DEVICE_REMOVE is not set
 CONFIG_DM_MMC=y
-CONFIG_ZYNQ_SDHCI=y
 CONFIG_MMC_SDHCI=y
 # CONFIG_EFI_LOADER is not set

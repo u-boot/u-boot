@@ -23,7 +23,7 @@
 #include <i2c.h>
 #include <spartan3.h>
 #include <asm/gpio.h>
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 #include <usb.h>
 #include <asm/ehci-omap.h>
 #endif
@@ -95,7 +95,7 @@ static const u32 gpmc_fpga[] = {
 	FPGA_GPMC_CONFIG6,
 };
 
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 static struct omap_usbhs_board_data usbhs_bdata = {
 	.port_mode[0] = OMAP_EHCI_PORT_MODE_PHY,
 	.port_mode[1] = OMAP_EHCI_PORT_MODE_PHY,
@@ -261,7 +261,7 @@ int misc_init_r(void)
 
 	if (ret)
 		return 0;
-	eth_addr = getenv("ethaddr");
+	eth_addr = env_get("ethaddr");
 	if (!eth_addr)
 		TAM3517_READ_MAC_FROM_EEPROM(&info);
 
@@ -291,7 +291,7 @@ int board_eth_init(bd_t *bis)
 	return 0;
 }
 
-#if defined(CONFIG_OMAP_HSMMC) && \
+#if defined(CONFIG_MMC_OMAP_HS) && \
 	!defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
 {
@@ -311,7 +311,7 @@ int board_video_init(void)
 
 	fb = (void *)0x88000000;
 
-	s = getenv("panel");
+	s = env_get("panel");
 	if (s) {
 		index = simple_strtoul(s, NULL, 10);
 		if (index < ARRAY_SIZE(lcd_cfg))

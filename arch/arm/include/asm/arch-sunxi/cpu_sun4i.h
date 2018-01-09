@@ -18,6 +18,8 @@
 #define SUNXI_SRAM_D_BASE		0x00010000	/* 4 kiB */
 #define SUNXI_SRAM_B_BASE		0x00020000	/* 64 kiB (secure) */
 
+#define SUNXI_DE2_BASE			0x01000000
+
 #ifdef CONFIG_MACH_SUN8I_A83T
 #define SUNXI_CPUCFG_BASE		0x01700000
 #endif
@@ -32,7 +34,9 @@
 #define SUNXI_MS_BASE			0x01c07000
 #define SUNXI_TVD_BASE			0x01c08000
 #define SUNXI_CSI0_BASE			0x01c09000
+#ifndef CONFIG_MACH_SUNXI_H3_H5
 #define SUNXI_TVE0_BASE			0x01c0a000
+#endif
 #define SUNXI_EMAC_BASE			0x01c0b000
 #define SUNXI_LCD0_BASE			0x01c0C000
 #define SUNXI_LCD1_BASE			0x01c0d000
@@ -46,7 +50,9 @@
 #define SUNXI_USB1_BASE			0x01c14000
 #endif
 #define SUNXI_SS_BASE			0x01c15000
+#if !defined(CONFIG_MACH_SUNXI_H3_H5) && !defined(CONFIG_MACH_SUN50I)
 #define SUNXI_HDMI_BASE			0x01c16000
+#endif
 #define SUNXI_SPI2_BASE			0x01c17000
 #define SUNXI_SATA_BASE			0x01c18000
 #ifdef CONFIG_SUNXI_GEN_SUN4I
@@ -56,7 +62,7 @@
 #define SUNXI_USB2_BASE			0x01c1c000
 #endif
 #ifdef CONFIG_SUNXI_GEN_SUN6I
-#if defined(CONFIG_MACH_SUN8I_H3) || defined(CONFIG_MACH_SUN50I)
+#if defined(CONFIG_MACH_SUNXI_H3_H5) || defined(CONFIG_MACH_SUN50I)
 #define SUNXI_USBPHY_BASE		0x01c19000
 #define SUNXI_USB0_BASE			0x01c1a000
 #define SUNXI_USB1_BASE			0x01c1b000
@@ -94,7 +100,7 @@
 #define SUNXI_KEYPAD_BASE		0x01c23000
 #define SUNXI_TZPC_BASE			0x01c23400
 
-#if defined(CONFIG_MACH_SUN8I_A83T) || defined(CONFIG_MACH_SUN8I_H3) || \
+#if defined(CONFIG_MACH_SUN8I_A83T) || defined(CONFIG_MACH_SUNXI_H3_H5) || \
 defined(CONFIG_MACH_SUN50I)
 /* SID address space starts at 0x01c1400, but e-fuse is at offset 0x200 */
 #define SUNXI_SIDC_BASE			0x01c14000
@@ -108,7 +114,7 @@ defined(CONFIG_MACH_SUN50I)
 #define SUNXI_TP_BASE			0x01c25000
 #define SUNXI_PMU_BASE			0x01c25400
 
-#ifdef CONFIG_MACH_SUN7I
+#if defined CONFIG_MACH_SUN7I || defined CONFIG_MACH_SUN8I_R40
 #define SUNXI_CPUCFG_BASE		0x01c25c00
 #endif
 
@@ -157,17 +163,31 @@ defined(CONFIG_MACH_SUN50I)
 /* module sram */
 #define SUNXI_SRAM_C_BASE		0x01d00000
 
+#ifndef CONFIG_MACH_SUN8I_H3
 #define SUNXI_DE_FE0_BASE		0x01e00000
+#else
+#define SUNXI_TVE0_BASE			0x01e00000
+#endif
 #define SUNXI_DE_FE1_BASE		0x01e20000
 #define SUNXI_DE_BE0_BASE		0x01e60000
+#ifndef CONFIG_MACH_SUN50I_H5
 #define SUNXI_DE_BE1_BASE		0x01e40000
+#else
+#define SUNXI_TVE0_BASE			0x01e40000
+#endif
 #define SUNXI_MP_BASE			0x01e80000
 #define SUNXI_AVG_BASE			0x01ea0000
+
+#if defined(CONFIG_MACH_SUNXI_H3_H5) || defined(CONFIG_MACH_SUN50I)
+#define SUNXI_HDMI_BASE			0x01ee0000
+#endif
 
 #define SUNXI_RTC_BASE			0x01f00000
 #define SUNXI_PRCM_BASE			0x01f01400
 
-#if defined CONFIG_SUNXI_GEN_SUN6I && !defined CONFIG_MACH_SUN8I_A83T
+#if defined CONFIG_SUNXI_GEN_SUN6I && \
+    !defined CONFIG_MACH_SUN8I_A83T && \
+    !defined CONFIG_MACH_SUN8I_R40
 #define SUNXI_CPUCFG_BASE		0x01f01c00
 #endif
 

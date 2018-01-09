@@ -116,16 +116,6 @@ disable_addr_trans:
 	mtspr	SRR1, r3
 	rfi
 
-	.globl get_svr
-get_svr:
-	mfspr	r3, SVR
-	blr
-
-	.globl get_pvr
-get_pvr:
-	mfspr	r3, PVR
-	blr
-
 	.globl	ppcDWstore
 ppcDWstore:
 	lfd	1, 0(r4)
@@ -140,7 +130,7 @@ ppcDWload:
 
 #ifndef CONFIG_DEFAULT_IMMR
 #error CONFIG_DEFAULT_IMMR must be defined
-#endif /* CONFIG_SYS_DEFAULT_IMMR */
+#endif /* CONFIG_DEFAULT_IMMR */
 #ifndef CONFIG_SYS_IMMR
 #define CONFIG_SYS_IMMR CONFIG_DEFAULT_IMMR
 #endif /* CONFIG_SYS_IMMR */
@@ -258,14 +248,40 @@ in_flash:
 #endif
 
 	/* set up the stack pointer in our newly created
-	 * cache-ram (r1) */
-	lis	r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@h
-	ori	r1, r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@l
+	 * cache-ram; use r3 to keep the new SP for now to
+	 * avoid overiding the SP it uselessly */
+	lis	r3, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@h
+	ori	r3, r3, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@l
 
+	/* r4 = end of GD area */
+	addi r4, r3, GENERATED_GBL_DATA_SIZE
+
+	/* Zero GD area */
+	li	r0, 0
+1:
+	subi	r4, r4, 1
+	stb	r0, 0(r4)
+	cmplw	r3, r4
+	bne	1b
+
+#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+
+#if CONFIG_VAL(SYS_MALLOC_F_LEN) + GENERATED_GBL_DATA_SIZE > CONFIG_SYS_INIT_RAM_SIZE
+#error "SYS_MALLOC_F_LEN too large to fit into initial RAM."
+#endif
+
+	/* r3 = new stack pointer / pre-reloc malloc area */
+	subi    r3, r3, CONFIG_VAL(SYS_MALLOC_F_LEN)
+
+	/* Set pointer to pre-reloc malloc area in GD */
+	stw     r3, GD_MALLOC_BASE(r4)
+#endif
 	li	r0, 0		/* Make room for stack frame header and	*/
-	stwu	r0, -4(r1)	/* clear final stack frame so that	*/
-	stwu	r0, -4(r1)	/* stack backtraces terminate cleanly	*/
+	stwu	r0, -4(r3)	/* clear final stack frame so that	*/
+	stwu	r0, -4(r3)	/* stack backtraces terminate cleanly	*/
 
+	/* Finally, actually set SP */
+	mr	r1, r3
 
 	/* let the C-code set up the rest	                    */
 	/*				                            */

@@ -1,6 +1,0 @@
-CM-BF533 BOARD
-#M:	Bluetechnix Tinyboards <bluetechnix@blackfin.uclinux.org>
-S:	Orphan (since 2014-03)
-F:	board/cm-bf533/
-F:	include/configs/cm-bf533.h
-F:	configs/cm-bf533_defconfig

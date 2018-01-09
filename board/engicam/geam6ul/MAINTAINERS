@@ -1,7 +1,0 @@
-GEAM6UL BOARD
-M:	Jagan Teki <jagan@amarulasolutions.com>
-S:	Maintained
-F:	board/engicam/geam6ul
-F:	include/configs/imx6ul_geam.h
-F:	configs/imx6ul_geam_mmc_defconfig
-F:	configs/imx6ul_geam_nand_defconfig

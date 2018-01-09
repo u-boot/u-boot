@@ -1,6 +1,0 @@
-CM-BF561 BOARD
-#M:	Bluetechnix Tinyboards <bluetechnix@blackfin.uclinux.org>
-S:	Orphan (since 2014-03)
-F:	board/cm-bf561/
-F:	include/configs/cm-bf561.h
-F:	configs/cm-bf561_defconfig

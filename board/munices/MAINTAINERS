@@ -1,6 +1,0 @@
-MUNICES BOARD
-#M:	-
-S:	Maintained
-F:	board/munices/
-F:	include/configs/munices.h
-F:	configs/munices_defconfig

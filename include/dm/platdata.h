@@ -23,7 +23,6 @@
  * @name:	Driver name
  * @platdata:	Driver-specific platform data
  * @platdata_size: Size of platform data structure
- * @flags:	Platform data flags (DM_FLAG_...)
  */
 struct driver_info {
 	const char *name;

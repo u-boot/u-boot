@@ -14,14 +14,8 @@
 
 #include "mx7_common.h"
 
-#define CONFIG_SYS_THUMB_BUILD
-
 /*#define CONFIG_DBG_MONITOR*/
 #define PHYS_SDRAM_SIZE			SZ_512M
-
-#define CONFIG_ARCH_MISC_INIT
-#define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
 
@@ -31,8 +25,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
 
-#define CONFIG_CMD_BMODE
-
 /* Network */
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
@@ -40,8 +32,6 @@
 #define CONFIG_ETHPRIME                 "FEC"
 #define CONFIG_FEC_MXC_PHYADDR          0
 
-#define CONFIG_PHYLIB
-#define CONFIG_PHY_MICREL
 #define CONFIG_IP_DEFRAG
 #define CONFIG_TFTP_BLOCKSIZE		16352
 #define CONFIG_TFTP_TSIZE
@@ -65,6 +55,7 @@
 #define CONFIG_SERVERIP			192.168.10.1
 
 #define MEM_LAYOUT_ENV_SETTINGS \
+	"bootm_size=0x10000000\0" \
 	"fdt_addr_r=0x82000000\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
@@ -114,7 +105,7 @@
 	"m4boot=;\0" \
 	"ip_dyn=yes\0" \
 	"kernel_file=zImage\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"setethupdate=if env exists ethaddr; then; else setenv ethaddr " \
 		"00:14:2d:00:00:00; fi; tftpboot ${loadaddr} " \
 		"${board}/flash_eth.img && source ${loadaddr}\0" \
@@ -123,13 +114,14 @@
 		"${board}/flash_blk.img && source ${loadaddr}\0" \
 	"setup=setenv setupargs " \
 		"console=tty1 console=${console}" \
-		",${baudrate}n8 ${memargs} consoleblank=0 ${mtdparts}\0" \
+		",${baudrate}n8 ${memargs} consoleblank=0\0" \
 	"setupdate=run setsdupdate || run setusbupdate || run setethupdate\0" \
 	"setusbupdate=usb start && setenv interface usb && " \
 		"fatload ${interface} 0:1 ${loadaddr} " \
 		"${board}/flash_blk.img && source ${loadaddr}\0" \
 	"splashpos=m,m\0" \
 	"videomode=video=ctfb:x:640,y:480,depth:18,pclk:39722,le:48,ri:16,up:33,lo:10,hs:96,vs:2,sync:0,vmode:0\0" \
+	"updlevel=2\0"
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP
@@ -139,8 +131,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
-
-#define CONFIG_STACKSIZE		SZ_128K
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -155,9 +145,7 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH
-#define CONFIG_ENV_IS_IN_NAND
+/* environment organization */
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_SYS_MMC_ENV_DEV		0   /* USDHC1 */
@@ -165,13 +153,12 @@
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* USDHC1 */
 #define CONFIG_ENV_OFFSET		(8 * SZ_64K)
 #elif defined(CONFIG_ENV_IS_IN_NAND)
-#define CONFIG_ENV_OFFSET		(4 * 1024 * 1024)
 #define CONFIG_ENV_SECT_SIZE		(128 * 1024)
+#define CONFIG_ENV_OFFSET		(28 * CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE			CONFIG_ENV_SECT_SIZE
 #endif
 
 #define CONFIG_NAND_MXS
-#define CONFIG_CMD_NAND_TRIMFFS
 
 /* NAND stuff */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
@@ -179,23 +166,10 @@
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_NAND_MX7_GPMI_62_ECC_BYTES
-#define CONFIG_CMD_NAND_TORTURE
-
-/* UBI stuff */
-#define CONFIG_RBTREE
-#define CONFIG_LZO
-#define CONFIG_CMD_UBIFS	/* increases size by almost 60 KB */
 
 /* Dynamic MTD partition support */
-#define CONFIG_CMD_MTDPARTS	/* Enable 'mtdparts' command line support */
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
-#define MTDIDS_DEFAULT		"nand0=gpmi-nand"
-#define MTDPARTS_DEFAULT	"mtdparts=gpmi-nand:"		\
-				"512k(mx7-bcb),"		\
-				"3584k(u-boot)ro,"		\
-				"512k(u-boot-env),"		\
-				"-(ubi)"
 
 /* DMA stuff, needed for GPMI/MXS NAND support */
 #define CONFIG_APBH_DMA
@@ -224,7 +198,6 @@
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
-#define CONFIG_CMD_BMP
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_LOGO

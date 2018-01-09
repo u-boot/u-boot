@@ -207,12 +207,6 @@ static int tx_threshold;
  * There are so many options that it would be difficult to document
  * each bit. We mostly use the default or recommended settings.
  */
-static const char i82557_config_cmd[] = {
-	22, 0x08, 0, 0, 0, 0, 0x32, 0x03, 1,	/* 1=Use MII  0=Use AUI */
-	0, 0x2E, 0, 0x60, 0,
-	0xf2, 0x48, 0, 0x40, 0xf2, 0x80,	/* 0x40=Force full-duplex */
-	0x3f, 0x05,
-};
 static const char i82558_config_cmd[] = {
 	22, 0x08, 0, 1, 0, 0, 0x22, 0x03, 1,	/* 1=Use MII  0=Use AUI */
 	0, 0x2E, 0, 0x60, 0x08, 0x88,

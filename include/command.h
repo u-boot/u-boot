@@ -80,11 +80,10 @@ int cmd_process_error(cmd_tbl_t *cmdtp, int err);
  * void function (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
  */
 
-#if defined(CONFIG_CMD_MEMORY)		\
-	|| defined(CONFIG_CMD_I2C)	\
-	|| defined(CONFIG_CMD_ITEST)	\
-	|| defined(CONFIG_CMD_PCI)	\
-	|| defined(CONFIG_CMD_PORTIO)
+#if defined(CONFIG_CMD_MEMORY) || \
+	defined(CONFIG_CMD_I2C) || \
+	defined(CONFIG_CMD_ITEST) || \
+	defined(CONFIG_CMD_PCI)
 #define CMD_DATA_SIZE
 extern int cmd_get_data_size(char* arg, int default_size);
 #endif

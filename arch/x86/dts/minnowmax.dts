@@ -6,6 +6,7 @@
 
 /dts-v1/;
 
+#include <asm/arch-baytrail/fsp/fsp_configs.h>
 #include <dt-bindings/gpio/x86-gpio.h>
 #include <dt-bindings/interrupt-router/intel-irq.h>
 
@@ -35,7 +36,6 @@
 		/* GPIO E0 */
 		soc_gpio_s5_0@0 {
 			gpio-offset = <0x80 0>;
-			pad-offset = <0x1d0>;
 			mode-gpio;
 			output-value = <0>;
 			direction = <PIN_OUTPUT>;
@@ -44,7 +44,6 @@
 		/* GPIO E1 */
 		soc_gpio_s5_1@0 {
 			gpio-offset = <0x80 1>;
-			pad-offset = <0x210>;
 			mode-gpio;
 			output-value = <0>;
 			direction = <PIN_OUTPUT>;
@@ -53,7 +52,6 @@
 		/* GPIO E2 */
 		soc_gpio_s5_2@0 {
 			gpio-offset = <0x80 2>;
-			pad-offset = <0x1e0>;
 			mode-gpio;
 			output-value = <0>;
 			direction = <PIN_OUTPUT>;
@@ -61,7 +59,6 @@
 
 		pin_usb_host_en0@0 {
 			gpio-offset = <0x80 8>;
-			pad-offset = <0x260>;
 			mode-gpio;
 			output-value = <1>;
 			direction = <PIN_OUTPUT>;
@@ -69,7 +66,6 @@
 
 		pin_usb_host_en1@0 {
 			gpio-offset = <0x80 9>;
-			pad-offset = <0x250>;
 			mode-gpio;
 			output-value = <1>;
 			direction = <PIN_OUTPUT>;
@@ -218,6 +214,7 @@
 				u-boot,dm-pre-reloc;
 				reg = <0 0x20>;
 				bank-name = "A";
+				use-lvl-write-cache;
 			};
 
 			gpiob {
@@ -225,6 +222,7 @@
 				u-boot,dm-pre-reloc;
 				reg = <0x20 0x20>;
 				bank-name = "B";
+				use-lvl-write-cache;
 			};
 
 			gpioc {
@@ -232,6 +230,7 @@
 				u-boot,dm-pre-reloc;
 				reg = <0x40 0x20>;
 				bank-name = "C";
+				use-lvl-write-cache;
 			};
 
 			gpiod {
@@ -239,6 +238,7 @@
 				u-boot,dm-pre-reloc;
 				reg = <0x60 0x20>;
 				bank-name = "D";
+				use-lvl-write-cache;
 			};
 
 			gpioe {
@@ -246,6 +246,7 @@
 				u-boot,dm-pre-reloc;
 				reg = <0x80 0x20>;
 				bank-name = "E";
+				use-lvl-write-cache;
 			};
 
 			gpiof {
@@ -253,25 +254,29 @@
 				u-boot,dm-pre-reloc;
 				reg = <0xA0 0x20>;
 				bank-name = "F";
+				use-lvl-write-cache;
 			};
 		};
 	};
 
 	fsp {
 		compatible = "intel,baytrail-fsp";
-		fsp,mrc-init-tseg-size = <0>;
-		fsp,mrc-init-mmio-size = <0x800>;
+		fsp,mrc-init-tseg-size = <MRC_INIT_TSEG_SIZE_1MB>;
+		fsp,mrc-init-mmio-size = <MRC_INIT_MMIO_SIZE_2048MB>;
 		fsp,mrc-init-spd-addr1 = <0xa0>;
 		fsp,mrc-init-spd-addr2 = <0xa2>;
-		fsp,emmc-boot-mode = <1>;
+		fsp,emmc-boot-mode = <EMMC_BOOT_MODE_AUTO>;
 		fsp,enable-sdio;
 		fsp,enable-sdcard;
 		fsp,enable-hsuart1;
 		fsp,enable-spi;
 		fsp,enable-sata;
-		fsp,sata-mode = <1>;
-		fsp,enable-lpe;
-		fsp,lpss-sio-enable-pci-mode;
+		fsp,sata-mode = <SATA_MODE_AHCI>;
+#ifdef CONFIG_USB_XHCI_HCD
+		fsp,enable-xhci;
+#endif
+		fsp,lpe-mode = <LPE_MODE_PCI>;
+		fsp,lpss-sio-mode = <LPSS_SIO_MODE_PCI>;
 		fsp,enable-dma0;
 		fsp,enable-dma1;
 		fsp,enable-i2c0;
@@ -283,26 +288,24 @@
 		fsp,enable-i2c6;
 		fsp,enable-pwm0;
 		fsp,enable-pwm1;
-		fsp,igd-dvmt50-pre-alloc = <2>;
-		fsp,aperture-size = <2>;
-		fsp,gtt-size = <2>;
-		fsp,serial-debug-port-address = <0x3f8>;
-		fsp,serial-debug-port-type = <1>;
-		fsp,scc-enable-pci-mode;
-		fsp,os-selection = <4>;
+		fsp,igd-dvmt50-pre-alloc = <IGD_DVMT50_PRE_ALLOC_64MB>;
+		fsp,aperture-size = <APERTURE_SIZE_256MB>;
+		fsp,gtt-size = <GTT_SIZE_2MB>;
+		fsp,scc-mode = <SCC_MODE_PCI>;
+		fsp,os-selection = <OS_SELECTION_LINUX>;
 		fsp,emmc45-ddr50-enabled;
 		fsp,emmc45-retune-timer-value = <8>;
 		fsp,enable-igd;
 		fsp,enable-memory-down;
 		fsp,memory-down-params {
 			compatible = "intel,baytrail-fsp-mdp";
-			fsp,dram-speed = <1>;
-			fsp,dram-type = <1>;
+			fsp,dram-speed = <DRAM_SPEED_1066MTS>;
+			fsp,dram-type = <DRAM_TYPE_DDR3L>;
 			fsp,dimm-0-enable;
-			fsp,dimm-width = <1>;
-			fsp,dimm-density = <2>;
-			fsp,dimm-bus-width = <3>;
-			fsp,dimm-sides = <0>;
+			fsp,dimm-width = <DIMM_WIDTH_X16>;
+			fsp,dimm-density = <DIMM_DENSITY_4GBIT>;
+			fsp,dimm-bus-width = <DIMM_BUS_WIDTH_64BITS>;
+			fsp,dimm-sides = <DIMM_SIDES_1RANKS>;
 			fsp,dimm-tcl = <0xb>;
 			fsp,dimm-trpt-rcd = <0xb>;
 			fsp,dimm-twr = <0xc>;

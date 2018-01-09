@@ -20,5 +20,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	select X86_RESET_VECTOR
 	select INTEL_QUEENSBAY
 	select BOARD_ROMSIZE_KB_1024
+	select BOARD_EARLY_INIT_F
+	select SPI_FLASH_SST
 
 endif

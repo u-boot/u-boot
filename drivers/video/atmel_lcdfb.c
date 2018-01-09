@@ -150,11 +150,7 @@ static void atmel_fb_init(ulong addr, struct display_timing *timing, int bpix,
 			    value << ATMEL_LCDC_CLKVAL_OFFSET);
 
 	/* Initialize control register 2 */
-#ifdef CONFIG_AVR32
-	value = ATMEL_LCDC_MEMOR_BIG | ATMEL_LCDC_CLKMOD_ALWAYSACTIVE;
-#else
 	value = ATMEL_LCDC_MEMOR_LITTLE | ATMEL_LCDC_CLKMOD_ALWAYSACTIVE;
-#endif
 	if (tft)
 		value |= ATMEL_LCDC_DISTYPE_TFT;
 
@@ -276,7 +272,7 @@ static int atmel_fb_ofdata_to_platdata(struct udevice *dev)
 	struct display_timing *timing = &priv->timing;
 	const void *blob = gd->fdt_blob;
 
-	if (fdtdec_decode_display_timing(blob, dev->of_offset,
+	if (fdtdec_decode_display_timing(blob, dev_of_offset(dev),
 					 plat->timing_index, timing)) {
 		debug("%s: Failed to decode display timing\n", __func__);
 		return -EINVAL;

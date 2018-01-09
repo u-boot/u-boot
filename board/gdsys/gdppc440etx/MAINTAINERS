@@ -1,6 +1,0 @@
-GDPPC440ETX BOARD
-M:	Dirk Eibach <eibach@gdsys.de>
-S:	Maintained
-F:	board/gdsys/gdppc440etx/
-F:	include/configs/gdppc440etx.h
-F:	configs/gdppc440etx_defconfig

@@ -9,6 +9,7 @@
 #define __VSPRINTF_H
 
 #include <stdarg.h>
+#include <linux/types.h>
 
 ulong simple_strtoul(const char *cp, char **endp, unsigned int base);
 
@@ -112,12 +113,10 @@ int sprintf(char *buf, const char *fmt, ...)
  * Format a string and place it in a buffer (va_list version)
  *
  * @param buf	The buffer to place the result into
- * @param size	The size of the buffer, including the trailing null space
  * @param fmt	The format string to use
  * @param args	Arguments for the format string
  * @return the number of characters which have been written into
- * the @buf not including the trailing '\0'. If @size is == 0 the function
- * returns 0.
+ * the @buf not including the trailing '\0'.
  *
  * If you're not already dealing with a va_list consider using scnprintf().
  *

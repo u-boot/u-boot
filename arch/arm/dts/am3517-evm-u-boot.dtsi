@@ -1,0 +1,12 @@
+/*
+ * Copyright (C) 2017
+ * Logic PD - http://www.logicpd.com
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/ {
+	chosen {
+		stdout-path = &uart3;
+	};
+};

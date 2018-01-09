@@ -16,6 +16,7 @@
 
 /* Use the generic board which requires a unified bd_info */
 #include <asm-generic/u-boot.h>
+#include <asm/ppc.h>
 
 /* For image.h:image_check_target_arch() */
 #define IH_ARCH_DEFAULT IH_ARCH_PPC

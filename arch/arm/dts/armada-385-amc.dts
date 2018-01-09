@@ -54,6 +54,7 @@
 	aliases {
 		ethernet0 = &eth0;
 		ethernet1 = &eth1;
+		i2c0 = &i2c0;
 		spi1 = &spi1;
 	};
 
@@ -68,6 +69,8 @@
 
 		internal-regs {
 			i2c@11000 {
+				clock-frequency = <100000>;
+				u-boot,i2c-slave-addr = <0x0>;
 				pinctrl-names = "default";
 				pinctrl-0 = <&i2c0_pins>;
 				status = "okay";
@@ -151,7 +154,7 @@
 		u-boot,dm-pre-reloc;
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "st,m25p128", "jedec,spi-nor";
+		compatible = "st,m25p128", "jedec,spi-nor", "spi-flash";
 		reg = <0>; /* Chip select 0 */
 		spi-max-frequency = <50000000>;
 		m25p,fast-read;

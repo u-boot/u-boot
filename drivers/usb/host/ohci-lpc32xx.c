@@ -9,11 +9,13 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <wait_bit.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clk.h>
+#include <asm/arch/i2c.h>
 #include <usb.h>
 #include <i2c.h>
 
@@ -81,14 +83,20 @@ struct otg_regs {
 static struct otg_regs *otg = (struct otg_regs *)USB_BASE;
 static struct clk_pm_regs *clk_pwr = (struct clk_pm_regs *)CLK_PM_BASE;
 
-static int isp1301_set_value(int reg, u8 value)
+static int isp1301_set_value(struct udevice *dev, int reg, u8 value)
 {
+#ifndef CONFIG_DM_I2C
 	return i2c_write(ISP1301_I2C_ADDR, reg, 1, &value, 1);
+#else
+	return dm_i2c_write(dev, reg, &value, 1);
+#endif
 }
 
-static void isp1301_configure(void)
+static void isp1301_configure(struct udevice *dev)
 {
+#ifndef CONFIG_DM_I2C
 	i2c_set_bus_num(I2C_2);
+#endif
 
 	/*
 	 * LPC32XX only supports DAT_SE0 USB mode
@@ -96,23 +104,23 @@ static void isp1301_configure(void)
 	 */
 
 	/* Disable transparent UART mode first */
-	isp1301_set_value(ISP1301_I2C_MODE_CONTROL_1_CLR, MC1_UART_EN);
+	isp1301_set_value(dev, ISP1301_I2C_MODE_CONTROL_1_CLR, MC1_UART_EN);
 
-	isp1301_set_value(ISP1301_I2C_MODE_CONTROL_1_CLR, ~MC1_SPEED_REG);
-	isp1301_set_value(ISP1301_I2C_MODE_CONTROL_1_SET, MC1_SPEED_REG);
-	isp1301_set_value(ISP1301_I2C_MODE_CONTROL_2_CLR, ~0);
-	isp1301_set_value(ISP1301_I2C_MODE_CONTROL_2_SET,
+	isp1301_set_value(dev, ISP1301_I2C_MODE_CONTROL_1_CLR, ~MC1_SPEED_REG);
+	isp1301_set_value(dev, ISP1301_I2C_MODE_CONTROL_1_SET, MC1_SPEED_REG);
+	isp1301_set_value(dev, ISP1301_I2C_MODE_CONTROL_2_CLR, ~0);
+	isp1301_set_value(dev, ISP1301_I2C_MODE_CONTROL_2_SET,
 			  MC2_BI_DI | MC2_PSW_EN | MC2_SPD_SUSP_CTRL);
 
-	isp1301_set_value(ISP1301_I2C_OTG_CONTROL_1_CLR, ~0);
-	isp1301_set_value(ISP1301_I2C_MODE_CONTROL_1_SET, MC1_DAT_SE0);
-	isp1301_set_value(ISP1301_I2C_OTG_CONTROL_1_SET,
+	isp1301_set_value(dev, ISP1301_I2C_OTG_CONTROL_1_CLR, ~0);
+	isp1301_set_value(dev, ISP1301_I2C_MODE_CONTROL_1_SET, MC1_DAT_SE0);
+	isp1301_set_value(dev, ISP1301_I2C_OTG_CONTROL_1_SET,
 			  OTG1_DM_PULLDOWN | OTG1_DP_PULLDOWN);
-	isp1301_set_value(ISP1301_I2C_OTG_CONTROL_1_CLR,
+	isp1301_set_value(dev, ISP1301_I2C_OTG_CONTROL_1_CLR,
 			  OTG1_DM_PULLUP | OTG1_DP_PULLUP);
-	isp1301_set_value(ISP1301_I2C_INTERRUPT_LATCH_CLR, ~0);
-	isp1301_set_value(ISP1301_I2C_INTERRUPT_FALLING_CLR, ~0);
-	isp1301_set_value(ISP1301_I2C_INTERRUPT_RISING_CLR, ~0);
+	isp1301_set_value(dev, ISP1301_I2C_INTERRUPT_LATCH_CLR, ~0);
+	isp1301_set_value(dev, ISP1301_I2C_INTERRUPT_FALLING_CLR, ~0);
+	isp1301_set_value(dev, ISP1301_I2C_INTERRUPT_RISING_CLR, ~0);
 
 	/* Enable usb_need_clk clock after transceiver is initialized */
 	setbits_le32(&clk_pwr->usb_ctrl, CLK_USBCTRL_USBDVND_EN);
@@ -149,6 +157,15 @@ static int usbpll_setup(void)
 int usb_cpu_init(void)
 {
 	u32 ret;
+	struct udevice *dev = NULL;
+
+#ifdef CONFIG_DM_I2C
+	ret = i2c_get_chip_for_busnum(I2C_2, ISP1301_I2C_ADDR, 1, &dev);
+	if (ret) {
+		debug("%s: No bus %d\n", __func__, I2C_2);
+		return ret;
+	}
+#endif
 
 	/*
 	 * USB pins routing setup is done by "lpc32xx_usb_init()" and should
@@ -167,7 +184,7 @@ int usb_cpu_init(void)
 		return ret;
 
 	/* Configure ISP1301 */
-	isp1301_configure();
+	isp1301_configure(dev);
 
 	/* setup USB clocks and PLL */
 	ret = usbpll_setup();
@@ -188,21 +205,32 @@ int usb_cpu_init(void)
 		return ret;
 
 	setbits_le32(&otg->otg_sts_ctrl, OTG_HOST_EN);
-	isp1301_set_value(ISP1301_I2C_OTG_CONTROL_1_SET, OTG1_VBUS_DRV);
+	isp1301_set_value(dev, ISP1301_I2C_OTG_CONTROL_1_SET, OTG1_VBUS_DRV);
 
 	return 0;
 }
 
 int usb_cpu_stop(void)
 {
+	struct udevice *dev = NULL;
+	int ret = 0;
+
+#ifdef CONFIG_DM_I2C
+	ret = i2c_get_chip_for_busnum(I2C_2, ISP1301_I2C_ADDR, 1, &dev);
+	if (ret) {
+		debug("%s: No bus %d\n", __func__, I2C_2);
+		return ret;
+	}
+#endif
+
 	/* vbus off */
-	isp1301_set_value(ISP1301_I2C_OTG_CONTROL_1_SET, OTG1_VBUS_DRV);
+	isp1301_set_value(dev, ISP1301_I2C_OTG_CONTROL_1_SET, OTG1_VBUS_DRV);
 
 	clrbits_le32(&otg->otg_sts_ctrl, OTG_HOST_EN);
 
 	clrbits_le32(&clk_pwr->usb_ctrl, CLK_USBCTRL_HCLK_EN);
 
-	return 0;
+	return ret;
 }
 
 int usb_cpu_init_fail(void)

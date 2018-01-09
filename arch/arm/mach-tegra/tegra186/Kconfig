@@ -9,6 +9,7 @@ choice
 
 config TARGET_P2771_0000
 	bool "NVIDIA Tegra186 P2771-0000 board"
+	select BOARD_LATE_INIT
 	help
 	  P2771-0000 is a P3310 CPU board married to a P2597 I/O board. The
 	  combination contains SoC, DRAM, eMMC, SD card slot, HDMI, USB

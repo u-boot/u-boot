@@ -432,6 +432,10 @@ uint16_t ext4fs_checksum_update(uint32_t i)
 		crc = ext2fs_crc16(crc, desc, offset);
 		offset += sizeof(desc->bg_checksum);	/* skip checksum */
 		assert(offset == sizeof(*desc));
+		if (offset < fs->gdsize) {
+			crc = ext2fs_crc16(crc, (__u8 *)desc + offset,
+					   fs->gdsize - offset);
+		}
 	}
 
 	return crc;
@@ -656,6 +660,11 @@ static int search_dir(struct ext2_inode *parent_inode, char *dirname)
 
 		offset = 0;
 		do {
+			if (offset & 3) {
+				printf("Badly aligned ext2_dirent\n");
+				break;
+			}
+
 			dir = (struct ext2_dirent *)(block_buffer + offset);
 			direntname = (char*)(dir) + sizeof(struct ext2_dirent);
 
@@ -876,6 +885,11 @@ static int unlink_filename(char *filename, unsigned int blknr)
 
 	offset = 0;
 	do {
+		if (offset & 3) {
+			printf("Badly aligned ext2_dirent\n");
+			break;
+		}
+
 		previous_dir = dir;
 		dir = (struct ext2_dirent *)(block_buffer + offset);
 		direntname = (char *)(dir) + sizeof(struct ext2_dirent);

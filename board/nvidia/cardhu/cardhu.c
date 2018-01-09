@@ -33,7 +33,7 @@ void pinmux_init(void)
 	pinmux_config_drvgrp_table(cardhu_padctrl, ARRAY_SIZE(cardhu_padctrl));
 }
 
-#if defined(CONFIG_TEGRA_MMC)
+#if defined(CONFIG_MMC_SDHCI_TEGRA)
 /*
  * Do I2C/PMU writes to bring up SD card bus power
  *

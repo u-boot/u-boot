@@ -28,11 +28,8 @@
 
 #define CONFIG_SYS_I2C_ZYNQ
 #define CONFIG_PCA953X
-#define CONFIG_CMD_PCA953X
-#define CONFIG_CMD_PCA953X_INFO
 
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
-#define CONFIG_CMD_EEPROM
 
 #include <configs/xilinx_zynqmp.h>
 

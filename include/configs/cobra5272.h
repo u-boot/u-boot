@@ -52,7 +52,6 @@
 
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
-#define CONFIG_BAUDRATE		19200
 
 /* ---
  * set "#if 0" to "#if 1" if (Hardware)-WATCHDOG should be enabled & change
@@ -97,16 +96,14 @@
 #ifndef CONFIG_MONITOR_IS_IN_RAM
 #define CONFIG_ENV_OFFSET		0x4000
 #define CONFIG_ENV_SECT_SIZE	0x2000
-#define CONFIG_ENV_IS_IN_FLASH	1
 #else
 #define CONFIG_ENV_ADDR		0xffe04000
 #define CONFIG_ENV_SECT_SIZE	0x2000
-#define CONFIG_ENV_IS_IN_FLASH	1
 #endif
 
 #define LDS_BOARD_TEXT \
-        . = DEFINED(env_offset) ? env_offset : .; \
-        common/env_embedded.o (.text);
+	. = DEFINED(env_offset) ? env_offset : .; \
+	env/embedded.o(.text);
 
 /*
  * BOOTP options
@@ -158,9 +155,6 @@ u-boot: 'set' command */
 #define CONFIG_BOOTCOMMAND	"bootm 0xffe80000"	/*Autoboto command, please
 enter a valid image address in flash */
 
-#define CONFIG_BOOTARGS		" "			/* default bootargs that are
-considered during boot */
-
 /* User network settings */
 
 #define CONFIG_IPADDR 192.168.100.2		/* default board IP address */
@@ -174,15 +168,6 @@ from which user programs will be started */
 /*---*/
 
 #define CONFIG_SYS_LONGHELP				/* undef to save memory		*/
-
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE		1024		/* Console I/O Buffer Size	*/
-#else
-#define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
-#endif
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
 /*
  *-----------------------------------------------------------------------------

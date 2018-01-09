@@ -18,11 +18,7 @@
 #define CONFIG_AM335X_LCD
 #define CONFIG_LCD_ROTATION
 #define CONFIG_LCD_DT_SIMPLEFB
-#define CONFIG_SYS_WHITE_ON_BLACK
 #define LCD_BPP				LCD_COLOR32
-
-#define CONFIG_HW_WATCHDOG
-#define CONFIG_OMAP_WATCHDOG
 
 /* Bootcount using the RTC block */
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0x44E3E000
@@ -48,8 +44,6 @@
 
 /* MMC/SD IP block */
 #if defined(CONFIG_EMMC_BOOT)
- #define CONFIG_GENERIC_MMC
- #define CONFIG_OMAP_HSMMC
  #define CONFIG_SUPPORT_EMMC_BOOT
 #endif /* CONFIG_EMMC_BOOT */
 
@@ -60,7 +54,6 @@
  */
 #if defined(CONFIG_SPI_BOOT) || defined(CONFIG_NAND)
 #define CONFIG_MTD_DEVICE		/* Required for mtdparts */
-#define CONFIG_CMD_MTDPARTS
 #endif /* CONFIG_SPI_BOOT, ... */
 
 #ifdef CONFIG_SPL_OS_BOOT
@@ -73,14 +66,11 @@
 
 /* NAND */
 #ifdef CONFIG_NAND
-#define CONFIG_CMD_SPL_NAND_OFS			0x080000 /* end of u-boot */
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS		0x140000
-#define CONFIG_CMD_SPL_WRITE_SIZE		0x2000
 #endif /* CONFIG_NAND */
 #endif /* CONFIG_SPL_OS_BOOT */
 
 #ifdef CONFIG_NAND
-#define CONFIG_SPL_NAND_AM33XX_BCH	/* OMAP4 and later ELM support */
 #define CONFIG_SPL_NAND_BASE
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_ECC
@@ -93,8 +83,8 @@
 
 #ifdef CONFIG_NAND
 #define NANDARGS \
-	"mtdids=" MTDIDS_DEFAULT "\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"nandargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"${optargs_rot} " \
@@ -116,24 +106,24 @@
 #ifdef CONFIG_MMC
 #define MMCARGS \
 "dtbdev=mmc\0" \
-"dtbpart=0:1\0" \
+"dtbpart=1:1\0" \
 "mmcroot0=setenv bootargs ${optargs_rot} ${optargs} console=${console}\0" \
 "mmcroot1=setenv bootargs ${optargs_rot} ${optargs} console=${console} " \
 	"root=/dev/mmcblk0p2 rootfstype=ext4\0" \
 "mmcboot0=echo booting Updatesystem from mmc (ext4-fs) ...; " \
 	"setenv simplefb 1; " \
-	"ext4load mmc 0:1 ${loadaddr} /${kernel}; " \
-	"ext4load mmc 0:1 ${ramaddr} /${ramdisk}; " \
+	"ext4load mmc 1:1 ${loadaddr} /${kernel}; " \
+	"ext4load mmc 1:1 ${ramaddr} /${ramdisk}; " \
 	"run mmcroot0; bootz ${loadaddr} ${ramaddr} ${dtbaddr};\0" \
 "mmcboot1=echo booting PPT-OS from mmc (ext4-fs) ...; " \
 	"setenv simplefb 0; " \
-	"ext4load mmc 0:2 ${loadaddr} /boot/${kernel}; " \
+	"ext4load mmc 1:2 ${loadaddr} /boot/${kernel}; " \
 	"run mmcroot1; bootz ${loadaddr} - ${dtbaddr};\0" \
-"defboot=ext4load mmc 0:2 ${loadaddr} /boot/PPTImage.md5 && run mmcboot1; " \
-	"ext4load mmc 0:1 ${dtbaddr} /$dtb && run mmcboot0; " \
+"defboot=ext4load mmc 1:2 ${loadaddr} /boot/PPTImage.md5 && run mmcboot1; " \
+	"ext4load mmc 1:1 ${dtbaddr} /$dtb && run mmcboot0; " \
 	"run ramboot; run usbscript;\0" \
 "bootlimit=1\0" \
-"altbootcmd=run mmcboot0;\0" \
+"altbootcmd=mmc dev 1; run mmcboot0;\0" \
 "upduboot=dhcp; " \
 	"tftp ${loadaddr} MLO && mmc write ${loadaddr} 100 100; " \
 	"tftp ${loadaddr} u-boot.img && mmc write ${loadaddr} 300 400;\0"
@@ -184,7 +174,7 @@ MMCARGS
 #endif /* !CONFIG_SPL_BUILD*/
 
 #define CONFIG_BOOTCOMMAND \
-	"run defboot;"
+	"mmc dev 1; run defboot;"
 
 #ifdef CONFIG_NAND
 /*
@@ -193,9 +183,7 @@ MMCARGS
  */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x8000000
-#define CONFIG_NAND_OMAP_GPMC
 /* don't change OMAP_ELM, ECCSCHEME. ROM code only supports this */
-#define CONFIG_NAND_OMAP_ELM
 #define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128*1024)
@@ -218,22 +206,11 @@ MMCARGS
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 
-#define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
-#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:" \
-					"128k(MLO)," \
-					"128k(MLO.backup)," \
-					"128k(dtb)," \
-					"128k(u-boot-env)," \
-					"512k(u-boot)," \
-					"4m(kernel),"\
-					"128m(rootfs),"\
-					"-(user)"
 #define CONFIG_NAND_OMAP_GPMC_WSCFG	1
 #endif /* CONFIG_NAND */
 
 /* USB configuration */
 #define CONFIG_USB_MUSB_DSPS
-#define CONFIG_ARCH_MISC_INIT
 #define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
 #define CONFIG_AM335X_USB0
@@ -244,13 +221,10 @@ MMCARGS
 #if defined(CONFIG_SPI_BOOT)
 /* McSPI IP block */
 #define CONFIG_SPI
-#define CONFIG_OMAP3_SPI
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
-#undef CONFIG_ENV_IS_NOWHERE
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
 #define CONFIG_ENV_SECT_SIZE		(4 << 10) /* 4 KB sectors */
@@ -258,9 +232,7 @@ MMCARGS
 #define CONFIG_ENV_OFFSET_REDUND	(896 << 10) /* 896 KiB in */
 
 #elif defined(CONFIG_EMMC_BOOT)
-#undef CONFIG_ENV_IS_NOWHERE
-#define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV		0
+#define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2
 #define CONFIG_ENV_OFFSET		0x40000	/* TODO: Adresse definieren */
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
@@ -268,11 +240,6 @@ MMCARGS
 
 #elif defined(CONFIG_NAND)
 /* No NAND env support in SPL */
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_ENV_IS_NOWHERE
-#else
-#define CONFIG_ENV_IS_IN_NAND
-#endif
 #define CONFIG_ENV_OFFSET		0x60000
 #define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_ENV_SIZE
 #else
@@ -283,8 +250,6 @@ MMCARGS
  * enabled a number of useful commands and support.
  */
 #if defined(CONFIG_MMC) || defined(CONFIG_USB_STORAGE)
-#define CONFIG_DOS_PARTITION
-#define CONFIG_FAT_WRITE
 #define CONFIG_FS_EXT4
 #define CONFIG_EXT4_WRITE
 #endif /* CONFIG_MMC, ... */

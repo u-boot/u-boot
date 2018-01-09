@@ -45,7 +45,7 @@ static int select_pll_source_clk(enum pll_type pll, u32 refclk_freq)
 		pll_idx = 1;
 		break;
 	case DDR_PLL:
-		pll_idx = 2;;
+		pll_idx = 2;
 		break;
 	default:
 		pll_idx = pll;

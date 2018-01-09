@@ -5,3 +5,4 @@
 #
 
 obj-y	:= colibri_vf.o
+obj-$(CONFIG_VIDEO_FSL_DCU_FB) += dcu.o

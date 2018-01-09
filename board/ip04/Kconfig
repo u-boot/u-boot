@@ -1,9 +1,0 @@
-if TARGET_IP04
-
-config SYS_BOARD
-	default "ip04"
-
-config SYS_CONFIG_NAME
-	default "ip04"
-
-endif

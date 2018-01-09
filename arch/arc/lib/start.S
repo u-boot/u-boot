@@ -10,6 +10,26 @@
 #include <asm/arcregs.h>
 
 ENTRY(_start)
+; ARCompact devices are not supposed to be SMP so master/slave check
+; makes no sense.
+#ifdef CONFIG_ISA_ARCV2
+	; Non-masters will be halted immediately, they might be kicked later
+	; by platform code right before passing control to the Linux kernel
+	; in bootm.c:boot_jump_linux().
+	lr 	r5, [identity]
+	lsr	r5, r5, 8
+	bmsk	r5, r5, 7
+	cmp	r5, 0
+	mov.nz	r0, r5
+	bz	.Lmaster_proceed
+	flag	1
+	nop
+	nop
+	nop
+
+.Lmaster_proceed:
+#endif
+
 	/* Setup interrupt vector base that matches "__text_start" */
 	sr	__ivt_start, [ARC_AUX_INTR_VEC_BASE]
 

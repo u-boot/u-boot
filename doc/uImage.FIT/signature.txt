@@ -81,11 +81,11 @@ $ openssl rsa -in keys/dev.key -pubout
 Device Tree Bindings
 --------------------
 The following properties are required in the FIT's signature node(s) to
-allow thes signer to operate. These should be added to the .its file.
+allow the signer to operate. These should be added to the .its file.
 Signature nodes sit at the same level as hash nodes and are called
 signature@1, signature@2, etc.
 
-- algo: Algorithm name (e.g. "sha1,rs2048")
+- algo: Algorithm name (e.g. "sha1,rsa2048")
 
 - key-name-hint: Name of key to use for signing. The keys will normally be in
 a single directory (parameter -k to mkimage). For a given key <name>, its
@@ -139,7 +139,7 @@ public key in U-Boot's control FDT (using CONFIG_OF_CONTROL).
 Public keys should be stored as sub-nodes in a /signature node. Required
 properties are:
 
-- algo: Algorithm name (e.g. "sha1,rs2048")
+- algo: Algorithm name (e.g. "sha1,rsa2048")
 
 Optional properties are:
 
@@ -150,7 +150,7 @@ all available signing keys until one matches.
 - required: If present this indicates that the key must be verified for the
 image / configuration to be considered valid. Only required keys are
 normally verified by the FIT image booting algorithm. Valid values are
-"image" to force verification of all images, and "conf" to force verfication
+"image" to force verification of all images, and "conf" to force verification
 of the selected configuration (which then relies on hashes in the images to
 verify those).
 
@@ -242,7 +242,7 @@ configuration 3 with kernel 1 and fdt 2:
 With signed images, nothing protects against this. Whether it gains an
 advantage for the attacker is debatable, but it is not secure.
 
-To solved this problem, we support signed configurations. In this case it
+To solve this problem, we support signed configurations. In this case it
 is the configurations that are signed, not the image. Each image has its
 own hash, and we include the hash in the configuration signature.
 
@@ -327,7 +327,7 @@ Enabling FIT Verification
 In addition to the options to enable FIT itself, the following CONFIGs must
 be enabled:
 
-CONFIG_FIT_SIGNATURE - enable signing and verfication in FITs
+CONFIG_FIT_SIGNATURE - enable signing and verification in FITs
 CONFIG_RSA - enable RSA algorithm for signing
 
 WARNING: When relying on signed FIT images with required signature check
@@ -336,7 +336,7 @@ CONFIG_IMAGE_FORMAT_LEGACY
 
 Testing
 -------
-An easy way to test signing and verfication is to use the test script
+An easy way to test signing and verification is to use the test script
 provided in test/vboot/vboot_test.sh. This uses sandbox (a special version
 of U-Boot which runs under Linux) to show the operation of a 'bootm'
 command loading and verifying images.
@@ -383,6 +383,149 @@ Test Verified Boot Run: signed config: OK
 Test Verified Boot Run: signed config with bad hash: OK
 
 Test passed
+
+
+Hardware Signing with PKCS#11
+-----------------------------
+
+Securely managing private signing keys can challenging, especially when the
+keys are stored on the file system of a computer that is connected to the
+Internet. If an attacker is able to steal the key, they can sign malicious FIT
+images which will appear genuine to your devices.
+
+An alternative solution is to keep your signing key securely stored on hardware
+device like a smartcard, USB token or Hardware Security Module (HSM) and have
+them perform the signing. PKCS#11 is standard for interfacing with these crypto
+device.
+
+Requirements:
+Smartcard/USB token/HSM which can work with the pkcs11 engine
+openssl
+libp11 (provides pkcs11 engine)
+p11-kit (recommended to simplify setup)
+opensc (for smartcards and smartcard like USB devices)
+gnutls (recommended for key generation, p11tool)
+
+The following examples use the Nitrokey Pro. Instructions for other devices may vary.
+
+Notes on pkcs11 engine setup:
+
+Make sure p11-kit, opensc are installed and that p11-kit is setup to use opensc.
+/usr/share/p11-kit/modules/opensc.module should be present on your system.
+
+
+Generating Keys On the Nitrokey:
+
+$ gpg --card-edit
+
+Reader ...........: Nitrokey Nitrokey Pro (xxxxxxxx0000000000000000) 00 00
+Application ID ...: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Version ..........: 2.1
+Manufacturer .....: ZeitControl
+Serial number ....: xxxxxxxx
+Name of cardholder: [not set]
+Language prefs ...: de
+Sex ..............: unspecified
+URL of public key : [not set]
+Login data .......: [not set]
+Signature PIN ....: forced
+Key attributes ...: rsa2048 rsa2048 rsa2048
+Max. PIN lengths .: 32 32 32
+PIN retry counter : 3 0 3
+Signature counter : 0
+Signature key ....: [none]
+Encryption key....: [none]
+Authentication key: [none]
+General key info..: [none]
+
+gpg/card> generate
+Make off-card backup of encryption key? (Y/n) n
+
+Please note that the factory settings of the PINs are
+  PIN = '123456' Admin PIN = '12345678'
+You should change them using the command --change-pin
+
+What keysize do you want for the Signature key? (2048) 4096
+The card will now be re-configured to generate a key of 4096 bits
+Note: There is no guarantee that the card supports the requested size.
+  If the key generation does not succeed, please check the
+  documentation of your card to see what sizes are allowed.
+What keysize do you want for the Encryption key? (2048) 4096
+The card will now be re-configured to generate a key of 4096 bits
+What keysize do you want for the Authentication key? (2048) 4096
+The card will now be re-configured to generate a key of 4096 bits
+Please specify how long the key should be valid.
+  0 = key does not expire
+  <n> = key expires in n days
+  <n>w = key expires in n weeks
+  <n>m = key expires in n months
+  <n>y = key expires in n years
+Key is valid for? (0)
+Key does not expire at all
+Is this correct? (y/N) y
+
+GnuPG needs to construct a user ID to identify your key.
+
+Real name: John Doe
+Email address: john.doe@email.com
+Comment:
+You selected this USER-ID:
+  "John Doe <john.doe@email.com>"
+
+Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? o
+
+
+Using p11tool to get the token URL:
+
+Depending on system configuration, gpg-agent may need to be killed first.
+
+$ p11tool --provider /usr/lib/opensc-pkcs11.so --list-tokens
+Token 0:
+URL: pkcs11:model=PKCS%2315%20emulated;manufacturer=ZeitControl;serial=000xxxxxxxxx;token=OpenPGP%20card%20%28User%20PIN%20%28sig%29%29
+Label: OpenPGP card (User PIN (sig))
+Type: Hardware token
+Manufacturer: ZeitControl
+Model: PKCS#15 emulated
+Serial: 000xxxxxxxxx
+Module: (null)
+
+
+Token 1:
+URL: pkcs11:model=PKCS%2315%20emulated;manufacturer=ZeitControl;serial=000xxxxxxxxx;token=OpenPGP%20card%20%28User%20PIN%29
+Label: OpenPGP card (User PIN)
+Type: Hardware token
+Manufacturer: ZeitControl
+Model: PKCS#15 emulated
+Serial: 000xxxxxxxxx
+Module: (null)
+
+Use the portion of the signature token URL after "pkcs11:" as the keydir argument (-k) to mkimage below.
+
+
+Use the URL of the token to list the private keys:
+
+$ p11tool --login --provider /usr/lib/opensc-pkcs11.so --list-privkeys \
+"pkcs11:model=PKCS%2315%20emulated;manufacturer=ZeitControl;serial=000xxxxxxxxx;token=OpenPGP%20card%20%28User%20PIN%20%28sig%29%29"
+Token 'OpenPGP card (User PIN (sig))' with URL 'pkcs11:model=PKCS%2315%20emulated;manufacturer=ZeitControl;serial=000xxxxxxxxx;token=OpenPGP%20card%20%28User%20PIN%20%28sig%29%29' requires user PIN
+Enter PIN:
+Object 0:
+URL: pkcs11:model=PKCS%2315%20emulated;manufacturer=ZeitControl;serial=000xxxxxxxxx;token=OpenPGP%20card%20%28User%20PIN%20%28sig%29%29;id=%01;object=Signature%20key;type=private
+Type: Private key
+Label: Signature key
+Flags: CKA_PRIVATE; CKA_NEVER_EXTRACTABLE; CKA_SENSITIVE;
+ID: 01
+
+Use the label, in this case "Signature key" as the key-name-hint in your FIT.
+
+Create the fitImage:
+$ ./tools/mkimage -f fit-image.its fitImage
+
+
+Sign the fitImage with the hardware key:
+
+$ ./tools/mkimage -F -k \
+"model=PKCS%2315%20emulated;manufacturer=ZeitControl;serial=000xxxxxxxxx;token=OpenPGP%20card%20%28User%20PIN%20%28sig%29%29" \
+-K u-boot.dtb -N pkcs11 -r fitImage
 
 
 Future Work

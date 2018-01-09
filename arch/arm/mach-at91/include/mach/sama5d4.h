@@ -11,11 +11,6 @@
 #define __SAMA5D4_H
 
 /*
- * defines to be used in other places
- */
-#define CONFIG_AT91FAMILY	/* It's a member of AT91 */
-
-/*
  * Peripheral identifiers/interrupts.
  */
 #define ATMEL_ID_FIQ	0	/* FIQ Interrupt */
@@ -174,8 +169,6 @@
  * Other misc defines
  */
 #define ATMEL_PIO_PORTS		5
-#define CPU_HAS_PIO3
-#define PIO_SCDR_DIV		0x3fff
 #define CPU_HAS_PCR
 #define CPU_HAS_H32MXDIV
 

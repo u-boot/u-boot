@@ -702,7 +702,7 @@ static int pmecc_choose_ecc(struct atmel_nand_host *host,
 	if (chip->onfi_version) {
 		*cap = chip->ecc_strength_ds;
 		*sector_size = chip->ecc_step_ds;
-		MTDDEBUG(MTD_DEBUG_LEVEL1, "ONFI params, minimum required ECC: %d bits in %d bytes\n",
+		pr_debug("ONFI params, minimum required ECC: %d bits in %d bytes\n",
 			 *cap, *sector_size);
 	}
 
@@ -863,9 +863,8 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 		host->pmecc_index_table_offset = ATMEL_PMECC_INDEX_OFFSET_1024;
 #endif
 
-	MTDDEBUG(MTD_DEBUG_LEVEL1,
-		"Initialize PMECC params, cap: %d, sector: %d\n",
-		cap, sector_size);
+	pr_debug("Initialize PMECC params, cap: %d, sector: %d\n",
+		 cap, sector_size);
 
 	host->pmecc = (struct pmecc_regs __iomem *) ATMEL_BASE_PMECC;
 	host->pmerrloc = (struct pmecc_errloc_regs __iomem *)
@@ -1222,7 +1221,8 @@ static void at91_nand_hwcontrol(struct mtd_info *mtd,
 			IO_ADDR_W |= CONFIG_SYS_NAND_MASK_ALE;
 
 #ifdef CONFIG_SYS_NAND_ENABLE_PIN
-		gpio_set_value(CONFIG_SYS_NAND_ENABLE_PIN, !(ctrl & NAND_NCE));
+		at91_set_gpio_value(CONFIG_SYS_NAND_ENABLE_PIN,
+				    !(ctrl & NAND_NCE));
 #endif
 		this->IO_ADDR_W = (void *) IO_ADDR_W;
 	}
@@ -1234,7 +1234,7 @@ static void at91_nand_hwcontrol(struct mtd_info *mtd,
 #ifdef CONFIG_SYS_NAND_READY_PIN
 static int at91_nand_ready(struct mtd_info *mtd)
 {
-	return gpio_get_value(CONFIG_SYS_NAND_READY_PIN);
+	return at91_get_gpio_value(CONFIG_SYS_NAND_READY_PIN);
 }
 #endif
 
@@ -1379,34 +1379,6 @@ static int nand_read_page(int block, int page, void *dst)
 }
 #endif /* CONFIG_SPL_NAND_ECC */
 
-int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst)
-{
-	unsigned int block, lastblock;
-	unsigned int page;
-
-	block = offs / CONFIG_SYS_NAND_BLOCK_SIZE;
-	lastblock = (offs + size - 1) / CONFIG_SYS_NAND_BLOCK_SIZE;
-	page = (offs % CONFIG_SYS_NAND_BLOCK_SIZE) / CONFIG_SYS_NAND_PAGE_SIZE;
-
-	while (block <= lastblock) {
-		if (!nand_is_bad_block(block)) {
-			while (page < CONFIG_SYS_NAND_PAGE_COUNT) {
-				nand_read_page(block, page, dst);
-				dst += CONFIG_SYS_NAND_PAGE_SIZE;
-				page++;
-			}
-
-			page = 0;
-		} else {
-			lastblock++;
-		}
-
-		block++;
-	}
-
-	return 0;
-}
-
 int at91_nand_wait_ready(struct mtd_info *mtd)
 {
 	struct nand_chip *this = mtd_to_nand(mtd);
@@ -1472,6 +1444,8 @@ void nand_deselect(void)
 	if (nand_chip.select_chip)
 		nand_chip.select_chip(mtd, -1);
 }
+
+#include "nand_spl_loaders.c"
 
 #else
 

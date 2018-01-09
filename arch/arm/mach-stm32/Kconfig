@@ -3,14 +3,46 @@ if STM32
 config STM32F4
 	bool "stm32f4 family"
 
-config STM32F1
-	bool "stm32f1 family"
-
 config STM32F7
 	bool "stm32f7 family"
+	select SUPPORT_SPL
+	select SPL
+	select SPL_CLK
+	select SPL_DM
+	select SPL_DM_SEQ_ALIAS
+	select SPL_DRIVERS_MISC_SUPPORT
+	select SPL_GPIO_SUPPORT
+	select SPL_LIBCOMMON_SUPPORT
+	select SPL_LIBGENERIC_SUPPORT
+	select SPL_MTD_SUPPORT
+	select SPL_OF_CONTROL
+	select SPL_OF_LIBFDT
+	select SPL_OF_TRANSLATE
+	imply SPL_OS_BOOT
+	select SPL_PINCTRL
+	select SPL_RAM
+	select SPL_SERIAL_SUPPORT
+	select SPL_SYS_MALLOC_SIMPLE
+	select SPL_XIP_SUPPORT
+
+config STM32H7
+	bool "stm32h7 family"
+	select CLK
+	select DM_GPIO
+	select DM_RESET
+	select MISC
+	select PINCTRL
+	select PINCTRL_STM32
+	select RAM
+	select REGMAP
+	select STM32_SDRAM
+	select STM32_RCC
+	select STM32_RESET
+	select STM32X7_SERIAL
+	select SYSCON
 
 source "arch/arm/mach-stm32/stm32f4/Kconfig"
-source "arch/arm/mach-stm32/stm32f1/Kconfig"
 source "arch/arm/mach-stm32/stm32f7/Kconfig"
+source "arch/arm/mach-stm32/stm32h7/Kconfig"
 
 endif

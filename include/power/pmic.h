@@ -11,6 +11,7 @@
 #ifndef __CORE_PMIC_H_
 #define __CORE_PMIC_H_
 
+#include <dm/ofnode.h>
 #include <i2c.h>
 #include <linux/list.h>
 #include <power/power_chrg.h>
@@ -226,7 +227,7 @@ struct pmic_child_info {
  *     buck2 { ... };
  * };
  */
-int pmic_bind_children(struct udevice *pmic, int offset,
+int pmic_bind_children(struct udevice *pmic, ofnode parent,
 		       const struct pmic_child_info *child_info);
 
 /**

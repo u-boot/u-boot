@@ -22,8 +22,10 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = efi_get_ram_base();
 	gd->bd->bi_dram[0].size = CONFIG_EFI_RAM_SIZE;
+
+	return 0;
 }

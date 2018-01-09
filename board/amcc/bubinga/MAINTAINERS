@@ -1,6 +1,0 @@
-BUBINGA BOARD
-#M:	-
-S:	Maintained
-F:	board/amcc/bubinga/
-F:	include/configs/bubinga.h
-F:	configs/bubinga_defconfig

@@ -12,16 +12,6 @@
 #define CONFIG_CPU_SH7785	1
 #define CONFIG_SH7785LCR	1
 
-#define CONFIG_CMD_PCI
-#define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_SH_ZIMAGEBOOT
-
-#define CONFIG_DOS_PARTITION
-#define CONFIG_MAC_PARTITION
-
-#define CONFIG_BAUDRATE		115200
-#define CONFIG_BOOTARGS		"console=ttySC1,115200 root=/dev/nfs ip=dhcp"
-
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"bootdevice=0:1\0"						\
 	"usbload=usb reset;usbboot;usb stop;bootm\0"
@@ -50,14 +40,10 @@
 #endif
 
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_PBSIZE		256
-#define CONFIG_SYS_MAXARGS		16
-#define CONFIG_SYS_BARGSIZE		512
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200 }
 
 /* SCIF */
-#define CONFIG_SCIF_CONSOLE	1
 #define CONFIG_CONS_SCIF1	1
 #define CONFIG_SCIF_EXT_CLOCK	1
 
@@ -136,7 +122,6 @@
 #define CONFIG_PCI_SYS_SIZE	CONFIG_SYS_SDRAM_SIZE
 
 /* ENV setting */
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_OVERWRITE	1
 #define CONFIG_ENV_SECT_SIZE	(256 * 1024)
 #define CONFIG_ENV_SIZE		(CONFIG_ENV_SECT_SIZE)

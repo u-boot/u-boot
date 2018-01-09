@@ -18,4 +18,26 @@ config SYS_CONFIG_NAME
 	default "sandbox_spl" if SANDBOX_SPL
 	default "sandbox" if !SANDBOX_SPL
 
+choice
+	prompt "Run sandbox on 32/64-bit host"
+	default SANDBOX_64BIT
+	help
+	  Sandbox can be built on 32-bit and 64-bit hosts.
+	  The default is to build on a 64-bit host and run
+	  on a 64-bit host. If you want to run sandbox on
+	  a 32-bit host, change it here.
+
+config SANDBOX_32BIT
+	bool "32-bit host"
+
+config SANDBOX_64BIT
+	bool "64-bit host"
+
+endchoice
+
+config SANDBOX_BITS_PER_LONG
+	int
+	default 32 if SANDBOX_32BIT
+	default 64 if SANDBOX_64BIT
+
 endmenu

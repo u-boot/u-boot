@@ -15,7 +15,6 @@
 
 #define CONFIG_MXC_UART_BASE		UART2_BASE
 #define CONSOLE_DEV		"ttymxc1"
-#define CONFIG_MMCROOT			"/dev/mmcblk1p2"
 
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
 
@@ -23,9 +22,6 @@
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
-
-#define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_MXC_UART
 
@@ -38,10 +34,6 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /* USB Configs */
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_MX6
-#define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_ASIX
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET	/* For OTG port */
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
@@ -57,7 +49,6 @@
 #define CONFIG_ETHPRIME			"FEC"
 #define CONFIG_FEC_MXC_PHYADDR		4
 
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_ATHEROS
 
 #ifdef CONFIG_CMD_SF
@@ -68,18 +59,11 @@
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #endif
 
-#define CONFIG_CMD_BMODE
-
 #define CONFIG_ARP_TIMEOUT     200UL
-
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 
 #define CONFIG_SYS_MEMTEST_START       0x10000000
 #define CONFIG_SYS_MEMTEST_END         0x10010000
 #define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
-
-#define CONFIG_STACKSIZE               (128 * 1024)
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS           1
@@ -124,7 +108,6 @@
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
-#define CONFIG_IPUV3_CLK 260000000
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 
@@ -166,6 +149,7 @@
 	CONSOLE_ENV_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
 	"fdtfile=" CONFIG_FDTFILE "\0" \
+	"finduuid=part uuid mmc 0:1 uuid\0" \
 	BOOTENV
 
 #endif                         /* __RIOTBOARD_CONFIG_H */

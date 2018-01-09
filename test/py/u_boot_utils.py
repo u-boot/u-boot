@@ -5,6 +5,7 @@
 # Utility code shared across multiple tests.
 
 import hashlib
+import inspect
 import os
 import os.path
 import pytest
@@ -237,3 +238,76 @@ def find_ram_base(u_boot_console):
             raise Exception('Failed to find RAM bank start in `bdinfo`')
 
     return ram_base
+
+class PersistentFileHelperCtxMgr(object):
+    """A context manager for Python's "with" statement, which ensures that any
+    generated file is deleted (and hence regenerated) if its mtime is older
+    than the mtime of the Python module which generated it, and gets an mtime
+    newer than the mtime of the Python module which generated after it is
+    generated. Objects of this type should be created by factory function
+    persistent_file_helper rather than directly."""
+
+    def __init__(self, log, filename):
+        """Initialize a new object.
+
+        Args:
+            log: The Logfile object to log to.
+            filename: The filename of the generated file.
+
+        Returns:
+            Nothing.
+        """
+
+        self.log = log
+        self.filename = filename
+
+    def __enter__(self):
+        frame = inspect.stack()[1]
+        module = inspect.getmodule(frame[0])
+        self.module_filename = module.__file__
+        self.module_timestamp = os.path.getmtime(self.module_filename)
+
+        if os.path.exists(self.filename):
+            filename_timestamp = os.path.getmtime(self.filename)
+            if filename_timestamp < self.module_timestamp:
+                self.log.action('Removing stale generated file ' +
+                    self.filename)
+                os.unlink(self.filename)
+
+    def __exit__(self, extype, value, traceback):
+        if extype:
+            try:
+                os.path.unlink(self.filename)
+            except:
+                pass
+            return
+        logged = False
+        for i in range(20):
+            filename_timestamp = os.path.getmtime(self.filename)
+            if filename_timestamp > self.module_timestamp:
+                break
+            if not logged:
+                self.log.action(
+                    'Waiting for generated file timestamp to increase')
+                logged = True
+            os.utime(self.filename)
+            time.sleep(0.1)
+
+def persistent_file_helper(u_boot_log, filename):
+    """Manage the timestamps and regeneration of a persistent generated
+    file. This function creates a context manager for Python's "with"
+    statement
+
+    Usage:
+        with persistent_file_helper(u_boot_console.log, filename):
+            code to generate the file, if it's missing.
+
+    Args:
+        u_boot_log: u_boot_console.log.
+        filename: The filename of the generated file.
+
+    Returns:
+        A context manager object.
+    """
+
+    return PersistentFileHelperCtxMgr(u_boot_log, filename)

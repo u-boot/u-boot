@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2009
- * Vipin Kumar, STMicroelectronics, <vipin.kumar@st.com>
+ * Copyright (C) 2009, STMicroelectronics - All Rights Reserved
+ * Author(s): Vipin Kumar, <vipin.kumar@st.com> for STMicroelectronics.
  *
  * Copyright (C) 2012, 2015 Stefan Roese <sr@denx.de>
  *
@@ -16,7 +16,6 @@
  */
 #define CONFIG_SPEAR600				/* SPEAr600 SoC */
 #define CONFIG_X600				/* on X600 board */
-#define CONFIG_SYS_THUMB_BUILD
 
 #include <asm/arch/hardware.h>
 
@@ -34,8 +33,6 @@
 #define CONFIG_SYS_MONITOR_BASE			CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN			0x60000
 
-#define CONFIG_ENV_IS_IN_FLASH
-
 /* Serial Configuration (PL011) */
 #define CONFIG_SYS_SERIAL0			0xD0000000
 #define CONFIG_SYS_SERIAL1			0xD0080000
@@ -44,7 +41,6 @@
 #define CONFIG_PL011_SERIAL
 #define CONFIG_PL011_CLOCK			(48 * 1000 * 1000)
 #define CONFIG_CONS_INDEX			0
-#define CONFIG_BAUDRATE				115200
 #define CONFIG_SYS_BAUDRATE_TABLE		{ 9600, 19200, 38400, \
 						  57600, 115200 }
 #define CONFIG_SYS_LOADS_BAUD_CHANGE
@@ -68,20 +64,15 @@
 #define CONFIG_SYS_FSMC_NAND_8BIT
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_NAND_ECC_BCH
-#define CONFIG_BCH
 
 /* UBI/UBI config options */
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_RBTREE
 
 /* Ethernet config options */
 #define CONFIG_MII
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
 #define CONFIG_PHY_ADDR		0	/* PHY address */
-#define CONFIG_PHY_GIGE			/* Include GbE speed/duplex detection */
-#define CONFIG_PHY_MICREL
-#define CONFIG_PHY_MICREL_KSZ9031
 
 #define CONFIG_SPEAR_GPIO
 
@@ -102,25 +93,11 @@
 #define CONFIG_FPGA_COUNT	1
 
 /* USB EHCI options */
-#define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_SPEAR
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 
-/*
- * Command support defines
- */
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_ENV
-#define CONFIG_CMD_FPGA_LOADMK
-#define CONFIG_CMD_MTDPARTS
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_SAVES
-#define CONFIG_CMD_UBIFS
-#define CONFIG_LZO
-
 /* Filesystem support (for USB key) */
 #define CONFIG_SUPPORT_VFAT
-#define CONFIG_DOS_PARTITION
 
 
 /*
@@ -140,7 +117,6 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_MISC_INIT_R
-#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_MX_CYCLIC		/* enable mdc/mwc commands      */
 
 #define CONFIG_SYS_MEMTEST_START		0x00800000
@@ -149,11 +125,6 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_CBSIZE			256
-#define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE + \
-						 sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS			16
-#define CONFIG_SYS_BARGSIZE			CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_LOAD_ADDR			0x00800000
 
 /* Use last 2 lwords in internal SRAM for bootcounter */
@@ -164,9 +135,6 @@
 #define CONFIG_HOSTNAME				x600
 #define CONFIG_UBI_PART				ubi0
 #define CONFIG_UBIFS_VOLUME			rootfs
-
-#define MTDIDS_DEFAULT		"nand0=nand"
-#define MTDPARTS_DEFAULT	"mtdparts=nand:64M(ubi0),64M(ubi1)"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"u-boot_addr=1000000\0"						\
@@ -223,8 +191,8 @@
 	"net_nfs=run load_dtb load_kernel; "				\
 		"run nfsargs addip addcon addmtd addmisc;"		\
 		"bootm ${kernel_addr} - ${dtb_addr}\0"			\
-	"mtdids=" MTDIDS_DEFAULT "\0"					\
-	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"					\
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"				\
 	"nand_ubifs=run ubifs_mount ubifs_load ubifsargs addip"		\
 		" addcon addmisc addmtd;"				\
 		"bootm ${kernel_addr} - ${dtb_addr}\0"			\
@@ -260,7 +228,6 @@
 #define CONFIG_SPL_TEXT_BASE		0xd2800b00
 #define CONFIG_SPL_MAX_SIZE		(CONFIG_SRAM_SIZE - 0xb00)
 #define	CONFIG_SPL_START_S_PATH	"arch/arm/cpu/arm926ejs/spear"
-#define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm926ejs/spear/u-boot-spl.lds"
 
 #define CONFIG_SPL_FRAMEWORK
 

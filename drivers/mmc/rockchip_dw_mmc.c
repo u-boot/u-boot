@@ -58,27 +58,39 @@ static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
 	struct dwmci_host *host = &priv->host;
 
 	host->name = dev->name;
-	host->ioaddr = (void *)dev_get_addr(dev);
-	host->buswidth = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
-					"bus-width", 4);
+	host->ioaddr = dev_read_addr_ptr(dev);
+	host->buswidth = dev_read_u32_default(dev, "bus-width", 4);
 	host->get_mmc_clk = rockchip_dwmmc_get_mmc_clk;
 	host->priv = dev;
 
 	/* use non-removeable as sdcard and emmc as judgement */
-	if (fdtdec_get_bool(gd->fdt_blob, dev->of_offset, "non-removable"))
+	if (dev_read_bool(dev, "non-removable"))
 		host->dev_index = 0;
 	else
 		host->dev_index = 1;
 
-	priv->fifo_depth = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
-				    "fifo-depth", 0);
+	priv->fifo_depth = dev_read_u32_default(dev, "fifo-depth", 0);
+
 	if (priv->fifo_depth < 0)
 		return -EINVAL;
-	priv->fifo_mode = fdtdec_get_bool(gd->fdt_blob, dev->of_offset,
-					  "fifo-mode");
-	if (fdtdec_get_int_array(gd->fdt_blob, dev->of_offset,
-				 "clock-freq-min-max", priv->minmax, 2))
-		return -EINVAL;
+	priv->fifo_mode = dev_read_bool(dev, "fifo-mode");
+
+	/*
+	 * 'clock-freq-min-max' is deprecated
+	 * (see https://github.com/torvalds/linux/commit/b023030f10573de738bbe8df63d43acab64c9f7b)
+	 */
+	if (dev_read_u32_array(dev, "clock-freq-min-max", priv->minmax, 2)) {
+		int val = dev_read_u32_default(dev, "max-frequency", -EINVAL);
+
+		if (val < 0)
+			return val;
+
+		priv->minmax[0] = 400000;  /* 400 kHz */
+		priv->minmax[1] = val;
+	} else {
+		debug("%s: 'clock-freq-min-max' property was deprecated.\n",
+		      __func__);
+	}
 #endif
 	return 0;
 }
@@ -103,7 +115,8 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	host->dev_index = 0;
 	priv->fifo_depth = dtplat->fifo_depth;
 	priv->fifo_mode = 0;
-	memcpy(priv->minmax, dtplat->clock_freq_min_max, sizeof(priv->minmax));
+	priv->minmax[0] = 400000;  /*  400 kHz */
+	priv->minmax[1] = dtplat->max_frequency;
 
 	ret = clk_get_by_index_platdata(dev, 0, dtplat->clocks, &priv->clk);
 	if (ret < 0)

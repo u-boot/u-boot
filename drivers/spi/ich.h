@@ -102,13 +102,6 @@ enum {
 };
 
 enum {
-	SPI_OPCODE_TYPE_READ_NO_ADDRESS =	0,
-	SPI_OPCODE_TYPE_WRITE_NO_ADDRESS =	1,
-	SPI_OPCODE_TYPE_READ_WITH_ADDRESS =	2,
-	SPI_OPCODE_TYPE_WRITE_WITH_ADDRESS =	3
-};
-
-enum {
 	ICH_MAX_CMD_LEN		= 5,
 };
 
@@ -124,8 +117,55 @@ struct spi_trans {
 	uint32_t offset;
 };
 
+#define SPI_OPCODE_WRSR		0x01
+#define SPI_OPCODE_PAGE_PROGRAM	0x02
+#define SPI_OPCODE_READ		0x03
+#define SPI_OPCODE_WRDIS	0x04
+#define SPI_OPCODE_RDSR		0x05
 #define SPI_OPCODE_WREN		0x06
 #define SPI_OPCODE_FAST_READ	0x0b
+#define SPI_OPCODE_ERASE_SECT	0x20
+#define SPI_OPCODE_READ_ID	0x9f
+#define SPI_OPCODE_ERASE_BLOCK	0xd8
+
+#define SPI_OPCODE_TYPE_READ_NO_ADDRESS		0
+#define SPI_OPCODE_TYPE_WRITE_NO_ADDRESS	1
+#define SPI_OPCODE_TYPE_READ_WITH_ADDRESS	2
+#define SPI_OPCODE_TYPE_WRITE_WITH_ADDRESS	3
+
+#define SPI_OPMENU_0	SPI_OPCODE_WRSR
+#define SPI_OPTYPE_0	SPI_OPCODE_TYPE_WRITE_NO_ADDRESS
+
+#define SPI_OPMENU_1	SPI_OPCODE_PAGE_PROGRAM
+#define SPI_OPTYPE_1	SPI_OPCODE_TYPE_WRITE_WITH_ADDRESS
+
+#define SPI_OPMENU_2	SPI_OPCODE_READ
+#define SPI_OPTYPE_2	SPI_OPCODE_TYPE_READ_WITH_ADDRESS
+
+#define SPI_OPMENU_3	SPI_OPCODE_RDSR
+#define SPI_OPTYPE_3	SPI_OPCODE_TYPE_READ_NO_ADDRESS
+
+#define SPI_OPMENU_4	SPI_OPCODE_ERASE_SECT
+#define SPI_OPTYPE_4	SPI_OPCODE_TYPE_WRITE_WITH_ADDRESS
+
+#define SPI_OPMENU_5	SPI_OPCODE_READ_ID
+#define SPI_OPTYPE_5	SPI_OPCODE_TYPE_READ_NO_ADDRESS
+
+#define SPI_OPMENU_6	SPI_OPCODE_ERASE_BLOCK
+#define SPI_OPTYPE_6	SPI_OPCODE_TYPE_WRITE_WITH_ADDRESS
+
+#define SPI_OPMENU_7	SPI_OPCODE_FAST_READ
+#define SPI_OPTYPE_7	SPI_OPCODE_TYPE_READ_WITH_ADDRESS
+
+#define SPI_OPPREFIX	((SPI_OPCODE_WREN << 8) | SPI_OPCODE_WREN)
+#define SPI_OPTYPE	((SPI_OPTYPE_7 << 14) | (SPI_OPTYPE_6 << 12) | \
+			 (SPI_OPTYPE_5 << 10) | (SPI_OPTYPE_4 <<  8) | \
+			 (SPI_OPTYPE_3 <<  6) | (SPI_OPTYPE_2 <<  4) | \
+			 (SPI_OPTYPE_1 <<  2) | (SPI_OPTYPE_0 <<  0))
+#define SPI_OPMENU_UPPER ((SPI_OPMENU_7 << 24) | (SPI_OPMENU_6 << 16) | \
+			  (SPI_OPMENU_5 <<  8) | (SPI_OPMENU_4 <<  0))
+#define SPI_OPMENU_LOWER ((SPI_OPMENU_3 << 24) | (SPI_OPMENU_2 << 16) | \
+			  (SPI_OPMENU_1 <<  8) | (SPI_OPMENU_0 <<  0))
 
 enum ich_version {
 	ICHV_7,
@@ -134,11 +174,10 @@ enum ich_version {
 
 struct ich_spi_platdata {
 	enum ich_version ich_version;	/* Controller version, 7 or 9 */
+	bool lockdown;			/* lock down controller settings? */
 };
 
 struct ich_spi_priv {
-	int ichspi_lock;
-	int locked;
 	int opmenu;
 	int menubytes;
 	void *base;		/* Base of register set */

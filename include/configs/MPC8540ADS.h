@@ -291,13 +291,10 @@
  * Environment
  */
 #ifndef CONFIG_SYS_RAMBOOT
-  #define CONFIG_ENV_IS_IN_FLASH	1
   #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + 0x40000)
   #define CONFIG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
   #define CONFIG_ENV_SIZE		0x2000
 #else
-  #define CONFIG_SYS_NO_FLASH		1	/* Flash is not usable now */
-  #define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
   #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
   #define CONFIG_ENV_SIZE		0x2000
 #endif
@@ -316,11 +313,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_IRQ
-
-#if defined(CONFIG_PCI)
-    #define CONFIG_CMD_PCI
-#endif
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
@@ -331,16 +323,6 @@
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-
-#if defined(CONFIG_CMD_KGDB)
-    #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
-#else
-    #define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
-#endif
-
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS	16		/* max number of command args */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 
 /*
  * For booting Linux, the board info and command line data
@@ -376,10 +358,6 @@
 #define CONFIG_NETMASK   255.255.255.0
 
 #define CONFIG_LOADADDR  200000	/* default location for tftp and bootm */
-
-#undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
-
-#define CONFIG_BAUDRATE	115200
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				        \
    "netdev=eth0\0"                                                      \

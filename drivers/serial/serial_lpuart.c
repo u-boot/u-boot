@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <fsl_lpuart.h>
 #include <watchdog.h>
 #include <asm/io.h>
 #include <serial.h>
@@ -48,14 +49,63 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct lpuart_serial_platdata {
-	struct lpuart_fsl *reg;
+#define LPUART_FLAG_REGMAP_32BIT_REG	BIT(0)
+#define LPUART_FLAG_REGMAP_ENDIAN_BIG	BIT(1)
+
+enum lpuart_devtype {
+	DEV_VF610 = 1,
+	DEV_LS1021A,
+	DEV_MX7ULP
 };
 
-#ifndef CONFIG_LPUART_32B_REG
-static void _lpuart_serial_setbrg(struct lpuart_fsl *base, int baudrate)
+struct lpuart_serial_platdata {
+	void *reg;
+	enum lpuart_devtype devtype;
+	ulong flags;
+};
+
+static void lpuart_read32(u32 flags, u32 *addr, u32 *val)
 {
-	u32 clk = mxc_get_clock(MXC_UART_CLK);
+	if (flags & LPUART_FLAG_REGMAP_32BIT_REG) {
+		if (flags & LPUART_FLAG_REGMAP_ENDIAN_BIG)
+			*(u32 *)val = in_be32(addr);
+		else
+			*(u32 *)val = in_le32(addr);
+	}
+}
+
+static void lpuart_write32(u32 flags, u32 *addr, u32 val)
+{
+	if (flags & LPUART_FLAG_REGMAP_32BIT_REG) {
+		if (flags & LPUART_FLAG_REGMAP_ENDIAN_BIG)
+			out_be32(addr, val);
+		else
+			out_le32(addr, val);
+	}
+}
+
+
+#ifndef CONFIG_SYS_CLK_FREQ
+#define CONFIG_SYS_CLK_FREQ	0
+#endif
+
+u32 __weak get_lpuart_clk(void)
+{
+	return CONFIG_SYS_CLK_FREQ;
+}
+
+static bool is_lpuart32(struct udevice *dev)
+{
+	struct lpuart_serial_platdata *plat = dev->platdata;
+
+	return plat->flags & LPUART_FLAG_REGMAP_32BIT_REG;
+}
+
+static void _lpuart_serial_setbrg(struct lpuart_serial_platdata *plat,
+				  int baudrate)
+{
+	struct lpuart_fsl *base = plat->reg;
+	u32 clk = get_lpuart_clk();
 	u16 sbr;
 
 	sbr = (u16)(clk / (16 * baudrate));
@@ -65,8 +115,9 @@ static void _lpuart_serial_setbrg(struct lpuart_fsl *base, int baudrate)
 	__raw_writeb(sbr & 0xff, &base->ubdl);
 }
 
-static int _lpuart_serial_getc(struct lpuart_fsl *base)
+static int _lpuart_serial_getc(struct lpuart_serial_platdata *plat)
 {
+	struct lpuart_fsl *base = plat->reg;
 	while (!(__raw_readb(&base->us1) & (US1_RDRF | US1_OR)))
 		WATCHDOG_RESET();
 
@@ -75,8 +126,11 @@ static int _lpuart_serial_getc(struct lpuart_fsl *base)
 	return __raw_readb(&base->ud);
 }
 
-static void _lpuart_serial_putc(struct lpuart_fsl *base, const char c)
+static void _lpuart_serial_putc(struct lpuart_serial_platdata *plat,
+				const char c)
 {
+	struct lpuart_fsl *base = plat->reg;
+
 	while (!(__raw_readb(&base->us1) & US1_TDRE))
 		WATCHDOG_RESET();
 
@@ -84,8 +138,10 @@ static void _lpuart_serial_putc(struct lpuart_fsl *base, const char c)
 }
 
 /* Test whether a character is in the RX buffer */
-static int _lpuart_serial_tstc(struct lpuart_fsl *base)
+static int _lpuart_serial_tstc(struct lpuart_serial_platdata *plat)
 {
+	struct lpuart_fsl *base = plat->reg;
+
 	if (__raw_readb(&base->urcfifo) == 0)
 		return 0;
 
@@ -96,8 +152,9 @@ static int _lpuart_serial_tstc(struct lpuart_fsl *base)
  * Initialise the serial port with the given baudrate. The settings
  * are always 8 data bits, no parity, 1 stop bit, no start bits.
  */
-static int _lpuart_serial_init(struct lpuart_fsl *base)
+static int _lpuart_serial_init(struct lpuart_serial_platdata *plat)
 {
+	struct lpuart_fsl *base = (struct lpuart_fsl *)plat->reg;
 	u8 ctrl;
 
 	ctrl = __raw_readb(&base->uc2);
@@ -115,101 +172,140 @@ static int _lpuart_serial_init(struct lpuart_fsl *base)
 	__raw_writeb(CFIFO_TXFLUSH | CFIFO_RXFLUSH, &base->ucfifo);
 
 	/* provide data bits, parity, stop bit, etc */
-	_lpuart_serial_setbrg(base, gd->baudrate);
+	_lpuart_serial_setbrg(plat, gd->baudrate);
 
 	__raw_writeb(UC2_RE | UC2_TE, &base->uc2);
 
 	return 0;
 }
 
-static int lpuart_serial_setbrg(struct udevice *dev, int baudrate)
+static void _lpuart32_serial_setbrg_7ulp(struct lpuart_serial_platdata *plat,
+					 int baudrate)
 {
-	struct lpuart_serial_platdata *plat = dev->platdata;
-	struct lpuart_fsl *reg = plat->reg;
+	struct lpuart_fsl_reg32 *base = plat->reg;
+	u32 sbr, osr, baud_diff, tmp_osr, tmp_sbr, tmp_diff, tmp;
+	u32 clk = get_lpuart_clk();
 
-	_lpuart_serial_setbrg(reg, baudrate);
+	baud_diff = baudrate;
+	osr = 0;
+	sbr = 0;
 
-	return 0;
+	for (tmp_osr = 4; tmp_osr <= 32; tmp_osr++) {
+		tmp_sbr = (clk / (baudrate * tmp_osr));
+
+		if (tmp_sbr == 0)
+			tmp_sbr = 1;
+
+		/*calculate difference in actual buad w/ current values */
+		tmp_diff = (clk / (tmp_osr * tmp_sbr));
+		tmp_diff = tmp_diff - baudrate;
+
+		/* select best values between sbr and sbr+1 */
+		if (tmp_diff > (baudrate - (clk / (tmp_osr * (tmp_sbr + 1))))) {
+			tmp_diff = baudrate - (clk / (tmp_osr * (tmp_sbr + 1)));
+			tmp_sbr++;
+		}
+
+		if (tmp_diff <= baud_diff) {
+			baud_diff = tmp_diff;
+			osr = tmp_osr;
+			sbr = tmp_sbr;
+		}
+	}
+
+	/*
+	 * TODO: handle buadrate outside acceptable rate
+	 * if (baudDiff > ((config->baudRate_Bps / 100) * 3))
+	 * {
+	 *   Unacceptable baud rate difference of more than 3%
+	 *   return kStatus_LPUART_BaudrateNotSupport;
+	 * }
+	 */
+	tmp = in_le32(&base->baud);
+
+	if ((osr > 3) && (osr < 8))
+		tmp |= LPUART_BAUD_BOTHEDGE_MASK;
+
+	tmp &= ~LPUART_BAUD_OSR_MASK;
+	tmp |= LPUART_BAUD_OSR(osr-1);
+
+	tmp &= ~LPUART_BAUD_SBR_MASK;
+	tmp |= LPUART_BAUD_SBR(sbr);
+
+	/* explicitly disable 10 bit mode & set 1 stop bit */
+	tmp &= ~(LPUART_BAUD_M10_MASK | LPUART_BAUD_SBNS_MASK);
+
+	out_le32(&base->baud, tmp);
 }
 
-static int lpuart_serial_getc(struct udevice *dev)
+static void _lpuart32_serial_setbrg(struct lpuart_serial_platdata *plat,
+				    int baudrate)
 {
-	struct lpuart_serial_platdata *plat = dev->platdata;
-	struct lpuart_fsl *reg = plat->reg;
-
-	return _lpuart_serial_getc(reg);
-}
-
-static int lpuart_serial_putc(struct udevice *dev, const char c)
-{
-	struct lpuart_serial_platdata *plat = dev->platdata;
-	struct lpuart_fsl *reg = plat->reg;
-
-	_lpuart_serial_putc(reg, c);
-
-	return 0;
-}
-
-static int lpuart_serial_pending(struct udevice *dev, bool input)
-{
-	struct lpuart_serial_platdata *plat = dev->platdata;
-	struct lpuart_fsl *reg = plat->reg;
-
-	if (input)
-		return _lpuart_serial_tstc(reg);
-	else
-		return __raw_readb(&reg->us1) & US1_TDRE ? 0 : 1;
-}
-
-static int lpuart_serial_probe(struct udevice *dev)
-{
-	struct lpuart_serial_platdata *plat = dev->platdata;
-	struct lpuart_fsl *reg = plat->reg;
-
-	return _lpuart_serial_init(reg);
-}
-#else
-
-u32 __weak get_lpuart_clk(void)
-{
-	return CONFIG_SYS_CLK_FREQ;
-}
-
-static void _lpuart32_serial_setbrg(struct lpuart_fsl *base, int baudrate)
-{
+	struct lpuart_fsl_reg32 *base = plat->reg;
 	u32 clk = get_lpuart_clk();
 	u32 sbr;
 
 	sbr = (clk / (16 * baudrate));
 
 	/* place adjustment later - n/32 BRFA */
-	out_be32(&base->baud, sbr);
+	lpuart_write32(plat->flags, &base->baud, sbr);
 }
 
-static int _lpuart32_serial_getc(struct lpuart_fsl *base)
+static int _lpuart32_serial_getc(struct lpuart_serial_platdata *plat)
 {
+	struct lpuart_fsl_reg32 *base = plat->reg;
+	u32 stat, val;
+
+	lpuart_read32(plat->flags, &base->stat, &stat);
+	while ((stat & STAT_RDRF) == 0) {
+		lpuart_write32(plat->flags, &base->stat, STAT_FLAGS);
+		WATCHDOG_RESET();
+		lpuart_read32(plat->flags, &base->stat, &stat);
+	}
+
+	lpuart_read32(plat->flags, &base->data, &val);
+
+	if (plat->devtype & DEV_MX7ULP) {
+		lpuart_read32(plat->flags, &base->stat, &stat);
+		if (stat & STAT_OR)
+			lpuart_write32(plat->flags, &base->stat, STAT_OR);
+	}
+
+	return val & 0x3ff;
+}
+
+static void _lpuart32_serial_putc(struct lpuart_serial_platdata *plat,
+				  const char c)
+{
+	struct lpuart_fsl_reg32 *base = plat->reg;
 	u32 stat;
 
-	while (((stat = in_be32(&base->stat)) & STAT_RDRF) == 0) {
-		out_be32(&base->stat, STAT_FLAGS);
+	if (plat->devtype & DEV_MX7ULP) {
+		if (c == '\n')
+			serial_putc('\r');
+	}
+
+	while (true) {
+		lpuart_read32(plat->flags, &base->stat, &stat);
+
+		if ((stat & STAT_TDRE))
+			break;
+
 		WATCHDOG_RESET();
 	}
 
-	return in_be32(&base->data) & 0x3ff;
-}
-
-static void _lpuart32_serial_putc(struct lpuart_fsl *base, const char c)
-{
-	while (!(in_be32(&base->stat) & STAT_TDRE))
-		WATCHDOG_RESET();
-
-	out_be32(&base->data, c);
+	lpuart_write32(plat->flags, &base->data, c);
 }
 
 /* Test whether a character is in the RX buffer */
-static int _lpuart32_serial_tstc(struct lpuart_fsl *base)
+static int _lpuart32_serial_tstc(struct lpuart_serial_platdata *plat)
 {
-	if ((in_be32(&base->water) >> 24) == 0)
+	struct lpuart_fsl_reg32 *base = plat->reg;
+	u32 water;
+
+	lpuart_read32(plat->flags, &base->water, &water);
+
+	if ((water >> 24) == 0)
 		return 0;
 
 	return 1;
@@ -219,91 +315,127 @@ static int _lpuart32_serial_tstc(struct lpuart_fsl *base)
  * Initialise the serial port with the given baudrate. The settings
  * are always 8 data bits, no parity, 1 stop bit, no start bits.
  */
-static int _lpuart32_serial_init(struct lpuart_fsl *base)
+static int _lpuart32_serial_init(struct lpuart_serial_platdata *plat)
 {
-	u8 ctrl;
+	struct lpuart_fsl_reg32 *base = (struct lpuart_fsl_reg32 *)plat->reg;
+	u32 ctrl;
 
-	ctrl = in_be32(&base->ctrl);
+	lpuart_read32(plat->flags, &base->ctrl, &ctrl);
 	ctrl &= ~CTRL_RE;
 	ctrl &= ~CTRL_TE;
-	out_be32(&base->ctrl, ctrl);
+	lpuart_write32(plat->flags, &base->ctrl, ctrl);
 
-	out_be32(&base->modir, 0);
-	out_be32(&base->fifo, ~(FIFO_TXFE | FIFO_RXFE));
+	lpuart_write32(plat->flags, &base->modir, 0);
+	lpuart_write32(plat->flags, &base->fifo, ~(FIFO_TXFE | FIFO_RXFE));
 
-	out_be32(&base->match, 0);
+	lpuart_write32(plat->flags, &base->match, 0);
 
-	/* provide data bits, parity, stop bit, etc */
-	_lpuart32_serial_setbrg(base, gd->baudrate);
+	if (plat->devtype & DEV_MX7ULP) {
+		_lpuart32_serial_setbrg_7ulp(plat, gd->baudrate);
+	} else {
+		/* provide data bits, parity, stop bit, etc */
+		_lpuart32_serial_setbrg(plat, gd->baudrate);
+	}
 
-	out_be32(&base->ctrl, CTRL_RE | CTRL_TE);
-
-	return 0;
-}
-
-static int lpuart32_serial_setbrg(struct udevice *dev, int baudrate)
-{
-	struct lpuart_serial_platdata *plat = dev->platdata;
-	struct lpuart_fsl *reg = plat->reg;
-
-	_lpuart32_serial_setbrg(reg, baudrate);
+	lpuart_write32(plat->flags, &base->ctrl, CTRL_RE | CTRL_TE);
 
 	return 0;
 }
 
-static int lpuart32_serial_getc(struct udevice *dev)
+static int lpuart_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct lpuart_serial_platdata *plat = dev->platdata;
-	struct lpuart_fsl *reg = plat->reg;
 
-	return _lpuart32_serial_getc(reg);
-}
-
-static int lpuart32_serial_putc(struct udevice *dev, const char c)
-{
-	struct lpuart_serial_platdata *plat = dev->platdata;
-	struct lpuart_fsl *reg = plat->reg;
-
-	_lpuart32_serial_putc(reg, c);
+	if (is_lpuart32(dev)) {
+		if (plat->devtype & DEV_MX7ULP)
+			_lpuart32_serial_setbrg_7ulp(plat, baudrate);
+		else
+			_lpuart32_serial_setbrg(plat, baudrate);
+	} else {
+		_lpuart_serial_setbrg(plat, baudrate);
+	}
 
 	return 0;
 }
 
-static int lpuart32_serial_pending(struct udevice *dev, bool input)
+static int lpuart_serial_getc(struct udevice *dev)
+{
+	struct lpuart_serial_platdata *plat = dev->platdata;
+
+	if (is_lpuart32(dev))
+		return _lpuart32_serial_getc(plat);
+
+	return _lpuart_serial_getc(plat);
+}
+
+static int lpuart_serial_putc(struct udevice *dev, const char c)
+{
+	struct lpuart_serial_platdata *plat = dev->platdata;
+
+	if (is_lpuart32(dev))
+		_lpuart32_serial_putc(plat, c);
+	else
+		_lpuart_serial_putc(plat, c);
+
+	return 0;
+}
+
+static int lpuart_serial_pending(struct udevice *dev, bool input)
 {
 	struct lpuart_serial_platdata *plat = dev->platdata;
 	struct lpuart_fsl *reg = plat->reg;
+	struct lpuart_fsl_reg32 *reg32 = plat->reg;
+	u32 stat;
+
+	if (is_lpuart32(dev)) {
+		if (input) {
+			return _lpuart32_serial_tstc(plat);
+		} else {
+			lpuart_read32(plat->flags, &reg32->stat, &stat);
+			return stat & STAT_TDRE ? 0 : 1;
+		}
+	}
 
 	if (input)
-		return _lpuart32_serial_tstc(reg);
+		return _lpuart_serial_tstc(plat);
 	else
-		return in_be32(&reg->stat) & STAT_TDRE ? 0 : 1;
+		return __raw_readb(&reg->us1) & US1_TDRE ? 0 : 1;
 }
 
-static int lpuart32_serial_probe(struct udevice *dev)
+static int lpuart_serial_probe(struct udevice *dev)
 {
 	struct lpuart_serial_platdata *plat = dev->platdata;
-	struct lpuart_fsl *reg = plat->reg;
 
-	return _lpuart32_serial_init(reg);
+	if (is_lpuart32(dev))
+		return _lpuart32_serial_init(plat);
+	else
+		return _lpuart_serial_init(plat);
 }
-#endif /* CONFIG_LPUART_32B_REG */
 
 static int lpuart_serial_ofdata_to_platdata(struct udevice *dev)
 {
 	struct lpuart_serial_platdata *plat = dev->platdata;
+	const void *blob = gd->fdt_blob;
+	int node = dev_of_offset(dev);
 	fdt_addr_t addr;
 
-	addr = dev_get_addr(dev);
+	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	plat->reg = (struct lpuart_fsl *)addr;
+	plat->reg = (void *)addr;
+	plat->flags = dev_get_driver_data(dev);
+
+	if (!fdt_node_check_compatible(blob, node, "fsl,ls1021a-lpuart"))
+		plat->devtype = DEV_LS1021A;
+	else if (!fdt_node_check_compatible(blob, node, "fsl,imx7ulp-lpuart"))
+		plat->devtype = DEV_MX7ULP;
+	else if (!fdt_node_check_compatible(blob, node, "fsl,vf610-lpuart"))
+		plat->devtype = DEV_VF610;
 
 	return 0;
 }
 
-#ifndef CONFIG_LPUART_32B_REG
 static const struct dm_serial_ops lpuart_serial_ops = {
 	.putc = lpuart_serial_putc,
 	.pending = lpuart_serial_pending,
@@ -312,7 +444,11 @@ static const struct dm_serial_ops lpuart_serial_ops = {
 };
 
 static const struct udevice_id lpuart_serial_ids[] = {
-	{ .compatible = "fsl,vf610-lpuart" },
+	{ .compatible = "fsl,ls1021a-lpuart", .data =
+		LPUART_FLAG_REGMAP_32BIT_REG | LPUART_FLAG_REGMAP_ENDIAN_BIG },
+	{ .compatible = "fsl,imx7ulp-lpuart",
+		.data = LPUART_FLAG_REGMAP_32BIT_REG },
+	{ .compatible = "fsl,vf610-lpuart"},
 	{ }
 };
 
@@ -326,27 +462,3 @@ U_BOOT_DRIVER(serial_lpuart) = {
 	.ops	= &lpuart_serial_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
-#else /* CONFIG_LPUART_32B_REG */
-static const struct dm_serial_ops lpuart32_serial_ops = {
-	.putc = lpuart32_serial_putc,
-	.pending = lpuart32_serial_pending,
-	.getc = lpuart32_serial_getc,
-	.setbrg = lpuart32_serial_setbrg,
-};
-
-static const struct udevice_id lpuart32_serial_ids[] = {
-	{ .compatible = "fsl,ls1021a-lpuart" },
-	{ }
-};
-
-U_BOOT_DRIVER(serial_lpuart32) = {
-	.name	= "serial_lpuart32",
-	.id	= UCLASS_SERIAL,
-	.of_match = lpuart32_serial_ids,
-	.ofdata_to_platdata = lpuart_serial_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct lpuart_serial_platdata),
-	.probe = lpuart32_serial_probe,
-	.ops	= &lpuart32_serial_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-#endif /* CONFIG_LPUART_32B_REG */

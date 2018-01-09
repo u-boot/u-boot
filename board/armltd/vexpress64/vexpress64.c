@@ -6,12 +6,12 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <dm.h>
 #include <malloc.h>
 #include <errno.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
-#include <dm/platdata.h>
 #include <dm/platform_data/serial_pl01x.h>
 #include "pcie.h"
 #include <asm/armv8/mmu.h>
@@ -70,7 +70,7 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
@@ -78,6 +78,8 @@ void dram_init_banksize(void)
 	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
 	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
 #endif
+
+	return 0;
 }
 
 /*

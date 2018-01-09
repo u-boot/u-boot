@@ -12,11 +12,6 @@
 #define CONFIG_CPU_SH7722	1
 #define CONFIG_MIGO_R		1
 
-#define CONFIG_CMD_SDRAM
-
-#define CONFIG_BAUDRATE		115200
-#define CONFIG_BOOTARGS		"console=ttySC0,115200 root=1f01"
-
 #define CONFIG_DISPLAY_BOARDINFO
 #undef  CONFIG_SHOW_BOOT_PROGRESS
 
@@ -31,14 +26,10 @@
 
 #define CONFIG_SYS_TEXT_BASE	0x8FFC0000
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
-#define CONFIG_SYS_CBSIZE		256		/* Buffer size for input from the Console */
 #define CONFIG_SYS_PBSIZE		256		/* Buffer size for Console output */
-#define CONFIG_SYS_MAXARGS		16		/* max args accepted for monitor commands */
-#define CONFIG_SYS_BARGSIZE	512		/* Buffer size for Boot Arguments passed to kernel */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200 }	/* List of legal baudrate settings for this board */
 
 /* SCIF */
-#define CONFIG_SCIF_CONSOLE	1
 #define CONFIG_CONS_SCIF0	1
 
 #define CONFIG_SYS_MEMTEST_START	(MIGO_R_SDRAM_BASE)
@@ -95,7 +86,6 @@
 #undef  CONFIG_SYS_DIRECT_FLASH_TFTP
 
 /* ENV setting */
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_OVERWRITE	1
 #define CONFIG_ENV_SECT_SIZE	(128 * 1024)
 #define CONFIG_ENV_SIZE		(CONFIG_ENV_SECT_SIZE)

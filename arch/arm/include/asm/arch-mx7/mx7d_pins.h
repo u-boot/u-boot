@@ -7,7 +7,7 @@
 #ifndef __ASM_ARCH_IMX7D_PINS_H__
 #define __ASM_ARCH_IMX7D_PINS_H__
 
-#include <asm/imx-common/iomux-v3.h>
+#include <asm/mach-imx/iomux-v3.h>
 
 enum {
 	MX7D_PAD_GPIO1_IO00__GPIO1_IO0                           = IOMUX_PAD(0x0030, 0x0000, IOMUX_CONFIG_LPSR | 0, 0x0000, 0, 0),

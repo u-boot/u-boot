@@ -28,7 +28,7 @@ config SPL_PMIC_CHILDREN
 	This allows PMICs to support child devices (such as regulators) in
 	SPL. This adds quite a bit of code so if you are not using this
 	feature you can turn it off. In this case you may need a 'back door'
-	to call your regulator code (e.g. see rk808.c for direct functions
+	to call your regulator code (e.g. see rk8xx.c for direct functions
 	for use in SPL).
 
 config PMIC_ACT8846
@@ -39,6 +39,14 @@ config PMIC_ACT8846
 	regulators (LDOs). It also provides some GPIO, reset and battery
 	functions. It uses an I2C interface and is designed for use with
 	tablets and smartphones.
+
+config PMIC_AS3722
+	bool "Enable support for the Austria Micro Systems (AMS) AS7322 PMIC"
+	help
+	  The AS3722 includes 7 DC/DC buck convertors, 11 low-noise LDOs, a
+	  real-time clock, GPIOs, ADC and a few other features. It uses an I2C
+	  interface and is designs to cover most of the power managementment
+	  required for a tablets or laptop.
 
 config DM_PMIC_PFUZE100
 	bool "Enable Driver Model for PMIC PFUZE100"
@@ -61,6 +69,21 @@ config DM_PMIC_MAX8998
 	This config enables implementation of driver-model pmic uclass features
 	for PMIC MAX8998. The driver implements read/write operations.
 
+config PMIC_MAX8997
+	bool "Enable Driver Model for PMIC MAX8997"
+	depends on DM_PMIC
+	---help---
+	This config enables implementation of driver-model pmic uclass features
+	for PMIC MAX8997. The driver implements read/write operations.
+	This is a Power Management IC with RTC, Fuel Gauge, MUIC control on Chip.
+	- 21x LDOs
+	- 12x GPIOs
+	- Haptic Motor driver
+	- RTC with two alarms
+	- Fueal Gauge and One backup battery charger
+	- MUIC
+	- Others
+
 config PMIC_PM8916
 	bool "Enable Driver Model for Qualcomm PM8916 PMIC"
 	depends on DM_PMIC
@@ -77,8 +100,8 @@ config PMIC_PM8916
 
 	Driver binding info: doc/device-tree-bindings/pmic/pm8916.txt
 
-config PMIC_RK808
-	bool "Enable support for Rockchip PMIC RK808"
+config PMIC_RK8XX
+	bool "Enable support for Rockchip PMIC RK8XX"
 	depends on DM_PMIC
 	---help---
 	The Rockchip RK808 PMIC provides four buck DC-DC convertors, 8 LDOs,
@@ -164,3 +187,25 @@ config PMIC_LP873X
 	---help---
 	The LP873X is a PMIC containing couple of LDOs and couple of SMPS.
 	This driver binds the pmic children.
+
+config PMIC_LP87565
+	bool "Enable driver for Texas Instruments LP87565 PMIC"
+	depends on DM_PMIC
+	---help---
+	The LP87565 is a PMIC containing a bunch of SMPS.
+	This driver binds the pmic children.
+
+config POWER_MC34VR500
+	bool "Enable driver for Freescale MC34VR500 PMIC"
+	---help---
+	The MC34VR500 is used in conjunction with the FSL T1 and LS1 series
+	SoC. It provides 4 buck DC-DC convertors and 5 LDOs, and it is accessed
+	via an I2C interface.
+
+config DM_PMIC_TPS65910
+	bool "Enable driver for Texas Instruments TPS65910 PMIC"
+	depends on DM_PMIC
+	---help---
+	The TPS65910 is a PMIC containing 3 buck DC-DC converters, one boost
+	DC-DC converter, 8 LDOs and a RTC. This driver binds the SMPS and LDO
+	pmic children.

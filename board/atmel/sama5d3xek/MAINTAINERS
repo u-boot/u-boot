@@ -6,3 +6,6 @@ F:	include/configs/sama5d3xek.h
 F:	configs/sama5d3xek_mmc_defconfig
 F:	configs/sama5d3xek_nandflash_defconfig
 F:	configs/sama5d3xek_spiflash_defconfig
+F:	configs/sama5d36ek_cmp_mmc_defconfig
+F:	configs/sama5d36ek_cmp_nandflash_defconfig
+F:	configs/sama5d36ek_cmp_spiflash_defconfig

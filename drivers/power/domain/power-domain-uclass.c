@@ -6,7 +6,6 @@
 
 #include <common.h>
 #include <dm.h>
-#include <fdtdec.h>
 #include <power-domain.h>
 #include <power-domain-uclass.h>
 
@@ -18,7 +17,7 @@ static inline struct power_domain_ops *power_domain_dev_ops(struct udevice *dev)
 }
 
 static int power_domain_of_xlate_default(struct power_domain *power_domain,
-				       struct fdtdec_phandle_args *args)
+					 struct ofnode_phandle_args *args)
 {
 	debug("%s(power_domain=%p)\n", __func__, power_domain);
 
@@ -34,27 +33,25 @@ static int power_domain_of_xlate_default(struct power_domain *power_domain,
 
 int power_domain_get(struct udevice *dev, struct power_domain *power_domain)
 {
-	struct fdtdec_phandle_args args;
+	struct ofnode_phandle_args args;
 	int ret;
 	struct udevice *dev_power_domain;
 	struct power_domain_ops *ops;
 
 	debug("%s(dev=%p, power_domain=%p)\n", __func__, dev, power_domain);
 
-	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev->of_offset,
-					     "power-domains",
-					     "#power-domain-cells", 0, 0,
-					     &args);
+	ret = dev_read_phandle_with_args(dev, "power-domains",
+					 "#power-domain-cells", 0, 0, &args);
 	if (ret) {
-		debug("%s: fdtdec_parse_phandle_with_args failed: %d\n",
+		debug("%s: dev_read_phandle_with_args failed: %d\n",
 		      __func__, ret);
 		return ret;
 	}
 
-	ret = uclass_get_device_by_of_offset(UCLASS_POWER_DOMAIN, args.node,
-					     &dev_power_domain);
+	ret = uclass_get_device_by_ofnode(UCLASS_POWER_DOMAIN, args.node,
+					  &dev_power_domain);
 	if (ret) {
-		debug("%s: uclass_get_device_by_of_offset failed: %d\n",
+		debug("%s: uclass_get_device_by_ofnode failed: %d\n",
 		      __func__, ret);
 		return ret;
 	}

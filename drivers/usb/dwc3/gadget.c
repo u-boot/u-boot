@@ -23,7 +23,6 @@
 
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
-#include <asm/arch/sys_proto.h>
 
 #include "core.h"
 #include "gadget.h"
@@ -245,7 +244,7 @@ void dwc3_gadget_giveback(struct dwc3_ep *dep, struct dwc3_request *req,
 
 	list_del(&req->list);
 	req->trb = NULL;
-	dwc3_flush_cache((long)req->request.dma, req->request.length);
+	dwc3_flush_cache((uintptr_t)req->request.dma, req->request.length);
 
 	if (req->request.status == -EINPROGRESS)
 		req->request.status = status;
@@ -772,8 +771,8 @@ static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
 
 	trb->ctrl |= DWC3_TRB_CTRL_HWO;
 
-	dwc3_flush_cache((long)dma, length);
-	dwc3_flush_cache((long)trb, sizeof(*trb));
+	dwc3_flush_cache((uintptr_t)dma, length);
+	dwc3_flush_cache((uintptr_t)trb, sizeof(*trb));
 }
 
 /*
@@ -1770,7 +1769,7 @@ static int dwc3_cleanup_done_reqs(struct dwc3 *dwc, struct dwc3_ep *dep,
 	slot %= DWC3_TRB_NUM;
 	trb = &dep->trb_pool[slot];
 
-	dwc3_flush_cache((long)trb, sizeof(*trb));
+	dwc3_flush_cache((uintptr_t)trb, sizeof(*trb));
 	__dwc3_cleanup_done_trbs(dwc, dep, req, trb, event, status);
 	dwc3_gadget_giveback(dep, req, status);
 
@@ -2669,11 +2668,12 @@ void dwc3_gadget_uboot_handle_interrupt(struct dwc3 *dwc)
 		int i;
 		struct dwc3_event_buffer *evt;
 
+		dwc3_thread_interrupt(0, dwc);
+
+		/* Clean + Invalidate the buffers after touching them */
 		for (i = 0; i < dwc->num_event_buffers; i++) {
 			evt = dwc->ev_buffs[i];
-			dwc3_flush_cache((long)evt->buf, evt->length);
+			dwc3_flush_cache((uintptr_t)evt->buf, evt->length);
 		}
-
-		dwc3_thread_interrupt(0, dwc);
 	}
 }

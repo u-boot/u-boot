@@ -110,6 +110,7 @@ define filechk_config_h
 	echo \#include \<config_uncmd_spl.h\>;				\
 	echo \#include \<configs/$(CONFIG_SYS_CONFIG_NAME).h\>;		\
 	echo \#include \<asm/config.h\>;				\
+	echo \#include \<linux/kconfig.h\>;				\
 	echo \#include \<config_fallbacks.h\>;)
 endef
 

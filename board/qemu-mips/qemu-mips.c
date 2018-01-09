@@ -11,11 +11,15 @@
 #include <asm/io.h>
 #include <netdev.h>
 
-phys_size_t initdram(int board_type)
+DECLARE_GLOBAL_DATA_PTR;
+
+int dram_init(void)
 {
 	/* Sdram is setup by assembler code */
 	/* If memory could be changed, we should return the true value here */
-	return MEM_SIZE*1024*1024;
+	gd->ram_size = MEM_SIZE * 1024 * 1024;
+
+	return 0;
 }
 
 int checkboard(void)

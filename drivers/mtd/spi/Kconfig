@@ -42,6 +42,19 @@ config SPI_FLASH_BAR
 	  Bank/Extended address registers are used to access the flash
 	  which has size > 16MiB in 3-byte addressing.
 
+config SF_DUAL_FLASH
+	bool "SPI DUAL flash memory support"
+	depends on SPI_FLASH
+	help
+	  Enable this option to support two flash memories connected to a single
+	  controller. Currently Xilinx Zynq qspi supports this.
+
+config SPI_GENERIC
+	bool "SPI flash support"
+	depends on ARCH_ZYNQMP
+	help
+	  Enable the generic SPI flash controller support.
+
 if SPI_FLASH
 
 config SPI_FLASH_ATMEL
@@ -137,7 +150,8 @@ if SPL
 
 config SPL_SPI_SUNXI
 	bool "Support for SPI Flash on Allwinner SoCs in SPL"
-	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I || MACH_SUN8I_H3 || MACH_SUN50I
+	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I || MACH_SUNXI_H3_H5 || MACH_SUN50I
+	select SPL_SPI_FLASH_SUPPORT
 	---help---
 	Enable support for SPI Flash. This option allows SPL to read from
 	sunxi SPI Flash. It uses the same method as the boot ROM, so does

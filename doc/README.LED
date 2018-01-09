@@ -5,48 +5,48 @@ This README describes the status LED API.
 
 The API is defined by the include file include/status_led.h
 
-The first step is to define CONFIG_STATUS_LED in the board config file.
+The first step is to enable CONFIG_LED_STATUS in menuconfig:
+> Device Drivers > LED Support.
 
-If the LED support is only for a single board, define CONFIG_BOARD_SPECIFIC_LED
-in the board config file.
+If the LED support is only for specific board, enable
+CONFIG_LED_STATUS_BOARD_SPECIFIC in the menuconfig.
 
-At a minimum, these macros must be defined at
-STATUS_LED_BIT
-STATUS_LED_STATE
-STATUS_LED_PERIOD
+Status LEDS 0 to 5 are enabled by the following configurations at menuconfig:
+CONFIG_STATUS_LED0, CONFIG_STATUS_LED1, ... CONFIG_STATUS_LED5
 
-If there are multiple status LED's define
-STATUS_LED_BIT<n>
-STATUS_LED_STATE<n>
-STATUS_LED_PERIOD<n>
+The following should be configured for each of the enabled LEDs:
+CONFIG_STATUS_LED_BIT<n>
+CONFIG_STATUS_LED_STATE<n>
+CONFIG_STATUS_LED_FREQ<n>
+Where <n> is an integer 1 through 5 (empty for 0).
 
-Where <n> can a integer 1 through 3.
-
-STATUS_LED_BIT is passed into the __led_* functions to identify which LED is
-being acted on.  As such, the value choose must be unique with with respect to
-the other STATUS_LED_BIT's.  Mapping the value to a physical LED is the
+CONFIG_STATUS_LED_BIT is passed into the __led_* functions to identify which LED
+is being acted on. As such, the value choose must be unique with with respect to
+the other CONFIG_STATUS_LED_BIT's. Mapping the value to a physical LED is the
 reponsiblity of the __led_* function.
 
-STATUS_LED_STATE is the initial state of the LED. It should be set to one of
-these values: STATUS_LED_OFF or STATUS_LED_ON.
+CONFIG_STATUS_LED_STATE is the initial state of the LED. It should be set to one
+of these values: CONFIG_LED_STATUS_OFF or CONFIG_LED_STATUS_ON.
 
-STATUS_LED_PERIOD is how long is the LED blink period.  This usually set to
-(CONFIG_SYS_HZ / <N>) where <N> is the frequency of the blink. Typical values
-range from 2 to 10.
+CONFIG_STATUS_LED_FREQ determines the LED blink frequency.
+Values range from 2 to 10.
 
 Some other LED macros
+---------------------
 
-STATUS_LED_BOOT is the LED to light when the board is booting.  This must be a
-valid STATUS_LED_BIT value.
+CONFIG_STATUS_LED_BOOT is the LED to light when the board is booting.
+This must be a valid LED number (0-5).
 
-STATUS_LED_RED is the red LED.  It is used signal errors. This must be a valid
-STATUS_LED_BIT value. Other similar color LED's are STATUS_LED_YELLOW and
-STATUS_LED_BLUE.
+CONFIG_STATUS_LED_RED is the red LED. It is used to signal errors. This must be
+a valid LED number (0-5). Other similar color LED's macros are
+CONFIG_STATUS_LED_GREEN, CONFIG_STATUS_LED_YELLOW and CONFIG_STATUS_LED_BLUE.
 
-These board must define these functions
+General LED functions
+---------------------
+The following functions should be defined:
 
-__led_init is called once to initialize the LED to STATUS_LED_STATE. One time
-start up code should be placed here.
+__led_init is called once to initialize the LED to CONFIG_STATUS_LED_STATE.
+One time start up code should be placed here.
 
 __led_set is called to change the state of the LED.
 
@@ -73,6 +73,5 @@ These are weakly defined in arch/arm/lib/board.c to noops. Where applicable, def
 these functions in the board specific source.
 
 TBD : Describe older board dependent macros similar to what is done for
-CONFIG_TQM8xxL.
 
 TBD : Describe general support via asm/status_led.h

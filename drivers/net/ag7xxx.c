@@ -26,6 +26,7 @@ enum ag7xxx_model {
 	AG7XXX_MODEL_AG934X,
 };
 
+/* MAC Configuration 1 */
 #define AG7XXX_ETH_CFG1				0x00
 #define AG7XXX_ETH_CFG1_SOFT_RST		BIT(31)
 #define AG7XXX_ETH_CFG1_RX_RST			BIT(19)
@@ -34,6 +35,7 @@ enum ag7xxx_model {
 #define AG7XXX_ETH_CFG1_RX_EN			BIT(2)
 #define AG7XXX_ETH_CFG1_TX_EN			BIT(0)
 
+/* MAC Configuration 2 */
 #define AG7XXX_ETH_CFG2				0x04
 #define AG7XXX_ETH_CFG2_IF_1000			BIT(9)
 #define AG7XXX_ETH_CFG2_IF_10_100		BIT(8)
@@ -43,26 +45,34 @@ enum ag7xxx_model {
 #define AG7XXX_ETH_CFG2_PAD_CRC_EN		BIT(2)
 #define AG7XXX_ETH_CFG2_FDX			BIT(0)
 
+/* MII Configuration */
 #define AG7XXX_ETH_MII_MGMT_CFG			0x20
 #define AG7XXX_ETH_MII_MGMT_CFG_RESET		BIT(31)
 
+/* MII Command */
 #define AG7XXX_ETH_MII_MGMT_CMD			0x24
 #define AG7XXX_ETH_MII_MGMT_CMD_READ		0x1
 
+/* MII Address */
 #define AG7XXX_ETH_MII_MGMT_ADDRESS		0x28
 #define AG7XXX_ETH_MII_MGMT_ADDRESS_SHIFT	8
 
+/* MII Control */
 #define AG7XXX_ETH_MII_MGMT_CTRL		0x2c
 
+/* MII Status */
 #define AG7XXX_ETH_MII_MGMT_STATUS		0x30
 
+/* MII Indicators */
 #define AG7XXX_ETH_MII_MGMT_IND			0x34
 #define AG7XXX_ETH_MII_MGMT_IND_INVALID		BIT(2)
 #define AG7XXX_ETH_MII_MGMT_IND_BUSY		BIT(0)
 
+/* STA Address 1 & 2 */
 #define AG7XXX_ETH_ADDR1			0x40
 #define AG7XXX_ETH_ADDR2			0x44
 
+/* ETH Configuration 0 - 5 */
 #define AG7XXX_ETH_FIFO_CFG_0			0x48
 #define AG7XXX_ETH_FIFO_CFG_1			0x4c
 #define AG7XXX_ETH_FIFO_CFG_2			0x50
@@ -70,18 +80,24 @@ enum ag7xxx_model {
 #define AG7XXX_ETH_FIFO_CFG_4			0x58
 #define AG7XXX_ETH_FIFO_CFG_5			0x5c
 
+/* DMA Transfer Control for Queue 0 */
 #define AG7XXX_ETH_DMA_TX_CTRL			0x180
 #define AG7XXX_ETH_DMA_TX_CTRL_TXE		BIT(0)
 
+/* Descriptor Address for Queue 0 Tx */
 #define AG7XXX_ETH_DMA_TX_DESC			0x184
 
+/* DMA Tx Status */
 #define AG7XXX_ETH_DMA_TX_STATUS		0x188
 
+/* Rx Control */
 #define AG7XXX_ETH_DMA_RX_CTRL			0x18c
 #define AG7XXX_ETH_DMA_RX_CTRL_RXE		BIT(0)
 
+/* Pointer to Rx Descriptor */
 #define AG7XXX_ETH_DMA_RX_DESC			0x190
 
+/* Rx Status */
 #define AG7XXX_ETH_DMA_RX_STATUS		0x194
 
 /* Custom register at 0x18070000 */
@@ -269,18 +285,33 @@ static int ag7xxx_switch_reg_write(struct mii_dev *bus, int reg, u32 val)
 	return 0;
 }
 
-static u16 ag7xxx_mdio_rw(struct mii_dev *bus, int addr, int reg, u32 val)
+static int ag7xxx_mdio_rw(struct mii_dev *bus, int addr, int reg, u32 val)
 {
 	u32 data;
+	unsigned long start;
+	int ret;
+	/* No idea if this is long enough or too long */
+	int timeout_ms = 1000;
 
 	/* Dummy read followed by PHY read/write command. */
-	ag7xxx_switch_reg_read(bus, 0x98, &data);
+	ret = ag7xxx_switch_reg_read(bus, 0x98, &data);
+	if (ret < 0)
+		return ret;
 	data = val | (reg << 16) | (addr << 21) | BIT(30) | BIT(31);
-	ag7xxx_switch_reg_write(bus, 0x98, data);
+	ret = ag7xxx_switch_reg_write(bus, 0x98, data);
+	if (ret < 0)
+		return ret;
+
+	start = get_timer(0);
 
 	/* Wait for operation to finish */
 	do {
-		ag7xxx_switch_reg_read(bus, 0x98, &data);
+		ret = ag7xxx_switch_reg_read(bus, 0x98, &data);
+		if (ret < 0)
+			return ret;
+
+		if (get_timer(start) > timeout_ms)
+			return -ETIMEDOUT;
 	} while (data & BIT(31));
 
 	return data & 0xffff;
@@ -294,7 +325,11 @@ static int ag7xxx_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 static int ag7xxx_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 			     u16 val)
 {
-	ag7xxx_mdio_rw(bus, addr, reg, val);
+	int ret;
+
+	ret = ag7xxx_mdio_rw(bus, addr, reg, val);
+	if (ret < 0)
+		return ret;
 	return 0;
 }
 
@@ -857,7 +892,7 @@ static int ag7xxx_get_phy_iface_offset(struct udevice *dev)
 {
 	int offset;
 
-	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev->of_offset, "phy");
+	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev_of_offset(dev), "phy");
 	if (offset <= 0) {
 		debug("%s: PHY OF node not found (ret=%i)\n", __func__, offset);
 		return -EINVAL;
@@ -941,7 +976,7 @@ static int ag7xxx_eth_ofdata_to_platdata(struct udevice *dev)
 	const char *phy_mode;
 	int ret;
 
-	pdata->iobase = dev_get_addr(dev);
+	pdata->iobase = devfdt_get_addr(dev);
 	pdata->phy_interface = -1;
 
 	/* Decoding of convoluted PHY wiring on Atheros MIPS. */

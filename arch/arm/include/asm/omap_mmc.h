@@ -25,10 +25,9 @@
 #ifndef OMAP_MMC_H_
 #define OMAP_MMC_H_
 
+#include <mmc.h>
+
 struct hsmmc {
-#ifdef CONFIG_DM_MMC
-	unsigned char res0[0x100];
-#endif
 	unsigned char res1[0x10];
 	unsigned int sysconfig;		/* 0x10 */
 	unsigned int sysstatus;		/* 0x14 */
@@ -50,6 +49,13 @@ struct hsmmc {
 	unsigned int ie;		/* 0x134 */
 	unsigned char res4[0x8];
 	unsigned int capa;		/* 0x140 */
+};
+
+struct omap_hsmmc_plat {
+	struct mmc_config cfg;
+	struct hsmmc *base_addr;
+	struct mmc mmc;
+	bool cd_inverted;
 };
 
 /*
@@ -168,4 +174,5 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 		int wp_gpio);
 
 void vmmc_pbias_config(uint voltage);
+void board_mmc_poweron_ldo(uint voltage);
 #endif /* OMAP_MMC_H_ */

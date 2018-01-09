@@ -9,18 +9,18 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/arch/litesom.h>
 #include <asm/arch/mx6ul_pins.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/boot_mode.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/boot_mode.h>
 #include <asm/io.h>
 #include <common.h>
 #include <fsl_esdhc.h>
 #include <linux/sizes.h>
 #include <linux/fb.h>
-#include <mach/litesom.h>
 #include <miiphy.h>
 #include <mmc.h>
 #include <netdev.h>
@@ -149,7 +149,7 @@ int board_mmc_init(bd_t *bis)
 
 static int check_mmc_autodetect(void)
 {
-	char *autodetect_str = getenv("mmcautodetect");
+	char *autodetect_str = env_get("mmcautodetect");
 
 	if ((autodetect_str != NULL) &&
 	    (strcmp(autodetect_str, "yes") == 0)) {
@@ -168,12 +168,12 @@ void board_late_mmc_init(void)
 	if (!check_mmc_autodetect())
 		return;
 
-	setenv_ulong("mmcdev", dev_no);
+	env_set_ulong("mmcdev", dev_no);
 
 	/* Set mmcblk env */
 	sprintf(mmcblk, "/dev/mmcblk%dp2 rootwait rw",
 		dev_no);
-	setenv("mmcroot", mmcblk);
+	env_set("mmcroot", mmcblk);
 
 	sprintf(cmd, "mmc dev %d", dev_no);
 	run_command(cmd, 0);

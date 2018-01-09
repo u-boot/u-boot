@@ -87,8 +87,10 @@
 #define DEVADD8		0xE0
 #define DEVADD9		0xE2
 #define DEVADDA		0xE4
+#define SUSPMODE0	0x102	/* RZ/A only */
 
 /* System Configuration Control Register */
+#if !defined(CONFIG_RZA_USB)
 #define	XTAL		0xC000	/* b15-14: Crystal selection */
 #define	  XTAL48	 0x8000	  /* 48MHz */
 #define	  XTAL24	 0x4000	  /* 24MHz */
@@ -98,10 +100,17 @@
 #define	SCKE		0x0400	/* b10: USB clock enable */
 #define	PCSDIS		0x0200	/* b9: not CS wakeup */
 #define	LPSME		0x0100	/* b8: Low power sleep mode */
+#endif
 #define	HSE		0x0080	/* b7: Hi-speed enable */
 #define	DCFM		0x0040	/* b6: Controller function select  */
 #define	DRPD		0x0020	/* b5: D+/- pull down control */
 #define	DPRPU		0x0010	/* b4: D+ pull up control */
+#if defined(CONFIG_RZA_USB)
+#define	XTAL		0x0004	/* b2: Crystal selection */
+#define	  XTAL12	 0x0004	  /* 12MHz */
+#define	  XTAL48	 0x0000	  /* 48MHz */
+#define	UPLLE		0x0002	/* b1: internal PLL control */
+#endif
 #define	USBE		0x0001	/* b0: USB module operation enable */
 
 /* System Configuration Status Register */
@@ -173,10 +182,15 @@
 #if defined(CONFIG_SUPERH_ON_CHIP_R8A66597)
 #define	MBW		0x0800
 #else
+#if !defined(CONFIG_RZA_USB)
 #define	MBW		0x0400	/* b10: Maximum bit width for FIFO access */
+#else
+#define	MBW		0x0800	/* b10: Maximum bit width for FIFO access */
+#endif
 #endif
 #define	  MBW_8		 0x0000	  /*  8bit */
 #define	  MBW_16	 0x0400	  /* 16bit */
+#define	  MBW_32	 0x0800   /* 32bit */
 #define	BIGEND		0x0100	/* b8: Big endian mode */
 #define	  BYTE_LITTLE	 0x0000		/* little dendian */
 #define	  BYTE_BIG	 0x0100		/* big endifan */
@@ -379,6 +393,9 @@
 #define	USBSPD		0x00C0
 #define	RTPORT		0x0001
 
+/* Suspend Mode Register */
+#define SUSPM		0x4000 /* b14: Suspend */
+
 #define R8A66597_MAX_NUM_PIPE		10
 #define R8A66597_BUF_BSIZE		8
 #define R8A66597_MAX_DEVICE		10
@@ -419,7 +436,7 @@ static inline void r8a66597_read_fifo(struct r8a66597 *r8a66597,
 				      int len)
 {
 	int i;
-#if defined(CONFIG_SUPERH_ON_CHIP_R8A66597)
+#if defined(CONFIG_SUPERH_ON_CHIP_R8A66597) || defined(CONFIG_RZA_USB)
 	unsigned long fifoaddr = r8a66597->reg + offset;
 	unsigned long count;
 	unsigned long *p = buf;
@@ -453,7 +470,7 @@ static inline void r8a66597_write_fifo(struct r8a66597 *r8a66597,
 {
 	int i;
 	unsigned long fifoaddr = r8a66597->reg + offset;
-#if defined(CONFIG_SUPERH_ON_CHIP_R8A66597)
+#if defined(CONFIG_SUPERH_ON_CHIP_R8A66597) || defined(CONFIG_RZA_USB)
 	unsigned long count;
 	unsigned char *pb;
 	unsigned long *p = buf;

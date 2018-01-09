@@ -42,6 +42,18 @@ void console_record_reset(void);
  */
 void console_record_reset_enable(void);
 
+/**
+ * console_announce_r() - print a U-Boot console on non-serial consoles
+ *
+ * When U-Boot starts up with a display it generally does not announce itself
+ * on the display. The banner is instead emitted on the UART before relocation.
+ * This function prints a banner on devices which (we assume) did not receive
+ * it before relocation.
+ *
+ * @return 0 (meaning no errors)
+ */
+int console_announce_r(void);
+
 /*
  * CONSOLE multiplexing.
  */

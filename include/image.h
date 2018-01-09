@@ -29,6 +29,9 @@ struct lmb;
 #define IMAGE_ENABLE_FIT	1
 #define IMAGE_ENABLE_OF_LIBFDT	1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
+#define CONFIG_FIT_ENABLE_SHA256_SUPPORT
+#define CONFIG_SHA1
+#define CONFIG_SHA256
 
 #define IMAGE_ENABLE_IGNORE	0
 #define IMAGE_INDENT_STRING	""
@@ -62,24 +65,12 @@ struct lmb;
 #  ifdef CONFIG_SPL_SHA1_SUPPORT
 #   define IMAGE_ENABLE_SHA1	1
 #  endif
-#  ifdef CONFIG_SPL_SHA256_SUPPORT
-#   define IMAGE_ENABLE_SHA256	1
-#  endif
 # else
 #  define CONFIG_CRC32		/* FIT images need CRC32 support */
-#  define CONFIG_MD5		/* and MD5 */
-#  define CONFIG_SHA1		/* and SHA1 */
-#  define CONFIG_SHA256		/* and SHA256 */
 #  define IMAGE_ENABLE_CRC32	1
 #  define IMAGE_ENABLE_MD5	1
 #  define IMAGE_ENABLE_SHA1	1
-#  define IMAGE_ENABLE_SHA256	1
 # endif
-
-#ifdef CONFIG_FIT_DISABLE_SHA256
-#undef CONFIG_SHA256
-#undef IMAGE_ENABLE_SHA256
-#endif
 
 #ifndef IMAGE_ENABLE_CRC32
 #define IMAGE_ENABLE_CRC32	0
@@ -93,17 +84,14 @@ struct lmb;
 #define IMAGE_ENABLE_SHA1	0
 #endif
 
-#ifndef IMAGE_ENABLE_SHA256
+#if defined(CONFIG_FIT_ENABLE_SHA256_SUPPORT) || \
+	defined(CONFIG_SPL_SHA256_SUPPORT)
+#define IMAGE_ENABLE_SHA256	1
+#else
 #define IMAGE_ENABLE_SHA256	0
 #endif
 
 #endif /* IMAGE_ENABLE_FIT */
-
-#ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
-# define IMAGE_ENABLE_RAMDISK_HIGH	1
-#else
-# define IMAGE_ENABLE_RAMDISK_HIGH	0
-#endif
 
 #ifdef CONFIG_SYS_BOOT_GET_CMDLINE
 # define IMAGE_BOOT_GET_CMDLINE		1
@@ -164,6 +152,7 @@ enum {
 	IH_OS_OSE,			/* OSE		*/
 	IH_OS_PLAN9,			/* Plan 9	*/
 	IH_OS_OPENRTOS,		/* OpenRTOS	*/
+	IH_OS_ARM_TRUSTED_FIRMWARE,     /* ARM Trusted Firmware */
 
 	IH_OS_COUNT,
 };
@@ -281,6 +270,7 @@ enum {
 	IH_TYPE_VYBRIDIMAGE,	/* VYBRID .vyb Image */
 	IH_TYPE_TEE,            /* Trusted Execution Environment OS Image */
 	IH_TYPE_FIRMWARE_IVT,		/* Firmware Image with HABv4 IVT */
+	IH_TYPE_PMMC,            /* TI Power Management Micro-Controller Firmware */
 
 	IH_TYPE_COUNT,			/* Number of image types */
 };
@@ -385,7 +375,7 @@ typedef struct bootm_headers {
 	bd_t		*kbd;
 #endif
 
-	int		verify;		/* getenv("verify")[0] != 'n' */
+	int		verify;		/* env_get("verify")[0] != 'n' */
 
 #define	BOOTM_STATE_START	(0x00000001)
 #define	BOOTM_STATE_FINDOS	(0x00000002)
@@ -569,7 +559,6 @@ ulong genimg_get_kernel_addr_fit(char * const img_addr,
 ulong genimg_get_kernel_addr(char * const img_addr);
 int genimg_get_format(const void *img_addr);
 int genimg_has_config(bootm_headers_t *images);
-ulong genimg_get_image(ulong img_addr);
 
 int boot_get_fpga(int argc, char * const argv[], bootm_headers_t *images,
 		uint8_t arch, const ulong *ld_start, ulong * const ld_len);
@@ -603,6 +592,31 @@ int boot_get_loadable(int argc, char * const argv[], bootm_headers_t *images,
 
 int boot_get_setup_fit(bootm_headers_t *images, uint8_t arch,
 		       ulong *setup_start, ulong *setup_len);
+
+/**
+ * boot_get_fdt_fit() - load a DTB from a FIT file (applying overlays)
+ *
+ * This deals with all aspects of loading an DTB from a FIT.
+ * The correct base image based on configuration will be selected, and
+ * then any overlays specified will be applied (as present in fit_uname_configp).
+ *
+ * @param images	Boot images structure
+ * @param addr		Address of FIT in memory
+ * @param fit_unamep	On entry this is the requested image name
+ *			(e.g. "kernel@1") or NULL to use the default. On exit
+ *			points to the selected image name
+ * @param fit_uname_configp	On entry this is the requested configuration
+ *			name (e.g. "conf@1") or NULL to use the default. On
+ *			exit points to the selected configuration name.
+ * @param arch		Expected architecture (IH_ARCH_...)
+ * @param datap		Returns address of loaded image
+ * @param lenp		Returns length of loaded image
+ *
+ * @return node offset of base image, or -ve error code on error
+ */
+int boot_get_fdt_fit(bootm_headers_t *images, ulong addr,
+		   const char **fit_unamep, const char **fit_uname_configp,
+		   int arch, ulong *datap, ulong *lenp);
 
 /**
  * fit_image_load() - load an image from a FIT
@@ -781,9 +795,9 @@ static inline void image_set_name(image_header_t *hdr, const char *name)
 int image_check_hcrc(const image_header_t *hdr);
 int image_check_dcrc(const image_header_t *hdr);
 #ifndef USE_HOSTCC
-ulong getenv_bootm_low(void);
-phys_size_t getenv_bootm_size(void);
-phys_size_t getenv_bootm_mapsize(void);
+ulong env_get_bootm_low(void);
+phys_size_t env_get_bootm_size(void);
+phys_size_t env_get_bootm_mapsize(void);
 #endif
 void memmove_wd(void *to, void *from, size_t len, ulong chunksz);
 
@@ -797,7 +811,8 @@ static inline int image_check_type(const image_header_t *hdr, uint8_t type)
 }
 static inline int image_check_arch(const image_header_t *hdr, uint8_t arch)
 {
-	return (image_get_arch(hdr) == arch);
+	return (image_get_arch(hdr) == arch) ||
+		(image_get_arch(hdr) == IH_ARCH_ARM && arch == IH_ARCH_ARM64);
 }
 static inline int image_check_os(const image_header_t *hdr, uint8_t os)
 {
@@ -872,6 +887,9 @@ int bootz_setup(ulong image, ulong *start, ulong *end);
 
 /* image node */
 #define FIT_DATA_PROP		"data"
+#define FIT_DATA_POSITION_PROP	"data-position"
+#define FIT_DATA_OFFSET_PROP	"data-offset"
+#define FIT_DATA_SIZE_PROP	"data-size"
 #define FIT_TIMESTAMP_PROP	"timestamp"
 #define FIT_DESC_PROP		"description"
 #define FIT_ARCH_PROP		"arch"
@@ -950,6 +968,10 @@ int fit_image_get_load(const void *fit, int noffset, ulong *load);
 int fit_image_get_entry(const void *fit, int noffset, ulong *entry);
 int fit_image_get_data(const void *fit, int noffset,
 				const void **data, size_t *size);
+int fit_image_get_data_offset(const void *fit, int noffset, int *data_offset);
+int fit_image_get_data_position(const void *fit, int noffset,
+				int *data_position);
+int fit_image_get_data_size(const void *fit, int noffset, int *data_size);
 
 int fit_image_hash_get_algo(const void *fit, int noffset, char **algo);
 int fit_image_hash_get_value(const void *fit, int noffset, uint8_t **value,
@@ -965,6 +987,7 @@ int fit_set_timestamp(void *fit, int noffset, time_t timestamp);
  * @fit:	Pointer to the FIT format image header
  * @comment:	Comment to add to signature nodes
  * @require_keys: Mark all keys as 'required'
+ * @engine_id:	Engine to use for signing
  *
  * Adds hash values for all component images in the FIT blob.
  * Hashes are calculated for all component images which have hash subnodes
@@ -977,7 +1000,8 @@ int fit_set_timestamp(void *fit, int noffset, time_t timestamp);
  *     libfdt error code, on failure
  */
 int fit_add_verification_data(const char *keydir, void *keydest, void *fit,
-			      const char *comment, int require_keys);
+			      const char *comment, int require_keys,
+			      const char *engine_id);
 
 int fit_image_verify(const void *fit, int noffset);
 int fit_config_verify(const void *fit, int conf_noffset);
@@ -1057,6 +1081,7 @@ struct image_sign_info {
 	const void *fdt_blob;		/* FDT containing public keys */
 	int required_keynode;		/* Node offset of key to use: -1=any */
 	const char *require_keys;	/* Value for 'required' property */
+	const char *engine_id;		/* Engine to use for signing */
 };
 #endif /* Allow struct image_region to always be defined for rsa.h */
 
@@ -1256,7 +1281,8 @@ void android_print_contents(const struct andr_img_hdr *hdr);
  */
 int board_fit_config_name_match(const char *name);
 
-#ifdef CONFIG_SPL_FIT_IMAGE_POST_PROCESS
+#if defined(CONFIG_SPL_FIT_IMAGE_POST_PROCESS) || \
+	defined(CONFIG_FIT_IMAGE_POST_PROCESS)
 /**
  * board_fit_image_post_process() - Do any post-process on FIT binary data
  *
@@ -1272,6 +1298,24 @@ int board_fit_config_name_match(const char *name);
  */
 void board_fit_image_post_process(void **p_image, size_t *p_size);
 #endif /* CONFIG_SPL_FIT_IMAGE_POST_PROCESS */
+
+#define FDT_ERROR	((ulong)(-1))
+
+ulong fdt_getprop_u32(const void *fdt, int node, const char *prop);
+
+/**
+ * fit_find_config_node() - Find the node for the best DTB in a FIT image
+ *
+ * A FIT image contains one or more DTBs. This function parses the
+ * configurations described in the FIT images and returns the node of
+ * the first matching DTB. To check if a DTB matches a board, this function
+ * calls board_fit_config_name_match(). If no matching DTB is found, it returns
+ * the node described by the default configuration if it exists.
+ *
+ * @fdt: pointer to flat device tree
+ * @return the node if found, -ve otherwise
+ */
+int fit_find_config_node(const void *fdt);
 
 /**
  * Mapping of image types to function handlers to be invoked on the associated

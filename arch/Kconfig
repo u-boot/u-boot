@@ -12,19 +12,16 @@ config ARC
 	bool "ARC architecture"
 	select HAVE_PRIVATE_LIBGCC
 	select SUPPORT_OF_CONTROL
+	select ARCH_EARLY_INIT_R
+	select CLK
+	select TIMER
+	select ARC_TIMER
 
 config ARM
 	bool "ARM architecture"
 	select CREATE_ARCH_SYMLINK
 	select HAVE_PRIVATE_LIBGCC if !ARM64
 	select SUPPORT_OF_CONTROL
-
-config AVR32
-	bool "AVR32 architecture"
-	select CREATE_ARCH_SYMLINK
-
-config BLACKFIN
-	bool "Blackfin architecture"
 
 config M68K
 	bool "M68000 architecture"
@@ -33,6 +30,7 @@ config M68K
 config MICROBLAZE
 	bool "MicroBlaze architecture"
 	select SUPPORT_OF_CONTROL
+	imply CMD_IRQ
 
 config MIPS
 	bool "MIPS architecture"
@@ -42,6 +40,7 @@ config MIPS
 
 config NDS32
 	bool "NDS32 architecture"
+	select SUPPORT_OF_CONTROL
 
 config NIOS2
 	bool "Nios II architecture"
@@ -50,9 +49,6 @@ config NIOS2
 	select DM
 	select CPU
 
-config OPENRISC
-	bool "OpenRISC architecture"
-
 config PPC
 	bool "PowerPC architecture"
 	select HAVE_PRIVATE_LIBGCC
@@ -60,6 +56,7 @@ config PPC
 
 config SANDBOX
 	bool "Sandbox"
+	select BOARD_LATE_INIT
 	select SUPPORT_OF_CONTROL
 	select DM
 	select DM_KEYBOARD
@@ -69,26 +66,58 @@ config SANDBOX
 	select DM_SPI
 	select DM_GPIO
 	select DM_MMC
+	select LZO
+	imply CMD_GETTIME
+	imply CMD_HASH
+	imply CMD_IO
+	imply CMD_IOTRACE
+	imply CMD_LZMADEC
+	imply CRC32_VERIFY
+	imply FAT_WRITE
+	imply HASH_VERIFY
+	imply LZMA
+	imply SCSI
+	imply CMD_SATA
+	imply CMD_SF_TEST
 
 config SH
 	bool "SuperH architecture"
 	select HAVE_PRIVATE_LIBGCC
 
-config SPARC
-	bool "SPARC architecture"
-	select CREATE_ARCH_SYMLINK
-
 config X86
 	bool "x86 architecture"
 	select CREATE_ARCH_SYMLINK
 	select HAVE_PRIVATE_LIBGCC
+	select USE_PRIVATE_LIBGCC
 	select SUPPORT_OF_CONTROL
+	select OF_CONTROL
 	select DM
-	select DM_KEYBOARD
-	select DM_SERIAL
-	select DM_GPIO
-	select DM_SPI
-	select DM_SPI_FLASH
+	select DM_PCI
+	select PCI
+	select TIMER
+	select X86_TSC_TIMER
+	imply BLK
+	imply DM_ETH
+	imply DM_GPIO
+	imply DM_KEYBOARD
+	imply DM_MMC
+	imply DM_RTC
+	imply DM_SERIAL
+	imply DM_SCSI
+	imply DM_SPI
+	imply DM_SPI_FLASH
+	imply DM_USB
+	imply DM_VIDEO
+	imply CMD_FPGA_LOADMK
+	imply CMD_GETTIME
+	imply CMD_IO
+	imply CMD_IRQ
+	imply CMD_PCI
+	imply CMD_SF_TEST
+	imply CMD_ZBOOT
+	imply USB_HOST_ETHER
+	imply USB_ETHER_ASIX
+	imply USB_ETHER_SMSC95XX
 
 config XTENSA
 	bool "Xtensa architecture"
@@ -155,17 +184,13 @@ config SYS_CONFIG_NAME
 
 source "arch/arc/Kconfig"
 source "arch/arm/Kconfig"
-source "arch/avr32/Kconfig"
-source "arch/blackfin/Kconfig"
 source "arch/m68k/Kconfig"
 source "arch/microblaze/Kconfig"
 source "arch/mips/Kconfig"
 source "arch/nds32/Kconfig"
 source "arch/nios2/Kconfig"
-source "arch/openrisc/Kconfig"
 source "arch/powerpc/Kconfig"
 source "arch/sandbox/Kconfig"
 source "arch/sh/Kconfig"
-source "arch/sparc/Kconfig"
 source "arch/x86/Kconfig"
 source "arch/xtensa/Kconfig"

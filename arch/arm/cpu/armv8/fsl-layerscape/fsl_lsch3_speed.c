@@ -26,10 +26,6 @@ DECLARE_GLOBAL_DATA_PTR;
 void get_sys_info(struct sys_info *sys_info)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
-#ifdef CONFIG_FSL_IFC
-	struct fsl_ifc ifc_regs = {(void *)CONFIG_SYS_IFC_ADDR, (void *)NULL};
-	u32 ccr;
-#endif
 	struct ccsr_clk_cluster_group __iomem *clk_grp[2] = {
 		(void *)(CONFIG_SYS_FSL_CH3_CLK_GRPA_ADDR),
 		(void *)(CONFIG_SYS_FSL_CH3_CLK_GRPB_ADDR)
@@ -88,11 +84,10 @@ void get_sys_info(struct sys_info *sys_info)
 #endif
 #endif
 
+	/* The freq_systembus is used to record frequency of platform PLL */
 	sys_info->freq_systembus *= (gur_in32(&gur->rcwsr[0]) >>
 			FSL_CHASSIS3_RCWSR0_SYS_PLL_RAT_SHIFT) &
 			FSL_CHASSIS3_RCWSR0_SYS_PLL_RAT_MASK;
-	/* Platform clock is half of platform PLL */
-	sys_info->freq_systembus /= 2;
 	sys_info->freq_ddrbus *= (gur_in32(&gur->rcwsr[0]) >>
 			FSL_CHASSIS3_RCWSR0_MEM_PLL_RAT_SHIFT) &
 			FSL_CHASSIS3_RCWSR0_MEM_PLL_RAT_MASK;
@@ -129,10 +124,8 @@ void get_sys_info(struct sys_info *sys_info)
 	}
 
 #if defined(CONFIG_FSL_IFC)
-	ccr = ifc_in32(&ifc_regs.gregs->ifc_ccr);
-	ccr = ((ccr & IFC_CCR_CLK_DIV_MASK) >> IFC_CCR_CLK_DIV_SHIFT) + 1;
-
-	sys_info->freq_localbus = sys_info->freq_systembus / ccr;
+	sys_info->freq_localbus = sys_info->freq_systembus /
+						CONFIG_SYS_FSL_IFC_CLK_DIV;
 #endif
 }
 
@@ -142,13 +135,13 @@ int get_clocks(void)
 	struct sys_info sys_info;
 	get_sys_info(&sys_info);
 	gd->cpu_clk = sys_info.freq_processor[0];
-	gd->bus_clk = sys_info.freq_systembus;
+	gd->bus_clk = sys_info.freq_systembus / CONFIG_SYS_FSL_PCLK_DIV;
 	gd->mem_clk = sys_info.freq_ddrbus;
 #ifdef CONFIG_SYS_FSL_HAS_DP_DDR
 	gd->arch.mem2_clk = sys_info.freq_ddrbus2;
 #endif
 #if defined(CONFIG_FSL_ESDHC)
-	gd->arch.sdhc_clk = gd->bus_clk / 2;
+	gd->arch.sdhc_clk = gd->bus_clk / CONFIG_SYS_FSL_SDHC_CLK_DIV;
 #endif /* defined(CONFIG_FSL_ESDHC) */
 
 	if (gd->cpu_clk != 0)
@@ -159,7 +152,7 @@ int get_clocks(void)
 
 /********************************************
  * get_bus_freq
- * return system bus freq in Hz
+ * return platform clock in Hz
  *********************************************/
 ulong get_bus_freq(ulong dummy)
 {
@@ -190,13 +183,28 @@ ulong get_ddr_freq(ulong ctrl_num)
 	return gd->mem_clk;
 }
 
+int get_i2c_freq(ulong dummy)
+{
+	return get_bus_freq(0) / CONFIG_SYS_FSL_I2C_CLK_DIV;
+}
+
+int get_dspi_freq(ulong dummy)
+{
+	return get_bus_freq(0) / CONFIG_SYS_FSL_DSPI_CLK_DIV;
+}
+
+int get_serial_clock(void)
+{
+	return get_bus_freq(0) / CONFIG_SYS_FSL_DUART_CLK_DIV;
+}
+
 unsigned int mxc_get_clock(enum mxc_clock clk)
 {
 	switch (clk) {
 	case MXC_I2C_CLK:
-		return get_bus_freq(0) / 2;
+		return get_i2c_freq(0);
 	case MXC_DSPI_CLK:
-		return get_bus_freq(0) / 2;
+		return get_dspi_freq(0);
 	default:
 		printf("Unsupported clock\n");
 	}

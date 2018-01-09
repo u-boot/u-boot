@@ -1,9 +1,0 @@
-if TARGET_MOTIONPRO
-
-config SYS_BOARD
-	default "motionpro"
-
-config SYS_CONFIG_NAME
-	default "motionpro"
-
-endif

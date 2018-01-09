@@ -12,4 +12,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	+= coreboot_start.o coreboot.o
+obj-y	+= coreboot_start.o

@@ -13,11 +13,8 @@
 #ifndef __CONFIG_ZYNQMP_MINI_H
 #define __CONFIG_ZYNQMP_MINI_H
 
-#define CONFIG_SYS_NO_FLASH
-#define _CONFIG_CMD_DEFAULT_H
 /* #define CONFIG_SYS_DCACHE_OFF */
 #define CONFIG_SYS_ICACHE_OFF
-#define CONFIG_FIT_DISABLE_SHA256
 
 #include <configs/xilinx_zynqmp.h>
 
@@ -42,7 +39,6 @@
 #undef CONFIG_SYS_LONGHELP
 #undef CONFIG_CMD_SF_TEST
 #undef CONFIG_FIT_VERBOSE
-#undef CONFIG_ZYNQ_SERIAL
 #undef CONFIG_CMD_UBI
 #undef CONFIG_RBTREE
 #undef CONFIG_CMD_UBIFS
@@ -104,7 +100,6 @@
 # undef FAT_ENV_DEVICE_AND_PART
 # undef FAT_ENV_FILE
 # undef FAT_ENV_INTERFACE
-# define CONFIG_ENV_IS_NOWHERE
 #endif
 
 #endif /* __CONFIG_ZYNQMP_MINI_H */

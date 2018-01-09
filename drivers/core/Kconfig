@@ -16,10 +16,24 @@ config SPL_DM
 	  suitable malloc() implementation. If you are not using the
 	  full malloc() enabled by CONFIG_SYS_SPL_MALLOC_START,
 	  consider using CONFIG_SYS_MALLOC_SIMPLE. In that case you
-	  must provide CONFIG_SYS_MALLOC_F_LEN to set the size.
+	  must provide CONFIG_SPL_SYS_MALLOC_F_LEN to set the size.
 	  In most cases driver model will only allocate a few uclasses
 	  and devices in SPL, so 1KB should be enable. See
-	  CONFIG_SYS_MALLOC_F_LEN for more details on how to enable it.
+	  CONFIG_SPL_SYS_MALLOC_F_LEN for more details on how to enable it.
+
+config TPL_DM
+	bool "Enable Driver Model for TPL"
+	depends on DM && TPL
+	help
+	  Enable driver model in TPL. You will need to provide a
+	  suitable malloc() implementation. If you are not using the
+	  full malloc() enabled by CONFIG_SYS_SPL_MALLOC_START,
+	  consider using CONFIG_SYS_MALLOC_SIMPLE. In that case you
+	  must provide CONFIG_SPL_SYS_MALLOC_F_LEN to set the size.
+	  In most cases driver model will only allocate a few uclasses
+	  and devices in SPL, so 1KB should be enough. See
+	  CONFIG_SPL_SYS_MALLOC_F_LEN for more details on how to enable it.
+	  Disable this for very small implementations.
 
 config DM_WARN
 	bool "Enable warnings in driver model"
@@ -30,6 +44,12 @@ config DM_WARN
 	  strings. By default this is disabled for SPL builds to save space.
 	  This will cause dm_warn() to be compiled out - it will do nothing
 	  when called.
+
+config DM_DEBUG
+	bool "Enable debug messages in driver model core"
+	depends on DM
+	help
+	  Say Y here if you want to compile in debug messages in DM core.
 
 config DM_DEVICE_REMOVE
 	bool "Support device removal"
@@ -83,7 +103,17 @@ config REGMAP
 
 config SPL_REGMAP
 	bool "Support register maps in SPL"
-	depends on DM
+	depends on SPL_DM
+	help
+	  Hardware peripherals tend to have one or more sets of registers
+	  which can be accessed to control the hardware. A register map
+	  models this with a simple read/write interface. It can in principle
+	  support any bus type (I2C, SPI) but so far this only supports
+	  direct memory access.
+
+config TPL_REGMAP
+	bool "Support register maps in TPL"
+	depends on TPL_DM
 	help
 	  Hardware peripherals tend to have one or more sets of registers
 	  which can be accessed to control the hardware. A register map
@@ -102,7 +132,16 @@ config SYSCON
 
 config SPL_SYSCON
 	bool "Support system controllers in SPL"
-	depends on REGMAP
+	depends on SPL_REGMAP
+	help
+	  Many SoCs have a number of system controllers which are dealt with
+	  as a group by a single driver. Some common functionality is provided
+	  by this uclass, including accessing registers via regmap and
+	  assigning a unique number to each.
+
+config TPL_SYSCON
+	bool "Support system controllers in TPL"
+	depends on TPL_REGMAP
 	help
 	  Many SoCs have a number of system controllers which are dealt with
 	  as a group by a single driver. Some common functionality is provided
@@ -200,5 +239,9 @@ config OF_ISA_BUS
 	  typical simple-bus compatible busses. This will lead to
 	  mistranslation of device addresses, so ensure that this is
 	  enabled if your board does include an ISA bus.
+
+config DM_DEV_READ_INLINE
+	bool
+	default y if !OF_LIVE
 
 endmenu

@@ -21,6 +21,16 @@
 #endif
 
 /*
+* Disable DM_* for SPL build and can be re-enabled after adding
+* DM support in SPL
+*/
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_DM_SPI
+#undef CONFIG_DM_SPI_FLASH
+#undef CONFIG_DM_I2C
+#undef CONFIG_DM_I2C_COMPAT
+#endif
+/*
  * SoC Configuration
  */
 #define CONFIG_MACH_DAVINCI_DA850_EVM
@@ -130,19 +140,23 @@
 /*
  * Serial Driver info
  */
+
+#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_DIRECT_NOR_BOOT)
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	-4	/* NS16550 register size */
 #define CONFIG_SYS_NS16550_COM1	DAVINCI_UART2_BASE /* Base address of UART2 */
+#endif
 #define CONFIG_SYS_NS16550_CLK	clk_get(DAVINCI_UART2_CLKID)
 #define CONFIG_CONS_INDEX	1		/* use UART0 for console */
-#define CONFIG_BAUDRATE		115200		/* Default baud rate */
 
 #define CONFIG_SPI
 #define CONFIG_DAVINCI_SPI
-#define CONFIG_SYS_SPI_BASE		DAVINCI_SPI1_BASE
 #define CONFIG_SYS_SPI_CLK		clk_get(DAVINCI_SPI1_CLKID)
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_SPI_BASE		DAVINCI_SPI1_BASE
 #define CONFIG_SF_DEFAULT_SPEED		30000000
 #define CONFIG_ENV_SPI_MAX_HZ	CONFIG_SF_DEFAULT_SPEED
+#endif
 
 #ifdef CONFIG_USE_SPIFLASH
 #define CONFIG_SPL_SPI_LOAD
@@ -153,20 +167,16 @@
 /*
  * I2C Configuration
  */
-#define CONFIG_SYS_I2C
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_I2C_DAVINCI
-#define CONFIG_SYS_DAVINCI_I2C_SPEED		25000
-#define CONFIG_SYS_DAVINCI_I2C_SLAVE   10 /* Bogus, master-only in U-Boot */
 #define CONFIG_SYS_I2C_EXPANDER_ADDR   0x20
+#endif
 
 /*
  * Flash & Environment
  */
 #ifdef CONFIG_USE_NAND
-#undef CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_NAND_DAVINCI
-#define CONFIG_SYS_NO_FLASH
-#define CONFIG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash  */
 #define CONFIG_ENV_OFFSET		0x0 /* Block 0--not used by bootcode */
 #define CONFIG_ENV_SIZE			(128 << 10)
 #define	CONFIG_SYS_NAND_USE_FLASH_BBT
@@ -204,7 +214,6 @@
 #define CONFIG_SPL_NAND_BASE
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_ECC
-#define CONFIG_SPL_NAND_SIMPLE
 #define CONFIG_SPL_NAND_LOAD
 #endif
 
@@ -220,7 +229,6 @@
 #endif
 
 #ifdef CONFIG_USE_NOR
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_PROTECTION
@@ -236,30 +244,27 @@
 #endif
 
 #ifdef CONFIG_USE_SPIFLASH
-#undef CONFIG_ENV_IS_IN_FLASH
-#undef CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SIZE			(64 << 10)
 #define CONFIG_ENV_OFFSET		(512 << 10)
 #define CONFIG_ENV_SECT_SIZE		(64 << 10)
-#define CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_SPI_FLASH_MTD
+#endif
+#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
+#define CONFIG_MTD_PARTITIONS		/* required for UBI partition support */
 #endif
 
 /*
  * U-Boot general configuration
  */
 #define CONFIG_MISC_INIT_R
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOOTFILE		"uImage" /* Boot file name */
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/
-#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
-#define CONFIG_SYS_MAXARGS	16 /* max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Args Buffer Size */
 #define CONFIG_SYS_LOAD_ADDR	(PHYS_SDRAM_1 + 0x700000)
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_CRC32_VERIFY
 #define CONFIG_MX_CYCLIC
 
 /*
@@ -270,16 +275,29 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_REVISION_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_BOOTARGS		\
-	"mem=32M console=ttyS2,115200n8 root=/dev/mtdblock2 rw noinitrd ip=dhcp"
-#define CONFIG_EXTRA_ENV_SETTINGS	"hwconfig=dsp:wake=yes"
 
-/*
- * U-Boot commands
- */
-#define CONFIG_CMD_ENV
-#define CONFIG_CMD_DIAG
-#define CONFIG_CMD_SAVES
+#define CONFIG_BOOTCOMMAND \
+		"run envboot; " \
+		"run mmcboot; "
+
+#define DEFAULT_LINUX_BOOT_ENV \
+	"loadaddr=0xc0700000\0" \
+	"fdtaddr=0xc0600000\0" \
+	"scriptaddr=0xc0600000\0"
+
+#include <environment/ti/mmc.h>
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	DEFAULT_LINUX_BOOT_ENV \
+	DEFAULT_MMC_TI_ARGS \
+	"bootpart=0:2\0" \
+	"bootdir=/boot\0" \
+	"bootfile=zImage\0" \
+	"fdtfile=da850-evm.dtb\0" \
+	"boot_fdt=yes\0" \
+	"boot_fit=0\0" \
+	"console=ttyS2,115200n8\0" \
+	"hwconfig=dsp:wake=yes"
 
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS
@@ -289,14 +307,8 @@
 #endif
 
 #ifdef CONFIG_USE_NAND
-#define CONFIG_CMD_NAND
-
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_LZO
-#define CONFIG_RBTREE
-#define CONFIG_CMD_UBIFS
 #endif
 
 #ifdef CONFIG_USE_SPIFLASH
@@ -305,36 +317,16 @@
 #if !defined(CONFIG_USE_NAND) && \
 	!defined(CONFIG_USE_NOR) && \
 	!defined(CONFIG_USE_SPIFLASH)
-#define CONFIG_ENV_IS_NOWHERE
-#define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_SIZE		(16 << 10)
-#undef CONFIG_CMD_ENV
-#endif
-
-/* SD/MMC configuration */
-#ifndef CONFIG_USE_NOR
-#define CONFIG_DAVINCI_MMC_SD1
-#define CONFIG_GENERIC_MMC
-#define CONFIG_DAVINCI_MMC
-#endif
-
-/*
- * Enable MMC commands only when
- * MMC support is present
- */
-#ifdef CONFIG_MMC
-#define CONFIG_DOS_PARTITION
 #endif
 
 #ifndef CONFIG_DIRECT_NOR_BOOT
 /* defines for SPL */
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SYS_TEXT_BASE - \
 						CONFIG_SYS_MALLOC_LEN)
 #define CONFIG_SYS_SPL_MALLOC_SIZE	CONFIG_SYS_MALLOC_LEN
 #define CONFIG_SPL_SPI_LOAD
-#define CONFIG_SPL_LDSCRIPT	"board/$(BOARDDIR)/u-boot-spl-da850evm.lds"
 #define CONFIG_SPL_STACK	0x8001ff00
 #define CONFIG_SPL_TEXT_BASE	0x80000000
 #define CONFIG_SPL_MAX_FOOTPRINT	32768
@@ -355,4 +347,7 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - /* Fix this */ \
 					GENERATED_GBL_DATA_SIZE)
 #endif /* CONFIG_DIRECT_NOR_BOOT */
+
+#include <asm/arch/hardware.h>
+
 #endif /* __CONFIG_H */

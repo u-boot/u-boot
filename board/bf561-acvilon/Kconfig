@@ -1,9 +1,0 @@
-if TARGET_BF561_ACVILON
-
-config SYS_BOARD
-	default "bf561-acvilon"
-
-config SYS_CONFIG_NAME
-	default "bf561-acvilon"
-
-endif

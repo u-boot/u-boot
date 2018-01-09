@@ -189,7 +189,7 @@ static int ivm_check_crc(unsigned char *buf, int block)
 
 /* take care of the possible MAC address offset and the IVM content offset */
 static int process_mac(unsigned char *valbuf, unsigned char *buf,
-				int offset)
+				int offset, bool unique)
 {
 	unsigned char mac[6];
 	unsigned long val = (buf[4] << 16) + (buf[5] << 8) + buf[6];
@@ -198,6 +198,13 @@ static int process_mac(unsigned char *valbuf, unsigned char *buf,
 	 * MAC address is at offset 1
 	 */
 	memcpy(mac, buf+1, 6);
+
+	/* MAC adress can be set to locally administred, this is only allowed
+	 * for interfaces which have now connection to the outside. For these
+	 * addresses we need to set the second bit in the first byte.
+	 */
+	if (!unique)
+		mac[0] |= 0x2;
 
 	if (offset) {
 		val += offset;
@@ -254,7 +261,7 @@ int ivm_analyze_eeprom(unsigned char *buf, int len)
 
 	GET_STRING("IVM_Symbol", IVM_POS_SYMBOL_ONLY, 8)
 	GET_STRING("IVM_DeviceName", IVM_POS_SHORT_TEXT, 64)
-	tmp = (unsigned char *) getenv("IVM_DeviceName");
+	tmp = (unsigned char *)env_get("IVM_DeviceName");
 	if (tmp) {
 		int	len = strlen((char *)tmp);
 		int	i = 0;
@@ -300,16 +307,24 @@ static int ivm_populate_env(unsigned char *buf, int len)
 		return 0;
 	page2 = &buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN*2];
 
+#ifndef CONFIG_KMTEGR1
 	/* if an offset is defined, add it */
-	process_mac(valbuf, page2, CONFIG_PIGGY_MAC_ADRESS_OFFSET);
-	if (getenv("ethaddr") == NULL)
-		setenv((char *)"ethaddr", (char *)valbuf);
+	process_mac(valbuf, page2, CONFIG_PIGGY_MAC_ADRESS_OFFSET, true);
+	env_set((char *)"ethaddr", (char *)valbuf);
 #ifdef CONFIG_KMVECT1
 /* KMVECT1 has two ethernet interfaces */
-	if (getenv("eth1addr") == NULL) {
-		process_mac(valbuf, page2, 1);
-		setenv((char *)"eth1addr", (char *)valbuf);
-	}
+	process_mac(valbuf, page2, 1, true);
+	env_set((char *)"eth1addr", (char *)valbuf);
+#endif
+#else
+/* KMTEGR1 has a special setup. eth0 has no connection to the outside and
+ * gets an locally administred MAC address, eth1 is the debug interface and
+ * gets the official MAC address from the IVM
+ */
+	process_mac(valbuf, page2, CONFIG_PIGGY_MAC_ADRESS_OFFSET, false);
+	env_set((char *)"ethaddr", (char *)valbuf);
+	process_mac(valbuf, page2, CONFIG_PIGGY_MAC_ADRESS_OFFSET, true);
+	env_set((char *)"eth1addr", (char *)valbuf);
 #endif
 
 	return 0;

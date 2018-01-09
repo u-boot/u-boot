@@ -697,8 +697,6 @@ int ddr3_tip_print_centralization_result(u32 dev_num)
 	u32 if_id = 0, bus_id = 0;
 	struct hws_topology_map *tm = ddr3_get_topology_map();
 
-	dev_num = dev_num;
-
 	printf("Centralization Results\n");
 	printf("I/F0 Result[0 - success 1-fail 2 - state_2 3 - state_3] ...\n");
 	for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1; if_id++) {

@@ -16,8 +16,9 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
-#include <asm/imx-common/mx5_video.h>
+#include <asm/mach-imx/mx5_video.h>
 #include <mmc.h>
+#include <input.h>
 #include <fsl_esdhc.h>
 #include <mc13892.h>
 
@@ -178,7 +179,7 @@ static int fec_get_mac_from_register(uint32_t base_addr)
 		ethaddr[i] = (reg_mac[i / 4] >> ((i % 4) * 8)) & 0xFF;
 
 	if (is_valid_ethaddr(ethaddr)) {
-		eth_setenv_enetaddr("ethaddr", ethaddr);
+		eth_env_set_enetaddr("ethaddr", ethaddr);
 		return 0;
 	}
 

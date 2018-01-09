@@ -7,7 +7,6 @@
 #ifndef _OMAP3_I2C_H_
 #define _OMAP3_I2C_H_
 
-#define I2C_BUS_MAX	3
 #define I2C_DEFAULT_BASE	I2C_BASE1
 
 struct i2c {
@@ -17,7 +16,7 @@ struct i2c {
 	unsigned short res2;
 	unsigned short stat;	/* 0x08 */
 	unsigned short res3;
-	unsigned short iv;	/* 0x0C */
+	unsigned short we;	/* 0x0C */
 	unsigned short res4;
 	unsigned short syss;	/* 0x10 */
 	unsigned short res4a;
@@ -43,6 +42,18 @@ struct i2c {
 	unsigned short res14;
 	unsigned short systest;	/* 0x3c */
 	unsigned short res15;
+	unsigned short bufstat;	/* 0x40 */
+	unsigned short res16;
+	unsigned short oa1;	/* 0x44 */
+	unsigned short res17;
+	unsigned short oa2;	/* 0x48 */
+	unsigned short res18;
+	unsigned short oa3;	/* 0x4c */
+	unsigned short res19;
+	unsigned short actoa;	/* 0x50 */
+	unsigned short res20;
+	unsigned short sblock;	/* 0x54 */
+	unsigned short res21;
 };
 
 #endif /* _OMAP3_I2C_H_ */

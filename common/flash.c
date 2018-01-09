@@ -10,7 +10,6 @@
 #include <common.h>
 #include <flash.h>
 
-#if !defined(CONFIG_SYS_NO_FLASH)
 #include <mtd/cfi_flash.h>
 
 extern flash_info_t  flash_info[]; /* info for FLASH chips */
@@ -218,7 +217,3 @@ void flash_perror (int err)
 		break;
 	}
 }
-
-/*-----------------------------------------------------------------------
- */
-#endif /* !CONFIG_SYS_NO_FLASH */

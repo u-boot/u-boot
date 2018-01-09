@@ -13,6 +13,7 @@ extern unsigned int __machine_arch_type;
 
 /* see arch/arm/kernel/arch.c for a description of these */
 #define MACH_TYPE_ADPAG101P            1
+#define MACH_TYPE_ADPAE3XX	2
 
 #ifdef CONFIG_ARCH_ADPAG101P
 # ifdef machine_arch_type

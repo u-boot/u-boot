@@ -186,7 +186,7 @@ static int reg_set_enable(struct udevice *dev, const struct s5m8767_para *param,
 	return ret;
 }
 
-static bool ldo_get_enable(struct udevice *dev)
+static int ldo_get_enable(struct udevice *dev)
 {
 	int ldo = dev->driver_data;
 
@@ -226,7 +226,7 @@ static int buck_set_value(struct udevice *dev, int uv)
 	return reg_set_value(dev, &buck_param[buck], uv);
 }
 
-static bool buck_get_enable(struct udevice *dev)
+static int buck_get_enable(struct udevice *dev)
 {
 	int buck = dev->driver_data;
 

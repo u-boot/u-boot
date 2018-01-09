@@ -13,8 +13,6 @@
 
  /* High Level Configuration Options */
 
-#define CONFIG_MX51	/* in a mx51 */
-
 #define CONFIG_SYS_FSL_CLK
 #define CONFIG_SYS_TEXT_BASE	0x97800000
 
@@ -31,13 +29,10 @@
  */
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
-#define CONFIG_BOARD_LATE_INIT
-
 /*
  * Hardware drivers
  */
 #define CONFIG_FSL_IIM
-#define CONFIG_CMD_FUSE
 
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
@@ -67,9 +62,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	MMC_SDHC1_BASE_ADDR
 #define CONFIG_SYS_FSL_ESDHC_NUM	2
 
-#define CONFIG_GENERIC_MMC
-#define CONFIG_DOS_PARTITION
-
 /*
  * Eth Configs
  */
@@ -80,11 +72,7 @@
 #define CONFIG_FEC_MXC_PHYADDR	0x1F
 
 /* USB Configs */
-#define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX5
-#define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_ASIX
-#define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_MXC_USB_PORT	1
 #define CONFIG_MXC_USB_PORTSC	PORT_PTS_ULPI
 #define CONFIG_MXC_USB_FLAGS	MXC_EHCI_POWER_PINS_ENABLED
@@ -96,19 +84,10 @@
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_IPUV3_CLK	133000000
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX		1
-#define CONFIG_BAUDRATE			115200
-
-/***********************************************************
- * Command definition
- ***********************************************************/
-
-#define CONFIG_CMD_DATE
-
 
 #define CONFIG_ETHPRIME		"FEC0"
 
@@ -192,9 +171,6 @@
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
-#define CONFIG_SYS_MAXARGS	16	/* max number of command args */
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size */
 
 #define CONFIG_SYS_MEMTEST_START       0x90000000
 #define CONFIG_SYS_MEMTEST_END         0x90010000
@@ -214,8 +190,6 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
 #define CONFIG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 #define CONFIG_SYS_INIT_SP_OFFSET \
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR \
@@ -226,13 +200,10 @@
 #define CONFIG_SYS_MAIN_PWR_ON
 
 /*-----------------------------------------------------------------------
- * FLASH and environment organization
+ * environment organization
  */
-#define CONFIG_SYS_NO_FLASH
-
 #define CONFIG_ENV_OFFSET      (6 * 64 * 1024)
 #define CONFIG_ENV_SIZE        (8 * 1024)
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV 0
 
 #endif

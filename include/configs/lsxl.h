@@ -35,21 +35,9 @@
 
 #define CONFIG_KIRKWOOD_GPIO
 
-#define CONFIG_SYS_NO_FLASH
-
-/*
- * Enable u-boot API for standalone programs.
- */
-#define CONFIG_API
-
 /*
  * Commands configuration
  */
-#define CONFIG_CMD_ENV
-#define CONFIG_CMD_IDE
-
-#define CONFIG_DOS_PARTITION
-#define CONFIG_EFI_PARTITION
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
@@ -72,10 +60,7 @@
 #ifdef CONFIG_SPI_FLASH
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_MAX_FLASH_SECT	8
-#define CONFIG_ENV_IS_IN_SPI_FLASH	1
 #define CONFIG_ENV_SECT_SIZE		0x10000 /* 64K */
-#else
-#define CONFIG_ENV_IS_NOWHERE
 #endif
 
 #define CONFIG_ENV_SIZE			0x10000 /* 64k */
@@ -85,8 +70,6 @@
  * Default environment variables
  */
 #define CONFIG_LOADADDR		0x00800000
-#define CONFIG_BOOTCOMMAND	"run bootcmd_${bootsource}"
-#define CONFIG_BOOTARGS		"console=ttyS0,115200 root=/dev/sda2"
 
 #if defined(CONFIG_LSXHL)
 #define CONFIG_FDTFILE "kirkwood-lsxhl.dtb"
@@ -157,8 +140,7 @@
 #undef CONFIG_RESET_PHY_R
 #endif /* CONFIG_CMD_NET */
 
-#ifdef CONFIG_CMD_IDE
-#undef CONFIG_IDE_LED
+#ifdef CONFIG_IDE
 #undef CONFIG_SYS_IDE_MAXBUS
 #define CONFIG_SYS_IDE_MAXBUS		1
 #undef CONFIG_SYS_IDE_MAXDEVICE

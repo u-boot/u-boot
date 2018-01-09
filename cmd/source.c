@@ -22,9 +22,6 @@
 #include <mapmem.h>
 #include <asm/byteorder.h>
 #include <asm/io.h>
-#if defined(CONFIG_8xx)
-#include <mpc8xx.h>
-#endif
 
 int
 source (ulong addr, const char *fit_uname)
@@ -43,7 +40,7 @@ source (ulong addr, const char *fit_uname)
 	size_t		fit_len;
 #endif
 
-	verify = getenv_yesno ("verify");
+	verify = env_get_yesno("verify");
 
 	buf = map_sysmem(addr, 0);
 	switch (genimg_get_format(buf)) {

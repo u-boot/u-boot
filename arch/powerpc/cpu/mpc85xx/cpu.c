@@ -23,6 +23,7 @@
 #include <post.h>
 #include <asm/processor.h>
 #include <fsl_ddr_sdram.h>
+#include <asm/ppc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -384,7 +385,7 @@ int cpu_mmc_init(bd_t *bis)
  * Currently prints out LAWs, BR0/OR0 for LBC, CSPR/CSOR/Timing
  * parameters for IFC and TLBs
  */
-void mpc85xx_reginfo(void)
+void print_reginfo(void)
 {
 	print_tlbcam();
 	print_laws();
@@ -401,17 +402,19 @@ void mpc85xx_reginfo(void)
 #ifndef CONFIG_FSL_CORENET
 #if (defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_SPL)) && \
 	!defined(CONFIG_SYS_INIT_L2_ADDR)
-phys_size_t initdram(int board_type)
+int dram_init(void)
 {
 #if defined(CONFIG_SPD_EEPROM) || defined(CONFIG_DDR_SPD) || \
 	defined(CONFIG_ARCH_QEMU_E500)
-	return fsl_ddr_sdram_size();
+	gd->ram_size = fsl_ddr_sdram_size();
 #else
-	return (phys_size_t)CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+	gd->ram_size = (phys_size_t)CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 #endif
+
+	return 0;
 }
 #else /* CONFIG_SYS_RAMBOOT */
-phys_size_t initdram(int board_type)
+int dram_init(void)
 {
 	phys_size_t dram_size = 0;
 
@@ -460,7 +463,9 @@ phys_size_t initdram(int board_type)
 #endif
 
 	debug("DDR: ");
-	return dram_size;
+	gd->ram_size = dram_size;
+
+	return 0;
 }
 #endif /* CONFIG_SYS_RAMBOOT */
 #endif

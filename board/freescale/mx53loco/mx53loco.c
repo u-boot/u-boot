@@ -14,9 +14,10 @@
 #include <asm/arch/iomux-mx53.h>
 #include <asm/arch/clock.h>
 #include <linux/errno.h>
-#include <asm/imx-common/mx5_video.h>
+#include <asm/mach-imx/mx5_video.h>
 #include <netdev.h>
 #include <i2c.h>
+#include <input.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <asm/gpio.h>
@@ -58,13 +59,15 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = mx53_dram_size[0];
 
 	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
 	gd->bd->bi_dram[1].size = mx53_dram_size[1];
+
+	return 0;
 }
 
 u32 get_board_rev(void)
@@ -244,7 +247,7 @@ static int power_init(void)
 		if (!p)
 			return -ENODEV;
 
-		setenv("fdt_file", "imx53-qsb.dtb");
+		env_set("fdt_file", "imx53-qsb.dtb");
 
 		/* Set VDDA to 1.25V */
 		val = DA9052_BUCKCORE_BCOREEN | DA_BUCKCORE_VBCORE_1_250V;
@@ -287,7 +290,7 @@ static int power_init(void)
 		if (!p)
 			return -ENODEV;
 
-		setenv("fdt_file", "imx53-qsrb.dtb");
+		env_set("fdt_file", "imx53-qsrb.dtb");
 
 		/* Set VDDGP to 1.25V for 1GHz on SW1 */
 		pmic_reg_read(p, REG_SW_0, &val);

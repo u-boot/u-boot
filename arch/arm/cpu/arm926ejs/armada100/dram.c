@@ -108,7 +108,9 @@ int dram_init(void)
  * If this function is not defined here,
  * board.c alters dram bank zero configuration defined above.
  */
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	dram_init();
+
+	return 0;
 }

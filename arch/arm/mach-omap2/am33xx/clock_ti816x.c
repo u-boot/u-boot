@@ -54,55 +54,6 @@
 #define MAIN_MDIV7		0x4
 
 /* DDR PLL */
-#if defined(CONFIG_TI816X_DDR_PLL_400) /* 400 MHz */
-#define DDR_N			59
-#define DDR_P			0x1
-#define DDR_MDIV1		0x4
-#define DDR_INTFREQ2		0x8
-#define DDR_FRACFREQ2		0xD99999
-#define DDR_MDIV2		0x1E
-#define DDR_INTFREQ3		0x8
-#define DDR_FRACFREQ3		0x0
-#define DDR_MDIV3		0x4
-#define DDR_INTFREQ4		0xE /* Expansion DDR clk */
-#define DDR_FRACFREQ4		0x0
-#define DDR_MDIV4		0x4
-#define DDR_INTFREQ5		0xE /* Expansion DDR clk */
-#define DDR_FRACFREQ5		0x0
-#define DDR_MDIV5		0x4
-#elif defined(CONFIG_TI816X_DDR_PLL_531) /* 531 MHz */
-#define DDR_N			59
-#define DDR_P			0x1
-#define DDR_MDIV1		0x3
-#define DDR_INTFREQ2		0x8
-#define DDR_FRACFREQ2		0xD99999
-#define DDR_MDIV2		0x1E
-#define DDR_INTFREQ3		0x8
-#define DDR_FRACFREQ3		0x0
-#define DDR_MDIV3		0x4
-#define DDR_INTFREQ4		0xE /* Expansion DDR clk */
-#define DDR_FRACFREQ4		0x0
-#define DDR_MDIV4		0x4
-#define DDR_INTFREQ5		0xE /* Expansion DDR clk */
-#define DDR_FRACFREQ5		0x0
-#define DDR_MDIV5		0x4
-#elif defined(CONFIG_TI816X_DDR_PLL_675) /* 675 MHz */
-#define DDR_N			50
-#define DDR_P			0x1
-#define DDR_MDIV1		0x2
-#define DDR_INTFREQ2		0x9
-#define DDR_FRACFREQ2		0x0
-#define DDR_MDIV2		0x19
-#define DDR_INTFREQ3		0x13
-#define DDR_FRACFREQ3		0x800000
-#define DDR_MDIV3		0x2
-#define DDR_INTFREQ4		0xE /* Expansion DDR clk */
-#define DDR_FRACFREQ4		0x0
-#define DDR_MDIV4		0x4
-#define DDR_INTFREQ5		0xE /* Expansion DDR clk */
-#define DDR_FRACFREQ5		0x0
-#define DDR_MDIV5		0x4
-#elif defined(CONFIG_TI816X_DDR_PLL_796) /* 796 MHz */
 #define DDR_N			59
 #define DDR_P			0x1
 #define DDR_MDIV1		0x2
@@ -118,12 +69,10 @@
 #define DDR_INTFREQ5		0xE /* Expansion DDR clk */
 #define DDR_FRACFREQ5		0x0
 #define DDR_MDIV5		0x4
-#endif
 
 #define CONTROL_STATUS			(CTRL_BASE + 0x40)
 #define DDR_RCD				(CTRL_BASE + 0x070C)
 #define CM_TIMER1_CLKSEL		(PRCM_BASE + 0x390)
-#define DMM_PAT_BASE_ADDR		(DMM_BASE + 0x420)
 #define CM_ALWON_CUST_EFUSE_CLKCTRL	(PRCM_BASE + 0x1628)
 
 #define INTCPS_SYSCONFIG	0x48200010
@@ -187,6 +136,15 @@ const struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
 
 void enable_dmm_clocks(void)
 {
+	writel(PRCM_MOD_EN, &cmdef->dmmclkctrl);
+	/* Wait for dmm to be fully functional, including OCP */
+	while (((readl(&cmdef->dmmclkctrl) >> 17) & 0x3) != 0)
+		;
+}
+
+void enable_emif_clocks(void)
+{
+	writel(PRCM_MOD_EN, &cmdef->fwclkctrl);
 	writel(PRCM_MOD_EN, &cmdef->l3fastclkstctrl);
 	writel(PRCM_MOD_EN, &cmdef->emif0clkctrl);
 	writel(PRCM_MOD_EN, &cmdef->emif1clkctrl);
@@ -200,14 +158,6 @@ void enable_dmm_clocks(void)
 	/* Wait for emif1 to be fully functional, including OCP */
 	while (((readl(&cmdef->emif1clkctrl) >> 17) & 0x3) != 0)
 		;
-
-	writel(PRCM_MOD_EN, &cmdef->dmmclkctrl);
-	/* Wait for dmm to be fully functional, including OCP */
-	while (((readl(&cmdef->dmmclkctrl) >> 17) & 0x3) != 0)
-		;
-
-	/* Enable Tiled Access */
-	writel(0x80000000, DMM_PAT_BASE_ADDR);
 }
 
 /* assume delay is aprox at least 1us */
@@ -385,7 +335,13 @@ static void peripheral_enable(void)
 	writel(PRCM_MOD_EN, &cmalwon->gpio0clkctrl);
 	while (readl(&cmalwon->gpio0clkctrl) != PRCM_MOD_EN)
 		;
-	writel((BIT(8)), &cmalwon->gpio0clkctrl);
+	writel((BIT(1) | BIT(8)), &cmalwon->gpio0clkctrl);
+
+	/* Enable gpio1 */
+	writel(PRCM_MOD_EN, &cmalwon->gpio1clkctrl);
+	while (readl(&cmalwon->gpio1clkctrl) != PRCM_MOD_EN)
+		;
+	writel((BIT(1) | BIT(8)), &cmalwon->gpio1clkctrl);
 
 	/* Enable spi */
 	writel(PRCM_MOD_EN, &cmalwon->spiclkctrl);

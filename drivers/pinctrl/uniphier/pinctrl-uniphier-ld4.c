@@ -5,24 +5,11 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <dm/device.h>
+#include <common.h>
+#include <dm.h>
 #include <dm/pinctrl.h>
 
 #include "pinctrl-uniphier.h"
-
-static const struct uniphier_pinctrl_pin uniphier_ld4_pins[] = {
-	UNIPHIER_PINCTRL_PIN(53, 0),
-	UNIPHIER_PINCTRL_PIN(54, 0),
-	UNIPHIER_PINCTRL_PIN(55, 0),
-	UNIPHIER_PINCTRL_PIN(56, 0),
-	UNIPHIER_PINCTRL_PIN(67, 0),
-	UNIPHIER_PINCTRL_PIN(68, 0),
-	UNIPHIER_PINCTRL_PIN(69, 0),
-	UNIPHIER_PINCTRL_PIN(70, 0),
-	UNIPHIER_PINCTRL_PIN(85, 0),
-	UNIPHIER_PINCTRL_PIN(88, 0),
-	UNIPHIER_PINCTRL_PIN(156, 0),
-};
 
 static const unsigned emmc_pins[] = {21, 22, 23, 24, 25, 26, 27};
 static const int emmc_muxvals[] = {0, 1, 1, 1, 1, 1, 1};
@@ -131,8 +118,6 @@ static const char * const uniphier_ld4_functions[] = {
 };
 
 static struct uniphier_pinctrl_socdata uniphier_ld4_pinctrl_socdata = {
-	.pins = uniphier_ld4_pins,
-	.pins_count = ARRAY_SIZE(uniphier_ld4_pins),
 	.groups = uniphier_ld4_groups,
 	.groups_count = ARRAY_SIZE(uniphier_ld4_groups),
 	.functions = uniphier_ld4_functions,

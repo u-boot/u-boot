@@ -9,7 +9,6 @@
 #include <common.h>
 #include <linux/bitops.h>
 #include <clk-uclass.h>
-#include <dm/device.h>
 #include <clk.h>
 #include <asm/arch/sys_proto.h>
 #include <dm.h>

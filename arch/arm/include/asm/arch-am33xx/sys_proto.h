@@ -29,7 +29,7 @@ void sdelay(unsigned long);
 void gpmc_init(void);
 void enable_gpmc_cs_config(const u32 *gpmc_config, const struct gpmc_cs *cs, u32 base,
 			u32 size);
-void omap_nand_switch_ecc(uint32_t, uint32_t);
+int omap_nand_switch_ecc(uint32_t, uint32_t);
 
 void set_uart_mux_conf(void);
 void set_mux_conf_regs(void);
@@ -40,9 +40,11 @@ void enable_norboot_pin_mux(void);
 #endif
 void am33xx_spl_board_init(void);
 int am335x_get_efuse_mpu_max_freq(struct ctrl_dev *cdev);
+int am335x_get_mpu_vdd(int sil_rev, int frequency);
 int am335x_get_tps65910_mpu_vdd(int sil_rev, int frequency);
 #endif
 
 void enable_usb_clocks(int index);
 void disable_usb_clocks(int index);
 void do_board_detect(void);
+u32 get_sys_clk_index(void);

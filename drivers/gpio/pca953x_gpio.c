@@ -228,7 +228,7 @@ static int pca953x_get_function(struct udevice *dev, unsigned offset)
 }
 
 static int pca953x_xlate(struct udevice *dev, struct gpio_desc *desc,
-			 struct fdtdec_phandle_args *args)
+			 struct ofnode_phandle_args *args)
 {
 	desc->offset = args->args[0];
 	desc->flags = args->args[1] & GPIO_ACTIVE_LOW ? GPIOD_ACTIVE_LOW : 0;
@@ -249,23 +249,12 @@ static int pca953x_probe(struct udevice *dev)
 {
 	struct pca953x_info *info = dev_get_platdata(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
 	char name[32], *str;
 	int addr;
 	ulong driver_data;
 	int ret;
 
-	if (!info) {
-		dev_err(dev, "platdata not ready\n");
-		return -ENOMEM;
-	}
-
-	if (!chip) {
-		dev_err(dev, "i2c not ready\n");
-		return -ENODEV;
-	}
-
-	addr = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "reg", 0);
+	addr = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "reg", 0);
 	if (addr == 0)
 		return -ENODEV;
 

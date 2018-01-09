@@ -17,7 +17,7 @@ static led_id_t gpio_led_inv[] = CONFIG_GPIO_LED_INVERTED_TABLE;
 
 static int gpio_led_gpio_value(led_id_t mask, int state)
 {
-	int i, gpio_value = (state == STATUS_LED_ON);
+	int i, gpio_value = (state == CONFIG_LED_STATUS_ON);
 
 	for (i = 0; i < ARRAY_SIZE(gpio_led_inv); i++) {
 		if (gpio_led_inv[i] == mask)
@@ -56,51 +56,51 @@ void __led_toggle(led_id_t mask)
 
 /* 'generic' override of colored LED stubs, to use GPIO functions instead */
 
-#ifdef STATUS_LED_RED
+#ifdef CONFIG_LED_STATUS_RED
 void red_led_on(void)
 {
-	__led_set(STATUS_LED_RED, STATUS_LED_ON);
+	__led_set(CONFIG_LED_STATUS_RED, CONFIG_LED_STATUS_ON);
 }
 
 void red_led_off(void)
 {
-	__led_set(STATUS_LED_RED, STATUS_LED_OFF);
+	__led_set(CONFIG_LED_STATUS_RED, CONFIG_LED_STATUS_OFF);
 }
 #endif
 
-#ifdef STATUS_LED_GREEN
+#ifdef CONFIG_LED_STATUS_GREEN
 void green_led_on(void)
 {
-	__led_set(STATUS_LED_GREEN, STATUS_LED_ON);
+	__led_set(CONFIG_LED_STATUS_GREEN, CONFIG_LED_STATUS_ON);
 }
 
 void green_led_off(void)
 {
-	__led_set(STATUS_LED_GREEN, STATUS_LED_OFF);
+	__led_set(CONFIG_LED_STATUS_GREEN, CONFIG_LED_STATUS_OFF);
 }
 #endif
 
-#ifdef STATUS_LED_YELLOW
+#ifdef CONFIG_LED_STATUS_YELLOW
 void yellow_led_on(void)
 {
-	__led_set(STATUS_LED_YELLOW, STATUS_LED_ON);
+	__led_set(CONFIG_LED_STATUS_YELLOW, CONFIG_LED_STATUS_ON);
 }
 
 void yellow_led_off(void)
 {
-	__led_set(STATUS_LED_YELLOW, STATUS_LED_OFF);
+	__led_set(CONFIG_LED_STATUS_YELLOW, CONFIG_LED_STATUS_OFF);
 }
 #endif
 
-#ifdef STATUS_LED_BLUE
+#ifdef CONFIG_LED_STATUS_BLUE
 void blue_led_on(void)
 {
-	__led_set(STATUS_LED_BLUE, STATUS_LED_ON);
+	__led_set(CONFIG_LED_STATUS_BLUE, CONFIG_LED_STATUS_ON);
 }
 
 void blue_led_off(void)
 {
-	__led_set(STATUS_LED_BLUE, STATUS_LED_OFF);
+	__led_set(CONFIG_LED_STATUS_BLUE, CONFIG_LED_STATUS_OFF);
 }
 #endif
 

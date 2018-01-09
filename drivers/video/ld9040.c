@@ -10,20 +10,12 @@
 #include <common.h>
 #include <spi.h>
 
-static const unsigned char SEQ_SWRESET[] = {
-	0x01,
-};
-
 static const unsigned char SEQ_USER_SETTING[] = {
 	0xF0, 0x5A, 0x5A
 };
 
 static const unsigned char SEQ_ELVSS_ON[] = {
 	0xB1, 0x0D, 0x00, 0x16,
-};
-
-static const unsigned char SEQ_TEMP_SWIRE[] = {
-	0xB2, 0x06, 0x06, 0x06, 0x06,
 };
 
 static const unsigned char SEQ_GTCON[] = {
@@ -46,10 +38,6 @@ static const unsigned char SEQ_GAMMA_CTRL[] = {
 	0xFB, 0x02, 0x5A,
 };
 
-static const unsigned char SEQ_APON[] = {
-	0xF3, 0x00, 0x00, 0x00, 0x0A, 0x02,
-};
-
 static const unsigned char SEQ_DISPCTL[] = {
 	0xF2, 0x02, 0x08, 0x08, 0x10, 0x10,
 };
@@ -64,10 +52,6 @@ static const unsigned char SEQ_PWR_CTRL[] = {
 
 static const unsigned char SEQ_SLPOUT[] = {
 	0x11,
-};
-
-static const unsigned char SEQ_SLPIN[] = {
-	0x10,
 };
 
 static const unsigned char SEQ_DISPON[] = {

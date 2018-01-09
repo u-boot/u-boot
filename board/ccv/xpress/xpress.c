@@ -12,9 +12,9 @@
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/boot_mode.h>
-#include <asm/imx-common/mxc_i2c.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/io.h>
 #include <common.h>
 #include <fsl_esdhc.h>
@@ -108,6 +108,8 @@ int dram_init(void)
 static iomux_v3_cfg_t const uart1_pads[] = {
 	MX6_PAD_UART1_TX_DATA__UART1_DCE_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6_PAD_UART1_RX_DATA__UART1_DCE_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
+	MX6_PAD_UART1_CTS_B__UART1_DCE_CTS | MUX_PAD_CTRL(UART_PAD_CTRL),
+	MX6_PAD_UART1_RTS_B__UART1_DCE_RTS | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
 static iomux_v3_cfg_t const uart4_pads[] = {
@@ -122,11 +124,14 @@ static iomux_v3_cfg_t const uart5_pads[] = {
 	MX6_PAD_GPIO1_IO08__UART5_DCE_RTS | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
+static iomux_v3_cfg_t const uart7_pads[] = {
+	MX6_PAD_ENET2_RX_EN__UART7_DCE_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
+	MX6_PAD_ENET2_TX_DATA0__UART7_DCE_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
+};
+
 static iomux_v3_cfg_t const uart8_pads[] = {
-	MX6_PAD_ENET2_TX_DATA1__UART8_DCE_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_ENET2_TX_EN__UART8_DCE_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_ENET2_TX_CLK__UART8_DCE_CTS | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_ENET2_RX_ER__UART8_DCE_RTS | MUX_PAD_CTRL(UART_PAD_CTRL),
+	MX6_PAD_LCD_DATA20__UART8_DCE_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
+	MX6_PAD_LCD_DATA21__UART8_DCE_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
 static void setup_iomux_uart(void)
@@ -134,6 +139,7 @@ static void setup_iomux_uart(void)
 	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
 	imx_iomux_v3_setup_multiple_pads(uart4_pads, ARRAY_SIZE(uart4_pads));
 	imx_iomux_v3_setup_multiple_pads(uart5_pads, ARRAY_SIZE(uart5_pads));
+	imx_iomux_v3_setup_multiple_pads(uart7_pads, ARRAY_SIZE(uart7_pads));
 	imx_iomux_v3_setup_multiple_pads(uart8_pads, ARRAY_SIZE(uart8_pads));
 }
 
@@ -318,7 +324,7 @@ static const struct boot_mode board_boot_modes[] = {
 int board_late_init(void)
 {
 	add_board_boot_modes(board_boot_modes);
-	setenv("board_name", "xpress");
+	env_set("board_name", "xpress");
 
 	return 0;
 }

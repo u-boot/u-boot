@@ -82,6 +82,15 @@ void cpld_set_sd(void)
 
 	CPLD_WRITE(system_rst, 1);
 }
+
+void cpld_select_core_volt(bool en_0v9)
+{
+	u8 reg17 = en_0v9;
+
+	CPLD_WRITE(vdd_en, 1);
+	CPLD_WRITE(vdd_sel, reg17);
+}
+
 #ifdef DEBUG
 static void cpld_dump_regs(void)
 {

@@ -8,8 +8,14 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/unaligned.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 #include "denali.h"
+
+#define DENALI_MAP01		(1 << 26)	/* read/write pages in PIO */
+#define DENALI_MAP10		(2 << 26)	/* high-level control plane */
+
+#define INDEX_CTRL_REG		0x0
+#define INDEX_DATA_REG		0x10
 
 #define SPARE_ACCESS		0x41
 #define MAIN_ACCESS		0x42
@@ -39,7 +45,7 @@ static int wait_for_irq(uint32_t irq_mask)
 	do {
 		intr_status = readl(denali_flash_reg + INTR_STATUS(flash_bank));
 
-		if (intr_status & INTR_STATUS__ECC_UNCOR_ERR) {
+		if (intr_status & INTR__ECC_UNCOR_ERR) {
 			debug("Uncorrected ECC detected\n");
 			return -EBADMSG;
 		}
@@ -106,16 +112,16 @@ int denali_send_pipeline_cmd(int page, int ecc_en, int access_type)
 	addr = BANK(flash_bank) | page;
 
 	/* setup the acccess type */
-	cmd = MODE_10 | addr;
+	cmd = DENALI_MAP10 | addr;
 	index_addr(cmd, access_type);
 
 	/* setup the pipeline command */
 	index_addr(cmd, PIPELINE_ACCESS | page_count);
 
-	cmd = MODE_01 | addr;
+	cmd = DENALI_MAP01 | addr;
 	writel(cmd, denali_flash_mem + INDEX_CTRL_REG);
 
-	return wait_for_irq(INTR_STATUS__LOAD_COMP);
+	return wait_for_irq(INTR__LOAD_COMP);
 }
 
 static int nand_read_oob(void *buf, int page)

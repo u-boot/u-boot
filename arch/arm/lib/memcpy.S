@@ -56,7 +56,7 @@
 
 /* Prototype: void *memcpy(void *dest, const void *src, size_t n); */
 	.syntax unified
-#if defined(CONFIG_SYS_THUMB_BUILD) && !defined(MEMCPY_NO_THUMB_BUILD)
+#if CONFIG_IS_ENABLED(SYS_THUMB_BUILD) && !defined(MEMCPY_NO_THUMB_BUILD)
 	.thumb
 	.thumb_func
 #endif

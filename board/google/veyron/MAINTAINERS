@@ -12,9 +12,9 @@ F:	board/google/veyron/
 F:	include/configs/veyron.h
 F:	configs/chromebit_mickey_defconfig
 
-CHROMEBIT MINNIE BOARD
+CHROMEBOOK MINNIE BOARD
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 F:	board/google/veyron/
 F:	include/configs/veyron.h
-F:	configs/chromebit_minnie_defconfig
+F:	configs/chromebook_minnie_defconfig

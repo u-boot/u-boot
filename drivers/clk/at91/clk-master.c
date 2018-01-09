@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <clk-uclass.h>
-#include <dm/device.h>
+#include <dm.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -21,6 +21,7 @@ static struct clk_ops at91_master_clk_ops = {
 };
 
 static const struct udevice_id at91_master_clk_match[] = {
+	{ .compatible = "atmel,at91rm9200-clk-master" },
 	{ .compatible = "atmel,at91sam9x5-clk-master" },
 	{}
 };

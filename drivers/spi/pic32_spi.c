@@ -377,13 +377,14 @@ static int pic32_spi_probe(struct udevice *bus)
 {
 	struct pic32_spi_priv *priv = dev_get_priv(bus);
 	struct dm_spi_bus *dm_spi = dev_get_uclass_priv(bus);
+	int node = dev_of_offset(bus);
 	struct udevice *clkdev;
 	fdt_addr_t addr;
 	fdt_size_t size;
 	int ret;
 
 	debug("%s: %d, bus: %i\n", __func__, __LINE__, bus->seq);
-	addr = fdtdec_get_addr_size(gd->fdt_blob, bus->of_offset, "reg", &size);
+	addr = fdtdec_get_addr_size(gd->fdt_blob, node, "reg", &size);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -391,8 +392,8 @@ static int pic32_spi_probe(struct udevice *bus)
 	if (!priv->regs)
 		return -EINVAL;
 
-	dm_spi->max_hz = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
-					"spi-max-frequency", 250000000);
+	dm_spi->max_hz = fdtdec_get_int(gd->fdt_blob, node, "spi-max-frequency",
+					250000000);
 	/* get clock rate */
 	ret = clk_get_by_index(bus, 0, &clkdev);
 	if (ret < 0) {
@@ -413,8 +414,7 @@ static int pic32_spi_probe(struct udevice *bus)
 	 * of the ongoing transfer. To avoid this sort of error we will drive
 	 * /CS manually by toggling cs-gpio pins.
 	 */
-	ret = gpio_request_by_name_nodev(gd->fdt_blob, bus->of_offset,
-					 "cs-gpios", 0,
+	ret = gpio_request_by_name_nodev(offset_to_ofnode(node), "cs-gpios", 0,
 					 &priv->cs_gpio, GPIOD_IS_OUT);
 	if (ret) {
 		printf("pic32-spi: error, cs-gpios not found\n");

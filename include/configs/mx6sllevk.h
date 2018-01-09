@@ -20,9 +20,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(16 * SZ_1M)
 
-#define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_LATE_INIT
-
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
@@ -116,8 +113,6 @@
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + SZ_128M)
 
-#define CONFIG_STACKSIZE		SZ_128K
-
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
@@ -138,7 +133,6 @@
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* USDHC1 */
 
 #define CONFIG_ENV_OFFSET		(12 * SZ_64K)
-#define CONFIG_ENV_IS_IN_MMC
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC1_BASE_ADDR
@@ -148,5 +142,10 @@
 #define CONFIG_IMX_THERMAL
 
 #define CONFIG_IOMUX_LPSR
+
+/* USB Configs */
+#ifdef CONFIG_CMD_USB
+#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+#endif
 
 #endif				/* __CONFIG_H */

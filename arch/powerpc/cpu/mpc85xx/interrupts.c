@@ -20,7 +20,7 @@
 #include <post.h>
 #endif
 
-int interrupt_init_cpu(unsigned int *decrementer_count)
+void interrupt_init_cpu(unsigned *decrementer_count)
 {
 	ccsr_pic_t __iomem *pic = (void *)CONFIG_SYS_MPC8xxx_PIC_ADDR;
 
@@ -77,8 +77,6 @@ int interrupt_init_cpu(unsigned int *decrementer_count)
 #ifdef CONFIG_POST
 	post_word_store(post_word);
 #endif
-
-	return (0);
 }
 
 /* Install and free a interrupt handler. Not implemented yet. */

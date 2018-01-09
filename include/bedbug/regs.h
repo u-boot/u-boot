@@ -152,12 +152,10 @@
 #define DBSR_IA3	0x00200000	/* Instr Address Compare 3 Event */
 #define DBSR_IA4	0x00100000	/* Instr Address Compare 4 Event */
 #endif
-#ifndef CONFIG_440
 #define DBSR_IA1	0x04000000	/* Instr Address Compare 1 Event */
 #define DBSR_IA2	0x02000000	/* Instr Address Compare 2 Event */
 #define DBSR_IA3	0x00080000	/* Instr Address Compare 3 Event */
 #define DBSR_IA4	0x00040000	/* Instr Address Compare 4 Event */
-#endif
 
 struct spr_info {
   int  spr_val;

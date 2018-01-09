@@ -24,9 +24,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#define CONFIG_CMD_ENV
-#define CONFIG_CMD_PCI
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -36,19 +33,14 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /* SPI NOR flash default params, used by sf commands */
-#define CONFIG_SF_DEFAULT_SPEED		1000000
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
-#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_SF_DEFAULT_BUS		1
 
 /*
  * SDIO/MMC Card Configuration
  */
-#define CONFIG_GENERIC_MMC
 #define CONFIG_SYS_MMC_BASE		MVEBU_SDIO_BASE
 
 /* Partition support */
-#define CONFIG_DOS_PARTITION
-#define CONFIG_EFI_PARTITION
 
 /* Additional FS support/configuration */
 #define CONFIG_SUPPORT_VFAT
@@ -59,7 +51,6 @@
 #define CONFIG_ENV_MIN_ENTRIES		128
 
 /* Environment in MMC */
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_SECT_SIZE		0x200
 #define CONFIG_ENV_SIZE			0x10000
@@ -84,7 +75,7 @@
 #define CONFIG_SYS_ALT_MEMTEST
 
 /* Keep device tree and initrd in lower memory so the kernel can access them */
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define RELOCATION_LIMITS_ENV_SETTINGS	\
 	"fdt_high=0x10000000\0"		\
 	"initrd_high=0x10000000\0"
 
@@ -137,5 +128,51 @@
  * to enable certain macros
  */
 #include "mv-common.h"
+
+/* Include the common distro boot environment */
+#ifndef CONFIG_SPL_BUILD
+#include <config_distro_defaults.h>
+
+#ifdef CONFIG_MMC
+#define BOOT_TARGET_DEVICES_MMC(func) func(MMC, mmc, 0)
+#else
+#define BOOT_TARGET_DEVICES_MMC(func)
+#endif
+
+#ifdef CONFIG_USB_STORAGE
+#define BOOT_TARGET_DEVICES_USB(func) func(USB, usb, 0)
+#else
+#define BOOT_TARGET_DEVICES_USB(func)
+#endif
+
+#define BOOT_TARGET_DEVICES(func) \
+	BOOT_TARGET_DEVICES_MMC(func) \
+	BOOT_TARGET_DEVICES_USB(func) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
+
+#define KERNEL_ADDR_R	__stringify(0x800000)
+#define FDT_ADDR_R	__stringify(0x100000)
+#define RAMDISK_ADDR_R	__stringify(0x1800000)
+#define SCRIPT_ADDR_R	__stringify(0x200000)
+#define PXEFILE_ADDR_R	__stringify(0x300000)
+
+#define LOAD_ADDRESS_ENV_SETTINGS \
+	"kernel_addr_r=" KERNEL_ADDR_R "\0" \
+	"fdt_addr_r=" FDT_ADDR_R "\0" \
+	"ramdisk_addr_r=" RAMDISK_ADDR_R "\0" \
+	"scriptaddr=" SCRIPT_ADDR_R "\0" \
+	"pxefile_addr_r=" PXEFILE_ADDR_R "\0"
+
+#include <config_distro_bootcmd.h>
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	RELOCATION_LIMITS_ENV_SETTINGS \
+	LOAD_ADDRESS_ENV_SETTINGS \
+	"fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
+	"console=ttyS0,115200\0" \
+	BOOTENV
+
+#endif /* CONFIG_SPL_BUILD */
 
 #endif /* _CONFIG_CLEARFOG_H */

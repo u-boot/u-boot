@@ -10,11 +10,6 @@
 #include <linux/sizes.h>
 
 /*
- *  CPU configuration
- */
-#define CONFIG_SYS_TIMER_RATE		CONFIG_SYS_CLK_FREQ
-
-/*
  * Memory configuration
  */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
@@ -30,19 +25,11 @@
 #define CONFIG_SYS_BOOTM_LEN		SZ_32M
 #define CONFIG_SYS_LOAD_ADDR		0x82000000
 
-#define CONFIG_SYS_NO_FLASH
-
 /*
  * UART configuration
  */
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_CLK		166666666
-#define CONFIG_BAUDRATE			115200
-
-/*
- * Ethernet PHY configuration
- */
-#define CONFIG_PHY_GIGE
 
 /*
  * Even though the board houses Realtek RTL8211E PHY
@@ -67,12 +54,11 @@
  */
 
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_MAXARGS		16
+#define CONFIG_CMDLINE_EDITING
 
 /*
  * Environment settings
  */
-#define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_SIZE			SZ_2K
 #define CONFIG_ENV_OFFSET		0
 
@@ -80,16 +66,11 @@
  * Environment configuration
  */
 #define CONFIG_BOOTFILE			"uImage"
-#define CONFIG_BOOTARGS			"console=ttyS0,115200n8"
 #define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR
 
 /*
  * Console configuration
  */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_CBSIZE		256
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-						sizeof(CONFIG_SYS_PROMPT) + 16)
 
 #endif /* _CONFIG_TB100_H_ */

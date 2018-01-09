@@ -75,8 +75,6 @@
 #define CONFIG_SYS_CLK_FREQ     get_board_sys_clk(0)
 #endif
 
-#define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
-
 #undef	CONFIG_SYS_DRAM_TEST				/* memory test, takes time */
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest region */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
@@ -302,9 +300,6 @@
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
-#define CONFIG_DOS_PARTITION
-#undef CONFIG_SCSI_AHCI
-
 #ifdef CONFIG_SCSI_AHCI
 #define CONFIG_SATA_ULI5288
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID	4
@@ -446,19 +441,12 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
 #define CONFIG_ENV_SECT_SIZE	0x20000	/* 128k(one sector) for env */
 #define CONFIG_ENV_SIZE		0x2000
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
-
-#define CONFIG_CMD_REGINFO
-
-#if defined(CONFIG_PCI)
-    #define CONFIG_CMD_PCI
-#endif
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
@@ -468,16 +456,6 @@
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 #define CONFIG_CMDLINE_EDITING	1		/* add command line history */
-
-#if defined(CONFIG_CMD_KGDB)
-    #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
-#else
-    #define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
-#endif
-
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS	16		/* max number of command args */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 
 /*
  * For booting Linux, the board info and command line data
@@ -518,10 +496,6 @@
 
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
-
-#undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
-
-#define CONFIG_BAUDRATE	115200
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
    "netdev=eth0\0"							\

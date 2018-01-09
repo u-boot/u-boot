@@ -22,10 +22,6 @@
 #include <part.h>
 #include <vsprintf.h>
 
-#ifndef CONFIG_PARTITION_UUIDS
-#error CONFIG_PARTITION_UUIDS must be enabled for CONFIG_CMD_PART to be enabled
-#endif
-
 static int do_part_uuid(int argc, char * const argv[])
 {
 	int part;
@@ -42,7 +38,7 @@ static int do_part_uuid(int argc, char * const argv[])
 		return 1;
 
 	if (argc > 2)
-		setenv(argv[2], info.uuid);
+		env_set(argv[2], info.uuid);
 	else
 		printf("%s\n", info.uuid);
 
@@ -103,7 +99,7 @@ static int do_part_list(int argc, char * const argv[])
 			sprintf(t, "%s%x", str[0] ? " " : "", p);
 			strcat(str, t);
 		}
-		setenv(var, str);
+		env_set(var, str);
 		return 0;
 	}
 
@@ -139,7 +135,7 @@ static int do_part_start(int argc, char * const argv[])
 	snprintf(buf, sizeof(buf), LBAF, info.start);
 
 	if (argc > 3)
-		setenv(argv[3], buf);
+		env_set(argv[3], buf);
 	else
 		printf("%s\n", buf);
 
@@ -173,7 +169,7 @@ static int do_part_size(int argc, char * const argv[])
 	snprintf(buf, sizeof(buf), LBAF, info.size);
 
 	if (argc > 3)
-		setenv(argv[3], buf);
+		env_set(argv[3], buf);
 	else
 		printf("%s\n", buf);
 

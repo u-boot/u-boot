@@ -272,7 +272,7 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
 	/* board id for linux */
-	gd->bd->bi_arch_number = MACH_TYPE_ARMADILLO_800EVA;
+	gd->bd->bi_arch_number = MACH_TYPE_ARMADILLO800EVA;
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = ARMADILLO_800EVA_SDRAM_BASE + 0x100;
 

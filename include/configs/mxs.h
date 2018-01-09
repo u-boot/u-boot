@@ -42,13 +42,10 @@
  */
 
 /* Startup hooks */
-#define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_ARCH_MISC_INIT
 
 /* SPL */
 #define CONFIG_SPL_NO_CPU_SUPPORT_CODE
 #define CONFIG_SPL_START_S_PATH	"arch/arm/cpu/arm926ejs/mxs"
-#define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm926ejs/mxs/u-boot-spl.lds"
 
 /* Memory sizes */
 #define CONFIG_SYS_MALLOC_LEN		0x00400000	/* 4 MB for malloc */
@@ -116,9 +113,6 @@
 #define CONFIG_PL01x_PORTS		{ (void *)MXS_UARTDBG_BASE }
 #define CONFIG_CONS_INDEX		0
 /* Default baudrate can be overridden by board! */
-#ifndef CONFIG_BAUDRATE
-#define CONFIG_BAUDRATE			115200
-#endif
 
 /* FEC Ethernet on SoC */
 #ifdef CONFIG_FEC_MXC
@@ -131,16 +125,6 @@
 #endif
 #endif
 
-/* I2C */
-#ifdef CONFIG_CMD_I2C
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXS
-#define CONFIG_HARD_I2C
-#ifndef CONFIG_SYS_I2C_SPEED
-#define CONFIG_SYS_I2C_SPEED		400000
-#endif
-#endif
-
 /* LCD */
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_MXS
@@ -148,9 +132,7 @@
 
 /* MMC */
 #ifdef CONFIG_CMD_MMC
-#define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_MXS_MMC
 #endif
 
 /* NAND */
@@ -175,7 +157,6 @@
 
 /* USB */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MXS
 #define CONFIG_EHCI_IS_TDI
 #endif

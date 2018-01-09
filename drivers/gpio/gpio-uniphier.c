@@ -1,83 +1,132 @@
 /*
- * Copyright (C) 2016 Socionext Inc.
+ * Copyright (C) 2016-2017 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
-#include <dm/device.h>
+#include <dm.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
 #include <linux/errno.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
+#include <dt-bindings/gpio/uniphier-gpio.h>
 
-#define UNIPHIER_GPIO_PORTS_PER_BANK	8
-
-#define UNIPHIER_GPIO_REG_DATA		0	/* data */
-#define UNIPHIER_GPIO_REG_DIR		4	/* direction (1:in, 0:out) */
+#define UNIPHIER_GPIO_PORT_DATA		0x0	/* data */
+#define UNIPHIER_GPIO_PORT_DIR		0x4	/* direction (1:in, 0:out) */
+#define UNIPHIER_GPIO_IRQ_EN		0x90	/* irq enable */
 
 struct uniphier_gpio_priv {
-	void __iomem *base;
-	char bank_name[16];
+	void __iomem *regs;
 };
 
-static void uniphier_gpio_offset_write(struct udevice *dev, unsigned offset,
-				       unsigned reg, int value)
+static unsigned int uniphier_gpio_bank_to_reg(unsigned int bank)
 {
-	struct uniphier_gpio_priv *priv = dev_get_priv(dev);
+	unsigned int reg;
+
+	reg = (bank + 1) * 8;
+
+	/*
+	 * Unfortunately, the GPIO port registers are not contiguous because
+	 * offset 0x90-0x9f is used for IRQ.  Add 0x10 when crossing the region.
+	 */
+	if (reg >= UNIPHIER_GPIO_IRQ_EN)
+		reg += 0x10;
+
+	return reg;
+}
+
+static void uniphier_gpio_get_bank_and_mask(unsigned int offset,
+					    unsigned int *bank, u32 *mask)
+{
+	*bank = offset / UNIPHIER_GPIO_LINES_PER_BANK;
+	*mask = BIT(offset % UNIPHIER_GPIO_LINES_PER_BANK);
+}
+
+static void uniphier_gpio_reg_update(struct uniphier_gpio_priv *priv,
+				     unsigned int reg, u32 mask, u32 val)
+{
 	u32 tmp;
 
-	tmp = readl(priv->base + reg);
-	if (value)
-		tmp |= BIT(offset);
-	else
-		tmp &= ~BIT(offset);
-	writel(tmp, priv->base + reg);
+	tmp = readl(priv->regs + reg);
+	tmp &= ~mask;
+	tmp |= mask & val;
+	writel(tmp, priv->regs + reg);
 }
 
-static int uniphier_gpio_offset_read(struct udevice *dev, unsigned offset,
-				     unsigned reg)
+static void uniphier_gpio_bank_write(struct udevice *dev, unsigned int bank,
+				     unsigned int reg, u32 mask, u32 val)
 {
 	struct uniphier_gpio_priv *priv = dev_get_priv(dev);
 
-	return !!(readl(priv->base + reg) & BIT(offset));
+	if (!mask)
+		return;
+
+	uniphier_gpio_reg_update(priv, uniphier_gpio_bank_to_reg(bank) + reg,
+				 mask, val);
 }
 
-static int uniphier_gpio_direction_input(struct udevice *dev, unsigned offset)
+static void uniphier_gpio_offset_write(struct udevice *dev, unsigned int offset,
+				       unsigned int reg, int val)
 {
-	uniphier_gpio_offset_write(dev, offset, UNIPHIER_GPIO_REG_DIR, 1);
+	unsigned int bank;
+	u32 mask;
 
-	return 0;
+	uniphier_gpio_get_bank_and_mask(offset, &bank, &mask);
+
+	uniphier_gpio_bank_write(dev, bank, reg, mask, val ? mask : 0);
 }
 
-static int uniphier_gpio_direction_output(struct udevice *dev, unsigned offset,
-					  int value)
+static int uniphier_gpio_offset_read(struct udevice *dev,
+				     unsigned int offset, unsigned int reg)
 {
-	uniphier_gpio_offset_write(dev, offset, UNIPHIER_GPIO_REG_DATA, value);
-	uniphier_gpio_offset_write(dev, offset, UNIPHIER_GPIO_REG_DIR, 0);
+	struct uniphier_gpio_priv *priv = dev_get_priv(dev);
+	unsigned int bank, reg_offset;
+	u32 mask;
 
-	return 0;
+	uniphier_gpio_get_bank_and_mask(offset, &bank, &mask);
+	reg_offset = uniphier_gpio_bank_to_reg(bank) + reg;
+
+	return !!(readl(priv->regs + reg_offset) & mask);
 }
 
-static int uniphier_gpio_get_value(struct udevice *dev, unsigned offset)
+static int uniphier_gpio_get_function(struct udevice *dev, unsigned int offset)
 {
-	return uniphier_gpio_offset_read(dev, offset, UNIPHIER_GPIO_REG_DATA);
-}
-
-static int uniphier_gpio_set_value(struct udevice *dev, unsigned offset,
-				   int value)
-{
-	uniphier_gpio_offset_write(dev, offset, UNIPHIER_GPIO_REG_DATA, value);
-
-	return 0;
-}
-
-static int uniphier_gpio_get_function(struct udevice *dev, unsigned offset)
-{
-	return uniphier_gpio_offset_read(dev, offset, UNIPHIER_GPIO_REG_DIR) ?
+	return uniphier_gpio_offset_read(dev, offset, UNIPHIER_GPIO_PORT_DIR) ?
 						GPIOF_INPUT : GPIOF_OUTPUT;
+}
+
+static int uniphier_gpio_direction_input(struct udevice *dev,
+					 unsigned int offset)
+{
+	uniphier_gpio_offset_write(dev, offset, UNIPHIER_GPIO_PORT_DIR, 1);
+
+	return 0;
+}
+
+static int uniphier_gpio_direction_output(struct udevice *dev,
+					  unsigned int offset, int value)
+{
+	uniphier_gpio_offset_write(dev, offset, UNIPHIER_GPIO_PORT_DATA, value);
+	uniphier_gpio_offset_write(dev, offset, UNIPHIER_GPIO_PORT_DIR, 0);
+
+	return 0;
+}
+
+static int uniphier_gpio_get_value(struct udevice *dev, unsigned int offset)
+{
+	return uniphier_gpio_offset_read(dev, offset, UNIPHIER_GPIO_PORT_DATA);
+}
+
+static int uniphier_gpio_set_value(struct udevice *dev,
+				   unsigned int offset, int value)
+{
+	uniphier_gpio_offset_write(dev, offset, UNIPHIER_GPIO_PORT_DATA, value);
+
+	return 0;
 }
 
 static const struct dm_gpio_ops uniphier_gpio_ops = {
@@ -93,40 +142,28 @@ static int uniphier_gpio_probe(struct udevice *dev)
 	struct uniphier_gpio_priv *priv = dev_get_priv(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	fdt_addr_t addr;
-	unsigned int tmp;
 
-	addr = dev_get_addr(dev);
+	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	priv->base = devm_ioremap(dev, addr, SZ_8);
-	if (!priv->base)
+	priv->regs = devm_ioremap(dev, addr, SZ_512);
+	if (!priv->regs)
 		return -ENOMEM;
 
-	uc_priv->gpio_count = UNIPHIER_GPIO_PORTS_PER_BANK;
-
-	tmp = (addr & 0xfff);
-
-	/* Unfortunately, there is a register hole at offset 0x90-0x9f. */
-	if (tmp > 0x90)
-		tmp -= 0x10;
-
-	snprintf(priv->bank_name, sizeof(priv->bank_name) - 1,
-		 "port%d-", (tmp - 8) / 8);
-
-	uc_priv->bank_name = priv->bank_name;
+	uc_priv->gpio_count = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
+					      "ngpios", 0);
 
 	return 0;
 }
 
-/* .data = the number of GPIO banks */
 static const struct udevice_id uniphier_gpio_match[] = {
 	{ .compatible = "socionext,uniphier-gpio" },
 	{ /* sentinel */ }
 };
 
 U_BOOT_DRIVER(uniphier_gpio) = {
-	.name	= "uniphier_gpio",
+	.name	= "uniphier-gpio",
 	.id	= UCLASS_GPIO,
 	.of_match = uniphier_gpio_match,
 	.probe	= uniphier_gpio_probe,

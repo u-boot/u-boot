@@ -13,7 +13,6 @@
 
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
-#define CONFIG_BAUDRATE		115200
 
 #undef CONFIG_WATCHDOG		/* disable watchdog */
 
@@ -24,26 +23,21 @@
 #ifdef CONFIG_MONITOR_IS_IN_RAM
 #	define CONFIG_ENV_OFFSET		0x4000
 #	define CONFIG_ENV_SECT_SIZE	0x1000
-#	define CONFIG_ENV_IS_IN_FLASH	1
 #else
 #	define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x4000)
 #	define CONFIG_ENV_SECT_SIZE	0x1000
-#	define CONFIG_ENV_IS_IN_FLASH	1
 #endif
 
 #define LDS_BOARD_TEXT \
-        . = DEFINED(env_offset) ? env_offset : .; \
-        common/env_embedded.o (.text*);
+	. = DEFINED(env_offset) ? env_offset : .; \
+	env/embedded.o(.text*);
 
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_IDE
 
-#ifdef CONFIG_CMD_IDE
+#ifdef CONFIG_IDE
 /* ATA */
-#	define CONFIG_DOS_PARTITION
-#	define CONFIG_MAC_PARTITION
 #	define CONFIG_IDE_RESET		1
 #	define CONFIG_IDE_PREINIT	1
 #	define CONFIG_ATAPI
@@ -99,15 +93,6 @@
 #define CONFIG_SYS_I2C_PINMUX_SET	(0)
 
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-
-#if defined(CONFIG_CMD_KGDB)
-#	define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
-#else
-#	define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
-#endif
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 
 #define CONFIG_SYS_LOAD_ADDR		0x00100000
 

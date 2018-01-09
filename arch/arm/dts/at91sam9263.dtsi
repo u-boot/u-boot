@@ -32,6 +32,7 @@
 		ssc0 = &ssc0;
 		ssc1 = &ssc1;
 		pwm0 = &pwm0;
+		spi0 = &spi0;
 	};
 
 	cpus {
@@ -77,12 +78,14 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges;
+		u-boot,dm-pre-reloc;
 
 		apb {
 			compatible = "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges;
+			u-boot,dm-pre-reloc;
 
 			aic: interrupt-controller@fffff000 {
 				#interrupt-cells = <3>;
@@ -100,6 +103,7 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				#interrupt-cells = <1>;
+				u-boot,dm-pre-reloc;
 
 				main_osc: main_osc {
 					compatible = "atmel,at91rm9200-clk-main-osc";
@@ -114,7 +118,7 @@
 					clocks = <&main_osc>;
 				};
 
-				plla: pllack {
+				plla: pllack@0 {
 					compatible = "atmel,at91rm9200-clk-pll";
 					#clock-cells = <0>;
 					interrupts-extended = <&pmc AT91_PMC_LOCKA>;
@@ -126,7 +130,7 @@
 								<190000000 240000000 2 1>;
 				};
 
-				pllb: pllbck {
+				pllb: pllbck@1 {
 					compatible = "atmel,at91rm9200-clk-pll";
 					#clock-cells = <0>;
 					interrupts-extended = <&pmc AT91_PMC_LOCKB>;
@@ -145,6 +149,7 @@
 					clocks = <&slow_xtal>, <&main>, <&plla>, <&pllb>;
 					atmel,clk-output-range = <0 120000000>;
 					atmel,clk-divisors = <1 2 4 0>;
+					u-boot,dm-pre-reloc;
 				};
 
 				usb: usbck {
@@ -161,25 +166,25 @@
 					interrupt-parent = <&pmc>;
 					clocks = <&slow_xtal>, <&main>, <&plla>, <&pllb>;
 
-					prog0: prog0 {
+					prog0: prog@0 {
 						#clock-cells = <0>;
 						reg = <0>;
 						interrupts = <AT91_PMC_PCKRDY(0)>;
 					};
 
-					prog1: prog1 {
+					prog1: prog@1 {
 						#clock-cells = <0>;
 						reg = <1>;
 						interrupts = <AT91_PMC_PCKRDY(1)>;
 					};
 
-					prog2: prog2 {
+					prog2: prog@2 {
 						#clock-cells = <0>;
 						reg = <2>;
 						interrupts = <AT91_PMC_PCKRDY(2)>;
 					};
 
-					prog3: prog3 {
+					prog3: prog@3 {
 						#clock-cells = <0>;
 						reg = <3>;
 						interrupts = <AT91_PMC_PCKRDY(3)>;
@@ -191,37 +196,37 @@
 					#address-cells = <1>;
 					#size-cells = <0>;
 
-					uhpck: uhpck {
+					uhpck: uhpck@6 {
 						#clock-cells = <0>;
 						reg = <6>;
 						clocks = <&usb>;
 					};
 
-					udpck: udpck {
+					udpck: udpck@7 {
 						#clock-cells = <0>;
 						reg = <7>;
 						clocks = <&usb>;
 					};
 
-					pck0: pck0 {
+					pck0: pck0@8 {
 						#clock-cells = <0>;
 						reg = <8>;
 						clocks = <&prog0>;
 					};
 
-					pck1: pck1 {
+					pck1: pck1@9 {
 						#clock-cells = <0>;
 						reg = <9>;
 						clocks = <&prog1>;
 					};
 
-					pck2: pck2 {
+					pck2: pck2@10 {
 						#clock-cells = <0>;
 						reg = <10>;
 						clocks = <&prog2>;
 					};
 
-					pck3: pck3 {
+					pck3: pck3@11 {
 						#clock-cells = <0>;
 						reg = <11>;
 						clocks = <&prog3>;
@@ -233,123 +238,127 @@
 					#address-cells = <1>;
 					#size-cells = <0>;
 					clocks = <&mck>;
+					u-boot,dm-pre-reloc;
 
-					pioA_clk: pioA_clk {
+					pioA_clk: pioA_clk@2 {
 						#clock-cells = <0>;
 						reg = <2>;
+						u-boot,dm-pre-reloc;
 					};
 
-					pioB_clk: pioB_clk {
+					pioB_clk: pioB_clk@3 {
 						#clock-cells = <0>;
 						reg = <3>;
+						u-boot,dm-pre-reloc;
 					};
 
-					pioCDE_clk: pioCDE_clk {
+					pioCDE_clk: pioCDE_clk@4 {
 						#clock-cells = <0>;
 						reg = <4>;
+						u-boot,dm-pre-reloc;
 					};
 
-					usart0_clk: usart0_clk {
+					usart0_clk: usart0_clk@7 {
 						#clock-cells = <0>;
 						reg = <7>;
 					};
 
-					usart1_clk: usart1_clk {
+					usart1_clk: usart1_clk@8 {
 						#clock-cells = <0>;
 						reg = <8>;
 					};
 
-					usart2_clk: usart2_clk {
+					usart2_clk: usart2_clk@9 {
 						#clock-cells = <0>;
 						reg = <9>;
 					};
 
-					mci0_clk: mci0_clk {
+					mci0_clk: mci0_clk@10 {
 						#clock-cells = <0>;
 						reg = <10>;
 					};
 
-					mci1_clk: mci1_clk {
+					mci1_clk: mci1_clk@11 {
 						#clock-cells = <0>;
 						reg = <11>;
 					};
 
-					can_clk: can_clk {
+					can_clk: can_clk@12 {
 						#clock-cells = <0>;
 						reg = <12>;
 					};
 
-					twi0_clk: twi0_clk {
+					twi0_clk: twi0_clk@13 {
 						#clock-cells = <0>;
 						reg = <13>;
 					};
 
-					spi0_clk: spi0_clk {
+					spi0_clk: spi0_clk@14 {
 						#clock-cells = <0>;
 						reg = <14>;
 					};
 
-					spi1_clk: spi1_clk {
+					spi1_clk: spi1_clk@15 {
 						#clock-cells = <0>;
 						reg = <15>;
 					};
 
-					ssc0_clk: ssc0_clk {
+					ssc0_clk: ssc0_clk@16 {
 						#clock-cells = <0>;
 						reg = <16>;
 					};
 
-					ssc1_clk: ssc1_clk {
+					ssc1_clk: ssc1_clk@17 {
 						#clock-cells = <0>;
 						reg = <17>;
 					};
 
-					ac97_clk: ac97_clk {
+					ac97_clk: ac97_clk@18 {
 						#clock-cells = <0>;
 						reg = <18>;
 					};
 
-					tcb_clk: tcb_clk {
+					tcb_clk: tcb_clk@19 {
 						#clock-cells = <0>;
 						reg = <19>;
 					};
 
-					pwm_clk: pwm_clk {
+					pwm_clk: pwm_clk@20 {
 						#clock-cells = <0>;
 						reg = <20>;
 					};
 
-					macb0_clk: macb0_clk {
+					macb0_clk: macb0_clk@21 {
 						#clock-cells = <0>;
 						reg = <21>;
 					};
 
-					g2de_clk: g2de_clk {
+					g2de_clk: g2de_clk@23 {
 						#clock-cells = <0>;
 						reg = <23>;
 					};
 
-					udc_clk: udc_clk {
+					udc_clk: udc_clk@24 {
 						#clock-cells = <0>;
 						reg = <24>;
 					};
 
-					isi_clk: isi_clk {
+					isi_clk: isi_clk@25 {
 						#clock-cells = <0>;
 						reg = <25>;
 					};
 
-					lcd_clk: lcd_clk {
+					lcd_clk: lcd_clk@26 {
 						#clock-cells = <0>;
 						reg = <26>;
 					};
 
-					dma_clk: dma_clk {
+					dma_clk: dma_clk@27 {
 						#clock-cells = <0>;
 						reg = <27>;
 					};
 
-					ohci_clk: ohci_clk {
+					ohci_clk: ohci_clk@29 {
 						#clock-cells = <0>;
 						reg = <29>;
 					};
@@ -398,6 +407,12 @@
 				#size-cells = <1>;
 				compatible = "atmel,at91rm9200-pinctrl", "simple-bus";
 				ranges = <0xfffff200 0xfffff200 0xa00>;
+				reg = <0xfffff200 0x200
+				       0xfffff400 0x200
+				       0xfffff600 0x200
+				       0xfffff800 0x200
+				       0xfffffa00 0x200
+				      >;
 
 				atmel,mux-mask = <
 				      /*    A         B     */
@@ -412,8 +427,8 @@
 				dbgu {
 					pinctrl_dbgu: dbgu-0 {
 						atmel,pins =
-							<AT91_PIOC 30 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PC30 periph A */
-							 AT91_PIOC 31 AT91_PERIPH_A AT91_PINCTRL_PULL_UP>;	/* PC31 periph with pullup */
+							<AT91_PIOC 30 AT91_PERIPH_A AT91_PINCTRL_PULL_UP
+							 AT91_PIOC 31 AT91_PERIPH_A AT91_PINCTRL_NONE>;
 					};
 				};
 
@@ -707,60 +722,66 @@
 					};
 				};
 
-				pioA: gpio@fffff200 {
-					compatible = "atmel,at91rm9200-gpio";
-					reg = <0xfffff200 0x200>;
-					interrupts = <2 IRQ_TYPE_LEVEL_HIGH 1>;
-					#gpio-cells = <2>;
-					gpio-controller;
-					interrupt-controller;
-					#interrupt-cells = <2>;
-					clocks = <&pioA_clk>;
-				};
+			};
 
-				pioB: gpio@fffff400 {
-					compatible = "atmel,at91rm9200-gpio";
-					reg = <0xfffff400 0x200>;
-					interrupts = <3 IRQ_TYPE_LEVEL_HIGH 1>;
-					#gpio-cells = <2>;
-					gpio-controller;
-					interrupt-controller;
-					#interrupt-cells = <2>;
-					clocks = <&pioB_clk>;
-				};
+			pioA: gpio@fffff200 {
+				compatible = "atmel,at91rm9200-gpio";
+				reg = <0xfffff200 0x200>;
+				interrupts = <2 IRQ_TYPE_LEVEL_HIGH 1>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				clocks = <&pioA_clk>;
+				u-boot,dm-pre-reloc;
+			};
 
-				pioC: gpio@fffff600 {
-					compatible = "atmel,at91rm9200-gpio";
-					reg = <0xfffff600 0x200>;
-					interrupts = <4 IRQ_TYPE_LEVEL_HIGH 1>;
-					#gpio-cells = <2>;
-					gpio-controller;
-					interrupt-controller;
-					#interrupt-cells = <2>;
-					clocks = <&pioCDE_clk>;
-				};
+			pioB: gpio@fffff400 {
+				compatible = "atmel,at91rm9200-gpio";
+				reg = <0xfffff400 0x200>;
+				interrupts = <3 IRQ_TYPE_LEVEL_HIGH 1>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				clocks = <&pioB_clk>;
+				u-boot,dm-pre-reloc;
+			};
 
-				pioD: gpio@fffff800 {
-					compatible = "atmel,at91rm9200-gpio";
-					reg = <0xfffff800 0x200>;
-					interrupts = <4 IRQ_TYPE_LEVEL_HIGH 1>;
-					#gpio-cells = <2>;
-					gpio-controller;
-					interrupt-controller;
-					#interrupt-cells = <2>;
-					clocks = <&pioCDE_clk>;
-				};
+			pioC: gpio@fffff600 {
+				compatible = "atmel,at91rm9200-gpio";
+				reg = <0xfffff600 0x200>;
+				interrupts = <4 IRQ_TYPE_LEVEL_HIGH 1>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				clocks = <&pioCDE_clk>;
+				u-boot,dm-pre-reloc;
+			};
 
-				pioE: gpio@fffffa00 {
-					compatible = "atmel,at91rm9200-gpio";
-					reg = <0xfffffa00 0x200>;
-					interrupts = <4 IRQ_TYPE_LEVEL_HIGH 1>;
-					#gpio-cells = <2>;
-					gpio-controller;
-					interrupt-controller;
-					#interrupt-cells = <2>;
-					clocks = <&pioCDE_clk>;
-				};
+			pioD: gpio@fffff800 {
+				compatible = "atmel,at91rm9200-gpio";
+				reg = <0xfffff800 0x200>;
+				interrupts = <4 IRQ_TYPE_LEVEL_HIGH 1>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				clocks = <&pioCDE_clk>;
+				u-boot,dm-pre-reloc;
+			};
+
+			pioE: gpio@fffffa00 {
+				compatible = "atmel,at91rm9200-gpio";
+				reg = <0xfffffa00 0x200>;
+				interrupts = <4 IRQ_TYPE_LEVEL_HIGH 1>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				clocks = <&pioCDE_clk>;
+				u-boot,dm-pre-reloc;
 			};
 
 			dbgu: serial@ffffee00 {
@@ -1019,7 +1040,7 @@
 		};
 	};
 
-	i2c@0 {
+	i2c-gpio-0 {
 		compatible = "i2c-gpio";
 		gpios = <&pioB 4 GPIO_ACTIVE_HIGH /* sda */
 			 &pioB 5 GPIO_ACTIVE_HIGH /* scl */

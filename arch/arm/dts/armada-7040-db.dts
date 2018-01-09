@@ -42,6 +42,7 @@
 
 /*
  * Device Tree file for Marvell Armada 7040 Development board platform
+ * Boot device: SPI NOR, 0x32 (SW3)
  */
 
 #include "armada-7040.dtsi"
@@ -158,8 +159,8 @@
 
 &cpm_comphy {
 	phy0 {
-		phy-type = <PHY_TYPE_SGMII2>;
-		phy-speed = <PHY_SPEED_3_125G>;
+		phy-type = <PHY_TYPE_SGMII1>;
+		phy-speed = <PHY_SPEED_1_25G>;
 	};
 
 	phy1 {
@@ -168,8 +169,7 @@
 	};
 
 	phy2 {
-		phy-type = <PHY_TYPE_SGMII0>;
-		phy-speed = <PHY_SPEED_1_25G>;
+		phy-type = <PHY_TYPE_SFI>;
 	};
 
 	phy3 {
@@ -194,4 +194,48 @@
 
 &cpm_utmi1 {
 	status = "okay";
+};
+
+&ap_sdhci0 {
+	status = "okay";
+	bus-width = <4>;
+	no-1-8-v;
+	non-removable;
+};
+
+&cpm_sdhci0 {
+	status = "okay";
+	bus-width = <4>;
+	no-1-8-v;
+	non-removable;
+};
+
+&cpm_mdio {
+	phy0: ethernet-phy@0 {
+		reg = <0>;
+	};
+	phy1: ethernet-phy@1 {
+		reg = <1>;
+	};
+};
+
+&cpm_ethernet {
+	status = "okay";
+};
+
+&cpm_eth0 {
+	status = "okay";
+	phy-mode = "sfi"; /* lane-2 */
+};
+
+&cpm_eth1 {
+	status = "okay";
+	phy = <&phy0>;
+	phy-mode = "sgmii";
+};
+
+&cpm_eth2 {
+	status = "okay";
+	phy = <&phy1>;
+	phy-mode = "rgmii-id";
 };

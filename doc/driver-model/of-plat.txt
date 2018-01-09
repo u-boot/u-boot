@@ -111,7 +111,7 @@ struct dtd_rockchip_rk3288_dw_mshc {
         bool            cap_sd_highspeed;
         fdt32_t         card_detect_delay;
         fdt32_t         clock_freq_min_max[2];
-        struct phandle_2_cell clocks[4];
+        struct phandle_1_arg clocks[4];
         bool            disable_wp;
         fdt32_t         fifo_depth;
         fdt32_t         interrupts[3];
@@ -155,6 +155,11 @@ accessed using:
 This avoids the code overhead of converting the device tree data to
 platform data in the driver. The ofdata_to_platdata() method should
 therefore do nothing in such a driver.
+
+Where a node has multiple compatible strings, a #define is used to make them
+equivalent, e.g.:
+
+#define dtd_rockchip_rk3299_dw_mshc dtd_rockchip_rk3288_dw_mshc
 
 
 Converting of-platdata to a useful form
@@ -205,7 +210,7 @@ For example:
             /* Decode the device tree data */
             struct mmc_platdata *plat = dev_get_platdata(dev);
             const void *blob = gd->fdt_blob;
-            int node = dev->of_offset;
+            int node = dev_of_offset(dev);
 
             plat->fifo_depth = fdtdec_get_int(blob, node, "fifo-depth", 0);
     #endif

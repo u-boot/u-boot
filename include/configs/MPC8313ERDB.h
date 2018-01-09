@@ -78,7 +78,6 @@
 
 #define CONFIG_SYS_CLK_FREQ	CONFIG_83XX_CLKIN
 
-#define CONFIG_BOARD_EARLY_INIT_F		/* call board_early_init_f */
 #define CONFIG_BOARD_EARLY_INIT_R		/* call board_early_init_r */
 
 #define CONFIG_SYS_IMMR		0xE0000000
@@ -260,13 +259,8 @@
 
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITION
-#define CONFIG_CMD_MTDPARTS
-#define MTDIDS_DEFAULT			"nand0=e2800000.flash"
-#define MTDPARTS_DEFAULT		\
-	"mtdparts=e2800000.flash:512k(uboot),128k(env),6m@1m(kernel),-(fs)"
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_CMD_NAND 1
 #define CONFIG_NAND_FSL_ELBC 1
 #define CONFIG_SYS_NAND_BLOCK_SIZE 16384
 #define CONFIG_SYS_NAND_WINDOW_SIZE (32 * 1024)
@@ -433,7 +427,6 @@
  * Environment
  */
 #if defined(CONFIG_NAND)
-	#define CONFIG_ENV_IS_IN_NAND	1
 	#define CONFIG_ENV_OFFSET		(512 * 1024)
 	#define CONFIG_ENV_SECT_SIZE	CONFIG_SYS_NAND_BLOCK_SIZE
 	#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
@@ -442,7 +435,6 @@
 	#define CONFIG_ENV_OFFSET_REDUND	\
 					(CONFIG_ENV_OFFSET + CONFIG_ENV_RANGE)
 #elif !defined(CONFIG_SYS_RAMBOOT)
-	#define CONFIG_ENV_IS_IN_FLASH	1
 	#define CONFIG_ENV_ADDR		\
 			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
 	#define CONFIG_ENV_SECT_SIZE	0x10000	/* 64K(one sector) for env */
@@ -450,7 +442,6 @@
 
 /* Address and size of Redundant Environment Sector */
 #else
-	#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
 	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
 	#define CONFIG_ENV_SIZE		0x2000
 #endif
@@ -469,8 +460,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_PCI
 
 #define CONFIG_CMDLINE_EDITING 1
 #define CONFIG_AUTO_COMPLETE	/* add autocompletion support   */
@@ -482,10 +471,6 @@
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
 
-						/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE	\
-			(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
-#define CONFIG_SYS_MAXARGS	16	/* max number of command args */
 				/* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
@@ -644,7 +629,6 @@
 
 				/* default location for tftp and bootm */
 #define CONFIG_LOADADDR		800000
-#define CONFIG_BAUDRATE		115200
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"netdev=" CONFIG_NETDEV "\0"					\

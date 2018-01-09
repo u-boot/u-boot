@@ -8,18 +8,6 @@ choice
 	prompt "CPU select"
 	optional
 
-config MPC512X
-	bool "MPC512X"
-
-config 5xx
-	bool "MPC5xx"
-
-config MPC5xxx
-	bool "MPC5xxx"
-
-config MPC8260
-	bool "MPC8260"
-
 config MPC83xx
 	bool "MPC83xx"
 	select CREATE_ARCH_SYMLINK
@@ -32,29 +20,25 @@ config MPC85xx
 	select CREATE_ARCH_SYMLINK
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
+	imply USB_EHCI_HCD if USB
+	imply CMD_HASH
+	imply CMD_IRQ
 
 config MPC86xx
 	bool "MPC86xx"
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
+	imply CMD_REGINFO
 
 config 8xx
 	bool "MPC8xx"
-
-config 4xx
-	bool "PPC4xx"
-	select CREATE_ARCH_SYMLINK
+	imply CMD_REGINFO
 
 endchoice
 
-source "arch/powerpc/cpu/mpc512x/Kconfig"
-source "arch/powerpc/cpu/mpc5xx/Kconfig"
-source "arch/powerpc/cpu/mpc5xxx/Kconfig"
-source "arch/powerpc/cpu/mpc8260/Kconfig"
 source "arch/powerpc/cpu/mpc83xx/Kconfig"
 source "arch/powerpc/cpu/mpc85xx/Kconfig"
 source "arch/powerpc/cpu/mpc86xx/Kconfig"
 source "arch/powerpc/cpu/mpc8xx/Kconfig"
-source "arch/powerpc/cpu/ppc4xx/Kconfig"
 
 endmenu

@@ -31,7 +31,7 @@ alias jhersh         Joe Hershberger <joe.hershberger@ni.com>
 alias jwrdegoede     Hans de Goede <hdegoede@redhat.com>
 alias kimphill       Kim Phillips <kim.phillips@freescale.com>
 alias luka           Luka Perkov <luka.perkov@sartura.hr>
-alias lukma          Lukasz Majewski <l.majewski@samsung.com>
+alias lukma          Lukasz Majewski <l.majewski@denx.de>
 alias macpaul        Macpaul Lin <macpaul@andestech.com>
 alias marex          Marek Vasut <marex@denx.de>
 alias masahiro       Masahiro Yamada <yamada.masahiro@socionext.com>
@@ -40,6 +40,7 @@ alias maxime	     Maxime Ripard <maxime.ripard@free-electrons.com>
 alias monstr         Michal Simek <monstr@monstr.eu>
 alias prafulla       Prafulla Wadaskar <prafulla@marvell.com>
 alias prom           Minkyu Kang <mk7.kang@samsung.com>
+alias ptomsich       Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
 alias rbohmer        Remy Bohmer <linux@bohmer.net>
 alias reinhardm      Reinhard Meyer <u-boot@emk-elektronik.de>
 alias sbabic         Stefano Babic <sbabic@denx.de>
@@ -53,7 +54,7 @@ alias vapier         Mike Frysinger <vapier@gentoo.org>
 alias wd             Wolfgang Denk <wd@denx.de>
 
 # Architecture aliases
-alias arch           arc, arm, avr32, bfin, m68k, microblaze, mips, nds32, nios2, powerpc, sandbox, superh, sparc, x86
+alias arch           arc, arm, bfin, m68k, microblaze, mips, nds32, nios2, powerpc, sandbox, superh, sparc, x86
 alias arches         arch
 
 alias arc            uboot, abrodkin
@@ -77,8 +78,7 @@ alias tegra2         tegra
 alias ti             uboot, trini
 alias uniphier       uboot, masahiro
 alias zynq           uboot, monstr
-alias rockchip       uboot, sjg, Lin huang <hl@rock-chips.com>
-alias avr32          uboot, abiessmann
+alias rockchip       uboot, sjg, Kever Yang <kever.yang@rock-chips.com>, ptomsich
 
 alias bfin           uboot, vapier, sonic
 alias blackfin       bfin
@@ -133,6 +133,7 @@ alias spi            uboot, jagan
 alias spmi           uboot, mateusz
 alias ubi            uboot, hs
 alias usb            uboot, marex
+alias xhci           uboot, bmeng
 alias video          uboot, ag
 alias patman         uboot, sjg
 alias buildman       uboot, sjg

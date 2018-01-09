@@ -251,7 +251,7 @@ static int mvebu_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
 
-	plat->spireg = (struct spi_reg *)dev_get_addr(bus);
+	plat->spireg = (struct spi_reg *)devfdt_get_addr(bus);
 
 	/*
 	 * FIXME
@@ -261,9 +261,9 @@ static int mvebu_spi_ofdata_to_platdata(struct udevice *bus)
 	 * it should be used to read the input clock and the DT property
 	 * can be removed.
 	 */
-	plat->clock = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
+	plat->clock = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus),
 				     "clock-frequency", 160000);
-	plat->frequency = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
+	plat->frequency = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus),
 					 "spi-max-frequency", 40000);
 
 	return 0;

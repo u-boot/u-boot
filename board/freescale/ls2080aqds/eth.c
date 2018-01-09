@@ -14,6 +14,7 @@
 #include <fm_eth.h>
 #include <i2c.h>
 #include <miiphy.h>
+#include <fsl-mc/fsl_mc.h>
 #include <fsl-mc/ldpaa_wriop.h>
 
 #include "../common/qixis.h"
@@ -22,7 +23,7 @@
 
 #define MC_BOOT_ENV_VAR "mcinitcmd"
 
-#ifdef CONFIG_FSL_MC_ENET
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
  /* - In LS2080A there are only 16 SERDES lanes, spread across 2 SERDES banks.
  *   Bank 1 -> Lanes A, B, C, D, E, F, G, H
  *   Bank 2 -> Lanes A,B, C, D, E, F, G, H
@@ -448,7 +449,7 @@ static void initialize_dpmac_to_slot(void)
 		>> FSL_CHASSIS3_RCWSR28_SRDS2_PRTCL_SHIFT;
 
 	char *env_hwconfig;
-	env_hwconfig = getenv("hwconfig");
+	env_hwconfig = env_get("hwconfig");
 
 	switch (serdes1_prtcl) {
 	case 0x07:
@@ -602,7 +603,7 @@ void ls2080a_handle_phy_interface_sgmii(int dpmac_id)
 		>> FSL_CHASSIS3_RCWSR28_SRDS2_PRTCL_SHIFT;
 
 	int *riser_phy_addr;
-	char *env_hwconfig = getenv("hwconfig");
+	char *env_hwconfig = env_get("hwconfig");
 
 	if (hwconfig_f("xqsgmii", env_hwconfig))
 		riser_phy_addr = &xqsgii_riser_phy_addr[0];
@@ -834,8 +835,7 @@ void ls2080a_handle_phy_interface_xsgmii(int i)
 int board_eth_init(bd_t *bis)
 {
 	int error;
-	char *mc_boot_env_var;
-#ifdef CONFIG_FSL_MC_ENET
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
 	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
 	int serdes1_prtcl = (in_le32(&gur->rcwsr[28]) &
 				FSL_CHASSIS3_RCWSR28_SRDS1_PRTCL_MASK)
@@ -849,7 +849,7 @@ int board_eth_init(bd_t *bis)
 	unsigned int i;
 	char *env_hwconfig;
 
-	env_hwconfig = getenv("hwconfig");
+	env_hwconfig = env_get("hwconfig");
 
 	initialize_dpmac_to_slot();
 
@@ -902,9 +902,6 @@ int board_eth_init(bd_t *bis)
 		}
 	}
 
-	mc_boot_env_var = getenv(MC_BOOT_ENV_VAR);
-	if (mc_boot_env_var)
-		run_command_list(mc_boot_env_var, -1, 0);
 	error = cpu_eth_init(bis);
 
 	if (hwconfig_f("xqsgmii", env_hwconfig)) {
@@ -919,6 +916,9 @@ int board_eth_init(bd_t *bis)
 	return error;
 }
 
-#ifdef CONFIG_FSL_MC_ENET
-
-#endif
+#if defined(CONFIG_RESET_PHY_R)
+void reset_phy(void)
+{
+	mc_env_boot();
+}
+#endif /* CONFIG_RESET_PHY_R */

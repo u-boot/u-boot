@@ -43,23 +43,11 @@
 #define CONFIG_KM_BOARD_NAME   "kmtegr1"
 #define CONFIG_KM_UBI_PARTITION_NAME_BOOT	"ubi0"
 #define CONFIG_KM_UBI_PARTITION_NAME_APP	"ubi1"
-#define MTDIDS_DEFAULT			"nor0=boot,nand0=app"
-#define MTDPARTS_DEFAULT		"mtdparts="			\
-	"boot:"								\
-		"768k(u-boot),"						\
-		"256k(qe-fw),"						\
-		"128k(env),"						\
-		"128k(envred),"						\
-		"-(" CONFIG_KM_UBI_PARTITION_NAME_BOOT ");"		\
-	"app:"								\
-		"-(" CONFIG_KM_UBI_PARTITION_NAME_APP ");"
 
 #define CONFIG_ENV_ADDR		0xF0100000
 #define CONFIG_ENV_OFFSET	0x100000
 
-#define CONFIG_CMD_NAND
 #define CONFIG_NAND_ECC_BCH
-#define CONFIG_BCH
 #define CONFIG_NAND_KMETER1
 #define CONFIG_SYS_MAX_NAND_DEVICE		1
 #define NAND_MAX_CHIPS				1

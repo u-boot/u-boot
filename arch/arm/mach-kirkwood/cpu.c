@@ -129,7 +129,7 @@ int kw_config_adr_windows(void)
 static void kw_sysrst_action(void)
 {
 	int ret;
-	char *s = getenv("sysrstcmd");
+	char *s = env_get("sysrstcmd");
 
 	if (!s) {
 		debug("Error.. %s failed, check sysrstcmd\n",
@@ -153,7 +153,7 @@ static void kw_sysrst_check(void)
 	/*
 	 * no action if sysrstdelay environment variable is not defined
 	 */
-	s = getenv("sysrstdelay");
+	s = env_get("sysrstdelay");
 	if (s == NULL)
 		return;
 

@@ -10,9 +10,6 @@
 #include <config_distro_defaults.h>
 
 #define CONFIG_SYS_DCACHE_OFF
-#define CONFIG_SYS_THUMB_BUILD
-
-#define CONFIG_SYS_NO_FLASH
 
 #define CONFIG_SYS_BOOTMAPSZ		(16 << 20)
 
@@ -30,16 +27,12 @@
 #define CONFIG_PL01x_PORTS		{ (void *)(0xFFF36000) }
 #define CONFIG_CONS_INDEX		0
 
-#define CONFIG_BAUDRATE			115200
-
 #define CONFIG_BOOTCOUNT_LIMIT
 #define CONFIG_SYS_BOOTCOUNT_SINGLEWORD
 #define CONFIG_SYS_BOOTCOUNT_LE		/* Use little-endian accessors */
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0xfff3cf0c
 
 #define CONFIG_MISC_INIT_R
-#define CONFIG_LIBATA
-#define CONFIG_SCSI_AHCI
 #define CONFIG_SCSI_AHCI_PLAT
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID	5
 #define CONFIG_SYS_SCSI_MAX_LUN		1
@@ -51,7 +44,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_SCSI
 
 #define CONFIG_BOOT_RETRY_TIME		-1
 #define CONFIG_RESET_TO_RETRY
@@ -60,11 +52,7 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
-#define CONFIG_SYS_MAXARGS		16	/* max number of cmd args */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					 sizeof(CONFIG_SYS_PROMPT)+16)
 
 #define CONFIG_SYS_LOAD_ADDR		0x800000
 #define CONFIG_SYS_64BIT_LBA
@@ -80,7 +68,6 @@
 
 /* Environment data setup
 */
-#define CONFIG_ENV_IS_IN_NVRAM
 #define CONFIG_SYS_NVRAM_BASE_ADDR	0xfff88000	/* NVRAM base address */
 #define CONFIG_SYS_NVRAM_SIZE		0x8000		/* NVRAM size */
 #define CONFIG_ENV_SIZE			0x2000		/* Size of Environ */

@@ -14,8 +14,6 @@
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX23EVK
 
 /* U-Boot Commands */
-#define CONFIG_SYS_NO_FLASH
-#define CONFIG_DOS_PARTITION
 
 /* Memory configuration */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */
@@ -25,7 +23,6 @@
 
 /* Environment */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_ENV_IS_IN_MMC
 
 /* Environment is in MMC */
 #if defined(CONFIG_CMD_MMC) && defined(CONFIG_ENV_IS_IN_MMC)
@@ -44,7 +41,6 @@
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SPLASH_SCREEN
-#define CONFIG_CMD_BMP
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_GZIP

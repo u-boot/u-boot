@@ -12,7 +12,7 @@ import u_boot_utils
 
 """
 Note: This test relies on boardenv_* containing configuration values to define
-which the network environment available for testing. Without this, the parts
+which network environment is available for testing. Without this, the parts
 that rely on network will be automatically skipped.
 
 For example:
@@ -153,6 +153,8 @@ def test_efi_helloworld_net(u_boot_console):
 
     output = u_boot_console.run_command('bootefi %x' % addr)
     expected_text = 'Hello, world'
+    assert expected_text in output
+    expected_text = '## Application terminated, r = 0'
     assert expected_text in output
 
 @pytest.mark.buildconfigspec('cmd_bootefi_hello')

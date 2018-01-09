@@ -23,19 +23,10 @@
  */
 
 #define CONFIG_CPU_SH7724	1
-#define CONFIG_BOARD_LATE_INIT		1
 #define CONFIG_ECOVEC		1
 
 #define CONFIG_ECOVEC_ROMIMAGE_ADDR 0xA0040000
 #define CONFIG_SYS_TEXT_BASE 0x8FFC0000
-
-#define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_ENV
-
-#define CONFIG_DOS_PARTITION
-
-#define CONFIG_BAUDRATE		115200
-#define CONFIG_BOOTARGS		"console=ttySC0,115200"
 
 #define CONFIG_DISPLAY_BOARDINFO
 #undef  CONFIG_SHOW_BOOT_PROGRESS
@@ -58,7 +49,6 @@
 #define CONFIG_SH_ETHER_USE_PORT (0)
 #define CONFIG_SH_ETHER_PHY_ADDR (0x1f)
 #define CONFIG_PHY_SMSC 1
-#define CONFIG_PHYLIB
 #define CONFIG_BITBANGMII
 #define CONFIG_BITBANGMII_MULTI
 #define CONFIG_SH_ETHER_PHY_MODE PHY_INTERFACE_MODE_MII
@@ -74,19 +64,12 @@
 /* undef to save memory	*/
 #define CONFIG_SYS_LONGHELP
 /* Monitor Command Prompt */
-/* Buffer size for input from the Console */
-#define CONFIG_SYS_CBSIZE		256
 /* Buffer size for Console output */
 #define CONFIG_SYS_PBSIZE		256
-/* max args accepted for monitor commands */
-#define CONFIG_SYS_MAXARGS		16
-/* Buffer size for Boot Arguments passed to kernel */
-#define CONFIG_SYS_BARGSIZE	512
 /* List of legal baudrate settings for this board */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200 }
 
 /* SCIF */
-#define CONFIG_SCIF_CONSOLE	1
 #define CONFIG_SCIF		1
 #define CONFIG_CONS_SCIF0	1
 
@@ -144,7 +127,6 @@
 #define CONFIG_SYS_BOOTMAPSZ	(8 * 1024 * 1024)
 
 /* ENV setting */
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_OVERWRITE	1
 #define CONFIG_ENV_SECT_SIZE	(128 * 1024)
 #define CONFIG_ENV_SIZE		(CONFIG_ENV_SECT_SIZE)

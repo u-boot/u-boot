@@ -36,6 +36,8 @@ OBJCOPYFLAGS		+= -O $(64bit-bfd)
 endif
 
 PLATFORM_CPPFLAGS += -D__MIPS__
+PLATFORM_ELFENTRY = "__start"
+PLATFORM_ELFFLAGS += -B mips $(OBJCOPYFLAGS)
 
 #
 # From Linux arch/mips/Makefile
@@ -54,25 +56,14 @@ PLATFORM_CPPFLAGS += -D__MIPS__
 # LDFLAGS_vmlinux		+= -G 0 -static -n -nostdlib
 # MODFLAGS			+= -mlong-calls
 #
-# On the other hand, we want PIC in the U-Boot code to relocate it from ROM
-# to RAM. $28 is always used as gp.
-#
-ifdef CONFIG_SPL_BUILD
-PF_ABICALLS			:= -mno-abicalls
-PF_PIC				:= -fno-pic
-PF_PIE				:=
-else
-PF_ABICALLS			:= -mabicalls
-PF_PIC				:= -fpic
-PF_PIE				:= -pie
-PF_OBJCOPY			:= -j .got -j .rel.dyn -j .padding
-PF_OBJCOPY			+= -j .dtb.init.rodata
+ifndef CONFIG_SPL_BUILD
+OBJCOPYFLAGS			+= -j .got -j .rel -j .padding -j .dtb.init.rodata
+LDFLAGS_FINAL			+= --emit-relocs
 endif
 
-PLATFORM_CPPFLAGS		+= -G 0 $(PF_ABICALLS) $(PF_PIC)
+PLATFORM_CPPFLAGS		+= -G 0 -mno-abicalls -fno-pic
 PLATFORM_CPPFLAGS		+= -msoft-float
 PLATFORM_LDFLAGS		+= -G 0 -static -n -nostdlib
 PLATFORM_RELFLAGS		+= -ffunction-sections -fdata-sections
-LDFLAGS_FINAL			+= --gc-sections $(PF_PIE)
+LDFLAGS_FINAL			+= --gc-sections
 OBJCOPYFLAGS			+= -j .text -j .rodata -j .data -j .u_boot_list
-OBJCOPYFLAGS			+= $(PF_OBJCOPY)

@@ -5,7 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include "../ps7_init_gpl.h"
+#include <asm/arch/ps7_init_gpl.h>
 
 static unsigned long ps7_pll_init_data_3_0[] = {
 	EMIT_MASKWRITE(0XF8000008, 0x0000FFFFU, 0x0000DF0DU),

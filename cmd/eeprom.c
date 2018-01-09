@@ -73,11 +73,9 @@ void eeprom_init(int bus)
 #endif
 
 	/* I2C EEPROM */
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C)
 #if defined(CONFIG_SYS_I2C)
 	if (bus >= 0)
 		i2c_set_bus_num(bus);
-#endif
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 }
@@ -266,10 +264,6 @@ __weak int eeprom_parse_layout_version(char *str)
 }
 
 static unsigned char eeprom_buf[CONFIG_SYS_EEPROM_SIZE];
-
-#ifndef CONFIG_EEPROM_LAYOUT_HELP_STRING
-#define CONFIG_EEPROM_LAYOUT_HELP_STRING "<not defined>"
-#endif
 
 #endif
 

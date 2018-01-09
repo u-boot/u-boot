@@ -10,12 +10,6 @@
 #ifndef __AT91SAM9N12_CONFIG_H_
 #define __AT91SAM9N12_CONFIG_H_
 
-/*
- * SoC must be defined first, before hardware.h is included.
- * In this case SoC is defined in boards.cfg.
- */
-#include <asm/hardware.h>
-
 #define CONFIG_SYS_TEXT_BASE		0x26f00000
 
 /* ARM asynchronous clock */
@@ -27,16 +21,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_BOARD_EARLY_INIT_F
-
-/* general purpose I/O */
-#define CONFIG_AT91_GPIO
-
-/* serial console */
-#define CONFIG_ATMEL_USART
-#define CONFIG_USART_BASE		ATMEL_BASE_DBGU
-#define CONFIG_USART_ID			ATMEL_ID_SYS
-#define CONFIG_BAUDRATE			115200
 
 /* LCD */
 #define LCD_BPP				LCD_COLOR16
@@ -44,10 +28,8 @@
 #define CONFIG_LCD_LOGO
 #define CONFIG_LCD_INFO
 #define CONFIG_LCD_INFO_BELOW_LOGO
-#define CONFIG_SYS_WHITE_ON_BLACK
 #define CONFIG_ATMEL_HLCD
 #define CONFIG_ATMEL_LCD_RGB565
-
 
 /*
  * BOOTP options
@@ -56,14 +38,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
-/* NOR flash - no real flash on this board */
-#define CONFIG_SYS_NO_FLASH
-
-/*
- * Command line configuration.
- */
-#define CONFIG_CMD_NAND
 
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
@@ -75,14 +49,11 @@
  * that address while providing maximum stack area below.
  */
 # define CONFIG_SYS_INIT_SP_ADDR \
-	(ATMEL_BASE_SRAM + 0x1000 - GENERATED_GBL_DATA_SIZE)
+	(0x00300000 + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
 
 /* DataFlash */
 #ifdef CONFIG_CMD_SF
-#define CONFIG_ATMEL_SPI
 #define CONFIG_SF_DEFAULT_SPEED		30000000
-#define CONFIG_ENV_SPI_MODE		SPI_MODE_3
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
 #endif
 
 /* NAND flash */
@@ -94,43 +65,22 @@
 #define CONFIG_SYS_NAND_MASK_CLE	(1 << 22)
 #define CONFIG_SYS_NAND_ENABLE_PIN	GPIO_PIN_PD(4)
 #define CONFIG_SYS_NAND_READY_PIN	GPIO_PIN_PD(5)
+#endif
 
 /* PMECC & PMERRLOC */
 #define CONFIG_ATMEL_NAND_HWECC
 #define CONFIG_ATMEL_NAND_HW_PMECC
 #define CONFIG_PMECC_CAP		2
 #define CONFIG_PMECC_SECTOR_SIZE	512
-#define CONFIG_PMECC_INDEX_TABLE_OFFSET	0x8000
-
-#define CONFIG_CMD_NAND_TRIMFFS
-
-#endif
 
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
-#define CONFIG_CMD_MTDPARTS
-#define MTDIDS_DEFAULT			"nand0=atmel_nand"
-#define MTDPARTS_DEFAULT						\
-	"mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,"		\
-	"256k(env),256k(env_redundant),256k(spare),"			\
-	"512k(dtb),6M(kernel)ro,-(rootfs)"
 
 #define CONFIG_EXTRA_ENV_SETTINGS                                       \
 	"console=console=ttyS0,115200\0"                                \
-	"mtdparts="MTDPARTS_DEFAULT"\0"					\
+	"mtdparts="CONFIG_MTDPARTS_DEFAULT"\0"					\
 	"bootargs_nand=rootfstype=ubifs ubi.mtd=7 root=ubi0:rootfs rw\0"\
 	"bootargs_mmc=root=/dev/mmcblk0p2 rw rootfstype=ext4 rootwait\0"
-
-/* MMC */
-#ifdef CONFIG_CMD_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_GENERIC_ATMEL_MCI
-#endif
-
-/* FAT */
-#ifdef CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
-#endif
 
 /* Ethernet */
 #define CONFIG_KS8851_MLL
@@ -152,10 +102,9 @@
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	1
 #endif
 
-#ifdef CONFIG_SYS_USE_SPIFLASH
+#ifdef CONFIG_SPI_BOOT
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_OFFSET		0x5000
 #define CONFIG_ENV_SIZE			0x3000
 #define CONFIG_ENV_SECT_SIZE		0x1000
@@ -164,11 +113,10 @@
 	"sf probe 0; sf read 0x22000000 0x100000 0x300000; "		\
 	"bootm 0x22000000"
 
-#elif defined(CONFIG_SYS_USE_NANDFLASH)
+#elif defined(CONFIG_NAND_BOOT)
 
 /* bootstrap + u-boot + env + linux in nandflash */
-#define CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_OFFSET		0xc0000
+#define CONFIG_ENV_OFFSET		0x120000
 #define CONFIG_ENV_OFFSET_REDUND	0x100000
 #define CONFIG_ENV_SIZE			0x20000		/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND						\
@@ -177,7 +125,7 @@
 	"nand read 0x22000000 0x200000 0x400000;"			\
 	"bootm 0x22000000 - 0x21000000"
 
-#else /* CONFIG_SYS_USE_MMC */
+#else /* CONFIG_SD_BOOT */
 
 /* bootstrap + u-boot + env + linux in mmc */
 
@@ -188,11 +136,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #else
 /* Use file in FAT file to save environment */
-#define CONFIG_ENV_IS_IN_FAT
-#define CONFIG_FAT_WRITE
-#define FAT_ENV_INTERFACE		"mmc"
-#define FAT_ENV_FILE			"uboot.env"
-#define FAT_ENV_DEVICE_AND_PART		"0"
 #define CONFIG_ENV_SIZE			0x4000
 #endif
 
@@ -204,8 +147,6 @@
 
 #endif
 
-#define CONFIG_SYS_CBSIZE	256
-#define CONFIG_SYS_MAXARGS	16
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
@@ -226,7 +167,6 @@
 #define CONFIG_SYS_SPL_MALLOC_START	0x20080000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x80000
 
-#define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SYS_MONITOR_LEN		(512 << 10)
 
 #define CONFIG_SYS_MASTER_CLOCK		132096000
@@ -234,14 +174,19 @@
 #define CONFIG_SYS_MCKR			0x1301
 #define CONFIG_SYS_MCKR_CSS		0x1302
 
-#ifdef CONFIG_SYS_USE_MMC
-#define CONFIG_SPL_LDSCRIPT		arch/arm/mach-at91/arm926ejs/u-boot-spl.lds
+#ifdef CONFIG_SD_BOOT
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 
 #elif CONFIG_SYS_USE_NANDFLASH
+#elif CONFIG_SPI_BOOT
+#define CONFIG_SPL_SPI_LOAD
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8400
+
+#elif CONFIG_NAND_BOOT
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_BASE
+#endif
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x40000
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_SIZE	0x800
@@ -250,11 +195,5 @@
 #define CONFIG_SYS_NAND_BLOCK_SIZE	0x20000
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	0x0
 #define CONFIG_SPL_GENERATE_ATMEL_PMECC_HEADER
-
-#elif CONFIG_SYS_USE_SPIFLASH
-#define CONFIG_SPL_SPI_LOAD
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8400
-
-#endif
 
 #endif

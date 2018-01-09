@@ -7,6 +7,10 @@
 #ifndef _ASM_GENERIC_GPIO_H_
 #define _ASM_GENERIC_GPIO_H_
 
+#include <dm/ofnode.h>
+
+struct ofnode_phandle_args;
+
 /*
  * Generic GPIO API for U-Boot
  *
@@ -211,10 +215,9 @@ struct fdtdec_phandle_args;
  *
  * This routine sets the offset field to args[0] and the flags field to
  * GPIOD_ACTIVE_LOW if the GPIO_ACTIVE_LOW flag is present in args[1].
- *
  */
 int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
-			  struct fdtdec_phandle_args *args);
+			  struct ofnode_phandle_args *args);
 
 /**
  * struct struct dm_gpio_ops - Driver model GPIO operations
@@ -286,7 +289,7 @@ struct dm_gpio_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*xlate)(struct udevice *dev, struct gpio_desc *desc,
-		     struct fdtdec_phandle_args *args);
+		     struct ofnode_phandle_args *args);
 };
 
 /**
@@ -487,9 +490,8 @@ int gpio_get_list_count(struct udevice *dev, const char *list_name);
  * This is a version of gpio_request_list_by_name() that does not use a
  * device. Avoid it unless the caller is not yet using driver model
  */
-int gpio_request_by_name_nodev(const void *blob, int node,
-			       const char *list_name,
-			       int index, struct gpio_desc *desc, int flags);
+int gpio_request_by_name_nodev(ofnode node, const char *list_name, int index,
+			       struct gpio_desc *desc, int flags);
 
 /**
  * gpio_request_list_by_name_nodev() - request GPIOs without a device
@@ -497,8 +499,7 @@ int gpio_request_by_name_nodev(const void *blob, int node,
  * This is a version of gpio_request_list_by_name() that does not use a
  * device. Avoid it unless the caller is not yet using driver model
  */
-int gpio_request_list_by_name_nodev(const void *blob, int node,
-				    const char *list_name,
+int gpio_request_list_by_name_nodev(ofnode node, const char *list_name,
 				    struct gpio_desc *desc_list, int max_count,
 				    int flags);
 

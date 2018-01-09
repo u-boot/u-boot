@@ -147,7 +147,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 
 #if defined(CONFIG_RAMBOOT_PBL) && !defined(CONFIG_SPL_BUILD)
 	SET_TLB_ENTRY(1, CONFIG_SYS_DDR_SDRAM_BASE, CONFIG_SYS_DDR_SDRAM_BASE,
-		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
+		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_M,
 		      0, 17, BOOKE_PAGESZ_2G, 1)
 #endif
 };

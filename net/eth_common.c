@@ -24,35 +24,38 @@ void eth_parse_enetaddr(const char *addr, uchar *enetaddr)
 	}
 }
 
-int eth_getenv_enetaddr(const char *name, uchar *enetaddr)
+int eth_env_get_enetaddr(const char *name, uchar *enetaddr)
 {
-	eth_parse_enetaddr(getenv(name), enetaddr);
+	eth_parse_enetaddr(env_get(name), enetaddr);
 	return is_valid_ethaddr(enetaddr);
 }
 
-int eth_setenv_enetaddr(const char *name, const uchar *enetaddr)
+int eth_env_set_enetaddr(const char *name, const uchar *enetaddr)
 {
-	char buf[20];
+	char buf[ARP_HLEN_ASCII + 1];
+
+	if (eth_env_get_enetaddr(name, (uchar *)buf))
+		return -EEXIST;
 
 	sprintf(buf, "%pM", enetaddr);
 
-	return setenv(name, buf);
+	return env_set(name, buf);
 }
 
-int eth_getenv_enetaddr_by_index(const char *base_name, int index,
+int eth_env_get_enetaddr_by_index(const char *base_name, int index,
 				 uchar *enetaddr)
 {
 	char enetvar[32];
 	sprintf(enetvar, index ? "%s%daddr" : "%saddr", base_name, index);
-	return eth_getenv_enetaddr(enetvar, enetaddr);
+	return eth_env_get_enetaddr(enetvar, enetaddr);
 }
 
-int eth_setenv_enetaddr_by_index(const char *base_name, int index,
+int eth_env_set_enetaddr_by_index(const char *base_name, int index,
 				 uchar *enetaddr)
 {
 	char enetvar[32];
 	sprintf(enetvar, index ? "%s%daddr" : "%saddr", base_name, index);
-	return eth_setenv_enetaddr(enetvar, enetaddr);
+	return eth_env_set_enetaddr(enetvar, enetaddr);
 }
 
 void eth_common_init(void)
@@ -73,13 +76,13 @@ int eth_mac_skip(int index)
 	char *skip_state;
 
 	sprintf(enetvar, index ? "eth%dmacskip" : "ethmacskip", index);
-	skip_state = getenv(enetvar);
+	skip_state = env_get(enetvar);
 	return skip_state != NULL;
 }
 
 void eth_current_changed(void)
 {
-	char *act = getenv("ethact");
+	char *act = env_get("ethact");
 	char *ethrotate;
 
 	/*
@@ -87,21 +90,21 @@ void eth_current_changed(void)
 	 * ethernet device if uc_priv->current == NULL. This is not what
 	 * we want when 'ethrotate' variable is 'no'.
 	 */
-	ethrotate = getenv("ethrotate");
+	ethrotate = env_get("ethrotate");
 	if ((ethrotate != NULL) && (strcmp(ethrotate, "no") == 0))
 		return;
 
 	/* update current ethernet name */
 	if (eth_get_dev()) {
 		if (act == NULL || strcmp(act, eth_get_name()) != 0)
-			setenv("ethact", eth_get_name());
+			env_set("ethact", eth_get_name());
 	}
 	/*
 	 * remove the variable completely if there is no active
 	 * interface
 	 */
 	else if (act != NULL)
-		setenv("ethact", NULL);
+		env_set("ethact", NULL);
 }
 
 void eth_try_another(int first_restart)
@@ -113,7 +116,7 @@ void eth_try_another(int first_restart)
 	 * Do not rotate between network interfaces when
 	 * 'ethrotate' variable is set to 'no'.
 	 */
-	ethrotate = getenv("ethrotate");
+	ethrotate = env_get("ethrotate");
 	if ((ethrotate != NULL) && (strcmp(ethrotate, "no") == 0))
 		return;
 
@@ -139,12 +142,12 @@ void eth_set_current(void)
 
 	env_id = get_env_id();
 	if ((act == NULL) || (env_changed_id != env_id)) {
-		act = getenv("ethact");
+		act = env_get("ethact");
 		env_changed_id = env_id;
 	}
 
 	if (act == NULL) {
-		char *ethprime = getenv("ethprime");
+		char *ethprime = env_get("ethprime");
 		void *dev = NULL;
 
 		if (ethprime)

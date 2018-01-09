@@ -60,6 +60,25 @@ struct __packed sfi_mem_entry {
 	u64	attrib;
 };
 
+/* Memory type definitions */
+enum sfi_mem_type {
+	SFI_MEM_RESERVED,
+	SFI_LOADER_CODE,
+	SFI_LOADER_DATA,
+	SFI_BOOT_SERVICE_CODE,
+	SFI_BOOT_SERVICE_DATA,
+	SFI_RUNTIME_SERVICE_CODE,
+	SFI_RUNTIME_SERVICE_DATA,
+	SFI_MEM_CONV,
+	SFI_MEM_UNUSABLE,
+	SFI_ACPI_RECLAIM,
+	SFI_ACPI_NVS,
+	SFI_MEM_MMIO,
+	SFI_MEM_IOPORT,
+	SFI_PAL_CODE,
+	SFI_MEM_TYPEMAX,
+};
+
 struct __packed sfi_cpu_table_entry {
 	u32	apic_id;
 };
@@ -132,6 +151,6 @@ typedef int (*sfi_table_handler) (struct sfi_table_header *table);
  * @base:	Address to write table to
  * @return address to use for the next table
  */
-u32 write_sfi_table(u32 base);
+ulong write_sfi_table(ulong base);
 
 #endif /*_LINUX_SFI_H */

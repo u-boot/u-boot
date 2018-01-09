@@ -16,7 +16,7 @@
 #ifdef CONFIG_MX6SX
 #include "mx6sx-ddr.h"
 #else
-#ifdef CONFIG_MX6UL
+#if defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL)
 #include "mx6ul-ddr.h"
 #else
 #ifdef CONFIG_MX6SL

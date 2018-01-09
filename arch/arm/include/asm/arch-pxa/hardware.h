@@ -79,33 +79,4 @@
 
 #endif
 
-
-/*
- * Implementation specifics
- */
-
-#ifdef CONFIG_ARCH_LUBBOCK
-#include "lubbock.h"
-#endif
-
-#ifdef CONFIG_ARCH_PXA_IDP
-#include "idp.h"
-#endif
-
-#ifdef CONFIG_ARCH_PXA_CERF
-#include "cerf.h"
-#endif
-
-#ifdef CONFIG_ARCH_CSB226
-#include "csb226.h"
-#endif
-
-#ifdef CONFIG_ARCH_INNOKOM
-#include "innokom.h"
-#endif
-
-#ifdef CONFIG_ARCH_PLEB
-#include "pleb.h"
-#endif
-
 #endif	/* _ASM_ARCH_HARDWARE_H */

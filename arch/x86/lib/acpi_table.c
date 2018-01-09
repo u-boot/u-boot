@@ -11,10 +11,13 @@
 #include <cpu.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
+#include <version.h>
 #include <asm/acpi/global_nvs.h>
 #include <asm/acpi_table.h>
 #include <asm/io.h>
+#include <asm/ioapic.h>
 #include <asm/lapic.h>
+#include <asm/mpspec.h>
 #include <asm/tables.h>
 #include <asm/arch/global_nvs.h>
 
@@ -60,6 +63,7 @@ void acpi_fill_header(struct acpi_table_header *header, char *signature)
 	memcpy(header->signature, signature, 4);
 	memcpy(header->oem_id, OEM_ID, 6);
 	memcpy(header->oem_table_id, OEM_TABLE_ID, 8);
+	header->oem_revision = U_BOOT_BUILD_DATE;
 	memcpy(header->aslc_id, ASLC_ID, 4);
 }
 
@@ -239,6 +243,33 @@ int acpi_create_madt_lapic_nmi(struct acpi_madt_lapic_nmi *lapic_nmi,
 	return lapic_nmi->length;
 }
 
+static int acpi_create_madt_irq_overrides(u32 current)
+{
+	struct acpi_madt_irqoverride *irqovr;
+	u16 sci_flags = MP_IRQ_TRIGGER_LEVEL | MP_IRQ_POLARITY_HIGH;
+	int length = 0;
+
+	irqovr = (void *)current;
+	length += acpi_create_madt_irqoverride(irqovr, 0, 0, 2, 0);
+
+	irqovr = (void *)(current + length);
+	length += acpi_create_madt_irqoverride(irqovr, 0, 9, 9, sci_flags);
+
+	return length;
+}
+
+__weak u32 acpi_fill_madt(u32 current)
+{
+	current += acpi_create_madt_lapics(current);
+
+	current += acpi_create_madt_ioapic((struct acpi_madt_ioapic *)current,
+			io_apic_read(IO_APIC_ID) >> 24, IO_APIC_ADDR, 0);
+
+	current += acpi_create_madt_irq_overrides(current);
+
+	return current;
+}
+
 static void acpi_create_madt(struct acpi_madt *madt)
 {
 	struct acpi_table_header *header = &(madt->header);
@@ -262,8 +293,8 @@ static void acpi_create_madt(struct acpi_madt *madt)
 	header->checksum = table_compute_checksum((void *)madt, header->length);
 }
 
-static int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig,
-				     u32 base, u16 seg_nr, u8 start, u8 end)
+int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig, u32 base,
+			      u16 seg_nr, u8 start, u8 end)
 {
 	memset(mmconfig, 0, sizeof(*mmconfig));
 	mmconfig->base_address_l = base;
@@ -275,7 +306,7 @@ static int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig,
 	return sizeof(struct acpi_mcfg_mmconfig);
 }
 
-static u32 acpi_fill_mcfg(u32 current)
+__weak u32 acpi_fill_mcfg(u32 current)
 {
 	current += acpi_create_mcfg_mmconfig
 		((struct acpi_mcfg_mmconfig *)current,
@@ -304,8 +335,10 @@ static void acpi_create_mcfg(struct acpi_mcfg *mcfg)
 	header->checksum = table_compute_checksum((void *)mcfg, header->length);
 }
 
-static void enter_acpi_mode(int pm1_cnt)
+void enter_acpi_mode(int pm1_cnt)
 {
+	u16 val = inw(pm1_cnt);
+
 	/*
 	 * PM1_CNT register bit0 selects the power management event to be
 	 * either an SCI or SMI interrupt. When this bit is set, then power
@@ -320,14 +353,14 @@ static void enter_acpi_mode(int pm1_cnt)
 	 * system, and expose ourselves to OSPM as working under ACPI mode
 	 * already, turn this bit on.
 	 */
-	outw(PM1_CNT_SCI_EN, pm1_cnt);
+	outw(val | PM1_CNT_SCI_EN, pm1_cnt);
 }
 
 /*
  * QEMU's version of write_acpi_tables is defined in
  * arch/x86/cpu/qemu/acpi_table.c
  */
-u32 write_acpi_tables(u32 start)
+ulong write_acpi_tables(ulong start)
 {
 	u32 current;
 	struct acpi_rsdp *rsdp;
@@ -345,7 +378,7 @@ u32 write_acpi_tables(u32 start)
 	/* Align ACPI tables to 16 byte */
 	current = ALIGN(current, 16);
 
-	debug("ACPI: Writing ACPI tables at %x\n", start);
+	debug("ACPI: Writing ACPI tables at %lx\n", start);
 
 	/* We need at least an RSDP and an RSDT Table */
 	rsdp = (struct acpi_rsdp *)current;
@@ -430,6 +463,10 @@ u32 write_acpi_tables(u32 start)
 
 	debug("ACPI: done\n");
 
+	/* Don't touch ACPI hardware on HW reduced platforms */
+	if (fadt->flags & ACPI_FADT_HW_REDUCED_ACPI)
+		return current;
+
 	/*
 	 * Other than waiting for OSPM to request us to switch to ACPI mode,
 	 * do it by ourselves, since SMI will not be triggered.
@@ -437,4 +474,82 @@ u32 write_acpi_tables(u32 start)
 	enter_acpi_mode(fadt->pm1a_cnt_blk);
 
 	return current;
+}
+
+static struct acpi_rsdp *acpi_valid_rsdp(struct acpi_rsdp *rsdp)
+{
+	if (strncmp((char *)rsdp, RSDP_SIG, sizeof(RSDP_SIG) - 1) != 0)
+		return NULL;
+
+	debug("Looking on %p for valid checksum\n", rsdp);
+
+	if (table_compute_checksum((void *)rsdp, 20) != 0)
+		return NULL;
+	debug("acpi rsdp checksum 1 passed\n");
+
+	if ((rsdp->revision > 1) &&
+	    (table_compute_checksum((void *)rsdp, rsdp->length) != 0))
+		return NULL;
+	debug("acpi rsdp checksum 2 passed\n");
+
+	return rsdp;
+}
+
+struct acpi_fadt *acpi_find_fadt(void)
+{
+	char *p, *end;
+	struct acpi_rsdp *rsdp = NULL;
+	struct acpi_rsdt *rsdt;
+	struct acpi_fadt *fadt = NULL;
+	int i;
+
+	/* Find RSDP */
+	for (p = (char *)ROM_TABLE_ADDR; p < (char *)ROM_TABLE_END; p += 16) {
+		rsdp = acpi_valid_rsdp((struct acpi_rsdp *)p);
+		if (rsdp)
+			break;
+	}
+
+	if (rsdp == NULL)
+		return NULL;
+
+	debug("RSDP found at %p\n", rsdp);
+	rsdt = (struct acpi_rsdt *)rsdp->rsdt_address;
+
+	end = (char *)rsdt + rsdt->header.length;
+	debug("RSDT found at %p ends at %p\n", rsdt, end);
+
+	for (i = 0; ((char *)&rsdt->entry[i]) < end; i++) {
+		fadt = (struct acpi_fadt *)rsdt->entry[i];
+		if (strncmp((char *)fadt, "FACP", 4) == 0)
+			break;
+		fadt = NULL;
+	}
+
+	if (fadt == NULL)
+		return NULL;
+
+	debug("FADT found at %p\n", fadt);
+	return fadt;
+}
+
+void *acpi_find_wakeup_vector(struct acpi_fadt *fadt)
+{
+	struct acpi_facs *facs;
+	void *wake_vec;
+
+	debug("Trying to find the wakeup vector...\n");
+
+	facs = (struct acpi_facs *)fadt->firmware_ctrl;
+
+	if (facs == NULL) {
+		debug("No FACS found, wake up from S3 not possible.\n");
+		return NULL;
+	}
+
+	debug("FACS found at %p\n", facs);
+	wake_vec = (void *)facs->firmware_waking_vector;
+	debug("OS waking vector is %p\n", wake_vec);
+
+	return wake_vec;
 }

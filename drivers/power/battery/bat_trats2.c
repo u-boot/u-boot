@@ -18,7 +18,7 @@ static int power_battery_charge(struct pmic *bat)
 	struct power_battery *p_bat = bat->pbat;
 
 	if (bat->chrg->chrg_state(p_bat->chrg, PMIC_CHARGER_ENABLE, 450))
-		return -1;
+		return -EINVAL;
 
 	return 0;
 }

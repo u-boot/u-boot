@@ -11,6 +11,9 @@
 #include <asm/arch/sm.h>
 #include <asm/armv8/mmu.h>
 #include <asm/unaligned.h>
+#include <linux/sizes.h>
+#include <efi_loader.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -34,11 +37,70 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
+phys_size_t get_effective_memsize(void)
 {
-	/* Reserve first 16 MiB of RAM for firmware */
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE + (16 * 1024 * 1024);
-	gd->bd->bi_dram[0].size = gd->ram_size - (16 * 1024 * 1024);
+	/* Size is reported in MiB, convert it in bytes */
+	return ((readl(GXBB_AO_SEC_GP_CFG0) & GXBB_AO_MEM_SIZE_MASK)
+			>> GXBB_AO_MEM_SIZE_SHIFT) * SZ_1M;
+}
+
+static void meson_board_add_reserved_memory(void *fdt, u64 start, u64 size)
+{
+	int ret;
+
+	ret = fdt_add_mem_rsv(fdt, start, size);
+	if (ret)
+		printf("Could not reserve zone @ 0x%llx\n", start);
+
+	if (IS_ENABLED(CONFIG_EFI_LOADER)) {
+		efi_add_memory_map(start,
+				   ALIGN(size, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT,
+				   EFI_RESERVED_MEMORY_TYPE, false);
+	}
+}
+
+void meson_gx_init_reserved_memory(void *fdt)
+{
+	u64 bl31_size, bl31_start;
+	u64 bl32_size, bl32_start;
+	u32 reg;
+
+	/*
+	 * Get ARM Trusted Firmware reserved memory zones in :
+	 * - AO_SEC_GP_CFG3: bl32 & bl31 size in KiB, can be 0
+	 * - AO_SEC_GP_CFG5: bl31 physical start address, can be NULL
+	 * - AO_SEC_GP_CFG4: bl32 physical start address, can be NULL
+	 */
+
+	reg = readl(GXBB_AO_SEC_GP_CFG3);
+
+	bl31_size = ((reg & GXBB_AO_BL31_RSVMEM_SIZE_MASK)
+			>> GXBB_AO_BL31_RSVMEM_SIZE_SHIFT) * SZ_1K;
+	bl32_size = (reg & GXBB_AO_BL32_RSVMEM_SIZE_MASK) * SZ_1K;
+
+	bl31_start = readl(GXBB_AO_SEC_GP_CFG5);
+	bl32_start = readl(GXBB_AO_SEC_GP_CFG4);
+
+	/*
+	 * Early Meson GXBB Firmware revisions did not provide the reserved
+	 * memory zones in the registers, keep fixed memory zone handling.
+	 */
+	if (IS_ENABLED(CONFIG_MESON_GXBB) &&
+	    !reg && !bl31_start && !bl32_start) {
+		bl31_start = 0x10000000;
+		bl31_size = 0x200000;
+	}
+
+	/* Add first 16MiB reserved zone */
+	meson_board_add_reserved_memory(fdt, 0, GXBB_FIRMWARE_MEM_SIZE);
+
+	/* Add BL31 reserved zone */
+	if (bl31_start && bl31_size)
+		meson_board_add_reserved_memory(fdt, bl31_start, bl31_size);
+
+	/* Add BL32 reserved zone */
+	if (bl32_start && bl32_size)
+		meson_board_add_reserved_memory(fdt, bl32_start, bl32_size);
 }
 
 void reset_cpu(ulong addr)

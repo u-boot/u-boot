@@ -19,8 +19,6 @@
 
 .globl	_start
 _start:
-	b	reset
-
 #ifdef CONFIG_ENABLE_ARM_SOC_BOOT0_HOOK
 /*
  * Various SoCs need something special and SoC-specific up front in
@@ -28,7 +26,8 @@ _start:
  * use it here.
  */
 #include <asm/arch/boot0.h>
-ARM_SOC_BOOT0_HOOK
+#else
+	b	reset
 #endif
 
 	.align 3
@@ -58,6 +57,32 @@ reset:
 .globl	save_boot_params_ret
 save_boot_params_ret:
 
+#if CONFIG_POSITION_INDEPENDENT
+	/*
+	 * Fix .rela.dyn relocations. This allows U-Boot to be loaded to and
+	 * executed at a different address than it was linked at.
+	 */
+pie_fixup:
+	adr	x0, _start		/* x0 <- Runtime value of _start */
+	ldr	x1, _TEXT_BASE		/* x1 <- Linked value of _start */
+	sub	x9, x0, x1		/* x9 <- Run-vs-link offset */
+	adr	x2, __rel_dyn_start	/* x2 <- Runtime &__rel_dyn_start */
+	adr	x3, __rel_dyn_end	/* x3 <- Runtime &__rel_dyn_end */
+pie_fix_loop:
+	ldp	x0, x1, [x2], #16	/* (x0, x1) <- (Link location, fixup) */
+	ldr	x4, [x2], #8		/* x4 <- addend */
+	cmp	w1, #1027		/* relative fixup? */
+	bne	pie_skip_reloc
+	/* relative fix: store addend plus offset at dest location */
+	add	x0, x0, x9
+	add	x4, x4, x9
+	str	x4, [x0]
+pie_skip_reloc:
+	cmp	x2, x3
+	b.lo	pie_fix_loop
+pie_fixup_done:
+#endif
+
 #ifdef CONFIG_SYS_RESET_SCTRL
 	bl reset_sctrl
 #endif
@@ -86,6 +111,20 @@ save_boot_params_ret:
 	msr	cpacr_el1, x0			/* Enable FP/SIMD */
 0:
 
+	/*
+	 * Enable SMPEN bit for coherency.
+	 * This register is not architectural but at the moment
+	 * this bit should be set for A53/A57/A72.
+	 */
+#ifdef CONFIG_ARMV8_SET_SMPEN
+	switch_el x1, 3f, 1f, 1f
+3:
+	mrs     x0, S3_1_c15_c2_1               /* cpuectlr_el1 */
+	orr     x0, x0, #0x40
+	msr     S3_1_c15_c2_1, x0
+1:
+#endif
+
 	/* Apply ARM core specific erratas */
 	bl	apply_core_errata
 
@@ -99,7 +138,7 @@ save_boot_params_ret:
 	/* Processor specific initialization */
 	bl	lowlevel_init
 
-#if CONFIG_IS_ENABLED(ARMV8_SPIN_TABLE)
+#if defined(CONFIG_ARMV8_SPIN_TABLE) && !defined(CONFIG_SPL_BUILD)
 	branch_if_master x0, x1, master_cpu
 	b	spin_table_secondary_jump
 	/* never return */

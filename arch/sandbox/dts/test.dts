@@ -12,6 +12,8 @@
 		eth3 = &eth_3;
 		eth5 = &eth_5;
 		i2c0 = "/i2c@0";
+		mmc0 = "/mmc0";
+		mmc1 = "/mmc1";
 		pci0 = &pci;
 		remoteproc1 = &rproc_1;
 		remoteproc2 = &rproc_2;
@@ -57,6 +59,23 @@
 		compatible = "denx,u-boot-fdt-test";
 		ping-expect = <3>;
 		ping-add = <3>;
+	};
+
+	phy_provider0: gen_phy@0 {
+		compatible = "sandbox,phy";
+		#phy-cells = <1>;
+	};
+
+	phy_provider1: gen_phy@1 {
+		compatible = "sandbox,phy";
+		#phy-cells = <0>;
+		broken;
+	};
+
+	gen_phy_user: gen_phy_user {
+		compatible = "simple-bus";
+		phys = <&phy_provider0 0>, <&phy_provider0 1>, <&phy_provider1>;
+		phy-names = "phy1", "phy2", "phy3";
 	};
 
 	some-bus {
@@ -108,10 +127,12 @@
 		compatible = "denx,u-boot-fdt-test";
 	};
 
-	clk_fixed: clk-fixed {
-		compatible = "fixed-clock";
-		#clock-cells = <0>;
-		clock-frequency = <1234>;
+	clocks {
+		clk_fixed: clk-fixed {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <1234>;
+		};
 	};
 
 	clk_sandbox: clk-sbox {
@@ -242,7 +263,15 @@
 		mbox-names = "other", "test";
 	};
 
-	mmc {
+	mmc2 {
+		compatible = "sandbox,mmc";
+	};
+
+	mmc1 {
+		compatible = "sandbox,mmc";
+	};
+
+	mmc0 {
 		compatible = "sandbox,mmc";
 	};
 
@@ -262,6 +291,25 @@
 		};
 	};
 
+	probing {
+		compatible = "simple-bus";
+		test1 {
+			compatible = "denx,u-boot-probe-test";
+		};
+
+		test2 {
+			compatible = "denx,u-boot-probe-test";
+		};
+
+		test3 {
+			compatible = "denx,u-boot-probe-test";
+		};
+
+		test4 {
+			compatible = "denx,u-boot-probe-test";
+		};
+	};
+
 	pwrdom: power-domain {
 		compatible = "sandbox,power-domain";
 		#power-domain-cells = <1>;
@@ -270,6 +318,14 @@
 	power-domain-test {
 		compatible = "sandbox,power-domain-test";
 		power-domains = <&pwrdom 2>;
+	};
+
+	pwm {
+		compatible = "sandbox,pwm";
+	};
+
+	pwm2 {
+		compatible = "sandbox,pwm";
 	};
 
 	ram {
@@ -417,6 +473,10 @@
 				gpio-bank-name="spmi";
 			};
 		};
+	};
+
+	wdt0: wdt@0 {
+		compatible = "sandbox,wdt";
 	};
 };
 

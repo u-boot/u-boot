@@ -96,7 +96,6 @@
 #define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
-#define CONFIG_FSL_ELBC			/* Has Enhanced localbus controller */
 #define CONFIG_PCIE1			/* PCIE controller 1 (slot 1) */
 #define CONFIG_PCIE2			/* PCIE controller 2 (slot 2) */
 #define CONFIG_PCIE3			/* PCIE controller 3 (ULI bridge) */
@@ -246,7 +245,6 @@
 
 #define CONFIG_SYS_NAND_BASE_LIST	{CONFIG_SYS_NAND_BASE}
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_CMD_NAND			1
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(256 * 1024)
 #define CONFIG_ELBC_NAND_SPL_STATIC_PGSIZE
 
@@ -274,7 +272,6 @@
 
 #endif /* CONFIG_NAND_FSL_ELBC */
 
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_MISC_INIT_R
 #define CONFIG_HWCONFIG
@@ -367,7 +364,6 @@
 
 #ifdef CONFIG_FSL_DIU_FB
 #define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x10000)
-#define CONFIG_CMD_BMP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
@@ -486,8 +482,6 @@
 #endif
 
 /* SATA */
-#define CONFIG_LIBATA
-#define CONFIG_FSL_SATA
 #define CONFIG_FSL_SATA_V2
 
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
@@ -500,18 +494,11 @@
 
 #ifdef CONFIG_FSL_SATA
 #define CONFIG_LBA48
-#define CONFIG_CMD_SATA
-#define CONFIG_DOS_PARTITION
 #endif
 
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
-#define CONFIG_GENERIC_MMC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
-#endif
-
-#if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI)
-#define CONFIG_DOS_PARTITION
 #endif
 
 #define CONFIG_TSEC_ENET
@@ -535,8 +522,6 @@
 #define TSEC2_PHYIDX		0
 
 #define CONFIG_ETHPRIME		"eTSEC1"
-
-#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 #endif
 
 /*
@@ -544,25 +529,12 @@
  */
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_FLASH_CFI_MTD
-#ifdef CONFIG_PHYS_64BIT
-#define MTDIDS_DEFAULT "nor0=fe8000000.nor"
-#define MTDPARTS_DEFAULT "mtdparts=fe8000000.nor:48m(ramdisk)," \
-			"14m(diagnostic),2m(dink),6m(kernel),58112k(fs)," \
-			"512k(dtb),768k(u-boot)"
-#else
-#define MTDIDS_DEFAULT "nor0=e8000000.nor"
-#define MTDPARTS_DEFAULT "mtdparts=e8000000.nor:48m(ramdisk)," \
-			"14m(diagnostic),2m(dink),6m(kernel),58112k(fs)," \
-			"512k(dtb),768k(u-boot)"
-#endif
 
 /*
  * Environment
  */
 #ifdef CONFIG_SPIFLASH
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_BUS	0
 #define CONFIG_ENV_SPI_CS	0
 #define CONFIG_ENV_SPI_MAX_HZ	10000000
@@ -571,7 +543,6 @@
 #define CONFIG_ENV_OFFSET	0x100000	/* 1MB */
 #define CONFIG_ENV_SECT_SIZE	0x10000
 #elif defined(CONFIG_SDCARD)
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_FSL_FIXED_MMC_LOCATION
 #define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_SYS_MMC_ENV_DEV	0
@@ -582,15 +553,12 @@
 #else
 #define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
 #endif
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET	(1024 * 1024)
 #define CONFIG_ENV_RANGE	(3 * CONFIG_ENV_SIZE)
 #elif defined(CONFIG_SYS_RAMBOOT)
-#define CONFIG_ENV_IS_NOWHERE	/* Store ENV in memory only */
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
 #define CONFIG_ENV_SIZE		0x2000
 #else
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
@@ -600,24 +568,11 @@
 #define CONFIG_SYS_LOADS_BAUD_CHANGE
 
 /*
- * Command line configuration.
- */
-#define CONFIG_CMD_ERRATA
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_REGINFO
-
-#ifdef CONFIG_PCI
-#define CONFIG_CMD_PCI
-#endif
-
-/*
  * USB
  */
 #define CONFIG_HAS_FSL_DR_USB
 #ifdef CONFIG_HAS_FSL_DR_USB
-#define CONFIG_USB_EHCI
-
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
 #endif
@@ -630,15 +585,6 @@
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#ifdef CONFIG_CMD_KGDB
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
-#else
-#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
-#endif
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS	16
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
 /*
  * For booting Linux, the board info and command line data
@@ -662,9 +608,6 @@
 #define CONFIG_UBOOTPATH	u-boot.bin	/* U-Boot image on TFTP server */
 
 #define CONFIG_LOADADDR		1000000
-
-
-#define CONFIG_BAUDRATE	115200
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"netdev=eth0\0"						\

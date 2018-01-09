@@ -6,7 +6,9 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <power/as3722.h>
+#include <power/pmic.h>
 
 #include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
@@ -37,27 +39,45 @@ void pinmux_init(void)
 }
 
 #ifdef CONFIG_PCI_TEGRA
-int tegra_pcie_board_init(void)
+/* TODO: Convert to driver model */
+static int as3722_sd_enable(struct udevice *pmic, unsigned int sd)
 {
-	struct udevice *pmic;
 	int err;
 
-	err = as3722_init(&pmic);
+	if (sd > 6)
+		return -EINVAL;
+
+	err = pmic_clrsetbits(pmic, AS3722_SD_CONTROL, 0, 1 << sd);
 	if (err) {
-		error("failed to initialize AS3722 PMIC: %d\n", err);
+		pr_err("failed to update SD control register: %d", err);
 		return err;
 	}
 
-	err = as3722_sd_enable(pmic, 4);
-	if (err < 0) {
-		error("failed to enable SD4: %d\n", err);
-		return err;
+	return 0;
+}
+
+int tegra_pcie_board_init(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device_by_driver(UCLASS_PMIC,
+					  DM_GET_DRIVER(pmic_as3722), &dev);
+	if (ret) {
+		debug("%s: Failed to find PMIC\n", __func__);
+		return ret;
 	}
 
-	err = as3722_sd_set_voltage(pmic, 4, 0x24);
-	if (err < 0) {
-		error("failed to set SD4 voltage: %d\n", err);
-		return err;
+	ret = as3722_sd_enable(dev, 4);
+	if (ret < 0) {
+		pr_err("failed to enable SD4: %d\n", ret);
+		return ret;
+	}
+
+	ret = as3722_sd_set_voltage(dev, 4, 0x24);
+	if (ret < 0) {
+		pr_err("failed to set SD4 voltage: %d\n", ret);
+		return ret;
 	}
 
 	return 0;

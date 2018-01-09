@@ -23,6 +23,7 @@ static table_entry_t imximage_cmds[] = {
 	{CMD_BOOT_OFFSET,       "BOOT_OFFSET",          "Boot offset",	  },
 	{CMD_WRITE_DATA,        "DATA",                 "Reg Write Data", },
 	{CMD_WRITE_CLR_BIT,     "CLR_BIT",              "Reg clear bit",  },
+	{CMD_WRITE_SET_BIT,     "SET_BIT",              "Reg set bit",  },
 	{CMD_CHECK_BITS_SET,    "CHECK_BITS_SET",   "Reg Check bits set", },
 	{CMD_CHECK_BITS_CLR,    "CHECK_BITS_CLR",   "Reg Check bits clr", },
 	{CMD_CSF,               "CSF",           "Command Sequence File", },
@@ -204,6 +205,15 @@ static void set_dcd_param_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 		d->write_dcd_command.length = cpu_to_be16(4);
 		d->write_dcd_command.param = DCD_WRITE_CLR_BIT_PARAM;
 		break;
+	case CMD_WRITE_SET_BIT:
+		if ((d->write_dcd_command.tag == DCD_WRITE_DATA_COMMAND_TAG) &&
+		    (d->write_dcd_command.param == DCD_WRITE_SET_BIT_PARAM))
+			break;
+		d = d2;
+		d->write_dcd_command.tag = DCD_WRITE_DATA_COMMAND_TAG;
+		d->write_dcd_command.length = cpu_to_be16(4);
+		d->write_dcd_command.param = DCD_WRITE_SET_BIT_PARAM;
+		break;
 	/*
 	 * Check data command only supports one entry,
 	 */
@@ -300,8 +310,7 @@ static void set_imx_hdr_v1(struct imx_header *imxhdr, uint32_t dcd_len,
 	/* Set magic number */
 	fhdr_v1->app_code_barker = APP_CODE_BARKER;
 
-	/* TODO: check i.MX image V1 handling, for now use 'old' style */
-	hdr_base = entry_point - 4096;
+	hdr_base = entry_point - imximage_init_loadsize + flash_offset;
 	fhdr_v1->app_dest_ptr = hdr_base - flash_offset;
 	fhdr_v1->app_code_jump_vector = entry_point;
 
@@ -637,6 +646,7 @@ static void parse_cfg_cmd(struct imx_header *imxhdr, int32_t cmd, char *token,
 		break;
 	case CMD_WRITE_DATA:
 	case CMD_WRITE_CLR_BIT:
+	case CMD_WRITE_SET_BIT:
 	case CMD_CHECK_BITS_SET:
 	case CMD_CHECK_BITS_CLR:
 		value = get_cfg_value(token, name, lineno);
@@ -687,6 +697,7 @@ static void parse_cfg_fld(struct imx_header *imxhdr, int32_t *cmd,
 		switch(*cmd) {
 		case CMD_WRITE_DATA:
 		case CMD_WRITE_CLR_BIT:
+		case CMD_WRITE_SET_BIT:
 		case CMD_CHECK_BITS_SET:
 		case CMD_CHECK_BITS_CLR:
 
@@ -833,17 +844,18 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	/* Parse dcd configuration file */
 	dcd_len = parse_cfg_file(imxhdr, params->imagename);
 
-	if (imximage_version == IMXIMAGE_V2) {
+	if (imximage_version == IMXIMAGE_V1)
+		header_size = sizeof(flash_header_v1_t);
+	else {
 		header_size = sizeof(flash_header_v2_t) + sizeof(boot_data_t);
 		if (!plugin_image)
 			header_size += sizeof(dcd_v2_t);
 		else
 			header_size += MAX_PLUGIN_CODE_SIZE;
-
-		if (imximage_init_loadsize < imximage_ivt_offset + header_size)
-				imximage_init_loadsize = imximage_ivt_offset +
-					header_size;
 	}
+
+	if (imximage_init_loadsize < imximage_ivt_offset + header_size)
+			imximage_init_loadsize = imximage_ivt_offset + header_size;
 
 	/* Set the imx header */
 	(*set_imx_hdr)(imxhdr, dcd_len, params->ep, imximage_ivt_offset);
@@ -913,22 +925,20 @@ static int imximage_generate(struct image_tool_params *params,
 	/* Parse dcd configuration file */
 	parse_cfg_file(&imximage_header, params->imagename);
 
-	/* TODO: check i.MX image V1 handling, for now use 'old' style */
-	if (imximage_version == IMXIMAGE_V1) {
-		alloc_len = 4096;
-		header_size = 4096;
-	} else {
+	if (imximage_version == IMXIMAGE_V1)
+		header_size = sizeof(imx_header_v1_t);
+	else {
 		header_size = sizeof(flash_header_v2_t) + sizeof(boot_data_t);
 		if (!plugin_image)
 			header_size += sizeof(dcd_v2_t);
 		else
 			header_size += MAX_PLUGIN_CODE_SIZE;
-
-		if (imximage_init_loadsize < imximage_ivt_offset + header_size)
-				imximage_init_loadsize = imximage_ivt_offset +
-					header_size;
-		alloc_len = imximage_init_loadsize - imximage_ivt_offset;
 	}
+
+	if (imximage_init_loadsize < imximage_ivt_offset + header_size)
+			imximage_init_loadsize = imximage_ivt_offset + header_size;
+
+	alloc_len = imximage_init_loadsize - imximage_ivt_offset;
 
 	if (alloc_len < header_size) {
 		fprintf(stderr, "%s: header error\n",
@@ -959,11 +969,7 @@ static int imximage_generate(struct image_tool_params *params,
 
 	pad_len = ROUND(sbuf.st_size, 4096) - sbuf.st_size;
 
-	/* TODO: check i.MX image V1 handling, for now use 'old' style */
-	if (imximage_version == IMXIMAGE_V1)
-		return 0;
-	else
-		return pad_len;
+	return pad_len;
 }
 
 

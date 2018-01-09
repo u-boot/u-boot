@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Broadcom Corporation.
+ * Copyright 2014-2017 Broadcom.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -20,8 +20,6 @@
 /* Support 2 Ethernet ports now */
 #define BCM_ETH_MAX_PORT_NUM	2
 
-#define CONFIG_BCM_SF2_ETH_DEFAULT_PORT	0
-
 enum {
 	MAC_DMA_TX = 1,
 	MAC_DMA_RX = 2
@@ -30,8 +28,6 @@ enum {
 struct eth_dma {
 	void *tx_desc_aligned;
 	void *rx_desc_aligned;
-	void *tx_desc;
-	void *rx_desc;
 
 	uint8_t *tx_buf;
 	uint8_t *rx_buf;

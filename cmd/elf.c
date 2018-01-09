@@ -110,21 +110,10 @@ static unsigned long do_bootelf_exec(ulong (*entry)(int, char * const[]),
 	unsigned long ret;
 
 	/*
-	 * QNX images require the data cache is disabled.
-	 * Data cache is already flushed, so just turn it off.
-	 */
-	int dcache = dcache_status();
-	if (dcache)
-		dcache_disable();
-
-	/*
 	 * pass address parameter as argv[0] (aka command name),
 	 * and all remaining args
 	 */
 	ret = entry(argc, argv);
-
-	if (dcache)
-		dcache_enable();
 
 	return ret;
 }
@@ -158,25 +147,25 @@ int do_bootelf(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long addr; /* Address of the ELF image */
 	unsigned long rc; /* Return value from user code */
-	char *sload, *saddr;
-	const char *ep = getenv("autostart");
-
+	char *sload = NULL;
+	const char *ep = env_get("autostart");
 	int rcode = 0;
 
-	sload = saddr = NULL;
-	if (argc == 3) {
-		sload = argv[1];
-		saddr = argv[2];
-	} else if (argc == 2) {
-		if (argv[1][0] == '-')
-			sload = argv[1];
-		else
-			saddr = argv[1];
-	}
+	/* Consume 'bootelf' */
+	argc--; argv++;
 
-	if (saddr)
-		addr = simple_strtoul(saddr, NULL, 16);
-	else
+	/* Check for flag. */
+	if (argc >= 1 && (argv[0][0] == '-' && \
+				(argv[0][1] == 'p' || argv[0][1] == 's'))) {
+		sload = argv[0];
+		/* Consume flag. */
+		argc--; argv++;
+	}
+	/* Check for address. */
+	if (argc >= 1 && strict_strtoul(argv[0], 16, &addr) != -EINVAL) {
+		/* Consume address */
+		argc--; argv++;
+	} else
 		addr = load_addr;
 
 	if (!valid_elf_image(addr))
@@ -196,7 +185,7 @@ int do_bootelf(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * pass address parameter as argv[0] (aka command name),
 	 * and all remaining args
 	 */
-	rc = do_bootelf_exec((void *)addr, argc - 1, argv + 1);
+	rc = do_bootelf_exec((void *)addr, argc, argv);
 	if (rc != 0)
 		rcode = 1;
 
@@ -253,11 +242,11 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 */
 #if defined(CONFIG_WALNUT)
 	tmp = (char *)CONFIG_SYS_NVRAM_BASE_ADDR + 0x500;
-	eth_getenv_enetaddr("ethaddr", (uchar *)build_buf);
+	eth_env_get_enetaddr("ethaddr", (uchar *)build_buf);
 	memcpy(tmp, &build_buf[3], 3);
 #elif defined(CONFIG_SYS_VXWORKS_MAC_PTR)
 	tmp = (char *)CONFIG_SYS_VXWORKS_MAC_PTR;
-	eth_getenv_enetaddr("ethaddr", (uchar *)build_buf);
+	eth_env_get_enetaddr("ethaddr", (uchar *)build_buf);
 	memcpy(tmp, build_buf, 6);
 #else
 	puts("## Ethernet MAC address not copied to NV RAM\n");
@@ -269,7 +258,7 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * (LOCAL_MEM_LOCAL_ADRS + BOOT_LINE_OFFSET) as defined by
 	 * VxWorks BSP. For example, on PowerPC it defaults to 0x4200.
 	 */
-	tmp = getenv("bootaddr");
+	tmp = env_get("bootaddr");
 	if (!tmp) {
 		printf("## VxWorks bootline address not specified\n");
 	} else {
@@ -280,21 +269,21 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		 * parameter. If it is not defined, we may be able to
 		 * construct the info.
 		 */
-		bootline = getenv("bootargs");
+		bootline = env_get("bootargs");
 		if (bootline) {
 			memcpy((void *)bootaddr, bootline,
 			       max(strlen(bootline), (size_t)255));
 			flush_cache(bootaddr, max(strlen(bootline),
 						  (size_t)255));
 		} else {
-			tmp = getenv("bootdev");
+			tmp = env_get("bootdev");
 			if (tmp) {
 				strcpy(build_buf, tmp);
 				ptr = strlen(tmp);
 			} else
 				printf("## VxWorks boot device not specified\n");
 
-			tmp = getenv("bootfile");
+			tmp = env_get("bootfile");
 			if (tmp)
 				ptr += sprintf(build_buf + ptr,
 					       "host:%s ", tmp);
@@ -306,12 +295,12 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			 * The following parameters are only needed if 'bootdev'
 			 * is an ethernet device, otherwise they are optional.
 			 */
-			tmp = getenv("ipaddr");
+			tmp = env_get("ipaddr");
 			if (tmp) {
 				ptr += sprintf(build_buf + ptr, "e=%s", tmp);
-				tmp = getenv("netmask");
+				tmp = env_get("netmask");
 				if (tmp) {
-					u32 mask = getenv_ip("netmask").s_addr;
+					u32 mask = env_get_ip("netmask").s_addr;
 					ptr += sprintf(build_buf + ptr,
 						       ":%08x ", ntohl(mask));
 				} else {
@@ -319,19 +308,19 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				}
 			}
 
-			tmp = getenv("serverip");
+			tmp = env_get("serverip");
 			if (tmp)
 				ptr += sprintf(build_buf + ptr, "h=%s ", tmp);
 
-			tmp = getenv("gatewayip");
+			tmp = env_get("gatewayip");
 			if (tmp)
 				ptr += sprintf(build_buf + ptr, "g=%s ", tmp);
 
-			tmp = getenv("hostname");
+			tmp = env_get("hostname");
 			if (tmp)
 				ptr += sprintf(build_buf + ptr, "tn=%s ", tmp);
 
-			tmp = getenv("othbootargs");
+			tmp = env_get("othbootargs");
 			if (tmp) {
 				strcpy(build_buf + ptr, tmp);
 				ptr += strlen(tmp);
@@ -352,12 +341,12 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * Since E820 information is critical to the kernel, if we don't
 	 * specify these in the environments, use a default one.
 	 */
-	tmp = getenv("e820data");
+	tmp = env_get("e820data");
 	if (tmp)
 		data = (struct e820entry *)simple_strtoul(tmp, NULL, 16);
 	else
 		data = (struct e820entry *)VXWORKS_E820_DATA_ADDR;
-	tmp = getenv("e820info");
+	tmp = env_get("e820info");
 	if (tmp)
 		info = (struct e820info *)simple_strtoul(tmp, NULL, 16);
 	else
@@ -396,7 +385,7 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 U_BOOT_CMD(
-	bootelf, 3, 0, do_bootelf,
+	bootelf, CONFIG_SYS_MAXARGS, 0, do_bootelf,
 	"Boot from an ELF image in memory",
 	"[-p|-s] [address]\n"
 	"\t- load ELF image at [address] via program headers (-p)\n"

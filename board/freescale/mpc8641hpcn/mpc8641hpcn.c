@@ -16,6 +16,8 @@
 #include <fdt_support.h>
 #include <netdev.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 phys_size_t fixed_sdram(void);
 
 int checkboard(void)
@@ -37,8 +39,7 @@ int checkboard(void)
 	return 0;
 }
 
-phys_size_t
-initdram(int board_type)
+int dram_init(void)
 {
 	phys_size_t dram_size = 0;
 
@@ -51,7 +52,9 @@ initdram(int board_type)
 	setup_ddr_bat(dram_size);
 
 	debug("    DDR: ");
-	return dram_size;
+	gd->ram_size = dram_size;
+
+	return 0;
 }
 
 

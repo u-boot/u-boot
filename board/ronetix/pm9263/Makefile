@@ -11,5 +11,4 @@
 #
 
 obj-y += pm9263.o
-obj-y += led.o
-obj-$(CONFIG_HAS_DATAFLASH) += partition.o
+obj-$(CONFIG_AT91_LED) += led.o

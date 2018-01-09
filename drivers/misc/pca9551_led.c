@@ -124,7 +124,7 @@ void __led_init(led_id_t id, int state)
 
 void __led_set(led_id_t mask, int state)
 {
-	if (state == STATUS_LED_OFF)
+	if (state == CONFIG_LED_STATUS_OFF)
 		pca9551_led_set_state(mask, PCA9551_LED_STATE_OFF);
 	else
 		pca9551_led_set_state(mask, PCA9551_LED_STATE_ON);

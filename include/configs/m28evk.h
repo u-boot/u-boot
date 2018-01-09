@@ -9,21 +9,9 @@
 
 /* System configurations */
 #define CONFIG_MX28				/* i.MX28 SoC */
-#define MACH_TYPE_M28EVK	3613
 #define CONFIG_MACH_TYPE	MACH_TYPE_M28EVK
 
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
-
-/* U-Boot Commands */
-#define CONFIG_SYS_NO_FLASH
-#define CONFIG_DOS_PARTITION
-#define CONFIG_FAT_WRITE
-
-#define CONFIG_CMD_BMP
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_NAND_TRIMFFS
 
 /* Memory configuration */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */
@@ -33,7 +21,6 @@
 
 /* Environment */
 #define CONFIG_ENV_SIZE			(16 * 1024)
-#define CONFIG_ENV_IS_IN_NAND
 
 /* Environment is in NAND */
 #if defined(CONFIG_CMD_NAND) && defined(CONFIG_ENV_IS_IN_NAND)
@@ -44,33 +31,13 @@
 #define CONFIG_ENV_OFFSET_REDUND	\
 		(CONFIG_ENV_OFFSET + CONFIG_ENV_RANGE)
 
-#define CONFIG_CMD_UBIFS
-#define CONFIG_CMD_MTDPARTS
-#define CONFIG_RBTREE
-#define CONFIG_LZO
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define MTDIDS_DEFAULT			"nand0=gpmi-nand"
-#define MTDPARTS_DEFAULT			\
-	"mtdparts=gpmi-nand:"			\
-		"3m(u-boot),"			\
-		"512k(env1),"			\
-		"512k(env2),"			\
-		"14m(boot),"			\
-		"238m(data),"			\
-		"-@4096k(UBI)"
-#else
-#define CONFIG_ENV_IS_NOWHERE
 #endif
 
 /* FEC Ethernet on SoC */
 #ifdef CONFIG_CMD_NET
 #define CONFIG_FEC_MXC
-#endif
-
-/* EEPROM */
-#ifdef CONFIG_CMD_EEPROM
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
 #endif
 
 /* RTC */
@@ -96,7 +63,6 @@
 /* SPI */
 #ifdef CONFIG_CMD_SPI
 #define CONFIG_DEFAULT_SPI_BUS		2
-#define CONFIG_DEFAULT_SPI_CS		0
 #define CONFIG_DEFAULT_SPI_MODE		SPI_MODE_0
 
 /* SPI FLASH */
@@ -118,7 +84,6 @@
 #ifdef CONFIG_VIDEO
 #define	CONFIG_VIDEO_LOGO
 #define	CONFIG_SPLASH_SCREEN
-#define	CONFIG_CMD_BMP
 #define	CONFIG_BMP_16BPP
 #define	CONFIG_VIDEO_BMP_RLE8
 #define	CONFIG_VIDEO_BMP_GZIP
@@ -127,7 +92,6 @@
 
 /* Booting Linux */
 #define CONFIG_BOOTFILE		"fitImage"
-#define CONFIG_BOOTARGS		"console=ttyAMA0,115200n8 "
 #define CONFIG_BOOTCOMMAND	"run mmc_mmc"
 #define CONFIG_LOADADDR		0x42000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR

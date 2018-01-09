@@ -1,3 +1,10 @@
+/*
+ * (C) Copyright 2000-2002
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
 #ifndef _ASM_IO_H
 #define _ASM_IO_H
 
@@ -118,71 +125,6 @@
 #define setbits_8(addr, set) setbits(8, addr, set)
 #define clrsetbits_8(addr, clear, set) clrsetbits(8, addr, clear, set)
 
-/*
- * ISA space is 'always mapped' on a typical x86 system, no need to
- * explicitly ioremap() it. The fact that the ISA IO space is mapped
- * to PAGE_OFFSET is pure coincidence - it does not mean ISA values
- * are physical addresses. The following constant pointer can be
- * used as the IO-area pointer (it can be iounmapped as well, so the
- * analogy with PCI is quite large):
- */
-#define isa_readb(a) readb((a))
-#define isa_readw(a) readw((a))
-#define isa_readl(a) readl((a))
-#define isa_writeb(b,a) writeb(b,(a))
-#define isa_writew(w,a) writew(w,(a))
-#define isa_writel(l,a) writel(l,(a))
-#define isa_memset_io(a,b,c)		memset_io((a),(b),(c))
-#define isa_memcpy_fromio(a,b,c)	memcpy_fromio((a),(b),(c))
-#define isa_memcpy_toio(a,b,c)		memcpy_toio((a),(b),(c))
-
-
-static inline int check_signature(unsigned long io_addr,
-	const unsigned char *signature, int length)
-{
-	int retval = 0;
-	do {
-		if (readb(io_addr) != *signature)
-			goto out;
-		io_addr++;
-		signature++;
-		length--;
-	} while (length);
-	retval = 1;
-out:
-	return retval;
-}
-
-/**
- *	isa_check_signature		-	find BIOS signatures
- *	@io_addr: mmio address to check
- *	@signature:  signature block
- *	@length: length of signature
- *
- *	Perform a signature comparison with the ISA mmio address io_addr.
- *	Returns 1 on a match.
- *
- *	This function is deprecated. New drivers should use ioremap and
- *	check_signature.
- */
-
-
-static inline int isa_check_signature(unsigned long io_addr,
-	const unsigned char *signature, int length)
-{
-	int retval = 0;
-	do {
-		if (isa_readb(io_addr) != *signature)
-			goto out;
-		io_addr++;
-		signature++;
-		length--;
-	} while (length);
-	retval = 1;
-out:
-	return retval;
-}
-
 #endif /* __KERNEL__ */
 
 #ifdef SLOW_IO_BY_JUMPING
@@ -289,35 +231,6 @@ static inline void sync(void)
 }
 
 /*
- * Given a physical address and a length, return a virtual address
- * that can be used to access the memory range with the caching
- * properties specified by "flags".
- */
-#define MAP_NOCACHE	(0)
-#define MAP_WRCOMBINE	(0)
-#define MAP_WRBACK	(0)
-#define MAP_WRTHROUGH	(0)
-
-static inline void *
-map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
-{
-	return (void *)(uintptr_t)paddr;
-}
-
-/*
- * Take down a mapping set up by map_physmem().
- */
-static inline void unmap_physmem(void *vaddr, unsigned long flags)
-{
-
-}
-
-static inline phys_addr_t virt_to_phys(void * vaddr)
-{
-	return (phys_addr_t)(uintptr_t)(vaddr);
-}
-
-/*
  * TODO: The kernel offers some more advanced versions of barriers, it might
  * have some advantages to use them instead of the simple one here.
  */
@@ -325,4 +238,6 @@ static inline phys_addr_t virt_to_phys(void * vaddr)
 #define __iormb()	dmb()
 #define __iowmb()	dmb()
 
-#endif
+#include <asm-generic/io.h>
+
+#endif /* _ASM_IO_H */

@@ -5,6 +5,7 @@
 / {
 	#address-cells = <1>;
 	#size-cells = <1>;
+	model = "sandbox";
 
 	aliases {
 		eth5 = "/eth@90000000";
@@ -123,6 +124,20 @@
 		yres = <768>;
 	};
 
+	leds {
+		compatible = "gpio-leds";
+
+		iracibble {
+			gpios = <&gpio_a 1 0>;
+			label = "sandbox:red";
+		};
+
+		martinet {
+			gpios = <&gpio_a 2 0>;
+			label = "sandbox:green";
+		};
+	};
+
 	pci: pci-controller {
 		compatible = "sandbox,pci";
 		device_type = "pci";
@@ -201,6 +216,11 @@
 		u-boot,dm-pre-reloc;
 		compatible = "sandbox,spl-test";
 		stringarray = "one";
+	};
+
+	spl-test4 {
+		u-boot,dm-pre-reloc;
+		compatible = "sandbox,spl-test.2";
 	};
 
 	square {

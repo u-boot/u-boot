@@ -71,18 +71,12 @@ ENTRY(_main)
  */
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
-	ldr	sp, =(CONFIG_SPL_STACK)
+	ldr	r0, =(CONFIG_SPL_STACK)
 #else
-	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
+	ldr	r0, =(CONFIG_SYS_INIT_SP_ADDR)
 #endif
-#if defined(CONFIG_CPU_V7M)	/* v7M forbids using SP as BIC destination */
-	mov	r3, sp
-	bic	r3, r3, #7
-	mov	sp, r3
-#else
-	bic	sp, sp, #7	/* 8-byte alignment for ABI compliance */
-#endif
-	mov	r0, sp
+	bic	r0, r0, #7	/* 8-byte alignment for ABI compliance */
+	mov	sp, r0
 	bl	board_init_f_alloc_reserve
 	mov	sp, r0
 	/* set up gd here, outside any C code */
@@ -100,14 +94,9 @@ ENTRY(_main)
  * 'here' but relocated.
  */
 
-	ldr	sp, [r9, #GD_START_ADDR_SP]	/* sp = gd->start_addr_sp */
-#if defined(CONFIG_CPU_V7M)	/* v7M forbids using SP as BIC destination */
-	mov	r3, sp
-	bic	r3, r3, #7
-	mov	sp, r3
-#else
-	bic	sp, sp, #7	/* 8-byte alignment for ABI compliance */
-#endif
+	ldr	r0, [r9, #GD_START_ADDR_SP]	/* sp = gd->start_addr_sp */
+	bic	r0, r0, #7	/* 8-byte alignment for ABI compliance */
+	mov	sp, r0
 	ldr	r9, [r9, #GD_BD]		/* r9 = gd->bd */
 	sub	r9, r9, #GD_SIZE		/* new GD is below bd */
 
@@ -167,7 +156,7 @@ clbss_l:cmp	r0, r1			/* while not at end of BSS */
 	mov     r0, r9                  /* gd_t */
 	ldr	r1, [r9, #GD_RELOCADDR]	/* dest_addr */
 	/* call board_init_r */
-#if defined(CONFIG_SYS_THUMB_BUILD)
+#if CONFIG_IS_ENABLED(SYS_THUMB_BUILD)
 	ldr	lr, =board_init_r	/* this is auto-relocated! */
 	bx	lr
 #else

@@ -17,10 +17,6 @@ enum {
 	HASH_FLAG_ENV		= 1 << 1,	/* Allow env vars */
 };
 
-#if defined(CONFIG_SHA1SUM_VERIFY) || defined(CONFIG_CRC32_VERIFY)
-#define CONFIG_HASH_VERIFY
-#endif
-
 struct hash_algo {
 	const char *name;			/* Name of algorithm */
 	int digest_size;			/* Length of digest */

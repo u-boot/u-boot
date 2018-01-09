@@ -1,12 +1,13 @@
 /*
- * (C) Copyright 2016
- * Vikas Manocha, <vikas.manocha@st.com>
+ * Copyright (C) 2016, STMicroelectronics - All Rights Reserved
+ * Author(s): Vikas Manocha, <vikas.manocha@st.com> for STMicroelectronics.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _STM32_GPIO_H_
 #define _STM32_GPIO_H_
+#include <asm/gpio.h>
 
 enum stm32_gpio_port {
 	STM32_GPIO_PORT_A = 0,
@@ -96,6 +97,22 @@ struct stm32_gpio_ctl {
 	enum stm32_gpio_af	af;
 };
 
+struct stm32_gpio_regs {
+	u32 moder;	/* GPIO port mode */
+	u32 otyper;	/* GPIO port output type */
+	u32 ospeedr;	/* GPIO port output speed */
+	u32 pupdr;	/* GPIO port pull-up/pull-down */
+	u32 idr;	/* GPIO port input data */
+	u32 odr;	/* GPIO port output data */
+	u32 bsrr;	/* GPIO port bit set/reset */
+	u32 lckr;	/* GPIO port configuration lock */
+	u32 afr[2];	/* GPIO alternate function */
+};
+
+struct stm32_gpio_priv {
+	struct stm32_gpio_regs *regs;
+};
+
 static inline unsigned stm32_gpio_to_port(unsigned gpio)
 {
 	return gpio / 16;
@@ -105,9 +122,5 @@ static inline unsigned stm32_gpio_to_pin(unsigned gpio)
 {
 	return gpio % 16;
 }
-
-int stm32_gpio_config(const struct stm32_gpio_dsc *gpio_dsc,
-		const struct stm32_gpio_ctl *gpio_ctl);
-int stm32_gpout_set(const struct stm32_gpio_dsc *gpio_dsc, int state);
 
 #endif /* _STM32_GPIO_H_ */

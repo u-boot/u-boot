@@ -1,7 +1,8 @@
 /*
  * STMicroelectronics TPM ST33ZP24 SPI UBOOT driver
  *
- * Copyright (C) 2016 STMicroelectronics
+ * Copyright (C) 2016, STMicroelectronics - All Rights Reserved
+ * Author(s): Christophe Ricard <christophe-h.ricard@st.com> for STMicroelectronics.
  *
  * Description: Device driver for ST33ZP24 SPI TPM TCG.
  *

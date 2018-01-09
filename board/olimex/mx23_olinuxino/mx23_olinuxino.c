@@ -13,7 +13,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
-#ifdef CONFIG_STATUS_LED
+#ifdef CONFIG_LED_STATUS
 #include <status_led.h>
 #endif
 
@@ -72,8 +72,8 @@ int board_init(void)
 	/* Adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
-#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
-	status_led_set(STATUS_LED_BOOT, STATUS_LED_STATE);
+#if defined(CONFIG_LED_STATUS) && defined(CONFIG_LED_STATUS_BOOT_ENABLE)
+	status_led_set(CONFIG_LED_STATUS_BOOT, CONFIG_LED_STATUS_STATE);
 #endif
 
 	return 0;

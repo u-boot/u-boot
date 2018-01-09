@@ -19,7 +19,12 @@ static const struct dmm_lisa_map_regs cl_som_am57x_lisa_regs = {
 
 void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 {
+	/* Disable SDRAM controller EMIF2 for single core SOC */
 	*dmm_lisa_regs = &cl_som_am57x_lisa_regs;
+	if (omap_revision() == DRA722_ES1_0) {
+		((struct dmm_lisa_map_regs *) *dmm_lisa_regs)->dmm_lisa_map_3 =
+		  0x80640100;
+	}
 }
 
 static const struct emif_regs cl_som_am57x_emif1_ddr3_532mhz_emif_regs = {

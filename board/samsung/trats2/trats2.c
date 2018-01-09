@@ -100,50 +100,6 @@ static void board_external_gpio_init(void)
 	gpio_set_pull(EXYNOS4X12_GPIO_X37, S5P_GPIO_PULL_NONE);	/* HDMI_HPD */
 }
 
-#ifdef CONFIG_SYS_I2C_INIT_BOARD
-static void board_init_i2c(void)
-{
-	int err;
-
-	/* I2C_7 */
-	err = exynos_pinmux_config(PERIPH_ID_I2C7, PINMUX_FLAG_NONE);
-	if (err) {
-		debug("I2C%d not configured\n", (I2C_7));
-		return;
-	}
-
-	/* I2C_8 */
-	gpio_request(EXYNOS4X12_GPIO_F14, "i2c8_clk");
-	gpio_request(EXYNOS4X12_GPIO_F15, "i2c8_data");
-	gpio_direction_output(EXYNOS4X12_GPIO_F14, 1);
-	gpio_direction_output(EXYNOS4X12_GPIO_F15, 1);
-
-	/* I2C_9 */
-	gpio_request(EXYNOS4X12_GPIO_M21, "i2c9_clk");
-	gpio_request(EXYNOS4X12_GPIO_M20, "i2c9_data");
-	gpio_direction_output(EXYNOS4X12_GPIO_M21, 1);
-	gpio_direction_output(EXYNOS4X12_GPIO_M20, 1);
-}
-#endif
-
-#ifdef CONFIG_SYS_I2C_SOFT
-int get_soft_i2c_scl_pin(void)
-{
-	if (I2C_ADAP_HWNR)
-		return EXYNOS4X12_GPIO_M21; /* I2C9 */
-	else
-		return EXYNOS4X12_GPIO_F14; /* I2C8 */
-}
-
-int get_soft_i2c_sda_pin(void)
-{
-	if (I2C_ADAP_HWNR)
-		return EXYNOS4X12_GPIO_M20; /* I2C9 */
-	else
-		return EXYNOS4X12_GPIO_F15; /* I2C8 */
-}
-#endif
-
 int exynos_early_init_f(void)
 {
 	board_external_gpio_init();
@@ -179,11 +135,6 @@ int exynos_power_init(void)
 	struct power_battery *pb;
 	struct pmic *p_chrg, *p_muic, *p_fg, *p_bat;
 
-#ifdef CONFIG_SYS_I2C_INIT_BOARD
-	board_init_i2c();
-#endif
-	pmic_init(I2C_7);		/* I2C adapter 7 - bus name s3c24x0_7 */
-	pmic_init_max77686();
 	pmic_init_max77693(I2C_10);	/* I2C adapter 10 - bus name soft1 */
 	power_muic_init(I2C_10);	/* I2C adapter 10 - bus name soft1 */
 	power_fg_init(I2C_9);		/* I2C adapter 9 - bus name soft0 */
@@ -328,61 +279,6 @@ int g_dnl_board_usb_cable_connected(void)
 #else
 	return false;
 #endif
-}
-#endif
-
-#ifndef CONFIG_DM_I2C /* TODO(maintainer): Convert to driver model */
-static int pmic_init_max77686(void)
-{
-	struct pmic *p = pmic_get("MAX77686_PMIC");
-
-	if (pmic_probe(p))
-		return -1;
-
-	/* BUCK/LDO Output Voltage */
-	max77686_set_ldo_voltage(p, 21, 2800000);	/* LDO21 VTF_2.8V */
-	max77686_set_ldo_voltage(p, 23, 3300000);	/* LDO23 TSP_AVDD_3.3V*/
-	max77686_set_ldo_voltage(p, 24, 1800000);	/* LDO24 TSP_VDD_1.8V */
-
-	/* BUCK/LDO Output Mode */
-	max77686_set_buck_mode(p, 1, OPMODE_STANDBY);	/* BUCK1 VMIF_1.1V_AP */
-	max77686_set_buck_mode(p, 2, OPMODE_ON);	/* BUCK2 VARM_1.0V_AP */
-	max77686_set_buck_mode(p, 3, OPMODE_ON);	/* BUCK3 VINT_1.0V_AP */
-	max77686_set_buck_mode(p, 4, OPMODE_ON);	/* BUCK4 VG3D_1.0V_AP */
-	max77686_set_buck_mode(p, 5, OPMODE_ON);	/* BUCK5 VMEM_1.2V_AP */
-	max77686_set_buck_mode(p, 6, OPMODE_ON);	/* BUCK6 VCC_SUB_1.35V*/
-	max77686_set_buck_mode(p, 7, OPMODE_ON);	/* BUCK7 VCC_SUB_2.0V */
-	max77686_set_buck_mode(p, 8, OPMODE_OFF);	/* VMEM_VDDF_2.85V */
-	max77686_set_buck_mode(p, 9, OPMODE_OFF);	/* CAM_ISP_CORE_1.2V*/
-
-	max77686_set_ldo_mode(p, 1, OPMODE_LPM);	/* LDO1 VALIVE_1.0V_AP*/
-	max77686_set_ldo_mode(p, 2, OPMODE_STANDBY);	/* LDO2 VM1M2_1.2V_AP */
-	max77686_set_ldo_mode(p, 3, OPMODE_LPM);	/* LDO3 VCC_1.8V_AP */
-	max77686_set_ldo_mode(p, 4, OPMODE_LPM);	/* LDO4 VCC_2.8V_AP */
-	max77686_set_ldo_mode(p, 5, OPMODE_OFF);	/* LDO5_VCC_1.8V_IO */
-	max77686_set_ldo_mode(p, 6, OPMODE_STANDBY);	/* LDO6 VMPLL_1.0V_AP */
-	max77686_set_ldo_mode(p, 7, OPMODE_STANDBY);	/* LDO7 VPLL_1.0V_AP */
-	max77686_set_ldo_mode(p, 8, OPMODE_LPM);	/* LDO8 VMIPI_1.0V_AP */
-	max77686_set_ldo_mode(p, 9, OPMODE_OFF);	/* CAM_ISP_MIPI_1.2*/
-	max77686_set_ldo_mode(p, 10, OPMODE_LPM);	/* LDO10 VMIPI_1.8V_AP*/
-	max77686_set_ldo_mode(p, 11, OPMODE_STANDBY);	/* LDO11 VABB1_1.8V_AP*/
-	max77686_set_ldo_mode(p, 12, OPMODE_LPM);	/* LDO12 VUOTG_3.0V_AP*/
-	max77686_set_ldo_mode(p, 13, OPMODE_OFF);	/* LDO13 VC2C_1.8V_AP */
-	max77686_set_ldo_mode(p, 14, OPMODE_STANDBY);	/* VABB02_1.8V_AP */
-	max77686_set_ldo_mode(p, 15, OPMODE_STANDBY);	/* LDO15 VHSIC_1.0V_AP*/
-	max77686_set_ldo_mode(p, 16, OPMODE_STANDBY);	/* LDO16 VHSIC_1.8V_AP*/
-	max77686_set_ldo_mode(p, 17, OPMODE_OFF);	/* CAM_SENSOR_CORE_1.2*/
-	max77686_set_ldo_mode(p, 18, OPMODE_OFF);	/* CAM_ISP_SEN_IO_1.8V*/
-	max77686_set_ldo_mode(p, 19, OPMODE_OFF);	/* LDO19 VT_CAM_1.8V */
-	max77686_set_ldo_mode(p, 20, OPMODE_ON);	/* LDO20 VDDQ_PRE_1.8V*/
-	max77686_set_ldo_mode(p, 21, OPMODE_OFF);	/* LDO21 VTF_2.8V */
-	max77686_set_ldo_mode(p, 22, OPMODE_OFF);	/* LDO22 VMEM_VDD_2.8V*/
-	max77686_set_ldo_mode(p, 23, OPMODE_OFF);	/* LDO23 TSP_AVDD_3.3V*/
-	max77686_set_ldo_mode(p, 24, OPMODE_OFF);	/* LDO24 TSP_VDD_1.8V */
-	max77686_set_ldo_mode(p, 25, OPMODE_OFF);	/* LDO25 VCC_3.3V_LCD */
-	max77686_set_ldo_mode(p, 26, OPMODE_OFF);	/*LDO26 VCC_3.0V_MOTOR*/
-
-	return 0;
 }
 #endif
 

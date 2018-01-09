@@ -222,7 +222,7 @@ static void snor_init(void)
 
 u32 spl_boot_device(void)
 {
-	u32 mode;
+	u32 mode = 0;
 
 	/* Currently only SNOR is supported as the only */
 	if (snor_boot_selected()) {

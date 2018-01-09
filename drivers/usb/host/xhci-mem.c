@@ -96,6 +96,25 @@ static void xhci_ring_free(struct xhci_ring *ring)
 }
 
 /**
+ * Free the scratchpad buffer array and scratchpad buffers
+ *
+ * @ctrl	host controller data structure
+ * @return	none
+ */
+static void xhci_scratchpad_free(struct xhci_ctrl *ctrl)
+{
+	if (!ctrl->scratchpad)
+		return;
+
+	ctrl->dcbaa->dev_context_ptrs[0] = 0;
+
+	free((void *)(uintptr_t)ctrl->scratchpad->sp_array[0]);
+	free(ctrl->scratchpad->sp_array);
+	free(ctrl->scratchpad);
+	ctrl->scratchpad = NULL;
+}
+
+/**
  * frees the "xhci_container_ctx" pointer passed
  *
  * @param ptr	pointer to "xhci_container_ctx" to be freed
@@ -155,6 +174,7 @@ void xhci_cleanup(struct xhci_ctrl *ctrl)
 {
 	xhci_ring_free(ctrl->event_ring);
 	xhci_ring_free(ctrl->cmd_ring);
+	xhci_scratchpad_free(ctrl);
 	xhci_free_virt_devices(ctrl);
 	free(ctrl->erst.entries);
 	free(ctrl->dcbaa);
@@ -317,6 +337,70 @@ struct xhci_ring *xhci_ring_alloc(unsigned int num_segs, bool link_trbs)
 	xhci_initialize_ring_info(ring);
 
 	return ring;
+}
+
+/**
+ * Set up the scratchpad buffer array and scratchpad buffers
+ *
+ * @ctrl	host controller data structure
+ * @return	-ENOMEM if buffer allocation fails, 0 on success
+ */
+static int xhci_scratchpad_alloc(struct xhci_ctrl *ctrl)
+{
+	struct xhci_hccr *hccr = ctrl->hccr;
+	struct xhci_hcor *hcor = ctrl->hcor;
+	struct xhci_scratchpad *scratchpad;
+	int num_sp;
+	uint32_t page_size;
+	void *buf;
+	int i;
+
+	num_sp = HCS_MAX_SCRATCHPAD(xhci_readl(&hccr->cr_hcsparams2));
+	if (!num_sp)
+		return 0;
+
+	scratchpad = malloc(sizeof(*scratchpad));
+	if (!scratchpad)
+		goto fail_sp;
+	ctrl->scratchpad = scratchpad;
+
+	scratchpad->sp_array = xhci_malloc(num_sp * sizeof(u64));
+	if (!scratchpad->sp_array)
+		goto fail_sp2;
+	ctrl->dcbaa->dev_context_ptrs[0] =
+		cpu_to_le64((uintptr_t)scratchpad->sp_array);
+
+	page_size = xhci_readl(&hcor->or_pagesize) & 0xffff;
+	for (i = 0; i < 16; i++) {
+		if ((0x1 & page_size) != 0)
+			break;
+		page_size = page_size >> 1;
+	}
+	BUG_ON(i == 16);
+
+	page_size = 1 << (i + 12);
+	buf = memalign(page_size, num_sp * page_size);
+	if (!buf)
+		goto fail_sp3;
+	memset(buf, '\0', num_sp * page_size);
+	xhci_flush_cache((uintptr_t)buf, num_sp * page_size);
+
+	for (i = 0; i < num_sp; i++) {
+		uintptr_t ptr = (uintptr_t)buf + i * page_size;
+		scratchpad->sp_array[i] = cpu_to_le64(ptr);
+	}
+
+	return 0;
+
+fail_sp3:
+	free(scratchpad->sp_array);
+
+fail_sp2:
+	free(scratchpad);
+	ctrl->scratchpad = NULL;
+
+fail_sp:
+	return -ENOMEM;
 }
 
 /**
@@ -499,6 +583,9 @@ int xhci_mem_init(struct xhci_ctrl *ctrl, struct xhci_hccr *hccr,
 
 	xhci_writeq(&ctrl->ir_set->erst_base, val_64);
 
+	/* set up the scratchpad buffer array and scratchpad buffers */
+	xhci_scratchpad_alloc(ctrl);
+
 	/* initializing the virtual devices to NULL */
 	for (i = 0; i < MAX_HC_SLOTS; ++i)
 		ctrl->devs[i] = NULL;
@@ -626,14 +713,21 @@ void xhci_slot_copy(struct xhci_ctrl *ctrl, struct xhci_container_ctx *in_ctx,
  * @param udev pointer to the Device Data Structure
  * @return returns negative value on failure else 0 on success
  */
-void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl, int slot_id,
-				     int speed, int hop_portnr)
+void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl,
+				     struct usb_device *udev, int hop_portnr)
 {
 	struct xhci_virt_device *virt_dev;
 	struct xhci_ep_ctx *ep0_ctx;
 	struct xhci_slot_ctx *slot_ctx;
 	u32 port_num = 0;
 	u64 trb_64 = 0;
+	int slot_id = udev->slot_id;
+	int speed = udev->speed;
+	int route = 0;
+#ifdef CONFIG_DM_USB
+	struct usb_device *dev = udev;
+	struct usb_hub_device *hub;
+#endif
 
 	virt_dev = ctrl->devs[slot_id];
 
@@ -644,7 +738,32 @@ void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl, int slot_id,
 	slot_ctx = xhci_get_slot_ctx(ctrl, virt_dev->in_ctx);
 
 	/* Only the control endpoint is valid - one endpoint context */
-	slot_ctx->dev_info |= cpu_to_le32(LAST_CTX(1) | 0);
+	slot_ctx->dev_info |= cpu_to_le32(LAST_CTX(1));
+
+#ifdef CONFIG_DM_USB
+	/* Calculate the route string for this device */
+	port_num = dev->portnr;
+	while (!usb_hub_is_root_hub(dev->dev)) {
+		hub = dev_get_uclass_priv(dev->dev);
+		/*
+		 * Each hub in the topology is expected to have no more than
+		 * 15 ports in order for the route string of a device to be
+		 * unique. SuperSpeed hubs are restricted to only having 15
+		 * ports, but FS/LS/HS hubs are not. The xHCI specification
+		 * says that if the port number the device is greater than 15,
+		 * that portion of the route string shall be set to 15.
+		 */
+		if (port_num > 15)
+			port_num = 15;
+		route |= port_num << (hub->hub_depth * 4);
+		dev = dev_get_parent_priv(dev->dev);
+		port_num = dev->portnr;
+		dev = dev_get_parent_priv(dev->dev->parent);
+	}
+
+	debug("route string %x\n", route);
+#endif
+	slot_ctx->dev_info |= route;
 
 	switch (speed) {
 	case USB_SPEED_SUPER:
@@ -663,6 +782,30 @@ void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl, int slot_id,
 		/* Speed was set earlier, this shouldn't happen. */
 		BUG();
 	}
+
+#ifdef CONFIG_DM_USB
+	/* Set up TT fields to support FS/LS devices */
+	if (speed == USB_SPEED_LOW || speed == USB_SPEED_FULL) {
+		struct udevice *parent = udev->dev;
+
+		dev = udev;
+		do {
+			port_num = dev->portnr;
+			dev = dev_get_parent_priv(parent);
+			if (usb_hub_is_root_hub(dev->dev))
+				break;
+			parent = dev->dev->parent;
+		} while (dev->speed != USB_SPEED_HIGH);
+
+		if (!usb_hub_is_root_hub(dev->dev)) {
+			hub = dev_get_uclass_priv(dev->dev);
+			if (hub->tt.multi)
+				slot_ctx->dev_info |= cpu_to_le32(DEV_MTT);
+			slot_ctx->tt_info |= cpu_to_le32(TT_PORT(port_num));
+			slot_ctx->tt_info |= cpu_to_le32(TT_SLOT(dev->slot_id));
+		}
+	}
+#endif
 
 	port_num = hop_portnr;
 	debug("port_num = %d\n", port_num);
@@ -706,6 +849,12 @@ void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl, int slot_id,
 
 	trb_64 = (uintptr_t)virt_dev->eps[0].ring->first_seg->trbs;
 	ep0_ctx->deq = cpu_to_le64(trb_64 | virt_dev->eps[0].ring->cycle_state);
+
+	/*
+	 * xHCI spec 6.2.3:
+	 * software shall set 'Average TRB Length' to 8 for control endpoints.
+	 */
+	ep0_ctx->tx_info = cpu_to_le32(EP_AVG_TRB_LENGTH(8));
 
 	/* Steps 7 and 8 were done in xhci_alloc_virt_device() */
 

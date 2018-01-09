@@ -17,18 +17,6 @@ enum {
 	RKSPI_SECT_LEN		= RK_BLK_SIZE * 4,
 };
 
-static char dummy_hdr[RK_IMAGE_HEADER_LEN];
-
-static int rkspi_verify_header(unsigned char *buf, int size,
-			       struct image_tool_params *params)
-{
-	return 0;
-}
-
-static void rkspi_print_header(const void *buf)
-{
-}
-
 static void rkspi_set_header(void *buf, struct stat *sbuf, int ifd,
 			     struct image_tool_params *params)
 {
@@ -41,12 +29,9 @@ static void rkspi_set_header(void *buf, struct stat *sbuf, int ifd,
 	debug("size %x\n", size);
 	if (ret) {
 		/* TODO(sjg@chromium.org): This method should return an error */
-		printf("Warning: SPL image is too large (size %#x) and will not boot\n",
-		       size);
+		printf("Warning: SPL image is too large (size %#x) and will "
+		       "not boot\n", size);
 	}
-
-	memcpy(buf + RK_SPL_HDR_START, rkcommon_get_spl_hdr(params),
-	       RK_SPL_HDR_SIZE);
 
 	/*
 	 * Spread the image out so we only use the first 2KB of each 4KB
@@ -63,11 +48,6 @@ static void rkspi_set_header(void *buf, struct stat *sbuf, int ifd,
 	}
 }
 
-static int rkspi_extract_subimage(void *buf, struct image_tool_params *params)
-{
-	return 0;
-}
-
 static int rkspi_check_image_type(uint8_t type)
 {
 	if (type == IH_TYPE_RKSPI)
@@ -76,21 +56,36 @@ static int rkspi_check_image_type(uint8_t type)
 		return EXIT_FAILURE;
 }
 
-/* We pad the file out to a fixed size - this method returns that size */
+/*
+ * The SPI payload needs to be padded out to make space for odd half-sector
+ * layout used in flash (i.e. only the first 2K of each 4K sector is used).
+ */
 static int rkspi_vrec_header(struct image_tool_params *params,
 			     struct image_type_params *tparams)
 {
-	int pad_size;
+	int padding = rkcommon_vrec_header(params, tparams, RK_INIT_SIZE_ALIGN);
+	/*
+	 * The file size has not been adjusted at this point (our caller will
+	 * eventually add the header/padding to the file_size), so we need to
+	 * add up the header_size, file_size and padding ourselves.
+	 */
+	int padded_size = tparams->header_size + params->file_size + padding;
 
-	pad_size = (rkcommon_get_spl_size(params) + 0x7ff) / 0x800 * 0x800;
-	params->orig_file_size = pad_size;
+	/*
+	 * We need to store the original file-size (i.e. before padding), as
+	 * imagetool does not set this during its adjustment of file_size.
+	 */
+	params->orig_file_size = padded_size;
 
-	/* We will double the image size due to the SPI format */
-	pad_size *= 2;
-	pad_size += RK_SPL_HDR_START;
-	debug("pad_size %x\n", pad_size);
-
-	return pad_size - params->file_size;
+	/*
+	 * Converting to the SPI format (i.e. splitting each 4K page into two
+	 * 2K subpages and then padding these 2K pages up to take a complete
+	 * 4K sector again) will will double the image size.
+	 *
+	 * Thus we return the padded_size as an additional padding requirement
+	 * (be sure to add this to the padding returned from the common code).
+	 */
+	return padded_size + padding;
 }
 
 /*
@@ -99,13 +94,13 @@ static int rkspi_vrec_header(struct image_tool_params *params,
 U_BOOT_IMAGE_TYPE(
 	rkspi,
 	"Rockchip SPI Boot Image support",
-	RK_IMAGE_HEADER_LEN,
-	dummy_hdr,
+	0,
+	NULL,
 	rkcommon_check_params,
-	rkspi_verify_header,
-	rkspi_print_header,
+	rkcommon_verify_header,
+	rkcommon_print_header,
 	rkspi_set_header,
-	rkspi_extract_subimage,
+	NULL,
 	rkspi_check_image_type,
 	NULL,
 	rkspi_vrec_header

@@ -11,8 +11,6 @@
 #include "exynos5420-common.h"
 #include <configs/exynos5-common.h>
 
-#undef CONFIG_ENV_IS_IN_SPI_FLASH
-
 #define CONFIG_BOARD_COMMON
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
@@ -29,8 +27,6 @@
 #define CONFIG_SYS_MEM_TOP_HIDE		(22UL << 20UL)
 #define CONFIG_TZSW_RESERVED_DRAM_SIZE	CONFIG_SYS_MEM_TOP_HIDE
 
-#define CONFIG_ENV_IS_IN_MMC
-
 #undef CONFIG_ENV_SIZE
 #undef CONFIG_ENV_OFFSET
 #define CONFIG_ENV_SIZE			(SZ_1K * 16)
@@ -38,10 +34,9 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR        (CONFIG_SYS_LOAD_ADDR - 0x1000000)
 
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
+#define CONFIG_DEFAULT_CONSOLE		"ttySAC2,115200n8"
 
 /* USB */
-#define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_EXYNOS
 
 /* DFU */
@@ -50,10 +45,9 @@
 #define DFU_MANIFEST_POLL_TIMEOUT       25000
 
 /* THOR */
-#define CONFIG_G_DNL_THOR_VENDOR_NUM	CONFIG_G_DNL_VENDOR_NUM
+#define CONFIG_G_DNL_THOR_VENDOR_NUM	CONFIG_USB_GADGET_VENDOR_NUM
 #define CONFIG_G_DNL_THOR_PRODUCT_NUM	0x685D
 #define CONFIG_USB_FUNCTION_THOR
-#define CONFIG_CMD_THOR_DOWNLOAD
 
 /* UMS */
 #define CONFIG_G_DNL_UMS_VENDOR_NUM	0x0525
@@ -62,7 +56,6 @@
 
 /* FIXME: MUST BE REMOVED AFTER TMU IS TURNED ON */
 #undef CONFIG_EXYNOS_TMU
-#undef CONFIG_TMU_CMD_DTT
 
 #define CONFIG_DFU_ALT_SYSTEM               \
 	"uImage fat 0 1;"                   \
@@ -115,7 +108,7 @@
 	BOOTENV \
 	"bootdelay=0\0" \
 	"rootfstype=ext4\0" \
-	"console=" CONFIG_DEFAULT_CONSOLE \
+	"console=" CONFIG_DEFAULT_CONSOLE "\0"\
 	"fdtfile=exynos5422-odroidxu3.dtb\0" \
 	"boardname=odroidxu3\0" \
 	"mmcbootdev=0\0" \

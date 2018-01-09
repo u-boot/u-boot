@@ -43,10 +43,13 @@ struct stor_spec {
 
 static struct stor_spec specs[ENUM_MAX] = { { 0, 0, 0, 0, NULL }, };
 
+#ifndef CONFIG_SYS_MMC_MAX_DEVICE
+#define CONFIG_SYS_MMC_MAX_DEVICE	1
+#endif
 
 void dev_stor_init(void)
 {
-#if defined(CONFIG_CMD_IDE)
+#if defined(CONFIG_IDE)
 	specs[ENUM_IDE].max_dev = CONFIG_SYS_IDE_MAXDEVICE;
 	specs[ENUM_IDE].enum_started = 0;
 	specs[ENUM_IDE].enum_ended = 0;
@@ -60,7 +63,7 @@ void dev_stor_init(void)
 	specs[ENUM_MMC].type = DEV_TYP_STOR | DT_STOR_MMC;
 	specs[ENUM_MMC].name = "mmc";
 #endif
-#if defined(CONFIG_CMD_SATA)
+#if defined(CONFIG_SATA)
 	specs[ENUM_SATA].max_dev = CONFIG_SYS_SATA_MAX_DEVICE;
 	specs[ENUM_SATA].enum_started = 0;
 	specs[ENUM_SATA].enum_ended = 0;
@@ -88,90 +91,60 @@ void dev_stor_init(void)
  *
  * type:	storage group type - ENUM_IDE, ENUM_SCSI etc.
  *
- * first:	if 1 the first device in the storage group is returned (if
- *              exists), if 0 the next available device is searched
- *
  * more:	returns 0/1 depending if there are more devices in this group
  *		available (for future iterations)
  *
  * returns:	0/1 depending if device found in this iteration
  */
-static int dev_stor_get(int type, int first, int *more, struct device_info *di)
+static int dev_stor_get(int type, int *more, struct device_info *di)
 {
-	int found = 0;
-	*more = 0;
-
-	int i;
-
 	struct blk_desc *dd;
+	int found = 0;
+	int i = 0;
 
 	/* Wasn't configured for this type, return 0 directly */
 	if (specs[type].name == NULL)
 		return 0;
 
-	if (first) {
-		di->cookie = (void *)blk_get_dev(specs[type].name, 0);
-		if (di->cookie == NULL)
-			return 0;
-		else
-			found = 1;
-
-		/*
-		 * provide hint if there are more devices in
-		 * this group to enumerate
-		 */
-		if (1 < specs[type].max_dev)
-			*more = 1;
-
-	} else {
-		for (i = 0; i < specs[type].max_dev; i++)
+	if (di->cookie != NULL) {
+		/* Find the last device we've returned  */
+		for (i = 0; i < specs[type].max_dev; i++) {
 			if (di->cookie ==
 			    (void *)blk_get_dev(specs[type].name, i)) {
-				/*
-				 * previous cookie found -- advance to the
-				 * next device, if possible
-				 */
-
-				if (++i >= specs[type].max_dev) {
-					/* out of range, no more to enum */
-					di->cookie = NULL;
-					break;
-				}
-
-				di->cookie = (void *)blk_get_dev(
-							specs[type].name, i);
-				if (di->cookie == NULL)
-					return 0;
-				else
-					found = 1;
-
-				/*
-				 * provide hint if there are more devices in
-				 * this group to enumerate
-				 */
-				if ((i + 1) < specs[type].max_dev)
-					*more = 1;
-
+				i += 1;
 				break;
 			}
+		}
 	}
+
+	for (; i < specs[type].max_dev; i++) {
+		di->cookie = (void *)blk_get_dev(specs[type].name, i);
+
+		if (di->cookie != NULL) {
+			found = 1;
+			break;
+		}
+	}
+
+	if (i == specs[type].max_dev)
+		*more = 0;
+	else
+		*more = 1;
 
 	if (found) {
 		di->type = specs[type].type;
 
-		if (di->cookie != NULL) {
-			dd = (struct blk_desc *)di->cookie;
-			if (dd->type == DEV_TYPE_UNKNOWN) {
-				debugf("device instance exists, but is not active..");
-				found = 0;
-			} else {
-				di->di_stor.block_count = dd->lba;
-				di->di_stor.block_size = dd->blksz;
-			}
+		dd = (struct blk_desc *)di->cookie;
+		if (dd->type == DEV_TYPE_UNKNOWN) {
+			debugf("device instance exists, but is not active..");
+			found = 0;
+		} else {
+			di->di_stor.block_count = dd->lba;
+			di->di_stor.block_size = dd->blksz;
 		}
-
-	} else
+	} else {
 		di->cookie = NULL;
+	}
 
 	return found;
 }
@@ -230,7 +203,7 @@ static int dev_enum_stor(int type, struct device_info *di)
 		 * 1. Enumeration (re-)started: take the first available
 		 * device, if exists
 		 */
-		found = dev_stor_get(type, 1, &more, di);
+		found = dev_stor_get(type, &more, di);
 		specs[type].enum_started = 1;
 
 	} else if (dev_is_stor(type, di)) {
@@ -242,7 +215,7 @@ static int dev_enum_stor(int type, struct device_info *di)
 		}
 
 		/* 2a. Attempt to take a next available device in the group */
-		found = dev_stor_get(type, 0, &more, di);
+		found = dev_stor_get(type, &more, di);
 
 	} else {
 		if (specs[type].enum_ended) {
@@ -266,7 +239,7 @@ static int dev_enum_stor(int type, struct device_info *di)
 			 * Attempt to take the first device in this group:
 			 *'first element' flag is set
 			 */
-			found = dev_stor_get(type, 1, &more, di);
+			found = dev_stor_get(type, &more, di);
 
 		} else {
 			errf("group%d - out of order iteration\n", type);
@@ -361,10 +334,14 @@ lbasize_t dev_read_stor(void *cookie, void *buf, lbasize_t len, lbastart_t start
 	if (!dev_stor_is_valid(type, dd))
 		return 0;
 
+#ifdef CONFIG_BLK
+	return blk_dread(dd, start, len, buf);
+#else
 	if ((dd->block_read) == NULL) {
 		debugf("no block_read() for device 0x%08x\n", cookie);
 		return 0;
 	}
 
 	return dd->block_read(dd, start, len, buf);
+#endif	/* defined(CONFIG_BLK) */
 }

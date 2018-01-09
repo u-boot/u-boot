@@ -15,6 +15,7 @@
 #include "fsp_hob.h"
 #include "fsp_infoheader.h"
 #include "fsp_bootmode.h"
+#include "fsp_azalia.h"
 #include <asm/arch/fsp/fsp_vpd.h>
 #include <asm/arch/fsp/fsp_configs.h>
 
@@ -189,6 +190,18 @@ void *fsp_get_nvs_data(const void *hob_list, u32 *len);
  * @retval others: Bootloader temporary stackbuffer pointer.
  */
 void *fsp_get_bootloader_tmp_mem(const void *hob_list, u32 *len);
+
+/**
+ * This function retrieves graphics information.
+ *
+ * @hob_list:      A HOB list pointer.
+ * @len:           A pointer to the graphics info HOB length.
+ *                 If the HOB is located, the length will be updated.
+ *
+ * @retval NULL:   Failed to find the graphics info HOB.
+ * @retval others: A pointer to struct hob_graphics_info.
+ */
+void *fsp_get_graphics_info(const void *hob_list, u32 *len);
 
 /**
  * This function overrides the default configurations of FSP.

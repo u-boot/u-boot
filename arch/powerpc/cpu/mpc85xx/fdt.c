@@ -92,7 +92,7 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 	 * Extract hwconfig from environment.
 	 * Search for tdm entry in hwconfig.
 	 */
-	ret = getenv_f("hwconfig", buffer, sizeof(buffer));
+	ret = env_get_f("hwconfig", buffer, sizeof(buffer));
 	if (ret > 0)
 		tdm_hwconfig_enabled = hwconfig_f("tdm", buffer);
 
@@ -580,7 +580,7 @@ static void fdt_fixup_l2_switch(void *blob)
 		return;
 
 	/* Get MAC address for the l2switch from "l2switchaddr"*/
-	if (!eth_getenv_enetaddr("l2switchaddr", l2swaddr)) {
+	if (!eth_env_get_enetaddr("l2switchaddr", l2swaddr)) {
 		printf("Warning: MAC address for l2switch not found\n");
 		memset(l2swaddr, 0, sizeof(l2swaddr));
 	}
@@ -611,8 +611,6 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 		fdt_fixup_crypto_node(blob, sec_in32(&sec->secvid_ms));
 	}
 #endif
-
-	fdt_fixup_ethernet(blob);
 
 	fdt_add_enet_stashing(blob);
 
@@ -772,8 +770,15 @@ int ft_verify_fdt(void *fdt)
 
 	/* First check the CCSR base address */
 	off = fdt_node_offset_by_prop_value(fdt, -1, "device_type", "soc", 4);
-	if (off > 0)
-		addr = fdt_get_base_address(fdt, off);
+	if (off > 0) {
+		int size;
+		u32 naddr;
+		const fdt32_t *prop;
+
+		naddr = fdt_address_cells(fdt, off);
+		prop = fdt_getprop(fdt, off, "ranges", &size);
+		addr = fdt_translate_address(fdt, off, prop + naddr);
+	}
 
 	if (!addr) {
 		printf("Warning: could not determine base CCSR address in "

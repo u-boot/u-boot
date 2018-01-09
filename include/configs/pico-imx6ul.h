@@ -12,7 +12,7 @@
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 #include "mx6_common.h"
-#include <asm/imx-common/gpio.h>
+#include <asm/mach-imx/gpio.h>
 
 /* Network support */
 
@@ -21,13 +21,9 @@
 #define IMX_FEC_BASE			ENET2_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR		0x1
 #define CONFIG_FEC_XCV_TYPE		RMII
-#define CONFIG_PHYLIB
-#define CONFIG_PHY_MICREL
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M) /* Increase due to DFU */
-
-#define CONFIG_BOARD_EARLY_INIT_F
 
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART6_BASE_ADDR
@@ -36,14 +32,9 @@
 #define CONFIG_FSL_USDHC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC1_BASE_ADDR
-
-#define CONFIG_GENERIC_MMC
-#define CONFIG_DOS_PARTITION
 #define CONFIG_SUPPORT_EMMC_BOOT
 
 /* USB Configs */
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_MX6
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS		0
@@ -52,10 +43,16 @@
 #define CONFIG_USBD_HS
 
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
-#define CONFIG_USB_GADGET_VBUS_DRAW	2
 
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_16M
 #define DFU_DEFAULT_POLL_TIMEOUT 300
+
+#define CONFIG_DFU_ENV_SETTINGS \
+	"dfu_alt_info=uboot raw 0x2 0x400 mmcpart 1;" \
+		"boot part 0 1;" \
+		"/zImage ext4 0 1;" \
+		"/imx6ul-pico-hobbit.dtb ext4 0 1;" \
+		"rootfs part 0 2\0" \
 
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
@@ -68,14 +65,19 @@
 	"fdt_addr=0x83000000\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
-	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
 	"mmcautodetect=yes\0" \
-	"dfu_alt_info=boot raw 0x2 0x400 mmcpart 1\0" \
+	CONFIG_DFU_ENV_SETTINGS \
+	"finduuid=part uuid mmc 0:2 uuid\0" \
+	"partitions=" \
+		"uuid_disk=${uuid_gpt_disk};" \
+		"name=boot,size=16MiB;name=rootfs,size=0,uuid=${uuid_gpt_rootfs}\0" \
+	"setup_emmc=gpt write mmc 0 $partitions; reset;\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
-		"root=${mmcroot}\0" \
-	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
-	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
+		"root=PARTUUID=${uuid} rootwait rw\0" \
+	"loadimage=load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
+	"loadfdt=load mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
+		"run finduuid; " \
 		"run mmcargs; " \
 		"if run loadfdt; then " \
 			"bootz ${loadaddr} - ${fdt_addr}; " \
@@ -122,7 +124,6 @@
 #define CONFIG_SYS_HZ			1000
 
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_STACKSIZE		SZ_128K
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -149,15 +150,11 @@
 #define CONFIG_POWER_PFUZE3000
 #define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
 
-/* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH
-
+/* environment organization */
 #define CONFIG_ENV_SIZE			SZ_8K
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_OFFSET		(8 * SZ_64K)
 
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		0
-#define CONFIG_MMCROOT			"/dev/mmcblk0p2"
 
 #endif /* __PICO_IMX6UL_CONFIG_H */

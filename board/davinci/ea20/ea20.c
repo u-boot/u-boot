@@ -18,6 +18,7 @@
 #include <i2c.h>
 #include <net.h>
 #include <netdev.h>
+#include <asm/mach-types.h>
 #include <asm/arch/hardware.h>
 #include <asm/ti-common/davinci_nand.h>
 #include <asm/arch/emac_defs.h>
@@ -203,9 +204,7 @@ int board_early_init_f(void)
 	/* Set LCD_B_PWR low to power down LCD Backlight*/
 	gpio_direction_output(102, 0);
 
-#ifndef CONFIG_USE_IRQ
 	irq_init();
-#endif
 
 	/*
 	 * NAND CS setup - cycle counts based on da850evm NAND timings in the

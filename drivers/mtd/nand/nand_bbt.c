@@ -62,7 +62,7 @@
 #include <linux/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/bbm.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 #include <linux/bitops.h>
 #include <linux/string.h>
 

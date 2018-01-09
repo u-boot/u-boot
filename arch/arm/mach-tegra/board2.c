@@ -9,14 +9,8 @@
 #include <dm.h>
 #include <errno.h>
 #include <ns16550.h>
-#include <linux/compiler.h>
-#include <linux/sizes.h>
+#include <usb.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/funcmux.h>
-#include <asm/arch/pinmux.h>
-#include <asm/arch/pmu.h>
-#include <asm/arch/tegra.h>
 #include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/board.h>
 #include <asm/arch-tegra/clk_rst.h>
@@ -25,17 +19,16 @@
 #include <asm/arch-tegra/uart.h>
 #include <asm/arch-tegra/warmboot.h>
 #include <asm/arch-tegra/gpu.h>
+#include <asm/arch-tegra/usb.h>
+#include <asm/arch-tegra/xusb-padctl.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/funcmux.h>
+#include <asm/arch/pinmux.h>
+#include <asm/arch/pmu.h>
+#include <asm/arch/tegra.h>
 #ifdef CONFIG_TEGRA_CLOCK_SCALING
 #include <asm/arch/emc.h>
 #endif
-#include <asm/arch-tegra/usb.h>
-#ifdef CONFIG_USB_EHCI_TEGRA
-#include <usb.h>
-#endif
-#include <asm/arch-tegra/xusb-padctl.h>
-#include <power/as3722.h>
-#include <i2c.h>
-#include <spi.h>
 #include "emc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -125,7 +118,7 @@ int board_init(void)
 	pin_mux_spi();
 #endif
 
-#ifdef CONFIG_TEGRA_MMC
+#ifdef CONFIG_MMC_SDHCI_TEGRA
 	pin_mux_mmc();
 #endif
 
@@ -148,11 +141,6 @@ int board_init(void)
 		debug("Memory controller init failed: %d\n", err);
 #  endif
 # endif /* CONFIG_TEGRA_PMU */
-#ifdef CONFIG_AS3722_POWER
-	err = as3722_init(NULL);
-	if (err && err != -ENODEV)
-		return err;
-#endif
 #endif /* CONFIG_SYS_I2C_TEGRA */
 
 #ifdef CONFIG_USB_EHCI_TEGRA
@@ -162,15 +150,17 @@ int board_init(void)
 #if defined(CONFIG_DM_VIDEO)
 	board_id = tegra_board_id();
 	err = tegra_lcd_pmic_init(board_id);
-	if (err)
+	if (err) {
+		debug("Failed to set up LCD PMIC\n");
 		return err;
+	}
 #endif
 
 #ifdef CONFIG_TEGRA_NAND
 	pin_mux_nand();
 #endif
 
-	tegra_xusb_padctl_init(gd->fdt_blob);
+	tegra_xusb_padctl_init();
 
 #ifdef CONFIG_TEGRA_LP0
 	/* save Sdram params to PMC 2, 4, and 24 for WB0 */
@@ -191,6 +181,9 @@ void gpio_early_init(void) __attribute__((weak, alias("__gpio_early_init")));
 
 int board_early_init_f(void)
 {
+	if (!clock_early_init_done())
+		clock_early_init();
+
 #if defined(CONFIG_TEGRA_DISCONNECT_UDC_ON_BOOT)
 #define USBCMD_FS2 (1 << 15)
 	{
@@ -221,9 +214,9 @@ int board_late_init(void)
 #if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
 	if (tegra_cpu_is_non_secure()) {
 		printf("CPU is in NS mode\n");
-		setenv("cpu_ns_mode", "1");
+		env_set("cpu_ns_mode", "1");
 	} else {
-		setenv("cpu_ns_mode", "");
+		env_set("cpu_ns_mode", "");
 	}
 #endif
 	start_cpu_fan();
@@ -315,7 +308,7 @@ static ulong usable_ram_size_below_4g(void)
  * start address of that bank cannot be represented in the 32-bit .size
  * field.
  */
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = usable_ram_size_below_4g();
@@ -334,6 +327,8 @@ void dram_init_banksize(void)
 		gd->bd->bi_dram[1].start = 0;
 		gd->bd->bi_dram[1].size = 0;
 	}
+
+	return 0;
 }
 
 /*

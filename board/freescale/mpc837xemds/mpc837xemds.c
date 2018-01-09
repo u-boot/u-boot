@@ -20,6 +20,8 @@
 #include "pci.h"
 #include "../common/pq-mds-pib.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int board_early_init_f(void)
 {
 	u8 *bcsr = (u8 *)CONFIG_SYS_BCSR;
@@ -216,13 +218,13 @@ extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
 int fixed_sdram(void);
 
-phys_size_t initdram(int board_type)
+int dram_init(void)
 {
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u32 msize = 0;
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32) im)
-		return -1;
+		return -ENXIO;
 
 #if defined(CONFIG_SPD_EEPROM)
 	msize = spd_sdram();
@@ -236,7 +238,9 @@ phys_size_t initdram(int board_type)
 #endif
 
 	/* return total bus DDR size(bytes) */
-	return (msize * 1024 * 1024);
+	gd->ram_size = msize * 1024 * 1024;
+
+	return 0;
 }
 
 #if !defined(CONFIG_SPD_EEPROM)

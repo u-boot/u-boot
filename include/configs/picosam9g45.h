@@ -30,7 +30,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_BOARD_EARLY_INIT_F
 
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
@@ -48,7 +47,6 @@
 #undef LCD_TEST_PATTERN
 #define CONFIG_LCD_INFO
 #define CONFIG_LCD_INFO_BELOW_LOGO
-#define CONFIG_SYS_WHITE_ON_BLACK
 #define CONFIG_ATMEL_LCD
 #define CONFIG_ATMEL_LCD_RGB565
 /* board specific(not enough SRAM) */
@@ -75,9 +73,6 @@
  * Command line configuration.
  */
 
-/* No NOR flash */
-#define CONFIG_SYS_NO_FLASH
-
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS	2
 #define PHYS_SDRAM_1		ATMEL_BASE_CS1	/* on DDRSDRC1 */
@@ -92,12 +87,7 @@
 /* MMC */
 
 #ifdef CONFIG_CMD_MMC
-#define CONFIG_GENERIC_MMC
 #define CONFIG_GENERIC_ATMEL_MCI
-#endif
-
-#if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
-#define CONFIG_DOS_PARTITION
 #endif
 
 /* Ethernet */
@@ -107,11 +97,6 @@
 #define CONFIG_RESET_PHY_R
 #define CONFIG_AT91_WANTS_COMMON_PHY
 
-/* USB */
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_ATMEL
-#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	2
-
 #define CONFIG_SYS_LOAD_ADDR		0x22000000	/* load address */
 
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
@@ -119,31 +104,13 @@
 
 #ifdef CONFIG_SYS_USE_MMC
 /* bootstrap + u-boot + env + linux in mmc */
-#define FAT_ENV_INTERFACE	"mmc"
-/*
- * We don't specify the part number, if device 0 has partition table, it means
- * the first partition; it no partition table, then take whole device as a
- * FAT file system.
- */
-#define FAT_ENV_DEVICE_AND_PART	"0"
-#define FAT_ENV_FILE		"uboot.env"
-#define CONFIG_ENV_IS_IN_FAT
-#define CONFIG_FAT_WRITE
 #define CONFIG_ENV_SIZE		0x4000
 
-#define CONFIG_BOOTARGS		"console=ttyS0,115200 " \
-				"root=/dev/mmcblk0p2 rw rootwait"
 #define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x21000000 dtb; " \
 				"fatload mmc 0:1 0x22000000 zImage; " \
 				"bootz 0x22000000 - 0x21000000"
 #endif
 
-#define CONFIG_BAUDRATE			115200
-
-#define CONFIG_SYS_CBSIZE	256
-#define CONFIG_SYS_MAXARGS	16
-#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE  \
-					+ sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
@@ -168,7 +135,6 @@
 #define CONFIG_SYS_SPL_MALLOC_START	0x20080000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x00080000
 
-#define CONFIG_SPL_LDSCRIPT	arch/arm/mach-at91/arm926ejs/u-boot-spl.lds
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 

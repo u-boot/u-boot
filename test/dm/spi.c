@@ -35,8 +35,8 @@ static int dm_test_spi_find(struct unit_test_state *uts)
 	 */
 	ut_asserteq(0, uclass_get_device_by_seq(UCLASS_SPI, busnum, &bus));
 	ut_assertok(spi_cs_info(bus, cs, &info));
-	of_offset = info.dev->of_offset;
-	device_remove(info.dev);
+	of_offset = dev_of_offset(info.dev);
+	device_remove(info.dev, DM_REMOVE_NORMAL);
 	device_unbind(info.dev);
 
 	/*

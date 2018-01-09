@@ -19,8 +19,9 @@
 #include <asm/ti-common/davinci_nand.h>
 #include <asm/io.h>
 #include <linux/errno.h>
+#include <asm/mach-types.h>
 #include <asm/arch/davinci_misc.h>
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 #include <mmc.h>
 #include <asm/arch/sdmmc_defs.h>
 #endif
@@ -29,7 +30,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define pinmux(x)	(&davinci_syscfg_regs->pinmux[x])
 
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 /* MMC0 pin muxer settings */
 const struct pinmux_config mmc0_pins[] = {
 	/* GP0[11] is required for SD to work on Rev 3 EVMs */
@@ -130,7 +131,7 @@ const struct lpsc_resource lpsc[] = {
 	{ DAVINCI_LPSC_EMAC },	/* image download */
 	{ DAVINCI_LPSC_UART2 },	/* console */
 	{ DAVINCI_LPSC_GPIO },
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 	{ DAVINCI_LPSC_MMC_SD },
 #endif
 };
@@ -171,9 +172,7 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-#ifndef CONFIG_USE_IRQ
 	irq_init();
-#endif
 
 	/* arch number of the board */
 	gd->bd->bi_arch_number = MACH_TYPE_OMAPL138_LCDK;
@@ -210,7 +209,7 @@ int board_init(void)
 #endif
 
 
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 	if (davinci_configure_pin_mux(mmc0_pins, ARRAY_SIZE(mmc0_pins)) != 0)
 		return 1;
 #endif
@@ -294,7 +293,7 @@ static void dspwake(void)
 	if ((REG(CHIP_REV_ID_REG) & 0x3f) == 0x10)
 		return;
 
-	if (!strcmp(getenv("dspwake"), "no"))
+	if (!strcmp(env_get("dspwake"), "no"))
 		return;
 
 	*resetvect++ = 0x1E000; /* DSP Idle */
@@ -324,7 +323,7 @@ int misc_init_r(void)
 	uint8_t tmp[20], addr[10];
 
 
-	if (getenv("ethaddr") == NULL) {
+	if (env_get("ethaddr") == NULL) {
 		/* Read Ethernet MAC address from EEPROM */
 		if (dvevm_read_mac_address(addr)) {
 			/* Set Ethernet MAC address from EEPROM */
@@ -338,7 +337,7 @@ int misc_init_r(void)
 				addr[0], addr[1], addr[2], addr[3], addr[4],
 				addr[5]);
 
-			setenv("ethaddr", (char *)tmp);
+			env_set("ethaddr", (char *)tmp);
 		} else {
 			printf("Invalid MAC address read.\n");
 		}
@@ -355,7 +354,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 static struct davinci_mmc mmc_sd0 = {
 	.reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE,
 	.host_caps = MMC_MODE_4BIT,     /* DA850 supports only 4-bit SD/MMC */

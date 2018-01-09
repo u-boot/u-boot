@@ -16,14 +16,16 @@
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
+#include <linux/math64.h>
 #include <thermal.h>
 #include <imx_thermal.h>
 
 /* board will busyloop until this many degrees C below CPU max temperature */
 #define TEMPERATURE_HOT_DELTA   5 /* CPU maxT - 5C */
 #define FACTOR0			10000000
-#define FACTOR1			15976
-#define FACTOR2			4297157
+#define FACTOR1			15423
+#define FACTOR2			4148468
+#define OFFSET			3580661
 #define MEASURE_FREQ		327
 #define TEMPERATURE_MIN         -40
 #define TEMPERATURE_HOT         85
@@ -54,39 +56,43 @@ static int read_cpu_temperature(struct udevice *dev)
 	struct thermal_data *priv = dev_get_priv(dev);
 	u32 fuse = priv->fuse;
 	int t1, n1;
-	u32 c1, c2;
-	u64 temp64;
+	s64 c1, c2;
+	s64 temp64;
+	s32 rem;
 
 	/*
 	 * Sensor data layout:
 	 *   [31:20] - sensor value @ 25C
 	 * We use universal formula now and only need sensor value @ 25C
-	 * slope = 0.4297157 - (0.0015976 * 25C fuse)
+	 * slope = 0.4445388 - (0.0016549 * 25C fuse)
 	 */
 	n1 = fuse >> 20;
 	t1 = 25; /* t1 always 25C */
 
 	/*
 	 * Derived from linear interpolation:
-	 * slope = 0.4297157 - (0.0015976 * 25C fuse)
+	 * slope = 0.4445388 - (0.0016549 * 25C fuse)
 	 * slope = (FACTOR2 - FACTOR1 * n1) / FACTOR0
-	 * (Nmeas - n1) / (Tmeas - t1) = slope
+	 * offset = 3.580661
+	 * offset = OFFSET / 1000000
+	 * (Nmeas - n1) / (Tmeas - t1 - offset) = slope
 	 * We want to reduce this down to the minimum computation necessary
 	 * for each temperature read.  Also, we want Tmeas in millicelsius
 	 * and we don't want to lose precision from integer division. So...
-	 * Tmeas = (Nmeas - n1) / slope + t1
-	 * milli_Tmeas = 1000 * (Nmeas - n1) / slope + 1000 * t1
-	 * milli_Tmeas = -1000 * (n1 - Nmeas) / slope + 1000 * t1
-	 * Let constant c1 = (-1000 / slope)
-	 * milli_Tmeas = (n1 - Nmeas) * c1 + 1000 * t1
-	 * Let constant c2 = n1 *c1 + 1000 * t1
-	 * milli_Tmeas = c2 - Nmeas * c1
+	 * Tmeas = (Nmeas - n1) / slope + t1 + offset
+	 * milli_Tmeas = 1000000 * (Nmeas - n1) / slope + 1000000 * t1 + OFFSET
+	 * milli_Tmeas = -1000000 * (n1 - Nmeas) / slope + 1000000 * t1 + OFFSET
+	 * Let constant c1 = (-1000000 / slope)
+	 * milli_Tmeas = (n1 - Nmeas) * c1 + 1000000 * t1 + OFFSET
+	 * Let constant c2 = n1 *c1 + 1000000 * t1
+	 * milli_Tmeas = (c2 - Nmeas * c1) + OFFSET
+	 * Tmeas = ((c2 - Nmeas * c1) + OFFSET) / 1000000
 	 */
 	temp64 = FACTOR0;
-	temp64 *= 1000;
-	do_div(temp64, FACTOR1 * n1 - FACTOR2);
+	temp64 *= 1000000;
+	temp64 = div_s64_rem(temp64, FACTOR1 * n1 - FACTOR2, &rem);
 	c1 = temp64;
-	c2 = n1 * c1 + 1000 * t1;
+	c2 = n1 * c1 + 1000000 * t1;
 
 	/*
 	 * now we only use single measure, every time we read
@@ -118,8 +124,8 @@ static int read_cpu_temperature(struct udevice *dev)
 		>> TEMPSENSE0_TEMP_CNT_SHIFT;
 	writel(TEMPSENSE0_FINISHED, &anatop->tempsense0_clr);
 
-	/* milli_Tmeas = c2 - Nmeas * c1 */
-	temperature = (long)(c2 - n_meas * c1)/1000;
+	/* Tmeas = (c2 - Nmeas * c1 + OFFSET) / 1000000 */
+	temperature = div_s64_rem(c2 - n_meas * c1 + OFFSET, 1000000, &rem);
 
 	/* power down anatop thermal sensor */
 	writel(TEMPSENSE0_POWER_DOWN, &anatop->tempsense0_set);

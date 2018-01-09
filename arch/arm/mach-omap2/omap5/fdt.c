@@ -90,29 +90,6 @@ static int ft_hs_fixup_crossbar(void *fdt, bd_t *bd)
 	return 0;
 }
 
-static int ft_hs_disable_rng(void *fdt, bd_t *bd)
-{
-	const char *path;
-	int offs;
-	int ret;
-
-	/* Make HW RNG reserved for secure world use */
-	path = "/ocp/rng";
-	offs = fdt_path_offset(fdt, path);
-	if (offs < 0) {
-		debug("Node %s not found.\n", path);
-		return 0;
-	}
-	ret = fdt_setprop_string(fdt, offs,
-				 "status", "disabled");
-	if (ret < 0) {
-		printf("Could not add status property to node %s: %s\n",
-		       path, fdt_strerror(ret));
-		return ret;
-	}
-	return 0;
-}
-
 #if ((TI_OMAP5_SECURE_BOOT_RESV_SRAM_SZ != 0) || \
     (CONFIG_SECURE_RUNTIME_RESV_SRAM_SZ != 0))
 static int ft_hs_fixup_sram(void *fdt, bd_t *bd)
@@ -152,97 +129,6 @@ static int ft_hs_fixup_sram(void *fdt, bd_t *bd)
 #else
 static int ft_hs_fixup_sram(void *fdt, bd_t *bd) { return 0; }
 #endif
-
-#if (CONFIG_TI_SECURE_EMIF_TOTAL_REGION_SIZE != 0)
-static int ft_hs_fixup_dram(void *fdt, bd_t *bd)
-{
-	const char *path, *subpath;
-	int offs;
-	u32 sec_mem_start = CONFIG_TI_SECURE_EMIF_REGION_START;
-	u32 sec_mem_size = CONFIG_TI_SECURE_EMIF_TOTAL_REGION_SIZE;
-	fdt64_t temp[2];
-
-	/* If start address is zero, place at end of DRAM */
-	if (0 == sec_mem_start)
-		sec_mem_start =
-			(CONFIG_SYS_SDRAM_BASE +
-			(omap_sdram_size() - sec_mem_size));
-
-	/* Delete any original secure_reserved node */
-	path = "/reserved-memory/secure_reserved";
-	offs = fdt_path_offset(fdt, path);
-	if (offs >= 0)
-		fdt_del_node(fdt, offs);
-
-	/* Add new secure_reserved node */
-	path = "/reserved-memory";
-	offs = fdt_path_offset(fdt, path);
-	if (offs < 0) {
-		debug("Node %s not found\n", path);
-		path = "/";
-		subpath = "reserved-memory";
-		fdt_path_offset(fdt, path);
-		offs = fdt_add_subnode(fdt, offs, subpath);
-		if (offs < 0) {
-			printf("Could not create %s%s node.\n", path, subpath);
-			return 1;
-		}
-		path = "/reserved-memory";
-		offs = fdt_path_offset(fdt, path);
-	}
-
-	subpath = "secure_reserved";
-	offs = fdt_add_subnode(fdt, offs, subpath);
-	if (offs < 0) {
-		printf("Could not create %s%s node.\n", path, subpath);
-		return 1;
-	}
-
-	temp[0] = cpu_to_fdt64(((u64)sec_mem_start));
-	temp[1] = cpu_to_fdt64(((u64)sec_mem_size));
-	fdt_setprop_string(fdt, offs, "compatible",
-			   "ti,dra7-secure-memory");
-	fdt_setprop_string(fdt, offs, "status", "okay");
-	fdt_setprop(fdt, offs, "no-map", NULL, 0);
-	fdt_setprop(fdt, offs, "reg", temp, sizeof(temp));
-
-	return 0;
-}
-#else
-static int ft_hs_fixup_dram(void *fdt, bd_t *bd) { return 0; }
-#endif
-
-static int ft_hs_add_tee(void *fdt, bd_t *bd)
-{
-	const char *path, *subpath;
-	int offs;
-
-	extern int tee_loaded;
-	if (!tee_loaded)
-		return 0;
-
-	path = "/";
-	offs = fdt_path_offset(fdt, path);
-
-	subpath = "firmware";
-	offs = fdt_add_subnode(fdt, offs, subpath);
-	if (offs < 0) {
-		printf("Could not create %s node.\n", subpath);
-		return 1;
-	}
-
-	subpath = "optee";
-	offs = fdt_add_subnode(fdt, offs, subpath);
-	if (offs < 0) {
-		printf("Could not create %s node.\n", subpath);
-		return 1;
-	}
-
-	fdt_setprop_string(fdt, offs, "compatible", "linaro,optee-tz");
-	fdt_setprop_string(fdt, offs, "method", "smc");
-
-	return 0;
-}
 
 static void ft_hs_fixups(void *fdt, bd_t *bd)
 {

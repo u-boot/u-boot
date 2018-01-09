@@ -21,7 +21,6 @@
 
 #ifdef CONFIG_FSL_DIU_FB
 #define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x2c000)
-#define CONFIG_CMD_BMP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #endif
@@ -61,7 +60,6 @@
 #define CONFIG_SYS_CLK_FREQ	get_board_sys_clk(0)
 #endif
 
-#define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
 #define CONFIG_MISC_INIT_R		1
 
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest region */
@@ -264,8 +262,6 @@
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
-#define CONFIG_CMD_REGINFO
-
 #define CONFIG_ULI526X
 #ifdef CONFIG_ULI526X
 #endif
@@ -275,7 +271,6 @@
  ************************************************************/
 #define CONFIG_PCI_OHCI		1
 #define CONFIG_USB_OHCI_NEW		1
-#define CONFIG_SYS_USB_EVENT_POLL	1
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME	"ohci_pci"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 15
 #define CONFIG_SYS_OHCI_SWAP_REG_ACCESS	1
@@ -286,11 +281,7 @@
 #define PCI_IDSEL_NUMBER	0x0c	/* slot0->3(IDSEL)=12->15 */
 #endif
 
-#define CONFIG_DOS_PARTITION
-#define CONFIG_SCSI_AHCI
-
 #ifdef CONFIG_SCSI_AHCI
-#define CONFIG_LIBATA
 #define CONFIG_SATA_ULI5288
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID	4
 #define CONFIG_SYS_SCSI_MAX_LUN	1
@@ -406,12 +397,10 @@
  * Environment
  */
 #ifndef CONFIG_SYS_RAMBOOT
-#define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
 #define CONFIG_ENV_SECT_SIZE	0x20000	/* 126k (one sector) for env */
 #define CONFIG_ENV_SIZE		0x2000
 #else
-#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
 #define CONFIG_ENV_SIZE		0x2000
 #endif
@@ -431,11 +420,6 @@
  * Command line configuration.
  */
 
-#if defined(CONFIG_PCI)
-#define CONFIG_CMD_PCI
-#define CONFIG_SCSI
-#endif
-
 #define CONFIG_WATCHDOG			/* watchdog enabled */
 #define CONFIG_SYS_WATCHDOG_FREQ	5000	/* Feed interval, 5s */
 
@@ -445,16 +429,6 @@
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
 #define CONFIG_CMDLINE_EDITING          /* Command-line editing */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
-#else
-#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
-#endif
-
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS	16		/* max number of command args */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 
 /*
  * For booting Linux, the board info and command line data
@@ -484,10 +458,6 @@
 
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		0x10000000
-
-#undef	CONFIG_BOOTARGS		/* the boot command will set bootargs */
-
-#define CONFIG_BAUDRATE	115200
 
 #if defined(CONFIG_PCI1)
 #define PCI_ENV \

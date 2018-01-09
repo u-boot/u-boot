@@ -16,6 +16,7 @@
 #include <spi.h>
 #include <asm/io.h>
 #include <usb.h>
+#include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -69,10 +70,12 @@ void usb_board_stop(void)
 }
 #endif
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+
+	return 0;
 }
 
 #ifdef	CONFIG_CMD_MMC

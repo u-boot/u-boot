@@ -15,7 +15,22 @@ struct p_current{
 
 extern struct p_current *current;
 
-#define ndelay(x)	udelay((x) < 1000 ? 1 : (x)/1000)
+/* avoid conflict with <dm/device.h> */
+#ifdef dev_dbg
+#undef dev_dbg
+#endif
+#ifdef dev_vdbg
+#undef dev_vdbg
+#endif
+#ifdef dev_info
+#undef dev_info
+#endif
+#ifdef dev_err
+#undef dev_err
+#endif
+#ifdef dev_warn
+#undef dev_warn
+#endif
 
 #define dev_dbg(dev, fmt, args...)		\
 	debug(fmt, ##args)
@@ -27,17 +42,6 @@ extern struct p_current *current;
 	printf(fmt, ##args)
 #define dev_warn(dev, fmt, args...)		\
 	printf(fmt, ##args)
-#define printk	printf
-#define printk_once	printf
-
-#define KERN_EMERG
-#define KERN_ALERT
-#define KERN_CRIT
-#define KERN_ERR
-#define KERN_WARNING
-#define KERN_NOTICE
-#define KERN_INFO
-#define KERN_DEBUG
 
 #define GFP_ATOMIC ((gfp_t) 0)
 #define GFP_KERNEL ((gfp_t) 0)
@@ -99,17 +103,6 @@ static inline void kmem_cache_destroy(struct kmem_cache *cachep)
 #define remove_wait_queue(...)	do { } while (0)
 
 #define KERNEL_VERSION(a,b,c)	(((a) << 16) + ((b) << 8) + (c))
-
-#ifndef BUG
-#define BUG() do { \
-	printf("U-Boot BUG at %s:%d!\n", __FILE__, __LINE__); \
-} while (0)
-
-#define BUG_ON(condition) do { if (condition) BUG(); } while(0)
-#endif /* BUG */
-
-#define WARN_ON(x) if (x) {printf("WARNING in %s line %d\n" \
-				  , __FILE__, __LINE__); }
 
 #define PAGE_SIZE	4096
 

@@ -45,12 +45,12 @@ int dram_init(void)
 
 	node = fdt_path_offset(nvtboot_blob, "/memory");
 	if (node < 0) {
-		error("Can't find /memory node in nvtboot DTB");
+		pr_err("Can't find /memory node in nvtboot DTB");
 		hang();
 	}
 	prop = fdt_getprop(nvtboot_blob, node, "reg", &len);
 	if (!prop) {
-		error("Can't find /memory/reg property in nvtboot DTB");
+		pr_err("Can't find /memory/reg property in nvtboot DTB");
 		hang();
 	}
 
@@ -60,9 +60,9 @@ int dram_init(void)
 
 	gd->ram_size = 0;
 	for (i = 0; i < len; i++) {
-		ram_banks[i].start = of_read_number(prop, na);
+		ram_banks[i].start = fdt_read_number(prop, na);
 		prop += na;
-		ram_banks[i].size = of_read_number(prop, ns);
+		ram_banks[i].size = fdt_read_number(prop, ns);
 		prop += ns;
 		gd->ram_size += ram_banks[i].size;
 	}
@@ -72,7 +72,7 @@ int dram_init(void)
 
 extern unsigned long nvtboot_boot_x0;
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	int i;
 
@@ -80,6 +80,8 @@ void dram_init_banksize(void)
 		gd->bd->bi_dram[i].start = ram_banks[i].start;
 		gd->bd->bi_dram[i].size = ram_banks[i].size;
 	}
+
+	return 0;
 }
 
 ulong board_get_usable_ram_top(ulong total_size)

@@ -12,7 +12,7 @@
 #include <nand.h>
 
 #include <linux/mtd/mtd.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 #include <linux/mtd/nand_ecc.h>
 
 #include <asm/io.h>
@@ -48,7 +48,6 @@ struct fsl_ifc_ctrl {
 	/* device info */
 	struct fsl_ifc regs;
 	void __iomem *addr;      /* Address of assigned IFC buffer        */
-	unsigned int cs_nand;    /* On which chipsel NAND is connected	  */
 	unsigned int page;       /* Last page written to / read from      */
 	unsigned int read_bytes; /* Number of bytes read during command   */
 	unsigned int column;     /* Saved column from SEQIN               */
@@ -296,7 +295,7 @@ static int fsl_ifc_run_command(struct mtd_info *mtd)
 	int i;
 
 	/* set the chip select for NAND Transaction */
-	ifc_out32(&ifc->ifc_nand.nand_csel, ifc_ctrl->cs_nand);
+	ifc_out32(&ifc->ifc_nand.nand_csel, priv->bank << IFC_NAND_CSEL_SHIFT);
 
 	/* start read/write seq */
 	ifc_out32(&ifc->ifc_nand.nandseq_strt,
@@ -798,7 +797,7 @@ static void fsl_ifc_select_chip(struct mtd_info *mtd, int chip)
 {
 }
 
-static int fsl_ifc_sram_init(uint32_t ver)
+static int fsl_ifc_sram_init(struct fsl_ifc_mtd *priv, uint32_t ver)
 {
 	struct fsl_ifc_runtime *ifc = ifc_ctrl->regs.rregs;
 	uint32_t cs = 0, csor = 0, csor_8k = 0, csor_ext = 0;
@@ -823,7 +822,7 @@ static int fsl_ifc_sram_init(uint32_t ver)
 		return 1;
 	}
 
-	cs = ifc_ctrl->cs_nand >> IFC_NAND_CSEL_SHIFT;
+	cs = priv->bank;
 
 	/* Save CSOR and CSOR_ext */
 	csor = ifc_in32(&ifc_ctrl->regs.gregs->csor_cs[cs].csor);
@@ -850,7 +849,7 @@ static int fsl_ifc_sram_init(uint32_t ver)
 	ifc_out32(&ifc->ifc_nand.col0, 0x0);
 
 	/* set the chip select for NAND Transaction */
-	ifc_out32(&ifc->ifc_nand.nand_csel, ifc_ctrl->cs_nand);
+	ifc_out32(&ifc->ifc_nand.nand_csel, priv->bank << IFC_NAND_CSEL_SHIFT);
 
 	/* start read seq */
 	ifc_out32(&ifc->ifc_nand.nandseq_strt, IFC_NAND_SEQ_STRT_FIR_STRT);
@@ -911,10 +910,8 @@ static int fsl_ifc_chip_init(int devnum, u8 *addr)
 		csor = ifc_in32(&gregs->csor_cs[priv->bank].csor);
 
 		if ((cspr & CSPR_V) && (cspr & CSPR_MSEL) == CSPR_MSEL_NAND &&
-		    (cspr & CSPR_BA) == CSPR_PHYS_ADDR(phys_addr)) {
-			ifc_ctrl->cs_nand = priv->bank << IFC_NAND_CSEL_SHIFT;
+		    (cspr & CSPR_BA) == CSPR_PHYS_ADDR(phys_addr))
 			break;
-		}
 	}
 
 	if (priv->bank >= MAX_BANKS) {
@@ -1029,7 +1026,7 @@ static int fsl_ifc_chip_init(int devnum, u8 *addr)
 
 	ver = ifc_in32(&gregs->ifc_rev);
 	if (ver >= FSL_IFC_V1_1_0)
-		ret = fsl_ifc_sram_init(ver);
+		ret = fsl_ifc_sram_init(priv, ver);
 	if (ret)
 		return ret;
 

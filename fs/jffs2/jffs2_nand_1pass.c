@@ -796,7 +796,11 @@ jffs2_1pass_build_lists(struct part_info * part)
 	u32 counterN = 0;
 
 	struct mtdids *id = part->dev->id;
-	mtd = nand_info[id->num];
+	mtd = get_nand_dev_by_index(id->num);
+	if (!mtd) {
+		pr_err("\nno NAND devices available\n");
+		return 0;
+	}
 
 	/* if we are building a list we need to refresh the cache. */
 	jffs_init_1pass_list(part);

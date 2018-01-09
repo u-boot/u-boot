@@ -14,9 +14,9 @@
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/boot_mode.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/mxc_i2c.h>
+#include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/arch/crm_regs.h>
 #include <i2c.h>
 #include <mmc.h>
@@ -550,17 +550,6 @@ static void ccgr_init(void)
 	writel(0x000003FF, &ccm->CCGR6);
 }
 
-static void gpr_init(void)
-{
-	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-
-	/* enable AXI cache for VDOA/VPU/IPU */
-	writel(0xF00000CF, &iomux->gpr[4]);
-	/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
-	writel(0x007F007F, &iomux->gpr[6]);
-	writel(0x007F007F, &iomux->gpr[7]);
-}
-
 /*
  * called from C runtime startup code (arch/arm/lib/crt0.S:_main)
  * - we have a stack and a place to store GD, both in SRAM
@@ -607,10 +596,4 @@ void board_init_f(ulong dummy)
 	udelay(100);
 	mmdc_do_write_level_calibration(&novena_ddr_info);
 	mmdc_do_dqs_calibration(&novena_ddr_info);
-
-	/* Clear the BSS. */
-	memset(__bss_start, 0, __bss_end - __bss_start);
-
-	/* load/boot image from boot device */
-	board_init_r(NULL, 0);
 }

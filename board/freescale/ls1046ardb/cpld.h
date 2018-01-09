@@ -35,6 +35,7 @@ struct cpld_data {
 u8 cpld_read(unsigned int reg);
 void cpld_write(unsigned int reg, u8 value);
 void cpld_rev_bit(unsigned char *value);
+void cpld_select_core_volt(bool en_0v9);
 
 #define CPLD_READ(reg) cpld_read(offsetof(struct cpld_data, reg))
 #define CPLD_WRITE(reg, value)  \

@@ -250,9 +250,6 @@ int board_init(void)
 #ifdef CONFIG_ATMEL_SPI
 	at91_spi0_hw_init(1 << 4);
 #endif
-#ifdef CONFIG_HAS_DATAFLASH
-	at91_spi0_hw_init(1 << 0);
-#endif
 #ifdef CONFIG_MACB
 	corvus_macb_hw_init();
 #endif

@@ -26,7 +26,7 @@ void hi6553_writeb(u32 offset, uint8_t value)
 int pmic_reg_write(struct pmic *p, u32 reg, u32 val)
 {
 	if (check_reg(p, reg))
-		return -1;
+		return -EINVAL;
 
 	hi6553_writeb(reg, (uint8_t)val);
 
@@ -36,7 +36,7 @@ int pmic_reg_write(struct pmic *p, u32 reg, u32 val)
 int pmic_reg_read(struct pmic *p, u32 reg, u32 *val)
 {
 	if (check_reg(p, reg))
-		return -1;
+		return -EINVAL;
 
 	*val = (u32)hi6553_readb(reg);
 

@@ -62,6 +62,7 @@
 
 #define FLASH_OFFSET_MANUFACTURER_ID	0x00
 #define FLASH_OFFSET_DEVICE_ID		0x01
+#define FLASH_OFFSET_LOWER_SW_BITS	0x0C
 #define FLASH_OFFSET_DEVICE_ID2		0x0E
 #define FLASH_OFFSET_DEVICE_ID3		0x0F
 #define FLASH_OFFSET_CFI		0x55
@@ -165,8 +166,6 @@ extern int cfi_flash_num_flash_banks;
 #define CFI_MAX_FLASH_BANKS	CONFIG_SYS_MAX_FLASH_BANKS
 #endif
 
-void flash_write_cmd(flash_info_t * info, flash_sect_t sect,
-		     uint offset, u32 cmd);
 phys_addr_t cfi_flash_bank_addr(int i);
 unsigned long cfi_flash_bank_size(int i);
 void flash_cmd_reset(flash_info_t *info);

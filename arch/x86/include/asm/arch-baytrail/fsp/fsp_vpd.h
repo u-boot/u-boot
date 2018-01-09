@@ -45,10 +45,10 @@ struct __packed upd_region {
 	uint8_t enable_sata;			/* Offset 0x002d */
 	uint8_t sata_mode;			/* Offset 0x002e */
 	uint8_t enable_azalia;			/* Offset 0x002f */
-	uint32_t azalia_config_ptr;		/* Offset 0x0030 */
+	struct azalia_config *azalia_cfg_ptr;	/* Offset 0x0030 */
 	uint8_t enable_xhci;			/* Offset 0x0034 */
-	uint8_t enable_lpe;			/* Offset 0x0035 */
-	uint8_t lpss_sio_enable_pci_mode;	/* Offset 0x0036 */
+	uint8_t lpe_mode;			/* Offset 0x0035 */
+	uint8_t lpss_sio_mode;			/* Offset 0x0036 */
 	uint8_t enable_dma0;			/* Offset 0x0037 */
 	uint8_t enable_dma1;			/* Offset 0x0038 */
 	uint8_t enable_i2_c0;			/* Offset 0x0039 */
@@ -64,11 +64,10 @@ struct __packed upd_region {
 	uint8_t igd_dvmt50_pre_alloc;		/* Offset 0x0043 */
 	uint8_t aperture_size;			/* Offset 0x0044 */
 	uint8_t gtt_size;			/* Offset 0x0045 */
-	uint32_t serial_debug_port_address;	/* Offset 0x0046 */
-	uint8_t serial_debug_port_type;		/* Offset 0x004a */
+	uint8_t reserved2[5];			/* Offset 0x0046 */
 	uint8_t mrc_debug_msg;			/* Offset 0x004b */
 	uint8_t isp_enable;			/* Offset 0x004c */
-	uint8_t scc_enable_pci_mode;		/* Offset 0x004d */
+	uint8_t scc_mode;			/* Offset 0x004d */
 	uint8_t igd_render_standby;		/* Offset 0x004e */
 	uint8_t txe_uma_enable;			/* Offset 0x004f */
 	uint8_t os_selection;			/* Offset 0x0050 */

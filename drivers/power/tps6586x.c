@@ -97,14 +97,14 @@ static int read_voltages(int *sm0, int *sm1)
 	ctrl1 = tps6586x_read(SUPPLY_CONTROL1);
 	ctrl2 = tps6586x_read(SUPPLY_CONTROL2);
 	if (ctrl1 == -1 || ctrl2 == -1)
-		return -1;
+		return -ENOTSUPP;
 
 	/* Figure out whether V1 or V2 is selected */
 	is_v2 = (ctrl1 | ctrl2) & CTRL_SM0_SUPPLY2;
 	*sm0 = tps6586x_read(is_v2 ? SM0_VOLTAGE_V2 : SM0_VOLTAGE_V1);
 	*sm1 = tps6586x_read(is_v2 ? SM1_VOLTAGE_V2 : SM1_VOLTAGE_V1);
 	if (*sm0 == -1 || *sm1 == -1)
-		return -1;
+		return -ENOTSUPP;
 
 	return 0;
 }
@@ -129,7 +129,7 @@ static int set_voltage(int reg, int data, int rate)
 	/* write v1, v2 and rate, then trigger */
 	if (tps6586x_write(reg, buff, 3) ||
 	    tps6586x_write(SUPPLY_CONTROL1, &control_bit, 1))
-		return -1;
+		return -ENOTSUPP;
 
 	return 0;
 }
@@ -177,7 +177,7 @@ int tps6586x_adjust_sm0_sm1(int sm0_target, int sm1_target, int step, int rate,
 	/* get current voltage settings */
 	if (read_voltages(&sm0, &sm1)) {
 		debug("%s: Cannot read voltage settings\n", __func__);
-		return -1;
+		return -EINVAL;
 	}
 
 	/*
@@ -189,7 +189,7 @@ int tps6586x_adjust_sm0_sm1(int sm0_target, int sm1_target, int step, int rate,
 	if (min_sm0_over_sm1 != -1 && sm0 < sm1 + min_sm0_over_sm1) {
 		debug("%s: SM0 is %d, SM1 is %d, but min_sm0_over_sm1 is %d\n",
 		      __func__, sm0, sm1, min_sm0_over_sm1);
-		return -1;
+		return -EINVAL;
 	}
 
 	/*
@@ -240,7 +240,7 @@ int tps6586x_adjust_sm0_sm1(int sm0_target, int sm1_target, int step, int rate,
 	}
 	debug("%d-%d   %d-%d   done\n", sm0, sm0_target, sm1, sm1_target);
 
-	return bad ? -1 : 0;
+	return bad ? -EINVAL : 0;
 }
 
 int tps6586x_init(struct udevice *dev)

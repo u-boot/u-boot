@@ -2,7 +2,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-VERSION = 2017
+VERSION = 2018
 PATCHLEVEL = 01
 SUBLEVEL =
 EXTRAVERSION =
@@ -348,8 +348,8 @@ OBJCOPY		= $(CROSS_COMPILE)objcopy
 OBJDUMP		= $(CROSS_COMPILE)objdump
 AWK		= awk
 PERL		= perl
-PYTHON		= python
-DTC		= dtc
+PYTHON		?= python
+DTC		?= $(objtree)/scripts/dtc/dtc
 CHECK		= sparse
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
@@ -360,6 +360,7 @@ KBUILD_CPPFLAGS := -D__KERNEL__ -D__UBOOT__
 KBUILD_CFLAGS   := -Wall -Wstrict-prototypes \
 		   -Wno-format-security \
 		   -fno-builtin -ffreestanding
+KBUILD_CFLAGS	+= -fshort-wchar
 KBUILD_AFLAGS   := -D__ASSEMBLY__
 
 # Read UBOOTRELEASE from include/config/uboot.release (if it exists)
@@ -371,7 +372,7 @@ export ARCH CPU BOARD VENDOR SOC CPUDIR BOARDDIR
 export CONFIG_SHELL HOSTCC HOSTCFLAGS HOSTLDFLAGS CROSS_COMPILE AS LD CC
 export CPP AR NM LDR STRIP OBJCOPY OBJDUMP
 export MAKE AWK PERL PYTHON
-export HOSTCXX HOSTCXXFLAGS DTC CHECK CHECKFLAGS
+export HOSTCXX HOSTCXXFLAGS CHECK CHECKFLAGS DTC DTC_FLAGS
 
 export KBUILD_CPPFLAGS NOSTDINC_FLAGS UBOOTINCLUDE OBJCOPYFLAGS LDFLAGS
 export KBUILD_CFLAGS KBUILD_AFLAGS
@@ -482,6 +483,13 @@ else
 # Build targets only - this includes vmlinux, arch specific targets, clean
 # targets and others. In general all targets except *config targets.
 
+# Additional helpers built in scripts/
+# Carefully list dependencies so we do not try to build scripts twice
+# in parallel
+PHONY += scripts
+scripts: scripts_basic include/config/auto.conf
+	$(Q)$(MAKE) $(build)=$(@)
+
 ifeq ($(dot-config),1)
 # Read in config
 -include include/config/auto.conf
@@ -508,6 +516,9 @@ include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
 	@# than include/config.h.
 	@# Otherwise, 'make silentoldconfig' would be invoked twice.
 	$(Q)touch include/config/auto.conf
+
+u-boot.cfg spl/u-boot.cfg tpl/u-boot.cfg: include/config.h FORCE
+	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.autoconf $(@)
 
 -include include/autoconf.mk
 -include include/autoconf.mk.dep
@@ -617,8 +628,9 @@ KBUILD_CFLAGS += $(KCFLAGS)
 UBOOTINCLUDE    := \
 		-Iinclude \
 		$(if $(KBUILD_SRC), -I$(srctree)/include) \
-		$(if $(CONFIG_SYS_THUMB_BUILD), $(if $(CONFIG_HAS_THUMB2),, \
-			-I$(srctree)/arch/$(ARCH)/thumb1/include),) \
+		$(if $(CONFIG_$(SPL_)SYS_THUMB_BUILD), \
+			$(if $(CONFIG_HAS_THUMB2),, \
+				-I$(srctree)/arch/$(ARCH)/thumb1/include),) \
 		-I$(srctree)/arch/$(ARCH)/include \
 		-include $(srctree)/include/linux/kconfig.h
 
@@ -645,7 +657,6 @@ libs-y += drivers/
 libs-y += drivers/dma/
 libs-y += drivers/gpio/
 libs-y += drivers/i2c/
-libs-y += drivers/mmc/
 libs-y += drivers/mtd/
 libs-$(CONFIG_CMD_NAND) += drivers/mtd/nand/
 libs-y += drivers/mtd/onenand/
@@ -680,6 +691,7 @@ libs-y += drivers/usb/phy/
 libs-y += drivers/usb/ulpi/
 libs-y += cmd/
 libs-y += common/
+libs-y += env/
 libs-$(CONFIG_API) += api/
 libs-$(CONFIG_HAS_POST) += post/
 libs-y += test/
@@ -739,6 +751,9 @@ BOARD_SIZE_CHECK =
 endif
 
 # Statically apply RELA-style relocations (currently arm64 only)
+# This is useful for arm64 where static relocation needs to be performed on
+# the raw binary, but certain simulators only accept an ELF file (but don't
+# do the relocation).
 ifneq ($(CONFIG_STATIC_RELA),)
 # $(1) is u-boot ELF, $(2) is u-boot bin, $(3) is text base
 DO_STATIC_RELA = \
@@ -781,7 +796,7 @@ ALL-$(CONFIG_REMAKE_ELF) += u-boot.elf
 ALL-$(CONFIG_EFI_APP) += u-boot-app.efi
 ALL-$(CONFIG_EFI_STUB) += u-boot-payload.efi
 
-ifneq ($(BUILD_ROM),)
+ifneq ($(BUILD_ROM)$(CONFIG_BUILD_ROM),)
 ALL-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
 endif
 
@@ -797,6 +812,10 @@ ALL-y += $(CONFIG_BUILD_TARGET:"%"=%)
 endif
 
 LDFLAGS_u-boot += $(LDFLAGS_FINAL)
+
+# Avoid 'Not enough room for program headers' error on binutils 2.28 onwards.
+LDFLAGS_u-boot += $(call ld-option, --no-dynamic-linker)
+
 ifneq ($(CONFIG_SYS_TEXT_BASE),)
 LDFLAGS_u-boot += -Ttext $(CONFIG_SYS_TEXT_BASE)
 endif
@@ -819,6 +838,10 @@ quiet_cmd_mkimage = MKIMAGE $@
 cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
 	$(if $(KBUILD_VERBOSE:1=), >$(MKIMAGEOUTPUT))
 
+quiet_cmd_mkfitimage = MKIMAGE $@
+cmd_mkfitimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -f $(U_BOOT_ITS) -E $@ \
+	$(if $(KBUILD_VERBOSE:1=), >$(MKIMAGEOUTPUT))
+
 quiet_cmd_cat = CAT     $@
 cmd_cat = cat $(filter-out $(PHONY), $^) > $@
 
@@ -829,7 +852,11 @@ cmd_pad_cat = $(cmd_objcopy) && $(append) || rm -f $@
 
 cfg: u-boot.cfg
 
-all:		$(ALL-y)
+quiet_cmd_cfgcheck = CFGCHK  $2
+cmd_cfgcheck = $(srctree)/scripts/check-config.sh $2 \
+		$(srctree)/scripts/config_whitelist.txt $(srctree)
+
+all:		$(ALL-y) cfg
 ifeq ($(CONFIG_DM_I2C_COMPAT)$(CONFIG_SANDBOX),y)
 	@echo "===================== WARNING ======================"
 	@echo "This board uses CONFIG_DM_I2C_COMPAT. Please remove"
@@ -840,19 +867,32 @@ endif
 	@# Check that this build does not use CONFIG options that we do not
 	@# know about unless they are in Kconfig. All the existing CONFIG
 	@# options are whitelisted, so new ones should not be added.
-	$(srctree)/scripts/check-config.sh u-boot.cfg \
-		$(srctree)/scripts/config_whitelist.txt ${srctree} 1>&2
+	$(call cmd,cfgcheck,u-boot.cfg)
 
 PHONY += dtbs
 dtbs: dts/dt.dtb
 	@:
-dts/dt.dtb: checkdtc u-boot
+dts/dt.dtb: u-boot
 	$(Q)$(MAKE) $(build)=dts dtbs
 
 quiet_cmd_copy = COPY    $@
       cmd_copy = cp $< $@
 
-ifeq ($(CONFIG_OF_SEPARATE),y)
+ifeq ($(CONFIG_MULTI_DTB_FIT),y)
+
+fit-dtb.blob: dts/dt.dtb FORCE
+	$(call if_changed,mkimage)
+
+MKIMAGEFLAGS_fit-dtb.blob = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
+	-a 0 -e 0 -E \
+	$(patsubst %,-b arch/$(ARCH)/dts/%.dtb,$(subst ",,$(CONFIG_OF_LIST))) -d /dev/null
+
+u-boot-fit-dtb.bin: u-boot-nodtb.bin fit-dtb.blob
+	$(call if_changed,cat)
+
+u-boot.bin: u-boot-fit-dtb.bin FORCE
+	$(call if_changed,copy)
+else ifeq ($(CONFIG_OF_SEPARATE),y)
 u-boot-dtb.bin: u-boot-nodtb.bin dts/dt.dtb FORCE
 	$(call if_changed,cat)
 
@@ -864,7 +904,7 @@ u-boot.bin: u-boot-nodtb.bin FORCE
 endif
 
 %.imx: %.bin
-	$(Q)$(MAKE) $(build)=arch/arm/imx-common $@
+	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 
 %.vyb: %.imx
 	$(Q)$(MAKE) $(build)=arch/arm/cpu/armv7/vf610 $@
@@ -883,7 +923,7 @@ u-boot.hex u-boot.srec: u-boot FORCE
 	$(call if_changed,objcopy)
 
 OBJCOPYFLAGS_u-boot-nodtb.bin := -O binary \
-		$(if $(CONFIG_X86_RESET_VECTOR),-R .start16 -R .resetvec)
+		$(if $(CONFIG_X86_16BIT_INIT),-R .start16 -R .resetvec)
 
 binary_size_check: u-boot-nodtb.bin FORCE
 	@file_size=$(shell wc -c u-boot-nodtb.bin | awk '{print $$1}') ; \
@@ -935,6 +975,19 @@ quiet_cmd_cpp_cfg = CFG     $@
 cmd_cpp_cfg = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) -ansi \
 	-DDO_DEPS_ONLY -D__ASSEMBLY__ -x assembler-with-cpp -P -dM -E -o $@ $<
 
+# Boards with more complex image requirments can provide an .its source file
+# or a generator script
+ifneq ($(CONFIG_SPL_FIT_SOURCE),"")
+U_BOOT_ITS = $(subst ",,$(CONFIG_SPL_FIT_SOURCE))
+else
+ifneq ($(CONFIG_SPL_FIT_GENERATOR),"")
+U_BOOT_ITS := u-boot.its
+$(U_BOOT_ITS): FORCE
+	$(srctree)/$(CONFIG_SPL_FIT_GENERATOR) \
+	$(patsubst %,arch/$(ARCH)/dts/%.dtb,$(subst ",,$(CONFIG_OF_LIST))) > $@
+endif
+endif
+
 ifdef CONFIG_SPL_LOAD_FIT
 MKIMAGEFLAGS_u-boot.img = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
 	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
@@ -957,7 +1010,8 @@ MKIMAGEFLAGS_u-boot.kwb = -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) \
 	-T kwbimage -a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE)
 
 MKIMAGEFLAGS_u-boot-spl.kwb = -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) \
-	-T kwbimage -a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE)
+	-T kwbimage -a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE) \
+	$(if $(KEYDIR),-k $(KEYDIR))
 
 MKIMAGEFLAGS_u-boot.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
 		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -T pblimage
@@ -965,6 +1019,9 @@ MKIMAGEFLAGS_u-boot.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
 u-boot-dtb.img u-boot.img u-boot.kwb u-boot.pbl u-boot-ivt.img: \
 		$(if $(CONFIG_SPL_LOAD_FIT),u-boot-nodtb.bin dts/dt.dtb,u-boot.bin) FORCE
 	$(call if_changed,mkimage)
+
+u-boot.itb: u-boot-nodtb.bin dts/dt.dtb $(U_BOOT_ITS) FORCE
+	$(call if_changed,mkfitimage)
 
 u-boot-spl.kwb: u-boot.img spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
@@ -1012,10 +1069,10 @@ tpl/u-boot-with-tpl.bin: tpl/u-boot-tpl.bin u-boot.bin FORCE
 	$(call if_changed,pad_cat)
 
 SPL: spl/u-boot-spl.bin FORCE
-	$(Q)$(MAKE) $(build)=arch/arm/imx-common $@
+	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 
 u-boot-with-spl.imx u-boot-with-nand-spl.imx: SPL u-boot.bin FORCE
-	$(Q)$(MAKE) $(build)=arch/arm/imx-common $@
+	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 
 MKIMAGEFLAGS_u-boot.ubl = -n $(UBL_CONFIG) -T ublimage -e $(CONFIG_SYS_TEXT_BASE)
 
@@ -1076,8 +1133,9 @@ quiet_cmd_ldr = LD      $@
 cmd_ldr = $(LD) $(LDFLAGS_$(@F)) \
 	       $(filter-out FORCE,$^) -o $@
 
-u-boot.rom: u-boot-x86-16bit.bin u-boot.bin FORCE \
-		$(if $(CONFIG_HAVE_REFCODE),refcode.bin)
+u-boot.rom: u-boot-x86-16bit.bin u-boot.bin \
+		$(if $(CONFIG_SPL_X86_16BIT_INIT),spl/u-boot-spl.bin) \
+		$(if $(CONFIG_HAVE_REFCODE),refcode.bin) FORCE
 	$(call if_changed,binman)
 
 OBJCOPYFLAGS_u-boot-x86-16bit.bin := -O binary -j .start16 -j .resetvec
@@ -1091,6 +1149,11 @@ u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.img u-boot.dtb FORCE
 endif
 
 ifneq ($(CONFIG_TEGRA),)
+ifneq ($(CONFIG_BINMAN),)
+u-boot-dtb-tegra.bin u-boot-tegra.bin u-boot-nodtb-tegra.bin: \
+		spl/u-boot-spl u-boot.bin FORCE
+	$(call if_changed,binman)
+else
 OBJCOPYFLAGS_u-boot-nodtb-tegra.bin = -O binary --pad-to=$(CONFIG_SYS_TEXT_BASE)
 u-boot-nodtb-tegra.bin: spl/u-boot-spl u-boot-nodtb.bin FORCE
 	$(call if_changed,pad_cat)
@@ -1101,6 +1164,7 @@ u-boot-tegra.bin: spl/u-boot-spl u-boot.bin FORCE
 
 u-boot-dtb-tegra.bin: u-boot-tegra.bin FORCE
 	$(call if_changed,copy)
+endif  # binman
 endif
 
 OBJCOPYFLAGS_u-boot-app.efi := $(OBJCOPYFLAGS_EFI)
@@ -1163,17 +1227,19 @@ OBJCOPYFLAGS_u-boot-img-spl-at-end.bin := -I binary -O binary \
 u-boot-img-spl-at-end.bin: u-boot.img spl/u-boot-spl.bin FORCE
 	$(call if_changed,pad_cat)
 
-# Create a new ELF from a raw binary file.  This is useful for arm64
-# where static relocation needs to be performed on the raw binary,
-# but certain simulators only accept an ELF file (but don't do the
-# relocation).
-# FIXME refactor dts/Makefile to share target/arch detection
+# Create a new ELF from a raw binary file.
+ifndef PLATFORM_ELFENTRY
+  PLATFORM_ELFENTRY = "_start"
+endif
+quiet_cmd_u-boot-elf ?= LD      $@
+	cmd_u-boot-elf ?= $(LD) u-boot-elf.o -o $@ \
+	--defsym=$(PLATFORM_ELFENTRY)=$(CONFIG_SYS_TEXT_BASE) \
+	-Ttext=$(CONFIG_SYS_TEXT_BASE)
 u-boot.elf: u-boot.bin
-	@$(OBJCOPY)  -B aarch64 -I binary -O elf64-littleaarch64 \
-		$< u-boot-elf.o
-	@$(LD) u-boot-elf.o -o $@ \
-		--defsym=_start=$(CONFIG_SYS_TEXT_BASE) \
-		-Ttext=$(CONFIG_SYS_TEXT_BASE)
+	$(Q)$(OBJCOPY) -I binary $(PLATFORM_ELFFLAGS) $< u-boot-elf.o
+	$(call if_changed,u-boot-elf)
+
+ARCH_POSTLINK := $(wildcard $(srctree)/arch/$(ARCH)/Makefile.postlink)
 
 # Rule to link u-boot
 # May be overridden by arch/$(ARCH)/config.mk
@@ -1181,7 +1247,8 @@ quiet_cmd_u-boot__ ?= LD      $@
       cmd_u-boot__ ?= $(LD) $(LDFLAGS) $(LDFLAGS_u-boot) -o $@ \
       -T u-boot.lds $(u-boot-init)                             \
       --start-group $(u-boot-main) --end-group                 \
-      $(PLATFORM_LIBS) -Map u-boot.map
+      $(PLATFORM_LIBS) -Map u-boot.map;                        \
+      $(if $(ARCH_POSTLINK), $(MAKE) -f $(ARCH_POSTLINK) $@, true)
 
 quiet_cmd_smap = GEN     common/system_map.o
 cmd_smap = \
@@ -1191,7 +1258,7 @@ cmd_smap = \
 		-c $(srctree)/common/system_map.c -o common/system_map.o
 
 u-boot:	$(u-boot-init) $(u-boot-main) u-boot.lds FORCE
-	$(call if_changed,u-boot__)
+	+$(call if_changed,u-boot__)
 ifeq ($(CONFIG_KALLSYMS),y)
 	$(call cmd,smap)
 	$(call cmd,u-boot__) common/system_map.o
@@ -1298,6 +1365,7 @@ define filechk_timestamp.h
 			LC_ALL=C $${DATE} -u -d "$${SOURCE_DATE}" +'#define U_BOOT_TIME "%T"'; \
 			LC_ALL=C $${DATE} -u -d "$${SOURCE_DATE}" +'#define U_BOOT_TZ "%z"'; \
 			LC_ALL=C $${DATE} -u -d "$${SOURCE_DATE}" +'#define U_BOOT_DMI_DATE "%m/%d/%Y"'; \
+			LC_ALL=C $${DATE} -u -d "$${SOURCE_DATE}" +'#define U_BOOT_BUILD_DATE 0x%Y%m%d'; \
 		else \
 			return 42; \
 		fi; \
@@ -1306,6 +1374,7 @@ define filechk_timestamp.h
 		LC_ALL=C date +'#define U_BOOT_TIME "%T"'; \
 		LC_ALL=C date +'#define U_BOOT_TZ "%z"'; \
 		LC_ALL=C date +'#define U_BOOT_DMI_DATE "%m/%d/%Y"'; \
+		LC_ALL=C date +'#define U_BOOT_BUILD_DATE 0x%Y%m%d'; \
 	fi)
 endef
 
@@ -1326,10 +1395,14 @@ u-boot.lds: $(LDSCRIPT) prepare FORCE
 spl/u-boot-spl.bin: spl/u-boot-spl
 	@:
 spl/u-boot-spl: tools prepare \
-		$(if $(CONFIG_OF_SEPARATE)$(CONFIG_SPL_OF_PLATDATA),dts/dt.dtb)
+		$(if $(CONFIG_OF_SEPARATE)$(CONFIG_OF_EMBED)$(CONFIG_SPL_OF_PLATDATA),dts/dt.dtb) \
+		$(if $(CONFIG_OF_SEPARATE)$(CONFIG_OF_EMBED)$(CONFIG_TPL_OF_PLATDATA),dts/dt.dtb)
 	$(Q)$(MAKE) obj=spl -f $(srctree)/scripts/Makefile.spl all
 
 spl/sunxi-spl.bin: spl/u-boot-spl
+	@:
+
+spl/sunxi-spl-with-ecc.bin: spl/sunxi-spl.bin
 	@:
 
 spl/u-boot-spl.sfp: spl/u-boot-spl
@@ -1338,7 +1411,8 @@ spl/u-boot-spl.sfp: spl/u-boot-spl
 spl/boot.bin: spl/u-boot-spl
 	@:
 
-tpl/u-boot-tpl.bin: tools prepare
+tpl/u-boot-tpl.bin: tools prepare \
+		$(if $(CONFIG_OF_SEPARATE)$(CONFIG_OF_EMBED)$(CONFIG_SPL_OF_PLATDATA),dts/dt.dtb)
 	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.spl all
 
 TAG_SUBDIRS := $(patsubst %,$(srctree)/%,$(u-boot-dirs) include)
@@ -1366,12 +1440,6 @@ SYSTEM_MAP = \
 System.map:	u-boot
 		@$(call SYSTEM_MAP,$<) > $@
 
-checkdtc:
-	@if test $(call dtc-version) -lt 0104; then \
-		echo '*** Your dtc is too old, please upgrade to dtc 1.4 or newer'; \
-		false; \
-	fi
-
 #########################################################################
 
 # ARM relocations should all be R_ARM_RELATIVE (32-bit) or
@@ -1385,14 +1453,14 @@ checkarmreloc: u-boot
 		false; \
 	fi
 
-env: scripts_basic
-	$(Q)$(MAKE) $(build)=tools/$@
+envtools: scripts_basic $(version_h) $(timestamp_h)
+	$(Q)$(MAKE) $(build)=tools/env
 
 tools-only: scripts_basic $(version_h) $(timestamp_h)
 	$(Q)$(MAKE) $(build)=tools
 
 tools-all: export HOST_TOOLS_ALL=y
-tools-all: env tools ;
+tools-all: envtools tools ;
 
 cross_tools: export CROSS_BUILD_TOOLS=y
 cross_tools: tools ;
@@ -1416,8 +1484,8 @@ CLEAN_DIRS  += $(MODVERDIR) \
 	       $(foreach d, spl tpl, $(patsubst %,$d/%, \
 			$(filter-out include, $(shell ls -1 $d 2>/dev/null))))
 
-CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h include/license.h \
-	       boot* u-boot* MLO* SPL System.map
+CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h \
+	       boot* u-boot* MLO* SPL System.map fit-dtb.blob
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated spl tpl \
@@ -1506,9 +1574,11 @@ help:
 	@echo  '  ubootrelease	  - Output the release version string (use with make -s)'
 	@echo  '  ubootversion	  - Output the version stored in Makefile (use with make -s)'
 	@echo  "  cfg		  - Don't build, just create the .cfg files"
+	@echo  "  envtools	  - Build only the target-side environment tools"
 	@echo  ''
 	@echo  'Static analysers'
 	@echo  '  checkstack      - Generate a list of stack hogs'
+	@echo  '  coccicheck      - Execute static code analysis with Coccinelle'
 	@echo  ''
 	@echo  'Documentation targets:'
 	@$(MAKE) -f $(srctree)/doc/DocBook/Makefile dochelp
@@ -1536,11 +1606,6 @@ tests:
 %docs: scripts_basic FORCE
 	$(Q)$(MAKE) $(build)=scripts build_docproc
 	$(Q)$(MAKE) $(build)=doc/DocBook $@
-
-# Dummies...
-PHONY += prepare scripts
-prepare: ;
-scripts: ;
 
 endif #ifeq ($(config-targets),1)
 endif #ifeq ($(mixed-targets),1)
@@ -1605,6 +1670,14 @@ endif
 	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1)   \
 	$(build)=$(build-dir) $(@:.ko=.o)
 	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.modpost
+
+# Consistency checks
+# ---------------------------------------------------------------------------
+
+PHONY += coccicheck
+
+coccicheck:
+	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/$@
 
 # FIXME Should go into a make.lib or something
 # ===========================================================================

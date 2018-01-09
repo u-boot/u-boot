@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/mach-types.h>
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/board.h>
 #include <asm/arch/clock.h>
@@ -25,7 +26,7 @@ void gpio_early_init_uart(void)
 }
 #endif
 
-#ifdef CONFIG_TEGRA_MMC
+#ifdef CONFIG_MMC_SDHCI_TEGRA
 /*
  * Routine: pin_mux_mmc
  * Description: setup the pin muxes/tristate values for the SDMMC(s)

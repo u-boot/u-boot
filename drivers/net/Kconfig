@@ -1,3 +1,5 @@
+source "drivers/net/phy/Kconfig"
+
 config DM_ETH
 	bool "Enable Driver Model for Ethernet drivers"
 	depends on DM
@@ -7,32 +9,6 @@ config DM_ETH
 	  The eth_*() interface will be implemented by the UC_ETH class
 	  This is currently implemented in net/eth.c
 	  Look in include/net.h for details.
-
-config PHYLIB
-	bool "Ethernet PHY (physical media interface) support"
-	help
-	  Enable Ethernet PHY (physical media interface) support.
-
-config RTL8211X_PHY_FORCE_MASTER
-	bool "Ethernet PHY RTL8211x: force 1000BASE-T master mode"
-	depends on PHYLIB
-	help
-	  Force master mode for 1000BASE-T on RTl8211x PHYs (except for RTL8211F).
-	  This can work around link stability and data corruption issues on gigabit
-	  links which can occur in slave mode on certain PHYs, e.g. on the
-	  RTL8211C(L).
-
-	  Please note that two directly connected devices (i.e. via crossover cable)
-	  will not be able to establish a link between each other if they both force
-	  master mode. Multiple devices forcing master mode when connected by a
-	  network switch do not pose a problem as the switch configures its affected
-	  ports into slave mode.
-
-	  This option only affects gigabit links. If you must establish a direct
-	  connection between two devices which both force master mode, try forcing
-	  the link speed to 100MBit/s.
-
-	  If unsure, say N.
 
 menuconfig NETDEVICES
 	bool "Network device support"
@@ -45,6 +21,13 @@ menuconfig NETDEVICES
 	  If unsure, say Y
 
 if NETDEVICES
+
+config PHY_GIGE
+	bool "Enable GbE PHY status parsing and configuration"
+	help
+	  Enables support for parsing the status output and for
+	  configuring GbE PHYs (affects the inner workings of some
+	  commands and miiphyutil.c).
 
 config AG7XXX
 	bool "Atheros AG7xxx Ethernet MAC support"
@@ -63,6 +46,30 @@ config ALTERA_TSE
 	  This driver supports the Altera Triple-Speed (TSE) Ethernet MAC.
 	  Please find details on the "Triple-Speed Ethernet MegaCore Function
 	  Resource Center" of Altera.
+
+config BCM_SF2_ETH
+	bool "Broadcom SF2 (Starfighter2) Ethernet support"
+	select PHYLIB
+	help
+	  This is an abstract framework which provides a generic interface
+	  to MAC and DMA management for multiple Broadcom SoCs such as
+	  Cygnus, NSP and bcm28155_ap platforms.
+
+config BCM_SF2_ETH_DEFAULT_PORT
+	int "Broadcom SF2 (Starfighter2) Ethernet default port number"
+	depends on BCM_SF2_ETH
+	default 0
+	help
+	  Default port number for the Starfighter2 ethernet driver.
+
+config BCM_SF2_ETH_GMAC
+	bool "Broadcom SF2 (Starfighter2) GMAC Ethernet support"
+	depends on BCM_SF2_ETH
+	help
+	  This flag enables the ethernet support for Broadcom platforms with
+	  GMAC such as Cygnus. This driver is based on the framework provided
+	  by the BCM_SF2_ETH driver.
+	  Say Y to any bcmcygnus based platforms.
 
 config DWC_ETH_QOS
 	bool "Synopsys DWC Ethernet QOS device support"
@@ -147,13 +154,36 @@ config FEC_MXC
 	  This driver supports the 10/100 Fast Ethernet controller for
 	  NXP i.MX processors.
 
-config MVPP2
-	bool "Marvell Armada 375 network interface support"
-	depends on ARMADA_375
+config FTMAC100
+	bool "Ftmac100 Ethernet Support"
+	help
+	  This MAC is present in Andestech SoCs.
+
+config MVNETA
+	bool "Marvell Armada 385 network interface support"
+	depends on ARMADA_XP || ARMADA_38X
 	select PHYLIB
 	help
 	  This driver supports the network interface units in the
-	  Marvell ARMADA 375 SoC.
+	  Marvell ARMADA XP and 38X SoCs
+
+config MVPP2
+	bool "Marvell Armada 375/7K/8K network interface support"
+	depends on ARMADA_375 || ARMADA_8K
+	select PHYLIB
+	help
+	  This driver supports the network interface units in the
+	  Marvell ARMADA 375, 7K and 8K SoCs.
+
+config MACB
+	bool "Cadence MACB/GEM Ethernet Interface"
+	depends on DM_ETH
+	select PHYLIB
+	help
+	  The Cadence MACB ethernet interface is found on many Atmel
+	  AT91 and SAMA5 parts.  This driver also supports the Cadence
+	  GEM (Gigabit Ethernet MAC) found in some ARM SoC devices.
+	  Say Y to include support for the MACB/GEM chip.
 
 config PCH_GBE
 	bool "Intel Platform Controller Hub EG20T GMAC driver"
@@ -162,6 +192,12 @@ config PCH_GBE
 	help
 	  This MAC is present in Intel Platform Controller Hub EG20T. It
 	  supports 10/100/1000 Mbps operation.
+
+config RGMII
+	bool "Enable RGMII"
+	help
+	  Enable the support of the Reduced Gigabit Media-Independent
+	  Interface (RGMII).
 
 config RTL8139
 	bool "Realtek 8139 series Ethernet controller driver"
@@ -175,14 +211,63 @@ config RTL8169
 	  This driver supports Realtek 8169 series gigabit ethernet family of
 	  PCI/PCIe chipsets/adapters.
 
+config SMC911X
+	bool "SMSC LAN911x and LAN921x controller driver"
+
+if SMC911X
+
+config SMC911X_BASE
+	hex "SMC911X Base Address"
+	help
+	  Define this to hold the physical address
+	  of the device (I/O space)
+
+choice
+	prompt "SMC911X bus width"
+	default SMC911X_16_BIT
+
+config SMC911X_32_BIT
+	bool "Enable 32-bit interface"
+
+config SMC911X_16_BIT
+	bool "Enable 16-bit interface"
+	help
+	  Define this if data bus is 16 bits. If your processor
+	  automatically converts one 32 bit word to two 16 bit
+	  words you may also try CONFIG_SMC911X_32_BIT.
+
+endchoice
+endif #SMC911X
+
+config SUN7I_GMAC
+	bool "Enable Allwinner GMAC Ethernet support"
+	help
+	  Enable the support for Sun7i GMAC Ethernet controller
+
+config SUN7I_GMAC_FORCE_TXERR
+	bool "Force PA17 as gmac function"
+	depends on SUN7I_GMAC
+	help
+	  Some ethernet phys needs TXERR control. Since the GMAC
+	  doesn't have such signal, setting PA17 as GMAC function
+	  makes the pin output low, which enables data transmission.
+
+config SUN4I_EMAC
+	bool "Allwinner Sun4i Ethernet MAC support"
+	depends on DM_ETH
+	select PHYLIB
+	help
+	  This driver supports the Allwinner based SUN4I Ethernet MAC.
+
 config SUN8I_EMAC
         bool "Allwinner Sun8i Ethernet MAC support"
         depends on DM_ETH
         select PHYLIB
+	select PHY_GIGE
         help
           This driver supports the  Allwinner based SUN8I/SUN50I Ethernet MAC.
 	  It can be found in H3/A64/A83T based SoCs and compatible with both
-	  External and Internal PHY's.
+	  External and Internal PHYs.
 
 config XILINX_AXIEMAC
 	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)
@@ -214,5 +299,78 @@ config PIC32_ETH
 	help
 	  This driver implements 10/100 Mbps Ethernet and MAC layer for
 	  Microchip PIC32 microcontrollers.
+
+config GMAC_ROCKCHIP
+	bool "Rockchip Synopsys Designware Ethernet MAC"
+	depends on DM_ETH && ETH_DESIGNWARE
+	help
+	  This driver provides Rockchip SoCs network support based on the
+	  Synopsys Designware driver.
+
+config RENESAS_RAVB
+	bool "Renesas Ethernet AVB MAC"
+	depends on DM_ETH && RCAR_GEN3
+	select PHYLIB
+	help
+	  This driver implements support for the Ethernet AVB block in
+	  Renesas M3 and H3 SoCs.
+
+config MPC8XX_FEC
+	bool "Fast Ethernet Controller on MPC8XX"
+	depends on 8xx
+	select MII
+	help
+	  This driver implements support for the Fast Ethernet Controller
+	  on MPC8XX
+
+config ETHER_ON_FEC1
+	bool "FEC1"
+	depends on MPC8XX_FEC
+	default y
+
+config FEC1_PHY
+	int "FEC1 PHY"
+	depends on ETHER_ON_FEC1
+	default -1
+	help
+	  Define to the hardcoded PHY address which corresponds
+	  to the given FEC; i. e.
+		#define CONFIG_FEC1_PHY 4
+	  means that the PHY with address 4 is connected to FEC1
+
+	  When set to -1, means to probe for first available.
+
+config PHY_NORXERR
+	bool "PHY_NORXERR"
+	depends on ETHER_ON_FEC1
+	default n
+	help
+	  The PHY does not have a RXERR line (RMII only).
+	  (so program the FEC to ignore it).
+
+config ETHER_ON_FEC2
+	bool "FEC2"
+	depends on MPC8XX_FEC && MPC885
+	default y
+
+config FEC2_PHY
+	int "FEC2 PHY"
+	depends on ETHER_ON_FEC2
+	default -1
+	help
+	  Define to the hardcoded PHY address which corresponds
+	  to the given FEC; i. e.
+		#define CONFIG_FEC1_PHY 4
+	  means that the PHY with address 4 is connected to FEC1
+
+	  When set to -1, means to probe for first available.
+
+config FEC2_PHY_NORXERR
+	bool "PHY_NORXERR"
+	depends on ETHER_ON_FEC2
+	default n
+	help
+	  The PHY does not have a RXERR line (RMII only).
+	  (so program the FEC to ignore it).
 
 endif # NETDEVICES

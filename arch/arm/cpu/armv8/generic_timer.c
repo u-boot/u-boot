@@ -43,7 +43,7 @@ unsigned long timer_read_counter(void)
 	return cntpct;
 }
 
-unsigned long long get_ticks(void)
+uint64_t get_ticks(void)
 {
 	unsigned long ticks = timer_read_counter();
 

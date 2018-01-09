@@ -149,14 +149,14 @@ static int broadwell_gpio_ofdata_to_platdata(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	bank = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "reg", -1);
+	bank = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "reg", -1);
 	if (bank == -1) {
 		debug("%s: Invalid bank number %d\n", __func__, bank);
 		return -EINVAL;
 	}
 	plat->bank = bank;
 	plat->base_addr = gpiobase;
-	plat->bank_name = fdt_getprop(gd->fdt_blob, dev->of_offset,
+	plat->bank_name = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
 				      "bank-name", NULL);
 
 	return 0;

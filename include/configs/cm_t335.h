@@ -12,20 +12,16 @@
 #define __CONFIG_CM_T335_H
 
 #define CONFIG_CM_T335
-#define CONFIG_NAND
 
 #include <configs/ti_am335x_common.h>
 
-#undef CONFIG_BOARD_LATE_INIT
 #undef CONFIG_SPI
-#undef CONFIG_OMAP3_SPI
 #undef CONFIG_BOOTCOUNT_LIMIT
 #undef CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 
 #undef CONFIG_MAX_RAM_BANK_SIZE
 #define CONFIG_MAX_RAM_BANK_SIZE	(512 << 20)	/* 512MB */
 
-#define MACH_TYPE_CM_T335		4586	/* Until the next sync */
 #define CONFIG_MACH_TYPE		MACH_TYPE_CM_T335
 
 /* Clock Defines */
@@ -47,8 +43,8 @@
 		"bootm ${loadaddr}\0"
 
 #define NANDARGS \
-	"mtdids=" MTDIDS_DEFAULT "\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"nandroot=ubi0:rootfs rw\0" \
 	"nandrootfstype=ubifs\0" \
 	"nandargs=setenv bootargs console=${console} " \
@@ -94,7 +90,6 @@
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* UART0 */
 #define CONFIG_SYS_NS16550_COM2		0x48022000	/* UART1 */
-#define CONFIG_BAUDRATE			115200
 
 /* I2C Configuration */
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* Main EEPROM */
@@ -102,11 +97,8 @@
 #define CONFIG_SYS_I2C_EEPROM_BUS	0
 
 /* SPL */
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/am33xx/u-boot-spl.lds"
 
 /* Network. */
-#define CONFIG_PHY_GIGE
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_ATHEROS
 
 /* NAND support */
@@ -133,45 +125,25 @@
 #undef CONFIG_SYS_NAND_U_BOOT_OFFS
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x200000
 
-#define CONFIG_CMD_NAND
-#define MTDIDS_DEFAULT			"nand0=nand"
-#define MTDPARTS_DEFAULT		"mtdparts=nand:2m(spl)," \
-					"1m(u-boot),1m(u-boot-env)," \
-					"1m(dtb),4m(splash)," \
-					"6m(kernel),-(rootfs)"
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x300000 /* environment starts here */
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #ifdef CONFIG_SPL_OS_BOOT
-#define CONFIG_CMD_SPL_NAND_OFS		0x400000 /* un-assigned: (using dtb) */
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x500000
-#define CONFIG_CMD_SPL_WRITE_SIZE	0x2000
 #endif
 
 /* GPIO pin + bank to pin ID mapping */
 #define GPIO_PIN(_bank, _pin)		((_bank << 5) + _pin)
 
 /* Status LED */
-#define CONFIG_STATUS_LED
-#define CONFIG_GPIO_LED
-#define CONFIG_BOARD_SPECIFIC_LED
-#define STATUS_LED_BIT			GPIO_PIN(2, 0)
 /* Status LED polarity is inversed, so init it in the "off" state */
-#define STATUS_LED_STATE		STATUS_LED_OFF
-#define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 2)
-#define STATUS_LED_BOOT			0
 
 /* EEPROM */
-#define CONFIG_CMD_EEPROM
 #define CONFIG_ENV_EEPROM_IS_ON_I2C
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
 #define CONFIG_SYS_EEPROM_SIZE			256
-
-#define CONFIG_CMD_EEPROM_LAYOUT
-#define CONFIG_EEPROM_LAYOUT_HELP_STRING "v2, v3"
 
 #ifndef CONFIG_SPL_BUILD
 /*
@@ -179,8 +151,6 @@
  * First select the I2C0 bus with "i2c dev 0", then use "pca953x" command.
  */
 #define CONFIG_PCA953X
-#define CONFIG_CMD_PCA953X
-#define CONFIG_CMD_PCA953X_INFO
 #define CONFIG_SYS_I2C_PCA953X_ADDR	0x26
 #define CONFIG_SYS_I2C_PCA953X_WIDTH	{ {0x26, 16} }
 #endif /* CONFIG_SPL_BUILD */

@@ -147,7 +147,7 @@ static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 	struct msm_ehci_priv *priv = dev_get_priv(dev);
 
 	priv->ulpi_vp.port_num = 0;
-	priv->ehci = (void *)dev_get_addr(dev);
+	priv->ehci = (void *)devfdt_get_addr(dev);
 
 	if (priv->ehci == (void *)FDT_ADDR_T_NONE)
 		return -EINVAL;

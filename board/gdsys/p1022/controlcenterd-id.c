@@ -43,15 +43,6 @@
 #define CCDM_AUTO_FIRST_STAGE
 #endif
 
-/* enums from TCG specs */
-enum {
-	/* capability areas */
-	TPM_CAP_NV_INDEX	= 0x00000011,
-	TPM_CAP_HANDLE		= 0x00000014,
-	/* resource types */
-	TPM_RT_KEY	= 0x00000001,
-};
-
 /* CCDM specific contants */
 enum {
 	/* NV indices */
@@ -151,46 +142,7 @@ static int hre_err = HRE_E_OK;
 #define IS_VAR_HREG(spec) (((spec) & 0x38) == 0x10)
 #define HREG_IDX(spec) ((spec) & (IS_PCR_HREG(spec) ? 0x1f : 0x7))
 
-
-static const uint8_t prg_stage1_prepare[] = {
-	0x00, 0x20, 0x00, 0x00, /* opcode: SYNC f0 */
-	0x00, 0x24, 0x00, 0x00, /* opcode: SYNC f1 */
-	0x01, 0x80, 0x00, 0x00, /* opcode: CHECK0 PCR0 */
-	0x81, 0x22, 0x00, 0x00, /* opcode: LOAD PCR0, f0 */
-	0x01, 0x84, 0x00, 0x00, /* opcode: CHECK0 PCR1 */
-	0x81, 0x26, 0x10, 0x00, /* opcode: LOAD PCR1, f1 */
-	0x01, 0x88, 0x00, 0x00, /* opcode: CHECK0 PCR2 */
-	0x81, 0x2a, 0x20, 0x00, /* opcode: LOAD PCR2, f2 */
-	0x01, 0x8c, 0x00, 0x00, /* opcode: CHECK0 PCR3 */
-	0x81, 0x2e, 0x30, 0x00, /* opcode: LOAD PCR3, f3 */
-};
-
-static const uint8_t prg_stage2_prepare[] = {
-	0x00, 0x80, 0x00, 0x00, /* opcode: SYNC PCR0 */
-	0x00, 0x84, 0x00, 0x00, /* opcode: SYNC PCR1 */
-	0x00, 0x88, 0x00, 0x00, /* opcode: SYNC PCR2 */
-	0x00, 0x8c, 0x00, 0x00, /* opcode: SYNC PCR3 */
-	0x00, 0x90, 0x00, 0x00, /* opcode: SYNC PCR4 */
-};
-
-static const uint8_t prg_stage2_success[] = {
-	0x81, 0x02, 0x40, 0x14, /* opcode: LOAD PCR4, #<20B data> */
-	0x48, 0xfd, 0x95, 0x17, 0xe7, 0x54, 0x6b, 0x68, /* data */
-	0x92, 0x31, 0x18, 0x05, 0xf8, 0x58, 0x58, 0x3c, /* data */
-	0xe4, 0xd2, 0x81, 0xe0, /* data */
-};
-
-static const uint8_t prg_stage_fail[] = {
-	0x81, 0x01, 0x00, 0x14, /* opcode: LOAD v0, #<20B data> */
-	0xc0, 0x32, 0xad, 0xc1, 0xff, 0x62, 0x9c, 0x9b, /* data */
-	0x66, 0xf2, 0x27, 0x49, 0xad, 0x66, 0x7e, 0x6b, /* data */
-	0xea, 0xdf, 0x14, 0x4b, /* data */
-	0x81, 0x42, 0x30, 0x00, /* opcode: LOAD PCR3, v0 */
-	0x81, 0x42, 0x40, 0x00, /* opcode: LOAD PCR4, v0 */
-};
-
 static const uint8_t vendor[] = "Guntermann & Drunck";
-
 
 /**
  * @brief read a bunch of data from MMC into memory.
@@ -265,7 +217,7 @@ static u8 *get_2nd_stage_bl_location(ulong target_addr)
 {
 	ulong addr;
 #ifdef CCDM_SECOND_STAGE
-	addr = getenv_ulong("loadaddr", 16, CONFIG_LOADADDR);
+	addr = env_get_ulong("loadaddr", 16, CONFIG_LOADADDR);
 #else
 	addr = target_addr;
 #endif
@@ -283,7 +235,7 @@ static u8 *get_image_location(void)
 {
 	ulong addr;
 	/* TODO use other area? */
-	addr = getenv_ulong("loadaddr", 16, CONFIG_LOADADDR);
+	addr = env_get_ulong("loadaddr", 16, CONFIG_LOADADDR);
 	return (u8 *)(addr);
 }
 #endif
@@ -965,6 +917,19 @@ end:
 #endif
 
 #if defined(CCDM_FIRST_STAGE) || (defined CCDM_AUTO_FIRST_STAGE)
+static const uint8_t prg_stage1_prepare[] = {
+	0x00, 0x20, 0x00, 0x00, /* opcode: SYNC f0 */
+	0x00, 0x24, 0x00, 0x00, /* opcode: SYNC f1 */
+	0x01, 0x80, 0x00, 0x00, /* opcode: CHECK0 PCR0 */
+	0x81, 0x22, 0x00, 0x00, /* opcode: LOAD PCR0, f0 */
+	0x01, 0x84, 0x00, 0x00, /* opcode: CHECK0 PCR1 */
+	0x81, 0x26, 0x10, 0x00, /* opcode: LOAD PCR1, f1 */
+	0x01, 0x88, 0x00, 0x00, /* opcode: CHECK0 PCR2 */
+	0x81, 0x2a, 0x20, 0x00, /* opcode: LOAD PCR2, f2 */
+	0x01, 0x8c, 0x00, 0x00, /* opcode: CHECK0 PCR3 */
+	0x81, 0x2e, 0x30, 0x00, /* opcode: LOAD PCR3, f3 */
+};
+
 static int first_stage_actions(void)
 {
 	int result = 0;
@@ -1022,6 +987,30 @@ static int first_stage_init(void)
 #endif
 
 #ifdef CCDM_SECOND_STAGE
+static const uint8_t prg_stage2_prepare[] = {
+	0x00, 0x80, 0x00, 0x00, /* opcode: SYNC PCR0 */
+	0x00, 0x84, 0x00, 0x00, /* opcode: SYNC PCR1 */
+	0x00, 0x88, 0x00, 0x00, /* opcode: SYNC PCR2 */
+	0x00, 0x8c, 0x00, 0x00, /* opcode: SYNC PCR3 */
+	0x00, 0x90, 0x00, 0x00, /* opcode: SYNC PCR4 */
+};
+
+static const uint8_t prg_stage2_success[] = {
+	0x81, 0x02, 0x40, 0x14, /* opcode: LOAD PCR4, #<20B data> */
+	0x48, 0xfd, 0x95, 0x17, 0xe7, 0x54, 0x6b, 0x68, /* data */
+	0x92, 0x31, 0x18, 0x05, 0xf8, 0x58, 0x58, 0x3c, /* data */
+	0xe4, 0xd2, 0x81, 0xe0, /* data */
+};
+
+static const uint8_t prg_stage_fail[] = {
+	0x81, 0x01, 0x00, 0x14, /* opcode: LOAD v0, #<20B data> */
+	0xc0, 0x32, 0xad, 0xc1, 0xff, 0x62, 0x9c, 0x9b, /* data */
+	0x66, 0xf2, 0x27, 0x49, 0xad, 0x66, 0x7e, 0x6b, /* data */
+	0xea, 0xdf, 0x14, 0x4b, /* data */
+	0x81, 0x42, 0x30, 0x00, /* opcode: LOAD PCR3, v0 */
+	0x81, 0x42, 0x40, 0x00, /* opcode: LOAD PCR4, v0 */
+};
+
 static int second_stage_init(void)
 {
 	static const char mac_suffix[] = ".mac";
@@ -1054,13 +1043,13 @@ static int second_stage_init(void)
 		goto failure;
 
 	/* run "prepboot" from env to get "mmcdev" set */
-	cptr = getenv("prepboot");
+	cptr = env_get("prepboot");
 	if (cptr && !run_command(cptr, 0))
-		mmcdev = getenv("mmcdev");
+		mmcdev = env_get("mmcdev");
 	if (!mmcdev)
 		goto failure;
 
-	cptr = getenv("ramdiskimage");
+	cptr = env_get("ramdiskimage");
 	if (cptr)
 		image_path = cptr;
 

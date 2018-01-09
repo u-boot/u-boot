@@ -7,8 +7,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_LS102XA
-
 #define CONFIG_ARMV7_PSCI_1_0
 
 #define CONFIG_ARMV7_SECURE_BASE	OCRAM_BASE_S_ADDR
@@ -16,7 +14,6 @@
 #define CONFIG_SYS_FSL_CLK
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_DEEP_SLEEP
 
 /*
@@ -43,24 +40,9 @@
 /*#define CONFIG_HAS_FSL_DR_USB*/
 
 #ifdef CONFIG_HAS_FSL_DR_USB
-#define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #endif
-
-/* XHCI Support - enabled by default */
-#define CONFIG_HAS_FSL_XHCI_USB
-
-#ifdef CONFIG_HAS_FSL_XHCI_USB
-#define CONFIG_USB_XHCI_FSL
-#define CONFIG_USB_MAX_CONTROLLER_COUNT        1
-#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS     2
-#endif
-
-/*
- * Generic Timer Definitions
- */
-#define GENERIC_TIMER_CLK		12500000
 
 #define CONFIG_SYS_CLK_FREQ		100000000
 #define CONFIG_DDR_CLK_FREQ		100000000
@@ -105,7 +87,6 @@
 	board/freescale/ls1021atwr/ls102xa_rcw_sd_ifc.cfg
 #endif
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
 
 #ifdef CONFIG_SECURE_BOOT
 /*
@@ -134,18 +115,14 @@
  * size increases then increase this size in case of secure boot as
  * it uses raw u-boot image instead of fit image.
  */
-#define CONFIG_SYS_MONITOR_LEN		(0x80000 + CONFIG_U_BOOT_HDR_SIZE)
+#define CONFIG_SYS_MONITOR_LEN		(0x100000 + CONFIG_U_BOOT_HDR_SIZE)
 #else
-#define CONFIG_SYS_MONITOR_LEN		0x80000
+#define CONFIG_SYS_MONITOR_LEN		0x100000
 #endif /* ifdef CONFIG_U_BOOT_HDR_SIZE */
 #endif
 
 #ifdef CONFIG_QSPI_BOOT
-#define CONFIG_SYS_TEXT_BASE		0x40010000
-#endif
-
-#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#define CONFIG_SYS_NO_FLASH
+#define CONFIG_SYS_TEXT_BASE		0x40100000
 #endif
 
 #ifndef CONFIG_SYS_TEXT_BASE
@@ -159,11 +136,10 @@
 #define CONFIG_SYS_DDR_SDRAM_BASE      0x80000000UL
 #define CONFIG_SYS_SDRAM_BASE          CONFIG_SYS_DDR_SDRAM_BASE
 
-#define CONFIG_FSL_CAAM			/* Enable CAAM */
-
 #if !defined(CONFIG_SD_BOOT) && !defined(CONFIG_NAND_BOOT) && \
 	!defined(CONFIG_QSPI_BOOT)
 #define CONFIG_U_QE
+#define CONFIG_SYS_QE_FMAN_FW_IN_NOR
 #endif
 
 /*
@@ -271,8 +247,6 @@
 #define CONFIG_SYS_NS16550_CLK		get_serial_clock()
 #endif
 
-#define CONFIG_BAUDRATE			115200
-
 /*
  * I2C
  */
@@ -295,9 +269,6 @@
  * MMC
  */
 #define CONFIG_FSL_ESDHC
-#define CONFIG_GENERIC_MMC
-
-#define CONFIG_DOS_PARTITION
 
 /* SPI */
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
@@ -317,10 +288,7 @@
 /*
  * Video
  */
-#define CONFIG_FSL_DCU_FB
-
-#ifdef CONFIG_FSL_DCU_FB
-#define CONFIG_CMD_BMP
+#ifdef CONFIG_VIDEO_FSL_DCU_FB
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 
@@ -358,8 +326,6 @@
 
 #define CONFIG_ETHPRIME			"eTSEC1"
 
-#define CONFIG_PHY_GIGE
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_ATHEROS
 
 #define CONFIG_HAS_ETH0
@@ -370,53 +336,165 @@
 /* PCIe */
 #define CONFIG_PCIE1		/* PCIE controller 1 */
 #define CONFIG_PCIE2		/* PCIE controller 2 */
-#define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
-#define FSL_PCIE_COMPAT "fsl,ls1021a-pcie"
-
-#define CONFIG_SYS_PCI_64BIT
-
-#define CONFIG_SYS_PCIE_CFG0_PHYS_OFF	0x00000000
-#define CONFIG_SYS_PCIE_CFG0_SIZE	0x00001000	/* 4k */
-#define CONFIG_SYS_PCIE_CFG1_PHYS_OFF	0x00001000
-#define CONFIG_SYS_PCIE_CFG1_SIZE	0x00001000	/* 4k */
-
-#define CONFIG_SYS_PCIE_IO_BUS		0x00000000
-#define CONFIG_SYS_PCIE_IO_PHYS_OFF	0x00010000
-#define CONFIG_SYS_PCIE_IO_SIZE		0x00010000	/* 64k */
-
-#define CONFIG_SYS_PCIE_MEM_BUS		0x08000000
-#define CONFIG_SYS_PCIE_MEM_PHYS_OFF	0x04000000
-#define CONFIG_SYS_PCIE_MEM_SIZE	0x08000000	/* 128M */
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_SCAN_SHOW
-#define CONFIG_CMD_PCI
 #endif
 
 #define CONFIG_CMDLINE_TAG
-#define CONFIG_CMDLINE_EDITING
 
 #define CONFIG_PEN_ADDR_BIG_ENDIAN
 #define CONFIG_LAYERSCAPE_NS_ACCESS
 #define CONFIG_SMP_PEN_ADDR		0x01ee0200
-#define CONFIG_TIMER_CLK_FREQ		12500000
+#define COUNTER_FREQUENCY		12500000
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		256
 
 #define CONFIG_FSL_DEVICE_DISABLE
 
+#include <config_distro_defaults.h>
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(USB, usb, 0)
+#include <config_distro_bootcmd.h>
 
 #ifdef CONFIG_LPUART
 #define CONFIG_EXTRA_ENV_SETTINGS       \
 	"bootargs=root=/dev/ram0 rw console=ttyLP0,115200\0" \
 	"initrd_high=0xffffffff\0"      \
-	"fdt_high=0xffffffff\0"
+	"fdt_high=0xffffffff\0"		\
+	"fdt_addr=0x64f00000\0"		\
+	"kernel_addr=0x65000000\0"	\
+	"scriptaddr=0x80000000\0"	\
+	"scripthdraddr=0x80080000\0"	\
+	"fdtheader_addr_r=0x80100000\0"	\
+	"kernelheader_addr_r=0x80200000\0"	\
+	"kernel_addr_r=0x81000000\0"	\
+	"fdt_addr_r=0x90000000\0"	\
+	"ramdisk_addr_r=0xa0000000\0"	\
+	"load_addr=0xa0000000\0"	\
+	"kernel_size=0x2800000\0"	\
+	"kernel_addr_sd=0x8000\0"	\
+	"kernel_size_sd=0x14000\0"	\
+	BOOTENV				\
+	"boot_scripts=ls1021atwr_boot.scr\0"	\
+	"boot_script_hdr=hdr_ls1021atwr_bs.out\0"	\
+		"scan_dev_for_boot_part="	\
+			"part list ${devtype} ${devnum} devplist; "	\
+			"env exists devplist || setenv devplist 1; "	\
+			"for distro_bootpart in ${devplist}; do "	\
+			"if fstype ${devtype} "				\
+				"${devnum}:${distro_bootpart} "		\
+				"bootfstype; then "			\
+				"run scan_dev_for_boot; "		\
+			"fi; "			\
+		"done\0"			\
+	"scan_dev_for_boot="				  \
+		"echo Scanning ${devtype} "		  \
+				"${devnum}:${distro_bootpart}...; "  \
+		"for prefix in ${boot_prefixes}; do "	  \
+			"run scan_dev_for_scripts; "	  \
+		"done;"					  \
+		"\0"					  \
+	"boot_a_script="				  \
+		"load ${devtype} ${devnum}:${distro_bootpart} "  \
+			"${scriptaddr} ${prefix}${script}; "    \
+		"env exists secureboot && load ${devtype} "     \
+			"${devnum}:${distro_bootpart} "		\
+			"${scripthdraddr} ${prefix}${boot_script_hdr} " \
+			"&& esbc_validate ${scripthdraddr};"    \
+		"source ${scriptaddr}\0"	  \
+	"installer=load mmc 0:2 $load_addr "	\
+		"/flex_installer_arm32.itb; "		\
+		"bootm $load_addr#ls1021atwr\0"	\
+	"qspi_bootcmd=echo Trying load from qspi..;"	\
+		"sf probe && sf read $load_addr "	\
+		"$kernel_addr $kernel_size && bootm $load_addr#$board\0"	\
+	"nor_bootcmd=echo Trying load from nor..;"	\
+		"cp.b $kernel_addr $load_addr "		\
+		"$kernel_size && bootm $load_addr#$board\0"
 #else
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"bootargs=root=/dev/ram0 rw console=ttyS0,115200\0" \
 	"initrd_high=0xffffffff\0"      \
-	"fdt_high=0xffffffff\0"
+	"fdt_high=0xffffffff\0"		\
+	"fdt_addr=0x64f00000\0"		\
+	"kernel_addr=0x61000000\0"	\
+	"kernelheader_addr=0x60800000\0"	\
+	"scriptaddr=0x80000000\0"	\
+	"scripthdraddr=0x80080000\0"	\
+	"fdtheader_addr_r=0x80100000\0"	\
+	"kernelheader_addr_r=0x80200000\0"	\
+	"kernel_addr_r=0x81000000\0"	\
+	"kernelheader_size=0x40000\0"	\
+	"fdt_addr_r=0x90000000\0"	\
+	"ramdisk_addr_r=0xa0000000\0"	\
+	"load_addr=0xa0000000\0"	\
+	"kernel_size=0x2800000\0"	\
+	"kernel_addr_sd=0x8000\0"	\
+	"kernel_size_sd=0x14000\0"	\
+	"kernelhdr_addr_sd=0x4000\0"		\
+	"kernelhdr_size_sd=0x10\0"		\
+	BOOTENV				\
+	"boot_scripts=ls1021atwr_boot.scr\0"	\
+	"boot_script_hdr=hdr_ls1021atwr_bs.out\0"	\
+		"scan_dev_for_boot_part="	\
+			"part list ${devtype} ${devnum} devplist; "	\
+			"env exists devplist || setenv devplist 1; "	\
+			"for distro_bootpart in ${devplist}; do "	\
+			"if fstype ${devtype} "				\
+				"${devnum}:${distro_bootpart} "		\
+				"bootfstype; then "			\
+				"run scan_dev_for_boot; "		\
+			"fi; "			\
+		"done\0"			\
+	"scan_dev_for_boot="				  \
+		"echo Scanning ${devtype} "		  \
+				"${devnum}:${distro_bootpart}...; "  \
+		"for prefix in ${boot_prefixes}; do "	  \
+			"run scan_dev_for_scripts; "	  \
+		"done;"					  \
+		"\0"					  \
+	"boot_a_script="				  \
+		"load ${devtype} ${devnum}:${distro_bootpart} "  \
+			"${scriptaddr} ${prefix}${script}; "    \
+		"env exists secureboot && load ${devtype} "     \
+			"${devnum}:${distro_bootpart} "		\
+			"${scripthdraddr} ${prefix}${boot_script_hdr} " \
+			"&& esbc_validate ${scripthdraddr};"    \
+		"source ${scriptaddr}\0"	  \
+	"qspi_bootcmd=echo Trying load from qspi..;"	\
+		"sf probe && sf read $load_addr "	\
+		"$kernel_addr $kernel_size; env exists secureboot "	\
+		"&& sf read $kernelheader_addr_r $kernelheader_addr "	\
+		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; " \
+		"bootm $load_addr#$board\0" \
+	"nor_bootcmd=echo Trying load from nor..;"	\
+		"cp.b $kernel_addr $load_addr "		\
+		"$kernel_size; env exists secureboot "	\
+		"&& cp.b $kernelheader_addr $kernelheader_addr_r "	\
+		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; " \
+		"bootm $load_addr#$board\0"	\
+	"sd_bootcmd=echo Trying load from SD ..;"       \
+		"mmcinfo && mmc read $load_addr "	\
+		"$kernel_addr_sd $kernel_size_sd && "	\
+		"env exists secureboot && mmc read $kernelheader_addr_r "		\
+		"$kernelhdr_addr_sd $kernelhdr_size_sd "		\
+		" && esbc_validate ${kernelheader_addr_r};"	\
+		"bootm $load_addr#$board\0"
+#endif
+
+#undef CONFIG_BOOTCOMMAND
+#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd"	\
+			   "env exists secureboot && esbc_halt"
+#elif defined(CONFIG_SD_BOOT)
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;"
+#else
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run nor_bootcmd;"	\
+			   "env exists secureboot && esbc_halt;"
 #endif
 
 /*
@@ -424,11 +502,6 @@
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
-#define CONFIG_SYS_PBSIZE		\
-		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		0x9fffffff
@@ -436,12 +509,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x82000000
 
 #define CONFIG_LS102XA_STREAM_ID
-
-/*
- * Stack sizes
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE		(30 * 1024)
 
 #define CONFIG_SYS_INIT_SP_OFFSET \
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
@@ -454,7 +521,7 @@
 #define CONFIG_SYS_MONITOR_BASE CONFIG_SYS_TEXT_BASE    /* start of monitor */
 #endif
 
-#define CONFIG_SYS_QE_FW_ADDR     0x600c0000
+#define CONFIG_SYS_QE_FW_ADDR     0x60940000
 
 /*
  * Environment
@@ -462,29 +529,20 @@
 #define CONFIG_ENV_OVERWRITE
 
 #if defined(CONFIG_SD_BOOT)
-#define CONFIG_ENV_OFFSET		0x100000
-#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_ENV_OFFSET		0x300000
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_SIZE			0x20000
 #elif defined(CONFIG_QSPI_BOOT)
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_ENV_OFFSET		0x100000
+#define CONFIG_ENV_OFFSET		0x300000
 #define CONFIG_ENV_SECT_SIZE		0x10000
 #else
-#define CONFIG_ENV_IS_IN_FLASH
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x300000)
 #define CONFIG_ENV_SIZE			0x20000
 #define CONFIG_ENV_SECT_SIZE		0x20000 /* 128K (one sector) */
 #endif
 
 #define CONFIG_MISC_INIT_R
-
-/* Hash command with SHA acceleration supported in hardware */
-#ifdef CONFIG_FSL_CAAM
-#define CONFIG_CMD_HASH
-#define CONFIG_SHA_HW_ACCEL
-#endif
 
 #include <asm/fsl_secure_boot.h>
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20) /* Increase max gunzip size */

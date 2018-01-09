@@ -1341,56 +1341,7 @@ static int at91_stop(struct usb_gadget *gadget)
 
 /*-------------------------------------------------------------------------*/
 
-static int at91rm9200_udc_init(struct at91_udc *udc)
-{
-	struct at91_ep *ep;
-	int ret;
-	int i;
-
-	for (i = 0; i < NUM_ENDPOINTS; i++) {
-		ep = &udc->ep[i];
-
-		switch (i) {
-		case 0:
-		case 3:
-			ep->maxpacket = 8;
-			break;
-		case 1 ... 2:
-			ep->maxpacket = 64;
-			break;
-		case 4 ... 5:
-			ep->maxpacket = 256;
-			break;
-		}
-	}
-
-	ret = gpio_request(udc->board.pullup_pin, "udc_pullup");
-	if (ret) {
-		DBG("D+ pullup is busy\n");
-		return ret;
-	}
-
-	gpio_direction_output(udc->board.pullup_pin,
-			      udc->board.pullup_active_low);
-
-	return 0;
-}
-
-static void at91rm9200_udc_pullup(struct at91_udc *udc, int is_on)
-{
-	int active = !udc->board.pullup_active_low;
-
-	if (is_on)
-		gpio_set_value(udc->board.pullup_pin, active);
-	else
-		gpio_set_value(udc->board.pullup_pin, !active);
-}
-
-static const struct at91_udc_caps at91rm9200_udc_caps = {
-	.init = at91rm9200_udc_init,
-	.pullup = at91rm9200_udc_pullup,
-};
-
+#if defined(CONFIG_AT91SAM9260) || defined(CONFIG_AT91SAM9G20)
 static int at91sam9260_udc_init(struct at91_udc *udc)
 {
 	struct at91_ep *ep;
@@ -1412,7 +1363,6 @@ static int at91sam9260_udc_init(struct at91_udc *udc)
 	return 0;
 }
 
-#if defined(CONFIG_AT91SAM9260) || defined(CONFIG_AT91SAM9G20)
 static void at91sam9260_udc_pullup(struct at91_udc *udc, int is_on)
 {
 	u32 txvc = at91_udp_read(udc, AT91_UDP_TXVC);
@@ -1478,36 +1428,6 @@ static const struct at91_udc_caps at91sam9261_udc_caps = {
 };
 #endif
 
-static int at91sam9263_udc_init(struct at91_udc *udc)
-{
-	struct at91_ep *ep;
-	int i;
-
-	for (i = 0; i < NUM_ENDPOINTS; i++) {
-		ep = &udc->ep[i];
-
-		switch (i) {
-		case 0:
-		case 1:
-		case 2:
-		case 3:
-			ep->maxpacket = 64;
-			break;
-		case 4:
-		case 5:
-			ep->maxpacket = 256;
-			break;
-		}
-	}
-
-	return 0;
-}
-
-static const struct at91_udc_caps at91sam9263_udc_caps = {
-	.init = at91sam9263_udc_init,
-	.pullup = at91sam9260_udc_pullup,
-};
-
 int usb_gadget_handle_interrupts(int index)
 {
 	struct at91_udc *udc = controller;
@@ -1536,7 +1456,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 
 	ret = driver->bind(&udc->gadget);
 	if (ret) {
-		error("driver->bind() returned %d\n", ret);
+		pr_err("driver->bind() returned %d\n", ret);
 		udc->driver = NULL;
 	}
 
@@ -1548,7 +1468,7 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 	struct at91_udc *udc = controller;
 
 	if (!driver || !driver->unbind || !driver->disconnect) {
-		error("bad paramter\n");
+		pr_err("bad paramter\n");
 		return -EINVAL;
 	}
 

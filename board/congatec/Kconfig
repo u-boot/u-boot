@@ -12,12 +12,25 @@ choice
 
 config TARGET_CONGA_QEVAL20_QA3_E3845
 	bool "congatec QEVAL 2.0 & conga-QA3/E3845"
+	select BOARD_LATE_INIT
+	imply SCSI
 	help
 	  This is the congatec Qseven 2.0 evaluation carrier board
 	  (conga-QEVAL) equipped with the conga-QA3/E3845-4G SoM.
 	  It contains an Atom E3845 with Ethernet, micro-SD, USB 2,
 	  USB 3, SATA, serial console and HDMI 1.3 video out.
 	  It requires some binary blobs - see README.x86 for details.
+
+	  Note that PCIE_ECAM_BASE is set up by the FSP so the value used
+	  by U-Boot matches that value.
+
+config TARGET_THEADORABLE_X86_CONGA_QA3_E3845
+	bool "theadorable-x86 baseboard & conga-QA3/E3845"
+	help
+	  This is the theadorable-x86 baseboard board equipped with the
+	  conga-QA3/E3845-4G SoM. It contains an Atom E3845 with Ethernet,
+	  micro-SD, USB 2, USB 3, SATA, serial console and HDMI 1.3 video
+	  out. It requires some binary blobs - see README.x86 for details.
 
 	  Note that PCIE_ECAM_BASE is set up by the FSP so the value used
 	  by U-Boot matches that value.

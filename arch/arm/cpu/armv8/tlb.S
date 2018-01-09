@@ -14,7 +14,8 @@
  * void __asm_invalidate_tlb_all(void)
  *
  * invalidate all tlb entries.
- */
+*/
+.pushsection .text.__asm_invalidate_tlb_all, "ax"
 ENTRY(__asm_invalidate_tlb_all)
 	switch_el x9, 3f, 2f, 1f
 3:	tlbi	alle3
@@ -31,3 +32,4 @@ ENTRY(__asm_invalidate_tlb_all)
 0:
 	ret
 ENDPROC(__asm_invalidate_tlb_all)
+.popsection

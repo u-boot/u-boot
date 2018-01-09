@@ -125,7 +125,16 @@ def set_var(state_test_env, var, value):
         Nothing.
     """
 
-    state_test_env.u_boot_console.run_command('setenv %s "%s"' % (var, value))
+    bc = state_test_env.u_boot_console.config.buildconfig
+    if bc.get('config_hush_parser', None):
+        quote = '"'
+    else:
+        quote = ''
+        if ' ' in value:
+            pytest.skip('Space in variable value on non-Hush shell')
+
+    state_test_env.u_boot_console.run_command(
+        'setenv %s %s%s%s' % (var, quote, value, quote))
     state_test_env.env[var] = value
 
 def validate_empty(state_test_env, var):

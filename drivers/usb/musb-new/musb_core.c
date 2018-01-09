@@ -116,12 +116,9 @@ static inline struct musb *dev_to_musb(struct device *dev)
 {
 	return dev_get_drvdata(dev);
 }
-#endif
 
 /*-------------------------------------------------------------------------*/
 
-#ifndef __UBOOT__
-#ifndef CONFIG_BLACKFIN
 static int musb_ulpi_read(struct usb_phy *phy, u32 offset)
 {
 	void __iomem *addr = phy->io_priv;
@@ -203,10 +200,6 @@ out:
 
 	return ret;
 }
-#else
-#define musb_ulpi_read		NULL
-#define musb_ulpi_write		NULL
-#endif
 
 static struct usb_phy_io_ops musb_ulpi_access = {
 	.read = musb_ulpi_read,
@@ -216,7 +209,7 @@ static struct usb_phy_io_ops musb_ulpi_access = {
 
 /*-------------------------------------------------------------------------*/
 
-#if !defined(CONFIG_USB_MUSB_TUSB6010) && !defined(CONFIG_USB_MUSB_BLACKFIN)
+#if !defined(CONFIG_USB_MUSB_TUSB6010)
 
 /*
  * Load an endpoint's FIFO

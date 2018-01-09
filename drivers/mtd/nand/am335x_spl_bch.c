@@ -49,6 +49,13 @@ static int nand_command(int block, int page, uint32_t offs,
 
 	if (cmd == NAND_CMD_RESET) {
 		hwctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
+
+		/*
+		 * Apply this short delay always to ensure that we do wait
+		 * tWB in any case on any machine.
+		 */
+		ndelay(150);
+
 		while (!this->dev_ready(mtd))
 			;
 		return 0;
@@ -78,22 +85,43 @@ static int nand_command(int block, int page, uint32_t offs,
 
 	hwctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
 
-	if (cmd == NAND_CMD_READ0) {
+
+	/*
+	 * Program and erase have their own busy handlers status, sequential
+	 * in and status need no delay.
+	 */
+	switch (cmd) {
+	case NAND_CMD_CACHEDPROG:
+	case NAND_CMD_PAGEPROG:
+	case NAND_CMD_ERASE1:
+	case NAND_CMD_ERASE2:
+	case NAND_CMD_SEQIN:
+	case NAND_CMD_RNDIN:
+	case NAND_CMD_STATUS:
+		return 0;
+
+	case NAND_CMD_RNDOUT:
+		/* No ready / busy check necessary */
+		hwctrl(mtd, NAND_CMD_RNDOUTSTART, NAND_CTRL_CLE |
+		       NAND_CTRL_CHANGE);
+		hwctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
+		return 0;
+
+	case NAND_CMD_READ0:
 		/* Latch in address */
 		hwctrl(mtd, NAND_CMD_READSTART,
-			   NAND_CTRL_CLE | NAND_CTRL_CHANGE);
-		hwctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
-
-		/*
-		 * Wait a while for the data to be ready
-		 */
-		while (!this->dev_ready(mtd))
-			;
-	} else if (cmd == NAND_CMD_RNDOUT) {
-		hwctrl(mtd, NAND_CMD_RNDOUTSTART, NAND_CTRL_CLE |
-					NAND_CTRL_CHANGE);
+		       NAND_CTRL_CLE | NAND_CTRL_CHANGE);
 		hwctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
 	}
+
+	/*
+	 * Apply this short delay always to ensure that we do wait tWB in
+	 * any case on any machine.
+	 */
+	ndelay(150);
+
+	while (!this->dev_ready(mtd))
+		;
 
 	return 0;
 }
@@ -170,53 +198,6 @@ static int nand_read_page(int block, int page, void *dst)
 	return 0;
 }
 
-int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst)
-{
-	unsigned int block, lastblock;
-	unsigned int page, page_offset;
-
-	/*
-	 * offs has to be aligned to a page address!
-	 */
-	block = offs / CONFIG_SYS_NAND_BLOCK_SIZE;
-	lastblock = (offs + size - 1) / CONFIG_SYS_NAND_BLOCK_SIZE;
-	page = (offs % CONFIG_SYS_NAND_BLOCK_SIZE) / CONFIG_SYS_NAND_PAGE_SIZE;
-	page_offset = offs % CONFIG_SYS_NAND_PAGE_SIZE;
-
-	while (block <= lastblock) {
-		if (!nand_is_bad_block(block)) {
-			/*
-			 * Skip bad blocks
-			 */
-			while (page < CONFIG_SYS_NAND_PAGE_COUNT) {
-				nand_read_page(block, page, dst);
-				/*
-				 * When offs is not aligned to page address the
-				 * extra offset is copied to dst as well. Copy
-				 * the image such that its first byte will be
-				 * at the dst.
-				 */
-				if (unlikely(page_offset)) {
-					memmove(dst, dst + page_offset,
-						CONFIG_SYS_NAND_PAGE_SIZE);
-					dst = (void *)((int)dst - page_offset);
-					page_offset = 0;
-				}
-				dst += CONFIG_SYS_NAND_PAGE_SIZE;
-				page++;
-			}
-
-			page = 0;
-		} else {
-			lastblock++;
-		}
-
-		block++;
-	}
-
-	return 0;
-}
-
 /* nand_init() - initialize data to make nand usable by SPL */
 void nand_init(void)
 {
@@ -241,3 +222,5 @@ void nand_deselect(void)
 	if (nand_chip.select_chip)
 		nand_chip.select_chip(mtd, -1);
 }
+
+#include "nand_spl_loaders.c"

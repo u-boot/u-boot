@@ -1,9 +1,0 @@
-if TARGET_MUNICES
-
-config SYS_BOARD
-	default "munices"
-
-config SYS_CONFIG_NAME
-	default "munices"
-
-endif

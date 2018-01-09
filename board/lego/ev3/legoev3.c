@@ -25,8 +25,10 @@
 #include <asm/arch/davinci_misc.h>
 #include <linux/errno.h>
 #include <hwconfig.h>
+#include <asm/mach-types.h>
+#include <asm/setup.h>
 
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 #include <mmc.h>
 #include <asm/arch/sdmmc_defs.h>
 #endif
@@ -39,7 +41,7 @@ u8 board_rev;
 #define EEPROM_REV_OFFSET	0x3F00
 #define EEPROM_MAC_OFFSET	0x3F06
 
-#ifdef CONFIG_DAVINCI_MMC
+#ifdef CONFIG_MMC_DAVINCI
 static struct davinci_mmc mmc_sd0 = {
 	.reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE,
 	.host_caps = MMC_MODE_4BIT,     /* DA850 supports only 4-bit SD/MMC */
@@ -145,9 +147,7 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-#ifndef CONFIG_USE_IRQ
 	irq_init();
-#endif
 
 	/* arch number of the board */
 	/* LEGO didn't register for a unique number and uses da850evm */

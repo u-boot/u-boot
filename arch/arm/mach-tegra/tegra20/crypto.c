@@ -8,7 +8,7 @@
 #include <common.h>
 #include <linux/errno.h>
 #include "crypto.h"
-#include "aes.h"
+#include "uboot_aes.h"
 
 static u8 zero_key[16];
 

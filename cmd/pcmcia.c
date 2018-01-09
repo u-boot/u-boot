@@ -83,10 +83,6 @@ U_BOOT_CMD(
 
 #undef	CHECK_IDE_DEVICE
 
-#if defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_8xx_PCCARD)
-#define	CHECK_IDE_DEVICE
-#endif
-
 #if	defined(CONFIG_PXA_PCMCIA)
 #define	CHECK_IDE_DEVICE
 #endif

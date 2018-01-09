@@ -6,13 +6,19 @@ source "drivers/core/Kconfig"
 
 source "drivers/adc/Kconfig"
 
+source "drivers/ata/Kconfig"
+
 source "drivers/block/Kconfig"
+
+source "drivers/bootcount/Kconfig"
 
 source "drivers/clk/Kconfig"
 
 source "drivers/cpu/Kconfig"
 
 source "drivers/crypto/Kconfig"
+
+source "drivers/ddr/Kconfig"
 
 source "drivers/demo/Kconfig"
 
@@ -22,11 +28,11 @@ source "drivers/dfu/Kconfig"
 
 source "drivers/dma/Kconfig"
 
+source "drivers/firmware/Kconfig"
+
 source "drivers/fpga/Kconfig"
 
 source "drivers/gpio/Kconfig"
-
-source "drivers/hwmon/Kconfig"
 
 source "drivers/i2c/Kconfig"
 
@@ -46,9 +52,13 @@ source "drivers/mtd/Kconfig"
 
 source "drivers/net/Kconfig"
 
+source "drivers/nvme/Kconfig"
+
 source "drivers/pci/Kconfig"
 
 source "drivers/pcmcia/Kconfig"
+
+source "drivers/phy/Kconfig"
 
 source "drivers/phy/marvell/Kconfig"
 
@@ -65,6 +75,8 @@ source "drivers/remoteproc/Kconfig"
 source "drivers/reset/Kconfig"
 
 source "drivers/rtc/Kconfig"
+
+source "drivers/scsi/Kconfig"
 
 source "drivers/serial/Kconfig"
 

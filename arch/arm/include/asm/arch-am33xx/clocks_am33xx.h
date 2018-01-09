@@ -16,13 +16,8 @@
 #define MPUPLL_M_800	800
 #define MPUPLL_M_720	720
 #define MPUPLL_M_600	600
-#define MPUPLL_M_550	550
+#define MPUPLL_M_500	500
 #define MPUPLL_M_300	300
-
-/* MAIN PLL Fdll = 550 MHz, by default */
-#ifndef CONFIG_SYS_MPUCLK
-#define CONFIG_SYS_MPUCLK	MPUPLL_M_550
-#endif
 
 #define UART_RESET		(0x1 << 1)
 #define UART_CLK_RUNNING_MASK	0x1
@@ -31,7 +26,10 @@
 #define CM_DLL_CTRL_NO_OVERRIDE	0x0
 #define CM_DLL_READYST		0x4
 
+#define NUM_OPPS	6
+
 extern void enable_dmm_clocks(void);
+extern void enable_emif_clocks(void);
 extern const struct dpll_params dpll_core_opp100;
 extern struct dpll_params dpll_mpu_opp100;
 

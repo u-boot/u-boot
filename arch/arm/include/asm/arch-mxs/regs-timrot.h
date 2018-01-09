@@ -12,7 +12,7 @@
 #ifndef __MX28_REGS_TIMROT_H__
 #define __MX28_REGS_TIMROT_H__
 
-#include <asm/imx-common/regs-common.h>
+#include <asm/mach-imx/regs-common.h>
 
 #ifndef	__ASSEMBLY__
 struct mxs_timrot_regs {

@@ -15,7 +15,6 @@
 #define	CONFIG_CPU_PXA27X		1	/* Marvell PXA270 CPU */
 #define	CONFIG_SYS_TEXT_BASE		0x0
 
-#undef	CONFIG_BOARD_LATE_INIT
 #undef	CONFIG_SKIP_LOWLEVEL_INIT
 #define	CONFIG_PREBOOT
 
@@ -23,7 +22,6 @@
  * Environment settings
  */
 #define	CONFIG_ENV_OVERWRITE
-#define CONFIG_ENV_IS_IN_FLASH		1
 #define CONFIG_ENV_ADDR			0x40000
 #define CONFIG_ENV_SIZE			0x10000
 
@@ -37,13 +35,10 @@
 	"else "								\
 		"bootm 0x50000; "					\
 	"fi; "
-#define	CONFIG_BOOTARGS							\
-	"console=tty0 console=ttyS2,115200 fbcon=rotate:3"
 #define	CONFIG_TIMESTAMP
 #define	CONFIG_CMDLINE_TAG
 #define	CONFIG_SETUP_MEMORY_TAGS
 #define	CONFIG_SYS_TEXT_BASE		0x0
-#define	CONFIG_LZMA			/* LZMA compression support */
 
 /*
  * Serial Console Configuration
@@ -51,21 +46,17 @@
  */
 #define	CONFIG_STUART			1
 #define CONFIG_CONS_INDEX		2
-#define	CONFIG_BAUDRATE			115200
 
 /*
  * Bootloader Components Configuration
  */
-#define	CONFIG_CMD_ENV
 
 /*
  * MMC Card Configuration
  */
 #ifdef	CONFIG_CMD_MMC
-#define	CONFIG_GENERIC_MMC
 #define	CONFIG_PXA_MMC_GENERIC
 #define	CONFIG_SYS_MMC_BASE		0xF0000000
-#define	CONFIG_DOS_PARTITION
 #endif
 
 /*
@@ -89,10 +80,7 @@ unsigned char zipitz2_spi_read(void);
 #endif
 
 #define	CONFIG_SYS_LONGHELP				/* undef to save memory	*/
-#define	CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size */
-#define	CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
-#define	CONFIG_SYS_MAXARGS		16		/* max number of command args */
-#define	CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
+
 #define	CONFIG_SYS_DEVICE_NULLDEV	1
 
 /*

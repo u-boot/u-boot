@@ -84,7 +84,7 @@ uchar enetaddr[6];
 eth_parse_enetaddr(addr, enetaddr);
 /* enetaddr now equals { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55 } */
 
-	* int eth_getenv_enetaddr(char *name, uchar *enetaddr);
+	* int eth_env_get_enetaddr(char *name, uchar *enetaddr);
 
 Look up an environment variable and convert the stored address.  If the address
 is valid, then the function returns 1.  Otherwise, the function returns 0.  In
@@ -92,18 +92,18 @@ all cases, the enetaddr memory is initialized.  If the env var is not found,
 then it is set to all zeros.  The common function is_valid_ethaddr() is used
 to determine address validity.
 uchar enetaddr[6];
-if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
+if (!eth_env_get_enetaddr("ethaddr", enetaddr)) {
 	/* "ethaddr" is not set in the environment */
 	... try and setup "ethaddr" in the env ...
 }
 /* enetaddr is now set to the value stored in the ethaddr env var */
 
-	* int eth_setenv_enetaddr(char *name, const uchar *enetaddr);
+	* int eth_env_set_enetaddr(char *name, const uchar *enetaddr);
 
 Store the MAC address into the named environment variable.  The return value is
-the same as the setenv() function.
+the same as the env_set() function.
 uchar enetaddr[6] = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55 };
-eth_setenv_enetaddr("ethaddr", enetaddr);
+eth_env_set_enetaddr("ethaddr", enetaddr);
 /* the "ethaddr" env var should now be set to "00:11:22:33:44:55" */
 
 	* the %pM format modifier

@@ -29,7 +29,7 @@ static int do_unzip(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 
 	printf("Uncompressed size: %ld = 0x%lX\n", src_len, src_len);
-	setenv_hex("filesize", src_len);
+	env_set_hex("filesize", src_len);
 
 	return 0;
 }

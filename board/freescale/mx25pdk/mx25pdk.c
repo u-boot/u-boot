@@ -175,6 +175,12 @@ int board_mmc_init(bd_t *bis)
 
 	imx_iomux_v3_setup_multiple_pads(sdhc1_pads, ARRAY_SIZE(sdhc1_pads));
 
+	/*
+	 * Set the eSDHC1 PER clock to the maximum frequency lower than or equal
+	 * to 50 MHz that can be obtained, which requires to use UPLL as the
+	 * clock source. This actually gives 48 MHz.
+	 */
+	imx_set_perclk(MXC_ESDHC1_CLK, true, 50000000);
 	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC1_CLK);
 	return fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
 }

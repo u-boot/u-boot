@@ -64,6 +64,7 @@ read_eeprom(int bus, struct ventana_board_info *info)
 	if (strncasecmp((const char *)info->model, "GW5400-A", 8) == 0)
 		baseboard = '0';
 
+	type = GW_UNKNOWN;
 	switch (baseboard) {
 	case '0': /* original GW5400-A prototype */
 		type = GW54proto;
@@ -91,10 +92,16 @@ read_eeprom(int bus, struct ventana_board_info *info)
 			type = GW553x;
 			break;
 		}
-		/* fall through */
-	default:
-		printf("EEPROM: Unknown model in EEPROM: %s\n", info->model);
-		type = GW_UNKNOWN;
+		break;
+	case '6':
+		if (info->model[4] == '0')
+			type = GW560x;
+		break;
+	case '9':
+		if (info->model[4] == '0' && info->model[5] == '3')
+			type = GW5903;
+		if (info->model[4] == '0' && info->model[5] == '4')
+			type = GW5904;
 		break;
 	}
 	return type;

@@ -99,10 +99,10 @@ static int count_usb_devices(void)
 	return count;
 }
 
-/* test that we can remove an emulated device and it is then not found */
-static int dm_test_usb_remove(struct unit_test_state *uts)
+/* test that no USB devices are found after we stop the stack */
+static int dm_test_usb_stop(struct unit_test_state *uts)
 {
-	struct udevice *dev, *emul;
+	struct udevice *dev;
 
 	/* Scan and check that all devices are present */
 	state_set_skip_delays(true);
@@ -112,164 +112,11 @@ static int dm_test_usb_remove(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 2, &dev));
 	ut_asserteq(6, count_usb_devices());
 	ut_assertok(usb_stop());
-	ut_asserteq(6, count_usb_devices());
-
-	/* Remove the second emulation device */
-	ut_assertok(uclass_find_device_by_name(UCLASS_USB_EMUL, "flash-stick@1",
-					       &dev));
-	ut_assertok(device_unbind(dev));
-
-	/* Rescan - only the first and third should be present */
-	ut_assertok(usb_init());
-	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 0, &dev));
-	ut_assertok(usb_emul_find_for_dev(dev, &emul));
-	ut_asserteq_str("flash-stick@0", emul->name);
-	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 1, &dev));
-	ut_assertok(usb_emul_find_for_dev(dev, &emul));
-	ut_asserteq_str("flash-stick@2", emul->name);
-
-	ut_asserteq(-ENODEV, uclass_get_device(UCLASS_MASS_STORAGE, 2, &dev));
-
-	ut_asserteq(5, count_usb_devices());
-	ut_assertok(usb_stop());
-	ut_asserteq(5, count_usb_devices());
+	ut_asserteq(0, count_usb_devices());
 
 	return 0;
 }
-DM_TEST(dm_test_usb_remove, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
-
-const char usb_tree_base[] =
-"  1  Hub (12 Mb/s, 100mA)\n"
-"  |  sandbox hub 2345\n"
-"  |\n"
-"  |\b+-2  Mass Storage (12 Mb/s, 100mA)\n"
-"  |    sandbox flash flash-stick@0\n"
-"  |  \n"
-"  |\b+-3  Mass Storage (12 Mb/s, 100mA)\n"
-"  |    sandbox flash flash-stick@1\n"
-"  |  \n"
-"  |\b+-4  Mass Storage (12 Mb/s, 100mA)\n"
-"  |    sandbox flash flash-stick@2\n"
-"  |  \n"
-"  |\b+-5  Human Interface (12 Mb/s, 100mA)\n"
-"       sandbox keyboard keyb@3\n"
-"     \n";
-
-/* test that the 'usb tree' command output looks correct */
-static int dm_test_usb_tree(struct unit_test_state *uts)
-{
-	char *data;
-	int len;
-
-	state_set_skip_delays(true);
-	ut_assertok(usb_init());
-	console_record_reset_enable();
-	usb_show_tree();
-	len = membuff_getraw(&gd->console_out, -1, true, &data);
-	if (len)
-		data[len] = '\0';
-	ut_asserteq_str(usb_tree_base, data);
-	ut_assertok(usb_stop());
-
-	return 0;
-}
-DM_TEST(dm_test_usb_tree, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
-
-const char usb_tree_remove[] =
-"  1  Hub (12 Mb/s, 100mA)\n"
-"  |  sandbox hub 2345\n"
-"  |\n"
-"  |\b+-2  Mass Storage (12 Mb/s, 100mA)\n"
-"  |    sandbox flash flash-stick@0\n"
-"  |  \n"
-"  |\b+-3  Mass Storage (12 Mb/s, 100mA)\n"
-"  |    sandbox flash flash-stick@2\n"
-"  |  \n"
-"  |\b+-4  Human Interface (12 Mb/s, 100mA)\n"
-"       sandbox keyboard keyb@3\n"
-"     \n";
-
-/*
- * test that the 'usb tree' command output looks correct when we remove a
- * device
- */
-static int dm_test_usb_tree_remove(struct unit_test_state *uts)
-{
-	struct udevice *dev;
-	char *data;
-	int len;
-
-	/* Remove the second emulation device */
-	ut_assertok(uclass_find_device_by_name(UCLASS_USB_EMUL, "flash-stick@1",
-					       &dev));
-	ut_assertok(device_unbind(dev));
-
-	state_set_skip_delays(true);
-	ut_assertok(usb_init());
-	console_record_reset_enable();
-	usb_show_tree();
-	len = membuff_getraw(&gd->console_out, -1, true, &data);
-	if (len)
-		data[len] = '\0';
-	ut_asserteq_str(usb_tree_remove, data);
-	ut_assertok(usb_stop());
-
-	return 0;
-}
-DM_TEST(dm_test_usb_tree_remove, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
-
-const char usb_tree_reorder[] =
-"  1  Hub (12 Mb/s, 100mA)\n"
-"  |  sandbox hub 2345\n"
-"  |\n"
-"  |\b+-2  Mass Storage (12 Mb/s, 100mA)\n"
-"  |    sandbox flash flash-stick@0\n"
-"  |  \n"
-"  |\b+-3  Mass Storage (12 Mb/s, 100mA)\n"
-"  |    sandbox flash flash-stick@2\n"
-"  |  \n"
-"  |\b+-4  Human Interface (12 Mb/s, 100mA)\n"
-"  |    sandbox keyboard keyb@3\n"
-"  |  \n"
-"  |\b+-5  Mass Storage (12 Mb/s, 100mA)\n"
-"       sandbox flash flash-stick@1\n"
-"     \n";
-
-/*
- * test that the 'usb tree' command output looks correct when we reorder two
- * devices.
- */
-static int dm_test_usb_tree_reorder(struct unit_test_state *uts)
-{
-	struct udevice *dev, *parent;
-	char *data;
-	int len;
-
-	/* Remove the second emulation device */
-	ut_assertok(uclass_find_device_by_name(UCLASS_USB_EMUL, "flash-stick@1",
-					       &dev));
-	parent = dev->parent;
-
-	/* Reorder the devices in the parent list and uclass list */
-	list_del(&dev->sibling_node);
-	list_add_tail(&dev->sibling_node, &parent->child_head);
-
-	list_del(&dev->uclass_node);
-	list_add_tail(&dev->uclass_node, &dev->uclass->dev_head);
-
-	state_set_skip_delays(true);
-	ut_assertok(usb_init());
-	console_record_reset_enable();
-	usb_show_tree();
-	len = membuff_getraw(&gd->console_out, -1, true, &data);
-	if (len)
-		data[len] = '\0';
-	ut_asserteq_str(usb_tree_reorder, data);
-	ut_assertok(usb_stop());
-
-	return 0;
-}
-DM_TEST(dm_test_usb_tree_reorder, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+DM_TEST(dm_test_usb_stop, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 static int dm_test_usb_keyb(struct unit_test_state *uts)
 {

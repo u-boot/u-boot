@@ -68,7 +68,7 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 		if (numeric != -1) {
 			offset = numeric - uc_priv->gpio_base;
 			/* Allow GPIOs to be numbered from 0 */
-			if (offset >= 0 && offset < uc_priv->gpio_count)
+			if (offset < uc_priv->gpio_count)
 				break;
 		}
 
@@ -114,9 +114,8 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
 	return 0;
 }
 
-int gpio_xlate_offs_flags(struct udevice *dev,
-					 struct gpio_desc *desc,
-					 struct fdtdec_phandle_args *args)
+int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
+			  struct ofnode_phandle_args *args)
 {
 	if (args->args_count < 1)
 		return -EINVAL;
@@ -133,7 +132,7 @@ int gpio_xlate_offs_flags(struct udevice *dev,
 }
 
 static int gpio_find_and_xlate(struct gpio_desc *desc,
-			       struct fdtdec_phandle_args *args)
+			       struct ofnode_phandle_args *args)
 {
 	struct dm_gpio_ops *ops = gpio_get_ops(desc->dev);
 
@@ -495,8 +494,8 @@ static const char * const gpio_function[GPIOF_COUNT] = {
 	"func",
 };
 
-int get_function(struct udevice *dev, int offset, bool skip_unused,
-		 const char **namep)
+static int get_function(struct udevice *dev, int offset, bool skip_unused,
+			const char **namep)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct dm_gpio_ops *ops = gpio_get_ops(dev);
@@ -642,37 +641,30 @@ int dm_gpio_get_values_as_int(const struct gpio_desc *desc_list, int count)
 	return vector;
 }
 
-static int _gpio_request_by_name_nodev(const void *blob, int node,
-				       const char *list_name, int index,
-				       struct gpio_desc *desc, int flags,
-				       bool add_index)
+static int gpio_request_tail(int ret, ofnode node,
+			     struct ofnode_phandle_args *args,
+			     const char *list_name, int index,
+			     struct gpio_desc *desc, int flags, bool add_index)
 {
-	struct fdtdec_phandle_args args;
-	int ret;
-
 	desc->dev = NULL;
 	desc->offset = 0;
 	desc->flags = 0;
-	ret = fdtdec_parse_phandle_with_args(blob, node, list_name,
-					     "#gpio-cells", 0, index, &args);
-	if (ret) {
-		debug("%s: fdtdec_parse_phandle_with_args failed\n", __func__);
+	if (ret)
 		goto err;
-	}
 
-	ret = uclass_get_device_by_of_offset(UCLASS_GPIO, args.node,
-					     &desc->dev);
+	ret = uclass_get_device_by_ofnode(UCLASS_GPIO, args->node,
+					  &desc->dev);
 	if (ret) {
 		debug("%s: uclass_get_device_by_of_offset failed\n", __func__);
 		goto err;
 	}
-	ret = gpio_find_and_xlate(desc, &args);
+	ret = gpio_find_and_xlate(desc, args);
 	if (ret) {
 		debug("%s: gpio_find_and_xlate failed\n", __func__);
 		goto err;
 	}
 	ret = dm_gpio_requestf(desc, add_index ? "%s.%s%d" : "%s.%s",
-			       fdt_get_name(blob, node, NULL),
+			       ofnode_get_name(node),
 			       list_name, index);
 	if (ret) {
 		debug("%s: dm_gpio_requestf failed\n", __func__);
@@ -687,32 +679,45 @@ static int _gpio_request_by_name_nodev(const void *blob, int node,
 	return 0;
 err:
 	debug("%s: Node '%s', property '%s', failed to request GPIO index %d: %d\n",
-	      __func__, fdt_get_name(blob, node, NULL), list_name, index, ret);
+	      __func__, ofnode_get_name(node), list_name, index, ret);
 	return ret;
 }
 
-int gpio_request_by_name_nodev(const void *blob, int node,
-			       const char *list_name, int index,
+static int _gpio_request_by_name_nodev(ofnode node, const char *list_name,
+				       int index, struct gpio_desc *desc,
+				       int flags, bool add_index)
+{
+	struct ofnode_phandle_args args;
+	int ret;
+
+	ret = ofnode_parse_phandle_with_args(node, list_name, "#gpio-cells", 0,
+					     index, &args);
+
+	return gpio_request_tail(ret, node, &args, list_name, index, desc,
+				 flags, add_index);
+}
+
+int gpio_request_by_name_nodev(ofnode node, const char *list_name, int index,
 			       struct gpio_desc *desc, int flags)
 {
-	return _gpio_request_by_name_nodev(blob, node, list_name, index, desc,
-					   flags, index > 0);
+	return _gpio_request_by_name_nodev(node, list_name, index, desc, flags,
+					   index > 0);
 }
 
-int gpio_request_by_name(struct udevice *dev,  const char *list_name, int index,
+int gpio_request_by_name(struct udevice *dev, const char *list_name, int index,
 			 struct gpio_desc *desc, int flags)
 {
-	/*
-	 * This isn't ideal since we don't use dev->name in the debug()
-	 * calls in gpio_request_by_name(), but we can do this until
-	 * gpio_request_by_name_nodev() can be dropped.
-	 */
-	return gpio_request_by_name_nodev(gd->fdt_blob, dev->of_offset,
-					  list_name, index, desc, flags);
+	struct ofnode_phandle_args args;
+	int ret;
+
+	ret = dev_read_phandle_with_args(dev, list_name, "#gpio-cells", 0,
+					 index, &args);
+
+	return gpio_request_tail(ret, dev_ofnode(dev), &args, list_name,
+				 index, desc, flags, index > 0);
 }
 
-int gpio_request_list_by_name_nodev(const void *blob, int node,
-				    const char *list_name,
+int gpio_request_list_by_name_nodev(ofnode node, const char *list_name,
 				    struct gpio_desc *desc, int max_count,
 				    int flags)
 {
@@ -720,7 +725,7 @@ int gpio_request_list_by_name_nodev(const void *blob, int node,
 	int ret;
 
 	for (count = 0; count < max_count; count++) {
-		ret = _gpio_request_by_name_nodev(blob, node, list_name, count,
+		ret = _gpio_request_by_name_nodev(node, list_name, count,
 						  &desc[count], flags, true);
 		if (ret == -ENOENT)
 			break;
@@ -746,16 +751,15 @@ int gpio_request_list_by_name(struct udevice *dev, const char *list_name,
 	 * calls in gpio_request_by_name(), but we can do this until
 	 * gpio_request_list_by_name_nodev() can be dropped.
 	 */
-	return gpio_request_list_by_name_nodev(gd->fdt_blob, dev->of_offset,
-					       list_name, desc, max_count,
-					       flags);
+	return gpio_request_list_by_name_nodev(dev_ofnode(dev), list_name, desc,
+					       max_count, flags);
 }
 
 int gpio_get_list_count(struct udevice *dev, const char *list_name)
 {
 	int ret;
 
-	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev->of_offset,
+	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev_of_offset(dev),
 					     list_name, "#gpio-cells", 0, -1,
 					     NULL);
 	if (ret) {

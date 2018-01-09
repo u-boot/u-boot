@@ -347,8 +347,8 @@ static int dmmc_init(struct mmc *mmc)
 	return 0;
 }
 
-/* Set buswidth or clock as indicated by the GENERIC_MMC framework */
-static void dmmc_set_ios(struct mmc *mmc)
+/* Set buswidth or clock as indicated by the MMC framework */
+static int dmmc_set_ios(struct mmc *mmc)
 {
 	struct davinci_mmc *host = mmc->priv;
 	struct davinci_mmc_regs *regs = host->reg_base;
@@ -362,6 +362,8 @@ static void dmmc_set_ios(struct mmc *mmc)
 	/* Set clock speed */
 	if (mmc->clock)
 		dmmc_set_clock(mmc, mmc->clock);
+
+	return 0;
 }
 
 static const struct mmc_ops dmmc_ops = {

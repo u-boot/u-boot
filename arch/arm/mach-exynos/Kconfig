@@ -7,6 +7,7 @@ choice
 config ARCH_EXYNOS4
 	bool "Exynos4 SoC family"
 	select CPU_V7
+	select BOARD_EARLY_INIT_F
 	help
 	  Samsung Exynos4 SoC family are based on ARM Cortex-A9 CPU. There
 	  are multiple SoCs in this family including Exynos4210, Exynos4412,
@@ -15,6 +16,14 @@ config ARCH_EXYNOS4
 config ARCH_EXYNOS5
 	bool "Exynos5 SoC family"
 	select CPU_V7
+	select BOARD_EARLY_INIT_F
+	select SHA_HW_ACCEL
+	imply CRC32_VERIFY
+	imply CMD_HASH
+	imply HASH_VERIFY
+	imply USB_ETHER_RTL8152
+	imply USB_ETHER_ASIX
+	imply USB_ETHER_SMSC95XX
 	help
 	  Samsung Exynos5 SoC family are based on ARM Cortex-A15 CPU (and
 	  Cortex-A7 CPU in big.LITTLE configuration). There are multiple SoCs
@@ -23,6 +32,7 @@ config ARCH_EXYNOS5
 config ARCH_EXYNOS7
 	bool "Exynos7 SoC family"
 	select ARM64
+	select BOARD_EARLY_INIT_F
 	help
 	  Samsung Exynos7 SoC family are based on ARM Cortex-A57 CPU or
 	  Cortex-A53 CPU (and some in a big.LITTLE configuration). There are
@@ -79,6 +89,8 @@ config TARGET_ODROID_XU3
 
 config TARGET_ARNDALE
 	bool "Exynos5250 Arndale board"
+	select ARM_ERRATA_773022
+	select ARM_ERRATA_774769
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select SUPPORT_SPL
@@ -150,5 +162,8 @@ source "board/samsung/arndale/Kconfig"
 source "board/samsung/smdk5250/Kconfig"
 source "board/samsung/smdk5420/Kconfig"
 source "board/samsung/espresso7420/Kconfig"
+
+config SPL_LDSCRIPT
+	default "board/samsung/common/exynos-uboot-spl.lds" if ARCH_EXYNOS5 || ARCH_EXYNOS4
 
 endif

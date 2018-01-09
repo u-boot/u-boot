@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <ahci.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <asm/io.h>
@@ -39,7 +40,7 @@ static void bd82x6x_sata_init(struct udevice *dev, struct udevice *pch)
 {
 	unsigned int port_map, speed_support, port_tx;
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	const char *mode;
 	u32 reg32;
 	u16 reg16;
@@ -53,7 +54,7 @@ static void bd82x6x_sata_init(struct udevice *dev, struct udevice *pch)
 
 	mode = fdt_getprop(blob, node, "intel,sata-mode", NULL);
 	if (!mode || !strcmp(mode, "ahci")) {
-		u32 abar;
+		ulong abar;
 
 		debug("SATA: Controller in AHCI mode\n");
 
@@ -72,7 +73,7 @@ static void bd82x6x_sata_init(struct udevice *dev, struct udevice *pch)
 
 		/* Initialize AHCI memory-mapped space */
 		abar = dm_pci_read_bar32(dev, 5);
-		debug("ABAR: %08X\n", abar);
+		debug("ABAR: %08lx\n", abar);
 		/* CAP (HBA Capabilities) : enable power management */
 		reg32 = readl(abar + 0x00);
 		reg32 |= 0x0c006000;  /* set PSC+SSC+SALP+SSS */
@@ -190,7 +191,7 @@ static void bd82x6x_sata_init(struct udevice *dev, struct udevice *pch)
 static void bd82x6x_sata_enable(struct udevice *dev)
 {
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	unsigned port_map;
 	const char *mode;
 	u16 map = 0;
@@ -208,6 +209,20 @@ static void bd82x6x_sata_enable(struct udevice *dev)
 	dm_pci_write_config16(dev, 0x90, map);
 }
 
+static int bd82x6x_sata_bind(struct udevice *dev)
+{
+	struct udevice *scsi_dev;
+	int ret;
+
+	if (gd->flags & GD_FLG_RELOC) {
+		ret = ahci_bind_scsi(dev, &scsi_dev);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
 static int bd82x6x_sata_probe(struct udevice *dev)
 {
 	struct udevice *pch;
@@ -219,8 +234,12 @@ static int bd82x6x_sata_probe(struct udevice *dev)
 
 	if (!(gd->flags & GD_FLG_RELOC))
 		bd82x6x_sata_enable(dev);
-	else
+	else {
 		bd82x6x_sata_init(dev, pch);
+		ret = ahci_probe_scsi_pci(dev);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
@@ -234,5 +253,6 @@ U_BOOT_DRIVER(ahci_ivybridge_drv) = {
 	.name		= "ahci_ivybridge",
 	.id		= UCLASS_AHCI,
 	.of_match	= bd82x6x_ahci_ids,
+	.bind		= bd82x6x_sata_bind,
 	.probe		= bd82x6x_sata_probe,
 };

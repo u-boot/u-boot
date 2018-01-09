@@ -121,7 +121,7 @@ void set_muxconf_regs(void)
 	}
 }
 
-#ifdef CONFIG_GENERIC_MMC
+#ifdef CONFIG_MMC
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0, -1, -1);

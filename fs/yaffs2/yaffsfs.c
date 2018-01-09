@@ -3018,7 +3018,7 @@ int yaffs_symlink(const YCHAR *oldpath, const YCHAR *newpath)
 		yaffsfs_SetError(-ENFILE);
 	else if (parent->my_dev->read_only)
 		yaffsfs_SetError(-EROFS);
-	else if (parent) {
+	else {
 		obj = yaffs_create_symlink(parent, name, mode, 0, 0, oldpath);
 		if (obj)
 			retVal = 0;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Broadcom Corporation.
+ * Copyright 2014-2017 Broadcom.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -27,6 +27,10 @@
 		countdown -= 10; \
 	} \
 }
+
+#define RX_BUF_SIZE_ALIGNED	ALIGN(RX_BUF_SIZE, ARCH_DMA_MINALIGN)
+#define TX_BUF_SIZE_ALIGNED	ALIGN(TX_BUF_SIZE, ARCH_DMA_MINALIGN)
+#define DESCP_SIZE_ALIGNED	ALIGN(sizeof(dma64dd_t), ARCH_DMA_MINALIGN)
 
 static int gmac_disable_dma(struct eth_dma *dma, int dir);
 static int gmac_enable_dma(struct eth_dma *dma, int dir);
@@ -114,7 +118,7 @@ static void dma_tx_dump(struct eth_dma *dma)
 	printf("TX Buffers:\n");
 	/* Initialize TX DMA descriptor table */
 	for (i = 0; i < TX_BUF_NUM; i++) {
-		bufp = (uint8_t *)(dma->tx_buf + i * TX_BUF_SIZE);
+		bufp = (uint8_t *)(dma->tx_buf + i * TX_BUF_SIZE_ALIGNED);
 		printf("buf%d:0x%x; ", i, (uint32_t)bufp);
 	}
 	printf("\n");
@@ -145,7 +149,7 @@ static void dma_rx_dump(struct eth_dma *dma)
 
 	printf("RX Buffers:\n");
 	for (i = 0; i < RX_BUF_NUM; i++) {
-		bufp = dma->rx_buf + i * RX_BUF_SIZE;
+		bufp = dma->rx_buf + i * RX_BUF_SIZE_ALIGNED;
 		printf("buf%d:0x%x; ", i, (uint32_t)bufp);
 	}
 	printf("\n");
@@ -163,15 +167,15 @@ static int dma_tx_init(struct eth_dma *dma)
 
 	/* clear descriptor memory */
 	memset((void *)(dma->tx_desc_aligned), 0,
-	       TX_BUF_NUM * sizeof(dma64dd_t));
-	memset(dma->tx_buf, 0, TX_BUF_NUM * TX_BUF_SIZE);
+	       TX_BUF_NUM * DESCP_SIZE_ALIGNED);
+	memset(dma->tx_buf, 0, TX_BUF_NUM * TX_BUF_SIZE_ALIGNED);
 
 	/* Initialize TX DMA descriptor table */
 	for (i = 0; i < TX_BUF_NUM; i++) {
 		descp = (dma64dd_t *)(dma->tx_desc_aligned) + i;
-		bufp = dma->tx_buf + i * TX_BUF_SIZE;
+		bufp = dma->tx_buf + i * TX_BUF_SIZE_ALIGNED;
 		/* clear buffer memory */
-		memset((void *)bufp, 0, TX_BUF_SIZE);
+		memset((void *)bufp, 0, TX_BUF_SIZE_ALIGNED);
 
 		ctrl = 0;
 		/* if last descr set endOfTable */
@@ -187,10 +191,11 @@ static int dma_tx_init(struct eth_dma *dma)
 	descp = dma->tx_desc_aligned;
 	bufp = dma->tx_buf;
 	flush_dcache_range((unsigned long)descp,
-			   (unsigned long)(descp +
-					   sizeof(dma64dd_t) * TX_BUF_NUM));
-	flush_dcache_range((unsigned long)(bufp),
-			   (unsigned long)(bufp + TX_BUF_SIZE * TX_BUF_NUM));
+			   (unsigned long)descp +
+			   DESCP_SIZE_ALIGNED * TX_BUF_NUM);
+	flush_dcache_range((unsigned long)bufp,
+			   (unsigned long)bufp +
+			   TX_BUF_SIZE_ALIGNED * TX_BUF_NUM);
 
 	/* initialize the DMA channel */
 	writel((uint32_t)(dma->tx_desc_aligned), GMAC0_DMA_TX_ADDR_LOW_ADDR);
@@ -215,20 +220,20 @@ static int dma_rx_init(struct eth_dma *dma)
 
 	/* clear descriptor memory */
 	memset((void *)(dma->rx_desc_aligned), 0,
-	       RX_BUF_NUM * sizeof(dma64dd_t));
+	       RX_BUF_NUM * DESCP_SIZE_ALIGNED);
 	/* clear buffer memory */
-	memset(dma->rx_buf, 0, RX_BUF_NUM * RX_BUF_SIZE);
+	memset(dma->rx_buf, 0, RX_BUF_NUM * RX_BUF_SIZE_ALIGNED);
 
 	/* Initialize RX DMA descriptor table */
 	for (i = 0; i < RX_BUF_NUM; i++) {
 		descp = (dma64dd_t *)(dma->rx_desc_aligned) + i;
-		bufp = dma->rx_buf + i * RX_BUF_SIZE;
+		bufp = dma->rx_buf + i * RX_BUF_SIZE_ALIGNED;
 		ctrl = 0;
 		/* if last descr set endOfTable */
 		if (i == (RX_BUF_NUM - 1))
 			ctrl = D64_CTRL1_EOT;
 		descp->ctrl1 = ctrl;
-		descp->ctrl2 = RX_BUF_SIZE;
+		descp->ctrl2 = RX_BUF_SIZE_ALIGNED;
 		descp->addrlow = (uint32_t)bufp;
 		descp->addrhigh = 0;
 
@@ -240,10 +245,11 @@ static int dma_rx_init(struct eth_dma *dma)
 	bufp = dma->rx_buf;
 	/* flush descriptor and buffer */
 	flush_dcache_range((unsigned long)descp,
-			   (unsigned long)(descp +
-					   sizeof(dma64dd_t) * RX_BUF_NUM));
+			   (unsigned long)descp +
+			   DESCP_SIZE_ALIGNED * RX_BUF_NUM);
 	flush_dcache_range((unsigned long)(bufp),
-			   (unsigned long)(bufp + RX_BUF_SIZE * RX_BUF_NUM));
+			   (unsigned long)bufp +
+			   RX_BUF_SIZE_ALIGNED * RX_BUF_NUM);
 
 	/* initailize the DMA channel */
 	writel((uint32_t)descp, GMAC0_DMA_RX_ADDR_LOW_ADDR);
@@ -292,14 +298,12 @@ static int dma_deinit(struct eth_dma *dma)
 
 	free(dma->tx_buf);
 	dma->tx_buf = NULL;
-	free(dma->tx_desc);
-	dma->tx_desc = NULL;
+	free(dma->tx_desc_aligned);
 	dma->tx_desc_aligned = NULL;
 
 	free(dma->rx_buf);
 	dma->rx_buf = NULL;
-	free(dma->rx_desc);
-	dma->rx_desc = NULL;
+	free(dma->rx_desc_aligned);
 	dma->rx_desc_aligned = NULL;
 
 	return 0;
@@ -307,7 +311,7 @@ static int dma_deinit(struct eth_dma *dma)
 
 int gmac_tx_packet(struct eth_dma *dma, void *packet, int length)
 {
-	uint8_t *bufp = dma->tx_buf + dma->cur_tx_index * TX_BUF_SIZE;
+	uint8_t *bufp = dma->tx_buf + dma->cur_tx_index * TX_BUF_SIZE_ALIGNED;
 
 	/* kick off the dma */
 	size_t len = length;
@@ -348,10 +352,11 @@ int gmac_tx_packet(struct eth_dma *dma, void *packet, int length)
 	descp->ctrl2 = ctrl;
 
 	/* flush descriptor and buffer */
-	flush_dcache_range((unsigned long)descp,
-			   (unsigned long)(descp + sizeof(dma64dd_t)));
+	flush_dcache_range((unsigned long)dma->tx_desc_aligned,
+			   (unsigned long)dma->tx_desc_aligned +
+			   DESCP_SIZE_ALIGNED * TX_BUF_NUM);
 	flush_dcache_range((unsigned long)bufp,
-			   (unsigned long)(bufp + TX_BUF_SIZE));
+			   (unsigned long)bufp + TX_BUF_SIZE_ALIGNED);
 
 	/* now update the dma last descriptor */
 	writel(last_desc, GMAC0_DMA_TX_PTR_ADDR);
@@ -426,14 +431,15 @@ int gmac_check_rx_done(struct eth_dma *dma, uint8_t *buf)
 		;
 
 	/* get the packet pointer that corresponds to the rx descriptor */
-	bufp = dma->rx_buf + index * RX_BUF_SIZE;
+	bufp = dma->rx_buf + index * RX_BUF_SIZE_ALIGNED;
 
 	descp = (dma64dd_t *)(dma->rx_desc_aligned) + index;
 	/* flush descriptor and buffer */
-	flush_dcache_range((unsigned long)descp,
-			   (unsigned long)(descp + sizeof(dma64dd_t)));
+	flush_dcache_range((unsigned long)dma->rx_desc_aligned,
+			   (unsigned long)dma->rx_desc_aligned +
+			   DESCP_SIZE_ALIGNED * RX_BUF_NUM);
 	flush_dcache_range((unsigned long)bufp,
-			   (unsigned long)(bufp + RX_BUF_SIZE));
+			   (unsigned long)bufp + RX_BUF_SIZE_ALIGNED);
 
 	buflen = (descp->ctrl2 & D64_CTRL2_BC_MASK);
 
@@ -457,12 +463,13 @@ int gmac_check_rx_done(struct eth_dma *dma, uint8_t *buf)
 	memcpy(buf, datap, rcvlen);
 
 	/* update descriptor that is being added back on ring */
-	descp->ctrl2 = RX_BUF_SIZE;
+	descp->ctrl2 = RX_BUF_SIZE_ALIGNED;
 	descp->addrlow = (uint32_t)bufp;
 	descp->addrhigh = 0;
 	/* flush descriptor */
-	flush_dcache_range((unsigned long)descp,
-			   (unsigned long)(descp + sizeof(dma64dd_t)));
+	flush_dcache_range((unsigned long)dma->rx_desc_aligned,
+			   (unsigned long)dma->rx_desc_aligned +
+			   DESCP_SIZE_ALIGNED * RX_BUF_NUM);
 
 	/* set the lastdscr for the rx ring */
 	writel(((uint32_t)descp) & D64_XP_LD_MASK, GMAC0_DMA_RX_PTR_ADDR);
@@ -573,7 +580,7 @@ static int gmac_enable_dma(struct eth_dma *dma, int dir)
 		 * set the lastdscr for the rx ring
 		 */
 		writel(((uint32_t)(dma->rx_desc_aligned) +
-			(RX_BUF_NUM - 1) * RX_BUF_SIZE) &
+			(RX_BUF_NUM - 1) * RX_BUF_SIZE_ALIGNED) &
 		       D64_XP_LD_MASK, GMAC0_DMA_RX_PTR_ADDR);
 	}
 
@@ -603,7 +610,7 @@ int gmac_miiphy_read(struct mii_dev *bus, int phyaddr, int devad, int reg)
 
 	/* Busy wait timeout is 1ms */
 	if (gmac_mii_busywait(1000)) {
-		error("%s: Prepare MII read: MII/MDIO busy\n", __func__);
+		pr_err("%s: Prepare MII read: MII/MDIO busy\n", __func__);
 		return -1;
 	}
 
@@ -615,7 +622,7 @@ int gmac_miiphy_read(struct mii_dev *bus, int phyaddr, int devad, int reg)
 	writel(tmp, GMAC_MII_DATA_ADDR);
 
 	if (gmac_mii_busywait(1000)) {
-		error("%s: MII read failure: MII/MDIO busy\n", __func__);
+		pr_err("%s: MII read failure: MII/MDIO busy\n", __func__);
 		return -1;
 	}
 
@@ -631,7 +638,7 @@ int gmac_miiphy_write(struct mii_dev *bus, int phyaddr, int devad, int reg,
 
 	/* Busy wait timeout is 1ms */
 	if (gmac_mii_busywait(1000)) {
-		error("%s: Prepare MII write: MII/MDIO busy\n", __func__);
+		pr_err("%s: Prepare MII write: MII/MDIO busy\n", __func__);
 		return -1;
 	}
 
@@ -644,7 +651,7 @@ int gmac_miiphy_write(struct mii_dev *bus, int phyaddr, int devad, int reg,
 	writel(tmp, GMAC_MII_DATA_ADDR);
 
 	if (gmac_mii_busywait(1000)) {
-		error("%s: MII write failure: MII/MDIO busy\n", __func__);
+		pr_err("%s: MII write failure: MII/MDIO busy\n", __func__);
 		return -1;
 	}
 
@@ -735,7 +742,7 @@ int gmac_set_speed(int speed, int duplex)
 	} else if (speed == 10) {
 		speed_cfg = 0;
 	} else {
-		error("%s: Invalid GMAC speed(%d)!\n", __func__, speed);
+		pr_err("%s: Invalid GMAC speed(%d)!\n", __func__, speed);
 		return -1;
 	}
 
@@ -813,7 +820,7 @@ int gmac_mac_init(struct eth_device *dev)
 	writel(0, GMAC0_INT_STATUS_ADDR);
 
 	if (dma_init(dma) < 0) {
-		error("%s: GMAC dma_init failed\n", __func__);
+		pr_err("%s: GMAC dma_init failed\n", __func__);
 		goto err_exit;
 	}
 
@@ -848,7 +855,7 @@ int gmac_mac_init(struct eth_device *dev)
 	writel(tmp, GMAC_MII_CTRL_ADDR);
 
 	if (gmac_mii_busywait(1000)) {
-		error("%s: Configure MDIO: MII/MDIO busy\n", __func__);
+		pr_err("%s: Configure MDIO: MII/MDIO busy\n", __func__);
 		goto err_exit;
 	}
 
@@ -893,54 +900,52 @@ int gmac_add(struct eth_device *dev)
 	void *tmp;
 
 	/*
-	 * Desc has to be 16-byte aligned ?
-	 * If it is 8-byte aligned by malloc, fail Tx
+	 * Desc has to be 16-byte aligned. But for dcache flush it must be
+	 * aligned to ARCH_DMA_MINALIGN.
 	 */
-	tmp = malloc(sizeof(dma64dd_t) * TX_BUF_NUM + 8);
+	tmp = memalign(ARCH_DMA_MINALIGN, DESCP_SIZE_ALIGNED * TX_BUF_NUM);
 	if (tmp == NULL) {
 		printf("%s: Failed to allocate TX desc Buffer\n", __func__);
 		return -1;
 	}
 
-	dma->tx_desc = (void *)tmp;
-	dma->tx_desc_aligned = (void *)(((uint32_t)tmp) & (~0xf));
+	dma->tx_desc_aligned = (void *)tmp;
 	debug("TX Descriptor Buffer: %p; length: 0x%x\n",
-	      dma->tx_desc_aligned, sizeof(dma64dd_t) * TX_BUF_NUM);
+	      dma->tx_desc_aligned, DESCP_SIZE_ALIGNED * TX_BUF_NUM);
 
-	tmp = malloc(TX_BUF_SIZE * TX_BUF_NUM);
+	tmp = memalign(ARCH_DMA_MINALIGN, TX_BUF_SIZE_ALIGNED * TX_BUF_NUM);
 	if (tmp == NULL) {
 		printf("%s: Failed to allocate TX Data Buffer\n", __func__);
-		free(dma->tx_desc);
+		free(dma->tx_desc_aligned);
 		return -1;
 	}
 	dma->tx_buf = (uint8_t *)tmp;
 	debug("TX Data Buffer: %p; length: 0x%x\n",
-	      dma->tx_buf, TX_BUF_SIZE * TX_BUF_NUM);
+	      dma->tx_buf, TX_BUF_SIZE_ALIGNED * TX_BUF_NUM);
 
-	/* Desc has to be 16-byte aligned ? */
-	tmp = malloc(sizeof(dma64dd_t) * RX_BUF_NUM + 8);
+	/* Desc has to be 16-byte aligned */
+	tmp = memalign(ARCH_DMA_MINALIGN, DESCP_SIZE_ALIGNED * RX_BUF_NUM);
 	if (tmp == NULL) {
 		printf("%s: Failed to allocate RX Descriptor\n", __func__);
-		free(dma->tx_desc);
+		free(dma->tx_desc_aligned);
 		free(dma->tx_buf);
 		return -1;
 	}
-	dma->rx_desc = tmp;
-	dma->rx_desc_aligned = (void *)(((uint32_t)tmp) & (~0xf));
+	dma->rx_desc_aligned = (void *)tmp;
 	debug("RX Descriptor Buffer: %p, length: 0x%x\n",
-	      dma->rx_desc_aligned, sizeof(dma64dd_t) * RX_BUF_NUM);
+	      dma->rx_desc_aligned, DESCP_SIZE_ALIGNED * RX_BUF_NUM);
 
-	tmp = malloc(RX_BUF_SIZE * RX_BUF_NUM);
+	tmp = memalign(ARCH_DMA_MINALIGN, RX_BUF_SIZE_ALIGNED * RX_BUF_NUM);
 	if (tmp == NULL) {
 		printf("%s: Failed to allocate RX Data Buffer\n", __func__);
-		free(dma->tx_desc);
+		free(dma->tx_desc_aligned);
 		free(dma->tx_buf);
-		free(dma->rx_desc);
+		free(dma->rx_desc_aligned);
 		return -1;
 	}
-	dma->rx_buf = tmp;
+	dma->rx_buf = (uint8_t *)tmp;
 	debug("RX Data Buffer: %p; length: 0x%x\n",
-	      dma->rx_buf, RX_BUF_SIZE * RX_BUF_NUM);
+	      dma->rx_buf, RX_BUF_SIZE_ALIGNED * RX_BUF_NUM);
 
 	g_dmactrlflags = 0;
 

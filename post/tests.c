@@ -3,10 +3,6 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * SPDX-License-Identifier:	GPL-2.0+
- *
- * Be sure to mark tests to be run before relocation as such with the
- * CONFIG_SYS_POST_PREREL flag so that logging is done correctly if the
- * logbuffer support is enabled.
  */
 
 #include <common.h>
@@ -178,18 +174,6 @@ struct post_test post_list[] =
 	NULL,
 	NULL,
 	CONFIG_SYS_POST_ETHER
-    },
-#endif
-#if CONFIG_POST & CONFIG_SYS_POST_SPI
-    {
-	"SPI test",
-	"spi",
-	"This test verifies the SPI operation.",
-	POST_RAM | POST_ALWAYS,
-	&spi_post_test,
-	NULL,
-	NULL,
-	CONFIG_SYS_POST_SPI
     },
 #endif
 #if CONFIG_POST & CONFIG_SYS_POST_USB

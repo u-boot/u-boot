@@ -1,0 +1,88 @@
+/{
+	clocks {
+		u-boot,dm-pre-reloc;
+	};
+
+	soc {
+		u-boot,dm-pre-reloc;
+		pin-controller {
+			u-boot,dm-pre-reloc;
+		};
+	};
+};
+
+&clk_hse {
+	u-boot,dm-pre-reloc;
+};
+
+&clk_lse {
+	u-boot,dm-pre-reloc;
+};
+
+&clk_i2s {
+	u-boot,dm-pre-reloc;
+};
+
+&pwrcfg {
+	u-boot,dm-pre-reloc;
+};
+
+&rcc {
+	u-boot,dm-pre-reloc;
+};
+
+&fmc {
+	u-boot,dm-pre-reloc;
+};
+
+&clk_hsi {
+	u-boot,dm-pre-reloc;
+};
+
+&clk_csi {
+	u-boot,dm-pre-reloc;
+};
+
+&gpioa {
+	u-boot,dm-pre-reloc;
+};
+
+&gpiob {
+	u-boot,dm-pre-reloc;
+};
+
+&gpioc {
+	u-boot,dm-pre-reloc;
+};
+
+&gpiod {
+	u-boot,dm-pre-reloc;
+};
+
+&gpioe {
+	u-boot,dm-pre-reloc;
+};
+
+&gpiof {
+	u-boot,dm-pre-reloc;
+};
+
+&gpiog {
+	u-boot,dm-pre-reloc;
+};
+
+&gpioh {
+	u-boot,dm-pre-reloc;
+};
+
+&gpioi {
+	u-boot,dm-pre-reloc;
+};
+
+&gpioj {
+	u-boot,dm-pre-reloc;
+};
+
+&gpiok {
+	u-boot,dm-pre-reloc;
+};

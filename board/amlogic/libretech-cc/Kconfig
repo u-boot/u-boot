@@ -1,0 +1,12 @@
+if TARGET_LIBRETECH_CC
+
+config SYS_BOARD
+	default "libretech-cc"
+
+config SYS_VENDOR
+	default "amlogic"
+
+config SYS_CONFIG_NAME
+	default "libretech-cc"
+
+endif

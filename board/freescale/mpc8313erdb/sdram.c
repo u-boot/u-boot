@@ -97,14 +97,14 @@ static long fixed_sdram(void)
 	return msize;
 }
 
-phys_size_t initdram(int board_type)
+int dram_init(void)
 {
 	volatile immap_t *im = (volatile immap_t *)CONFIG_SYS_IMMR;
 	volatile fsl_lbc_t *lbc = &im->im_lbc;
 	u32 msize;
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32)im)
-		return -1;
+		return -ENXIO;
 
 	/* DDR SDRAM - Main SODIMM */
 	msize = fixed_sdram();
@@ -120,5 +120,7 @@ phys_size_t initdram(int board_type)
 #endif
 
 	/* return total bus SDRAM size(bytes)  -- DDR */
-	return msize;
+	gd->ram_size = msize;
+
+	return 0;
 }

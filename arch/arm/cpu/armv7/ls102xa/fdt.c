@@ -94,8 +94,6 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	}
 #endif
 
-	fdt_fixup_ethernet(blob);
-
 	off = fdt_node_offset_by_prop_value(blob, -1, "device_type", "cpu", 4);
 	while (off != -FDT_ERR_NOTFOUND) {
 		val = gd->cpu_clk;

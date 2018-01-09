@@ -22,16 +22,11 @@
  */
 #ifdef CONFIG_SYS_MVFS
 #define CONFIG_BZIP2
-#define CONFIG_LZMA
 #endif /* CONFIG_SYS_MVFS */
 
 /*
  * Commands configuration
  */
-#define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_ENV
-#define CONFIG_CMD_IDE
 
 /*
  * Extra file system

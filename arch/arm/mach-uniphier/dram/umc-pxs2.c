@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2015-2017 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * based on commit 21b6e480f92ccc38fe0502e3116411d6509d3bf2 of Diag by:
  * Copyright (C) 2015 Socionext Inc.
@@ -7,11 +8,13 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <common.h>
-#include <linux/err.h>
+#include <linux/delay.h>
+#include <linux/errno.h>
 #include <linux/io.h>
+#include <linux/printk.h>
 #include <linux/sizes.h>
 #include <asm/processor.h>
+#include <time.h>
 
 #include "../init.h"
 #include "../soc-info.h"
@@ -32,6 +35,7 @@ enum dram_size {
 	DRAM_SZ_NR,
 };
 
+/* PHY */
 static u32 ddrphy_pgcr2[DRAM_FREQ_NR] = {0x00FC7E5D, 0x00FC90AB};
 static u32 ddrphy_ptr0[DRAM_FREQ_NR] = {0x0EA09205, 0x10C0A6C6};
 static u32 ddrphy_ptr1[DRAM_FREQ_NR] = {0x0DAC041B, 0x0FA104B1};
@@ -47,23 +51,6 @@ static u32 ddrphy_mr2[DRAM_FREQ_NR] = {0x000002a0, 0x000002a8};
 /* dependent on package and board design */
 static u32 ddrphy_acbdlr0[DRAM_CH_NR] = {0x0000000c, 0x0000000c, 0x00000009};
 
-static u32 umc_cmdctla[DRAM_FREQ_NR] = {0x66DD131D, 0x77EE1722};
-/*
- * The ch2 is a different generation UMC core.
- * The register spec is different, unfortunately.
- */
-static u32 umc_cmdctlb_ch01[DRAM_FREQ_NR] = {0x13E87C44, 0x18F88C44};
-static u32 umc_cmdctlb_ch2[DRAM_FREQ_NR] = {0x19E8DC44, 0x1EF8EC44};
-static u32 umc_spcctla[DRAM_FREQ_NR][DRAM_SZ_NR] = {
-	{0x004A071D, 0x0078071D},
-	{0x0055081E, 0x0089081E},
-};
-
-static u32 umc_spcctlb[] = {0x00FF000A, 0x00FF000B};
-/* The ch2 is different for some reason only hardware guys know... */
-static u32 umc_flowctla_ch01[] = {0x0800001E, 0x08000022};
-static u32 umc_flowctla_ch2[] = {0x0800001E, 0x0800001E};
-
 /* DDR multiPHY */
 static inline int ddrphy_get_rank(int dx)
 {
@@ -74,14 +61,14 @@ static void ddrphy_fifo_reset(void __iomem *phy_base)
 {
 	u32 tmp;
 
-	tmp = readl(phy_base + DMPHY_PGCR0);
-	tmp &= ~DMPHY_PGCR0_PHYFRST;
-	writel(tmp, phy_base + DMPHY_PGCR0);
+	tmp = readl(phy_base + MPHY_PGCR0);
+	tmp &= ~MPHY_PGCR0_PHYFRST;
+	writel(tmp, phy_base + MPHY_PGCR0);
 
 	udelay(1);
 
-	tmp |= DMPHY_PGCR0_PHYFRST;
-	writel(tmp, phy_base + DMPHY_PGCR0);
+	tmp |= MPHY_PGCR0_PHYFRST;
+	writel(tmp, phy_base + MPHY_PGCR0);
 
 	udelay(1);
 }
@@ -90,17 +77,17 @@ static void ddrphy_vt_ctrl(void __iomem *phy_base, int enable)
 {
 	u32 tmp;
 
-	tmp = readl(phy_base + DMPHY_PGCR1);
+	tmp = readl(phy_base + MPHY_PGCR1);
 
 	if (enable)
-		tmp &= ~DMPHY_PGCR1_INHVT;
+		tmp &= ~MPHY_PGCR1_INHVT;
 	else
-		tmp |= DMPHY_PGCR1_INHVT;
+		tmp |= MPHY_PGCR1_INHVT;
 
-	writel(tmp, phy_base + DMPHY_PGCR1);
+	writel(tmp, phy_base + MPHY_PGCR1);
 
 	if (!enable) {
-		while (!(readl(phy_base + DMPHY_PGSR1) & DMPHY_PGSR1_VTSTOP))
+		while (!(readl(phy_base + MPHY_PGSR1) & MPHY_PGSR1_VTSTOP))
 			cpu_relax();
 	}
 }
@@ -109,18 +96,18 @@ static void ddrphy_dqs_delay_fixup(void __iomem *phy_base, int nr_dx, int step)
 {
 	int dx;
 	u32 lcdlr1, rdqsd;
-	void __iomem *dx_base = phy_base + DMPHY_DX_BASE;
+	void __iomem *dx_base = phy_base + MPHY_DX_BASE;
 
 	ddrphy_vt_ctrl(phy_base, 0);
 
 	for (dx = 0; dx < nr_dx; dx++) {
-		lcdlr1 = readl(dx_base + DMPHY_DX_LCDLR1);
+		lcdlr1 = readl(dx_base + MPHY_DX_LCDLR1);
 		rdqsd = (lcdlr1 >> 8) & 0xff;
 		rdqsd = clamp(rdqsd + step, 0U, 0xffU);
 		lcdlr1 = (lcdlr1 & ~(0xff << 8)) | (rdqsd << 8);
-		writel(lcdlr1, dx_base + DMPHY_DX_LCDLR1);
-		readl(dx_base + DMPHY_DX_LCDLR1); /* relax */
-		dx_base += DMPHY_DX_STRIDE;
+		writel(lcdlr1, dx_base + MPHY_DX_LCDLR1);
+		readl(dx_base + MPHY_DX_LCDLR1); /* relax */
+		dx_base += MPHY_DX_STRIDE;
 	}
 
 	ddrphy_vt_ctrl(phy_base, 1);
@@ -128,14 +115,14 @@ static void ddrphy_dqs_delay_fixup(void __iomem *phy_base, int nr_dx, int step)
 
 static int ddrphy_get_system_latency(void __iomem *phy_base, int width)
 {
-	void __iomem *dx_base = phy_base + DMPHY_DX_BASE;
+	void __iomem *dx_base = phy_base + MPHY_DX_BASE;
 	const int nr_dx = width / 8;
 	int dx, rank;
 	u32 gtr;
 	int dgsl, dgsl_min = INT_MAX, dgsl_max = 0;
 
 	for (dx = 0; dx < nr_dx; dx++) {
-		gtr = readl(dx_base + DMPHY_DX_GTR);
+		gtr = readl(dx_base + MPHY_DX_GTR);
 		for (rank = 0; rank < 4; rank++) {
 			dgsl = gtr & 0x7;
 			/* if dgsl is zero, this rank was not trained. skip. */
@@ -145,11 +132,11 @@ static int ddrphy_get_system_latency(void __iomem *phy_base, int width)
 			}
 			gtr >>= 3;
 		}
-		dx_base += DMPHY_DX_STRIDE;
+		dx_base += MPHY_DX_STRIDE;
 	}
 
 	if (dgsl_min != dgsl_max)
-		printf("DQS Gateing System Latencies are not all leveled.\n");
+		pr_warn("DQS Gateing System Latencies are not all leveled.\n");
 
 	return dgsl_max;
 }
@@ -164,86 +151,86 @@ static void ddrphy_init(void __iomem *phy_base, enum dram_freq freq, int width,
 
 	nr_dx = width / 8;
 
-	writel(DMPHY_PIR_ZCALBYP,        phy_base + DMPHY_PIR);
+	writel(MPHY_PIR_ZCALBYP, phy_base + MPHY_PIR);
 	/*
 	 * Disable RGLVT bit (Read DQS Gating LCDL Delay VT Compensation)
 	 * to avoid read error issue.
 	 */
-	writel(0x07d81e37,         phy_base + DMPHY_PGCR0);
-	writel(0x0200c4e0,         phy_base + DMPHY_PGCR1);
+	writel(0x07d81e37, phy_base + MPHY_PGCR0);
+	writel(0x0200c4e0, phy_base + MPHY_PGCR1);
 
 	tmp = ddrphy_pgcr2[freq];
 	if (width >= 32)
-		tmp |= DMPHY_PGCR2_DUALCHN | DMPHY_PGCR2_ACPDDC;
-	writel(tmp, phy_base + DMPHY_PGCR2);
+		tmp |= MPHY_PGCR2_DUALCHN | MPHY_PGCR2_ACPDDC;
+	writel(tmp, phy_base + MPHY_PGCR2);
 
-	writel(ddrphy_ptr0[freq],  phy_base + DMPHY_PTR0);
-	writel(ddrphy_ptr1[freq],  phy_base + DMPHY_PTR1);
-	writel(0x00083def,         phy_base + DMPHY_PTR2);
-	writel(ddrphy_ptr3[freq],  phy_base + DMPHY_PTR3);
-	writel(ddrphy_ptr4[freq],  phy_base + DMPHY_PTR4);
+	writel(ddrphy_ptr0[freq], phy_base + MPHY_PTR0);
+	writel(ddrphy_ptr1[freq], phy_base + MPHY_PTR1);
+	writel(0x00083def, phy_base + MPHY_PTR2);
+	writel(ddrphy_ptr3[freq], phy_base + MPHY_PTR3);
+	writel(ddrphy_ptr4[freq], phy_base + MPHY_PTR4);
 
-	writel(ddrphy_acbdlr0[ch], phy_base + DMPHY_ACBDLR0);
+	writel(ddrphy_acbdlr0[ch], phy_base + MPHY_ACBDLR0);
 
-	writel(0x55555555, phy_base + DMPHY_ACIOCR1);
-	writel(0x00000000, phy_base + DMPHY_ACIOCR2);
-	writel(0x55555555, phy_base + DMPHY_ACIOCR3);
-	writel(0x00000000, phy_base + DMPHY_ACIOCR4);
-	writel(0x00000055, phy_base + DMPHY_ACIOCR5);
-	writel(0x00181aa4, phy_base + DMPHY_DXCCR);
+	writel(0x55555555, phy_base + MPHY_ACIOCR1);
+	writel(0x00000000, phy_base + MPHY_ACIOCR2);
+	writel(0x55555555, phy_base + MPHY_ACIOCR3);
+	writel(0x00000000, phy_base + MPHY_ACIOCR4);
+	writel(0x00000055, phy_base + MPHY_ACIOCR5);
+	writel(0x00181aa4, phy_base + MPHY_DXCCR);
 
-	writel(0x0024641e, phy_base + DMPHY_DSGCR);
-	writel(0x0000040b, phy_base + DMPHY_DCR);
-	writel(ddrphy_dtpr0[freq], phy_base + DMPHY_DTPR0);
-	writel(ddrphy_dtpr1[freq], phy_base + DMPHY_DTPR1);
-	writel(ddrphy_dtpr2[freq], phy_base + DMPHY_DTPR2);
-	writel(ddrphy_dtpr3[freq], phy_base + DMPHY_DTPR3);
-	writel(ddrphy_mr0[freq], phy_base + DMPHY_MR0);
-	writel(0x00000006,       phy_base + DMPHY_MR1);
-	writel(ddrphy_mr2[freq], phy_base + DMPHY_MR2);
-	writel(0x00000000,       phy_base + DMPHY_MR3);
+	writel(0x0024641e, phy_base + MPHY_DSGCR);
+	writel(0x0000040b, phy_base + MPHY_DCR);
+	writel(ddrphy_dtpr0[freq], phy_base + MPHY_DTPR0);
+	writel(ddrphy_dtpr1[freq], phy_base + MPHY_DTPR1);
+	writel(ddrphy_dtpr2[freq], phy_base + MPHY_DTPR2);
+	writel(ddrphy_dtpr3[freq], phy_base + MPHY_DTPR3);
+	writel(ddrphy_mr0[freq], phy_base + MPHY_MR0);
+	writel(0x00000006, phy_base + MPHY_MR1);
+	writel(ddrphy_mr2[freq], phy_base + MPHY_MR2);
+	writel(0x00000000, phy_base + MPHY_MR3);
 
 	tmp = 0;
 	for (dx = 0; dx < nr_dx; dx++)
-		tmp |= BIT(DMPHY_DTCR_RANKEN_SHIFT + ddrphy_get_rank(dx));
-	writel(0x90003087 | tmp, phy_base + DMPHY_DTCR);
+		tmp |= BIT(MPHY_DTCR_RANKEN_SHIFT + ddrphy_get_rank(dx));
+	writel(0x90003087 | tmp, phy_base + MPHY_DTCR);
 
-	writel(0x00000000, phy_base + DMPHY_DTAR0);
-	writel(0x00000008, phy_base + DMPHY_DTAR1);
-	writel(0x00000010, phy_base + DMPHY_DTAR2);
-	writel(0x00000018, phy_base + DMPHY_DTAR3);
-	writel(0xdd22ee11, phy_base + DMPHY_DTDR0);
-	writel(0x7788bb44, phy_base + DMPHY_DTDR1);
+	writel(0x00000000, phy_base + MPHY_DTAR0);
+	writel(0x00000008, phy_base + MPHY_DTAR1);
+	writel(0x00000010, phy_base + MPHY_DTAR2);
+	writel(0x00000018, phy_base + MPHY_DTAR3);
+	writel(0xdd22ee11, phy_base + MPHY_DTDR0);
+	writel(0x7788bb44, phy_base + MPHY_DTDR1);
 
 	/* impedance control settings */
-	writel(0x04048900, phy_base + DMPHY_ZQCR);
+	writel(0x04048900, phy_base + MPHY_ZQCR);
 
-	zq_base = phy_base + DMPHY_ZQ_BASE;
+	zq_base = phy_base + MPHY_ZQ_BASE;
 	for (zq = 0; zq < 4; zq++) {
 		/*
 		 * board-dependent
 		 * PXS2: CH0ZQ0=0x5B, CH1ZQ0=0x5B, CH2ZQ0=0x59, others=0x5D
 		 */
-		writel(0x0007BB5D, zq_base + DMPHY_ZQ_PR);
-		zq_base += DMPHY_ZQ_STRIDE;
+		writel(0x0007BB5D, zq_base + MPHY_ZQ_PR);
+		zq_base += MPHY_ZQ_STRIDE;
 	}
 
 	/* DATX8 settings */
-	dx_base = phy_base + DMPHY_DX_BASE;
+	dx_base = phy_base + MPHY_DX_BASE;
 	for (dx = 0; dx < 4; dx++) {
-		tmp = readl(dx_base + DMPHY_DX_GCR0);
-		tmp &= ~DMPHY_DX_GCR0_WLRKEN_MASK;
-		tmp |= BIT(DMPHY_DX_GCR0_WLRKEN_SHIFT + ddrphy_get_rank(dx)) &
-						DMPHY_DX_GCR0_WLRKEN_MASK;
-		writel(tmp, dx_base + DMPHY_DX_GCR0);
+		tmp = readl(dx_base + MPHY_DX_GCR0);
+		tmp &= ~MPHY_DX_GCR0_WLRKEN_MASK;
+		tmp |= BIT(MPHY_DX_GCR0_WLRKEN_SHIFT + ddrphy_get_rank(dx)) &
+						MPHY_DX_GCR0_WLRKEN_MASK;
+		writel(tmp, dx_base + MPHY_DX_GCR0);
 
-		writel(0x00000000, dx_base + DMPHY_DX_GCR1);
-		writel(0x00000000, dx_base + DMPHY_DX_GCR2);
-		writel(0x00000000, dx_base + DMPHY_DX_GCR3);
-		dx_base += DMPHY_DX_STRIDE;
+		writel(0x00000000, dx_base + MPHY_DX_GCR1);
+		writel(0x00000000, dx_base + MPHY_DX_GCR2);
+		writel(0x00000000, dx_base + MPHY_DX_GCR3);
+		dx_base += MPHY_DX_STRIDE;
 	}
 
-	while (!(readl(phy_base + DMPHY_PGSR0) & DMPHY_PGSR0_IDONE))
+	while (!(readl(phy_base + MPHY_PGSR0) & MPHY_PGSR0_IDONE))
 		cpu_relax();
 
 	ddrphy_dqs_delay_fixup(phy_base, nr_dx, -4);
@@ -259,9 +246,9 @@ struct ddrphy_init_sequence {
 static const struct ddrphy_init_sequence impedance_calibration_sequence[] = {
 	{
 		"Impedance Calibration",
-		DMPHY_PIR_ZCAL,
-		DMPHY_PGSR0_ZCDONE,
-		DMPHY_PGSR0_ZCERR,
+		MPHY_PIR_ZCAL,
+		MPHY_PGSR0_ZCDONE,
+		MPHY_PGSR0_ZCERR,
 	},
 	{ /* sentinel */ }
 };
@@ -269,8 +256,8 @@ static const struct ddrphy_init_sequence impedance_calibration_sequence[] = {
 static const struct ddrphy_init_sequence dram_init_sequence[] = {
 	{
 		"DRAM Initialization",
-		DMPHY_PIR_DRAMRST | DMPHY_PIR_DRAMINIT,
-		DMPHY_PGSR0_DIDONE,
+		MPHY_PIR_DRAMRST | MPHY_PIR_DRAMINIT,
+		MPHY_PGSR0_DIDONE,
 		0,
 	},
 	{ /* sentinel */ }
@@ -279,45 +266,45 @@ static const struct ddrphy_init_sequence dram_init_sequence[] = {
 static const struct ddrphy_init_sequence training_sequence[] = {
 	{
 		"Write Leveling",
-		DMPHY_PIR_WL,
-		DMPHY_PGSR0_WLDONE,
-		DMPHY_PGSR0_WLERR,
+		MPHY_PIR_WL,
+		MPHY_PGSR0_WLDONE,
+		MPHY_PGSR0_WLERR,
 	},
 	{
 		"Read DQS Gate Training",
-		DMPHY_PIR_QSGATE,
-		DMPHY_PGSR0_QSGDONE,
-		DMPHY_PGSR0_QSGERR,
+		MPHY_PIR_QSGATE,
+		MPHY_PGSR0_QSGDONE,
+		MPHY_PGSR0_QSGERR,
 	},
 	{
 		"Write Leveling Adjustment",
-		DMPHY_PIR_WLADJ,
-		DMPHY_PGSR0_WLADONE,
-		DMPHY_PGSR0_WLAERR,
+		MPHY_PIR_WLADJ,
+		MPHY_PGSR0_WLADONE,
+		MPHY_PGSR0_WLAERR,
 	},
 	{
 		"Read Bit Deskew",
-		DMPHY_PIR_RDDSKW,
-		DMPHY_PGSR0_RDDONE,
-		DMPHY_PGSR0_RDERR,
+		MPHY_PIR_RDDSKW,
+		MPHY_PGSR0_RDDONE,
+		MPHY_PGSR0_RDERR,
 	},
 	{
 		"Write Bit Deskew",
-		DMPHY_PIR_WRDSKW,
-		DMPHY_PGSR0_WDDONE,
-		DMPHY_PGSR0_WDERR,
+		MPHY_PIR_WRDSKW,
+		MPHY_PGSR0_WDDONE,
+		MPHY_PGSR0_WDERR,
 	},
 	{
 		"Read Eye Training",
-		DMPHY_PIR_RDEYE,
-		DMPHY_PGSR0_REDONE,
-		DMPHY_PGSR0_REERR,
+		MPHY_PIR_RDEYE,
+		MPHY_PGSR0_REDONE,
+		MPHY_PGSR0_REERR,
 	},
 	{
 		"Write Eye Training",
-		DMPHY_PIR_WREYE,
-		DMPHY_PGSR0_WEDONE,
-		DMPHY_PGSR0_WEERR,
+		MPHY_PIR_WREYE,
+		MPHY_PGSR0_WEDONE,
+		MPHY_PGSR0_WEERR,
 	},
 	{ /* sentinel */ }
 };
@@ -327,11 +314,13 @@ static int __ddrphy_training(void __iomem *phy_base,
 {
 	const struct ddrphy_init_sequence *s;
 	u32 pgsr0;
-	u32 init_flag = DMPHY_PIR_INIT;
-	u32 done_flag = DMPHY_PGSR0_IDONE;
+	u32 init_flag = MPHY_PIR_INIT;
+	u32 done_flag = MPHY_PGSR0_IDONE;
 	int timeout = 50000; /* 50 msec is long enough */
-#ifdef DISPLAY_ELAPSED_TIME
-	ulong start = get_timer(0);
+	unsigned long start = 0;
+
+#ifdef DEBUG
+	start = get_timer(0);
 #endif
 
 	for (s = seq; s->description; s++) {
@@ -339,7 +328,7 @@ static int __ddrphy_training(void __iomem *phy_base,
 		done_flag |= s->done_flag;
 	}
 
-	writel(init_flag, phy_base + DMPHY_PIR);
+	writel(init_flag, phy_base + MPHY_PIR);
 
 	do {
 		if (--timeout < 0) {
@@ -348,7 +337,7 @@ static int __ddrphy_training(void __iomem *phy_base,
 			return -ETIMEDOUT;
 		}
 		udelay(1);
-		pgsr0 = readl(phy_base + DMPHY_PGSR0);
+		pgsr0 = readl(phy_base + MPHY_PGSR0);
 	} while ((pgsr0 & done_flag) != done_flag);
 
 	for (s = seq; s->description; s++) {
@@ -359,9 +348,7 @@ static int __ddrphy_training(void __iomem *phy_base,
 		}
 	}
 
-#ifdef DISPLAY_ELAPSED_TIME
-	printf("%s: info: elapsed time %ld msec\n", get_timer(start));
-#endif
+	pr_debug("DDRPHY training: elapsed time %ld msec\n", get_timer(start));
 
 	return 0;
 }
@@ -383,12 +370,12 @@ static int ddrphy_impedance_calibration(void __iomem *phy_base)
 	udelay(1);
 
 	/* reflect ZQ settings and enable average algorithm*/
-	tmp = readl(phy_base + DMPHY_ZQCR);
-	tmp |= DMPHY_ZQCR_FORCE_ZCAL_VT_UPDATE;
-	writel(tmp, phy_base + DMPHY_ZQCR);
-	tmp &= ~DMPHY_ZQCR_FORCE_ZCAL_VT_UPDATE;
-	tmp |= DMPHY_ZQCR_AVGEN;
-	writel(tmp, phy_base + DMPHY_ZQCR);
+	tmp = readl(phy_base + MPHY_ZQCR);
+	tmp |= MPHY_ZQCR_FORCE_ZCAL_VT_UPDATE;
+	writel(tmp, phy_base + MPHY_ZQCR);
+	tmp &= ~MPHY_ZQCR_FORCE_ZCAL_VT_UPDATE;
+	tmp |= MPHY_ZQCR_AVGEN;
+	writel(tmp, phy_base + MPHY_ZQCR);
 
 	return 0;
 }
@@ -404,6 +391,23 @@ static int ddrphy_training(void __iomem *phy_base)
 }
 
 /* UMC */
+static u32 umc_cmdctla[DRAM_FREQ_NR] = {0x66DD131D, 0x77EE1722};
+/*
+ * The ch2 is a different generation UMC core.
+ * The register spec is different, unfortunately.
+ */
+static u32 umc_cmdctlb_ch01[DRAM_FREQ_NR] = {0x13E87C44, 0x18F88C44};
+static u32 umc_cmdctlb_ch2[DRAM_FREQ_NR] = {0x19E8DC44, 0x1EF8EC44};
+static u32 umc_spcctla[DRAM_FREQ_NR][DRAM_SZ_NR] = {
+	{0x004A071D, 0x0078071D},
+	{0x0055081E, 0x0089081E},
+};
+
+static u32 umc_spcctlb[] = {0x00FF000A, 0x00FF000B};
+/* The ch2 is different for some reason only hardware guys know... */
+static u32 umc_flowctla_ch01[] = {0x0800001E, 0x08000022};
+static u32 umc_flowctla_ch2[] = {0x0800001E, 0x0800001E};
+
 static void umc_set_system_latency(void __iomem *dc_base, int phy_latency)
 {
 	u32 val;
@@ -434,7 +438,7 @@ static void umc_set_system_latency(void __iomem *dc_base, int phy_latency)
 }
 
 /* enable/disable auto refresh */
-void umc_refresh_ctrl(void __iomem *dc_base, int enable)
+static void umc_refresh_ctrl(void __iomem *dc_base, int enable)
 {
 	u32 tmp;
 
@@ -617,15 +621,17 @@ int uniphier_pxs2_umc_init(const struct uniphier_board_data *bd)
 		return -EINVAL;
 	}
 
-	for (ch = 0; ch < bd->dram_nr_ch; ch++) {
+	for (ch = 0; ch < DRAM_CH_NR; ch++) {
 		unsigned long size = bd->dram_ch[ch].size;
 		unsigned int width = bd->dram_ch[ch].width;
 
-		ret = umc_ch_init(umc_ch_base, freq, size / (width / 16),
-				  width, ch);
-		if (ret) {
-			pr_err("failed to initialize UMC ch%d\n", ch);
-			return ret;
+		if (size) {
+			ret = umc_ch_init(umc_ch_base, freq,
+					  size / (width / 16), width, ch);
+			if (ret) {
+				pr_err("failed to initialize UMC ch%d\n", ch);
+				return ret;
+			}
 		}
 
 		umc_ch_base += 0x00200000;

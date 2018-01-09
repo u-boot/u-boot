@@ -9,8 +9,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_MX53
-
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX53_ARD
 
 #include <asm/arch/imx-regs.h>
@@ -25,18 +23,15 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
 
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MXC_GPIO
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		NFC_BASE_ADDR_AXI
-#define CONFIG_NAND_MXC
 #define CONFIG_MXC_NAND_REGS_BASE	NFC_BASE_ADDR_AXI
 #define CONFIG_MXC_NAND_IP_REGS_BASE	NFC_BASE_ADDR
 #define CONFIG_SYS_NAND_LARGEPAGE
 #define CONFIG_MXC_NAND_HWECC
 #define CONFIG_SYS_NAND_USE_FLASH_BBT
-#define CONFIG_CMD_NAND
 
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
@@ -53,9 +48,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_ESDHC_NUM	2
 
-#define CONFIG_GENERIC_MMC
-#define CONFIG_DOS_PARTITION
-
 /* Eth Configs */
 #define CONFIG_HAS_ETH1
 #define CONFIG_MII
@@ -63,16 +55,10 @@
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX		1
-#define CONFIG_BAUDRATE			115200
 
 /* Command definition */
 
 #define CONFIG_ETHPRIME		"smc911x"
-
-/*Support LAN9217*/
-#define CONFIG_SMC911X
-#define CONFIG_SMC911X_16_BIT
-#define CONFIG_SMC911X_BASE CS1_BASE_ADDR
 
 #define CONFIG_LOADADDR		0x72000000	/* loadaddr env var */
 #define CONFIG_SYS_TEXT_BASE    0x77800000
@@ -169,12 +155,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
-
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS	16	/* max number of command args */
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size */
 
 #define CONFIG_SYS_MEMTEST_START       0x70000000
 #define CONFIG_SYS_MEMTEST_END         0x70010000
@@ -200,12 +180,9 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH
-
+/* environment organization */
 #define CONFIG_ENV_OFFSET      (6 * 64 * 1024)
 #define CONFIG_ENV_SIZE        (8 * 1024)
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV	0
 
 #define MX53ARD_CS1GCR1		(CSEN | DSZ(2))

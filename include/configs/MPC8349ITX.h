@@ -67,7 +67,6 @@
 /* The CF card interface on the back of the board */
 #define CONFIG_COMPACT_FLASH
 #define CONFIG_VSC7385_ENET	/* VSC7385 ethernet support */
-#define CONFIG_SATA_SIL3114	/* SIL3114 SATA controller */
 #define CONFIG_SYS_USB_HOST	/* use the EHCI USB controller */
 #endif
 
@@ -139,7 +138,6 @@
 #ifdef CONFIG_SATA_SIL3114
 
 #define CONFIG_SYS_SATA_MAX_DEVICE      4
-#define CONFIG_LIBATA
 #define CONFIG_LBA48
 
 #endif
@@ -148,7 +146,6 @@
 /*
  * Support USB
  */
-#define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
 
 /* Current USB implementation supports the only USB controller,
@@ -356,7 +353,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 		{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
 
 #define CONSOLE			ttyS0
-#define CONFIG_BAUDRATE		115200
 
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_IMMR + 0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_IMMR + 0x4600)
@@ -421,7 +417,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #ifdef CONFIG_TSEC_ENET
 
 #define CONFIG_MII
-#define CONFIG_PHY_GIGE		/* In case CONFIG_CMD_MII is specified */
 
 #define CONFIG_TSEC1
 
@@ -454,15 +449,12 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_ENV_OVERWRITE
 
 #ifndef CONFIG_SYS_RAMBOOT
-  #define CONFIG_ENV_IS_IN_FLASH
   #define CONFIG_ENV_ADDR	\
 			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
   #define CONFIG_ENV_SECT_SIZE	0x10000 /* 64K (one sector) for environment */
   #define CONFIG_ENV_SIZE	0x2000
 #else
-  #define CONFIG_SYS_NO_FLASH	/* Flash is not usable now */
   #undef  CONFIG_FLASH_CFI_DRIVER
-  #define CONFIG_ENV_IS_NOWHERE	/* Store ENV in memory only */
   #define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - 0x1000)
   #define CONFIG_ENV_SIZE	0x2000
 #endif
@@ -478,32 +470,12 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-/*
- * Command line configuration.
- */
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_SDRAM
-
 #if defined(CONFIG_COMPACT_FLASH) || defined(CONFIG_SATA_SIL3114) \
 				|| defined(CONFIG_USB_STORAGE)
-	#define CONFIG_DOS_PARTITION
 	#define CONFIG_SUPPORT_VFAT
 #endif
 
-#ifdef CONFIG_COMPACT_FLASH
-	#define CONFIG_CMD_IDE
-#endif
-
-#ifdef CONFIG_SATA_SIL3114
-	#define CONFIG_CMD_SATA
-#endif
-
 #if defined(CONFIG_SATA_SIL3114) || defined(CONFIG_USB_STORAGE)
-#endif
-
-#ifdef CONFIG_PCI
-	#define CONFIG_CMD_PCI
 #endif
 
 /* Watchdog */
@@ -518,18 +490,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 #define CONFIG_LOADADDR	800000	/* default location for tftp and bootm */
-
-#if defined(CONFIG_CMD_KGDB)
-	#define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size */
-#else
-	#define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
-#endif
-
-				/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS	16	/* max number of command args */
-				/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
 /*
  * For booting Linux, the board info and command line data
@@ -708,12 +668,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #define CONFIG_NETDEV		"eth0"
 
-#ifdef CONFIG_MPC8349ITX
-#define CONFIG_HOSTNAME		"mpc8349emitx"
-#else
-#define CONFIG_HOSTNAME		"mpc8349emitxgp"
-#endif
-
 /* Default path and filenames */
 #define CONFIG_ROOTPATH		"/nfsroot/rootfs"
 #define CONFIG_BOOTFILE		"uImage"
@@ -726,16 +680,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_FDTFILE		"mpc8349emitxgp.dtb"
 #endif
 
-
-#define CONFIG_BOOTARGS \
-	"root=/dev/nfs rw" \
-	" nfsroot=" __stringify(CONFIG_SERVERIP) ":" CONFIG_ROOTPATH	\
-	" ip=" __stringify(CONFIG_IPADDR) ":"		\
-		__stringify(CONFIG_SERVERIP) ":"	\
-		__stringify(CONFIG_GATEWAYIP) ":"	\
-		__stringify(CONFIG_NETMASK) ":"		\
-		CONFIG_HOSTNAME ":" CONFIG_NETDEV ":off"		\
-	" console=" __stringify(CONSOLE) "," __stringify(CONFIG_BAUDRATE)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=" __stringify(CONSOLE) "\0"			\

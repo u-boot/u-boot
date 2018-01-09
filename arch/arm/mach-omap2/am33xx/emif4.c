@@ -17,38 +17,9 @@
 #include <asm/io.h>
 #include <asm/emif.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
-int dram_init(void)
-{
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
-	sdram_init();
-#endif
-
-	/* dram_init must store complete ramsize in gd->ram_size */
-	gd->ram_size = get_ram_size(
-			(void *)CONFIG_SYS_SDRAM_BASE,
-			CONFIG_MAX_RAM_BANK_SIZE);
-	return 0;
-}
-
-void dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = gd->ram_size;
-}
-
-
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
-#ifdef CONFIG_TI81XX
-static struct dmm_lisa_map_regs *hw_lisa_map_regs =
-				(struct dmm_lisa_map_regs *)DMM_BASE;
-#endif
-#ifndef CONFIG_TI816X
 static struct vtp_reg *vtpreg[2] = {
 				(struct vtp_reg *)VTP0_CTRL_ADDR,
 				(struct vtp_reg *)VTP1_CTRL_ADDR};
-#endif
 #ifdef CONFIG_AM33XX
 static struct ddr_ctrl *ddrctrl = (struct ddr_ctrl *)DDR_CTRL_ADDR;
 #endif
@@ -58,9 +29,12 @@ static struct cm_device_inst *cm_device =
 				(struct cm_device_inst *)CM_DEVICE_INST;
 #endif
 
-#ifdef CONFIG_TI81XX
+#ifdef CONFIG_TI814X
 void config_dmm(const struct dmm_lisa_map_regs *regs)
 {
+	struct dmm_lisa_map_regs *hw_lisa_map_regs =
+				(struct dmm_lisa_map_regs *)DMM_BASE;
+
 	enable_dmm_clocks();
 
 	writel(0, &hw_lisa_map_regs->dmm_lisa_map_3);
@@ -75,7 +49,6 @@ void config_dmm(const struct dmm_lisa_map_regs *regs)
 }
 #endif
 
-#ifndef CONFIG_TI816X
 static void config_vtp(int nr)
 {
 	writel(readl(&vtpreg[nr]->vtp0ctrlreg) | VTP_CTRL_ENABLE,
@@ -90,7 +63,6 @@ static void config_vtp(int nr)
 			VTP_CTRL_READY)
 		;
 }
-#endif
 
 void __weak ddr_pll_config(unsigned int ddrpll_m)
 {
@@ -101,9 +73,7 @@ void config_ddr(unsigned int pll, const struct ctrl_ioregs *ioregs,
 		const struct emif_regs *regs, int nr)
 {
 	ddr_pll_config(pll);
-#ifndef CONFIG_TI816X
 	config_vtp(nr);
-#endif
 	config_cmd_ctrl(ctrl, nr);
 
 	config_ddr_data(data, nr);
@@ -137,4 +107,3 @@ void config_ddr(unsigned int pll, const struct ctrl_ioregs *ioregs,
 	else
 		config_sdram(regs, nr);
 }
-#endif

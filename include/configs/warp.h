@@ -18,15 +18,11 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M) /* Increase due to DFU */
 
-#define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_LATE_INIT
-
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART1_IPS_BASE_ADDR
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
-#define CONFIG_SYS_FSL_ESDHC_FORCE_VSELECT
 #define CONFIG_SYS_FSL_ESDHC_HAS_DDR_MODE
 #define CONFIG_SUPPORT_EMMC_BOOT
 
@@ -37,8 +33,6 @@
 
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + SZ_256M)
-
-#define CONFIG_STACKSIZE		SZ_128K
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -55,7 +49,6 @@
 
 #define CONFIG_ENV_OFFSET		(6 * SZ_64K)
 #define CONFIG_ENV_SIZE			SZ_8K
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
 /* VDD voltage 1.65 - 1.95 */
@@ -63,8 +56,6 @@
 
 /* USB Configs */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_MX6
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS		0
@@ -103,10 +94,10 @@
 	"ip_dyn=yes\0" \
 	"mmcdev=0\0" \
 	"mmcpart=1\0" \
-	"mmcroot=/dev/mmcblk0p2 rootwait rw\0" \
+	"finduuid=part uuid mmc 0:2 uuid\0" \
 	"dfu_alt_info=boot raw 0x2 0x400 mmcpart 1\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
-		"root=${mmcroot}\0" \
+		"root=PARTUUID=${uuid} rootwait rw\0" \
 	"loadbootscript=" \
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
@@ -114,6 +105,7 @@
 	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
 	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
+		"run finduuid; " \
 		"run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
 			"if run loadfdt; then " \

@@ -1,10 +1,12 @@
 SoC overview
 
 	1. LS1043A
-	2. LS2080A
-	3. LS1012A
-	4. LS1046A
-	5. LS2088A
+	2. LS1088A
+	3. LS2080A
+	4. LS1012A
+	5. LS1046A
+	6. LS2088A
+	7. LS2081A
 
 LS1043A
 ---------
@@ -43,6 +45,38 @@ The LS1043A SoC includes the following function and features:
    - Two DUARTs
    - Integrated flash controller supporting NAND and NOR flash
  - QorIQ platform's trust architecture 2.1
+
+LS1088A
+--------
+The QorIQ LS1088A processor is built on the Layerscape
+architecture combining eight ARM A53 processor cores
+with advanced, high-performance datapath acceleration
+and networks, peripheral interfaces required for
+networking, wireless infrastructure, and general-purpose
+embedded applications.
+
+LS1088A is compliant with the Layerscape Chassis Generation 3.
+
+Features summary:
+ - 8 32-bit / 64-bit ARM v8 Cortex-A53 CPUs
+ - Cores are in 2 cluster of 4-cores each
+ - 1MB L2 - Cache per cluster
+ - Cache coherent interconnect (CCI-400)
+ - 1 64-bit DDR4 SDRAM memory controller with ECC
+ - Data path acceleration architecture 2.0 (DPAA2)
+ - 4-Lane 10GHz SerDes comprising of WRIOP
+ - 4-Lane 10GHz SerDes comprising of PCI, SATA, uQE(TDM/HLDC/UART)
+ - Ethernet interfaces: SGMIIs, RGMIIs, QSGMIIs, XFIs
+ - QSPI, SPI, IFC2.0 supporting NAND, NOR flash
+ - 3 PCIe3.0 , 1 SATA3.0, 2 USB3.0, 1 SDXC, 2 DUARTs etc
+ - 2 DUARTs
+ - 4 I2C, GPIO
+ - Thermal monitor unit(TMU)
+ - 4 Flextimers and 1 generic timer
+ - Support for hardware virtualization and partitioning enforcement
+ - QorIQ platform's trust architecture 3.0
+ - Service processor (SP) provides pre-boot initialization and secure-boot
+   capabilities
 
 LS2080A
 --------
@@ -226,4 +260,14 @@ LS2088A SoC has 3 more similar SoC personalities
        d) No L2 switch
 
 3)LS2044A, few difference w.r.t. LS2084A:
+       a) Four 64-bit ARM v8 Cortex-A72 CPUs
+
+LS2081A
+--------
+LS2081A is 40-pin derivative of LS2084A.
+So feature-wise it is same as LS2084A.
+Refer to LS2084A(LS2088A) section above for details.
+
+It has one more similar SoC personality
+1)LS2041A, few difference w.r.t. LS2081A:
        a) Four 64-bit ARM v8 Cortex-A72 CPUs

@@ -6,15 +6,13 @@
  */
 #include <common.h>
 #include <dm.h>
-#include <fdtdec.h>
-#include <libfdt.h>
 #include <malloc.h>
 #include <usb.h>
 #include <watchdog.h>
-#include <asm/gpio.h>
 #include <linux/errno.h>
 #include <linux/compat.h>
 #include <linux/usb/dwc3.h>
+#include <power/regulator.h>
 
 #include "xhci.h"
 
@@ -23,7 +21,7 @@ DECLARE_GLOBAL_DATA_PTR;
 struct rockchip_xhci_platdata {
 	fdt_addr_t hcd_base;
 	fdt_addr_t phy_base;
-	struct gpio_desc vbus_gpio;
+	struct udevice *vbus_supply;
 };
 
 /*
@@ -46,31 +44,31 @@ static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
 	/*
 	 * Get the base address for XHCI controller from the device node
 	 */
-	plat->hcd_base = dev_get_addr(dev);
+	plat->hcd_base = dev_read_addr(dev);
 	if (plat->hcd_base == FDT_ADDR_T_NONE) {
-		debug("Can't get the XHCI register base address\n");
+		pr_err("Can't get the XHCI register base address\n");
 		return -ENXIO;
 	}
 
 	/* Get the base address for usbphy from the device node */
 	for (device_find_first_child(dev, &child); child;
 	     device_find_next_child(&child)) {
-		if (!of_device_is_compatible(child, "rockchip,rk3399-usb3-phy"))
+		if (!device_is_compatible(child, "rockchip,rk3399-usb3-phy"))
 			continue;
-		plat->phy_base = dev_get_addr(child);
+		plat->phy_base = devfdt_get_addr(child);
 		break;
 	}
 
 	if (plat->phy_base == FDT_ADDR_T_NONE) {
-		debug("Can't get the usbphy register address\n");
+		pr_err("Can't get the usbphy register address\n");
 		return -ENXIO;
 	}
 
-	/* Vbus gpio */
-	ret = gpio_request_by_name(dev, "rockchip,vbus-gpio", 0,
-				   &plat->vbus_gpio, GPIOD_IS_OUT);
+	/* Vbus regulator */
+	ret = device_get_supply_regulator(dev, "vbus-supply",
+					  &plat->vbus_supply);
 	if (ret)
-		debug("rockchip,vbus-gpio node missing!");
+		debug("Can't get VBus regulator!\n");
 
 	return 0;
 }
@@ -84,18 +82,15 @@ static void rockchip_dwc3_phy_setup(struct dwc3 *dwc3_reg,
 				    struct udevice *dev)
 {
 	u32 reg;
-	const void *blob = gd->fdt_blob;
 	u32 utmi_bits;
 
 	/* Set dwc3 usb2 phy config */
 	reg = readl(&dwc3_reg->g_usb2phycfg[0]);
 
-	if (fdtdec_get_bool(blob, dev->of_offset,
-			    "snps,dis-enblslpm-quirk"))
+	if (dev_read_bool(dev, "snps,dis-enblslpm-quirk"))
 		reg &= ~DWC3_GUSB2PHYCFG_ENBLSLPM;
 
-	utmi_bits = fdtdec_get_int(blob, dev->of_offset,
-				   "snps,phyif-utmi-bits", -1);
+	utmi_bits = dev_read_u32_default(dev, "snps,phyif-utmi-bits", -1);
 	if (utmi_bits == 16) {
 		reg |= DWC3_GUSB2PHYCFG_PHYIF;
 		reg &= ~DWC3_GUSB2PHYCFG_USBTRDTIM_MASK;
@@ -106,12 +101,10 @@ static void rockchip_dwc3_phy_setup(struct dwc3 *dwc3_reg,
 		reg |= DWC3_GUSB2PHYCFG_USBTRDTIM_8BIT;
 	}
 
-	if (fdtdec_get_bool(blob, dev->of_offset,
-			    "snps,dis-u2-freeclk-exists-quirk"))
+	if (dev_read_bool(dev, "snps,dis-u2-freeclk-exists-quirk"))
 		reg &= ~DWC3_GUSB2PHYCFG_U2_FREECLK_EXISTS;
 
-	if (fdtdec_get_bool(blob, dev->of_offset,
-			    "snps,dis-u2-susphy-quirk"))
+	if (dev_read_bool(dev, "snps,dis-u2-susphy-quirk"))
 		reg &= ~DWC3_GUSB2PHYCFG_SUSPHY;
 
 	writel(reg, &dwc3_reg->g_usb2phycfg[0]);
@@ -124,7 +117,7 @@ static int rockchip_xhci_core_init(struct rockchip_xhci *rkxhci,
 
 	ret = dwc3_core_init(rkxhci->dwc3_reg);
 	if (ret) {
-		debug("failed to initialize core\n");
+		pr_err("failed to initialize core\n");
 		return ret;
 	}
 
@@ -153,13 +146,17 @@ static int xhci_usb_probe(struct udevice *dev)
 	hcor = (struct xhci_hcor *)((uint64_t)ctx->hcd +
 			HC_LENGTH(xhci_readl(&ctx->hcd->cr_capbase)));
 
-	/* setup the Vbus gpio here */
-	if (dm_gpio_is_valid(&plat->vbus_gpio))
-		dm_gpio_set_value(&plat->vbus_gpio, 1);
+	if (plat->vbus_supply) {
+		ret = regulator_set_enable(plat->vbus_supply, true);
+		if (ret) {
+			pr_err("XHCI: failed to set VBus supply\n");
+			return ret;
+		}
+	}
 
 	ret = rockchip_xhci_core_init(ctx, dev);
 	if (ret) {
-		debug("XHCI: failed to initialize controller\n");
+		pr_err("XHCI: failed to initialize controller\n");
 		return ret;
 	}
 
@@ -168,6 +165,7 @@ static int xhci_usb_probe(struct udevice *dev)
 
 static int xhci_usb_remove(struct udevice *dev)
 {
+	struct rockchip_xhci_platdata *plat = dev_get_platdata(dev);
 	struct rockchip_xhci *ctx = dev_get_priv(dev);
 	int ret;
 
@@ -178,11 +176,18 @@ static int xhci_usb_remove(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	return 0;
+	if (plat->vbus_supply) {
+		ret = regulator_set_enable(plat->vbus_supply, false);
+		if (ret)
+			pr_err("XHCI: failed to set VBus supply\n");
+	}
+
+	return ret;
 }
 
 static const struct udevice_id xhci_usb_ids[] = {
 	{ .compatible = "rockchip,rk3399-xhci" },
+	{ .compatible = "rockchip,rk3328-xhci" },
 	{ }
 };
 
@@ -202,6 +207,7 @@ U_BOOT_DRIVER(usb_xhci) = {
 
 static const struct udevice_id usb_phy_ids[] = {
 	{ .compatible = "rockchip,rk3399-usb3-phy" },
+	{ .compatible = "rockchip,rk3328-usb3-phy" },
 	{ }
 };
 

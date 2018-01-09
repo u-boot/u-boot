@@ -37,6 +37,9 @@ config TEGRA_COMMON
 	select MISC
 	select OF_CONTROL
 	select VIDCONSOLE_AS_LCD if DM_VIDEO
+	select BOARD_EARLY_INIT_F
+	select BINMAN
+	imply CRC32_VERIFY
 
 config TEGRA_NO_BPMP
 	bool "Tegra common options for SoCs without BPMP"
@@ -48,6 +51,7 @@ config TEGRA_ARMV7_COMMON
 	bool "Tegra 32-bit common options"
 	select CPU_V7
 	select SPL
+	select SPL_BOARD_INIT if SPL
 	select SUPPORT_SPL
 	select TEGRA_COMMON
 	select TEGRA_GPIO
@@ -64,10 +68,15 @@ choice
 
 config TEGRA20
 	bool "Tegra20 family"
+	select ARM_ERRATA_716044
+	select ARM_ERRATA_742230
+	select ARM_ERRATA_751472
 	select TEGRA_ARMV7_COMMON
 
 config TEGRA30
 	bool "Tegra30 family"
+	select ARM_ERRATA_743622
+	select ARM_ERRATA_751472
 	select TEGRA_ARMV7_COMMON
 
 config TEGRA114
@@ -77,6 +86,8 @@ config TEGRA114
 config TEGRA124
 	bool "Tegra124 family"
 	select TEGRA_ARMV7_COMMON
+	imply REGMAP
+	imply SYSCON
 
 config TEGRA210
 	bool "Tegra210 family"
@@ -119,5 +130,21 @@ source "arch/arm/mach-tegra/tegra114/Kconfig"
 source "arch/arm/mach-tegra/tegra124/Kconfig"
 source "arch/arm/mach-tegra/tegra210/Kconfig"
 source "arch/arm/mach-tegra/tegra186/Kconfig"
+
+config CMD_ENTERRCM
+	bool "Enable 'enterrcm' command"
+	default y
+	help
+	  Tegra's boot ROM supports a mode whereby code may be downloaded and
+	  flash-programmed over a USB connection. On dev boards, this is
+	  typically entered by holding down a "force recovery" button and
+	  resetting the CPU. However, not all boards have such a button (one
+	  example is the Compulab Trimslice), so a method to enter RCM from
+	  software is useful.
+
+	  Even on boards other than Trimslice, controlling this over a UART
+	  may be useful, e.g. to allow simple remote control without the need
+	  for mechanical button actuators, or hooking up relays/... to the
+	  button.
 
 endif

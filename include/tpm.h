@@ -47,10 +47,49 @@ enum tpm_nv_index {
 	TPM_NV_INDEX_DIR	= 0x10000001,
 };
 
+enum tpm_resource_type {
+	TPM_RT_KEY	= 0x00000001,
+	TPM_RT_AUTH	= 0x00000002,
+	TPM_RT_HASH	= 0x00000003,
+	TPM_RT_TRANS	= 0x00000004,
+	TPM_RT_CONTEXT	= 0x00000005,
+	TPM_RT_COUNTER	= 0x00000006,
+	TPM_RT_DELEGATE	= 0x00000007,
+	TPM_RT_DAA_TPM	= 0x00000008,
+	TPM_RT_DAA_V0	= 0x00000009,
+	TPM_RT_DAA_V1	= 0x0000000A,
+};
+
+enum tpm_capability_areas {
+	TPM_CAP_ORD		= 0x00000001,
+	TPM_CAP_ALG		= 0x00000002,
+	TPM_CAP_PID		= 0x00000003,
+	TPM_CAP_FLAG		= 0x00000004,
+	TPM_CAP_PROPERTY	= 0x00000005,
+	TPM_CAP_VERSION		= 0x00000006,
+	TPM_CAP_KEY_HANDLE	= 0x00000007,
+	TPM_CAP_CHECK_LOADED	= 0x00000008,
+	TPM_CAP_SYM_MODE	= 0x00000009,
+	TPM_CAP_KEY_STATUS	= 0x0000000C,
+	TPM_CAP_NV_LIST		= 0x0000000D,
+	TPM_CAP_MFR		= 0x00000010,
+	TPM_CAP_NV_INDEX	= 0x00000011,
+	TPM_CAP_TRANS_ALG	= 0x00000012,
+	TPM_CAP_HANDLE		= 0x00000014,
+	TPM_CAP_TRANS_ES	= 0x00000015,
+	TPM_CAP_AUTH_ENCRYPT	= 0x00000017,
+	TPM_CAP_SELECT_SIZE	= 0x00000018,
+	TPM_CAP_DA_LOGIC	= 0x00000019,
+	TPM_CAP_VERSION_VAL	= 0x0000001A,
+};
+
 #define TPM_NV_PER_GLOBALLOCK		(1U << 15)
+#define TPM_NV_PER_PPREAD		(1U << 16)
 #define TPM_NV_PER_PPWRITE		(1U << 0)
 #define TPM_NV_PER_READ_STCLEAR		(1U << 31)
 #define TPM_NV_PER_WRITE_STCLEAR	(1U << 14)
+#define TPM_NV_PER_WRITEDEFINE		(1U << 13)
+#define TPM_NV_PER_WRITEALL		(1U << 12)
 
 enum {
 	TPM_PUBEK_SIZE			= 256,
@@ -593,5 +632,38 @@ uint32_t tpm_get_permanent_flags(struct tpm_permanent_flags *pflags);
  * @return return code of the operation
  */
 uint32_t tpm_get_permissions(uint32_t index, uint32_t *perm);
+
+/**
+ * Flush a resource with a given handle and type from the TPM
+ *
+ * @param key_handle           handle of the resource
+ * @param resource_type                type of the resource
+ * @return return code of the operation
+ */
+uint32_t tpm_flush_specific(uint32_t key_handle, uint32_t resource_type);
+
+#ifdef CONFIG_TPM_LOAD_KEY_BY_SHA1
+/**
+ * Search for a key by usage AuthData and the hash of the parent's pub key.
+ *
+ * @param auth	        Usage auth of the key to search for
+ * @param pubkey_digest	SHA1 hash of the pub key structure of the key
+ * @param[out] handle	The handle of the key (Non-null iff found)
+ * @return 0 if key was found in TPM; != 0 if not.
+ */
+uint32_t tpm_find_key_sha1(const uint8_t auth[20], const uint8_t
+			   pubkey_digest[20], uint32_t *handle);
+#endif /* CONFIG_TPM_LOAD_KEY_BY_SHA1 */
+
+/**
+ * Read random bytes from the TPM RNG. The implementation deals with the fact
+ * that the TPM may legally return fewer bytes than requested by retrying
+ * until @p count bytes have been received.
+ *
+ * @param data		output buffer for the random bytes
+ * @param count		size of output buffer
+ * @return return code of the operation
+ */
+uint32_t tpm_get_random(void *data, uint32_t count);
 
 #endif /* __TPM_H */

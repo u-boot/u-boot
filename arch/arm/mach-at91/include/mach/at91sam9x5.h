@@ -12,8 +12,6 @@
 #ifndef __AT91SAM9X5_H__
 #define __AT91SAM9X5_H__
 
-#define CONFIG_AT91FAMILY	/* it's a member of AT91 family */
-
 /*
  * Peripheral identifiers/interrupts.
  */
@@ -171,8 +169,6 @@
  * Other misc defines
  */
 #define ATMEL_PIO_PORTS         4
-#define CPU_HAS_PIO3
-#define PIO_SCDR_DIV            (0x3fff <<  0)  /* Slow Clock Divider Mask */
 #define ATMEL_PMC_UHP		AT91SAM926x_PMC_UHP
 #define ATMEL_ID_UHP		ATMEL_ID_UHPHS
 

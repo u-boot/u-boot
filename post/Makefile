@@ -11,8 +11,3 @@ obj-$(CONFIG_POST_STD_LIST)	+= tests.o
 obj-y += drivers/
 obj-$(CONFIG_PPC) += lib_powerpc/
 obj-$(CONFIG_MPC83xx) += cpu/mpc83xx/
-obj-$(CONFIG_8xx) += cpu/mpc8xx/
-obj-$(CONFIG_4xx) += cpu/ppc4xx/
-ifneq ($(filter lwmon5 pdm360ng,$(BOARD)),)
-obj-y += board/$(BOARD)/
-endif

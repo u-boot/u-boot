@@ -5,68 +5,21 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <aes.h>
 #include <stdint.h>
 
-/* Pull in the current config to define the default environment */
-#include <linux/kconfig.h>
-
-#ifndef __ASSEMBLY__
-#define __ASSEMBLY__ /* get only #defines from config.h */
-#include <config.h>
-#undef	__ASSEMBLY__
-#else
-#include <config.h>
-#endif
-
 /*
- * To build the utility with the static configuration
- * comment out the next line.
- * See included "fw_env.config" sample file
- * for notes on configuration.
+ * Programs using the library must check which API is available,
+ * that varies depending on the U-Boot version.
+ * This can be changed in future
  */
-#define CONFIG_FILE     "/etc/fw_env.config"
-
-#ifndef CONFIG_FILE
-#define HAVE_REDUND /* For systems with 2 env sectors */
-#define DEVICE1_NAME      "/dev/mtd1"
-#define DEVICE2_NAME      "/dev/mtd2"
-#define DEVICE1_OFFSET    0x0000
-#define ENV1_SIZE         0x4000
-#define DEVICE1_ESIZE     0x4000
-#define DEVICE1_ENVSECTORS     2
-#define DEVICE2_OFFSET    0x0000
-#define ENV2_SIZE         0x4000
-#define DEVICE2_ESIZE     0x4000
-#define DEVICE2_ENVSECTORS     2
-#endif
-
-#ifndef CONFIG_BAUDRATE
-#define CONFIG_BAUDRATE		115200
-#endif
-
-#ifndef CONFIG_BOOTDELAY
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
-#endif
-
-#ifndef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND							\
-	"bootp; "								\
-	"setenv bootargs root=/dev/nfs nfsroot=${serverip}:${rootpath} "	\
-	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; "	\
-	"bootm"
-#endif
+#define FW_ENV_API_VERSION	1
 
 struct env_opts {
 #ifdef CONFIG_FILE
 	char *config_file;
 #endif
-	int aes_flag; /* Is AES encryption used? */
-	uint8_t aes_key[AES_KEY_LENGTH];
 	char *lockname;
 };
-
-int parse_aes_key(char *key, uint8_t *bin_key);
 
 /**
  * fw_printenv() - print one or several environment variables
@@ -86,7 +39,7 @@ int parse_aes_key(char *key, uint8_t *bin_key);
 int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts);
 
 /**
- * fw_setenv() - adds or removes one variable to the environment
+ * fw_env_set() - adds or removes one variable to the environment
  *
  * @argc: number of strings in argv, argv[0] is variable name,
  *          argc==1 means erase variable, argc > 1 means add a variable
@@ -95,7 +48,7 @@ int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts);
  * @opts: how to retrieve environment from flash, defaults are used if NULL
  *
  * Description:
- *  Uses fw_env_open, fw_env_write, fw_env_close
+ *  Uses fw_env_open, fw_env_write, fw_env_flush
  *
  * Return:
  *  0 on success, -1 on failure (modifies errno)
@@ -103,7 +56,7 @@ int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts);
  * ERRORS:
  *  EROFS - some variables ("ethaddr", "serial#") cannot be modified
  */
-int fw_setenv(int argc, char *argv[], struct env_opts *opts);
+int fw_env_set(int argc, char *argv[], struct env_opts *opts);
 
 /**
  * fw_parse_script() - adds or removes multiple variables with a batch script
@@ -112,7 +65,7 @@ int fw_setenv(int argc, char *argv[], struct env_opts *opts);
  * @opts: encryption key, configuration file, defaults are used if NULL
  *
  * Description:
- *  Uses fw_env_open, fw_env_write, fw_env_close
+ *  Uses fw_env_open, fw_env_write, fw_env_flush
  *
  * Return:
  *  0 success, -1 on failure (modifies errno)
@@ -180,7 +133,17 @@ char *fw_getenv(char *name);
 int fw_env_write(char *name, char *value);
 
 /**
- * fw_env_close - write the environment from RAM cache back to flash
+ * fw_env_flush - write the environment from RAM cache back to flash
+ *
+ * @opts: encryption key, configuration file, defaults are used if NULL
+ *
+ * Return:
+ *  0 on success, -1 on failure (modifies errno)
+ */
+int fw_env_flush(struct env_opts *opts);
+
+/**
+ * fw_env_close - free allocated structure and close env
  *
  * @opts: encryption key, configuration file, defaults are used if NULL
  *
@@ -188,5 +151,14 @@ int fw_env_write(char *name, char *value);
  *  0 on success, -1 on failure (modifies errno)
  */
 int fw_env_close(struct env_opts *opts);
+
+
+/**
+ * fw_env_version - return the current version of the library
+ *
+ * Return:
+ *  version string of the library
+ */
+char *fw_env_version(void);
 
 unsigned long crc32(unsigned long, const unsigned char *, unsigned);

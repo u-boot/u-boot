@@ -19,37 +19,40 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #if CONFIG_IS_ENABLED(PMIC_CHILDREN)
-int pmic_bind_children(struct udevice *pmic, int offset,
+int pmic_bind_children(struct udevice *pmic, ofnode parent,
 		       const struct pmic_child_info *child_info)
 {
 	const struct pmic_child_info *info;
-	const void *blob = gd->fdt_blob;
 	struct driver *drv;
 	struct udevice *child;
 	const char *node_name;
+	const char *reg_name;
 	int bind_count = 0;
-	int node;
+	ofnode node;
 	int prefix_len;
 	int ret;
 
 	debug("%s for '%s' at node offset: %d\n", __func__, pmic->name,
-	      pmic->of_offset);
+	      dev_of_offset(pmic));
 
-	for (node = fdt_first_subnode(blob, offset);
-	     node > 0;
-	     node = fdt_next_subnode(blob, node)) {
-		node_name = fdt_get_name(blob, node, NULL);
+	ofnode_for_each_subnode(node, parent) {
+		node_name = ofnode_get_name(node);
 
-		debug("* Found child node: '%s' at offset:%d\n", node_name,
-								 node);
+		debug("* Found child node: '%s'\n", node_name);
 
 		child = NULL;
 		for (info = child_info; info->prefix && info->driver; info++) {
 			debug("  - compatible prefix: '%s'\n", info->prefix);
 
 			prefix_len = strlen(info->prefix);
-			if (strncmp(info->prefix, node_name, prefix_len))
-				continue;
+			if (strncmp(info->prefix, node_name, prefix_len)) {
+				reg_name = ofnode_read_string(node,
+							      "regulator-name");
+				if (!reg_name)
+					continue;
+				if (strncmp(info->prefix, reg_name, prefix_len))
+					continue;
+			}
 
 			drv = lists_driver_lookup_name(info->driver);
 			if (!drv) {
@@ -60,8 +63,8 @@ int pmic_bind_children(struct udevice *pmic, int offset,
 
 			debug("  - found child driver: '%s'\n", drv->name);
 
-			ret = device_bind(pmic, drv, node_name, NULL,
-					  node, &child);
+			ret = device_bind_with_driver_data(pmic, drv, node_name,
+							   0, node, &child);
 			if (ret) {
 				debug("  - child binding error: %d\n", ret);
 				continue;
@@ -82,7 +85,7 @@ int pmic_bind_children(struct udevice *pmic, int offset,
 			debug("  - compatible prefix not found\n");
 	}
 
-	debug("Bound: %d childs for PMIC: '%s'\n", bind_count, pmic->name);
+	debug("Bound: %d children for PMIC: '%s'\n", bind_count, pmic->name);
 	return bind_count;
 }
 #endif

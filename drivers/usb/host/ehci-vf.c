@@ -17,8 +17,8 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/regs-usbphy.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/regs-usbphy.h>
 #include <usb/ehci-ci.h>
 #include <libfdt.h>
 #include <fdtdec.h>
@@ -218,12 +218,12 @@ static int vf_usb_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ehci_vf_priv_data *priv = dev_get_priv(dev);
 	const void *dt_blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	const char *mode;
 
 	priv->portnr = dev->seq;
 
-	priv->ehci = (struct usb_ehci *)dev_get_addr(dev);
+	priv->ehci = (struct usb_ehci *)devfdt_get_addr(dev);
 	mode = fdt_getprop(dt_blob, node, "dr_mode", NULL);
 	if (mode) {
 		if (0 == strcmp(mode, "host")) {
@@ -252,8 +252,9 @@ static int vf_usb_ofdata_to_platdata(struct udevice *dev)
 	}
 
 	if (priv->dr_mode == DR_MODE_OTG) {
-		gpio_request_by_name_nodev(dt_blob, node, "fsl,cdet-gpio", 0,
-					   &priv->cdet_gpio, GPIOD_IS_IN);
+		gpio_request_by_name_nodev(offset_to_ofnode(node),
+					   "fsl,cdet-gpio", 0, &priv->cdet_gpio,
+					   GPIOD_IS_IN);
 		if (dm_gpio_is_valid(&priv->cdet_gpio)) {
 			if (dm_gpio_get_value(&priv->cdet_gpio))
 				priv->init_type = USB_INIT_DEVICE;

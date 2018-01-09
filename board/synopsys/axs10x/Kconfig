@@ -1,4 +1,4 @@
-if TARGET_AXS10X
+if TARGET_AXS101 || TARGET_AXS103
 
 config SYS_BOARD
 	default "axs10x"

@@ -20,7 +20,7 @@
 
 #ifndef CONFIG_DM_ETH
 
-#ifdef CONFIG_LS102XA
+#ifdef CONFIG_ARCH_LS1021A
 #define TSEC_SIZE		0x40000
 #define TSEC_MDIO_OFFSET	0x40000
 #else

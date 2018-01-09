@@ -9,8 +9,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_MX53
-
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX53_SMD
 
 #include <asm/arch/imx-regs.h>
@@ -25,7 +23,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
 
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MXC_GPIO
 
 #define CONFIG_MXC_UART
@@ -43,9 +40,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_ESDHC_NUM	1
 
-#define CONFIG_GENERIC_MMC
-#define CONFIG_DOS_PARTITION
-
 /* Eth Configs */
 #define CONFIG_HAS_ETH1
 #define CONFIG_MII
@@ -57,7 +51,6 @@
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX		1
-#define CONFIG_BAUDRATE			115200
 
 /* Command definition */
 
@@ -107,12 +100,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
-
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS	16	/* max number of command args */
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size */
 
 #define CONFIG_SYS_MEMTEST_START       0x70000000
 #define CONFIG_SYS_MEMTEST_END         0x70010000
@@ -138,12 +125,9 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH
-
+/* environment organization */
 #define CONFIG_ENV_OFFSET      (6 * 64 * 1024)
 #define CONFIG_ENV_SIZE        (8 * 1024)
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV 0
 
 #endif				/* __CONFIG_H */

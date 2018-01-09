@@ -319,6 +319,7 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 	DIR *dir;
 	int ret;
 	char *fname;
+	char *old_fname;
 	int len;
 	int dirlen;
 
@@ -344,15 +345,22 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 			break;
 		}
 		next = malloc(sizeof(*node) + strlen(entry->d_name) + 1);
-		if (dirlen + strlen(entry->d_name) > len) {
-			len = dirlen + strlen(entry->d_name);
-			fname = realloc(fname, len);
-		}
-		if (!next || !fname) {
-			free(next);
+		if (!next) {
 			os_dirent_free(head);
 			ret = -ENOMEM;
 			goto done;
+		}
+		if (dirlen + strlen(entry->d_name) > len) {
+			len = dirlen + strlen(entry->d_name);
+			old_fname = fname;
+			fname = realloc(fname, len);
+			if (!fname) {
+				free(old_fname);
+				free(next);
+				os_dirent_free(head);
+				ret = -ENOMEM;
+				goto done;
+			}
 		}
 		next->next = NULL;
 		strcpy(next->name, entry->d_name);
@@ -395,7 +403,7 @@ const char *os_dirent_typename[OS_FILET_COUNT] = {
 
 const char *os_dirent_get_typename(enum os_dirent_t type)
 {
-	if (type >= 0 && type < OS_FILET_COUNT)
+	if (type >= OS_FILET_REG && type < OS_FILET_COUNT)
 		return os_dirent_typename[type];
 
 	return os_dirent_typename[OS_FILET_UNKNOWN];

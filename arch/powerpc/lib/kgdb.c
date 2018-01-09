@@ -38,20 +38,6 @@ kgdb_longjmp(long *buf, int val)
 	     : "=&r"(temp) : "r" (buf), "r" (val));
 }
 
-static inline unsigned long
-get_msr(void)
-{
-	unsigned long msr;
-	asm volatile("mfmsr %0" : "=r" (msr):);
-	return msr;
-}
-
-static inline void
-set_msr(unsigned long msr)
-{
-	asm volatile("mtmsr %0" : : "r" (msr));
-}
-
 /* Convert the SPARC hardware trap type code to a unix signal number. */
 /*
  * This table contains the mapping between PowerPC hardware trap types, and
@@ -159,20 +145,6 @@ kgdb_trap(struct pt_regs *regs)
 
 #define SPACE_REQUIRED	((32*4)+(32*8)+(6*4))
 
-#ifdef CONFIG_MPC8260
-/* store floating double indexed */
-#define STFDI(n,p)	__asm__ __volatile__ ("stfd " #n ",%0" : "=o"(p[2*n]))
-/* store floating double multiple */
-#define STFDM(p)	{ STFDI( 0,p); STFDI( 1,p); STFDI( 2,p); STFDI( 3,p); \
-			  STFDI( 4,p); STFDI( 5,p); STFDI( 6,p); STFDI( 7,p); \
-			  STFDI( 8,p); STFDI( 9,p); STFDI(10,p); STFDI(11,p); \
-			  STFDI(12,p); STFDI(13,p); STFDI(14,p); STFDI(15,p); \
-			  STFDI(16,p); STFDI(17,p); STFDI(18,p); STFDI(19,p); \
-			  STFDI(20,p); STFDI(21,p); STFDI(22,p); STFDI(23,p); \
-			  STFDI(24,p); STFDI(25,p); STFDI(26,p); STFDI(27,p); \
-			  STFDI(28,p); STFDI(29,p); STFDI(30,p); STFDI(31,p); }
-#endif
-
 int
 kgdb_getregs(struct pt_regs *regs, char *buf, int max)
 {
@@ -190,15 +162,10 @@ kgdb_getregs(struct pt_regs *regs, char *buf, int max)
 		*ptr++ = regs->gpr[i];
 
 	/* Floating Point Regs */
-#ifdef CONFIG_MPC8260
-	STFDM(ptr);
-	ptr += 32*2;
-#else
 	for (i = 0; i < 32; i++) {
 		*ptr++ = 0;
 		*ptr++ = 0;
 	}
-#endif
 
 	/* pc, msr, cr, lr, ctr, xer, (mq is unused) */
 	*ptr++ = regs->nip;
@@ -212,23 +179,6 @@ kgdb_getregs(struct pt_regs *regs, char *buf, int max)
 }
 
 /* set the value of the CPU registers */
-
-#ifdef CONFIG_MPC8260
-/* load floating double */
-#define LFD(n,v)	__asm__ __volatile__ ("lfd " #n ",%0" :: "o"(v))
-/* load floating double indexed */
-#define LFDI(n,p)	__asm__ __volatile__ ("lfd " #n ",%0" :: "o"((p)[2*n]))
-/* load floating double multiple */
-#define LFDM(p)		{ LFDI( 0,p); LFDI( 1,p); LFDI( 2,p); LFDI( 3,p); \
-			  LFDI( 4,p); LFDI( 5,p); LFDI( 6,p); LFDI( 7,p); \
-			  LFDI( 8,p); LFDI( 9,p); LFDI(10,p); LFDI(11,p); \
-			  LFDI(12,p); LFDI(13,p); LFDI(14,p); LFDI(15,p); \
-			  LFDI(16,p); LFDI(17,p); LFDI(18,p); LFDI(19,p); \
-			  LFDI(20,p); LFDI(21,p); LFDI(22,p); LFDI(23,p); \
-			  LFDI(24,p); LFDI(25,p); LFDI(26,p); LFDI(27,p); \
-			  LFDI(28,p); LFDI(29,p); LFDI(30,p); LFDI(31,p); }
-#endif
-
 void
 kgdb_putreg(struct pt_regs *regs, int regno, char *buf, int length)
 {
@@ -251,19 +201,6 @@ kgdb_putreg(struct pt_regs *regs, int regno, char *buf, int length)
 	if (regno >= 0 && regno < 32)
 		regs->gpr[regno] = *ptr;
 	else switch (regno) {
-
-#ifdef CONFIG_MPC8260
-#define caseF(n) \
-	case (n) + 32:	LFD(n, *ptr);		break;
-
-caseF( 0) caseF( 1) caseF( 2) caseF( 3) caseF( 4) caseF( 5) caseF( 6) caseF( 7)
-caseF( 8) caseF( 9) caseF(10) caseF(11) caseF(12) caseF(13) caseF(14) caseF(15)
-caseF(16) caseF(17) caseF(18) caseF(19) caseF(20) caseF(21) caseF(22) caseF(23)
-caseF(24) caseF(25) caseF(26) caseF(27) caseF(28) caseF(29) caseF(30) caseF(31)
-
-#undef caseF
-#endif
-
 	case 64:	regs->nip = *ptr;	break;
 	case 65:	regs->msr = *ptr;	break;
 	case 66:	regs->ccr = *ptr;	break;
@@ -298,9 +235,6 @@ kgdb_putregs(struct pt_regs *regs, char *buf, int length)
 		regs->gpr[i] = *ptr++;
 
 	/* Floating Point Regs */
-#ifdef CONFIG_MPC8260
-	LFDM(ptr);
-#endif
 	ptr += 32*2;
 
 	/* pc, msr, cr, lr, ctr, xer, (mq is unused) */

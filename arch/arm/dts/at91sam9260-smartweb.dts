@@ -18,6 +18,7 @@
 	compatible = "atmel,at91sam9260", "atmel,at91sam9";
 
 	chosen {
+		u-boot,dm-pre-reloc;
 		stdout-path = &dbgu;
 	};
 
@@ -48,6 +49,7 @@
 			};
 
 			dbgu: serial@fffff200 {
+				u-boot,dm-pre-reloc;
 				status = "okay";
 			};
 

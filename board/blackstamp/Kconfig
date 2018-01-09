@@ -1,9 +1,0 @@
-if TARGET_BLACKSTAMP
-
-config SYS_BOARD
-	default "blackstamp"
-
-config SYS_CONFIG_NAME
-	default "blackstamp"
-
-endif

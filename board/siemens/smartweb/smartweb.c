@@ -34,6 +34,7 @@
 #ifndef CONFIG_DM_ETH
 # include <netdev.h>
 #endif
+#include <g_dnl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -257,11 +258,8 @@ void mem_init(void)
 }
 #endif
 
-static struct atmel_serial_platdata at91sam9260_serial_plat = {
-	.base_addr = ATMEL_BASE_DBGU,
-};
-
-U_BOOT_DEVICE(at91sam9260_serial) = {
-	.name	= "serial_atmel",
-	.platdata = &at91sam9260_serial_plat,
-};
+int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
+{
+	g_dnl_set_serialnumber("1");
+	return 0;
+}

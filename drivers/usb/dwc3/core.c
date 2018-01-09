@@ -124,6 +124,8 @@ static struct dwc3_event_buffer *dwc3_alloc_one_event_buffer(struct dwc3 *dwc,
 	if (!evt->buf)
 		return ERR_PTR(-ENOMEM);
 
+	dwc3_flush_cache((uintptr_t)evt->buf, evt->length);
+
 	return evt;
 }
 

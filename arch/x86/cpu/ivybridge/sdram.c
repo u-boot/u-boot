@@ -46,9 +46,11 @@ ulong board_get_usable_ram_top(ulong total_size)
 	return mrc_common_board_get_usable_ram_top(total_size);
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	mrc_common_dram_init_banksize();
+
+	return 0;
 }
 
 static int read_seed_from_cmos(struct pei_data *pei_data)
@@ -207,8 +209,10 @@ static int copy_spd(struct udevice *dev, struct pei_data *peid)
 	int ret;
 
 	ret = mrc_locate_spd(dev, sizeof(peid->spd_data[0]), &data);
-	if (ret)
+	if (ret) {
+		debug("%s: Could not locate SPD (ret=%d)\n", __func__, ret);
 		return ret;
+	}
 
 	memcpy(peid->spd_data[0], data, sizeof(peid->spd_data[0]));
 
@@ -229,7 +233,6 @@ static int sdram_find(struct udevice *dev)
 	uint32_t tseg_base, uma_size, tolud;
 	uint64_t tom, me_base, touud;
 	uint64_t uma_memory_base = 0;
-	uint64_t uma_memory_size;
 	unsigned long long tomk;
 	uint16_t ggc;
 	u32 val;
@@ -294,7 +297,6 @@ static int sdram_find(struct udevice *dev)
 		tolud += uma_size << 10;
 		/* UMA starts at old TOLUD */
 		uma_memory_base = tomk * 1024ULL;
-		uma_memory_size = uma_size * 1024ULL;
 		debug("ME UMA base %llx size %uM\n", me_base, uma_size >> 10);
 	}
 
@@ -308,13 +310,11 @@ static int sdram_find(struct udevice *dev)
 		debug("%uM UMA", uma_size >> 10);
 		tomk -= uma_size;
 		uma_memory_base = tomk * 1024ULL;
-		uma_memory_size += uma_size * 1024ULL;
 
 		/* GTT Graphics Stolen Memory Size (GGMS) */
 		uma_size = ((ggc >> 8) & 0x3) * 1024ULL;
 		tomk -= uma_size;
 		uma_memory_base = tomk * 1024ULL;
-		uma_memory_size += uma_size * 1024ULL;
 		debug(" and %uM GTT\n", uma_size >> 10);
 	}
 
@@ -323,7 +323,6 @@ static int sdram_find(struct udevice *dev)
 	uma_size = (uma_memory_base - tseg_base) >> 10;
 	tomk -= uma_size;
 	uma_memory_base = tomk * 1024ULL;
-	uma_memory_size += uma_size * 1024ULL;
 	debug("TSEG base 0x%08x size %uM\n", tseg_base, uma_size >> 10);
 
 	debug("Available memory below 4GB: %lluM\n", tomk >> 10);
@@ -460,18 +459,27 @@ int dram_init(void)
 
 	/* We need the pinctrl set up early */
 	ret = syscon_get_by_driver_data(X86_SYSCON_PINCONF, &dev);
-	if (ret)
+	if (ret) {
+		debug("%s: Could not get pinconf (ret=%d)\n", __func__, ret);
 		return ret;
+	}
 
 	ret = uclass_first_device_err(UCLASS_NORTHBRIDGE, &dev);
-	if (ret)
+	if (ret) {
+		debug("%s: Could not get northbridge (ret=%d)\n", __func__,
+		      ret);
 		return ret;
+	}
 	ret = syscon_get_by_driver_data(X86_SYSCON_ME, &me_dev);
-	if (ret)
+	if (ret) {
+		debug("%s: Could not get ME (ret=%d)\n", __func__, ret);
 		return ret;
+	}
 	ret = copy_spd(dev, pei_data);
-	if (ret)
+	if (ret) {
+		debug("%s: Could not get SPD (ret=%d)\n", __func__, ret);
 		return ret;
+	}
 	pei_data->boot_mode = gd->arch.pei_boot_mode;
 	debug("Boot mode %d\n", gd->arch.pei_boot_mode);
 	debug("mrc_input %p\n", pei_data->mrc_input);
@@ -498,19 +506,27 @@ int dram_init(void)
 
 	/* Wait for ME to be ready */
 	ret = intel_early_me_init(me_dev);
-	if (ret)
+	if (ret) {
+		debug("%s: Could not init ME (ret=%d)\n", __func__, ret);
 		return ret;
+	}
 	ret = intel_early_me_uma_size(me_dev);
-	if (ret < 0)
+	if (ret < 0) {
+		debug("%s: Could not get UMA size (ret=%d)\n", __func__, ret);
 		return ret;
+	}
 
 	ret = mrc_common_init(dev, pei_data, false);
-	if (ret)
+	if (ret) {
+		debug("%s: mrc_common_init() failed (ret=%d)\n", __func__, ret);
 		return ret;
+	}
 
 	ret = sdram_find(dev);
-	if (ret)
+	if (ret) {
+		debug("%s: sdram_find() failed (ret=%d)\n", __func__, ret);
 		return ret;
+	}
 	gd->ram_size = gd->arch.meminfo.total_32bit_memory;
 
 	debug("MRC output data length %#x at %p\n", pei_data->mrc_output_len,

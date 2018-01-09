@@ -20,6 +20,8 @@
 #include "gpheader.h"
 #include "omapimage.h"
 
+#define DIV_ROUND_UP(n, d)     (((n) + (d) - 1) / (d))
+
 /* Header size is CH header rounded up to 512 bytes plus GP header */
 #define OMAP_CH_HDR_SIZE 512
 #define OMAP_FILE_HDR_SIZE (OMAP_CH_HDR_SIZE + GPIMAGE_HDR_SIZE)
@@ -143,15 +145,17 @@ static void omapimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	toc++;
 	memset(toc, 0xff, sizeof(*toc));
 
-	gph_set_header(gph, sbuf->st_size - OMAP_FILE_HDR_SIZE,
+	gph_set_header(gph, sbuf->st_size - OMAP_CH_HDR_SIZE + GPIMAGE_HDR_SIZE,
 		       params->addr, 0);
 
 	if (strncmp(params->imagename, "byteswap", 8) == 0) {
 		do_swap32 = 1;
 		int swapped = 0;
 		uint32_t *data = (uint32_t *)ptr;
+		const off_t size_in_words =
+			DIV_ROUND_UP(sbuf->st_size, sizeof(uint32_t));
 
-		while (swapped <= (sbuf->st_size / sizeof(uint32_t))) {
+		while (swapped < size_in_words) {
 			*data = cpu_to_be32(*data);
 			swapped++;
 			data++;

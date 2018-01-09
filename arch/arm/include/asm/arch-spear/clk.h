@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2010
- * Vipin Kumar, STMicroelectronics, <vipin.kumar@st.com>
+ * Copyright (C) 2010, STMicroelectronics - All Rights Reserved
+ * Author(s): Vipin Kumar, <vipin.kumar@st.com> for STMicroelectronics.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */

@@ -19,45 +19,19 @@
 #undef CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 #undef CONFIG_CMD_EXT4
 #undef CONFIG_CMD_EXT4_WRITE
-#undef CONFIG_CMD_MMC_SPI
 #undef CONFIG_CMD_SPI
 
 #define CONFIG_CMD_CACHE
 
 #ifndef CONFIG_SPL_BUILD
 # define CONFIG_TIMESTAMP
-# define CONFIG_LZO
 #endif
 
 #define CONFIG_SYS_BOOTM_LEN		(16 << 20)
 
-#define MACH_TYPE_BOSCH_SHC_B		9001
-#define MACH_TYPE_BOSCH_SHC_B2		9002
-#define MACH_TYPE_BOSCH_SHC_C		9003
-#define MACH_TYPE_BOSCH_SHC_C2		9004
-#define MACH_TYPE_BOSCH_SHC_C3		9005
-#define MACH_TYPE_BOSCH_SHC		9006
-#ifdef CONFIG_B_SAMPLE
-# define CONFIG_MACH_TYPE		MACH_TYPE_BOSCH_SHC_B
-#elif defined CONFIG_B2_SAMPLE
-# define CONFIG_MACH_TYPE		MACH_TYPE_BOSCH_SHC_B2
-#elif defined CONFIG_C_SAMPLE
-# define CONFIG_MACH_TYPE		MACH_TYPE_BOSCH_SHC_C
-#elif defined CONFIG_C2_SAMPLE
-# define CONFIG_MACH_TYPE		MACH_TYPE_BOSCH_SHC_C2
-#elif defined CONFIG_C3_SAMPLE
-# define CONFIG_MACH_TYPE		MACH_TYPE_BOSCH_SHC_C3
-#elif defined CONFIG_SERIES
-# define CONFIG_MACH_TYPE		MACH_TYPE_BOSCH_SHC
-#endif /* #ifdef CONFIG_B_SAMPLE */
-
-#define CONFIG_BOARD_LATE_INIT
-
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
-
-#define CONFIG_ENV_IS_IN_MMC		1
 
 /*
  * in case of SD Card or Network boot we want to have a possibility to
@@ -83,12 +57,6 @@
 #define CONFIG_ENV_OFFSET_REDUND    0x9000 /* 36 kB */
 #define CONFIG_ENV_SIZE_REDUND      CONFIG_ENV_SIZE
 
-/* Enhance our eMMC support / experience. */
-#define CONFIG_CMD_GPT
-#define CONFIG_EFI_PARTITION
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_ISO_PARTITION
-#endif
 #ifndef CONFIG_SHC_ICT
 /*
  * In builds other than ICT, reset to retry after timeout
@@ -271,19 +239,12 @@
 #define CONFIG_SYS_NS16550_COM4		0x481a6000	/* UART3 */
 #define CONFIG_SYS_NS16550_COM5		0x481a8000	/* UART4 */
 #define CONFIG_SYS_NS16550_COM6		0x481aa000	/* UART5 */
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_CONS_INDEX               1
 
 /* PMIC support */
 #define CONFIG_POWER_TPS65217
 
 /* SPL */
-
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/am33xx/u-boot-spl.lds"
-
-#ifndef CONFIG_SPL_USBETH_SUPPORT
-#define CONFIG_FASTBOOT_FLASH_MMC_DEV   1
-#endif
 
 /*
  * Disable MMC DM for SPL build and can be re-enabled after adding
@@ -305,9 +266,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_NET_RETRY_COUNT         10
-#define CONFIG_NET_MULTI
-#define CONFIG_PHY_GIGE
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_ADDR			0
 #define CONFIG_PHY_SMSC
 
@@ -318,11 +276,4 @@
 #define CONFIG_SYS_I2C_SLAVE		1
 
 #define CONFIG_SHOW_BOOT_PROGRESS
-
-#if defined CONFIG_SHC_NETBOOT
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_ENV_IS_NOWHERE
-#undef CONFIG_ENV_IS_IN_MMC
-#endif
-#endif
 #endif	/* ! __CONFIG_AM335X_SHC_H */

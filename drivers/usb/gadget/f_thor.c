@@ -174,7 +174,7 @@ static long long int download_head(unsigned long long total,
 					transfer_buffer, THOR_STORE_UNIT_SIZE,
 					(*cnt)++);
 			if (ret) {
-				error("DFU write failed [%d] cnt: %d",
+				pr_err("DFU write failed [%d] cnt: %d",
 				      ret, *cnt);
 				return ret;
 			}
@@ -218,20 +218,20 @@ static int download_tail(long long int left, int cnt)
 
 	dfu_entity = dfu_get_entity(alt_setting_num);
 	if (!dfu_entity) {
-		error("Alt setting: %d entity not found!\n", alt_setting_num);
+		pr_err("Alt setting: %d entity not found!\n", alt_setting_num);
 		return -ENOENT;
 	}
 
 	transfer_buffer = dfu_get_buf(dfu_entity);
 	if (!transfer_buffer) {
-		error("Transfer buffer not allocated!");
+		pr_err("Transfer buffer not allocated!");
 		return -ENXIO;
 	}
 
 	if (left) {
 		ret = dfu_write(dfu_entity, transfer_buffer, left, cnt++);
 		if (ret) {
-			error("DFU write failed [%d]: left: %llu", ret, left);
+			pr_err("DFU write failed [%d]: left: %llu", ret, left);
 			return ret;
 		}
 	}
@@ -245,7 +245,7 @@ static int download_tail(long long int left, int cnt)
 	 */
 	ret = dfu_flush(dfu_entity, transfer_buffer, 0, cnt);
 	if (ret)
-		error("DFU flush failed!");
+		pr_err("DFU flush failed!");
 
 	return ret;
 }
@@ -285,7 +285,7 @@ static long long int process_rqt_download(const struct rqt_box *rqt)
 
 		alt_setting_num = dfu_get_alt(f_name);
 		if (alt_setting_num < 0) {
-			error("Alt setting [%d] to write not found!",
+			pr_err("Alt setting [%d] to write not found!",
 			      alt_setting_num);
 			rsp->ack = -ENODEV;
 			ret = rsp->ack;
@@ -311,7 +311,7 @@ static long long int process_rqt_download(const struct rqt_box *rqt)
 		debug("DL EXIT\n");
 		break;
 	default:
-		error("Operation not supported: %d", rqt->rqt_data);
+		pr_err("Operation not supported: %d", rqt->rqt_data);
 		ret = -ENOTSUPP;
 	}
 
@@ -342,7 +342,7 @@ static int process_data(void)
 		puts("RQT: UPLOAD not supported!\n");
 		break;
 	default:
-		error("unknown request (%d)", rqt->rqt);
+		pr_err("unknown request (%d)", rqt->rqt);
 	}
 
 	return ret;
@@ -541,7 +541,7 @@ static int thor_rx_data(void)
 
 		status = usb_ep_queue(dev->out_ep, dev->out_req, 0);
 		if (status) {
-			error("kill %s:  resubmit %d bytes --> %d",
+			pr_err("kill %s:  resubmit %d bytes --> %d",
 			      dev->out_ep->name, dev->out_req->length, status);
 			usb_ep_set_halt(dev->out_ep);
 			return -EAGAIN;
@@ -575,7 +575,7 @@ static void thor_tx_data(unsigned char *data, int len)
 
 	status = usb_ep_queue(dev->in_ep, dev->in_req, 0);
 	if (status) {
-		error("kill %s:  resubmit %d bytes --> %d",
+		pr_err("kill %s:  resubmit %d bytes --> %d",
 		      dev->in_ep->name, dev->in_req->length, status);
 		usb_ep_set_halt(dev->in_ep);
 	}
@@ -608,7 +608,7 @@ static void thor_rx_tx_complete(struct usb_ep *ep, struct usb_request *req)
 	case -ESHUTDOWN:		/* disconnect from host */
 	case -EREMOTEIO:                /* short read */
 	case -EOVERFLOW:
-		error("ERROR:%d", status);
+		pr_err("ERROR:%d", status);
 		break;
 	}
 
@@ -664,7 +664,7 @@ thor_func_setup(struct usb_function *f, const struct usb_ctrlrequest *ctrl)
 		break;
 
 	default:
-		error("thor_setup: unknown request: %d", ctrl->bRequest);
+		pr_err("thor_setup: unknown request: %d", ctrl->bRequest);
 	}
 
 	if (value >= 0) {
@@ -973,7 +973,7 @@ static int thor_func_set_alt(struct usb_function *f,
 		debug("Communication Data interface\n");
 		result = thor_eps_setup(f);
 		if (result)
-			error("%s: EPs setup failed!", __func__);
+			pr_err("%s: EPs setup failed!", __func__);
 		dev->configuration_done = 1;
 		break;
 	}

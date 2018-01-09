@@ -2,9 +2,11 @@ if ROCKCHIP_RK3036
 
 config TARGET_EVB_RK3036
 	bool "EVB_RK3036"
+	select BOARD_LATE_INIT
 
 config TARGET_KYLIN_RK3036
 	bool "KYLIN_RK3036"
+	select BOARD_LATE_INIT
 
 config SYS_SOC
 	default "rockchip"

@@ -29,6 +29,7 @@
 #include <asm/gpio.h>
 #include <hwconfig.h>
 #include <bootstage.h>
+#include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -156,7 +157,7 @@ u32 get_board_rev(void)
 	u32 maxcpuclk = CONFIG_DA850_EVM_MAX_CPU_CLK;
 	u32 rev = 0;
 
-	s = getenv("maxcpuclk");
+	s = env_get("maxcpuclk");
 	if (s)
 		maxcpuclk = simple_strtoul(s, NULL, 10);
 
@@ -188,9 +189,7 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-#ifndef CONFIG_USE_IRQ
 	irq_init();
-#endif
 
 	/* arch number of the board */
 	gd->bd->bi_arch_number = MACH_TYPE_DAVINCI_DA850_EVM;

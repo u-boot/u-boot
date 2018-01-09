@@ -165,7 +165,6 @@
 #define CONFIG_TSEC2
 #define CONFIG_TSEC_ENET
 #define CONFIG_HARD_SPI
-#define CONFIG_HARD_I2C
 
 /*
  * NOR FLASH setup
@@ -412,10 +411,7 @@
 /*
  * U-Boot environment setup
  */
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_DATE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_CMD_JFFS2
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
@@ -432,7 +428,6 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE \
 				+ CONFIG_SYS_MONITOR_LEN)
 #define CONFIG_ENV_SIZE		0x20000
@@ -446,10 +441,7 @@
 #define CONFIG_UBOOTPATH		"ids8313/u-boot.bin"
 #define CONFIG_FDTFILE			"ids8313/ids8313.dtb"
 #define CONFIG_LOADADDR		0x400000
-#define CONFIG_CMD_ENV_FLAGS
 #define CONFIG_ENV_FLAGS_LIST_STATIC "ethaddr:mo,eth1addr:mo"
-
-#define CONFIG_BAUDRATE		115200
 
 /* Initial Memory map for Linux*/
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
@@ -459,9 +451,6 @@
  */
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_CBSIZE		1024
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE \
-					 + sizeof(CONFIG_SYS_PROMPT)+16)
-#define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #define CONFIG_SYS_MEMTEST_START	0x00001000
@@ -474,7 +463,6 @@
 #define CONFIG_PREBOOT			"echo;" \
 					"echo Type \\\"run nfsboot\\\" " \
 					"to mount root filesystem over NFS;echo"
-#undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND		"run boot_cramfs"
 #undef	CONFIG_SYS_LOADS_BAUD_CHANGE
 
@@ -482,14 +470,8 @@
 #define CONFIG_JFFS2_DEV		"0"
 
 /* mtdparts command line support */
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_FLASH_CFI_MTD
 #define CONFIG_MTD_DEVICE
-#define MTDIDS_DEFAULT		"nor0=ff800000.flash,nand0=e1000000.flash"
-#define MTDPARTS_DEFAULT	"mtdparts=ff800000.flash:7m(dum)," \
-					"768k(BOOT-BIN)," \
-					"128k(BOOT-ENV),128k(BOOT-REDENV);" \
-					"e1000000.flash:-(ubi)"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"netdev=" __stringify(CONFIG_NETDEV) "\0"			\
@@ -519,8 +501,8 @@
 			"${netmask}:${hostname}:${netdev}:off "		\
 			"console=${console},${baudrate} ${othbootargs}\0" \
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
-	"mtdids=" MTDIDS_DEFAULT "\0"					\
-	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"					\
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"				\
 	"\0"
 
 #define CONFIG_NFSBOOTCOMMAND						\
@@ -532,10 +514,6 @@
 	"bootm ${loadaddr} - ${fdtaddr}"
 
 /* UBI Support */
-#define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_CMD_UBIFS
-#define CONFIG_RBTREE
-#define CONFIG_LZO
 #define CONFIG_MTD_PARTITIONS
 
 /* bootcount support */
@@ -545,8 +523,5 @@
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0x9
 
 #define CONFIG_IMAGE_FORMAT_LEGACY
-#define CONFIG_CMD_HASH
-#define CONFIG_SHA1
-#define CONFIG_SHA256
 
 #endif	/* __CONFIG_H */

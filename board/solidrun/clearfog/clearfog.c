@@ -82,8 +82,9 @@ static struct hws_topology_map board_topology_map = {
 	    BUS_WIDTH_16,		/* memory_width */
 	    MEM_4G,			/* mem_size */
 	    DDR_FREQ_800,		/* frequency */
-	    0, 0,			/* cas_l cas_wl */
-	    HWS_TEMP_LOW} },		/* temperature */
+	    0, 0,			/* cas_wl cas_l */
+	    HWS_TEMP_LOW,		/* temperature */
+	    HWS_TIM_DEFAULT} },		/* timing */
 	5,				/* Num Of Bus Per Interface*/
 	BUS_MASK_32BIT			/* Busses mask */
 };
@@ -131,8 +132,12 @@ int board_init(void)
 	/* Toggle GPIO41 to reset onboard switch and phy */
 	clrbits_le32(MVEBU_GPIO1_BASE + 0x0, BIT(9));
 	clrbits_le32(MVEBU_GPIO1_BASE + 0x4, BIT(9));
+	/* GPIO 19 on ClearFog rev 2.1 controls the uSOM onboard phy reset */
+	clrbits_le32(MVEBU_GPIO0_BASE + 0x0, BIT(19));
+	clrbits_le32(MVEBU_GPIO0_BASE + 0x4, BIT(19));
 	mdelay(1);
 	setbits_le32(MVEBU_GPIO1_BASE + 0x0, BIT(9));
+	setbits_le32(MVEBU_GPIO0_BASE + 0x0, BIT(19));
 	mdelay(10);
 
 	/* Init I2C IO expanders */

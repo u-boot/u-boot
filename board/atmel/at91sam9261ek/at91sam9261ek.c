@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <debug_uart.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9261.h>
 #include <asm/arch/at91sam9261_matrix.h>
@@ -21,6 +22,7 @@
 #include <net.h>
 #include <netdev.h>
 #endif
+#include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -212,12 +214,29 @@ void lcd_show_board_info(void)
 		dram_size += gd->bd->bi_dram[i].size;
 	nand_size = 0;
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
-		nand_size += nand_info[i]->size;
+		nand_size += get_nand_dev_by_index(i)->size;
 	lcd_printf ("  %ld MB SDRAM, %ld MB NAND\n",
 		dram_size >> 20,
 		nand_size >> 20 );
 }
 #endif /* CONFIG_LCD_INFO */
+#endif
+
+#ifdef CONFIG_DEBUG_UART_BOARD_INIT
+void board_debug_uart_init(void)
+{
+	at91_seriald_hw_init();
+}
+#endif
+
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+int board_early_init_f(void)
+{
+#ifdef CONFIG_DEBUG_UART
+	debug_uart_init();
+#endif
+	return 0;
+}
 #endif
 
 int board_init(void)
@@ -232,12 +251,8 @@ int board_init(void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
-	at91_seriald_hw_init();
 #ifdef CONFIG_CMD_NAND
 	at91sam9261ek_nand_hw_init();
-#endif
-#ifdef CONFIG_HAS_DATAFLASH
-	at91_spi0_hw_init(1 << 0);
 #endif
 #ifdef CONFIG_DRIVER_DM9000
 	at91sam9261ek_dm9000_hw_init();

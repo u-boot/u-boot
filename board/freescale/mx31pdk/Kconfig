@@ -1,5 +1,8 @@
 if TARGET_MX31PDK
 
+config SPL_LDSCRIPT
+	default "arch/$(ARCH)/cpu/u-boot-spl.lds"
+
 config SYS_BOARD
 	default "mx31pdk"
 

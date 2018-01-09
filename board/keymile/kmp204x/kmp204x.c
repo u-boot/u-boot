@@ -222,7 +222,7 @@ int last_stage_init(void)
 	if (dip_switch != 0) {
 		/* start bootloader */
 		puts("DIP:   Enabled\n");
-		setenv("actual_bank", "0");
+		env_set("actual_bank", "0");
 	}
 #endif
 	set_km_env();
@@ -239,7 +239,7 @@ void fdt_fixup_fman_mac_addresses(void *blob)
 	unsigned char mac_addr[6];
 
 	/* get the mac addr from env */
-	tmp = getenv("ethaddr");
+	tmp = env_get("ethaddr");
 	if (!tmp) {
 		printf("ethaddr env variable not defined\n");
 		return;
@@ -271,8 +271,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	ft_cpu_setup(blob, bd);
 
-	base = getenv_bootm_low();
-	size = getenv_bootm_size();
+	base = env_get_bootm_low();
+	size = env_get_bootm_size();
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
 

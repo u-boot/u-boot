@@ -1,4 +1,25 @@
-#!/bin/sh
+#!/bin/bash
 
-# Run all tests
-./test/py/test.py --bd sandbox --build
+run_test() {
+	$@
+	[ $? -ne 0 ] && result=$((result+1))
+}
+
+result=0
+
+# Run all tests that the standard sandbox build can support
+run_test ./test/py/test.py --bd sandbox --build
+
+# Run tests which require sandbox_spl
+run_test ./test/py/test.py --bd sandbox_spl --build -k \
+		test/py/tests/test_ofplatdata.py
+
+# Run tests for the flat DT version of sandbox
+./test/py/test.py --bd sandbox_flattree --build
+
+if [ $result == 0 ]; then
+	echo "Tests passed!"
+else
+	echo "Tests FAILED"
+	exit 1
+fi

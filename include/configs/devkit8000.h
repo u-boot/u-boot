@@ -16,7 +16,6 @@
 #define __CONFIG_H
 
 /* High Level Configuration Options */
-#define CONFIG_OMAP3_DEVKIT8000	1	/* working with DevKit8000 */
 #define CONFIG_MACH_TYPE	MACH_TYPE_DEVKIT8000
 
 /*
@@ -32,8 +31,6 @@
 
 #define CONFIG_SYS_SPL_MALLOC_START	0x80208000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000	/* 1 MB */
-
-#define CONFIG_NAND
 
 /*  Physical Memory Map  */
 #define CONFIG_NR_DRAM_BANKS		2 /* CS1 may or may not be populated */
@@ -63,23 +60,13 @@
 
 /* SPI */
 #undef CONFIG_SPI
-#undef CONFIG_OMAP3_SPI
 
 /* I2C */
-#undef CONFIG_SYS_I2C_OMAP24XX
-#define CONFIG_SYS_I2C_OMAP34XX
 
 /* TWL4030 */
 #define CONFIG_TWL4030_LED		1
 
 /* Board NAND Info */
-#define MTDIDS_DEFAULT			"nand0=nand"
-#define MTDPARTS_DEFAULT		"mtdparts=nand:" \
-						"512k(x-loader)," \
-						"1920k(u-boot)," \
-						"128k(u-boot-env)," \
-						"4m(kernel)," \
-						"-(fs)"
 
 #define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
 							/* to access nand */
@@ -91,12 +78,7 @@
 #define CONFIG_JFFS2_PART_SIZE		0xf980000	/* size of jffs2 */
 							/* partition */
 
-/* commands to include */
-#define CONFIG_CMD_JFFS2		/* JFFS2 Support		*/
-#define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands	*/
-
 #undef CONFIG_SUPPORT_RAW_INITRD
-#undef CONFIG_FAT_WRITE
 
 /* BOOTP/DHCP options */
 #define CONFIG_BOOTP_SUBNETMASK
@@ -185,10 +167,8 @@
 					0x01000000) /* 16MB */
 
 /* NAND and environment organization  */
-#define CONFIG_ENV_IS_IN_NAND		1
-#define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 
-#define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET
+#define CONFIG_ENV_OFFSET		0x260000
 
 /* SRAM config */
 #define CONFIG_SYS_SRAM_START              0x40200000
@@ -200,7 +180,6 @@
 #define CONFIG_SPL_TEXT_BASE		0x40200000 /*CONFIG_SYS_SRAM_START*/
 
 /* NAND boot config */
-#define CONFIG_SYS_NAND_BUSWIDTH_16BIT
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT	64
 #define CONFIG_SYS_NAND_PAGE_SIZE	2048
@@ -218,9 +197,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	0x200000
 
 /* SPL OS boot options */
-#define CONFIG_CMD_SPL_WRITE_SIZE       0x400 /* 1024 byte */
-#define CONFIG_CMD_SPL_NAND_OFS (CONFIG_SYS_NAND_SPL_KERNEL_OFFS+\
-					0x400000)
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS 0x280000
 
 #undef CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR

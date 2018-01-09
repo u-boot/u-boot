@@ -592,7 +592,7 @@ int spi_find_chip_select(struct udevice *bus, int cs, struct udevice **devp);
  * @node:	Node offset to read from
  * @plat:	Place to put the decoded information
  */
-int spi_slave_ofdata_to_platdata(const void *blob, int node,
+int spi_slave_ofdata_to_platdata(struct udevice *dev,
 				 struct dm_spi_slave_platdata *plat);
 
 /**

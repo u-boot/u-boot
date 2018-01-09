@@ -12,4 +12,16 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "work_92105"
 
+config CMD_HD44760
+	bool "Enable 'hd44780' LCD-control comand"
+	help
+	  This controls the LCD driver.
+
+config CMD_MAX6957
+	bool "Enable 'max6957aax' PMIC command"
+	help
+	  DEPRECATED: Needs conversion to driver model.
+
+	  This allows PMIC registers to be read and written.
+
 endif

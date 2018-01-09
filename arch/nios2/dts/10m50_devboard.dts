@@ -19,6 +19,7 @@
 		#size-cells = <0>;
 
 		cpu: cpu@0 {
+			u-boot,dm-pre-reloc;
 			device_type = "cpu";
 			compatible = "altr,nios2-1.1";
 			reg = <0x00000000>;

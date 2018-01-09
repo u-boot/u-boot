@@ -4,5 +4,4 @@ S:	Maintained
 F:	board/ti/am57xx/
 F:	include/configs/am57xx_evm.h
 F:	configs/am57xx_evm_defconfig
-F:	configs/am57xx_evm_nodt_defconfig
 F:	configs/am57xx_hs_evm_defconfig

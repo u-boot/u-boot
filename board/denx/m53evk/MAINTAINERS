@@ -1,6 +1,0 @@
-M53EVK BOARD
-M:	Marek Vasut <marek.vasut@gmail.com>
-S:	Maintained
-F:	board/denx/m53evk/
-F:	include/configs/m53evk.h
-F:	configs/m53evk_defconfig

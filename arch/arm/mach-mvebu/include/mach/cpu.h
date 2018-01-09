@@ -36,7 +36,9 @@ enum cpu_target {
 	CPU_TARGET_ETH01 = 0x7,
 	CPU_TARGET_PCIE13 = 0x8,
 	CPU_TARGET_SASRAM = 0x9,
+	CPU_TARGET_SATA01 = 0xa, /* A38X */
 	CPU_TARGET_NAND = 0xd,
+	CPU_TARGET_SATA23_DFX = 0xe, /* A38X */
 };
 
 enum cpu_attrib {
@@ -63,6 +65,7 @@ enum {
 	MVEBU_SOC_AXP,
 	MVEBU_SOC_A375,
 	MVEBU_SOC_A38X,
+	MVEBU_SOC_MSYS,
 	MVEBU_SOC_UNKNOWN,
 };
 

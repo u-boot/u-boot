@@ -1,0 +1,26 @@
+/dts-v1/;
+#include "bcm2835.dtsi"
+#include "bcm2835-rpi.dtsi"
+#include "bcm283x-rpi-smsc9512.dtsi"
+#include "bcm283x-rpi-usb-host.dtsi"
+
+/ {
+	compatible = "raspberrypi,model-zero-w", "brcm,bcm2835";
+	model = "Raspberry Pi Zero W";
+
+	leds {
+		act {
+			gpios = <&gpio 47 0>;
+		};
+	};
+};
+
+&uart1 {
+    pinctrl-names = "default";
+    pinctrl-0 = <&uart1_gpio14>;
+    status = "okay";
+};
+
+&hdmi {
+	hpd-gpios = <&gpio 46 GPIO_ACTIVE_LOW>;
+};

@@ -16,6 +16,10 @@
 #include <fsl_ddr.h>
 #include <fsl_immap.h>
 #include <asm/io.h>
+#if defined(CONFIG_FSL_LSCH2) || defined(CONFIG_FSL_LSCH3) || \
+	defined(CONFIG_ARM)
+#include <asm/arch/clock.h>
+#endif
 
 /*
  * Determine Rtt value.

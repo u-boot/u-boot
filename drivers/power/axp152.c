@@ -75,7 +75,7 @@ int axp_init(void)
 		return rc;
 
 	if (ver != 0x05)
-		return -1;
+		return -EINVAL;
 
 	return 0;
 }

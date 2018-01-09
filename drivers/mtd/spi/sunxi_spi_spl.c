@@ -8,6 +8,7 @@
 #include <spl.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <libfdt.h>
 
 #ifdef CONFIG_SPL_OS_BOOT
 #error CONFIG_SPL_OS_BOOT is not supported yet
@@ -185,14 +186,14 @@ static void spi0_deinit(void)
 #define SPI_READ_MAX_SIZE 60 /* FIFO size, minus 4 bytes of the header */
 
 static void sunxi_spi0_read_data(u8 *buf, u32 addr, u32 bufsize,
-				 u32 spi_ctl_reg,
-				 u32 spi_ctl_xch_bitmask,
-				 u32 spi_fifo_reg,
-				 u32 spi_tx_reg,
-				 u32 spi_rx_reg,
-				 u32 spi_bc_reg,
-				 u32 spi_tc_reg,
-				 u32 spi_bcc_reg)
+				 ulong spi_ctl_reg,
+				 ulong spi_ctl_xch_bitmask,
+				 ulong spi_fifo_reg,
+				 ulong spi_tx_reg,
+				 ulong spi_rx_reg,
+				 ulong spi_bc_reg,
+				 ulong spi_tc_reg,
+				 ulong spi_bcc_reg)
 {
 	writel(4 + bufsize, spi_bc_reg); /* Burst counter (total bytes) */
 	writel(4, spi_tc_reg);           /* Transfer counter (bytes to send) */
@@ -261,27 +262,51 @@ static void spi0_read_data(void *buf, u32 addr, u32 len)
 	}
 }
 
+static ulong spi_load_read(struct spl_load_info *load, ulong sector,
+			   ulong count, void *buf)
+{
+	spi0_read_data(buf, sector, count);
+
+	return count;
+}
+
 /*****************************************************************************/
 
 static int spl_spi_load_image(struct spl_image_info *spl_image,
 			      struct spl_boot_device *bootdev)
 {
-	int err;
+	int ret = 0;
 	struct image_header *header;
 	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE);
 
 	spi0_init();
 
 	spi0_read_data((void *)header, CONFIG_SYS_SPI_U_BOOT_OFFS, 0x40);
-	err = spl_parse_image_header(spl_image, header);
-	if (err)
-		return err;
 
-	spi0_read_data((void *)spl_image->load_addr, CONFIG_SYS_SPI_U_BOOT_OFFS,
-		       spl_image->size);
+        if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
+		image_get_magic(header) == FDT_MAGIC) {
+		struct spl_load_info load;
+
+		debug("Found FIT image\n");
+		load.dev = NULL;
+		load.priv = NULL;
+		load.filename = NULL;
+		load.bl_len = 1;
+		load.read = spi_load_read;
+		ret = spl_load_simple_fit(spl_image, &load,
+					  CONFIG_SYS_SPI_U_BOOT_OFFS, header);
+	} else {
+		ret = spl_parse_image_header(spl_image, header);
+		if (ret)
+			return ret;
+
+		spi0_read_data((void *)spl_image->load_addr,
+			       CONFIG_SYS_SPI_U_BOOT_OFFS, spl_image->size);
+	}
 
 	spi0_deinit();
-	return 0;
+
+	return ret;
 }
 /* Use priorty 0 to override the default if it happens to be linked in */
-SPL_LOAD_IMAGE_METHOD("sunxi SPI" 0, BOOT_DEVICE_SPI, spl_spi_load_image);
+SPL_LOAD_IMAGE_METHOD("sunxi SPI", 0, BOOT_DEVICE_SPI, spl_spi_load_image);

@@ -18,6 +18,9 @@ int arch_cpu_init(void)
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {
+#if defined(CONFIG_RCAR_GEN3)
+	rcar_gen3_memmap_fixup();
+#endif
 	dcache_enable();
 }
 #endif
@@ -49,13 +52,17 @@ static const struct {
 	u16 cpu_type;
 	u8 cpu_name[10];
 } rmobile_cpuinfo[] = {
-	{ 0x37, "SH73A0" },
-	{ 0x40, "R8A7740" },
-	{ 0x45, "R8A7790" },
-	{ 0x47, "R8A7791" },
-	{ 0x4A, "R8A7792" },
-	{ 0x4B, "R8A7793" },
-	{ 0x4C, "R8A7794" },
+	{ RMOBILE_CPU_TYPE_SH73A0, "SH73A0" },
+	{ RMOBILE_CPU_TYPE_R8A7740, "R8A7740" },
+	{ RMOBILE_CPU_TYPE_R8A7790, "R8A7790" },
+	{ RMOBILE_CPU_TYPE_R8A7791, "R8A7791" },
+	{ RMOBILE_CPU_TYPE_R8A7792, "R8A7792" },
+	{ RMOBILE_CPU_TYPE_R8A7793, "R8A7793" },
+	{ RMOBILE_CPU_TYPE_R8A7794, "R8A7794" },
+	{ RMOBILE_CPU_TYPE_R8A7795, "R8A7795" },
+	{ RMOBILE_CPU_TYPE_R8A7796, "R8A7796" },
+	{ RMOBILE_CPU_TYPE_R8A77970, "R8A77970" },
+	{ RMOBILE_CPU_TYPE_R8A77995, "R8A77995" },
 	{ 0x0, "CPU" },
 };
 

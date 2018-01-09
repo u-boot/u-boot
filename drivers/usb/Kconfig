@@ -75,7 +75,7 @@ if USB_KEYBOARD
 
 choice
 	prompt "USB keyboard polling"
-	optional
+	default SYS_USB_EVENT_POLL
 	---help---
 	  Enable a polling mechanism for USB keyboard.
 
@@ -93,5 +93,7 @@ endchoice
 endif
 
 source "drivers/usb/gadget/Kconfig"
+
+source "drivers/usb/eth/Kconfig"
 
 endif

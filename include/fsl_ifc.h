@@ -11,6 +11,9 @@
 #ifdef CONFIG_FSL_IFC
 #include <config.h>
 #include <common.h>
+#ifdef CONFIG_ARM
+#include <asm/arch/soc.h>
+#endif
 
 #define FSL_IFC_V1_1_0	0x01010000
 #define FSL_IFC_V2_0_0	0x02000000

@@ -884,11 +884,10 @@ void comphy_dedicated_phys_init(void)
 	}
 
 	node = fdt_node_offset_by_compatible(blob, -1,
-					     "marvell,armada-3700-sdio");
+					     "marvell,armada-8k-sdhci");
 	if (node <= 0) {
-		debug("No SDIO node in DT, looking for MMC one\n");
-		node = fdt_node_offset_by_compatible(blob, -1,
-						     "marvell,xenon-sdhci");
+		node = fdt_node_offset_by_compatible(
+			blob, -1, "marvell,armada-3700-sdhci");
 	}
 
 	if (node > 0) {

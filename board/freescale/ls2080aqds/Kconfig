@@ -13,4 +13,6 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "ls2080aqds"
 
+source "board/freescale/common/Kconfig"
+
 endif

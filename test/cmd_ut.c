@@ -8,8 +8,33 @@
 #include <common.h>
 #include <command.h>
 #include <test/suites.h>
+#include <test/test.h>
 
 static int do_ut_all(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+
+int cmd_ut_category(const char *name, struct unit_test *tests, int n_ents,
+		    int argc, char * const argv[])
+{
+	struct unit_test_state uts = { .fail_count = 0 };
+	struct unit_test *test;
+
+	if (argc == 1)
+		printf("Running %d %s tests\n", n_ents, name);
+
+	for (test = tests; test < tests + n_ents; test++) {
+		if (argc > 1 && strcmp(argv[1], test->name))
+			continue;
+		printf("Test: %s\n", test->name);
+
+		uts.start = mallinfo();
+
+		test->func(&uts);
+	}
+
+	printf("Failures: %d\n", uts.fail_count);
+
+	return uts.fail_count ? CMD_RET_FAILURE : 0;
+}
 
 static cmd_tbl_t cmd_ut_sub[] = {
 	U_BOOT_CMD_MKENT(all, CONFIG_SYS_MAXARGS, 1, do_ut_all, "", ""),
@@ -24,6 +49,10 @@ static cmd_tbl_t cmd_ut_sub[] = {
 #endif
 #ifdef CONFIG_UT_TIME
 	U_BOOT_CMD_MKENT(time, CONFIG_SYS_MAXARGS, 1, do_ut_time, "", ""),
+#endif
+#ifdef CONFIG_SANDBOX
+	U_BOOT_CMD_MKENT(compression, CONFIG_SYS_MAXARGS, 1, do_ut_compression,
+			 "", ""),
 #endif
 };
 
@@ -76,6 +105,9 @@ static char ut_help_text[] =
 #endif
 #ifdef CONFIG_UT_TIME
 	"ut time - Very basic test of time functions\n"
+#endif
+#ifdef CONFIG_SANDBOX
+	"ut compression - Test compressors and bootm decompression\n"
 #endif
 	;
 #endif

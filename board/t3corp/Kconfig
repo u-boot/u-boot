@@ -1,9 +1,0 @@
-if TARGET_T3CORP
-
-config SYS_BOARD
-	default "t3corp"
-
-config SYS_CONFIG_NAME
-	default "t3corp"
-
-endif

@@ -46,7 +46,7 @@ tbot
 Tbot provides a way to execute tests on target hardware. It is intended for
 trying out both U-Boot and Linux (and potentially other software) on a
 number of boards automatically. It can be used to create a continuous test
-environment. See tools/tbot/README for more information.
+environment. See http://www.tbot.tools for more information.
 
 
 Ad-hoc tests

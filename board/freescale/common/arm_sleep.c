@@ -13,7 +13,7 @@
 #endif
 #include <asm/armv7.h>
 
-#if defined(CONFIG_LS102XA)
+#if defined(CONFIG_ARCH_LS1021A)
 #include <asm/arch/immap_ls102xa.h>
 #endif
 
@@ -66,7 +66,7 @@ static void dp_ddr_restore(void)
 		*dst++ = *src++;
 }
 
-#if defined(CONFIG_ARMV7_PSCI) && defined(CONFIG_LS102XA)
+#if defined(CONFIG_ARMV7_PSCI) && defined(CONFIG_ARCH_LS1021A)
 void ls1_psci_resume_fixup(void)
 {
 	u32 tmp;
@@ -104,7 +104,7 @@ static void dp_resume_prepare(void)
 #ifdef CONFIG_U_QE
 	u_qe_resume();
 #endif
-#if defined(CONFIG_ARMV7_PSCI) && defined(CONFIG_LS102XA)
+#if defined(CONFIG_ARMV7_PSCI) && defined(CONFIG_ARCH_LS1021A)
 	ls1_psci_resume_fixup();
 #endif
 }

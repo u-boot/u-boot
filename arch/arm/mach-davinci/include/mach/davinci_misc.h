@@ -7,6 +7,8 @@
 #ifndef __MISC_H
 #define __MISC_H
 
+#include <asm/arch/hardware.h>
+
 /* pin muxer definitions */
 #define PIN_MUX_NUM_FIELDS	8	/* Per register */
 #define PIN_MUX_FIELD_SIZE	4	/* n in bits */

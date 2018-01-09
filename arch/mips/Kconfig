@@ -75,6 +75,15 @@ config ARCH_ATH79
 	select OF_CONTROL
 	select DM
 
+config ARCH_BMIPS
+	bool "Support BMIPS SoCs"
+	select OF_CONTROL
+	select DM
+	select CLK
+	select CPU
+	select RAM
+	select SYSRESET
+
 config MACH_PIC32
 	bool "Support Microchip PIC32"
 	select OF_CONTROL
@@ -88,6 +97,7 @@ config TARGET_BOSTON
 	select MIPS_CM
 	select MIPS_L1_CACHE_SHIFT_6
 	select MIPS_L2_CACHE
+	select OF_BOARD_SETUP
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_LITTLE_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
@@ -123,6 +133,7 @@ source "board/micronas/vct/Kconfig"
 source "board/pb1x00/Kconfig"
 source "board/qemu-mips/Kconfig"
 source "arch/mips/mach-ath79/Kconfig"
+source "arch/mips/mach-bmips/Kconfig"
 source "arch/mips/mach-pic32/Kconfig"
 
 if MIPS
@@ -210,6 +221,17 @@ config ROM_EXCEPTION_VECTORS
 	  U-Boot booted from parallel NOR flash).
 	  Disable this, if the U-Boot image is booted from DRAM (e.g. by SPL).
 	  In that case the image size will be reduced by 0x500 bytes.
+
+config MIPS_CM_BASE
+	hex "MIPS CM GCR Base Address"
+	depends on MIPS_CM
+	default 0x16100000 if TARGET_BOSTON
+	default 0x1fbf8000
+	help
+	  The physical base address at which to map the MIPS Coherence Manager
+	  Global Configuration Registers (GCRs). This should be set such that
+	  the GCRs occupy a region of the physical address space which is
+	  otherwise unused, or at minimum that software doesn't need to access.
 
 endmenu
 
@@ -382,15 +404,6 @@ config MIPS_CM
 	  Select this if your system contains a MIPS Coherence Manager and you
 	  wish U-Boot to configure it or make use of it to retrieve system
 	  information such as cache configuration.
-
-config MIPS_CM_BASE
-	hex
-	default 0x1fbf8000
-	help
-	  The physical base address at which to map the MIPS Coherence Manager
-	  Global Configuration Registers (GCRs). This should be set such that
-	  the GCRs occupy a region of the physical address space which is
-	  otherwise unused, or at minimum that software doesn't need to access.
 
 endif
 

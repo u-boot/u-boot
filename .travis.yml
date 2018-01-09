@@ -19,25 +19,26 @@ addons:
     - libsdl1.2-dev
     - python
     - python-virtualenv
+    - swig
+    - libpython-dev
     - gcc-powerpc-linux-gnu
-    - gcc-arm-linux-gnueabihf
-    - gcc-aarch64-linux-gnu
     - iasl
     - grub-efi-ia32-bin
     - rpm2cpio
     - wget
+    - device-tree-compiler
 
 install:
- # install latest device tree compiler
- - git clone --depth=1 git://git.kernel.org/pub/scm/utils/dtc/dtc.git /tmp/dtc
- - make -j4 -C /tmp/dtc
  # Clone uboot-test-hooks
  - git clone --depth=1 git://github.com/swarren/uboot-test-hooks.git /tmp/uboot-test-hooks
  - ln -s travis-ci /tmp/uboot-test-hooks/bin/`hostname`
  - ln -s travis-ci /tmp/uboot-test-hooks/py/`hostname`
  # prepare buildman environment
  - echo -e "[toolchain]\nroot = /usr" > ~/.buildman
- - echo -e "\n[toolchain-alias]\nblackfin = bfin\nsh = sh4\nopenrisc = or32" >> ~/.buildman
+ - echo -e "aarch64 = /tmp/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu" >> ~/.buildman
+ - echo -e "arm = /tmp/gcc-linaro-6.3.1-2017.02-x86_64_arm-linux-gnueabihf" >> ~/.buildman
+ - echo -e "arc = /tmp/arc_gnu_2016.09_prebuilt_uclibc_le_archs_linux_install" >> ~/.buildman
+ - echo -e "\n[toolchain-alias]\nsh = sh4\nopenrisc = or32" >> ~/.buildman
  - cat ~/.buildman
  - virtualenv /tmp/venv
  - . /tmp/venv/bin/activate
@@ -48,7 +49,7 @@ install:
 
 env:
   global:
-    - PATH=/tmp/dtc:/tmp/qemu-install/bin:/tmp/uboot-test-hooks/bin:$PATH
+    - PATH=/tmp/qemu-install/bin:/tmp/uboot-test-hooks/bin:/usr/bin:/bin
     - PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci
     - BUILD_DIR=build
     - HOSTCC="cc"
@@ -56,8 +57,6 @@ env:
 
 before_script:
   # install toolchains based on TOOLCHAIN} variable
-  - if [[ "${TOOLCHAIN}" == *avr32* ]]; then ./tools/buildman/buildman --fetch-arch avr32 ; fi
-  - if [[ "${TOOLCHAIN}" == *bfin* ]]; then ./tools/buildman/buildman --fetch-arch bfin ; fi
   - if [[ "${TOOLCHAIN}" == *m68k* ]]; then ./tools/buildman/buildman --fetch-arch m68k ; fi
   - if [[ "${TOOLCHAIN}" == *microblaze* ]]; then ./tools/buildman/buildman --fetch-arch microblaze ; fi
   - if [[ "${TOOLCHAIN}" == *mips* ]]; then ./tools/buildman/buildman --fetch-arch mips ; fi
@@ -67,7 +66,18 @@ before_script:
       ./tools/buildman/buildman --fetch-arch x86_64;
       echo -e "\n[toolchain-prefix]\nx86 = ${HOME}/.buildman-toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin/x86_64-linux-" >> ~/.buildman;
     fi
+  - if [[ "${TOOLCHAIN}" == arc ]]; then
+       wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2016.09-release/arc_gnu_2016.09_prebuilt_uclibc_le_archs_linux_install.tar.gz &&
+       tar -C /tmp -xf arc_gnu_2016.09_prebuilt_uclibc_le_archs_linux_install.tar.gz;
+    fi
   - if [[ "${TOOLCHAIN}" == *xtensa* ]]; then ./tools/buildman/buildman --fetch-arch xtensa ; fi
+  # If TOOLCHAIN is unset, we're on some flavour of ARM.
+  - if [[ "${TOOLCHAIN}" == "" ]]; then
+       wget http://releases.linaro.org/components/toolchain/binaries/6.3-2017.02/aarch64-linux-gnu/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu.tar.xz &&
+       wget http://releases.linaro.org/components/toolchain/binaries/6.3-2017.02/arm-linux-gnueabihf/gcc-linaro-6.3.1-2017.02-x86_64_arm-linux-gnueabihf.tar.xz &&
+       tar -C /tmp -xf gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu.tar.xz &&
+       tar -C /tmp -xf gcc-linaro-6.3.1-2017.02-x86_64_arm-linux-gnueabihf.tar.xz;
+    fi
   - if [[ "${QEMU_TARGET}" != "" ]]; then
        git clone git://git.qemu.org/qemu.git /tmp/qemu;
        pushd /tmp/qemu;
@@ -110,6 +120,9 @@ matrix:
   # we need to build by vendor due to 50min time limit for builds
   # each env setting here is a dedicated build
     - env:
+        - BUILDMAN="arc"
+          TOOLCHAIN="arc"
+    - env:
         - BUILDMAN="arm11"
     - env:
         - BUILDMAN="arm7"
@@ -121,23 +134,33 @@ matrix:
     - env:
         - BUILDMAN="arm946es"
     - env:
-        - BUILDMAN="atmel -x avr32"
+        - BUILDMAN="atmel"
     - env:
-        - BUILDMAN="avr32"
-          TOOLCHAIN="avr32"
+        - BUILDMAN="aries"
     - env:
-        - BUILDMAN="denx"
+        - JOB="Boundary Devices"
+          BUILDMAN="boundary"
+    - env:
+        - JOB="engicam"
+          BUILDMAN="engicam"
     - env:
         - JOB="Freescale ARM32"
           BUILDMAN="freescale -x powerpc,m68k,aarch64"
     - env:
         - JOB="Freescale AArch64"
-          BUILDMAN="freescale -x powerpc,m68k,armv7,arm9,arm11"
+          BUILDMAN="freescale&aarch64"
     - env:
-        - JOB="i.MX (non-Freescale)"
-          BUILDMAN="mx -x freescale"
+        - JOB="i.MX6 (non-Freescale)"
+          BUILDMAN="mx6 -x freescale,toradex,boundary,engicam"
+    - env:
+        - JOB="i.MX (non-Freescale, non-i.MX6)"
+          BUILDMAN="mx -x freescale,mx6,toradex"
+    - env:
+        - BUILDMAN="k2"
     - env:
         - BUILDMAN="samsung"
+    - env:
+        - BUILDMAN="socfpga"
     - env:
         - BUILDMAN="sun4i"
     - env:
@@ -154,16 +177,19 @@ matrix:
         - BUILDMAN="sun50i"
     - env:
         - JOB="Catch-all ARM"
-          BUILDMAN="arm -x arm11,arm7,arm9,aarch64,atmel,denx,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap3,omap4,omap5,pxa,rockchip"
+          BUILDMAN="arm -x arm11,arm7,arm9,aarch64,atmel,aries,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap3,omap4,omap5,pxa,rockchip,toradex,socfpga,k2,xilinx"
     - env:
         - BUILDMAN="sandbox x86"
           TOOLCHAIN="x86_64"
+    - env:
+        - BUILDMAN="toradex"
     - env:
         - BUILDMAN="kirkwood"
     - env:
         - BUILDMAN="mvebu"
     - env:
-        - BUILDMAN="pxa"
+        - JOB="PXA"
+        - BUILDMAN="pxa -x toradex"
     - env:
         - BUILDMAN="m68k"
           TOOLCHAIN="m68k"
@@ -174,14 +200,6 @@ matrix:
         - BUILDMAN="mips"
           TOOLCHAIN="mips"
     - env:
-        - BUILDMAN="mpc512x"
-    - env:
-        - BUILDMAN="mpc5xx"
-    - env:
-        - BUILDMAN="mpc5xxx"
-    - env:
-        - BUILDMAN="mpc8260"
-    - env:
         - BUILDMAN="mpc83xx"
     - env:
         - BUILDMAN="mpc85xx -x freescale"
@@ -190,7 +208,9 @@ matrix:
     - env:
         - BUILDMAN="t208xrdb t4qds t102*"
     - env:
-        - BUILDMAN="p1_p2_rdb_pc p1010rdb"
+        - BUILDMAN="p1_p2_rdb_pc"
+    - env:
+        - BUILDMAN="p1010rdb"
     - env:
         - BUILDMAN="corenet_ds b4860qds sbc8548 bsc91*"
     - env:
@@ -200,7 +220,8 @@ matrix:
     - env:
         - BUILDMAN="siemens"
     - env:
-        - BUILDMAN="tegra"
+        - JOB="tegra"
+          BUILDMAN="tegra -x toradex"
     - env:
         - JOB="am33xx"
           BUILDMAN="am33xx -x siemens"
@@ -213,13 +234,16 @@ matrix:
     - env:
         - BUILDMAN="uniphier"
     - env:
-        - BUILDMAN="aarch64 -x tegra,freescale,mvebu,uniphier,sunxi,samsung,rockchip"
-          TOOLCHAIN="aarch64"
+        - JOB="aarch64"
+          BUILDMAN="aarch64 -x tegra,freescale,mvebu,uniphier,sunxi,samsung,rockchip"
     - env:
         - BUILDMAN="rockchip"
     - env:
         - BUILDMAN="sh4"
           TOOLCHAIN="sh4"
+    - env:
+        - JOB="Xilinx (ARM)"
+          BUILDMAN="xilinx -x microblaze"
     - env:
         - BUILDMAN="xtensa"
           TOOLCHAIN="xtensa"
@@ -255,6 +279,15 @@ matrix:
           BUILDMAN="^sandbox$"
           TOOLCHAIN="x86_64"
     - env:
+        - TEST_PY_BD="sandbox_spl"
+          TEST_PY_TEST_SPEC="test_ofplatdata"
+          BUILDMAN="^sandbox$"
+          TOOLCHAIN="x86_64"
+    - env:
+        - TEST_PY_BD="sandbox_flattree"
+          BUILDMAN="^sandbox_flattree$"
+          TOOLCHAIN="x86_64"
+    - env:
         - TEST_PY_BD="vexpress_ca15_tc2"
           TEST_PY_ID="--id qemu"
           QEMU_TARGET="arm-softmmu"
@@ -270,6 +303,11 @@ matrix:
           TEST_PY_ID="--id qemu"
           QEMU_TARGET="arm-softmmu"
           BUILDMAN="^integratorcp_cm926ejs$"
+    - env:
+        - TEST_PY_BD="qemu_arm"
+          TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="arm-softmmu"
+          BUILDMAN="^qemu_arm$"
     - env:
         - TEST_PY_BD="qemu_mips"
           TEST_PY_TEST_SPEC="not sleep"

@@ -3,7 +3,6 @@
 #
 
 head-y := arch/powerpc/cpu/$(CPU)/start.o
-head-$(CONFIG_4xx) += arch/powerpc/cpu/ppc4xx/resetvec.o
 head-$(CONFIG_MPC85xx) += arch/powerpc/cpu/mpc85xx/resetvec.o
 
 libs-y += arch/powerpc/cpu/$(CPU)/

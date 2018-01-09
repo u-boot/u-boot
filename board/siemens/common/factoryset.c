@@ -145,8 +145,8 @@ int factoryset_read_eeprom(int i2c_addr)
 	unsigned char *cp, *cp1;
 
 #if defined(CONFIG_USB_FUNCTION_DFU)
-	factory_dat.usb_vendor_id = CONFIG_G_DNL_VENDOR_NUM;
-	factory_dat.usb_product_id = CONFIG_G_DNL_PRODUCT_NUM;
+	factory_dat.usb_vendor_id = CONFIG_USB_GADGET_VENDOR_NUM;
+	factory_dat.usb_product_id = CONFIG_USB_GADGET_PRODUCT_NUM;
 #endif
 	if (i2c_probe(i2c_addr))
 		goto err;
@@ -266,7 +266,7 @@ err:
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
-static int factoryset_mac_setenv(void)
+static int factoryset_mac_env_set(void)
 {
 	uint8_t mac_addr[6];
 
@@ -292,15 +292,15 @@ static int factoryset_mac_setenv(void)
 		}
 	}
 
-	eth_setenv_enetaddr("ethaddr", mac_addr);
+	eth_env_set_enetaddr("ethaddr", mac_addr);
 	return 0;
 }
 
-int factoryset_setenv(void)
+int factoryset_env_set(void)
 {
 	int ret = 0;
 
-	if (factoryset_mac_setenv() < 0)
+	if (factoryset_mac_env_set() < 0)
 		ret = -1;
 
 	return ret;

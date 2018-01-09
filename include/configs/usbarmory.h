@@ -11,11 +11,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_MX53
 #define CONFIG_SYS_FSL_CLK
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MXC_GPIO
-#define CONFIG_SYS_NO_FLASH
 
 #include <asm/arch/imx-regs.h>
 
@@ -24,29 +21,22 @@
 /* U-Boot environment */
 #define CONFIG_ENV_OFFSET	(6 * 64 * 1024)
 #define CONFIG_ENV_SIZE		(8 * 1024)
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV	0
 
 /* U-Boot general configurations */
 #define CONFIG_SYS_CBSIZE	512
-#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
-#define CONFIG_SYS_MAXARGS	16
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
 /* UART */
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONFIG_CONS_INDEX	1
-#define CONFIG_BAUDRATE		115200
 
 /* SD/MMC */
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_ESDHC_NUM	1
-#define CONFIG_GENERIC_MMC
 
 /* USB */
-#define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX5
 #define CONFIG_MXC_USB_PORT	1
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
@@ -59,7 +49,6 @@
 #define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 
 /* Fuse */
-#define CONFIG_CMD_FUSE
 #define CONFIG_FSL_IIM
 
 /* U-Boot memory offsets */
@@ -95,7 +84,6 @@
 	BOOTENV
 
 #ifndef CONFIG_CMDLINE
-#define CONFIG_BOOTARGS "console=ttymxc0,115200 root=/dev/mmcblk0p1 rootwait rw"
 #define USBARMORY_FIT_PATH	"/boot/usbarmory.itb"
 #define USBARMORY_FIT_ADDR	"0x70800000"
 #endif

@@ -88,7 +88,7 @@ static long fixed_sdram(void)
 	return msize;
 }
 
-phys_size_t initdram(int board_type)
+int dram_init(void)
 {
 	volatile immap_t *im = (volatile immap_t *)CONFIG_SYS_IMMR;
 	volatile fsl_lbc_t *lbc = &im->im_lbc;
@@ -106,7 +106,9 @@ phys_size_t initdram(int board_type)
 	sync();
 
 	/* return total bus SDRAM size(bytes)  -- DDR */
-	return msize;
+	gd->ram_size = msize;
+
+	return 0;
 }
 
 #define VE8313_WDT_EN	0x00020000

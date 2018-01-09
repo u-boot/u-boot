@@ -41,7 +41,6 @@
 
 #ifdef CONFIG_USB_KEYBOARD
 #define STDIN_KBD_USB ",usbkbd"
-#define CONFIG_SYS_USB_EVENT_POLL
 #define CONFIG_PREBOOT			"usb start"
 #else
 #define STDIN_KBD_USB ""
@@ -105,7 +104,7 @@
 /* overrides for SPL build here */
 #ifdef CONFIG_SPL_BUILD
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
+#define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 
 /* remove I2C support */
 #ifdef CONFIG_SYS_I2C_TEGRA
@@ -114,47 +113,16 @@
 #ifdef CONFIG_CMD_I2C
 #endif
 
-/* remove MMC support */
-#ifdef CONFIG_GENERIC_MMC
-#undef CONFIG_GENERIC_MMC
-#endif
-#ifdef CONFIG_TEGRA_MMC
-#undef CONFIG_TEGRA_MMC
-#endif
-#ifdef CONFIG_CMD_MMC
-#endif
-
 /* remove partitions/filesystems */
-#ifdef CONFIG_DOS_PARTITION
-#undef CONFIG_DOS_PARTITION
-#endif
-#ifdef CONFIG_EFI_PARTITION
-#undef CONFIG_EFI_PARTITION
-#endif
 #ifdef CONFIG_FS_EXT4
 #undef CONFIG_FS_EXT4
 #endif
-#ifdef CONFIG_FS_FAT
-#undef CONFIG_FS_FAT
-#endif
 
 /* remove USB */
-#ifdef CONFIG_USB_EHCI
-#undef CONFIG_USB_EHCI
-#endif
 #ifdef CONFIG_USB_EHCI_TEGRA
 #undef CONFIG_USB_EHCI_TEGRA
 #endif
 #ifdef CONFIG_CMD_USB
-#endif
-
-/* remove part command support */
-#ifdef CONFIG_PARTITION_UUIDS
-#undef CONFIG_PARTITION_UUIDS
-#endif
-
-#ifdef CONFIG_CMD_PART
-#undef CONFIG_CMD_PART
 #endif
 
 #endif /* CONFIG_SPL_BUILD */

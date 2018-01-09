@@ -223,7 +223,7 @@ void hw_watchdog_reset(void)
 #ifdef CONFIG_TRAILBLAZER
 int do_bootd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	return run_command(getenv("bootcmd"), flag);
+	return run_command(env_get("bootcmd"), flag);
 }
 
 int board_early_init_r(void)
@@ -335,8 +335,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	ft_cpu_setup(blob, bd);
 
-	base = getenv_bootm_low();
-	size = getenv_bootm_size();
+	base = env_get_bootm_low();
+	size = env_get_bootm_size();
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
 

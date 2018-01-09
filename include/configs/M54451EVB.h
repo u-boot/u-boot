@@ -22,7 +22,8 @@
 
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
-#define CONFIG_BAUDRATE		115200
+
+#define LDS_BOARD_TEXT                  board/freescale/m54451evb/sbf_dram_init.o (.text*)
 
 #undef CONFIG_WATCHDOG
 
@@ -35,11 +36,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
-/* Command line configuration */
-#define CONFIG_CMD_DATE
-#undef CONFIG_CMD_JFFS2
-#define CONFIG_CMD_REGINFO
 
 /* Network configuration */
 #define CONFIG_MCFFEC
@@ -54,7 +50,6 @@
 #	define CONFIG_SYS_FEC0_MIIBASE	CONFIG_SYS_FEC0_IOBASE
 #	define MCFFEC_TOUT_LOOP 50000
 
-#	define CONFIG_BOOTARGS		"root=/dev/mtdblock1 rw rootfstype=jffs2 ip=none mtdparts=physmap-flash.0:2M(kernel)ro,-(jffs2)"
 #	define CONFIG_ETHPRIME		"FEC0"
 #	define CONFIG_IPADDR		192.162.1.2
 #	define CONFIG_NETMASK		255.255.255.0
@@ -149,13 +144,6 @@
 
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE			1024	/* Console I/O Buffer Size */
-#else
-#define CONFIG_SYS_CBSIZE			256	/* Console I/O Buffer Size */
-#endif
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size    */
 
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x10000)
@@ -219,13 +207,11 @@
  * crc error warning if there is no correct environment on the flash.
  */
 #if defined(CONFIG_SYS_STMICRO_BOOT)
-#	define CONFIG_ENV_IS_IN_SPI_FLASH	1
 #	define CONFIG_ENV_SPI_CS		1
 #	define CONFIG_ENV_OFFSET		0x20000
 #	define CONFIG_ENV_SIZE		0x2000
 #	define CONFIG_ENV_SECT_SIZE	0x10000
 #else
-#	define CONFIG_ENV_IS_IN_FLASH	1
 #	define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x40000)
 #	define CONFIG_ENV_SIZE		0x2000
 #	define CONFIG_ENV_SECT_SIZE	0x20000

@@ -29,7 +29,7 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 #endif
 
-#if defined(CONFIG_CMD_FAT) && !defined(CONFIG_FS_FAT)
+#if defined(CONFIG_ENV_IS_IN_FAT) && !defined(CONFIG_FS_FAT)
 #define CONFIG_FS_FAT
 #endif
 
@@ -43,20 +43,22 @@
 #endif
 
 /* Rather than repeat this expression each time, add a define for it */
-#if defined(CONFIG_CMD_IDE) || \
-	defined(CONFIG_CMD_SATA) || \
+#if defined(CONFIG_IDE) || \
+	defined(CONFIG_SATA) || \
 	defined(CONFIG_SCSI) || \
 	defined(CONFIG_CMD_USB) || \
 	defined(CONFIG_CMD_PART) || \
 	defined(CONFIG_CMD_GPT) || \
 	defined(CONFIG_MMC) || \
+	defined(CONFIG_NVME) || \
 	defined(CONFIG_SYSTEMACE) || \
 	defined(CONFIG_SANDBOX)
 #define HAVE_BLOCK_DEVICE
 #endif
 
-#if (defined(CONFIG_PARTITION_UUIDS) || \
-	defined(CONFIG_EFI_PARTITION) || \
+#if (CONFIG_IS_ENABLED(PARTITION_UUIDS) || \
+	CONFIG_IS_ENABLED(EFI_PARTITION) || \
+	CONFIG_IS_ENABLED(EFI_LOADER) || \
 	defined(CONFIG_RANDOM_UUID) || \
 	defined(CONFIG_CMD_UUID) || \
 	defined(CONFIG_BOOTP_PXE)) && \
@@ -71,12 +73,21 @@
 #define CONFIG_LIB_RAND
 #endif
 
-#if defined(CONFIG_API) && defined(CONFIG_LCD)
-#define CONFIG_CMD_BMP
+/* Console I/O Buffer Size */
+#ifndef CONFIG_SYS_CBSIZE
+#if defined(CONFIG_CMD_KGDB)
+#define CONFIG_SYS_CBSIZE	1024
+#else
+#define CONFIG_SYS_CBSIZE	256
+#endif
 #endif
 
 #ifndef CONFIG_SYS_PBSIZE
-#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + 128)
+#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
+#endif
+
+#ifndef CONFIG_SYS_MAXARGS
+#define CONFIG_SYS_MAXARGS	16
 #endif
 
 #ifndef CONFIG_FIT_SIGNATURE

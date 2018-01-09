@@ -47,6 +47,8 @@ SECTIONS
 		*(.__end)
 	} >.sram
 
+	_image_binary_end = .;
+
 	.bss :
 	{
 		. = ALIGN(4);

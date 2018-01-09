@@ -31,16 +31,10 @@ int cleanup_before_linux(void)
 {
 	disable_interrupts();
 
-#ifdef CONFIG_MMU
 	/* turn off I/D-cache */
+	cache_flush();
 	icache_disable();
 	dcache_disable();
-
-	/* flush I/D-cache */
-	invalidate_icac();
-	invalidate_dcac();
-#endif
-
 	return 0;
 }
 

@@ -6,16 +6,13 @@
  */
 
 #include <common.h>
-#include <mmc.h>
 #include <asm/io.h>
 #include <asm/arch/sama5d3_smc.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
-#include <atmel_mci.h>
-#include <net.h>
-#include <netdev.h>
+#include <debug_uart.h>
 #include <spl.h>
 #include <asm/arch/atmel_mpddrc.h>
 #include <asm/arch/at91_wdt.h>
@@ -65,24 +62,26 @@ static void sama5d3_xplained_usb_hw_init(void)
 #ifdef CONFIG_GENERIC_ATMEL_MCI
 static void sama5d3_xplained_mci0_hw_init(void)
 {
-	at91_mci_hw_init();
-
 	at91_set_pio_output(AT91_PIO_PORTE, 2, 0);	/* MCI0 Power */
 }
 #endif
 
+#ifdef CONFIG_DEBUG_UART_BOARD_INIT
+void board_debug_uart_init(void)
+{
+	at91_seriald_hw_init();
+}
+#endif
+
+#ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_early_init_f(void)
 {
-	at91_periph_clk_enable(ATMEL_ID_PIOA);
-	at91_periph_clk_enable(ATMEL_ID_PIOB);
-	at91_periph_clk_enable(ATMEL_ID_PIOC);
-	at91_periph_clk_enable(ATMEL_ID_PIOD);
-	at91_periph_clk_enable(ATMEL_ID_PIOE);
-
-	at91_seriald_hw_init();
-
+#ifdef CONFIG_DEBUG_UART
+	debug_uart_init();
+#endif
 	return 0;
 }
+#endif
 
 int board_init(void)
 {
@@ -98,10 +97,6 @@ int board_init(void)
 #ifdef CONFIG_GENERIC_ATMEL_MCI
 	sama5d3_xplained_mci0_hw_init();
 #endif
-#ifdef CONFIG_MACB
-	at91_gmac_hw_init();
-	at91_macb_hw_init();
-#endif
 	return 0;
 }
 
@@ -113,31 +108,15 @@ int dram_init(void)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
-{
-#ifdef CONFIG_MACB
-	macb_eth_initialize(0, (void *)ATMEL_BASE_GMAC, 0x00);
-	macb_eth_initialize(0, (void *)ATMEL_BASE_EMAC, 0x00);
-#endif
-	return 0;
-}
-
-#ifdef CONFIG_GENERIC_ATMEL_MCI
-int board_mmc_init(bd_t *bis)
-{
-	atmel_mci_init((void *)ATMEL_BASE_MCI0);
-
-	return 0;
-}
-#endif
-
 /* SPL */
 #ifdef CONFIG_SPL_BUILD
 void spl_board_init(void)
 {
-#ifdef CONFIG_SYS_USE_MMC
+#ifdef CONFIG_SD_BOOT
+#ifdef CONFIG_GENERIC_ATMEL_MCI
 	sama5d3_xplained_mci0_hw_init();
-#elif CONFIG_SYS_USE_NANDFLASH
+#endif
+#elif CONFIG_NAND_BOOT
 	sama5d3_xplained_nand_hw_init();
 #endif
 }

@@ -43,6 +43,15 @@ typedef struct vidinfo {
 	u_long vl_lower_margin;	/* Time from picture to sync */
 
 	u_long	mmio;		/* Memory mapped registers */
+
+	u_int logo_width;
+	u_int logo_height;
+	int logo_x_offset;
+	int logo_y_offset;
+	u_long logo_addr;
 } vidinfo_t;
+
+void atmel_logo_info(vidinfo_t *info);
+void microchip_logo_info(vidinfo_t *info);
 
 #endif

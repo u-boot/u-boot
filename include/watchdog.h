@@ -73,23 +73,8 @@ int init_func_watchdog_reset(void);
  */
 
 /* MPC 8xx */
-#if (defined(CONFIG_8xx) || defined(CONFIG_MPC860)) && !defined(__ASSEMBLY__)
-	void reset_8xx_watchdog(volatile immap_t *immr);
-#endif
-
-/* MPC 5xx */
-#if defined(CONFIG_5xx) && !defined(__ASSEMBLY__)
-	void reset_5xx_watchdog(volatile immap_t *immr);
-#endif
-
-/* MPC 5xxx */
-#if defined(CONFIG_MPC5xxx) && !defined(__ASSEMBLY__)
-	void reset_5xxx_watchdog(void);
-#endif
-
-/* AMCC 4xx */
-#if defined(CONFIG_4xx) && !defined(__ASSEMBLY__)
-	void reset_4xx_watchdog(void);
+#if defined(CONFIG_8xx) && !defined(__ASSEMBLY__)
+	void reset_8xx_watchdog(immap_t __iomem *immr);
 #endif
 
 #if defined(CONFIG_HW_WATCHDOG) && !defined(__ASSEMBLY__)

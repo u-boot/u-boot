@@ -32,6 +32,20 @@ static void switch_to_main_crystal_osc(void)
 	while (!(readl(&pmc->sr) & AT91_PMC_IXR_MOSCS))
 		;
 
+#if defined(CONFIG_SAMA5D2)
+	/* Enable a measurement of the external oscillator */
+	tmp = readl(&pmc->mcfr);
+	tmp |= AT91_PMC_MCFR_CCSS_XTAL_OSC;
+	tmp |= AT91_PMC_MCFR_RCMEAS;
+	writel(tmp, &pmc->mcfr);
+
+	while (!(readl(&pmc->mcfr) & AT91_PMC_MCFR_MAINRDY))
+		;
+
+	if (!(readl(&pmc->mcfr) & AT91_PMC_MCFR_MAINF_MASK))
+		hang();
+#endif
+
 	tmp = readl(&pmc->mor);
 	tmp &= ~AT91_PMC_MOR_OSCBYPASS;
 	tmp &= ~AT91_PMC_MOR_KEY(0xff);
@@ -47,11 +61,13 @@ static void switch_to_main_crystal_osc(void)
 	while (!(readl(&pmc->sr) & AT91_PMC_IXR_MOSCSELS))
 		;
 
+#if !defined(CONFIG_SAMA5D2)
 	/* Wait until MAINRDY field is set to make sure main clock is stable */
 	while (!(readl(&pmc->mcfr) & AT91_PMC_MAINRDY))
 		;
+#endif
 
-#ifndef CONFIG_SAMA5D4
+#if !defined(CONFIG_SAMA5D4) && !defined(CONFIG_SAMA5D2)
 	tmp = readl(&pmc->mor);
 	tmp &= ~AT91_PMC_MOR_MOSCRCEN;
 	tmp &= ~AT91_PMC_MOR_KEY(0xff);
@@ -77,6 +93,8 @@ void s_init(void)
 
 void board_init_f(ulong dummy)
 {
+	int ret;
+
 	switch_to_main_crystal_osc();
 
 #ifdef CONFIG_SAMA5D2
@@ -99,7 +117,14 @@ void board_init_f(ulong dummy)
 
 	board_early_init_f();
 
+	mem_init();
+
+	ret = spl_init();
+	if (ret) {
+		debug("spl_init() failed: %d\n", ret);
+		hang();
+	}
+
 	preloader_console_init();
 
-	mem_init();
 }

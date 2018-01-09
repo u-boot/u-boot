@@ -9,4 +9,6 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "P2041RDB"
 
+source "board/freescale/common/Kconfig"
+
 endif

@@ -7,7 +7,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <dm/device.h>
+#include <common.h>
+#include <dm.h>
 #include <dm/pinctrl.h>
 #include <dt-bindings/gpio/meson-gxbb-gpio.h>
 
@@ -390,14 +391,33 @@ static struct meson_pmx_func meson_gxbb_aobus_functions[] = {
 	FUNCTION(i2c_slave_ao),
 };
 
+static struct meson_bank meson_gxbb_periphs_banks[] = {
+	/*   name    first                      last                    pullen  pull    dir     out     in  */
+	BANK("X",    PIN(GPIOX_0, EE_OFF),	PIN(GPIOX_22, EE_OFF),  4,  0,  4,  0,  12, 0,  13, 0,  14, 0),
+	BANK("Y",    PIN(GPIOY_0, EE_OFF),	PIN(GPIOY_16, EE_OFF),  1,  0,  1,  0,  3,  0,  4,  0,  5,  0),
+	BANK("DV",   PIN(GPIODV_0, EE_OFF),	PIN(GPIODV_29, EE_OFF), 0,  0,  0,  0,  0,  0,  1,  0,  2,  0),
+	BANK("H",    PIN(GPIOH_0, EE_OFF),	PIN(GPIOH_3, EE_OFF),   1, 20,  1, 20,  3, 20,  4, 20,  5, 20),
+	BANK("Z",    PIN(GPIOZ_0, EE_OFF),	PIN(GPIOZ_15, EE_OFF),  3,  0,  3,  0,  9,  0,  10, 0, 11,  0),
+	BANK("CARD", PIN(CARD_0, EE_OFF),	PIN(CARD_6, EE_OFF),    2, 20,  2, 20,  6, 20,  7, 20,  8, 20),
+	BANK("BOOT", PIN(BOOT_0, EE_OFF),	PIN(BOOT_17, EE_OFF),   2,  0,  2,  0,  6,  0,  7,  0,  8,  0),
+	BANK("CLK",  PIN(GPIOCLK_0, EE_OFF),	PIN(GPIOCLK_3, EE_OFF), 3, 28,  3, 28,  9, 28, 10, 28, 11, 28),
+};
+
+static struct meson_bank meson_gxbb_aobus_banks[] = {
+	/*   name    first              last               pullen  pull    dir     out     in  */
+	BANK("AO",   PIN(GPIOAO_0, 0),  PIN(GPIOAO_13, 0), 0,  0,  0, 16,  0,  0,  0, 16,  1,  0),
+};
+
 struct meson_pinctrl_data meson_gxbb_periphs_pinctrl_data = {
 	.name		= "periphs-banks",
 	.pin_base	= 14,
 	.groups		= meson_gxbb_periphs_groups,
 	.funcs		= meson_gxbb_periphs_functions,
+	.banks		= meson_gxbb_periphs_banks,
 	.num_pins	= 120,
 	.num_groups	= ARRAY_SIZE(meson_gxbb_periphs_groups),
 	.num_funcs	= ARRAY_SIZE(meson_gxbb_periphs_functions),
+	.num_banks	= ARRAY_SIZE(meson_gxbb_periphs_banks),
 };
 
 struct meson_pinctrl_data meson_gxbb_aobus_pinctrl_data = {
@@ -405,9 +425,11 @@ struct meson_pinctrl_data meson_gxbb_aobus_pinctrl_data = {
 	.pin_base	= 0,
 	.groups		= meson_gxbb_aobus_groups,
 	.funcs		= meson_gxbb_aobus_functions,
+	.banks		= meson_gxbb_aobus_banks,
 	.num_pins	= 14,
 	.num_groups	= ARRAY_SIZE(meson_gxbb_aobus_groups),
 	.num_funcs	= ARRAY_SIZE(meson_gxbb_aobus_functions),
+	.num_banks	= ARRAY_SIZE(meson_gxbb_aobus_banks),
 };
 
 static const struct udevice_id meson_gxbb_pinctrl_match[] = {

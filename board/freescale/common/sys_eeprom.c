@@ -478,8 +478,8 @@ int mac_read_from_eeprom(void)
 			/* Only initialize environment variables that are blank
 			 * (i.e. have not yet been set)
 			 */
-			if (!getenv(enetvar))
-				setenv(enetvar, ethaddr);
+			if (!env_get(enetvar))
+				env_set(enetvar, ethaddr);
 		}
 	}
 

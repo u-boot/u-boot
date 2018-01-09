@@ -4,7 +4,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y += cpld.o
 obj-y += ddr.o
 obj-y += ls1046ardb.o
-obj-$(CONFIG_SYS_DPAA_FMAN) += eth.o
+ifndef CONFIG_SPL_BUILD
+obj-$(CONFIG_NET) += eth.o
+obj-y += cpld.o
+endif

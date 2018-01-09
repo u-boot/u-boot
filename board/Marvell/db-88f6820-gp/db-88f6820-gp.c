@@ -89,8 +89,9 @@ static struct hws_topology_map board_topology_map = {
 	    BUS_WIDTH_8,		/* memory_width */
 	    MEM_4G,			/* mem_size */
 	    DDR_FREQ_800,		/* frequency */
-	    0, 0,			/* cas_l cas_wl */
-	    HWS_TEMP_LOW} },		/* temperature */
+	    0, 0,			/* cas_wl cas_l */
+	    HWS_TEMP_LOW,		/* temperature */
+	    HWS_TIM_DEFAULT} },		/* timing */
 	5,				/* Num Of Bus Per Interface*/
 	BUS_MASK_32BIT			/* Busses mask */
 };

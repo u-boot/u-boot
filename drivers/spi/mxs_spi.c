@@ -19,7 +19,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/imx-common/dma.h>
+#include <asm/mach-imx/dma.h>
 
 #define	MXS_SPI_MAX_TIMEOUT	1000000
 #define	MXS_SPI_PORT_OFFSET	0x2000

@@ -22,15 +22,7 @@
 /*
  * High Level Configuration Options
  */
-
-#define CONFIG_OMAP			/* in a TI OMAP core */
-#define CONFIG_OMAP3430			/* which is in a 3430 */
-#define CONFIG_OMAP3_RX51		/* working with RX51 */
 #define CONFIG_SYS_L2CACHE_OFF		/* pretend there is no L2 CACHE */
-/* Common ARM Erratas */
-#define CONFIG_ARM_ERRATA_454179
-#define CONFIG_ARM_ERRATA_430973
-#define CONFIG_ARM_ERRATA_621766
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_NOKIA_RX51
 
@@ -41,8 +33,6 @@
  */
 #define CONFIG_SYS_TEXT_BASE	0x80008000
 
-#define CONFIG_SDRC			/* The chip has SDRC controller */
-
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
 #include <asm/arch/mem.h>
@@ -52,7 +42,6 @@
 #define V_OSCK			26000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
 
-#undef CONFIG_USE_IRQ				/* no support for IRQs */
 #define CONFIG_MISC_INIT_R
 #define CONFIG_SKIP_LOWLEVEL_INIT		/* X-Loader set everything up */
 
@@ -91,11 +80,7 @@
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE { 4800, 9600, 19200, 38400, 57600, 115200 }
-#define CONFIG_GENERIC_MMC
-#define CONFIG_OMAP_HSMMC
-#define CONFIG_DOS_PARTITION
 
 /* USB */
 #define CONFIG_USB_MUSB_UDC
@@ -110,40 +95,21 @@
 #define CONFIG_USBD_MANUFACTURER	"Nokia"
 #define CONFIG_USBD_PRODUCT_NAME	"N900"
 
-#define CONFIG_SYS_NO_FLASH
-
 /* commands to include */
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
 
-#define CONFIG_CMD_CLEAR		/* ANSI terminal clear screen command */
-
-#ifdef ONENAND_SUPPORT
-
-#define CONFIG_CMD_ONENAND		/* ONENAND support */
-#define CONFIG_CMD_MTDPARTS		/* mtd parts support */
-
-#ifdef UBIFS_SUPPORT
-#define CONFIG_CMD_UBIFS		/* UBIFS Support */
-#endif
-
-#endif
-
-#define CONFIG_OMAP3_SPI
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_OMAP24_I2C_SPEED	100000
 #define CONFIG_SYS_OMAP24_I2C_SLAVE	1
-#define CONFIG_SYS_I2C_OMAP34XX
 
 /*
  * TWL4030
  */
-#define CONFIG_TWL4030_POWER
 #define CONFIG_TWL4030_LED
 #define CONFIG_TWL4030_KEYPAD
 
-#define CONFIG_OMAP_GPIO
 #define GPIO_SLIDE			71
 
 /*
@@ -198,20 +164,6 @@
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 
-#ifdef UBIFS_SUPPORT
-#define CONFIG_RBTREE
-#define CONFIG_LZO
-#endif
-
-#define MTDIDS_DEFAULT			"onenand0=onenand"
-#define MTDPARTS_DEFAULT		"mtdparts=onenand:" \
-		__stringify(PART1_SIZE) PART1_SUFF "(" PART1_NAME ")ro," \
-		__stringify(PART2_SIZE) PART2_SUFF "(" PART2_NAME ")," \
-		__stringify(PART3_SIZE) PART3_SUFF "(" PART3_NAME ")," \
-		__stringify(PART4_SIZE) PART4_SUFF "(" PART4_NAME ")," \
-		__stringify(PART5_SIZE) PART5_SUFF "(" PART5_NAME ")," \
-		"-(" PART6_NAME ")"
-
 #endif
 
 /* Watchdog support */
@@ -237,13 +189,14 @@ int rx51_kp_tstc(struct stdio_dev *sdev);
 int rx51_kp_getc(struct stdio_dev *sdev);
 #endif
 
-#ifndef MTDPARTS_DEFAULT
-#define MTDPARTS_DEFAULT
-#endif
-
 /* Environment information */
+#ifdef CONFIG_MTDPARTS_DEFAULT
+#define MTDPARTS "mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"
+#else
+#define MTDPARTS
+#endif
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	MTDPARTS \
 	"usbtty=cdc_acm\0" \
 	"stdin=vga\0" \
 	"stdout=vga\0" \
@@ -368,13 +321,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory */
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-						sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
 
 #define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)
 #define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + 0x01F00000)/*31MB*/
@@ -391,13 +337,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
 
 /*
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE		(128 << 10) /* regular stack 128 KiB */
-
-/*
  * Physical Memory Map
  */
 #define CONFIG_NR_DRAM_BANKS		2
@@ -406,8 +345,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 /*
  * FLASH and environment organization
  */
-
-#define CONFIG_ENV_IS_NOWHERE
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800

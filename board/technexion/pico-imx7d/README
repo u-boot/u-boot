@@ -1,0 +1,66 @@
+How to update U-Boot on pico-imx7d board
+----------------------------------------
+
+Required software on the host PC:
+
+- imx_usb_loader: https://github.com/boundarydevices/imx_usb_loader
+
+Build U-Boot for pico:
+
+$ make mrproper
+$ make pico-imx7d_defconfig
+$ make
+
+This generates the U-Boot binary called u-boot.imx.
+
+Put pico board in USB download mode (refer to the PICO-iMX7D Quick Start Guide
+page 3)
+
+Connect a USB to serial adapter between the host PC and pico.
+
+Connect a USB cable between the OTG pico port and the host PC.
+
+Open a terminal program such as minicom.
+
+Copy u-boot.imx to the imx_usb_loader folder.
+
+Load u-boot.imx via USB:
+
+$ sudo ./imx_usb u-boot.imx
+
+Then U-Boot starts and its messages appear in the console program.
+
+Use the default environment variables:
+
+=> env default -f -a
+=> saveenv
+
+Run the UMS command:
+=> ums 0 mmc 0
+
+Transfer u-boot.imx to be flashed into the eMMC:
+
+$ sudo dd if=u-boot.imx of=/dev/sdX bs=1K seek=1; sync
+
+Remove power from the pico board.
+
+Put pico board into normal boot mode.
+
+Power up the board and the new updated U-Boot should boot from eMMC.
+
+Building U-Boot to boot with NXP 4.1 kernel:
+
+The NXP 4.1 kernel boots only in secure boot mode on mx7.
+
+Follow the next steps to enable secure boot:
+
+$ make mrproper
+$ make pico-imx7d_defconfig
+$ make menuconfig
+	-> ARM architecture
+	-> [*] Enable support for booting in non-secure mode
+	-> [*]   Boot in secure mode by default
+	-> Exit
+$ make
+
+Flash u-boot.imx using the imx_usb_loader tool.

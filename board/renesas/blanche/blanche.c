@@ -136,7 +136,7 @@ void s_init(void)
 	/* SCIF Init */
 	pin_init();
 
-#if !defined(CONFIG_SYS_NO_FLASH)
+#if defined(CONFIG_MTD_NOR_FLASH)
 	struct rcar_lbsc *lbsc = (struct rcar_lbsc *)LBSC_BASE;
 	struct rcar_dbsc3 *dbsc3_0 = (struct rcar_dbsc3 *)DBSC3_0_BASE;
 
@@ -300,7 +300,7 @@ void s_init(void)
 
 	/* This locks the access to the PHY unit registers */
 	writel(0x00000000, &dbsc3_0->dbpdlck);
-#endif /* CONFIG_SYS_NO_FLASH */
+#endif /* CONFIG_MTD_NOR_FLASH */
 
 }
 
@@ -368,21 +368,21 @@ int board_init(void)
 	gpio_request(GPIO_FN_A17, NULL);
 	gpio_request(GPIO_FN_A18, NULL);
 	gpio_request(GPIO_FN_A19, NULL);
-#if defined(CONFIG_SYS_NO_FLASH)
+#if !defined(CONFIG_MTD_NOR_FLASH)
 	gpio_request(GPIO_FN_MOSI_IO0, NULL);
 	gpio_request(GPIO_FN_MISO_IO1, NULL);
 	gpio_request(GPIO_FN_IO2, NULL);
 	gpio_request(GPIO_FN_IO3, NULL);
 	gpio_request(GPIO_FN_SPCLK, NULL);
 	gpio_request(GPIO_FN_SSL, NULL);
-#else	/* CONFIG_SYS_NO_FLASH */
+#else	/* CONFIG_MTD_NOR_FLASH */
 	gpio_request(GPIO_FN_A20, NULL);
 	gpio_request(GPIO_FN_A21, NULL);
 	gpio_request(GPIO_FN_A22, NULL);
 	gpio_request(GPIO_FN_A23, NULL);
 	gpio_request(GPIO_FN_A24, NULL);
 	gpio_request(GPIO_FN_A25, NULL);
-#endif	/* CONFIG_SYS_NO_FLASH */
+#endif	/* CONFIG_MTD_NOR_FLASH */
 
 	gpio_request(GPIO_FN_CS1_A26, NULL);
 	gpio_request(GPIO_FN_EX_CS0, NULL);
@@ -418,10 +418,10 @@ int board_eth_init(bd_t *bis)
 
 	rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
 
-	if (!eth_getenv_enetaddr(STR_ENV_ETHADDR, eth_addr)) {
+	if (!eth_env_get_enetaddr(STR_ENV_ETHADDR, eth_addr)) {
 		dev = eth_get_dev_by_index(0);
 		if (dev) {
-			eth_setenv_enetaddr(STR_ENV_ETHADDR, dev->enetaddr);
+			eth_env_set_enetaddr(STR_ENV_ETHADDR, dev->enetaddr);
 		} else {
 			printf("blanche: Couldn't get eth device\n");
 			rc = -1;

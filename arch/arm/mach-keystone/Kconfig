@@ -6,15 +6,25 @@ choice
 
 config TARGET_K2HK_EVM
 	bool "TI Keystone 2 Kepler/Hawking EVM"
+	select SPL_BOARD_INIT if SPL
+	imply DM_I2C
 
 config TARGET_K2E_EVM
 	bool "TI Keystone 2 Edison EVM"
+	select SPL_BOARD_INIT if SPL
+	imply DM_I2C
 
 config TARGET_K2L_EVM
 	bool "TI Keystone 2 Lamar EVM"
+	select SPL_BOARD_INIT if SPL
+	imply DM_I2C
 
 config TARGET_K2G_EVM
 	bool "TI Keystone 2 Galileo EVM"
+        select BOARD_LATE_INIT
+	select SPL_BOARD_INIT if SPL
+        select TI_I2C_BOARD_DETECT
+	imply DM_I2C
 
 endchoice
 

@@ -150,6 +150,48 @@ void at91_mck_init(u32 mckr)
 		;
 }
 
+/*
+ * For the Master Clock Controller Register(MCKR), while switching
+ * to a lower clock source, we must switch the clock source first
+ * instead of last. Otherwise, we could end up with too high frequency
+ * on the internal bus and peripherals.
+ */
+void at91_mck_init_down(u32 mckr)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+	u32 tmp;
+
+	tmp = readl(&pmc->mckr);
+	tmp &= (~AT91_PMC_MCKR_CSS_MASK);
+	tmp |= (mckr & AT91_PMC_MCKR_CSS_MASK);
+	writel(tmp, &pmc->mckr);
+
+	while (!(readl(&pmc->sr) & AT91_PMC_MCKRDY))
+		;
+
+#ifdef CPU_HAS_H32MXDIV
+	tmp = readl(&pmc->mckr);
+	tmp &= (~AT91_PMC_MCKR_H32MXDIV);
+	tmp |= (mckr & AT91_PMC_MCKR_H32MXDIV);
+	writel(tmp, &pmc->mckr);
+#endif
+
+	tmp = readl(&pmc->mckr);
+	tmp &= (~AT91_PMC_MCKR_PLLADIV_MASK);
+	tmp |= (mckr & AT91_PMC_MCKR_PLLADIV_MASK);
+	writel(tmp, &pmc->mckr);
+
+	tmp = readl(&pmc->mckr);
+	tmp &= (~AT91_PMC_MCKR_MDIV_MASK);
+	tmp |= (mckr & AT91_PMC_MCKR_MDIV_MASK);
+	writel(tmp, &pmc->mckr);
+
+	tmp = readl(&pmc->mckr);
+	tmp &= (~AT91_PMC_MCKR_PRES_MASK);
+	tmp |= (mckr & AT91_PMC_MCKR_PRES_MASK);
+	writel(tmp, &pmc->mckr);
+}
+
 int at91_enable_periph_generated_clk(u32 id, u32 clk_source, u32 div)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;

@@ -16,15 +16,7 @@
 
 /* System configurations */
 #define CONFIG_MX28				/* i.MX28 SoC */
-#define MACH_TYPE_APX4DEVKIT	3712
 #define CONFIG_MACH_TYPE	MACH_TYPE_APX4DEVKIT
-
-/* U-Boot Commands */
-#define CONFIG_SYS_NO_FLASH
-#define CONFIG_DOS_PARTITION
-
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_NAND
 
 /* Memory configuration */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */
@@ -34,7 +26,6 @@
 
 /* Environment */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_ENV_IS_IN_NAND
 
 /* Environment is in MMC */
 #if defined(CONFIG_CMD_MMC) && defined(CONFIG_ENV_IS_IN_MMC)
@@ -56,17 +47,8 @@
 
 /* UBI and NAND partitioning */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_CMD_UBIFS
-#define CONFIG_CMD_MTDPARTS
-#define CONFIG_RBTREE
-#define CONFIG_LZO
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define MTDIDS_DEFAULT			"nand0=gpmi-nand"
-#define MTDPARTS_DEFAULT \
-	"mtdparts=gpmi-nand:128k(bootstrap),1024k(boot),768k(env),-(root)"
-#else
-#define MTDPARTS_DEFAULT		""
 #endif
 
 /* FEC Ethernet on SoC */
@@ -83,12 +65,6 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	1
 #endif
 
-/* RTC */
-#ifdef CONFIG_CMD_DATE
-#define CONFIG_RTC_PCF8563
-#define CONFIG_SYS_I2C_RTC_ADDR		0x51
-#endif
-
 /* Boot Linux */
 #define CONFIG_BOOTFILE			"uImage"
 #define CONFIG_BOOTCOMMAND		"run bootcmd_nand"
@@ -99,7 +75,7 @@
 
 /* Extra Environments */
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"verify=no\0" \
 	"bootcmd=run bootcmd_nand\0" \
 	"kernelargs=console=tty0 console=ttyAMA0,115200 consoleblank=0\0" \

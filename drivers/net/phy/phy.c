@@ -488,8 +488,14 @@ int phy_init(void)
 #ifdef CONFIG_PHY_MARVELL
 	phy_marvell_init();
 #endif
-#ifdef CONFIG_PHY_MICREL
-	phy_micrel_init();
+#ifdef CONFIG_PHY_MICREL_KSZ8XXX
+	phy_micrel_ksz8xxx_init();
+#endif
+#ifdef CONFIG_PHY_MICREL_KSZ90X1
+	phy_micrel_ksz90x1_init();
+#endif
+#ifdef CONFIG_PHY_MESON_GXL
+	phy_meson_gxl_init();
 #endif
 #ifdef CONFIG_PHY_NATSEMI
 	phy_natsemi_init();
@@ -512,7 +518,12 @@ int phy_init(void)
 #ifdef CONFIG_PHY_XILINX
 	phy_xilinx_init();
 #endif
-
+#ifdef CONFIG_PHY_MSCC
+	phy_mscc_init();
+#endif
+#ifdef CONFIG_PHY_FIXED
+	phy_fixed_init();
+#endif
 	return 0;
 }
 
@@ -851,9 +862,24 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 		struct eth_device *dev, phy_interface_t interface)
 #endif
 {
-	struct phy_device *phydev;
+	struct phy_device *phydev = NULL;
+#ifdef CONFIG_PHY_FIXED
+	int sn;
+	const char *name;
+	sn = fdt_first_subnode(gd->fdt_blob, dev_of_offset(dev));
+	while (sn > 0) {
+		name = fdt_get_name(gd->fdt_blob, sn, NULL);
+		if (name != NULL && strcmp(name, "fixed-link") == 0) {
+			phydev = phy_device_create(bus,
+						   sn, PHY_FIXED_ID, interface);
+			break;
+		}
+		sn = fdt_next_subnode(gd->fdt_blob, sn);
+	}
+#endif
+	if (phydev == NULL)
+		phydev = phy_find_by_mask(bus, 1 << addr, interface);
 
-	phydev = phy_find_by_mask(bus, 1 << addr, interface);
 	if (phydev)
 		phy_connect_dev(phydev, dev);
 	else

@@ -44,7 +44,7 @@ static int tegra186_bpmp_call(struct udevice *dev, int mrq, void *tx_msg,
 
 	ret = tegra_ivc_write_get_next_frame(&priv->ivc, &ivc_frame);
 	if (ret) {
-		error("tegra_ivc_write_get_next_frame() failed: %d\n", ret);
+		pr_err("tegra_ivc_write_get_next_frame() failed: %d\n", ret);
 		return ret;
 	}
 
@@ -55,7 +55,7 @@ static int tegra186_bpmp_call(struct udevice *dev, int mrq, void *tx_msg,
 
 	ret = tegra_ivc_write_advance(&priv->ivc);
 	if (ret) {
-		error("tegra_ivc_write_advance() failed: %d\n", ret);
+		pr_err("tegra_ivc_write_advance() failed: %d\n", ret);
 		return ret;
 	}
 
@@ -63,7 +63,7 @@ static int tegra186_bpmp_call(struct udevice *dev, int mrq, void *tx_msg,
 	for (;;) {
 		ret = tegra_ivc_channel_notified(&priv->ivc);
 		if (ret) {
-			error("tegra_ivc_channel_notified() failed: %d\n", ret);
+			pr_err("tegra_ivc_channel_notified() failed: %d\n", ret);
 			return ret;
 		}
 
@@ -73,7 +73,7 @@ static int tegra186_bpmp_call(struct udevice *dev, int mrq, void *tx_msg,
 
 		/* Timeout 20ms; roughly 10x current max observed duration */
 		if ((timer_get_us() - start_time) > 20 * 1000) {
-			error("tegra_ivc_read_get_next_frame() timed out (%d)\n",
+			pr_err("tegra_ivc_read_get_next_frame() timed out (%d)\n",
 			      ret);
 			return -ETIMEDOUT;
 		}
@@ -86,12 +86,12 @@ static int tegra186_bpmp_call(struct udevice *dev, int mrq, void *tx_msg,
 
 	ret = tegra_ivc_read_advance(&priv->ivc);
 	if (ret) {
-		error("tegra_ivc_write_advance() failed: %d\n", ret);
+		pr_err("tegra_ivc_write_advance() failed: %d\n", ret);
 		return ret;
 	}
 
 	if (err) {
-		error("BPMP responded with error %d\n", err);
+		pr_err("BPMP responded with error %d\n", err);
 		/* err isn't a U-Boot error code, so don't that */
 		return -EIO;
 	}
@@ -112,19 +112,19 @@ static int tegra186_bpmp_bind(struct udevice *dev)
 	debug("%s(dev=%p)\n", __func__, dev);
 
 	ret = device_bind_driver_to_node(dev, "tegra186_clk", "tegra186_clk",
-					 dev->of_offset, &child);
+					 dev_ofnode(dev), &child);
 	if (ret)
 		return ret;
 
 	ret = device_bind_driver_to_node(dev, "tegra186_reset",
-					 "tegra186_reset", dev->of_offset,
+					 "tegra186_reset", dev_ofnode(dev),
 					 &child);
 	if (ret)
 		return ret;
 
 	ret = device_bind_driver_to_node(dev, "tegra186_power_domain",
 					 "tegra186_power_domain",
-					 dev->of_offset, &child);
+					 dev_ofnode(dev), &child);
 	if (ret)
 		return ret;
 
@@ -141,17 +141,17 @@ static ulong tegra186_bpmp_get_shmem(struct udevice *dev, int index)
 	struct fdtdec_phandle_args args;
 	fdt_addr_t reg;
 
-	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev->of_offset,
+	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev_of_offset(dev),
 					      "shmem", NULL, 0, index, &args);
 	if (ret < 0) {
-		error("fdtdec_parse_phandle_with_args() failed: %d\n", ret);
+		pr_err("fdtdec_parse_phandle_with_args() failed: %d\n", ret);
 		return ret;
 	}
 
 	reg = fdtdec_get_addr_size_auto_noparent(gd->fdt_blob, args.node,
 						 "reg", 0, NULL, true);
 	if (reg == FDT_ADDR_T_NONE) {
-		error("fdtdec_get_addr_size_auto_noparent() failed\n");
+		pr_err("fdtdec_get_addr_size_auto_noparent() failed\n");
 		return -ENODEV;
 	}
 
@@ -166,7 +166,7 @@ static void tegra186_bpmp_ivc_notify(struct tegra_ivc *ivc)
 
 	ret = mbox_send(&priv->mbox, NULL);
 	if (ret)
-		error("mbox_send() failed: %d\n", ret);
+		pr_err("mbox_send() failed: %d\n", ret);
 }
 
 static int tegra186_bpmp_probe(struct udevice *dev)
@@ -179,18 +179,18 @@ static int tegra186_bpmp_probe(struct udevice *dev)
 
 	ret = mbox_get_by_index(dev, 0, &priv->mbox);
 	if (ret) {
-		error("mbox_get_by_index() failed: %d\n", ret);
+		pr_err("mbox_get_by_index() failed: %d\n", ret);
 		return ret;
 	}
 
 	tx_base = tegra186_bpmp_get_shmem(dev, 0);
 	if (IS_ERR_VALUE(tx_base)) {
-		error("tegra186_bpmp_get_shmem failed for tx_base\n");
+		pr_err("tegra186_bpmp_get_shmem failed for tx_base\n");
 		return tx_base;
 	}
 	rx_base = tegra186_bpmp_get_shmem(dev, 1);
 	if (IS_ERR_VALUE(rx_base)) {
-		error("tegra186_bpmp_get_shmem failed for rx_base\n");
+		pr_err("tegra186_bpmp_get_shmem failed for rx_base\n");
 		return rx_base;
 	}
 	debug("shmem: rx=%lx, tx=%lx\n", rx_base, tx_base);
@@ -198,7 +198,7 @@ static int tegra186_bpmp_probe(struct udevice *dev)
 	ret = tegra_ivc_init(&priv->ivc, rx_base, tx_base, BPMP_IVC_FRAME_COUNT,
 			     BPMP_IVC_FRAME_SIZE, tegra186_bpmp_ivc_notify);
 	if (ret) {
-		error("tegra_ivc_init() failed: %d\n", ret);
+		pr_err("tegra_ivc_init() failed: %d\n", ret);
 		return ret;
 	}
 
@@ -211,7 +211,7 @@ static int tegra186_bpmp_probe(struct udevice *dev)
 
 		/* Timeout 100ms */
 		if ((timer_get_us() - start_time) > 100 * 1000) {
-			error("Initial IVC reset timed out (%d)\n", ret);
+			pr_err("Initial IVC reset timed out (%d)\n", ret);
 			ret = -ETIMEDOUT;
 			goto err_free_mbox;
 		}

@@ -82,11 +82,13 @@ if __name__ != "__main__":
 # Run our meagre tests
 elif options.test:
     import doctest
+    import func_test
 
     sys.argv = [sys.argv[0]]
-    suite = unittest.TestLoader().loadTestsFromTestCase(test.TestPatch)
     result = unittest.TestResult()
-    suite.run(result)
+    for module in (test.TestPatch, func_test.TestFunctional):
+        suite = unittest.TestLoader().loadTestsFromTestCase(module)
+        suite.run(result)
 
     for module in ['gitutil', 'settings']:
         suite = doctest.DocTestSuite(module)
@@ -141,8 +143,8 @@ else:
                 series)
 
     # Fix up the patch files to our liking, and insert the cover letter
-    series = patchstream.FixPatches(series, args)
-    if series and cover_fname and series.get('cover'):
+    patchstream.FixPatches(series, args)
+    if cover_fname and series.get('cover'):
         patchstream.InsertCoverLetter(cover_fname, series, options.count)
 
     # Do a few checks on the series

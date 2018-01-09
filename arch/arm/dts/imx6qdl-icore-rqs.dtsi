@@ -43,6 +43,11 @@
 #include <dt-bindings/clock/imx6qdl-clock.h>
 
 / {
+	aliases {
+		mmc1 = &usdhc3;
+		mmc2 = &usdhc4;
+	};
+
 	memory {
 		reg = <0x10000000 0x80000000>;
 	};
@@ -100,9 +105,17 @@
 };
 
 &usdhc3 {
+	u-boot,dm-spl;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usdhc3>;
 	cd-gpios = <&gpio1 1 GPIO_ACTIVE_LOW>;
+	no-1-8-v;
+	status = "okay";
+};
+
+&usdhc4 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usdhc4>;
 	no-1-8-v;
 	status = "okay";
 };
@@ -158,6 +171,7 @@
 	};
 
 	pinctrl_usdhc3: usdhc3grp {
+		u-boot,dm-spl;
 		fsl,pins = <
 			MX6QDL_PAD_SD3_CMD__SD3_CMD    0x17070
 			MX6QDL_PAD_SD3_CLK__SD3_CLK    0x10070
@@ -165,6 +179,21 @@
 			MX6QDL_PAD_SD3_DAT1__SD3_DATA1 0x17070
 			MX6QDL_PAD_SD3_DAT2__SD3_DATA2 0x17070
 			MX6QDL_PAD_SD3_DAT3__SD3_DATA3 0x17070
+		>;
+	};
+
+	pinctrl_usdhc4: usdhc4grp {
+		fsl,pins = <
+			MX6QDL_PAD_SD4_CMD__SD4_CMD    0x17070
+			MX6QDL_PAD_SD4_CLK__SD4_CLK    0x10070
+			MX6QDL_PAD_SD4_DAT0__SD4_DATA0 0x17070
+			MX6QDL_PAD_SD4_DAT1__SD4_DATA1 0x17070
+			MX6QDL_PAD_SD4_DAT2__SD4_DATA2 0x17070
+			MX6QDL_PAD_SD4_DAT3__SD4_DATA3 0x17070
+			MX6QDL_PAD_SD4_DAT4__SD4_DATA4 0x17070
+			MX6QDL_PAD_SD4_DAT5__SD4_DATA5 0x17070
+			MX6QDL_PAD_SD4_DAT6__SD4_DATA6 0x17070
+			MX6QDL_PAD_SD4_DAT7__SD4_DATA7 0x17070
 		>;
 	};
 };

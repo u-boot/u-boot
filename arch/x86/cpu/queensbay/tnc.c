@@ -76,13 +76,13 @@ static int __maybe_unused disable_igd(void)
 	 *
 	 * So the only option we have is to manually remove these two devices.
 	 */
-	ret = device_remove(igd);
+	ret = device_remove(igd, DM_REMOVE_NORMAL);
 	if (ret)
 		return ret;
 	ret = device_unbind(igd);
 	if (ret)
 		return ret;
-	ret = device_remove(sdvo);
+	ret = device_remove(sdvo, DM_REMOVE_NORMAL);
 	if (ret)
 		return ret;
 	ret = device_unbind(sdvo);

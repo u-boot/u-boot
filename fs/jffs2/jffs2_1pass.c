@@ -175,9 +175,14 @@ static u32 nand_cache_off = (u32)-1;
 static int read_nand_cached(u32 off, u32 size, u_char *buf)
 {
 	struct mtdids *id = current_part->dev->id;
+	struct mtd_info *mtd;
 	u32 bytes_read = 0;
 	size_t retlen;
 	int cpy_bytes;
+
+	mtd = get_nand_dev_by_index(id->num);
+	if (!mtd)
+		return -1;
 
 	while (bytes_read < size) {
 		if ((off + bytes_read < nand_cache_off) ||
@@ -195,8 +200,8 @@ static int read_nand_cached(u32 off, u32 size, u_char *buf)
 			}
 
 			retlen = NAND_CACHE_SIZE;
-			if (nand_read(nand_info[id->num], nand_cache_off,
-						&retlen, nand_cache) != 0 ||
+			if (nand_read(mtd, nand_cache_off,
+				      &retlen, nand_cache) < 0 ||
 					retlen != NAND_CACHE_SIZE) {
 				printf("read_nand_cached: error reading nand off %#x size %d bytes\n",
 						nand_cache_off, NAND_CACHE_SIZE);
@@ -295,7 +300,7 @@ static int read_onenand_cached(u32 off, u32 size, u_char *buf)
 
 			retlen = ONENAND_CACHE_SIZE;
 			if (onenand_read(&onenand_mtd, onenand_cache_off, retlen,
-						&retlen, onenand_cache) != 0 ||
+						&retlen, onenand_cache) < 0 ||
 					retlen != ONENAND_CACHE_SIZE) {
 				printf("read_onenand_cached: error reading nand off %#x size %d bytes\n",
 					onenand_cache_off, ONENAND_CACHE_SIZE);

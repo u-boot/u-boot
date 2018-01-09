@@ -28,3 +28,9 @@ int arch_early_init_r(void)
 	gd->bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
 	return 0;
 }
+
+/* This is a dummy function on arc */
+int dram_init(void)
+{
+	return 0;
+}

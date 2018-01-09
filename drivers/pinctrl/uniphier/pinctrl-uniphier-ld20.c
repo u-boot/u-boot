@@ -5,7 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <dm/device.h>
+#include <common.h>
+#include <dm.h>
 #include <dm/pinctrl.h>
 
 #include "pinctrl-uniphier.h"
@@ -20,7 +21,7 @@ static const int ether_rgmii_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 					  0, 0, 0, 0};
 static const unsigned ether_rmii_pins[] = {30, 31, 32, 33, 34, 35, 36, 37, 39,
 					   41, 42, 45};
-static const int ether_rmii_muxvals[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+static const int ether_rmii_muxvals[] = {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1};
 static const unsigned i2c0_pins[] = {63, 64};
 static const int i2c0_muxvals[] = {0, 0};
 static const unsigned i2c1_pins[] = {65, 66};
@@ -68,12 +69,12 @@ static const struct uniphier_pinctrl_group uniphier_ld20_groups[] = {
 	UNIPHIER_PINCTRL_GROUP(i2c4),
 	UNIPHIER_PINCTRL_GROUP(nand),
 	UNIPHIER_PINCTRL_GROUP(sd),
-	UNIPHIER_PINCTRL_GROUP_SPL(system_bus),
-	UNIPHIER_PINCTRL_GROUP_SPL(system_bus_cs1),
-	UNIPHIER_PINCTRL_GROUP_SPL(uart0),
-	UNIPHIER_PINCTRL_GROUP_SPL(uart1),
-	UNIPHIER_PINCTRL_GROUP_SPL(uart2),
-	UNIPHIER_PINCTRL_GROUP_SPL(uart3),
+	UNIPHIER_PINCTRL_GROUP(system_bus),
+	UNIPHIER_PINCTRL_GROUP(system_bus_cs1),
+	UNIPHIER_PINCTRL_GROUP(uart0),
+	UNIPHIER_PINCTRL_GROUP(uart1),
+	UNIPHIER_PINCTRL_GROUP(uart2),
+	UNIPHIER_PINCTRL_GROUP(uart3),
 	UNIPHIER_PINCTRL_GROUP(usb0),
 	UNIPHIER_PINCTRL_GROUP(usb1),
 	UNIPHIER_PINCTRL_GROUP(usb2),
@@ -90,11 +91,11 @@ static const char * const uniphier_ld20_functions[] = {
 	UNIPHIER_PINMUX_FUNCTION(i2c4),
 	UNIPHIER_PINMUX_FUNCTION(nand),
 	UNIPHIER_PINMUX_FUNCTION(sd),
-	UNIPHIER_PINMUX_FUNCTION_SPL(system_bus),
-	UNIPHIER_PINMUX_FUNCTION_SPL(uart0),
-	UNIPHIER_PINMUX_FUNCTION_SPL(uart1),
-	UNIPHIER_PINMUX_FUNCTION_SPL(uart2),
-	UNIPHIER_PINMUX_FUNCTION_SPL(uart3),
+	UNIPHIER_PINMUX_FUNCTION(system_bus),
+	UNIPHIER_PINMUX_FUNCTION(uart0),
+	UNIPHIER_PINMUX_FUNCTION(uart1),
+	UNIPHIER_PINMUX_FUNCTION(uart2),
+	UNIPHIER_PINMUX_FUNCTION(uart3),
 	UNIPHIER_PINMUX_FUNCTION(usb0),
 	UNIPHIER_PINMUX_FUNCTION(usb1),
 	UNIPHIER_PINMUX_FUNCTION(usb2),
@@ -106,7 +107,8 @@ static struct uniphier_pinctrl_socdata uniphier_ld20_pinctrl_socdata = {
 	.groups_count = ARRAY_SIZE(uniphier_ld20_groups),
 	.functions = uniphier_ld20_functions,
 	.functions_count = ARRAY_SIZE(uniphier_ld20_functions),
-	.caps = UNIPHIER_PINCTRL_CAPS_PERPIN_IECTRL,
+	.caps = UNIPHIER_PINCTRL_CAPS_PUPD_SIMPLE |
+		UNIPHIER_PINCTRL_CAPS_PERPIN_IECTRL,
 };
 
 static int uniphier_ld20_pinctrl_probe(struct udevice *dev)

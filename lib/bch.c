@@ -54,10 +54,31 @@
  * finite fields GF(2^q). In Rapport de recherche INRIA no 2829, 1996.
  */
 
+#ifndef USE_HOSTCC
 #include <common.h>
 #include <ubi_uboot.h>
 
 #include <linux/bitops.h>
+#else
+#include <errno.h>
+#if defined(__FreeBSD__)
+#include <sys/endian.h>
+#else
+#include <endian.h>
+#endif
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+#undef cpu_to_be32
+#define cpu_to_be32 htobe32
+#define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
+#define kmalloc(size, flags)	malloc(size)
+#define kzalloc(size, flags)	calloc(1, size)
+#define kfree free
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+#endif
+
 #include <asm/byteorder.h>
 #include <linux/bch.h>
 
@@ -94,6 +115,39 @@ struct gf_poly_deg1 {
 	struct gf_poly poly;
 	unsigned int   c[2];
 };
+
+#ifdef USE_HOSTCC
+#if !defined(__DragonFly__) && !defined(__FreeBSD__)
+static int fls(int x)
+{
+	int r = 32;
+
+	if (!x)
+		return 0;
+	if (!(x & 0xffff0000u)) {
+		x <<= 16;
+		r -= 16;
+	}
+	if (!(x & 0xff000000u)) {
+		x <<= 8;
+		r -= 8;
+	}
+	if (!(x & 0xf0000000u)) {
+		x <<= 4;
+		r -= 4;
+	}
+	if (!(x & 0xc0000000u)) {
+		x <<= 2;
+		r -= 2;
+	}
+	if (!(x & 0x80000000u)) {
+		x <<= 1;
+		r -= 1;
+	}
+	return r;
+}
+#endif
+#endif
 
 /*
  * same as encode_bch(), but process input data one byte at a time

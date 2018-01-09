@@ -106,6 +106,79 @@
 				status = "disabled";
 			};
 
+			pinctrl_nb: pinctrl-nb@13800 {
+				compatible = "marvell,armada3710-nb-pinctrl",
+				"syscon", "simple-mfd";
+				reg = <0x13800 0x100>, <0x13C00 0x20>;
+				gpionb: gpionb {
+					#gpio-cells = <2>;
+					gpio-ranges = <&pinctrl_nb 0 0 36>;
+					gpio-controller;
+					interrupts =
+					<GIC_SPI 51 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 52 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 53 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 54 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 55 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 57 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 58 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 152 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 153 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 154 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 155 IRQ_TYPE_LEVEL_HIGH>;
+
+				};
+
+				spi_quad_pins: spi-quad-pins {
+					groups = "spi_quad";
+					function = "spi";
+				};
+
+				i2c1_pins: i2c1-pins {
+					groups = "i2c1";
+					function = "i2c";
+				};
+
+				i2c2_pins: i2c2-pins {
+					groups = "i2c2";
+					function = "i2c";
+				};
+
+				uart1_pins: uart1-pins {
+					groups = "uart1";
+					function = "uart";
+				};
+
+				uart2_pins: uart2-pins {
+					groups = "uart2";
+					function = "uart";
+				};
+			};
+
+			pinctrl_sb: pinctrl-sb@18800 {
+				compatible = "marvell,armada3710-sb-pinctrl",
+				"syscon", "simple-mfd";
+				reg = <0x18800 0x100>, <0x18C00 0x20>;
+				gpiosb: gpiosb {
+					#gpio-cells = <2>;
+					gpio-ranges = <&pinctrl_sb 0 0 29>;
+					gpio-controller;
+					interrupts =
+					<GIC_SPI 160 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 159 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 158 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 157 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 156 IRQ_TYPE_LEVEL_HIGH>;
+				};
+
+				rgmii_pins: mii-pins {
+					groups = "rgmii";
+					function = "mii";
+				};
+
+			};
+
 			usb3: usb@58000 {
 				compatible = "marvell,armada3700-xhci",
 				"generic-xhci";
@@ -131,6 +204,22 @@
 				xor11 {
 					interrupts = <GIC_SPI 48 IRQ_TYPE_LEVEL_HIGH>;
 				};
+			};
+
+			sdhci0: sdhci@d0000 {
+				compatible = "marvell,armada-3700-sdhci",
+				"marvell,sdhci-xenon";
+				reg = <0xd0000 0x300
+				       0x1e808 0x4>;
+				status = "disabled";
+			};
+
+			sdhci1: sdhci@d8000 {
+				compatible = "marvell,armada-3700-sdhci",
+				"marvell,sdhci-xenon";
+				reg = <0xd8000 0x300
+				       0x17808 0x4>;
+				status = "disabled";
 			};
 
 			sata: sata@e0000 {
@@ -175,6 +264,20 @@
 				clock-frequency = <160000>;
 				spi-max-frequency = <40000>;
 				status = "disabled";
+			};
+
+			pinctl0: pinctl@13830 { /* north bridge */
+				compatible = "marvell,armada-3700-pinctl";
+				bank-name = "armada-3700-nb";
+				reg = <0x13830 0x4>;
+				pin-count = <36>;
+			};
+
+			pinctl1: pinctl@18830 { /* south bridge */
+				compatible = "marvell,armada-3700-pinctl";
+				bank-name = "armada-3700-sb";
+				reg = <0x18830 0x4>;
+				pin-count = <30>;
 			};
 
 			comphy: comphy@18300 {

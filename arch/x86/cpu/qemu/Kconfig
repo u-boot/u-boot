@@ -6,12 +6,20 @@
 
 config QEMU
 	bool
+	select ARCH_EARLY_INIT_R
+	imply AHCI_PCI
+	imply E1000
+	imply SCSI_AHCI
+	imply SYS_NS16550
+	imply USB
+	imply USB_EHCI_HCD
+	imply VIDEO_VESA
 
 if QEMU
 
 config SYS_CAR_ADDR
 	hex
-	default 0xd0000
+	default 0x10000
 
 config SYS_CAR_SIZE
 	hex

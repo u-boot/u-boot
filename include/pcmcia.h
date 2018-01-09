@@ -15,18 +15,10 @@
  * Allow configuration to select PCMCIA slot,
  * or try to generate a useful default
  */
-#if defined(CONFIG_CMD_PCMCIA) || \
-    (defined(CONFIG_CMD_IDE) && \
-	(defined(CONFIG_IDE_8xx_PCCARD) || defined(CONFIG_IDE_8xx_DIRECT) ) )
+#if defined(CONFIG_CMD_PCMCIA)
 
 #if !defined(CONFIG_PCMCIA_SLOT_A) && !defined(CONFIG_PCMCIA_SLOT_B)
-
-#if defined(CONFIG_TQM8xxL)
-# define	CONFIG_PCMCIA_SLOT_B	/* The TQM8xxL use SLOT_B	*/
-#else
 # error "PCMCIA Slot not configured"
-#endif
-
 #endif /* !defined(CONFIG_PCMCIA_SLOT_A) && !defined(CONFIG_PCMCIA_SLOT_B) */
 
 /* Make sure exactly one slot is defined - we support only one for now */
@@ -54,17 +46,6 @@
 # define _slot_			1
 # define PCMCIA_SLOT_MSG	"slot B"
 # define PCMCIA_SLOT_x		PCMCIA_PSLOT_B
-#endif
-
-/*
- * The TQM850L hardware has two pins swapped! Grrrrgh!
- */
-#ifdef	CONFIG_TQM850L
-#define __MY_PCMCIA_GCRX_CXRESET	PCMCIA_GCRX_CXOE
-#define __MY_PCMCIA_GCRX_CXOE		PCMCIA_GCRX_CXRESET
-#else
-#define __MY_PCMCIA_GCRX_CXRESET	PCMCIA_GCRX_CXRESET
-#define __MY_PCMCIA_GCRX_CXOE		PCMCIA_GCRX_CXOE
 #endif
 
 /*
@@ -261,15 +242,6 @@ typedef struct {
 #define CISTPL_IDE_HAS_INDEX	0x20
 #define CISTPL_IDE_IOIS16	0x40
 
-#endif
-
-#ifdef	CONFIG_8xx
-extern u_int *pcmcia_pgcrx[];
-#define	PCMCIA_PGCRX(slot)	(*pcmcia_pgcrx[slot])
-#endif
-
-#if defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_8xx_PCCARD)
-extern int check_ide_device(int slot);
 #endif
 
 #endif /* _PCMCIA_H */

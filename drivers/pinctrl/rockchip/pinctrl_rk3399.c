@@ -22,112 +22,6 @@ struct rk3399_pinctrl_priv {
 	struct rk3399_pmugrf_regs *pmugrf;
 };
 
-enum {
-	/* GRF_GPIO2B_IOMUX */
-	GRF_GPIO2B1_SEL_SHIFT	= 0,
-	GRF_GPIO2B1_SEL_MASK	= 3 << GRF_GPIO2B1_SEL_SHIFT,
-	GRF_SPI2TPM_RXD		= 1,
-	GRF_GPIO2B2_SEL_SHIFT	= 2,
-	GRF_GPIO2B2_SEL_MASK	= 3 << GRF_GPIO2B2_SEL_SHIFT,
-	GRF_SPI2TPM_TXD		= 1,
-	GRF_GPIO2B3_SEL_SHIFT	= 6,
-	GRF_GPIO2B3_SEL_MASK	= 3 << GRF_GPIO2B3_SEL_SHIFT,
-	GRF_SPI2TPM_CLK		= 1,
-	GRF_GPIO2B4_SEL_SHIFT	= 8,
-	GRF_GPIO2B4_SEL_MASK	= 3 << GRF_GPIO2B4_SEL_SHIFT,
-	GRF_SPI2TPM_CSN0	= 1,
-
-	/* GRF_GPIO3A_IOMUX */
-	GRF_GPIO3A4_SEL_SHIFT	= 8,
-	GRF_GPIO3A4_SEL_MASK	= 3 << GRF_GPIO3A4_SEL_SHIFT,
-	GRF_SPI0NORCODEC_RXD	= 2,
-	GRF_GPIO3A5_SEL_SHIFT	= 10,
-	GRF_GPIO3A5_SEL_MASK	= 3 << GRF_GPIO3A5_SEL_SHIFT,
-	GRF_SPI0NORCODEC_TXD	= 2,
-	GRF_GPIO3A6_SEL_SHIFT	= 12,
-	GRF_GPIO3A6_SEL_MASK	= 3 << GRF_GPIO3A6_SEL_SHIFT,
-	GRF_SPI0NORCODEC_CLK	= 2,
-	GRF_GPIO3A7_SEL_SHIFT	= 14,
-	GRF_GPIO3A7_SEL_MASK	= 3 << GRF_GPIO3A7_SEL_SHIFT,
-	GRF_SPI0NORCODEC_CSN0	= 2,
-
-	/* GRF_GPIO3B_IOMUX */
-	GRF_GPIO3B0_SEL_SHIFT	= 0,
-	GRF_GPIO3B0_SEL_MASK	= 3 << GRF_GPIO3B0_SEL_SHIFT,
-	GRF_SPI0NORCODEC_CSN1	= 2,
-
-	/* GRF_GPIO4B_IOMUX */
-	GRF_GPIO4B0_SEL_SHIFT	= 0,
-	GRF_GPIO4B0_SEL_MASK	= 3 << GRF_GPIO4B0_SEL_SHIFT,
-	GRF_SDMMC_DATA0		= 1,
-	GRF_UART2DBGA_SIN	= 2,
-	GRF_GPIO4B1_SEL_SHIFT	= 2,
-	GRF_GPIO4B1_SEL_MASK	= 3 << GRF_GPIO4B1_SEL_SHIFT,
-	GRF_SDMMC_DATA1		= 1,
-	GRF_UART2DBGA_SOUT	= 2,
-	GRF_GPIO4B2_SEL_SHIFT	= 4,
-	GRF_GPIO4B2_SEL_MASK	= 3 << GRF_GPIO4B2_SEL_SHIFT,
-	GRF_SDMMC_DATA2		= 1,
-	GRF_GPIO4B3_SEL_SHIFT	= 6,
-	GRF_GPIO4B3_SEL_MASK	= 3 << GRF_GPIO4B3_SEL_SHIFT,
-	GRF_SDMMC_DATA3		= 1,
-	GRF_GPIO4B4_SEL_SHIFT	= 8,
-	GRF_GPIO4B4_SEL_MASK	= 3 << GRF_GPIO4B4_SEL_SHIFT,
-	GRF_SDMMC_CLKOUT	= 1,
-	GRF_GPIO4B5_SEL_SHIFT	= 10,
-	GRF_GPIO4B5_SEL_MASK	= 3 << GRF_GPIO4B5_SEL_SHIFT,
-	GRF_SDMMC_CMD		= 1,
-
-	/* GRF_GPIO4C_IOMUX */
-	GRF_GPIO4C2_SEL_SHIFT	= 4,
-	GRF_GPIO4C2_SEL_MASK	= 3 << GRF_GPIO4C2_SEL_SHIFT,
-	GRF_PWM_0		= 1,
-	GRF_GPIO4C3_SEL_SHIFT	= 6,
-	GRF_GPIO4C3_SEL_MASK	= 3 << GRF_GPIO4C3_SEL_SHIFT,
-	GRF_UART2DGBC_SIN	= 1,
-	GRF_GPIO4C4_SEL_SHIFT	= 8,
-	GRF_GPIO4C4_SEL_MASK	= 3 << GRF_GPIO4C4_SEL_SHIFT,
-	GRF_UART2DBGC_SOUT	= 1,
-	GRF_GPIO4C6_SEL_SHIFT	= 12,
-	GRF_GPIO4C6_SEL_MASK	= 3 << GRF_GPIO4C6_SEL_SHIFT,
-	GRF_PWM_1		= 1,
-
-	/* PMUGRF_GPIO0A_IOMUX */
-	PMUGRF_GPIO0A6_SEL_SHIFT	= 12,
-	PMUGRF_GPIO0A6_SEL_MASK	= 3 << PMUGRF_GPIO0A6_SEL_SHIFT,
-	PMUGRF_PWM_3A		= 1,
-
-	/* PMUGRF_GPIO1A_IOMUX */
-	PMUGRF_GPIO1A7_SEL_SHIFT	= 14,
-	PMUGRF_GPIO1A7_SEL_MASK	= 3 << PMUGRF_GPIO1A7_SEL_SHIFT,
-	PMUGRF_SPI1EC_RXD	= 2,
-
-	/* PMUGRF_GPIO1B_IOMUX */
-	PMUGRF_GPIO1B0_SEL_SHIFT	= 0,
-	PMUGRF_GPIO1B0_SEL_MASK = 3 << PMUGRF_GPIO1B0_SEL_SHIFT,
-	PMUGRF_SPI1EC_TXD	= 2,
-	PMUGRF_GPIO1B1_SEL_SHIFT	= 2,
-	PMUGRF_GPIO1B1_SEL_MASK = 3 << PMUGRF_GPIO1B1_SEL_SHIFT,
-	PMUGRF_SPI1EC_CLK	= 2,
-	PMUGRF_GPIO1B2_SEL_SHIFT	= 4,
-	PMUGRF_GPIO1B2_SEL_MASK = 3 << PMUGRF_GPIO1B2_SEL_SHIFT,
-	PMUGRF_SPI1EC_CSN0	= 2,
-	PMUGRF_GPIO1B6_SEL_SHIFT	= 12,
-	PMUGRF_GPIO1B6_SEL_MASK	= 3 << PMUGRF_GPIO1B6_SEL_SHIFT,
-	PMUGRF_PWM_3B		= 1,
-	PMUGRF_GPIO1B7_SEL_SHIFT	= 14,
-	PMUGRF_GPIO1B7_SEL_MASK	= 3 << PMUGRF_GPIO1B7_SEL_SHIFT,
-	PMUGRF_I2C0PMU_SDA	= 2,
-
-	/* PMUGRF_GPIO1C_IOMUX */
-	PMUGRF_GPIO1C0_SEL_SHIFT	= 0,
-	PMUGRF_GPIO1C0_SEL_MASK	= 3 << PMUGRF_GPIO1C0_SEL_SHIFT,
-	PMUGRF_I2C0PMU_SCL	= 2,
-	PMUGRF_GPIO1C3_SEL_SHIFT	= 6,
-	PMUGRF_GPIO1C3_SEL_MASK	= 3 << PMUGRF_GPIO1C3_SEL_SHIFT,
-	PMUGRF_PWM_2		= 1,
-
-};
 static void pinctrl_rk3399_pwm_config(struct rk3399_grf_regs *grf,
 		struct rk3399_pmugrf_regs *pmugrf, int pwm_id)
 {
@@ -176,11 +70,21 @@ static void pinctrl_rk3399_i2c_config(struct rk3399_grf_regs *grf,
 			     PMUGRF_GPIO1C0_SEL_MASK,
 			     PMUGRF_I2C0PMU_SCL << PMUGRF_GPIO1C0_SEL_SHIFT);
 		break;
+	case PERIPH_ID_I2C8:
+		rk_clrsetreg(&pmugrf->gpio1c_iomux,
+			     PMUGRF_GPIO1C4_SEL_MASK,
+			     PMUGRF_I2C8PMU_SDA << PMUGRF_GPIO1C4_SEL_SHIFT);
+		rk_clrsetreg(&pmugrf->gpio1c_iomux,
+			     PMUGRF_GPIO1C5_SEL_MASK,
+			     PMUGRF_I2C8PMU_SCL << PMUGRF_GPIO1C5_SEL_SHIFT);
+		break;
 	case PERIPH_ID_I2C1:
 	case PERIPH_ID_I2C2:
 	case PERIPH_ID_I2C3:
 	case PERIPH_ID_I2C4:
 	case PERIPH_ID_I2C5:
+	case PERIPH_ID_I2C6:
+	case PERIPH_ID_I2C7:
 	default:
 		debug("i2c id = %d iomux error!\n", i2c_id);
 		break;
@@ -251,7 +155,19 @@ static int pinctrl_rk3399_spi_config(struct rk3399_grf_regs *grf,
 			     | GRF_SPI2TPM_CLK << GRF_GPIO2B3_SEL_SHIFT
 			     | GRF_SPI2TPM_CSN0 << GRF_GPIO2B4_SEL_SHIFT);
 		break;
+	case PERIPH_ID_SPI5:
+		if (cs != 0)
+			goto err;
+		rk_clrsetreg(&grf->gpio2c_iomux,
+			     GRF_GPIO2C4_SEL_MASK | GRF_GPIO2C5_SEL_MASK
+			     | GRF_GPIO2C6_SEL_MASK | GRF_GPIO2C7_SEL_MASK,
+			     GRF_SPI5EXPPLUS_RXD << GRF_GPIO2C4_SEL_SHIFT
+			     | GRF_SPI5EXPPLUS_TXD << GRF_GPIO2C5_SEL_SHIFT
+			     | GRF_SPI5EXPPLUS_CLK << GRF_GPIO2C6_SEL_SHIFT
+			     | GRF_SPI5EXPPLUS_CSN0 << GRF_GPIO2C7_SEL_SHIFT);
+		break;
 	default:
+		printf("%s: spi_id %d is not supported.\n", __func__, spi_id);
 		goto err;
 	}
 
@@ -308,6 +224,74 @@ static void pinctrl_rk3399_sdmmc_config(struct rk3399_grf_regs *grf, int mmc_id)
 	}
 }
 
+#if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
+static void pinctrl_rk3399_gmac_config(struct rk3399_grf_regs *grf, int mmc_id)
+{
+	rk_clrsetreg(&grf->gpio3a_iomux,
+		     GRF_GPIO3A0_SEL_MASK | GRF_GPIO3A1_SEL_MASK |
+		     GRF_GPIO3A2_SEL_MASK | GRF_GPIO3A3_SEL_MASK |
+		     GRF_GPIO3A4_SEL_MASK | GRF_GPIO3A5_SEL_MASK |
+		     GRF_GPIO3A6_SEL_MASK | GRF_GPIO3A7_SEL_MASK,
+		     GRF_MAC_TXD2 << GRF_GPIO3A0_SEL_SHIFT |
+		     GRF_MAC_TXD3 << GRF_GPIO3A1_SEL_SHIFT |
+		     GRF_MAC_RXD2 << GRF_GPIO3A2_SEL_SHIFT |
+		     GRF_MAC_RXD3 << GRF_GPIO3A3_SEL_SHIFT |
+		     GRF_MAC_TXD0 << GRF_GPIO3A4_SEL_SHIFT |
+		     GRF_MAC_TXD1 << GRF_GPIO3A5_SEL_SHIFT |
+		     GRF_MAC_RXD0 << GRF_GPIO3A6_SEL_SHIFT |
+		     GRF_MAC_RXD1 << GRF_GPIO3A7_SEL_SHIFT);
+	rk_clrsetreg(&grf->gpio3b_iomux,
+		     GRF_GPIO3B0_SEL_MASK | GRF_GPIO3B1_SEL_MASK |
+					    GRF_GPIO3B3_SEL_MASK |
+		     GRF_GPIO3B4_SEL_MASK | GRF_GPIO3B5_SEL_MASK |
+		     GRF_GPIO3B6_SEL_MASK,
+		     GRF_MAC_MDC << GRF_GPIO3B0_SEL_SHIFT |
+		     GRF_MAC_RXDV << GRF_GPIO3B1_SEL_SHIFT |
+		     GRF_MAC_CLK << GRF_GPIO3B3_SEL_SHIFT |
+		     GRF_MAC_TXEN << GRF_GPIO3B4_SEL_SHIFT |
+		     GRF_MAC_MDIO << GRF_GPIO3B5_SEL_SHIFT |
+		     GRF_MAC_RXCLK << GRF_GPIO3B6_SEL_SHIFT);
+	rk_clrsetreg(&grf->gpio3c_iomux,
+		     GRF_GPIO3C1_SEL_MASK,
+		     GRF_MAC_TXCLK << GRF_GPIO3C1_SEL_SHIFT);
+
+	/* Set drive strength for GMAC tx io, value 3 means 13mA */
+	rk_clrsetreg(&grf->gpio3_e[0],
+		     GRF_GPIO3A0_E_MASK | GRF_GPIO3A1_E_MASK |
+		     GRF_GPIO3A4_E_MASK | GRF_GPIO3A5_E0_MASK,
+		     3 << GRF_GPIO3A0_E_SHIFT |
+		     3 << GRF_GPIO3A1_E_SHIFT |
+		     3 << GRF_GPIO3A4_E_SHIFT |
+		     1 << GRF_GPIO3A5_E0_SHIFT);
+	rk_clrsetreg(&grf->gpio3_e[1],
+		     GRF_GPIO3A5_E12_MASK,
+		     1 << GRF_GPIO3A5_E12_SHIFT);
+	rk_clrsetreg(&grf->gpio3_e[2],
+		     GRF_GPIO3B4_E_MASK,
+		     3 << GRF_GPIO3B4_E_SHIFT);
+	rk_clrsetreg(&grf->gpio3_e[4],
+		     GRF_GPIO3C1_E_MASK,
+		     3 << GRF_GPIO3C1_E_SHIFT);
+}
+#endif
+
+#if !defined(CONFIG_SPL_BUILD)
+static void pinctrl_rk3399_hdmi_config(struct rk3399_grf_regs *grf, int hdmi_id)
+{
+	switch (hdmi_id) {
+	case PERIPH_ID_HDMI:
+		rk_clrsetreg(&grf->gpio4c_iomux,
+			     GRF_GPIO4C0_SEL_MASK | GRF_GPIO4C1_SEL_MASK,
+			     (GRF_HDMII2C_SCL << GRF_GPIO4C0_SEL_SHIFT) |
+			     (GRF_HDMII2C_SDA << GRF_GPIO4C1_SEL_SHIFT));
+		break;
+	default:
+		debug("%s: hdmi_id = %d unsupported\n", __func__, hdmi_id);
+		break;
+	}
+}
+#endif
+
 static int rk3399_pinctrl_request(struct udevice *dev, int func, int flags)
 {
 	struct rk3399_pinctrl_priv *priv = dev_get_priv(dev);
@@ -327,11 +311,17 @@ static int rk3399_pinctrl_request(struct udevice *dev, int func, int flags)
 	case PERIPH_ID_I2C3:
 	case PERIPH_ID_I2C4:
 	case PERIPH_ID_I2C5:
+	case PERIPH_ID_I2C6:
+	case PERIPH_ID_I2C7:
+	case PERIPH_ID_I2C8:
 		pinctrl_rk3399_i2c_config(priv->grf, priv->pmugrf, func);
 		break;
 	case PERIPH_ID_SPI0:
 	case PERIPH_ID_SPI1:
 	case PERIPH_ID_SPI2:
+	case PERIPH_ID_SPI3:
+	case PERIPH_ID_SPI4:
+	case PERIPH_ID_SPI5:
 		pinctrl_rk3399_spi_config(priv->grf, priv->pmugrf, func, flags);
 		break;
 	case PERIPH_ID_UART0:
@@ -349,6 +339,16 @@ static int rk3399_pinctrl_request(struct udevice *dev, int func, int flags)
 	case PERIPH_ID_SDMMC1:
 		pinctrl_rk3399_sdmmc_config(priv->grf, func);
 		break;
+#if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
+	case PERIPH_ID_GMAC:
+		pinctrl_rk3399_gmac_config(priv->grf, func);
+		break;
+#endif
+#if !defined(CONFIG_SPL_BUILD)
+	case PERIPH_ID_HDMI:
+		pinctrl_rk3399_hdmi_config(priv->grf, func);
+		break;
+#endif
 	default:
 		return -EINVAL;
 	}
@@ -359,11 +359,11 @@ static int rk3399_pinctrl_request(struct udevice *dev, int func, int flags)
 static int rk3399_pinctrl_get_periph_id(struct udevice *dev,
 					struct udevice *periph)
 {
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	u32 cell[3];
 	int ret;
 
-	ret = fdtdec_get_int_array(gd->fdt_blob, periph->of_offset,
-				   "interrupts", cell, ARRAY_SIZE(cell));
+	ret = dev_read_u32_array(periph, "interrupts", cell, ARRAY_SIZE(cell));
 	if (ret < 0)
 		return -EINVAL;
 
@@ -374,6 +374,8 @@ static int rk3399_pinctrl_get_periph_id(struct udevice *dev,
 		return PERIPH_ID_SPI1;
 	case 52:
 		return PERIPH_ID_SPI2;
+	case 132:
+		return PERIPH_ID_SPI5;
 	case 57:
 		return PERIPH_ID_I2C0;
 	case 59: /* Note strange order */
@@ -386,10 +388,24 @@ static int rk3399_pinctrl_get_periph_id(struct udevice *dev,
 		return PERIPH_ID_I2C4;
 	case 38:
 		return PERIPH_ID_I2C5;
+	case 37:
+		return PERIPH_ID_I2C6;
+	case 36:
+		return PERIPH_ID_I2C7;
+	case 58:
+		return PERIPH_ID_I2C8;
 	case 65:
 		return PERIPH_ID_SDMMC1;
+#if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
+	case 12:
+		return PERIPH_ID_GMAC;
+#endif
+#if !defined(CONFIG_SPL_BUILD)
+	case 23:
+		return PERIPH_ID_HDMI;
+#endif
 	}
-
+#endif
 	return -ENOENT;
 }
 
@@ -434,6 +450,8 @@ U_BOOT_DRIVER(pinctrl_rk3399) = {
 	.of_match	= rk3399_pinctrl_ids,
 	.priv_auto_alloc_size = sizeof(struct rk3399_pinctrl_priv),
 	.ops		= &rk3399_pinctrl_ops,
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.bind		= dm_scan_fdt_dev,
+#endif
 	.probe		= rk3399_pinctrl_probe,
 };

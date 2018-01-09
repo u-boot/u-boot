@@ -89,11 +89,6 @@
 
 /* Special Purpose Registers (SPRNs)*/
 
-/* PPC440 Architecture is BOOK-E */
-#ifdef CONFIG_440
-#define CONFIG_BOOKE
-#endif
-
 #define SPRN_CCR0	0x3B3	/* Core Configuration Register 0 */
 #ifdef CONFIG_BOOKE
 #define SPRN_CCR1	0x378	/* Core Configuration Register for 440 only */
@@ -501,6 +496,7 @@
 #define   L1CSR1_ICE		0x00000001	/* Instruction Cache Enable */
 #define SPRN_L1CSR2	0x25e	/* L1 Data Cache Control and Status Register 2 */
 #define   L1CSR2_DCWS		0x40000000	/* Data Cache Write Shadow */
+#define   L1CSR2_DCSTASHID  0x000003ff	/* Data Cache Stash ID */
 #define SPRN_L2CSR0	0x3f9	/* L2 Data Cache Control and Status Register 0 */
 #define   L2CSR0_L2E		0x80000000	/* L2 Cache Enable */
 #define   L2CSR0_L2PE		0x40000000	/* L2 Cache Parity/ECC Enable */
@@ -569,12 +565,7 @@
 #define SPRN_MCAR	0x23d	/* Machine Check Address register */
 #define MCSR_MCS	0x80000000	/* Machine Check Summary */
 #define MCSR_IB		0x40000000	/* Instruction PLB Error */
-#if defined(CONFIG_440)
-#define MCSR_DRB	0x20000000	/* Data Read PLB Error */
-#define MCSR_DWB	0x10000000	/* Data Write PLB Error */
-#else
 #define MCSR_DB		0x20000000	/* Data PLB Error */
-#endif /* defined(CONFIG_440) */
 #define MCSR_TLBP	0x08000000	/* TLB Parity Error */
 #define MCSR_ICP	0x04000000	/* I-Cache Parity Error */
 #define MCSR_DCSP	0x02000000	/* D-Cache Search Parity Error */
@@ -763,7 +754,7 @@
 #define MAS7	SPRN_MAS7
 #define MAS8 	SPRN_MAS8
 
-#if defined(CONFIG_4xx) || defined(CONFIG_44x) || defined(CONFIG_MPC85xx)
+#if defined(CONFIG_MPC85xx)
 #define DAR_DEAR DEAR
 #else
 #define DAR_DEAR DAR
@@ -987,18 +978,6 @@
 #define PVR_850		PVR_821
 #define PVR_860		PVR_821
 #define PVR_7400	0x000C0000
-#define PVR_8240	0x00810100
-
-/*
- * PowerQUICC II family processors report different PVR values depending
- * on silicon process (HiP3, HiP4, HiP7, etc.)
- */
-#define PVR_8260	PVR_8240
-#define PVR_8260_HIP3	0x00810101
-#define PVR_8260_HIP4	0x80811014
-#define PVR_8260_HIP7	0x80822011
-#define PVR_8260_HIP7R1 0x80822013
-#define PVR_8260_HIP7RA	0x80822014
 
 /*
  * MPC 52xx
@@ -1353,24 +1332,20 @@ void ll_puts(const char *);
 /* In misc.c */
 void _nmask_and_or_msr(unsigned long nmask, unsigned long or_val);
 
+int prt_83xx_rsr(void);
+
 #endif /* ndef ASSEMBLY*/
 
 #ifdef CONFIG_MACH_SPECIFIC
-#if defined(CONFIG_8xx)
-#define _machine _MACH_8xx
-#define have_of 0
-#elif defined(CONFIG_WALNUT)
+#if defined(CONFIG_WALNUT)
 #define _machine _MACH_walnut
-#define have_of 0
-#elif defined(CONFIG_MPC8260)
-#define _machine _MACH_8260
 #define have_of 0
 #else
 #error "Machine not defined correctly"
 #endif
 #endif /* CONFIG_MACH_SPECIFIC */
 
-#if defined(CONFIG_MPC85xx) || defined(CONFIG_440)
+#if defined(CONFIG_MPC85xx)
  #define EPAPR_MAGIC	(0x45504150)
 #else
  #define EPAPR_MAGIC	(0x65504150)

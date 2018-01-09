@@ -87,4 +87,17 @@
 #define PSCI_RET_NOT_PRESENT			-7
 #define PSCI_RET_DISABLED			-8
 
+#ifdef CONFIG_ARM_PSCI_FW
+typedef unsigned long (psci_fn)(unsigned long, unsigned long,
+				unsigned long, unsigned long);
+
+extern psci_fn *invoke_psci_fn;
+#else
+unsigned long invoke_psci_fn(unsigned long a0, unsigned long a1,
+			     unsigned long a2, unsigned long a3)
+{
+	return PSCI_RET_DISABLED;
+}
+#endif
+
 #endif /* _UAPI_LINUX_PSCI_H */

@@ -318,18 +318,6 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 }
 #endif				/* CONFIG_CMD_NET */
 
-#if defined(CONFIG_CF_QSPI)
-
-/* Configure PIOs for SIN, SOUT, and SCK */
-void cfspi_port_conf(void)
-{
-	mbar_writeByte(MCF_GPIO_PAR_QSPI,
-		       MCF_GPIO_PAR_QSPI_SIN_SIN   |
-		       MCF_GPIO_PAR_QSPI_SOUT_SOUT |
-		       MCF_GPIO_PAR_QSPI_SCK_SCK);
-}
-#endif				/* CONFIG_CF_QSPI */
-
 #endif				/* CONFIG_M5271 */
 
 #if defined(CONFIG_M5272)

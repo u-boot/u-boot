@@ -1,6 +1,0 @@
-config LITESOM
-	bool
-	select MX6UL
-	select DM
-	select DM_THERMAL
-	select SUPPORT_SPL

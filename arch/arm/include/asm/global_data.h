@@ -32,8 +32,8 @@ struct arch_global_data {
 #endif
 	/* "static data" needed by most of timer.c on ARM platforms */
 	unsigned long timer_rate_hz;
-	unsigned long tbu;
-	unsigned long tbl;
+	unsigned int tbu;
+	unsigned int tbl;
 	unsigned long lastinc;
 	unsigned long long timer_reset_value;
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
@@ -59,8 +59,15 @@ struct arch_global_data {
 	phys_addr_t secure_ram;
 	unsigned long tlb_allocated;
 #endif
+#ifdef CONFIG_RESV_RAM
+	/*
+	 * Reserved RAM for memory resident, eg. Management Complex (MC)
+	 * driver which continues to run after U-Boot exits.
+	 */
+	phys_addr_t resv_ram;
+#endif
 
-#ifdef CONFIG_ARCH_OMAP2
+#ifdef CONFIG_ARCH_OMAP2PLUS
 	u32 omap_boot_device;
 	u32 omap_boot_mode;
 	u8 omap_ch_flags;

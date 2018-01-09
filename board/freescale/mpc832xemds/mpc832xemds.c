@@ -23,6 +23,8 @@
 #include "../common/pq-mds-pib.h"
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 const qe_iop_conf_t qe_iop_conf_tab[] = {
 	/* ETH3 */
 	{1,  0, 1, 0, 1}, /* TxD0 */
@@ -88,21 +90,23 @@ int board_early_init_r(void)
 
 int fixed_sdram(void);
 
-phys_size_t initdram(int board_type)
+int dram_init(void)
 {
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u32 msize = 0;
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32) im)
-		return -1;
+		return -ENXIO;
 
 	/* DDR SDRAM - Main SODIMM */
 	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_BASE & LAWBAR_BAR;
 
 	msize = fixed_sdram();
 
-	/* return total bus SDRAM size(bytes)  -- DDR */
-	return (msize * 1024 * 1024);
+	/* set total bus SDRAM size(bytes)  -- DDR */
+	gd->ram_size = msize * 1024 * 1024;
+
+	return 0;
 }
 
 /*************************************************************************

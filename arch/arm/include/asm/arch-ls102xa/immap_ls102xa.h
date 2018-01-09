@@ -6,6 +6,7 @@
 
 #ifndef __ASM_ARCH_LS102XA_IMMAP_H_
 #define __ASM_ARCH_LS102XA_IMMAP_H_
+#include <fsl_immap.h>
 
 #define SVR_MAJ(svr)		(((svr) >>  4) & 0xf)
 #define SVR_MIN(svr)		(((svr) >>  0) & 0xf)
@@ -172,6 +173,21 @@ struct ccsr_gur {
 #define SCFG_PMCINTECR_ETSECERRG0	0x00080000
 #define SCFG_PMCINTECR_ETSECERRG1	0x00040000
 #define SCFG_CLUSTERPMCR_WFIL2EN	0x80000000
+
+#define SCFG_BASE			0x01570000
+#define SCFG_USB3PRM1CR			0x070
+#define SCFG_USB_TXVREFTUNE		0x9
+#define SCFG_USB_SQRXTUNE_MASK		0x7
+#define SCFG_USB3PRM2CR			0x074
+#define SCFG_USB_PCSTXSWINGFULL_MASK	0x0000FE00
+#define SCFG_USB_PCSTXSWINGFULL_VAL		0x00008E00
+
+#define USB_PHY_BASE			0x08510000
+#define USB_PHY_RX_OVRD_IN_HI	0x200c
+#define USB_PHY_RX_EQ_VAL_1		0x0000
+#define USB_PHY_RX_EQ_VAL_2		0x8000
+#define USB_PHY_RX_EQ_VAL_3		0x8004
+#define USB_PHY_RX_EQ_VAL_4		0x800C
 
 /* Supplemental Configuration Unit */
 struct ccsr_scfg {
@@ -374,53 +390,7 @@ struct ccsr_serdes {
 	u8	res_a00[0x1000-0xa00];	/* from 0xa00 to 0xfff */
 };
 
-#define CCI400_CTRLORD_TERM_BARRIER	0x00000008
-#define CCI400_CTRLORD_EN_BARRIER	0
-#define CCI400_SHAORD_NON_SHAREABLE	0x00000002
-#define CCI400_DVM_MESSAGE_REQ_EN	0x00000002
-#define CCI400_SNOOP_REQ_EN		0x00000001
 
-/* CCI-400 registers */
-struct ccsr_cci400 {
-	u32 ctrl_ord;			/* Control Override */
-	u32 spec_ctrl;			/* Speculation Control */
-	u32 secure_access;		/* Secure Access */
-	u32 status;			/* Status */
-	u32 impr_err;			/* Imprecise Error */
-	u8 res_14[0x100 - 0x14];
-	u32 pmcr;			/* Performance Monitor Control */
-	u8 res_104[0xfd0 - 0x104];
-	u32 pid[8];			/* Peripheral ID */
-	u32 cid[4];			/* Component ID */
-	struct {
-		u32 snoop_ctrl;		/* Snoop Control */
-		u32 sha_ord;		/* Shareable Override */
-		u8 res_1008[0x1100 - 0x1008];
-		u32 rc_qos_ord;		/* read channel QoS Value Override */
-		u32 wc_qos_ord;		/* read channel QoS Value Override */
-		u8 res_1108[0x110c - 0x1108];
-		u32 qos_ctrl;		/* QoS Control */
-		u32 max_ot;		/* Max OT */
-		u8 res_1114[0x1130 - 0x1114];
-		u32 target_lat;		/* Target Latency */
-		u32 latency_regu;	/* Latency Regulation */
-		u32 qos_range;		/* QoS Range */
-		u8 res_113c[0x2000 - 0x113c];
-	} slave[5];			/* Slave Interface */
-	u8 res_6000[0x9004 - 0x6000];
-	u32 cycle_counter;		/* Cycle counter */
-	u32 count_ctrl;			/* Count Control */
-	u32 overflow_status;		/* Overflow Flag Status */
-	u8 res_9010[0xa000 - 0x9010];
-	struct {
-		u32 event_select;	/* Event Select */
-		u32 event_count;	/* Event Count */
-		u32 counter_ctrl;	/* Counter Control */
-		u32 overflow_status;	/* Overflow Flag Status */
-		u8 res_a010[0xb000 - 0xa010];
-	} pcounter[4];			/* Performance Counter */
-	u8 res_e004[0x10000 - 0xe004];
-};
 
 /* AHCI (sata) register map */
 struct ccsr_ahci {

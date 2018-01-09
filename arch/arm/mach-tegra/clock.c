@@ -7,6 +7,8 @@
 /* Tegra SoC common clock control functions */
 
 #include <common.h>
+#include <div64.h>
+#include <dm.h>
 #include <errno.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
@@ -15,8 +17,6 @@
 #include <asm/arch-tegra/clk_rst.h>
 #include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/timer.h>
-#include <div64.h>
-#include <fdtdec.h>
 
 /*
  * This is our record of the current clock rate of each clock. We don't
@@ -339,8 +339,11 @@ unsigned long clock_get_periph_rate(enum periph_id periph_id,
 		 * return value doesn't help. In summary this clock driver is
 		 * quite broken but I'm afraid I have no idea how to fix it
 		 * without completely replacing it.
+		 *
+		 * Be careful to avoid a divide by zero error.
 		 */
-		div -= 2;
+		if (div >= 1)
+			div -= 2;
 		break;
 #endif
 	default:
@@ -652,14 +655,13 @@ void clock_ll_start_uart(enum periph_id periph_id)
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-int clock_decode_periph_id(const void *blob, int node)
+int clock_decode_periph_id(struct udevice *dev)
 {
 	enum periph_id id;
 	u32 cell[2];
 	int err;
 
-	err = fdtdec_get_int_array(blob, node, "clocks", cell,
-				   ARRAY_SIZE(cell));
+	err = dev_read_u32_array(dev, "clocks", cell, ARRAY_SIZE(cell));
 	if (err)
 		return -1;
 	id = clk_id_to_periph_id(cell[1]);
@@ -824,4 +826,9 @@ int clock_external_output(int clk_id)
 	}
 
 	return 0;
+}
+
+__weak bool clock_early_init_done(void)
+{
+	return true;
 }

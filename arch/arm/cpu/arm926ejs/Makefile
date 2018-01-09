@@ -23,7 +23,7 @@ obj-$(if $(filter spear,$(SOC)),y) += spear/
 
 # some files can only build in ARM or THUMB2, not THUMB1
 
-ifdef CONFIG_SYS_THUMB_BUILD
+ifdef CONFIG_$(SPL_)SYS_THUMB_BUILD
 ifndef CONFIG_HAS_THUMB2
 
 CFLAGS_cpu.o := -marm

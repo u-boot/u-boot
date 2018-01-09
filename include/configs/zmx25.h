@@ -12,7 +12,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_MX25
 #define CONFIG_SYS_TEXT_BASE		0xA0000000
 
 #define CONFIG_SYS_TIMER_RATE		32768
@@ -33,12 +32,6 @@
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
-#define CONFIG_BOARD_LATE_INIT
-
-/*
- * Compressions
- */
-#define CONFIG_LZO
 
 /*
  * Hardware drivers
@@ -55,7 +48,6 @@
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART2_BASE
 #define CONFIG_CONS_INDEX	1	/* use UART2 for console */
-#define CONFIG_BAUDRATE		115200	/* Default baud rate */
 
 /*
  * Ethernet
@@ -84,14 +76,12 @@
  * USB
  */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_USB_EHCI			/* Enable EHCI USB support */
 #define CONFIG_USB_EHCI_MXC
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORT	1
 #define CONFIG_MXC_USB_PORTSC	MXC_EHCI_MODE_SERIAL
 #define CONFIG_MXC_USB_FLAGS	(MXC_EHCI_INTERNAL_PHY | MXC_EHCI_IPPUE_DOWN)
 #define CONFIG_EHCI_IS_TDI
-#define CONFIG_DOS_PARTITION
 #define CONFIG_SUPPORT_VFAT
 #endif /* CONFIG_CMD_USB */
 
@@ -111,7 +101,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	256
 
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x00040000)
-#define CONFIG_ENV_IS_IN_FLASH		1
 #define CONFIG_ENV_SECT_SIZE		(128 * 1024)
 #define CONFIG_ENV_SIZE			(128 * 1024)
 
@@ -127,10 +116,6 @@
 #define CONFIG_SYS_MEMTEST_START	(PHYS_SDRAM + (512*1024))
 #define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM + PHYS_SDRAM_SIZE)
 
-#define CONFIG_SYS_CBSIZE	256
-#define CONFIG_SYS_MAXARGS	16
-#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + \
-				sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 

@@ -9,15 +9,17 @@ ifndef CONFIG_SPL_BUILD
 
 obj-$(CONFIG_EFI) += efi/
 obj-$(CONFIG_EFI_LOADER) += efi_loader/
+obj-$(CONFIG_EFI_LOADER) += efi_selftest/
 obj-$(CONFIG_LZMA) += lzma/
-obj-$(CONFIG_LZO) += lzo/
-obj-$(CONFIG_ZLIB) += zlib/
 obj-$(CONFIG_BZIP2) += bzip2/
 obj-$(CONFIG_TIZEN) += tizen/
 obj-$(CONFIG_FIT) += libfdt/
+obj-$(CONFIG_OF_LIVE) += of_live.o
 obj-$(CONFIG_CMD_DHRYSTONE) += dhry/
+obj-$(CONFIG_ARCH_AT91) += at91/
 
 obj-$(CONFIG_AES) += aes.o
+obj-y += charset.o
 obj-$(CONFIG_USB_TTY) += circbuf.o
 obj-y += crc7.o
 obj-y += crc8.o
@@ -25,7 +27,6 @@ obj-y += crc16.o
 obj-$(CONFIG_ERRNO_STR) += errno_str.o
 obj-$(CONFIG_FIT) += fdtdec_common.o
 obj-$(CONFIG_TEST_FDTDEC) += fdtdec_test.o
-obj-$(CONFIG_GZIP) += gunzip.o
 obj-$(CONFIG_GZIP_COMPRESSED) += gzip.o
 obj-$(CONFIG_GENERATE_SMBIOS_TABLE) += smbios.o
 obj-y += initcall.o
@@ -44,15 +45,20 @@ obj-$(CONFIG_BITREVERSE) += bitrev.o
 obj-y += list_sort.o
 endif
 
-obj-$(CONFIG_$(SPL_)RSA) += rsa/
-obj-$(CONFIG_$(SPL_)SHA1) += sha1.o
-obj-$(CONFIG_$(SPL_)SHA256) += sha256.o
+obj-$(CONFIG_RSA) += rsa/
+obj-$(CONFIG_SHA1) += sha1.o
+obj-$(CONFIG_SHA256) += sha256.o
 
-obj-$(CONFIG_SPL_SAVEENV) += qsort.o
-obj-$(CONFIG_$(SPL_)OF_LIBFDT) += libfdt/
-ifneq ($(CONFIG_SPL_BUILD)$(CONFIG_SPL_OF_PLATDATA),yy)
-obj-$(CONFIG_$(SPL_)OF_CONTROL) += fdtdec_common.o
-obj-$(CONFIG_$(SPL_)OF_CONTROL) += fdtdec.o
+obj-$(CONFIG_$(SPL_)ZLIB) += zlib/
+obj-$(CONFIG_$(SPL_)GZIP) += gunzip.o
+obj-$(CONFIG_$(SPL_)LZO) += lzo/
+
+
+obj-$(CONFIG_$(SPL_TPL_)SAVEENV) += qsort.o
+obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += libfdt/
+ifneq ($(CONFIG_$(SPL_TPL_)BUILD)$(CONFIG_$(SPL_TPL_)OF_PLATDATA),yy)
+obj-$(CONFIG_$(SPL_TPL_)OF_CONTROL) += fdtdec_common.o
+obj-$(CONFIG_$(SPL_TPL_)OF_CONTROL) += fdtdec.o
 endif
 
 ifdef CONFIG_SPL_BUILD
@@ -66,6 +72,7 @@ obj-y += display_options.o
 CFLAGS_display_options.o := $(if $(BUILD_TAG),-DBUILD_TAG='"$(BUILD_TAG)"')
 obj-$(CONFIG_BCH) += bch.o
 obj-y += crc32.o
+obj-$(CONFIG_CRC32C) += crc32c.o
 obj-y += ctype.o
 obj-y += div64.o
 obj-y += hang.o

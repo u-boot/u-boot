@@ -100,9 +100,7 @@ int board_init(void)
 {
 	int val;
 
-#ifndef CONFIG_USE_IRQ
 	irq_init();
-#endif
 
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = LINUX_BOOT_PARAM_ADDR;

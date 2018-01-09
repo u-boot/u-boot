@@ -9,7 +9,6 @@
 #include <command.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <asm/ppc4xx-gpio.h>
 #include <asm/global_data.h>
 
 #include "mpc8308.h"

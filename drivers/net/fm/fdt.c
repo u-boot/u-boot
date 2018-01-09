@@ -36,7 +36,7 @@ void fdt_fixup_fman_firmware(void *blob)
 		return;
 
 	/* If the environment variable is not set, then exit silently */
-	p = getenv("fman_ucode");
+	p = env_get("fman_ucode");
 	if (!p)
 		return;
 

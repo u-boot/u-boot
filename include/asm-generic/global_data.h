@@ -36,7 +36,7 @@ typedef struct global_data {
 #if defined(CONFIG_LCD) || defined(CONFIG_VIDEO)
 	unsigned long fb_base;		/* Base address of framebuffer mem */
 #endif
-#if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
+#if defined(CONFIG_POST)
 	unsigned long post_log_word;	/* Record POST activities */
 	unsigned long post_log_res;	/* success of POST test */
 	unsigned long post_init_f_time;	/* When post_init_f started */
@@ -49,7 +49,7 @@ typedef struct global_data {
 	unsigned long precon_buf_idx;	/* Pre-Console buffer index */
 #endif
 	unsigned long env_addr;		/* Address  of Environment struct */
-	unsigned long env_valid;	/* Checksum of Environment valid? */
+	unsigned long env_valid;	/* Environment valid? enum env_valid */
 
 	unsigned long ram_top;		/* Top address of RAM used by U-Boot */
 	unsigned long relocaddr;	/* Start address of U-Boot in RAM */
@@ -72,8 +72,11 @@ typedef struct global_data {
 	const void *fdt_blob;		/* Our device tree, NULL if none */
 	void *new_fdt;			/* Relocated FDT */
 	unsigned long fdt_size;		/* Space reserved for relocated FDT */
+#ifdef CONFIG_OF_LIVE
+	struct device_node *of_root;
+#endif
 	struct jt_funcs *jt;		/* jump table */
-	char env_buf[32];		/* buffer for getenv() before reloc. */
+	char env_buf[32];		/* buffer for env_get() before reloc. */
 #ifdef CONFIG_TRACE
 	void		*trace_buff;	/* The trace buffer */
 #endif
@@ -83,9 +86,9 @@ typedef struct global_data {
 #ifdef CONFIG_SYS_I2C_MXC
 	void *srdata[10];
 #endif
-	unsigned long timebase_h;
-	unsigned long timebase_l;
-#ifdef CONFIG_SYS_MALLOC_F_LEN
+	unsigned int timebase_h;
+	unsigned int timebase_l;
+#if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	unsigned long malloc_base;	/* base address of early malloc() */
 	unsigned long malloc_limit;	/* limit address */
 	unsigned long malloc_ptr;	/* current address */
@@ -107,7 +110,22 @@ typedef struct global_data {
 	ulong video_top;		/* Top of video frame buffer area */
 	ulong video_bottom;		/* Bottom of video frame buffer area */
 #endif
+#ifdef CONFIG_BOOTSTAGE
+	struct bootstage_data *bootstage;	/* Bootstage information */
+	struct bootstage_data *new_bootstage;	/* Relocated bootstage info */
+#endif
+#ifdef CONFIG_LOG
+	int log_drop_count;		/* Number of dropped log messages */
+	int default_log_level;		/* For devices with no filters */
+	struct list_head log_head;	/* List of struct log_device */
+#endif
 } gd_t;
+#endif
+
+#ifdef CONFIG_BOARD_TYPES
+#define gd_board_type()		gd->board_type
+#else
+#define gd_board_type()		0
 #endif
 
 /*
@@ -127,5 +145,7 @@ typedef struct global_data {
 #define GD_FLG_SKIP_RELOC	0x00800	/* Don't relocate		   */
 #define GD_FLG_RECORD		0x01000	/* Record console		   */
 #define GD_FLG_ENV_DEFAULT	0x02000 /* Default variable flag	   */
+#define GD_FLG_SPL_EARLY_INIT	0x04000 /* Early SPL init is done	   */
+#define GD_FLG_LOG_READY	0x08000 /* Log system is ready for use	   */
 
 #endif /* __ASM_GENERIC_GBL_DATA_H */

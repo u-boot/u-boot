@@ -10,8 +10,6 @@
 #define CONFIG_MX23				/* i.MX23 SoC */
 
 /* U-Boot Commands */
-#define CONFIG_SYS_NO_FLASH
-#define CONFIG_DOS_PARTITION
 
 /* Memory configuration */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */
@@ -21,12 +19,10 @@
 
 /* Environment */
 #define CONFIG_ENV_SIZE			(16 * 1024)
-#define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_OVERWRITE
 
 /* Booting Linux */
 #define CONFIG_BOOTFILE		"uImage"
-#define CONFIG_BOOTARGS		"console=ttyAMA0,115200n8 "
 #define CONFIG_LOADADDR		0x42000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
@@ -43,8 +39,6 @@
 #define CONFIG_EHCI_MXS_PORT0
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 1
 
-#define CONFIG_USB_ETHER
-#define CONFIG_USB_ETH_CDC
 #define CONFIG_NETCONSOLE
 #endif
 

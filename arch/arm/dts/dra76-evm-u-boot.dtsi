@@ -1,0 +1,15 @@
+/*
+ * Copyright (C) 2017 Texas Instruments Incorporated - http://www.ti.com/
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+#include "omap5-u-boot.dtsi"
+
+&cpsw_emac0 {
+	phy-handle = <&dp83867_0>;
+};
+
+&cpsw_emac1 {
+	phy-handle = <&dp83867_1>;
+};

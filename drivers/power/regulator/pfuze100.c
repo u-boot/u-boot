@@ -1,3 +1,11 @@
+/*
+ * Copyright 2017 NXP
+ *
+ * Peng Fan <peng.fan@nxp.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
 #include <common.h>
 #include <fdtdec.h>
 #include <errno.h>
@@ -306,7 +314,7 @@ static int pfuze100_regulator_probe(struct udevice *dev)
 
 static int pfuze100_regulator_mode(struct udevice *dev, int op, int *opmode)
 {
-	unsigned char val;
+	int val;
 	struct pfuze100_regulator_platdata *plat = dev_get_platdata(dev);
 	struct pfuze100_regulator_desc *desc = plat->desc;
 
@@ -376,7 +384,7 @@ static int pfuze100_regulator_mode(struct udevice *dev, int op, int *opmode)
 
 static int pfuze100_regulator_enable(struct udevice *dev, int op, bool *enable)
 {
-	unsigned char val;
+	int val;
 	int ret, on_off;
 	struct dm_regulator_uclass_platdata *uc_pdata =
 		dev_get_uclass_platdata(dev);
@@ -440,7 +448,7 @@ static int pfuze100_regulator_enable(struct udevice *dev, int op, bool *enable)
 static int pfuze100_regulator_val(struct udevice *dev, int op, int *uV)
 {
 	int i;
-	unsigned char val;
+	int val;
 	struct pfuze100_regulator_platdata *plat = dev_get_platdata(dev);
 	struct pfuze100_regulator_desc *desc = plat->desc;
 	struct dm_regulator_uclass_platdata *uc_pdata =
@@ -516,7 +524,7 @@ static int pfuze100_regulator_set_value(struct udevice *dev, int uV)
 	return pfuze100_regulator_val(dev, PMIC_OP_SET, &uV);
 }
 
-static bool pfuze100_regulator_get_enable(struct udevice *dev)
+static int pfuze100_regulator_get_enable(struct udevice *dev)
 {
 	int ret;
 	bool enable = false;

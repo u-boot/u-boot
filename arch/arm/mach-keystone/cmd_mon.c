@@ -19,6 +19,7 @@ static int do_mon_install(cmd_tbl_t *cmdtp, int flag, int argc,
 	u32 addr, dpsc_base = 0x1E80000, freq, load_addr, size;
 	int     rcode = 0;
 	struct image_header *header;
+	u32 ecrypt_bm_addr = 0;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -39,14 +40,17 @@ static int do_mon_install(cmd_tbl_t *cmdtp, int flag, int argc,
 	memcpy((void *)load_addr, (void *)(addr + sizeof(struct image_header)),
 	       size);
 
-	rcode = mon_install(load_addr, dpsc_base, freq);
+	if (argc >=  3)
+		ecrypt_bm_addr = simple_strtoul(argv[2], NULL, 16);
+
+	rcode = mon_install(load_addr, dpsc_base, freq, ecrypt_bm_addr);
 	printf("## installed monitor @ 0x%x, freq [%d], status %d\n",
 	       load_addr, freq, rcode);
 
 	return 0;
 }
 
-U_BOOT_CMD(mon_install, 2, 0, do_mon_install,
+U_BOOT_CMD(mon_install, 3, 0, do_mon_install,
 	   "Install boot kernel at 'addr'",
 	   ""
 );

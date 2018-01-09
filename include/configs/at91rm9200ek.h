@@ -56,8 +56,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 /*
  * Memory Configuration
  */
@@ -112,8 +110,6 @@
 #define CONFIG_USART_BASE	ATMEL_BASE_DBGU
 #define CONFIG_USART_ID		0/* ignored in arm */
 
-#define CONFIG_BAUDRATE			115200
-
 /*
  * Command line configuration.
  */
@@ -144,7 +140,6 @@
 #define CONFIG_USB_ATMEL			1
 #define CONFIG_USB_ATMEL_CLK_SEL_PLLB
 #define CONFIG_USB_OHCI_NEW			1
-#define CONFIG_DOS_PARTITION			1
 
 #define CONFIG_SYS_USB_OHCI_CPU_INIT		1
 #define CONFIG_SYS_USB_OHCI_REGS_BASE		ATMEL_USB_HOST_BASE
@@ -154,7 +149,6 @@
 /*
  * Environment Settings
  */
-#define CONFIG_ENV_IS_IN_FLASH
 
 /*
  * after u-boot.bin
@@ -180,11 +174,6 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE		\
-		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /*
  * Size of malloc() pool

@@ -18,12 +18,15 @@ U-Boot supports running as a coreboot [1] payload on x86. So far only Link
 work with minimal adjustments on other x86 boards since coreboot deals with
 most of the low-level details.
 
+U-Boot is a main bootloader on Intel Edison board.
+
 U-Boot also supports booting directly from x86 reset vector, without coreboot.
 In this case, known as bare mode, from the fact that it runs on the
 'bare metal', U-Boot acts like a BIOS replacement. The following platforms
 are supported:
 
    - Bayley Bay CRB
+   - Cherry Hill CRB
    - Congatec QEVAL 2.0 & conga-QA3/E3845
    - Cougar Canyon 2 CRB
    - Crown Bay CRB
@@ -61,17 +64,31 @@ Change the 'Board configuration file' and 'Board Device Tree Source (dts) file'
 to point to a new board. You can also change the Cache-As-RAM (CAR) related
 settings here if the default values do not fit your new board.
 
+Build Instructions for U-Boot as main bootloader
+------------------------------------------------
+
+Intel Edison instructions:
+
+Simple you can build U-Boot and obtain u-boot.bin
+
+$ make edison_defconfig
+$ make all
+
 Build Instructions for U-Boot as BIOS replacement (bare mode)
 -------------------------------------------------------------
 Building a ROM version of U-Boot (hereafter referred to as u-boot.rom) is a
 little bit tricky, as generally it requires several binary blobs which are not
 shipped in the U-Boot source tree. Due to this reason, the u-boot.rom build is
 not turned on by default in the U-Boot source tree. Firstly, you need turn it
-on by enabling the ROM build:
+on by enabling the ROM build either via an environment variable
 
-$ export BUILD_ROM=y
+    $ export BUILD_ROM=y
 
-This tells the Makefile to build u-boot.rom as a target.
+or via configuration
+
+    CONFIG_BUILD_ROM=y
+
+Both tell the Makefile to build u-boot.rom as a target.
 
 ---
 
@@ -307,7 +324,7 @@ Offset   Description         Controlling config
 6ef000   Environment         CONFIG_ENV_OFFSET
 6f0000   MRC cache           CONFIG_ENABLE_MRC_CACHE
 700000   u-boot-dtb.bin      CONFIG_SYS_TEXT_BASE
-790000   vga.bin             CONFIG_VGA_BIOS_ADDR
+7b0000   vga.bin             CONFIG_VGA_BIOS_ADDR
 7c0000   fsp.bin             CONFIG_FSP_ADDR
 7f8000   <spare>             (depends on size of fsp.bin)
 7ff800   U-Boot 16-bit boot  CONFIG_SYS_X86_START16
@@ -317,6 +334,35 @@ Overall ROM image size is controlled by CONFIG_ROM_SIZE.
 Note that the debug version of the FSP is bigger in size. If this version
 is used, CONFIG_FSP_ADDR needs to be configured to 0xfffb0000 instead of
 the default value 0xfffc0000.
+
+---
+
+Intel Cherry Hill specific instructions for bare mode:
+
+This uses Intel FSP for Braswell platform. Download it from Intel FSP website,
+put the .fd file to the board directory and rename it to fsp.bin.
+
+Extract descriptor.bin and me.bin from the original BIOS on the board using
+ifdtool and put them to the board directory as well.
+
+Note the FSP package for Braswell does not ship a traditional legacy VGA BIOS
+image for the integrated graphics device. Instead a new binary called Video
+BIOS Table (VBT) is shipped. Put it to the board directory and rename it to
+vbt.bin if you want graphics support in U-Boot.
+
+Now you can build U-Boot and obtain u-boot.rom
+
+$ make cherryhill_defconfig
+$ make all
+
+An important note for programming u-boot.rom to the on-board SPI flash is that
+you need make sure the SPI flash's 'quad enable' bit in its status register
+matches the settings in the descriptor.bin, otherwise the board won't boot.
+
+For the on-board SPI flash MX25U6435F, this can be done by writing 0x40 to the
+status register by DediProg in: Config > Modify Status Register > Write Status
+Register(s) > Register1 Value(Hex). This is is a one-time change. Once set, it
+persists in SPI flash part regardless of the u-boot.rom image burned.
 
 ---
 
@@ -454,6 +500,33 @@ Here the kernel (bzImage) is loaded to 01000000 and initrd is to 04000000. Then,
 'zboot' can be used to boot the kernel:
 
 => zboot 01000000 - 04000000 1b1ab50
+
+Updating U-Boot on Edison
+-------------------------
+By default Intel Edison boards are shipped with preinstalled heavily
+patched U-Boot v2014.04. Though it supports DFU which we may be able to
+use.
+
+1. Prepare u-boot.bin as described in chapter above. You still need one
+more step (if and only if you have original U-Boot), i.e. run the
+following command:
+
+$ truncate -s %4096 u-boot.bin
+
+2. Run your board and interrupt booting to U-Boot console. In the console
+call:
+
+ => run do_force_flash_os
+
+3. Wait for few seconds, it will prepare environment variable and runs
+DFU. Run DFU command from the host system:
+
+$ dfu-util -v -d 8087:0a99 --alt u-boot0 -D u-boot.bin
+
+4. Return to U-Boot console and following hint. i.e. push Ctrl+C, and
+reset the board:
+
+ => reset
 
 CPU Microcode
 -------------
@@ -753,11 +826,7 @@ command.
 You can also bake this behaviour into your build by hard-coding the
 environment variables if you add this to minnowmax.h:
 
-#undef CONFIG_BOOTARGS
 #undef CONFIG_BOOTCOMMAND
-
-#define CONFIG_BOOTARGS		\
-	"root=/dev/sda2 ro"
 #define CONFIG_BOOTCOMMAND	\
 	"ext2load scsi 0:2 03000000 /boot/vmlinuz-3.13.0-58-generic; " \
 	"ext2load scsi 0:2 04000000 /boot/initrd.img-3.13.0-58-generic; " \
@@ -765,6 +834,10 @@ environment variables if you add this to minnowmax.h:
 
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS "boot=zboot 03000000 0 04000000 ${filesize}"
+
+and change CONFIG_BOOTARGS value in configs/minnowmax_defconfig to:
+
+CONFIG_BOOTARGS="root=/dev/sda2 ro"
 
 Test with SeaBIOS
 -----------------
@@ -1014,21 +1087,18 @@ compile ACPI DSDT table written in ASL format to AML format. You can get
 the compiler via "apt-get install iasl" if you are on Ubuntu or download
 the source from [17] to compile one by yourself.
 
-Current ACPI support in U-Boot is not complete. More features will be added
-in the future. The status as of today is:
+Current ACPI support in U-Boot is basically complete. More optional features
+can be added in the future. The status as of today is:
 
  * Support generating RSDT, XSDT, FACS, FADT, MADT, MCFG tables.
  * Support one static DSDT table only, compiled by Intel ACPI compiler.
- * Support S0/S5, reboot and shutdown from OS.
+ * Support S0/S3/S4/S5, reboot and shutdown from OS.
  * Support booting a pre-installed Ubuntu distribution via 'zboot' command.
  * Support installing and booting Ubuntu 14.04 (or above) from U-Boot with
    the help of SeaBIOS using legacy interface (non-UEFI mode).
  * Support installing and booting Windows 8.1/10 from U-Boot with the help
    of SeaBIOS using legacy interface (non-UEFI mode).
  * Support ACPI interrupts with SCI only.
-
-Features not supported so far (to make it a complete ACPI solution):
- * S3 (Suspend to RAM), S4 (Suspend to Disk).
 
 Features that are optional:
  * Dynamic AML bytecodes insertion at run-time. We may need this to support
@@ -1045,6 +1115,21 @@ command from the OS.
 
 For other platform boards, ACPI support status can be checked by examining their
 board defconfig files to see if CONFIG_GENERATE_ACPI_TABLE is set to y.
+
+The S3 sleeping state is a low wake latency sleeping state defined by ACPI
+spec where all system context is lost except system memory. To test S3 resume
+with a Linux kernel, simply run "echo mem > /sys/power/state" and kernel will
+put the board to S3 state where the power is off. So when the power button is
+pressed again, U-Boot runs as it does in cold boot and detects the sleeping
+state via ACPI register to see if it is S3, if yes it means we are waking up.
+U-Boot is responsible for restoring the machine state as it is before sleep.
+When everything is done, U-Boot finds out the wakeup vector provided by OSes
+and jump there. To determine whether ACPI S3 resume is supported, check to
+see if CONFIG_HAVE_ACPI_RESUME is set for that specific board.
+
+Note for testing S3 resume with Windows, correct graphics driver must be
+installed for your platform, otherwise you won't find "Sleep" option in
+the "Power" submenu from the Windows start menu.
 
 EFI Support
 -----------

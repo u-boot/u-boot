@@ -9,7 +9,6 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-#include <fdtdec.h>
 #include <i2c.h>
 #include <malloc.h>
 #include <asm/test.h>
@@ -115,10 +114,8 @@ static int sandbox_i2c_eeprom_ofdata_to_platdata(struct udevice *dev)
 {
 	struct sandbox_i2c_flash_plat_data *plat = dev_get_platdata(dev);
 
-	plat->size = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
-				    "sandbox,size", 32);
-	plat->filename = fdt_getprop(gd->fdt_blob, dev->of_offset,
-				     "sandbox,filename", NULL);
+	plat->size = dev_read_u32_default(dev, "sandbox,size", 32);
+	plat->filename = dev_read_string(dev, "sandbox,filename");
 	if (!plat->filename) {
 		debug("%s: No filename for device '%s'\n", __func__,
 		      dev->name);

@@ -17,7 +17,7 @@
 #include <mmc.h>
 
 static unsigned char *dfu_file_buf;
-static long dfu_file_buf_len;
+static u64 dfu_file_buf_len;
 static long dfu_file_buf_filled;
 
 static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
@@ -29,7 +29,7 @@ static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 
 	mmc = find_mmc_device(dfu->data.mmc.dev_num);
 	if (!mmc) {
-		error("Device MMC %d - not found!", dfu->data.mmc.dev_num);
+		pr_err("Device MMC %d - not found!", dfu->data.mmc.dev_num);
 		return -ENODEV;
 	}
 
@@ -69,11 +69,11 @@ static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 			       buf);
 		break;
 	default:
-		error("Operation not supported\n");
+		pr_err("Operation not supported\n");
 	}
 
 	if (n != blk_count) {
-		error("MMC operation failed");
+		pr_err("MMC operation failed");
 		if (dfu->data.mmc.hw_partition >= 0)
 			blk_select_hwpart_devnum(IF_TYPE_MMC,
 						 dfu->data.mmc.dev_num,
@@ -107,7 +107,7 @@ static int mmc_file_buffer(struct dfu_entity *dfu, void *buf, long *len)
 }
 
 static int mmc_file_op(enum dfu_op op, struct dfu_entity *dfu,
-			void *buf, long *len)
+			void *buf, u64 *len)
 {
 	const char *fsname, *opname;
 	char cmd_buf[DFU_CMD_BUF_SIZE];
@@ -150,7 +150,7 @@ static int mmc_file_op(enum dfu_op op, struct dfu_entity *dfu,
 	sprintf(cmd_buf + strlen(cmd_buf), " %s", dfu->name);
 
 	if (op == DFU_OP_WRITE)
-		sprintf(cmd_buf + strlen(cmd_buf), " %lx", *len);
+		sprintf(cmd_buf + strlen(cmd_buf), " %llx", *len);
 
 	debug("%s: %s 0x%p\n", __func__, cmd_buf, cmd_buf);
 
@@ -161,7 +161,7 @@ static int mmc_file_op(enum dfu_op op, struct dfu_entity *dfu,
 	}
 
 	if (op != DFU_OP_WRITE) {
-		str_env = getenv("filesize");
+		str_env = env_get("filesize");
 		if (str_env == NULL) {
 			puts("dfu: Wrong file size!\n");
 			return -1;
@@ -209,23 +209,23 @@ int dfu_flush_medium_mmc(struct dfu_entity *dfu)
 	return ret;
 }
 
-long dfu_get_medium_size_mmc(struct dfu_entity *dfu)
+int dfu_get_medium_size_mmc(struct dfu_entity *dfu, u64 *size)
 {
 	int ret;
-	long len;
 
 	switch (dfu->layout) {
 	case DFU_RAW_ADDR:
-		return dfu->data.mmc.lba_size * dfu->data.mmc.lba_blk_size;
+		*size = dfu->data.mmc.lba_size * dfu->data.mmc.lba_blk_size;
+		return 0;
 	case DFU_FS_FAT:
 	case DFU_FS_EXT4:
 		dfu_file_buf_filled = -1;
-		ret = mmc_file_op(DFU_OP_SIZE, dfu, NULL, &len);
+		ret = mmc_file_op(DFU_OP_SIZE, dfu, NULL, size);
 		if (ret < 0)
 			return ret;
-		if (len > CONFIG_SYS_DFU_MAX_FILE_SIZE)
+		if (*size > CONFIG_SYS_DFU_MAX_FILE_SIZE)
 			return -1;
-		return len;
+		return 0;
 	default:
 		printf("%s: Layout (%s) not (yet) supported!\n", __func__,
 		       dfu_get_layout(dfu->layout));
@@ -237,7 +237,7 @@ static int mmc_file_unbuffer(struct dfu_entity *dfu, u64 offset, void *buf,
 			     long *len)
 {
 	int ret;
-	long file_len;
+	u64 file_len;
 
 	if (dfu_file_buf_filled == -1) {
 		ret = mmc_file_op(DFU_OP_READ, dfu, dfu_file_buf, &file_len);
@@ -312,7 +312,7 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 	for (; parg < argv + sizeof(argv) / sizeof(*argv); ++parg) {
 		*parg = strsep(&s, " ");
 		if (*parg == NULL) {
-			error("Invalid number of arguments.\n");
+			pr_err("Invalid number of arguments.\n");
 			return -ENODEV;
 		}
 	}
@@ -327,13 +327,13 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 
 	mmc = find_mmc_device(dfu->data.mmc.dev_num);
 	if (mmc == NULL) {
-		error("Couldn't find MMC device no. %d.\n",
+		pr_err("Couldn't find MMC device no. %d.\n",
 		      dfu->data.mmc.dev_num);
 		return -ENODEV;
 	}
 
 	if (mmc_init(mmc)) {
-		error("Couldn't init MMC device.\n");
+		pr_err("Couldn't init MMC device.\n");
 		return -ENODEV;
 	}
 
@@ -360,7 +360,7 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 		int mmcpart = third_arg;
 
 		if (part_get_info(blk_dev, mmcpart, &partinfo) != 0) {
-			error("Couldn't find part #%d on mmc device #%d\n",
+			pr_err("Couldn't find part #%d on mmc device #%d\n",
 			      mmcpart, mmcdev);
 			return -ENODEV;
 		}
@@ -374,7 +374,7 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 	} else if (!strcmp(entity_type, "ext4")) {
 		dfu->layout = DFU_FS_EXT4;
 	} else {
-		error("Memory layout (%s) not supported!\n", entity_type);
+		pr_err("Memory layout (%s) not supported!\n", entity_type);
 		return -ENODEV;
 	}
 
@@ -397,7 +397,7 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 		dfu_file_buf = memalign(CONFIG_SYS_CACHELINE_SIZE,
 					CONFIG_SYS_DFU_MAX_FILE_SIZE);
 		if (!dfu_file_buf) {
-			error("Could not memalign 0x%x bytes",
+			pr_err("Could not memalign 0x%x bytes",
 			      CONFIG_SYS_DFU_MAX_FILE_SIZE);
 			return -ENOMEM;
 		}

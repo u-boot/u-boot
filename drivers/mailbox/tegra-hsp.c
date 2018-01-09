@@ -72,7 +72,7 @@ static int tegra_hsp_db_id(ulong chan_id)
 }
 
 static int tegra_hsp_of_xlate(struct mbox_chan *chan,
-			      struct fdtdec_phandle_args *args)
+			      struct ofnode_phandle_args *args)
 {
 	debug("%s(chan=%p)\n", __func__, chan);
 
@@ -153,7 +153,7 @@ static int tegra_hsp_probe(struct udevice *dev)
 
 	debug("%s(dev=%p)\n", __func__, dev);
 
-	thsp->regs = dev_get_addr(dev);
+	thsp->regs = devfdt_get_addr(dev);
 	if (thsp->regs == FDT_ADDR_T_NONE)
 		return -ENODEV;
 

@@ -16,6 +16,135 @@
 
 #include "libfdt_internal.h"
 
+#define FDT_MAX_DEPTH	32
+
+static int str_in_list(const char *str, char * const list[], int count)
+{
+	int i;
+
+	for (i = 0; i < count; i++)
+		if (!strcmp(list[i], str))
+			return 1;
+
+	return 0;
+}
+
+int fdt_find_regions(const void *fdt, char * const inc[], int inc_count,
+		     char * const exc_prop[], int exc_prop_count,
+		     struct fdt_region region[], int max_regions,
+		     char *path, int path_len, int add_string_tab)
+{
+	int stack[FDT_MAX_DEPTH] = { 0 };
+	char *end;
+	int nextoffset = 0;
+	uint32_t tag;
+	int count = 0;
+	int start = -1;
+	int depth = -1;
+	int want = 0;
+	int base = fdt_off_dt_struct(fdt);
+
+	end = path;
+	*end = '\0';
+	do {
+		const struct fdt_property *prop;
+		const char *name;
+		const char *str;
+		int include = 0;
+		int stop_at = 0;
+		int offset;
+		int len;
+
+		offset = nextoffset;
+		tag = fdt_next_tag(fdt, offset, &nextoffset);
+		stop_at = nextoffset;
+
+		switch (tag) {
+		case FDT_PROP:
+			include = want >= 2;
+			stop_at = offset;
+			prop = fdt_get_property_by_offset(fdt, offset, NULL);
+			str = fdt_string(fdt, fdt32_to_cpu(prop->nameoff));
+			if (str_in_list(str, exc_prop, exc_prop_count))
+				include = 0;
+			break;
+
+		case FDT_NOP:
+			include = want >= 2;
+			stop_at = offset;
+			break;
+
+		case FDT_BEGIN_NODE:
+			depth++;
+			if (depth == FDT_MAX_DEPTH)
+				return -FDT_ERR_BADSTRUCTURE;
+			name = fdt_get_name(fdt, offset, &len);
+			if (end - path + 2 + len >= path_len)
+				return -FDT_ERR_NOSPACE;
+			if (end != path + 1)
+				*end++ = '/';
+			strcpy(end, name);
+			end += len;
+			stack[depth] = want;
+			if (want == 1)
+				stop_at = offset;
+			if (str_in_list(path, inc, inc_count))
+				want = 2;
+			else if (want)
+				want--;
+			else
+				stop_at = offset;
+			include = want;
+			break;
+
+		case FDT_END_NODE:
+			include = want;
+			want = stack[depth--];
+			while (end > path && *--end != '/')
+				;
+			*end = '\0';
+			break;
+
+		case FDT_END:
+			include = 1;
+			break;
+		}
+
+		if (include && start == -1) {
+			/* Should we merge with previous? */
+			if (count && count <= max_regions &&
+			    offset == region[count - 1].offset +
+					region[count - 1].size - base)
+				start = region[--count].offset - base;
+			else
+				start = offset;
+		}
+
+		if (!include && start != -1) {
+			if (count < max_regions) {
+				region[count].offset = base + start;
+				region[count].size = stop_at - start;
+			}
+			count++;
+			start = -1;
+		}
+	} while (tag != FDT_END);
+
+	if (nextoffset != fdt_size_dt_struct(fdt))
+		return -FDT_ERR_BADLAYOUT;
+
+	/* Add a region for the END tag and the string table */
+	if (count < max_regions) {
+		region[count].offset = base + start;
+		region[count].size = nextoffset - start;
+		if (add_string_tab)
+			region[count].size += fdt_size_dt_strings(fdt);
+	}
+	count++;
+
+	return count;
+}
+
 /**
  * fdt_add_region() - Add a new region to our list
  * @info:	State information
@@ -63,6 +192,30 @@ static int region_list_contains_offset(struct fdt_region_state *info,
 	return 0;
 }
 
+/**
+ * fdt_add_alias_regions() - Add regions covering the aliases that we want
+ *
+ * The /aliases node is not automatically included by fdtgrep unless the
+ * command-line arguments cause to be included (or not excluded). However
+ * aliases are special in that we generally want to include those which
+ * reference a node that fdtgrep includes.
+ *
+ * In fact we want to include only aliases for those nodes still included in
+ * the fdt, and drop the other aliases since they point to nodes that will not
+ * be present.
+ *
+ * This function scans the aliases and adds regions for those which we want
+ * to keep.
+ *
+ * @fdt: Device tree to scan
+ * @region: List of regions
+ * @count: Number of regions in the list so far (i.e. starting point for this
+ *	function)
+ * @max_regions: Maximum number of regions in @region list
+ * @info: Place to put the region state
+ * @return number of regions after processing, or -FDT_ERR_NOSPACE if we did
+ * not have enough room in the regions table for the regions we wanted to add.
+ */
 int fdt_add_alias_regions(const void *fdt, struct fdt_region *region, int count,
 			  int max_regions, struct fdt_region_state *info)
 {
@@ -74,11 +227,17 @@ int fdt_add_alias_regions(const void *fdt, struct fdt_region *region, int count,
 	if (node < 0)
 		return -FDT_ERR_NOTFOUND;
 
-	/* The aliases node must come before the others */
+	/*
+	 * Find the next node so that we know where the /aliases node ends. We
+	 * need special handling if /aliases is the last node.
+	 */
 	node_end = fdt_next_subnode(fdt, node);
-	if (node_end <= 0)
-		return -FDT_ERR_BADLAYOUT;
-	node_end -= sizeof(fdt32_t);
+	if (node_end == -FDT_ERR_NOTFOUND)
+		/* Move back to the FDT_END_NODE tag of '/' */
+		node_end = fdt_size_dt_struct(fdt) - sizeof(fdt32_t) * 2;
+	else if (node_end < 0) /* other error */
+		return node_end;
+	node_end -= sizeof(fdt32_t);  /* Move to FDT_END_NODE tag of /aliases */
 
 	did_alias_header = 0;
 	info->region = region;
@@ -109,7 +268,7 @@ int fdt_add_alias_regions(const void *fdt, struct fdt_region *region, int count,
 		fdt_add_region(info, base + offset, next - offset);
 	}
 
-	/* Add the 'end' tag */
+	/* Add the FDT_END_NODE tag */
 	if (did_alias_header)
 		fdt_add_region(info, base + node_end, sizeof(fdt32_t));
 
@@ -367,7 +526,7 @@ int fdt_next_region(const void *fdt,
 			last_node = offset;
 			p.depth++;
 			if (p.depth == FDT_MAX_DEPTH)
-				return -FDT_ERR_TOODEEP;
+				return -FDT_ERR_BADSTRUCTURE;
 			name = fdt_get_name(fdt, offset, &len);
 			if (p.end - path + 2 + len >= path_len)
 				return -FDT_ERR_NOSPACE;

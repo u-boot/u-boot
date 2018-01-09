@@ -42,7 +42,7 @@ int dram_init (void)
 	return 0;
 }
 
-void dram_init_banksize (void)
+int dram_init_banksize(void)
 {
 	int i;
 
@@ -52,4 +52,6 @@ void dram_init_banksize (void)
 			(long *) (gd->bd->bi_dram[i].start),
 			CONFIG_MAX_RAM_BANK_SIZE);
 	}
+
+	return 0;
 }

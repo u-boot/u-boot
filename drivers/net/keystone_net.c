@@ -757,7 +757,7 @@ static int ks2_eth_start(struct udevice *dev)
 	qm_init();
 
 	if (ksnav_init(priv->netcp_pktdma, &priv->net_rx_buffs)) {
-		error("ksnav_init failed\n");
+		pr_err("ksnav_init failed\n");
 		goto err_knav_init;
 	}
 
@@ -773,7 +773,7 @@ static int ks2_eth_start(struct udevice *dev)
 
 		phy_startup(priv->phydev);
 		if (priv->phydev->link == 0) {
-			error("phy startup failed\n");
+			pr_err("phy startup failed\n");
 			goto err_phy_start;
 		}
 	}
@@ -923,7 +923,7 @@ static int ks2_eth_probe(struct udevice *dev)
 		 */
 		mdio_bus = mdio_alloc();
 		if (!mdio_bus) {
-			error("MDIO alloc failed\n");
+			pr_err("MDIO alloc failed\n");
 			return -ENOMEM;
 		}
 		priv->mdio_bus = mdio_bus;
@@ -935,7 +935,7 @@ static int ks2_eth_probe(struct udevice *dev)
 
 		ret = mdio_register(mdio_bus);
 		if (ret) {
-			error("MDIO bus register failed\n");
+			pr_err("MDIO bus register failed\n");
 			return ret;
 		}
 	} else {
@@ -1008,10 +1008,10 @@ static int ks2_eth_bind_slaves(struct udevice *dev, int gbe, int *gbe_0)
 			slave_name = malloc(20);
 			snprintf(slave_name, 20, "netcp@slave-%d", slave_no);
 			ret = device_bind_driver_to_node(dev, "eth_ks2_sl",
-							 slave_name, slave,
-							 &sl_dev);
+					slave_name, offset_to_ofnode(slave),
+					&sl_dev);
 			if (ret) {
-				error("ks2_net - not able to bind slave interfaces\n");
+				pr_err("ks2_net - not able to bind slave interfaces\n");
 				return ret;
 			}
 		}
@@ -1029,9 +1029,9 @@ static int ks2_eth_bind_slaves(struct udevice *dev, int gbe, int *gbe_0)
 		slave_name = malloc(20);
 		snprintf(slave_name, 20, "netcp@slave-%d", slave_no);
 		ret = device_bind_driver_to_node(dev, "eth_ks2_sl", slave_name,
-						 slave, &sl_dev);
+					offset_to_ofnode(slave), &sl_dev);
 		if (ret) {
-			error("ks2_net - not able to bind slave interfaces\n");
+			pr_err("ks2_net - not able to bind slave interfaces\n");
 			return ret;
 		}
 	}
@@ -1074,7 +1074,7 @@ static int ks2_eth_parse_slave_interface(int netcp, int slave,
 
 		mdio = fdt_parent_offset(fdt, phy);
 		if (mdio < 0) {
-			error("mdio dt not found\n");
+			pr_err("mdio dt not found\n");
 			return -ENODEV;
 		}
 		priv->mdio_base = (void *)fdtdec_get_addr(fdt, mdio, "reg");
@@ -1099,7 +1099,7 @@ static int ks2_sl_eth_ofdata_to_platdata(struct udevice *dev)
 	struct ks2_eth_priv *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	const void *fdt = gd->fdt_blob;
-	int slave = dev->of_offset;
+	int slave = dev_of_offset(dev);
 	int interfaces;
 	int gbe;
 	int netcp_devices;
@@ -1126,15 +1126,15 @@ static int ks2_eth_ofdata_to_platdata(struct udevice *dev)
 	int netcp_devices;
 	int gbe;
 
-	netcp_devices = fdt_subnode_offset(fdt, dev->of_offset,
+	netcp_devices = fdt_subnode_offset(fdt, dev_of_offset(dev),
 					   "netcp-devices");
 	gbe = fdt_subnode_offset(fdt, netcp_devices, "gbe");
 
 	ks2_eth_bind_slaves(dev, gbe, &gbe_0);
 
-	ks2_eth_parse_slave_interface(dev->of_offset, gbe_0, priv, pdata);
+	ks2_eth_parse_slave_interface(dev_of_offset(dev), gbe_0, priv, pdata);
 
-	pdata->iobase = dev_get_addr(dev);
+	pdata->iobase = devfdt_get_addr(dev);
 
 	return 0;
 }

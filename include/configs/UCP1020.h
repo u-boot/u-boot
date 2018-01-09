@@ -14,7 +14,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_FSL_ELBC
 #define CONFIG_PCIE1	/* PCIE controller 1 (slot 1) */
 #define CONFIG_PCIE2	/* PCIE controller 2 (slot 2) */
 #define CONFIG_FSL_PCI_INIT	/* Use common FSL init code */
@@ -119,10 +118,7 @@
 
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_CMD_SATA
-#define CONFIG_SATA_SIL
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
-#define CONFIG_LIBATA
 #define CONFIG_LBA48
 
 #define CONFIG_SYS_CLK_FREQ	66666666
@@ -130,40 +126,16 @@
 
 #define CONFIG_HWCONFIG
 
-#define CONFIG_DTT_ADM1021	1	/* ADM1021 temp sensor support	*/
-#define CONFIG_SYS_DTT_BUS_NUM	1	/* The I2C bus for DTT		*/
-#define CONFIG_DTT_SENSORS	{ 0, 1 }	/* Sensor index	*/
-/*
- * ADM1021/NCT72 temp sensor configuration (see dtt/adm1021.c for details).
- * there will be one entry in this array for each two (dummy) sensors in
- * CONFIG_DTT_SENSORS.
- *
- * For uCP1020 module:
- * - only one ADM1021/NCT72
- * - i2c addr 0x41
- * - conversion rate 0x02 = 0.25 conversions/second
- * - ALERT output disabled
- * - local temp sensor enabled, min set to 0 deg, max set to 85 deg
- * - remote temp sensor enabled, min set to 0 deg, max set to 85 deg
- */
-#define CONFIG_SYS_DTT_ADM1021	{ { CONFIG_SYS_I2C_NCT72_ADDR, \
-					 0x02, 0, 1, 0, 85, 1, 0, 85} }
-
-#define CONFIG_CMD_DTT
-
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */
 #define CONFIG_L2_CACHE
 #define CONFIG_BTB
 
-#define CONFIG_BOARD_EARLY_INIT_F	/* Call board_pre_init */
-
 #define CONFIG_ENABLE_36BIT_PHYS
 
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x1fffffff
-#define CONFIG_PANIC_HANG	/* do not reset board on panic */
 
 #define CONFIG_SYS_CCSRBAR		0xffe00000
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
@@ -335,7 +307,7 @@
 #define CONFIG_SYS_SPD_BUS_NUM		1 /* For rom_loc and flash bank */
 
 #define CONFIG_RTC_DS1337
-#define CONFIG_SYS_RTC_DS1337_NOOSC
+#define CONFIG_RTC_DS1337_NOOSC
 #define CONFIG_SYS_I2C_RTC_ADDR		0x68
 #define CONFIG_SYS_I2C_PCA9557_ADDR	0x18
 #define CONFIG_SYS_I2C_NCT72_ADDR	0x4C
@@ -377,10 +349,7 @@
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xffc00000
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
-#define CONFIG_CMD_PCI
-
 #define CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
-#define CONFIG_DOS_PARTITION
 #endif /* CONFIG_PCI */
 
 /*
@@ -388,7 +357,6 @@
  */
 #ifdef CONFIG_ENV_FIT_UCBOOT
 
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x20000)
 #define CONFIG_ENV_SIZE		0x20000
 #define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
@@ -402,7 +370,6 @@
 
 #ifdef CONFIG_RAMBOOT_SPIFLASH
 
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SIZE		0x3000		/* 12KB */
 #define CONFIG_ENV_OFFSET	0x2000		/* 8KB */
 #define CONFIG_ENV_SECT_SIZE	0x1000
@@ -414,18 +381,15 @@
 #endif
 
 #elif defined(CONFIG_RAMBOOT_SDCARD)
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_FSL_FIXED_MMC_LOCATION
 #define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_SYS_MMC_ENV_DEV	0
 
 #elif defined(CONFIG_SYS_RAMBOOT)
-#define CONFIG_ENV_IS_NOWHERE	/* Store ENV in memory only */
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
 #define CONFIG_ENV_SIZE		0x2000
 
 #else
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_BASE		(CONFIG_SYS_FLASH_BASE)
 #define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
 #define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
@@ -444,26 +408,14 @@
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
 
 /*
- * Command line configuration.
- */
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_ERRATA
-#define CONFIG_CMD_CRAMFS
-
-/*
  * USB
  */
 #define CONFIG_HAS_FSL_DR_USB
 
 #if defined(CONFIG_HAS_FSL_DR_USB)
-#define CONFIG_USB_EHCI
-
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 1
 
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
 #endif
@@ -475,12 +427,6 @@
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #define CONFIG_MMC_SPI
-#define CONFIG_CMD_MMC_SPI
-#define CONFIG_GENERIC_MMC
-#endif
-
-#if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI) || defined(CONFIG_FSL_SATA)
-#define CONFIG_DOS_PARTITION
 #endif
 
 /* Misc Extra Settings */
@@ -492,15 +438,6 @@
 #define CONFIG_SYS_LONGHELP			/* undef to save memory */
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
-#else
-#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
-#endif
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-	/* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS	16	/* max number of command args */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE/* Boot Argument Buffer Size */
 #define CONFIG_SYS_HZ		1000	/* decrementer freq: 1ms tick */
 
 /*
@@ -522,10 +459,7 @@
 
 #if defined(CONFIG_TSEC_ENET)
 
-#if defined(CONFIG_UCP1020_REV_1_2)
-#define CONFIG_PHY_MICREL_KSZ9021
-#elif defined(CONFIG_UCP1020_REV_1_3)
-#define CONFIG_PHY_MICREL_KSZ9031
+#if defined(CONFIG_UCP1020_REV_1_2) || defined(CONFIG_UCP1020_REV_1_3)
 #else
 #error "UCP1020 module revision is not defined !!!"
 #endif
@@ -550,8 +484,6 @@
 #define TSEC2_PHYIDX	0
 #define TSEC3_PHYIDX	0
 
-#define CONFIG_PHY_GIGE	1	/* Include GbE speed/duplex detection */
-
 #endif
 
 #define CONFIG_HOSTNAME		UCP1020
@@ -561,10 +493,6 @@
 
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
-
-#define CONFIG_BOOTARGS	/* the boot command will set bootargs */
-
-#define CONFIG_BAUDRATE	115200
 
 #if defined(CONFIG_DONGLE)
 

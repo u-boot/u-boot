@@ -21,7 +21,7 @@ int pmic_reg_write(struct pmic *p, u32 reg, u32 val)
 	unsigned char buf[4] = { 0 };
 
 	if (check_reg(p, reg))
-		return -1;
+		return -EINVAL;
 
 	I2C_SET_BUS(p->bus);
 
@@ -51,27 +51,26 @@ int pmic_reg_write(struct pmic *p, u32 reg, u32 val)
 		break;
 	default:
 		printf("%s: invalid tx_num: %d", __func__, pmic_i2c_tx_num);
-		return -1;
+		return -EINVAL;
 	}
 
-	if (i2c_write(pmic_i2c_addr, reg, 1, buf, pmic_i2c_tx_num))
-		return -1;
-
-	return 0;
+	return i2c_write(pmic_i2c_addr, reg, 1, buf, pmic_i2c_tx_num);
 }
 
 int pmic_reg_read(struct pmic *p, u32 reg, u32 *val)
 {
 	unsigned char buf[4] = { 0 };
 	u32 ret_val = 0;
+	int ret;
 
 	if (check_reg(p, reg))
-		return -1;
+		return -EINVAL;
 
 	I2C_SET_BUS(p->bus);
 
-	if (i2c_read(pmic_i2c_addr, reg, 1, buf, pmic_i2c_tx_num))
-		return -1;
+	ret = i2c_read(pmic_i2c_addr, reg, 1, buf, pmic_i2c_tx_num);
+	if (ret)
+		return ret;
 
 	switch (pmic_i2c_tx_num) {
 	case 3:
@@ -93,7 +92,7 @@ int pmic_reg_read(struct pmic *p, u32 reg, u32 *val)
 		break;
 	default:
 		printf("%s: invalid tx_num: %d", __func__, pmic_i2c_tx_num);
-		return -1;
+		return -EINVAL;
 	}
 	memcpy(val, &ret_val, sizeof(ret_val));
 
@@ -106,7 +105,7 @@ int pmic_probe(struct pmic *p)
 	debug("Bus: %d PMIC:%s probed!\n", p->bus, p->name);
 	if (i2c_probe(pmic_i2c_addr)) {
 		printf("Can't find PMIC:%s\n", p->name);
-		return -1;
+		return -ENODEV;
 	}
 
 	return 0;

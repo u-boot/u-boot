@@ -48,6 +48,7 @@ obj-$(CONFIG_MACH_SUN7I)	+= dram_sun4i.o
 obj-$(CONFIG_MACH_SUN8I_A23)	+= dram_sun8i_a23.o
 obj-$(CONFIG_MACH_SUN8I_A33)	+= dram_sun8i_a33.o
 obj-$(CONFIG_MACH_SUN8I_A83T)	+= dram_sun8i_a83t.o
-obj-$(CONFIG_MACH_SUN8I_H3)	+= dram_sun8i_h3.o
+obj-$(CONFIG_SUNXI_DRAM_DW)	+= dram_sunxi_dw.o
+obj-$(CONFIG_SUNXI_DRAM_DW)	+= dram_timings/
 obj-$(CONFIG_MACH_SUN9I)	+= dram_sun9i.o
 endif

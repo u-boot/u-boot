@@ -77,7 +77,6 @@
 #define CONFIG_SYS_SICRH		0x00000000
 #define CONFIG_SYS_SICRL		0x00000000 /* 3.3V, no delay */
 
-#define CONFIG_BOARD_EARLY_INIT_F /* call board_pre_init */
 #define CONFIG_HWCONFIG
 
 /*
@@ -236,13 +235,8 @@
 
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITION
-#define CONFIG_CMD_MTDPARTS
-#define MTDIDS_DEFAULT			"nand0=e0600000.flash"
-#define MTDPARTS_DEFAULT		\
-	"mtdparts=e0600000.flash:512k(uboot),128k(env),6m@1m(kernel),-(fs)"
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_CMD_NAND			1
 #define CONFIG_NAND_FSL_ELBC		1
 #define CONFIG_SYS_NAND_BLOCK_SIZE	16384
 #define CONFIG_SYS_NAND_WINDOW_SIZE    (32 * 1024)     /* 0x00008000 */
@@ -367,7 +361,6 @@
 #define CONFIG_HAS_FSL_DR_USB
 #define CONFIG_SYS_SCCR_USBDRCM		3
 
-#define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_USB_PHY_TYPE	"utmi"
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
@@ -402,9 +395,6 @@
 /*
  * SATA
  */
-#define CONFIG_LIBATA
-#define CONFIG_FSL_SATA
-
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
 #define CONFIG_SATA1
 #define CONFIG_SYS_SATA1_OFFSET	0x18000
@@ -417,22 +407,17 @@
 
 #ifdef CONFIG_FSL_SATA
 #define CONFIG_LBA48
-#define CONFIG_CMD_SATA
-#define CONFIG_DOS_PARTITION
 #endif
 
 /*
  * Environment
  */
 #if !defined(CONFIG_SYS_RAMBOOT)
-	#define CONFIG_ENV_IS_IN_FLASH	1
 	#define CONFIG_ENV_ADDR		\
 			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
 	#define CONFIG_ENV_SECT_SIZE	0x10000 /* 64K(one sector) for env */
 	#define CONFIG_ENV_SIZE		0x2000
 #else
-	#define CONFIG_SYS_NO_FLASH	1	/* Flash is not usable now */
-	#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
 	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
 	#define CONFIG_ENV_SIZE		0x2000
 #endif
@@ -451,8 +436,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_PCI
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
@@ -464,18 +447,6 @@
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_LOAD_ADDR		0x2000000 /* default load address */
-
-#if defined(CONFIG_CMD_KGDB)
-	#define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size */
-#else
-	#define CONFIG_SYS_CBSIZE	256 /* Console I/O Buffer Size */
-#endif
-
-				/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
-#define CONFIG_SYS_MAXARGS	16	/* max number of command args */
-				/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
 /*
  * For booting Linux, the board info and command line data
@@ -593,11 +564,7 @@
 #define CONFIG_HAS_ETH1
 #endif
 
-#define CONFIG_BAUDRATE 115200
-
 #define CONFIG_LOADADDR 800000	/* default location for tftp and bootm */
-
-#undef CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\

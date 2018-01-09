@@ -53,7 +53,7 @@ struct blk_desc *mmc_get_blk_desc(struct mmc *mmc)
 }
 #endif
 
-#ifndef CONFIG_DM_MMC_OPS
+#if !CONFIG_IS_ENABLED(DM_MMC)
 __weak int board_mmc_getwp(struct mmc *mmc)
 {
 	return -1;
@@ -149,7 +149,7 @@ void mmc_trace_state(struct mmc *mmc, struct mmc_cmd *cmd)
 }
 #endif
 
-#ifndef CONFIG_DM_MMC_OPS
+#if !CONFIG_IS_ENABLED(DM_MMC)
 int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 {
 	int ret;
@@ -261,14 +261,14 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 	return blkcnt;
 }
 
-#ifdef CONFIG_BLK
+#if CONFIG_IS_ENABLED(BLK)
 ulong mmc_bread(struct udevice *dev, lbaint_t start, lbaint_t blkcnt, void *dst)
 #else
 ulong mmc_bread(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 		void *dst)
 #endif
 {
-#ifdef CONFIG_BLK
+#if CONFIG_IS_ENABLED(BLK)
 	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
 #endif
 	int dev_num = block_dev->devnum;
@@ -339,7 +339,7 @@ static int mmc_go_idle(struct mmc *mmc)
 	return 0;
 }
 
-#ifndef CONFIG_DM_MMC_OPS
+#ifndef CONFIG_DM_MMC
 static int mmc_set_voltage(struct mmc *mmc)
 {
 	int err = 0;
@@ -597,7 +597,7 @@ int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 
 }
 
-#ifndef CONFIG_DM_MMC_OPS
+#ifndef CONFIG_DM_MMC
 static void mmc_set_ios(struct mmc *mmc)
 {
 	if (mmc->cfg->ops->set_ios)
@@ -1060,7 +1060,7 @@ int mmc_hwpart_config(struct mmc *mmc,
 	return 0;
 }
 
-#ifndef CONFIG_DM_MMC_OPS
+#if !CONFIG_IS_ENABLED(DM_MMC)
 int mmc_getcd(struct mmc *mmc)
 {
 	int cd;
@@ -1345,6 +1345,14 @@ static const u8 multipliers[] = {
 	80,
 };
 
+#if !CONFIG_IS_ENABLED(DM_MMC)
+static void mmc_set_ios(struct mmc *mmc)
+{
+	if (mmc->cfg->ops->set_ios)
+		mmc->cfg->ops->set_ios(mmc);
+}
+#endif
+
 void mmc_set_clock(struct mmc *mmc, uint clock)
 {
 	if (clock > mmc->cfg->f_max)
@@ -1358,7 +1366,7 @@ void mmc_set_clock(struct mmc *mmc, uint clock)
 	mmc_set_ios(mmc);
 }
 
-#ifndef CONFIG_DM_MMC_OPS
+#ifndef CONFIG_DM_MMC
 static int mmc_switch_uhs(struct mmc *mmc)
 {
 	int err = 0;
@@ -1394,7 +1402,6 @@ static int mmc_startup(struct mmc *mmc)
 	struct mmc_cmd cmd;
 	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
 	ALLOC_CACHE_ALIGN_BUFFER(u8, test_csd, MMC_MAX_BLOCK_LEN);
-	int timeout = 1000;
 	bool has_parts = false;
 	bool part_completed;
 	struct blk_desc *bdesc;
@@ -1449,9 +1456,6 @@ static int mmc_startup(struct mmc *mmc)
 	cmd.cmdarg = mmc->rca << 16;
 
 	err = mmc_send_cmd(mmc, &cmd, NULL);
-
-	/* Waiting for the ready status */
-	mmc_send_status(mmc, timeout);
 
 	if (err)
 		return err;
@@ -1915,17 +1919,17 @@ static int mmc_send_if_cond(struct mmc *mmc)
 	return 0;
 }
 
+#if !CONFIG_IS_ENABLED(DM_MMC)
 /* board-specific MMC power initializations. */
 __weak void board_mmc_power_init(void)
 {
 }
+#endif
 
 static int mmc_power_init(struct mmc *mmc)
 {
-	board_mmc_power_init();
-
-#if defined(CONFIG_DM_MMC) && defined(CONFIG_DM_REGULATOR) && \
-	!defined(CONFIG_SPL_BUILD)
+#if CONFIG_IS_ENABLED(DM_MMC)
+#if defined(CONFIG_DM_REGULATOR) && !defined(CONFIG_SPL_BUILD)
 	struct udevice *vmmc_supply;
 	int ret;
 
@@ -1942,6 +1946,13 @@ static int mmc_power_init(struct mmc *mmc)
 		return ret;
 	}
 #endif
+#else /* !CONFIG_DM_MMC */
+	/*
+	 * Driver model should use a regulator, as above, rather than calling
+	 * out to board code.
+	 */
+	board_mmc_power_init();
+#endif
 	return 0;
 }
 
@@ -1952,7 +1963,7 @@ int mmc_start_init(struct mmc *mmc)
 
 	/* we pretend there's no card when init is NULL */
 	no_card = mmc_getcd(mmc) == 0;
-#ifndef CONFIG_DM_MMC_OPS
+#if !CONFIG_IS_ENABLED(DM_MMC)
 	no_card = no_card || (mmc->cfg->ops->init == NULL);
 #endif
 	if (no_card) {
@@ -1973,7 +1984,7 @@ int mmc_start_init(struct mmc *mmc)
 	if (err)
 		return err;
 
-#ifdef CONFIG_DM_MMC_OPS
+#if CONFIG_IS_ENABLED(DM_MMC)
 	/* The device has already been probed ready for use */
 #else
 	/* made sure it's not NULL earlier */
@@ -2039,7 +2050,7 @@ int mmc_init(struct mmc *mmc)
 {
 	int err = 0;
 	__maybe_unused unsigned start;
-#ifdef CONFIG_DM_MMC
+#if CONFIG_IS_ENABLED(DM_MMC)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(mmc->dev);
 
 	upriv->mmc = mmc;
@@ -2054,7 +2065,9 @@ int mmc_init(struct mmc *mmc)
 
 	if (!err)
 		err = mmc_complete_init(mmc);
-	debug("%s: %d, time %lu\n", __func__, err, get_timer(start));
+	if (err)
+		printf("%s: %d, time %lu\n", __func__, err, get_timer(start));
+
 	return err;
 }
 
@@ -2081,12 +2094,12 @@ void mmc_set_preinit(struct mmc *mmc, int preinit)
 	mmc->preinit = preinit;
 }
 
-#if defined(CONFIG_DM_MMC) && defined(CONFIG_SPL_BUILD)
+#if CONFIG_IS_ENABLED(DM_MMC) && defined(CONFIG_SPL_BUILD)
 static int mmc_probe(bd_t *bis)
 {
 	return 0;
 }
-#elif defined(CONFIG_DM_MMC)
+#elif CONFIG_IS_ENABLED(DM_MMC)
 static int mmc_probe(bd_t *bis)
 {
 	int ret, i;
@@ -2133,7 +2146,7 @@ int mmc_initialize(bd_t *bis)
 		return 0;
 	initialized = 1;
 
-#ifndef CONFIG_BLK
+#if !CONFIG_IS_ENABLED(BLK)
 #if !CONFIG_IS_ENABLED(MMC_TINY)
 	mmc_list_init();
 #endif

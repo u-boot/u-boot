@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <clk-uclass.h>
-#include <dm/device.h>
+#include <dm.h>
 #include <linux/io.h>
 #include <mach/at91_pmc.h>
 #include "pmc.h"
@@ -16,6 +16,10 @@
 #define PERIPHERAL_ID_MAX	31
 #define PERIPHERAL_MASK(id)	(1 << ((id) & PERIPHERAL_ID_MAX))
 
+enum periph_clk_type {
+	CLK_PERIPH_AT91RM9200 = 0,
+	CLK_PERIPH_AT91SAM9X5,
+};
 /**
  * sam9x5_periph_clk_bind() - for the periph clock driver
  * Recursively bind its children as clk devices.
@@ -28,7 +32,14 @@ static int sam9x5_periph_clk_bind(struct udevice *dev)
 }
 
 static const struct udevice_id sam9x5_periph_clk_match[] = {
-	{ .compatible = "atmel,at91sam9x5-clk-peripheral" },
+	{
+		.compatible = "atmel,at91rm9200-clk-peripheral",
+		.data = CLK_PERIPH_AT91RM9200,
+	},
+	{
+		.compatible = "atmel,at91sam9x5-clk-peripheral",
+		.data = CLK_PERIPH_AT91SAM9X5,
+	},
 	{}
 };
 
@@ -45,12 +56,24 @@ static int periph_clk_enable(struct clk *clk)
 {
 	struct pmc_platdata *plat = dev_get_platdata(clk->dev);
 	struct at91_pmc *pmc = plat->reg_base;
+	enum periph_clk_type clk_type;
+	void *addr;
 
 	if (clk->id < PERIPHERAL_ID_MIN)
 		return -1;
 
-	writel(clk->id & AT91_PMC_PCR_PID_MASK, &pmc->pcr);
-	setbits_le32(&pmc->pcr, AT91_PMC_PCR_CMD_WRITE | AT91_PMC_PCR_EN);
+	clk_type = dev_get_driver_data(dev_get_parent(clk->dev));
+	if (clk_type == CLK_PERIPH_AT91RM9200) {
+		addr = &pmc->pcer;
+		if (clk->id > PERIPHERAL_ID_MAX)
+			addr = &pmc->pcer1;
+
+		setbits_le32(addr, PERIPHERAL_MASK(clk->id));
+	} else {
+		writel(clk->id & AT91_PMC_PCR_PID_MASK, &pmc->pcr);
+		setbits_le32(&pmc->pcr,
+			     AT91_PMC_PCR_CMD_WRITE | AT91_PMC_PCR_EN);
+	}
 
 	return 0;
 }

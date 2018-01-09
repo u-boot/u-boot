@@ -1,5 +1,5 @@
 MPC8548CDS BOARD
-#M:	-
+M:	York Sun <york.sun@nxp.com>
 S:	Maintained
 F:	board/freescale/mpc8548cds/
 F:	include/configs/MPC8548CDS.h

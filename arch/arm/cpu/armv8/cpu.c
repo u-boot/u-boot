@@ -17,6 +17,20 @@
 #include <asm/secure.h>
 #include <linux/compiler.h>
 
+/*
+ * sdelay() - simple spin loop.
+ *
+ * Will delay execution by roughly (@loops * 2) cycles.
+ * This is necessary to be used before timers are accessible.
+ *
+ * A value of "0" will results in 2^64 loops.
+ */
+void sdelay(unsigned long loops)
+{
+	__asm__ volatile ("1:\n" "subs %0, %0, #1\n"
+			  "b.ne 1b" : "=r" (loops) : "0"(loops) : "cc");
+}
+
 int cleanup_before_linux(void)
 {
 	/*

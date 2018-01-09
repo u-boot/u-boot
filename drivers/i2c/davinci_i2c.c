@@ -14,10 +14,20 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <dm.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/i2c_defs.h>
 #include <asm/io.h>
 #include "davinci_i2c.h"
+
+#ifdef CONFIG_DM_I2C
+/* Information about i2c controller */
+struct i2c_bus {
+	int			id;
+	uint			speed;
+	struct i2c_regs		*regs;
+};
+#endif
 
 #define CHECK_NACK() \
 	do {\
@@ -27,11 +37,8 @@
 		} \
 	} while (0)
 
-static struct i2c_regs *davinci_get_base(struct i2c_adapter *adap);
-
-static int wait_for_bus(struct i2c_adapter *adap)
+static int _wait_for_bus(struct i2c_regs *i2c_base)
 {
-	struct i2c_regs *i2c_base = davinci_get_base(adap);
 	int	stat, timeout;
 
 	REG(&(i2c_base->i2c_stat)) = 0xffff;
@@ -51,10 +58,8 @@ static int wait_for_bus(struct i2c_adapter *adap)
 	return 1;
 }
 
-
-static int poll_i2c_irq(struct i2c_adapter *adap, int mask)
+static int _poll_i2c_irq(struct i2c_regs *i2c_base, int mask)
 {
-	struct i2c_regs *i2c_base = davinci_get_base(adap);
 	int	stat, timeout;
 
 	for (timeout = 0; timeout < 10; timeout++) {
@@ -68,10 +73,8 @@ static int poll_i2c_irq(struct i2c_adapter *adap, int mask)
 	return stat | I2C_TIMEOUT;
 }
 
-static void flush_rx(struct i2c_adapter *adap)
+static void _flush_rx(struct i2c_regs *i2c_base)
 {
-	struct i2c_regs *i2c_base = davinci_get_base(adap);
-
 	while (1) {
 		if (!(REG(&(i2c_base->i2c_stat)) & I2C_STAT_RRDY))
 			break;
@@ -82,9 +85,9 @@ static void flush_rx(struct i2c_adapter *adap)
 	}
 }
 
-static uint davinci_i2c_setspeed(struct i2c_adapter *adap, uint speed)
+static uint _davinci_i2c_setspeed(struct i2c_regs *i2c_base,
+				  uint speed)
 {
-	struct i2c_regs *i2c_base = davinci_get_base(adap);
 	uint32_t	div, psc;
 
 	psc = 2;
@@ -94,20 +97,18 @@ static uint davinci_i2c_setspeed(struct i2c_adapter *adap, uint speed)
 	REG(&(i2c_base->i2c_scll)) = (div * 50) / 100; /* 50% Duty */
 	REG(&(i2c_base->i2c_sclh)) = div - REG(&(i2c_base->i2c_scll));
 
-	adap->speed	= speed;
 	return 0;
 }
 
-static void davinci_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
+static void _davinci_i2c_init(struct i2c_regs *i2c_base,
+			      uint speed, int slaveadd)
 {
-	struct i2c_regs *i2c_base = davinci_get_base(adap);
-
 	if (REG(&(i2c_base->i2c_con)) & I2C_CON_EN) {
 		REG(&(i2c_base->i2c_con)) = 0;
 		udelay(50000);
 	}
 
-	davinci_i2c_setspeed(adap, speed);
+	_davinci_i2c_setspeed(i2c_base, speed);
 
 	REG(&(i2c_base->i2c_oa)) = slaveadd;
 	REG(&(i2c_base->i2c_cnt)) = 0;
@@ -122,47 +123,9 @@ static void davinci_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 	udelay(1000);
 }
 
-static int davinci_i2c_probe(struct i2c_adapter *adap, uint8_t chip)
+static int _davinci_i2c_read(struct i2c_regs *i2c_base, uint8_t chip,
+			     uint32_t addr, int alen, uint8_t *buf, int len)
 {
-	struct i2c_regs *i2c_base = davinci_get_base(adap);
-	int	rc = 1;
-
-	if (chip == REG(&(i2c_base->i2c_oa)))
-		return rc;
-
-	REG(&(i2c_base->i2c_con)) = 0;
-	if (wait_for_bus(adap))
-		return 1;
-
-	/* try to read one byte from current (or only) address */
-	REG(&(i2c_base->i2c_cnt)) = 1;
-	REG(&(i2c_base->i2c_sa))  = chip;
-	REG(&(i2c_base->i2c_con)) = (I2C_CON_EN | I2C_CON_MST | I2C_CON_STT |
-				     I2C_CON_STP);
-	udelay(50000);
-
-	if (!(REG(&(i2c_base->i2c_stat)) & I2C_STAT_NACK)) {
-		rc = 0;
-		flush_rx(adap);
-		REG(&(i2c_base->i2c_stat)) = 0xffff;
-	} else {
-		REG(&(i2c_base->i2c_stat)) = 0xffff;
-		REG(&(i2c_base->i2c_con)) |= I2C_CON_STP;
-		udelay(20000);
-		if (wait_for_bus(adap))
-			return 1;
-	}
-
-	flush_rx(adap);
-	REG(&(i2c_base->i2c_stat)) = 0xffff;
-	REG(&(i2c_base->i2c_cnt)) = 0;
-	return rc;
-}
-
-static int davinci_i2c_read(struct i2c_adapter *adap, uint8_t chip,
-				uint32_t addr, int alen, uint8_t *buf, int len)
-{
-	struct i2c_regs *i2c_base = davinci_get_base(adap);
 	uint32_t	tmp;
 	int		i;
 
@@ -171,7 +134,7 @@ static int davinci_i2c_read(struct i2c_adapter *adap, uint8_t chip,
 		return 1;
 	}
 
-	if (wait_for_bus(adap))
+	if (_wait_for_bus(i2c_base))
 		return 1;
 
 	if (alen != 0) {
@@ -181,7 +144,7 @@ static int davinci_i2c_read(struct i2c_adapter *adap, uint8_t chip,
 		REG(&(i2c_base->i2c_sa)) = chip;
 		REG(&(i2c_base->i2c_con)) = tmp;
 
-		tmp = poll_i2c_irq(adap, I2C_STAT_XRDY | I2C_STAT_NACK);
+		tmp = _poll_i2c_irq(i2c_base, I2C_STAT_XRDY | I2C_STAT_NACK);
 
 		CHECK_NACK();
 
@@ -195,7 +158,8 @@ static int davinci_i2c_read(struct i2c_adapter *adap, uint8_t chip,
 				return 1;
 			}
 
-			tmp = poll_i2c_irq(adap, I2C_STAT_XRDY | I2C_STAT_NACK);
+			tmp = _poll_i2c_irq(i2c_base,
+					    I2C_STAT_XRDY | I2C_STAT_NACK);
 
 			CHECK_NACK();
 			/* No break, fall through */
@@ -208,8 +172,8 @@ static int davinci_i2c_read(struct i2c_adapter *adap, uint8_t chip,
 				return 1;
 			}
 
-			tmp = poll_i2c_irq(adap, I2C_STAT_XRDY |
-					   I2C_STAT_NACK | I2C_STAT_ARDY);
+			tmp = _poll_i2c_irq(i2c_base, I2C_STAT_XRDY |
+					    I2C_STAT_NACK | I2C_STAT_ARDY);
 
 			CHECK_NACK();
 
@@ -227,7 +191,7 @@ static int davinci_i2c_read(struct i2c_adapter *adap, uint8_t chip,
 	REG(&(i2c_base->i2c_con)) = tmp;
 
 	for (i = 0; i < len; i++) {
-		tmp = poll_i2c_irq(adap, I2C_STAT_RRDY | I2C_STAT_NACK |
+		tmp = _poll_i2c_irq(i2c_base, I2C_STAT_RRDY | I2C_STAT_NACK |
 				   I2C_STAT_ROVR);
 
 		CHECK_NACK();
@@ -240,7 +204,7 @@ static int davinci_i2c_read(struct i2c_adapter *adap, uint8_t chip,
 		}
 	}
 
-	tmp = poll_i2c_irq(adap, I2C_STAT_SCD | I2C_STAT_NACK);
+	tmp = _poll_i2c_irq(i2c_base, I2C_STAT_SCD | I2C_STAT_NACK);
 
 	CHECK_NACK();
 
@@ -249,7 +213,7 @@ static int davinci_i2c_read(struct i2c_adapter *adap, uint8_t chip,
 		return 1;
 	}
 
-	flush_rx(adap);
+	_flush_rx(i2c_base);
 	REG(&(i2c_base->i2c_stat)) = 0xffff;
 	REG(&(i2c_base->i2c_cnt)) = 0;
 	REG(&(i2c_base->i2c_con)) = 0;
@@ -257,10 +221,9 @@ static int davinci_i2c_read(struct i2c_adapter *adap, uint8_t chip,
 	return 0;
 }
 
-static int davinci_i2c_write(struct i2c_adapter *adap, uint8_t chip,
-				uint32_t addr, int alen, uint8_t *buf, int len)
+static int _davinci_i2c_write(struct i2c_regs *i2c_base, uint8_t chip,
+			      uint32_t addr, int alen, uint8_t *buf, int len)
 {
-	struct i2c_regs *i2c_base = davinci_get_base(adap);
 	uint32_t	tmp;
 	int		i;
 
@@ -273,7 +236,7 @@ static int davinci_i2c_write(struct i2c_adapter *adap, uint8_t chip,
 		return 1;
 	}
 
-	if (wait_for_bus(adap))
+	if (_wait_for_bus(i2c_base))
 		return 1;
 
 	/* Start address phase */
@@ -287,7 +250,7 @@ static int davinci_i2c_write(struct i2c_adapter *adap, uint8_t chip,
 	switch (alen) {
 	case 2:
 		/* Send address MSByte */
-		tmp = poll_i2c_irq(adap, I2C_STAT_XRDY | I2C_STAT_NACK);
+		tmp = _poll_i2c_irq(i2c_base, I2C_STAT_XRDY | I2C_STAT_NACK);
 
 		CHECK_NACK();
 
@@ -300,7 +263,7 @@ static int davinci_i2c_write(struct i2c_adapter *adap, uint8_t chip,
 		/* No break, fall through */
 	case 1:
 		/* Send address LSByte */
-		tmp = poll_i2c_irq(adap, I2C_STAT_XRDY | I2C_STAT_NACK);
+		tmp = _poll_i2c_irq(i2c_base, I2C_STAT_XRDY | I2C_STAT_NACK);
 
 		CHECK_NACK();
 
@@ -313,7 +276,7 @@ static int davinci_i2c_write(struct i2c_adapter *adap, uint8_t chip,
 	}
 
 	for (i = 0; i < len; i++) {
-		tmp = poll_i2c_irq(adap, I2C_STAT_XRDY | I2C_STAT_NACK);
+		tmp = _poll_i2c_irq(i2c_base, I2C_STAT_XRDY | I2C_STAT_NACK);
 
 		CHECK_NACK();
 
@@ -323,7 +286,7 @@ static int davinci_i2c_write(struct i2c_adapter *adap, uint8_t chip,
 			return 1;
 	}
 
-	tmp = poll_i2c_irq(adap, I2C_STAT_SCD | I2C_STAT_NACK);
+	tmp = _poll_i2c_irq(i2c_base, I2C_STAT_SCD | I2C_STAT_NACK);
 
 	CHECK_NACK();
 
@@ -332,7 +295,7 @@ static int davinci_i2c_write(struct i2c_adapter *adap, uint8_t chip,
 		return 1;
 	}
 
-	flush_rx(adap);
+	_flush_rx(i2c_base);
 	REG(&(i2c_base->i2c_stat)) = 0xffff;
 	REG(&(i2c_base->i2c_cnt)) = 0;
 	REG(&(i2c_base->i2c_con)) = 0;
@@ -340,14 +303,51 @@ static int davinci_i2c_write(struct i2c_adapter *adap, uint8_t chip,
 	return 0;
 }
 
+static int _davinci_i2c_probe_chip(struct i2c_regs *i2c_base, uint8_t chip)
+{
+	int	rc = 1;
+
+	if (chip == REG(&(i2c_base->i2c_oa)))
+		return rc;
+
+	REG(&(i2c_base->i2c_con)) = 0;
+	if (_wait_for_bus(i2c_base))
+		return 1;
+
+	/* try to read one byte from current (or only) address */
+	REG(&(i2c_base->i2c_cnt)) = 1;
+	REG(&(i2c_base->i2c_sa))  = chip;
+	REG(&(i2c_base->i2c_con)) = (I2C_CON_EN | I2C_CON_MST | I2C_CON_STT |
+				     I2C_CON_STP);
+	udelay(50000);
+
+	if (!(REG(&(i2c_base->i2c_stat)) & I2C_STAT_NACK)) {
+		rc = 0;
+		_flush_rx(i2c_base);
+		REG(&(i2c_base->i2c_stat)) = 0xffff;
+	} else {
+		REG(&(i2c_base->i2c_stat)) = 0xffff;
+		REG(&(i2c_base->i2c_con)) |= I2C_CON_STP;
+		udelay(20000);
+		if (_wait_for_bus(i2c_base))
+			return 1;
+	}
+
+	_flush_rx(i2c_base);
+	REG(&(i2c_base->i2c_stat)) = 0xffff;
+	REG(&(i2c_base->i2c_cnt)) = 0;
+	return rc;
+}
+
+#ifndef CONFIG_DM_I2C
 static struct i2c_regs *davinci_get_base(struct i2c_adapter *adap)
 {
 	switch (adap->hwadapnr) {
-#if I2C_BUS_MAX >= 3
+#if CONFIG_SYS_I2C_BUS_MAX >= 3
 	case 2:
 		return (struct i2c_regs *)I2C2_BASE;
 #endif
-#if I2C_BUS_MAX >= 2
+#if CONFIG_SYS_I2C_BUS_MAX >= 2
 	case 1:
 		return (struct i2c_regs *)I2C1_BASE;
 #endif
@@ -361,15 +361,59 @@ static struct i2c_regs *davinci_get_base(struct i2c_adapter *adap)
 	return NULL;
 }
 
-U_BOOT_I2C_ADAP_COMPLETE(davinci_0, davinci_i2c_init, davinci_i2c_probe,
+static uint davinci_i2c_setspeed(struct i2c_adapter *adap, uint speed)
+{
+	struct i2c_regs *i2c_base = davinci_get_base(adap);
+	uint ret;
+
+	adap->speed = speed;
+	ret =  _davinci_i2c_setspeed(i2c_base, speed);
+
+	return ret;
+}
+
+static void davinci_i2c_init(struct i2c_adapter *adap, int speed,
+			     int slaveadd)
+{
+	struct i2c_regs *i2c_base = davinci_get_base(adap);
+
+	adap->speed = speed;
+	_davinci_i2c_init(i2c_base, speed, slaveadd);
+
+	return;
+}
+
+static int davinci_i2c_read(struct i2c_adapter *adap, uint8_t chip,
+			    uint32_t addr, int alen, uint8_t *buf, int len)
+{
+	struct i2c_regs *i2c_base = davinci_get_base(adap);
+	return _davinci_i2c_read(i2c_base, chip, addr, alen, buf, len);
+}
+
+static int davinci_i2c_write(struct i2c_adapter *adap, uint8_t chip,
+			     uint32_t addr, int alen, uint8_t *buf, int len)
+{
+	struct i2c_regs *i2c_base = davinci_get_base(adap);
+
+	return _davinci_i2c_write(i2c_base, chip, addr, alen, buf, len);
+}
+
+static int davinci_i2c_probe_chip(struct i2c_adapter *adap, uint8_t chip)
+{
+	struct i2c_regs *i2c_base = davinci_get_base(adap);
+
+	return _davinci_i2c_probe_chip(i2c_base, chip);
+}
+
+U_BOOT_I2C_ADAP_COMPLETE(davinci_0, davinci_i2c_init, davinci_i2c_probe_chip,
 			 davinci_i2c_read, davinci_i2c_write,
 			 davinci_i2c_setspeed,
 			 CONFIG_SYS_DAVINCI_I2C_SPEED,
 			 CONFIG_SYS_DAVINCI_I2C_SLAVE,
 			 0)
 
-#if I2C_BUS_MAX >= 2
-U_BOOT_I2C_ADAP_COMPLETE(davinci_1, davinci_i2c_init, davinci_i2c_probe,
+#if CONFIG_SYS_I2C_BUS_MAX >= 2
+U_BOOT_I2C_ADAP_COMPLETE(davinci_1, davinci_i2c_init, davinci_i2c_probe_chip,
 			 davinci_i2c_read, davinci_i2c_write,
 			 davinci_i2c_setspeed,
 			 CONFIG_SYS_DAVINCI_I2C_SPEED1,
@@ -377,11 +421,90 @@ U_BOOT_I2C_ADAP_COMPLETE(davinci_1, davinci_i2c_init, davinci_i2c_probe,
 			 1)
 #endif
 
-#if I2C_BUS_MAX >= 3
-U_BOOT_I2C_ADAP_COMPLETE(davinci_2, davinci_i2c_init, davinci_i2c_probe,
+#if CONFIG_SYS_I2C_BUS_MAX >= 3
+U_BOOT_I2C_ADAP_COMPLETE(davinci_2, davinci_i2c_init, davinci_i2c_probe_chip,
 			 davinci_i2c_read, davinci_i2c_write,
 			 davinci_i2c_setspeed,
 			 CONFIG_SYS_DAVINCI_I2C_SPEED2,
 			 CONFIG_SYS_DAVINCI_I2C_SLAVE2,
 			 2)
 #endif
+
+#else /* CONFIG_DM_I2C */
+
+static int davinci_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
+			  int nmsgs)
+{
+	struct i2c_bus *i2c_bus = dev_get_priv(bus);
+	int ret;
+
+	debug("i2c_xfer: %d messages\n", nmsgs);
+	for (; nmsgs > 0; nmsgs--, msg++) {
+		debug("i2c_xfer: chip=0x%x, len=0x%x\n", msg->addr, msg->len);
+		if (msg->flags & I2C_M_RD) {
+			ret = _davinci_i2c_read(i2c_bus->regs, msg->addr,
+				0, 0, msg->buf, msg->len);
+		} else {
+			ret = _davinci_i2c_write(i2c_bus->regs, msg->addr,
+				0, 0, msg->buf, msg->len);
+		}
+		if (ret) {
+			debug("i2c_write: error sending\n");
+			return -EREMOTEIO;
+		}
+	}
+
+	return ret;
+}
+
+static int davinci_i2c_set_speed(struct udevice *dev, uint speed)
+{
+	struct i2c_bus *i2c_bus = dev_get_priv(dev);
+
+	i2c_bus->speed = speed;
+	return _davinci_i2c_setspeed(i2c_bus->regs, speed);
+}
+
+static int davinci_i2c_probe(struct udevice *dev)
+{
+	struct i2c_bus *i2c_bus = dev_get_priv(dev);
+
+	i2c_bus->id = dev->seq;
+	i2c_bus->regs = (struct i2c_regs *)devfdt_get_addr(dev);
+
+	i2c_bus->speed = 100000;
+	 _davinci_i2c_init(i2c_bus->regs, i2c_bus->speed, 0);
+
+	return 0;
+}
+
+static int davinci_i2c_probe_chip(struct udevice *bus, uint chip_addr,
+				  uint chip_flags)
+{
+	struct i2c_bus *i2c_bus = dev_get_priv(bus);
+
+	return _davinci_i2c_probe_chip(i2c_bus->regs, chip_addr);
+}
+
+static const struct dm_i2c_ops davinci_i2c_ops = {
+	.xfer		= davinci_i2c_xfer,
+	.probe_chip	= davinci_i2c_probe_chip,
+	.set_bus_speed	= davinci_i2c_set_speed,
+};
+
+static const struct udevice_id davinci_i2c_ids[] = {
+	{ .compatible = "ti,davinci-i2c"},
+	{ .compatible = "ti,keystone-i2c"},
+	{ }
+};
+
+U_BOOT_DRIVER(i2c_davinci) = {
+	.name	= "i2c_davinci",
+	.id	= UCLASS_I2C,
+	.of_match = davinci_i2c_ids,
+	.probe	= davinci_i2c_probe,
+	.priv_auto_alloc_size = sizeof(struct i2c_bus),
+	.ops	= &davinci_i2c_ops,
+};
+
+#endif /* CONFIG_DM_I2C */

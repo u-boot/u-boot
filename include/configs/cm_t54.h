@@ -17,7 +17,6 @@
 #include <configs/ti_omap5_common.h>
 
 /* EEPROM related defines */
-#define CONFIG_SYS_I2C_OMAP34XX
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 #define CONFIG_SYS_I2C_EEPROM_BUS	0
@@ -28,13 +27,11 @@
 /* UART setup */
 #define CONFIG_CONS_INDEX		4
 #define CONFIG_SYS_NS16550_COM4		UART4_BASE
-#define CONFIG_BAUDRATE			115200
 
 /* MMC ENV related defines */
 #undef CONFIG_ENV_OFFSET
 #undef CONFIG_ENV_SIZE
 
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		1		/* SLOT2: eMMC(1) */
 #define CONFIG_SYS_MMC_ENV_PART		0
 #define CONFIG_ENV_OFFSET		0xc0000		/* (in bytes) 768 KB */
@@ -50,18 +47,12 @@
 #define CONFIG_SPL_SATA_BOOT_DEVICE		0
 #define CONFIG_SYS_SATA_FAT_BOOT_PARTITION	1
 
-#define CONFIG_SCSI
-#define CONFIG_LIBATA
-#define CONFIG_SCSI_AHCI
 #define CONFIG_SCSI_AHCI_PLAT
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
 #define CONFIG_SYS_SCSI_MAX_LUN		1
 #define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 						CONFIG_SYS_SCSI_MAX_LUN)
 /* USB UHH support options */
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_OMAP
-#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 
 #define CONFIG_OMAP_EHCI_PHY2_RESET_GPIO	76 /* HSIC2 HUB #RESET */
@@ -70,25 +61,13 @@
 /* Enabled commands */
 
 /* EEPROM */
-#define CONFIG_CMD_EEPROM
 #define CONFIG_ENV_EEPROM_IS_ON_I2C
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
 #define CONFIG_SYS_EEPROM_SIZE			256
 
-#define CONFIG_CMD_EEPROM_LAYOUT
-#define CONFIG_EEPROM_LAYOUT_HELP_STRING "v2, v3"
-
 /* USB Networking options */
-#define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_SMSC95XX
-#define CONFIG_USB_ETHER_RNDIS
-#define CONFIG_USB_ETHER_ASIX
-#define CONFIG_USB_ETHER_MCS7830
-
-/* Max time to hold reset on this board, see doc/README.omap-reset-time */
-#define CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC	16296
 
 /*
  * Miscellaneous configurable options

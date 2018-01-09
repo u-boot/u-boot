@@ -10,23 +10,17 @@ config BLK
 	  be partitioned into several areas, called 'partitions' in U-Boot.
 	  A filesystem can be placed in each partition.
 
-config AHCI
-	bool "Support SATA controllers with driver model"
-	depends on DM
+config SPL_BLK
+	bool "Support block devices in SPL"
+	depends on SPL_DM && BLK
+	default y
 	help
-	  This enables a uclass for disk controllers in U-Boot. Various driver
-	  types can use this, such as AHCI/SATA. It does not provide any standard
-	  operations at present. The block device interface has not been converted
-	  to driver model.
-
-config DM_SCSI
-	bool "Support SCSI controllers with driver model"
-	depends on BLK
-	help
-	  This option enables the SCSI (Small Computer System Interface) uclass
-	  which supports SCSI and SATA HDDs. For every device configuration
-	  (IDs/LUNs) a block device is created with RAW read/write and
-	  filesystem support.
+	  Enable support for block devices, such as SCSI, MMC and USB
+	  flash sticks. These provide a block-level interface which permits
+	  reading, writing and (in some cases) erasing blocks. Block
+	  devices often have a partition table which allows the device to
+	  be partitioned into several areas, called 'partitions' in U-Boot.
+	  A filesystem can be placed in each partition.
 
 config BLOCK_CACHE
 	bool "Use block device cache"
@@ -37,15 +31,10 @@ config BLOCK_CACHE
 	  it will prevent repeated reads from directory structures and other
 	  filesystem data structures.
 
-menu "SATA/SCSI device support"
-
-config SATA_CEVA
-	bool "Ceva Sata controller"
-	depends on AHCI
-	depends on DM_SCSI
+config IDE
+	bool "Support IDE controllers"
 	help
-	  This option enables Ceva Sata controller hard IP available on Xilinx
-	  ZynqMP. Support up to 2 external devices. Complient with SATA 3.1 and
-	  AHCI 1.3 specifications with hot-plug detect feature.
-
-endmenu
+	  Enables support for IDE (Integrated Drive Electronics) hard drives.
+	  This allows access to raw blocks and filesystems on an IDE drive
+	  from U-Boot. See also CMD_IDE which provides an 'ide' command for
+	  performing various IDE operations.

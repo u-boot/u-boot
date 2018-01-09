@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <clk-uclass.h>
-#include <dm/device.h>
+#include <dm.h>
 #include <linux/io.h>
 #include <mach/at91_pmc.h>
 #include "pmc.h"
@@ -53,16 +53,17 @@ static ulong generic_clk_get_rate(struct clk *clk)
 	struct clk parent;
 	ulong clk_rate;
 	u32 tmp, gckdiv;
-	u8 parent_id;
+	u8 clock_source, parent_index;
 	int ret;
 
 	writel(clk->id & AT91_PMC_PCR_PID_MASK, &pmc->pcr);
 	tmp = readl(&pmc->pcr);
-	parent_id = (tmp >> AT91_PMC_PCR_GCKCSS_OFFSET) &
+	clock_source = (tmp >> AT91_PMC_PCR_GCKCSS_OFFSET) &
 		    AT91_PMC_PCR_GCKCSS_MASK;
 	gckdiv = (tmp >> AT91_PMC_PCR_GCKDIV_OFFSET) & AT91_PMC_PCR_GCKDIV_MASK;
 
-	ret = clk_get_by_index(dev_get_parent(clk->dev), parent_id, &parent);
+	parent_index = clock_source - 1;
+	ret = clk_get_by_index(dev_get_parent(clk->dev), parent_index, &parent);
 	if (ret)
 		return 0;
 
@@ -82,7 +83,7 @@ static ulong generic_clk_set_rate(struct clk *clk, ulong rate)
 	ulong tmp_rate, best_rate = rate, parent_rate;
 	int tmp_diff, best_diff = -1;
 	u32 div, best_div = 0;
-	u8 best_parent_id = 0;
+	u8 best_parent_index, best_clock_source = 0;
 	u8 i;
 	u32 tmp;
 	int ret;
@@ -98,9 +99,7 @@ static ulong generic_clk_set_rate(struct clk *clk, ulong rate)
 
 		for (div = 1; div < GENERATED_MAX_DIV + 2; div++) {
 			tmp_rate = DIV_ROUND_CLOSEST(parent_rate, div);
-			if (rate < tmp_rate)
-				continue;
-			tmp_diff = rate - tmp_rate;
+			tmp_diff = abs(rate - tmp_rate);
 
 			if (best_diff < 0 || best_diff > tmp_diff) {
 				best_rate = tmp_rate;
@@ -108,7 +107,8 @@ static ulong generic_clk_set_rate(struct clk *clk, ulong rate)
 
 				best_div = div - 1;
 				best_parent = parent;
-				best_parent_id = i;
+				best_parent_index = i;
+				best_clock_source = best_parent_index + 1;
 			}
 
 			if (!best_diff || tmp_rate < rate)
@@ -129,7 +129,7 @@ static ulong generic_clk_set_rate(struct clk *clk, ulong rate)
 	writel(clk->id & AT91_PMC_PCR_PID_MASK, &pmc->pcr);
 	tmp = readl(&pmc->pcr);
 	tmp &= ~(AT91_PMC_PCR_GCKDIV | AT91_PMC_PCR_GCKCSS);
-	tmp |= AT91_PMC_PCR_GCKCSS_(best_parent_id) |
+	tmp |= AT91_PMC_PCR_GCKCSS_(best_clock_source) |
 	       AT91_PMC_PCR_CMD_WRITE |
 	       AT91_PMC_PCR_GCKDIV_(best_div) |
 	       AT91_PMC_PCR_GCKEN;
@@ -154,9 +154,8 @@ static int generic_clk_ofdata_to_platdata(struct udevice *dev)
 	u32 num_parents;
 
 	num_parents = fdtdec_get_int_array_count(gd->fdt_blob,
-						 dev_get_parent(dev)->of_offset,
-						 "clocks", cells,
-						 GENERATED_SOURCE_MAX);
+			dev_of_offset(dev_get_parent(dev)), "clocks", cells,
+			GENERATED_SOURCE_MAX);
 
 	if (!num_parents)
 		return -1;

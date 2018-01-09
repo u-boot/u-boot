@@ -65,7 +65,7 @@
 	 */
 	i2c@7000c000 {
 		status = "okay";
-		clock-frequency = <100000>;
+		clock-frequency = <400000>;
 	};
 
 	/* GEN2_I2C: unused */
@@ -76,13 +76,13 @@
 	 */
 	i2c@7000c500 {
 		status = "okay";
-		clock-frequency = <100000>;
+		clock-frequency = <400000>;
 	};
 
 	/* DDC: I2C2_SDA/SCL on MXM3 pin 205/207 (e.g. display EDID) */
 	i2c@7000c700 {
 		status = "okay";
-		clock-frequency = <100000>;
+		clock-frequency = <10000>;
 	};
 
 	/*
@@ -331,4 +331,8 @@
 			regulator-always-on;
 		};
 	};
+};
+
+&uarta {
+	status = "okay";
 };

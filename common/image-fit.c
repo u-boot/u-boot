@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <mapmem.h>
 #include <asm/io.h>
+#include <malloc.h>
 DECLARE_GLOBAL_DATA_PTR;
 #endif /* !USE_HOSTCC*/
 
@@ -434,6 +435,10 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 			printf("0x%08lx\n", load);
 	}
 
+	/* optional load address for FDT */
+	if (type == IH_TYPE_FLATDT && !fit_image_get_load(fit, image_noffset, &load))
+		printf("%s  Load Address: 0x%08lx\n", p, load);
+
 	if ((type == IH_TYPE_KERNEL) || (type == IH_TYPE_STANDALONE) ||
 	    (type == IH_TYPE_RAMDISK)) {
 		ret = fit_image_get_entry(fit, image_noffset, &entry);
@@ -774,6 +779,79 @@ int fit_image_get_data(const void *fit, int noffset,
 	}
 
 	*size = len;
+	return 0;
+}
+
+/**
+ * Get 'data-offset' property from a given image node.
+ *
+ * @fit: pointer to the FIT image header
+ * @noffset: component image node offset
+ * @data_offset: holds the data-offset property
+ *
+ * returns:
+ *     0, on success
+ *     -ENOENT if the property could not be found
+ */
+int fit_image_get_data_offset(const void *fit, int noffset, int *data_offset)
+{
+	const fdt32_t *val;
+
+	val = fdt_getprop(fit, noffset, FIT_DATA_OFFSET_PROP, NULL);
+	if (!val)
+		return -ENOENT;
+
+	*data_offset = fdt32_to_cpu(*val);
+
+	return 0;
+}
+
+/**
+ * Get 'data-position' property from a given image node.
+ *
+ * @fit: pointer to the FIT image header
+ * @noffset: component image node offset
+ * @data_position: holds the data-position property
+ *
+ * returns:
+ *     0, on success
+ *     -ENOENT if the property could not be found
+ */
+int fit_image_get_data_position(const void *fit, int noffset,
+				int *data_position)
+{
+	const fdt32_t *val;
+
+	val = fdt_getprop(fit, noffset, FIT_DATA_POSITION_PROP, NULL);
+	if (!val)
+		return -ENOENT;
+
+	*data_position = fdt32_to_cpu(*val);
+
+	return 0;
+}
+
+/**
+ * Get 'data-size' property from a given image node.
+ *
+ * @fit: pointer to the FIT image header
+ * @noffset: component image node offset
+ * @data_size: holds the data-size property
+ *
+ * returns:
+ *     0, on success
+ *     -ENOENT if the property could not be found
+ */
+int fit_image_get_data_size(const void *fit, int noffset, int *data_size)
+{
+	const fdt32_t *val;
+
+	val = fdt_getprop(fit, noffset, FIT_DATA_SIZE_PROP, NULL);
+	if (!val)
+		return -ENOENT;
+
+	*data_size = fdt32_to_cpu(*val);
+
 	return 0;
 }
 
@@ -1406,6 +1484,8 @@ int fit_conf_get_node(const void *fit, const char *conf_uname)
 {
 	int noffset, confs_noffset;
 	int len;
+	const char *s;
+	char *conf_uname_copy = NULL;
 
 	confs_noffset = fdt_path_offset(fit, FIT_CONFS_PATH);
 	if (confs_noffset < 0) {
@@ -1427,27 +1507,56 @@ int fit_conf_get_node(const void *fit, const char *conf_uname)
 		debug("Found default configuration: '%s'\n", conf_uname);
 	}
 
+	s = strchr(conf_uname, '#');
+	if (s) {
+		len = s - conf_uname;
+		conf_uname_copy = malloc(len + 1);
+		if (!conf_uname_copy) {
+			debug("Can't allocate uname copy: '%s'\n",
+					conf_uname);
+			return -ENOMEM;
+		}
+		memcpy(conf_uname_copy, conf_uname, len);
+		conf_uname_copy[len] = '\0';
+		conf_uname = conf_uname_copy;
+	}
+
 	noffset = fdt_subnode_offset(fit, confs_noffset, conf_uname);
 	if (noffset < 0) {
 		debug("Can't get node offset for configuration unit name: '%s' (%s)\n",
 		      conf_uname, fdt_strerror(noffset));
 	}
 
+	if (conf_uname_copy)
+		free(conf_uname_copy);
+
 	return noffset;
+}
+
+int fit_conf_get_prop_node_count(const void *fit, int noffset,
+		const char *prop_name)
+{
+	return fdt_stringlist_count(fit, noffset, prop_name);
+}
+
+int fit_conf_get_prop_node_index(const void *fit, int noffset,
+		const char *prop_name, int index)
+{
+	const char *uname;
+	int len;
+
+	/* get kernel image unit name from configuration kernel property */
+	uname = fdt_stringlist_get(fit, noffset, prop_name, index, &len);
+	if (uname == NULL)
+		return len;
+
+	return fit_image_get_node(fit, uname);
 }
 
 int fit_conf_get_prop_node(const void *fit, int noffset,
 		const char *prop_name)
 {
-	char *uname;
-	int len;
-
-	/* get kernel image unit name from configuration kernel property */
-	uname = (char *)fdt_getprop(fit, noffset, prop_name, &len);
-	if (uname == NULL)
-		return len;
-
-	return fit_image_get_node(fit, uname);
+	return fit_conf_get_prop_node_index(fit, noffset, prop_name, 0);
 }
 
 /**
@@ -1467,7 +1576,7 @@ void fit_conf_print(const void *fit, int noffset, const char *p)
 	char *desc;
 	const char *uname;
 	int ret;
-	int loadables_index;
+	int fdt_index, loadables_index;
 
 	/* Mandatory properties */
 	ret = fit_get_desc(fit, noffset, &desc);
@@ -1489,9 +1598,17 @@ void fit_conf_print(const void *fit, int noffset, const char *p)
 	if (uname)
 		printf("%s  Init Ramdisk: %s\n", p, uname);
 
-	uname = fdt_getprop(fit, noffset, FIT_FDT_PROP, NULL);
-	if (uname)
-		printf("%s  FDT:          %s\n", p, uname);
+	for (fdt_index = 0;
+	     uname = fdt_stringlist_get(fit, noffset, FIT_FDT_PROP,
+					fdt_index, NULL), uname;
+	     fdt_index++) {
+
+		if (fdt_index == 0)
+			printf("%s  FDT:          ", p);
+		else
+			printf("%s                ", p);
+		printf("%s\n", uname);
+	}
 
 	uname = fdt_getprop(fit, noffset, FIT_FPGA_PROP, NULL);
 	if (uname)
@@ -1593,6 +1710,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	int cfg_noffset, noffset;
 	const char *fit_uname;
 	const char *fit_uname_config;
+	const char *fit_base_uname_config;
 	const void *fit;
 	const void *buf;
 	size_t size;
@@ -1608,6 +1726,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	fit = map_sysmem(addr, 0);
 	fit_uname = fit_unamep ? *fit_unamep : NULL;
 	fit_uname_config = fit_uname_configp ? *fit_uname_configp : NULL;
+	fit_base_uname_config = NULL;
 	prop_name = fit_get_image_type_property(image_type);
 	printf("## Loading %s from FIT Image at %08lx ...\n", prop_name, addr);
 
@@ -1641,11 +1760,11 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 					BOOTSTAGE_SUB_NO_UNIT_NAME);
 			return -ENOENT;
 		}
-		fit_uname_config = fdt_get_name(fit, cfg_noffset, NULL);
-		printf("   Using '%s' configuration\n", fit_uname_config);
+		fit_base_uname_config = fdt_get_name(fit, cfg_noffset, NULL);
+		printf("   Using '%s' configuration\n", fit_base_uname_config);
 		if (image_type == IH_TYPE_KERNEL) {
 			/* Remember (and possibly verify) this config */
-			images->fit_uname_cfg = fit_uname_config;
+			images->fit_uname_cfg = fit_base_uname_config;
 			if (IMAGE_ENABLE_VERIFY && images->verify) {
 				puts("   Verifying Hash Integrity ... ");
 				if (fit_config_verify(fit, cfg_noffset)) {
@@ -1801,7 +1920,8 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	if (fit_unamep)
 		*fit_unamep = (char *)fit_uname;
 	if (fit_uname_configp)
-		*fit_uname_configp = (char *)fit_uname_config;
+		*fit_uname_configp = (char *)(fit_uname_config ? :
+					      fit_base_uname_config);
 
 	return noffset;
 }
@@ -1825,3 +1945,144 @@ int boot_get_setup_fit(bootm_headers_t *images, uint8_t arch,
 
 	return ret;
 }
+
+#ifndef USE_HOSTCC
+int boot_get_fdt_fit(bootm_headers_t *images, ulong addr,
+		   const char **fit_unamep, const char **fit_uname_configp,
+		   int arch, ulong *datap, ulong *lenp)
+{
+	int fdt_noffset, cfg_noffset, count;
+	const void *fit;
+	const char *fit_uname = NULL;
+	const char *fit_uname_config = NULL;
+	char *fit_uname_config_copy = NULL;
+	char *next_config = NULL;
+	ulong load, len;
+#ifdef CONFIG_OF_LIBFDT_OVERLAY
+	ulong image_start, image_end;
+	ulong ovload, ovlen;
+	const char *uconfig;
+	const char *uname;
+	void *base, *ov;
+	int i, err, noffset, ov_noffset;
+#endif
+
+	fit_uname = fit_unamep ? *fit_unamep : NULL;
+
+	if (fit_uname_configp && *fit_uname_configp) {
+		fit_uname_config_copy = strdup(*fit_uname_configp);
+		if (!fit_uname_config_copy)
+			return -ENOMEM;
+
+		next_config = strchr(fit_uname_config_copy, '#');
+		if (next_config)
+			*next_config++ = '\0';
+		if (next_config - 1 > fit_uname_config_copy)
+			fit_uname_config = fit_uname_config_copy;
+	}
+
+	fdt_noffset = fit_image_load(images,
+		addr, &fit_uname, &fit_uname_config,
+		arch, IH_TYPE_FLATDT,
+		BOOTSTAGE_ID_FIT_FDT_START,
+		FIT_LOAD_OPTIONAL, &load, &len);
+
+	if (fdt_noffset < 0)
+		goto out;
+
+	debug("fit_uname=%s, fit_uname_config=%s\n",
+			fit_uname ? fit_uname : "<NULL>",
+			fit_uname_config ? fit_uname_config : "<NULL>");
+
+	fit = map_sysmem(addr, 0);
+
+	cfg_noffset = fit_conf_get_node(fit, fit_uname_config);
+
+	/* single blob, or error just return as well */
+	count = fit_conf_get_prop_node_count(fit, cfg_noffset, FIT_FDT_PROP);
+	if (count <= 1 && !next_config)
+		goto out;
+
+	/* we need to apply overlays */
+
+#ifdef CONFIG_OF_LIBFDT_OVERLAY
+	image_start = addr;
+	image_end = addr + fit_get_size(fit);
+	/* verify that relocation took place by load address not being in fit */
+	if (load >= image_start && load < image_end) {
+		/* check is simplified; fit load checks for overlaps */
+		printf("Overlayed FDT requires relocation\n");
+		fdt_noffset = -EBADF;
+		goto out;
+	}
+
+	base = map_sysmem(load, len);
+
+	/* apply extra configs in FIT first, followed by args */
+	for (i = 1; ; i++) {
+		if (i < count) {
+			noffset = fit_conf_get_prop_node_index(fit, cfg_noffset,
+							       FIT_FDT_PROP, i);
+			uname = fit_get_name(fit, noffset, NULL);
+			uconfig = NULL;
+		} else {
+			if (!next_config)
+				break;
+			uconfig = next_config;
+			next_config = strchr(next_config, '#');
+			if (next_config)
+				*next_config++ = '\0';
+			uname = NULL;
+		}
+
+		debug("%d: using uname=%s uconfig=%s\n", i, uname, uconfig);
+
+		ov_noffset = fit_image_load(images,
+			addr, &uname, &uconfig,
+			arch, IH_TYPE_FLATDT,
+			BOOTSTAGE_ID_FIT_FDT_START,
+			FIT_LOAD_REQUIRED, &ovload, &ovlen);
+		if (ov_noffset < 0) {
+			printf("load of %s failed\n", uname);
+			continue;
+		}
+		debug("%s loaded at 0x%08lx len=0x%08lx\n",
+				uname, ovload, ovlen);
+		ov = map_sysmem(ovload, ovlen);
+
+		base = map_sysmem(load, len + ovlen);
+		err = fdt_open_into(base, base, len + ovlen);
+		if (err < 0) {
+			printf("failed on fdt_open_into\n");
+			fdt_noffset = err;
+			goto out;
+		}
+		/* the verbose method prints out messages on error */
+		err = fdt_overlay_apply_verbose(base, ov);
+		if (err < 0) {
+			fdt_noffset = err;
+			goto out;
+		}
+		fdt_pack(base);
+		len = fdt_totalsize(base);
+	}
+#else
+	printf("config with overlays but CONFIG_OF_LIBFDT_OVERLAY not set\n");
+	fdt_noffset = -EBADF;
+#endif
+
+out:
+	if (datap)
+		*datap = load;
+	if (lenp)
+		*lenp = len;
+	if (fit_unamep)
+		*fit_unamep = fit_uname;
+	if (fit_uname_configp)
+		*fit_uname_configp = fit_uname_config;
+
+	if (fit_uname_config_copy)
+		free(fit_uname_config_copy);
+	return fdt_noffset;
+}
+#endif

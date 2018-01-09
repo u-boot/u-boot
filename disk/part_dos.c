@@ -44,7 +44,7 @@ static inline int is_extended(int part_type)
 
 static inline int is_bootable(dos_partition_t *p)
 {
-	return p->boot_ind == 0x80;
+	return (p->sys_ind == 0xef) || (p->boot_ind == 0x80);
 }
 
 static void print_one_part(dos_partition_t *p, lbaint_t ext_part_sector,
@@ -89,6 +89,21 @@ static int test_block_type(unsigned char *buffer)
 
 static int part_test_dos(struct blk_desc *dev_desc)
 {
+#ifndef CONFIG_SPL_BUILD
+	ALLOC_CACHE_ALIGN_BUFFER(legacy_mbr, mbr, dev_desc->blksz);
+
+	if (blk_dread(dev_desc, 0, 1, (ulong *)mbr) != 1)
+		return -1;
+
+	if (test_block_type((unsigned char *)mbr) != DOS_MBR)
+		return -1;
+
+	if (dev_desc->sig_type == SIG_TYPE_NONE &&
+	    mbr->unique_mbr_signature != 0) {
+		dev_desc->sig_type = SIG_TYPE_MBR;
+		dev_desc->mbr_sig = mbr->unique_mbr_signature;
+	}
+#else
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 
 	if (blk_dread(dev_desc, 0, 1, (ulong *)buffer) != 1)
@@ -96,6 +111,7 @@ static int part_test_dos(struct blk_desc *dev_desc)
 
 	if (test_block_type(buffer) != DOS_MBR)
 		return -1;
+#endif
 
 	return 0;
 }
@@ -189,7 +205,7 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 		return -1;
 	}
 
-#ifdef CONFIG_PARTITION_UUIDS
+#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 	if (!ext_part_sector)
 		disksig = le32_to_int(&buffer[DOS_PART_DISKSIG_OFFSET]);
 #endif
@@ -204,7 +220,7 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 		if (((pt->boot_ind & ~0x80) == 0) &&
 		    (pt->sys_ind != 0) &&
 		    (part_num == which_part) &&
-		    (is_extended(pt->sys_ind) == 0)) {
+		    (ext_part_sector == 0 || is_extended(pt->sys_ind) == 0)) {
 			info->blksz = DOS_PART_DEFAULT_SECTOR;
 			info->start = (lbaint_t)(ext_part_sector +
 					le32_to_int(pt->start4));
@@ -214,9 +230,10 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 			/* sprintf(info->type, "%d, pt->sys_ind); */
 			strcpy((char *)info->type, "U-Boot");
 			info->bootable = is_bootable(pt);
-#ifdef CONFIG_PARTITION_UUIDS
+#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 			sprintf(info->uuid, "%08x-%02x", disksig, part_num);
 #endif
+			info->sys_ind = pt->sys_ind;
 			return 0;
 		}
 
@@ -249,7 +266,7 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 		info->blksz = DOS_PART_DEFAULT_SECTOR;
 		info->bootable = 0;
 		strcpy((char *)info->type, "U-Boot");
-#ifdef CONFIG_PARTITION_UUIDS
+#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 		info->uuid[0] = 0;
 #endif
 		return 0;

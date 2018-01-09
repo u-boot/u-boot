@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <usb.h>
+#include <power/regulator.h>
 #include <asm/gpio.h>
 
 #include "xhci.h"
@@ -34,7 +35,7 @@ struct mvebu_xhci {
  * Dummy implementation that can be overwritten by a board
  * specific function
  */
-__weak int board_xhci_enable(void)
+__weak int board_xhci_enable(fdt_addr_t base)
 {
 	return 0;
 }
@@ -44,14 +45,24 @@ static int xhci_usb_probe(struct udevice *dev)
 	struct mvebu_xhci_platdata *plat = dev_get_platdata(dev);
 	struct mvebu_xhci *ctx = dev_get_priv(dev);
 	struct xhci_hcor *hcor;
-	int len;
+	int len, ret;
+	struct udevice *regulator;
 
 	ctx->hcd = (struct xhci_hccr *)plat->hcd_base;
 	len = HC_LENGTH(xhci_readl(&ctx->hcd->cr_capbase));
 	hcor = (struct xhci_hcor *)((uintptr_t)ctx->hcd + len);
 
+	ret = device_get_supply_regulator(dev, "vbus-supply", &regulator);
+	if (!ret) {
+		ret = regulator_set_enable(regulator, true);
+		if (ret) {
+			printf("Failed to turn ON the VBUS regulator\n");
+			return ret;
+		}
+	}
+
 	/* Enable USB xHCI (VBUS, reset etc) in board specific code */
-	board_xhci_enable();
+	board_xhci_enable(devfdt_get_addr_index(dev, 1));
 
 	return xhci_register(dev, ctx->hcd, hcor);
 }
@@ -63,7 +74,7 @@ static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
 	/*
 	 * Get the base address for XHCI controller from the device node
 	 */
-	plat->hcd_base = dev_get_addr(dev);
+	plat->hcd_base = devfdt_get_addr(dev);
 	if (plat->hcd_base == FDT_ADDR_T_NONE) {
 		debug("Can't get the XHCI register base address\n");
 		return -ENXIO;
@@ -74,6 +85,7 @@ static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
 
 static const struct udevice_id xhci_usb_ids[] = {
 	{ .compatible = "marvell,armada3700-xhci" },
+	{ .compatible = "marvell,armada-380-xhci" },
 	{ .compatible = "marvell,armada-8k-xhci" },
 	{ }
 };

@@ -60,8 +60,9 @@ static int sb_eth_start(struct udevice *dev)
 
 	debug("eth_sandbox: Start\n");
 
-	fdtdec_get_byte_array(gd->fdt_blob, dev->of_offset, "fake-host-hwaddr",
-			      priv->fake_host_hwaddr, ARP_HLEN);
+	fdtdec_get_byte_array(gd->fdt_blob, dev_of_offset(dev),
+			      "fake-host-hwaddr", priv->fake_host_hwaddr,
+			      ARP_HLEN);
 	priv->recv_packet_buffer = net_rx_packets[0];
 	return 0;
 }
@@ -204,7 +205,7 @@ static int sb_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 
-	pdata->iobase = dev_get_addr(dev);
+	pdata->iobase = devfdt_get_addr(dev);
 	return 0;
 }
 

@@ -15,29 +15,14 @@
 #include <common.h>
 #include <asm/io.h>
 
-#if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
+#if defined(CONFIG_POST)
 
 #ifndef CONFIG_POST_EXTERNAL_WORD_FUNCS
 #ifdef CONFIG_SYS_POST_WORD_ADDR
 #define _POST_WORD_ADDR	CONFIG_SYS_POST_WORD_ADDR
 #else
 
-#ifdef CONFIG_MPC5xxx
-#define _POST_WORD_ADDR	(MPC5XXX_SRAM + MPC5XXX_SRAM_POST_SIZE)
-
-#elif defined(CONFIG_MPC512X)
-#define _POST_WORD_ADDR \
-	(CONFIG_SYS_SRAM_BASE + CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
-
-#elif defined(CONFIG_8xx)
-#define _POST_WORD_ADDR \
-	(((immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_dpmem + CPM_POST_WORD_ADDR)
-
-#elif defined(CONFIG_MPC8260)
-#include <asm/cpm_8260.h>
-#define _POST_WORD_ADDR	(CONFIG_SYS_IMMR + CPM_POST_WORD_ADDR)
-
-#elif defined(CONFIG_MPC8360)
+#if defined(CONFIG_MPC8360)
 #include <linux/immap_qe.h>
 #define _POST_WORD_ADDR	(CONFIG_SYS_IMMR + CPM_POST_WORD_ADDR)
 
@@ -50,10 +35,6 @@
 #include <asm/immap_86xx.h>
 #define _POST_WORD_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC86xx_PIC_OFFSET + \
 				offsetof(ccsr_pic_t, tfrr))
-
-#elif defined (CONFIG_4xx)
-#define _POST_WORD_ADDR \
-	(CONFIG_SYS_OCM_DATA_ADDR + CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
 #endif
 
 #ifndef _POST_WORD_ADDR
@@ -77,7 +58,7 @@ extern ulong post_word_load(void);
 extern void post_word_store(ulong value);
 
 #endif /* CONFIG_POST_EXTERNAL_WORD_FUNCS */
-#endif /* defined (CONFIG_POST) || defined(CONFIG_LOGBUFFER) */
+#endif /* defined (CONFIG_POST) */
 #endif /* __ASSEMBLY__ */
 
 #ifdef CONFIG_POST
@@ -164,7 +145,6 @@ extern int memory_post_test(int flags);
 #define CONFIG_SYS_POST_CACHE		0x00000020
 #define CONFIG_SYS_POST_UART		0x00000040
 #define CONFIG_SYS_POST_ETHER		0x00000080
-#define CONFIG_SYS_POST_SPI		0x00000100
 #define CONFIG_SYS_POST_USB		0x00000200
 #define CONFIG_SYS_POST_SPR		0x00000400
 #define CONFIG_SYS_POST_SYSMON		0x00000800

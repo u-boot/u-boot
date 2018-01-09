@@ -18,7 +18,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <linux/errno.h>
-#include <asm/imx-common/mxc_i2c.h>
+#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/io.h>
 #include <i2c.h>
 #include <watchdog.h>
@@ -67,10 +67,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define I2CR_IEN	(1 << 7)
 #define I2CR_IDIS	(0 << 7)
 #define I2SR_IIF_CLEAR	(0 << 1)
-#endif
-
-#if defined(CONFIG_HARD_I2C) && !defined(CONFIG_SYS_I2C_BASE)
-#error "define CONFIG_SYS_I2C_BASE to use the mxc_i2c driver"
 #endif
 
 #ifdef I2C_QUIRK_REG
@@ -180,7 +176,7 @@ static int bus_i2c_set_bus_speed(struct mxc_i2c_bus *i2c_bus, int speed)
 	int reg_shift = quirk ? VF610_I2C_REGSHIFT : IMX_I2C_REGSHIFT;
 
 	if (!base)
-		return -ENODEV;
+		return -EINVAL;
 
 	/* Store divider value */
 	writeb(idx, base + (IFDR << reg_shift));
@@ -243,7 +239,7 @@ static int tx_byte(struct mxc_i2c_bus *i2c_bus, u8 byte)
 	if (ret < 0)
 		return ret;
 	if (ret & I2SR_RX_NO_AK)
-		return -ENODEV;
+		return -EREMOTEIO;
 	return 0;
 }
 
@@ -321,16 +317,19 @@ static int i2c_init_transfer_(struct mxc_i2c_bus *i2c_bus, u8 chip,
 	temp |= I2CR_MTX | I2CR_TX_NO_AK;
 	writeb(temp, base + (I2CR << reg_shift));
 
-	/* write slave address */
-	ret = tx_byte(i2c_bus, chip << 1);
-	if (ret < 0)
-		return ret;
-
-	while (alen--) {
-		ret = tx_byte(i2c_bus, (addr >> (alen * 8)) & 0xff);
+	if (alen >= 0)	{
+		/* write slave address */
+		ret = tx_byte(i2c_bus, chip << 1);
 		if (ret < 0)
 			return ret;
+
+		while (alen--) {
+			ret = tx_byte(i2c_bus, (addr >> (alen * 8)) & 0xff);
+			if (ret < 0)
+				return ret;
+		}
 	}
+
 	return 0;
 }
 
@@ -422,14 +421,14 @@ static int i2c_init_transfer(struct mxc_i2c_bus *i2c_bus, u8 chip,
 			VF610_I2C_REGSHIFT : IMX_I2C_REGSHIFT;
 
 	if (!i2c_bus->base)
-		return -ENODEV;
+		return -EINVAL;
 
 	for (retry = 0; retry < 3; retry++) {
 		ret = i2c_init_transfer_(i2c_bus, chip, addr, alen);
 		if (ret >= 0)
 			return 0;
 		i2c_imx_stop(i2c_bus);
-		if (ret == -ENODEV)
+		if (ret == -EREMOTEIO)
 			return ret;
 
 		printf("%s: failed for chip 0x%x retry=%d\n", __func__, chip,
@@ -541,9 +540,11 @@ static int bus_i2c_read(struct mxc_i2c_bus *i2c_bus, u8 chip, u32 addr,
 	if (ret < 0)
 		return ret;
 
-	temp = readb(base + (I2CR << reg_shift));
-	temp |= I2CR_RSTA;
-	writeb(temp, base + (I2CR << reg_shift));
+	if (alen >= 0) {
+		temp = readb(base + (I2CR << reg_shift));
+		temp |= I2CR_RSTA;
+		writeb(temp, base + (I2CR << reg_shift));
+	}
 
 	ret = tx_byte(i2c_bus, (chip << 1) | 1);
 	if (ret < 0) {
@@ -589,7 +590,7 @@ static int bus_i2c_write(struct mxc_i2c_bus *i2c_bus, u8 chip, u32 addr,
 #endif
 
 static struct mxc_i2c_bus mxc_i2c_buses[] = {
-#if defined(CONFIG_LS102XA) || defined(CONFIG_VF610) || \
+#if defined(CONFIG_ARCH_LS1021A) || defined(CONFIG_VF610) || \
 	defined(CONFIG_FSL_LAYERSCAPE)
 	{ 0, I2C1_BASE_ADDR, I2C_QUIRK_FLAG },
 	{ 1, I2C2_BASE_ADDR, I2C_QUIRK_FLAG },
@@ -750,15 +751,15 @@ static int mxc_i2c_probe(struct udevice *bus)
 {
 	struct mxc_i2c_bus *i2c_bus = dev_get_priv(bus);
 	const void *fdt = gd->fdt_blob;
-	int node = bus->of_offset;
+	int node = dev_of_offset(bus);
 	fdt_addr_t addr;
 	int ret, ret2;
 
 	i2c_bus->driver_data = dev_get_driver_data(bus);
 
-	addr = dev_get_addr(bus);
+	addr = devfdt_get_addr(bus);
 	if (addr == FDT_ADDR_T_NONE)
-		return -ENODEV;
+		return -EINVAL;
 
 	i2c_bus->base = addr;
 	i2c_bus->index = bus->seq;
@@ -777,17 +778,17 @@ static int mxc_i2c_probe(struct udevice *bus)
 	if (ret < 0) {
 		debug("i2c bus %d at 0x%2lx, no gpio pinctrl state.\n", bus->seq, i2c_bus->base);
 	} else {
-		ret = gpio_request_by_name_nodev(fdt, node, "scl-gpios",
-						 0, &i2c_bus->scl_gpio,
-						 GPIOD_IS_OUT);
-		ret2 = gpio_request_by_name_nodev(fdt, node, "sda-gpios",
-						 0, &i2c_bus->sda_gpio,
-						 GPIOD_IS_OUT);
+		ret = gpio_request_by_name_nodev(offset_to_ofnode(node),
+				"scl-gpios", 0, &i2c_bus->scl_gpio,
+				GPIOD_IS_OUT);
+		ret2 = gpio_request_by_name_nodev(offset_to_ofnode(node),
+				"sda-gpios", 0, &i2c_bus->sda_gpio,
+				GPIOD_IS_OUT);
 		if (!dm_gpio_is_valid(&i2c_bus->sda_gpio) |
 		    !dm_gpio_is_valid(&i2c_bus->scl_gpio) |
 		    ret | ret2) {
 			dev_err(dev, "i2c bus %d at %lu, fail to request scl/sda gpio\n", bus->seq, i2c_bus->base);
-			return -ENODEV;
+			return -EINVAL;
 		}
 	}
 

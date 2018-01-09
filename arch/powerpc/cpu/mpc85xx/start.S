@@ -1145,8 +1145,9 @@ switch_as:
 	li	r0,0
 1:
 	dcbz	r0,r3
-#ifdef CONFIG_E6500	/* Lock/unlock L2 cache instead of L1 */
+#ifdef CONFIG_E6500	/* Lock/unlock L2 cache long with L1 */
 	dcbtls	2, r0, r3
+	dcbtls	0, r0, r3
 #else
 	dcbtls	0, r0, r3
 #endif
@@ -1182,14 +1183,13 @@ _start_cont:
 	lis	r3,(CONFIG_SYS_INIT_RAM_ADDR)@h
 	ori	r3,r3,((CONFIG_SYS_INIT_SP_OFFSET-16)&~0xf)@l /* Align to 16 */
 
-#ifdef CONFIG_SYS_MALLOC_F_LEN
-
-#if CONFIG_SYS_MALLOC_F_LEN + GENERATED_GBL_DATA_SIZE > CONFIG_SYS_INIT_RAM_SIZE
-#error "CONFIG_SYS_MALLOC_F_LEN too large to fit into initial RAM."
+#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_VAL(SYS_MALLOC_F_LEN) + GENERATED_GBL_DATA_SIZE > CONFIG_SYS_INIT_RAM_SIZE
+#error "SYS_MALLOC_F_LEN too large to fit into initial RAM."
 #endif
 
 	/* Leave 16+ byte for back chain termination and NULL return address */
-	subi	r3,r3,((CONFIG_SYS_MALLOC_F_LEN+16+15)&~0xf)
+	subi	r3,r3,((CONFIG_VAL(SYS_MALLOC_F_LEN)+16+15)&~0xf)
 #endif
 
 	/* End of RAM */
@@ -1203,7 +1203,7 @@ _start_cont:
 	cmplw 	r4,r3
 	bne	1b
 
-#ifdef CONFIG_SYS_MALLOC_F_LEN
+#if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	lis	r4,(CONFIG_SYS_INIT_RAM_ADDR)@h
 	ori	r4,r4,(CONFIG_SYS_GBL_DATA_OFFSET)@l
 
@@ -1373,8 +1373,8 @@ icache_enable:
 	mtlr	r8
 	isync
 	mfspr	r4,L1CSR1
-	ori	r4,r4,0x0001
-	oris	r4,r4,0x0001
+	ori	r4,r4,(L1CSR1_CPE | L1CSR1_ICE)@l
+	oris	r4,r4,(L1CSR1_CPE | L1CSR1_ICE)@h
 	mtspr	L1CSR1,r4
 	isync
 	blr
@@ -1402,8 +1402,8 @@ dcache_enable:
 	mtlr	r8
 	isync
 	mfspr	r0,L1CSR0
-	ori	r0,r0,0x0001
-	oris	r0,r0,0x0001
+	ori	r0,r0,(L1CSR0_CPE |  L1CSR0_DCE)@l
+	oris	r0,r0,(L1CSR0_CPE |  L1CSR0_DCE)@h
 	msync
 	isync
 	mtspr	L1CSR0,r0
@@ -1424,16 +1424,6 @@ dcache_disable:
 dcache_status:
 	mfspr	r3,L1CSR0
 	andi.	r3,r3,L1CSR0_DCE
-	blr
-
-	.globl get_pvr
-get_pvr:
-	mfspr	r3,PVR
-	blr
-
-	.globl get_svr
-get_svr:
-	mfspr	r3,SVR
 	blr
 
 /*------------------------------------------------------------------------------- */
@@ -1790,8 +1780,9 @@ unlock_ram_in_cache:
 	slwi	r4,r4,(10 - 1 - L1_CACHE_SHIFT)
 	mtctr	r4
 1:	dcbi	r0,r3
-#ifdef CONFIG_E6500	/* lock/unlock L2 cache instead of L1 */
+#ifdef CONFIG_E6500	/* lock/unlock L2 cache long with L1 */
 	dcblc	2, r0, r3
+	dcblc	0, r0, r3
 #else
 	dcblc	r0,r3
 #endif

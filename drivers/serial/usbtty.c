@@ -525,10 +525,10 @@ int drv_usbtty_init (void)
 	char * tt;
 	int snlen;
 
-	/* Ger seiral number */
-	if (!(sn = getenv("serial#"))) {
+	/* Get serial number */
+	sn = env_get("serial#");
+	if (!sn)
 		sn = "000000000000";
-	}
 	snlen = strlen(sn);
 	if (snlen > sizeof(serial_number) - 1) {
 		printf ("Warning: serial number %s is too long (%d > %lu)\n",
@@ -540,10 +540,9 @@ int drv_usbtty_init (void)
 
 	/* Decide on which type of UDC device to be.
 	 */
-
-	if(!(tt = getenv("usbtty"))) {
+	tt = env_get("usbtty");
+	if (!tt)
 		tt = "generic";
-	}
 	usbtty_init_terminal_type(strcmp(tt,"cdc_acm"));
 
 	/* prepare buffers... */
@@ -850,6 +849,13 @@ static int write_buffer (circbuf_t * buf)
 	struct urb *current_urb = NULL;
 
 	current_urb = next_urb (device_instance, endpoint);
+
+	if (!current_urb) {
+		TTYERR ("current_urb is NULL, buf->size %d\n",
+		buf->size);
+		return 0;
+	}
+
 	/* TX data still exists - send it now
 	 */
 	if(endpoint->sent < current_urb->actual_length){
@@ -870,12 +876,6 @@ static int write_buffer (circbuf_t * buf)
 		 * and link each to the endpoint
 		 */
 		while (buf->size > 0) {
-
-			if (!current_urb) {
-				TTYERR ("current_urb is NULL, buf->size %d\n",
-					buf->size);
-				return total;
-			}
 
 			dest = (char*)current_urb->buffer +
 				current_urb->actual_length;

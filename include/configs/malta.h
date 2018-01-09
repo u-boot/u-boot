@@ -11,7 +11,6 @@
  * System configuration
  */
 #define CONFIG_MALTA
-#define CONFIG_BOARD_EARLY_INIT_F
 
 #define CONFIG_MEMSIZE_IN_BYTES
 
@@ -53,18 +52,12 @@
 #define CONFIG_SYS_BOOTPARAMS_LEN	(128 * 1024)
 #define CONFIG_SYS_BOOTM_LEN		(64 * 1024 * 1024)
 
-#define CONFIG_SYS_CBSIZE		256
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					 sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS		16
-
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
 
 /*
  * Serial driver
  */
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_NS16550_PORT_MAPPED
 
 /*
@@ -84,7 +77,6 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE		0x20000
 #define CONFIG_ENV_SIZE			CONFIG_ENV_SECT_SIZE
 #define CONFIG_ENV_ADDR \
@@ -103,9 +95,6 @@
 /*
  * Commands
  */
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_IDE
-#define CONFIG_CMD_PCI
 
 #define CONFIG_SYS_LONGHELP		/* verbose help, undef to save memory */
 

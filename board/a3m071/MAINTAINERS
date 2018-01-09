@@ -1,7 +1,0 @@
-A3M071 BOARD
-M:	Stefan Roese <sr@denx.de>
-S:	Maintained
-F:	board/a3m071/
-F:	include/configs/a3m071.h
-F:	configs/a3m071_defconfig
-F:	configs/a4m2k_defconfig

@@ -10,6 +10,9 @@ fsinfo  - print information about file systems
 ls      - list files in a directory
 chpart  - change active partition
 
+If you do now need the commands, you can enable the filesystem separately
+with CONFIG_FS_JFFS2 and call the jffs2 functions yourself.
+
 If you boot from a partition which is mounted writable, and you
 update your boot environment by replacing single files on that
 partition, you should also define CONFIG_SYS_JFFS2_SORT_FRAGMENTS. Scanning

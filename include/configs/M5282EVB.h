@@ -21,7 +21,6 @@
 
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
-#define CONFIG_BAUDRATE		115200
 
 #undef	CONFIG_MONITOR_IS_IN_RAM	/* define if monitor is started from a pre-loader */
 
@@ -30,11 +29,10 @@
  */
 #define CONFIG_ENV_ADDR		0xffe04000
 #define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_ENV_IS_IN_FLASH	1
 
 #define LDS_BOARD_TEXT \
 	. = DEFINED(env_offset) ? env_offset : .; \
-	common/env_embedded.o (.text*);
+	env/embedded.o(.text*);
 
 /*
  * BOOTP options
@@ -91,15 +89,6 @@
 	""
 
 #define	CONFIG_SYS_LONGHELP		/* undef to save memory         */
-
-#if defined(CONFIG_CMD_KGDB)
-#define	CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size      */
-#else
-#define	CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size      */
-#endif
-#define	CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
-#define	CONFIG_SYS_MAXARGS		16	/* max number of command args   */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size    */
 
 #define CONFIG_SYS_LOAD_ADDR		0x20000
 

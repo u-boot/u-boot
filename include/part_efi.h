@@ -27,7 +27,7 @@
 #define GPT_HEADER_SIGNATURE 0x5452415020494645ULL
 #define GPT_HEADER_REVISION_V1 0x00010000
 #define GPT_PRIMARY_PARTITION_TABLE_LBA 1ULL
-#define GPT_ENTRY_NUMBERS		128
+#define GPT_ENTRY_NUMBERS		CONFIG_EFI_PARTITION_ENTRIES_NUMBERS
 #define GPT_ENTRY_SIZE			128
 
 #define PARTITION_SYSTEM_GUID \
@@ -57,10 +57,6 @@
 
 /* linux/include/efi.h */
 typedef u16 efi_char16_t;
-
-typedef struct {
-	u8 b[16];
-} efi_guid_t;
 
 /* based on linux/include/genhd.h */
 struct partition {

@@ -18,8 +18,6 @@
 
 #include "rcar-gen2-common.h"
 
-/* #define CONFIG_BOARD_LATE_INIT */
-
 #if defined(CONFIG_ARCH_RMOBILE_EXTRAM_BOOT)
 #define CONFIG_SYS_TEXT_BASE	0xB0000000
 #else
@@ -42,14 +40,12 @@
 #define RCAR_GEN2_UBOOT_SDRAM_SIZE	(512 * 1024 * 1024)
 
 /* SCIF */
-#define CONFIG_SCIF_CONSOLE
 #define CONFIG_SCIF_A
 
 /* SPI */
 #define CONFIG_SPI
 #define CONFIG_SH_QSPI
 #define CONFIG_SPI_FLASH_QUAD
-#define CONFIG_SYS_NO_FLASH
 
 /* SH Ether */
 #define CONFIG_SH_ETHER
@@ -59,8 +55,6 @@
 #define CONFIG_SH_ETHER_ALIGNE_SIZE	64
 #define CONFIG_SH_ETHER_CACHE_WRITEBACK
 #define CONFIG_SH_ETHER_CACHE_INVALIDATE
-#define CONFIG_PHYLIB
-#define CONFIG_PHY_MICREL
 #define CONFIG_BITBANGMII
 #define CONFIG_BITBANGMII_MULTI
 
@@ -87,12 +81,8 @@
 #define CONFIG_SYS_TMU_CLK_DIV	4
 
 /* USB */
-#define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_RMOBILE
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	3
-
-/* MMC */
-#define CONFIG_GENERIC_MMC
 
 /* Module stop status bits */
 /* INTC-RT */

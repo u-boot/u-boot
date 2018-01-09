@@ -10,7 +10,6 @@
 #include <cros_ec.h>
 #include <dm.h>
 #include <errno.h>
-#include <fdtdec.h>
 #include <input.h>
 #include <keyboard.h>
 #include <key_matrix.h>
@@ -161,15 +160,15 @@ int cros_ec_kbc_check(struct input_config *input)
  * @param config	Configuration data read from fdt
  * @return 0 if ok, -1 on error
  */
-static int cros_ec_keyb_decode_fdt(const void *blob, int node,
-				struct cros_ec_keyb_priv *config)
+static int cros_ec_keyb_decode_fdt(struct udevice *dev,
+				   struct cros_ec_keyb_priv *config)
 {
 	/*
 	 * Get keyboard rows and columns - at present we are limited to
 	 * 8 columns by the protocol (one byte per row scan)
 	 */
-	config->key_rows = fdtdec_get_int(blob, node, "keypad,num-rows", 0);
-	config->key_cols = fdtdec_get_int(blob, node, "keypad,num-columns", 0);
+	config->key_rows = dev_read_u32_default(dev, "keypad,num-rows", 0);
+	config->key_cols = dev_read_u32_default(dev, "keypad,num-columns", 0);
 	if (!config->key_rows || !config->key_cols ||
 			config->key_rows * config->key_cols / 8
 				> CROS_EC_KEYSCAN_COLS) {
@@ -177,8 +176,8 @@ static int cros_ec_keyb_decode_fdt(const void *blob, int node,
 		      config->key_rows, config->key_cols);
 		return -1;
 	}
-	config->ghost_filter = fdtdec_get_bool(blob, node,
-					       "google,needs-ghost-filter");
+	config->ghost_filter = dev_read_bool(dev, "google,needs-ghost-filter");
+
 	return 0;
 }
 
@@ -188,12 +187,13 @@ static int cros_ec_kbd_probe(struct udevice *dev)
 	struct keyboard_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct stdio_dev *sdev = &uc_priv->sdev;
 	struct input_config *input = &uc_priv->input;
-	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
 	int ret;
 
-	if (cros_ec_keyb_decode_fdt(blob, node, priv))
-		return -1;
+	ret = cros_ec_keyb_decode_fdt(dev, priv);
+	if (ret) {
+		debug("%s: Cannot decode node (ret=%d)\n", __func__, ret);
+		return -EINVAL;
+	}
 	input_set_delays(input, KBC_REPEAT_DELAY_MS, KBC_REPEAT_RATE_MS);
 	ret = key_matrix_init(&priv->matrix, priv->key_rows, priv->key_cols,
 			      priv->ghost_filter);
@@ -201,7 +201,7 @@ static int cros_ec_kbd_probe(struct udevice *dev)
 		debug("%s: cannot init key matrix\n", __func__);
 		return ret;
 	}
-	ret = key_matrix_decode_fdt(&priv->matrix, gd->fdt_blob, node);
+	ret = key_matrix_decode_fdt(dev, &priv->matrix);
 	if (ret) {
 		debug("%s: Could not decode key matrix from fdt\n", __func__);
 		return ret;

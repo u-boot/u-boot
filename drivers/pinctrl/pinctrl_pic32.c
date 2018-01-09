@@ -253,7 +253,7 @@ static int pic32_pinctrl_get_periph_id(struct udevice *dev,
 	int ret;
 	u32 cell[2];
 
-	ret = fdtdec_get_int_array(gd->fdt_blob, periph->of_offset,
+	ret = fdtdec_get_int_array(gd->fdt_blob, dev_of_offset(periph),
 				   "interrupts", cell, ARRAY_SIZE(cell));
 	if (ret < 0)
 		return -EINVAL;
@@ -310,7 +310,7 @@ static int pic32_pinctrl_probe(struct udevice *dev)
 	struct pic32_pinctrl_priv *priv = dev_get_priv(dev);
 	struct fdt_resource res;
 	void *fdt = (void *)gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	int ret;
 
 	ret = fdt_get_named_resource(fdt, node, "reg", "reg-names",

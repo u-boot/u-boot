@@ -390,7 +390,7 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 
 #ifdef CONFIG_SRIO_PCIE_BOOT_MASTER
 	/* boot from PCIE --master */
-	char *s = getenv("bootmaster");
+	char *s = env_get("bootmaster");
 	char pcie[6];
 	sprintf(pcie, "PCIE%d", pci_info->pci_num);
 
@@ -543,6 +543,13 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 		pciauto_prescan_setup_bridge(hose, dev, hose->current_busno);
 	}
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A007815
+	/* The Read-Only Write Enable bit defaults to 1 instead of 0.
+	 * Set to 0 to protect the read-only registers.
+	 */
+	clrbits_be32(&pci->dbi_ro_wr_en, 0x01);
+#endif
+
 	/* Use generic setup_device to initialize standard pci regs,
 	 * but do not allocate any windows since any BAR found (such
 	 * as PCSRBAR) is not in this cpu's memory space.
@@ -666,7 +673,7 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 #ifdef CONFIG_SRIO_PCIE_BOOT_MASTER
 	} else {
 		/* boot from PCIE --master releases slave's core 0 */
-		char *s = getenv("bootmaster");
+		char *s = env_get("bootmaster");
 		char pcie[6];
 		sprintf(pcie, "PCIE%d", pci_info->pci_num);
 

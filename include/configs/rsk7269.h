@@ -15,17 +15,12 @@
 
 #define CONFIG_DISPLAY_BOARDINFO
 
-#define CONFIG_BAUDRATE		115200
-#define CONFIG_BOOTARGS		"console=ttySC7,115200"
 #define CONFIG_SYS_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
 
 #define CONFIG_SYS_LONGHELP		/* undef to save memory	*/
-#define CONFIG_SYS_CBSIZE	256	/* Boot Argument Buffer Size */
 #define CONFIG_SYS_PBSIZE	256	/* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS	16	/* max number of command args */
 
 /* Serial */
-#define CONFIG_SCIF_CONSOLE
 #define CONFIG_CONS_SCIF7
 
 /* Memory */
@@ -48,7 +43,6 @@
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_MAX_FLASH_SECT	512
 
-#define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_OFFSET	(128 * 1024)
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 #define CONFIG_ENV_SECT_SIZE	(64 * 1024)
@@ -60,10 +54,5 @@
 #define CONFIG_SH_SCIF_CLK_FREQ CONFIG_SYS_CLK_FREQ
 #define CMT_CLK_DIVIDER		32	/* 8 (default), 32, 128 or 512 */
 #define CONFIG_SH_CMT_CLK_FREQ (CONFIG_SYS_CLK_FREQ / CMT_CLK_DIVIDER)
-
-/* Network interface */
-#define CONFIG_SMC911X
-#define CONFIG_SMC911X_16_BIT
-#define CONFIG_SMC911X_BASE	0x24000000
 
 #endif	/* __RSK7269_H */

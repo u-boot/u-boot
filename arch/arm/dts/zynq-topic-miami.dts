@@ -19,6 +19,7 @@
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		mmc0 = &sdhci0;
+		usbotg0 = &usb0;
 	};
 
 	memory@0 {

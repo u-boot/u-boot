@@ -539,7 +539,7 @@ static int sh_mmcif_request(struct mmc *mmc, struct mmc_cmd *cmd,
 	return ret;
 }
 
-static void sh_mmcif_set_ios(struct mmc *mmc)
+static int sh_mmcif_set_ios(struct mmc *mmc)
 {
 	struct sh_mmcif_host *host = mmc->priv;
 
@@ -554,6 +554,8 @@ static void sh_mmcif_set_ios(struct mmc *mmc)
 		host->bus_width = MMC_BUS_WIDTH_1;
 
 	debug("clock = %d, buswidth = %d\n", mmc->clock, mmc->bus_width);
+
+	return 0;
 }
 
 static int sh_mmcif_init(struct mmc *mmc)

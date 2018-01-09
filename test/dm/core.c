@@ -67,6 +67,10 @@ static struct driver_info driver_info_pre_reloc = {
 	.platdata = &test_pdata_pre_reloc,
 };
 
+static struct driver_info driver_info_act_dma = {
+	.name = "test_act_dma_drv",
+};
+
 void dm_leak_check_start(struct unit_test_state *uts)
 {
 	uts->start = mallinfo();
@@ -319,7 +323,7 @@ static int dm_test_lifecycle(struct unit_test_state *uts)
 
 	/* Now remove device 3 */
 	ut_asserteq(0, dm_testdrv_op_count[DM_TEST_OP_PRE_REMOVE]);
-	ut_assertok(device_remove(dev));
+	ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
 	ut_asserteq(1, dm_testdrv_op_count[DM_TEST_OP_PRE_REMOVE]);
 
 	ut_asserteq(0, dm_testdrv_op_count[DM_TEST_OP_UNBIND]);
@@ -352,7 +356,7 @@ static int dm_test_ordering(struct unit_test_state *uts)
 	ut_assert(dev_last);
 
 	/* Now remove device 3 */
-	ut_assertok(device_remove(dev));
+	ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
 	ut_assertok(device_unbind(dev));
 
 	/* The device numbering should have shifted down one */
@@ -371,9 +375,9 @@ static int dm_test_ordering(struct unit_test_state *uts)
 	ut_assert(pingret == 102);
 
 	/* Remove 3 and 4 */
-	ut_assertok(device_remove(dev_penultimate));
+	ut_assertok(device_remove(dev_penultimate, DM_REMOVE_NORMAL));
 	ut_assertok(device_unbind(dev_penultimate));
-	ut_assertok(device_remove(dev_last));
+	ut_assertok(device_remove(dev_last, DM_REMOVE_NORMAL));
 	ut_assertok(device_unbind(dev_last));
 
 	/* Our device should now be in position 3 */
@@ -381,7 +385,7 @@ static int dm_test_ordering(struct unit_test_state *uts)
 	ut_assert(dev == test_dev);
 
 	/* Now remove device 3 */
-	ut_assertok(device_remove(dev));
+	ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
 	ut_assertok(device_unbind(dev));
 
 	return 0;
@@ -457,7 +461,7 @@ static int dm_test_remove(struct unit_test_state *uts)
 		ut_assert(dev);
 		ut_assertf(dev->flags & DM_FLAG_ACTIVATED,
 			   "Driver %d/%s not activated", i, dev->name);
-		ut_assertok(device_remove(dev));
+		ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
 		ut_assertf(!(dev->flags & DM_FLAG_ACTIVATED),
 			   "Driver %d/%s should have deactivated", i,
 			   dev->name);
@@ -611,14 +615,14 @@ static int dm_test_children(struct unit_test_state *uts)
 	ut_asserteq(total, dm_testdrv_op_count[DM_TEST_OP_PROBE]);
 
 	/* Remove a top-level child and check that the children are removed */
-	ut_assertok(device_remove(top[2]));
+	ut_assertok(device_remove(top[2], DM_REMOVE_NORMAL));
 	ut_asserteq(NODE_COUNT + 1, dm_testdrv_op_count[DM_TEST_OP_REMOVE]);
 	dm_testdrv_op_count[DM_TEST_OP_REMOVE] = 0;
 
 	/* Try one with grandchildren */
 	ut_assertok(uclass_get_device(UCLASS_TEST, 5, &dev));
 	ut_asserteq_ptr(dev, top[5]);
-	ut_assertok(device_remove(dev));
+	ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
 	ut_asserteq(1 + NODE_COUNT * (1 + NODE_COUNT),
 		    dm_testdrv_op_count[DM_TEST_OP_REMOVE]);
 
@@ -655,6 +659,68 @@ static int dm_test_pre_reloc(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_pre_reloc, 0);
+
+/*
+ * Test that removal of devices, either via the "normal" device_remove()
+ * API or via the device driver selective flag works as expected
+ */
+static int dm_test_remove_active_dma(struct unit_test_state *uts)
+{
+	struct dm_test_state *dms = uts->priv;
+	struct udevice *dev;
+
+	ut_assertok(device_bind_by_name(dms->root, false, &driver_info_act_dma,
+					&dev));
+	ut_assert(dev);
+
+	/* Probe the device */
+	ut_assertok(device_probe(dev));
+
+	/* Test if device is active right now */
+	ut_asserteq(true, device_active(dev));
+
+	/* Remove the device via selective remove flag */
+	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
+
+	/* Test if device is inactive right now */
+	ut_asserteq(false, device_active(dev));
+
+	/* Probe the device again */
+	ut_assertok(device_probe(dev));
+
+	/* Test if device is active right now */
+	ut_asserteq(true, device_active(dev));
+
+	/* Remove the device via "normal" remove API */
+	ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
+
+	/* Test if device is inactive right now */
+	ut_asserteq(false, device_active(dev));
+
+	/*
+	 * Test if a device without the active DMA flags is not removed upon
+	 * the active DMA remove call
+	 */
+	ut_assertok(device_unbind(dev));
+	ut_assertok(device_bind_by_name(dms->root, false, &driver_info_manual,
+					&dev));
+	ut_assert(dev);
+
+	/* Probe the device */
+	ut_assertok(device_probe(dev));
+
+	/* Test if device is active right now */
+	ut_asserteq(true, device_active(dev));
+
+	/* Remove the device via selective remove flag */
+	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
+
+	/* Test if device is still active right now */
+	ut_asserteq(true, device_active(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_remove_active_dma, 0);
 
 static int dm_test_uclass_before_ready(struct unit_test_state *uts)
 {

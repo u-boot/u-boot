@@ -23,14 +23,11 @@
  * Compression configuration
  */
 #define CONFIG_BZIP2
-#define CONFIG_LZMA
 
 /*
  * Commands configuration
  */
-#define CONFIG_SYS_NO_FLASH		/* declare no flash (NOR/SPI) */
 #define CONFIG_SYS_MVFS
-#define CONFIG_CMD_IDE
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
@@ -42,10 +39,7 @@
  * Environment variables configuration
  */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SECT_SIZE	0x20000
-#else
-#define CONFIG_ENV_IS_NOWHERE
 #endif
 #define CONFIG_ENV_SIZE		0x20000
 #define CONFIG_ENV_OFFSET	0xe0000
@@ -63,16 +57,10 @@
 	"fdt addr 0x700000; fdt resize; fdt chosen; "			\
 	"bootz 0x800000 - 0x700000"
 
-#define CONFIG_MTDPARTS \
-	"mtdparts=orion_nand:"						\
-	"0xe0000@0x0(uboot),"						\
-	"0x20000@0xe0000(uboot_env),"					\
-	"-@0x100000(root)\0"
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=console=ttyS0,115200\0"				\
 	"mtdids=nand0=orion_nand\0"					\
-	"mtdparts="CONFIG_MTDPARTS					\
+	"mtdparts="CONFIG_MTDPARTS_DEFAULT			\
 	"kernel=/boot/zImage\0"						\
 	"fdt=/boot/ib62x0.dtb\0"					\
 	"bootargs_root=ubi.mtd=2 root=ubi0:rootfs rootfstype=ubifs rw\0"
@@ -89,15 +77,14 @@
 /*
  * SATA driver configuration
  */
-#ifdef CONFIG_CMD_IDE
+#ifdef CONFIG_IDE
 #define __io
 #define CONFIG_IDE_PREINIT
-#define CONFIG_DOS_PARTITION
 #define CONFIG_MVSATA_IDE_USE_PORT0
 #define CONFIG_MVSATA_IDE_USE_PORT1
 #define CONFIG_SYS_ATA_IDE0_OFFSET	MV_SATA_PORT0_OFFSET
 #define CONFIG_SYS_ATA_IDE1_OFFSET	MV_SATA_PORT1_OFFSET
-#endif /* CONFIG_CMD_IDE */
+#endif /* CONFIG_IDE */
 
 /*
  * RTC driver configuration

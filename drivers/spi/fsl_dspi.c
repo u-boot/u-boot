@@ -9,6 +9,8 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
+
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <common.h>
@@ -646,7 +648,7 @@ static int fsl_dspi_ofdata_to_platdata(struct udevice *bus)
 	fdt_addr_t addr;
 	struct fsl_dspi_platdata *plat = bus->platdata;
 	const void *blob = gd->fdt_blob;
-	int node = bus->of_offset;
+	int node = dev_of_offset(bus);
 
 	if (fdtdec_get_bool(blob, node, "big-endian"))
 		plat->flags |= DSPI_FLAG_REGMAP_ENDIAN_BIG;
@@ -654,7 +656,7 @@ static int fsl_dspi_ofdata_to_platdata(struct udevice *bus)
 	plat->num_chipselect =
 		fdtdec_get_int(blob, node, "num-cs", FSL_DSPI_MAX_CHIPSELECT);
 
-	addr = dev_get_addr(bus);
+	addr = devfdt_get_addr(bus);
 	if (addr == FDT_ADDR_T_NONE) {
 		debug("DSPI: Can't get base address or size\n");
 		return -ENOMEM;

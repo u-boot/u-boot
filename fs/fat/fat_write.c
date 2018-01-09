@@ -345,7 +345,7 @@ get_long_file_name(fsdata *mydata, int curclust, __u8 *cluster,
 		*l_name = '\0';
 	else if (*l_name == aRING)
 		*l_name = DELETED_FLAG;
-	downcase(l_name);
+	downcase(l_name, INT_MAX);
 
 	/* Return the real directory entry */
 	*retdent = realdent;
@@ -502,8 +502,7 @@ set_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer,
 	int ret;
 
 	if (clustnum > 0)
-		startsect = mydata->data_begin +
-				clustnum * mydata->clust_size;
+		startsect = clust_to_sect(mydata, clustnum);
 	else
 		startsect = mydata->rootdir_sect;
 
@@ -751,8 +750,7 @@ static int check_overflow(fsdata *mydata, __u32 clustnum, loff_t size)
 	__u32 startsect, sect_num, offset;
 
 	if (clustnum > 0) {
-		startsect = mydata->data_begin +
-				clustnum * mydata->clust_size;
+		startsect = clust_to_sect(mydata, clustnum);
 	} else {
 		startsect = mydata->rootdir_sect;
 	}
@@ -762,7 +760,7 @@ static int check_overflow(fsdata *mydata, __u32 clustnum, loff_t size)
 	if (offset != 0)
 		sect_num++;
 
-	if (startsect + sect_num > cur_part_info.start + total_sector)
+	if (startsect + sect_num > total_sector)
 		return -1;
 	return 0;
 }
@@ -791,7 +789,7 @@ static dir_entry *empty_dentptr;
 static dir_entry *find_directory_entry(fsdata *mydata, int startsect,
 	char *filename, dir_entry *retdent, __u32 start)
 {
-	__u32 curclust = (startsect - mydata->data_begin) / mydata->clust_size;
+	__u32 curclust = sect_to_clust(mydata, startsect);
 
 	debug("get_dentfromdir: %s\n", filename);
 
@@ -981,7 +979,7 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 
 	memcpy(l_filename, filename, name_len);
 	l_filename[name_len] = 0; /* terminate the string */
-	downcase(l_filename);
+	downcase(l_filename, INT_MAX);
 
 	startsect = mydata->rootdir_sect;
 	retdent = find_directory_entry(mydata, startsect,

@@ -22,6 +22,7 @@
 
 /* Use the generic board which requires a unified bd_info */
 #include <asm-generic/u-boot.h>
+#include <asm/u-boot-arm.h>
 
 /* For image.h:image_check_target_arch() */
 #ifndef CONFIG_ARM64

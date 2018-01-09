@@ -18,6 +18,8 @@
 #include <asm/arch/pch.h>
 #include <asm/arch/sandybridge.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 struct gt_powermeter {
 	u16 reg;
 	u32 value;
@@ -515,7 +517,7 @@ static int gma_pm_init_pre_vbios(void *gtt_bar, int rev)
 static int gma_pm_init_post_vbios(struct udevice *dev, int rev, void *gtt_bar)
 {
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	u32 reg32, cycle_delay;
 
 	debug("GT Power Management Init (post VBIOS)\n");
@@ -800,7 +802,7 @@ static int gma_func0_init(struct udevice *dev)
 	mtrr_add_request(MTRR_TYPE_WRCOMB, base, 256 << 20);
 	mtrr_commit(true);
 
-	gtt_bar = (void *)dm_pci_read_bar32(dev, 0);
+	gtt_bar = (void *)(ulong)dm_pci_read_bar32(dev, 0);
 	debug("GT bar %p\n", gtt_bar);
 	ret = gma_pm_init_pre_vbios(gtt_bar, rev);
 	if (ret)
@@ -822,7 +824,7 @@ static int bd82x6x_video_probe(struct udevice *dev)
 		return ret;
 
 	/* Post VBIOS init */
-	gtt_bar = (void *)dm_pci_read_bar32(dev, 0);
+	gtt_bar = (void *)(ulong)dm_pci_read_bar32(dev, 0);
 	ret = gma_pm_init_post_vbios(dev, rev, gtt_bar);
 	if (ret)
 		return ret;

@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2014
- * Vikas Manocha, STMicroelectronics, <vikas.manocha@st.com>
+ * Copyright (C) 2014, STMicroelectronics - All Rights Reserved
+ * Author(s): Vikas Manocha, <vikas.manocha@st.com> for STMicroelectronics.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -9,11 +9,8 @@
 #define __CONFIG_STV0991_H
 #define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_SYS_EXCEPTION_VECTORS_HIGH
-#define CONFIG_BOARD_EARLY_INIT_F
 
 #define CONFIG_SYS_CORTEX_R4
-
-#define CONFIG_SYS_NO_FLASH
 
 /* ram memory-related information */
 #define CONFIG_NR_DRAM_BANKS			1
@@ -22,22 +19,17 @@
 #define PHYS_SDRAM_1_SIZE			0x00198000
 
 #define CONFIG_ENV_SIZE				0x10000
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SECT_SIZE			CONFIG_ENV_SIZE
 #define CONFIG_ENV_OFFSET			0x30000
 #define CONFIG_ENV_ADDR				\
 	(PHYS_SDRAM_1_SIZE - CONFIG_ENV_SIZE)
-#define CONFIG_SYS_MAXARGS			16
 #define CONFIG_SYS_MALLOC_LEN			(CONFIG_ENV_SIZE + 16 * 1024)
 
 /* serial port (PL011) configuration */
-#define CONFIG_BAUDRATE				115200
 #define CONFIG_PL01X_SERIAL
 
 /* user interface */
 #define CONFIG_SYS_CBSIZE			1024
-#define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE \
-						+sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* MISC */
 #define CONFIG_SYS_LOAD_ADDR			0x00000000
@@ -54,7 +46,6 @@
 
 #define CONFIG_MII
 #define CONFIG_DW_ALTDESCRIPTOR
-#define CONFIG_PHY_MICREL
 
 /* Command support defines */
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */

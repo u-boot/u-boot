@@ -29,6 +29,9 @@
  * @xsize_frac:	Width of the display in fractional units
  * @xstart_frac:	Left margin for the text console in fractional units
  * @last_ch:	Last character written to the text console on this line
+ * @escape:	TRUE if currently accumulating an ANSI escape sequence
+ * @escape_len:	Length of accumulated escape sequence so far
+ * @escape_buf:	Buffer to accumulate escape sequence
  */
 struct vidconsole_priv {
 	struct stdio_dev sdev;
@@ -42,6 +45,14 @@ struct vidconsole_priv {
 	int xsize_frac;
 	int xstart_frac;
 	int last_ch;
+	/*
+	 * ANSI escape sequences are accumulated character by character,
+	 * starting after the ESC char (0x1b) until the entire sequence
+	 * is consumed at which point it is acted upon.
+	 */
+	int escape;
+	int escape_len;
+	char escape_buf[32];
 };
 
 /**

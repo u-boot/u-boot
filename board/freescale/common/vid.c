@@ -284,10 +284,170 @@ static int set_voltage(int i2caddress, int vdd)
 	return vdd_last;
 }
 
+#ifdef CONFIG_FSL_LSCH3
 int adjust_vdd(ulong vdd_override)
 {
 	int re_enable = disable_interrupts();
-#if defined(CONFIG_FSL_LSCH2) || defined(CONFIG_FSL_LSCH3)
+	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	u32 fusesr;
+	u8 vid, buf;
+	int vdd_target, vdd_current, vdd_last;
+	int ret, i2caddress;
+	unsigned long vdd_string_override;
+	char *vdd_string;
+	static const uint16_t vdd[32] = {
+		10500,
+		0,      /* reserved */
+		9750,
+		0,      /* reserved */
+		9500,
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		10000,  /* 1.0000V */
+		0,      /* reserved */
+		10250,
+		0,      /* reserved */
+		10500,
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+	};
+	struct vdd_drive {
+		u8 vid;
+		unsigned voltage;
+	};
+
+	ret = i2c_multiplexer_select_vid_channel(I2C_MUX_CH_VOL_MONITOR);
+	if (ret) {
+		debug("VID: I2C failed to switch channel\n");
+		ret = -1;
+		goto exit;
+	}
+	ret = find_ir_chip_on_i2c();
+	if (ret < 0) {
+		printf("VID: Could not find voltage regulator on I2C.\n");
+		ret = -1;
+		goto exit;
+	} else {
+		i2caddress = ret;
+		debug("VID: IR Chip found on I2C address 0x%02x\n", i2caddress);
+	}
+
+	/* check IR chip work on Intel mode*/
+	ret = i2c_read(i2caddress,
+		       IR36021_INTEL_MODE_OOFSET,
+		       1, (void *)&buf, 1);
+	if (ret) {
+		printf("VID: failed to read IR chip mode.\n");
+		ret = -1;
+		goto exit;
+	}
+	if ((buf & IR36021_MODE_MASK) != IR36021_INTEL_MODE) {
+		printf("VID: IR Chip is not used in Intel mode.\n");
+		ret = -1;
+		goto exit;
+	}
+
+	/* get the voltage ID from fuse status register */
+	fusesr = in_le32(&gur->dcfg_fusesr);
+	vid = (fusesr >> FSL_CHASSIS3_DCFG_FUSESR_ALTVID_SHIFT) &
+		FSL_CHASSIS3_DCFG_FUSESR_ALTVID_MASK;
+	if ((vid == 0) || (vid == FSL_CHASSIS3_DCFG_FUSESR_ALTVID_MASK)) {
+		vid = (fusesr >> FSL_CHASSIS3_DCFG_FUSESR_VID_SHIFT) &
+			FSL_CHASSIS3_DCFG_FUSESR_VID_MASK;
+	}
+	vdd_target = vdd[vid];
+
+	/* check override variable for overriding VDD */
+	vdd_string = env_get(CONFIG_VID_FLS_ENV);
+	if (vdd_override == 0 && vdd_string &&
+	    !strict_strtoul(vdd_string, 10, &vdd_string_override))
+		vdd_override = vdd_string_override;
+
+	if (vdd_override >= VDD_MV_MIN && vdd_override <= VDD_MV_MAX) {
+		vdd_target = vdd_override * 10; /* convert to 1/10 mV */
+		debug("VDD override is %lu\n", vdd_override);
+	} else if (vdd_override != 0) {
+		printf("Invalid value.\n");
+	}
+
+	/* divide and round up by 10 to get a value in mV */
+	vdd_target = DIV_ROUND_UP(vdd_target, 10);
+	if (vdd_target == 0) {
+		debug("VID: VID not used\n");
+		ret = 0;
+		goto exit;
+	} else if (vdd_target < VDD_MV_MIN || vdd_target > VDD_MV_MAX) {
+		/* Check vdd_target is in valid range */
+		printf("VID: Target VID %d mV is not in range.\n",
+		       vdd_target);
+		ret = -1;
+		goto exit;
+	} else {
+		debug("VID: vid = %d mV\n", vdd_target);
+	}
+
+	/*
+	 * Read voltage monitor to check real voltage.
+	 */
+	vdd_last = read_voltage(i2caddress);
+	if (vdd_last < 0) {
+		printf("VID: Couldn't read sensor abort VID adjustment\n");
+		ret = -1;
+		goto exit;
+	}
+	vdd_current = vdd_last;
+	debug("VID: Core voltage is currently at %d mV\n", vdd_last);
+	/*
+	  * Adjust voltage to at or one step above target.
+	  * As measurements are less precise than setting the values
+	  * we may run through dummy steps that cancel each other
+	  * when stepping up and then down.
+	  */
+	while (vdd_last > 0 &&
+	       vdd_last < vdd_target) {
+		vdd_current += IR_VDD_STEP_UP;
+		vdd_last = set_voltage(i2caddress, vdd_current);
+	}
+	while (vdd_last > 0 &&
+	       vdd_last > vdd_target + (IR_VDD_STEP_DOWN - 1)) {
+		vdd_current -= IR_VDD_STEP_DOWN;
+		vdd_last = set_voltage(i2caddress, vdd_current);
+	}
+
+	if (vdd_last > 0)
+		printf("VID: Core voltage after adjustment is at %d mV\n",
+		       vdd_last);
+	else
+		ret = -1;
+exit:
+	if (re_enable)
+		enable_interrupts();
+	i2c_multiplexer_select_vid_channel(I2C_MUX_CH_DEFAULT);
+	return ret;
+}
+#else /* !CONFIG_FSL_LSCH3 */
+int adjust_vdd(ulong vdd_override)
+{
+	int re_enable = disable_interrupts();
+#if defined(CONFIG_FSL_LSCH2)
 	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 #else
 	ccsr_gur_t __iomem *gur =
@@ -364,11 +524,7 @@ int adjust_vdd(ulong vdd_override)
 	}
 
 	/* get the voltage ID from fuse status register */
-#ifdef CONFIG_FSL_LSCH3
-	fusesr = in_le32(&gur->dcfg_fusesr);
-#else
 	fusesr = in_be32(&gur->dcfg_fusesr);
-#endif
 	/*
 	 * VID is used according to the table below
 	 *                ---------------------------------------
@@ -393,13 +549,6 @@ int adjust_vdd(ulong vdd_override)
 		vid = (fusesr >> FSL_CHASSIS2_DCFG_FUSESR_VID_SHIFT) &
 			FSL_CHASSIS2_DCFG_FUSESR_VID_MASK;
 	}
-#elif defined(CONFIG_FSL_LSCH3)
-	vid = (fusesr >> FSL_CHASSIS3_DCFG_FUSESR_ALTVID_SHIFT) &
-		FSL_CHASSIS3_DCFG_FUSESR_ALTVID_MASK;
-	if ((vid == 0) || (vid == FSL_CHASSIS3_DCFG_FUSESR_ALTVID_MASK)) {
-		vid = (fusesr >> FSL_CHASSIS3_DCFG_FUSESR_VID_SHIFT) &
-			FSL_CHASSIS3_DCFG_FUSESR_VID_MASK;
-	}
 #else
 	vid = (fusesr >> FSL_CORENET_DCFG_FUSESR_ALTVID_SHIFT) &
 		FSL_CORENET_DCFG_FUSESR_ALTVID_MASK;
@@ -411,7 +560,7 @@ int adjust_vdd(ulong vdd_override)
 	vdd_target = vdd[vid];
 
 	/* check override variable for overriding VDD */
-	vdd_string = getenv(CONFIG_VID_FLS_ENV);
+	vdd_string = env_get(CONFIG_VID_FLS_ENV);
 	if (vdd_override == 0 && vdd_string &&
 	    !strict_strtoul(vdd_string, 10, &vdd_string_override))
 		vdd_override = vdd_string_override;
@@ -472,6 +621,7 @@ exit:
 
 	return ret;
 }
+#endif
 
 static int print_vdd(void)
 {

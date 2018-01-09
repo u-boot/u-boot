@@ -85,7 +85,7 @@ do {									\
 /* static implies these initialized to 0 or NULL */
 static int debug_setup;
 static int debug_level;
-static struct musb_epinfo epinfo[MAX_ENDPOINT * 2];
+static struct musb_epinfo epinfo[MAX_ENDPOINT * 2 + 2];
 static enum ep0_state_enum {
 	IDLE = 0,
 	TX,
@@ -944,7 +944,7 @@ int udc_init(void)
 	musbr = musb_cfg.regs;
 
 	/* Initialize the endpoints */
-	for (ep_loop = 0; ep_loop < MAX_ENDPOINT * 2; ep_loop++) {
+	for (ep_loop = 0; ep_loop <= MAX_ENDPOINT * 2; ep_loop++) {
 		epinfo[ep_loop].epnum = (ep_loop / 2) + 1;
 		epinfo[ep_loop].epdir = ep_loop % 2; /* OUT, IN */
 		epinfo[ep_loop].epsize = 0;

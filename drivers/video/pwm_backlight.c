@@ -28,11 +28,13 @@ struct pwm_backlight_priv {
 static int pwm_backlight_enable(struct udevice *dev)
 {
 	struct pwm_backlight_priv *priv = dev_get_priv(dev);
+	struct dm_regulator_uclass_platdata *plat;
 	uint duty_cycle;
 	int ret;
 
-	debug("%s: Enable '%s', regulator '%s'\n", __func__, dev->name,
-	      priv->reg->name);
+	plat = dev_get_uclass_platdata(priv->reg);
+	debug("%s: Enable '%s', regulator '%s'/'%s'\n", __func__, dev->name,
+	      priv->reg->name, plat->name);
 	ret = regulator_set_enable(priv->reg, true);
 	if (ret) {
 		debug("%s: Cannot enable regulator for PWM '%s'\n", __func__,
@@ -59,12 +61,11 @@ static int pwm_backlight_enable(struct udevice *dev)
 static int pwm_backlight_ofdata_to_platdata(struct udevice *dev)
 {
 	struct pwm_backlight_priv *priv = dev_get_priv(dev);
-	struct fdtdec_phandle_args args;
-	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	struct ofnode_phandle_args args;
 	int index, ret, count, len;
 	const u32 *cell;
 
+	debug("%s: start\n", __func__);
 	ret = uclass_get_device_by_phandle(UCLASS_REGULATOR, dev,
 					   "power-supply", &priv->reg);
 	if (ret) {
@@ -79,14 +80,14 @@ static int pwm_backlight_ofdata_to_platdata(struct udevice *dev)
 		if (ret != -ENOENT)
 			return ret;
 	}
-	ret = fdtdec_parse_phandle_with_args(blob, node, "pwms", "#pwm-cells",
-					     0, 0, &args);
+	ret = dev_read_phandle_with_args(dev, "pwms", "#pwm-cells", 0, 0,
+					 &args);
 	if (ret) {
 		debug("%s: Cannot get PWM phandle: ret=%d\n", __func__, ret);
 		return ret;
 	}
 
-	ret = uclass_get_device_by_of_offset(UCLASS_PWM, args.node, &priv->pwm);
+	ret = uclass_get_device_by_ofnode(UCLASS_PWM, args.node, &priv->pwm);
 	if (ret) {
 		debug("%s: Cannot get PWM: ret=%d\n", __func__, ret);
 		return ret;
@@ -94,8 +95,8 @@ static int pwm_backlight_ofdata_to_platdata(struct udevice *dev)
 	priv->channel = args.args[0];
 	priv->period_ns = args.args[1];
 
-	index = fdtdec_get_int(blob, node, "default-brightness-level", 255);
-	cell = fdt_getprop(blob, node, "brightness-levels", &len);
+	index = dev_read_u32_default(dev, "default-brightness-level", 255);
+	cell = dev_read_prop(dev, "brightness-levels", &len);
 	count = len / sizeof(u32);
 	if (cell && count > index) {
 		priv->default_level = fdt32_to_cpu(cell[index]);
@@ -104,6 +105,7 @@ static int pwm_backlight_ofdata_to_platdata(struct udevice *dev)
 		priv->default_level = index;
 		priv->max_level = 255;
 	}
+	debug("%s: done\n", __func__);
 
 
 	return 0;

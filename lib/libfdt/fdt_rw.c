@@ -228,8 +228,8 @@ int fdt_set_name(void *fdt, int nodeoffset, const char *name)
 	return 0;
 }
 
-int fdt_setprop(void *fdt, int nodeoffset, const char *name,
-		const void *val, int len)
+int fdt_setprop_placeholder(void *fdt, int nodeoffset, const char *name,
+			    int len, void **prop_data)
 {
 	struct fdt_property *prop;
 	int err;
@@ -242,8 +242,22 @@ int fdt_setprop(void *fdt, int nodeoffset, const char *name,
 	if (err)
 		return err;
 
+	*prop_data = prop->data;
+	return 0;
+}
+
+int fdt_setprop(void *fdt, int nodeoffset, const char *name,
+		const void *val, int len)
+{
+	void *prop_data;
+	int err;
+
+	err = fdt_setprop_placeholder(fdt, nodeoffset, name, len, &prop_data);
+	if (err)
+		return err;
+
 	if (len)
-		memcpy(prop->data, val, len);
+		memcpy(prop_data, val, len);
 	return 0;
 }
 

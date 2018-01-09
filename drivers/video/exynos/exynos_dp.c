@@ -6,7 +6,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <config.h>
+#include <common.h>
 #include <dm.h>
 #include <common.h>
 #include <display.h>
@@ -880,10 +880,10 @@ static int exynos_dp_ofdata_to_platdata(struct udevice *dev)
 {
 	struct exynos_dp_priv *priv = dev_get_priv(dev);
 	const void *blob = gd->fdt_blob;
-	unsigned int node = dev->of_offset;
+	unsigned int node = dev_of_offset(dev);
 	fdt_addr_t addr;
 
-	addr = dev_get_addr(dev);
+	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE) {
 		debug("Can't get the DP base address\n");
 		return -EINVAL;
@@ -1075,7 +1075,7 @@ static const struct udevice_id exynos_dp_ids[] = {
 };
 
 U_BOOT_DRIVER(exynos_dp) = {
-	.name	= "eexynos_dp",
+	.name	= "exynos_dp",
 	.id	= UCLASS_DISPLAY,
 	.of_match = exynos_dp_ids,
 	.ops	= &exynos_dp_ops,

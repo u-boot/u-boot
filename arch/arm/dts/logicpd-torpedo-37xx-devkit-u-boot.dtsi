@@ -1,0 +1,47 @@
+/*
+ * Copyright (C) 2017
+ * Logic PD - http://www.logicpd.com
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/ {
+	model = "LogicPD Zoom OMAP3 Development Kit";
+
+	chosen {
+		stdout-path = &uart1;
+	};
+};
+
+&i2c1 {
+	clock-frequency = <400000>;
+};
+
+&i2c2 {
+	clock-frequency = <400000>;
+};
+
+&mmc1 {
+	cd-inverted;
+};
+
+&mmc2 {
+      status = "disabled";
+};
+
+&mmc3 {
+      status = "disabled";
+};
+
+&uart1 {
+	reg-shift = <2>;
+};
+
+&uart2 {
+	reg-shift = <2>;
+};
+
+&uart3 {
+	reg-shift = <2>;
+};
+

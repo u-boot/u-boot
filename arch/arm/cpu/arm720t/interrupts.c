@@ -12,12 +12,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_USE_IRQ
-void do_irq (struct pt_regs *pt_regs)
-{
-}
-#endif
-
 #if defined(CONFIG_TEGRA)
 static ulong timestamp;
 static ulong lastdec;

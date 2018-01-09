@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2016
- * Vikas Manocha, ST Micoelectronics, vikas.manocha@st.com.
+ * Copyright (C) 2016, STMicroelectronics - All Rights Reserved
+ * Author(s): Vikas Manocha, <vikas.manocha@st.com> for STMicroelectronics.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -38,8 +38,8 @@ struct gpt_regs *const gpt1_regs_ptr =
 	(struct gpt_regs *)TIM2_BASE;
 
 /* Timer control1 register  */
-#define GPT_CR1_CEN			0x0001
-#define GPT_MODE_AUTO_RELOAD		(1 << 7)
+#define GPT_CR1_CEN			BIT(0)
+#define GPT_MODE_AUTO_RELOAD		BIT(7)
 
 /* Auto reload register for free running config */
 #define GPT_FREE_RUNNING		0xFFFFFFFF
@@ -48,6 +48,6 @@ struct gpt_regs *const gpt1_regs_ptr =
 #define CONFIG_STM32_HZ			1000
 
 /* Timer Event Generation registers */
-#define TIM_EGR_UG			(1 << 0)
+#define TIM_EGR_UG			BIT(0)
 
 #endif

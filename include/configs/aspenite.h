@@ -29,18 +29,15 @@
 /*
  * Commands configuration
  */
-#define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros
  */
 #include "mv-common.h"
-#undef CONFIG_ARCH_MISC_INIT
 
 /*
  * Environment variables configurations
  */
-#define CONFIG_ENV_IS_NOWHERE	1	/* if env in SDRAM */
 #define CONFIG_ENV_SIZE	0x20000	/* 64k */
 
 #endif	/* __CONFIG_ASPENITE_H */

@@ -15,4 +15,4 @@ obj-y	+= slcr.o
 obj-y	+= clk.o
 obj-y	+= lowlevel_init.o
 AFLAGS_lowlevel_init.o := -mfpu=neon
-obj-$(CONFIG_SPL_BUILD)	+= spl.o
+obj-$(CONFIG_SPL_BUILD)	+= spl.o ps7_spl_init.o

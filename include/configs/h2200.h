@@ -9,13 +9,10 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define MACH_TYPE_H2200			341
 #define CONFIG_MACH_TYPE		MACH_TYPE_H2200
 
 #define CONFIG_CPU_PXA25X		1
 #define CONFIG_BOARD_H2200
-
-#define CONFIG_SYS_NO_FLASH
 
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			0xa0000000 /* SDRAM Bank #1 */
@@ -29,8 +26,6 @@
 #define CONFIG_ENV_SIZE			0x00040000
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
 
-#define CONFIG_ENV_IS_NOWHERE
-#define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_LOAD_ADDR		0xa3000000 /* default load address */
 
 /*
@@ -110,24 +105,13 @@
 #define CONFIG_FFUART
 #define CONFIG_CONS_INDEX		3
 
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 38400, 115200 }
 
-#define CONFIG_FIT_DISABLE_SHA256
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_INITRD_TAG
 
 /* Monitor Command Prompt */
-
-/* Console I/O Buffer Size */
-#define CONFIG_SYS_CBSIZE		256
-
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					sizeof(CONFIG_SYS_PROMPT) + 16)
-
-#define CONFIG_BOOTARGS "root=/dev/ram0 ro console=ttyS0,115200n8"
 
 #define CONFIG_USB_DEV_PULLUP_GPIO	33
 /* USB VBUS GPIO 3 */
@@ -139,11 +123,9 @@
 	"bootm ; "
 
 #define CONFIG_USB_GADGET_PXA2XX
-#define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_SUBSET
 
 #define CONFIG_USBNET_DEV_ADDR		"de:ad:be:ef:00:01"
-#define CONFIG_USBNET_HOST_ADDR	"de:ad:be:ef:00:02"
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"stdin=serial\0" \
 	"stdout=serial\0" \

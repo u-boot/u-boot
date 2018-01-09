@@ -150,7 +150,8 @@ int pci_bar_show(struct udevice *dev)
 		if ((!is_64 && size_low) || (is_64 && size)) {
 			size = ~size + 1;
 			printf(" %d   %#016llx  %#016llx  %d     %s   %s\n",
-			       bar_id, base, size, is_64 ? 64 : 32,
+			       bar_id, (unsigned long long)base,
+			       (unsigned long long)size, is_64 ? 64 : 32,
 			       is_io ? "I/O" : "MEM",
 			       prefetchable ? "Prefetchable" : "");
 		}
@@ -606,6 +607,47 @@ static int pci_cfg_modify(pci_dev_t bdf, ulong addr, ulong size, ulong value,
 	return 0;
 }
 
+#ifdef CONFIG_DM_PCI
+static const struct pci_flag_info {
+	uint flag;
+	const char *name;
+} pci_flag_info[] = {
+	{ PCI_REGION_IO, "io" },
+	{ PCI_REGION_PREFETCH, "prefetch" },
+	{ PCI_REGION_SYS_MEMORY, "sysmem" },
+	{ PCI_REGION_RO, "readonly" },
+	{ PCI_REGION_IO, "io" },
+};
+
+static void pci_show_regions(struct udevice *bus)
+{
+	struct pci_controller *hose = dev_get_uclass_priv(bus);
+	const struct pci_region *reg;
+	int i, j;
+
+	if (!hose) {
+		printf("Bus '%s' is not a PCI controller\n", bus->name);
+		return;
+	}
+
+	printf("#   %-16s %-16s %-16s  %s\n", "Bus start", "Phys start", "Size",
+	       "Flags");
+	for (i = 0, reg = hose->regions; i < hose->region_count; i++, reg++) {
+		printf("%d   %#016llx %#016llx %#016llx  ", i,
+		       (unsigned long long)reg->bus_start,
+		       (unsigned long long)reg->phys_start,
+		       (unsigned long long)reg->size);
+		if (!(reg->flags & PCI_REGION_TYPE))
+			printf("mem ");
+		for (j = 0; j < ARRAY_SIZE(pci_flag_info); j++) {
+			if (reg->flags & pci_flag_info[j].flag)
+				printf("%s ", pci_flag_info[j].name);
+		}
+		printf("\n");
+	}
+}
+#endif
+
 /* PCI Configuration Space access commands
  *
  * Syntax:
@@ -652,15 +694,16 @@ static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if ((bdf = get_pci_dev(argv[2])) == -1)
 			return 1;
 		break;
-#if defined(CONFIG_CMD_PCI_ENUM) || defined(CONFIG_DM_PCI)
+#if defined(CONFIG_DM_PCI)
 	case 'e':
 		pci_init();
 		return 0;
 #endif
+	case 'r': /* no break */
 	default:		/* scan bus */
 		value = 1; /* short listing */
 		if (argc > 1) {
-			if (argv[argc-1][0] == 'l') {
+			if (cmd != 'r' && argv[argc-1][0] == 'l') {
 				value = 0;
 				argc--;
 			}
@@ -673,7 +716,10 @@ static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			printf("No such bus\n");
 			return CMD_RET_FAILURE;
 		}
-		pciinfo(bus, value);
+		if (cmd == 'r')
+			pci_show_regions(bus);
+		else
+			pciinfo(bus, value);
 #else
 		pciinfo(busnum, value);
 #endif
@@ -736,7 +782,7 @@ static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 static char pci_help_text[] =
 	"[bus] [long]\n"
 	"    - short or long list of PCI devices on bus 'bus'\n"
-#if defined(CONFIG_CMD_PCI_ENUM) || defined(CONFIG_DM_PCI)
+#if defined(CONFIG_DM_PCI)
 	"pci enum\n"
 	"    - Enumerate PCI buses\n"
 #endif
@@ -745,6 +791,8 @@ static char pci_help_text[] =
 #ifdef CONFIG_DM_PCI
 	"pci bar b.d.f\n"
 	"    - show BARs base and size for device b.d.f'\n"
+	"pci regions\n"
+	"    - show PCI regions\n"
 #endif
 	"pci display[.b, .w, .l] b.d.f [address] [# of objects]\n"
 	"    - display PCI configuration space (CFG)\n"

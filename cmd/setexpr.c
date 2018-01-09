@@ -145,7 +145,7 @@ static int regex_sub(const char *name,
 	}
 
 	if (t == NULL) {
-		value = getenv(name);
+		value = env_get(name);
 
 		if (value == NULL) {
 			printf("## Error: variable \"%s\" not defined\n", name);
@@ -282,11 +282,11 @@ static int regex_sub(const char *name,
 		if (!global)
 			break;
 	}
-	debug("## FINAL (now setenv()) :  %s\n", data);
+	debug("## FINAL (now env_set()) :  %s\n", data);
 
 	printf("%s=%s\n", name, data);
 
-	return setenv(name, data);
+	return env_set(name, data);
 }
 #endif
 
@@ -314,7 +314,7 @@ static int do_setexpr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	/* plain assignment: "setexpr name value" */
 	if (argc == 3) {
-		setenv_hex(argv[1], a);
+		env_set_hex(argv[1], a);
 		return 0;
 	}
 
@@ -370,7 +370,7 @@ static int do_setexpr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 	}
 
-	setenv_hex(argv[1], value);
+	env_set_hex(argv[1], value);
 
 	return 0;
 }

@@ -1,9 +1,0 @@
-if TARGET_BF526_EZBRD
-
-config SYS_BOARD
-	default "bf526-ezbrd"
-
-config SYS_CONFIG_NAME
-	default "bf526-ezbrd"
-
-endif

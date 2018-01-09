@@ -11,123 +11,116 @@
  */
 
 #include <common.h>
+#include <ahci.h>
+#include <dm.h>
 #include <command.h>
 #include <part.h>
 #include <sata.h>
+#include <dm/device-internal.h>
+#include <dm/uclass-internal.h>
 
 static int sata_curr_device = -1;
+
+int sata_remove(int devnum)
+{
+#ifdef CONFIG_AHCI
+	struct udevice *dev;
+	int rc;
+
+	rc = uclass_find_device(UCLASS_AHCI, devnum, &dev);
+	if (!rc && !dev)
+		rc = uclass_find_first_device(UCLASS_AHCI, &dev);
+	if (rc || !dev) {
+		printf("Cannot find SATA device %d (err=%d)\n", devnum, rc);
+		return CMD_RET_FAILURE;
+	}
+
+	rc = device_remove(dev, DM_REMOVE_NORMAL);
+	if (rc) {
+		printf("Cannot remove SATA device '%s' (err=%d)\n", dev->name,
+		       rc);
+		return CMD_RET_FAILURE;
+	}
+
+	return 0;
+#else
+	return sata_stop();
+#endif
+}
+
+int sata_probe(int devnum)
+{
+#ifdef CONFIG_AHCI
+	struct udevice *dev;
+	struct udevice *blk;
+	int rc;
+
+	rc = uclass_get_device(UCLASS_AHCI, devnum, &dev);
+	if (rc)
+		rc = uclass_find_first_device(UCLASS_AHCI, &dev);
+	if (rc) {
+		printf("Cannot probe SATA device %d (err=%d)\n", devnum, rc);
+		return CMD_RET_FAILURE;
+	}
+	rc = sata_scan(dev);
+	if (rc) {
+		printf("Cannot scan SATA device %d (err=%d)\n", devnum, rc);
+		return CMD_RET_FAILURE;
+	}
+
+	rc = blk_get_from_parent(dev, &blk);
+	if (!rc) {
+		struct blk_desc *desc = dev_get_uclass_platdata(blk);
+
+		if (desc->lba > 0 && desc->blksz > 0)
+			part_init(desc);
+	}
+
+	return 0;
+#else
+	return sata_initialize() < 0 ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
+#endif
+}
 
 static int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int rc = 0;
 
-	if (argc == 2 && strcmp(argv[1], "stop") == 0)
-		return sata_stop();
+	if (argc >= 2) {
+		int devnum = 0;
 
-	if (argc == 2 && strcmp(argv[1], "init") == 0) {
-		if (sata_curr_device != -1)
-			sata_stop();
+		if (argc == 3)
+			devnum = (int)simple_strtoul(argv[2], NULL, 10);
+		if (!strcmp(argv[1], "stop"))
+			return sata_remove(devnum);
 
-		return sata_initialize();
+		if (!strcmp(argv[1], "init")) {
+			if (sata_curr_device != -1) {
+				rc = sata_remove(devnum);
+				if (rc)
+					return rc;
+			}
+
+			return sata_probe(devnum);
+		}
 	}
 
 	/* If the user has not yet run `sata init`, do it now */
 	if (sata_curr_device == -1) {
-		rc = sata_initialize();
-		if (rc == -1)
-			return rc;
-		sata_curr_device = rc;
+		rc = sata_probe(0);
+		if (rc < 0)
+			return CMD_RET_FAILURE;
+		sata_curr_device = 0;
 	}
 
-	switch (argc) {
-	case 0:
-	case 1:
-		return CMD_RET_USAGE;
-	case 2:
-		if (strncmp(argv[1], "inf", 3) == 0) {
-			blk_list_devices(IF_TYPE_SATA);
-			return 0;
-		} else if (strncmp(argv[1], "dev", 3) == 0) {
-			if (blk_print_device_num(IF_TYPE_SATA,
-						 sata_curr_device)) {
-				printf("\nno SATA devices available\n");
-				return CMD_RET_FAILURE;
-			}
-			return 0;
-		} else if (strncmp(argv[1], "part", 4) == 0) {
-			if (blk_list_part(IF_TYPE_SATA))
-				puts("\nno SATA devices available\n");
-			return 0;
-		}
-		return CMD_RET_USAGE;
-	case 3:
-		if (strncmp(argv[1], "dev", 3) == 0) {
-			int dev = (int)simple_strtoul(argv[2], NULL, 10);
-
-			if (!blk_show_device(IF_TYPE_SATA, dev)) {
-				sata_curr_device = dev;
-				printf("... is now current device\n");
-			} else {
-				return CMD_RET_FAILURE;
-			}
-			return 0;
-		} else if (strncmp(argv[1], "part", 4) == 0) {
-			int dev = (int)simple_strtoul(argv[2], NULL, 10);
-
-			if (blk_print_part_devnum(IF_TYPE_SATA, dev)) {
-				printf("\nSATA device %d not available\n",
-				       dev);
-				return CMD_RET_FAILURE;
-			}
-			return rc;
-		}
-		return CMD_RET_USAGE;
-
-	default: /* at least 4 args */
-		if (strcmp(argv[1], "read") == 0) {
-			ulong addr = simple_strtoul(argv[2], NULL, 16);
-			ulong cnt = simple_strtoul(argv[4], NULL, 16);
-			ulong n;
-			lbaint_t blk = simple_strtoul(argv[3], NULL, 16);
-
-			printf("\nSATA read: device %d block # %ld, count %ld ... ",
-				sata_curr_device, blk, cnt);
-
-			n = blk_read_devnum(IF_TYPE_SATA, sata_curr_device, blk,
-					    cnt, (ulong *)addr);
-
-			printf("%ld blocks read: %s\n",
-				n, (n==cnt) ? "OK" : "ERROR");
-			return (n == cnt) ? 0 : 1;
-		} else if (strcmp(argv[1], "write") == 0) {
-			ulong addr = simple_strtoul(argv[2], NULL, 16);
-			ulong cnt = simple_strtoul(argv[4], NULL, 16);
-			ulong n;
-
-			lbaint_t blk = simple_strtoul(argv[3], NULL, 16);
-
-			printf("\nSATA write: device %d block # %ld, count %ld ... ",
-				sata_curr_device, blk, cnt);
-
-			n = blk_write_devnum(IF_TYPE_SATA, sata_curr_device,
-					     blk, cnt, (ulong *)addr);
-
-			printf("%ld blocks written: %s\n",
-				n, (n == cnt) ? "OK" : "ERROR");
-			return (n == cnt) ? 0 : 1;
-		} else {
-			return CMD_RET_USAGE;
-		}
-
-		return rc;
-	}
+	return blk_common_cmd(argc, argv, IF_TYPE_SATA, &sata_curr_device);
 }
 
 U_BOOT_CMD(
 	sata, 5, 1, do_sata,
 	"SATA sub system",
 	"init - init SATA sub system\n"
-	"sata stop - disable SATA sub system\n"
+	"sata stop [dev] - disable SATA sub system or device\n"
 	"sata info - show available SATA devices\n"
 	"sata device [dev] - show or set current device\n"
 	"sata part [dev] - print partition table\n"

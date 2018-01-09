@@ -12,15 +12,18 @@
 #include <spi.h>
 #include <spi_flash.h>
 
-static long dfu_get_medium_size_sf(struct dfu_entity *dfu)
+static int dfu_get_medium_size_sf(struct dfu_entity *dfu, u64 *size)
 {
-	return dfu->data.sf.size;
+	*size = dfu->data.sf.size;
+
+	return 0;
 }
 
 static int dfu_read_medium_sf(struct dfu_entity *dfu, u64 offset, void *buf,
 		long *len)
 {
-	return spi_flash_read(dfu->data.sf.dev, offset, *len, buf);
+	return spi_flash_read(dfu->data.sf.dev, dfu->data.sf.start + offset,
+		*len, buf);
 }
 
 static u64 find_sector(struct dfu_entity *dfu, u64 start, u64 offset)

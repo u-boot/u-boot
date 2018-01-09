@@ -1,6 +1,0 @@
-LUAN BOARD
-M:	John Otken <jotken@softadvances.com>
-S:	Maintained
-F:	board/amcc/luan/
-F:	include/configs/luan.h
-F:	configs/luan_defconfig

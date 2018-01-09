@@ -9,6 +9,7 @@
 
 int fsl_dcu_init(unsigned int xres, unsigned int yres,
 		 unsigned int pixel_format);
+int fsl_dcu_fixedfb_setup(void *blob);
 
 /* Prototypes for external board-specific functions */
 int platform_dcu_init(unsigned int xres, unsigned int yres,

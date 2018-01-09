@@ -18,6 +18,13 @@ config TARGET_QEMU_X86
 	  supported by U-Boot. They are via QEMU '-M pc', an i440FX/PIIX
 	  chipset platform and '-M q35', a Q35/ICH9 chipset platform.
 
+config TARGET_QEMU_X86_64
+	bool "QEMU x86 64-bit"
+	help
+	  This is the QEMU emulated x86 64-bit board. With this config
+	  U-Boot is built as a 64-bit binary. This allows testing while
+	  this feature is being completed.
+
 endchoice
 
 source "board/emulation/qemu-x86/Kconfig"

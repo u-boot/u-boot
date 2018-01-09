@@ -50,6 +50,11 @@
 			rockchip,pins = <7 0 RK_FUNC_GPIO &pcfg_pull_up>;
 		};
 	};
+	usb_host {
+		host_vbus_drv: host-vbus-drv {
+			rockchip,pins = <0 14 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
 };
 
 &pwm1 {
@@ -59,6 +64,11 @@
 &uart2 {
 	u-boot,dm-pre-reloc;
 	reg-shift = <2>;
+};
+
+&usb_host1 {
+	vbus-supply = <&vcc_host_5v>;
+	status = "okay";
 };
 
 &sdmmc {

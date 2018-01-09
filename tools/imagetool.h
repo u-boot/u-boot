@@ -76,6 +76,7 @@ struct image_tool_params {
 	bool external_data;	/* Store data outside the FIT */
 	bool quiet;		/* Don't output text in normal operation */
 	unsigned int external_offset;	/* Add padding to external data */
+	const char *engine_id;	/* Engine to use for signing */
 };
 
 /*

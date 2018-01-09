@@ -13,28 +13,22 @@
 
 #include "imx6_spl.h"
 
-#define MACH_TYPE_UDOO		4800
-#define CONFIG_MACH_TYPE	MACH_TYPE_UDOO
+/* Provide the MACH_TYPE value that the vendor kernel requires. */
+#define CONFIG_MACH_TYPE		4800
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(2 * SZ_1M)
-
-#define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART2_BASE
 
 /* SATA Configs */
 
-#define CONFIG_CMD_SATA
 #ifdef CONFIG_CMD_SATA
-#define CONFIG_DWC_AHSATA
 #define CONFIG_SYS_SATA_MAX_DEVICE	1
 #define CONFIG_DWC_AHSATA_PORT_ID	0
 #define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_ARB_BASE_ADDR
 #define CONFIG_LBA48
-#define CONFIG_LIBATA
 #endif
 
 /* Network support */
@@ -45,12 +39,6 @@
 #define CONFIG_FEC_XCV_TYPE             RGMII
 #define CONFIG_ETHPRIME                 "FEC"
 #define CONFIG_FEC_MXC_PHYADDR          6
-#define CONFIG_PHYLIB
-#define CONFIG_PHY_MICREL
-#define CONFIG_PHY_MICREL_KSZ9031
-
-/* Command definition */
-#define CONFIG_CMD_BMODE
 
 #define CONFIG_SYS_MEMTEST_START	0x10000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 500 * SZ_1M)
@@ -156,9 +144,6 @@
 		   "fi; " \
 	   "else run netboot; fi"
 
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
@@ -175,7 +160,6 @@
 /* Environment organization */
 #define CONFIG_ENV_SIZE			(8 * 1024)
 
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_OFFSET		(6 * 64 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 

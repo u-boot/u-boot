@@ -139,9 +139,32 @@ int usb_reset_root_port(struct usb_device *udev)
 	return ops->reset_root_port(bus, udev);
 }
 
+int usb_update_hub_device(struct usb_device *udev)
+{
+	struct udevice *bus = udev->controller_dev;
+	struct dm_usb_ops *ops = usb_get_ops(bus);
+
+	if (!ops->update_hub_device)
+		return -ENOSYS;
+
+	return ops->update_hub_device(bus, udev);
+}
+
+int usb_get_max_xfer_size(struct usb_device *udev, size_t *size)
+{
+	struct udevice *bus = udev->controller_dev;
+	struct dm_usb_ops *ops = usb_get_ops(bus);
+
+	if (!ops->get_max_xfer_size)
+		return -ENOSYS;
+
+	return ops->get_max_xfer_size(bus, size);
+}
+
 int usb_stop(void)
 {
 	struct udevice *bus;
+	struct udevice *rh;
 	struct uclass *uc;
 	struct usb_uclass_priv *uc_priv;
 	int err = 0, ret;
@@ -154,30 +177,26 @@ int usb_stop(void)
 	uc_priv = uc->priv;
 
 	uclass_foreach_dev(bus, uc) {
-		ret = device_remove(bus);
+		ret = device_remove(bus, DM_REMOVE_NORMAL);
 		if (ret && !err)
 			err = ret;
+
+		/* Locate root hub device */
+		device_find_first_child(bus, &rh);
+		if (rh) {
+			/*
+			 * All USB devices are children of root hub.
+			 * Unbinding root hub will unbind all of its children.
+			 */
+			ret = device_unbind(rh);
+			if (ret && !err)
+				err = ret;
+		}
 	}
-#ifdef CONFIG_BLK
-	ret = blk_unbind_all(IF_TYPE_USB);
-	if (ret && !err)
-		err = ret;
-#endif
-#ifdef CONFIG_SANDBOX
-	struct udevice *dev;
 
-	/* Reset all enulation devices */
-	ret = uclass_get(UCLASS_USB_EMUL, &uc);
-	if (ret)
-		return ret;
-
-	uclass_foreach_dev(dev, uc)
-		usb_emul_reset(dev);
-#endif
 #ifdef CONFIG_USB_STORAGE
 	usb_stor_reset();
 #endif
-	usb_hub_reset();
 	uc_priv->companion_device_count = 0;
 	usb_started = 0;
 
@@ -230,7 +249,6 @@ int usb_init(void)
 	int ret;
 
 	asynch_allowed = 1;
-	usb_hub_reset();
 
 	ret = uclass_get(UCLASS_USB, &uc);
 	if (ret)
@@ -242,6 +260,21 @@ int usb_init(void)
 		/* init low_level USB */
 		printf("USB%d:   ", count);
 		count++;
+
+#ifdef CONFIG_SANDBOX
+		/*
+		 * For Sandbox, we need scan the device tree each time when we
+		 * start the USB stack, in order to re-create the emulated USB
+		 * devices and bind drivers for them before we actually do the
+		 * driver probe.
+		 */
+		ret = dm_scan_fdt_dev(bus);
+		if (ret) {
+			printf("Sandbox USB device scan failed (%d)\n", ret);
+			continue;
+		}
+#endif
+
 		ret = device_probe(bus);
 		if (ret == -ENODEV) {	/* No such device. */
 			puts("Port not available.\n");
@@ -358,7 +391,7 @@ int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp)
 	ret = uclass_find_device_by_seq(UCLASS_USB, 0, true, &dev);
 	if (ret)
 		return ret;
-	ret = device_remove(dev);
+	ret = device_remove(dev, DM_REMOVE_NORMAL);
 	if (ret)
 		return ret;
 
@@ -373,8 +406,8 @@ int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp)
 }
 
 /* returns 0 if no match, 1 if match */
-int usb_match_device(const struct usb_device_descriptor *desc,
-		     const struct usb_device_id *id)
+static int usb_match_device(const struct usb_device_descriptor *desc,
+			    const struct usb_device_id *id)
 {
 	if ((id->match_flags & USB_DEVICE_ID_MATCH_VENDOR) &&
 	    id->idVendor != le16_to_cpu(desc->idVendor))
@@ -410,9 +443,9 @@ int usb_match_device(const struct usb_device_descriptor *desc,
 }
 
 /* returns 0 if no match, 1 if match */
-int usb_match_one_id_intf(const struct usb_device_descriptor *desc,
-			  const struct usb_interface_descriptor *int_desc,
-			  const struct usb_device_id *id)
+static int usb_match_one_id_intf(const struct usb_device_descriptor *desc,
+			const struct usb_interface_descriptor *int_desc,
+			const struct usb_device_id *id)
 {
 	/* The interface class, subclass, protocol and number should never be
 	 * checked for a match if the device class is Vendor Specific,
@@ -445,9 +478,9 @@ int usb_match_one_id_intf(const struct usb_device_descriptor *desc,
 }
 
 /* returns 0 if no match, 1 if match */
-int usb_match_one_id(struct usb_device_descriptor *desc,
-		     struct usb_interface_descriptor *int_desc,
-		     const struct usb_device_id *id)
+static int usb_match_one_id(struct usb_device_descriptor *desc,
+			    struct usb_interface_descriptor *int_desc,
+			    const struct usb_device_id *id)
 {
 	if (!usb_match_device(desc, id))
 		return 0;
@@ -680,22 +713,21 @@ int usb_detect_change(void)
 	return change;
 }
 
-int usb_child_post_bind(struct udevice *dev)
+static int usb_child_post_bind(struct udevice *dev)
 {
 	struct usb_dev_platdata *plat = dev_get_parent_platdata(dev);
-	const void *blob = gd->fdt_blob;
 	int val;
 
-	if (dev->of_offset == -1)
+	if (!dev_of_valid(dev))
 		return 0;
 
 	/* We only support matching a few things */
-	val = fdtdec_get_int(blob, dev->of_offset, "usb,device-class", -1);
+	val = dev_read_u32_default(dev, "usb,device-class", -1);
 	if (val != -1) {
 		plat->id.match_flags |= USB_DEVICE_ID_MATCH_DEV_CLASS;
 		plat->id.bDeviceClass = val;
 	}
-	val = fdtdec_get_int(blob, dev->of_offset, "usb,interface-class", -1);
+	val = dev_read_u32_default(dev, "usb,interface-class", -1);
 	if (val != -1) {
 		plat->id.match_flags |= USB_DEVICE_ID_MATCH_INT_CLASS;
 		plat->id.bInterfaceClass = val;

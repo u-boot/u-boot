@@ -29,7 +29,7 @@ static int tps65090_write(struct udevice *dev, uint reg, const uint8_t *buff,
 			  int len)
 {
 	if (dm_i2c_write(dev, reg, buff, len)) {
-		error("write error to device: %p register: %#x!", dev, reg);
+		pr_err("write error to device: %p register: %#x!", dev, reg);
 		return -EIO;
 	}
 
@@ -42,7 +42,7 @@ static int tps65090_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 
 	ret = dm_i2c_read(dev, reg, buff, len);
 	if (ret) {
-		error("read error %d from device: %p register: %#x!", ret, dev,
+		pr_err("read error %d from device: %p register: %#x!", ret, dev,
 		      reg);
 		return -EIO;
 	}
@@ -52,13 +52,11 @@ static int tps65090_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 
 static int tps65090_bind(struct udevice *dev)
 {
-	int regulators_node;
-	const void *blob = gd->fdt_blob;
+	ofnode regulators_node;
 	int children;
 
-	regulators_node = fdt_subnode_offset(blob, dev->of_offset,
-					     "regulators");
-	if (regulators_node <= 0) {
+	regulators_node = dev_read_subnode(dev, "regulators");
+	if (!ofnode_valid(regulators_node)) {
 		debug("%s: %s regulators subnode not found!", __func__,
 		      dev->name);
 		return -ENXIO;

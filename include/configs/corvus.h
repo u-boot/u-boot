@@ -36,7 +36,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 #define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
-#define CONFIG_BOARD_EARLY_INIT_F
 
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
@@ -44,7 +43,6 @@
 #define CONFIG_AT91_GPIO_PULLUP	1	/* keep pullups on peripheral pins */
 
 /* serial console */
-#define CONFIG_ATMEL_USART
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS
 
@@ -62,21 +60,13 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-/*
- * Command line configuration.
- */
-#define CONFIG_CMD_NAND
-
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE           ATMEL_BASE_CS6
 #define CONFIG_SYS_SDRAM_SIZE		0x08000000
 
 #define CONFIG_SYS_INIT_SP_ADDR \
-	(CONFIG_SYS_SDRAM_BASE + SZ_4K - GENERATED_GBL_DATA_SIZE)
-
-/* No NOR flash */
-#define CONFIG_SYS_NO_FLASH
+	(CONFIG_SYS_SDRAM_BASE + SZ_32K - GENERATED_GBL_DATA_SIZE)
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
@@ -94,19 +84,10 @@
 
 /* Ethernet */
 #define CONFIG_MACB
-#define CONFIG_PHYLIB
 #define CONFIG_RMII
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_AT91_WANTS_COMMON_PHY
 
-/* USB */
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_ATMEL
-#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	2
-#define CONFIG_DOS_PARTITION
-
-/* USB DFU support */
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 
@@ -117,7 +98,6 @@
 #define CONFIG_SYS_LOAD_ADDR	ATMEL_BASE_CS6
 
 /* bootstrap + u-boot + env in nandflash */
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x100000
 #define CONFIG_ENV_OFFSET_REDUND	0x180000
 #define CONFIG_ENV_SIZE			SZ_128K
@@ -125,19 +105,7 @@
 #define CONFIG_BOOTCOMMAND						\
 	"nand read 0x70000000 0x200000 0x300000;"			\
 	"bootm 0x70000000"
-#define CONFIG_BOOTARGS							\
-	"console=ttyS0,115200 earlyprintk "				\
-	"mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,"		\
-	"256k(env),256k(env_redundant),256k(spare),"			\
-	"512k(dtb),6M(kernel)ro,-(rootfs) "				\
-	"root=/dev/mtdblock7 rw rootfstype=jffs2"
 
-#define CONFIG_BAUDRATE			115200
-
-#define CONFIG_SYS_CBSIZE		256
-#define CONFIG_SYS_MAXARGS		16
-#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE +	\
-				 sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
@@ -157,7 +125,6 @@
 #define CONFIG_SPL_BSS_START_ADDR	CONFIG_SPL_MAX_SIZE
 #define CONFIG_SPL_BSS_MAX_SIZE		(SZ_2K)
 
-#define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_BASE
 #define CONFIG_SPL_NAND_ECC

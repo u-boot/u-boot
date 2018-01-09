@@ -12,10 +12,10 @@
 #include <asm/arch/iomux.h>
 #include <malloc.h>
 #include <asm/arch/mx6-pins.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/sata.h>
-#include <asm/imx-common/mxc_i2c.h>
-#include <asm/imx-common/boot_mode.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/sata.h>
+#include <asm/mach-imx/mxc_i2c.h>
+#include <asm/mach-imx/boot_mode.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/sys_proto.h>
 #include <mmc.h>
@@ -169,17 +169,6 @@ static void ccgr_init(void)
 	writel(0x000003FF, &ccm->CCGR6);
 }
 
-static void gpr_init(void)
-{
-	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-
-	/* enable AXI cache for VDOA/VPU/IPU */
-	writel(0xF00000CF, &iomux->gpr[4]);
-	/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
-	writel(0x007F007F, &iomux->gpr[6]);
-	writel(0x007F007F, &iomux->gpr[7]);
-}
-
 int board_early_init_f(void)
 {
 	ccgr_init();
@@ -273,10 +262,6 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 
-static iomux_v3_cfg_t const pwm_pad[] = {
-	MX6_PAD_SD1_CMD__PWM4_OUT | MUX_PAD_CTRL(OUTPUT_40OHM),
-};
-
 static void leds_on(void)
 {
 	/* turn on all possible leds connected via GPIO expander */
@@ -316,9 +301,9 @@ int board_eth_init(bd_t *bis)
 
 	/* depending on the phy address we can detect our board version */
 	if (phydev->addr == 0)
-		setenv("boardver", "");
+		env_set("boardver", "");
 	else
-		setenv("boardver", "mr");
+		env_set("boardver", "mr");
 
 	printf("using phy at %d\n", phydev->addr);
 	ret = fec_probe(bis, -1, base, bus, phydev);
@@ -342,7 +327,7 @@ int board_init(void)
 
 	leds_on();
 
-#ifdef CONFIG_CMD_SATA
+#ifdef CONFIG_SATA
 	setup_sata();
 #endif
 

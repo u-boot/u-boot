@@ -6,6 +6,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <clk.h>
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
@@ -19,15 +20,16 @@
 #include <zynqmp_tap_delay.h>
 #include "mmc_private.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifndef CONFIG_ZYNQ_SDHCI_MIN_FREQ
 # define CONFIG_ZYNQ_SDHCI_MIN_FREQ	0
 #endif
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct arasan_sdhci_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
+	unsigned int f_max;
 };
 
 struct arasan_sdhci_priv {
@@ -176,7 +178,28 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct arasan_sdhci_priv *priv = dev_get_priv(dev);
 	struct sdhci_host *host;
+	struct clk clk;
+	unsigned long clock;
 	int ret;
+
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret < 0) {
+		dev_err(dev, "failed to get clock\n");
+		return ret;
+	}
+
+	clock = clk_get_rate(&clk);
+	if (IS_ERR_VALUE(clock)) {
+		dev_err(dev, "failed to get rate\n");
+		return clock;
+	}
+	debug("%s: CLK %ld\n", __func__, clock);
+
+	ret = clk_enable(&clk);
+	if (ret && ret != -ENOSYS) {
+		dev_err(dev, "failed to enable clock\n");
+		return ret;
+	}
 
 	host = priv->host;
 
@@ -191,7 +214,9 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	if (priv->no_1p8)
 		host->quirks |= SDHCI_QUIRK_NO_1_8_V;
 
-	ret = sdhci_setup_cfg(&plat->cfg, host, CONFIG_ZYNQ_SDHCI_MAX_FREQ,
+	host->max_clk = clock;
+
+	ret = sdhci_setup_cfg(&plat->cfg, host, plat->f_max,
 			      CONFIG_ZYNQ_SDHCI_MIN_FREQ);
 	host->mmc = &plat->mmc;
 	if (ret)
@@ -219,6 +244,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 
 static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 {
+	struct arasan_sdhci_plat *plat = dev_get_platdata(dev);
 	struct arasan_sdhci_priv *priv = dev_get_priv(dev);
 
 	priv->host = calloc(1, sizeof(struct sdhci_host));
@@ -226,13 +252,17 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 		return -1;
 
 	priv->host->name = dev->name;
-	priv->host->ioaddr = (void *)dev_get_addr(dev);
+	priv->host->ioaddr = (void *)devfdt_get_addr(dev);
 
-	priv->deviceid = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	plat->f_max = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
+				"max-frequency", CONFIG_ZYNQ_SDHCI_MAX_FREQ);
+
+	priv->deviceid = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					"xlnx,device_id", -1);
-	priv->bank = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	priv->bank = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 				    "xlnx,mio_bank", -1);
-	if (fdt_get_property(gd->fdt_blob, dev->of_offset, "no-1-8-v", NULL)
+
+	if (fdt_get_property(gd->fdt_blob, dev_of_offset(dev), "no-1-8-v", NULL)
 #if defined(CONFIG_ARCH_ZYNQMP)
 	    || (chip_id(VERSION) == ZYNQMP_SILICON_V1)
 #endif
@@ -241,7 +271,8 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 	else
 		priv->no_1p8 = 0;
 
-	if (fdt_get_property(gd->fdt_blob, dev->of_offset, "mmc-pwrseq", NULL))
+	if (fdt_get_property(gd->fdt_blob, dev_of_offset(dev), "mmc-pwrseq",
+			     NULL))
 		priv->pwrseq = true;
 
 	return 0;

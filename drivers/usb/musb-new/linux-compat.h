@@ -5,8 +5,6 @@
 #include <linux/list.h>
 #include <linux/compat.h>
 
-#define pr_debug(fmt, args...) debug(fmt, ##args)
-
 #define WARN(condition, fmt, args...) ({	\
 	int ret_warn = !!condition;		\
 	if (ret_warn)				\
@@ -30,7 +28,7 @@
 #define CONFIG_SOC_OMAP3430
 #endif
 
-#ifdef CONFIG_OMAP4430
+#ifdef CONFIG_OMAP44XX
 #define CONFIG_ARCH_OMAP4
 #endif
 

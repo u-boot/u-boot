@@ -35,6 +35,27 @@
 #define PMC_BASE_ADDRESS		0xfed03000
 #define PMC_BASE_SIZE			0x400
 
+#define GEN_PMCON1			0x20
+#define  UART_EN			(1 << 24)
+#define  DISB				(1 << 23)
+#define  MEM_SR				(1 << 21)
+#define  SRS				(1 << 20)
+#define  CTS				(1 << 19)
+#define  MS4V				(1 << 18)
+#define  PWR_FLR			(1 << 16)
+#define  PME_B0_S5_DIS			(1 << 15)
+#define  SUS_PWR_FLR			(1 << 14)
+#define  WOL_EN_OVRD			(1 << 13)
+#define  DIS_SLP_X_STRCH_SUS_UP		(1 << 12)
+#define  GEN_RST_STS			(1 <<  9)
+#define  RPS				(1 <<  2)
+#define  AFTERG3_EN			(1 <<  0)
+#define GEN_PMCON2			0x24
+#define  SLPSX_STR_POL_LOCK		(1 << 18)
+#define  BIOS_PCI_EXP_EN		(1 << 10)
+#define  PWRBTN_LVL			(1 <<  9)
+#define  SMI_LOCK			(1 <<  4)
+
 /* Power Management Unit */
 #define PUNIT_BASE_ADDRESS		0xfed05000
 #define PUNIT_BASE_SIZE			0x800
@@ -61,6 +82,9 @@
 /* IO Port bases */
 #define ACPI_BASE_ADDRESS		0x0400
 #define ACPI_BASE_SIZE			0x80
+
+#define PM1_STS				0x00
+#define PM1_CNT				0x04
 
 #define GPIO_BASE_ADDRESS		0x0500
 #define GPIO_BASE_SIZE			0x100

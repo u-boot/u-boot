@@ -154,7 +154,9 @@ static void lowest_common_dimm_parameters_edit(fsl_ddr_info_t *pinfo,
 	static const struct options_string options[] = {
 		COMMON_TIMING(tckmin_x_ps),
 		COMMON_TIMING(tckmax_ps),
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
 		COMMON_TIMING(taamin_ps),
+#endif
 		COMMON_TIMING(trcd_ps),
 		COMMON_TIMING(trp_ps),
 		COMMON_TIMING(tras_ps),
@@ -422,7 +424,9 @@ static void print_lowest_common_dimm_parameters(
 		const common_timing_params_t *plcd_dimm_params)
 {
 	static const struct options_string options[] = {
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
 		COMMON_TIMING(taamin_ps),
+#endif
 		COMMON_TIMING(trcd_ps),
 		COMMON_TIMING(trp_ps),
 		COMMON_TIMING(tras_ps),
@@ -1857,7 +1861,7 @@ int fsl_ddr_interactive_env_var_exists(void)
 {
 	char buffer[CONFIG_SYS_CBSIZE];
 
-	if (getenv_f("ddr_interactive", buffer, CONFIG_SYS_CBSIZE) >= 0)
+	if (env_get_f("ddr_interactive", buffer, CONFIG_SYS_CBSIZE) >= 0)
 		return 1;
 
 	return 0;
@@ -1887,11 +1891,11 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo, int var_is_set)
 	};
 
 	if (var_is_set) {
-		if (getenv_f("ddr_interactive", buffer2, CONFIG_SYS_CBSIZE) > 0) {
+		if (env_get_f("ddr_interactive", buffer2,
+			      CONFIG_SYS_CBSIZE) > 0)
 			p = buffer2;
-		} else {
+		else
 			var_is_set = 0;
-		}
 	}
 
 	/*

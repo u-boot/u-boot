@@ -50,11 +50,11 @@ static int do_load_serial(cmd_tbl_t *cmdtp, int flag, int argc,
 	load_baudrate = current_baudrate = gd->baudrate;
 #endif
 
-	if (((env_echo = getenv("loads_echo")) != NULL) && (*env_echo == '1')) {
+	env_echo = env_get("loads_echo");
+	if (env_echo && *env_echo == '1')
 		do_echo = 1;
-	} else {
+	else
 		do_echo = 0;
-	}
 
 #ifdef	CONFIG_SYS_LOADS_BAUD_CHANGE
 	if (argc >= 2) {
@@ -151,7 +151,7 @@ static ulong load_serial(long offset)
 		case SREC_DATA3:
 		case SREC_DATA4:
 		    store_addr = addr + offset;
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 		    if (addr2info(store_addr)) {
 			int rc;
 
@@ -182,7 +182,7 @@ static ulong load_serial(long offset)
 			    start_addr, end_addr, size, size
 		    );
 		    flush_cache(start_addr, size);
-		    setenv_hex("filesize", size);
+		    env_set_hex("filesize", size);
 		    return (addr);
 		case SREC_START:
 		    break;
@@ -427,9 +427,9 @@ static int do_load_serial_bin(cmd_tbl_t *cmdtp, int flag, int argc,
 	offset = CONFIG_SYS_LOAD_ADDR;
 
 	/* pre-set offset from $loadaddr */
-	if ((s = getenv("loadaddr")) != NULL) {
+	s = env_get("loadaddr");
+	if (s)
 		offset = simple_strtoul(s, NULL, 16);
-	}
 
 	load_baudrate = current_baudrate = gd->baudrate;
 
@@ -529,7 +529,7 @@ static ulong load_serial_bin(ulong offset)
 	flush_cache(offset, size);
 
 	printf("## Total Size      = 0x%08x = %d Bytes\n", size, size);
-	setenv_hex("filesize", size);
+	env_set_hex("filesize", size);
 
 	return offset;
 }
@@ -971,7 +971,7 @@ static ulong load_serial_ymodem(ulong offset, int mode)
 			store_addr = addr + offset;
 			size += res;
 			addr += res;
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 			if (addr2info(store_addr)) {
 				int rc;
 
@@ -1000,7 +1000,7 @@ static ulong load_serial_ymodem(ulong offset, int mode)
 	flush_cache(offset, ALIGN(size, ARCH_DMA_MINALIGN));
 
 	printf("## Total Size      = 0x%08x = %d Bytes\n", size, size);
-	setenv_hex("filesize", size);
+	env_set_hex("filesize", size);
 
 	return offset;
 }

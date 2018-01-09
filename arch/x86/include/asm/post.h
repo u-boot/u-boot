@@ -31,10 +31,12 @@
 #define POST_MRC		0x2f
 #define POST_DRAM		0x30
 #define POST_LAPIC		0x31
+#define POST_OS_RESUME		0x40
 
 #define POST_RAM_FAILURE	0xea
 #define POST_BIST_FAILURE	0xeb
 #define POST_CAR_FAILURE	0xec
+#define POST_RESUME_FAILURE	0xed
 
 /* Output a post code using al - value must be 0 to 0xff */
 #ifdef __ASSEMBLY__

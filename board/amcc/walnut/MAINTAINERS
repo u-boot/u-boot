@@ -1,7 +1,0 @@
-WALNUT BOARD
-M:	Stefan Roese <sr@denx.de>
-S:	Maintained
-F:	board/amcc/walnut/
-F:	include/configs/walnut.h
-F:	configs/sycamore_defconfig
-F:	configs/walnut_defconfig

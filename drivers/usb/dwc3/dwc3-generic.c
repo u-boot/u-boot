@@ -32,7 +32,7 @@ int usb_gadget_handle_interrupts(int index)
 
 	ret = uclass_first_device(UCLASS_USB_DEV_GENERIC, &dev);
 	if (!dev || ret) {
-		error("No USB device found\n");
+		pr_err("No USB device found\n");
 		return -ENODEV;
 	}
 
@@ -62,20 +62,20 @@ static int dwc3_generic_peripheral_remove(struct udevice *dev)
 static int dwc3_generic_peripheral_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dwc3 *priv = dev_get_priv(dev);
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 
-	priv->regs = (void *)dev_get_addr(dev);
+	priv->regs = (void *)devfdt_get_addr(dev);
 	priv->regs += DWC3_GLOBALS_REGS_START;
 
 	priv->maximum_speed = usb_get_maximum_speed(node);
 	if (priv->maximum_speed == USB_SPEED_UNKNOWN) {
-		error("Invalid usb maximum speed\n");
+		pr_err("Invalid usb maximum speed\n");
 		return -ENODEV;
 	}
 
 	priv->dr_mode = usb_get_dr_mode(node);
 	if (priv->dr_mode == USB_DR_MODE_UNKNOWN) {
-		error("Invalid usb mode setup\n");
+		pr_err("Invalid usb mode setup\n");
 		return -ENODEV;
 	}
 
@@ -105,7 +105,7 @@ static int dwc3_generic_bind(struct udevice *parent)
 	int node;
 	int ret;
 
-	for (node = fdt_first_subnode(fdt, parent->of_offset); node > 0;
+	for (node = fdt_first_subnode(fdt, dev_of_offset(parent)); node > 0;
 	     node = fdt_next_subnode(fdt, node)) {
 		const char *name = fdt_get_name(fdt, node, NULL);
 		enum usb_dr_mode dr_mode;
@@ -123,7 +123,8 @@ static int dwc3_generic_bind(struct udevice *parent)
 			debug("%s: dr_mode: OTG or Peripheral\n", __func__);
 			ret = device_bind_driver_to_node(parent,
 							 "dwc3-generic-peripheral",
-							 name, node, &dev);
+							 name, offset_to_ofnode(node),
+							 &dev);
 			if (ret) {
 				debug("%s: not able to bind usb device mode\n",
 				      __func__);
@@ -134,7 +135,8 @@ static int dwc3_generic_bind(struct udevice *parent)
 			debug("%s: dr_mode: HOST\n", __func__);
 			ret = device_bind_driver_to_node(parent,
 							 "dwc3-generic-host",
-							 name, node, &dev);
+							 name, offset_to_ofnode(node),
+							 &dev);
 			if (ret) {
 				debug("%s: not able to bind usb host mode\n",
 				      __func__);

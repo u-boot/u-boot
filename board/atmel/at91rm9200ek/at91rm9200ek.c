@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <netdev.h>
+#include <asm/mach-types.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/at91_common.h>

@@ -6,6 +6,13 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+/ {
+	config {
+		u-boot,mmc-env-partition = "boot";
+	};
+};
+
+
 &pm8916_gpios {
 	usb_hub_reset_pm {
 		gpios = <&pm8916_gpios 2 0>;

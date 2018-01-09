@@ -10,21 +10,41 @@
 #include <i2c.h>
 #include <i2c_eeprom.h>
 
-static int i2c_eeprom_read(struct udevice *dev, int offset, uint8_t *buf,
-			   int size)
+int i2c_eeprom_read(struct udevice *dev, int offset, uint8_t *buf, int size)
+{
+	const struct i2c_eeprom_ops *ops = device_get_ops(dev);
+
+	if (!ops->read)
+		return -ENOSYS;
+
+	return ops->read(dev, offset, buf, size);
+}
+
+int i2c_eeprom_write(struct udevice *dev, int offset, uint8_t *buf, int size)
+{
+	const struct i2c_eeprom_ops *ops = device_get_ops(dev);
+
+	if (!ops->write)
+		return -ENOSYS;
+
+	return ops->write(dev, offset, buf, size);
+}
+
+static int i2c_eeprom_std_read(struct udevice *dev, int offset, uint8_t *buf,
+			       int size)
 {
 	return dm_i2c_read(dev, offset, buf, size);
 }
 
-static int i2c_eeprom_write(struct udevice *dev, int offset,
-			    const uint8_t *buf, int size)
+static int i2c_eeprom_std_write(struct udevice *dev, int offset,
+				const uint8_t *buf, int size)
 {
 	return -ENODEV;
 }
 
-struct i2c_eeprom_ops i2c_eeprom_std_ops = {
-	.read	= i2c_eeprom_read,
-	.write	= i2c_eeprom_write,
+static const struct i2c_eeprom_ops i2c_eeprom_std_ops = {
+	.read	= i2c_eeprom_std_read,
+	.write	= i2c_eeprom_std_write,
 };
 
 static int i2c_eeprom_std_ofdata_to_platdata(struct udevice *dev)
@@ -39,18 +59,20 @@ static int i2c_eeprom_std_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-int i2c_eeprom_std_probe(struct udevice *dev)
+static int i2c_eeprom_std_probe(struct udevice *dev)
 {
 	return 0;
 }
 
 static const struct udevice_id i2c_eeprom_std_ids[] = {
 	{ .compatible = "i2c-eeprom", .data = 0 },
+	{ .compatible = "microchip,24aa02e48", .data = 3 },
 	{ .compatible = "atmel,24c01a", .data = 3 },
 	{ .compatible = "atmel,24c02", .data = 3 },
 	{ .compatible = "atmel,24c04", .data = 4 },
 	{ .compatible = "atmel,24c08a", .data = 4 },
 	{ .compatible = "atmel,24c16a", .data = 4 },
+	{ .compatible = "atmel,24mac402", .data = 4 },
 	{ .compatible = "atmel,24c32", .data = 5 },
 	{ .compatible = "atmel,24c64", .data = 5 },
 	{ .compatible = "atmel,24c128", .data = 6 },

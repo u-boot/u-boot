@@ -16,7 +16,6 @@
 
 #include <common.h>
 #include <dm.h>
-#include <fdtdec.h>
 #include <i2c.h>
 #include <os.h>
 #include <rtc.h>

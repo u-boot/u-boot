@@ -51,9 +51,9 @@ void spi_cs_deactivate(struct spi_slave *slave)
 
 static void vinco_spi0_hw_init(void)
 {
-	at91_set_a_periph(AT91_PIO_PORTC, 0, 0);	/* SPI0_MISO */
-	at91_set_a_periph(AT91_PIO_PORTC, 1, 0);	/* SPI0_MOSI */
-	at91_set_a_periph(AT91_PIO_PORTC, 2, 0);	/* SPI0_SPCK */
+	at91_pio3_set_a_periph(AT91_PIO_PORTC, 0, 0);	/* SPI0_MISO */
+	at91_pio3_set_a_periph(AT91_PIO_PORTC, 1, 0);	/* SPI0_MOSI */
+	at91_pio3_set_a_periph(AT91_PIO_PORTC, 2, 0);	/* SPI0_SPCK */
 
 	at91_set_pio_output(AT91_PIO_PORTC, 3, 1);	/* SPI0_CS0 */
 
@@ -76,16 +76,16 @@ static void vinco_usb_hw_init(void)
 #ifdef CONFIG_GENERIC_ATMEL_MCI
 void vinco_mci0_hw_init(void)
 {
-	at91_set_b_periph(AT91_PIO_PORTC, 5, 1);	/* MCI0 CDA */
-	at91_set_b_periph(AT91_PIO_PORTC, 6, 1);	/* MCI0 DA0 */
-	at91_set_b_periph(AT91_PIO_PORTC, 7, 1);	/* MCI0 DA1 */
-	at91_set_b_periph(AT91_PIO_PORTC, 8, 1);	/* MCI0 DA2 */
-	at91_set_b_periph(AT91_PIO_PORTC, 9, 1);	/* MCI0 DA3 */
-	at91_set_b_periph(AT91_PIO_PORTC, 10, 1);	/* MCI0 DA4 */
-	at91_set_b_periph(AT91_PIO_PORTC, 11, 1);	/* MCI0 DA5 */
-	at91_set_b_periph(AT91_PIO_PORTC, 12, 1);	/* MCI0 DA6 */
-	at91_set_b_periph(AT91_PIO_PORTC, 13, 1);	/* MCI0 DA7 */
-	at91_set_b_periph(AT91_PIO_PORTC, 4, 0);	/* MCI0 CLK */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 5, 1);	/* MCI0 CDA */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 6, 1);	/* MCI0 DA0 */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 7, 1);	/* MCI0 DA1 */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 8, 1);	/* MCI0 DA2 */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 9, 1);	/* MCI0 DA3 */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 10, 1);	/* MCI0 DA4 */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 11, 1);	/* MCI0 DA5 */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 12, 1);	/* MCI0 DA6 */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 13, 1);	/* MCI0 DA7 */
+	at91_pio3_set_b_periph(AT91_PIO_PORTC, 4, 0);	/* MCI0 CLK */
 
 	/*
 	 * As the mci io internal pull down is too strong, so if the io needs
@@ -93,16 +93,16 @@ void vinco_mci0_hw_init(void)
 	 * the power consumption will increase, so disable the interanl pull
 	 * down to save the power.
 	 */
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 4, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 5, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 6, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 7, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 8, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 9, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 10, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 11, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 12, 0);
-	at91_set_pio_pulldown(AT91_PIO_PORTC, 13, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 4, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 5, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 6, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 7, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 8, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 9, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 10, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 11, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 12, 0);
+	at91_pio3_set_pio_pulldown(AT91_PIO_PORTC, 13, 0);
 
 	/* Enable clock */
 	at91_periph_clk_enable(ATMEL_ID_MCI0);
@@ -120,16 +120,16 @@ int board_mmc_init(bd_t *bis)
 #ifdef CONFIG_MACB
 void vinco_macb0_hw_init(void)
 {
-	at91_set_a_periph(AT91_PIO_PORTB, 0, 0);	/* ETXCK_EREFCK */
-	at91_set_a_periph(AT91_PIO_PORTB, 6, 0);	/* ERXDV */
-	at91_set_a_periph(AT91_PIO_PORTB, 8, 0);	/* ERX0 */
-	at91_set_a_periph(AT91_PIO_PORTB, 9, 0);	/* ERX1 */
-	at91_set_a_periph(AT91_PIO_PORTB, 7, 0);	/* ERXER */
-	at91_set_a_periph(AT91_PIO_PORTB, 2, 0);	/* ETXEN */
-	at91_set_a_periph(AT91_PIO_PORTB, 12, 0);	/* ETX0 */
-	at91_set_a_periph(AT91_PIO_PORTB, 13, 0);	/* ETX1 */
-	at91_set_a_periph(AT91_PIO_PORTB, 17, 0);	/* EMDIO */
-	at91_set_a_periph(AT91_PIO_PORTB, 16, 0);	/* EMDC */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 0, 0);	/* ETXCK_EREFCK */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 6, 0);	/* ERXDV */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 8, 0);	/* ERX0 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 9, 0);	/* ERX1 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 7, 0);	/* ERXER */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 2, 0);	/* ETXEN */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 12, 0);	/* ETX0 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 13, 0);	/* ETX1 */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 17, 0);	/* EMDIO */
+	at91_pio3_set_a_periph(AT91_PIO_PORTB, 16, 0);	/* EMDC */
 
 	/* Enable clock */
 	at91_periph_clk_enable(ATMEL_ID_GMAC0);
@@ -141,8 +141,8 @@ void vinco_macb0_hw_init(void)
 
 static void vinco_serial3_hw_init(void)
 {
-	at91_set_b_periph(AT91_PIO_PORTE, 17, 1);	/* TXD3 */
-	at91_set_b_periph(AT91_PIO_PORTE, 16, 0);	/* RXD3 */
+	at91_pio3_set_b_periph(AT91_PIO_PORTE, 17, 1);	/* TXD3 */
+	at91_pio3_set_b_periph(AT91_PIO_PORTE, 16, 0);	/* RXD3 */
 
 	/* Enable clock */
 	at91_periph_clk_enable(ATMEL_ID_USART3);

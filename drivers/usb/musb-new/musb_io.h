@@ -22,9 +22,9 @@
 #endif
 
 #if !defined(CONFIG_ARM) && !defined(CONFIG_SUPERH) \
-	&& !defined(CONFIG_AVR32) && !defined(CONFIG_PPC32) \
-	&& !defined(CONFIG_PPC64) && !defined(CONFIG_BLACKFIN) \
-	&& !defined(CONFIG_MIPS) && !defined(CONFIG_M68K)
+	&& !defined(CONFIG_PPC32) \
+	&& !defined(CONFIG_PPC64) && !defined(CONFIG_MIPS) \
+	&& !defined(CONFIG_M68K)
 static inline void readsl(const void __iomem *addr, void *buf, int len)
 	{ insl((unsigned long)addr, buf, len); }
 static inline void readsw(const void __iomem *addr, void *buf, int len)
@@ -40,8 +40,6 @@ static inline void writesb(const void __iomem *addr, const void *buf, int len)
 	{ outsb((unsigned long)addr, buf, len); }
 
 #endif
-
-#ifndef CONFIG_BLACKFIN
 
 /* NOTE:  these offsets are all in bytes */
 
@@ -100,27 +98,5 @@ static inline void musb_writeb(void __iomem *addr, unsigned offset, u8 data)
 	{ __raw_writeb(data, addr + offset); }
 
 #endif	/* CONFIG_USB_MUSB_TUSB6010 */
-
-#else
-
-static inline u8 musb_readb(const void __iomem *addr, unsigned offset)
-	{ return (u8) (bfin_read16(addr + offset)); }
-
-static inline u16 musb_readw(const void __iomem *addr, unsigned offset)
-	{ return bfin_read16(addr + offset); }
-
-static inline u32 musb_readl(const void __iomem *addr, unsigned offset)
-	{ return (u32) (bfin_read16(addr + offset)); }
-
-static inline void musb_writeb(void __iomem *addr, unsigned offset, u8 data)
-	{ bfin_write16(addr + offset, (u16) data); }
-
-static inline void musb_writew(void __iomem *addr, unsigned offset, u16 data)
-	{ bfin_write16(addr + offset, data); }
-
-static inline void musb_writel(void __iomem *addr, unsigned offset, u32 data)
-	{ bfin_write16(addr + offset, (u16) data); }
-
-#endif /* CONFIG_BLACKFIN */
 
 #endif

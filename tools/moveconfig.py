@@ -107,12 +107,130 @@ Toolchains
 
 Appropriate toolchain are necessary to generate include/autoconf.mk
 for all the architectures supported by U-Boot.  Most of them are available
-at the kernel.org site, some are not provided by kernel.org.
+at the kernel.org site, some are not provided by kernel.org. This tool uses
+the same tools as buildman, so see that tool for setup (e.g. --fetch-arch).
 
-The default per-arch CROSS_COMPILE used by this tool is specified by
-the list below, CROSS_COMPILE.  You may wish to update the list to
-use your own.  Instead of modifying the list directly, you can give
-them via environments.
+
+Tips and trips
+--------------
+
+To sync only X86 defconfigs:
+
+   ./tools/moveconfig.py -s -d <(grep -l X86 configs/*)
+
+or:
+
+   grep -l X86 configs/* | ./tools/moveconfig.py -s -d -
+
+To process CONFIG_CMD_FPGAD only for a subset of configs based on path match:
+
+   ls configs/{hrcon*,iocon*,strider*} | \
+       ./tools/moveconfig.py -Cy CONFIG_CMD_FPGAD -d -
+
+
+Finding implied CONFIGs
+-----------------------
+
+Some CONFIG options can be implied by others and this can help to reduce
+the size of the defconfig files. For example, CONFIG_X86 implies
+CONFIG_CMD_IRQ, so we can put 'imply CMD_IRQ' under 'config X86' and
+all x86 boards will have that option, avoiding adding CONFIG_CMD_IRQ to
+each of the x86 defconfig files.
+
+This tool can help find such configs. To use it, first build a database:
+
+    ./tools/moveconfig.py -b
+
+Then try to query it:
+
+    ./tools/moveconfig.py -i CONFIG_CMD_IRQ
+    CONFIG_CMD_IRQ found in 311/2384 defconfigs
+    44 : CONFIG_SYS_FSL_ERRATUM_IFC_A002769
+    41 : CONFIG_SYS_FSL_ERRATUM_A007075
+    31 : CONFIG_SYS_FSL_DDR_VER_44
+    28 : CONFIG_ARCH_P1010
+    28 : CONFIG_SYS_FSL_ERRATUM_P1010_A003549
+    28 : CONFIG_SYS_FSL_ERRATUM_SEC_A003571
+    28 : CONFIG_SYS_FSL_ERRATUM_IFC_A003399
+    25 : CONFIG_SYS_FSL_ERRATUM_A008044
+    22 : CONFIG_ARCH_P1020
+    21 : CONFIG_SYS_FSL_DDR_VER_46
+    20 : CONFIG_MAX_PIRQ_LINKS
+    20 : CONFIG_HPET_ADDRESS
+    20 : CONFIG_X86
+    20 : CONFIG_PCIE_ECAM_SIZE
+    20 : CONFIG_IRQ_SLOT_COUNT
+    20 : CONFIG_I8259_PIC
+    20 : CONFIG_CPU_ADDR_BITS
+    20 : CONFIG_RAMBASE
+    20 : CONFIG_SYS_FSL_ERRATUM_A005871
+    20 : CONFIG_PCIE_ECAM_BASE
+    20 : CONFIG_X86_TSC_TIMER
+    20 : CONFIG_I8254_TIMER
+    20 : CONFIG_CMD_GETTIME
+    19 : CONFIG_SYS_FSL_ERRATUM_A005812
+    18 : CONFIG_X86_RUN_32BIT
+    17 : CONFIG_CMD_CHIP_CONFIG
+    ...
+
+This shows a list of config options which might imply CONFIG_CMD_EEPROM along
+with how many defconfigs they cover. From this you can see that CONFIG_X86
+implies CONFIG_CMD_EEPROM. Therefore, instead of adding CONFIG_CMD_EEPROM to
+the defconfig of every x86 board, you could add a single imply line to the
+Kconfig file:
+
+    config X86
+        bool "x86 architecture"
+        ...
+        imply CMD_EEPROM
+
+That will cover 20 defconfigs. Many of the options listed are not suitable as
+they are not related. E.g. it would be odd for CONFIG_CMD_GETTIME to imply
+CMD_EEPROM.
+
+Using this search you can reduce the size of moveconfig patches.
+
+You can automatically add 'imply' statements in the Kconfig with the -a
+option:
+
+    ./tools/moveconfig.py -s -i CONFIG_SCSI \
+            -a CONFIG_ARCH_LS1021A,CONFIG_ARCH_LS1043A
+
+This will add 'imply SCSI' to the two CONFIG options mentioned, assuming that
+the database indicates that they do actually imply CONFIG_SCSI and do not
+already have an 'imply SCSI'.
+
+The output shows where the imply is added:
+
+   18 : CONFIG_ARCH_LS1021A       arch/arm/cpu/armv7/ls102xa/Kconfig:1
+   13 : CONFIG_ARCH_LS1043A       arch/arm/cpu/armv8/fsl-layerscape/Kconfig:11
+   12 : CONFIG_ARCH_LS1046A       arch/arm/cpu/armv8/fsl-layerscape/Kconfig:31
+
+The first number is the number of boards which can avoid having a special
+CONFIG_SCSI option in their defconfig file if this 'imply' is added.
+The location at the right is the Kconfig file and line number where the config
+appears. For example, adding 'imply CONFIG_SCSI' to the 'config ARCH_LS1021A'
+in arch/arm/cpu/armv7/ls102xa/Kconfig at line 1 will help 18 boards to reduce
+the size of their defconfig files.
+
+If you want to add an 'imply' to every imply config in the list, you can use
+
+    ./tools/moveconfig.py -s -i CONFIG_SCSI -a all
+
+To control which ones are displayed, use -I <list> where list is a list of
+options (use '-I help' to see possible options and their meaning).
+
+To skip showing you options that already have an 'imply' attached, use -A.
+
+When you have finished adding 'imply' options you can regenerate the
+defconfig files for affected boards with something like:
+
+    git show --stat | ./tools/moveconfig.py -s -d -
+
+This will regenerate only those defconfigs changed in the current commit.
+If you start with (say) 100 defconfigs being changed in the commit, and add
+a few 'imply' options as above, then regenerate, hopefully you can reduce the
+number of defconfigs changed in the commit.
 
 
 Available options
@@ -128,7 +246,7 @@ Available options
 
  -d, --defconfigs
   Specify a file containing a list of defconfigs to move.  The defconfig
-  files can be given with shell-style wildcards.
+  files can be given with shell-style wildcards. Use '-' to read from stdin.
 
  -n, --dry-run
    Perform a trial run that does not make any changes.  It is useful to
@@ -169,7 +287,8 @@ Available options
 
  -y, --yes
    Instead of prompting, automatically go ahead with all operations. This
-   includes cleaning up headers and CONFIG_SYS_EXTRA_OPTIONS.
+   includes cleaning up headers, CONFIG_SYS_EXTRA_OPTIONS, the config whitelist
+   and the README.
 
 To see the complete list of supported options, run
 
@@ -177,6 +296,7 @@ To see the complete list of supported options, run
 
 """
 
+import collections
 import copy
 import difflib
 import filecmp
@@ -185,45 +305,23 @@ import glob
 import multiprocessing
 import optparse
 import os
+import Queue
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
+
+sys.path.append(os.path.join(os.path.dirname(__file__), 'buildman'))
+sys.path.append(os.path.join(os.path.dirname(__file__), 'patman'))
+import bsettings
+import kconfiglib
+import toolchain
 
 SHOW_GNU_MAKE = 'scripts/show-gnu-make'
 SLEEP_TIME=0.03
-
-# Here is the list of cross-tools I use.
-# Most of them are available at kernel.org
-# (https://www.kernel.org/pub/tools/crosstool/files/bin/), except the following:
-# arc: https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases
-# blackfin: http://sourceforge.net/projects/adi-toolchain/files/
-# nds32: http://osdk.andestech.com/packages/nds32le-linux-glibc-v1.tgz
-# nios2: https://sourcery.mentor.com/GNUToolchain/subscription42545
-# sh: http://sourcery.mentor.com/public/gnu_toolchain/sh-linux-gnu
-#
-# openrisc kernel.org toolchain is out of date, download latest one from
-# http://opencores.org/or1k/OpenRISC_GNU_tool_chain#Prebuilt_versions
-CROSS_COMPILE = {
-    'arc': 'arc-linux-',
-    'aarch64': 'aarch64-linux-',
-    'arm': 'arm-unknown-linux-gnueabi-',
-    'avr32': 'avr32-linux-',
-    'blackfin': 'bfin-elf-',
-    'm68k': 'm68k-linux-',
-    'microblaze': 'microblaze-linux-',
-    'mips': 'mips-linux-',
-    'nds32': 'nds32le-linux-',
-    'nios2': 'nios2-linux-gnu-',
-    'openrisc': 'or1k-elf-',
-    'powerpc': 'powerpc-linux-',
-    'sh': 'sh-linux-gnu-',
-    'sparc': 'sparc-linux-',
-    'x86': 'i386-linux-',
-    'xtensa': 'xtensa-linux-'
-}
 
 STATE_IDLE = 0
 STATE_DEFCONFIG = 1
@@ -251,6 +349,11 @@ COLOR_LIGHT_BLUE   = '1;34'
 COLOR_LIGHT_PURPLE = '1;35'
 COLOR_LIGHT_CYAN   = '1;36'
 COLOR_WHITE        = '1;37'
+
+AUTO_CONF_PATH = 'include/config/auto.conf'
+CONFIG_DATABASE = 'moveconfig.db'
+
+CONFIG_LEN = len('CONFIG_')
 
 ### helper functions ###
 def get_devnull():
@@ -286,15 +389,47 @@ def get_make_cmd():
         sys.exit('GNU Make not found')
     return ret[0].rstrip()
 
+def get_matched_defconfig(line):
+    """Get the defconfig files that match a pattern
+
+    Args:
+        line: Path or filename to match, e.g. 'configs/snow_defconfig' or
+            'k2*_defconfig'. If no directory is provided, 'configs/' is
+            prepended
+
+    Returns:
+        a list of matching defconfig files
+    """
+    dirname = os.path.dirname(line)
+    if dirname:
+        pattern = line
+    else:
+        pattern = os.path.join('configs', line)
+    return glob.glob(pattern) + glob.glob(pattern + '_defconfig')
+
 def get_matched_defconfigs(defconfigs_file):
-    """Get all the defconfig files that match the patterns in a file."""
+    """Get all the defconfig files that match the patterns in a file.
+
+    Args:
+        defconfigs_file: File containing a list of defconfigs to process, or
+            '-' to read the list from stdin
+
+    Returns:
+        A list of paths to defconfig files, with no duplicates
+    """
     defconfigs = []
-    for i, line in enumerate(open(defconfigs_file)):
+    if defconfigs_file == '-':
+        fd = sys.stdin
+        defconfigs_file = 'stdin'
+    else:
+        fd = open(defconfigs_file)
+    for i, line in enumerate(fd):
         line = line.strip()
         if not line:
             continue # skip blank lines silently
-        pattern = os.path.join('configs', line)
-        matched = glob.glob(pattern) + glob.glob(pattern + '_defconfig')
+        if ' ' in line:
+            line = line.split(' ')[0]  # handle 'git log' input
+        matched = get_matched_defconfig(line)
         if not matched:
             print >> sys.stderr, "warning: %s:%d: no defconfig matched '%s'" % \
                                                  (defconfigs_file, i + 1, line)
@@ -346,51 +481,6 @@ def show_diff(a, b, file_path, color_enabled):
         else:
             print line,
 
-def update_cross_compile(color_enabled):
-    """Update per-arch CROSS_COMPILE via environment variables
-
-    The default CROSS_COMPILE values are available
-    in the CROSS_COMPILE list above.
-
-    You can override them via environment variables
-    CROSS_COMPILE_{ARCH}.
-
-    For example, if you want to override toolchain prefixes
-    for ARM and PowerPC, you can do as follows in your shell:
-
-    export CROSS_COMPILE_ARM=...
-    export CROSS_COMPILE_POWERPC=...
-
-    Then, this function checks if specified compilers really exist in your
-    PATH environment.
-    """
-    archs = []
-
-    for arch in os.listdir('arch'):
-        if os.path.exists(os.path.join('arch', arch, 'Makefile')):
-            archs.append(arch)
-
-    # arm64 is a special case
-    archs.append('aarch64')
-
-    for arch in archs:
-        env = 'CROSS_COMPILE_' + arch.upper()
-        cross_compile = os.environ.get(env)
-        if not cross_compile:
-            cross_compile = CROSS_COMPILE.get(arch, '')
-
-        for path in os.environ["PATH"].split(os.pathsep):
-            gcc_path = os.path.join(path, cross_compile + 'gcc')
-            if os.path.isfile(gcc_path) and os.access(gcc_path, os.X_OK):
-                break
-        else:
-            print >> sys.stderr, color_text(color_enabled, COLOR_YELLOW,
-                 'warning: %sgcc: not found in PATH.  %s architecture boards will be skipped'
-                                            % (cross_compile, arch))
-            cross_compile = None
-
-        CROSS_COMPILE[arch] = cross_compile
-
 def extend_matched_lines(lines, matched, pre_patterns, post_patterns, extend_pre,
                          extend_post):
     """Extend matched lines if desired patterns are found before/after already
@@ -441,6 +531,20 @@ def extend_matched_lines(lines, matched, pre_patterns, post_patterns, extend_pre
 
     matched += extended_matched
     matched.sort()
+
+def confirm(options, prompt):
+    if not options.yes:
+        while True:
+            choice = raw_input('{} [y/n]: '.format(prompt))
+            choice = choice.lower()
+            print choice
+            if choice == 'y' or choice == 'n':
+                break
+
+        if choice == 'n':
+            return False
+
+    return True
 
 def cleanup_one_header(header_path, patterns, options):
     """Clean regex-matched lines away from a file.
@@ -509,15 +613,8 @@ def cleanup_headers(configs, options):
       configs: A list of CONFIGs to remove.
       options: option flags.
     """
-    if not options.yes:
-        while True:
-            choice = raw_input('Clean up headers? [y/n]: ').lower()
-            print choice
-            if choice == 'y' or choice == 'n':
-                break
-
-        if choice == 'n':
-            return
+    if not confirm(options, 'Clean up headers?'):
+        return
 
     patterns = []
     for config in configs:
@@ -589,16 +686,8 @@ def cleanup_extra_options(configs, options):
       configs: A list of CONFIGs to remove.
       options: option flags.
     """
-    if not options.yes:
-        while True:
-            choice = (raw_input('Clean up CONFIG_SYS_EXTRA_OPTIONS? [y/n]: ').
-                      lower())
-            print choice
-            if choice == 'y' or choice == 'n':
-                break
-
-        if choice == 'n':
-            return
+    if not confirm(options, 'Clean up CONFIG_SYS_EXTRA_OPTIONS?'):
+        return
 
     configs = [ config[len('CONFIG_'):] for config in configs ]
 
@@ -607,6 +696,65 @@ def cleanup_extra_options(configs, options):
     for defconfig in defconfigs:
         cleanup_one_extra_option(os.path.join('configs', defconfig), configs,
                                  options)
+
+def cleanup_whitelist(configs, options):
+    """Delete config whitelist entries
+
+    Arguments:
+      configs: A list of CONFIGs to remove.
+      options: option flags.
+    """
+    if not confirm(options, 'Clean up whitelist entries?'):
+        return
+
+    with open(os.path.join('scripts', 'config_whitelist.txt')) as f:
+        lines = f.readlines()
+
+    lines = [x for x in lines if x.strip() not in configs]
+
+    with open(os.path.join('scripts', 'config_whitelist.txt'), 'w') as f:
+        f.write(''.join(lines))
+
+def find_matching(patterns, line):
+    for pat in patterns:
+        if pat.search(line):
+            return True
+    return False
+
+def cleanup_readme(configs, options):
+    """Delete config description in README
+
+    Arguments:
+      configs: A list of CONFIGs to remove.
+      options: option flags.
+    """
+    if not confirm(options, 'Clean up README?'):
+        return
+
+    patterns = []
+    for config in configs:
+        patterns.append(re.compile(r'^\s+%s' % config))
+
+    with open('README') as f:
+        lines = f.readlines()
+
+    found = False
+    newlines = []
+    for line in lines:
+        if not found:
+            found = find_matching(patterns, line)
+            if found:
+                continue
+
+        if found and re.search(r'^\s+CONFIG', line):
+            found = False
+
+        if not found:
+            newlines.append(line)
+
+    with open('README', 'w') as f:
+        f.write(''.join(newlines))
+
 
 ### classes ###
 class Progress:
@@ -632,6 +780,19 @@ class Progress:
         print ' %d defconfigs out of %d\r' % (self.current, self.total),
         sys.stdout.flush()
 
+
+class KconfigScanner:
+    """Kconfig scanner."""
+
+    def __init__(self):
+        """Scan all the Kconfig files and create a Config object."""
+        # Define environment variables referenced from Kconfig
+        os.environ['srctree'] = os.getcwd()
+        os.environ['UBOOTVERSION'] = 'dummy'
+        os.environ['KCONFIG_OBJDIR'] = ''
+        self.conf = kconfiglib.Config()
+
+
 class KconfigParser:
 
     """A parser of .config and include/autoconf.mk."""
@@ -653,19 +814,14 @@ class KconfigParser:
         self.autoconf = os.path.join(build_dir, 'include', 'autoconf.mk')
         self.spl_autoconf = os.path.join(build_dir, 'spl', 'include',
                                          'autoconf.mk')
-        self.config_autoconf = os.path.join(build_dir, 'include', 'config',
-                                            'auto.conf')
+        self.config_autoconf = os.path.join(build_dir, AUTO_CONF_PATH)
         self.defconfig = os.path.join(build_dir, 'defconfig')
 
-    def get_cross_compile(self):
-        """Parse .config file and return CROSS_COMPILE.
+    def get_arch(self):
+        """Parse .config file and return the architecture.
 
         Returns:
-          A string storing the compiler prefix for the architecture.
-          Return a NULL string for architectures that do not require
-          compiler prefix (Sandbox and native build is the case).
-          Return None if the specified compiler is missing in your PATH.
-          Caller should distinguish '' and None.
+          Architecture name (e.g. 'arm').
         """
         arch = ''
         cpu = ''
@@ -685,7 +841,7 @@ class KconfigParser:
         if arch == 'arm' and cpu == 'armv8':
             arch = 'aarch64'
 
-        return CROSS_COMPILE.get(arch, None)
+        return arch
 
     def parse_one_config(self, config, dotconfig_lines, autoconf_lines):
         """Parse .config, defconfig, include/autoconf.mk for one config.
@@ -840,6 +996,34 @@ class KconfigParser:
 
         return log
 
+
+class DatabaseThread(threading.Thread):
+    """This thread processes results from Slot threads.
+
+    It collects the data in the master config directary. There is only one
+    result thread, and this helps to serialise the build output.
+    """
+    def __init__(self, config_db, db_queue):
+        """Set up a new result thread
+
+        Args:
+            builder: Builder which will be sent each result
+        """
+        threading.Thread.__init__(self)
+        self.config_db = config_db
+        self.db_queue= db_queue
+
+    def run(self):
+        """Called to start up the result thread.
+
+        We collect the next result job and pass it on to the build.
+        """
+        while True:
+            defconfig, configs = self.db_queue.get()
+            self.config_db[defconfig] = configs
+            self.db_queue.task_done()
+
+
 class Slot:
 
     """A slot to store a subprocess.
@@ -849,10 +1033,12 @@ class Slot:
     for faster processing.
     """
 
-    def __init__(self, configs, options, progress, devnull, make_cmd, reference_src_dir):
+    def __init__(self, toolchains, configs, options, progress, devnull,
+		 make_cmd, reference_src_dir, db_queue):
         """Create a new process slot.
 
         Arguments:
+          toolchains: Toolchains object containing toolchains.
           configs: A list of CONFIGs to move.
           options: option flags.
           progress: A progress indicator.
@@ -860,13 +1046,16 @@ class Slot:
           make_cmd: command name of GNU Make.
           reference_src_dir: Determine the true starting config state from this
                              source tree.
+          db_queue: output queue to write config info for the database
         """
+        self.toolchains = toolchains
         self.options = options
         self.progress = progress
         self.build_dir = tempfile.mkdtemp()
         self.devnull = devnull
         self.make_cmd = (make_cmd, 'O=' + self.build_dir)
         self.reference_src_dir = reference_src_dir
+        self.db_queue = db_queue
         self.parser = KconfigParser(configs, options, self.build_dir)
         self.state = STATE_IDLE
         self.failed_boards = set()
@@ -942,6 +1131,8 @@ class Slot:
             if self.current_src_dir:
                 self.current_src_dir = None
                 self.do_defconfig()
+            elif self.options.build_db:
+                self.do_build_db()
             else:
                 self.do_savedefconfig()
         elif self.state == STATE_SAVEDEFCONFIG:
@@ -972,24 +1163,36 @@ class Slot:
         self.state = STATE_DEFCONFIG
 
     def do_autoconf(self):
-        """Run 'make include/config/auto.conf'."""
+        """Run 'make AUTO_CONF_PATH'."""
 
-        self.cross_compile = self.parser.get_cross_compile()
-        if self.cross_compile is None:
+        arch = self.parser.get_arch()
+        try:
+            toolchain = self.toolchains.Select(arch)
+        except ValueError:
             self.log += color_text(self.options.color, COLOR_YELLOW,
-                                   "Compiler is missing.  Do nothing.\n")
+                    "Tool chain for '%s' is missing.  Do nothing.\n" % arch)
             self.finish(False)
             return
+	env = toolchain.MakeEnvironment(False)
 
         cmd = list(self.make_cmd)
-        if self.cross_compile:
-            cmd.append('CROSS_COMPILE=%s' % self.cross_compile)
         cmd.append('KCONFIG_IGNORE_DUPLICATES=1')
-        cmd.append('include/config/auto.conf')
-        self.ps = subprocess.Popen(cmd, stdout=self.devnull,
+        cmd.append(AUTO_CONF_PATH)
+        self.ps = subprocess.Popen(cmd, stdout=self.devnull, env=env,
                                    stderr=subprocess.PIPE,
                                    cwd=self.current_src_dir)
         self.state = STATE_AUTOCONF
+
+    def do_build_db(self):
+        """Add the board to the database"""
+        configs = {}
+        with open(os.path.join(self.build_dir, AUTO_CONF_PATH)) as fd:
+            for line in fd.readlines():
+                if line.startswith('CONFIG'):
+                    config, value = line.split('=', 1)
+                    configs[config] = value.rstrip()
+        self.db_queue.put([self.defconfig, configs])
+        self.finish(True)
 
     def do_savedefconfig(self):
         """Update the .config and run 'make savedefconfig'."""
@@ -1073,23 +1276,27 @@ class Slots:
 
     """Controller of the array of subprocess slots."""
 
-    def __init__(self, configs, options, progress, reference_src_dir):
+    def __init__(self, toolchains, configs, options, progress,
+		 reference_src_dir, db_queue):
         """Create a new slots controller.
 
         Arguments:
+          toolchains: Toolchains object containing toolchains.
           configs: A list of CONFIGs to move.
           options: option flags.
           progress: A progress indicator.
           reference_src_dir: Determine the true starting config state from this
                              source tree.
+          db_queue: output queue to write config info for the database
         """
         self.options = options
         self.slots = []
         devnull = get_devnull()
         make_cmd = get_make_cmd()
         for i in range(options.jobs):
-            self.slots.append(Slot(configs, options, progress, devnull,
-                                   make_cmd, reference_src_dir))
+            self.slots.append(Slot(toolchains, configs, options, progress,
+				   devnull, make_cmd, reference_src_dir,
+				   db_queue))
 
     def add(self, defconfig):
         """Add a new subprocess if a vacant slot is found.
@@ -1201,7 +1408,7 @@ class ReferenceSource:
 
         return self.src_dir
 
-def move_config(configs, options):
+def move_config(toolchains, configs, options, db_queue):
     """Move config options to defconfig files.
 
     Arguments:
@@ -1211,6 +1418,8 @@ def move_config(configs, options):
     if len(configs) == 0:
         if options.force_sync:
             print 'No CONFIG is specified. You are probably syncing defconfigs.',
+        elif options.build_db:
+            print 'Building %s database' % CONFIG_DATABASE
         else:
             print 'Neither CONFIG nor --force-sync is specified. Nothing will happen.',
     else:
@@ -1229,7 +1438,8 @@ def move_config(configs, options):
         defconfigs = get_all_defconfigs()
 
     progress = Progress(len(defconfigs))
-    slots = Slots(configs, options, progress, reference_src_dir)
+    slots = Slots(toolchains, configs, options, progress, reference_src_dir,
+		  db_queue)
 
     # Main loop to process defconfig files:
     #  Add a new subprocess into a vacant slot.
@@ -1248,6 +1458,304 @@ def move_config(configs, options):
     slots.show_failed_boards()
     slots.show_suspicious_boards()
 
+def find_kconfig_rules(kconf, config, imply_config):
+    """Check whether a config has a 'select' or 'imply' keyword
+
+    Args:
+        kconf: Kconfig.Config object
+        config: Name of config to check (without CONFIG_ prefix)
+        imply_config: Implying config (without CONFIG_ prefix) which may or
+            may not have an 'imply' for 'config')
+
+    Returns:
+        Symbol object for 'config' if found, else None
+    """
+    sym = kconf.get_symbol(imply_config)
+    if sym:
+        for sel in sym.get_selected_symbols() | sym.get_implied_symbols():
+            if sel.get_name() == config:
+                return sym
+    return None
+
+def check_imply_rule(kconf, config, imply_config):
+    """Check if we can add an 'imply' option
+
+    This finds imply_config in the Kconfig and looks to see if it is possible
+    to add an 'imply' for 'config' to that part of the Kconfig.
+
+    Args:
+        kconf: Kconfig.Config object
+        config: Name of config to check (without CONFIG_ prefix)
+        imply_config: Implying config (without CONFIG_ prefix) which may or
+            may not have an 'imply' for 'config')
+
+    Returns:
+        tuple:
+            filename of Kconfig file containing imply_config, or None if none
+            line number within the Kconfig file, or 0 if none
+            message indicating the result
+    """
+    sym = kconf.get_symbol(imply_config)
+    if not sym:
+        return 'cannot find sym'
+    locs = sym.get_def_locations()
+    if len(locs) != 1:
+        return '%d locations' % len(locs)
+    fname, linenum = locs[0]
+    cwd = os.getcwd()
+    if cwd and fname.startswith(cwd):
+        fname = fname[len(cwd) + 1:]
+    file_line = ' at %s:%d' % (fname, linenum)
+    with open(fname) as fd:
+        data = fd.read().splitlines()
+    if data[linenum - 1] != 'config %s' % imply_config:
+        return None, 0, 'bad sym format %s%s' % (data[linenum], file_line)
+    return fname, linenum, 'adding%s' % file_line
+
+def add_imply_rule(config, fname, linenum):
+    """Add a new 'imply' option to a Kconfig
+
+    Args:
+        config: config option to add an imply for (without CONFIG_ prefix)
+        fname: Kconfig filename to update
+        linenum: Line number to place the 'imply' before
+
+    Returns:
+        Message indicating the result
+    """
+    file_line = ' at %s:%d' % (fname, linenum)
+    data = open(fname).read().splitlines()
+    linenum -= 1
+
+    for offset, line in enumerate(data[linenum:]):
+        if line.strip().startswith('help') or not line:
+            data.insert(linenum + offset, '\timply %s' % config)
+            with open(fname, 'w') as fd:
+                fd.write('\n'.join(data) + '\n')
+            return 'added%s' % file_line
+
+    return 'could not insert%s'
+
+(IMPLY_MIN_2, IMPLY_TARGET, IMPLY_CMD, IMPLY_NON_ARCH_BOARD) = (
+    1, 2, 4, 8)
+
+IMPLY_FLAGS = {
+    'min2': [IMPLY_MIN_2, 'Show options which imply >2 boards (normally >5)'],
+    'target': [IMPLY_TARGET, 'Allow CONFIG_TARGET_... options to imply'],
+    'cmd': [IMPLY_CMD, 'Allow CONFIG_CMD_... to imply'],
+    'non-arch-board': [
+        IMPLY_NON_ARCH_BOARD,
+        'Allow Kconfig options outside arch/ and /board/ to imply'],
+};
+
+def do_imply_config(config_list, add_imply, imply_flags, skip_added,
+                    check_kconfig=True, find_superset=False):
+    """Find CONFIG options which imply those in the list
+
+    Some CONFIG options can be implied by others and this can help to reduce
+    the size of the defconfig files. For example, CONFIG_X86 implies
+    CONFIG_CMD_IRQ, so we can put 'imply CMD_IRQ' under 'config X86' and
+    all x86 boards will have that option, avoiding adding CONFIG_CMD_IRQ to
+    each of the x86 defconfig files.
+
+    This function uses the moveconfig database to find such options. It
+    displays a list of things that could possibly imply those in the list.
+    The algorithm ignores any that start with CONFIG_TARGET since these
+    typically refer to only a few defconfigs (often one). It also does not
+    display a config with less than 5 defconfigs.
+
+    The algorithm works using sets. For each target config in config_list:
+        - Get the set 'defconfigs' which use that target config
+        - For each config (from a list of all configs):
+            - Get the set 'imply_defconfig' of defconfigs which use that config
+            -
+            - If imply_defconfigs contains anything not in defconfigs then
+              this config does not imply the target config
+
+    Params:
+        config_list: List of CONFIG options to check (each a string)
+        add_imply: Automatically add an 'imply' for each config.
+        imply_flags: Flags which control which implying configs are allowed
+           (IMPLY_...)
+        skip_added: Don't show options which already have an imply added.
+        check_kconfig: Check if implied symbols already have an 'imply' or
+            'select' for the target config, and show this information if so.
+        find_superset: True to look for configs which are a superset of those
+            already found. So for example if CONFIG_EXYNOS5 implies an option,
+            but CONFIG_EXYNOS covers a larger set of defconfigs and also
+            implies that option, this will drop the former in favour of the
+            latter. In practice this option has not proved very used.
+
+    Note the terminoloy:
+        config - a CONFIG_XXX options (a string, e.g. 'CONFIG_CMD_EEPROM')
+        defconfig - a defconfig file (a string, e.g. 'configs/snow_defconfig')
+    """
+    kconf = KconfigScanner().conf if check_kconfig else None
+    if add_imply and add_imply != 'all':
+        add_imply = add_imply.split()
+
+    # key is defconfig name, value is dict of (CONFIG_xxx, value)
+    config_db = {}
+
+    # Holds a dict containing the set of defconfigs that contain each config
+    # key is config, value is set of defconfigs using that config
+    defconfig_db = collections.defaultdict(set)
+
+    # Set of all config options we have seen
+    all_configs = set()
+
+    # Set of all defconfigs we have seen
+    all_defconfigs = set()
+
+    # Read in the database
+    configs = {}
+    with open(CONFIG_DATABASE) as fd:
+        for line in fd.readlines():
+            line = line.rstrip()
+            if not line:  # Separator between defconfigs
+                config_db[defconfig] = configs
+                all_defconfigs.add(defconfig)
+                configs = {}
+            elif line[0] == ' ':  # CONFIG line
+                config, value = line.strip().split('=', 1)
+                configs[config] = value
+                defconfig_db[config].add(defconfig)
+                all_configs.add(config)
+            else:  # New defconfig
+                defconfig = line
+
+    # Work through each target config option in tern, independently
+    for config in config_list:
+        defconfigs = defconfig_db.get(config)
+        if not defconfigs:
+            print '%s not found in any defconfig' % config
+            continue
+
+        # Get the set of defconfigs without this one (since a config cannot
+        # imply itself)
+        non_defconfigs = all_defconfigs - defconfigs
+        num_defconfigs = len(defconfigs)
+        print '%s found in %d/%d defconfigs' % (config, num_defconfigs,
+                                                len(all_configs))
+
+        # This will hold the results: key=config, value=defconfigs containing it
+        imply_configs = {}
+        rest_configs = all_configs - set([config])
+
+        # Look at every possible config, except the target one
+        for imply_config in rest_configs:
+            if 'ERRATUM' in imply_config:
+                continue
+            if not (imply_flags & IMPLY_CMD):
+                if 'CONFIG_CMD' in imply_config:
+                    continue
+            if not (imply_flags & IMPLY_TARGET):
+                if 'CONFIG_TARGET' in imply_config:
+                    continue
+
+            # Find set of defconfigs that have this config
+            imply_defconfig = defconfig_db[imply_config]
+
+            # Get the intersection of this with defconfigs containing the
+            # target config
+            common_defconfigs = imply_defconfig & defconfigs
+
+            # Get the set of defconfigs containing this config which DO NOT
+            # also contain the taret config. If this set is non-empty it means
+            # that this config affects other defconfigs as well as (possibly)
+            # the ones affected by the target config. This means it implies
+            # things we don't want to imply.
+            not_common_defconfigs = imply_defconfig & non_defconfigs
+            if not_common_defconfigs:
+                continue
+
+            # If there are common defconfigs, imply_config may be useful
+            if common_defconfigs:
+                skip = False
+                if find_superset:
+                    for prev in imply_configs.keys():
+                        prev_count = len(imply_configs[prev])
+                        count = len(common_defconfigs)
+                        if (prev_count > count and
+                            (imply_configs[prev] & common_defconfigs ==
+                            common_defconfigs)):
+                            # skip imply_config because prev is a superset
+                            skip = True
+                            break
+                        elif count > prev_count:
+                            # delete prev because imply_config is a superset
+                            del imply_configs[prev]
+                if not skip:
+                    imply_configs[imply_config] = common_defconfigs
+
+        # Now we have a dict imply_configs of configs which imply each config
+        # The value of each dict item is the set of defconfigs containing that
+        # config. Rank them so that we print the configs that imply the largest
+        # number of defconfigs first.
+        ranked_iconfigs = sorted(imply_configs,
+                            key=lambda k: len(imply_configs[k]), reverse=True)
+        kconfig_info = ''
+        cwd = os.getcwd()
+        add_list = collections.defaultdict(list)
+        for iconfig in ranked_iconfigs:
+            num_common = len(imply_configs[iconfig])
+
+            # Don't bother if there are less than 5 defconfigs affected.
+            if num_common < (2 if imply_flags & IMPLY_MIN_2 else 5):
+                continue
+            missing = defconfigs - imply_configs[iconfig]
+            missing_str = ', '.join(missing) if missing else 'all'
+            missing_str = ''
+            show = True
+            if kconf:
+                sym = find_kconfig_rules(kconf, config[CONFIG_LEN:],
+                                         iconfig[CONFIG_LEN:])
+                kconfig_info = ''
+                if sym:
+                    locs = sym.get_def_locations()
+                    if len(locs) == 1:
+                        fname, linenum = locs[0]
+                        if cwd and fname.startswith(cwd):
+                            fname = fname[len(cwd) + 1:]
+                        kconfig_info = '%s:%d' % (fname, linenum)
+                        if skip_added:
+                            show = False
+                else:
+                    sym = kconf.get_symbol(iconfig[CONFIG_LEN:])
+                    fname = ''
+                    if sym:
+                        locs = sym.get_def_locations()
+                        if len(locs) == 1:
+                            fname, linenum = locs[0]
+                            if cwd and fname.startswith(cwd):
+                                fname = fname[len(cwd) + 1:]
+                    in_arch_board = not sym or (fname.startswith('arch') or
+                                                fname.startswith('board'))
+                    if (not in_arch_board and
+                        not (imply_flags & IMPLY_NON_ARCH_BOARD)):
+                        continue
+
+                    if add_imply and (add_imply == 'all' or
+                                      iconfig in add_imply):
+                        fname, linenum, kconfig_info = (check_imply_rule(kconf,
+                                config[CONFIG_LEN:], iconfig[CONFIG_LEN:]))
+                        if fname:
+                            add_list[fname].append(linenum)
+
+            if show and kconfig_info != 'skip':
+                print '%5d : %-30s%-25s %s' % (num_common, iconfig.ljust(30),
+                                              kconfig_info, missing_str)
+
+        # Having collected a list of things to add, now we add them. We process
+        # each file from the largest line number to the smallest so that
+        # earlier additions do not affect our line numbers. E.g. if we added an
+        # imply at line 20 it would change the position of each line after
+        # that.
+        for fname, linenums in add_list.iteritems():
+            for linenum in sorted(linenums, reverse=True):
+                add_imply_rule(config[CONFIG_LEN:], fname, linenum)
+
+
 def main():
     try:
         cpu_count = multiprocessing.cpu_count()
@@ -1256,12 +1764,26 @@ def main():
 
     parser = optparse.OptionParser()
     # Add options here
+    parser.add_option('-a', '--add-imply', type='string', default='',
+                      help='comma-separated list of CONFIG options to add '
+                      "an 'imply' statement to for the CONFIG in -i")
+    parser.add_option('-A', '--skip-added', action='store_true', default=False,
+                      help="don't show options which are already marked as "
+                      'implying others')
+    parser.add_option('-b', '--build-db', action='store_true', default=False,
+                      help='build a CONFIG database')
     parser.add_option('-c', '--color', action='store_true', default=False,
                       help='display the log in color')
     parser.add_option('-C', '--commit', action='store_true', default=False,
                       help='Create a git commit for the operation')
     parser.add_option('-d', '--defconfigs', type='string',
-                      help='a file containing a list of defconfigs to move')
+                      help='a file containing a list of defconfigs to move, '
+                      "one per line (for example 'snow_defconfig') "
+                      "or '-' to read from stdin")
+    parser.add_option('-i', '--imply', action='store_true', default=False,
+                      help='find options which imply others')
+    parser.add_option('-I', '--imply-flags', type='string', default='',
+                      help="control the -i option ('help' for help")
     parser.add_option('-n', '--dry-run', action='store_true', default=False,
                       help='perform a trial run (show log with no changes)')
     parser.add_option('-e', '--exit-on-error', action='store_true',
@@ -1286,7 +1808,8 @@ def main():
 
     (options, configs) = parser.parse_args()
 
-    if len(configs) == 0 and not options.force_sync:
+    if len(configs) == 0 and not any((options.force_sync, options.build_db,
+                                      options.imply)):
         parser.print_usage()
         sys.exit(1)
 
@@ -1296,14 +1819,48 @@ def main():
 
     check_top_directory()
 
+    if options.imply:
+        imply_flags = 0
+        if options.imply_flags == 'all':
+            imply_flags = -1
+
+        elif options.imply_flags:
+            for flag in options.imply_flags.split(','):
+                bad = flag not in IMPLY_FLAGS
+                if bad:
+                    print "Invalid flag '%s'" % flag
+                if flag == 'help' or bad:
+                    print "Imply flags: (separate with ',')"
+                    for name, info in IMPLY_FLAGS.iteritems():
+                        print ' %-15s: %s' % (name, info[1])
+                    parser.print_usage()
+                    sys.exit(1)
+                imply_flags |= IMPLY_FLAGS[flag][0]
+
+        do_imply_config(configs, options.add_imply, imply_flags,
+                        options.skip_added)
+        return
+
+    config_db = {}
+    db_queue = Queue.Queue()
+    t = DatabaseThread(config_db, db_queue)
+    t.setDaemon(True)
+    t.start()
+
     if not options.cleanup_headers_only:
         check_clean_directory()
-        update_cross_compile(options.color)
-        move_config(configs, options)
+	bsettings.Setup('')
+        toolchains = toolchain.Toolchains()
+        toolchains.GetSettings()
+        toolchains.Scan(verbose=False)
+        move_config(toolchains, configs, options, db_queue)
+        db_queue.join()
 
     if configs:
         cleanup_headers(configs, options)
         cleanup_extra_options(configs, options)
+        cleanup_whitelist(configs, options)
+        cleanup_readme(configs, options)
 
     if options.commit:
         subprocess.call(['git', 'add', '-u'])
@@ -1316,6 +1873,14 @@ def main():
             msg = 'configs: Resync with savedefconfig'
             msg += '\n\nRsync all defconfig files using moveconfig.py'
         subprocess.call(['git', 'commit', '-s', '-m', msg])
+
+    if options.build_db:
+        with open(CONFIG_DATABASE, 'w') as fd:
+            for defconfig, configs in config_db.iteritems():
+                fd.write('%s\n' % defconfig)
+                for config in sorted(configs.keys()):
+                    fd.write('   %s=%s\n' % (config, configs[config]))
+                fd.write('\n')
 
 if __name__ == '__main__':
     main()

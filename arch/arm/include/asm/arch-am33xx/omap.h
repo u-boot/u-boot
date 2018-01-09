@@ -21,7 +21,7 @@
 #define NON_SECURE_SRAM_START	0x402F0400
 #define NON_SECURE_SRAM_END	0x40310000
 #define NON_SECURE_SRAM_IMG_END	0x4030B800
-#elif defined(CONFIG_TI81XX)
+#elif defined(CONFIG_TI816X) || defined(CONFIG_TI814X)
 #define NON_SECURE_SRAM_START	0x40300000
 #define NON_SECURE_SRAM_END	0x40320000
 #define NON_SECURE_SRAM_IMG_END	0x4031B800
@@ -41,6 +41,9 @@ struct omap_boot_parameters {
 	unsigned char boot_device;
 	unsigned char reset_reason;
 };
+
+#define DEVICE_TYPE_SHIFT		0x8
+#define DEVICE_TYPE_MASK		(0x7 << DEVICE_TYPE_SHIFT)
 #endif
 
 #endif

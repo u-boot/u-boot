@@ -118,7 +118,7 @@ Environment Variables
 mcboottimeout:	MC boot timeout in milliseconds. If this variable is not defined
 		the value CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS will be assumed.
 
-mcmemsize:	MC DRAM block size. If this variable is not defined, the value
+mcmemsize:	MC DRAM block size in hex. If this variable is not defined, the value
 		CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE will be assumed.
 
 mcinitcmd:	This environment variable is defined to initiate MC and DPL deployment
@@ -154,8 +154,8 @@ Booting from NAND
 -------------------
 Booting from NAND requires two images, RCW and u-boot-with-spl.bin.
 The difference between NAND boot RCW image and NOR boot image is the PBI
-command sequence. Below is one example for PBI commands for QDS which uses
-NAND device with 2KB/page, block size 128KB.
+command sequence. Below is one example for PBI commands for LS2085AQDS which
+uses NAND device with 2KB/page, block size 128KB.
 
 1) CCSR 4-byte write to 0x00e00404, data=0x00000000
 2) CCSR 4-byte write to 0x00e00400, data=0x1800a000
@@ -188,7 +188,7 @@ nand write <u-boot image in memory> 200000 <size of u-boot image>
 
 With these two images in NAND device, the board can boot from NAND.
 
-Another example for RDB boards,
+Another example for LS2085ARDB boards,
 
 1) CCSR 4-byte write to 0x00e00404, data=0x00000000
 2) CCSR 4-byte write to 0x00e00400, data=0x1800a000
@@ -200,6 +200,52 @@ nand write <u-boot image in memory> 80000 <size of u-boot image>
 
 Notice the difference from QDS is SRC, SRC_ADDR and the offset of u-boot image
 to match board NAND device with 4KB/page, block size 512KB.
+
+Note, LS2088A and LS1088A don't support booting from NAND.
+
+Booting from SD/eMMC
+-------------------
+Booting from SD/eMMC requires two images, RCW and u-boot-with-spl.bin.
+The difference between SD boot RCW image and QSPI-NOR boot image is the
+PBI command sequence. Below is one example for PBI commands for RDB
+and QDS which uses SD device with block size 512. Block location can be
+calculated by dividing offset with block size.
+
+1) Block Copy: SRC=0x0040, SRC_ADDR=0x00100000, DEST_ADDR=0x1800a000,
+BLOCK_SIZE=0x00016000
+
+This command copies u-boot image from SD device into OCRAM. The values
+need to adjust accordingly for SD/eMMC
+
+SRC		should match the cfg_rcw_src, the reset config pins.
+		The value for source(SRC) can be 0x0040 or 0x0041
+		depending upon SD or eMMC.
+SRC_ADDR	is the offset of u-boot-with-spl.bin image in SD device.
+		In the example above, 1MB. This is same as QSPI-NOR.
+DEST_ADDR	is configured at 0x1800a000, matching bootloc set above.
+BLOCK_SIZE	is the size to be copied by PBI.
+
+2) CCSR 4-byte write to 0x01e00404, data=0x00000000
+3) CCSR 4-byte write to 0x01e00400, data=0x1800a000
+The above two commands set bootloc register to 0x00000000_1800a000 where
+the u-boot code will be running in OCRAM.
+
+
+RCW image should be written at 8th block of device(SD/eMMC). Example of
+using u-boot command
+
+mmc erase 0x8 0x10
+mmc write <rcw image in memory> 0x8 <size of rcw in block count typical value=10>
+
+To form the SD-Boot image, build u-boot with SD config, for example,
+ls1088ardb_sdcard_qspi_defconfig. The image needed is u-boot-with-spl.bin.
+The u-boot image should be written to match SRC_ADDR, in above example
+offset 0x100000 in other work it means block location 0x800
+
+mmc erase 0x800 0x1800
+mmc write <u-boot image in memory> 0x800 <size of u-boot image in block count>
+
+With these two images in SD/eMMC device, the board can boot from SD/eMMC.
 
 MMU Translation Tables
 ======================

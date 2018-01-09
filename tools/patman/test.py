@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2011 The Chromium OS Authors.
 #
@@ -31,6 +32,10 @@ Subject: [PATCH (resend) 3/7] Tegra2: Add more clock support
 
 This adds functions to enable/disable clocks and reset to on-chip peripherals.
 
+cmd/pci.c:152:11: warning: format ‘%llx’ expects argument of type
+   ‘long long unsigned int’, but argument 3 has type
+   ‘u64 {aka long unsigned int}’ [-Wformat=]
+
 BUG=chromium-os:13875
 TEST=build U-Boot for Seaboard, boot
 
@@ -52,6 +57,10 @@ Date: Thu, 28 Apr 2011 09:58:51 -0700
 Subject: [PATCH (resend) 3/7] Tegra2: Add more clock support
 
 This adds functions to enable/disable clocks and reset to on-chip peripherals.
+
+cmd/pci.c:152:11: warning: format ‘%llx’ expects argument of type
+   ‘long long unsigned int’, but argument 3 has type
+   ‘u64 {aka long unsigned int}’ [-Wformat=]
 
 Signed-off-by: Simon Glass <sjg@chromium.org>
 ---
@@ -79,8 +88,7 @@ Signed-off-by: Simon Glass <sjg@chromium.org>
         os.remove(expname)
 
     def GetData(self, data_type):
-        data='''
-From 4924887af52713cabea78420eff03badea8f0035 Mon Sep 17 00:00:00 2001
+        data='''From 4924887af52713cabea78420eff03badea8f0035 Mon Sep 17 00:00:00 2001
 From: Simon Glass <sjg@chromium.org>
 Date: Thu, 7 Apr 2011 10:14:41 -0700
 Subject: [PATCH 1/4] Add microsecond boot time measurement
@@ -92,6 +100,7 @@ an available microsecond counter.
 %s
 ---
  README              |   11 ++++++++
+ MAINTAINERS         |    3 ++
  common/bootstage.c  |   50 ++++++++++++++++++++++++++++++++++++
  include/bootstage.h |   71 +++++++++++++++++++++++++++++++++++++++++++++++++++
  include/common.h    |    8 ++++++
@@ -121,18 +130,30 @@ index 6f3748d..f9e4e65 100644
  - Standalone program support:
  		CONFIG_STANDALONE_LOAD_ADDR
 
+diff --git a/MAINTAINERS b/MAINTAINERS
+index b167b028ec..beb7dc634f 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -474,3 +474,8 @@ S:	Maintained
+ T:	git git://git.denx.de/u-boot.git
+ F:	*
+ F:	*/
++
++BOOTSTAGE
++M:	Simon Glass <sjg@chromium.org>
++L:	u-boot@lists.denx.de
++F:	common/bootstage.c
 diff --git a/common/bootstage.c b/common/bootstage.c
 new file mode 100644
 index 0000000..2234c87
 --- /dev/null
 +++ b/common/bootstage.c
-@@ -0,0 +1,39 @@
+@@ -0,0 +1,37 @@
 +/*
 + * Copyright (c) 2011, Google Inc. All rights reserved.
 + *
 + * SPDX-License-Identifier:	GPL-2.0+
 + */
-+
 +
 +/*
 + * This module records the progress of boot and arbitrary commands, and
@@ -142,26 +163,25 @@ index 0000000..2234c87
 +
 +#include <common.h>
 +
-+
 +struct bootstage_record {
-+	uint32_t time_us;
++	u32 time_us;
 +	const char *name;
 +};
 +
 +static struct bootstage_record record[BOOTSTAGE_COUNT];
 +
-+uint32_t bootstage_mark(enum bootstage_id id, const char *name)
++u32 bootstage_mark(enum bootstage_id id, const char *name)
 +{
 +	struct bootstage_record *rec = &record[id];
 +
 +	/* Only record the first event for each */
 +%sif (!rec->name) {
-+		rec->time_us = (uint32_t)timer_get_us();
++		rec->time_us = (u32)timer_get_us();
 +		rec->name = name;
 +	}
 +	if (!rec->name &&
 +	%ssomething_else) {
-+		rec->time_us = (uint32_t)timer_get_us();
++		rec->time_us = (u32)timer_get_us();
 +		rec->name = name;
 +	}
 +%sreturn rec->time_us;
@@ -201,7 +221,7 @@ index 0000000..2234c87
         self.assertEqual(result.errors, 0)
         self.assertEqual(result.warnings, 0)
         self.assertEqual(result.checks, 0)
-        self.assertEqual(result.lines, 56)
+        self.assertEqual(result.lines, 62)
         os.remove(inf)
 
     def testNoSignoff(self):
@@ -212,18 +232,18 @@ index 0000000..2234c87
         self.assertEqual(result.errors, 1)
         self.assertEqual(result.warnings, 0)
         self.assertEqual(result.checks, 0)
-        self.assertEqual(result.lines, 56)
+        self.assertEqual(result.lines, 62)
         os.remove(inf)
 
     def testSpaces(self):
         inf = self.SetupData('spaces')
         result = checkpatch.CheckPatch(inf)
         self.assertEqual(result.ok, False)
-        self.assertEqual(len(result.problems), 2)
+        self.assertEqual(len(result.problems), 3)
         self.assertEqual(result.errors, 0)
-        self.assertEqual(result.warnings, 2)
+        self.assertEqual(result.warnings, 3)
         self.assertEqual(result.checks, 0)
-        self.assertEqual(result.lines, 56)
+        self.assertEqual(result.lines, 62)
         os.remove(inf)
 
     def testIndent(self):
@@ -234,7 +254,7 @@ index 0000000..2234c87
         self.assertEqual(result.errors, 0)
         self.assertEqual(result.warnings, 0)
         self.assertEqual(result.checks, 1)
-        self.assertEqual(result.lines, 56)
+        self.assertEqual(result.lines, 62)
         os.remove(inf)
 
 

@@ -25,10 +25,19 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_FMAN_ENET
+__weak int fdt_update_ethernet_dt(void *blob)
+{
+	return 0;
+}
+#endif
+
 int arch_fixup_fdt(void *blob)
 {
+	int ret = 0;
+#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_OF_LIBFDT)
 	bd_t *bd = gd->bd;
-	int bank, ret;
+	int bank;
 	u64 start[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];
 
@@ -42,9 +51,11 @@ int arch_fixup_fdt(void *blob)
 #endif
 	}
 
+#ifdef CONFIG_OF_LIBFDT
 	ret = fdt_fixup_memory_banks(blob, start, size, CONFIG_NR_DRAM_BANKS);
 	if (ret)
 		return ret;
+#endif
 
 #ifdef CONFIG_ARMV8_SPIN_TABLE
 	ret = spin_table_update_dt(blob);
@@ -53,11 +64,17 @@ int arch_fixup_fdt(void *blob)
 #endif
 
 #if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV8_PSCI) || \
-	defined(CONFIG_FSL_PPA_ARMV8_PSCI)
+	defined(CONFIG_SEC_FIRMWARE_ARMV8_PSCI)
 	ret = psci_update_dt(blob);
 	if (ret)
 		return ret;
 #endif
+#endif
 
+#ifdef CONFIG_FMAN_ENET
+	ret = fdt_update_ethernet_dt(blob);
+	if (ret)
+		return ret;
+#endif
 	return 0;
 }

@@ -24,11 +24,96 @@
 #define debug_trace(fmt, b...)
 #endif
 
+/**
+ * Request format for protocol v3
+ * byte 0	0xda (EC_COMMAND_PROTOCOL_3)
+ * byte 1-8	struct ec_host_request
+ * byte 10-	response data
+ */
+struct ec_host_request_i2c {
+	/* Always 0xda to backward compatible with v2 struct */
+	uint8_t  command_protocol;
+	struct ec_host_request ec_request;
+} __packed;
+
+/*
+ * Response format for protocol v3
+ * byte 0	result code
+ * byte 1	packet_length
+ * byte 2-9	struct ec_host_response
+ * byte 10-	response data
+ */
+struct ec_host_response_i2c {
+	uint8_t result;
+	uint8_t packet_length;
+	struct ec_host_response ec_response;
+} __packed;
+
+static int cros_ec_i2c_packet(struct udevice *udev, int out_bytes, int in_bytes)
+{
+	struct cros_ec_dev *dev = dev_get_uclass_priv(udev);
+	struct dm_i2c_chip *chip = dev_get_parent_platdata(udev);
+	struct ec_host_request_i2c *ec_request_i2c =
+		(struct ec_host_request_i2c *)dev->dout;
+	struct ec_host_response_i2c *ec_response_i2c =
+		(struct ec_host_response_i2c *)dev->din;
+	struct i2c_msg i2c_msg[2];
+	int ret;
+
+	i2c_msg[0].addr = chip->chip_addr;
+	i2c_msg[0].flags = 0;
+	i2c_msg[1].addr = chip->chip_addr;
+	i2c_msg[1].flags = I2C_M_RD;
+
+	/* one extra byte, to indicate v3 */
+	i2c_msg[0].len = out_bytes + 1;
+	i2c_msg[0].buf = dev->dout;
+
+	/* stitch on EC_COMMAND_PROTOCOL_3 */
+	memmove(&ec_request_i2c->ec_request, dev->dout, out_bytes);
+	ec_request_i2c->command_protocol = EC_COMMAND_PROTOCOL_3;
+
+	/* two extra bytes for v3 */
+	i2c_msg[1].len = in_bytes + 2;
+	i2c_msg[1].buf = dev->din;
+
+	ret = dm_i2c_xfer(udev, &i2c_msg[0], 2);
+	if (ret) {
+		printf("%s: Could not execute transfer: %d\n", __func__, ret);
+		return ret;
+	}
+
+	/* When we send a v3 request to v2 ec, ec won't recognize the 0xda
+	 * (EC_COMMAND_PROTOCOL_3) and will return with status
+	 * EC_RES_INVALID_COMMAND with zero data length
+	 *
+	 * In case of invalid command for v3 protocol the data length
+	 * will be at least sizeof(struct ec_host_response)
+	 */
+	if (ec_response_i2c->result == EC_RES_INVALID_COMMAND &&
+	    ec_response_i2c->packet_length == 0)
+		return -EPROTONOSUPPORT;
+
+	if (ec_response_i2c->packet_length < sizeof(struct ec_host_response)) {
+		printf("%s: response of %u bytes too short; not a full hdr\n",
+		       __func__, ec_response_i2c->packet_length);
+		return -EBADMSG;
+	}
+
+
+	/* drop result and packet_len */
+	memmove(dev->din, &ec_response_i2c->ec_response, in_bytes);
+
+	return in_bytes;
+}
+
 static int cros_ec_i2c_command(struct udevice *udev, uint8_t cmd,
 			       int cmd_version, const uint8_t *dout,
 			       int dout_len, uint8_t **dinp, int din_len)
 {
 	struct cros_ec_dev *dev = dev_get_uclass_priv(udev);
+	struct dm_i2c_chip *chip = dev_get_parent_platdata(udev);
+	struct i2c_msg i2c_msg[2];
 	/* version8, cmd8, arglen8, out8[dout_len], csum8 */
 	int out_bytes = dout_len + 4;
 	/* response8, arglen8, in8[din_len], checksum8 */
@@ -52,6 +137,11 @@ static int cros_ec_i2c_command(struct udevice *udev, uint8_t cmd,
 	}
 	assert(dout_len >= 0);
 	assert(dinp);
+
+	i2c_msg[0].addr = chip->chip_addr;
+	i2c_msg[0].len = out_bytes;
+	i2c_msg[0].buf = dev->dout;
+	i2c_msg[0].flags = 0;
 
 	/*
 	 * Copy command and data into output buffer so we can do a single I2C
@@ -85,22 +175,19 @@ static int cros_ec_i2c_command(struct udevice *udev, uint8_t cmd,
 	*ptr++ = (uint8_t)
 		cros_ec_calc_checksum(dev->dout, dout_len + 3);
 
+	i2c_msg[1].addr = chip->chip_addr;
+	i2c_msg[1].len = in_bytes;
+	i2c_msg[1].buf = in_ptr;
+	i2c_msg[1].flags = I2C_M_RD;
+
 	/* Send output data */
 	cros_ec_dump_data("out", -1, dev->dout, out_bytes);
-	ret = dm_i2c_write(udev, 0, dev->dout, out_bytes);
+
+	ret = dm_i2c_xfer(udev, &i2c_msg[0], 2);
 	if (ret) {
-		debug("%s: Cannot complete I2C write to %s\n", __func__,
+		debug("%s: Could not execute transfer to %s\n", __func__,
 		      udev->name);
 		ret = -1;
-	}
-
-	if (!ret) {
-		ret = dm_i2c_read(udev, 0, in_ptr, in_bytes);
-		if (ret) {
-			debug("%s: Cannot complete I2C read from %s\n",
-			      __func__, udev->name);
-			ret = -1;
-		}
 	}
 
 	if (*in_ptr != EC_RES_SUCCESS) {
@@ -136,6 +223,7 @@ static int cros_ec_probe(struct udevice *dev)
 
 static struct dm_cros_ec_ops cros_ec_ops = {
 	.command = cros_ec_i2c_command,
+	.packet = cros_ec_i2c_packet,
 };
 
 static const struct udevice_id cros_ec_ids[] = {

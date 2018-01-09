@@ -86,8 +86,6 @@
  */
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
-#define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
-
 #undef	CONFIG_SYS_DRAM_TEST			/* memory test, takes time */
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
@@ -481,13 +479,11 @@
 
 /* Options are: eTSEC[0-3] */
 #define CONFIG_ETHPRIME		"eTSEC0"
-#define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
 #endif	/* CONFIG_TSEC_ENET */
 
 /*
  * Environment
  */
-#define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_SIZE		0x2000
 #if CONFIG_SYS_TEXT_BASE == 0xfff00000	/* Boot from 64MB SODIMM */
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + 0x80000)
@@ -510,15 +506,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-/*
- * Command line configuration.
- */
-#define CONFIG_CMD_REGINFO
-
-#if defined(CONFIG_PCI)
-    #define CONFIG_CMD_PCI
-#endif
-
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
 /*
@@ -528,14 +515,6 @@
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
-#else
-#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
-#endif
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS	16		/* max number of command args */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 
 /*
  * For booting Linux, the board info and command line data
@@ -568,10 +547,6 @@
 #define CONFIG_NETMASK	 255.255.255.0
 
 #define CONFIG_LOADADDR	1000000	/*default location for tftp and bootm*/
-
-#undef	CONFIG_BOOTARGS		/* the boot command will set bootargs*/
-
-#define CONFIG_BAUDRATE	115200
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 "netdev=eth0\0"						\

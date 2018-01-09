@@ -37,29 +37,6 @@ int init_sata(int dev)
 	int ret;
 	u32 val;
 
-	u32 const clk_domains_sata[] = {
-		0
-	};
-
-	u32 const clk_modules_hw_auto_sata[] = {
-		(*prcm)->cm_l3init_ocp2scp3_clkctrl,
-		0
-	};
-
-	u32 const clk_modules_explicit_en_sata[] = {
-		(*prcm)->cm_l3init_sata_clkctrl,
-		0
-	};
-
-	do_enable_clocks(clk_domains_sata,
-			 clk_modules_hw_auto_sata,
-			 clk_modules_explicit_en_sata,
-			 0);
-
-	/* Enable optional functional clock for SATA */
-	setbits_le32((*prcm)->cm_l3init_sata_clkctrl,
-		     SATA_CLKCTRL_OPTFCLKEN_MASK);
-
 	sata_phy.power_reg = (void __iomem *)(*ctrl)->control_phy_power_sata;
 
 	/* Power up the PHY */
@@ -86,8 +63,10 @@ void scsi_init(void)
 	scsi_scan(1);
 }
 
-void scsi_bus_reset(void)
+int scsi_bus_reset(struct udevice *dev)
 {
 	ahci_reset((void __iomem *)DWC_AHSATA_BASE);
 	ahci_init((void __iomem *)DWC_AHSATA_BASE);
+
+	return 0;
 }

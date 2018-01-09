@@ -40,9 +40,6 @@
 
 /* support deep sleep */
 #define CONFIG_DEEP_SLEEP
-#if defined(CONFIG_DEEP_SLEEP)
-#define CONFIG_BOARD_EARLY_INIT_F
-#endif
 
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xeff40000
@@ -54,8 +51,6 @@
 
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
-#define CONFIG_FSL_IFC			/* Enable IFC Support */
-#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCIE1			/* PCIE controller 1 */
 #define CONFIG_PCIE2			/* PCIE controller 2 */
@@ -67,18 +62,16 @@
 
 #define CONFIG_ENV_OVERWRITE
 
-#ifdef CONFIG_SYS_NO_FLASH
-#define CONFIG_ENV_IS_NOWHERE
+#ifndef CONFIG_MTD_NOR_FLASH
 #else
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #endif
 
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 #if defined(CONFIG_SPIFLASH)
 #define CONFIG_SYS_EXTRA_ENV_RELOC
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_BUS              0
 #define CONFIG_ENV_SPI_CS               0
 #define CONFIG_ENV_SPI_MAX_HZ           10000000
@@ -88,22 +81,19 @@
 #define CONFIG_ENV_SECT_SIZE            0x10000
 #elif defined(CONFIG_SDCARD)
 #define CONFIG_SYS_EXTRA_ENV_RELOC
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV          0
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_OFFSET		(512 * 1658)
 #elif defined(CONFIG_NAND)
 #define CONFIG_SYS_EXTRA_ENV_RELOC
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SIZE			CONFIG_SYS_NAND_BLOCK_SIZE
 #define CONFIG_ENV_OFFSET		(7 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #else
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
 #endif
-#else /* CONFIG_SYS_NO_FLASH */
+#else /* CONFIG_MTD_NOR_FLASH */
 #define CONFIG_ENV_SIZE                0x2000
 #define CONFIG_ENV_SECT_SIZE   0x20000 /* 128K (one sector) */
 #endif
@@ -137,7 +127,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
 #define CONFIG_SYS_ALT_MEMTEST
-#define CONFIG_PANIC_HANG	/* do not reset board on panic */
 
 /*
  *  Config the L3 Cache as L3 SRAM
@@ -293,7 +282,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_NAND_DDR_LAW		11
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_CMD_NAND
 
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
 
@@ -401,7 +389,6 @@ unsigned long get_board_ddr_clk(void);
 #ifdef CONFIG_FSL_DIU_FB
 #define CONFIG_FSL_DIU_CH7301
 #define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x180000)
-#define CONFIG_CMD_BMP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
@@ -507,15 +494,11 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#define CONFIG_DOS_PARTITION
 #endif	/* CONFIG_PCI */
 
 /* SATA */
 #define CONFIG_FSL_SATA_V2
 #ifdef CONFIG_FSL_SATA_V2
-#define CONFIG_LIBATA
-#define CONFIG_FSL_SATA
-
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
 #define CONFIG_SATA1
 #define CONFIG_SYS_SATA1		CONFIG_SYS_MPC85xx_SATA1_ADDR
@@ -525,8 +508,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_SATA2_FLAGS		FLAGS_DMA
 
 #define CONFIG_LBA48
-#define CONFIG_CMD_SATA
-#define CONFIG_DOS_PARTITION
 #endif
 
 /*
@@ -535,9 +516,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_HAS_FSL_DR_USB
 
 #ifdef CONFIG_HAS_FSL_DR_USB
-#define CONFIG_USB_EHCI
-
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #endif
@@ -547,8 +526,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_FSL_ESDHC
 #define CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
 #define CONFIG_SYS_FSL_ESDHC_ADDR       CONFIG_SYS_MPC85xx_ESDHC_ADDR
-#define CONFIG_GENERIC_MMC
-#define CONFIG_DOS_PARTITION
 #define CONFIG_FSL_ESDHC_ADAPTER_IDENT
 #endif
 
@@ -636,30 +613,20 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_MII		/* MII PHY management */
 #define CONFIG_ETHPRIME		"FM1@DTSEC1"
-#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 #endif
 
 /* Enable VSC9953 L2 Switch driver */
 #define CONFIG_VSC9953
-#define CONFIG_CMD_ETHSW
 #define CONFIG_SYS_FM1_QSGMII11_PHY_ADDR	0x14
 #define CONFIG_SYS_FM1_QSGMII21_PHY_ADDR	0x18
 
 /*
  * Dynamic MTD Partition support with mtdparts
  */
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_FLASH_CFI_MTD
-#define MTDIDS_DEFAULT "nor0=fe8000000.nor,nand0=fff800000.flash," \
-			"spi0=spife110000.0"
-#define MTDPARTS_DEFAULT	"mtdparts=fe8000000.nor:1m(uboot),5m(kernel)," \
-				"128k(dtb),96m(fs),-(user);"\
-				"fff800000.flash:2m(uboot),9m(kernel),"\
-				"128k(dtb),96m(fs),-(user);spife110000.0:" \
-				"2m(uboot),9m(kernel),128k(dtb),-(user)"
 #endif
 
 /*
@@ -669,39 +636,12 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
 
 /*
- * Command line configuration.
- */
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_ERRATA
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_REGINFO
-
-#ifdef CONFIG_PCI
-#define CONFIG_CMD_PCI
-#endif
-
-/* Hash command with SHA acceleration supported in hardware */
-#ifdef CONFIG_FSL_CAAM
-#define CONFIG_CMD_HASH
-#define CONFIG_SHA_HW_ACCEL
-#endif
-
-/*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#ifdef CONFIG_CMD_KGDB
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
-#else
-#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
-#endif
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
-#define CONFIG_SYS_MAXARGS	16		/* max number of command args */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE/* Boot Argument Buffer Size */
 
 /*
  * For booting Linux, the board info and command line data
@@ -724,9 +664,6 @@ unsigned long get_board_ddr_clk(void);
 
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
-
-
-#define CONFIG_BAUDRATE	115200
 
 #define __USB_PHY_TYPE	utmi
 

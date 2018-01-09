@@ -206,6 +206,27 @@ for its instructions in the 'binman' node.
 Binman has a few other options which you can see by running 'binman -h'.
 
 
+Enabling binman for a board
+---------------------------
+
+At present binman is invoked from a rule in the main Makefile. Typically you
+will have a rule like:
+
+ifneq ($(CONFIG_ARCH_<something>),)
+u-boot-<your_suffix>.bin: <input_file_1> <input_file_2> checkbinman FORCE
+	$(call if_changed,binman)
+endif
+
+This assumes that u-boot-<your_suffix>.bin is a target, and is the final file
+that you need to produce. You can make it a target by adding it to ALL-y
+either in the main Makefile or in a config.mk file in your arch subdirectory.
+
+Once binman is executed it will pick up its instructions from a device-tree
+file, typically <soc>-u-boot.dtsi, where <soc> is your CONFIG_SYS_SOC value.
+You can use other, more specific CONFIG options - see 'Automatic .dtsi
+inclusion' below.
+
+
 Image description format
 ------------------------
 
@@ -418,6 +439,8 @@ contents of an entry in some way. For example, it would be possible to create
 an entry containing a hash of the contents of some other entries. At this
 stage the position and size of entries should not be adjusted.
 
+6. WriteEntryInfo()
+
 7. BuildImage() - builds the image and writes it to a file. This is the final
 step.
 
@@ -446,7 +469,35 @@ If you are having trouble figuring out what is going on, you can uncomment
 the 'warning' line in scripts/Makefile.lib to see what it has found:
 
    # Uncomment for debugging
-   # $(warning binman_dtsi_options: $(binman_dtsi_options))
+   # This shows all the files that were considered and the one that we chose.
+   # u_boot_dtsi_options_debug = $(u_boot_dtsi_options_raw)
+
+
+Access to binman entry positions at run time
+--------------------------------------------
+
+Binman assembles images and determines where each entry is placed in the image.
+This information may be useful to U-Boot at run time. For example, in SPL it
+is useful to be able to find the location of U-Boot so that it can be executed
+when SPL is finished.
+
+Binman allows you to declare symbols in the SPL image which are filled in
+with their correct values during the build. For example:
+
+    binman_sym_declare(ulong, u_boot_any, pos);
+
+declares a ulong value which will be assigned to the position of any U-Boot
+image (u-boot.bin, u-boot.img, u-boot-nodtb.bin) that is present in the image.
+You can access this value with something like:
+
+    ulong u_boot_pos = binman_sym(ulong, u_boot_any, pos);
+
+Thus u_boot_pos will be set to the position of U-Boot in memory, assuming that
+the whole image has been loaded, or is available in flash. You can then jump to
+that address to start U-Boot.
+
+At present this feature is only supported in SPL. In principle it is possible
+to fill in such symbols in U-Boot proper, as well.
 
 
 Code coverage
@@ -521,7 +572,8 @@ To do
 
 Some ideas:
 - Fill out the device tree to include the final position and size of each
-  entry (since the input file may not always specify these)
+  entry (since the input file may not always specify these). See also
+  'Access to binman entry positions at run time' above
 - Use of-platdata to make the information available to code that is unable
   to use device tree (such as a very small SPL image)
 - Write an image map to a text file

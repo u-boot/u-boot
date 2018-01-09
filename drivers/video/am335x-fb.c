@@ -128,7 +128,7 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 		raster_ctrl |= LCD_TFT_24BPP_MODE;
 		break;
 	default:
-		error("am335x-fb: invalid bpp value: %d\n", panel->bpp);
+		pr_err("am335x-fb: invalid bpp value: %d\n", panel->bpp);
 		return -1;
 	}
 

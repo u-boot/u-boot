@@ -22,7 +22,6 @@
 #include <configs/ti_am335x_common.h>
 
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
-#define MACH_TYPE_PCM051		4144	/* Until the next sync */
 #define CONFIG_MACH_TYPE		MACH_TYPE_PCM051
 
 /* set to negative value for no autoboot */
@@ -109,7 +108,6 @@
 #define CONFIG_SYS_NS16550_COM6		0x481aa000	/* UART5 */
 
 /* I2C Configuration */
-#define CONFIG_CMD_EEPROM
 #define CONFIG_ENV_EEPROM_IS_ON_I2C
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* Main EEPROM */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
@@ -118,9 +116,6 @@
 4800, 9600, 14400, 19200, 28800, 38400, 56000, 57600, 115200 }
 
 /* CPU */
-#define CONFIG_ENV_IS_NOWHERE
-
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/am33xx/u-boot-spl.lds"
 
 #ifdef CONFIG_SPI_BOOT
 #define CONFIG_SPL_SPI_LOAD
@@ -132,20 +127,12 @@
  * USB configuration
  */
 #define CONFIG_USB_MUSB_DSPS
-#define CONFIG_ARCH_MISC_INIT
 #define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_PERIPHERAL
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE MUSB_HOST
 
-#ifdef CONFIG_USB_MUSB_GADGET
-#define CONFIG_USB_ETHER
-#define CONFIG_USB_ETH_RNDIS
-#endif /* CONFIG_USB_MUSB_GADGET */
-
-#define CONFIG_PHY_GIGE
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_SMSC
 
 #endif	/* ! __CONFIG_PCM051_H */

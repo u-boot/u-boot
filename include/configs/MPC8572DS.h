@@ -28,7 +28,6 @@
 /* High Level Configuration Options */
 #define CONFIG_MP		1	/* support multiple processors */
 
-#define CONFIG_FSL_ELBC		1	/* Has Enhanced localbus controller */
 #define CONFIG_PCIE1		1	/* PCIE controller 1 (slot 1) */
 #define CONFIG_PCIE2		1	/* PCIE controller 2 (slot 2) */
 #define CONFIG_PCIE3		1	/* PCIE controller 3 (ULI bridge) */
@@ -59,7 +58,6 @@
 
 #define CONFIG_SYS_MEMTEST_START	0x00000000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x7fffffff
-#define CONFIG_PANIC_HANG	/* do not reset board on panic */
 
 /*
  * Config the L2 Cache as L2 SRAM
@@ -286,7 +284,6 @@
 				CONFIG_SYS_NAND_BASE + 0x80000,\
 				CONFIG_SYS_NAND_BASE + 0xC0000}
 #define CONFIG_SYS_MAX_NAND_DEVICE    4
-#define CONFIG_CMD_NAND		1
 #define CONFIG_NAND_FSL_ELBC	1
 #define CONFIG_SYS_NAND_BLOCK_SIZE    (128 * 1024)
 #define CONFIG_SYS_NAND_MAX_OOBFREE	5
@@ -471,11 +468,8 @@
 #endif
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#define CONFIG_DOS_PARTITION
-#define CONFIG_SCSI_AHCI
 
 #ifdef CONFIG_SCSI_AHCI
-#define CONFIG_LIBATA
 #define CONFIG_SATA_ULI5288
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID	4
 #define CONFIG_SYS_SCSI_MAX_LUN	1
@@ -522,8 +516,6 @@
 #define TSEC4_PHYIDX		0
 
 #define CONFIG_ETHPRIME		"eTSEC1"
-
-#define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
 #endif	/* CONFIG_TSEC_ENET */
 
 /*
@@ -533,7 +525,6 @@
 #if defined(CONFIG_SYS_RAMBOOT)
 
 #else
-	#define CONFIG_ENV_IS_IN_FLASH	1
 	#if CONFIG_SYS_MONITOR_BASE > 0xfff80000
 	#define CONFIG_ENV_ADDR	0xfff80000
 	#else
@@ -547,27 +538,12 @@
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
 /*
- * Command line configuration.
- */
-#define CONFIG_CMD_ERRATA
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_REGINFO
-
-#if defined(CONFIG_PCI)
-#define CONFIG_CMD_PCI
-#define CONFIG_SCSI
-#endif
-
-/*
  * USB
  */
-#define CONFIG_USB_EHCI
 
-#ifdef CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_PCI
+#ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_PCI_EHCI_DEVICE			0
-#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	2
 #endif
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
@@ -579,14 +555,6 @@
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
-#else
-#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
-#endif
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS	16		/* max number of command args */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 
 /*
  * For booting Linux, the board info and command line data
@@ -623,10 +591,6 @@
 
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
-
-#undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
-
-#define CONFIG_BAUDRATE	115200
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 "hwconfig=fsl_ddr:ctlr_intlv=bank,bank_intlv=cs0_cs1,ecc=off\0"		\

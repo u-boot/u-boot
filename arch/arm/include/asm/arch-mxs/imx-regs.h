@@ -10,12 +10,12 @@
 #ifndef __IMX_REGS_H__
 #define __IMX_REGS_H__
 
-#include <asm/imx-common/regs-apbh.h>
+#include <asm/mach-imx/regs-apbh.h>
 #include <asm/arch/regs-base.h>
-#include <asm/imx-common/regs-bch.h>
+#include <asm/mach-imx/regs-bch.h>
 #include <asm/arch/regs-digctl.h>
-#include <asm/imx-common/regs-gpmi.h>
-#include <asm/imx-common/regs-lcdif.h>
+#include <asm/mach-imx/regs-gpmi.h>
+#include <asm/mach-imx/regs-lcdif.h>
 #include <asm/arch/regs-i2c.h>
 #include <asm/arch/regs-lradc.h>
 #include <asm/arch/regs-ocotp.h>

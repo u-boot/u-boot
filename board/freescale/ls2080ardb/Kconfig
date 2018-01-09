@@ -13,4 +13,24 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "ls2080ardb"
 
+source "board/freescale/common/Kconfig"
+
+endif
+
+if TARGET_LS2081ARDB
+
+config SYS_BOARD
+	default "ls2080ardb"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_SOC
+	default "fsl-layerscape"
+
+config SYS_CONFIG_NAME
+	default "ls2080ardb"
+
+source "board/freescale/common/Kconfig"
+
 endif

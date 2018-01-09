@@ -12,10 +12,10 @@
 #include <asm/arch/mx6-pins.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/mxc_i2c.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/boot_mode.h>
-#include <asm/imx-common/video.h>
+#include <asm/mach-imx/mxc_i2c.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/video.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <miiphy.h>
@@ -25,8 +25,20 @@
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <i2c.h>
+#include <input.h>
 #include <pwm.h>
+#include <stdlib.h>
+#include "../common/vpd_reader.h"
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifndef CONFIG_SYS_I2C_EEPROM_ADDR
+# define CONFIG_SYS_I2C_EEPROM_ADDR     0x50
+# define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
+#endif
+
+#ifndef CONFIG_SYS_I2C_EEPROM_BUS
+#define CONFIG_SYS_I2C_EEPROM_BUS       2
+#endif
 
 #define NC_PAD_CTRL (PAD_CTL_PUS_100K_UP |	\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |	\
@@ -103,8 +115,9 @@ static void setup_iomux_enet(void)
 
 	/* Reset AR8033 PHY */
 	gpio_direction_output(IMX_GPIO_NR(1, 28), 0);
-	udelay(500);
+	mdelay(10);
 	gpio_set_value(IMX_GPIO_NR(1, 28), 1);
+	mdelay(1);
 }
 
 static iomux_v3_cfg_t const usdhc2_pads[] = {
@@ -306,7 +319,8 @@ static int mx6_rgmii_rework(struct phy_device *phydev)
 	/* set debug port address: SerDes Test and System Mode Control */
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
 	/* enable rgmii tx clock delay */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x100);
+	/* set the reserved bits to avoid board specific voltage peak issue*/
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x3D47);
 
 	return 0;
 }
@@ -526,6 +540,102 @@ int overwrite_console(void)
 	return 1;
 }
 
+#define VPD_TYPE_INVALID 0x00
+#define VPD_BLOCK_NETWORK 0x20
+#define VPD_BLOCK_HWID 0x44
+#define VPD_PRODUCT_B850 1
+#define VPD_PRODUCT_B650 2
+#define VPD_PRODUCT_B450 3
+
+struct vpd_cache {
+	uint8_t product_id;
+	uint8_t macbits;
+	unsigned char mac1[6];
+};
+
+/*
+ * Extracts MAC and product information from the VPD.
+ */
+static int vpd_callback(
+	void *userdata,
+	uint8_t id,
+	uint8_t version,
+	uint8_t type,
+	size_t size,
+	uint8_t const *data)
+{
+	struct vpd_cache *vpd = (struct vpd_cache *)userdata;
+
+	if (   id == VPD_BLOCK_HWID
+	    && version == 1
+	    && type != VPD_TYPE_INVALID
+	    && size >= 1) {
+		vpd->product_id = data[0];
+
+	} else if (   id == VPD_BLOCK_NETWORK
+		   && version == 1
+		   && type != VPD_TYPE_INVALID
+		   && size >= 6) {
+		vpd->macbits |= 1;
+		memcpy(vpd->mac1, data, 6);
+	}
+
+	return 0;
+}
+
+static void set_eth0_mac_address(unsigned char * mac)
+{
+	uint32_t *ENET_TCR = (uint32_t*)0x21880c4;
+	uint32_t *ENET_PALR = (uint32_t*)0x21880e4;
+	uint32_t *ENET_PAUR = (uint32_t*)0x21880e8;
+
+	*ENET_TCR |= 0x100;  /* ADDINS */
+	*ENET_PALR |= (mac[0] << 24) | (mac[1] << 16) | (mac[2] << 8) | mac[3];
+	*ENET_PAUR |= (mac[4] << 24) | (mac[5] << 16);
+}
+
+static void process_vpd(struct vpd_cache *vpd)
+{
+	if (   vpd->product_id == VPD_PRODUCT_B850
+	    || vpd->product_id == VPD_PRODUCT_B650
+	    || vpd->product_id == VPD_PRODUCT_B450) {
+		if (vpd->macbits & 1) {
+			set_eth0_mac_address(vpd->mac1);
+		}
+	}
+}
+
+static int read_vpd(uint eeprom_bus)
+{
+	struct vpd_cache vpd;
+	int res;
+	int size = 1024;
+	uint8_t *data;
+	unsigned int current_i2c_bus = i2c_get_bus_num();
+
+	res = i2c_set_bus_num(eeprom_bus);
+	if (res < 0)
+		return res;
+
+	data = (uint8_t *)malloc(size);
+	if (!data)
+		return -ENOMEM;
+
+	res = i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0,
+			CONFIG_SYS_I2C_EEPROM_ADDR_LEN, data, size);
+
+	if (res == 0) {
+		memset(&vpd, 0, sizeof(vpd));
+		vpd_reader(size, data, &vpd, vpd_callback);
+		process_vpd(&vpd);
+	}
+
+	free(data);
+
+	i2c_set_bus_num(current_i2c_bus);
+	return res;
+}
+
 int board_eth_init(bd_t *bis)
 {
 	setup_iomux_enet();
@@ -583,6 +693,8 @@ int board_init(void)
 	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
 	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
 	setup_i2c(3, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info3);
+
+	read_vpd(CONFIG_SYS_I2C_EEPROM_BUS);
 
 	return 0;
 }

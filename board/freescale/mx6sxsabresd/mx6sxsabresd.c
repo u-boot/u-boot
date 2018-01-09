@@ -13,9 +13,9 @@
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/iomux-v3.h>
+#include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
-#include <asm/imx-common/mxc_i2c.h>
+#include <asm/mach-imx/mxc_i2c.h>
 #include <linux/sizes.h>
 #include <common.h>
 #include <fsl_esdhc.h>
@@ -540,9 +540,23 @@ int board_init(void)
 	return 0;
 }
 
+static bool is_reva(void)
+{
+	return (nxp_board_rev() == 1);
+}
+
+int board_late_init(void)
+{
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	if (is_reva())
+		env_set("board_rev", "REVA");
+#endif
+	return 0;
+}
+
 int checkboard(void)
 {
-	puts("Board: MX6SX SABRE SDB\n");
+	printf("Board: MX6SX SABRE SDB rev%c\n", nxp_board_rev_string());
 
 	return 0;
 }

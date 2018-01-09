@@ -495,7 +495,7 @@ dp83902a_recv(u8 *data, int len)
 					printf(" %02x", tmp);
 					if (0 == (++dx % 16)) printf("\n ");
 #endif
-					*data++ = tmp;;
+					*data++ = tmp;
 					mlen--;
 				}
 			}
@@ -715,15 +715,15 @@ static int ne2k_setup_driver(struct eth_device *dev)
 	 * to the MAC address value in the environment, so we do not read
 	 * it from the prom or eeprom if it is specified in the environment.
 	 */
-	if (!eth_getenv_enetaddr("ethaddr", dev->enetaddr)) {
+	if (!eth_env_get_enetaddr("ethaddr", dev->enetaddr)) {
 		/* If the MAC address is not in the environment, get it: */
 		if (!get_prom(dev->enetaddr, nic.base)) /* get MAC from prom */
 			dp83902a_init(dev->enetaddr);   /* fallback: seeprom */
 		/* And write it into the environment otherwise eth_write_hwaddr
-		 * returns -1 due to eth_getenv_enetaddr_by_index() failing,
+		 * returns -1 due to eth_env_get_enetaddr_by_index() failing,
 		 * and this causes "Warning: failed to set MAC address", and
 		 * cmd_bdinfo has no ethaddr value which it can show: */
-		eth_setenv_enetaddr("ethaddr", dev->enetaddr);
+		eth_env_set_enetaddr("ethaddr", dev->enetaddr);
 	}
 	return 0;
 }

@@ -13,10 +13,11 @@
 #define PHY_SPEED_3G			3
 #define PHY_SPEED_3_125G		4
 #define PHY_SPEED_5G			5
-#define PHY_SPEED_6G			6
-#define PHY_SPEED_6_25G			7
-#define PHY_SPEED_10_3125G		8
-#define PHY_SPEED_MAX			9
+#define PHY_SPEED_5_15625G		6
+#define PHY_SPEED_6G			7
+#define PHY_SPEED_6_25G			8
+#define PHY_SPEED_10_3125G		9
+#define PHY_SPEED_MAX			10
 #define PHY_SPEED_INVALID		0xff
 
 #define PHY_TYPE_UNCONNECTED		0
@@ -42,8 +43,9 @@
 #define PHY_TYPE_XAUI3			20
 #define PHY_TYPE_RXAUI0			21
 #define PHY_TYPE_RXAUI1			22
-#define PHY_TYPE_KR			23
-#define PHY_TYPE_MAX			24
+#define PHY_TYPE_SFI			23
+#define PHY_TYPE_IGNORE			24
+#define PHY_TYPE_MAX			25
 #define PHY_TYPE_INVALID		0xff
 
 #define PHY_POLARITY_NO_INVERT		0
@@ -52,9 +54,9 @@
 #define PHY_POLARITY_ALL_INVERT		\
 	(PHY_POLARITY_TXD_INVERT | PHY_POLARITY_RXD_INVERT)
 
-#define UTMI_PHY_TO_USB_HOST0		0
-#define UTMI_PHY_TO_USB_HOST1		1
-#define UTMI_PHY_TO_USB_DEVICE0		2
+#define UTMI_PHY_TO_USB3_HOST0		0
+#define UTMI_PHY_TO_USB3_HOST1		1
+#define UTMI_PHY_TO_USB3_DEVICE0	2
 #define UTMI_PHY_INVALID		0xff
 
 #endif /* _COMPHY_DATA_H_ */

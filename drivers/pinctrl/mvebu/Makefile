@@ -4,4 +4,5 @@
 # SPDX-License-Identifier:	GPL-2.0
 # https://spdx.org/licenses
 
-obj-$(CONFIG_PINCTRL_MVEBU)	+= pinctrl-mvebu.o
+obj-$(CONFIG_PINCTRL_ARMADA_37XX) += pinctrl-armada-37xx.o
+obj-$(CONFIG_PINCTRL_ARMADA_8K)	+= pinctrl-mvebu.o

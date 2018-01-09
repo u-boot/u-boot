@@ -1,9 +1,0 @@
-if TARGET_BF537_PNAV
-
-config SYS_BOARD
-	default "bf537-pnav"
-
-config SYS_CONFIG_NAME
-	default "bf537-pnav"
-
-endif

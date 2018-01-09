@@ -46,6 +46,8 @@ SECTIONS
 		*(.__end)
 	}
 
+	_image_binary_end = .;
+
 	.bss :
 	{
 		. = ALIGN(4);

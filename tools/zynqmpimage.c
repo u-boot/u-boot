@@ -245,16 +245,38 @@ static int zynqmpimage_check_image_types(uint8_t type)
 	return EXIT_FAILURE;
 }
 
-static int fsize(FILE *fp)
+static uint32_t fsize(FILE *fp)
 {
-	int size;
-	int origin = ftell(fp);
+	int size, ret, origin;
 
-	fseek(fp, 0L, SEEK_END);
+	origin = ftell(fp);
+	if (origin < 0) {
+		fprintf(stderr, "Incorrect file size\n");
+		fclose(fp);
+		exit(2);
+	}
+
+	ret = fseek(fp, 0L, SEEK_END);
+	if (ret) {
+		fprintf(stderr, "Incorrect file SEEK_END\n");
+		fclose(fp);
+		exit(3);
+	}
+
 	size = ftell(fp);
+	if (size < 0) {
+		fprintf(stderr, "Incorrect file size\n");
+		fclose(fp);
+		exit(4);
+	}
 
 	/* going back */
-	fseek(fp, origin, SEEK_SET);
+	ret = fseek(fp, origin, SEEK_SET);
+	if (ret) {
+		fprintf(stderr, "Incorrect file SEEK_SET to %d\n", origin);
+		fclose(fp);
+		exit(3);
+	}
 
 	return size;
 }
@@ -348,9 +370,8 @@ static void zynqmpimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	zynqhdr->checksum = zynqmpimage_checksum(zynqhdr);
 }
 
-
 static int zynqmpimage_vrec_header(struct image_tool_params *params,
-				struct image_type_params *tparams)
+				   struct image_type_params *tparams)
 {
 	struct stat path_stat;
 	char *filename = params->imagename;

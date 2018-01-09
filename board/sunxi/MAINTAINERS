@@ -26,6 +26,7 @@ F:	configs/A13-OLinuXinoM_defconfig
 F:	configs/Auxtek-T003_defconfig
 F:	configs/Auxtek-T004_defconfig
 F:	configs/CHIP_defconfig
+F:	configs/CHIP_pro_defconfig
 F:	configs/difrnce_dit4350_defconfig
 F:	configs/Empire_electronix_d709_defconfig
 F:	configs/Empire_electronix_m712_defconfig
@@ -44,6 +45,7 @@ F:	configs/Mele_M9_defconfig
 F:	configs/Sinovoip_BPI_M2_defconfig
 F:	include/configs/sun7i.h
 F:	configs/A20-OLinuXino_MICRO_defconfig
+F:	configs/A20-OLinuXino_MICRO-eMMC_defconfig
 F:	configs/Bananapi_defconfig
 F:	configs/Bananapro_defconfig
 F:	configs/i12-tvbox_defconfig
@@ -54,6 +56,7 @@ F:	configs/Orangepi_mini_defconfig
 F:	configs/qt840a_defconfig
 F:	configs/Wits_Pro_A20_DKT_defconfig
 F:	include/configs/sun8i.h
+F:	configs/sun8i_a23_evb_defconfig
 F:	configs/ga10h_v1_1_defconfig
 F:	configs/gt90h_v4_defconfig
 F:	configs/inet86dz_defconfig
@@ -72,7 +75,6 @@ F:	configs/q8_a33_tablet_1024x600_defconfig
 F:	include/configs/sun9i.h
 F:	configs/Merrii_A80_Optimus_defconfig
 F:	include/configs/sun50i.h
-F:	configs/pine64_plus_defconfig
 
 A20-OLIMEX-SOM-EVB BOARD
 M:	Marcus Cooper <codekipper@gmail.com>
@@ -89,10 +91,20 @@ M:	Iain Paton <ipaton0@gmail.com>
 S:	Maintained
 F:	configs/A20-OLinuXino-Lime2_defconfig
 
+A20-OLINUXINO-LIME2-EMMC BOARD
+M:	Olliver Schinagl <oliver@schinagl.nl>
+S:	Maintained
+F:	configs/A20-OLinuXino-Lime2-eMMC_defconfig
+
 A33-OLINUXINO BOARD
 M:	Stefan Mavrodiev <stefan.mavrodiev@gmail.com>
 S:	Maintained
 F:	configs/A33-OLinuXino_defconfig
+
+A64-OLINUXINO BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/a64-olinuxino_defconfig
 
 A80 OPTIMUS BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
@@ -108,6 +120,28 @@ AMPE A76 BOARD
 M:	Paul Kocialkowski <contact@paulk.fr>
 S:	Maintained
 F:	configs/Ampe_A76_defconfig
+
+BANANAPI M1 PLUS
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/bananapi_m1_plus_defconfig
+
+BANANAPI M2 ULTRA BOARD
+M:	Chen-Yu Tsai <wens@csie.org>
+S:	Maintained
+F:	configs/Bananapi_M2_Ultra_defconfig
+F:	arch/arm/dts/sun8i-r40-bananapi-m2-ultra.dts
+
+BANANAPI M2 MAGIC BOARD
+M:	Maxime Ripard <maxime.ripard@free-electrons.com>
+S:	Maintained
+F:	configs/Bananapi_m2m_defconfig
+F:	arch/arm/dts/sun8i-r16-bananapi-m2m.dts
+
+BANANAPI M64
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/bananapi_m64_defconfig
 
 COLOMBUS BOARD
 M:	Maxime Ripard <maxime.ripard@free-electrons.com>
@@ -182,6 +216,11 @@ M:	Jelle de Jong <jelledejong@powercraft.nl>
 S:	Maintained
 F:	configs/Lamobo_R1_defconfig
 
+LICHEEPI-ZERO BOARD
+M:	Icenowy Zheng <icenowy@aosc.xyz>
+S:	Maintained
+F:	configs/LicheePi_Zero_defconfig
+
 LINKSPRITE-PCDUINO BOARD
 M:	Zoltan Herpai <wigyori@uid0.hu>
 S:	Maintained
@@ -227,15 +266,75 @@ M:	Siarhei Siamashka <siarhei.siamashka@gmail.com>
 S:	Maintained
 F:	configs/MSI_Primo81_defconfig
 
+NANOPI-M1 BOARD
+M:	Mylène Josserand <mylene.josserand@free-electrons.com>
+S:	Maintained
+F:	configs/nanopi_m1_defconfig
+
+NANOPI-M1 PLUS BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/nanopi_m1_plus_defconfig
+
 NANOPI-NEO BOARD
 M:	Jelle van der Waa <jelle@vdwaa.nl>
 S:	Maintained
 F:	configs/nanopi_neo_defconfig
 
+NANOPI-NEO2 BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/nanopi_neo2_defconfig
+
+NANOPI-NEO-PLUS2 BOARD
+M:	Antony Antony <antony@phenome.org>
+S:	Maintained
+F:	configs/nanopi_neo_plus2_defconfig
+
+NANOPI-NEO-AIR BOARD
+M:	Jelle van der Waa <jelle@vdwaa.nl>
+S:	Maintained
+F:	configs/nanopi_neo_air_defconfig
+
+NANOPI-A64 BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/nanopi_a64_defconfig
+
 NINTENDO NES CLASSIC EDITION BOARD
 M:	FUKAUMI Naoki <naobsd@gmail.com>
 S:	Maintained
 F:	configs/Nintendo_NES_Classic_Edition_defconfig
+
+ORANGEPI WIN/WIN PLUS BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/orangepi_win_defconfig
+
+ORANGEPI ZERO BOARD
+M:	Icenowy Zheng <icenowy@aosc.xyz>
+S:	Maintained
+F:	configs/orangepi_zero_defconfig
+
+ORANGEPI ZERO PLUS 2 BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/orangepi_zero_plus2_defconfig
+
+ORANGEPI PC 2 BOARD
+M:	Andre Przywara <andre.przywara@arm.com>
+S:	Maintained
+F:	configs/orangepi_pc2_defconfig
+
+ORANGEPI PRIME BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/orangepi_prime_defconfig
+
+PINE64 BOARDS
+M:	Andre Przywara <andre.przywara@arm.com>
+S:	Maintained
+F:	configs/pine64_plus_defconfig
 
 R16 EVB PARROT BOARD
 M:	Quentin Schulz <quentin.schulz@free-electrons.com>
@@ -254,10 +353,26 @@ S:	Maintained
 F:	configs/Sinlinx_SinA33_defconfig
 W:	http://linux-sunxi.org/Sinlinx_SinA33
 
+SINOVOIP BPI M2 PLUS H3 BOARD
+M:	Icenowy Zheng <icenowy@aosc.io>
+S:	Maintained
+F:	configs/Sinovoip_BPI_M2_Plus_defconfig
+
 SINOVOIP BPI M3 A83T BOARD
 M:	VishnuPatekar <vishnupatekar0510@gmail.com>
 S:	Maintained
 F:	configs/Sinovoip_BPI_M3_defconfig
+
+SOPINE BOARD
+M:	Icenowy Zheng <icenowy@aosc.io>
+S:	Maintained
+F:	configs/sopine_baseboard_defconfig
+
+SUNCHIP CX-A99 BOARD
+M:	Rask Ingemann Lambertsen <rask@formelder.dk>
+S:	Maintained
+F:	configs/Sunchip_CX-A99_defconfig
+W:	https://linux-sunxi.org/Sunchip_CX-A99
 
 WEXLER-TAB7200 BOARD
 M:	Aleksei Mamlin <mamlinav@gmail.com>

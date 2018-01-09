@@ -1,6 +1,0 @@
-BF561-EZKIT BOARD
-M:	Sonic Zhang <sonic.adi@gmail.com>
-S:	Maintained
-F:	board/bf561-ezkit/
-F:	include/configs/bf561-ezkit.h
-F:	configs/bf561-ezkit_defconfig

@@ -110,10 +110,6 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	struct upd_region *fsp_upd;
 #endif
 
-#ifdef CONFIG_INTERNAL_UART
-	setup_internal_uart(1);
-#endif
-
 	fsp_hdr = find_fsp_header();
 	if (fsp_hdr == NULL) {
 		/* No valid FSP info header was found */
@@ -426,6 +422,13 @@ void *fsp_get_nvs_data(const void *hob_list, u32 *len)
 void *fsp_get_bootloader_tmp_mem(const void *hob_list, u32 *len)
 {
 	const struct efi_guid guid = FSP_BOOTLOADER_TEMP_MEM_HOB_GUID;
+
+	return fsp_get_guid_hob_data(hob_list, len, (struct efi_guid *)&guid);
+}
+
+void *fsp_get_graphics_info(const void *hob_list, u32 *len)
+{
+	const struct efi_guid guid = FSP_GRAPHICS_INFO_HOB_GUID;
 
 	return fsp_get_guid_hob_data(hob_list, len, (struct efi_guid *)&guid);
 }

@@ -19,10 +19,6 @@
 #include <asm/system.h>
 #include <asm/io.h>
 
-#ifdef CONFIG_USE_IRQ
-DECLARE_GLOBAL_DATA_PTR;
-#endif
-
 static void cache_flush(void);
 
 int cleanup_before_linux (void)

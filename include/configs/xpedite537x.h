@@ -29,7 +29,6 @@
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
-#define CONFIG_FSL_ELBC		1
 
 /*
  * Multicore config
@@ -82,16 +81,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_MEMTEST_END		0x20000000
 #define CONFIG_POST			(CONFIG_SYS_POST_MEMORY | \
 					 CONFIG_SYS_POST_I2C)
-#define I2C_ADDR_LIST			{CONFIG_SYS_I2C_DS1621_ADDR,	\
-					 CONFIG_SYS_I2C_DS4510_ADDR,	\
-					 CONFIG_SYS_I2C_EEPROM_ADDR,	\
-					 CONFIG_SYS_I2C_LM90_ADDR,	\
-					 CONFIG_SYS_I2C_PCA953X_ADDR0,	\
-					 CONFIG_SYS_I2C_PCA953X_ADDR1,	\
-					 CONFIG_SYS_I2C_PCA953X_ADDR2,	\
-					 CONFIG_SYS_I2C_PCA953X_ADDR3,	\
-					 CONFIG_SYS_I2C_PEX8518_ADDR,	\
-					 CONFIG_SYS_I2C_RTC_ADDR}
 /* The XPedite5370 can host an XMC which has an EEPROM at address 0x50 */
 #define I2C_ADDR_IGNORE_LIST		{0x50}
 
@@ -210,7 +199,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x4600)
 #define CONFIG_SYS_BAUDRATE_TABLE	\
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_LOADS_ECHO		1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
@@ -231,9 +219,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_I2C_PEX8518_ADDR	0x70
 
 /* I2C DS1631 temperature sensor */
-#define CONFIG_SYS_I2C_DS1621_ADDR	0x48
-#define CONFIG_DTT_DS1621
-#define CONFIG_DTT_SENSORS		{ 0 }
 #define CONFIG_SYS_I2C_LM90_ADDR	0x4c
 
 /* I2C EEPROM - AT24C128B */
@@ -246,10 +231,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_RTC_M41T11		1
 #define CONFIG_SYS_I2C_RTC_ADDR		0x68
 #define CONFIG_SYS_M41T11_BASE_YEAR	2000
-
-/* GPIO/EEPROM/SRAM */
-#define CONFIG_DS4510
-#define CONFIG_SYS_I2C_DS4510_ADDR	0x51
 
 /* GPIO */
 #define CONFIG_PCA953X
@@ -323,7 +304,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  * Networking options
  */
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
-#define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
 #define CONFIG_TSEC_TBI
 #define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_MII_DEFAULT_TSEC	1	/* Allow unregistered phys */
@@ -354,34 +334,13 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_HAS_ETH1
 
 /*
- * Command configuration.
- */
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_DS4510
-#define CONFIG_CMD_DS4510_INFO
-#define CONFIG_CMD_DTT
-#define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_PCA953X
-#define CONFIG_CMD_PCA953X_INFO
-#define CONFIG_CMD_PCI
-#define CONFIG_CMD_PCI_ENUM
-#define CONFIG_CMD_REGINFO
-
-/*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS	16		/* max number of command args */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 #define CONFIG_CMDLINE_EDITING	1		/* add command line history	*/
 #define CONFIG_AUTO_COMPLETE	1		/* add autocompletion support */
 #define CONFIG_LOADADDR		0x1000000	/* default location for tftp and bootm */
-#define CONFIG_PANIC_HANG			/* do not reset board on panic */
 #define CONFIG_PREBOOT				/* enable preboot variable */
 #define CONFIG_INTEGRITY			/* support booting INTEGRITY OS */
 
@@ -396,7 +355,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_SECT_SIZE	0x20000		/* 128k (one sector) for env */
 #define CONFIG_ENV_SIZE		0x8000
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - (256 * 1024))

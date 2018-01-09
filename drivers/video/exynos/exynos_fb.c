@@ -383,7 +383,7 @@ void exynos_fimd_lcd_init(struct udevice *dev)
 	unsigned int offset;
 	unsigned int node;
 
-	node = dev->of_offset;
+	node = dev_of_offset(dev);
 	if (fdtdec_get_bool(gd->fdt_blob, node, "samsung,disable-sysmmu"))
 		exynos_fimd_disable_sysmmu();
 
@@ -482,11 +482,11 @@ unsigned long exynos_fimd_calc_fbsize(struct exynos_fb_priv *priv)
 int exynos_fb_ofdata_to_platdata(struct udevice *dev)
 {
 	struct exynos_fb_priv *priv = dev_get_priv(dev);
-	unsigned int node = dev->of_offset;
+	unsigned int node = dev_of_offset(dev);
 	const void *blob = gd->fdt_blob;
 	fdt_addr_t addr;
 
-	addr = dev_get_addr(dev);
+	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE) {
 		debug("Can't get the FIMD base address\n");
 		return -EINVAL;

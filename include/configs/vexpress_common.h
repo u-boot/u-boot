@@ -55,7 +55,6 @@
 #define V2M_NOR1		(V2M_PA_CS1)
 #define V2M_SRAM		(V2M_PA_CS2)
 #define V2M_VIDEO_SRAM		(V2M_PA_CS3 + 0x00000000)
-#define V2M_LAN9118		(V2M_PA_CS3 + 0x02000000)
 #define V2M_ISP1761		(V2M_PA_CS3 + 0x03000000)
 
 /* Common peripherals relative to CS7. */
@@ -133,11 +132,6 @@
 #define CONFIG_SYS_TIMER_COUNTER	(V2M_TIMER01 + 0x4)
 #define CONFIG_SYS_TIMER_COUNTS_DOWN
 
-/* SMSC9115 Ethernet from SMSC9118 family */
-#define CONFIG_SMC911X			1
-#define CONFIG_SMC911X_32_BIT		1
-#define CONFIG_SMC911X_BASE		V2M_LAN9118
-
 /* PL011 Serial Configuration */
 #define CONFIG_PL011_SERIAL
 #define CONFIG_PL011_CLOCK		24000000
@@ -145,12 +139,10 @@
 					 (void *)CONFIG_SYS_SERIAL1}
 #define CONFIG_CONS_INDEX		0
 
-#define CONFIG_BAUDRATE			38400
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 #define CONFIG_SYS_SERIAL0		V2M_UART0
 #define CONFIG_SYS_SERIAL1		V2M_UART1
 
-#define CONFIG_GENERIC_MMC
 #define CONFIG_ARM_PL180_MMCI
 #define CONFIG_ARM_PL180_MMCI_BASE	V2M_MMCI
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	127
@@ -185,10 +177,6 @@
 #include <config_distro_defaults.h>
 
 /* Basic environment settings */
-#define CONFIG_BOOTCOMMAND \
-	"run distro_bootcmd; " \
-	"run bootflash; "
-
 #define BOOT_TARGET_DEVICES(func) \
         func(MMC, mmc, 1) \
         func(MMC, mmc, 0) \
@@ -264,7 +252,6 @@
 #define CONFIG_ENV_OVERWRITE		1
 
 /* Store environment at top of flash */
-#define CONFIG_ENV_IS_IN_FLASH		1
 #define CONFIG_ENV_OFFSET		(PHYS_FLASH_SIZE - \
 					(2 * CONFIG_ENV_SECT_SIZE))
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE1 + \
@@ -276,11 +263,6 @@
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					sizeof(CONFIG_SYS_PROMPT) + 16)
-
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Boot args buffer */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_MAXARGS		16	/* max command args */
 
 #endif /* VEXPRESS_COMMON_H */

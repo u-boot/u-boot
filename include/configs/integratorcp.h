@@ -31,7 +31,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_BOOTARGS	"root=/dev/mtdblock0 console=ttyAMA0 console=tty ip=dhcp netdev=27,0,0xfc800000,0xfc800010,eth0 video=clcdfb:0"
 #define CONFIG_BOOTCOMMAND "tftpboot ; bootm"
 #define CONFIG_SERVERIP 192.168.1.100
 #define CONFIG_IPADDR 192.168.1.104
@@ -42,7 +41,6 @@
  */
 #define PHYS_FLASH_SIZE			0x01000000	/* 16MB */
 #define CONFIG_SYS_MAX_FLASH_SECT	64
-#define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_SYS_MONITOR_LEN		0x00100000
 
 /*

@@ -96,12 +96,13 @@ int tps65218_reg_write(uchar prot_level, uchar dest_reg, uchar dest_val,
 int tps65218_voltage_update(uchar dc_cntrl_reg, uchar volt_sel)
 {
 	if ((dc_cntrl_reg != TPS65218_DCDC1) &&
-	    (dc_cntrl_reg != TPS65218_DCDC2))
+	    (dc_cntrl_reg != TPS65218_DCDC2) &&
+	    (dc_cntrl_reg != TPS65218_DCDC3))
 		return 1;
 
 	/* set voltage level */
 	if (tps65218_reg_write(TPS65218_PROT_LEVEL_2, dc_cntrl_reg, volt_sel,
-			       TPS65218_MASK_ALL_BITS))
+			       TPS65218_DCDC_VSEL_MASK))
 		return 1;
 
 	/* set GO bit to initiate voltage transition */

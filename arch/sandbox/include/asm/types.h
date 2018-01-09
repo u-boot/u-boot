@@ -50,7 +50,11 @@ typedef __INT64_TYPE__ s64;
 typedef __UINT64_TYPE__ u64;
 #endif
 
-#define BITS_PER_LONG	CONFIG_SANDBOX_BITS_PER_LONG
+/*
+ * Number of bits in a C 'long' on this architecture. Set this to 32 when
+ * building on a 32-bit machine.
+ */
+#define BITS_PER_LONG	32
 
 typedef unsigned long dma_addr_t;
 typedef u32 phys_addr_t;

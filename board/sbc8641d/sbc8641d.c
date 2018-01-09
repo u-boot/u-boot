@@ -23,6 +23,8 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 long int fixed_sdram (void);
 
 int board_early_init_f (void)
@@ -37,7 +39,7 @@ int checkboard (void)
 	return 0;
 }
 
-phys_size_t initdram (int board_type)
+int dram_init(void)
 {
 	long dram_size = 0;
 
@@ -48,7 +50,9 @@ phys_size_t initdram (int board_type)
 #endif
 
 	debug ("    DDR: ");
-	return dram_size;
+	gd->ram_size = dram_size;
+
+	return 0;
 }
 
 #if defined(CONFIG_SYS_DRAM_TEST)

@@ -18,6 +18,15 @@ config BOOTSTAGE
 	  Calls to show_boot_progress() will also result in log entries but
 	  these will not have names.
 
+config SPL_BOOTSTAGE
+	bool "Boot timing and reported in SPL"
+	depends on BOOTSTAGE
+	help
+	  Enable recording of boot time in SPL. To make this visible to U-Boot
+	  proper, enable BOOTSTAGE_STASH as well. This will stash the timing
+	  information when SPL finishes and load it when U-Boot proper starts
+	  up.
+
 config BOOTSTAGE_REPORT
 	bool "Display a detailed boot timing report before booting the OS"
 	depends on BOOTSTAGE
@@ -37,14 +46,19 @@ config BOOTSTAGE_REPORT
 		 29,916,167 26,005,792  bootm_start
 		 30,361,327    445,160  start_kernel
 
-config BOOTSTAGE_USER_COUNT
-	hex "Number of boot ID numbers available for user use"
-	default 20
+config BOOTSTAGE_RECORD_COUNT
+	int "Number of boot stage records to store"
+	default 30
 	help
-	  This is the number of available user bootstage records.
-	  Each time you call bootstage_mark(BOOTSTAGE_ID_ALLOC, ...)
-	  a new ID will be allocated from this stash. If you exceed
-	  the limit, recording will stop.
+	  This is the size of the bootstage record list and is the maximum
+	  number of bootstage records that can be recorded.
+
+config SPL_BOOTSTAGE_RECORD_COUNT
+	int "Number of boot stage records to store for SPL"
+	default 5
+	help
+	  This is the size of the bootstage record list and is the maximum
+	  number of bootstage records that can be recorded.
 
 config BOOTSTAGE_FDT
 	bool "Store boot timing information in the OS device tree"
@@ -90,7 +104,7 @@ config BOOTSTAGE_STASH_ADDR
 
 config BOOTSTAGE_STASH_SIZE
 	hex "Size of boot timing stash region"
-	default 4096
+	default 0x1000
 	help
 	  This should be large enough to hold the bootstage stash. A value of
 	  4096 (4KiB) is normally plenty.
@@ -170,6 +184,39 @@ config BOOTDELAY
 
 	  See doc/README.autoboot for details.
 
+config USE_BOOTARGS
+	bool "Enable boot arguments"
+	help
+	  Provide boot arguments to bootm command. Boot arguments are specified
+	  in CONFIG_BOOTARGS option. Enable this option to be able to specify
+	  CONFIG_BOOTARGS string. If this option is disabled, CONFIG_BOOTARGS
+	  will be undefined and won't take any space in U-Boot image.
+
+config BOOTARGS
+	string "Boot arguments"
+	depends on USE_BOOTARGS
+	help
+	  This can be used to pass arguments to the bootm command. The value of
+	  CONFIG_BOOTARGS goes into the environment value "bootargs". Note that
+	  this value will also override the "chosen" node in FDT blob.
+
+config USE_BOOTCOMMAND
+	bool "Enable a default value for bootcmd"
+	help
+	  Provide a default value for the bootcmd entry in the environment.  If
+	  autoboot is enabled this is what will be run automatically.  Enable
+	  this option to be able to specify CONFIG_BOOTCOMMAND as a string.  If
+	  this option is disabled, CONFIG_BOOTCOMMAND will be undefined and
+	  won't take any space in U-Boot image.
+
+config BOOTCOMMAND
+	string "bootcmd value"
+	depends on USE_BOOTCOMMAND
+	default "run distro_bootcmd" if DISTRO_DEFAULTS
+	help
+	  This is the string of commands that will be used as bootcmd and if
+	  AUTOBOOT is set, automatically run.
+
 menu "Console"
 
 config MENU
@@ -210,6 +257,27 @@ config IDENT_STRING
 	string "Board specific string to be added to uboot version string"
 	help
 	  This options adds the board specific name to u-boot version.
+
+config LOGLEVEL
+	int "loglevel"
+	default 4
+	range 0 8
+	help
+	  All Messages with a loglevel smaller than the console loglevel will
+	  be compiled in. The loglevels are defined as follows:
+
+	  0 (KERN_EMERG)          system is unusable
+	  1 (KERN_ALERT)          action must be taken immediately
+	  2 (KERN_CRIT)           critical conditions
+	  3 (KERN_ERR)            error conditions
+	  4 (KERN_WARNING)        warning conditions
+	  5 (KERN_NOTICE)         normal but significant condition
+	  6 (KERN_INFO)           informational
+	  7 (KERN_DEBUG)          debug-level messages
+
+config SPL_LOGLEVEL
+	int
+	default LOGLEVEL
 
 config SILENT_CONSOLE
 	bool "Support a silent console"
@@ -352,16 +420,96 @@ config SYS_STDIO_DEREGISTER
 
 endmenu
 
+menu "Logging"
+
+config LOG
+	bool "Enable logging support"
+	help
+	  This enables support for logging of status and debug messages. These
+	  can be displayed on the console, recorded in a memory buffer, or
+	  discarded if not needed. Logging supports various categories and
+	  levels of severity.
+
+config SPL_LOG
+	bool "Enable logging support in SPL"
+	help
+	  This enables support for logging of status and debug messages. These
+	  can be displayed on the console, recorded in a memory buffer, or
+	  discarded if not needed. Logging supports various categories and
+	  levels of severity.
+
+config LOG_MAX_LEVEL
+	int "Maximum log level to record"
+	depends on LOG
+	default 5
+	help
+	  This selects the maximum log level that will be recorded. Any value
+	  higher than this will be ignored. If possible log statements below
+	  this level will be discarded at build time. Levels:
+
+	    0 - panic
+	    1 - critical
+	    2 - error
+	    3 - warning
+	    4 - note
+	    5 - info
+	    6 - detail
+	    7 - debug
+
+config SPL_LOG_MAX_LEVEL
+	int "Maximum log level to record in SPL"
+	depends on SPL_LOG
+	default 3
+	help
+	  This selects the maximum log level that will be recorded. Any value
+	  higher than this will be ignored. If possible log statements below
+	  this level will be discarded at build time. Levels:
+
+	    0 - panic
+	    1 - critical
+	    2 - error
+	    3 - warning
+	    4 - note
+	    5 - info
+	    6 - detail
+	    7 - debug
+
+config LOG_CONSOLE
+	bool "Allow log output to the console"
+	depends on LOG
+	default y
+	help
+	  Enables a log driver which writes log records to the console.
+	  Generally the console is the serial port or LCD display. Only the
+	  log message is shown - other details like level, category, file and
+	  line number are omitted.
+
+config LOG_SPL_CONSOLE
+	bool "Allow log output to the console in SPL"
+	depends on LOG_SPL
+	default y
+	help
+	  Enables a log driver which writes log records to the console.
+	  Generally the console is the serial port or LCD display. Only the
+	  log message is shown - other details like level, category, file and
+	  line number are omitted.
+
+config LOG_TEST
+	bool "Provide a test for logging"
+	depends on LOG
+	default y if SANDBOX
+	help
+	  This enables a 'log test' command to test logging. It is normally
+	  executed from a pytest and simply outputs logging information
+	  in various different ways to test that the logging system works
+	  correctly with varoius settings.
+
+endmenu
+
 config DEFAULT_FDT_FILE
 	string "Default fdt file"
 	help
 	  This option is used to set the default fdt file to boot OS.
-
-config SYS_NO_FLASH
-	bool "Disable support for parallel NOR flash"
-	default n
-	help
-	  This option is used to disable support for parallel NOR flash.
 
 config VERSION_VARIABLE
 	bool "add U-Boot environment variable vers"
@@ -373,9 +521,19 @@ config VERSION_VARIABLE
 	  Any change to this variable will be reverted at the
 	  next reset.
 
+config BOARD_LATE_INIT
+	bool
+	help
+	  Sometimes board require some initialization code that might
+	  require once the actual init done, example saving board specific env,
+	  boot-modes etc. which eventually done at late.
+
+	  So this config enable the late init code with the help of board_late_init
+	  function which should defined on respective boards.
+
 config DISPLAY_CPUINFO
 	bool "Display information about the CPU during start up"
-	default y if ARM || BLACKFIN || NIOS2 || X86 || XTENSA
+	default y if ARM || NIOS2 || X86 || XTENSA
 	help
 	  Display information about the CPU that U-Boot is running on
 	  when U-Boot starts up. The function print_cpuinfo() is called
@@ -383,10 +541,51 @@ config DISPLAY_CPUINFO
 
 config DISPLAY_BOARDINFO
 	bool "Display information about the board during start up"
-	default y if ARM || M68K || MIPS || PPC || SPARC || XTENSA
+	default y if ARM || M68K || MIPS || PPC || SANDBOX || XTENSA
 	help
 	  Display information about the board that U-Boot is running on
 	  when U-Boot starts up. The board function checkboard() is called
 	  to do this.
+
+menu "Start-up hooks"
+
+config ARCH_EARLY_INIT_R
+	bool "Call arch-specific init soon after relocation"
+	help
+	  With this option U-Boot will call arch_early_init_r() soon after
+	  relocation. Driver model is running by this point, and the cache
+	  is on. Note that board_early_init_r() is called first, if
+	  enabled. This can be used to set up architecture-specific devices.
+
+config ARCH_MISC_INIT
+	bool "Call arch-specific init after relocation, when console is ready"
+	help
+	  With this option U-Boot will call arch_misc_init() after
+	  relocation to allow miscellaneous arch-dependent initialisation
+	  to be performed. This function should be defined by the board
+	  and will be called after the console is set up, after relocaiton.
+
+config BOARD_EARLY_INIT_F
+	bool "Call board-specific init before relocation"
+	help
+	  Some boards need to perform initialisation as soon as possible
+	  after boot. With this option, U-Boot calls board_early_init_f()
+	  after driver model is ready in the pre-relocation init sequence.
+	  Note that the normal serial console is not yet set up, but the
+	  debug UART will be available if enabled.
+
+endmenu
+
+menu "Security support"
+
+config HASH
+	bool # "Support hashing API (SHA1, SHA256, etc.)"
+	help
+	  This provides a way to hash data in memory using various supported
+	  algorithms (such as SHA1, MD5, CRC32). The API is defined in hash.h
+	  and the algorithms it supports are defined in common/hash.c. See
+	  also CMD_HASH for command-line access.
+
+endmenu
 
 source "common/spl/Kconfig"

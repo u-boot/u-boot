@@ -14,6 +14,8 @@
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr_dimm_params.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 void fsl_ddr_board_options(memctl_options_t *popts,
 				dimm_params_t *pdimm,
 				unsigned int ctrl_num)
@@ -48,7 +50,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	popts->ddr_cdr1 = DDR_CDR1_DHC_EN | DDR_CDR_ODT_75ohm;
 }
 
-phys_size_t initdram(int board_type)
+int dram_init(void)
 {
 	phys_size_t dram_size = 0;
 
@@ -60,5 +62,7 @@ phys_size_t initdram(int board_type)
 	dram_size *= 0x100000;
 
 	debug("    DDR: ");
-	return dram_size;
+	gd->ram_size = dram_size;
+
+	return 0;
 }

@@ -187,7 +187,8 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			int transfer_len, int interval);
 
-#if defined CONFIG_USB_EHCI || defined CONFIG_USB_MUSB_HOST || defined(CONFIG_DM_USB)
+#if defined CONFIG_USB_EHCI_HCD || defined CONFIG_USB_MUSB_HOST \
+	|| defined(CONFIG_DM_USB)
 struct int_queue *create_int_queue(struct usb_device *dev, unsigned long pipe,
 	int queuesize, int elementsize, void *buffer, int interval);
 int destroy_int_queue(struct usb_device *dev, struct int_queue *queue);
@@ -536,6 +537,21 @@ struct usb_hub_status {
 	unsigned short wHubChange;
 } __attribute__ ((packed));
 
+/*
+ * Hub Device descriptor
+ * USB Hub class device protocols
+ */
+#define USB_HUB_PR_FS		0 /* Full speed hub */
+#define USB_HUB_PR_HS_NO_TT	0 /* Hi-speed hub without TT */
+#define USB_HUB_PR_HS_SINGLE_TT	1 /* Hi-speed hub with single TT */
+#define USB_HUB_PR_HS_MULTI_TT	2 /* Hi-speed hub with multiple TT */
+#define USB_HUB_PR_SS		3 /* Super speed hub */
+
+/* Transaction Translator Think Times, in bits */
+#define HUB_TTTT_8_BITS		0x00
+#define HUB_TTTT_16_BITS	0x20
+#define HUB_TTTT_24_BITS	0x40
+#define HUB_TTTT_32_BITS	0x60
 
 /* Hub descriptor */
 struct usb_hub_descriptor {
@@ -545,10 +561,20 @@ struct usb_hub_descriptor {
 	unsigned short wHubCharacteristics;
 	unsigned char  bPwrOn2PwrGood;
 	unsigned char  bHubContrCurrent;
-	unsigned char  DeviceRemovable[(USB_MAXCHILDREN+1+7)/8];
-	unsigned char  PortPowerCtrlMask[(USB_MAXCHILDREN+1+7)/8];
-	/* DeviceRemovable and PortPwrCtrlMask want to be variable-length
-	   bitmaps that hold max 255 entries. (bit0 is ignored) */
+	/* 2.0 and 3.0 hubs differ here */
+	union {
+		struct {
+			/* add 1 bit for hub status change; round to bytes */
+			__u8 DeviceRemovable[(USB_MAXCHILDREN + 1 + 7) / 8];
+			__u8 PortPowerCtrlMask[(USB_MAXCHILDREN + 1 + 7) / 8];
+		} __attribute__ ((packed)) hs;
+
+		struct {
+			__u8 bHubHdrDecLat;
+			__le16 wHubDelay;
+			__le16 DeviceRemovable;
+		} __attribute__ ((packed)) ss;
+	} u;
 } __attribute__ ((packed));
 
 
@@ -559,6 +585,8 @@ struct usb_hub_device {
 	ulong connect_timeout;		/* Device connection timeout in ms */
 	ulong query_delay;		/* Device query delay in ms */
 	int overcurrent_count[USB_MAXCHILDREN];	/* Over-current counter */
+	int hub_depth;			/* USB 3.0 hub depth */
+	struct usb_tt tt;		/* Transaction Translator */
 };
 
 #ifdef CONFIG_DM_USB
@@ -622,6 +650,18 @@ struct usb_bus_priv {
 	int next_addr;
 	bool desc_before_addr;
 	bool companion;
+};
+
+/**
+ * struct usb_emul_platdata - platform data about the USB emulator
+ *
+ * Given a USB emulator (UCLASS_USB_EMUL) 'dev', this is
+ * dev_get_uclass_platdata(dev).
+ *
+ * @port1:	USB emulator device port number on the parent hub
+ */
+struct usb_emul_platdata {
+	int port1;	/* Port number (numbered from 1) */
 };
 
 /**
@@ -730,6 +770,22 @@ struct dm_usb_ops {
 	 * reset_root_port() - Reset usb root port
 	 */
 	int (*reset_root_port)(struct udevice *bus, struct usb_device *udev);
+
+	/**
+	 * update_hub_device() - Update HCD's internal representation of hub
+	 *
+	 * After a hub descriptor is fetched, notify HCD so that its internal
+	 * representation of this hub can be updated (xHCI)
+	 */
+	int (*update_hub_device)(struct udevice *bus, struct usb_device *udev);
+
+	/**
+	 * get_max_xfer_size() - Get HCD's maximum transfer bytes
+	 *
+	 * The HCD may have limitation on the maximum bytes to be transferred
+	 * in a USB transfer. USB class driver needs to be aware of this.
+	 */
+	int (*get_max_xfer_size)(struct udevice *bus, size_t *size);
 };
 
 #define usb_get_ops(dev)	((struct dm_usb_ops *)(dev)->driver->ops)
@@ -763,6 +819,14 @@ struct usb_device *usb_get_dev_index(struct udevice *bus, int index);
  * @return 0 if OK, -ve on error */
 int usb_setup_device(struct usb_device *dev, bool do_read,
 		     struct usb_device *parent);
+
+/**
+ * usb_hub_is_root_hub() - Test whether a hub device is root hub or not
+ *
+ * @hub:	USB hub device to test
+ * @return:	true if the hub device is root hub, false otherwise.
+ */
+bool usb_hub_is_root_hub(struct udevice *hub);
 
 /**
  * usb_hub_scan() - Scan a hub and find its devices
@@ -860,24 +924,6 @@ bool usb_device_has_child_on_port(struct usb_device *parent, int port);
 int usb_hub_probe(struct usb_device *dev, int ifnum);
 void usb_hub_reset(void);
 
-/**
- * legacy_hub_port_reset() - reset a port given its usb_device pointer
- *
- * Reset a hub port and see if a device is present on that port, providing
- * sufficient time for it to show itself. The port status is returned.
- *
- * With driver model this moves to hub_port_reset() and is passed a struct
- * udevice.
- *
- * @dev:	USB device to reset
- * @port:	Port number to reset (note ports are numbered from 0 here)
- * @portstat:	Returns port status
- */
-int legacy_hub_port_reset(struct usb_device *dev, int port,
-			  unsigned short *portstat);
-
-int hub_port_reset(struct udevice *dev, int port, unsigned short *portstat);
-
 /*
  * usb_find_usb2_hub_address_port() - Get hub address and port for TT setting
  *
@@ -913,22 +959,44 @@ int usb_new_device(struct usb_device *dev);
 int usb_alloc_device(struct usb_device *dev);
 
 /**
+ * usb_update_hub_device() - Update HCD's internal representation of hub
+ *
+ * After a hub descriptor is fetched, notify HCD so that its internal
+ * representation of this hub can be updated.
+ *
+ * @dev:		Hub device
+ * @return 0 if OK, -ve on error
+ */
+int usb_update_hub_device(struct usb_device *dev);
+
+/**
+ * usb_get_max_xfer_size() - Get HCD's maximum transfer bytes
+ *
+ * The HCD may have limitation on the maximum bytes to be transferred
+ * in a USB transfer. USB class driver needs to be aware of this.
+ *
+ * @dev:		USB device
+ * @size:		maximum transfer bytes
+ * @return 0 if OK, -ve on error
+ */
+int usb_get_max_xfer_size(struct usb_device *dev, size_t *size);
+
+/**
  * usb_emul_setup_device() - Set up a new USB device emulation
  *
  * This is normally called when a new emulation device is bound. It tells
  * the USB emulation uclass about the features of the emulator.
  *
  * @dev:		Emulation device
- * @maxpacketsize:	Maximum packet size (e.g. PACKET_SIZE_64)
  * @strings:		List of USB string descriptors, terminated by a NULL
  *			entry
  * @desc_list:		List of points or USB descriptors, terminated by NULL.
  *			The first entry must be struct usb_device_descriptor,
  *			and others follow on after that.
- * @return 0 if OK, -ve on error
+ * @return 0 if OK, -ENOSYS if not implemented, other -ve on error
  */
-int usb_emul_setup_device(struct udevice *dev, int maxpacketsize,
-			  struct usb_string *strings, void **desc_list);
+int usb_emul_setup_device(struct udevice *dev, struct usb_string *strings,
+			  void **desc_list);
 
 /**
  * usb_emul_control() - Send a control packet to an emulator
@@ -967,19 +1035,20 @@ int usb_emul_int(struct udevice *emul, struct usb_device *udev,
 /**
  * usb_emul_find() - Find an emulator for a particular device
  *
- * Check @pipe to find a device number on bus @bus and return it.
+ * Check @pipe and @port1 to find a device number on bus @bus and return it.
  *
  * @bus:	USB bus (controller)
  * @pipe:	Describes pipe being used, and includes the device number
+ * @port1:	Describes port number on the parent hub
  * @emulp:	Returns pointer to emulator, or NULL if not found
  * @return 0 if found, -ve on error
  */
-int usb_emul_find(struct udevice *bus, ulong pipe, struct udevice **emulp);
+int usb_emul_find(struct udevice *bus, ulong pipe, int port1,
+		  struct udevice **emulp);
 
 /**
  * usb_emul_find_for_dev() - Find an emulator for a particular device
  *
- * @bus:	USB bus (controller)
  * @dev:	USB device to check
  * @emulp:	Returns pointer to emulator, or NULL if not found
  * @return 0 if found, -ve on error
@@ -987,12 +1056,15 @@ int usb_emul_find(struct udevice *bus, ulong pipe, struct udevice **emulp);
 int usb_emul_find_for_dev(struct udevice *dev, struct udevice **emulp);
 
 /**
- * usb_emul_reset() - Reset all emulators ready for use
+ * usb_emul_find_descriptor() - Find a USB descriptor of a particular device
  *
- * Clear out any address information in the emulators and make then ready for
- * a new USB scan
+ * @ptr:	a pointer to a list of USB descriptor pointers
+ * @type:	type of USB descriptor to find
+ * @index:	if @type is USB_DT_CONFIG, this is the configuration value
+ * @return a pointer to the USB descriptor found, NULL if not found
  */
-void usb_emul_reset(struct udevice *dev);
+struct usb_generic_descriptor **usb_emul_find_descriptor(
+		struct usb_generic_descriptor **ptr, int type, int index);
 
 /**
  * usb_show_tree() - show the USB device tree

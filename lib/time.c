@@ -36,6 +36,23 @@ unsigned long notrace timer_read_counter(void)
 	return readl(CONFIG_SYS_TIMER_COUNTER);
 #endif
 }
+
+ulong timer_get_boot_us(void)
+{
+	ulong count = timer_read_counter();
+
+#if CONFIG_SYS_TIMER_RATE == 1000000
+	return count;
+#elif CONFIG_SYS_TIMER_RATE > 1000000
+	return lldiv(count, CONFIG_SYS_TIMER_RATE / 1000000);
+#elif defined(CONFIG_SYS_TIMER_RATE)
+	return (unsigned long long)count * 1000000 / CONFIG_SYS_TIMER_RATE;
+#else
+	/* Assume the counter is in microseconds */
+	return count;
+#endif
+}
+
 #else
 extern unsigned long __weak timer_read_counter(void);
 #endif
@@ -153,10 +170,4 @@ void udelay(unsigned long usec)
 		__udelay (kv);
 		usec -= kv;
 	} while(usec);
-}
-
-void mdelay(unsigned long msec)
-{
-	while (msec--)
-		udelay(1000);
 }

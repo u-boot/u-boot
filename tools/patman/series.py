@@ -10,6 +10,7 @@ import os
 
 import get_maintainer
 import gitutil
+import settings
 import terminal
 
 # Series-xxx tags that we understand
@@ -212,30 +213,43 @@ class Series(dict):
             cover_fname: If non-None the name of the cover letter.
             raise_on_error: True to raise an error when an alias fails to match,
                 False to just print a message.
-            add_maintainers: Call the get_maintainers to CC maintainers
+            add_maintainers: Either:
+                True/False to call the get_maintainers to CC maintainers
+                List of maintainers to include (for testing)
         Return:
             Filename of temp file created
         """
+        col = terminal.Color()
         # Look for commit tags (of the form 'xxx:' at the start of the subject)
         fname = '/tmp/patman.%d' % os.getpid()
         fd = open(fname, 'w')
         all_ccs = []
         for commit in self.commits:
-            list = []
+            cc = []
             if process_tags:
-                list += gitutil.BuildEmailList(commit.tags,
+                cc += gitutil.BuildEmailList(commit.tags,
                                                raise_on_error=raise_on_error)
-            list += gitutil.BuildEmailList(commit.cc_list,
+            cc += gitutil.BuildEmailList(commit.cc_list,
                                            raise_on_error=raise_on_error)
-            if add_maintainers:
-                list += get_maintainer.GetMaintainer(commit.patch)
-            all_ccs += list
-            print(commit.patch, ', '.join(set(list)), file=fd)
-            self._generated_cc[commit.patch] = list
+            if type(add_maintainers) == type(cc):
+                cc += add_maintainers
+            elif add_maintainers:
+                cc += get_maintainer.GetMaintainer(commit.patch)
+            for x in set(cc) & set(settings.bounces):
+                print(col.Color(col.YELLOW, 'Skipping "%s"' % x))
+            cc = set(cc) - set(settings.bounces)
+            cc = [m.encode('utf-8') if type(m) != str else m for m in cc]
+            all_ccs += cc
+            print(commit.patch, ', '.join(set(cc)), file=fd)
+            self._generated_cc[commit.patch] = cc
 
         if cover_fname:
             cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
-            print(cover_fname, ', '.join(set(cover_cc + all_ccs)), file=fd)
+            cover_cc = [m.encode('utf-8') if type(m) != str else m
+                        for m in cover_cc]
+            cc_list = ', '.join([x.decode('utf-8')
+                                 for x in set(cover_cc + all_ccs)])
+            print(cover_fname, cc_list.encode('utf-8'), file=fd)
 
         fd.close()
         return fname

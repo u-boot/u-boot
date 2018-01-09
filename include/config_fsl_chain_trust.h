@@ -7,22 +7,6 @@
 #ifndef __CONFIG_FSL_CHAIN_TRUST_H
 #define __CONFIG_FSL_CHAIN_TRUST_H
 
-/* For secure boot, since ENVIRONMENT in flash/external memories is
- * not verified, undef CONFIG_ENV_xxx and set default env
- * (CONFIG_ENV_IS_NOWHERE)
- */
-#ifdef CONFIG_SECURE_BOOT
-
-#undef CONFIG_ENV_IS_IN_EEPROM
-#undef CONFIG_ENV_IS_IN_NAND
-#undef CONFIG_ENV_IS_IN_MMC
-#undef CONFIG_ENV_IS_IN_SPI_FLASH
-#undef CONFIG_ENV_IS_IN_FLASH
-
-#define CONFIG_ENV_IS_NOWHERE
-
-#endif
-
 #ifdef CONFIG_CHAIN_OF_TRUST
 
 #ifndef CONFIG_EXTRA_ENV
@@ -44,7 +28,7 @@
  *	 "41066b564c6ffcef40ccbc1e0a5d0d519604000c785d97bbefd25e4d288d1c8b"
  */
 
-#ifdef CONFIG_BOOTARGS
+#ifdef CONFIG_USE_BOOTARGS
 #define CONFIG_SET_BOOTARGS	"setenv bootargs \'" CONFIG_BOOTARGS" \';"
 #else
 #define CONFIG_SET_BOOTARGS	"setenv bootargs \'root=/dev/ram "	\
@@ -81,17 +65,18 @@
 	"setenv bs_size " __stringify(CONFIG_BS_SIZE)";"
 
 /* For secure boot flow, default environment used will be used */
-#if defined(CONFIG_SYS_RAMBOOT)
-#if defined(CONFIG_RAMBOOT_NAND)
+#if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_NAND_BOOT) || \
+	defined(CONFIG_SD_BOOT)
+#if defined(CONFIG_RAMBOOT_NAND) || defined(CONFIG_NAND_BOOT)
 #define CONFIG_BS_COPY_CMD \
 	"nand read $bs_hdr_ram $bs_hdr_device $bs_hdr_size ;" \
 	"nand read $bs_ram $bs_device $bs_size ;"
-#endif /* CONFIG_RAMBOOT_NAND */
 #elif defined(CONFIG_SD_BOOT)
 #define CONFIG_BS_COPY_CMD \
 	"mmc read $bs_hdr_ram $bs_hdr_device $bs_hdr_size ;" \
 	"mmc read $bs_ram $bs_device $bs_size ;"
-#else /* CONFIG_SD_BOOT */
+#endif
+#else
 #define CONFIG_BS_COPY_CMD \
 	"cp.b $bs_hdr_device $bs_hdr_ram  $bs_hdr_size ;" \
 	"cp.b $bs_device $bs_ram  $bs_size ;"

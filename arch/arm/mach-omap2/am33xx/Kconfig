@@ -1,15 +1,58 @@
+if TI816X
+
+config TARGET_TI816X_EVM
+	bool "Support ti816x_evm"
+	help
+	  This option specifies support for the TI8168 EVM development platform
+	  with PG2.0 silicon and DDR3 DRAM.
+
+endif
+
+if TI814X
+
+config TARGET_TI814X_EVM
+	bool "Support ti814x_evm"
+	help
+	  This option specifies support for the TI8148
+	  EVM development platform.
+
+endif
+
 if AM33XX
+
+config AM33XX_CHILISOM
+	bool
+	select SUPPORT_SPL
 
 choice
 	prompt "AM33xx board select"
-	optional
 
 config TARGET_AM335X_EVM
 	bool "Support am335x_evm"
+	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 	select TI_I2C_BOARD_DETECT
+	imply SPL_ENV_SUPPORT
+	imply SPL_EXT_SUPPORT
+	imply SPL_FAT_SUPPORT
+	imply SPL_GPIO_SUPPORT
+	imply SPL_I2C_SUPPORT
+	imply SPL_LIBCOMMON_SUPPORT
+	imply SPL_LIBDISK_SUPPORT
+	imply SPL_LIBGENERIC_SUPPORT
+	imply SPL_MMC_SUPPORT
+	imply SPL_NAND_SUPPORT
+	imply SPL_POWER_SUPPORT
+	imply SPL_SERIAL_SUPPORT
+	imply SPL_WATCHDOG_SUPPORT
+	imply SPL_YMODEM_SUPPORT
+	imply SPL_SYS_MALLOC_SIMPLE
+	imply SPL_SEPARATE_BSS
+	imply SPL_DM
+	imply SPL_DM_SEQ_ALIAS
+	imply SPL_OF_LIBFDT
 	help
 	  This option specifies support for the AM335x
 	  GP and HS EVM development platforms. The AM335x
@@ -20,30 +63,36 @@ config TARGET_AM335X_EVM
 
 config TARGET_AM335X_BALTOS
 	bool "Support am335x_baltos"
+	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
-config TARGET_AM335X_IGEP0033
-	bool "Support am335x_igep0033"
+config TARGET_AM335X_IGEP003X
+	bool "Support am335x_igep003x"
+	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
 config TARGET_AM335X_SHC
 	bool "Support am335x based shc board from bosch"
+	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
+	imply CMD_SPL
 
 config TARGET_AM335X_SL50
 	bool "Support am335x_sl50"
+	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
 
 config TARGET_BAV335X
 	bool "Support bav335x"
+	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
 	help
@@ -55,8 +104,37 @@ config TARGET_BAV335X
 
 	  For more information, visit: http://birdland.com/oem
 
+config TARGET_BRXRE1
+	bool "Support BRXRE1"
+	select BOARD_LATE_INIT
+
+config TARGET_BRPPT1
+	bool "Support BRPPT1"
+	select BOARD_LATE_INIT
+
+config TARGET_CHILIBOARD
+	bool "Grinn chiliBoard"
+	select AM33XX_CHILISOM
+	select BOARD_LATE_INIT
+	select DM
+	select DM_SERIAL
+
 config TARGET_CM_T335
 	bool "Support cm_t335"
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
+config TARGET_DRACO
+	bool "Support draco"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
+config TARGET_ETAMIN
+	bool "Support etamin"
+	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
@@ -79,24 +157,66 @@ config TARGET_PEPPER
 	select DM_SERIAL
 	select DM_GPIO
 
+config TARGET_PXM2
+	bool "Support pxm2"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
+config TARGET_RASTABAN
+	bool "Support rastaban"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
+config TARGET_RUT
+	bool "Support rut"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
+config TARGET_THUBAN
+	bool "Support thuban"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
 endchoice
 
 endif
 
 if AM43XX
 
-config SPL_EXT_SUPPORT
-	default y
-
-config SPL_GPIO_SUPPORT
-	default y
-
-config SPL_I2C_SUPPORT
-	default y
+choice
+	prompt "AM43xx board select"
 
 config TARGET_AM43XX_EVM
 	bool "Support am43xx_evm"
+	select BOARD_LATE_INIT
 	select TI_I2C_BOARD_DETECT
+	imply DM_ETH
+	imply DM_I2C
+	imply DM_SPI
+	imply DM_SPI_FLASH
+	imply SPI_FLASH_BAR
+	imply SPL_ENV_SUPPORT
+	imply SPL_EXT_SUPPORT
+	imply SPL_FAT_SUPPORT
+	imply SPL_GPIO_SUPPORT
+	imply SPL_I2C_SUPPORT
+	imply SPL_LIBCOMMON_SUPPORT
+	imply SPL_LIBDISK_SUPPORT
+	imply SPL_LIBGENERIC_SUPPORT
+	imply SPL_MMC_SUPPORT
+	imply SPL_NAND_SUPPORT
+	imply SPL_POWER_SUPPORT
+	imply SPL_SERIAL_SUPPORT
+	imply SPL_WATCHDOG_SUPPORT
+	imply SPL_YMODEM_SUPPORT
 	help
 	  This option specifies support for the AM43xx
 	  GP and HS EVM development platforms.The AM437x
@@ -104,6 +224,12 @@ config TARGET_AM43XX_EVM
 	  evaluation module system that enables developers
 	  to write software and develop hardware around
 	  an AM43xx processor subsystem.
+
+config TARGET_CM_T43
+	bool "Support cm_t43"
+
+endchoice
+
 endif
 
 if AM43XX || AM33XX

@@ -1,9 +1,0 @@
-if TARGET_CANMB
-
-config SYS_BOARD
-	default "canmb"
-
-config SYS_CONFIG_NAME
-	default "canmb"
-
-endif

@@ -14,16 +14,17 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/sata.h>
-#include <asm/imx-common/boot_mode.h>
-#include <asm/imx-common/mxc_i2c.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/sata.h>
+#include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <i2c.h>
+#include <input.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
 #include <linux/fb.h>
@@ -71,6 +72,7 @@ static iomux_v3_cfg_t const uart2_pads[] = {
 	IOMUX_PADS(PAD_EIM_D27__UART2_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 };
 
+#ifndef CONFIG_SPL_BUILD
 static iomux_v3_cfg_t const usdhc2_pads[] = {
 	IOMUX_PADS(PAD_SD2_CLK__SD2_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD2_CMD__SD2_CMD   | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
@@ -94,6 +96,7 @@ static iomux_v3_cfg_t const usdhc3_pads[] = {
 	IOMUX_PADS(PAD_SD3_DAT7__SD3_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD3_RST__SD3_RESET | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 };
+#endif
 
 static iomux_v3_cfg_t const usdhc4_pads[] = {
 	IOMUX_PADS(PAD_SD4_CLK__SD4_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
@@ -233,7 +236,7 @@ int power_init_board(void)
 		return 0;
 
 	/* set level of MIPI if specified */
-	lv_mipi = getenv("lv_mipi");
+	lv_mipi = env_get("lv_mipi");
 	if (lv_mipi)
 		return 0;
 
@@ -581,7 +584,7 @@ int board_video_skip(void)
 {
 	int i;
 	int ret;
-	char const *panel = getenv("panel");
+	char const *panel = env_get("panel");
 	if (!panel) {
 		for (i = 0; i < ARRAY_SIZE(displays); i++) {
 			struct display_info_t const *dev = displays + i;
@@ -681,8 +684,6 @@ int overwrite_console(void)
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
-	setup_display();
-
 #ifdef CONFIG_MXC_SPI
 	setup_spi();
 #endif
@@ -700,7 +701,9 @@ int board_init(void)
 	else
 		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c_pad_info1);
 
-#ifdef CONFIG_CMD_SATA
+	setup_display();
+
+#ifdef CONFIG_SATA
 	setup_sata();
 #endif
 
@@ -753,9 +756,9 @@ int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	if (is_mx6dq())
-		setenv("board_rev", "MX6Q");
+		env_set("board_rev", "MX6Q");
 	else
-		setenv("board_rev", "MX6DL");
+		env_set("board_rev", "MX6DL");
 #endif
 
 	return 0;
@@ -951,17 +954,6 @@ static void ccgr_init(void)
 	writel(0x00FFF300, &ccm->CCGR4);
 	writel(0x0F0000C3, &ccm->CCGR5);
 	writel(0x000003FF, &ccm->CCGR6);
-}
-
-static void gpr_init(void)
-{
-	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-
-	/* enable AXI cache for VDOA/VPU/IPU */
-	writel(0xF00000CF, &iomux->gpr[4]);
-	/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
-	writel(0x007F007F, &iomux->gpr[6]);
-	writel(0x007F007F, &iomux->gpr[7]);
 }
 
 /* Define a minimal structure so that the part number can be read via SPL */

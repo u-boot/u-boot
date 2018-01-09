@@ -175,39 +175,6 @@ typedef struct cark {
 */
 #define KAPWR_KEY	((unsigned int)0x55ccaa33)
 
-/* Video interface.  MPC823 Only.
-*/
-typedef struct vid823 {
-	ushort	vid_vccr;
-	ushort	res1;
-	u_char	vid_vsr;
-	u_char	res2;
-	u_char	vid_vcmr;
-	u_char	res3;
-	uint	vid_vbcb;
-	uint	res4;
-	uint	vid_vfcr0;
-	uint	vid_vfaa0;
-	uint	vid_vfba0;
-	uint	vid_vfcr1;
-	uint	vid_vfaa1;
-	uint	vid_vfba1;
-	u_char	res5[0x18];
-} vid823_t;
-
-/* LCD interface.  823 Only.
-*/
-typedef struct lcd {
-	uint	lcd_lccr;
-	uint	lcd_lchcr;
-	uint	lcd_lcvcr;
-	char	res1[4];
-	uint	lcd_lcfaa;
-	uint	lcd_lcfba;
-	char	lcd_lcsr;
-	char	res2[0x7];
-} lcd823_t;
-
 /* I2C
 */
 typedef struct i2c {
@@ -370,14 +337,6 @@ typedef struct fec {
 	uint	res9[0x1e];		/* reserved				*/
 } fec_t;
 
-/* The FEC and LCD color map share the same address space....
- * I guess we will never see an 823T :-).
- */
-union fec_lcd {
-	fec_t	fl_un_fec;
-	u_char	fl_un_cmap[0x200];
-};
-
 typedef struct comm_proc {
 	/* General control and status registers.
 	*/
@@ -460,18 +419,13 @@ typedef struct comm_proc {
 	uint	cp_sirp;
 	u_char	res17[0xc];
 
-	/* 256 bytes of MPC823 video controller RAM array.
-	*/
-	u_char	cp_vcram[0x100];
+	u_char	res19[0x100];
 	u_char	cp_siram[0x200];
 
 	/* The fast ethernet controller is not really part of the CPM,
 	 * but it resides in the address space.
-	 * The LCD color map is also here.
 	 */
-	union	fec_lcd	fl_un;
-#define cp_fec		fl_un.fl_un_fec
-#define lcd_cmap	fl_un.fl_un_cmap
+	fec_t	cp_fec;
 	char	res18[0xE00];
 
 	/* The MPC885 family has a second FEC here */
@@ -502,8 +456,7 @@ typedef struct immap {
 	car8xx_t	im_clkrst;	/* Clocks and reset */
 	sitk8xx_t	im_sitk;	/* Sys int timer keys */
 	cark8xx_t	im_clkrstk;	/* Clocks and reset keys */
-	vid823_t	im_vid;		/* Video (823 only) */
-	lcd823_t	im_lcd;		/* LCD (823 only) */
+	char		res[96];
 	i2c8xx_t	im_i2c;		/* I2C control/status */
 	sdma8xx_t	im_sdma;	/* SDMA control/status */
 	cpic8xx_t	im_cpic;	/* CPM Interrupt Controller */

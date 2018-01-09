@@ -82,7 +82,6 @@
 #define CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS 200000
 
 /* Store environment at top of flash */
-#define CONFIG_ENV_IS_NOWHERE		1
 #define CONFIG_ENV_SIZE			0x1000
 
 #endif /* __LS2_EMU_H */

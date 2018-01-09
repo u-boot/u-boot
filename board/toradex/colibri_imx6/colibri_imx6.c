@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/imx-regs.h>
@@ -18,16 +19,17 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/bootm.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/mxc_i2c.h>
-#include <asm/imx-common/sata.h>
-#include <asm/imx-common/boot_mode.h>
-#include <asm/imx-common/video.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/mxc_i2c.h>
+#include <asm/mach-imx/sata.h>
+#include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/video.h>
 #include <asm/io.h>
 #include <dm/platform_data/serial_mxc.h>
 #include <dm/platdata.h>
 #include <fsl_esdhc.h>
 #include <i2c.h>
+#include <input.h>
 #include <imx_thermal.h>
 #include <linux/errno.h>
 #include <malloc.h>
@@ -629,9 +631,6 @@ int board_early_init_f(void)
 					 ARRAY_SIZE(pwr_intb_pads));
 	setup_iomux_uart();
 
-#if defined(CONFIG_VIDEO_IPUV3)
-	setup_display();
-#endif
 	return 0;
 }
 
@@ -652,11 +651,15 @@ int board_init(void)
 	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
 	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info_loc);
 
+#if defined(CONFIG_VIDEO_IPUV3)
+	setup_display();
+#endif
+
 #ifdef CONFIG_TDX_CMD_IMX_MFGR
 	(void) pmic_init();
 #endif
 
-#ifdef CONFIG_CMD_SATA
+#ifdef CONFIG_SATA
 	setup_sata();
 #endif
 
@@ -675,7 +678,7 @@ int board_late_init(void)
 
 	rev = get_board_rev();
 	snprintf(env_str, ARRAY_SIZE(env_str), "%.4x", rev);
-	setenv("board_rev", env_str);
+	env_set("board_rev", env_str);
 #endif
 
 	return 0;
@@ -1033,17 +1036,6 @@ static void ccgr_init(void)
  * This sets CKO1 at ahb_clk_root/8 = 132/8 = 16.5 MHz
  */
 	writel(0x000000FB, &ccm->ccosr);
-}
-
-static void gpr_init(void)
-{
-	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-
-	/* enable AXI cache for VDOA/VPU/IPU */
-	writel(0xF00000CF, &iomux->gpr[4]);
-	/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
-	writel(0x007F007F, &iomux->gpr[6]);
-	writel(0x007F007F, &iomux->gpr[7]);
 }
 
 static void ddr_init(int *table, int size)

@@ -27,7 +27,7 @@ static int lp873x_write(struct udevice *dev, uint reg, const uint8_t *buff,
 			  int len)
 {
 	if (dm_i2c_write(dev, reg, buff, len)) {
-		error("write error to device: %p register: %#x!", dev, reg);
+		pr_err("write error to device: %p register: %#x!", dev, reg);
 		return -EIO;
 	}
 
@@ -37,7 +37,7 @@ static int lp873x_write(struct udevice *dev, uint reg, const uint8_t *buff,
 static int lp873x_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 {
 	if (dm_i2c_read(dev, reg, buff, len)) {
-		error("read error from device: %p register: %#x!", dev, reg);
+		pr_err("read error from device: %p register: %#x!", dev, reg);
 		return -EIO;
 	}
 
@@ -46,15 +46,13 @@ static int lp873x_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 
 static int lp873x_bind(struct udevice *dev)
 {
-	int regulators_node;
-	const void *blob = gd->fdt_blob;
+	ofnode regulators_node;
 	int children;
-	int node = dev->of_offset;
 
-	regulators_node = fdt_subnode_offset(blob, node, "regulators");
-
-	if (regulators_node <= 0) {
-		printf("%s: %s reg subnode not found!", __func__, dev->name);
+	regulators_node = dev_read_subnode(dev, "regulators");
+	if (!ofnode_valid(regulators_node)) {
+		debug("%s: %s regulators subnode not found!", __func__,
+		      dev->name);
 		return -ENXIO;
 	}
 

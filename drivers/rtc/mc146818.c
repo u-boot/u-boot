@@ -100,7 +100,7 @@ static int mc146818_get(struct rtc_time *tmp)
 #ifdef RTC_DEBUG
 	printf("Get RTC year: %02x mon/cent: %02x mday: %02x wday: %02x hr: %02x min: %02x sec: %02x\n",
 	       year, mon, mday, wday, hour, min, sec);
-	printf("Alarms: month: %02x hour: %02x min: %02x sec: %02x\n",
+	printf("Alarms: mday: %02x hour: %02x min: %02x sec: %02x\n",
 	       mc146818_read8(RTC_CONFIG_D) & 0x3f,
 	       mc146818_read8(RTC_HOURS_ALARM),
 	       mc146818_read8(RTC_MINUTES_ALARM),

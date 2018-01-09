@@ -209,12 +209,26 @@ static void sym_set_all_changed(void)
 static void sym_calc_visibility(struct symbol *sym)
 {
 	struct property *prop;
+	struct symbol *choice_sym = NULL;
 	tristate tri;
 
 	/* any prompt visible? */
 	tri = no;
+
+	if (sym_is_choice_value(sym))
+		choice_sym = prop_get_symbol(sym_get_choice_prop(sym));
+
 	for_all_prompts(sym, prop) {
 		prop->visible.tri = expr_calc_value(prop->visible.expr);
+		/*
+		 * Tristate choice_values with visibility 'mod' are
+		 * not visible if the corresponding choice's value is
+		 * 'yes'.
+		 */
+		if (choice_sym && sym->type == S_TRISTATE &&
+		    prop->visible.tri == mod && choice_sym->curr.tri == yes)
+			prop->visible.tri = no;
+
 		tri = EXPR_OR(tri, prop->visible.tri);
 	}
 	if (tri == mod && (sym->type != S_TRISTATE || modules_val == no))
@@ -242,6 +256,15 @@ static void sym_calc_visibility(struct symbol *sym)
 		tri = yes;
 	if (sym->rev_dep.tri != tri) {
 		sym->rev_dep.tri = tri;
+		sym_set_changed(sym);
+	}
+	tri = no;
+	if (sym->implied.expr && sym->dir_dep.tri != no)
+		tri = expr_calc_value(sym->implied.expr);
+	if (tri == mod && sym_get_type(sym) == S_BOOLEAN)
+		tri = yes;
+	if (sym->implied.tri != tri) {
+		sym->implied.tri = tri;
 		sym_set_changed(sym);
 	}
 }
@@ -383,6 +406,10 @@ void sym_calc_value(struct symbol *sym)
 					newval.tri = EXPR_AND(expr_calc_value(prop->expr),
 							      prop->visible.tri);
 				}
+				if (sym->implied.tri != no) {
+					sym->flags |= SYMBOL_WRITE;
+					newval.tri = EXPR_OR(newval.tri, sym->implied.tri);
+				}
 			}
 		calc_newval:
 			if (sym->dir_dep.tri == no && sym->rev_dep.tri != no) {
@@ -399,7 +426,8 @@ void sym_calc_value(struct symbol *sym)
 			}
 			newval.tri = EXPR_OR(newval.tri, sym->rev_dep.tri);
 		}
-		if (newval.tri == mod && sym_get_type(sym) == S_BOOLEAN)
+		if (newval.tri == mod &&
+		    (sym_get_type(sym) == S_BOOLEAN || sym->implied.tri == yes))
 			newval.tri = yes;
 		break;
 	case S_STRING:
@@ -467,8 +495,7 @@ void sym_clear_all_valid(void)
 	for_all_symbols(i, sym)
 		sym->flags &= ~SYMBOL_VALID;
 	sym_add_change_count(1);
-	if (modules_sym)
-		sym_calc_value(modules_sym);
+	sym_calc_value(modules_sym);
 }
 
 bool sym_tristate_within_range(struct symbol *sym, tristate val)
@@ -484,6 +511,8 @@ bool sym_tristate_within_range(struct symbol *sym, tristate val)
 	if (type == S_BOOLEAN && val == mod)
 		return false;
 	if (sym->visible <= sym->rev_dep.tri)
+		return false;
+	if (sym->implied.tri == yes && val == mod)
 		return false;
 	if (sym_is_choice_value(sym) && sym->visible == yes)
 		return val == yes;
@@ -737,6 +766,10 @@ const char *sym_get_string_default(struct symbol *sym)
 	if (sym->type == S_BOOLEAN && val == mod)
 		val = yes;
 
+	/* adjust the default value if this symbol is implied by another */
+	if (val < sym->implied.tri)
+		val = sym->implied.tri;
+
 	switch (sym->type) {
 	case S_BOOLEAN:
 	case S_TRISTATE:
@@ -912,6 +945,49 @@ const char *sym_expand_string_value(const char *in)
 	return res;
 }
 
+const char *sym_escape_string_value(const char *in)
+{
+	const char *p;
+	size_t reslen;
+	char *res;
+	size_t l;
+
+	reslen = strlen(in) + strlen("\"\"") + 1;
+
+	p = in;
+	for (;;) {
+		l = strcspn(p, "\"\\");
+		p += l;
+
+		if (p[0] == '\0')
+			break;
+
+		reslen++;
+		p++;
+	}
+
+	res = xmalloc(reslen);
+	res[0] = '\0';
+
+	strcat(res, "\"");
+
+	p = in;
+	for (;;) {
+		l = strcspn(p, "\"\\");
+		strncat(res, p, l);
+		p += l;
+
+		if (p[0] == '\0')
+			break;
+
+		strcat(res, "\\");
+		strncat(res, p++, 1);
+	}
+
+	strcat(res, "\"");
+	return res;
+}
+
 struct sym_match {
 	struct symbol	*sym;
 	off_t		so, eo;
@@ -985,7 +1061,7 @@ struct symbol **sym_re_search(const char *pattern)
 	}
 	if (sym_match_arr) {
 		qsort(sym_match_arr, cnt, sizeof(struct sym_match), sym_rel_comp);
-		sym_arr = malloc((cnt+1) * sizeof(struct symbol));
+		sym_arr = malloc((cnt+1) * sizeof(struct symbol *));
 		if (!sym_arr)
 			goto sym_re_search_free;
 		for (i = 0; i < cnt; i++)
@@ -1074,6 +1150,8 @@ static void sym_check_print_recursive(struct symbol *last_sym)
 		if (stack->sym == last_sym)
 			fprintf(stderr, "%s:%d:error: recursive dependency detected!\n",
 				prop->file->name, prop->lineno);
+			fprintf(stderr, "For a resolution refer to Documentation/kbuild/kconfig-language.txt\n");
+			fprintf(stderr, "subsection \"Kconfig recursive dependency limitations\"\n");
 		if (stack->expr) {
 			fprintf(stderr, "%s:%d:\tsymbol %s %s value contains %s\n",
 				prop->file->name, prop->lineno,
@@ -1123,6 +1201,10 @@ static struct symbol *sym_check_expr_deps(struct expr *e)
 	case E_NOT:
 		return sym_check_expr_deps(e->left.expr);
 	case E_EQUAL:
+	case E_GEQ:
+	case E_GTH:
+	case E_LEQ:
+	case E_LTH:
 	case E_UNEQUAL:
 		sym = sym_check_deps(e->left.sym);
 		if (sym)
@@ -1290,6 +1372,8 @@ const char *prop_get_type_name(enum prop_type type)
 		return "choice";
 	case P_SELECT:
 		return "select";
+	case P_IMPLY:
+		return "imply";
 	case P_RANGE:
 		return "range";
 	case P_SYMBOL:

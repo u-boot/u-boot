@@ -13,13 +13,39 @@
 #include <linux/ctype.h>
 #include <asm/io.h>
 
-int display_options (void)
+char *display_options_get_banner_priv(bool newlines, const char *build_tag,
+				      char *buf, int size)
 {
-#if defined(BUILD_TAG)
-	printf ("\n\n%s, Build: %s\n\n", version_string, BUILD_TAG);
-#else
-	printf ("\n\n%s\n\n", version_string);
+	int len;
+
+	len = snprintf(buf, size, "%s%s", newlines ? "\n\n" : "",
+		       version_string);
+	if (build_tag && len < size)
+		len += snprintf(buf + len, size - len, ", Build: %s",
+				build_tag);
+	if (len > size - 3)
+		len = size - 3;
+	strcpy(buf + len, "\n\n");
+
+	return buf;
+}
+
+#ifndef BUILD_TAG
+#define BUILD_TAG NULL
 #endif
+
+char *display_options_get_banner(bool newlines, char *buf, int size)
+{
+	return display_options_get_banner_priv(newlines, BUILD_TAG, buf, size);
+}
+
+int display_options(void)
+{
+	char buf[DISPLAY_OPTIONS_BANNER_LENGTH];
+
+	display_options_get_banner(true, buf, sizeof(buf));
+	printf("%s", buf);
+
 	return 0;
 }
 

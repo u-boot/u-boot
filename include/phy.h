@@ -15,6 +15,8 @@
 #include <linux/ethtool.h>
 #include <linux/mdio.h>
 
+#define PHY_FIXED_ID		0xa5a55a5a
+
 #define PHY_MAX_ADDR 32
 
 #define PHY_FLAG_BROKEN_RESET	(1 << 0) /* soft reset not supported */
@@ -61,6 +63,9 @@ typedef enum {
 	PHY_INTERFACE_MODE_RGMII_TXID,
 	PHY_INTERFACE_MODE_RTBI,
 	PHY_INTERFACE_MODE_XGMII,
+	PHY_INTERFACE_MODE_XAUI,
+	PHY_INTERFACE_MODE_RXAUI,
+	PHY_INTERFACE_MODE_SFI,
 	PHY_INTERFACE_MODE_NONE,	/* Must be last */
 
 	PHY_INTERFACE_MODE_COUNT,
@@ -80,6 +85,9 @@ static const char *phy_interface_strings[] = {
 	[PHY_INTERFACE_MODE_RGMII_TXID]		= "rgmii-txid",
 	[PHY_INTERFACE_MODE_RTBI]		= "rtbi",
 	[PHY_INTERFACE_MODE_XGMII]		= "xgmii",
+	[PHY_INTERFACE_MODE_XAUI]		= "xaui",
+	[PHY_INTERFACE_MODE_RXAUI]		= "rxaui",
+	[PHY_INTERFACE_MODE_SFI]		= "sfi",
 	[PHY_INTERFACE_MODE_NONE]		= "",
 };
 
@@ -258,7 +266,9 @@ int phy_davicom_init(void);
 int phy_et1011c_init(void);
 int phy_lxt_init(void);
 int phy_marvell_init(void);
-int phy_micrel_init(void);
+int phy_micrel_ksz8xxx_init(void);
+int phy_micrel_ksz90x1_init(void);
+int phy_meson_gxl_init(void);
 int phy_natsemi_init(void);
 int phy_realtek_init(void);
 int phy_smsc_init(void);
@@ -266,6 +276,8 @@ int phy_teranetics_init(void);
 int phy_ti_init(void);
 int phy_vitesse_init(void);
 int phy_xilinx_init(void);
+int phy_mscc_init(void);
+int phy_fixed_init(void);
 
 int board_phy_config(struct phy_device *phydev);
 int get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id);

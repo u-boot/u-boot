@@ -155,7 +155,7 @@ static int exynos_dwmci_get_config(const void *blob, int node,
 
 	priv = malloc(sizeof(struct dwmci_exynos_priv_data));
 	if (!priv) {
-		error("dwmci_exynos_priv_data malloc fail!\n");
+		pr_err("dwmci_exynos_priv_data malloc fail!\n");
 		return -ENOMEM;
 	}
 
@@ -264,7 +264,7 @@ static int exynos_dwmmc_probe(struct udevice *dev)
 	struct dwmci_host *host = &priv->host;
 	int err;
 
-	err = exynos_dwmci_get_config(gd->fdt_blob, dev->of_offset, host);
+	err = exynos_dwmci_get_config(gd->fdt_blob, dev_of_offset(dev), host);
 	if (err)
 		return err;
 	err = do_dwmci_init(host);

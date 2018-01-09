@@ -14,10 +14,15 @@
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
-#include <asm/imx-common/iomux-v3.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/sys_proto.h>
 #include <dm.h>
+#include <asm/mach-types.h>
+#include <power/regulator.h>
 
 #include "ehci.h"
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #define USB_OTGREGS_OFFSET	0x000
 #define USB_H1REGS_OFFSET	0x200
@@ -48,6 +53,7 @@
 #define ANADIG_USB2_PLL_480_CTRL_EN_USB_CLKS	0x00000040
 
 #define USBNC_OFFSET		0x200
+#define USBNC_PHY_STATUS_OFFSET	0x23C
 #define USBNC_PHYSTATUS_ID_DIG	(1 << 4) /* otg_id status */
 #define USBNC_PHYCFG2_ACAENB	(1 << 4) /* otg_id detection enable */
 #define UCTRL_PWR_POL		(1 << 9) /* OTG Polarity of Power Pin */
@@ -384,6 +390,7 @@ int ehci_hcd_stop(int index)
 struct ehci_mx6_priv_data {
 	struct ehci_ctrl ctrl;
 	struct usb_ehci *ehci;
+	struct udevice *vbus_supply;
 	enum usb_init_type init_type;
 	int portnr;
 };
@@ -399,7 +406,15 @@ static int mx6_init_after_reset(struct ehci_ctrl *dev)
 	if (ret)
 		return ret;
 
-	board_ehci_power(priv->portnr, (type == USB_INIT_DEVICE) ? 0 : 1);
+	if (priv->vbus_supply) {
+		ret = regulator_set_enable(priv->vbus_supply,
+					   (type == USB_INIT_DEVICE) ?
+					   false : true);
+		if (ret) {
+			puts("Error enabling VBUS supply\n");
+			return ret;
+		}
+	}
 
 	if (type == USB_INIT_DEVICE)
 		return 0;
@@ -417,24 +432,108 @@ static const struct ehci_ops mx6_ehci_ops = {
 	.init_after_reset = mx6_init_after_reset
 };
 
+static int ehci_usb_phy_mode(struct udevice *dev)
+{
+	struct usb_platdata *plat = dev_get_platdata(dev);
+	void *__iomem addr = (void *__iomem)devfdt_get_addr(dev);
+	void *__iomem phy_ctrl, *__iomem phy_status;
+	const void *blob = gd->fdt_blob;
+	int offset = dev_of_offset(dev), phy_off;
+	u32 val;
+
+	/*
+	 * About fsl,usbphy, Refer to
+	 * Documentation/devicetree/bindings/usb/ci-hdrc-usb2.txt.
+	 */
+	if (is_mx6()) {
+		phy_off = fdtdec_lookup_phandle(blob,
+						offset,
+						"fsl,usbphy");
+		if (phy_off < 0)
+			return -EINVAL;
+
+		addr = (void __iomem *)fdtdec_get_addr(blob, phy_off,
+						       "reg");
+		if ((fdt_addr_t)addr == FDT_ADDR_T_NONE)
+			return -EINVAL;
+
+		phy_ctrl = (void __iomem *)(addr + USBPHY_CTRL);
+		val = readl(phy_ctrl);
+
+		if (val & USBPHY_CTRL_OTG_ID)
+			plat->init_type = USB_INIT_DEVICE;
+		else
+			plat->init_type = USB_INIT_HOST;
+	} else if (is_mx7()) {
+		phy_status = (void __iomem *)(addr +
+					      USBNC_PHY_STATUS_OFFSET);
+		val = readl(phy_status);
+
+		if (val & USBNC_PHYSTATUS_ID_DIG)
+			plat->init_type = USB_INIT_DEVICE;
+		else
+			plat->init_type = USB_INIT_HOST;
+	} else {
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
+{
+	struct usb_platdata *plat = dev_get_platdata(dev);
+	const char *mode;
+
+	mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "dr_mode", NULL);
+	if (mode) {
+		if (strcmp(mode, "peripheral") == 0)
+			plat->init_type = USB_INIT_DEVICE;
+		else if (strcmp(mode, "host") == 0)
+			plat->init_type = USB_INIT_HOST;
+		else if (strcmp(mode, "otg") == 0)
+			return ehci_usb_phy_mode(dev);
+		else
+			return -EINVAL;
+
+		return 0;
+	}
+
+	return ehci_usb_phy_mode(dev);
+}
+
 static int ehci_usb_probe(struct udevice *dev)
 {
 	struct usb_platdata *plat = dev_get_platdata(dev);
-	struct usb_ehci *ehci = (struct usb_ehci *)dev_get_addr(dev);
+	struct usb_ehci *ehci = (struct usb_ehci *)devfdt_get_addr(dev);
 	struct ehci_mx6_priv_data *priv = dev_get_priv(dev);
+	enum usb_init_type type = plat->init_type;
 	struct ehci_hccr *hccr;
 	struct ehci_hcor *hcor;
 	int ret;
 
 	priv->ehci = ehci;
 	priv->portnr = dev->seq;
-	priv->init_type = plat->init_type;
+	priv->init_type = type;
+
+	ret = device_get_supply_regulator(dev, "vbus-supply",
+					  &priv->vbus_supply);
+	if (ret)
+		debug("%s: No vbus supply\n", dev->name);
 
 	ret = ehci_mx6_common_init(ehci, priv->portnr);
 	if (ret)
 		return ret;
 
-	board_ehci_power(priv->portnr, (priv->init_type == USB_INIT_DEVICE) ? 0 : 1);
+	if (priv->vbus_supply) {
+		ret = regulator_set_enable(priv->vbus_supply,
+					   (type == USB_INIT_DEVICE) ?
+					   false : true);
+		if (ret) {
+			puts("Error enabling VBUS supply\n");
+			return ret;
+		}
+	}
 
 	if (priv->init_type == USB_INIT_HOST) {
 		setbits_le32(&ehci->usbmode, CM_HOST);
@@ -460,6 +559,7 @@ U_BOOT_DRIVER(usb_mx6) = {
 	.name	= "ehci_mx6",
 	.id	= UCLASS_USB,
 	.of_match = mx6_usb_ids,
+	.ofdata_to_platdata = ehci_usb_ofdata_to_platdata,
 	.probe	= ehci_usb_probe,
 	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,

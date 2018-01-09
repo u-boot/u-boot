@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <debug_uart.h>
 #include <linux/sizes.h>
 #include <asm/arch/at91sam9263.h>
 #include <asm/arch/at91sam9_smc.h>
@@ -19,11 +20,7 @@
 #include <asm/arch/hardware.h>
 #include <lcd.h>
 #include <atmel_lcdc.h>
-#if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
-#include <net.h>
-#endif
-#include <netdev.h>
-#include <atmel_mci.h>
+#include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -74,34 +71,6 @@ static void at91sam9263ek_nand_hw_init(void)
 
 	/* Enable NandFlash */
 	at91_set_gpio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
-}
-#endif
-
-#ifdef CONFIG_MACB
-static void at91sam9263ek_macb_hw_init(void)
-{
-	at91_pio_t	*pio	= (at91_pio_t *) ATMEL_BASE_PIO;
-
-	at91_periph_clk_enable(ATMEL_ID_EMAC);
-
-	/*
-	 * Disable pull-up on:
-	 *	RXDV (PC25) => PHY normal mode (not Test mode)
-	 * 	ERX0 (PE25) => PHY ADDR0
-	 *	ERX1 (PE26) => PHY ADDR1 => PHYADDR = 0x0
-	 *
-	 * PHY has internal pull-down
-	 */
-	writel(1 << 25, &pio->pioc.pudr);
-	writel((1 << 25) | (1 <<26), &pio->pioe.pudr);
-
-	at91_phy_reset();
-
-	/* Re-enable pull-up */
-	writel(1 << 25, &pio->pioc.puer);
-	writel((1 << 25) | (1 <<26), &pio->pioe.puer);
-
-	at91_macb_hw_init();
 }
 #endif
 
@@ -166,14 +135,14 @@ static void at91sam9263ek_lcd_hw_init(void)
 #include <nand.h>
 #include <version.h>
 
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 extern flash_info_t flash_info[];
 #endif
 
 void lcd_show_board_info(void)
 {
 	ulong dram_size, nand_size;
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 	ulong flash_size;
 #endif
 	int i;
@@ -191,8 +160,8 @@ void lcd_show_board_info(void)
 		dram_size += gd->bd->bi_dram[i].size;
 	nand_size = 0;
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
-		nand_size += nand_info[i]->size;
-#ifndef CONFIG_SYS_NO_FLASH
+		nand_size += get_nand_dev_by_index(i)->size;
+#ifdef CONFIG_MTD_NOR_FLASH
 	flash_size = 0;
 	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++)
 		flash_size += flash_info[i].size;
@@ -200,7 +169,7 @@ void lcd_show_board_info(void)
 	lcd_printf ("  %ld MB SDRAM, %ld MB NAND",
 		dram_size >> 20,
 		nand_size >> 20 );
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 	lcd_printf (",\n  %ld MB NOR",
 		flash_size >> 20);
 #endif
@@ -209,24 +178,22 @@ void lcd_show_board_info(void)
 #endif /* CONFIG_LCD_INFO */
 #endif
 
-#ifdef CONFIG_GENERIC_ATMEL_MCI
-int board_mmc_init(bd_t *bd)
+#ifdef CONFIG_DEBUG_UART_BOARD_INIT
+void board_debug_uart_init(void)
 {
-	at91_mci_hw_init();
-
-	return atmel_mci_init((void *)ATMEL_BASE_MCI1);
+	at91_seriald_hw_init();
 }
 #endif
 
+#ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_early_init_f(void)
 {
-	at91_periph_clk_enable(ATMEL_ID_PIOA);
-	at91_periph_clk_enable(ATMEL_ID_PIOB);
-	at91_periph_clk_enable(ATMEL_ID_PIOCDE);
-
-	at91_seriald_hw_init();
+#ifdef CONFIG_DEBUG_UART
+	debug_uart_init();
+#endif
 	return 0;
 }
+#endif
 
 int board_init(void)
 {
@@ -237,13 +204,6 @@ int board_init(void)
 
 #ifdef CONFIG_CMD_NAND
 	at91sam9263ek_nand_hw_init();
-#endif
-#ifdef CONFIG_HAS_DATAFLASH
-	at91_set_pio_output(AT91_PIO_PORTE, 20, 1);	/* select spi0 clock */
-	at91_spi0_hw_init(1 << 0);
-#endif
-#ifdef CONFIG_MACB
-	at91sam9263ek_macb_hw_init();
 #endif
 #ifdef CONFIG_USB_OHCI_NEW
 	at91_uhp_hw_init();
@@ -267,12 +227,3 @@ void reset_phy(void)
 {
 }
 #endif
-
-int board_eth_init(bd_t *bis)
-{
-	int rc = 0;
-#ifdef CONFIG_MACB
-	rc = macb_eth_initialize(0, (void *) ATMEL_BASE_EMAC, 0x00);
-#endif
-	return rc;
-}

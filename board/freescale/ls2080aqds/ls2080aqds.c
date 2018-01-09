@@ -19,9 +19,12 @@
 #include <asm/arch/soc.h>
 #include <hwconfig.h>
 #include <fsl_sec.h>
+#include <asm/arch/ppa.h>
+
 
 #include "../common/qixis.h"
 #include "ls2080aqds_qixis.h"
+#include "../common/vid.h"
 
 #define PIN_MUX_SEL_SDHC	0x00
 #define PIN_MUX_SEL_DSPI	0x0a
@@ -201,7 +204,7 @@ int board_init(void)
 
 	val = in_le32(dcfg_ccsr + DCFG_RCWSR13 / 4);
 
-	env_hwconfig = getenv("hwconfig");
+	env_hwconfig = env_get("hwconfig");
 
 	if (hwconfig_f("dspi", env_hwconfig) &&
 	    DCFG_RCWSR13_DSPI == (val & (u32)(0xf << 8)))
@@ -223,6 +226,13 @@ int board_init(void)
 #endif
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 	rtc_enable_32khz_output();
+#ifdef CONFIG_FSL_CAAM
+	sec_init();
+#endif
+
+#ifdef CONFIG_FSL_LS_PPA
+	ppa_init();
+#endif
 
 	return 0;
 }
@@ -240,6 +250,14 @@ int board_early_init_f(void)
 	return 0;
 }
 
+int misc_init_r(void)
+{
+	if (adjust_vdd(0))
+		printf("Warning: Adjusting core voltage failed.\n");
+
+	return 0;
+}
+
 void detail_board_ddr_info(void)
 {
 	puts("\nDDR    ");
@@ -254,24 +272,14 @@ void detail_board_ddr_info(void)
 #endif
 }
 
-int dram_init(void)
-{
-	gd->ram_size = initdram(0);
-
-	return 0;
-}
-
 #if defined(CONFIG_ARCH_MISC_INIT)
 int arch_misc_init(void)
 {
-#ifdef CONFIG_FSL_CAAM
-	sec_init();
-#endif
 	return 0;
 }
 #endif
 
-#ifdef CONFIG_FSL_MC_ENET
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
 void fdt_fixup_board_enet(void *fdt)
 {
 	int offset;
@@ -287,7 +295,7 @@ void fdt_fixup_board_enet(void *fdt)
 		return;
 	}
 
-	if (get_mc_boot_status() == 0)
+	if ((get_mc_boot_status() == 0) && (get_dpl_apply_status() == 0))
 		fdt_status_okay(fdt, offset);
 	else
 		fdt_status_fail(fdt, offset);
@@ -313,11 +321,21 @@ int ft_board_setup(void *blob, bd_t *bd)
 	base[1] = gd->bd->bi_dram[1].start;
 	size[1] = gd->bd->bi_dram[1].size;
 
+#ifdef CONFIG_RESV_RAM
+	/* reduce size if reserved memory is within this bank */
+	if (gd->arch.resv_ram >= base[0] &&
+	    gd->arch.resv_ram < base[0] + size[0])
+		size[0] = gd->arch.resv_ram - base[0];
+	else if (gd->arch.resv_ram >= base[1] &&
+		 gd->arch.resv_ram < base[1] + size[1])
+		size[1] = gd->arch.resv_ram - base[1];
+#endif
+
 	fdt_fixup_memory_banks(blob, base, size, 2);
 
 	fsl_fdt_fixup_dr_usb(blob, bd);
 
-#ifdef CONFIG_FSL_MC_ENET
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
 	fdt_fixup_board_enet(blob);
 #endif
 

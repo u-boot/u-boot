@@ -1,0 +1,34 @@
+/*
+ * (C) Copyright 2017 Theobroma Systems Design und Consulting GmbH
+ *
+ * SPDX-License-Identifier:     GPL-2.0+	X11
+ */
+
+&pinctrl {
+	u-boot,dm-pre-reloc;
+};
+
+&service_msch {
+	u-boot,dm-pre-reloc;
+};
+
+&dmc {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&pmugrf {
+	u-boot,dm-pre-reloc;
+};
+
+&cru {
+	u-boot,dm-pre-reloc;
+};
+
+&grf {
+	u-boot,dm-pre-reloc;
+};
+
+&uart4 {
+	u-boot,dm-pre-reloc;
+};

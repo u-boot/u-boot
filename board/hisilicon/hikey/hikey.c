@@ -295,12 +295,46 @@ static void mmc1_reset_clk(void)
 		data = readl(&peri_sc->rst0_stat);
 	} while (!(data & PERI_RST0_MMC1));
 
-	/* unreset mmc0 clock domain */
+	/* unreset mmc1 clock domain */
 	writel(PERI_RST0_MMC1, &peri_sc->rst0_dis);
 	do {
 		data = readl(&peri_sc->rst0_stat);
 	} while (data & PERI_RST0_MMC1);
 }
+
+static void mmc0_reset_clk(void)
+{
+	unsigned int data;
+
+	/* disable mmc0 bus clock */
+	hi6220_clk_disable(PERI_CLK0_MMC0, &peri_sc->clk0_dis);
+
+	/* enable mmc0 bus clock */
+	hi6220_clk_enable(PERI_CLK0_MMC0, &peri_sc->clk0_en);
+
+	/* reset mmc0 clock domain */
+	writel(PERI_RST0_MMC0, &peri_sc->rst0_en);
+
+	/* bypass mmc0 clock phase */
+	data = readl(&peri_sc->ctrl2);
+	data |= 3;
+	writel(data, &peri_sc->ctrl2);
+
+	/* disable low power */
+	data = readl(&peri_sc->ctrl13);
+	data |= 1 << 3;
+	writel(data, &peri_sc->ctrl13);
+	do {
+		data = readl(&peri_sc->rst0_stat);
+	} while (!(data & PERI_RST0_MMC0));
+
+	/* unreset mmc0 clock domain */
+	writel(PERI_RST0_MMC0, &peri_sc->rst0_dis);
+	do {
+		data = readl(&peri_sc->rst0_stat);
+	} while (data & PERI_RST0_MMC0);
+}
+
 
 /* PMU SSI is the IP that maps the external PMU hi6553 registers as IO */
 static void hi6220_pmussi_init(void)
@@ -341,15 +375,16 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_GENERIC_MMC
+#ifdef CONFIG_MMC
 
 static int init_dwmmc(void)
 {
-	int ret;
+	int ret = 0;
 
-#ifdef CONFIG_DWMMC
+#ifdef CONFIG_MMC_DW
 
-	/* mmc0 clocks are already configured by ATF */
+	/* mmc0 pll is already configured by ATF */
+	mmc0_reset_clk();
 	ret = hi6220_pinmux_config(PERIPH_ID_SDMMC0);
 	if (ret)
 		printf("%s: Error configuring pinmux for eMMC (%d)\n"
@@ -410,7 +445,7 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	/*
 	 * Reserve regions below from DT memory node (which gets generated
@@ -442,6 +477,8 @@ void dram_init_banksize(void)
 
 	gd->bd->bi_dram[5].start = 0x22000000;
 	gd->bd->bi_dram[5].size = 0x1c000000;
+
+	return 0;
 }
 
 void reset_cpu(ulong addr)

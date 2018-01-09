@@ -26,15 +26,15 @@ static int sb_eth_raw_start(struct udevice *dev)
 
 	debug("eth_sandbox_raw: Start\n");
 
-	interface = fdt_getprop(gd->fdt_blob, dev->of_offset,
+	interface = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
 					    "host-raw-interface", NULL);
 	if (interface == NULL)
 		return -EINVAL;
 
 	if (strcmp(interface, "lo") == 0) {
 		priv->local = 1;
-		setenv("ipaddr", "127.0.0.1");
-		setenv("serverip", "127.0.0.1");
+		env_set("ipaddr", "127.0.0.1");
+		env_set("serverip", "127.0.0.1");
 	}
 	return sandbox_eth_raw_os_start(interface, pdata->enetaddr, priv);
 }
@@ -145,7 +145,7 @@ static int sb_eth_raw_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 
-	pdata->iobase = dev_get_addr(dev);
+	pdata->iobase = devfdt_get_addr(dev);
 	return 0;
 }
 

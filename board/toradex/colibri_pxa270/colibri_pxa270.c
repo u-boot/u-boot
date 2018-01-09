@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/pxa.h>
 #include <asm/arch/regs-mmc.h>
@@ -18,6 +19,7 @@
 #include <netdev.h>
 #include <serial.h>
 #include <usb.h>
+#include <asm/mach-types.h>
 #include "../common/tdx-common.h"
 
 DECLARE_GLOBAL_DATA_PTR;

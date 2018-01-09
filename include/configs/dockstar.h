@@ -21,12 +21,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
- * Commands configuration
- */
-#define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#define CONFIG_CMD_ENV
-#define CONFIG_CMD_NAND
-/*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros
  */
@@ -36,10 +30,7 @@
  *  Environment variables configurations
  */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_ENV_IS_IN_NAND		1
 #define CONFIG_ENV_SECT_SIZE		0x20000	/* 128K */
-#else
-#define CONFIG_ENV_IS_NOWHERE		1	/* if env in SDRAM */
 #endif
 /*
  * max 4k env size is enough, but in case of nand
@@ -60,12 +51,10 @@
 	"ubifsload 0x1100000 ${initrd}; " \
 	"bootm 0x800000 0x1100000"
 
-#define CONFIG_MTDPARTS		"mtdparts=orion_nand:1m(uboot),-(root)\0"
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=console=ttyS0,115200\0" \
 	"mtdids=nand0=orion_nand\0" \
-	"mtdparts="CONFIG_MTDPARTS \
+	"mtdparts="CONFIG_MTDPARTS_DEFAULT \
 	"kernel=/boot/uImage\0" \
 	"initrd=/boot/uInitrd\0" \
 	"bootargs_root=ubi.mtd=1 root=ubi0:root rootfstype=ubifs ro\0"
@@ -81,12 +70,7 @@
 /*
  * File system
  */
-#define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_UBIFS
-#define CONFIG_RBTREE
 #define CONFIG_MTD_DEVICE               /* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_CMD_MTDPARTS
-#define CONFIG_LZO
 
 #endif /* _CONFIG_DOCKSTAR_H */

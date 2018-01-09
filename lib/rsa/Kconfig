@@ -1,6 +1,6 @@
 config RSA
 	bool "Use RSA Library"
-	select RSA_FREESCALE_EXP if FSL_CAAM
+	select RSA_FREESCALE_EXP if FSL_CAAM && !ARCH_MX7 && !ARCH_MX6 && !ARCH_MX5
 	select RSA_SOFTWARE_EXP if !RSA_FREESCALE_EXP
 	help
 	  RSA support. This enables the RSA algorithm used for FIT image
@@ -29,7 +29,7 @@ config RSA_SOFTWARE_EXP
 
 config RSA_FREESCALE_EXP
 	bool "Enable RSA Modular Exponentiation with FSL crypto accelerator"
-	depends on DM && RSA && FSL_CAAM
+	depends on DM && RSA && FSL_CAAM && !ARCH_MX7 && !ARCH_MX6 && !ARCH_MX5
 	help
 	Enables driver for RSA modular exponentiation using Freescale cryptographic
 	accelerator - CAAM.

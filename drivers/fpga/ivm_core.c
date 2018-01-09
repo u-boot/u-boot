@@ -3142,7 +3142,7 @@ signed char ispVMProcessLVDS(unsigned short a_usLVDSCount)
 	}
 
 #ifdef DEBUG
-	printf(");\n", a_usLVDSCount);
+	printf(");\n");
 #endif /* DEBUG */
 
 	return 0;

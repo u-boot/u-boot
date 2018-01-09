@@ -13,15 +13,12 @@
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/boot_mode.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/boot_mode.h>
 #include <asm/io.h>
-#include <asm/imx-common/mxc_i2c.h>
 #include <linux/sizes.h>
 #include <common.h>
 #include <fsl_esdhc.h>
-#include <mmc.h>
-#include <i2c.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <power/pmic.h>
@@ -37,15 +34,6 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |		\
 	PAD_CTL_DSE_40ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
 
-#define USDHC_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE |		\
-	PAD_CTL_PUS_22K_UP  | PAD_CTL_SPEED_LOW |		\
-	PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
-
-#define I2C_PAD_CTRL    (PAD_CTL_PKE | PAD_CTL_PUE |            \
-	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |               \
-	PAD_CTL_DSE_40ohm | PAD_CTL_HYS |			\
-	PAD_CTL_ODE)
-
 #define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP | PAD_CTL_PUE |     \
 	PAD_CTL_SPEED_HIGH   |                                   \
 	PAD_CTL_DSE_48ohm   | PAD_CTL_SRE_FAST)
@@ -56,53 +44,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ENET_RX_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |          \
 	PAD_CTL_SPEED_HIGH   | PAD_CTL_SRE_FAST)
 
-#define I2C_PMIC	1
-
 #define GPMI_PAD_CTRL0 (PAD_CTL_PKE | PAD_CTL_PUE | PAD_CTL_PUS_100K_UP)
 #define GPMI_PAD_CTRL1 (PAD_CTL_DSE_40ohm | PAD_CTL_SPEED_MED | \
 			PAD_CTL_SRE_FAST)
 #define GPMI_PAD_CTRL2 (GPMI_PAD_CTRL0 | GPMI_PAD_CTRL1)
-
-/*Define for building port exp gpio, pin starts from 0*/
-#define PORTEXP_IO_NR(chip, pin) \
-	((chip << 5) + pin)
-
-/*Get the chip addr from a ioexp gpio*/
-#define PORTEXP_IO_TO_CHIP(gpio_nr) \
-	(gpio_nr >> 5)
-
-/*Get the pin number from a ioexp gpio*/
-#define PORTEXP_IO_TO_PIN(gpio_nr) \
-	(gpio_nr & 0x1f)
-
-#define CPU_PER_RST_B	PORTEXP_IO_NR(0x30, 4)
-#define STEER_ENET		PORTEXP_IO_NR(0x32, 2)
-
-static int port_exp_direction_output(unsigned gpio, int value)
-{
-	int ret;
-
-	i2c_set_bus_num(2);
-	ret = i2c_probe(PORTEXP_IO_TO_CHIP(gpio));
-	if (ret)
-		return ret;
-
-	ret = pca953x_set_dir(PORTEXP_IO_TO_CHIP(gpio),
-		(1 << PORTEXP_IO_TO_PIN(gpio)),
-		(PCA953X_DIR_OUT << PORTEXP_IO_TO_PIN(gpio)));
-
-	if (ret)
-		return ret;
-
-	ret = pca953x_set_val(PORTEXP_IO_TO_CHIP(gpio),
-		(1 << PORTEXP_IO_TO_PIN(gpio)),
-		(value << PORTEXP_IO_TO_PIN(gpio)));
-
-	if (ret)
-		return ret;
-
-	return 0;
-}
 
 int dram_init(void)
 {
@@ -114,41 +59,6 @@ int dram_init(void)
 static iomux_v3_cfg_t const uart1_pads[] = {
 	MX6_PAD_GPIO1_IO04__UART1_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6_PAD_GPIO1_IO05__UART1_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-static iomux_v3_cfg_t const usdhc3_pads[] = {
-	MX6_PAD_SD3_CLK__USDHC3_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_CMD__USDHC3_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA0__USDHC3_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA1__USDHC3_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA2__USDHC3_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA3__USDHC3_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA4__USDHC3_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA5__USDHC3_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA6__USDHC3_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA7__USDHC3_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-
-	/* CD pin */
-	MX6_PAD_USB_H_DATA__GPIO7_IO_10 | MUX_PAD_CTRL(NO_PAD_CTRL),
-
-	/* RST_B, used for power reset cycle */
-	MX6_PAD_KEY_COL1__GPIO2_IO_11 | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
-static iomux_v3_cfg_t const usdhc4_pads[] = {
-	MX6_PAD_SD4_CLK__USDHC4_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_CMD__USDHC4_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA0__USDHC4_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA1__USDHC4_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA2__USDHC4_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA3__USDHC4_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA4__USDHC4_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA5__USDHC4_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA6__USDHC4_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA7__USDHC4_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-
-	/* CD pin */
-	MX6_PAD_USB_H_STROBE__GPIO7_IO_11 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
 static iomux_v3_cfg_t const fec2_pads[] = {
@@ -217,42 +127,43 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 
-#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
-/* I2C2 for PMIC */
-struct i2c_pads_info i2c_pad_info2 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_GPIO1_IO02__I2C2_SCL | PC,
-		.gpio_mode = MX6_PAD_GPIO1_IO02__GPIO1_IO_2 | PC,
-		.gp = IMX_GPIO_NR(1, 2),
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_GPIO1_IO03__I2C2_SDA | PC,
-		.gpio_mode = MX6_PAD_GPIO1_IO03__GPIO1_IO_3 | PC,
-		.gp = IMX_GPIO_NR(1, 3),
-	},
-};
-
-/* I2C3 for IO Expander */
-struct i2c_pads_info i2c_pad_info3 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_KEY_COL4__I2C3_SCL | PC,
-		.gpio_mode = MX6_PAD_KEY_COL4__GPIO2_IO_14 | PC,
-		.gp = IMX_GPIO_NR(2, 14),
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_KEY_ROW4__I2C3_SDA | PC,
-		.gpio_mode = MX6_PAD_KEY_ROW4__GPIO2_IO_19 | PC,
-		.gp = IMX_GPIO_NR(2, 19),
-	},
-};
-
 int power_init_board(void)
 {
-	struct pmic *p;
+	struct udevice *dev;
+	int ret;
+	u32 dev_id, rev_id, i;
+	u32 switch_num = 6;
+	u32 offset = PFUZE100_SW1CMODE;
 
-	p = pfuze_common_init(I2C_PMIC);
-	if (!p)
-		return -ENODEV;
+	ret = pmic_get("pfuze100", &dev);
+	if (ret == -ENODEV)
+		return 0;
+
+	if (ret != 0)
+		return ret;
+
+	dev_id = pmic_reg_read(dev, PFUZE100_DEVICEID);
+	rev_id = pmic_reg_read(dev, PFUZE100_REVID);
+	printf("PMIC: PFUZE100! DEV_ID=0x%x REV_ID=0x%x\n", dev_id, rev_id);
+
+
+	/* Init mode to APS_PFM */
+	pmic_reg_write(dev, PFUZE100_SW1ABMODE, APS_PFM);
+
+	for (i = 0; i < switch_num - 1; i++)
+		pmic_reg_write(dev, offset + i * SWITCH_SIZE, APS_PFM);
+
+	/* set SW1AB staby volatage 0.975V */
+	pmic_clrsetbits(dev, PFUZE100_SW1ABSTBY, 0x3f, 0x1b);
+
+	/* set SW1AB/VDDARM step ramp up time from 16us to 4us/25mV */
+	pmic_clrsetbits(dev, PFUZE100_SW1ABCONF, 0xc0, 0x40);
+
+	/* set SW1C staby volatage 1.10V */
+	pmic_clrsetbits(dev, PFUZE100_SW1CSTBY, 0x3f, 0x20);
+
+	/* set SW1C/VDDSOC step ramp up time to from 16us to 4us/25mV */
+	pmic_clrsetbits(dev, PFUZE100_SW1CCONF, 0xc0, 0x40);
 
 	return 0;
 }
@@ -303,78 +214,6 @@ int board_ehci_hcd_init(int port)
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
-
-	return 0;
-}
-
-static struct fsl_esdhc_cfg usdhc_cfg[3] = {
-	{USDHC3_BASE_ADDR},
-	{USDHC4_BASE_ADDR},
-};
-
-#define USDHC3_CD_GPIO	IMX_GPIO_NR(7, 10)
-#define USDHC3_RST_GPIO	IMX_GPIO_NR(2, 11)
-#define USDHC4_CD_GPIO	IMX_GPIO_NR(7, 11)
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
-	int ret = 0;
-
-	switch (cfg->esdhc_base) {
-	case USDHC3_BASE_ADDR:
-		ret = !gpio_get_value(USDHC3_CD_GPIO);
-		break;
-	case USDHC4_BASE_ADDR:
-		ret = !gpio_get_value(USDHC4_CD_GPIO);
-		break;
-	}
-
-	return ret;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	int i, ret;
-
-	/*
-	 * According to the board_mmc_init() the following map is done:
-	 * (U-Boot device node)    (Physical Port)
-	 * mmc0                    USDHC3
-	 * mmc1                    USDHC4
-	 */
-	for (i = 0; i < CONFIG_SYS_FSL_USDHC_NUM; i++) {
-		switch (i) {
-		case 0:
-			imx_iomux_v3_setup_multiple_pads(
-				usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
-			gpio_direction_input(USDHC3_CD_GPIO);
-
-			/* This starts a power cycle for UHS-I. Need to set steer to B0 to A*/
-			gpio_direction_output(USDHC3_RST_GPIO, 0);
-			udelay(1000); /* need 1ms at least */
-			gpio_direction_output(USDHC3_RST_GPIO, 1);
-
-			usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-			break;
-		case 1:
-			imx_iomux_v3_setup_multiple_pads(
-				usdhc4_pads, ARRAY_SIZE(usdhc4_pads));
-			gpio_direction_input(USDHC4_CD_GPIO);
-			usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
-			break;
-		default:
-			printf("Warning: you configured more USDHC controllers"
-				"(%d) than supported by the board\n", i + 1);
-			return -EINVAL;
-			}
-
-			ret = fsl_esdhc_initialize(bis, &usdhc_cfg[i]);
-			if (ret) {
-				printf("Warning: failed to initialize mmc dev %d\n", i);
-				return ret;
-			}
-	}
 
 	return 0;
 }
@@ -450,21 +289,36 @@ static void setup_gpmi_nand(void)
 
 int board_init(void)
 {
+	struct gpio_desc desc;
+	int ret;
+
 	/* Address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-#ifdef CONFIG_SYS_I2C_MXC
-	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
-	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info3);
-#endif
+	ret = dm_gpio_lookup_name("gpio@30_4", &desc);
+	if (ret)
+		return ret;
 
+	ret = dm_gpio_request(&desc, "cpu_per_rst_b");
+	if (ret)
+		return ret;
 	/* Reset CPU_PER_RST_B signal for enet phy and PCIE */
-	port_exp_direction_output(CPU_PER_RST_B, 0);
+	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
 	udelay(500);
-	port_exp_direction_output(CPU_PER_RST_B, 1);
+	dm_gpio_set_value(&desc, 1);
 
+	ret = dm_gpio_lookup_name("gpio@32_2", &desc);
+	if (ret)
+		return ret;
+
+	ret = dm_gpio_request(&desc, "steer_enet");
+	if (ret)
+		return ret;
+
+	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
+	udelay(500);
 	/* Set steering signal to L for selecting B0 */
-	port_exp_direction_output(STEER_ENET, 0);
+	dm_gpio_set_value(&desc, 0);
 
 #ifdef CONFIG_USB_EHCI_MX6
 	setup_usb();

@@ -1,76 +1,43 @@
 /*
- * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2017 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __MACH_SOC_INFO_H__
-#define __MACH_SOC_INFO_H__
+#ifndef __UNIPHIER_SOC_INFO_H__
+#define __UNIPHIER_SOC_INFO_H__
 
-enum uniphier_soc_id {
-	SOC_UNIPHIER_SLD3,
-	SOC_UNIPHIER_LD4,
-	SOC_UNIPHIER_PRO4,
-	SOC_UNIPHIER_SLD8,
-	SOC_UNIPHIER_PRO5,
-	SOC_UNIPHIER_PXS2,
-	SOC_UNIPHIER_LD6B,
-	SOC_UNIPHIER_LD11,
-	SOC_UNIPHIER_LD20,
-	SOC_UNIPHIER_UNKNOWN,
-};
+#include <linux/kernel.h>
+#include <linux/stddef.h>
 
-#define UNIPHIER_NR_ENABLED_SOCS		\
-	IS_ENABLED(CONFIG_ARCH_UNIPHIER_SLD3) +	\
-	IS_ENABLED(CONFIG_ARCH_UNIPHIER_LD4) +	\
-	IS_ENABLED(CONFIG_ARCH_UNIPHIER_PRO4) +	\
-	IS_ENABLED(CONFIG_ARCH_UNIPHIER_SLD8) +	\
-	IS_ENABLED(CONFIG_ARCH_UNIPHIER_PRO5) +	\
-	IS_ENABLED(CONFIG_ARCH_UNIPHIER_PXS2) +	\
-	IS_ENABLED(CONFIG_ARCH_UNIPHIER_LD6B) + \
-	IS_ENABLED(CONFIG_ARCH_UNIPHIER_LD11) + \
-	IS_ENABLED(CONFIG_ARCH_UNIPHIER_LD20)
+#define UNIPHIER_LD4_ID		0x26
+#define UNIPHIER_PRO4_ID	0x28
+#define UNIPHIER_SLD8_ID	0x29
+#define UNIPHIER_PRO5_ID	0x2a
+#define UNIPHIER_PXS2_ID	0x2e
+#define UNIPHIER_LD6B_ID	0x2f
+#define UNIPHIER_LD11_ID	0x31
+#define UNIPHIER_LD20_ID	0x32
+#define UNIPHIER_PXS3_ID	0x35
 
-#define UNIPHIER_MULTI_SOC	((UNIPHIER_NR_ENABLED_SOCS) > 1)
+unsigned int uniphier_get_soc_id(void);
+unsigned int uniphier_get_soc_model(void);
+unsigned int uniphier_get_soc_revision(void);
 
-#if UNIPHIER_MULTI_SOC
-enum uniphier_soc_id uniphier_get_soc_type(void);
-#else
-static inline enum uniphier_soc_id uniphier_get_soc_type(void)
-{
-#if defined(CONFIG_ARCH_UNIPHIER_SLD3)
-	return SOC_UNIPHIER_SLD3;
-#endif
-#if defined(CONFIG_ARCH_UNIPHIER_LD4)
-	return SOC_UNIPHIER_LD4;
-#endif
-#if defined(CONFIG_ARCH_UNIPHIER_PRO4)
-	return SOC_UNIPHIER_PRO4;
-#endif
-#if defined(CONFIG_ARCH_UNIPHIER_SLD8)
-	return SOC_UNIPHIER_SLD8;
-#endif
-#if defined(CONFIG_ARCH_UNIPHIER_PRO5)
-	return SOC_UNIPHIER_PRO5;
-#endif
-#if defined(CONFIG_ARCH_UNIPHIER_PXS2)
-	return SOC_UNIPHIER_PXS2;
-#endif
-#if defined(CONFIG_ARCH_UNIPHIER_LD6B)
-	return SOC_UNIPHIER_LD6B;
-#endif
-#if defined(CONFIG_ARCH_UNIPHIER_LD11)
-	return SOC_UNIPHIER_LD11;
-#endif
-#if defined(CONFIG_ARCH_UNIPHIER_LD20)
-	return SOC_UNIPHIER_LD20;
-#endif
-
-	return SOC_UNIPHIER_UNKNOWN;
+#define UNIPHIER_DEFINE_SOCDATA_FUNC(__func_name, __table)	\
+static typeof(&__table[0]) __func_name(void)			\
+{								\
+	unsigned int soc_id;					\
+	int i;							\
+								\
+	soc_id = uniphier_get_soc_id();				\
+	for (i = 0; i < ARRAY_SIZE(__table); i++) {		\
+		if (__table[i].soc_id == soc_id)		\
+			return &__table[i];			\
+	}							\
+								\
+	return NULL;						\
 }
-#endif
 
-int uniphier_get_soc_model(void);
-int uniphier_get_soc_revision(void);
-
-#endif /* __MACH_SOC_INFO_H__ */
+#endif /* __UNIPHIER_SOC_INFO_H__ */

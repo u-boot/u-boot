@@ -4,6 +4,14 @@ menu "mpc85xx CPU"
 config SYS_CPU
 	default "mpc85xx"
 
+config CMD_ERRATA
+	bool "Enable the 'errata' command"
+	depends on MPC85xx
+	default y
+	help
+	  This enables the 'errata' command which displays a list of errata
+	  work-arounds which are enabled for the current board.
+
 choice
 	prompt "Target select"
 	optional
@@ -21,59 +29,77 @@ config TARGET_B4420QDS
 	select ARCH_B4420
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply PANIC_HANG
 
 config TARGET_B4860QDS
 	bool "Support B4860QDS"
 	select ARCH_B4860
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply PANIC_HANG
 
 config TARGET_BSC9131RDB
 	bool "Support BSC9131RDB"
 	select ARCH_BSC9131
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_BSC9132QDS
 	bool "Support BSC9132QDS"
 	select ARCH_BSC9132
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
 
 config TARGET_C29XPCIE
 	bool "Support C29XPCIE"
 	select ARCH_C29X
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select PHYS_64BIT
+	imply PANIC_HANG
 
 config TARGET_P3041DS
 	bool "Support P3041DS"
 	select PHYS_64BIT
 	select ARCH_P3041
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P4080DS
 	bool "Support P4080DS"
 	select PHYS_64BIT
 	select ARCH_P4080
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P5020DS
 	bool "Support P5020DS"
 	select PHYS_64BIT
 	select ARCH_P5020
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P5040DS
 	bool "Support P5040DS"
 	select PHYS_64BIT
 	select ARCH_P5040
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_MPC8536DS
 	bool "Support MPC8536DS"
 	select ARCH_MPC8536
 # Use DDR3 controller with DDR2 DIMMs on this board
 	select SYS_FSL_DDRC_GEN3
-
-config TARGET_MPC8540ADS
-	bool "Support MPC8540ADS"
-	select ARCH_MPC8540
+	imply CMD_SATA
+	imply FSL_SATA
 
 config TARGET_MPC8541CDS
 	bool "Support MPC8541CDS"
@@ -82,6 +108,7 @@ config TARGET_MPC8541CDS
 config TARGET_MPC8544DS
 	bool "Support MPC8544DS"
 	select ARCH_MPC8544
+	imply PANIC_HANG
 
 config TARGET_MPC8548CDS
 	bool "Support MPC8548CDS"
@@ -90,10 +117,6 @@ config TARGET_MPC8548CDS
 config TARGET_MPC8555CDS
 	bool "Support MPC8555CDS"
 	select ARCH_MPC8555
-
-config TARGET_MPC8560ADS
-	bool "Support MPC8560ADS"
-	select ARCH_MPC8560
 
 config TARGET_MPC8568MDS
 	bool "Support MPC8568MDS"
@@ -108,76 +131,114 @@ config TARGET_MPC8572DS
 	select ARCH_MPC8572
 # Use DDR3 controller with DDR2 DIMMs on this board
 	select SYS_FSL_DDRC_GEN3
+	imply SCSI
+	imply PANIC_HANG
 
 config TARGET_P1010RDB_PA
 	bool "Support P1010RDB_PA"
 	select ARCH_P1010
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select SUPPORT_TPL
+	imply CMD_EEPROM
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P1010RDB_PB
 	bool "Support P1010RDB_PB"
 	select ARCH_P1010
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select SUPPORT_TPL
+	imply CMD_EEPROM
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P1022DS
 	bool "Support P1022DS"
 	select ARCH_P1022
 	select SUPPORT_SPL
 	select SUPPORT_TPL
+	imply CMD_SATA
+	imply FSL_SATA
 
 config TARGET_P1023RDB
 	bool "Support P1023RDB"
 	select ARCH_P1023
+	imply CMD_EEPROM
+	imply PANIC_HANG
 
 config TARGET_P1020MBG
 	bool "Support P1020MBG-PC"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P1020
+	imply CMD_EEPROM
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P1020RDB_PC
 	bool "Support P1020RDB-PC"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P1020
+	imply CMD_EEPROM
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P1020RDB_PD
 	bool "Support P1020RDB-PD"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P1020
+	imply CMD_EEPROM
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P1020UTM
 	bool "Support P1020UTM"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P1020
+	imply CMD_EEPROM
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P1021RDB
 	bool "Support P1021RDB"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P1021
+	imply CMD_EEPROM
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P1024RDB
 	bool "Support P1024RDB"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P1024
+	imply CMD_EEPROM
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_P1025RDB
 	bool "Support P1025RDB"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P1025
+	imply CMD_EEPROM
+	imply CMD_SATA
+	imply SATA_SIL
 
 config TARGET_P2020RDB
 	bool "Support P2020RDB-PC"
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P2020
+	imply CMD_EEPROM
+	imply CMD_SATA
+	imply SATA_SIL
 
 config TARGET_P1_TWR
 	bool "Support p1_twr"
@@ -186,7 +247,10 @@ config TARGET_P1_TWR
 config TARGET_P2041RDB
 	bool "Support P2041RDB"
 	select ARCH_P2041
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select PHYS_64BIT
+	imply CMD_SATA
+	imply FSL_SATA
 
 config TARGET_QEMU_PPCE500
 	bool "Support qemu-ppce500"
@@ -196,67 +260,100 @@ config TARGET_QEMU_PPCE500
 config TARGET_T1024QDS
 	bool "Support T1024QDS"
 	select ARCH_T1024
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply CMD_EEPROM
+	imply CMD_SATA
+	imply FSL_SATA
 
 config TARGET_T1023RDB
 	bool "Support T1023RDB"
 	select ARCH_T1023
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply CMD_EEPROM
+	imply PANIC_HANG
 
 config TARGET_T1024RDB
 	bool "Support T1024RDB"
 	select ARCH_T1024
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply CMD_EEPROM
+	imply PANIC_HANG
 
 config TARGET_T1040QDS
 	bool "Support T1040QDS"
 	select ARCH_T1040
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select PHYS_64BIT
+	imply CMD_EEPROM
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_T1040RDB
 	bool "Support T1040RDB"
 	select ARCH_T1040
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_T1040D4RDB
 	bool "Support T1040D4RDB"
 	select ARCH_T1040
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_T1042RDB
 	bool "Support T1042RDB"
 	select ARCH_T1042
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply CMD_SATA
 
 config TARGET_T1042D4RDB
 	bool "Support T1042D4RDB"
 	select ARCH_T1042
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_T1042RDB_PI
 	bool "Support T1042RDB_PI"
 	select ARCH_T1042
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_T2080QDS
 	bool "Support T2080QDS"
 	select ARCH_T2080
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply CMD_SATA
 
 config TARGET_T2080RDB
 	bool "Support T2080RDB"
 	select ARCH_T2080
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_T2081QDS
 	bool "Support T2081QDS"
@@ -267,26 +364,35 @@ config TARGET_T2081QDS
 config TARGET_T4160QDS
 	bool "Support T4160QDS"
 	select ARCH_T4160
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_T4160RDB
 	bool "Support T4160RDB"
 	select ARCH_T4160
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply PANIC_HANG
 
 config TARGET_T4240QDS
 	bool "Support T4240QDS"
 	select ARCH_T4240
+	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_T4240RDB
 	bool "Support T4240RDB"
 	select ARCH_T4240
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_CONTROLCENTERD
 	bool "Support controlcenterd"
@@ -296,6 +402,8 @@ config TARGET_KMP204X
 	bool "Support kmp204x"
 	select ARCH_P2041
 	select PHYS_64BIT
+	imply CMD_CRAMFS
+	imply FS_CRAMFS
 
 config TARGET_XPEDITE520X
 	bool "Support xpedite520x"
@@ -314,16 +422,20 @@ config TARGET_XPEDITE550X
 config TARGET_UCP1020
 	bool "Support uCP1020"
 	select ARCH_P1020
+	imply CMD_SATA
+	imply PANIC_HANG
 
 config TARGET_CYRUS_P5020
 	bool "Support Varisys Cyrus P5020"
 	select ARCH_P5020
 	select PHYS_64BIT
+	imply PANIC_HANG
 
 config TARGET_CYRUS_P5040
 	 bool "Support Varisys Cyrus P5040"
 	select ARCH_P5040
 	select PHYS_64BIT
+	imply PANIC_HANG
 
 endchoice
 
@@ -349,6 +461,10 @@ config ARCH_B4420
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_IFC
+	imply CMD_EEPROM
+	imply CMD_NAND
+	imply CMD_REGINFO
 
 config ARCH_B4860
 	bool
@@ -365,6 +481,7 @@ config ARCH_B4860
 	select SYS_FSL_ERRATUM_A007075
 	select SYS_FSL_ERRATUM_A007186
 	select SYS_FSL_ERRATUM_A007212
+	select SYS_FSL_ERRATUM_A007907
 	select SYS_FSL_ERRATUM_A009942
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
@@ -372,6 +489,10 @@ config ARCH_B4860
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_IFC
+	imply CMD_EEPROM
+	imply CMD_NAND
+	imply CMD_REGINFO
 
 config ARCH_BSC9131
 	bool
@@ -384,6 +505,10 @@ config ARCH_BSC9131
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select FSL_IFC
+	imply CMD_EEPROM
+	imply CMD_NAND
+	imply CMD_REGINFO
 
 config ARCH_BSC9132
 	bool
@@ -400,6 +525,12 @@ config ARCH_BSC9132
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_IFC
+	imply CMD_EEPROM
+	imply CMD_MTDPARTS
+	imply CMD_NAND
+	imply CMD_PCI
+	imply CMD_REGINFO
 
 config ARCH_C29X
 	bool
@@ -412,6 +543,10 @@ config ARCH_C29X
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_6
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_IFC
+	imply CMD_NAND
+	imply CMD_PCI
+	imply CMD_REGINFO
 
 config ARCH_MPC8536
 	bool
@@ -424,6 +559,10 @@ config ARCH_MPC8536
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
+	imply CMD_NAND
+	imply CMD_SATA
+	imply CMD_REGINFO
 
 config ARCH_MPC8540
 	bool
@@ -447,6 +586,7 @@ config ARCH_MPC8544
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_MPC8548
 	bool
@@ -462,6 +602,7 @@ config ARCH_MPC8548
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	imply CMD_REGINFO
 
 config ARCH_MPC8555
 	bool
@@ -493,6 +634,8 @@ config ARCH_MPC8569
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
+	select FSL_ELBC
+	imply CMD_NAND
 
 config ARCH_MPC8572
 	bool
@@ -507,6 +650,8 @@ config ARCH_MPC8572
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
+	imply CMD_NAND
 
 config ARCH_P1010
 	bool
@@ -527,6 +672,14 @@ config ARCH_P1010
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_IFC
+	imply CMD_EEPROM
+	imply CMD_MTDPARTS
+	imply CMD_NAND
+	imply CMD_SATA
+	imply CMD_PCI
+	imply CMD_REGINFO
+	imply FSL_SATA
 
 config ARCH_P1011
 	bool
@@ -540,6 +693,7 @@ config ARCH_P1011
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_P1020
 	bool
@@ -553,6 +707,12 @@ config ARCH_P1020
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
+	imply CMD_NAND
+	imply CMD_SATA
+	imply CMD_PCI
+	imply CMD_REGINFO
+	imply SATA_SIL
 
 config ARCH_P1021
 	bool
@@ -566,6 +726,12 @@ config ARCH_P1021
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
+	imply CMD_REGINFO
+	imply CMD_NAND
+	imply CMD_SATA
+	imply CMD_REGINFO
+	imply SATA_SIL
 
 config ARCH_P1022
 	bool
@@ -581,6 +747,7 @@ config ARCH_P1022
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
 
 config ARCH_P1023
 	bool
@@ -592,6 +759,7 @@ config ARCH_P1023
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select FSL_ELBC
 
 config ARCH_P1024
 	bool
@@ -605,6 +773,13 @@ config ARCH_P1024
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
+	imply CMD_EEPROM
+	imply CMD_NAND
+	imply CMD_SATA
+	imply CMD_PCI
+	imply CMD_REGINFO
+	imply SATA_SIL
 
 config ARCH_P1025
 	bool
@@ -618,6 +793,9 @@ config ARCH_P1025
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
+	imply CMD_SATA
+	imply CMD_REGINFO
 
 config ARCH_P2020
 	bool
@@ -632,6 +810,10 @@ config ARCH_P2020
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
+	select FSL_ELBC
+	imply CMD_EEPROM
+	imply CMD_NAND
+	imply CMD_REGINFO
 
 config ARCH_P2041
 	bool
@@ -653,6 +835,8 @@ config ARCH_P2041
 	select SYS_FSL_QORIQ_CHASSIS1
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select FSL_ELBC
+	imply CMD_NAND
 
 config ARCH_P3041
 	bool
@@ -676,6 +860,11 @@ config ARCH_P3041
 	select SYS_FSL_QORIQ_CHASSIS1
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select FSL_ELBC
+	imply CMD_NAND
+	imply CMD_SATA
+	imply CMD_REGINFO
+	imply FSL_SATA
 
 config ARCH_P4080
 	bool
@@ -710,6 +899,10 @@ config ARCH_P4080
 	select SYS_FSL_QORIQ_CHASSIS1
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
+	select FSL_ELBC
+	imply CMD_SATA
+	imply CMD_REGINFO
+	imply SATA_SIL
 
 config ARCH_P5020
 	bool
@@ -730,6 +923,10 @@ config ARCH_P5020
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_ELBC
+	imply CMD_SATA
+	imply CMD_REGINFO
+	imply FSL_SATA
 
 config ARCH_P5040
 	bool
@@ -750,6 +947,10 @@ config ARCH_P5040
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_ELBC
+	imply CMD_SATA
+	imply CMD_REGINFO
+	imply FSL_SATA
 
 config ARCH_QEMU_E500
 	bool
@@ -769,6 +970,10 @@ config ARCH_T1023
 	select SYS_FSL_QORIQ_CHASSIS2
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
+	select FSL_IFC
+	imply CMD_EEPROM
+	imply CMD_NAND
+	imply CMD_REGINFO
 
 config ARCH_T1024
 	bool
@@ -785,6 +990,11 @@ config ARCH_T1024
 	select SYS_FSL_QORIQ_CHASSIS2
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
+	select FSL_IFC
+	imply CMD_EEPROM
+	imply CMD_NAND
+	imply CMD_MTDPARTS
+	imply CMD_REGINFO
 
 config ARCH_T1040
 	bool
@@ -802,6 +1012,12 @@ config ARCH_T1040
 	select SYS_FSL_QORIQ_CHASSIS2
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
+	select FSL_IFC
+	imply CMD_MTDPARTS
+	imply CMD_NAND
+	imply CMD_SATA
+	imply CMD_REGINFO
+	imply FSL_SATA
 
 config ARCH_T1042
 	bool
@@ -819,6 +1035,12 @@ config ARCH_T1042
 	select SYS_FSL_QORIQ_CHASSIS2
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
+	select FSL_IFC
+	imply CMD_MTDPARTS
+	imply CMD_NAND
+	imply CMD_SATA
+	imply CMD_REGINFO
+	imply FSL_SATA
 
 config ARCH_T2080
 	bool
@@ -830,6 +1052,8 @@ config ARCH_T2080
 	select SYS_FSL_ERRATUM_A006593
 	select SYS_FSL_ERRATUM_A007186
 	select SYS_FSL_ERRATUM_A007212
+	select SYS_FSL_ERRATUM_A007815
+	select SYS_FSL_ERRATUM_A007907
 	select SYS_FSL_ERRATUM_A009942
 	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_HAS_DDR3
@@ -838,6 +1062,11 @@ config ARCH_T2080
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_IFC
+	imply CMD_SATA
+	imply CMD_NAND
+	imply CMD_REGINFO
+	imply FSL_SATA
 
 config ARCH_T2081
 	bool
@@ -857,6 +1086,9 @@ config ARCH_T2081
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_IFC
+	imply CMD_NAND
+	imply CMD_REGINFO
 
 config ARCH_T4160
 	bool
@@ -877,6 +1109,11 @@ config ARCH_T4160
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_IFC
+	imply CMD_SATA
+	imply CMD_NAND
+	imply CMD_REGINFO
+	imply FSL_SATA
 
 config ARCH_T4240
 	bool
@@ -891,6 +1128,8 @@ config ARCH_T4240
 	select SYS_FSL_ERRATUM_A006593
 	select SYS_FSL_ERRATUM_A007186
 	select SYS_FSL_ERRATUM_A007798
+	select SYS_FSL_ERRATUM_A007815
+	select SYS_FSL_ERRATUM_A007907
 	select SYS_FSL_ERRATUM_A009942
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
@@ -898,6 +1137,11 @@ config ARCH_T4240
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
+	select FSL_IFC
+	imply CMD_SATA
+	imply CMD_NAND
+	imply CMD_REGINFO
+	imply FSL_SATA
 
 config BOOKE
 	bool
@@ -911,6 +1155,7 @@ config E500
 
 config E500MC
 	bool
+	imply CMD_PCI
 	help
 		Enble PowerPC E500MC core
 
@@ -1078,7 +1323,13 @@ config SYS_FSL_ERRATUM_A007186
 config SYS_FSL_ERRATUM_A007212
 	bool
 
+config SYS_FSL_ERRATUM_A007815
+	bool
+
 config SYS_FSL_ERRATUM_A007798
+	bool
+
+config SYS_FSL_ERRATUM_A007907
 	bool
 
 config SYS_FSL_ERRATUM_A008044
@@ -1224,6 +1475,12 @@ config SYS_PPC64
 config SYS_PPC_E500_USE_DEBUG_TLB
 	bool
 
+config FSL_IFC
+	bool
+
+config FSL_ELBC
+	bool
+
 config SYS_PPC_E500_DEBUG_TLB
 	int "Temporary TLB entry for external debugger"
 	depends on SYS_PPC_E500_USE_DEBUG_TLB
@@ -1248,18 +1505,50 @@ config SYS_PPC_E500_DEBUG_TLB
                 symbol should be set to the TLB1 entry to be used for this
                 purpose. If unsure, do not change.
 
+config SYS_FSL_IFC_CLK_DIV
+	int "Divider of platform clock"
+	depends on FSL_IFC
+	default 2 if	ARCH_B4420	|| \
+			ARCH_B4860	|| \
+			ARCH_T1024	|| \
+			ARCH_T1023	|| \
+			ARCH_T1040	|| \
+			ARCH_T1042	|| \
+			ARCH_T4160	|| \
+			ARCH_T4240
+	default 1
+	help
+		Defines divider of platform clock(clock input to
+		IFC controller).
+
+config SYS_FSL_LBC_CLK_DIV
+	int "Divider of platform clock"
+	depends on FSL_ELBC || ARCH_MPC8540 || \
+		ARCH_MPC8548 || ARCH_MPC8541 || \
+		ARCH_MPC8555 || ARCH_MPC8560 || \
+		ARCH_MPC8568
+
+	default 2 if	ARCH_P2041	|| \
+			ARCH_P3041	|| \
+			ARCH_P4080	|| \
+			ARCH_P5020	|| \
+			ARCH_P5040
+	default 1
+
+	help
+		Defines divider of platform clock(clock input to
+		eLBC controller).
+
 source "board/freescale/b4860qds/Kconfig"
 source "board/freescale/bsc9131rdb/Kconfig"
 source "board/freescale/bsc9132qds/Kconfig"
 source "board/freescale/c29xpcie/Kconfig"
 source "board/freescale/corenet_ds/Kconfig"
 source "board/freescale/mpc8536ds/Kconfig"
-source "board/freescale/mpc8540ads/Kconfig"
 source "board/freescale/mpc8541cds/Kconfig"
 source "board/freescale/mpc8544ds/Kconfig"
 source "board/freescale/mpc8548cds/Kconfig"
 source "board/freescale/mpc8555cds/Kconfig"
-source "board/freescale/mpc8560ads/Kconfig"
 source "board/freescale/mpc8568mds/Kconfig"
 source "board/freescale/mpc8569mds/Kconfig"
 source "board/freescale/mpc8572ds/Kconfig"

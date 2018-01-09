@@ -535,7 +535,8 @@ static int pic32_eth_probe(struct udevice *dev)
 	int offset = 0;
 	int phy_addr = -1;
 
-	addr = fdtdec_get_addr_size(gd->fdt_blob, dev->of_offset, "reg", &size);
+	addr = fdtdec_get_addr_size(gd->fdt_blob, dev_of_offset(dev), "reg",
+				    &size);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -544,7 +545,8 @@ static int pic32_eth_probe(struct udevice *dev)
 
 	/* get phy mode */
 	pdata->phy_interface = -1;
-	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy-mode", NULL);
+	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
+			       NULL);
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (pdata->phy_interface == -1) {
@@ -553,14 +555,13 @@ static int pic32_eth_probe(struct udevice *dev)
 	}
 
 	/* get phy addr */
-	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev->of_offset,
+	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev_of_offset(dev),
 				       "phy-handle");
 	if (offset > 0)
 		phy_addr = fdtdec_get_int(gd->fdt_blob, offset, "reg", -1);
 
 	/* phy reset gpio */
-	gpio_request_by_name_nodev(gd->fdt_blob, dev->of_offset,
-				   "reset-gpios", 0,
+	gpio_request_by_name_nodev(dev_ofnode(dev), "reset-gpios", 0,
 				   &priv->rst_gpio, GPIOD_IS_OUT);
 
 	priv->phyif	= pdata->phy_interface;

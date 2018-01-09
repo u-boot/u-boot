@@ -10,8 +10,8 @@
 
 struct rk3288_pwm {
 	u32 cnt;
-	u32 duty_lpr;
 	u32 period_hpr;
+	u32 duty_lpr;
 	u32 ctrl;
 };
 check_member(rk3288_pwm, ctrl, 0xc);
@@ -25,9 +25,11 @@ check_member(rk3288_pwm, ctrl, 0xc);
 
 #define PWM_DUTY_POSTIVE                (1 << 3)
 #define PWM_DUTY_NEGATIVE               (0 << 3)
+#define PWM_DUTY_MASK			(1 << 3)
 
 #define PWM_INACTIVE_POSTIVE            (1 << 4)
 #define PWM_INACTIVE_NEGATIVE           (0 << 4)
+#define PWM_INACTIVE_MASK		(1 << 4)
 
 #define PWM_OUTPUT_LEFT                 (0 << 5)
 #define PWM_OUTPUT_CENTER               (1 << 5)

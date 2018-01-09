@@ -3,15 +3,11 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
-#ifndef __CONFIG_DENX_MCVEVK_H__
-#define __CONFIG_DENX_MCVEVK_H__
+#ifndef __CONFIG_ARIES_MCVEVK_H__
+#define __CONFIG_ARIES_MCVEVK_H__
 
 #include <asm/arch/base_addr_ac5.h>
 
-/* U-Boot Commands */
-#define CONFIG_SYS_NO_FLASH
-#define CONFIG_DOS_PARTITION
-#define CONFIG_FAT_WRITE
 #define CONFIG_HW_WATCHDOG
 
 /* Memory configurations */
@@ -19,7 +15,6 @@
 
 /* Booting Linux */
 #define CONFIG_BOOTFILE		"fitImage"
-#define CONFIG_BOOTARGS		"console=ttyS0," __stringify(CONFIG_BAUDRATE)
 #define CONFIG_PREBOOT		"run try_bootscript"
 #define CONFIG_BOOTCOMMAND	"run mmc_mmc"
 #define CONFIG_LOADADDR		0x01000000
@@ -27,7 +22,6 @@
 
 /* Environment is in MMC */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_ENV_IS_IN_MMC
 
 /* Extra Environment */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
@@ -39,6 +33,7 @@
 	"netdev=eth0\0"							\
 	"hostname=mcvevk\0"						\
 	"kernel_addr_r=0x10000000\0"					\
+	"dfu_alt_info=mmc raw 0 3867148288\0"				\
 	"update_filename=u-boot-with-spl.sfp\0"				\
 	"update_sd_offset=0x800\0"					\
 	"update_sd="		/* Update the SD firmware partition */	\
@@ -107,4 +102,4 @@
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>
 
-#endif	/* __CONFIG_DENX_MCVEVK_H__ */
+#endif	/* __CONFIG_ARIES_MCVEVK_H__ */

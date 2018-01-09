@@ -13,9 +13,9 @@
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/clk.h>
+#include <debug_uart.h>
 #include <lcd.h>
 #include <atmel_hlcdc.h>
-#include <atmel_mci.h>
 #include <netdev.h>
 
 #ifdef CONFIG_LCD_INFO
@@ -71,10 +71,10 @@ static void at91sam9n12ek_nand_hw_init(void)
 	/* Configure ENABLE pin for NandFlash */
 	at91_set_pio_output(AT91_PIO_PORTD, 4, 1);
 
-	at91_set_a_periph(AT91_PIO_PORTD, 0, 1);    /* NAND OE */
-	at91_set_a_periph(AT91_PIO_PORTD, 1, 1);    /* NAND WE */
-	at91_set_a_periph(AT91_PIO_PORTD, 2, 1);    /* ALE */
-	at91_set_a_periph(AT91_PIO_PORTD, 3, 1);    /* CLE */
+	at91_pio3_set_a_periph(AT91_PIO_PORTD, 0, 1);    /* NAND OE */
+	at91_pio3_set_a_periph(AT91_PIO_PORTD, 1, 1);    /* NAND WE */
+	at91_pio3_set_a_periph(AT91_PIO_PORTD, 2, 1);    /* ALE */
+	at91_pio3_set_a_periph(AT91_PIO_PORTD, 3, 1);    /* CLE */
 }
 #endif
 
@@ -124,55 +124,13 @@ void lcd_show_board_info(void)
 		dram_size += gd->bd->bi_dram[i].size;
 	nand_size = 0;
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
-		nand_size += nand_info[i]->size;
+		nand_size += get_nand_dev_by_index(i)->size;
 	lcd_printf("  %ld MB SDRAM, %ld MB NAND\n",
 		dram_size >> 20,
 		nand_size >> 20);
 }
 #endif /* CONFIG_LCD_INFO */
 #endif /* CONFIG_LCD */
-
-/* SPI chip select control */
-#ifdef CONFIG_ATMEL_SPI
-#include <spi.h>
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	return bus == 0 && cs < 2;
-}
-
-void spi_cs_activate(struct spi_slave *slave)
-{
-	switch (slave->cs) {
-	case 0:
-		at91_set_pio_output(AT91_PIO_PORTA, 14, 0);
-		break;
-	case 1:
-		at91_set_pio_output(AT91_PIO_PORTA, 7, 0);
-		break;
-	}
-}
-
-void spi_cs_deactivate(struct spi_slave *slave)
-{
-	switch (slave->cs) {
-	case 0:
-		at91_set_pio_output(AT91_PIO_PORTA, 14, 1);
-		break;
-	case 1:
-		at91_set_pio_output(AT91_PIO_PORTA, 7, 1);
-		break;
-	}
-}
-#endif /* CONFIG_ATMEL_SPI */
-
-#ifdef CONFIG_GENERIC_ATMEL_MCI
-int board_mmc_init(bd_t *bd)
-{
-	at91_mci_hw_init();
-
-	return atmel_mci_init((void *)ATMEL_BASE_HSMCI0);
-}
-#endif
 
 #ifdef CONFIG_KS8851_MLL
 void at91sam9n12ek_ks8851_hw_init(void)
@@ -194,7 +152,7 @@ void at91sam9n12ek_ks8851_hw_init(void)
 	       &smc->cs[2].mode);
 
 	/* Configure NCS2 PIN */
-	at91_set_b_periph(AT91_PIO_PORTD, 19, 0);
+	at91_pio3_set_b_periph(AT91_PIO_PORTD, 19, 0);
 }
 #endif
 
@@ -205,14 +163,22 @@ void at91sam9n12ek_usb_hw_init(void)
 }
 #endif
 
+#ifdef CONFIG_DEBUG_UART_BOARD_INIT
+void board_debug_uart_init(void)
+{
+	at91_seriald_hw_init();
+}
+#endif
+
+#ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_early_init_f(void)
 {
-	at91_periph_clk_enable(ATMEL_ID_PIOAB);
-	at91_periph_clk_enable(ATMEL_ID_PIOCD);
-
-	at91_seriald_hw_init();
+#ifdef CONFIG_DEBUG_UART
+	debug_uart_init();
+#endif
 	return 0;
 }
+#endif
 
 int board_init(void)
 {
@@ -221,10 +187,6 @@ int board_init(void)
 
 #ifdef CONFIG_NAND_ATMEL
 	at91sam9n12ek_nand_hw_init();
-#endif
-
-#ifdef CONFIG_ATMEL_SPI
-	at91_spi0_hw_init(1 << 0);
 #endif
 
 #ifdef CONFIG_LCD
@@ -262,11 +224,11 @@ int dram_init(void)
 
 void at91_spl_board_init(void)
 {
-#ifdef CONFIG_SYS_USE_MMC
+#ifdef CONFIG_SD_BOOT
 	at91_mci_hw_init();
-#elif CONFIG_SYS_USE_NANDFLASH
+#elif CONFIG_NAND_BOOT
 	at91sam9n12ek_nand_hw_init();
-#elif CONFIG_SYS_USE_SPIFLASH
+#elif CONFIG_SPI_BOOT
 	at91_spi0_hw_init(1 << 4);
 #endif
 }

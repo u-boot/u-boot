@@ -1,9 +1,0 @@
-if TARGET_BF609_EZKIT
-
-config SYS_BOARD
-	default "bf609-ezkit"
-
-config SYS_CONFIG_NAME
-	default "bf609-ezkit"
-
-endif

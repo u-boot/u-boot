@@ -73,7 +73,7 @@ void set_muxconf_regs(void)
 				 sizeof(struct pad_conf_entry));
 }
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_GENERIC_MMC)
+#if defined(CONFIG_MMC)
 int board_mmc_init(bd_t *bis)
 {
 	omap_mmc_init(0, 0, 0, -1, -1);
@@ -81,11 +81,13 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 
+#if !defined(CONFIG_SPL_BUILD)
 void board_mmc_power_init(void)
 {
 	twl6030_power_mmc_init(0);
 	twl6030_power_mmc_init(1);
 }
+#endif
 #endif
 
 /*

@@ -56,4 +56,23 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
  */
 int display_options(void);
 
+/* Suggested length of the buffer to pass to display_options_get_banner() */
+#define DISPLAY_OPTIONS_BANNER_LENGTH	200
+
+/**
+ * display_options_get_banner() - Get the U-Boot banner as a string
+ *
+ * This returns the U-Boot banner string
+ *
+ * @newlines: true to include two newlines at the start
+ * @buf: place to put string
+ * @size: Size of buf (string is truncated to fit)
+ * @return buf
+ */
+char *display_options_get_banner(bool newlines, char *buf, int size);
+
+/* This function is used for testing only */
+char *display_options_get_banner_priv(bool newlines, const char *build_tag,
+				      char *buf, int size);
+
 #endif

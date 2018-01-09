@@ -1,5 +1,8 @@
 if ARCH_ZYNQ
 
+config SPL_LDSCRIPT
+	default "arch/arm/mach-zynq/u-boot-spl.lds"
+
 config SPL_FAT_SUPPORT
 	default y
 
@@ -13,7 +16,7 @@ config SPL_LIBGENERIC_SUPPORT
 	default y
 
 config SPL_MMC_SUPPORT
-	default y if ZYNQ_SDHCI
+	default y if MMC_SDHCI_ZYNQ
 
 config SPL_SERIAL_SUPPORT
 	default y

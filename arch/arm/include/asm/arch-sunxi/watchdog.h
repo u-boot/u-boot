@@ -13,7 +13,10 @@
 #define WDT_CTRL_RESTART	(0x1 << 0)
 #define WDT_CTRL_KEY		(0x0a57 << 1)
 
-#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN5I) || defined(CONFIG_MACH_SUN7I)
+#if defined(CONFIG_MACH_SUN4I) || \
+    defined(CONFIG_MACH_SUN5I) || \
+    defined(CONFIG_MACH_SUN7I) || \
+    defined(CONFIG_MACH_SUN8I_R40)
 
 #define WDT_MODE_EN		(0x1 << 0)
 #define WDT_MODE_RESET_EN	(0x1 << 1)

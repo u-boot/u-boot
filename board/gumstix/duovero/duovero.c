@@ -14,6 +14,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
 #include <asm/gpio.h>
+#include <asm/mach-types.h>
 
 #include "duovero_mux_data.h"
 
@@ -24,7 +25,7 @@
 static void setup_net_chip(void);
 #endif
 
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 #include <usb.h>
 #include <asm/arch/ehci.h>
 #include <asm/ehci-omap.h>
@@ -47,7 +48,7 @@ int board_init(void)
 {
 	gpmc_init();
 
-	gd->bd->bi_arch_number = MACH_TYPE_OMAP4_DUOVERO;
+	gd->bd->bi_arch_number = MACH_TYPE_DUOVERO;
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	return 0;
@@ -110,16 +111,18 @@ void set_muxconf_regs(void)
 		   sizeof(struct pad_conf_entry));
 }
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_GENERIC_MMC)
+#if defined(CONFIG_MMC)
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0, -1, -1);
 }
 
+#if !defined(CONFIG_SPL_BUILD)
 void board_mmc_power_init(void)
 {
 	twl6030_power_mmc_init(0);
 }
+#endif
 #endif
 
 #if defined(CONFIG_CMD_NET)
@@ -204,7 +207,7 @@ int board_eth_init(bd_t *bis)
 	return rc;
 }
 
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 
 static struct omap_usbhs_board_data usbhs_bdata = {
 	.port_mode[0] = OMAP_EHCI_PORT_MODE_PHY,

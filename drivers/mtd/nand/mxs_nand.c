@@ -15,17 +15,17 @@
 
 #include <common.h>
 #include <linux/mtd/mtd.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 #include <linux/types.h>
 #include <malloc.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/imx-common/regs-bch.h>
-#include <asm/imx-common/regs-gpmi.h>
+#include <asm/mach-imx/regs-bch.h>
+#include <asm/mach-imx/regs-gpmi.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/imx-common/dma.h>
+#include <asm/mach-imx/dma.h>
 
 #define	MXS_NAND_DMA_DESCRIPTOR_COUNT		4
 
@@ -1114,6 +1114,7 @@ int mxs_nand_init(struct mxs_nand_info *info)
 	}
 
 	/* Init the DMA controller. */
+	mxs_dma_init();
 	for (j = MXS_DMA_CHANNEL_AHB_APBH_GPMI0;
 		j <= MXS_DMA_CHANNEL_AHB_APBH_GPMI7; j++) {
 		ret = mxs_dma_init_channel(j);

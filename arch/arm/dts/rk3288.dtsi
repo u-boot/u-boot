@@ -167,7 +167,7 @@
 
 	sdmmc: dwmmc@ff0c0000 {
 		compatible = "rockchip,rk3288-dw-mshc";
-		clock-freq-min-max = <400000 150000000>;
+		max-frequency = <150000000>;
 		clocks = <&cru HCLK_SDMMC>, <&cru SCLK_SDMMC>,
 			 <&cru SCLK_SDMMC_DRV>, <&cru SCLK_SDMMC_SAMPLE>;
 		clock-names = "biu", "ciu", "ciu_drv", "ciu_sample";
@@ -179,7 +179,7 @@
 
 	sdio0: dwmmc@ff0d0000 {
 		compatible = "rockchip,rk3288-dw-mshc";
-		clock-freq-min-max = <400000 150000000>;
+		max-frequency = <150000000>;
 		clocks = <&cru HCLK_SDIO0>, <&cru SCLK_SDIO0>,
 			 <&cru SCLK_SDIO0_DRV>, <&cru SCLK_SDIO0_SAMPLE>;
 		clock-names = "biu", "ciu", "ciu_drv", "ciu_sample";
@@ -191,7 +191,7 @@
 
 	sdio1: dwmmc@ff0e0000 {
 		compatible = "rockchip,rk3288-dw-mshc";
-		clock-freq-min-max = <400000 150000000>;
+		max-frequency = <150000000>;
 		clocks = <&cru HCLK_SDIO1>, <&cru SCLK_SDIO1>,
 			 <&cru SCLK_SDIO1_DRV>, <&cru SCLK_SDIO1_SAMPLE>;
 		clock-names = "biu", "ciu", "ciu_drv", "ciu_sample";
@@ -203,7 +203,7 @@
 
 	emmc: dwmmc@ff0f0000 {
 		compatible = "rockchip,rk3288-dw-mshc";
-		clock-freq-min-max = <400000 150000000>;
+		max-frequency = <150000000>;
 		clocks = <&cru HCLK_EMMC>, <&cru SCLK_EMMC>,
 			 <&cru SCLK_EMMC_DRV>, <&cru SCLK_EMMC_SAMPLE>;
 		clock-names = "biu", "ciu", "ciu_drv", "ciu_sample";
@@ -664,6 +664,7 @@
 	};
 
 	vopb: vop@ff930000 {
+		u-boot,dm-pre-reloc;
 		compatible = "rockchip,rk3288-vop";
 		reg = <0xff930000 0x19c>;
 		interrupts = <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>;
@@ -689,6 +690,11 @@
 				reg = <2>;
 				remote-endpoint = <&lvds_in_vopb>;
 			};
+			vopb_out_mipi: endpoint@3 {
+				reg = <3>;
+				remote-endpoint = <&mipi_in_vopb>;
+			};
+
 		};
 	};
 
@@ -729,6 +735,11 @@
 				reg = <2>;
 				remote-endpoint = <&lvds_in_vopl>;
 			};
+			vopl_out_mipi: endpoint@3 {
+				reg = <3>;
+				remote-endpoint = <&mipi_in_vopl>;
+			};
+
 		};
 	};
 
@@ -818,6 +829,36 @@
 				lvds_in_vopl: endpoint@1 {
 					reg = <1>;
 					remote-endpoint = <&vopl_out_lvds>;
+				};
+			};
+		};
+	};
+
+	mipi_dsi0: mipi@ff960000 {
+		compatible = "rockchip,rk3288_mipi_dsi";
+		reg = <0xff960000 0x4000>;
+		clocks = <&cru PCLK_MIPI_DSI0>;
+		clock-names = "pclk_mipi";
+		/*pinctrl-names = "default";
+		pinctrl-0 = <&lcdc0_ctl>;*/
+		rockchip,grf = <&grf>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <1>;
+			mipi_in: port {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				mipi_in_vopb: endpoint@0 {
+					reg = <0>;
+					remote-endpoint = <&vopb_out_mipi>;
+				};
+				mipi_in_vopl: endpoint@1 {
+					reg = <1>;
+					remote-endpoint = <&vopl_out_mipi>;
 				};
 			};
 		};

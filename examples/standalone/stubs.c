@@ -141,32 +141,6 @@ gd_t *global_data;
 "	lwi	r5, r5, %1\n"			\
 "	bra	r5\n"				\
 	: : "i"(offsetof(gd_t, jt)), "i"(FO(x)) : "r5");
-#elif defined(CONFIG_BLACKFIN)
-/*
- * P3 holds the pointer to the global_data, P0 is a call-clobbered
- * register
- */
-#define EXPORT_FUNC(f, a, x, ...)			\
-	asm volatile (			\
-"	.globl _" #x "\n_"		\
-#x ":\n"				\
-"	P0 = [P3 + %0]\n"		\
-"	P0 = [P0 + %1]\n"		\
-"	JUMP (P0)\n"			\
-	: : "i"(offsetof(gd_t, jt)), "i"(FO(x)) : "P0");
-#elif defined(CONFIG_AVR32)
-/*
- * r6 holds the pointer to the global_data. r8 is call clobbered.
- */
-#define EXPORT_FUNC(f, a, x, ...)					\
-	asm volatile(					\
-		"	.globl\t" #x "\n"		\
-		#x ":\n"				\
-		"	ld.w	r8, r6[%0]\n"		\
-		"	ld.w	pc, r8[%1]\n"		\
-		:					\
-		: "i"(offsetof(gd_t, jt)), "i"(FO(x))	\
-		: "r8");
 #elif defined(CONFIG_SH)
 /*
  * r13 holds the pointer to the global_data. r1 is a call clobbered.
@@ -185,21 +159,6 @@ gd_t *global_data;
 		"	nop\n"				\
 		"	nop\n"				\
 		: : "i"(offsetof(gd_t, jt)), "i"(FO(x)) : "r1", "r2");
-#elif defined(CONFIG_SPARC)
-/*
- * g7 holds the pointer to the global_data. g1 is call clobbered.
- */
-#define EXPORT_FUNC(f, a, x, ...)					\
-	asm volatile(					\
-"	.globl\t" #x "\n"				\
-#x ":\n"						\
-"	set %0, %%g1\n"					\
-"	or %%g1, %%g7, %%g1\n"				\
-"	ld [%%g1], %%g1\n"				\
-"	ld [%%g1 + %1], %%g1\n"				\
-"	jmp %%g1\n"					\
-"	nop\n"						\
-	: : "i"(offsetof(gd_t, jt)), "i"(FO(x)) : "g1");
 #elif defined(CONFIG_NDS32)
 /*
  * r16 holds the pointer to the global_data. gp is call clobbered.
@@ -213,20 +172,6 @@ gd_t *global_data;
 "	lwi	$r16, [$r16 + (%1)]\n"	\
 "	jr	$r16\n"			\
 	: : "i"(offsetof(gd_t, jt)), "i"(FO(x)) : "$r16");
-#elif defined(CONFIG_OPENRISC)
-/*
- * r10 holds the pointer to the global_data, r13 is a call-clobbered
- * register
- */
-#define EXPORT_FUNC(f, a, x, ...) \
-	asm volatile (			\
-"	.globl " #x "\n"		\
-#x ":\n"				\
-"	l.lwz	r13, %0(r10)\n"	\
-"	l.lwz	r13, %1(r13)\n"	\
-"	l.jr	r13\n"		\
-"	l.nop\n"				\
-	: : "i"(offsetof(gd_t, jt)), "i"(FO(x)) : "r13");
 #elif defined(CONFIG_ARC)
 /*
  * r25 holds the pointer to the global_data. r10 is call clobbered.

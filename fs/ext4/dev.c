@@ -26,7 +26,7 @@
 #include <common.h>
 #include <blk.h>
 #include <config.h>
-#include <memalign.h>
+#include <fs_internal.h>
 #include <ext4fs.h>
 #include <ext_common.h>
 #include "ext4_common.h"
@@ -47,86 +47,11 @@ void ext4fs_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info)
 		get_fs()->dev_desc->log2blksz;
 }
 
-int ext4fs_devread(lbaint_t sector, int byte_offset, int byte_len, char *buf)
+int ext4fs_devread(lbaint_t sector, int byte_offset, int byte_len,
+		   char *buffer)
 {
-	unsigned block_len;
-	int log2blksz = ext4fs_blk_desc->log2blksz;
-	ALLOC_CACHE_ALIGN_BUFFER(char, sec_buf, (ext4fs_blk_desc ?
-						 ext4fs_blk_desc->blksz :
-						 0));
-	if (ext4fs_blk_desc == NULL) {
-		printf("** Invalid Block Device Descriptor (NULL)\n");
-		return 0;
-	}
-
-	/* Check partition boundaries */
-	if ((sector < 0) ||
-	    ((sector + ((byte_offset + byte_len - 1) >> log2blksz))
-	     >= part_info->size)) {
-		printf("%s read outside partition " LBAFU "\n", __func__,
-		       sector);
-		return 0;
-	}
-
-	/* Get the read to the beginning of a partition */
-	sector += byte_offset >> log2blksz;
-	byte_offset &= ext4fs_blk_desc->blksz - 1;
-
-	debug(" <" LBAFU ", %d, %d>\n", sector, byte_offset, byte_len);
-
-	if (byte_offset != 0) {
-		int readlen;
-		/* read first part which isn't aligned with start of sector */
-		if (blk_dread(ext4fs_blk_desc, part_info->start + sector, 1,
-			      (void *)sec_buf) != 1) {
-			printf(" ** ext2fs_devread() read error **\n");
-			return 0;
-		}
-		readlen = min((int)ext4fs_blk_desc->blksz - byte_offset,
-			      byte_len);
-		memcpy(buf, sec_buf + byte_offset, readlen);
-		buf += readlen;
-		byte_len -= readlen;
-		sector++;
-	}
-
-	if (byte_len == 0)
-		return 1;
-
-	/* read sector aligned part */
-	block_len = byte_len & ~(ext4fs_blk_desc->blksz - 1);
-
-	if (block_len == 0) {
-		ALLOC_CACHE_ALIGN_BUFFER(u8, p, ext4fs_blk_desc->blksz);
-
-		block_len = ext4fs_blk_desc->blksz;
-		blk_dread(ext4fs_blk_desc, part_info->start + sector, 1,
-			  (void *)p);
-		memcpy(buf, p, byte_len);
-		return 1;
-	}
-
-	if (blk_dread(ext4fs_blk_desc, part_info->start + sector,
-		      block_len >> log2blksz, (void *)buf) !=
-			block_len >> log2blksz) {
-		printf(" ** %s read error - block\n", __func__);
-		return 0;
-	}
-	block_len = byte_len & ~(ext4fs_blk_desc->blksz - 1);
-	buf += block_len;
-	byte_len -= block_len;
-	sector += block_len / ext4fs_blk_desc->blksz;
-
-	if (byte_len != 0) {
-		/* read rest of data which are not in whole sector */
-		if (blk_dread(ext4fs_blk_desc, part_info->start + sector, 1,
-			      (void *)sec_buf) != 1) {
-			printf("* %s read error - last part\n", __func__);
-			return 0;
-		}
-		memcpy(buf, sec_buf, byte_len);
-	}
-	return 1;
+	return fs_devread(get_fs()->dev_desc, part_info, sector, byte_offset,
+			  byte_len, buffer);
 }
 
 int ext4_read_superblock(char *buffer)

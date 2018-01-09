@@ -59,14 +59,14 @@ Start Address	 End Address	 Description		Size
 QSPI flash map:
 Start Address    End Address     Description		Size
 0x00_4000_0000 - 0x00_400F_FFFF  RCW + PBI		1MB
-0x00_4010_0000 - 0x00_401F_FFFF  U-Boot 		1MB
-0x00_4020_0000 - 0x00_402F_FFFF  U-Boot Env		1MB
-0x00_4030_0000 - 0x00_403F_FFFF  FMan ucode		1MB
-0x00_4040_0000 - 0x00_404F_FFFF  UEFI			1MB
-0x00_4050_0000 - 0x00_406F_FFFF  PPA			2MB
-0x00_4070_0000 - 0x00_408F_FFFF  Secure boot header
-			         + bootscript		2MB
-0x00_4090_0000 - 0x00_40FF_FFFF  Reserved		7MB
+0x00_4010_0000 - 0x00_402F_FFFF  U-Boot 		2MB
+0x00_4030_0000 - 0x00_403F_FFFF  U-Boot Env		1MB
+0x00_4040_0000 - 0x00_405F_FFFF  PPA			2MB
+0x00_4060_0000 - 0x00_408F_FFFF  Secure boot header
+				 + bootscript		3MB
+0x00_4090_0000 - 0x00_4093_FFFF  FMan ucode		256KB
+0x00_4094_0000 - 0x00_4097_FFFF  QE/uQE firmware	256KB
+0x00_4098_0000 - 0x00_40FF_FFFF  Reserved		6MB
 0x00_4100_0000 - 0x00_43FF_FFFF  FIT Image		48MB
 
 Booting Options

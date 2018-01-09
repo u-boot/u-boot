@@ -1,5 +1,7 @@
 config FSL_CAAM
 	bool "Freescale Crypto Driver Support"
+	select SHA_HW_ACCEL
+	imply CMD_HASH
 	help
 	  Enables the Freescale's Cryptographic Accelerator and Assurance
 	  Module (CAAM), also known as the SEC version 4 (SEC4). The driver uses

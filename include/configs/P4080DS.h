@@ -12,10 +12,7 @@
 
 #define CONFIG_PCIE3
 
-#define CONFIG_CMD_SATA
-#define CONFIG_SATA_SIL
 #define CONFIG_SYS_SATA_MAX_DEVICE  2
-#define CONFIG_LIBATA
 #define CONFIG_LBA48
 
 #define CONFIG_SYS_SRIO

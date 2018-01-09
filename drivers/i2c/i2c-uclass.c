@@ -7,13 +7,10 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-#include <fdtdec.h>
 #include <i2c.h>
 #include <malloc.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define I2C_MAX_OFFSET_LEN	4
 
@@ -467,18 +464,20 @@ int i2c_deblock(struct udevice *bus)
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-int i2c_chip_ofdata_to_platdata(const void *blob, int node,
-				struct dm_i2c_chip *chip)
+int i2c_chip_ofdata_to_platdata(struct udevice *dev, struct dm_i2c_chip *chip)
 {
-	chip->offset_len = fdtdec_get_int(gd->fdt_blob, node,
-					  "u-boot,i2c-offset-len", 1);
+	int addr;
+
+	chip->offset_len = dev_read_u32_default(dev, "u-boot,i2c-offset-len",
+						1);
 	chip->flags = 0;
-	chip->chip_addr = fdtdec_get_int(gd->fdt_blob, node, "reg", -1);
-	if (chip->chip_addr == -1) {
-		debug("%s: I2C Node '%s' has no 'reg' property\n", __func__,
-		      fdt_get_name(blob, node, NULL));
+	addr = dev_read_u32_default(dev, "reg", -1);
+	if (addr == -1) {
+		debug("%s: I2C Node '%s' has no 'reg' property %s\n", __func__,
+		      dev_read_name(dev), dev->name);
 		return -EINVAL;
 	}
+	chip->chip_addr = addr;
 
 	return 0;
 }
@@ -489,8 +488,7 @@ static int i2c_post_probe(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	struct dm_i2c_bus *i2c = dev_get_uclass_priv(dev);
 
-	i2c->speed_hz = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
-				     "clock-frequency", 100000);
+	i2c->speed_hz = dev_read_u32_default(dev, "clock-frequency", 100000);
 
 	return dm_i2c_set_bus_speed(dev, i2c->speed_hz);
 #else
@@ -503,10 +501,9 @@ static int i2c_child_post_bind(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	struct dm_i2c_chip *plat = dev_get_parent_platdata(dev);
 
-	if (dev->of_offset == -1)
+	if (!dev_of_valid(dev))
 		return 0;
-
-	return i2c_chip_ofdata_to_platdata(gd->fdt_blob, dev->of_offset, plat);
+	return i2c_chip_ofdata_to_platdata(dev, plat);
 #else
 	return 0;
 #endif

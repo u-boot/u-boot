@@ -15,6 +15,7 @@
 #include <dm.h>
 #include <pci.h>
 #include <asm/io.h>
+#include <asm-generic/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -161,6 +162,7 @@ static uintptr_t set_cfg_address(struct pcie_dw_mvebu *pcie,
 		/* Accessing root port configuration space. */
 		va_address = (uintptr_t)pcie->ctrl_base;
 	} else {
+		d = PCI_MASK_BUS(d) | (PCI_BUS(d) - pcie->first_busno);
 		writel(d << 8, pcie->ctrl_base + PCIE_ATU_LOWER_TARGET);
 		va_address = (uintptr_t)pcie->cfg_base;
 	}
@@ -461,18 +463,37 @@ static int pcie_dw_mvebu_probe(struct udevice *dev)
 	struct pcie_dw_mvebu *pcie = dev_get_priv(dev);
 	struct udevice *ctlr = pci_get_controller(dev);
 	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
+#ifdef CONFIG_DM_GPIO
+	struct gpio_desc reset_gpio;
+
+	gpio_request_by_name(dev, "marvell,reset-gpio", 0, &reset_gpio,
+			     GPIOD_IS_OUT);
+	/*
+	 * Issue reset to add-in card trough the dedicated GPIO.
+	 * Some boards are connecting the card reset pin to common system
+	 * reset wire and others are using separate GPIO port.
+	 * In the last case we have to release a reset of the addon card
+	 * using this GPIO.
+	 */
+	if (dm_gpio_is_valid(&reset_gpio)) {
+		dm_gpio_set_value(&reset_gpio, 1);
+		mdelay(200);
+	}
+#else
+	debug("PCIE Reset on GPIO support is missing\n");
+#endif /* CONFIG_DM_GPIO */
 
 	pcie->first_busno = dev->seq;
 
 	/* Don't register host if link is down */
 	if (!pcie_dw_mvebu_pcie_link_up(pcie->ctrl_base, LINK_SPEED_GEN_3)) {
 		printf("PCIE-%d: Link down\n", dev->seq);
-		return -ENODEV;
+	} else {
+		printf("PCIE-%d: Link up (Gen%d-x%d, Bus%d)\n", dev->seq,
+		       pcie_dw_get_link_speed(pcie->ctrl_base),
+		       pcie_dw_get_link_width(pcie->ctrl_base),
+		       hose->first_busno);
 	}
-
-	printf("PCIE-%d: Link up (Gen%d-x%d, Bus%d)\n", dev->seq,
-	       pcie_dw_get_link_speed(pcie->ctrl_base),
-	       pcie_dw_get_link_width(pcie->ctrl_base), hose->first_busno);
 
 	pcie_dw_regions_setup(pcie);
 
@@ -501,12 +522,12 @@ static int pcie_dw_mvebu_ofdata_to_platdata(struct udevice *dev)
 	struct pcie_dw_mvebu *pcie = dev_get_priv(dev);
 
 	/* Get the controller base address */
-	pcie->ctrl_base = (void *)dev_get_addr_index(dev, 0);
+	pcie->ctrl_base = (void *)devfdt_get_addr_index(dev, 0);
 	if ((fdt_addr_t)pcie->ctrl_base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
 	/* Get the config space base address and size */
-	pcie->cfg_base = (void *)dev_get_addr_size_index(dev, 1,
+	pcie->cfg_base = (void *)devfdt_get_addr_size_index(dev, 1,
 							 &pcie->cfg_size);
 	if ((fdt_addr_t)pcie->cfg_base == FDT_ADDR_T_NONE)
 		return -EINVAL;

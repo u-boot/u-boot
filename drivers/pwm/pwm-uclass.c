@@ -9,6 +9,16 @@
 #include <dm.h>
 #include <pwm.h>
 
+int pwm_set_invert(struct udevice *dev, uint channel, bool polarity)
+{
+	struct pwm_ops *ops = pwm_get_ops(dev);
+
+	if (!ops->set_invert)
+		return -ENOSYS;
+
+	return ops->set_invert(dev, channel, polarity);
+}
+
 int pwm_set_config(struct udevice *dev, uint channel, uint period_ns,
 		   uint duty_ns)
 {

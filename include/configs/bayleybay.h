@@ -14,17 +14,10 @@
 #include <configs/x86-common.h>
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
-#define CONFIG_ARCH_MISC_INIT
 
 #define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,usbkbd\0" \
 					"stdout=serial,vidconsole\0" \
 					"stderr=serial,vidconsole\0"
-
-#define CONFIG_SCSI_DEV_LIST		\
-	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_VALLEYVIEW_SATA}, \
-	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_VALLEYVIEW_SATA_ALT}
-
-#define CONFIG_GENERIC_MMC
 
 /* Environment configuration */
 #define CONFIG_ENV_SECT_SIZE		0x1000

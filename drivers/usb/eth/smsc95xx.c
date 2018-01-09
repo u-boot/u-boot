@@ -998,7 +998,7 @@ int smsc95xx_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 	}
 
 	*packetp = ptr + sizeof(packet_len);
-	return packet_len;
+	return packet_len - 4;
 
 err:
 	usb_ether_advance_rxbuf(ueth, -1);
@@ -1009,7 +1009,7 @@ static int smsc95xx_free_pkt(struct udevice *dev, uchar *packet, int packet_len)
 {
 	struct smsc95xx_private *priv = dev_get_priv(dev);
 
-	packet_len = ALIGN(packet_len, 4);
+	packet_len = ALIGN(packet_len + sizeof(u32), 4);
 	usb_ether_advance_rxbuf(&priv->ueth, sizeof(u32) + packet_len);
 
 	return 0;

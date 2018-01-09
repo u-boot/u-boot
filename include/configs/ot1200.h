@@ -13,7 +13,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN           (10 * 1024 * 1024)
 
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MISC_INIT_R
 
 /* UART Configs */
@@ -32,8 +31,6 @@
 #define CONFIG_PCA953X
 #define CONFIG_SYS_I2C_PCA953X_ADDR	0x20
 #define CONFIG_SYS_I2C_PCA953X_WIDTH	{ {0x20, 16} }
-#define CONFIG_CMD_PCA953X
-#define CONFIG_CMD_PCA953X_INFO
 
 /* I2C Configs */
 #define CONFIG_SYS_I2C
@@ -44,7 +41,6 @@
 #define CONFIG_SYS_I2C_SPEED            100000
 
 /* OCOTP Configs */
-#define CONFIG_CMD_IMXOTP
 #define CONFIG_IMX_OTP
 #define IMX_OTP_BASE                    OCOTP_BASE_ADDR
 #define IMX_OTP_ADDR_MAX                0x7F
@@ -56,25 +52,17 @@
 #define CONFIG_SYS_FSL_USDHC_NUM       2
 
 /* USB Configs */
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_MX6
 #define CONFIG_MXC_USB_PORTSC   (PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
-
-#ifdef CONFIG_MX6Q
-#define CONFIG_CMD_SATA
-#endif
 
 /*
  * SATA Configs
  */
 #ifdef CONFIG_CMD_SATA
-#define CONFIG_DWC_AHSATA
 #define CONFIG_SYS_SATA_MAX_DEVICE	1
 #define CONFIG_DWC_AHSATA_PORT_ID	0
 #define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_ARB_BASE_ADDR
 #define CONFIG_LBA48
-#define CONFIG_LIBATA
 #endif
 
 /* SPL */
@@ -90,11 +78,9 @@
 #define CONFIG_FEC_XCV_TYPE             MII100
 #define CONFIG_ETHPRIME                 "FEC"
 #define CONFIG_FEC_MXC_PHYADDR          0x5
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_SMSC
 
 #ifndef CONFIG_SPL
-#define CONFIG_CMD_EEPROM
 #define CONFIG_ENV_EEPROM_IS_ON_I2C
 #define CONFIG_SYS_I2C_EEPROM_BUS             1
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN        1
@@ -102,13 +88,10 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 #endif
 
-/* Miscellaneous commands */
-#define CONFIG_CMD_BMODE
-
 #define CONFIG_PREBOOT                 ""
 
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
+/* Thermal support */
+#define CONFIG_IMX_THERMAL
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS           1
@@ -124,7 +107,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment organization */
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SIZE                 (64 * 1024)	/* 64 kb */
 #define CONFIG_ENV_OFFSET               (1024 * 1024)
 /* M25P16 has an erase size of 64 KiB */

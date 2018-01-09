@@ -33,7 +33,7 @@ int dma_get_device(u32 transfer_type, struct udevice **devp)
 	}
 
 	if (!dev) {
-		error("No DMA device found that supports %x type\n",
+		pr_err("No DMA device found that supports %x type\n",
 		      transfer_type);
 		return -EPROTONOSUPPORT;
 	}

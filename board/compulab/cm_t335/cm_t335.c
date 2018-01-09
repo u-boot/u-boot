@@ -31,8 +31,8 @@ int board_init(void)
 
 	gpmc_init();
 
-#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
-	status_led_set(STATUS_LED_BOOT, STATUS_LED_OFF);
+#if defined(CONFIG_LED_STATUS) && defined(CONFIG_LED_STATUS_BOOT_ENABLE)
+	status_led_set(CONFIG_LED_STATUS_BOOT, CONFIG_LED_STATUS_OFF);
 #endif
 	return 0;
 }
@@ -106,7 +106,7 @@ static int handle_mac_address(void)
 	uchar enetaddr[6];
 	int rv;
 
-	rv = eth_getenv_enetaddr("ethaddr", enetaddr);
+	rv = eth_env_get_enetaddr("ethaddr", enetaddr);
 	if (rv)
 		return 0;
 
@@ -117,7 +117,7 @@ static int handle_mac_address(void)
 	if (!is_valid_ethaddr(enetaddr))
 		return -1;
 
-	return eth_setenv_enetaddr("ethaddr", enetaddr);
+	return eth_env_set_enetaddr("ethaddr", enetaddr);
 }
 
 #define AR8051_PHY_DEBUG_ADDR_REG	0x1d

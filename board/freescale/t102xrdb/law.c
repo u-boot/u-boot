@@ -9,7 +9,7 @@
 #include <asm/mmu.h>
 
 struct law_entry law_table[] = {
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 	SET_LAW(CONFIG_SYS_FLASH_BASE_PHYS, LAW_SIZE_256M, LAW_TRGT_IF_IFC),
 #endif
 #ifdef CONFIG_SYS_BMAN_MEM_PHYS

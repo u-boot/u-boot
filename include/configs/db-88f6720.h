@@ -23,8 +23,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#define CONFIG_CMD_ENV
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -42,7 +40,6 @@
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
 
 /* Environment in SPI NOR flash */
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_OFFSET		(1 << 20) /* 1MiB in */
 #define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
 #define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB sectors */

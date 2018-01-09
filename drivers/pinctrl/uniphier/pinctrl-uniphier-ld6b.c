@@ -5,7 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <dm/device.h>
+#include <common.h>
+#include <dm.h>
 #include <dm/pinctrl.h>
 
 #include "pinctrl-uniphier.h"
@@ -140,6 +141,7 @@ static struct uniphier_pinctrl_socdata uniphier_ld6b_pinctrl_socdata = {
 	.groups_count = ARRAY_SIZE(uniphier_ld6b_groups),
 	.functions = uniphier_ld6b_functions,
 	.functions_count = ARRAY_SIZE(uniphier_ld6b_functions),
+	.caps = UNIPHIER_PINCTRL_CAPS_PUPD_SIMPLE,
 };
 
 static int uniphier_ld6b_pinctrl_probe(struct udevice *dev)

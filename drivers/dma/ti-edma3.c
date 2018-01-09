@@ -11,8 +11,8 @@
 
 #include <asm/io.h>
 #include <common.h>
+#include <dm.h>
 #include <dma.h>
-#include <dm/device.h>
 #include <asm/omap_common.h>
 #include <asm/ti-common/ti-edma3.h>
 
@@ -491,7 +491,7 @@ static int ti_edma3_transfer(struct udevice *dev, int direction, void *dst,
 		__edma3_transfer(priv->base, 1, dst, src, len);
 		break;
 	default:
-		error("Transfer type not implemented in DMA driver\n");
+		pr_err("Transfer type not implemented in DMA driver\n");
 		break;
 	}
 
@@ -505,7 +505,7 @@ static int ti_edma3_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ti_edma3_priv *priv = dev_get_priv(dev);
 
-	priv->base = dev_get_addr(dev);
+	priv->base = devfdt_get_addr(dev);
 
 	return 0;
 }

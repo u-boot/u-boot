@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2015 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
+ * Copyright (c) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -15,25 +16,21 @@ static const char *cpu_feature_name[CPU_FEAT_COUNT] = {
 	"L1 cache",
 	"MMU",
 	"Microcode",
+	"Device ID",
 };
 
 static int print_cpu_list(bool detail)
 {
 	struct udevice *dev;
-	struct uclass *uc;
 	char buf[100];
-	int ret;
 
-	ret = uclass_get(UCLASS_CPU, &uc);
-	if (ret) {
-		printf("Cannot find CPU uclass\n");
-		return ret;
-	}
-	uclass_foreach_dev(dev, uc) {
+	for (uclass_first_device(UCLASS_CPU, &dev);
+		     dev;
+		     uclass_next_device(&dev)) {
 		struct cpu_platdata *plat = dev_get_parent_platdata(dev);
 		struct cpu_info info;
-		bool first;
-		int i;
+		bool first = true;
+		int ret, i;
 
 		ret = cpu_get_desc(dev, buf, sizeof(buf));
 		printf("%3d: %-10s %s\n", dev->seq, dev->name,
@@ -44,13 +41,12 @@ static int print_cpu_list(bool detail)
 		if (ret) {
 			printf("\t(no detail available");
 			if (ret != -ENOSYS)
-				printf(": err=%d\n", ret);
+				printf(": err=%d", ret);
 			printf(")\n");
 			continue;
 		}
 		printf("\tID = %d, freq = ", plat->cpu_id);
 		print_freq(info.cpu_freq, "");
-		first = true;
 		for (i = 0; i < CPU_FEAT_COUNT; i++) {
 			if (info.features & (1 << i)) {
 				printf("%s%s", first ? ": " : ", ",
@@ -59,10 +55,9 @@ static int print_cpu_list(bool detail)
 			}
 		}
 		printf("\n");
-		if (info.features & (1 << CPU_FEAT_UCODE)) {
+		if (info.features & (1 << CPU_FEAT_UCODE))
 			printf("\tMicrocode version %#x\n",
 			       plat->ucode_version);
-		}
 		if (info.features & (1 << CPU_FEAT_DEVICE_ID))
 			printf("\tDevice ID %#lx\n", plat->device_id);
 	}
@@ -70,7 +65,8 @@ static int print_cpu_list(bool detail)
 	return 0;
 }
 
-static int do_cpu_list(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_cpu_list(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	if (print_cpu_list(false))
 		return CMD_RET_FAILURE;
@@ -96,7 +92,7 @@ static cmd_tbl_t cmd_cpu_sub[] = {
  * Process a cpu sub-command
  */
 static int do_cpu(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+		  char * const argv[])
 {
 	cmd_tbl_t *c = NULL;
 
@@ -105,7 +101,8 @@ static int do_cpu(cmd_tbl_t *cmdtp, int flag, int argc,
 	argv++;
 
 	if (argc)
-		c = find_cmd_tbl(argv[0], cmd_cpu_sub, ARRAY_SIZE(cmd_cpu_sub));
+		c = find_cmd_tbl(argv[0], cmd_cpu_sub,
+				 ARRAY_SIZE(cmd_cpu_sub));
 
 	if (c)
 		return c->cmd(cmdtp, flag, argc, argv);

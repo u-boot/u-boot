@@ -50,7 +50,6 @@ int fecmxc_initialize_multi(bd_t *bis, int dev_id, int phy_id, uint32_t addr);
 int ftgmac100_initialize(bd_t *bits);
 int ftmac100_initialize(bd_t *bits);
 int ftmac110_initialize(bd_t *bits);
-int greth_initialize(bd_t *bis);
 void gt6426x_eth_initialize(bd_t *bis);
 int ks8851_mll_initialize(u8 dev_num, int base_addr);
 int lan91c96_initialize(u8 dev_num, int base_addr);
@@ -58,9 +57,6 @@ int lpc32xx_eth_initialize(bd_t *bis);
 int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
 int mcdmafec_initialize(bd_t *bis);
 int mcffec_initialize(bd_t *bis);
-int mpc512x_fec_initialize(bd_t *bis);
-int mpc5xxx_fec_initialize(bd_t *bis);
-int mpc82xx_scc_enet_initialize(bd_t *bis);
 int mvgbe_initialize(bd_t *bis);
 int mvneta_initialize(bd_t *bis, int base_addr, int devnum, int phy_addr);
 int natsemi_initialize(bd_t *bis);
@@ -134,8 +130,12 @@ static inline int pci_eth_init(bd_t *bis)
 	return num;
 }
 
-#ifdef CONFIG_FEC_MXC
+#ifdef CONFIG_DM_ETH
+struct mii_dev *fec_get_miibus(struct udevice *dev, int dev_id);
+#else
 struct mii_dev *fec_get_miibus(uint32_t base_addr, int dev_id);
+#endif
+
 #ifdef CONFIG_PHYLIB
 struct phy_device;
 int fec_probe(bd_t *bd, int dev_id, uint32_t base_addr,
@@ -145,7 +145,6 @@ int fec_probe(bd_t *bd, int dev_id, uint32_t base_addr,
  * Allow FEC to fine-tune MII configuration on boards which require this.
  */
 int fecmxc_register_mii_postcall(struct eth_device *dev, int (*cb)(int));
-#endif
 #endif
 
 #endif /* _NETDEV_H_ */

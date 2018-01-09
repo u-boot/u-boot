@@ -43,7 +43,7 @@ void *efi_bounce_buffer;
  */
 struct efi_pool_allocation {
 	u64 num_pages;
-	char data[];
+	char data[] __aligned(ARCH_DMA_MINALIGN);
 };
 
 /*
@@ -276,7 +276,7 @@ static uint64_t efi_find_free_memory(uint64_t len, uint64_t max_addr)
 }
 
 efi_status_t efi_allocate_pages(int type, int memory_type,
-				unsigned long pages, uint64_t *memory)
+				efi_uintn_t pages, uint64_t *memory)
 {
 	u64 len = pages << EFI_PAGE_SHIFT;
 	efi_status_t r = EFI_SUCCESS;
@@ -338,7 +338,7 @@ void *efi_alloc(uint64_t len, int memory_type)
 	return NULL;
 }
 
-efi_status_t efi_free_pages(uint64_t memory, unsigned long pages)
+efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 {
 	uint64_t r = 0;
 
@@ -351,12 +351,13 @@ efi_status_t efi_free_pages(uint64_t memory, unsigned long pages)
 	return EFI_NOT_FOUND;
 }
 
-efi_status_t efi_allocate_pool(int pool_type, unsigned long size,
+efi_status_t efi_allocate_pool(int pool_type, efi_uintn_t size,
 			       void **buffer)
 {
 	efi_status_t r;
 	efi_physical_addr_t t;
-	u64 num_pages = (size + sizeof(u64) + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
+	u64 num_pages = (size + sizeof(struct efi_pool_allocation) +
+			 EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
 
 	if (size == 0) {
 		*buffer = NULL;
@@ -379,6 +380,9 @@ efi_status_t efi_free_pool(void *buffer)
 	efi_status_t r;
 	struct efi_pool_allocation *alloc;
 
+	if (buffer == NULL)
+		return EFI_INVALID_PARAMETER;
+
 	alloc = container_of(buffer, struct efi_pool_allocation, data);
 	/* Sanity check, was the supplied address returned by allocate_pool */
 	assert(((uintptr_t)alloc & EFI_PAGE_MASK) == 0);
@@ -388,16 +392,16 @@ efi_status_t efi_free_pool(void *buffer)
 	return r;
 }
 
-efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
-			       struct efi_mem_desc *memory_map,
-			       unsigned long *map_key,
-			       unsigned long *descriptor_size,
-			       uint32_t *descriptor_version)
+efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
+				struct efi_mem_desc *memory_map,
+				efi_uintn_t *map_key,
+				efi_uintn_t *descriptor_size,
+				uint32_t *descriptor_version)
 {
-	ulong map_size = 0;
+	efi_uintn_t map_size = 0;
 	int map_entries = 0;
 	struct list_head *lhandle;
-	unsigned long provided_map_size = *memory_map_size;
+	efi_uintn_t provided_map_size = *memory_map_size;
 
 	list_for_each(lhandle, &efi_mem)
 		map_entries++;
@@ -406,14 +410,14 @@ efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
 
 	*memory_map_size = map_size;
 
+	if (provided_map_size < map_size)
+		return EFI_BUFFER_TOO_SMALL;
+
 	if (descriptor_size)
 		*descriptor_size = sizeof(struct efi_mem_desc);
 
 	if (descriptor_version)
 		*descriptor_version = EFI_MEMORY_DESCRIPTOR_VERSION;
-
-	if (provided_map_size < map_size)
-		return EFI_BUFFER_TOO_SMALL;
 
 	/* Copy list into array */
 	if (memory_map) {
@@ -428,14 +432,13 @@ efi_status_t efi_get_memory_map(unsigned long *memory_map_size,
 		}
 	}
 
+	*map_key = 0;
+
 	return EFI_SUCCESS;
 }
 
-int efi_memory_init(void)
+__weak void efi_add_known_memory(void)
 {
-	unsigned long runtime_start, runtime_end, runtime_pages;
-	unsigned long uboot_start, uboot_pages;
-	unsigned long uboot_stack_size = 16 * 1024 * 1024;
 	int i;
 
 	/* Add RAM */
@@ -448,6 +451,15 @@ int efi_memory_init(void)
 		efi_add_memory_map(start, pages, EFI_CONVENTIONAL_MEMORY,
 				   false);
 	}
+}
+
+int efi_memory_init(void)
+{
+	unsigned long runtime_start, runtime_end, runtime_pages;
+	unsigned long uboot_start, uboot_pages;
+	unsigned long uboot_stack_size = 16 * 1024 * 1024;
+
+	efi_add_known_memory();
 
 	/* Add U-Boot */
 	uboot_start = (gd->start_addr_sp - uboot_stack_size) & ~EFI_PAGE_MASK;

@@ -11,6 +11,7 @@
 #include <asm/io.h>
 #include <asm/arch/sromc.h>
 #include <netdev.h>
+#include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -51,10 +52,12 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+
+	return 0;
 }
 
 #ifdef CONFIG_DISPLAY_BOARDINFO

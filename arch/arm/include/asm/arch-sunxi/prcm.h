@@ -196,6 +196,10 @@
 #define PRCM_CPU3_PWR_CLAMP(n) (((n) & 0xff) << 0)
 #define PRCM_CPU3_PWR_CLAMP_MASK PRCM_CPU3_PWR_CLAMP(0xff)
 
+#define PRCM_SEC_SWITCH_APB0_CLK_NONSEC (0x1 << 0)
+#define PRCM_SEC_SWITCH_PLL_CFG_NONSEC (0x1 << 1)
+#define PRCM_SEC_SWITCH_PWR_GATE_NONSEC (0x1 << 2)
+
 #ifndef __ASSEMBLY__
 #include <linux/compiler.h>
 
@@ -233,6 +237,8 @@ struct __packed sunxi_prcm_reg {
 	u32 dram_pwr;		/* 0x180 */
 	u8 res12[0xc];		/* 0x184 */
 	u32 dram_tst;		/* 0x190 */
+	u8 res13[0x3c];		/* 0x194 */
+	u32 prcm_sec_switch;	/* 0x1d0 */
 };
 
 void prcm_apb0_enable(u32 flags);

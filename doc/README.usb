@@ -5,8 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-USB Support for PIP405 and MIP405 (UHCI)
-========================================
+USB Support
+===========
 
 The USB support is implemented on the base of the UHCI Host
 controller.
@@ -125,23 +125,27 @@ bootp
 
 To enable USB Host Ethernet in U-Boot, your platform must of course
 support USB with CONFIG_CMD_USB enabled and working. You will need to
-add some config settings to your board header file:
+add some config settings to your board config:
 
-#define CONFIG_CMD_USB		/* the 'usb' interactive command */
-#define CONFIG_USB_HOST_ETHER	/* Enable USB Ethernet adapters */
+CONFIG_CMD_USB=y		/* the 'usb' interactive command */
+CONFIG_USB_HOST_ETHER=y		/* Enable USB Ethernet adapters */
 
 and one or more of the following for individual adapter hardware:
 
-#define CONFIG_USB_ETHER_ASIX
-#define CONFIG_USB_ETHER_MCS7830
-#define CONFIG_USB_ETHER_SMSC95XX
+CONFIG_USB_ETHER_ASIX=y
+CONFIG_USB_ETHER_ASIX88179=y
+CONFIG_USB_ETHER_LAN75XX=y
+CONFIG_USB_ETHER_LAN78XX=y
+CONFIG_USB_ETHER_MCS7830=y
+CONFIG_USB_ETHER_RTL8152=y
+CONFIG_USB_ETHER_SMSC95XX=y
 
 As with built-in networking, you will also want to enable some network
 commands, for example:
 
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
+CONFIG_CMD_NET=y
+CONFIG_CMD_PING=y
+CONFIG_CMD_DHCP=y
 
 and some bootp options, which tell your board to obtain its subnet,
 gateway IP, host name and boot path from the bootp/dhcp server. These

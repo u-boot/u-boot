@@ -182,12 +182,12 @@ static int s5p_serial_ofdata_to_platdata(struct udevice *dev)
 	struct s5p_serial_platdata *plat = dev->platdata;
 	fdt_addr_t addr;
 
-	addr = dev_get_addr(dev);
+	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
 	plat->reg = (struct s5p_uart *)addr;
-	plat->port_id = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+	plat->port_id = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					"id", dev->seq);
 	return 0;
 }

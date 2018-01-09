@@ -2,6 +2,7 @@
  * This file implements recording of each stage of the boot process. It is
  * intended to implement timing of each stage, reporting this information
  * to the user and passing it to the OS for logging / further analysis.
+ * Note that it requires timer_get_boot_us() to be defined by the board
  *
  * Copyright (c) 2011 The Chromium OS Authors.
  *
@@ -10,11 +11,6 @@
 
 #ifndef _BOOTSTAGE_H
 #define _BOOTSTAGE_H
-
-/* Define this for host tools */
-#ifndef CONFIG_BOOTSTAGE_USER_COUNT
-#define CONFIG_BOOTSTAGE_USER_COUNT	20
-#endif
 
 /* Flags for each bootstage record */
 enum bootstage_flags {
@@ -176,6 +172,7 @@ enum bootstage_id {
 	 */
 	BOOTSTAGE_ID_AWAKE,
 	BOOTSTAGE_ID_START_SPL,
+	BOOTSTAGE_ID_END_SPL,
 	BOOTSTAGE_ID_START_UBOOT_F,
 	BOOTSTAGE_ID_START_UBOOT_R,
 	BOOTSTAGE_ID_USB_START,
@@ -198,25 +195,28 @@ enum bootstage_id {
 	BOOTSTAGE_ID_ACCUM_SCSI,
 	BOOTSTAGE_ID_ACCUM_SPI,
 	BOOTSTAGE_ID_ACCUM_DECOMP,
+	BOOTSTAGE_ID_ACCUM_OF_LIVE,
 	BOOTSTAGE_ID_FPGA_INIT,
+	BOOTSTATE_ID_ACCUM_DM_SPL,
+	BOOTSTATE_ID_ACCUM_DM_F,
+	BOOTSTATE_ID_ACCUM_DM_R,
 
 	/* a few spare for the user, from here */
 	BOOTSTAGE_ID_USER,
-	BOOTSTAGE_ID_COUNT = BOOTSTAGE_ID_USER + CONFIG_BOOTSTAGE_USER_COUNT,
 	BOOTSTAGE_ID_ALLOC,
 };
 
 /*
  * Return the time since boot in microseconds, This is needed for bootstage
  * and should be defined in CPU- or board-specific code. If undefined then
- * millisecond resolution will be used (the standard get_timer()).
+ * you will get a link error.
  */
 ulong timer_get_boot_us(void);
 
 #if defined(USE_HOSTCC)
 #define show_boot_progress(val) do {} while (0)
 #else
-/*
+/**
  * Board code can implement show_boot_progress() if needed.
  *
  * @param val	Progress state (enum bootstage_id), or -id if an error
@@ -225,8 +225,14 @@ ulong timer_get_boot_us(void);
 void show_boot_progress(int val);
 #endif
 
-#if defined(CONFIG_BOOTSTAGE) && !defined(CONFIG_SPL_BUILD) && \
-	!defined(USE_HOSTCC)
+#if !defined(USE_HOSTCC)
+#if CONFIG_IS_ENABLED(BOOTSTAGE)
+#define ENABLE_BOOTSTAGE
+#endif
+#endif
+
+#ifdef ENABLE_BOOTSTAGE
+
 /* This is the full bootstage implementation */
 
 /**
@@ -234,7 +240,7 @@ void show_boot_progress(int val);
  *
  * Call this after relocation has happened and after malloc has been initted.
  * We need to copy any pointers in bootstage records that were added pre-
- * relocation, since memory can be overritten later.
+ * relocation, since memory can be overwritten later.
  * @return Always returns 0, to indicate success
  */
 int bootstage_relocate(void);
@@ -250,7 +256,7 @@ int bootstage_relocate(void);
 ulong bootstage_add_record(enum bootstage_id id, const char *name,
 			   int flags, ulong mark);
 
-/*
+/**
  * Mark a time stamp for the current boot stage.
  */
 ulong bootstage_mark(enum bootstage_id id);
@@ -309,7 +315,7 @@ void bootstage_report(void);
  */
 int bootstage_fdt_add_report(void);
 
-/*
+/**
  * Stash bootstage data into memory
  *
  * @param base	Base address of memory buffer
@@ -326,9 +332,26 @@ int bootstage_stash(void *base, int size);
  *
  * @param base	Base address of memory buffer
  * @param size	Size of memory buffer (-1 if unknown)
- * @return 0 if unstashed ok, -1 if bootstage info not found, or out of space
+ * @return 0 if unstashed ok, -ENOENT if bootstage info not found, -ENOSPC if
+ *	there is not space for read the stacked data, or other error if
+ *	something else went wrong
  */
-int bootstage_unstash(void *base, int size);
+int bootstage_unstash(const void *base, int size);
+
+/**
+ * bootstage_get_size() - Get the size of the bootstage data
+ *
+ * @return size of boostage data in bytes
+ */
+int bootstage_get_size(void);
+
+/**
+ * bootstage_init() - Prepare bootstage for use
+ *
+ * @first: true if this is the first time bootstage is set up. This causes it
+ *	to add a 'reset' record with a time of 0.
+ */
+int bootstage_init(bool first);
 
 #else
 static inline ulong bootstage_add_record(enum bootstage_id id,
@@ -386,11 +409,22 @@ static inline int bootstage_stash(void *base, int size)
 	return 0;	/* Pretend to succeed */
 }
 
-static inline int bootstage_unstash(void *base, int size)
+static inline int bootstage_unstash(const void *base, int size)
 {
 	return 0;	/* Pretend to succeed */
 }
-#endif /* CONFIG_BOOTSTAGE */
+
+static inline int bootstage_get_size(void)
+{
+	return 0;
+}
+
+static inline int bootstage_init(bool first)
+{
+	return 0;
+}
+
+#endif /* ENABLE_BOOTSTAGE */
 
 /* Helper macro for adding a bootstage to a line of code */
 #define BOOTSTAGE_MARKER()	\

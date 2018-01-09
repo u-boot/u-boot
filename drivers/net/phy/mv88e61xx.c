@@ -655,8 +655,10 @@ static int mv88e61xx_read_port_config(struct phy_device *phydev, u8 port)
 		do {
 			val = mv88e61xx_port_read(phydev, port,
 						  PORT_REG_STATUS);
-			if (val < 0)
+			if (val < 0) {
+				res = -EIO;
 				goto unforce;
+			}
 			if (val & PORT_REG_STATUS_LINK)
 				break;
 		} while (--timeout);

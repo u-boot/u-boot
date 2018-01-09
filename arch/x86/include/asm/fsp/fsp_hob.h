@@ -127,6 +127,26 @@ struct hob_guid {
 	/* GUID specific data goes here */
 };
 
+enum pixel_format {
+	pixel_rgbx_8bpc,	/* RGB 8 bit per color */
+	pixel_bgrx_8bpc,	/* BGR 8 bit per color */
+	pixel_bitmask,
+};
+
+struct __packed hob_graphics_info {
+	phys_addr_t fb_base;	/* framebuffer base address */
+	u32 fb_size;		/* framebuffer size */
+	u32 version;
+	u32 width;
+	u32 height;
+	enum pixel_format pixel_format;
+	u32 red_mask;
+	u32 green_mask;
+	u32 blue_mask;
+	u32 reserved_mask;
+	u32 pixels_per_scanline;
+};
+
 /**
  * get_next_hob() - return a pointer to the next HOB in the HOB list
  *
@@ -139,7 +159,7 @@ struct hob_guid {
  */
 static inline const struct hob_header *get_next_hob(const struct hob_header *hdr)
 {
-	return (const struct hob_header *)((u32)hdr + hdr->len);
+	return (const struct hob_header *)((uintptr_t)hdr + hdr->len);
 }
 
 /**
@@ -172,7 +192,7 @@ static inline bool end_of_hob(const struct hob_header *hdr)
  */
 static inline void *get_guid_hob_data(const struct hob_header *hdr)
 {
-	return (void *)((u32)hdr + sizeof(struct hob_guid));
+	return (void *)((uintptr_t)hdr + sizeof(struct hob_guid));
 }
 
 /**
@@ -240,6 +260,20 @@ static inline u16 get_guid_hob_data_size(const struct hob_header *hdr)
 	{ \
 	0x9c7c3aa7, 0x5332, 0x4917, \
 	{ 0x82, 0xb9, 0x56, 0xa5, 0xf3, 0xe6, 0x2a, 0x07 } \
+	}
+
+/* The following GUIDs are newly introduced in FSP spec 1.1 */
+
+#define FSP_HOB_RESOURCE_OWNER_BOOTLOADER_TOLUM_GUID \
+	{ \
+	0x73ff4f56, 0xaa8e, 0x4451, \
+	{ 0xb3, 0x16, 0x36, 0x35, 0x36, 0x67, 0xad, 0x44 } \
+	}
+
+#define FSP_GRAPHICS_INFO_HOB_GUID \
+	{ \
+	0x39f62cce, 0x6825, 0x4669, \
+	{ 0xbb, 0x56, 0x54, 0x1a, 0xba, 0x75, 0x3a, 0x07 } \
 	}
 
 #endif

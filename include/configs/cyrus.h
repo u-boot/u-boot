@@ -49,7 +49,6 @@
 
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
-#define CONFIG_FSL_ELBC			/* Has Enhanced localbus controller */
 #define CONFIG_PCIE1			/* PCIE controller 1 */
 #define CONFIG_PCIE2			/* PCIE controller 2 */
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
@@ -57,11 +56,8 @@
 
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_SYS_NO_FLASH
-
 #if defined(CONFIG_SDCARD)
 #define CONFIG_SYS_EXTRA_ENV_RELOC
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_FSL_FIXED_MMC_LOCATION
 #define CONFIG_SYS_MMC_ENV_DEV          0
 #define CONFIG_ENV_SIZE			0x2000
@@ -93,7 +89,6 @@
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
 #define CONFIG_SYS_ALT_MEMTEST
-#define CONFIG_PANIC_HANG	/* do not reset board on panic */
 
 /*
  *  Config the L3 Cache as L3 SRAM
@@ -164,7 +159,6 @@
 #define CONFIG_SYS_RAMBOOT
 #endif
 
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */
 #define CONFIG_MISC_INIT_R
 
@@ -243,7 +237,6 @@
 #define CONFIG_SYS_I2C_MAC2_CHIP_ADDR 0x50
 #define CONFIG_SYS_I2C_MAC2_DATA_ADDR 0xfa
 
-#define CONFIG_CMD_DATE			1
 #define CONFIG_RTC_MCP79411		1
 #define CONFIG_SYS_RTC_BUS_NUM		3
 #define CONFIG_SYS_I2C_RTC_ADDR		0x6f
@@ -372,23 +365,16 @@
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_FMAN_ENET
-#define CONFIG_PHY_MICREL
-#define CONFIG_PHY_MICREL_KSZ9021
 #endif
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
-#define CONFIG_NET_MULTI
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#define CONFIG_DOS_PARTITION
 #endif	/* CONFIG_PCI */
 
 /* SATA */
 #ifdef CONFIG_FSL_SATA_V2
-#define CONFIG_LIBATA
-#define CONFIG_FSL_SATA
-
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
 #define CONFIG_SATA1
 #define CONFIG_SYS_SATA1		CONFIG_SYS_MPC85xx_SATA1_ADDR
@@ -398,15 +384,12 @@
 #define CONFIG_SYS_SATA2_FLAGS		FLAGS_DMA
 
 #define CONFIG_LBA48
-#define CONFIG_CMD_SATA
-#define CONFIG_DOS_PARTITION
 #endif
 
 #ifdef CONFIG_FMAN_ENET
 #define CONFIG_SYS_TBIPA_VALUE	8
 #define CONFIG_MII		/* MII PHY management */
 #define CONFIG_ETHPRIME		"FM1@DTSEC4"
-#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 #endif
 
 /*
@@ -416,28 +399,15 @@
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
 
 /*
- * Command line configuration.
- */
-#define CONFIG_CMD_ERRATA
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_REGINFO
-
-#ifdef CONFIG_PCI
-#define CONFIG_CMD_PCI
-#endif
-
-/*
  * USB
  */
 #define CONFIG_HAS_FSL_DR_USB
 #define CONFIG_HAS_FSL_MPH_USB
 
 #if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB)
-#define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_EHCI_IS_TDI
-#define CONFIG_SYS_USB_EVENT_POLL
  /* _VIA_CONTROL_EP  */
 #endif
 
@@ -445,8 +415,6 @@
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR       CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #define CONFIG_SYS_FSL_ESDHC_BROKEN_TIMEOUT
-#define CONFIG_GENERIC_MMC
-#define CONFIG_DOS_PARTITION
 #endif
 
 /*
@@ -456,14 +424,6 @@
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#ifdef CONFIG_CMD_KGDB
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
-#else
-#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
-#endif
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS	16		/* max number of command args */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 
 /*
  * For booting Linux, the board info and command line data
@@ -486,9 +446,6 @@
 
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
-
-
-#define CONFIG_BAUDRATE	115200
 
 #define __USB_PHY_TYPE	utmi
 

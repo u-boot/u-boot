@@ -1195,7 +1195,7 @@ static void do_sdram_init(u32 base)
 			ddr3_init(base, regs);
 #endif
 	}
-#ifdef CONFIG_OMAP54X
+#ifdef CONFIG_OMAP54XX
 	if (warm_reset() && (emif_sdram_type(regs->sdram_config) ==
 	    EMIF_SDRAM_TYPE_DDR3) && !is_dra7xx()) {
 		set_lpmode_selfrefresh(base);

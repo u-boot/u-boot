@@ -6,13 +6,12 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <common.h>
-#include <linux/types.h>
-#include <linux/io.h>
-#include <linux/sizes.h>
 #include <linux/errno.h>
-#include <dm/device.h>
-#include <dm/root.h>
+#include <linux/io.h>
+#include <linux/iopoll.h>
+#include <linux/sizes.h>
+#include <linux/types.h>
+#include <dm.h>
 #include <i2c.h>
 #include <fdtdec.h>
 
@@ -64,46 +63,27 @@ struct uniphier_fi2c_regs {
 
 #define FIOCLK	50000000
 
-struct uniphier_fi2c_dev {
+struct uniphier_fi2c_priv {
+	struct udevice *dev;
 	struct uniphier_fi2c_regs __iomem *regs;	/* register base */
 	unsigned long fioclk;			/* internal operation clock */
 	unsigned long timeout;			/* time out (us) */
 };
 
-static int poll_status(u32 __iomem *reg, u32 flag)
+static void uniphier_fi2c_reset(struct uniphier_fi2c_priv *priv)
 {
-	int wait = 1000000; /* 1 sec is long enough */
-
-	while (readl(reg) & flag) {
-		if (wait-- < 0)
-			return -EREMOTEIO;
-		udelay(1);
-	}
-
-	return 0;
+	writel(I2C_RST_RST, &priv->regs->rst);
 }
 
-static int reset_bus(struct uniphier_fi2c_regs __iomem *regs)
+static int uniphier_fi2c_check_bus_busy(struct uniphier_fi2c_priv *priv)
 {
+	u32 val;
 	int ret;
 
-	/* bus forcible reset */
-	writel(I2C_RST_RST, &regs->rst);
-	ret = poll_status(&regs->rst, I2C_RST_RST);
-	if (ret < 0)
-		debug("error: fail to reset I2C controller\n");
-
-	return ret;
-}
-
-static int check_device_busy(struct uniphier_fi2c_regs __iomem *regs)
-{
-	int ret;
-
-	ret = poll_status(&regs->sr, I2C_SR_DB);
+	ret = readl_poll_timeout(&priv->regs->sr, val, !(val & I2C_SR_DB), 100);
 	if (ret < 0) {
-		debug("error: device busy too long. reset...\n");
-		ret = reset_bus(regs);
+		dev_dbg(priv->dev, "error: device busy too long. reset...\n");
+		uniphier_fi2c_reset(priv);
 	}
 
 	return ret;
@@ -112,10 +92,9 @@ static int check_device_busy(struct uniphier_fi2c_regs __iomem *regs)
 static int uniphier_fi2c_probe(struct udevice *dev)
 {
 	fdt_addr_t addr;
-	struct uniphier_fi2c_dev *priv = dev_get_priv(dev);
-	int ret;
+	struct uniphier_fi2c_priv *priv = dev_get_priv(dev);
 
-	addr = dev_get_addr(dev);
+	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -125,89 +104,85 @@ static int uniphier_fi2c_probe(struct udevice *dev)
 
 	priv->fioclk = FIOCLK;
 
+	priv->dev = dev;
+
 	/* bus forcible reset */
-	ret = reset_bus(priv->regs);
-	if (ret < 0)
-		return ret;
+	uniphier_fi2c_reset(priv);
 
 	writel(I2C_BRST_FOEN | I2C_BRST_RSCLO, &priv->regs->brst);
 
 	return 0;
 }
 
-static int wait_for_irq(struct uniphier_fi2c_dev *dev, u32 flags,
+static int wait_for_irq(struct uniphier_fi2c_priv *priv, u32 flags,
 			bool *stop)
 {
 	u32 irq;
-	unsigned long wait = dev->timeout;
-	int ret = -EREMOTEIO;
+	int ret;
 
-	do {
-		udelay(1);
-		irq = readl(&dev->regs->intr);
-	} while (!(irq & flags) && wait--);
-
-	if (wait < 0) {
-		debug("error: time out\n");
+	ret = readl_poll_timeout(&priv->regs->intr, irq, irq & flags,
+				 priv->timeout);
+	if (ret < 0) {
+		dev_dbg(priv->dev, "error: time out\n");
 		return ret;
 	}
 
 	if (irq & I2C_INT_AL) {
-		debug("error: arbitration lost\n");
+		dev_dbg(priv->dev, "error: arbitration lost\n");
 		*stop = false;
 		return ret;
 	}
 
 	if (irq & I2C_INT_NA) {
-		debug("error: no answer\n");
+		dev_dbg(priv->dev, "error: no answer\n");
 		return ret;
 	}
 
 	return 0;
 }
 
-static int issue_stop(struct uniphier_fi2c_dev *dev, int old_ret)
+static int issue_stop(struct uniphier_fi2c_priv *priv, int old_ret)
 {
 	int ret;
 
-	debug("stop condition\n");
-	writel(I2C_CR_MST | I2C_CR_STO, &dev->regs->cr);
+	dev_dbg(priv->dev, "stop condition\n");
+	writel(I2C_CR_MST | I2C_CR_STO, &priv->regs->cr);
 
-	ret = poll_status(&dev->regs->sr, I2C_SR_DB);
+	ret = uniphier_fi2c_check_bus_busy(priv);
 	if (ret < 0)
-		debug("error: device busy after operation\n");
+		dev_dbg(priv->dev, "error: device busy after operation\n");
 
 	return old_ret ? old_ret : ret;
 }
 
-static int uniphier_fi2c_transmit(struct uniphier_fi2c_dev *dev, uint addr,
+static int uniphier_fi2c_transmit(struct uniphier_fi2c_priv *priv, uint addr,
 				  uint len, const u8 *buf, bool *stop)
 {
 	int ret;
 	const u32 irq_flags = I2C_INT_TE | I2C_INT_NA | I2C_INT_AL;
-	struct uniphier_fi2c_regs __iomem *regs = dev->regs;
+	struct uniphier_fi2c_regs __iomem *regs = priv->regs;
 
-	debug("%s: addr = %x, len = %d\n", __func__, addr, len);
+	dev_dbg(priv->dev, "%s: addr = %x, len = %d\n", __func__, addr, len);
 
 	writel(I2C_DTTX_CMD | addr << 1, &regs->dttx);
 
 	writel(irq_flags, &regs->ie);
 	writel(irq_flags, &regs->ic);
 
-	debug("start condition\n");
+	dev_dbg(priv->dev, "start condition\n");
 	writel(I2C_CR_MST | I2C_CR_STA, &regs->cr);
 
-	ret = wait_for_irq(dev, irq_flags, stop);
+	ret = wait_for_irq(priv, irq_flags, stop);
 	if (ret < 0)
 		goto error;
 
 	while (len--) {
-		debug("sending %x\n", *buf);
+		dev_dbg(priv->dev, "sending %x\n", *buf);
 		writel(*buf++, &regs->dttx);
 
 		writel(irq_flags, &regs->ic);
 
-		ret = wait_for_irq(dev, irq_flags, stop);
+		ret = wait_for_irq(priv, irq_flags, stop);
 		if (ret < 0)
 			goto error;
 	}
@@ -216,26 +191,26 @@ error:
 	writel(irq_flags, &regs->ic);
 
 	if (*stop)
-		ret = issue_stop(dev, ret);
+		ret = issue_stop(priv, ret);
 
 	return ret;
 }
 
-static int uniphier_fi2c_receive(struct uniphier_fi2c_dev *dev, uint addr,
+static int uniphier_fi2c_receive(struct uniphier_fi2c_priv *priv, uint addr,
 				 uint len, u8 *buf, bool *stop)
 {
 	int ret = 0;
 	const u32 irq_flags = I2C_INT_RB | I2C_INT_NA | I2C_INT_AL;
-	struct uniphier_fi2c_regs __iomem *regs = dev->regs;
+	struct uniphier_fi2c_regs __iomem *regs = priv->regs;
 
-	debug("%s: addr = %x, len = %d\n", __func__, addr, len);
+	dev_dbg(priv->dev, "%s: addr = %x, len = %d\n", __func__, addr, len);
 
 	/*
 	 * In case 'len == 0', only the slave address should be sent
 	 * for probing, which is covered by the transmit function.
 	 */
 	if (len == 0)
-		return uniphier_fi2c_transmit(dev, addr, len, buf, stop);
+		return uniphier_fi2c_transmit(priv, addr, len, buf, stop);
 
 	writel(I2C_DTTX_CMD | I2C_DTTX_RD | addr << 1, &regs->dttx);
 
@@ -243,17 +218,17 @@ static int uniphier_fi2c_receive(struct uniphier_fi2c_dev *dev, uint addr,
 	writel(irq_flags, &regs->ie);
 	writel(irq_flags, &regs->ic);
 
-	debug("start condition\n");
+	dev_dbg(priv->dev, "start condition\n");
 	writel(I2C_CR_MST | I2C_CR_STA | (len == 1 ? I2C_CR_NACK : 0),
 	       &regs->cr);
 
 	while (len--) {
-		ret = wait_for_irq(dev, irq_flags, stop);
+		ret = wait_for_irq(priv, irq_flags, stop);
 		if (ret < 0)
 			goto error;
 
 		*buf++ = readl(&regs->dtrx);
-		debug("received %x\n", *(buf - 1));
+		dev_dbg(priv->dev, "received %x\n", *(buf - 1));
 
 		if (len == 1)
 			writel(I2C_CR_MST | I2C_CR_NACK, &regs->cr);
@@ -265,7 +240,7 @@ error:
 	writel(irq_flags, &regs->ic);
 
 	if (*stop)
-		ret = issue_stop(dev, ret);
+		ret = issue_stop(priv, ret);
 
 	return ret;
 }
@@ -274,10 +249,10 @@ static int uniphier_fi2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 			     int nmsgs)
 {
 	int ret;
-	struct uniphier_fi2c_dev *dev = dev_get_priv(bus);
+	struct uniphier_fi2c_priv *priv = dev_get_priv(bus);
 	bool stop;
 
-	ret = check_device_busy(dev->regs);
+	ret = uniphier_fi2c_check_bus_busy(priv);
 	if (ret < 0)
 		return ret;
 
@@ -286,10 +261,10 @@ static int uniphier_fi2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 		stop = nmsgs > 1 && msg[1].flags & I2C_M_RD ? false : true;
 
 		if (msg->flags & I2C_M_RD)
-			ret = uniphier_fi2c_receive(dev, msg->addr, msg->len,
+			ret = uniphier_fi2c_receive(priv, msg->addr, msg->len,
 						    msg->buf, &stop);
 		else
-			ret = uniphier_fi2c_transmit(dev, msg->addr, msg->len,
+			ret = uniphier_fi2c_transmit(priv, msg->addr, msg->len,
 						     msg->buf, &stop);
 
 		if (ret < 0)
@@ -303,21 +278,21 @@ static int uniphier_fi2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 {
 	int ret;
 	unsigned int clk_count;
-	struct uniphier_fi2c_dev *dev = dev_get_priv(bus);
-	struct uniphier_fi2c_regs __iomem *regs = dev->regs;
+	struct uniphier_fi2c_priv *priv = dev_get_priv(bus);
+	struct uniphier_fi2c_regs __iomem *regs = priv->regs;
 
 	/* max supported frequency is 400 kHz */
 	if (speed > 400000)
 		return -EINVAL;
 
-	ret = check_device_busy(dev->regs);
+	ret = uniphier_fi2c_check_bus_busy(priv);
 	if (ret < 0)
 		return ret;
 
 	/* make sure the bus is idle when changing the frequency */
 	writel(I2C_BRST_RSCLO, &regs->brst);
 
-	clk_count = dev->fioclk / speed;
+	clk_count = priv->fioclk / speed;
 
 	writel(clk_count, &regs->cyc);
 	writel(clk_count / 2, &regs->lctl);
@@ -331,7 +306,7 @@ static int uniphier_fi2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 	 * 1000000 * 9 / speed usec.
 	 * This time out value is long enough.
 	 */
-	dev->timeout = 100000000L / speed;
+	priv->timeout = 100000000L / speed;
 
 	return 0;
 }
@@ -351,6 +326,6 @@ U_BOOT_DRIVER(uniphier_fi2c) = {
 	.id = UCLASS_I2C,
 	.of_match = uniphier_fi2c_of_match,
 	.probe = uniphier_fi2c_probe,
-	.priv_auto_alloc_size = sizeof(struct uniphier_fi2c_dev),
+	.priv_auto_alloc_size = sizeof(struct uniphier_fi2c_priv),
 	.ops = &uniphier_fi2c_ops,
 };

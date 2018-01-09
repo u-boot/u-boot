@@ -126,6 +126,9 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return do_bootm_states(cmdtp, flag, argc, argv, BOOTM_STATE_START |
 		BOOTM_STATE_FINDOS | BOOTM_STATE_FINDOTHER |
 		BOOTM_STATE_LOADOS |
+#ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
+		BOOTM_STATE_RAMDISK |
+#endif
 #if defined(CONFIG_PPC) || defined(CONFIG_MIPS)
 		BOOTM_STATE_OS_CMDLINE |
 #endif
@@ -135,7 +138,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int bootm_maybe_autostart(cmd_tbl_t *cmdtp, const char *cmd)
 {
-	const char *ep = getenv("autostart");
+	const char *ep = env_get("autostart");
 
 	if (ep && !strcmp(ep, "yes")) {
 		char *local_args[2];
@@ -199,7 +202,7 @@ U_BOOT_CMD(
 #if defined(CONFIG_CMD_BOOTD)
 int do_bootd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	return run_command(getenv("bootcmd"), flag);
+	return run_command(env_get("bootcmd"), flag);
 }
 
 U_BOOT_CMD(
@@ -387,7 +390,7 @@ static int nand_imls_legacyimage(struct mtd_info *mtd, int nand_dev,
 		return -ENOMEM;
 	}
 
-	ret = nand_read_skip_bad(mtd, off, &len, imgdata);
+	ret = nand_read_skip_bad(mtd, off, &len, NULL, mtd->size, imgdata);
 	if (ret < 0 && ret != -EUCLEAN) {
 		free(imgdata);
 		return ret;
@@ -427,7 +430,7 @@ static int nand_imls_fitimage(struct mtd_info *mtd, int nand_dev, loff_t off,
 		return -ENOMEM;
 	}
 
-	ret = nand_read_skip_bad(mtd, off, &len, imgdata);
+	ret = nand_read_skip_bad(mtd, off, &len, NULL, mtd->size, imgdata);
 	if (ret < 0 && ret != -EUCLEAN) {
 		free(imgdata);
 		return ret;
@@ -462,7 +465,7 @@ static int do_imls_nand(void)
 	printf("\n");
 
 	for (nand_dev = 0; nand_dev < CONFIG_SYS_MAX_NAND_DEVICE; nand_dev++) {
-		mtd = nand_info[nand_dev];
+		mtd = get_nand_dev_by_index(nand_dev);
 		if (!mtd->name || !mtd->size)
 			continue;
 

@@ -19,5 +19,7 @@ enum mxc_clock {
 };
 
 unsigned int mxc_get_clock(enum mxc_clock clk);
+ulong get_ddr_freq(ulong);
+uint get_svr(void);
 
 #endif /* __ASM_ARCH_LS102XA_CLOCK_H_ */

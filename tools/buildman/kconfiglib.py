@@ -73,6 +73,7 @@ email service. Don't wrestle with internal APIs. Tell me what you need and I
 might add it in a safe way as a client API instead."""
 
 import os
+import platform
 import re
 import sys
 
@@ -137,10 +138,8 @@ class Config(object):
         # The set of all symbols, indexed by name (a string)
         self.syms = {}
         # Python 2/3 compatibility hack. This is the only one needed.
-        if sys.version_info[0] >= 3:
-            self.syms_iter = self.syms.values
-        else:
-            self.syms_iter = self.syms.itervalues
+        self.syms_iter = self.syms.values if sys.version_info[0] >= 3 else \
+                         self.syms.itervalues
 
         # The set of all defined symbols in the configuration in the order they
         # appear in the Kconfig files. This excludes the special symbols n, m,
@@ -173,7 +172,7 @@ class Config(object):
         self.m = register_special_symbol(TRISTATE, "m", "m")
         self.y = register_special_symbol(TRISTATE, "y", "y")
         # DEFCONFIG_LIST uses this
-        register_special_symbol(STRING, "UNAME_RELEASE", os.uname()[2])
+        register_special_symbol(STRING, "UNAME_RELEASE", platform.uname()[2])
 
         # The symbol with "option defconfig_list" set, containing a list of
         # default .config files
@@ -183,16 +182,20 @@ class Config(object):
         self.arch = os.environ.get("ARCH")
         self.srcarch = os.environ.get("SRCARCH")
 
+        # If you set CONFIG_ in the environment, Kconfig will prefix all symbols
+        # with its value when saving the configuration, instead of using the default, "CONFIG_".
+        self.config_prefix = os.environ.get("CONFIG_")
+        if self.config_prefix is None:
+            self.config_prefix = "CONFIG_"
+
         # See Config.__init__(). We need this for get_defconfig_filename().
         self.srctree = os.environ.get("srctree")
         if self.srctree is None:
             self.srctree = "."
 
         self.filename = filename
-        if base_dir is None:
-            self.base_dir = self.srctree
-        else:
-            self.base_dir = os.path.expandvars(base_dir)
+        self.base_dir = self.srctree if base_dir is None else \
+                        os.path.expandvars(base_dir)
 
         # The 'mainmenu' text
         self.mainmenu_text = None
@@ -204,6 +207,7 @@ class Config(object):
 
         self.print_warnings = print_warnings
         self.print_undef_assign = print_undef_assign
+        self._warnings = []
 
         # For parsing routines that stop when finding a line belonging to a
         # different construct, these holds that line and the tokenized version
@@ -221,7 +225,8 @@ class Config(object):
         self._transform_m = None
 
         # Parse the Kconfig files
-        self.top_block = self._parse_file(filename, None, None, None)
+        self.top_block = []
+        self._parse_file(filename, None, None, None, self.top_block)
 
         # Build Symbol.dep for all symbols
         self._build_dep()
@@ -398,7 +403,15 @@ class Config(object):
           need to refer to the top-level kernel directory with "$srctree".
 
         replace (default: True): True if the configuration should replace the
-           old configuration; False if it should add to it."""
+           old configuration; False if it should add to it.
+
+        Returns a list or warnings (hopefully empty)
+        """
+
+        self._warnings = []
+        # Regular expressions for parsing .config files
+        _set_re_match = re.compile(r"{}(\w+)=(.*)".format(self.config_prefix)).match
+        _unset_re_match = re.compile(r"# {}(\w+) is not set".format(self.config_prefix)).match
 
         # Put this first so that a missing file doesn't screw up our state
         filename = os.path.expandvars(filename)
@@ -449,7 +462,7 @@ class Config(object):
         while 1:
             line = line_feeder.get_next()
             if line is None:
-                return
+                return self._warnings
 
             line = line.rstrip()
 
@@ -519,14 +532,12 @@ class Config(object):
         with open(filename, "w") as f:
             # Write header
             if header is not None:
-                f.write(_comment(header))
-                f.write("\n")
+                f.write(_comment(header) + "\n")
 
             # Build and write configuration
             conf_strings = []
             _make_block_conf(self.top_block, conf_strings.append)
-            f.write("\n".join(conf_strings))
-            f.write("\n")
+            f.write("\n".join(conf_strings) + "\n")
 
     def eval(self, s):
         """Returns the value of the expression 's' -- where 's' is represented
@@ -604,16 +615,18 @@ class Config(object):
     # Kconfig parsing
     #
 
-    def _parse_file(self, filename, parent, deps, visible_if_deps, res=None):
-        """Parses the Kconfig file 'filename'. Returns a list with the Items in
-        the file. See _parse_block() for the meaning of the parameters."""
-        return self._parse_block(_FileFeed(filename), None, parent, deps,
-                                 visible_if_deps, res)
+    def _parse_file(self, filename, parent, deps, visible_if_deps, block):
+        """Parses the Kconfig file 'filename'. Appends the Items in the file
+        (and any file it sources) to the list passed in the 'block' parameter.
+        See _parse_block() for the meaning of the parameters."""
+        self._parse_block(_FileFeed(filename), None, parent, deps,
+                          visible_if_deps, block)
 
     def _parse_block(self, line_feeder, end_marker, parent, deps,
-                     visible_if_deps, res=None):
+                     visible_if_deps, block):
         """Parses a block, which is the contents of either a file or an if,
-        menu, or choice statement. Returns a list with the Items in the block.
+        menu, or choice statement. Appends the Items to the list passed in the
+        'block' parameter.
 
         line_feeder: A _FileFeed instance feeding lines from a file. The
           Kconfig language is line-based in practice.
@@ -629,10 +642,7 @@ class Config(object):
         visible_if_deps (default: None): 'visible if' dependencies from
            enclosing menus.
 
-        res (default: None): The list to add items to. If None, a new list is
-           created to hold the items."""
-
-        block = [] if res is None else res
+        block: The list to add items to."""
 
         while 1:
             # Do we already have a tokenized line that we determined wasn't
@@ -651,7 +661,7 @@ class Config(object):
                     if end_marker is not None:
                         raise Kconfig_Syntax_Error("Unexpected end of file {0}"
                                                  .format(line_feeder.filename))
-                    return block
+                    return
 
                 tokens = self._tokenize(line, False, line_feeder.filename,
                                         line_feeder.linenr)
@@ -674,13 +684,12 @@ class Config(object):
                 # choice statements, the choice statement takes precedence.
                 if not sym.is_defined_ or isinstance(parent, Choice):
                     sym.parent = parent
-
                 sym.is_defined_ = True
+
+                self._parse_properties(line_feeder, sym, deps, visible_if_deps)
 
                 self.kconfig_syms.append(sym)
                 block.append(sym)
-
-                self._parse_properties(line_feeder, sym, deps, visible_if_deps)
 
             elif t0 == T_SOURCE:
                 kconfig_file = tokens.get_next()
@@ -700,7 +709,7 @@ class Config(object):
 
             elif t0 == end_marker:
                 # We have reached the end of the block
-                return block
+                return
 
             elif t0 == T_IF:
                 # If statements are treated as syntactic sugar for adding
@@ -717,38 +726,39 @@ class Config(object):
 
             elif t0 == T_COMMENT:
                 comment = Comment()
-
                 comment.config = self
                 comment.parent = parent
                 comment.filename = line_feeder.filename
                 comment.linenr = line_feeder.linenr
                 comment.text = tokens.get_next()
 
-                self.comments.append(comment)
-                block.append(comment)
-
                 self._parse_properties(line_feeder, comment, deps,
                                        visible_if_deps)
 
+                self.comments.append(comment)
+                block.append(comment)
+
             elif t0 == T_MENU:
                 menu = Menu()
-
                 menu.config = self
                 menu.parent = parent
                 menu.filename = line_feeder.filename
                 menu.linenr = line_feeder.linenr
                 menu.title = tokens.get_next()
 
-                self.menus.append(menu)
-                block.append(menu)
-
-                # Parse properties and contents
                 self._parse_properties(line_feeder, menu, deps,
                                        visible_if_deps)
-                menu.block = self._parse_block(line_feeder, T_ENDMENU, menu,
-                                               menu.dep_expr,
-                                               _make_and(visible_if_deps,
-                                                         menu.visible_if_expr))
+
+                # This needs to go before _parse_block() so that we get the
+                # proper menu ordering in the case of nested functions
+                self.menus.append(menu)
+                # Parse contents and put Items in menu.block
+                self._parse_block(line_feeder, T_ENDMENU, menu, menu.dep_expr,
+                                  _make_and(visible_if_deps,
+                                            menu.visible_if_expr),
+                                  menu.block)
+
+                block.append(menu)
 
             elif t0 == T_CHOICE:
                 name = tokens.get_next()
@@ -770,11 +780,12 @@ class Config(object):
                 choice.def_locations.append((line_feeder.filename,
                                              line_feeder.linenr))
 
-                # Parse properties and contents
                 self._parse_properties(line_feeder, choice, deps,
                                        visible_if_deps)
-                choice.block = self._parse_block(line_feeder, T_ENDCHOICE,
-                                                 choice, deps, visible_if_deps)
+
+                # Parse contents and put Items in choice.block
+                self._parse_block(line_feeder, T_ENDCHOICE, choice, deps,
+                                  visible_if_deps, choice.block)
 
                 choice._determine_actual_symbols()
 
@@ -814,19 +825,19 @@ class Config(object):
             """Parses '<expr1> if <expr2>' constructs, where the 'if' part is
             optional. Returns a tuple containing the parsed expressions, with
             None as the second element if the 'if' part is missing."""
-            val = self._parse_expr(tokens, stmt, line, filename, linenr, False)
-            if tokens.check(T_IF):
-                return (val, self._parse_expr(tokens, stmt, line, filename,
-                                              linenr))
-            return (val, None)
+            return (self._parse_expr(tokens, stmt, line, filename, linenr,
+                                     False),
+                    self._parse_expr(tokens, stmt, line, filename, linenr)
+                    if tokens.check(T_IF) else None)
 
         # In case the symbol is defined in multiple locations, we need to
-        # remember what prompts, defaults, and selects are new for this
-        # definition, as "depends on" should only apply to the local
+        # remember what prompts, defaults, selects, and implies are new for
+        # this definition, as "depends on" should only apply to the local
         # definition.
         new_prompt = None
         new_def_exprs = []
         new_selects = []
+        new_implies = []
 
         # Dependencies from 'depends on' statements
         depends_on_expr = None
@@ -898,12 +909,21 @@ class Config(object):
                 stmt.referenced_syms.add(target)
                 stmt.selected_syms.add(target)
 
-                if tokens.check(T_IF):
-                    new_selects.append((target,
-                                        self._parse_expr(tokens, stmt, line,
-                                                         filename, linenr)))
-                else:
-                    new_selects.append((target, None))
+                new_selects.append(
+                    (target,
+                     self._parse_expr(tokens, stmt, line, filename, linenr)
+                     if tokens.check(T_IF) else None))
+
+            elif t0 == T_IMPLY:
+                target = tokens.get_next()
+
+                stmt.referenced_syms.add(target)
+                stmt.implied_syms.add(target)
+
+                new_implies.append(
+                    (target,
+                     self._parse_expr(tokens, stmt, line, filename, linenr)
+                     if tokens.check(T_IF) else None))
 
             elif t0 in (T_BOOL, T_TRISTATE, T_INT, T_HEX, T_STRING):
                 stmt.type = TOKEN_TO_TYPE[t0]
@@ -934,12 +954,10 @@ class Config(object):
                 stmt.referenced_syms.add(low)
                 stmt.referenced_syms.add(high)
 
-                if tokens.check(T_IF):
-                    stmt.ranges.append((low, high,
-                                        self._parse_expr(tokens, stmt, line,
-                                                         filename, linenr)))
-                else:
-                    stmt.ranges.append((low, high, None))
+                stmt.ranges.append(
+                    (low, high,
+                     self._parse_expr(tokens, stmt, line, filename, linenr)
+                     if tokens.check(T_IF) else None))
 
             elif t0 == T_DEF_TRISTATE:
                 stmt.type = TRISTATE
@@ -1046,21 +1064,20 @@ class Config(object):
             # Symbol or Choice
 
             # See comment for 'menu_dep'
-            stmt.menu_dep = depends_on_expr
+            stmt.menu_dep = _make_and(deps, depends_on_expr)
 
             # Propagate dependencies to prompts
 
             if new_prompt is not None:
-                # Propagate 'visible if' dependencies from enclosing menus
                 prompt, cond_expr = new_prompt
-                cond_expr = _make_and(cond_expr, visible_if_deps)
-                # Propagate 'depends on' dependencies
-                new_prompt = (prompt, _make_and(cond_expr, depends_on_expr))
+                # Propagate 'visible if' dependencies from menus and local
+                # 'depends on' dependencies
+                cond_expr = _make_and(_make_and(cond_expr, visible_if_deps),
+                                      depends_on_expr)
                 # Save original
-                stmt.orig_prompts.append(new_prompt)
+                stmt.orig_prompts.append((prompt, cond_expr))
                 # Finalize with dependencies from enclosing menus and ifs
-                stmt.prompts.append((new_prompt[0],
-                                     _make_and(new_prompt[1], deps)))
+                stmt.prompts.append((prompt, _make_and(cond_expr, deps)))
 
             # Propagate dependencies to defaults
 
@@ -1073,20 +1090,27 @@ class Config(object):
             stmt.def_exprs.extend([(val_expr, _make_and(cond_expr, deps))
                                    for val_expr, cond_expr in new_def_exprs])
 
-            # Propagate dependencies to selects
+            # Propagate dependencies to selects and implies
 
-            # Only symbols can select
+            # Only symbols can select and imply
             if isinstance(stmt, Symbol):
                 # Propagate 'depends on' dependencies
                 new_selects = [(target, _make_and(cond_expr, depends_on_expr))
                                for target, cond_expr in new_selects]
+                new_implies = [(target, _make_and(cond_expr, depends_on_expr))
+                               for target, cond_expr in new_implies]
                 # Save original
                 stmt.orig_selects.extend(new_selects)
+                stmt.orig_implies.extend(new_implies)
                 # Finalize with dependencies from enclosing menus and ifs
                 for target, cond in new_selects:
-                    target.rev_dep = _make_or(target.rev_dep,
-                                              _make_and(stmt,
-                                                        _make_and(cond, deps)))
+                    target.rev_dep = \
+                        _make_or(target.rev_dep,
+                                 _make_and(stmt, _make_and(cond, deps)))
+                for target, cond in new_implies:
+                    target.weak_rev_dep = \
+                        _make_or(target.weak_rev_dep,
+                                 _make_and(stmt, _make_and(cond, deps)))
 
     def _parse_expr(self, feed, cur_item, line, filename=None, linenr=None,
                     transform_m=True):
@@ -1478,7 +1502,8 @@ class Config(object):
 
         # The directly dependent symbols of a symbol are:
         #  - Any symbols whose prompts, default values, rev_dep (select
-        #    condition), or ranges depend on the symbol
+        #    condition), weak_rev_dep (imply condition) or ranges depend on the
+        #    symbol
         #  - Any symbols that belong to the same choice statement as the symbol
         #    (these won't be included in 'dep' as that makes the dependency
         #    graph unwieldy, but Symbol._get_dependent() will include them)
@@ -1492,6 +1517,7 @@ class Config(object):
                 add_expr_deps(e, sym)
 
             add_expr_deps(sym.rev_dep, sym)
+            add_expr_deps(sym.weak_rev_dep, sym)
 
             for l, u, e in sym.ranges:
                 add_expr_deps(l, sym)
@@ -1620,20 +1646,16 @@ class Config(object):
         else:
             prompts_str_rows = []
             for prompt, cond_expr in sc.orig_prompts:
-                if cond_expr is None:
-                    prompts_str_rows.append(' "{0}"'.format(prompt))
-                else:
-                    prompts_str_rows.append(
-                      ' "{0}" if {1}'.format(prompt,
-                                             self._expr_val_str(cond_expr)))
+                prompts_str_rows.append(
+                    ' "{0}"'.format(prompt) if cond_expr is None else
+                    ' "{0}" if {1}'.format(prompt,
+                                           self._expr_val_str(cond_expr)))
             prompts_str = "\n".join(prompts_str_rows)
 
         # Build locations string
-        if not sc.def_locations:
-            locations_str = "(no locations)"
-        else:
-            locations_str = " ".join(["{0}:{1}".format(filename, linenr) for
-                                      (filename, linenr) in sc.def_locations])
+        locations_str = "(no locations)" if not sc.def_locations else \
+                        " ".join(["{0}:{1}".format(filename, linenr) for
+                                  filename, linenr in sc.def_locations])
 
         # Build additional-dependencies-from-menus-and-ifs string
         additional_deps_str = " " + \
@@ -1652,13 +1674,11 @@ class Config(object):
                 else:
                     ranges_str_rows = []
                     for l, u, cond_expr in sc.ranges:
-                        if cond_expr is None:
-                            ranges_str_rows.append(" [{0}, {1}]".format(s(l),
-                                                                        s(u)))
-                        else:
-                            ranges_str_rows.append(" [{0}, {1}] if {2}"
-                              .format(s(l), s(u),
-                                      self._expr_val_str(cond_expr)))
+                        ranges_str_rows.append(
+                            " [{0}, {1}]".format(s(l), s(u))
+                            if cond_expr is None else
+                            " [{0}, {1}] if {2}"
+                            .format(s(l), s(u), self._expr_val_str(cond_expr)))
                     ranges_str = "\n".join(ranges_str_rows)
 
             # Build default values string
@@ -1680,13 +1700,23 @@ class Config(object):
             else:
                 selects_str_rows = []
                 for target, cond_expr in sc.orig_selects:
-                    if cond_expr is None:
-                        selects_str_rows.append(" {0}".format(target.name))
-                    else:
-                        selects_str_rows.append(
-                          " {0} if {1}".format(target.name,
-                                               self._expr_val_str(cond_expr)))
+                    selects_str_rows.append(
+                        " {0}".format(target.name) if cond_expr is None else
+                        " {0} if {1}".format(target.name,
+                                             self._expr_val_str(cond_expr)))
                 selects_str = "\n".join(selects_str_rows)
+
+            # Build implies string
+            if not sc.orig_implies:
+                implies_str = " (no implies)"
+            else:
+                implies_str_rows = []
+                for target, cond_expr in sc.orig_implies:
+                    implies_str_rows.append(
+                        " {0}".format(target.name) if cond_expr is None else
+                        " {0} if {1}".format(target.name,
+                                             self._expr_val_str(cond_expr)))
+                implies_str = "\n".join(implies_str_rows)
 
             res = _lines("Symbol " +
                            ("(no name)" if sc.name is None else sc.name),
@@ -1706,9 +1736,16 @@ class Config(object):
                           defaults_str,
                           "Selects:",
                           selects_str,
+                          "Implies:",
+                          implies_str,
                           "Reverse (select-related) dependencies:",
-                          " (no reverse dependencies)" if sc.rev_dep == "n"
-                            else " " + self._expr_val_str(sc.rev_dep),
+                          " (no reverse dependencies)"
+                          if sc.rev_dep == "n"
+                          else " " + self._expr_val_str(sc.rev_dep),
+                          "Weak reverse (imply-related) dependencies:",
+                          " (no weak reverse dependencies)"
+                          if sc.weak_rev_dep == "n"
+                          else " " + self._expr_val_str(sc.weak_rev_dep),
                           "Additional dependencies from enclosing menus "
                             "and ifs:",
                           additional_deps_str,
@@ -1730,11 +1767,10 @@ class Config(object):
         else:
             defaults_str_rows = []
             for sym, cond_expr in sc.orig_def_exprs:
-                if cond_expr is None:
-                    defaults_str_rows.append(" {0}".format(sym.name))
-                else:
-                    defaults_str_rows.append(" {0} if {1}".format(sym.name,
-                                                self._expr_val_str(cond_expr)))
+                defaults_str_rows.append(
+                    " {0}".format(sym.name) if cond_expr is None else
+                    " {0} if {1}".format(sym.name,
+                                         self._expr_val_str(cond_expr)))
             defaults_str = "\n".join(defaults_str_rows)
 
         # Build contained symbols string
@@ -1763,8 +1799,10 @@ class Config(object):
 
     def _warn(self, msg, filename=None, linenr=None):
         """For printing warnings to stderr."""
+        msg = _build_msg("warning: " + msg, filename, linenr)
         if self.print_warnings:
-            _stderr_msg("warning: " + msg, filename, linenr)
+            sys.stderr.write(msg + "\n")
+        self._warnings.append(msg)
 
 class Item(object):
 
@@ -1912,26 +1950,25 @@ class Symbol(Item):
                     self.write_to_conf = (mode != "n")
 
                     if mode == "y":
-                        if choice.get_selection() is self:
-                            new_val = "y"
-                        else:
-                            new_val = "n"
+                        new_val = "y" if choice.get_selection() is self \
+                                  else "n"
                     elif mode == "m":
                         if self.user_val == "m" or self.user_val == "y":
                             new_val = "m"
 
             else:
                 # If the symbol is visible and has a user value, use that.
-                # Otherwise, look at defaults.
-                use_defaults = True
+                # Otherwise, look at defaults and weak reverse dependencies
+                # (implies).
+                use_defaults_and_weak_rev_deps = True
 
                 if vis != "n":
                     self.write_to_conf = True
                     if self.user_val is not None:
                         new_val = self.config._eval_min(self.user_val, vis)
-                        use_defaults = False
+                        use_defaults_and_weak_rev_deps = False
 
-                if use_defaults:
+                if use_defaults_and_weak_rev_deps:
                     for val_expr, cond_expr in self.def_exprs:
                         cond_eval = self.config._eval_expr(cond_expr)
                         if cond_eval != "n":
@@ -1940,14 +1977,25 @@ class Symbol(Item):
                                                             cond_eval)
                             break
 
+                    weak_rev_dep_val = \
+                        self.config._eval_expr(self.weak_rev_dep)
+                    if weak_rev_dep_val != "n":
+                        self.write_to_conf = True
+                        new_val = self.config._eval_max(new_val,
+                                                        weak_rev_dep_val)
+
                 # Reverse (select-related) dependencies take precedence
                 rev_dep_val = self.config._eval_expr(self.rev_dep)
                 if rev_dep_val != "n":
                     self.write_to_conf = True
                     new_val = self.config._eval_max(new_val, rev_dep_val)
 
-            # Promote "m" to "y" for booleans
-            if new_val == "m" and self.type == BOOL:
+            # We need to promote "m" to "y" in two circumstances:
+            #  1) If our type is boolean
+            #  2) If our weak_rev_dep (from IMPLY) is "y"
+            if new_val == "m" and \
+               (self.type == BOOL or
+                self.config._eval_expr(self.weak_rev_dep) == "y"):
                 new_val = "y"
 
         elif self.type == INT or self.type == HEX:
@@ -2182,6 +2230,13 @@ class Symbol(Item):
         get_referenced_symbols()."""
         return self.selected_syms
 
+    def get_implied_symbols(self):
+        """Returns the set() of all symbols X for which this symbol has an
+        'imply X' or 'imply X if Y' (regardless of whether Y is satisfied or
+        not). This is a subset of the symbols returned by
+        get_referenced_symbols()."""
+        return self.implied_syms
+
     def set_user_value(self, v):
         """Sets the user value of the symbol.
 
@@ -2297,16 +2352,18 @@ class Symbol(Item):
         self.ranges = [] # 'range' properties (for int and hex)
         self.help = None # Help text
         self.rev_dep = "n" # Reverse (select-related) dependencies
+        self.weak_rev_dep = "n" # Weak reverse (imply-related) dependencies
         self.config = None
         self.parent = None
 
         self.user_val = None # Value set by user
 
-        # The prompt, default value and select conditions without any
+        # The prompt, default value, select, and imply conditions without any
         # dependencies from menus and ifs propagated to them
         self.orig_prompts = []
         self.orig_def_exprs = []
         self.orig_selects = []
+        self.orig_implies = []
 
         # Dependencies inherited from containing menus and ifs
         self.deps_from_containing = None
@@ -2316,13 +2373,15 @@ class Symbol(Item):
         # The set of symbols selected by this symbol (see
         # get_selected_symbols())
         self.selected_syms = set()
+        # The set of symbols implied by this symbol (see get_implied_symbols())
+        self.implied_syms = set()
         # Like 'referenced_syms', but includes symbols from
         # dependencies inherited from enclosing menus and ifs
         self.all_referenced_syms = set()
 
-        # This records only dependencies specified with 'depends on'. Needed
-        # when determining actual choice items (hrrrr...). See also
-        # Choice._determine_actual_symbols().
+        # This records only dependencies from enclosing ifs and menus together
+        # with local 'depends on' dependencies. Needed when determining actual
+        # choice items (hrrrr...). See Choice._determine_actual_symbols().
         self.menu_dep = None
 
         # See Symbol.get_ref/def_locations().
@@ -2463,18 +2522,17 @@ class Symbol(Item):
             return
 
         if self.type == BOOL or self.type == TRISTATE:
-            if val == "y" or val == "m":
-                append_fn("CONFIG_{0}={1}".format(self.name, val))
-            else:
-                append_fn("# CONFIG_{0} is not set".format(self.name))
+            append_fn("{0}{1}={2}".format(self.config.config_prefix, self.name, val)
+                      if val == "y" or val == "m" else
+                      "# {0}{1} is not set".format(self.config.config_prefix, self.name))
 
         elif self.type == INT or self.type == HEX:
-            append_fn("CONFIG_{0}={1}".format(self.name, val))
+            append_fn("{0}{1}={2}".format(self.config.config_prefix, self.name, val))
 
         elif self.type == STRING:
             # Escape \ and "
-            append_fn('CONFIG_{0}="{1}"'
-                      .format(self.name,
+            append_fn('{0}{1}="{2}"'
+                      .format(self.config.config_prefix, self.name,
                               val.replace("\\", "\\\\").replace('"', '\\"')))
 
         else:
@@ -2628,7 +2686,7 @@ class Menu(Item):
         self.title = None
         self.dep_expr = None
         self.visible_if_expr = None
-        self.block = None
+        self.block = [] # List of contained items
         self.config = None
         self.parent = None
 
@@ -2845,7 +2903,7 @@ class Choice(Item):
         self.prompts = []
         self.def_exprs = [] # 'default' properties
         self.help = None # Help text
-        self.block = None # List of contained items
+        self.block = [] # List of contained items
         self.config = None
         self.parent = None
 
@@ -3170,7 +3228,13 @@ def _get_visibility(sc):
             vis = sc.config._eval_max(vis, cond_expr)
 
         if isinstance(sc, Symbol) and sc.is_choice_sym:
-            vis = sc.config._eval_min(vis, _get_visibility(sc.parent))
+            if sc.type == TRISTATE and vis == "m" and \
+               sc.parent.get_mode() == "y":
+                # Choice symbols with visibility "m" are not visible if the
+                # choice has mode "y"
+                vis = "n"
+            else:
+                vis = sc.config._eval_min(vis, _get_visibility(sc.parent))
 
         # Promote "m" to "y" if we're dealing with a non-tristate
         if vis == "m" and sc.type != TRISTATE:
@@ -3369,10 +3433,13 @@ def _clean_up_path(path):
         path = path[2:]
     return path.rstrip("/")
 
-def _stderr_msg(msg, filename, linenr):
+def _build_msg(msg, filename, linenr):
     if filename is not None:
-        sys.stderr.write("{0}:{1}: ".format(_clean_up_path(filename), linenr))
-    sys.stderr.write(msg + "\n")
+        msg = "{0}:{1}: ".format(_clean_up_path(filename), linenr) + msg
+    return msg
+
+def _stderr_msg(msg, filename, linenr):
+    sys.stderr.write(_build_msg(msg, filename, linenr) + "\n")
 
 def _tokenization_error(s, filename, linenr):
     loc = "" if filename is None else "{0}:{1}: ".format(filename, linenr)
@@ -3406,8 +3473,8 @@ def _internal_error(msg):
  T_OPTIONAL, T_PROMPT, T_DEFAULT,
  T_BOOL, T_TRISTATE, T_HEX, T_INT, T_STRING,
  T_DEF_BOOL, T_DEF_TRISTATE,
- T_SELECT, T_RANGE, T_OPTION, T_ALLNOCONFIG_Y, T_ENV,
- T_DEFCONFIG_LIST, T_MODULES, T_VISIBLE) = range(39)
+ T_SELECT, T_IMPLY, T_RANGE, T_OPTION, T_ALLNOCONFIG_Y, T_ENV,
+ T_DEFCONFIG_LIST, T_MODULES, T_VISIBLE) = range(40)
 
 # The leading underscore before the function assignments below prevent pydoc
 # from listing them. The constants could be hidden too, but they're fairly
@@ -3424,8 +3491,9 @@ _get_keyword = \
    "prompt": T_PROMPT, "default": T_DEFAULT, "bool": T_BOOL, "boolean": T_BOOL,
    "tristate": T_TRISTATE, "int": T_INT, "hex": T_HEX, "def_bool": T_DEF_BOOL,
    "def_tristate": T_DEF_TRISTATE, "string": T_STRING, "select": T_SELECT,
-   "range": T_RANGE, "option": T_OPTION, "allnoconfig_y": T_ALLNOCONFIG_Y,
-   "env": T_ENV, "defconfig_list": T_DEFCONFIG_LIST, "modules": T_MODULES,
+   "imply" : T_IMPLY, "range": T_RANGE, "option": T_OPTION,
+   "allnoconfig_y": T_ALLNOCONFIG_Y, "env": T_ENV,
+   "defconfig_list": T_DEFCONFIG_LIST, "modules": T_MODULES,
    "visible": T_VISIBLE}.get
 
 # Strings to use for True and False
@@ -3443,10 +3511,6 @@ _initial_token_re_match = re.compile(r"[^\w]*(\w+)\s*").match
 # Matches an identifier/keyword optionally preceded by whitespace. Also eats
 # trailing whitespace as an optimization.
 _id_keyword_re_match = re.compile(r"\s*([\w./-]+)\s*").match
-
-# Regular expressions for parsing .config files
-_set_re_match = re.compile(r"CONFIG_(\w+)=(.*)").match
-_unset_re_match = re.compile(r"# CONFIG_(\w+) is not set").match
 
 # Regular expression for finding $-references to symbols in strings
 _sym_ref_re_search = re.compile(r"\$[A-Za-z0-9_]+").search

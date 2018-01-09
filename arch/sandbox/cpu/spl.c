@@ -44,16 +44,5 @@ SPL_LOAD_IMAGE_METHOD("sandbox", 0, BOOT_DEVICE_BOARD, spl_board_load_image);
 
 void spl_board_init(void)
 {
-	struct udevice *dev;
-
 	preloader_console_init();
-
-	/*
-	* Scan all the devices so that we can output their platform data. See
-	* sandbox_spl_probe().
-	*/
-	for (uclass_first_device(UCLASS_MISC, &dev);
-	dev;
-	uclass_next_device(&dev))
-		;
 }

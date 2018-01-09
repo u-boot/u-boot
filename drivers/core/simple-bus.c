@@ -7,8 +7,6 @@
 #include <common.h>
 #include <dm.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct simple_bus_plat {
 	u32 base;
 	u32 size;
@@ -27,11 +25,13 @@ fdt_addr_t simple_bus_translate(struct udevice *dev, fdt_addr_t addr)
 
 static int simple_bus_post_bind(struct udevice *dev)
 {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	return 0;
+#else
 	u32 cell[3];
 	int ret;
 
-	ret = fdtdec_get_int_array(gd->fdt_blob, dev->of_offset, "ranges",
-				   cell, ARRAY_SIZE(cell));
+	ret = dev_read_u32_array(dev, "ranges", cell, ARRAY_SIZE(cell));
 	if (!ret) {
 		struct simple_bus_plat *plat = dev_get_uclass_platdata(dev);
 
@@ -41,6 +41,7 @@ static int simple_bus_post_bind(struct udevice *dev)
 	}
 
 	return dm_scan_fdt_dev(dev);
+#endif
 }
 
 UCLASS_DRIVER(simple_bus) = {

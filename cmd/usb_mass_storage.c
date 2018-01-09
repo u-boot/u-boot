@@ -44,7 +44,7 @@ static void ums_fini(void)
 	for (i = 0; i < ums_count; i++)
 		free((void *)ums[i].name);
 	free(ums);
-	ums = 0;
+	ums = NULL;
 	ums_count = 0;
 }
 
@@ -133,7 +133,7 @@ cleanup:
 	return ret;
 }
 
-int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
+static int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 			       int argc, char * const argv[])
 {
 	const char *usb_controller;
@@ -162,21 +162,21 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 	controller_index = (unsigned int)(simple_strtoul(
 				usb_controller,	NULL, 0));
 	if (board_usb_init(controller_index, USB_INIT_DEVICE)) {
-		error("Couldn't init USB controller.");
+		pr_err("Couldn't init USB controller.");
 		rc = CMD_RET_FAILURE;
 		goto cleanup_ums_init;
 	}
 
 	rc = fsg_init(ums, ums_count);
 	if (rc) {
-		error("fsg_init failed");
+		pr_err("fsg_init failed");
 		rc = CMD_RET_FAILURE;
 		goto cleanup_board;
 	}
 
 	rc = g_dnl_register("usb_dnl_ums");
 	if (rc) {
-		error("g_dnl_register failed");
+		pr_err("g_dnl_register failed");
 		rc = CMD_RET_FAILURE;
 		goto cleanup_board;
 	}

@@ -231,7 +231,7 @@ static int type_string_write_vars(const char *type_str, uint8_t *data,
 		default:
 			return -1;
 		}
-		if (setenv_ulong(*vars, value))
+		if (env_set_ulong(*vars, value))
 			return -1;
 	}
 
@@ -592,6 +592,45 @@ static int do_tpm_oiap(cmd_tbl_t *cmdtp, int flag,
 	return report_return_code(err);
 }
 
+#ifdef CONFIG_TPM_LOAD_KEY_BY_SHA1
+static int do_tpm_load_key_by_sha1(cmd_tbl_t *cmdtp, int flag, int argc, char *
+				   const argv[])
+{
+	uint32_t parent_handle = 0;
+	uint32_t key_len, key_handle, err;
+	uint8_t usage_auth[DIGEST_LENGTH];
+	uint8_t parent_hash[DIGEST_LENGTH];
+	void *key;
+
+	if (argc < 5)
+		return CMD_RET_USAGE;
+
+	parse_byte_string(argv[1], parent_hash, NULL);
+	key = (void *)simple_strtoul(argv[2], NULL, 0);
+	key_len = simple_strtoul(argv[3], NULL, 0);
+	if (strlen(argv[4]) != 2 * DIGEST_LENGTH)
+		return CMD_RET_FAILURE;
+	parse_byte_string(argv[4], usage_auth, NULL);
+
+	err = tpm_find_key_sha1(usage_auth, parent_hash, &parent_handle);
+	if (err) {
+		printf("Could not find matching parent key (err = %d)\n", err);
+		return CMD_RET_FAILURE;
+	}
+
+	printf("Found parent key %08x\n", parent_handle);
+
+	err = tpm_load_key2_oiap(parent_handle, key, key_len, usage_auth,
+				 &key_handle);
+	if (!err) {
+		printf("Key handle is 0x%x\n", key_handle);
+		env_set_hex("key_handle", key_handle);
+	}
+
+	return report_return_code(err);
+}
+#endif /* CONFIG_TPM_LOAD_KEY_BY_SHA1 */
+
 static int do_tpm_load_key2_oiap(cmd_tbl_t *cmdtp, int flag,
 		int argc, char * const argv[])
 {
@@ -646,6 +685,135 @@ TPM_COMMAND_NO_ARG(tpm_end_oiap)
 
 #endif /* CONFIG_TPM_AUTH_SESSIONS */
 
+#ifdef CONFIG_TPM_FLUSH_RESOURCES
+static int do_tpm_flush(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
+{
+	int type = 0;
+
+	if (argc != 3)
+		return CMD_RET_USAGE;
+
+	if (!strcasecmp(argv[1], "key"))
+		type = TPM_RT_KEY;
+	else if (!strcasecmp(argv[1], "auth"))
+		type = TPM_RT_AUTH;
+	else if (!strcasecmp(argv[1], "hash"))
+		type = TPM_RT_HASH;
+	else if (!strcasecmp(argv[1], "trans"))
+		type = TPM_RT_TRANS;
+	else if (!strcasecmp(argv[1], "context"))
+		type = TPM_RT_CONTEXT;
+	else if (!strcasecmp(argv[1], "counter"))
+		type = TPM_RT_COUNTER;
+	else if (!strcasecmp(argv[1], "delegate"))
+		type = TPM_RT_DELEGATE;
+	else if (!strcasecmp(argv[1], "daa_tpm"))
+		type = TPM_RT_DAA_TPM;
+	else if (!strcasecmp(argv[1], "daa_v0"))
+		type = TPM_RT_DAA_V0;
+	else if (!strcasecmp(argv[1], "daa_v1"))
+		type = TPM_RT_DAA_V1;
+
+	if (!type) {
+		printf("Resource type %s unknown.\n", argv[1]);
+		return -1;
+	}
+
+	if (!strcasecmp(argv[2], "all")) {
+		uint16_t res_count;
+		uint8_t buf[288];
+		uint8_t *ptr;
+		int err;
+		uint i;
+
+		/* fetch list of already loaded resources in the TPM */
+		err = tpm_get_capability(TPM_CAP_HANDLE, type, buf,
+					 sizeof(buf));
+		if (err) {
+			printf("tpm_get_capability returned error %d.\n", err);
+			return -1;
+		}
+		res_count = get_unaligned_be16(buf);
+		ptr = buf + 2;
+		for (i = 0; i < res_count; ++i, ptr += 4)
+			tpm_flush_specific(get_unaligned_be32(ptr), type);
+	} else {
+		uint32_t handle = simple_strtoul(argv[2], NULL, 0);
+
+		if (!handle) {
+			printf("Illegal resource handle %s\n", argv[2]);
+			return -1;
+		}
+		tpm_flush_specific(cpu_to_be32(handle), type);
+	}
+
+	return 0;
+}
+#endif /* CONFIG_TPM_FLUSH_RESOURCES */
+
+#ifdef CONFIG_TPM_LIST_RESOURCES
+static int do_tpm_list(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
+{
+	int type = 0;
+	uint16_t res_count;
+	uint8_t buf[288];
+	uint8_t *ptr;
+	int err;
+	uint i;
+
+	if (argc != 2)
+		return CMD_RET_USAGE;
+
+	if (!strcasecmp(argv[1], "key"))
+		type = TPM_RT_KEY;
+	else if (!strcasecmp(argv[1], "auth"))
+		type = TPM_RT_AUTH;
+	else if (!strcasecmp(argv[1], "hash"))
+		type = TPM_RT_HASH;
+	else if (!strcasecmp(argv[1], "trans"))
+		type = TPM_RT_TRANS;
+	else if (!strcasecmp(argv[1], "context"))
+		type = TPM_RT_CONTEXT;
+	else if (!strcasecmp(argv[1], "counter"))
+		type = TPM_RT_COUNTER;
+	else if (!strcasecmp(argv[1], "delegate"))
+		type = TPM_RT_DELEGATE;
+	else if (!strcasecmp(argv[1], "daa_tpm"))
+		type = TPM_RT_DAA_TPM;
+	else if (!strcasecmp(argv[1], "daa_v0"))
+		type = TPM_RT_DAA_V0;
+	else if (!strcasecmp(argv[1], "daa_v1"))
+		type = TPM_RT_DAA_V1;
+
+	if (!type) {
+		printf("Resource type %s unknown.\n", argv[1]);
+		return -1;
+	}
+
+	/* fetch list of already loaded resources in the TPM */
+	err = tpm_get_capability(TPM_CAP_HANDLE, type, buf,
+				 sizeof(buf));
+	if (err) {
+		printf("tpm_get_capability returned error %d.\n", err);
+		return -1;
+	}
+	res_count = get_unaligned_be16(buf);
+	ptr = buf + 2;
+
+	printf("Resources of type %s (%02x):\n", argv[1], type);
+	if (!res_count) {
+		puts("None\n");
+	} else {
+		for (i = 0; i < res_count; ++i, ptr += 4)
+			printf("Index %d: %08x\n", i, get_unaligned_be32(ptr));
+	}
+
+	return 0;
+}
+#endif /* CONFIG_TPM_LIST_RESOURCES */
+
 #define MAKE_TPM_CMD_ENTRY(cmd) \
 	U_BOOT_CMD_MKENT(cmd, 0, 1, do_tpm_ ## cmd, "", "")
 
@@ -698,9 +866,21 @@ static cmd_tbl_t tpm_commands[] = {
 			 do_tpm_end_oiap, "", ""),
 	U_BOOT_CMD_MKENT(load_key2_oiap, 0, 1,
 			 do_tpm_load_key2_oiap, "", ""),
+#ifdef CONFIG_TPM_LOAD_KEY_BY_SHA1
+	U_BOOT_CMD_MKENT(load_key_by_sha1, 0, 1,
+			 do_tpm_load_key_by_sha1, "", ""),
+#endif /* CONFIG_TPM_LOAD_KEY_BY_SHA1 */
 	U_BOOT_CMD_MKENT(get_pub_key_oiap, 0, 1,
 			 do_tpm_get_pub_key_oiap, "", ""),
 #endif /* CONFIG_TPM_AUTH_SESSIONS */
+#ifdef CONFIG_TPM_FLUSH_RESOURCES
+	U_BOOT_CMD_MKENT(flush, 0, 1,
+			 do_tpm_flush, "", ""),
+#endif /* CONFIG_TPM_FLUSH_RESOURCES */
+#ifdef CONFIG_TPM_LIST_RESOURCES
+	U_BOOT_CMD_MKENT(list, 0, 1,
+			 do_tpm_list, "", ""),
+#endif /* CONFIG_TPM_LIST_RESOURCES */
 };
 
 static int do_tpm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -750,12 +930,34 @@ U_BOOT_CMD(tpm, CONFIG_SYS_MAXARGS, 1, do_tpm,
 "  get_capability cap_area sub_cap addr count\n"
 "    - Read <count> bytes of TPM capability indexed by <cap_area> and\n"
 "      <sub_cap> to memory address <addr>.\n"
+#if defined(CONFIG_TPM_FLUSH_RESOURCES) || defined(CONFIG_TPM_LIST_RESOURCES)
+"Resource management functions\n"
+#endif
+#ifdef CONFIG_TPM_FLUSH_RESOURCES
+"  flush resource_type id\n"
+"    - flushes a resource of type <resource_type> (may be one of key, auth,\n"
+"      hash, trans, context, counter, delegate, daa_tpm, daa_v0, daa_v1),\n"
+"      and id <id> from the TPM. Use an <id> of \"all\" to flush all\n"
+"      resources of that type.\n"
+#endif /* CONFIG_TPM_FLUSH_RESOURCES */
+#ifdef CONFIG_TPM_LIST_RESOURCES
+"  list resource_type\n"
+"    - lists resources of type <resource_type> (may be one of key, auth,\n"
+"      hash, trans, context, counter, delegate, daa_tpm, daa_v0, daa_v1),\n"
+"      contained in the TPM.\n"
+#endif /* CONFIG_TPM_LIST_RESOURCES */
 #ifdef CONFIG_TPM_AUTH_SESSIONS
 "Storage functions\n"
 "  loadkey2_oiap parent_handle key_addr key_len usage_auth\n"
 "    - loads a key data from memory address <key_addr>, <key_len> bytes\n"
 "      into TPM using the parent key <parent_handle> with authorization\n"
 "      <usage_auth> (20 bytes hex string).\n"
+#ifdef CONFIG_TPM_LOAD_KEY_BY_SHA1
+"  load_key_by_sha1 parent_hash key_addr key_len usage_auth\n"
+"    - loads a key data from memory address <key_addr>, <key_len> bytes\n"
+"      into TPM using the parent hash <parent_hash> (20 bytes hex string)\n"
+"      with authorization <usage_auth> (20 bytes hex string).\n"
+#endif /* CONFIG_TPM_LOAD_KEY_BY_SHA1 */
 "  get_pub_key_oiap key_handle usage_auth\n"
 "    - get the public key portion of a loaded key <key_handle> using\n"
 "      authorization <usage auth> (20 bytes hex string)\n"

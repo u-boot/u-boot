@@ -122,6 +122,10 @@
 #define SCLK_DPHY_RX0_CFG		165
 #define SCLK_RMII_SRC			166
 #define SCLK_PCIEPHY_REF100M		167
+#define SCLK_USBPHY0_480M_SRC		168
+#define SCLK_USBPHY1_480M_SRC		169
+#define SCLK_DDRCLK			170
+#define SCLK_TESTOUT2			171
 
 #define DCLK_VOP0			180
 #define DCLK_VOP1			181
@@ -589,13 +593,13 @@
 #define SRST_P_SPI0			214
 #define SRST_P_SPI1			215
 #define SRST_P_SPI2			216
-#define SRST_P_SPI3			217
-#define SRST_P_SPI4			218
+#define SRST_P_SPI4			217
+#define SRST_P_SPI5			218
 #define SRST_SPI0			219
 #define SRST_SPI1			220
 #define SRST_SPI2			221
-#define SRST_SPI3			222
-#define SRST_SPI4			223
+#define SRST_SPI4			222
+#define SRST_SPI5			223
 
 /* cru_softrst_con14 */
 #define SRST_I2S0_8CH			224
@@ -717,8 +721,8 @@
 #define SRST_H_CM0S_NOC			3
 #define SRST_DBG_CM0S			4
 #define SRST_PO_CM0S			5
-#define SRST_P_SPI6			6
-#define SRST_SPI6			7
+#define SRST_P_SPI3			6
+#define SRST_SPI3			7
 #define SRST_P_TIMER_0_1		8
 #define SRST_P_TIMER_0			9
 #define SRST_P_TIMER_1			10

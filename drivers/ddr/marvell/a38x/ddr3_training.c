@@ -308,6 +308,7 @@ int hws_ddr3_tip_init_controller(u32 dev_num, struct init_cntr_param *init_cntr_
 	enum hws_speed_bin speed_bin_index = SPEED_BIN_DDR_2133N;
 	enum hws_mem_size memory_size = MEM_2G;
 	enum hws_ddr_freq freq = init_freq;
+	enum hws_timing timing;
 	u32 cs_mask = 0;
 	u32 cl_value = 0, cwl_val = 0;
 	u32 refresh_interval_cnt = 0, bus_cnt = 0, adll_tap = 0;
@@ -569,8 +570,13 @@ int hws_ddr3_tip_init_controller(u32 dev_num, struct init_cntr_param *init_cntr_
 				      DUNIT_CONTROL_HIGH_REG,
 				      (init_cntr_prm->msys_init << 7), (1 << 7)));
 
+			timing = tm->interface_params[if_id].timing;
+
 			if (mode2_t != 0xff) {
 				t2t = mode2_t;
+			} else if (timing != HWS_TIM_DEFAULT) {
+				/* Board topology map is forcing timing */
+				t2t = (timing == HWS_TIM_2T) ? 1 : 0;
 			} else {
 				/* calculate number of CS (per interface) */
 				CHECK_STATUS(calc_cs_num

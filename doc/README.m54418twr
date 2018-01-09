@@ -13,6 +13,8 @@ Changed files:
 - board/freescale/m54418twr/Makefile	Makefile
 - board/freescale/m54418twr/config.mk	config make
 - board/freescale/m54418twr/u-boot.lds	Linker description
+- board/freescale/m54418twr/sbf_dram_init.S
+                                        DDR/SDRAM initialization
 
 - arch/m68k/cpu/mcf5445x/cpu.c		cpu specific code
 - arch/m68k/cpu/mcf5445x/cpu_init.c	Flexbus ChipSelect, Mux pins setup, icache and RTC extra regs

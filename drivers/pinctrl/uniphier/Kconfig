@@ -3,57 +3,57 @@ if ARCH_UNIPHIER
 config PINCTRL_UNIPHIER
 	bool
 
-config PINCTRL_UNIPHIER_SLD3
-	bool "UniPhier PH1-sLD3 SoC pinctrl driver"
-	depends on ARCH_UNIPHIER_SLD3
-	default y
-	select PINCTRL_UNIPHIER
-
 config PINCTRL_UNIPHIER_LD4
-	bool "UniPhier PH1-LD4 SoC pinctrl driver"
+	bool "UniPhier LD4 SoC pinctrl driver"
 	depends on ARCH_UNIPHIER_LD4
 	default y
 	select PINCTRL_UNIPHIER
 
 config PINCTRL_UNIPHIER_PRO4
-	bool "UniPhier PH1-Pro4 SoC pinctrl driver"
+	bool "UniPhier Pro4 SoC pinctrl driver"
 	depends on ARCH_UNIPHIER_PRO4
 	default y
 	select PINCTRL_UNIPHIER
 
 config PINCTRL_UNIPHIER_SLD8
-	bool "UniPhier PH1-sLD8 SoC pinctrl driver"
+	bool "UniPhier sLD8 SoC pinctrl driver"
 	depends on ARCH_UNIPHIER_SLD8
 	default y
 	select PINCTRL_UNIPHIER
 
 config PINCTRL_UNIPHIER_PRO5
-	bool "UniPhier PH1-Pro5 SoC pinctrl driver"
+	bool "UniPhier Pro5 SoC pinctrl driver"
 	depends on ARCH_UNIPHIER_PRO5
 	default y
 	select PINCTRL_UNIPHIER
 
 config PINCTRL_UNIPHIER_PXS2
-	bool "UniPhier ProXstream2 SoC pinctrl driver"
+	bool "UniPhier PXs2 SoC pinctrl driver"
 	depends on ARCH_UNIPHIER_PXS2
 	default y
 	select PINCTRL_UNIPHIER
 
 config PINCTRL_UNIPHIER_LD6B
-	bool "UniPhier PH1-LD6b SoC pinctrl driver"
+	bool "UniPhier LD6b SoC pinctrl driver"
 	depends on ARCH_UNIPHIER_LD6B
 	default y
 	select PINCTRL_UNIPHIER
 
 config PINCTRL_UNIPHIER_LD11
-	bool "UniPhier PH1-LD11 SoC pinctrl driver"
+	bool "UniPhier LD11 SoC pinctrl driver"
 	depends on ARCH_UNIPHIER_LD11
 	default y
 	select PINCTRL_UNIPHIER
 
 config PINCTRL_UNIPHIER_LD20
-	bool "UniPhier PH1-LD20 SoC pinctrl driver"
+	bool "UniPhier LD20 SoC pinctrl driver"
 	depends on ARCH_UNIPHIER_LD20
+	default y
+	select PINCTRL_UNIPHIER
+
+config PINCTRL_UNIPHIER_PXS3
+	bool "UniPhier PXs3 SoC pinctrl driver"
+	depends on ARCH_UNIPHIER_PXS3
 	default y
 	select PINCTRL_UNIPHIER
 

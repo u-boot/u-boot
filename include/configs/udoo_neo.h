@@ -18,8 +18,6 @@
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(3 * SZ_1M)
-#define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_MXC_UART
 
 /* MMC Configuration */
@@ -32,10 +30,12 @@
 /* Linux only */
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"console=ttymxc0,115200\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdtfile=undefined\0" \
 	"fdt_addr=0x83000000\0" \
+	"fdt_addr_r=0x83000000\0" \
 	"ip_dyn=yes\0" \
 	"mmcdev=0\0" \
 	"mmcrootfstype=ext4\0" \
@@ -49,11 +49,10 @@
 		"if test $board_name = EXTENDED; then " \
 			"setenv fdtfile imx6sx-udoo-neo-extended.dtb; fi; " \
 		"if test $fdtfile = UNDEFINED; then " \
-			"echo WARNING: Could not determine dtb to use; fi; \0" \
+			"echo WARNING: Could not determine dtb to use; fi\0" \
 	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
 	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"ramdisk_addr_r=0x83000000\0" \
-	"ramdiskaddr=0x83000000\0" \
+	"ramdisk_addr_r=0x84000000\0" \
 	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
 	BOOTENV
 
@@ -61,16 +60,11 @@
 	func(MMC, mmc, 0) \
 	func(DHCP, dhcp, na)
 
-#define CONFIG_BOOTCOMMAND \
-	"run findfdt; " \
-	"run distro_bootcmd"
-
 #include <config_distro_bootcmd.h>
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x10000)
-#define CONFIG_STACKSIZE		SZ_128K
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -87,7 +81,6 @@
 /* Environment organization */
 #define CONFIG_ENV_OFFSET		(8 * SZ_64K)
 #define CONFIG_ENV_SIZE			SZ_8K
-#define CONFIG_ENV_IS_IN_MMC
 
 #define CONFIG_IMX_THERMAL
 
@@ -114,8 +107,5 @@
 
 #define CONFIG_FEC_XCV_TYPE             RMII
 #define CONFIG_ETHPRIME                 "FEC0"
-
-#define CONFIG_PHYLIB
-#define CONFIG_PHY_MICREL
 
 #endif				/* __CONFIG_H */

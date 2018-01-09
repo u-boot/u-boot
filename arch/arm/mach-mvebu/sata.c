@@ -35,7 +35,7 @@ static int mvebu_ahci_probe(struct udevice *dev)
 	 */
 	board_ahci_enable();
 
-	ahci_init(dev_get_addr_ptr(dev));
+	ahci_init(devfdt_get_addr_ptr(dev));
 
 	return 0;
 }

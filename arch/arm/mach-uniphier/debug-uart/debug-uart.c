@@ -32,45 +32,40 @@ void _debug_uart_init(void)
 	void __iomem *base = (void __iomem *)CONFIG_DEBUG_UART_BASE;
 	unsigned int divisor;
 
-	switch (uniphier_get_soc_type()) {
-#if defined(CONFIG_ARCH_UNIPHIER_SLD3)
-	case SOC_UNIPHIER_SLD3:
-		divisor = uniphier_sld3_debug_uart_init();
-		break;
-#endif
+	switch (uniphier_get_soc_id()) {
 #if defined(CONFIG_ARCH_UNIPHIER_LD4)
-	case SOC_UNIPHIER_LD4:
+	case UNIPHIER_LD4_ID:
 		divisor = uniphier_ld4_debug_uart_init();
 		break;
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO4)
-	case SOC_UNIPHIER_PRO4:
+	case UNIPHIER_PRO4_ID:
 		divisor = uniphier_pro4_debug_uart_init();
 		break;
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_SLD8)
-	case SOC_UNIPHIER_SLD8:
+	case UNIPHIER_SLD8_ID:
 		divisor = uniphier_sld8_debug_uart_init();
 		break;
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO5)
-	case SOC_UNIPHIER_PRO5:
+	case UNIPHIER_PRO5_ID:
 		divisor = uniphier_pro5_debug_uart_init();
 		break;
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PXS2)
-	case SOC_UNIPHIER_PXS2:
+	case UNIPHIER_PXS2_ID:
 		divisor = uniphier_pxs2_debug_uart_init();
 		break;
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD6B)
-	case SOC_UNIPHIER_LD6B:
+	case UNIPHIER_LD6B_ID:
 		divisor = uniphier_ld6b_debug_uart_init();
 		break;
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD11) || defined(CONFIG_ARCH_UNIPHIER_LD20)
-	case SOC_UNIPHIER_LD11:
-	case SOC_UNIPHIER_LD20:
+	case UNIPHIER_LD11_ID:
+	case UNIPHIER_LD20_ID:
 		divisor = uniphier_ld20_debug_uart_init();
 		break;
 #endif

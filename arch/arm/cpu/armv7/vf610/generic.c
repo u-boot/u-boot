@@ -9,7 +9,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
-#include <asm/imx-common/sys_proto.h>
+#include <asm/mach-imx/sys_proto.h>
 #include <netdev.h>
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
@@ -204,6 +204,11 @@ static u32 get_dspi_clk(void)
 	return get_ipg_clk();
 }
 
+u32 get_lpuart_clk(void)
+{
+	return get_uart_clk();
+}
+
 unsigned int mxc_get_clock(enum mxc_clock clk)
 {
 	switch (clk) {
@@ -324,7 +329,7 @@ int arch_misc_init(void)
 
 	strcpy(soc, "vf");
 	strcat(soc, soc_type);
-	setenv("soc", soc);
+	env_set("soc", soc);
 
 	return 0;
 }

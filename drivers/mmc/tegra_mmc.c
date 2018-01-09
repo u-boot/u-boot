@@ -9,14 +9,19 @@
 
 #include <bouncebuf.h>
 #include <common.h>
-#include <dm/device.h>
+#include <dm.h>
 #include <errno.h>
+#include <mmc.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/tegra_mmc.h>
-#include <mmc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+struct tegra_mmc_plat {
+	struct mmc_config cfg;
+	struct mmc mmc;
+};
 
 struct tegra_mmc_priv {
 	struct tegra_mmc *reg;
@@ -27,8 +32,6 @@ struct tegra_mmc_priv {
 	struct gpio_desc wp_gpio;	/* Write Protect GPIO */
 	unsigned int version;	/* SDHCI spec. version */
 	unsigned int clock;	/* Current clock (MHz) */
-	struct mmc_config cfg;	/* mmc configuration */
-	struct mmc *mmc;
 };
 
 static void tegra_mmc_set_power(struct tegra_mmc_priv *priv,
@@ -151,11 +154,11 @@ static int tegra_mmc_wait_inhibit(struct tegra_mmc_priv *priv,
 	return 0;
 }
 
-static int tegra_mmc_send_cmd_bounced(struct mmc *mmc, struct mmc_cmd *cmd,
+static int tegra_mmc_send_cmd_bounced(struct udevice *dev, struct mmc_cmd *cmd,
 				      struct mmc_data *data,
 				      struct bounce_buffer *bbstate)
 {
-	struct tegra_mmc_priv *priv = mmc->priv;
+	struct tegra_mmc_priv *priv = dev_get_priv(dev);
 	int flags, i;
 	int result;
 	unsigned int mask = 0;
@@ -324,7 +327,7 @@ static int tegra_mmc_send_cmd_bounced(struct mmc *mmc, struct mmc_cmd *cmd,
 	return 0;
 }
 
-static int tegra_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+static int tegra_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 			      struct mmc_data *data)
 {
 	void *buf;
@@ -346,7 +349,7 @@ static int tegra_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		bounce_buffer_start(&bbstate, buf, len, bbflags);
 	}
 
-	ret = tegra_mmc_send_cmd_bounced(mmc, cmd, data, &bbstate);
+	ret = tegra_mmc_send_cmd_bounced(dev, cmd, data, &bbstate);
 
 	if (data)
 		bounce_buffer_stop(&bbstate);
@@ -408,9 +411,10 @@ out:
 	priv->clock = clock;
 }
 
-static void tegra_mmc_set_ios(struct mmc *mmc)
+static int tegra_mmc_set_ios(struct udevice *dev)
 {
-	struct tegra_mmc_priv *priv = mmc->priv;
+	struct tegra_mmc_priv *priv = dev_get_priv(dev);
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
 	unsigned char ctrl;
 	debug(" mmc_set_ios called\n");
 
@@ -434,10 +438,12 @@ static void tegra_mmc_set_ios(struct mmc *mmc)
 	else if (mmc->bus_width == 4)
 		ctrl |= (1 << 1);
 	else
-		ctrl &= ~(1 << 1);
+		ctrl &= ~(1 << 1 | 1 << 5);
 
 	writeb(ctrl, &priv->reg->hostctl);
 	debug("mmc_set_ios: hostctl = %08X\n", ctrl);
+
+	return 0;
 }
 
 static void tegra_mmc_pad_init(struct tegra_mmc_priv *priv)
@@ -503,13 +509,30 @@ static void tegra_mmc_reset(struct tegra_mmc_priv *priv, struct mmc *mmc)
 	tegra_mmc_pad_init(priv);
 }
 
-static int tegra_mmc_init(struct mmc *mmc)
+static int tegra_mmc_init(struct udevice *dev)
 {
-	struct tegra_mmc_priv *priv = mmc->priv;
+	struct tegra_mmc_priv *priv = dev_get_priv(dev);
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
 	unsigned int mask;
 	debug(" tegra_mmc_init called\n");
 
 	tegra_mmc_reset(priv, mmc);
+
+#if defined(CONFIG_TEGRA124_MMC_DISABLE_EXT_LOOPBACK)
+	/*
+	 * Disable the external clock loopback and use the internal one on
+	 * SDMMC3 as per the SDMMC_VENDOR_MISC_CNTRL_0 register's SDMMC_SPARE1
+	 * bits being set to 0xfffd according to the TRM.
+	 *
+	 * TODO(marcel.ziswiler@toradex.com): Move to device tree controlled
+	 * approach once proper kernel integration made it mainline.
+	 */
+	if (priv->reg == (void *)0x700b0400) {
+		mask = readl(&priv->reg->venmiscctl);
+		mask &= ~TEGRA_MMC_MISCON_ENABLE_EXT_LOOPBACK;
+		writel(mask, &priv->reg->venmiscctl);
+	}
+#endif
 
 	priv->version = readw(&priv->reg->hcver);
 	debug("host version = %x\n", priv->version);
@@ -548,9 +571,9 @@ static int tegra_mmc_init(struct mmc *mmc)
 	return 0;
 }
 
-static int tegra_mmc_getcd(struct mmc *mmc)
+static int tegra_mmc_getcd(struct udevice *dev)
 {
-	struct tegra_mmc_priv *priv = mmc->priv;
+	struct tegra_mmc_priv *priv = dev_get_priv(dev);
 
 	debug("tegra_mmc_getcd called\n");
 
@@ -560,32 +583,31 @@ static int tegra_mmc_getcd(struct mmc *mmc)
 	return 1;
 }
 
-static const struct mmc_ops tegra_mmc_ops = {
+static const struct dm_mmc_ops tegra_mmc_ops = {
 	.send_cmd	= tegra_mmc_send_cmd,
 	.set_ios	= tegra_mmc_set_ios,
-	.init		= tegra_mmc_init,
-	.getcd		= tegra_mmc_getcd,
+	.get_cd		= tegra_mmc_getcd,
 };
 
 static int tegra_mmc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct tegra_mmc_plat *plat = dev_get_platdata(dev);
 	struct tegra_mmc_priv *priv = dev_get_priv(dev);
+	struct mmc_config *cfg = &plat->cfg;
 	int bus_width, ret;
 
-	priv->cfg.name = "Tegra SD/MMC";
-	priv->cfg.ops = &tegra_mmc_ops;
+	cfg->name = dev->name;
 
-	bus_width = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "bus-width",
-				   1);
+	bus_width = dev_read_u32_default(dev, "bus-width", 1);
 
-	priv->cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
-	priv->cfg.host_caps = 0;
+	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
+	cfg->host_caps = 0;
 	if (bus_width == 8)
-		priv->cfg.host_caps |= MMC_MODE_8BIT;
+		cfg->host_caps |= MMC_MODE_8BIT;
 	if (bus_width >= 4)
-		priv->cfg.host_caps |= MMC_MODE_4BIT;
-	priv->cfg.host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
+		cfg->host_caps |= MMC_MODE_4BIT;
+	cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
 	/*
 	 * min freq is for card identification, and is the highest
@@ -593,12 +615,12 @@ static int tegra_mmc_probe(struct udevice *dev)
 	 * max freq is highest HS eMMC clock as per the SD/MMC spec
 	 *  (actually 52MHz)
 	 */
-	priv->cfg.f_min = 375000;
-	priv->cfg.f_max = 48000000;
+	cfg->f_min = 375000;
+	cfg->f_max = 48000000;
 
-	priv->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
+	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
-	priv->reg = (void *)dev_get_addr(dev);
+	priv->reg = (void *)dev_read_addr(dev);
 
 	ret = reset_get_by_name(dev, "sdhci", &priv->reset_ctl);
 	if (ret) {
@@ -625,23 +647,23 @@ static int tegra_mmc_probe(struct udevice *dev)
 		return ret;
 
 	/* These GPIOs are optional */
-	gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
-			     GPIOD_IS_IN);
-	gpio_request_by_name(dev, "wp-gpios", 0, &priv->wp_gpio,
-			     GPIOD_IS_IN);
-	gpio_request_by_name(dev, "power-gpios", 0,
-			     &priv->pwr_gpio, GPIOD_IS_OUT);
+	gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio, GPIOD_IS_IN);
+	gpio_request_by_name(dev, "wp-gpios", 0, &priv->wp_gpio, GPIOD_IS_IN);
+	gpio_request_by_name(dev, "power-gpios", 0, &priv->pwr_gpio,
+			     GPIOD_IS_OUT);
 	if (dm_gpio_is_valid(&priv->pwr_gpio))
 		dm_gpio_set_value(&priv->pwr_gpio, 1);
 
-	priv->mmc = mmc_create(&priv->cfg, priv);
-	if (priv->mmc == NULL)
-		return -1;
+	upriv->mmc = &plat->mmc;
 
-	priv->mmc->dev = dev;
-	upriv->mmc = priv->mmc;
+	return tegra_mmc_init(dev);
+}
 
-	return 0;
+static int tegra_mmc_bind(struct udevice *dev)
+{
+	struct tegra_mmc_plat *plat = dev_get_platdata(dev);
+
+	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
 
 static const struct udevice_id tegra_mmc_ids[] = {
@@ -658,6 +680,9 @@ U_BOOT_DRIVER(tegra_mmc_drv) = {
 	.name		= "tegra_mmc",
 	.id		= UCLASS_MMC,
 	.of_match	= tegra_mmc_ids,
+	.bind		= tegra_mmc_bind,
 	.probe		= tegra_mmc_probe,
+	.ops		= &tegra_mmc_ops,
+	.platdata_auto_alloc_size = sizeof(struct tegra_mmc_plat),
 	.priv_auto_alloc_size = sizeof(struct tegra_mmc_priv),
 };

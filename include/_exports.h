@@ -31,8 +31,8 @@
 	EXPORT_FUNC(vprintf, int, vprintf, const char *, va_list)
 	EXPORT_FUNC(do_reset, int, do_reset, cmd_tbl_t *,
 		    int , int , char * const [])
-	EXPORT_FUNC(getenv, char  *, getenv, const char*)
-	EXPORT_FUNC(setenv, int, setenv, const char *, const char *)
+	EXPORT_FUNC(env_get, char  *, env_get, const char*)
+	EXPORT_FUNC(env_set, int, env_set, const char *, const char *)
 	EXPORT_FUNC(simple_strtoul, unsigned long, simple_strtoul,
 		    const char *, char **, unsigned int)
 	EXPORT_FUNC(strict_strtoul, int, strict_strtoul,

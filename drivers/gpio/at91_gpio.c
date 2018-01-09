@@ -10,6 +10,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <asm/io.h>
 #include <linux/sizes.h>
@@ -59,11 +60,6 @@ int at91_set_pio_pullup(unsigned port, unsigned pin, int use_pullup)
 {
 	struct at91_port *at91_port = at91_pio_get_port(port);
 
-#if defined(CPU_HAS_PIO3)
-	if (use_pullup)
-		at91_set_pio_pulldown(port, pin, 0);
-#endif
-
 	if (at91_port && (pin < GPIO_PER_BANK))
 		at91_set_port_pullup(at91_port, pin, use_pullup);
 
@@ -100,14 +96,7 @@ int at91_set_a_periph(unsigned port, unsigned pin, int use_pullup)
 		mask = 1 << pin;
 		writel(mask, &at91_port->idr);
 		at91_set_pio_pullup(port, pin, use_pullup);
-#if defined(CPU_HAS_PIO3)
-		writel(readl(&at91_port->abcdsr1) & ~mask,
-		       &at91_port->abcdsr1);
-		writel(readl(&at91_port->abcdsr2) & ~mask,
-		       &at91_port->abcdsr2);
-#else
-		writel(mask, &at91_port->asr);
-#endif
+		writel(mask, &at91_port->mux.pio2.asr);
 		writel(mask, &at91_port->pdr);
 	}
 
@@ -126,25 +115,17 @@ int at91_set_b_periph(unsigned port, unsigned pin, int use_pullup)
 		mask = 1 << pin;
 		writel(mask, &at91_port->idr);
 		at91_set_pio_pullup(port, pin, use_pullup);
-#if defined(CPU_HAS_PIO3)
-		writel(readl(&at91_port->abcdsr1) | mask,
-		       &at91_port->abcdsr1);
-		writel(readl(&at91_port->abcdsr2) & ~mask,
-		       &at91_port->abcdsr2);
-#else
-		writel(mask, &at91_port->bsr);
-#endif
+		writel(mask, &at91_port->mux.pio2.bsr);
 		writel(mask, &at91_port->pdr);
 	}
 
 	return 0;
 }
 
-#if defined(CPU_HAS_PIO3)
 /*
- * mux the pin to the "C" internal peripheral role.
+ * mux the pin to the "A" internal peripheral role.
  */
-int at91_set_c_periph(unsigned port, unsigned pin, int use_pullup)
+int at91_pio3_set_a_periph(unsigned port, unsigned pin, int use_pullup)
 {
 	struct at91_port *at91_port = at91_pio_get_port(port);
 	u32 mask;
@@ -153,10 +134,55 @@ int at91_set_c_periph(unsigned port, unsigned pin, int use_pullup)
 		mask = 1 << pin;
 		writel(mask, &at91_port->idr);
 		at91_set_pio_pullup(port, pin, use_pullup);
-		writel(readl(&at91_port->abcdsr1) & ~mask,
-		       &at91_port->abcdsr1);
-		writel(readl(&at91_port->abcdsr2) | mask,
-		       &at91_port->abcdsr2);
+		writel(readl(&at91_port->mux.pio3.abcdsr1) & ~mask,
+		       &at91_port->mux.pio3.abcdsr1);
+		writel(readl(&at91_port->mux.pio3.abcdsr2) & ~mask,
+		       &at91_port->mux.pio3.abcdsr2);
+
+		writel(mask, &at91_port->pdr);
+	}
+
+	return 0;
+}
+
+/*
+ * mux the pin to the "B" internal peripheral role.
+ */
+int at91_pio3_set_b_periph(unsigned port, unsigned pin, int use_pullup)
+{
+	struct at91_port *at91_port = at91_pio_get_port(port);
+	u32 mask;
+
+	if (at91_port && (pin < GPIO_PER_BANK)) {
+		mask = 1 << pin;
+		writel(mask, &at91_port->idr);
+		at91_set_pio_pullup(port, pin, use_pullup);
+		writel(readl(&at91_port->mux.pio3.abcdsr1) | mask,
+		       &at91_port->mux.pio3.abcdsr1);
+		writel(readl(&at91_port->mux.pio3.abcdsr2) & ~mask,
+		       &at91_port->mux.pio3.abcdsr2);
+
+		writel(mask, &at91_port->pdr);
+	}
+
+	return 0;
+}
+/*
+ * mux the pin to the "C" internal peripheral role.
+ */
+int at91_pio3_set_c_periph(unsigned port, unsigned pin, int use_pullup)
+{
+	struct at91_port *at91_port = at91_pio_get_port(port);
+	u32 mask;
+
+	if (at91_port && (pin < GPIO_PER_BANK)) {
+		mask = 1 << pin;
+		writel(mask, &at91_port->idr);
+		at91_set_pio_pullup(port, pin, use_pullup);
+		writel(readl(&at91_port->mux.pio3.abcdsr1) & ~mask,
+		       &at91_port->mux.pio3.abcdsr1);
+		writel(readl(&at91_port->mux.pio3.abcdsr2) | mask,
+		       &at91_port->mux.pio3.abcdsr2);
 		writel(mask, &at91_port->pdr);
 	}
 
@@ -166,7 +192,7 @@ int at91_set_c_periph(unsigned port, unsigned pin, int use_pullup)
 /*
  * mux the pin to the "D" internal peripheral role.
  */
-int at91_set_d_periph(unsigned port, unsigned pin, int use_pullup)
+int at91_pio3_set_d_periph(unsigned port, unsigned pin, int use_pullup)
 {
 	struct at91_port *at91_port = at91_pio_get_port(port);
 	u32 mask;
@@ -175,16 +201,15 @@ int at91_set_d_periph(unsigned port, unsigned pin, int use_pullup)
 		mask = 1 << pin;
 		writel(mask, &at91_port->idr);
 		at91_set_pio_pullup(port, pin, use_pullup);
-		writel(readl(&at91_port->abcdsr1) | mask,
-		       &at91_port->abcdsr1);
-		writel(readl(&at91_port->abcdsr2) | mask,
-		       &at91_port->abcdsr2);
+		writel(readl(&at91_port->mux.pio3.abcdsr1) | mask,
+		       &at91_port->mux.pio3.abcdsr1);
+		writel(readl(&at91_port->mux.pio3.abcdsr2) | mask,
+		       &at91_port->mux.pio3.abcdsr2);
 		writel(mask, &at91_port->pdr);
 	}
 
 	return 0;
 }
-#endif
 
 #ifdef CONFIG_DM_GPIO
 static bool at91_get_port_output(struct at91_port *at91_port, int offset)
@@ -263,10 +288,27 @@ int at91_set_pio_deglitch(unsigned port, unsigned pin, int is_on)
 
 	if (at91_port && (pin < GPIO_PER_BANK)) {
 		mask = 1 << pin;
+		if (is_on)
+			writel(mask, &at91_port->ifer);
+		else
+			writel(mask, &at91_port->ifdr);
+	}
+
+	return 0;
+}
+
+/*
+ * enable/disable the glitch filter. mostly used with IRQ handling.
+ */
+int at91_pio3_set_pio_deglitch(unsigned port, unsigned pin, int is_on)
+{
+	struct at91_port *at91_port = at91_pio_get_port(port);
+	u32 mask;
+
+	if (at91_port && (pin < GPIO_PER_BANK)) {
+		mask = 1 << pin;
 		if (is_on) {
-#if defined(CPU_HAS_PIO3)
-			writel(mask, &at91_port->ifscdr);
-#endif
+			writel(mask, &at91_port->mux.pio3.ifscdr);
 			writel(mask, &at91_port->ifer);
 		} else {
 			writel(mask, &at91_port->ifdr);
@@ -276,11 +318,10 @@ int at91_set_pio_deglitch(unsigned port, unsigned pin, int is_on)
 	return 0;
 }
 
-#if defined(CPU_HAS_PIO3)
 /*
  * enable/disable the debounce filter.
  */
-int at91_set_pio_debounce(unsigned port, unsigned pin, int is_on, int div)
+int at91_pio3_set_pio_debounce(unsigned port, unsigned pin, int is_on, int div)
 {
 	struct at91_port *at91_port = at91_pio_get_port(port);
 	u32 mask;
@@ -288,8 +329,8 @@ int at91_set_pio_debounce(unsigned port, unsigned pin, int is_on, int div)
 	if (at91_port && (pin < GPIO_PER_BANK)) {
 		mask = 1 << pin;
 		if (is_on) {
-			writel(mask, &at91_port->ifscer);
-			writel(div & PIO_SCDR_DIV, &at91_port->scdr);
+			writel(mask, &at91_port->mux.pio3.ifscer);
+			writel(div & PIO_SCDR_DIV, &at91_port->mux.pio3.scdr);
 			writel(mask, &at91_port->ifer);
 		} else {
 			writel(mask, &at91_port->ifdr);
@@ -303,7 +344,7 @@ int at91_set_pio_debounce(unsigned port, unsigned pin, int is_on, int div)
  * enable/disable the pull-down.
  * If pull-up already enabled while calling the function, we disable it.
  */
-int at91_set_pio_pulldown(unsigned port, unsigned pin, int is_on)
+int at91_pio3_set_pio_pulldown(unsigned port, unsigned pin, int is_on)
 {
 	struct at91_port *at91_port = at91_pio_get_port(port);
 	u32 mask;
@@ -312,10 +353,23 @@ int at91_set_pio_pulldown(unsigned port, unsigned pin, int is_on)
 		mask = 1 << pin;
 		if (is_on) {
 			at91_set_pio_pullup(port, pin, 0);
-			writel(mask, &at91_port->ppder);
+			writel(mask, &at91_port->mux.pio3.ppder);
 		} else
-			writel(mask, &at91_port->ppddr);
+			writel(mask, &at91_port->mux.pio3.ppddr);
 	}
+
+	return 0;
+}
+
+int at91_pio3_set_pio_pullup(unsigned port, unsigned pin, int use_pullup)
+{
+	struct at91_port *at91_port = at91_pio_get_port(port);
+
+	if (use_pullup)
+		at91_pio3_set_pio_pulldown(port, pin, 0);
+
+	if (at91_port && (pin < GPIO_PER_BANK))
+		at91_set_port_pullup(at91_port, pin, use_pullup);
 
 	return 0;
 }
@@ -323,7 +377,7 @@ int at91_set_pio_pulldown(unsigned port, unsigned pin, int is_on)
 /*
  * disable Schmitt trigger
  */
-int at91_set_pio_disable_schmitt_trig(unsigned port, unsigned pin)
+int at91_pio3_set_pio_disable_schmitt_trig(unsigned port, unsigned pin)
 {
 	struct at91_port *at91_port = at91_pio_get_port(port);
 	u32 mask;
@@ -336,7 +390,6 @@ int at91_set_pio_disable_schmitt_trig(unsigned port, unsigned pin)
 
 	return 0;
 }
-#endif
 
 /*
  * enable/disable the multi-driver. This is only valid for output and
@@ -517,17 +570,44 @@ static int at91_gpio_probe(struct udevice *dev)
 	struct at91_port_priv *port = dev_get_priv(dev);
 	struct at91_port_platdata *plat = dev_get_platdata(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct clk clk;
+	int ret;
+
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret)
+		return ret;
+
+	ret = clk_enable(&clk);
+	if (ret)
+		return ret;
+
+	clk_free(&clk);
 
 	uc_priv->bank_name = plat->bank_name;
 	uc_priv->gpio_count = GPIO_PER_BANK;
+
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	plat->base_addr = (uint32_t)devfdt_get_addr_ptr(dev);
+#endif
 	port->regs = (struct at91_port *)plat->base_addr;
 
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+static const struct udevice_id at91_gpio_ids[] = {
+	{ .compatible = "atmel,at91rm9200-gpio" },
+	{ }
+};
+#endif
+
 U_BOOT_DRIVER(gpio_at91) = {
 	.name	= "gpio_at91",
 	.id	= UCLASS_GPIO,
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	.of_match = at91_gpio_ids,
+	.platdata_auto_alloc_size = sizeof(struct at91_port_platdata),
+#endif
 	.ops	= &gpio_at91_ops,
 	.probe	= at91_gpio_probe,
 	.priv_auto_alloc_size = sizeof(struct at91_port_priv),

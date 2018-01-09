@@ -37,7 +37,6 @@
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #endif
 
-#define CONFIG_FSL_ELBC		1	/* Has Enhanced localbus controller */
 #define CONFIG_PCI1		1	/* Enable PCI controller 1 */
 #define CONFIG_PCIE1		1	/* PCIE controller 1 (slot 1) */
 #define CONFIG_PCIE2		1	/* PCIE controller 2 (slot 2) */
@@ -61,8 +60,6 @@
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 #define CONFIG_BTB			/* toggle branch predition */
 
-#define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
-
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
 #ifdef CONFIG_PHYS_64BIT
@@ -72,7 +69,6 @@
 
 #define CONFIG_SYS_MEMTEST_START 0x00010000	/* skip exception vectors */
 #define CONFIG_SYS_MEMTEST_END   0x1f000000	/* skip u-boot at top of RAM */
-#define CONFIG_PANIC_HANG	/* do not reset board on panic */
 
 /*
  * Config the L2 Cache as L2 SRAM
@@ -289,7 +285,6 @@
 				CONFIG_SYS_NAND_BASE + 0x80000, \
 				CONFIG_SYS_NAND_BASE + 0xC0000}
 #define CONFIG_SYS_MAX_NAND_DEVICE	4
-#define CONFIG_CMD_NAND		1
 #define CONFIG_NAND_FSL_ELBC	1
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
 
@@ -512,9 +507,6 @@
 #endif	/* CONFIG_PCI */
 
 /* SATA */
-#define CONFIG_LIBATA
-#define CONFIG_FSL_SATA
-
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
 #define CONFIG_SATA1
 #define CONFIG_SYS_SATA1		CONFIG_SYS_MPC85xx_SATA1_ADDR
@@ -525,8 +517,6 @@
 
 #ifdef CONFIG_FSL_SATA
 #define CONFIG_LBA48
-#define CONFIG_CMD_SATA
-#define CONFIG_DOS_PARTITION
 #endif
 
 #if defined(CONFIG_TSEC_ENET)
@@ -552,8 +542,6 @@
 
 #define CONFIG_ETHPRIME		"eTSEC1"
 
-#define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
-
 #endif	/* CONFIG_TSEC_ENET */
 
 /*
@@ -562,7 +550,6 @@
 
 #if defined(CONFIG_SYS_RAMBOOT)
 #if defined(CONFIG_RAMBOOT_SPIFLASH)
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_BUS	0
 #define CONFIG_ENV_SPI_CS	0
 #define CONFIG_ENV_SPI_MAX_HZ	10000000
@@ -571,17 +558,14 @@
 #define CONFIG_ENV_OFFSET	0xF0000
 #define CONFIG_ENV_SECT_SIZE	0x10000
 #elif defined(CONFIG_RAMBOOT_SDCARD)
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_FSL_FIXED_MMC_LOCATION
 #define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_SYS_MMC_ENV_DEV  0
 #else
-	#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
 	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
 	#define CONFIG_ENV_SIZE		0x2000
 #endif
 #else
-	#define CONFIG_ENV_IS_IN_FLASH	1
 	#define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
 	#define CONFIG_ENV_SIZE		0x2000
 	#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
@@ -590,23 +574,11 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
-/*
- * Command line configuration.
- */
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_REGINFO
-
-#if defined(CONFIG_PCI)
-#define CONFIG_CMD_PCI
-#endif
-
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
-#define CONFIG_GENERIC_MMC
 #endif
 
 /*
@@ -614,16 +586,10 @@
  */
 #define CONFIG_HAS_FSL_MPH_USB
 #ifdef CONFIG_HAS_FSL_MPH_USB
-#define CONFIG_USB_EHCI
-
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
 #endif
-#endif
-
-#if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI)
-#define CONFIG_DOS_PARTITION
 #endif
 
 /*
@@ -633,15 +599,6 @@
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
-#else
-#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
-#endif
-#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE \
-		+ sizeof(CONFIG_SYS_PROMPT) + 16) /* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS	16		/* max number of command args */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size */
 
 /*
  * For booting Linux, the board info and command line data
@@ -680,10 +637,6 @@
 
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
-
-#undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
-
-#define CONFIG_BAUDRATE	115200
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 "netdev=eth0\0"						\

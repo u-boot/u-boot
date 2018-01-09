@@ -41,13 +41,16 @@ struct cramfs_super super;
 
 /* CPU address space offset calculation macro, struct part_info offset is
  * device address space offset, so we need to shift it by a device start address. */
-#if !defined(CONFIG_SYS_NO_FLASH)
+#if defined(CONFIG_MTD_NOR_FLASH)
 extern flash_info_t flash_info[];
 #define PART_OFFSET(x)	((ulong)x->offset + \
 			 flash_info[x->dev->id->num].start[0])
 #else
 #define PART_OFFSET(x)	((ulong)x->offset)
 #endif
+
+static int cramfs_uncompress (unsigned long begin, unsigned long offset,
+			      unsigned long loadoffset);
 
 static int cramfs_read_super (struct part_info *info)
 {
@@ -92,6 +95,22 @@ static int cramfs_read_super (struct part_info *info)
 	}
 
 	return 0;
+}
+
+/* Unpack to an allocated buffer, trusting in the inode's size field. */
+static char *cramfs_uncompress_link (unsigned long begin, unsigned long offset)
+{
+	struct cramfs_inode *inode = (struct cramfs_inode *)(begin + offset);
+	unsigned long size = CRAMFS_24 (inode->size);
+	char *link = malloc (size + 1);
+
+	if (!link || cramfs_uncompress (begin, offset, (unsigned long)link) != size) {
+		free (link);
+		link = NULL;
+	} else {
+		link[size] = '\0';
+	}
+	return link;
 }
 
 static unsigned long cramfs_resolve (unsigned long begin, unsigned long offset,
@@ -143,6 +162,33 @@ static unsigned long cramfs_resolve (unsigned long begin, unsigned long offset,
 						       p);
 			} else if (S_ISREG (CRAMFS_16 (inode->mode))) {
 				return offset + inodeoffset;
+			} else if (S_ISLNK (CRAMFS_16 (inode->mode))) {
+				unsigned long ret;
+				char *link;
+				if (p && strlen(p)) {
+					printf ("unsupported symlink to \
+						 non-terminal path\n");
+					return 0;
+				}
+				link = cramfs_uncompress_link (begin,
+						offset + inodeoffset);
+				if (!link) {
+					printf ("%*.*s: Error reading link\n",
+						namelen, namelen, name);
+					return 0;
+				} else if (link[0] == '/') {
+					printf ("unsupported symlink to \
+						 absolute path\n");
+					free (link);
+					return 0;
+				}
+				ret = cramfs_resolve (begin,
+						      offset,
+						      size,
+						      raw,
+						      strtok(link, "/"));
+				free (link);
+				return ret;
 			} else {
 				printf ("%*.*s: unsupported file type (%x)\n",
 					namelen, namelen, name,
@@ -162,7 +208,7 @@ static int cramfs_uncompress (unsigned long begin, unsigned long offset,
 			      unsigned long loadoffset)
 {
 	struct cramfs_inode *inode = (struct cramfs_inode *) (begin + offset);
-	unsigned long *block_ptrs = (unsigned long *)
+	u32 *block_ptrs = (u32 *)
 		(begin + (CRAMFS_GET_OFFSET (inode) << 2));
 	unsigned long curr_block = (CRAMFS_GET_OFFSET (inode) +
 				    (((CRAMFS_24 (inode->size)) +
@@ -235,20 +281,12 @@ static int cramfs_list_inode (struct part_info *info, unsigned long offset)
 		CRAMFS_24 (inode->size), namelen, namelen, name);
 
 	if ((CRAMFS_16 (inode->mode) & S_IFMT) == S_IFLNK) {
-		/* symbolic link.
-		 * Unpack the link target, trusting in the inode's size field.
-		 */
-		unsigned long size = CRAMFS_24 (inode->size);
-		char *link = malloc (size);
-
-		if (link != NULL && cramfs_uncompress (PART_OFFSET(info), offset,
-						       (unsigned long) link)
-		    == size)
-			printf (" -> %*.*s\n", (int) size, (int) size, link);
+		char *link = cramfs_uncompress_link (PART_OFFSET(info), offset);
+		if (link)
+			printf (" -> %s\n", link);
 		else
 			printf (" [Error reading link]\n");
-		if (link)
-			free (link);
+		free (link);
 	} else
 		printf ("\n");
 

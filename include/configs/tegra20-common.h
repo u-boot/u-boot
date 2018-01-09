@@ -10,13 +10,6 @@
 #include "tegra-common.h"
 
 /*
- * Errata configuration
- */
-#define CONFIG_ARM_ERRATA_716044
-#define CONFIG_ARM_ERRATA_742230
-#define CONFIG_ARM_ERRATA_751472
-
-/*
  * NS16550 Configuration
  */
 #define V_NS16550_CLK		216000000	/* 216MHz (pllp_out0) */
@@ -89,7 +82,6 @@
  */
 #define CONFIG_USB_EHCI_TXFIFO_THRESH	10
 #define CONFIG_EHCI_IS_TDI
-#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 1
 
 #define CONFIG_SYS_NAND_SELF_INIT
 #define CONFIG_SYS_NAND_ONFI_DETECTION

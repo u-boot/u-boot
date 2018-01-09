@@ -145,20 +145,6 @@
 			  PLPRCR_MFI_MSK | \
 			  PLPRCR_PDF_MSK)
 
-/* Older chips (MPC860/862 et al) defines */
-#define PLPRCR_MF_MSK	0xFFF00000	/* Multiplication factor bits		*/
-#define PLPRCR_MF_SHIFT		20	/* Multiplication factor shift value	*/
-
-#define PLPRCR_SPLSS	0x00008000	/* SPLL Lock Status Sticky bit		*/
-#define PLPRCR_TMIST	0x00001000	/* Timers Interrupt Status		*/
-
-#define PLPRCR_LPM_MSK	0x00000300	/* Low Power Mode mask			*/
-#define PLPRCR_LPM_NORMAL 0x00000000	/* normal power management mode		*/
-#define PLPRCR_LPM_DOZE	  0x00000100	/* doze power management mode		*/
-#define PLPRCR_LPM_SLEEP  0x00000200	/* sleep power management mode		*/
-#define PLPRCR_LPM_DEEP_SLEEP 0x00000300 /* deep sleep power mgt mode		*/
-#define PLPRCR_LPM_DOWN	  0x00000300	/* down power management mode		*/
-
 /* Common defines */
 #define PLPRCR_TEXPS	0x00004000	/* TEXP Status				*/
 #define PLPRCR_CSRC	0x00000400	/* Clock Source				*/

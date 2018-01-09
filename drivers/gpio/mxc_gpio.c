@@ -47,12 +47,12 @@ static unsigned long gpio_ports[] = {
 #if defined(CONFIG_MX27) || defined(CONFIG_MX53) || defined(CONFIG_MX6) || \
 		defined(CONFIG_MX7)
 	[4] = GPIO5_BASE_ADDR,
-#ifndef CONFIG_MX6UL
+#if !(defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL))
 	[5] = GPIO6_BASE_ADDR,
 #endif
 #endif
 #if defined(CONFIG_MX53) || defined(CONFIG_MX6) || defined(CONFIG_MX7)
-#ifndef CONFIG_MX6UL
+#if !(defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL))
 	[6] = GPIO7_BASE_ADDR,
 #endif
 #endif
@@ -302,15 +302,20 @@ static int mxc_gpio_bind(struct udevice *dev)
 	if (plat)
 		return 0;
 
-	addr = dev_get_addr(dev);
+	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
-		return -ENODEV;
+		return -EINVAL;
 
 	/*
 	 * TODO:
 	 * When every board is converted to driver model and DT is supported,
 	 * this can be done by auto-alloc feature, but not using calloc
 	 * to alloc memory for platdata.
+	 *
+	 * For example mxc_plat below uses platform data rather than device
+	 * tree.
+	 *
+	 * NOTE: DO NOT COPY this code if you are using device tree.
 	 */
 	plat = calloc(1, sizeof(*plat));
 	if (!plat)

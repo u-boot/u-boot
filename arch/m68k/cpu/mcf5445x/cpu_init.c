@@ -205,6 +205,7 @@ void cpu_init_f(void)
 	/* FlexBus Chipselect */
 	init_fbcs();
 
+#ifdef CONFIG_SYS_CS0_BASE
 	/*
 	 * now the flash base address is no longer at 0 (Newer ColdFire family
 	 * boot at address 0 instead of 0xFFnn_nnnn). The vector table must
@@ -212,6 +213,7 @@ void cpu_init_f(void)
 	 */
 	if (CONFIG_SYS_CS0_BASE != 0)
 		setvbr(CONFIG_SYS_CS0_BASE);
+#endif
 
 	icache_enable();
 }

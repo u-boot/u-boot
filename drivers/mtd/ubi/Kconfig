@@ -3,6 +3,8 @@ menu "UBI support"
 config MTD_UBI
 	bool "Enable UBI - Unsorted block images"
 	select CRC32
+	select RBTREE
+	select MTD_PARTITIONS
 	help
 	  UBI is a software layer above MTD layer which admits of LVM-like
 	  logical volumes on top of MTD devices, hides some complexities of

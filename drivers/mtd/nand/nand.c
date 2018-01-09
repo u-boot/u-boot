@@ -19,8 +19,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int nand_curr_device = -1;
 
-
-struct mtd_info *nand_info[CONFIG_SYS_MAX_NAND_DEVICE];
+static struct mtd_info *nand_info[CONFIG_SYS_MAX_NAND_DEVICE];
 
 #ifndef CONFIG_SYS_NAND_SELF_INIT
 static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
@@ -31,12 +30,21 @@ static char dev_name[CONFIG_SYS_MAX_NAND_DEVICE][8];
 
 static unsigned long total_nand_size; /* in kiB */
 
+struct mtd_info *get_nand_dev_by_index(int dev)
+{
+	if (dev < 0 || dev >= CONFIG_SYS_MAX_NAND_DEVICE || !nand_info[dev] ||
+	    !nand_info[dev]->name)
+		return NULL;
+
+	return nand_info[dev];
+}
+
 int nand_mtd_to_devnum(struct mtd_info *mtd)
 {
 	int i;
 
-	for (i = 0; i < ARRAY_SIZE(nand_info); i++) {
-		if (mtd && nand_info[i] == mtd)
+	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++) {
+		if (mtd && get_nand_dev_by_index(i) == mtd)
 			return i;
 	}
 
@@ -101,8 +109,9 @@ static void create_mtd_concat(void)
 	int i;
 
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++) {
-		if (nand_info[i] != NULL) {
-			nand_info_list[nand_devices_found] = nand_info[i];
+		struct mtd_info *mtd = get_nand_dev_by_index(i);
+		if (mtd != NULL) {
+			nand_info_list[nand_devices_found] = mtd;
 			nand_devices_found++;
 		}
 	}
@@ -131,8 +140,23 @@ static void create_mtd_concat(void)
 }
 #endif
 
+unsigned long nand_size(void)
+{
+	return total_nand_size;
+}
+
 void nand_init(void)
 {
+	static int initialized;
+
+	/*
+	 * Avoid initializing NAND Flash multiple times,
+	 * otherwise it will calculate a wrong total size.
+	 */
+	if (initialized)
+		return;
+	initialized = 1;
+
 #ifdef CONFIG_SYS_NAND_SELF_INIT
 	board_nand_init();
 #else
@@ -142,13 +166,11 @@ void nand_init(void)
 		nand_init_chip(i);
 #endif
 
-	printf("%lu MiB\n", total_nand_size / 1024);
-
 #ifdef CONFIG_SYS_NAND_SELECT_DEVICE
 	/*
 	 * Select the chip in the board/cpu specific driver
 	 */
-	board_nand_select_device(mtd_to_nand(nand_info[nand_curr_device]),
+	board_nand_select_device(mtd_to_nand(get_nand_dev_by_index(nand_curr_device)),
 				 nand_curr_device);
 #endif
 

@@ -95,17 +95,21 @@ static int rtl8211f_config(struct phy_device *phydev)
 
 	phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR, BMCR_RESET);
 
-	if (phydev->interface == PHY_INTERFACE_MODE_RGMII) {
-		/* enable TXDLY */
-		phy_write(phydev, MDIO_DEVAD_NONE,
-			  MIIM_RTL8211F_PAGE_SELECT, 0xd08);
-		reg = phy_read(phydev, MDIO_DEVAD_NONE, 0x11);
+	phy_write(phydev, MDIO_DEVAD_NONE,
+		  MIIM_RTL8211F_PAGE_SELECT, 0xd08);
+	reg = phy_read(phydev, MDIO_DEVAD_NONE, 0x11);
+
+	/* enable TX-delay for rgmii-id and rgmii-txid, otherwise disable it */
+	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID ||
+	    phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID)
 		reg |= MIIM_RTL8211F_TX_DELAY;
-		phy_write(phydev, MDIO_DEVAD_NONE, 0x11, reg);
-		/* restore to default page 0 */
-		phy_write(phydev, MDIO_DEVAD_NONE,
-			  MIIM_RTL8211F_PAGE_SELECT, 0x0);
-	}
+	else
+		reg &= ~MIIM_RTL8211F_TX_DELAY;
+
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x11, reg);
+	/* restore to default page 0 */
+	phy_write(phydev, MDIO_DEVAD_NONE,
+		  MIIM_RTL8211F_PAGE_SELECT, 0x0);
 
 	/* Set green LED for Link, yellow LED for Active */
 	phy_write(phydev, MDIO_DEVAD_NONE,

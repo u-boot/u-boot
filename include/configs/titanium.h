@@ -17,13 +17,12 @@
 
 #define CONFIG_MX6Q
 
-#define MACH_TYPE_TITANIUM		3769
-#define CONFIG_MACH_TYPE		MACH_TYPE_TITANIUM
+/* Provide the MACH_TYPE value that the vendor kernel requires. */
+#define CONFIG_MACH_TYPE		3769
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(2 * 1024 * 1024)
 
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_MXC_UART
@@ -46,19 +45,11 @@
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_FEC_MXC_PHYADDR		4
-#define CONFIG_PHYLIB
-#define CONFIG_PHY_MICREL
-#define CONFIG_PHY_MICREL_KSZ9021
 
 /* USB Configs */
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_MX6
 #define CONFIG_MXC_USB_PORT	1
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS	0
-
-/* Miscellaneous commands */
-#define CONFIG_CMD_BMODE
 
 #define CONFIG_SYS_MEMTEST_START	0x10000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + (500 << 20))
@@ -66,10 +57,6 @@
 #define CONFIG_HOSTNAME			titanium
 #define CONFIG_UBI_PART			ubi
 #define CONFIG_UBIFS_VOLUME		rootfs0
-
-#define MTDIDS_DEFAULT		"nand0=gpmi-nand"
-#define MTDPARTS_DEFAULT	"mtdparts=gpmi-nand:16M(uboot),512k(env1)," \
-				"512k(env2),-(ubi)"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"kernel=" __stringify(CONFIG_HOSTNAME) "/uImage\0"		\
@@ -116,8 +103,8 @@
 	"upd_ubifs=run load_ubifs update_ubifs\0"			\
 	"init_ubi=nand erase.part ubi;ubi part ${part};"		\
 		"ubi create ${vol} c800000\0"				\
-	"mtdids=" MTDIDS_DEFAULT "\0"					\
-	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"					\
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"				\
 	"nand_ubifs=run ubifs_mount ubifs_load ubifsargs addip"		\
 		" addcon addmtd;"					\
 		"bootm ${kernel_addr} - ${dtb_addr}\0"			\
@@ -137,10 +124,6 @@
 
 #define CONFIG_BOOTCOMMAND		"run nand_ubifs"
 
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					 sizeof(CONFIG_SYS_PROMPT) + 16)
-
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
@@ -156,9 +139,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Enable NAND support */
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_NAND_TRIMFFS
-
 #ifdef CONFIG_CMD_NAND
 
 /* NAND stuff */
@@ -174,7 +154,6 @@
 #define CONFIG_APBH_DMA_BURST8
 
 /* Environment in NAND */
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		(16 << 20)
 #define CONFIG_ENV_SECT_SIZE		(128 << 10)
 #define CONFIG_ENV_SIZE			CONFIG_ENV_SECT_SIZE
@@ -185,18 +164,13 @@
 
 /* Environment in MMC */
 #define CONFIG_ENV_SIZE			(8 << 10)
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_OFFSET		(6 * 64 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
 #endif /* CONFIG_CMD_NAND */
 
 /* UBI/UBIFS config options */
-#define CONFIG_LZO
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_RBTREE
-#define CONFIG_CMD_MTDPARTS
-#define CONFIG_CMD_UBIFS
 
 #endif			       /* __CONFIG_H */

@@ -105,7 +105,7 @@ static int mvebu_serial_ofdata_to_platdata(struct udevice *dev)
 {
 	struct mvebu_platdata *plat = dev_get_platdata(dev);
 
-	plat->base = dev_get_addr_ptr(dev);
+	plat->base = devfdt_get_addr_ptr(dev);
 
 	return 0;
 }

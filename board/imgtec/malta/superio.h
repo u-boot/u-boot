@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2013 Imagination Technologies
- * Author: Paul Burton <paul.burton@imgtec.com>
+ * Author: Paul Burton <paul.burton@mips.com>
  *
  * Setup code for the FDC37M817 super I/O controller
  *

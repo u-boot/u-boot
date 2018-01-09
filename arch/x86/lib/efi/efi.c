@@ -92,7 +92,7 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	struct efi_mem_desc *desc, *end;
 	struct efi_entry_memmap *map;
@@ -103,7 +103,7 @@ void dram_init_banksize(void)
 	if (ret) {
 		/* We should have stopped in dram_init(), something is wrong */
 		debug("%s: Missing memory map\n", __func__);
-		return;
+		return -ENXIO;
 	}
 	end = (struct efi_mem_desc *)((ulong)map + size);
 	desc = map->desc;
@@ -123,6 +123,13 @@ void dram_init_banksize(void)
 			EFI_PAGE_SHIFT;
 		num_banks++;
 	}
+
+	return 0;
+}
+
+int checkcpu(void)
+{
+	return 0;
 }
 
 int print_cpuinfo(void)

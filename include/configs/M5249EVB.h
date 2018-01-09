@@ -22,7 +22,6 @@
 
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
-#define CONFIG_BAUDRATE		115200
 
 #undef  CONFIG_WATCHDOG
 
@@ -41,15 +40,6 @@
  */
 
 #define CONFIG_SYS_LONGHELP				/* undef to save memory		*/
-
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE		1024		/* Console I/O Buffer Size	*/
-#else
-#define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
-#endif
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
 #define CONFIG_SYS_DEVICE_NULLDEV	1	/* include nulldev device	*/
 #define CONFIG_AUTO_COMPLETE	1	/* add autocompletion support	*/
@@ -85,11 +75,9 @@
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_ENV_IS_IN_FLASH	1
-
 #define LDS_BOARD_TEXT \
-        . = DEFINED(env_offset) ? env_offset : .; \
-        common/env_embedded.o (.text);
+	. = DEFINED(env_offset) ? env_offset : .; \
+	env/embedded.o(.text);
 
 #define CONFIG_ENV_OFFSET		0x4000	/* Address of Environment Sector*/
 #define CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/

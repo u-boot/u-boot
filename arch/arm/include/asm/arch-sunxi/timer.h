@@ -67,7 +67,7 @@ struct sunxi_timer_reg {
 	struct sunxi_timer timer[6];	/* We have 6 timers */
 	u8 res2[16];
 	struct sunxi_avs avs;
-#ifdef CONFIG_SUNXI_GEN_SUN4I
+#if defined(CONFIG_SUNXI_GEN_SUN4I) || defined(CONFIG_MACH_SUN8I_R40)
 	struct sunxi_wdog wdog;	/* 0x90 */
 	/* XXX the following is not accurate for sun5i/sun7i */
 	struct sunxi_64cnt cnt64;	/* 0xa0 */
@@ -77,8 +77,7 @@ struct sunxi_timer_reg {
 	struct sunxi_tgp tgp[4];
 	u8 res5[8];
 	u32 cpu_cfg;
-#endif
-#ifdef CONFIG_SUNXI_GEN_SUN6I
+#elif defined(CONFIG_SUNXI_GEN_SUN6I)
 	u8 res3[16];
 	struct sunxi_wdog wdog[5];	/* We have 5 watchdogs */
 #endif

@@ -9,7 +9,12 @@
 
 #include "config.h"
 
+#ifdef CONFIG_SYS_BIG_ENDIAN
+OUTPUT_FORMAT("elf32-shbig-linux", "elf32-shbig-linux", "elf32-sh-linux")
+#else
 OUTPUT_FORMAT("elf32-sh-linux", "elf32-sh-linux", "elf32-sh-linux")
+#endif
+
 OUTPUT_ARCH(sh)
 
 MEMORY
@@ -33,10 +38,10 @@ SECTIONS
 		KEEP(CONFIG_BOARDDIR/lowlevel_init.o	(.text .spiboot1.text))
 		KEEP(*(.spiboot2.text))
 		. = ALIGN(8192);
-		common/env_embedded.o	(.ppcenv)
+#ifdef CONFIG_ENV_IS_IN_FLASH
+		env/embedded.o  (.doesnotexist)
 		. = ALIGN(8192);
-		common/env_embedded.o	(.ppcenvr)
-		. = ALIGN(8192);
+#endif
 		*(.text)
 		. = ALIGN(4);
 	} >ram =0xFF

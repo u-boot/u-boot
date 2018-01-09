@@ -5,7 +5,10 @@ CONFIG_SYS_PROMPT="DbAu1xx0 # "
 # CONFIG_CMD_BDI is not set
 # CONFIG_CMD_ELF is not set
 # CONFIG_CMD_RUN is not set
+CONFIG_CMD_IMLS=y
 # CONFIG_CMD_SAVEENV is not set
 # CONFIG_CMD_FPGA is not set
 # CONFIG_CMD_SETEXPR is not set
 # CONFIG_CMD_NFS is not set
+# CONFIG_ISO_PARTITION is not set
+CONFIG_MTD_NOR_FLASH=y

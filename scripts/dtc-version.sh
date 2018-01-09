@@ -2,8 +2,8 @@
 #
 # dtc-version dtc-command
 #
-# Prints the dtc version of `dtc-command' in a canonical 4-digit form
-# such as `0222' for binutils 2.22
+# Prints the dtc version of `dtc-command' in a canonical 6-digit form
+# such as `010404'  for dtc 1.4.4
 #
 
 dtc="$*"
@@ -16,5 +16,6 @@ fi
 
 MAJOR=$($dtc -v | head -1 | awk '{print $NF}' | cut -d . -f 1)
 MINOR=$($dtc -v | head -1 | awk '{print $NF}' | cut -d . -f 2)
+PATCH=$($dtc -v | head -1 | awk '{print $NF}' | cut -d . -f 3 | cut -d - -f 1)
 
-printf "%02d%02d\\n" $MAJOR $MINOR
+printf "%02d%02d%02d\\n" $MAJOR $MINOR $PATCH

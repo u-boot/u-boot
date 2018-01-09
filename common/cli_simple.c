@@ -131,7 +131,7 @@ void cli_simple_process_macros(const char *input, char *output)
 				envname[i] = 0;
 
 				/* Get its value */
-				envval = getenv(envname);
+				envval = env_get(envname);
 
 				/* Copy into the line if it exists */
 				if (envval != NULL)
@@ -168,7 +168,7 @@ void cli_simple_process_macros(const char *input, char *output)
  * WARNING:
  *
  * We must create a temporary copy of the command since the command we get
- * may be the result from getenv(), which returns a pointer directly to
+ * may be the result from env_get(), which returns a pointer directly to
  * the environment data, which may change magicly when the command we run
  * creates or modifies environment variables (like "bootp" does).
  */

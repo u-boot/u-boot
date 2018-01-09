@@ -19,6 +19,8 @@
 
 #include "superio.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 enum core_card {
 	CORE_UNKNOWN,
 	CORE_LV,
@@ -83,9 +85,11 @@ static enum sys_con malta_sys_con(void)
 	}
 }
 
-phys_size_t initdram(int board_type)
+int dram_init(void)
 {
-	return CONFIG_SYS_MEM_SIZE;
+	gd->ram_size = CONFIG_SYS_MEM_SIZE;
+
+	return 0;
 }
 
 int checkboard(void)

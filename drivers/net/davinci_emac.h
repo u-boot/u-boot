@@ -40,6 +40,8 @@
 
 /* MII Status Register */
 #define MII_STATUS_REG			1
+/* PHY Configuration register */
+#define PHY_CONF_TXCLKEN		(1 << 5)
 
 /* Number of statistics registers */
 #define EMAC_NUM_STATS			36

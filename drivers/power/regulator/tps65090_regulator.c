@@ -23,7 +23,7 @@ static int tps65090_fet_probe(struct udevice *dev)
 	return 0;
 }
 
-static bool tps65090_fet_get_enable(struct udevice *dev)
+static int tps65090_fet_get_enable(struct udevice *dev)
 {
 	struct udevice *pmic = dev_get_parent(dev);
 	int ret, fet_id;

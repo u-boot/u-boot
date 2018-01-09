@@ -98,7 +98,7 @@ struct ti_common_eeprom {
 };
 
 #define TI_EEPROM_DATA ((struct ti_common_eeprom *)\
-				OMAP_SRAM_SCRATCH_BOARD_EEPROM_START)
+				TI_SRAM_SCRATCH_BOARD_EEPROM_START)
 
 /**
  * ti_i2c_eeprom_am_get() - Consolidated eeprom data collection for AM* TI EVMs
@@ -192,5 +192,43 @@ u64 board_ti_get_emif2_size(void);
  * If name is NULL, default_name is used.
  */
 void set_board_info_env(char *name);
+
+/**
+ * board_ti_set_ethaddr- Sets the ethaddr environment from EEPROM
+ * @index: The first eth<index>addr environment variable to set
+ *
+ * EEPROM should be already read before calling this function.
+ * The EEPROM contains 2 MAC addresses which define the MAC address
+ * range (i.e. first and last MAC address).
+ * This function sets the ethaddr environment variable for all
+ * the available MAC addresses starting from eth<index>addr.
+ */
+void board_ti_set_ethaddr(int index);
+
+/**
+ * board_ti_was_eeprom_read() - Check to see if the eeprom contents have been read
+ *
+ * This function is useful to determine if the eeprom has already been read and
+ * its contents have already been loaded into memory. It utiltzes the magic
+ * number that the header value is set to upon successful eeprom read.
+ */
+bool board_ti_was_eeprom_read(void);
+
+/**
+ * ti_i2c_eeprom_am_set() - Setup the eeprom data with predefined values
+ * @name:	Name of the board
+ * @rev:	Revision of the board
+ *
+ * In some cases such as in RTC-only mode, we are able to skip reading eeprom
+ * and wasting i2c based initialization time by using predefined flags for
+ * detecting what platform we are booting on. For those platforms, provide
+ * a handy function to pre-program information.
+ *
+ * NOTE: many eeprom information such as serial number, mac address etc is not
+ * available.
+ *
+ * Return: 0 if all went fine, else return error.
+ */
+int ti_i2c_eeprom_am_set(const char *name, const char *rev);
 
 #endif	/* __BOARD_DETECT_H */

@@ -9,6 +9,8 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+
+#include <common.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/power.h>

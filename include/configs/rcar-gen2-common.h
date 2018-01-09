@@ -11,14 +11,7 @@
 
 #include <asm/arch/rmobile.h>
 
-#define CONFIG_CMD_DFL
-#define CONFIG_CMD_SDRAM
-
-#define CONFIG_SYS_THUMB_BUILD
-
 /* Support File sytems */
-#define CONFIG_FAT_WRITE
-#define CONFIG_DOS_PARTITION
 #define CONFIG_SUPPORT_VFAT
 #define CONFIG_FS_EXT4
 #define CONFIG_EXT4_WRITE
@@ -28,13 +21,9 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_CMDLINE_EDITING
 
-#define CONFIG_BAUDRATE		38400
-#define CONFIG_BOOTARGS		""
-
 #undef	CONFIG_SHOW_BOOT_PROGRESS
 
 #define CONFIG_ARCH_CPU_INIT
-#define CONFIG_BOARD_EARLY_INIT_F
 
 #define CONFIG_TMU_TIMER
 #define CONFIG_SH_GPIO_PFC
@@ -42,10 +31,7 @@
 /* console */
 
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_PBSIZE		256
-#define CONFIG_SYS_MAXARGS		16
-#define CONFIG_SYS_BARGSIZE		512
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 38400, 115200 }
 
 #define CONFIG_SYS_SDRAM_BASE		(RCAR_GEN2_SDRAM_BASE)
@@ -59,7 +45,6 @@
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 
 /* ENV setting */
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_ADDR	0xC0000
 
 /* Common ENV setting */

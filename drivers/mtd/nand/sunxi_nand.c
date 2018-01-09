@@ -32,7 +32,7 @@
 
 #include <linux/kernel.h>
 #include <linux/mtd/mtd.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 #include <linux/mtd/partitions.h>
 #include <linux/io.h>
 
@@ -1663,7 +1663,7 @@ static int sunxi_nand_chip_init(int node, struct sunxi_nfc *nfc, int devnum)
 			chip->sels[i].rb.type = RB_NATIVE;
 			chip->sels[i].rb.info.nativeid = tmp;
 		} else {
-			ret = gpio_request_by_name_nodev(blob, node,
+			ret = gpio_request_by_name_nodev(offset_to_ofnode(node),
 						"rb-gpios", i,
 						&chip->sels[i].rb.info.gpio,
 						GPIOD_IS_IN);

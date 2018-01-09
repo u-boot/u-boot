@@ -17,7 +17,6 @@
 /*
  * SERIAL
  */
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_NS16550_MEM32
 
 /*
@@ -31,7 +30,6 @@
  * NET options
  */
 #define CONFIG_SYS_RX_ETH_BUFFER	0
-#define CONFIG_PHY_GIGE
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 #define CONFIG_PHY_MARVELL
 
@@ -71,7 +69,6 @@
  * of flash. NOTE: the monitor length must be multiple of sector size
  * (which is common practice).
  */
-#define CONFIG_ENV_IS_IN_FLASH
 
 #define CONFIG_ENV_SIZE			0x10000	/* 64k, 1 sector */
 #define CONFIG_ENV_OVERWRITE		/* Serial change Ok	*/
@@ -81,12 +78,6 @@
  * MISC
  */
 #define CONFIG_SYS_LONGHELP		/* Provide extended help */
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O buf size */
-#define CONFIG_SYS_MAXARGS		16	/* Max command args	*/
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Bootarg buf size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					sizeof(CONFIG_SYS_PROMPT) + \
-					 16)	/* Print buf size */
 #define CONFIG_SYS_LOAD_ADDR		0xcc000000	/* Half of RAM */
 #define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE

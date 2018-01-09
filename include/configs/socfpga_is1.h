@@ -9,10 +9,6 @@
 
 #include <asm/arch/base_addr_ac5.h>
 
-/* U-Boot Commands */
-#define CONFIG_SYS_NO_FLASH
-#define CONFIG_DOS_PARTITION
-#define CONFIG_FAT_WRITE
 #define CONFIG_HW_WATCHDOG
 
 /* Memory configurations */
@@ -20,18 +16,14 @@
 
 /* Booting Linux */
 #define CONFIG_BOOTFILE		"zImage"
-#define CONFIG_BOOTARGS		"console=ttyS0," __stringify(CONFIG_BAUDRATE)
 #define CONFIG_LOADADDR		0x01000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 
 /* Ethernet on SoC (EMAC) */
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_ARP_TIMEOUT		500UL
 
 /* PHY */
-#define CONFIG_PHY_MICREL
-#define CONFIG_PHY_MICREL_KSZ9021
 #endif
 
 /* The rest of the configuration is shared */

@@ -39,6 +39,12 @@ struct sandbox_spi_info {
 	struct udevice *emul;
 };
 
+struct sandbox_wdt_info {
+	unsigned long long counter;
+	uint reset_count;
+	bool running;
+};
+
 /* The complete state of the test system */
 struct sandbox_state {
 	const char *cmd;		/* Command to execute */
@@ -69,6 +75,9 @@ struct sandbox_state {
 	/* Pointer to information for each SPI bus/cs */
 	struct sandbox_spi_info spi[CONFIG_SANDBOX_SPI_MAX_BUS]
 					[CONFIG_SANDBOX_SPI_MAX_CS];
+
+	/* Information about Watchdog */
+	struct sandbox_wdt_info wdt;
 };
 
 /* Minimum space we guarantee in the state FDT when calling read/write*/
@@ -203,6 +212,13 @@ void state_set_skip_delays(bool skip_delays);
  * @return true if delays should be skipped, false if they should be honoured
  */
 bool state_get_skip_delays(void);
+
+/**
+ * state_reset_for_test() - Reset ready to re-run tests
+ *
+ * This clears out any test state ready for another test run.
+ */
+void state_reset_for_test(struct sandbox_state *state);
 
 /**
  * Initialize the test system state

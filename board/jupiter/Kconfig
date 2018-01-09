@@ -1,9 +1,0 @@
-if TARGET_JUPITER
-
-config SYS_BOARD
-	default "jupiter"
-
-config SYS_CONFIG_NAME
-	default "jupiter"
-
-endif

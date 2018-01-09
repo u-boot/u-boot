@@ -80,7 +80,8 @@ static long evalexp(char *s, int w)
 		l = simple_strtoul(s, NULL, 16);
 	}
 
-	return l & ((1UL << (w * 8)) - 1);
+	/* avoid overflow on mask calculus */
+	return (w >= sizeof(long)) ? l : (l & ((1UL << (w * 8)) - 1));
 }
 
 static char * evalstr(char *s)
@@ -100,7 +101,7 @@ static char * evalstr(char *s)
 			i++;
 		}
 		s[i] = 0;
-		return  getenv((const char *)&s[2]);
+		return  env_get((const char *)&s[2]);
 	} else {
 		return s;
 	}

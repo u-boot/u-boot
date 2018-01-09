@@ -44,6 +44,27 @@ image source file     mkimage + dtc		  transfer to target
 	+	     ---------------> image file --------------------> bootm
 image data file(s)
 
+SPL usage
+---------
+
+The SPL can make use of the new image format as well, this traditionally
+is used to ship multiple device tree files within one image. Code in the SPL
+will choose the one matching the current board and append this to the
+U-Boot proper binary to be automatically used up by it.
+Aside from U-Boot proper and one device tree blob the SPL can load multiple,
+arbitrary image files as well. These binaries should be specified in their
+own subnode under the /images node, which should then be referenced from one or
+multiple /configurations subnodes. The required images must be enumerated in
+the "loadables" property as a list of strings.
+
+If a platform specific image source file (.its) is shipped with the U-Boot
+source, it can be specified using the CONFIG_SPL_FIT_SOURCE Kconfig symbol.
+In this case it will be automatically used by U-Boot's Makefile to generate
+the image.
+If a static source file is not flexible enough, CONFIG_SPL_FIT_GENERATOR
+can point to a script which generates this image source file during
+the build process. It gets passed a list of device tree files (taken from the
+CONFIG_OF_LIST symbol).
 
 Example 1 -- old-style (non-FDT) kernel booting
 -----------------------------------------------

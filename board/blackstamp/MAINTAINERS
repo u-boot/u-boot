@@ -1,8 +1,0 @@
-BLACKSTAMP BOARD
-M:	Wojtek Skulski <skulski@pas.rochester.edu>
-M:	Wojtek Skulski <info@skutek.com>
-M:	Benjamin Matthews <mben12@gmail.com>
-S:	Maintained
-F:	board/blackstamp/
-F:	include/configs/blackstamp.h
-F:	configs/blackstamp_defconfig

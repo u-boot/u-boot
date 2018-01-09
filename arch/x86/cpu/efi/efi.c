@@ -13,7 +13,7 @@ int arch_cpu_init(void)
 	return 0;
 }
 
-int board_early_init_f(void)
+int checkcpu(void)
 {
 	return 0;
 }
@@ -28,11 +28,6 @@ void board_final_cleanup(void)
 }
 
 int misc_init_r(void)
-{
-	return 0;
-}
-
-int arch_misc_init(void)
 {
 	return 0;
 }

@@ -1,9 +1,0 @@
-if TARGET_BF527_SDP
-
-config SYS_BOARD
-	default "bf527-sdp"
-
-config SYS_CONFIG_NAME
-	default "bf527-sdp"
-
-endif

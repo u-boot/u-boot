@@ -137,6 +137,10 @@ int gsc_info(int verbose)
 		break;
 	case '5': /* GW55xx */
 		break;
+	case '6': /* GW560x */
+		read_hwmon("VDD_IO4",  GSC_HWMON_VDD_IO4, 3);
+		read_hwmon("VDD_GPS",  GSC_HWMON_VDD_IO3, 3);
+		break;
 	}
 	return 0;
 }

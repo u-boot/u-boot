@@ -69,7 +69,6 @@
 					CONFIG_SYS_NAND_BASE2}
 
 #define CONFIG_SYS_NAND_ONFI_DETECTION
-#define CONFIG_SYS_MPUCLK	300
 #define DDR_PLL_FREQ	303
 #undef CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 
@@ -88,11 +87,6 @@
 	"led4=60,0,1\0" \
 	"led5=63,0,1\0"
 
-#undef CONFIG_DOS_PARTITION
-#undef CONFIG_CMD_FAT
-
-#define CONFIG_BOARD_LATE_INIT
-
 /* Physical Memory Map */
 #define CONFIG_MAX_RAM_BANK_SIZE       (1024 << 20)    /* 1GB */
 
@@ -104,7 +98,6 @@
 #define EEPROM_ADDR_CHIP 0x120
 
 #undef CONFIG_MII
-#undef CONFIG_PHY_GIGE
 #define CONFIG_PHY_SMSC
 
 #define CONFIG_FACTORYSET
@@ -120,9 +113,6 @@
 #define CONFIG_SYS_DCACHE_OFF
 #endif
 
-/* Watchdog */
-#define CONFIG_OMAP_WATCHDOG
-
 /* Define own nand partitions */
 #define CONFIG_ENV_OFFSET_REDUND	0xB80000
 #define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
@@ -130,7 +120,6 @@
 
 
 
-#define CONFIG_DFU_MTD
 #undef COMMON_ENV_DFU_ARGS
 #define COMMON_ENV_DFU_ARGS	"dfu_args=run bootargs_defaults;" \
 				"setenv bootargs ${bootargs};" \
@@ -149,26 +138,6 @@
 	"u-boot.env0 mtddev;" \
 	"u-boot.env1 mtddev;" \
 	"rootfs mtddevubi" \
-
-#undef MTDIDS_NAME_STR
-#define MTDIDS_NAME_STR		"omap2-nand_concat"
-#undef MTDIDS_DEFAULT
-#define MTDIDS_DEFAULT		"nand2=" MTDIDS_NAME_STR
-
-#undef MTDPARTS_DEFAULT_V2
-#define MTDPARTS_DEFAULT_V2     "mtdparts=" MTDIDS_NAME_STR ":" \
-				"512k(spl)," \
-				"512k(spl.backup1)," \
-				"512k(spl.backup2)," \
-				"512k(spl.backup3)," \
-				"7680k(u-boot)," \
-				"2048k(u-boot.env0)," \
-				"2048k(u-boot.env1)," \
-				"2048k(mtdoops)," \
-				"-(rootfs)"
-
-#undef MTDPARTS_DEFAULT
-#define MTDPARTS_DEFAULT	MTDPARTS_DEFAULT_V2
 
 #undef CONFIG_ENV_SETTINGS_NAND_V2
 #define CONFIG_ENV_SETTINGS_NAND_V2 \

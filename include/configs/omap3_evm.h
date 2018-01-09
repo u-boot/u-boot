@@ -14,380 +14,168 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __OMAP3EVM_CONFIG_H
-#define __OMAP3EVM_CONFIG_H
+#ifndef __CONFIG_H
+#define __CONFIG_H
 
-#include <asm/arch/cpu.h>
-#include <asm/arch/omap.h>
+#define CONFIG_NR_DRAM_BANKS            2 /* CS1 may or may not be populated */
 
-/* ----------------------------------------------------------------------------
- * Supported U-Boot commands
- * ----------------------------------------------------------------------------
- */
-
-#define CONFIG_CMD_JFFS2
-
-#define CONFIG_CMD_NAND
-
-/* ----------------------------------------------------------------------------
- * Supported U-Boot features
- * ----------------------------------------------------------------------------
- */
-#define CONFIG_SYS_LONGHELP
-
-/* Allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
-/* Add auto-completion support */
-#define CONFIG_AUTO_COMPLETE
-
-/* ----------------------------------------------------------------------------
- * Supported hardware
- * ----------------------------------------------------------------------------
- */
-
-/* MMC */
-#define CONFIG_GENERIC_MMC
-#define CONFIG_OMAP_HSMMC
-
-/* SPL */
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
-
-/* Partition tables */
-#define CONFIG_EFI_PARTITION
-#define CONFIG_DOS_PARTITION
-
-/* USB
- *
- * Enable CONFIG_USB_MUSB_HCD for Host functionalities MSC, keyboard
- * Enable CONFIG_USB_MUSB_UDD for Device functionalities.
- */
-#define CONFIG_USB_OMAP3
-#define CONFIG_USB_MUSB_HCD
-/* #define CONFIG_USB_MUSB_UDC */
-
-/* NAND SPL */
-#define CONFIG_SPL_NAND_SIMPLE
-#define CONFIG_SPL_NAND_BASE
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_ECC
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_PAGE_COUNT	64
-#define CONFIG_SYS_NAND_PAGE_SIZE	2048
-#define CONFIG_SYS_NAND_OOBSIZE		64
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(128*1024)
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
-#define CONFIG_SYS_NAND_ECCPOS		{2, 3, 4, 5, 6, 7, 8, 9,\
-						10, 11, 12, 13}
-#define CONFIG_SYS_NAND_ECCSIZE		512
-#define CONFIG_SYS_NAND_ECCBYTES	3
-#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_HAM1_CODE_HW
-#define CONFIG_SYS_NAND_U_BOOT_START   CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
+#include <configs/ti_omap3_common.h>
 
 /*
- * High level configuration options
+ * We are only ever GP parts and will utilize all of the "downloaded image"
+ * area in SRAM which starts at 0x40200000 and ends at 0x4020FFFF (64KB).
  */
-#define CONFIG_OMAP			/* This is TI OMAP core */
-#define CONFIG_OMAP_GPIO
-/* Common ARM Erratas */
-#define CONFIG_ARM_ERRATA_454179
-#define CONFIG_ARM_ERRATA_430973
-#define CONFIG_ARM_ERRATA_621766
+#undef CONFIG_SPL_TEXT_BASE
+#define CONFIG_SPL_TEXT_BASE            0x40200000
 
-#define CONFIG_SDRC			/* The chip has SDRC controller */
-
-#define CONFIG_OMAP3_EVM		/* This is a OMAP3 EVM */
-#define CONFIG_TWL4030_POWER		/* with TWL4030 PMIC */
-
-/*
- * Clock related definitions
- */
-#define V_OSCK			26000000	/* Clock output from T2 */
-#define V_SCLK			(V_OSCK >> 1)
-
-/*
- * OMAP3 has 12 GP timers, they can be driven by the system clock
- * (12/13/16.8/19.2/38.4MHz) or by 32KHz clock. We use 13MHz (V_SCLK).
- * This rate is divided by a local divisor.
- */
-#define CONFIG_SYS_TIMERBASE		OMAP34XX_GPT2
-#define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
-
-/* Size of environment - 128KB */
-#define CONFIG_ENV_SIZE			(128 << 10)
-
-/* Size of malloc pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
-
-/*
- * Physical Memory Map
- * Note 1: CS1 may or may not be populated
- * Note 2: SDRAM size is expected to be at least 32MB
- */
-#define CONFIG_NR_DRAM_BANKS		2
-#define PHYS_SDRAM_1			OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_2			OMAP34XX_SDRC_CS1
-
-/* Limits for memtest */
-#define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)
-#define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + \
-						0x01F00000) /* 31MB */
-
-/* Default load address */
-#define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0)
-
-/* -----------------------------------------------------------------------------
- * Hardware drivers
- * -----------------------------------------------------------------------------
- */
-
-/*
- * NS16550 Configuration
- */
-#define V_NS16550_CLK			48000000	/* 48MHz (APLL96/2) */
-
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
-
-/*
- * select serial console configuration
- */
-#define CONFIG_CONS_INDEX		1
-#define CONFIG_SERIAL1			1	/* UART1 on OMAP3 EVM */
-#define CONFIG_SYS_NS16550_COM1		OMAP34XX_UART1
-#define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
-					115200}
-
-/*
- * I2C
- */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_OMAP24_I2C_SPEED	100000
-#define CONFIG_SYS_OMAP24_I2C_SLAVE	1
-#define CONFIG_SYS_I2C_OMAP34XX
-
-/*
- * PISMO support
- */
-/* Monitor at start of flash - Reserve 2 sectors */
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
-
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)
-
-/* Start location & size of environment */
-#define ONENAND_ENV_OFFSET		0x260000
-#define SMNAND_ENV_OFFSET		0x260000
-
-#define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
-
-/*
- * NAND
- */
-/* Physical address to access NAND */
-#define CONFIG_SYS_NAND_ADDR		NAND_BASE
-
-/* Physical address to access NAND at CS0 */
-#define CONFIG_SYS_NAND_BASE		NAND_BASE
-
-/* Max number of NAND devices */
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_BUSWIDTH_16BIT
-/* Timeout values (in ticks) */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	(100 * CONFIG_SYS_HZ)
-#define CONFIG_SYS_FLASH_WRITE_TOUT	(100 * CONFIG_SYS_HZ)
-
-/* Flash banks JFFS2 should use */
-#define CONFIG_SYS_MAX_MTD_BANKS	(CONFIG_SYS_MAX_FLASH_BANKS + \
-						CONFIG_SYS_MAX_NAND_DEVICE)
-
-#define CONFIG_SYS_JFFS2_MEM_NAND
-#define CONFIG_SYS_JFFS2_FIRST_BANK	CONFIG_SYS_MAX_FLASH_BANKS
-#define CONFIG_SYS_JFFS2_NUM_BANKS	1
-
-#define CONFIG_JFFS2_NAND
-/* nand device jffs2 lives on */
-#define CONFIG_JFFS2_DEV		"nand0"
-/* Start of jffs2 partition */
-#define CONFIG_JFFS2_PART_OFFSET	0x680000
-/* Size of jffs2 partition */
-#define CONFIG_JFFS2_PART_SIZE		0xf980000
-
-/*
- * USB
- */
-#ifdef CONFIG_USB_OMAP3
-
-#ifdef CONFIG_USB_MUSB_HCD
-
-#define CONGIG_CMD_STORAGE
-
-#ifdef CONFIG_USB_KEYBOARD
-#define CONFIG_SYS_USB_EVENT_POLL
-#define CONFIG_PREBOOT			"usb start"
-#endif /* CONFIG_USB_KEYBOARD */
-
-#endif /* CONFIG_USB_MUSB_HCD */
-
-#ifdef CONFIG_USB_MUSB_UDC
-/* USB device configuration */
-#define CONFIG_USB_DEVICE
-#define CONFIG_USB_TTY
-
-/* Change these to suit your needs */
-#define CONFIG_USBD_VENDORID		0x0451
-#define CONFIG_USBD_PRODUCTID		0x5678
-#define CONFIG_USBD_MANUFACTURER	"Texas Instruments"
-#define CONFIG_USBD_PRODUCT_NAME	"EVM"
-#endif /* CONFIG_USB_MUSB_UDC */
-
-#endif /* CONFIG_USB_OMAP3 */
-
-/* ----------------------------------------------------------------------------
- * U-Boot features
- * ----------------------------------------------------------------------------
- */
-#define CONFIG_SYS_MAXARGS		16	/* max args for a command */
+#define CONFIG_SPL_FRAMEWORK
 
 #define CONFIG_MISC_INIT_R
-
-#define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
+#define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
-/* Size of Console IO buffer */
-#define CONFIG_SYS_CBSIZE		512
+/* Override OMAP3 serial console configuration */
+#undef CONFIG_CONS_INDEX
+#define CONFIG_CONS_INDEX               1
+#define CONFIG_SYS_NS16550_COM1         OMAP34XX_UART1
+#if defined(CONFIG_SPL_BUILD)
+#undef CONFIG_SYS_NS16550_REG_SIZE
+#endif /* CONFIG_SPL_BUILD */
 
-/* Size of print buffer */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-						sizeof(CONFIG_SYS_PROMPT) + 16)
-
-/* Size of bootarg buffer */
-#define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
-
-#define CONFIG_BOOTFILE			"uImage"
-
-/*
- * NAND / OneNAND
- */
-#if defined(CONFIG_CMD_NAND)
+/* NAND */
+#if defined(CONFIG_NAND)
 #define CONFIG_SYS_FLASH_BASE		NAND_BASE
+#define CONFIG_SYS_MAX_NAND_DEVICE      1
+#define CONFIG_SYS_NAND_5_ADDR_CYCLE
+#define CONFIG_SYS_NAND_PAGE_COUNT      64
+#define CONFIG_SYS_NAND_PAGE_SIZE       2048
+#define CONFIG_SYS_NAND_OOBSIZE         64
+#define CONFIG_SYS_NAND_BLOCK_SIZE      (128*1024)
+#define CONFIG_SYS_NAND_BAD_BLOCK_POS   NAND_LARGE_BADBLOCK_POS
+#define CONFIG_SYS_NAND_ECCPOS          {2, 3, 4, 5, 6, 7, 8, 9,\
+                                         10, 11, 12, 13}
+#define CONFIG_SYS_NAND_ECCSIZE         512
+#define CONFIG_SYS_NAND_ECCBYTES        3
+#define CONFIG_NAND_OMAP_ECCSCHEME      OMAP_ECC_BCH8_CODE_HW_DETECTION_SW
+#define CONFIG_SYS_NAND_U_BOOT_OFFS     0x80000
+#define CONFIG_ENV_IS_IN_NAND           1
+#define CONFIG_ENV_SIZE                 (128 << 10) /* 128 KiB */
+#define CONFIG_SYS_ENV_SECT_SIZE        (128 << 10) /* 128 KiB */
+#define CONFIG_ENV_OFFSET               0x260000
+#define CONFIG_ENV_ADDR                 0x260000
+#define CONFIG_ENV_OVERWRITE
+#define CONFIG_MTD_PARTITIONS           /* required for UBI partition support */
+/* NAND: SPL falcon mode configs */
+#if defined(CONFIG_SPL_OS_BOOT)
+#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS 0x280000
+#endif /* CONFIG_SPL_OS_BOOT */
+#endif /* CONFIG_NAND */
 
-#define CONFIG_NAND_OMAP_GPMC
-#define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET
-#elif defined(CONFIG_CMD_ONENAND)
-#define CONFIG_SYS_FLASH_BASE		ONENAND_MAP
-#define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
-#endif
+/* MUSB */
+#define CONFIG_USB_OMAP3
+#define CONFIG_USB_MUSB_OMAP2PLUS
+#define CONFIG_USB_MUSB_PIO_ONLY
 
-#if !defined(CONFIG_ENV_IS_NOWHERE)
-#if defined(CONFIG_CMD_NAND)
-#define CONFIG_ENV_IS_IN_NAND
-#elif defined(CONFIG_CMD_ONENAND)
-#define CONFIG_ENV_IS_IN_ONENAND
-#define CONFIG_ENV_OFFSET		ONENAND_ENV_OFFSET
-#endif
-#endif /* CONFIG_ENV_IS_NOWHERE */
+/* USB EHCI */
+#define CONFIG_SYS_USB_FAT_BOOT_PARTITION  1
 
-#define CONFIG_ENV_ADDR			CONFIG_ENV_OFFSET
+/* Environment */
+#define CONFIG_PREBOOT                  "usb start"
 
-#if defined(CONFIG_CMD_NET)
+#include <config_distro_defaults.h>
 
-/* Ethernet (SMSC9115 from SMSC9118 family) */
-#define CONFIG_SMC911X
-#define CONFIG_SMC911X_32_BIT
-#define CONFIG_SMC911X_BASE		0x2C000000
+#define MEM_LAYOUT_ENV_SETTINGS \
+	DEFAULT_LINUX_BOOT_ENV
 
-/* BOOTP fields */
-#define CONFIG_BOOTP_SUBNETMASK		0x00000001
-#define CONFIG_BOOTP_GATEWAY		0x00000002
-#define CONFIG_BOOTP_HOSTNAME		0x00000004
-#define CONFIG_BOOTP_BOOTPATH		0x00000010
+#if defined(CONFIG_NAND)
+#define BOOTENV_DEV_NAND(devtypeu, devtypel, instance) \
+	"bootcmd_" #devtypel #instance "=" \
+	"run nandboot\0"
 
-#endif /* CONFIG_CMD_NET */
+#define BOOTENV_DEV_NAME_NAND(devtypeu, devtypel, instance) \
+	#devtypel #instance " "
+#endif /* CONFIG_NAND */
 
-/* Support for relocation */
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
-#define CONFIG_SYS_INIT_RAM_SIZE	0x800
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_SIZE - \
-					 GENERATED_GBL_DATA_SIZE)
+#define BOOTENV_DEV_UIMAGE_MMC(devtypeu, devtypel, instance) \
+	"bootcmd_" #devtypel #instance "=" \
+		"setenv mmcdev " #instance"; " \
+		"run mmcboot\0"
 
-/* -----------------------------------------------------------------------------
- * Board specific
- * -----------------------------------------------------------------------------
- */
-#define CONFIG_SYS_NO_FLASH
+#define BOOTENV_DEV_NAME_UIMAGE_MMC(devtypeu, devtypel, instance) \
+	#devtypel #instance " "
 
-/* Uncomment to define the board revision statically */
-/* #define CONFIG_STATIC_BOARD_REV	OMAP3EVM_BOARD_GEN_2 */
+#define BOOTENV_DEV_ZIMAGE_MMC(devtypeu, devtypel, instance) \
+	"bootcmd_" #devtypel #instance "=" \
+		"setenv mmcdev " #instance"; " \
+		"run mmcbootz\0"
 
-/* Defines for SPL */
-#define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_TEXT_BASE		0x40200800
-#define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
-					 CONFIG_SPL_TEXT_BASE)
+#define BOOTENV_DEV_NAME_ZIMAGE_MMC(devtypeu, devtypel, instance) \
+	#devtypel #instance " "
 
-#define CONFIG_SPL_BSS_START_ADDR	0x80000000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(ZIMAGE_MMC, zimage_mmc, 0) \
+	func(UIMAGE_MMC, uimage_mmc, 0) \
+	func(NAND, nand, 0)
 
-#define CONFIG_SPL_BOARD_INIT
-#define CONFIG_SPL_OMAP3_ID_NAND
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
-
-/*
- * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
- * 64 bytes before this address should be set aside for u-boot.img's
- * header. That is 0x800FFFC0--0x80100000 should not be used for any
- * other needs.
- */
-#define CONFIG_SYS_TEXT_BASE		0x80100000
-#define CONFIG_SYS_SPL_MALLOC_START	0x80208000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
-
-/* -----------------------------------------------------------------------------
- * Default environment
- * -----------------------------------------------------------------------------
- */
+#include <config_distro_bootcmd.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"loadaddr=0x82000000\0" \
-	"usbtty=cdc_acm\0" \
+	MEM_LAYOUT_ENV_SETTINGS \
+	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
+	"fdt_high=0xffffffff\0" \
+	"bootenv=uEnv.txt\0" \
+	"optargs=\0" \
 	"mmcdev=0\0" \
 	"console=ttyO0,115200n8\0" \
 	"mmcargs=setenv bootargs console=${console} " \
+		"${mtdparts} " \
+		"${optargs} " \
 		"root=/dev/mmcblk0p2 rw " \
-		"rootfstype=ext3 rootwait\0" \
+		"rootfstype=ext4 rootwait\0" \
 	"nandargs=setenv bootargs console=${console} " \
-		"root=/dev/mtdblock4 rw " \
-		"rootfstype=jffs2\0" \
-	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
-	"bootscript=echo Running bootscript from mmc ...; " \
-		"source ${loadaddr}\0" \
-	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
-	"mmcboot=echo Booting from mmc ...; " \
-		"run mmcargs; " \
-		"bootm ${loadaddr}\0" \
-	"nandboot=echo Booting from nand ...; " \
-		"run nandargs; " \
-		"onenand read ${loadaddr} 280000 400000; " \
-		"bootm ${loadaddr}\0" \
-
-#define CONFIG_BOOTCOMMAND \
-	"mmc dev ${mmcdev}; if mmc rescan; then " \
-		"if run loadbootscript; then " \
-			"run bootscript; " \
-		"else " \
-			"if run loaduimage; then " \
-				"run mmcboot; " \
-			"else run nandboot; " \
+		"${mtdparts} " \
+		"${optargs} " \
+		"root=ubi0:rootfs rw ubi.mtd=rootfs noinitrd " \
+		"rootfstype=ubifs rootwait\0" \
+	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
+	"importbootenv=echo Importing environment from mmc ...; " \
+		"env import -t ${loadaddr} ${filesize}\0" \
+	"mmcbootenv=" \
+		"mmc dev ${mmcdev}; " \
+		"if mmc rescan && run loadbootenv; then " \
+			"run importbootenv; " \
+			"if test -n $uenvcmd; then " \
+				"echo Running uenvcmd ...; " \
+				"run uenvcmd; " \
 			"fi; " \
-		"fi; " \
-	"else run nandboot; fi"
+		"fi\0" \
+	"loaduimage=setenv bootfile uImage; " \
+		"fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
+	"loadzimage=setenv bootfile zImage; " \
+		"fatload mmc ${mmcdev} ${loadaddr} zImage\0" \
+	"loaddtb=fatload mmc ${mmcdev} ${fdtaddr} ${fdtfile}\0" \
+	"mmcboot=run mmcbootenv; " \
+		"if run loaduimage && run loaddtb; then " \
+			"echo Booting ${bootfile} from mmc ...; " \
+			"run mmcargs; " \
+			"bootm ${loadaddr} - ${fdtaddr}; " \
+		"fi\0" \
+	"mmcbootz=run mmcbootenv; " \
+		"if run loadzimage && run loaddtb; then " \
+			"echo Booting ${bootfile} from mmc ...; " \
+			"run mmcargs; " \
+			"bootz ${loadaddr} - ${fdtaddr};" \
+		"fi\0" \
+	"nandboot=echo Booting uImage from nand ...; " \
+		"run nandargs; " \
+		"nand read ${loadaddr} kernel; " \
+		"nand read ${fdtaddr} dtb; " \
+		"bootm ${loadaddr} - ${fdtaddr}\0" \
+	BOOTENV
 
-#endif /* __OMAP3EVM_CONFIG_H */
+#endif /* __CONFIG_H */

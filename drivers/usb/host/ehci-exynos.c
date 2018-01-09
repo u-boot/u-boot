@@ -52,14 +52,14 @@ static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 	/*
 	 * Get the base address for XHCI controller from the device node
 	 */
-	plat->hcd_base = dev_get_addr(dev);
+	plat->hcd_base = devfdt_get_addr(dev);
 	if (plat->hcd_base == FDT_ADDR_T_NONE) {
 		debug("Can't get the XHCI register base address\n");
 		return -ENXIO;
 	}
 
 	depth = 0;
-	node = fdtdec_next_compatible_subnode(blob, dev->of_offset,
+	node = fdtdec_next_compatible_subnode(blob, dev_of_offset(dev),
 				COMPAT_SAMSUNG_EXYNOS_USB_PHY, &depth);
 	if (node <= 0) {
 		debug("XHCI: Can't get device node for usb3-phy controller\n");

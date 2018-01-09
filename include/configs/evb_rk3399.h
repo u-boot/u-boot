@@ -9,17 +9,8 @@
 
 #include <configs/rk3399_common.h>
 
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV 1
-/*
- * SPL @ 32k for ~36k
- * ENV @ 96k
- * u-boot @ 128K
- */
-#define CONFIG_ENV_OFFSET (96 * 1024)
 
 #define SDRAM_BANK_SIZE			(2UL << 30)
-
-#define CONFIG_SYS_WHITE_ON_BLACK
 
 #endif

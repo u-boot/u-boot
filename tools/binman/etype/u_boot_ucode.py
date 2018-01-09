@@ -58,7 +58,10 @@ class Entry_u_boot_ucode(Entry_blob):
     def ObtainContents(self):
         # If the image does not need microcode, there is nothing to do
         ucode_dest_entry = self.image.FindEntryType('u-boot-with-ucode-ptr')
-        if ucode_dest_entry and not ucode_dest_entry.target_pos:
+        ucode_dest_entry_spl = self.image.FindEntryType(
+            'u-boot-spl-with-ucode-ptr')
+        if ((not ucode_dest_entry or not ucode_dest_entry.target_pos) and
+            (not ucode_dest_entry_spl or not ucode_dest_entry_spl.target_pos)):
             self.data = ''
             return True
 

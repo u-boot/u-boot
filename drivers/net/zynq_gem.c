@@ -9,6 +9,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <clk.h>
 #include <common.h>
 #include <dm.h>
 #include <net.h>
@@ -25,7 +26,6 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <linux/errno.h>
-#include <clk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -175,16 +175,13 @@ struct zynq_gem_priv {
 	u32 rxbd_current;
 	u32 rx_first_buf;
 	int phyaddr;
-	u32 emio;
 	int init;
 	struct zynq_gem_regs *iobase;
 	phy_interface_t interface;
 	struct phy_device *phydev;
 	int phy_of_handle;
 	struct mii_dev *bus;
-#ifdef CONFIG_CLK_ZYNQMP
 	struct clk clk;
-#endif
 	bool int_pcs;
 };
 
@@ -341,12 +338,12 @@ static int zynq_phy_init(struct udevice *dev)
 	if (!priv->phydev)
 		return -ENODEV;
 
-	priv->phydev->supported = supported | ADVERTISED_Pause |
+	priv->phydev->supported &= supported | ADVERTISED_Pause |
 				  ADVERTISED_Asym_Pause;
 	priv->phydev->advertising = priv->phydev->supported;
 
 	if (priv->phy_of_handle > 0)
-		priv->phydev->dev->of_offset = priv->phy_of_handle;
+		dev_set_of_offset(priv->phydev->dev, priv->phy_of_handle);
 
 	return phy_config(priv->phydev);
 }
@@ -459,18 +456,17 @@ static int zynq_gem_init(struct udevice *dev)
 		break;
 	}
 
-	/* Change the rclk and clk only not using EMIO interface */
-	if (!priv->emio)
-#ifndef CONFIG_CLK_ZYNQMP
-		zynq_slcr_gem_clk_setup((ulong)priv->iobase !=
-					ZYNQ_GEM_BASEADDR0, clk_rate);
-#else
-	{
-		ret = clk_set_rate(&priv->clk, clk_rate);
-		if (IS_ERR_VALUE(ret))
-			return -1;
+	ret = clk_set_rate(&priv->clk, clk_rate);
+	if (IS_ERR_VALUE(ret) && ret != (unsigned long)-ENOSYS) {
+		dev_err(dev, "failed to set tx clock rate\n");
+		return ret;
 	}
-#endif
+
+	ret = clk_enable(&priv->clk);
+	if (ret && ret != -ENOSYS) {
+		dev_err(dev, "failed to enable tx clock\n");
+		return ret;
+	}
 
 	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_RXEN_MASK |
 					ZYNQ_GEM_NWCTRL_TXEN_MASK);
@@ -641,13 +637,11 @@ static int zynq_gem_probe(struct udevice *dev)
 	priv->tx_bd = (struct emac_bd *)bd_space;
 	priv->rx_bd = (struct emac_bd *)((ulong)bd_space + BD_SEPRN_SPACE);
 
-#ifdef CONFIG_CLK_ZYNQMP
 	ret = clk_get_by_name(dev, "tx_clk", &priv->clk);
 	if (ret < 0) {
 		dev_err(dev, "failed to get clock\n");
 		return -EINVAL;
 	}
-#endif
 
 	priv->bus = mdio_alloc();
 	priv->bus->read = zynq_gem_miiphy_read;
@@ -686,21 +680,21 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
+	int node = dev_of_offset(dev);
 	const char *phy_mode;
 
-	pdata->iobase = (phys_addr_t)dev_get_addr(dev);
+	pdata->iobase = (phys_addr_t)devfdt_get_addr(dev);
 	priv->iobase = (struct zynq_gem_regs *)pdata->iobase;
 	/* Hardcode for now */
-	priv->emio = 0;
 	priv->phyaddr = -1;
 
-	priv->phy_of_handle = fdtdec_lookup_phandle(gd->fdt_blob,
-					dev->of_offset, "phy-handle");
+	priv->phy_of_handle = fdtdec_lookup_phandle(gd->fdt_blob, node,
+						    "phy-handle");
 	if (priv->phy_of_handle > 0)
 		priv->phyaddr = fdtdec_get_int(gd->fdt_blob,
 					priv->phy_of_handle, "reg", -1);
 
-	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy-mode", NULL);
+	phy_mode = fdt_getprop(gd->fdt_blob, node, "phy-mode", NULL);
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (pdata->phy_interface == -1) {
@@ -709,8 +703,7 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	}
 	priv->interface = pdata->phy_interface;
 
-	priv->emio = fdtdec_get_bool(gd->fdt_blob, dev->of_offset, "xlnx,emio");
-	priv->int_pcs = fdtdec_get_bool(gd->fdt_blob, dev->of_offset,
+	priv->int_pcs = fdtdec_get_bool(gd->fdt_blob, node,
 					"is-internal-pcspma");
 
 	printf("ZYNQ GEM: %lx, phyaddr %x, interface %s\n", (ulong)priv->iobase,

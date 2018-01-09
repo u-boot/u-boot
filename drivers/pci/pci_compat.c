@@ -49,5 +49,5 @@ struct pci_controller *pci_bus_to_hose(int busnum)
 		return NULL;
 	}
 
-	return dev_get_uclass_priv(bus);
+	return dev_get_uclass_priv(pci_get_controller(bus));
 }

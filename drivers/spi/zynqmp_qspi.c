@@ -184,8 +184,8 @@ static int zynqmp_qspi_ofdata_to_platdata(struct udevice *bus)
 
 	debug("%s\n", __func__);
 
-	plat->regs = (struct zynqmp_qspi_regs *)(dev_get_addr(bus) + 0x100);
-	plat->dma_regs = (struct zynqmp_qspi_dma_regs *)(dev_get_addr(bus) +
+	plat->regs = (struct zynqmp_qspi_regs *)(devfdt_get_addr(bus) + 0x100);
+	plat->dma_regs = (struct zynqmp_qspi_dma_regs *)(devfdt_get_addr(bus) +
 							 0x800);
 
 	ret = clk_get_by_index(bus, 0, &clk);
@@ -207,19 +207,19 @@ static int zynqmp_qspi_ofdata_to_platdata(struct udevice *bus)
 		return ret;
 	}
 
-	is_dual = fdtdec_get_int(gd->fdt_blob, bus->of_offset, "is-dual", -1);
+	is_dual = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus), "is-dual", -1);
 	if (is_dual < 0)
 		plat->is_dual = SF_SINGLE_FLASH;
 	else if (is_dual == 1)
 		plat->is_dual = SF_DUAL_PARALLEL_FLASH;
 	else
-		if (fdtdec_get_int(gd->fdt_blob, bus->of_offset,
+		if (fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus),
 				   "is-stacked", -1) < 0)
 			plat->is_dual = SF_SINGLE_FLASH;
 		else
 			plat->is_dual = SF_DUAL_STACKED_FLASH;
 
-	offset = fdt_first_subnode(gd->fdt_blob, bus->of_offset);
+	offset = fdt_first_subnode(gd->fdt_blob, dev_of_offset(bus));
 
 	value = fdtdec_get_uint(gd->fdt_blob, offset, "spi-rx-bus-width", 1);
 	switch (value) {
@@ -236,7 +236,7 @@ static int zynqmp_qspi_ofdata_to_platdata(struct udevice *bus)
 		break;
 	}
 
-	value = fdtdec_get_uint(gd->fdt_blob, offset, "spi-tx-bus-width", 1);
+	value = dev_read_u32_default(bus, "spi-tx-bus-width", 1);
 	switch (value) {
 	case 1:
 		break;

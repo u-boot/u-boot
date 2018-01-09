@@ -150,7 +150,7 @@ struct mmc *mmc_create(const struct mmc_config *cfg, void *priv)
 	    cfg->f_max == 0 || cfg->b_max == 0)
 		return NULL;
 
-#ifndef CONFIG_DM_MMC_OPS
+#if !CONFIG_IS_ENABLED(DM_MMC)
 	if (cfg->ops == NULL || cfg->ops->send_cmd == NULL)
 		return NULL;
 #endif

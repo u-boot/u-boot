@@ -152,7 +152,7 @@ static int sandbox_serial_ofdata_to_platdata(struct udevice *dev)
 	int i;
 
 	plat->colour = -1;
-	colour = fdt_getprop(gd->fdt_blob, dev->of_offset,
+	colour = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
 			     "sandbox,text-colour", NULL);
 	if (colour) {
 		for (i = 0; i < ARRAY_SIZE(ansi_colour); i++) {

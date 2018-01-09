@@ -16,11 +16,11 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/imx-common/boot_mode.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/mxc_i2c.h>
-#include <asm/imx-common/sata.h>
-#include <asm/imx-common/video.h>
+#include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/mxc_i2c.h>
+#include <asm/mach-imx/sata.h>
+#include <asm/mach-imx/video.h>
 #include <fsl_esdhc.h>
 #include <i2c.h>
 #include <input.h>
@@ -167,7 +167,7 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-#ifdef CONFIG_CMD_SATA
+#ifdef CONFIG_SATA
 	setup_sata();
 #endif
 
@@ -240,7 +240,7 @@ int misc_init_r(void)
 	int ret;
 
 	/* If 'ethaddr' is already set, do nothing. */
-	if (getenv("ethaddr"))
+	if (env_get("ethaddr"))
 		return 0;
 
 	/* EEPROM is at bus 2. */
@@ -264,7 +264,7 @@ int misc_init_r(void)
 	}
 
 	/* Set ethernet address from EEPROM. */
-	eth_setenv_enetaddr("ethaddr", data.mac);
+	eth_env_set_enetaddr("ethaddr", data.mac);
 
 	return ret;
 }

@@ -45,7 +45,7 @@ static void board_enable_audio_codec(void)
 	if (node <= 0)
 		return;
 
-	ret = gpio_request_by_name_nodev(gd->fdt_blob, node,
+	ret = gpio_request_by_name_nodev(offset_to_ofnode(node),
 					 "codec-enable-gpio", 0, &en_gpio,
 					 GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 	if (ret == -FDT_ERR_NOTFOUND)
@@ -123,13 +123,7 @@ int exynos_power_init(void)
 	if (ret)
 		return ret;
 
-	/*
-	 * This would normally be 1.3V, but since we are running slowly 1.1V
-	 * is enough. For spring it helps reduce CPU temperature and avoid
-	 * hangs with the case open. 1.1V is minimum voltage borderline for
-	 * chained bootloaders.
-	 */
-	ret = exynos_set_regulator("vdd_arm", 1100000);
+	ret = exynos_set_regulator("vdd_arm", 1300000);
 	if (ret)
 		return ret;
 	ret = exynos_set_regulator("vdd_int", 1012500);
@@ -167,7 +161,7 @@ int board_usb_init(int index, enum usb_init_type init)
 		samsung_get_base_usb3_phy();
 
 	if (!phy) {
-		error("usb3 phy not supported");
+		pr_err("usb3 phy not supported");
 		return -ENODEV;
 	}
 
@@ -182,10 +176,10 @@ char *get_dfu_alt_system(char *interface, char *devstr)
 {
 	char *info = "Not supported!";
 
-	if (board_is_odroidxu4())
+	if (board_is_odroidxu4() || board_is_odroidhc1())
 		return info;
 
-	return getenv("dfu_alt_system");
+	return env_get("dfu_alt_system");
 }
 
 char *get_dfu_alt_boot(char *interface, char *devstr)
@@ -195,7 +189,7 @@ char *get_dfu_alt_boot(char *interface, char *devstr)
 	char *alt_boot;
 	int dev_num;
 
-	if (board_is_odroidxu4())
+	if (board_is_odroidxu4() || board_is_odroidhc1())
 		return info;
 
 	dev_num = simple_strtoul(devstr, NULL, 10);

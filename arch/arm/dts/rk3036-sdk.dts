@@ -51,10 +51,12 @@
 };
 
 &usb_host {
+	vbus-supply = <&vcc5v0_host>;
 	status = "okay";
 };
 
 &usb_otg {
+	vbus-supply = <&vcc5v0_otg>;
 	status = "okay";
 };
 

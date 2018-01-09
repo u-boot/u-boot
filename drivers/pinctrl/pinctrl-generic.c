@@ -5,8 +5,8 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <linux/compat.h>
-#include <dm/device.h>
 #include <dm/pinctrl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -245,7 +245,7 @@ static int pinctrl_generic_set_state_one(struct udevice *dev,
 					 bool is_group, unsigned selector)
 {
 	const void *fdt = gd->fdt_blob;
-	int node_offset = config->of_offset;
+	int node_offset = dev_of_offset(config);
 	const char *propname;
 	const void *value;
 	int prop_offset, len, func_selector, param, ret;
@@ -300,7 +300,7 @@ static int pinctrl_generic_set_state_subnode(struct udevice *dev,
 					     struct udevice *config)
 {
 	const void *fdt = gd->fdt_blob;
-	int node = config->of_offset;
+	int node = dev_of_offset(config);
 	const char *subnode_target_type = "pins";
 	bool is_group = false;
 	const char *name;

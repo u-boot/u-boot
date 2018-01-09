@@ -11,6 +11,8 @@
 #include <image.h>
 #include <lmb.h>
 #include <mapmem.h>
+#include <linux/kernel.h>
+#include <linux/sizes.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -20,7 +22,7 @@ struct Image_header {
 	uint32_t	code1;		/* Executable code */
 	uint64_t	text_offset;	/* Image load offset, LE */
 	uint64_t	image_size;	/* Effective Image size, LE */
-	uint64_t	res1;		/* reserved */
+	uint64_t	flags;		/* Kernel flags, LE */
 	uint64_t	res2;		/* reserved */
 	uint64_t	res3;		/* reserved */
 	uint64_t	res4;		/* reserved */
@@ -34,7 +36,7 @@ static int booti_setup(bootm_headers_t *images)
 {
 	struct Image_header *ih;
 	uint64_t dst;
-	uint64_t image_size;
+	uint64_t image_size, text_offset;
 
 	ih = (struct Image_header *)map_sysmem(images->ep, 0);
 
@@ -42,19 +44,33 @@ static int booti_setup(bootm_headers_t *images)
 		puts("Bad Linux ARM64 Image magic!\n");
 		return 1;
 	}
-	
+
+	/*
+	 * Prior to Linux commit a2c1d73b94ed, the text_offset field
+	 * is of unknown endianness.  In these cases, the image_size
+	 * field is zero, and we can assume a fixed value of 0x80000.
+	 */
 	if (ih->image_size == 0) {
 		puts("Image lacks image_size field, assuming 16MiB\n");
 		image_size = 16 << 20;
+		text_offset = 0x80000;
 	} else {
 		image_size = le64_to_cpu(ih->image_size);
+		text_offset = le64_to_cpu(ih->text_offset);
 	}
 
 	/*
-	 * If we are not at the correct run-time location, set the new
-	 * correct location and then move the image there.
+	 * If bit 3 of the flags field is set, the 2MB aligned base of the
+	 * kernel image can be anywhere in physical memory, so respect
+	 * images->ep.  Otherwise, relocate the image to the base of RAM
+	 * since memory below it is not accessible via the linear mapping.
 	 */
-	dst = gd->bd->bi_dram[0].start + le64_to_cpu(ih->text_offset);
+	if (le64_to_cpu(ih->flags) & BIT(3))
+		dst = images->ep - text_offset;
+	else
+		dst = gd->bd->bi_dram[0].start;
+
+	dst = ALIGN(dst, SZ_2M) + text_offset;
 
 	unmap_sysmem(ih);
 
@@ -131,7 +147,11 @@ int do_booti(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	bootm_disable_interrupts();
 
 	images.os.os = IH_OS_LINUX;
+	images.os.arch = IH_ARCH_ARM64;
 	ret = do_bootm_states(cmdtp, flag, argc, argv,
+#ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
+			      BOOTM_STATE_RAMDISK |
+#endif
 			      BOOTM_STATE_OS_PREP | BOOTM_STATE_OS_FAKE_GO |
 			      BOOTM_STATE_OS_GO,
 			      &images, 1);

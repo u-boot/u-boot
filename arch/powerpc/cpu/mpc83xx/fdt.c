@@ -53,7 +53,6 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #if defined(CONFIG_HAS_ETH0) || defined(CONFIG_HAS_ETH1) ||\
     defined(CONFIG_HAS_ETH2) || defined(CONFIG_HAS_ETH3) ||\
     defined(CONFIG_HAS_ETH4) || defined(CONFIG_HAS_ETH5)
-	fdt_fixup_ethernet(blob);
 #ifdef CONFIG_MPC8313
 	/*
 	* mpc8313e erratum IPIC1 swapped TSEC interrupt ID numbers on rev. 1

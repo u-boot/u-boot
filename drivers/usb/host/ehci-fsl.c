@@ -61,7 +61,7 @@ static int ehci_fsl_ofdata_to_platdata(struct udevice *dev)
 	struct ehci_fsl_priv *priv = dev_get_priv(dev);
 	const void *prop;
 
-	prop = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy_type",
+	prop = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy_type",
 			   NULL);
 	if (prop) {
 		priv->phy_type = (char *)prop;
@@ -98,7 +98,7 @@ static int ehci_fsl_probe(struct udevice *dev)
 	/*
 	 * Get the base address for EHCI controller from the device node
 	 */
-	priv->hcd_base = dev_get_addr(dev);
+	priv->hcd_base = devfdt_get_addr(dev);
 	if (priv->hcd_base == FDT_ADDR_T_NONE) {
 		debug("Can't get the EHCI register base address\n");
 		return -ENXIO;
@@ -225,7 +225,7 @@ static int ehci_fsl_init(int index, struct usb_ehci *ehci,
 				"phy_type", &len);
 #endif
 	else
-		phy_type = getenv("usb_phy_type");
+		phy_type = env_get("usb_phy_type");
 
 	if (!phy_type) {
 #ifdef CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY

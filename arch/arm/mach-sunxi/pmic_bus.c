@@ -41,6 +41,9 @@ int pmic_bus_init(void)
 	p2wi_init();
 	ret = p2wi_change_to_p2wi_mode(AXP221_CHIP_ADDR, AXP221_CTRL_ADDR,
 				       AXP221_INIT_DATA);
+# elif defined CONFIG_MACH_SUN8I_R40
+	/* Nothing. R40 uses the AXP221s in I2C mode */
+	ret = 0;
 # else
 	ret = rsb_init();
 	if (ret)
@@ -65,6 +68,8 @@ int pmic_bus_read(u8 reg, u8 *data)
 #elif defined CONFIG_AXP221_POWER || defined CONFIG_AXP809_POWER || defined CONFIG_AXP818_POWER
 # ifdef CONFIG_MACH_SUN6I
 	return p2wi_read(reg, data);
+# elif defined CONFIG_MACH_SUN8I_R40
+	return i2c_read(AXP209_I2C_ADDR, reg, 1, data, 1);
 # else
 	return rsb_read(AXP223_RUNTIME_ADDR, reg, data);
 # endif
@@ -80,6 +85,8 @@ int pmic_bus_write(u8 reg, u8 data)
 #elif defined CONFIG_AXP221_POWER || defined CONFIG_AXP809_POWER || defined CONFIG_AXP818_POWER
 # ifdef CONFIG_MACH_SUN6I
 	return p2wi_write(reg, data);
+# elif defined CONFIG_MACH_SUN8I_R40
+	return i2c_write(AXP209_I2C_ADDR, reg, 1, &data, 1);
 # else
 	return rsb_write(AXP223_RUNTIME_ADDR, reg, data);
 # endif

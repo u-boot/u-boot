@@ -5,6 +5,52 @@ config SYS_ARCH
 	default "x86"
 
 choice
+	prompt "Run U-Boot in 32/64-bit mode"
+	default X86_RUN_32BIT
+	help
+	  U-Boot can be built as a 32-bit binary which runs in 32-bit mode
+	  even on 64-bit machines. In this case SPL is not used, and U-Boot
+	  runs directly from the reset vector (via 16-bit start-up).
+
+	  Alternatively it can be run as a 64-bit binary, thus requiring a
+	  64-bit machine. In this case SPL runs in 32-bit mode (via 16-bit
+	  start-up) then jumps to U-Boot in 64-bit mode.
+
+	  For now, 32-bit mode is recommended, as 64-bit is still
+	  experimental and is missing a lot of features.
+
+config X86_RUN_32BIT
+	bool "32-bit"
+	help
+	  Build U-Boot as a 32-bit binary with no SPL. This is the currently
+	  supported normal setup. U-Boot will stay in 32-bit mode even on
+	  64-bit machines. When booting a 64-bit kernel, U-Boot will switch
+	  to 64-bit just before starting the kernel. Only the bottom 4GB of
+	  memory can be accessed through normal means, although
+	  arch_phys_memset() can be used for basic access to other memory.
+
+config X86_RUN_64BIT
+	bool "64-bit"
+	select X86_64
+	select SUPPORT_SPL
+	select SPL
+	select SPL_SEPARATE_BSS
+	help
+	  Build U-Boot as a 64-bit binary with a 32-bit SPL. This is
+	  experimental and many features are missing. U-Boot SPL starts up,
+	  runs through the 16-bit and 32-bit init, then switches to 64-bit
+	  mode and jumps to U-Boot proper.
+
+endchoice
+
+config X86_64
+	bool
+
+config SPL_X86_64
+	bool
+	depends on SPL
+
+choice
 	prompt "Mainboard vendor"
 	default VENDOR_EMULATION
 
@@ -34,6 +80,22 @@ config VENDOR_INTEL
 
 endchoice
 
+# subarchitectures-specific options below
+config INTEL_MID
+	bool "Intel MID platform support"
+	select REGMAP
+	select SYSCON
+	help
+	  Select to build a U-Boot capable of supporting Intel MID
+	  (Mobile Internet Device) platform systems which do not have
+	  the PCI legacy interfaces.
+
+	  If you are building for a PC class system say N here.
+
+	  Intel MID platforms are based on an Intel processor and
+	  chipset which consume less power than most of the x86
+	  derivatives.
+
 # board-specific options below
 source "board/advantech/Kconfig"
 source "board/congatec/Kconfig"
@@ -46,12 +108,14 @@ source "board/intel/Kconfig"
 
 # platform-specific options below
 source "arch/x86/cpu/baytrail/Kconfig"
+source "arch/x86/cpu/braswell/Kconfig"
 source "arch/x86/cpu/broadwell/Kconfig"
 source "arch/x86/cpu/coreboot/Kconfig"
 source "arch/x86/cpu/ivybridge/Kconfig"
 source "arch/x86/cpu/qemu/Kconfig"
 source "arch/x86/cpu/quark/Kconfig"
 source "arch/x86/cpu/queensbay/Kconfig"
+source "arch/x86/cpu/tangier/Kconfig"
 
 # architecture-specific options below
 
@@ -88,6 +152,47 @@ config SMM_TSEG_SIZE
 config X86_RESET_VECTOR
 	bool
 	default n
+	select BINMAN
+
+# The following options control where the 16-bit and 32-bit init lies
+# If SPL is enabled then it normally holds this init code, and U-Boot proper
+# is normally a 64-bit build.
+#
+# The 16-bit init refers to the reset vector and the small amount of code to
+# get the processor into 32-bit mode. It may be in SPL or in U-Boot proper,
+# or missing altogether if U-Boot is started from EFI or coreboot.
+#
+# The 32-bit init refers to processor init, running binary blobs including
+# FSP, setting up interrupts and anything else that needs to be done in
+# 32-bit code. It is normally in the same place as 16-bit init if that is
+# enabled (i.e. they are both in SPL, or both in U-Boot proper).
+config X86_16BIT_INIT
+	bool
+	depends on X86_RESET_VECTOR
+	default y if X86_RESET_VECTOR && !SPL
+	help
+	  This is enabled when 16-bit init is in U-Boot proper
+
+config SPL_X86_16BIT_INIT
+	bool
+	depends on X86_RESET_VECTOR
+	default y if X86_RESET_VECTOR && SPL
+	help
+	  This is enabled when 16-bit init is in SPL
+
+config X86_32BIT_INIT
+	bool
+	depends on X86_RESET_VECTOR
+	default y if X86_RESET_VECTOR && !SPL
+	help
+	  This is enabled when 32-bit init is in U-Boot proper
+
+config SPL_X86_32BIT_INIT
+	bool
+	depends on X86_RESET_VECTOR
+	default y if X86_RESET_VECTOR && SPL
+	help
+	  This is enabled when 32-bit init is in SPL
 
 config RESET_SEG_START
 	hex
@@ -108,6 +213,14 @@ config SYS_X86_START16
 	hex
 	depends on X86_RESET_VECTOR
 	default 0xfffff800
+
+config X86_LOAD_FROM_32_BIT
+	bool "Boot from a 32-bit program"
+	help
+	  Define this to boot U-Boot from a 32-bit program which sets
+	  the GDT differently. This can be used to boot directly from
+	  any stage of coreboot, for example, bypassing the normal
+	  payload-loading feature.
 
 config BOARD_ROMSIZE_KB_512
 	bool
@@ -207,6 +320,22 @@ config X86_RAMTEST
 	  very simple RAM test that quickly checks whether the SDRAM seems
 	  to work correctly. It is not exhaustive but can save time by
 	  detecting obvious failures.
+
+config FLASH_DESCRIPTOR_FILE
+	string "Flash descriptor binary filename"
+	depends on HAVE_INTEL_ME
+	default "descriptor.bin"
+	help
+	  The filename of the file to use as flash descriptor in the
+	  board directory.
+
+config INTEL_ME_FILE
+	string "Intel Management Engine binary filename"
+	depends on HAVE_INTEL_ME
+	default "me.bin"
+	help
+	  The filename of the file to use as Intel Management Engine in the
+	  board directory.
 
 config HAVE_FSP
 	bool "Add an Firmware Support Package binary"
@@ -393,6 +522,13 @@ config AP_STACK_SIZE
 	  the memory used by this initialisation process. Typically 4KB is
 	  enough space.
 
+config CPU_INTEL_TURBO_NOT_PACKAGE_SCOPED
+	bool
+	help
+	  This option indicates that the turbo mode setting is not package
+	  scoped. i.e. turbo_enable() needs to be called on not just the
+	  bootstrap processor (BSP).
+
 config HAVE_VGA_BIOS
 	bool "Add a VGA BIOS image"
 	help
@@ -414,6 +550,61 @@ config VGA_BIOS_ADDR
 	  The location of VGA BIOS image in the SPI flash. For example, base
 	  address of 0xfff90000 indicates that the image will be put at offset
 	  0x90000 from the beginning of a 1MB flash device.
+
+config HAVE_VBT
+	bool "Add a Video BIOS Table (VBT) image"
+	depends on HAVE_FSP
+	help
+	  Select this option if you have a Video BIOS Table (VBT) image that
+	  you would like to add to your ROM. This is normally required if you
+	  are using an Intel FSP firmware that is complaint with spec 1.1 or
+	  later to initialize the integrated graphics device (IGD).
+
+	  Video BIOS Table, or VBT, provides platform and board specific
+	  configuration information to the driver that is not discoverable
+	  or available through other means. By other means the most used
+	  method here is to read EDID table from the attached monitor, over
+	  Display Data Channel (DDC) using two pin I2C serial interface. VBT
+	  configuration is related to display hardware and is available via
+	  the ACPI OpRegion or, on older systems, in the PCI ROM (Option ROM).
+
+config VBT_FILE
+	string "Video BIOS Table (VBT) image filename"
+	depends on HAVE_VBT
+	default "vbt.bin"
+	help
+	  The filename of the file to use as Video BIOS Table (VBT) image
+	  in the board directory.
+
+config VBT_ADDR
+	hex "Video BIOS Table (VBT) image location"
+	depends on HAVE_VBT
+	default 0xfff90000
+	help
+	  The location of Video BIOS Table (VBT) image in the SPI flash. For
+	  example, base address of 0xfff90000 indicates that the image will
+	  be put at offset 0x90000 from the beginning of a 1MB flash device.
+
+config VIDEO_FSP
+	bool "Enable FSP framebuffer driver support"
+	depends on HAVE_VBT && DM_VIDEO
+	help
+	  Turn on this option to enable a framebuffer driver when U-Boot is
+	  using Video BIOS Table (VBT) image for FSP firmware to initialize
+	  the integrated graphics device.
+
+config ROM_TABLE_ADDR
+	hex
+	default 0xf0000
+	help
+	  All x86 tables happen to like the address range from 0x0f0000
+	  to 0x100000. We use 0xf0000 as the starting address to store
+	  those tables, including PIRQ routing table, Multi-Processor
+	  table and ACPI table.
+
+config ROM_TABLE_SIZE
+	hex
+	default 0x10000
 
 menu "System tables"
 	depends on !EFI && !SYS_COREBOOT
@@ -462,6 +653,38 @@ config GENERATE_ACPI_TABLE
 	  for configuration and power management monitoring.
 
 endmenu
+
+config HAVE_ACPI_RESUME
+	bool "Enable ACPI S3 resume"
+	select ENABLE_MRC_CACHE
+	help
+	  Select this to enable ACPI S3 resume. S3 is an ACPI-defined sleeping
+	  state where all system context is lost except system memory. U-Boot
+	  is responsible for restoring the machine state as it was before sleep.
+	  It needs restore the memory controller, without overwriting memory
+	  which is not marked as reserved. For the peripherals which lose their
+	  registers, U-Boot needs to write the original value. When everything
+	  is done, U-Boot needs to find out the wakeup vector provided by OSes
+	  and jump there.
+
+config S3_VGA_ROM_RUN
+	bool "Re-run VGA option ROMs on S3 resume"
+	depends on HAVE_ACPI_RESUME
+	help
+	  Execute VGA option ROMs in U-Boot when resuming from S3. Normally
+	  this is needed when graphics console is being used in the kernel.
+
+	  Turning it off can reduce some resume time, but be aware that your
+	  graphics console won't work without VGA options ROMs. Set it to N
+	  if your kernel is only on a serial console.
+
+config STACK_SIZE
+	hex
+	depends on HAVE_ACPI_RESUME
+	default 0x1000
+	help
+	  Estimated U-Boot's runtime stack size that needs to be reserved
+	  during an ACPI S3 resume.
 
 config MAX_PIRQ_LINKS
 	int

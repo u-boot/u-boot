@@ -16,11 +16,11 @@
 #include <common.h>
 #include <dm.h>
 #include <ns16550.h>
-#ifdef CONFIG_STATUS_LED
+#ifdef CONFIG_LED_STATUS
 #include <status_led.h>
 #endif
 #include <twl4030.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/mux.h>
@@ -36,7 +36,7 @@
 #include "beagle.h"
 #include <command.h>
 
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 #include <usb.h>
 #include <asm/ehci-omap.h>
 #endif
@@ -75,7 +75,8 @@ static struct {
 static const struct ns16550_platdata beagle_serial = {
 	.base = OMAP34XX_UART3,
 	.reg_shift = 2,
-	.clock = V_NS16550_CLK
+	.clock = V_NS16550_CLK,
+	.fcr = UART_FCR_DEFVAL,
 };
 
 U_BOOT_DEVICE(beagle_uart) = {
@@ -95,8 +96,8 @@ int board_init(void)
 	/* boot param addr */
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
 
-#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
-	status_led_set (STATUS_LED_BOOT, STATUS_LED_ON);
+#if defined(CONFIG_LED_STATUS) && defined(CONFIG_LED_STATUS_BOOT_ENABLE)
+	status_led_set(CONFIG_LED_STATUS_BOOT, CONFIG_LED_STATUS_ON);
 #endif
 
 	return 0;
@@ -340,16 +341,16 @@ int misc_init_r(void)
 	switch (get_board_revision()) {
 	case REVISION_AXBX:
 		printf("Beagle Rev Ax/Bx\n");
-		setenv("beaglerev", "AxBx");
+		env_set("beaglerev", "AxBx");
 		break;
 	case REVISION_CX:
 		printf("Beagle Rev C1/C2/C3\n");
-		setenv("beaglerev", "Cx");
+		env_set("beaglerev", "Cx");
 		MUX_BEAGLE_C();
 		break;
 	case REVISION_C4:
 		printf("Beagle Rev C4\n");
-		setenv("beaglerev", "C4");
+		env_set("beaglerev", "C4");
 		MUX_BEAGLE_C();
 		/* Set VAUX2 to 1.8V for EHCI PHY */
 		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VAUX2_DEDICATED,
@@ -359,7 +360,7 @@ int misc_init_r(void)
 		break;
 	case REVISION_XM_AB:
 		printf("Beagle xM Rev A/B\n");
-		setenv("beaglerev", "xMAB");
+		env_set("beaglerev", "xMAB");
 		MUX_BEAGLE_XM();
 		/* Set VAUX2 to 1.8V for EHCI PHY */
 		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VAUX2_DEDICATED,
@@ -370,7 +371,7 @@ int misc_init_r(void)
 		break;
 	case REVISION_XM_C:
 		printf("Beagle xM Rev C\n");
-		setenv("beaglerev", "xMC");
+		env_set("beaglerev", "xMC");
 		MUX_BEAGLE_XM();
 		/* Set VAUX2 to 1.8V for EHCI PHY */
 		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VAUX2_DEDICATED,
@@ -396,14 +397,14 @@ int misc_init_r(void)
 			expansion_config.revision,
 			expansion_config.fab_revision);
 		MUX_TINCANTOOLS_ZIPPY();
-		setenv("buddy", "zippy");
+		env_set("buddy", "zippy");
 		break;
 	case TINCANTOOLS_ZIPPY2:
 		printf("Recognized Tincantools Zippy2 board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
 		MUX_TINCANTOOLS_ZIPPY();
-		setenv("buddy", "zippy2");
+		env_set("buddy", "zippy2");
 		break;
 	case TINCANTOOLS_TRAINER:
 		printf("Recognized Tincantools Trainer board (rev %d %s)\n",
@@ -411,44 +412,44 @@ int misc_init_r(void)
 			expansion_config.fab_revision);
 		MUX_TINCANTOOLS_ZIPPY();
 		MUX_TINCANTOOLS_TRAINER();
-		setenv("buddy", "trainer");
+		env_set("buddy", "trainer");
 		break;
 	case TINCANTOOLS_SHOWDOG:
 		printf("Recognized Tincantools Showdow board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
 		/* Place holder for DSS2 definition for showdog lcd */
-		setenv("defaultdisplay", "showdoglcd");
-		setenv("buddy", "showdog");
+		env_set("defaultdisplay", "showdoglcd");
+		env_set("buddy", "showdog");
 		break;
 	case KBADC_BEAGLEFPGA:
 		printf("Recognized KBADC Beagle FPGA board\n");
 		MUX_KBADC_BEAGLEFPGA();
-		setenv("buddy", "beaglefpga");
+		env_set("buddy", "beaglefpga");
 		break;
 	case LW_BEAGLETOUCH:
 		printf("Recognized Liquidware BeagleTouch board\n");
-		setenv("buddy", "beagletouch");
+		env_set("buddy", "beagletouch");
 		break;
 	case BRAINMUX_LCDOG:
 		printf("Recognized Brainmux LCDog board\n");
-		setenv("buddy", "lcdog");
+		env_set("buddy", "lcdog");
 		break;
 	case BRAINMUX_LCDOGTOUCH:
 		printf("Recognized Brainmux LCDog Touch board\n");
-		setenv("buddy", "lcdogtouch");
+		env_set("buddy", "lcdogtouch");
 		break;
 	case BBTOYS_WIFI:
 		printf("Recognized BeagleBoardToys WiFi board\n");
 		MUX_BBTOYS_WIFI()
-		setenv("buddy", "bbtoys-wifi");
-		break;;
+		env_set("buddy", "bbtoys-wifi");
+		break;
 	case BBTOYS_VGA:
 		printf("Recognized BeagleBoardToys VGA board\n");
-		break;;
+		break;
 	case BBTOYS_LCD:
 		printf("Recognized BeagleBoardToys LCD board\n");
-		break;;
+		break;
 	case BCT_BRETTL3:
 		printf("Recognized bct electronic GmbH brettl3 board\n");
 		break;
@@ -458,20 +459,20 @@ int misc_init_r(void)
 	case LSR_COM6L_ADPT:
 		printf("Recognized LSR COM6L Adapter Board\n");
 		MUX_BBTOYS_WIFI()
-		setenv("buddy", "lsr-com6l-adpt");
+		env_set("buddy", "lsr-com6l-adpt");
 		break;
 	case BEAGLE_NO_EEPROM:
 		printf("No EEPROM on expansion board\n");
-		setenv("buddy", "none");
+		env_set("buddy", "none");
 		break;
 	default:
 		printf("Unrecognized expansion board: %x\n",
 			expansion_config.device_vendor);
-		setenv("buddy", "unknown");
+		env_set("buddy", "unknown");
 	}
 
 	if (expansion_config.content == 1)
-		setenv(expansion_config.env_var, expansion_config.env_setting);
+		env_set(expansion_config.env_var, expansion_config.env_setting);
 
 	twl4030_power_init();
 	switch (get_board_revision()) {
@@ -523,21 +524,21 @@ void set_muxconf_regs(void)
 	MUX_BEAGLE();
 }
 
-#if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_MMC)
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0, -1, -1);
 }
 #endif
 
-#if defined(CONFIG_GENERIC_MMC)
+#if defined(CONFIG_MMC)
 void board_mmc_power_init(void)
 {
 	twl4030_power_mmc_init(0);
 }
 #endif
 
-#if defined(CONFIG_USB_EHCI) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_USB_EHCI_HCD) && !defined(CONFIG_SPL_BUILD)
 /* Call usb_stop() before starting the kernel */
 void show_boot_progress(int val)
 {
@@ -562,7 +563,7 @@ int ehci_hcd_stop(int index)
 	return omap_ehci_hcd_stop();
 }
 
-#endif /* CONFIG_USB_EHCI */
+#endif /* CONFIG_USB_EHCI_HCD */
 
 #if defined(CONFIG_USB_ETHER) && defined(CONFIG_USB_MUSB_GADGET)
 int board_eth_init(bd_t *bis)

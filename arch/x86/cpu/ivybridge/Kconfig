@@ -8,6 +8,17 @@
 config NORTHBRIDGE_INTEL_IVYBRIDGE
 	bool
 	select CACHE_MRC_BIN if HAVE_MRC
+	imply HAVE_INTEL_ME
+	imply ENABLE_MRC_CACHE
+	imply AHCI_PCI
+	imply ICH_SPI
+	imply INTEL_ICH6_GPIO
+	imply SCSI
+	imply SCSI_AHCI
+	imply SPI_FLASH
+	imply USB
+	imply USB_EHCI_HCD
+	imply VIDEO_VESA
 
 if NORTHBRIDGE_INTEL_IVYBRIDGE
 

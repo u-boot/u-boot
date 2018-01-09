@@ -68,8 +68,6 @@
 #endif
 
 /* High Level Configuration Options */
-#define CONFIG_FSL_IFC			/* Enable IFC Support */
-#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 #define CONFIG_SYS_HAS_SERDES		/* common SERDES init code */
 
 #if defined(CONFIG_PCI)
@@ -78,8 +76,6 @@
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
 #define CONFIG_FSL_PCIE_RESET		/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
-
-#define CONFIG_CMD_PCI
 
 /*
  * PCI Windows
@@ -97,7 +93,6 @@
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xC0010000
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#define CONFIG_DOS_PARTITION
 #endif
 
 #define CONFIG_ENV_OVERWRITE
@@ -221,9 +216,6 @@ combinations. this should be removed later
  */
 /* NOR Flash on IFC */
 
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_NO_FLASH
-#endif
 #define CONFIG_SYS_FLASH_BASE		0x88000000
 #define CONFIG_SYS_MAX_FLASH_SECT	1024	/* Max number of sector: 32M */
 
@@ -299,7 +291,6 @@ combinations. this should be removed later
 /* NAND */
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_CMD_NAND
 
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
 
@@ -373,7 +364,6 @@ combinations. this should be removed later
 #define CONFIG_SYS_CS1_FTIM3		CONFIG_SYS_NAND_FTIM3
 #endif
 
-#define CONFIG_BOARD_EARLY_INIT_F	/* Call board_pre_init */
 #define CONFIG_BOARD_EARLY_INIT_R
 
 #define CONFIG_SYS_INIT_RAM_LOCK
@@ -424,7 +414,6 @@ combinations. this should be removed later
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
 
 /* enable read and write access to EEPROM */
-#define CONFIG_CMD_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
@@ -466,8 +455,6 @@ combinations. this should be removed later
 
 #define CONFIG_ETHPRIME		"eTSEC1"
 
-#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
-
 /* TBI PHY configuration for SGMII mode */
 #define CONFIG_TSEC_TBICR_SETTINGS ( \
 		TBICR_PHY_RESET \
@@ -479,14 +466,11 @@ combinations. this should be removed later
 #endif	/* CONFIG_TSEC_ENET */
 
 #ifdef CONFIG_MMC
-#define CONFIG_DOS_PARTITION
 #define CONFIG_FSL_ESDHC
-#define CONFIG_GENERIC_MMC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #endif
 
-#define CONFIG_USB_EHCI  /* USB */
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_HAS_FSL_DR_USB
@@ -496,12 +480,10 @@ combinations. this should be removed later
  * Environment
  */
 #if defined(CONFIG_RAMBOOT_SDCARD)
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_FSL_FIXED_MMC_LOCATION
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_SIZE			0x2000
 #elif defined(CONFIG_RAMBOOT_SPIFLASH)
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_BUS	0
 #define CONFIG_ENV_SPI_CS	0
 #define CONFIG_ENV_SPI_MAX_HZ	10000000
@@ -510,16 +492,13 @@ combinations. this should be removed later
 #define CONFIG_ENV_SECT_SIZE	0x10000
 #define CONFIG_ENV_SIZE		0x2000
 #elif defined(CONFIG_NAND) || defined(CONFIG_NAND_SECBOOT)
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
 #define CONFIG_ENV_OFFSET	((768 * 1024) + CONFIG_SYS_NAND_BLOCK_SIZE)
 #define CONFIG_ENV_RANGE	(3 * CONFIG_ENV_SIZE)
 #elif defined(CONFIG_SYS_RAMBOOT)
-#define CONFIG_ENV_IS_NOWHERE		/* Store ENV in memory only */
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_MONITOR_BASE - 0x1000)
 #define CONFIG_ENV_SIZE			0x2000
 #else
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_ENV_SECT_SIZE	0x20000
@@ -529,40 +508,12 @@ combinations. this should be removed later
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
 
 /*
- * Command line configuration.
- */
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_ERRATA
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_REGINFO
-
-#if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI)
-#define CONFIG_DOS_PARTITION
-#endif
-
-/* Hash command with SHA acceleration supported in hardware */
-#ifdef CONFIG_FSL_CAAM
-#define CONFIG_CMD_HASH
-#define CONFIG_SHA_HW_ACCEL
-#endif
-
-/*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
-#else
-#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
-#endif
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
-						/* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS	16		/* max number of command args */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE/* Boot Argument Buffer Size */
 
 /*
  * For booting Linux, the board info and command line data
@@ -579,15 +530,10 @@ combinations. this should be removed later
 /*
  * Dynamic MTD Partition support with mtdparts
  */
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_FLASH_CFI_MTD
-#define MTDIDS_DEFAULT "nor0=88000000.nor,nand0=ff800000.flash,"
-#define MTDPARTS_DEFAULT "mtdparts=88000000.nor:256k(dtb),7m(kernel)," \
-			"55m(fs),1m(uboot);ff800000.flash:1m(uboot)," \
-			"8m(kernel),512k(dtb),-(fs)"
 #endif
 /*
  * Environment Configuration
@@ -602,8 +548,6 @@ combinations. this should be removed later
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	"u-boot.bin"
-
-#define CONFIG_BAUDRATE		115200
 
 #ifdef CONFIG_SDCARD
 #define CONFIG_DEF_HWCONFIG	"hwconfig=usb1:dr_mode=host,phy_type=ulpi\0"

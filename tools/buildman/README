@@ -141,7 +141,7 @@ means to build all arm boards except nvidia, freescale and anything ending
 with 'ball'.
 
 It is convenient to use the -n option to see what will be built based on
-the subset given.
+the subset given. Use -v as well to get an actual list of boards.
 
 Buildman does not store intermediate object files. It optionally copies
 the binary output into a directory when a build is successful. Size
@@ -343,12 +343,6 @@ Toolchain '/toolchains/gcc-4.6.3-nolibc/m68k-linux/bin/m68k-linux-gcc' at priori
       - looking in '/toolchains/gcc-4.6.3-nolibc/powerpc-linux/usr/bin'
 Tool chain test:  OK, arch='powerpc', priority 4
 Tool chain test:  OK, arch='or32', priority 4
-   - scanning path '/toolchains/gcc-4.2.4-nolibc/avr32-linux'
-      - looking in '/toolchains/gcc-4.2.4-nolibc/avr32-linux/.'
-      - looking in '/toolchains/gcc-4.2.4-nolibc/avr32-linux/bin'
-         - found '/toolchains/gcc-4.2.4-nolibc/avr32-linux/bin/avr32-linux-gcc'
-      - looking in '/toolchains/gcc-4.2.4-nolibc/avr32-linux/usr/bin'
-Tool chain test:  OK, arch='avr32', priority 4
    - scanning path '/'
       - looking in '/.'
       - looking in '/bin'
@@ -381,7 +375,6 @@ aarch64   : /toolchains/gcc-4.9.0-nolibc/aarch64-linux/bin/aarch64-linux-gcc
 alpha     : /toolchains/gcc-4.9.0-nolibc/alpha-linux/bin/alpha-linux-gcc
 am33_2.0  : /toolchains/gcc-4.9.0-nolibc/am33_2.0-linux/bin/am33_2.0-linux-gcc
 arm       : /opt/arm-eabi-4.6/bin/arm-eabi-gcc
-avr32     : /toolchains/gcc-4.2.4-nolibc/avr32-linux/bin/avr32-linux-gcc
 bfin      : /toolchains/gcc-4.6.3-nolibc/bfin-uclinux/bin/bfin-uclinux-gcc
 c89       : /usr/bin/c89-gcc
 c99       : /usr/bin/c99-gcc
@@ -428,7 +421,7 @@ Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.3/
 Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.2/
 Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.5.1/
 Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.2.4/
-Available architectures: alpha am33_2.0 arm avr32 bfin cris crisv32 frv h8300
+Available architectures: alpha am33_2.0 arm bfin cris crisv32 frv h8300
 hppa hppa64 i386 ia64 m32r m68k mips mips64 or32 powerpc powerpc64 s390x sh4
 sparc sparc64 tilegx x86_64 xtensa
 
@@ -455,7 +448,7 @@ $ sudo mv ~/.buildman-toolchains/*/* /toolchains/
 For those not available from kernel.org, download from the following links.
 
 arc: https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/
-    arc_gnu_2015.06_prebuilt_uclibc_le_archs_linux_install.tar.gz
+    download/arc-2016.09-release/arc_gnu_2016.09_prebuilt_uclibc_le_archs_linux_install.tar.gz
 blackfin: http://sourceforge.net/projects/adi-toolchain/files/
     blackfin-toolchain-elf-gcc-4.5-2014R1_45-RC2.x86_64.tar.bz2
 nds32: http://osdk.andestech.com/packages/
@@ -473,7 +466,7 @@ Buildman should now be set up to use your new toolchain.
 
 At the time of writing, U-Boot has these architectures:
 
-   arc, arm, avr32, blackfin, m68k, microblaze, mips, nds32, nios2, openrisc
+   arc, arm, blackfin, m68k, microblaze, mips, nds32, nios2, openrisc
    powerpc, sandbox, sh, sparc, x86
 
 Of these, only arc and nds32 are not available at kernel.org..

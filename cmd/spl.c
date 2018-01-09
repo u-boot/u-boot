@@ -8,6 +8,7 @@
 #include <common.h>
 #include <command.h>
 #include <cmd_spl.h>
+#include <libfdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -108,16 +109,23 @@ static int spl_export(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	c = find_cmd_tbl(argv[1], &cmd_spl_export_sub[0],
 		ARRAY_SIZE(cmd_spl_export_sub));
-	if ((c) && ((int)c->cmd <= SPL_EXPORT_LAST)) {
+	if ((c) && ((long)c->cmd <= SPL_EXPORT_LAST)) {
 		argc -= 2;
 		argv += 2;
-		if (call_bootm(argc, argv, subcmd_list[(int)c->cmd]))
+		if (call_bootm(argc, argv, subcmd_list[(long)c->cmd]))
 			return -1;
-		switch ((int)c->cmd) {
+		switch ((long)c->cmd) {
 #ifdef CONFIG_OF_LIBFDT
 		case SPL_EXPORT_FDT:
 			printf("Argument image is now in RAM: 0x%p\n",
 				(void *)images.ft_addr);
+			env_set_addr("fdtargsaddr", images.ft_addr);
+			env_set_hex("fdtargslen", fdt_totalsize(images.ft_addr));
+#ifdef CONFIG_CMD_SPL_WRITE_SIZE
+			if (fdt_totalsize(images.ft_addr) >
+			    CONFIG_CMD_SPL_WRITE_SIZE)
+				puts("WARN: FDT size > CMD_SPL_WRITE_SIZE\n");
+#endif
 			break;
 #endif
 		case SPL_EXPORT_ATAGS:
@@ -147,7 +155,7 @@ static int do_spl(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	c = find_cmd_tbl(argv[1], &cmd_spl_sub[0], ARRAY_SIZE(cmd_spl_sub));
 	if (c) {
-		cmd = (int)c->cmd;
+		cmd = (long)c->cmd;
 		switch (cmd) {
 		case SPL_EXPORT:
 			argc--;

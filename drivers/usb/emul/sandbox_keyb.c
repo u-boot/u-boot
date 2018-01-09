@@ -208,8 +208,7 @@ static int sandbox_keyb_bind(struct udevice *dev)
 	fs[2].id = STRINGID_SERIAL;
 	fs[2].s = dev->name;
 
-	return usb_emul_setup_device(dev, PACKET_SIZE_8, plat->keyb_strings,
-				     keyb_desc_list);
+	return usb_emul_setup_device(dev, plat->keyb_strings, keyb_desc_list);
 }
 
 static int sandbox_keyb_probe(struct udevice *dev)

@@ -5,10 +5,10 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <linux/err.h>
-#include <dm/device.h>
+#include <common.h>
+#include <linux/errno.h>
+#include <dm.h>
 #include <dm/pinctrl.h>
-#include <dm/uclass.h>
 
 #include "init.h"
 

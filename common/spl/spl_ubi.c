@@ -38,7 +38,7 @@ int spl_ubi_load_image(struct spl_image_info *spl_image,
 		goto out;
 	}
 	info.ubi = (struct ubi_scan_info *)CONFIG_SPL_UBI_INFO_ADDR;
-	info.fastmap = 1;
+	info.fastmap = IS_ENABLED(CONFIG_MTD_UBI_FASTMAP);
 
 	info.peb_offset = CONFIG_SPL_UBI_PEB_OFFSET;
 	info.vid_offset = CONFIG_SPL_UBI_VID_OFFSET;

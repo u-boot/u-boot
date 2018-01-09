@@ -30,7 +30,7 @@ static int s5m8767_write(struct udevice *dev, uint reg, const uint8_t *buff,
 			  int len)
 {
 	if (dm_i2c_write(dev, reg, buff, len)) {
-		error("write error to device: %p register: %#x!", dev, reg);
+		pr_err("write error to device: %p register: %#x!", dev, reg);
 		return -EIO;
 	}
 
@@ -40,7 +40,7 @@ static int s5m8767_write(struct udevice *dev, uint reg, const uint8_t *buff,
 static int s5m8767_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 {
 	if (dm_i2c_read(dev, reg, buff, len)) {
-		error("read error from device: %p register: %#x!", dev, reg);
+		pr_err("read error from device: %p register: %#x!", dev, reg);
 		return -EIO;
 	}
 
@@ -54,12 +54,11 @@ int s5m8767_enable_32khz_cp(struct udevice *dev)
 
 static int s5m8767_bind(struct udevice *dev)
 {
-	int node;
-	const void *blob = gd->fdt_blob;
 	int children;
+	ofnode node;
 
-	node = fdt_subnode_offset(blob, dev->of_offset, "regulators");
-	if (node <= 0) {
+	node = dev_read_subnode(dev, "regulators");
+	if (!ofnode_valid(node)) {
 		debug("%s: %s regulators subnode not found!", __func__,
 		      dev->name);
 		return -ENXIO;

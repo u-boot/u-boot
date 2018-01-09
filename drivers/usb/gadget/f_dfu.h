@@ -51,7 +51,6 @@
 
 #define RET_STALL			-1
 #define RET_ZLP				0
-#define RET_STAT_LEN			6
 
 enum dfu_state {
 	DFU_STATE_appIDLE		= 0,

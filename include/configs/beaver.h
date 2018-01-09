@@ -21,18 +21,12 @@
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
-#define MACH_TYPE_BEAVER		4597	/* not yet in mach-types.h */
 #define CONFIG_MACH_TYPE		MACH_TYPE_BEAVER
 
 /* I2C */
 #define CONFIG_SYS_I2C_TEGRA
 
-/* SD/MMC */
-#define CONFIG_GENERIC_MMC
-#define CONFIG_TEGRA_MMC
-
 /* Environment in eMMC, at the end of 2nd "boot sector" */
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		2
@@ -44,15 +38,11 @@
 #define CONFIG_SPI_FLASH_SIZE          (4 << 20)
 
 /* USB Host support */
-#define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_TEGRA
 
 /* USB networking support */
-#define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_ASIX
 
 /* PCI host support */
-#define CONFIG_CMD_PCI
 
 /* General networking support */
 

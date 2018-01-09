@@ -3,6 +3,7 @@
 #
 
 dtb-y += bayleybay.dtb \
+	cherryhill.dtb \
 	chromebook_link.dtb \
 	chromebox_panther.dtb \
 	chromebook_samus.dtb \
@@ -10,6 +11,7 @@ dtb-y += bayleybay.dtb \
 	cougarcanyon2.dtb \
 	crownbay.dtb \
 	dfi-bt700-q7x-151.dtb \
+	edison.dtb \
 	efi.dtb \
 	galileo.dtb \
 	minnowmax.dtb \

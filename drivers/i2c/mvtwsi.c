@@ -37,6 +37,14 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif /* CONFIG_DM_I2C */
 
 /*
+ * On SUNXI, we get CONFIG_SYS_TCLK from this include, so we want to
+ * always have it.
+ */
+#if defined(CONFIG_DM_I2C) && defined(CONFIG_ARCH_SUNXI)
+#include <asm/arch/i2c.h>
+#endif
+
+/*
  * TWSI register structure
  */
 
@@ -770,16 +778,16 @@ static int mvtwsi_i2c_ofdata_to_platdata(struct udevice *bus)
 {
 	struct mvtwsi_i2c_dev *dev = dev_get_priv(bus);
 
-	dev->base = dev_get_addr_ptr(bus);
+	dev->base = devfdt_get_addr_ptr(bus);
 
 	if (!dev->base)
 		return -ENOMEM;
 
-	dev->index = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
+	dev->index = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus),
 				    "cell-index", -1);
-	dev->slaveadd = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
+	dev->slaveadd = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus),
 				       "u-boot,i2c-slave-addr", 0x0);
-	dev->speed = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
+	dev->speed = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus),
 				    "clock-frequency", 100000);
 	return 0;
 }
@@ -831,6 +839,7 @@ static const struct dm_i2c_ops mvtwsi_i2c_ops = {
 static const struct udevice_id mvtwsi_i2c_ids[] = {
 	{ .compatible = "marvell,mv64xxx-i2c", },
 	{ .compatible = "marvell,mv78230-i2c", },
+	{ .compatible = "allwinner,sun6i-a31-i2c", },
 	{ /* sentinel */ }
 };
 

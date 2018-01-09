@@ -173,6 +173,7 @@ typedef struct ddr4_spd_eeprom_s generic_spd_eeprom_t;
 
 /* DDR_CDR1 */
 #define DDR_CDR1_DHC_EN	0x80000000
+#define DDR_CDR1_V0PT9_EN	0x40000000
 #define DDR_CDR1_ODT_SHIFT	17
 #define DDR_CDR1_ODT_MASK	0x6
 #define DDR_CDR2_ODT_MASK	0x1
@@ -476,4 +477,12 @@ typedef struct fixed_ddr_parm{
 	int max_freq;
 	fsl_ddr_cfg_regs_t *ddr_settings;
 } fixed_ddr_parm_t;
+
+/**
+ * fsl_initdram() - Set up the SDRAM
+ *
+ * @return 0 if OK, -ve on error
+ */
+int fsl_initdram(void);
+
 #endif

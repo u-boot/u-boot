@@ -17,6 +17,7 @@
 #include <common.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <asm/setup.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux-mx28.h>
 #include <asm/arch/clock.h>
@@ -132,8 +133,8 @@ void get_board_serial(struct tag_serialnr *serialnr)
 #ifdef CONFIG_REVISION_TAG
 u32 get_board_rev(void)
 {
-	if (getenv("revision#") != NULL)
-		return simple_strtoul(getenv("revision#"), NULL, 10);
+	if (env_get("revision#") != NULL)
+		return simple_strtoul(env_get("revision#"), NULL, 10);
 	return 0;
 }
 #endif

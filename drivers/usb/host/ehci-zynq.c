@@ -26,7 +26,7 @@ static int ehci_zynq_ofdata_to_platdata(struct udevice *dev)
 {
 	struct zynq_ehci_priv *priv = dev_get_priv(dev);
 
-	priv->ehci = (struct usb_ehci *)dev_get_addr_ptr(dev);
+	priv->ehci = (struct usb_ehci *)devfdt_get_addr_ptr(dev);
 	if (!priv->ehci)
 		return -EINVAL;
 

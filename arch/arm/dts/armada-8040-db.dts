@@ -83,28 +83,68 @@
 
 &cpm_pinctl {
 	/* MPP Bus:
-	 * [0-31] = 0xff: Keep default CP0_shared_pins:
-	 * [11] CLKOUT_MPP_11 (out)
-	 * [23] LINK_RD_IN_CP2CP (in)
-	 * [25] CLKOUT_MPP_25 (out)
-	 * [29] AVS_FB_IN_CP2CP (in)
-	 * [32,34] SMI
-	 * [31]    GPIO: push button/Wake
-	 * [35-36] GPIO
-	 * [37-38] I2C
-	 * [40-41] SATA[0/1]_PRESENT_ACTIVEn
-	 * [42-43] XSMI
-	 * [44-55] RGMII1
-	 * [56-62] SD
+	 *	[0-31]	= 0xff: Keep default CP0_shared_pins
+	 *	[11]	CLKOUT_MPP_11 (out)
+	 *	[23]	LINK_RD_IN_CP2CP (in)
+	 *	[25]	CLKOUT_MPP_25 (out)
+	 *	[29]	AVS_FB_IN_CP2CP (in)
+	 *	[32,34]	GE_MDIO/MDC
+	 *	[33]	GPIO: GE_INT#/push button/Wake
+	 *	[35]	MSS_GPIO[3]: MSS_PWDN
+	 *	[36]	MSS_GPIO[5]: MSS_VTT_EN
+	 *	[37-38]	I2C0
+	 *	[39]	PTP_CLK
+	 *	[40-41]	SATA[0/1]_PRESENT_ACTIVEn
+	 *	[42-43]	XG_MDC/XG_MDIO (XSMI)
+	 *	[44-55]	RGMII1
+	 *	[56-62]	SD
 	 */
-		/*   0    1    2    3    4    5    6    7    8    9 */
+	/*   0    1    2    3    4    5    6    7    8    9 */
 	pin-func = < 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
 		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
 		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
-		     0xff 0    7    0    7    0    0    2    2    0
-		     0    0    8    8    1    1    1    1    1    1
-		     1    1    1    1    1    1    0xe  0xe  0xe  0xe
-		     0xe  0xe  0xe >;
+		     0xff 0xff 0x7  0x0  0x7  0xa  0xa  0x2  0x2  0x5
+		     0x9  0x9  0x8  0x8  0x1  0x1  0x1  0x1  0x1  0x1
+		     0x1  0x1  0x1  0x1  0x1  0x1  0xe  0xe  0xe  0xe
+		     0xe  0xe  0xe>;
+};
+
+&cpm_comphy {
+	/* Serdes Configuration:
+	 *	Lane 0: PCIe0 (x1)
+	 *	Lane 1: SATA0
+	 *	Lane 2: SFI (10G)
+	 *	Lane 3: SATA1
+	 *	Lane 4: USB3_HOST1
+	 *	Lane 5: PCIe2 (x1)
+	 */
+	phy0 {
+		phy-type = <PHY_TYPE_PEX0>;
+	};
+	phy1 {
+		phy-type = <PHY_TYPE_SATA0>;
+	};
+	phy2 {
+		phy-type = <PHY_TYPE_SFI>;
+	};
+	phy3 {
+		phy-type = <PHY_TYPE_SATA1>;
+	};
+	phy4 {
+		phy-type = <PHY_TYPE_USB3_HOST1>;
+	};
+	phy5 {
+		phy-type = <PHY_TYPE_PEX2>;
+	};
+};
+
+/* CON6 on CP0 expansion */
+&cpm_pcie0 {
+	status = "okay";
+};
+
+&cpm_pcie1 {
+	status = "disabled";
 };
 
 /* CON5 on CP0 expansion */
@@ -134,21 +174,69 @@
 	status = "okay";
 };
 
+&cpm_utmi0 {
+	status = "okay";
+};
+
+&cpm_utmi1 {
+	status = "okay";
+};
+
 &cps_pinctl {
 	/* MPP Bus:
-	 * [0-11]  RGMII0
-	 * [13-16] SPI1
-	 * [27,31] GE_MDIO/MDC
-	 * [32-62] = 0xff: Keep default CP1_shared_pins:
+	 *	[0-11]	RGMII0
+	 *	[13-16]	SPI1
+	 *	[27,31]	GE_MDIO/MDC
+	 *	[28]	SATA1_PRESENT_ACTIVEn
+	 *	[29-30]	UART0
+	 *	[32-62]	= 0xff: Keep default CP1_shared_pins
 	 */
-		/*   0    1    2    3    4    5    6    7    8    9 */
+	/*   0    1    2    3    4    5    6    7    8    9 */
 	pin-func = < 0x3  0x3  0x3  0x3  0x3  0x3  0x3  0x3  0x3  0x3
-		     0x3  0x3  0xff 0x3  0x3  0x3  0x3  0xff 0xff 0xff
-		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0x8  0xff 0xff
-		     0xff 0x8  0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		     0x3  0x3  0x3  0x3  0x3  0x3  0x3  0xff 0xff 0xff
+		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0x8  0x9  0xa
+		     0xA  0x8  0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
 		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
 		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
-		     0xff 0xff 0xff >;
+		     0xff 0xff 0xff>;
+};
+
+&cps_comphy {
+	/* Serdes Configuration:
+	 *	Lane 0: PCIe0 (x1)
+	 *	Lane 1: SATA0
+	 *	Lane 2: SFI (10G)
+	 *	Lane 3: SATA1
+	 *	Lane 4: PCIe1 (x1)
+	 *	Lane 5: PCIe2 (x1)
+	 */
+	phy0 {
+		phy-type = <PHY_TYPE_PEX0>;
+	};
+	phy1 {
+		phy-type = <PHY_TYPE_SATA0>;
+	};
+	phy2 {
+		phy-type = <PHY_TYPE_SFI>;
+	};
+	phy3 {
+		phy-type = <PHY_TYPE_SATA1>;
+	};
+	phy4 {
+		phy-type = <PHY_TYPE_PEX1>;
+	};
+	phy5 {
+		phy-type = <PHY_TYPE_PEX2>;
+	};
+};
+
+/* CON6 on CP1 expansion */
+&cps_pcie0 {
+	status = "okay";
+};
+
+&cps_pcie1 {
+	status = "okay";
 };
 
 /* CON5 on CP1 expansion */
@@ -200,86 +288,22 @@
 	status = "okay";
 };
 
-&cpm_comphy {
-	/*
-	 * Serdes Configuration:
-	 * Lane 0: SGMII2
-	 * Lane 1: USB3_HOST0
-	 * Lane 2: KR (10G)
-	 * Lane 3: SATA1
-	 * Lane 4: USB3_HOST1
-	 * Lane 5: PEX2x1
-	 */
-	phy0 {
-		phy-type = <PHY_TYPE_SGMII2>;
-		phy-speed = <PHY_SPEED_3_125G>;
-	};
-
-	phy1 {
-		phy-type = <PHY_TYPE_USB3_HOST0>;
-	};
-
-	phy2 {
-		phy-type = <PHY_TYPE_KR>;
-	};
-
-	phy3 {
-		phy-type = <PHY_TYPE_SATA1>;
-	};
-
-	phy4 {
-		phy-type = <PHY_TYPE_USB3_HOST1>;
-	};
-
-	phy5 {
-		phy-type = <PHY_TYPE_PEX2>;
-	};
-};
-
-&cps_comphy {
-	/*
-	 * Serdes Configuration:
-	 * Lane 0: SGMII2
-	 * Lane 1: USB3_HOST0
-	 * Lane 2: KR (10G)
-	 * Lane 3: SATA1
-	 * Lane 4: Unconnected
-	 * Lane 5: PEX2x1
-	 */
-	phy0 {
-		phy-type = <PHY_TYPE_SGMII2>;
-		phy-speed = <PHY_SPEED_3_125G>;
-	};
-
-	phy1 {
-		phy-type = <PHY_TYPE_USB3_HOST0>;
-	};
-
-	phy2 {
-		phy-type = <PHY_TYPE_KR>;
-	};
-
-	phy3 {
-		phy-type = <PHY_TYPE_SATA1>;
-	};
-
-	phy4 {
-		phy-type = <PHY_TYPE_UNCONNECTED>;
-	};
-
-	phy5 {
-		phy-type = <PHY_TYPE_PEX2>;
-	};
-};
-
-&cpm_utmi0 {
-	status = "okay";
-};
-
-&cpm_utmi1 {
-	status = "okay";
-};
-
 &cps_utmi0 {
 	status = "okay";
+};
+
+&cpm_mdio {
+	phy1: ethernet-phy@1 {
+		reg = <1>;
+	};
+};
+
+&cpm_ethernet {
+	status = "okay";
+};
+
+&cpm_eth2 {
+	status = "okay";
+	phy = <&phy1>;
+	phy-mode = "rgmii-id";
 };

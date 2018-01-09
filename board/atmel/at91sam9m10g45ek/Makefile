@@ -10,4 +10,4 @@
 #
 
 obj-y += at91sam9m10g45ek.o
-obj-y += led.o
+obj-(CONFIG_AT91_LED) += led.o

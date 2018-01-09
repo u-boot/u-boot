@@ -13,6 +13,8 @@
 #include <pca953x.h>
 #include "../common/fsl_8xxx_misc.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_PCI)
 extern void ft_board_pci_setup(void *blob, bd_t *bd);
 #endif
@@ -56,7 +58,7 @@ int board_early_init_r(void)
 	return 0;
 }
 
-phys_size_t initdram(int board_type)
+int dram_init(void)
 {
 	phys_size_t dram_size = fsl_ddr_sdram();
 
@@ -65,7 +67,9 @@ phys_size_t initdram(int board_type)
 	ddr_enable_ecc(dram_size);
 #endif
 
-	return dram_size;
+	gd->ram_size = dram_size;
+
+	return 0;
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)

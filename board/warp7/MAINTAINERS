@@ -4,3 +4,4 @@ S:	Maintained
 F:	board/warp7/
 F:	include/configs/warp7.h
 F:	configs/warp7_defconfig
+F:	configs/warp7_secure_defconfig

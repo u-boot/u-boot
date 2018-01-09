@@ -111,7 +111,7 @@ int board_init(void)
 	return 0;
 }
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_GENERIC_MMC)
+#if defined(CONFIG_MMC)
 int board_mmc_init(bd_t *bis)
 {
 	omap_mmc_init(1, 0, 0, -1, -1);
@@ -166,7 +166,7 @@ int board_eth_init(bd_t *bis)
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;
 
-	if (!eth_getenv_enetaddr("ethaddr", mac_addr)) {
+	if (!eth_env_get_enetaddr("ethaddr", mac_addr)) {
 		printf("<ethaddr> not set. Reading from E-fuse\n");
 		/* try reading mac address from efuse */
 		mac_lo = readl(&cdev->macid0l);
@@ -179,7 +179,7 @@ int board_eth_init(bd_t *bis)
 		mac_addr[5] = (mac_lo & 0xFF00) >> 8;
 
 		if (is_valid_ethaddr(mac_addr))
-			eth_setenv_enetaddr("ethaddr", mac_addr);
+			eth_env_set_enetaddr("ethaddr", mac_addr);
 		else
 			printf("Unable to read MAC address. Set <ethaddr>\n");
 	}

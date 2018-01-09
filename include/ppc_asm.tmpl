@@ -81,7 +81,6 @@
 #define	r30	30
 #define	r31	31
 
-
 #if defined(CONFIG_8xx)
 
 /* Some special registers */
@@ -96,17 +95,6 @@
 
 #endif	/* CONFIG_8xx */
 
-
-#if  defined(CONFIG_5xx)
-/* Some special purpose registers */
-#define DER	149		/* Debug Enable Register		*/
-#define COUNTA	150		/* Breakpoint Counter			*/
-#define COUNTB	151		/* Breakpoint Counter			*/
-#define LCTRL1	156		/* Load/Store Support			*/
-#define LCTRL2	157		/* Load/Store Support			*/
-#define ICTRL	158		/* I-Bus Support Control Register	*/
-#define EID	81
-#endif	/* CONFIG_5xx */
 
 #if defined(CONFIG_8xx)
 
@@ -136,35 +124,6 @@
 #define TBREFF0	0x00000204
 
 #define PLPRCR	0x00000284
-
-#elif defined(CONFIG_MPC8260)
-
-#define HID2		1011
-
-#define HID0_IFEM	(1<<7)
-
-#define HID0_ICE_BITPOS	16
-#define HID0_DCE_BITPOS	17
-
-#define IM_REGBASE	0x10000
-#define IM_SYPCR	(IM_REGBASE+0x0004)
-#define IM_SWSR		(IM_REGBASE+0x000e)
-#define IM_BR0		(IM_REGBASE+0x0100)
-#define IM_OR0		(IM_REGBASE+0x0104)
-#define IM_BR1		(IM_REGBASE+0x0108)
-#define IM_OR1		(IM_REGBASE+0x010c)
-#define IM_BR2		(IM_REGBASE+0x0110)
-#define IM_OR2		(IM_REGBASE+0x0114)
-#define IM_MPTPR	(IM_REGBASE+0x0184)
-#define IM_PSDMR	(IM_REGBASE+0x0190)
-#define IM_PSRT		(IM_REGBASE+0x019c)
-#define IM_IMMR		(IM_REGBASE+0x01a8)
-#define IM_SCCR		(IM_REGBASE+0x0c80)
-
-#elif defined(CONFIG_MPC5xxx)
-
-#define HID0_ICE_BITPOS	16
-#define HID0_DCE_BITPOS	17
 
 #endif
 

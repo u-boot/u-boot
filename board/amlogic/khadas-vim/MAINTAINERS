@@ -1,0 +1,6 @@
+KHADAS-VIM
+M:	Neil Armstrong <narmstrong@baylibre.com>
+S:	Maintained
+F:	board/amlogic/khadas-vim/
+F:	include/configs/khadas-vim.h
+F:	configs/khadas-vim_defconfig

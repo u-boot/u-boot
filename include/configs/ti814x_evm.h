@@ -16,17 +16,11 @@
 #ifndef __CONFIG_TI814X_EVM_H
 #define __CONFIG_TI814X_EVM_H
 
-#define CONFIG_TI81XX
-#define CONFIG_TI814X
-#define CONFIG_SYS_NO_FLASH
-#define CONFIG_OMAP
-
 #include <asm/arch/omap.h>
 
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 #define CONFIG_SYS_MALLOC_LEN		(1024 << 10)
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_NO_FLASH
 #define CONFIG_MACH_TYPE		MACH_TYPE_TI8148EVM
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */
@@ -93,29 +87,15 @@
 #define V_OSCK			24000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
 
-/* max number of command args */
-#define CONFIG_SYS_MAXARGS		16
 
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		512
-
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE \
-					+ sizeof(CONFIG_SYS_PROMPT) + 16)
-
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START \
 					+ PHYS_DRAM_1_SIZE - (8 << 12))
 
 #define CONFIG_SYS_LOAD_ADDR		0x81000000	/* Default */
-
-#define CONFIG_OMAP_GPIO
-#define CONFIG_GENERIC_MMC
-#define CONFIG_OMAP_HSMMC
-#define CONFIG_DOS_PARTITION
 
 /**
  * Physical Memory Map
@@ -140,15 +120,11 @@
 #define CONFIG_SYS_NS16550_CLK		(48000000)
 #define CONFIG_SYS_NS16550_COM1		0x48020000	/* Base EVM has UART0 */
 
-#define CONFIG_BAUDRATE			115200
-
 /* CPU */
 #define CONFIG_ARCH_CPU_INIT
 
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX		1
-
-#define CONFIG_ENV_IS_NOWHERE
 
 /* Defines for SPL */
 #define CONFIG_SPL_FRAMEWORK
@@ -164,9 +140,6 @@
 
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 #define CONFIG_SYS_SPI_U_BOOT_SIZE	0x40000
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/u-boot-spl.lds"
-
-#define CONFIG_SPL_BOARD_INIT
 
 /*
  * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
@@ -186,9 +159,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
-/* Unsupported features */
-#undef CONFIG_USE_IRQ
-
 /* Ethernet */
 #define CONFIG_DRIVER_TI_CPSW
 #define CONFIG_MII
@@ -198,8 +168,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_NET_RETRY_COUNT         10
-#define CONFIG_PHY_GIGE
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_ET1011C
 #define CONFIG_PHY_ET1011C_TX_CLK_FIX
 

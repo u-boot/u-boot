@@ -90,6 +90,7 @@ enum vop_modes {
 	VOP_MODE_EDP = 0,
 	VOP_MODE_HDMI,
 	VOP_MODE_LVDS,
+	VOP_MODE_MIPI,
 	VOP_MODE_NONE,
 	VOP_MODE_AUTO_DETECT,
 	VOP_MODE_UNKNOWN,
@@ -196,9 +197,20 @@ enum vop_modes {
 #define V_DSP_DEN_POL(x)               (((x) & 1) << 6)
 #define V_DSP_VSYNC_POL(x)             (((x) & 1) << 5)
 #define V_DSP_HSYNC_POL(x)             (((x) & 1) << 4)
+#define V_DSP_PIN_POL(x)               (((x) & 0xf) << 4)
 #define V_DSP_OUT_MODE(x)              ((x) & 0xf)
 
 /* VOP_DSP_CTRL1 */
+#define V_RK3399_DSP_MIPI_POL(x)       ((x) << 28)
+#define V_RK3399_DSP_EDP_POL(x)        ((x) << 24)
+#define V_RK3399_DSP_HDMI_POL(x)       ((x) << 20)
+#define V_RK3399_DSP_LVDS_POL(x)       ((x) << 16)
+
+#define M_RK3399_DSP_MIPI_POL          (V_RK3399_DSP_MIPI_POL(0xf))
+#define M_RK3399_DSP_EDP_POL           (V_RK3399_DSP_EDP_POL(0xf))
+#define M_RK3399_DSP_HDMI_POL          (V_RK3399_DSP_HDMI_POL(0xf))
+#define M_RK3399_DSP_LVDS_POL          (V_RK3399_DSP_LVDS_POL(0xf))
+
 #define M_DSP_LAYER3_SEL               (3 << 14)
 #define M_DSP_LAYER2_SEL               (3 << 12)
 #define M_DSP_LAYER1_SEL               (3 << 10)

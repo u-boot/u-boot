@@ -20,12 +20,7 @@
 /* SD/MMC configuration */
 #define CONFIG_MMC_DEFAULT_DEV	0
 
-#undef CONFIG_CMD_ONENAND
-#undef CONFIG_CMD_MTDPARTS
-#define CONFIG_CMD_GPT
-
 /* TIZEN THOR downloader support */
-#define CONFIG_CMD_THOR_DOWNLOAD
 #define CONFIG_USB_FUNCTION_THOR
 
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_32M

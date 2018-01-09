@@ -12,12 +12,13 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <stm32_rcc.h>
 #include <asm/io.h>
 #include <asm/armv7m.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/fmc.h>
-#include <dm/platdata.h>
 #include <dm/platform_data/serial_stm32.h>
 #include <asm/arch/stm32_periph.h>
 #include <asm/arch/stm32_defs.h>
@@ -293,6 +294,8 @@ int board_early_init_f(void)
 {
 	int res;
 
+	configure_clocks();
+
 	res = uart_setup_gpio();
 	if (res)
 		return res;
@@ -314,13 +317,13 @@ int misc_init_r(void)
 	char serialno[25];
 	uint32_t u_id_low, u_id_mid, u_id_high;
 
-	if (!getenv("serial#")) {
+	if (!env_get("serial#")) {
 		u_id_low  = readl(&STM32_U_ID->u_id_low);
 		u_id_mid  = readl(&STM32_U_ID->u_id_mid);
 		u_id_high = readl(&STM32_U_ID->u_id_high);
 		sprintf(serialno, "%08x%08x%08x",
 			u_id_high, u_id_mid, u_id_low);
-		setenv("serial#", serialno);
+		env_set("serial#", serialno);
 	}
 
 	return 0;

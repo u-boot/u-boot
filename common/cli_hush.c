@@ -560,7 +560,7 @@ static int builtin_cd(struct child_prog *child)
 {
 	char *newdir;
 	if (child->argv[1] == NULL)
-		newdir = getenv("HOME");
+		newdir = env_get("HOME");
 	else
 		newdir = child->argv[1];
 	if (chdir(newdir)) {
@@ -948,7 +948,7 @@ static inline void cmdedit_set_initial_prompt(void)
 #ifndef CONFIG_FEATURE_SH_FANCY_PROMPT
 	PS1 = NULL;
 #else
-	PS1 = getenv("PS1");
+	PS1 = env_get("PS1");
 	if(PS1==0)
 		PS1 = "\\w \\$ ";
 #endif
@@ -987,9 +987,9 @@ static int uboot_cli_readline(struct in_str *i)
 
 #ifdef CONFIG_CMDLINE_PS_SUPPORT
 	if (i->promptmode == 1)
-		ps_prompt = getenv("PS1");
+		ps_prompt = env_get("PS1");
 	else
-		ps_prompt = getenv("PS2");
+		ps_prompt = env_get("PS2");
 	if (ps_prompt)
 		prompt = ps_prompt;
 #endif
@@ -2172,7 +2172,7 @@ int set_local_var(const char *s, int flg_export)
 	name=strdup(s);
 
 #ifdef __U_BOOT__
-	if (getenv(name) != NULL) {
+	if (env_get(name) != NULL) {
 		printf ("ERROR: "
 				"There is a global environment variable with the same name.\n");
 		free(name);
@@ -2265,7 +2265,7 @@ void unset_local_var(const char *name)
 			} else {
 #ifndef __U_BOOT__
 				if(cur->flg_export)
-					unsetenv(cur->name);
+					unenv_set(cur->name);
 #endif
 				free(cur->name);
 				free(cur->value);
@@ -2793,7 +2793,7 @@ static char *lookup_param(char *src)
 		}
 	}
 
-	p = getenv(src);
+	p = env_get(src);
 	if (!p)
 		p = get_local_var(src);
 
@@ -3157,7 +3157,7 @@ static void mapset(const unsigned char *set, int code)
 static void update_ifs_map(void)
 {
 	/* char *ifs and char map[256] are both globals. */
-	ifs = (uchar *)getenv("IFS");
+	ifs = (uchar *)env_get("IFS");
 	if (ifs == NULL) ifs=(uchar *)" \t\n";
 	/* Precompute a list of 'flow through' behavior so it can be treated
 	 * quickly up front.  Computation is necessary because of IFS.

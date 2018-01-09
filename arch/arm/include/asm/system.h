@@ -180,6 +180,21 @@ static inline unsigned long read_mpidr(void)
 void __asm_flush_dcache_all(void);
 void __asm_invalidate_dcache_all(void);
 void __asm_flush_dcache_range(u64 start, u64 end);
+
+/**
+ * __asm_invalidate_dcache_range() - Invalidate a range of virtual addresses
+ *
+ * This performance an invalidate from @start to @end - 1. Both addresses
+ * should be cache-aligned, otherwise this function will align the start
+ * address and may continue past the end address.
+ *
+ * Data in the address range is evicted from the cache and is not written back
+ * to memory.
+ *
+ * @start: Start address to invalidate
+ * @end: End address to invalidate up to (exclusive)
+ */
+void __asm_invalidate_dcache_range(u64 start, u64 end);
 void __asm_invalidate_tlb_all(void);
 void __asm_invalidate_icache_all(void);
 int __asm_invalidate_l3_dcache(void);
@@ -200,8 +215,8 @@ void __asm_switch_ttbr(u64 new_ttbr);
  * @entry_point: kernel entry point
  * @es_flag:     execution state flag, ES_TO_AARCH64 or ES_TO_AARCH32
  */
-void armv8_switch_to_el2(u64 args, u64 mach_nr, u64 fdt_addr,
-			 u64 arg4, u64 entry_point, u64 es_flag);
+void __noreturn armv8_switch_to_el2(u64 args, u64 mach_nr, u64 fdt_addr,
+				    u64 arg4, u64 entry_point, u64 es_flag);
 /*
  * Switch from EL2 to EL1 for ARMv8
  *
@@ -226,6 +241,7 @@ void protect_secure_region(void);
 void smp_kick_all_cpus(void);
 
 void flush_l3_cache(void);
+void mmu_change_region_attr(phys_addr_t start, size_t size, u64 attrs);
 
 /*
  *Issue a secure monitor call in accordance with ARM "SMC Calling convention",
@@ -315,37 +331,6 @@ void psci_arch_init(void);
 #define __asmeq(x, y)  ".ifnc " x "," y " ; .err ; .endif\n\t"
 
 #ifndef __ASSEMBLY__
-
-/**
- * save_boot_params() - Save boot parameters before starting reset sequence
- *
- * If you provide this function it will be called immediately U-Boot starts,
- * both for SPL and U-Boot proper.
- *
- * All registers are unchanged from U-Boot entry. No registers need be
- * preserved.
- *
- * This is not a normal C function. There is no stack. Return by branching to
- * save_boot_params_ret.
- *
- * void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3);
- */
-
-/**
- * save_boot_params_ret() - Return from save_boot_params()
- *
- * If you provide save_boot_params(), then you should jump back to this
- * function when done. Try to preserve all registers.
- *
- * If your implementation of save_boot_params() is in C then it is acceptable
- * to simply call save_boot_params_ret() at the end of your function. Since
- * there is no link register set up, you cannot just exit the function. U-Boot
- * will return to the (initialised) value of lr, and likely crash/hang.
- *
- * If your implementation of save_boot_params() is in assembler then you
- * should use 'b' or 'bx' to return to save_boot_params_ret.
- */
-void save_boot_params_ret(void);
 
 #ifdef CONFIG_ARMV7_LPAE
 void switch_to_hypervisor_ret(void);
@@ -539,6 +524,37 @@ void mmu_page_table_flush(unsigned long start, unsigned long stop);
 #endif /* CONFIG_ARM64 */
 
 #ifndef __ASSEMBLY__
+/**
+ * save_boot_params() - Save boot parameters before starting reset sequence
+ *
+ * If you provide this function it will be called immediately U-Boot starts,
+ * both for SPL and U-Boot proper.
+ *
+ * All registers are unchanged from U-Boot entry. No registers need be
+ * preserved.
+ *
+ * This is not a normal C function. There is no stack. Return by branching to
+ * save_boot_params_ret.
+ *
+ * void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3);
+ */
+
+/**
+ * save_boot_params_ret() - Return from save_boot_params()
+ *
+ * If you provide save_boot_params(), then you should jump back to this
+ * function when done. Try to preserve all registers.
+ *
+ * If your implementation of save_boot_params() is in C then it is acceptable
+ * to simply call save_boot_params_ret() at the end of your function. Since
+ * there is no link register set up, you cannot just exit the function. U-Boot
+ * will return to the (initialised) value of lr, and likely crash/hang.
+ *
+ * If your implementation of save_boot_params() is in assembler then you
+ * should use 'b' or 'bx' to return to save_boot_params_ret.
+ */
+void save_boot_params_ret(void);
+
 /**
  * Change the cache settings for a region.
  *

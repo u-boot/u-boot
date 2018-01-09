@@ -10,79 +10,30 @@
 #ifndef __CONFIG_TI816X_EVM_H
 #define __CONFIG_TI816X_EVM_H
 
-#define CONFIG_TI81XX
-#define CONFIG_TI816X
-#define CONFIG_SYS_NO_FLASH
-#define CONFIG_OMAP
-
-#define CONFIG_ARCH_CPU_INIT
-
+#include <configs/ti_armv7_omap.h>
 #include <asm/arch/omap.h>
 
 #define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (32 * 1024))
-#define CONFIG_SYS_LONGHELP		/* undef save memory */
 #define CONFIG_MACH_TYPE		MACH_TYPE_TI8168EVM
 
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG		/* required for ramdisk support */
-
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-	"loadaddr=0x81000000\0"		\
+	DEFAULT_LINUX_BOOT_ENV \
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 
 #define CONFIG_BOOTCOMMAND			\
 	"mmc rescan;"				\
 	"fatload mmc 0 ${loadaddr} uImage;"	\
 	"bootm ${loadaddr}"			\
 
-#define CONFIG_BOOTARGS	"console=ttyO2,115200n8 noinitrd earlyprintk"
-
 /* Clock Defines */
 #define V_OSCK          24000000    /* Clock output from T2 */
 #define V_SCLK          (V_OSCK >> 1)
 
-#define CONFIG_SYS_MAXARGS	32
-#define CONFIG_SYS_CBSIZE	512 /* console I/O buffer size */
-#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE \
-		+ sizeof(CONFIG_SYS_PROMPT) + 16) /* print buffer size */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* boot arg buffer size */
-
-#define CONFIG_SYS_LOAD_ADDR		0x81000000 /* Default load address */
-
-#define CONFIG_CMD_ASKEN
-#define CONFIG_OMAP_GPIO
-#define CONFIG_GENERIC_MMC
-#define CONFIG_OMAP_HSMMC
-#define CONFIG_DOS_PARTITION
-
-#define CONFIG_FS_FAT
-
-/*
- * Only one of the following two options (DDR3/DDR2) should be enabled
- * CONFIG_TI816X_EVM_DDR2
- * CONFIG_TI816X_EVM_DDR3
- */
-#define CONFIG_TI816X_EVM_DDR3
-
-/*
- * Supported values: 400, 531, 675 or 796 MHz
- */
-#define CONFIG_TI816X_DDR_PLL_796
-
-#define CONFIG_TI816X_USE_EMIF0	1
-#define CONFIG_TI816X_USE_EMIF1	1
-
-#define CONFIG_NR_DRAM_BANKS	2		/* we have 2 banks of DRAM */
-#define PHYS_DRAM_1		0x80000000	/* DRAM Bank #1 */
-#define PHYS_DRAM_1_SIZE        0x40000000	/* 1 GB */
-#define PHYS_DRAM_2		0xC0000000	/* DRAM Bank #2 */
-#define PHYS_DRAM_2_SIZE	0x40000000	/* 1 GB */
+#define CONFIG_CMD_ASKENV
 
 #define CONFIG_MAX_RAM_BANK_SIZE	(2048 << 20)	/* 2048MB */
-#define CONFIG_SYS_SDRAM_BASE		PHYS_DRAM_1
-#define CONFIG_SYS_INIT_SP_ADDR		(NON_SECURE_SRAM_END - \
-		GENERATED_GBL_DATA_SIZE)
+#define CONFIG_SYS_SDRAM_BASE		0x80000000
 
 /**
  * Platform/Board specific defs
@@ -90,8 +41,6 @@
 #define CONFIG_SYS_CLK_FREQ     27000000
 #define CONFIG_SYS_TIMERBASE    0x4802E000
 #define CONFIG_SYS_PTV          2   /* Divisor: 2^(PTV+1) => 8 */
-
-#undef CONFIG_NAND_OMAP_GPMC
 
 /*
  * NS16550 Configuration
@@ -101,8 +50,6 @@
 #define CONFIG_SYS_NS16550_CLK      (48000000)
 #define CONFIG_SYS_NS16550_COM1     0x48024000  /* Base EVM has UART2 */
 
-#define CONFIG_BAUDRATE     115200
-
 /* allow overwriting serial config and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
@@ -111,30 +58,57 @@
 #define CONFIG_SERIAL3
 #define CONFIG_CONS_INDEX	1
 
-#define CONFIG_ENV_IS_NOWHERE
+/*
+ * GPMC NAND block.  We support 1 device and the physical address to
+ * access CS0 at is 0x8000000.
+ */
+#define CONFIG_SYS_NAND_BASE		0x8000000
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+
+/* NAND: SPL related configs */
+
+/* NAND: device related configs */
+#define CONFIG_SYS_NAND_5_ADDR_CYCLE
+#define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
+					 CONFIG_SYS_NAND_PAGE_SIZE)
+#define CONFIG_SYS_NAND_PAGE_SIZE	2048
+#define CONFIG_SYS_NAND_OOBSIZE		64
+#define CONFIG_SYS_NAND_BLOCK_SIZE	(128*1024)
+/* NAND: driver related configs */
+#define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
+#define CONFIG_SYS_NAND_ECCPOS		{ 2, 3, 4, 5, 6, 7, 8, 9, \
+					 10, 11, 12, 13, 14, 15, 16, 17, \
+					 18, 19, 20, 21, 22, 23, 24, 25, \
+					 26, 27, 28, 29, 30, 31, 32, 33, \
+					 34, 35, 36, 37, 38, 39, 40, 41, \
+					 42, 43, 44, 45, 46, 47, 48, 49, \
+					 50, 51, 52, 53, 54, 55, 56, 57, }
+
+#define CONFIG_SYS_NAND_ECCSIZE		512
+#define CONFIG_SYS_NAND_ECCBYTES	14
+#define CONFIG_SYS_NAND_ONFI_DETECTION
+#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x000c0000
+#define CONFIG_ENV_OFFSET		0x001c0000
+#define CONFIG_ENV_OFFSET_REDUND	0x001e0000
+#define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_SYS_NAND_BLOCK_SIZE
 
 /* SPL */
 /* Defines for SPL */
-#define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE    0x40400000
 #define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
 					 CONFIG_SPL_TEXT_BASE)
 
-#define CONFIG_SPL_BSS_START_ADDR   0x80000000
-#define CONFIG_SPL_BSS_MAX_SIZE     0x80000     /* 512 KB */
-
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME        "u-boot.img"
-
-#define CONFIG_SYS_SPI_U_BOOT_OFFS  0x20000
-#define CONFIG_SYS_SPI_U_BOOT_SIZE  0x40000
-#define CONFIG_SPL_LDSCRIPT     "arch/arm/mach-omap2/u-boot-spl.lds"
-
-#define CONFIG_SPL_BOARD_INIT
-
 #define CONFIG_SYS_TEXT_BASE        0x80800000
-#define CONFIG_SYS_SPL_MALLOC_START 0x80208000
-#define CONFIG_SYS_SPL_MALLOC_SIZE  0x100000
+
+#define CONFIG_DRIVER_TI_EMAC
+#define CONFIG_MII
+#define CONFIG_BOOTP_DNS
+#define CONFIG_BOOTP_DNS2
+#define CONFIG_BOOTP_SEND_HOSTNAME
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_NET_RETRY_COUNT	10
 
 /* Since SPL did pll and ddr initialization for us,
  * we don't need to do it twice.
@@ -143,7 +117,12 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
-/* Unsupported features */
-#undef CONFIG_USE_IRQ
-
+/*
+ * Disable MMC DM for SPL build and can be re-enabled after adding
+ * DM support in SPL
+ */
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_DM_MMC
+#undef CONFIG_TIMER
+#endif
 #endif

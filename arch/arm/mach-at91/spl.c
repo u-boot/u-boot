@@ -37,21 +37,32 @@ u32 spl_boot_device(void)
 	u32 off = (bootrom_stash.r4 >> ATMEL_SAMA5_BOOT_DEV_ID_OFF) &
 		  ATMEL_SAMA5_BOOT_DEV_ID_MASK;
 
-#if defined(CONFIG_SYS_USE_MMC)
+#if defined(CONFIG_SYS_USE_MMC) || defined(CONFIG_SD_BOOT)
 	if (dev == ATMEL_SAMA5_BOOT_FROM_MCI) {
+#if defined(CONFIG_SPL_OF_CONTROL)
+		return BOOT_DEVICE_MMC1;
+#else
 		if (off == 0)
 			return BOOT_DEVICE_MMC1;
 		if (off == 1)
 			return BOOT_DEVICE_MMC2;
 		printf("ERROR: MMC controller %i not present!\n", dev);
 		hang();
+#endif
 	}
 #endif
 
-#if defined(CONFIG_SYS_USE_SERIALFLASH) || defined(CONFIG_SYS_USE_SPIFLASH)
+#if defined(CONFIG_SYS_USE_SERIALFLASH) || \
+	defined(CONFIG_SYS_USE_SPIFLASH) || \
+	defined(CONFIG_SPI_BOOT)
 	if (dev == ATMEL_SAMA5_BOOT_FROM_SPI)
 		return BOOT_DEVICE_SPI;
 #endif
+	if (dev == ATMEL_SAMA5_BOOT_FROM_QSPI)
+		return BOOT_DEVICE_SPI;
+
+	if (dev == ATMEL_SAMA5_BOOT_FROM_SMC)
+		return BOOT_DEVICE_NAND;
 
 	if (dev == ATMEL_SAMA5_BOOT_FROM_SAMBA)
 		return BOOT_DEVICE_USB;
@@ -64,11 +75,13 @@ u32 spl_boot_device(void)
 #else
 u32 spl_boot_device(void)
 {
-#ifdef CONFIG_SYS_USE_MMC
+#if defined(CONFIG_SYS_USE_MMC) || defined(CONFIG_SD_BOOT)
 	return BOOT_DEVICE_MMC1;
-#elif CONFIG_SYS_USE_NANDFLASH
+#elif defined(CONFIG_SYS_USE_NANDFLASH) || defined(CONFIG_NAND_BOOT)
 	return BOOT_DEVICE_NAND;
-#elif CONFIG_SYS_USE_SERIALFLASH || CONFIG_SYS_USE_SPIFLASH
+#elif defined(CONFIG_SYS_USE_SERIALFLASH) || \
+	defined(CONFIG_SYS_USE_SPIFLASH) || \
+	defined(CONFIG_SPI_BOOT)
 	return BOOT_DEVICE_SPI;
 #endif
 	return BOOT_DEVICE_NONE;
@@ -78,7 +91,7 @@ u32 spl_boot_device(void)
 u32 spl_boot_mode(const u32 boot_device)
 {
 	switch (boot_device) {
-#ifdef CONFIG_SYS_USE_MMC
+#if defined(CONFIG_SYS_USE_MMC) || defined(CONFIG_SD_BOOT)
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:
 		return MMCSD_MODE_FS;

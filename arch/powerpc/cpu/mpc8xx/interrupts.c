@@ -9,6 +9,7 @@
 #include <mpc8xx.h>
 #include <mpc8xx_irq.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 #include <commproc.h>
 
 /************************************************************************/
@@ -24,24 +25,22 @@ struct interrupt_action {
 static struct interrupt_action cpm_vecs[CPMVEC_NR];
 static struct interrupt_action irq_vecs[NR_IRQS];
 
-static void cpm_interrupt_init (void);
-static void cpm_interrupt (void *regs);
+static void cpm_interrupt_init(void);
+static void cpm_interrupt(void *regs);
 
 /************************************************************************/
 
-int interrupt_init_cpu (unsigned *decrementer_count)
+void interrupt_init_cpu(unsigned *decrementer_count)
 {
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
-	*decrementer_count = get_tbclk () / CONFIG_SYS_HZ;
+	*decrementer_count = get_tbclk() / CONFIG_SYS_HZ;
 
 	/* disable all interrupts */
-	immr->im_siu_conf.sc_simask = 0;
+	out_be32(&immr->im_siu_conf.sc_simask, 0);
 
 	/* Configure CPM interrupts */
-	cpm_interrupt_init ();
-
-	return (0);
+	cpm_interrupt_init();
 }
 
 /************************************************************************/
@@ -49,27 +48,26 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 /*
  * Handle external interrupts
  */
-void external_interrupt (struct pt_regs *regs)
+void external_interrupt(struct pt_regs *regs)
 {
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	int irq;
-	ulong simask, newmask;
+	ulong simask;
 	ulong vec, v_bit;
 
 	/*
 	 * read the SIVEC register and shift the bits down
 	 * to get the irq number
 	 */
-	vec = immr->im_siu_conf.sc_sivec;
+	vec = in_be32(&immr->im_siu_conf.sc_sivec);
 	irq = vec >> 26;
 	v_bit = 0x80000000UL >> irq;
 
 	/*
 	 * Read Interrupt Mask Register and Mask Interrupts
 	 */
-	simask = immr->im_siu_conf.sc_simask;
-	newmask = simask & (~(0xFFFF0000 >> irq));
-	immr->im_siu_conf.sc_simask = newmask;
+	simask = in_be32(&immr->im_siu_conf.sc_simask);
+	clrbits_be32(&immr->im_siu_conf.sc_simask, 0xFFFF0000 >> irq);
 
 	if (!(irq & 0x1)) {		/* External Interrupt ?     */
 		ulong siel;
@@ -77,28 +75,28 @@ void external_interrupt (struct pt_regs *regs)
 		/*
 		 * Read Interrupt Edge/Level Register
 		 */
-		siel = immr->im_siu_conf.sc_siel;
+		siel = in_be32(&immr->im_siu_conf.sc_siel);
 
 		if (siel & v_bit) {	/* edge triggered interrupt ?   */
 			/*
 			 * Rewrite SIPEND Register to clear interrupt
 			 */
-			immr->im_siu_conf.sc_sipend = v_bit;
+			out_be32(&immr->im_siu_conf.sc_sipend, v_bit);
 		}
 	}
 
 	if (irq_vecs[irq].handler != NULL) {
-		irq_vecs[irq].handler (irq_vecs[irq].arg);
+		irq_vecs[irq].handler(irq_vecs[irq].arg);
 	} else {
-		printf ("\nBogus External Interrupt IRQ %d Vector %ld\n",
-				irq, vec);
+		printf("\nBogus External Interrupt IRQ %d Vector %ld\n",
+		       irq, vec);
 		/* turn off the bogus interrupt to avoid it from now */
 		simask &= ~v_bit;
 	}
 	/*
 	 * Re-Enable old Interrupt Mask
 	 */
-	immr->im_siu_conf.sc_simask = simask;
+	out_be32(&immr->im_siu_conf.sc_simask, simask);
 }
 
 /************************************************************************/
@@ -106,30 +104,30 @@ void external_interrupt (struct pt_regs *regs)
 /*
  * CPM interrupt handler
  */
-static void cpm_interrupt (void *regs)
+static void cpm_interrupt(void *regs)
 {
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	uint vec;
 
 	/*
 	 * Get the vector by setting the ACK bit
 	 * and then reading the register.
 	 */
-	immr->im_cpic.cpic_civr = 1;
-	vec = immr->im_cpic.cpic_civr;
+	out_be16(&immr->im_cpic.cpic_civr, 1);
+	vec = in_be16(&immr->im_cpic.cpic_civr);
 	vec >>= 11;
 
 	if (cpm_vecs[vec].handler != NULL) {
 		(*cpm_vecs[vec].handler) (cpm_vecs[vec].arg);
 	} else {
-		immr->im_cpic.cpic_cimr &= ~(1 << vec);
-		printf ("Masking bogus CPM interrupt vector 0x%x\n", vec);
+		clrbits_be32(&immr->im_cpic.cpic_cimr, 1 << vec);
+		printf("Masking bogus CPM interrupt vector 0x%x\n", vec);
 	}
 	/*
 	 * After servicing the interrupt,
 	 * we have to remove the status indicator.
 	 */
-	immr->im_cpic.cpic_cisr |= (1 << vec);
+	setbits_be32(&immr->im_cpic.cpic_cisr, 1 << vec);
 }
 
 /*
@@ -138,7 +136,7 @@ static void cpm_interrupt (void *regs)
  * to do is ACK it and return. This is a no-op function so we don't
  * need any special tests in the interrupt handler.
  */
-static void cpm_error_interrupt (void *dummy)
+static void cpm_error_interrupt(void *dummy)
 {
 }
 
@@ -146,65 +144,43 @@ static void cpm_error_interrupt (void *dummy)
 /*
  * Install and free an interrupt handler
  */
-void irq_install_handler (int vec, interrupt_handler_t * handler,
-						  void *arg)
+void irq_install_handler(int vec, interrupt_handler_t *handler, void *arg)
 {
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
 	if ((vec & CPMVEC_OFFSET) != 0) {
 		/* CPM interrupt */
 		vec &= 0xffff;
-		if (cpm_vecs[vec].handler != NULL) {
-			printf ("CPM interrupt 0x%x replacing 0x%x\n",
-				(uint) handler,
-				(uint) cpm_vecs[vec].handler);
-		}
+		if (cpm_vecs[vec].handler != NULL)
+			printf("CPM interrupt 0x%x replacing 0x%x\n",
+			       (uint)handler, (uint)cpm_vecs[vec].handler);
 		cpm_vecs[vec].handler = handler;
 		cpm_vecs[vec].arg = arg;
-		immr->im_cpic.cpic_cimr |= (1 << vec);
-#if 0
-		printf ("Install CPM interrupt for vector %d ==> %p\n",
-			vec, handler);
-#endif
+		setbits_be32(&immr->im_cpic.cpic_cimr, 1 << vec);
 	} else {
 		/* SIU interrupt */
-		if (irq_vecs[vec].handler != NULL) {
-			printf ("SIU interrupt %d 0x%x replacing 0x%x\n",
-				vec,
-				(uint) handler,
-				(uint) cpm_vecs[vec].handler);
-		}
+		if (irq_vecs[vec].handler != NULL)
+			printf("SIU interrupt %d 0x%x replacing 0x%x\n",
+			       vec, (uint)handler, (uint)cpm_vecs[vec].handler);
 		irq_vecs[vec].handler = handler;
 		irq_vecs[vec].arg = arg;
-		immr->im_siu_conf.sc_simask |= 1 << (31 - vec);
-#if 0
-		printf ("Install SIU interrupt for vector %d ==> %p\n",
-			vec, handler);
-#endif
+		setbits_be32(&immr->im_siu_conf.sc_simask, 1 << (31 - vec));
 	}
 }
 
-void irq_free_handler (int vec)
+void irq_free_handler(int vec)
 {
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
 	if ((vec & CPMVEC_OFFSET) != 0) {
 		/* CPM interrupt */
 		vec &= 0xffff;
-#if 0
-		printf ("Free CPM interrupt for vector %d ==> %p\n",
-			vec, cpm_vecs[vec].handler);
-#endif
-		immr->im_cpic.cpic_cimr &= ~(1 << vec);
+		clrbits_be32(&immr->im_cpic.cpic_cimr, 1 << vec);
 		cpm_vecs[vec].handler = NULL;
 		cpm_vecs[vec].arg = NULL;
 	} else {
 		/* SIU interrupt */
-#if 0
-		printf ("Free CPM interrupt for vector %d ==> %p\n",
-			vec, cpm_vecs[vec].handler);
-#endif
-		immr->im_siu_conf.sc_simask &= ~(1 << (31 - vec));
+		clrbits_be32(&immr->im_siu_conf.sc_simask, 1 << (31 - vec));
 		irq_vecs[vec].handler = NULL;
 		irq_vecs[vec].arg = NULL;
 	}
@@ -212,33 +188,32 @@ void irq_free_handler (int vec)
 
 /************************************************************************/
 
-static void cpm_interrupt_init (void)
+static void cpm_interrupt_init(void)
 {
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	uint cicr;
 
 	/*
 	 * Initialize the CPM interrupt controller.
 	 */
 
-	immr->im_cpic.cpic_cicr =
-		(CICR_SCD_SCC4 |
-		 CICR_SCC_SCC3 |
-		 CICR_SCB_SCC2 |
-		 CICR_SCA_SCC1) | ((CPM_INTERRUPT / 2) << 13) | CICR_HP_MASK;
+	cicr = CICR_SCD_SCC4 | CICR_SCC_SCC3 | CICR_SCB_SCC2 | CICR_SCA_SCC1 |
+	       ((CPM_INTERRUPT / 2) << 13) | CICR_HP_MASK;
 
-	immr->im_cpic.cpic_cimr = 0;
+	out_be32(&immr->im_cpic.cpic_cicr, cicr);
+	out_be32(&immr->im_cpic.cpic_cimr, 0);
 
 	/*
 	 * Install the error handler.
 	 */
-	irq_install_handler (CPMVEC_ERROR, cpm_error_interrupt, NULL);
+	irq_install_handler(CPMVEC_ERROR, cpm_error_interrupt, NULL);
 
-	immr->im_cpic.cpic_cicr |= CICR_IEN;
+	setbits_be32(&immr->im_cpic.cpic_cicr, CICR_IEN);
 
 	/*
 	 * Install the cpm interrupt handler
 	 */
-	irq_install_handler (CPM_INTERRUPT, cpm_interrupt, NULL);
+	irq_install_handler(CPM_INTERRUPT, cpm_interrupt, NULL);
 }
 
 /************************************************************************/
@@ -248,15 +223,12 @@ static void cpm_interrupt_init (void)
  * with interrupts disabled.
  * Trivial implementation - no need to be really accurate.
  */
-void timer_interrupt_cpu (struct pt_regs *regs)
+void timer_interrupt_cpu(struct pt_regs *regs)
 {
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
-#if 0
-	printf ("*** Timer Interrupt *** ");
-#endif
 	/* Reset Timer Expired and Timers Interrupt Status */
-	immr->im_clkrstk.cark_plprcrk = KAPWR_KEY;
+	out_be32(&immr->im_clkrstk.cark_plprcrk, KAPWR_KEY);
 	__asm__ ("nop");
 	/*
 	  Clear TEXPS (and TMIST on older chips). SPLSS (on older
@@ -272,7 +244,7 @@ void timer_interrupt_cpu (struct pt_regs *regs)
 	  to itself. If a bit value should be preserved, read the
 	  register, ZERO the bit and write, not OR, the result back.
 	*/
-	immr->im_clkrst.car_plprcr = immr->im_clkrst.car_plprcr;
+	setbits_be32(&immr->im_clkrst.car_plprcr, 0);
 }
 
 /************************************************************************/

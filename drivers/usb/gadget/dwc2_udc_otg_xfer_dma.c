@@ -111,7 +111,8 @@ static int setdma_rx(struct dwc2_ep *ep, struct dwc2_request *req)
 	ctrl =  readl(&reg->out_endp[ep_num].doepctl);
 
 	invalidate_dcache_range((unsigned long) ep->dma_buf,
-				(unsigned long) ep->dma_buf + ep->len);
+				(unsigned long) ep->dma_buf +
+				ROUND(ep->len, CONFIG_SYS_CACHELINE_SIZE));
 
 	writel((unsigned int) ep->dma_buf, &reg->out_endp[ep_num].doepdma);
 	writel(DOEPT_SIZ_PKT_CNT(pktcnt) | DOEPT_SIZ_XFER_SIZE(length),

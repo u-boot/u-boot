@@ -1,28 +1,65 @@
 /*
  * Image manipulator for Marvell SoCs
- *  supports Kirkwood, Dove, Armada 370, and Armada XP
+ *  supports Kirkwood, Dove, Armada 370, Armada XP, and Armada 38x
  *
  * (C) Copyright 2013 Thomas Petazzoni
  * <thomas.petazzoni@free-electrons.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  *
- * Not implemented: support for the register headers and secure
- * headers in v1 images
+ * Not implemented: support for the register headers in v1 images
  */
 
 #include "imagetool.h"
 #include <limits.h>
 #include <image.h>
+#include <stdarg.h>
 #include <stdint.h>
 #include "kwbimage.h"
 
+#ifdef CONFIG_KWB_SECURE
+#include <openssl/bn.h>
+#include <openssl/rsa.h>
+#include <openssl/pem.h>
+#include <openssl/err.h>
+#include <openssl/evp.h>
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+static void RSA_get0_key(const RSA *r,
+                 const BIGNUM **n, const BIGNUM **e, const BIGNUM **d)
+{
+   if (n != NULL)
+       *n = r->n;
+   if (e != NULL)
+       *e = r->e;
+   if (d != NULL)
+       *d = r->d;
+}
+
+#else
+void EVP_MD_CTX_cleanup(EVP_MD_CTX *ctx)
+{
+	EVP_MD_CTX_reset(ctx);
+}
+#endif
+#endif
+
 static struct image_cfg_element *image_cfg;
 static int cfgn;
+#ifdef CONFIG_KWB_SECURE
+static int verbose_mode;
+#endif
 
 struct boot_mode {
 	unsigned int id;
 	const char *name;
+};
+
+/*
+ * SHA2-256 hash
+ */
+struct hash_v1 {
+	uint8_t hash[32];
 };
 
 struct boot_mode boot_modes[] = {
@@ -55,22 +92,63 @@ struct nand_ecc_mode nand_ecc_modes[] = {
 #define BINARY_MAX_ARGS 8
 
 /* In-memory representation of a line of the configuration file */
+
+enum image_cfg_type {
+	IMAGE_CFG_VERSION = 0x1,
+	IMAGE_CFG_BOOT_FROM,
+	IMAGE_CFG_DEST_ADDR,
+	IMAGE_CFG_EXEC_ADDR,
+	IMAGE_CFG_NAND_BLKSZ,
+	IMAGE_CFG_NAND_BADBLK_LOCATION,
+	IMAGE_CFG_NAND_ECC_MODE,
+	IMAGE_CFG_NAND_PAGESZ,
+	IMAGE_CFG_BINARY,
+	IMAGE_CFG_PAYLOAD,
+	IMAGE_CFG_DATA,
+	IMAGE_CFG_BAUDRATE,
+	IMAGE_CFG_DEBUG,
+	IMAGE_CFG_KAK,
+	IMAGE_CFG_CSK,
+	IMAGE_CFG_CSK_INDEX,
+	IMAGE_CFG_JTAG_DELAY,
+	IMAGE_CFG_BOX_ID,
+	IMAGE_CFG_FLASH_ID,
+	IMAGE_CFG_SEC_COMMON_IMG,
+	IMAGE_CFG_SEC_SPECIALIZED_IMG,
+	IMAGE_CFG_SEC_BOOT_DEV,
+	IMAGE_CFG_SEC_FUSE_DUMP,
+
+	IMAGE_CFG_COUNT
+} type;
+
+static const char * const id_strs[] = {
+	[IMAGE_CFG_VERSION] = "VERSION",
+	[IMAGE_CFG_BOOT_FROM] = "BOOT_FROM",
+	[IMAGE_CFG_DEST_ADDR] = "DEST_ADDR",
+	[IMAGE_CFG_EXEC_ADDR] = "EXEC_ADDR",
+	[IMAGE_CFG_NAND_BLKSZ] = "NAND_BLKSZ",
+	[IMAGE_CFG_NAND_BADBLK_LOCATION] = "NAND_BADBLK_LOCATION",
+	[IMAGE_CFG_NAND_ECC_MODE] = "NAND_ECC_MODE",
+	[IMAGE_CFG_NAND_PAGESZ] = "NAND_PAGE_SIZE",
+	[IMAGE_CFG_BINARY] = "BINARY",
+	[IMAGE_CFG_PAYLOAD] = "PAYLOAD",
+	[IMAGE_CFG_DATA] = "DATA",
+	[IMAGE_CFG_BAUDRATE] = "BAUDRATE",
+	[IMAGE_CFG_DEBUG] = "DEBUG",
+	[IMAGE_CFG_KAK] = "KAK",
+	[IMAGE_CFG_CSK] = "CSK",
+	[IMAGE_CFG_CSK_INDEX] = "CSK_INDEX",
+	[IMAGE_CFG_JTAG_DELAY] = "JTAG_DELAY",
+	[IMAGE_CFG_BOX_ID] = "BOX_ID",
+	[IMAGE_CFG_FLASH_ID] = "FLASH_ID",
+	[IMAGE_CFG_SEC_COMMON_IMG] = "SEC_COMMON_IMG",
+	[IMAGE_CFG_SEC_SPECIALIZED_IMG] = "SEC_SPECIALIZED_IMG",
+	[IMAGE_CFG_SEC_BOOT_DEV] = "SEC_BOOT_DEV",
+	[IMAGE_CFG_SEC_FUSE_DUMP] = "SEC_FUSE_DUMP"
+};
+
 struct image_cfg_element {
-	enum {
-		IMAGE_CFG_VERSION = 0x1,
-		IMAGE_CFG_BOOT_FROM,
-		IMAGE_CFG_DEST_ADDR,
-		IMAGE_CFG_EXEC_ADDR,
-		IMAGE_CFG_NAND_BLKSZ,
-		IMAGE_CFG_NAND_BADBLK_LOCATION,
-		IMAGE_CFG_NAND_ECC_MODE,
-		IMAGE_CFG_NAND_PAGESZ,
-		IMAGE_CFG_BINARY,
-		IMAGE_CFG_PAYLOAD,
-		IMAGE_CFG_DATA,
-		IMAGE_CFG_BAUDRATE,
-		IMAGE_CFG_DEBUG,
-	} type;
+	enum image_cfg_type type;
 	union {
 		unsigned int version;
 		unsigned int bootfrom;
@@ -89,6 +167,14 @@ struct image_cfg_element {
 		struct ext_hdr_v0_reg regdata;
 		unsigned int baudrate;
 		unsigned int debug;
+		const char *key_name;
+		int csk_idx;
+		uint8_t jtag_delay;
+		uint32_t boxid;
+		uint32_t flashid;
+		bool sec_specialized_img;
+		unsigned int sec_boot_dev;
+		const char *name;
 	};
 };
 
@@ -103,6 +189,7 @@ struct image_cfg_element {
 static const char *image_boot_mode_name(unsigned int id)
 {
 	int i;
+
 	for (i = 0; boot_modes[i].name; i++)
 		if (boot_modes[i].id == id)
 			return boot_modes[i].name;
@@ -112,6 +199,7 @@ static const char *image_boot_mode_name(unsigned int id)
 int image_boot_mode_id(const char *boot_mode_name)
 {
 	int i;
+
 	for (i = 0; boot_modes[i].name; i++)
 		if (!strcmp(boot_modes[i].name, boot_mode_name))
 			return boot_modes[i].id;
@@ -122,6 +210,7 @@ int image_boot_mode_id(const char *boot_mode_name)
 int image_nand_ecc_mode_id(const char *nand_ecc_mode_name)
 {
 	int i;
+
 	for (i = 0; nand_ecc_modes[i].name; i++)
 		if (!strcmp(nand_ecc_modes[i].name, nand_ecc_mode_name))
 			return nand_ecc_modes[i].id;
@@ -154,6 +243,32 @@ image_count_options(unsigned int optiontype)
 	return count;
 }
 
+#if defined(CONFIG_KWB_SECURE)
+
+static int image_get_csk_index(void)
+{
+	struct image_cfg_element *e;
+
+	e = image_find_option(IMAGE_CFG_CSK_INDEX);
+	if (!e)
+		return -1;
+
+	return e->csk_idx;
+}
+
+static bool image_get_spezialized_img(void)
+{
+	struct image_cfg_element *e;
+
+	e = image_find_option(IMAGE_CFG_SEC_SPECIALIZED_IMG);
+	if (!e)
+		return false;
+
+	return e->sec_specialized_img;
+}
+
+#endif
+
 /*
  * Compute a 8-bit checksum of a memory area. This algorithm follows
  * the requirements of the Marvell SoC BootROM specifications.
@@ -173,6 +288,33 @@ static uint8_t image_checksum8(void *start, uint32_t len)
 	} while (--len);
 
 	return csum;
+}
+
+size_t kwbimage_header_size(unsigned char *ptr)
+{
+	if (image_version((void *)ptr) == 0)
+		return sizeof(struct main_hdr_v0);
+	else
+		return KWBHEADER_V1_SIZE((struct main_hdr_v1 *)ptr);
+}
+
+/*
+ * Verify checksum over a complete header that includes the checksum field.
+ * Return 1 when OK, otherwise 0.
+ */
+static int main_hdr_checksum_ok(void *hdr)
+{
+	/* Offsets of checksum in v0 and v1 headers are the same */
+	struct main_hdr_v0 *main_hdr = (struct main_hdr_v0 *)hdr;
+	uint8_t checksum;
+
+	checksum = image_checksum8(hdr, kwbimage_header_size(hdr));
+	/* Calculated checksum includes the header checksum field. Compensate
+	 * for that.
+	 */
+	checksum -= main_hdr->checksum;
+
+	return checksum == main_hdr->checksum;
 }
 
 static uint32_t image_checksum32(void *start, uint32_t len)
@@ -221,14 +363,504 @@ static uint8_t baudrate_to_option(unsigned int baudrate)
 	}
 }
 
+#if defined(CONFIG_KWB_SECURE)
+static void kwb_msg(const char *fmt, ...)
+{
+	if (verbose_mode) {
+		va_list ap;
+
+		va_start(ap, fmt);
+		vfprintf(stdout, fmt, ap);
+		va_end(ap);
+	}
+}
+
+static int openssl_err(const char *msg)
+{
+	unsigned long ssl_err = ERR_get_error();
+
+	fprintf(stderr, "%s", msg);
+	fprintf(stderr, ": %s\n",
+		ERR_error_string(ssl_err, 0));
+
+	return -1;
+}
+
+static int kwb_load_rsa_key(const char *keydir, const char *name, RSA **p_rsa)
+{
+	char path[PATH_MAX];
+	RSA *rsa;
+	FILE *f;
+
+	if (!keydir)
+		keydir = ".";
+
+	snprintf(path, sizeof(path), "%s/%s.key", keydir, name);
+	f = fopen(path, "r");
+	if (!f) {
+		fprintf(stderr, "Couldn't open RSA private key: '%s': %s\n",
+			path, strerror(errno));
+		return -ENOENT;
+	}
+
+	rsa = PEM_read_RSAPrivateKey(f, 0, NULL, "");
+	if (!rsa) {
+		openssl_err("Failure reading private key");
+		fclose(f);
+		return -EPROTO;
+	}
+	fclose(f);
+	*p_rsa = rsa;
+
+	return 0;
+}
+
+static int kwb_load_cfg_key(struct image_tool_params *params,
+			    unsigned int cfg_option, const char *key_name,
+			    RSA **p_key)
+{
+	struct image_cfg_element *e_key;
+	RSA *key;
+	int res;
+
+	*p_key = NULL;
+
+	e_key = image_find_option(cfg_option);
+	if (!e_key) {
+		fprintf(stderr, "%s not configured\n", key_name);
+		return -ENOENT;
+	}
+
+	res = kwb_load_rsa_key(params->keydir, e_key->key_name, &key);
+	if (res < 0) {
+		fprintf(stderr, "Failed to load %s\n", key_name);
+		return -ENOENT;
+	}
+
+	*p_key = key;
+
+	return 0;
+}
+
+static int kwb_load_kak(struct image_tool_params *params, RSA **p_kak)
+{
+	return kwb_load_cfg_key(params, IMAGE_CFG_KAK, "KAK", p_kak);
+}
+
+static int kwb_load_csk(struct image_tool_params *params, RSA **p_csk)
+{
+	return kwb_load_cfg_key(params, IMAGE_CFG_CSK, "CSK", p_csk);
+}
+
+static int kwb_compute_pubkey_hash(struct pubkey_der_v1 *pk,
+				   struct hash_v1 *hash)
+{
+	EVP_MD_CTX *ctx;
+	unsigned int key_size;
+	unsigned int hash_size;
+	int ret = 0;
+
+	if (!pk || !hash || pk->key[0] != 0x30 || pk->key[1] != 0x82)
+		return -EINVAL;
+
+	key_size = (pk->key[2] << 8) + pk->key[3] + 4;
+
+	ctx = EVP_MD_CTX_create();
+	if (!ctx)
+		return openssl_err("EVP context creation failed");
+
+	EVP_MD_CTX_init(ctx);
+	if (!EVP_DigestInit(ctx, EVP_sha256())) {
+		ret = openssl_err("Digest setup failed");
+		goto hash_err_ctx;
+	}
+
+	if (!EVP_DigestUpdate(ctx, pk->key, key_size)) {
+		ret = openssl_err("Hashing data failed");
+		goto hash_err_ctx;
+	}
+
+	if (!EVP_DigestFinal(ctx, hash->hash, &hash_size)) {
+		ret = openssl_err("Could not obtain hash");
+		goto hash_err_ctx;
+	}
+
+	EVP_MD_CTX_cleanup(ctx);
+
+hash_err_ctx:
+	EVP_MD_CTX_destroy(ctx);
+	return ret;
+}
+
+static int kwb_import_pubkey(RSA **key, struct pubkey_der_v1 *src, char *keyname)
+{
+	RSA *rsa;
+	const unsigned char *ptr;
+
+	if (!key || !src)
+		goto fail;
+
+	ptr = src->key;
+	rsa = d2i_RSAPublicKey(key, &ptr, sizeof(src->key));
+	if (!rsa) {
+		openssl_err("error decoding public key");
+		goto fail;
+	}
+
+	return 0;
+fail:
+	fprintf(stderr, "Failed to decode %s pubkey\n", keyname);
+	return -EINVAL;
+}
+
+static int kwb_export_pubkey(RSA *key, struct pubkey_der_v1 *dst, FILE *hashf,
+			     char *keyname)
+{
+	int size_exp, size_mod, size_seq;
+	const BIGNUM *key_e, *key_n;
+	uint8_t *cur;
+	char *errmsg = "Failed to encode %s\n";
+
+	RSA_get0_key(key, NULL, &key_e, NULL);
+	RSA_get0_key(key, &key_n, NULL, NULL);
+
+	if (!key || !key_e || !key_n || !dst) {
+		fprintf(stderr, "export pk failed: (%p, %p, %p, %p)",
+			key, key_e, key_n, dst);
+		fprintf(stderr, errmsg, keyname);
+		return -EINVAL;
+	}
+
+	/*
+	 * According to the specs, the key should be PKCS#1 DER encoded.
+	 * But unfortunately the really required encoding seems to be different;
+	 * it violates DER...! (But it still conformes to BER.)
+	 * (Length always in long form w/ 2 byte length code; no leading zero
+	 * when MSB of first byte is set...)
+	 * So we cannot use the encoding func provided by OpenSSL and have to
+	 * do the encoding manually.
+	 */
+
+	size_exp = BN_num_bytes(key_e);
+	size_mod = BN_num_bytes(key_n);
+	size_seq = 4 + size_mod + 4 + size_exp;
+
+	if (size_mod > 256) {
+		fprintf(stderr, "export pk failed: wrong mod size: %d\n",
+			size_mod);
+		fprintf(stderr, errmsg, keyname);
+		return -EINVAL;
+	}
+
+	if (4 + size_seq > sizeof(dst->key)) {
+		fprintf(stderr, "export pk failed: seq too large (%d, %lu)\n",
+			4 + size_seq, sizeof(dst->key));
+		fprintf(stderr, errmsg, keyname);
+		return -ENOBUFS;
+	}
+
+	cur = dst->key;
+
+	/* PKCS#1 (RFC3447) RSAPublicKey structure */
+	*cur++ = 0x30;		/* SEQUENCE */
+	*cur++ = 0x82;
+	*cur++ = (size_seq >> 8) & 0xFF;
+	*cur++ = size_seq & 0xFF;
+	/* Modulus */
+	*cur++ = 0x02;		/* INTEGER */
+	*cur++ = 0x82;
+	*cur++ = (size_mod >> 8) & 0xFF;
+	*cur++ = size_mod & 0xFF;
+	BN_bn2bin(key_n, cur);
+	cur += size_mod;
+	/* Exponent */
+	*cur++ = 0x02;		/* INTEGER */
+	*cur++ = 0x82;
+	*cur++ = (size_exp >> 8) & 0xFF;
+	*cur++ = size_exp & 0xFF;
+	BN_bn2bin(key_e, cur);
+
+	if (hashf) {
+		struct hash_v1 pk_hash;
+		int i;
+		int ret = 0;
+
+		ret = kwb_compute_pubkey_hash(dst, &pk_hash);
+		if (ret < 0) {
+			fprintf(stderr, errmsg, keyname);
+			return ret;
+		}
+
+		fprintf(hashf, "SHA256 = ");
+		for (i = 0 ; i < sizeof(pk_hash.hash); ++i)
+			fprintf(hashf, "%02X", pk_hash.hash[i]);
+		fprintf(hashf, "\n");
+	}
+
+	return 0;
+}
+
+int kwb_sign(RSA *key, void *data, int datasz, struct sig_v1 *sig, char *signame)
+{
+	EVP_PKEY *evp_key;
+	EVP_MD_CTX *ctx;
+	unsigned int sig_size;
+	int size;
+	int ret = 0;
+
+	evp_key = EVP_PKEY_new();
+	if (!evp_key)
+		return openssl_err("EVP_PKEY object creation failed");
+
+	if (!EVP_PKEY_set1_RSA(evp_key, key)) {
+		ret = openssl_err("EVP key setup failed");
+		goto err_key;
+	}
+
+	size = EVP_PKEY_size(evp_key);
+	if (size > sizeof(sig->sig)) {
+		fprintf(stderr, "Buffer to small for signature (%d bytes)\n",
+			size);
+		ret = -ENOBUFS;
+		goto err_key;
+	}
+
+	ctx = EVP_MD_CTX_create();
+	if (!ctx) {
+		ret = openssl_err("EVP context creation failed");
+		goto err_key;
+	}
+	EVP_MD_CTX_init(ctx);
+	if (!EVP_SignInit(ctx, EVP_sha256())) {
+		ret = openssl_err("Signer setup failed");
+		goto err_ctx;
+	}
+
+	if (!EVP_SignUpdate(ctx, data, datasz)) {
+		ret = openssl_err("Signing data failed");
+		goto err_ctx;
+	}
+
+	if (!EVP_SignFinal(ctx, sig->sig, &sig_size, evp_key)) {
+		ret = openssl_err("Could not obtain signature");
+		goto err_ctx;
+	}
+
+	EVP_MD_CTX_cleanup(ctx);
+	EVP_MD_CTX_destroy(ctx);
+	EVP_PKEY_free(evp_key);
+
+	return 0;
+
+err_ctx:
+	EVP_MD_CTX_destroy(ctx);
+err_key:
+	EVP_PKEY_free(evp_key);
+	fprintf(stderr, "Failed to create %s signature\n", signame);
+	return ret;
+}
+
+int kwb_verify(RSA *key, void *data, int datasz, struct sig_v1 *sig,
+	       char *signame)
+{
+	EVP_PKEY *evp_key;
+	EVP_MD_CTX *ctx;
+	int size;
+	int ret = 0;
+
+	evp_key = EVP_PKEY_new();
+	if (!evp_key)
+		return openssl_err("EVP_PKEY object creation failed");
+
+	if (!EVP_PKEY_set1_RSA(evp_key, key)) {
+		ret = openssl_err("EVP key setup failed");
+		goto err_key;
+	}
+
+	size = EVP_PKEY_size(evp_key);
+	if (size > sizeof(sig->sig)) {
+		fprintf(stderr, "Invalid signature size (%d bytes)\n",
+			size);
+		ret = -EINVAL;
+		goto err_key;
+	}
+
+	ctx = EVP_MD_CTX_create();
+	if (!ctx) {
+		ret = openssl_err("EVP context creation failed");
+		goto err_key;
+	}
+	EVP_MD_CTX_init(ctx);
+	if (!EVP_VerifyInit(ctx, EVP_sha256())) {
+		ret = openssl_err("Verifier setup failed");
+		goto err_ctx;
+	}
+
+	if (!EVP_VerifyUpdate(ctx, data, datasz)) {
+		ret = openssl_err("Hashing data failed");
+		goto err_ctx;
+	}
+
+	if (!EVP_VerifyFinal(ctx, sig->sig, sizeof(sig->sig), evp_key)) {
+		ret = openssl_err("Could not verify signature");
+		goto err_ctx;
+	}
+
+	EVP_MD_CTX_cleanup(ctx);
+	EVP_MD_CTX_destroy(ctx);
+	EVP_PKEY_free(evp_key);
+
+	return 0;
+
+err_ctx:
+	EVP_MD_CTX_destroy(ctx);
+err_key:
+	EVP_PKEY_free(evp_key);
+	fprintf(stderr, "Failed to verify %s signature\n", signame);
+	return ret;
+}
+
+int kwb_sign_and_verify(RSA *key, void *data, int datasz, struct sig_v1 *sig,
+			char *signame)
+{
+	if (kwb_sign(key, data, datasz, sig, signame) < 0)
+		return -1;
+
+	if (kwb_verify(key, data, datasz, sig, signame) < 0)
+		return -1;
+
+	return 0;
+}
+
+
+int kwb_dump_fuse_cmds_38x(FILE *out, struct secure_hdr_v1 *sec_hdr)
+{
+	struct hash_v1 kak_pub_hash;
+	struct image_cfg_element *e;
+	unsigned int fuse_line;
+	int i, idx;
+	uint8_t *ptr;
+	uint32_t val;
+	int ret = 0;
+
+	if (!out || !sec_hdr)
+		return -EINVAL;
+
+	ret = kwb_compute_pubkey_hash(&sec_hdr->kak, &kak_pub_hash);
+	if (ret < 0)
+		goto done;
+
+	fprintf(out, "# burn KAK pub key hash\n");
+	ptr = kak_pub_hash.hash;
+	for (fuse_line = 26; fuse_line <= 30; ++fuse_line) {
+		fprintf(out, "fuse prog -y %u 0 ", fuse_line);
+
+		for (i = 4; i-- > 0;)
+			fprintf(out, "%02hx", (ushort)ptr[i]);
+		ptr += 4;
+		fprintf(out, " 00");
+
+		if (fuse_line < 30) {
+			for (i = 3; i-- > 0;)
+				fprintf(out, "%02hx", (ushort)ptr[i]);
+			ptr += 3;
+		} else {
+			fprintf(out, "000000");
+		}
+
+		fprintf(out, " 1\n");
+	}
+
+	fprintf(out, "# burn CSK selection\n");
+
+	idx = image_get_csk_index();
+	if (idx < 0 || idx > 15) {
+		ret = -EINVAL;
+		goto done;
+	}
+	if (idx > 0) {
+		for (fuse_line = 31; fuse_line < 31 + idx; ++fuse_line)
+			fprintf(out, "fuse prog -y %u 0 00000001 00000000 1\n",
+				fuse_line);
+	} else {
+		fprintf(out, "# CSK index is 0; no mods needed\n");
+	}
+
+	e = image_find_option(IMAGE_CFG_BOX_ID);
+	if (e) {
+		fprintf(out, "# set box ID\n");
+		fprintf(out, "fuse prog -y 48 0 %08x 00000000 1\n", e->boxid);
+	}
+
+	e = image_find_option(IMAGE_CFG_FLASH_ID);
+	if (e) {
+		fprintf(out, "# set flash ID\n");
+		fprintf(out, "fuse prog -y 47 0 %08x 00000000 1\n", e->flashid);
+	}
+
+	fprintf(out, "# enable secure mode ");
+	fprintf(out, "(must be the last fuse line written)\n");
+
+	val = 1;
+	e = image_find_option(IMAGE_CFG_SEC_BOOT_DEV);
+	if (!e) {
+		fprintf(stderr, "ERROR: secured mode boot device not given\n");
+		ret = -EINVAL;
+		goto done;
+	}
+
+	if (e->sec_boot_dev > 0xff) {
+		fprintf(stderr, "ERROR: secured mode boot device invalid\n");
+		ret = -EINVAL;
+		goto done;
+	}
+
+	val |= (e->sec_boot_dev << 8);
+
+	fprintf(out, "fuse prog -y 24 0 %08x 0103e0a9 1\n", val);
+
+	fprintf(out, "# lock (unused) fuse lines (0-23)s\n");
+	for (fuse_line = 0; fuse_line < 24; ++fuse_line)
+		fprintf(out, "fuse prog -y %u 2 1\n", fuse_line);
+
+	fprintf(out, "# OK, that's all :-)\n");
+
+done:
+	return ret;
+}
+
+static int kwb_dump_fuse_cmds(struct secure_hdr_v1 *sec_hdr)
+{
+	int ret = 0;
+	struct image_cfg_element *e;
+
+	e = image_find_option(IMAGE_CFG_SEC_FUSE_DUMP);
+	if (!e)
+		return 0;
+
+	if (!strcmp(e->name, "a38x")) {
+		FILE *out = fopen("kwb_fuses_a38x.txt", "w+");
+
+		kwb_dump_fuse_cmds_38x(out, sec_hdr);
+		fclose(out);
+		goto done;
+	}
+
+	ret = -ENOSYS;
+
+done:
+	return ret;
+}
+
+#endif
+
 static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 			     int payloadsz)
 {
 	struct image_cfg_element *e;
 	size_t headersz;
 	struct main_hdr_v0 *main_hdr;
-	struct ext_hdr_v0 *ext_hdr;
-	void *image;
+	uint8_t *image;
 	int has_ext = 0;
 
 	/*
@@ -255,7 +887,7 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 
 	memset(image, 0, headersz);
 
-	main_hdr = image;
+	main_hdr = (struct main_hdr_v0 *)image;
 
 	/* Fill in the main header */
 	main_hdr->blocksize =
@@ -279,9 +911,11 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 
 	/* Generate the ext header */
 	if (has_ext) {
+		struct ext_hdr_v0 *ext_hdr;
 		int cfgi, datai;
 
-		ext_hdr = image + sizeof(struct main_hdr_v0);
+		ext_hdr = (struct ext_hdr_v0 *)
+				(image + sizeof(struct main_hdr_v0));
 		ext_hdr->offset = cpu_to_le32(0x40);
 
 		for (cfgi = 0, datai = 0; cfgi < cfgn; cfgi++) {
@@ -304,12 +938,10 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 	return image;
 }
 
-static size_t image_headersz_v1(struct image_tool_params *params,
-				int *hasext)
+static size_t image_headersz_v1(int *hasext)
 {
 	struct image_cfg_element *binarye;
 	size_t headersz;
-	int ret;
 
 	/*
 	 * Calculate the size of the header and the size of the
@@ -329,6 +961,7 @@ static size_t image_headersz_v1(struct image_tool_params *params,
 
 	binarye = image_find_option(IMAGE_CFG_BINARY);
 	if (binarye) {
+		int ret;
 		struct stat s;
 
 		ret = stat(binarye->binary.file, &s);
@@ -357,16 +990,25 @@ static size_t image_headersz_v1(struct image_tool_params *params,
 			*hasext = 1;
 	}
 
+#if defined(CONFIG_KWB_SECURE)
+	if (image_get_csk_index() >= 0) {
+		headersz += sizeof(struct secure_hdr_v1);
+		if (hasext)
+			*hasext = 1;
+	}
+#endif
+
 #if defined(CONFIG_SYS_U_BOOT_OFFS)
 	if (headersz > CONFIG_SYS_U_BOOT_OFFS) {
-		fprintf(stderr, "Error: Image header (incl. SPL image) too big!\n");
+		fprintf(stderr,
+			"Error: Image header (incl. SPL image) too big!\n");
 		fprintf(stderr, "header=0x%x CONFIG_SYS_U_BOOT_OFFS=0x%x!\n",
 			(int)headersz, CONFIG_SYS_U_BOOT_OFFS);
 		fprintf(stderr, "Increase CONFIG_SYS_U_BOOT_OFFS!\n");
 		return 0;
-	} else {
-		headersz = CONFIG_SYS_U_BOOT_OFFS;
 	}
+
+	headersz = CONFIG_SYS_U_BOOT_OFFS;
 #endif
 
 	/*
@@ -376,21 +1018,219 @@ static size_t image_headersz_v1(struct image_tool_params *params,
 	return ALIGN_SUP(headersz, 4096);
 }
 
-static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
-			     int payloadsz)
+int add_binary_header_v1(uint8_t *cur)
 {
-	struct image_cfg_element *e, *binarye;
-	struct main_hdr_v1 *main_hdr;
-	size_t headersz;
-	void *image, *cur;
-	int hasext = 0;
+	struct image_cfg_element *binarye;
+	struct opt_hdr_v1 *hdr = (struct opt_hdr_v1 *)cur;
+	uint32_t *args;
+	size_t binhdrsz;
+	struct stat s;
+	int argi;
+	FILE *bin;
 	int ret;
+
+	binarye = image_find_option(IMAGE_CFG_BINARY);
+
+	if (!binarye)
+		return 0;
+
+	hdr->headertype = OPT_HDR_V1_BINARY_TYPE;
+
+	bin = fopen(binarye->binary.file, "r");
+	if (!bin) {
+		fprintf(stderr, "Cannot open binary file %s\n",
+			binarye->binary.file);
+		return -1;
+	}
+
+	if (fstat(fileno(bin), &s)) {
+		fprintf(stderr, "Cannot stat binary file %s\n",
+			binarye->binary.file);
+		goto err_close;
+	}
+
+	binhdrsz = sizeof(struct opt_hdr_v1) +
+		(binarye->binary.nargs + 2) * sizeof(uint32_t) +
+		s.st_size;
+
+	/*
+	 * The size includes the binary image size, rounded
+	 * up to a 4-byte boundary. Plus 4 bytes for the
+	 * next-header byte and 3-byte alignment at the end.
+	 */
+	binhdrsz = ALIGN_SUP(binhdrsz, 4) + 4;
+	hdr->headersz_lsb = cpu_to_le16(binhdrsz & 0xFFFF);
+	hdr->headersz_msb = (binhdrsz & 0xFFFF0000) >> 16;
+
+	cur += sizeof(struct opt_hdr_v1);
+
+	args = (uint32_t *)cur;
+	*args = cpu_to_le32(binarye->binary.nargs);
+	args++;
+	for (argi = 0; argi < binarye->binary.nargs; argi++)
+		args[argi] = cpu_to_le32(binarye->binary.args[argi]);
+
+	cur += (binarye->binary.nargs + 1) * sizeof(uint32_t);
+
+	ret = fread(cur, s.st_size, 1, bin);
+	if (ret != 1) {
+		fprintf(stderr,
+			"Could not read binary image %s\n",
+			binarye->binary.file);
+		goto err_close;
+	}
+
+	fclose(bin);
+
+	cur += ALIGN_SUP(s.st_size, 4);
+
+	/*
+	 * For now, we don't support more than one binary
+	 * header, and no other header types are
+	 * supported. So, the binary header is necessarily the
+	 * last one
+	 */
+	*((uint32_t *)cur) = 0x00000000;
+
+	cur += sizeof(uint32_t);
+
+	return 0;
+
+err_close:
+	fclose(bin);
+
+	return -1;
+}
+
+#if defined(CONFIG_KWB_SECURE)
+
+int export_pub_kak_hash(RSA *kak, struct secure_hdr_v1 *secure_hdr)
+{
+	FILE *hashf;
+	int res;
+
+	hashf = fopen("pub_kak_hash.txt", "w");
+
+	res = kwb_export_pubkey(kak, &secure_hdr->kak, hashf, "KAK");
+
+	fclose(hashf);
+
+	return res < 0 ? 1 : 0;
+}
+
+int kwb_sign_csk_with_kak(struct image_tool_params *params,
+			  struct secure_hdr_v1 *secure_hdr, RSA *csk)
+{
+	RSA *kak = NULL;
+	RSA *kak_pub = NULL;
+	int csk_idx = image_get_csk_index();
+	struct sig_v1 tmp_sig;
+
+	if (csk_idx >= 16) {
+		fprintf(stderr, "Invalid CSK index %d\n", csk_idx);
+		return 1;
+	}
+
+	if (kwb_load_kak(params, &kak) < 0)
+		return 1;
+
+	if (export_pub_kak_hash(kak, secure_hdr))
+		return 1;
+
+	if (kwb_import_pubkey(&kak_pub, &secure_hdr->kak, "KAK") < 0)
+		return 1;
+
+	if (kwb_export_pubkey(csk, &secure_hdr->csk[csk_idx], NULL, "CSK") < 0)
+		return 1;
+
+	if (kwb_sign_and_verify(kak, &secure_hdr->csk,
+				sizeof(secure_hdr->csk) +
+				sizeof(secure_hdr->csksig),
+				&tmp_sig, "CSK") < 0)
+		return 1;
+
+	if (kwb_verify(kak_pub, &secure_hdr->csk,
+		       sizeof(secure_hdr->csk) +
+		       sizeof(secure_hdr->csksig),
+		       &tmp_sig, "CSK (2)") < 0)
+		return 1;
+
+	secure_hdr->csksig = tmp_sig;
+
+	return 0;
+}
+
+int add_secure_header_v1(struct image_tool_params *params, uint8_t *ptr,
+			 int payloadsz, size_t headersz, uint8_t *image,
+			 struct secure_hdr_v1 *secure_hdr)
+{
+	struct image_cfg_element *e_jtagdelay;
+	struct image_cfg_element *e_boxid;
+	struct image_cfg_element *e_flashid;
+	RSA *csk = NULL;
+	unsigned char *image_ptr;
+	size_t image_size;
+	struct sig_v1 tmp_sig;
+	bool specialized_img = image_get_spezialized_img();
+
+	kwb_msg("Create secure header content\n");
+
+	e_jtagdelay = image_find_option(IMAGE_CFG_JTAG_DELAY);
+	e_boxid = image_find_option(IMAGE_CFG_BOX_ID);
+	e_flashid = image_find_option(IMAGE_CFG_FLASH_ID);
+
+	if (kwb_load_csk(params, &csk) < 0)
+		return 1;
+
+	secure_hdr->headertype = OPT_HDR_V1_SECURE_TYPE;
+	secure_hdr->headersz_msb = 0;
+	secure_hdr->headersz_lsb = cpu_to_le16(sizeof(struct secure_hdr_v1));
+	if (e_jtagdelay)
+		secure_hdr->jtag_delay = e_jtagdelay->jtag_delay;
+	if (e_boxid && specialized_img)
+		secure_hdr->boxid = cpu_to_le32(e_boxid->boxid);
+	if (e_flashid && specialized_img)
+		secure_hdr->flashid = cpu_to_le32(e_flashid->flashid);
+
+	if (kwb_sign_csk_with_kak(params, secure_hdr, csk))
+		return 1;
+
+	image_ptr = ptr + headersz;
+	image_size = payloadsz - headersz;
+
+	if (kwb_sign_and_verify(csk, image_ptr, image_size,
+				&secure_hdr->imgsig, "image") < 0)
+		return 1;
+
+	if (kwb_sign_and_verify(csk, image, headersz, &tmp_sig, "header") < 0)
+		return 1;
+
+	secure_hdr->hdrsig = tmp_sig;
+
+	kwb_dump_fuse_cmds(secure_hdr);
+
+	return 0;
+}
+#endif
+
+static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
+			     uint8_t *ptr, int payloadsz)
+{
+	struct image_cfg_element *e;
+	struct main_hdr_v1 *main_hdr;
+#if defined(CONFIG_KWB_SECURE)
+	struct secure_hdr_v1 *secure_hdr = NULL;
+#endif
+	size_t headersz;
+	uint8_t *image, *cur;
+	int hasext = 0;
+	uint8_t *next_ext = NULL;
 
 	/*
 	 * Calculate the size of the header and the size of the
 	 * payload
 	 */
-	headersz = image_headersz_v1(params, &hasext);
+	headersz = image_headersz_v1(&hasext);
 	if (headersz == 0)
 		return NULL;
 
@@ -402,15 +1242,18 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 
 	memset(image, 0, headersz);
 
-	cur = main_hdr = image;
+	main_hdr = (struct main_hdr_v1 *)image;
+	cur = image;
 	cur += sizeof(struct main_hdr_v1);
+	next_ext = &main_hdr->ext;
 
 	/* Fill the main header */
 	main_hdr->blocksize    =
 		cpu_to_le32(payloadsz - headersz + sizeof(uint32_t));
 	main_hdr->headersz_lsb = cpu_to_le16(headersz & 0xFFFF);
 	main_hdr->headersz_msb = (headersz & 0xFFFF0000) >> 16;
-	main_hdr->destaddr     = cpu_to_le32(params->addr);
+	main_hdr->destaddr     = cpu_to_le32(params->addr)
+				 - sizeof(image_header_t);
 	main_hdr->execaddr     = cpu_to_le32(params->ep);
 	main_hdr->srcaddr      = cpu_to_le32(headersz);
 	main_hdr->ext          = hasext;
@@ -431,71 +1274,27 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	if (e)
 		main_hdr->flags = e->debug ? 0x1 : 0;
 
-	binarye = image_find_option(IMAGE_CFG_BINARY);
-	if (binarye) {
-		struct opt_hdr_v1 *hdr = cur;
-		uint32_t *args;
-		size_t binhdrsz;
-		struct stat s;
-		int argi;
-		FILE *bin;
-
-		hdr->headertype = OPT_HDR_V1_BINARY_TYPE;
-
-		bin = fopen(binarye->binary.file, "r");
-		if (!bin) {
-			fprintf(stderr, "Cannot open binary file %s\n",
-				binarye->binary.file);
-			return NULL;
-		}
-
-		fstat(fileno(bin), &s);
-
-		binhdrsz = sizeof(struct opt_hdr_v1) +
-			(binarye->binary.nargs + 2) * sizeof(uint32_t) +
-			s.st_size;
-
+#if defined(CONFIG_KWB_SECURE)
+	if (image_get_csk_index() >= 0) {
 		/*
-		 * The size includes the binary image size, rounded
-		 * up to a 4-byte boundary. Plus 4 bytes for the
-		 * next-header byte and 3-byte alignment at the end.
+		 * only reserve the space here; we fill the header later since
+		 * we need the header to be complete to compute the signatures
 		 */
-		binhdrsz = ALIGN_SUP(binhdrsz, 4) + 4;
-		hdr->headersz_lsb = cpu_to_le16(binhdrsz & 0xFFFF);
-		hdr->headersz_msb = (binhdrsz & 0xFFFF0000) >> 16;
-
-		cur += sizeof(struct opt_hdr_v1);
-
-		args = cur;
-		*args = cpu_to_le32(binarye->binary.nargs);
-		args++;
-		for (argi = 0; argi < binarye->binary.nargs; argi++)
-			args[argi] = cpu_to_le32(binarye->binary.args[argi]);
-
-		cur += (binarye->binary.nargs + 1) * sizeof(uint32_t);
-
-		ret = fread(cur, s.st_size, 1, bin);
-		if (ret != 1) {
-			fprintf(stderr,
-				"Could not read binary image %s\n",
-				binarye->binary.file);
-			return NULL;
-		}
-
-		fclose(bin);
-
-		cur += ALIGN_SUP(s.st_size, 4);
-
-		/*
-		 * For now, we don't support more than one binary
-		 * header, and no other header types are
-		 * supported. So, the binary header is necessarily the
-		 * last one
-		 */
-		*((uint32_t *)cur) = 0x00000000;
-
-		cur += sizeof(uint32_t);
+		secure_hdr = (struct secure_hdr_v1 *)cur;
+		cur += sizeof(struct secure_hdr_v1);
+		next_ext = &secure_hdr->next;
 	}
+#endif
+	*next_ext = 1;
+
+	if (add_binary_header_v1(cur))
+		return NULL;
+
+#if defined(CONFIG_KWB_SECURE)
+	if (secure_hdr && add_secure_header_v1(params, ptr, payloadsz,
+					       headersz, image, secure_hdr))
+		return NULL;
+#endif
 
 	/* Calculate and set the header checksum */
 	main_hdr->checksum = image_checksum8(main_hdr, headersz);
@@ -504,72 +1303,94 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	return image;
 }
 
+int recognize_keyword(char *keyword)
+{
+	int kw_id;
+
+	for (kw_id = 1; kw_id < IMAGE_CFG_COUNT; ++kw_id)
+		if (!strcmp(keyword, id_strs[kw_id]))
+			return kw_id;
+
+	return 0;
+}
+
 static int image_create_config_parse_oneline(char *line,
 					     struct image_cfg_element *el)
 {
-	char *keyword, *saveptr;
-	char deliminiters[] = " \t";
+	char *keyword, *saveptr, *value1, *value2;
+	char delimiters[] = " \t";
+	int keyword_id, ret, argi;
+	char *unknown_msg = "Ignoring unknown line '%s'\n";
 
-	keyword = strtok_r(line, deliminiters, &saveptr);
-	if (!strcmp(keyword, "VERSION")) {
-		char *value = strtok_r(NULL, deliminiters, &saveptr);
-		el->type = IMAGE_CFG_VERSION;
-		el->version = atoi(value);
-	} else if (!strcmp(keyword, "BOOT_FROM")) {
-		char *value = strtok_r(NULL, deliminiters, &saveptr);
-		int ret = image_boot_mode_id(value);
+	keyword = strtok_r(line, delimiters, &saveptr);
+	keyword_id = recognize_keyword(keyword);
+
+	if (!keyword_id) {
+		fprintf(stderr, unknown_msg, line);
+		return 0;
+	}
+
+	el->type = keyword_id;
+
+	value1 = strtok_r(NULL, delimiters, &saveptr);
+
+	if (!value1) {
+		fprintf(stderr, "Parameter missing in line '%s'\n", line);
+		return -1;
+	}
+
+	switch (keyword_id) {
+	case IMAGE_CFG_VERSION:
+		el->version = atoi(value1);
+		break;
+	case IMAGE_CFG_BOOT_FROM:
+		ret = image_boot_mode_id(value1);
+
 		if (ret < 0) {
-			fprintf(stderr,
-				"Invalid boot media '%s'\n", value);
+			fprintf(stderr, "Invalid boot media '%s'\n", value1);
 			return -1;
 		}
-		el->type = IMAGE_CFG_BOOT_FROM;
 		el->bootfrom = ret;
-	} else if (!strcmp(keyword, "NAND_BLKSZ")) {
-		char *value = strtok_r(NULL, deliminiters, &saveptr);
-		el->type = IMAGE_CFG_NAND_BLKSZ;
-		el->nandblksz = strtoul(value, NULL, 16);
-	} else if (!strcmp(keyword, "NAND_BADBLK_LOCATION")) {
-		char *value = strtok_r(NULL, deliminiters, &saveptr);
-		el->type = IMAGE_CFG_NAND_BADBLK_LOCATION;
-		el->nandbadblklocation =
-			strtoul(value, NULL, 16);
-	} else if (!strcmp(keyword, "NAND_ECC_MODE")) {
-		char *value = strtok_r(NULL, deliminiters, &saveptr);
-		int ret = image_nand_ecc_mode_id(value);
+		break;
+	case IMAGE_CFG_NAND_BLKSZ:
+		el->nandblksz = strtoul(value1, NULL, 16);
+		break;
+	case IMAGE_CFG_NAND_BADBLK_LOCATION:
+		el->nandbadblklocation = strtoul(value1, NULL, 16);
+		break;
+	case IMAGE_CFG_NAND_ECC_MODE:
+		ret = image_nand_ecc_mode_id(value1);
+
 		if (ret < 0) {
-			fprintf(stderr,
-				"Invalid NAND ECC mode '%s'\n", value);
+			fprintf(stderr, "Invalid NAND ECC mode '%s'\n", value1);
 			return -1;
 		}
-		el->type = IMAGE_CFG_NAND_ECC_MODE;
 		el->nandeccmode = ret;
-	} else if (!strcmp(keyword, "NAND_PAGE_SIZE")) {
-		char *value = strtok_r(NULL, deliminiters, &saveptr);
-		el->type = IMAGE_CFG_NAND_PAGESZ;
-		el->nandpagesz = strtoul(value, NULL, 16);
-	} else if (!strcmp(keyword, "BINARY")) {
-		char *value = strtok_r(NULL, deliminiters, &saveptr);
-		int argi = 0;
+		break;
+	case IMAGE_CFG_NAND_PAGESZ:
+		el->nandpagesz = strtoul(value1, NULL, 16);
+		break;
+	case IMAGE_CFG_BINARY:
+		argi = 0;
 
-		el->type = IMAGE_CFG_BINARY;
-		el->binary.file = strdup(value);
+		el->binary.file = strdup(value1);
 		while (1) {
-			value = strtok_r(NULL, deliminiters, &saveptr);
+			char *value = strtok_r(NULL, delimiters, &saveptr);
+
 			if (!value)
 				break;
 			el->binary.args[argi] = strtoul(value, NULL, 16);
 			argi++;
 			if (argi >= BINARY_MAX_ARGS) {
 				fprintf(stderr,
-					"Too many argument for binary\n");
+					"Too many arguments for BINARY\n");
 				return -1;
 			}
 		}
 		el->binary.nargs = argi;
-	} else if (!strcmp(keyword, "DATA")) {
-		char *value1 = strtok_r(NULL, deliminiters, &saveptr);
-		char *value2 = strtok_r(NULL, deliminiters, &saveptr);
+		break;
+	case IMAGE_CFG_DATA:
+		value2 = strtok_r(NULL, delimiters, &saveptr);
 
 		if (!value1 || !value2) {
 			fprintf(stderr,
@@ -577,19 +1398,47 @@ static int image_create_config_parse_oneline(char *line,
 			return -1;
 		}
 
-		el->type = IMAGE_CFG_DATA;
 		el->regdata.raddr = strtoul(value1, NULL, 16);
 		el->regdata.rdata = strtoul(value2, NULL, 16);
-	} else if (!strcmp(keyword, "BAUDRATE")) {
-		char *value = strtok_r(NULL, deliminiters, &saveptr);
-		el->type = IMAGE_CFG_BAUDRATE;
-		el->baudrate = strtoul(value, NULL, 10);
-	} else if (!strcmp(keyword, "DEBUG")) {
-		char *value = strtok_r(NULL, deliminiters, &saveptr);
-		el->type = IMAGE_CFG_DEBUG;
-		el->debug = strtoul(value, NULL, 10);
-	} else {
-		fprintf(stderr, "Ignoring unknown line '%s'\n", line);
+		break;
+	case IMAGE_CFG_BAUDRATE:
+		el->baudrate = strtoul(value1, NULL, 10);
+		break;
+	case IMAGE_CFG_DEBUG:
+		el->debug = strtoul(value1, NULL, 10);
+		break;
+	case IMAGE_CFG_KAK:
+		el->key_name = strdup(value1);
+		break;
+	case IMAGE_CFG_CSK:
+		el->key_name = strdup(value1);
+		break;
+	case IMAGE_CFG_CSK_INDEX:
+		el->csk_idx = strtol(value1, NULL, 0);
+		break;
+	case IMAGE_CFG_JTAG_DELAY:
+		el->jtag_delay = strtoul(value1, NULL, 0);
+		break;
+	case IMAGE_CFG_BOX_ID:
+		el->boxid = strtoul(value1, NULL, 0);
+		break;
+	case IMAGE_CFG_FLASH_ID:
+		el->flashid = strtoul(value1, NULL, 0);
+		break;
+	case IMAGE_CFG_SEC_SPECIALIZED_IMG:
+		el->sec_specialized_img = true;
+		break;
+	case IMAGE_CFG_SEC_COMMON_IMG:
+		el->sec_specialized_img = false;
+		break;
+	case IMAGE_CFG_SEC_BOOT_DEV:
+		el->sec_boot_dev = strtoul(value1, NULL, 0);
+		break;
+	case IMAGE_CFG_SEC_FUSE_DUMP:
+		el->name = strdup(value1);
+		break;
+	default:
+		fprintf(stderr, unknown_msg, line);
 	}
 
 	return 0;
@@ -654,47 +1503,6 @@ static int image_get_version(void)
 	return e->version;
 }
 
-static int image_version_file(const char *input)
-{
-	FILE *fcfg;
-	int version;
-	int ret;
-
-	fcfg = fopen(input, "r");
-	if (!fcfg) {
-		fprintf(stderr, "Could not open input file %s\n", input);
-		return -1;
-	}
-
-	image_cfg = malloc(IMAGE_CFG_ELEMENT_MAX *
-			   sizeof(struct image_cfg_element));
-	if (!image_cfg) {
-		fprintf(stderr, "Cannot allocate memory\n");
-		fclose(fcfg);
-		return -1;
-	}
-
-	memset(image_cfg, 0,
-	       IMAGE_CFG_ELEMENT_MAX * sizeof(struct image_cfg_element));
-	rewind(fcfg);
-
-	ret = image_create_config_parse(fcfg);
-	fclose(fcfg);
-	if (ret) {
-		free(image_cfg);
-		return -1;
-	}
-
-	version = image_get_version();
-	/* Fallback to version 0 is no version is provided in the cfg file */
-	if (version == -1)
-		version = 0;
-
-	free(image_cfg);
-
-	return version;
-}
-
 static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 				struct image_tool_params *params)
 {
@@ -747,7 +1555,7 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 		break;
 
 	case 1:
-		image = image_create_v1(&headersz, params, sbuf->st_size);
+		image = image_create_v1(&headersz, params, ptr, sbuf->st_size);
 		break;
 
 	default:
@@ -799,27 +1607,24 @@ static int kwbimage_check_image_types(uint8_t type)
 {
 	if (type == IH_TYPE_KWBIMAGE)
 		return EXIT_SUCCESS;
-	else
-		return EXIT_FAILURE;
+
+	return EXIT_FAILURE;
 }
 
 static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 				  struct image_tool_params *params)
 {
-	struct main_hdr_v0 *main_hdr;
-	struct ext_hdr_v0 *ext_hdr;
 	uint8_t checksum;
 
-	main_hdr = (void *)ptr;
-	checksum = image_checksum8(ptr,
-				   sizeof(struct main_hdr_v0)
-				   - sizeof(uint8_t));
-	if (checksum != main_hdr->checksum)
+	if (!main_hdr_checksum_ok(ptr))
 		return -FDT_ERR_BADSTRUCTURE;
 
 	/* Only version 0 extended header has checksum */
 	if (image_version((void *)ptr) == 0) {
-		ext_hdr = (void *)ptr + sizeof(struct main_hdr_v0);
+		struct ext_hdr_v0 *ext_hdr;
+
+		ext_hdr = (struct ext_hdr_v0 *)
+				(ptr + sizeof(struct main_hdr_v0));
 		checksum = image_checksum8(ext_hdr,
 					   sizeof(struct ext_hdr_v0)
 					   - sizeof(uint8_t));
@@ -833,17 +1638,61 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 static int kwbimage_generate(struct image_tool_params *params,
 			     struct image_type_params *tparams)
 {
+	FILE *fcfg;
 	int alloc_len;
+	int version;
 	void *hdr;
-	int version = 0;
+	int ret;
 
-	version = image_version_file(params->imagename);
-	if (version == 0) {
+	fcfg = fopen(params->imagename, "r");
+	if (!fcfg) {
+		fprintf(stderr, "Could not open input file %s\n",
+			params->imagename);
+		exit(EXIT_FAILURE);
+	}
+
+	image_cfg = malloc(IMAGE_CFG_ELEMENT_MAX *
+			   sizeof(struct image_cfg_element));
+	if (!image_cfg) {
+		fprintf(stderr, "Cannot allocate memory\n");
+		fclose(fcfg);
+		exit(EXIT_FAILURE);
+	}
+
+	memset(image_cfg, 0,
+	       IMAGE_CFG_ELEMENT_MAX * sizeof(struct image_cfg_element));
+	rewind(fcfg);
+
+	ret = image_create_config_parse(fcfg);
+	fclose(fcfg);
+	if (ret) {
+		free(image_cfg);
+		exit(EXIT_FAILURE);
+	}
+
+	version = image_get_version();
+	switch (version) {
+		/*
+		 * Fallback to version 0 if no version is provided in the
+		 * cfg file
+		 */
+	case -1:
+	case 0:
 		alloc_len = sizeof(struct main_hdr_v0) +
 			sizeof(struct ext_hdr_v0);
-	} else {
-		alloc_len = image_headersz_v1(params, NULL);
+		break;
+
+	case 1:
+		alloc_len = image_headersz_v1(NULL);
+		break;
+
+	default:
+		fprintf(stderr, "Unsupported version %d\n", version);
+		free(image_cfg);
+		exit(EXIT_FAILURE);
 	}
+
+	free(image_cfg);
 
 	hdr = malloc(alloc_len);
 	if (!hdr) {
@@ -873,9 +1722,9 @@ static int kwbimage_generate(struct image_tool_params *params,
 static int kwbimage_check_params(struct image_tool_params *params)
 {
 	if (!strlen(params->imagename)) {
-		fprintf(stderr, "Error:%s - Configuration file not specified, "
-			"it is needed for kwbimage generation\n",
-			params->cmdname);
+		char *msg = "Configuration file for kwbimage creation omitted";
+
+		fprintf(stderr, "Error:%s - %s\n", params->cmdname, msg);
 		return CFG_INVALID;
 	}
 

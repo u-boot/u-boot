@@ -16,16 +16,7 @@
 #include <configs/bur_am335x_common.h>
 /* ------------------------------------------------------------------------- */
 #define CONFIG_AM335X_LCD
-#define CONFIG_LCD_NOSTDOUT
-#define CONFIG_SYS_WHITE_ON_BLACK
 #define LCD_BPP				LCD_COLOR32
-
-#define CONFIG_VIDEO_BMP_GZIP
-#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(1366*767*4)
-#define CONFIG_CMD_UNZIP
-#define CONFIG_CMD_BMP
-#define CONFIG_BMP_24BMP
-#define CONFIG_BMP_32BPP
 
 /* memory */
 #define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
@@ -40,62 +31,43 @@
 /* I2C IP block */
 #define CONFIG_SYS_OMAP24_I2C_SPEED_PSOC	20000
 
-/* GPIO */
-
 /* MMC/SD IP block */
-#define CONFIG_GENERIC_MMC
-#define CONFIG_OMAP_HSMMC
 #define CONFIG_SUPPORT_EMMC_BOOT
 
 /* Always 64 KiB env size */
 #define CONFIG_ENV_SIZE			(64 << 10)
 
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_EXTRA_ENV_SETTINGS \
+
+/* Default environment */
+#define CONFIG_EXTRA_ENV_SETTINGS	\
 BUR_COMMON_ENV \
+"autoload=0\0" \
+"scradr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 "bootaddr=0x80001100\0" \
 "bootdev=cpsw(0,0)\0" \
 "vx_romfsbase=0x800E0000\0" \
 "vx_romfssize=0x20000\0" \
 "vx_memtop=0x8FBEF000\0" \
 "loadromfs=mmc read ${vx_romfsbase} 700 100\0" \
-"autoload=0\0" \
 "loadaddr=0x80100000\0" \
-"logoaddr=0x82000000\0" \
-"defaultARlen=0x8000\0" \
-"loaddefaultAR=mmc read ${loadaddr} 800 ${defaultARlen}\0" \
-"defaultAR=run loadromfs; run loaddefaultAR; bootvx ${loadaddr}\0" \
-"logo0=fatload mmc 0:1 ${logoaddr} SYSTEM/ADDON/Bootlogo/Bootlogo.bmp.gz && " \
-	"bmp display ${logoaddr} 0 0\0" \
-"logo1=fatload mmc 0:1 ${logoaddr} SYSTEM/BASE/Bootlogo/Bootlogo.bmp.gz && " \
-	"bmp display ${logoaddr} 0 0\0" \
-"mmcboot=echo booting AR from eMMC-flash ...; "\
-	"run logo0 || run logo1; " \
-	"run loadromfs; " \
-	"fatload mmc 0:1 ${loadaddr} arimg && bootvx ${loadaddr}; " \
-	"run defaultAR;\0" \
-"netboot=echo booting AR from network ...; " \
-	"run loadromfs; " \
-	"tftp ${loadaddr} arimg && bootvx ${loadaddr}; " \
-	"puts 'networkboot failed!';\0" \
-"netscript=echo running script from network (tftp) ...; " \
-	"tftp 0x80000000 netscript.img && source; " \
-	"puts 'netscript load failed!'\0" \
-"netupdate=tftp ${loadddr} MLO && mmc write ${loadaddr} 100 100; " \
-	"tftp ${loadaddr} u-boot.img && mmc write ${loadaddr} 300 300\0" \
-"netupdatedefaultAR=echo updating defaultAR from network (tftp) ...; " \
-	"if tftp 0x80100000 arimg.bin; " \
-	"then mmc write 0x80100000 800 ${defaultARlen}; " \
-	"else setcurs 1 8; puts 'defAR update failed (tftp)!'; fi;\0" \
-"netupdateROMFS=echo updating romfs from network (tftp) ...; " \
-	"if tftp 0x80100000 romfs.bin; " \
-	"then mmc write 0x80100000 700 100; " \
-	"else setcurs 1 8; puts 'romfs update failed (tftp)!'; fi;\0"
-
+"startvx=run loadromfs; bootvx ${loadaddr}\0" \
+"b_break=0\0" \
+"b_tgts_std=mmc def net usb0\0" \
+"b_tgts_rcy=def net usb0\0" \
+"b_tgts_pme=net usb0 mmc\0" \
+"b_deftgts=if test ${b_mode} = 12; then setenv b_tgts ${b_tgts_pme};" \
+" elif test ${b_mode} = 0; then setenv b_tgts ${b_tgts_rcy};" \
+" else setenv b_tgts ${b_tgts_std}; fi\0" \
+"b_mmc=load mmc 1 ${loadaddr} arimg && run startvx\0" \
+"b_def=mmc read ${loadaddr} 800 8000; run startvx\0" \
+"b_net=tftp ${scradr} netscript.img && source ${scradr}\0" \
+"b_usb0=usb start && load usb 0 ${scradr} usbscript.img && source ${scradr}\0" \
+"b_default=run b_deftgts; for target in ${b_tgts};"\
+" do run b_${target}; if test ${b_break} = 1; then; exit; fi; done\0"
 #endif /* !CONFIG_SPL_BUILD*/
 
-#define CONFIG_BOOTCOMMAND \
-	"run usbscript;"
+#define CONFIG_BOOTCOMMAND		"mmc dev 1; run b_default"
 
 /* undefine command which we not need here */
 #undef CONFIG_BOOTM_NETBSD
@@ -109,7 +81,6 @@ BUR_COMMON_ENV \
 
 /* USB configuration */
 #define CONFIG_USB_MUSB_DSPS
-#define CONFIG_ARCH_MISC_INIT
 #define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
 #define CONFIG_AM335X_USB0
@@ -117,20 +88,10 @@ BUR_COMMON_ENV \
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE	MUSB_HOST
 
-#undef CONFIG_ENV_IS_NOWHERE
-#define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV		0
+#define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2
 #define CONFIG_ENV_OFFSET		0x40000	/* TODO: Adresse definieren */
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-/*
- * Common filesystems support.  When we have removable storage we
- * enabled a number of useful commands and support.
- */
-#if defined(CONFIG_MMC) || defined(CONFIG_USB_STORAGE)
-#define CONFIG_DOS_PARTITION
-#define CONFIG_FAT_WRITE
-#endif /* CONFIG_MMC, ... */
 
 #endif	/* __CONFIG_BRXRE1_H__ */

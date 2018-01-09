@@ -1,6 +1,6 @@
 menuconfig PCI
 	bool "PCI support"
-	default y if PPC || X86
+	default y if PPC
 	help
 	  Enable support for PCI (Peripheral Interconnect Bus), a type of bus
 	  used on some devices to allow the CPU to communicate with its
@@ -33,9 +33,16 @@ config PCI_PNP
 	help
 	  Enable PCI memory and I/O space resource allocation and assignment.
 
+config PCIE_ECAM_GENERIC
+	bool "Generic ECAM-based PCI host controller support"
+	default n
+	depends on DM_PCI
+	help
+	  Say Y here if you want to enable support for generic ECAM-based
+	  PCIe host controllers, such as the one emulated by QEMU.
+
 config PCIE_DW_MVEBU
 	bool "Enable Armada-8K PCIe driver (DesignWare core)"
-	default n
 	depends on DM_PCI
 	depends on ARMADA_8K
 	help
@@ -70,5 +77,13 @@ config PCI_XILINX
 	help
 	  Enable support for the Xilinx AXI bridge for PCI express, an IP block
 	  which can be used on some generations of Xilinx FPGAs.
+
+config PCIE_LAYERSCAPE
+	bool "Layerscape PCIe support"
+	depends on DM_PCI
+	help
+	  Support Layerscape PCIe. The Layerscape SoC may have one or several
+	  PCIe controllers. The PCIe may works in RC or EP mode according to
+	  RCW[HOST_AGT_PEX] setting.
 
 endif

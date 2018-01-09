@@ -1,7 +1,17 @@
-config PINCTRL_MVEBU
-	depends on ARCH_MVEBU
-	bool
-	default y
+if ARCH_MVEBU
+
+config PINCTRL_ARMADA_37XX
+	depends on ARMADA_3700
+	bool "Armada 37xx pin control driver"
+	help
+	   Support pin multiplexing and pin configuration control on
+	   Marvell's Armada-37xx SoC.
+
+config PINCTRL_ARMADA_8K
+	depends on ARMADA_8K
+	bool "Armada 7k/8k pin control driver"
 	help
 	   Support pin multiplexing and pin configuration control on
 	   Marvell's Armada-8K SoC.
+
+endif

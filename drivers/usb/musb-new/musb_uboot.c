@@ -446,7 +446,7 @@ int musb_register(struct musb_hdrc_platform_data *plat, void *bdata,
 	}
 
 	*musbp = musb_init_controller(plat, (struct device *)bdata, ctl_regs);
-	if (!musbp) {
+	if (!*musbp) {
 		printf("Failed to init the controller\n");
 		return -EIO;
 	}

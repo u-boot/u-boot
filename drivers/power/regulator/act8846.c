@@ -115,7 +115,7 @@ static int reg_set_enable(struct udevice *dev, bool enable)
 			       enable ? LDO_EN_MASK : 0);
 }
 
-static bool reg_get_enable(struct udevice *dev)
+static int reg_get_enable(struct udevice *dev)
 {
 	int reg = dev->driver_data;
 	int ret;

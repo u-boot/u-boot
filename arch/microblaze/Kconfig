@@ -10,13 +10,18 @@ choice
 
 config TARGET_MICROBLAZE_GENERIC
 	bool "Support microblaze-generic"
+	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	select OF_CONTROL
 	select DM
 	select DM_SERIAL
+	select ENV_IS_IN_FLASH
 
 endchoice
 
 source "board/xilinx/microblaze-generic/Kconfig"
+
+config SPL_LDSCRIPT
+	default "arch/microblaze/cpu/u-boot-spl.lds"
 
 endmenu

@@ -26,7 +26,6 @@
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX31_3DS
 
 #define CONFIG_SPL_TARGET	"u-boot-with-spl.bin"
-#define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
 #define CONFIG_SPL_MAX_SIZE	2048
 
 #define CONFIG_SPL_TEXT_BASE	0x87dc0000
@@ -68,16 +67,6 @@
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX		1
-#define CONFIG_BAUDRATE			115200
-
-/***********************************************************
- * Command definition
- ***********************************************************/
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_NAND
-
-#define CONFIG_BOARD_LATE_INIT
-
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"bootargs_base=setenv bootargs console=ttymxc0,115200\0"	\
@@ -90,19 +79,10 @@
 		"nand erase 0x0 0x40000; "				\
 		"nand write 0x81000000 0x0 0x40000\0"
 
-#define CONFIG_SMC911X
-#define CONFIG_SMC911X_BASE	0xB6000000
-#define CONFIG_SMC911X_32_BIT
-
 /*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP	/* undef to save memory */
-#define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
-/* max number of command args */
-#define CONFIG_SYS_MAXARGS	16
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	0x80000000
@@ -119,7 +99,6 @@
 #define CONFIG_NR_DRAM_BANKS	1
 #define PHYS_SDRAM_1		CSD0_BASE
 #define PHYS_SDRAM_1_SIZE	(128 * 1024 * 1024)
-#define CONFIG_BOARD_EARLY_INIT_F
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
@@ -129,13 +108,9 @@
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_INIT_RAM_ADDR + \
 						CONFIG_SYS_INIT_RAM_SIZE)
 
-/*-----------------------------------------------------------------------
- * FLASH and environment organization
+/*
+ * environment organization
  */
-/* No NOR flash present */
-#define CONFIG_SYS_NO_FLASH
-
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x40000
 #define CONFIG_ENV_OFFSET_REDUND	0x60000
 #define CONFIG_ENV_SIZE			(128 * 1024)
@@ -143,7 +118,6 @@
 /*
  * NAND driver
  */
-#define CONFIG_NAND_MXC
 #define CONFIG_MXC_NAND_REGS_BASE      NFC_BASE_ADDR
 #define CONFIG_SYS_MAX_NAND_DEVICE     1
 #define CONFIG_SYS_NAND_BASE           NFC_BASE_ADDR

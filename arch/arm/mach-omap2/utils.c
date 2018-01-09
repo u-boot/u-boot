@@ -5,6 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <asm/setup.h>
 #include <asm/arch/sys_proto.h>
 static void do_cancel_out(u32 *num, u32 *den, u32 factor)
 {
@@ -17,6 +18,121 @@ static void do_cancel_out(u32 *num, u32 *den, u32 factor)
 			break;
 	}
 }
+
+#ifdef CONFIG_FASTBOOT_FLASH
+static void omap_set_fastboot_cpu(void)
+{
+	char *cpu;
+	u32 cpu_rev = omap_revision();
+
+	switch (cpu_rev) {
+	case DRA762_ES1_0:
+		cpu = "DRA762";
+		break;
+	case DRA752_ES1_0:
+	case DRA752_ES1_1:
+	case DRA752_ES2_0:
+		cpu = "DRA752";
+		break;
+	case DRA722_ES1_0:
+	case DRA722_ES2_0:
+	case DRA722_ES2_1:
+		cpu = "DRA722";
+		break;
+	default:
+		cpu = NULL;
+		printf("Warning: fastboot.cpu: unknown CPU rev: %u\n", cpu_rev);
+	}
+
+	env_set("fastboot.cpu", cpu);
+}
+
+static void omap_set_fastboot_secure(void)
+{
+	const char *secure;
+	u32 dev = get_device_type();
+
+	switch (dev) {
+	case EMU_DEVICE:
+		secure = "EMU";
+		break;
+	case HS_DEVICE:
+		secure = "HS";
+		break;
+	case GP_DEVICE:
+		secure = "GP";
+		break;
+	default:
+		secure = NULL;
+		printf("Warning: fastboot.secure: unknown CPU sec: %u\n", dev);
+	}
+
+	env_set("fastboot.secure", secure);
+}
+
+static void omap_set_fastboot_board_rev(void)
+{
+	const char *board_rev;
+
+	board_rev = env_get("board_rev");
+	if (board_rev == NULL)
+		printf("Warning: fastboot.board_rev: unknown board revision\n");
+
+	env_set("fastboot.board_rev", board_rev);
+}
+
+#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+static u32 omap_mmc_get_part_size(const char *part)
+{
+	int res;
+	struct blk_desc *dev_desc;
+	disk_partition_t info;
+	u64 sz = 0;
+
+	dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
+	if (!dev_desc || dev_desc->type == DEV_TYPE_UNKNOWN) {
+		pr_err("invalid mmc device\n");
+		return 0;
+	}
+
+	/* Check only for EFI (GPT) partition table */
+	res = part_get_info_by_name_type(dev_desc, part, &info, PART_TYPE_EFI);
+	if (res < 0)
+		return 0;
+
+	/* Calculate size in bytes */
+	sz = (info.size * (u64)info.blksz);
+	/* to KiB */
+	sz >>= 10;
+
+	return (u32)sz;
+}
+
+static void omap_set_fastboot_userdata_size(void)
+{
+	char buf[16];
+	u32 sz_kb;
+
+	sz_kb = omap_mmc_get_part_size("userdata");
+	if (sz_kb == 0)
+		return; /* probably it's not Android partition table */
+
+	sprintf(buf, "%u", sz_kb);
+	env_set("fastboot.userdata_size", buf);
+}
+#else
+static inline void omap_set_fastboot_userdata_size(void)
+{
+}
+#endif /* CONFIG_FASTBOOT_FLASH_MMC_DEV */
+void omap_set_fastboot_vars(void)
+{
+	omap_set_fastboot_cpu();
+	omap_set_fastboot_secure();
+	omap_set_fastboot_board_rev();
+	omap_set_fastboot_userdata_size();
+}
+#endif /* CONFIG_FASTBOOT_FLASH */
 
 /*
  * Cancel out the denominator and numerator of a fraction
@@ -53,11 +169,11 @@ void omap_die_id_serial(void)
 
 	omap_die_id((unsigned int *)&die_id);
 
-	if (!getenv("serial#")) {
+	if (!env_get("serial#")) {
 		snprintf(serial_string, sizeof(serial_string),
 			"%08x%08x", die_id[0], die_id[3]);
 
-		setenv("serial#", serial_string);
+		env_set("serial#", serial_string);
 	}
 }
 
@@ -66,7 +182,7 @@ void omap_die_id_get_board_serial(struct tag_serialnr *serialnr)
 	char *serial_string;
 	unsigned long long serial;
 
-	serial_string = getenv("serial#");
+	serial_string = env_get("serial#");
 
 	if (serial_string) {
 		serial = simple_strtoull(serial_string, NULL, 16);
@@ -86,7 +202,7 @@ void omap_die_id_usbethaddr(void)
 
 	omap_die_id((unsigned int *)&die_id);
 
-	if (!getenv("usbethaddr")) {
+	if (!env_get("usbethaddr")) {
 		/*
 		 * Create a fake MAC address from the processor ID code.
 		 * First byte is 0x02 to signify locally administered.
@@ -98,7 +214,10 @@ void omap_die_id_usbethaddr(void)
 		mac[4] = die_id[0] & 0xff;
 		mac[5] = (die_id[0] >> 8) & 0xff;
 
-		eth_setenv_enetaddr("usbethaddr", mac);
+		eth_env_set_enetaddr("usbethaddr", mac);
+
+		if (!env_get("ethaddr"))
+			eth_env_set_enetaddr("ethaddr", mac);
 	}
 }
 

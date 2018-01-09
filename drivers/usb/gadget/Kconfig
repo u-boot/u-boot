@@ -36,6 +36,30 @@ menuconfig USB_GADGET
 
 if USB_GADGET
 
+config USB_GADGET_MANUFACTURER
+	string "Vendor name of the USB device"
+	default "Allwinner Technology" if ARCH_SUNXI
+	default "U-Boot"
+	help
+	  Vendor name of the USB device emulated, reported to the host device.
+	  This is usually either the manufacturer of the device or the SoC.
+
+config USB_GADGET_VENDOR_NUM
+	hex "Vendor ID of the USB device"
+	default 0x1f3a if ARCH_SUNXI
+	default 0x0
+	help
+	  Vendor ID of the USB device emulated, reported to the host device.
+	  This is usually the board or SoC vendor's, unless you've registered
+	  for one.
+
+config USB_GADGET_PRODUCT_NUM
+	hex "Product ID of the USB device"
+	default 0x1010 if ARCH_SUNXI
+	default 0x0
+	help
+	  Product ID of the USB device emulated, reported to the host device.
+
 config USB_GADGET_ATMEL_USBA
 	bool "Atmel USBA"
 	select USB_GADGET_DUALSPEED
@@ -103,19 +127,70 @@ config USB_GADGET_DOWNLOAD
 
 if USB_GADGET_DOWNLOAD
 
-config G_DNL_MANUFACTURER
-	string "Vendor name of USB device"
+config USB_FUNCTION_SDP
+	bool "Enable USB SDP (Serial Download Protocol)"
+	help
+	  Enable Serial Download Protocol (SDP) device support in U-Boot. This
+	  allows to download images into memory and execute (jump to) them
+	  using the same protocol as implemented by the i.MX family's boot ROM.
 
-config G_DNL_VENDOR_NUM
-	hex "Vendor ID of USB device"
+endif # USB_GADGET_DOWNLOAD
 
-config G_DNL_PRODUCT_NUM
-	hex "Product ID of USB device"
+config USB_ETHER
+	bool "USB Ethernet Gadget"
+	default y if ARCH_SUNXI && USB_MUSB_GADGET
+	help
+	  Creates an Ethernet network device through a USB peripheral
+	  controller. This will create a network interface on both the device
+	  (U-Boot) and the host (remote device) that can be used just like any
+	  other nework interface.
+	  It will bind on the peripheral USB controller, ignoring the USB hosts
+	  controllers in the system.
+
+if USB_ETHER
+
+choice
+	prompt "USB Ethernet Gadget Model"
+	default USB_ETH_RNDIS
+	help
+	  There is several models (protocols) to implement Ethernet over USB
+	  devices. The main ones are Microsoft's RNDIS and USB's CDC-Ethernet
+	  (also called CDC-ECM). RNDIS is obviously compatible with Windows,
+	  while CDC-ECM is not. Most other operating systems support both, so
+	  if inter-operability is a concern, RNDIS is to be preferred.
+
+config USB_ETH_CDC
+	bool "CDC-ECM Protocol"
+	help
+	  CDC (Communications Device Class) is the standard for Ethernet over
+	  USB devices. While there's several alternatives, the most widely used
+	  protocol is ECM (Ethernet Control Model). However, compatibility with
+	  Windows is not that great.
+
+config USB_ETH_RNDIS
+	bool "RNDIS Protocol"
+	help
+	  The RNDIS (Remote Network Driver Interface Specification) is a
+	  Microsoft proprietary protocol to create an Ethernet device over USB.
+	  Windows obviously supports it, as well as all the major operating
+	  systems, so it's the best option for compatibility.
+
+endchoice
 
 config USBNET_DEVADDR
 	string "USB Gadget Ethernet device mac address"
 	default "de:ad:be:ef:00:01"
+	help
+	  Ethernet MAC address of the device-side (ie. local board's) MAC
+	  address of the usb_ether interface
 
-endif # USB_GADGET_DOWNLOAD
+config USBNET_HOST_ADDR
+	string "USB Gadget Ethernet host mac address"
+	default "de:ad:be:ef:00:00"
+	help
+	  Ethernet MAC address of the host-side (ie. remote device's) MAC
+	  address of the usb_ether interface
+
+endif # USB_ETHER
 
 endif # USB_GADGET

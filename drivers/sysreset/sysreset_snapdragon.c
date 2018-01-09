@@ -16,7 +16,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int msm_sysreset_request(struct udevice *dev, enum sysreset_t type)
 {
-	phys_addr_t addr = dev_get_addr(dev);
+	phys_addr_t addr = devfdt_get_addr(dev);
 	if (!addr)
 		return -EINVAL;
 	writel(0, addr);

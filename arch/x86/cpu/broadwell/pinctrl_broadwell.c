@@ -51,7 +51,7 @@ static int broadwell_pinctrl_read_configs(struct udevice *dev,
 	int node;
 
 	debug("%s: starting\n", __func__);
-	for (node = fdt_first_subnode(blob, dev->of_offset);
+	for (node = fdt_first_subnode(blob, dev_of_offset(dev));
 	     node > 0;
 	     node = fdt_next_subnode(blob, node)) {
 		int phandle = fdt_get_phandle(blob, node);
@@ -115,7 +115,7 @@ static int broadwell_pinctrl_read_pins(struct udevice *dev,
 	int count = 0;
 	int node;
 
-	for (node = fdt_first_subnode(blob, dev->of_offset);
+	for (node = fdt_first_subnode(blob, dev_of_offset(dev));
 	     node > 0;
 	     node = fdt_next_subnode(blob, node)) {
 		int len, i;

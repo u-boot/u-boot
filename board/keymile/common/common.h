@@ -137,15 +137,6 @@ int toggle_eeprom_spi_bus(void);
 int get_testpin(void);
 
 int set_km_env(void);
-int fdt_set_node_and_value(void *blob,
-			char *nodename,
-			char *regname,
-			void *var,
-			int size);
-int fdt_get_node_and_value(void *blob,
-				char *nodename,
-				char *propname,
-				void **var);
 
 #define DELAY_ABORT_SEQ		62  /* @200kHz 9 clocks = 44us, 62us is ok */
 #define DELAY_HALF_PERIOD	(500 / (CONFIG_SYS_I2C_SPEED / 1000))

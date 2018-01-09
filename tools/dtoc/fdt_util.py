@@ -24,8 +24,26 @@ def fdt32_to_cpu(val):
         A native-endian integer value
     """
     if sys.version_info > (3, 0):
+        if isinstance(val, bytes):
+            val = val.decode('utf-8')
         val = val.encode('raw_unicode_escape')
     return struct.unpack('>I', val)[0]
+
+def fdt_cells_to_cpu(val, cells):
+    """Convert one or two cells to a long integer
+
+    Args:
+        Value to convert (array of one or more 4-character strings)
+
+    Return:
+        A native-endian long value
+    """
+    if not cells:
+        return 0
+    out = long(fdt32_to_cpu(val[0]))
+    if cells == 2:
+        out = out << 32 | fdt32_to_cpu(val[1])
+    return out
 
 def EnsureCompiled(fname):
     """Compile an fdt .dts source file into a .dtb binary blob if needed.
@@ -57,7 +75,8 @@ def EnsureCompiled(fname):
     search_list = []
     for path in search_paths:
         search_list.extend(['-i', path])
-    args = ['-I', 'dts', '-o', dtb_output, '-O', 'dtb']
+    args = ['-I', 'dts', '-o', dtb_output, '-O', 'dtb',
+            '-W', 'no-unit_address_vs_reg']
     args.extend(search_list)
     args.append(dts_input)
     command.Run('dtc', *args)

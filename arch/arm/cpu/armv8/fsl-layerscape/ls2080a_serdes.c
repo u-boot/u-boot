@@ -70,6 +70,7 @@ static struct serdes_config serdes2_cfg_tbl[] = {
 		SATA2 } },
 	{0x4A, {SGMII9, SGMII10, SGMII11, SGMII12, PCIE4, PCIE4, SATA1,
 		SATA2 } },
+	{0x51, {PCIE3, PCIE3, PCIE3, PCIE3, PCIE4, PCIE4, PCIE4, PCIE4 } },
 	{0x57, {PCIE3, PCIE3, PCIE3, PCIE3, PCIE4, PCIE4, SGMII15, SGMII16 } },
 	{}
 };

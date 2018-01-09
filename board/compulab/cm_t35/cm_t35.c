@@ -92,8 +92,8 @@ int board_init(void)
 	/* boot param addr */
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
 
-#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
-	status_led_set(STATUS_LED_BOOT, STATUS_LED_ON);
+#if defined(CONFIG_LED_STATUS) && defined(CONFIG_LED_STATUS_BOOT_ENABLE)
+	status_led_set(CONFIG_LED_STATUS_BOOT, CONFIG_LED_STATUS_ON);
 #endif
 
 	return 0;
@@ -372,7 +372,7 @@ void set_muxconf_regs(void)
 		cm_t3730_set_muxconf();
 }
 
-#if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_MMC)
 #define SB_T35_WP_GPIO 59
 
 int board_mmc_getcd(struct mmc *mmc)
@@ -391,14 +391,14 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
-#if defined(CONFIG_GENERIC_MMC)
+#if defined(CONFIG_MMC)
 void board_mmc_power_init(void)
 {
 	twl4030_power_mmc_init(0);
 }
 #endif
 
-#ifdef CONFIG_SYS_I2C_OMAP34XX
+#ifdef CONFIG_SYS_I2C_OMAP24XX
 /*
  * Routine: reset_net_chip
  * Description: reset the Ethernet controller via TPS65930 GPIO
@@ -434,7 +434,7 @@ static int handle_mac_address(void)
 	unsigned char enetaddr[6];
 	int rc;
 
-	rc = eth_getenv_enetaddr("ethaddr", enetaddr);
+	rc = eth_env_get_enetaddr("ethaddr", enetaddr);
 	if (rc)
 		return 0;
 
@@ -445,13 +445,14 @@ static int handle_mac_address(void)
 	if (!is_valid_ethaddr(enetaddr))
 		return -1;
 
-	return eth_setenv_enetaddr("ethaddr", enetaddr);
+	return eth_env_set_enetaddr("ethaddr", enetaddr);
 }
 
 /*
  * Routine: board_eth_init
  * Description: initialize module and base-board Ethernet chips
  */
+#define SB_T35_SMC911X_BASE	(CONFIG_SMC911X_BASE + SZ_16M)
 int board_eth_init(bd_t *bis)
 {
 	int rc = 0, rc1 = 0;
@@ -460,7 +461,7 @@ int board_eth_init(bd_t *bis)
 	if (rc1)
 		printf("No MAC address found! ");
 
-	rc1 = cl_omap3_smc911x_init(0, 5, CM_T3X_SMC911X_BASE,
+	rc1 = cl_omap3_smc911x_init(0, 5, CONFIG_SMC911X_BASE,
 				    cm_t3x_reset_net_chip, -EINVAL);
 	if (rc1 > 0)
 		rc++;

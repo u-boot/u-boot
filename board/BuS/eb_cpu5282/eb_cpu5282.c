@@ -35,7 +35,7 @@ int checkboard (void)
 	return 0;
 }
 
-phys_size_t initdram (int board_type)
+int dram_init(void)
 {
 	int size, i;
 
@@ -92,7 +92,9 @@ phys_size_t initdram (int board_type)
 	*(unsigned int *) (CONFIG_SYS_SDRAM_BASE1 + 0x220) = 0xA5A5;
 	size += CONFIG_SYS_SDRAM_SIZE1 * 1024 * 1024;
 #endif
-	return size;
+	gd->ram_size = size;
+
+	return 0;
 }
 
 #if defined(CONFIG_SYS_DRAM_TEST)
@@ -137,7 +139,7 @@ void hw_watchdog_init(void)
 	int enable;
 
 	enable = 1;
-	s = getenv("watchdog");
+	s = env_get("watchdog");
 	if (s != NULL)
 		if ((strncmp(s, "off", 3) == 0) || (strncmp(s, "0", 1) == 0))
 			enable = 0;
@@ -174,7 +176,7 @@ void __led_init(led_id_t mask, int state)
 
 void __led_set(led_id_t mask, int state)
 {
-	if (state == STATUS_LED_ON)
+	if (state == CONFIG_LED_STATUS_ON)
 		MCFGPTA_GPTPORT |= (1 << 3);
 	else
 		MCFGPTA_GPTPORT &= ~(1 << 3);
@@ -189,13 +191,13 @@ int drv_video_init(void)
 	unsigned long splash;
 #endif
 	printf("Init Video as ");
-	s = getenv("displaywidth");
+	s = env_get("displaywidth");
 	if (s != NULL)
 		display_width = simple_strtoul(s, NULL, 10);
 	else
 		display_width = 256;
 
-	s = getenv("displayheight");
+	s = env_get("displayheight");
 	if (s != NULL)
 		display_height = simple_strtoul(s, NULL, 10);
 	else
@@ -209,7 +211,7 @@ int drv_video_init(void)
 	vcxk_init(display_width, display_height);
 
 #ifdef CONFIG_SPLASH_SCREEN
-	s = getenv("splashimage");
+	s = env_get("splashimage");
 	if (s != NULL) {
 		splash = simple_strtoul(s, NULL, 16);
 		vcxk_acknowledge_wait();

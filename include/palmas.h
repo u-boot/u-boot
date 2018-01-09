@@ -38,6 +38,10 @@
 #define LDO2_CTRL		0x52
 #define LDO2_VOLTAGE		0x53
 
+/* LDO2 control/voltage */
+#define LDO4_CTRL		0x5e
+#define LDO4_VOLTAGE		0x5f
+
 /* LDO9 control/voltage */
 #define LDO9_CTRL		0x60
 #define LDO9_VOLTAGE		0x61
@@ -129,7 +133,7 @@ static inline int palmas_i2c_read_u8(u8 chip_no, u8 reg, u8 *val)
 }
 
 void palmas_init_settings(void);
-int palmas_mmc1_poweron_ldo(uint voltage);
+int palmas_mmc1_poweron_ldo(uint ldo_volt, uint ldo_ctrl, uint voltage);
 int lp873x_mmc1_poweron_ldo(uint voltage);
 int twl603x_mmc1_set_ldo9(u8 vsel);
 int twl603x_audio_power(u8 on);

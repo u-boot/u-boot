@@ -1,0 +1,6 @@
+LIBRETECH-CC
+M:	Neil Armstrong <narmstrong@baylibre.com>
+S:	Maintained
+F:	board/amlogic/libretech-cc/
+F:	include/configs/libretech-cc.h
+F:	configs/libretech-cc_defconfig

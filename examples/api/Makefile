@@ -34,7 +34,12 @@ EXT_COBJ-y += lib/div64.o
 EXT_COBJ-y += lib/string.o
 EXT_COBJ-y += lib/time.o
 EXT_COBJ-y += lib/vsprintf.o
+EXT_COBJ-y += lib/charset.o
+EXT_COBJ-$(CONFIG_LIB_UUID) += lib/uuid.o
 EXT_SOBJ-$(CONFIG_PPC) += arch/powerpc/lib/ppcstring.o
+ifeq ($(ARCH),arm)
+EXT_SOBJ-$(CONFIG_USE_ARCH_MEMSET) += arch/arm/lib/memset.o
+endif
 
 # Create a list of object files to be compiled
 OBJS := $(OBJ-y) $(notdir $(EXT_COBJ-y) $(EXT_SOBJ-y))
@@ -60,5 +65,5 @@ $(addprefix $(obj)/,$(notdir $(EXT_COBJ-y))): $(obj)/%.o: lib/%.c FORCE
 	$(call if_changed_rule,cc_o_c)
 
 # Rule to build architecture-specific library assembly files
-$(addprefix $(obj)/,$(notdir $(EXT_SOBJ-y))): $(obj)/%.o: arch/powerpc/lib/%.S FORCE
+$(addprefix $(obj)/,$(notdir $(EXT_SOBJ-y))): $(obj)/%.o: arch/$(ARCH)/lib/%.S FORCE
 	$(call if_changed_dep,as_o_S)

@@ -87,7 +87,7 @@ int video_reserve(ulong *addrp)
 	return 0;
 }
 
-static int video_clear(struct udevice *dev)
+void video_clear(struct udevice *dev)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
 
@@ -100,8 +100,6 @@ static int video_clear(struct udevice *dev)
 	} else {
 		memset(priv->fb, priv->colour_bg, priv->fb_size);
 	}
-
-	return 0;
 }
 
 /* Flush video activity to the caches */
@@ -199,7 +197,9 @@ static int video_post_probe(struct udevice *dev)
 #else
 	priv->colour_bg = 0xffffff;
 #endif
-	video_clear(dev);
+
+	if (!CONFIG_IS_ENABLED(NO_FB_CLEAR))
+		video_clear(dev);
 
 	/*
 	 * Create a text console device. For now we always do this, although

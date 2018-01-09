@@ -94,25 +94,15 @@ vpac270_ond_256  arm         pxa            452ef830    2015-08-30  Marek Vasut 
 xaeniax          arm         pxa            1c87dd76    2015-08-30
 zipitz2          arm         pxa            49d8899b    2015-08-30  Cliff Brake <cliff.brake@gmail.com>
 cam_enc_4xx      arm         arm926ejs      8d775763    2015-08-20  Heiko Schocher <hs@denx.de>
-atstk1003        avr32       -              e5354b8a    2015-06-10  Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
-atstk1004        avr32       -              e5354b8a    2015-06-10  Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
-atstk1006        avr32       -              e5354b8a    2015-06-10  Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
-mimc200          avr32       -              c62d2f8f    2015-06-10  Mark Jackson <mpfj@mimc.co.uk>
-hammerhead       avr32       -              e3693076    2015-06-10  Alex Raimondi <alex.raimondi@miromico.ch>
-favr-32-ezkit    avr32       -              9eb45aab    2015-06-10  Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
 afeb9260         arm         arm926ejs      f6b42c14    2015-05-13  Sergey Lapin <slapin@ossfans.org>
 tny_a9260        arm         arm926ejs      f6b42c14    2015-05-13  Albin Tonnerre <albin.tonnerre@free-electrons.com>
 sbc35_a9g20      arm         arm926ejs      f6b42c14    2015-05-13  Albin Tonnerre <albin.tonnerre@free-electrons.com>
 sc3              powerpc     ppc4xx         27e72156    2015-05-10  Heiko Schocher <hs@denx.de>
 T4240EMU         powerpc     mpc85xx        7fc63cca    2015-05-05  York Sun <yorksun@freescale.com>
 korat            powerpc     ppc4xx         5043045d    2015-03-17  Larry Johnson <lrj@acm.org>
-galaxy5200       powerpc     mpc5xxx        41eb4e5c    2015-03-17  Eric Millbrandt <emillbrandt@dekaresearch.com>
 W7OLMC           powerpc     ppc4xx         6beecd5d    2015-03-17  Erik Theisen <etheisen@mindspring.com>
 W7OLMG           powerpc     ppc4xx         6beecd5d    2015-03-17  Erik Theisen <etheisen@mindspring.com>
-aev              powerpc     mpc5xxx        470ee8b1    2015-03-17
-TB5200           powerpc     mpc5xxx        470ee8b1    2015-03-17
 JSE              powerpc     ppc4xx         2da8137b    2015-03-17  Stephen Williams <steve@icarus.com>
-BC3450           powerpc     mpc5xxx        f8296d69    2015-03-17
 hawkboard        arm         arm926ejs      cb957cda    2015-02-24  Syed Mohammed Khasim <sm.khasim@gmail.com>:Sughosh Ganu <urwithsughosh@gmail.com>
 tnetv107x        arm         arm1176        50b82c4b    2015-02-24  Chan-Taek Park <c-park@ti.com>
 a320evb          arm         arm920t        29fc6f24    2015-02-24  Po-Yu Chuang <ratbert@faraday-tech.com>
@@ -120,13 +110,6 @@ cm4008           arm         arm920t        a2f39e83    2015-02-24  Greg Ungerer
 cm41xx           arm         arm920t        a2f39e83    2015-02-24
 dkb              arm         arm926ejs      346cfba4    2015-02-24  Lei Wen <leiwen@marvell.com>
 jadecpu          arm         arm926ejs      41fbbbbc    2015-02-24  Matthias Weisser <weisserm@arcor.de>
-icecube_5200     powerpc     mpc5xxx        37b608a5    2015-01-23  Wolfgang Denk <wd@denx.de>
-Lite5200         powerpc     mpc5xxx        37b608a5    2015-01-23
-cpci5200         powerpc     mpc5xxx        37b608a5    2015-01-23  Reinhard Arlt <reinhard.arlt@esd-electronics.com>
-mecp5200         powerpc     mpc5xxx        37b608a5    2015-01-23  Reinhard Arlt <reinhard.arlt@esd-electronics.com>
-pf5200           powerpc     mpc5xxx        37b608a5    2015-01-23  Reinhard Arlt <reinhard.arlt@esd-electronics.com>
-PM520            powerpc     mpc5xxx        a258e732    2015-01-23  Josef Wagner <Wagner@Microsys.de>
-Total5200        powerpc     mpc5xxx        ad734f7d    2015-01-23
 CATcenter        powerpc     ppc4xx         5344cc1a    2015-01-23
 PPChameleonEVB   powerpc     ppc4xx         5344cc1a    2015-01-23  Andrea "llandre" Marson <andrea.marson@dave-tech.it>
 P2020DS          powerpc     mpc85xx        168dcc6c    2015-01-23
@@ -200,9 +183,6 @@ SPD823TS         powerpc     mpc8xx         72ba368f    2015-01-05  Wolfgang Den
 KUP4K            powerpc     mpc8xx         4317d070    2015-01-05  Klaus Heydeck <heydeck@kieback-peter.de>
 KUP4X            powerpc     mpc8xx         4317d070    2015-01-05  Klaus Heydeck <heydeck@kieback-peter.de>
 ELPT860          powerpc     mpc8xx         3c5b20f1    2015-01-05  The LEOX team <team@leox.org>
-hmi1001          powerpc     mpc5xxx        ceaf499b    2015-01-05
-mucmc52          powerpc     mpc5xxx        ceaf499b    2015-01-05  Heiko Schocher <hs@denx.de>
-uc101            powerpc     mpc5xxx        ceaf499b    2015-01-05  Heiko Schocher <hs@denx.de>
 uc100            powerpc     mpc8xx         ceaf499b    2015-01-05  Stefan Roese <sr@denx.de>
 FPS850L          powerpc     mpc8xx         5d2a5ef7    2015-01-05  Wolfgang Denk <wd@denx.de>
 FPS860L          powerpc     mpc8xx         5d2a5ef7    2015-01-05  Wolfgang Denk <wd@denx.de>
@@ -211,9 +191,6 @@ SM850            powerpc     mpc8xx         5d2a5ef7    2015-01-05  Wolfgang Den
 TK885D           powerpc     mpc8xx         5d2a5ef7    2015-01-05
 virtlab2         powerpc     mpc8xx         5d2a5ef7    2015-01-05  Wolfgang Denk <wd@denx.de>
 hermes           powerpc     mpc8xx         36da51e     2014-12-08  Wolfgang Denk <wd@denx.de>
-PRS200		 powerpc     mpc5200	    ecfdcee	2014-11-12
-MCC200		 powerpc     mpc5200	    ecfdcee     2014-11-12
-TOP5200		 powerpc     mpc5200	    d58a945	2014-10-28  Reinhard Meyer <reinhard.meyer@emk-elektronik.de>
 TOP860		 powerpc     mpc860	    d58a945	2014-10-28  Reinhard Meyer <reinhard.meyer@emk-elektronik.de>
 TOP9000		 arm	     at91sam9xeXXX  d58a945	2014-10-28  Reinhard Meyer <reinhard.meyer@emk-elektronik.de>
 TQM8272          powerpc     mpc8260        f06f9a1     2014-10-27  Wolfgang Denk <wd@denx.de>
@@ -228,8 +205,6 @@ DB64360		 powerpc     74xx_7xx	    03b0040	2014-10-27
 DB64460		 powerpc     74xx_7xx	    03b0040	2014-10-27
 p3m750		 powerpc     74xx_7xx	    03b0040	2014-10-27  Stefan Roese <sr@denx.de>
 p3m7448		 powerpc     74xx_7xx	    03b0040	2014-10-27  Stefan Roese <sr@denx.de>
-MVBC_P           powerpc     mpc5xxx        af55e35	2014-10-10  Andre Schwarz <andre.schwarz@matrix-vision.de>
-MVSMR            powerpc     mpc5xxx        af55e35	2014-10-10  Andre Schwarz <andre.schwarz@matrix-vision.de>
 MERGERBOX        powerpc     mpc83xx        e7a5656	2014-10-10  Andre Schwarz <andre.schwarz@matrix-vision.de>
 MVBLM7           powerpc     mpc83xx        e7a5656	2014-10-10  Andre Schwarz <andre.schwarz@matrix-vision.de>
 bluestone        powerpc     ppc4xx         9ed3246	2014-10-10  Tirumala Marri <tmarri@apm.com>
@@ -316,7 +291,6 @@ ADCIOP           powerpc     ppc4xx         99bcad1     2012-09-19  Matthias Fuc
 DASA_SIM         powerpc     ppc4xx         99bcad1     2012-09-19  Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 apollon          arm         omap24xx       535c74f     2012-09-18  Kyungmin Park <kyungmin.park@samsung.com>
 tb0229           mips        mips32         3f3110d     2011-12-12
-rmu              powerpc     MPC850         fb82fd7     2011-12-07  Wolfgang Denk <wd@denx.de>
 OXC              powerpc     MPC8240        309a292     2011-12-07
 BAB7xx           powerpc     MPC740/MPC750  c53043b     2011-12-07  Frank Gottschling <fgottschling@eltec.de>
 xm250            arm         pxa            c477d72     2011-11-25
@@ -373,8 +347,6 @@ CP850            powerpc     MPC852         333d86d     2010-10-19  Wolfgang Den
 logodl           ARM         PXA2xx         059e778     2010-10-18  August Hoeraendl <august.hoerandl@gmx.at>
 CCM              powerpc     MPC860         dff07e1     2010-10-06  Wolfgang Grandegger <wg@denx.de>
 PCU_E            powerpc     MPC860T        544d97e     2010-10-06  Wolfgang Denk <wd@denx.de>
-spieval          powerpc     MPC5200        69434e4     2010-09-19
-smmaco4          powerpc     MPC5200        9ddc3af     2010-09-19
 HMI10            powerpc     MPC823         77efe35     2010-09-19  Wolfgang Denk <wd@denx.de>
 GTH              powerpc     MPC860         0fe247b     2010-07-17  Thomas Lange <thomas@corelatus.se>
 AmigaOneG3SE     powerpc     74xx_7xx       953b7e6     2010-06-23

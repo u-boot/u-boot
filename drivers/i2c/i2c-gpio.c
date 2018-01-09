@@ -309,7 +309,7 @@ static int i2c_gpio_ofdata_to_platdata(struct udevice *dev)
 {
 	struct i2c_gpio_bus *bus = dev_get_priv(dev);
 	const void *blob = gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	int ret;
 
 	ret = gpio_request_list_by_name(dev, "gpios", bus->gpios,
@@ -322,7 +322,7 @@ static int i2c_gpio_ofdata_to_platdata(struct udevice *dev)
 
 	return 0;
 error:
-	error("Can't get %s gpios! Error: %d", dev->name, ret);
+	pr_err("Can't get %s gpios! Error: %d", dev->name, ret);
 	return ret;
 }
 

@@ -10,19 +10,29 @@ CONFIG_STANDALONE_LOAD_ADDR ?= 0x40000
 PLATFORM_CPPFLAGS += -fno-strict-aliasing
 PLATFORM_CPPFLAGS += -fomit-frame-pointer
 PF_CPPFLAGS_X86   := $(call cc-option, -fno-toplevel-reorder, \
-		       $(call cc-option, -fno-unit-at-a-time)) \
-		     $(call cc-option, -mpreferred-stack-boundary=2)
+		     $(call cc-option, -fno-unit-at-a-time))
 
 PLATFORM_CPPFLAGS += $(PF_CPPFLAGS_X86)
 PLATFORM_CPPFLAGS += -fno-dwarf2-cfi-asm
+
+ifdef CONFIG_SPL_BUILD
+IS_32BIT := y
+else
+ifndef CONFIG_X86_64
+IS_32BIT := y
+endif
+endif
+
+ifeq ($(IS_32BIT),y)
 PLATFORM_CPPFLAGS += -march=i386 -m32
+else
+PLATFORM_CPPFLAGS += $(if $(CONFIG_SPL_BUILD),,-fpic) -fno-common -m64
+endif
 
 PLATFORM_RELFLAGS += -ffunction-sections -fvisibility=hidden
 
-PLATFORM_LDFLAGS += -Bsymbolic -Bsymbolic-functions -m elf_i386
-
-LDFLAGS_FINAL += --wrap=__divdi3 --wrap=__udivdi3
-LDFLAGS_FINAL += --wrap=__moddi3 --wrap=__umoddi3
+PLATFORM_LDFLAGS += -Bsymbolic -Bsymbolic-functions
+PLATFORM_LDFLAGS += -m $(if $(IS_32BIT),elf_i386,elf_x86_64)
 
 # This is used in the top-level Makefile which does not include
 # PLATFORM_LDFLAGS
@@ -31,7 +41,9 @@ LDFLAGS_EFI_PAYLOAD := -Bsymbolic -Bsymbolic-functions -shared --no-undefined
 OBJCOPYFLAGS_EFI := -j .text -j .sdata -j .data -j .dynamic -j .dynsym \
 	-j .rel -j .rela -j .reloc
 
+ifeq ($(IS_32BIT),y)
 CFLAGS_NON_EFI := -mregparm=3
+endif
 CFLAGS_EFI := -fpic -fshort-wchar
 
 ifeq ($(CONFIG_EFI_STUB_64BIT),)
@@ -62,8 +74,18 @@ else
 
 PLATFORM_CPPFLAGS += $(CFLAGS_NON_EFI)
 PLATFORM_LDFLAGS += --emit-relocs
-LDFLAGS_FINAL += --gc-sections -pie
+LDFLAGS_FINAL += --gc-sections $(if $(CONFIG_SPL_BUILD),,-pie)
 
+endif
+
+ifdef CONFIG_X86_64
+ifndef CONFIG_SPL_BUILD
+PLATFORM_CPPFLAGS += -D__x86_64__
+else
+PLATFORM_CPPFLAGS += -D__I386__
+endif
+else
+PLATFORM_CPPFLAGS += -D__I386__
 endif
 
 ifneq ($(CONFIG_EFI_STUB)$(CONFIG_CMD_BOOTEFI_HELLO_COMPILE),)

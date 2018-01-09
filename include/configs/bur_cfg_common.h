@@ -26,8 +26,6 @@
 
 #define CONFIG_PREBOOT			"run cfgscr; run brdefaultip"
 
-#define CONFIG_BOARD_LATE_INIT
-
 /* Network defines */
 #define CONFIG_BOOTP_DNS		/* Configurable parts of CMD_DHCP */
 #define CONFIG_BOOTP_SEND_HOSTNAME
@@ -51,10 +49,5 @@
 
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		512
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE +\
-					sizeof(CONFIG_SYS_PROMPT) + 16)
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #endif	/* __BUR_CFG_COMMON_H__ */

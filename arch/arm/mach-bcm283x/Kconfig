@@ -44,6 +44,22 @@ config TARGET_RPI
 	  This option creates a build targetting the ARM1176 ISA.
 	select BCM2835
 
+config TARGET_RPI_0_W
+	bool "Raspberry Pi Zero W"
+	help
+	  Support for all ARM1176-/BCM2835-based Raspberry Pi variants, such as
+	  the RPi Zero model W.
+
+	  This option assumes the VideoCore firmware is configured to use the
+	  mini UART (rather than PL011) for the serial console. This is the
+	  default on the RPi Zero W. To enable the UART console, the following
+	  non-default option must be present in config.txt: enable_uart=1.
+	  This is required for U-Boot to operate correctly, even if you only
+	  care about the HDMI/usbkbd console.
+
+	  This option creates a build targetting the ARMv7/AArch32 ISA.
+	select BCM2835
+
 config TARGET_RPI_2
 	bool "Raspberry Pi 2"
 	help

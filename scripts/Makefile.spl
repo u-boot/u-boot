@@ -35,6 +35,18 @@ else
 SPL_BIN := u-boot-spl
 endif
 
+ifdef CONFIG_SPL_BUILD
+SPL_ := SPL_
+ifeq ($(CONFIG_TPL_BUILD),y)
+SPL_TPL_ := TPL_
+else
+SPL_TPL_ := SPL_
+endif
+else
+SPL_ :=
+SPL_TPL_ :=
+endif
+
 include $(srctree)/config.mk
 include $(srctree)/arch/$(ARCH)/Makefile
 
@@ -57,10 +69,10 @@ libs-y += common/init/
 
 # Special handling for a few options which support SPL/TPL
 ifeq ($(CONFIG_TPL_BUILD),y)
-libs-$(CONFIG_TPL_LIBCOMMON_SUPPORT) += common/ cmd/
+libs-$(CONFIG_TPL_LIBCOMMON_SUPPORT) += common/ cmd/ env/
 libs-$(CONFIG_TPL_LIBGENERIC_SUPPORT) += lib/
 else
-libs-$(CONFIG_SPL_LIBCOMMON_SUPPORT) += common/ cmd/
+libs-$(CONFIG_SPL_LIBCOMMON_SUPPORT) += common/ cmd/ env/
 libs-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/
 endif
 
@@ -69,7 +81,6 @@ libs-y += drivers/
 libs-$(CONFIG_SPL_USB_GADGET_SUPPORT) += drivers/usb/dwc3/
 libs-y += dts/
 libs-y += fs/
-libs-$(CONFIG_SPL_FPGA_SUPPORT) += drivers/fpga/
 libs-$(CONFIG_SPL_POST_MEM_SUPPORT) += post/drivers/
 libs-$(CONFIG_SPL_NET_SUPPORT) += net/
 
@@ -87,14 +98,21 @@ endif
 
 u-boot-spl-init := $(head-y)
 u-boot-spl-main := $(libs-y)
-ifdef CONFIG_SPL_OF_PLATDATA
+ifdef CONFIG_$(SPL_TPL_)OF_PLATDATA
 u-boot-spl-platdata := $(obj)/dts/dt-platdata.o
 endif
 
 # Linker Script
-ifdef CONFIG_SPL_LDSCRIPT
+# First test whether there's a linker-script for the specific stage defined...
+ifneq ($(CONFIG_$(SPL_TPL_)LDSCRIPT),)
+# need to strip off double quotes
+LDSCRIPT := $(addprefix $(srctree)/,$(CONFIG_$(SPL_TPL_)LDSCRIPT:"%"=%))
+else
+# ...then fall back to the generic SPL linker-script
+ifneq ($(CONFIG_SPL_LDSCRIPT),)
 # need to strip off double quotes
 LDSCRIPT := $(addprefix $(srctree)/,$(CONFIG_SPL_LDSCRIPT:"%"=%))
+endif
 endif
 
 ifeq ($(wildcard $(LDSCRIPT)),)
@@ -169,11 +187,17 @@ endif
 
 ifdef CONFIG_ARCH_SUNXI
 ALL-y	+= $(obj)/sunxi-spl.bin
+
+ifdef CONFIG_NAND_SUNXI
+ALL-y	+= $(obj)/sunxi-spl-with-ecc.bin
+endif
 endif
 
 ifeq ($(CONFIG_SYS_SOC),"at91")
 ALL-y	+= boot.bin
 endif
+
+ALL-$(CONFIG_SPL_X86_16BIT_INIT) += $(obj)/u-boot-x86-16bit-spl.bin
 
 ALL-$(CONFIG_ARCH_ZYNQ)		+= $(obj)/boot.bin
 ALL-$(CONFIG_ARCH_ZYNQMP)	+= $(obj)/boot.bin
@@ -186,9 +210,21 @@ cmd_cat = cat $(filter-out $(PHONY), $^) > $@
 quiet_cmd_copy = COPY    $@
       cmd_copy = cp $< $@
 
-ifeq ($(CONFIG_SPL_OF_CONTROL)$(CONFIG_OF_SEPARATE)$(CONFIG_SPL_OF_PLATDATA),yy)
-$(obj)/$(SPL_BIN)-dtb.bin: $(obj)/$(SPL_BIN)-nodtb.bin $(obj)/$(SPL_BIN)-pad.bin \
-		$(obj)/$(SPL_BIN).dtb FORCE
+ifneq ($(CONFIG_SPL_MULTI_DTB_FIT),y)
+FINAL_DTB_CONTAINER = $(obj)/$(SPL_BIN).dtb
+else ifeq ($(CONFIG_SPL_MULTI_DTB_FIT_LZO),y)
+FINAL_DTB_CONTAINER = $(obj)/$(SPL_BIN).multidtb.fit.lzo
+else ifeq ($(CONFIG_SPL_MULTI_DTB_FIT_GZIP),y)
+FINAL_DTB_CONTAINER = $(obj)/$(SPL_BIN).multidtb.fit.gz
+else
+FINAL_DTB_CONTAINER = $(obj)/$(SPL_BIN).multidtb.fit
+endif
+
+
+ifeq ($(CONFIG_$(SPL_TPL_)OF_CONTROL)$(CONFIG_OF_SEPARATE)$(CONFIG_$(SPL_TPL_)OF_PLATDATA),yy)
+$(obj)/$(SPL_BIN)-dtb.bin: $(obj)/$(SPL_BIN)-nodtb.bin \
+		$(if $(CONFIG_SPL_SEPARATE_BSS),,$(obj)/$(SPL_BIN)-pad.bin) \
+		$(FINAL_DTB_CONTAINER)  FORCE
 	$(call if_changed,cat)
 
 $(obj)/$(SPL_BIN).bin: $(obj)/$(SPL_BIN)-dtb.bin FORCE
@@ -203,21 +239,10 @@ $(obj)/$(SPL_BIN)-pad.bin: $(obj)/$(SPL_BIN)
 	@bss_size_str=$(shell $(NM) $< | awk 'BEGIN {size = 0} /__bss_size/ {size = $$1} END {print "ibase=16; " toupper(size)}' | bc); \
 	dd if=/dev/zero of=$@ bs=1 count=$${bss_size_str} 2>/dev/null;
 
-# Pass the original device tree file through fdtgrep twice. The first pass
-# removes any unwanted nodes (i.e. those which don't have the
-# 'u-boot,dm-pre-reloc' property and thus are not needed by SPL. The second
-# pass removes various unused properties from the remaining nodes.
-# The output is typically a much smaller device tree file.
-quiet_cmd_fdtgrep = FDTGREP $@
-      cmd_fdtgrep = $(objtree)/tools/fdtgrep -b u-boot,dm-pre-reloc -RT $< \
-		-n /chosen -O dtb | \
-	$(objtree)/tools/fdtgrep -r -O dtb - -o $@ \
-		$(addprefix -P ,$(subst $\",,$(CONFIG_OF_SPL_REMOVE_PROPS)))
+$(obj)/$(SPL_BIN).dtb: dts/dt-spl.dtb FORCE
+	$(call if_changed,copy)
 
-$(obj)/$(SPL_BIN).dtb: dts/dt.dtb $(objtree)/tools/fdtgrep FORCE
-	$(call if_changed,fdtgrep)
-
-pythonpath = PYTHONPATH=tools
+pythonpath = PYTHONPATH=scripts/dtc/pylibfdt
 
 quiet_cmd_dtocc = DTOC C  $@
 cmd_dtocc = $(pythonpath) $(srctree)/tools/dtoc/dtoc -d $(obj)/$(SPL_BIN).dtb -o $@ platdata
@@ -228,20 +253,19 @@ cmd_dtoch = $(pythonpath) $(srctree)/tools/dtoc/dtoc -d $(obj)/$(SPL_BIN).dtb -o
 quiet_cmd_plat = PLAT    $@
 cmd_plat = $(CC) $(c_flags) -c $< -o $@
 
-$(obj)/dts/dt-platdata.o: $(obj)/dts/dt-platdata.c include/generated/dt-structs.h
+$(obj)/dts/dt-platdata.o: $(obj)/dts/dt-platdata.c \
+		include/generated/dt-structs-gen.h
 	$(call if_changed,plat)
 
 PHONY += dts_dir
 dts_dir:
 	$(shell [ -d $(obj)/dts ] || mkdir -p $(obj)/dts)
 
-include/generated/dt-structs.h: $(obj)/$(SPL_BIN).dtb dts_dir dtoc
+include/generated/dt-structs-gen.h: $(obj)/$(SPL_BIN).dtb dts_dir FORCE
 	$(call if_changed,dtoch)
 
-$(obj)/dts/dt-platdata.c: $(obj)/$(SPL_BIN).dtb dts_dir dtoc
+$(obj)/dts/dt-platdata.c: $(obj)/$(SPL_BIN).dtb dts_dir FORCE
 	$(call if_changed,dtocc)
-
-dtoc: #$(objtree)/tools/_libfdt.so
 
 ifdef CONFIG_SAMSUNG
 ifdef CONFIG_VAR_SIZE_SPL
@@ -258,14 +282,29 @@ endif
 quiet_cmd_objcopy = OBJCOPY $@
 cmd_objcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@
 
-OBJCOPYFLAGS_$(SPL_BIN)-nodtb.bin = $(SPL_OBJCFLAGS) -O binary
+OBJCOPYFLAGS_$(SPL_BIN)-nodtb.bin = $(SPL_OBJCFLAGS) -O binary \
+		$(if $(CONFIG_SPL_X86_16BIT_INIT),-R .start16 -R .resetvec)
 
 $(obj)/$(SPL_BIN)-nodtb.bin: $(obj)/$(SPL_BIN) FORCE
 	$(call if_changed,objcopy)
 
+OBJCOPYFLAGS_u-boot-x86-16bit-spl.bin := -O binary -j .start16 -j .resetvec
+$(obj)/u-boot-x86-16bit-spl.bin: $(obj)/u-boot-spl FORCE
+	$(call if_changed,objcopy)
+
 LDFLAGS_$(SPL_BIN) += -T u-boot-spl.lds $(LDFLAGS_FINAL)
+
+# Avoid 'Not enough room for program headers' error on binutils 2.28 onwards.
+LDFLAGS_$(SPL_BIN) += $(call ld-option, --no-dynamic-linker)
+
+# First try the best-match (i.e. SPL_TEXT_BASE for SPL, TPL_TEXT_BASE for TPL)
+ifneq ($(CONFIG_$(SPL_TPL_)TEXT_BASE),)
+LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_$(SPL_TPL_)TEXT_BASE)
+else
+# And then fall back to just testing for SPL_TEXT_BASE, even if in TPL mode
 ifneq ($(CONFIG_SPL_TEXT_BASE),)
 LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
+endif
 endif
 
 MKIMAGEFLAGS_$(SPL_BIN).sfp = -T socfpgaimage
@@ -273,9 +312,21 @@ $(obj)/$(SPL_BIN).sfp: $(obj)/$(SPL_BIN).bin FORCE
 	$(call if_changed,mkimage)
 
 quiet_cmd_mksunxiboot = MKSUNXI $@
-cmd_mksunxiboot = $(objtree)/tools/mksunxiboot $< $@
+cmd_mksunxiboot = $(objtree)/tools/mksunxiboot \
+			--default-dt $(CONFIG_DEFAULT_DEVICE_TREE) $< $@
 $(obj)/sunxi-spl.bin: $(obj)/$(SPL_BIN).bin FORCE
 	$(call if_changed,mksunxiboot)
+
+quiet_cmd_sunxi_spl_image_builder = SUNXI_SPL_IMAGE_BUILDER $@
+cmd_sunxi_spl_image_builder = $(objtree)/tools/sunxi-spl-image-builder \
+				-c $(CONFIG_NAND_SUNXI_SPL_ECC_STRENGTH)/$(CONFIG_NAND_SUNXI_SPL_ECC_SIZE) \
+				-p $(CONFIG_SYS_NAND_PAGE_SIZE) \
+				-o $(CONFIG_SYS_NAND_OOBSIZE) \
+				-u $(CONFIG_NAND_SUNXI_SPL_USABLE_PAGE_SIZE) \
+				-e $(CONFIG_SYS_NAND_BLOCK_SIZE) \
+				-s -b $< $@
+$(obj)/sunxi-spl-with-ecc.bin: $(obj)/sunxi-spl.bin
+	$(call if_changed,sunxi_spl_image_builder)
 
 # Rule to link u-boot-spl
 # May be overridden by arch/$(ARCH)/config.mk
@@ -317,6 +368,28 @@ endif
 PHONY += FORCE
 FORCE:
 
+PHONY += dtbs
+dtbs:
+	$(Q)$(MAKE) $(build)=dts dtbs
+
 # Declare the contents of the .PHONY variable as phony.  We keep that
 # information in a variable so we can use it in if_changed and friends.
 .PHONY: $(PHONY)
+
+SHRUNK_ARCH_DTB = $(patsubst %,$(obj)/dts/%.dtb,$(subst ",,$(CONFIG_SPL_OF_LIST)))
+.SECONDEXPANSION:
+$(SHRUNK_ARCH_DTB): $$(patsubst $(obj)/dts/%, arch/$(ARCH)/dts/%, $$@)
+	$(call if_changed,fdtgrep)
+
+MKIMAGEFLAGS_$(SPL_BIN).multidtb.fit = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
+	-n "Multi DTB fit image for $(SPL_BIN)" -E \
+	$(patsubst %,-b %,$(SHRUNK_ARCH_DTB))
+
+$(obj)/$(SPL_BIN).multidtb.fit: /dev/null $(SHRUNK_ARCH_DTB) FORCE
+	$(call if_changed,mkimage)
+
+$(obj)/$(SPL_BIN).multidtb.fit.gz: $(obj)/$(SPL_BIN).multidtb.fit
+	@gzip -kf9 $< > $@
+
+$(obj)/$(SPL_BIN).multidtb.fit.lzo: $(obj)/$(SPL_BIN).multidtb.fit
+	@lzop -f9 $< > $@

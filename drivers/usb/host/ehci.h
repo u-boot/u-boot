@@ -11,9 +11,8 @@
 
 #include <usb.h>
 
-#if !defined(CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS)
-#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	2
-#endif
+/* Section 2.2.3 - N_PORTS */
+#define MAX_HC_PORTS		15
 
 /*
  * Register Space.
@@ -62,7 +61,7 @@ struct ehci_hcor {
 	uint32_t _reserved_1_[6];
 	uint32_t or_configflag;
 #define FLAG_CF		(1 << 0)	/* true:  we'll support "high speed" */
-	uint32_t or_portsc[CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS];
+	uint32_t or_portsc[MAX_HC_PORTS];
 #define PORTSC_PSPD(x)		(((x) >> 26) & 0x3)
 #define PORTSC_PSPD_FS			0x0
 #define PORTSC_PSPD_LS			0x1
@@ -102,13 +101,11 @@ struct usb_linux_config_descriptor {
 } __attribute__ ((packed));
 
 #if defined CONFIG_EHCI_DESC_BIG_ENDIAN
-#define ehci_readl(x)		cpu_to_be32((*((volatile u32 *)(x))))
-#define ehci_writel(a, b)	(*((volatile u32 *)(a)) = \
-					cpu_to_be32(((volatile u32)b)))
+#define ehci_readl(x)		be32_to_cpu(__raw_readl(x))
+#define ehci_writel(a, b)	__raw_writel(cpu_to_be32(b), a)
 #else
-#define ehci_readl(x)		cpu_to_le32((*((volatile u32 *)(x))))
-#define ehci_writel(a, b)	(*((volatile u32 *)(a)) = \
-					cpu_to_le32(((volatile u32)b)))
+#define ehci_readl(x)		readl(x)
+#define ehci_writel(a, b)	writel(b, a)
 #endif
 
 #if defined CONFIG_EHCI_MMIO_BIG_ENDIAN

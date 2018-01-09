@@ -46,7 +46,7 @@ int misc_init_r(void)
 	char *env;
 	long ks2_debug = 0;
 
-	env = getenv("ks2_debug");
+	env = env_get("ks2_debug");
 
 	if (env)
 		ks2_debug = simple_strtol(env, NULL, 0);

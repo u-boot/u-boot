@@ -10,12 +10,6 @@
 #include "tegra-common.h"
 
 /*
- * Errata configuration
- */
-#define CONFIG_ARM_ERRATA_743622
-#define CONFIG_ARM_ERRATA_751472
-
-/*
  * NS16550 Configuration
  */
 #define V_NS16550_CLK		408000000	/* 408MHz (pllp_out0) */
@@ -70,6 +64,5 @@
 /* For USB EHCI controller */
 #define CONFIG_EHCI_IS_TDI
 #define CONFIG_USB_EHCI_TXFIFO_THRESH	0x10
-#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 1
 
 #endif /* _TEGRA30_COMMON_H_ */

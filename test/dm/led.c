@@ -41,14 +41,42 @@ static int dm_test_led_gpio(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_LED, 1, &dev));
 	ut_assertok(uclass_get_device(UCLASS_GPIO, 1, &gpio));
 	ut_asserteq(0, sandbox_gpio_get_value(gpio, offset));
-	led_set_on(dev, 1);
+	ut_assertok(led_set_state(dev, LEDST_ON));
 	ut_asserteq(1, sandbox_gpio_get_value(gpio, offset));
-	led_set_on(dev, 0);
+	ut_asserteq(LEDST_ON, led_get_state(dev));
+
+	ut_assertok(led_set_state(dev, LEDST_OFF));
 	ut_asserteq(0, sandbox_gpio_get_value(gpio, offset));
+	ut_asserteq(LEDST_OFF, led_get_state(dev));
 
 	return 0;
 }
 DM_TEST(dm_test_led_gpio, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test that we can toggle LEDs */
+static int dm_test_led_toggle(struct unit_test_state *uts)
+{
+	const int offset = 1;
+	struct udevice *dev, *gpio;
+
+	/*
+	 * Check that we can manipulate an LED. LED 1 is connected to GPIO
+	 * bank gpio_a, offset 1.
+	 */
+	ut_assertok(uclass_get_device(UCLASS_LED, 1, &dev));
+	ut_assertok(uclass_get_device(UCLASS_GPIO, 1, &gpio));
+	ut_asserteq(0, sandbox_gpio_get_value(gpio, offset));
+	ut_assertok(led_set_state(dev, LEDST_TOGGLE));
+	ut_asserteq(1, sandbox_gpio_get_value(gpio, offset));
+	ut_asserteq(LEDST_ON, led_get_state(dev));
+
+	ut_assertok(led_set_state(dev, LEDST_TOGGLE));
+	ut_asserteq(0, sandbox_gpio_get_value(gpio, offset));
+	ut_asserteq(LEDST_OFF, led_get_state(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_led_toggle, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Test obtaining an LED by label */
 static int dm_test_led_label(struct unit_test_state *uts)
@@ -70,3 +98,27 @@ static int dm_test_led_label(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_led_label, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test LED blinking */
+#ifdef CONFIG_LED_BLINK
+static int dm_test_led_blink(struct unit_test_state *uts)
+{
+	const int offset = 1;
+	struct udevice *dev, *gpio;
+
+	/*
+	 * Check that we get an error when trying to blink an LED, since it is
+	 * not supported by the GPIO LED driver.
+	 */
+	ut_assertok(uclass_get_device(UCLASS_LED, 1, &dev));
+	ut_assertok(uclass_get_device(UCLASS_GPIO, 1, &gpio));
+	ut_asserteq(0, sandbox_gpio_get_value(gpio, offset));
+	ut_asserteq(-ENOSYS, led_set_state(dev, LEDST_BLINK));
+	ut_asserteq(0, sandbox_gpio_get_value(gpio, offset));
+	ut_asserteq(LEDST_OFF, led_get_state(dev));
+	ut_asserteq(-ENOSYS, led_set_period(dev, 100));
+
+	return 0;
+}
+DM_TEST(dm_test_led_blink, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+#endif

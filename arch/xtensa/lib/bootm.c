@@ -136,7 +136,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 {
 	struct bp_tag *params, *params_start;
 	ulong initrd_start, initrd_end;
-	char *commandline = getenv("bootargs");
+	char *commandline = env_get("bootargs");
 
 	if (!(flag & (BOOTM_STATE_OS_GO | BOOTM_STATE_OS_FAKE_GO)))
 		return 0;

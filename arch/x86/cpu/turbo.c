@@ -12,7 +12,9 @@
 #include <asm/processor.h>
 #include <asm/turbo.h>
 
-#if CONFIG_CPU_INTEL_TURBO_NOT_PACKAGE_SCOPED
+DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_CPU_INTEL_TURBO_NOT_PACKAGE_SCOPED
 static inline int get_global_turbo_state(void)
 {
 	return TURBO_UNKNOWN;
@@ -22,16 +24,14 @@ static inline void set_global_turbo_state(int state)
 {
 }
 #else
-static int g_turbo_state = TURBO_UNKNOWN;
-
 static inline int get_global_turbo_state(void)
 {
-	return g_turbo_state;
+	return gd->arch.turbo_state;
 }
 
 static inline void set_global_turbo_state(int state)
 {
-	g_turbo_state = state;
+	gd->arch.turbo_state = state;
 }
 #endif
 

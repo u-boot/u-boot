@@ -1,0 +1,81 @@
+menu "Watchdog Timer Support"
+
+config HW_WATCHDOG
+	bool
+
+config BCM2835_WDT
+	bool "Enable BCM2835/2836 watchdog driver"
+	select HW_WATCHDOG
+	help
+	  Say Y here to enable the BCM2835/2836 watchdog
+
+	  This provides basic infrastructure to support BCM2835/2836 watchdog
+	  hardware, with a max timeout of ~15secs.
+
+config OMAP_WATCHDOG
+	bool "TI OMAP watchdog driver"
+	depends on ARCH_OMAP2PLUS
+	select HW_WATCHDOG
+	default y if AM33XX
+	help
+	  Say Y here to enable the OMAP3+ watchdog driver.
+
+config TANGIER_WATCHDOG
+	bool "Intel Tangier watchdog"
+	depends on INTEL_MID
+	select HW_WATCHDOG
+	help
+	  This enables support for watchdog controller available on
+	  Intel Tangier SoC. If you're using a board with Intel Tangier
+	  SoC, say Y here.
+
+config ULP_WATCHDOG
+	bool "i.MX7ULP watchdog"
+	help
+	  Say Y here to enable i.MX7ULP watchdog driver.
+
+config WDT
+	bool "Enable driver model for watchdog timer drivers"
+	depends on DM
+	help
+	  Enable driver model for watchdog timer. At the moment the API
+	  is very simple and only supports four operations:
+	  start, restart, stop and reset (expire immediately).
+	  What exactly happens when the timer expires is up to a particular
+	  device/driver.
+
+config WDT_SANDBOX
+	bool "Enable Watchdog Timer support for Sandbox"
+	depends on SANDBOX && WDT
+	help
+		Enable Watchdog Timer support in Sandbox. This is a dummy device that
+		can be probed and supports all of the methods of WDT, but does not
+		really do anything.
+
+config WDT_ASPEED
+	bool "Aspeed ast2400/ast2500 watchdog timer support"
+	depends on WDT
+	default y if ARCH_ASPEED
+	help
+	  Select this to enable watchdog timer for Aspeed ast2500/ast2400 devices.
+	  The watchdog timer is stopped when initialized. It performs reset, either
+	  full SoC reset or CPU or just some peripherals, based on the flags.
+	  It currently does not support Boot Flash Addressing Mode Detection or
+	  Second Boot.
+
+config WDT_BCM6345
+	bool "BCM6345 watchdog timer support"
+	depends on WDT && ARCH_BMIPS
+	help
+	  Select this to enable watchdog timer for BCM6345 SoCs.
+	  The watchdog timer is stopped when initialized.
+	  It performs full SoC reset.
+
+config WDT_ORION
+	bool "Orion watchdog timer support"
+	depends on WDT
+	help
+	   Select this to enable Orion watchdog timer, which can be found on some
+	   Marvell Armada chips.
+
+endmenu

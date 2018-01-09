@@ -20,7 +20,7 @@ extern int mmc_set_blocklen(struct mmc *mmc, int len);
 void mmc_adapter_card_type_ident(void);
 #endif
 
-#ifdef CONFIG_BLK
+#if CONFIG_IS_ENABLED(BLK)
 ulong mmc_bread(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
 		void *dst);
 #else
@@ -30,7 +30,7 @@ ulong mmc_bread(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 
 #if !(defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_SAVEENV))
 
-#ifdef CONFIG_BLK
+#if CONFIG_IS_ENABLED(BLK)
 ulong mmc_bwrite(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
 		 const void *src);
 ulong mmc_berase(struct udevice *dev, lbaint_t start, lbaint_t blkcnt);
@@ -44,7 +44,7 @@ ulong mmc_berase(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt);
 
 /* declare dummies to reduce code size. */
 
-#ifdef CONFIG_BLK
+#if CONFIG_IS_ENABLED(BLK)
 static inline unsigned long mmc_berase(struct udevice *dev,
 				       lbaint_t start, lbaint_t blkcnt)
 {

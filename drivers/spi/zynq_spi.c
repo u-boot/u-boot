@@ -56,6 +56,8 @@ struct zynq_spi_platdata {
 	struct zynq_spi_regs *regs;
 	u32 frequency;		/* input frequency */
 	u32 speed_hz;
+	uint deactivate_delay_us;	/* Delay to wait after deactivate */
+	uint activate_delay_us;		/* Delay to wait after activate */
 };
 
 /* zynq spi priv */
@@ -63,6 +65,7 @@ struct zynq_spi_priv {
 	struct zynq_spi_regs *regs;
 	u8 cs;
 	u8 mode;
+	ulong last_transaction_us;	/* Time of last transaction end */
 	u8 fifo_depth;
 	u32 freq;		/* required frequency */
 };
@@ -71,13 +74,17 @@ static int zynq_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct zynq_spi_platdata *plat = bus->platdata;
 	const void *blob = gd->fdt_blob;
-	int node = bus->of_offset;
+	int node = dev_of_offset(bus);
 
-	plat->regs = (struct zynq_spi_regs *)dev_get_addr(bus);
+	plat->regs = (struct zynq_spi_regs *)devfdt_get_addr(bus);
 
 	/* FIXME: Use 250MHz as a suitable default */
 	plat->frequency = fdtdec_get_int(blob, node, "spi-max-frequency",
 					250000000);
+	plat->deactivate_delay_us = fdtdec_get_int(blob, node,
+					"spi-deactivate-delay", 0);
+	plat->activate_delay_us = fdtdec_get_int(blob, node,
+						 "spi-activate-delay", 0);
 	plat->speed_hz = plat->frequency / 2;
 
 	debug("%s: regs=%p max-frequency=%d\n", __func__,
@@ -133,9 +140,18 @@ static int zynq_spi_probe(struct udevice *bus)
 static void spi_cs_activate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
+	struct zynq_spi_platdata *plat = bus->platdata;
 	struct zynq_spi_priv *priv = dev_get_priv(bus);
 	struct zynq_spi_regs *regs = priv->regs;
 	u32 cr;
+
+	/* If it's too soon to do another transaction, wait */
+	if (plat->deactivate_delay_us && priv->last_transaction_us) {
+		ulong delay_us;		/* The delay completed so far */
+		delay_us = timer_get_us() - priv->last_transaction_us;
+		if (delay_us < plat->deactivate_delay_us)
+			udelay(plat->deactivate_delay_us - delay_us);
+	}
 
 	clrbits_le32(&regs->cr, ZYNQ_SPI_CR_CS_MASK);
 	cr = readl(&regs->cr);
@@ -147,15 +163,23 @@ static void spi_cs_activate(struct udevice *dev)
 	 */
 	cr |= (~(1 << priv->cs) << ZYNQ_SPI_CR_SS_SHIFT) & ZYNQ_SPI_CR_CS_MASK;
 	writel(cr, &regs->cr);
+
+	if (plat->activate_delay_us)
+		udelay(plat->activate_delay_us);
 }
 
 static void spi_cs_deactivate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
+	struct zynq_spi_platdata *plat = bus->platdata;
 	struct zynq_spi_priv *priv = dev_get_priv(bus);
 	struct zynq_spi_regs *regs = priv->regs;
 
 	setbits_le32(&regs->cr, ZYNQ_SPI_CR_CS_MASK);
+
+	/* Remember time of this transaction so we can honour the bus delay */
+	if (plat->deactivate_delay_us)
+		priv->last_transaction_us = timer_get_us();
 }
 
 static int zynq_spi_claim_bus(struct udevice *dev)

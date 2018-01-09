@@ -36,7 +36,7 @@ static int ehci_usb_probe(struct udevice *dev)
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	struct usb_platdata *plat = dev_get_platdata(dev);
 	struct ehci_sunxi_priv *priv = dev_get_priv(dev);
-	struct ehci_hccr *hccr = (struct ehci_hccr *)dev_get_addr(dev);
+	struct ehci_hccr *hccr = (struct ehci_hccr *)devfdt_get_addr(dev);
 	struct ehci_hcor *hcor;
 	int extra_ahb_gate_mask = 0;
 
@@ -45,7 +45,7 @@ static int ehci_usb_probe(struct udevice *dev)
 	 * clocks resp. phys.
 	 */
 	priv->ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0;
-#if defined(CONFIG_MACH_SUN8I_H3) || defined(CONFIG_MACH_SUN50I)
+#if defined(CONFIG_MACH_SUNXI_H3_H5) || defined(CONFIG_MACH_SUN50I)
 	extra_ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_OHCI0;
 #endif
 	priv->phy_index = ((uintptr_t)hccr - SUNXI_USB1_BASE) / BASE_DIST;

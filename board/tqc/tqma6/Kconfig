@@ -22,6 +22,12 @@ config TQMA6Q
 	help
 	  select TQMa6Q / TQMa6D with i.MX6Q/D and 1GiB DRAM
 
+config TQMA6DL
+	bool "TQMa6DL"
+	select MX6DL
+	help
+	  select TQMa6DL with i.MX6DL and 1GiB DRAM
+
 config TQMA6S
 	bool "TQMa6S"
 	select MX6S
@@ -70,6 +76,7 @@ endchoice
 
 config IMX_CONFIG
 	default "board/tqc/tqma6/tqma6q.cfg" if TQMA6Q
+	default "board/tqc/tqma6/tqma6dl.cfg" if TQMA6DL
 	default "board/tqc/tqma6/tqma6s.cfg" if TQMA6S
 
 endif

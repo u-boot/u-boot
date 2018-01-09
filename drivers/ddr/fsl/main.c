@@ -15,6 +15,8 @@
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY is the physical address from the view
  * of DDR controllers. It is the same as CONFIG_SYS_DDR_SDRAM_BASE for
@@ -784,7 +786,7 @@ phys_size_t __fsl_ddr_sdram(fsl_ddr_info_t *pinfo)
 		print_size(total_memory, " of memory\n");
 		printf("       This U-Boot only supports < 4G of DDR\n");
 		printf("       You could rebuild it with CONFIG_PHYS_64BIT\n");
-		printf("       "); /* re-align to match init_func_ram print */
+		printf("       "); /* re-align to match init_dram print */
 		total_memory = CONFIG_MAX_MEM_MAPPED;
 	}
 #endif
@@ -794,7 +796,7 @@ phys_size_t __fsl_ddr_sdram(fsl_ddr_info_t *pinfo)
 
 /*
  * fsl_ddr_sdram(void) -- this is the main function to be
- * called by initdram() in the board file.
+ * called by dram_init() in the board file.
  *
  * It returns amount of memory configured in bytes.
  */

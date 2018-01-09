@@ -19,30 +19,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define GRF_BASE	0x20008000
-
-static void setup_boot_mode(void)
-{
-	struct rk3036_grf *const grf = (void *)GRF_BASE;
-	int boot_mode = readl(&grf->os_reg[4]);
-
-	debug("boot mode %x.\n", boot_mode);
-
-	/* Clear boot mode */
-	writel(BOOT_NORMAL, &grf->os_reg[4]);
-
-	switch (boot_mode) {
-	case BOOT_FASTBOOT:
-		printf("enter fastboot!\n");
-		setenv("preboot", "setenv preboot; fastboot usb0");
-		break;
-	case BOOT_UMS:
-		printf("enter UMS!\n");
-		setenv("preboot", "setenv preboot; ums mmc 0");
-		break;
-	}
-}
-
 __weak int rk_board_late_init(void)
 {
 	return 0;
@@ -60,12 +36,18 @@ int board_init(void)
 	return 0;
 }
 
+#if !CONFIG_IS_ENABLED(RAM)
+/*
+ * When CONFIG_RAM is enabled, the dram_init() function is implemented
+ * in sdram_common.c.
+ */
 int dram_init(void)
 {
 	gd->ram_size = sdram_size();
 
 	return 0;
 }
+#endif
 
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)

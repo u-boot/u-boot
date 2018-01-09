@@ -9,23 +9,65 @@
 #define __LED_H
 
 /**
- * struct led_uclass_plat - Platform data the uclass stores about each device
+ * struct led_uc_plat - Platform data the uclass stores about each device
  *
  * @label:	LED label
  */
-struct led_uclass_plat {
+struct led_uc_plat {
 	const char *label;
+};
+
+/**
+ * struct led_uc_priv - Private data the uclass stores about each device
+ *
+ * @period_ms:	Flash period in milliseconds
+ */
+struct led_uc_priv {
+	int period_ms;
+};
+
+enum led_state_t {
+	LEDST_OFF = 0,
+	LEDST_ON = 1,
+	LEDST_TOGGLE,
+#ifdef CONFIG_LED_BLINK
+	LEDST_BLINK,
+#endif
+
+	LEDST_COUNT,
 };
 
 struct led_ops {
 	/**
-	 * set_on() - set the state of an LED
+	 * set_state() - set the state of an LED
 	 *
 	 * @dev:	LED device to change
-	 * @on:		1 to turn the LED on, 0 to turn it off
+	 * @state:	LED state to set
 	 * @return 0 if OK, -ve on error
 	 */
-	int (*set_on)(struct udevice *dev, int on);
+	int (*set_state)(struct udevice *dev, enum led_state_t state);
+
+	/**
+	 * led_get_state() - get the state of an LED
+	 *
+	 * @dev:	LED device to change
+	 * @return LED state led_state_t, or -ve on error
+	 */
+	enum led_state_t (*get_state)(struct udevice *dev);
+
+#ifdef CONFIG_LED_BLINK
+	/**
+	 * led_set_period() - set the blink period of an LED
+	 *
+	 * Thie records the period if supported, or returns -ENOSYS if not.
+	 * To start the LED blinking, use set_state().
+	 *
+	 * @dev:	LED device to change
+	 * @period_ms:	LED blink period in milliseconds
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*set_period)(struct udevice *dev, int period_ms);
+#endif
 };
 
 #define led_get_ops(dev)	((struct led_ops *)(dev)->driver->ops)
@@ -40,12 +82,29 @@ struct led_ops {
 int led_get_by_label(const char *label, struct udevice **devp);
 
 /**
- * led_set_on() - set the state of an LED
+ * led_set_state() - set the state of an LED
  *
  * @dev:	LED device to change
- * @on:		1 to turn the LED on, 0 to turn it off
+ * @state:	LED state to set
  * @return 0 if OK, -ve on error
  */
-int led_set_on(struct udevice *dev, int on);
+int led_set_state(struct udevice *dev, enum led_state_t state);
+
+/**
+ * led_get_state() - get the state of an LED
+ *
+ * @dev:	LED device to change
+ * @return LED state led_state_t, or -ve on error
+ */
+enum led_state_t led_get_state(struct udevice *dev);
+
+/**
+ * led_set_period() - set the blink period of an LED
+ *
+ * @dev:	LED device to change
+ * @period_ms:	LED blink period in milliseconds
+ * @return 0 if OK, -ve on error
+ */
+int led_set_period(struct udevice *dev, int period_ms);
 
 #endif

@@ -22,7 +22,7 @@ int checkboard(void)
 	return 0;
 };
 
-phys_size_t initdram(int board_type)
+int dram_init(void)
 {
 	u32 dramsize;
 #ifdef CONFIG_CF_SBF
@@ -75,7 +75,9 @@ phys_size_t initdram(int board_type)
 
 	udelay(100);
 #endif
-	return (dramsize << 1);
+	gd->ram_size = dramsize << 1;
+
+	return 0;
 };
 
 int testdram(void)
@@ -86,7 +88,7 @@ int testdram(void)
 	return (0);
 }
 
-#if defined(CONFIG_CMD_IDE)
+#if defined(CONFIG_IDE)
 #include <ata.h>
 
 int ide_preinit(void)

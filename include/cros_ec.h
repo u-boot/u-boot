@@ -11,9 +11,9 @@
 
 #include <linux/compiler.h>
 #include <ec_commands.h>
-#include <fdtdec.h>
 #include <cros_ec_message.h>
 #include <asm/gpio.h>
+#include <dm/of_extra.h>
 
 /* Our configuration information */
 struct cros_ec_dev {
@@ -377,12 +377,10 @@ int cros_ec_get_error(void);
 /**
  * Returns information from the FDT about the Chrome EC flash
  *
- * @param blob		FDT blob to use
- * @param node		Node offset to read from
+ * @param dev		Device to read from
  * @param config	Structure to use to return information
  */
-int cros_ec_decode_ec_flash(const void *blob, int node,
-			    struct fdt_cros_ec *config);
+int cros_ec_decode_ec_flash(struct udevice *dev, struct fdt_cros_ec *config);
 
 /**
  * Check the current keyboard state, in case recovery mode is requested.

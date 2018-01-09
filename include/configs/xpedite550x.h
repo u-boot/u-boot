@@ -30,7 +30,6 @@
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
-#define CONFIG_FSL_ELBC		1
 
 /*
  * Multicore config
@@ -202,11 +201,9 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x4600)
 #define CONFIG_SYS_BAUDRATE_TABLE	\
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_LOADS_ECHO		1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
-#define CONFIG_FDT_FIXUP_PCI_IRQ	1
 
 /*
  * I2C
@@ -221,8 +218,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_FSL_I2C2_OFFSET	0x3100
 
 /* I2C DS7505 temperature sensor */
-#define CONFIG_DTT_LM75
-#define CONFIG_DTT_SENSORS		{ 0 }
 #define CONFIG_SYS_I2C_LM75_ADDR	0x48
 
 /* I2C ADT7461 temperature sensor */
@@ -294,7 +289,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  * Networking options
  */
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
-#define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
 #define CONFIG_TSEC_TBI
 #define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_MII_DEFAULT_TSEC	1	/* Allow unregistered phys */
@@ -334,38 +328,17 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 /*
  * USB
  */
-#define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#define CONFIG_DOS_PARTITION
-
-/*
- * Command configuration.
- */
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_DTT
-#define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_PCA953X
-#define CONFIG_CMD_PCA953X_INFO
-#define CONFIG_CMD_PCI
-#define CONFIG_CMD_PCI_ENUM
-#define CONFIG_CMD_REGINFO
 
 /*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS	16		/* max number of command args */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 #define CONFIG_CMDLINE_EDITING	1		/* add command line history	*/
 #define CONFIG_AUTO_COMPLETE	1		/* add autocompletion support */
 #define CONFIG_LOADADDR		0x1000000	/* default location for tftp and bootm */
-#define CONFIG_PANIC_HANG			/* do not reset board on panic */
 #define CONFIG_PREBOOT				/* enable preboot variable */
 #define CONFIG_INTEGRITY			/* support booting INTEGRITY OS */
 
@@ -380,7 +353,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_SECT_SIZE	0x20000		/* 128k (one sector) for env */
 #define CONFIG_ENV_SIZE		0x8000
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - (256 * 1024))

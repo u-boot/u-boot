@@ -61,9 +61,9 @@ struct clk {
 };
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && CONFIG_IS_ENABLED(CLK)
-struct phandle_2_cell;
+struct phandle_1_arg;
 int clk_get_by_index_platdata(struct udevice *dev, int index,
-			      struct phandle_2_cell *cells, struct clk *clk);
+			      struct phandle_1_arg *cells, struct clk *clk);
 
 /**
  * clock_get_by_index - Get/request a clock by integer index.
@@ -98,6 +98,21 @@ int clk_get_by_index(struct udevice *dev, int index, struct clk *clk);
  * @return 0 if OK, or a negative error code.
  */
 int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk);
+
+/**
+ * clk_release_all() - Disable (turn off)/Free an array of previously
+ * requested clocks.
+ *
+ * For each clock contained in the clock array, this function will check if
+ * clock has been previously requested and then will disable and free it.
+ *
+ * @clk:	A clock struct array that was previously successfully
+ *		requested by clk_request/get_by_*().
+ * @count	Number of clock contained in the array
+ * @return zero on success, or -ve error code.
+ */
+int clk_release_all(struct clk *clk, int count);
+
 #else
 static inline int clk_get_by_index(struct udevice *dev, int index,
 				   struct clk *clk)
@@ -110,6 +125,12 @@ static inline int clk_get_by_name(struct udevice *dev, const char *name,
 {
 	return -ENOSYS;
 }
+
+static inline int clk_release_all(struct clk *clk, int count)
+{
+	return -ENOSYS;
+}
+
 #endif
 
 /**

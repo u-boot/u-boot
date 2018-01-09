@@ -53,7 +53,7 @@ static char *bootmenu_getoption(unsigned short int n)
 		return NULL;
 
 	sprintf(name, "bootmenu_%d", n);
-	return getenv(name);
+	return env_get(name);
 }
 
 static void bootmenu_print_entry(void *data)
@@ -483,7 +483,7 @@ int do_bootmenu(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		delay_str = argv[1];
 
 	if (!delay_str)
-		delay_str = getenv("bootmenu_delay");
+		delay_str = env_get("bootmenu_delay");
 
 	if (delay_str)
 		delay = (int)simple_strtol(delay_str, NULL, 10);

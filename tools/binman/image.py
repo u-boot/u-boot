@@ -6,11 +6,13 @@
 # Class for an image, the output of binman
 #
 
+from __future__ import print_function
+
 from collections import OrderedDict
 from operator import attrgetter
+import re
+import sys
 
-import entry
-from entry import Entry
 import fdt_util
 import tools
 
@@ -47,7 +49,12 @@ class Image:
              address.
         _entries: OrderedDict() of entries
     """
-    def __init__(self, name, node):
+    def __init__(self, name, node, test=False):
+        global entry
+        global Entry
+        import entry
+        from entry import Entry
+
         self._node = node
         self._name = name
         self._size = None
@@ -61,8 +68,9 @@ class Image:
         self._end_4gb = False
         self._entries = OrderedDict()
 
-        self._ReadNode()
-        self._ReadEntries()
+        if not test:
+            self._ReadNode()
+            self._ReadEntries()
 
     def _ReadNode(self):
         """Read properties from the image node"""
@@ -115,6 +123,14 @@ class Image:
             ValueError()
         """
         raise ValueError("Image '%s': %s" % (self._node.path, msg))
+
+    def GetPath(self):
+        """Get the path of an image (in the FDT)
+
+        Returns:
+            Full path of the node for this image
+        """
+        return self._node.path
 
     def _ReadEntries(self):
         for node in self._node.subnodes:
@@ -217,6 +233,11 @@ class Image:
         for entry in self._entries.values():
             entry.ProcessContents()
 
+    def WriteSymbols(self):
+        """Write symbol values into binary files for access at run time"""
+        for entry in self._entries.values():
+            entry.WriteSymbols(self)
+
     def BuildImage(self):
         """Write the image to a file"""
         fname = tools.GetOutputFilename(self._filename)
@@ -227,3 +248,58 @@ class Image:
                 data = entry.GetData()
                 fd.seek(self._pad_before + entry.pos - self._skip_at_start)
                 fd.write(data)
+
+    def LookupSymbol(self, sym_name, optional, msg):
+        """Look up a symbol in an ELF file
+
+        Looks up a symbol in an ELF file. Only entry types which come from an
+        ELF image can be used by this function.
+
+        At present the only entry property supported is pos.
+
+        Args:
+            sym_name: Symbol name in the ELF file to look up in the format
+                _binman_<entry>_prop_<property> where <entry> is the name of
+                the entry and <property> is the property to find (e.g.
+                _binman_u_boot_prop_pos). As a special case, you can append
+                _any to <entry> to have it search for any matching entry. E.g.
+                _binman_u_boot_any_prop_pos will match entries called u-boot,
+                u-boot-img and u-boot-nodtb)
+            optional: True if the symbol is optional. If False this function
+                will raise if the symbol is not found
+            msg: Message to display if an error occurs
+
+        Returns:
+            Value that should be assigned to that symbol, or None if it was
+                optional and not found
+
+        Raises:
+            ValueError if the symbol is invalid or not found, or references a
+                property which is not supported
+        """
+        m = re.match(r'^_binman_(\w+)_prop_(\w+)$', sym_name)
+        if not m:
+            raise ValueError("%s: Symbol '%s' has invalid format" %
+                             (msg, sym_name))
+        entry_name, prop_name = m.groups()
+        entry_name = entry_name.replace('_', '-')
+        entry = self._entries.get(entry_name)
+        if not entry:
+            if entry_name.endswith('-any'):
+                root = entry_name[:-4]
+                for name in self._entries:
+                    if name.startswith(root):
+                        rest = name[len(root):]
+                        if rest in ['', '-img', '-nodtb']:
+                            entry = self._entries[name]
+        if not entry:
+            err = ("%s: Entry '%s' not found in list (%s)" %
+                   (msg, entry_name, ','.join(self._entries.keys())))
+            if optional:
+                print('Warning: %s' % err, file=sys.stderr)
+                return None
+            raise ValueError(err)
+        if prop_name == 'pos':
+            return entry.pos
+        else:
+            raise ValueError("%s: No such property '%s'" % (msg, prop_name))

@@ -11,6 +11,10 @@
 #include <fsl_immap.h>
 #include <fsl_ddr.h>
 #include <fsl_errata.h>
+#if defined(CONFIG_FSL_LSCH2) || defined(CONFIG_FSL_LSCH3) || \
+	defined(CONFIG_ARM)
+#include <asm/arch/clock.h>
+#endif
 
 #if defined(CONFIG_SYS_FSL_ERRATUM_A008511) | \
 	defined(CONFIG_SYS_FSL_ERRATUM_A009803)
@@ -465,7 +469,7 @@ step2:
 #define CTLR_INTLV_MASK	0x20000000
 	/* Perform build-in test on memory. Three-way interleaving is not yet
 	 * supported by this code. */
-	if (getenv_f("ddr_bist", buffer, CONFIG_SYS_CBSIZE) >= 0) {
+	if (env_get_f("ddr_bist", buffer, CONFIG_SYS_CBSIZE) >= 0) {
 		puts("Running BIST test. This will take a while...");
 		cs0_config = ddr_in32(&ddr->cs0_config);
 		cs0_bnds = ddr_in32(&ddr->cs0_bnds);

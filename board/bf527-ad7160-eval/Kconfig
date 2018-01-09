@@ -1,9 +1,0 @@
-if TARGET_BF527_AD7160_EVAL
-
-config SYS_BOARD
-	default "bf527-ad7160-eval"
-
-config SYS_CONFIG_NAME
-	default "bf527-ad7160-eval"
-
-endif

@@ -40,20 +40,17 @@
 
 /* select serial console configuration */
 #define CONFIG_SERIAL1
-#define CONFIG_BAUDRATE			115200
 
 /* Console configuration */
 
-#define CONFIG_BOOTARGS			"Please use defined boot"
 #define CONFIG_BOOTCOMMAND		"run autoboot"
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
+#define CONFIG_DEFAULT_CONSOLE		"ttySAC1,115200n8"
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
 					- GENERATED_GBL_DATA_SIZE)
 
 #define CONFIG_SYS_MONITOR_BASE	0x00000000
 
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		CONFIG_MMC_DEFAULT_DEV
 #define CONFIG_ENV_SIZE			4096
 #define CONFIG_ENV_OFFSET		(SZ_1K * 1280) /* 1.25 MiB offset */
@@ -161,7 +158,7 @@
 		"elif test -e mmc 0 uImage; then; " \
 			"run boot_uimg;" \
 		"fi;\0" \
-	"console=" CONFIG_DEFAULT_CONSOLE \
+	"console=" CONFIG_DEFAULT_CONSOLE "\0" \
 	"mmcbootdev=0\0" \
 	"mmcbootpart=1\0" \
 	"mmcrootdev=0\0" \
@@ -176,25 +173,14 @@
 	"scriptaddr=0x42000000\0" \
 	"fdtaddr=40800000\0"
 
-/* I2C */
-#define CONFIG_SYS_I2C_S3C24X0
-#define CONFIG_SYS_I2C_S3C24X0_SPEED	100000
-#define CONFIG_SYS_I2C_S3C24X0_SLAVE	0
-
 /* GPT */
-#define CONFIG_RANDOM_UUID
 
 /* Security subsystem - enable hw_rand() */
 #define CONFIG_EXYNOS_ACE_SHA
 #define CONFIG_LIB_HW_RAND
 
 /* USB */
-#define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_EXYNOS
-
-#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
-#define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_SMSC95XX
 
 /*
  * Supported Odroid boards: X3, U3

@@ -12,7 +12,6 @@
 #include <asm/arch/clock.h>
 #include <asm/arch-tegra/clk_rst.h>
 #include <spi.h>
-#include <fdtdec.h>
 #include "tegra_spi.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -100,11 +99,9 @@ struct tegra114_spi_priv {
 static int tegra114_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct tegra_spi_platdata *plat = bus->platdata;
-	const void *blob = gd->fdt_blob;
-	int node = bus->of_offset;
 
-	plat->base = dev_get_addr(bus);
-	plat->periph_id = clock_decode_periph_id(blob, node);
+	plat->base = dev_read_addr(bus);
+	plat->periph_id = clock_decode_periph_id(bus);
 
 	if (plat->periph_id == PERIPH_ID_NONE) {
 		debug("%s: could not decode periph id %d\n", __func__,
@@ -113,10 +110,10 @@ static int tegra114_spi_ofdata_to_platdata(struct udevice *bus)
 	}
 
 	/* Use 500KHz as a suitable default */
-	plat->frequency = fdtdec_get_int(blob, node, "spi-max-frequency",
-					500000);
-	plat->deactivate_delay_us = fdtdec_get_int(blob, node,
-					"spi-deactivate-delay", 0);
+	plat->frequency = dev_read_u32_default(bus, "spi-max-frequency",
+					       500000);
+	plat->deactivate_delay_us = dev_read_u32_default(bus,
+						"spi-deactivate-delay", 0);
 	debug("%s: base=%#08lx, periph_id=%d, max-frequency=%d, deactivate_delay=%d\n",
 	      __func__, plat->base, plat->periph_id, plat->frequency,
 	      plat->deactivate_delay_us);
@@ -152,6 +149,7 @@ static int tegra114_spi_probe(struct udevice *bus)
 			       bus->name, priv->freq, rate);
 		}
 	}
+	udelay(plat->deactivate_delay_us);
 
 	/* Clear stale status here */
 	setbits_le32(&regs->fifo_status,

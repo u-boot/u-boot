@@ -95,7 +95,7 @@ static int cl_som_am57x_handle_mac_address(char *env_name, uint port_num)
 	int ret;
 	uint8_t enetaddr[6];
 
-	ret = eth_getenv_enetaddr(env_name, enetaddr);
+	ret = eth_env_get_enetaddr(env_name, enetaddr);
 	if (ret)
 		return 0;
 
@@ -107,7 +107,7 @@ static int cl_som_am57x_handle_mac_address(char *env_name, uint port_num)
 	if (!is_valid_ethaddr(enetaddr))
 		return -1;
 
-	ret = eth_setenv_enetaddr(env_name, enetaddr);
+	ret = eth_env_set_enetaddr(env_name, enetaddr);
 	if (ret)
 		printf("cl-som-am57x: Failed to set Eth port %d MAC address\n",
 		       port_num);
@@ -181,7 +181,7 @@ int board_eth_init(bd_t *bis)
 	gpio_set_value(CL_SOM_AM57X_GPIO_PHY1_RST, 1);
 	mdelay(20);
 
-	cpsw_phy_envval = getenv("cpsw_phy");
+	cpsw_phy_envval = env_get("cpsw_phy");
 	if (cpsw_phy_envval != NULL)
 		cpsw_act_phy = simple_strtoul(cpsw_phy_envval, NULL, 0);
 

@@ -12,13 +12,7 @@
 #ifndef __CONFIG_TI_OMAP4_COMMON_H
 #define __CONFIG_TI_OMAP4_COMMON_H
 
-/*
- * High Level Configuration Options
- */
-#define CONFIG_OMAP4430		1	/* which is in a 4430 */
 #define CONFIG_MISC_INIT_R
-
-#define CONFIG_SYS_THUMB_BUILD
 
 #ifndef CONFIG_SYS_L2CACHE_OFF
 #define CONFIG_SYS_L2_PL310		1
@@ -97,15 +91,8 @@
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 
-#define CONFIG_BOOTCOMMAND \
-	"if test ${boot_fit} -eq 1; then "	\
-		"run update_to_fit;"	\
-	"fi;"	\
-	"run findfdt; " \
-	"run envboot; " \
-	"run distro_bootcmd"
-
 #include <config_distro_bootcmd.h>
+#include <environment/ti/mmc.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
@@ -144,18 +131,12 @@
  * So moving TEXT_BASE down to non-HS limit.
  */
 #define CONFIG_SPL_TEXT_BASE		0x40300000
-#define CONFIG_SPL_LDSCRIPT "arch/arm/mach-omap2/u-boot-spl.lds"
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
 					 (128 << 20))
-
-#ifdef CONFIG_NAND
-#define CONFIG_SPL_NAND_AM33XX_BCH	/* ELM support */
-#endif
 
 #ifdef CONFIG_SPL_BUILD
 /* No need for i2c in SPL mode as we will use SRI2C for PMIC access on OMAP4 */
 #undef CONFIG_SYS_I2C
-#undef CONFIG_SYS_I2C_OMAP24XX
 #endif
 
 #endif /* __CONFIG_TI_OMAP4_COMMON_H */

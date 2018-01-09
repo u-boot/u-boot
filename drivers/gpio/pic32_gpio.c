@@ -133,7 +133,8 @@ static int pic32_gpio_probe(struct udevice *dev)
 	char *end;
 	int bank;
 
-	addr = fdtdec_get_addr_size(gd->fdt_blob, dev->of_offset, "reg", &size);
+	addr = fdtdec_get_addr_size(gd->fdt_blob, dev_of_offset(dev), "reg",
+				    &size);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

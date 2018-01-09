@@ -13,8 +13,6 @@
 
 #define CONFIG_SYS_64BIT
 
-#define CONFIG_SYS_NO_FLASH
-
 #define MEM_BASE			0x00500000
 
 #define CONFIG_SYS_LOWMEM_BASE		MEM_BASE
@@ -47,8 +45,6 @@
 #define CONFIG_SYS_SERIAL0		0x87e024000000
 #define CONFIG_SYS_SERIAL1		0x87e025000000
 
-#define CONFIG_BAUDRATE			115200
-
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
 #define CONFIG_BOOTP_BOOTPATH
@@ -73,21 +69,11 @@
 					"fdt_addr=0x94C00000\0"		\
 					"fdt_high=0x9fffffff\0"
 
-#define CONFIG_BOOTARGS			\
-					"console=ttyAMA0,115200n8 " \
-					"earlycon=pl011,0x87e024000000 " \
-					"debug maxcpus=48 rootwait rw "\
-					"root=/dev/sda2 coherent_pool=16M"
-
 /* Do not preserve environment */
-#define CONFIG_ENV_IS_NOWHERE		1
 #define CONFIG_ENV_SIZE			0x1000
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					 sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING		1
 #define CONFIG_SYS_MAXARGS		64		/* max command args */

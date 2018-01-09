@@ -25,12 +25,12 @@
  * bit[0]: LAN, I2C, LED
  * bit[1]: UART
  */
-void support_card_reset_deassert(void)
+static void support_card_reset_deassert(void)
 {
 	writel(0x00010000, MICRO_SUPPORT_CARD_RESET);
 }
 
-void support_card_reset(void)
+static void support_card_reset(void)
 {
 	writel(0x00020003, MICRO_SUPPORT_CARD_RESET);
 }
@@ -43,26 +43,24 @@ static int support_card_show_revision(void)
 	revision &= 0xff;
 
 	/* revision 3.6.x card changed the revision format */
-	printf("(CPLD version %s%d.%d)\n", revision >> 4 == 6 ? "3." : "",
+	printf("SC:    Micro Support Card (CPLD version %s%d.%d)\n",
+	       revision >> 4 == 6 ? "3." : "",
 	       revision >> 4, revision & 0xf);
 
 	return 0;
 }
 
-int checkboard(void)
-{
-	printf("SC:    Micro Support Card ");
-	return support_card_show_revision();
-}
-
 void support_card_init(void)
 {
+	support_card_reset();
 	/*
 	 * After power on, we need to keep the LAN controller in reset state
 	 * for a while. (200 usec)
 	 */
 	udelay(200);
 	support_card_reset_deassert();
+
+	support_card_show_revision();
 }
 
 #if defined(CONFIG_SMC911X)
@@ -74,7 +72,7 @@ int board_eth_init(bd_t *bis)
 }
 #endif
 
-#if !defined(CONFIG_SYS_NO_FLASH)
+#if defined(CONFIG_MTD_NOR_FLASH)
 
 #include <mtd/cfi_flash.h>
 
@@ -156,11 +154,11 @@ static void detect_num_flash_banks(void)
 
 	debug("number of flash banks: %d\n", cfi_flash_num_flash_banks);
 }
-#else /* CONFIG_SYS_NO_FLASH */
-void detect_num_flash_banks(void)
+#else /* CONFIG_MTD_NOR_FLASH */
+static void detect_num_flash_banks(void)
 {
 };
-#endif /* CONFIG_SYS_NO_FLASH */
+#endif /* CONFIG_MTD_NOR_FLASH */
 
 void support_card_late_init(void)
 {

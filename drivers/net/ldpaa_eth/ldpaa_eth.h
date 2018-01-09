@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2014 Freescale Semiconductor
+ * Copyright (C) 2014-2016 Freescale Semiconductor
+ * Copyright 2017 NXP
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -117,7 +118,7 @@ struct ldpaa_fas {
 
 struct ldpaa_eth_priv {
 	struct eth_device *net_dev;
-	int dpmac_id;
+	uint32_t dpmac_id;
 	uint16_t dpmac_handle;
 
 	uint16_t tx_data_offset;

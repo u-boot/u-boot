@@ -22,16 +22,6 @@ __weak void arm_init_domains(void)
 {
 }
 
-static void cp_delay (void)
-{
-	volatile int i;
-
-	/* copro seems to need some delay between reading and writing */
-	for (i = 0; i < 100; i++)
-		nop();
-	asm volatile("" : : : "memory");
-}
-
 void set_section_dcache(int section, enum dcache_option option)
 {
 #ifdef CONFIG_ARMV7_LPAE
@@ -129,7 +119,7 @@ static inline void mmu_setup(void)
 		dram_bank_mmu_setup(i);
 	}
 
-#ifdef CONFIG_ARMV7_LPAE
+#if defined(CONFIG_ARMV7_LPAE) && __LINUX_ARM_ARCH__ != 4
 	/* Set up 4 PTE entries pointing to our 4 1GB page tables */
 	for (i = 0; i < 4; i++) {
 		u64 *page_table = (u64 *)(gd->arch.tlb_addr + (4096 * 4));
@@ -147,7 +137,7 @@ static inline void mmu_setup(void)
 #endif
 
 	if (is_hyp()) {
-		/* Set HCTR to enable LPAE */
+		/* Set HTCR to enable LPAE */
 		asm volatile("mcr p15, 4, %0, c2, c0, 2"
 			: : "r" (reg) : "memory");
 		/* Set HTTBR0 */
@@ -172,6 +162,15 @@ static inline void mmu_setup(void)
 			: : "r" (MEMORY_ATTRIBUTES) : "memory");
 	}
 #elif defined(CONFIG_CPU_V7)
+	if (is_hyp()) {
+		/* Set HTCR to disable LPAE */
+		asm volatile("mcr p15, 4, %0, c2, c0, 2"
+			: : "r" (0) : "memory");
+	} else {
+		/* Set TTBCR to disable LPAE */
+		asm volatile("mcr p15, 0, %0, c2, c0, 2"
+			: : "r" (0) : "memory");
+	}
 	/* Set TTBR0 */
 	reg = gd->arch.tlb_addr & TTBR0_BASE_ADDR_MASK;
 #if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
@@ -196,7 +195,6 @@ static inline void mmu_setup(void)
 
 	/* and enable the mmu */
 	reg = get_cr();	/* get control reg. */
-	cp_delay();
 	set_cr(reg | CR_M);
 }
 
@@ -214,7 +212,6 @@ static void cache_enable(uint32_t cache_bit)
 	if ((cache_bit == CR_C) && !mmu_enabled())
 		mmu_setup();
 	reg = get_cr();	/* get control reg. */
-	cp_delay();
 	set_cr(reg | cache_bit);
 }
 
@@ -224,7 +221,6 @@ static void cache_disable(uint32_t cache_bit)
 	uint32_t reg;
 
 	reg = get_cr();
-	cp_delay();
 
 	if (cache_bit == CR_C) {
 		/* if cache isn;t enabled no need to disable */
@@ -234,7 +230,7 @@ static void cache_disable(uint32_t cache_bit)
 		cache_bit |= CR_M;
 	}
 	reg = get_cr();
-	cp_delay();
+
 	if (cache_bit == (CR_C | CR_M))
 		flush_dcache_all();
 	set_cr(reg & ~cache_bit);

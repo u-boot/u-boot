@@ -76,6 +76,9 @@ int do_bootz(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	images.os.os = IH_OS_LINUX;
 	ret = do_bootm_states(cmdtp, flag, argc, argv,
+#ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
+			      BOOTM_STATE_RAMDISK |
+#endif
 			      BOOTM_STATE_OS_PREP | BOOTM_STATE_OS_FAKE_GO |
 			      BOOTM_STATE_OS_GO,
 			      &images, 1);

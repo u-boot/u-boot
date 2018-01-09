@@ -52,7 +52,7 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = get_ram_size((long *)PHYS_SDRAM_1,
@@ -66,6 +66,8 @@ void dram_init_banksize(void)
 	gd->bd->bi_dram[3].start = PHYS_SDRAM_4;
 	gd->bd->bi_dram[3].size = get_ram_size((long *)PHYS_SDRAM_4,
 							PHYS_SDRAM_4_SIZE);
+
+	return 0;
 }
 
 int board_eth_init(bd_t *bis)
@@ -85,7 +87,7 @@ int checkboard(void)
 }
 #endif
 
-#ifdef CONFIG_GENERIC_MMC
+#ifdef CONFIG_MMC
 int board_mmc_init(bd_t *bis)
 {
 	int i, err;

@@ -16,17 +16,31 @@
 #include <asm/arch/r8a7793.h>
 #elif defined(CONFIG_R8A7794)
 #include <asm/arch/r8a7794.h>
-#elif defined(CONFIG_R8A7795)
-#include <asm/arch/r8a7795.h>
+#elif defined(CONFIG_RCAR_GEN3)
+#include <asm/arch/rcar-gen3-base.h>
 #else
 #error "SOC Name not defined"
 #endif
 #endif /* CONFIG_ARCH_RMOBILE */
 
+/* PRR CPU IDs */
+#define RMOBILE_CPU_TYPE_SH73A0		0x37
+#define RMOBILE_CPU_TYPE_R8A7740	0x40
+#define RMOBILE_CPU_TYPE_R8A7790	0x45
+#define RMOBILE_CPU_TYPE_R8A7791	0x47
+#define RMOBILE_CPU_TYPE_R8A7792	0x4A
+#define RMOBILE_CPU_TYPE_R8A7793	0x4B
+#define RMOBILE_CPU_TYPE_R8A7794	0x4C
+#define RMOBILE_CPU_TYPE_R8A7795	0x4F
+#define RMOBILE_CPU_TYPE_R8A7796	0x52
+#define RMOBILE_CPU_TYPE_R8A77970	0x54
+#define RMOBILE_CPU_TYPE_R8A77995	0x58
+
 #ifndef __ASSEMBLY__
 u32 rmobile_get_cpu_type(void);
 u32 rmobile_get_cpu_rev_integer(void);
 u32 rmobile_get_cpu_rev_fraction(void);
+void rcar_gen3_memmap_fixup(void);
 #endif /* __ASSEMBLY__ */
 
 #endif /* __ASM_ARCH_RMOBILE_H */

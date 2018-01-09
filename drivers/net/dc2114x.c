@@ -750,7 +750,7 @@ static void update_srom(struct eth_device *dev, bd_t *bis)
 	uchar enetaddr[6];
 
 	/* Ethernet Addr... */
-	if (!eth_getenv_enetaddr("ethaddr", enetaddr))
+	if (!eth_env_get_enetaddr("ethaddr", enetaddr))
 		return;
 	eeprom[0x0a] = (enetaddr[1] << 8) | enetaddr[0];
 	eeprom[0x0b] = (enetaddr[3] << 8) | enetaddr[2];

@@ -10,7 +10,6 @@
 #include <clk.h>
 #include <dm.h>
 #include <fdtdec.h>
-#include <dm/root.h>
 #include <asm/arch/hardware.h>
 #include <asm/gpio.h>
 #include <mach/gpio.h>
@@ -51,11 +50,11 @@ static int atmel_pio4_config_io_func(u32 port, u32 pin,
 	u32 reg, mask;
 
 	if (pin >= ATMEL_PIO_NPINS_PER_BANK)
-		return -ENODEV;
+		return -EINVAL;
 
 	port_base = atmel_pio4_port_base(port);
 	if (!port_base)
-		return -ENODEV;
+		return -EINVAL;
 
 	mask = 1 << pin;
 	reg = func;
@@ -129,11 +128,11 @@ int atmel_pio4_set_pio_output(u32 port, u32 pin, u32 value)
 	u32 reg, mask;
 
 	if (pin >= ATMEL_PIO_NPINS_PER_BANK)
-		return -ENODEV;
+		return -EINVAL;
 
 	port_base = atmel_pio4_port_base(port);
 	if (!port_base)
-		return -ENODEV;
+		return -EINVAL;
 
 	mask = 0x01 << pin;
 	reg = ATMEL_PIO_CFGR_FUNC_GPIO | ATMEL_PIO_DIR_MASK;
@@ -155,11 +154,11 @@ int atmel_pio4_get_pio_input(u32 port, u32 pin)
 	u32 reg, mask;
 
 	if (pin >= ATMEL_PIO_NPINS_PER_BANK)
-		return -ENODEV;
+		return -EINVAL;
 
 	port_base = atmel_pio4_port_base(port);
 	if (!port_base)
-		return -ENODEV;
+		return -EINVAL;
 
 	mask = 0x01 << pin;
 	reg = ATMEL_PIO_CFGR_FUNC_GPIO;
@@ -276,7 +275,7 @@ static const struct dm_gpio_ops atmel_pio4_ops = {
 
 static int atmel_pio4_bind(struct udevice *dev)
 {
-	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+	return dm_scan_fdt_dev(dev);
 }
 
 static int atmel_pio4_probe(struct udevice *dev)
@@ -299,7 +298,7 @@ static int atmel_pio4_probe(struct udevice *dev)
 
 	clk_free(&clk);
 
-	addr_base = dev_get_addr(dev);
+	addr_base = devfdt_get_addr(dev);
 	if (addr_base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -308,7 +307,8 @@ static int atmel_pio4_probe(struct udevice *dev)
 	pioctrl_data = (struct atmel_pioctrl_data *)dev_get_driver_data(dev);
 	nbanks = pioctrl_data->nbanks;
 
-	uc_priv->bank_name = fdt_get_name(gd->fdt_blob, dev->of_offset, NULL);
+	uc_priv->bank_name = fdt_get_name(gd->fdt_blob, dev_of_offset(dev),
+					  NULL);
 	uc_priv->gpio_count = nbanks * ATMEL_PIO_NPINS_PER_BANK;
 
 	return 0;

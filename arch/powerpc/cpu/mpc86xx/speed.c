@@ -24,7 +24,6 @@ void get_sys_info(sys_info_t *sys_info)
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 	uint plat_ratio, e600_ratio;
-	uint lcrr_div;
 
 	plat_ratio = (gur->porpllsr) & 0x0000003e;
 	plat_ratio >>= 1;
@@ -78,19 +77,7 @@ void get_sys_info(sys_info_t *sys_info)
 		break;
 	}
 
-#if defined(CONFIG_SYS_LBC_LCRR)
-	/* We will program LCRR to this value later */
-	lcrr_div = CONFIG_SYS_LBC_LCRR & LCRR_CLKDIV;
-#else
-	lcrr_div = in_be32(&immap->im_lbc.lcrr) & LCRR_CLKDIV;
-#endif
-	if (lcrr_div == 2 || lcrr_div == 4 || lcrr_div == 8) {
-		sys_info->freq_localbus = sys_info->freq_systembus
-							/ (lcrr_div * 2);
-	} else {
-		/* In case anyone cares what the unknown value is */
-		sys_info->freq_localbus = lcrr_div;
-	}
+	sys_info->freq_localbus = sys_info->freq_systembus;
 }
 
 

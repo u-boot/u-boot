@@ -5,4 +5,4 @@
 #
 
 obj-y += fsp_configs.o irq.o
-obj-y += tnc.o topcliff.o
+obj-y += tnc.o

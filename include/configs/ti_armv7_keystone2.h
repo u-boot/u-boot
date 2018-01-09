@@ -14,7 +14,6 @@
 
 /* U-Boot Build Configuration */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is a 2nd stage loader */
-#define CONFIG_BOARD_EARLY_INIT_F
 
 /* SoC Configuration */
 #define CONFIG_ARCH_CPU_INIT
@@ -29,7 +28,6 @@
 #define CONFIG_NR_DRAM_BANKS		2
 #define CONFIG_SYS_LPAE_SDRAM_BASE	0x800000000
 #define CONFIG_MAX_RAM_BANK_SIZE	(2 << 30)       /* 2GB */
-#define CONFIG_STACKSIZE		(512 << 10)     /* 512 KiB */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SPL_TEXT_BASE - \
 					GENERATED_GBL_DATA_SIZE)
 
@@ -48,13 +46,20 @@
 #define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_BSS_START_ADDR + \
 					CONFIG_SPL_BSS_MAX_SIZE)
 #define CONFIG_SYS_SPL_MALLOC_SIZE	(32 * 1024)
-#define CONFIG_SPL_STACK_SIZE		(8 * 1024)
+#define KEYSTONE_SPL_STACK_SIZE		(8 * 1024)
 #define CONFIG_SPL_STACK		(CONFIG_SYS_SPL_MALLOC_START + \
 					CONFIG_SYS_SPL_MALLOC_SIZE + \
 					SPL_MALLOC_F_SIZE + \
-					CONFIG_SPL_STACK_SIZE - 4)
+					KEYSTONE_SPL_STACK_SIZE - 4)
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	CONFIG_SPL_PAD_TO
+
+/* SRAM scratch space entries  */
+#define SRAM_SCRATCH_SPACE_ADDR	CONFIG_SPL_STACK + 0x8
+
+#define TI_SRAM_SCRATCH_BOARD_EEPROM_START	(SRAM_SCRATCH_SPACE_ADDR)
+#define TI_SRAM_SCRATCH_BOARD_EEPROM_END	(SRAM_SCRATCH_SPACE_ADDR + 0x200)
+#define KEYSTONE_SRAM_SCRATCH_SPACE_END		(TI_SRAM_SCRATCH_BOARD_EEPROM_END)
 
 /* UART Configuration */
 #define CONFIG_SYS_NS16550_MEM32
@@ -92,7 +97,6 @@
 #endif
 
 /* Network Configuration */
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_MARVELL
 #define CONFIG_MII
 #define CONFIG_BOOTP_DEFAULT
@@ -156,7 +160,6 @@
 #define CONFIG_SYS_DAVINCI_I2C_SLAVE1	0x10 /* SMBus host address */
 #define CONFIG_SYS_DAVINCI_I2C_SPEED2	100000
 #define CONFIG_SYS_DAVINCI_I2C_SLAVE2	0x10 /* SMBus host address */
-#define I2C_BUS_MAX			3
 
 /* EEPROM definitions */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2
@@ -180,40 +183,26 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE		1
 #define CONFIG_SYS_NAND_MAX_CHIPS		1
 #define CONFIG_SYS_NAND_NO_SUBPAGE_WRITE
-#define CONFIG_ENV_SIZE				(256 << 10)  /* 256 KiB */
-#define CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_OFFSET			0x100000
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_RBTREE
-#define CONFIG_LZO
-#define MTDIDS_DEFAULT			"nand0=davinci_nand.0"
-#define MTDPARTS_DEFAULT		"mtdparts=davinci_nand.0:" \
-					"1024k(bootloader)ro,512k(params)ro," \
-					"-(ubifs)"
 
 /* USB Configuration */
 #define CONFIG_USB_XHCI_KEYSTONE
-#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
-#define CONFIG_EFI_PARTITION
-#define CONFIG_FS_FAT
 #define CONFIG_USB_SS_BASE			KS2_USB_SS_BASE
 #define CONFIG_USB_HOST_XHCI_BASE		KS2_USB_HOST_XHCI_BASE
 #define CONFIG_DEV_USB_PHY_BASE			KS2_DEV_USB_PHY_BASE
 #define CONFIG_USB_PHY_CFG_BASE			KS2_USB_PHY_CFG_BASE
 
-/* U-Boot command configuration */
-#define CONFIG_CMD_SAVES
-#define CONFIG_CMD_UBIFS
-#define CONFIG_CMD_EEPROM
-
 /* U-Boot general configuration */
 #define CONFIG_MISC_INIT_R
-#define CONFIG_CRC32_VERIFY
 #define CONFIG_MX_CYCLIC
 #define CONFIG_TIMESTAMP
 
 /* EDMA3 */
 #define CONFIG_TI_EDMA3
+
+#define KERNEL_MTD_PARTS						\
+	"mtdparts="							\
+	SPI_MTD_PARTS
 
 #define DEFAULT_FW_INITRAMFS_BOOT_ENV					\
 	"name_fw_rd=k2-fw-initrd.cpio.gz\0"				\
@@ -250,7 +239,11 @@
 	"addr_secdb_key=0xc000000\0"					\
 	"name_kern=zImage\0"						\
 	"addr_mon=0x87000000\0"						\
+	"addr_non_sec_mon=0x0c087fc0\0"					\
+	"addr_load_sec_bm=0x0c08c000\0"					\
 	"run_mon=mon_install ${addr_mon}\0"				\
+	"run_mon_hs=mon_install ${addr_non_sec_mon} "			\
+			"${addr_load_sec_bm}\0"				\
 	"run_kern=bootz ${loadaddr} ${rd_spec} ${fdtaddr}\0"		\
 	"init_net=run args_all args_net\0"				\
 	"init_nfs=setenv autoload no; dhcp; run args_all args_net\0"	\
@@ -264,14 +257,21 @@
 	"get_kern_ubi=ubifsload ${loadaddr} ${bootdir}/${name_kern}\0"		\
 	"get_mon_net=dhcp ${addr_mon} ${tftp_root}/${name_mon}\0"	\
 	"get_mon_nfs=nfs ${addr_mon} ${nfs_root}/boot/${name_mon}\0"	\
-	"get_mon_ubi=ubifsload ${addr_mon} ${bootdir}/${name_mon}\0"		\
+	"get_mon_ubi=ubifsload ${addr_mon} ${bootdir}/${name_mon}\0"	\
+	"get_fit_net=dhcp ${fit_loadaddr} ${tftp_root}"			\
+						"/${fit_bootfile}\0"	\
+	"get_fit_nfs=nfs ${fit_loadaddr} ${nfs_root}/boot/${fit_bootfile}\0"\
+	"get_fit_ubi=ubifsload ${fit_loadaddr} ${bootdir}/${fit_bootfile}\0"\
+	"get_fit_mmc=load mmc ${bootpart} ${fit_loadaddr} "		\
+					"${bootdir}/${fit_bootfile}\0"	\
 	"get_uboot_net=dhcp ${loadaddr} ${tftp_root}/${name_uboot}\0"	\
 	"get_uboot_nfs=nfs ${loadaddr} ${nfs_root}/boot/${name_uboot}\0" \
-	"burn_uboot_spi=sf probe; sf erase 0 0x80000; "		\
+	"burn_uboot_spi=sf probe; sf erase 0 0x90000; "		\
 		"sf write ${loadaddr} 0 ${filesize}\0"		\
 	"burn_uboot_nand=nand erase 0 0x100000; "			\
 		"nand write ${loadaddr} 0 ${filesize}\0"		\
-	"args_all=setenv bootargs console=ttyS0,115200n8 rootwait=1\0"	\
+	"args_all=setenv bootargs console=ttyS0,115200n8 rootwait=1 "	\
+		KERNEL_MTD_PARTS					\
 	"args_net=setenv bootargs ${bootargs} rootfstype=nfs "		\
 		"root=/dev/nfs rw nfsroot=${serverip}:${nfs_root},"	\
 		"${nfs_options} ip=dhcp\0"				\
@@ -279,6 +279,8 @@
 	"get_fdt_ramfs=dhcp ${fdtaddr} ${tftp_root}/${name_fdt}\0"	\
 	"get_kern_ramfs=dhcp ${loadaddr} ${tftp_root}/${name_kern}\0"	\
 	"get_mon_ramfs=dhcp ${addr_mon} ${tftp_root}/${name_mon}\0"	\
+	"get_fit_ramfs=dhcp ${fit_loadaddr} ${tftp_root}"		\
+						"/${fit_bootfile}\0"	\
 	"get_fs_ramfs=dhcp ${rdaddr} ${tftp_root}/${name_fs}\0"	\
 	"get_ubi_net=dhcp ${addr_ubi} ${tftp_root}/${name_ubi}\0"	\
 	"get_ubi_nfs=nfs ${addr_ubi} ${nfs_root}/boot/${name_ubi}\0"	\
@@ -293,22 +295,25 @@
 		"1024k(bootloader)ro,512k(params)ro,-(ubifs)\0"
 
 #ifndef CONFIG_BOOTCOMMAND
+#ifndef CONFIG_TI_SECURE_DEVICE
 #define CONFIG_BOOTCOMMAND						\
-	"run init_${boot} get_mon_${boot} run_mon init_fw_rd_${boot} "	\
-	"get_fdt_${boot} get_kern_${boot} run_kern"
+	"run init_${boot}; "						\
+	"run get_mon_${boot} run_mon; "					\
+	"run get_kern_${boot}; "					\
+	"run init_fw_rd_${boot}; "					\
+	"run get_fdt_${boot}; "						\
+	"run run_kern"
+#else
+#define CONFIG_BOOTCOMMAND						\
+	"run run_mon_hs; "						\
+	"run init_${boot}; "						\
+	"run get_fit_${boot}; "						\
+	"bootm ${fit_loadaddr}#${name_fdt}"
 #endif
-
-#define CONFIG_BOOTARGS							\
+#endif
 
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>
-
-/* We wont be loading up OS from SPL for now.. */
-
-/* We do not have MMC support.. yet.. */
-#undef CONFIG_GENERIC_MMC
-
-/* And no support for GPIO, yet.. */
 
 /* we may include files below only after all above definitions */
 #include <asm/arch/hardware.h>
@@ -316,7 +321,7 @@
 #ifndef CONFIG_SOC_K2G
 #define CONFIG_SYS_HZ_CLOCK		ks_clk_get_rate(KS2_CLK1_6)
 #else
-#define CONFIG_SYS_HZ_CLOCK		external_clk[sys_clk]
+#define CONFIG_SYS_HZ_CLOCK		get_external_clk(sys_clk)
 #endif
 
 #endif /* __CONFIG_KS2_EVM_H */

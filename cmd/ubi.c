@@ -308,7 +308,7 @@ int ubi_volume_begin_write(char *volume, void *buf, size_t size,
 		return ENODEV;
 
 	rsvd_bytes = vol->reserved_pebs * (ubi->leb_size - vol->data_pad);
-	if (size < 0 || size > rsvd_bytes) {
+	if (size > rsvd_bytes) {
 		printf("size > volume size! Aborting!\n");
 		return EINVAL;
 	}
@@ -334,6 +334,7 @@ int ubi_volume_read(char *volume, char *buf, size_t size)
 	unsigned long long tmp;
 	struct ubi_volume *vol;
 	loff_t offp = 0;
+	size_t len_read;
 
 	vol = ubi_find_volume(volume);
 	if (vol == NULL)
@@ -373,6 +374,7 @@ int ubi_volume_read(char *volume, char *buf, size_t size)
 	tmp = offp;
 	off = do_div(tmp, vol->usable_leb_size);
 	lnum = tmp;
+	len_read = size;
 	do {
 		if (off + len >= vol->usable_leb_size)
 			len = vol->usable_leb_size - off;
@@ -397,6 +399,9 @@ int ubi_volume_read(char *volume, char *buf, size_t size)
 		buf += len;
 		len = size > tbuf_size ? tbuf_size : size;
 	} while (size);
+
+	if (!size)
+		env_set_hex("filesize", len_read);
 
 	free(tbuf);
 	return err;
@@ -600,7 +605,8 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 		/* E.g., create volume size */
 		if (argc == 4) {
-			size = simple_strtoull(argv[3], NULL, 16);
+			if (argv[3][0] != '-')
+				size = simple_strtoull(argv[3], NULL, 16);
 			argc--;
 		}
 		/* Use maximum available size */
@@ -691,8 +697,9 @@ U_BOOT_CMD(
 		" - Display volume and ubi layout information\n"
 	"ubi check volumename"
 		" - check if volumename exists\n"
-	"ubi create[vol] volume [size] [type] [id]"
-		" - create volume name with size\n"
+	"ubi create[vol] volume [size] [type] [id]\n"
+		" - create volume name with size ('-' for maximum"
+		" available size)\n"
 	"ubi write[vol] address volume size"
 		" - Write volume from address with size\n"
 	"ubi write.part address volume size [fullsize]\n"

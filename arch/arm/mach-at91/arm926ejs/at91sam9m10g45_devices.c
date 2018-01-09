@@ -56,7 +56,7 @@ void at91_seriald_hw_init(void)
 	at91_periph_clk_enable(ATMEL_ID_SYS);
 }
 
-#if defined(CONFIG_HAS_DATAFLASH) || defined(CONFIG_ATMEL_SPI)
+#ifdef CONFIG_ATMEL_SPI
 void at91_spi0_hw_init(unsigned long cs_mask)
 {
 	at91_set_a_periph(AT91_PIO_PORTB, 0, PUP);	/* SPI0_MISO */

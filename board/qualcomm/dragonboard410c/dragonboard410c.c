@@ -19,10 +19,12 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+
+	return 0;
 }
 
 
@@ -44,14 +46,15 @@ int board_prepare_usb(enum usb_init_type type)
 
 	/* Try to request gpios needed to start usb host on dragonboard */
 	if (!dm_gpio_is_valid(&hub_reset)) {
-		node = fdt_subnode_offset(gd->fdt_blob, pmic_gpio->of_offset,
+		node = fdt_subnode_offset(gd->fdt_blob,
+					  dev_of_offset(pmic_gpio),
 					  "usb_hub_reset_pm");
 		if (node < 0) {
 			printf("Failed to find usb_hub_reset_pm dt node.\n");
 			return node;
 		}
-		ret = gpio_request_by_name_nodev(gd->fdt_blob, node, "gpios", 0,
-						 &hub_reset, 0);
+		ret = gpio_request_by_name_nodev(offset_to_ofnode(node),
+						 "gpios", 0, &hub_reset, 0);
 		if (ret < 0) {
 			printf("Failed to request usb_hub_reset_pm gpio.\n");
 			return ret;
@@ -59,14 +62,15 @@ int board_prepare_usb(enum usb_init_type type)
 	}
 
 	if (!dm_gpio_is_valid(&usb_sel)) {
-		node = fdt_subnode_offset(gd->fdt_blob, pmic_gpio->of_offset,
+		node = fdt_subnode_offset(gd->fdt_blob,
+					  dev_of_offset(pmic_gpio),
 					  "usb_sw_sel_pm");
 		if (node < 0) {
 			printf("Failed to find usb_sw_sel_pm dt node.\n");
 			return 0;
 		}
-		ret = gpio_request_by_name_nodev(gd->fdt_blob, node, "gpios", 0,
-						 &usb_sel, 0);
+		ret = gpio_request_by_name_nodev(offset_to_ofnode(node),
+						 "gpios", 0, &usb_sel, 0);
 		if (ret < 0) {
 			printf("Failed to request usb_sw_sel_pm gpio.\n");
 			return ret;
@@ -110,20 +114,21 @@ int misc_init_r(void)
 		return 0;
 	}
 
-	node = fdt_subnode_offset(gd->fdt_blob, pon->of_offset, "key_vol_down");
+	node = fdt_subnode_offset(gd->fdt_blob, dev_of_offset(pon),
+				  "key_vol_down");
 	if (node < 0) {
 		printf("Failed to find key_vol_down node. Check device tree\n");
 		return 0;
 	}
 
-	if (gpio_request_by_name_nodev(gd->fdt_blob, node, "gpios", 0, &resin,
-				       0)) {
+	if (gpio_request_by_name_nodev(offset_to_ofnode(node), "gpios", 0,
+				       &resin, 0)) {
 		printf("Failed to request key_vol_down button.\n");
 		return 0;
 	}
 
 	if (dm_gpio_get_value(&resin)) {
-		setenv("bootdelay", "-1");
+		env_set("bootdelay", "-1");
 		printf("Power button pressed - dropping to console.\n");
 	}
 

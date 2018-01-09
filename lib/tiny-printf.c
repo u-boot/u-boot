@@ -12,6 +12,7 @@
 #include <common.h>
 #include <stdarg.h>
 #include <serial.h>
+#include <linux/ctype.h>
 
 struct printf_info {
 	char *bf;	/* Digit buffer */
@@ -22,7 +23,7 @@ struct printf_info {
 	void (*putc)(struct printf_info *info, char ch);
 };
 
-void putc_normal(struct printf_info *info, char ch)
+static void putc_normal(struct printf_info *info, char ch)
 {
 	putc(ch);
 }
@@ -38,8 +39,8 @@ static void out_dgt(struct printf_info *info, char dgt)
 	info->zs = 1;
 }
 
-static void div_out(struct printf_info *info, unsigned int *num,
-		    unsigned int div)
+static void div_out(struct printf_info *info, unsigned long *num,
+		    unsigned long div)
 {
 	unsigned char dgt = 0;
 
@@ -52,13 +53,161 @@ static void div_out(struct printf_info *info, unsigned int *num,
 		out_dgt(info, dgt);
 }
 
-int _vprintf(struct printf_info *info, const char *fmt, va_list va)
+#ifdef CONFIG_SPL_NET_SUPPORT
+static void string(struct printf_info *info, char *s)
+{
+	char ch;
+
+	while ((ch = *s++))
+		out(info, ch);
+}
+
+static const char hex_asc[] = "0123456789abcdef";
+#define hex_asc_lo(x)	hex_asc[((x) & 0x0f)]
+#define hex_asc_hi(x)	hex_asc[((x) & 0xf0) >> 4]
+
+static inline char *pack_hex_byte(char *buf, u8 byte)
+{
+	*buf++ = hex_asc_hi(byte);
+	*buf++ = hex_asc_lo(byte);
+	return buf;
+}
+
+static void mac_address_string(struct printf_info *info, u8 *addr,
+				bool separator)
+{
+	/* (6 * 2 hex digits), 5 colons and trailing zero */
+	char mac_addr[6 * 3];
+	char *p = mac_addr;
+	int i;
+
+	for (i = 0; i < 6; i++) {
+		p = pack_hex_byte(p, addr[i]);
+		if (separator && i != 5)
+			*p++ = ':';
+	}
+	*p = '\0';
+
+	string(info, mac_addr);
+}
+
+static char *put_dec_trunc(char *buf, unsigned int q)
+{
+	unsigned int d3, d2, d1, d0;
+	d1 = (q >> 4) & 0xf;
+	d2 = (q >> 8) & 0xf;
+	d3 = (q >> 12);
+
+	d0 = 6 * (d3 + d2 + d1) + (q & 0xf);
+	q = (d0 * 0xcd) >> 11;
+	d0 = d0 - 10 * q;
+	*buf++ = d0 + '0'; /* least significant digit */
+	d1 = q + 9 * d3 + 5 * d2 + d1;
+	if (d1 != 0) {
+		q = (d1 * 0xcd) >> 11;
+		d1 = d1 - 10 * q;
+		*buf++ = d1 + '0'; /* next digit */
+
+		d2 = q + 2 * d2;
+		if ((d2 != 0) || (d3 != 0)) {
+			q = (d2 * 0xd) >> 7;
+			d2 = d2 - 10 * q;
+			*buf++ = d2 + '0'; /* next digit */
+
+			d3 = q + 4 * d3;
+			if (d3 != 0) {
+				q = (d3 * 0xcd) >> 11;
+				d3 = d3 - 10 * q;
+				*buf++ = d3 + '0';  /* next digit */
+				if (q != 0)
+					*buf++ = q + '0'; /* most sign. digit */
+			}
+		}
+	}
+	return buf;
+}
+
+static void ip4_addr_string(struct printf_info *info, u8 *addr)
+{
+	/* (4 * 3 decimal digits), 3 dots and trailing zero */
+	char ip4_addr[4 * 4];
+	char temp[3];	/* hold each IP quad in reverse order */
+	char *p = ip4_addr;
+	int i, digits;
+
+	for (i = 0; i < 4; i++) {
+		digits = put_dec_trunc(temp, addr[i]) - temp;
+		/* reverse the digits in the quad */
+		while (digits--)
+			*p++ = temp[digits];
+		if (i != 3)
+			*p++ = '.';
+	}
+	*p = '\0';
+
+	string(info, ip4_addr);
+}
+#endif
+
+/*
+ * Show a '%p' thing.  A kernel extension is that the '%p' is followed
+ * by an extra set of characters that are extended format
+ * specifiers.
+ *
+ * Right now we handle:
+ *
+ * - 'M' For a 6-byte MAC address, it prints the address in the
+ *       usual colon-separated hex notation.
+ * - 'm' Same as above except there is no colon-separator.
+ * - 'I4'for IPv4 addresses printed in the usual way (dot-separated
+ *       decimal).
+ */
+
+static void pointer(struct printf_info *info, const char *fmt, void *ptr)
+{
+#ifdef DEBUG
+	unsigned long num = (uintptr_t)ptr;
+	unsigned long div;
+#endif
+
+	switch (*fmt) {
+#ifdef DEBUG
+	case 'a':
+
+		switch (fmt[1]) {
+		case 'p':
+		default:
+			num = *(phys_addr_t *)ptr;
+			break;
+		}
+		break;
+#endif
+#ifdef CONFIG_SPL_NET_SUPPORT
+	case 'm':
+		return mac_address_string(info, ptr, false);
+	case 'M':
+		return mac_address_string(info, ptr, true);
+	case 'I':
+		if (fmt[1] == '4')
+			return ip4_addr_string(info, ptr);
+#endif
+	default:
+		break;
+	}
+#ifdef DEBUG
+	div = 1UL << (sizeof(long) * 8 - 4);
+	for (; div; div /= 0x10)
+		div_out(info, &num, div);
+#endif
+}
+
+static int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 {
 	char ch;
 	char *p;
-	unsigned int num;
+	unsigned long num;
 	char buf[12];
-	unsigned int div;
+	unsigned long div;
 
 	while ((ch = *(fmt++))) {
 		if (ch != '%') {
@@ -66,8 +215,12 @@ int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 		} else {
 			bool lz = false;
 			int width = 0;
+			bool islong = false;
 
 			ch = *(fmt++);
+			if (ch == '-')
+				ch = *(fmt++);
+
 			if (ch == '0') {
 				ch = *(fmt++);
 				lz = 1;
@@ -80,6 +233,11 @@ int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 					ch = *fmt++;
 				}
 			}
+			if (ch == 'l') {
+				ch = *(fmt++);
+				islong = true;
+			}
+
 			info->bf = buf;
 			p = info->bf;
 			info->zs = 0;
@@ -89,24 +247,43 @@ int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 				goto abort;
 			case 'u':
 			case 'd':
-				num = va_arg(va, unsigned int);
-				if (ch == 'd' && (int)num < 0) {
-					num = -(int)num;
-					out(info, '-');
+				div = 1000000000;
+				if (islong) {
+					num = va_arg(va, unsigned long);
+					if (sizeof(long) > 4)
+						div *= div * 10;
+				} else {
+					num = va_arg(va, unsigned int);
+				}
+
+				if (ch == 'd') {
+					if (islong && (long)num < 0) {
+						num = -(long)num;
+						out(info, '-');
+					} else if (!islong && (int)num < 0) {
+						num = -(int)num;
+						out(info, '-');
+					}
 				}
 				if (!num) {
 					out_dgt(info, 0);
 				} else {
-					for (div = 1000000000; div; div /= 10)
+					for (; div; div /= 10)
 						div_out(info, &num, div);
 				}
 				break;
 			case 'x':
-				num = va_arg(va, unsigned int);
+				if (islong) {
+					num = va_arg(va, unsigned long);
+					div = 1UL << (sizeof(long) * 8 - 4);
+				} else {
+					num = va_arg(va, unsigned int);
+					div = 0x10000000;
+				}
 				if (!num) {
 					out_dgt(info, 0);
 				} else {
-					for (div = 0x10000000; div; div /= 0x10)
+					for (; div; div /= 0x10)
 						div_out(info, &num, div);
 				}
 				break;
@@ -115,6 +292,11 @@ int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 				break;
 			case 's':
 				p = va_arg(va, char*);
+				break;
+			case 'p':
+				pointer(info, fmt, va_arg(va, void *));
+				while (isalnum(fmt[0]))
+					fmt++;
 				break;
 			case '%':
 				out(info, '%');

@@ -188,18 +188,16 @@ static int get_image_used(struct ec_state *ec, struct fmap_entry *entry)
  * RR=Row CC=Column KKKK=Key Code
  *
  * @param ec	Current emulated EC state
- * @param blob	Device tree blob containing keyscan information
  * @param node	Keyboard node of device tree containing keyscan information
  * @return 0 if ok, -1 on error
  */
-static int keyscan_read_fdt_matrix(struct ec_state *ec, const void *blob,
-				   int node)
+static int keyscan_read_fdt_matrix(struct ec_state *ec, ofnode node)
 {
 	const u32 *cell;
 	int upto;
 	int len;
 
-	cell = fdt_getprop(blob, node, "linux,keymap", &len);
+	cell = ofnode_get_property(node, "linux,keymap", &len);
 	ec->matrix_count = len / 4;
 	ec->matrix = calloc(ec->matrix_count, sizeof(*ec->matrix));
 	if (!ec->matrix) {
@@ -516,28 +514,29 @@ int cros_ec_probe(struct udevice *dev)
 {
 	struct ec_state *ec = dev->priv;
 	struct cros_ec_dev *cdev = dev->uclass_priv;
-	const void *blob = gd->fdt_blob;
 	struct udevice *keyb_dev;
-	int node;
+	ofnode node;
 	int err;
 
 	memcpy(ec, &s_state, sizeof(*ec));
-	err = cros_ec_decode_ec_flash(blob, dev->of_offset, &ec->ec_config);
-	if (err)
+	err = cros_ec_decode_ec_flash(dev, &ec->ec_config);
+	if (err) {
+		debug("%s: Cannot device EC flash\n", __func__);
 		return err;
+	}
 
-	node = -1;
+	node = ofnode_null();
 	for (device_find_first_child(dev, &keyb_dev);
 	     keyb_dev;
 	     device_find_next_child(&keyb_dev)) {
 		if (device_get_uclass_id(keyb_dev) == UCLASS_KEYBOARD) {
-			node = keyb_dev->of_offset;
+			node = dev_ofnode(keyb_dev);
 			break;
 		}
 	}
-	if (node < 0) {
+	if (!ofnode_valid(node)) {
 		debug("%s: No cros_ec keyboard found\n", __func__);
-	} else if (keyscan_read_fdt_matrix(ec, blob, node)) {
+	} else if (keyscan_read_fdt_matrix(ec, node)) {
 		debug("%s: Could not read key matrix\n", __func__);
 		return -1;
 	}

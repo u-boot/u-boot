@@ -24,7 +24,9 @@ obj-$(CONFIG_LED) += led.o
 obj-$(CONFIG_DM_MAILBOX) += mailbox.o
 obj-$(CONFIG_DM_MMC) += mmc.o
 obj-$(CONFIG_DM_PCI) += pci.o
+obj-$(CONFIG_PHY) += phy.o
 obj-$(CONFIG_POWER_DOMAIN) += power-domain.o
+obj-$(CONFIG_DM_PWM) += pwm.o
 obj-$(CONFIG_RAM) += ram.o
 obj-y += regmap.o
 obj-$(CONFIG_REMOTEPROC) += remoteproc.o
@@ -41,4 +43,5 @@ obj-$(CONFIG_TIMER) += timer.o
 obj-$(CONFIG_DM_VIDEO) += video.o
 obj-$(CONFIG_ADC) += adc.o
 obj-$(CONFIG_SPMI) += spmi.o
+obj-$(CONFIG_WDT) += wdt.o
 endif

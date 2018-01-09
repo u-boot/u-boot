@@ -111,11 +111,9 @@ static void cfi_flash_init_dm(void)
 	}
 }
 
-static phys_addr_t cfi_flash_base[CFI_MAX_FLASH_BANKS];
-
 phys_addr_t cfi_flash_bank_addr(int i)
 {
-	return cfi_flash_base[i];
+	return flash_info[i].base;
 }
 #else
 __weak phys_addr_t cfi_flash_bank_addr(int i)
@@ -178,7 +176,7 @@ __maybe_weak u64 flash_read64(void *addr)
 /*-----------------------------------------------------------------------
  */
 #if defined(CONFIG_ENV_IS_IN_FLASH) || defined(CONFIG_ENV_ADDR_REDUND) || (CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE)
-flash_info_t *flash_get_info(ulong base)
+static flash_info_t *flash_get_info(ulong base)
 {
 	int i;
 	flash_info_t *info;
@@ -355,8 +353,8 @@ static ulong flash_read_long (flash_info_t * info, flash_sect_t sect,
 /*
  * Write a proper sized command to the correct address
  */
-void flash_write_cmd (flash_info_t * info, flash_sect_t sect,
-		      uint offset, u32 cmd)
+static void flash_write_cmd(flash_info_t *info, flash_sect_t sect,
+			    uint offset, u32 cmd)
 {
 
 	void *addr;
@@ -546,7 +544,16 @@ static int flash_is_busy (flash_info_t * info, flash_sect_t sect)
 #ifdef CONFIG_FLASH_CFI_LEGACY
 	case CFI_CMDSET_AMD_LEGACY:
 #endif
-		retval = flash_toggle (info, sect, 0, AMD_STATUS_TOGGLE);
+		if (info->sr_supported) {
+			flash_write_cmd (info, sect, info->addr_unlock1,
+					 FLASH_CMD_READ_STATUS);
+			retval = !flash_isset (info, sect, 0,
+					       FLASH_STATUS_DONE);
+		} else {
+			retval = flash_toggle (info, sect, 0,
+					       AMD_STATUS_TOGGLE);
+		}
+
 		break;
 	default:
 		retval = 0;
@@ -1687,6 +1694,7 @@ static void cmdset_amd_read_jedec_ids(flash_info_t *info)
 {
 	ushort bankId = 0;
 	uchar  manuId;
+	uchar  feature;
 
 	flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
 	flash_unlock_seq(info, 0);
@@ -1701,6 +1709,15 @@ static void cmdset_amd_read_jedec_ids(flash_info_t *info)
 			bankId | FLASH_OFFSET_MANUFACTURER_ID);
 	}
 	info->manufacturer_id = manuId;
+
+	debug("info->ext_addr = 0x%x, cfi_version = 0x%x\n",
+	      info->ext_addr, info->cfi_version);
+	if (info->ext_addr && info->cfi_version >= 0x3134) {
+		/* read software feature (at 0x53) */
+		feature = flash_read_uchar(info, info->ext_addr + 0x13);
+		debug("feature = 0x%x\n", feature);
+		info->sr_supported = feature & 0x1;
+	}
 
 	switch (info->chipwidth){
 	case FLASH_CFI_8BIT:
@@ -2301,7 +2318,7 @@ static void cfi_flash_set_config_reg(u32 base, u16 val)
 /*-----------------------------------------------------------------------
  */
 
-void flash_protect_default(void)
+static void flash_protect_default(void)
 {
 #if defined(CONFIG_SYS_FLASH_AUTOPROTECT_LIST)
 	int i;
@@ -2356,7 +2373,7 @@ unsigned long flash_init (void)
 #ifdef CONFIG_SYS_FLASH_PROTECTION
 	/* read environment from EEPROM */
 	char s[64];
-	getenv_f("unlock", s, sizeof(s));
+	env_get_f("unlock", s, sizeof(s));
 #endif
 
 #ifdef CONFIG_CFI_FLASH /* for driver model */
@@ -2444,14 +2461,14 @@ unsigned long flash_init (void)
 static int cfi_flash_probe(struct udevice *dev)
 {
 	void *blob = (void *)gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	const fdt32_t *cell;
 	phys_addr_t addr;
 	int parent, addrc, sizec;
 	int len, idx;
 
 	parent = fdt_parent_offset(blob, node);
-	of_bus_default_count_cells(blob, parent, &addrc, &sizec);
+	fdt_support_default_count_cells(blob, parent, &addrc, &sizec);
 	/* decode regs, there may be multiple reg tuples. */
 	cell = fdt_getprop(blob, node, "reg", &len);
 	if (!cell)
@@ -2461,10 +2478,12 @@ static int cfi_flash_probe(struct udevice *dev)
 	while (idx < len) {
 		addr = fdt_translate_address((void *)blob,
 					     node, cell + idx);
-		cfi_flash_base[cfi_flash_num_flash_banks++] = addr;
+		flash_info[cfi_flash_num_flash_banks].dev = dev;
+		flash_info[cfi_flash_num_flash_banks].base = addr;
+		cfi_flash_num_flash_banks++;
 		idx += addrc + sizec;
 	}
-	gd->bd->bi_flashstart = cfi_flash_base[0];
+	gd->bd->bi_flashstart = flash_info[0].base;
 
 	return 0;
 }

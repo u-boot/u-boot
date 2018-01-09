@@ -17,13 +17,28 @@
 		size = <CONFIG_ROM_SIZE>;
 #ifdef CONFIG_HAVE_INTEL_ME
 		intel-descriptor {
+			filename = CONFIG_FLASH_DESCRIPTOR_FILE;
 		};
 		intel-me {
+			filename = CONFIG_INTEL_ME_FILE;
 		};
 #endif
+#ifdef CONFIG_SPL
+		u-boot-spl-with-ucode-ptr {
+			pos = <CONFIG_SPL_TEXT_BASE>;
+		};
+
+		u-boot-dtb-with-ucode2 {
+			type = "u-boot-dtb-with-ucode";
+		};
+		u-boot {
+			pos = <0xfff00000>;
+		};
+#else
 		u-boot-with-ucode-ptr {
 			pos = <CONFIG_SYS_TEXT_BASE>;
 		};
+#endif
 		u-boot-dtb-with-ucode {
 		};
 		u-boot-ucode {
@@ -52,14 +67,26 @@
 			pos = <CONFIG_VGA_BIOS_ADDR>;
 		};
 #endif
+#ifdef CONFIG_HAVE_VBT
+		intel-vbt {
+			filename = CONFIG_VBT_FILE;
+			pos = <CONFIG_VBT_ADDR>;
+		};
+#endif
 #ifdef CONFIG_HAVE_REFCODE
 		intel-refcode {
 			pos = <CONFIG_X86_REFCODE_ADDR>;
 		};
 #endif
+#ifdef CONFIG_SPL
+		x86-start16-spl {
+			pos = <CONFIG_SYS_X86_START16>;
+		};
+#else
 		x86-start16 {
 			pos = <CONFIG_SYS_X86_START16>;
 		};
+#endif
 	};
 };
 #endif

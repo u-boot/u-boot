@@ -71,7 +71,7 @@ Configuration command line syntax:
 					value shall be set to one of the
 					values found in the file:
 						arch/arm/include/asm/\
-						imx-common/imximage.cfg
+						mach-imx/imximage.cfg
 				Example:
 				BOOT_OFFSET FLASH_OFFSET_STANDARD
 

@@ -195,7 +195,7 @@ static int adjust_vdd(ulong vdd_override)
 	      vid, vdd_target/10);
 
 	/* check override variable for overriding VDD */
-	vdd_string = getenv("b4qds_vdd_mv");
+	vdd_string = env_get("b4qds_vdd_mv");
 	if (vdd_override == 0 && vdd_string &&
 	    !strict_strtoul(vdd_string, 10, &vdd_string_override))
 		vdd_override = vdd_string_override;
@@ -542,7 +542,7 @@ int configure_vsc3316_3308(void)
 			 * Extract hwconfig from environment since environment
 			 * is not setup properly yet
 			 */
-			getenv_f("hwconfig", buffer, sizeof(buffer));
+			env_get_f("hwconfig", buffer, sizeof(buffer));
 			buf = buffer;
 
 			if (hwconfig_subarg_cmp_f("fsl_b4860_serdes2",
@@ -1197,8 +1197,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	ft_cpu_setup(blob, bd);
 
-	base = getenv_bootm_low();
-	size = getenv_bootm_size();
+	base = env_get_bootm_low();
+	size = env_get_bootm_size();
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
 

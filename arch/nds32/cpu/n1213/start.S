@@ -90,24 +90,6 @@ _start:	j	reset
 _TEXT_BASE:
 	.word	CONFIG_SYS_TEXT_BASE
 
-/*
- * These are defined in the board-specific linker script.
- * Subtracting _start from them lets the linker put their
- * relative position in the executable instead of leaving
- * them null.
- */
-#ifdef CONFIG_USE_IRQ
-/* IRQ stack memory (calculated at run-time) */
-.globl IRQ_STACK_START
-IRQ_STACK_START:
-	.word 0x0badc0de
-
-/* IRQ stack memory (calculated at run-time) */
-.globl FIQ_STACK_START
-FIQ_STACK_START:
-	.word 0x0badc0de
-#endif
-
 /* IRQ stack memory (calculated at run-time) + 8 bytes */
 .globl IRQ_STACK_START_IN
 IRQ_STACK_START_IN:
@@ -132,11 +114,66 @@ reset_gp:
 
 set_ivb:
 	li	$r0, 0x0
-
 	/* turn on BTB */
 	mtsr	$r0, $misc_ctl
 	/* set IVIC, vector size: 4 bytes, base: 0x0 */
 	mtsr	$r0, $ivb
+/*
+ * MMU_CTL NTC0 Non-cacheable
+ */
+	li	$r0, ~0x6
+	mfsr	$r1, $mr0
+	and	$r1, $r1, $r0
+	mtsr	$r1, $mr0
+
+	li	$r0, ~0x3
+	mfsr	$r1, $mr8
+	and	$r1, $r1, $r0
+	mtsr	$r1, $mr8
+#if (!defined(CONFIG_SYS_ICACHE_OFF) || !defined(CONFIG_SYS_DCACHE_OFF))
+/*
+ * MMU_CTL NTC0 Cacheable/Write-Back
+ */
+	li	$r0, 0x4
+	mfsr	$r1, $mr0
+	or	$r1, $r1, $r0
+	mtsr	$r1, $mr0
+#endif
+
+#ifndef CONFIG_SYS_DCACHE_OFF
+#ifdef CONFIG_ARCH_MAP_SYSMEM
+/*
+ * MMU_CTL NTC1 Non-cacheable
+ */
+	li	$r0, ~0x18
+	mfsr	$r1, $mr0
+	and	$r1, $r1, $r0
+	mtsr	$r1, $mr0
+/*
+ * MMU_CTL NTM1 mapping for partition 0
+ */
+	li	$r0, ~0x6000
+	mfsr	$r1, $mr0
+	and	$r1, $r1, $r0
+	mtsr	$r1, $mr0
+#endif
+#endif
+
+#if !defined(CONFIG_SYS_ICACHE_OFF)
+	li	$r0, 0x1
+	mfsr	$r1, $mr8
+	or	$r1, $r1, $r0
+	mtsr	$r1, $mr8
+#endif
+
+#if !defined(CONFIG_SYS_DCACHE_OFF)
+	li	$r0, 0x2
+	mfsr	$r1, $mr8
+	or	$r1, $r1, $r0
+	mtsr	$r1, $mr8
+#endif
+
+	jal mem_init
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 	jal	lowlevel_init
@@ -151,7 +188,6 @@ update_gp:
 	ori     $gp, $gp, lo12(_GLOBAL_OFFSET_TABLE_-4)
 	add5.pc $gp
 #endif
-
 /*
  *  do critical initializations first (shall be in short time)
  *  do self_relocation ASAP.
@@ -179,11 +215,14 @@ update_gp:
  */
 call_board_init_f:
 	li		$sp, CONFIG_SYS_INIT_SP_ADDR
-	li		$r10, GD_SIZE	/* get GD size */
-	sub		$sp, $sp, $r10	/* GD start addr */
-	move	$r10, $sp
+	move	$r0, $sp
+	bal	board_init_f_alloc_reserve
+	move	$sp, $r0
+	bal	board_init_f_init_reserve
+#ifdef CONFIG_DEBUG_UART
+	bal	debug_uart_init
+#endif
 	li		$r0, 0x00000000
-
 #ifdef __PIC__
 #ifdef __NDS32_N1213_43U1H__
 /* __NDS32_N1213_43U1H__ implies NDS32 V0 ISA */
@@ -219,12 +258,10 @@ stack_setup:
 
 	la	 $r1, _end@GOTOFF
 	move $r2, $r6			/* r2 <- scratch for copy_loop */
-
 copy_loop:
-	lwi.p	$r7, [$r0], #4
-	swi.p	$r7, [$r2], #4
+	lmw.bim	$r11, [$r0], $r18
+	smw.bim	$r11, [$r2], $r18
 	blt	$r0, $r1, copy_loop
-
 /*
  * fix relocations related issues
  */
@@ -264,6 +301,8 @@ clbss_l:
  * initialization, now running from RAM.
  */
 call_board_init_r:
+	bal invalidate_icache_all
+	bal flush_dcache_all
 	la	$r0, board_init_r@GOTOFF
 	move	$lp, $r0		/* offset of board_init_r() */
 	add	$lp, $lp, $r9		/* real address of board_init_r() */

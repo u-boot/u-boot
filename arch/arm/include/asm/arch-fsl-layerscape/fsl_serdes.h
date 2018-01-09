@@ -9,7 +9,7 @@
 
 #include <config.h>
 
-#ifdef CONFIG_LS2080A
+#ifdef CONFIG_FSL_LSCH3
 enum srds_prtcl {
 	/*
 	 * Nobody will check whether the device 'NONE' has been configured,
@@ -48,10 +48,10 @@ enum srds_prtcl {
 	SGMII14,
 	SGMII15,
 	SGMII16,
-	QSGMII_A, /* A indicates MACs 1-4 */
-	QSGMII_B, /* B indicates MACs 5-8 */
-	QSGMII_C, /* C indicates MACs 9-12 */
-	QSGMII_D, /* D indicates MACs 12-16 */
+	QSGMII_A,
+	QSGMII_B,
+	QSGMII_C,
+	QSGMII_D,
 	SERDES_PRCTL_COUNT
 };
 
@@ -158,10 +158,20 @@ void fsl_serdes_init(void);
 int serdes_get_first_lane(u32 sd, enum srds_prtcl device);
 enum srds_prtcl serdes_get_prtcl(int serdes, int cfg, int lane);
 int is_serdes_prtcl_valid(int serdes, u32 prtcl);
+int serdes_get_number(int serdes, int cfg);
+void fsl_rgmii_init(void);
 
 #ifdef CONFIG_FSL_LSCH2
 const char *serdes_clock_to_string(u32 clock);
 int get_serdes_protocol(void);
+#ifdef CONFIG_SYS_HAS_SERDES
+/* Get the volt of SVDD in unit mV */
+int get_serdes_volt(void);
+/* Set the volt of SVDD in unit mV */
+int set_serdes_volt(int svdd);
+/* The target volt of SVDD in unit mV */
+int setup_serdes_volt(u32 svdd);
+#endif
 #endif
 
 #endif /* __FSL_SERDES_H__ */

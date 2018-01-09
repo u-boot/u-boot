@@ -23,7 +23,6 @@
 #include <linux/sizes.h>
 
 #if defined(CONFIG_SPL_BUILD)
-#define CONFIG_SYS_THUMB_BUILD
 #define CONFIG_SYS_ICACHE_OFF
 #define CONFIG_SYS_DCACHE_OFF
 #endif
@@ -46,7 +45,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 #define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
-#define CONFIG_BOARD_EARLY_INIT_F
 
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
@@ -57,13 +55,7 @@
 #define CONFIG_ATMEL_USART
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS
-#define CONFIG_BAUDRATE			115200
 
-
-/*
- * Command line configuration.
- */
-#define CONFIG_CMD_NAND
 
 /*
  * SDRAM: 1 bank, min 32, max 128 MB
@@ -93,12 +85,8 @@
 #define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PC13
 #endif
 
-/* NOR flash - no real flash on this board */
-#define CONFIG_SYS_NO_FLASH			1
-
 /* Ethernet */
 #define CONFIG_MACB
-#define CONFIG_PHYLIB
 #define CONFIG_RMII
 #define CONFIG_AT91_WANTS_COMMON_PHY
 
@@ -120,7 +108,6 @@
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 
 /* USB DFU support */
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 
@@ -151,85 +138,11 @@
 #define CONFIG_SYS_LOAD_ADDR			0x22000000
 
 /* bootstrap in spi flash , u-boot + env + linux in nandflash */
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x100000
 #define CONFIG_ENV_OFFSET_REDUND	0x180000
 #define CONFIG_ENV_SIZE		(SZ_128K)	/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND	"nand read 0x22000000 0x200000 0x300000; bootm"
 
-#if defined(CONFIG_BOARD_TAURUS)
-#define	CONFIG_BOOTARGS_TAURUS						\
-	"console=ttyS0,115200 earlyprintk "				\
-	"mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,"		\
-	"256k(env),256k(env_redundant),256k(spare),"			\
-	"512k(dtb),6M(kernel)ro,-(rootfs) "				\
-	"root=/dev/mtdblock7 rw rootfstype=jffs2"
-#endif
-
-#if defined(CONFIG_BOARD_AXM)
-#define CONFIG_BOOTARGS_AXM						\
-	"\0"	\
-	"addip=setenv bootargs ${bootargs} ip=${ipaddr}:${serverip}:"	\
-	"${gatewayip}:${netmask}:${hostname}:${netdev}::off\0"		\
-	"addtest=setenv bootargs ${bootargs} loglevel=4 test\0"		\
-	"baudrate=115200\0"						\
-	"boot_file=setenv bootfile /${project_dir}/kernel/uImage\0"	\
-	"boot_retries=0\0"						\
-	"bootcmd=run flash_self\0"					\
-	"bootdelay=3\0"							\
-	"ethact=macb0\0"						\
-	"flash_nfs=run nand_kernel;run nfsargs;run addip;upgrade_available;"\
-	"bootm ${kernel_ram};reset\0"					\
-	"flash_self=run nand_kernel;run setbootargs;upgrade_available;" \
-	"bootm ${kernel_ram};reset\0"					\
-	"flash_self_test=run nand_kernel;run setbootargs addtest; "	\
-	"upgrade_available;bootm ${kernel_ram};reset\0"			\
-	"hostname=systemone\0"						\
-	"kernel_Off=0x00200000\0"					\
-	"kernel_Off_fallback=0x03800000\0"				\
-	"kernel_ram=0x21500000\0"					\
-	"kernel_size=0x00400000\0"					\
-	"kernel_size_fallback=0x00400000\0"				\
-	"loads_echo=1\0"						\
-	"nand_kernel=nand read.e ${kernel_ram} ${kernel_Off} "		\
-		"${kernel_size}\0"					\
-	"net_nfs=run boot_file;tftp ${kernel_ram} ${bootfile};"		\
-	"run nfsargs;run addip;upgrade_available;bootm "		\
-		"${kernel_ram};reset\0"					\
-	"netdev=eth0\0"							\
-	"nfsargs=run root_path;setenv bootargs ${bootargs} "		\
-	"root=/dev/nfs rw nfsroot=${serverip}:${rootpath} "		\
-	"at91sam9_wdt.wdt_timeout=16\0"					\
-	"partitionset_active=A\0"					\
-	"preboot=echo;echo Type 'run flash_self' to use kernel and root "\
-	"filesystem on memory;echo Type 'run flash_nfs' to use kernel "	\
-	"from memory and root filesystem over NFS;echo Type 'run net_nfs' "\
-	"to get Kernel over TFTP and mount root filesystem over NFS;echo\0"\
-	"project_dir=systemone\0"					\
-	"root_path=setenv rootpath /home/projects/${project_dir}/rootfs\0"\
-	"rootfs=/dev/mtdblock5\0"					\
-	"rootfs_fallback=/dev/mtdblock7\0"				\
-	"setbootargs=setenv bootargs ${bootargs} console=ttyMTD,mtdoops "\
-		"root=${rootfs} rootfstype=jffs2 panic=7 "		\
-		"at91sam9_wdt.wdt_timeout=16\0"				\
-	"stderr=serial\0"						\
-	"stdin=serial\0"						\
-	"stdout=serial\0"						\
-	"upgrade_available=0\0"
-#endif
-
-#if defined(CONFIG_BOARD_TAURUS)
-#define CONFIG_BOOTARGS		CONFIG_BOOTARGS_TAURUS
-#endif
-
-#if defined(CONFIG_BOARD_AXM)
-#define CONFIG_BOOTARGS		CONFIG_BOOTARGS_AXM
-#endif
-
-#define CONFIG_SYS_CBSIZE		256
-#define CONFIG_SYS_MAXARGS		16
-#define CONFIG_SYS_PBSIZE \
-	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
@@ -252,7 +165,6 @@
 #define CONFIG_SPL_BSS_START_ADDR	CONFIG_SPL_MAX_SIZE
 #define CONFIG_SPL_BSS_MAX_SIZE		(3 * SZ_512)
 
-#define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SYS_NAND_ENABLE_PIN_SPL	(2*32 + 14)
 #define CONFIG_SYS_USE_NANDFLASH	1
 #define CONFIG_SPL_NAND_DRIVERS

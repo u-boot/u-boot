@@ -40,7 +40,7 @@ static int i2c_mux_child_post_bind(struct udevice *dev)
 	struct i2c_mux_bus *plat = dev_get_parent_platdata(dev);
 	int channel;
 
-	channel = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "reg", -1);
+	channel = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "reg", -1);
 	if (channel < 0)
 		return -EINVAL;
 	plat->channel = channel;
@@ -51,24 +51,21 @@ static int i2c_mux_child_post_bind(struct udevice *dev)
 /* Find the I2C buses selected by this mux */
 static int i2c_mux_post_bind(struct udevice *mux)
 {
-	const void *blob = gd->fdt_blob;
+	ofnode node;
 	int ret;
-	int offset;
 
 	debug("%s: %s\n", __func__, mux->name);
 	/*
 	 * There is no compatible string in the sub-nodes, so we must manually
 	 * bind these
 	 */
-	for (offset = fdt_first_subnode(blob, mux->of_offset);
-	     offset > 0;
-	     offset = fdt_next_subnode(blob, offset)) {
+	dev_for_each_subnode(node, mux) {
 		struct udevice *dev;
 		const char *name;
 
-		name = fdt_get_name(blob, offset, NULL);
+		name = ofnode_get_name(node);
 		ret = device_bind_driver_to_node(mux, "i2c_mux_bus_drv", name,
-						 offset, &dev);
+						 node, &dev);
 		debug("   - bind ret=%d, %s\n", ret, dev ? dev->name : NULL);
 		if (ret)
 			return ret;
@@ -85,6 +82,16 @@ static int i2c_mux_post_probe(struct udevice *mux)
 
 	debug("%s: %s\n", __func__, mux->name);
 	priv->selected = -1;
+
+	/* if parent is of i2c uclass already, we'll take that, otherwise
+	 * look if we find an i2c-parent phandle
+	 */
+	if (UCLASS_I2C == device_get_uclass_id(mux->parent)) {
+		priv->i2c_bus = dev_get_parent(mux);
+		debug("%s: bus=%p/%s\n", __func__, priv->i2c_bus,
+		      priv->i2c_bus->name);
+		return 0;
+	}
 
 	ret = uclass_get_device_by_phandle(UCLASS_I2C, mux, "i2c-parent",
 					   &priv->i2c_bus);

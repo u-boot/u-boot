@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <debug_uart.h>
 #include <asm/io.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/at91sam9g45_matrix.h>
@@ -15,13 +16,9 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
 #include <lcd.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 #include <atmel_lcdc.h>
-#include <atmel_mci.h>
-#if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
-#include <net.h>
-#endif
-#include <netdev.h>
+#include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -87,9 +84,9 @@ void at91_spl_board_init(void)
 	at91_set_pio_pullup(AT91_PIO_PORTD, 7, 1);
 	at91_set_pio_pullup(AT91_PIO_PORTD, 8, 1);
 
-#ifdef CONFIG_SYS_USE_MMC
+#ifdef CONFIG_SD_BOOT
 	at91_mci_hw_init();
-#elif CONFIG_SYS_USE_NANDFLASH
+#elif CONFIG_NAND_BOOT
 	at91sam9m10g45ek_nand_hw_init();
 #endif
 }
@@ -146,39 +143,6 @@ static void at91sam9m10g45ek_usb_hw_init(void)
 
 	at91_set_gpio_output(AT91_PIN_PD1, 0);
 	at91_set_gpio_output(AT91_PIN_PD3, 0);
-}
-#endif
-
-#ifdef CONFIG_MACB
-static void at91sam9m10g45ek_macb_hw_init(void)
-{
-	struct at91_port *pioa = (struct at91_port *)ATMEL_BASE_PIOA;
-
-	at91_periph_clk_enable(ATMEL_ID_EMAC);
-
-	/*
-	 * Disable pull-up on:
-	 *      RXDV (PA15) => PHY normal mode (not Test mode)
-	 *      ERX0 (PA12) => PHY ADDR0
-	 *      ERX1 (PA13) => PHY ADDR1 => PHYADDR = 0x0
-	 *
-	 * PHY has internal pull-down
-	 */
-	writel(pin_to_mask(AT91_PIN_PA15) |
-	       pin_to_mask(AT91_PIN_PA12) |
-	       pin_to_mask(AT91_PIN_PA13),
-	       &pioa->pudr);
-
-	at91_phy_reset();
-
-	/* Re-enable pull-up */
-	writel(pin_to_mask(AT91_PIN_PA15) |
-	       pin_to_mask(AT91_PIN_PA12) |
-	       pin_to_mask(AT91_PIN_PA13),
-	       &pioa->puer);
-
-	/* And the pins. */
-	at91_macb_hw_init();
 }
 #endif
 
@@ -272,7 +236,7 @@ void lcd_show_board_info(void)
 		dram_size += gd->bd->bi_dram[i].size;
 	nand_size = 0;
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
-		nand_size += nand_info[i]->size;
+		nand_size += get_nand_dev_by_index(i)->size;
 	lcd_printf ("  %ld MB SDRAM, %ld MB NAND\n",
 		dram_size >> 20,
 		nand_size >> 20 );
@@ -280,20 +244,22 @@ void lcd_show_board_info(void)
 #endif /* CONFIG_LCD_INFO */
 #endif
 
-#ifdef CONFIG_GENERIC_ATMEL_MCI
-int board_mmc_init(bd_t *bis)
+#ifdef CONFIG_DEBUG_UART_BOARD_INIT
+void board_debug_uart_init(void)
 {
-	at91_mci_hw_init();
-
-	return atmel_mci_init((void *)ATMEL_BASE_MCI0);
+	at91_seriald_hw_init();
 }
 #endif
 
+#ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_early_init_f(void)
 {
-	at91_seriald_hw_init();
+#ifdef CONFIG_DEBUG_UART
+	debug_uart_init();
+#endif
 	return 0;
 }
+#endif
 
 int board_init(void)
 {
@@ -313,15 +279,6 @@ int board_init(void)
 #ifdef CONFIG_CMD_USB
 	at91sam9m10g45ek_usb_hw_init();
 #endif
-#ifdef CONFIG_HAS_DATAFLASH
-	at91_spi0_hw_init(1 << 0);
-#endif
-#ifdef CONFIG_ATMEL_SPI
-	at91_spi0_hw_init(1 << 4);
-#endif
-#ifdef CONFIG_MACB
-	at91sam9m10g45ek_macb_hw_init();
-#endif
 #ifdef CONFIG_LCD
 	at91sam9m10g45ek_lcd_hw_init();
 #endif
@@ -340,48 +297,3 @@ void reset_phy(void)
 {
 }
 #endif
-
-int board_eth_init(bd_t *bis)
-{
-	int rc = 0;
-#ifdef CONFIG_MACB
-	rc = macb_eth_initialize(0, (void *)ATMEL_BASE_EMAC, 0x00);
-#endif
-	return rc;
-}
-
-/* SPI chip select control */
-#ifdef CONFIG_ATMEL_SPI
-#include <spi.h>
-
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	return bus == 0 && cs < 2;
-}
-
-void spi_cs_activate(struct spi_slave *slave)
-{
-	switch(slave->cs) {
-		case 1:
-			at91_set_gpio_output(AT91_PIN_PB18, 0);
-			break;
-		case 0:
-		default:
-			at91_set_gpio_output(AT91_PIN_PB3, 0);
-			break;
-	}
-}
-
-void spi_cs_deactivate(struct spi_slave *slave)
-{
-	switch(slave->cs) {
-		case 1:
-			at91_set_gpio_output(AT91_PIN_PB18, 1);
-			break;
-		case 0:
-		default:
-			at91_set_gpio_output(AT91_PIN_PB3, 1);
-		break;
-	}
-}
-#endif /* CONFIG_ATMEL_SPI */

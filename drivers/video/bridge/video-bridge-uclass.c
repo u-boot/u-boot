@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <edid.h>
 #include <video_bridge.h>
 
 int video_bridge_set_backlight(struct udevice *dev, int percent)
@@ -43,6 +44,15 @@ int video_bridge_check_attached(struct udevice *dev)
 	}
 
 	return ops->check_attached(dev);
+}
+
+int video_bridge_read_edid(struct udevice *dev, u8 *buf, int buf_size)
+{
+	struct video_bridge_ops *ops = video_bridge_get_ops(dev);
+
+	if (!ops || !ops->read_edid)
+		return -ENOSYS;
+	return ops->read_edid(dev, buf, buf_size);
 }
 
 static int video_bridge_pre_probe(struct udevice *dev)

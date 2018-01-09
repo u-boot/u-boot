@@ -1,37 +1,20 @@
 if OMAP34XX
 
-config SPL_EXT_SUPPORT
-	default y
+# We only enable the clocks for the GPIO banks that a given board requies.
+config OMAP3_GPIO_2
+	bool
 
-config SPL_FAT_SUPPORT
-	default y
+config OMAP3_GPIO_3
+	bool
 
-config SPL_GPIO_SUPPORT
-	default y
+config OMAP3_GPIO_4
+	bool
 
-config SPL_I2C_SUPPORT
-	default y
+config OMAP3_GPIO_5
+	bool
 
-config SPL_LIBCOMMON_SUPPORT
-	default y
-
-config SPL_LIBDISK_SUPPORT
-	default y
-
-config SPL_LIBGENERIC_SUPPORT
-	default y
-
-config SPL_MMC_SUPPORT
-	default y
-
-config SPL_NAND_SUPPORT
-	default y
-
-config SPL_POWER_SUPPORT
-	default y
-
-config SPL_SERIAL_SUPPORT
-	default y
+config OMAP3_GPIO_6
+	bool
 
 choice
 	prompt "OMAP3 board select"
@@ -39,21 +22,36 @@ choice
 
 config TARGET_AM3517_EVM
 	bool "AM3517 EVM"
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+	select DM_I2C
+	select DM_MMC
 
 config TARGET_MT_VENTOUX
 	bool "TeeJet Mt.Ventoux"
+	select OMAP3_GPIO_4
+	select OMAP3_GPIO_5 if USB_EHCI_HCD
 
 config TARGET_OMAP3_BEAGLE
 	bool "TI OMAP3 BeagleBoard"
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
+	select OMAP3_GPIO_5
+	select OMAP3_GPIO_6
 
 config TARGET_CM_T35
 	bool "CompuLab CM-T3530 and CM-T3730 boards"
+	select OMAP3_GPIO_2
+	select OMAP3_GPIO_5
+	select OMAP3_GPIO_6 if LED_STATUS
 
 config TARGET_CM_T3517
 	bool "CompuLab CM-T3517 boards"
+	select OMAP3_GPIO_2
+	select OMAP3_GPIO_5
+	select OMAP3_GPIO_6 if LED_STATUS
 
 config TARGET_DEVKIT8000
 	bool "TimLL OMAP3 Devkit8000"
@@ -63,18 +61,30 @@ config TARGET_DEVKIT8000
 
 config TARGET_OMAP3_EVM
 	bool "TI OMAP3 EVM"
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+	select OMAP3_GPIO_3
 
 config TARGET_OMAP3_IGEP00X0
 	bool "IGEP"
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
+	select OMAP3_GPIO_3
+	select OMAP3_GPIO_5
+	select OMAP3_GPIO_6
 
 config TARGET_OMAP3_OVERO
 	bool "OMAP35xx Gumstix Overo"
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
+	select OMAP3_GPIO_2
+	select OMAP3_GPIO_3
+	select OMAP3_GPIO_4
+	select OMAP3_GPIO_5
+	select OMAP3_GPIO_6
 
 config TARGET_OMAP3_ZOOM1
 	bool "TI Zoom1"
@@ -87,30 +97,48 @@ config TARGET_AM3517_CRANE
 
 config TARGET_OMAP3_PANDORA
 	bool "OMAP3 Pandora"
+	select OMAP3_GPIO_4
+	select OMAP3_GPIO_6
 
 config TARGET_ECO5PK
 	bool "ECO5PK"
+	select OMAP3_GPIO_5 if USB_EHCI_HCD
 
 config TARGET_TRICORDER
 	bool "Tricorder"
+	select OMAP3_GPIO_2
 
 config TARGET_MCX
 	bool "MCX"
+	select BOARD_LATE_INIT
+	select OMAP3_GPIO_2 if USB_EHCI_HCD
+	select OMAP3_GPIO_5 if USB_EHCI_HCD
 
 config TARGET_OMAP3_LOGIC
 	bool "OMAP3 Logic"
+	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
+	select OMAP3_GPIO_3
+	select OMAP3_GPIO_4
+	select OMAP3_GPIO_6
 
 config TARGET_NOKIA_RX51
 	bool "Nokia RX51"
 
 config TARGET_TAO3530
 	bool "TAO3530"
+	select OMAP3_GPIO_2
+	select OMAP3_GPIO_3
+	select OMAP3_GPIO_4
+	select OMAP3_GPIO_5
+	select OMAP3_GPIO_6
 
 config TARGET_TWISTER
 	bool "Twister"
+	select OMAP3_GPIO_2
+	select OMAP3_GPIO_5 if USB_EHCI_HCD
 
 config TARGET_OMAP3_CAIRO
 	bool "QUIPOS CAIRO"
@@ -123,8 +151,34 @@ config TARGET_SNIPER
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
+	select OMAP3_GPIO_2
+	select OMAP3_GPIO_3
+	select OMAP3_GPIO_4
+	select OMAP3_GPIO_5
+	select OMAP3_GPIO_6
 
 endchoice
+
+choice
+	prompt "Memory Controller"
+	default SDRC
+
+config SDRC
+	bool "SDRC controller"
+	help
+	  The default memory controller on most OMAP3 boards is SDRC.
+
+config EMIF4
+	bool "EMIF4 controller"
+	help
+	  Enable this on boards like AM3517 which use EMIF4 controller
+endchoice
+
+config SPL_OMAP3_ID_NAND
+	bool "Support OMAP3-specific ID and MFR function"
+	help
+	  Support for an OMAP3-specific set of functions to return the
+	  ID and MFR of the first attached NAND chip, if present.
 
 config SYS_SOC
 	default "omap3"

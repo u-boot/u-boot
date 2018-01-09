@@ -52,7 +52,7 @@ static int power_update_battery(struct pmic *p, struct pmic *bat)
 
 	if (pmic_probe(p)) {
 		puts("Can't find max77693 fuel gauge\n");
-		return -1;
+		return -ENODEV;
 	}
 
 	ret = max77693_get_soc(&pb->bat->state_of_chrg);
@@ -74,7 +74,7 @@ static int power_check_battery(struct pmic *p, struct pmic *bat)
 
 	if (pmic_probe(p)) {
 		puts("Can't find max77693 fuel gauge\n");
-		return -1;
+		return -ENODEV;
 	}
 
 	ret = pmic_reg_read(p, MAX77693_STATUS, &val);

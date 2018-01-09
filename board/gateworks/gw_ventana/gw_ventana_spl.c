@@ -11,9 +11,9 @@
 #include <asm/arch/mx6-ddr.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/imx-common/boot_mode.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/mxc_i2c.h>
+#include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/mxc_i2c.h>
 #include <environment.h>
 #include <i2c.h>
 #include <spl.h>
@@ -355,6 +355,44 @@ static struct mx6_mmdc_calibration mx6dq_256x64_mmdc_calib = {
 	.p1_mpwrdlctl = 0X40304239,
 };
 
+static struct mx6_mmdc_calibration mx6sdl_256x64_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x0048004A,
+	.p0_mpwldectrl1 = 0x003F004A,
+	.p1_mpwldectrl0 = 0x001E0028,
+	.p1_mpwldectrl1 = 0x002C0043,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0x02250219,
+	.p0_mpdgctrl1 = 0x01790202,
+	.p1_mpdgctrl0 = 0x02080208,
+	.p1_mpdgctrl1 = 0x016C0175,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0x4A4C4D4C,
+	.p1_mprddlctl = 0x494C4A48,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0x403F3437,
+	.p1_mpwrdlctl = 0x383A3930,
+};
+
+static struct mx6_mmdc_calibration mx6sdl_256x64x2_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x001F003F,
+	.p0_mpwldectrl1 = 0x001F001F,
+	.p1_mpwldectrl0 = 0x001F004E,
+	.p1_mpwldectrl1 = 0x0059001F,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0   = 0x42220225,
+	.p0_mpdgctrl1   = 0x0213021F,
+	.p1_mpdgctrl0   = 0x022C0242,
+	.p1_mpdgctrl1   = 0x022C0244,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl   = 0x474A4C4A,
+	.p1_mprddlctl   = 0x48494C45,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl   = 0x3F3F3F36,
+	.p1_mpwrdlctl   = 0x3F36363F,
+};
+
 static struct mx6_mmdc_calibration mx6dq_512x32_mmdc_calib = {
 	/* write leveling calibration determine */
 	.p0_mpwldectrl0 = 0x002A0025,
@@ -366,6 +404,25 @@ static struct mx6_mmdc_calibration mx6dq_512x32_mmdc_calib = {
 	.p0_mprddlctl = 0x4B373F42,
 	/* Write Calibration: DQ/DM delay relative to DQS write access */
 	.p0_mpwrdlctl = 0x303E3C36,
+};
+
+static struct mx6_mmdc_calibration mx6dq_512x64_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x00230020,
+	.p0_mpwldectrl1 = 0x002F002A,
+	.p1_mpwldectrl0 = 0x001D0027,
+	.p1_mpwldectrl1 = 0x00100023,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0x03250339,
+	.p0_mpdgctrl1 = 0x031C0316,
+	.p1_mpdgctrl0 = 0x03210331,
+	.p1_mpdgctrl1 = 0x031C025A,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0x40373C40,
+	.p1_mprddlctl = 0x3A373646,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0x2E353933,
+	.p1_mpwrdlctl = 0x3C2F3F35,
 };
 
 static void spl_dram_init(int width, int size_mb, int board_model)
@@ -468,7 +525,29 @@ static void spl_dram_init(int width, int size_mb, int board_model)
 		mem = &mt41k256m16ha_125;
 		if (is_cpu_type(MXC_CPU_MX6Q))
 			calib = &mx6dq_256x64_mmdc_calib;
+		else
+			calib = &mx6sdl_256x64_mmdc_calib;
 		debug("4gB density\n");
+	} else if (width == 64 && size_mb == 4096) {
+		switch(board_model) {
+		case GW5903:
+			/* 8xMT41K256M16 (4GiB) fly-by mirrored 2-chipsels */
+			mem = &mt41k256m16ha_125;
+			debug("4gB density\n");
+			if (!is_cpu_type(MXC_CPU_MX6Q)) {
+				calib = &mx6sdl_256x64x2_mmdc_calib;
+				sysinfo.ncs = 2;
+				sysinfo.cs_density = 18; /* CS0_END=71 */
+				sysinfo.cs1_mirror = 1; /* mirror enabled */
+			}
+			break;
+		default:
+			mem = &mt41k512m16ha_125;
+			if (is_cpu_type(MXC_CPU_MX6Q))
+				calib = &mx6dq_512x64_mmdc_calib;
+			debug("8gB density\n");
+			break;
+		}
 	}
 
 	if (!(mem && calib)) {
@@ -502,17 +581,6 @@ static void ccgr_init(void)
 	writel(0xFFFFF300, &ccm->CCGR4);	/* enable NAND/GPMI/BCH clks */
 	writel(0x0F0000C3, &ccm->CCGR5);
 	writel(0x000003FF, &ccm->CCGR6);
-}
-
-static void gpr_init(void)
-{
-	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-
-	/* enable AXI cache for VDOA/VPU/IPU */
-	writel(0xF00000CF, &iomux->gpr[4]);
-	/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
-	writel(0x007F007F, &iomux->gpr[6]);
-	writel(0x007F007F, &iomux->gpr[7]);
 }
 
 /*
@@ -558,9 +626,20 @@ void board_init_f(ulong dummy)
 	spl_dram_init(8 << ventana_info.sdram_width,
 		      16 << ventana_info.sdram_size,
 		      board_model);
+}
 
-	/* Clear the BSS. */
-	memset(__bss_start, 0, __bss_end - __bss_start);
+void board_boot_order(u32 *spl_boot_list)
+{
+	spl_boot_list[0] = spl_boot_device();
+	switch (spl_boot_list[0]) {
+	case BOOT_DEVICE_NAND:
+		spl_boot_list[1] = BOOT_DEVICE_MMC1;
+		spl_boot_list[2] = BOOT_DEVICE_UART;
+		break;
+	case BOOT_DEVICE_MMC1:
+		spl_boot_list[1] = BOOT_DEVICE_UART;
+		break;
+	}
 }
 
 /* called from board_init_r after gd setup if CONFIG_SPL_BOARD_INIT defined */
@@ -597,9 +676,9 @@ int spl_start_uboot(void)
 	debug("%s\n", __func__);
 #ifdef CONFIG_SPL_ENV_SUPPORT
 	env_init();
-	env_relocate_spec();
-	debug("boot_os=%s\n", getenv("boot_os"));
-	if (getenv_yesno("boot_os") == 1)
+	env_load();
+	debug("boot_os=%s\n", env_get("boot_os"));
+	if (env_get_yesno("boot_os") == 1)
 		ret = 0;
 #else
 	/* use i2c-0:0x50:0x00 for falcon boot mode (0=linux, else uboot) */

@@ -47,7 +47,8 @@ static const u32 gpmc_lab_enet[] = {
 static const struct ns16550_platdata zoom1_serial = {
 	.base = OMAP34XX_UART3,
 	.reg_shift = 2,
-	.clock = V_NS16550_CLK
+	.clock = V_NS16550_CLK,
+	.fcr = UART_FCR_DEFVAL,
 };
 
 U_BOOT_DEVICE(zoom1_uart) = {
@@ -105,7 +106,7 @@ void set_muxconf_regs(void)
 	MUX_ZOOM1_MDK();
 }
 
-#ifdef CONFIG_GENERIC_MMC
+#ifdef CONFIG_MMC
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0, -1, -1);
@@ -129,10 +130,10 @@ int board_eth_init(bd_t *bis)
 	uchar eth_addr[6];
 
 	rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
-	if (!eth_getenv_enetaddr(STR_ENV_ETHADDR, eth_addr)) {
+	if (!eth_env_get_enetaddr(STR_ENV_ETHADDR, eth_addr)) {
 		dev = eth_get_dev_by_index(0);
 		if (dev) {
-			eth_setenv_enetaddr(STR_ENV_ETHADDR, dev->enetaddr);
+			eth_env_set_enetaddr(STR_ENV_ETHADDR, dev->enetaddr);
 		} else {
 			printf("zoom1: Couldn't get eth device\n");
 			rc = -1;

@@ -17,9 +17,6 @@ void uniphier_ld4_clk_init(void)
 
 	/* deassert reset */
 	tmp = readl(SC_RSTCTRL);
-#ifdef CONFIG_UNIPHIER_ETH
-	tmp |= SC_RSTCTRL_NRST_ETHER;
-#endif
 #ifdef CONFIG_NAND_DENALI
 	tmp |= SC_RSTCTRL_NRST_NAND;
 #endif
@@ -28,10 +25,7 @@ void uniphier_ld4_clk_init(void)
 
 	/* provide clocks */
 	tmp = readl(SC_CLKCTRL);
-#ifdef CONFIG_UNIPHIER_ETH
-	tmp |= SC_CLKCTRL_CEN_ETHER;
-#endif
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 	tmp |= SC_CLKCTRL_CEN_MIO | SC_CLKCTRL_CEN_STDMAC;
 #endif
 #ifdef CONFIG_NAND_DENALI

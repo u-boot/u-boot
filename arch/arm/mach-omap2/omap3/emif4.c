@@ -76,7 +76,7 @@ static void do_emif4_init(void)
 	regval |= (1<<10);
 	writel(regval, &emif4_base->sdram_iodft_tlgc);
 	/*Wait till that bit clears*/
-	while ((readl(&emif4_base->sdram_iodft_tlgc) & (1<<10)) == 0x1);
+	while ((readl(&emif4_base->sdram_iodft_tlgc) & (1<<10)) != 0x0);
 	/*Re-verify the DDR PHY status*/
 	while ((readl(&emif4_base->sdram_sts) & (1<<2)) == 0x0);
 
@@ -142,7 +142,7 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize (void)
+int dram_init_banksize(void)
 {
 	unsigned int size0 = 0, size1 = 0;
 
@@ -153,6 +153,8 @@ void dram_init_banksize (void)
 	gd->bd->bi_dram[0].size = size0;
 	gd->bd->bi_dram[1].start = PHYS_SDRAM_1 + get_sdr_cs_offset(CS1);
 	gd->bd->bi_dram[1].size = size1;
+
+	return 0;
 }
 
 /*

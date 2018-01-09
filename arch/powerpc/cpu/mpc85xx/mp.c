@@ -31,7 +31,7 @@ u32 get_my_id()
 int hold_cores_in_reset(int verbose)
 {
 	/* Default to no, overridden by 'y', 'yes', 'Y', 'Yes', or '1' */
-	if (getenv_yesno("mp_holdoff") == 1) {
+	if (env_get_yesno("mp_holdoff") == 1) {
 		if (verbose) {
 			puts("Secondary cores are being held in reset.\n");
 			puts("See 'mp_holdoff' environment variable\n");

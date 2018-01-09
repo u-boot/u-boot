@@ -33,8 +33,9 @@ enum splash_storage {
 };
 
 enum splash_flags {
-	SPLASH_STORAGE_RAW,
-	SPLASH_STORAGE_FS,
+	SPLASH_STORAGE_RAW, /* Stored in raw memory */
+	SPLASH_STORAGE_FS,  /* Stored within a file system */
+	SPLASH_STORAGE_FIT, /* Stored inside a FIT image */
 };
 
 struct splash_location {

@@ -29,7 +29,6 @@
 #define CONFIG_CMDLINE_TAG		1
 #define CONFIG_INITRD_TAG		1
 #define CONFIG_SETUP_MEMORY_TAGS	1
-#define CONFIG_BOOTARGS		"root=/dev/nfs console=ttyAM0,115200 ip=dhcp"
 #define CONFIG_BOOTFILE		"edb93xx.img"
 
 #define CONFIG_SYS_LDSCRIPT	"board/cirrus/edb93xx/u-boot.lds"
@@ -74,24 +73,15 @@
 #define CONFIG_EP93XX		1		/* This is a Cirrus Logic 93xx SoC */
 
 #define CONFIG_SYS_CLK_FREQ	14745600	/* EP93xx has a 14.7456 clock */
-#undef CONFIG_USE_IRQ				/* Don't need IRQ/FIQ */
 
 /* Monitor configuration */
-#undef CONFIG_CMD_DATE
-#define CONFIG_CMD_JFFS2
 
 #define CONFIG_SYS_LONGHELP			/* Enable "long" help in mon */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O buffer size */
-/* Print buffer size */
-#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
-/* Boot argument buffer size */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_MAXARGS	16		/* Max number of command args */
 
 /* Serial port hardware configuration */
 #define CONFIG_PL010_SERIAL
 #define CONFIG_CONS_INDEX		0
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{9600, 19200, 38400, 57600, \
                         115200, 230400}
 #define CONFIG_SYS_SERIAL0		0x808C0000
@@ -102,20 +92,7 @@
 #define CONFIG_PL01x_PORTS	{(void *)CONFIG_SYS_SERIAL0}
 
 /* Status LED */
-#define CONFIG_STATUS_LED		1 /* Status LED enabled	*/
-#define CONFIG_BOARD_SPECIFIC_LED	1
-#define STATUS_LED_GREEN		0
-#define STATUS_LED_RED			1
-/* Green */
-#define STATUS_LED_BIT			STATUS_LED_GREEN
-#define STATUS_LED_STATE		STATUS_LED_ON
-#define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 2)
-/* Red */
-#define STATUS_LED_BIT1			STATUS_LED_RED
-#define STATUS_LED_STATE1		STATUS_LED_OFF
-#define STATUS_LED_PERIOD1		(CONFIG_SYS_HZ / 2)
 /* Optional value */
-#define STATUS_LED_BOOT			STATUS_LED_BIT
 
 /* Network hardware configuration */
 #define CONFIG_DRIVER_EP93XX_MAC
@@ -175,12 +152,6 @@
 
 /* Run-time memory allocatons */
 #define CONFIG_SYS_GBL_DATA_SIZE	128
-#define CONFIG_STACKSIZE		(128 * 1024)
-
-#if defined(CONFIG_USE_IRQ)
-#define CONFIG_STACKSIZE_IRQ	(4 * 1024)
-#define CONFIG_STACKSIZE_FIQ	(4 * 1024)
-#endif
 
 #define CONFIG_SYS_MALLOC_LEN		(512 * 1024)
 
@@ -221,7 +192,6 @@
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)
 
 #define CONFIG_ENV_OVERWRITE		/* Vendor params unprotected */
-#define CONFIG_ENV_IS_IN_FLASH
 
 #define CONFIG_ENV_ADDR			0x60040000
 #define CONFIG_ENV_ADDR_REDUND		(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
@@ -229,24 +199,12 @@
 #define CONFIG_ENV_SIZE			CONFIG_ENV_SECT_SIZE
 #define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 
-/* Define to enable MMC on SPI support */
-/* #define CONFIG_EP93XX_SPI_MMC */
-
-#ifdef CONFIG_EP93XX_SPI_MMC
-#define CONFIG_EP93XX_SPI
-#define CONFIG_GENERIC_MMC
-#define CONFIG_MMC_SPI
-#define CONFIG_MMC_SPI_NPOWER_EGPIO	9
-#endif
-
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_USB_OHCI_EP93XX
 #define CONFIG_SYS_USB_OHCI_CPU_INIT
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	3
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"ep93xx-ohci"
 #define CONFIG_SYS_USB_OHCI_REGS_BASE		0x80020000
-
-#define CONFIG_BOARD_EARLY_INIT_F
 
 /* Define to disable flash configuration*/
 /* #define CONFIG_EP93XX_NO_FLASH_CFG */

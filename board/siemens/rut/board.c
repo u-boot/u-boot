@@ -182,7 +182,7 @@ int board_eth_init(bd_t *bis)
 	int rv;
 
 #ifndef CONFIG_SPL_BUILD
-	factoryset_setenv();
+	factoryset_env_set();
 #endif
 
 	/* Set rgmii mode and enable rmii clock to be sourced from chip */
@@ -482,7 +482,7 @@ int board_late_init(void)
 	else
 		strcpy(tmp, "QMX7.E38_4.0");
 
-	ret = setenv("boardid", tmp);
+	ret = env_set("boardid", tmp);
 	if (ret)
 		printf("error setting board id\n");
 

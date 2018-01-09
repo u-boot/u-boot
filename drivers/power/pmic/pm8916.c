@@ -70,7 +70,7 @@ static int pm8916_probe(struct udevice *dev)
 {
 	struct pm8916_priv *priv = dev_get_priv(dev);
 
-	priv->usid = dev_get_addr(dev);
+	priv->usid = dev_read_addr(dev);
 
 	if (priv->usid == FDT_ADDR_T_NONE)
 		return -EINVAL;

@@ -23,7 +23,7 @@
 #include <post.h>
 #endif
 
-int interrupt_init_cpu(unsigned long *decrementer_count)
+void interrupt_init_cpu(unsigned *decrementer_count)
 {
 	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile ccsr_pic_t *pic = &immr->im_pic;
@@ -43,7 +43,7 @@ int interrupt_init_cpu(unsigned long *decrementer_count)
 	pic->gcr = MPC86xx_PICGCR_MODE;
 
 	*decrementer_count = get_tbclk() / CONFIG_SYS_HZ;
-	debug("interrupt init: tbclk() = %ld MHz, decrementer_count = %ld\n",
+	debug("interrupt init: tbclk() = %ld MHz, decrementer_count = %d\n",
 	      (get_tbclk() / 1000000),
 	      *decrementer_count);
 
@@ -73,8 +73,6 @@ int interrupt_init_cpu(unsigned long *decrementer_count)
 #ifdef CONFIG_POST
 	post_word_store(post_word);
 #endif
-
-	return 0;
 }
 
 /*

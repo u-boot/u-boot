@@ -13,15 +13,10 @@
 #define CONFIG_SYS_TIMERBASE		0x13000100	/* Timer1 */
 #define CONFIG_SYS_LOAD_ADDR		0x7fc0	/* default load address */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size*/
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size*/
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024) /* Size of malloc() pool */
 
 /* Serial port PL010/PL011 through the device model */
 #define CONFIG_PL01X_SERIAL
-#define CONFIG_BAUDRATE			38400
 #define CONFIG_CONS_INDEX		0
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */

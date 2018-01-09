@@ -13,8 +13,8 @@
 #error "CONFIG_FIT and CONFIG_OF_LIBFDT are required for auto-update feature"
 #endif
 
-#if defined(CONFIG_UPDATE_TFTP) && defined(CONFIG_SYS_NO_FLASH)
-#error "CONFIG_UPDATE_TFTP and CONFIG_SYS_NO_FLASH needed for legacy behaviour"
+#if defined(CONFIG_UPDATE_TFTP) && !defined(CONFIG_MTD_NOR_FLASH)
+#error "CONFIG_UPDATE_TFTP and !CONFIG_MTD_NOR_FLASH needed for legacy behaviour"
 #endif
 
 #include <command.h>
@@ -44,7 +44,7 @@
 extern ulong tftp_timeout_ms;
 extern int tftp_timeout_count_max;
 extern ulong load_addr;
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 extern flash_info_t flash_info[];
 static uchar *saved_prot_info;
 #endif
@@ -59,7 +59,7 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 	/* save used globals and env variable */
 	saved_timeout_msecs = tftp_timeout_ms;
 	saved_timeout_count = tftp_timeout_count_max;
-	saved_netretry = strdup(getenv("netretry"));
+	saved_netretry = strdup(env_get("netretry"));
 	saved_bootfile = strdup(net_boot_file_name);
 
 	/* set timeouts for auto-update */
@@ -67,7 +67,7 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 	tftp_timeout_count_max = cnt_max;
 
 	/* we don't want to retry the connection if errors occur */
-	setenv("netretry", "no");
+	env_set("netretry", "no");
 
 	/* download the update file */
 	load_addr = addr;
@@ -83,7 +83,7 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 	tftp_timeout_ms = saved_timeout_msecs;
 	tftp_timeout_count_max = saved_timeout_count;
 
-	setenv("netretry", saved_netretry);
+	env_set("netretry", saved_netretry);
 	if (saved_netretry != NULL)
 		free(saved_netretry);
 
@@ -96,7 +96,7 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 	return rv;
 }
 
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 static int update_flash_protect(int prot, ulong addr_first, ulong addr_last)
 {
 	uchar *sp_info_ptr;
@@ -172,7 +172,7 @@ static int update_flash_protect(int prot, ulong addr_first, ulong addr_last)
 
 static int update_flash(ulong addr_source, ulong addr_first, ulong size)
 {
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 	ulong addr_last = addr_first + size - 1;
 
 	/* round last address to the sector boundary */
@@ -242,7 +242,7 @@ int update_tftp(ulong addr, char *interface, char *devstring)
 	} else if (interface && devstring) {
 		update_tftp_dfu = true;
 	} else {
-		error("Interface: %s and devstring: %s not supported!\n",
+		pr_err("Interface: %s and devstring: %s not supported!\n",
 		      interface, devstring);
 		return -EINVAL;
 	}
@@ -254,7 +254,7 @@ int update_tftp(ulong addr, char *interface, char *devstring)
 	printf("Auto-update from TFTP: ");
 
 	/* get the file name of the update file */
-	filename = getenv(UPDATE_FILE_ENV);
+	filename = env_get(UPDATE_FILE_ENV);
 	if (filename == NULL) {
 		printf("failed, env. variable '%s' not found\n",
 							UPDATE_FILE_ENV);
@@ -264,7 +264,8 @@ int update_tftp(ulong addr, char *interface, char *devstring)
 	printf("trying update file '%s'\n", filename);
 
 	/* get load address of downloaded update file */
-	if ((env_addr = getenv("loadaddr")) != NULL)
+	env_addr = env_get("loadaddr");
+	if (env_addr)
 		addr = simple_strtoul(env_addr, NULL, 16);
 	else
 		addr = CONFIG_UPDATE_LOAD_ADDR;

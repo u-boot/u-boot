@@ -493,7 +493,7 @@ static int check_ivc_params(ulong qbase1, ulong qbase2, uint32_t nframes,
 	       (TEGRA_IVC_ALIGN - 1));
 
 	if ((uint64_t)nframes * (uint64_t)frame_size >= 0x100000000) {
-		error("tegra_ivc: nframes * frame_size overflows\n");
+		pr_err("tegra_ivc: nframes * frame_size overflows\n");
 		return -EINVAL;
 	}
 
@@ -503,12 +503,12 @@ static int check_ivc_params(ulong qbase1, ulong qbase2, uint32_t nframes,
 	 */
 	if ((qbase1 & (TEGRA_IVC_ALIGN - 1)) ||
 	    (qbase2 & (TEGRA_IVC_ALIGN - 1))) {
-		error("tegra_ivc: channel start not aligned\n");
+		pr_err("tegra_ivc: channel start not aligned\n");
 		return -EINVAL;
 	}
 
 	if (frame_size & (TEGRA_IVC_ALIGN - 1)) {
-		error("tegra_ivc: frame size not adequately aligned\n");
+		pr_err("tegra_ivc: frame size not adequately aligned\n");
 		return -EINVAL;
 	}
 
@@ -521,7 +521,7 @@ static int check_ivc_params(ulong qbase1, ulong qbase2, uint32_t nframes,
 	}
 
 	if (ret) {
-		error("tegra_ivc: queue regions overlap\n");
+		pr_err("tegra_ivc: queue regions overlap\n");
 		return ret;
 	}
 

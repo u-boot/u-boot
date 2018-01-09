@@ -86,4 +86,25 @@
 #define RSTMUX_OMODE8_INT		0x3
 #define RSTMUX_OMODE8_INT_AND_DEV_RESET	0x4
 
+/* DEVSTAT register definition */
+#define KS2_DEVSTAT_REFCLK_SHIFT	 7
+#define KS2_DEVSTAT_REFCLK_MASK		(0x7 << 7)
+
+/* GPMC */
+#define KS2_GPMC_BASE			0x21818000
+
+/* SYSCLK indexes */
+#define SYSCLK_19MHz	0
+#define SYSCLK_24MHz	1
+#define SYSCLK_25MHz	2
+#define SYSCLK_26MHz	3
+#define MAX_SYSCLK	4
+
+#ifndef __ASSEMBLY__
+static inline u8 get_sysclk_index(void)
+{
+	u32 dev_stat = __raw_readl(KS2_DEVSTAT);
+	return (dev_stat & KS2_DEVSTAT_REFCLK_MASK) >> KS2_DEVSTAT_REFCLK_SHIFT;
+}
+#endif
 #endif /* __ASM_ARCH_HARDWARE_K2G_H */

@@ -14,6 +14,8 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
+#include <dm/root.h>
 #include <image.h>
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
@@ -29,6 +31,7 @@
 #ifdef CONFIG_ARMV7_NONSEC
 #include <asm/armv7.h>
 #endif
+#include <asm/setup.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -90,6 +93,13 @@ static void announce_and_cleanup(int fake)
 #endif
 
 	board_quiesce_devices();
+
+	/*
+	 * Call remove function of all devices with a removal flag set.
+	 * This may be useful for last-stage operations, like cancelling
+	 * of DMA operation or releasing device internal buffers.
+	 */
+	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
 
 	cleanup_before_linux();
 }
@@ -206,7 +216,7 @@ static void do_nonsec_virt_switch(void)
 /* Subcommand: PREP */
 static void boot_prep_linux(bootm_headers_t *images)
 {
-	char *commandline = getenv("bootargs");
+	char *commandline = env_get("bootargs");
 
 	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
 #ifdef CONFIG_OF_LIBFDT
@@ -263,7 +273,7 @@ __weak bool armv7_boot_nonsec_default(void)
 #ifdef CONFIG_ARMV7_NONSEC
 bool armv7_boot_nonsec(void)
 {
-	char *s = getenv("bootm_boot_mode");
+	char *s = env_get("bootm_boot_mode");
 	bool nonsec = armv7_boot_nonsec_default();
 
 	if (s && !strcmp(s, "sec"))
@@ -347,8 +357,11 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 	int fake = (flag & BOOTM_STATE_OS_FAKE_GO);
 
 	kernel_entry = (void (*)(int, int, uint))images->ep;
-
-	s = getenv("machid");
+#ifdef CONFIG_CPU_V7M
+	ulong addr = (ulong)kernel_entry | 1;
+	kernel_entry = (void *)addr;
+#endif
+	s = env_get("machid");
 	if (s) {
 		if (strict_strtoul(s, 16, &machid) < 0) {
 			debug("strict_strtoul failed!\n");

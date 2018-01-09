@@ -158,7 +158,7 @@ int axp_init(void)
 	ver &= 0x0f;
 
 	if (ver != 0x1)
-		return -1;
+		return -EINVAL;
 
 	/* Mask all interrupts */
 	for (i = AXP209_IRQ_ENABLE1; i <= AXP209_IRQ_ENABLE5; i++) {

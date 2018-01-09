@@ -7,7 +7,7 @@
  *
  */
 #include <common.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 #include <linux/sizes.h>
 
 #define LP_OPTIONS NAND_SAMSUNG_LP_OPTIONS

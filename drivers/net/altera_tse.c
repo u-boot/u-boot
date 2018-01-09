@@ -576,7 +576,7 @@ static int altera_tse_probe(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct altera_tse_priv *priv = dev_get_priv(dev);
 	void *blob = (void *)gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	const char *list, *end;
 	const fdt32_t *cell;
 	void *base, *desc_mem = NULL;
@@ -595,7 +595,7 @@ static int altera_tse_probe(struct udevice *dev)
 	 * match with reg-names.
 	 */
 	parent = fdt_parent_offset(blob, node);
-	of_bus_default_count_cells(blob, parent, &addrc, &sizec);
+	fdt_support_default_count_cells(blob, parent, &addrc, &sizec);
 	list = fdt_getprop(blob, node, "reg-names", &len);
 	if (!list)
 		return -ENOENT;
@@ -676,7 +676,8 @@ static int altera_tse_ofdata_to_platdata(struct udevice *dev)
 	const char *phy_mode;
 
 	pdata->phy_interface = -1;
-	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy-mode", NULL);
+	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
+			       NULL);
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (pdata->phy_interface == -1) {

@@ -43,7 +43,7 @@ int board_init(void)
  */
 int misc_init_r(void)
 {
-#ifdef CONFIG_SYS_I2C_OMAP34XX
+#ifdef CONFIG_SYS_I2C_OMAP24XX
 	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 #endif
 
@@ -63,7 +63,7 @@ void set_muxconf_regs(void)
 	MUX_AM3517CRANE();
 }
 
-#if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_MMC)
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0, -1, -1);

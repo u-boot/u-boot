@@ -299,28 +299,32 @@ static int omap_gpio_probe(struct udevice *dev)
 
 static int omap_gpio_bind(struct udevice *dev)
 {
-	struct omap_gpio_platdata *plat = dev->platdata;
+	struct omap_gpio_platdata *plat = dev_get_platdata(dev);
 	fdt_addr_t base_addr;
 
 	if (plat)
 		return 0;
 
-	base_addr = dev_get_addr(dev);
+	base_addr = devfdt_get_addr(dev);
 	if (base_addr == FDT_ADDR_T_NONE)
-		return -ENODEV;
+		return -EINVAL;
 
 	/*
 	* TODO:
 	* When every board is converted to driver model and DT is
 	* supported, this can be done by auto-alloc feature, but
 	* not using calloc to alloc memory for platdata.
+	*
+	* For example am33xx_gpio uses platform data rather than device tree.
+	*
+	* NOTE: DO NOT COPY this code if you are using device tree.
 	*/
 	plat = calloc(1, sizeof(*plat));
 	if (!plat)
 		return -ENOMEM;
 
 	plat->base = base_addr;
-	plat->port_name = fdt_get_name(gd->fdt_blob, dev->of_offset, NULL);
+	plat->port_name = fdt_get_name(gd->fdt_blob, dev_of_offset(dev), NULL);
 	dev->platdata = plat;
 
 	return 0;

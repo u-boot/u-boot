@@ -37,6 +37,13 @@ SECTIONS
 	}
 
 	. = ALIGN(4);
+	.binman_sym_table : {
+		__binman_sym_start = .;
+		KEEP(*(SORT(.binman_sym*)));
+		__binman_sym_end = .;
+	}
+
+	. = ALIGN(4);
 
 	__image_copy_end = .;
 

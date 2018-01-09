@@ -514,7 +514,7 @@ void fsl_serdes_init(void)
 	 * Extract hwconfig from environment since we have not properly setup
 	 * the environment but need it for ddr config params
 	 */
-	if (getenv_f("hwconfig", buffer, sizeof(buffer)) > 0)
+	if (env_get_f("hwconfig", buffer, sizeof(buffer)) > 0)
 		buf = buffer;
 #endif
 	if (serdes_prtcl_map & (1 << NONE))

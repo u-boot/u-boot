@@ -197,7 +197,7 @@ int fdt_root(void *fdt)
 		return err;
 	}
 
-	serial = getenv("serial#");
+	serial = env_get("serial#");
 	if (serial) {
 		err = fdt_setprop(fdt, 0, "serial-number", serial,
 				  strlen(serial) + 1);
@@ -289,7 +289,7 @@ int fdt_chosen(void *fdt)
 	if (nodeoffset < 0)
 		return nodeoffset;
 
-	str = getenv("bootargs");
+	str = env_get("bootargs");
 	if (str) {
 		err = fdt_setprop(fdt, nodeoffset, "bootargs", str,
 				  strlen(str) + 1);
@@ -410,6 +410,45 @@ static int fdt_pack_reg(const void *fdt, void *buf, u64 *address, u64 *size,
 	return p - (char *)buf;
 }
 
+int fdt_record_loadable(void *blob, u32 index, const char *name,
+			uintptr_t load_addr, u32 size, uintptr_t entry_point,
+			const char *type, const char *os)
+{
+	int err, node;
+
+	err = fdt_check_header(blob);
+	if (err < 0) {
+		printf("%s: %s\n", __func__, fdt_strerror(err));
+		return err;
+	}
+
+	/* find or create "/fit-images" node */
+	node = fdt_find_or_add_subnode(blob, 0, "fit-images");
+	if (node < 0)
+			return node;
+
+	/* find or create "/fit-images/<name>" node */
+	node = fdt_find_or_add_subnode(blob, node, name);
+	if (node < 0)
+		return node;
+
+	/*
+	 * We record these as 32bit entities, possibly truncating addresses.
+	 * However, spl_fit.c is not 64bit safe either: i.e. we should not
+	 * have an issue here.
+	 */
+	fdt_setprop_u32(blob, node, "load-addr", load_addr);
+	if (entry_point != -1)
+		fdt_setprop_u32(blob, node, "entry-point", entry_point);
+	fdt_setprop_u32(blob, node, "size", size);
+	if (type)
+		fdt_setprop_string(blob, node, "type", type);
+	if (os)
+		fdt_setprop_string(blob, node, "os", os);
+
+	return node;
+}
+
 #ifdef CONFIG_NR_DRAM_BANKS
 #define MEMORY_BANKS_MAX CONFIG_NR_DRAM_BANKS
 #else
@@ -469,12 +508,16 @@ int fdt_fixup_memory(void *blob, u64 start, u64 size)
 
 void fdt_fixup_ethernet(void *fdt)
 {
-	int i, j, prop;
+	int i = 0, j, prop;
 	char *tmp, *end;
 	char mac[16];
 	const char *path;
-	unsigned char mac_addr[6];
+	unsigned char mac_addr[ARP_HLEN];
 	int offset;
+#ifdef FDT_SEQ_MACADDR_FROM_ENV
+	int nodeoff;
+	const struct fdt_property *fdt_prop;
+#endif
 
 	if (fdt_path_offset(fdt, "/aliases") < 0)
 		return;
@@ -482,21 +525,30 @@ void fdt_fixup_ethernet(void *fdt)
 	/* Cycle through all aliases */
 	for (prop = 0; ; prop++) {
 		const char *name;
-		int len = strlen("ethernet");
 
 		/* FDT might have been edited, recompute the offset */
 		offset = fdt_first_property_offset(fdt,
 			fdt_path_offset(fdt, "/aliases"));
 		/* Select property number 'prop' */
-		for (i = 0; i < prop; i++)
+		for (j = 0; j < prop; j++)
 			offset = fdt_next_property_offset(fdt, offset);
 
 		if (offset < 0)
 			break;
 
 		path = fdt_getprop_by_offset(fdt, offset, &name, NULL);
-		if (!strncmp(name, "ethernet", len)) {
-			i = trailing_strtol(name);
+		if (!strncmp(name, "ethernet", 8)) {
+			/* Treat plain "ethernet" same as "ethernet0". */
+			if (!strcmp(name, "ethernet")
+#ifdef FDT_SEQ_MACADDR_FROM_ENV
+			 || !strcmp(name, "ethernet0")
+#endif
+			)
+				i = 0;
+#ifndef FDT_SEQ_MACADDR_FROM_ENV
+			else
+				i = trailing_strtol(name);
+#endif
 			if (i != -1) {
 				if (i == 0)
 					strcpy(mac, "ethaddr");
@@ -505,7 +557,15 @@ void fdt_fixup_ethernet(void *fdt)
 			} else {
 				continue;
 			}
-			tmp = getenv(mac);
+#ifdef FDT_SEQ_MACADDR_FROM_ENV
+			nodeoff = fdt_path_offset(fdt, path);
+			fdt_prop = fdt_get_property(fdt, nodeoff, "status",
+						    NULL);
+			if (fdt_prop && !strcmp(fdt_prop->data, "disabled"))
+				continue;
+			i++;
+#endif
+			tmp = env_get(mac);
 			if (!tmp)
 				continue;
 
@@ -633,84 +693,6 @@ int fdt_pci_dma_ranges(void *blob, int phb_off, struct pci_controller *hose) {
 	len = dma_range - &dma_ranges[0];
 	if (len)
 		fdt_setprop(blob, phb_off, "dma-ranges", &dma_ranges[0], len*4);
-
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_FDT_FIXUP_NOR_FLASH_SIZE
-/*
- * Provide a weak default function to return the flash bank size.
- * There might be multiple non-identical flash chips connected to one
- * chip-select, so we need to pass an index as well.
- */
-u32 __flash_get_bank_size(int cs, int idx)
-{
-	extern flash_info_t flash_info[];
-
-	/*
-	 * As default, a simple 1:1 mapping is provided. Boards with
-	 * a different mapping need to supply a board specific mapping
-	 * routine.
-	 */
-	return flash_info[cs].size;
-}
-u32 flash_get_bank_size(int cs, int idx)
-	__attribute__((weak, alias("__flash_get_bank_size")));
-
-/*
- * This function can be used to update the size in the "reg" property
- * of all NOR FLASH device nodes. This is necessary for boards with
- * non-fixed NOR FLASH sizes.
- */
-int fdt_fixup_nor_flash_size(void *blob)
-{
-	char compat[][16] = { "cfi-flash", "jedec-flash" };
-	int off;
-	int len;
-	struct fdt_property *prop;
-	u32 *reg, *reg2;
-	int i;
-
-	for (i = 0; i < 2; i++) {
-		off = fdt_node_offset_by_compatible(blob, -1, compat[i]);
-		while (off != -FDT_ERR_NOTFOUND) {
-			int idx;
-
-			/*
-			 * Found one compatible node, so fixup the size
-			 * int its reg properties
-			 */
-			prop = fdt_get_property_w(blob, off, "reg", &len);
-			if (prop) {
-				int tuple_size = 3 * sizeof(reg);
-
-				/*
-				 * There might be multiple reg-tuples,
-				 * so loop through them all
-				 */
-				reg = reg2 = (u32 *)&prop->data[0];
-				for (idx = 0; idx < (len / tuple_size); idx++) {
-					/*
-					 * Update size in reg property
-					 */
-					reg[2] = flash_get_bank_size(reg[0],
-								     idx);
-
-					/*
-					 * Point to next reg tuple
-					 */
-					reg += 3;
-				}
-
-				fdt_setprop(blob, off, "reg", reg2, len);
-			}
-
-			/* Move to next compatible node */
-			off = fdt_node_offset_by_compatible(blob, off,
-							    compat[i]);
-		}
-	}
 
 	return 0;
 }
@@ -903,13 +885,8 @@ void fdt_fixup_mtdparts(void *blob, void *node_info, int node_info_size)
 {
 	struct node_info *ni = node_info;
 	struct mtd_device *dev;
-	char *parts;
 	int i, idx;
 	int noff;
-
-	parts = getenv("mtdparts");
-	if (!parts)
-		return;
 
 	if (mtdparts_init() != 0)
 		return;
@@ -1009,7 +986,7 @@ struct of_bus {
 };
 
 /* Default translator (generic bus) */
-void of_bus_default_count_cells(const void *blob, int parentoffset,
+void fdt_support_default_count_cells(const void *blob, int parentoffset,
 					int *addrc, int *sizec)
 {
 	const fdt32_t *prop;
@@ -1031,9 +1008,9 @@ static u64 of_bus_default_map(fdt32_t *addr, const fdt32_t *range,
 {
 	u64 cp, s, da;
 
-	cp = of_read_number(range, na);
-	s  = of_read_number(range + na + pna, ns);
-	da = of_read_number(addr, na);
+	cp = fdt_read_number(range, na);
+	s  = fdt_read_number(range + na + pna, ns);
+	da = fdt_read_number(addr, na);
 
 	debug("OF: default map, cp=%" PRIu64 ", s=%" PRIu64
 	      ", da=%" PRIu64 "\n", cp, s, da);
@@ -1045,7 +1022,7 @@ static u64 of_bus_default_map(fdt32_t *addr, const fdt32_t *range,
 
 static int of_bus_default_translate(fdt32_t *addr, u64 offset, int na)
 {
-	u64 a = of_read_number(addr, na);
+	u64 a = fdt_read_number(addr, na);
 	memset(addr, 0, na * 4);
 	a += offset;
 	if (na > 1)
@@ -1087,9 +1064,9 @@ static u64 of_bus_isa_map(fdt32_t *addr, const fdt32_t *range,
 	if ((addr[0] ^ range[0]) & cpu_to_be32(1))
 		return OF_BAD_ADDR;
 
-	cp = of_read_number(range + 1, na - 1);
-	s  = of_read_number(range + na + pna, ns);
-	da = of_read_number(addr + 1, na - 1);
+	cp = fdt_read_number(range + 1, na - 1);
+	s  = fdt_read_number(range + na + pna, ns);
+	da = fdt_read_number(addr + 1, na - 1);
 
 	debug("OF: ISA map, cp=%" PRIu64 ", s=%" PRIu64
 	      ", da=%" PRIu64 "\n", cp, s, da);
@@ -1123,7 +1100,7 @@ static struct of_bus of_busses[] = {
 	{
 		.name = "default",
 		.addresses = "reg",
-		.count_cells = of_bus_default_count_cells,
+		.count_cells = fdt_support_default_count_cells,
 		.map = of_bus_default_map,
 		.translate = of_bus_default_translate,
 	},
@@ -1174,7 +1151,7 @@ static int of_translate_one(const void *blob, int parent, struct of_bus *bus,
 	 */
 	ranges = fdt_getprop(blob, parent, rprop, &rlen);
 	if (ranges == NULL || rlen == 0) {
-		offset = of_read_number(addr, na);
+		offset = fdt_read_number(addr, na);
 		memset(addr, 0, pna * 4);
 		debug("OF: no ranges, 1:1 translation\n");
 		goto finish;
@@ -1254,7 +1231,7 @@ static u64 __of_translate_address(const void *blob, int node_offset,
 		/* If root, we have finished */
 		if (parent < 0) {
 			debug("OF: reached root node\n");
-			result = of_read_number(addr, na);
+			result = fdt_read_number(addr, na);
 			break;
 		}
 
@@ -1540,17 +1517,14 @@ int fdt_verify_alias_address(void *fdt, int anode, const char *alias, u64 addr)
 /*
  * Returns the base address of an SOC or PCI node
  */
-u64 fdt_get_base_address(void *fdt, int node)
+u64 fdt_get_base_address(const void *fdt, int node)
 {
 	int size;
-	u32 naddr;
 	const fdt32_t *prop;
 
-	naddr = fdt_address_cells(fdt, node);
+	prop = fdt_getprop(fdt, node, "reg", &size);
 
-	prop = fdt_getprop(fdt, node, "ranges", &size);
-
-	return prop ? fdt_translate_address(fdt, node, prop + naddr) : 0;
+	return prop ? fdt_translate_address(fdt, node, prop) : 0;
 }
 
 /*
@@ -1667,8 +1641,8 @@ int fdt_setup_simplefb_node(void *fdt, int node, u64 base_address, u32 width,
 	fdt32_t cells[4];
 	int i, addrc, sizec, ret;
 
-	of_bus_default_count_cells(fdt, fdt_parent_offset(fdt, node),
-				   &addrc, &sizec);
+	fdt_support_default_count_cells(fdt, fdt_parent_offset(fdt, node),
+					&addrc, &sizec);
 	i = 0;
 	if (addrc == 2)
 		cells[i++] = cpu_to_fdt32(base_address >> 32);
@@ -1737,3 +1711,34 @@ int fdt_fixup_display(void *blob, const char *path, const char *display)
 	}
 	return toff;
 }
+
+#ifdef CONFIG_OF_LIBFDT_OVERLAY
+/**
+ * fdt_overlay_apply_verbose - Apply an overlay with verbose error reporting
+ *
+ * @fdt: ptr to device tree
+ * @fdto: ptr to device tree overlay
+ *
+ * Convenience function to apply an overlay and display helpful messages
+ * in the case of an error
+ */
+int fdt_overlay_apply_verbose(void *fdt, void *fdto)
+{
+	int err;
+	bool has_symbols;
+
+	err = fdt_path_offset(fdt, "/__symbols__");
+	has_symbols = err >= 0;
+
+	err = fdt_overlay_apply(fdt, fdto);
+	if (err < 0) {
+		printf("failed on fdt_overlay_apply(): %s\n",
+				fdt_strerror(err));
+		if (!has_symbols) {
+			printf("base fdt does did not have a /__symbols__ node\n");
+			printf("make sure you've compiled with -@\n");
+		}
+	}
+	return err;
+}
+#endif

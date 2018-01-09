@@ -9,4 +9,6 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "C29XPCIE"
 
+source "board/freescale/common/Kconfig"
+
 endif

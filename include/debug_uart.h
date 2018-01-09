@@ -111,21 +111,38 @@ void printhex8(uint value);
 #define _DEBUG_UART_ANNOUNCE
 #endif
 
+#define serial_dout(reg, value)	\
+	serial_out_shift((char *)com_port + \
+		((char *)reg - (char *)com_port) * \
+			(1 << CONFIG_DEBUG_UART_SHIFT), \
+		CONFIG_DEBUG_UART_SHIFT, value)
+#define serial_din(reg) \
+	serial_in_shift((char *)com_port + \
+		((char *)reg - (char *)com_port) * \
+			(1 << CONFIG_DEBUG_UART_SHIFT), \
+		CONFIG_DEBUG_UART_SHIFT)
+
 /*
  * Now define some functions - this should be inserted into the serial driver
  */
 #define DEBUG_UART_FUNCS \
-	void printch(int ch) \
+\
+	static inline void _printch(int ch) \
 	{ \
 		if (ch == '\n') \
 			_debug_uart_putc('\r'); \
 		_debug_uart_putc(ch); \
 	} \
 \
+	void printch(int ch) \
+	{ \
+		_printch(ch); \
+	} \
+\
 	void printascii(const char *str) \
 	{ \
 		while (*str) \
-			printch(*str++); \
+			_printch(*str++); \
 	} \
 \
 	static inline void printhex1(uint digit) \

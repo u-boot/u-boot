@@ -25,7 +25,7 @@ struct factorysetcontainer {
 };
 
 int factoryset_read_eeprom(int i2c_addr);
-int factoryset_setenv(void);
+int factoryset_env_set(void);
 extern struct factorysetcontainer factory_dat;
 
 #endif /* __FACTORYSET_H */

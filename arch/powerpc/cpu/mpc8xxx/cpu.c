@@ -308,7 +308,7 @@ int is_core_valid(unsigned int core)
 	return !!((1 << core) & cpu_mask());
 }
 
-int probecpu (void)
+int arch_cpu_init(void)
 {
 	uint svr;
 	uint ver;

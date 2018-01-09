@@ -42,7 +42,7 @@ void gzfree(void *x, void *addr, unsigned nb)
 	free (addr);
 }
 
-int gunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp)
+int gzip_parse_header(const unsigned char *src, unsigned long len)
 {
 	int i, flags;
 
@@ -63,12 +63,21 @@ int gunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp)
 			;
 	if ((flags & HEAD_CRC) != 0)
 		i += 2;
-	if (i >= *lenp) {
+	if (i >= len) {
 		puts ("Error: gunzip out of data in header\n");
 		return (-1);
 	}
+	return i;
+}
 
-	return zunzip(dst, dstlen, src, lenp, 1, i);
+int gunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp)
+{
+	int offset = gzip_parse_header(src, *lenp);
+
+	if (offset < 0)
+		return offset;
+
+	return zunzip(dst, dstlen, src, lenp, 1, offset);
 }
 
 #ifdef CONFIG_CMD_UNZIP

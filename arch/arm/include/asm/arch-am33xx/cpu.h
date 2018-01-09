@@ -36,12 +36,6 @@
 #define TCFG_RESET			BIT(0)	/* software reset */
 #define TCFG_EMUFREE			BIT(1)	/* behaviour of tmr on debug */
 #define TCFG_IDLEMOD_SHIFT		(2)	/* power management */
-/* device type */
-#define DEVICE_MASK			(BIT(8) | BIT(9) | BIT(10))
-#define TST_DEVICE			0x0
-#define EMU_DEVICE			0x1
-#define HS_DEVICE			0x2
-#define GP_DEVICE			0x3
 
 /* cpu-id for AM43XX AM33XX and TI81XX family */
 #define AM437X				0xB98C
@@ -49,6 +43,14 @@
 #define TI81XX				0xB81E
 #define DEVICE_ID			(CTRL_BASE + 0x0600)
 #define DEVICE_ID_MASK			0x1FFF
+#define PACKAGE_TYPE_SHIFT		16
+#define PACKAGE_TYPE_MASK		(3 << 16)
+
+/* Package Type */
+#define PACKAGE_TYPE_UNDEFINED		0x0
+#define PACKAGE_TYPE_ZCZ		0x1
+#define PACKAGE_TYPE_ZCE		0x2
+#define PACKAGE_TYPE_RESERVED		0x3
 
 /* MPU max frequencies */
 #define AM335X_ZCZ_300			0x1FEF
@@ -66,29 +68,9 @@
 #define PRM_RSTCTRL_RESET		0x01
 #define PRM_RSTST_WARM_RESET_MASK	0x232
 
-/*
- * Watchdog:
- * Using the prescaler, the OMAP watchdog could go for many
- * months before firing.  These limits work without scaling,
- * with the 60 second default assumed by most tools and docs.
- */
-#define TIMER_MARGIN_MAX	(24 * 60 * 60)	/* 1 day */
-#define TIMER_MARGIN_DEFAULT	60	/* 60 secs */
-#define TIMER_MARGIN_MIN	1
-
-#define PTV			0	/* prescale */
-#define GET_WLDR_VAL(secs)	(0xffffffff - ((secs) * (32768/(1<<PTV))) + 1)
-#define WDT_WWPS_PEND_WCLR	BIT(0)
-#define WDT_WWPS_PEND_WLDR	BIT(2)
-#define WDT_WWPS_PEND_WTGR	BIT(3)
-#define WDT_WWPS_PEND_WSPR	BIT(4)
-
-#define WDT_WCLR_PRE		BIT(5)
-#define WDT_WCLR_PTV_OFF	2
-
 #ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
-
+#include <asm/ti-common/omap_wdt.h>
 
 #ifndef CONFIG_AM43XX
 /* Encapsulating core pll registers */
@@ -420,32 +402,6 @@ struct cm_dpll {
 struct cm_rtc {
 	unsigned int rtcclkctrl;	/* offset 0x0 */
 	unsigned int clkstctrl;		/* offset 0x4 */
-};
-
-/* Watchdog timer registers */
-struct wd_timer {
-	unsigned int resv1[4];
-	unsigned int wdtwdsc;	/* offset 0x010 */
-	unsigned int wdtwdst;	/* offset 0x014 */
-	unsigned int wdtwisr;	/* offset 0x018 */
-	unsigned int wdtwier;	/* offset 0x01C */
-	unsigned int wdtwwer;	/* offset 0x020 */
-	unsigned int wdtwclr;	/* offset 0x024 */
-	unsigned int wdtwcrr;	/* offset 0x028 */
-	unsigned int wdtwldr;	/* offset 0x02C */
-	unsigned int wdtwtgr;	/* offset 0x030 */
-	unsigned int wdtwwps;	/* offset 0x034 */
-	unsigned int resv2[3];
-	unsigned int wdtwdly;	/* offset 0x044 */
-	unsigned int wdtwspr;	/* offset 0x048 */
-	unsigned int resv3[1];
-	unsigned int wdtwqeoi;	/* offset 0x050 */
-	unsigned int wdtwqstar;	/* offset 0x054 */
-	unsigned int wdtwqsta;	/* offset 0x058 */
-	unsigned int wdtwqens;	/* offset 0x05C */
-	unsigned int wdtwqenc;	/* offset 0x060 */
-	unsigned int resv4[39];
-	unsigned int wdt_unfr;	/* offset 0x100 */
 };
 
 /* Timer 32 bit registers */

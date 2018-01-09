@@ -22,6 +22,8 @@
 #include <asm/turbo.h>
 #include <asm/arch/model_206ax.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static void enable_vmx(void)
 {
 	struct cpuid_result regs;
@@ -286,8 +288,8 @@ static int configure_thermal_target(struct udevice *dev)
 	int tcc_offset;
 	msr_t msr;
 
-	tcc_offset = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "tcc-offset",
-				    0);
+	tcc_offset = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
+				    "tcc-offset", 0);
 
 	/* Set TCC activaiton offset if supported */
 	msr = msr_read(MSR_PLATFORM_INFO);

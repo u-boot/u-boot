@@ -66,7 +66,7 @@ const char *get_board_type(void)
 #ifdef CONFIG_SET_DFU_ALT_INFO
 char *get_dfu_alt_system(char *interface, char *devstr)
 {
-	return getenv("dfu_alt_system");
+	return env_get("dfu_alt_system");
 }
 
 char *get_dfu_alt_boot(char *interface, char *devstr)
@@ -429,7 +429,7 @@ int exynos_power_init(void)
 	};
 
 	if (regulator_list_autoset(mmc_regulators, NULL, true))
-		error("Unable to init all mmc regulators");
+		pr_err("Unable to init all mmc regulators");
 
 	return 0;
 }
@@ -442,7 +442,7 @@ static int s5pc210_phy_control(int on)
 
 	ret = regulator_get_by_platname("VDD_UOTG_3.0V", &dev);
 	if (ret) {
-		error("Regulator get error: %d", ret);
+		pr_err("Regulator get error: %d", ret);
 		return ret;
 	}
 
@@ -487,25 +487,25 @@ int board_usb_init(int index, enum usb_init_type init)
 
 	ret = regulator_get_by_platname("VCC_P3V3_2.85V", &dev);
 	if (ret) {
-		error("Regulator get error: %d", ret);
+		pr_err("Regulator get error: %d", ret);
 		return ret;
 	}
 
 	ret = regulator_set_enable(dev, true);
 	if (ret) {
-		error("Regulator %s enable setting error: %d", dev->name, ret);
+		pr_err("Regulator %s enable setting error: %d", dev->name, ret);
 		return ret;
 	}
 
 	ret = regulator_set_value(dev, 750000);
 	if (ret) {
-		error("Regulator %s value setting error: %d", dev->name, ret);
+		pr_err("Regulator %s value setting error: %d", dev->name, ret);
 		return ret;
 	}
 
 	ret = regulator_set_value(dev, 3300000);
 	if (ret) {
-		error("Regulator %s value setting error: %d", dev->name, ret);
+		pr_err("Regulator %s value setting error: %d", dev->name, ret);
 		return ret;
 	}
 #endif

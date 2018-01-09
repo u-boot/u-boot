@@ -21,6 +21,7 @@ To build U-Boot for the TQ Systems TQMa6 modules:
 
 x is a placeholder for the CPU variant
 q - means i.MX6Q/D: TQMa6Q (i.MX6Q) and TQMa6D  (i.MX6D)
+dl - means i.MX6DL: TQMa6DL  (i.MX6DL)
 s - means i.MX6S: TQMa6S  (i.MX6S)
 
 baseboard is a placeholder for the boot device
@@ -31,5 +32,7 @@ This gives the following configurations:
 
 tqma6q_mba6_mmc_config
 tqma6q_mba6_spi_config
+tqma6dl_mba6_mmc_config
+tqma6dl_mba6_spi_config
 tqma6s_mba6_mmc_config
 tqma6s_mba6_spi_config

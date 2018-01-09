@@ -37,9 +37,6 @@
 #include <asm/unaligned.h>
 #include <errno.h>
 #include <usb.h>
-#ifdef CONFIG_4xx
-#include <asm/4xx_pci.h>
-#endif
 
 #define USB_BUFSIZ	512
 
@@ -440,12 +437,13 @@ static int usb_parse_config(struct usb_device *dev,
 			}
 			break;
 		case USB_DT_ENDPOINT:
-			if (head->bLength != USB_DT_ENDPOINT_SIZE) {
+			if (head->bLength != USB_DT_ENDPOINT_SIZE &&
+			    head->bLength != USB_DT_ENDPOINT_AUDIO_SIZE) {
 				printf("ERROR: Invalid USB EP length (%d)\n",
 					head->bLength);
 				break;
 			}
-			if (index + USB_DT_ENDPOINT_SIZE >
+			if (index + head->bLength >
 			    dev->config.desc.wTotalLength) {
 				puts("USB EP descriptor overflowed buffer!\n");
 				break;
@@ -972,23 +970,24 @@ static int usb_setup_descriptor(struct usb_device *dev, bool do_read)
 	dev->epmaxpacketin[0] = dev->descriptor.bMaxPacketSize0;
 	dev->epmaxpacketout[0] = dev->descriptor.bMaxPacketSize0;
 
-	if (do_read) {
+	if (do_read && dev->speed == USB_SPEED_FULL) {
 		int err;
 
 		/*
-		 * Validate we've received only at least 8 bytes, not that we've
-		 * received the entire descriptor. The reasoning is:
-		 * - The code only uses fields in the first 8 bytes, so that's all we
-		 *   need to have fetched at this stage.
-		 * - The smallest maxpacket size is 8 bytes. Before we know the actual
-		 *   maxpacket the device uses, the USB controller may only accept a
-		 *   single packet. Consequently we are only guaranteed to receive 1
-		 *   packet (at least 8 bytes) even in a non-error case.
+		 * Validate we've received only at least 8 bytes, not that
+		 * we've received the entire descriptor. The reasoning is:
+		 * - The code only uses fields in the first 8 bytes, so
+		 *   that's all we need to have fetched at this stage.
+		 * - The smallest maxpacket size is 8 bytes. Before we know
+		 *   the actual maxpacket the device uses, the USB controller
+		 *   may only accept a single packet. Consequently we are only
+		 *   guaranteed to receive 1 packet (at least 8 bytes) even in
+		 *   a non-error case.
 		 *
-		 * At least the DWC2 controller needs to be programmed with the number
-		 * of packets in addition to the number of bytes. A request for 64
-		 * bytes of data with the maxpacket guessed as 64 (above) yields a
-		 * request for 1 packet.
+		 * At least the DWC2 controller needs to be programmed with
+		 * the number of packets in addition to the number of bytes.
+		 * A request for 64 bytes of data with the maxpacket guessed
+		 * as 64 (above) yields a request for 1 packet.
 		 */
 		err = get_descriptor_len(dev, 64, 8);
 		if (err)
@@ -1011,7 +1010,7 @@ static int usb_setup_descriptor(struct usb_device *dev, bool do_read)
 		dev->maxpacketsize = PACKET_SIZE_64;
 		break;
 	default:
-		printf("usb_new_device: invalid max packet size\n");
+		printf("%s: invalid max packet size\n", __func__);
 		return -EIO;
 	}
 
@@ -1052,6 +1051,17 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 	}
 
 	mdelay(10);	/* Let the SET_ADDRESS settle */
+
+	/*
+	 * If we haven't read device descriptor before, read it here
+	 * after device is assigned an address. This is only applicable
+	 * to xHCI so far.
+	 */
+	if (!do_read) {
+		err = usb_setup_descriptor(dev, true);
+		if (err)
+			return err;
+	}
 
 	return 0;
 }

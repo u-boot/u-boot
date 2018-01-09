@@ -166,7 +166,6 @@ static int mode = 8;
 
 /* function declaration -- */
 static int uli526x_start_xmit(struct eth_device *dev, void *packet, int length);
-static const struct ethtool_ops netdev_ethtool_ops;
 static u16 read_srom_word(long, int);
 static void uli526x_descriptor_init(struct uli526x_board_info *, unsigned long);
 static void allocate_rx_buffer(struct uli526x_board_info *);

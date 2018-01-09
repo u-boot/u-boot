@@ -317,18 +317,9 @@ int xilinx_ll_temac_initialize(bd_t *bis, struct ll_temac_info *devinf)
 
 	ll_temac->ctrladdr = devinf->ctrl_addr;
 	if (devinf->flags & XILINX_LL_TEMAC_M_SDMA_PLB) {
-#if defined(CONFIG_XILINX_440) || defined(CONFIG_XILINX_405)
-		if (devinf->flags & XILINX_LL_TEMAC_M_SDMA_DCR) {
-			ll_temac_collect_xldcr_sdma_reg_addr(dev);
-			ll_temac->in32 = ll_temac_xldcr_in32;
-			ll_temac->out32 = ll_temac_xldcr_out32;
-		} else
-#endif
-		{
-			ll_temac_collect_xlplb_sdma_reg_addr(dev);
-			ll_temac->in32 = ll_temac_xlplb_in32;
-			ll_temac->out32 = ll_temac_xlplb_out32;
-		}
+		ll_temac_collect_xlplb_sdma_reg_addr(dev);
+		ll_temac->in32 = ll_temac_xlplb_in32;
+		ll_temac->out32 = ll_temac_xlplb_out32;
 		ll_temac->ctrlinit = ll_temac_init_sdma;
 		ll_temac->ctrlhalt = ll_temac_halt_sdma;
 		ll_temac->ctrlreset = ll_temac_reset_sdma;

@@ -69,7 +69,7 @@ int checkboard(void)
 {
 	printf("Model: Toradex Colibri T20 %dMB V%s\n",
 	       (gd->ram_size == 0x10000000) ? 256 : 512,
-	       (nand_info[0]->erasesize >> 10 == 512) ?
+	       (get_nand_dev_by_index(0)->erasesize >> 10 == 512) ?
 	       ((gd->ram_size == 0x10000000) ? "1.1B" : "1.1C") : "1.2A");
 
 	return 0;
@@ -82,7 +82,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 }
 #endif
 
-#ifdef CONFIG_TEGRA_MMC
+#ifdef CONFIG_MMC_SDHCI_TEGRA
 /*
  * Routine: pin_mux_mmc
  * Description: setup the pin muxes/tristate values for the SDMMC(s)

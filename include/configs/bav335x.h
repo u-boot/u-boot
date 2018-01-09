@@ -18,20 +18,14 @@
 #define __CONFIG_BAV335X_H
 
 #include <configs/ti_am335x_common.h>
-#define CONFIG_ENV_IS_NOWHERE
 
 #ifndef CONFIG_SPL_BUILD
 # define CONFIG_TIMESTAMP
-# define CONFIG_LZO
-# ifdef CONFIG_ENABLE_VBOOT
-# endif
 #endif
 
 #define CONFIG_SYS_BOOTM_LEN		(16 << 20)
 
-#define MACH_TYPE_TIAM335EVM		3589	/* Until the next sync */
-#define CONFIG_MACH_TYPE		MACH_TYPE_TIAM335EVM
-#define CONFIG_BOARD_LATE_INIT
+#define CONFIG_MACH_TYPE		MACH_TYPE_AM335XEVM
 
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
@@ -43,14 +37,10 @@
 /* Always 128 KiB env size */
 #define CONFIG_ENV_SIZE			(128 << 10)
 
-/* Enhance our eMMC support / experience. */
-#define CONFIG_CMD_GPT
-#define CONFIG_EFI_PARTITION
-
 #ifdef CONFIG_NAND
 #define NANDARGS \
-	"mtdids=" MTDIDS_DEFAULT "\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"nandargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"root=${nandroot} " \
@@ -337,9 +327,7 @@ DEFAULT_LINUX_BOOT_ENV \
 #define CONFIG_SYS_NS16550_COM4		0x481a6000	/* UART3 */
 #define CONFIG_SYS_NS16550_COM5		0x481a8000	/* UART4 */
 #define CONFIG_SYS_NS16550_COM6		0x481aa000	/* UART5 */
-#define CONFIG_BAUDRATE			115200
 
-#define CONFIG_CMD_EEPROM
 #define CONFIG_ENV_EEPROM_IS_ON_I2C
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* Main EEPROM */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
@@ -356,8 +344,6 @@ DEFAULT_LINUX_BOOT_ENV \
 #define CONFIG_SYS_BOOTCOUNT_BE
 
 /* USB gadget RNDIS */
-
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-omap2/am33xx/u-boot-spl.lds"
 #endif
 
 #ifdef CONFIG_NAND
@@ -369,8 +355,6 @@ DEFAULT_LINUX_BOOT_ENV \
 #define CONFIG_SYS_NAND_OOBSIZE		64
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128*1024)
 /* NAND: driver related configs */
-#define CONFIG_NAND_OMAP_GPMC
-#define CONFIG_NAND_OMAP_ELM
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
 #define CONFIG_SYS_NAND_ECCPOS	{ \
 	2, 3, 4, 5, 6, 7, 8, 9, \
@@ -385,33 +369,13 @@ DEFAULT_LINUX_BOOT_ENV \
 #define CONFIG_SYS_NAND_ECCBYTES	14
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW
-#define MTDIDS_DEFAULT			"nand0=nand.0"
-#define MTDPARTS_DEFAULT  \
-	"mtdparts=nand.0:" \
-	"128k(NAND.SPL)," \
-	"128k(NAND.SPL.backup1)," \
-	"128k(NAND.SPL.backup2)," \
-	"128k(NAND.SPL.backup3)," \
-	"256k(NAND.u-boot-spl-os)," \
-	"1m(NAND.u-boot)," \
-	"128k(NAND.u-boot-env)," \
-	"128k(NAND.u-boot-env.backup1)," \
-	"8m(NAND.kernel)," \
-	"-(NAND.rootfs)"
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x000c0000
-#undef CONFIG_ENV_IS_NOWHERE
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x001c0000
 #define CONFIG_ENV_OFFSET_REDUND	0x001e0000
 #define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_SYS_NAND_BLOCK_SIZE
 /* NAND: SPL related configs */
-#ifdef CONFIG_SPL_NAND_SUPPORT
-#define CONFIG_SPL_NAND_AM33XX_BCH
-#endif
 #ifdef CONFIG_SPL_OS_BOOT
-#define CONFIG_CMD_SPL_NAND_OFS	0x00080000 /* os parameters */
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x00200000 /* kernel offset */
-#define CONFIG_CMD_SPL_WRITE_SIZE	0x2000
 #endif
 #endif /* !CONFIG_NAND */
 
@@ -431,24 +395,12 @@ DEFAULT_LINUX_BOOT_ENV \
  * and DFU.
  */
 #define CONFIG_USB_MUSB_DSPS
-#define CONFIG_ARCH_MISC_INIT
 #define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_PERIPHERAL
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE MUSB_HOST
-
-#ifndef CONFIG_SPL_USBETH_SUPPORT
-/* Fastboot */
-#define CONFIG_USB_FUNCTION_FASTBOOT
-#define CONFIG_CMD_FASTBOOT
-#define CONFIG_ANDROID_BOOT_IMAGE
-#define CONFIG_FASTBOOT_BUF_ADDR	CONFIG_SYS_LOAD_ADDR
-#define CONFIG_FASTBOOT_BUF_SIZE	0x07000000
-
-#define CONFIG_FASTBOOT_FLASH_MMC_DEV   1
-#endif
 
 #ifdef CONFIG_USB_MUSB_GADGET
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
@@ -457,8 +409,6 @@ DEFAULT_LINUX_BOOT_ENV \
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
 /* disable host part of MUSB in SPL */
 /* disable EFI partitions and partition UUID support */
-#undef CONFIG_PARTITION_UUIDS
-#undef CONFIG_EFI_PARTITION
 #endif
 
 /* USB Device Firmware Update support */
@@ -516,20 +466,12 @@ DEFAULT_LINUX_BOOT_ENV \
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
 #define CONFIG_ENV_SECT_SIZE		(4 << 10) /* 4 KB sectors */
 #define CONFIG_ENV_OFFSET		(768 << 10) /* 768 KiB in */
 #define CONFIG_ENV_OFFSET_REDUND	(896 << 10) /* 896 KiB in */
-#define MTDIDS_DEFAULT			"nor0=m25p80-flash.0"
-#define MTDPARTS_DEFAULT		"mtdparts=m25p80-flash.0:128k(SPL)," \
-					"512k(u-boot),128k(u-boot-env1)," \
-					"128k(u-boot-env2),3464k(kernel)," \
-					"-(rootfs)"
 #elif defined(CONFIG_EMMC_BOOT)
-#undef CONFIG_ENV_IS_NOWHERE
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2
 #define CONFIG_ENV_OFFSET		0x0
@@ -541,8 +483,6 @@ DEFAULT_LINUX_BOOT_ENV \
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 
 /* Network. */
-#define CONFIG_PHY_GIGE
-#define CONFIG_PHYLIB
 #define CONFIG_PHY_SMSC
 
 /*
@@ -558,7 +498,6 @@ DEFAULT_LINUX_BOOT_ENV \
  * 0x4C0000 - 0xFFFFFF : Userland (11 MiB + 256 KiB)
  */
 #if defined(CONFIG_NOR)
-#undef CONFIG_SYS_NO_FLASH
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #define CONFIG_SYS_FLASH_PROTECTION
 #define CONFIG_SYS_FLASH_CFI
@@ -572,17 +511,9 @@ DEFAULT_LINUX_BOOT_ENV \
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 /* Reduce SPL size by removing unlikey targets */
 #ifdef CONFIG_NOR_BOOT
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE		(128 << 10)	/* 128 KiB */
 #define CONFIG_ENV_OFFSET		(512 << 10)	/* 512 KiB */
 #define CONFIG_ENV_OFFSET_REDUND	(768 << 10)	/* 768 KiB */
-#define MTDIDS_DEFAULT			"nor0=physmap-flash.0"
-#define MTDPARTS_DEFAULT \
-	"mtdparts=physmap-flash.0:" \
-	"512k(u-boot)," \
-	"128k(u-boot-env1)," \
-	"128k(u-boot-env2)," \
-	"4m(kernel),-(rootfs)"
 #endif
 #endif  /* NOR support */
 

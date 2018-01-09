@@ -16,7 +16,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
-#include <asm/imx-common/iomux-v3.h>
+#include <asm/mach-imx/iomux-v3.h>
 #include <fsl_esdhc.h>
 #include "common.h"
 
@@ -336,9 +336,6 @@ void board_init_f(ulong dummy)
 		puts("!!!ERROR!!! DRAM detection failed!!!\n");
 		hang();
 	}
-
-	memset(__bss_start, 0, __bss_end - __bss_start);
-	board_init_r(NULL, 0);
 }
 
 void board_boot_order(u32 *spl_boot_list)

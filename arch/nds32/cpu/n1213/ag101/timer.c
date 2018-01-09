@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
-
+#ifndef CONFIG_TIMER
 #include <common.h>
 #include <asm/io.h>
 #include <faraday/fttmr010.h>
@@ -189,3 +189,4 @@ ulong get_tbclk(void)
 	return CONFIG_SYS_CLK_FREQ;
 #endif
 }
+#endif /* CONFIG_TIMER */

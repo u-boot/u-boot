@@ -39,7 +39,7 @@ static ulong get_PLLCLK(uint32_t *pllreg)
 }
 
 /* return FCLK frequency */
-ulong get_FCLK()
+ulong get_FCLK(void)
 {
 	const uint8_t fclk_divisors[] = { 1, 2, 4, 8, 16, 1, 1, 1 };
 	struct syscon_regs *syscon = (struct syscon_regs *)SYSCON_BASE;

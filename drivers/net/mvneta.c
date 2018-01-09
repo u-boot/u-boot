@@ -191,11 +191,16 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MVNETA_GMAC_AUTONEG_CONFIG               0x2c0c
 #define      MVNETA_GMAC_FORCE_LINK_DOWN         BIT(0)
 #define      MVNETA_GMAC_FORCE_LINK_PASS         BIT(1)
+#define      MVNETA_GMAC_FORCE_LINK_UP           (BIT(0) | BIT(1))
+#define      MVNETA_GMAC_IB_BYPASS_AN_EN         BIT(3)
 #define      MVNETA_GMAC_CONFIG_MII_SPEED        BIT(5)
 #define      MVNETA_GMAC_CONFIG_GMII_SPEED       BIT(6)
 #define      MVNETA_GMAC_AN_SPEED_EN             BIT(7)
+#define      MVNETA_GMAC_SET_FC_EN               BIT(8)
+#define      MVNETA_GMAC_ADVERT_FC_EN            BIT(9)
 #define      MVNETA_GMAC_CONFIG_FULL_DUPLEX      BIT(12)
 #define      MVNETA_GMAC_AN_DUPLEX_EN            BIT(13)
+#define      MVNETA_GMAC_SAMPLE_TX_CFG_EN        BIT(15)
 #define MVNETA_MIB_COUNTERS_BASE                 0x3080
 #define      MVNETA_MIB_LATE_COLLISION           0x7c
 #define MVNETA_DA_FILT_SPEC_MCAST                0x3400
@@ -404,6 +409,15 @@ static struct buffer_location buffer_loc;
  */
 #define BD_SPACE	(1 << 20)
 
+/*
+ * Dummy implementation that can be overwritten by a board
+ * specific function
+ */
+__weak int board_network_enable(struct mii_dev *bus)
+{
+	return 0;
+}
+
 /* Utility/helper methods */
 
 /* Write helper method */
@@ -526,7 +540,7 @@ static void mvneta_txq_pend_desc_add(struct mvneta_port *pp,
 	u32 val;
 
 	/* Only 255 descriptors can be added at once ; Assume caller
-	 * process TX desriptors in quanta less than 256
+	 * process TX descriptors in quanta less than 256
 	 */
 	val = pend_desc;
 	mvreg_write(pp, MVNETA_TXQ_UPDATE_REG(txq->id), val);
@@ -556,6 +570,13 @@ static void mvneta_rxq_buf_size_set(struct mvneta_port *pp,
 
 	mvreg_write(pp, MVNETA_RXQ_SIZE_REG(rxq->id), val);
 }
+
+static int mvneta_port_is_fixed_link(struct mvneta_port *pp)
+{
+	/* phy_addr is set to invalid value for fixed link */
+	return pp->phyaddr > PHY_MAX_ADDR;
+}
+
 
 /* Start the Ethernet port RX and TX activity */
 static void mvneta_port_up(struct mvneta_port *pp)
@@ -807,10 +828,12 @@ static void mvneta_defaults_set(struct mvneta_port *pp)
 	/* Assign port SDMA configuration */
 	mvreg_write(pp, MVNETA_SDMA_CONFIG, val);
 
-	/* Enable PHY polling in hardware for U-Boot */
-	val = mvreg_read(pp, MVNETA_UNIT_CONTROL);
-	val |= MVNETA_PHY_POLLING_ENABLE;
-	mvreg_write(pp, MVNETA_UNIT_CONTROL, val);
+	/* Enable PHY polling in hardware if not in fixed-link mode */
+	if (!mvneta_port_is_fixed_link(pp)) {
+		val = mvreg_read(pp, MVNETA_UNIT_CONTROL);
+		val |= MVNETA_PHY_POLLING_ENABLE;
+		mvreg_write(pp, MVNETA_UNIT_CONTROL, val);
+	}
 
 	mvneta_set_ucast_table(pp, -1);
 	mvneta_set_special_mcast_table(pp, -1);
@@ -1127,6 +1150,11 @@ static void mvneta_adjust_link(struct udevice *dev)
 	struct mvneta_port *pp = dev_get_priv(dev);
 	struct phy_device *phydev = pp->phydev;
 	int status_change = 0;
+
+	if (mvneta_port_is_fixed_link(pp)) {
+		debug("Using fixed link, skip link adjust\n");
+		return;
+	}
 
 	if (phydev->link) {
 		if ((pp->speed != phydev->speed) ||
@@ -1498,27 +1526,53 @@ static int mvneta_start(struct udevice *dev)
 	mvneta_port_power_up(pp, pp->phy_interface);
 
 	if (!pp->init || pp->link == 0) {
-		/* Set phy address of the port */
-		mvreg_write(pp, MVNETA_PHY_ADDR, pp->phyaddr);
-		phydev = phy_connect(pp->bus, pp->phyaddr, dev,
-				     pp->phy_interface);
+		if (mvneta_port_is_fixed_link(pp)) {
+			u32 val;
 
-		pp->phydev = phydev;
-		phy_config(phydev);
-		phy_startup(phydev);
-		if (!phydev->link) {
-			printf("%s: No link.\n", phydev->dev->name);
-			return -1;
+			pp->init = 1;
+			pp->link = 1;
+			mvneta_init(dev);
+
+			val = MVNETA_GMAC_FORCE_LINK_UP |
+			      MVNETA_GMAC_IB_BYPASS_AN_EN |
+			      MVNETA_GMAC_SET_FC_EN |
+			      MVNETA_GMAC_ADVERT_FC_EN |
+			      MVNETA_GMAC_SAMPLE_TX_CFG_EN;
+
+			if (pp->duplex)
+				val |= MVNETA_GMAC_CONFIG_FULL_DUPLEX;
+
+			if (pp->speed == SPEED_1000)
+				val |= MVNETA_GMAC_CONFIG_GMII_SPEED;
+			else if (pp->speed == SPEED_100)
+				val |= MVNETA_GMAC_CONFIG_MII_SPEED;
+
+			mvreg_write(pp, MVNETA_GMAC_AUTONEG_CONFIG, val);
+		} else {
+			/* Set phy address of the port */
+			mvreg_write(pp, MVNETA_PHY_ADDR, pp->phyaddr);
+
+			phydev = phy_connect(pp->bus, pp->phyaddr, dev,
+					     pp->phy_interface);
+
+			pp->phydev = phydev;
+			phy_config(phydev);
+			phy_startup(phydev);
+			if (!phydev->link) {
+				printf("%s: No link.\n", phydev->dev->name);
+				return -1;
+			}
+
+			/* Full init on first call */
+			mvneta_init(dev);
+			pp->init = 1;
+			return 0;
 		}
-
-		/* Full init on first call */
-		mvneta_init(dev);
-		pp->init = 1;
-	} else {
-		/* Upon all following calls, this is enough */
-		mvneta_port_up(pp);
-		mvneta_port_enable(pp);
 	}
+
+	/* Upon all following calls, this is enough */
+	mvneta_port_up(pp);
+	mvneta_port_enable(pp);
 
 	return 0;
 }
@@ -1611,10 +1665,12 @@ static int mvneta_probe(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct mvneta_port *pp = dev_get_priv(dev);
 	void *blob = (void *)gd->fdt_blob;
-	int node = dev->of_offset;
+	int node = dev_of_offset(dev);
 	struct mii_dev *bus;
 	unsigned long addr;
 	void *bd_space;
+	int ret;
+	int fl_node;
 
 	/*
 	 * Allocate buffer area for descs and rx_buffers. This is only
@@ -1639,7 +1695,7 @@ static int mvneta_probe(struct udevice *dev)
 	pp->base = (void __iomem *)pdata->iobase;
 
 	/* Configure MBUS address windows */
-	if (of_device_is_compatible(dev, "marvell,armada-3700-neta"))
+	if (device_is_compatible(dev, "marvell,armada-3700-neta"))
 		mvneta_bypass_mbus_windows(pp);
 	else
 		mvneta_conf_mbus_windows(pp);
@@ -1647,10 +1703,19 @@ static int mvneta_probe(struct udevice *dev)
 	/* PHY interface is already decoded in mvneta_ofdata_to_platdata() */
 	pp->phy_interface = pdata->phy_interface;
 
-	/* Now read phyaddr from DT */
-	addr = fdtdec_get_int(blob, node, "phy", 0);
-	addr = fdt_node_offset_by_phandle(blob, addr);
-	pp->phyaddr = fdtdec_get_int(blob, addr, "reg", 0);
+	/* fetch 'fixed-link' property from 'neta' node */
+	fl_node = fdt_subnode_offset(blob, node, "fixed-link");
+	if (fl_node != -FDT_ERR_NOTFOUND) {
+		/* set phy_addr to invalid value for fixed link */
+		pp->phyaddr = PHY_MAX_ADDR + 1;
+		pp->duplex = fdtdec_get_bool(blob, fl_node, "full-duplex");
+		pp->speed = fdtdec_get_int(blob, fl_node, "speed", 0);
+	} else {
+		/* Now read phyaddr from DT */
+		addr = fdtdec_get_int(blob, node, "phy", 0);
+		addr = fdt_node_offset_by_phandle(blob, addr);
+		pp->phyaddr = fdtdec_get_int(blob, addr, "reg", 0);
+	}
 
 	bus = mdio_alloc();
 	if (!bus) {
@@ -1664,7 +1729,11 @@ static int mvneta_probe(struct udevice *dev)
 	bus->priv = (void *)pp;
 	pp->bus = bus;
 
-	return mdio_register(bus);
+	ret = mdio_register(bus);
+	if (ret)
+		return ret;
+
+	return board_network_enable(bus);
 }
 
 static void mvneta_stop(struct udevice *dev)
@@ -1687,11 +1756,12 @@ static int mvneta_ofdata_to_platdata(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	const char *phy_mode;
 
-	pdata->iobase = dev_get_addr(dev);
+	pdata->iobase = devfdt_get_addr(dev);
 
 	/* Get phy-mode / phy_interface from DT */
 	pdata->phy_interface = -1;
-	phy_mode = fdt_getprop(gd->fdt_blob, dev->of_offset, "phy-mode", NULL);
+	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
+			       NULL);
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (pdata->phy_interface == -1) {

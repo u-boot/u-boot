@@ -12,10 +12,10 @@
 #include <asm/arch/mx6-pins.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/mxc_i2c.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/boot_mode.h>
-#include <asm/imx-common/video.h>
+#include <asm/mach-imx/mxc_i2c.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/video.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <miiphy.h>
@@ -25,6 +25,7 @@
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <i2c.h>
+#include <input.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
 #include <asm/arch/mx6-ddr.h>
@@ -466,7 +467,7 @@ int board_late_init(void)
 	add_board_boot_modes(board_boot_modes);
 #endif
 
-	setenv("board_name", BOARD_NAME);
+	env_set("board_name", BOARD_NAME);
 	return 0;
 }
 
@@ -568,17 +569,6 @@ static void ccgr_init(void)
 	writel(0x00FFF300, &ccm->CCGR4);
 	writel(0x0F0000C3, &ccm->CCGR5);
 	writel(0x000003FF, &ccm->CCGR6);
-}
-
-static void gpr_init(void)
-{
-	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-
-	/* enable AXI cache for VDOA/VPU/IPU */
-	writel(0xF00000CF, &iomux->gpr[4]);
-	/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
-	writel(0x007F007F, &iomux->gpr[6]);
-	writel(0x007F007F, &iomux->gpr[7]);
 }
 
 /*

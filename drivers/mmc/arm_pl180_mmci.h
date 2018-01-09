@@ -142,6 +142,9 @@
 
 #define SDI_FIFO_BURST_SIZE	8
 
+#define VERSION1	false
+#define VERSION2	true
+
 struct sdi_registers {
 	u32 power;		/* 0x00*/
 	u32 clock;		/* 0x04*/
@@ -188,8 +191,12 @@ struct pl180_mmc_host {
 	unsigned int pwr_init;
 	int version2;
 	struct mmc_config cfg;
+#ifdef CONFIG_DM_MMC
+	struct gpio_desc cd_gpio;
+	bool cd_inverted;
+#endif
 };
 
-int arm_pl180_mmci_init(struct pl180_mmc_host *);
+int arm_pl180_mmci_init(struct pl180_mmc_host *host, struct mmc **mmc);
 
 #endif

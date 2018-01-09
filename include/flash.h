@@ -42,10 +42,15 @@ typedef struct {
 	ushort	cfi_offset;		/* offset for cfi query			*/
 	ulong   addr_unlock1;		/* unlock address 1 for AMD flash roms  */
 	ulong   addr_unlock2;		/* unlock address 2 for AMD flash roms  */
+	uchar   sr_supported;		/* status register supported            */
 	const char *name;		/* human-readable name	                */
 #endif
 #ifdef CONFIG_MTD
 	struct mtd_info *mtd;
+#endif
+#ifdef CONFIG_CFI_FLASH			/* DM-specific parts */
+	struct udevice *dev;
+	phys_addr_t base;
 #endif
 } flash_info_t;
 
@@ -67,8 +72,6 @@ typedef unsigned long flash_sect_t;
 #define FLASH_CFI_BY16		0x02
 #define FLASH_CFI_BY32		0x04
 #define FLASH_CFI_BY64		0x08
-/* convert between bit value and numeric value */
-#define CFI_FLASH_SHIFT_WIDTH	3
 /*
  * Values for the flash device interface
  */
@@ -83,7 +86,6 @@ typedef unsigned long flash_sect_t;
 /* Prototypes */
 
 extern unsigned long flash_init (void);
-extern void flash_protect_default(void);
 extern void flash_print_info (flash_info_t *);
 extern int flash_erase	(flash_info_t *, int, int);
 extern int flash_sect_erase (ulong addr_first, ulong addr_last);
@@ -114,10 +116,6 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 extern ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info);
 extern int jedec_flash_match(flash_info_t *info, ulong base);
 #define CFI_CMDSET_AMD_LEGACY		0xFFF0
-#endif
-
-#if defined(CONFIG_SYS_FLASH_CFI)
-extern flash_info_t *flash_get_info(ulong base);
 #endif
 
 /*-----------------------------------------------------------------------
@@ -469,7 +467,6 @@ extern flash_info_t *flash_get_info(ulong base);
 #define FLASH_S29GL128N 0x00F1		/* Spansion S29GL128N			*/
 
 #define FLASH_STM32	0x00F2		/* STM32 Embedded Flash */
-#define FLASH_STM32F1	0x00F3		/* STM32F1 Embedded Flash */
 
 #define FLASH_UNKNOWN	0xFFFF		/* unknown flash type			*/
 

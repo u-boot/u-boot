@@ -21,11 +21,11 @@
 
 #include <lcd.h>
 #include <atmel_lcdc.h>
-#include <dataflash.h>
 #if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_DRIVER_DM9000)
 #include <net.h>
 #endif
 #include <netdev.h>
+#include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -177,7 +177,7 @@ extern flash_info_t flash_info[];
 
 void lcd_show_board_info(void)
 {
-	ulong dram_size, nand_size, flash_size, dataflash_size;
+	ulong dram_size, nand_size, flash_size;
 	int i;
 	char temp[32];
 
@@ -194,23 +194,17 @@ void lcd_show_board_info(void)
 
 	nand_size = 0;
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
-		nand_size += nand_info[i]->size;
+		nand_size += get_nand_dev_by_index(i)->size;
 
 	flash_size = 0;
 	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++)
 		flash_size += flash_info[i].size;
 
-	dataflash_size = 0;
-	for (i = 0; i < CONFIG_SYS_MAX_DATAFLASH_BANKS; i++)
-		dataflash_size += (unsigned int) dataflash_info[i].Device.pages_number *
-				dataflash_info[i].Device.pages_size;
-
 	lcd_printf ("%ld MB SDRAM, %ld MB NAND\n%ld MB NOR Flash\n"
 			"%ld MB DataFlash\n",
 		dram_size >> 20,
 		nand_size >> 20,
-		flash_size >> 20,
-		dataflash_size >> 20);
+		flash_size >> 20);
 }
 #endif /* CONFIG_LCD_INFO */
 
@@ -218,11 +212,6 @@ void lcd_show_board_info(void)
 
 int board_early_init_f(void)
 {
-	at91_periph_clk_enable(ATMEL_ID_PIOA);
-	at91_periph_clk_enable(ATMEL_ID_PIOC);
-
-	at91_seriald_hw_init();
-
 	return 0;
 }
 
@@ -236,9 +225,6 @@ int board_init(void)
 
 #ifdef CONFIG_CMD_NAND
 	pm9261_nand_hw_init();
-#endif
-#ifdef CONFIG_HAS_DATAFLASH
-	at91_spi0_hw_init(1 << 0);
 #endif
 #ifdef CONFIG_DRIVER_DM9000
 	pm9261_dm9000_hw_init();
@@ -264,10 +250,12 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_SIZE;
+
+	return 0;
 }
 
 #ifdef CONFIG_RESET_PHY_R

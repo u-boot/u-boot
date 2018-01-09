@@ -63,13 +63,11 @@ static char *state_names[] = {
 	"WAIT_FOR_NULL_COMPLETE",
 };
 
-#define DRIVER_DESC "DWC2 HS USB OTG Device Driver, (c) Samsung Electronics"
 #define DRIVER_VERSION "15 March 2009"
 
 struct dwc2_udc	*the_controller;
 
 static const char driver_name[] = "dwc2-udc";
-static const char driver_desc[] = DRIVER_DESC;
 static const char ep0name[] = "ep0-control";
 
 /* Max packet size*/
@@ -837,7 +835,7 @@ int dwc2_udc_probe(struct dwc2_plat_otg_data *pdata)
 			    ROUND(sizeof(struct usb_ctrlrequest),
 				  CONFIG_SYS_CACHELINE_SIZE));
 	if (!usb_ctrl) {
-		error("No memory available for UDC!\n");
+		pr_err("No memory available for UDC!\n");
 		return -ENOMEM;
 	}
 

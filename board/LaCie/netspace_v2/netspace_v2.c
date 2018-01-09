@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <asm/mach-types.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
@@ -82,10 +83,10 @@ int board_init(void)
 int misc_init_r(void)
 {
 #if defined(CONFIG_CMD_I2C) && defined(CONFIG_SYS_I2C_EEPROM_ADDR)
-	if (!getenv("ethaddr")) {
+	if (!env_get("ethaddr")) {
 		uchar mac[6];
 		if (lacie_read_mac_address(mac) == 0)
-			eth_setenv_enetaddr("ethaddr", mac);
+			eth_env_set_enetaddr("ethaddr", mac);
 	}
 #endif
 	return 0;

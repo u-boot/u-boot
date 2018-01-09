@@ -61,6 +61,31 @@
 	chosen {
 		stdout-path = "serial0:115200n8";
 	};
+
+	panel {
+		compatible = "netron-dy,e231732";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			panel_input: endpoint@0 {
+				reg = <0>;
+				remote-endpoint = <&tcon0_out_panel>;
+			};
+		};
+	};
+};
+
+&de {
+	status = "okay";
+};
+
+&cpu0 {
+	cpu-supply = <&reg_dcdc3>;
 };
 
 &ehci0 {
@@ -207,9 +232,27 @@
 	regulator-name = "vcc-rtc";
 };
 
+&tcon0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&lcd_rgb666_pins>;
+	status = "okay";
+};
+
+&tcon0_out {
+	tcon0_out_panel: endpoint@0 {
+		reg = <0>;
+		remote-endpoint = <&panel_input>;
+	};
+};
+
 &uart0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart0_pins_b>;
+	status = "okay";
+};
+
+&usb_otg {
+	dr_mode = "peripheral";
 	status = "okay";
 };
 

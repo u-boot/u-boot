@@ -48,7 +48,7 @@ static inline void dwc3_writel(void __iomem *base, u32 offset, u32 value)
 	writel(value, base + offs);
 }
 
-static inline void dwc3_flush_cache(int addr, int length)
+static inline void dwc3_flush_cache(uintptr_t addr, int length)
 {
 	flush_dcache_range(addr, addr + ROUND(length, CACHELINE_SIZE));
 }

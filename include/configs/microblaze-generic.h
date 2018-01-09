@@ -32,7 +32,6 @@
 #endif
 
 /* uart */
-# define CONFIG_BAUDRATE	115200
 /* The following table includes the supported baudrates */
 # define CONFIG_SYS_BAUDRATE_TABLE \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
@@ -45,7 +44,6 @@
 # define CONFIG_XILINX_GPIO
 # define CONFIG_SYS_GPIO_0_ADDR		XILINX_GPIO_BASEADDR
 #endif
-#define CONFIG_BOARD_LATE_INIT
 
 /* watchdog */
 #if defined(XILINX_WATCHDOG_BASEADDR) && defined(XILINX_WATCHDOG_IRQ)
@@ -97,12 +95,10 @@
 /* use buffered writes (20x faster) */
 # define	CONFIG_SYS_FLASH_USE_BUFFER_WRITE	1
 # ifdef	RAMENV
-#  define CONFIG_ENV_IS_NOWHERE	1
 #  define CONFIG_ENV_SIZE	0x1000
 #  define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SIZE)
 
 # else	/* FLASH && !RAMENV */
-#  define CONFIG_ENV_IS_IN_FLASH	1
 /* 128K(one sector) for env */
 #  define CONFIG_ENV_SECT_SIZE	0x20000
 #  define CONFIG_ENV_ADDR \
@@ -112,7 +108,6 @@
 #else /* !FLASH */
 
 #ifdef SPIFLASH
-# define CONFIG_SYS_NO_FLASH		1
 # define CONFIG_SYS_SPI_BASE		XILINX_SPI_FLASH_BASEADDR
 # define CONFIG_SPI			1
 # define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
@@ -120,12 +115,10 @@
 # define CONFIG_SF_DEFAULT_CS		XILINX_SPI_FLASH_CS
 
 # ifdef	RAMENV
-#  define CONFIG_ENV_IS_NOWHERE	1
 #  define CONFIG_ENV_SIZE	0x1000
 #  define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SIZE)
 
 # else	/* SPIFLASH && !RAMENV */
-#  define CONFIG_ENV_IS_IN_SPI_FLASH	1
 #  define CONFIG_ENV_SPI_MODE		SPI_MODE_3
 #  define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
 #  define CONFIG_ENV_SPI_CS		CONFIG_SF_DEFAULT_CS
@@ -138,8 +131,6 @@
 #else /* !SPIFLASH */
 
 /* ENV in RAM */
-# define CONFIG_SYS_NO_FLASH	1
-# define CONFIG_ENV_IS_NOWHERE	1
 # define CONFIG_ENV_SIZE	0x1000
 # define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SIZE)
 #endif /* !SPIFLASH */
@@ -169,70 +160,30 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-/*
- * Command line configuration.
- */
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_MFSL
-
-#if defined(FLASH)
-# define CONFIG_CMD_JFFS2
-# undef CONFIG_CMD_UBIFS
-
-# if !defined(RAMENV)
-#  define CONFIG_CMD_SAVES
-# endif
-
-#else
-#if defined(SPIFLASH)
-
-# if !defined(RAMENV)
-#  define CONFIG_CMD_SAVES
-# endif
-#else
-# undef CONFIG_CMD_JFFS2
-# undef CONFIG_CMD_UBIFS
-#endif
-#endif
-
 #if defined(CONFIG_CMD_JFFS2)
 # define CONFIG_MTD_PARTITIONS
 #endif
 
-#if defined(CONFIG_CMD_UBIFS)
-# define CONFIG_LZO
-#endif
-
 #if defined(CONFIG_CMD_UBI)
 # define CONFIG_MTD_PARTITIONS
-# define CONFIG_RBTREE
 #endif
 
 #if defined(CONFIG_MTD_PARTITIONS)
 /* MTD partitions */
-#define CONFIG_CMD_MTDPARTS	/* mtdparts command line support */
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 #define CONFIG_FLASH_CFI_MTD
-#define MTDIDS_DEFAULT		"nor0=flash-0"
 
 /* default mtd partition table */
-#define MTDPARTS_DEFAULT	"mtdparts=flash-0:256k(u-boot),"\
-				"256k(env),3m(kernel),1m(romfs),"\
-				"1m(cramfs),-(jffs2)"
 #endif
 
 /* size of console buffer */
 #define	CONFIG_SYS_CBSIZE	512
- /* print buffer size */
-#define	CONFIG_SYS_PBSIZE \
-		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 /* max number of command args */
 #define	CONFIG_SYS_MAXARGS	15
 #define	CONFIG_SYS_LONGHELP
 /* default load address */
 #define	CONFIG_SYS_LOAD_ADDR	0
 
-#define	CONFIG_BOOTARGS		"root=romfs"
 #define	CONFIG_HOSTNAME		XILINX_BOARD_NAME
 #define	CONFIG_BOOTCOMMAND	"base 0;tftp 11000000 image.img;bootm"
 
@@ -260,15 +211,12 @@
 
 #if defined(CONFIG_XILINX_AXIEMAC)
 # define CONFIG_MII		1
-# define CONFIG_PHY_GIGE	1
 # define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	1
 # define CONFIG_PHY_ATHEROS	1
 # define CONFIG_PHY_BROADCOM	1
 # define CONFIG_PHY_DAVICOM	1
 # define CONFIG_PHY_LXT		1
 # define CONFIG_PHY_MARVELL	1
-# define CONFIG_PHY_MICREL	1
-# define CONFIG_PHY_MICREL_KSZ9021
 # define CONFIG_PHY_NATSEMI	1
 # define CONFIG_PHY_REALTEK	1
 # define CONFIG_PHY_VITESSE	1
@@ -277,13 +225,8 @@
 #endif
 
 /* SPL part */
-#define CONFIG_CMD_SPL
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_BOARD_INIT
 
-#define CONFIG_SPL_LDSCRIPT	"arch/microblaze/cpu/u-boot-spl.lds"
-
-#define CONFIG_SPL_RAM_DEVICE
 #ifdef CONFIG_SYS_FLASH_BASE
 # define CONFIG_SYS_UBOOT_BASE		CONFIG_SYS_FLASH_BASE
 #endif

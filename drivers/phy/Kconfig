@@ -1,0 +1,88 @@
+
+menu "PHY Subsystem"
+
+config PHY
+	bool "PHY Core"
+	depends on DM
+	help
+	  PHY support.
+
+	  This framework is designed to provide a generic interface for PHY
+	  devices. PHY devices are dedicated hardware that handle the physical
+	  layer of the protocols in the OSI model.
+	  PHYs are commonly used for high speed interfaces such as Serial-ATA
+	  or PCI express.
+	  The API provides functions to initialize/deinitialize the
+	  PHY, power on/off the PHY, and reset the PHY. It's meant to be as
+	  compatible as possible with the equivalent framework found in the
+	  linux kernel.
+
+config SPL_PHY
+	bool "PHY Core in SPL"
+	depends on DM
+	help
+	  PHY support in SPL.
+
+	  This framework is designed to provide a generic interface for PHY
+	  devices. PHY devices are dedicated hardware that handle the physical
+	  layer of the protocols (https://en.wikipedia.org/wiki/OSI_model).
+	  PHYs are commonly used for high speed interfaces such as Serial-ATA
+	  or PCI express.
+	  The API provides functions to initialize/deinitialize the
+	  PHY, power on/off the PHY, and reset the PHY. It's meant to be as
+	  compatible as possible with the equivalent framework found in the
+	  linux kernel.
+
+config PHY_SANDBOX
+	bool "Sandbox PHY support"
+	depends on SANDBOX
+	depends on PHY
+	help
+	  This select a dummy sandbox PHY driver. It used only to implement
+	  the unit tests for the phy framework
+
+config NOP_PHY
+	bool "NOP PHY driver"
+	depends on PHY
+	help
+	  Support for a no-op PHY driver (stubbed PHY driver).
+
+	  This is useful when a driver uses the PHY framework but no real PHY
+	  hardware exists.
+
+config SPL_NOP_PHY
+	bool "NOP PHY driver in SPL"
+	depends on SPL_PHY
+	help
+	  Support for a no-op PHY driver (stubbed PHY driver) in the SPL.
+
+	  This is useful when a driver uses the PHY framework but no real PHY
+	  hardware exists.
+
+config PIPE3_PHY
+	bool "Support omap's PIPE3 PHY"
+	depends on PHY && ARCH_OMAP2PLUS
+	help
+	  Support for the omap PIPE3 phy for sata
+
+	  This PHY is found on omap devices supporting SATA such as dra7, am57x
+	  and omap5
+
+config SPL_PIPE3_PHY
+	bool "Support omap's PIPE3 PHY in SPL"
+	depends on SPL_PHY && ARCH_OMAP2PLUS
+	help
+	  Support for the omap PIPE3 phy for sata in SPL
+
+	  This PHY is found on omap devices supporting SATA such as dra7, am57x
+	  and omap5
+
+config STI_USB_PHY
+	bool "STMicroelectronics USB2 picoPHY driver for STiH407 family"
+	depends on PHY && ARCH_STI
+	help
+	  This is the generic phy driver for the picoPHY ports
+	  used by USB2 and USB3 Host controllers available on
+	  STiH407 SoC families.
+
+endmenu

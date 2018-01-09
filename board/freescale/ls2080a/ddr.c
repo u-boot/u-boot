@@ -8,6 +8,7 @@
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr_dimm_params.h>
 #include <asm/arch/soc.h>
+#include <asm/arch/clock.h>
 #include "ddr.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -158,69 +159,13 @@ int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,
 	return 0;
 }
 #endif
-phys_size_t initdram(int board_type)
-{
-	phys_size_t dram_size;
 
+int fsl_initdram(void)
+{
 	puts("Initializing DDR....");
 
 	puts("using SPD\n");
-	dram_size = fsl_ddr_sdram();
+	gd->ram_size = fsl_ddr_sdram();
 
-	return dram_size;
-}
-
-void dram_init_banksize(void)
-{
-#ifdef CONFIG_SYS_DP_DDR_BASE_PHY
-	phys_size_t dp_ddr_size;
-#endif
-
-	/*
-	 * gd->arch.secure_ram tracks the location of secure memory.
-	 * It was set as if the memory starts from 0.
-	 * The address needs to add the offset of its bank.
-	 */
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	if (gd->ram_size > CONFIG_SYS_LS2_DDR_BLOCK1_SIZE) {
-		gd->bd->bi_dram[0].size = CONFIG_SYS_LS2_DDR_BLOCK1_SIZE;
-		gd->bd->bi_dram[1].start = CONFIG_SYS_DDR_BLOCK2_BASE;
-		gd->bd->bi_dram[1].size = gd->ram_size -
-					  CONFIG_SYS_LS2_DDR_BLOCK1_SIZE;
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-		gd->arch.secure_ram = gd->bd->bi_dram[1].start +
-				      gd->arch.secure_ram -
-				      CONFIG_SYS_LS2_DDR_BLOCK1_SIZE;
-		gd->arch.secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
-#endif
-	} else {
-		gd->bd->bi_dram[0].size = gd->ram_size;
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-		gd->arch.secure_ram = gd->bd->bi_dram[0].start +
-				      gd->arch.secure_ram;
-		gd->arch.secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
-#endif
-	}
-
-#ifdef CONFIG_SYS_DP_DDR_BASE_PHY
-	if (soc_has_dp_ddr()) {
-		/* initialize DP-DDR here */
-		puts("DP-DDR:  ");
-		/*
-		 * DDR controller use 0 as the base address for binding.
-		 * It is mapped to CONFIG_SYS_DP_DDR_BASE for core to access.
-		 */
-		dp_ddr_size = fsl_other_ddr_sdram(CONFIG_SYS_DP_DDR_BASE_PHY,
-					  CONFIG_DP_DDR_CTRL,
-					  CONFIG_DP_DDR_NUM_CTRLS,
-					  CONFIG_DP_DDR_DIMM_SLOTS_PER_CTLR,
-					  NULL, NULL, NULL);
-		if (dp_ddr_size) {
-			gd->bd->bi_dram[2].start = CONFIG_SYS_DP_DDR_BASE;
-			gd->bd->bi_dram[2].size = dp_ddr_size;
-		} else {
-			puts("Not detected");
-		}
-	}
-#endif
+	return 0;
 }

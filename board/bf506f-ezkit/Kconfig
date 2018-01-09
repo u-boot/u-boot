@@ -1,9 +1,0 @@
-if TARGET_BF506F_EZKIT
-
-config SYS_BOARD
-	default "bf506f-ezkit"
-
-config SYS_CONFIG_NAME
-	default "bf506f-ezkit"
-
-endif

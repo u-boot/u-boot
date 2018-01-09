@@ -53,6 +53,7 @@ static const struct fsl_i2c_base *i2c_base[4] = {
 
 /* I2C speed map for a DFSR value of 1 */
 
+#ifdef __M68K__
 /*
  * Map I2C frequency dividers to FDR and DFSR values
  *
@@ -84,7 +85,6 @@ static const struct {
 	unsigned short divider;
 	u8 fdr;
 } fsl_i2c_speed_map[] = {
-#ifdef __M68K__
 	{20, 32}, {22, 33}, {24, 34}, {26, 35},
 	{28, 0}, {28, 36}, {30, 1}, {32, 37},
 	{34, 2}, {36, 38}, {40, 3}, {40, 39},
@@ -102,8 +102,8 @@ static const struct {
 	{1536, 61}, {1792, 62}, {1920, 27}, {2048, 63},
 	{2304, 28}, {2560, 29}, {3072, 30}, {3840, 31},
 	{-1, 31}
-#endif
 };
+#endif
 
 /**
  * Set the I2C bus speed for a given I2C device
@@ -284,15 +284,6 @@ static void __i2c_init(const struct fsl_i2c_base *base, int speed, int
 
 		break;
 	}
-
-#ifdef CONFIG_SYS_I2C_BOARD_LATE_INIT
-	/* Call board specific i2c bus reset routine AFTER the bus has been
-	 * initialized. Use either this callpoint or i2c_init_board;
-	 * which is called before i2c_init operations.
-	 * For details about this problem see doc/I2C_Edge_Conditions.
-	*/
-	i2c_board_late_init();
-#endif
 }
 
 static int
@@ -585,21 +576,21 @@ static int fsl_i2c_ofdata_to_platdata(struct udevice *bus)
 	struct fsl_i2c_dev *dev = dev_get_priv(bus);
 	fdt_addr_t addr;
 	fdt_size_t size;
+	int node = dev_of_offset(bus);
 
-	addr = fdtdec_get_addr_size_auto_noparent(gd->fdt_blob, bus->of_offset,
-						  "reg", 0, &size, false);
+	addr = fdtdec_get_addr_size_auto_noparent(gd->fdt_blob, node, "reg", 0,
+						  &size, false);
 
 	dev->base = map_sysmem(CONFIG_SYS_IMMR + addr, size);
 
 	if (!dev->base)
 		return -ENOMEM;
 
-	dev->index = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
-				    "cell-index", -1);
-	dev->slaveadd = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
+	dev->index = fdtdec_get_int(gd->fdt_blob, node, "cell-index", -1);
+	dev->slaveadd = fdtdec_get_int(gd->fdt_blob, node,
 				       "u-boot,i2c-slave-addr", 0x7f);
-	dev->speed = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
-				    "clock-frequency", 400000);
+	dev->speed = fdtdec_get_int(gd->fdt_blob, node, "clock-frequency",
+				    400000);
 
 	dev->i2c_clk = dev->index ? gd->arch.i2c2_clk : gd->arch.i2c1_clk;
 

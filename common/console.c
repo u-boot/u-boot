@@ -8,9 +8,11 @@
 #include <common.h>
 #include <console.h>
 #include <debug_uart.h>
+#include <dm.h>
 #include <stdarg.h>
 #include <iomux.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <os.h>
 #include <serial.h>
 #include <stdio_dev.h>
@@ -41,14 +43,14 @@ static int on_console(const char *name, const char *value, enum env_op op,
 	case env_op_create:
 	case env_op_overwrite:
 
-#ifdef CONFIG_CONSOLE_MUX
+#if CONFIG_IS_ENABLED(CONSOLE_MUX)
 		if (iomux_doenv(console, value))
 			return 1;
 #else
 		/* Try assigning specified device */
 		if (console_assign(console, value) < 0)
 			return 1;
-#endif /* CONFIG_CONSOLE_MUX */
+#endif
 		return 0;
 
 	case env_op_delete:
@@ -66,11 +68,11 @@ U_BOOT_ENV_CALLBACK(console, on_console);
 static int on_silent(const char *name, const char *value, enum env_op op,
 	int flags)
 {
-#if !CONFIG_IS_ENABLED(CONFIG_SILENT_CONSOLE_UPDATE_ON_SET)
+#if !CONFIG_IS_ENABLED(SILENT_CONSOLE_UPDATE_ON_SET)
 	if (flags & H_INTERACTIVE)
 		return 0;
 #endif
-#if !CONFIG_IS_ENABLED(CONFIG_SILENT_CONSOLE_UPDATE_ON_RELOC)
+#if !CONFIG_IS_ENABLED(SILENT_CONSOLE_UPDATE_ON_RELOC)
 	if ((flags & H_INTERACTIVE) == 0)
 		return 0;
 #endif
@@ -85,7 +87,7 @@ static int on_silent(const char *name, const char *value, enum env_op op,
 U_BOOT_ENV_CALLBACK(silent, on_silent);
 #endif
 
-#ifdef CONFIG_SYS_CONSOLE_IS_IN_ENV
+#if CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV)
 /*
  * if overwrite_console returns 1, the stdin, stderr and stdout
  * are switched to the serial port, else the settings in the
@@ -98,7 +100,7 @@ extern int overwrite_console(void);
 #define OVERWRITE_CONSOLE 0
 #endif /* CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE */
 
-#endif /* CONFIG_SYS_CONSOLE_IS_IN_ENV */
+#endif /* CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV) */
 
 static int console_setfile(int file, struct stdio_dev * dev)
 {
@@ -145,7 +147,30 @@ static int console_setfile(int file, struct stdio_dev * dev)
 	return error;
 }
 
-#if defined(CONFIG_CONSOLE_MUX)
+/**
+ * console_dev_is_serial() - Check if a stdio device is a serial device
+ *
+ * @sdev: Device to check
+ * @return true if this device is in the serial uclass (or for pre-driver-model,
+ * whether it is called "serial".
+ */
+static bool console_dev_is_serial(struct stdio_dev *sdev)
+{
+	bool is_serial;
+
+#ifdef CONFIG_DM_SERIAL
+	if (sdev->flags & DEV_FLAGS_DM) {
+		struct udevice *dev = sdev->priv;
+
+		is_serial = device_get_uclass_id(dev) == UCLASS_SERIAL;
+	} else
+#endif
+	is_serial = !strcmp(sdev->name, "serial");
+
+	return is_serial;
+}
+
+#if CONFIG_IS_ENABLED(CONSOLE_MUX)
 /** Console I/O multiplexing *******************************************/
 
 static struct stdio_dev *tstcdev;
@@ -202,7 +227,6 @@ static void console_putc(int file, const char c)
 	}
 }
 
-#if CONFIG_IS_ENABLED(PRE_CONSOLE_BUFFER)
 static void console_puts_noserial(int file, const char *s)
 {
 	int i;
@@ -210,11 +234,10 @@ static void console_puts_noserial(int file, const char *s)
 
 	for (i = 0; i < cd_count[file]; i++) {
 		dev = console_devices[file][i];
-		if (dev->puts != NULL && strcmp(dev->name, "serial") != 0)
+		if (dev->puts != NULL && !console_dev_is_serial(dev))
 			dev->puts(dev, s);
 	}
 }
-#endif
 
 static void console_puts(int file, const char *s)
 {
@@ -248,13 +271,11 @@ static inline void console_putc(int file, const char c)
 	stdio_devices[file]->putc(stdio_devices[file], c);
 }
 
-#if CONFIG_IS_ENABLED(PRE_CONSOLE_BUFFER)
 static inline void console_puts_noserial(int file, const char *s)
 {
-	if (strcmp(stdio_devices[file]->name, "serial") != 0)
+	if (!console_dev_is_serial(stdio_devices[file]))
 		stdio_devices[file]->puts(stdio_devices[file], s);
 }
-#endif
 
 static inline void console_puts(int file, const char *s)
 {
@@ -265,7 +286,7 @@ static inline void console_doenv(int file, struct stdio_dev *dev)
 {
 	console_setfile(file, dev);
 }
-#endif /* defined(CONFIG_CONSOLE_MUX) */
+#endif /* CONIFIG_IS_ENABLED(CONSOLE_MUX) */
 
 /** U-Boot INITIAL CONSOLE-NOT COMPATIBLE FUNCTIONS *************************/
 
@@ -290,7 +311,7 @@ int serial_printf(const char *fmt, ...)
 int fgetc(int file)
 {
 	if (file < MAX_FILES) {
-#if defined(CONFIG_CONSOLE_MUX)
+#if CONFIG_IS_ENABLED(CONSOLE_MUX)
 		/*
 		 * Effectively poll for input wherever it may be available.
 		 */
@@ -420,9 +441,13 @@ int tstc(void)
 
 static void pre_console_putc(const char c)
 {
-	char *buffer = (char *)CONFIG_PRE_CON_BUF_ADDR;
+	char *buffer;
+
+	buffer = map_sysmem(CONFIG_PRE_CON_BUF_ADDR, CONFIG_PRE_CON_BUF_SZ);
 
 	buffer[CIRC_BUF_IDX(gd->precon_buf_idx++)] = c;
+
+	unmap_sysmem(buffer);
 }
 
 static void pre_console_puts(const char *s)
@@ -434,14 +459,16 @@ static void pre_console_puts(const char *s)
 static void print_pre_console_buffer(int flushpoint)
 {
 	unsigned long in = 0, out = 0;
-	char *buf_in = (char *)CONFIG_PRE_CON_BUF_ADDR;
 	char buf_out[CONFIG_PRE_CON_BUF_SZ + 1];
+	char *buf_in;
 
+	buf_in = map_sysmem(CONFIG_PRE_CON_BUF_ADDR, CONFIG_PRE_CON_BUF_SZ);
 	if (gd->precon_buf_idx > CONFIG_PRE_CON_BUF_SZ)
 		in = gd->precon_buf_idx - CONFIG_PRE_CON_BUF_SZ;
 
 	while (in < gd->precon_buf_idx)
 		buf_out[out++] = buf_in[CIRC_BUF_IDX(in++)];
+	unmap_sysmem(buf_in);
 
 	buf_out[out] = 0;
 
@@ -505,12 +532,6 @@ void putc(const char c)
 
 void puts(const char *s)
 {
-#ifdef CONFIG_SANDBOX
-	if (!gd || !(gd->flags & GD_FLG_SERIAL_READY)) {
-		os_puts(s);
-		return;
-	}
-#endif
 #ifdef CONFIG_DEBUG_UART
 	if (!gd || !(gd->flags & GD_FLG_SERIAL_READY)) {
 		while (*s) {
@@ -692,11 +713,24 @@ int console_assign(int file, const char *devname)
 static void console_update_silent(void)
 {
 #ifdef CONFIG_SILENT_CONSOLE
-	if (getenv("silent") != NULL)
+	if (env_get("silent") != NULL)
 		gd->flags |= GD_FLG_SILENT;
 	else
 		gd->flags &= ~GD_FLG_SILENT;
 #endif
+}
+
+int console_announce_r(void)
+{
+#if !CONFIG_IS_ENABLED(PRE_CONSOLE_BUFFER)
+	char buf[DISPLAY_OPTIONS_BANNER_LENGTH];
+
+	display_options_get_banner(false, buf, sizeof(buf));
+
+	console_puts_noserial(stdout, buf);
+#endif
+
+	return 0;
 }
 
 /* Called before relocation - use serial functions */
@@ -736,7 +770,7 @@ void stdio_print_current_devices(void)
 	}
 }
 
-#ifdef CONFIG_SYS_CONSOLE_IS_IN_ENV
+#if CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV)
 /* Called after the relocation - use desired console functions */
 int console_init_r(void)
 {
@@ -745,7 +779,7 @@ int console_init_r(void)
 #ifdef CONFIG_SYS_CONSOLE_ENV_OVERWRITE
 	int i;
 #endif /* CONFIG_SYS_CONSOLE_ENV_OVERWRITE */
-#ifdef CONFIG_CONSOLE_MUX
+#if CONFIG_IS_ENABLED(CONSOLE_MUX)
 	int iomux_err = 0;
 #endif
 
@@ -758,15 +792,15 @@ int console_init_r(void)
 
 	/* stdin stdout and stderr are in environment */
 	/* scan for it */
-	stdinname  = getenv("stdin");
-	stdoutname = getenv("stdout");
-	stderrname = getenv("stderr");
+	stdinname  = env_get("stdin");
+	stdoutname = env_get("stdout");
+	stderrname = env_get("stderr");
 
 	if (OVERWRITE_CONSOLE == 0) {	/* if not overwritten by config switch */
 		inputdev  = search_device(DEV_FLAGS_INPUT,  stdinname);
 		outputdev = search_device(DEV_FLAGS_OUTPUT, stdoutname);
 		errdev    = search_device(DEV_FLAGS_OUTPUT, stderrname);
-#ifdef CONFIG_CONSOLE_MUX
+#if CONFIG_IS_ENABLED(CONSOLE_MUX)
 		iomux_err = iomux_doenv(stdin, stdinname);
 		iomux_err += iomux_doenv(stdout, stdoutname);
 		iomux_err += iomux_doenv(stderr, stderrname);
@@ -799,7 +833,7 @@ int console_init_r(void)
 		console_doenv(stdin, inputdev);
 	}
 
-#ifdef CONFIG_CONSOLE_MUX
+#if CONFIG_IS_ENABLED(CONSOLE_MUX)
 done:
 #endif
 
@@ -814,7 +848,7 @@ done:
 #ifdef CONFIG_SYS_CONSOLE_ENV_OVERWRITE
 	/* set the environment variables (will overwrite previous env settings) */
 	for (i = 0; i < 3; i++) {
-		setenv(stdio_names[i], stdio_devices[i]->name);
+		env_set(stdio_names[i], stdio_devices[i]->name);
 	}
 #endif /* CONFIG_SYS_CONSOLE_ENV_OVERWRITE */
 
@@ -829,7 +863,7 @@ done:
 	return 0;
 }
 
-#else /* CONFIG_SYS_CONSOLE_IS_IN_ENV */
+#else /* !CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV) */
 
 /* Called after the relocation - use desired console functions */
 int console_init_r(void)
@@ -849,7 +883,7 @@ int console_init_r(void)
 	 * console to serial console in this case or suppress it if
 	 * "silent" mode was requested.
 	 */
-	if (getenv("splashimage") != NULL) {
+	if (env_get("splashimage") != NULL) {
 		if (!(gd->flags & GD_FLG_SILENT))
 			outputdev = search_device (DEV_FLAGS_OUTPUT, "serial");
 	}
@@ -873,7 +907,7 @@ int console_init_r(void)
 	if (outputdev != NULL) {
 		console_setfile(stdout, outputdev);
 		console_setfile(stderr, outputdev);
-#ifdef CONFIG_CONSOLE_MUX
+#if CONFIG_IS_ENABLED(CONSOLE_MUX)
 		console_devices[stdout][0] = outputdev;
 		console_devices[stderr][0] = outputdev;
 #endif
@@ -882,7 +916,7 @@ int console_init_r(void)
 	/* Initializes input console */
 	if (inputdev != NULL) {
 		console_setfile(stdin, inputdev);
-#ifdef CONFIG_CONSOLE_MUX
+#if CONFIG_IS_ENABLED(CONSOLE_MUX)
 		console_devices[stdin][0] = inputdev;
 #endif
 	}
@@ -893,7 +927,7 @@ int console_init_r(void)
 
 	/* Setting environment variables */
 	for (i = 0; i < 3; i++) {
-		setenv(stdio_names[i], stdio_devices[i]->name);
+		env_set(stdio_names[i], stdio_devices[i]->name);
 	}
 
 	gd->flags |= GD_FLG_DEVINIT;	/* device initialization completed */
@@ -907,4 +941,4 @@ int console_init_r(void)
 	return 0;
 }
 
-#endif /* CONFIG_SYS_CONSOLE_IS_IN_ENV */
+#endif /* CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV) */

@@ -17,11 +17,8 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MISC_INIT_R
 #define CONFIG_USBD_HS
-#define CONFIG_USB_ETHER
-#define CONFIG_USB_ETH_CDC
 #define CONFIG_NETCONSOLE
 
 #define CONFIG_MXC_UART
@@ -48,20 +45,14 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 #define CONFIG_SYS_FSL_USDHC_NUM       2
 
-#ifdef CONFIG_MX6Q
-#define CONFIG_CMD_SATA
-#endif
-
 /*
  * SATA Configs
  */
 #ifdef CONFIG_CMD_SATA
-#define CONFIG_DWC_AHSATA
 #define CONFIG_SYS_SATA_MAX_DEVICE	1
 #define CONFIG_DWC_AHSATA_PORT_ID	0
 #define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_ARB_BASE_ADDR
 #define CONFIG_LBA48
-#define CONFIG_LIBATA
 #endif
 
 #define CONFIG_FEC_MXC
@@ -70,25 +61,12 @@
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_ETHPRIME			"FEC"
 #define CONFIG_FEC_MXC_PHYADDR		6
-#define CONFIG_PHYLIB
-#define CONFIG_PHY_MICREL
-#define CONFIG_PHY_MICREL_KSZ9021
 
 /* USB Configs */
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_MX6
-#define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_ASIX
-#define CONFIG_USB_ETHER_MCS7830
-#define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET	/* For OTG port */
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS	0
-#define CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP
-
-/* Miscellaneous commands */
-#define CONFIG_CMD_BMODE
 
 /* Framebuffer and LCD */
 #define CONFIG_VIDEO_IPUV3
@@ -98,8 +76,6 @@
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE (6 * 1024 * 1024)
 #define CONFIG_BMP_16BPP
-#define CONFIG_IPUV3_CLK 260000000
-#define CONFIG_CMD_HDMIDETECT
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 
@@ -137,6 +113,7 @@
 	"fdt_addr=0x18000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
+	"usb_pgood_delay=2000\0" \
 	"mmcdevs=0 1\0" \
 	"mmcpart=1\0" \
 	"mmcroot=/dev/mmcblk0p2 rootwait rw\0" \
@@ -206,6 +183,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootdevs=" CONFIG_DRIVE_TYPES "\0" \
 	"umsdevs=" CONFIG_UMSDEVS "\0" \
+	"usb_pgood_delay=2000\0" \
 	"console=ttymxc1\0" \
 	"clearenv=if sf probe || sf probe || sf probe 1 ; then " \
 		"sf erase 0xc0000 0x2000 && " \
@@ -279,12 +257,6 @@
 /* Environment organization */
 #define CONFIG_ENV_SIZE			(8 * 1024)
 
-#if defined(CONFIG_SABRELITE)
-#define CONFIG_ENV_IS_IN_MMC
-#else
-#define CONFIG_ENV_IS_IN_SPI_FLASH
-#endif
-
 #if defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_ENV_OFFSET		(6 * 64 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV		0
@@ -297,8 +269,6 @@
 #define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
 #endif
 
-#define CONFIG_CMD_BMP
-
 #define CONFIG_SYS_ALT_MEMTEST
 
 /*
@@ -310,11 +280,5 @@
 #endif
 
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
-
-#define CONFIG_USB_FUNCTION_FASTBOOT
-#define CONFIG_CMD_FASTBOOT
-#define CONFIG_ANDROID_BOOT_IMAGE
-#define CONFIG_FASTBOOT_BUF_ADDR   CONFIG_SYS_LOAD_ADDR
-#define CONFIG_FASTBOOT_BUF_SIZE   0x07000000
 
 #endif	       /* __CONFIG_H */

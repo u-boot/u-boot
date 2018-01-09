@@ -9,7 +9,6 @@
 #include <malloc.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/clk.h>
 
 #define SLCR_LOCK_MAGIC		0x767B
 #define SLCR_UNLOCK_MAGIC	0xDF0D
@@ -124,34 +123,6 @@ void zynq_slcr_cpu_reset(void)
 	writel(1, &slcr_base->pss_rst_ctrl);
 }
 
-/* Setup clk for network */
-void zynq_slcr_gem_clk_setup(u32 gem_id, unsigned long clk_rate)
-{
-	int ret;
-
-	zynq_slcr_unlock();
-
-	if (gem_id > 1) {
-		printf("Non existing GEM id %d\n", gem_id);
-		goto out;
-	}
-
-	ret = zynq_clk_set_rate(gem0_clk + gem_id, clk_rate);
-	if (ret)
-		goto out;
-
-	if (gem_id) {
-		/* Configure GEM_RCLK_CTRL */
-		writel(1, &slcr_base->gem1_rclk_ctrl);
-	} else {
-		/* Configure GEM_RCLK_CTRL */
-		writel(1, &slcr_base->gem0_rclk_ctrl);
-	}
-	udelay(100000);
-out:
-	zynq_slcr_lock();
-}
-
 void zynq_slcr_devcfg_disable(void)
 {
 	u32 reg_val;
@@ -208,8 +179,9 @@ u32 zynq_slcr_get_idcode(void)
 int zynq_slcr_get_mio_pin_status(const char *periph)
 {
 	const struct zynq_slcr_mio_get_status *mio_ptr;
-	int val, i, j;
+	int val, j;
 	int mio = 0;
+	u32 i;
 
 	for (i = 0; i < ARRAY_SIZE(mio_periphs); i++) {
 		if (strcmp(periph, mio_periphs[i].peri_name) == 0) {

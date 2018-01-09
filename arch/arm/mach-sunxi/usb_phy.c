@@ -18,12 +18,18 @@
 #include <asm/io.h>
 #include <errno.h>
 
-#define SUNXI_USB_PMU_IRQ_ENABLE	0x800
-#ifdef CONFIG_MACH_SUN8I_A33
-#define SUNXI_USB_CSR			0x410
-#else
+#if defined(CONFIG_MACH_SUN4I) ||		   \
+	defined(CONFIG_MACH_SUN5I) ||		   \
+	defined(CONFIG_MACH_SUN6I) ||		   \
+	defined(CONFIG_MACH_SUN7I) ||		   \
+	defined(CONFIG_MACH_SUN8I_A23) ||	   \
+	defined(CONFIG_MACH_SUN9I)
 #define SUNXI_USB_CSR			0x404
+#else
+#define SUNXI_USB_CSR			0x410
 #endif
+
+#define SUNXI_USB_PMU_IRQ_ENABLE	0x800
 #define SUNXI_USB_PASSBY_EN		1
 
 #define SUNXI_EHCI_AHB_ICHR8_EN		(1 << 10)
@@ -146,10 +152,10 @@ __maybe_unused static void usb_phy_write(struct sunxi_usb_phy *phy, int addr,
 	}
 }
 
-#if defined(CONFIG_MACH_SUN8I_H3) || defined(CONFIG_MACH_SUN50I)
+#if defined(CONFIG_MACH_SUNXI_H3_H5) || defined(CONFIG_MACH_SUN50I)
 static void sunxi_usb_phy_config(struct sunxi_usb_phy *phy)
 {
-#if defined CONFIG_MACH_SUN8I_H3
+#if defined CONFIG_MACH_SUNXI_H3_H5
 	if (phy->id == 0)
 		clrbits_le32(SUNXI_USBPHY_BASE + REG_PHY_UNK_H3, 0x01);
 #endif

@@ -8,7 +8,7 @@
 #include <mapmem.h>
 #include <linux/io.h>
 #include <linux/err.h>
-#include <dm/device.h>
+#include <dm.h>
 #include <dm/pinctrl.h>
 
 #include "pinctrl-imx.h"
@@ -19,11 +19,12 @@ static int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
 	struct imx_pinctrl_priv *priv = dev_get_priv(dev);
 	struct imx_pinctrl_soc_info *info = priv->info;
-	int node = config->of_offset;
+	int node = dev_of_offset(config);
 	const struct fdt_property *prop;
 	u32 *pin_data;
 	int npins, size, pin_size;
 	int mux_reg, conf_reg, input_reg, input_val, mux_mode, config_val;
+	u32 mux_shift = info->mux_mask ? ffs(info->mux_mask) - 1 : 0;
 	int i, j = 0;
 
 	dev_dbg(dev, "%s: %s\n", __func__, config->name);
@@ -52,6 +53,7 @@ static int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	if (fdtdec_get_int_array(gd->fdt_blob, node, "fsl,pins",
 				 pin_data, size >> 2)) {
 		dev_err(dev, "Error reading pin data.\n");
+		devm_kfree(dev, pin_data);
 		return -EINVAL;
 	}
 
@@ -77,6 +79,7 @@ static int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 
 		if ((mux_reg == -1) || (conf_reg == -1)) {
 			dev_err(dev, "Error mux_reg or conf_reg\n");
+			devm_kfree(dev, pin_data);
 			return -EINVAL;
 		}
 
@@ -97,8 +100,8 @@ static int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 
 		/* Set Mux */
 		if (info->flags & SHARE_MUX_CONF_REG) {
-			clrsetbits_le32(info->base + mux_reg, 0x7 << 20,
-					mux_mode << 20);
+			clrsetbits_le32(info->base + mux_reg, info->mux_mask,
+					mux_mode << mux_shift);
 		} else {
 			writel(mux_mode, info->base + mux_reg);
 		}
@@ -154,8 +157,8 @@ static int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 		/* Set config */
 		if (!(config_val & IMX_NO_PAD_CTL)) {
 			if (info->flags & SHARE_MUX_CONF_REG) {
-				clrsetbits_le32(info->base + conf_reg, 0xffff,
-						config_val);
+				clrsetbits_le32(info->base + conf_reg,
+						~info->mux_mask, config_val);
 			} else {
 				writel(config_val, info->base + conf_reg);
 			}
@@ -164,6 +167,8 @@ static int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 				conf_reg, config_val);
 		}
 	}
+
+	devm_kfree(dev, pin_data);
 
 	return 0;
 }
@@ -176,7 +181,7 @@ int imx_pinctrl_probe(struct udevice *dev,
 		      struct imx_pinctrl_soc_info *info)
 {
 	struct imx_pinctrl_priv *priv = dev_get_priv(dev);
-	int node = dev->of_offset, ret;
+	int node = dev_of_offset(dev), ret;
 	struct fdtdec_phandle_args arg;
 	fdt_addr_t addr;
 	fdt_size_t size;
@@ -189,7 +194,8 @@ int imx_pinctrl_probe(struct udevice *dev,
 	priv->dev = dev;
 	priv->info = info;
 
-	addr = fdtdec_get_addr_size(gd->fdt_blob, dev->of_offset, "reg", &size);
+	addr = fdtdec_get_addr_size(gd->fdt_blob, dev_of_offset(dev), "reg",
+				    &size);
 
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
@@ -199,6 +205,7 @@ int imx_pinctrl_probe(struct udevice *dev,
 		return -ENOMEM;
 	priv->info = info;
 
+	info->mux_mask = fdtdec_get_int(gd->fdt_blob, node, "fsl,mux_mask", 0);
 	/*
 	 * Refer to linux documentation for details:
 	 * Documentation/devicetree/bindings/pinctrl/fsl,imx7d-pinctrl.txt

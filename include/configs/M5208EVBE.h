@@ -16,13 +16,9 @@
  */
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
-#define CONFIG_BAUDRATE			115200
 
 #undef CONFIG_WATCHDOG
 #define CONFIG_WATCHDOG_TIMEOUT		5000
-
-/* Command line configuration */
-#define CONFIG_CMD_REGINFO
 
 #define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC
@@ -84,15 +80,6 @@
 #define CONFIG_PRAM		512	/* 512 KB */
 #define CONFIG_SYS_LONGHELP	/* undef to save memory */
 
-#ifdef CONFIG_CMD_KGDB
-#	define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size */
-#else
-#	define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
-#endif
-
-#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS	16		/* max number of cmd args */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Arg Buf Sz */
 #define CONFIG_SYS_LOAD_ADDR	0x40010000
 
 #define CONFIG_SYS_CLK		166666666	/* CPU Core Clock */
@@ -163,11 +150,10 @@
 #define CONFIG_ENV_OFFSET		0x2000
 #define CONFIG_ENV_SIZE			0x1000
 #define CONFIG_ENV_SECT_SIZE		0x2000
-#define CONFIG_ENV_IS_IN_FLASH		1
 
 #define LDS_BOARD_TEXT \
-        . = DEFINED(env_offset) ? env_offset : .; \
-        common/env_embedded.o (.text*);
+	. = DEFINED(env_offset) ? env_offset : .; \
+	env/embedded.o(.text*);
 
 /* Cache Configuration */
 #define CONFIG_SYS_CACHELINE_SIZE	16

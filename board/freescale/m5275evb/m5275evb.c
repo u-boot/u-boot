@@ -13,6 +13,8 @@
 #include <asm/immap.h>
 #include <asm/io.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define PERIOD		13	/* system bus period in ns */
 #define SDRAM_TREFI	7800	/* in ns */
 
@@ -23,7 +25,7 @@ int checkboard(void)
 	return 0;
 };
 
-phys_size_t initdram(int board_type)
+int dram_init(void)
 {
 	sdramctrl_t *sdp = (sdramctrl_t *)(MMAP_SDRAM);
 	gpio_t *gpio_reg = (gpio_t *)(MMAP_GPIO);
@@ -88,7 +90,9 @@ phys_size_t initdram(int board_type)
 		| MCF_SDRAMC_SDCR_RCNT((SDRAM_TREFI/(PERIOD*64)) - 1 + 1)
 		| MCF_SDRAMC_SDCR_DQS_OE(0x3));
 
-	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+	gd->ram_size = CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+
+	return 0;
 };
 
 int testdram(void)

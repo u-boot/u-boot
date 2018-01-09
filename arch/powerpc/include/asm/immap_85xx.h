@@ -2523,7 +2523,11 @@ typedef struct ccsr_gur {
 
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
 #define MAX_SERDES 4
+#if defined(CONFIG_ARCH_T1024) || defined(CONFIG_ARCH_T1023)
+#define SRDS_MAX_LANES 4
+#else
 #define SRDS_MAX_LANES 8
+#endif
 #define SRDS_MAX_BANK 2
 typedef struct serdes_corenet {
 	struct {

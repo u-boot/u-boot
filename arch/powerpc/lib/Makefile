@@ -34,27 +34,8 @@ obj-y	+= cache.o
 obj-y	+= extable.o
 obj-y	+= interrupts.o
 obj-$(CONFIG_CMD_KGDB) += kgdb.o
-obj-$(CONFIG_CMD_IDE) += ide.o
 obj-y	+= stack.o
 obj-y	+= time.o
-
-# Don't include the MPC5xxx special memcpy into the
-# SPL U-Boot image. memcpy is used in the SPL NOR
-# flash driver. And we need the real, fast memcpy
-# here. We have no problems with unaligned access.
-ifndef CONFIG_SPL_BUILD
-# Workaround for local bus unaligned access problems
-# on MPC512x and MPC5200
-ifdef CONFIG_MPC512X
-AFLAGS_ppcstring.o += -Dmemcpy=__memcpy
-obj-y += memcpy_mpc5200.o
-endif
-ifdef CONFIG_MPC5200
-AFLAGS_ppcstring.o += -Dmemcpy=__memcpy
-obj-y += memcpy_mpc5200.o
-endif
-endif
-
 endif # not minimal
 
 ifdef CONFIG_SPL_BUILD

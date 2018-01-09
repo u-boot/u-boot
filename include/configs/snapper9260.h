@@ -42,7 +42,6 @@
 
 /* NAND Flash */
 #define CONFIG_NAND_ATMEL
-#define CONFIG_SYS_NO_FLASH
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		ATMEL_BASE_CS3
 #define CONFIG_SYS_NAND_DBW_8
@@ -64,7 +63,6 @@
 #define CONFIG_USB_ATMEL
 #define CONFIG_USB_ATMEL_CLK_SEL_PLLB
 #define CONFIG_USB_OHCI_NEW
-#define CONFIG_DOS_PARTITION
 #define CONFIG_SYS_USB_OHCI_CPU_INIT
 #define CONFIG_SYS_USB_OHCI_REGS_BASE	ATMEL_UHP_BASE
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME	"at91sam9260"
@@ -84,7 +82,6 @@
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS
 #endif
-#define CONFIG_BAUDRATE			115200
 
 /* I2C - Bit-bashed */
 #define CONFIG_SYS_I2C
@@ -122,27 +119,16 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /* Environment settings */
-#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		(512 << 10)
 #define CONFIG_ENV_SIZE			(256 << 10)
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_BOOTARGS			"console=ttyS0,115200 ip=any"
 
 /* Console settings */
-#define CONFIG_SYS_CBSIZE		256
-#define CONFIG_SYS_MAXARGS		16
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE +		\
-					 sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
 
 /* U-Boot memory settings */
 #define CONFIG_SYS_MALLOC_LEN		(1 << 20)
-
-/* Command line configuration */
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_PCA953X
-#define CONFIG_CMD_PCA953X_INFO
 
 #endif /* __CONFIG_H */

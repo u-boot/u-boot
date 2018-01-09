@@ -45,13 +45,17 @@ int dram_init(void)
 	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
 				    CONFIG_MAX_RAM_BANK_SIZE);
 #if defined(CONFIG_TI_AEMIF)
-	aemif_init(ARRAY_SIZE(aemif_configs), aemif_configs);
+	if (!board_is_k2g_ice())
+		aemif_init(ARRAY_SIZE(aemif_configs), aemif_configs);
 #endif
 
-	if (ddr3_size)
-		ddr3_init_ecc(KS2_DDR3A_EMIF_CTRL_BASE, ddr3_size);
-	else
-		ddr3_init_ecc(KS2_DDR3A_EMIF_CTRL_BASE, gd->ram_size >> 30);
+	if (!board_is_k2g_ice()) {
+		if (ddr3_size)
+			ddr3_init_ecc(KS2_DDR3A_EMIF_CTRL_BASE, ddr3_size);
+		else
+			ddr3_init_ecc(KS2_DDR3A_EMIF_CTRL_BASE,
+				      gd->ram_size >> 30);
+	}
 
 	return 0;
 }
@@ -70,7 +74,7 @@ int get_eth_env_param(char *env_name)
 	char *env;
 	int res = -1;
 
-	env = getenv(env_name);
+	env = env_get(env_name);
 	if (env)
 		res = simple_strtol(env, NULL, 0);
 
@@ -147,9 +151,9 @@ int ft_board_setup(void *blob, bd_t *bd)
 	u32 ddr3a_size;
 	int unitrd_fixup = 0;
 
-	env = getenv("mem_lpae");
+	env = env_get("mem_lpae");
 	lpae = env && simple_strtol(env, NULL, 0);
-	env = getenv("uinitrd_fixup");
+	env = env_get("uinitrd_fixup");
 	unitrd_fixup = env && simple_strtol(env, NULL, 0);
 
 	ddr3a_size = 0;
@@ -176,13 +180,13 @@ int ft_board_setup(void *blob, bd_t *bd)
 	}
 
 	/* reserve memory at start of bank */
-	env = getenv("mem_reserve_head");
+	env = env_get("mem_reserve_head");
 	if (env) {
 		start[0] += ustrtoul(env, &endp, 0);
 		size[0] -= ustrtoul(env, &endp, 0);
 	}
 
-	env = getenv("mem_reserve");
+	env = env_get("mem_reserve");
 	if (env)
 		size[0] -= ustrtoul(env, &endp, 0);
 
@@ -247,7 +251,7 @@ void ft_board_setup_ex(void *blob, bd_t *bd)
 	char *env;
 	u64 *reserve_start;
 
-	env = getenv("mem_lpae");
+	env = env_get("mem_lpae");
 	lpae = env && simple_strtol(env, NULL, 0);
 
 	if (lpae) {
@@ -277,3 +281,10 @@ void ft_board_setup_ex(void *blob, bd_t *bd)
 	ddr3_check_ecc_int(KS2_DDR3A_EMIF_CTRL_BASE);
 }
 #endif /* CONFIG_OF_BOARD_SETUP */
+
+#if defined(CONFIG_DTB_RESELECT)
+int __weak embedded_dtb_select(void)
+{
+	return 0;
+}
+#endif

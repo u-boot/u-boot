@@ -11,7 +11,6 @@
 
 /* High Level Configuration Options */
 
-#define CONFIG_MX25
 #define CONFIG_SYS_TEXT_BASE		0x81200000
 #define CONFIG_MXC_GPIO
 #define CONFIG_SYS_FSL_CLK
@@ -35,9 +34,6 @@
 #define PHYS_SDRAM_1		0x80000000
 #define PHYS_SDRAM_1_SIZE	(64 * 1024 * 1024)
 
-#define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_LATE_INIT
-
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	IMX_RAM_BASE
 #define CONFIG_SYS_INIT_RAM_SIZE	IMX_RAM_SIZE
@@ -55,30 +51,24 @@
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONFIG_CONS_INDEX	1	/* use UART0 for console */
-#define CONFIG_BAUDRATE		115200	/* Default baud rate */
 
 /* No NOR flash present */
 #define CONFIG_ENV_OFFSET      (6 * 64 * 1024)
 #define CONFIG_ENV_SIZE        (8 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
-#define CONFIG_SYS_NO_FLASH
-#define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV 0
-
 /* U-Boot general configuration */
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size  */
-/* Print buffer sz */
-#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + \
-		sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS	16	/* max number of command args */
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP
 
 /* U-Boot commands */
+
+/* Filesystem support */
+#define CONFIG_FS_EXT4
 
 /* Ethernet */
 #define CONFIG_FEC_MXC
@@ -87,7 +77,6 @@
 #define CONFIG_ENV_OVERWRITE
 
 /* ESDHC driver */
-#define CONFIG_GENERIC_MMC
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	IMX_MMC_SDHC1_BASE
 #define CONFIG_SYS_FSL_ESDHC_NUM	1
@@ -99,8 +88,6 @@
 #define CONFIG_POWER_FSL_MC34704
 #define CONFIG_SYS_FSL_PMIC_I2C_ADDR	0x54
 
-#define CONFIG_DOS_PARTITION
-
 /* I2C Configs */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
@@ -109,7 +96,10 @@
 
 /* RTC */
 #define CONFIG_RTC_IMXDI
-#define CONFIG_CMD_DATE
+
+/* Fuse API support */
+#define CONFIG_FSL_IIM
+#define CONFIG_CMD_FUSE
 
 /* Ethernet Configs */
 
@@ -148,11 +138,11 @@
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
 	"loadbootscript=" \
-		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
+		"load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
-	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
-	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
+	"loadimage=load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
+	"loadfdt=load mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
@@ -208,8 +198,5 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_AUTO_COMPLETE
-
-#define CONFIG_SYS_MAXARGS	       16
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
 
 #endif /* __CONFIG_H */

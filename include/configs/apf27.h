@@ -22,13 +22,11 @@
 /*
  * Enable the call to miscellaneous platform dependent initialization.
  */
-#define CONFIG_SYS_NO_FLASH
 
 /*
  * SPL
  */
 #define CONFIG_SPL_TARGET	"u-boot-with-spl.bin"
-#define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
 #define CONFIG_SPL_MAX_SIZE	2048
 #define CONFIG_SPL_TEXT_BASE    0xA0000000
 
@@ -51,19 +49,6 @@
 
 #define CONFIG_HOSTNAME	CONFIG_BOARD_NAME
 #define CONFIG_ROOTPATH	"/tftpboot/" __stringify(CONFIG_BOARD_NAME) "-root"
-
-/*
- * U-Boot Commands
- */
-#define CONFIG_CMD_BSP		/* Board Specific functions	*/
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_IMX_FUSE	/* imx iim fuse                 */
-#define CONFIG_CMD_MTDPARTS	/* MTD partition support	*/
-#define CONFIG_CMD_NAND		/* NAND support			*/
-#define CONFIG_CMD_NAND_LOCK_UNLOCK
-#define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_CMD_UBIFS
 
 /*
  * Memory configurations
@@ -90,7 +75,6 @@
  */
 #define	ACFG_MONITOR_OFFSET		0x00000000
 #define	CONFIG_SYS_MONITOR_LEN		0x00100000	/* 1MiB */
-#define CONFIG_ENV_IS_IN_NAND
 #define	CONFIG_ENV_OVERWRITE
 #define	CONFIG_ENV_OFFSET		0x00100000	/* NAND offset */
 #define	CONFIG_ENV_SIZE			0x00020000	/* 128kB  */
@@ -103,26 +87,11 @@
 #define	CONFIG_KERNEL_OFFSET		0x00300000
 #define	CONFIG_ROOTFS_OFFSET		0x00800000
 
-#define CONFIG_MTDMAP			"mxc_nand.0"
-#define MTDIDS_DEFAULT			"nand0=" CONFIG_MTDMAP
-#define MTDPARTS_DEFAULT	"mtdparts=" CONFIG_MTDMAP \
-				":1M(u-boot)ro," \
-				"512K(env)," \
-				"512K(env2)," \
-				"512K(firmware)," \
-				"512K(dtb)," \
-				"5M(kernel)," \
-				"-(rootfs)"
-
 /*
  * U-Boot general configurations
  */
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_CBSIZE		2048		/* console I/O buffer */
-#define CONFIG_SYS_PBSIZE		\
-				(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
-						/* Print buffer size */
-#define CONFIG_SYS_MAXARGS		16		/* max command args */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 						/* Boot argument buffer size */
 #define CONFIG_AUTO_COMPLETE
@@ -138,9 +107,6 @@
 #define CONFIG_INITRD_TAG		/* send initrd params	*/
 
 #define	CONFIG_BOOTFILE		__stringify(CONFIG_BOARD_NAME) "-linux.bin"
-#define CONFIG_BOOTARGS		"console=" __stringify(ACFG_CONSOLE_DEV) "," \
-			__stringify(CONFIG_BAUDRATE) " " MTDPARTS_DEFAULT \
-			" ubi.mtd=rootfs root=ubi0:rootfs rootfstype=ubifs "
 
 #define ACFG_CONSOLE_DEV	ttySMX0
 #define CONFIG_BOOTCOMMAND	"run ubifsboot"
@@ -157,7 +123,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"env_version="		__stringify(CONFIG_ENV_VERSION)		"\0" \
 	"consoledev="		__stringify(ACFG_CONSOLE_DEV)		"\0" \
-	"mtdparts="		MTDPARTS_DEFAULT			"\0" \
+	"mtdparts="	 	CONFIG_MTDPARTS_DEFAULT	"\0" \
 	"partition=nand0,6\0"						\
 	"u-boot_addr="		__stringify(ACFG_MONITOR_OFFSET)	"\0" \
 	"env_addr="		__stringify(CONFIG_ENV_OFFSET)		"\0" \
@@ -201,7 +167,6 @@
  */
 #define CONFIG_MXC_UART
 #define CONFIG_CONS_INDEX		1
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
 /*
@@ -216,7 +181,6 @@
 /*
  * NAND
  */
-#define CONFIG_NAND_MXC
 
 #define CONFIG_MXC_NAND_REGS_BASE	0xD8000000
 #define CONFIG_SYS_NAND_BASE		CONFIG_MXC_NAND_REGS_BASE
@@ -224,7 +188,6 @@
 
 #define CONFIG_MXC_NAND_HWECC
 #define CONFIG_SYS_NAND_LARGEPAGE
-#define CONFIG_SYS_NAND_BUSWIDTH_16BIT
 #define CONFIG_SYS_NAND_PAGE_SIZE	2048
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
 #define CONFIG_SYS_NAND_PAGE_COUNT	CONFIG_SYS_NAND_BLOCK_SIZE / \
@@ -241,14 +204,7 @@
  */
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_DOS_PARTITION
 #define CONFIG_SUPPORT_VFAT
-
-/*
- * UBIFS
- */
-#define CONFIG_RBTREE
-#define CONFIG_LZO
 
 /*
  * Ethernet (on SOC imx FEC)
@@ -308,8 +264,6 @@
  * SD/MMC
  */
 #ifdef CONFIG_CMD_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_MXC_MMC
 #define CONFIG_MXC_MCI_REGS_BASE	0x10014000
 #endif
 

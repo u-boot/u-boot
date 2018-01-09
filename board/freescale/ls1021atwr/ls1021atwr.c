@@ -273,6 +273,7 @@ int board_eth_init(bd_t *bis)
 #endif
 #ifdef CONFIG_TSEC3
 	SET_STD_TSEC_INFO(tsec_info[num], 3);
+	tsec_info[num].interface = PHY_INTERFACE_MODE_RGMII_ID;
 	num++;
 #endif
 	if (!num) {
@@ -433,7 +434,6 @@ void board_init_f(ulong dummy)
 
 	/* Allow OCRAM access permission as R/W */
 #ifdef CONFIG_LAYERSCAPE_NS_ACCESS
-	enable_layerscape_ns_access();
 	enable_layerscape_ns_access();
 #endif
 

@@ -13,7 +13,7 @@ config SPL_LIBGENERIC_SUPPORT
 	default y
 
 config SPL_MMC_SUPPORT
-	default y
+	default y if MMC_SDHCI_ZYNQ
 
 config SPL_SERIAL_SUPPORT
 	default y
@@ -62,7 +62,8 @@ config PMUFW_INIT_FILE
 	depends on SPL
 	default ""
 	help
-	  Include PMUFW to boot.bin.
+	  Include external PMUFW (Platform Management Unit FirmWare) to
+	  a Xilinx bootable image (boot.bin).
 
 config ZYNQMP_QSPI
 	bool "Configure ZynqMP QSPI"

@@ -8,6 +8,7 @@
 #include <common.h>
 #include <linux/compiler.h>
 #include <linux/kernel.h>
+#include <linux/log2.h>
 #include <asm/arcregs.h>
 #include <asm/cache.h>
 
@@ -31,15 +32,15 @@
  * relocation but will be used after being zeroed.
  */
 int l1_line_sz __section(".data");
-int dcache_exists __section(".data");
-int icache_exists __section(".data");
+bool dcache_exists __section(".data") = false;
+bool icache_exists __section(".data") = false;
 
 #define CACHE_LINE_MASK		(~(l1_line_sz - 1))
 
 #ifdef CONFIG_ISA_ARCV2
 int slc_line_sz __section(".data");
-int slc_exists __section(".data");
-int ioc_exists __section(".data");
+bool slc_exists __section(".data") = false;
+bool ioc_exists __section(".data") = false;
 
 static unsigned int __before_slc_op(const int op)
 {
@@ -59,10 +60,16 @@ static unsigned int __before_slc_op(const int op)
 
 static void __after_slc_op(const int op, unsigned int reg)
 {
-	if (op & OP_FLUSH)	/* flush / flush-n-inv both wait */
+	if (op & OP_FLUSH) {	/* flush / flush-n-inv both wait */
+		/*
+		 * Make sure "busy" bit reports correct status,
+		 * see STAR 9001165532
+		 */
+		read_aux_reg(ARC_AUX_SLC_CTRL);
 		while (read_aux_reg(ARC_AUX_SLC_CTRL) &
 		       DC_CTRL_FLUSH_STATUS)
 			;
+	}
 
 	/* Switch back to default Invalidate mode */
 	if (op == OP_INV)
@@ -145,7 +152,7 @@ static void read_decode_cache_bcr_arcv2(void)
 	sbcr.word = read_aux_reg(ARC_BCR_SLC);
 	if (sbcr.fields.ver) {
 		slc_cfg.word = read_aux_reg(ARC_AUX_SLC_CONFIG);
-		slc_exists = 1;
+		slc_exists = true;
 		slc_line_sz = (slc_cfg.fields.lsz == 0) ? 128 : 64;
 	}
 
@@ -162,7 +169,7 @@ static void read_decode_cache_bcr_arcv2(void)
 
 	cbcr.word = read_aux_reg(ARC_BCR_CLUSTER);
 	if (cbcr.fields.c)
-		ioc_exists = 1;
+		ioc_exists = true;
 }
 #endif
 
@@ -183,7 +190,7 @@ void read_decode_cache_bcr(void)
 
 	ibcr.word = read_aux_reg(ARC_BCR_IC_BUILD);
 	if (ibcr.fields.ver) {
-		icache_exists = 1;
+		icache_exists = true;
 		l1_line_sz = ic_line_sz = 8 << ibcr.fields.line_len;
 		if (!ic_line_sz)
 			panic("Instruction exists but line length is 0\n");
@@ -191,7 +198,7 @@ void read_decode_cache_bcr(void)
 
 	dbcr.word = read_aux_reg(ARC_BCR_DC_BUILD);
 	if (dbcr.fields.ver){
-		dcache_exists = 1;
+		dcache_exists = true;
 		l1_line_sz = dc_line_sz = 16 << dbcr.fields.line_len;
 		if (!dc_line_sz)
 			panic("Data cache exists but line length is 0\n");
@@ -209,17 +216,33 @@ void cache_init(void)
 	read_decode_cache_bcr_arcv2();
 
 	if (ioc_exists) {
+		/* IOC Aperture start is equal to DDR start */
+		unsigned int ap_base = CONFIG_SYS_SDRAM_BASE;
+		/* IOC Aperture size is equal to DDR size */
+		long ap_size = CONFIG_SYS_SDRAM_SIZE;
+
 		flush_dcache_all();
 		invalidate_dcache_all();
 
-		/* IO coherency base - 0x8z */
-		write_aux_reg(ARC_AUX_IO_COH_AP0_BASE, 0x80000);
-		/* IO coherency aperture size - 512Mb: 0x8z-0xAz */
-		write_aux_reg(ARC_AUX_IO_COH_AP0_SIZE, 0x11);
-		/* Enable partial writes */
+		if (!is_power_of_2(ap_size) || ap_size < 4096)
+			panic("IOC Aperture size must be power of 2 and bigger 4Kib");
+
+		/*
+		 * IOC Aperture size decoded as 2 ^ (SIZE + 2) KB,
+		 * so setting 0x11 implies 512M, 0x12 implies 1G...
+		 */
+		write_aux_reg(ARC_AUX_IO_COH_AP0_SIZE,
+			      order_base_2(ap_size/1024) - 2);
+
+
+		/* IOC Aperture start must be aligned to the size of the aperture */
+		if (ap_base % ap_size != 0)
+			panic("IOC Aperture start must be aligned to the size of the aperture");
+
+		write_aux_reg(ARC_AUX_IO_COH_AP0_BASE, ap_base >> 12);
 		write_aux_reg(ARC_AUX_IO_COH_PARTIAL, 1);
-		/* Enable IO coherency */
 		write_aux_reg(ARC_AUX_IO_COH_ENABLE, 1);
+
 	}
 #endif
 }
@@ -255,6 +278,13 @@ void invalidate_icache_all(void)
 	/* Any write to IC_IVIC register triggers invalidation of entire I$ */
 	if (icache_status()) {
 		write_aux_reg(ARC_AUX_IC_IVIC, 1);
+		/*
+		 * As per ARC HS databook (see chapter 5.3.3.2)
+		 * it is required to add 3 NOPs after each write to IC_IVIC.
+		 */
+		__builtin_arc_nop();
+		__builtin_arc_nop();
+		__builtin_arc_nop();
 		read_aux_reg(ARC_AUX_IC_CTRL);	/* blocks */
 	}
 }

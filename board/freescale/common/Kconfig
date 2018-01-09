@@ -1,0 +1,20 @@
+config CHAIN_OF_TRUST
+	depends on !FIT_SIGNATURE && SECURE_BOOT
+	imply CMD_BLOB
+	imply CMD_HASH if ARM
+	select FSL_CAAM
+	select SPL_BOARD_INIT if (ARM && SPL)
+	select SHA_HW_ACCEL
+	select SHA_PROG_HW_ACCEL
+	select ENV_IS_NOWHERE
+	bool
+	default y
+
+config CMD_ESBC_VALIDATE
+	bool "Enable the 'esbc_validate' and 'esbc_halt' commands"
+	default y if CHAIN_OF_TRUST
+	help
+	  This option enables two commands used for secure booting:
+
+	    esbc_validate - validate signature using RSA verification
+	    esbc_halt - put the core in spin loop (Secure Boot Only)

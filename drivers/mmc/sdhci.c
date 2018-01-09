@@ -73,6 +73,7 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 				unsigned int start_addr)
 {
 	unsigned int stat, rdy, mask, timeout, block = 0;
+	bool transfer_done = false;
 #ifdef CONFIG_MMC_SDHCI_SDMA
 	unsigned char ctrl;
 	ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
@@ -90,17 +91,23 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 			       __func__, stat);
 			return -EIO;
 		}
-		if (stat & rdy) {
+		if (!transfer_done && (stat & rdy)) {
 			if (!(sdhci_readl(host, SDHCI_PRESENT_STATE) & mask))
 				continue;
 			sdhci_writel(host, rdy, SDHCI_INT_STATUS);
 			sdhci_transfer_pio(host, data);
 			data->dest += data->blocksize;
-			if (++block >= data->blocks)
-				break;
+			if (++block >= data->blocks) {
+				/* Keep looping until the SDHCI_INT_DATA_END is
+				 * cleared, even if we finished sending all the
+				 * blocks.
+				 */
+				transfer_done = true;
+				continue;
+			}
 		}
 #ifdef CONFIG_MMC_SDHCI_SDMA
-		if (stat & SDHCI_INT_DMA_END) {
+		if (!transfer_done && (stat & SDHCI_INT_DMA_END)) {
 			sdhci_writel(host, SDHCI_INT_DMA_END, SDHCI_INT_STATUS);
 			start_addr &= ~(SDHCI_DEFAULT_BOUNDARY_SIZE - 1);
 			start_addr += SDHCI_DEFAULT_BOUNDARY_SIZE;
@@ -128,7 +135,7 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 #define SDHCI_CMD_DEFAULT_TIMEOUT		100
 #define SDHCI_READ_STATUS_TIMEOUT		1000
 
-#ifdef CONFIG_DM_MMC_OPS
+#ifdef CONFIG_DM_MMC
 static int sdhci_send_command(struct udevice *dev, struct mmc_cmd *cmd,
 			      struct mmc_data *data)
 {
@@ -265,8 +272,10 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	sdhci_writel(host, cmd->cmdarg, SDHCI_ARGUMENT);
 #ifdef CONFIG_MMC_SDHCI_SDMA
-	trans_bytes = ALIGN(trans_bytes, CONFIG_SYS_CACHELINE_SIZE);
-	flush_cache(start_addr, trans_bytes);
+	if (data != 0) {
+		trans_bytes = ALIGN(trans_bytes, CONFIG_SYS_CACHELINE_SIZE);
+		flush_cache(start_addr, trans_bytes);
+	}
 #endif
 	sdhci_writew(host, SDHCI_MAKE_CMD(cmd->cmdidx, flags), SDHCI_COMMAND);
 	start = get_timer(0);
@@ -314,7 +323,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	else
 		return -ECOMM;
 }
-#ifdef CONFIG_DM_MMC_OPS
+#ifdef CONFIG_DM_MMC
 static int sdhci_execute_tuning(struct udevice *dev, u8 opcode)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
@@ -400,7 +409,7 @@ static int sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 {
 	struct sdhci_host *host = mmc->priv;
-	unsigned int div, clk = 0, timeout, reg;
+	unsigned int div, clk = 0, timeout;
 
 	/* Wait max 20 ms */
 	timeout = 200;
@@ -416,9 +425,7 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 		udelay(100);
 	}
 
-	reg = sdhci_readw(host, SDHCI_CLOCK_CONTROL);
-	reg &= ~(SDHCI_CLOCK_CARD_EN | SDHCI_CLOCK_INT_EN);
-	sdhci_writew(host, reg, SDHCI_CLOCK_CONTROL);
+	sdhci_writew(host, 0, SDHCI_CLOCK_CONTROL);
 
 	if (clock == 0)
 		return 0;
@@ -433,8 +440,7 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 		 */
 		if (host->clk_mul) {
 			for (div = 1; div <= 1024; div++) {
-				if ((mmc->cfg->f_max * host->clk_mul / div)
-					<= clock)
+				if ((host->max_clk / div) <= clock)
 					break;
 			}
 
@@ -446,13 +452,13 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 			div--;
 		} else {
 			/* Version 3.00 divisors must be a multiple of 2. */
-			if (mmc->cfg->f_max <= clock) {
+			if (host->max_clk <= clock) {
 				div = 1;
 			} else {
 				for (div = 2;
 				     div < SDHCI_MAX_DIV_SPEC_300;
 				     div += 2) {
-					if ((mmc->cfg->f_max / div) <= clock)
+					if ((host->max_clk / div) <= clock)
 						break;
 				}
 			}
@@ -461,14 +467,14 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 	} else {
 		/* Version 2.00 divisors must be a power of 2. */
 		for (div = 1; div < SDHCI_MAX_DIV_SPEC_200; div *= 2) {
-			if ((mmc->cfg->f_max / div) <= clock)
+			if ((host->max_clk / div) <= clock)
 				break;
 		}
 		div >>= 1;
 	}
 
-	if (host->set_clock)
-		host->set_clock(host->index, div);
+	if (host->ops && host->ops->set_clock)
+		host->ops->set_clock(host, div);
 
 	clk |= (div & SDHCI_DIV_MASK) << SDHCI_DIVIDER_SHIFT;
 	clk |= ((div & SDHCI_DIV_HI_MASK) >> SDHCI_DIV_MASK_LEN)
@@ -494,7 +500,7 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 	return 0;
 }
 
-#ifdef CONFIG_DM_MMC_OPS
+#ifdef CONFIG_DM_MMC
 static int sdhci_set_voltage(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
@@ -540,7 +546,7 @@ static int sdhci_set_voltage(struct mmc *mmc)
 	return 0;
 }
 
-#ifdef CONFIG_DM_MMC_OPS
+#ifdef CONFIG_DM_MMC
 static int sdhci_set_uhs(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
@@ -585,27 +591,24 @@ static void sdhci_set_power(struct sdhci_host *host, unsigned short power)
 		return;
 	}
 
-	if (host->quirks & SDHCI_QUIRK_NO_SIMULT_VDD_AND_POWER)
-		sdhci_writeb(host, pwr, SDHCI_POWER_CONTROL);
-
 	pwr |= SDHCI_POWER_ON;
 
 	sdhci_writeb(host, pwr, SDHCI_POWER_CONTROL);
 }
 
-#ifdef CONFIG_DM_MMC_OPS
+#ifdef CONFIG_DM_MMC
 static int sdhci_set_ios(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
 #else
-static void sdhci_set_ios(struct mmc *mmc)
+static int sdhci_set_ios(struct mmc *mmc)
 {
 #endif
 	u32 ctrl;
 	struct sdhci_host *host = mmc->priv;
 
-	if (host->set_control_reg)
-		host->set_control_reg(host);
+	if (host->ops && host->ops->set_control_reg)
+		host->ops->set_control_reg(host);
 
 	if (mmc->clock != host->clock)
 		sdhci_set_clock(mmc, mmc->clock);
@@ -636,9 +639,12 @@ static void sdhci_set_ios(struct mmc *mmc)
 		ctrl &= ~SDHCI_CTRL_HISPD;
 
 	sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
-#ifdef CONFIG_DM_MMC_OPS
+
+	/* If available, call the driver specific "post" set_ios() function */
+	if (host->ops && host->ops->set_ios_post)
+		host->ops->set_ios_post(host);
+
 	return 0;
-#endif
 }
 
 static int sdhci_init(struct mmc *mmc)
@@ -658,25 +664,8 @@ static int sdhci_init(struct mmc *mmc)
 
 	sdhci_set_power(host, fls(mmc->cfg->voltages) - 1);
 
-	if (host->quirks & SDHCI_QUIRK_NO_CD) {
-#if defined(CONFIG_PIC32_SDHCI)
-		/* PIC32 SDHCI CD errata:
-		 * - set CD_TEST and clear CD_TEST_INS bit
-		 */
-		sdhci_writeb(host, SDHCI_CTRL_CD_TEST, SDHCI_HOST_CONTROL);
-#else
-		unsigned int status;
-
-		sdhci_writeb(host, SDHCI_CTRL_CD_TEST_INS | SDHCI_CTRL_CD_TEST,
-			SDHCI_HOST_CONTROL);
-
-		status = sdhci_readl(host, SDHCI_PRESENT_STATE);
-		while ((!(status & SDHCI_CARD_PRESENT)) ||
-		    (!(status & SDHCI_CARD_STATE_STABLE)) ||
-		    (!(status & SDHCI_CARD_DETECT_PIN_LEVEL)))
-			status = sdhci_readl(host, SDHCI_PRESENT_STATE);
-#endif
-	}
+	if (host->ops && host->ops->get_cd)
+		host->ops->get_cd(host);
 
 	/* Enable only interrupts served by the SD controller */
 	sdhci_writel(host, SDHCI_INT_DATA_MASK | SDHCI_INT_CMD_MASK,
@@ -687,7 +676,7 @@ static int sdhci_init(struct mmc *mmc)
 	return 0;
 }
 
-#ifdef CONFIG_DM_MMC_OPS
+#ifdef CONFIG_DM_MMC
 int sdhci_probe(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
@@ -714,7 +703,7 @@ static const struct mmc_ops sdhci_ops = {
 #endif
 
 int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
-		u32 max_clk, u32 min_clk)
+		u32 f_max, u32 f_min)
 {
 	u32 caps;
 	u32 caps_1 = 0;
@@ -735,27 +724,39 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
 	cfg->name = host->name;
-#ifndef CONFIG_DM_MMC_OPS
+#ifndef CONFIG_DM_MMC
 	cfg->ops = &sdhci_ops;
 #endif
-	if (max_clk)
-		cfg->f_max = max_clk;
-	else {
+
+	/* Check whether the clock multiplier is supported or not */
+	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
+		caps_1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
+		host->clk_mul = (caps_1 & SDHCI_CLOCK_MUL_MASK) >>
+				SDHCI_CLOCK_MUL_SHIFT;
+	}
+
+	if (host->max_clk == 0) {
 		if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
-			cfg->f_max = (caps & SDHCI_CLOCK_V3_BASE_MASK) >>
+			host->max_clk = (caps & SDHCI_CLOCK_V3_BASE_MASK) >>
 				SDHCI_CLOCK_BASE_SHIFT;
 		else
-			cfg->f_max = (caps & SDHCI_CLOCK_BASE_MASK) >>
+			host->max_clk = (caps & SDHCI_CLOCK_BASE_MASK) >>
 				SDHCI_CLOCK_BASE_SHIFT;
-		cfg->f_max *= 1000000;
+		host->max_clk *= 1000000;
+		if (host->clk_mul)
+			host->max_clk *= host->clk_mul;
 	}
-	if (cfg->f_max == 0) {
+	if (host->max_clk == 0) {
 		printf("%s: Hardware doesn't specify base clock frequency\n",
 		       __func__);
 		return -EINVAL;
 	}
-	if (min_clk)
-		cfg->f_min = min_clk;
+	if (f_max && (f_max < host->max_clk))
+		cfg->f_max = f_max;
+	else
+		cfg->f_max = host->max_clk;
+	if (f_min)
+		cfg->f_min = f_min;
 	else {
 		if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
 			cfg->f_min = cfg->f_max / SDHCI_MAX_DIV_SPEC_300;
@@ -774,9 +775,11 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		cfg->voltages |= host->voltages;
 
 	cfg->host_caps = MMC_MODE_HS | MMC_MODE_HS_52MHz | MMC_MODE_4BIT;
+
+	/* Since Host Controller Version3.0 */
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
-		if (caps & SDHCI_CAN_DO_8BIT)
-			cfg->host_caps |= MMC_MODE_8BIT;
+		if (!(caps & SDHCI_CAN_DO_8BIT))
+			cfg->host_caps &= ~MMC_MODE_8BIT;
 	}
 
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
@@ -813,15 +816,27 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
-	/*
-	 * In case of Host Controller v3.00, find out whether clock
-	 * multiplier is supported.
-	 */
-	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
-		caps_1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
-		host->clk_mul = (caps_1 & SDHCI_CLOCK_MUL_MASK) >>
-				SDHCI_CLOCK_MUL_SHIFT;
+	if (caps_1 & SDHCI_SUPPORT_SDR104) {
+		cfg->host_caps |= MMC_MODE_UHS_SDR104 | MMC_MODE_UHS_SDR50;
+		/*
+		 * SD3.0: SDR104 is supported so (for eMMC) the caps2
+		 * field can be promoted to support HS200.
+		 */
+		cfg->host_caps |= MMC_MODE_HS200;
+	} else if (caps_1 & SDHCI_SUPPORT_SDR50) {
+		cfg->host_caps |= MMC_MODE_UHS_SDR50;
 	}
+
+	if (caps_1 & SDHCI_SUPPORT_DDR50)
+		cfg->host_caps |= MMC_MODE_UHS_DDR50;
+
+	if (caps_1 & SDHCI_USE_SDR50_TUNING)
+		cfg->host_caps |= MMC_MODE_NEEDS_TUNING;
+
+	if (host->host_caps)
+		cfg->host_caps |= host->host_caps;
+
+	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
 	return 0;
 }
@@ -832,11 +847,11 @@ int sdhci_bind(struct udevice *dev, struct mmc *mmc, struct mmc_config *cfg)
 	return mmc_bind(dev, mmc, cfg);
 }
 #else
-int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
+int add_sdhci(struct sdhci_host *host, u32 f_max, u32 f_min)
 {
 	int ret;
 
-	ret = sdhci_setup_cfg(&host->cfg, host, max_clk, min_clk);
+	ret = sdhci_setup_cfg(&host->cfg, host, f_max, f_min);
 	if (ret)
 		return ret;
 

@@ -163,6 +163,38 @@ static int palmas_smps_val(struct udevice *dev, int op, int *uV)
 	return pmic_reg_write(dev->parent, adr, ret);
 }
 
+static int palmas_ldo_bypass_enable(struct udevice *dev, bool enabled)
+{
+	int type = dev_get_driver_data(dev_get_parent(dev));
+	struct dm_regulator_uclass_platdata *p;
+	unsigned int adr;
+	int reg;
+
+	if (type == TPS65917) {
+		/* bypass available only on LDO1 and LDO2 */
+		if (dev->driver_data > 2)
+			return -ENOTSUPP;
+	} else if (type == TPS659038) {
+		/* bypass available only on LDO9 */
+		if (dev->driver_data != 9)
+			return -ENOTSUPP;
+	}
+
+	p = dev_get_uclass_platdata(dev);
+	adr = p->ctrl_reg;
+
+	reg = pmic_reg_read(dev->parent, adr);
+	if (reg < 0)
+		return reg;
+
+	if (enabled)
+		reg |= PALMAS_LDO_BYPASS_EN;
+	else
+		reg &= ~PALMAS_LDO_BYPASS_EN;
+
+	return pmic_reg_write(dev->parent, adr, reg);
+}
+
 static int palmas_ldo_enable(struct udevice *dev, int op, bool *enable)
 {
 	int ret;
@@ -193,6 +225,10 @@ static int palmas_ldo_enable(struct udevice *dev, int op, bool *enable)
 
 		ret = pmic_reg_write(dev->parent, adr, ret);
 		if (ret)
+			return ret;
+
+		ret = palmas_ldo_bypass_enable(dev, false);
+		if (ret && (ret != -ENOTSUPP))
 			return ret;
 	}
 
@@ -304,7 +340,7 @@ static int ldo_set_value(struct udevice *dev, int uV)
 	return palmas_ldo_val(dev, PMIC_OP_SET, &uV);
 }
 
-static bool ldo_get_enable(struct udevice *dev)
+static int ldo_get_enable(struct udevice *dev)
 {
 	bool enable = false;
 	int ret;
@@ -356,7 +392,7 @@ static int palmas_smps_probe(struct udevice *dev)
 		case 8:
 		case 9:
 		case 10:
-			idx = dev->driver_data - 4;
+			idx = dev->driver_data - 3;
 			uc_pdata->ctrl_reg = palmas_smps_ctrl[type][idx];
 			uc_pdata->volt_reg = palmas_smps_volt[type][idx];
 			break;
@@ -377,7 +413,11 @@ static int palmas_smps_probe(struct udevice *dev)
 			uc_pdata->ctrl_reg = palmas_smps_ctrl[type][idx];
 			uc_pdata->volt_reg = palmas_smps_volt[type][idx];
 			break;
-
+		case 12:
+			idx = 0;
+			uc_pdata->ctrl_reg = palmas_smps_ctrl[type][idx];
+			uc_pdata->volt_reg = palmas_smps_volt[type][idx];
+			break;
 		default:
 			printf("Wrong ID for regulator\n");
 		}
@@ -407,7 +447,7 @@ static int smps_set_value(struct udevice *dev, int uV)
 	return palmas_smps_val(dev, PMIC_OP_SET, &uV);
 }
 
-static bool smps_get_enable(struct udevice *dev)
+static int smps_get_enable(struct udevice *dev)
 {
 	bool enable = false;
 	int ret;

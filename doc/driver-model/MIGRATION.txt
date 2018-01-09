@@ -1,0 +1,20 @@
+Migration Schedule
+====================
+
+U-Boot has been migrating to a new driver model since its introduction in
+2014. This file describes the schedule for deprecation of pre-driver-model
+features.
+
+
+CONFIG_BLK
+----------
+
+Status: In progress
+Deadline: 2018.05
+
+Maintainers should submit patches for enabling CONFIG_BLK on all boards in
+time for inclusion in the 2018.05 release. Boards not converted by this
+time may be removed in a subsequent release.
+
+Note that this implies use of driver model for all block devices (e.g.
+MMC, USB, SCSI, SATA).

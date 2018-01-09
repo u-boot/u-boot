@@ -5,12 +5,13 @@
 #
 
 obj-$(CONFIG_SYSRESET) += sysreset-uclass.o
+obj-$(CONFIG_SYSRESET_PSCI) += sysreset_psci.o
+obj-$(CONFIG_SYSRESET_SYSCON) += sysreset_syscon.o
+obj-$(CONFIG_SYSRESET_WATCHDOG) += sysreset_watchdog.o
 
-ifndef CONFIG_SPL_BUILD
-obj-$(CONFIG_ROCKCHIP_RK3036) += sysreset_rk3036.o
-endif
-obj-$(CONFIG_ROCKCHIP_RK3288) += sysreset_rk3288.o
-obj-$(CONFIG_ROCKCHIP_RK3399) += sysreset_rk3399.o
+obj-$(CONFIG_ARCH_ROCKCHIP) += sysreset_rockchip.o
 obj-$(CONFIG_SANDBOX) += sysreset_sandbox.o
 obj-$(CONFIG_ARCH_SNAPDRAGON) += sysreset_snapdragon.o
+obj-$(CONFIG_ARCH_STI) += sysreset_sti.o
 obj-$(CONFIG_TARGET_XTFPGA) += sysreset_xtfpga.o
+obj-$(CONFIG_ARCH_ASPEED) += sysreset_ast.o

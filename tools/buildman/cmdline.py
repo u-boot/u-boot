@@ -82,6 +82,8 @@ def ParseArgs():
           default=False, help='Show a build summary')
     parser.add_option('-S', '--show-sizes', action='store_true',
           default=False, help='Show image size variation in summary')
+    parser.add_option('--skip-net-tests', action='store_true', default=False,
+                      help='Skip tests which need the network')
     parser.add_option('--step', type='int',
           default=1, help='Only build every n commits (0=just first and last)')
     parser.add_option('-t', '--test', action='store_true', dest='test',

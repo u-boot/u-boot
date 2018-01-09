@@ -17,6 +17,7 @@
  * SPDX-License-Identifier:	GPL-2.0
  */
 #include <common.h>
+#include <dm.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
@@ -307,9 +308,6 @@ static struct musb_hdrc_platform_data musb_plat = {
 	.platform_ops	= &sunxi_musb_ops,
 };
 
-#ifdef CONFIG_USB_MUSB_HOST
-static int musb_usb_remove(struct udevice *dev);
-
 static int musb_usb_probe(struct udevice *dev)
 {
 	struct musb_host_data *host = dev_get_priv(dev);
@@ -318,16 +316,20 @@ static int musb_usb_probe(struct udevice *dev)
 
 	priv->desc_before_addr = true;
 
+#ifdef CONFIG_USB_MUSB_HOST
 	host->host = musb_init_controller(&musb_plat, NULL,
 					  (void *)SUNXI_USB0_BASE);
 	if (!host->host)
 		return -EIO;
 
 	ret = musb_lowlevel_init(host);
-	if (ret == 0)
-		printf("MUSB OTG\n");
-	else
-		musb_usb_remove(dev);
+	if (!ret)
+		printf("Allwinner mUSB OTG (Host)\n");
+#else
+	ret = musb_register(&musb_plat, NULL, (void *)SUNXI_USB0_BASE);
+	if (!ret)
+		printf("Allwinner mUSB OTG (Peripheral)\n");
+#endif
 
 	return ret;
 }
@@ -351,30 +353,27 @@ static int musb_usb_remove(struct udevice *dev)
 	return 0;
 }
 
+static const struct udevice_id sunxi_musb_ids[] = {
+	{ .compatible = "allwinner,sun4i-a10-musb" },
+	{ .compatible = "allwinner,sun6i-a31-musb" },
+	{ .compatible = "allwinner,sun8i-a33-musb" },
+	{ .compatible = "allwinner,sun8i-h3-musb" },
+	{ }
+};
+
 U_BOOT_DRIVER(usb_musb) = {
-	.name	= "sunxi-musb",
-	.id	= UCLASS_USB,
-	.probe = musb_usb_probe,
-	.remove = musb_usb_remove,
-	.ops	= &musb_usb_ops,
+	.name		= "sunxi-musb",
+#ifdef CONFIG_USB_MUSB_HOST
+	.id		= UCLASS_USB,
+#else
+	.id		= UCLASS_USB_DEV_GENERIC,
+#endif
+	.of_match	= sunxi_musb_ids,
+	.probe		= musb_usb_probe,
+	.remove		= musb_usb_remove,
+#ifdef CONFIG_USB_MUSB_HOST
+	.ops		= &musb_usb_ops,
+#endif
 	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
 	.priv_auto_alloc_size = sizeof(struct musb_host_data),
 };
-#endif
-
-void sunxi_musb_board_init(void)
-{
-#ifdef CONFIG_USB_MUSB_HOST
-	struct udevice *dev;
-
-	/*
-	 * Bind the driver directly for now as musb linux kernel support is
-	 * still pending upstream so our dts files do not have the necessary
-	 * nodes yet. TODO: Remove this as soon as the dts nodes are in place
-	 * and bind by compatible instead.
-	 */
-	device_bind_driver(dm_root(), "sunxi-musb", "sunxi-musb", &dev);
-#else
-	musb_register(&musb_plat, NULL, (void *)SUNXI_USB0_BASE);
-#endif
-}

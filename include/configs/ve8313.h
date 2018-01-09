@@ -28,8 +28,6 @@
 #define CONFIG_PCI_INDIRECT_BRIDGE 1
 #define CONFIG_FSL_ELBC		1
 
-#define CONFIG_BOARD_EARLY_INIT_F	1
-
 /*
  * On-board devices
  *
@@ -182,7 +180,6 @@
  */
 #define CONFIG_SYS_NAND_BASE		0x61000000
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_CMD_NAND 1
 #define CONFIG_NAND_FSL_ELBC 1
 #define CONFIG_SYS_NAND_BLOCK_SIZE 16384
 
@@ -292,7 +289,6 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_ADDR		\
 			(CONFIG_SYS_FLASH_BASE + CONFIG_SYS_MONITOR_LEN)
 #define CONFIG_ENV_SECT_SIZE	0x20000	/* 128K(one sector) for env */
@@ -316,7 +312,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_PCI
 
 #define CONFIG_CMDLINE_EDITING 1
 #define CONFIG_AUTO_COMPLETE	/* add autocompletion support   */
@@ -328,8 +323,6 @@
 #define CONFIG_SYS_LOAD_ADDR	0x100000	/* default load address */
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
 
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
-#define CONFIG_SYS_MAXARGS	16		/* max number of cmd args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot arg Buffer size */
 
 /*
@@ -460,8 +453,6 @@
 
 #define CONFIG_HOSTNAME		ve8313
 #define CONFIG_UBOOTPATH	ve8313/u-boot.bin
-
-#define CONFIG_BAUDRATE		115200
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"netdev=" __stringify(CONFIG_NETDEV) "\0"			\

@@ -29,15 +29,15 @@ void spl_board_init(void)
 }
 
 #ifdef CONFIG_SPL_OS_BOOT
-void __noreturn jump_to_image_linux(struct spl_image_info *spl_image, void *arg)
+void __noreturn jump_to_image_linux(struct spl_image_info *spl_image)
 {
-	debug("Entering kernel arg pointer: 0x%p\n", arg);
+	debug("Entering kernel arg pointer: 0x%p\n", spl_image->arg);
 	typedef void (*image_entry_arg_t)(char *, ulong, ulong)
 		__attribute__ ((noreturn));
 	image_entry_arg_t image_entry =
 		(image_entry_arg_t)spl_image->entry_point;
 
-	image_entry(NULL, 0, (ulong)arg);
+	image_entry(NULL, 0, (ulong)spl_image->arg);
 }
 #endif /* CONFIG_SPL_OS_BOOT */
 

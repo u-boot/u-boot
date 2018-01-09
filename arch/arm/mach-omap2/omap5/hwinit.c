@@ -362,6 +362,9 @@ void init_omap_revision(void)
 	case OMAP5432_CONTROL_ID_CODE_ES2_0:
 		*omap_si_rev = OMAP5432_ES2_0;
 		break;
+	case DRA762_CONTROL_ID_CODE_ES1_0:
+		*omap_si_rev = DRA762_ES1_0;
+		break;
 	case DRA752_CONTROL_ID_CODE_ES1_0:
 		*omap_si_rev = DRA752_ES1_0;
 		break;
@@ -376,6 +379,9 @@ void init_omap_revision(void)
 		break;
 	case DRA722_CONTROL_ID_CODE_ES2_0:
 		*omap_si_rev = DRA722_ES2_0;
+		break;
+	case DRA722_CONTROL_ID_CODE_ES2_1:
+		*omap_si_rev = DRA722_ES2_1;
 		break;
 	default:
 		*omap_si_rev = OMAP5430_SILICON_ID_INVALID;
@@ -414,12 +420,13 @@ void setup_warmreset_time(void)
 {
 	u32 rst_time, rst_val;
 
-#ifndef CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC
-	rst_time = CONFIG_DEFAULT_OMAP_RESET_TIME_MAX_USEC;
-#else
-	rst_time = CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC;
-#endif
-	rst_time = usec_to_32k(rst_time) << RSTTIME1_SHIFT;
+	/*
+	 * MAX value for PRM_RSTTIME[9:0]RSTTIME1 stored is 0x3ff.
+	 * 0x3ff is in the no of FUNC_32K_CLK cycles. Converting cycles
+	 * into microsec and passing the value.
+	 */
+	rst_time = usec_to_32k(CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC)
+		<< RSTTIME1_SHIFT;
 
 	if (rst_time > RSTTIME1_MASK)
 		rst_time = RSTTIME1_MASK;
@@ -454,10 +461,14 @@ void v7_arch_cp15_set_acr(u32 acr, u32 cpu_midr, u32 cpu_rev_comb,
 }
 
 #if defined(CONFIG_PALMAS_POWER)
+__weak void board_mmc_poweron_ldo(uint voltage)
+{
+	palmas_mmc1_poweron_ldo(LDO1_VOLTAGE, LDO1_CTRL, voltage);
+}
+
 void vmmc_pbias_config(uint voltage)
 {
 	u32 value = 0;
-	struct vcores_data const *vcores = *omap_vcores;
 
 	value = readl((*ctrl)->control_pbias);
 	value &= ~SDCARD_PWRDNZ;
@@ -466,15 +477,7 @@ void vmmc_pbias_config(uint voltage)
 	value &= ~SDCARD_BIAS_PWRDNZ;
 	writel(value, (*ctrl)->control_pbias);
 
-	if (vcores->core.pmic->i2c_slave_addr == 0x60) {
-		if (voltage == LDO_VOLT_3V0)
-			voltage = 0x19;
-		else if (voltage == LDO_VOLT_1V8)
-			voltage = 0xa;
-		lp873x_mmc1_poweron_ldo(voltage);
-	} else {
-		palmas_mmc1_poweron_ldo(voltage);
-	}
+	board_mmc_poweron_ldo(voltage);
 
 	value = readl((*ctrl)->control_pbias);
 	value |= SDCARD_BIAS_PWRDNZ;

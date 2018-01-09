@@ -24,16 +24,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#define CONFIG_CMD_ENV
-#define CONFIG_CMD_PCI
-
-/* I2C */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MVTWSI
-#define CONFIG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
-#define CONFIG_SYS_I2C_SLAVE		0x0
-#define CONFIG_SYS_I2C_SPEED		100000
 
 /* SPI NOR flash default params, used by sf commands */
 #define CONFIG_SF_DEFAULT_BUS		1
@@ -41,8 +31,6 @@
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
 
 /* Partition support */
-#define CONFIG_DOS_PARTITION
-#define CONFIG_EFI_PARTITION
 
 /* Additional FS support/configuration */
 #define CONFIG_SUPPORT_VFAT
@@ -51,7 +39,6 @@
 #define CONFIG_EHCI_IS_TDI
 
 /* Environment in SPI NOR flash */
-#define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_BUS		1
 #define CONFIG_ENV_OFFSET		(1 << 20) /* 1MiB in */
 #define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */

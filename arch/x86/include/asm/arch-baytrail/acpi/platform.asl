@@ -36,4 +36,4 @@ Scope (\_SB)
 }
 
 /* Chipset specific sleep states */
-#include "sleepstates.asl"
+#include <asm/acpi/sleepstates.asl>

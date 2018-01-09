@@ -8,6 +8,7 @@
 #define __ASM_ARC_U_BOOT_H__
 
 #include <asm-generic/u-boot.h>
+#include <asm/u-boot-arc.h>
 
 /* For image.h:image_check_target_arch() */
 #define IH_ARCH_DEFAULT IH_ARCH_ARC

@@ -60,7 +60,7 @@ __weak int splash_screen_prepare(void)
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
 void splash_get_pos(int *x, int *y)
 {
-	char *s = getenv("splashpos");
+	char *s = env_get("splashpos");
 
 	if (!s)
 		return;

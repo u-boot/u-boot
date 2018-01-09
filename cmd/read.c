@@ -66,7 +66,7 @@ int do_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 	}
 
-	if (blk_read(dev_desc, offset + blk, cnt, addr) < 0) {
+	if (blk_dread(dev_desc, offset + blk, cnt, addr) != cnt) {
 		printf("Error reading blocks\n");
 		return 1;
 	}

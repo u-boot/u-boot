@@ -52,7 +52,7 @@ static int do_esbc_validate(cmd_tbl_t *cmdtp, int flag, int argc,
 	 * to continue U-Boot
 	 */
 	sprintf(buf, "%lx", img_addr);
-	setenv("img_addr", buf);
+	env_set("img_addr", buf);
 
 	if (ret)
 		return 1;

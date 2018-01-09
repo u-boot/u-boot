@@ -190,7 +190,7 @@ static int get_tmu_fdt_values(struct tmu_info *info, const void *blob)
 				      COMPAT_SAMSUNG_EXYNOS_TMU);
 	if (node < 0) {
 		debug("EXYNOS_TMU: No node for tmu in device tree\n");
-		return -1;
+		return -ENODEV;
 	}
 
 	/*
@@ -202,7 +202,7 @@ static int get_tmu_fdt_values(struct tmu_info *info, const void *blob)
 	addr = fdtdec_get_addr(blob, node, "reg");
 	if (addr == FDT_ADDR_T_NONE) {
 		debug("%s: Missing tmu-base\n", __func__);
-		return -1;
+		return -ENODEV;
 	}
 	info->tmu_base = (struct exynos5_tmu_reg *)addr;
 
@@ -246,11 +246,11 @@ static int get_tmu_fdt_values(struct tmu_info *info, const void *blob)
 
 	if (error) {
 		debug("fail to get tmu node properties\n");
-		return -1;
+		return -EINVAL;
 	}
 #else
 	/* Non DT support may never be added. Just in case  */
-	return -1;
+	return -ENODEV;
 #endif
 
 	return 0;

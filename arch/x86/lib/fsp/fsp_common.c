@@ -5,7 +5,12 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
+#include <rtc.h>
+#include <asm/acpi_s3.h>
+#include <asm/cmos_layout.h>
+#include <asm/early_cmos.h>
 #include <asm/io.h>
 #include <asm/mrccache.h>
 #include <asm/post.h>
@@ -13,6 +18,11 @@
 #include <asm/fsp/fsp_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+int checkcpu(void)
+{
+	return 0;
+}
 
 int print_cpuinfo(void)
 {
@@ -70,9 +80,41 @@ static __maybe_unused void *fsp_prepare_mrc_cache(void)
 	return cache->data;
 }
 
-int x86_fsp_init(void)
+#ifdef CONFIG_HAVE_ACPI_RESUME
+int fsp_save_s3_stack(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	if (gd->arch.prev_sleep_state == ACPI_S3)
+		return 0;
+
+	ret = uclass_get_device(UCLASS_RTC, 0, &dev);
+	if (ret) {
+		debug("Cannot find RTC: err=%d\n", ret);
+		return -ENODEV;
+	}
+
+	/* Save the stack address to CMOS */
+	ret = rtc_write32(dev, CMOS_FSP_STACK_ADDR, gd->start_addr_sp);
+	if (ret) {
+		debug("Save stack address to CMOS: err=%d\n", ret);
+		return -EIO;
+	}
+
+	return 0;
+}
+#endif
+
+int arch_fsp_init(void)
 {
 	void *nvs;
+	int stack = CONFIG_FSP_TEMP_RAM_ADDR;
+	int boot_mode = BOOT_FULL_CONFIG;
+#ifdef CONFIG_HAVE_ACPI_RESUME
+	int prev_sleep_state = chipset_prev_sleep_state();
+	gd->arch.prev_sleep_state = prev_sleep_state;
+#endif
 
 	if (!gd->arch.hob_list) {
 #ifdef CONFIG_ENABLE_MRC_CACHE
@@ -80,12 +122,36 @@ int x86_fsp_init(void)
 #else
 		nvs = NULL;
 #endif
+
+#ifdef CONFIG_HAVE_ACPI_RESUME
+		if (prev_sleep_state == ACPI_S3) {
+			if (nvs == NULL) {
+				/* If waking from S3 and no cache then */
+				debug("No MRC cache found in S3 resume path\n");
+				post_code(POST_RESUME_FAILURE);
+				/* Clear Sleep Type */
+				chipset_clear_sleep_state();
+				/* Reboot */
+				debug("Rebooting..\n");
+				reset_cpu(0);
+				/* Should not reach here.. */
+				panic("Reboot System");
+			}
+
+			/*
+			 * DM is not avaiable yet at this point, hence call
+			 * CMOS access library which does not depend on DM.
+			 */
+			stack = cmos_read32(CMOS_FSP_STACK_ADDR);
+			boot_mode = BOOT_ON_S3_RESUME;
+		}
+#endif
 		/*
 		 * The first time we enter here, call fsp_init().
 		 * Note the execution does not return to this function,
 		 * instead it jumps to fsp_continue().
 		 */
-		fsp_init(CONFIG_FSP_TEMP_RAM_ADDR, BOOT_FULL_CONFIG, nvs);
+		fsp_init(stack, boot_mode, nvs);
 	} else {
 		/*
 		 * The second time we enter here, adjust the size of malloc()

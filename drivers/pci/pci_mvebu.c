@@ -82,34 +82,35 @@ struct mvebu_pcie {
 
 /*
  * MVEBU PCIe controller needs MEMORY and I/O BARs to be mapped
- * into SoCs address space. Each controller will map 32M of MEM
+ * into SoCs address space. Each controller will map 128M of MEM
  * and 64K of I/O space when registered.
  */
 static void __iomem *mvebu_pcie_membase = (void __iomem *)MBUS_PCI_MEM_BASE;
-#define PCIE_MEM_SIZE	(32 << 20)
+#define PCIE_MEM_SIZE	(128 << 20)
 
 #if defined(CONFIG_ARMADA_38X)
 #define PCIE_BASE(if)					\
 	((if) == 0 ?					\
-	 MVEBU_REG_PCIE_BASE + 0x40000 :		\
-	 MVEBU_REG_PCIE_BASE + 0x4000 * (if))
+	 MVEBU_REG_PCIE0_BASE :				\
+	 (MVEBU_REG_PCIE_BASE + 0x4000 * (if - 1)))
 
 /*
  * On A38x MV6820 these PEX ports are supported:
  *  0 - Port 0.0
- *  1 - Port 0.1
- *  2 - Port 0.2
+ *  1 - Port 1.0
+ *  2 - Port 2.0
+ *  3 - Port 3.0
  */
-#define MAX_PEX 3
+#define MAX_PEX 4
 static struct mvebu_pcie pcie_bus[MAX_PEX];
 
 static void mvebu_get_port_lane(struct mvebu_pcie *pcie, int pex_idx,
 				int *mem_target, int *mem_attr)
 {
-	u8 port[] = { 0, 1, 2 };
-	u8 lane[] = { 0, 0, 0 };
-	u8 target[] = { 8, 4, 4 };
-	u8 attr[] = { 0xe8, 0xe8, 0xd8 };
+	u8 port[] = { 0, 1, 2, 3 };
+	u8 lane[] = { 0, 0, 0, 0 };
+	u8 target[] = { 8, 4, 4, 4 };
+	u8 attr[] = { 0xe8, 0xe8, 0xd8, 0xb8 };
 
 	pcie->port = port[pex_idx];
 	pcie->lane = lane[pex_idx];
@@ -351,9 +352,9 @@ void pci_init_board(void)
 		mvebu_get_port_lane(pcie, i, &mem_target, &mem_attr);
 
 		/* Don't read at all from pci registers if port power is down */
-		if (pcie->lane == 0 && SELECT(soc_ctrl, pcie->port) == 0) {
-			i += 3;
-			debug("%s: skipping port %d\n", __func__, pcie->port);
+		if (SELECT(soc_ctrl, pcie->port) == 0) {
+			if (pcie->lane == 0)
+				debug("%s: skipping port %d\n", __func__, pcie->port);
 			continue;
 		}
 

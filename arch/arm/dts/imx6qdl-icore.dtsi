@@ -118,6 +118,7 @@
 };
 
 &usdhc1 {
+	u-boot,dm-spl;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usdhc1>;
 	cd-gpios = <&gpio1 1 GPIO_ACTIVE_LOW>;
@@ -208,6 +209,7 @@
 	};
 
 	pinctrl_usdhc1: usdhc1grp {
+		u-boot,dm-spl;
 		fsl,pins = <
 			MX6QDL_PAD_SD1_CMD__SD1_CMD    0x17070
 			MX6QDL_PAD_SD1_CLK__SD1_CLK    0x10070

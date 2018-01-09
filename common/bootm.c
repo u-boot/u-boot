@@ -55,8 +55,8 @@ static void boot_start_lmb(bootm_headers_t *images)
 
 	lmb_init(&images->lmb);
 
-	mem_start = getenv_bootm_low();
-	mem_size = getenv_bootm_size();
+	mem_start = env_get_bootm_low();
+	mem_size = env_get_bootm_size();
 
 	lmb_add(&images->lmb, (phys_addr_t)mem_start, mem_size);
 
@@ -72,7 +72,7 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
 	memset((void *)&images, 0, sizeof(images));
-	images.verify = getenv_yesno("verify");
+	images.verify = env_get_yesno("verify");
 
 	boot_start_lmb(&images);
 
@@ -248,7 +248,7 @@ int bootm_find_images(int flag, int argc, char * const argv[])
 #endif
 
 #if IMAGE_ENABLE_FIT
-#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_XILINX)
+#if defined(CONFIG_FPGA)
 	/* find bitstreams */
 	ret = boot_get_fpga(argc, argv, &images, IH_ARCH_DEFAULT,
 			    NULL, NULL);
@@ -524,7 +524,7 @@ static void fixup_silent_linux(void)
 {
 	char *buf;
 	const char *env_val;
-	char *cmdline = getenv("bootargs");
+	char *cmdline = env_get("bootargs");
 	int want_silent;
 
 	/*
@@ -534,7 +534,7 @@ static void fixup_silent_linux(void)
 	 *	yes - we always fixup
 	 *	unset - we rely on the console silent flag
 	 */
-	want_silent = getenv_yesno("silent_linux");
+	want_silent = env_get_yesno("silent_linux");
 	if (want_silent == 0)
 		return;
 	else if (want_silent == -1 && !(gd->flags & GD_FLG_SILENT))
@@ -569,7 +569,7 @@ static void fixup_silent_linux(void)
 		env_val = CONSOLE_ARG;
 	}
 
-	setenv("bootargs", env_val);
+	env_set("bootargs", env_val);
 	debug("after silent fix-up: %s\n", env_val);
 	free(buf);
 }
@@ -645,8 +645,8 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		ret = boot_ramdisk_high(&images->lmb, images->rd_start,
 			rd_len, &images->initrd_start, &images->initrd_end);
 		if (!ret) {
-			setenv_hex("initrd_start", images->initrd_start);
-			setenv_hex("initrd_end", images->initrd_end);
+			env_set_hex("initrd_start", images->initrd_start);
+			env_set_hex("initrd_end", images->initrd_end);
 		}
 	}
 #endif
@@ -691,7 +691,7 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 #ifdef CONFIG_TRACE
 	/* Pretend to run the OS, then run a user command */
 	if (!ret && (states & BOOTM_STATE_OS_FAKE_GO)) {
-		char *cmd_list = getenv("fakegocmd");
+		char *cmd_list = env_get("fakegocmd");
 
 		ret = boot_selected_os(argc, argv, BOOTM_STATE_OS_FAKE_GO,
 				images, boot_fn);
@@ -809,9 +809,6 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 					      &fit_uname_kernel);
 
 	bootstage_mark(BOOTSTAGE_ID_CHECK_MAGIC);
-
-	/* copy from dataflash if needed */
-	img_addr = genimg_get_image(img_addr);
 
 	/* check image type, for FIT images get FIT kernel node */
 	*os_data = *os_len = 0;

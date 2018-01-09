@@ -8,6 +8,8 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <environment.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/mxc_hdmi.h>
@@ -19,15 +21,16 @@
 #include <asm/bootm.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/mxc_i2c.h>
-#include <asm/imx-common/sata.h>
-#include <asm/imx-common/boot_mode.h>
-#include <asm/imx-common/video.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/mxc_i2c.h>
+#include <asm/mach-imx/sata.h>
+#include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/video.h>
 #include <dm/platform_data/serial_mxc.h>
 #include <dm/platdata.h>
 #include <fsl_esdhc.h>
 #include <i2c.h>
+#include <input.h>
 #include <imx_thermal.h>
 #include <linux/errno.h>
 #include <malloc.h>
@@ -564,53 +567,6 @@ static iomux_v3_cfg_t const rgb_pads[] = {
 	MX6_PAD_EIM_D31__IPU1_DISP1_DATA20 | MUX_PAD_CTRL(OUTPUT_RGB),
 };
 
-static iomux_v3_cfg_t const vga_pads[] = {
-#ifdef FOR_DL_SOLO
-	/* DualLite/Solo doesn't have IPU2 */
-	MX6_PAD_DI0_DISP_CLK__IPU1_DI0_DISP_CLK,
-	MX6_PAD_DI0_PIN15__IPU1_DI0_PIN15,
-	MX6_PAD_DI0_PIN2__IPU1_DI0_PIN02,
-	MX6_PAD_DI0_PIN3__IPU1_DI0_PIN03,
-	MX6_PAD_DISP0_DAT0__IPU1_DISP0_DATA00,
-	MX6_PAD_DISP0_DAT1__IPU1_DISP0_DATA01,
-	MX6_PAD_DISP0_DAT2__IPU1_DISP0_DATA02,
-	MX6_PAD_DISP0_DAT3__IPU1_DISP0_DATA03,
-	MX6_PAD_DISP0_DAT4__IPU1_DISP0_DATA04,
-	MX6_PAD_DISP0_DAT5__IPU1_DISP0_DATA05,
-	MX6_PAD_DISP0_DAT6__IPU1_DISP0_DATA06,
-	MX6_PAD_DISP0_DAT7__IPU1_DISP0_DATA07,
-	MX6_PAD_DISP0_DAT8__IPU1_DISP0_DATA08,
-	MX6_PAD_DISP0_DAT9__IPU1_DISP0_DATA09,
-	MX6_PAD_DISP0_DAT10__IPU1_DISP0_DATA10,
-	MX6_PAD_DISP0_DAT11__IPU1_DISP0_DATA11,
-	MX6_PAD_DISP0_DAT12__IPU1_DISP0_DATA12,
-	MX6_PAD_DISP0_DAT13__IPU1_DISP0_DATA13,
-	MX6_PAD_DISP0_DAT14__IPU1_DISP0_DATA14,
-	MX6_PAD_DISP0_DAT15__IPU1_DISP0_DATA15,
-#else
-	MX6_PAD_DI0_DISP_CLK__IPU1_DI0_DISP_CLK,
-	MX6_PAD_DI0_PIN15__IPU2_DI0_PIN15,
-	MX6_PAD_DI0_PIN2__IPU2_DI0_PIN02,
-	MX6_PAD_DI0_PIN3__IPU2_DI0_PIN03,
-	MX6_PAD_DISP0_DAT0__IPU2_DISP0_DATA00,
-	MX6_PAD_DISP0_DAT1__IPU2_DISP0_DATA01,
-	MX6_PAD_DISP0_DAT2__IPU2_DISP0_DATA02,
-	MX6_PAD_DISP0_DAT3__IPU2_DISP0_DATA03,
-	MX6_PAD_DISP0_DAT4__IPU2_DISP0_DATA04,
-	MX6_PAD_DISP0_DAT5__IPU2_DISP0_DATA05,
-	MX6_PAD_DISP0_DAT6__IPU2_DISP0_DATA06,
-	MX6_PAD_DISP0_DAT7__IPU2_DISP0_DATA07,
-	MX6_PAD_DISP0_DAT8__IPU2_DISP0_DATA08,
-	MX6_PAD_DISP0_DAT9__IPU2_DISP0_DATA09,
-	MX6_PAD_DISP0_DAT10__IPU2_DISP0_DATA10,
-	MX6_PAD_DISP0_DAT11__IPU2_DISP0_DATA11,
-	MX6_PAD_DISP0_DAT12__IPU2_DISP0_DATA12,
-	MX6_PAD_DISP0_DAT13__IPU2_DISP0_DATA13,
-	MX6_PAD_DISP0_DAT14__IPU2_DISP0_DATA14,
-	MX6_PAD_DISP0_DAT15__IPU2_DISP0_DATA15,
-#endif
-};
-
 static void do_enable_hdmi(struct display_info_t const *dev)
 {
 	imx_enable_hdmi_phy();
@@ -801,10 +757,6 @@ int board_early_init_f(void)
 #else
 	setup_iomux_dce_uart();
 #endif
-
-#if defined(CONFIG_VIDEO_IPUV3)
-	setup_display();
-#endif
 	return 0;
 }
 
@@ -826,11 +778,15 @@ int board_init(void)
 	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info_loc);
 	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info3);
 
+#if defined(CONFIG_VIDEO_IPUV3)
+	setup_display();
+#endif
+
 #ifdef CONFIG_TDX_CMD_IMX_MFGR
 	(void) pmic_init();
 #endif
 
-#ifdef CONFIG_CMD_SATA
+#ifdef CONFIG_SATA
 	setup_sata();
 #endif
 
@@ -849,7 +805,7 @@ int board_late_init(void)
 
 	rev = get_board_rev();
 	snprintf(env_str, ARRAY_SIZE(env_str), "%.4x", rev);
-	setenv("board_rev", env_str);
+	env_set("board_rev", env_str);
 
 #ifndef CONFIG_TDX_APALIS_IMX6_V1_0
 	if ((rev & 0xfff0) == 0x0100) {
@@ -859,12 +815,12 @@ int board_late_init(void)
 		setup_iomux_dce_uart();
 
 		/* if using the default device tree, use version for V1.0 HW */
-		fdt_env = getenv("fdt_file");
+		fdt_env = env_get("fdt_file");
 		if ((fdt_env != NULL) && (strcmp(FDT_FILE, fdt_env) == 0)) {
-			setenv("fdt_file", FDT_FILE_V1_0);
+			env_set("fdt_file", FDT_FILE_V1_0);
 			printf("patching fdt_file to " FDT_FILE_V1_0 "\n");
 #ifndef CONFIG_ENV_IS_NOWHERE
-			saveenv();
+			env_save();
 #endif
 		}
 	}
@@ -1202,17 +1158,6 @@ static void ccgr_init(void)
  * This sets CKO1 at ahb_clk_root/8 = 132/8 = 16.5 MHz
  */
 	writel(0x000000FB, &ccm->ccosr);
-}
-
-static void gpr_init(void)
-{
-	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-
-	/* enable AXI cache for VDOA/VPU/IPU */
-	writel(0xF00000CF, &iomux->gpr[4]);
-	/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
-	writel(0x007F007F, &iomux->gpr[6]);
-	writel(0x007F007F, &iomux->gpr[7]);
 }
 
 static void ddr_init(int *table, int size)

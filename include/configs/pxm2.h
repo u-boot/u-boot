@@ -15,12 +15,10 @@
 #define __CONFIG_PXM2_H
 
 #define CONFIG_SIEMENS_PXM2
-#define MACH_TYPE_PXM2			4309
 #define CONFIG_SIEMENS_MACH_TYPE	MACH_TYPE_PXM2
 
 #include "siemens-am33x-common.h"
 
-#define CONFIG_SYS_MPUCLK	720
 #define DDR_IOCTRL_VAL		0x18b
 #define DDR_PLL_FREQ		266
 
@@ -44,13 +42,9 @@
 
 #define CONFIG_FACTORYSET
 
-/* Watchdog */
-#define CONFIG_OMAP_WATCHDOG
-
 #ifndef CONFIG_SPL_BUILD
 
 /* Use common default */
-#define MTDPARTS_DEFAULT	MTDPARTS_DEFAULT_V1
 
 /* Default env settings */
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -129,7 +123,6 @@
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_LOGO
-#define CONFIG_CMD_BMP
 #define DA8XX_LCD_CNTL_BASE	LCD_CNTL_BASE
 #define PWM_TICKS	0x1388
 #define PWM_DUTY	0x200

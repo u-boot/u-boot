@@ -157,7 +157,7 @@ static void setup_realmode_idt(void)
 	 for (i = 0; i < 256; i++) {
 		idts[i].cs = 0;
 		idts[i].offset = 0x1000 + (i * __idt_handler_size);
-		write_idt_stub((void *)((u32)idts[i].offset), i);
+		write_idt_stub((void *)((ulong)idts[i].offset), i);
 	}
 
 	/*
@@ -227,7 +227,7 @@ static void vbe_set_graphics(int vesa_mode, struct vbe_mode_info *mode_info)
 	mode_info->video_mode = (1 << 14) | vesa_mode;
 	vbe_get_mode_info(mode_info);
 
-	framebuffer = (unsigned char *)mode_info->vesa.phys_base_ptr;
+	framebuffer = (unsigned char *)(ulong)mode_info->vesa.phys_base_ptr;
 	debug("VBE: resolution:  %dx%d@%d\n",
 	      le16_to_cpu(mode_info->vesa.x_resolution),
 	      le16_to_cpu(mode_info->vesa.y_resolution),

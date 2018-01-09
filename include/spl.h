@@ -7,6 +7,8 @@
 #ifndef	_SPL_H_
 #define	_SPL_H_
 
+#include <binman_sym.h>
+
 /* Platform-specific defines */
 #include <linux/compiler.h>
 #include <asm/spl.h>
@@ -23,10 +25,14 @@
 struct spl_image_info {
 	const char *name;
 	u8 os;
-	u32 load_addr;
-	u32 entry_point;
+	uintptr_t load_addr;
+	uintptr_t entry_point;
+#if CONFIG_IS_ENABLED(LOAD_FIT)
+	void *fdt_addr;
+#endif
 	u32 size;
 	u32 flags;
+	void *arg;
 };
 
 /*
@@ -46,6 +52,15 @@ struct spl_load_info {
 	ulong (*read)(struct spl_load_info *load, ulong sector, ulong count,
 		      void *buf);
 };
+
+/*
+ * We need to know the position of U-Boot in memory so we can jump to it. We
+ * allow any U-Boot binary to be used (u-boot.bin, u-boot-nodtb.bin,
+ * u-boot.img), hence the '_any'. These is no checking here that the correct
+ * image is found. For * example if u-boot.img is used we don't check that
+ * spl_parse_image_header() can parse a valid header.
+ */
+binman_sym_extern(ulong, u_boot_any, pos);
 
 /**
  * spl_load_simple_fit() - Loads a fit image from a device.
@@ -67,6 +82,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 void preloader_console_init(void);
 u32 spl_boot_device(void);
 u32 spl_boot_mode(const u32 boot_device);
+void spl_set_bd(void);
 
 /**
  * spl_set_header_raw_uboot() - Set up a standard SPL image structure
@@ -85,7 +101,7 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image);
  * This parses the legacy image header information at @header and sets up
  * @spl_image according to what is found. If no image header is found, then
  * a raw image or bootz is assumed. If CONFIG_SPL_PANIC_ON_RAW_IMAGE is
- * enabled, then this causes a panic. If CONFIG_SPL_ABORT_ON_RAW_IMAGE is
+ * enabled, then this causes a panic. If CONFIG_SPL_RAW_IMAGE_SUPPORT is not
  * enabled then U-Boot gives up. Otherwise U-Boot sets up the image using
  * spl_set_header_raw_uboot(), or possibly the bootz header.
  *
@@ -106,10 +122,8 @@ int spl_board_ubi_load_image(u32 boot_device);
  * This jumps into a Linux kernel using the information in @spl_image.
  *
  * @spl_image: Image description to set up
- * @arg: Argument to pass to Linux (typically a device tree pointer)
  */
-void __noreturn jump_to_image_linux(struct spl_image_info *spl_image,
-				    void *arg);
+void __noreturn jump_to_image_linux(struct spl_image_info *spl_image);
 
 /**
  * spl_start_uboot() - Check if SPL should start the kernel or U-Boot
@@ -213,11 +227,29 @@ int spl_load_image_ext_os(struct spl_image_info *spl_image,
 			  struct blk_desc *block_dev, int partition);
 
 /**
- * spl_init() - Set up device tree and driver model in SPL if enabled
+ * spl_early_init() - Set up device tree and driver model in SPL if enabled
  *
  * Call this function in board_init_f() if you want to use device tree and
- * driver model early, before board_init_r() is called. This function will
- * be called from board_init_r() if not called earlier.
+ * driver model early, before board_init_r() is called.
+ *
+ * If this is not called, then driver model will be inactive in SPL's
+ * board_init_f(), and no device tree will be available.
+ */
+int spl_early_init(void);
+
+/**
+ * spl_init() - Set up device tree and driver model in SPL if enabled
+ *
+ * You can optionally call spl_early_init(), then optionally call spl_init().
+ * This function will be called from board_init_r() if not called earlier.
+ *
+ * Both spl_early_init() and spl_init() perform a similar function except that
+ * the latter will not set up the malloc() area if
+ * CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN is enabled, since it is assumed to
+ * already be done by a calll to spl_relocate_stack_gd() before board_init_r()
+ * is reached.
+ *
+ * This function will be called from board_init_r() if not called earlier.
  *
  * If this is not called, then driver model will be inactive in SPL's
  * board_init_f(), and no device tree will be available.
@@ -250,4 +282,18 @@ int spl_dfu_cmd(int usbctrl, char *dfu_alt_info, char *interface, char *devstr);
 int spl_mmc_load_image(struct spl_image_info *spl_image,
 		       struct spl_boot_device *bootdev);
 
+/**
+ * spl_invoke_atf - boot using an ARM trusted firmware image
+ */
+void spl_invoke_atf(struct spl_image_info *spl_image);
+
+/**
+ * board_return_to_bootrom - allow for boards to continue with the boot ROM
+ *
+ * If a board (e.g. the Rockchip RK3368 boards) provide some
+ * supporting functionality for SPL in their boot ROM and the SPL
+ * stage wants to return to the ROM code to continue booting, boards
+ * can implement 'board_return_to_bootrom'.
+ */
+void board_return_to_bootrom(void);
 #endif

@@ -24,7 +24,7 @@
 #include <usb.h>
 #endif
 
-#if !defined(CONFIG_DOS_PARTITION) && !defined(CONFIG_EFI_PARTITION)
+#if !CONFIG_IS_ENABLED(DOS_PARTITION) && !CONFIG_IS_ENABLED(EFI_PARTITION)
 #error DOS or EFI partition support must be selected
 #endif
 
@@ -51,10 +51,10 @@ static int do_zfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 
 	count = 0;
 	addr = simple_strtoul(argv[3], NULL, 16);
-	filename = getenv("bootfile");
+	filename = env_get("bootfile");
 	switch (argc) {
 	case 3:
-		addr_str = getenv("loadaddr");
+		addr_str = env_get("loadaddr");
 		if (addr_str != NULL)
 			addr = simple_strtoul(addr_str, NULL, 16);
 		else
@@ -115,7 +115,7 @@ static int do_zfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	load_addr = addr;
 
 	printf("%llu bytes read\n", zfile.size);
-	setenv_hex("filesize", zfile.size);
+	env_set_hex("filesize", zfile.size);
 
 	return 0;
 }

@@ -14,8 +14,7 @@
 #include <linux/compiler.h>
 
 /*
- * There is no use in including this from ASM files, but that happens
- * anyway, e.g. PPC kgdb.S includes command.h which incluse us.
+ * There is no use in including this from ASM files.
  * So just don't define anything when included from ASM.
  */
 

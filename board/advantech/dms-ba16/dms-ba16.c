@@ -12,10 +12,10 @@
 #include <asm/arch/mx6-pins.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/mxc_i2c.h>
-#include <asm/imx-common/iomux-v3.h>
-#include <asm/imx-common/boot_mode.h>
-#include <asm/imx-common/video.h>
+#include <asm/mach-imx/mxc_i2c.h>
+#include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/video.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <miiphy.h>
@@ -25,6 +25,7 @@
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <i2c.h>
+#include <input.h>
 #include <pwm.h>
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -103,8 +104,9 @@ static void setup_iomux_enet(void)
 
 	/* Reset AR8033 PHY */
 	gpio_direction_output(IMX_GPIO_NR(1, 28), 0);
-	udelay(500);
+	mdelay(10);
 	gpio_set_value(IMX_GPIO_NR(1, 28), 1);
+	mdelay(1);
 }
 
 static iomux_v3_cfg_t const usdhc2_pads[] = {
@@ -303,7 +305,8 @@ static int mx6_rgmii_rework(struct phy_device *phydev)
 	/* set debug port address: SerDes Test and System Mode Control */
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
 	/* enable rgmii tx clock delay */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x100);
+	/* set the reserved bits to avoid board specific voltage peak issue*/
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x3D47);
 
 	return 0;
 }
@@ -534,11 +537,61 @@ static const struct boot_mode board_boot_modes[] = {
 };
 #endif
 
+void pmic_init(void)
+{
+
+#define DA9063_ADDR 0x58
+#define BCORE2_CONF 0x9D
+#define BCORE1_CONF 0x9E
+#define BPRO_CONF 0x9F
+#define BIO_CONF 0xA0
+#define BMEM_CONF 0xA1
+#define BPERI_CONF 0xA2
+#define MODE_BIT_H 7
+#define MODE_BIT_L 6
+
+        uchar val;
+        i2c_set_bus_num(2);
+
+        i2c_read(DA9063_ADDR, BCORE2_CONF, 1, &val, 1);
+        val |= (1 << MODE_BIT_H);
+        val &= ~(1 << MODE_BIT_L);
+        i2c_write(DA9063_ADDR, BCORE2_CONF , 1, &val, 1);
+
+        i2c_read(DA9063_ADDR, BCORE1_CONF, 1, &val, 1);
+        val |= (1 << MODE_BIT_H);
+        val &= ~(1 << MODE_BIT_L);
+        i2c_write(DA9063_ADDR, BCORE1_CONF , 1, &val, 1);
+
+        i2c_read(DA9063_ADDR, BPRO_CONF, 1, &val, 1);
+        val |= (1 << MODE_BIT_H);
+        val &= ~(1 << MODE_BIT_L);
+        i2c_write(DA9063_ADDR, BPRO_CONF , 1, &val, 1);
+
+        i2c_read(DA9063_ADDR, BIO_CONF, 1, &val, 1);
+        val |= (1 << MODE_BIT_H);
+        val &= ~(1 << MODE_BIT_L);
+        i2c_write(DA9063_ADDR, BIO_CONF , 1, &val, 1);
+
+        i2c_read(DA9063_ADDR, BMEM_CONF, 1, &val, 1);
+        val |= (1 << MODE_BIT_H);
+        val &= ~(1 << MODE_BIT_L);
+        i2c_write(DA9063_ADDR, BMEM_CONF , 1, &val, 1);
+
+        i2c_read(DA9063_ADDR, BPERI_CONF, 1, &val, 1);
+        val |= (1 << MODE_BIT_H);
+        val &= ~(1 << MODE_BIT_L);
+        i2c_write(DA9063_ADDR, BPERI_CONF , 1, &val, 1);
+
+}
+
 int board_late_init(void)
 {
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
 #endif
+
+#if defined(CONFIG_VIDEO_IPUV3)
 	/*
 	 * We need at least 200ms between power on and backlight on
 	 * as per specifications from CHI MEI
@@ -555,10 +608,14 @@ int board_late_init(void)
 	gpio_direction_output(LVDS_BACKLIGHT_GP, 1);
 
 	pwm_enable(0);
+#endif
 
-#ifdef CONFIG_CMD_SATA
+#ifdef CONFIG_SATA
 	setup_ba16_sata();
 #endif
+
+        /* board specific pmic init */
+        pmic_init();
 
 	return 0;
 }

@@ -4,13 +4,15 @@
  * Copyright (C) 2015-2016 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+	X11
+ * SPDX-License-Identifier: (GPL-2.0+ OR MIT)
  */
 
-/include/ "skeleton.dtsi"
+#include <dt-bindings/gpio/uniphier-gpio.h>
 
 / {
 	compatible = "socionext,uniphier-pro4";
+	#address-cells = <1>;
+	#size-cells = <1>;
 
 	cpus {
 		#address-cells = <1>;
@@ -45,7 +47,7 @@
 			clock-frequency = <25000000>;
 		};
 
-		arm_timer_clk: arm_timer_clk {
+		arm_timer_clk: arm-timer {
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
 			clock-frequency = <50000000>;
@@ -58,7 +60,6 @@
 		#size-cells = <1>;
 		ranges;
 		interrupt-parent = <&intc>;
-		u-boot,dm-pre-reloc;
 
 		l2: l2-cache@500c0000 {
 			compatible = "socionext,uniphier-system-cache";
@@ -81,6 +82,7 @@
 			pinctrl-0 = <&pinctrl_uart0>;
 			clocks = <&peri_clk 0>;
 			clock-frequency = <73728000>;
+			resets = <&peri_rst 0>;
 		};
 
 		serial1: serial@54006900 {
@@ -92,6 +94,7 @@
 			pinctrl-0 = <&pinctrl_uart1>;
 			clocks = <&peri_clk 1>;
 			clock-frequency = <73728000>;
+			resets = <&peri_rst 1>;
 		};
 
 		serial2: serial@54006a00 {
@@ -103,6 +106,7 @@
 			pinctrl-0 = <&pinctrl_uart2>;
 			clocks = <&peri_clk 2>;
 			clock-frequency = <73728000>;
+			resets = <&peri_rst 2>;
 		};
 
 		serial3: serial@54006b00 {
@@ -114,209 +118,21 @@
 			pinctrl-0 = <&pinctrl_uart3>;
 			clocks = <&peri_clk 3>;
 			clock-frequency = <73728000>;
+			resets = <&peri_rst 3>;
 		};
 
-		port0x: gpio@55000008 {
+		gpio: gpio@55000000 {
 			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000008 0x8>;
+			reg = <0x55000000 0x200>;
+			interrupt-parent = <&aidet>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
 			gpio-controller;
 			#gpio-cells = <2>;
-		};
-
-		port1x: gpio@55000010 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000010 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port2x: gpio@55000018 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000018 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port3x: gpio@55000020 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000020 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port4: gpio@55000028 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000028 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port5x: gpio@55000030 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000030 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port6x: gpio@55000038 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000038 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port7x: gpio@55000040 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000040 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port8x: gpio@55000048 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000048 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port9x: gpio@55000050 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000050 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port10x: gpio@55000058 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000058 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port11x: gpio@55000060 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000060 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port12x: gpio@55000068 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000068 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port13x: gpio@55000070 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000070 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port14x: gpio@55000078 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000078 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port17x: gpio@550000a0 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x550000a0 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port18x: gpio@550000a8 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x550000a8 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port19x: gpio@550000b0 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x550000b0 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port20x: gpio@550000b8 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x550000b8 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port21x: gpio@550000c0 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x550000c0 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port22x: gpio@550000c8 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x550000c8 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port23x: gpio@550000d0 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x550000d0 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port24x: gpio@550000d8 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x550000d8 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port25x: gpio@550000e0 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x550000e0 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port26x: gpio@550000e8 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x550000e8 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port27x: gpio@550000f0 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x550000f0 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port28x: gpio@550000f8 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x550000f8 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port29x: gpio@55000100 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000100 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		port30x: gpio@55000108 {
-			compatible = "socionext,uniphier-gpio";
-			reg = <0x55000108 0x8>;
-			gpio-controller;
-			#gpio-cells = <2>;
+			gpio-ranges = <&pinctrl 0 0 0>;
+			gpio-ranges-group-names = "gpio_range";
+			ngpios = <248>;
+			socionext,interrupt-ranges = <0 48 16>, <16 154 5>;
 		};
 
 		i2c0: i2c@58780000 {
@@ -329,6 +145,7 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_i2c0>;
 			clocks = <&peri_clk 4>;
+			resets = <&peri_rst 4>;
 			clock-frequency = <100000>;
 		};
 
@@ -342,6 +159,7 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_i2c1>;
 			clocks = <&peri_clk 5>;
+			resets = <&peri_rst 5>;
 			clock-frequency = <100000>;
 		};
 
@@ -355,6 +173,7 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_i2c2>;
 			clocks = <&peri_clk 6>;
+			resets = <&peri_rst 6>;
 			clock-frequency = <100000>;
 		};
 
@@ -368,6 +187,7 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_i2c3>;
 			clocks = <&peri_clk 7>;
+			resets = <&peri_rst 7>;
 			clock-frequency = <100000>;
 		};
 
@@ -381,6 +201,7 @@
 			#size-cells = <0>;
 			interrupts = <0 25 4>;
 			clocks = <&peri_clk 9>;
+			resets = <&peri_rst 9>;
 			clock-frequency = <400000>;
 		};
 
@@ -392,6 +213,7 @@
 			#size-cells = <0>;
 			interrupts = <0 26 4>;
 			clocks = <&peri_clk 10>;
+			resets = <&peri_rst 10>;
 			clock-frequency = <400000>;
 		};
 
@@ -405,7 +227,7 @@
 			pinctrl-0 = <&pinctrl_system_bus>;
 		};
 
-		smpctrl@59800000 {
+		smpctrl@59801000 {
 			compatible = "socionext,uniphier-smpctrl";
 			reg = <0x59801000 0x400>;
 		};
@@ -414,7 +236,6 @@
 			compatible = "socionext,uniphier-pro4-mioctrl",
 				     "simple-mfd", "syscon";
 			reg = <0x59810000 0x800>;
-			u-boot,dm-pre-reloc;
 
 			mio_clk: clock {
 				compatible = "socionext,uniphier-pro4-mio-clock";
@@ -502,7 +323,8 @@
 			interrupts = <0 80 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_usb2>;
-			clocks = <&mio_clk 7>, <&mio_clk 8>, <&mio_clk 12>;
+			clocks = <&sys_clk 8>, <&mio_clk 7>, <&mio_clk 8>,
+				 <&mio_clk 12>;
 			resets = <&sys_rst 8>, <&mio_rst 7>, <&mio_rst 8>,
 				 <&mio_rst 12>;
 		};
@@ -514,7 +336,8 @@
 			interrupts = <0 81 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_usb3>;
-			clocks = <&mio_clk 7>, <&mio_clk 9>, <&mio_clk 13>;
+			clocks = <&sys_clk 8>, <&mio_clk 7>, <&mio_clk 9>,
+				 <&mio_clk 13>;
 			resets = <&sys_rst 8>, <&mio_rst 7>, <&mio_rst 9>,
 				 <&mio_rst 13>;
 		};
@@ -523,17 +346,17 @@
 			compatible = "socionext,uniphier-pro4-soc-glue",
 				     "simple-mfd", "syscon";
 			reg = <0x5f800000 0x2000>;
-			u-boot,dm-pre-reloc;
 
 			pinctrl: pinctrl {
 				compatible = "socionext,uniphier-pro4-pinctrl";
-				u-boot,dm-pre-reloc;
 			};
 		};
 
-		aidet@5fc20000 {
-			compatible = "simple-mfd", "syscon";
+		aidet: aidet@5fc20000 {
+			compatible = "socionext,uniphier-pro4-aidet";
 			reg = <0x5fc20000 0x200>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
 		};
 
 		timer@60000200 {
@@ -587,6 +410,7 @@
 				compatible = "snps,dwc3";
 				reg = <0x65a00000 0x10000>;
 				interrupts = <0 134 4>;
+				dr_mode = "host";
 				tx-fifo-resize;
 			};
 		};
@@ -604,12 +428,13 @@
 				compatible = "snps,dwc3";
 				reg = <0x65c00000 0x10000>;
 				interrupts = <0 137 4>;
+				dr_mode = "host";
 				tx-fifo-resize;
 			};
 		};
 
 		nand: nand@68000000 {
-			compatible = "socionext,denali-nand-v5a";
+			compatible = "socionext,uniphier-denali-nand-v5a";
 			status = "disabled";
 			reg-names = "nand_data", "denali_reg";
 			reg = <0x68000000 0x20>, <0x68100000 0x1000>;
@@ -617,9 +442,9 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_nand>;
 			clocks = <&sys_clk 2>;
-			nand-ecc-strength = <8>;
+			resets = <&sys_rst 2>;
 		};
 	};
 };
 
-/include/ "uniphier-pinctrl.dtsi"
+#include "uniphier-pinctrl.dtsi"

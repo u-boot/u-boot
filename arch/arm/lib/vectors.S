@@ -16,6 +16,22 @@
 #include <config.h>
 
 /*
+ * A macro to allow insertion of an ARM exception vector either
+ * for the non-boot0 case or by a boot0-header.
+ */
+        .macro ARM_VECTORS
+	b	reset
+	ldr	pc, _undefined_instruction
+	ldr	pc, _software_interrupt
+	ldr	pc, _prefetch_abort
+	ldr	pc, _data_abort
+	ldr	pc, _not_used
+	ldr	pc, _irq
+	ldr	pc, _fiq
+	.endm
+
+
+/*
  *************************************************************************
  *
  * Symbol _start is referenced elsewhere, so make it global
@@ -35,6 +51,23 @@
 
 	.section ".vectors", "ax"
 
+#if defined(CONFIG_ENABLE_ARM_SOC_BOOT0_HOOK)
+/*
+ * Various SoCs need something special and SoC-specific up front in
+ * order to boot, allow them to set that in their boot0.h file and then
+ * use it here.
+ *
+ * To allow a boot0 hook to insert a 'special' sequence after the vector
+ * table (e.g. for the socfpga), the presence of a boot0 hook supresses
+ * the below vector table and assumes that the vector table is filled in
+ * by the boot0 hook.  The requirements for a boot0 hook thus are:
+ *   (1) defines '_start:' as appropriate
+ *   (2) inserts the vector table using ARM_VECTORS as appropriate
+ */
+#include <asm/arch/boot0.h>
+
+#else
+
 /*
  *************************************************************************
  *
@@ -46,29 +79,11 @@
  */
 
 _start:
-
 #ifdef CONFIG_SYS_DV_NOR_BOOT_CFG
 	.word	CONFIG_SYS_DV_NOR_BOOT_CFG
 #endif
-
-	b	reset
-	ldr	pc, _undefined_instruction
-	ldr	pc, _software_interrupt
-	ldr	pc, _prefetch_abort
-	ldr	pc, _data_abort
-	ldr	pc, _not_used
-	ldr	pc, _irq
-	ldr	pc, _fiq
-
-#ifdef CONFIG_ENABLE_ARM_SOC_BOOT0_HOOK
-/*
- * Various SoCs need something special and SoC-specific up front in
- * order to boot, allow them to set that in their boot0.h file and then
- * use it here.
- */
-#include <asm/arch/boot0.h>
-ARM_SOC_BOOT0_HOOK
-#endif
+	ARM_VECTORS
+#endif /* !defined(CONFIG_ENABLE_ARM_SOC_BOOT0_HOOK) */
 
 /*
  *************************************************************************
@@ -118,7 +133,6 @@ data_abort:
 not_used:
 irq:
 fiq:
-
 1:
 	bl	1b			/* hang and never return */
 
@@ -127,20 +141,11 @@ fiq:
 /* IRQ stack memory (calculated at run-time) + 8 bytes */
 .globl IRQ_STACK_START_IN
 IRQ_STACK_START_IN:
+#ifdef IRAM_BASE_ADDR
+	.word   IRAM_BASE_ADDR + 0x20
+#else
 	.word	0x0badc0de
-
-#ifdef CONFIG_USE_IRQ
-/* IRQ stack memory (calculated at run-time) */
-.globl IRQ_STACK_START
-IRQ_STACK_START:
-	.word	0x0badc0de
-
-/* IRQ stack memory (calculated at run-time) */
-.globl FIQ_STACK_START
-FIQ_STACK_START:
-	.word 0x0badc0de
-
-#endif /* CONFIG_USE_IRQ */
+#endif
 
 @
 @ IRQ stack frame.
@@ -265,24 +270,6 @@ not_used:
 	bad_save_user_regs
 	bl	do_not_used
 
-#ifdef CONFIG_USE_IRQ
-
-	.align	5
-irq:
-	get_irq_stack
-	irq_save_user_regs
-	bl	do_irq
-	irq_restore_user_regs
-
-	.align	5
-fiq:
-	get_fiq_stack
-	/* someone ought to write a more effiction fiq_save_user_regs */
-	irq_save_user_regs
-	bl	do_fiq
-	irq_restore_user_regs
-
-#else
 
 	.align	5
 irq:
@@ -295,7 +282,5 @@ fiq:
 	get_bad_stack
 	bad_save_user_regs
 	bl	do_fiq
-
-#endif /* CONFIG_USE_IRQ */
 
 #endif	/* CONFIG_SPL_BUILD */

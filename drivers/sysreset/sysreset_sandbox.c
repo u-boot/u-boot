@@ -41,7 +41,7 @@ static int sandbox_sysreset_request(struct udevice *dev, enum sysreset_t type)
 	 * (see the U_BOOT_DEVICE() declaration below) should not do anything.
 	 * If we are that device, return an error.
 	 */
-	if (state->fdt_fname && dev->of_offset == -1)
+	if (state->fdt_fname && !dev_of_valid(dev))
 		return -ENODEV;
 
 	switch (type) {

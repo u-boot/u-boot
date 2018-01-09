@@ -18,6 +18,7 @@
 #include <common.h>
 #include <netdev.h>
 #include <asm/io.h>
+#include <asm/mach-types.h>
 #include <asm/arch/ep93xx.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -216,9 +217,11 @@ static unsigned dram_init_banksize_int(int print)
 	return dram_total;
 }
 
-void dram_init_banksize(void)
+int dram_init_banksize(void)
 {
 	dram_init_banksize_int(0);
+
+	return 0;
 }
 
 /* called in board_init_f (before relocation) */
@@ -282,101 +285,3 @@ int dram_init(void)
 	gd->ram_size = dram_init_banksize_int(1);
 	return 0;
 }
-
-
-#ifdef CONFIG_EP93XX_SPI
-#include <spi.h>
-
-/*
- * EGIO0-EGIPO7 -> port A
- * EGIO8-EGIP15 -> port B
- */
-
-static void ep93xx_set_epgio(unsigned num)
-{
-	struct gpio_regs *regs = (struct gpio_regs *)GPIO_BASE;
-	if (num < 8)
-		writel(readl(&regs->padr) | (1<<num), &regs->padr);
-	else
-		writel(readl(&regs->pbdr) | (1<<(num-8)), &regs->pbdr);
-}
-
-static void ep93xx_clear_epgio(unsigned num)
-{
-	struct gpio_regs *regs = (struct gpio_regs *)GPIO_BASE;
-	if (num < 8)
-		writel(readl(&regs->padr) & (~(1<<num)), &regs->padr);
-	else
-		writel(readl(&regs->pbdr) & (~(1<<(num-8))), &regs->pbdr);
-}
-
-static void ep93xx_dir_epgio_out(unsigned num)
-{
-	struct gpio_regs *regs = (struct gpio_regs *)GPIO_BASE;
-	if (num < 8)
-		writel(readl(&regs->paddr) | (1<<num), &regs->paddr);
-	else
-		writel(readl(&regs->pbddr) | (1<<(num-8)), &regs->pbddr);
-}
-
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	if (bus == 0 && cs < 16)
-		return 1;
-
-	return 0;
-}
-
-void spi_cs_activate(struct spi_slave *slave)
-{
-	ep93xx_clear_epgio(slave->cs);
-}
-
-void spi_cs_deactivate(struct spi_slave *slave)
-{
-	ep93xx_set_epgio(slave->cs);
-}
-
-#ifdef CONFIG_MMC_SPI
-#include <mmc.h>
-
-#ifndef CONFIG_MMC_SPI_CS_EPGIO
-# define CONFIG_MMC_SPI_CS_EPGIO	4
-#endif
-
-#ifndef CONFIG_MMC_SPI_SPEED
-# define CONFIG_MMC_SPI_SPEED		25000000
-#endif
-
-#ifndef CONFIG_MMC_SPI_MODE
-# define CONFIG_MMC_SPI_MODE		SPI_MODE_0
-#endif
-
-int board_mmc_init(bd_t *bis)
-{
-	struct gpio_regs *regs = (struct gpio_regs *)GPIO_BASE;
-
-	ep93xx_set_epgio(CONFIG_MMC_SPI_CS_EPGIO);
-	ep93xx_dir_epgio_out(CONFIG_MMC_SPI_CS_EPGIO);
-
-#ifdef CONFIG_MMC_SPI_POWER_EGPIO
-	ep93xx_dir_epgio_out(CONFIG_MMC_SPI_POWER_EGPIO);
-	ep93xx_set_epgio(CONFIG_MMC_SPI_POWER_EGPIO);
-#elif defined(CONFIG_MMC_SPI_NPOWER_EGPIO)
-	ep93xx_dir_epgio_out(CONFIG_MMC_SPI_NPOWER_EGPIO);
-	ep93xx_clear_epgio(CONFIG_MMC_SPI_NPOWER_EGPIO);
-#endif
-	struct mmc *mmc = mmc_spi_init(0, CONFIG_MMC_SPI_CS_EPGIO,
-				CONFIG_MMC_SPI_SPEED, CONFIG_MMC_SPI_MODE);
-
-	if (!mmc) {
-		printf("Failed to create MMC Device\n");
-		return 1;
-	}
-	mmc_init(mmc);
-	return 0;
-}
-
-
-#endif /* CONFIG_MMC_SPI */
-#endif /* CONFIG_EP93XX_SPI */

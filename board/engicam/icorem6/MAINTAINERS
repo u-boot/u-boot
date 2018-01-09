@@ -1,9 +1,0 @@
-ICOREM6QDL BOARD
-M:	Jagan Teki <jagan@amarulasolutions.com>
-S:	Maintained
-F:	board/engicam/icorem6
-F:	include/configs/imx6qdl_icore.h
-F:	configs/imx6q_icore_mmc_defconfig
-F:	configs/imx6q_icore_nand_defconfig
-F:	configs/imx6dl_icore_mmc_defconfig
-F:	configs/imx6dl_icore_nand_defconfig

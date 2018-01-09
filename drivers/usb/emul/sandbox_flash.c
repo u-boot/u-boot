@@ -244,7 +244,7 @@ static int handle_ufi_command(struct sandbox_flash_plat *plat,
 			      struct sandbox_flash_priv *priv, const void *buff,
 			      int len)
 {
-	const struct SCSI_cmd_block *req = buff;
+	const struct scsi_cmd *req = buff;
 
 	switch (*req->cmd) {
 	case SCSI_INQUIRY: {
@@ -371,10 +371,8 @@ err:
 static int sandbox_flash_ofdata_to_platdata(struct udevice *dev)
 {
 	struct sandbox_flash_plat *plat = dev_get_platdata(dev);
-	const void *blob = gd->fdt_blob;
 
-	plat->pathname = fdt_getprop(blob, dev->of_offset, "sandbox,filepath",
-				     NULL);
+	plat->pathname = dev_read_string(dev, "sandbox,filepath");
 
 	return 0;
 }
@@ -392,8 +390,7 @@ static int sandbox_flash_bind(struct udevice *dev)
 	fs[2].id = STRINGID_SERIAL;
 	fs[2].s = dev->name;
 
-	return usb_emul_setup_device(dev, PACKET_SIZE_64, plat->flash_strings,
-				     flash_desc_list);
+	return usb_emul_setup_device(dev, plat->flash_strings, flash_desc_list);
 }
 
 static int sandbox_flash_probe(struct udevice *dev)

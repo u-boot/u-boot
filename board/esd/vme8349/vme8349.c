@@ -26,15 +26,17 @@
 #include <i2c.h>
 #include <netdev.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 void ddr_enable_ecc(unsigned int dram_size);
 
-phys_size_t initdram(int board_type)
+int dram_init(void)
 {
 	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	u32 msize = 0;
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32)im)
-		return -1;
+		return -ENXIO;
 
 	/* DDR SDRAM - Main memory */
 	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_BASE & LAWBAR_BAR;
@@ -52,7 +54,9 @@ phys_size_t initdram(int board_type)
 	msize = get_ram_size(0, msize);
 
 	/* return total bus SDRAM size(bytes)  -- DDR */
-	return msize * 1024 * 1024;
+	gd->ram_size = msize * 1024 * 1024;
+
+	return 0;
 }
 
 int checkboard(void)

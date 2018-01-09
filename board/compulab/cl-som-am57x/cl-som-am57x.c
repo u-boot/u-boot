@@ -33,7 +33,7 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_GENERIC_MMC
+#ifdef CONFIG_MMC
 #define SB_SOM_CD_GPIO 187
 #define SB_SOM_WP_GPIO 188
 
@@ -51,17 +51,7 @@ int board_mmc_init(bd_t *bis)
 
 	return ret0 && ret1;
 }
-#endif /* CONFIG_GENERIC_MMC */
-
-#ifdef CONFIG_USB_XHCI_OMAP
-int board_usb_init(int index, enum usb_init_type init)
-{
-	setbits_le32((*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
-		     OTG_SS_CLKCTRL_MODULEMODE_HW | OPTFCLKEN_REFCLK960M);
-
-	return 0;
-}
-#endif /* CONFIG_USB_XHCI_OMAP */
+#endif /* CONFIG_MMC */
 
 int misc_init_r(void)
 {

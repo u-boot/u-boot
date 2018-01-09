@@ -217,7 +217,7 @@ static int sunxi_gpio_get_function(struct udevice *dev, unsigned offset)
 }
 
 static int sunxi_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
-			    struct fdtdec_phandle_args *args)
+			    struct ofnode_phandle_args *args)
 {
 	int ret;
 
@@ -296,7 +296,7 @@ static int gpio_sunxi_bind(struct udevice *parent)
 	if (plat)
 		return 0;
 
-	ctlr = (struct sunxi_gpio_reg *)dev_get_addr(parent);
+	ctlr = (struct sunxi_gpio_reg *)devfdt_get_addr(parent);
 	for (bank = 0; bank < soc_data->no_banks; bank++) {
 		struct sunxi_gpio_platdata *plat;
 		struct udevice *dev;
@@ -312,7 +312,7 @@ static int gpio_sunxi_bind(struct udevice *parent)
 					plat->bank_name, plat, -1, &dev);
 		if (ret)
 			return ret;
-		dev->of_offset = parent->of_offset;
+		dev_set_of_offset(dev, dev_of_offset(parent));
 	}
 
 	return 0;
@@ -352,6 +352,7 @@ static const struct udevice_id sunxi_gpio_ids[] = {
 	ID("allwinner,sun8i-a33-pinctrl",	a_all),
 	ID("allwinner,sun8i-a83t-pinctrl",	a_all),
 	ID("allwinner,sun8i-h3-pinctrl",	a_all),
+	ID("allwinner,sun8i-r40-pinctrl",	a_all),
 	ID("allwinner,sun9i-a80-pinctrl",	a_all),
 	ID("allwinner,sun6i-a31-r-pinctrl",	l_2),
 	ID("allwinner,sun8i-a23-r-pinctrl",	l_1),

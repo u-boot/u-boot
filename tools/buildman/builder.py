@@ -95,8 +95,9 @@ u-boot/             source directory
 # Possible build outcomes
 OUTCOME_OK, OUTCOME_WARNING, OUTCOME_ERROR, OUTCOME_UNKNOWN = range(4)
 
-# Translate a commit subject into a valid filename
-trans_valid_chars = string.maketrans("/: ", "---")
+# Translate a commit subject into a valid filename (and handle unicode)
+trans_valid_chars = string.maketrans('/: ', '---')
+trans_valid_chars = trans_valid_chars.decode('latin-1')
 
 BASE_CONFIG_FILENAMES = [
     'u-boot.cfg', 'u-boot-spl.cfg', 'u-boot-tpl.cfg'
@@ -846,7 +847,7 @@ class Builder:
         delta.reverse()
 
         args = [add, -remove, grow, -shrink, up, -down, up - down]
-        if max(args) == 0:
+        if max(args) == 0 and min(args) == 0:
             return
         args = [self.ColourNum(x) for x in args]
         indent = ' ' * 15

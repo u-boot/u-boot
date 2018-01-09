@@ -11,10 +11,6 @@
 #include <common.h>
 #include <command.h>
 
-#ifdef CONFIG_HAS_DATAFLASH
-#include <dataflash.h>
-#endif
-
 #if defined(CONFIG_CMD_MTDPARTS)
 #include <jffs2/jffs2.h>
 
@@ -25,7 +21,7 @@ int find_dev_and_part(const char *id, struct mtd_device **dev,
 		u8 *part_num, struct part_info **part);
 #endif
 
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 #include <flash.h>
 #include <mtd/cfi_flash.h>
 extern flash_info_t flash_info[];	/* info for FLASH chips */
@@ -271,19 +267,15 @@ flash_fill_sect_ranges (ulong addr_first, ulong addr_last,
 
 	return rcode;
 }
-#endif /* CONFIG_SYS_NO_FLASH */
+#endif /* CONFIG_MTD_NOR_FLASH */
 
 static int do_flinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 	ulong bank;
 #endif
 
-#ifdef CONFIG_HAS_DATAFLASH
-	dataflash_print_info();
-#endif
-
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 	if (argc == 1) {	/* print info for all FLASH banks */
 		for (bank=0; bank <CONFIG_SYS_MAX_FLASH_BANKS; ++bank) {
 			printf ("\nBank # %ld: ", bank+1);
@@ -301,13 +293,13 @@ static int do_flinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 	printf ("\nBank # %ld: ", bank);
 	flash_print_info (&flash_info[bank-1]);
-#endif /* CONFIG_SYS_NO_FLASH */
+#endif /* CONFIG_MTD_NOR_FLASH */
 	return 0;
 }
 
 static int do_flerase(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 	flash_info_t *info = NULL;
 	ulong bank, addr_first, addr_last;
 	int n, sect_first = 0, sect_last = 0;
@@ -395,10 +387,10 @@ static int do_flerase(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return rcode;
 #else
 	return 0;
-#endif /* CONFIG_SYS_NO_FLASH */
+#endif /* CONFIG_MTD_NOR_FLASH */
 }
 
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 int flash_sect_erase (ulong addr_first, ulong addr_last)
 {
 	flash_info_t *info;
@@ -436,12 +428,12 @@ int flash_sect_erase (ulong addr_first, ulong addr_last)
 	}
 	return rcode;
 }
-#endif /* CONFIG_SYS_NO_FLASH */
+#endif /* CONFIG_MTD_NOR_FLASH */
 
 static int do_protect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int rcode = 0;
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 	flash_info_t *info = NULL;
 	ulong bank;
 	int i, n, sect_first = 0, sect_last = 0;
@@ -450,11 +442,8 @@ static int do_protect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	struct part_info *part;
 	u8 dev_type, dev_num, pnum;
 #endif
-#endif /* CONFIG_SYS_NO_FLASH */
-#ifdef CONFIG_HAS_DATAFLASH
-	int status;
-#endif
-#if !defined(CONFIG_SYS_NO_FLASH) || defined(CONFIG_HAS_DATAFLASH)
+#endif /* CONFIG_MTD_NOR_FLASH */
+#if defined(CONFIG_MTD_NOR_FLASH)
 	int p;
 	ulong addr_first, addr_last;
 #endif
@@ -462,7 +451,7 @@ static int do_protect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc < 3)
 		return CMD_RET_USAGE;
 
-#if !defined(CONFIG_SYS_NO_FLASH) || defined(CONFIG_HAS_DATAFLASH)
+#if defined(CONFIG_MTD_NOR_FLASH)
 	if (strcmp(argv[1], "off") == 0)
 		p = 0;
 	else if (strcmp(argv[1], "on") == 0)
@@ -471,25 +460,7 @@ static int do_protect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return CMD_RET_USAGE;
 #endif
 
-#ifdef CONFIG_HAS_DATAFLASH
-	if ((strcmp(argv[2], "all") != 0) && (strcmp(argv[2], "bank") != 0)) {
-		addr_first = simple_strtoul(argv[2], NULL, 16);
-		addr_last  = simple_strtoul(argv[3], NULL, 16);
-
-		if (addr_dataflash(addr_first) && addr_dataflash(addr_last)) {
-			status = dataflash_real_protect(p,addr_first,addr_last);
-			if (status < 0){
-				puts ("Bad DataFlash sector specification\n");
-				return 1;
-			}
-			printf("%sProtect %d DataFlash Sectors\n",
-				p ? "" : "Un-", status);
-			return 0;
-		}
-	}
-#endif
-
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 	if (strcmp(argv[2], "all") == 0) {
 		for (bank=1; bank<=CONFIG_SYS_MAX_FLASH_BANKS; ++bank) {
 			info = &flash_info[bank-1];
@@ -611,11 +582,11 @@ static int do_protect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return CMD_RET_USAGE;
 
 	rcode = flash_sect_protect (p, addr_first, addr_last);
-#endif /* CONFIG_SYS_NO_FLASH */
+#endif /* CONFIG_MTD_NOR_FLASH */
 	return rcode;
 }
 
-#ifndef CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_MTD_NOR_FLASH
 int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 {
 	flash_info_t *info;
@@ -664,7 +635,7 @@ int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 	}
 	return rcode;
 }
-#endif /* CONFIG_SYS_NO_FLASH */
+#endif /* CONFIG_MTD_NOR_FLASH */
 
 
 /**************************************************/

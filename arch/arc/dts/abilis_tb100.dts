@@ -8,11 +8,17 @@
 #include "skeleton.dtsi"
 
 / {
-	#address-cells = <1>;
-	#size-cells = <1>;
-
 	aliases {
 		console = &uart0;
+	};
+
+	cpu_card {
+		core_clk: core_clk {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <500000000>;
+			u-boot,dm-pre-reloc;
+		};
 	};
 
 	uart0: serial@ff100000 {

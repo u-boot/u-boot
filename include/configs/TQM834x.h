@@ -41,7 +41,6 @@
 #define CONFIG_SYS_LCRR_CLKDIV	LCRR_CLKDIV_8
 
 /* board pre init: do not call, nothing to do */
-#undef CONFIG_BOARD_EARLY_INIT_F
 
 /* detect the number of flash banks */
 #define CONFIG_BOARD_EARLY_INIT_R
@@ -185,13 +184,6 @@
 #define CONFIG_RTC_DS1337			/* use ds1337 rtc via i2c */
 #define CONFIG_SYS_I2C_RTC_ADDR		0x68	/* at address 0x68 */
 
-/* I2C SYSMON (LM75) */
-#define CONFIG_DTT_LM75			1	/* ON Semi's LM75 */
-#define CONFIG_DTT_SENSORS		{0}	/* Sensor addresses */
-#define CONFIG_SYS_DTT_MAX_TEMP		70
-#define CONFIG_SYS_DTT_LOW_TEMP		-30
-#define CONFIG_SYS_DTT_HYSTERESIS	3
-
 /*
  * TSEC
  */
@@ -220,11 +212,6 @@
 #define CONFIG_ETHPRIME		"TSEC0"
 
 #endif	/* CONFIG_TSEC_ENET */
-
-/*
- * General PCI
- * Addresses are mapped 1-1.
- */
 
 #if defined(CONFIG_PCI)
 
@@ -259,7 +246,6 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_ADDR		\
 			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
 #define CONFIG_ENV_SECT_SIZE	0x20000	/* 128K (one sector) for env */
@@ -279,19 +265,6 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /*
- * Command line configuration.
- */
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_DTT
-#define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_REGINFO
-
-#if defined(CONFIG_PCI)
-    #define CONFIG_CMD_PCI
-#endif
-
-/*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
@@ -299,18 +272,6 @@
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
-
-#if defined(CONFIG_CMD_KGDB)
-	#define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size */
-#else
-	#define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
-#endif
-
-				/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
-#define CONFIG_SYS_MAXARGS	16	/* max number of command args */
-				/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
 
@@ -477,15 +438,9 @@
 				/* default location for tftp and bootm */
 #define CONFIG_LOADADDR		400000
 
-#undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
-
-#define CONFIG_BAUDRATE		115200
-
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
-
-#undef	CONFIG_BOOTARGS
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
@@ -534,14 +489,8 @@
  * JFFS2 partitions
  */
 /* mtdparts command line support */
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_FLASH_CFI_MTD
-#define MTDIDS_DEFAULT		"nor0=TQM834x-0"
 
 /* default mtd partition table */
-#define MTDPARTS_DEFAULT	"mtdparts=TQM834x-0:256k(u-boot),256k(env)," \
-						"1m(kernel),2m(initrd)," \
-						"-(user);" \
-
 #endif	/* __CONFIG_H */

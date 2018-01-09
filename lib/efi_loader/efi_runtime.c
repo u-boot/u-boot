@@ -184,7 +184,16 @@ static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
 		/* Clean up system table */
 		.ptr = &systab.boottime,
 		.patchto = NULL,
-	},
+	}, {
+		.ptr = &efi_runtime_services.get_variable,
+		.patchto = &efi_device_error,
+	}, {
+		.ptr = &efi_runtime_services.get_next_variable,
+		.patchto = &efi_device_error,
+	}, {
+		.ptr = &efi_runtime_services.set_variable,
+		.patchto = &efi_device_error,
+	}
 };
 
 static bool efi_runtime_tobedetached(void *p)
@@ -243,7 +252,8 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 
 		/* Check if the relocation is inside bounds */
 		if (map && ((newaddr < map->virtual_start) ||
-		    newaddr > (map->virtual_start + (map->num_pages << 12)))) {
+		    newaddr > (map->virtual_start +
+			      (map->num_pages << EFI_PAGE_SHIFT)))) {
 			if (!efi_runtime_tobedetached(p))
 				printf("U-Boot EFI: Relocation at %p is out of "
 				       "range (%lx)\n", p, newaddr);
@@ -269,7 +279,8 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 			uint32_t descriptor_version,
 			struct efi_mem_desc *virtmap)
 {
-	ulong runtime_start = (ulong)&__efi_runtime_start & ~0xfffULL;
+	ulong runtime_start = (ulong)&__efi_runtime_start &
+			      ~(ulong)EFI_PAGE_MASK;
 	int n = memory_map_size / descriptor_size;
 	int i;
 
@@ -325,7 +336,7 @@ void efi_add_runtime_mmio(void *mmio_ptr, u64 len)
 {
 	struct efi_runtime_mmio_list *newmmio;
 
-	u64 pages = (len + EFI_PAGE_SIZE - 1) >> EFI_PAGE_SHIFT;
+	u64 pages = (len + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
 	efi_add_memory_map(*(uintptr_t *)mmio_ptr, pages, EFI_MMAP_IO, false);
 
 	newmmio = calloc(1, sizeof(*newmmio));
@@ -382,9 +393,9 @@ struct efi_runtime_services __efi_runtime_data efi_runtime_services = {
 	.set_wakeup_time = (void *)&efi_unimplemented,
 	.set_virtual_address_map = &efi_set_virtual_address_map,
 	.convert_pointer = (void *)&efi_invalid_parameter,
-	.get_variable = (void *)&efi_device_error,
-	.get_next_variable = (void *)&efi_device_error,
-	.set_variable = (void *)&efi_device_error,
+	.get_variable = efi_get_variable,
+	.get_next_variable = efi_get_next_variable,
+	.set_variable = efi_set_variable,
 	.get_next_high_mono_count = (void *)&efi_device_error,
 	.reset_system = &efi_reset_system_boottime,
 };

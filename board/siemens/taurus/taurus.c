@@ -15,6 +15,7 @@
 #include <command.h>
 #include <common.h>
 #include <dm.h>
+#include <environment.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9260_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
@@ -25,7 +26,7 @@
 #include <asm/arch/atmel_serial.h>
 #include <asm/arch/clk.h>
 #include <asm/gpio.h>
-#include <linux/mtd/nand.h>
+#include <linux/mtd/rawnand.h>
 #include <atmel_mci.h>
 #include <asm/arch/at91_spi.h>
 #include <spi.h>
@@ -376,36 +377,36 @@ static int upgrade_failure_fallback(void)
 	char *kern_size;
 	char *kern_size_fb;
 
-	partitionset_active = getenv("partitionset_active");
+	partitionset_active = env_get("partitionset_active");
 	if (partitionset_active) {
 		if (partitionset_active[0] == 'A')
-			setenv("partitionset_active", "B");
+			env_set("partitionset_active", "B");
 		else
-			setenv("partitionset_active", "A");
+			env_set("partitionset_active", "A");
 	} else {
 		printf("partitionset_active missing.\n");
 		return -ENOENT;
 	}
 
-	rootfs = getenv("rootfs");
-	rootfs_fallback = getenv("rootfs_fallback");
-	setenv("rootfs", rootfs_fallback);
-	setenv("rootfs_fallback", rootfs);
+	rootfs = env_get("rootfs");
+	rootfs_fallback = env_get("rootfs_fallback");
+	env_set("rootfs", rootfs_fallback);
+	env_set("rootfs_fallback", rootfs);
 
-	kern_size = getenv("kernel_size");
-	kern_size_fb = getenv("kernel_size_fallback");
-	setenv("kernel_size", kern_size_fb);
-	setenv("kernel_size_fallback", kern_size);
+	kern_size = env_get("kernel_size");
+	kern_size_fb = env_get("kernel_size_fallback");
+	env_set("kernel_size", kern_size_fb);
+	env_set("kernel_size_fallback", kern_size);
 
-	kern_off = getenv("kernel_Off");
-	kern_off_fb = getenv("kernel_Off_fallback");
-	setenv("kernel_Off", kern_off_fb);
-	setenv("kernel_Off_fallback", kern_off);
+	kern_off = env_get("kernel_Off");
+	kern_off_fb = env_get("kernel_Off_fallback");
+	env_set("kernel_Off", kern_off_fb);
+	env_set("kernel_Off_fallback", kern_off);
 
-	setenv("bootargs", '\0');
-	setenv("upgrade_available", '\0');
-	setenv("boot_retries", '\0');
-	saveenv();
+	env_set("bootargs", '\0');
+	env_set("upgrade_available", '\0');
+	env_set("boot_retries", '\0');
+	env_save();
 
 	return 0;
 }
@@ -417,14 +418,14 @@ static int do_upgrade_available(cmd_tbl_t *cmdtp, int flag, int argc,
 	unsigned long boot_retry = 0;
 	char boot_buf[10];
 
-	upgrade_available = simple_strtoul(getenv("upgrade_available"), NULL,
+	upgrade_available = simple_strtoul(env_get("upgrade_available"), NULL,
 					   10);
 	if (upgrade_available) {
-		boot_retry = simple_strtoul(getenv("boot_retries"), NULL, 10);
+		boot_retry = simple_strtoul(env_get("boot_retries"), NULL, 10);
 		boot_retry++;
 		sprintf(boot_buf, "%lx", boot_retry);
-		setenv("boot_retries", boot_buf);
-		saveenv();
+		env_set("boot_retries", boot_buf);
+		env_save();
 
 		/*
 		 * Here the boot_retries count is checked, and if the
@@ -448,12 +449,3 @@ U_BOOT_CMD(
 );
 #endif
 #endif
-
-static struct atmel_serial_platdata at91sam9260_serial_plat = {
-	.base_addr = ATMEL_BASE_DBGU,
-};
-
-U_BOOT_DEVICE(at91sam9260_serial) = {
-	.name   = "serial_atmel",
-	.platdata = &at91sam9260_serial_plat,
-};

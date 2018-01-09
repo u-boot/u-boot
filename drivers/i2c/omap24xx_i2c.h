@@ -121,17 +121,17 @@
  * scll_trim = 7
  * sclh_trim = 5
  *
- * The linux 2.6.30 kernel uses
- * scll_trim = 6
- * sclh_trim = 6
+ * The linux 4.9 kernel uses
+ * scll_trim = 7
+ * sclh_trim = 5
  *
  * These are the trim values for standard and fast speed
  */
 #ifndef I2C_FASTSPEED_SCLL_TRIM
-#define I2C_FASTSPEED_SCLL_TRIM		6
+#define I2C_FASTSPEED_SCLL_TRIM		7
 #endif
 #ifndef I2C_FASTSPEED_SCLH_TRIM
-#define I2C_FASTSPEED_SCLH_TRIM		6
+#define I2C_FASTSPEED_SCLH_TRIM		5
 #endif
 
 /* These are the trim values for high speed */

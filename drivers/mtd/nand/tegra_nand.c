@@ -894,8 +894,8 @@ static int fdt_decode_nand(const void *blob, int node, struct fdt_nand *config)
 	config->reg = (struct nand_ctlr *)fdtdec_get_addr(blob, node, "reg");
 	config->enabled = fdtdec_get_is_enabled(blob, node);
 	config->width = fdtdec_get_int(blob, node, "nvidia,nand-width", 8);
-	err = gpio_request_by_name_nodev(blob, node, "nvidia,wp-gpios", 0,
-				 &config->wp_gpio, GPIOD_IS_OUT);
+	err = gpio_request_by_name_nodev(offset_to_ofnode(node),
+			"nvidia,wp-gpios", 0, &config->wp_gpio, GPIOD_IS_OUT);
 	if (err)
 		return err;
 	err = fdtdec_get_int_array(blob, node, "nvidia,timing",

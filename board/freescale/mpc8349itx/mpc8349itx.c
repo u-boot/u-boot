@@ -20,6 +20,8 @@
 #include <libfdt.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifndef CONFIG_SPD_EEPROM
 /*************************************************************************
  *  fixed sdram init -- doesn't use serial presence detect.
@@ -116,7 +118,7 @@ volatile static struct pci_controller hose[] = {
 };
 #endif				/* CONFIG_PCI */
 
-phys_size_t initdram(int board_type)
+int dram_init(void)
 {
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u32 msize = 0;
@@ -125,7 +127,7 @@ phys_size_t initdram(int board_type)
 #endif
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32) im)
-		return -1;
+		return -ENXIO;
 
 	/* DDR SDRAM - Main SODIMM */
 	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_BASE & LAWBAR_BAR;
@@ -144,7 +146,9 @@ phys_size_t initdram(int board_type)
 #endif
 
 	/* return total bus RAM size(bytes) */
-	return msize * 1024 * 1024;
+	gd->ram_size = msize * 1024 * 1024;
+
+	return 0;
 }
 
 int checkboard(void)

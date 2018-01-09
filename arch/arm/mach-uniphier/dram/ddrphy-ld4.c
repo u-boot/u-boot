@@ -5,9 +5,10 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <common.h>
-#include <linux/err.h>
+#include <linux/bitops.h>
+#include <linux/errno.h>
 #include <linux/io.h>
+#include <linux/printk.h>
 
 #include "ddrphy-init.h"
 #include "ddrphy-regs.h"
@@ -41,7 +42,7 @@ int uniphier_ld4_ddrphy_init(void __iomem *phy_base, int freq, bool ddr3plus)
 		freq_e = DRAM_FREQ_1600M;
 		break;
 	default:
-		printf("unsupported DRAM frequency %d MHz\n", freq);
+		pr_err("unsupported DRAM frequency %d MHz\n", freq);
 		return -EINVAL;
 	}
 

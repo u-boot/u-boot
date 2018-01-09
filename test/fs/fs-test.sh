@@ -9,14 +9,18 @@
 # It currently tests the fs/sb and native commands for ext4 and fat partitions
 # Expected results are as follows:
 # EXT4 tests:
-# fs-test.sb.ext4.out: Summary: PASS: 23 FAIL: 0
-# fs-test.ext4.out: Summary: PASS: 23 FAIL: 0
-# fs-test.fs.ext4.out: Summary: PASS: 23 FAIL: 0
-# FAT tests:
-# fs-test.sb.fat.out: Summary: PASS: 23 FAIL: 0
-# fs-test.fat.out: Summary: PASS: 20 FAIL: 3
-# fs-test.fs.fat.out: Summary: PASS: 20 FAIL: 3
-# Total Summary: TOTAL PASS: 132 TOTAL FAIL: 6
+# fs-test.sb.ext4.out: Summary: PASS: 24 FAIL: 0
+# fs-test.ext4.out: Summary: PASS: 24 FAIL: 0
+# fs-test.fs.ext4.out: Summary: PASS: 24 FAIL: 0
+# FAT16 tests:
+# fs-test.sb.fat16.out: Summary: PASS: 24 FAIL: 0
+# fs-test.fat16.out: Summary: PASS: 21 FAIL: 3
+# fs-test.fs.fat16.out: Summary: PASS: 21 FAIL: 3
+# FAT32 tests:
+# fs-test.sb.fat32.out: Summary: PASS: 24 FAIL: 0
+# fs-test.fat32.out: Summary: PASS: 21 FAIL: 3
+# fs-test.fs.fat32.out: Summary: PASS: 21 FAIL: 3
+# Total Summary: TOTAL PASS: 204 TOTAL FAIL: 12
 
 # pre-requisite binaries list.
 PREREQ_BINS="md5sum mkfs mount umount dd fallocate mkdir"
@@ -41,7 +45,7 @@ SMALL_FILE="1MB.file"
 BIG_FILE="2.5GB.file"
 
 # $MD5_FILE will have the expected md5s when we do the test
-# They shall have a suffix which represents their file system (ext4/fat)
+# They shall have a suffix which represents their file system (ext4/fat16/...)
 MD5_FILE="${OUT_DIR}/md5s.list"
 
 # $OUT shall be the prefix of the test output. Their suffix will be .out
@@ -104,15 +108,25 @@ function prepare_env() {
 }
 
 # 1st parameter is the name of the image file to be created
-# 2nd parameter is the filesystem - fat ext4 etc
+# 2nd parameter is the filesystem - fat16 ext4 etc
 # -F cant be used with fat as it means something else.
 function create_image() {
 	# Create image if not already present - saves time, while debugging
-	if [ "$2" = "ext4" ]; then
+	case "$2" in
+		fat16)
+		MKFS_OPTION="-F 16"
+		FS_TYPE="fat"
+		;;
+		fat32)
+		MKFS_OPTION="-F 32"
+		FS_TYPE="fat"
+		;;
+		ext4)
 		MKFS_OPTION="-F"
-	else
-		MKFS_OPTION=""
-	fi
+		FS_TYPE="ext4"
+		;;
+	esac
+
 	if [ ! -f "$1" ]; then
 		fallocate -l 3G "$1" &> /dev/null
 		if [ $? -ne 0 ]; then
@@ -123,8 +137,8 @@ function create_image() {
 				exit $?
 			fi
 		fi
-		mkfs -t "$2" $MKFS_OPTION "$1" &> /dev/null
-		if [ $? -ne 0 -a "$2" = "fat" ]; then
+		mkfs -t "$FS_TYPE" $MKFS_OPTION "$1" &> /dev/null
+		if [ $? -ne 0 -a "$FS_TYPE" = "fat" ]; then
 			# If we fail and we did fat, try vfat.
 			mkfs -t vfat $MKFS_OPTION "$1" &> /dev/null
 		fi
@@ -136,7 +150,7 @@ function create_image() {
 }
 
 # 1st parameter is image file
-# 2nd parameter is file system type - fat/ext4
+# 2nd parameter is file system type - fat16/ext4/...
 # 3rd parameter is name of small file
 # 4th parameter is name of big file
 # 5th parameter is fs/nonfs/sb - to dictate generic fs commands or
@@ -149,7 +163,7 @@ function test_image() {
 	length="0x00100000"
 
 	case "$2" in
-		fat)
+		fat*)
 		FPATH=""
 		PREFIX="fat"
 		WRITE="write"
@@ -215,8 +229,12 @@ ${PREFIX}ls host${SUFFIX} $6
 # We want ${PREFIX}size host 0:0 $3 for host commands and
 # sb size hostfs - $3 for hostfs commands.
 # 1MB is 0x0010 0000
-# Test Case 2 - size of small file
+# Test Case 2a - size of small file
 ${PREFIX}size host${SUFFIX} ${FPATH}$FILE_SMALL
+printenv filesize
+setenv filesize
+# Test Case 2b - size of small file via a path using '..'
+${PREFIX}size host${SUFFIX} ${FPATH}SUBDIR/../$FILE_SMALL
 printenv filesize
 setenv filesize
 
@@ -333,6 +351,9 @@ function create_files() {
 	mkdir -p "$MOUNT_DIR"
 	sudo mount -o loop,rw "$1" "$MOUNT_DIR"
 
+	# Create a subdirectory.
+	sudo mkdir -p "$MOUNT_DIR/SUBDIR"
+
 	# Create big file in this image.
 	# Note that we work only on the start 1MB, couple MBs in the 2GB range
 	# and the last 1 MB of the huge 2.5GB file.
@@ -439,16 +460,19 @@ function check_results() {
 	FAIL=0
 
 	# Check if the ls is showing correct results for 2.5 gb file
-	grep -A6 "Test Case 1 " "$1" | egrep -iq "2621440000 *$4"
+	grep -A7 "Test Case 1 " "$1" | egrep -iq "2621440000 *$4"
 	pass_fail "TC1: ls of $4"
 
 	# Check if the ls is showing correct results for 1 mb file
-	grep -A6 "Test Case 1 " "$1" | egrep -iq "1048576 *$3"
+	grep -A7 "Test Case 1 " "$1" | egrep -iq "1048576 *$3"
 	pass_fail "TC1: ls of $3"
 
 	# Check size command on 1MB.file
-	egrep -A3 "Test Case 2 " "$1" | grep -q "filesize=100000"
+	egrep -A3 "Test Case 2a " "$1" | grep -q "filesize=100000"
 	pass_fail "TC2: size of $3"
+	# Check size command on 1MB.file via a path using '..'
+	egrep -A3 "Test Case 2b " "$1" | grep -q "filesize=100000"
+	pass_fail "TC2: size of $3 via a path using '..'"
 
 	# Check size command on 2.5GB.file
 	egrep -A3 "Test Case 3 " "$1" | grep -q "filesize=9c400000"
@@ -550,7 +574,7 @@ TOTAL_PASS=0
 # In each loop, for a given file system image, we test both the
 # fs command, like load/size/write, the file system specific command
 # like: ext4load/ext4size/ext4write and the sb load/ls/save commands.
-for fs in ext4 fat; do
+for fs in ext4 fat16 fat32; do
 
 	echo "Creating $fs image if not already present."
 	IMAGE=${IMG}.${fs}.img
@@ -563,11 +587,14 @@ for fs in ext4 fat; do
 
 	# Lets mount the image and test sb hostfs commands
 	mkdir -p "$MOUNT_DIR"
-	if [ "$fs" = "fat" ]; then
+	case "$fs" in
+		fat*)
 		uid="uid=`id -u`"
-	else
+		;;
+		*)
 		uid=""
-	fi
+		;;
+	esac
 	sudo mount -o loop,rw,$uid "$IMAGE" "$MOUNT_DIR"
 	sudo chmod 777 "$MOUNT_DIR"
 

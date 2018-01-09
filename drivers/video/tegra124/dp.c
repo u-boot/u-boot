@@ -10,7 +10,6 @@
 #include <dm.h>
 #include <div64.h>
 #include <errno.h>
-#include <fdtdec.h>
 #include <video_bridge.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/dc.h>
@@ -1572,7 +1571,7 @@ static int tegra_dp_ofdata_to_platdata(struct udevice *dev)
 {
 	struct tegra_dp_plat *plat = dev_get_platdata(dev);
 
-	plat->base = dev_get_addr(dev);
+	plat->base = dev_read_addr(dev);
 
 	return 0;
 }

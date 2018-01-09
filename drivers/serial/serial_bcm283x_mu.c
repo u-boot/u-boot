@@ -159,13 +159,14 @@ static int bcm283x_mu_serial_ofdata_to_platdata(struct udevice *dev)
 	struct bcm283x_mu_serial_platdata *plat = dev_get_platdata(dev);
 	fdt_addr_t addr;
 
-	addr = dev_get_addr(dev);
+	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
 	plat->base = addr;
-	plat->clock = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "clock", 1);
-	plat->skip_init = fdtdec_get_bool(gd->fdt_blob, dev->of_offset,
+	plat->clock = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "clock",
+				     1);
+	plat->skip_init = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
 	                                  "skip-init");
 	plat->disabled = false;
 	return 0;

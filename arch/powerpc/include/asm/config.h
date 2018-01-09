@@ -35,8 +35,7 @@
 #define CONFIG_SYS_BOOT_GET_KBD
 
 #ifndef CONFIG_MAX_MEM_MAPPED
-#if	defined(CONFIG_4xx)		|| \
-	defined(CONFIG_E500)		|| \
+#if	defined(CONFIG_E500)		|| \
 	defined(CONFIG_MPC86xx)		|| \
 	defined(CONFIG_E300)
 #define CONFIG_MAX_MEM_MAPPED	((phys_size_t)2 << 30)
@@ -75,16 +74,11 @@
 /* The TSEC driver uses the PHYLIB infrastructure */
 #ifndef CONFIG_PHYLIB
 #if defined(CONFIG_TSEC_ENET)
-#define CONFIG_PHYLIB
-
 #include <config_phylib_all_drivers.h>
 #endif /* TSEC_ENET */
 #endif /* !CONFIG_PHYLIB */
 
 /* The FMAN driver uses the PHYLIB infrastructure */
-#if defined(CONFIG_FMAN_ENET)
-#define CONFIG_PHYLIB
-#endif
 
 /* All PPC boards must swap IDE bytes */
 #define CONFIG_IDE_SWAP_IO

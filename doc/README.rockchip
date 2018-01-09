@@ -36,15 +36,17 @@ You will need:
 Building
 ========
 
-At present seven RK3288 boards are supported:
+At present nine RK3288 boards are supported:
 
    - EVB RK3288 - use evb-rk3288 configuration
    - Fennec RK3288 - use fennec-rk3288 configuration
    - Firefly RK3288 - use firefly-rk3288 configuration
    - Hisense Chromebook - use chromebook_jerry configuration
-   - Miniarm RK3288 - use miniarm-rk3288 configuration
+   - MiQi RK3288 - use miqi-rk3288 configuration
+   - phyCORE-RK3288 RDK - use phycore-rk3288 configuration
    - PopMetal RK3288 - use popmetal-rk3288 configuration
    - Radxa Rock 2 - use rock2 configuration
+   - Tinker RK3288 - use tinker-rk3288 configuration
 
 Two RK3036 board are supported:
 
@@ -97,13 +99,13 @@ To write an image that boots from an SD card (assumed to be /dev/sdc):
    ./firefly-rk3288/tools/mkimage -n rk3288 -T rksd -d \
 	firefly-rk3288/spl/u-boot-spl-dtb.bin out && \
    sudo dd if=out of=/dev/sdc seek=64 && \
-   sudo dd if=firefly-rk3288/u-boot-dtb.img of=/dev/sdc seek=256
+   sudo dd if=firefly-rk3288/u-boot-dtb.img of=/dev/sdc seek=16384
 
 This puts the Rockchip header and SPL image first and then places the U-Boot
-image at block 256 (i.e. 128KB from the start of the SD card). This
+image at block 16384 (i.e. 8MB from the start of the SD card). This
 corresponds with this setting in U-Boot:
 
-   #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	256
+   #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x4000
 
 Put this SD (or micro-SD) card into your board and reset it. You should see
 something like:
@@ -128,7 +130,7 @@ load a second-level bootloader(ie. U-BOOT) as soon as it returns to bootrom.
 Therefore RK3288 has another loading sequence like RK3036. The option of
 U-Boot is controlled with this setting in U-Boot:
 
-	#define CONFIG_ROCKCHIP_SPL_BACK_TO_BROM
+	#define CONFIG_SPL_ROCKCHIP_BACK_TO_BROM
 
 You can create the image via the following operations:
 
@@ -146,6 +148,50 @@ For evb_rk3036 board:
 
 Note: rk3036 SDMMC and debug uart use the same iomux, so if you boot from SD, the
       debug uart must be disabled
+
+
+Booting from an SD card on RK3288 with TPL
+==========================================
+
+Since the size of SPL can't be exceeded 0x8000 bytes in RK3288, it is not possible add
+new SPL features like Falcon mode or etc.
+
+So introduce TPL so-that adding new features to SPL is possible because now TPL should
+run minimal with code like DDR, clock etc and rest of new features in SPL.
+
+As of now TPL is added on Vyasa-RK3288 board.
+
+To write an image that boots from an SD card (assumed to be /dev/mmcblk0):
+
+   ./tools/mkimage -n rk3288 -T rksd -d ./tpl/u-boot-tpl.bin out &&
+    cat ./spl/u-boot-spl-dtb.bin >> out &&
+    sudo dd if=out of=/dev/mmcblk0 seek=64 &&
+    sudo dd if=u-boot-dtb.img of=/dev/mmcblk0 seek=16384
+
+Booting from an SD card on RK3188
+=================================
+
+For rk3188 boards the general storage onto the card stays the same as
+described above, but the image creation needs a bit more care.
+
+The bootrom of rk3188 expects to find a small 1kb loader which returns
+control to the bootrom, after which it will load the real loader, which
+can then be up to 29kb in size and does the regular ddr init.  This is
+handled by a single image (built as the SPL stage) that tests whether
+it is handled for the first or second time via code executed from the
+boot0-hook.
+
+Additionally the rk3188 requires everything the bootrom loads to be
+rc4-encrypted. Except for the very first stage the bootrom always reads
+and decodes 2kb pages, so files should be sized accordingly.
+
+# copy tpl, pad to 1020 bytes and append spl
+tools/mkimage -n rk3188 -T rksd -d spl/u-boot-spl.bin out
+
+# truncate, encode and append u-boot.bin
+truncate -s %2048 u-boot.bin
+cat u-boot.bin | split -b 512 --filter='openssl rc4 -K 7C4E0304550509072D2C7B38170D1711' >> out
+
 
 Using fastboot on rk3288
 ========================
@@ -219,7 +265,6 @@ Immediate priorities are:
 - USB host
 - USB device
 - Run CPU at full speed (code exists but we only see ~60 DMIPS maximum)
-- Ethernet
 - NAND flash
 - Support for other Rockchip parts
 - Boot U-Boot proper over USB OTG (at present only SPL works)

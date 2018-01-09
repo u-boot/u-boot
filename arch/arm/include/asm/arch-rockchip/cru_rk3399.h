@@ -12,7 +12,10 @@
 /* Private data for the clock driver - used by rockchip_get_cru() */
 struct rk3399_clk_priv {
 	struct rk3399_cru *cru;
-	ulong rate;
+};
+
+struct rk3399_pmuclk_priv {
+	struct rk3399_pmucru *pmucru;
 };
 
 struct rk3399_pmucru {

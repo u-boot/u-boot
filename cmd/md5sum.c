@@ -35,7 +35,7 @@ static void store_result(const u8 *sum, const char *dest)
 			sprintf(str_ptr, "%02x", sum[i]);
 			str_ptr += 2;
 		}
-		setenv(dest, str_output);
+		env_set(dest, str_output);
 	}
 }
 
@@ -54,7 +54,7 @@ static int parse_verify_sum(char *verify_str, u8 *vsum)
 		if (strlen(verify_str) == 32)
 			vsum_str = verify_str;
 		else {
-			vsum_str = getenv(verify_str);
+			vsum_str = env_get(verify_str);
 			if (vsum_str == NULL || strlen(vsum_str) != 32)
 				return 1;
 		}

@@ -20,10 +20,4 @@ enum zynq_clk {
 	uart0_aper_clk, uart1_aper_clk, gpio_aper_clk, lqspi_aper_clk,
 	smc_aper_clk, swdt_clk, dbg_trc_clk, dbg_apb_clk, clk_max};
 
-void zynq_clk_early_init(void);
-int zynq_clk_set_rate(enum zynq_clk clk, unsigned long rate);
-unsigned long zynq_clk_get_rate(enum zynq_clk clk);
-const char *zynq_clk_get_name(enum zynq_clk clk);
-unsigned long get_uart_clk(int dev_id);
-
 #endif

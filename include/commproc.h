@@ -7,7 +7,7 @@
  *
  * This file contains structures and information for the communication
  * processor channels.  Some CPM control and status is available
- * throught the MPC8xx internal memory map.  See immap.h for details.
+ * through the MPC8xx internal memory map.  See immap.h for details.
  * This file only contains what I need for the moment, not the total
  * CPM capabilities.  I (or someone else) will add definitions as they
  * are needed.  -- Dan
@@ -51,20 +51,6 @@
 /*
  * DPRAM defines and allocation functions
  */
-
-/* The dual ported RAM is multi-functional.  Some areas can be (and are
- * being) used for microcode.  There is an area that can only be used
- * as data ram for buffer descriptors, which is all we use right now.
- * Currently the first 512 and last 256 bytes are used for microcode.
- */
-#ifdef  CONFIG_SYS_ALLOC_DPRAM
-
-#define CPM_DATAONLY_BASE	((uint)0x0800)
-#define CPM_DATAONLY_SIZE	((uint)0x0700)
-#define CPM_DP_NOSPACE		((uint)0x7fffffff)
-
-#else
-
 #define CPM_SERIAL_BASE		0x0800
 #define CPM_I2C_BASE		0x0820
 #define CPM_SPI_BASE		0x0840
@@ -73,20 +59,6 @@
 #define CPM_SCC_BASE		0x0900
 #define CPM_POST_BASE		0x0980
 #define CPM_WLKBD_BASE		0x0a00
-
-#endif
-
-#ifndef CONFIG_SYS_CPM_POST_WORD_ADDR
-#define CPM_POST_WORD_ADDR	0x07FC
-#else
-#define CPM_POST_WORD_ADDR	CONFIG_SYS_CPM_POST_WORD_ADDR
-#endif
-
-#ifndef CONFIG_SYS_CPM_BOOTCOUNT_ADDR
-#define CPM_BOOTCOUNT_ADDR	(CPM_POST_WORD_ADDR - 2*sizeof(ulong))
-#else
-#define CPM_BOOTCOUNT_ADDR	CONFIG_SYS_CPM_BOOTCOUNT_ADDR
-#endif
 
 #define BD_IIC_START	((uint) 0x0400) /* <- please use CPM_I2C_BASE !! */
 
@@ -109,7 +81,7 @@ typedef struct cpm_buf_desc {
 #define BD_SC_INTRPT	((ushort)0x1000)	/* Interrupt on change */
 #define BD_SC_LAST	((ushort)0x0800)	/* Last buffer in frame */
 #define BD_SC_TC	((ushort)0x0400)	/* Transmit CRC */
-#define BD_SC_CM	((ushort)0x0200)	/* Continous mode */
+#define BD_SC_CM	((ushort)0x0200)	/* Continuous mode */
 #define BD_SC_ID	((ushort)0x0100)	/* Rec'd too many idles */
 #define BD_SC_P		((ushort)0x0100)	/* xmt preamble */
 #define BD_SC_BR	((ushort)0x0020)	/* Break received */
@@ -421,156 +393,6 @@ typedef struct scc_enet {
 	ushort	sen_taddrl;	/* temp address (LSB) */
 } scc_enet_t;
 
-/**********************************************************************
- *
- * Board specific configuration settings.
- *
- * Please note that we use the presence of a #define SCC_ENET and/or
- * #define FEC_ENET to enable the SCC resp. FEC ethernet drivers.
- **********************************************************************/
-
-/***  BSEIP  **********************************************************/
-
-#ifdef CONFIG_BSEIP
-/* This ENET stuff is for the MPC823 with ethernet on SCC2.
- * This is unique to the BSE ip-Engine board.
- */
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define PA_ENET_RXD	((ushort)0x0004)
-#define PA_ENET_TXD	((ushort)0x0008)
-#define PA_ENET_TCLK	((ushort)0x0100)
-#define PA_ENET_RCLK	((ushort)0x0200)
-#define PB_ENET_TENA	((uint)0x00002000)
-#define PC_ENET_CLSN	((ushort)0x0040)
-#define PC_ENET_RENA	((ushort)0x0080)
-
-/* BSE uses port B and C bits for PHY control also.
-*/
-#define PB_BSE_POWERUP	((uint)0x00000004)
-#define PB_BSE_FDXDIS	((uint)0x00008000)
-#define PC_BSE_LOOPBACK	((ushort)0x0800)
-
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00002c00)
-#endif	/* CONFIG_BSEIP */
-
-/***  KM8XX  *********************************************************/
-
-/* The KM8XX Service Module uses SCC3 for Ethernet */
-
-#ifdef CONFIG_KM8XX
-#define PROFF_ENET	PROFF_SCC3		/* Ethernet on SCC3 */
-#define CPM_CR_ENET	CPM_CR_CH_SCC3
-#define SCC_ENET	2
-#define PA_ENET_RXD	((ushort)0x0010)	/* PA 11 */
-#define PA_ENET_TXD	((ushort)0x0020)	/* PA 10 */
-#define PA_ENET_RCLK	((ushort)0x1000)	/* PA  3 CLK 5 */
-#define PA_ENET_TCLK	((ushort)0x2000)	/* PA  2 CLK 6 */
-
-#define PC_ENET_TENA	((ushort)0x0004)	/* PC 13 */
-
-#define PC_ENET_RENA	((ushort)0x0200)	/* PC  6 */
-#define PC_ENET_CLSN	((ushort)0x0100)	/* PC  7 */
-
-/* Control bits in the SICR to route TCLK (CLK6) and RCLK (CLK5) to
- * SCC3.  Also, make sure GR3 (bit 8) and SC3 (bit 9) are zero.
- */
-#define SICR_ENET_MASK	((uint)0x00FF0000)
-#define SICR_ENET_CLKRT	((uint)0x00250000)
-#endif	/* CONFIG_KM8XX */
-
-/***  MVS1, TQM823L/M, TQM850L/M, TQM885D, R360MPI  **********/
-
-#if (defined(CONFIG_MVS) && CONFIG_MVS < 2) || \
-    defined(CONFIG_TQM823L) || \
-    defined(CONFIG_TQM823M) || defined(CONFIG_TQM850L) || \
-    defined(CONFIG_TQM850M) || defined(CONFIG_TQM885D)
-
-/* Bits in parallel I/O port registers that have to be set/cleared
- * to configure the pins for SCC2 use.
- */
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define PA_ENET_RXD	((ushort)0x0004)	/* PA 13 */
-#define PA_ENET_TXD	((ushort)0x0008)	/* PA 12 */
-#define PA_ENET_RCLK	((ushort)0x0100)	/* PA  7 */
-#define PA_ENET_TCLK	((ushort)0x0400)	/* PA  5 */
-
-#define PB_ENET_TENA	((uint)0x00002000)	/* PB 18 */
-
-#define PC_ENET_CLSN	((ushort)0x0040)	/* PC  9 */
-#define PC_ENET_RENA	((ushort)0x0080)	/* PC  8 */
-
-/* Control bits in the SICR to route TCLK (CLK3) and RCLK (CLK1) to
- * SCC2.  Also, make sure GR2 (bit 16) and SC2 (bit 17) are zero.
- */
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00002600)
-
-# ifdef CONFIG_FEC_ENET		/* Use FEC for Fast Ethernet */
-#define FEC_ENET
-# endif	/* CONFIG_FEC_ENET */
-
-#endif	/* CONFIG_MVS v1, CONFIG_TQM823L/M, CONFIG_TQM850L/M, etc. */
-
-/***  TQM855L/M, TQM860L/M, TQM862L/M, TQM866L/M  *********************/
-
-#if defined(CONFIG_TQM855L) || defined(CONFIG_TQM855M) || \
-    defined(CONFIG_TQM860L) || defined(CONFIG_TQM860M) || \
-    defined(CONFIG_TQM862L) || defined(CONFIG_TQM862M) || \
-    defined(CONFIG_TQM866L) || defined(CONFIG_TQM866M)
-
-# ifdef CONFIG_SCC1_ENET	/* use SCC for 10Mbps Ethernet	*/
-
-/* Bits in parallel I/O port registers that have to be set/cleared
- * to configure the pins for SCC1 use.
- */
-#define	PROFF_ENET	PROFF_SCC1
-#define	CPM_CR_ENET	CPM_CR_CH_SCC1
-#define	SCC_ENET	0
-#define PA_ENET_RXD	((ushort)0x0001)	/* PA 15 */
-#define PA_ENET_TXD	((ushort)0x0002)	/* PA 14 */
-#define PA_ENET_RCLK	((ushort)0x0100)	/* PA  7 */
-#define PA_ENET_TCLK	((ushort)0x0400)	/* PA  5 */
-
-#define PC_ENET_TENA	((ushort)0x0001)	/* PC 15 */
-#define PC_ENET_CLSN	((ushort)0x0010)	/* PC 11 */
-#define PC_ENET_RENA	((ushort)0x0020)	/* PC 10 */
-
-/* Control bits in the SICR to route TCLK (CLK3) and RCLK (CLK1) to
- * SCC1.  Also, make sure GR1 (bit 24) and SC1 (bit 25) are zero.
- */
-#define SICR_ENET_MASK	((uint)0x000000ff)
-#define SICR_ENET_CLKRT	((uint)0x00000026)
-
-# endif	/* CONFIG_SCC1_ENET */
-
-# ifdef CONFIG_FEC_ENET		/* Use FEC for Fast Ethernet */
-
-#define FEC_ENET
-
-#define PD_MII_TXD1	((ushort)0x1000)	/* PD  3 */
-#define PD_MII_TXD2	((ushort)0x0800)	/* PD  4 */
-#define PD_MII_TXD3	((ushort)0x0400)	/* PD  5 */
-#define PD_MII_RX_DV	((ushort)0x0200)	/* PD  6 */
-#define PD_MII_RX_ERR	((ushort)0x0100)	/* PD  7 */
-#define PD_MII_RX_CLK	((ushort)0x0080)	/* PD  8 */
-#define PD_MII_TXD0	((ushort)0x0040)	/* PD  9 */
-#define PD_MII_RXD0	((ushort)0x0020)	/* PD 10 */
-#define PD_MII_TX_ERR	((ushort)0x0010)	/* PD 11 */
-#define PD_MII_MDC	((ushort)0x0008)	/* PD 12 */
-#define PD_MII_RXD1	((ushort)0x0004)	/* PD 13 */
-#define PD_MII_RXD2	((ushort)0x0002)	/* PD 14 */
-#define PD_MII_RXD3	((ushort)0x0001)	/* PD 15 */
-
-#define PD_MII_MASK	((ushort)0x1FFF)	/* PD 3...15 */
-
-# endif	/* CONFIG_FEC_ENET */
-#endif	/* CONFIG_TQM855L/M, TQM860L/M, TQM862L/M */
-
 /*********************************************************************/
 
 /* SCC Event register as used by Ethernet.
@@ -760,8 +582,8 @@ typedef struct spi {
 #define SPMODE_LENMSK	((ushort)0x00f0)	/* character length */
 #define SPMODE_PMMSK	((ushort)0x000f)	/* prescale modulus */
 
-#define SPMODE_LEN(x)	((((x)-1)&0xF)<<4)
-#define SPMODE_PM(x)	((x) &0xF)
+#define SPMODE_LEN(x)	((((x) - 1) & 0xF) << 4)
+#define SPMODE_PM(x)	((x) & 0xF)
 
 /* HDLC parameter RAM.
 */
@@ -850,7 +672,7 @@ typedef struct hdlc_pram_s {
 #define CPMVEC_PIO_PC4		((ushort)0x01 | CPMVEC_OFFSET)
 #define CPMVEC_ERROR		((ushort)0x00 | CPMVEC_OFFSET)
 
-extern void irq_install_handler(int vec, void (*handler)(void *), void *dev_id);
+void irq_install_handler(int vec, void (*handler)(void *), void *dev_id);
 
 /* CPM interrupt configuration vector.
 */
@@ -858,7 +680,7 @@ extern void irq_install_handler(int vec, void (*handler)(void *), void *dev_id);
 #define	CICR_SCC_SCC3		((uint)0x00200000)	/* SCC3 @ SCCc */
 #define	CICR_SCB_SCC2		((uint)0x00040000)	/* SCC2 @ SCCb */
 #define	CICR_SCA_SCC1		((uint)0x00000000)	/* SCC1 @ SCCa */
-#define CICR_IRL_MASK		((uint)0x0000e000)	/* Core interrrupt */
+#define CICR_IRL_MASK		((uint)0x0000e000)	/* Core interrupt */
 #define CICR_HP_MASK		((uint)0x00001f00)	/* Hi-pri int. */
 #define CICR_IEN		((uint)0x00000080)	/* Int. enable */
 #define CICR_SPS		((uint)0x00000001)	/* SCC Spread */

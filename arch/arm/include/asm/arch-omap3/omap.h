@@ -91,6 +91,9 @@ struct s32ktimer {
 	unsigned int s32k_cr;		/* 0x10 */
 };
 
+#define DEVICE_TYPE_SHIFT		0x8
+#define DEVICE_TYPE_MASK		(0x7 << DEVICE_TYPE_SHIFT)
+
 #endif /* __ASSEMBLY__ */
 
 #ifndef __ASSEMBLY__
@@ -230,11 +233,20 @@ struct gpio {
 #define AM3517			0x1c00
 
 #define OMAP3730		0x0c00
+#define OMAP3725		0x4c00
+#define AM3715			0x1c00
+#define AM3703			0x5c00
+
+#define OMAP3730_1GHZ		0x0e00
+#define OMAP3725_1GHZ		0x4e00
+#define AM3715_1GHZ		0x1e00
+#define AM3703_1GHZ		0x5e00
 
 /*
  * ROM code API related flags
  */
 #define OMAP3_GP_ROMCODE_API_L2_INVAL		1
+#define OMAP3_GP_ROMCODE_API_WRITE_L2ACR	2
 #define OMAP3_GP_ROMCODE_API_WRITE_ACR		3
 
 /*

@@ -1,7 +1,6 @@
 config USB_DWC3
 	bool "DesignWare USB3 DRD Core Support"
-	depends on (USB && USB_GADGET)
-	select USB_GADGET_DUALSPEED
+	depends on USB_HOST || USB_GADGET
 	help
 	  Say Y here if your system has a Dual Role SuperSpeed
 	  USB controller based on the DesignWare USB3 IP Core.
@@ -21,6 +20,7 @@ config USB_DWC3_HOST
 config USB_DWC3_GADGET
 	bool "Gadget only mode"
 	depends on USB_GADGET
+	select USB_GADGET_DUALSPEED
 	help
 	  Select this when you want to use DWC3 in gadget mode only,
 	  thereby the host feature will be regressed.
@@ -42,6 +42,13 @@ config USB_DWC3_GENERIC
 	depends on DM_USB && USB_DWC3
 	help
 	  Some platforms can reuse this DWC3 generic implementation.
+
+config USB_DWC3_UNIPHIER
+	bool "DesignWare USB3 Host Support on UniPhier Platforms"
+	depends on ARCH_UNIPHIER && USB_XHCI_DWC3
+	help
+	  Support of USB2/3 functionality in Socionext UniPhier platforms.
+	  Say 'Y' here if you have one such device.
 
 menu "PHY Subsystem"
 

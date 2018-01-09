@@ -102,20 +102,13 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (8 << 20))
 
-/* Ethernet Configuration */
-#ifdef CONFIG_TARGET_VEXPRESS64_JUNO
-/* The real hardware Versatile express uses SMSC9118 */
-#define CONFIG_SMC911X			1
-#define CONFIG_SMC911X_32_BIT		1
-#define CONFIG_SMC911X_BASE		(0x018000000)
-#else
+#ifndef CONFIG_TARGET_VEXPRESS64_JUNO
 /* The Vexpress64 simulators use SMSC91C111 */
 #define CONFIG_SMC91111			1
 #define CONFIG_SMC91111_BASE		(0x01A000000)
 #endif
 
 /* PL011 Serial Configuration */
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_CONS_INDEX		0
 #define CONFIG_PL01X_SERIAL
 #define CONFIG_PL011_SERIAL
@@ -126,9 +119,6 @@
 #endif
 
 /*#define CONFIG_MENU_SHOW*/
-#define CONFIG_CMD_UNZIP
-#define CONFIG_CMD_ENV
-#define CONFIG_DOS_PARTITION
 
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
@@ -177,15 +167,6 @@
 				"fdt_high=0xffffffffffffffff\0" \
 				"initrd_high=0xffffffffffffffff\0" \
 
-/* Assume we boot with root on the first partition of a USB stick */
-#define CONFIG_BOOTARGS		"console=ttyAMA0,115200n8 " \
-				"root=/dev/sda2 rw " \
-				"rootwait "\
-				"earlyprintk=pl011,0x7ff80000 debug "\
-				"user_debug=31 "\
-				"androidboot.hardware=juno "\
-				"loglevel=9"
-
 /* Copy the kernel and FDT to DRAM memory and boot */
 #define CONFIG_BOOTCOMMAND	"afs load ${kernel_name} ${kernel_addr} ; " \
 				"if test $? -eq 1; then "\
@@ -219,10 +200,6 @@
 				"fdt_high=0xffffffffffffffff\0"	\
 				"initrd_high=0xffffffffffffffff\0"
 
-#define CONFIG_BOOTARGS		"console=ttyAMA0 earlyprintk=pl011,"\
-				"0x1c090000 debug user_debug=31 "\
-				"loglevel=9"
-
 #define CONFIG_BOOTCOMMAND	"smhload ${kernel_name} ${kernel_addr}; " \
 				"smhload ${fdtfile} ${fdt_addr}; " \
 				"smhload ${initrd_name} ${initrd_addr} "\
@@ -240,13 +217,6 @@
 				"fdt_high=0xffffffffffffffff\0"	\
 				"initrd_high=0xffffffffffffffff\0"
 
-#define CONFIG_BOOTARGS		"console=ttyAMA0 earlyprintk=pl011,"\
-				"0x1c090000 debug user_debug=31 "\
-				"androidboot.hardware=fvpbase "\
-				"root=/dev/vda2 rw "\
-				"rootwait "\
-				"loglevel=9"
-
 #define CONFIG_BOOTCOMMAND	"booti $kernel_addr $initrd_addr $fdt_addr"
 
 
@@ -254,9 +224,6 @@
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_MAXARGS		64	/* max command args */
@@ -288,6 +255,5 @@
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
 #define FLASH_MAX_SECTOR_SIZE		0x00040000
 #define CONFIG_ENV_SIZE			CONFIG_ENV_SECT_SIZE
-#define CONFIG_ENV_IS_IN_FLASH		1
 
 #endif /* __VEXPRESS_AEMV8A_H */

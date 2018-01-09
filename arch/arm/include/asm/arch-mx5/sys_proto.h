@@ -4,5 +4,9 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
+#ifndef __SYS_PROTO_IMX5_
+#define __SYS_PROTO_IMX5_
 
-#include <asm/imx-common/sys_proto.h>
+#include <asm/mach-imx/sys_proto.h>
+
+#endif /* __SYS_PROTO_IMX5_ */

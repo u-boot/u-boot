@@ -27,11 +27,24 @@ ENTRY(relocate_code)
 	/*
 	 * Copy u-boot from flash to RAM
 	 */
-	ldr	x1, =__image_copy_start	/* x1 <- SRC &__image_copy_start */
-	subs	x9, x0, x1		/* x9 <- relocation offset */
+	adr	x1, __image_copy_start	/* x1 <- Run &__image_copy_start */
+	subs	x9, x0, x1		/* x8 <- Run to copy offset */
 	b.eq	relocate_done		/* skip relocation */
-	ldr	x2, =__image_copy_end	/* x2 <- SRC &__image_copy_end */
+	/*
+	 * Don't ldr x1, __image_copy_start here, since if the code is already
+	 * running at an address other than it was linked to, that instruction
+	 * will load the relocated value of __image_copy_start. To
+	 * correctly apply relocations, we need to know the linked value.
+	 *
+	 * Linked &__image_copy_start, which we know was at
+	 * CONFIG_SYS_TEXT_BASE, which is stored in _TEXT_BASE, as a non-
+	 * relocated value, since it isn't a symbol reference.
+	 */
+	ldr	x1, _TEXT_BASE		/* x1 <- Linked &__image_copy_start */
+	subs	x9, x0, x1		/* x9 <- Link to copy offset */
 
+	adr	x1, __image_copy_start	/* x1 <- Run &__image_copy_start */
+	adr	x2, __image_copy_end	/* x2 <- Run &__image_copy_end */
 copy_loop:
 	ldp	x10, x11, [x1], #16	/* copy from source address [x1] */
 	stp	x10, x11, [x0], #16	/* copy to   target address [x0] */
@@ -42,8 +55,8 @@ copy_loop:
 	/*
 	 * Fix .rela.dyn relocations
 	 */
-	ldr	x2, =__rel_dyn_start	/* x2 <- SRC &__rel_dyn_start */
-	ldr	x3, =__rel_dyn_end	/* x3 <- SRC &__rel_dyn_end */
+	adr	x2, __rel_dyn_start	/* x2 <- Run &__rel_dyn_start */
+	adr	x3, __rel_dyn_end	/* x3 <- Run &__rel_dyn_end */
 fixloop:
 	ldp	x0, x1, [x2], #16	/* (x0,x1) <- (SRC location, fixup) */
 	ldr	x4, [x2], #8		/* x4 <- addend */
@@ -68,11 +81,11 @@ relocate_done:
 	b	0f
 1:	mrs	x0, sctlr_el1
 0:	tbz	w0, #2, 5f	/* skip flushing cache if disabled */
-	tbz	w0, #12, 4f	/* invalide i-cache is enabled */
+	tbz	w0, #12, 4f	/* skip invalidating i-cache if disabled */
 	ic	iallu		/* i-cache invalidate all */
 	isb	sy
 4:	ldp	x0, x1, [sp, #16]
 	bl	__asm_flush_dcache_range
-5:	ldp	x29, x30, [sp],#16
+5:	ldp	x29, x30, [sp],#32
 	ret
 ENDPROC(relocate_code)

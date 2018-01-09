@@ -108,7 +108,7 @@ static int ehci_mvebu_probe(struct udevice *dev)
 	/*
 	 * Get the base address for EHCI controller from the device node
 	 */
-	priv->hcd_base = dev_get_addr(dev);
+	priv->hcd_base = devfdt_get_addr(dev);
 	if (priv->hcd_base == FDT_ADDR_T_NONE) {
 		debug("Can't get the EHCI register base address\n");
 		return -ENXIO;
@@ -121,7 +121,7 @@ static int ehci_mvebu_probe(struct udevice *dev)
 	 * Also, the address decoder doesn't need to get setup with this
 	 * SoC, so don't call usb_brg_adrdec_setup().
 	 */
-	if (of_device_is_compatible(dev, "marvell,armada3700-ehci"))
+	if (device_is_compatible(dev, "marvell,armada3700-ehci"))
 		marvell_ehci_ops.powerup_fixup = marvell_ehci_powerup_fixup;
 	else
 		usb_brg_adrdec_setup((void *)priv->hcd_base);

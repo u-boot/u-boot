@@ -1,6 +1,0 @@
-M28EVK BOARD
-M:	Marek Vasut <marek.vasut@gmail.com>
-S:	Maintained
-F:	board/denx/m28evk/
-F:	include/configs/m28evk.h
-F:	configs/m28evk_defconfig

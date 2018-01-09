@@ -15,12 +15,12 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/gpio.h>
-#include <asm/imx-common/iomux-v3.h>
+#include <asm/mach-imx/iomux-v3.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/io.h>
-#include <asm/imx-common/mxc_i2c.h>
+#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/arch/sys_proto.h>
 #include <spl.h>
 #include <linux/sizes.h>
@@ -437,7 +437,7 @@ int checkboard(void)
 int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	setenv("board_name", board_string());
+	env_set("board_name", board_string());
 #endif
 
 	return 0;

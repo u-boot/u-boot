@@ -18,6 +18,9 @@
 #include <usb.h>
 #include <fs.h>
 #include <mmc.h>
+#ifdef CONFIG_BLK
+#include <blk.h>
+#endif
 #include <u-boot/sha1.h>
 #include <u-boot/sha256.h>
 
@@ -95,7 +98,7 @@ static ulong get_load_addr(void)
 	const char *addr_str;
 	unsigned long addr;
 
-	addr_str = getenv("loadaddr");
+	addr_str = env_get("loadaddr");
 	if (addr_str)
 		addr = simple_strtoul(addr_str, NULL, 16);
 	else
@@ -116,7 +119,9 @@ static int mmc_burn_image(size_t image_size)
 	ulong		blk_written;
 	int		err;
 	const u8	mmc_dev_num = CONFIG_SYS_MMC_ENV_DEV;
-
+#ifdef CONFIG_BLK
+	struct blk_desc *blk_desc;
+#endif
 	mmc = find_mmc_device(mmc_dev_num);
 	if (!mmc) {
 		printf("No SD/MMC/eMMC card found\n");
@@ -144,13 +149,27 @@ static int mmc_burn_image(size_t image_size)
 	 * MMC/eMMC boots from LBA-0
 	 */
 	start_lba = IS_SD(mmc) ? 1 : 0;
+#ifdef CONFIG_BLK
+	blk_count = image_size / mmc->write_bl_len;
+	if (image_size % mmc->write_bl_len)
+		blk_count += 1;
+
+	blk_desc = mmc_get_blk_desc(mmc);
+	if (!blk_desc) {
+		printf("Error - failed to obtain block descriptor\n");
+		return -ENODEV;
+	}
+	blk_written = blk_dwrite(blk_desc, start_lba, blk_count,
+				 (void *)get_load_addr());
+#else
 	blk_count = image_size / mmc->block_dev.blksz;
 	if (image_size % mmc->block_dev.blksz)
 		blk_count += 1;
 
 	blk_written = mmc->block_dev.block_write(mmc_dev_num,
-						start_lba, blk_count,
-						(void *)get_load_addr());
+						 start_lba, blk_count,
+						 (void *)get_load_addr());
+#endif /* CONFIG_BLK */
 	if (blk_written != blk_count) {
 		printf("Error - written %#lx blocks\n", blk_written);
 		return -ENOSPC;
@@ -290,24 +309,23 @@ static int is_spi_active(void)
 #ifdef CONFIG_CMD_NAND
 static int nand_burn_image(size_t image_size)
 {
-	int ret, block_size;
-	nand_info_t *nand;
-	int dev = nand_curr_device;
+	int ret;
+	uint32_t block_size;
+	struct mtd_info *mtd;
 
-	if ((dev < 0) || (dev >= CONFIG_SYS_MAX_NAND_DEVICE) ||
-	    (!nand_info[dev].name)) {
+	mtd = get_nand_dev_by_index(nand_curr_device);
+	if (!mtd) {
 		puts("\nno devices available\n");
 		return -ENOMEDIUM;
 	}
-	nand = &nand_info[dev];
-	block_size = nand->erasesize;
+	block_size = mtd->erasesize;
 
 	/* Align U-Boot size to currently used blocksize */
 	image_size = ((image_size + (block_size - 1)) & (~(block_size - 1)));
 
 	/* Erase the U-BOOT image space */
 	printf("Erasing 0x%x - 0x%x:...", 0, (int)image_size);
-	ret = nand_erase(nand, 0, image_size);
+	ret = nand_erase(mtd, 0, image_size);
 	if (ret) {
 		printf("Error!\n");
 		goto error;
@@ -315,9 +333,9 @@ static int nand_burn_image(size_t image_size)
 	printf("Done!\n");
 
 	/* Write the image to flash */
-	printf("Writing image:...");
-	printf("&image_size = 0x%p\n", (void *)&image_size);
-	ret = nand_write(nand, 0, &image_size, (void *)get_load_addr());
+	printf("Writing %d bytes from 0x%lx to offset 0 ... ",
+	       (int)image_size, get_load_addr());
+	ret = nand_write(mtd, 0, &image_size, (void *)get_load_addr());
 	if (ret)
 		printf("Error!\n");
 	else

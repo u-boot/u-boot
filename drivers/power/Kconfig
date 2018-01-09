@@ -10,9 +10,9 @@ choice
 	prompt "Select Sunxi PMIC Variant"
 	depends on ARCH_SUNXI
 	default AXP209_POWER if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
-	default AXP221_POWER if MACH_SUN6I || MACH_SUN8I_A23 || MACH_SUN8I_A33
+	default AXP221_POWER if MACH_SUN6I || MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_R40
 	default AXP818_POWER if MACH_SUN8I_A83T
-	default SUNXI_NO_PMIC if MACH_SUN8I_H3 || MACH_SUN50I
+	default SUNXI_NO_PMIC if MACH_SUNXI_H3_H5 || MACH_SUN50I
 
 config SUNXI_NO_PMIC
 	bool "board without a pmic"
@@ -37,7 +37,7 @@ config AXP209_POWER
 
 config AXP221_POWER
 	bool "axp221 / axp223 pmic support"
-	depends on MACH_SUN6I || MACH_SUN8I_A23 || MACH_SUN8I_A33
+	depends on MACH_SUN6I || MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_R40
 	select CMD_POWEROFF
 	---help---
 	Select this to enable support for the axp221/axp223 pmic found on most
@@ -60,7 +60,7 @@ config AXP818_POWER
 
 config SY8106A_POWER
 	bool "SY8106A pmic support"
-	depends on MACH_SUN8I_H3
+	depends on MACH_SUNXI_H3_H5
 	---help---
 	Select this to enable support for the SY8106A pmic found on some
 	H3 boards.
@@ -70,7 +70,7 @@ endchoice
 config AXP_DCDC1_VOLT
 	int "axp pmic dcdc1 voltage"
 	depends on AXP221_POWER || AXP809_POWER || AXP818_POWER
-	default 3300 if AXP818_POWER
+	default 3300 if AXP818_POWER || MACH_SUN8I_R40
 	default 3000 if MACH_SUN6I || MACH_SUN8I || MACH_SUN9I
 	---help---
 	Set the voltage (mV) to program the axp pmic dcdc1 at, set to 0 to
@@ -97,6 +97,7 @@ config AXP_DCDC2_VOLT
 	On A23/A33 boards dcdc2 is used for VDD-SYS and should be 1.1V.
 	On A80 boards dcdc2 powers the GPU and can be left off.
 	On A83T boards dcdc2 is used for VDD-CPUA(cluster 0) and should be 0.9V.
+	On R40 boards dcdc2 is VDD-CPU and should be 1.1V
 
 config AXP_DCDC3_VOLT
 	int "axp pmic dcdc3 voltage"
@@ -104,6 +105,7 @@ config AXP_DCDC3_VOLT
 	default 900 if AXP809_POWER || AXP818_POWER
 	default 1500 if AXP152_POWER
 	default 1250 if AXP209_POWER
+	default 1100 if MACH_SUN8I_R40
 	default 1200 if MACH_SUN6I || MACH_SUN8I
 	---help---
 	Set the voltage (mV) to program the axp pmic dcdc3 at, set to 0 to
@@ -114,6 +116,7 @@ config AXP_DCDC3_VOLT
 	On A23 / A31 / A33 boards dcdc3 is VDD-CPU and should be 1.2V.
 	On A80 boards dcdc3 is used for VDD-CPUA(cluster 0) and should be 0.9V.
 	On A83T boards dcdc3 is used for VDD-CPUB(cluster 1) and should be 0.9V.
+	On R40 boards dcdc3 is VDD-SYS and VDD-GPU and should be 1.1V.
 
 config AXP_DCDC4_VOLT
 	int "axp pmic dcdc4 voltage"
@@ -138,13 +141,13 @@ config AXP_DCDC5_VOLT
 	---help---
 	Set the voltage (mV) to program the axp pmic dcdc5 at, set to 0 to
 	disable dcdc5.
-	On A23 / A31 / A33 / A80 / A83T boards dcdc5 is VCC-DRAM and
+	On A23 / A31 / A33 / A80 / A83T / R40 boards dcdc5 is VCC-DRAM and
 	should be 1.5V, 1.35V if DDR3L is used.
 
 config AXP_ALDO1_VOLT
 	int "axp pmic (a)ldo1 voltage"
 	depends on AXP221_POWER || AXP809_POWER || AXP818_POWER
-	default 0 if MACH_SUN6I
+	default 0 if MACH_SUN6I || MACH_SUN8I_R40
 	default 1800 if MACH_SUN8I_A83T
 	default 3000 if MACH_SUN8I || MACH_SUN9I
 	---help---
@@ -183,7 +186,8 @@ config AXP_ALDO3_VOLT
 	Set the voltage (mV) to program the axp pmic aldo3 at, set to 0 to
 	disable aldo3.
 	On A10(s) / A13 / A20 boards aldo3 should be 2.8V.
-	On A23 / A31 / A33 boards aldo3 is VCC-PLL and AVCC and should be 3.0V.
+	On A23 / A31 / A33 / R40 boards aldo3 is VCC-PLL and AVCC and should
+	be 3.0V.
 	On A80 boards aldo3 is normally not used.
 	On A83T / H8 boards aldo3 is AVCC, VCC-PL, and VCC-LED, and should be
 	3.0V.
@@ -303,5 +307,13 @@ config SY8106A_VOUT1_VOLT
 	Set the voltage (mV) to program the SY8106A pmic VOUT1. This
 	is typically used to power the VDD-CPU and should be 1200mV.
 	Values can range from 680mV till 1950mV.
+
+config TWL4030_POWER
+	depends on OMAP34XX
+	bool "Enable driver for TI TWL4030 power management chip"
+	imply CMD_POWEROFF
+	---help---
+	The TWL4030 in a combination audio CODEC/power management with
+	GPIO and it is commonly used with the OMAP3 family of processors
 
 endmenu

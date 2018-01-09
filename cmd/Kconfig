@@ -116,6 +116,9 @@ endmenu
 
 source "cmd/fastboot/Kconfig"
 
+config BUILD_BIN2C
+	bool
+
 comment "Commands"
 
 menu "Info commands"
@@ -125,6 +128,18 @@ config CMD_BDI
 	default y
 	help
 	  Print board info
+
+config CMD_CONFIG
+	bool "config"
+	select BUILD_BIN2C
+	default SANDBOX
+	help
+	  Print ".config" contents.
+
+	  If this option is enabled, the ".config" file contents are embedded
+	  in the U-Boot image and can be printed on the console by the "config"
+	  command.  This provides information of which options are enabled on
+	  the running U-Boot.
 
 config CMD_CONSOLE
 	bool "coninfo"
@@ -142,8 +157,15 @@ config CMD_CPU
 
 config CMD_LICENSE
 	bool "license"
+	select BUILD_BIN2C
 	help
 	  Print GPL license text
+
+config CMD_REGINFO
+	bool "reginfo"
+	depends on PPC
+	help
+	  Register dump
 
 endmenu
 
@@ -203,6 +225,8 @@ config CMD_BOOTEFI_HELLO
 	  for testing that EFI is working at a basic level, and for bringing
 	  up EFI support on a new architecture.
 
+source lib/efi_selftest/Kconfig
+
 config CMD_BOOTMENU
 	bool "bootmenu"
 	select MENU
@@ -242,7 +266,6 @@ config CMD_IMI
 
 config CMD_IMLS
 	bool "imls"
-	default y
 	help
 	  List all images found in flash
 
@@ -256,6 +279,54 @@ config CMD_POWEROFF
 	bool "poweroff"
 	help
 	  Poweroff/Shutdown the system
+
+config CMD_SPL
+	bool "spl export - Export boot information for Falcon boot"
+	depends on SPL
+	help
+	  Falcon mode allows booting directly from SPL into an Operating
+	  System such as Linux, thus skipping U-Boot proper. See
+	  doc/README.falcon for full information about how to use this
+	  command.
+
+config CMD_SPL_NAND_OFS
+	hex "Offset of OS command line args for Falcon-mode NAND boot"
+	depends on CMD_SPL
+	default 0
+	help
+	  This provides the offset of the command line arguments for Linux
+	  when booting from NAND in Falcon mode.  See doc/README.falcon
+	  for full information about how to use this option (and also see
+	  board/gateworks/gw_ventana/README for an example).
+
+config CMD_SPL_WRITE_SIZE
+	hex "Size of argument area"
+	depends on CMD_SPL
+	default 0x2000
+	help
+	  This provides the size of the command-line argument area in NAND
+	  flash used by Falcon-mode boot. See the documentation until CMD_SPL
+	  for detail.
+
+config CMD_THOR_DOWNLOAD
+	bool "thor - TIZEN 'thor' download"
+	help
+	  Implements the 'thor' download protocol. This is a way of
+	  downloading a software update over USB from an attached host.
+	  There is no documentation about this within the U-Boot source code
+	  but you should be able to find something on the interwebs.
+
+config CMD_ZBOOT
+	bool "zboot - x86 boot command"
+	help
+	  With x86 machines it is common to boot a bzImage file which
+	  contains both a kernel and a setup.bin file. The latter includes
+	  configuration information from the dark ages which x86 boards still
+	  need to pick things out of.
+
+	  Consider using FIT in preference to this since it supports directly
+	  booting both 32- and 64-bit kernels, as well as secure boot.
+	  Documentation is available in doc/uImage.FIT/x86-fit-boot.txt
 
 endmenu
 
@@ -303,9 +374,110 @@ config CMD_ENV_EXISTS
 	  Check if a variable is defined in the environment for use in
 	  shell scripting.
 
+config CMD_ENV_CALLBACK
+	bool "env callbacks - print callbacks and their associated variables"
+	help
+	  Some environment variable have callbacks defined by
+	  U_BOOT_ENV_CALLBACK. These are called when the variable changes.
+	  For example changing "baudrate" adjust the serial baud rate. This
+	  command lists the currently defined callbacks.
+
+config CMD_ENV_FLAGS
+	bool "env flags -print variables that have non-default flags"
+	help
+	  Some environment variables have special flags that control their
+	  behaviour. For example, serial# can only be written once and cannot
+	  be deleted. This command shows the variables that have special
+	  flags.
+
 endmenu
 
 menu "Memory commands"
+
+config CMD_CRC32
+	bool "crc32"
+	select HASH
+	default y
+	help
+	  Compute CRC32.
+
+config CRC32_VERIFY
+	bool "crc32 -v"
+	depends on CMD_CRC32
+	help
+	  Add -v option to verify data against a crc32 checksum.
+
+config CMD_EEPROM
+	bool "eeprom - EEPROM subsystem"
+	help
+	  (deprecated, needs conversion to driver model)
+	  Provides commands to read and write EEPROM (Electrically Erasable
+	  Programmable Read Only Memory) chips that are connected over an
+	  I2C bus.
+
+config CMD_EEPROM_LAYOUT
+	bool "Enable layout-aware eeprom commands"
+	depends on CMD_EEPROM
+	help
+	  (deprecated, needs conversion to driver model)
+	  When enabled, additional eeprom sub-commands become available.
+
+	  eeprom print - prints the contents of the eeprom in a human-readable
+	  way (eeprom layout fields, and data formatted to be fit for human
+	  consumption).
+
+	  eeprom update - allows user to update eeprom fields by specifying
+	  the field name, and providing the new data in a human readable format
+	  (same format as displayed by the eeprom print command).
+
+	  Both commands can either auto detect the layout, or be told which
+	  layout to use.
+
+	  Feature API:
+	  __weak int parse_layout_version(char *str)
+		- override to provide your own layout name parsing
+	  __weak void __eeprom_layout_assign(struct eeprom_layout *layout,
+			int layout_version);
+		- override to setup the layout metadata based on the version
+	  __weak int eeprom_layout_detect(unsigned char *data)
+		- override to provide your own algorithm for detecting layout
+			version
+	  eeprom_field.c
+		- contains various printing and updating functions for common
+			types of eeprom fields. Can be used for defining
+			custom layouts.
+
+config EEPROM_LAYOUT_HELP_STRING
+	  string "Tells user what layout names are supported"
+	  depends on CMD_EEPROM_LAYOUT
+	  default "<not defined>"
+	  help
+	    Help printed with the LAYOUT VERSIONS part of the 'eeprom'
+	    command's help.
+
+config LOOPW
+	bool "loopw"
+	help
+	  Infinite write loop on address range
+
+config CMD_MD5SUM
+	bool "md5sum"
+	default n
+	select MD5
+	help
+	  Compute MD5 checksum.
+
+config MD5SUM_VERIFY
+	bool "md5sum -v"
+	default n
+	depends on CMD_MD5SUM
+	help
+	  Add -v option to verify data against an MD5 checksum.
+
+config CMD_MEMINFO
+	bool "meminfo"
+	help
+	  Display memory information.
 
 config CMD_MEMORY
 	bool "md, mm, nm, mw, cp, cmp, base, loop"
@@ -321,17 +493,6 @@ config CMD_MEMORY
 	    base - print or set address offset
 	    loop - initialize loop on address range
 
-config CMD_CRC32
-	bool "crc32"
-	default y
-	help
-	  Compute CRC32.
-
-config LOOPW
-	bool "loopw"
-	help
-	  Infinite write loop on address range
-
 config CMD_MEMTEST
 	bool "memtest"
 	help
@@ -343,25 +504,67 @@ config CMD_MX_CYCLIC
 	  mdc - memory display cyclic
 	  mwc - memory write cyclic
 
-config CMD_MEMINFO
-	bool "meminfo"
+config CMD_SHA1SUM
+	bool "sha1sum"
+	select SHA1
 	help
-	  Display memory information.
+	  Compute SHA1 checksum.
+
+config SHA1SUM_VERIFY
+	bool "sha1sum -v"
+	depends on CMD_SHA1SUM
+	help
+	  Add -v option to verify data against a SHA1 checksum.
+
+config CMD_STRINGS
+	bool "strings - display strings in memory"
+	help
+	  This works similarly to the Unix 'strings' command except that it
+	  works with a memory range. String of printable characters found
+	  within the range are displayed. The minimum number of characters
+	  for a sequence to be considered a string can be provided.
+
+endmenu
+
+menu "Compression commands"
+
+config CMD_LZMADEC
+	bool "lzmadec"
+	default y if CMD_BOOTI
+	select LZMA
+	help
+	  Support decompressing an LZMA (Lempel-Ziv-Markov chain algorithm)
+	  image from memory.
+
+config CMD_UNZIP
+	bool "unzip"
+	default y if CMD_BOOTI
+	help
+	  Uncompress a zip-compressed memory region.
+
+config CMD_ZIP
+	bool "zip"
+	help
+	  Compress a memory region with zlib deflate method.
 
 endmenu
 
 menu "Device access commands"
 
-config CMD_DM
-	bool "dm - Access to driver model information"
-	depends on DM
-	default y
+config CMD_ARMFLASH
+	#depends on FLASH_CFI_DRIVER
+	bool "armflash"
 	help
-	  Provides access to driver model data structures and information,
-	  such as a list of devices, list of uclasses and the state of each
-	  device (e.g. activated). This is not required for operation, but
-	  can be useful to see the state of driver model for debugging or
-	  interest.
+	  ARM Ltd reference designs flash partition access
+
+config CMD_CLK
+	bool "clk - Show clock frequencies"
+	help
+	  (deprecated)
+	  Shows clock frequences by calling a sock_clk_dump() hook function.
+	  This is depreated in favour of using the CLK uclass and accessing
+	  clock values from associated drivers. However currently no command
+	  exists for this.
 
 config CMD_DEMO
 	bool "demo - Demonstration commands for driver model"
@@ -375,6 +578,178 @@ config CMD_DEMO
 	  option is to use sandbox and pass the -d point to sandbox's
 	  u-boot.dtb file.
 
+config CMD_DFU
+	bool "dfu"
+	select USB_FUNCTION_DFU
+	help
+	  Enables the command "dfu" which is used to have U-Boot create a DFU
+	  class device via USB. This command requires that the "dfu_alt_info"
+	  environment variable be set and define the alt settings to expose to
+	  the host.
+
+config CMD_DM
+	bool "dm - Access to driver model information"
+	depends on DM
+	default y
+	help
+	  Provides access to driver model data structures and information,
+	  such as a list of devices, list of uclasses and the state of each
+	  device (e.g. activated). This is not required for operation, but
+	  can be useful to see the state of driver model for debugging or
+	  interest.
+
+config CMD_FDC
+	bool "fdcboot - Boot from floppy device"
+	help
+	  The 'fdtboot' command allows booting an image from a floppy disk.
+
+config CMD_FLASH
+	bool "flinfo, erase, protect"
+	default y
+	help
+	  NOR flash support.
+	    flinfo - print FLASH memory information
+	    erase - FLASH memory
+	    protect - enable or disable FLASH write protection
+
+config CMD_FPGA
+	bool "fpga"
+	default y
+	help
+	  FPGA support.
+
+config CMD_FPGA_LOADBP
+	bool "fpga loadbp - load partial bitstream (Xilinx only)"
+	depends on CMD_FPGA
+	help
+	  Supports loading an FPGA device from a bitstream buffer containing
+	  a partial bitstream.
+
+config CMD_FPGA_LOADFS
+	bool "fpga loadfs - load bitstream from FAT filesystem (Xilinx only)"
+	depends on CMD_FPGA
+	help
+	  Supports loading an FPGA device from a FAT filesystem.
+
+config CMD_FPGA_LOADMK
+	bool "fpga loadmk - load bitstream from image"
+	depends on CMD_FPGA
+	help
+	  Supports loading an FPGA device from a image generated by mkimage.
+
+config CMD_FPGA_LOADP
+	bool "fpga loadp - load partial bitstream"
+	depends on CMD_FPGA
+	help
+	  Supports loading an FPGA device from a bitstream buffer containing
+	  a partial bitstream.
+
+config CMD_FPGA_LOAD_SECURE
+	bool "fpga loads"
+	help
+	  Enables the fpga loade command which is used to load encrypted
+	  bitstreams on to FPGA.
+
+config CMD_FPGAD
+	bool "fpgad - dump FPGA registers"
+	help
+	  (legacy, needs conversion to driver model)
+	  Provides a way to dump FPGA registers by calling the board-specific
+	  fpga_get_reg() function. This functions similarly to the 'md'
+	  command.
+
+config CMD_FUSE
+	bool "fuse - support for the fuse subssystem"
+	help
+	  (deprecated - needs conversion to driver model)
+	  This allows reading, sensing, programming or overriding fuses
+	  which control the behaviour of the device. The command uses the
+	  fuse_...() API.
+
+config CMD_GPIO
+	bool "gpio"
+	help
+	  GPIO support.
+
+config CMD_GPT
+	bool "GPT (GUID Partition Table) command"
+	select PARTITION_UUIDS
+	select EFI_PARTITION
+	imply RANDOM_UUID
+	help
+	  Enable the 'gpt' command to ready and write GPT style partition
+	  tables.
+
+config RANDOM_UUID
+	bool "GPT Random UUID generation"
+	help
+	  Enable the generation of partitions with random UUIDs if none
+	  are provided.
+
+config CMD_GPT_RENAME
+	bool "GPT partition renaming commands"
+	depends on CMD_GPT
+	help
+	  Enables the 'gpt' command to interchange names on two GPT
+	  partitions via the 'gpt swap' command or to rename single
+	  partitions via the 'rename' command.
+
+config CMD_IDE
+	bool "ide - Support for IDE drivers"
+	select IDE
+	help
+	  Provides an 'ide' command which allows accessing the IDE drive,
+	  reseting the IDE interface, printing the partition table and
+	  geting device info. It also enables the 'diskboot' command which
+	  permits booting from an IDE drive.
+
+config CMD_IO
+	bool "io - Support for performing I/O accesses"
+	help
+	  Provides an 'iod' command to display I/O space and an 'iow' command
+	  to write values to the I/O space. This can be useful for manually
+	  checking the state of devices during boot when debugging device
+	  drivers, etc.
+
+config CMD_IOTRACE
+	bool "iotrace - Support for tracing I/O activity"
+	help
+	  Provides an 'iotrace' command which supports recording I/O reads and
+	  writes in a trace buffer in memory . It also maintains a checksum
+	  of the trace records (even if space is exhausted) so that the
+	  sequence of I/O accesses can be verified.
+
+	  When debugging drivers it is useful to see what I/O accesses were
+	  done and in what order.
+
+	  Even if the individual accesses are of little interest it can be
+	  useful to verify that the access pattern is consistent each time
+	  an operation is performed. In this case a checksum can be used to
+	  characterise the operation of a driver. The checksum can be compared
+	  across different runs of the operation to verify that the driver is
+	  working properly.
+
+	  In particular, when performing major refactoring of the driver, where
+	  the access pattern should not change, the checksum provides assurance
+	  that the refactoring work has not broken the driver.
+
+	  This works by sneaking into the io.h heder for an architecture and
+	  redirecting I/O accesses through iotrace's tracing mechanism.
+
+	  For now no commands are provided to examine the trace buffer. The
+	  format is fairly simple, so 'md' is a reasonable substitute.
+
+	  Note: The checksum feature is only useful for I/O regions where the
+	  contents do not change outside of software control. Where this is not
+	  suitable you can fall back to manually comparing the addresses. It
+	  might be useful to enhance tracing to only checksum the accesses and
+	  not the data read/written.
+
+config CMD_I2C
+	bool "i2c"
+	help
+	  I2C support.
+
 config CMD_LOADB
 	bool "loadb"
 	default y
@@ -387,21 +762,6 @@ config CMD_LOADS
 	help
 	  Load an S-Record file over serial line
 
-config CMD_FLASH
-	bool "flinfo, erase, protect"
-	default y
-	help
-	  NOR flash support.
-	    flinfo - print FLASH memory information
-	    erase - FLASH memory
-	    protect - enable or disable FLASH write protection
-
-config CMD_ARMFLASH
-	#depends on FLASH_CFI_DRIVER
-	bool "armflash"
-	help
-	  ARM Ltd reference designs flash partition access
-
 config CMD_MMC
 	bool "mmc"
 	help
@@ -409,64 +769,80 @@ config CMD_MMC
 
 config CMD_NAND
 	bool "nand"
+	default y if NAND_SUNXI
 	help
 	  NAND support.
 
-config CMD_SF
-	bool "sf"
+if CMD_NAND
+config CMD_NAND_TRIMFFS
+	bool "nand write.trimffs"
+	default y if ARCH_SUNXI
 	help
-	  SPI Flash support
+	  Allows one to skip empty pages when flashing something on a NAND.
 
-config CMD_SPI
-	bool "sspi"
+config CMD_NAND_LOCK_UNLOCK
+	bool "nand lock/unlock"
 	help
-	  SPI utility command.
+	  NAND locking support.
 
-config CMD_I2C
-	bool "i2c"
+config CMD_NAND_TORTURE
+	bool "nand torture"
 	help
-	  I2C support.
+	  NAND torture support.
 
-config CMD_USB
-	bool "usb"
-	help
-	  USB support.
+endif # CMD_NAND
 
-config CMD_DFU
-	bool "dfu"
-	select USB_FUNCTION_DFU
+config CMD_NVME
+	bool "nvme"
+	depends on NVME
+	default y if NVME
 	help
-	  Enables the command "dfu" which is used to have U-Boot create a DFU
-	  class device via USB.
+	  NVM Express device support
 
-config CMD_USB_MASS_STORAGE
-	bool "UMS usb mass storage"
+config CMD_MMC_SPI
+	bool "mmc_spi - Set up MMC SPI device"
 	help
-	  USB mass storage support
+	  Provides a way to set up an MMC (Multimedia Card) SPI (Serial
+	  Peripheral Interface) device. The device provides a means of
+	  accessing an MMC device via SPI using a single data line, limited
+	  to 20MHz. It is useful since it reduces the amount of protocol code
+	  required.
 
-config CMD_FPGA
-	bool "fpga"
-	default y
+config CMD_ONENAND
+	bool "onenand - access to onenand device"
 	help
-	  FPGA support.
+	  OneNAND is a brand of NAND ('Not AND' gate) flash which provides
+	  various useful features. This command allows reading, writing,
+	  and erasing blocks. It allso provides a way to show and change
+	  bad blocks, and test the device.
 
-config CMD_FPGA_LOADP
-	bool "fpga loadp"
+config CMD_PART
+	bool "part"
+	select PARTITION_UUIDS
 	help
-	  Enables the fpga loadp command which is used to load partial
-	  bitstreams on to FPGA.
+	  Read and display information about the partition table on
+	  various media.
 
-config CMD_FPGA_LOADBP
-	bool "fpga loadbp"
+config CMD_PCI
+	bool "pci - Access PCI devices"
 	help
-	  Enables the fpga loadbp command which is used to load partial
-	  bitstreams on to FPGA in bit format. Xilinx only.
+	  Provide access to PCI (Peripheral Interconnect Bus), a type of bus
+	  used on some devices to allow the CPU to communicate with its
+	  peripherals. Sub-commands allow bus enumeration, displaying and
+	  changing configuration space and a few other features.
 
-config CMD_FPGA_LOAD_SECURE
-	bool "fpga loads"
+config CMD_PCMCIA
+	bool "pinit - Set up PCMCIA device"
 	help
-	  Enables the fpga loade command which is used to load encrypted
-	  bitstreams on to FPGA.
+	  Provides a means to initialise a PCMCIA (Personal Computer Memory
+	  Card International Association) device. This is an old standard from
+	  about 1990. These devices are typically removable memory or network
+	  cards using a standard 68-pin connector.
+
+config CMD_READ
+	bool "read - Read binary data from a partition"
+	help
+	  Provides low-level access to the data in a partition.
 
 config CMD_REMOTEPROC
 	bool "remoteproc"
@@ -474,10 +850,81 @@ config CMD_REMOTEPROC
 	help
 	  Support for Remote Processor control
 
-config CMD_GPIO
-	bool "gpio"
+config CMD_SATA
+	bool "sata - Access SATA subsystem"
+	select SATA
 	help
-	  GPIO support.
+	  SATA (Serial Advanced Technology Attachment) is a serial bus
+	  standard for connecting to hard drives and other storage devices.
+	  This command provides information about attached devices and allows
+	  reading, writing and other operations.
+
+	  SATA replaces PATA (originally just ATA), which stands for Parallel AT
+	  Attachment, where AT refers to an IBM AT (Advanced Technology)
+	  computer released in 1984.
+
+config CMD_SAVES
+	bool "saves - Save a file over serial in S-Record format"
+	help
+	  Provides a way to save a binary file using the Motorola S-Record
+	  format over the serial line.
+
+config CMD_SDRAM
+	bool "sdram - Print SDRAM configuration information"
+	help
+	  Provides information about attached SDRAM. This assumed that the
+	  SDRAM has an EEPROM with information that can be read using the
+	  I2C bus. This is only available on some boards.
+
+config CMD_SF
+	bool "sf"
+	help
+	  SPI Flash support
+
+config CMD_SF_TEST
+	bool "sf test - Allow testing of SPI flash"
+	help
+	  Provides a way to test that SPI flash is working correctly. The
+	  test is destructive, in that an area of SPI flash must be provided
+	  for the test to use. Performance information is also provided,
+	  measuring the performance of reading, writing and erasing in
+	  Mbps (Million Bits Per Second). This value should approximately
+	  equal the SPI bus speed for a single-bit-wide SPI bus, assuming
+	  everything is working properly.
+
+config CMD_SPI
+	bool "sspi"
+	help
+	  SPI utility command.
+
+config CMD_TSI148
+	bool "tsi148 - Command to access tsi148 device"
+	help
+	  This provides various sub-commands to initialise and configure the
+	  Turndra tsi148 device. See the command help for full details.
+
+config CMD_UNIVERSE
+	bool "universe - Command to set up the Turndra Universe controller"
+	help
+	  This allows setting up the VMEbus provided by this controller.
+	  See the command help for full details.
+
+config CMD_USB
+	bool "usb"
+	help
+	  USB support.
+
+config CMD_USB_SDP
+	bool "sdp"
+	select USB_FUNCTION_SDP
+	help
+	  Enables the command "sdp" which is used to have U-Boot emulating the
+	  Serial Download Protocol (SDP) via USB.
+
+config CMD_USB_MASS_STORAGE
+	bool "UMS usb mass storage"
+	help
+	  USB mass storage support
 
 endmenu
 
@@ -586,29 +1033,39 @@ config CMD_LINK_LOCAL
 	help
 	  Acquire a network IP address using the link-local protocol
 
+config CMD_ETHSW
+	bool "ethsw"
+	help
+	  Allow control of L2 Ethernet switch commands. These are supported
+	  by the vsc9953 Ethernet driver at present. Sub-commands allow
+	  operations such as enabling / disabling a port and
+	  viewing/maintaining the filtering database (FDB)
+
 endmenu
 
 menu "Misc commands"
 
-config CMD_AES
-	bool "aes"
+config CMD_BMP
+	bool "Enable 'bmp' command"
+	depends on LCD || DM_VIDEO || VIDEO
 	help
-	  Enable comamnd support for encrypting and
-	  decrypting of images.
+	  This provides a way to obtain information about a BMP-format iamge
+	  and to display it. BMP (which presumably stands for BitMaP) is a
+	  file format defined by Microsoft which supports images of various
+	  depths, formats and compression methods. Headers on the file
+	  determine the formats used. This command can be used by first loading
+	  the image into RAM, then using this command to look at it or display
+	  it.
 
-config CMD_AMBAPP
-	bool "ambapp"
-	depends on LEON3
-	default y
+config CMD_BSP
+	bool "Enable board-specific commands"
 	help
-	  Lists AMBA Plug-n-Play information.
+	  (deprecated: instead, please define a Kconfig option for each command)
 
-config SYS_AMBAPP_PRINT_ON_STARTUP
-	bool "Show AMBA PnP info on startup"
-	depends on CMD_AMBAPP
-	default n
-	help
-	  Show AMBA Plug-n-Play information on startup.
+	  Some boards have board-specific commands which are only enabled
+	  during developemnt and need to be turned off for production. This
+	  option provides a way to control this. The commands that are enabled
+	  vary depending on the board.
 
 config CMD_BKOPS_ENABLE
 	bool "mmc bkops enable"
@@ -635,10 +1092,42 @@ config CMD_CACHE
 	help
 	  Enable the "icache" and "dcache" commands
 
+config CMD_DISPLAY
+	bool "Enable the 'display' command, for character displays"
+	help
+	  (this needs porting to driver model)
+	  This enables the 'display' command which allows a string to be
+	  displayed on a simple board-specific display. Implement
+	  display_putc() to use it.
+
+config CMD_LED
+	bool "led"
+	default y if LED
+	help
+	  Enable the 'led' command which allows for control of LEDs supported
+	  by the board. The LEDs can be listed with 'led list' and controlled
+	  with led on/off/togle/blink. Any LED drivers can be controlled with
+	  this command, e.g. led_gpio.
+
+config CMD_DATE
+	bool "date"
+	default y if DM_RTC
+	help
+	  Enable the 'date' command for getting/setting the time/date in RTC
+	  devices.
+
 config CMD_TIME
 	bool "time"
 	help
 	  Run commands and summarize execution time.
+
+config CMD_GETTIME
+	bool "gettime - read elapsed time"
+	help
+	  Enable the 'gettime' command which reads the elapsed time since
+	  U-Boot started running. This shows the time in seconds and
+	  milliseconds. See also the 'bootstage' command which provides more
+	  flexibility for boot timing.
 
 # TODO: rename to CMD_SLEEP
 config CMD_MISC
@@ -658,16 +1147,6 @@ config CMD_TIMER
 	bool "timer"
 	help
 	  Access the system timer.
-
-config CMD_SETGETDCR
-	bool "getdcr, setdcr, getidcr, setidcr"
-	depends on 4xx
-	default y
-	help
-	  getdcr - Get an AMCC PPC 4xx DCR's value
-	  setdcr - Set an AMCC PPC 4xx DCR's value
-	  getidcr - Get a register value via indirect DCR addressing
-	  setidcr - Set a register value via indirect DCR addressing
 
 config CMD_SOUND
 	bool "sound"
@@ -701,6 +1180,25 @@ config CMD_QFW
 	  via -kernel / -initrd
 
 source "cmd/mvebu/Kconfig"
+
+config CMD_TERMINAL
+	bool "terminal - provides a way to attach a serial terminal"
+	help
+	  Provides a 'cu'-like serial terminal command. This can be used to
+	  access other serial ports from the system console. The terminal
+	  is very simple with no special processing of characters. As with
+	  cu, you can press ~. (tilde followed by period) to exit.
+
+config CMD_UUID
+	bool "uuid, guid - generation of unique IDs"
+	help
+	  This enables two commands:
+
+	     uuid - generate random Universally Unique Identifier
+	     guid - generate Globally Unique Identifier based on random UUID
+
+	  The two commands are very similar except for the endianness of the
+	  output.
 
 endmenu
 
@@ -748,6 +1246,75 @@ config CMD_REGULATOR
 endmenu
 
 menu "Security commands"
+config CMD_AES
+	bool "Enable the 'aes' command"
+	select AES
+	help
+	  This provides a means to encrypt and decrypt data using the AES
+	  (Advanced Encryption Standard). This algorithm uses a symetric key
+	  and is widely used as a streaming cipher. Different key lengths are
+	  supported by the algorithm but this command only supports 128 bits
+	  at present.
+
+config CMD_BLOB
+	bool "Enable the 'blob' command"
+	help
+	  This is used with the Freescale secure boot mechanism.
+
+	  Freescale's SEC block has built-in Blob Protocol which provides
+	  a method for protecting user-defined data across system power
+	  cycles. SEC block protects data in a data structure called a Blob,
+	  which provides both confidentiality and integrity protection.
+
+	  Encapsulating data as a blob
+	  Each time that the Blob Protocol is used to protect data, a
+	  different randomly generated key is used to encrypt the data.
+	  This random key is itself encrypted using a key which is derived
+	  from SoC's non-volatile secret key and a 16 bit Key identifier.
+	  The resulting encrypted key along with encrypted data is called a
+	  blob. The non-volatile secure key is available for use only during
+	  secure boot.
+
+	  During decapsulation, the reverse process is performed to get back
+	  the original data.
+
+	  Sub-commands:
+            blob enc - encapsulating data as a cryptgraphic blob
+	    blob dec - decapsulating cryptgraphic blob to get the data
+
+	  Syntax:
+
+	  blob enc src dst len km
+
+	  Encapsulate and create blob of data $len bytes long
+	  at address $src and store the result at address $dst.
+	  $km is the 16 byte key modifier is also required for
+	  generation/use as key for cryptographic operation. Key
+	  modifier should be 16 byte long.
+
+	  blob dec src dst len km
+
+	  Decapsulate the  blob of data at address $src and
+	  store result of $len byte at addr $dst.
+	  $km is the 16 byte key modifier is also required for
+	  generation/use as key for cryptographic operation. Key
+	  modifier should be 16 byte long.
+
+config CMD_HASH
+	bool "Support 'hash' command"
+	select HASH
+	help
+	  This provides a way to hash data in memory using various supported
+	  algorithms (such as SHA1, MD5, CRC32). The computed digest can be
+	  saved to memory or to an environment variable. It is also possible
+	  to verify a hash against data in memory.
+
+config HASH_VERIFY
+	bool "hash -v"
+	depends on CMD_HASH
+	help
+	  Add -v option to verify data against a hash.
+
 config CMD_TPM
 	bool "Enable the 'tpm' command"
 	depends on TPM
@@ -783,6 +1350,37 @@ config CMD_CROS_EC
 endmenu
 
 menu "Filesystem commands"
+config CMD_BTRFS
+	bool "Enable the 'btrsubvol' command"
+	select FS_BTRFS
+	help
+	  This enables the 'btrsubvol' command to list subvolumes
+	  of a BTRFS filesystem. There are no special commands for
+	  listing BTRFS directories or loading BTRFS files - this
+	  can be done by the generic 'fs' commands (see CMD_FS_GENERIC)
+	  when BTRFS is enabled (see FS_BTRFS).
+
+config CMD_CBFS
+	bool "Enable the 'cbfs' command"
+	depends on FS_CBFS
+	help
+	  Define this to enable support for reading from a Coreboot
+	  filesystem. This is a ROM-based filesystem used for accessing files
+	  on systems that use coreboot as the first boot-loader and then load
+	  U-Boot to actually boot the Operating System. Available commands are
+	  cbfsinit, cbfsinfo, cbfsls and cbfsload.
+
+config CMD_CRAMFS
+	bool "Enable the 'cramfs' command"
+	depends on FS_CRAMFS
+	help
+	  This provides commands for dealing with CRAMFS (Compressed ROM
+	  filesystem). CRAMFS is useful when space is tight since files are
+	  compressed. Two commands are provided:
+
+	     cramfsls   - lists files in a cramfs image
+	     cramfsload - loads a file from a cramfs image
+
 config CMD_EXT2
 	bool "ext2 command support"
 	help
@@ -801,6 +1399,7 @@ config CMD_EXT4_WRITE
 
 config CMD_FAT
 	bool "FAT command support"
+	select FS_FAT
 	help
 	  Support for the FAT fs
 
@@ -809,12 +1408,151 @@ config CMD_FS_GENERIC
 	help
 	  Enables filesystem commands (e.g. load, ls) that work for multiple
 	  fs types.
+
+config CMD_FS_UUID
+	bool "fsuuid command"
+	help
+	  Enables fsuuid command for filesystem UUID.
+
+config CMD_JFFS2
+	bool "jffs2 command"
+	select FS_JFFS2
+	help
+	  Enables commands to support the JFFS2 (Journalling Flash File System
+	  version 2) filesystem. This enables fsload, ls and fsinfo which
+	  provide the ability to load files, list directories and obtain
+	  filesystem information.
+
+config CMD_MTDPARTS
+	bool "MTD partition support"
+	help
+	  MTD partition support
+
+config MTDIDS_DEFAULT
+	string "Default MTD IDs"
+	depends on CMD_MTDPARTS || CMD_NAND || CMD_FLASH
+	help
+	  Defines a default MTD IDs list for use with MTD partitions in the
+	  Linux MTD command line partitions format.
+
+config MTDPARTS_DEFAULT
+	string "Default MTD partition scheme"
+	depends on CMD_MTDPARTS || CMD_NAND || CMD_FLASH
+	help
+	  Defines a default MTD partitioning scheme in the Linux MTD command
+	  line partitions format
+
+config CMD_MTDPARTS_SPREAD
+	bool "Padd partition size to take account of bad blocks"
+	depends on CMD_MTDPARTS
+	help
+	  This enables the 'spread' sub-command of the mtdparts command.
+	  This command will modify the existing mtdparts variable by increasing
+	  the size of the partitions such that 1) each partition's net size is
+	  at least as large as the size specified in the mtdparts variable and
+	  2) each partition starts on a good block.
+
+config CMD_REISER
+	bool "reiser - Access to reiserfs filesystems"
+	help
+	  This provides two commands which operate on a resierfs filesystem,
+	  commonly used some years ago:
+
+	    reiserls - list files
+	    reiserload - load a file
+
+config CMD_SCSI
+	bool "scsi - Access to SCSI devices"
+	default y if SCSI
+	help
+	  This provides a 'scsi' command which provides access to SCSI (Small
+	  Computer System Interface) devices. The command provides a way to
+	  scan the bus, reset the bus, read and write data and get information
+	  about devices.
+
+config CMD_YAFFS2
+	bool "yaffs2 - Access of YAFFS2 filesystem"
+	depends on YAFFS2
+	default y
+	help
+	  This provides commands for accessing a YAFFS2 filesystem. Yet
+	  Another Flash Filesystem 2 is a filesystem designed specifically
+	  for NAND flash. It incorporates bad-block management and ensures
+	  that device writes are sequential regardless of filesystem
+	  activity.
+
+config CMD_ZFS
+	bool "zfs - Access of ZFS filesystem"
+	help
+	  This provides commands to accessing a ZFS filesystem, commonly used
+	  on Solaris systems. Two sub-commands are provided:
+
+	    zfsls - list files in a directory
+	    zfsload - load a file
+
+	  See doc/README.zfs for more details.
+
+endmenu
+
+menu "Debug commands"
+
+config CMD_BEDBUG
+	bool "bedbug"
+	help
+	  The bedbug (emBEDded deBUGger) command provides debugging features
+	  for some PowerPC processors. For details please see the
+	  docuemntation in doc/README.beddbug
+
+config CMD_DIAG
+	bool "diag - Board diagnostics"
+	help
+	  This command provides access to board diagnostic tests. These are
+	  called Power-on Self Tests (POST). The command allows listing of
+	  available tests and running either all the tests, or specific tests
+	  identified by name.
+
+config CMD_IRQ
+	bool "irq - Show information about interrupts"
+	depends on !ARM && !MIPS && !SH
+	help
+	  This enables two commands:
+
+	     interrupts - enable or disable interrupts
+	     irqinfo - print device-specific interrupt information
+
+config CMD_KGDB
+	bool "kgdb - Allow debugging of U-Boot with gdb"
+	help
+	  This enables a 'kgdb' command which allows gdb to connect to U-Boot
+	  over a serial link for debugging purposes. This allows
+	  single-stepping, inspecting variables, etc. This is supported only
+	  on PowerPC at present.
+
+config CMD_LOG
+	bool "log - Generation, control and access to logging"
+	help
+	  This provides access to logging features. It allows the output of
+	  log data to be controlled to a limited extent (setting up the default
+	  maximum log level for emitting of records). It also provides access
+	  to a command used for testing the log system.
+
+config CMD_TRACE
+	bool "trace - Support tracing of function calls and timing"
+	help
+	  Enables a command to control using of function tracing within
+	  U-Boot. This allows recording of call traces including timing
+	  information. The command can write data to memory for exporting
+	  for analsys (e.g. using bootchart). See doc/README.trace for full
+	  details.
+
 endmenu
 
 config CMD_UBI
 	tristate "Enable UBI - Unsorted block images commands"
 	select CRC32
 	select MTD_UBI
+	select CMD_MTDPARTS
+	default y if NAND_SUNXI
 	help
 	  UBI is a software layer above MTD layer which admits use of LVM-like
 	  logical volumes on top of MTD devices, hides some complexities of
@@ -822,5 +1560,14 @@ config CMD_UBI
 	  capabilities. Please, consult the MTD web site for more details
 	  (www.linux-mtd.infradead.org). Activate this option if you want
 	  to use U-Boot UBI commands.
+
+config CMD_UBIFS
+	tristate "Enable UBIFS - Unsorted block images filesystem commands"
+	depends on CMD_UBI
+	select CRC32
+	select LZO
+	default y if CMD_UBI
+	help
+	  UBIFS is a file system for flash devices which works on top of UBI.
 
 endmenu

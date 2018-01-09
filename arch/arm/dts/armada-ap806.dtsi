@@ -158,6 +158,14 @@
 				};
 			};
 
+			ap_gpio0: gpio@6F5040 {
+				compatible = "marvell,orion-gpio";
+				reg = <0x6F5040 0x40>;
+				ngpios = <20>;
+				gpio-controller;
+				#gpio-cells = <2>;
+			};
+
 			xor@400000 {
 				compatible = "marvell,mv-xor-v2";
 				reg = <0x400000 0x1000>,
@@ -232,6 +240,14 @@
 				clocks = <&ap_syscon 3>;
 				status = "disabled";
 
+			};
+
+			ap_sdhci0: sdhci@6e0000 {
+				compatible = "marvell,armada-8k-sdhci";
+				reg = <0x6e0000 0x300>;
+				interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>;
+				dma-coherent;
+				status = "disabled";
 			};
 
 			ap_syscon: system-controller@6f4000 {
