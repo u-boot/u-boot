@@ -168,16 +168,16 @@ auth_exit:
 	}
 
 	/*
-	 * Output notification of successful authentication as well the name of
-	 * the signing certificate used to re-assure the user that the secure
-	 * code is being processed as expected. However suppress any such log
-	 * output in case of building for SPL and booting via YMODEM. This is
-	 * done to avoid disturbing the YMODEM serial protocol transactions.
+	 * Output notification of successful authentication to re-assure the
+	 * user that the secure code is being processed as expected. However
+	 * suppress any such log output in case of building for SPL and booting
+	 * via YMODEM. This is done to avoid disturbing the YMODEM serial
+	 * protocol transactions.
 	 */
 	if (!(IS_ENABLED(CONFIG_SPL_BUILD) &&
 	      IS_ENABLED(CONFIG_SPL_YMODEM_SUPPORT) &&
 	      spl_boot_device() == BOOT_DEVICE_UART))
-		printf("Authentication passed: %s\n", (char *)sig_addr);
+		printf("Authentication passed\n");
 
 	return result;
 }
