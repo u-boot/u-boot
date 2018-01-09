@@ -811,6 +811,10 @@ ifneq ($(CONFIG_BUILD_TARGET),)
 ALL-y += $(CONFIG_BUILD_TARGET:"%"=%)
 endif
 
+ifneq ($(CONFIG_SYS_INIT_SP_BSS_OFFSET),)
+ALL-y += init_sp_bss_offset_check
+endif
+
 LDFLAGS_u-boot += $(LDFLAGS_FINAL)
 
 # Avoid 'Not enough room for program headers' error on binutils 2.28 onwards.
@@ -938,6 +942,33 @@ binary_size_check: u-boot-nodtb.bin FORCE
 			exit 1; \
 		fi \
 	fi
+
+ifneq ($(CONFIG_SYS_INIT_SP_BSS_OFFSET),)
+ifneq ($(CONFIG_SYS_MALLOC_F_LEN),)
+subtract_sys_malloc_f_len = space=$$(($${space} - $(CONFIG_SYS_MALLOC_F_LEN)))
+else
+subtract_sys_malloc_f_len = true
+endif
+# The 1/4 margin below is somewhat arbitrary. The likely initial SP usage is
+# so low that the DTB could probably use 90%+ of the available space, for
+# current values of CONFIG_SYS_INIT_SP_BSS_OFFSET at least. However, let's be
+# safe for now and tweak this later if space becomes tight.
+# A rejected alternative would be to check that some absolute minimum stack
+# space was available. However, since CONFIG_SYS_INIT_SP_BSS_OFFSET is
+# deliberately build-specific, to take account of build-to-build stack usage
+# differences due to different feature sets, there is no common absolute value
+# to check against.
+init_sp_bss_offset_check: u-boot.dtb FORCE
+	@dtb_size=$(shell wc -c u-boot.dtb | awk '{print $$1}') ; \
+	space=$(CONFIG_SYS_INIT_SP_BSS_OFFSET) ; \
+	$(subtract_sys_malloc_f_len) ; \
+	quarter_space=$$(($${space} / 4)) ; \
+	if [ $${dtb_size} -gt $${quarter_space} ]; then \
+		echo "u-boot.dtb is larger than 1 quarter of " >&2 ; \
+		echo "(CONFIG_SYS_INIT_SP_BSS_OFFSET - CONFIG_SYS_MALLOC_F_LEN)" >&2 ; \
+		exit 1 ; \
+	fi
+endif
 
 u-boot-nodtb.bin: u-boot FORCE
 	$(call if_changed,objcopy)
