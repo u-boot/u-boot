@@ -8,6 +8,8 @@ CONFIG_BOOT_INIT_FILE="board/topic/zynq/zynq-topic-miamilite/ps7_regs.txt"
 CONFIG_DEFAULT_DEVICE_TREE="zynq-topic-miamilite"
 CONFIG_DEBUG_UART=y
 CONFIG_BOOTDELAY=0
+CONFIG_USE_BOOTCOMMAND=y
+CONFIG_BOOTCOMMAND="run $modeboot || run distro_bootcmd"
 # CONFIG_DISPLAY_CPUINFO is not set
 CONFIG_SPL=y
 CONFIG_SPL_STACK_R=y

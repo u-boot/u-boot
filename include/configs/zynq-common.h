@@ -164,7 +164,6 @@
 #define CONFIG_PREBOOT
 
 /* Boot configuration */
-#define CONFIG_BOOTCOMMAND		"run $modeboot || run distro_bootcmd"
 #define CONFIG_SYS_LOAD_ADDR		0 /* default? */
 
 /* Distro boot enablement */
