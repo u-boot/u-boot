@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2013 Hannes Schmelzer <oe5hpm@oevsv.at>
- * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com
+ * Copyright (C) 2013-2018 Hannes Schmelzer <oe5hpm@oevsv.at>
+ * B&R Industrial Automation GmbH - http://www.br-automation.com
  *
  * minimal framebuffer driver for TI's AM335x SoC to be compatible with
  * Wolfgang Denk's LCD-Framework (CONFIG_LCD, common/lcd.c)
