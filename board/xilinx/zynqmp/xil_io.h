@@ -11,18 +11,6 @@
 
 #define xil_printf(...)
 
-void Xil_ICacheEnable(void)
-{}
-
-void Xil_DCacheEnable(void)
-{}
-
-void Xil_ICacheDisable(void)
-{}
-
-void Xil_DCacheDisable(void)
-{}
-
 void Xil_Out32(unsigned long addr, unsigned long val)
 {
 	writel(val, addr);
