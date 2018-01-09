@@ -108,11 +108,11 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 {
 	u32 raster_ctrl = 0;
 
-	if (0 == gd->fb_base) {
+	if (gd->fb_base == 0) {
 		printf("ERROR: no valid fb_base stored in GLOBAL_DATA_PTR!\n");
 		return -1;
 	}
-	if (0 == panel) {
+	if (panel == NULL) {
 		printf("ERROR: missing ptr to am335x_lcdpanel!\n");
 		return -1;
 	}
@@ -147,7 +147,7 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 	gd->fb_base += 0x20;
 
 	/* turn ON display through powercontrol function if accessible */
-	if (0 != panel->panel_power_ctrl)
+	if (panel->panel_power_ctrl != NULL)
 		panel->panel_power_ctrl(1);
 
 	debug("am335x-fb: wait for stable power ...\n");
