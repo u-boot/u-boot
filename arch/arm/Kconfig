@@ -788,7 +788,6 @@ config ARCH_ZYNQ
 	select DM_SPI_FLASH
 	select SPL_SEPARATE_BSS if SPL
 	select DM_USB if USB
-	select BLK
 	select CLK
 	select SPL_CLK if SPL
 	select CLK_ZYNQ
