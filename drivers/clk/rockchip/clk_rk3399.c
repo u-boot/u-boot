@@ -1046,6 +1046,13 @@ static int rk3399_clk_bind(struct udevice *dev)
 		sys_child->priv = priv;
 	}
 
+#if CONFIG_IS_ENABLED(CONFIG_RESET_ROCKCHIP)
+	ret = offsetof(struct rk3399_cru, softrst_con[0]);
+	ret = rockchip_reset_bind(dev, ret, 21);
+	if (ret)
+		debug("Warning: software reset driver bind faile\n");
+#endif
+
 	return 0;
 }
 
@@ -1221,6 +1228,19 @@ static int rk3399_pmuclk_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
+static int rk3399_pmuclk_bind(struct udevice *dev)
+{
+#if CONFIG_IS_ENABLED(CONFIG_RESET_ROCKCHIP)
+	int ret;
+
+	ret = offsetof(struct rk3399_pmucru, pmucru_softrst_con[0]);
+	ret = rockchip_reset_bind(dev, ret, 2);
+	if (ret)
+		debug("Warning: software reset driver bind faile\n");
+#endif
+	return 0;
+}
+
 static const struct udevice_id rk3399_pmuclk_ids[] = {
 	{ .compatible = "rockchip,rk3399-pmucru" },
 	{ }
@@ -1234,6 +1254,7 @@ U_BOOT_DRIVER(rockchip_rk3399_pmuclk) = {
 	.ofdata_to_platdata = rk3399_pmuclk_ofdata_to_platdata,
 	.ops		= &rk3399_pmuclk_ops,
 	.probe		= rk3399_pmuclk_probe,
+	.bind		= rk3399_pmuclk_bind,
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	.platdata_auto_alloc_size = sizeof(struct rk3399_pmuclk_plat),
 #endif
