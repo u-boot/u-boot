@@ -120,9 +120,6 @@ void am33xx_spl_board_init(void)
 	};
 	do_enable_clocks(clk_domains, clk_modules_tsspecific, 1);
 
-	/* setup LCD-Pixel Clock */
-	writel(0x2, &cmdpll->clklcdcpixelclk);	/* clock comes from perPLL M2 */
-
 	/* setup I2C */
 	enable_i2c_pin_mux();
 	i2c_set_bus_num(0);
