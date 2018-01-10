@@ -53,7 +53,7 @@
 
 	aliases {
 		ethernet0 = &eth0;
-		ethernet1 = &eth1;
+		ethernet1 = &eth2;
 		i2c0 = &i2c0;
 		spi1 = &spi1;
 	};

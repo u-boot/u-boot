@@ -44,9 +44,6 @@
 /*
  * Other required minimal configurations
  */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
 #define CONFIG_ARCH_CPU_INIT		/* call arch_cpu_init() */
 #define CONFIG_SYS_LOAD_ADDR	0x00800000	/* default load adr- 8M */
 #define CONFIG_SYS_MEMTEST_START 0x00800000	/* 8M */
@@ -106,5 +103,25 @@
 					 CONFIG_SYS_SCSI_MAX_LUN)
 
 #define CONFIG_SUPPORT_VFAT
+
+#include <config_distro_defaults.h>
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 1) \
+	func(MMC, mmc, 0) \
+	func(USB, usb, 0) \
+	func(SCSI, scsi, 0) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
+
+#include <config_distro_bootcmd.h>
+
+#define CONFIG_EXTRA_ENV_SETTINGS	\
+	"scriptaddr=0x4d00000\0"	\
+	"pxefile_addr_r=0x4e00000\0"	\
+	"fdt_addr_r=0x4f00000\0"	\
+	"kernel_addr_r=0x5000000\0"	\
+	"ramdisk_addr_r=0x8000000\0"	\
+	BOOTENV
 
 #endif /* _CONFIG_MVEBU_ARMADA_37XX_H */

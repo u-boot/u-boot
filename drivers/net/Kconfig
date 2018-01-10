@@ -160,12 +160,12 @@ config FTMAC100
 	  This MAC is present in Andestech SoCs.
 
 config MVNETA
-	bool "Marvell Armada 385 network interface support"
-	depends on ARMADA_XP || ARMADA_38X
+	bool "Marvell Armada XP/385/3700 network interface support"
+	depends on ARMADA_XP || ARMADA_38X || ARMADA_3700
 	select PHYLIB
 	help
 	  This driver supports the network interface units in the
-	  Marvell ARMADA XP and 38X SoCs
+	  Marvell ARMADA XP, ARMADA 38X and ARMADA 3700 SoCs
 
 config MVPP2
 	bool "Marvell Armada 375/7K/8K network interface support"

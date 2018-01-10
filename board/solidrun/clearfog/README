@@ -17,16 +17,29 @@ $ sudo dd if=u-boot-spl.kwb of=/dev/sdX bs=512 seek=1
 Please use the correct device node for your setup instead
 of "/dev/sdX" here!
 
+Boot selection:
+---------------
+
+Before powering up the board, boot selection should be done via the SW1 dip
+switch (0: OFF, 1: ON):
+
+ - SPI:     00010
+ - SD/eMMC: 00111
+ - M.2 SSD: 11100
+ - UART:    01001 [1]
+
+[1]: According to SolidRun's manual, 11110 should be used for UART booting on
+     the ClearFog 'Pro' variant.
+     However, this doesn't work (anymore) at least on Rev. 2.1 (but '01001' as
+     mentionend for the 'Base' variant does).
+
 Boot from UART:
 ---------------
 
 Connect the on-board micro-USB (CF Pro: CON11, CF Base: CON5)
 to your host.
 
-Set the SW1 DIP switches to UART boot (0: OFF, 1: ON):
-
-  ClearFog Base: 01001
-  ClearFog Pro:  11110
+Set the SW1 DIP switches to UART boot (see above).
 
 Run the following command to initiate U-Boot download:
 
