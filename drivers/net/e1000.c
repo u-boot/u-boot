@@ -150,6 +150,7 @@ static int32_t e1000_check_phy_reset_block(struct e1000_hw *hw);
 
 #ifndef CONFIG_E1000_NO_NVM
 static void e1000_put_hw_eeprom_semaphore(struct e1000_hw *hw);
+static int32_t e1000_get_hw_eeprom_semaphore(struct e1000_hw *hw);
 static int32_t e1000_read_eeprom(struct e1000_hw *hw, uint16_t offset,
 		uint16_t words,
 		uint16_t *data);
@@ -861,6 +862,174 @@ e1000_read_eeprom(struct e1000_hw *hw, uint16_t offset,
 	return E1000_SUCCESS;
 }
 
+#ifndef CONFIG_DM_ETH
+/******************************************************************************
+ *  e1000_write_eeprom_srwr - Write to Shadow Ram using EEWR
+ *  @hw: pointer to the HW structure
+ *  @offset: offset within the Shadow Ram to be written to
+ *  @words: number of words to write
+ *  @data: 16 bit word(s) to be written to the Shadow Ram
+ *
+ *  Writes data to Shadow Ram at offset using EEWR register.
+ *
+ *  If e1000_update_eeprom_checksum_i210 is not called after this function, the
+ *  Shadow Ram will most likely contain an invalid checksum.
+ *****************************************************************************/
+static int32_t e1000_write_eeprom_srwr(struct e1000_hw *hw, uint16_t offset,
+				       uint16_t words, uint16_t *data)
+{
+	struct e1000_eeprom_info *eeprom = &hw->eeprom;
+	uint32_t i, k, eewr = 0;
+	uint32_t attempts = 100000;
+	int32_t ret_val = 0;
+
+	/* A check for invalid values:  offset too large, too many words,
+	 * too many words for the offset, and not enough words.
+	 */
+	if ((offset >= eeprom->word_size) ||
+	    (words > (eeprom->word_size - offset)) || (words == 0)) {
+		DEBUGOUT("nvm parameter(s) out of bounds\n");
+		ret_val = -E1000_ERR_EEPROM;
+		goto out;
+	}
+
+	for (i = 0; i < words; i++) {
+		eewr = ((offset + i) << E1000_EEPROM_RW_ADDR_SHIFT)
+				| (data[i] << E1000_EEPROM_RW_REG_DATA) |
+				E1000_EEPROM_RW_REG_START;
+
+		E1000_WRITE_REG(hw, I210_EEWR, eewr);
+
+		for (k = 0; k < attempts; k++) {
+			if (E1000_EEPROM_RW_REG_DONE &
+			    E1000_READ_REG(hw, I210_EEWR)) {
+				ret_val = 0;
+				break;
+			}
+			udelay(5);
+		}
+
+		if (ret_val) {
+			DEBUGOUT("Shadow RAM write EEWR timed out\n");
+			break;
+		}
+	}
+
+out:
+	return ret_val;
+}
+
+/******************************************************************************
+ *  e1000_pool_flash_update_done_i210 - Pool FLUDONE status.
+ *  @hw: pointer to the HW structure
+ *
+ *****************************************************************************/
+static int32_t e1000_pool_flash_update_done_i210(struct e1000_hw *hw)
+{
+	int32_t ret_val = -E1000_ERR_EEPROM;
+	uint32_t i, reg;
+
+	for (i = 0; i < E1000_FLUDONE_ATTEMPTS; i++) {
+		reg = E1000_READ_REG(hw, EECD);
+		if (reg & E1000_EECD_FLUDONE_I210) {
+			ret_val = 0;
+			break;
+		}
+		udelay(5);
+	}
+
+	return ret_val;
+}
+
+/******************************************************************************
+ *  e1000_update_flash_i210 - Commit EEPROM to the flash
+ *  @hw: pointer to the HW structure
+ *
+ *****************************************************************************/
+static int32_t e1000_update_flash_i210(struct e1000_hw *hw)
+{
+	int32_t ret_val = 0;
+	uint32_t flup;
+
+	ret_val = e1000_pool_flash_update_done_i210(hw);
+	if (ret_val == -E1000_ERR_EEPROM) {
+		DEBUGOUT("Flash update time out\n");
+		goto out;
+	}
+
+	flup = E1000_READ_REG(hw, EECD) | E1000_EECD_FLUPD_I210;
+	E1000_WRITE_REG(hw, EECD, flup);
+
+	ret_val = e1000_pool_flash_update_done_i210(hw);
+	if (ret_val)
+		DEBUGOUT("Flash update time out\n");
+	else
+		DEBUGOUT("Flash update complete\n");
+
+out:
+	return ret_val;
+}
+
+/******************************************************************************
+ *  e1000_update_eeprom_checksum_i210 - Update EEPROM checksum
+ *  @hw: pointer to the HW structure
+ *
+ *  Updates the EEPROM checksum by reading/adding each word of the EEPROM
+ *  up to the checksum.  Then calculates the EEPROM checksum and writes the
+ *  value to the EEPROM. Next commit EEPROM data onto the Flash.
+ *****************************************************************************/
+static int32_t e1000_update_eeprom_checksum_i210(struct e1000_hw *hw)
+{
+	int32_t ret_val = 0;
+	uint16_t checksum = 0;
+	uint16_t i, nvm_data;
+
+	/* Read the first word from the EEPROM. If this times out or fails, do
+	 * not continue or we could be in for a very long wait while every
+	 * EEPROM read fails
+	 */
+	ret_val = e1000_read_eeprom_eerd(hw, 0, 1, &nvm_data);
+	if (ret_val) {
+		DEBUGOUT("EEPROM read failed\n");
+		goto out;
+	}
+
+	if (!(e1000_get_hw_eeprom_semaphore(hw))) {
+		/* Do not use hw->nvm.ops.write, hw->nvm.ops.read
+		 * because we do not want to take the synchronization
+		 * semaphores twice here.
+		 */
+
+		for (i = 0; i < EEPROM_CHECKSUM_REG; i++) {
+			ret_val = e1000_read_eeprom_eerd(hw, i, 1, &nvm_data);
+			if (ret_val) {
+				e1000_put_hw_eeprom_semaphore(hw);
+				DEBUGOUT("EEPROM Read Error while updating checksum.\n");
+				goto out;
+			}
+			checksum += nvm_data;
+		}
+		checksum = (uint16_t)EEPROM_SUM - checksum;
+		ret_val = e1000_write_eeprom_srwr(hw, EEPROM_CHECKSUM_REG, 1,
+						  &checksum);
+		if (ret_val) {
+			e1000_put_hw_eeprom_semaphore(hw);
+			DEBUGOUT("EEPROM Write Error while updating checksum.\n");
+			goto out;
+		}
+
+		e1000_put_hw_eeprom_semaphore(hw);
+
+		ret_val = e1000_update_flash_i210(hw);
+	} else {
+		ret_val = -E1000_ERR_SWFW_SYNC;
+	}
+
+out:
+	return ret_val;
+}
+#endif
+
 /******************************************************************************
  * Verifies that the EEPROM has a valid checksum
  *
@@ -970,7 +1139,7 @@ e1000_get_software_semaphore(struct e1000_hw *hw)
 
 	DEBUGFUNC();
 
-	if (hw->mac_type != e1000_80003es2lan)
+	if (hw->mac_type != e1000_80003es2lan && hw->mac_type != e1000_igb)
 		return E1000_SUCCESS;
 
 	while (timeout) {
@@ -1044,7 +1213,7 @@ e1000_get_hw_eeprom_semaphore(struct e1000_hw *hw)
 	if (!hw->eeprom_semaphore_present)
 		return E1000_SUCCESS;
 
-	if (hw->mac_type == e1000_80003es2lan) {
+	if (hw->mac_type == e1000_80003es2lan || hw->mac_type == e1000_igb) {
 		/* Get the SW semaphore. */
 		if (e1000_get_software_semaphore(hw) != E1000_SUCCESS)
 			return -E1000_ERR_EEPROM;
