@@ -92,7 +92,7 @@ REFLASH(dragonboard/u-boot.img, 8)\
 	"initrd_high=0xffffffffffffffff\0" \
 	"linux_image=Image\0" \
 	"kernel_addr_r=0x81000000\0"\
-	"fdtfile=apq8016-sbc.dtb\0" \
+	"fdtfile=qcom/apq8016-sbc.dtb\0" \
 	"fdt_addr_r=0x83000000\0"\
 	"ramdisk_addr_r=0x84000000\0"\
 	"scriptaddr=0x90000000\0"\
