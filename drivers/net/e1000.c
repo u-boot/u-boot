@@ -1313,39 +1313,84 @@ static bool e1000_is_second_port(struct e1000_hw *hw)
 
 #ifndef CONFIG_E1000_NO_NVM
 /******************************************************************************
- * Reads the adapter's MAC address from the EEPROM and inverts the LSB for the
- * second function of dual function devices
+ * Reads the adapter's MAC address from the EEPROM
  *
- * nic - Struct containing variables accessed by shared code
+ * hw - Struct containing variables accessed by shared code
+ * enetaddr - buffering where the MAC address will be stored
  *****************************************************************************/
-static int
-e1000_read_mac_addr(struct e1000_hw *hw, unsigned char enetaddr[6])
+static int e1000_read_mac_addr_from_eeprom(struct e1000_hw *hw,
+					   unsigned char enetaddr[6])
 {
 	uint16_t offset;
 	uint16_t eeprom_data;
-	uint32_t reg_data = 0;
 	int i;
-
-	DEBUGFUNC();
 
 	for (i = 0; i < NODE_ADDRESS_SIZE; i += 2) {
 		offset = i >> 1;
-		if (hw->mac_type == e1000_igb) {
-			/* i210 preloads MAC address into RAL/RAH registers */
-			if (offset == 0)
-				reg_data = E1000_READ_REG_ARRAY(hw, RA, 0);
-			else if (offset == 1)
-				reg_data >>= 16;
-			else if (offset == 2)
-				reg_data = E1000_READ_REG_ARRAY(hw, RA, 1);
-			eeprom_data = reg_data & 0xffff;
-		} else if (e1000_read_eeprom(hw, offset, 1, &eeprom_data) < 0) {
+		if (e1000_read_eeprom(hw, offset, 1, &eeprom_data) < 0) {
 			DEBUGOUT("EEPROM Read Error\n");
 			return -E1000_ERR_EEPROM;
 		}
 		enetaddr[i] = eeprom_data & 0xff;
 		enetaddr[i + 1] = (eeprom_data >> 8) & 0xff;
 	}
+
+	return 0;
+}
+
+/******************************************************************************
+ * Reads the adapter's MAC address from the RAL/RAH registers
+ *
+ * hw - Struct containing variables accessed by shared code
+ * enetaddr - buffering where the MAC address will be stored
+ *****************************************************************************/
+static int e1000_read_mac_addr_from_regs(struct e1000_hw *hw,
+					 unsigned char enetaddr[6])
+{
+	uint16_t offset, tmp;
+	uint32_t reg_data = 0;
+	int i;
+
+	if (hw->mac_type != e1000_igb)
+		return -E1000_ERR_MAC_TYPE;
+
+	for (i = 0; i < NODE_ADDRESS_SIZE; i += 2) {
+		offset = i >> 1;
+
+		if (offset == 0)
+			reg_data = E1000_READ_REG_ARRAY(hw, RA, 0);
+		else if (offset == 1)
+			reg_data >>= 16;
+		else if (offset == 2)
+			reg_data = E1000_READ_REG_ARRAY(hw, RA, 1);
+		tmp = reg_data & 0xffff;
+
+		enetaddr[i] = tmp & 0xff;
+		enetaddr[i + 1] = (tmp >> 8) & 0xff;
+	}
+
+	return 0;
+}
+
+/******************************************************************************
+ * Reads the adapter's MAC address from the EEPROM and inverts the LSB for the
+ * second function of dual function devices
+ *
+ * hw - Struct containing variables accessed by shared code
+ * enetaddr - buffering where the MAC address will be stored
+ *****************************************************************************/
+static int e1000_read_mac_addr(struct e1000_hw *hw, unsigned char enetaddr[6])
+{
+	int ret_val;
+
+	if (hw->mac_type == e1000_igb) {
+		/* i210 preloads MAC address into RAL/RAH registers */
+		ret_val = e1000_read_mac_addr_from_regs(hw, enetaddr);
+	} else {
+		ret_val = e1000_read_mac_addr_from_eeprom(hw, enetaddr);
+	}
+	if (ret_val)
+		return ret_val;
 
 	/* Invert the last bit if this is the second device */
 	if (e1000_is_second_port(hw))
