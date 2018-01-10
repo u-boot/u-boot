@@ -108,39 +108,62 @@
 #define CONFIG_SYS_TEXT_BASE	0x17800000
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"script=boot.scr\0" \
+	"bootcause=POR\0" \
 	"bootlimit=10\0" \
 	"image=/boot/fitImage\0" \
+	"fdt_high=0xffffffff\0" \
+	"dev=mmc\0" \
+	"devnum=1\0" \
+	"rootdev=mmcblk0p\0" \
+	"quiet=quiet loglevel=0\0" \
 	"console=" CONSOLE_DEV "\0" \
-	"fdt_high=0xffffffff\0"	  \
-	"sddev=0\0" \
-	"emmcdev=1\0" \
-	"partnum=1\0" \
-	"setargs=setenv bootargs console=${console},${baudrate} " \
-		"root=/dev/${rootdev} ro rootwait cma=128M " \
+	"setargs=setenv bootargs root=/dev/${rootdev}${partnum} " \
+		"ro rootwait cma=128M " \
+		"bootcause=${bootcause} " \
+		"${quiet} console=${console} " \
 		BX50V3_BOOTARGS_EXTRA "\0" \
+	"doquiet=" \
+		"if ext2load ${dev} ${devnum}:5 0x7000A000 /boot/console; " \
+			"then setenv quiet; fi\0" \
+	"hasfirstboot=" \
+		"ext2load ${dev} ${devnum}:${partnum} 0x7000A000 " \
+		"/boot/bootcause/firstboot\0" \
+	"swappartitions=" \
+		"setexpr partnum 3 - ${partnum}\0" \
+	"failbootcmd=" \
+		"msg=\"Monitor failed to start.  Try again, or contact GE Service for support.\"; " \
+		"echo $msg; " \
+		"setenv stdout vga; " \
+		"echo \"\n\n\n\n    \" $msg; " \
+		"setenv stdout serial; " \
+		"mw.b 0x7000A000 0xbc; " \
+		"mw.b 0x7000A001 0x00; " \
+		"ext4write ${dev} ${devnum}:5 0x7000A000 /boot/failures 2\0" \
+	"altbootcmd=" \
+		"run doquiet; " \
+		"setenv partnum 1; run hasfirstboot || setenv partnum 2; " \
+		"run hasfirstboot || setenv partnum 0; " \
+		"if test ${partnum} != 0; then " \
+			"setenv bootcause REVERT; " \
+			"run swappartitions loadimage doboot; " \
+		"fi; " \
+		"run failbootcmd\0" \
 	"loadimage=" \
 		"ext2load ${dev} ${devnum}:${partnum} ${loadaddr} ${image}\0" \
-	"tryboot=" \
-		"if run loadimage; then " \
-			"run doboot; " \
-		"fi;\0" \
-	"doboot=echo Booting from ${dev}:${devnum}:${partnum} ...; " \
+	"doboot=" \
+		"echo Booting from ${dev}:${devnum}:${partnum} ...; " \
 		"run setargs; " \
-		"bootm ${loadaddr}#conf@${confidx};\0 " \
+		"bootm ${loadaddr}#conf@${confidx}\0" \
+	"tryboot=" \
+		"setenv partnum 1; run hasfirstboot || setenv partnum 2; " \
+		"run loadimage || run swappartitions && run loadimage || " \
+		"setenv partnum 0 && echo MISSING IMAGE;" \
+		"run doboot; " \
+		"run failbootcmd\0" \
 
 #define CONFIG_MMCBOOTCOMMAND \
-	"setenv dev mmc; " \
-	"setenv devnum ${emmcdev}; " \
-	\
-	"if ext2load ${dev} ${devnum}:5 0x7000A000 /boot/active/boot.img ; " \
-	"then " \
-		"source 0x7000A000; " \
-	"fi; " \
-	\
-	"setenv rootdev mmcblk0p${partnum}; " \
-	\
 	"if mmc dev ${devnum}; then " \
+		"run doquiet; " \
 		"run tryboot; " \
 	"fi; " \
 
@@ -195,16 +218,17 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 
 /* Framebuffer */
+#define CONFIG_VIDEO
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
-#define CONFIG_VIDEO_BMP_RLE8
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_SPLASH_SCREEN_ALIGN
-#define CONFIG_BMP_16BPP
-#define CONFIG_VIDEO_LOGO
-#define CONFIG_VIDEO_BMP_LOGO
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_SYS_CONSOLE_FG_COL 0xFF
+#define CONFIG_SYS_CONSOLE_BG_COL 0x00
+#define CONFIG_HIDE_LOGO_VERSION
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
+#define CONFIG_CMD_BMP
 #endif
 
 #define CONFIG_PWM_IMX
