@@ -109,95 +109,24 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
-	"image=/boot/uImage\0" \
-	"uboot=u-boot.imx\0" \
-	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
-	"fdt_addr=0x18000000\0" \
-	"boot_fdt=yes\0" \
-	"ip_dyn=yes\0" \
+	"image=/boot/fitImage\0" \
 	"console=" CONSOLE_DEV "\0" \
 	"fdt_high=0xffffffff\0"	  \
-	"initrd_high=0xffffffff\0" \
 	"sddev=0\0" \
 	"emmcdev=1\0" \
 	"partnum=1\0" \
-	"update_sd_firmware=" \
-		"if test ${ip_dyn} = yes; then " \
-			"setenv get_cmd dhcp; " \
-		"else " \
-			"setenv get_cmd tftp; " \
-		"fi; " \
-		"if mmc dev ${mmcdev}; then "	\
-			"if ${get_cmd} ${update_sd_firmware_filename}; then " \
-				"setexpr fw_sz ${filesize} / 0x200; " \
-				"setexpr fw_sz ${fw_sz} + 1; "	\
-				"mmc write ${loadaddr} 0x2 ${fw_sz}; " \
-			"fi; "	\
-		"fi\0" \
-	"update_sf_uboot=" \
-		"if tftp $loadaddr $uboot; then " \
-			"sf probe; " \
-			"sf erase 0 0xC0000; " \
-			"sf write $loadaddr 0x400 $filesize; " \
-			"echo 'U-Boot upgraded. Please reset'; " \
-		"fi\0" \
 	"setargs=setenv bootargs console=${console},${baudrate} " \
 		"root=/dev/${rootdev} rw rootwait cma=128M " \
 		BX50V3_BOOTARGS_EXTRA "\0" \
-	"loadbootscript=" \
-		"ext2load ${dev} ${devnum}:${partnum} ${loadaddr} ${script};\0" \
-	"bootscript=echo Running bootscript from ${dev}:${devnum}:${partnum};" \
-		" source\0" \
 	"loadimage=" \
 		"ext2load ${dev} ${devnum}:${partnum} ${loadaddr} ${image}\0" \
-	"loadfdt=ext2load ${dev} ${devnum}:${partnum} ${fdt_addr} ${fdt_file}\0" \
 	"tryboot=" \
-		"if run loadbootscript; then " \
-			"run bootscript; " \
-		"else " \
-			"if run loadimage; then " \
-				"run doboot; " \
-			"fi; " \
+		"if run loadimage; then " \
+			"run doboot; " \
 		"fi;\0" \
 	"doboot=echo Booting from ${dev}:${devnum}:${partnum} ...; " \
 		"run setargs; " \
-		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-			"if run loadfdt; then " \
-				"bootm ${loadaddr} - ${fdt_addr}; " \
-			"else " \
-				"if test ${boot_fdt} = try; then " \
-					"bootm; " \
-				"else " \
-					"echo WARN: Cannot load the DT; " \
-				"fi; " \
-			"fi; " \
-		"else " \
-			"bootm; " \
-		"fi;\0" \
-	"netargs=setenv bootargs console=${console},${baudrate} " \
-		"root=/dev/nfs " \
-		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
-	"netboot=echo Booting from net ...; " \
-		"run netargs; " \
-		"if test ${ip_dyn} = yes; then " \
-			"setenv get_cmd dhcp; " \
-		"else " \
-			"setenv get_cmd tftp; " \
-		"fi; " \
-		"${get_cmd} ${image}; " \
-		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-			"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
-				"bootm ${loadaddr} - ${fdt_addr}; " \
-			"else " \
-				"if test ${boot_fdt} = try; then " \
-					"bootm; " \
-				"else " \
-					"echo WARN: Cannot load the DT; " \
-				"fi; " \
-			"fi; " \
-		"else " \
-			"bootm; " \
-		"fi;\0" \
+		"bootm ${loadaddr}#conf@${confidx};\0 " \
 
 #define CONFIG_MMCBOOTCOMMAND \
 	"setenv dev mmc; " \
@@ -215,14 +144,7 @@
 	"fi; " \
 
 #define CONFIG_USBBOOTCOMMAND \
-	"usb start; " \
-	"setenv dev usb; " \
-	"setenv devnum 0; " \
-	"setenv rootdev sda${partnum}; " \
-	"run tryboot; " \
-	\
-	CONFIG_MMCBOOTCOMMAND \
-	"bmode usb; " \
+	"echo Unsupported; " \
 
 #ifdef CONFIG_CMD_USB
 #define CONFIG_BOOTCOMMAND CONFIG_USBBOOTCOMMAND
