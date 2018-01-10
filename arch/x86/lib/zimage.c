@@ -246,13 +246,14 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 			hdr->setup_move_size = 0x9100;
 		}
 
-#if defined(CONFIG_INTEL_MID)
-		hdr->hardware_subarch = X86_SUBARCH_INTEL_MID;
-#endif
-
 		/* build command line at COMMAND_LINE_OFFSET */
 		build_command_line(cmd_line, auto_boot);
 	}
+
+#ifdef CONFIG_INTEL_MID
+	if (bootproto >= 0x0207)
+		hdr->hardware_subarch = X86_SUBARCH_INTEL_MID;
+#endif
 
 	setup_video(&setup_base->screen_info);
 
