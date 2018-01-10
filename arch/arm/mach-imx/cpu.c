@@ -333,16 +333,18 @@ void set_chipselect_size(int const cs_size)
 }
 #endif
 
-#if defined(CONFIG_MX7)
+#if defined(CONFIG_MX7) || defined(CONFIG_MX8M)
 /*
  * OCOTP_TESTER3[9:8] (see Fusemap Description Table offset 0x440)
  * defines a 2-bit SPEED_GRADING
  */
 #define OCOTP_TESTER3_SPEED_SHIFT	8
-#define OCOTP_TESTER3_SPEED_800MHZ	0
-#define OCOTP_TESTER3_SPEED_500MHZ	1
-#define OCOTP_TESTER3_SPEED_1GHZ	2
-#define OCOTP_TESTER3_SPEED_1P2GHZ	3
+enum cpu_speed {
+	OCOTP_TESTER3_SPEED_GRADE0,
+	OCOTP_TESTER3_SPEED_GRADE1,
+	OCOTP_TESTER3_SPEED_GRADE2,
+	OCOTP_TESTER3_SPEED_GRADE3,
+};
 
 u32 get_cpu_speed_grade_hz(void)
 {
@@ -357,15 +359,16 @@ u32 get_cpu_speed_grade_hz(void)
 	val &= 0x3;
 
 	switch(val) {
-	case OCOTP_TESTER3_SPEED_800MHZ:
+	case OCOTP_TESTER3_SPEED_GRADE0:
 		return 800000000;
-	case OCOTP_TESTER3_SPEED_500MHZ:
-		return 500000000;
-	case OCOTP_TESTER3_SPEED_1GHZ:
-		return 1000000000;
-	case OCOTP_TESTER3_SPEED_1P2GHZ:
-		return 1200000000;
+	case OCOTP_TESTER3_SPEED_GRADE1:
+		return is_mx7() ? 500000000 : 1000000000;
+	case OCOTP_TESTER3_SPEED_GRADE2:
+		return is_mx7() ? 1000000000 : 1300000000;
+	case OCOTP_TESTER3_SPEED_GRADE3:
+		return is_mx7() ? 1200000000 : 1500000000;
 	}
+
 	return 0;
 }
 
