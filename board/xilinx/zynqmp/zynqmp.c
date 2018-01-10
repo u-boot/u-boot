@@ -14,6 +14,7 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/psu_init_gpl.h>
 #include <asm/io.h>
 #include <usb.h>
 #include <dwc3-uboot.h>
