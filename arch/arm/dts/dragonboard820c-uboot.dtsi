@@ -1,0 +1,19 @@
+/*
+ * U-Boot addition to handle Dragonboard 820c pins
+ *
+ * (C) Copyright 2017 Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+&pm8994_pon {
+	key_vol_down {
+		gpios = <&pm8994_pon 1 0>;
+		label = "key_vol_down";
+	};
+
+	key_power {
+		gpios = <&pm8994_pon 0 0>;
+		label = "key_power";
+	};
+};

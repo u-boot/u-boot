@@ -12,6 +12,8 @@
 #include <linux/sizes.h>
 #include <asm/arch/sysmap-apq8096.h>
 
+#define CONFIG_MISC_INIT_R /* To stop autoboot */
+
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		2
 
