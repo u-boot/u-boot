@@ -30,6 +30,12 @@ config DRAM_SUN8I_A33
 	  Select this dram controller driver for Sun8i platforms,
 	  for A33 SOC.
 
+config DRAM_SUN8I_A83T
+	bool
+	help
+	  Select this dram controller driver for Sun8i platforms,
+	  for A83T SOC.
+
 config DRAM_SUN9I
 	bool
 	help
@@ -196,6 +202,7 @@ config MACH_SUN8I_A33
 config MACH_SUN8I_A83T
 	bool "sun8i (Allwinner A83T)"
 	select CPU_V7
+	select DRAM_SUN8I_A83T
 	select SUNXI_GEN_SUN6I
 	select MMC_SUNXI_HAS_NEW_MODE
 	select SUPPORT_SPL
