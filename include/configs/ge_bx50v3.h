@@ -130,15 +130,15 @@
 
 #define CONFIG_MMCBOOTCOMMAND \
 	"setenv dev mmc; " \
-	"setenv rootdev mmcblk0p${partnum}; " \
+	"setenv devnum ${emmcdev}; " \
 	\
-	"setenv devnum ${sddev}; " \
-	"if mmc dev ${devnum}; then " \
-		"run tryboot; " \
-		"setenv rootdev mmcblk1p${partnum}; " \
+	"if ext2load ${dev} ${devnum}:5 0x7000A000 /boot/active/boot.img ; " \
+	"then " \
+		"source 0x7000A000; " \
 	"fi; " \
 	\
-	"setenv devnum ${emmcdev}; " \
+	"setenv rootdev mmcblk0p${partnum}; " \
+	\
 	"if mmc dev ${devnum}; then " \
 		"run tryboot; " \
 	"fi; " \
