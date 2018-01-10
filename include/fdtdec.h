@@ -990,7 +990,8 @@ int fdtdec_setup(void);
 
 /**
  * Board-specific FDT initialization. Returns the address to a device tree blob.
- * Called when CONFIG_OF_BOARD is defined.
+ * Called when CONFIG_OF_BOARD is defined, or if CONFIG_OF_SEPARATE is defined
+ * and the board implements it.
  */
 void *board_fdt_blob_setup(void);
 
