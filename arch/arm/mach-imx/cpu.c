@@ -62,6 +62,11 @@ static char *get_reset_cause(void)
 		return "WDOG4";
 	case 0x00200:
 		return "TEMPSENSE";
+#elif defined(CONFIG_MX8M)
+	case 0x00100:
+		return "WDOG2";
+	case 0x00200:
+		return "TEMPSENSE";
 #else
 	case 0x00100:
 		return "TEMPSENSE";
@@ -137,6 +142,8 @@ unsigned imx_ddr_size(void)
 const char *get_imx_type(u32 imxtype)
 {
 	switch (imxtype) {
+	case MXC_CPU_MX8MQ:
+		return "8MQ";	/* Quad-core version of the mx8m */
 	case MXC_CPU_MX7S:
 		return "7S";	/* Single-core version of the mx7 */
 	case MXC_CPU_MX7D:
@@ -259,7 +266,7 @@ int cpu_mmc_init(bd_t *bis)
 }
 #endif
 
-#ifndef CONFIG_MX7
+#if !(defined(CONFIG_MX7) || defined(CONFIG_MX8M))
 u32 get_ahb_clk(void)
 {
 	struct mxc_ccm_reg *imx_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
@@ -293,6 +300,7 @@ void arch_preboot_os(void)
 #endif
 }
 
+#ifndef CONFIG_MX8M
 void set_chipselect_size(int const cs_size)
 {
 	unsigned int reg;
@@ -323,6 +331,7 @@ void set_chipselect_size(int const cs_size)
 
 	writel(reg, &iomuxc_regs->gpr[1]);
 }
+#endif
 
 #ifdef CONFIG_NXP_BOARD_REVISION
 int nxp_board_rev(void)
