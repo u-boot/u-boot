@@ -20,12 +20,16 @@
 #include <asm/mpspec.h>
 #include <asm/tables.h>
 #include <asm/arch/global_nvs.h>
+#include "acpi_table.h"
 
 /*
  * IASL compiles the dsdt entries and writes the hex values
  * to a C array AmlCode[] (see dsdt.c).
  */
 extern const unsigned char AmlCode[];
+
+/* ACPI RSDP address to be used in boot parameters */
+unsigned long acpi_rsdp_addr;
 
 static void acpi_write_rsdp(struct acpi_rsdp *rsdp, struct acpi_rsdt *rsdt,
 			    struct acpi_xsdt *xsdt)
@@ -460,6 +464,7 @@ ulong write_acpi_tables(ulong start)
 
 	debug("current = %x\n", current);
 
+	acpi_rsdp_addr = (unsigned long)rsdp;
 	debug("ACPI: done\n");
 
 	/* Don't touch ACPI hardware on HW reduced platforms */
