@@ -357,8 +357,7 @@ void enter_acpi_mode(int pm1_cnt)
 }
 
 /*
- * QEMU's version of write_acpi_tables is defined in
- * arch/x86/cpu/qemu/acpi_table.c
+ * QEMU's version of write_acpi_tables is defined in drivers/misc/qfw.c
  */
 ulong write_acpi_tables(ulong start)
 {
