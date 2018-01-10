@@ -15,14 +15,22 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* pointer to the device tree ammended by the firmware */
-extern const void *fw_dtb;
+extern void *fw_dtb;
 
-static char wlan_mac[ARP_HLEN];
-static char bt_mac[ARP_HLEN];
+void *board_fdt_blob_setup(void)
+{
+	if (fdt_magic(fw_dtb) != FDT_MAGIC) {
+		printf("Firmware provided invalid dtb!\n");
+		return NULL;
+	}
+
+	return fw_dtb;
+}
 
 int dram_init(void)
 {
 	gd->ram_size = PHYS_SDRAM_1_SIZE;
+
 	return 0;
 }
 
@@ -138,36 +146,40 @@ int misc_init_r(void)
 
 int board_init(void)
 {
-	int offset, len;
-	const char *mac;
-
-	/* take a copy of the firmware information (the user could unknownly
-	   overwrite that DDR via tftp or other means)  */
-
-	offset = fdt_node_offset_by_compatible(fw_dtb, -1, "qcom,wcnss-wlan");
-	if (offset >= 0) {
-		mac = fdt_getprop(fw_dtb, offset, "local-mac-address", &len);
-		if (mac)
-			memcpy(wlan_mac, mac, ARP_HLEN);
-	}
-
-	offset = fdt_node_offset_by_compatible(fw_dtb, -1, "qcom,wcnss-bt");
-	if (offset >= 0) {
-		mac = fdt_getprop(fw_dtb, offset, "local-bd-address", &len);
-		if (mac)
-			memcpy(bt_mac, mac, ARP_HLEN);
-	}
-
 	return 0;
 }
 
 int ft_board_setup(void *blob, bd_t *bd)
 {
-	do_fixup_by_compat(blob, "qcom,wcnss-wlan", "local-mac-address",
-			   wlan_mac, ARP_HLEN, 1);
+	int offset, len, i;
+	const char *mac;
+	struct {
+		const char *compatible;
+		const char *property;
+	} fix[] = {
+		[0] = {
+			/* update the kernel's dtb with wlan mac */
+			.compatible = "qcom,wcnss-wlan",
+			.property = "local-mac-address",
+		},
+		[1] = {
+			/* update the kernel's dtb with bt mac */
+			.compatible = "qcom,wcnss-bt",
+			.property = "local-bd-address",
+		},
+	};
 
-	do_fixup_by_compat(blob, "qcom,wcnss-bt", "local-bd-address",
-			   bt_mac, ARP_HLEN, 1);
+	for (i = 0; i < sizeof(fix) / sizeof(fix[0]); i++) {
+		offset = fdt_node_offset_by_compatible(gd->fdt_blob, -1,
+						       fix[i].compatible);
+		if (offset < 0)
+			continue;
+
+		mac = fdt_getprop(gd->fdt_blob, offset, fix[i].property, &len);
+		if (mac)
+			do_fixup_by_compat(blob, fix[i].compatible,
+					   fix[i].property, mac, ARP_HLEN, 1);
+	}
 
 	return 0;
 }
