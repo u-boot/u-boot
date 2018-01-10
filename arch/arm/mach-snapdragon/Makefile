@@ -4,5 +4,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y += clock-apq8016.o
-obj-y += sysmap-apq8016.o
+obj-$(CONFIG_TARGET_DRAGONBOARD410C) += clock-apq8016.o
+obj-$(CONFIG_TARGET_DRAGONBOARD410C) += sysmap-apq8016.o
+obj-y += clock-snapdragon.o
