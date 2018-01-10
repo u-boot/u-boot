@@ -61,5 +61,48 @@
 			 clock = <&gcc 0>;
 			clock-frequency = <200000000>;
 		 };
+
+		spmi@400f000 {
+			compatible = "qcom,spmi-pmic-arb";
+			reg = <0x400f800 0x200>,
+			      <0x4400000 0x400000>,
+			      <0x4c00000 0x400000>;
+			#address-cells = <0x1>;
+			#size-cells = <0x1>;
+
+			pmic0: pm8994@0 {
+				compatible = "qcom,spmi-pmic";
+				reg = <0x0 0x1>;
+				#address-cells = <0x1>;
+				#size-cells = <0x1>;
+
+				pm8994_pon: pm8994_pon@800 {
+					compatible = "qcom,pm8994-pwrkey";
+					reg = <0x800 0x96>;
+					#gpio-cells = <2>;
+					gpio-controller;
+					gpio-bank-name="pm8994_key.";
+				};
+
+				pm8994_gpios: pm8994_gpios@c000 {
+					compatible = "qcom,pm8994-gpio";
+					reg = <0xc000 0x400>;
+					gpio-controller;
+					gpio-count = <24>;
+					#gpio-cells = <2>;
+					gpio-bank-name="pm8994.";
+				};
+			};
+
+			pmic1: pm8994@1 {
+				compatible = "qcom,spmi-pmic";
+				reg = <0x1 0x1>;
+				#address-cells = <0x1>;
+				#size-cells = <0x1>;
+			};
+		};
 	};
+
 };
+
+#include "dragonboard820c-uboot.dtsi"
