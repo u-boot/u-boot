@@ -48,11 +48,6 @@
 			clock = <&clkc 4>;
 		};
 
-		restart@4ab000 {
-			compatible = "qcom,pshold";
-			reg = <0x4ab000 0x4>;
-		};
-
 		soc_gpios: pinctrl@1000000 {
 			compatible = "qcom,apq8016-pinctrl";
 			reg = <0x1000000 0x300000>;

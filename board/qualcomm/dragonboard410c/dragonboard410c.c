@@ -171,3 +171,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	return 0;
 }
+
+void reset_cpu(ulong addr)
+{
+	psci_system_reset();
+}
