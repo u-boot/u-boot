@@ -33,7 +33,7 @@ enum {
 int zynq_board_read_rom_ethaddr(unsigned char *ethaddr);
 unsigned int zynqmp_get_silicon_version(void);
 
-void psu_init(void);
+int psu_init(void);
 
 void handoff_setup(void);
 
