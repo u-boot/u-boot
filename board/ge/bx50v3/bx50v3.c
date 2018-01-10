@@ -30,6 +30,7 @@
 #include <pwm.h>
 #include <stdlib.h>
 #include "../common/vpd_reader.h"
+#include "../../../drivers/net/e1000.h"
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_SYS_I2C_EEPROM_ADDR
@@ -548,12 +549,14 @@ int overwrite_console(void)
 #define VPD_PRODUCT_B650 2
 #define VPD_PRODUCT_B450 3
 #define VPD_HAS_MAC1 0x1
+#define VPD_HAS_MAC2 0x2
 #define VPD_MAC_ADDRESS_LENGTH 6
 
 struct vpd_cache {
 	u8 product_id;
 	u8 has;
 	unsigned char mac1[VPD_MAC_ADDRESS_LENGTH];
+	unsigned char mac2[VPD_MAC_ADDRESS_LENGTH];
 };
 
 /*
@@ -573,6 +576,10 @@ static int vpd_callback(void *userdata, u8 id, u8 version, u8 type,
 			vpd->has |= VPD_HAS_MAC1;
 			memcpy(vpd->mac1, data, VPD_MAC_ADDRESS_LENGTH);
 		}
+		if (size >= 12) {
+			vpd->has |= VPD_HAS_MAC2;
+			memcpy(vpd->mac2, data + 6, VPD_MAC_ADDRESS_LENGTH);
+		}
 	}
 
 	return 0;
@@ -581,20 +588,26 @@ static int vpd_callback(void *userdata, u8 id, u8 version, u8 type,
 static void process_vpd(struct vpd_cache *vpd)
 {
 	int fec_index = -1;
+	int i210_index = -1;
 
 	switch (vpd->product_id) {
 	case VPD_PRODUCT_B450:
 		/* fall thru */
 	case VPD_PRODUCT_B650:
+		i210_index = 0;
 		fec_index = 1;
 		break;
 	case VPD_PRODUCT_B850:
+		i210_index = 1;
 		fec_index = 2;
 		break;
 	}
 
 	if (fec_index >= 0 && (vpd->has & VPD_HAS_MAC1))
 		eth_env_set_enetaddr_by_index("eth", fec_index, vpd->mac1);
+
+	if (i210_index >= 0 && (vpd->has & VPD_HAS_MAC2))
+		eth_env_set_enetaddr_by_index("eth", i210_index, vpd->mac2);
 }
 
 static int read_vpd(uint eeprom_bus)
@@ -632,6 +645,8 @@ int board_eth_init(bd_t *bis)
 {
 	setup_iomux_enet();
 	setup_pcie();
+
+	e1000_initialize(bis);
 
 	return cpu_eth_init(bis);
 }
@@ -780,9 +795,29 @@ int board_late_init(void)
 	return 0;
 }
 
+/*
+ * Removes the 'eth[0-9]*addr' environment variable with the given index
+ *
+ * @param index [in] the index of the eth_device whose variable is to be removed
+ */
+static void remove_ethaddr_env_var(int index)
+{
+	char env_var_name[9];
+
+	sprintf(env_var_name, index == 0 ? "ethaddr" : "eth%daddr", index);
+	env_set(env_var_name, NULL);
+}
+
 int last_stage_init(void)
 {
-	env_set("ethaddr", NULL);
+	int i;
+
+	/*
+	 * Remove first three ethaddr which may have been created by
+	 * function process_vpd().
+	 */
+	for (i = 0; i < 3; ++i)
+		remove_ethaddr_env_var(i);
 
 	return 0;
 }
