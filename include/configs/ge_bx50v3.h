@@ -120,7 +120,7 @@
 	"setargs=setenv bootargs root=/dev/${rootdev}${partnum} " \
 		"ro rootwait cma=128M " \
 		"bootcause=${bootcause} " \
-		"${quiet} console=${console} " \
+		"${quiet} console=${console} ${rtc_status} " \
 		BX50V3_BOOTARGS_EXTRA "\0" \
 	"doquiet=" \
 		"if ext2load ${dev} ${devnum}:5 0x7000A000 /boot/console; " \
@@ -240,6 +240,10 @@
 #define CONFIG_PCIE_IMX
 #define CONFIG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(7, 12)
 #define CONFIG_PCIE_IMX_POWER_GPIO	IMX_GPIO_NR(1, 5)
+
+#define CONFIG_RTC_RX8010SJ
+#define CONFIG_SYS_RTC_BUS_NUM 2
+#define CONFIG_SYS_I2C_RTC_ADDR	0x32
 
 /* I2C Configs */
 #define CONFIG_SYS_I2C
