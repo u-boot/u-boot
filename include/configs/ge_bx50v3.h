@@ -296,9 +296,11 @@
 #define CONFIG_SYS_I2C_MXC_I2C2
 #define CONFIG_SYS_I2C_MXC_I2C3
 
-#define CONFIG_SYS_NUM_I2C_BUSES        9
+#define CONFIG_SYS_NUM_I2C_BUSES        11
 #define CONFIG_SYS_I2C_MAX_HOPS         1
 #define CONFIG_SYS_I2C_BUSES	{	{0, {I2C_NULL_HOP} }, \
+					{1, {I2C_NULL_HOP} }, \
+					{2, {I2C_NULL_HOP} }, \
 					{0, {{I2C_MUX_PCA9547, 0x70, 0} } }, \
 					{0, {{I2C_MUX_PCA9547, 0x70, 1} } }, \
 					{0, {{I2C_MUX_PCA9547, 0x70, 2} } }, \

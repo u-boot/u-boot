@@ -37,7 +37,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 #ifndef CONFIG_SYS_I2C_EEPROM_BUS
-#define CONFIG_SYS_I2C_EEPROM_BUS       2
+#define CONFIG_SYS_I2C_EEPROM_BUS       4
 #endif
 
 #define NC_PAD_CTRL (PAD_CTL_PUS_100K_UP |	\
