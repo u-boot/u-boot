@@ -26,6 +26,7 @@ enum boot_device {
 	MMC4_BOOT,
 	NAND_BOOT,
 	QSPI_BOOT,
+	USB_BOOT,
 	UNKNOWN_BOOT,
 	BOOT_DEV_NUM = UNKNOWN_BOOT,
 };
