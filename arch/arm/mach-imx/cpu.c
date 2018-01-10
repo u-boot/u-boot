@@ -410,7 +410,7 @@ u32 get_cpu_temp_grade(int *minc, int *maxc)
 }
 #endif
 
-#if defined(CONFIG_MX7)
+#if defined(CONFIG_MX7) || defined(CONFIG_MX8M)
 enum boot_device get_boot_device(void)
 {
 	struct bootrom_sw_info **p =
@@ -439,6 +439,11 @@ enum boot_device get_boot_device(void)
 	case BOOT_TYPE_SPINOR:
 		boot_dev = SPI_NOR_BOOT;
 		break;
+#ifdef CONFIG_MX8M
+	case BOOT_TYPE_USB:
+		boot_dev = USB_BOOT;
+		break;
+#endif
 	default:
 		break;
 	}
