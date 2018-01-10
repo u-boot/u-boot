@@ -482,10 +482,11 @@ struct src {
 
 #define src_base ((struct src *)SRC_BASE_ADDR)
 
-#define SRC_SCR_M4_ENABLE_OFFSET                22
-#define SRC_SCR_M4_ENABLE_MASK                  (1 << 22)
-#define SRC_SCR_M4C_NON_SCLR_RST_OFFSET         4
-#define SRC_SCR_M4C_NON_SCLR_RST_MASK           (1 << 4)
+#define SRC_M4_REG_OFFSET		0
+#define SRC_M4_ENABLE_OFFSET		22
+#define SRC_M4_ENABLE_MASK		BIT(22)
+#define SRC_M4C_NON_SCLR_RST_OFFSET	4
+#define SRC_M4C_NON_SCLR_RST_MASK	BIT(4)
 
 /* GPR1 bitfields */
 #define IOMUXC_GPR1_APP_CLK_REQ_N		BIT(30)
