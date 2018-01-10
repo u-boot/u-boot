@@ -5,4 +5,5 @@
 #
 
 obj-y	:= dragonboard410c.o
+obj-y	+= lowlevel_init.o
 extra-y += head.o

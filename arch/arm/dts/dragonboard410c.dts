@@ -86,6 +86,16 @@
 			clock-frequency = <200000000>;
 		};
 
+		wcnss {
+			bt {
+				compatible="qcom,wcnss-bt";
+			};
+
+			wifi {
+				compatible="qcom,wcnss-wlan";
+			};
+		};
+
 		spmi@200f000 {
 			compatible = "qcom,spmi-pmic-arb";
 			reg = <0x200f800 0x200 0x2400000 0x400000 0x2c00000 0x400000>;
