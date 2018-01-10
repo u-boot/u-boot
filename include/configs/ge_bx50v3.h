@@ -117,7 +117,7 @@
 	"emmcdev=1\0" \
 	"partnum=1\0" \
 	"setargs=setenv bootargs console=${console},${baudrate} " \
-		"root=/dev/${rootdev} rw rootwait cma=128M " \
+		"root=/dev/${rootdev} ro rootwait cma=128M " \
 		BX50V3_BOOTARGS_EXTRA "\0" \
 	"loadimage=" \
 		"ext2load ${dev} ${devnum}:${partnum} ${loadaddr} ${image}\0" \
