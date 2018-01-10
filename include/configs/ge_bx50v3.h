@@ -109,6 +109,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
+	"bootlimit=10\0" \
 	"image=/boot/fitImage\0" \
 	"console=" CONSOLE_DEV "\0" \
 	"fdt_high=0xffffffff\0"	  \
@@ -240,5 +241,12 @@
 				}
 
 #define CONFIG_BCH
+
+#define CONFIG_BOOTCOUNT_LIMIT
+#define CONFIG_BOOTCOUNT_EXT
+#define CONFIG_SYS_BOOTCOUNT_EXT_INTERFACE	"mmc"
+#define CONFIG_SYS_BOOTCOUNT_EXT_DEVPART	"1:5"
+#define CONFIG_SYS_BOOTCOUNT_EXT_NAME		"/boot/failures"
+#define CONFIG_SYS_BOOTCOUNT_ADDR		0x7000A000
 
 #endif	/* __GE_BX50V3_CONFIG_H */
