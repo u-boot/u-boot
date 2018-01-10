@@ -1,0 +1,10 @@
+if ARCH_MX8M
+
+config MX8M
+	bool
+	select ROM_UNIFIED_SECTIONS
+
+config SYS_SOC
+	default "mx8m"
+
+endif
