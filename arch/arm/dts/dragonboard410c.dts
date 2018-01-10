@@ -23,10 +23,15 @@
 		reg = <0 0x80000000 0 0x3da00000>;
 	};
 
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+	};
+
 	chosen {
 		stdout-path = "/soc/serial@78b0000";
 	};
-
 
 	soc {
 		#address-cells = <0x1>;
