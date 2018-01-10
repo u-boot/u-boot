@@ -11,16 +11,17 @@
  * from hush: simple_itoa() was lifted from boa-0.93.15
  */
 
-#include <stdarg.h>
-#include <linux/types.h>
-#include <linux/string.h>
-#include <linux/ctype.h>
-
 #include <common.h>
 #include <charset.h>
-#include <uuid.h>
-
+#include <efi_loader.h>
 #include <div64.h>
+#include <uuid.h>
+#include <stdarg.h>
+#include <linux/ctype.h>
+#include <linux/err.h>
+#include <linux/types.h>
+#include <linux/string.h>
+
 #define noinline __attribute__((noinline))
 
 /* we use this so that we can do without the ctype library */
@@ -292,6 +293,26 @@ static char *string16(char *buf, char *end, u16 *s, int field_width,
 	return buf;
 }
 
+#if defined(CONFIG_EFI_LOADER) && \
+	!defined(CONFIG_SPL_BUILD) && !defined(API_BUILD)
+static char *device_path_string(char *buf, char *end, void *dp, int field_width,
+				int precision, int flags)
+{
+	u16 *str;
+
+	if (!dp)
+		return "<NULL>";
+
+	str = efi_dp_str((struct efi_device_path *)dp);
+	if (!str)
+		return ERR_PTR(-ENOMEM);
+
+	buf = string16(buf, end, str, field_width, precision, flags);
+	efi_free_pool(str);
+	return buf;
+}
+#endif
+
 #ifdef CONFIG_CMD_NET
 static const char hex_asc[] = "0123456789abcdef";
 #define hex_asc_lo(x)	hex_asc[((x) & 0x0f)]
@@ -435,6 +456,12 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 #endif
 
 	switch (*fmt) {
+#if defined(CONFIG_EFI_LOADER) && \
+	!defined(CONFIG_SPL_BUILD) && !defined(API_BUILD)
+	case 'D':
+		return device_path_string(buf, end, ptr, field_width,
+					  precision, flags);
+#endif
 #ifdef CONFIG_CMD_NET
 	case 'a':
 		flags |= SPECIAL | ZEROPAD;
@@ -604,6 +631,8 @@ repeat:
 			str = pointer(fmt + 1, str, end,
 					va_arg(args, void *),
 					field_width, precision, flags);
+			if (IS_ERR(str))
+				return PTR_ERR(str);
 			/* Skip all alphanumeric pointer suffixes */
 			while (isalnum(fmt[1]))
 				fmt++;
@@ -768,6 +797,9 @@ int printf(const char *fmt, ...)
 	i = vscnprintf(printbuffer, sizeof(printbuffer), fmt, args);
 	va_end(args);
 
+	/* Handle error */
+	if (i <= 0)
+		return i;
 	/* Print the string */
 	puts(printbuffer);
 	return i;
@@ -784,6 +816,9 @@ int vprintf(const char *fmt, va_list args)
 	 */
 	i = vscnprintf(printbuffer, sizeof(printbuffer), fmt, args);
 
+	/* Handle error */
+	if (i <= 0)
+		return i;
 	/* Print the string */
 	puts(printbuffer);
 	return i;
