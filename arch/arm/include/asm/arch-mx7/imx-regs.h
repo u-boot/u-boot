@@ -1210,14 +1210,6 @@ extern void pcie_power_off(void);
 	readl(USBOTG2_IPS_BASE_ADDR + 0x158))
 #define	disconnect_from_pc(void) writel(0x0, USBOTG1_IPS_BASE_ADDR + 0x140)
 
-/* Boot device type */
-#define BOOT_TYPE_SD		0x1
-#define BOOT_TYPE_MMC		0x2
-#define BOOT_TYPE_NAND		0x3
-#define BOOT_TYPE_QSPI		0x4
-#define BOOT_TYPE_WEIM		0x5
-#define BOOT_TYPE_SPINOR	0x6
-
 struct bootrom_sw_info {
 	u8 reserved_1;
 	u8 boot_dev_instance;

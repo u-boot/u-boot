@@ -16,6 +16,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/mach-imx/boot_mode.h>
 #include <imx_thermal.h>
 #include <ipu_pixfmt.h>
 #include <thermal.h>
@@ -406,6 +407,43 @@ u32 get_cpu_temp_grade(int *minc, int *maxc)
 		}
 	}
 	return val;
+}
+#endif
+
+#if defined(CONFIG_MX7)
+enum boot_device get_boot_device(void)
+{
+	struct bootrom_sw_info **p =
+		(struct bootrom_sw_info **)(ulong)ROM_SW_INFO_ADDR;
+
+	enum boot_device boot_dev = SD1_BOOT;
+	u8 boot_type = (*p)->boot_dev_type;
+	u8 boot_instance = (*p)->boot_dev_instance;
+
+	switch (boot_type) {
+	case BOOT_TYPE_SD:
+		boot_dev = boot_instance + SD1_BOOT;
+		break;
+	case BOOT_TYPE_MMC:
+		boot_dev = boot_instance + MMC1_BOOT;
+		break;
+	case BOOT_TYPE_NAND:
+		boot_dev = NAND_BOOT;
+		break;
+	case BOOT_TYPE_QSPI:
+		boot_dev = QSPI_BOOT;
+		break;
+	case BOOT_TYPE_WEIM:
+		boot_dev = WEIM_NOR_BOOT;
+		break;
+	case BOOT_TYPE_SPINOR:
+		boot_dev = SPI_NOR_BOOT;
+		break;
+	default:
+		break;
+	}
+
+	return boot_dev;
 }
 #endif
 
