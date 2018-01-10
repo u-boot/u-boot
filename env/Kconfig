@@ -81,6 +81,13 @@ config ENV_IS_IN_FAT
 	  - CONFIG_FAT_WRITE:
 	  This must be enabled. Otherwise it cannot save the environment file.
 
+config ENV_IS_IN_EXT4
+	bool "Environment is in a EXT4 filesystem"
+	depends on !CHAIN_OF_TRUST
+	select EXT4_WRITE
+	help
+	  Define this if you want to use the EXT4 file system for the environment.
+
 config ENV_IS_IN_FLASH
 	bool "Environment in flash memory"
 	depends on !CHAIN_OF_TRUST
@@ -395,6 +402,38 @@ config ENV_FAT_FILE
 	help
 	  It's a string of the FAT file name. This file use to store the
 	  environment.
+
+config ENV_EXT4_INTERFACE
+	string "Name of the block device for the environment"
+	depends on ENV_IS_IN_EXT4
+	help
+	  Define this to a string that is the name of the block device.
+
+config ENV_EXT4_DEVICE_AND_PART
+	string "Device and partition for where to store the environemt in EXT4"
+	depends on ENV_IS_IN_EXT4
+	help
+	  Define this to a string to specify the partition of the device. It can
+	  be as following:
+
+	    "D:P", "D:0", "D", "D:" or "D:auto" (D, P are integers. And P >= 1)
+	       - "D:P": device D partition P. Error occurs if device D has no
+	                partition table.
+	       - "D:0": device D.
+	       - "D" or "D:": device D partition 1 if device D has partition
+	                      table, or the whole device D if has no partition
+	                      table.
+	       - "D:auto": first partition in device D with bootable flag set.
+	                   If none, first valid partition in device D. If no
+	                   partition table then means device D.
+
+config ENV_EXT4_FILE
+	string "Name of the EXT4 file to use for the environemnt"
+	depends on ENV_IS_IN_EXT4
+	default "uboot.env"
+	help
+	  It's a string of the EXT4 file name. This file use to store the
+	  environment (explicit path to the file)
 
 if ARCH_SUNXI
 

@@ -46,9 +46,9 @@ static int env_ext4_save(void)
 	if (err)
 		return err;
 
-	part = blk_get_device_part_str(EXT4_ENV_INTERFACE,
-					EXT4_ENV_DEVICE_AND_PART,
-					&dev_desc, &info, 1);
+	part = blk_get_device_part_str(CONFIG_ENV_EXT4_INTERFACE,
+				       CONFIG_ENV_EXT4_DEVICE_AND_PART,
+				       &dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
 
@@ -57,16 +57,19 @@ static int env_ext4_save(void)
 
 	if (!ext4fs_mount(info.size)) {
 		printf("\n** Unable to use %s %s for saveenv **\n",
-		       EXT4_ENV_INTERFACE, EXT4_ENV_DEVICE_AND_PART);
+		       CONFIG_ENV_EXT4_INTERFACE,
+		       CONFIG_ENV_EXT4_DEVICE_AND_PART);
 		return 1;
 	}
 
-	err = ext4fs_write(EXT4_ENV_FILE, (void *)&env_new, sizeof(env_t));
+	err = ext4fs_write(CONFIG_ENV_EXT4_FILE, (void *)&env_new,
+			   sizeof(env_t));
 	ext4fs_close();
 
 	if (err == -1) {
 		printf("\n** Unable to write \"%s\" from %s%d:%d **\n",
-			EXT4_ENV_FILE, EXT4_ENV_INTERFACE, dev, part);
+			CONFIG_ENV_EXT4_FILE, CONFIG_ENV_EXT4_INTERFACE, dev,
+			part);
 		return 1;
 	}
 
@@ -84,9 +87,9 @@ static int env_ext4_load(void)
 	int err;
 	loff_t off;
 
-	part = blk_get_device_part_str(EXT4_ENV_INTERFACE,
-					EXT4_ENV_DEVICE_AND_PART,
-					&dev_desc, &info, 1);
+	part = blk_get_device_part_str(CONFIG_ENV_EXT4_INTERFACE,
+				       CONFIG_ENV_EXT4_DEVICE_AND_PART,
+				       &dev_desc, &info, 1);
 	if (part < 0)
 		goto err_env_relocate;
 
@@ -95,16 +98,19 @@ static int env_ext4_load(void)
 
 	if (!ext4fs_mount(info.size)) {
 		printf("\n** Unable to use %s %s for loading the env **\n",
-		       EXT4_ENV_INTERFACE, EXT4_ENV_DEVICE_AND_PART);
+		       CONFIG_ENV_EXT4_INTERFACE,
+		       CONFIG_ENV_EXT4_DEVICE_AND_PART);
 		goto err_env_relocate;
 	}
 
-	err = ext4_read_file(EXT4_ENV_FILE, buf, 0, CONFIG_ENV_SIZE, &off);
+	err = ext4_read_file(CONFIG_ENV_EXT4_FILE, buf, 0, CONFIG_ENV_SIZE,
+			     &off);
 	ext4fs_close();
 
 	if (err == -1) {
 		printf("\n** Unable to read \"%s\" from %s%d:%d **\n",
-			EXT4_ENV_FILE, EXT4_ENV_INTERFACE, dev, part);
+			CONFIG_ENV_EXT4_FILE, CONFIG_ENV_EXT4_INTERFACE, dev,
+			part);
 		goto err_env_relocate;
 	}
 
