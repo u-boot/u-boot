@@ -211,7 +211,8 @@ dtb-$(CONFIG_FSL_LSCH2) += fsl-ls1043a-qds-duart.dtb \
 	fsl-ls1012a-rdb.dtb \
 	fsl-ls1012a-frdm.dtb
 
-dtb-$(CONFIG_ARCH_SNAPDRAGON) += dragonboard410c.dtb
+dtb-$(CONFIG_TARGET_DRAGONBOARD410C) += dragonboard410c.dtb
+dtb-$(CONFIG_TARGET_DRAGONBOARD820C) += dragonboard820c.dtb
 
 dtb-$(CONFIG_STM32F4) += stm32f429-disco.dtb \
 	stm32f469-disco.dtb
