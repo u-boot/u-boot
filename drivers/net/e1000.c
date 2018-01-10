@@ -5649,6 +5649,45 @@ e1000_poll(struct eth_device *nic)
 	return len ? 1 : 0;
 }
 
+static int e1000_write_hwaddr(struct eth_device *dev)
+{
+#ifndef CONFIG_E1000_NO_NVM
+	unsigned char *mac = dev->enetaddr;
+	unsigned char current_mac[6];
+	struct e1000_hw *hw = dev->priv;
+	uint16_t data[3];
+	int ret_val, i;
+
+	DEBUGOUT("%s: mac=%pM\n", __func__, mac);
+
+	memset(current_mac, 0, 6);
+
+	/* Read from EEPROM, not from registers, to make sure
+	 * the address is persistently configured
+	 */
+	ret_val = e1000_read_mac_addr_from_eeprom(hw, current_mac);
+	DEBUGOUT("%s: current mac=%pM\n", __func__, current_mac);
+
+	/* Only write to EEPROM if the given address is different or
+	 * reading the current address failed
+	 */
+	if (!ret_val && memcmp(current_mac, mac, 6) == 0)
+		return 0;
+
+	for (i = 0; i < 3; ++i)
+		data[i] = mac[i * 2 + 1] << 8 | mac[i * 2];
+
+	ret_val = e1000_write_eeprom_srwr(hw, 0x0, 3, data);
+
+	if (!ret_val)
+		ret_val = e1000_update_eeprom_checksum_i210(hw);
+
+	return ret_val;
+#else
+	return 0;
+#endif
+}
+
 /**************************************************************************
 PROBE - Look for an adapter, this routine's visible to the outside
 You should omit the last argument struct pci_device * for a non-PCI NIC
@@ -5698,6 +5737,7 @@ e1000_initialize(bd_t * bis)
 		nic->recv = e1000_poll;
 		nic->send = e1000_transmit;
 		nic->halt = e1000_disable;
+		nic->write_hwaddr = e1000_write_hwaddr;
 		eth_register(nic);
 	}
 
