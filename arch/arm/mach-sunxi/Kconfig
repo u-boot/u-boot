@@ -18,6 +18,12 @@ config DRAM_SUN6I
 	  Select this dram controller driver for Sun6i platforms,
 	  like A31/A31s.
 
+config DRAM_SUN8I_A23
+	bool
+	help
+	  Select this dram controller driver for Sun8i platforms,
+	  for A23 SOC.
+
 config DRAM_SUN9I
 	bool
 	help
@@ -163,6 +169,7 @@ config MACH_SUN8I_A23
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
+	select DRAM_SUN8I_A23
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
