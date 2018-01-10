@@ -167,7 +167,7 @@ int dm_check_devices(struct unit_test_state *uts, int num_devices)
 /* Test that FDT-based binding works correctly */
 static int dm_test_fdt(struct unit_test_state *uts)
 {
-	const int num_devices = 6;
+	const int num_devices = 7;
 	struct udevice *dev;
 	struct uclass *uc;
 	int ret;

@@ -478,6 +478,13 @@
 	wdt0: wdt@0 {
 		compatible = "sandbox,wdt";
 	};
+
+	chosen {
+		chosen-test {
+			compatible = "denx,u-boot-fdt-test";
+			reg = <9 1>;
+		};
+	};
 };
 
 #include "sandbox_pmic.dtsi"
