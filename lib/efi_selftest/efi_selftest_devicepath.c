@@ -192,31 +192,41 @@ static int teardown(void)
 {
 	efi_status_t ret;
 
-	ret = boottime->uninstall_protocol_interface(&handle1,
+	ret = boottime->uninstall_protocol_interface(handle1,
 						     &guid_device_path,
 						     dp1);
-	if (ret != EFI_SUCCESS)
-		efi_st_todo("UninstallProtocolInterface failed\n");
-	ret = boottime->uninstall_protocol_interface(&handle1,
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("UninstallProtocolInterface failed\n");
+		return EFI_ST_FAILURE;
+	}
+	ret = boottime->uninstall_protocol_interface(handle1,
 						     &guid_protocol,
 						     &interface);
-	if (ret != EFI_SUCCESS)
-		efi_st_todo("UninstallProtocolInterface failed\n");
-	ret = boottime->uninstall_protocol_interface(&handle2,
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("UninstallProtocolInterface failed\n");
+		return EFI_ST_FAILURE;
+	}
+	ret = boottime->uninstall_protocol_interface(handle2,
 						     &guid_device_path,
 						     dp2);
-	if (ret != EFI_SUCCESS)
-		efi_st_todo("UninstallProtocolInterface failed\n");
-	ret = boottime->uninstall_protocol_interface(&handle2,
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("UninstallProtocolInterface failed\n");
+		return EFI_ST_FAILURE;
+	}
+	ret = boottime->uninstall_protocol_interface(handle2,
 						     &guid_protocol,
 						     &interface);
-	if (ret != EFI_SUCCESS)
-		efi_st_todo("UninstallProtocolInterface failed\n");
-	ret = boottime->uninstall_protocol_interface(&handle3,
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("UninstallProtocolInterface failed\n");
+		return EFI_ST_FAILURE;
+	}
+	ret = boottime->uninstall_protocol_interface(handle3,
 						     &guid_device_path,
 						     dp3);
-	if (ret != EFI_SUCCESS)
-		efi_st_todo("UninstallProtocolInterface failed\n");
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("UninstallProtocolInterface failed\n");
+		return EFI_ST_FAILURE;
+	}
 	if (dp1) {
 		ret = boottime->free_pool(dp1);
 		if (ret != EFI_SUCCESS) {
