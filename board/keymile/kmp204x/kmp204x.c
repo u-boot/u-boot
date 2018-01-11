@@ -126,7 +126,7 @@ int board_early_init_r(void)
 	invalidate_icache();
 
 	set_liodns();
-	setup_portals();
+	setup_qbman_portals();
 
 	ret = trigger_fpga_config();
 	if (ret)

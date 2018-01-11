@@ -41,10 +41,6 @@ struct qportal_info {
 
 extern int get_dpaa_liodn(enum fsl_dpaa_dev dpaa_dev,
 			  u32 *liodns, int liodn_offset);
-extern void setup_portals(void);
-extern void fdt_fixup_qportals(void *blob);
-extern void fdt_fixup_bportals(void *blob);
-
 extern struct qportal_info qp_info[];
 extern void fdt_portal(void *blob, const char *compat, const char *container,
 			u64 addr, u32 size);

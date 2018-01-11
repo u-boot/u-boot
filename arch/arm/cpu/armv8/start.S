@@ -196,13 +196,35 @@ reset_sctrl:
 WEAK(apply_core_errata)
 
 	mov	x29, lr			/* Save LR */
-	/* For now, we support Cortex-A57 specific errata only */
+	/* For now, we support Cortex-A53, Cortex-A57 specific errata */
+
+	/* Check if we are running on a Cortex-A53 core */
+	branch_if_a53_core x0, apply_a53_core_errata
 
 	/* Check if we are running on a Cortex-A57 core */
 	branch_if_a57_core x0, apply_a57_core_errata
 0:
 	mov	lr, x29			/* Restore LR */
 	ret
+
+apply_a53_core_errata:
+
+#ifdef CONFIG_ARM_ERRATA_855873
+	mrs	x0, midr_el1
+	tst	x0, #(0xf << 20)
+	b.ne	0b
+
+	mrs	x0, midr_el1
+	and	x0, x0, #0xf
+	cmp	x0, #3
+	b.lt	0b
+
+	mrs	x0, S3_1_c15_c2_0	/* cpuactlr_el1 */
+	/* Enable data cache clean as data cache clean/invalidate */
+	orr	x0, x0, #1 << 44
+	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
+#endif
+	b 0b
 
 apply_a57_core_errata:
 

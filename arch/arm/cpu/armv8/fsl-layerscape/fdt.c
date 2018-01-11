@@ -26,6 +26,8 @@
 #ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
 #include <asm/armv8/sec_firmware.h>
 #endif
+#include <asm/arch/speed.h>
+#include <fsl_qbman.h>
 
 int fdt_fixup_phy_connection(void *blob, int offset, phy_interface_t phyc)
 {
@@ -440,6 +442,13 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 #ifdef CONFIG_FSL_ESDHC
 	fdt_fixup_esdhc(blob, bd);
+#endif
+
+#ifdef CONFIG_SYS_DPAA_QBMAN
+	fdt_fixup_bportals(blob);
+	fdt_fixup_qportals(blob);
+	do_fixup_by_compat_u32(blob, "fsl,qman",
+			       "clock-frequency", get_qman_freq(), 1);
 #endif
 
 #ifdef CONFIG_SYS_DPAA_FMAN

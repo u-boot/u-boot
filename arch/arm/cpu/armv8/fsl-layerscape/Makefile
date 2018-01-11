@@ -7,8 +7,10 @@
 obj-y += cpu.o
 obj-y += lowlevel.o
 obj-y += soc.o
+ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_MP) += mp.o
 obj-$(CONFIG_OF_LIBFDT) += fdt.o
+endif
 obj-$(CONFIG_SPL) += spl.o
 obj-$(CONFIG_$(SPL_)FSL_LS_PPA) += ppa.o
 

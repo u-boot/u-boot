@@ -18,6 +18,7 @@
 #include <asm/fsl_pci.h>
 #include <fsl_ddr_sdram.h>
 #include <asm/fsl_portals.h>
+#include <fsl_qbman.h>
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <netdev.h>
@@ -81,7 +82,7 @@ int board_early_init_r(void)
 		MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		0, flash_esel, BOOKE_PAGESZ_256M, 1);
 
-	setup_portals();
+	setup_qbman_portals();
 
 	return 0;
 }
