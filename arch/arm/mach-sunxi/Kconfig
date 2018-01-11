@@ -6,6 +6,12 @@ config SPL_LDSCRIPT
 config IDENT_STRING
 	default " Allwinner Technology"
 
+config SUN6I_PRCM
+	bool
+	help
+	  Support for the PRCM (Power/Reset/Clock Management) unit available
+	  in A31 SoC.
+
 config SUNXI_HIGH_SRAM
 	bool
 	default n
@@ -88,6 +94,7 @@ config MACH_SUN6I
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
+	select SUN6I_PRCM
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT

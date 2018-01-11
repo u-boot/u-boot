@@ -16,7 +16,7 @@ obj-y	+= pinmux.o
 ifndef CONFIG_MACH_SUN9I
 obj-y	+= usb_phy.o
 endif
-obj-$(CONFIG_MACH_SUN6I)	+= prcm.o
+obj-$(CONFIG_SUN6I_PRCM)	+= prcm.o
 obj-$(CONFIG_MACH_SUN8I)	+= prcm.o
 obj-$(CONFIG_MACH_SUN9I)	+= prcm.o
 obj-$(CONFIG_MACH_SUN6I)	+= p2wi.o
