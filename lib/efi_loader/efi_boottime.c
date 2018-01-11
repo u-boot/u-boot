@@ -56,6 +56,9 @@ static volatile void *efi_gd, *app_gd;
 
 static int entry_count;
 static int nesting_level;
+/* GUID of the EFI_DRIVER_BINDING_PROTOCOL */
+const efi_guid_t efi_guid_driver_binding_protocol =
+			EFI_DRIVER_BINDING_PROTOCOL_GUID;
 
 /* Called on every callback entry */
 int __efi_entry_check(void)
@@ -1635,30 +1638,6 @@ static efi_status_t EFIAPI efi_set_watchdog_timer(unsigned long timeout,
 }
 
 /*
- * Connect a controller to a driver.
- *
- * This function implements the ConnectController service.
- * See the Unified Extensible Firmware Interface (UEFI) specification
- * for details.
- *
- * @controller_handle	handle of the controller
- * @driver_image_handle	handle of the driver
- * @remain_device_path	device path of a child controller
- * @recursive		true to connect all child controllers
- * @return		status code
- */
-static efi_status_t EFIAPI efi_connect_controller(
-			efi_handle_t controller_handle,
-			efi_handle_t *driver_image_handle,
-			struct efi_device_path *remain_device_path,
-			bool recursive)
-{
-	EFI_ENTRY("%p, %p, %p, %d", controller_handle, driver_image_handle,
-		  remain_device_path, recursive);
-	return EFI_EXIT(EFI_NOT_FOUND);
-}
-
-/*
  * Disconnect a controller from a driver.
  *
  * This function implements the DisconnectController service.
@@ -2366,6 +2345,166 @@ static efi_status_t EFIAPI efi_handle_protocol(void *handle,
 {
 	return efi_open_protocol(handle, protocol, protocol_interface, NULL,
 				 NULL, EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
+}
+
+static efi_status_t efi_bind_controller(
+			efi_handle_t controller_handle,
+			efi_handle_t driver_image_handle,
+			struct efi_device_path *remain_device_path)
+{
+	struct efi_driver_binding_protocol *binding_protocol;
+	efi_status_t r;
+
+	r = EFI_CALL(efi_open_protocol(driver_image_handle,
+				       &efi_guid_driver_binding_protocol,
+				       (void **)&binding_protocol,
+				       driver_image_handle, NULL,
+				       EFI_OPEN_PROTOCOL_GET_PROTOCOL));
+	if (r != EFI_SUCCESS)
+		return r;
+	r = EFI_CALL(binding_protocol->supported(binding_protocol,
+						 controller_handle,
+						 remain_device_path));
+	if (r == EFI_SUCCESS)
+		r = EFI_CALL(binding_protocol->start(binding_protocol,
+						     controller_handle,
+						     remain_device_path));
+	EFI_CALL(efi_close_protocol(driver_image_handle,
+				    &efi_guid_driver_binding_protocol,
+				    driver_image_handle, NULL));
+	return r;
+}
+
+static efi_status_t efi_connect_single_controller(
+			efi_handle_t controller_handle,
+			efi_handle_t *driver_image_handle,
+			struct efi_device_path *remain_device_path)
+{
+	efi_handle_t *buffer;
+	size_t count;
+	size_t i;
+	efi_status_t r;
+	size_t connected = 0;
+
+	/* Get buffer with all handles with driver binding protocol */
+	r = EFI_CALL(efi_locate_handle_buffer(BY_PROTOCOL,
+					      &efi_guid_driver_binding_protocol,
+					      NULL, &count, &buffer));
+	if (r != EFI_SUCCESS)
+		return r;
+
+	/*  Context Override */
+	if (driver_image_handle) {
+		for (; *driver_image_handle; ++driver_image_handle) {
+			for (i = 0; i < count; ++i) {
+				if (buffer[i] == *driver_image_handle) {
+					buffer[i] = NULL;
+					r = efi_bind_controller(
+							controller_handle,
+							*driver_image_handle,
+							remain_device_path);
+					/*
+					 * For drivers that do not support the
+					 * controller or are already connected
+					 * we receive an error code here.
+					 */
+					if (r == EFI_SUCCESS)
+						++connected;
+				}
+			}
+		}
+	}
+
+	/*
+	 * TODO: Some overrides are not yet implemented:
+	 * - Platform Driver Override
+	 * - Driver Family Override Search
+	 * - Bus Specific Driver Override
+	 */
+
+	/* Driver Binding Search */
+	for (i = 0; i < count; ++i) {
+		if (buffer[i]) {
+			r = efi_bind_controller(controller_handle,
+						buffer[i],
+						remain_device_path);
+			if (r == EFI_SUCCESS)
+				++connected;
+		}
+	}
+
+	efi_free_pool(buffer);
+	if (!connected)
+		return EFI_NOT_FOUND;
+	return EFI_SUCCESS;
+}
+
+/*
+ * Connect a controller to a driver.
+ *
+ * This function implements the ConnectController service.
+ * See the Unified Extensible Firmware Interface (UEFI) specification
+ * for details.
+ *
+ * First all driver binding protocol handles are tried for binding drivers.
+ * Afterwards all handles that have openened a protocol of the controller
+ * with EFI_OPEN_PROTOCOL_BY_CHILD_CONTROLLER are connected to drivers.
+ *
+ * @controller_handle	handle of the controller
+ * @driver_image_handle	handle of the driver
+ * @remain_device_path	device path of a child controller
+ * @recursive		true to connect all child controllers
+ * @return		status code
+ */
+static efi_status_t EFIAPI efi_connect_controller(
+			efi_handle_t controller_handle,
+			efi_handle_t *driver_image_handle,
+			struct efi_device_path *remain_device_path,
+			bool recursive)
+{
+	efi_status_t r;
+	efi_status_t ret = EFI_NOT_FOUND;
+	struct efi_object *efiobj;
+
+	EFI_ENTRY("%p, %p, %p, %d", controller_handle, driver_image_handle,
+		  remain_device_path, recursive);
+
+	efiobj = efi_search_obj(controller_handle);
+	if (!efiobj) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	r = efi_connect_single_controller(controller_handle,
+					  driver_image_handle,
+					  remain_device_path);
+	if (r == EFI_SUCCESS)
+		ret = EFI_SUCCESS;
+	if (recursive) {
+		struct efi_handler *handler;
+		struct efi_open_protocol_info_item *item;
+
+		list_for_each_entry(handler, &efiobj->protocols, link) {
+			list_for_each_entry(item, &handler->open_infos, link) {
+				if (item->info.attributes &
+				    EFI_OPEN_PROTOCOL_BY_CHILD_CONTROLLER) {
+					r = EFI_CALL(efi_connect_controller(
+						item->info.controller_handle,
+						driver_image_handle,
+						remain_device_path,
+						recursive));
+					if (r == EFI_SUCCESS)
+						ret = EFI_SUCCESS;
+				}
+			}
+		}
+	}
+	/*  Check for child controller specified by end node */
+	if (ret != EFI_SUCCESS && remain_device_path &&
+	    remain_device_path->type == DEVICE_PATH_TYPE_END)
+		ret = EFI_SUCCESS;
+out:
+	return EFI_EXIT(ret);
 }
 
 static const struct efi_boot_services efi_boot_services = {

@@ -89,6 +89,8 @@ uint16_t *efi_dp_str(struct efi_device_path *dp);
 extern const efi_guid_t efi_global_variable_guid;
 extern const efi_guid_t efi_guid_console_control;
 extern const efi_guid_t efi_guid_device_path;
+/* GUID of the EFI_DRIVER_BINDING_PROTOCOL */
+extern const efi_guid_t efi_guid_driver_binding_protocol;
 extern const efi_guid_t efi_guid_loaded_image;
 extern const efi_guid_t efi_guid_device_path_to_text_protocol;
 extern const efi_guid_t efi_simple_file_system_protocol_guid;

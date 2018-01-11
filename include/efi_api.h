@@ -805,4 +805,26 @@ struct efi_file_info {
 	s16 file_name[0];
 };
 
+#define EFI_DRIVER_BINDING_PROTOCOL_GUID \
+	EFI_GUID(0x18a031ab, 0xb443, 0x4d1a,\
+		 0xa5, 0xc0, 0x0c, 0x09, 0x26, 0x1e, 0x9f, 0x71)
+struct efi_driver_binding_protocol {
+	efi_status_t (EFIAPI * supported)(
+			struct efi_driver_binding_protocol *this,
+			efi_handle_t controller_handle,
+			struct efi_device_path *remaining_device_path);
+	efi_status_t (EFIAPI * start)(
+			struct efi_driver_binding_protocol *this,
+			efi_handle_t controller_handle,
+			struct efi_device_path *remaining_device_path);
+	efi_status_t (EFIAPI * stop)(
+			struct efi_driver_binding_protocol *this,
+			efi_handle_t controller_handle,
+			efi_uintn_t number_of_children,
+			efi_handle_t *child_handle_buffer);
+	u32 version;
+	efi_handle_t image_handle;
+	efi_handle_t driver_binding_handle;
+};
+
 #endif
