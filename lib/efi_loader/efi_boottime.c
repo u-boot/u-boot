@@ -1076,26 +1076,43 @@ static efi_status_t EFIAPI efi_uninstall_protocol_interface(
 				void *handle, const efi_guid_t *protocol,
 				void *protocol_interface)
 {
+	struct efi_object *efiobj;
 	struct efi_handler *handler;
+	struct efi_open_protocol_info_item *item;
+	struct efi_open_protocol_info_item *pos;
 	efi_status_t r;
 
 	EFI_ENTRY("%p, %pUl, %p", handle, protocol, protocol_interface);
 
-	if (!handle || !protocol) {
+	/* Check handle */
+	efiobj = efi_search_obj(handle);
+	if (!efiobj) {
 		r = EFI_INVALID_PARAMETER;
 		goto out;
 	}
-
 	/* Find the protocol on the handle */
 	r = efi_search_protocol(handle, protocol, &handler);
 	if (r != EFI_SUCCESS)
 		goto out;
-	if (handler->protocol_interface) {
-		/* TODO disconnect controllers */
+	/* Disconnect controllers */
+	efi_disconnect_all_drivers(efiobj, protocol, NULL);
+	if (!list_empty(&handler->open_infos)) {
 		r =  EFI_ACCESS_DENIED;
-	} else {
-		r = efi_remove_protocol(handle, protocol, protocol_interface);
+		goto out;
 	}
+	/* Close protocol */
+	list_for_each_entry_safe(item, pos, &handler->open_infos, link) {
+		if (item->info.attributes ==
+			EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL ||
+		    item->info.attributes == EFI_OPEN_PROTOCOL_GET_PROTOCOL ||
+		    item->info.attributes == EFI_OPEN_PROTOCOL_TEST_PROTOCOL)
+			list_del(&item->link);
+	}
+	if (!list_empty(&handler->open_infos)) {
+		r =  EFI_ACCESS_DENIED;
+		goto out;
+	}
+	r = efi_remove_protocol(handle, protocol, protocol_interface);
 out:
 	return EFI_EXIT(r);
 }
