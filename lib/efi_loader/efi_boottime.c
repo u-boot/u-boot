@@ -1742,9 +1742,49 @@ static efi_status_t EFIAPI efi_open_protocol_information(efi_handle_t handle,
 			struct efi_open_protocol_info_entry **entry_buffer,
 			efi_uintn_t *entry_count)
 {
+	unsigned long buffer_size;
+	unsigned long count;
+	struct efi_handler *handler;
+	struct efi_open_protocol_info_item *item;
+	efi_status_t r;
+
 	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, entry_buffer,
 		  entry_count);
-	return EFI_EXIT(EFI_NOT_FOUND);
+
+	/* Check parameters */
+	if (!entry_buffer) {
+		r = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	r = efi_search_protocol(handle, protocol, &handler);
+	if (r != EFI_SUCCESS)
+		goto out;
+
+	/* Count entries */
+	count = 0;
+	list_for_each_entry(item, &handler->open_infos, link) {
+		if (item->info.open_count)
+			++count;
+	}
+	*entry_count = count;
+	*entry_buffer = NULL;
+	if (!count) {
+		r = EFI_SUCCESS;
+		goto out;
+	}
+
+	/* Copy entries */
+	buffer_size = count * sizeof(struct efi_open_protocol_info_entry);
+	r = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, buffer_size,
+			      (void **)entry_buffer);
+	if (r != EFI_SUCCESS)
+		goto out;
+	list_for_each_entry_reverse(item, &handler->open_infos, link) {
+		if (item->info.open_count)
+			(*entry_buffer)[--count] = item->info;
+	}
+out:
+	return EFI_EXIT(r);
 }
 
 /*
