@@ -9,6 +9,7 @@
 
 obj-$(CONFIG_CMD_BOOTEFI_SELFTEST) += \
 efi_selftest.o \
+efi_selftest_controllers.o \
 efi_selftest_console.o \
 efi_selftest_devicepath.o \
 efi_selftest_events.o \
