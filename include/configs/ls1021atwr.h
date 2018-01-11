@@ -24,26 +24,6 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
 
-/*
- * USB
- */
-
-/*
- * EHCI Support - disbaled by default as
- * there is no signal coming out of soc on
- * this board for this controller. However,
- * the silicon still has this controller,
- * and anyone can use this controller by
- * taking signals out on their board.
- */
-
-/*#define CONFIG_HAS_FSL_DR_USB*/
-
-#ifdef CONFIG_HAS_FSL_DR_USB
-#define CONFIG_USB_EHCI_FSL
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#endif
-
 #define CONFIG_SYS_CLK_FREQ		100000000
 #define CONFIG_DDR_CLK_FREQ		100000000
 

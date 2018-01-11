@@ -488,6 +488,13 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-usb.git topic-xhci
 F:	drivers/usb/host/xhci*
 
+ROCKUSB
+M:	Eddie Cai <eddie.cai.linux@gmail.com>
+S:	Maintained
+F:	drivers/usb/gadget/f_rockusb.c
+F:	cmd/rockusb.c
+F:	doc/README.rockusb
+
 VIDEO
 M:	Anatolij Gustschin <agust@denx.de>
 S:	Maintained

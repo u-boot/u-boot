@@ -107,17 +107,6 @@
 #define CONFIG_SF_DEFAULT_BUS        1
 #define CONFIG_SF_DEFAULT_CS         0
 
-/*
-* USB
-*/
-/* EHCI Support - disbaled by default */
-/*#define CONFIG_HAS_FSL_DR_USB*/
-
-#ifdef CONFIG_HAS_FSL_DR_USB
-#define CONFIG_USB_EHCI_FSL
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#endif
-
 /*  MMC  */
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC
