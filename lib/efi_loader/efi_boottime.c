@@ -815,6 +815,40 @@ struct efi_object *efi_search_obj(const void *handle)
 }
 
 /*
+ * Create open protocol info entry and add it to a protocol.
+ *
+ * @handler	handler of a protocol
+ * @return	open protocol info entry
+ */
+static struct efi_open_protocol_info_entry *efi_create_open_info(
+			struct efi_handler *handler)
+{
+	struct efi_open_protocol_info_item *item;
+
+	item = calloc(1, sizeof(struct efi_open_protocol_info_item));
+	if (!item)
+		return NULL;
+	/* Append the item to the open protocol info list. */
+	list_add_tail(&item->link, &handler->open_infos);
+
+	return &item->info;
+}
+
+/*
+ * Remove an open protocol info entry from a protocol.
+ *
+ * @handler	handler of a protocol
+ * @return	status code
+ */
+static efi_status_t efi_delete_open_info(
+			struct efi_open_protocol_info_item *item)
+{
+	list_del(&item->link);
+	free(item);
+	return EFI_SUCCESS;
+}
+
+/*
  * Install new protocol on a handle.
  *
  * @handle			handle on which the protocol shall be installed
@@ -840,6 +874,7 @@ efi_status_t efi_add_protocol(const void *handle, const efi_guid_t *protocol,
 		return EFI_OUT_OF_RESOURCES;
 	handler->guid = protocol;
 	handler->protocol_interface = protocol_interface;
+	INIT_LIST_HEAD(&handler->open_infos);
 	list_add_tail(&handler->link, &efiobj->protocols);
 	return EFI_SUCCESS;
 }
