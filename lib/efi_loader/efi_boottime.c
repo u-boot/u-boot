@@ -2123,6 +2123,101 @@ static void EFIAPI efi_set_mem(void *buffer, size_t size, uint8_t value)
 /*
  * Open protocol interface on a handle.
  *
+ * @handler		handler of a protocol
+ * @protocol_interface	interface implementing the protocol
+ * @agent_handle	handle of the driver
+ * @controller_handle	handle of the controller
+ * @attributes		attributes indicating how to open the protocol
+ * @return		status code
+ */
+static efi_status_t efi_protocol_open(
+			struct efi_handler *handler,
+			void **protocol_interface, void *agent_handle,
+			void *controller_handle, uint32_t attributes)
+{
+	struct efi_open_protocol_info_item *item;
+	struct efi_open_protocol_info_entry *match = NULL;
+	bool opened_by_driver = false;
+	bool opened_exclusive = false;
+
+	/* If there is no agent, only return the interface */
+	if (!agent_handle)
+		goto out;
+
+	/* For TEST_PROTOCOL ignore interface attribute */
+	if (attributes != EFI_OPEN_PROTOCOL_TEST_PROTOCOL)
+		*protocol_interface = NULL;
+
+	/*
+	 * Check if the protocol is already opened by a driver with the same
+	 * attributes or opened exclusively
+	 */
+	list_for_each_entry(item, &handler->open_infos, link) {
+		if (item->info.agent_handle == agent_handle) {
+			if ((attributes & EFI_OPEN_PROTOCOL_BY_DRIVER) &&
+			    (item->info.attributes == attributes))
+				return EFI_ALREADY_STARTED;
+		}
+		if (item->info.attributes & EFI_OPEN_PROTOCOL_EXCLUSIVE)
+			opened_exclusive = true;
+	}
+
+	/* Only one controller can open the protocol exclusively */
+	if (opened_exclusive && attributes &
+	    (EFI_OPEN_PROTOCOL_EXCLUSIVE | EFI_OPEN_PROTOCOL_BY_DRIVER))
+		return EFI_ACCESS_DENIED;
+
+	/* Prepare exclusive opening */
+	if (attributes & EFI_OPEN_PROTOCOL_EXCLUSIVE) {
+		/* Try to disconnect controllers */
+		list_for_each_entry(item, &handler->open_infos, link) {
+			if (item->info.attributes ==
+					EFI_OPEN_PROTOCOL_BY_DRIVER)
+				EFI_CALL(efi_disconnect_controller(
+						item->info.controller_handle,
+						item->info.agent_handle,
+						NULL));
+		}
+		opened_by_driver = false;
+		/* Check if all controllers are disconnected */
+		list_for_each_entry(item, &handler->open_infos, link) {
+			if (item->info.attributes & EFI_OPEN_PROTOCOL_BY_DRIVER)
+				opened_by_driver = true;
+		}
+		/* Only one controller can be conncected */
+		if (opened_by_driver)
+			return EFI_ACCESS_DENIED;
+	}
+
+	/* Find existing entry */
+	list_for_each_entry(item, &handler->open_infos, link) {
+		if (item->info.agent_handle == agent_handle &&
+		    item->info.controller_handle == controller_handle)
+			match = &item->info;
+	}
+	/* None found, create one */
+	if (!match) {
+		match = efi_create_open_info(handler);
+		if (!match)
+			return EFI_OUT_OF_RESOURCES;
+	}
+
+	match->agent_handle = agent_handle;
+	match->controller_handle = controller_handle;
+	match->attributes = attributes;
+	match->open_count++;
+
+out:
+	/* For TEST_PROTOCOL ignore interface attribute. */
+	if (attributes != EFI_OPEN_PROTOCOL_TEST_PROTOCOL)
+		*protocol_interface = handler->protocol_interface;
+
+	return EFI_SUCCESS;
+}
+
+/*
+ * Open protocol interface on a handle.
+ *
  * This function implements the OpenProtocol interface.
  * See the Unified Extensible Firmware Interface (UEFI) specification
  * for details.
@@ -2161,12 +2256,16 @@ static efi_status_t EFIAPI efi_open_protocol(
 	case EFI_OPEN_PROTOCOL_BY_CHILD_CONTROLLER:
 		if (controller_handle == handle)
 			goto out;
+		/* fall-through */
 	case EFI_OPEN_PROTOCOL_BY_DRIVER:
 	case EFI_OPEN_PROTOCOL_BY_DRIVER | EFI_OPEN_PROTOCOL_EXCLUSIVE:
-		if (controller_handle == NULL)
+		/* Check that the controller handle is valid */
+		if (!efi_search_obj(controller_handle))
 			goto out;
+		/* fall-through */
 	case EFI_OPEN_PROTOCOL_EXCLUSIVE:
-		if (agent_handle == NULL)
+		/* Check that the agent handle is valid */
+		if (!efi_search_obj(agent_handle))
 			goto out;
 		break;
 	default:
@@ -2177,8 +2276,8 @@ static efi_status_t EFIAPI efi_open_protocol(
 	if (r != EFI_SUCCESS)
 		goto out;
 
-	if (attributes != EFI_OPEN_PROTOCOL_TEST_PROTOCOL)
-		*protocol_interface = handler->protocol_interface;
+	r = efi_protocol_open(handler, protocol_interface, agent_handle,
+			      controller_handle, attributes);
 out:
 	return EFI_EXIT(r);
 }
