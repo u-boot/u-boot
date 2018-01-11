@@ -339,6 +339,11 @@ matrix:
           QEMU_TARGET="arm-softmmu"
           BUILDMAN="^qemu_arm$"
     - env:
+        - TEST_PY_BD="qemu_arm64"
+          TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="aarch64-softmmu"
+          BUILDMAN="^qemu_arm64$"
+    - env:
         - TEST_PY_BD="qemu_mips"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="mips-softmmu"
