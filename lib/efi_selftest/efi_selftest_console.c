@@ -130,12 +130,13 @@ static void int2dec(s32 value, u16 **buf)
 }
 
 /*
- * Print a formatted string to the EFI console
+ * Print a colored formatted string to the EFI console
  *
- * @fmt: format string
- * @...: optional arguments
+ * @color	color, see constants in efi_api.h, use -1 for no color
+ * @fmt		format string
+ * @...		optional arguments
  */
-void efi_st_printf(const char *fmt, ...)
+void efi_st_printc(int color, const char *fmt, ...)
 {
 	va_list args;
 	u16 buf[160];
@@ -146,6 +147,8 @@ void efi_st_printf(const char *fmt, ...)
 
 	va_start(args, fmt);
 
+	if (color >= 0)
+		con_out->set_attribute(con_out, (unsigned long)color);
 	c = fmt;
 	for (; *c; ++c) {
 		switch (*c) {
@@ -220,6 +223,8 @@ void efi_st_printf(const char *fmt, ...)
 	va_end(args);
 	*pos = 0;
 	con_out->output_string(con_out, buf);
+	if (color >= 0)
+		con_out->set_attribute(con_out, EFI_LIGHTGRAY);
 }
 
 /*
