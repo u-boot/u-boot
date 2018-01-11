@@ -69,10 +69,11 @@ const char *__efi_nesting_dec(void);
 	} while(0)
 
 /*
- * Write GUID
+ * Write an indented message with EFI prefix
  */
-#define EFI_PRINT_GUID(txt, guid) ({ \
-	debug("%sEFI: %s %pUl\n", __efi_nesting(), txt, guid); \
+#define EFI_PRINT(format, ...) ({ \
+	debug("%sEFI: " format, __efi_nesting(), \
+		##__VA_ARGS__); \
 	})
 
 extern struct efi_runtime_services efi_runtime_services;

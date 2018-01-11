@@ -876,6 +876,8 @@ efi_status_t efi_add_protocol(const void *handle, const efi_guid_t *protocol,
 	handler->protocol_interface = protocol_interface;
 	INIT_LIST_HEAD(&handler->open_infos);
 	list_add_tail(&handler->link, &efiobj->protocols);
+	if (!guidcmp(&efi_guid_device_path, protocol))
+		EFI_PRINT("installed device path '%pD'\n", protocol_interface);
 	return EFI_SUCCESS;
 }
 
