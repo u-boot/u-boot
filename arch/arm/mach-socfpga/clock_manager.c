@@ -59,7 +59,8 @@ int set_cpu_clk_info(void)
 	return 0;
 }
 
-int do_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+#ifndef CONFIG_SPL_BUILD
+static int do_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	cm_print_clock_quick_summary();
 	return 0;
@@ -70,3 +71,4 @@ U_BOOT_CMD(
 	"display clocks",
 	""
 );
+#endif
