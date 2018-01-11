@@ -1695,9 +1695,33 @@ static efi_status_t EFIAPI efi_close_protocol(void *handle,
 					      void *agent_handle,
 					      void *controller_handle)
 {
+	struct efi_handler *handler;
+	struct efi_open_protocol_info_item *item;
+	struct efi_open_protocol_info_item *pos;
+	efi_status_t r;
+
 	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, agent_handle,
 		  controller_handle);
-	return EFI_EXIT(EFI_NOT_FOUND);
+
+	if (!agent_handle) {
+		r = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	r = efi_search_protocol(handle, protocol, &handler);
+	if (r != EFI_SUCCESS)
+		goto out;
+
+	r = EFI_NOT_FOUND;
+	list_for_each_entry_safe(item, pos, &handler->open_infos, link) {
+		if (item->info.agent_handle == agent_handle &&
+		    item->info.controller_handle == controller_handle) {
+			efi_delete_open_info(item);
+			r = EFI_SUCCESS;
+			break;
+		}
+	}
+out:
+	return EFI_EXIT(r);
 }
 
 /*
