@@ -84,11 +84,12 @@ struct efi_boot_services {
 	efi_status_t (EFIAPI *reinstall_protocol_interface)(
 			void *handle, const efi_guid_t *protocol,
 			void *old_interface, void *new_interface);
-	efi_status_t (EFIAPI *uninstall_protocol_interface)(void *handle,
-			const efi_guid_t *protocol, void *protocol_interface);
-	efi_status_t (EFIAPI *handle_protocol)(efi_handle_t,
-					       const efi_guid_t *protocol,
-					       void **protocol_interface);
+	efi_status_t (EFIAPI *uninstall_protocol_interface)(
+			efi_handle_t handle, const efi_guid_t *protocol,
+			void *protocol_interface);
+	efi_status_t (EFIAPI *handle_protocol)(
+			efi_handle_t handle, const efi_guid_t *protocol,
+			void **protocol_interface);
 	void *reserved;
 	efi_status_t (EFIAPI *register_protocol_notify)(
 			const efi_guid_t *protocol, struct efi_event *event,
@@ -113,7 +114,7 @@ struct efi_boot_services {
 	efi_status_t (EFIAPI *exit)(efi_handle_t handle,
 				    efi_status_t exit_status,
 				    unsigned long exitdata_size, s16 *exitdata);
-	efi_status_t (EFIAPI *unload_image)(void *image_handle);
+	efi_status_t (EFIAPI *unload_image)(efi_handle_t image_handle);
 	efi_status_t (EFIAPI *exit_boot_services)(efi_handle_t, unsigned long);
 
 	efi_status_t (EFIAPI *get_next_monotonic_count)(u64 *count);
@@ -139,9 +140,10 @@ struct efi_boot_services {
 			const efi_guid_t *protocol, void **interface,
 			efi_handle_t agent_handle,
 			efi_handle_t controller_handle, u32 attributes);
-	efi_status_t (EFIAPI *close_protocol)(void *handle,
-			const efi_guid_t *protocol, void *agent_handle,
-			void *controller_handle);
+	efi_status_t (EFIAPI *close_protocol)(
+			efi_handle_t handle, const efi_guid_t *protocol,
+			efi_handle_t agent_handle,
+			efi_handle_t controller_handle);
 	efi_status_t(EFIAPI *open_protocol_information)(efi_handle_t handle,
 			const efi_guid_t *protocol,
 			struct efi_open_protocol_info_entry **entry_buffer,

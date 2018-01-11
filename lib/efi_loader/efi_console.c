@@ -503,21 +503,21 @@ int efi_console_register(void)
 	struct efi_object *efi_console_input_obj;
 
 	/* Create handles */
-	r = efi_create_handle((void **)&efi_console_control_obj);
+	r = efi_create_handle((efi_handle_t *)&efi_console_control_obj);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
 	r = efi_add_protocol(efi_console_control_obj->handle,
 			     &efi_guid_console_control, &efi_console_control);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
-	r = efi_create_handle((void **)&efi_console_output_obj);
+	r = efi_create_handle((efi_handle_t *)&efi_console_output_obj);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
 	r = efi_add_protocol(efi_console_output_obj->handle,
 			     &efi_guid_text_output_protocol, &efi_con_out);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
-	r = efi_create_handle((void **)&efi_console_input_obj);
+	r = efi_create_handle((efi_handle_t *)&efi_console_input_obj);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
 	r = efi_add_protocol(efi_console_input_obj->handle,

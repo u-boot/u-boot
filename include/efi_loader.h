@@ -205,23 +205,25 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path);
 /* Add a new object to the object list. */
 void efi_add_handle(struct efi_object *obj);
 /* Create handle */
-efi_status_t efi_create_handle(void **handle);
+efi_status_t efi_create_handle(efi_handle_t *handle);
 /* Delete handle */
 void efi_delete_handle(struct efi_object *obj);
 /* Call this to validate a handle and find the EFI object for it */
-struct efi_object *efi_search_obj(const void *handle);
+struct efi_object *efi_search_obj(const efi_handle_t handle);
 /* Find a protocol on a handle */
-efi_status_t efi_search_protocol(const void *handle,
+efi_status_t efi_search_protocol(const efi_handle_t handle,
 				 const efi_guid_t *protocol_guid,
 				 struct efi_handler **handler);
 /* Install new protocol on a handle */
-efi_status_t efi_add_protocol(const void *handle, const efi_guid_t *protocol,
+efi_status_t efi_add_protocol(const efi_handle_t handle,
+			      const efi_guid_t *protocol,
 			      void *protocol_interface);
 /* Delete protocol from a handle */
-efi_status_t efi_remove_protocol(const void *handle, const efi_guid_t *protocol,
+efi_status_t efi_remove_protocol(const efi_handle_t handle,
+				 const efi_guid_t *protocol,
 				 void *protocol_interface);
 /* Delete all protocols from a handle */
-efi_status_t efi_remove_all_protocols(const void *handle);
+efi_status_t efi_remove_all_protocols(const efi_handle_t handle);
 /* Call this to create an event */
 efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 			      void (EFIAPI *notify_function) (

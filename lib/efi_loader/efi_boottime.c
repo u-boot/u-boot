@@ -60,9 +60,10 @@ static int nesting_level;
 const efi_guid_t efi_guid_driver_binding_protocol =
 			EFI_DRIVER_BINDING_PROTOCOL_GUID;
 
-static efi_status_t EFIAPI efi_disconnect_controller(void *controller_handle,
-						     void *driver_image_handle,
-						     void *child_handle);
+static efi_status_t EFIAPI efi_disconnect_controller(
+					efi_handle_t controller_handle,
+					efi_handle_t driver_image_handle,
+					efi_handle_t child_handle);
 
 /* Called on every callback entry */
 int __efi_entry_check(void)
@@ -351,7 +352,7 @@ void efi_add_handle(struct efi_object *obj)
  * @handle	new handle
  * @return	status code
  */
-efi_status_t efi_create_handle(void **handle)
+efi_status_t efi_create_handle(efi_handle_t *handle)
 {
 	struct efi_object *obj;
 	efi_status_t r;
@@ -374,7 +375,7 @@ efi_status_t efi_create_handle(void **handle)
  * @handler		reference to the protocol
  * @return		status code
  */
-efi_status_t efi_search_protocol(const void *handle,
+efi_status_t efi_search_protocol(const efi_handle_t handle,
 				 const efi_guid_t *protocol_guid,
 				 struct efi_handler **handler)
 {
@@ -407,7 +408,8 @@ efi_status_t efi_search_protocol(const void *handle,
  * @protocol_interface		interface of the protocol implementation
  * @return			status code
  */
-efi_status_t efi_remove_protocol(const void *handle, const efi_guid_t *protocol,
+efi_status_t efi_remove_protocol(const efi_handle_t handle,
+				 const efi_guid_t *protocol,
 				 void *protocol_interface)
 {
 	struct efi_handler *handler;
@@ -429,7 +431,7 @@ efi_status_t efi_remove_protocol(const void *handle, const efi_guid_t *protocol,
  * @handle	handle from which the protocols shall be deleted
  * @return	status code
  */
-efi_status_t efi_remove_all_protocols(const void *handle)
+efi_status_t efi_remove_all_protocols(const efi_handle_t handle)
 {
 	struct efi_object *efiobj;
 	struct efi_handler *protocol;
@@ -809,7 +811,7 @@ static efi_status_t EFIAPI efi_check_event(struct efi_event *event)
  * @handle	handle to find
  * @return	EFI object
  */
-struct efi_object *efi_search_obj(const void *handle)
+struct efi_object *efi_search_obj(const efi_handle_t handle)
 {
 	struct efi_object *efiobj;
 
@@ -863,7 +865,8 @@ static efi_status_t efi_delete_open_info(
  * @protocol_interface		interface of the protocol implementation
  * @return			status code
  */
-efi_status_t efi_add_protocol(const void *handle, const efi_guid_t *protocol,
+efi_status_t efi_add_protocol(const efi_handle_t handle,
+			      const efi_guid_t *protocol,
 			      void *protocol_interface)
 {
 	struct efi_object *efiobj;
@@ -948,9 +951,9 @@ out:
  * @new_interface		interface to be installed
  * @return			status code
  */
-static efi_status_t EFIAPI efi_reinstall_protocol_interface(void *handle,
-			const efi_guid_t *protocol, void *old_interface,
-			void *new_interface)
+static efi_status_t EFIAPI efi_reinstall_protocol_interface(
+			efi_handle_t handle, const efi_guid_t *protocol,
+			void *old_interface, void *new_interface)
 {
 	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, old_interface,
 		  new_interface);
@@ -1073,7 +1076,7 @@ static efi_status_t efi_disconnect_all_drivers(
  * @return			status code
  */
 static efi_status_t EFIAPI efi_uninstall_protocol_interface(
-				void *handle, const efi_guid_t *protocol,
+				efi_handle_t handle, const efi_guid_t *protocol,
 				void *protocol_interface)
 {
 	struct efi_object *efiobj;
@@ -1530,7 +1533,7 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 					   unsigned long *exit_data_size,
 					   s16 **exit_data)
 {
-	ulong (*entry)(void *image_handle, struct efi_system_table *st);
+	ulong (*entry)(efi_handle_t image_handle, struct efi_system_table *st);
 	struct efi_loaded_image *info = image_handle;
 	efi_status_t ret;
 
@@ -1632,7 +1635,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
  * @image_handle	handle of the image to be unloaded
  * @return		status code
  */
-static efi_status_t EFIAPI efi_unload_image(void *image_handle)
+static efi_status_t EFIAPI efi_unload_image(efi_handle_t image_handle)
 {
 	struct efi_object *efiobj;
 
@@ -1670,7 +1673,7 @@ static void efi_exit_caches(void)
  * @map_key		key of the memory map
  * @return		status code
  */
-static efi_status_t EFIAPI efi_exit_boot_services(void *image_handle,
+static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 						  unsigned long map_key)
 {
 	int i;
@@ -1774,10 +1777,10 @@ static efi_status_t EFIAPI efi_set_watchdog_timer(unsigned long timeout,
  * @controller_handle	handle of the controller
  * @return		status code
  */
-static efi_status_t EFIAPI efi_close_protocol(void *handle,
+static efi_status_t EFIAPI efi_close_protocol(efi_handle_t handle,
 					      const efi_guid_t *protocol,
-					      void *agent_handle,
-					      void *controller_handle)
+					      efi_handle_t agent_handle,
+					      efi_handle_t controller_handle)
 {
 	struct efi_handler *handler;
 	struct efi_open_protocol_info_item *item;
@@ -1883,8 +1886,8 @@ out:
  * @protocol_buffer_count	number of entries in the buffer
  * @return			status code
  */
-static efi_status_t EFIAPI efi_protocols_per_handle(void *handle,
-			efi_guid_t ***protocol_buffer,
+static efi_status_t EFIAPI efi_protocols_per_handle(
+			efi_handle_t handle, efi_guid_t ***protocol_buffer,
 			efi_uintn_t *protocol_buffer_count)
 {
 	unsigned long buffer_size;
@@ -1974,7 +1977,7 @@ static efi_status_t EFIAPI efi_locate_handle_buffer(
 	r = efi_locate_handle(search_type, protocol, search_key, &buffer_size,
 			      *buffer);
 	if (r == EFI_SUCCESS)
-		*no_handles = buffer_size / sizeof(void *);
+		*no_handles = buffer_size / sizeof(efi_handle_t);
 out:
 	return EFI_EXIT(r);
 }
@@ -2442,7 +2445,7 @@ out:
  * @protocol_interface  interface implementing the protocol
  * @return		status code
  */
-static efi_status_t EFIAPI efi_handle_protocol(void *handle,
+static efi_status_t EFIAPI efi_handle_protocol(efi_handle_t handle,
 					       const efi_guid_t *protocol,
 					       void **protocol_interface)
 {
