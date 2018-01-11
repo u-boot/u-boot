@@ -1037,6 +1037,7 @@
 				snps,enable_guctl1_ipd_quirk;
 				snps,xhci-stream-quirk;
 				/* dma-coherent; */
+				/* snps,enable-hibernation; */
 			};
 		};
 
