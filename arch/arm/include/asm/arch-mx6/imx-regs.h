@@ -232,7 +232,11 @@
 #define AIPS2_OFF_BASE_ADDR         (ATZ2_BASE_ADDR + 0x80000)
 #define AIPS3_ON_BASE_ADDR          (ATZ3_BASE_ADDR + 0x7C000)
 #define AIPS3_OFF_BASE_ADDR         (ATZ3_BASE_ADDR + 0x80000)
+#if defined(CONFIG_MX6UL)
+#define CAAM_BASE_ADDR              (ATZ2_BASE_ADDR + 0x40000)
+#else
 #define CAAM_BASE_ADDR              (ATZ2_BASE_ADDR)
+#endif
 #define ARM_BASE_ADDR		    (ATZ2_BASE_ADDR + 0x40000)
 
 #define CONFIG_SYS_FSL_SEC_OFFSET   0
