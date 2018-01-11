@@ -299,10 +299,10 @@ static int execute(void)
 			efi_st_error("FreePool failed\n");
 			return EFI_ST_FAILURE;
 		}
-		ret = boottime->close_protocol(handles[i], &guid_device_path,
-					       NULL, NULL);
-		if (ret != EFI_SUCCESS)
-			efi_st_todo("Cannot close device path protocol.\n");
+		/*
+		 * CloseProtocol cannot be called without agent handle.
+		 * There is no need to close the device path protocol.
+		 */
 	}
 	ret = boottime->free_pool(handles);
 	if (ret != EFI_SUCCESS) {
