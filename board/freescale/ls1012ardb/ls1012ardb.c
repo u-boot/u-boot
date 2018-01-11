@@ -28,6 +28,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int checkboard(void)
 {
+#ifdef CONFIG_TARGET_LS1012ARDB
 	u8 in1;
 
 	puts("Board: LS1012ARDB ");
@@ -77,7 +78,10 @@ int checkboard(void)
 		puts(": bank2\n");
 	else
 		puts("unknown\n");
+#else
 
+	puts("Board: LS1012A2G5RDB ");
+#endif
 	return 0;
 }
 
@@ -150,6 +154,7 @@ int board_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_TARGET_LS1012ARDB
 int esdhc_status_fixup(void *blob, const char *compat)
 {
 	char esdhc1_path[] = "/soc/esdhc@1580000";
@@ -193,7 +198,6 @@ int esdhc_status_fixup(void *blob, const char *compat)
 		if (mux_sdhc2 == 2 || mux_sdhc2 == 0)
 			sdhc2_en = true;
 	}
-
 	if (sdhc2_en)
 		do_fixup_by_path(blob, esdhc1_path, "status", "okay",
 				 sizeof("okay"), 1);
@@ -202,6 +206,7 @@ int esdhc_status_fixup(void *blob, const char *compat)
 				 sizeof("disabled"), 1);
 	return 0;
 }
+#endif
 
 int ft_board_setup(void *blob, bd_t *bd)
 {

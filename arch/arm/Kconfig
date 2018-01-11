@@ -968,6 +968,18 @@ config TARGET_LS1012ARDB
 	  development platform that supports the QorIQ LS1012A
 	  Layerscape Architecture processor.
 
+config TARGET_LS1012A2G5RDB
+	bool "Support ls1012a2g5rdb"
+	select ARCH_LS1012A
+	select ARM64
+	select BOARD_LATE_INIT
+	imply SCSI
+	help
+	  Support for Freescale LS1012A2G5RDB platform.
+	  The LS1012A 2G5 Reference design board (RDB) is a high-performance
+	  development platform that supports the QorIQ LS1012A
+	  Layerscape Architecture processor.
+
 config TARGET_LS1012AFRDM
 	bool "Support ls1012afrdm"
 	select ARCH_LS1012A
