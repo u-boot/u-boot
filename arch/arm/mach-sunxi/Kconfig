@@ -23,6 +23,14 @@ config SUN6I_PRCM
 	  Support for the PRCM (Power/Reset/Clock Management) unit available
 	  in A31 SoC.
 
+config SUN8I_RSB
+	bool "Allwinner sunXi Reduced Serial Bus Driver"
+	help
+	  Say y here to enable support for Allwinner's Reduced Serial Bus
+	  (RSB) support. This controller is responsible for communicating
+	  with various RSB based devices, such as AXP223, AXP8XX PMICs,
+	  and AC100/AC200 ICs.
+
 config SUNXI_HIGH_SRAM
 	bool
 	default n
@@ -188,6 +196,7 @@ config MACH_SUN9I
 	select SUN6I_PRCM
 	select SUNXI_HIGH_SRAM
 	select SUNXI_GEN_SUN6I
+	select SUN8I_RSB
 	select SUPPORT_SPL
 
 config MACH_SUN50I
@@ -216,6 +225,7 @@ endchoice
 # The sun8i SoCs share a lot, this helps to avoid a lot of "if A23 || A33"
 config MACH_SUN8I
 	bool
+	select SUN8I_RSB
 	select SUN6I_PRCM
 	default y if MACH_SUN8I_A23
 	default y if MACH_SUN8I_A33

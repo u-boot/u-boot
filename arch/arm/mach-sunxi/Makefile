@@ -18,8 +18,7 @@ obj-y	+= usb_phy.o
 endif
 obj-$(CONFIG_SUN6I_P2WI)	+= p2wi.o
 obj-$(CONFIG_SUN6I_PRCM)	+= prcm.o
-obj-$(CONFIG_MACH_SUN8I)	+= rsb.o
-obj-$(CONFIG_MACH_SUN9I)	+= rsb.o
+obj-$(CONFIG_SUN8I_RSB)		+= rsb.o
 obj-$(CONFIG_MACH_SUN4I)	+= clock_sun4i.o
 obj-$(CONFIG_MACH_SUN5I)	+= clock_sun4i.o
 obj-$(CONFIG_MACH_SUN6I)	+= clock_sun6i.o
