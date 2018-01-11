@@ -6,45 +6,61 @@ choice
 
 config TARGET_IPAM390
 	bool "IPAM390 board"
+	select MACH_DAVINCI_DA850_EVM
+	select SOC_DA850
 	select SUPPORT_SPL
-	select SYS_DA850_PLL_INIT
-	select SYS_DA850_DDR_INIT
 
 config TARGET_DA850EVM
 	bool "DA850 EVM board"
+	select MACH_DAVINCI_DA850_EVM
+	select SOC_DA850
 	select SUPPORT_SPL
-	select SYS_DA850_PLL_INIT
-	select SYS_DA850_DDR_INIT
 
 config TARGET_EA20
 	bool "EA20 board"
+	select MACH_DAVINCI_DA850_EVM
+	select SOC_DA850
 	select BOARD_LATE_INIT
 
 config TARGET_OMAPL138_LCDK
 	bool "OMAPL138 LCDK"
+	select SOC_DA8XX
 	select SUPPORT_SPL
-	select SYS_DA850_PLL_INIT
-	select SYS_DA850_DDR_INIT
 
 config TARGET_CALIMAIN
 	bool "Calimain board"
-	select SYS_DA850_PLL_INIT
-	select SYS_DA850_DDR_INIT
+	select SOC_DA850
 
 config TARGET_LEGOEV3
 	bool "LEGO MINDSTORMS EV3"
-	select SYS_DA850_PLL_INIT
-	select SYS_DA850_DDR_INIT
+	select MACH_DAVINCI_DA850_EVM
+	select SOC_DA850
 
 endchoice
 
 config SYS_SOC
 	default "davinci"
 
+config DA850_LOWLEVEL
+	bool "Enable Lowlevel DA850 initialization"
+	depends on SOC_DA850
+
 config SYS_DA850_PLL_INIT
 	bool
 
 config SYS_DA850_DDR_INIT
+	bool
+
+config SOC_DA850
+	bool
+	select SOC_DA8XX
+	select SYS_DA850_DDR_INIT if SUPPORT_SPL || DA850_LOWLEVEL
+
+config SOC_DA8XX
+	bool
+	select SYS_DA850_PLL_INIT if SUPPORT_SPL || DA850_LOWLEVEL
+
+config MACH_DAVINCI_DA850_EVM
 	bool
 
 source "board/Barix/ipam390/Kconfig"
