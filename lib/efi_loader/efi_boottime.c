@@ -425,17 +425,14 @@ efi_status_t efi_remove_protocol(const void *handle, const efi_guid_t *protocol,
 efi_status_t efi_remove_all_protocols(const void *handle)
 {
 	struct efi_object *efiobj;
-	struct list_head *lhandle;
-	struct list_head *pos;
+	struct efi_handler *protocol;
+	struct efi_handler *pos;
 
 	efiobj = efi_search_obj(handle);
 	if (!efiobj)
 		return EFI_INVALID_PARAMETER;
-	list_for_each_safe(lhandle, pos, &efiobj->protocols) {
-		struct efi_handler *protocol;
+	list_for_each_entry_safe(protocol, pos, &efiobj->protocols, link) {
 		efi_status_t ret;
-
-		protocol = list_entry(lhandle, struct efi_handler, link);
 
 		ret = efi_remove_protocol(handle, protocol->guid,
 					  protocol->protocol_interface);
