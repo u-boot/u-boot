@@ -52,6 +52,13 @@ const struct dpll_regs dpll_ddr_regs = {
 	.cm_div_m2_dpll		= CM_WKUP + 0xA0,
 };
 
+const struct dpll_regs dpll_disp_regs = {
+	.cm_clkmode_dpll	= CM_WKUP + 0x98,
+	.cm_idlest_dpll		= CM_WKUP + 0x48,
+	.cm_clksel_dpll		= CM_WKUP + 0x54,
+	.cm_div_m2_dpll		= CM_WKUP + 0xA4,
+};
+
 struct dpll_params dpll_mpu_opp100 = {
 		CONFIG_SYS_MPUCLK, OSC-1, 1, -1, -1, -1, -1};
 const struct dpll_params dpll_core_opp100 = {

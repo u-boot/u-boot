@@ -139,13 +139,7 @@ int load_lcdtiming(struct am335x_lcdpanel *panel)
 	pnltmp.vsw = FDTPROP(PATHTIM, "vsync-len");
 	pnltmp.pup_delay = FDTPROP(PATHTIM, "pupdelay");
 	pnltmp.pon_delay = FDTPROP(PATHTIM, "pondelay");
-
-	/* calc. proper clk-divisor */
-	dtbprop = FDTPROP(PATHTIM, "clock-frequency");
-	if (dtbprop != ~0UL)
-		pnltmp.pxl_clk_div = 192000000 / dtbprop;
-	else
-		pnltmp.pxl_clk_div = ~0UL;
+	pnltmp.pxl_clk = FDTPROP(PATHTIM, "clock-frequency");
 
 	/* check polarity of control-signals */
 	dtbprop = FDTPROP(PATHTIM, "hsync-active");
@@ -195,7 +189,7 @@ int load_lcdtiming(struct am335x_lcdpanel *panel)
 	pnltmp.vfp = env_get_ulong("ds1_vfp", 10, ~0UL);
 	pnltmp.vbp = env_get_ulong("ds1_vbp", 10, ~0UL);
 	pnltmp.vsw = env_get_ulong("ds1_vsw", 10, ~0UL);
-	pnltmp.pxl_clk_div = env_get_ulong("ds1_pxlclkdiv", 10, ~0UL);
+	pnltmp.pxl_clk = env_get_ulong("ds1_pxlclk", 10, ~0UL);
 	pnltmp.pol = env_get_ulong("ds1_pol", 16, ~0UL);
 	pnltmp.pup_delay = env_get_ulong("ds1_pupdelay", 10, ~0UL);
 	pnltmp.pon_delay = env_get_ulong("ds1_tondelay", 10, ~0UL);
@@ -211,7 +205,7 @@ int load_lcdtiming(struct am335x_lcdpanel *panel)
 	   ~0UL == (pnltmp.vfp) ||
 	   ~0UL == (pnltmp.vbp) ||
 	   ~0UL == (pnltmp.vsw) ||
-	   ~0UL == (pnltmp.pxl_clk_div) ||
+	   ~0UL == (pnltmp.pxl_clk) ||
 	   ~0UL == (pnltmp.pol) ||
 	   ~0UL == (pnltmp.pup_delay) ||
 	   ~0UL == (pnltmp.pon_delay)
@@ -234,7 +228,7 @@ int load_lcdtiming(struct am335x_lcdpanel *panel)
 			pnltmp.hactive, pnltmp.vactive, pnltmp.bpp,
 			pnltmp.hfp, pnltmp.hbp, pnltmp.hsw,
 			pnltmp.vfp, pnltmp.vbp, pnltmp.vsw,
-			pnltmp.pxl_clk_div, pnltmp.pol, pnltmp.pon_delay);
+			pnltmp.pxl_clk, pnltmp.pol, pnltmp.pon_delay);
 
 		return -1;
 	}

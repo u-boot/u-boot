@@ -104,6 +104,7 @@ extern const struct dpll_regs dpll_mpu_regs;
 extern const struct dpll_regs dpll_core_regs;
 extern const struct dpll_regs dpll_per_regs;
 extern const struct dpll_regs dpll_ddr_regs;
+extern const struct dpll_regs dpll_disp_regs;
 extern const struct dpll_params dpll_mpu_opp[NUM_CRYSTAL_FREQ][NUM_OPPS];
 extern const struct dpll_params dpll_core_1000MHz[NUM_CRYSTAL_FREQ];
 extern const struct dpll_params dpll_per_192MHz[NUM_CRYSTAL_FREQ];

@@ -114,8 +114,6 @@ void am33xx_spl_board_init(void)
 		0
 	};
 	do_enable_clocks(clk_domains, clk_modules_xre1specific, 1);
-	/* setup LCD-Pixel Clock */
-	writel(0x2, CM_DPLL + 0x34);
 	/* power-OFF LCD-Display */
 	gpio_direction_output(LCD_PWR, 0);
 
