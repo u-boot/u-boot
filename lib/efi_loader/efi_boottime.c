@@ -1649,9 +1649,10 @@ static efi_status_t EFIAPI efi_set_watchdog_timer(unsigned long timeout,
  * @child_handle	handle of the child to destroy
  * @return		status code
  */
-static efi_status_t EFIAPI efi_disconnect_controller(void *controller_handle,
-						     void *driver_image_handle,
-						     void *child_handle)
+static efi_status_t EFIAPI efi_disconnect_controller(
+				efi_handle_t controller_handle,
+				efi_handle_t driver_image_handle,
+				efi_handle_t child_handle)
 {
 	EFI_ENTRY("%p, %p, %p", controller_handle, driver_image_handle,
 		  child_handle);

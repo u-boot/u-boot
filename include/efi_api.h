@@ -125,8 +125,10 @@ struct efi_boot_services {
 			efi_handle_t *driver_image_handle,
 			struct efi_device_path *remaining_device_path,
 			bool recursive);
-	efi_status_t (EFIAPI *disconnect_controller)(void *controller_handle,
-			void *driver_image_handle, void *child_handle);
+	efi_status_t (EFIAPI *disconnect_controller)(
+			efi_handle_t controller_handle,
+			efi_handle_t driver_image_handle,
+			efi_handle_t child_handle);
 #define EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL  0x00000001
 #define EFI_OPEN_PROTOCOL_GET_PROTOCOL        0x00000002
 #define EFI_OPEN_PROTOCOL_TEST_PROTOCOL       0x00000004
