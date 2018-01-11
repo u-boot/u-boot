@@ -6,6 +6,17 @@ config SPL_LDSCRIPT
 config IDENT_STRING
 	default " Allwinner Technology"
 
+config SUN6I_P2WI
+	bool "Allwinner sun6i internal P2WI controller"
+	help
+	  If you say yes to this option, support will be included for the
+	  P2WI (Push/Pull 2 Wire Interface) controller embedded in some sunxi
+	  SOCs.
+	  The P2WI looks like an SMBus controller (which supports only byte
+	  accesses), except that it only supports one slave device.
+	  This interface is used to connect to specific PMIC devices (like the
+	  AXP221).
+
 config SUN6I_PRCM
 	bool
 	help
@@ -94,6 +105,7 @@ config MACH_SUN6I
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
+	select SUN6I_P2WI
 	select SUN6I_PRCM
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
