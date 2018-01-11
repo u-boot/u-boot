@@ -675,8 +675,6 @@ config ARCH_MX5
 
 config ARCH_QEMU
 	bool "QEMU Virtual Platform"
-	select CPU_V7
-	select ARCH_SUPPORT_PSCI
 	select DM
 	select DM_SERIAL
 	select OF_CONTROL
