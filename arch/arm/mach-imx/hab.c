@@ -70,6 +70,24 @@
 	((hab_rvt_exit_t *)HAB_RVT_EXIT)			\
 )
 
+static inline enum hab_status hab_rvt_check_target_new(enum hab_target target,
+						       const void *start,
+						       size_t bytes)
+{
+	return HAB_SUCCESS;
+}
+
+#define hab_rvt_check_target_p					\
+(								\
+	(is_mx6dqp()) ?						\
+	((hab_rvt_check_target_t *)hab_rvt_check_target_new) :	\
+	(is_mx6dq() && (soc_rev() >= CHIP_REV_1_5)) ?		\
+	((hab_rvt_check_target_t *)hab_rvt_check_target_new) :	\
+	(is_mx6sdl() &&	(soc_rev() >= CHIP_REV_1_2)) ?		\
+	((hab_rvt_check_target_t *)hab_rvt_check_target_new) :	\
+	((hab_rvt_check_target_t *)HAB_RVT_CHECK_TARGET)	\
+)
+
 #define ALIGN_SIZE		0x1000
 #define MX6DQ_PU_IROM_MMU_EN_VAR	0x009024a8
 #define MX6DLS_PU_IROM_MMU_EN_VAR	0x00901dd0
