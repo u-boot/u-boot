@@ -96,7 +96,7 @@ static inline enum hab_status hab_rvt_check_target_new(enum hab_target target,
 	(is_soc_type(MXC_SOC_MX7ULP) ? 0x80000000 :	\
 	 (is_soc_type(MXC_SOC_MX7) ? 0x2000000 : 0x2))
 
-static bool is_hab_enabled(void);
+static bool imx_hab_is_enabled(void);
 
 static int ivt_header_error(const char *err_str, struct ivt_header *ivt_hdr)
 {
@@ -334,7 +334,7 @@ static int get_hab_status(void)
 	hab_rvt_report_event = hab_rvt_report_event_p;
 	hab_rvt_report_status = hab_rvt_report_status_p;
 
-	if (is_hab_enabled())
+	if (imx_hab_is_enabled())
 		puts("\nSecure boot enabled\n");
 	else
 		puts("\nSecure boot disabled\n");
@@ -419,7 +419,7 @@ U_BOOT_CMD(
 
 #endif /* !defined(CONFIG_SPL_BUILD) */
 
-static bool is_hab_enabled(void)
+static bool imx_hab_is_enabled(void)
 {
 	struct imx_sec_config_fuse_t *fuse =
 		(struct imx_sec_config_fuse_t *)&imx_sec_config_fuse;
@@ -456,7 +456,7 @@ int imx_hab_authenticate_image(uint32_t ddr_start, uint32_t image_size,
 	hab_rvt_exit = hab_rvt_exit_p;
 	hab_rvt_check_target = hab_rvt_check_target_p;
 
-	if (!is_hab_enabled()) {
+	if (!imx_hab_is_enabled()) {
 		puts("hab fuse not enabled\n");
 		return result;
 	}
