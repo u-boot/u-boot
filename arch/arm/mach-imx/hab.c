@@ -478,14 +478,14 @@ int authenticate_image(uint32_t ddr_start, uint32_t image_size,
 
 	if (hab_rvt_entry() != HAB_SUCCESS) {
 		puts("hab entry function fail\n");
-		goto hab_caam_clock_disable;
+		goto hab_exit_failure_print_status;
 	}
 
 	status = hab_rvt_check_target(HAB_TGT_MEMORY, (void *)ddr_start, bytes);
 	if (status != HAB_SUCCESS) {
 		printf("HAB check target 0x%08x-0x%08x fail\n",
 		       ddr_start, ddr_start + bytes);
-		goto hab_caam_clock_disable;
+		goto hab_exit_failure_print_status;
 	}
 #ifdef DEBUG
 	printf("\nivt_offset = 0x%x, ivt addr = 0x%x\n", ivt_offset, ivt_addr);
@@ -543,12 +543,14 @@ int authenticate_image(uint32_t ddr_start, uint32_t image_size,
 		load_addr = 0;
 	}
 
-hab_caam_clock_disable:
-	hab_caam_clock_enable(0);
-
+hab_exit_failure_print_status:
 #if !defined(CONFIG_SPL_BUILD)
 	get_hab_status();
 #endif
+
+hab_caam_clock_disable:
+	hab_caam_clock_enable(0);
+
 	if (load_addr != 0)
 		result = 0;
 
