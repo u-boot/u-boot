@@ -57,7 +57,7 @@ static int passwd_abort(uint64_t etime)
 	const char *algo_name = "sha256";
 	u_int presskey_len = 0;
 	int abort = 0;
-	int size;
+	int size = sizeof(sha);
 	int ret;
 
 	if (sha_env_str == NULL)
