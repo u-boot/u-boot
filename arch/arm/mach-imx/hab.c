@@ -466,8 +466,7 @@ int authenticate_image(uint32_t ddr_start, uint32_t image_size,
 	print_buffer(ivt_addr, (void *)(ivt_addr), 4, 0x8, 0);
 
 	puts("Dumping CSF Header\n");
-	print_buffer(ivt_addr + IVT_SIZE, (void *)(ivt_addr + IVT_SIZE), 4,
-		     0x10, 0);
+	print_buffer(ivt->csf, (void *)(ivt->csf), 4, 0x10, 0);
 
 #if  !defined(CONFIG_SPL_BUILD)
 	get_hab_status();
