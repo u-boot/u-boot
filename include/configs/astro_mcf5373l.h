@@ -39,8 +39,6 @@
 #error No card type defined!
 #endif
 
-#define CONFIG_ASTRO5373L		/* define board type */
-
 /* Command line configuration */
 /*
  * CONFIG_RAM defines if u-boot is loaded via BDM (or started from

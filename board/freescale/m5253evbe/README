@@ -27,7 +27,6 @@ Created 06/05/2007
 3.1 Explanation on NEW definitions in include/configs/M5253EVBE.h
 	CONFIG_MCF52x2		Processor family
 	CONFIG_MCF5253		MCF5253 specific
-	CONFIG_M5253EVBE	Amadeus Plus board specific
 	CONFIG_SYS_CLK			Define Amadeus Plus CPU Clock
 	CONFIG_SYS_MBAR		MBAR base address
 	CONFIG_SYS_MBAR2		MBAR2 base address

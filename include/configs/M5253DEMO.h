@@ -7,8 +7,6 @@
 #ifndef _M5253DEMO_H
 #define _M5253DEMO_H
 
-#define CONFIG_M5253DEMO	/* define board type */
-
 #define CONFIG_MCFTMR
 
 #define CONFIG_MCFUART

@@ -9,7 +9,6 @@
 #ifndef __STMARK2_CONFIG_H
 #define __STMARK2_CONFIG_H
 
-#define CONFIG_STMARK2
 #define CONFIG_HOSTNAME			stmark2
 
 #define CONFIG_MCFUART

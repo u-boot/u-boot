@@ -9,7 +9,6 @@
 #ifndef __AMCORE_CONFIG_H
 #define __AMCORE_CONFIG_H
 
-#define CONFIG_AMCORE
 #define CONFIG_HOSTNAME			AMCORE
 
 #define CONFIG_MCFTMR

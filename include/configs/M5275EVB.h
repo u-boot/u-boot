@@ -21,7 +21,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_M5275EVB			/* define board type */
 
 #define CONFIG_MCFTMR
 

@@ -18,7 +18,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_M52277EVB	/* M52277EVB board */
 
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)

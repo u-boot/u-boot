@@ -8,8 +8,6 @@
 #ifndef _M5253EVBE_H
 #define _M5253EVBE_H
 
-#define CONFIG_M5253EVBE	/* define board type */
-
 #define CONFIG_MCFTMR
 
 #define CONFIG_MCFUART
