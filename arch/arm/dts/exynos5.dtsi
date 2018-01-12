@@ -10,6 +10,8 @@
 / {
 	compatible = "samsung,exynos5";
 
+	interrupt-parent = <&gic>;
+
 	combiner: interrupt-controller@10440000 {
 		compatible = "samsung,exynos4210-combiner";
 		#interrupt-cells = <2>;
