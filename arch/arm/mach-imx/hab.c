@@ -414,6 +414,22 @@ static int do_authenticate_image(cmd_tbl_t *cmdtp, int flag, int argc,
 	return rcode;
 }
 
+static int do_hab_failsafe(cmd_tbl_t *cmdtp, int flag, int argc,
+			   char * const argv[])
+{
+	hab_rvt_failsafe_t *hab_rvt_failsafe;
+
+	if (argc != 1) {
+		cmd_usage(cmdtp);
+		return 1;
+	}
+
+	hab_rvt_failsafe = hab_rvt_failsafe_p;
+	hab_rvt_failsafe();
+
+	return 0;
+}
+
 U_BOOT_CMD(
 		hab_status, CONFIG_SYS_MAXARGS, 1, do_hab_status,
 		"display HAB status",
@@ -429,6 +445,11 @@ U_BOOT_CMD(
 		"ivt_offset - hex offset of IVT in the image"
 	  );
 
+U_BOOT_CMD(
+		hab_failsafe, CONFIG_SYS_MAXARGS, 1, do_hab_failsafe,
+		"run BootROM failsafe routine",
+		""
+	  );
 
 #endif /* !defined(CONFIG_SPL_BUILD) */
 
