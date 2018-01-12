@@ -113,6 +113,12 @@ enum hab_context {
 	HAB_CTX_MAX
 };
 
+enum hab_target {
+	HAB_TGT_MEMORY		= 0x0f,
+	HAB_TGT_PERIPHERAL	= 0xf0,
+	HAB_TGT_ANY		= 0x55,
+};
+
 struct imx_sec_config_fuse_t {
 	int bank;
 	int word;
@@ -132,6 +138,8 @@ typedef enum hab_status hab_rvt_entry_t(void);
 typedef enum hab_status hab_rvt_exit_t(void);
 typedef void *hab_rvt_authenticate_image_t(uint8_t, ptrdiff_t,
 		void **, size_t *, hab_loader_callback_f_t);
+typedef enum hab_status hab_rvt_check_target_t(enum hab_target, const void *,
+					       size_t);
 typedef void hapi_clock_init_t(void);
 
 #define HAB_ENG_ANY		0x00   /* Select first compatible engine */
@@ -158,6 +166,7 @@ typedef void hapi_clock_init_t(void);
 
 #define HAB_RVT_ENTRY			(*(uint32_t *)(HAB_RVT_BASE + 0x04))
 #define HAB_RVT_EXIT			(*(uint32_t *)(HAB_RVT_BASE + 0x08))
+#define HAB_RVT_CHECK_TARGET		(*(uint32_t *)(HAB_RVT_BASE + 0x0C))
 #define HAB_RVT_AUTHENTICATE_IMAGE	(*(uint32_t *)(HAB_RVT_BASE + 0x10))
 #define HAB_RVT_REPORT_EVENT		(*(uint32_t *)(HAB_RVT_BASE + 0x20))
 #define HAB_RVT_REPORT_STATUS		(*(uint32_t *)(HAB_RVT_BASE + 0x24))
