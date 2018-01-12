@@ -436,11 +436,6 @@ int authenticate_image(uint32_t ddr_start, uint32_t image_size,
 
 	hab_caam_clock_enable(1);
 
-	if (hab_rvt_entry() != HAB_SUCCESS) {
-		puts("hab entry function fail\n");
-		goto hab_caam_clock_disable;
-	}
-
 	/* Calculate IVT address header */
 	ivt_addr = ddr_start + ivt_offset;
 	ivt = (struct ivt *)ivt_addr;
@@ -459,6 +454,12 @@ int authenticate_image(uint32_t ddr_start, uint32_t image_size,
 
 	start = ddr_start;
 	bytes = image_size;
+
+	if (hab_rvt_entry() != HAB_SUCCESS) {
+		puts("hab entry function fail\n");
+		goto hab_caam_clock_disable;
+	}
+
 #ifdef DEBUG
 	printf("\nivt_offset = 0x%x, ivt addr = 0x%x\n", ivt_offset, ivt_addr);
 	puts("Dumping IVT\n");
