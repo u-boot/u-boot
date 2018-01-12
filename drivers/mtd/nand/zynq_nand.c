@@ -1025,7 +1025,7 @@ int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 	}
 
 	xnand->nand_base = (void __iomem *)ZYNQ_NAND_BASEADDR;
-	mtd = get_nand_dev_by_index(0);
+	mtd = nand_to_mtd(nand_chip);
 
 	nand_chip->priv = xnand;
 	mtd->priv = nand_chip;
