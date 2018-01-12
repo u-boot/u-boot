@@ -70,7 +70,6 @@
 	((hab_rvt_exit_t *)HAB_RVT_EXIT)			\
 )
 
-#define IVT_SIZE		0x20
 #define ALIGN_SIZE		0x1000
 #define CSF_PAD_SIZE		0x2000
 #define MX6DQ_PU_IROM_MMU_EN_VAR	0x009024a8

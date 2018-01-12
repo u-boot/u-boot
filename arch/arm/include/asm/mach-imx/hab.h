@@ -143,6 +143,8 @@ typedef void hapi_clock_init_t(void);
 #define HAB_CID_ROM 0 /**< ROM Caller ID */
 #define HAB_CID_UBOOT 1 /**< UBOOT Caller ID*/
 
+#define IVT_SIZE			0x20
+
 /* ----------- end of HAB API updates ------------*/
 
 int authenticate_image(uint32_t ddr_start, uint32_t image_size);
