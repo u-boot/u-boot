@@ -17,20 +17,24 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct mm_region zynqmp_mem_map[] = {
+#if !defined(CONFIG_ZYNQMP_NO_DDR)
 	{
 		.virt = 0x0UL,
 		.phys = 0x0UL,
 		.size = 0x80000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
-	}, {
+	},
+#endif
+	{
 		.virt = 0x80000000UL,
 		.phys = 0x80000000UL,
 		.size = 0x70000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, {
+	},
+	{
 		.virt = 0xf8000000UL,
 		.phys = 0xf8000000UL,
 		.size = 0x07e00000UL,
@@ -52,13 +56,17 @@ static struct mm_region zynqmp_mem_map[] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, {
+	},
+#if !defined(CONFIG_ZYNQMP_NO_DDR)
+	{
 		.virt = 0x800000000UL,
 		.phys = 0x800000000UL,
 		.size = 0x800000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
-	}, {
+	},
+#endif
+	{
 		.virt = 0x1000000000UL,
 		.phys = 0x1000000000UL,
 		.size = 0xf000000000UL,
