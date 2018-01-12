@@ -462,6 +462,8 @@ int authenticate_image(uint32_t ddr_start, uint32_t image_size,
 
 #ifdef DEBUG
 	printf("\nivt_offset = 0x%x, ivt addr = 0x%x\n", ivt_offset, ivt_addr);
+	printf("ivt entry = 0x%08x, dcd = 0x%08x, csf = 0x%08x\n", ivt->entry,
+	       ivt->dcd, ivt->csf);
 	puts("Dumping IVT\n");
 	print_buffer(ivt_addr, (void *)(ivt_addr), 4, 0x8, 0);
 
