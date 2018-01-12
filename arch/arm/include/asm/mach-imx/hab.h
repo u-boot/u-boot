@@ -144,6 +144,7 @@ typedef void hapi_clock_init_t(void);
 #define HAB_CID_UBOOT 1 /**< UBOOT Caller ID*/
 
 #define IVT_SIZE			0x20
+#define CSF_PAD_SIZE			0x2000
 
 /* ----------- end of HAB API updates ------------*/
 
