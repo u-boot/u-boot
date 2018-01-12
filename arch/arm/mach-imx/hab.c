@@ -437,12 +437,15 @@ int authenticate_image(uint32_t ddr_start, uint32_t image_size,
 	hab_rvt_authenticate_image_t *hab_rvt_authenticate_image;
 	hab_rvt_entry_t *hab_rvt_entry;
 	hab_rvt_exit_t *hab_rvt_exit;
+	hab_rvt_check_target_t *hab_rvt_check_target;
 	struct ivt *ivt;
 	struct ivt_header *ivt_hdr;
+	enum hab_status status;
 
 	hab_rvt_authenticate_image = hab_rvt_authenticate_image_p;
 	hab_rvt_entry = hab_rvt_entry_p;
 	hab_rvt_exit = hab_rvt_exit_p;
+	hab_rvt_check_target = hab_rvt_check_target_p;
 
 	if (!is_hab_enabled()) {
 		puts("hab fuse not enabled\n");
@@ -478,6 +481,12 @@ int authenticate_image(uint32_t ddr_start, uint32_t image_size,
 		goto hab_caam_clock_disable;
 	}
 
+	status = hab_rvt_check_target(HAB_TGT_MEMORY, (void *)ddr_start, bytes);
+	if (status != HAB_SUCCESS) {
+		printf("HAB check target 0x%08x-0x%08x fail\n",
+		       ddr_start, ddr_start + bytes);
+		goto hab_caam_clock_disable;
+	}
 #ifdef DEBUG
 	printf("\nivt_offset = 0x%x, ivt addr = 0x%x\n", ivt_offset, ivt_addr);
 	printf("ivt entry = 0x%08x, dcd = 0x%08x, csf = 0x%08x\n", ivt->entry,
