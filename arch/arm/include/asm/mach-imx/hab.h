@@ -140,6 +140,7 @@ typedef void *hab_rvt_authenticate_image_t(uint8_t, ptrdiff_t,
 		void **, size_t *, hab_loader_callback_f_t);
 typedef enum hab_status hab_rvt_check_target_t(enum hab_target, const void *,
 					       size_t);
+typedef void hab_rvt_failsafe_t(void);
 typedef void hapi_clock_init_t(void);
 
 #define HAB_ENG_ANY		0x00   /* Select first compatible engine */
@@ -170,6 +171,7 @@ typedef void hapi_clock_init_t(void);
 #define HAB_RVT_AUTHENTICATE_IMAGE	(*(uint32_t *)(HAB_RVT_BASE + 0x10))
 #define HAB_RVT_REPORT_EVENT		(*(uint32_t *)(HAB_RVT_BASE + 0x20))
 #define HAB_RVT_REPORT_STATUS		(*(uint32_t *)(HAB_RVT_BASE + 0x24))
+#define HAB_RVT_FAILSAFE		(*(uint32_t *)(HAB_RVT_BASE + 0x28))
 
 #define HAB_RVT_REPORT_EVENT_NEW               (*(uint32_t *)0x000000B8)
 #define HAB_RVT_REPORT_STATUS_NEW              (*(uint32_t *)0x000000BC)
