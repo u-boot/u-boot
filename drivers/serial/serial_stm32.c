@@ -11,7 +11,7 @@
 #include <asm/io.h>
 #include <serial.h>
 #include <asm/arch/stm32.h>
-#include "serial_stm32x7.h"
+#include "serial_stm32.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -148,7 +148,7 @@ static const struct dm_serial_ops stm32_serial_ops = {
 };
 
 U_BOOT_DRIVER(serial_stm32) = {
-	.name = "serial_stm32x7",
+	.name = "serial_stm32",
 	.id = UCLASS_SERIAL,
 	.of_match = of_match_ptr(stm32_serial_id),
 	.ofdata_to_platdata = of_match_ptr(stm32_serial_ofdata_to_platdata),

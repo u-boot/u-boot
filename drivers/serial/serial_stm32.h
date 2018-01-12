@@ -5,8 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef _SERIAL_STM32_X7_
-#define _SERIAL_STM32_X7_
+#ifndef _SERIAL_STM32_
+#define _SERIAL_STM32_
 
 #define CR1_OFFSET(x)	(x ? 0x0c : 0x00)
 #define CR3_OFFSET(x)	(x ? 0x14 : 0x08)

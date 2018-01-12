@@ -38,7 +38,7 @@ config STM32H7
 	select STM32_SDRAM
 	select STM32_RCC
 	select STM32_RESET
-	select STM32X7_SERIAL
+	select STM32_SERIAL
 	select SYSCON
 
 source "arch/arm/mach-stm32/stm32f4/Kconfig"
