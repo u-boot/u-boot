@@ -78,37 +78,6 @@
 	(is_soc_type(MXC_SOC_MX7ULP) ? 0x80000000 :	\
 	 (is_soc_type(MXC_SOC_MX7) ? 0x2000000 : 0x2))
 
-/*
- * +------------+  0x0 (DDR_UIMAGE_START) -
- * |   Header   |                          |
- * +------------+  0x40                    |
- * |            |                          |
- * |            |                          |
- * |            |                          |
- * |            |                          |
- * | Image Data |                          |
- * .            |                          |
- * .            |                           > Stuff to be authenticated ----+
- * .            |                          |                                |
- * |            |                          |                                |
- * |            |                          |                                |
- * +------------+                          |                                |
- * |            |                          |                                |
- * | Fill Data  |                          |                                |
- * |            |                          |                                |
- * +------------+ Align to ALIGN_SIZE      |                                |
- * |    IVT     |                          |                                |
- * +------------+ + IVT_SIZE              -                                 |
- * |            |                                                           |
- * |  CSF DATA  | <---------------------------------------------------------+
- * |            |
- * +------------+
- * |            |
- * | Fill Data  |
- * |            |
- * +------------+ + CSF_PAD_SIZE
- */
-
 static bool is_hab_enabled(void);
 
 #if !defined(CONFIG_SPL_BUILD)
@@ -361,20 +330,22 @@ int do_hab_status(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 static int do_authenticate_image(cmd_tbl_t *cmdtp, int flag, int argc,
 				char * const argv[])
 {
-	ulong	addr, ivt_offset;
+	ulong	addr, length, ivt_offset;
 	int	rcode = 0;
 
-	if (argc < 3)
+	if (argc < 4)
 		return CMD_RET_USAGE;
 
 	addr = simple_strtoul(argv[1], NULL, 16);
-	ivt_offset = simple_strtoul(argv[2], NULL, 16);
+	length = simple_strtoul(argv[2], NULL, 16);
+	ivt_offset = simple_strtoul(argv[3], NULL, 16);
 
-	rcode = authenticate_image(addr, ivt_offset);
+	rcode = authenticate_image(addr, length, ivt_offset);
 	if (rcode == 0)
 		rcode = CMD_RET_SUCCESS;
 	else
 		rcode = CMD_RET_FAILURE;
+
 	return rcode;
 }
 
@@ -385,10 +356,11 @@ U_BOOT_CMD(
 	  );
 
 U_BOOT_CMD(
-		hab_auth_img, 3, 0, do_authenticate_image,
+		hab_auth_img, 4, 0, do_authenticate_image,
 		"authenticate image via HAB",
-		"addr ivt_offset\n"
+		"addr length ivt_offset\n"
 		"addr - image hex address\n"
+		"length - image hex length\n"
 		"ivt_offset - hex offset of IVT in the image"
 	  );
 
@@ -411,11 +383,12 @@ static bool is_hab_enabled(void)
 	return (reg & IS_HAB_ENABLED_BIT) == IS_HAB_ENABLED_BIT;
 }
 
-int authenticate_image(uint32_t ddr_start, uint32_t image_size)
+int authenticate_image(uint32_t ddr_start, uint32_t image_size,
+		       uint32_t ivt_offset)
 {
 	uint32_t load_addr = 0;
 	size_t bytes;
-	ptrdiff_t ivt_offset = 0;
+	uint32_t ivt_addr = 0;
 	int result = 1;
 	ulong start;
 	hab_rvt_authenticate_image_t *hab_rvt_authenticate_image;
@@ -441,24 +414,18 @@ int authenticate_image(uint32_t ddr_start, uint32_t image_size)
 		goto hab_caam_clock_disable;
 	}
 
-	/* If not already aligned, Align to ALIGN_SIZE */
-	ivt_offset = (image_size + ALIGN_SIZE - 1) &
-			~(ALIGN_SIZE - 1);
-
+	/* Calculate IVT address header */
+	ivt_addr = ddr_start + ivt_offset;
 	start = ddr_start;
-	bytes = ivt_offset + IVT_SIZE + CSF_PAD_SIZE;
+	bytes = image_size;
 #ifdef DEBUG
-	printf("\nivt_offset = 0x%x, ivt addr = 0x%x\n",
-	       ivt_offset, ddr_start + ivt_offset);
+	printf("\nivt_offset = 0x%x, ivt addr = 0x%x\n", ivt_offset, ivt_addr);
 	puts("Dumping IVT\n");
-	print_buffer(ddr_start + ivt_offset,
-		     (void *)(ddr_start + ivt_offset),
-		     4, 0x8, 0);
+	print_buffer(ivt_addr, (void *)(ivt_addr), 4, 0x8, 0);
 
 	puts("Dumping CSF Header\n");
-	print_buffer(ddr_start + ivt_offset + IVT_SIZE,
-		     (void *)(ddr_start + ivt_offset + IVT_SIZE),
-		     4, 0x10, 0);
+	print_buffer(ivt_addr + IVT_SIZE, (void *)(ivt_addr + IVT_SIZE), 4,
+		     0x10, 0);
 
 #if  !defined(CONFIG_SPL_BUILD)
 	get_hab_status();
@@ -468,6 +435,8 @@ int authenticate_image(uint32_t ddr_start, uint32_t image_size)
 	printf("\tivt_offset = 0x%x\n", ivt_offset);
 	printf("\tstart = 0x%08lx\n", start);
 	printf("\tbytes = 0x%x\n", bytes);
+#else
+	(void)ivt_addr;
 #endif
 	/*
 	 * If the MMU is enabled, we have to notify the ROM
