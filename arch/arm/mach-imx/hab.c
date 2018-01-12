@@ -410,7 +410,7 @@ static bool is_hab_enabled(void)
 	return (reg & IS_HAB_ENABLED_BIT) == IS_HAB_ENABLED_BIT;
 }
 
-uint32_t authenticate_image(uint32_t ddr_start, uint32_t image_size)
+int authenticate_image(uint32_t ddr_start, uint32_t image_size)
 {
 	uint32_t load_addr = 0;
 	size_t bytes;
