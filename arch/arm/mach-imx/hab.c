@@ -450,6 +450,13 @@ int authenticate_image(uint32_t ddr_start, uint32_t image_size,
 	if (verify_ivt_header(ivt_hdr))
 		goto hab_caam_clock_disable;
 
+	/* Verify IVT body */
+	if (ivt->self != ivt_addr) {
+		printf("ivt->self 0x%08x pointer is 0x%08x\n",
+		       ivt->self, ivt_addr);
+		goto hab_caam_clock_disable;
+	}
+
 	start = ddr_start;
 	bytes = image_size;
 #ifdef DEBUG
