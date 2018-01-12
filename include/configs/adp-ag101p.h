@@ -14,8 +14,6 @@
 /*
  * CPU and Board Configuration Options
  */
-#define CONFIG_ADP_AG101P
-
 #define CONFIG_USE_INTERRUPT
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
