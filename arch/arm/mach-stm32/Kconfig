@@ -2,9 +2,31 @@ if STM32
 
 config STM32F4
 	bool "stm32f4 family"
+	select CLK
+	select DM_GPIO
+	select DM_RESET
+	select MISC
+	select PINCTRL
+	select PINCTRL_STM32
+	select RAM
+	select STM32_SDRAM
+	select STM32_RCC
+	select STM32_RESET
+	select STM32_SERIAL
 
 config STM32F7
 	bool "stm32f7 family"
+	select CLK
+	select DM_GPIO
+	select DM_RESET
+	select MISC
+	select PINCTRL
+	select PINCTRL_STM32
+	select RAM
+	select STM32_SDRAM
+	select STM32_RCC
+	select STM32_RESET
+	select STM32_SERIAL
 	select SUPPORT_SPL
 	select SPL
 	select SPL_CLK
