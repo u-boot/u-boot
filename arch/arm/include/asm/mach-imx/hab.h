@@ -10,6 +10,34 @@
 
 #include <linux/types.h>
 
+/*
+ * IVT header definitions
+ * Security Reference Manual for i.MX 7Dual and 7Solo Applications Processors,
+ * Rev. 0, 03/2017
+ * Section : 6.7.1.1
+ */
+#define IVT_HEADER_MAGIC	0xD1
+#define IVT_TOTAL_LENGTH	0x20
+#define IVT_HEADER_V1		0x40
+#define IVT_HEADER_V2		0x41
+
+struct ivt_header {
+	uint8_t		magic;
+	uint16_t	length;
+	uint8_t		version;
+} __attribute__((packed));
+
+struct ivt {
+	struct ivt_header hdr;	/* IVT header above */
+	uint32_t entry;		/* Absolute address of first instruction */
+	uint32_t reserved1;	/* Reserved should be zero */
+	uint32_t dcd;		/* Absolute address of the image DCD */
+	uint32_t boot;		/* Absolute address of the boot data */
+	uint32_t self;		/* Absolute address of the IVT */
+	uint32_t csf;		/* Absolute address of the CSF */
+	uint32_t reserved2;	/* Reserved should be zero */
+};
+
 /* -------- start of HAB API updates ------------*/
 /* The following are taken from HAB4 SIS */
 
