@@ -1,5 +1,11 @@
 #include <config.h>
 
+#ifdef CONFIG_SPL_TEXT_BASE
+#define U_BOOT_OFFSET (CONFIG_SYS_TEXT_BASE - CONFIG_SPL_TEXT_BASE)
+#else
+#define U_BOOT_OFFSET 0
+#endif
+
 / {
 	binman {
 		multiple-images;
@@ -9,8 +15,7 @@
 			u-boot-spl {
 			};
 			u-boot {
-				pos = <(CONFIG_SYS_TEXT_BASE -
-					CONFIG_SPL_TEXT_BASE)>;
+				pos = <(U_BOOT_OFFSET)>;
 			};
 		};
 
@@ -21,8 +26,7 @@
 			u-boot-spl {
 			};
 			u-boot {
-				pos = <(CONFIG_SYS_TEXT_BASE -
-					CONFIG_SPL_TEXT_BASE)>;
+				pos = <(U_BOOT_OFFSET)>;
 			};
 		};
 
@@ -32,8 +36,7 @@
 			u-boot-spl {
 			};
 			u-boot-nodtb {
-				pos = <(CONFIG_SYS_TEXT_BASE -
-					CONFIG_SPL_TEXT_BASE)>;
+				pos = <(U_BOOT_OFFSET)>;
 			};
 		};
 	};

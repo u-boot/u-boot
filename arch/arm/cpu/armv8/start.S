@@ -19,7 +19,9 @@
 
 .globl	_start
 _start:
-#ifdef CONFIG_ENABLE_ARM_SOC_BOOT0_HOOK
+#if defined(LINUX_KERNEL_IMAGE_HEADER)
+#include <asm/boot0-linux-kernel-header.h>
+#elif defined(CONFIG_ENABLE_ARM_SOC_BOOT0_HOOK)
 /*
  * Various SoCs need something special and SoC-specific up front in
  * order to boot, allow them to set that in their boot0.h file and then

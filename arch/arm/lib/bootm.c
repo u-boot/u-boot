@@ -47,7 +47,8 @@ static ulong get_sp(void)
 
 void arch_lmb_reserve(struct lmb *lmb)
 {
-	ulong sp;
+	ulong sp, bank_end;
+	int bank;
 
 	/*
 	 * Booting a (Linux) kernel image
@@ -63,8 +64,16 @@ void arch_lmb_reserve(struct lmb *lmb)
 
 	/* adjust sp by 4K to be safe */
 	sp -= 4096;
-	lmb_reserve(lmb, sp,
-		    gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size - sp);
+	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
+		if (sp < gd->bd->bi_dram[bank].start)
+			continue;
+		bank_end = gd->bd->bi_dram[bank].start +
+			gd->bd->bi_dram[bank].size;
+		if (sp >= bank_end)
+			continue;
+		lmb_reserve(lmb, sp, bank_end - sp);
+		break;
+	}
 }
 
 __weak void board_quiesce_devices(void)
