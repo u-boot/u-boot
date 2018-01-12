@@ -78,6 +78,11 @@ before_script:
        tar -C /tmp -xf gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu.tar.xz &&
        tar -C /tmp -xf gcc-linaro-6.3.1-2017.02-x86_64_arm-linux-gnueabihf.tar.xz;
     fi
+  - if [[ "${TOOLCHAIN}" == "riscv" ]]; then
+        wget https://github.com/PkmX/riscv-prebuilt-toolchains/releases/download/20180111/riscv32-unknown-elf-toolchain.tar.gz &&
+        tar -C /tmp -xf riscv32-unknown-elf-toolchain.tar.gz &&
+        echo -e "\n[toolchain-prefix]\nriscv = /tmp/riscv32-unknown-elf/bin/riscv32-unknown-elf-" >> ~/.buildman;
+    fi
   - if [[ "${QEMU_TARGET}" != "" ]]; then
        git clone git://git.qemu.org/qemu.git /tmp/qemu;
        pushd /tmp/qemu;
@@ -251,6 +256,9 @@ matrix:
     - env:
         - BUILDMAN="xtensa"
           TOOLCHAIN="xtensa"
+    - env:
+        - BUILDMAN="riscv"
+          TOOLCHAIN="riscv"
 
     # QA jobs for code analytics
     # static code analysis with cppcheck (we can add --enable=all later)
