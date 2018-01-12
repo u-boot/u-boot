@@ -373,7 +373,10 @@ static int do_authenticate_image(cmd_tbl_t *cmdtp, int flag, int argc,
 	ivt_offset = simple_strtoul(argv[2], NULL, 16);
 
 	rcode = authenticate_image(addr, ivt_offset);
-
+	if (rcode == 0)
+		rcode = CMD_RET_SUCCESS;
+	else
+		rcode = CMD_RET_FAILURE;
 	return rcode;
 }
 
@@ -415,7 +418,7 @@ int authenticate_image(uint32_t ddr_start, uint32_t image_size)
 	uint32_t load_addr = 0;
 	size_t bytes;
 	ptrdiff_t ivt_offset = 0;
-	int result = 0;
+	int result = 1;
 	ulong start;
 	hab_rvt_authenticate_image_t *hab_rvt_authenticate_image;
 	hab_rvt_entry_t *hab_rvt_entry;
@@ -510,7 +513,7 @@ int authenticate_image(uint32_t ddr_start, uint32_t image_size)
 	}
 
 	if ((!is_hab_enabled()) || (load_addr != 0))
-		result = 1;
+		result = 0;
 
 	return result;
 }

@@ -166,8 +166,8 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 
 	/* HAB looks for the CSF at the end of the authenticated data therefore,
 	 * we need to subtract the size of the CSF from the actual filesize */
-	if (authenticate_image(spl_image->load_addr,
-			       spl_image->size - CONFIG_CSF_SIZE)) {
+	if (!authenticate_image(spl_image->load_addr,
+				spl_image->size - CONFIG_CSF_SIZE)) {
 		image_entry();
 	} else {
 		puts("spl: ERROR:  image authentication unsuccessful\n");
