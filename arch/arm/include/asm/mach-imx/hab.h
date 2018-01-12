@@ -185,7 +185,7 @@ typedef void hapi_clock_init_t(void);
 
 /* ----------- end of HAB API updates ------------*/
 
-int authenticate_image(uint32_t ddr_start, uint32_t image_size,
-		       uint32_t ivt_offset);
+int imx_hab_authenticate_image(uint32_t ddr_start, uint32_t image_size,
+			       uint32_t ivt_offset);
 
 #endif

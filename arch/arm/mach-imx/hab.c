@@ -392,7 +392,7 @@ static int do_authenticate_image(cmd_tbl_t *cmdtp, int flag, int argc,
 	length = simple_strtoul(argv[2], NULL, 16);
 	ivt_offset = simple_strtoul(argv[3], NULL, 16);
 
-	rcode = authenticate_image(addr, length, ivt_offset);
+	rcode = imx_hab_authenticate_image(addr, length, ivt_offset);
 	if (rcode == 0)
 		rcode = CMD_RET_SUCCESS;
 	else
@@ -435,8 +435,8 @@ static bool is_hab_enabled(void)
 	return (reg & IS_HAB_ENABLED_BIT) == IS_HAB_ENABLED_BIT;
 }
 
-int authenticate_image(uint32_t ddr_start, uint32_t image_size,
-		       uint32_t ivt_offset)
+int imx_hab_authenticate_image(uint32_t ddr_start, uint32_t image_size,
+			       uint32_t ivt_offset)
 {
 	uint32_t load_addr = 0;
 	size_t bytes;
