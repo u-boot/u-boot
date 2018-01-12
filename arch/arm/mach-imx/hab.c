@@ -70,6 +70,21 @@
 	((hab_rvt_exit_t *)HAB_RVT_EXIT)			\
 )
 
+static inline void hab_rvt_failsafe_new(void)
+{
+}
+
+#define hab_rvt_failsafe_p				\
+(							\
+	(is_mx6dqp()) ?					\
+	((hab_rvt_failsafe_t *)hab_rvt_failsafe_new) :	\
+	(is_mx6dq() && (soc_rev() >= CHIP_REV_1_5)) ?	\
+	((hab_rvt_failsafe_t *)hab_rvt_failsafe_new) :	\
+	(is_mx6sdl() && (soc_rev() >= CHIP_REV_1_2)) ?	\
+	((hab_rvt_failsafe_t *)hab_rvt_failsafe_new) :	\
+	((hab_rvt_failsafe_t *)HAB_RVT_FAILSAFE)	\
+)
+
 static inline enum hab_status hab_rvt_check_target_new(enum hab_target target,
 						       const void *start,
 						       size_t bytes)
