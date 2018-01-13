@@ -62,9 +62,10 @@ bootmode strings at runtime.
   serial - drivers/serial/serial_zynq.c
   net - drivers/net/zynq_gem.c
   mmc - drivers/mmc/zynq_sdhci.c
-  mmc - drivers/mmc/zynq_sdhci.c
-  spi-  drivers/spi/zynq_spi.c
+  spi - drivers/spi/zynq_spi.c
+  qspi - drivers/spi/zynq_qspi.c
   i2c - drivers/i2c/zynq_i2c.c
+  nand - drivers/mtd/nand/zynq_nand.c
 - Done proper cleanups on board configurations
 - Added basic FDT support for zynq boards
 - d-cache support for zynq_gem.c
@@ -72,8 +73,6 @@ bootmode strings at runtime.
 6. TODO
 
 - Add zynq boards support - zc770_xm011
-- Add zynq qspi controller driver
-- Add zynq nand controller driver
 - Add FDT support on individual drivers
 
 [1] http://www.xilinx.com/products/boards-and-kits/EK-Z7-ZC702-G.htm
