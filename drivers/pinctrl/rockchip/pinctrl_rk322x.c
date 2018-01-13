@@ -470,6 +470,56 @@ enum {
 	CON_IOMUX_PWM0SEL_MASK	= 1 << CON_IOMUX_PWM0SEL_SHIFT,
 };
 
+/* GRF_GPIO2B_E */
+enum {
+	GRF_GPIO2B0_E_SHIFT = 0,
+	GRF_GPIO2B0_E_MASK = 3 << GRF_GPIO2B0_E_SHIFT,
+	GRF_GPIO2B1_E_SHIFT = 2,
+	GRF_GPIO2B1_E_MASK = 3 << GRF_GPIO2B1_E_SHIFT,
+	GRF_GPIO2B3_E_SHIFT = 6,
+	GRF_GPIO2B3_E_MASK = 3 << GRF_GPIO2B3_E_SHIFT,
+	GRF_GPIO2B4_E_SHIFT = 8,
+	GRF_GPIO2B4_E_MASK = 3 << GRF_GPIO2B4_E_SHIFT,
+	GRF_GPIO2B5_E_SHIFT = 10,
+	GRF_GPIO2B5_E_MASK = 3 << GRF_GPIO2B5_E_SHIFT,
+	GRF_GPIO2B6_E_SHIFT = 12,
+	GRF_GPIO2B6_E_MASK = 3 << GRF_GPIO2B6_E_SHIFT,
+};
+
+/* GRF_GPIO2C_E */
+enum {
+	GRF_GPIO2C0_E_SHIFT = 0,
+	GRF_GPIO2C0_E_MASK = 3 << GRF_GPIO2C0_E_SHIFT,
+	GRF_GPIO2C1_E_SHIFT = 2,
+	GRF_GPIO2C1_E_MASK = 3 << GRF_GPIO2C1_E_SHIFT,
+	GRF_GPIO2C2_E_SHIFT = 4,
+	GRF_GPIO2C2_E_MASK = 3 << GRF_GPIO2C2_E_SHIFT,
+	GRF_GPIO2C3_E_SHIFT = 6,
+	GRF_GPIO2C3_E_MASK = 3 << GRF_GPIO2C3_E_SHIFT,
+	GRF_GPIO2C4_E_SHIFT = 8,
+	GRF_GPIO2C4_E_MASK = 3 << GRF_GPIO2C4_E_SHIFT,
+	GRF_GPIO2C5_E_SHIFT = 10,
+	GRF_GPIO2C5_E_MASK = 3 << GRF_GPIO2C5_E_SHIFT,
+	GRF_GPIO2C6_E_SHIFT = 12,
+	GRF_GPIO2C6_E_MASK = 3 << GRF_GPIO2C6_E_SHIFT,
+	GRF_GPIO2C7_E_SHIFT = 14,
+	GRF_GPIO2C7_E_MASK = 3 << GRF_GPIO2C7_E_SHIFT,
+};
+
+/* GRF_GPIO2D_E */
+enum {
+	GRF_GPIO2D1_E_SHIFT = 2,
+	GRF_GPIO2D1_E_MASK = 3 << GRF_GPIO2D1_E_SHIFT,
+};
+
+/* GPIO Bias drive strength settings */
+enum GPIO_BIAS {
+	GPIO_BIAS_2MA = 0,
+	GPIO_BIAS_4MA,
+	GPIO_BIAS_8MA,
+	GPIO_BIAS_12MA,
+};
+
 struct rk322x_pinctrl_priv {
 	struct rk322x_grf *grf;
 };
@@ -633,6 +683,95 @@ static void pinctrl_rk322x_sdmmc_config(struct rk322x_grf *grf, int mmc_id)
 	}
 }
 
+#if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
+static void pinctrl_rk322x_gmac_config(struct rk322x_grf *grf, int gmac_id)
+{
+	switch (gmac_id) {
+	case PERIPH_ID_GMAC:
+		/* set rgmii pins mux */
+		rk_clrsetreg(&grf->gpio2b_iomux,
+			     GPIO2B0_MASK |
+			     GPIO2B1_MASK |
+			     GPIO2B3_MASK |
+			     GPIO2B4_MASK |
+			     GPIO2B5_MASK |
+			     GPIO2B6_MASK,
+			     GPIO2B0_GMAC_RXDV << GPIO2B0_SHIFT |
+			     GPIO2B1_GMAC_TXCLK << GPIO2B1_SHIFT |
+			     GPIO2B3_GMAC_RXCLK << GPIO2B3_SHIFT |
+			     GPIO2B4_GMAC_MDIO << GPIO2B4_SHIFT |
+			     GPIO2B5_GMAC_TXEN << GPIO2B5_SHIFT |
+			     GPIO2B6_GMAC_CLK << GPIO2B6_SHIFT);
+
+		rk_clrsetreg(&grf->gpio2c_iomux,
+			     GPIO2C0_MASK |
+			     GPIO2C1_MASK |
+			     GPIO2C2_MASK |
+			     GPIO2C3_MASK |
+			     GPIO2C4_MASK |
+			     GPIO2C5_MASK |
+			     GPIO2C6_MASK |
+			     GPIO2C7_MASK,
+			     GPIO2C0_GMAC_RXD1 << GPIO2C0_SHIFT |
+			     GPIO2C1_GMAC_RXD0 << GPIO2C1_SHIFT |
+			     GPIO2C2_GMAC_TXD1 << GPIO2C2_SHIFT |
+			     GPIO2C3_GMAC_TXD0 << GPIO2C3_SHIFT |
+			     GPIO2C4_GMAC_RXD3 << GPIO2C4_SHIFT |
+			     GPIO2C5_GMAC_RXD2 << GPIO2C5_SHIFT |
+			     GPIO2C6_GMAC_TXD2 << GPIO2C6_SHIFT |
+			     GPIO2C7_GMAC_TXD3 << GPIO2C7_SHIFT);
+
+		rk_clrsetreg(&grf->gpio2d_iomux,
+			     GPIO2D1_MASK,
+			     GPIO2D1_GMAC_MDC << GPIO2D1_SHIFT);
+
+		/*
+		 * set rgmii tx pins to 12ma drive-strength,
+		 * clean others with 2ma.
+		 */
+		rk_clrsetreg(&grf->gpio2_e[1],
+			     GRF_GPIO2B0_E_MASK |
+			     GRF_GPIO2B1_E_MASK |
+			     GRF_GPIO2B3_E_MASK |
+			     GRF_GPIO2B4_E_MASK |
+			     GRF_GPIO2B5_E_MASK |
+			     GRF_GPIO2B6_E_MASK,
+			     GPIO_BIAS_2MA << GRF_GPIO2B0_E_SHIFT |
+			     GPIO_BIAS_12MA << GRF_GPIO2B1_E_SHIFT |
+			     GPIO_BIAS_2MA << GRF_GPIO2B3_E_SHIFT |
+			     GPIO_BIAS_2MA << GRF_GPIO2B4_E_SHIFT |
+			     GPIO_BIAS_12MA << GRF_GPIO2B5_E_SHIFT |
+			     GPIO_BIAS_2MA << GRF_GPIO2B6_E_SHIFT);
+
+		rk_clrsetreg(&grf->gpio2_e[2],
+			     GRF_GPIO2C0_E_MASK |
+			     GRF_GPIO2C1_E_MASK |
+			     GRF_GPIO2C2_E_MASK |
+			     GRF_GPIO2C3_E_MASK |
+			     GRF_GPIO2C4_E_MASK |
+			     GRF_GPIO2C5_E_MASK |
+			     GRF_GPIO2C6_E_MASK |
+			     GRF_GPIO2C7_E_MASK,
+			     GPIO_BIAS_2MA << GRF_GPIO2C0_E_SHIFT |
+			     GPIO_BIAS_2MA << GRF_GPIO2C1_E_SHIFT |
+			     GPIO_BIAS_12MA << GRF_GPIO2C2_E_SHIFT |
+			     GPIO_BIAS_12MA << GRF_GPIO2C3_E_SHIFT |
+			     GPIO_BIAS_2MA << GRF_GPIO2C4_E_SHIFT |
+			     GPIO_BIAS_2MA << GRF_GPIO2C5_E_SHIFT |
+			     GPIO_BIAS_12MA << GRF_GPIO2C6_E_SHIFT |
+			     GPIO_BIAS_12MA << GRF_GPIO2C7_E_SHIFT);
+
+		rk_clrsetreg(&grf->gpio2_e[3],
+			     GRF_GPIO2D1_E_MASK,
+			     GPIO_BIAS_2MA << GRF_GPIO2D1_E_SHIFT);
+		break;
+	default:
+		debug("gmac id = %d iomux error!\n", gmac_id);
+		break;
+	}
+}
+#endif
+
 static int rk322x_pinctrl_request(struct udevice *dev, int func, int flags)
 {
 	struct rk322x_pinctrl_priv *priv = dev_get_priv(dev);
@@ -662,6 +801,11 @@ static int rk322x_pinctrl_request(struct udevice *dev, int func, int flags)
 	case PERIPH_ID_SDMMC1:
 		pinctrl_rk322x_sdmmc_config(priv->grf, func);
 		break;
+#if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
+	case PERIPH_ID_GMAC:
+		pinctrl_rk322x_gmac_config(priv->grf, func);
+		break;
+#endif
 	default:
 		return -EINVAL;
 	}
@@ -701,6 +845,10 @@ static int rk322x_pinctrl_get_periph_id(struct udevice *dev,
 		return PERIPH_ID_UART1;
 	case 57:
 		return PERIPH_ID_UART2;
+#if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
+	case 24:
+		return PERIPH_ID_GMAC;
+#endif
 	}
 	return -ENOENT;
 }
