@@ -100,13 +100,17 @@ struct rv1108_grf {
 	u32 reserved14[2];
 	u32 dma_con0;
 	u32 dma_con1;
-	u32 reserved15[539];
+	u32 reserved15[59];
 	u32 uoc_status;
+	u32 reserved16[2];
 	u32 host_status;
+	u32 reserved17[59];
 	u32 gmac_con0;
+	u32 reserved18[191];
 	u32 chip_id;
 };
-check_member(rv1108_grf, chip_id, 0xf90);
+
+check_member(rv1108_grf, chip_id, 0x0c00);
 
 /* GRF_GPIO1B_IOMUX */
 enum {
