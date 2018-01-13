@@ -17,7 +17,6 @@
  */
 #define CONFIG_MPC831x
 #define CONFIG_MPC8313
-#define CONFIG_IDS8313
 
 #define CONFIG_FSL_ELBC
 

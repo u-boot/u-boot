@@ -36,7 +36,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_SBC8548		1	/* SBC8548 board specific */
 
 /*
  * If you want to boot from the SODIMM flash, instead of the soldered

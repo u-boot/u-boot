@@ -18,7 +18,6 @@
 #define CONFIG_E300		1	/* E300 Family */
 #define CONFIG_MPC834x		1	/* MPC834x specific */
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
-#define CONFIG_TQM834X		1	/* TQM834X board specific */
 
 #define	CONFIG_SYS_TEXT_BASE	0x80000000
 
