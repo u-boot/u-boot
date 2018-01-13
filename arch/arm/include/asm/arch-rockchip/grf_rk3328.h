@@ -131,5 +131,4 @@ struct rk3328_sgrf_regs {
 };
 check_member(rk3328_sgrf_regs, hdcp_key_access_mask, 0x2a0);
 
-
 #endif	/* __SOC_ROCKCHIP_RK3328_GRF_H__ */
