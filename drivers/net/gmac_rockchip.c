@@ -18,6 +18,7 @@
 #include <asm/arch/grf_rk3288.h>
 #include <asm/arch/grf_rk3368.h>
 #include <asm/arch/grf_rk3399.h>
+#include <asm/arch/grf_rv1108.h>
 #include <dm/pinctrl.h>
 #include <dt-bindings/clock/rk3288-cru.h>
 #include "designware.h"
@@ -31,12 +32,14 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 struct gmac_rockchip_platdata {
 	struct dw_eth_pdata dw_eth_pdata;
+	bool clock_input;
 	int tx_delay;
 	int rx_delay;
 };
 
 struct rk_gmac_ops {
 	int (*fix_mac_speed)(struct dw_eth_dev *priv);
+	void (*set_to_rmii)(struct gmac_rockchip_platdata *pdata);
 	void (*set_to_rgmii)(struct gmac_rockchip_platdata *pdata);
 };
 
@@ -44,6 +47,13 @@ struct rk_gmac_ops {
 static int gmac_rockchip_ofdata_to_platdata(struct udevice *dev)
 {
 	struct gmac_rockchip_platdata *pdata = dev_get_platdata(dev);
+	const char *string;
+
+	string = dev_read_string(dev, "clock_in_out");
+	if (!strcmp(string, "input"))
+		pdata->clock_input = true;
+	else
+		pdata->clock_input = false;
 
 	/* Check the new naming-style first... */
 	pdata->tx_delay = dev_read_u32_default(dev, "tx_delay", -ENOENT);
@@ -142,6 +152,41 @@ static int rk3399_gmac_fix_mac_speed(struct dw_eth_dev *priv)
 	return 0;
 }
 
+static int rv1108_set_rmii_speed(struct dw_eth_dev *priv)
+{
+	struct rv1108_grf *grf;
+	int clk, speed;
+	enum {
+		RV1108_GMAC_SPEED_MASK		= BIT(2),
+		RV1108_GMAC_SPEED_10M		= 0 << 2,
+		RV1108_GMAC_SPEED_100M		= 1 << 2,
+		RV1108_GMAC_CLK_SEL_MASK	= BIT(7),
+		RV1108_GMAC_CLK_SEL_2_5M	= 0 << 7,
+		RV1108_GMAC_CLK_SEL_25M		= 1 << 7,
+	};
+
+	switch (priv->phydev->speed) {
+	case 10:
+		clk = RV1108_GMAC_CLK_SEL_2_5M;
+		speed = RV1108_GMAC_SPEED_10M;
+		break;
+	case 100:
+		clk = RV1108_GMAC_CLK_SEL_25M;
+		speed = RV1108_GMAC_SPEED_100M;
+		break;
+	default:
+		debug("Unknown phy speed: %d\n", priv->phydev->speed);
+		return -EINVAL;
+	}
+
+	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+	rk_clrsetreg(&grf->gmac_con0,
+		     RV1108_GMAC_CLK_SEL_MASK | RV1108_GMAC_SPEED_MASK,
+		     clk | speed);
+
+	return 0;
+}
+
 static void rk3288_gmac_set_to_rgmii(struct gmac_rockchip_platdata *pdata)
 {
 	struct rk3288_grf *grf;
@@ -221,25 +266,76 @@ static void rk3399_gmac_set_to_rgmii(struct gmac_rockchip_platdata *pdata)
 		     pdata->tx_delay << RK3399_CLK_TX_DL_CFG_GMAC_SHIFT);
 }
 
+static void rv1108_gmac_set_to_rmii(struct gmac_rockchip_platdata *pdata)
+{
+	struct rv1108_grf *grf;
+
+	enum {
+		RV1108_GMAC_PHY_INTF_SEL_MASK  = GENMASK(6, 4),
+		RV1108_GMAC_PHY_INTF_SEL_RMII  = 4 << 4,
+	};
+
+	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+	rk_clrsetreg(&grf->gmac_con0,
+		     RV1108_GMAC_PHY_INTF_SEL_MASK,
+		     RV1108_GMAC_PHY_INTF_SEL_RMII);
+}
+
 static int gmac_rockchip_probe(struct udevice *dev)
 {
 	struct gmac_rockchip_platdata *pdata = dev_get_platdata(dev);
 	struct rk_gmac_ops *ops =
 		(struct rk_gmac_ops *)dev_get_driver_data(dev);
+	struct dw_eth_pdata *dw_pdata = dev_get_platdata(dev);
+	struct eth_pdata *eth_pdata = &dw_pdata->eth_pdata;
 	struct clk clk;
+	ulong rate;
 	int ret;
 
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret)
 		return ret;
 
-	/* Since mac_clk is fed by an external clock we can use 0 here */
-	ret = clk_set_rate(&clk, 0);
-	if (ret)
-		return ret;
+	switch (eth_pdata->phy_interface) {
+	case PHY_INTERFACE_MODE_RGMII:
+		/*
+		 * If the gmac clock is from internal pll, need to set and
+		 * check the return value for gmac clock at RGMII mode. If
+		 * the gmac clock is from external source, the clock rate
+		 * is not set, because of it is bypassed.
+		 */
+		if (!pdata->clock_input) {
+			rate = clk_set_rate(&clk, 125000000);
+			if (rate != 125000000)
+				return -EINVAL;
+		}
 
-	/* Set to RGMII mode */
-	ops->set_to_rgmii(pdata);
+		/* Set to RGMII mode */
+		if (ops->set_to_rgmii)
+			ops->set_to_rgmii(pdata);
+		else
+			return -EPERM;
+
+		break;
+	case PHY_INTERFACE_MODE_RMII:
+		/* The commet is the same as RGMII mode */
+		if (!pdata->clock_input) {
+			rate = clk_set_rate(&clk, 50000000);
+			if (rate != 50000000)
+				return -EINVAL;
+		}
+
+		/* Set to RMII mode */
+		if (ops->set_to_rmii)
+			ops->set_to_rmii(pdata);
+		else
+			return -EPERM;
+
+		break;
+	default:
+		debug("NO interface defined!\n");
+		return -ENXIO;
+	}
 
 	return designware_eth_probe(dev);
 }
@@ -289,6 +385,11 @@ const struct rk_gmac_ops rk3399_gmac_ops = {
 	.set_to_rgmii = rk3399_gmac_set_to_rgmii,
 };
 
+const struct rk_gmac_ops rv1108_gmac_ops = {
+	.fix_mac_speed = rv1108_set_rmii_speed,
+	.set_to_rmii = rv1108_gmac_set_to_rmii,
+};
+
 static const struct udevice_id rockchip_gmac_ids[] = {
 	{ .compatible = "rockchip,rk3288-gmac",
 	  .data = (ulong)&rk3288_gmac_ops },
@@ -296,6 +397,8 @@ static const struct udevice_id rockchip_gmac_ids[] = {
 	  .data = (ulong)&rk3368_gmac_ops },
 	{ .compatible = "rockchip,rk3399-gmac",
 	  .data = (ulong)&rk3399_gmac_ops },
+	{ .compatible = "rockchip,rv1108-gmac",
+	  .data = (ulong)&rv1108_gmac_ops },
 	{ }
 };
 
