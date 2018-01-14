@@ -2625,6 +2625,10 @@ FIT uImage format:
 		CONFIG_SPL_NAND_DRIVERS
 		SPL uses normal NAND drivers, not minimal drivers.
 
+		CONFIG_SPL_NAND_IDENT
+		SPL uses the chip ID list to identify the NAND flash.
+		Requires CONFIG_SPL_NAND_BASE.
+
 		CONFIG_SPL_NAND_ECC
 		Include standard software ECC in the SPL
 
