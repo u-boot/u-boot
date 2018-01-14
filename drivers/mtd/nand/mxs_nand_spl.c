@@ -49,7 +49,7 @@ static void mxs_nand_command(struct mtd_info *mtd, unsigned int command,
 	}
 }
 
-static int mxs_flash_ident(struct mtd_info *mtd)
+static int mxs_flash_onfi_ident(struct mtd_info *mtd)
 {
 	register struct nand_chip *chip = mtd_to_nand(mtd);
 	int i;
@@ -107,6 +107,13 @@ static int mxs_flash_ident(struct mtd_info *mtd)
 	debug("chipsize=%lld\n", chip->chipsize);
 
 	return 0;
+}
+
+static int mxs_flash_ident(struct mtd_info *mtd)
+{
+	int ret;
+	ret = mxs_flash_onfi_ident(mtd);
+	return ret;
 }
 
 static int mxs_read_page_ecc(struct mtd_info *mtd, void *buf, unsigned int page)
