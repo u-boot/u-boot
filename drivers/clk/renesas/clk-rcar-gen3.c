@@ -500,10 +500,11 @@ int gen3_clk_remove(struct udevice *dev)
 	/* Stop module clock */
 	for (i = 0; i < info->mstp_table_size; i++) {
 		clrsetbits_le32(priv->base + SMSTPCR(i),
-				info->mstp_table[i].dis,
-				info->mstp_table[i].en);
+				info->mstp_table[i].sdis,
+				info->mstp_table[i].sen);
 		clrsetbits_le32(priv->base + RMSTPCR(i),
-				info->mstp_table[i].dis, 0x0);
+				info->mstp_table[i].rdis,
+				info->mstp_table[i].ren);
 	}
 
 	return 0;

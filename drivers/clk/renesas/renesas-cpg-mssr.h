@@ -86,8 +86,10 @@ struct mssr_mod_clk {
 	{ .name = _name, .id = MOD_CLK_ID(_mod), .parent = _parent }
 
 struct mstp_stop_table {
-	u32	dis;
-	u32	en;
+	u32	sdis;
+	u32	sen;
+	u32	rdis;
+	u32	ren;
 };
 
 #define TSTR0		0x04

@@ -182,19 +182,25 @@ static const struct mssr_mod_clk r8a77995_mod_clks[] = {
  */
 #define CPG_PLL_CONFIG_INDEX(md)	(((md) & BIT(19)) >> 19)
 
-static const struct rcar_gen3_cpg_pll_config cpg_pll_configs[2] __initconst = {
+static const struct rcar_gen3_cpg_pll_config cpg_pll_configs[2] = {
 	/* EXTAL div	PLL1 mult/div	PLL3 mult/div */
 	{ 1,		100,	3,	100,	3,	},
 	{ 1,		100,	3,	116,	6,	},
 };
 
 static const struct mstp_stop_table r8a77995_mstp_table[] = {
-	{ 0x00200000, 0x0 },	{ 0xFFFFFFFF, 0x0 },
-	{ 0x340E2FDC, 0x2040 },	{ 0xFFFFFFDF, 0x400 },
-	{ 0x80000184, 0x180 },	{ 0xC3FFFFFF, 0x0 },
-	{ 0xFFFFFFFF, 0x0 },	{ 0xFFFFFFFF, 0x0 },
-	{ 0x01F1FFF7, 0x0 },	{ 0xFFFFFFFE, 0x0 },
-	{ 0xFFFEFFE0, 0x0 },	{ 0x000000B7, 0x0 },
+	{ 0x00200000, 0x0, 0x00200000, 0 },
+	{ 0xFFFFFFFF, 0x0, 0xFFFFFFFF, 0 },
+	{ 0x340E2FDC, 0x2040, 0x340E2FDC, 0 },
+	{ 0xFFFFFFDF, 0x400, 0xFFFFFFDF, 0 },
+	{ 0x80000184, 0x180, 0x80000184, 0 },
+	{ 0xC3FFFFFF, 0x0, 0xC3FFFFFF, 0 },
+	{ 0xFFFFFFFF, 0x0, 0xFFFFFFFF, 0 },
+	{ 0xFFFFFFFF, 0x0, 0xFFFFFFFF, 0 },
+	{ 0x01F1FFF7, 0x0, 0x01F1FFF7, 0 },
+	{ 0xFFFFFFFE, 0x0, 0xFFFFFFFE, 0 },
+	{ 0xFFFEFFE0, 0x0, 0xFFFEFFE0, 0 },
+	{ 0x000000B7, 0x0, 0x000000B7, 0 },
 };
 
 static const void *r8a77995_get_pll_config(const u32 cpg_mode)
