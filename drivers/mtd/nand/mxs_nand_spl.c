@@ -49,6 +49,28 @@ static void mxs_nand_command(struct mtd_info *mtd, unsigned int command,
 	}
 }
 
+#if defined (CONFIG_SPL_NAND_IDENT)
+
+/* Trying to detect the NAND flash using ONFi, JEDEC, and (extended) IDs */
+static int mxs_flash_full_ident(struct mtd_info *mtd)
+{
+	int nand_maf_id, nand_dev_id;
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct nand_flash_dev *type;
+
+	type = nand_get_flash_type(mtd, chip, &nand_maf_id, &nand_dev_id, NULL);
+
+	if (IS_ERR(type)) {
+		chip->select_chip(mtd, -1);
+		return PTR_ERR(type);
+	}
+
+	return 0;
+}
+
+#else
+
+/* Trying to detect the NAND flash using ONFi only */
 static int mxs_flash_onfi_ident(struct mtd_info *mtd)
 {
 	register struct nand_chip *chip = mtd_to_nand(mtd);
@@ -109,10 +131,16 @@ static int mxs_flash_onfi_ident(struct mtd_info *mtd)
 	return 0;
 }
 
+#endif /* CONFIG_SPL_NAND_IDENT */
+
 static int mxs_flash_ident(struct mtd_info *mtd)
 {
 	int ret;
+#if defined (CONFIG_SPL_NAND_IDENT)
+	ret = mxs_flash_full_ident(mtd);
+#else
 	ret = mxs_flash_onfi_ident(mtd);
+#endif
 	return ret;
 }
 
