@@ -245,6 +245,8 @@ static char *efi_convert_single_device_node_to_text(
 	case DEVICE_PATH_TYPE_MEDIA_DEVICE:
 		str = dp_media(str, dp);
 		break;
+	case DEVICE_PATH_TYPE_END:
+		break;
 	default:
 		str = dp_unknown(str, dp);
 	}
