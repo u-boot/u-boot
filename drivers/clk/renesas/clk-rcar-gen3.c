@@ -21,6 +21,7 @@
 #include <dt-bindings/clock/renesas-cpg-mssr.h>
 
 #include "renesas-cpg-mssr.h"
+#include "rcar-gen3-cpg.h"
 
 #define CPG_RST_MODEMR		0x0060
 
@@ -32,47 +33,6 @@
 #define CPG_RPC_PREDIV_OFFSET	3
 #define CPG_RPC_POSTDIV_MASK	0x7
 #define CPG_RPC_POSTDIV_OFFSET	0
-
-/*
- * Module Standby and Software Reset register offets.
- *
- * If the registers exist, these are valid for SH-Mobile, R-Mobile,
- * R-Car Gen2, R-Car Gen3, and RZ/G1.
- * These are NOT valid for R-Car Gen1 and RZ/A1!
- */
-
-/*
- * Module Stop Status Register offsets
- */
-
-static const u16 mstpsr[] = {
-	0x030, 0x038, 0x040, 0x048, 0x04C, 0x03C, 0x1C0, 0x1C4,
-	0x9A0, 0x9A4, 0x9A8, 0x9AC,
-};
-
-#define	MSTPSR(i)	mstpsr[i]
-
-
-/*
- * System Module Stop Control Register offsets
- */
-
-static const u16 smstpcr[] = {
-	0x130, 0x134, 0x138, 0x13C, 0x140, 0x144, 0x148, 0x14C,
-	0x990, 0x994, 0x998, 0x99C,
-};
-
-#define	SMSTPCR(i)	smstpcr[i]
-
-
-/* Realtime Module Stop Control Register offsets */
-#define RMSTPCR(i)	(smstpcr[i] - 0x20)
-
-/* Modem Module Stop Control Register offsets (r8a73a4) */
-#define MMSTPCR(i)	(smstpcr[i] + 0x20)
-
-/* Software Reset Clearing Register offsets */
-#define	SRSTCLR(i)	(0x940 + (i) * 4)
 
 /*
  * SDn Clock
@@ -126,99 +86,24 @@ static const struct sd_div_table cpg_sd_div_table[] = {
 	CPG_SD_DIV_TABLE_DATA(1,        0,        4,          0,       32),
 };
 
-static bool gen3_clk_is_mod(struct clk *clk)
-{
-	return (clk->id >> 16) == CPG_MOD;
-}
-
-static int gen3_clk_get_mod(struct clk *clk, const struct mssr_mod_clk **mssr)
-{
-	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
-	struct cpg_mssr_info *info = priv->info;
-	const unsigned long clkid = clk->id & 0xffff;
-	int i;
-
-	if (!gen3_clk_is_mod(clk))
-		return -EINVAL;
-
-	for (i = 0; i < info->mod_clk_size; i++) {
-		if (info->mod_clk[i].id !=
-		    (info->mod_clk_base + MOD_CLK_PACK(clkid)))
-			continue;
-
-		*mssr = &info->mod_clk[i];
-		return 0;
-	}
-
-	return -ENODEV;
-}
-
-static int gen3_clk_get_core(struct clk *clk, const struct cpg_core_clk **core)
-{
-	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
-	struct cpg_mssr_info *info = priv->info;
-	const unsigned long clkid = clk->id & 0xffff;
-	int i;
-
-	if (gen3_clk_is_mod(clk))
-		return -EINVAL;
-
-	for (i = 0; i < info->core_clk_size; i++) {
-		if (info->core_clk[i].id != clkid)
-			continue;
-
-		*core = &info->core_clk[i];
-		return 0;
-	}
-
-	return -ENODEV;
-}
-
-static int gen3_clk_get_parent(struct clk *clk, struct clk *parent)
-{
-	const struct cpg_core_clk *core;
-	const struct mssr_mod_clk *mssr;
-	int ret;
-
-	if (gen3_clk_is_mod(clk)) {
-		ret = gen3_clk_get_mod(clk, &mssr);
-		if (ret)
-			return ret;
-
-		parent->id = mssr->parent;
-	} else {
-		ret = gen3_clk_get_core(clk, &core);
-		if (ret)
-			return ret;
-
-		if (core->type == CLK_TYPE_IN)
-			parent->id = ~0;	/* Top-level clock */
-		else
-			parent->id = core->parent;
-	}
-
-	parent->dev = clk->dev;
-
-	return 0;
-}
-
 static int gen3_clk_setup_sdif_div(struct clk *clk)
 {
 	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
+	struct cpg_mssr_info *info = priv->info;
 	const struct cpg_core_clk *core;
 	struct clk parent;
 	int ret;
 
-	ret = gen3_clk_get_parent(clk, &parent);
+	ret = renesas_clk_get_parent(clk, info, &parent);
 	if (ret) {
 		printf("%s[%i] parent fail, ret=%i\n", __func__, __LINE__, ret);
 		return ret;
 	}
 
-	if (gen3_clk_is_mod(&parent))
+	if (renesas_clk_is_mod(&parent))
 		return 0;
 
-	ret = gen3_clk_get_core(&parent, &core);
+	ret = renesas_clk_get_core(&parent, info, &core);
 	if (ret)
 		return ret;
 
@@ -232,42 +117,22 @@ static int gen3_clk_setup_sdif_div(struct clk *clk)
 	return 0;
 }
 
-static int gen3_clk_endisable(struct clk *clk, bool enable)
-{
-	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
-	const unsigned long clkid = clk->id & 0xffff;
-	const unsigned int reg = clkid / 100;
-	const unsigned int bit = clkid % 100;
-	const u32 bitmask = BIT(bit);
-	int ret;
-
-	if (!gen3_clk_is_mod(clk))
-		return -EINVAL;
-
-	debug("%s[%i] MSTP %lu=%02u/%02u %s\n", __func__, __LINE__,
-	      clkid, reg, bit, enable ? "ON" : "OFF");
-
-	if (enable) {
-		ret = gen3_clk_setup_sdif_div(clk);
-		if (ret)
-			return ret;
-		clrbits_le32(priv->base + SMSTPCR(reg), bitmask);
-		return wait_for_bit("MSTP", priv->base + MSTPSR(reg),
-				    bitmask, 0, 100, 0);
-	} else {
-		setbits_le32(priv->base + SMSTPCR(reg), bitmask);
-		return 0;
-	}
-}
-
 static int gen3_clk_enable(struct clk *clk)
 {
-	return gen3_clk_endisable(clk, true);
+	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
+	int ret = gen3_clk_setup_sdif_div(clk);
+
+	if (ret)
+		return ret;
+
+	return renesas_clk_endisable(clk, priv->base, true);
 }
 
 static int gen3_clk_disable(struct clk *clk)
 {
-	return gen3_clk_endisable(clk, false);
+	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
+
+	return renesas_clk_endisable(clk, priv->base, false);
 }
 
 static ulong gen3_clk_get_rate(struct clk *clk)
@@ -283,20 +148,20 @@ static ulong gen3_clk_get_rate(struct clk *clk)
 
 	debug("%s[%i] Clock: id=%lu\n", __func__, __LINE__, clk->id);
 
-	ret = gen3_clk_get_parent(clk, &parent);
+	ret = renesas_clk_get_parent(clk, info, &parent);
 	if (ret) {
 		printf("%s[%i] parent fail, ret=%i\n", __func__, __LINE__, ret);
 		return ret;
 	}
 
-	if (gen3_clk_is_mod(clk)) {
+	if (renesas_clk_is_mod(clk)) {
 		rate = gen3_clk_get_rate(&parent);
 		debug("%s[%i] MOD clk: parent=%lu => rate=%u\n",
 		      __func__, __LINE__, parent.id, rate);
 		return rate;
 	}
 
-	ret = gen3_clk_get_core(clk, &core);
+	ret = renesas_clk_get_core(clk, info, &core);
 	if (ret)
 		return ret;
 
@@ -491,21 +356,6 @@ int gen3_clk_probe(struct udevice *dev)
 int gen3_clk_remove(struct udevice *dev)
 {
 	struct gen3_clk_priv *priv = dev_get_priv(dev);
-	struct cpg_mssr_info *info = priv->info;
-	unsigned int i;
 
-	/* Stop TMU0 */
-	clrbits_le32(TMU_BASE + TSTR0, TSTR0_STR0);
-
-	/* Stop module clock */
-	for (i = 0; i < info->mstp_table_size; i++) {
-		clrsetbits_le32(priv->base + SMSTPCR(i),
-				info->mstp_table[i].sdis,
-				info->mstp_table[i].sen);
-		clrsetbits_le32(priv->base + RMSTPCR(i),
-				info->mstp_table[i].rdis,
-				info->mstp_table[i].ren);
-	}
-
-	return 0;
+	return renesas_clk_remove(priv->base, priv->info);
 }
