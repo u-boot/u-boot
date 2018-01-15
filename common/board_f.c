@@ -49,7 +49,7 @@
 #ifdef XTRN_DECLARE_GLOBAL_DATA_PTR
 #undef	XTRN_DECLARE_GLOBAL_DATA_PTR
 #define XTRN_DECLARE_GLOBAL_DATA_PTR	/* empty = allocate here */
-DECLARE_GLOBAL_DATA_PTR = (gd_t *) (CONFIG_SYS_INIT_GD_ADDR);
+DECLARE_GLOBAL_DATA_PTR = (gd_t *)(CONFIG_SYS_INIT_GD_ADDR);
 #else
 DECLARE_GLOBAL_DATA_PTR;
 #endif
@@ -136,7 +136,7 @@ static int display_text_info(void)
 #endif
 
 	debug("U-Boot code: %08lX -> %08lX  BSS: -> %08lX\n",
-		text_base, bss_start, bss_end);
+	      text_base, bss_start, bss_end);
 #endif
 
 	return 0;
@@ -420,7 +420,7 @@ static int reserve_malloc(void)
 {
 	gd->start_addr_sp = gd->start_addr_sp - TOTAL_MALLOC_LEN;
 	debug("Reserving %dk for malloc() at: %08lx\n",
-			TOTAL_MALLOC_LEN >> 10, gd->start_addr_sp);
+	      TOTAL_MALLOC_LEN >> 10, gd->start_addr_sp);
 	return 0;
 }
 
@@ -450,7 +450,7 @@ static int reserve_global_data(void)
 	gd->start_addr_sp -= sizeof(gd_t);
 	gd->new_gd = (gd_t *)map_sysmem(gd->start_addr_sp, sizeof(gd_t));
 	debug("Reserving %zu Bytes for Global Data at: %08lx\n",
-			sizeof(gd_t), gd->start_addr_sp);
+	      sizeof(gd_t), gd->start_addr_sp);
 	return 0;
 }
 
