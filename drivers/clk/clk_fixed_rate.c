@@ -8,8 +8,6 @@
 #include <clk-uclass.h>
 #include <dm.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct clk_fixed_rate {
 	unsigned long fixed_rate;
 };

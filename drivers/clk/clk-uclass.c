@@ -13,8 +13,6 @@
 #include <dt-structs.h>
 #include <errno.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static inline const struct clk_ops *clk_dev_ops(struct udevice *dev)
 {
 	return (const struct clk_ops *)dev->driver->ops;
