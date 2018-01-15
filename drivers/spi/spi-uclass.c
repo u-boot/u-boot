@@ -50,7 +50,6 @@ int dm_spi_claim_bus(struct udevice *dev)
 	struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
 	struct spi_slave *slave = dev_get_parent_priv(dev);
 	int speed;
-	int ret;
 
 	speed = slave->max_hz;
 	if (spi->max_hz) {
@@ -62,7 +61,8 @@ int dm_spi_claim_bus(struct udevice *dev)
 	if (!speed)
 		speed = 100000;
 	if (speed != slave->speed) {
-		ret = spi_set_speed_mode(bus, speed, slave->mode);
+		int ret = spi_set_speed_mode(bus, speed, slave->mode);
+
 		if (ret)
 			return ret;
 		slave->speed = speed;
@@ -128,7 +128,6 @@ static int spi_post_probe(struct udevice *bus)
 #endif
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	struct dm_spi_ops *ops = spi_get_ops(bus);
-
 
 	if (ops->claim_bus)
 		ops->claim_bus += gd->reloc_off;
