@@ -25,7 +25,7 @@ struct ccsr_gpio {
 	u32	gpicr;
 };
 
-struct mpc85xx_gpio_data {
+struct mpc8xxx_gpio_data {
 	/* The bank's register base in memory */
 	struct ccsr_gpio __iomem *base;
 	/* The address of the registers; used to identify the bank */
@@ -44,130 +44,130 @@ inline u32 gpio_mask(uint gpio)
 	return (1U << (31 - (gpio)));
 }
 
-static inline u32 mpc85xx_gpio_get_val(struct ccsr_gpio *base, u32 mask)
+static inline u32 mpc8xxx_gpio_get_val(struct ccsr_gpio *base, u32 mask)
 {
 	return in_be32(&base->gpdat) & mask;
 }
 
-static inline u32 mpc85xx_gpio_get_dir(struct ccsr_gpio *base, u32 mask)
+static inline u32 mpc8xxx_gpio_get_dir(struct ccsr_gpio *base, u32 mask)
 {
 	return in_be32(&base->gpdir) & mask;
 }
 
-static inline void mpc85xx_gpio_set_in(struct ccsr_gpio *base, u32 gpios)
+static inline void mpc8xxx_gpio_set_in(struct ccsr_gpio *base, u32 gpios)
 {
 	clrbits_be32(&base->gpdat, gpios);
 	/* GPDIR register 0 -> input */
 	clrbits_be32(&base->gpdir, gpios);
 }
 
-static inline void mpc85xx_gpio_set_low(struct ccsr_gpio *base, u32 gpios)
+static inline void mpc8xxx_gpio_set_low(struct ccsr_gpio *base, u32 gpios)
 {
 	clrbits_be32(&base->gpdat, gpios);
 	/* GPDIR register 1 -> output */
 	setbits_be32(&base->gpdir, gpios);
 }
 
-static inline void mpc85xx_gpio_set_high(struct ccsr_gpio *base, u32 gpios)
+static inline void mpc8xxx_gpio_set_high(struct ccsr_gpio *base, u32 gpios)
 {
 	setbits_be32(&base->gpdat, gpios);
 	/* GPDIR register 1 -> output */
 	setbits_be32(&base->gpdir, gpios);
 }
 
-static inline int mpc85xx_gpio_open_drain_val(struct ccsr_gpio *base, u32 mask)
+static inline int mpc8xxx_gpio_open_drain_val(struct ccsr_gpio *base, u32 mask)
 {
 	return in_be32(&base->gpodr) & mask;
 }
 
-static inline void mpc85xx_gpio_open_drain_on(struct ccsr_gpio *base, u32
+static inline void mpc8xxx_gpio_open_drain_on(struct ccsr_gpio *base, u32
 					      gpios)
 {
 	/* GPODR register 1 -> open drain on */
 	setbits_be32(&base->gpodr, gpios);
 }
 
-static inline void mpc85xx_gpio_open_drain_off(struct ccsr_gpio *base,
+static inline void mpc8xxx_gpio_open_drain_off(struct ccsr_gpio *base,
 					       u32 gpios)
 {
 	/* GPODR register 0 -> open drain off (actively driven) */
 	clrbits_be32(&base->gpodr, gpios);
 }
 
-static int mpc85xx_gpio_direction_input(struct udevice *dev, uint gpio)
+static int mpc8xxx_gpio_direction_input(struct udevice *dev, uint gpio)
 {
-	struct mpc85xx_gpio_data *data = dev_get_priv(dev);
+	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
 
-	mpc85xx_gpio_set_in(data->base, gpio_mask(gpio));
+	mpc8xxx_gpio_set_in(data->base, gpio_mask(gpio));
 	return 0;
 }
 
-static int mpc85xx_gpio_set_value(struct udevice *dev, uint gpio, int value)
+static int mpc8xxx_gpio_set_value(struct udevice *dev, uint gpio, int value)
 {
-	struct mpc85xx_gpio_data *data = dev_get_priv(dev);
+	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
 
 	if (value) {
 		data->dat_shadow |= gpio_mask(gpio);
-		mpc85xx_gpio_set_high(data->base, gpio_mask(gpio));
+		mpc8xxx_gpio_set_high(data->base, gpio_mask(gpio));
 	} else {
 		data->dat_shadow &= ~gpio_mask(gpio);
-		mpc85xx_gpio_set_low(data->base, gpio_mask(gpio));
+		mpc8xxx_gpio_set_low(data->base, gpio_mask(gpio));
 	}
 	return 0;
 }
 
-static int mpc85xx_gpio_direction_output(struct udevice *dev, uint gpio,
+static int mpc8xxx_gpio_direction_output(struct udevice *dev, uint gpio,
 					 int value)
 {
-	return mpc85xx_gpio_set_value(dev, gpio, value);
+	return mpc8xxx_gpio_set_value(dev, gpio, value);
 }
 
-static int mpc85xx_gpio_get_value(struct udevice *dev, uint gpio)
+static int mpc8xxx_gpio_get_value(struct udevice *dev, uint gpio)
 {
-	struct mpc85xx_gpio_data *data = dev_get_priv(dev);
+	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
 
-	if (!!mpc85xx_gpio_get_dir(data->base, gpio_mask(gpio))) {
+	if (!!mpc8xxx_gpio_get_dir(data->base, gpio_mask(gpio))) {
 		/* Output -> use shadowed value */
 		return !!(data->dat_shadow & gpio_mask(gpio));
 	}
 
 	/* Input -> read value from GPDAT register */
-	return !!mpc85xx_gpio_get_val(data->base, gpio_mask(gpio));
+	return !!mpc8xxx_gpio_get_val(data->base, gpio_mask(gpio));
 }
 
-static int mpc85xx_gpio_get_open_drain(struct udevice *dev, uint gpio)
+static int mpc8xxx_gpio_get_open_drain(struct udevice *dev, uint gpio)
 {
-	struct mpc85xx_gpio_data *data = dev_get_priv(dev);
+	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
 
-	return !!mpc85xx_gpio_open_drain_val(data->base, gpio_mask(gpio));
+	return !!mpc8xxx_gpio_open_drain_val(data->base, gpio_mask(gpio));
 }
 
-static int mpc85xx_gpio_set_open_drain(struct udevice *dev, uint gpio,
+static int mpc8xxx_gpio_set_open_drain(struct udevice *dev, uint gpio,
 				       int value)
 {
-	struct mpc85xx_gpio_data *data = dev_get_priv(dev);
+	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
 
 	if (value)
-		mpc85xx_gpio_open_drain_on(data->base, gpio_mask(gpio));
+		mpc8xxx_gpio_open_drain_on(data->base, gpio_mask(gpio));
 	else
-		mpc85xx_gpio_open_drain_off(data->base, gpio_mask(gpio));
+		mpc8xxx_gpio_open_drain_off(data->base, gpio_mask(gpio));
 
 	return 0;
 }
 
-static int mpc85xx_gpio_get_function(struct udevice *dev, uint gpio)
+static int mpc8xxx_gpio_get_function(struct udevice *dev, uint gpio)
 {
-	struct mpc85xx_gpio_data *data = dev_get_priv(dev);
+	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
 	int dir;
 
-	dir = !!mpc85xx_gpio_get_dir(data->base, gpio_mask(gpio));
+	dir = !!mpc8xxx_gpio_get_dir(data->base, gpio_mask(gpio));
 	return dir ? GPIOF_OUTPUT : GPIOF_INPUT;
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-static int mpc85xx_gpio_ofdata_to_platdata(struct udevice *dev)
+static int mpc8xxx_gpio_ofdata_to_platdata(struct udevice *dev)
 {
-	struct mpc85xx_gpio_plat *plat = dev_get_platdata(dev);
+	struct mpc8xxx_gpio_plat *plat = dev_get_platdata(dev);
 	fdt_addr_t addr;
 	fdt_size_t size;
 
@@ -183,10 +183,10 @@ static int mpc85xx_gpio_ofdata_to_platdata(struct udevice *dev)
 }
 #endif
 
-static int mpc85xx_gpio_platdata_to_priv(struct udevice *dev)
+static int mpc8xxx_gpio_platdata_to_priv(struct udevice *dev)
 {
-	struct mpc85xx_gpio_data *priv = dev_get_priv(dev);
-	struct mpc85xx_gpio_plat *plat = dev_get_platdata(dev);
+	struct mpc8xxx_gpio_data *priv = dev_get_priv(dev);
+	struct mpc8xxx_gpio_plat *plat = dev_get_platdata(dev);
 	unsigned long size = plat->size;
 
 	if (size == 0)
@@ -201,16 +201,18 @@ static int mpc85xx_gpio_platdata_to_priv(struct udevice *dev)
 	priv->gpio_count = plat->ngpios;
 	priv->dat_shadow = 0;
 
+	priv->type = driver_data;
+
 	return 0;
 }
 
-static int mpc85xx_gpio_probe(struct udevice *dev)
+static int mpc8xxx_gpio_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-	struct mpc85xx_gpio_data *data = dev_get_priv(dev);
+	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
 	char name[32], *str;
 
-	mpc85xx_gpio_platdata_to_priv(dev);
+	mpc8xxx_gpio_platdata_to_priv(dev);
 
 	snprintf(name, sizeof(name), "MPC@%lx_", data->addr);
 	str = strdup(name);
@@ -224,30 +226,30 @@ static int mpc85xx_gpio_probe(struct udevice *dev)
 	return 0;
 }
 
-static const struct dm_gpio_ops gpio_mpc85xx_ops = {
-	.direction_input	= mpc85xx_gpio_direction_input,
-	.direction_output	= mpc85xx_gpio_direction_output,
-	.get_value		= mpc85xx_gpio_get_value,
-	.set_value		= mpc85xx_gpio_set_value,
-	.get_open_drain		= mpc85xx_gpio_get_open_drain,
-	.set_open_drain		= mpc85xx_gpio_set_open_drain,
-	.get_function		= mpc85xx_gpio_get_function,
+static const struct dm_gpio_ops gpio_mpc8xxx_ops = {
+	.direction_input	= mpc8xxx_gpio_direction_input,
+	.direction_output	= mpc8xxx_gpio_direction_output,
+	.get_value		= mpc8xxx_gpio_get_value,
+	.set_value		= mpc8xxx_gpio_set_value,
+	.get_open_drain		= mpc8xxx_gpio_get_open_drain,
+	.set_open_drain		= mpc8xxx_gpio_set_open_drain,
+	.get_function		= mpc8xxx_gpio_get_function,
 };
 
-static const struct udevice_id mpc85xx_gpio_ids[] = {
+static const struct udevice_id mpc8xxx_gpio_ids[] = {
 	{ .compatible = "fsl,pq3-gpio" },
 	{ /* sentinel */ }
 };
 
-U_BOOT_DRIVER(gpio_mpc85xx) = {
-	.name	= "gpio_mpc85xx",
+U_BOOT_DRIVER(gpio_mpc8xxx) = {
+	.name	= "gpio_mpc8xxx",
 	.id	= UCLASS_GPIO,
-	.ops	= &gpio_mpc85xx_ops,
+	.ops	= &gpio_mpc8xxx_ops,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-	.ofdata_to_platdata = mpc85xx_gpio_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct mpc85xx_gpio_plat),
-	.of_match = mpc85xx_gpio_ids,
+	.ofdata_to_platdata = mpc8xxx_gpio_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct mpc8xxx_gpio_plat),
+	.of_match = mpc8xxx_gpio_ids,
 #endif
-	.probe	= mpc85xx_gpio_probe,
-	.priv_auto_alloc_size = sizeof(struct mpc85xx_gpio_data),
+	.probe	= mpc8xxx_gpio_probe,
+	.priv_auto_alloc_size = sizeof(struct mpc8xxx_gpio_data),
 };

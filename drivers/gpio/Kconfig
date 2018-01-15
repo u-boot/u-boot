@@ -276,11 +276,11 @@ config DM_PCA953X
 	  Now, max 24 bits chips and PCA953X compatible chips are
 	  supported
 
-config MPC85XX_GPIO
-	bool "Freescale MPC85XX GPIO driver"
+config MPC8XXX_GPIO
+	bool "Freescale MPC8XXX GPIO driver"
 	depends on DM_GPIO
 	help
-	  This driver supports the built-in GPIO controller of MPC85XX CPUs.
+	  This driver supports the built-in GPIO controller of MPC8XXX CPUs.
 	  Each GPIO bank is identified by its own entry in the device tree,
 	  i.e.
 
@@ -298,7 +298,4 @@ config MPC85XX_GPIO
 	  Aside from the standard functions of input/output mode, and output
 	  value setting, the open-drain feature, which can configure individual
 	  GPIOs to work as open-drain outputs, is supported.
-
-	  The driver has been tested on MPC85XX, but it is likely that other
-	  PowerQUICC III devices will work as well.
 endmenu
