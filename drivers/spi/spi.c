@@ -12,7 +12,7 @@
 int spi_set_wordlen(struct spi_slave *slave, unsigned int wordlen)
 {
 	if (wordlen == 0 || wordlen > 32) {
-		printf("spi: invalid wordlen %d\n", wordlen);
+		printf("spi: invalid wordlen %u\n", wordlen);
 		return -1;
 	}
 
@@ -24,11 +24,12 @@ int spi_set_wordlen(struct spi_slave *slave, unsigned int wordlen)
 void *spi_do_alloc_slave(int offset, int size, unsigned int bus,
 			 unsigned int cs)
 {
-	struct spi_slave *slave;
-	void *ptr;
+	u8 *ptr;
 
 	ptr = malloc(size);
 	if (ptr) {
+		struct spi_slave *slave;
+
 		memset(ptr, '\0', size);
 		slave = (struct spi_slave *)(ptr + offset);
 		slave->bus = bus;
