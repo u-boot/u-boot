@@ -323,6 +323,7 @@ void hab_caam_clock_enable(unsigned char enable)
 }
 #endif
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * Dump some core clockes.
  */
@@ -363,3 +364,4 @@ U_BOOT_CMD(
 	"display clocks",
 	""
 );
+#endif

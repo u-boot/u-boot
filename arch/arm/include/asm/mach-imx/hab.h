@@ -10,6 +10,34 @@
 
 #include <linux/types.h>
 
+/*
+ * IVT header definitions
+ * Security Reference Manual for i.MX 7Dual and 7Solo Applications Processors,
+ * Rev. 0, 03/2017
+ * Section : 6.7.1.1
+ */
+#define IVT_HEADER_MAGIC	0xD1
+#define IVT_TOTAL_LENGTH	0x20
+#define IVT_HEADER_V1		0x40
+#define IVT_HEADER_V2		0x41
+
+struct ivt_header {
+	uint8_t		magic;
+	uint16_t	length;
+	uint8_t		version;
+} __attribute__((packed));
+
+struct ivt {
+	struct ivt_header hdr;	/* IVT header above */
+	uint32_t entry;		/* Absolute address of first instruction */
+	uint32_t reserved1;	/* Reserved should be zero */
+	uint32_t dcd;		/* Absolute address of the image DCD */
+	uint32_t boot;		/* Absolute address of the boot data */
+	uint32_t self;		/* Absolute address of the IVT */
+	uint32_t csf;		/* Absolute address of the CSF */
+	uint32_t reserved2;	/* Reserved should be zero */
+};
+
 /* -------- start of HAB API updates ------------*/
 /* The following are taken from HAB4 SIS */
 
@@ -85,6 +113,12 @@ enum hab_context {
 	HAB_CTX_MAX
 };
 
+enum hab_target {
+	HAB_TGT_MEMORY		= 0x0f,
+	HAB_TGT_PERIPHERAL	= 0xf0,
+	HAB_TGT_ANY		= 0x55,
+};
+
 struct imx_sec_config_fuse_t {
 	int bank;
 	int word;
@@ -104,6 +138,9 @@ typedef enum hab_status hab_rvt_entry_t(void);
 typedef enum hab_status hab_rvt_exit_t(void);
 typedef void *hab_rvt_authenticate_image_t(uint8_t, ptrdiff_t,
 		void **, size_t *, hab_loader_callback_f_t);
+typedef enum hab_status hab_rvt_check_target_t(enum hab_target, const void *,
+					       size_t);
+typedef void hab_rvt_failsafe_t(void);
 typedef void hapi_clock_init_t(void);
 
 #define HAB_ENG_ANY		0x00   /* Select first compatible engine */
@@ -130,9 +167,11 @@ typedef void hapi_clock_init_t(void);
 
 #define HAB_RVT_ENTRY			(*(uint32_t *)(HAB_RVT_BASE + 0x04))
 #define HAB_RVT_EXIT			(*(uint32_t *)(HAB_RVT_BASE + 0x08))
+#define HAB_RVT_CHECK_TARGET		(*(uint32_t *)(HAB_RVT_BASE + 0x0C))
 #define HAB_RVT_AUTHENTICATE_IMAGE	(*(uint32_t *)(HAB_RVT_BASE + 0x10))
 #define HAB_RVT_REPORT_EVENT		(*(uint32_t *)(HAB_RVT_BASE + 0x20))
 #define HAB_RVT_REPORT_STATUS		(*(uint32_t *)(HAB_RVT_BASE + 0x24))
+#define HAB_RVT_FAILSAFE		(*(uint32_t *)(HAB_RVT_BASE + 0x28))
 
 #define HAB_RVT_REPORT_EVENT_NEW               (*(uint32_t *)0x000000B8)
 #define HAB_RVT_REPORT_STATUS_NEW              (*(uint32_t *)0x000000BC)
@@ -143,8 +182,13 @@ typedef void hapi_clock_init_t(void);
 #define HAB_CID_ROM 0 /**< ROM Caller ID */
 #define HAB_CID_UBOOT 1 /**< UBOOT Caller ID*/
 
+#define IVT_SIZE			0x20
+#define CSF_PAD_SIZE			0x2000
+
 /* ----------- end of HAB API updates ------------*/
 
-uint32_t authenticate_image(uint32_t ddr_start, uint32_t image_size);
+int imx_hab_authenticate_image(uint32_t ddr_start, uint32_t image_size,
+			       uint32_t ivt_offset);
+bool imx_hab_is_enabled(void);
 
 #endif

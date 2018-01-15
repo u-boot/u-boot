@@ -1096,6 +1096,7 @@ void epdc_clock_disable(void)
 }
 #endif
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * Dump some core clockes.
  */
@@ -1131,3 +1132,4 @@ U_BOOT_CMD(
 	"display clocks",
 	""
 );
+#endif

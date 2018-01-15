@@ -621,6 +621,27 @@ int board_init(void)
 	return 0;
 }
 
+int board_late_init(void)
+{
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	char baseboard_name[16];
+	int err;
+
+	if (is_mx6dq())
+		env_set("board_rev", "MX6Q");
+	else if (is_mx6dl())
+		env_set("board_rev", "MX6DL");
+
+	err = cl_eeprom_get_product_name((uchar *)baseboard_name, 0);
+	if (err)
+		return 0;
+
+	if (!strncmp("SB-FX6m", baseboard_name, 7))
+		env_set("board_name", "Utilite");
+#endif
+	return 0;
+}
+
 int checkboard(void)
 {
 	puts("Board: CM-FX6\n");

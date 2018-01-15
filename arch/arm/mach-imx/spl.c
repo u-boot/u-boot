@@ -106,10 +106,13 @@ u32 spl_boot_device(void)
 	switch (boot_device_spl) {
 	case SD1_BOOT:
 	case MMC1_BOOT:
-		return BOOT_DEVICE_MMC1;
 	case SD2_BOOT:
 	case MMC2_BOOT:
-		return BOOT_DEVICE_MMC2;
+	case SD3_BOOT:
+	case MMC3_BOOT:
+		return BOOT_DEVICE_MMC1;
+	case NAND_BOOT:
+		return BOOT_DEVICE_NAND;
 	case SPI_NOR_BOOT:
 		return BOOT_DEVICE_SPI;
 	default:
@@ -152,9 +155,41 @@ u32 spl_boot_mode(const u32 boot_device)
 
 #if defined(CONFIG_SECURE_BOOT)
 
+/*
+ * +------------+  0x0 (DDR_UIMAGE_START) -
+ * |   Header   |                          |
+ * +------------+  0x40                    |
+ * |            |                          |
+ * |            |                          |
+ * |            |                          |
+ * |            |                          |
+ * | Image Data |                          |
+ * .            |                          |
+ * .            |                           > Stuff to be authenticated ----+
+ * .            |                          |                                |
+ * |            |                          |                                |
+ * |            |                          |                                |
+ * +------------+                          |                                |
+ * |            |                          |                                |
+ * | Fill Data  |                          |                                |
+ * |            |                          |                                |
+ * +------------+ Align to ALIGN_SIZE      |                                |
+ * |    IVT     |                          |                                |
+ * +------------+ + IVT_SIZE              -                                 |
+ * |            |                                                           |
+ * |  CSF DATA  | <---------------------------------------------------------+
+ * |            |
+ * +------------+
+ * |            |
+ * | Fill Data  |
+ * |            |
+ * +------------+ + CSF_PAD_SIZE
+ */
+
 __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
 	typedef void __noreturn (*image_entry_noargs_t)(void);
+	uint32_t offset;
 
 	image_entry_noargs_t image_entry =
 		(image_entry_noargs_t)(unsigned long)spl_image->entry_point;
@@ -163,8 +198,10 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 
 	/* HAB looks for the CSF at the end of the authenticated data therefore,
 	 * we need to subtract the size of the CSF from the actual filesize */
-	if (authenticate_image(spl_image->load_addr,
-			       spl_image->size - CONFIG_CSF_SIZE)) {
+	offset = spl_image->size - CONFIG_CSF_SIZE;
+	if (!imx_hab_authenticate_image(spl_image->load_addr,
+					offset + IVT_SIZE + CSF_PAD_SIZE,
+					offset)) {
 		image_entry();
 	} else {
 		puts("spl: ERROR:  image authentication unsuccessful\n");

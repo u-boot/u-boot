@@ -67,6 +67,7 @@
 #define CONFIG_ENV_OFFSET		(768 * 1024)
 
 #ifndef CONFIG_SPL_BUILD
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
@@ -75,6 +76,7 @@
 	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
 	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
 	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
+	"fdtfile=undefined\0" \
 	"stdin=serial,usbkbd\0" \
 	"stdout=serial,vga\0" \
 	"stderr=serial,vga\0" \
@@ -152,6 +154,11 @@
 		"fi;" \
 		"run setupnandboot;" \
 		"run nandboot;\0" \
+	"findfdt="\
+		"if test $board_name = Utilite && test $board_rev = MX6Q ; then " \
+			"setenv fdtfile imx6q-utilite-pro.dtb; fi; " \
+		"if test $fdtfile = undefined; then " \
+			"echo WARNING: Could not determine dtb to use; fi; \0" \
 	BOOTENV
 
 #define CONFIG_PREBOOT		"usb start;sf probe"

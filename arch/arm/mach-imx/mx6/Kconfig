@@ -130,6 +130,7 @@ config TARGET_CM_FX6
 	bool "CM-FX6"
 	select SUPPORT_SPL
 	select MX6QDL
+	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
@@ -377,6 +378,10 @@ config TARGET_PFLA02
 config TARGET_SECOMX6
 	bool "secomx6 boards"
 
+config TARGET_SKSIMX6
+	bool "sks-imx6"
+	select SUPPORT_SPL
+
 config TARGET_TBS2910
 	bool "TBS2910 Matrix ARM mini PC"
 
@@ -482,6 +487,7 @@ source "board/liebherr/display5/Kconfig"
 source "board/liebherr/mccmon6/Kconfig"
 source "board/logicpd/imx6/Kconfig"
 source "board/seco/Kconfig"
+source "board/sks-kinkel/sksimx6/Kconfig"
 source "board/solidrun/mx6cuboxi/Kconfig"
 source "board/technexion/pico-imx6ul/Kconfig"
 source "board/tbs/tbs2910/Kconfig"

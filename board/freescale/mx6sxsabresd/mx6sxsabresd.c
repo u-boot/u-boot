@@ -26,8 +26,6 @@
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
 #include "../common/pfuze.h"
-#include <usb.h>
-#include <usb/ehci-ci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -39,11 +37,6 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_PUS_22K_UP  | PAD_CTL_SPEED_LOW |		\
 	PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
 
-#define I2C_PAD_CTRL    (PAD_CTL_PKE | PAD_CTL_PUE |            \
-	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |               \
-	PAD_CTL_DSE_40ohm | PAD_CTL_HYS |			\
-	PAD_CTL_ODE)
-
 #define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP | PAD_CTL_PUE |     \
 	PAD_CTL_SPEED_HIGH   |                                   \
 	PAD_CTL_DSE_48ohm   | PAD_CTL_SRE_FAST)
@@ -54,13 +47,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ENET_RX_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |          \
 	PAD_CTL_SPEED_HIGH   | PAD_CTL_SRE_FAST)
 
-#define I2C_PAD_CTRL    (PAD_CTL_PKE | PAD_CTL_PUE |            \
-	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |               \
-	PAD_CTL_DSE_40ohm | PAD_CTL_HYS |			\
-	PAD_CTL_ODE)
-
 #define LCD_PAD_CTRL    (PAD_CTL_HYS | PAD_CTL_PUS_100K_UP | PAD_CTL_PUE | \
 	PAD_CTL_PKE | PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm)
+
+#define WDOG_PAD_CTRL (PAD_CTL_PUE | PAD_CTL_PKE | PAD_CTL_SPEED_MED |	\
+	PAD_CTL_DSE_40ohm)
 
 int dram_init(void)
 {
@@ -74,44 +65,9 @@ static iomux_v3_cfg_t const uart1_pads[] = {
 	MX6_PAD_GPIO1_IO05__UART1_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-static iomux_v3_cfg_t const usdhc2_pads[] = {
-	MX6_PAD_SD2_CLK__USDHC2_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_CMD__USDHC2_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DATA0__USDHC2_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DATA1__USDHC2_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DATA2__USDHC2_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DATA3__USDHC2_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+static iomux_v3_cfg_t const wdog_b_pad = {
+	MX6_PAD_GPIO1_IO13__GPIO1_IO_13 | MUX_PAD_CTRL(WDOG_PAD_CTRL),
 };
-
-static iomux_v3_cfg_t const usdhc3_pads[] = {
-	MX6_PAD_SD3_CLK__USDHC3_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_CMD__USDHC3_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA0__USDHC3_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA1__USDHC3_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA2__USDHC3_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA3__USDHC3_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA4__USDHC3_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA5__USDHC3_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA6__USDHC3_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_DATA7__USDHC3_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-
-	/* CD pin */
-	MX6_PAD_KEY_COL0__GPIO2_IO_10 | MUX_PAD_CTRL(NO_PAD_CTRL),
-
-	/* RST_B, used for power reset cycle */
-	MX6_PAD_KEY_COL1__GPIO2_IO_11 | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
-static iomux_v3_cfg_t const usdhc4_pads[] = {
-	MX6_PAD_SD4_CLK__USDHC4_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_CMD__USDHC4_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA0__USDHC4_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA1__USDHC4_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA2__USDHC4_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA3__USDHC4_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA7__GPIO6_IO_21 | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
 static iomux_v3_cfg_t const fec1_pads[] = {
 	MX6_PAD_ENET1_MDC__ENET1_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6_PAD_ENET1_MDIO__ENET1_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL),
@@ -166,9 +122,11 @@ static int setup_fec(void)
 					 ARRAY_SIZE(phy_control_pads));
 
 	/* Enable the ENET power, active low */
+	gpio_request(IMX_GPIO_NR(2, 6), "enet_rst");
 	gpio_direction_output(IMX_GPIO_NR(2, 6) , 0);
 
 	/* Reset AR8031 PHY */
+	gpio_request(IMX_GPIO_NR(2, 7), "phy_rst");
 	gpio_direction_output(IMX_GPIO_NR(2, 7) , 0);
 	mdelay(10);
 	gpio_set_value(IMX_GPIO_NR(2, 7), 1);
@@ -188,86 +146,28 @@ int board_eth_init(bd_t *bis)
 	return cpu_eth_init(bis);
 }
 
-#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
-/* I2C1 for PMIC */
-static struct i2c_pads_info i2c_pad_info1 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_GPIO1_IO00__I2C1_SCL | PC,
-		.gpio_mode = MX6_PAD_GPIO1_IO00__GPIO1_IO_0 | PC,
-		.gp = IMX_GPIO_NR(1, 0),
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_GPIO1_IO01__I2C1_SDA | PC,
-		.gpio_mode = MX6_PAD_GPIO1_IO01__GPIO1_IO_1 | PC,
-		.gp = IMX_GPIO_NR(1, 1),
-	},
-};
-
 int power_init_board(void)
 {
-	struct pmic *p;
+	struct udevice *dev;
 	unsigned int reg;
 	int ret;
 
-	p = pfuze_common_init(I2C_PMIC);
-	if (!p)
+	dev = pfuze_common_init();
+	if (!dev)
 		return -ENODEV;
 
-	ret = pfuze_mode_init(p, APS_PFM);
+	ret = pfuze_mode_init(dev, APS_PFM);
 	if (ret < 0)
 		return ret;
 
 	/* Enable power of VGEN5 3V3, needed for SD3 */
-	pmic_reg_read(p, PFUZE100_VGEN5VOL, &reg);
+	reg = pmic_reg_read(dev, PFUZE100_VGEN5VOL);
 	reg &= ~LDO_VOL_MASK;
 	reg |= (LDOB_3_30V | (1 << LDO_EN));
-	pmic_reg_write(p, PFUZE100_VGEN5VOL, reg);
+	pmic_reg_write(dev, PFUZE100_VGEN5VOL, reg);
 
 	return 0;
 }
-
-#ifdef CONFIG_USB_EHCI_MX6
-#define USB_OTHERREGS_OFFSET	0x800
-#define UCTRL_PWR_POL		(1 << 9)
-
-static iomux_v3_cfg_t const usb_otg_pads[] = {
-	/* OGT1 */
-	MX6_PAD_GPIO1_IO09__USB_OTG1_PWR | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_GPIO1_IO10__ANATOP_OTG1_ID | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* OTG2 */
-	MX6_PAD_GPIO1_IO12__USB_OTG2_PWR | MUX_PAD_CTRL(NO_PAD_CTRL)
-};
-
-static void setup_usb(void)
-{
-	imx_iomux_v3_setup_multiple_pads(usb_otg_pads,
-					 ARRAY_SIZE(usb_otg_pads));
-}
-
-int board_usb_phy_mode(int port)
-{
-	if (port == 1)
-		return USB_INIT_HOST;
-	else
-		return usb_phy_mode(port);
-}
-
-int board_ehci_hcd_init(int port)
-{
-	u32 *usbnc_usb_ctrl;
-
-	if (port > 1)
-		return -EINVAL;
-
-	usbnc_usb_ctrl = (u32 *)(USB_BASE_ADDR + USB_OTHERREGS_OFFSET +
-				 port * 4);
-
-	/* Set Power polarity */
-	setbits_le32(usbnc_usb_ctrl, UCTRL_PWR_POL);
-
-	return 0;
-}
-#endif
 
 int board_phy_config(struct phy_device *phydev)
 {
@@ -296,138 +196,12 @@ int board_early_init_f(void)
 	imx_iomux_v3_setup_multiple_pads(peri_3v3_pads,
 					 ARRAY_SIZE(peri_3v3_pads));
 
-	/* Active high for ncp692 */
-	gpio_direction_output(IMX_GPIO_NR(4, 16) , 1);
-
-#ifdef CONFIG_USB_EHCI_MX6
-	setup_usb();
-#endif
-
 	return 0;
 }
-
-static struct fsl_esdhc_cfg usdhc_cfg[3] = {
-	{USDHC2_BASE_ADDR, 0, 4},
-	{USDHC3_BASE_ADDR},
-	{USDHC4_BASE_ADDR},
-};
-
-#define USDHC3_CD_GPIO	IMX_GPIO_NR(2, 10)
-#define USDHC3_PWR_GPIO	IMX_GPIO_NR(2, 11)
-#define USDHC4_CD_GPIO	IMX_GPIO_NR(6, 21)
 
 int board_mmc_get_env_dev(int devno)
 {
-	return devno - 1;
-}
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
-	int ret = 0;
-
-	switch (cfg->esdhc_base) {
-	case USDHC2_BASE_ADDR:
-		ret = 1; /* Assume uSDHC2 is always present */
-		break;
-	case USDHC3_BASE_ADDR:
-		ret = !gpio_get_value(USDHC3_CD_GPIO);
-		break;
-	case USDHC4_BASE_ADDR:
-		ret = !gpio_get_value(USDHC4_CD_GPIO);
-		break;
-	}
-
-	return ret;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-#ifndef CONFIG_SPL_BUILD
-	int i, ret;
-
-	/*
-	 * According to the board_mmc_init() the following map is done:
-	 * (U-Boot device node)    (Physical Port)
-	 * mmc0                    USDHC2
-	 * mmc1                    USDHC3
-	 * mmc2                    USDHC4
-	 */
-	for (i = 0; i < CONFIG_SYS_FSL_USDHC_NUM; i++) {
-		switch (i) {
-		case 0:
-			imx_iomux_v3_setup_multiple_pads(
-				usdhc2_pads, ARRAY_SIZE(usdhc2_pads));
-			usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-			break;
-		case 1:
-			imx_iomux_v3_setup_multiple_pads(
-				usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
-			gpio_direction_input(USDHC3_CD_GPIO);
-			gpio_direction_output(USDHC3_PWR_GPIO, 1);
-			usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-			break;
-		case 2:
-			imx_iomux_v3_setup_multiple_pads(
-				usdhc4_pads, ARRAY_SIZE(usdhc4_pads));
-			gpio_direction_input(USDHC4_CD_GPIO);
-			usdhc_cfg[2].sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
-			break;
-		default:
-			printf("Warning: you configured more USDHC controllers"
-				"(%d) than supported by the board\n", i + 1);
-			return -EINVAL;
-			}
-
-			ret = fsl_esdhc_initialize(bis, &usdhc_cfg[i]);
-			if (ret) {
-				printf("Warning: failed to initialize mmc dev %d\n", i);
-				return ret;
-			}
-	}
-
-	return 0;
-#else
-	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
-	u32 val;
-	u32 port;
-
-	val = readl(&src_regs->sbmr1);
-
-	if ((val & 0xc0) != 0x40) {
-		printf("Not boot from USDHC!\n");
-		return -EINVAL;
-	}
-
-	port = (val >> 11) & 0x3;
-	printf("port %d\n", port);
-	switch (port) {
-	case 1:
-		imx_iomux_v3_setup_multiple_pads(
-			usdhc2_pads, ARRAY_SIZE(usdhc2_pads));
-		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-		usdhc_cfg[0].esdhc_base = USDHC2_BASE_ADDR;
-		break;
-	case 2:
-		imx_iomux_v3_setup_multiple_pads(
-			usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
-		gpio_direction_input(USDHC3_CD_GPIO);
-		gpio_direction_output(USDHC3_PWR_GPIO, 1);
-		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-		usdhc_cfg[0].esdhc_base = USDHC3_BASE_ADDR;
-		break;
-	case 3:
-		imx_iomux_v3_setup_multiple_pads(
-			usdhc4_pads, ARRAY_SIZE(usdhc4_pads));
-		gpio_direction_input(USDHC4_CD_GPIO);
-		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
-		usdhc_cfg[0].esdhc_base = USDHC4_BASE_ADDR;
-		break;
-	}
-
-	gd->arch.sdhc_clk = usdhc_cfg[0].sdhc_clk;
-	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
-#endif
+	return devno;
 }
 
 #ifdef CONFIG_FSL_QSPI
@@ -509,11 +283,13 @@ static int setup_lcd(void)
 	imx_iomux_v3_setup_multiple_pads(lcd_pads, ARRAY_SIZE(lcd_pads));
 
 	/* Reset the LCD */
+	gpio_request(IMX_GPIO_NR(3, 27), "lcd_rst");
 	gpio_direction_output(IMX_GPIO_NR(3, 27) , 0);
 	udelay(500);
 	gpio_direction_output(IMX_GPIO_NR(3, 27) , 1);
 
 	/* Set Brightness to high */
+	gpio_request(IMX_GPIO_NR(6, 4), "lcd_bright");
 	gpio_direction_output(IMX_GPIO_NR(6, 4) , 1);
 
 	return 0;
@@ -525,9 +301,18 @@ int board_init(void)
 	/* Address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-#ifdef CONFIG_SYS_I2C_MXC
-	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
-#endif
+	/*
+	 * Because kernel set WDOG_B mux before pad with the common pinctrl
+	 * framwork now and wdog reset will be triggered once set WDOG_B mux
+	 * with default pad setting, we set pad setting here to workaround this.
+	 * Since imx_iomux_v3_setup_pad also set mux before pad setting, we set
+	 * as GPIO mux firstly here to workaround it.
+	 */
+	imx_iomux_v3_setup_pad(wdog_b_pad);
+
+	/* Active high for ncp692 */
+	gpio_request(IMX_GPIO_NR(4, 16), "ncp692_en");
+	gpio_direction_output(IMX_GPIO_NR(4, 16), 1);
 
 #ifdef CONFIG_FSL_QSPI
 	board_qspi_init();
@@ -565,6 +350,117 @@ int checkboard(void)
 #include <libfdt.h>
 #include <spl.h>
 #include <asm/arch/mx6-ddr.h>
+
+static struct fsl_esdhc_cfg usdhc_cfg[3] = {
+	{USDHC2_BASE_ADDR, 0, 4},
+	{USDHC3_BASE_ADDR},
+	{USDHC4_BASE_ADDR},
+};
+
+#define USDHC3_CD_GPIO	IMX_GPIO_NR(2, 10)
+#define USDHC3_PWR_GPIO	IMX_GPIO_NR(2, 11)
+#define USDHC4_CD_GPIO	IMX_GPIO_NR(6, 21)
+
+static iomux_v3_cfg_t const usdhc2_pads[] = {
+	MX6_PAD_SD2_CLK__USDHC2_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD2_CMD__USDHC2_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD2_DATA0__USDHC2_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD2_DATA1__USDHC2_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD2_DATA2__USDHC2_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD2_DATA3__USDHC2_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+};
+
+static iomux_v3_cfg_t const usdhc3_pads[] = {
+	MX6_PAD_SD3_CLK__USDHC3_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD3_CMD__USDHC3_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD3_DATA0__USDHC3_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD3_DATA1__USDHC3_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD3_DATA2__USDHC3_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD3_DATA3__USDHC3_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD3_DATA4__USDHC3_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD3_DATA5__USDHC3_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD3_DATA6__USDHC3_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD3_DATA7__USDHC3_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+
+	/* CD pin */
+	MX6_PAD_KEY_COL0__GPIO2_IO_10 | MUX_PAD_CTRL(NO_PAD_CTRL),
+
+	/* RST_B, used for power reset cycle */
+	MX6_PAD_KEY_COL1__GPIO2_IO_11 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+static iomux_v3_cfg_t const usdhc4_pads[] = {
+	MX6_PAD_SD4_CLK__USDHC4_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_CMD__USDHC4_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DATA0__USDHC4_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DATA1__USDHC4_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DATA2__USDHC4_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DATA3__USDHC4_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DATA7__GPIO6_IO_21 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+int board_mmc_init(bd_t *bis)
+{
+	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
+	u32 val;
+	u32 port;
+
+	val = readl(&src_regs->sbmr1);
+
+	if ((val & 0xc0) != 0x40) {
+		printf("Not boot from USDHC!\n");
+		return -EINVAL;
+	}
+
+	port = (val >> 11) & 0x3;
+	printf("port %d\n", port);
+	switch (port) {
+	case 1:
+		imx_iomux_v3_setup_multiple_pads(
+			usdhc2_pads, ARRAY_SIZE(usdhc2_pads));
+		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+		usdhc_cfg[0].esdhc_base = USDHC2_BASE_ADDR;
+		break;
+	case 2:
+		imx_iomux_v3_setup_multiple_pads(
+			usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
+		gpio_direction_input(USDHC3_CD_GPIO);
+		gpio_direction_output(USDHC3_PWR_GPIO, 1);
+		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
+		usdhc_cfg[0].esdhc_base = USDHC3_BASE_ADDR;
+		break;
+	case 3:
+		imx_iomux_v3_setup_multiple_pads(
+			usdhc4_pads, ARRAY_SIZE(usdhc4_pads));
+		gpio_direction_input(USDHC4_CD_GPIO);
+		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
+		usdhc_cfg[0].esdhc_base = USDHC4_BASE_ADDR;
+		break;
+	}
+
+	gd->arch.sdhc_clk = usdhc_cfg[0].sdhc_clk;
+	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
+}
+
+int board_mmc_getcd(struct mmc *mmc)
+{
+	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
+	int ret = 0;
+
+	switch (cfg->esdhc_base) {
+	case USDHC2_BASE_ADDR:
+		ret = 1; /* Assume uSDHC2 is always present */
+		break;
+	case USDHC3_BASE_ADDR:
+		ret = !gpio_get_value(USDHC3_CD_GPIO);
+		break;
+	case USDHC4_BASE_ADDR:
+		ret = !gpio_get_value(USDHC4_CD_GPIO);
+		break;
+	}
+
+	return ret;
+}
 
 const struct mx6sx_iomux_ddr_regs mx6_ddr_ioregs = {
 	.dram_dqm0 = 0x00000028,
