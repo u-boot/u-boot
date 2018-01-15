@@ -20,8 +20,6 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifndef CONFIG_DM_ETH
 /* Default initializations for TSEC controllers. */
 
@@ -779,45 +777,43 @@ int tsec_probe(struct udevice *dev)
 	struct tsec_private *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct fsl_pq_mdio_info mdio_info;
-	int offset = 0;
-	int reg;
+	struct ofnode_phandle_args phandle_args;
+	ofnode parent;
 	const char *phy_mode;
 	int ret;
 
-	pdata->iobase = (phys_addr_t)devfdt_get_addr(dev);
+	pdata->iobase = (phys_addr_t)dev_read_addr(dev);
 	priv->regs = (struct tsec *)pdata->iobase;
 
-	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev_of_offset(dev),
-				       "phy-handle");
-	if (offset > 0) {
-		reg = fdtdec_get_int(gd->fdt_blob, offset, "reg", 0);
-		priv->phyaddr = reg;
-	} else {
+	if (dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
+				       &phandle_args)) {
 		debug("phy-handle does not exist under tsec %s\n", dev->name);
 		return -ENOENT;
+	} else {
+		int reg = ofnode_read_u32_default(phandle_args.node, "reg", 0);
+
+		priv->phyaddr = reg;
 	}
 
-	offset = fdt_parent_offset(gd->fdt_blob, offset);
-	if (offset > 0) {
-		reg = fdtdec_get_int(gd->fdt_blob, offset, "reg", 0);
+	parent = ofnode_get_parent(phandle_args.node);
+	if (ofnode_valid(parent)) {
+		int reg = ofnode_read_u32_default(parent, "reg", 0);
 		priv->phyregs_sgmii = (struct tsec_mii_mng *)(reg + 0x520);
 	} else {
 		debug("No parent node for PHY?\n");
 		return -ENOENT;
 	}
 
-	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev_of_offset(dev),
-				       "tbi-handle");
-	if (offset > 0) {
-		reg = fdtdec_get_int(gd->fdt_blob, offset, "reg",
-				     CONFIG_SYS_TBIPA_VALUE);
-		priv->tbiaddr = reg;
-	} else {
+	if (dev_read_phandle_with_args(dev, "tbi-handle", NULL, 0, 0,
+				       &phandle_args)) {
 		priv->tbiaddr = CONFIG_SYS_TBIPA_VALUE;
+	} else {
+		int reg = ofnode_read_u32_default(phandle_args.node, "reg",
+						  CONFIG_SYS_TBIPA_VALUE);
+		priv->tbiaddr = reg;
 	}
 
-	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
-			       "phy-connection-type", NULL);
+	phy_mode = dev_read_prop(dev, "phy-connection-type", NULL);
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (pdata->phy_interface == -1) {
