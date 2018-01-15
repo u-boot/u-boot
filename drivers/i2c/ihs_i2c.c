@@ -198,29 +198,45 @@ static int ihs_i2c_transfer(uchar chip, uchar *buffer, int len, bool read,
 }
 
 #ifdef CONFIG_DM_I2C
-static int ihs_i2c_address(struct udevice *dev, uchar chip, u8 *addr, int alen, bool hold_bus)
+static int ihs_i2c_send_buffer(struct udevice *dev, uchar chip, u8 *data, int len, bool hold_bus, int read)
+#else
+static int ihs_i2c_send_buffer(uchar chip, u8 *data, int len, bool hold_bus,
+			       int read)
+#endif
+{
+	while (len) {
+		int transfer = min(len, 2);
+		bool is_last = len <= transfer;
+
+#ifdef CONFIG_DM_I2C
+		if (ihs_i2c_transfer(dev, chip, data, transfer, read,
+				     hold_bus ? false : is_last))
+			return 1;
+#else
+		if (ihs_i2c_transfer(chip, data, transfer, read,
+				     hold_bus ? false : is_last))
+			return 1;
+#endif
+
+		data += transfer;
+		len -= transfer;
+	}
+
+	return 0;
+}
+
+#ifdef CONFIG_DM_I2C
+static int ihs_i2c_address(struct udevice *dev, uchar chip, u8 *addr, int alen,
+			   bool hold_bus)
 #else
 static int ihs_i2c_address(uchar chip, u8 *addr, int alen, bool hold_bus)
 #endif
 {
-	while (alen) {
-		int transfer = min(alen, 2);
-		bool is_last = alen <= transfer;
-
 #ifdef CONFIG_DM_I2C
-		if (ihs_i2c_transfer(dev, chip, addr, transfer, I2COP_WRITE,
-				     hold_bus ? false : is_last))
-			return 1;
+	return ihs_i2c_send_buffer(dev, chip, addr, alen, hold_bus, I2COP_WRITE);
 #else
-		if (ihs_i2c_transfer(chip, addr, transfer, I2COP_WRITE,
-				     hold_bus ? false : is_last))
-			return 1;
+	return ihs_i2c_send_buffer(chip, addr, alen, hold_bus, I2COP_WRITE);
 #endif
-
-		alen -= transfer;
-	}
-
-	return 0;
 }
 
 #ifdef CONFIG_DM_I2C
@@ -240,25 +256,11 @@ static int ihs_i2c_access(struct i2c_adapter *adap, uchar chip, u8 *addr,
 		return 1;
 #endif
 
-	while (len) {
-		int transfer = min(len, 2);
-		bool is_last = len <= transfer;
-
 #ifdef CONFIG_DM_I2C
-		if (ihs_i2c_transfer(dev, chip, buffer, transfer, read,
-				     is_last))
-			return 2;
+	return ihs_i2c_send_buffer(dev, chip, buffer, len, false, read);
 #else
-		if (ihs_i2c_transfer(chip, buffer, transfer, read,
-				     is_last))
-			return 2;
+	return ihs_i2c_send_buffer(chip, buffer, len, false, read);
 #endif
-
-		buffer += transfer;
-		len -= transfer;
-	}
-
-	return 0;
 }
 
 #ifdef CONFIG_DM_I2C
