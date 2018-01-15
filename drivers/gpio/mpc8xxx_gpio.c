@@ -14,8 +14,6 @@
 #include <mapmem.h>
 #include <asm/gpio.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct ccsr_gpio {
 	u32	gpdir;
 	u32	gpodr;
@@ -181,15 +179,14 @@ static int mpc8xxx_gpio_ofdata_to_platdata(struct udevice *dev)
 {
 	struct mpc8xxx_gpio_plat *plat = dev_get_platdata(dev);
 	fdt_addr_t addr;
-	fdt_size_t size;
+	u32 reg[2];
 
-	addr = fdtdec_get_addr_size_auto_noparent(gd->fdt_blob,
-						  dev_of_offset(dev),
-						  "reg", 0, &size, false);
+	dev_read_u32_array(dev, "reg", reg, 2);
+	addr = dev_translate_address(dev, reg);
+
 	plat->addr = addr;
-	plat->size = size;
-	plat->ngpios = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-				      "ngpios", 32);
+	plat->size = reg[1];
+	plat->ngpios = dev_read_u32_default(dev, "ngpios", 32);
 
 	return 0;
 }
@@ -206,7 +203,7 @@ static int mpc8xxx_gpio_platdata_to_priv(struct udevice *dev)
 		size = 0x100;
 
 	priv->addr = plat->addr;
-	priv->base = map_sysmem(CONFIG_SYS_IMMR + plat->addr, size);
+	priv->base = map_sysmem(plat->addr, size);
 
 	if (!priv->base)
 		return -ENOMEM;
