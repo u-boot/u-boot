@@ -11,8 +11,8 @@
 
 #include <common.h>
 #include <dm.h>
-#include <asm/gpio.h>
 #include <mapmem.h>
+#include <asm/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -37,6 +37,12 @@ struct mpc8xxx_gpio_data {
 	 * for output pins
 	 */
 	u32 dat_shadow;
+	ulong type;
+};
+
+enum {
+	MPC8XXX_GPIO_TYPE,
+	MPC5121_GPIO_TYPE,
 };
 
 inline u32 gpio_mask(uint gpio)
@@ -119,6 +125,12 @@ static int mpc8xxx_gpio_set_value(struct udevice *dev, uint gpio, int value)
 static int mpc8xxx_gpio_direction_output(struct udevice *dev, uint gpio,
 					 int value)
 {
+	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
+
+	/* GPIO 28..31 are input only on MPC5121 */
+	if (data->type == MPC5121_GPIO_TYPE && gpio >= 28)
+		return -EINVAL;
+
 	return mpc8xxx_gpio_set_value(dev, gpio, value);
 }
 
@@ -188,6 +200,7 @@ static int mpc8xxx_gpio_platdata_to_priv(struct udevice *dev)
 	struct mpc8xxx_gpio_data *priv = dev_get_priv(dev);
 	struct mpc8xxx_gpio_plat *plat = dev_get_platdata(dev);
 	unsigned long size = plat->size;
+	ulong driver_data = dev_get_driver_data(dev);
 
 	if (size == 0)
 		size = 0x100;
@@ -237,7 +250,13 @@ static const struct dm_gpio_ops gpio_mpc8xxx_ops = {
 };
 
 static const struct udevice_id mpc8xxx_gpio_ids[] = {
-	{ .compatible = "fsl,pq3-gpio" },
+	{ .compatible = "fsl,pq3-gpio", .data = MPC8XXX_GPIO_TYPE },
+	{ .compatible = "fsl,mpc8308-gpio", .data = MPC8XXX_GPIO_TYPE },
+	{ .compatible = "fsl,mpc8349-gpio", .data = MPC8XXX_GPIO_TYPE },
+	{ .compatible = "fsl,mpc8572-gpio", .data = MPC8XXX_GPIO_TYPE},
+	{ .compatible = "fsl,mpc8610-gpio", .data = MPC8XXX_GPIO_TYPE},
+	{ .compatible = "fsl,mpc5121-gpio", .data = MPC5121_GPIO_TYPE, },
+	{ .compatible = "fsl,qoriq-gpio", .data = MPC8XXX_GPIO_TYPE },
 	{ /* sentinel */ }
 };
 
