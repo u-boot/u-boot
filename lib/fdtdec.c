@@ -233,10 +233,10 @@ int fdtdec_get_pci_addr(const void *blob, int node, enum fdt_pci_space type,
 				addr->phys_mid = fdt32_to_cpu(cell[1]);
 				addr->phys_lo = fdt32_to_cpu(cell[1]);
 				break;
-			} else {
-				cell += (FDT_PCI_ADDR_CELLS +
-					 FDT_PCI_SIZE_CELLS);
 			}
+
+			cell += (FDT_PCI_ADDR_CELLS +
+				 FDT_PCI_SIZE_CELLS);
 		}
 
 		if (i == num) {
@@ -245,9 +245,9 @@ int fdtdec_get_pci_addr(const void *blob, int node, enum fdt_pci_space type,
 		}
 
 		return 0;
-	} else {
-		ret = -EINVAL;
 	}
+
+	ret = -EINVAL;
 
 fail:
 	debug("(not found)\n");
@@ -265,11 +265,9 @@ int fdtdec_get_pci_vendev(const void *blob, int node, u16 *vendor, u16 *device)
 
 	end = list + len;
 	while (list < end) {
-		char *s;
-
 		len = strlen(list);
 		if (len >= strlen("pciVVVV,DDDD")) {
-			s = strstr(list, "pci");
+			char *s = strstr(list, "pci");
 
 			/*
 			 * check if the string is something like pciVVVV,DDDD.RR
@@ -299,7 +297,7 @@ int fdtdec_get_pci_bar32(struct udevice *dev, struct fdt_pci_addr *addr,
 
 	/* extract the bar number from fdt_pci_addr */
 	barnum = addr->phys_hi & 0xff;
-	if ((barnum < PCI_BASE_ADDRESS_0) || (barnum > PCI_CARDBUS_CIS))
+	if (barnum < PCI_BASE_ADDRESS_0 || barnum > PCI_CARDBUS_CIS)
 		return -EINVAL;
 
 	barnum = (barnum - PCI_BASE_ADDRESS_0) / 4;
@@ -335,7 +333,7 @@ int fdtdec_get_is_enabled(const void *blob, int node)
 	 */
 	cell = fdt_getprop(blob, node, "status", NULL);
 	if (cell)
-		return 0 == strcmp(cell, "okay");
+		return strcmp(cell, "okay") == 0;
 	return 1;
 }
 
@@ -345,8 +343,8 @@ enum fdt_compat_id fdtdec_lookup(const void *blob, int node)
 
 	/* Search our drivers */
 	for (id = COMPAT_UNKNOWN; id < COMPAT_COUNT; id++)
-		if (0 == fdt_node_check_compatible(blob, node,
-				compat_names[id]))
+		if (fdt_node_check_compatible(blob, node,
+					      compat_names[id]) == 0)
 			return id;
 	return COMPAT_UNKNOWN;
 }
@@ -665,12 +663,14 @@ int fdtdec_get_int_array(const void *blob, int node, const char *prop_name,
 			 u32 *array, int count)
 {
 	const u32 *cell;
-	int i, err = 0;
+	int err = 0;
 
 	debug("%s: %s\n", __func__, prop_name);
 	cell = get_prop_check_min_len(blob, node, prop_name,
 				      sizeof(u32) * count, &err);
 	if (!err) {
+		int i;
+
 		for (i = 0; i < count; i++)
 			array[i] = fdt32_to_cpu(cell[i]);
 	}
@@ -975,7 +975,8 @@ int fdt_get_resource(const void *fdt, int node, const char *property,
 
 	while (ptr + na + ns <= end) {
 		if (i == index) {
-			res->start = res->end = fdtdec_get_number(ptr, na);
+			res->start = fdtdec_get_number(ptr, na);
+			res->end = res->start;
 			res->end += fdtdec_get_number(&ptr[na], ns) - 1;
 			return 0;
 		}
