@@ -701,8 +701,10 @@ static int tsec_initialize(bd_t *bis, struct tsec_info_struct *tsec_info)
 
 	priv = (struct tsec_private *)malloc(sizeof(*priv));
 
-	if (!priv)
+	if (!priv) {
+		free(dev);
 		return 0;
+	}
 
 	priv->regs = tsec_info->regs;
 	priv->phyregs_sgmii = tsec_info->miiregs_sgmii;
