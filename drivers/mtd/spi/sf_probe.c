@@ -55,9 +55,15 @@ err_read_id:
 }
 
 #ifndef CONFIG_DM_SPI_FLASH
-static struct spi_flash *spi_flash_probe_tail(struct spi_slave *bus)
+struct spi_flash *spi_flash_probe(unsigned int busnum, unsigned int cs,
+				  unsigned int max_hz, unsigned int spi_mode)
 {
+	struct spi_slave *bus;
 	struct spi_flash *flash;
+
+	bus = spi_setup_slave(busnum, cs, max_hz, spi_mode);
+	if (!bus)
+		return NULL;
 
 	/* Allocate space if needed (not used by sf-uclass */
 	flash = calloc(1, sizeof(*flash));
@@ -74,17 +80,6 @@ static struct spi_flash *spi_flash_probe_tail(struct spi_slave *bus)
 	}
 
 	return flash;
-}
-
-struct spi_flash *spi_flash_probe(unsigned int busnum, unsigned int cs,
-				  unsigned int max_hz, unsigned int spi_mode)
-{
-	struct spi_slave *bus;
-
-	bus = spi_setup_slave(busnum, cs, max_hz, spi_mode);
-	if (!bus)
-		return NULL;
-	return spi_flash_probe_tail(bus);
 }
 
 void spi_flash_free(struct spi_flash *flash)
