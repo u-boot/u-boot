@@ -100,6 +100,10 @@
 #endif
 #endif
 
+#if defined(CONFIG_SPL_BUILD)
+#define CONFIG_ZYNQMP_PSU_INIT_ENABLED
+#endif
+
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		0x8000000
 
