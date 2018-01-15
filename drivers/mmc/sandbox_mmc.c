@@ -48,9 +48,12 @@ static int sandbox_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		cmd->response[1] = 10 << 16;	/* 1 << block_len */
 		break;
 	case SD_CMD_SWITCH_FUNC: {
+		if (!data)
+			break;
 		u32 *resp = (u32 *)data->dest;
-
 		resp[7] = cpu_to_be32(SD_HIGHSPEED_BUSY);
+		if ((cmd->cmdarg & 0xF) == UHS_SDR12_BUS_SPEED)
+			resp[4] = (cmd->cmdarg & 0xF) << 24;
 		break;
 	}
 	case MMC_CMD_READ_SINGLE_BLOCK:

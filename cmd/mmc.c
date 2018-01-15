@@ -23,7 +23,12 @@ static void print_mmcinfo(struct mmc *mmc)
 			(mmc->cid[1] >> 24), (mmc->cid[1] >> 16) & 0xff,
 			(mmc->cid[1] >> 8) & 0xff, mmc->cid[1] & 0xff);
 
-	printf("Tran Speed: %d\n", mmc->tran_speed);
+	printf("Bus Speed: %d\n", mmc->clock);
+#if CONFIG_IS_ENABLED(MMC_VERBOSE)
+	printf("Mode : %s\n", mmc_mode_name(mmc->selected_mode));
+	mmc_dump_capabilities("card capabilities", mmc->card_caps);
+	mmc_dump_capabilities("host capabilities", mmc->host_caps);
+#endif
 	printf("Rd Block Len: %d\n", mmc->read_bl_len);
 
 	printf("%s version %d.%d", IS_SD(mmc) ? "SD" : "MMC",
@@ -40,15 +45,19 @@ static void print_mmcinfo(struct mmc *mmc)
 	printf("Bus Width: %d-bit%s\n", mmc->bus_width,
 			mmc->ddr_mode ? " DDR" : "");
 
+#if CONFIG_IS_ENABLED(MMC_WRITE)
 	puts("Erase Group Size: ");
 	print_size(((u64)mmc->erase_grp_size) << 9, "\n");
+#endif
 
 	if (!IS_SD(mmc) && mmc->version >= MMC_VERSION_4_41) {
 		bool has_enh = (mmc->part_support & ENHNCD_SUPPORT) != 0;
 		bool usr_enh = has_enh && (mmc->part_attr & EXT_CSD_ENH_USR);
 
+#if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
 		puts("HC WP Group Size: ");
 		print_size(((u64)mmc->hc_wp_grp_size) << 9, "\n");
+#endif
 
 		puts("User Capacity: ");
 		print_size(mmc->capacity_user, usr_enh ? " ENH" : "");
@@ -297,6 +306,8 @@ static int do_mmc_read(cmd_tbl_t *cmdtp, int flag,
 
 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
 }
+
+#if CONFIG_IS_ENABLED(MMC_WRITE)
 static int do_mmc_write(cmd_tbl_t *cmdtp, int flag,
 			int argc, char * const argv[])
 {
@@ -355,6 +366,8 @@ static int do_mmc_erase(cmd_tbl_t *cmdtp, int flag,
 
 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
 }
+#endif
+
 static int do_mmc_rescan(cmd_tbl_t *cmdtp, int flag,
 			 int argc, char * const argv[])
 {
@@ -433,6 +446,7 @@ static int do_mmc_list(cmd_tbl_t *cmdtp, int flag,
 	return CMD_RET_SUCCESS;
 }
 
+#if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
 static int parse_hwpart_user(struct mmc_hwpart_conf *pconf,
 			     int argc, char * const argv[])
 {
@@ -582,6 +596,7 @@ static int do_mmc_hwpartition(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	}
 }
+#endif
 
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 static int do_mmc_bootbus(cmd_tbl_t *cmdtp, int flag,
@@ -785,13 +800,17 @@ static int do_mmc_bkops_enable(cmd_tbl_t *cmdtp, int flag,
 static cmd_tbl_t cmd_mmc[] = {
 	U_BOOT_CMD_MKENT(info, 1, 0, do_mmcinfo, "", ""),
 	U_BOOT_CMD_MKENT(read, 4, 1, do_mmc_read, "", ""),
+#if CONFIG_IS_ENABLED(MMC_WRITE)
 	U_BOOT_CMD_MKENT(write, 4, 0, do_mmc_write, "", ""),
 	U_BOOT_CMD_MKENT(erase, 3, 0, do_mmc_erase, "", ""),
+#endif
 	U_BOOT_CMD_MKENT(rescan, 1, 1, do_mmc_rescan, "", ""),
 	U_BOOT_CMD_MKENT(part, 1, 1, do_mmc_part, "", ""),
 	U_BOOT_CMD_MKENT(dev, 3, 0, do_mmc_dev, "", ""),
 	U_BOOT_CMD_MKENT(list, 1, 1, do_mmc_list, "", ""),
+#if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
 	U_BOOT_CMD_MKENT(hwpartition, 28, 0, do_mmc_hwpartition, "", ""),
+#endif
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 	U_BOOT_CMD_MKENT(bootbus, 5, 0, do_mmc_bootbus, "", ""),
 	U_BOOT_CMD_MKENT(bootpart-resize, 4, 0, do_mmc_boot_resize, "", ""),

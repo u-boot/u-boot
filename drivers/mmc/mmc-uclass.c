@@ -10,7 +10,6 @@
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
-#include <dm/root.h>
 #include "mmc_private.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -51,6 +50,35 @@ int mmc_set_ios(struct mmc *mmc)
 	return dm_mmc_set_ios(mmc->dev);
 }
 
+void dm_mmc_send_init_stream(struct udevice *dev)
+{
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+
+	if (ops->send_init_stream)
+		ops->send_init_stream(dev);
+}
+
+void mmc_send_init_stream(struct mmc *mmc)
+{
+	dm_mmc_send_init_stream(mmc->dev);
+}
+
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
+int dm_mmc_wait_dat0(struct udevice *dev, int state, int timeout)
+{
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+
+	if (!ops->wait_dat0)
+		return -ENOSYS;
+	return ops->wait_dat0(dev, state, timeout);
+}
+
+int mmc_wait_dat0(struct mmc *mmc, int state, int timeout)
+{
+	return dm_mmc_wait_dat0(mmc->dev, state, timeout);
+}
+#endif
+
 int dm_mmc_get_wp(struct udevice *dev)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
@@ -77,6 +105,73 @@ int dm_mmc_get_cd(struct udevice *dev)
 int mmc_getcd(struct mmc *mmc)
 {
 	return dm_mmc_get_cd(mmc->dev);
+}
+
+#ifdef MMC_SUPPORTS_TUNING
+int dm_mmc_execute_tuning(struct udevice *dev, uint opcode)
+{
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+
+	if (!ops->execute_tuning)
+		return -ENOSYS;
+	return ops->execute_tuning(dev, opcode);
+}
+
+int mmc_execute_tuning(struct mmc *mmc, uint opcode)
+{
+	return dm_mmc_execute_tuning(mmc->dev, opcode);
+}
+#endif
+
+int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
+{
+	int val;
+
+	val = dev_read_u32_default(dev, "bus-width", 1);
+
+	switch (val) {
+	case 0x8:
+		cfg->host_caps |= MMC_MODE_8BIT;
+		/* fall through */
+	case 0x4:
+		cfg->host_caps |= MMC_MODE_4BIT;
+		/* fall through */
+	case 0x1:
+		cfg->host_caps |= MMC_MODE_1BIT;
+		break;
+	default:
+		debug("warning: %s invalid bus-width property. using 1-bit\n",
+		      dev_read_name(dev));
+		cfg->host_caps |= MMC_MODE_1BIT;
+		break;
+	}
+
+	cfg->f_max = dev_read_u32_default(dev, "max-frequency", 52000000);
+
+	if (dev_read_bool(dev, "cap-sd-highspeed"))
+		cfg->host_caps |= MMC_CAP(SD_HS);
+	if (dev_read_bool(dev, "cap-mmc-highspeed"))
+		cfg->host_caps |= MMC_CAP(MMC_HS);
+	if (dev_read_bool(dev, "sd-uhs-sdr12"))
+		cfg->host_caps |= MMC_CAP(UHS_SDR12);
+	if (dev_read_bool(dev, "sd-uhs-sdr25"))
+		cfg->host_caps |= MMC_CAP(UHS_SDR25);
+	if (dev_read_bool(dev, "sd-uhs-sdr50"))
+		cfg->host_caps |= MMC_CAP(UHS_SDR50);
+	if (dev_read_bool(dev, "sd-uhs-sdr104"))
+		cfg->host_caps |= MMC_CAP(UHS_SDR104);
+	if (dev_read_bool(dev, "sd-uhs-ddr50"))
+		cfg->host_caps |= MMC_CAP(UHS_DDR50);
+	if (dev_read_bool(dev, "mmc-ddr-1_8v"))
+		cfg->host_caps |= MMC_CAP(MMC_DDR_52);
+	if (dev_read_bool(dev, "mmc-ddr-1_2v"))
+		cfg->host_caps |= MMC_CAP(MMC_DDR_52);
+	if (dev_read_bool(dev, "mmc-hs200-1_8v"))
+		cfg->host_caps |= MMC_CAP(MMC_HS_200);
+	if (dev_read_bool(dev, "mmc-hs200-1_2v"))
+		cfg->host_caps |= MMC_CAP(MMC_HS_200);
+
+	return 0;
 }
 
 struct mmc *mmc_get_mmc_dev(struct udevice *dev)
@@ -275,7 +370,7 @@ static int mmc_blk_probe(struct udevice *dev)
 
 static const struct blk_ops mmc_blk_ops = {
 	.read	= mmc_bread,
-#ifndef CONFIG_SPL_BUILD
+#if CONFIG_IS_ENABLED(MMC_WRITE)
 	.write	= mmc_bwrite,
 	.erase	= mmc_berase,
 #endif

@@ -157,7 +157,6 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	/* Timeout unit - ms */
 	static unsigned int cmd_timeout = SDHCI_CMD_DEFAULT_TIMEOUT;
 
-	sdhci_writel(host, SDHCI_INT_ALL_MASK, SDHCI_INT_STATUS);
 	mask = SDHCI_CMD_INHIBIT | SDHCI_DATA_INHIBIT;
 
 	/* We shouldn't wait for data inihibit for stop commands, even
@@ -181,6 +180,8 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 		udelay(1000);
 	}
 
+	sdhci_writel(host, SDHCI_INT_ALL_MASK, SDHCI_INT_STATUS);
+
 	mask = SDHCI_INT_RESPONSE;
 	if (!(cmd->resp_type & MMC_RSP_PRESENT))
 		flags = SDHCI_CMD_RESP_NONE;
@@ -201,7 +202,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 		flags |= SDHCI_CMD_DATA;
 
 	/* Set Transfer mode regarding to data flag */
-	if (data != 0) {
+	if (data) {
 		sdhci_writeb(host, 0xe, SDHCI_TIMEOUT_CONTROL);
 		mode = SDHCI_TRNS_BLK_CNT_EN;
 		trans_bytes = data->blocks * data->blocksize;
@@ -249,7 +250,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	sdhci_writel(host, cmd->cmdarg, SDHCI_ARGUMENT);
 #ifdef CONFIG_MMC_SDHCI_SDMA
-	if (data != 0) {
+	if (data) {
 		trans_bytes = ALIGN(trans_bytes, CONFIG_SYS_CACHELINE_SIZE);
 		flush_cache(start_addr, trans_bytes);
 	}

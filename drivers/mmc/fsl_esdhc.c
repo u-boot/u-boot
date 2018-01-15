@@ -647,7 +647,11 @@ static int esdhc_init_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 	esdhc_write32(&regs->clktunectrlstatus, 0x0);
 
 	/* Put VEND_SPEC to default value */
-	esdhc_write32(&regs->vendorspec, VENDORSPEC_INIT);
+	if (priv->vs18_enable)
+		esdhc_write32(&regs->vendorspec, (VENDORSPEC_INIT |
+			      ESDHC_VENDORSPEC_VSELECT));
+	else
+		esdhc_write32(&regs->vendorspec, VENDORSPEC_INIT);
 
 	/* Disable DLL_CTRL delay line */
 	esdhc_write32(&regs->dllctrl, 0x0);
@@ -665,7 +669,7 @@ static int esdhc_init_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 #endif
 
 	/* Set the initial clock speed */
-	mmc_set_clock(mmc, 400000);
+	mmc_set_clock(mmc, 400000, false);
 
 	/* Disable the BRR and BWR bits in IRQSTAT */
 	esdhc_clrbits32(&regs->irqstaten, IRQSTATEN_BRR | IRQSTATEN_BWR);
@@ -675,9 +679,6 @@ static int esdhc_init_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 
 	/* Set timout to the maximum value */
 	esdhc_clrsetbits32(&regs->sysctl, SYSCTL_TIMEOUT_MASK, 14 << 16);
-
-	if (priv->vs18_enable)
-		esdhc_setbits32(&regs->vendorspec, ESDHC_VENDORSPEC_VSELECT);
 
 	return 0;
 }
