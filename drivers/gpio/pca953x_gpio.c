@@ -50,8 +50,6 @@ enum {
 #define MAX_BANK 5
 #define BANK_SZ 8
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * struct pca953x_info - Data for pca953x
  *
@@ -253,7 +251,7 @@ static int pca953x_probe(struct udevice *dev)
 	ulong driver_data;
 	int ret;
 
-	addr = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "reg", 0);
+	addr = dev_read_addr(dev);
 	if (addr == 0)
 		return -ENODEV;
 
