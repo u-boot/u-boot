@@ -1,1 +1,0 @@
-0xFF18035C 0x1 // Force SD CD bit to be present

@@ -165,8 +165,6 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-mini-qspi-x2-stacked.dtb		\
 	zynqmp-mini-nand.dtb			\
 	zynqmp-mini-emmc.dtb			\
-	zynqmp-zcu100-revA.dtb			\
-	zynqmp-zcu100-revB.dtb			\
 	zynqmp-zcu100-revC.dtb			\
 	zynqmp-zcu102-revA.dtb			\
 	zynqmp-zcu102-revB.dtb			\
