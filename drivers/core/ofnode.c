@@ -301,7 +301,8 @@ int ofnode_parse_phandle_with_args(ofnode node, const char *list_name,
 		int ret;
 
 		ret = of_parse_phandle_with_args(ofnode_to_np(node),
-				list_name, cells_name, index, &args);
+						 list_name, cells_name, index,
+						 &args);
 		if (ret)
 			return ret;
 		ofnode_from_of_phandle_args(&args, out_args);
@@ -310,8 +311,9 @@ int ofnode_parse_phandle_with_args(ofnode node, const char *list_name,
 		int ret;
 
 		ret = fdtdec_parse_phandle_with_args(gd->fdt_blob,
-				ofnode_to_offset(node), list_name, cells_name,
-				cell_count, index, &args);
+						     ofnode_to_offset(node),
+						     list_name, cells_name,
+						     cell_count, index, &args);
 		if (ret)
 			return ret;
 		ofnode_from_fdtdec_phandle_args(&args, out_args);
@@ -539,10 +541,10 @@ int ofnode_read_pci_addr(ofnode node, enum fdt_pci_space type,
 				addr->phys_mid = fdt32_to_cpu(cell[1]);
 				addr->phys_lo = fdt32_to_cpu(cell[1]);
 				break;
-			} else {
-				cell += (FDT_PCI_ADDR_CELLS +
-					 FDT_PCI_SIZE_CELLS);
 			}
+
+			cell += (FDT_PCI_ADDR_CELLS +
+				 FDT_PCI_SIZE_CELLS);
 		}
 
 		if (i == num) {
@@ -551,9 +553,9 @@ int ofnode_read_pci_addr(ofnode node, enum fdt_pci_space type,
 		}
 
 		return 0;
-	} else {
-		ret = -EINVAL;
 	}
+
+	ret = -EINVAL;
 
 fail:
 	debug("(not found)\n");
