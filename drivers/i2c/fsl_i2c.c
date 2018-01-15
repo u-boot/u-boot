@@ -574,22 +574,18 @@ static int fsl_i2c_ofdata_to_platdata(struct udevice *bus)
 {
 	struct fsl_i2c_dev *dev = dev_get_priv(bus);
 	fdt_addr_t addr;
-	fdt_size_t size;
-	int node = dev_of_offset(bus);
 
-	addr = fdtdec_get_addr_size_auto_noparent(gd->fdt_blob, node, "reg", 0,
-						  &size, false);
+	addr = dev_read_u32_default(bus, "reg", -1);
 
-	dev->base = map_sysmem(CONFIG_SYS_IMMR + addr, size);
+	dev->base = map_sysmem(CONFIG_SYS_IMMR + addr, sizeof(struct fsl_i2c_base));
 
 	if (!dev->base)
 		return -ENOMEM;
 
-	dev->index = fdtdec_get_int(gd->fdt_blob, node, "cell-index", -1);
-	dev->slaveadd = fdtdec_get_int(gd->fdt_blob, node,
-				       "u-boot,i2c-slave-addr", 0x7f);
-	dev->speed = fdtdec_get_int(gd->fdt_blob, node, "clock-frequency",
-				    400000);
+	dev->index = dev_read_u32_default(bus, "cell-index", -1);
+	dev->slaveadd = dev_read_u32_default(bus, "u-boot,i2c-slave-addr",
+					     0x7f);
+	dev->speed = dev_read_u32_default(bus, "clock-frequency", 400000);
 
 	dev->i2c_clk = dev->index ? gd->arch.i2c2_clk : gd->arch.i2c1_clk;
 
