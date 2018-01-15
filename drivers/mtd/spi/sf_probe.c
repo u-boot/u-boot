@@ -77,7 +77,7 @@ static struct spi_flash *spi_flash_probe_tail(struct spi_slave *bus)
 }
 
 struct spi_flash *spi_flash_probe(unsigned int busnum, unsigned int cs,
-		unsigned int max_hz, unsigned int spi_mode)
+				  unsigned int max_hz, unsigned int spi_mode)
 {
 	struct spi_slave *bus;
 
@@ -107,7 +107,7 @@ static int spi_flash_std_read(struct udevice *dev, u32 offset, size_t len,
 }
 
 static int spi_flash_std_write(struct udevice *dev, u32 offset, size_t len,
-			const void *buf)
+			       const void *buf)
 {
 	struct spi_flash *flash = dev_get_uclass_priv(dev);
 
