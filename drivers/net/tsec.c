@@ -74,11 +74,11 @@ static void tsec_configure_serdes(struct tsec_private *priv)
 	 * to the register offset used for external PHY accesses
 	 */
 	tsec_local_mdio_write(priv->phyregs_sgmii, in_be32(&priv->regs->tbipa),
-			0, TBI_ANA, TBIANA_SETTINGS);
+			      0, TBI_ANA, TBIANA_SETTINGS);
 	tsec_local_mdio_write(priv->phyregs_sgmii, in_be32(&priv->regs->tbipa),
-			0, TBI_TBICON, TBICON_CLK_SELECT);
+			      0, TBI_TBICON, TBICON_CLK_SELECT);
 	tsec_local_mdio_write(priv->phyregs_sgmii, in_be32(&priv->regs->tbipa),
-			0, TBI_CR, CONFIG_TSEC_TBICR_SETTINGS);
+			      0, TBI_CR, CONFIG_TSEC_TBICR_SETTINGS);
 }
 
 #ifdef CONFIG_MCAST_TFTP
@@ -116,7 +116,7 @@ static int tsec_mcast_addr(struct udevice *dev, const u8 *mcast_mac, int set)
 	whichbit = (result >> 24) & 0x1f; /* the 5 LSB = which bit to set */
 	whichreg = result >> 29; /* the 3 MSB = which reg to set it in */
 
-	value = 1 << (31-whichbit);
+	value = BIT(31 - whichbit);
 
 	if (set)
 		setbits_be32(&regs->hash.gaddr0 + whichreg, value);
@@ -171,7 +171,6 @@ static void init_registers(struct tsec __iomem *regs)
 
 	out_be32(&regs->attr, ATTR_INIT_SETTINGS);
 	out_be32(&regs->attreli, ATTRELI_INIT_SETTINGS);
-
 }
 
 /*
@@ -222,8 +221,8 @@ static void adjust_link(struct tsec_private *priv, struct phy_device *phydev)
 	out_be32(&regs->maccfg2, maccfg2);
 
 	printf("Speed: %d, %s duplex%s\n", phydev->speed,
-			(phydev->duplex) ? "full" : "half",
-			(phydev->port == PORT_FIBRE) ? ", fiber mode" : "");
+	       (phydev->duplex) ? "full" : "half",
+	       (phydev->port == PORT_FIBRE) ? ", fiber mode" : "");
 }
 
 /*
@@ -240,7 +239,7 @@ static int tsec_send(struct udevice *dev, void *packet, int length)
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct tsec __iomem *regs = priv->regs;
-	uint16_t status;
+	u16 status;
 	int result = 0;
 	int i;
 
@@ -287,7 +286,7 @@ static int tsec_recv(struct eth_device *dev)
 
 	while (!(in_be16(&priv->rxbd[priv->rx_idx].status) & RXBD_EMPTY)) {
 		int length = in_be16(&priv->rxbd[priv->rx_idx].length);
-		uint16_t status = in_be16(&priv->rxbd[priv->rx_idx].status);
+		u16 status = in_be16(&priv->rxbd[priv->rx_idx].status);
 		uchar *packet = net_rx_packets[priv->rx_idx];
 
 		/* Send the packet up if there were no errors */
@@ -323,8 +322,8 @@ static int tsec_recv(struct udevice *dev, int flags, uchar **packetp)
 
 	if (!(in_be16(&priv->rxbd[priv->rx_idx].status) & RXBD_EMPTY)) {
 		int length = in_be16(&priv->rxbd[priv->rx_idx].length);
-		uint16_t status = in_be16(&priv->rxbd[priv->rx_idx].status);
-		uint32_t buf;
+		u16 status = in_be16(&priv->rxbd[priv->rx_idx].status);
+		u32 buf;
 
 		/* Send the packet up if there were no errors */
 		if (!(status & RXBD_STATS)) {
@@ -347,7 +346,7 @@ static int tsec_recv(struct udevice *dev, int flags, uchar **packetp)
 static int tsec_free_pkt(struct udevice *dev, uchar *packet, int length)
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	uint16_t status;
+	u16 status;
 
 	out_be16(&priv->rxbd[priv->rx_idx].length, 0);
 
@@ -427,7 +426,8 @@ void redundant_init(struct tsec_private *priv)
 	clrbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
 
 	do {
-		uint16_t status;
+		u16 status;
+
 		tsec_send(priv->dev, (void *)pkt, sizeof(pkt));
 
 		/* Wait for buffer to be received */
@@ -478,7 +478,7 @@ void redundant_init(struct tsec_private *priv)
 static void startup_tsec(struct tsec_private *priv)
 {
 	struct tsec __iomem *regs = priv->regs;
-	uint16_t status;
+	u16 status;
 	int i;
 
 	/* reset the indices to zero */
@@ -532,7 +532,7 @@ static void startup_tsec(struct tsec_private *priv)
  * This allows U-Boot to find the first active controller.
  */
 #ifndef CONFIG_DM_ETH
-static int tsec_init(struct eth_device *dev, bd_t * bd)
+static int tsec_init(struct eth_device *dev, bd_t *bd)
 #else
 static int tsec_init(struct udevice *dev)
 #endif
@@ -616,22 +616,23 @@ static phy_interface_t tsec_get_interface(struct tsec_private *priv)
 	}
 
 	if (ecntrl & ECNTRL_REDUCED_MODE) {
+		phy_interface_t interface;
+
 		if (ecntrl & ECNTRL_REDUCED_MII_MODE)
 			return PHY_INTERFACE_MODE_RMII;
-		else {
-			phy_interface_t interface = priv->interface;
 
-			/*
-			 * This isn't autodetected, so it must
-			 * be set by the platform code.
-			 */
-			if ((interface == PHY_INTERFACE_MODE_RGMII_ID) ||
-			    (interface == PHY_INTERFACE_MODE_RGMII_TXID) ||
-			    (interface == PHY_INTERFACE_MODE_RGMII_RXID))
-				return interface;
+		interface = priv->interface;
 
-			return PHY_INTERFACE_MODE_RGMII;
-		}
+		/*
+		 * This isn't autodetected, so it must
+		 * be set by the platform code.
+		 */
+		if (interface == PHY_INTERFACE_MODE_RGMII_ID ||
+		    interface == PHY_INTERFACE_MODE_RGMII_TXID ||
+		    interface == PHY_INTERFACE_MODE_RGMII_RXID)
+			return interface;
+
+		return PHY_INTERFACE_MODE_RGMII;
 	}
 
 	if (priv->flags & TSEC_GIGABIT)
@@ -691,16 +692,16 @@ static int tsec_initialize(bd_t *bis, struct tsec_info_struct *tsec_info)
 	int i;
 	struct tsec_private *priv;
 
-	dev = (struct eth_device *)malloc(sizeof *dev);
+	dev = (struct eth_device *)malloc(sizeof(*dev));
 
-	if (NULL == dev)
+	if (!dev)
 		return 0;
 
-	memset(dev, 0, sizeof *dev);
+	memset(dev, 0, sizeof(*dev));
 
 	priv = (struct tsec_private *)malloc(sizeof(*priv));
 
-	if (NULL == priv)
+	if (!priv)
 		return 0;
 
 	priv->regs = tsec_info->regs;
@@ -747,10 +748,11 @@ static int tsec_initialize(bd_t *bis, struct tsec_info_struct *tsec_info)
 int tsec_eth_init(bd_t *bis, struct tsec_info_struct *tsecs, int num)
 {
 	int i;
-	int ret, count = 0;
+	int count = 0;
 
 	for (i = 0; i < num; i++) {
-		ret = tsec_initialize(bis, &tsecs[i]);
+		int ret = tsec_initialize(bis, &tsecs[i]);
+
 		if (ret > 0)
 			count += ret;
 	}
