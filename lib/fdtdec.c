@@ -83,8 +83,9 @@ const char *fdtdec_get_compatible(enum fdt_compat_id id)
 }
 
 fdt_addr_t fdtdec_get_addr_size_fixed(const void *blob, int node,
-		const char *prop_name, int index, int na, int ns,
-		fdt_size_t *sizep, bool translate)
+				      const char *prop_name, int index, int na,
+				      int ns, fdt_size_t *sizep,
+				      bool translate)
 {
 	const fdt32_t *prop, *prop_end;
 	const fdt32_t *prop_addr, *prop_size, *prop_after_size;
@@ -138,8 +139,9 @@ fdt_addr_t fdtdec_get_addr_size_fixed(const void *blob, int node,
 }
 
 fdt_addr_t fdtdec_get_addr_size_auto_parent(const void *blob, int parent,
-		int node, const char *prop_name, int index, fdt_size_t *sizep,
-		bool translate)
+					    int node, const char *prop_name,
+					    int index, fdt_size_t *sizep,
+					    bool translate)
 {
 	int na, ns;
 
@@ -164,8 +166,9 @@ fdt_addr_t fdtdec_get_addr_size_auto_parent(const void *blob, int parent,
 }
 
 fdt_addr_t fdtdec_get_addr_size_auto_noparent(const void *blob, int node,
-		const char *prop_name, int index, fdt_size_t *sizep,
-		bool translate)
+					      const char *prop_name, int index,
+					      fdt_size_t *sizep,
+					      bool translate)
 {
 	int parent;
 
@@ -182,7 +185,7 @@ fdt_addr_t fdtdec_get_addr_size_auto_noparent(const void *blob, int node,
 }
 
 fdt_addr_t fdtdec_get_addr_size(const void *blob, int node,
-		const char *prop_name, fdt_size_t *sizep)
+				const char *prop_name, fdt_size_t *sizep)
 {
 	int ns = sizep ? (sizeof(fdt_size_t) / sizeof(fdt32_t)) : 0;
 
@@ -191,15 +194,14 @@ fdt_addr_t fdtdec_get_addr_size(const void *blob, int node,
 					  ns, sizep, false);
 }
 
-fdt_addr_t fdtdec_get_addr(const void *blob, int node,
-		const char *prop_name)
+fdt_addr_t fdtdec_get_addr(const void *blob, int node, const char *prop_name)
 {
 	return fdtdec_get_addr_size(blob, node, prop_name, NULL);
 }
 
 #if defined(CONFIG_PCI) && defined(CONFIG_DM_PCI)
 int fdtdec_get_pci_addr(const void *blob, int node, enum fdt_pci_space type,
-		const char *prop_name, struct fdt_pci_addr *addr)
+			const char *prop_name, struct fdt_pci_addr *addr)
 {
 	const u32 *cell;
 	int len;
@@ -308,7 +310,7 @@ int fdtdec_get_pci_bar32(struct udevice *dev, struct fdt_pci_addr *addr,
 #endif
 
 uint64_t fdtdec_get_uint64(const void *blob, int node, const char *prop_name,
-		uint64_t default_val)
+			   uint64_t default_val)
 {
 	const uint64_t *cell64;
 	int length;
@@ -349,14 +351,13 @@ enum fdt_compat_id fdtdec_lookup(const void *blob, int node)
 	return COMPAT_UNKNOWN;
 }
 
-int fdtdec_next_compatible(const void *blob, int node,
-		enum fdt_compat_id id)
+int fdtdec_next_compatible(const void *blob, int node, enum fdt_compat_id id)
 {
 	return fdt_node_offset_by_compatible(blob, node, compat_names[id]);
 }
 
 int fdtdec_next_compatible_subnode(const void *blob, int node,
-		enum fdt_compat_id id, int *depthp)
+				   enum fdt_compat_id id, int *depthp)
 {
 	do {
 		node = fdt_next_node(blob, node, depthp);
@@ -370,8 +371,8 @@ int fdtdec_next_compatible_subnode(const void *blob, int node,
 	return -FDT_ERR_NOTFOUND;
 }
 
-int fdtdec_next_alias(const void *blob, const char *name,
-		enum fdt_compat_id id, int *upto)
+int fdtdec_next_alias(const void *blob, const char *name, enum fdt_compat_id id,
+		      int *upto)
 {
 #define MAX_STR_LEN 20
 	char str[MAX_STR_LEN + 20];
@@ -393,7 +394,8 @@ int fdtdec_next_alias(const void *blob, const char *name,
 }
 
 int fdtdec_find_aliases_for_id(const void *blob, const char *name,
-			enum fdt_compat_id id, int *node_list, int maxcount)
+			       enum fdt_compat_id id, int *node_list,
+			       int maxcount)
 {
 	memset(node_list, '\0', sizeof(*node_list) * maxcount);
 
@@ -402,7 +404,8 @@ int fdtdec_find_aliases_for_id(const void *blob, const char *name,
 
 /* TODO: Can we tighten this code up a little? */
 int fdtdec_add_aliases_for_id(const void *blob, const char *name,
-			enum fdt_compat_id id, int *node_list, int maxcount)
+			      enum fdt_compat_id id, int *node_list,
+			      int maxcount)
 {
 	int name_len = strlen(name);
 	int nodes[maxcount];
@@ -429,7 +432,7 @@ int fdtdec_add_aliases_for_id(const void *blob, const char *name,
 	}
 	if (node >= 0)
 		debug("%s: warning: maxcount exceeded with alias '%s'\n",
-		       __func__, name);
+		      __func__, name);
 
 	/* Now find all the aliases */
 	for (offset = fdt_first_property_offset(blob, alias_node);
@@ -452,7 +455,7 @@ int fdtdec_add_aliases_for_id(const void *blob, const char *name,
 		number = simple_strtoul(path + name_len, NULL, 10);
 		if (number < 0 || number >= maxcount) {
 			debug("%s: warning: alias '%s' is out of range\n",
-			       __func__, path);
+			      __func__, path);
 			continue;
 		}
 
@@ -498,7 +501,7 @@ int fdtdec_add_aliases_for_id(const void *blob, const char *name,
 		if (!node_list[i]) {
 			for (; j < maxcount; j++)
 				if (nodes[j] &&
-					fdtdec_get_is_enabled(blob, nodes[j]))
+				    fdtdec_get_is_enabled(blob, nodes[j]))
 					break;
 
 			/* Have we run out of nodes to add? */
@@ -641,7 +644,8 @@ int fdtdec_lookup_phandle(const void *blob, int node, const char *prop_name)
  * @return pointer to cell, which is only valid if err == 0
  */
 static const void *get_prop_check_min_len(const void *blob, int node,
-		const char *prop_name, int min_len, int *err)
+					  const char *prop_name, int min_len,
+					  int *err)
 {
 	const void *cell;
 	int len;
@@ -658,7 +662,7 @@ static const void *get_prop_check_min_len(const void *blob, int node,
 }
 
 int fdtdec_get_int_array(const void *blob, int node, const char *prop_name,
-		u32 *array, int count)
+			 u32 *array, int count)
 {
 	const u32 *cell;
 	int i, err = 0;
@@ -850,7 +854,7 @@ int fdtdec_get_child_count(const void *blob, int node)
 }
 
 int fdtdec_get_byte_array(const void *blob, int node, const char *prop_name,
-		u8 *array, int count)
+			  u8 *array, int count)
 {
 	const u8 *cell;
 	int err;
@@ -862,7 +866,7 @@ int fdtdec_get_byte_array(const void *blob, int node, const char *prop_name,
 }
 
 const u8 *fdtdec_locate_byte_array(const void *blob, int node,
-			     const char *prop_name, int count)
+				   const char *prop_name, int count)
 {
 	const u8 *cell;
 	int err;
@@ -874,7 +878,7 @@ const u8 *fdtdec_locate_byte_array(const void *blob, int node,
 }
 
 int fdtdec_get_config_int(const void *blob, const char *prop_name,
-		int default_val)
+			  int default_val)
 {
 	int config_node;
 
