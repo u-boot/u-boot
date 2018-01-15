@@ -11,6 +11,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <gdsys_fpga.h>
+#include <asm/unaligned.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -41,30 +42,38 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 enum {
-	I2CINT_ERROR_EV = 1 << 13,
-	I2CINT_TRANSMIT_EV = 1 << 14,
-	I2CINT_RECEIVE_EV = 1 << 15,
+	I2CINT_ERROR_EV = BIT(13),
+	I2CINT_TRANSMIT_EV = BIT(14),
+	I2CINT_RECEIVE_EV = BIT(15),
 };
 
 enum {
+	I2CMB_READ = 0 << 10,
 	I2CMB_WRITE = 1 << 10,
+	I2CMB_1BYTE = 0 << 11,
 	I2CMB_2BYTE = 1 << 11,
+	I2CMB_DONT_HOLD_BUS = 0 << 13,
 	I2CMB_HOLD_BUS = 1 << 13,
 	I2CMB_NATIVE = 2 << 14,
+};
+
+enum {
+	I2COP_WRITE = 0,
+	I2COP_READ = 1,
 };
 
 static int wait_for_int(bool read)
 {
 	u16 val;
-	unsigned int ctr = 0;
+	uint ctr = 0;
 
 	I2C_GET_REG(interrupt_status, &val);
+	/* Wait until error or receive/transmit interrupt was raised */
 	while (!(val & (I2CINT_ERROR_EV
 	       | (read ? I2CINT_RECEIVE_EV : I2CINT_TRANSMIT_EV)))) {
 		udelay(10);
-		if (ctr++ > 5000) {
+		if (ctr++ > 5000)
 			return 1;
-		}
 		I2C_GET_REG(interrupt_status, &val);
 	}
 
@@ -76,10 +85,12 @@ static int ihs_i2c_transfer(uchar chip, uchar *buffer, int len, bool read,
 {
 	u16 val;
 
+	/* Clear interrupt status */
 	I2C_SET_REG(interrupt_status, I2CINT_ERROR_EV
 		     | I2CINT_RECEIVE_EV | I2CINT_TRANSMIT_EV);
 	I2C_GET_REG(interrupt_status, &val);
 
+	/* If we want to write and have data, write the bytes to the mailbox */
 	if (!read && len) {
 		val = buffer[0];
 
@@ -98,6 +109,7 @@ static int ihs_i2c_transfer(uchar chip, uchar *buffer, int len, bool read,
 	if (wait_for_int(read))
 		return 1;
 
+	/* If we want to read, get the bytes from the mailbox */
 	if (read) {
 		I2C_GET_REG(read_mailbox_ext, &val);
 		buffer[0] = val & 0xff;
@@ -108,54 +120,43 @@ static int ihs_i2c_transfer(uchar chip, uchar *buffer, int len, bool read,
 	return 0;
 }
 
-static int ihs_i2c_address(uchar chip, uint addr, int alen, bool hold_bus)
+static int ihs_i2c_address(uchar chip, u8 *addr, int alen, bool hold_bus)
 {
-	int shift = (alen-1) * 8;
-
 	while (alen) {
 		int transfer = min(alen, 2);
-		uchar buf[2];
 		bool is_last = alen <= transfer;
 
-		buf[0] = addr >> shift;
-		if (alen > 1)
-			buf[1] = addr >> (shift - 8);
-
-		if (ihs_i2c_transfer(chip, buf, transfer, false,
+		if (ihs_i2c_transfer(chip, addr, transfer, I2COP_WRITE,
 				     hold_bus ? false : is_last))
 			return 1;
 
-		shift -= 16;
 		alen -= transfer;
 	}
 
 	return 0;
 }
 
-static int ihs_i2c_access(struct i2c_adapter *adap, uchar chip, uint addr,
-			  int alen, uchar *buffer, int len, bool read)
+static int ihs_i2c_access(struct i2c_adapter *adap, uchar chip, u8 *addr,
+			  int alen, uchar *buffer, int len, int read)
 {
-	if (len <= 0)
-		return 1;
-
-	if (ihs_i2c_address(chip, addr, alen, len))
+	/* Don't hold the bus if length of data to send/receive is zero */
+	if (len <= 0 || ihs_i2c_address(chip, addr, alen, len))
 		return 1;
 
 	while (len) {
 		int transfer = min(len, 2);
+		bool is_last = len <= transfer;
 
 		if (ihs_i2c_transfer(chip, buffer, transfer, read,
-				     len <= transfer))
-			return 1;
+				     is_last))
+			return 2;
 
 		buffer += transfer;
-		addr += transfer;
 		len -= transfer;
 	}
 
 	return 0;
 }
-
 
 static void ihs_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 {
@@ -173,7 +174,7 @@ static int ihs_i2c_probe(struct i2c_adapter *adap, uchar chip)
 {
 	uchar buffer[2];
 
-	if (ihs_i2c_transfer(chip, buffer, 0, true, true))
+	if (ihs_i2c_transfer(chip, buffer, 0, I2COP_READ, true))
 		return 1;
 
 	return 0;
@@ -182,13 +183,23 @@ static int ihs_i2c_probe(struct i2c_adapter *adap, uchar chip)
 static int ihs_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 			int alen, uchar *buffer, int len)
 {
-	return ihs_i2c_access(adap, chip, addr, alen, buffer, len, true);
+	u8 addr_bytes[4];
+
+	put_unaligned_le32(addr, addr_bytes);
+
+	return ihs_i2c_access(adap, chip, addr_bytes, alen, buffer, len,
+			      I2COP_READ);
 }
 
 static int ihs_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 			 int alen, uchar *buffer, int len)
 {
-	return ihs_i2c_access(adap, chip, addr, alen, buffer, len, false);
+	u8 addr_bytes[4];
+
+	put_unaligned_le32(addr, addr_bytes);
+
+	return ihs_i2c_access(adap, chip, addr_bytes, alen, buffer, len,
+			      I2COP_WRITE);
 }
 
 static unsigned int ihs_i2c_set_bus_speed(struct i2c_adapter *adap,
