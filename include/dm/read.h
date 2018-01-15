@@ -265,7 +265,7 @@ int dev_count_phandle_with_args(struct udevice *dev, const char *list_name,
  * This walks back up the tree to find the closest #address-cells property
  * which controls the given node.
  *
- * @dev: devioe to check
+ * @dev: device to check
  * @return number of address cells this node uses
  */
 int dev_read_addr_cells(struct udevice *dev);
@@ -276,7 +276,7 @@ int dev_read_addr_cells(struct udevice *dev);
  * This walks back up the tree to find the closest #size-cells property
  * which controls the given node.
  *
- * @dev: devioe to check
+ * @dev: device to check
  * @return number of size cells this node uses
  */
 int dev_read_size_cells(struct udevice *dev);
@@ -286,7 +286,7 @@ int dev_read_size_cells(struct udevice *dev);
  *
  * This function matches fdt_address_cells().
  *
- * @dev: devioe to check
+ * @dev: device to check
  * @return number of address cells this node uses
  */
 int dev_read_simple_addr_cells(struct udevice *dev);
@@ -296,7 +296,7 @@ int dev_read_simple_addr_cells(struct udevice *dev);
  *
  * This function matches fdt_size_cells().
  *
- * @dev: devioe to check
+ * @dev: device to check
  * @return number of size cells this node uses
  */
 int dev_read_simple_size_cells(struct udevice *dev);
