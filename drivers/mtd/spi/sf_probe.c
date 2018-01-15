@@ -87,19 +87,6 @@ struct spi_flash *spi_flash_probe(unsigned int busnum, unsigned int cs,
 	return spi_flash_probe_tail(bus);
 }
 
-#ifdef CONFIG_OF_SPI_FLASH
-struct spi_flash *spi_flash_probe_fdt(const void *blob, int slave_node,
-				      int spi_node)
-{
-	struct spi_slave *bus;
-
-	bus = spi_setup_slave_fdt(blob, slave_node, spi_node);
-	if (!bus)
-		return NULL;
-	return spi_flash_probe_tail(bus);
-}
-#endif
-
 void spi_flash_free(struct spi_flash *flash)
 {
 #ifdef CONFIG_SPI_FLASH_MTD
