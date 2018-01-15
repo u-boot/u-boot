@@ -649,3 +649,11 @@ int ofnode_read_resource_byname(ofnode node, const char *name,
 
 	return ofnode_read_resource(node, index, res);
 }
+
+u64 ofnode_translate_address(ofnode node, const fdt32_t *in_addr)
+{
+	if (ofnode_is_np(node))
+		return of_translate_address(ofnode_to_np(node), in_addr);
+	else
+		return fdt_translate_address(gd->fdt_blob, ofnode_to_offset(node), in_addr);
+}

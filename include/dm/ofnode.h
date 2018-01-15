@@ -652,4 +652,17 @@ int ofnode_read_resource_byname(ofnode node, const char *name,
 	     ofnode_valid(node); \
 	     node = ofnode_next_subnode(node))
 
+/**
+ * ofnode_translate_address() - Tranlate a device-tree address
+ *
+ * Translate an address from the device-tree into a CPU physical address. This
+ * function walks up the tree and applies the various bus mappings along the
+ * way.
+ *
+ * @ofnode: Device tree node giving the context in which to translate the
+ *          address
+ * @in_addr: pointer to the address to translate
+ * @return the translated address; OF_BAD_ADDR on error
+ */
+u64 ofnode_translate_address(ofnode node, const fdt32_t *in_addr);
 #endif
