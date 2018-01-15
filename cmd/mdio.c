@@ -14,7 +14,6 @@
 #include <miiphy.h>
 #include <phy.h>
 
-
 static char last_op[2];
 static uint last_data;
 static uint last_addr_lo;
@@ -243,13 +242,13 @@ static int do_mdio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	case 'r':
 		if (pos > 1)
 			if (extract_reg_range(argv[pos--], &devadlo, &devadhi,
-					&reglo, &reghi))
+					      &reglo, &reghi))
 				return -1;
 
 	default:
 		if (pos > 1)
-			if (extract_phy_range(&(argv[2]), pos - 1, &bus,
-					&phydev, &addrlo, &addrhi))
+			if (extract_phy_range(&argv[2], pos - 1, &bus,
+					      &phydev, &addrlo, &addrhi))
 				return -1;
 
 		break;
