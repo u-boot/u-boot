@@ -17,6 +17,7 @@
 #include <dm/device.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
+#include <dm/of_access.h>
 #include <dm/pinctrl.h>
 #include <dm/platdata.h>
 #include <dm/read.h>
@@ -703,8 +704,12 @@ int device_set_name(struct udevice *dev, const char *name)
 bool device_is_compatible(struct udevice *dev, const char *compat)
 {
 	const void *fdt = gd->fdt_blob;
+	ofnode node = dev_ofnode(dev);
 
-	return !fdt_node_check_compatible(fdt, dev_of_offset(dev), compat);
+	if (ofnode_is_np(node))
+		return of_device_is_compatible(ofnode_to_np(node), compat, NULL, NULL);
+	else
+		return !fdt_node_check_compatible(fdt, ofnode_to_offset(node), compat);
 }
 
 bool of_machine_is_compatible(const char *compat)
