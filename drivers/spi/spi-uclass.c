@@ -348,22 +348,6 @@ err:
 }
 
 /* Compatibility function - to be removed */
-struct spi_slave *spi_setup_slave_fdt(const void *blob, int node,
-				      int bus_node)
-{
-	struct udevice *bus, *dev;
-	int ret;
-
-	ret = uclass_get_device_by_of_offset(UCLASS_SPI, bus_node, &bus);
-	if (ret)
-		return NULL;
-	ret = device_get_child_by_of_offset(bus, node, &dev);
-	if (ret)
-		return NULL;
-	return dev_get_parent_priv(dev);
-}
-
-/* Compatibility function - to be removed */
 struct spi_slave *spi_setup_slave(unsigned int busnum, unsigned int cs,
 				  unsigned int speed, unsigned int mode)
 {

@@ -317,19 +317,6 @@ static inline int spi_w8r8(struct spi_slave *slave, unsigned char byte)
 	return ret < 0 ? ret : din[1];
 }
 
-/**
- * Set up a SPI slave for a particular device tree node
- *
- * This calls spi_setup_slave() with the correct bus number. Call
- * spi_free_slave() to free it later.
- *
- * @param blob:		Device tree blob
- * @param slave_node:	Slave node to use
- * @param spi_node:	SPI peripheral node to use
- * @return pointer to new spi_slave structure
- */
-struct spi_slave *spi_setup_slave_fdt(const void *blob, int slave_node,
-				      int spi_node);
 #ifdef CONFIG_DM_SPI
 
 /**
