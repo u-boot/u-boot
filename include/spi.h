@@ -330,20 +330,6 @@ static inline int spi_w8r8(struct spi_slave *slave, unsigned char byte)
  */
 struct spi_slave *spi_setup_slave_fdt(const void *blob, int slave_node,
 				      int spi_node);
-
-/**
- * spi_base_setup_slave_fdt() - helper function to set up a SPI slace
- *
- * This decodes SPI properties from the slave node to determine the
- * chip select and SPI parameters.
- *
- * @blob:	Device tree blob
- * @busnum:	Bus number to use
- * @node:	Device tree node for the SPI bus
- */
-struct spi_slave *spi_base_setup_slave_fdt(const void *blob, int busnum,
-					   int node);
-
 #ifdef CONFIG_DM_SPI
 
 /**
