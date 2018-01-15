@@ -3,19 +3,39 @@
  * Dirk Eibach,  Guntermann & Drunck GmbH, eibach@gdsys.de
  *
  * SPDX-License-Identifier:	GPL-2.0+
- *
- * NOTE: This driver should be converted to driver model before June 2017.
- * Please see doc/driver-model/i2c-howto.txt for instructions.
  */
 
 #include <common.h>
 #include <i2c.h>
+#ifdef CONFIG_DM_I2C
+#include <dm.h>
+#include <fpgamap.h>
+#include "../misc/gdsys_soc.h"
+#else
 #include <gdsys_fpga.h>
+#endif
 #include <asm/unaligned.h>
 
+#ifdef CONFIG_DM_I2C
+struct ihs_i2c_priv {
+	uint speed;
+	phys_addr_t addr;
+};
+
+enum {
+	REG_INTERRUPT_STATUS = 0x00,
+	REG_INTERRUPT_ENABLE_CONTROL = 0x02,
+	REG_WRITE_MAILBOX_EXT = 0x04,
+	REG_WRITE_MAILBOX = 0x06,
+	REG_READ_MAILBOX_EXT = 0x08,
+	REG_READ_MAILBOX = 0x0A,
+};
+
+#else /* !CONFIG_DM_I2C */
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_SYS_I2C_IHS_DUAL
+
 #define I2C_SET_REG(fld, val) \
 	do { \
 		if (I2C_ADAP_HWNR & 0x10) \
@@ -40,6 +60,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define I2C_GET_REG(fld, val) \
 		FPGA_GET_REG(I2C_ADAP_HWNR, i2c0.fld, val)
 #endif
+#endif /* CONFIG_DM_I2C */
 
 enum {
 	I2CINT_ERROR_EV = BIT(13),
@@ -62,33 +83,68 @@ enum {
 	I2COP_READ = 1,
 };
 
+#ifdef CONFIG_DM_I2C
+static int wait_for_int(struct udevice *dev, int read)
+#else
 static int wait_for_int(bool read)
+#endif
 {
 	u16 val;
 	uint ctr = 0;
+#ifdef CONFIG_DM_I2C
+	struct ihs_i2c_priv *priv = dev_get_priv(dev);
+	struct udevice *fpga;
 
+	gdsys_soc_get_fpga(dev, &fpga);
+#endif
+
+#ifdef CONFIG_DM_I2C
+	fpgamap_read16(fpga, priv->addr + REG_INTERRUPT_STATUS, &val);
+#else
 	I2C_GET_REG(interrupt_status, &val);
+#endif
 	/* Wait until error or receive/transmit interrupt was raised */
 	while (!(val & (I2CINT_ERROR_EV
 	       | (read ? I2CINT_RECEIVE_EV : I2CINT_TRANSMIT_EV)))) {
 		udelay(10);
 		if (ctr++ > 5000)
 			return 1;
+#ifdef CONFIG_DM_I2C
+		fpgamap_read16(fpga, priv->addr + REG_INTERRUPT_STATUS, &val);
+#else
 		I2C_GET_REG(interrupt_status, &val);
+#endif
 	}
 
 	return (val & I2CINT_ERROR_EV) ? 1 : 0;
 }
 
+#ifdef CONFIG_DM_I2C
+static int ihs_i2c_transfer(struct udevice *dev, uchar chip,
+			    uchar *buffer, int len, int read, bool is_last)
+#else
 static int ihs_i2c_transfer(uchar chip, uchar *buffer, int len, bool read,
 			    bool is_last)
+#endif
 {
 	u16 val;
+#ifdef CONFIG_DM_I2C
+	struct ihs_i2c_priv *priv = dev_get_priv(dev);
+	struct udevice *fpga;
+
+	gdsys_soc_get_fpga(dev, &fpga);
+#endif
 
 	/* Clear interrupt status */
+#ifdef CONFIG_DM_I2C
+	fpgamap_write16(fpga, priv->addr + REG_INTERRUPT_STATUS,
+			I2CINT_ERROR_EV | I2CINT_RECEIVE_EV | I2CINT_TRANSMIT_EV);
+	fpgamap_read16(fpga, priv->addr + REG_INTERRUPT_STATUS, &val);
+#else
 	I2C_SET_REG(interrupt_status, I2CINT_ERROR_EV
 		     | I2CINT_RECEIVE_EV | I2CINT_TRANSMIT_EV);
 	I2C_GET_REG(interrupt_status, &val);
+#endif
 
 	/* If we want to write and have data, write the bytes to the mailbox */
 	if (!read && len) {
@@ -96,22 +152,43 @@ static int ihs_i2c_transfer(uchar chip, uchar *buffer, int len, bool read,
 
 		if (len > 1)
 			val |= buffer[1] << 8;
+#ifdef CONFIG_DM_I2C
+		fpgamap_write16(fpga, priv->addr + REG_WRITE_MAILBOX_EXT, val);
+#else
 		I2C_SET_REG(write_mailbox_ext, val);
+#endif
 	}
 
+#ifdef CONFIG_DM_I2C
+	fpgamap_write16(fpga, priv->addr + REG_WRITE_MAILBOX,
+			I2CMB_NATIVE
+			| (read ? I2CMB_READ : I2CMB_WRITE)
+			| (chip << 1)
+			| ((len > 1) ? I2CMB_2BYTE : I2CMB_1BYTE)
+			| (!is_last ? I2CMB_HOLD_BUS : I2CMB_DONT_HOLD_BUS));
+#else
 	I2C_SET_REG(write_mailbox,
 		    I2CMB_NATIVE
 		    | (read ? 0 : I2CMB_WRITE)
 		    | (chip << 1)
 		    | ((len > 1) ? I2CMB_2BYTE : 0)
 		    | (is_last ? 0 : I2CMB_HOLD_BUS));
+#endif
 
+#ifdef CONFIG_DM_I2C
+	if (wait_for_int(dev, read))
+#else
 	if (wait_for_int(read))
+#endif
 		return 1;
 
 	/* If we want to read, get the bytes from the mailbox */
 	if (read) {
+#ifdef CONFIG_DM_I2C
+		fpgamap_read16(fpga, priv->addr + REG_READ_MAILBOX_EXT, &val);
+#else
 		I2C_GET_REG(read_mailbox_ext, &val);
+#endif
 		buffer[0] = val & 0xff;
 		if (len > 1)
 			buffer[1] = val >> 8;
@@ -120,15 +197,25 @@ static int ihs_i2c_transfer(uchar chip, uchar *buffer, int len, bool read,
 	return 0;
 }
 
+#ifdef CONFIG_DM_I2C
+static int ihs_i2c_address(struct udevice *dev, uchar chip, u8 *addr, int alen, bool hold_bus)
+#else
 static int ihs_i2c_address(uchar chip, u8 *addr, int alen, bool hold_bus)
+#endif
 {
 	while (alen) {
 		int transfer = min(alen, 2);
 		bool is_last = alen <= transfer;
 
+#ifdef CONFIG_DM_I2C
+		if (ihs_i2c_transfer(dev, chip, addr, transfer, I2COP_WRITE,
+				     hold_bus ? false : is_last))
+			return 1;
+#else
 		if (ihs_i2c_transfer(chip, addr, transfer, I2COP_WRITE,
 				     hold_bus ? false : is_last))
 			return 1;
+#endif
 
 		alen -= transfer;
 	}
@@ -136,20 +223,36 @@ static int ihs_i2c_address(uchar chip, u8 *addr, int alen, bool hold_bus)
 	return 0;
 }
 
+#ifdef CONFIG_DM_I2C
+static int ihs_i2c_access(struct udevice *dev, uchar chip, u8 *addr,
+			  int alen, uchar *buffer, int len, int read)
+#else
 static int ihs_i2c_access(struct i2c_adapter *adap, uchar chip, u8 *addr,
 			  int alen, uchar *buffer, int len, int read)
+#endif
 {
 	/* Don't hold the bus if length of data to send/receive is zero */
+#ifdef CONFIG_DM_I2C
+	if (len <= 0 || ihs_i2c_address(dev, chip, addr, alen, len))
+		return 1;
+#else
 	if (len <= 0 || ihs_i2c_address(chip, addr, alen, len))
 		return 1;
+#endif
 
 	while (len) {
 		int transfer = min(len, 2);
 		bool is_last = len <= transfer;
 
+#ifdef CONFIG_DM_I2C
+		if (ihs_i2c_transfer(dev, chip, buffer, transfer, read,
+				     is_last))
+			return 2;
+#else
 		if (ihs_i2c_transfer(chip, buffer, transfer, read,
 				     is_last))
 			return 2;
+#endif
 
 		buffer += transfer;
 		len -= transfer;
@@ -157,6 +260,92 @@ static int ihs_i2c_access(struct i2c_adapter *adap, uchar chip, u8 *addr,
 
 	return 0;
 }
+
+#ifdef CONFIG_DM_I2C
+
+int ihs_i2c_probe(struct udevice *bus)
+{
+	struct ihs_i2c_priv *priv = dev_get_priv(bus);
+	int addr;
+
+	addr = dev_read_u32_default(bus, "reg", -1);
+
+	priv->addr = addr;
+
+	return 0;
+}
+
+static int ihs_i2c_set_bus_speed(struct udevice *bus, uint speed)
+{
+	struct ihs_i2c_priv *priv = dev_get_priv(bus);
+
+	if (speed != priv->speed && priv->speed != 0)
+		return 1;
+
+	priv->speed = speed;
+
+	return 0;
+}
+
+static int ihs_i2c_xfer(struct udevice *bus, struct i2c_msg *msg, int nmsgs)
+{
+	struct i2c_msg *dmsg, *omsg, dummy;
+
+	memset(&dummy, 0, sizeof(struct i2c_msg));
+
+	/* We expect either two messages (one with an offset and one with the
+	 * actucal data) or one message (just data)
+	 */
+	if (nmsgs > 2 || nmsgs == 0) {
+		debug("%s: Only one or two messages are supported.", __func__);
+		return -1;
+	}
+
+	omsg = nmsgs == 1 ? &dummy : msg;
+	dmsg = nmsgs == 1 ? msg : msg + 1;
+
+	if (dmsg->flags & I2C_M_RD)
+		return ihs_i2c_access(bus, dmsg->addr, omsg->buf,
+				      omsg->len, dmsg->buf, dmsg->len,
+				      I2COP_READ);
+	else
+		return ihs_i2c_access(bus, dmsg->addr, omsg->buf,
+				      omsg->len, dmsg->buf, dmsg->len,
+				      I2COP_WRITE);
+}
+
+static int ihs_i2c_probe_chip(struct udevice *bus, u32 chip_addr,
+			      u32 chip_flags)
+{
+	uchar buffer[2];
+
+	if (ihs_i2c_transfer(bus, chip_addr, buffer, 0, I2COP_READ, true))
+		return 1;
+
+	return 0;
+}
+
+static const struct dm_i2c_ops ihs_i2c_ops = {
+	.xfer           = ihs_i2c_xfer,
+	.probe_chip     = ihs_i2c_probe_chip,
+	.set_bus_speed  = ihs_i2c_set_bus_speed,
+};
+
+static const struct udevice_id ihs_i2c_ids[] = {
+	{ .compatible = "gdsys,ihs_i2cmaster", },
+	{ /* sentinel */ }
+};
+
+U_BOOT_DRIVER(i2c_ihs) = {
+	.name = "i2c_ihs",
+	.id = UCLASS_I2C,
+	.of_match = ihs_i2c_ids,
+	.probe = ihs_i2c_probe,
+	.priv_auto_alloc_size = sizeof(struct ihs_i2c_priv),
+	.ops = &ihs_i2c_ops,
+};
+
+#else /* CONFIG_DM_I2C */
 
 static void ihs_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 {
@@ -269,3 +458,4 @@ U_BOOT_I2C_ADAP_COMPLETE(ihs3_1, ihs_i2c_init, ihs_i2c_probe,
 			 CONFIG_SYS_I2C_IHS_SLAVE_3_1, 19)
 #endif
 #endif
+#endif /* CONFIG_DM_I2C */
