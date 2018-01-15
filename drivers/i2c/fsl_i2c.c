@@ -303,7 +303,7 @@ static int i2c_wait4bus(const struct fsl_i2c_base *base)
 	return 0;
 }
 
-static inline int i2c_wait(const struct fsl_i2c_base *base, int write)
+static int i2c_wait(const struct fsl_i2c_base *base, int write)
 {
 	u32 csr;
 	unsigned long long timeval = get_ticks();
@@ -340,8 +340,8 @@ static inline int i2c_wait(const struct fsl_i2c_base *base, int write)
 	return -1;
 }
 
-static inline int i2c_write_addr(const struct fsl_i2c_base *base, u8 dev,
-				 u8 dir, int rsta)
+static int i2c_write_addr(const struct fsl_i2c_base *base, u8 dev,
+			  u8 dir, int rsta)
 {
 	writeb(I2C_CR_MEN | I2C_CR_MSTA | I2C_CR_MTX
 	       | (rsta ? I2C_CR_RSTA : 0),
@@ -355,8 +355,8 @@ static inline int i2c_write_addr(const struct fsl_i2c_base *base, u8 dev,
 	return 1;
 }
 
-static inline int __i2c_write_data(const struct fsl_i2c_base *base, u8 *data,
-				   int length)
+static int __i2c_write_data(const struct fsl_i2c_base *base, u8 *data,
+			    int length)
 {
 	int i;
 
@@ -370,8 +370,8 @@ static inline int __i2c_write_data(const struct fsl_i2c_base *base, u8 *data,
 	return i;
 }
 
-static inline int __i2c_read_data(const struct fsl_i2c_base *base, u8 *data,
-				  int length)
+static int __i2c_read_data(const struct fsl_i2c_base *base, u8 *data,
+			   int length)
 {
 	int i;
 
