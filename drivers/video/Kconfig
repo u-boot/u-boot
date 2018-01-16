@@ -38,6 +38,7 @@ config BACKLIGHT_GPIO
 config VIDEO_BPP8
 	bool "Support 8-bit-per-pixel displays"
 	depends on DM_VIDEO
+	default n if ARCH_SUNXI
 	default y if DM_VIDEO
 	help
 	  Support drawing text and bitmaps onto a 8-bit-per-pixel display.
