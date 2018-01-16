@@ -625,6 +625,8 @@ static void sunxi_ctfb_mode_to_display_timing(const struct ctfb_res_modes *mode,
 	timing->vback_porch.typ = mode->upper_margin;
 	timing->vsync_len.typ = mode->vsync_len;
 
+	timing->flags = 0;
+
 	if (mode->sync & FB_SYNC_HOR_HIGH_ACT)
 		timing->flags |= DISPLAY_FLAGS_HSYNC_HIGH;
 	else
