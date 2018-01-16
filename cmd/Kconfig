@@ -539,6 +539,7 @@ config CMD_LZMADEC
 
 config CMD_UNZIP
 	bool "unzip"
+	default n if ARCH_SUNXI
 	default y if CMD_BOOTI
 	help
 	  Uncompress a zip-compressed memory region.
