@@ -716,6 +716,6 @@ U_BOOT_DRIVER(hsdk_cgu_clk) = {
 	.id = UCLASS_CLK,
 	.of_match = hsdk_cgu_clk_id,
 	.probe = hsdk_cgu_clk_probe,
-	.platdata_auto_alloc_size = sizeof(struct hsdk_cgu_clk),
+	.priv_auto_alloc_size = sizeof(struct hsdk_cgu_clk),
 	.ops = &hsdk_cgu_ops,
 };
