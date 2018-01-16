@@ -185,7 +185,7 @@ static void get_basename(char *str, int size, const char *fname)
  * fit_write_images() - Write out a list of images to the FIT
  *
  * We always include the main image (params->datafile). If there are device
- * tree files, we include an fdt@ node for each of those too.
+ * tree files, we include an fdt- node for each of those too.
  */
 static int fit_write_images(struct image_tool_params *params, char *fdt)
 {
@@ -199,7 +199,7 @@ static int fit_write_images(struct image_tool_params *params, char *fdt)
 
 	/* First the main image */
 	typename = genimg_get_type_short_name(params->fit_image_type);
-	snprintf(str, sizeof(str), "%s@1", typename);
+	snprintf(str, sizeof(str), "%s-1", typename);
 	fdt_begin_node(fdt, str);
 	fdt_property_string(fdt, "description", params->imagename);
 	fdt_property_string(fdt, "type", typename);
@@ -225,7 +225,7 @@ static int fit_write_images(struct image_tool_params *params, char *fdt)
 	for (cont = params->content_head; cont; cont = cont->next) {
 		if (cont->type != IH_TYPE_FLATDT)
 			continue;
-		snprintf(str, sizeof(str), "%s@%d", FIT_FDT_PROP, ++upto);
+		snprintf(str, sizeof(str), "%s-%d", FIT_FDT_PROP, ++upto);
 		fdt_begin_node(fdt, str);
 
 		get_basename(str, sizeof(str), cont->fname);
@@ -243,7 +243,7 @@ static int fit_write_images(struct image_tool_params *params, char *fdt)
 
 	/* And a ramdisk file if available */
 	if (params->fit_ramdisk) {
-		fdt_begin_node(fdt, FIT_RAMDISK_PROP "@1");
+		fdt_begin_node(fdt, FIT_RAMDISK_PROP "-1");
 
 		fdt_property_string(fdt, "type", FIT_RAMDISK_PROP);
 		fdt_property_string(fdt, "os", genimg_get_os_short_name(params->os));
@@ -277,41 +277,41 @@ static void fit_write_configs(struct image_tool_params *params, char *fdt)
 	int upto;
 
 	fdt_begin_node(fdt, "configurations");
-	fdt_property_string(fdt, "default", "conf@1");
+	fdt_property_string(fdt, "default", "conf-1");
 
 	upto = 0;
 	for (cont = params->content_head; cont; cont = cont->next) {
 		if (cont->type != IH_TYPE_FLATDT)
 			continue;
 		typename = genimg_get_type_short_name(cont->type);
-		snprintf(str, sizeof(str), "conf@%d", ++upto);
+		snprintf(str, sizeof(str), "conf-%d", ++upto);
 		fdt_begin_node(fdt, str);
 
 		get_basename(str, sizeof(str), cont->fname);
 		fdt_property_string(fdt, "description", str);
 
 		typename = genimg_get_type_short_name(params->fit_image_type);
-		snprintf(str, sizeof(str), "%s@1", typename);
+		snprintf(str, sizeof(str), "%s-1", typename);
 		fdt_property_string(fdt, typename, str);
 
 		if (params->fit_ramdisk)
 			fdt_property_string(fdt, FIT_RAMDISK_PROP,
-					    FIT_RAMDISK_PROP "@1");
+					    FIT_RAMDISK_PROP "-1");
 
-		snprintf(str, sizeof(str), FIT_FDT_PROP "@%d", upto);
+		snprintf(str, sizeof(str), FIT_FDT_PROP "-%d", upto);
 		fdt_property_string(fdt, FIT_FDT_PROP, str);
 		fdt_end_node(fdt);
 	}
 
 	if (!upto) {
-		fdt_begin_node(fdt, "conf@1");
+		fdt_begin_node(fdt, "conf-1");
 		typename = genimg_get_type_short_name(params->fit_image_type);
-		snprintf(str, sizeof(str), "%s@1", typename);
+		snprintf(str, sizeof(str), "%s-1", typename);
 		fdt_property_string(fdt, typename, str);
 
 		if (params->fit_ramdisk)
 			fdt_property_string(fdt, FIT_RAMDISK_PROP,
-					    FIT_RAMDISK_PROP "@1");
+					    FIT_RAMDISK_PROP "-1");
 
 		fdt_end_node(fdt);
 	}

@@ -118,6 +118,20 @@ script:
      ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID}
        -k "${TEST_PY_TEST_SPEC:-not a_test_which_does_not_exist}"
        --build-dir "$UBOOT_TRAVIS_BUILD_DIR";
+     ret=$?;
+     if [[ $ret -ne 0 ]]; then
+       exit $ret;
+     fi;
+   fi;
+   if [[ -n "${TEST_PY_TOOLS}" ]]; then
+     PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt"
+     PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}"
+     ./tools/binman/binman -t &&
+     ./tools/patman/patman --test &&
+     ./tools/buildman/buildman -t &&
+     PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt"
+     PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}"
+     ./tools/dtoc/dtoc -t;
    fi
 
 matrix:
@@ -295,6 +309,7 @@ matrix:
           TEST_PY_TEST_SPEC="test_ofplatdata"
           BUILDMAN="^sandbox$"
           TOOLCHAIN="x86_64"
+          TEST_PY_TOOLS="yes"
     - env:
         - TEST_PY_BD="sandbox_flattree"
           BUILDMAN="^sandbox_flattree$"

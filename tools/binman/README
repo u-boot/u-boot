@@ -536,6 +536,10 @@ entry contents.
 Most of the time such essoteric behaviour is not needed, but it can be
 essential for complex images.
 
+If you need to specify a particular device-tree compiler to use, you can define
+the DTC environment variable. This can be useful when the system dtc is too
+old.
+
 
 History / Credits
 -----------------

@@ -86,7 +86,7 @@ Example:
 	#address-cells = <1>;
 
 	images {
-		kernel@1 {
+		kernel {
 			description = "ARM64 Linux kernel";
 			data = /incbin/("./arch/arm64/boot/Image.gz");
 			type = "kernel";
@@ -96,7 +96,7 @@ Example:
 			load = <0x80080000>;
 			entry = <0x80080000>;
 		};
-		fdt@1 {
+		fdt-1 {
 			description = "Flattened Device Tree blob";
 			data = /incbin/("./fsl-ls1043ardb-static.dtb");
 			type = "flat_dt";
@@ -104,7 +104,7 @@ Example:
 			compression = "none";
 			load = <0x90000000>;
 		};
-		ramdisk@1 {
+		ramdisk {
 			description = "LS1043 Ramdisk";
                         data = /incbin/("./rootfs.cpio.gz");
 			type = "ramdisk";
@@ -116,12 +116,12 @@ Example:
 	};
 
 	configurations {
-		default = "config@1";
-		config@1 {
+		default = "config-1";
+		config-1 {
 			description = "Boot Linux kernel";
-			kernel = "kernel@1";
-			fdt = "fdt@1";
-			ramdisk = "ramdisk@1";
+			kernel = "kernel";
+			fdt = "fdt-1";
+			ramdisk = "ramdisk";
 			loadables = "fdt", "ramdisk";
 		};
 	};

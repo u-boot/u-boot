@@ -330,7 +330,7 @@ static void fit_image_print_verification_data(const void *fit, int noffset,
 	/*
 	 * Check subnode name, must be equal to "hash" or "signature".
 	 * Multiple hash/signature nodes require unique unit node
-	 * names, e.g. hash@1, hash@2, signature@1, signature@2, etc.
+	 * names, e.g. hash-1, hash-2, signature-1, signature-2, etc.
 	 */
 	name = fit_get_name(fit, noffset, NULL);
 	if (!strncmp(name, FIT_HASH_NODENAME, strlen(FIT_HASH_NODENAME))) {
@@ -1111,7 +1111,7 @@ int fit_image_verify(const void *fit, int image_noffset)
 		/*
 		 * Check subnode name, must be equal to "hash".
 		 * Multiple hash nodes require unique unit node
-		 * names, e.g. hash@1, hash@2, etc.
+		 * names, e.g. hash-1, hash-2, etc.
 		 */
 		if (!strncmp(name, FIT_HASH_NODENAME,
 			     strlen(FIT_HASH_NODENAME))) {
@@ -1348,15 +1348,15 @@ int fit_check_format(const void *fit)
  *
  * / o image-tree
  *   |-o images
- *   | |-o fdt@1
- *   | |-o fdt@2
+ *   | |-o fdt-1
+ *   | |-o fdt-2
  *   |
  *   |-o configurations
- *     |-o config@1
- *     | |-fdt = fdt@1
+ *     |-o config-1
+ *     | |-fdt = fdt-1
  *     |
- *     |-o config@2
- *       |-fdt = fdt@2
+ *     |-o config-2
+ *       |-fdt = fdt-2
  *
  * / o U-Boot fdt
  *   |-compatible = "foo,bar", "bim,bam"

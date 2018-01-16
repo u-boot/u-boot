@@ -270,16 +270,16 @@ static int fit_image_process_sig(const char *keydir, void *keydest,
  *
  * Input component image node structure:
  *
- * o image@1 (at image_noffset)
+ * o image-1 (at image_noffset)
  *   | - data = [binary data]
- *   o hash@1
+ *   o hash-1
  *     |- algo = "sha1"
  *
  * Output component image node structure:
  *
- * o image@1 (at image_noffset)
+ * o image-1 (at image_noffset)
  *   | - data = [binary data]
- *   o hash@1
+ *   o hash-1
  *     |- algo = "sha1"
  *     |- value = sha1(data)
  *
@@ -321,7 +321,7 @@ int fit_image_add_verification_data(const char *keydir, void *keydest,
 		/*
 		 * Check subnode name, must be equal to "hash" or "signature".
 		 * Multiple hash nodes require unique unit node
-		 * names, e.g. hash@1, hash@2, signature@1, etc.
+		 * names, e.g. hash-1, hash-2, signature-1, etc.
 		 */
 		node_name = fit_get_name(fit, noffset, NULL);
 		if (!strncmp(node_name, FIT_HASH_NODENAME,

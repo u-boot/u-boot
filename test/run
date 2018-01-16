@@ -17,6 +17,21 @@ run_test ./test/py/test.py --bd sandbox_spl --build -k \
 # Run tests for the flat DT version of sandbox
 ./test/py/test.py --bd sandbox_flattree --build
 
+DTC_DIR=build-sandbox_spl/scripts/dtc
+
+PYTHONPATH=${DTC_DIR}/pylibfdt DTC=${DTC_DIR}/dtc run_test \
+	./tools/binman/binman -t
+run_test ./tools/patman/patman --test
+run_test ./tools/buildman/buildman -t
+PYTHONPATH=${DTC_DIR}/pylibfdt DTC=${DTC_DIR}/dtc run_test ./tools/dtoc/dtoc -t
+
+# This needs you to set up Python test coverage tools.
+# To enable Python test coverage on Debian-type distributions (e.g. Ubuntu):
+#   $ sudo apt-get install python-pip python-pytest
+#   $ sudo pip install coverage
+PYTHONPATH=${DTC_DIR}/pylibfdt DTC=${DTC_DIR}/dtc run_test \
+	./tools/binman/binman -T
+
 if [ $result == 0 ]; then
 	echo "Tests passed!"
 else

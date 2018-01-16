@@ -30,7 +30,7 @@ phys_addr_t sec_firmware_addr;
 #define SEC_FIRMWARE_FIT_IMAGE		"firmware"
 #endif
 #ifndef SEC_FIRMEWARE_FIT_CNF_NAME
-#define SEC_FIRMEWARE_FIT_CNF_NAME	"config@1"
+#define SEC_FIRMEWARE_FIT_CNF_NAME	"config-1"
 #endif
 #ifndef SEC_FIRMWARE_TARGET_EL
 #define SEC_FIRMWARE_TARGET_EL		2

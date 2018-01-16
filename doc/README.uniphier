@@ -142,7 +142,7 @@ The following is an example for a simple usecase:
 	#address-cells = <1>;
 
 	images {
-		kernel@0 {
+		kernel {
 			description = "linux";
 			data = /incbin/("PATH/TO/YOUR/LINUX/DIR/arch/arm64/boot/Image.gz");
 			type = "kernel";
@@ -151,44 +151,44 @@ The following is an example for a simple usecase:
 			compression = "gzip";
 			load = <0x82080000>;
 			entry = <0x82080000>;
-			hash@0 {
+			hash-1 {
 				algo = "sha256";
 			};
 		};
 
-		fdt@0 {
+		fdt-1 {
 			description = "fdt";
 			data = /incbin/("PATH/TO/YOUR/LINUX/DIR/arch/arm64/boot/dts/socionext/uniphier-ld20-ref.dtb");
 			type = "flat_dt";
 			arch = "arm64";
 			compression = "none";
-			hash@0 {
+			hash-1 {
 				algo = "sha256";
 			};
 		};
 
-		ramdisk@0 {
+		ramdisk {
 			description = "ramdisk";
 			data = /incbin/("PATH/TO/YOUR/ROOTFS/DIR/rootfs.cpio");
 			type = "ramdisk";
 			arch = "arm64";
 			os = "linux";
 			compression = "none";
-			hash@0 {
+			hash-1 {
 				algo = "sha256";
 			};
 		};
 	};
 
 	configurations {
-		default = "config@0";
+		default = "config-1";
 
-		config@0 {
+		config-1 {
 			description = "Configuration0";
-			kernel = "kernel@0";
-			fdt = "fdt@0";
-			ramdisk = "ramdisk@0";
-			signature@0 {
+			kernel = "kernel";
+			fdt = "fdt-1";
+			ramdisk = "ramdisk";
+			signature-1 {
 				algo = "sha256,rsa2048";
 				key-name-hint = "dev";
 				sign-images = "kernel", "fdt", "ramdisk";
@@ -268,9 +268,9 @@ If it is successful, you will see messages like follows:
 
 ---------------------------------------->8----------------------------------------
 ## Loading kernel from FIT Image at 84100000 ...
-   Using 'config@0' configuration
+   Using 'config-1' configuration
    Verifying Hash Integrity ... sha256,rsa2048:dev+ OK
-   Trying 'kernel@0' kernel subimage
+   Trying 'kernel' kernel subimage
      Description:  linux
      Created:      2017-10-20  14:32:29 UTC
      Type:         Kernel Image
@@ -285,8 +285,8 @@ If it is successful, you will see messages like follows:
      Hash value:   82a37b7f11ae55f4e07aa25bf77e4067cb9dc1014d52d6cd4d588f92eee3aaad
    Verifying Hash Integrity ... sha256+ OK
 ## Loading ramdisk from FIT Image at 84100000 ...
-   Using 'config@0' configuration
-   Trying 'ramdisk@0' ramdisk subimage
+   Using 'config-1' configuration
+   Trying 'ramdisk' ramdisk subimage
      Description:  ramdisk
      Created:      2017-10-20  14:32:29 UTC
      Type:         RAMDisk Image
@@ -301,8 +301,8 @@ If it is successful, you will see messages like follows:
      Hash value:   44980a2874154a2e31ed59222c9f8ea968867637f35c81e4107a984de7014deb
    Verifying Hash Integrity ... sha256+ OK
 ## Loading fdt from FIT Image at 84100000 ...
-   Using 'config@0' configuration
-   Trying 'fdt@0' fdt subimage
+   Using 'config-1' configuration
+   Trying 'fdt-1' fdt subimage
      Description:  fdt
      Created:      2017-10-20  14:32:29 UTC
      Type:         Flat Device Tree
