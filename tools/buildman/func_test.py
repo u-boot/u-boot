@@ -231,7 +231,10 @@ class TestFunctional(unittest.TestCase):
         command.test_result = None
         result = self._RunBuildman('-H')
         help_file = os.path.join(self._buildman_dir, 'README')
-        self.assertEqual(len(result.stdout), os.path.getsize(help_file))
+        # Remove possible extraneous strings
+        extra = '::::::::::::::\n' + help_file + '\n::::::::::::::\n'
+        gothelp = result.stdout.replace(extra, '')
+        self.assertEqual(len(gothelp), os.path.getsize(help_file))
         self.assertEqual(0, len(result.stderr))
         self.assertEqual(0, result.return_code)
 
