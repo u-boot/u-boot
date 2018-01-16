@@ -145,6 +145,39 @@ static const struct mssr_mod_clk r8a77970_mod_clks[] = {
 	DEF_MOD("i2c0",			 931,	R8A77970_CLK_S2D2),
 };
 
+/*
+ * CPG Clock Data
+ */
+
+/*
+ *   MD		EXTAL		PLL0	PLL1	PLL3
+ * 14 13 19	(MHz)
+ *-------------------------------------------------
+ * 0  0  0	16.66 x 1	x192	x192	x96
+ * 0  0  1	16.66 x 1	x192	x192	x80
+ * 0  1  0	20    x 1	x160	x160	x80
+ * 0  1  1	20    x 1	x160	x160	x66
+ * 1  0  0	27    / 2	x236	x236	x118
+ * 1  0  1	27    / 2	x236	x236	x98
+ * 1  1  0	33.33 / 2	x192	x192	x96
+ * 1  1  1	33.33 / 2	x192	x192	x80
+ */
+#define CPG_PLL_CONFIG_INDEX(md)	((((md) & BIT(14)) >> 12) | \
+					 (((md) & BIT(13)) >> 12) | \
+					 (((md) & BIT(19)) >> 19))
+
+static const struct rcar_gen3_cpg_pll_config cpg_pll_configs[8] = {
+	/* EXTAL div	PLL1 mult/div	PLL3 mult/div */
+	{ 1,		192,	1,	96,	1,	},
+	{ 1,		192,	1,	80,	1,	},
+	{ 1,		160,	1,	80,	1,	},
+	{ 1,		160,	1,	66,	1,	},
+	{ 2,		236,	1,	118,	1,	},
+	{ 2,		236,	1,	98,	1,	},
+	{ 2,		192,	1,	96,	1,	},
+	{ 2,		192,	1,	80,	1,	},
+};
+
 static const struct mstp_stop_table r8a77970_mstp_table[] = {
 	{ 0x00230000, 0x0 },	{ 0xFFFFFFFF, 0x0 },
 	{ 0x14062FD8, 0x2040 },	{ 0xFFFFFFDF, 0x400 },
@@ -153,6 +186,11 @@ static const struct mstp_stop_table r8a77970_mstp_table[] = {
 	{ 0x7FF3FFF4, 0x0 },	{ 0xFBF7FF97, 0x0 },
 	{ 0xFFFEFFE0, 0x0 },	{ 0x000000B7, 0x0 },
 };
+
+static const void *r8a77970_get_pll_config(const u32 cpg_mode)
+{
+	return &cpg_pll_configs[CPG_PLL_CONFIG_INDEX(cpg_mode)];
+}
 
 static const struct cpg_mssr_info r8a77970_cpg_mssr_info = {
 	.core_clk		= r8a77970_core_clks,
@@ -166,6 +204,7 @@ static const struct cpg_mssr_info r8a77970_cpg_mssr_info = {
 	.mod_clk_base		= MOD_CLK_BASE,
 	.clk_extal_id		= CLK_EXTAL,
 	.clk_extalr_id		= CLK_EXTALR,
+	.get_pll_config		= r8a77970_get_pll_config,
 };
 
 static const struct udevice_id r8a77970_clk_ids[] = {

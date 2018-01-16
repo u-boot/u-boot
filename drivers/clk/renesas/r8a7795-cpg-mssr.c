@@ -264,6 +264,56 @@ static const struct mssr_mod_clk r8a7795_mod_clks[] = {
 	DEF_MOD("scu-src0",		1031,	MOD_CLK_ID(1017)),
 };
 
+/*
+ * CPG Clock Data
+ */
+
+/*
+ *   MD		EXTAL		PLL0	PLL1	PLL2	PLL3	PLL4
+ * 14 13 19 17	(MHz)
+ *-------------------------------------------------------------------
+ * 0  0  0  0	16.66 x 1	x180	x192	x144	x192	x144
+ * 0  0  0  1	16.66 x 1	x180	x192	x144	x128	x144
+ * 0  0  1  0	Prohibited setting
+ * 0  0  1  1	16.66 x 1	x180	x192	x144	x192	x144
+ * 0  1  0  0	20    x 1	x150	x160	x120	x160	x120
+ * 0  1  0  1	20    x 1	x150	x160	x120	x106	x120
+ * 0  1  1  0	Prohibited setting
+ * 0  1  1  1	20    x 1	x150	x160	x120	x160	x120
+ * 1  0  0  0	25    x 1	x120	x128	x96	x128	x96
+ * 1  0  0  1	25    x 1	x120	x128	x96	x84	x96
+ * 1  0  1  0	Prohibited setting
+ * 1  0  1  1	25    x 1	x120	x128	x96	x128	x96
+ * 1  1  0  0	33.33 / 2	x180	x192	x144	x192	x144
+ * 1  1  0  1	33.33 / 2	x180	x192	x144	x128	x144
+ * 1  1  1  0	Prohibited setting
+ * 1  1  1  1	33.33 / 2	x180	x192	x144	x192	x144
+ */
+#define CPG_PLL_CONFIG_INDEX(md)	((((md) & BIT(14)) >> 11) | \
+					 (((md) & BIT(13)) >> 11) | \
+					 (((md) & BIT(19)) >> 18) | \
+					 (((md) & BIT(17)) >> 17))
+
+static const struct rcar_gen3_cpg_pll_config cpg_pll_configs[16] = {
+	/* EXTAL div	PLL1 mult/div	PLL3 mult/div */
+	{ 1,		192,	1,	192,	1,	},
+	{ 1,		192,	1,	128,	1,	},
+	{ 0, /* Prohibited setting */			},
+	{ 1,		192,	1,	192,	1,	},
+	{ 1,		160,	1,	160,	1,	},
+	{ 1,		160,	1,	106,	1,	},
+	{ 0, /* Prohibited setting */			},
+	{ 1,		160,	1,	160,	1,	},
+	{ 1,		128,	1,	128,	1,	},
+	{ 1,		128,	1,	84,	1,	},
+	{ 0, /* Prohibited setting */			},
+	{ 1,		128,	1,	128,	1,	},
+	{ 2,		192,	1,	192,	1,	},
+	{ 2,		192,	1,	128,	1,	},
+	{ 0, /* Prohibited setting */			},
+	{ 2,		192,	1,	192,	1,	},
+};
+
 static const struct mstp_stop_table r8a7795_mstp_table[] = {
 	{ 0x00640800, 0x0 },	{ 0xF3EE9390, 0x0 },
 	{ 0x340FAFDC, 0x2040 },	{ 0xD80C7CDF, 0x400 },
@@ -272,6 +322,11 @@ static const struct mstp_stop_table r8a7795_mstp_table[] = {
 	{ 0x01F19FF4, 0x0 },	{ 0xFFDFFFFF, 0x0 },
 	{ 0xFFFEFFE0, 0x0 },	{ 0x00000000, 0x0 },
 };
+
+static const void *r8a7795_get_pll_config(const u32 cpg_mode)
+{
+	return &cpg_pll_configs[CPG_PLL_CONFIG_INDEX(cpg_mode)];
+}
 
 static const struct cpg_mssr_info r8a7795_cpg_mssr_info = {
 	.core_clk		= r8a7795_core_clks,
@@ -285,6 +340,7 @@ static const struct cpg_mssr_info r8a7795_cpg_mssr_info = {
 	.mod_clk_base		= MOD_CLK_BASE,
 	.clk_extal_id		= CLK_EXTAL,
 	.clk_extalr_id		= CLK_EXTALR,
+	.get_pll_config		= r8a7795_get_pll_config,
 };
 
 static const struct udevice_id r8a7795_clk_ids[] = {

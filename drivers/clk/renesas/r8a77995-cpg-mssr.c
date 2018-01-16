@@ -169,6 +169,24 @@ static const struct mssr_mod_clk r8a77995_mod_clks[] = {
 	DEF_MOD("scu-src5",		1026,	MOD_CLK_ID(1017)),
 };
 
+/*
+ * CPG Clock Data
+ */
+
+/*
+ * MD19		EXTAL (MHz)	PLL0		PLL1		PLL3
+ *--------------------------------------------------------------------
+ * 0		48 x 1		x250/4		x100/3		x100/3
+ * 1		48 x 1		x250/4		x100/3		x116/6
+ */
+#define CPG_PLL_CONFIG_INDEX(md)	(((md) & BIT(19)) >> 19)
+
+static const struct rcar_gen3_cpg_pll_config cpg_pll_configs[2] __initconst = {
+	/* EXTAL div	PLL1 mult/div	PLL3 mult/div */
+	{ 1,		100,	3,	100,	3,	},
+	{ 1,		100,	3,	116,	6,	},
+};
+
 static const struct mstp_stop_table r8a77995_mstp_table[] = {
 	{ 0x00200000, 0x0 },	{ 0xFFFFFFFF, 0x0 },
 	{ 0x340E2FDC, 0x2040 },	{ 0xFFFFFFDF, 0x400 },
@@ -177,6 +195,11 @@ static const struct mstp_stop_table r8a77995_mstp_table[] = {
 	{ 0x01F1FFF7, 0x0 },	{ 0xFFFFFFFE, 0x0 },
 	{ 0xFFFEFFE0, 0x0 },	{ 0x000000B7, 0x0 },
 };
+
+static const void *r8a77995_get_pll_config(const u32 cpg_mode)
+{
+	return &cpg_pll_configs[CPG_PLL_CONFIG_INDEX(cpg_mode)];
+}
 
 static const struct cpg_mssr_info r8a77995_cpg_mssr_info = {
 	.core_clk		= r8a77995_core_clks,
@@ -189,6 +212,7 @@ static const struct cpg_mssr_info r8a77995_cpg_mssr_info = {
 	.mod_clk_base		= MOD_CLK_BASE,
 	.clk_extal_id		= CLK_EXTAL,
 	.clk_extalr_id		= ~0,
+	.get_pll_config		= r8a77995_get_pll_config,
 };
 
 static const struct udevice_id r8a77995_clk_ids[] = {

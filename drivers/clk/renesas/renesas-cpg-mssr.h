@@ -26,6 +26,7 @@ struct cpg_mssr_info {
 	unsigned int			mod_clk_base;
 	unsigned int			clk_extal_id;
 	unsigned int			clk_extalr_id;
+	const void			*(*get_pll_config)(const u32 cpg_mode);
 };
 
 struct gen3_clk_priv {
