@@ -258,7 +258,7 @@ static int bus_i2c_set_bus_speed(struct udevice *bus, int speed)
 	int i;
 
 	regs = (struct imx_lpi2c_reg *)devfdt_get_addr(bus);
-	clock_rate = imx_get_i2cclk(bus->seq + 4);
+	clock_rate = imx_get_i2cclk(bus->seq);
 	if (!clock_rate)
 		return -EPERM;
 
@@ -419,14 +419,14 @@ static int imx_lpi2c_probe(struct udevice *bus)
 	i2c_bus->bus = bus;
 
 	/* power up i2c resource */
-	ret = init_i2c_power(bus->seq + 4);
+	ret = init_i2c_power(bus->seq);
 	if (ret) {
 		debug("init_i2c_power err = %d\n", ret);
 		return ret;
 	}
 
-	/* Enable clk, only i2c4-7 can be handled by A7 core */
-	ret = enable_i2c_clk(1, bus->seq + 4);
+	/* To i.MX7ULP, only i2c4-7 can be handled by A7 core */
+	ret = enable_i2c_clk(1, bus->seq);
 	if (ret < 0)
 		return ret;
 

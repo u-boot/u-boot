@@ -784,9 +784,9 @@ static int mxc_i2c_probe(struct udevice *bus)
 		ret2 = gpio_request_by_name_nodev(offset_to_ofnode(node),
 				"sda-gpios", 0, &i2c_bus->sda_gpio,
 				GPIOD_IS_OUT);
-		if (!dm_gpio_is_valid(&i2c_bus->sda_gpio) |
-		    !dm_gpio_is_valid(&i2c_bus->scl_gpio) |
-		    ret | ret2) {
+		if (!dm_gpio_is_valid(&i2c_bus->sda_gpio) ||
+		    !dm_gpio_is_valid(&i2c_bus->scl_gpio) ||
+		    ret || ret2) {
 			dev_err(dev, "i2c bus %d at %lu, fail to request scl/sda gpio\n", bus->seq, i2c_bus->base);
 			return -EINVAL;
 		}

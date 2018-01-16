@@ -27,10 +27,10 @@
 		serial2 = &lpuart6;
 		serial3 = &lpuart7;
 		usbphy0 = &usbphy1;
-		i2c0 = &lpi2c4;
-		i2c1 = &lpi2c5;
-		i2c2 = &lpi2c6;
-		i2c3 = &lpi2c7;
+		i2c4 = &lpi2c4;
+		i2c5 = &lpi2c5;
+		i2c6 = &lpi2c6;
+		i2c7 = &lpi2c7;
 	};
 
 	cpus {
