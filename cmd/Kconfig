@@ -397,6 +397,7 @@ menu "Memory commands"
 config CMD_CRC32
 	bool "crc32"
 	select HASH
+	default n if ARCH_SUNXI
 	default y
 	help
 	  Compute CRC32.
