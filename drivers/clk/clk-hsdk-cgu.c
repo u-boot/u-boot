@@ -492,7 +492,7 @@ static ulong pll_set(struct clk *sclk, ulong rate)
 		}
 	}
 
-	pr_err("invalid rate=%ld, parent_rate=%d\n", best_rate, PARENT_RATE);
+	pr_err("invalid rate=%ld Hz, parent_rate=%d Hz\n", best_rate, PARENT_RATE);
 
 	return -EINVAL;
 }
@@ -623,14 +623,14 @@ static ulong idiv_set(struct clk *sclk, ulong rate)
 	}
 
 	if (div_factor & ~CGU_IDIV_MASK) {
-		pr_err("invalid rate=%ld, parent_rate=%ld, div=%d: max divider valie is%d\n",
+		pr_err("invalid rate=%ld Hz, parent_rate=%ld Hz, div=%d: max divider valie is%d\n",
 		       rate, parent_rate, div_factor, CGU_IDIV_MASK);
 
 		div_factor = CGU_IDIV_MASK;
 	}
 
 	if (div_factor == 0) {
-		pr_err("invalid rate=%ld, parent_rate=%ld, div=%d: min divider valie is 1\n",
+		pr_err("invalid rate=%ld Hz, parent_rate=%ld Hz, div=%d: min divider valie is 1\n",
 		       rate, parent_rate, div_factor);
 
 		div_factor = 1;
