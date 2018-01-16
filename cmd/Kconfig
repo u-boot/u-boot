@@ -1138,6 +1138,7 @@ config CMD_GETTIME
 # TODO: rename to CMD_SLEEP
 config CMD_MISC
 	bool "sleep"
+	default n if ARCH_SUNXI
 	default y
 	help
 	  Delay execution for some time
