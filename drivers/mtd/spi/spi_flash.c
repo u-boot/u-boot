@@ -508,9 +508,11 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 		len -= erase_size;
 	}
 
+	if (flash->spi->bytemode != SPI_4BYTE_MODE) {
 #ifdef CONFIG_SPI_FLASH_BAR
-	ret = clean_bar(flash);
+		ret = clean_bar(flash);
 #endif
+	}
 
 	return ret;
 }
@@ -587,9 +589,11 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 		offset += chunk_len;
 	}
 
+	if (flash->spi->bytemode != SPI_4BYTE_MODE) {
 #ifdef CONFIG_SPI_FLASH_BAR
-	ret = clean_bar(flash);
+		ret = clean_bar(flash);
 #endif
+	}
 
 	return ret;
 }
@@ -746,9 +750,11 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 
 	spi->dummy_bytes = 0;
 
+	if (flash->spi->bytemode != SPI_4BYTE_MODE) {
 #ifdef CONFIG_SPI_FLASH_BAR
-	ret = clean_bar(flash);
+		ret = clean_bar(flash);
 #endif
+	}
 
 	free(cmd);
 	return ret;
