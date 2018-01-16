@@ -528,14 +528,19 @@ out:
 
 static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 {
+	struct fsl_esdhc *regs = priv->esdhc_regs;
 	int div = 1;
 #ifdef ARCH_MXC
+#ifdef CONFIG_MX53
+	/* For i.MX53 eSDHCv3, SYSCTL.SDCLKFS may not be set to 0. */
+	int pre_div = (regs == (struct fsl_esdhc *)MMC_SDHC3_BASE_ADDR) ? 2 : 1;
+#else
 	int pre_div = 1;
+#endif
 #else
 	int pre_div = 2;
 #endif
 	int ddr_pre_div = mmc->ddr_mode ? 2 : 1;
-	struct fsl_esdhc *regs = priv->esdhc_regs;
 	int sdhc_clk = priv->sdhc_clk;
 	uint clk;
 
