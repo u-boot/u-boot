@@ -59,8 +59,6 @@ static const u32 CCAT_MODE_RUN = 0x0033DC8F;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static uint32_t mx53_dram_size[2];
-
 phys_size_t get_effective_memsize(void)
 {
 	/*
@@ -74,15 +72,13 @@ phys_size_t get_effective_memsize(void)
 	 * U-Boot into invalid memory area close to the end of the first
 	 * DRAM bank.
 	 */
-	return mx53_dram_size[0];
+	return get_ram_size((void *)PHYS_SDRAM_1, 1 << 30);
 }
 
 int dram_init(void)
 {
-	mx53_dram_size[0] = get_ram_size((void *)PHYS_SDRAM_1, 1 << 30);
-	mx53_dram_size[1] = get_ram_size((void *)PHYS_SDRAM_2, 1 << 30);
-
-	gd->ram_size = mx53_dram_size[0] + mx53_dram_size[1];
+	gd->ram_size = get_ram_size((void *)PHYS_SDRAM_1, 1 << 30);
+	gd->ram_size += get_ram_size((void *)PHYS_SDRAM_2, 1 << 30);
 
 	return 0;
 }
@@ -90,10 +86,10 @@ int dram_init(void)
 int dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = mx53_dram_size[0];
+	gd->bd->bi_dram[0].size = get_ram_size((void *)PHYS_SDRAM_1, 1 << 30);
 
 	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
-	gd->bd->bi_dram[1].size = mx53_dram_size[1];
+	gd->bd->bi_dram[1].size = get_ram_size((void *)PHYS_SDRAM_2, 1 << 30);
 
 	return 0;
 }
