@@ -48,6 +48,9 @@ bool slc_exists __section(".data") = false;
 bool ioc_exists __section(".data") = false;
 bool pae_exists __section(".data") = false;
 
+/* To force enable IOC set ioc_enable to 'true' */
+bool ioc_enable __section(".data") = false;
+
 void read_decode_mmu_bcr(void)
 {
 	/* TODO: should we compare mmu version from BCR and from CONFIG? */
@@ -200,7 +203,7 @@ static void read_decode_cache_bcr_arcv2(void)
 	} cbcr;
 
 	cbcr.word = read_aux_reg(ARC_BCR_CLUSTER);
-	if (cbcr.fields.c)
+	if (cbcr.fields.c && ioc_enable)
 		ioc_exists = true;
 }
 #endif
