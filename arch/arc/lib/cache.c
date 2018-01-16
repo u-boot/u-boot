@@ -13,12 +13,12 @@
 #include <asm/cache.h>
 
 /* Bit values in IC_CTRL */
-#define IC_CTRL_CACHE_DISABLE	(1 << 0)
+#define IC_CTRL_CACHE_DISABLE	BIT(0)
 
 /* Bit values in DC_CTRL */
-#define DC_CTRL_CACHE_DISABLE	(1 << 0)
-#define DC_CTRL_INV_MODE_FLUSH	(1 << 6)
-#define DC_CTRL_FLUSH_STATUS	(1 << 8)
+#define DC_CTRL_CACHE_DISABLE	BIT(0)
+#define DC_CTRL_INV_MODE_FLUSH	BIT(6)
+#define DC_CTRL_FLUSH_STATUS	BIT(8)
 #define CACHE_VER_NUM_MASK	0xF
 
 #define OP_INV		0x1
@@ -232,7 +232,7 @@ void read_decode_cache_bcr(void)
 	}
 
 	dbcr.word = read_aux_reg(ARC_BCR_DC_BUILD);
-	if (dbcr.fields.ver){
+	if (dbcr.fields.ver) {
 		dcache_exists = true;
 		l1_line_sz = dc_line_sz = 16 << dbcr.fields.line_len;
 		if (!dc_line_sz)
@@ -267,8 +267,7 @@ void cache_init(void)
 		 * so setting 0x11 implies 512M, 0x12 implies 1G...
 		 */
 		write_aux_reg(ARC_AUX_IO_COH_AP0_SIZE,
-			      order_base_2(ap_size/1024) - 2);
-
+			      order_base_2(ap_size / 1024) - 2);
 
 		/* IOC Aperture start must be aligned to the size of the aperture */
 		if (ap_base % ap_size != 0)
@@ -277,7 +276,6 @@ void cache_init(void)
 		write_aux_reg(ARC_AUX_IO_COH_AP0_BASE, ap_base >> 12);
 		write_aux_reg(ARC_AUX_IO_COH_PARTIAL, 1);
 		write_aux_reg(ARC_AUX_IO_COH_ENABLE, 1);
-
 	}
 
 	read_decode_mmu_bcr();
@@ -426,8 +424,7 @@ static unsigned int __before_dc_op(const int op)
 static void __after_dc_op(const int op, unsigned int reg)
 {
 	if (op & OP_FLUSH)	/* flush / flush-n-inv both wait */
-		while (read_aux_reg(ARC_AUX_DC_CTRL) & DC_CTRL_FLUSH_STATUS)
-			;
+		while (read_aux_reg(ARC_AUX_DC_CTRL) & DC_CTRL_FLUSH_STATUS);
 
 	/* Switch back to default Invalidate mode */
 	if (op == OP_INV)
@@ -453,6 +450,7 @@ static inline void __dc_line_op(unsigned long paddr, unsigned long sz,
 				const int cacheop)
 {
 	unsigned int ctrl_reg = __before_dc_op(cacheop);
+
 	__cache_line_loop(paddr, sz, cacheop);
 	__after_dc_op(cacheop, ctrl_reg);
 }
