@@ -56,7 +56,7 @@ struct ppa_tee_load_info {
 	u32 tee_arg0;          /* argument to TEE jump function, in r0 */
 };
 
-static uint32_t secure_rom_call_args[5] __aligned(ARCH_DMA_MINALIGN);
+static uint32_t secure_rom_call_args[5] __aligned(ARCH_DMA_MINALIGN) __section(".data");
 
 u32 secure_rom_call(u32 service, u32 proc_id, u32 flag, ...)
 {
