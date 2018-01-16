@@ -755,6 +755,7 @@ config CMD_LOADB
 
 config CMD_LOADS
 	bool "loads"
+	default n if ARCH_SUNXI
 	default y
 	help
 	  Load an S-Record file over serial line
