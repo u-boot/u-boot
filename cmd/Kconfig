@@ -748,6 +748,7 @@ config CMD_I2C
 
 config CMD_LOADB
 	bool "loadb"
+	default n if ARCH_SUNXI
 	default y
 	help
 	  Load a binary file over serial line.
