@@ -44,7 +44,6 @@
 #define CONFIG_SH_I2C_CLOCK  	41666666
 
 /* Ether */
-#define CONFIG_SH_ETHER 1
 #define CONFIG_SH_ETHER_USE_PORT (0)
 #define CONFIG_SH_ETHER_PHY_ADDR (0x1f)
 #define CONFIG_PHY_SMSC 1

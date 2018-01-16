@@ -153,14 +153,17 @@ int nc_input_packet(uchar *pkt, struct in_addr src_ip, unsigned dest_port,
 		len = sizeof(input_buffer) - input_size;
 
 	end = input_offset + input_size;
-	if (end > sizeof(input_buffer))
+	if (end >= sizeof(input_buffer))
 		end -= sizeof(input_buffer);
 
 	chunk = len;
-	if (end + len > sizeof(input_buffer)) {
+	/* Check if packet will wrap in input_buffer */
+	if (end + len >= sizeof(input_buffer)) {
 		chunk = sizeof(input_buffer) - end;
+		/* Copy the second part of the pkt to start of input_buffer */
 		memcpy(input_buffer, pkt + chunk, len - chunk);
 	}
+	/* Copy first (or only) part of pkt after end of current valid input*/
 	memcpy(input_buffer + end, pkt, chunk);
 
 	input_size += len;

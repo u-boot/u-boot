@@ -104,6 +104,31 @@
 #define MIIM_88E151x_MODE_SGMII		1
 #define MIIM_88E151x_RESET_OFFS		15
 
+static int m88e1xxx_phy_extread(struct phy_device *phydev, int addr,
+				int devaddr, int regnum)
+{
+	int oldpage = phy_read(phydev, MDIO_DEVAD_NONE, MII_MARVELL_PHY_PAGE);
+	int val;
+
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_MARVELL_PHY_PAGE, devaddr);
+	val = phy_read(phydev, MDIO_DEVAD_NONE, regnum);
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_MARVELL_PHY_PAGE, oldpage);
+
+	return val;
+}
+
+static int m88e1xxx_phy_extwrite(struct phy_device *phydev, int addr,
+				 int devaddr, int regnum, u16 val)
+{
+	int oldpage = phy_read(phydev, MDIO_DEVAD_NONE, MII_MARVELL_PHY_PAGE);
+
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_MARVELL_PHY_PAGE, devaddr);
+	phy_write(phydev, MDIO_DEVAD_NONE, regnum, val);
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_MARVELL_PHY_PAGE, oldpage);
+
+	return 0;
+}
+
 /* Marvell 88E1011S */
 static int m88e1011s_config(struct phy_device *phydev)
 {
@@ -669,6 +694,8 @@ static struct phy_driver M88E1510_driver = {
 	.config = &m88e1510_config,
 	.startup = &m88e1011s_startup,
 	.shutdown = &genphy_shutdown,
+	.readext = &m88e1xxx_phy_extread,
+	.writeext = &m88e1xxx_phy_extwrite,
 };
 
 /*
@@ -684,6 +711,8 @@ static struct phy_driver M88E1518_driver = {
 	.config = &m88e1518_config,
 	.startup = &m88e1011s_startup,
 	.shutdown = &genphy_shutdown,
+	.readext = &m88e1xxx_phy_extread,
+	.writeext = &m88e1xxx_phy_extwrite,
 };
 
 static struct phy_driver M88E1310_driver = {

@@ -185,6 +185,13 @@ config MACB
 	  GEM (Gigabit Ethernet MAC) found in some ARM SoC devices.
 	  Say Y to include support for the MACB/GEM chip.
 
+config MACB_ZYNQ
+	bool "Cadence MACB/GEM Ethernet Interface for Xilinx Zynq"
+	depends on MACB
+	help
+	  The Cadence MACB ethernet interface was used on Zynq platform.
+	  Say Y to enable support for the MACB/GEM in Zynq chip.
+
 config PCH_GBE
 	bool "Intel Platform Controller Hub EG20T GMAC driver"
 	depends on DM_ETH && DM_PCI
@@ -268,6 +275,12 @@ config SUN8I_EMAC
           This driver supports the  Allwinner based SUN8I/SUN50I Ethernet MAC.
 	  It can be found in H3/A64/A83T based SoCs and compatible with both
 	  External and Internal PHYs.
+
+config SH_ETHER
+	bool "Renesas SH Ethernet MAC"
+	select PHYLIB
+	help
+	  This driver supports the Ethernet for Renesas SH and ARM SoCs.
 
 config XILINX_AXIEMAC
 	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)

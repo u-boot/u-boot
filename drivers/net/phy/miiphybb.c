@@ -232,7 +232,7 @@ static void miiphy_pre(struct bb_miiphy_bus *bus, char read,
  */
 int bb_miiphy_read(struct mii_dev *miidev, int addr, int devad, int reg)
 {
-	short rdreg; /* register working value */
+	unsigned short rdreg; /* register working value */
 	int v;
 	int j; /* counter */
 	struct bb_miiphy_bus *bus;

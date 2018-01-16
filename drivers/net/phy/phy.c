@@ -461,6 +461,9 @@ static LIST_HEAD(phy_drivers);
 
 int phy_init(void)
 {
+#ifdef CONFIG_B53_SWITCH
+	phy_b53_init();
+#endif
 #ifdef CONFIG_MV88E61XX_SWITCH
 	phy_mv88e61xx_init();
 #endif

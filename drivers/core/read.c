@@ -103,6 +103,13 @@ int dev_read_phandle_with_args(struct udevice *dev, const char *list_name,
 					      out_args);
 }
 
+int dev_count_phandle_with_args(struct udevice *dev, const char *list_name,
+				const char *cells_name)
+{
+	return ofnode_count_phandle_with_args(dev_ofnode(dev), list_name,
+					      cells_name);
+}
+
 int dev_read_addr_cells(struct udevice *dev)
 {
 	return ofnode_read_addr_cells(dev_ofnode(dev));
