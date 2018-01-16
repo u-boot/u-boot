@@ -63,7 +63,14 @@
 #define ARC_AUX_SLC_INVALIDATE	0x905
 #define ARC_AUX_SLC_IVDL	0x910
 #define ARC_AUX_SLC_FLDL	0x912
+#define ARC_AUX_SLC_RGN_START	0x914
+#define ARC_AUX_SLC_RGN_START1	0x915
+#define ARC_AUX_SLC_RGN_END	0x916
+#define ARC_AUX_SLC_RGN_END1	0x917
 #define ARC_BCR_CLUSTER		0xcf
+
+/* MMU Management regs */
+#define ARC_AUX_MMU_BCR		0x06f
 
 /* IO coherency related auxiliary registers */
 #define ARC_AUX_IO_COH_ENABLE	0x500
