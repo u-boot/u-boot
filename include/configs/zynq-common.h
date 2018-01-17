@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2012 Michal Simek <monstr@monstr.eu>
- * (C) Copyright 2013 Xilinx, Inc.
+ * (C) Copyright 2013 - 2018 Xilinx, Inc.
  *
  * Common configuration options for all Zynq boards.
  *

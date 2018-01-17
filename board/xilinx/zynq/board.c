@@ -1,5 +1,6 @@
 /*
  * (C) Copyright 2012 Michal Simek <monstr@monstr.eu>
+ * (C) Copyright 2013 - 2018 Xilinx, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
