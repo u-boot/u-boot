@@ -53,6 +53,8 @@ enum clk_types {
 	/* Generic */
 	CLK_TYPE_IN,		/* External Clock Input */
 	CLK_TYPE_FF,		/* Fixed Factor Clock */
+	CLK_TYPE_DIV6P1,	/* DIV6 Clock with 1 parent clock */
+	CLK_TYPE_DIV6_RO,	/* DIV6 Clock read only with extra divisor */
 
 	/* Custom definitions start here */
 	CLK_TYPE_CUSTOM,
@@ -67,6 +69,10 @@ enum clk_types {
 	DEF_TYPE(_name, _id, CLK_TYPE_IN)
 #define DEF_FIXED(_name, _id, _parent, _div, _mult)	\
 	DEF_BASE(_name, _id, CLK_TYPE_FF, _parent, .div = _div, .mult = _mult)
+#define DEF_DIV6P1(_name, _id, _parent, _offset)	\
+	DEF_BASE(_name, _id, CLK_TYPE_DIV6P1, _parent, .offset = _offset)
+#define DEF_DIV6_RO(_name, _id, _parent, _offset, _div)	\
+	DEF_BASE(_name, _id, CLK_TYPE_DIV6_RO, _parent, .offset = _offset, .div = _div, .mult = 1)
 
 /*
  * Definitions of Module Clocks
