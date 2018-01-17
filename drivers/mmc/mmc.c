@@ -1501,11 +1501,13 @@ static int mmc_set_ios(struct mmc *mmc)
 
 int mmc_set_clock(struct mmc *mmc, uint clock, bool disable)
 {
-	if (clock > mmc->cfg->f_max)
-		clock = mmc->cfg->f_max;
+	if (!disable && clock != 0) {
+		if (clock > mmc->cfg->f_max)
+			clock = mmc->cfg->f_max;
 
-	if (clock < mmc->cfg->f_min)
-		clock = mmc->cfg->f_min;
+		if (clock < mmc->cfg->f_min)
+			clock = mmc->cfg->f_min;
+	}
 
 	mmc->clock = clock;
 	mmc->clk_disable = disable;
@@ -2449,7 +2451,7 @@ static int mmc_power_on(struct mmc *mmc)
 
 static int mmc_power_off(struct mmc *mmc)
 {
-	mmc_set_clock(mmc, 1, true);
+	mmc_set_clock(mmc, 0, true);
 #if CONFIG_IS_ENABLED(DM_MMC) && CONFIG_IS_ENABLED(DM_REGULATOR)
 	if (mmc->vmmc_supply) {
 		int ret = regulator_set_enable(mmc->vmmc_supply, false);
