@@ -174,6 +174,36 @@ static int read_voltage_from_IR(int i2caddress)
 }
 #endif
 
+#ifdef CONFIG_VOL_MONITOR_LTC3882_READ
+/* read the current value of the LTC Regulator Voltage */
+static int read_voltage_from_LTC(int i2caddress)
+{
+	int  ret, vcode = 0;
+	u8 chan = PWM_CHANNEL0;
+
+	/* select the PAGE 0 using PMBus commands PAGE for VDD*/
+	ret = i2c_write(I2C_VOL_MONITOR_ADDR,
+			PMBUS_CMD_PAGE, 1, &chan, 1);
+	if (ret) {
+		printf("VID: failed to select VDD Page 0\n");
+		return ret;
+	}
+
+	/*read the output voltage using PMBus command READ_VOUT*/
+	ret = i2c_read(I2C_VOL_MONITOR_ADDR,
+		       PMBUS_CMD_READ_VOUT, 1, (void *)&vcode, 2);
+	if (ret) {
+		printf("VID: failed to read the volatge\n");
+		return ret;
+	}
+
+	/* Scale down to the real mV as LTC resolution is 1/4096V,rounding up */
+	vcode = DIV_ROUND_UP(vcode * 1000, 4096);
+
+	return vcode;
+}
+#endif
+
 static int read_voltage(int i2caddress)
 {
 	int voltage_read;
@@ -181,6 +211,8 @@ static int read_voltage(int i2caddress)
 	voltage_read = read_voltage_from_INA220(i2caddress);
 #elif defined CONFIG_VOL_MONITOR_IR36021_READ
 	voltage_read = read_voltage_from_IR(i2caddress);
+#elif defined CONFIG_VOL_MONITOR_LTC3882_READ
+	voltage_read = read_voltage_from_LTC(i2caddress);
 #else
 	return -1;
 #endif
@@ -281,6 +313,43 @@ static int set_voltage_to_IR(int i2caddress, int vdd)
 	debug("VID: Current voltage is %d mV\n", vdd_last);
 	return vdd_last;
 }
+
+#endif
+
+#ifdef CONFIG_VOL_MONITOR_LTC3882_SET
+/* this function sets the VDD and returns the value set */
+static int set_voltage_to_LTC(int i2caddress, int vdd)
+{
+	int ret, vdd_last, vdd_target = vdd;
+
+	/* Scale up to the LTC resolution is 1/4096V */
+	vdd = (vdd * 4096) / 1000;
+
+	/* 5-byte buffer which needs to be sent following the
+	 * PMBus command PAGE_PLUS_WRITE.
+	 */
+	u8 buff[5] = {0x04, PWM_CHANNEL0, PMBUS_CMD_VOUT_COMMAND,
+			vdd & 0xFF, (vdd & 0xFF00) >> 8};
+
+	/* Write the desired voltage code to the regulator */
+	ret = i2c_write(I2C_VOL_MONITOR_ADDR,
+			PMBUS_CMD_PAGE_PLUS_WRITE, 1, (void *)&buff, 5);
+	if (ret) {
+		printf("VID: I2C failed to write to the volatge regulator\n");
+		return -1;
+	}
+
+	/* Wait for the volatge to get to the desired value */
+	do {
+		vdd_last = read_voltage_from_LTC(i2caddress);
+		if (vdd_last < 0) {
+			printf("VID: Couldn't read sensor abort VID adjust\n");
+			return -1;
+		}
+	} while (vdd_last != vdd_target);
+
+	return vdd_last;
+}
 #endif
 
 static int set_voltage(int i2caddress, int vdd)
@@ -289,6 +358,8 @@ static int set_voltage(int i2caddress, int vdd)
 
 #ifdef CONFIG_VOL_MONITOR_IR36021_SET
 	vdd_last = set_voltage_to_IR(i2caddress, vdd);
+#elif defined CONFIG_VOL_MONITOR_LTC3882_SET
+	vdd_last = set_voltage_to_LTC(i2caddress, vdd);
 #else
 	#error Specific voltage monitor must be defined
 #endif
@@ -472,6 +543,11 @@ int adjust_vdd(ulong vdd_override)
 	}
 	vdd_current = vdd_last;
 	debug("VID: Core voltage is currently at %d mV\n", vdd_last);
+
+#ifdef CONFIG_VOL_MONITOR_LTC3882_SET
+	/* Set the target voltage */
+	vdd_last = vdd_current = set_voltage(i2caddress, vdd_target);
+#else
 	/*
 	  * Adjust voltage to at or one step above target.
 	  * As measurements are less precise than setting the values
@@ -489,6 +565,7 @@ int adjust_vdd(ulong vdd_override)
 		vdd_last = set_voltage(i2caddress, vdd_current);
 	}
 
+#endif
 	if (board_adjust_vdd(vdd_target) < 0) {
 		ret = -1;
 		goto exit;

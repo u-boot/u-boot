@@ -201,10 +201,15 @@ struct ccsr_gur {
 	u32	gpporcr3;
 	u32	gpporcr4;
 	u8	res_030[0x60-0x30];
-#define FSL_CHASSIS3_DCFG_FUSESR_VID_SHIFT	2
 #define FSL_CHASSIS3_DCFG_FUSESR_VID_MASK	0x1F
-#define FSL_CHASSIS3_DCFG_FUSESR_ALTVID_SHIFT	7
 #define FSL_CHASSIS3_DCFG_FUSESR_ALTVID_MASK	0x1F
+#if defined(CONFIG_ARCH_LS1088A)
+#define FSL_CHASSIS3_DCFG_FUSESR_VID_SHIFT	25
+#define FSL_CHASSIS3_DCFG_FUSESR_ALTVID_SHIFT	20
+#else
+#define FSL_CHASSIS3_DCFG_FUSESR_VID_SHIFT	2
+#define FSL_CHASSIS3_DCFG_FUSESR_ALTVID_SHIFT	7
+#endif
 	u32	dcfg_fusesr;	/* Fuse status register */
 	u8	res_064[0x70-0x64];
 	u32	devdisr;	/* Device disable control 1 */
