@@ -34,6 +34,14 @@ int __weak board_vdd_drop_compensation(void)
 }
 
 /*
+ * Board specific settings for specific voltage value
+ */
+int __weak board_adjust_vdd(int vdd)
+{
+	return 0;
+}
+
+/*
  * Get the i2c address configuration for the IR regulator chip
  *
  * There are some variance in the RDB HW regarding the I2C address configuration
@@ -468,6 +476,11 @@ int adjust_vdd(ulong vdd_override)
 	       vdd_last > vdd_target + (IR_VDD_STEP_DOWN - 1)) {
 		vdd_current -= IR_VDD_STEP_DOWN;
 		vdd_last = set_voltage(i2caddress, vdd_current);
+	}
+
+	if (board_adjust_vdd(vdd_target) < 0) {
+		ret = -1;
+		goto exit;
 	}
 
 	if (vdd_last > 0)
