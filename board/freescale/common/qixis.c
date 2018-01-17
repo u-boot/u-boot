@@ -10,6 +10,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/io.h>
+#include <linux/compiler.h>
 #include <linux/time.h>
 #include <i2c.h>
 #include "qixis.h"
@@ -136,12 +137,13 @@ void board_deassert_mem_reset(void)
 }
 #endif
 
-void qixis_reset(void)
+#ifndef CONFIG_SPL_BUILD
+static void qixis_reset(void)
 {
 	QIXIS_WRITE(rst_ctl, QIXIS_RST_CTL_RESET);
 }
 
-void qixis_bank_reset(void)
+static void qixis_bank_reset(void)
 {
 	QIXIS_WRITE(rcfg_ctl, QIXIS_RCFG_CTL_RECONFIG_IDLE);
 	QIXIS_WRITE(rcfg_ctl, QIXIS_RCFG_CTL_RECONFIG_START);
@@ -196,15 +198,12 @@ static void qixis_dump_regs(void)
 	printf("stat_alrm = %02x\n", QIXIS_READ(stat_alrm));
 }
 
-static void __qixis_dump_switch(void)
+void __weak qixis_dump_switch(void)
 {
 	puts("Reverse engineering switch is not implemented for this board\n");
 }
 
-void qixis_dump_switch(void)
-	__attribute__((weak, alias("__qixis_dump_switch")));
-
-int qixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int qixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
 
@@ -305,3 +304,4 @@ U_BOOT_CMD(
 	"qixis_reset dump - display the QIXIS registers\n"
 	"qixis_reset switch - display switch\n"
 	);
+#endif

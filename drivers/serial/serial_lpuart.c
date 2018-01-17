@@ -265,11 +265,9 @@ static int _lpuart32_serial_getc(struct lpuart_serial_platdata *plat)
 
 	lpuart_read32(plat->flags, &base->data, &val);
 
-	if (plat->devtype & DEV_MX7ULP) {
-		lpuart_read32(plat->flags, &base->stat, &stat);
-		if (stat & STAT_OR)
-			lpuart_write32(plat->flags, &base->stat, STAT_OR);
-	}
+	lpuart_read32(plat->flags, &base->stat, &stat);
+	if (stat & STAT_OR)
+		lpuart_write32(plat->flags, &base->stat, STAT_OR);
 
 	return val & 0x3ff;
 }
@@ -280,10 +278,8 @@ static void _lpuart32_serial_putc(struct lpuart_serial_platdata *plat,
 	struct lpuart_fsl_reg32 *base = plat->reg;
 	u32 stat;
 
-	if (plat->devtype & DEV_MX7ULP) {
-		if (c == '\n')
-			serial_putc('\r');
-	}
+	if (c == '\n')
+		serial_putc('\r');
 
 	while (true) {
 		lpuart_read32(plat->flags, &base->stat, &stat);
@@ -330,7 +326,7 @@ static int _lpuart32_serial_init(struct lpuart_serial_platdata *plat)
 
 	lpuart_write32(plat->flags, &base->match, 0);
 
-	if (plat->devtype & DEV_MX7ULP) {
+	if (plat->devtype == DEV_MX7ULP) {
 		_lpuart32_serial_setbrg_7ulp(plat, gd->baudrate);
 	} else {
 		/* provide data bits, parity, stop bit, etc */
@@ -347,7 +343,7 @@ static int lpuart_serial_setbrg(struct udevice *dev, int baudrate)
 	struct lpuart_serial_platdata *plat = dev->platdata;
 
 	if (is_lpuart32(dev)) {
-		if (plat->devtype & DEV_MX7ULP)
+		if (plat->devtype == DEV_MX7ULP)
 			_lpuart32_serial_setbrg_7ulp(plat, baudrate);
 		else
 			_lpuart32_serial_setbrg(plat, baudrate);

@@ -15,3 +15,21 @@ config SYS_CONFIG_NAME
 source "board/freescale/common/Kconfig"
 
 endif
+
+if TARGET_LS1012A2G5RDB
+
+config SYS_BOARD
+        default "ls1012ardb"
+
+config SYS_VENDOR
+        default "freescale"
+
+config SYS_SOC
+        default "fsl-layerscape"
+
+config SYS_CONFIG_NAME
+        default "ls1012a2g5rdb"
+
+source "board/freescale/common/Kconfig"
+
+endif
