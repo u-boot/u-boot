@@ -221,6 +221,7 @@ unsigned long get_board_ddr_clk(void)
 
 	return 66666666;
 }
+#endif
 
 int select_i2c_ch_pca9547(u8 ch)
 {
@@ -235,6 +236,7 @@ int select_i2c_ch_pca9547(u8 ch)
 	return 0;
 }
 
+#if !defined(CONFIG_SPL_BUILD)
 void board_retimer_init(void)
 {
 	u8 reg;
@@ -335,6 +337,7 @@ int misc_init_r(void)
 #endif
 	return 0;
 }
+#endif
 #endif
 
 int i2c_multiplexer_select_vid_channel(u8 channel)
@@ -450,6 +453,7 @@ exit:
 	return ret;
 }
 
+#if !defined(CONFIG_SPL_BUILD)
 int board_init(void)
 {
 	init_final_memctl_regs();
