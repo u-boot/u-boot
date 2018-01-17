@@ -295,6 +295,43 @@ int adjust_vdd(ulong vdd_override)
 	int ret, i2caddress;
 	unsigned long vdd_string_override;
 	char *vdd_string;
+#ifdef CONFIG_ARCH_LS1088A
+	static const uint16_t vdd[32] = {
+		10250,
+		9875,
+		9750,
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		9000,
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		10000,  /* 1.0000V */
+		10125,
+		10250,
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+	};
+
+#else
 	static const uint16_t vdd[32] = {
 		10500,
 		0,      /* reserved */
@@ -329,6 +366,7 @@ int adjust_vdd(ulong vdd_override)
 		0,      /* reserved */
 		0,      /* reserved */
 	};
+#endif
 	struct vdd_drive {
 		u8 vid;
 		unsigned voltage;
