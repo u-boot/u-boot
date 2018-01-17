@@ -821,6 +821,7 @@ config ARCH_ZYNQ
 	imply CMD_CLK
 	imply FAT_WRITE
 	imply CMD_SPL
+	imply ARCH_EARLY_INIT_R
 
 config ARCH_ZYNQMP
 	bool "Xilinx ZynqMP based platform"
