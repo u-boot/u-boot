@@ -170,9 +170,13 @@ unsigned long get_board_ddr_clk(void);
 #define QIXIS_LBMAP_DFLTBANK		0x0e
 #define QIXIS_LBMAP_ALTBANK		0x2e
 #define QIXIS_LBMAP_SD			0x00
+#define QIXIS_LBMAP_EMMC		0x00
+#define QIXIS_LBMAP_IFC			0x00
 #define QIXIS_LBMAP_SD_QSPI		0x0e
 #define QIXIS_LBMAP_QSPI		0x0e
+#define QIXIS_RCW_SRC_IFC		0x25
 #define QIXIS_RCW_SRC_SD		0x40
+#define QIXIS_RCW_SRC_EMMC		0x41
 #define QIXIS_RCW_SRC_QSPI		0x62
 #define QIXIS_RST_CTL_RESET		0x41
 #define QIXIS_RCFG_CTL_RECONFIG_IDLE	0x20
