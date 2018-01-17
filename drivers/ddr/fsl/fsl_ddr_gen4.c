@@ -95,6 +95,9 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	if (step == 2)
 		goto step2;
 
+	/* Set cdr1 first in case 0.9v VDD is enabled for some SoCs*/
+	ddr_out32(&ddr->ddr_cdr1, regs->ddr_cdr1);
+
 	if (regs->ddr_eor)
 		ddr_out32(&ddr->eor, regs->ddr_eor);
 
@@ -183,7 +186,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	ddr_out32(&ddr->ddr_sdram_rcw_4, regs->ddr_sdram_rcw_4);
 	ddr_out32(&ddr->ddr_sdram_rcw_5, regs->ddr_sdram_rcw_5);
 	ddr_out32(&ddr->ddr_sdram_rcw_6, regs->ddr_sdram_rcw_6);
-	ddr_out32(&ddr->ddr_cdr1, regs->ddr_cdr1);
 #ifdef CONFIG_DEEP_SLEEP
 	if (is_warm_boot()) {
 		ddr_out32(&ddr->sdram_cfg_2,
