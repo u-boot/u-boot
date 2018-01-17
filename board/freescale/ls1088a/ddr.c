@@ -13,6 +13,23 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if defined(CONFIG_VID) && (!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
+static void fsl_ddr_setup_0v9_volt(memctl_options_t *popts)
+{
+	int vdd;
+
+	vdd = get_core_volt_from_fuse();
+	/* Nothing to do for silicons doesn't support VID */
+	if (vdd < 0)
+		return;
+
+	if (vdd == 900) {
+		popts->ddr_cdr1 |= DDR_CDR1_V0PT9_EN;
+		debug("VID: configure DDR to support 900 mV\n");
+	}
+}
+#endif
+
 void fsl_ddr_board_options(memctl_options_t *popts,
 			   dimm_params_t *pdimm,
 			   unsigned int ctrl_num)
@@ -87,6 +104,10 @@ found:
 	popts->addr_hash = 1;
 
 	popts->ddr_cdr1 = DDR_CDR1_DHC_EN | DDR_CDR1_ODT(DDR_CDR_ODT_60ohm);
+#if defined(CONFIG_VID) && (!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
+	fsl_ddr_setup_0v9_volt(popts);
+#endif
+
 	popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_60ohm) |
 			  DDR_CDR2_VREF_TRAIN_EN | DDR_CDR2_VREF_RANGE_2;
 }
