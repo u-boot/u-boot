@@ -387,5 +387,39 @@ struct ccsr_reset {
 	u32 ip_rev2;			/* 0xbfc */
 };
 
+struct ccsr_serdes {
+	struct {
+		u32     rstctl; /* Reset Control Register */
+		u32     pllcr0; /* PLL Control Register 0 */
+		u32     pllcr1; /* PLL Control Register 1 */
+		u32     pllcr2; /* PLL Control Register 2 */
+		u32     pllcr3; /* PLL Control Register 3 */
+		u32     pllcr4; /* PLL Control Register 4 */
+		u32     pllcr5; /* PLL Control Register 5 */
+		u8      res[0x20 - 0x1c];
+	} bank[2];
+	u8      res1[0x90 - 0x40];
+	u32     srdstcalcr;     /* TX Calibration Control */
+	u32     srdstcalcr1;    /* TX Calibration Control1 */
+	u8      res2[0xa0 - 0x98];
+	u32     srdsrcalcr;     /* RX Calibration Control */
+	u32     srdsrcalcr1;    /* RX Calibration Control1 */
+	u8      res3[0xb0 - 0xa8];
+	u32     srdsgr0;        /* General Register 0 */
+	u8      res4[0x800 - 0xb4];
+	struct serdes_lane {
+		u32     gcr0;   /* General Control Register 0 */
+		u32     gcr1;   /* General Control Register 1 */
+		u32     gcr2;   /* General Control Register 2 */
+		u32     ssc0;   /* Speed Switch Control 0 */
+		u32     rec0;   /* Receive Equalization Control 0 */
+		u32     rec1;   /* Receive Equalization Control 1 */
+		u32     tec0;   /* Transmit Equalization Control 0 */
+		u32     ssc1;   /* Speed Switch Control 1 */
+		u8      res1[0x840 - 0x820];
+	} lane[8];
+	u8 res5[0x19fc - 0xa00];
+};
+
 #endif /*__ASSEMBLY__*/
 #endif /* __ARCH_FSL_LSCH3_IMMAP_H_ */

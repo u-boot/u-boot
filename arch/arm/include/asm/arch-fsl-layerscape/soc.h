@@ -121,6 +121,7 @@ struct ccsr_ahci {
 
 #ifdef CONFIG_FSL_LSCH3
 void fsl_lsch3_early_init_f(void);
+int get_core_volt_from_fuse(void);
 #elif defined(CONFIG_FSL_LSCH2)
 void fsl_lsch2_early_init_f(void);
 int setup_chip_volt(void);
