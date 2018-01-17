@@ -364,6 +364,9 @@ int	embedded_dtb_select(void);
 
 int	misc_init_f   (void);
 int	misc_init_r   (void);
+#if defined(CONFIG_VID)
+int	init_func_vid(void);
+#endif
 
 /* common/exports.c */
 void	jumptable_init(void);

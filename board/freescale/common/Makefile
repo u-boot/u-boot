@@ -23,8 +23,8 @@ obj-$(CONFIG_FMAN_ENET)	+= fman.o
 obj-$(CONFIG_FSL_PIXIS)	+= pixis.o
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_FSL_NGPIXIS)	+= ngpixis.o
-obj-$(CONFIG_VID)		+= vid.o
 endif
+obj-$(CONFIG_VID)		+= vid.o
 obj-$(CONFIG_FSL_QIXIS)	+= qixis.o
 obj-$(CONFIG_PQ_MDS_PIB)	+= pq-mds-pib.o
 ifndef CONFIG_SPL_BUILD
