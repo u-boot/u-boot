@@ -224,7 +224,8 @@ struct uart_port {
 # define SCSPTR3 0xffc60020		/* 16 bit SCIF */
 # define SCIF_ORER 0x0001		/* Overrun error bit */
 # define SCSCR_INIT(port)	0x38	/* TIE=0,RIE=0,TE=1,RE=1,REIE=1 */
-#elif defined(CONFIG_RCAR_GEN2) || defined(CONFIG_RCAR_GEN3)
+#elif defined(CONFIG_RCAR_GEN2) || defined(CONFIG_RCAR_GEN3) || \
+      defined(CONFIG_R7S72100)
 # if defined(CONFIG_SCIF_A)
 #  define SCIF_ORER	0x0200
 # else
