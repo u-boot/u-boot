@@ -53,7 +53,8 @@ def test_i2c_probe_zc70x(u_boot_console):
     expected_response = "0000: " + val + " " + val + " " + val + " " + val + " " + val + " "
     assert(expected_response in response)
 
-@pytest.mark.boardspec("xilinx_zynqmp_zcu102")
+@pytest.mark.boardspec("xilinx_zynqmp_zcu102_rev1_0")
+@pytest.mark.boardspec("xilinx_zynqmp_zcu102_revA")
 @pytest.mark.buildconfigspec("cmd_i2c")
 def test_i2c_probe_zcu102(u_boot_console):
     test_skip = u_boot_console.config.env.get('env__i2c_device_test_skip', False)
