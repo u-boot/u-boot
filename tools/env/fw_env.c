@@ -505,8 +505,6 @@ int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts)
 
 int fw_env_flush(struct env_opts *opts)
 {
-	int ret;
-
 	if (!opts)
 		opts = &default_opts;
 
