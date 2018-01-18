@@ -22,6 +22,8 @@
 #define GET_CS_FROM_MASK(mask)	(cs_mask2_num[mask])
 #define CS_CBE_VALUE(cs_num)	(cs_cbe_reg[cs_num])
 
+#define TIMES_9_TREFI_CYCLES	0x8
+
 u32 window_mem_addr = 0;
 u32 phy_reg0_val = 0;
 u32 phy_reg1_val = 8;
@@ -508,7 +510,9 @@ int hws_ddr3_tip_init_controller(u32 dev_num, struct init_cntr_param *init_cntr_
 				DEBUG_TRAINING_IP(DEBUG_LEVEL_TRACE,
 						  ("cl_value 0x%x cwl_val 0x%x\n",
 						   cl_value, cwl_val));
-
+				t_wr = TIME_2_CLOCK_CYCLES(speed_bin_table(speed_bin_index,
+									   SPEED_BIN_TWR),
+							   t_ckclk);
 				data_value =
 					((cl_mask_table[cl_value] & 0x1) << 2) |
 					((cl_mask_table[cl_value] & 0xe) << 3);
@@ -518,8 +522,9 @@ int hws_ddr3_tip_init_controller(u32 dev_num, struct init_cntr_param *init_cntr_
 					      (0x7 << 4) | (1 << 2)));
 				CHECK_STATUS(ddr3_tip_if_write
 					     (dev_num, access_type, if_id,
-					      MR0_REG, twr_mask_table[t_wr + 1],
-					      0xe00));
+					      MR0_REG, twr_mask_table[t_wr + 1] << 9,
+					      (0x7 << 9)));
+
 
 				/*
 				 * MR1: Set RTT and DIC Design GL values
@@ -590,16 +595,15 @@ int hws_ddr3_tip_init_controller(u32 dev_num, struct init_cntr_param *init_cntr_
 				      DDR_CONTROL_LOW_REG, t2t << 3,
 				      0x3 << 3));
 			/* move the block to ddr3_tip_set_timing - start */
-			t_pd = GET_MAX_VALUE(t_ckclk * 3,
-					     speed_bin_table(speed_bin_index,
-							     SPEED_BIN_TPD));
-			t_pd = TIME_2_CLOCK_CYCLES(t_pd, t_ckclk);
-			txpdll = GET_MAX_VALUE(t_ckclk * 10, 24);
+			t_pd = TIMES_9_TREFI_CYCLES;
+			txpdll = GET_MAX_VALUE(t_ckclk * 10,
+					       speed_bin_table(speed_bin_index,
+							       SPEED_BIN_TXPDLL));
 			txpdll = CEIL_DIVIDE((txpdll - 1), t_ckclk);
 			CHECK_STATUS(ddr3_tip_if_write
 				     (dev_num, access_type, if_id,
-				      DDR_TIMING_REG, txpdll << 4,
-				      0x1f << 4));
+				      DDR_TIMING_REG, txpdll << 4 | t_pd,
+				      0x1f << 4 | 0xf));
 			CHECK_STATUS(ddr3_tip_if_write
 				     (dev_num, access_type, if_id,
 				      DDR_TIMING_REG, 0x28 << 9, 0x3f << 9));
@@ -1227,6 +1231,7 @@ int ddr3_tip_freq_set(u32 dev_num, enum hws_access_type access_type,
 	u32 cl_value = 0, cwl_value = 0, mem_mask = 0, val = 0,
 		bus_cnt = 0, t_hclk = 0, t_wr = 0,
 		refresh_interval_cnt = 0, cnt_id;
+	u32 t_ckclk;
 	u32 t_refi = 0, end_if, start_if;
 	u32 bus_index = 0;
 	int is_dll_off = 0;
@@ -1393,8 +1398,12 @@ int ddr3_tip_freq_set(u32 dev_num, enum hws_access_type access_type,
 		CHECK_STATUS(ddr3_tip_if_write
 			     (dev_num, access_type, if_id, DFS_REG,
 			      (cwl_mask_table[cwl_value] << 12), 0x7000));
-		t_wr = speed_bin_table(speed_bin_index, SPEED_BIN_TWR);
-		t_wr = (t_wr / 1000);
+
+		t_ckclk = MEGA / freq_val[frequency];
+		t_wr = TIME_2_CLOCK_CYCLES(speed_bin_table(speed_bin_index,
+							   SPEED_BIN_TWR),
+					   t_ckclk);
+
 		CHECK_STATUS(ddr3_tip_if_write
 			     (dev_num, access_type, if_id, DFS_REG,
 			      (twr_mask_table[t_wr + 1] << 16), 0x70000));
