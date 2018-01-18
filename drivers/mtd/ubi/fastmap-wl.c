@@ -337,11 +337,6 @@ static void ubi_fastmap_close(struct ubi_device *ubi)
 {
 	int i;
 
-#ifndef __UBOOT__
-	flush_work(&ubi->fm_work);
-#else
-	update_fastmap_work_fn(ubi);
-#endif
 	return_unused_pool_pebs(ubi, &ubi->fm_pool);
 	return_unused_pool_pebs(ubi, &ubi->fm_wl_pool);
 
