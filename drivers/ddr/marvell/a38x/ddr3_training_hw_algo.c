@@ -17,7 +17,7 @@
 #define VREF_MAX_INDEX			7
 #define MAX_VALUE			(1024 - 1)
 #define MIN_VALUE			(-MAX_VALUE)
-#define GET_RD_SAMPLE_DELAY(data, cs)	((data >> rd_sample_mask[cs]) & 0xf)
+#define GET_RD_SAMPLE_DELAY(data, cs)	((data >> rd_sample_mask[cs]) & 0x1f)
 
 u32 ck_delay = (u32)-1, ck_delay_16 = (u32)-1;
 u32 ca_delay;
@@ -49,7 +49,7 @@ static u32 rd_sample_mask[] = {
  */
 int ddr3_tip_write_additional_odt_setting(u32 dev_num, u32 if_id)
 {
-	u32 cs_num = 0, max_read_sample = 0, min_read_sample = 0;
+	u32 cs_num = 0, max_cs = 0, max_read_sample = 0, min_read_sample = 0x1f;
 	u32 data_read[MAX_INTERFACE_NUM] = { 0 };
 	u32 read_sample[MAX_CS_NUM];
 	u32 val;
@@ -66,15 +66,19 @@ int ddr3_tip_write_additional_odt_setting(u32 dev_num, u32 if_id)
 				      data_read, MASK_ALL_BITS));
 	val = data_read[if_id];
 
-	for (cs_num = 0; cs_num < MAX_CS_NUM; cs_num++) {
+	max_cs = hws_ddr3_tip_max_cs_get();
+
+	for (cs_num = 0; cs_num < max_cs; cs_num++) {
 		read_sample[cs_num] = GET_RD_SAMPLE_DELAY(val, cs_num);
 
 		/* find maximum of read_samples */
 		if (read_sample[cs_num] >= max_read_sample) {
-			if (read_sample[cs_num] == max_read_sample)
-				max_phase = MIN_VALUE;
-			else
+			if (read_sample[cs_num] == max_read_sample) {
+				/* search for max phase */;
+			} else {
 				max_read_sample = read_sample[cs_num];
+				max_phase = MIN_VALUE;
+			}
 
 			for (pup_index = 0;
 			     pup_index < tm->num_of_bus_per_interface;
@@ -97,10 +101,12 @@ int ddr3_tip_write_additional_odt_setting(u32 dev_num, u32 if_id)
 			min_read_sample = read_sample[cs_num];
 	}
 
+	if (min_read_sample <= tm->interface_params[if_id].cas_l) {
+		min_read_sample = (int)tm->interface_params[if_id].cas_l;
+	}
+
 	min_read_sample = min_read_sample - 1;
 	max_read_sample = max_read_sample + 4 + (max_phase + 1) / 2 + 1;
-	if (min_read_sample >= 0xf)
-		min_read_sample = 0xf;
 	if (max_read_sample >= 0x1f)
 		max_read_sample = 0x1f;
 
