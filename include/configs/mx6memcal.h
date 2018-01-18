@@ -56,4 +56,6 @@
 
 #define CONFIG_ENV_SIZE			(8 * 1024)
 
+#define CONFIG_MXC_USB_PORTSC	PORT_PTS_UTMI
+
 #endif	       /* __CONFIG_H */
