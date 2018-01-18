@@ -75,7 +75,6 @@ static int stmmac_setup(void)
 	clock_setup(SYSCFG_CLOCK_CFG);
 	/* Set >RMII mode */
 	STM32_SYSCFG->pmc |= SYSCFG_PMC_MII_RMII_SEL;
-	clock_setup(STMMAC_CLOCK_CFG);
 
 	return 0;
 }

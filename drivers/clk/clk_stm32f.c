@@ -90,7 +90,6 @@
 enum periph_clock {
 	SYSCFG_CLOCK_CFG,
 	TIMER2_CLOCK_CFG,
-	STMMAC_CLOCK_CFG,
 };
 
 static const struct stm32_clk_info stm32f4_clk_info = {
@@ -357,11 +356,6 @@ void clock_setup(int peripheral)
 		break;
 	case TIMER2_CLOCK_CFG:
 		setbits_le32(&STM32_RCC->apb1enr, RCC_APB1ENR_TIM2EN);
-		break;
-	case STMMAC_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_ETHMAC_EN);
-		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_ETHMAC_RX_EN);
-		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_ETHMAC_TX_EN);
 		break;
 	default:
 		break;
