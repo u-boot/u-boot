@@ -183,7 +183,8 @@ extern u32 g_znodt_data;
 extern u32 g_zpodt_ctrl;
 extern u32 g_znodt_ctrl;
 extern u32 g_dic;
-extern u32 g_odt_config;
+extern u32 g_odt_config_2cs;
+extern u32 g_odt_config_1cs;
 extern u32 g_rtt_nom;
 
 extern u8 debug_training_access;

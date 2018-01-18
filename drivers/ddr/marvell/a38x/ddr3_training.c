@@ -315,6 +315,7 @@ int hws_ddr3_tip_init_controller(u32 dev_num, struct init_cntr_param *init_cntr_
 	enum hws_access_type access_type = ACCESS_TYPE_UNICAST;
 	u32 data_read[MAX_INTERFACE_NUM];
 	struct hws_topology_map *tm = ddr3_get_topology_map();
+	u32 odt_config = g_odt_config_2cs;
 
 	DEBUG_TRAINING_IP(DEBUG_LEVEL_TRACE,
 			  ("Init_controller, do_mrs_phy=%d, is_ctrl64_bit=%d\n",
@@ -570,6 +571,9 @@ int hws_ddr3_tip_init_controller(u32 dev_num, struct init_cntr_param *init_cntr_
 				      DUNIT_CONTROL_HIGH_REG,
 				      (init_cntr_prm->msys_init << 7), (1 << 7)));
 
+			/* calculate number of CS (per interface) */
+			CHECK_STATUS(calc_cs_num
+				     (dev_num, if_id, &cs_num));
 			timing = tm->interface_params[if_id].timing;
 
 			if (mode2_t != 0xff) {
@@ -578,9 +582,6 @@ int hws_ddr3_tip_init_controller(u32 dev_num, struct init_cntr_param *init_cntr_
 				/* Board topology map is forcing timing */
 				t2t = (timing == HWS_TIM_2T) ? 1 : 0;
 			} else {
-				/* calculate number of CS (per interface) */
-				CHECK_STATUS(calc_cs_num
-					     (dev_num, if_id, &cs_num));
 				t2t = (cs_num == 1) ? 0 : 1;
 			}
 
@@ -623,9 +624,11 @@ int hws_ddr3_tip_init_controller(u32 dev_num, struct init_cntr_param *init_cntr_
 				      (1 << 11)));
 
 			/* Set Active control for ODT write transactions */
+			if (cs_num == 1)
+				odt_config = g_odt_config_1cs;
 			CHECK_STATUS(ddr3_tip_if_write
 				     (dev_num, ACCESS_TYPE_MULTICAST,
-				      PARAM_NOT_CARE, 0x1494, g_odt_config,
+				      PARAM_NOT_CARE, 0x1494, odt_config,
 				      MASK_ALL_BITS));
 		}
 	} else {
@@ -1539,7 +1542,7 @@ int ddr3_tip_freq_set(u32 dev_num, enum hws_access_type access_type,
 		CHECK_STATUS(ddr3_tip_if_write(dev_num, access_type,
 					       if_id, ODT_TIMING_LOW,
 					       val, 0xffff0));
-		val = 0x71 | ((cwl_value - 1) << 8) | ((cwl_value + 5) << 12);
+		val = 0x91 | ((cwl_value - 1) << 8) | ((cwl_value + 5) << 12);
 		CHECK_STATUS(ddr3_tip_if_write(dev_num, access_type,
 					       if_id, ODT_TIMING_HI_REG,
 					       val, 0xffff));
@@ -1591,7 +1594,7 @@ static int ddr3_tip_write_odt(u32 dev_num, enum hws_access_type access_type,
 
 	CHECK_STATUS(ddr3_tip_if_write(dev_num, access_type, if_id,
 				       ODT_TIMING_LOW, val, 0xffff0));
-	val = 0x71 | ((cwl_value - 1) << 8) | ((cwl_value + 5) << 12);
+	val = 0x91 | ((cwl_value - 1) << 8) | ((cwl_value + 5) << 12);
 	CHECK_STATUS(ddr3_tip_if_write(dev_num, access_type, if_id,
 				       ODT_TIMING_HI_REG, val, 0xffff));
 	if (odt_additional == 1) {
