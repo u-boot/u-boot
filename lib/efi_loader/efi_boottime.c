@@ -1371,6 +1371,7 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 {
 	ulong (*entry)(void *image_handle, struct efi_system_table *st);
 	struct efi_loaded_image *info = image_handle;
+	efi_status_t ret;
 
 	EFI_ENTRY("%p, %p, %p", image_handle, exit_data_size, exit_data);
 	entry = info->reserved;
@@ -1379,18 +1380,37 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 
 	/* call the image! */
 	if (setjmp(&info->exit_jmp)) {
-		/* We returned from the child image */
+		/*
+		 * We called the entry point of the child image with EFI_CALL
+		 * in the lines below. The child image called the Exit() boot
+		 * service efi_exit() which executed the long jump that brought
+		 * us to the current line. This implies that the second half
+		 * of the EFI_CALL macro has not been executed.
+		 */
+#ifdef CONFIG_ARM
+		/*
+		 * efi_exit() called efi_restore_gd(). We have to undo this
+		 * otherwise __efi_entry_check() will put the wrong value into
+		 * app_gd.
+		 */
+		gd = app_gd;
+#endif
+		/*
+		 * To get ready to call EFI_EXIT below we have to execute the
+		 * missed out steps of EFI_CALL.
+		 */
+		assert(__efi_entry_check());
+		debug("%sEFI: %lu returned by started image\n",
+		      __efi_nesting_dec(),
+		      (unsigned long)((uintptr_t)info->exit_status &
+				      ~EFI_ERROR_MASK));
 		return EFI_EXIT(info->exit_status);
 	}
 
-	__efi_nesting_dec();
-	__efi_exit_check();
-	entry(image_handle, &systab);
-	__efi_entry_check();
-	__efi_nesting_inc();
+	ret = EFI_CALL(entry(image_handle, &systab));
 
 	/* Should usually never get here */
-	return EFI_EXIT(EFI_SUCCESS);
+	return EFI_EXIT(ret);
 }
 
 /*
@@ -1427,7 +1447,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 		  exit_data_size, exit_data);
 
 	/* Make sure entry/exit counts for EFI world cross-overs match */
-	__efi_exit_check();
+	EFI_EXIT(exit_status);
 
 	/*
 	 * But longjmp out with the U-Boot gd, not the application's, as
