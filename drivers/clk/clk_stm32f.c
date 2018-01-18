@@ -67,8 +67,6 @@
 #define RCC_DCKCFGRX_SDMMC1SEL		BIT(28)
 #define RCC_DCKCFGR2_SDMMC2SEL		BIT(29)
 
-#define RCC_APB2ENR_SAI1EN		BIT(22)
-
 /*
  * RCC AHB1ENR specific definitions
  */
@@ -86,9 +84,9 @@
  * RCC APB2ENR specific definitions
  */
 #define RCC_APB2ENR_SYSCFGEN		BIT(14)
+#define RCC_APB2ENR_SAI1EN		BIT(22)
 
 enum periph_clock {
-	SYSCFG_CLOCK_CFG,
 	TIMER2_CLOCK_CFG,
 };
 
@@ -226,6 +224,11 @@ static int configure_clocks(struct udevice *dev)
 	/* gate the SAI clock, needed for MMC 1&2 clocks */
 	setbits_le32(&regs->apb2enr, RCC_APB2ENR_SAI1EN);
 
+#ifdef CONFIG_ETH_DESIGNWARE
+	/* gate the SYSCFG clock, needed to set RMII ethernet interface */
+	setbits_le32(&regs->apb2enr, RCC_APB2ENR_SYSCFGEN);
+#endif
+
 	return 0;
 }
 
@@ -351,9 +354,6 @@ static int stm32_clk_enable(struct clk *clk)
 void clock_setup(int peripheral)
 {
 	switch (peripheral) {
-	case SYSCFG_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->apb2enr, RCC_APB2ENR_SYSCFGEN);
-		break;
 	case TIMER2_CLOCK_CFG:
 		setbits_le32(&STM32_RCC->apb1enr, RCC_APB1ENR_TIM2EN);
 		break;

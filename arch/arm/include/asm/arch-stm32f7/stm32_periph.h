@@ -21,7 +21,6 @@ enum periph_id {
 };
 
 enum periph_clock {
-	SYSCFG_CLOCK_CFG,
 	TIMER2_CLOCK_CFG,
 };
 
