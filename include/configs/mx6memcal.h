@@ -1,8 +1,7 @@
 /*
- * Copyright (C) 2010-2011 Freescale Semiconductor, Inc.
+ * Copyright (C) 2010-2018 Freescale Semiconductor, Inc.
  *
- * Configuration settings for the Boundary Devices Nitrogen6X
- * and Freescale i.MX6Q Sabre Lite boards.
+ * Configuration settings for the virtual mx6memcal board.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
