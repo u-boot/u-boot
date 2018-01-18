@@ -1375,7 +1375,7 @@ int ddr3_tip_freq_set(u32 dev_num, enum hws_access_type access_type,
 
 		/* adjust t_refi to new frequency */
 		t_refi = (tm->interface_params[if_id].interface_temp ==
-			  HWS_TEMP_HIGH) ? TREFI_LOW : TREFI_HIGH;
+			  HWS_TEMP_HIGH) ? TREFI_HIGH : TREFI_LOW;
 		t_refi *= 1000;	/*psec */
 
 		/* HCLK in[ps] */
