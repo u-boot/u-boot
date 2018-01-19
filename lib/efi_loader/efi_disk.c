@@ -330,7 +330,7 @@ int efi_disk_register(void)
 	     dev;
 	     uclass_next_device_check(&dev)) {
 		struct blk_desc *desc = dev_get_uclass_platdata(dev);
-		const char *if_typename = dev->driver->name;
+		const char *if_typename = blk_get_if_type_name(desc->if_type);
 
 		printf("Scanning disk %s...\n", dev->name);
 
