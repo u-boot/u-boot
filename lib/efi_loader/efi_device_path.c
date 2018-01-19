@@ -58,8 +58,11 @@ static void *dp_alloc(size_t sz)
 {
 	void *buf;
 
-	if (efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, sz, &buf) != EFI_SUCCESS)
+	if (efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, sz, &buf) !=
+	    EFI_SUCCESS) {
+		debug("EFI: ERROR: out of memory in %s\n", __func__);
 		return NULL;
+	}
 
 	return buf;
 }
@@ -227,6 +230,8 @@ struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp)
 		return NULL;
 
 	ndp = dp_alloc(sz);
+	if (!ndp)
+		return NULL;
 	memcpy(ndp, dp, sz);
 
 	return ndp;
@@ -246,6 +251,8 @@ struct efi_device_path *efi_dp_append(const struct efi_device_path *dp1,
 		unsigned sz1 = efi_dp_size(dp1);
 		unsigned sz2 = efi_dp_size(dp2);
 		void *p = dp_alloc(sz1 + sz2 + sizeof(END));
+		if (!p)
+			return NULL;
 		memcpy(p, dp1, sz1);
 		memcpy(p + sz1, dp2, sz2);
 		memcpy(p + sz1 + sz2, &END, sizeof(END));
@@ -267,6 +274,8 @@ struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
 	} else if (!dp) {
 		unsigned sz = node->length;
 		void *p = dp_alloc(sz + sizeof(END));
+		if (!p)
+			return NULL;
 		memcpy(p, node, sz);
 		memcpy(p + sz, &END, sizeof(END));
 		ret = p;
@@ -274,6 +283,8 @@ struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
 		/* both dp and node are non-null */
 		unsigned sz = efi_dp_size(dp);
 		void *p = dp_alloc(sz + node->length + sizeof(END));
+		if (!p)
+			return NULL;
 		memcpy(p, dp, sz);
 		memcpy(p + sz, node, node->length);
 		memcpy(p + sz + node->length, &END, sizeof(END));
@@ -435,6 +446,8 @@ struct efi_device_path *efi_dp_from_dev(struct udevice *dev)
 	void *buf, *start;
 
 	start = buf = dp_alloc(dp_size(dev) + sizeof(END));
+	if (!buf)
+		return NULL;
 	buf = dp_fill(buf, dev);
 	*((struct efi_device_path *)buf) = END;
 
@@ -576,6 +589,8 @@ struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part)
 	void *buf, *start;
 
 	start = buf = dp_alloc(dp_part_size(desc, part) + sizeof(END));
+	if (!buf)
+		return NULL;
 
 	buf = dp_part_fill(buf, desc, part);
 
@@ -614,6 +629,8 @@ struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
 	dpsize += fpsize;
 
 	start = buf = dp_alloc(dpsize + sizeof(END));
+	if (!buf)
+		return NULL;
 
 	if (desc)
 		buf = dp_part_fill(buf, desc, part);
@@ -648,6 +665,8 @@ struct efi_device_path *efi_dp_from_eth(void)
 	dpsize += sizeof(*ndp);
 
 	start = buf = dp_alloc(dpsize + sizeof(END));
+	if (!buf)
+		return NULL;
 
 #ifdef CONFIG_DM_ETH
 	buf = dp_fill(buf, eth_get_dev());
@@ -678,6 +697,8 @@ struct efi_device_path *efi_dp_from_mem(uint32_t memory_type,
 	void *buf, *start;
 
 	start = buf = dp_alloc(sizeof(*mdp) + sizeof(END));
+	if (!buf)
+		return NULL;
 
 	mdp = buf;
 	mdp->dp.type = DEVICE_PATH_TYPE_HARDWARE_DEVICE;
@@ -697,22 +718,31 @@ struct efi_device_path *efi_dp_from_mem(uint32_t memory_type,
  * Helper to split a full device path (containing both device and file
  * parts) into it's constituent parts.
  */
-void efi_dp_split_file_path(struct efi_device_path *full_path,
-			    struct efi_device_path **device_path,
-			    struct efi_device_path **file_path)
+efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
+				    struct efi_device_path **device_path,
+				    struct efi_device_path **file_path)
 {
 	struct efi_device_path *p, *dp, *fp;
 
+	*device_path = NULL;
+	*file_path = NULL;
 	dp = efi_dp_dup(full_path);
+	if (!dp)
+		return EFI_OUT_OF_RESOURCES;
 	p = dp;
-	while (!EFI_DP_TYPE(p, MEDIA_DEVICE, FILE_PATH))
+	while (!EFI_DP_TYPE(p, MEDIA_DEVICE, FILE_PATH)) {
 		p = efi_dp_next(p);
+		if (!p)
+			return EFI_OUT_OF_RESOURCES;
+	}
 	fp = efi_dp_dup(p);
-
+	if (!fp)
+		return EFI_OUT_OF_RESOURCES;
 	p->type = DEVICE_PATH_TYPE_END;
 	p->sub_type = DEVICE_PATH_SUB_TYPE_END;
 	p->length = sizeof(*p);
 
 	*device_path = dp;
 	*file_path = fp;
+	return EFI_SUCCESS;
 }
