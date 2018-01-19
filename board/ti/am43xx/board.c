@@ -580,6 +580,11 @@ int board_init(void)
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 	gpmc_init();
 
+	/*
+	 * Call this to initialize *ctrl again
+	 */
+	hw_data_init();
+
 	/* Clear all important bits for DSS errata that may need to be tweaked*/
 	mreqprio_0 = readl(&cdev->mreqprio_0) & MREQPRIO_0_SAB_INIT1_MASK &
 	                   MREQPRIO_0_SAB_INIT0_MASK;
