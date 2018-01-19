@@ -242,7 +242,7 @@ static void efi_disk_add_dev(const char *name,
 							 diskobj->dp);
 		ret = efi_add_protocol(diskobj->parent.handle,
 				       &efi_simple_file_system_protocol_guid,
-				       &diskobj->volume);
+				       diskobj->volume);
 		if (ret != EFI_SUCCESS)
 			goto out_of_memory;
 	}
