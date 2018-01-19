@@ -275,13 +275,17 @@ static void zynq_qspi_write_data(struct  zynq_qspi_priv *priv,
 			*data |= 0xFFFFFF00;
 			break;
 		case 2:
-			*data = *((u16 *)priv->tx_buf);
-			priv->tx_buf += 2;
+			*data = *((u8 *)priv->tx_buf);
+			priv->tx_buf += 1;
+			*data |= (*((u8 *)priv->tx_buf) << 8);
+			priv->tx_buf += 1;
 			*data |= 0xFFFF0000;
 			break;
 		case 3:
-			*data = *((u16 *)priv->tx_buf);
-			priv->tx_buf += 2;
+			*data = *((u8 *)priv->tx_buf);
+			priv->tx_buf += 1;
+			*data |= (*((u8 *)priv->tx_buf) << 8);
+			priv->tx_buf += 1;
 			*data |= (*((u8 *)priv->tx_buf) << 16);
 			priv->tx_buf += 1;
 			*data |= 0xFF000000;
