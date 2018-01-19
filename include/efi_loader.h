@@ -312,6 +312,9 @@ struct efi_device_path *efi_dp_from_eth(void);
 struct efi_device_path *efi_dp_from_mem(uint32_t mem_type,
 					uint64_t start_address,
 					uint64_t end_address);
+/* Determine the last device path node that is not the end node. */
+const struct efi_device_path *efi_dp_last_node(
+			const struct efi_device_path *dp);
 efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
 				    struct efi_device_path **device_path,
 				    struct efi_device_path **file_path);

@@ -208,6 +208,26 @@ struct efi_object *efi_dp_find_obj(struct efi_device_path *dp,
 	return efiobj;
 }
 
+/*
+ * Determine the last device path node that is not the end node.
+ *
+ * @dp		device path
+ * @return	last node before the end node if it exists
+ *		otherwise NULL
+ */
+const struct efi_device_path *efi_dp_last_node(const struct efi_device_path *dp)
+{
+	struct efi_device_path *ret;
+
+	if (!dp || dp->type == DEVICE_PATH_TYPE_END)
+		return NULL;
+	while (dp) {
+		ret = (struct efi_device_path *)dp;
+		dp = efi_dp_next(dp);
+	}
+	return ret;
+}
+
 /* return size not including End node: */
 unsigned efi_dp_size(const struct efi_device_path *dp)
 {
