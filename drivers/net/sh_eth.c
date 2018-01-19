@@ -18,6 +18,13 @@
 #include <linux/errno.h>
 #include <asm/io.h>
 
+#ifdef CONFIG_DM_ETH
+#include <clk.h>
+#include <dm.h>
+#include <linux/mii.h>
+#include <asm/gpio.h>
+#endif
+
 #include "sh_eth.h"
 
 #ifndef CONFIG_SH_ETHER_USE_PORT
@@ -512,6 +519,7 @@ static int sh_eth_start_common(struct sh_eth_dev *eth)
 	return 0;
 }
 
+#ifndef CONFIG_DM_ETH
 static int sh_eth_phy_config_legacy(struct sh_eth_dev *eth)
 {
 	int port = eth->port, ret = 0;
@@ -665,6 +673,266 @@ err:
 	printf(SHETHER_NAME ": Failed\n");
 	return ret;
 }
+
+#else /* CONFIG_DM_ETH */
+
+struct sh_ether_priv {
+	struct sh_eth_dev	shdev;
+
+	struct mii_dev		*bus;
+	void __iomem		*iobase;
+	struct clk		clk;
+	struct gpio_desc	reset_gpio;
+};
+
+static int sh_ether_send(struct udevice *dev, void *packet, int len)
+{
+	struct sh_ether_priv *priv = dev_get_priv(dev);
+	struct sh_eth_dev *eth = &priv->shdev;
+
+	return sh_eth_send_common(eth, packet, len);
+}
+
+static int sh_ether_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct sh_ether_priv *priv = dev_get_priv(dev);
+	struct sh_eth_dev *eth = &priv->shdev;
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
+	uchar *packet = (uchar *)ADDR_TO_P2(port_info->rx_desc_cur->rd2);
+	int len;
+
+	len = sh_eth_recv_start(eth);
+	if (len > 0) {
+		invalidate_cache(packet, len);
+		*packetp = packet;
+
+		return len;
+	} else {
+		len = 0;
+
+		/* Restart the receiver if disabled */
+		if (!(sh_eth_read(port_info, EDRRR) & EDRRR_R))
+			sh_eth_write(port_info, EDRRR_R, EDRRR);
+
+		return -EAGAIN;
+	}
+}
+
+static int sh_ether_free_pkt(struct udevice *dev, uchar *packet, int length)
+{
+	struct sh_ether_priv *priv = dev_get_priv(dev);
+	struct sh_eth_dev *eth = &priv->shdev;
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
+
+	sh_eth_recv_finish(eth);
+
+	/* Restart the receiver if disabled */
+	if (!(sh_eth_read(port_info, EDRRR) & EDRRR_R))
+		sh_eth_write(port_info, EDRRR_R, EDRRR);
+
+	return 0;
+}
+
+static int sh_ether_write_hwaddr(struct udevice *dev)
+{
+	struct sh_ether_priv *priv = dev_get_priv(dev);
+	struct sh_eth_dev *eth = &priv->shdev;
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+	sh_eth_write_hwaddr(port_info, pdata->enetaddr);
+
+	return 0;
+}
+
+static int sh_eth_phy_config(struct udevice *dev)
+{
+	struct sh_ether_priv *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct sh_eth_dev *eth = &priv->shdev;
+	int port = eth->port, ret = 0;
+	struct sh_eth_info *port_info = &eth->port_info[port];
+	struct phy_device *phydev;
+	int mask = 0xffffffff;
+
+	phydev = phy_find_by_mask(priv->bus, mask, pdata->phy_interface);
+	if (!phydev)
+		return -ENODEV;
+
+	phy_connect_dev(phydev, dev);
+
+	port_info->phydev = phydev;
+	phy_config(phydev);
+
+	return ret;
+}
+
+static int sh_ether_start(struct udevice *dev)
+{
+	struct sh_ether_priv *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct sh_eth_dev *eth = &priv->shdev;
+	int ret;
+
+	ret = clk_enable(&priv->clk);
+	if (ret)
+		return ret;
+
+	ret = sh_eth_init_common(eth, pdata->enetaddr);
+	if (ret)
+		goto err_clk;
+
+	ret = sh_eth_phy_config(dev);
+	if (ret) {
+		printf(SHETHER_NAME ": phy config timeout\n");
+		goto err_start;
+	}
+
+	ret = sh_eth_start_common(eth);
+	if (ret)
+		goto err_start;
+
+	return 0;
+
+err_start:
+	sh_eth_tx_desc_free(eth);
+	sh_eth_rx_desc_free(eth);
+err_clk:
+	clk_disable(&priv->clk);
+	return ret;
+}
+
+static void sh_ether_stop(struct udevice *dev)
+{
+	struct sh_ether_priv *priv = dev_get_priv(dev);
+
+	sh_eth_stop(&priv->shdev);
+	clk_disable(&priv->clk);
+}
+
+static int sh_ether_probe(struct udevice *udev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(udev);
+	struct sh_ether_priv *priv = dev_get_priv(udev);
+	struct sh_eth_dev *eth = &priv->shdev;
+	struct mii_dev *mdiodev;
+	void __iomem *iobase;
+	int ret;
+
+	iobase = map_physmem(pdata->iobase, 0x1000, MAP_NOCACHE);
+	priv->iobase = iobase;
+
+	ret = clk_get_by_index(udev, 0, &priv->clk);
+	if (ret < 0)
+		goto err_mdio_alloc;
+
+	gpio_request_by_name(udev, "reset-gpios", 0, &priv->reset_gpio,
+			     GPIOD_IS_OUT);
+
+	mdiodev = mdio_alloc();
+	if (!mdiodev) {
+		ret = -ENOMEM;
+		goto err_mdio_alloc;
+	}
+
+	mdiodev->read = bb_miiphy_read;
+	mdiodev->write = bb_miiphy_write;
+	bb_miiphy_buses[0].priv = eth;
+	snprintf(mdiodev->name, sizeof(mdiodev->name), udev->name);
+
+	ret = mdio_register(mdiodev);
+	if (ret < 0)
+		goto err_mdio_register;
+
+	priv->bus = miiphy_get_dev_by_name(udev->name);
+
+	eth->port = CONFIG_SH_ETHER_USE_PORT;
+	eth->port_info[eth->port].phy_addr = CONFIG_SH_ETHER_PHY_ADDR;
+	eth->port_info[eth->port].iobase =
+		(void __iomem *)(BASE_IO_ADDR + 0x800 * eth->port);
+
+	return 0;
+
+err_mdio_register:
+	mdio_free(mdiodev);
+err_mdio_alloc:
+	unmap_physmem(priv->iobase, MAP_NOCACHE);
+	return ret;
+}
+
+static int sh_ether_remove(struct udevice *udev)
+{
+	struct sh_ether_priv *priv = dev_get_priv(udev);
+	struct sh_eth_dev *eth = &priv->shdev;
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
+
+	free(port_info->phydev);
+	mdio_unregister(priv->bus);
+	mdio_free(priv->bus);
+
+	if (dm_gpio_is_valid(&priv->reset_gpio))
+		dm_gpio_free(udev, &priv->reset_gpio);
+
+	unmap_physmem(priv->iobase, MAP_NOCACHE);
+
+	return 0;
+}
+
+static const struct eth_ops sh_ether_ops = {
+	.start			= sh_ether_start,
+	.send			= sh_ether_send,
+	.recv			= sh_ether_recv,
+	.free_pkt		= sh_ether_free_pkt,
+	.stop			= sh_ether_stop,
+	.write_hwaddr		= sh_ether_write_hwaddr,
+};
+
+int sh_ether_ofdata_to_platdata(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	const char *phy_mode;
+	const fdt32_t *cell;
+	int ret = 0;
+
+	pdata->iobase = devfdt_get_addr(dev);
+	pdata->phy_interface = -1;
+	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
+			       NULL);
+	if (phy_mode)
+		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
+	if (pdata->phy_interface == -1) {
+		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
+		return -EINVAL;
+	}
+
+	pdata->max_speed = 1000;
+	cell = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "max-speed", NULL);
+	if (cell)
+		pdata->max_speed = fdt32_to_cpu(*cell);
+
+	sprintf(bb_miiphy_buses[0].name, dev->name);
+
+	return ret;
+}
+
+static const struct udevice_id sh_ether_ids[] = {
+	{ .compatible = "renesas,ether-r8a7791" },
+	{ }
+};
+
+U_BOOT_DRIVER(eth_sh_ether) = {
+	.name		= "sh_ether",
+	.id		= UCLASS_ETH,
+	.of_match	= sh_ether_ids,
+	.ofdata_to_platdata = sh_ether_ofdata_to_platdata,
+	.probe		= sh_ether_probe,
+	.remove		= sh_ether_remove,
+	.ops		= &sh_ether_ops,
+	.priv_auto_alloc_size = sizeof(struct sh_ether_priv),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
+};
+#endif
 
 /******* for bb_miiphy *******/
 static int sh_eth_bb_init(struct bb_miiphy_bus *bus)
