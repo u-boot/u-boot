@@ -1533,7 +1533,8 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 					   unsigned long *exit_data_size,
 					   s16 **exit_data)
 {
-	ulong (*entry)(efi_handle_t image_handle, struct efi_system_table *st);
+	asmlinkage ulong (*entry)(efi_handle_t image_handle,
+				  struct efi_system_table *st);
 	struct efi_loaded_image *info = image_handle;
 	efi_status_t ret;
 
