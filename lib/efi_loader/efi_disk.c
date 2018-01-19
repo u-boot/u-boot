@@ -216,27 +216,31 @@ efi_fs_from_path(struct efi_device_path *full_path)
 }
 
 /*
- * Create a device for a disk
+ * Create a handle for a partition or disk
  *
- * @name	not used
+ * @parent	parent handle
+ * @dp_parent	parent device path
  * @if_typename interface name for block device
  * @desc	internal block device
  * @dev_index   device index for block device
  * @offset	offset into disk for simple partitions
+ * @return	disk object
  */
-static void efi_disk_add_dev(const char *name,
-			     const char *if_typename,
-			     struct blk_desc *desc,
-			     int dev_index,
-			     lbaint_t offset,
-			     unsigned int part)
+static struct efi_disk_obj *efi_disk_add_dev(
+				efi_handle_t parent,
+				struct efi_device_path *dp_parent,
+				const char *if_typename,
+				struct blk_desc *desc,
+				int dev_index,
+				lbaint_t offset,
+				unsigned int part)
 {
 	struct efi_disk_obj *diskobj;
 	efi_status_t ret;
 
 	/* Don't add empty devices */
 	if (!desc->lba)
-		return;
+		return NULL;
 
 	diskobj = calloc(1, sizeof(*diskobj));
 	if (!diskobj)
@@ -246,7 +250,14 @@ static void efi_disk_add_dev(const char *name,
 	efi_add_handle(&diskobj->parent);
 
 	/* Fill in object data */
-	diskobj->dp = efi_dp_from_part(desc, part);
+	if (part) {
+		struct efi_device_path *node = efi_dp_part_node(desc, part);
+
+		diskobj->dp = efi_dp_append_node(dp_parent, node);
+		efi_free_pool(node);
+	} else {
+		diskobj->dp = efi_dp_from_part(desc, part);
+	}
 	diskobj->part = part;
 	ret = efi_add_protocol(diskobj->parent.handle, &efi_block_io_guid,
 			       &diskobj->ops);
@@ -280,20 +291,38 @@ static void efi_disk_add_dev(const char *name,
 	if (part != 0)
 		diskobj->media.logical_partition = 1;
 	diskobj->ops.media = &diskobj->media;
-	return;
+	return diskobj;
 out_of_memory:
 	printf("ERROR: Out of memory\n");
+	return NULL;
 }
 
-static int efi_disk_create_partitions(struct blk_desc *desc,
-				      const char *if_typename,
-				      int diskid,
-				      const char *pdevname)
+/*
+ * Create handles and protocols for the partitions of a block device
+ *
+ * @parent		handle of the parent disk
+ * @blk_desc		block device
+ * @if_typename		interface type
+ * @diskid		device number
+ * @pdevname		device name
+ * @return		number of partitions created
+ */
+int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
+			       const char *if_typename, int diskid,
+			       const char *pdevname)
 {
 	int disks = 0;
 	char devname[32] = { 0 }; /* dp->str is u16[32] long */
 	disk_partition_t info;
 	int part;
+	struct efi_device_path *dp = NULL;
+	efi_status_t ret;
+	struct efi_handler *handler;
+
+	/* Get the device path of the parent */
+	ret = efi_search_protocol(parent, &efi_guid_device_path, &handler);
+	if (ret == EFI_SUCCESS)
+		dp = handler->protocol_interface;
 
 	/* Add devices for each partition */
 	for (part = 1; part <= MAX_SEARCH_PARTITIONS; part++) {
@@ -301,7 +330,7 @@ static int efi_disk_create_partitions(struct blk_desc *desc,
 			continue;
 		snprintf(devname, sizeof(devname), "%s:%d", pdevname,
 			 part);
-		efi_disk_add_dev(devname, if_typename, desc, diskid,
+		efi_disk_add_dev(parent, dp, if_typename, desc, diskid,
 				 info.start, part);
 		disks++;
 	}
@@ -322,6 +351,7 @@ static int efi_disk_create_partitions(struct blk_desc *desc,
  */
 int efi_disk_register(void)
 {
+	struct efi_disk_obj *disk;
 	int disks = 0;
 #ifdef CONFIG_BLK
 	struct udevice *dev;
@@ -335,14 +365,16 @@ int efi_disk_register(void)
 		printf("Scanning disk %s...\n", dev->name);
 
 		/* Add block device for the full device */
-		efi_disk_add_dev(dev->name, if_typename, desc,
-				 desc->devnum, 0, 0);
-
+		disk = efi_disk_add_dev(NULL, NULL, if_typename,
+					desc, desc->devnum, 0, 0);
+		if (!disk)
+			return -ENOMEM;
 		disks++;
 
 		/* Partitions show up as block devices in EFI */
-		disks += efi_disk_create_partitions(desc, if_typename,
-						    desc->devnum, dev->name);
+		disks += efi_disk_create_partitions(
+					disk->parent.handle, desc, if_typename,
+					desc->devnum, dev->name);
 	}
 #else
 	int i, if_type;
@@ -372,12 +404,16 @@ int efi_disk_register(void)
 				 if_typename, i);
 
 			/* Add block device for the full device */
-			efi_disk_add_dev(devname, if_typename, desc, i, 0, 0);
+			disk = efi_disk_add_dev(NULL, NULL, if_typename, desc,
+						i, 0, 0);
+			if (!disk)
+				return -ENOMEM;
 			disks++;
 
 			/* Partitions show up as block devices in EFI */
-			disks += efi_disk_create_partitions(desc, if_typename,
-							    i, devname);
+			disks += efi_disk_create_partitions(
+						disk->parent.handle, desc,
+						if_typename, i, devname);
 		}
 	}
 #endif

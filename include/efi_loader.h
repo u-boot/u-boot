@@ -174,6 +174,10 @@ extern struct list_head efi_obj_list;
 int efi_console_register(void);
 /* Called by bootefi to make all disk storage accessible as EFI objects */
 int efi_disk_register(void);
+/* Create handles and protocols for the partitions of a block device */
+int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
+			       const char *if_typename, int diskid,
+			       const char *pdevname);
 /* Called by bootefi to make GOP (graphical) interface available */
 int efi_gop_register(void);
 /* Called by bootefi to make the network interface available */
