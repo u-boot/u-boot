@@ -152,6 +152,7 @@ def qspi_write_twice(u_boot_console):
     old_size = 0
     # TODO maybe add alignment and different start for pages
     for size in random.randint(4, page_size), random.randint(page_size, total_size), total_size:
+        offset = random.randint(4, page_size)
         addr = u_boot_utils.find_ram_base(u_boot_console)
         size = size - old_size
         output = u_boot_console.run_command('crc32 %x %x' % (addr + total_size, size))
@@ -163,9 +164,9 @@ def qspi_write_twice(u_boot_console):
         # print expected_crc32
         output = u_boot_console.run_command('sf write %x %x %x' % (addr + total_size, old_size, size))
         assert expected_write in output
-        output = u_boot_console.run_command('sf read %x %x %x' % (addr + total_size + 10, old_size, size))
+        output = u_boot_console.run_command('sf read %x %x %x' % (addr + total_size + offset, old_size, size))
         assert expected_read in output
-        output = u_boot_console.run_command('crc32 %x %x' % (addr + total_size + 10, size))
+        output = u_boot_console.run_command('crc32 %x %x' % (addr + total_size + offset, size))
         assert expected_crc32 in output
         old_size = size
 
