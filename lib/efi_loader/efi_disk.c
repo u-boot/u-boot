@@ -91,7 +91,7 @@ static efi_status_t efi_disk_rw_blocks(struct efi_block_io *this,
 }
 
 static efi_status_t EFIAPI efi_disk_read_blocks(struct efi_block_io *this,
-			u32 media_id, u64 lba, unsigned long buffer_size,
+			u32 media_id, u64 lba, efi_uintn_t buffer_size,
 			void *buffer)
 {
 	void *real_buffer = buffer;
@@ -112,7 +112,7 @@ static efi_status_t EFIAPI efi_disk_read_blocks(struct efi_block_io *this,
 	real_buffer = efi_bounce_buffer;
 #endif
 
-	EFI_ENTRY("%p, %x, %"PRIx64", %lx, %p", this, media_id, lba,
+	EFI_ENTRY("%p, %x, %" PRIx64 ", %zx, %p", this, media_id, lba,
 		  buffer_size, buffer);
 
 	r = efi_disk_rw_blocks(this, media_id, lba, buffer_size, real_buffer,
@@ -126,7 +126,7 @@ static efi_status_t EFIAPI efi_disk_read_blocks(struct efi_block_io *this,
 }
 
 static efi_status_t EFIAPI efi_disk_write_blocks(struct efi_block_io *this,
-			u32 media_id, u64 lba, unsigned long buffer_size,
+			u32 media_id, u64 lba, efi_uintn_t buffer_size,
 			void *buffer)
 {
 	void *real_buffer = buffer;
@@ -147,7 +147,7 @@ static efi_status_t EFIAPI efi_disk_write_blocks(struct efi_block_io *this,
 	real_buffer = efi_bounce_buffer;
 #endif
 
-	EFI_ENTRY("%p, %x, %"PRIx64", %lx, %p", this, media_id, lba,
+	EFI_ENTRY("%p, %x, %" PRIx64 ", %zx, %p", this, media_id, lba,
 		  buffer_size, buffer);
 
 	/* Populate bounce buffer if necessary */

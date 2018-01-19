@@ -424,7 +424,15 @@ struct efi_block_io_media
 	u32 io_align;
 	u8 pad2[4];
 	u64 last_block;
+	/* Added in revision 2 of the protocol */
+	u64 lowest_aligned_lba;
+	u32 logical_blocks_per_physical_block;
+	/* Added in revision 3 of the protocol */
+	u32 optimal_transfer_length_granualarity;
 };
+
+#define EFI_BLOCK_IO_PROTOCOL_REVISION2	0x00020001
+#define EFI_BLOCK_IO_PROTOCOL_REVISION3	0x0002001f
 
 struct efi_block_io {
 	u64 revision;
@@ -432,10 +440,10 @@ struct efi_block_io {
 	efi_status_t (EFIAPI *reset)(struct efi_block_io *this,
 			char extended_verification);
 	efi_status_t (EFIAPI *read_blocks)(struct efi_block_io *this,
-			u32 media_id, u64 lba, unsigned long buffer_size,
+			u32 media_id, u64 lba, efi_uintn_t buffer_size,
 			void *buffer);
 	efi_status_t (EFIAPI *write_blocks)(struct efi_block_io *this,
-			u32 media_id, u64 lba, unsigned long buffer_size,
+			u32 media_id, u64 lba, efi_uintn_t buffer_size,
 			void *buffer);
 	efi_status_t (EFIAPI *flush_blocks)(struct efi_block_io *this);
 };
