@@ -149,13 +149,14 @@ const char *__efi_nesting_dec(void)
  * For the SignalEvent service see efi_signal_event_ext.
  *
  * @event	event to signal
+ * @check_tpl	check the TPL level
  */
-void efi_signal_event(struct efi_event *event)
+void efi_signal_event(struct efi_event *event, bool check_tpl)
 {
 	if (event->notify_function) {
 		event->is_queued = true;
 		/* Check TPL */
-		if (efi_tpl >= event->notify_tpl)
+		if (check_tpl && efi_tpl >= event->notify_tpl)
 			return;
 		EFI_CALL_VOID(event->notify_function(event,
 						     event->notify_context));
@@ -565,7 +566,7 @@ void efi_timer_check(void)
 		if (!efi_events[i].type)
 			continue;
 		if (efi_events[i].is_queued)
-			efi_signal_event(&efi_events[i]);
+			efi_signal_event(&efi_events[i], true);
 		if (!(efi_events[i].type & EVT_TIMER) ||
 		    now < efi_events[i].trigger_next)
 			continue;
@@ -581,7 +582,7 @@ void efi_timer_check(void)
 			continue;
 		}
 		efi_events[i].is_signaled = true;
-		efi_signal_event(&efi_events[i]);
+		efi_signal_event(&efi_events[i], true);
 	}
 	WATCHDOG_RESET();
 }
@@ -690,7 +691,7 @@ known_event:
 		if (!event[i]->type || event[i]->type & EVT_NOTIFY_SIGNAL)
 			return EFI_EXIT(EFI_INVALID_PARAMETER);
 		if (!event[i]->is_signaled)
-			efi_signal_event(event[i]);
+			efi_signal_event(event[i], true);
 	}
 
 	/* Wait for signal */
@@ -740,7 +741,7 @@ static efi_status_t EFIAPI efi_signal_event_ext(struct efi_event *event)
 			break;
 		event->is_signaled = true;
 		if (event->type & EVT_NOTIFY_SIGNAL)
-			efi_signal_event(event);
+			efi_signal_event(event, true);
 		break;
 	}
 	return EFI_EXIT(EFI_SUCCESS);
@@ -797,7 +798,7 @@ static efi_status_t EFIAPI efi_check_event(struct efi_event *event)
 		if (!event->type || event->type & EVT_NOTIFY_SIGNAL)
 			break;
 		if (!event->is_signaled)
-			efi_signal_event(event);
+			efi_signal_event(event, true);
 		if (event->is_signaled)
 			return EFI_EXIT(EFI_SUCCESS);
 		return EFI_EXIT(EFI_NOT_READY);

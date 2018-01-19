@@ -482,17 +482,25 @@ static void EFIAPI efi_key_notify(struct efi_event *event, void *context)
 {
 }
 
+/*
+ * Notification function of the console timer event.
+ *
+ * event:	console timer event
+ * context:	not used
+ */
 static void EFIAPI efi_console_timer_notify(struct efi_event *event,
 					    void *context)
 {
 	EFI_ENTRY("%p, %p", event, context);
+
+	/* Check if input is available */
 	if (tstc()) {
+		/* Queue the wait for key event */
 		efi_con_in.wait_for_key->is_signaled = true;
-		efi_signal_event(efi_con_in.wait_for_key);
-		}
+		efi_signal_event(efi_con_in.wait_for_key, true);
+	}
 	EFI_EXIT(EFI_SUCCESS);
 }
-
 
 /* This gets called from do_bootefi_exec(). */
 int efi_console_register(void)
