@@ -106,7 +106,7 @@ def qspi_read_twice(u_boot_console):
         output = u_boot_console.run_command('sf read %x 0 %x' % (addr + total_size, size))
         assert expected_read in output
         output = u_boot_console.run_command('crc32 %x %x' % (addr + total_size, size))
-        m = re.search('==> (.+?)', output)
+        m = re.search('==> (.+?)$', output)
         if not m:
             pytest.fail("CRC32 failed")
         expected_crc32 = m.group(1)
@@ -155,7 +155,7 @@ def qspi_write_twice(u_boot_console):
         addr = u_boot_utils.find_ram_base(u_boot_console)
         size = size - old_size
         output = u_boot_console.run_command('crc32 %x %x' % (addr + total_size, size))
-        m = re.search('==> (.+?)', output)
+        m = re.search('==> (.+?)$', output)
         if not m:
             pytest.fail("CRC32 failed")
 
