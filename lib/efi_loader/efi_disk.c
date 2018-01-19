@@ -175,25 +175,44 @@ static const struct efi_block_io block_io_disk_template = {
 };
 
 /*
- * Find filesystem from a device-path.  The passed in path 'p' probably
- * contains one or more /File(name) nodes, so the comparison stops at
- * the first /File() node, and returns the pointer to that via 'rp'.
- * This is mostly intended to be a helper to map a device-path to an
- * efi_file_handle object.
+ * Get the simple file system protocol for a file device path.
+ *
+ * The full path provided is split into device part and into a file
+ * part. The device part is used to find the handle on which the
+ * simple file system protocol is installed.
+ *
+ * @full_path	device path including device and file
+ * @return	simple file system protocol
  */
 struct efi_simple_file_system_protocol *
-efi_fs_from_path(struct efi_device_path *fp)
+efi_fs_from_path(struct efi_device_path *full_path)
 {
 	struct efi_object *efiobj;
-	struct efi_disk_obj *diskobj;
+	struct efi_handler *handler;
+	struct efi_device_path *device_path;
+	struct efi_device_path *file_path;
+	efi_status_t ret;
 
-	efiobj = efi_dp_find_obj(fp, NULL);
+	/* Split the path into a device part and a file part */
+	ret = efi_dp_split_file_path(full_path, &device_path, &file_path);
+	if (ret != EFI_SUCCESS)
+		return NULL;
+	efi_free_pool(file_path);
+
+	/* Get the EFI object for the partition */
+	efiobj = efi_dp_find_obj(device_path, NULL);
+	efi_free_pool(device_path);
 	if (!efiobj)
 		return NULL;
 
-	diskobj = container_of(efiobj, struct efi_disk_obj, parent);
+	/* Find the simple file system protocol */
+	ret = efi_search_protocol(efiobj, &efi_simple_file_system_protocol_guid,
+				  &handler);
+	if (ret != EFI_SUCCESS)
+		return NULL;
 
-	return diskobj->volume;
+	/* Return the simple file system protocol for the partition */
+	return handler->protocol_interface;
 }
 
 /*
