@@ -14,7 +14,7 @@
 #include <part.h>
 #include <malloc.h>
 
-static const efi_guid_t efi_block_io_guid = BLOCK_IO_GUID;
+const efi_guid_t efi_block_io_guid = BLOCK_IO_GUID;
 
 struct efi_disk_obj {
 	/* Generic EFI object parent class data */
