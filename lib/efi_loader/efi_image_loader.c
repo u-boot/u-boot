@@ -74,6 +74,40 @@ void __weak invalidate_icache_all(void)
 }
 
 /*
+ * Determine the memory types to be used for code and data.
+ *
+ * @loaded_image_info	image descriptor
+ * @image_type		field Subsystem of the optional header for
+ *			Windows specific field
+ */
+static void efi_set_code_and_data_type(
+			struct efi_loaded_image *loaded_image_info,
+			uint16_t image_type)
+{
+	switch (image_type) {
+	case IMAGE_SUBSYSTEM_EFI_APPLICATION:
+		loaded_image_info->image_code_type = EFI_LOADER_CODE;
+		loaded_image_info->image_data_type = EFI_LOADER_DATA;
+		break;
+	case IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER:
+		loaded_image_info->image_code_type = EFI_BOOT_SERVICES_CODE;
+		loaded_image_info->image_data_type = EFI_BOOT_SERVICES_DATA;
+		break;
+	case IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER:
+	case IMAGE_SUBSYSTEM_SAL_RUNTIME_DRIVER:
+		loaded_image_info->image_code_type = EFI_RUNTIME_SERVICES_CODE;
+		loaded_image_info->image_data_type = EFI_RUNTIME_SERVICES_DATA;
+		break;
+	default:
+		printf("%s: invalid image type: %u\n", __func__, image_type);
+		/* Let's assume it is an application */
+		loaded_image_info->image_code_type = EFI_LOADER_CODE;
+		loaded_image_info->image_data_type = EFI_LOADER_DATA;
+		break;
+	}
+}
+
+/*
  * This function loads all sections from a PE binary into a newly reserved
  * piece of memory. On successful load it then returns the entry point for
  * the binary. Otherwise NULL.
@@ -94,7 +128,6 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 	unsigned long virt_size = 0;
 	bool can_run_nt64 = true;
 	bool can_run_nt32 = true;
-	uint16_t image_type;
 
 #if defined(CONFIG_ARM64)
 	can_run_nt32 = false;
@@ -131,7 +164,9 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 		IMAGE_NT_HEADERS64 *nt64 = (void *)nt;
 		IMAGE_OPTIONAL_HEADER64 *opt = &nt64->OptionalHeader;
 		image_size = opt->SizeOfImage;
-		efi_reloc = efi_alloc(virt_size, EFI_LOADER_DATA);
+		efi_set_code_and_data_type(loaded_image_info, opt->Subsystem);
+		efi_reloc = efi_alloc(virt_size,
+				      loaded_image_info->image_code_type);
 		if (!efi_reloc) {
 			printf("%s: Could not allocate %lu bytes\n",
 			       __func__, virt_size);
@@ -140,12 +175,13 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 		entry = efi_reloc + opt->AddressOfEntryPoint;
 		rel_size = opt->DataDirectory[rel_idx].Size;
 		rel = efi_reloc + opt->DataDirectory[rel_idx].VirtualAddress;
-		image_type = opt->Subsystem;
 	} else if (can_run_nt32 &&
 		   (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC)) {
 		IMAGE_OPTIONAL_HEADER32 *opt = &nt->OptionalHeader;
 		image_size = opt->SizeOfImage;
-		efi_reloc = efi_alloc(virt_size, EFI_LOADER_DATA);
+		efi_set_code_and_data_type(loaded_image_info, opt->Subsystem);
+		efi_reloc = efi_alloc(virt_size,
+				      loaded_image_info->image_code_type);
 		if (!efi_reloc) {
 			printf("%s: Could not allocate %lu bytes\n",
 			       __func__, virt_size);
@@ -154,30 +190,10 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 		entry = efi_reloc + opt->AddressOfEntryPoint;
 		rel_size = opt->DataDirectory[rel_idx].Size;
 		rel = efi_reloc + opt->DataDirectory[rel_idx].VirtualAddress;
-		image_type = opt->Subsystem;
 	} else {
 		printf("%s: Invalid optional header magic %x\n", __func__,
 		       nt->OptionalHeader.Magic);
 		return NULL;
-	}
-
-	switch (image_type) {
-	case IMAGE_SUBSYSTEM_EFI_APPLICATION:
-		loaded_image_info->image_code_type = EFI_LOADER_CODE;
-		loaded_image_info->image_data_type = EFI_LOADER_DATA;
-		break;
-	case IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER:
-		loaded_image_info->image_code_type = EFI_BOOT_SERVICES_CODE;
-		loaded_image_info->image_data_type = EFI_BOOT_SERVICES_DATA;
-		break;
-	case IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER:
-	case IMAGE_SUBSYSTEM_SAL_RUNTIME_DRIVER:
-		loaded_image_info->image_code_type = EFI_RUNTIME_SERVICES_CODE;
-		loaded_image_info->image_data_type = EFI_RUNTIME_SERVICES_DATA;
-		break;
-	default:
-		printf("%s: invalid image type: %u\n", __func__, image_type);
-		break;
 	}
 
 	/* Load sections into RAM */
