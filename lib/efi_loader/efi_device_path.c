@@ -484,49 +484,15 @@ static unsigned dp_part_size(struct blk_desc *desc, int part)
 }
 
 /*
- * Create a device path for a block device or one of its partitions.
+ * Create a device node for a block device partition.
  *
  * @buf		buffer to which the device path is wirtten
  * @desc	block device descriptor
  * @part	partition number, 0 identifies a block device
  */
-static void *dp_part_fill(void *buf, struct blk_desc *desc, int part)
+static void *dp_part_node(void *buf, struct blk_desc *desc, int part)
 {
 	disk_partition_t info;
-
-#ifdef CONFIG_BLK
-	{
-		struct udevice *dev;
-		int ret = blk_find_device(desc->if_type, desc->devnum, &dev);
-
-		if (ret)
-			dev = desc->bdev->parent;
-		buf = dp_fill(buf, dev);
-	}
-#else
-	/*
-	 * We *could* make a more accurate path, by looking at if_type
-	 * and handling all the different cases like we do for non-
-	 * legacy (ie CONFIG_BLK=y) case.  But most important thing
-	 * is just to have a unique device-path for if_type+devnum.
-	 * So map things to a fictitious USB device.
-	 */
-	struct efi_device_path_usb *udp;
-
-	memcpy(buf, &ROOT, sizeof(ROOT));
-	buf += sizeof(ROOT);
-
-	udp = buf;
-	udp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
-	udp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_USB;
-	udp->dp.length = sizeof(*udp);
-	udp->parent_port_number = desc->if_type;
-	udp->usb_interface = desc->devnum;
-	buf = &udp[1];
-#endif
-
-	if (part == 0) /* the actual disk, not a partition */
-		return buf;
 
 	part_get_info(desc, part, &info);
 
@@ -582,6 +548,51 @@ static void *dp_part_fill(void *buf, struct blk_desc *desc, int part)
 	return buf;
 }
 
+/*
+ * Create a device path for a block device or one of its partitions.
+ *
+ * @buf		buffer to which the device path is wirtten
+ * @desc	block device descriptor
+ * @part	partition number, 0 identifies a block device
+ */
+static void *dp_part_fill(void *buf, struct blk_desc *desc, int part)
+{
+#ifdef CONFIG_BLK
+	{
+		struct udevice *dev;
+		int ret = blk_find_device(desc->if_type, desc->devnum, &dev);
+
+		if (ret)
+			dev = desc->bdev->parent;
+		buf = dp_fill(buf, dev);
+	}
+#else
+	/*
+	 * We *could* make a more accurate path, by looking at if_type
+	 * and handling all the different cases like we do for non-
+	 * legacy (ie CONFIG_BLK=y) case.  But most important thing
+	 * is just to have a unique device-path for if_type+devnum.
+	 * So map things to a fictitious USB device.
+	 */
+	struct efi_device_path_usb *udp;
+
+	memcpy(buf, &ROOT, sizeof(ROOT));
+	buf += sizeof(ROOT);
+
+	udp = buf;
+	udp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+	udp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_USB;
+	udp->dp.length = sizeof(*udp);
+	udp->parent_port_number = desc->if_type;
+	udp->usb_interface = desc->devnum;
+	buf = &udp[1];
+#endif
+
+	if (part == 0) /* the actual disk, not a partition */
+		return buf;
+
+	return dp_part_node(buf, desc, part);
+}
 
 /* Construct a device-path from a partition on a blk device: */
 struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part)
@@ -597,6 +608,29 @@ struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part)
 	*((struct efi_device_path *)buf) = END;
 
 	return start;
+}
+
+/*
+ * Create a device node for a block device partition.
+ *
+ * @buf		buffer to which the device path is wirtten
+ * @desc	block device descriptor
+ * @part	partition number, 0 identifies a block device
+ */
+struct efi_device_path *efi_dp_part_node(struct blk_desc *desc, int part)
+{
+	efi_uintn_t dpsize;
+	void *buf;
+
+	if (desc->part_type == PART_TYPE_ISO)
+		dpsize = sizeof(struct efi_device_path_cdrom_path);
+	else
+		dpsize = sizeof(struct efi_device_path_hard_drive_path);
+	buf = dp_alloc(dpsize);
+
+	dp_part_node(buf, desc, part);
+
+	return buf;
 }
 
 /* convert path to an UEFI style path (ie. DOS style backslashes and utf16) */
