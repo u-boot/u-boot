@@ -7,6 +7,9 @@
 # This file only gets included with CONFIG_EFI_LOADER set, so all
 # object inclusion implicitly depends on it
 
+CFLAGS_efi_selftest_miniapp.o := $(CFLAGS_EFI) -Os -ffreestanding
+CFLAGS_REMOVE_efi_selftest_miniapp.o := $(CFLAGS_NON_EFI) -Os
+
 obj-$(CONFIG_CMD_BOOTEFI_SELFTEST) += \
 efi_selftest.o \
 efi_selftest_controllers.o \
@@ -21,3 +24,36 @@ efi_selftest_textoutput.o \
 efi_selftest_tpl.o \
 efi_selftest_util.o \
 efi_selftest_watchdog.o
+
+
+# TODO: As of v2018.01 the relocation code for the EFI application cannot
+# be built on x86_64.
+ifeq ($(CONFIG_X86_64),)
+
+ifneq ($(CONFIG_CMD_BOOTEFI_SELFTEST),)
+
+obj-y += \
+efi_selftest_startimage_exit.o \
+efi_selftest_startimage_return.o
+
+targets += \
+efi_miniapp_file_image_exit.h \
+efi_miniapp_file_image_return.h \
+efi_selftest_miniapp_exit.efi \
+efi_selftest_miniapp_return.efi
+
+$(obj)/efi_miniapp_file_image_exit.h: $(obj)/efi_selftest_miniapp_exit.efi
+	$(obj)/../../tools/file2include $(obj)/efi_selftest_miniapp_exit.efi > \
+	$(obj)/efi_miniapp_file_image_exit.h
+
+$(obj)/efi_miniapp_file_image_return.h: $(obj)/efi_selftest_miniapp_return.efi
+	$(obj)/../../tools/file2include $(obj)/efi_selftest_miniapp_return.efi > \
+	$(obj)/efi_miniapp_file_image_return.h
+
+$(obj)/efi_selftest_startimage_exit.o: $(obj)/efi_miniapp_file_image_exit.h
+
+$(obj)/efi_selftest_startimage_return.o: $(obj)/efi_miniapp_file_image_return.h
+
+endif
+
+endif
