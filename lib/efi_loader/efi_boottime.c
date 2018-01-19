@@ -1474,7 +1474,7 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 	struct efi_object *obj;
 	efi_status_t ret;
 
-	EFI_ENTRY("%d, %p, %p, %p, %ld, %p", boot_policy, parent_image,
+	EFI_ENTRY("%d, %p, %pD, %p, %ld, %p", boot_policy, parent_image,
 		  file_path, source_buffer, source_size, image_handle);
 
 	info = calloc(1, sizeof(*info));
