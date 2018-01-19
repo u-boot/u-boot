@@ -1665,11 +1665,15 @@ static void efi_exit_caches(void)
 }
 
 /*
- * Stop boot services.
+ * Stop all boot services.
  *
  * This function implements the ExitBootServices service.
  * See the Unified Extensible Firmware Interface (UEFI) specification
  * for details.
+ *
+ * All timer events are disabled.
+ * For exit boot services events the notification function is called.
+ * The boot services are disabled in the system table.
  *
  * @image_handle	handle of the loaded image
  * @map_key		key of the memory map
@@ -1682,16 +1686,22 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 
 	EFI_ENTRY("%p, %ld", image_handle, map_key);
 
+	/* Make sure that notification functions are not called anymore */
+	efi_tpl = TPL_HIGH_LEVEL;
+
+	/* Check if ExitBootServices has already been called */
+	if (!systab.boottime)
+		return EFI_EXIT(EFI_SUCCESS);
+
 	/* Notify that ExitBootServices is invoked. */
 	for (i = 0; i < ARRAY_SIZE(efi_events); ++i) {
 		if (efi_events[i].type != EVT_SIGNAL_EXIT_BOOT_SERVICES)
 			continue;
-		efi_signal_event(&efi_events[i]);
+		efi_events[i].is_signaled = true;
+		efi_signal_event(&efi_events[i], false);
 	}
-	/* Make sure that notification functions are not called anymore */
-	efi_tpl = TPL_HIGH_LEVEL;
 
-	/* XXX Should persist EFI variables here */
+	/* TODO Should persist EFI variables here */
 
 	board_quiesce_devices();
 
@@ -1700,6 +1710,20 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 
 	/* This stops all lingering devices */
 	bootm_disable_interrupts();
+
+	/* Disable boottime services */
+	systab.con_in_handle = NULL;
+	systab.con_in = NULL;
+	systab.con_out_handle = NULL;
+	systab.con_out = NULL;
+	systab.stderr_handle = NULL;
+	systab.std_err = NULL;
+	systab.boottime = NULL;
+
+	/* Recalculate CRC32 */
+	systab.hdr.crc32 = 0;
+	systab.hdr.crc32 = crc32(0, (const unsigned char *)&systab,
+				 sizeof(struct efi_system_table));
 
 	/* Give the payload some time to boot */
 	efi_set_watchdog(0);
