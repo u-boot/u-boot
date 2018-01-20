@@ -111,6 +111,17 @@ endchoice
 choice
 	prompt "Board select"
 
+config BOARD_COMTREND_AR5315U
+	bool "Comtrend AR-5315u"
+	depends on SOC_BMIPS_BCM6318
+	select BMIPS_SUPPORTS_BOOT_RAM
+	help
+	  Comtrend AR-5315u boards have a BCM6318 SoC with 64 MB of RAM and 16
+	  MB of flash (SPI).
+	  Between its different peripherals there's an integrated switch with 4
+	  ethernet ports, 1 USB port, 1 UART, GPIO buttons and LEDs, and
+	  a BCM43217 (PCIe).
+
 config BOARD_COMTREND_AR5387UN
 	bool "Comtrend AR-5387un"
 	depends on SOC_BMIPS_BCM6328
@@ -217,6 +228,7 @@ endchoice
 config BMIPS_SUPPORTS_BOOT_RAM
 	bool
 
+source "board/comtrend/ar5315u/Kconfig"
 source "board/comtrend/ar5387un/Kconfig"
 source "board/comtrend/ct5361/Kconfig"
 source "board/comtrend/vr3032u/Kconfig"
