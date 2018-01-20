@@ -46,13 +46,13 @@ then
     echo -e "\nMarvell recovery image downloader for Armada SoC family."
     echo -e "Command syntax:"
     echo -e "\t$(basename $0) <port> <file> [2|4|8]"
-    echo -e "\tport  - serial port the target board connected to"
+    echo -e "\tport  - serial port the target board is connected to"
     echo -e "\tfile  - recovery boot image for target download"
     echo -e "\t2|4|8 - times to increase the default serial port speed by"
     echo -e "For example - load the image over ttyUSB0 @ 460800 baud:"
     echo -e "$(basename $0) /dev/ttyUSB0 /tmp/flash-image.bin 4\n"
     echo -e "=====WARNING====="
-    echo -e "- The speed-up option is not awailable in SoC families prior to A8K+"
+    echo -e "- The speed-up option is not available in SoC families prior to A8K+"
     echo -e "- This utility is not compatible with Armada 37xx SoC family\n"
 fi
 
@@ -111,7 +111,7 @@ stty -F $port raw ignbrk time 5 $fast_baudrate
 sx -vv $file > $port < $port
 #sx-at91 $port $file
 
-# return the port to the default speed
+# Return the port to the default speed
 stty -F $port raw ignbrk time 5 $default_baudrate
 
 # Optional - fire up Minicom
