@@ -6,6 +6,7 @@ config SYS_MALLOC_F_LEN
 
 config SYS_SOC
 	default "bcm3380" if SOC_BMIPS_BCM3380
+	default "bcm6318" if SOC_BMIPS_BCM6318
 	default "bcm6328" if SOC_BMIPS_BCM6328
 	default "bcm6338" if SOC_BMIPS_BCM6338
 	default "bcm6348" if SOC_BMIPS_BCM6348
@@ -26,6 +27,17 @@ config SOC_BMIPS_BCM3380
 	select SYSRESET_WATCHDOG
 	help
 	  This supports BMIPS BCM3380 family.
+
+config SOC_BMIPS_BCM6318
+	bool "BMIPS BCM6318 family"
+	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select MIPS_TUNE_4KC
+	select MIPS_L1_CACHE_SHIFT_4
+	select SWAP_IO_SPACE
+	select SYSRESET_SYSCON
+	help
+	  This supports BMIPS BCM6318 family.
 
 config SOC_BMIPS_BCM6328
 	bool "BMIPS BCM6328 family"
