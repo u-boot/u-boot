@@ -757,6 +757,13 @@ config TPL
 
 if TPL
 
+config TPL_BOARD_INIT
+	bool "Call board-specific initialization in TPL"
+	help
+	  If this option is enabled, U-Boot will call the function
+	  spl_board_init() from board_init_r(). This function should be
+	  provided by the board.
+
 config TPL_LDSCRIPT
         string "Linker script for the TPL stage"
 	depends on TPL

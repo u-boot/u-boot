@@ -407,7 +407,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	timer_init();
 #endif
 
-#ifdef CONFIG_SPL_BOARD_INIT
+#if CONFIG_IS_ENABLED(BOARD_INIT)
 	spl_board_init();
 #endif
 
