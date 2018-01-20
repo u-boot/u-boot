@@ -13,6 +13,10 @@
 / {
 	compatible = "brcm,bcm6328";
 
+	aliases {
+		spi0 = &spi;
+	};
+
 	cpus {
 		reg = <0x10000000 0x4>;
 		#address-cells = <1>;
@@ -39,6 +43,12 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		u-boot,dm-pre-reloc;
+
+		hsspi_pll: hsspi-pll {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <133333333>;
+		};
 
 		periph_osc: periph-osc {
 			compatible = "fixed-clock";
@@ -119,6 +129,20 @@
 			reg = <0x10000800 0x24>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+
+			status = "disabled";
+		};
+
+		spi: spi@10001000 {
+			compatible = "brcm,bcm6328-hsspi";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x10001000 0x600>;
+			clocks = <&periph_clk BCM6328_CLK_HSSPI>, <&hsspi_pll>;
+			clock-names = "hsspi", "pll";
+			resets = <&periph_rst BCM6328_RST_SPI>;
+			spi-max-frequency = <33333334>;
+			num-cs = <3>;
 
 			status = "disabled";
 		};
