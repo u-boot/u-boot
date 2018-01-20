@@ -115,5 +115,5 @@ sx -vv $file > $port < $port
 stty -F $port raw ignbrk time 5 $default_baudrate
 
 # Optional - fire up Minicom
-minicom -D $port
+minicom -D $port -b $default_baudrate
 
