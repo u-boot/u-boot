@@ -152,18 +152,18 @@ u8 twr_mask_table[] = {
 	10,
 	10,
 	10,
-	1,			/*5 */
-	2,			/*6 */
-	3,			/*7 */
+	1,			/*5*/
+	2,			/*6*/
+	3,			/*7*/
+	4,			/*8*/
 	10,
+	5,			/*10*/
 	10,
-	5,			/*10 */
+	6,			/*12*/
 	10,
-	6,			/*12 */
+	7,			/*14*/
 	10,
-	7,			/*14 */
-	10,
-	0			/*16 */
+	0			/*16*/
 };
 
 u8 cl_mask_table[] = {
@@ -430,6 +430,9 @@ u32 speed_bin_table(u8 index, enum speed_bin_table_elements element)
 		break;
 	case SPEED_BIN_TMOD:
 		result = 15000;
+		break;
+	case SPEED_BIN_TXPDLL:
+		result = 24000;
 		break;
 	default:
 		break;
