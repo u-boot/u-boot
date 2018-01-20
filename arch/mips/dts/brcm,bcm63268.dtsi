@@ -15,6 +15,7 @@
 
 	aliases {
 		spi0 = &lsspi;
+		spi1 = &hsspi;
 	};
 
 	cpus {
@@ -43,6 +44,12 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		u-boot,dm-pre-reloc;
+
+		hsspi_pll: hsspi-pll {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <400000000>;
+		};
 
 		periph_osc: periph-osc {
 			compatible = "fixed-clock";
@@ -148,6 +155,20 @@
 			clocks = <&periph_clk BCM63268_CLK_SPI>;
 			resets = <&periph_rst BCM63268_RST_SPI>;
 			spi-max-frequency = <20000000>;
+			num-cs = <8>;
+
+			status = "disabled";
+		};
+
+		hsspi: spi@10001000 {
+			compatible = "brcm,bcm6328-hsspi";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x10001000 0x600>;
+			clocks = <&periph_clk BCM63268_CLK_HSSPI>, <&hsspi_pll>;
+			clock-names = "hsspi", "pll";
+			resets = <&periph_rst BCM63268_RST_SPI>;
+			spi-max-frequency = <50000000>;
 			num-cs = <8>;
 
 			status = "disabled";
