@@ -6,6 +6,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#define LOG_CATEGORY LOGL_ERR
+
 #include <common.h>
 #include <blk.h>
 #include <dm.h>
@@ -111,7 +113,6 @@ int efi_dp_match(const struct efi_device_path *a,
 	}
 }
 
-
 /*
  * See UEFI spec (section 3.1.2, about short-form device-paths..
  * tl;dr: we can have a device-path that starts with a USB WWID
@@ -183,7 +184,6 @@ static struct efi_object *find_obj(struct efi_device_path *dp, bool short_path,
 
 	return NULL;
 }
-
 
 /*
  * Find an efiobj from device-path, if 'rem' is not NULL, returns the
@@ -328,6 +328,9 @@ static unsigned dp_size(struct udevice *dev)
 	case UCLASS_SIMPLE_BUS:
 		/* stop traversing parents at this point: */
 		return sizeof(ROOT);
+	case UCLASS_ETH:
+		return dp_size(dev->parent) +
+			sizeof(struct efi_device_path_mac_addr);
 #ifdef CONFIG_BLK
 	case UCLASS_BLK:
 		switch (dev->parent->uclass->uc_drv->id) {
@@ -341,13 +344,20 @@ static unsigned dp_size(struct udevice *dev)
 			return dp_size(dev->parent) +
 				sizeof(struct efi_device_path_scsi);
 #endif
+#if defined(CONFIG_DM_MMC) && defined(CONFIG_MMC)
+		case UCLASS_MMC:
+			return dp_size(dev->parent) +
+				sizeof(struct efi_device_path_sd_mmc_path);
+#endif
 		default:
 			return dp_size(dev->parent);
 		}
 #endif
+#if defined(CONFIG_DM_MMC) && defined(CONFIG_MMC)
 	case UCLASS_MMC:
 		return dp_size(dev->parent) +
 			sizeof(struct efi_device_path_sd_mmc_path);
+#endif
 	case UCLASS_MASS_STORAGE:
 	case UCLASS_USB_HUB:
 		return dp_size(dev->parent) +
@@ -378,6 +388,23 @@ static void *dp_fill(void *buf, struct udevice *dev)
 		*vdp = ROOT;
 		return &vdp[1];
 	}
+#ifdef CONFIG_DM_ETH
+	case UCLASS_ETH: {
+		struct efi_device_path_mac_addr *dp =
+			dp_fill(buf, dev->parent);
+		struct eth_pdata *pdata = dev->platdata;
+
+		dp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+		dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR;
+		dp->dp.length = sizeof(*dp);
+		memset(&dp->mac, 0, sizeof(dp->mac));
+		/* We only support IPv4 */
+		memcpy(&dp->mac, &pdata->enetaddr, ARP_HLEN);
+		/* Ethernet */
+		dp->if_type = 1;
+		return &dp[1];
+	}
+#endif
 #ifdef CONFIG_BLK
 	case UCLASS_BLK:
 		switch (dev->parent->uclass->uc_drv->id) {
@@ -412,9 +439,25 @@ static void *dp_fill(void *buf, struct udevice *dev)
 			return &dp[1];
 			}
 #endif
+#if defined(CONFIG_DM_MMC) && defined(CONFIG_MMC)
+		case UCLASS_MMC: {
+			struct efi_device_path_sd_mmc_path *sddp =
+				dp_fill(buf, dev->parent);
+			struct blk_desc *desc = dev_get_uclass_platdata(dev);
+
+			sddp->dp.type     = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+			sddp->dp.sub_type = is_sd(desc) ?
+				DEVICE_PATH_SUB_TYPE_MSG_SD :
+				DEVICE_PATH_SUB_TYPE_MSG_MMC;
+			sddp->dp.length   = sizeof(*sddp);
+			sddp->slot_number = dev->seq;
+			return &sddp[1];
+			}
+#endif
 		default:
-			printf("unhandled parent class: %s (%u)\n",
-			       dev->name, dev->driver->id);
+			debug("%s(%u) %s: unhandled parent class: %s (%u)\n",
+			      __FILE__, __LINE__, __func__,
+			      dev->name, dev->parent->uclass->uc_drv->id);
 			return dp_fill(buf, dev->parent);
 		}
 #endif
@@ -454,7 +497,8 @@ static void *dp_fill(void *buf, struct udevice *dev)
 		return &udp[1];
 	}
 	default:
-		debug("unhandled device class: %s (%u)\n",
+		debug("%s(%u) %s: unhandled device class: %s (%u)\n",
+		      __FILE__, __LINE__, __func__,
 		      dev->name, dev->driver->id);
 		return dp_fill(buf, dev->parent);
 	}
