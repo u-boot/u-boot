@@ -1,6 +1,9 @@
 menu "Broadcom MIPS platforms"
 	depends on ARCH_BMIPS
 
+config SYS_MALLOC_F_LEN
+	default 0x1000
+
 config SYS_SOC
 	default "bcm3380" if SOC_BMIPS_BCM3380
 	default "bcm6328" if SOC_BMIPS_BCM6328
