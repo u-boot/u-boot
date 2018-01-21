@@ -403,7 +403,7 @@ static void sh_eth_write_hwaddr(struct sh_eth_info *port_info,
 	sh_eth_write(port_info, val, MALR);
 }
 
-static int sh_eth_phy_config(struct sh_eth_dev *eth)
+static int sh_eth_phy_config_legacy(struct sh_eth_dev *eth)
 {
 	int port = eth->port, ret = 0;
 	struct sh_eth_info *port_info = &eth->port_info[port];
@@ -419,13 +419,9 @@ static int sh_eth_phy_config(struct sh_eth_dev *eth)
 	return ret;
 }
 
-static int sh_eth_config(struct sh_eth_dev *eth)
+static void sh_eth_mac_regs_config(struct sh_eth_dev *eth, unsigned char *mac)
 {
-	int port = eth->port, ret = 0;
-	u32 val;
-	struct sh_eth_info *port_info = &eth->port_info[port];
-	struct eth_device *dev = port_info->dev;
-	struct phy_device *phy;
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
 	/* Configure e-dmac registers */
 	sh_eth_write(port_info, (sh_eth_read(port_info, EDMR) & ~EMDR_DESC_R) |
@@ -445,7 +441,7 @@ static int sh_eth_config(struct sh_eth_dev *eth)
 	sh_eth_write(port_info, 0, ECSIPR);
 
 	/* Set Mac address */
-	sh_eth_write_hwaddr(port_info, dev->enetaddr);
+	sh_eth_write_hwaddr(port_info, mac);
 
 	sh_eth_write(port_info, RFLR_RFL_MIN, RFLR);
 #if defined(SH_ETH_TYPE_GETHER)
@@ -462,20 +458,14 @@ static int sh_eth_config(struct sh_eth_dev *eth)
 #elif defined(CONFIG_RCAR_GEN2)
 	sh_eth_write(port_info, sh_eth_read(port_info, RMIIMR) | 0x1, RMIIMR);
 #endif
-	/* Configure phy */
-	ret = sh_eth_phy_config(eth);
-	if (ret) {
-		printf(SHETHER_NAME ": phy config timeout\n");
-		goto err_phy_cfg;
-	}
-	phy = port_info->phydev;
-	ret = phy_startup(phy);
-	if (ret) {
-		printf(SHETHER_NAME ": phy startup failure\n");
-		return ret;
-	}
+}
 
-	val = 0;
+static int sh_eth_phy_regs_config(struct sh_eth_dev *eth)
+{
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
+	struct phy_device *phy = port_info->phydev;
+	int ret = 0;
+	u32 val = 0;
 
 	/* Set the transfer speed */
 	if (phy->speed == 100) {
@@ -516,9 +506,6 @@ static int sh_eth_config(struct sh_eth_dev *eth)
 	}
 
 	return ret;
-
-err_phy_cfg:
-	return ret;
 }
 
 static void sh_eth_start(struct sh_eth_dev *eth)
@@ -539,36 +526,71 @@ static void sh_eth_stop(struct sh_eth_dev *eth)
 	sh_eth_write(port_info, ~EDRRR_R, EDRRR);
 }
 
-int sh_eth_init(struct eth_device *dev, bd_t *bd)
+static int sh_eth_init_common(struct sh_eth_dev *eth, unsigned char *mac)
 {
 	int ret = 0;
-	struct sh_eth_dev *eth = dev->priv;
 
 	ret = sh_eth_reset(eth);
 	if (ret)
-		goto err;
+		return ret;
 
 	ret = sh_eth_desc_init(eth);
 	if (ret)
-		goto err;
+		return ret;
 
-	ret = sh_eth_config(eth);
+	sh_eth_mac_regs_config(eth, mac);
+
+	return 0;
+}
+
+static int sh_eth_start_common(struct sh_eth_dev *eth)
+{
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
+	int ret;
+
+	ret = phy_startup(port_info->phydev);
+	if (ret) {
+		printf(SHETHER_NAME ": phy startup failure\n");
+		return ret;
+	}
+
+	ret = sh_eth_phy_regs_config(eth);
 	if (ret)
-		goto err_config;
+		return ret;
 
 	sh_eth_start(eth);
 
-	return ret;
+	return 0;
+}
 
-err_config:
+static int sh_eth_init_legacy(struct eth_device *dev, bd_t *bd)
+{
+	struct sh_eth_dev *eth = dev->priv;
+	int ret;
+
+	ret = sh_eth_init_common(eth, dev->enetaddr);
+	if (ret)
+		return ret;
+
+	ret = sh_eth_phy_config_legacy(eth);
+	if (ret) {
+		printf(SHETHER_NAME ": phy config timeout\n");
+		goto err_start;
+	}
+
+	ret = sh_eth_start_common(eth);
+	if (ret)
+		goto err_start;
+
+	return 0;
+
+err_start:
 	sh_eth_tx_desc_free(eth);
 	sh_eth_rx_desc_free(eth);
-
-err:
 	return ret;
 }
 
-void sh_eth_halt(struct eth_device *dev)
+void sh_eth_halt_legacy(struct eth_device *dev)
 {
 	struct sh_eth_dev *eth = dev->priv;
 
@@ -605,8 +627,8 @@ int sh_eth_initialize(bd_t *bd)
 
 	dev->priv = (void *)eth;
 	dev->iobase = 0;
-	dev->init = sh_eth_init;
-	dev->halt = sh_eth_halt;
+	dev->init = sh_eth_init_legacy;
+	dev->halt = sh_eth_halt_legacy;
 	dev->send = sh_eth_send_legacy;
 	dev->recv = sh_eth_recv_legacy;
 	eth->port_info[eth->port].dev = dev;
