@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 #
 # Copyright (C) 2016 Google, Inc
 # Written by Simon Glass <sjg@chromium.org>
