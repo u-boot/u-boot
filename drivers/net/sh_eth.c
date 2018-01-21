@@ -391,6 +391,18 @@ err_tx_init:
 	return ret;
 }
 
+static void sh_eth_write_hwaddr(struct sh_eth_info *port_info,
+				unsigned char *mac)
+{
+	u32 val;
+
+	val = (mac[0] << 24) | (mac[1] << 16) | (mac[2] << 8) | mac[3];
+	sh_eth_write(port_info, val, MAHR);
+
+	val = (mac[4] << 8) | mac[5];
+	sh_eth_write(port_info, val, MALR);
+}
+
 static int sh_eth_phy_config(struct sh_eth_dev *eth)
 {
 	int port = eth->port, ret = 0;
@@ -433,12 +445,7 @@ static int sh_eth_config(struct sh_eth_dev *eth)
 	sh_eth_write(port_info, 0, ECSIPR);
 
 	/* Set Mac address */
-	val = dev->enetaddr[0] << 24 | dev->enetaddr[1] << 16 |
-	    dev->enetaddr[2] << 8 | dev->enetaddr[3];
-	sh_eth_write(port_info, val, MAHR);
-
-	val = dev->enetaddr[4] << 8 | dev->enetaddr[5];
-	sh_eth_write(port_info, val, MALR);
+	sh_eth_write_hwaddr(port_info, dev->enetaddr);
 
 	sh_eth_write(port_info, RFLR_RFL_MIN, RFLR);
 #if defined(SH_ETH_TYPE_GETHER)
