@@ -1853,23 +1853,6 @@ int fdt_overlay_apply(void *fdt, void *fdto);
 #ifndef SWIG /* Not available in Python */
 const char *fdt_strerror(int errval);
 
-/**
- * fdt_remove_unused_strings() - Remove any unused strings from an FDT
- *
- * This creates a new device tree in @new with unused strings removed. The
- * called can then use fdt_pack() to minimise the space consumed.
- *
- * @old:	Old device tree blog
- * @new:	Place to put new device tree blob, which must be as large as
- *		@old
- * @return
- *	0, on success
- *	-FDT_ERR_BADOFFSET, corrupt device tree
- *	-FDT_ERR_NOSPACE, out of space, which should not happen unless there
- *		is something very wrong with the device tree input
- */
-int fdt_remove_unused_strings(const void *old, void *new);
-
 struct fdt_region {
 	int offset;
 	int size;
