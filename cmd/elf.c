@@ -240,11 +240,7 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * from the VxWorks BSP header files.
 	 * This will vary from board to board
 	 */
-#if defined(CONFIG_WALNUT)
-	tmp = (char *)CONFIG_SYS_NVRAM_BASE_ADDR + 0x500;
-	eth_env_get_enetaddr("ethaddr", (uchar *)build_buf);
-	memcpy(tmp, &build_buf[3], 3);
-#elif defined(CONFIG_SYS_VXWORKS_MAC_PTR)
+#if defined(CONFIG_SYS_VXWORKS_MAC_PTR)
 	tmp = (char *)CONFIG_SYS_VXWORKS_MAC_PTR;
 	eth_env_get_enetaddr("ethaddr", (uchar *)build_buf);
 	memcpy(tmp, build_buf, 6);

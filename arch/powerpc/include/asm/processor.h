@@ -1206,11 +1206,6 @@ int fsl_qoriq_dsp_core_to_cluster(unsigned int core);
 #endif
 
 
-#ifndef CONFIG_MACH_SPECIFIC
-extern int _machine;
-extern int have_of;
-#endif /* CONFIG_MACH_SPECIFIC */
-
 /* what kind of prep workstation we are */
 extern int _prep_type;
 /*
@@ -1335,15 +1330,6 @@ void _nmask_and_or_msr(unsigned long nmask, unsigned long or_val);
 int prt_83xx_rsr(void);
 
 #endif /* ndef ASSEMBLY*/
-
-#ifdef CONFIG_MACH_SPECIFIC
-#if defined(CONFIG_WALNUT)
-#define _machine _MACH_walnut
-#define have_of 0
-#else
-#error "Machine not defined correctly"
-#endif
-#endif /* CONFIG_MACH_SPECIFIC */
 
 #if defined(CONFIG_MPC85xx)
  #define EPAPR_MAGIC	(0x45504150)
