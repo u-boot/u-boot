@@ -25,6 +25,9 @@ efi_selftest_tpl.o \
 efi_selftest_util.o \
 efi_selftest_watchdog.o
 
+ifeq ($(CONFIG_BLK)$(CONFIG_PARTITIONS),yy)
+obj-$(CONFIG_CMD_BOOTEFI_SELFTEST) += efi_selftest_block_device.o
+endif
 
 # TODO: As of v2018.01 the relocation code for the EFI application cannot
 # be built on x86_64.
