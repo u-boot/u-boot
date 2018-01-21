@@ -71,10 +71,15 @@
 #ifdef CONFIG_CMD_UBIFS
 #define BOOTENV_SHARED_UBIFS \
 	"ubifs_boot=" \
-		"if ubi part UBI && ubifsmount ubi${devnum}:boot; then "  \
-			"setenv devtype ubi; "                            \
-			"setenv bootpart 0; "                             \
-			"run scan_dev_for_boot; "                         \
+		"env exists bootubipart || " \
+			"env set bootubipart UBI; " \
+		"env exists bootubivol || " \
+			"env set bootubivol boot; " \
+		"if ubi part ${bootubipart} && " \
+			"ubifsmount ubi${devnum}:${bootubivol}; " \
+		"then " \
+			"setenv devtype ubi; " \
+			"run scan_dev_for_boot; " \
 		"fi\0"
 #define BOOTENV_DEV_UBIFS	BOOTENV_DEV_BLKDEV
 #define BOOTENV_DEV_NAME_UBIFS	BOOTENV_DEV_NAME_BLKDEV
@@ -125,7 +130,7 @@
 			"${kernel_addr_r} efi/boot/"BOOTEFI_NAME"; "      \
 		"if fdt addr ${fdt_addr_r}; then "                        \
 			"bootefi ${kernel_addr_r} ${fdt_addr_r};"         \
-		"else "                                                    \
+		"else "                                                   \
 			"bootefi ${kernel_addr_r} ${fdtcontroladdr};"     \
 		"fi\0"                                                    \
 	\
