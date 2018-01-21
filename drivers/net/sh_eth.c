@@ -54,9 +54,8 @@
 
 #define TIMEOUT_CNT 1000
 
-int sh_eth_send(struct eth_device *dev, void *packet, int len)
+static int sh_eth_send_common(struct sh_eth_dev *eth, void *packet, int len)
 {
-	struct sh_eth_dev *eth = dev->priv;
 	int port = eth->port, ret = 0, timeout;
 	struct sh_eth_info *port_info = &eth->port_info[port];
 
@@ -112,9 +111,15 @@ err:
 	return ret;
 }
 
-int sh_eth_recv(struct eth_device *dev)
+static int sh_eth_send_legacy(struct eth_device *dev, void *packet, int len)
 {
 	struct sh_eth_dev *eth = dev->priv;
+
+	return sh_eth_send_common(eth, packet, len);
+}
+
+static int sh_eth_recv_common(struct sh_eth_dev *eth)
+{
 	int port = eth->port, len = 0;
 	struct sh_eth_info *port_info = &eth->port_info[port];
 	uchar *packet;
@@ -152,6 +157,13 @@ int sh_eth_recv(struct eth_device *dev)
 		sh_eth_write(port_info, EDRRR_R, EDRRR);
 
 	return len;
+}
+
+static int sh_eth_recv_legacy(struct eth_device *dev)
+{
+	struct sh_eth_dev *eth = dev->priv;
+
+	return sh_eth_recv_common(eth);
 }
 
 static int sh_eth_reset(struct sh_eth_dev *eth)
@@ -569,8 +581,8 @@ int sh_eth_initialize(bd_t *bd)
 	dev->iobase = 0;
 	dev->init = sh_eth_init;
 	dev->halt = sh_eth_halt;
-	dev->send = sh_eth_send;
-	dev->recv = sh_eth_recv;
+	dev->send = sh_eth_send_legacy;
+	dev->recv = sh_eth_recv_legacy;
 	eth->port_info[eth->port].dev = dev;
 
 	strcpy(dev->name, SHETHER_NAME);
