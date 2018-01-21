@@ -111,13 +111,6 @@ err:
 	return ret;
 }
 
-static int sh_eth_send_legacy(struct eth_device *dev, void *packet, int len)
-{
-	struct sh_eth_dev *eth = dev->priv;
-
-	return sh_eth_send_common(eth, packet, len);
-}
-
 static int sh_eth_recv_start(struct sh_eth_dev *eth)
 {
 	int port = eth->port, len = 0;
@@ -155,34 +148,6 @@ static void sh_eth_recv_finish(struct sh_eth_dev *eth)
 	if (port_info->rx_desc_cur >=
 	    port_info->rx_desc_base + NUM_RX_DESC)
 		port_info->rx_desc_cur = port_info->rx_desc_base;
-}
-
-static int sh_eth_recv_common(struct sh_eth_dev *eth)
-{
-	int port = eth->port, len = 0;
-	struct sh_eth_info *port_info = &eth->port_info[port];
-	uchar *packet = (uchar *)ADDR_TO_P2(port_info->rx_desc_cur->rd2);
-
-	len = sh_eth_recv_start(eth);
-	if (len > 0) {
-		invalidate_cache(packet, len);
-		net_process_received_packet(packet, len);
-		sh_eth_recv_finish(eth);
-	} else
-		len = 0;
-
-	/* Restart the receiver if disabled */
-	if (!(sh_eth_read(port_info, EDRRR) & EDRRR_R))
-		sh_eth_write(port_info, EDRRR_R, EDRRR);
-
-	return len;
-}
-
-static int sh_eth_recv_legacy(struct eth_device *dev)
-{
-	struct sh_eth_dev *eth = dev->priv;
-
-	return sh_eth_recv_common(eth);
 }
 
 static int sh_eth_reset(struct sh_eth_dev *eth)
@@ -403,22 +368,6 @@ static void sh_eth_write_hwaddr(struct sh_eth_info *port_info,
 	sh_eth_write(port_info, val, MALR);
 }
 
-static int sh_eth_phy_config_legacy(struct sh_eth_dev *eth)
-{
-	int port = eth->port, ret = 0;
-	struct sh_eth_info *port_info = &eth->port_info[port];
-	struct eth_device *dev = port_info->dev;
-	struct phy_device *phydev;
-
-	phydev = phy_connect(
-			miiphy_get_dev_by_name(dev->name),
-			port_info->phy_addr, dev, CONFIG_SH_ETHER_PHY_MODE);
-	port_info->phydev = phydev;
-	phy_config(phydev);
-
-	return ret;
-}
-
 static void sh_eth_mac_regs_config(struct sh_eth_dev *eth, unsigned char *mac)
 {
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
@@ -561,6 +510,57 @@ static int sh_eth_start_common(struct sh_eth_dev *eth)
 	sh_eth_start(eth);
 
 	return 0;
+}
+
+static int sh_eth_phy_config_legacy(struct sh_eth_dev *eth)
+{
+	int port = eth->port, ret = 0;
+	struct sh_eth_info *port_info = &eth->port_info[port];
+	struct eth_device *dev = port_info->dev;
+	struct phy_device *phydev;
+
+	phydev = phy_connect(
+			miiphy_get_dev_by_name(dev->name),
+			port_info->phy_addr, dev, CONFIG_SH_ETHER_PHY_MODE);
+	port_info->phydev = phydev;
+	phy_config(phydev);
+
+	return ret;
+}
+
+static int sh_eth_send_legacy(struct eth_device *dev, void *packet, int len)
+{
+	struct sh_eth_dev *eth = dev->priv;
+
+	return sh_eth_send_common(eth, packet, len);
+}
+
+static int sh_eth_recv_common(struct sh_eth_dev *eth)
+{
+	int port = eth->port, len = 0;
+	struct sh_eth_info *port_info = &eth->port_info[port];
+	uchar *packet = (uchar *)ADDR_TO_P2(port_info->rx_desc_cur->rd2);
+
+	len = sh_eth_recv_start(eth);
+	if (len > 0) {
+		invalidate_cache(packet, len);
+		net_process_received_packet(packet, len);
+		sh_eth_recv_finish(eth);
+	} else
+		len = 0;
+
+	/* Restart the receiver if disabled */
+	if (!(sh_eth_read(port_info, EDRRR) & EDRRR_R))
+		sh_eth_write(port_info, EDRRR_R, EDRRR);
+
+	return len;
+}
+
+static int sh_eth_recv_legacy(struct eth_device *dev)
+{
+	struct sh_eth_dev *eth = dev->priv;
+
+	return sh_eth_recv_common(eth);
 }
 
 static int sh_eth_init_legacy(struct eth_device *dev, bd_t *bd)
