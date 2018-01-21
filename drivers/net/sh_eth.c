@@ -118,39 +118,58 @@ static int sh_eth_send_legacy(struct eth_device *dev, void *packet, int len)
 	return sh_eth_send_common(eth, packet, len);
 }
 
+static int sh_eth_recv_start(struct sh_eth_dev *eth)
+{
+	int port = eth->port, len = 0;
+	struct sh_eth_info *port_info = &eth->port_info[port];
+
+	/* Check if the rx descriptor is ready */
+	invalidate_cache(port_info->rx_desc_cur, sizeof(struct rx_desc_s));
+	if (port_info->rx_desc_cur->rd0 & RD_RACT)
+		return -EINVAL;
+
+	/* Check for errors */
+	if (port_info->rx_desc_cur->rd0 & RD_RFE)
+		return -EINVAL;
+
+	len = port_info->rx_desc_cur->rd1 & 0xffff;
+
+	return len;
+}
+
+static void sh_eth_recv_finish(struct sh_eth_dev *eth)
+{
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
+
+	/* Make current descriptor available again */
+	if (port_info->rx_desc_cur->rd0 & RD_RDLE)
+		port_info->rx_desc_cur->rd0 = RD_RACT | RD_RDLE;
+	else
+		port_info->rx_desc_cur->rd0 = RD_RACT;
+
+	flush_cache_wback(port_info->rx_desc_cur,
+			  sizeof(struct rx_desc_s));
+
+	/* Point to the next descriptor */
+	port_info->rx_desc_cur++;
+	if (port_info->rx_desc_cur >=
+	    port_info->rx_desc_base + NUM_RX_DESC)
+		port_info->rx_desc_cur = port_info->rx_desc_base;
+}
+
 static int sh_eth_recv_common(struct sh_eth_dev *eth)
 {
 	int port = eth->port, len = 0;
 	struct sh_eth_info *port_info = &eth->port_info[port];
-	uchar *packet;
+	uchar *packet = (uchar *)ADDR_TO_P2(port_info->rx_desc_cur->rd2);
 
-	/* Check if the rx descriptor is ready */
-	invalidate_cache(port_info->rx_desc_cur, sizeof(struct rx_desc_s));
-	if (!(port_info->rx_desc_cur->rd0 & RD_RACT)) {
-		/* Check for errors */
-		if (!(port_info->rx_desc_cur->rd0 & RD_RFE)) {
-			len = port_info->rx_desc_cur->rd1 & 0xffff;
-			packet = (uchar *)
-				ADDR_TO_P2(port_info->rx_desc_cur->rd2);
-			invalidate_cache(packet, len);
-			net_process_received_packet(packet, len);
-		}
-
-		/* Make current descriptor available again */
-		if (port_info->rx_desc_cur->rd0 & RD_RDLE)
-			port_info->rx_desc_cur->rd0 = RD_RACT | RD_RDLE;
-		else
-			port_info->rx_desc_cur->rd0 = RD_RACT;
-
-		flush_cache_wback(port_info->rx_desc_cur,
-				  sizeof(struct rx_desc_s));
-
-		/* Point to the next descriptor */
-		port_info->rx_desc_cur++;
-		if (port_info->rx_desc_cur >=
-		    port_info->rx_desc_base + NUM_RX_DESC)
-			port_info->rx_desc_cur = port_info->rx_desc_base;
-	}
+	len = sh_eth_recv_start(eth);
+	if (len > 0) {
+		invalidate_cache(packet, len);
+		net_process_received_packet(packet, len);
+		sh_eth_recv_finish(eth);
+	} else
+		len = 0;
 
 	/* Restart the receiver if disabled */
 	if (!(sh_eth_read(port_info, EDRRR) & EDRRR_R))
