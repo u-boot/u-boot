@@ -61,23 +61,27 @@ struct fsl_esdhc {
 	uint    dllctrl;
 	uint    dllstat;
 	uint    clktunectrlstatus;
-	char    reserved3[84];
+	char    reserved3[4];
+	uint	strobe_dllctrl;
+	uint	strobe_dllstat;
+	char    reserved4[72];
 	uint    vendorspec;
 	uint    mmcboot;
 	uint    vendorspec2;
-	char	reserved4[48];
+	uint    tuning_ctrl;	/* on i.MX6/7/8 */
+	char	reserved5[44];
 	uint    hostver;	/* Host controller version register */
-	char    reserved5[4];	/* reserved */
-	uint    dmaerraddr;	/* DMA error address register */
 	char    reserved6[4];	/* reserved */
-	uint    dmaerrattr;	/* DMA error attribute register */
+	uint    dmaerraddr;	/* DMA error address register */
 	char    reserved7[4];	/* reserved */
+	uint    dmaerrattr;	/* DMA error attribute register */
+	char    reserved8[4];	/* reserved */
 	uint    hostcapblt2;	/* Host controller capabilities register 2 */
-	char    reserved8[8];	/* reserved */
+	char    reserved9[8];	/* reserved */
 	uint    tcr;		/* Tuning control register */
-	char    reserved9[28];	/* reserved */
+	char    reserved10[28];	/* reserved */
 	uint    sddirctl;	/* SD direction control register */
-	char    reserved10[712];/* reserved */
+	char    reserved11[712];/* reserved */
 	uint    scr;		/* eSDHC control register */
 };
 
