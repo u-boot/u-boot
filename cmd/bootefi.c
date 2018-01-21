@@ -32,6 +32,9 @@ static void efi_init_obj_list(void)
 {
 	efi_obj_list_initalized = 1;
 
+	/* Initialize EFI driver uclass */
+	efi_driver_init();
+
 	efi_console_register();
 #ifdef CONFIG_PARTITIONS
 	efi_disk_register();
