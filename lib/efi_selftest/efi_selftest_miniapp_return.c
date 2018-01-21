@@ -25,7 +25,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
 	struct efi_simple_text_output_protocol *con_out = systable->con_out;
 
 	con_out->output_string(con_out,
-			       L"EFI application returning w/o calling Exit");
+			       L"EFI application returning w/o calling Exit\n");
 
 	/* The return value is checked by the calling test */
 	return EFI_INCOMPATIBLE_VERSION;

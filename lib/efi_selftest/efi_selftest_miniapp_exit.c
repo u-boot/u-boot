@@ -24,7 +24,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
 {
 	struct efi_simple_text_output_protocol *con_out = systable->con_out;
 
-	con_out->output_string(con_out, L"EFI application calling Exit");
+	con_out->output_string(con_out, L"EFI application calling Exit\n");
 
 	/* The return value is checked by the calling test */
 	systable->boottime->exit(handle, EFI_UNSUPPORTED, 0, NULL);
