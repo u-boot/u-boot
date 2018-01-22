@@ -10,6 +10,7 @@
 
 /* Simple U-Boot driver for the PrimeCell PL010/PL011 UARTs */
 
+#include <clk.h>
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
@@ -341,6 +342,9 @@ int pl01x_serial_ofdata_to_platdata(struct udevice *dev)
 {
 	struct pl01x_serial_platdata *plat = dev_get_platdata(dev);
 	fdt_addr_t addr;
+	unsigned long clock;
+	int ret;
+	struct clk clk;
 
 	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
@@ -348,6 +352,28 @@ int pl01x_serial_ofdata_to_platdata(struct udevice *dev)
 
 	plat->base = addr;
 	plat->clock = dev_read_u32_default(dev, "clock", 1);
+	if (plat->clock == 1) {
+		ret = clk_get_by_index(dev, 0, &clk);
+		if (ret < 0) {
+			dev_err(dev, "failed to get clock\n");
+			return ret;
+		}
+
+		clock = clk_get_rate(&clk);
+		if (IS_ERR_VALUE(clock)) {
+			dev_err(dev, "failed to get rate\n");
+			return clock;
+		}
+		debug("%s: CLK %ld\n", __func__, clock);
+
+		ret = clk_enable(&clk);
+		if (ret && ret != -ENOSYS) {
+			dev_err(dev, "failed to enable clock\n");
+			return ret;
+		}
+		plat->clock = clock;
+	}
+
 	plat->type = dev_get_driver_data(dev);
 	plat->skip_init = dev_read_bool(dev, "skip-init");
 
