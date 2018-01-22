@@ -13,11 +13,9 @@
 #include <dt-structs.h>
 #include <errno.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
-static inline struct clk_ops *clk_dev_ops(struct udevice *dev)
+static inline const struct clk_ops *clk_dev_ops(struct udevice *dev)
 {
-	return (struct clk_ops *)dev->driver->ops;
+	return (const struct clk_ops *)dev->driver->ops;
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
@@ -60,7 +58,7 @@ int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
 	int ret;
 	struct ofnode_phandle_args args;
 	struct udevice *dev_clk;
-	struct clk_ops *ops;
+	const struct clk_ops *ops;
 
 	debug("%s(dev=%p, index=%d, clk=%p)\n", __func__, dev, index, clk);
 
@@ -68,7 +66,7 @@ int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
 	clk->dev = NULL;
 
 	ret = dev_read_phandle_with_args(dev, "clocks", "#clock-cells", 0,
-					  index, &args);
+					 index, &args);
 	if (ret) {
 		debug("%s: fdtdec_parse_phandle_with_args failed: err=%d\n",
 		      __func__, ret);
@@ -142,7 +140,7 @@ int clk_release_all(struct clk *clk, int count)
 
 int clk_request(struct udevice *dev, struct clk *clk)
 {
-	struct clk_ops *ops = clk_dev_ops(dev);
+	const struct clk_ops *ops = clk_dev_ops(dev);
 
 	debug("%s(dev=%p, clk=%p)\n", __func__, dev, clk);
 
@@ -156,7 +154,7 @@ int clk_request(struct udevice *dev, struct clk *clk)
 
 int clk_free(struct clk *clk)
 {
-	struct clk_ops *ops = clk_dev_ops(clk->dev);
+	const struct clk_ops *ops = clk_dev_ops(clk->dev);
 
 	debug("%s(clk=%p)\n", __func__, clk);
 
@@ -168,7 +166,7 @@ int clk_free(struct clk *clk)
 
 ulong clk_get_rate(struct clk *clk)
 {
-	struct clk_ops *ops = clk_dev_ops(clk->dev);
+	const struct clk_ops *ops = clk_dev_ops(clk->dev);
 
 	debug("%s(clk=%p)\n", __func__, clk);
 
@@ -180,7 +178,7 @@ ulong clk_get_rate(struct clk *clk)
 
 ulong clk_set_rate(struct clk *clk, ulong rate)
 {
-	struct clk_ops *ops = clk_dev_ops(clk->dev);
+	const struct clk_ops *ops = clk_dev_ops(clk->dev);
 
 	debug("%s(clk=%p, rate=%lu)\n", __func__, clk, rate);
 
@@ -192,7 +190,7 @@ ulong clk_set_rate(struct clk *clk, ulong rate)
 
 int clk_enable(struct clk *clk)
 {
-	struct clk_ops *ops = clk_dev_ops(clk->dev);
+	const struct clk_ops *ops = clk_dev_ops(clk->dev);
 
 	debug("%s(clk=%p)\n", __func__, clk);
 
@@ -204,7 +202,7 @@ int clk_enable(struct clk *clk)
 
 int clk_disable(struct clk *clk)
 {
-	struct clk_ops *ops = clk_dev_ops(clk->dev);
+	const struct clk_ops *ops = clk_dev_ops(clk->dev);
 
 	debug("%s(clk=%p)\n", __func__, clk);
 

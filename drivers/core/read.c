@@ -66,7 +66,7 @@ void *dev_read_addr_ptr(struct udevice *dev)
 }
 
 fdt_addr_t dev_read_addr_size(struct udevice *dev, const char *property,
-				fdt_size_t *sizep)
+			      fdt_size_t *sizep)
 {
 	return ofnode_get_addr_size(dev_ofnode(dev), property, sizep);
 }
@@ -77,7 +77,7 @@ const char *dev_read_name(struct udevice *dev)
 }
 
 int dev_read_stringlist_search(struct udevice *dev, const char *property,
-			  const char *string)
+			       const char *string)
 {
 	return ofnode_stringlist_search(dev_ofnode(dev), property, string);
 }
@@ -94,9 +94,8 @@ int dev_read_string_count(struct udevice *dev, const char *propname)
 }
 
 int dev_read_phandle_with_args(struct udevice *dev, const char *list_name,
-				const char *cells_name, int cell_count,
-				int index,
-				struct ofnode_phandle_args *out_args)
+			       const char *cells_name, int cell_count,
+			       int index, struct ofnode_phandle_args *out_args)
 {
 	return ofnode_parse_phandle_with_args(dev_ofnode(dev), list_name,
 					      cells_name, cell_count, index,
@@ -195,4 +194,9 @@ int dev_read_resource_byname(struct udevice *dev, const char *name,
 			     struct resource *res)
 {
 	return ofnode_read_resource_byname(dev_ofnode(dev), name, res);
+}
+
+u64 dev_translate_address(struct udevice *dev, const fdt32_t *in_addr)
+{
+	return ofnode_translate_address(dev_ofnode(dev), in_addr);
 }
