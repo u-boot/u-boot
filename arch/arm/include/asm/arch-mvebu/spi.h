@@ -57,6 +57,12 @@ struct kwspi_registers {
 #define KWSPI_TXLSBF		(1 << 13)
 #define KWSPI_RXLSBF		(1 << 14)
 
+/* Timing Parameters 1 Register */
+#define KW_SPI_TMISO_SAMPLE_OFFSET	6
+#define KW_SPI_TMISO_SAMPLE_MASK	(0x3 << KW_SPI_TMISO_SAMPLE_OFFSET)
+#define KW_SPI_TMISO_SAMPLE_1		(1 << KW_SPI_TMISO_SAMPLE_OFFSET)
+#define KW_SPI_TMISO_SAMPLE_2		(2 << KW_SPI_TMISO_SAMPLE_OFFSET)
+
 #define KWSPI_IRQUNMASK		1 /* unmask SPI interrupt */
 #define KWSPI_IRQMASK		0 /* mask SPI interrupt */
 #define KWSPI_SMEMRDIRQ		1 /* SerMem data xfer ready irq */
