@@ -21,6 +21,7 @@ static const char *log_cat_name[LOGC_COUNT - LOGC_NONE] = {
 	"core",
 	"driver-model",
 	"device-tree",
+	"efi",
 };
 
 static const char *log_level_name[LOGL_COUNT] = {

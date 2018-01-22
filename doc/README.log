@@ -51,6 +51,7 @@ The following main categories are defined:
    LOGC_BOARD	- Related to board-specific code
    LOGC_CORE	- Related to core driver-model support
    LOGC_DT	- Related to device tree control
+   LOGC_EFI	- Related to EFI implementation
 
 
 Enabling logging
