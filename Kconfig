@@ -83,6 +83,18 @@ config DISTRO_DEFAULTS
 	  Select this to enable various options and commands which are suitable
 	  for building u-boot for booting general purpose Linux distributions.
 
+config SYS_BOOT_GET_CMDLINE
+	bool "Enable kernel command line setup"
+	help
+	  Enables allocating and saving kernel cmdline in space between
+	  "bootm_low" and "bootm_low" + BOOTMAPSZ.
+
+config SYS_BOOT_GET_KBD
+	bool "Enable kernel board information setup"
+	help
+	  Enables allocating and saving a kernel copy of the bd_info in
+	  space between "bootm_low" and "bootm_low" + BOOTMAPSZ.
+
 config SYS_MALLOC_F
 	bool "Enable malloc() pool before relocation"
 	default y if DM

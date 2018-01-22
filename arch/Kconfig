@@ -26,6 +26,8 @@ config ARM
 config M68K
 	bool "M68000 architecture"
 	select HAVE_PRIVATE_LIBGCC
+	select SYS_BOOT_GET_CMDLINE
+	select SYS_BOOT_GET_KBD
 
 config MICROBLAZE
 	bool "MicroBlaze architecture"
@@ -53,6 +55,8 @@ config PPC
 	bool "PowerPC architecture"
 	select HAVE_PRIVATE_LIBGCC
 	select SUPPORT_OF_CONTROL
+	select SYS_BOOT_GET_CMDLINE
+	select SYS_BOOT_GET_KBD
 
 config RISCV
 	bool "riscv architecture"
