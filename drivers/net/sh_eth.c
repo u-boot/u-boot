@@ -421,8 +421,7 @@ static int sh_eth_config(struct sh_eth_dev *eth)
 
 #if defined(CONFIG_CPU_SH7734) || defined(CONFIG_R8A7740)
 	sh_eth_write(port_info, CONFIG_SH_ETHER_SH7734_MII, RMII_MII);
-#elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
-	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
+#elif defined(CONFIG_RCAR_GEN2)
 	sh_eth_write(port_info, sh_eth_read(port_info, RMIIMR) | 0x1, RMIIMR);
 #endif
 	/* Configure phy */
@@ -447,9 +446,7 @@ static int sh_eth_config(struct sh_eth_dev *eth)
 		sh_eth_write(port_info, GECMR_100B, GECMR);
 #elif defined(CONFIG_CPU_SH7757) || defined(CONFIG_CPU_SH7752)
 		sh_eth_write(port_info, 1, RTRATE);
-#elif defined(CONFIG_CPU_SH7724) || defined(CONFIG_R8A7790) || \
-		defined(CONFIG_R8A7791) || defined(CONFIG_R8A7793) || \
-		defined(CONFIG_R8A7794)
+#elif defined(CONFIG_CPU_SH7724) || defined(CONFIG_RCAR_GEN2)
 		val = ECMR_RTM;
 #endif
 	} else if (phy->speed == 10) {
