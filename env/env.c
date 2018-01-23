@@ -146,12 +146,15 @@ int env_load(void)
 		if (!drv->load)
 			continue;
 
+		printf("Loading Environment from %s... ", drv->name);
 		ret = drv->load();
+		if (ret)
+			printf("Failed (%d)\n", ret);
+		else
+			printf("OK\n");
+
 		if (!ret)
 			return 0;
-
-		debug("%s: Environment %s failed to load (err=%d)\n", __func__,
-		      drv->name, ret);
 	}
 
 	return -ENODEV;
@@ -170,12 +173,13 @@ int env_save(void)
 
 		printf("Saving Environment to %s... ", drv->name);
 		ret = drv->save();
-		printf("%s\n", ret ? "Failed" : "OK");
+		if (ret)
+			printf("Failed (%d)\n", ret);
+		else
+			printf("OK\n");
+
 		if (!ret)
 			return 0;
-
-		debug("%s: Environment %s failed to save (err=%d)\n", __func__,
-		      drv->name, ret);
 	}
 
 	return -ENODEV;
