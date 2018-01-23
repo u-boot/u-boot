@@ -90,6 +90,18 @@
 	status = "okay";
 };
 
+&spi {
+	status = "okay";
+
+	spi-flash@0 {
+		compatible = "spi-flash";
+		reg = <0>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		spi-max-frequency = <25000000>;
+	};
+};
+
 &uart0 {
 	u-boot,dm-pre-reloc;
 	status = "okay";
