@@ -12,6 +12,10 @@
 / {
 	compatible = "brcm,bcm6338";
 
+	aliases {
+		spi0 = &spi;
+	};
+
 	cpus {
 		reg = <0xfffe0000 0x4>;
 		#address-cells = <1>;
@@ -105,6 +109,19 @@
 			gpio-controller;
 			#gpio-cells = <2>;
 			ngpios = <8>;
+
+			status = "disabled";
+		};
+
+		spi: spi@fffe0c00 {
+			compatible = "brcm,bcm6348-spi";
+			reg = <0xfffe0c00 0xc0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clocks = <&periph_clk BCM6338_CLK_SPI>;
+			resets = <&periph_rst BCM6338_RST_SPI>;
+			spi-max-frequency = <20000000>;
+			num-cs = <4>;
 
 			status = "disabled";
 		};
