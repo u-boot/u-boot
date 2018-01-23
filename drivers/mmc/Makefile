@@ -64,3 +64,4 @@ obj-$(CONFIG_MMC_SDHCI_ZYNQ)		+= zynq_sdhci.o
 
 obj-$(CONFIG_MMC_SUNXI)			+= sunxi_mmc.o
 obj-$(CONFIG_MMC_UNIPHIER)		+= uniphier-sd.o
+obj-$(CONFIG_MMC_BCM2835)		+= bcm2835_sdhost.o

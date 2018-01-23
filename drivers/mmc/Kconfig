@@ -261,6 +261,20 @@ config MMC_UNIPHIER
 	  This selects support for the Matsushita SD/MMC Host Controller on
 	  SocioNext UniPhier and Renesas RCar SoCs.
 
+config MMC_BCM2835
+	bool "BCM2835 family custom SD/MMC Host Controller support"
+	depends on ARCH_BCM283X
+	depends on BLK && DM_MMC
+	depends on OF_CONTROL
+	default y
+	help
+	  This selects support for the custom SD host controller in the BCM2835
+	  family of devices.
+
+	  If you have a BCM2835 platform with SD or MMC devices, say Y here.
+
+	  If unsure, say N.
+
 config MMC_SANDBOX
 	bool "Sandbox MMC support"
 	depends on SANDBOX
