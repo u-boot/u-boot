@@ -147,6 +147,7 @@ def test_qspi_erase_block(u_boot_console):
 def qspi_write_twice(u_boot_console):
 
     qspi_erase_block(u_boot_console)
+    addr = u_boot_utils.find_ram_base(u_boot_console)
     expected_write = "Written: OK"
     expected_read = "Read: OK"
 
@@ -154,7 +155,6 @@ def qspi_write_twice(u_boot_console):
     # TODO maybe add alignment and different start for pages
     for size in random.randint(4, page_size), random.randint(page_size, total_size), total_size:
         offset = random.randint(4, page_size)
-        addr = u_boot_utils.find_ram_base(u_boot_console)
         size = size - old_size
         output = u_boot_console.run_command('crc32 %x %x' % (addr + total_size, size))
         m = re.search('==> (.+?)$', output)
