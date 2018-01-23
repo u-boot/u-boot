@@ -161,6 +161,7 @@ config ENV_IS_IN_FLASH
 config ENV_IS_IN_MMC
 	bool "Environment in an MMC device"
 	depends on !CHAIN_OF_TRUST
+	depends on MMC
 	help
 	  Define this if you have an MMC device which you want to use for the
 	  environment.
