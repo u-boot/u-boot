@@ -89,7 +89,7 @@ struct dm_spi_slave_platdata {
  * @max_read_size:	If non-zero, the maximum number of bytes which can
  *			be read at once.
  * @max_write_size:	If non-zero, the maximum number of bytes which can
- *			be written at once, excluding command bytes.
+ *			be written at once.
  * @memory_map:		Address of read-only SPI flash access.
  * @flags:		Indication of SPI flags.
  */
