@@ -1501,7 +1501,7 @@ static int mmc_set_ios(struct mmc *mmc)
 
 int mmc_set_clock(struct mmc *mmc, uint clock, bool disable)
 {
-	if (!disable && clock != 0) {
+	if (!disable) {
 		if (clock > mmc->cfg->f_max)
 			clock = mmc->cfg->f_max;
 
