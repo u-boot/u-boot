@@ -205,6 +205,14 @@ enum env_location {
 	ENVL_UNKNOWN,
 };
 
+/* value for the various operations we want to perform on the env */
+enum env_operation {
+	ENVOP_GET_CHAR,	/* we want to call the get_char function */
+	ENVOP_INIT,	/* we want to call the init function */
+	ENVOP_LOAD,	/* we want to call the load function */
+	ENVOP_SAVE,	/* we want to call the save function */
+};
+
 struct env_driver {
 	const char *name;
 	enum env_location location;

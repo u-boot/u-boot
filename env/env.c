@@ -26,8 +26,33 @@ static struct env_driver *_env_driver_lookup(enum env_location loc)
 	return NULL;
 }
 
-static enum env_location env_get_location(void)
+/**
+ * env_get_location() - Returns the best env location for a board
+ * @op: operations performed on the environment
+ * @prio: priority between the multiple environments, 0 being the
+ *        highest priority
+ *
+ * This will return the preferred environment for the given priority.
+ *
+ * All implementations are free to use the operation, the priority and
+ * any other data relevant to their choice, but must take into account
+ * the fact that the lowest prority (0) is the most important location
+ * in the system. The following locations should be returned by order
+ * of descending priorities, from the highest to the lowest priority.
+ *
+ * Returns:
+ * an enum env_location value on success, a negative error code otherwise
+ */
+static enum env_location env_get_location(enum env_operation op, int prio)
 {
+	/*
+	 * We support a single environment, so any environment asked
+	 * with a priority that is not zero is out of our supported
+	 * bounds.
+	 */
+	if (prio >= 1)
+		return ENVL_UNKNOWN;
+
 	if IS_ENABLED(CONFIG_ENV_IS_IN_EEPROM)
 		return ENVL_EEPROM;
 	else if IS_ENABLED(CONFIG_ENV_IS_IN_FAT)
@@ -54,10 +79,26 @@ static enum env_location env_get_location(void)
 		return ENVL_UNKNOWN;
 }
 
-static struct env_driver *env_driver_lookup(void)
+
+/**
+ * env_driver_lookup() - Finds the most suited environment location
+ * @op: operations performed on the environment
+ * @prio: priority between the multiple environments, 0 being the
+ *        highest priority
+ *
+ * This will try to find the available environment with the highest
+ * priority in the system.
+ *
+ * Returns:
+ * NULL on error, a pointer to a struct env_driver otherwise
+ */
+static struct env_driver *env_driver_lookup(enum env_operation op, int prio)
 {
-	enum env_location loc = env_get_location();
+	enum env_location loc = env_get_location(op, prio);
 	struct env_driver *drv;
+
+	if (loc == ENVL_UNKNOWN)
+		return NULL;
 
 	drv = _env_driver_lookup(loc);
 	if (!drv) {
@@ -71,83 +112,101 @@ static struct env_driver *env_driver_lookup(void)
 
 int env_get_char(int index)
 {
-	struct env_driver *drv = env_driver_lookup();
-	int ret;
+	struct env_driver *drv;
+	int prio;
 
 	if (gd->env_valid == ENV_INVALID)
 		return default_environment[index];
-	if (!drv)
-		return -ENODEV;
-	if (!drv->get_char)
-		return *(uchar *)(gd->env_addr + index);
-	ret = drv->get_char(index);
-	if (ret < 0) {
-		debug("%s: Environment failed to load (err=%d)\n",
-		      __func__, ret);
+
+	for (prio = 0; (drv = env_driver_lookup(ENVOP_GET_CHAR, prio)); prio++) {
+		int ret;
+
+		if (!drv->get_char)
+			continue;
+
+		ret = drv->get_char(index);
+		if (!ret)
+			return 0;
+
+		debug("%s: Environment %s failed to load (err=%d)\n", __func__,
+		      drv->name, ret);
 	}
 
-	return ret;
+	return -ENODEV;
 }
 
 int env_load(void)
 {
-	struct env_driver *drv = env_driver_lookup();
-	int ret = 0;
+	struct env_driver *drv;
+	int prio;
 
-	if (!drv)
-		return -ENODEV;
-	if (!drv->load)
-		return 0;
-	ret = drv->load();
-	if (ret) {
-		debug("%s: Environment failed to load (err=%d)\n", __func__,
-		      ret);
-		return ret;
+	for (prio = 0; (drv = env_driver_lookup(ENVOP_LOAD, prio)); prio++) {
+		int ret;
+
+		if (!drv->load)
+			continue;
+
+		ret = drv->load();
+		if (!ret)
+			return 0;
+
+		debug("%s: Environment %s failed to load (err=%d)\n", __func__,
+		      drv->name, ret);
 	}
 
-	return 0;
+	return -ENODEV;
 }
 
 int env_save(void)
 {
-	struct env_driver *drv = env_driver_lookup();
-	int ret;
+	struct env_driver *drv;
+	int prio;
 
-	if (!drv)
-		return -ENODEV;
-	if (!drv->save)
-		return -ENOSYS;
+	for (prio = 0; (drv = env_driver_lookup(ENVOP_SAVE, prio)); prio++) {
+		int ret;
 
-	printf("Saving Environment to %s...\n", drv->name);
-	ret = drv->save();
-	if (ret) {
-		debug("%s: Environment failed to save (err=%d)\n", __func__,
-		      ret);
-		return ret;
+		if (!drv->save)
+			continue;
+
+		printf("Saving Environment to %s...\n", drv->name);
+		ret = drv->save();
+		if (!ret)
+			return 0;
+
+		debug("%s: Environment %s failed to save (err=%d)\n", __func__,
+		      drv->name, ret);
 	}
 
-	return 0;
+	return -ENODEV;
 }
 
 int env_init(void)
 {
-	struct env_driver *drv = env_driver_lookup();
+	struct env_driver *drv;
 	int ret = -ENOENT;
+	int prio;
 
-	if (!drv)
-		return -ENODEV;
-	if (drv->init)
+	for (prio = 0; (drv = env_driver_lookup(ENVOP_INIT, prio)); prio++) {
+		if (!drv->init)
+			continue;
+
 		ret = drv->init();
+		if (!ret)
+			return 0;
+
+		debug("%s: Environment %s failed to init (err=%d)\n", __func__,
+		      drv->name, ret);
+	}
+
+	if (!prio)
+		return -ENODEV;
+
 	if (ret == -ENOENT) {
 		gd->env_addr = (ulong)&default_environment[0];
 		gd->env_valid = ENV_VALID;
 
 		return 0;
-	} else if (ret) {
-		debug("%s: Environment failed to init (err=%d)\n", __func__,
-		      ret);
-		return ret;
 	}
 
-	return 0;
+	return ret;
 }
