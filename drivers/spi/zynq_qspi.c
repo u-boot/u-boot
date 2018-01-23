@@ -229,12 +229,16 @@ static void zynq_qspi_read_data(struct zynq_qspi_priv *priv, u32 data, u8 size)
 			priv->rx_buf += 1;
 			break;
 		case 2:
-			*((u16 *)priv->rx_buf) = data;
-			priv->rx_buf += 2;
+			*((u8 *)priv->rx_buf) = data;
+			priv->rx_buf += 1;
+			*((u8 *)priv->rx_buf) = (u8)(data >> 8);
+			priv->rx_buf += 1;
 			break;
 		case 3:
-			*((u16 *)priv->rx_buf) = data;
-			priv->rx_buf += 2;
+			*((u8 *)priv->rx_buf) = data;
+			priv->rx_buf += 1;
+			*((u8 *)priv->rx_buf) = (u8)(data >> 8);
+			priv->rx_buf += 1;
 			byte3 = (u8)(data >> 16);
 			*((u8 *)priv->rx_buf) = byte3;
 			priv->rx_buf += 1;
