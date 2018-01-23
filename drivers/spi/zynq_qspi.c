@@ -419,12 +419,16 @@ static void zynq_qspi_copy_read_data(struct zynq_qspi_priv *priv, u32 data, u8 s
 			priv->rxbuf += 1;
 			break;
 		case 2:
-			*((u16 *)priv->rxbuf) = data;
-			priv->rxbuf += 2;
+			*((u8 *)priv->rxbuf) = data;
+			priv->rxbuf += 1;
+			*((u8 *)priv->rxbuf) = (u8)(data >> 8);
+			priv->rxbuf += 1;
 			break;
 		case 3:
-			*((u16 *)priv->rxbuf) = data;
-			priv->rxbuf += 2;
+			*((u8 *)priv->rxbuf) = data;
+			priv->rxbuf += 1;
+			*((u8 *)priv->rxbuf) = (u8)(data >> 8);
+			priv->rxbuf += 1;
 			byte3 = (u8)(data >> 16);
 			*((u8 *)priv->rxbuf) = byte3;
 			priv->rxbuf += 1;
