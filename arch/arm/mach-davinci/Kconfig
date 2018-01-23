@@ -24,7 +24,7 @@ config TARGET_EA20
 
 config TARGET_OMAPL138_LCDK
 	bool "OMAPL138 LCDK"
-	select SOC_DA8XX
+	select SOC_DA850
 	select SUPPORT_SPL
 
 config TARGET_CALIMAIN
@@ -62,6 +62,89 @@ config SOC_DA8XX
 
 config MACH_DAVINCI_DA850_EVM
 	bool
+
+if SYS_DA850_PLL_INIT
+comment "DA850 PLL Initialization Parameters"
+
+config SYS_DV_CLKMODE
+	int "PLLCTL Clock Mode"
+	default 0 if SOC_DA850
+	help
+	  Set PLLCTL Clock Mode bit as External Clock or On Chip oscillator
+
+config SYS_DA850_PLL0_POSTDIV
+	int "PLLC0 PLL Post-Divider"
+	default 1 if SOC_DA850
+	help
+	  Value written to PLLC0 PLL Post-Divider Control Register
+
+config SYS_DA850_PLL0_PLLDIV1
+	hex "PLLC0 Divider 1"
+	default 0x8000 if SOC_DA850
+	help
+	  Value written to PLLC0 Divider 1 register
+
+config SYS_DA850_PLL0_PLLDIV2
+	hex "PLLC0 Divider 2"
+	default 0x8001 if SOC_DA850
+	help
+	  Value written to PLLC0 Divider 2 register
+
+config SYS_DA850_PLL0_PLLDIV3
+	hex "PLLC0 Divider 3"
+	default 0x8002 if SOC_DA850
+	help
+	  Value written to PLLC0 Divider 3 register
+
+config SYS_DA850_PLL0_PLLDIV4
+	hex "PLLC0 Divider 4"
+	default 0x8003 if SOC_DA850
+	help
+	  Value written to PLLC0 Divider 4 register
+
+config SYS_DA850_PLL0_PLLDIV5
+	hex "PLLC0 Divider 5"
+	default 0x8002 if SOC_DA850
+	help
+	  Value written to PLLC0 Divider 5 register
+
+config SYS_DA850_PLL0_PLLDIV6
+	hex "PLLC0 Divider 6"
+	default 0x8000 if SOC_DA850
+	help
+	  Value written to PLLC0 Divider 6 register
+
+config SYS_DA850_PLL0_PLLDIV7
+	hex "PLLC0 Divider 7"
+	default 0x8005 if SOC_DA850
+	help
+	  Value written to PLLC0 Divider 7 register
+
+config SYS_DA850_PLL1_POSTDIV
+	hex "PLLC1 PLL Post-Divider"
+	default 1 if SOC_DA850
+	help
+	  Value written to PLLC1 PLL Post-Divider Control Register
+
+config SYS_DA850_PLL1_PLLDIV1
+	hex "PLLC1 Divider 2"
+	default 0x8000 if SOC_DA850
+	help
+	  Value written to PLLC1 Divider 1 register
+
+config SYS_DA850_PLL1_PLLDIV2
+	hex "PLLC1 Divider 2"
+	default 0x8001 if SOC_DA850
+	help
+	  Value written to PLLC1 Divider 2 register
+
+config SYS_DA850_PLL1_PLLDIV3
+	hex "PLLC1 Divider 3"
+	default 0x8002 if SOC_DA850
+	help
+	  Value written to PLLC1 Divider 3 register
+
+endif
 
 source "board/Barix/ipam390/Kconfig"
 source "board/davinci/da8xxevm/Kconfig"
