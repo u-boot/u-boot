@@ -10,7 +10,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct env_driver *env_driver_lookup(enum env_location loc)
+static struct env_driver *_env_driver_lookup(enum env_location loc)
 {
 	struct env_driver *drv;
 	const int n_ents = ll_entry_count(struct env_driver, env_driver);
@@ -26,7 +26,7 @@ static struct env_driver *env_driver_lookup(enum env_location loc)
 	return NULL;
 }
 
-static enum env_location env_get_default_location(void)
+static enum env_location env_get_location(void)
 {
 	if IS_ENABLED(CONFIG_ENV_IS_IN_EEPROM)
 		return ENVL_EEPROM;
@@ -54,12 +54,12 @@ static enum env_location env_get_default_location(void)
 		return ENVL_UNKNOWN;
 }
 
-static struct env_driver *env_driver_lookup_default(void)
+static struct env_driver *env_driver_lookup(void)
 {
-	enum env_location loc = env_get_default_location();
+	enum env_location loc = env_get_location();
 	struct env_driver *drv;
 
-	drv = env_driver_lookup(loc);
+	drv = _env_driver_lookup(loc);
 	if (!drv) {
 		debug("%s: No environment driver for location %d\n", __func__,
 		      loc);
@@ -71,7 +71,7 @@ static struct env_driver *env_driver_lookup_default(void)
 
 int env_get_char(int index)
 {
-	struct env_driver *drv = env_driver_lookup_default();
+	struct env_driver *drv = env_driver_lookup();
 	int ret;
 
 	if (gd->env_valid == ENV_INVALID)
@@ -91,7 +91,7 @@ int env_get_char(int index)
 
 int env_load(void)
 {
-	struct env_driver *drv = env_driver_lookup_default();
+	struct env_driver *drv = env_driver_lookup();
 	int ret = 0;
 
 	if (!drv)
@@ -110,7 +110,7 @@ int env_load(void)
 
 int env_save(void)
 {
-	struct env_driver *drv = env_driver_lookup_default();
+	struct env_driver *drv = env_driver_lookup();
 	int ret;
 
 	if (!drv)
@@ -131,7 +131,7 @@ int env_save(void)
 
 int env_init(void)
 {
-	struct env_driver *drv = env_driver_lookup_default();
+	struct env_driver *drv = env_driver_lookup();
 	int ret = -ENOENT;
 
 	if (!drv)
