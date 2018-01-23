@@ -55,7 +55,11 @@ static int env_fat_save(void)
 
 	dev = dev_desc->devnum;
 	if (fat_set_blk_dev(dev_desc, &info) != 0) {
-		printf("\n** Unable to use %s %d:%d for saveenv **\n",
+		/*
+		 * This printf is embedded in the messages from env_save that
+		 * will calling it. The missing \n is intentional.
+		 */
+		printf("Unable to use %s %d:%d... ",
 		       CONFIG_ENV_FAT_INTERFACE, dev, part);
 		return 1;
 	}
@@ -63,12 +67,15 @@ static int env_fat_save(void)
 	err = file_fat_write(CONFIG_ENV_FAT_FILE, (void *)&env_new, 0, sizeof(env_t),
 			     &size);
 	if (err == -1) {
-		printf("\n** Unable to write \"%s\" from %s%d:%d **\n",
+		/*
+		 * This printf is embedded in the messages from env_save that
+		 * will calling it. The missing \n is intentional.
+		 */
+		printf("Unable to write \"%s\" from %s%d:%d... ",
 			CONFIG_ENV_FAT_FILE, CONFIG_ENV_FAT_INTERFACE, dev, part);
 		return 1;
 	}
 
-	puts("done\n");
 	return 0;
 }
 #endif /* CMD_SAVEENV */
@@ -90,14 +97,22 @@ static int env_fat_load(void)
 
 	dev = dev_desc->devnum;
 	if (fat_set_blk_dev(dev_desc, &info) != 0) {
-		printf("\n** Unable to use %s %d:%d for loading the env **\n",
+		/*
+		 * This printf is embedded in the messages from env_save that
+		 * will calling it. The missing \n is intentional.
+		 */
+		printf("Unable to use %s %d:%d... ",
 		       CONFIG_ENV_FAT_INTERFACE, dev, part);
 		goto err_env_relocate;
 	}
 
 	err = file_fat_read(CONFIG_ENV_FAT_FILE, buf, CONFIG_ENV_SIZE);
 	if (err == -1) {
-		printf("\n** Unable to read \"%s\" from %s%d:%d **\n",
+		/*
+		 * This printf is embedded in the messages from env_save that
+		 * will calling it. The missing \n is intentional.
+		 */
+		printf("Unable to read \"%s\" from %s%d:%d... ",
 			CONFIG_ENV_FAT_FILE, CONFIG_ENV_FAT_INTERFACE, dev, part);
 		goto err_env_relocate;
 	}
