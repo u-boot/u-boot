@@ -192,31 +192,41 @@ static int teardown(void)
 {
 	efi_status_t ret;
 
-	ret = boottime->uninstall_protocol_interface(&handle1,
+	ret = boottime->uninstall_protocol_interface(handle1,
 						     &guid_device_path,
 						     dp1);
-	if (ret != EFI_SUCCESS)
-		efi_st_todo("UninstallProtocolInterface failed\n");
-	ret = boottime->uninstall_protocol_interface(&handle1,
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("UninstallProtocolInterface failed\n");
+		return EFI_ST_FAILURE;
+	}
+	ret = boottime->uninstall_protocol_interface(handle1,
 						     &guid_protocol,
 						     &interface);
-	if (ret != EFI_SUCCESS)
-		efi_st_todo("UninstallProtocolInterface failed\n");
-	ret = boottime->uninstall_protocol_interface(&handle2,
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("UninstallProtocolInterface failed\n");
+		return EFI_ST_FAILURE;
+	}
+	ret = boottime->uninstall_protocol_interface(handle2,
 						     &guid_device_path,
 						     dp2);
-	if (ret != EFI_SUCCESS)
-		efi_st_todo("UninstallProtocolInterface failed\n");
-	ret = boottime->uninstall_protocol_interface(&handle2,
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("UninstallProtocolInterface failed\n");
+		return EFI_ST_FAILURE;
+	}
+	ret = boottime->uninstall_protocol_interface(handle2,
 						     &guid_protocol,
 						     &interface);
-	if (ret != EFI_SUCCESS)
-		efi_st_todo("UninstallProtocolInterface failed\n");
-	ret = boottime->uninstall_protocol_interface(&handle3,
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("UninstallProtocolInterface failed\n");
+		return EFI_ST_FAILURE;
+	}
+	ret = boottime->uninstall_protocol_interface(handle3,
 						     &guid_device_path,
 						     dp3);
-	if (ret != EFI_SUCCESS)
-		efi_st_todo("UninstallProtocolInterface failed\n");
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("UninstallProtocolInterface failed\n");
+		return EFI_ST_FAILURE;
+	}
 	if (dp1) {
 		ret = boottime->free_pool(dp1);
 		if (ret != EFI_SUCCESS) {
@@ -299,17 +309,16 @@ static int execute(void)
 			efi_st_error("FreePool failed\n");
 			return EFI_ST_FAILURE;
 		}
-		ret = boottime->close_protocol(handles[i], &guid_device_path,
-					       NULL, NULL);
-		if (ret != EFI_SUCCESS)
-			efi_st_todo("Cannot close device path protocol.\n");
+		/*
+		 * CloseProtocol cannot be called without agent handle.
+		 * There is no need to close the device path protocol.
+		 */
 	}
 	ret = boottime->free_pool(handles);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("FreePool failed\n");
 		return EFI_ST_FAILURE;
 	}
-	efi_st_printf("\n");
 
 	/* Test ConvertDevicePathToText */
 	string = device_path_to_text->convert_device_path_to_text(
@@ -318,15 +327,14 @@ static int execute(void)
 		efi_st_error("ConvertDevicePathToText failed\n");
 		return EFI_ST_FAILURE;
 	}
-	efi_st_printf("dp2: %ps\n", string);
 	if (efi_st_strcmp_16_8(
 		string,
 		"/VenHw(dbca4c98-6cb0-694d-0872-819c650cbbb1)/VenHw(dbca4c98-6cb0-694d-0872-819c650cbba2)")
 	    ) {
+		efi_st_printf("dp2: %ps\n", string);
 		efi_st_error("Incorrect text from ConvertDevicePathToText\n");
 		return EFI_ST_FAILURE;
 	}
-
 	ret = boottime->free_pool(string);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("FreePool failed\n");
@@ -340,15 +348,15 @@ static int execute(void)
 		efi_st_error("ConvertDeviceNodeToText failed\n");
 		return EFI_ST_FAILURE;
 	}
-	efi_st_printf("dp_node: %ps\n", string);
+	if (efi_st_strcmp_16_8(string, "u-boot")) {
+		efi_st_printf("dp_node: %ps\n", string);
+		efi_st_error(
+			"Incorrect conversion by ConvertDeviceNodeToText\n");
+		return EFI_ST_FAILURE;
+	}
 	ret = boottime->free_pool(string);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("FreePool failed\n");
-		return EFI_ST_FAILURE;
-	}
-	if (efi_st_strcmp_16_8(string, "u-boot")) {
-		efi_st_error(
-			"Incorrect conversion by ConvertDeviceNodeToText\n");
 		return EFI_ST_FAILURE;
 	}
 
@@ -370,11 +378,16 @@ static int execute(void)
 		efi_st_error("ConvertDevicePathToText failed\n");
 		return EFI_ST_FAILURE;
 	}
-	efi_st_printf("remaining device path: %ps\n", string);
 	if (efi_st_strcmp_16_8(string,
 			       "/VenHw(dbca4c98-6cb0-694d-0872-819c650cbbc3)")
 	    ) {
+		efi_st_printf("remaining device path: %ps\n", string);
 		efi_st_error("LocateDevicePath: wrong remaining device path\n");
+		return EFI_ST_FAILURE;
+	}
+	ret = boottime->free_pool(string);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("FreePool failed\n");
 		return EFI_ST_FAILURE;
 	}
 

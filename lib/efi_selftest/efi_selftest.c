@@ -65,7 +65,7 @@ void efi_st_exit_boot_services(void)
 		efi_st_error("ExitBootServices did not return EFI_SUCCESS\n");
 		return;
 	}
-	efi_st_printf("\nBoot services terminated\n");
+	efi_st_printc(EFI_WHITE, "\nBoot services terminated\n");
 }
 
 /*
@@ -81,13 +81,14 @@ static int setup(struct efi_unit_test *test, unsigned int *failures)
 
 	if (!test->setup)
 		return EFI_ST_SUCCESS;
-	efi_st_printf("\nSetting up '%s'\n", test->name);
+	efi_st_printc(EFI_LIGHTBLUE, "\nSetting up '%s'\n", test->name);
 	ret = test->setup(handle, systable);
 	if (ret != EFI_ST_SUCCESS) {
 		efi_st_error("Setting up '%s' failed\n", test->name);
 		++*failures;
 	} else {
-		efi_st_printf("Setting up '%s' succeeded\n", test->name);
+		efi_st_printc(EFI_LIGHTGREEN,
+			      "Setting up '%s' succeeded\n", test->name);
 	}
 	return ret;
 }
@@ -105,13 +106,14 @@ static int execute(struct efi_unit_test *test, unsigned int *failures)
 
 	if (!test->execute)
 		return EFI_ST_SUCCESS;
-	efi_st_printf("\nExecuting '%s'\n", test->name);
+	efi_st_printc(EFI_LIGHTBLUE, "\nExecuting '%s'\n", test->name);
 	ret = test->execute();
 	if (ret != EFI_ST_SUCCESS) {
 		efi_st_error("Executing '%s' failed\n", test->name);
 		++*failures;
 	} else {
-		efi_st_printf("Executing '%s' succeeded\n", test->name);
+		efi_st_printc(EFI_LIGHTGREEN,
+			      "Executing '%s' succeeded\n", test->name);
 	}
 	return ret;
 }
@@ -129,13 +131,14 @@ static int teardown(struct efi_unit_test *test, unsigned int *failures)
 
 	if (!test->teardown)
 		return EFI_ST_SUCCESS;
-	efi_st_printf("\nTearing down '%s'\n", test->name);
+	efi_st_printc(EFI_LIGHTBLUE, "\nTearing down '%s'\n", test->name);
 	ret = test->teardown();
 	if (ret != EFI_ST_SUCCESS) {
 		efi_st_error("Tearing down '%s' failed\n", test->name);
 		++*failures;
 	} else {
-		efi_st_printf("Tearing down '%s' succeeded\n", test->name);
+		efi_st_printc(EFI_LIGHTGREEN,
+			      "Tearing down '%s' succeeded\n", test->name);
 	}
 	return ret;
 }
@@ -262,12 +265,12 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 		}
 	}
 
-	efi_st_printf("\nTesting EFI API implementation\n");
+	efi_st_printc(EFI_WHITE, "\nTesting EFI API implementation\n");
 
 	if (testname)
-		efi_st_printf("\nSelected test: '%ps'\n", testname);
+		efi_st_printc(EFI_WHITE, "\nSelected test: '%ps'\n", testname);
 	else
-		efi_st_printf("\nNumber of tests to execute: %u\n",
+		efi_st_printc(EFI_WHITE, "\nNumber of tests to execute: %u\n",
 			      ll_entry_count(struct efi_unit_test,
 					     efi_unit_test));
 
@@ -291,7 +294,7 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 			&failures);
 
 	/* Give feedback */
-	efi_st_printf("\nSummary: %u failures\n\n", failures);
+	efi_st_printc(EFI_WHITE, "\nSummary: %u failures\n\n", failures);
 
 	/* Reset system */
 	efi_st_printf("Preparing for reset. Press any key.\n");

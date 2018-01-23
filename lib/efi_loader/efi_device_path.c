@@ -6,6 +6,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#define LOG_CATEGORY LOGL_ERR
+
 #include <common.h>
 #include <blk.h>
 #include <dm.h>
@@ -58,8 +60,11 @@ static void *dp_alloc(size_t sz)
 {
 	void *buf;
 
-	if (efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, sz, &buf) != EFI_SUCCESS)
+	if (efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, sz, &buf) !=
+	    EFI_SUCCESS) {
+		debug("EFI: ERROR: out of memory in %s\n", __func__);
 		return NULL;
+	}
 
 	return buf;
 }
@@ -107,7 +112,6 @@ int efi_dp_match(const struct efi_device_path *a,
 			return 0;
 	}
 }
-
 
 /*
  * See UEFI spec (section 3.1.2, about short-form device-paths..
@@ -181,7 +185,6 @@ static struct efi_object *find_obj(struct efi_device_path *dp, bool short_path,
 	return NULL;
 }
 
-
 /*
  * Find an efiobj from device-path, if 'rem' is not NULL, returns the
  * remaining part of the device path after the matched object.
@@ -203,6 +206,26 @@ struct efi_object *efi_dp_find_obj(struct efi_device_path *dp,
 		efiobj = find_obj(dp, true, rem);
 
 	return efiobj;
+}
+
+/*
+ * Determine the last device path node that is not the end node.
+ *
+ * @dp		device path
+ * @return	last node before the end node if it exists
+ *		otherwise NULL
+ */
+const struct efi_device_path *efi_dp_last_node(const struct efi_device_path *dp)
+{
+	struct efi_device_path *ret;
+
+	if (!dp || dp->type == DEVICE_PATH_TYPE_END)
+		return NULL;
+	while (dp) {
+		ret = (struct efi_device_path *)dp;
+		dp = efi_dp_next(dp);
+	}
+	return ret;
 }
 
 /* return size not including End node: */
@@ -227,6 +250,8 @@ struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp)
 		return NULL;
 
 	ndp = dp_alloc(sz);
+	if (!ndp)
+		return NULL;
 	memcpy(ndp, dp, sz);
 
 	return ndp;
@@ -246,6 +271,8 @@ struct efi_device_path *efi_dp_append(const struct efi_device_path *dp1,
 		unsigned sz1 = efi_dp_size(dp1);
 		unsigned sz2 = efi_dp_size(dp2);
 		void *p = dp_alloc(sz1 + sz2 + sizeof(END));
+		if (!p)
+			return NULL;
 		memcpy(p, dp1, sz1);
 		memcpy(p + sz1, dp2, sz2);
 		memcpy(p + sz1 + sz2, &END, sizeof(END));
@@ -267,6 +294,8 @@ struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
 	} else if (!dp) {
 		unsigned sz = node->length;
 		void *p = dp_alloc(sz + sizeof(END));
+		if (!p)
+			return NULL;
 		memcpy(p, node, sz);
 		memcpy(p + sz, &END, sizeof(END));
 		ret = p;
@@ -274,6 +303,8 @@ struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
 		/* both dp and node are non-null */
 		unsigned sz = efi_dp_size(dp);
 		void *p = dp_alloc(sz + node->length + sizeof(END));
+		if (!p)
+			return NULL;
 		memcpy(p, dp, sz);
 		memcpy(p + sz, node, node->length);
 		memcpy(p + sz + node->length, &END, sizeof(END));
@@ -297,9 +328,36 @@ static unsigned dp_size(struct udevice *dev)
 	case UCLASS_SIMPLE_BUS:
 		/* stop traversing parents at this point: */
 		return sizeof(ROOT);
+	case UCLASS_ETH:
+		return dp_size(dev->parent) +
+			sizeof(struct efi_device_path_mac_addr);
+#ifdef CONFIG_BLK
+	case UCLASS_BLK:
+		switch (dev->parent->uclass->uc_drv->id) {
+#ifdef CONFIG_IDE
+		case UCLASS_IDE:
+			return dp_size(dev->parent) +
+				sizeof(struct efi_device_path_atapi);
+#endif
+#if defined(CONFIG_SCSI) && defined(CONFIG_DM_SCSI)
+		case UCLASS_SCSI:
+			return dp_size(dev->parent) +
+				sizeof(struct efi_device_path_scsi);
+#endif
+#if defined(CONFIG_DM_MMC) && defined(CONFIG_MMC)
+		case UCLASS_MMC:
+			return dp_size(dev->parent) +
+				sizeof(struct efi_device_path_sd_mmc_path);
+#endif
+		default:
+			return dp_size(dev->parent);
+		}
+#endif
+#if defined(CONFIG_DM_MMC) && defined(CONFIG_MMC)
 	case UCLASS_MMC:
 		return dp_size(dev->parent) +
 			sizeof(struct efi_device_path_sd_mmc_path);
+#endif
 	case UCLASS_MASS_STORAGE:
 	case UCLASS_USB_HUB:
 		return dp_size(dev->parent) +
@@ -310,6 +368,13 @@ static unsigned dp_size(struct udevice *dev)
 	}
 }
 
+/*
+ * Recursively build a device path.
+ *
+ * @buf		pointer to the end of the device path
+ * @dev		device
+ * @return	pointer to the end of the device path
+ */
 static void *dp_fill(void *buf, struct udevice *dev)
 {
 	if (!dev || !dev->driver)
@@ -323,6 +388,79 @@ static void *dp_fill(void *buf, struct udevice *dev)
 		*vdp = ROOT;
 		return &vdp[1];
 	}
+#ifdef CONFIG_DM_ETH
+	case UCLASS_ETH: {
+		struct efi_device_path_mac_addr *dp =
+			dp_fill(buf, dev->parent);
+		struct eth_pdata *pdata = dev->platdata;
+
+		dp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+		dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR;
+		dp->dp.length = sizeof(*dp);
+		memset(&dp->mac, 0, sizeof(dp->mac));
+		/* We only support IPv4 */
+		memcpy(&dp->mac, &pdata->enetaddr, ARP_HLEN);
+		/* Ethernet */
+		dp->if_type = 1;
+		return &dp[1];
+	}
+#endif
+#ifdef CONFIG_BLK
+	case UCLASS_BLK:
+		switch (dev->parent->uclass->uc_drv->id) {
+#ifdef CONFIG_IDE
+		case UCLASS_IDE: {
+			struct efi_device_path_atapi *dp =
+			dp_fill(buf, dev->parent);
+			struct blk_desc *desc = dev_get_uclass_platdata(dev);
+
+			dp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_ATAPI;
+			dp->dp.length = sizeof(*dp);
+			dp->logical_unit_number = desc->devnum;
+			dp->primary_secondary = IDE_BUS(desc->devnum);
+			dp->slave_master = desc->devnum %
+				(CONFIG_SYS_IDE_MAXDEVICE /
+				 CONFIG_SYS_IDE_MAXBUS);
+			return &dp[1];
+			}
+#endif
+#if defined(CONFIG_SCSI) && defined(CONFIG_DM_SCSI)
+		case UCLASS_SCSI: {
+			struct efi_device_path_scsi *dp =
+				dp_fill(buf, dev->parent);
+			struct blk_desc *desc = dev_get_uclass_platdata(dev);
+
+			dp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_SCSI;
+			dp->dp.length = sizeof(*dp);
+			dp->logical_unit_number = desc->lun;
+			dp->target_id = desc->target;
+			return &dp[1];
+			}
+#endif
+#if defined(CONFIG_DM_MMC) && defined(CONFIG_MMC)
+		case UCLASS_MMC: {
+			struct efi_device_path_sd_mmc_path *sddp =
+				dp_fill(buf, dev->parent);
+			struct blk_desc *desc = dev_get_uclass_platdata(dev);
+
+			sddp->dp.type     = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+			sddp->dp.sub_type = is_sd(desc) ?
+				DEVICE_PATH_SUB_TYPE_MSG_SD :
+				DEVICE_PATH_SUB_TYPE_MSG_MMC;
+			sddp->dp.length   = sizeof(*sddp);
+			sddp->slot_number = dev->seq;
+			return &sddp[1];
+			}
+#endif
+		default:
+			debug("%s(%u) %s: unhandled parent class: %s (%u)\n",
+			      __FILE__, __LINE__, __func__,
+			      dev->name, dev->parent->uclass->uc_drv->id);
+			return dp_fill(buf, dev->parent);
+		}
+#endif
 #if defined(CONFIG_DM_MMC) && defined(CONFIG_MMC)
 	case UCLASS_MMC: {
 		struct efi_device_path_sd_mmc_path *sddp =
@@ -359,7 +497,8 @@ static void *dp_fill(void *buf, struct udevice *dev)
 		return &udp[1];
 	}
 	default:
-		debug("unhandled device class: %s (%u)\n",
+		debug("%s(%u) %s: unhandled device class: %s (%u)\n",
+		      __FILE__, __LINE__, __func__,
 		      dev->name, dev->driver->id);
 		return dp_fill(buf, dev->parent);
 	}
@@ -371,6 +510,8 @@ struct efi_device_path *efi_dp_from_dev(struct udevice *dev)
 	void *buf, *start;
 
 	start = buf = dp_alloc(dp_size(dev) + sizeof(END));
+	if (!buf)
+		return NULL;
 	buf = dp_fill(buf, dev);
 	*((struct efi_device_path *)buf) = END;
 
@@ -383,7 +524,14 @@ static unsigned dp_part_size(struct blk_desc *desc, int part)
 	unsigned dpsize;
 
 #ifdef CONFIG_BLK
-	dpsize = dp_size(desc->bdev->parent);
+	{
+		struct udevice *dev;
+		int ret = blk_find_device(desc->if_type, desc->devnum, &dev);
+
+		if (ret)
+			dev = desc->bdev->parent;
+		dpsize = dp_size(dev);
+	}
 #else
 	dpsize = sizeof(ROOT) + sizeof(struct efi_device_path_usb);
 #endif
@@ -400,42 +548,15 @@ static unsigned dp_part_size(struct blk_desc *desc, int part)
 }
 
 /*
- * Create a device path for a block device or one of its partitions.
+ * Create a device node for a block device partition.
  *
  * @buf		buffer to which the device path is wirtten
  * @desc	block device descriptor
  * @part	partition number, 0 identifies a block device
  */
-static void *dp_part_fill(void *buf, struct blk_desc *desc, int part)
+static void *dp_part_node(void *buf, struct blk_desc *desc, int part)
 {
 	disk_partition_t info;
-
-#ifdef CONFIG_BLK
-	buf = dp_fill(buf, desc->bdev->parent);
-#else
-	/*
-	 * We *could* make a more accurate path, by looking at if_type
-	 * and handling all the different cases like we do for non-
-	 * legacy (ie CONFIG_BLK=y) case.  But most important thing
-	 * is just to have a unique device-path for if_type+devnum.
-	 * So map things to a fictitious USB device.
-	 */
-	struct efi_device_path_usb *udp;
-
-	memcpy(buf, &ROOT, sizeof(ROOT));
-	buf += sizeof(ROOT);
-
-	udp = buf;
-	udp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
-	udp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_USB;
-	udp->dp.length = sizeof(*udp);
-	udp->parent_port_number = desc->if_type;
-	udp->usb_interface = desc->devnum;
-	buf = &udp[1];
-#endif
-
-	if (part == 0) /* the actual disk, not a partition */
-		return buf;
 
 	part_get_info(desc, part, &info);
 
@@ -491,6 +612,51 @@ static void *dp_part_fill(void *buf, struct blk_desc *desc, int part)
 	return buf;
 }
 
+/*
+ * Create a device path for a block device or one of its partitions.
+ *
+ * @buf		buffer to which the device path is wirtten
+ * @desc	block device descriptor
+ * @part	partition number, 0 identifies a block device
+ */
+static void *dp_part_fill(void *buf, struct blk_desc *desc, int part)
+{
+#ifdef CONFIG_BLK
+	{
+		struct udevice *dev;
+		int ret = blk_find_device(desc->if_type, desc->devnum, &dev);
+
+		if (ret)
+			dev = desc->bdev->parent;
+		buf = dp_fill(buf, dev);
+	}
+#else
+	/*
+	 * We *could* make a more accurate path, by looking at if_type
+	 * and handling all the different cases like we do for non-
+	 * legacy (ie CONFIG_BLK=y) case.  But most important thing
+	 * is just to have a unique device-path for if_type+devnum.
+	 * So map things to a fictitious USB device.
+	 */
+	struct efi_device_path_usb *udp;
+
+	memcpy(buf, &ROOT, sizeof(ROOT));
+	buf += sizeof(ROOT);
+
+	udp = buf;
+	udp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+	udp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_USB;
+	udp->dp.length = sizeof(*udp);
+	udp->parent_port_number = desc->if_type;
+	udp->usb_interface = desc->devnum;
+	buf = &udp[1];
+#endif
+
+	if (part == 0) /* the actual disk, not a partition */
+		return buf;
+
+	return dp_part_node(buf, desc, part);
+}
 
 /* Construct a device-path from a partition on a blk device: */
 struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part)
@@ -498,12 +664,37 @@ struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part)
 	void *buf, *start;
 
 	start = buf = dp_alloc(dp_part_size(desc, part) + sizeof(END));
+	if (!buf)
+		return NULL;
 
 	buf = dp_part_fill(buf, desc, part);
 
 	*((struct efi_device_path *)buf) = END;
 
 	return start;
+}
+
+/*
+ * Create a device node for a block device partition.
+ *
+ * @buf		buffer to which the device path is wirtten
+ * @desc	block device descriptor
+ * @part	partition number, 0 identifies a block device
+ */
+struct efi_device_path *efi_dp_part_node(struct blk_desc *desc, int part)
+{
+	efi_uintn_t dpsize;
+	void *buf;
+
+	if (desc->part_type == PART_TYPE_ISO)
+		dpsize = sizeof(struct efi_device_path_cdrom_path);
+	else
+		dpsize = sizeof(struct efi_device_path_hard_drive_path);
+	buf = dp_alloc(dpsize);
+
+	dp_part_node(buf, desc, part);
+
+	return buf;
 }
 
 /* convert path to an UEFI style path (ie. DOS style backslashes and utf16) */
@@ -536,6 +727,8 @@ struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
 	dpsize += fpsize;
 
 	start = buf = dp_alloc(dpsize + sizeof(END));
+	if (!buf)
+		return NULL;
 
 	if (desc)
 		buf = dp_part_fill(buf, desc, part);
@@ -570,6 +763,8 @@ struct efi_device_path *efi_dp_from_eth(void)
 	dpsize += sizeof(*ndp);
 
 	start = buf = dp_alloc(dpsize + sizeof(END));
+	if (!buf)
+		return NULL;
 
 #ifdef CONFIG_DM_ETH
 	buf = dp_fill(buf, eth_get_dev());
@@ -600,6 +795,8 @@ struct efi_device_path *efi_dp_from_mem(uint32_t memory_type,
 	void *buf, *start;
 
 	start = buf = dp_alloc(sizeof(*mdp) + sizeof(END));
+	if (!buf)
+		return NULL;
 
 	mdp = buf;
 	mdp->dp.type = DEVICE_PATH_TYPE_HARDWARE_DEVICE;
@@ -619,22 +816,31 @@ struct efi_device_path *efi_dp_from_mem(uint32_t memory_type,
  * Helper to split a full device path (containing both device and file
  * parts) into it's constituent parts.
  */
-void efi_dp_split_file_path(struct efi_device_path *full_path,
-			    struct efi_device_path **device_path,
-			    struct efi_device_path **file_path)
+efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
+				    struct efi_device_path **device_path,
+				    struct efi_device_path **file_path)
 {
 	struct efi_device_path *p, *dp, *fp;
 
+	*device_path = NULL;
+	*file_path = NULL;
 	dp = efi_dp_dup(full_path);
+	if (!dp)
+		return EFI_OUT_OF_RESOURCES;
 	p = dp;
-	while (!EFI_DP_TYPE(p, MEDIA_DEVICE, FILE_PATH))
+	while (!EFI_DP_TYPE(p, MEDIA_DEVICE, FILE_PATH)) {
 		p = efi_dp_next(p);
+		if (!p)
+			return EFI_OUT_OF_RESOURCES;
+	}
 	fp = efi_dp_dup(p);
-
+	if (!fp)
+		return EFI_OUT_OF_RESOURCES;
 	p->type = DEVICE_PATH_TYPE_END;
 	p->sub_type = DEVICE_PATH_SUB_TYPE_END;
 	p->length = sizeof(*p);
 
 	*device_path = dp;
 	*file_path = fp;
+	return EFI_SUCCESS;
 }

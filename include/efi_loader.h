@@ -69,10 +69,11 @@ const char *__efi_nesting_dec(void);
 	} while(0)
 
 /*
- * Write GUID
+ * Write an indented message with EFI prefix
  */
-#define EFI_PRINT_GUID(txt, guid) ({ \
-	debug("%sEFI: %s %pUl\n", __efi_nesting(), txt, guid); \
+#define EFI_PRINT(format, ...) ({ \
+	debug("%sEFI: " format, __efi_nesting(), \
+		##__VA_ARGS__); \
 	})
 
 extern struct efi_runtime_services efi_runtime_services;
@@ -85,9 +86,13 @@ extern const struct efi_device_path_to_text_protocol efi_device_path_to_text;
 
 uint16_t *efi_dp_str(struct efi_device_path *dp);
 
+/* GUID of the EFI_BLOCK_IO_PROTOCOL */
+extern const efi_guid_t efi_block_io_guid;
 extern const efi_guid_t efi_global_variable_guid;
 extern const efi_guid_t efi_guid_console_control;
 extern const efi_guid_t efi_guid_device_path;
+/* GUID of the EFI_DRIVER_BINDING_PROTOCOL */
+extern const efi_guid_t efi_guid_driver_binding_protocol;
 extern const efi_guid_t efi_guid_loaded_image;
 extern const efi_guid_t efi_guid_device_path_to_text_protocol;
 extern const efi_guid_t efi_simple_file_system_protocol_guid;
@@ -97,14 +102,27 @@ extern unsigned int __efi_runtime_start, __efi_runtime_stop;
 extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
 
 /*
+ * When a protocol is opened a open protocol info entry is created.
+ * These are maintained in a list.
+ */
+struct efi_open_protocol_info_item {
+	/* Link to the list of open protocol info entries of a protocol */
+	struct list_head link;
+	struct efi_open_protocol_info_entry info;
+};
+
+/*
  * When the UEFI payload wants to open a protocol on an object to get its
  * interface (usually a struct with callback functions), this struct maps the
- * protocol GUID to the respective protocol interface */
+ * protocol GUID to the respective protocol interface
+ */
 struct efi_handler {
 	/* Link to the list of protocols of a handle */
 	struct list_head link;
 	const efi_guid_t *guid;
 	void *protocol_interface;
+	/* Link to the list of open protocol info items */
+	struct list_head open_infos;
 };
 
 /*
@@ -156,6 +174,10 @@ extern struct list_head efi_obj_list;
 int efi_console_register(void);
 /* Called by bootefi to make all disk storage accessible as EFI objects */
 int efi_disk_register(void);
+/* Create handles and protocols for the partitions of a block device */
+int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
+			       const char *if_typename, int diskid,
+			       const char *pdevname);
 /* Called by bootefi to make GOP (graphical) interface available */
 int efi_gop_register(void);
 /* Called by bootefi to make the network interface available */
@@ -189,23 +211,25 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path);
 /* Add a new object to the object list. */
 void efi_add_handle(struct efi_object *obj);
 /* Create handle */
-efi_status_t efi_create_handle(void **handle);
+efi_status_t efi_create_handle(efi_handle_t *handle);
 /* Delete handle */
 void efi_delete_handle(struct efi_object *obj);
 /* Call this to validate a handle and find the EFI object for it */
-struct efi_object *efi_search_obj(const void *handle);
+struct efi_object *efi_search_obj(const efi_handle_t handle);
 /* Find a protocol on a handle */
-efi_status_t efi_search_protocol(const void *handle,
+efi_status_t efi_search_protocol(const efi_handle_t handle,
 				 const efi_guid_t *protocol_guid,
 				 struct efi_handler **handler);
 /* Install new protocol on a handle */
-efi_status_t efi_add_protocol(const void *handle, const efi_guid_t *protocol,
+efi_status_t efi_add_protocol(const efi_handle_t handle,
+			      const efi_guid_t *protocol,
 			      void *protocol_interface);
 /* Delete protocol from a handle */
-efi_status_t efi_remove_protocol(const void *handle, const efi_guid_t *protocol,
+efi_status_t efi_remove_protocol(const efi_handle_t handle,
+				 const efi_guid_t *protocol,
 				 void *protocol_interface);
 /* Delete all protocols from a handle */
-efi_status_t efi_remove_all_protocols(const void *handle);
+efi_status_t efi_remove_all_protocols(const efi_handle_t handle);
 /* Call this to create an event */
 efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 			      void (EFIAPI *notify_function) (
@@ -216,7 +240,7 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
 			   uint64_t trigger_time);
 /* Call this to signal an event */
-void efi_signal_event(struct efi_event *event);
+void efi_signal_event(struct efi_event *event, bool check_tpl);
 
 /* open file system: */
 struct efi_simple_file_system_protocol *efi_simple_file_system(
@@ -247,6 +271,8 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 /* Adds a range into the EFI memory map */
 uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 			    bool overlap_only_ram);
+/* Called by board init to initialize the EFI drivers */
+int efi_driver_init(void);
 /* Called by board init to initialize the EFI memory map */
 int efi_memory_init(void);
 /* Adds new or overrides configuration table entry to the system table */
@@ -280,15 +306,20 @@ struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
 
 struct efi_device_path *efi_dp_from_dev(struct udevice *dev);
 struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part);
+/* Create a device node for a block device partition. */
+struct efi_device_path *efi_dp_part_node(struct blk_desc *desc, int part);
 struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
 					 const char *path);
 struct efi_device_path *efi_dp_from_eth(void);
 struct efi_device_path *efi_dp_from_mem(uint32_t mem_type,
 					uint64_t start_address,
 					uint64_t end_address);
-void efi_dp_split_file_path(struct efi_device_path *full_path,
-			    struct efi_device_path **device_path,
-			    struct efi_device_path **file_path);
+/* Determine the last device path node that is not the end node. */
+const struct efi_device_path *efi_dp_last_node(
+			const struct efi_device_path *dp);
+efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
+				    struct efi_device_path **device_path,
+				    struct efi_device_path **file_path);
 
 #define EFI_DP_TYPE(_dp, _type, _subtype) \
 	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \

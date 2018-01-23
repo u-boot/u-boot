@@ -4,6 +4,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+# Provide symbol API_BUILD to signal that the API example is being built.
+KBUILD_CPPFLAGS += -DAPI_BUILD
+
 ifeq ($(ARCH),powerpc)
 LOAD_ADDR = 0x40000
 endif

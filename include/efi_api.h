@@ -84,11 +84,12 @@ struct efi_boot_services {
 	efi_status_t (EFIAPI *reinstall_protocol_interface)(
 			void *handle, const efi_guid_t *protocol,
 			void *old_interface, void *new_interface);
-	efi_status_t (EFIAPI *uninstall_protocol_interface)(void *handle,
-			const efi_guid_t *protocol, void *protocol_interface);
-	efi_status_t (EFIAPI *handle_protocol)(efi_handle_t,
-					       const efi_guid_t *protocol,
-					       void **protocol_interface);
+	efi_status_t (EFIAPI *uninstall_protocol_interface)(
+			efi_handle_t handle, const efi_guid_t *protocol,
+			void *protocol_interface);
+	efi_status_t (EFIAPI *handle_protocol)(
+			efi_handle_t handle, const efi_guid_t *protocol,
+			void **protocol_interface);
 	void *reserved;
 	efi_status_t (EFIAPI *register_protocol_notify)(
 			const efi_guid_t *protocol, struct efi_event *event,
@@ -113,7 +114,7 @@ struct efi_boot_services {
 	efi_status_t (EFIAPI *exit)(efi_handle_t handle,
 				    efi_status_t exit_status,
 				    unsigned long exitdata_size, s16 *exitdata);
-	efi_status_t (EFIAPI *unload_image)(void *image_handle);
+	efi_status_t (EFIAPI *unload_image)(efi_handle_t image_handle);
 	efi_status_t (EFIAPI *exit_boot_services)(efi_handle_t, unsigned long);
 
 	efi_status_t (EFIAPI *get_next_monotonic_count)(u64 *count);
@@ -125,8 +126,10 @@ struct efi_boot_services {
 			efi_handle_t *driver_image_handle,
 			struct efi_device_path *remaining_device_path,
 			bool recursive);
-	efi_status_t (EFIAPI *disconnect_controller)(void *controller_handle,
-			void *driver_image_handle, void *child_handle);
+	efi_status_t (EFIAPI *disconnect_controller)(
+			efi_handle_t controller_handle,
+			efi_handle_t driver_image_handle,
+			efi_handle_t child_handle);
 #define EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL  0x00000001
 #define EFI_OPEN_PROTOCOL_GET_PROTOCOL        0x00000002
 #define EFI_OPEN_PROTOCOL_TEST_PROTOCOL       0x00000004
@@ -137,9 +140,10 @@ struct efi_boot_services {
 			const efi_guid_t *protocol, void **interface,
 			efi_handle_t agent_handle,
 			efi_handle_t controller_handle, u32 attributes);
-	efi_status_t (EFIAPI *close_protocol)(void *handle,
-			const efi_guid_t *protocol, void *agent_handle,
-			void *controller_handle);
+	efi_status_t (EFIAPI *close_protocol)(
+			efi_handle_t handle, const efi_guid_t *protocol,
+			efi_handle_t agent_handle,
+			efi_handle_t controller_handle);
 	efi_status_t(EFIAPI *open_protocol_information)(efi_handle_t handle,
 			const efi_guid_t *protocol,
 			struct efi_open_protocol_info_entry **entry_buffer,
@@ -243,11 +247,11 @@ struct efi_system_table {
 	struct efi_table_hdr hdr;
 	unsigned long fw_vendor;   /* physical addr of wchar_t vendor string */
 	u32 fw_revision;
-	unsigned long con_in_handle;
+	efi_handle_t con_in_handle;
 	struct efi_simple_input_interface *con_in;
-	unsigned long con_out_handle;
+	efi_handle_t con_out_handle;
 	struct efi_simple_text_output_protocol *con_out;
-	unsigned long stderr_handle;
+	efi_handle_t stderr_handle;
 	struct efi_simple_text_output_protocol *std_err;
 	struct efi_runtime_services *runtime;
 	struct efi_boot_services *boottime;
@@ -329,11 +333,26 @@ struct efi_device_path_acpi_path {
 } __packed;
 
 #define DEVICE_PATH_TYPE_MESSAGING_DEVICE	0x03
+#  define DEVICE_PATH_SUB_TYPE_MSG_ATAPI	0x01
+#  define DEVICE_PATH_SUB_TYPE_MSG_SCSI		0x02
 #  define DEVICE_PATH_SUB_TYPE_MSG_USB		0x05
 #  define DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR	0x0b
 #  define DEVICE_PATH_SUB_TYPE_MSG_USB_CLASS	0x0f
 #  define DEVICE_PATH_SUB_TYPE_MSG_SD		0x1a
 #  define DEVICE_PATH_SUB_TYPE_MSG_MMC		0x1d
+
+struct efi_device_path_atapi {
+	struct efi_device_path dp;
+	u8 primary_secondary;
+	u8 slave_master;
+	u16 logical_unit_number;
+} __packed;
+
+struct efi_device_path_scsi {
+	struct efi_device_path dp;
+	u16 target_id;
+	u16 logical_unit_number;
+} __packed;
 
 struct efi_device_path_usb {
 	struct efi_device_path dp;
@@ -405,7 +424,15 @@ struct efi_block_io_media
 	u32 io_align;
 	u8 pad2[4];
 	u64 last_block;
+	/* Added in revision 2 of the protocol */
+	u64 lowest_aligned_lba;
+	u32 logical_blocks_per_physical_block;
+	/* Added in revision 3 of the protocol */
+	u32 optimal_transfer_length_granualarity;
 };
+
+#define EFI_BLOCK_IO_PROTOCOL_REVISION2	0x00020001
+#define EFI_BLOCK_IO_PROTOCOL_REVISION3	0x0002001f
 
 struct efi_block_io {
 	u64 revision;
@@ -413,10 +440,10 @@ struct efi_block_io {
 	efi_status_t (EFIAPI *reset)(struct efi_block_io *this,
 			char extended_verification);
 	efi_status_t (EFIAPI *read_blocks)(struct efi_block_io *this,
-			u32 media_id, u64 lba, unsigned long buffer_size,
+			u32 media_id, u64 lba, efi_uintn_t buffer_size,
 			void *buffer);
 	efi_status_t (EFIAPI *write_blocks)(struct efi_block_io *this,
-			u32 media_id, u64 lba, unsigned long buffer_size,
+			u32 media_id, u64 lba, efi_uintn_t buffer_size,
 			void *buffer);
 	efi_status_t (EFIAPI *flush_blocks)(struct efi_block_io *this);
 };
@@ -788,6 +815,28 @@ struct efi_file_info {
 	struct efi_time modification_time;
 	u64 attribute;
 	s16 file_name[0];
+};
+
+#define EFI_DRIVER_BINDING_PROTOCOL_GUID \
+	EFI_GUID(0x18a031ab, 0xb443, 0x4d1a,\
+		 0xa5, 0xc0, 0x0c, 0x09, 0x26, 0x1e, 0x9f, 0x71)
+struct efi_driver_binding_protocol {
+	efi_status_t (EFIAPI * supported)(
+			struct efi_driver_binding_protocol *this,
+			efi_handle_t controller_handle,
+			struct efi_device_path *remaining_device_path);
+	efi_status_t (EFIAPI * start)(
+			struct efi_driver_binding_protocol *this,
+			efi_handle_t controller_handle,
+			struct efi_device_path *remaining_device_path);
+	efi_status_t (EFIAPI * stop)(
+			struct efi_driver_binding_protocol *this,
+			efi_handle_t controller_handle,
+			efi_uintn_t number_of_children,
+			efi_handle_t *child_handle_buffer);
+	u32 version;
+	efi_handle_t image_handle;
+	efi_handle_t driver_binding_handle;
 };
 
 #endif

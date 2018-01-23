@@ -19,13 +19,19 @@
 #define EFI_ST_FAILURE 1
 
 /*
+ * Prints a message.
+ */
+#define efi_st_printf(...) \
+	(efi_st_printc(-1, __VA_ARGS__))
+
+/*
  * Prints an error message.
  *
  * @...	format string followed by fields to print
  */
 #define efi_st_error(...) \
-	(efi_st_printf("%s(%u):\nERROR: ", __FILE__, __LINE__), \
-	efi_st_printf(__VA_ARGS__)) \
+	(efi_st_printc(EFI_LIGHTRED, "%s(%u):\nERROR: ", __FILE__, __LINE__), \
+	efi_st_printc(EFI_LIGHTRED, __VA_ARGS__))
 
 /*
  * Prints a TODO message.
@@ -33,8 +39,8 @@
  * @...	format string followed by fields to print
  */
 #define efi_st_todo(...) \
-	(efi_st_printf("%s(%u):\nTODO: ", __FILE__, __LINE__), \
-	efi_st_printf(__VA_ARGS__)) \
+	(efi_st_printc(EFI_YELLOW, "%s(%u):\nTODO: ", __FILE__, __LINE__), \
+	efi_st_printc(EFI_YELLOW, __VA_ARGS__)) \
 
 /*
  * A test may be setup and executed at boottime,
@@ -61,14 +67,15 @@ extern struct efi_simple_input_interface *con_in;
 void efi_st_exit_boot_services(void);
 
 /*
- * Print a pointer to an u16 string
+ * Print a colored message
  *
- * @pointer: pointer
- * @buf: pointer to buffer address
- * on return position of terminating zero word
+ * @color	color, see constants in efi_api.h, use -1 for no color
+ * @fmt		printf format
+ * @...		arguments to be printed
+ *		on return position of terminating zero word
  */
-void efi_st_printf(const char *fmt, ...)
-		 __attribute__ ((format (__printf__, 1, 2)));
+void efi_st_printc(int color, const char *fmt, ...)
+		 __attribute__ ((format (__printf__, 2, 3)));
 
 /*
  * Compare memory.
