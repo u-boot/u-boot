@@ -100,6 +100,7 @@ F:	drivers/mmc/bcm2835_sdhci.c
 F:	drivers/serial/serial_bcm283x_mu.c
 F:	drivers/video/bcm2835.c
 F:	include/dm/platform_data/serial_bcm283x_mu.h
+F:	drivers/pinctrl/broadcom/
 
 ARM FREESCALE IMX
 M:	Stefano Babic <sbabic@denx.de>

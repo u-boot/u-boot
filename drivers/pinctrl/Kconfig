@@ -306,5 +306,6 @@ source "drivers/pinctrl/renesas/Kconfig"
 source "drivers/pinctrl/uniphier/Kconfig"
 source "drivers/pinctrl/exynos/Kconfig"
 source "drivers/pinctrl/mvebu/Kconfig"
+source "drivers/pinctrl/broadcom/Kconfig"
 
 endmenu

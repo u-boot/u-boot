@@ -24,6 +24,7 @@
 #include <asm/armv8/mmu.h>
 #endif
 #include <watchdog.h>
+#include <dm/pinctrl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -430,10 +431,10 @@ static bool rpi_is_serial_active(void)
 	 * out whether it is available is to check if the RX pin is muxed.
 	 */
 
-	if (uclass_first_device(UCLASS_GPIO, &dev) || !dev)
+	if (uclass_first_device(UCLASS_PINCTRL, &dev) || !dev)
 		return true;
 
-	if (bcm2835_gpio_get_func_id(dev, serial_gpio) != BCM2835_GPIO_ALT5)
+	if (pinctrl_get_gpio_mux(dev, 0, serial_gpio) != BCM2835_GPIO_ALT5)
 		return false;
 
 	return true;
