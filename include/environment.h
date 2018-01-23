@@ -293,13 +293,6 @@ int env_import_redund(const char *buf1, const char *buf2);
 #endif
 
 /**
- * env_driver_lookup_default() - Look up the default environment driver
- *
- * @return pointer to driver, or NULL if none (which should not happen)
- */
-struct env_driver *env_driver_lookup_default(void);
-
-/**
  * env_get_char() - Get a character from the early environment
  *
  * This reads from the pre-relocation environemnt

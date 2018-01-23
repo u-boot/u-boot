@@ -54,7 +54,7 @@ static enum env_location env_get_default_location(void)
 		return ENVL_UNKNOWN;
 }
 
-struct env_driver *env_driver_lookup_default(void)
+static struct env_driver *env_driver_lookup_default(void)
 {
 	enum env_location loc = env_get_default_location();
 	struct env_driver *drv;
@@ -117,6 +117,8 @@ int env_save(void)
 		return -ENODEV;
 	if (!drv->save)
 		return -ENOSYS;
+
+	printf("Saving Environment to %s...\n", drv->name);
 	ret = drv->save();
 	if (ret) {
 		debug("%s: Environment failed to save (err=%d)\n", __func__,
