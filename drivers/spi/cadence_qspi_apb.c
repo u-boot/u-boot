@@ -37,10 +37,6 @@
 #define CQSPI_REG_RETRY				10000
 #define CQSPI_POLL_IDLE_RETRY			3
 
-#define CQSPI_FIFO_WIDTH			4
-
-#define CQSPI_REG_SRAM_THRESHOLD_WORDS		50
-
 /* Transfer mode */
 #define CQSPI_INST_TYPE_SINGLE			0
 #define CQSPI_INST_TYPE_DUAL			1
@@ -50,9 +46,6 @@
 
 #define CQSPI_DUMMY_CLKS_PER_BYTE		8
 #define CQSPI_DUMMY_BYTES_MAX			4
-
-#define CQSPI_REG_SRAM_FILL_THRESHOLD	\
-	((CQSPI_REG_SRAM_SIZE_WORD / 2) * CQSPI_FIFO_WIDTH)
 
 /****************************************************************************
  * Controller's configuration and status register (offset from QSPI_BASE)
@@ -400,7 +393,7 @@ void cadence_qspi_apb_controller_init(struct cadence_spi_platdata *plat)
 	writel(0, plat->regbase + CQSPI_REG_REMAP);
 
 	/* Indirect mode configurations */
-	writel((plat->sram_size/2), plat->regbase + CQSPI_REG_SRAMPARTITION);
+	writel(plat->fifo_depth / 2, plat->regbase + CQSPI_REG_SRAMPARTITION);
 
 	/* Disable all interrupts */
 	writel(0, plat->regbase + CQSPI_REG_IRQMASK);
@@ -560,7 +553,7 @@ int cadence_qspi_apb_indirect_read_setup(struct cadence_spi_platdata *plat,
 		addr_bytes = cmdlen - 1;
 
 	/* Setup the indirect trigger address */
-	writel((u32)plat->ahbbase,
+	writel(plat->trigger_address,
 	       plat->regbase + CQSPI_REG_INDIRECTTRIGGER);
 
 	/* Configure the opcode */
@@ -659,7 +652,7 @@ int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
 		bytes_to_read = ret;
 
 		while (bytes_to_read != 0) {
-			bytes_to_read *= CQSPI_FIFO_WIDTH;
+			bytes_to_read *= plat->fifo_width;
 			bytes_to_read = bytes_to_read > remaining ?
 					remaining : bytes_to_read;
 			readsl(plat->ahbbase, bb_rxbuf, bytes_to_read >> 2);
@@ -710,7 +703,7 @@ int cadence_qspi_apb_indirect_write_setup(struct cadence_spi_platdata *plat,
 		return -EINVAL;
 	}
 	/* Setup the indirect trigger address */
-	writel((u32)plat->ahbbase,
+	writel(plat->trigger_address,
 	       plat->regbase + CQSPI_REG_INDIRECTTRIGGER);
 
 	/* Configure the opcode */
