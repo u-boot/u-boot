@@ -78,9 +78,10 @@ static u8 rxframe[PKTSIZE_ALIGN] __attribute((aligned(DMAALIGN)));
 struct axidma_reg {
 	u32 control; /* DMACR */
 	u32 status; /* DMASR */
-	u32 current; /* CURDESC */
-	u32 reserved;
-	u32 tail; /* TAILDESC */
+	u32 current; /* CURDESC low 32 bit */
+	u32 current_hi; /* CURDESC high 32 bit */
+	u32 tail; /* TAILDESC low 32 bit */
+	u32 tail_hi; /* TAILDESC high 32 bit */
 };
 
 /* Private driver structures */
@@ -166,6 +167,22 @@ static inline int mdio_wait(struct axi_regs *regs)
 		return 1;
 	}
 	return 0;
+}
+
+/**
+ * axienet_dma_write -	Memory mapped Axi DMA register Buffer Descriptor write.
+ * @bd:		pointer to BD descriptor structure
+ * @desc:	Address offset of DMA descriptors
+ *
+ * This function writes the value into the corresponding Axi DMA register.
+ */
+static inline void axienet_dma_write(struct axidma_bd *bd, u32 *desc)
+{
+#if defined(CONFIG_PHYS_64BIT)
+	writeq(bd, desc);
+#else
+	writel((u32)bd, desc);
+#endif
 }
 
 static u32 phyread(struct axidma_priv *priv, u32 phyaddress, u32 registernum,
@@ -465,7 +482,7 @@ static int axiemac_start(struct udevice *dev)
 	writel(temp, &priv->dmarx->control);
 
 	/* Start DMA RX channel. Now it's ready to receive data.*/
-	writel((u32)&rx_bd, &priv->dmarx->current);
+	axienet_dma_write(&rx_bd, &priv->dmarx->current);
 
 	/* Setup the BD. */
 	memset(&rx_bd, 0, sizeof(rx_bd));
@@ -485,7 +502,7 @@ static int axiemac_start(struct udevice *dev)
 	writel(temp, &priv->dmarx->control);
 
 	/* Rx BD is ready - start */
-	writel((u32)&rx_bd, &priv->dmarx->tail);
+	axienet_dma_write(&rx_bd, &priv->dmarx->tail);
 
 	/* Enable TX */
 	writel(XAE_TC_TX_MASK, &regs->tc);
@@ -527,7 +544,7 @@ static int axiemac_send(struct udevice *dev, void *ptr, int len)
 
 	if (readl(&priv->dmatx->status) & XAXIDMA_HALTED_MASK) {
 		u32 temp;
-		writel((u32)&tx_bd, &priv->dmatx->current);
+		axienet_dma_write(&tx_bd, &priv->dmatx->current);
 		/* Start the hardware */
 		temp = readl(&priv->dmatx->control);
 		temp |= XAXIDMA_CR_RUNSTOP_MASK;
@@ -535,7 +552,7 @@ static int axiemac_send(struct udevice *dev, void *ptr, int len)
 	}
 
 	/* Start transfer */
-	writel((u32)&tx_bd, &priv->dmatx->tail);
+	axienet_dma_write(&tx_bd, &priv->dmatx->tail);
 
 	/* Wait for transmission to complete */
 	debug("axiemac: Waiting for tx to be done\n");
@@ -626,7 +643,7 @@ static int axiemac_free_pkt(struct udevice *dev, uchar *packet, int length)
 	flush_cache((u32)&rxframe, sizeof(rxframe));
 
 	/* Rx BD is ready - start again */
-	writel((u32)&rx_bd, &priv->dmarx->tail);
+	axienet_dma_write(&rx_bd, &priv->dmarx->tail);
 
 	debug("axiemac: RX completed, framelength = %d\n", length);
 
