@@ -55,6 +55,7 @@ config ENV_IS_IN_FAT
 	bool "Environment is in a FAT filesystem"
 	depends on !CHAIN_OF_TRUST
 	default y if ARCH_BCM283X
+	default y if ARCH_SUNXI && MMC
 	default y if MMC_OMAP_HS && TI_COMMON_CMD_OPTIONS
 	select FS_FAT
 	select FAT_WRITE
@@ -368,6 +369,7 @@ config ENV_IS_IN_UBI
 config ENV_FAT_INTERFACE
 	string "Name of the block device for the environment"
 	depends on ENV_IS_IN_FAT
+	default "mmc" if ARCH_SUNXI
 	default "mmc" if TI_COMMON_CMD_OPTIONS || ARCH_ZYNQMP || ARCH_AT91
 	help
 	  Define this to a string that is the name of the block device.
@@ -377,6 +379,8 @@ config ENV_FAT_DEVICE_AND_PART
 	depends on ENV_IS_IN_FAT
 	default "0:1" if TI_COMMON_CMD_OPTIONS
 	default "0:auto" if ARCH_ZYNQMP
+	default "0:auto" if ARCH_SUNXI && MMC_SUNXI_SLOT_EXTRA = -1
+	default "1:auto" if ARCH_SUNXI && MMC_SUNXI_SLOT_EXTRA != -1
 	default "0" if ARCH_AT91
 	help
 	  Define this to a string to specify the partition of the device. It can
