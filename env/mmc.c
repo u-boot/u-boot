@@ -233,7 +233,6 @@ static int env_mmc_save(void)
 		goto fini;
 	}
 
-	puts("done\n");
 	ret = 0;
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
