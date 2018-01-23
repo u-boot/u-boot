@@ -1,0 +1,66 @@
+# Copyright (C) 2018 EETS GmbH - http://www.eets.ch/
+#
+# SPDX-License-Identifier: GPL-2.0+
+#
+
+if TARGET_PDU001
+
+config SYS_BOARD
+	default "pdu001"
+
+config SYS_VENDOR
+	default "eets"
+
+config SYS_SOC
+	default "am33xx"
+
+config SYS_CONFIG_NAME
+	default "pdu001"
+
+config CONS_INDEX
+	int "UART used for console"
+	range 1 6
+	default 4
+	help
+	  The AM335x SoC has a total of 6 UARTs (UART0 to UART5 as referenced
+	  in documentation, etc) available to it.  The best choice for the
+	  PDU001 is UART3 as it is wired to the header K2; enter 4 here to
+	  use UART3. UART0 is connected to the EIA-485 transceiver. If you
+	  really need to use it, you are advised to remove the transceiver U14
+	  from the board. UART1 is wired to the backplane and therefore
+	  accessible from there or by the backplane connector K1 of the PDU.
+	  Any other UART then UART3 (enter 4 here), UART1 (enter 2 here) or
+	  UART0 (enter 1 here) are not sensible since they are not wired to
+	  any connector and therefore difficult to access.
+
+choice
+	prompt "State of Run LED"
+	default PDU001_RUN_LED_RED
+	help
+	  The PDU001 has a bi-color (red/green) LED labeled 'Run' which
+	  can be used to indicate the operating state of the board. By
+	  default it will be lit red by U-Boot. Later in the start-up
+	  process it can be changed to green (or heartbeat or anything else)
+	  by the kernel or some other software.
+
+config RUN_LED_RED
+	bool
+	prompt "Red"
+	help
+	  Lit Run LED red.
+
+config RUN_LED_GREEN
+	bool
+	prompt "Green"
+	help
+	  Lit Run LED green.
+
+config RUN_LED_OFF
+	bool
+	prompt "Off"
+	help
+	  Do not lit Run LED.
+
+endchoice
+
+endif

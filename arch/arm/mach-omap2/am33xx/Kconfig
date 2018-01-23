@@ -185,6 +185,15 @@ config TARGET_THUBAN
 	select DM_SERIAL
 	select DM_GPIO
 
+config TARGET_PDU001
+	bool "Support PDU001"
+	select DM
+	select DM_SERIAL
+	help
+	  Support for PDU001 platform developed by EETS GmbH.
+	  The PDU001 is a processor and display unit developed around
+	  the Computing-Module m2 from bytes at work AG.
+
 endchoice
 
 endif
