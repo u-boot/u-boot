@@ -168,8 +168,9 @@ int env_save(void)
 		if (!drv->save)
 			continue;
 
-		printf("Saving Environment to %s...\n", drv->name);
+		printf("Saving Environment to %s... ", drv->name);
 		ret = drv->save();
+		printf("%s\n", ret ? "Failed" : "OK");
 		if (!ret)
 			return 0;
 
