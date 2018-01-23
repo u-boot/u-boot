@@ -380,13 +380,6 @@ matrix:
           TOOLCHAIN="x86_64"
           BUILD_ROM="yes"
     - env:
-        - TEST_PY_BD="qemu-x86_64"
-          TEST_PY_TEST_SPEC="not sleep"
-          QEMU_TARGET="x86_64-softmmu"
-          BUILDMAN="^qemu-x86_64$"
-          TOOLCHAIN="x86_64"
-          BUILD_ROM="yes"
-    - env:
         - TEST_PY_BD="zynq_zc702"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="arm-softmmu"
