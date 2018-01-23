@@ -62,8 +62,7 @@ int is_fpgamgr_user_mode(void)
 
 static int wait_for_user_mode(void)
 {
-	return wait_for_bit(__func__,
-		&fpga_manager_base->imgcfg_stat,
+	return wait_for_bit_le32(&fpga_manager_base->imgcfg_stat,
 		ALT_FPGAMGR_IMGCFG_STAT_F2S_USERMODE_SET_MSK,
 		1, FPGA_TIMEOUT_MSEC, false);
 }
@@ -115,19 +114,17 @@ static int wait_for_nconfig_pin_and_nstatus_pin(void)
 	/* Poll until f2s_nconfig_pin and f2s_nstatus_pin; loop until de-asserted,
 	 * timeout at 1000ms
 	 */
-	return wait_for_bit(__func__,
-			    &fpga_manager_base->imgcfg_stat,
-			    mask,
-			    false, FPGA_TIMEOUT_MSEC, false);
+	return wait_for_bit_le32(&fpga_manager_base->imgcfg_stat,
+		mask,
+		false, FPGA_TIMEOUT_MSEC, false);
 }
 
 static int wait_for_f2s_nstatus_pin(unsigned long value)
 {
 	/* Poll until f2s to specific value, timeout at 1000ms */
-	return wait_for_bit(__func__,
-			    &fpga_manager_base->imgcfg_stat,
-			    ALT_FPGAMGR_IMGCFG_STAT_F2S_NSTATUS_PIN_SET_MSK,
-			    value, FPGA_TIMEOUT_MSEC, false);
+	return wait_for_bit_le32(&fpga_manager_base->imgcfg_stat,
+		ALT_FPGAMGR_IMGCFG_STAT_F2S_NSTATUS_PIN_SET_MSK,
+		value, FPGA_TIMEOUT_MSEC, false);
 }
 
 /* set CD ratio */

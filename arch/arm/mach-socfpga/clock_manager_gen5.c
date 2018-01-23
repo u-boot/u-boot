@@ -37,15 +37,13 @@ static int cm_write_with_phase(u32 value, u32 reg_address, u32 mask)
 	int ret;
 
 	/* poll until phase is zero */
-	ret = wait_for_bit(__func__, (const u32 *)reg_address, mask,
-			   false, 20000, false);
+	ret = wait_for_bit_le32(reg_address, mask, false, 20000, false);
 	if (ret)
 		return ret;
 
 	writel(value, reg_address);
 
-	return wait_for_bit(__func__, (const u32 *)reg_address, mask,
-			    false, 20000, false);
+	return wait_for_bit_le32(reg_address, mask, false, 20000, false);
 }
 
 /*

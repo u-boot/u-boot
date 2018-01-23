@@ -675,8 +675,8 @@ int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
 	}
 
 	/* Check indirect done status */
-	ret = wait_for_bit("QSPI", plat->regbase + CQSPI_REG_INDIRECTRD,
-			   CQSPI_REG_INDIRECTRD_DONE, 1, 10, 0);
+	ret = wait_for_bit_le32(plat->regbase + CQSPI_REG_INDIRECTRD,
+				CQSPI_REG_INDIRECTRD_DONE, 1, 10, 0);
 	if (ret) {
 		printf("Indirect read completion error (%i)\n", ret);
 		goto failrd;
@@ -762,9 +762,9 @@ int cadence_qspi_apb_indirect_write_execute(struct cadence_spi_platdata *plat,
 				bb_txbuf + rounddown(write_bytes, 4),
 				write_bytes % 4);
 
-		ret = wait_for_bit("QSPI", plat->regbase + CQSPI_REG_SDRAMLEVEL,
-				   CQSPI_REG_SDRAMLEVEL_WR_MASK <<
-				   CQSPI_REG_SDRAMLEVEL_WR_LSB, 0, 10, 0);
+		ret = wait_for_bit_le32(plat->regbase + CQSPI_REG_SDRAMLEVEL,
+					CQSPI_REG_SDRAMLEVEL_WR_MASK <<
+					CQSPI_REG_SDRAMLEVEL_WR_LSB, 0, 10, 0);
 		if (ret) {
 			printf("Indirect write timed out (%i)\n", ret);
 			goto failwr;
@@ -775,8 +775,8 @@ int cadence_qspi_apb_indirect_write_execute(struct cadence_spi_platdata *plat,
 	}
 
 	/* Check indirect done status */
-	ret = wait_for_bit("QSPI", plat->regbase + CQSPI_REG_INDIRECTWR,
-			   CQSPI_REG_INDIRECTWR_DONE, 1, 10, 0);
+	ret = wait_for_bit_le32(plat->regbase + CQSPI_REG_INDIRECTWR,
+				CQSPI_REG_INDIRECTWR_DONE, 1, 10, 0);
 	if (ret) {
 		printf("Indirect write completion error (%i)\n", ret);
 		goto failwr;

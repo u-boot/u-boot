@@ -222,8 +222,8 @@ static int ravb_reset(struct udevice *dev)
 	writel(CCC_OPC_CONFIG, eth->iobase + RAVB_REG_CCC);
 
 	/* Check the operating mode is changed to the config mode. */
-	return wait_for_bit(dev->name, (void *)eth->iobase + RAVB_REG_CSR,
-			    CSR_OPS_CONFIG, true, 100, true);
+	return wait_for_bit_le32(eth->iobase + RAVB_REG_CSR,
+				 CSR_OPS_CONFIG, true, 100, true);
 }
 
 static void ravb_base_desc_init(struct ravb_priv *eth)

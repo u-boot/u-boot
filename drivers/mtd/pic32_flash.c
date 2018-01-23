@@ -66,8 +66,8 @@ static inline void flash_initiate_operation(u32 nvmop)
 
 static int flash_wait_till_busy(const char *func, ulong timeout)
 {
-	int ret = wait_for_bit(__func__, &nvm_regs_p->ctrl.raw,
-			       NVM_WR, false, timeout, false);
+	int ret = wait_for_bit_le32(&nvm_regs_p->ctrl.raw,
+				    NVM_WR, false, timeout, false);
 
 	return ret ? ERR_TIMOUT : ERR_OK;
 }
