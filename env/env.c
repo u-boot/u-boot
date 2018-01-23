@@ -88,6 +88,7 @@ static void env_set_inited(enum env_location location)
  *        highest priority
  *
  * This will return the preferred environment for the given priority.
+ * This is overridable by boards if they need to.
  *
  * All implementations are free to use the operation, the priority and
  * any other data relevant to their choice, but must take into account
@@ -98,7 +99,7 @@ static void env_set_inited(enum env_location location)
  * Returns:
  * an enum env_location value on success, a negative error code otherwise
  */
-static enum env_location env_get_location(enum env_operation op, int prio)
+__weak enum env_location env_get_location(enum env_operation op, int prio)
 {
 	switch (op) {
 	case ENVOP_GET_CHAR:
