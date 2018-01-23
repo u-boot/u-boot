@@ -516,6 +516,9 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		else
 			read_len = remain_len;
 
+		if (spi->max_read_size)
+			read_len = min(read_len, spi->max_read_size);
+
 		spi_flash_addr(read_addr, cmd);
 
 		ret = spi_flash_read_common(flash, cmd, cmdsz, data, read_len);

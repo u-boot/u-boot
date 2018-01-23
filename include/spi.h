@@ -86,6 +86,8 @@ struct dm_spi_slave_platdata {
  * @cs:			ID of the chip select connected to the slave.
  * @mode:		SPI mode to use for this slave (see SPI mode flags)
  * @wordlen:		Size of SPI word in number of bits
+ * @max_read_size:	If non-zero, the maximum number of bytes which can
+ *			be read at once.
  * @max_write_size:	If non-zero, the maximum number of bytes which can
  *			be written at once, excluding command bytes.
  * @memory_map:		Address of read-only SPI flash access.
@@ -102,6 +104,7 @@ struct spi_slave {
 #endif
 	uint mode;
 	unsigned int wordlen;
+	unsigned int max_read_size;
 	unsigned int max_write_size;
 	void *memory_map;
 
