@@ -146,6 +146,7 @@ def test_qspi_erase_block(u_boot_console):
 # Random write till page size, random till size and full size
 def qspi_write_twice(u_boot_console):
 
+    qspi_erase_block(u_boot_console)
     expected_write = "Written: OK"
     expected_read = "Read: OK"
 
