@@ -1,38 +1,18 @@
 menu "Environment"
 
-choice
-	prompt "Select the location of the environment"
-	default ENV_IS_IN_MMC if ARCH_SUNXI
-	default ENV_IS_IN_MMC if ARCH_EXYNOS4
-	default ENV_IS_IN_MMC if MX6SX || MX7D
-	default ENV_IS_IN_MMC if TEGRA30 || TEGRA124
-	default ENV_IS_IN_MMC if TEGRA_ARMV8_COMMON
-	default ENV_IS_IN_FLASH if ARCH_CINTEGRATOR
-	default ENV_IS_IN_FLASH if ARCH_INTEGRATOR_CP
-	default ENV_IS_IN_FLASH if M548x || M547x || M5282 || MCF547x_8x
-	default ENV_IS_IN_FLASH if MCF532x || MCF52x2
-	default ENV_IS_IN_FLASH if MPC86xx || MPC83xx
-	default ENV_IS_IN_FLASH if ARCH_MPC8572 || ARCH_MPC8548 || ARCH_MPC8641
-	default ENV_IS_IN_FLASH if SH && !CPU_SH4
-	default ENV_IS_IN_SPI_FLASH if ARMADA_XP
-	default ENV_IS_IN_SPI_FLASH if INTEL_BAYTRAIL
-	default ENV_IS_IN_SPI_FLASH if INTEL_BRASWELL
-	default ENV_IS_IN_SPI_FLASH if INTEL_BROADWELL
-	default ENV_IS_IN_SPI_FLASH if NORTHBRIDGE_INTEL_IVYBRIDGE
-	default ENV_IS_IN_SPI_FLASH if INTEL_QUARK
-	default ENV_IS_IN_SPI_FLASH if INTEL_QUEENSBAY
-	default ENV_IS_IN_FAT if ARCH_BCM283X
-	default ENV_IS_IN_FAT if MMC_OMAP_HS && TI_COMMON_CMD_OPTIONS
-	default ENV_IS_NOWHERE
-	help
-	  At present the environment can be stored in only one place. Use this
-	  option to select the location. This is either a device (where the
-	  environemnt information is simply written to a fixed location or
-	  partition on the device) or a filesystem (where the environment
-	  information is written to a file).
-
 config ENV_IS_NOWHERE
 	bool "Environment is not stored"
+	depends on !ENV_IS_IN_EEPROM
+	depends on !ENV_IS_IN_FAT
+	depends on !ENV_IS_IN_FLASH
+	depends on !ENV_IS_IN_MMC
+	depends on !ENV_IS_IN_NAND
+	depends on !ENV_IS_IN_NVRAM
+	depends on !ENV_IS_IN_ONENAND
+	depends on !ENV_IS_IN_REMOTE
+	depends on !ENV_IS_IN_SPI_FLASH
+	depends on !ENV_IS_IN_UBI
+	default y
 	help
 	  Define this if you don't want to or can't have an environment stored
 	  on a storage medium. In this case the environemnt will still exist
@@ -74,6 +54,8 @@ config ENV_IS_IN_EEPROM
 config ENV_IS_IN_FAT
 	bool "Environment is in a FAT filesystem"
 	depends on !CHAIN_OF_TRUST
+	default y if ARCH_BCM283X
+	default y if MMC_OMAP_HS && TI_COMMON_CMD_OPTIONS
 	select FS_FAT
 	select FAT_WRITE
 	help
@@ -89,6 +71,13 @@ config ENV_IS_IN_EXT4
 config ENV_IS_IN_FLASH
 	bool "Environment in flash memory"
 	depends on !CHAIN_OF_TRUST
+	default y if ARCH_CINTEGRATOR
+	default y if ARCH_INTEGRATOR_CP
+	default y if M548x || M547x || M5282 || MCF547x_8x
+	default y if MCF532x || MCF52x2
+	default y if MPC86xx || MPC83xx
+	default y if ARCH_MPC8572 || ARCH_MPC8548 || ARCH_MPC8641
+	default y if SH && !CPU_SH4
 	help
 	  Define this if you have a flash device which you want to use for the
 	  environment.
@@ -162,6 +151,11 @@ config ENV_IS_IN_MMC
 	bool "Environment in an MMC device"
 	depends on !CHAIN_OF_TRUST
 	depends on MMC
+	default y if ARCH_SUNXI
+	default y if ARCH_EXYNOS4
+	default y if MX6SX || MX7D
+	default y if TEGRA30 || TEGRA124
+	default y if TEGRA_ARMV8_COMMON
 	help
 	  Define this if you have an MMC device which you want to use for the
 	  environment.
@@ -299,6 +293,13 @@ config ENV_IS_IN_REMOTE
 config ENV_IS_IN_SPI_FLASH
 	bool "Environment is in SPI flash"
 	depends on !CHAIN_OF_TRUST
+	default y if ARMADA_XP
+	default y if INTEL_BAYTRAIL
+	default y if INTEL_BRASWELL
+	default y if INTEL_BROADWELL
+	default y if NORTHBRIDGE_INTEL_IVYBRIDGE
+	default y if INTEL_QUARK
+	default y if INTEL_QUEENSBAY
 	help
 	  Define this if you have a SPI Flash memory device which you
 	  want to use for the environment.
@@ -363,8 +364,6 @@ config ENV_IS_IN_UBI
 
 	  You will probably want to define these to avoid a really noisy system
 	  when storing the env in UBI.
-
-endchoice
 
 config ENV_FAT_INTERFACE
 	string "Name of the block device for the environment"
