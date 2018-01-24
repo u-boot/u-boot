@@ -162,6 +162,20 @@ config SYS_I2C_OMAP24XX
 	help
 	  Add support for the OMAP2+ I2C driver.
 
+if SYS_I2C_OMAP24XX
+config SYS_OMAP24_I2C_SLAVE
+	int "I2C Slave addr channel 0"
+	default 1
+	help
+	  OMAP24xx I2C Slave address channel 0
+
+config SYS_OMAP24_I2C_SPEED
+	int "I2C Slave channel 0 speed"
+	default 100000
+	help
+	  OMAP24xx Slave speed channel 0
+endif
+
 config SYS_I2C_RCAR_IIC
 	bool "Renesas RCar Gen3 IIC driver"
 	depends on RCAR_GEN3 && DM_I2C

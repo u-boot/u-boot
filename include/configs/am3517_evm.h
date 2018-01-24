@@ -56,8 +56,6 @@
 #endif /* CONFIG_USB_MUSB_AM35X */
 
 /* I2C */
-#define CONFIG_SYS_OMAP24_I2C_SPEED	100000
-#define CONFIG_SYS_OMAP24_I2C_SLAVE	1
 
 /* Ethernet */
 #define CONFIG_DRIVER_TI_EMAC

@@ -95,8 +95,6 @@
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
 
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_OMAP24_I2C_SPEED	100000
-#define CONFIG_SYS_OMAP24_I2C_SLAVE	1
 
 /*
  * TWL4030

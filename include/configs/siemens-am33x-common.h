@@ -97,8 +97,6 @@
 /* I2C Configuration */
 #define CONFIG_I2C
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_OMAP24_I2C_SPEED	100000
-#define CONFIG_SYS_OMAP24_I2C_SLAVE	1
 
 /* Defines for SPL */
 #define CONFIG_SPL_FRAMEWORK
