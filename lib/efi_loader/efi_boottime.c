@@ -111,8 +111,11 @@ void efi_restore_gd(void)
 }
 
 /*
- * Two spaces per indent level, maxing out at 10.. which ought to be
- * enough for anyone ;-)
+ * Return a string for indenting with two spaces per level. A maximum of ten
+ * indent levels is supported. Higher indent levels will be truncated.
+ *
+ * @level	indent level
+ * @return	indent string
  */
 static const char *indent_string(int level)
 {
@@ -1456,7 +1459,7 @@ error:
  * for details.
  *
  * @boot_policy		true for request originating from the boot manager
- * @parent_image	the calles's image handle
+ * @parent_image	the caller's image handle
  * @file_path		the path of the image to load
  * @source_buffer	memory location from which the image is installed
  * @source_size		size of the memory area from which the image is
