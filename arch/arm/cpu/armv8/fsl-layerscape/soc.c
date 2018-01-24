@@ -363,6 +363,45 @@ int sata_init(void)
 }
 #endif
 
+/* Get VDD in the unit mV from voltage ID */
+int get_core_volt_from_fuse(void)
+{
+	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	int vdd;
+	u32 fusesr;
+	u8 vid;
+
+	/* get the voltage ID from fuse status register */
+	fusesr = in_le32(&gur->dcfg_fusesr);
+	debug("%s: fusesr = 0x%x\n", __func__, fusesr);
+	vid = (fusesr >> FSL_CHASSIS3_DCFG_FUSESR_ALTVID_SHIFT) &
+		FSL_CHASSIS3_DCFG_FUSESR_ALTVID_MASK;
+	if ((vid == 0) || (vid == FSL_CHASSIS3_DCFG_FUSESR_ALTVID_MASK)) {
+		vid = (fusesr >> FSL_CHASSIS3_DCFG_FUSESR_VID_SHIFT) &
+			FSL_CHASSIS3_DCFG_FUSESR_VID_MASK;
+	}
+	debug("%s: VID = 0x%x\n", __func__, vid);
+	switch (vid) {
+	case 0x00: /* VID isn't supported */
+		vdd = -EINVAL;
+		debug("%s: The VID feature is not supported\n", __func__);
+		break;
+	case 0x08: /* 0.9V silicon */
+		vdd = 900;
+		break;
+	case 0x10: /* 1.0V silicon */
+		vdd = 1000;
+		break;
+	default:  /* Other core voltage */
+		vdd = -EINVAL;
+		debug("%s: The VID(%x) isn't supported\n", __func__, vid);
+		break;
+	}
+	debug("%s: The required minimum volt of CORE is %dmV\n", __func__, vdd);
+
+	return vdd;
+}
+
 #elif defined(CONFIG_FSL_LSCH2)
 #ifdef CONFIG_SCSI_AHCI_PLAT
 int sata_init(void)

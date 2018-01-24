@@ -85,6 +85,9 @@ void board_init_f(ulong dummy)
 #ifdef CONFIG_SPL_I2C_SUPPORT
 	i2c_init_all();
 #endif
+#ifdef CONFIG_VID
+	init_func_vid();
+#endif
 	dram_init();
 #ifdef CONFIG_SPL_FSL_LS_PPA
 #ifndef CONFIG_SYS_MEM_RESERVE_SECURE

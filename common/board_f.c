@@ -200,6 +200,13 @@ static int init_func_i2c(void)
 }
 #endif
 
+#if defined(CONFIG_VID)
+__weak int init_func_vid(void)
+{
+	return 0;
+}
+#endif
+
 #if defined(CONFIG_HARD_SPI)
 static int init_func_spi(void)
 {
@@ -800,6 +807,9 @@ static const init_fnc_t init_sequence_f[] = {
 	INIT_FUNC_WATCHDOG_RESET
 #if defined(CONFIG_SYS_I2C)
 	init_func_i2c,
+#endif
+#if defined(CONFIG_VID) && !defined(CONFIG_SPL)
+	init_func_vid,
 #endif
 #if defined(CONFIG_HARD_SPI)
 	init_func_spi,

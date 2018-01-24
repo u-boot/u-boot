@@ -170,9 +170,13 @@ unsigned long get_board_ddr_clk(void);
 #define QIXIS_LBMAP_DFLTBANK		0x0e
 #define QIXIS_LBMAP_ALTBANK		0x2e
 #define QIXIS_LBMAP_SD			0x00
+#define QIXIS_LBMAP_EMMC		0x00
+#define QIXIS_LBMAP_IFC			0x00
 #define QIXIS_LBMAP_SD_QSPI		0x0e
 #define QIXIS_LBMAP_QSPI		0x0e
+#define QIXIS_RCW_SRC_IFC		0x25
 #define QIXIS_RCW_SRC_SD		0x40
+#define QIXIS_RCW_SRC_EMMC		0x41
 #define QIXIS_RCW_SRC_QSPI		0x62
 #define QIXIS_RST_CTL_RESET		0x41
 #define QIXIS_RCFG_CTL_RECONFIG_IDLE	0x20
@@ -278,6 +282,33 @@ unsigned long get_board_ddr_clk(void);
 #define I2C_RETIMER_ADDR2		0x19
 #define I2C_MUX_CH_DEFAULT		0x8
 #define I2C_MUX_CH5			0xD
+
+#define I2C_MUX_CH_VOL_MONITOR          0xA
+
+/* Voltage monitor on channel 2*/
+#define I2C_VOL_MONITOR_ADDR           0x63
+#define I2C_VOL_MONITOR_BUS_V_OFFSET   0x2
+#define I2C_VOL_MONITOR_BUS_V_OVF      0x1
+#define I2C_VOL_MONITOR_BUS_V_SHIFT    3
+#define I2C_SVDD_MONITOR_ADDR           0x4F
+
+#define CONFIG_VID_FLS_ENV              "ls1088aqds_vdd_mv"
+#define CONFIG_VID
+
+/* The lowest and highest voltage allowed for LS1088AQDS */
+#define VDD_MV_MIN			819
+#define VDD_MV_MAX			1212
+
+#define CONFIG_VOL_MONITOR_LTC3882_SET
+#define CONFIG_VOL_MONITOR_LTC3882_READ
+
+/* PM Bus commands code for LTC3882*/
+#define PMBUS_CMD_PAGE                  0x0
+#define PMBUS_CMD_READ_VOUT             0x8B
+#define PMBUS_CMD_PAGE_PLUS_WRITE       0x05
+#define PMBUS_CMD_VOUT_COMMAND          0x21
+
+#define PWM_CHANNEL0                    0x0
 
 /*
 * RTC configuration

@@ -235,6 +235,28 @@ static int qixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 #else
 		printf("Not implemented\n");
 #endif
+	} else if (strcmp(argv[1], "ifc") == 0) {
+#ifdef QIXIS_LBMAP_IFC
+		QIXIS_WRITE(rst_ctl, 0x30);
+		QIXIS_WRITE(rcfg_ctl, 0);
+		set_lbmap(QIXIS_LBMAP_IFC);
+		set_rcw_src(QIXIS_RCW_SRC_IFC);
+		QIXIS_WRITE(rcfg_ctl, 0x20);
+		QIXIS_WRITE(rcfg_ctl, 0x21);
+#else
+		printf("Not implemented\n");
+#endif
+	} else if (strcmp(argv[1], "emmc") == 0) {
+#ifdef QIXIS_LBMAP_EMMC
+		QIXIS_WRITE(rst_ctl, 0x30);
+		QIXIS_WRITE(rcfg_ctl, 0);
+		set_lbmap(QIXIS_LBMAP_EMMC);
+		set_rcw_src(QIXIS_RCW_SRC_EMMC);
+		QIXIS_WRITE(rcfg_ctl, 0x20);
+		QIXIS_WRITE(rcfg_ctl, 0x21);
+#else
+		printf("Not implemented\n");
+#endif
 	} else if (strcmp(argv[1], "sd_qspi") == 0) {
 #ifdef QIXIS_LBMAP_SD_QSPI
 		QIXIS_WRITE(rst_ctl, 0x30);
