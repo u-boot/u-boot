@@ -99,6 +99,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_QSPI_MIO_NUM_QSPI1_DIO	3
 #define ZYNQ_QSPI_MIO_NUM_QSPI1_CS_DIO	1
 
+#define ZYNQ_QSPI_MAX_BAUD_RATE		0x7
+#define ZYNQ_QSPI_DEFAULT_BAUD_RATE	0x2
+
 /* QSPI register offsets */
 struct zynq_qspi_regs {
 	u32 confr;	/* 0x00 */
@@ -355,6 +358,9 @@ static int zynq_qspi_set_speed(struct udevice *bus, uint speed)
 		       ((plat->frequency /
 		       (2 << baud_rate_val)) > speed))
 			baud_rate_val++;
+
+		if (baud_rate_val > ZYNQ_QSPI_MAX_BAUD_RATE)
+			baud_rate_val = ZYNQ_QSPI_DEFAULT_BAUD_RATE;
 
 		plat->speed_hz = speed / (2 << baud_rate_val);
 	}
