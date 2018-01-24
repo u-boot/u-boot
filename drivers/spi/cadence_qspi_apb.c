@@ -30,6 +30,7 @@
 #include <linux/errno.h>
 #include <wait_bit.h>
 #include <spi.h>
+#include <malloc.h>
 #include "cadence_qspi.h"
 
 #define CQSPI_REG_POLL_US			1 /* 1us */
@@ -719,8 +720,22 @@ int cadence_qspi_apb_indirect_write_execute(struct cadence_spi_platdata *plat,
 {
 	unsigned int page_size = plat->page_size;
 	unsigned int remaining = n_tx;
+	const u8 *bb_txbuf = txbuf;
+	void *bounce_buf = NULL;
 	unsigned int write_bytes;
 	int ret;
+
+	/*
+	 * Use bounce buffer for non 32 bit aligned txbuf to avoid data
+	 * aborts
+	 */
+	if ((uintptr_t)txbuf % 4) {
+		bounce_buf = malloc(n_tx);
+		if (!bounce_buf)
+			return -ENOMEM;
+		memcpy(bounce_buf, txbuf, n_tx);
+		bb_txbuf = bounce_buf;
+	}
 
 	/* Configure the indirect read transfer bytes */
 	writel(n_tx, plat->regbase + CQSPI_REG_INDIRECTWRBYTES);
@@ -731,11 +746,11 @@ int cadence_qspi_apb_indirect_write_execute(struct cadence_spi_platdata *plat,
 
 	while (remaining > 0) {
 		write_bytes = remaining > page_size ? page_size : remaining;
-		/* Handle non-4-byte aligned access to avoid data abort. */
-		if (((uintptr_t)txbuf % 4) || (write_bytes % 4))
-			writesb(plat->ahbbase, txbuf, write_bytes);
-		else
-			writesl(plat->ahbbase, txbuf, write_bytes >> 2);
+		writesl(plat->ahbbase, bb_txbuf, write_bytes >> 2);
+		if (write_bytes % 4)
+			writesb(plat->ahbbase,
+				bb_txbuf + rounddown(write_bytes, 4),
+				write_bytes % 4);
 
 		ret = wait_for_bit_le32(plat->regbase + CQSPI_REG_SDRAMLEVEL,
 					CQSPI_REG_SDRAMLEVEL_WR_MASK <<
@@ -745,7 +760,7 @@ int cadence_qspi_apb_indirect_write_execute(struct cadence_spi_platdata *plat,
 			goto failwr;
 		}
 
-		txbuf += write_bytes;
+		bb_txbuf += write_bytes;
 		remaining -= write_bytes;
 	}
 
@@ -760,12 +775,16 @@ int cadence_qspi_apb_indirect_write_execute(struct cadence_spi_platdata *plat,
 	/* Clear indirect completion status */
 	writel(CQSPI_REG_INDIRECTWR_DONE,
 	       plat->regbase + CQSPI_REG_INDIRECTWR);
+	if (bounce_buf)
+		free(bounce_buf);
 	return 0;
 
 failwr:
 	/* Cancel the indirect write */
 	writel(CQSPI_REG_INDIRECTWR_CANCEL,
 	       plat->regbase + CQSPI_REG_INDIRECTWR);
+	if (bounce_buf)
+		free(bounce_buf);
 	return ret;
 }
 
