@@ -1501,11 +1501,13 @@ static int mmc_set_ios(struct mmc *mmc)
 
 int mmc_set_clock(struct mmc *mmc, uint clock, bool disable)
 {
-	if (clock > mmc->cfg->f_max)
-		clock = mmc->cfg->f_max;
+	if (!disable) {
+		if (clock > mmc->cfg->f_max)
+			clock = mmc->cfg->f_max;
 
-	if (clock < mmc->cfg->f_min)
-		clock = mmc->cfg->f_min;
+		if (clock < mmc->cfg->f_min)
+			clock = mmc->cfg->f_min;
+	}
 
 	mmc->clock = clock;
 	mmc->clk_disable = disable;
@@ -2449,7 +2451,7 @@ static int mmc_power_on(struct mmc *mmc)
 
 static int mmc_power_off(struct mmc *mmc)
 {
-	mmc_set_clock(mmc, 1, true);
+	mmc_set_clock(mmc, 0, true);
 #if CONFIG_IS_ENABLED(DM_MMC) && CONFIG_IS_ENABLED(DM_REGULATOR)
 	if (mmc->vmmc_supply) {
 		int ret = regulator_set_enable(mmc->vmmc_supply, false);
@@ -2491,8 +2493,12 @@ int mmc_start_init(struct mmc *mmc)
 	mmc->host_caps = mmc->cfg->host_caps | MMC_CAP(SD_LEGACY) |
 			 MMC_CAP(MMC_LEGACY) | MMC_MODE_1BIT;
 
+#if !defined(CONFIG_MMC_BROKEN_CD)
 	/* we pretend there's no card when init is NULL */
 	no_card = mmc_getcd(mmc) == 0;
+#else
+	no_card = 0;
+#endif
 #if !CONFIG_IS_ENABLED(DM_MMC)
 	no_card = no_card || (mmc->cfg->ops->init == NULL);
 #endif

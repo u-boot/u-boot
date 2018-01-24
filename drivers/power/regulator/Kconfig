@@ -101,6 +101,14 @@ config REGULATOR_RK8XX
 	by the PMIC device. This driver is controlled by a device tree node
 	which includes voltage limits.
 
+config DM_REGULATOR_S2MPS11
+	bool "Enable driver for S2MPS11 regulator"
+	depends on DM_REGULATOR && PMIC_S2MPS11
+	---help---
+	This enables implementation of driver-model regulator uclass
+	features for REGULATOR S2MPS11.
+	The driver implements get/set api for: value and enable.
+
 config REGULATOR_S5M8767
 	bool "Enable support for S5M8767 regulator"
 	depends on DM_REGULATOR && PMIC_S5M8767
