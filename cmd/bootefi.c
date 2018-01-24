@@ -373,6 +373,9 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		saddr = argv[1];
 
 		addr = simple_strtoul(saddr, NULL, 16);
+		/* Check that a numeric value was passed */
+		if (!addr && *saddr != '0')
+			return CMD_RET_USAGE;
 
 		if (argc > 2) {
 			sfdt = argv[2];
