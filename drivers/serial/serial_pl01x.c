@@ -20,7 +20,6 @@
 #include <dm/platform_data/serial_pl01x.h>
 #include <linux/compiler.h>
 #include "serial_pl01x_internal.h"
-#include <fdtdec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -354,11 +353,10 @@ static int pl01x_serial_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 
 	plat->base = addr;
-	plat->clock = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "clock",
-				     1);
+	plat->clock = dev_read_u32_default(dev, "clock", 1);
 	plat->type = dev_get_driver_data(dev);
-	plat->skip_init = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
-	                                  "skip-init");
+	plat->skip_init = dev_read_bool(dev, "skip-init");
+
 	return 0;
 }
 #endif
