@@ -420,53 +420,10 @@ static void get_board_rev(void)
 	printf("RPI %s (0x%x)\n", model->name, revision);
 }
 
-#ifndef CONFIG_PL01X_SERIAL
-static bool rpi_is_serial_active(void)
-{
-	int serial_gpio = 15;
-	struct udevice *dev;
-
-	/*
-	 * The RPi3 disables the mini uart by default. The easiest way to find
-	 * out whether it is available is to check if the RX pin is muxed.
-	 */
-
-	if (uclass_first_device(UCLASS_PINCTRL, &dev) || !dev)
-		return true;
-
-	if (pinctrl_get_gpio_mux(dev, 0, serial_gpio) != BCM2835_GPIO_ALT5)
-		return false;
-
-	return true;
-}
-
-/* Disable mini-UART I/O if it's not pinmuxed to our pins.
- * The firmware only enables it if explicitly done in config.txt: enable_uart=1
- */
-static void rpi_disable_inactive_uart(void)
-{
-	struct udevice *dev;
-	struct bcm283x_mu_serial_platdata *plat;
-
-	if (uclass_get_device_by_driver(UCLASS_SERIAL,
-					DM_GET_DRIVER(serial_bcm283x_mu),
-					&dev) || !dev)
-		return;
-
-	if (!rpi_is_serial_active()) {
-		plat = dev_get_platdata(dev);
-		plat->disabled = true;
-	}
-}
-#endif
-
 int board_init(void)
 {
 #ifdef CONFIG_HW_WATCHDOG
 	hw_watchdog_init();
-#endif
-#ifndef CONFIG_PL01X_SERIAL
-	rpi_disable_inactive_uart();
 #endif
 
 	get_board_rev();
