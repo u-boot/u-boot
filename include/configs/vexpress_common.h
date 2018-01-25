@@ -133,7 +133,6 @@
 #define CONFIG_SYS_TIMER_COUNTS_DOWN
 
 /* PL011 Serial Configuration */
-#define CONFIG_PL011_SERIAL
 #define CONFIG_PL011_CLOCK		24000000
 #define CONFIG_PL01x_PORTS		{(void *)CONFIG_SYS_SERIAL0, \
 					 (void *)CONFIG_SYS_SERIAL1}

@@ -400,49 +400,58 @@ config TARGET_APX4DEVKIT
 	bool "Support apx4devkit"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
+	select PL011_SERIAL
 
 config TARGET_XFI3
 	bool "Support xfi3"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
+	select PL011_SERIAL
 
 config TARGET_M28EVK
 	bool "Support m28evk"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
+	select PL011_SERIAL
 
 config TARGET_MX23EVK
 	bool "Support mx23evk"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
+	select PL011_SERIAL
 
 config TARGET_MX28EVK
 	bool "Support mx28evk"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
+	select PL011_SERIAL
 
 config TARGET_MX23_OLINUXINO
 	bool "Support mx23_olinuxino"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
+	select PL011_SERIAL
 
 config TARGET_BG0900
 	bool "Support bg0900"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
+	select PL011_SERIAL
 
 config TARGET_SANSA_FUZE_PLUS
 	bool "Support sansa_fuze_plus"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
+	select PL011_SERIAL
 
 config TARGET_SC_SPS_1
 	bool "Support sc_sps_1"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
+	select PL011_SERIAL
 
 config ORION5X
 	bool "Marvell Orion"
@@ -453,24 +462,28 @@ config TARGET_SPEAR300
 	select CPU_ARM926EJS
 	select BOARD_EARLY_INIT_F
 	imply CMD_SAVES
+	select PL011_SERIAL
 
 config TARGET_SPEAR310
 	bool "Support spear310"
 	select CPU_ARM926EJS
 	select BOARD_EARLY_INIT_F
 	imply CMD_SAVES
+	select PL011_SERIAL
 
 config TARGET_SPEAR320
 	bool "Support spear320"
 	select CPU_ARM926EJS
 	select BOARD_EARLY_INIT_F
 	imply CMD_SAVES
+	select PL011_SERIAL
 
 config TARGET_SPEAR600
 	bool "Support spear600"
 	select CPU_ARM926EJS
 	select BOARD_EARLY_INIT_F
 	imply CMD_SAVES
+	select PL011_SERIAL
 
 config TARGET_STV0991
 	bool "Support stv0991"
@@ -486,6 +499,7 @@ config TARGET_X600
 	select BOARD_LATE_INIT
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
+	select PL011_SERIAL
 
 config TARGET_IMX31_PHYCORE
 	bool "Support imx31_phycore_eet"
@@ -541,14 +555,17 @@ config TARGET_VEXPRESS_CA15_TC2
 	select CPU_V7
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
+	select PL011_SERIAL
 
 config TARGET_VEXPRESS_CA5X2
 	bool "Support vexpress_ca5x2"
 	select CPU_V7
+	select PL011_SERIAL
 
 config TARGET_VEXPRESS_CA9X4
 	bool "Support vexpress_ca9x4"
 	select CPU_V7
+	select PL011_SERIAL
 
 config TARGET_BCM23550_W1D
 	bool "Support bcm23550_w1d"
@@ -607,6 +624,7 @@ config ARCH_S5PC1XX
 config ARCH_HIGHBANK
 	bool "Calxeda Highbank"
 	select CPU_V7
+	select PL011_SERIAL
 
 config ARCH_INTEGRATOR
 	bool "ARM Ltd. Integrator family"
@@ -762,6 +780,7 @@ config TARGET_TS4600
 	bool "Support TS4600"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
+	select PL011_SERIAL
 
 config ARCH_VF610
 	bool "Freescale Vybrid"
