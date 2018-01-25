@@ -74,6 +74,7 @@ static void serial_find_console_or_panic(void)
 {
 	const void *blob = gd->fdt_blob;
 	struct udevice *dev;
+	int ret;
 
 	if (CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		uclass_first_device(UCLASS_SERIAL, &dev);
@@ -104,8 +105,8 @@ static void serial_find_console_or_panic(void)
 		 * from 1!).
 		 *
 		 * Failing that, get the device with sequence number 0, or in
-		 * extremis just the first serial device we can find. But we
-		 * insist on having a console (even if it is silent).
+		 * extremis just the first working serial device we can find.
+		 * But we insist on having a console (even if it is silent).
 		 */
 #ifdef CONFIG_CONS_INDEX
 #define INDEX (CONFIG_CONS_INDEX - 1)
@@ -113,10 +114,22 @@ static void serial_find_console_or_panic(void)
 #define INDEX 0
 #endif
 		if (!uclass_get_device_by_seq(UCLASS_SERIAL, INDEX, &dev) ||
-		    !uclass_get_device(UCLASS_SERIAL, INDEX, &dev) ||
-		    (!uclass_first_device(UCLASS_SERIAL, &dev) && dev)) {
-			gd->cur_serial_dev = dev;
-			return;
+		    !uclass_get_device(UCLASS_SERIAL, INDEX, &dev)) {
+			if (dev->flags & DM_FLAG_ACTIVATED) {
+				gd->cur_serial_dev = dev;
+				return;
+			}
+		}
+
+		/* Search for any working device */
+		for (ret = uclass_first_device_check(UCLASS_SERIAL, &dev);
+		     dev;
+		     ret = uclass_next_device_check(&dev)) {
+			if (!ret) {
+				/* Device did succeed probing */
+				gd->cur_serial_dev = dev;
+				return;
+			}
 		}
 #undef INDEX
 	}
