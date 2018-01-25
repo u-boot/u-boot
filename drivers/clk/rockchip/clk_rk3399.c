@@ -943,7 +943,7 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 	return ret;
 }
 
-static int rk3399_gmac_set_parent(struct clk *clk, struct clk *parent)
+static int __maybe_unused rk3399_gmac_set_parent(struct clk *clk, struct clk *parent)
 {
 	struct rk3399_clk_priv *priv = dev_get_priv(clk->dev);
 	const char *clock_output_name;
@@ -978,7 +978,7 @@ static int rk3399_gmac_set_parent(struct clk *clk, struct clk *parent)
 	return -EINVAL;
 }
 
-static int rk3399_clk_set_parent(struct clk *clk, struct clk *parent)
+static int __maybe_unused rk3399_clk_set_parent(struct clk *clk, struct clk *parent)
 {
 	switch (clk->id) {
 	case SCLK_RMII_SRC:
@@ -1006,7 +1006,9 @@ static int rk3399_clk_enable(struct clk *clk)
 static struct clk_ops rk3399_clk_ops = {
 	.get_rate = rk3399_clk_get_rate,
 	.set_rate = rk3399_clk_set_rate,
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.set_parent = rk3399_clk_set_parent,
+#endif
 	.enable = rk3399_clk_enable,
 };
 
