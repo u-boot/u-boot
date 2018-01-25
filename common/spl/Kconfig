@@ -118,6 +118,13 @@ config SPL_SEPARATE_BSS
 	  location is used. Normally we put the device tree at the end of BSS
 	  but with this option enabled, it goes at _image_binary_end.
 
+config SPL_DISABLE_BANNER_PRINT
+	bool "Disable output of the SPL banner 'U-Boot SPL ...'"
+	help
+	  If this option is enabled, SPL will not print the banner with version
+	  info. Selecting this option could be useful to reduce SPL boot time
+	  (e.g. approx. 6 ms slower, when output on i.MX6 with 115200 baud).
+
 config SPL_DISPLAY_PRINT
 	bool "Display a board-specific message in SPL"
 	help
