@@ -27,7 +27,8 @@ DECLARE_GLOBAL_DATA_PTR;
 long get_ram_size(long *base, long maxsize)
 {
 	volatile long *addr;
-	long           save[32];
+	long           save[31];
+	long           save_base;
 	long           cnt;
 	long           val;
 	long           size;
@@ -43,7 +44,7 @@ long get_ram_size(long *base, long maxsize)
 
 	addr = base;
 	sync();
-	save[i] = *addr;
+	save_base = *addr;
 	sync();
 	*addr = 0;
 
@@ -51,7 +52,7 @@ long get_ram_size(long *base, long maxsize)
 	if ((val = *addr) != 0) {
 		/* Restore the original data before leaving the function. */
 		sync();
-		*addr = save[i];
+		*base = save_base;
 		for (cnt = 1; cnt < maxsize / sizeof(long); cnt <<= 1) {
 			addr  = base + cnt;
 			sync();
