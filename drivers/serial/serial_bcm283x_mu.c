@@ -147,7 +147,12 @@ static int bcm283x_mu_serial_ofdata_to_platdata(struct udevice *dev)
 
 	plat->base = addr;
 	plat->clock = dev_read_u32_default(dev, "clock", 1);
-	plat->skip_init = dev_read_bool(dev, "skip-init");
+
+	/*
+	 * TODO: Reinitialization doesn't always work for now, just skip
+	 *       init always - we know we're already initialized
+	 */
+	plat->skip_init = true;
 
 	return 0;
 }
