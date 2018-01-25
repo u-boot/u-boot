@@ -77,9 +77,16 @@ long get_ram_size(long *base, long maxsize)
 				addr  = base + cnt;
 				*addr = save[--i];
 			}
+			/* warning: don't restore save_base in this case,
+			 * it is already done in the loop because
+			 * base and base+size share the same physical memory
+			 * and *base is saved after *(base+size) modification
+			 * in first loop
+			 */
 			return (size);
 		}
 	}
+	*base = save_base;
 
 	return (maxsize);
 }
