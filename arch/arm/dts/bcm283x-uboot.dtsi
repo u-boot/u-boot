@@ -20,3 +20,7 @@
 	skip-init;
 	u-boot,dm-pre-reloc;
 };
+
+&gpio {
+	u-boot,dm-pre-reloc;
+};

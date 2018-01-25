@@ -148,5 +148,6 @@ U_BOOT_DRIVER(pinctrl_bcm283x) = {
 	.of_match	= of_match_ptr(bcm2835_pinctrl_id),
 	.priv_auto_alloc_size = sizeof(struct bcm283x_pinctrl_priv),
 	.ops		= &bcm283x_pinctrl_ops,
-	.probe		= bcm283x_pinctl_probe
+	.probe		= bcm283x_pinctl_probe,
+	.flags		= DM_FLAG_PRE_RELOC,
 };
