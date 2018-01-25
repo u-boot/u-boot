@@ -99,6 +99,7 @@ F:	drivers/gpio/bcm2835_gpio.c
 F:	drivers/mmc/bcm2835_sdhci.c
 F:	drivers/mmc/bcm2835_sdhost.c
 F:	drivers/serial/serial_bcm283x_mu.c
+F:	drivers/serial/serial_bcm283x_pl011.c
 F:	drivers/video/bcm2835.c
 F:	include/dm/platform_data/serial_bcm283x_mu.h
 F:	drivers/pinctrl/broadcom/

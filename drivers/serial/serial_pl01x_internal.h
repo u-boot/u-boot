@@ -38,7 +38,20 @@ struct pl01x_regs {
 	u32	pl011_lcrh;	/* 0x2C Line control register */
 	u32	pl011_cr;	/* 0x30 Control register */
 };
-#endif
+
+#ifdef CONFIG_DM_SERIAL
+
+int pl01x_serial_ofdata_to_platdata(struct udevice *dev);
+int pl01x_serial_probe(struct udevice *dev);
+extern const struct dm_serial_ops pl01x_serial_ops;
+
+struct pl01x_priv {
+	struct pl01x_regs *regs;
+	enum pl01x_type type;
+};
+
+#endif /* CONFIG_DM_SERIAL */
+#endif /* !__ASSEMBLY__ */
 
 #define UART_PL01x_RSR_OE               0x08
 #define UART_PL01x_RSR_BE               0x04

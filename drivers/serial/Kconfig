@@ -395,6 +395,15 @@ config BCM283X_MU_SERIAL
 	help
 	  Select this to enable Mini-UART support on BCM283X family of SoCs.
 
+config BCM283X_PL011_SERIAL
+	bool "Support for BCM283x PL011 UART"
+	depends on PL01X_SERIAL && ARCH_BCM283X
+	default y
+	help
+	  Select this to enable an overriding PL011 driver for BCM283X SoCs
+	  that supports automatic disable, so that it only gets used when
+	  the UART is actually muxed.
+
 config BCM6345_SERIAL
 	bool "Support for BCM6345 UART"
 	depends on DM_SERIAL && ARCH_BMIPS

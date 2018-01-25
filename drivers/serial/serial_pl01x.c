@@ -273,11 +273,6 @@ __weak struct serial_device *default_serial_console(void)
 
 #ifdef CONFIG_DM_SERIAL
 
-struct pl01x_priv {
-	struct pl01x_regs *regs;
-	enum pl01x_type type;
-};
-
 static int pl01x_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct pl01x_serial_platdata *plat = dev_get_platdata(dev);
@@ -291,7 +286,7 @@ static int pl01x_serial_setbrg(struct udevice *dev, int baudrate)
 	return 0;
 }
 
-static int pl01x_serial_probe(struct udevice *dev)
+int pl01x_serial_probe(struct udevice *dev)
 {
 	struct pl01x_serial_platdata *plat = dev_get_platdata(dev);
 	struct pl01x_priv *priv = dev_get_priv(dev);
@@ -329,7 +324,7 @@ static int pl01x_serial_pending(struct udevice *dev, bool input)
 		return fr & UART_PL01x_FR_TXFF ? 0 : 1;
 }
 
-static const struct dm_serial_ops pl01x_serial_ops = {
+const struct dm_serial_ops pl01x_serial_ops = {
 	.putc = pl01x_serial_putc,
 	.pending = pl01x_serial_pending,
 	.getc = pl01x_serial_getc,
@@ -343,7 +338,7 @@ static const struct udevice_id pl01x_serial_id[] ={
 	{}
 };
 
-static int pl01x_serial_ofdata_to_platdata(struct udevice *dev)
+int pl01x_serial_ofdata_to_platdata(struct udevice *dev)
 {
 	struct pl01x_serial_platdata *plat = dev_get_platdata(dev);
 	fdt_addr_t addr;
