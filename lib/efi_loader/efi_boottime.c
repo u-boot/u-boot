@@ -1578,8 +1578,13 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 
 	ret = EFI_CALL(entry(image_handle, &systab));
 
-	/* Should usually never get here */
-	return EFI_EXIT(ret);
+	/*
+	 * Usually UEFI applications call Exit() instead of returning.
+	 * But because the world doesn not consist of ponies and unicorns,
+	 * we're happy to emulate that behavior on behalf of a payload
+	 * that forgot.
+	 */
+	return EFI_CALL(systab.boottime->exit(image_handle, ret, 0, NULL));
 }
 
 /*
