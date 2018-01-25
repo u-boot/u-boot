@@ -25,7 +25,8 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-int checkcpu(void)
+#if defined(CONFIG_DISPLAY_CPUINFO)
+int print_cpuinfo(void)
 {
 	char buf[32];
 
@@ -33,4 +34,5 @@ int checkcpu(void)
 	       strmhz(buf, CONFIG_SYS_CPU_CLK));
 	return 0;
 }
+#endif /* CONFIG_DISPLAY_CPUINFO */
 #endif
