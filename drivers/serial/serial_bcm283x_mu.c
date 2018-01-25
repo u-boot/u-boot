@@ -23,9 +23,6 @@
 #include <serial.h>
 #include <dm/platform_data/serial_bcm283x_mu.h>
 #include <linux/compiler.h>
-#include <fdtdec.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct bcm283x_mu_regs {
 	u32 io;
@@ -149,10 +146,9 @@ static int bcm283x_mu_serial_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 
 	plat->base = addr;
-	plat->clock = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "clock",
-				     1);
-	plat->skip_init = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
-	                                  "skip-init");
+	plat->clock = dev_read_u32_default(dev, "clock", 1);
+	plat->skip_init = dev_read_bool(dev, "skip-init");
+
 	return 0;
 }
 #endif
