@@ -156,7 +156,7 @@ int ehci_hcd_stop(int index)
 
 	tmp = ehci_readl(&hcor->or_usbcmd);
 	tmp &= ~CMD_RUN;
-	ehci_writel(tmp, &hcor->or_usbcmd);
+	ehci_writel(&hcor->or_usbcmd, tmp);
 
 	/* Disable the PHY */
 	tmp = USBPHY_PWD_RXPWDRX | USBPHY_PWD_RXPWDDIFF |
