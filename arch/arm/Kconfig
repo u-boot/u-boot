@@ -348,6 +348,7 @@ config ARCH_AT91
 config TARGET_EDB93XX
 	bool "Support edb93xx"
 	select CPU_ARM920T
+	select PL010_SERIAL
 
 config TARGET_ASPENITE
 	bool "Support aspenite"
