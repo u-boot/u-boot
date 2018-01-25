@@ -48,7 +48,6 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(SAMSUNG_EXYNOS_MIPI_DSI, "samsung,exynos-mipi-dsi"),
 	COMPAT(SAMSUNG_EXYNOS_DWMMC, "samsung,exynos-dwmmc"),
 	COMPAT(SAMSUNG_EXYNOS_MMC, "samsung,exynos-mmc"),
-	COMPAT(MAXIM_MAX77686_PMIC, "maxim,max77686"),
 	COMPAT(GENERIC_SPI_FLASH, "spi-flash"),
 	COMPAT(MAXIM_98095_CODEC, "maxim,max98095-codec"),
 	COMPAT(SAMSUNG_EXYNOS5_I2C, "samsung,exynos5-hsi2c"),

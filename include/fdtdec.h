@@ -136,7 +136,6 @@ enum fdt_compat_id {
 	COMPAT_SAMSUNG_EXYNOS_MIPI_DSI,	/* Exynos mipi dsi */
 	COMPAT_SAMSUNG_EXYNOS_DWMMC,	/* Exynos DWMMC controller */
 	COMPAT_SAMSUNG_EXYNOS_MMC,	/* Exynos MMC controller */
-	COMPAT_MAXIM_MAX77686_PMIC,	/* MAX77686 PMIC */
 	COMPAT_GENERIC_SPI_FLASH,	/* Generic SPI Flash chip */
 	COMPAT_MAXIM_98095_CODEC,	/* MAX98095 Codec */
 	COMPAT_SAMSUNG_EXYNOS5_I2C,	/* Exynos5 High Speed I2C Controller */
