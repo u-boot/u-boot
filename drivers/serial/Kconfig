@@ -388,6 +388,13 @@ config ATMEL_USART
 	  configured in the device tree, and input clock frequency can
 	  be got from the clk node.
 
+config BCM283X_MU_SERIAL
+	bool "Support for BCM283x Mini-UART"
+	depends on DM_SERIAL && ARCH_BCM283X
+	default y
+	help
+	  Select this to enable Mini-UART support on BCM283X family of SoCs.
+
 config BCM6345_SERIAL
 	bool "Support for BCM6345 UART"
 	depends on DM_SERIAL && ARCH_BMIPS
