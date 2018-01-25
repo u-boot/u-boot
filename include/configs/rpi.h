@@ -75,12 +75,9 @@
 #define CONFIG_MISC_INIT_R
 #endif
 
-/* Console UART */
-#if defined (CONFIG_BCM2837) || defined(CONFIG_TARGET_RPI_0_W)
+/* Console UART, can be configured dynamically in config.txt */
 #define CONFIG_BCM283X_MU_SERIAL
-#else
 #define CONFIG_PL01X_SERIAL
-#endif
 
 /* Console configuration */
 #define CONFIG_SYS_CBSIZE		1024
