@@ -19,9 +19,11 @@
 #include <dm.h>
 #include <errno.h>
 #include <watchdog.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include <serial.h>
 #include <dm/platform_data/serial_bcm283x_mu.h>
+#include <dm/pinctrl.h>
 #include <linux/compiler.h>
 
 struct bcm283x_mu_regs {
@@ -136,10 +138,36 @@ static const struct udevice_id bcm283x_mu_serial_id[] = {
 	{}
 };
 
+/*
+ * Check if this serial device is muxed
+ *
+ * The serial device will only work properly if it has been muxed to the serial
+ * pins by firmware. Check whether that happened here.
+ *
+ * @return true if serial device is muxed, false if not
+ */
+static bool bcm283x_is_serial_muxed(void)
+{
+	int serial_gpio = 15;
+	struct udevice *dev;
+
+	if (uclass_first_device(UCLASS_PINCTRL, &dev) || !dev)
+		return false;
+
+	if (pinctrl_get_gpio_mux(dev, 0, serial_gpio) != BCM2835_GPIO_ALT5)
+		return false;
+
+	return true;
+}
+
 static int bcm283x_mu_serial_ofdata_to_platdata(struct udevice *dev)
 {
 	struct bcm283x_mu_serial_platdata *plat = dev_get_platdata(dev);
 	fdt_addr_t addr;
+
+	/* Don't spawn the device if it's not muxed */
+	if (!bcm283x_is_serial_muxed())
+		return -ENODEV;
 
 	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
