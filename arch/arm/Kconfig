@@ -493,6 +493,7 @@ config TARGET_STV0991
 	select DM_SPI
 	select DM_SPI_FLASH
 	select SPI_FLASH
+	select PL01X_SERIAL
 
 config TARGET_X600
 	bool "Support x600"
@@ -548,6 +549,7 @@ config ARCH_BCM283X
 	select DM_SERIAL
 	select DM_GPIO
 	select OF_CONTROL
+	select PL01X_SERIAL
 	imply FAT_WRITE
 
 config TARGET_VEXPRESS_CA15_TC2
@@ -630,6 +632,7 @@ config ARCH_INTEGRATOR
 	bool "ARM Ltd. Integrator family"
 	select DM
 	select DM_SERIAL
+	select PL01X_SERIAL
 
 config ARCH_KEYSTONE
 	bool "TI Keystone"
@@ -697,6 +700,7 @@ config ARCH_QEMU
 	select DM
 	select DM_SERIAL
 	select OF_CONTROL
+	select PL01X_SERIAL
 
 config ARCH_RMOBILE
 	bool "Renesas ARM SoCs"
@@ -836,15 +840,18 @@ config TEGRA
 config TARGET_VEXPRESS64_AEMV8A
 	bool "Support vexpress_aemv8a"
 	select ARM64
+	select PL01X_SERIAL
 
 config TARGET_VEXPRESS64_BASE_FVP
 	bool "Support Versatile Express ARMv8a FVP BASE model"
 	select ARM64
 	select SEMIHOSTING
+	select PL01X_SERIAL
 
 config TARGET_VEXPRESS64_BASE_FVP_DRAM
 	bool "Support Versatile Express ARMv8a FVP BASE model booting from DRAM"
 	select ARM64
+	select PL01X_SERIAL
 	help
 	  This target is derived from TARGET_VEXPRESS64_BASE_FVP and over-rides
 	  the default config to allow the user to load the images directly into
@@ -854,6 +861,7 @@ config TARGET_VEXPRESS64_BASE_FVP_DRAM
 config TARGET_VEXPRESS64_JUNO
 	bool "Support Versatile Express Juno Development Platform"
 	select ARM64
+	select PL01X_SERIAL
 
 config TARGET_LS2080A_EMU
 	bool "Support ls2080a_emu"
@@ -946,6 +954,7 @@ config TARGET_HIKEY
 	select DM_GPIO
 	select DM_SERIAL
 	select OF_CONTROL
+	select PL01X_SERIAL
 	  help
 	  Support for HiKey 96boards platform. It features a HI6220
 	  SoC, with 8xA53 CPU, mali450 gpu, and 1GB RAM.
@@ -957,6 +966,7 @@ config TARGET_POPLAR
 	select OF_CONTROL
 	select DM_SERIAL
 	select DM_USB
+	select PL01X_SERIAL
 	  help
 	  Support for Poplar 96boards EE platform. It features a HI3798cv200
 	  SoC, with 4xA53 CPU, 1GB RAM and the high performance Mali T720 GPU
@@ -1212,6 +1222,7 @@ config TARGET_THUNDERX_88XX
 	select ARM64
 	select OF_CONTROL
 	select SYS_CACHE_SHIFT_7
+	select PL01X_SERIAL
 
 config ARCH_ASPEED
 	bool "Support Aspeed SoCs"

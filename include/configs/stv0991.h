@@ -25,9 +25,6 @@
 	(PHYS_SDRAM_1_SIZE - CONFIG_ENV_SIZE)
 #define CONFIG_SYS_MALLOC_LEN			(CONFIG_ENV_SIZE + 16 * 1024)
 
-/* serial port (PL011) configuration */
-#define CONFIG_PL01X_SERIAL
-
 /* user interface */
 #define CONFIG_SYS_CBSIZE			1024
 

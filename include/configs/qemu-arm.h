@@ -20,9 +20,6 @@
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_2M)
 #define CONFIG_SYS_MALLOC_LEN		SZ_16M
 
-/* QEMU's PL011 serial port is detected via FDT using the device model */
-#define CONFIG_PL01X_SERIAL
-
 /* QEMU implements a 62.5MHz architected timer */
 /* FIXME: can we rely on CNTFREQ instead of hardcoding this fact here? */
 #define CONFIG_SYS_ARCH_TIMER

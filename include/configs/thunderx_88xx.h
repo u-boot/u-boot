@@ -35,7 +35,6 @@
 
 /* PL011 Serial Configuration */
 
-#define CONFIG_PL01X_SERIAL
 #define CONFIG_PL011_CLOCK		24000000
 #define CONFIG_CONS_INDEX		1
 

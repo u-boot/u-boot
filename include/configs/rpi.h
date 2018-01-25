@@ -77,7 +77,6 @@
 
 /* Console UART, can be configured dynamically in config.txt */
 #define CONFIG_BCM283X_MU_SERIAL
-#define CONFIG_PL01X_SERIAL
 
 /* Console configuration */
 #define CONFIG_SYS_CBSIZE		1024

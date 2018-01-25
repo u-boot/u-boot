@@ -15,8 +15,6 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024) /* Size of malloc() pool */
 
-/* Serial port PL010/PL011 through the device model */
-#define CONFIG_PL01X_SERIAL
 #define CONFIG_CONS_INDEX		0
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */
