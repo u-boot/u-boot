@@ -18,6 +18,9 @@ struct arch_global_data {
 	unsigned long vco_clk;
 	unsigned long flb_clk;
 #endif
+#ifdef CONFIG_MCF5441x
+	unsigned long sdhc_clk;
+#endif
 };
 
 #include <asm-generic/global_data.h>
