@@ -946,7 +946,8 @@ static int flash_write_cfibuffer(flash_info_t *info, ulong dest, uchar *cp,
 					      "write to buffer");
 		if (retcode == ERR_OK) {
 			/* reduce the number of loops by the width of
-			 * the port */
+			 * the port
+			 */
 			cnt = len >> shift;
 			flash_write_cmd(info, sector, 0, cnt - 1);
 			while (cnt-- > 0) {
@@ -1793,7 +1794,8 @@ static int flash_detect_legacy(phys_addr_t base, int banknum)
 
 	if (board_flash_get_legacy(base, banknum, info)) {
 		/* board code may have filled info completely. If not, we
-		   use JEDEC ID probing. */
+		 * use JEDEC ID probing.
+		 */
 		if (!info->vendor) {
 			int modes[] = {
 				CFI_CMDSET_AMD_STANDARD,
