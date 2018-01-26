@@ -707,6 +707,9 @@ int mmc_voltage_to_mv(enum mmc_voltage voltage);
  */
 int mmc_set_clock(struct mmc *mmc, uint clock, bool disable);
 
+#define MMC_CLK_ENABLE		false
+#define MMC_CLK_DISABLE		true
+
 struct mmc *find_mmc_device(int dev_num);
 int mmc_set_dev(int dev_num);
 void print_mmc_devices(char separator);
