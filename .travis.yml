@@ -102,7 +102,7 @@ script:
  # Exit code 129 means warnings only.
  - if [[ "${BUILDMAN}" != "" ]]; then
      ret=0;
-     tools/buildman/buildman -P ${BUILDMAN} || ret=$?;
+     tools/buildman/buildman -P -E ${BUILDMAN} || ret=$?;
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
        tools/buildman/buildman -sdeP ${BUILDMAN};
        exit $ret;
