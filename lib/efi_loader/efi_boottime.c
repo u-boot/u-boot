@@ -1367,16 +1367,18 @@ efi_status_t efi_setup_loaded_image(
 	obj->handle = info;
 
 	info->file_path = file_path;
-	if (device_path)
-		info->device_handle = efi_dp_find_obj(device_path, NULL);
 
-	/*
-	 * When asking for the device path interface, return
-	 * bootefi_device_path
-	 */
-	ret = efi_add_protocol(obj->handle, &efi_guid_device_path, device_path);
-	if (ret != EFI_SUCCESS)
-		goto failure;
+	if (device_path) {
+		info->device_handle = efi_dp_find_obj(device_path, NULL);
+		/*
+		 * When asking for the device path interface, return
+		 * bootefi_device_path
+		 */
+		ret = efi_add_protocol(obj->handle, &efi_guid_device_path,
+				       device_path);
+		if (ret != EFI_SUCCESS)
+			goto failure;
+	}
 
 	/*
 	 * When asking for the loaded_image interface, just
