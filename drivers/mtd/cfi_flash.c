@@ -611,7 +611,7 @@ static int flash_full_status_check(flash_info_t *info, flash_sect_t sector,
 	case CFI_CMDSET_INTEL_PROG_REGIONS:
 	case CFI_CMDSET_INTEL_EXTENDED:
 	case CFI_CMDSET_INTEL_STANDARD:
-		if ((retcode == ERR_OK) &&
+		if (retcode == ERR_OK &&
 			!flash_isset(info, sector, 0, FLASH_STATUS_DONE)) {
 			retcode = ERR_INVAL;
 			printf("Flash %s error at address %lx\n", prompt,
@@ -758,7 +758,7 @@ static flash_sect_t find_sector(flash_info_t *info, ulong addr)
 	static flash_info_t *saved_info; /* previously used flash bank */
 	flash_sect_t sector = saved_sector;
 
-	if ((info != saved_info) || (sector >= info->sector_count))
+	if (info != saved_info || sector >= info->sector_count)
 		sector = 0;
 
 	while ((info->start[sector] < addr) &&
@@ -1059,7 +1059,7 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 		puts("Can't erase unknown flash type - aborted\n");
 		return 1;
 	}
-	if ((s_first < 0) || (s_first > s_last)) {
+	if (s_first < 0 || s_first > s_last) {
 		puts("- no sectors to erase\n");
 		return 1;
 	}
@@ -1247,7 +1247,7 @@ void flash_print_info(flash_info_t *info)
 		printf(info->chipwidth == FLASH_CFI_16BIT ? "%04X" : "%02X",
 		info->device_id2);
 	}
-	if ((info->vendor == CFI_CMDSET_AMD_STANDARD) && (info->legacy_unlock))
+	if (info->vendor == CFI_CMDSET_AMD_STANDARD && info->legacy_unlock)
 		printf("\n  Advanced Sector Protection (PPB) enabled");
 	printf("\n  Erase timeout: %ld ms, write timeout: %ld ms\n",
 		info->erase_blk_tout,
@@ -1291,7 +1291,7 @@ void flash_print_info(flash_info_t *info)
 #define FLASH_SHOW_PROGRESS(scale, dots, digit, dots_sub) \
 	if (flash_verbose) { \
 		dots -= dots_sub; \
-		if ((scale > 0) && (dots <= 0)) { \
+		if (scale > 0 && dots <= 0) { \
 			if ((digit % 5) == 0) \
 				printf("%d", digit / 5); \
 			else \
@@ -1577,7 +1577,7 @@ int flash_real_protect(flash_info_t *info, long sector, int prot)
 		 * On some of Intel's flash chips (marked via legacy_unlock)
 		 * unprotect unprotects all locking.
 		 */
-		if ((prot == 0) && (info->legacy_unlock)) {
+		if (prot == 0 && info->legacy_unlock) {
 			flash_sect_t i;
 
 			for (i = 0; i < info->sector_count; i++) {
@@ -1636,10 +1636,10 @@ static void cfi_reverse_geometry(struct cfi_qry *qry)
 	u32 tmp;
 
 	for (i = 0, j = qry->num_erase_regions - 1; i < j; i++, j--) {
-		tmp = get_unaligned(&(qry->erase_region_info[i]));
-		put_unaligned(get_unaligned(&(qry->erase_region_info[j])),
-			      &(qry->erase_region_info[i]));
-		put_unaligned(tmp, &(qry->erase_region_info[j]));
+		tmp = get_unaligned(&qry->erase_region_info[i]);
+		put_unaligned(get_unaligned(&qry->erase_region_info[j]),
+			      &qry->erase_region_info[i]);
+		put_unaligned(tmp, &qry->erase_region_info[j]);
 	}
 }
 
@@ -1919,11 +1919,11 @@ static int __flash_detect_cfi(flash_info_t *info, struct cfi_qry *qry)
 			 * in compatibility mode
 			 */
 			if (/* x8/x16 in x8 mode */
-			    ((info->chipwidth == FLASH_CFI_BY8) &&
-				(info->interface == FLASH_CFI_X8X16)) ||
+			    (info->chipwidth == FLASH_CFI_BY8 &&
+				info->interface == FLASH_CFI_X8X16) ||
 			    /* x16/x32 in x16 mode */
-			    ((info->chipwidth == FLASH_CFI_BY16) &&
-				(info->interface == FLASH_CFI_X16X32)))
+			    (info->chipwidth == FLASH_CFI_BY16 &&
+				info->interface == FLASH_CFI_X16X32))
 			{
 				info->addr_unlock1 = 0xaaa;
 				info->addr_unlock2 = 0x555;
@@ -2040,8 +2040,8 @@ static void flash_fixup_num(flash_info_t *info, struct cfi_qry *qry)
 	 * There's an app note from Numonyx on this issue.
 	 * So adjust the buffer size for M29EW while operating in 8-bit mode
 	 */
-	if (((qry->max_buf_write_size) > 0x8) &&
-			(info->device_id == 0x7E) &&
+	if (qry->max_buf_write_size > 0x8 &&
+			info->device_id == 0x7E &&
 			(info->device_id2 == 0x2201 ||
 			info->device_id2 == 0x2301 ||
 			info->device_id2 == 0x2801 ||
@@ -2081,8 +2081,8 @@ ulong flash_get_size(phys_addr_t base, int banknum)
 	info->start[0] = (ulong)map_physmem(base, info->portwidth, MAP_NOCACHE);
 
 	if (flash_detect_cfi(info, &qry)) {
-		info->vendor = le16_to_cpu(get_unaligned(&(qry.p_id)));
-		info->ext_addr = le16_to_cpu(get_unaligned(&(qry.p_adr)));
+		info->vendor = le16_to_cpu(get_unaligned(&qry.p_id));
+		info->ext_addr = le16_to_cpu(get_unaligned(&qry.p_adr));
 		num_erase_regions = qry.num_erase_regions;
 
 		if (info->ext_addr) {
@@ -2146,8 +2146,8 @@ ulong flash_get_size(phys_addr_t base, int banknum)
 
 		size_ratio = info->portwidth / info->chipwidth;
 		/* if the chip is x8/x16 reduce the ratio by half */
-		if ((info->interface == FLASH_CFI_X8X16) &&
-			(info->chipwidth == FLASH_CFI_BY8)) {
+		if (info->interface == FLASH_CFI_X8X16 &&
+			info->chipwidth == FLASH_CFI_BY8) {
 			size_ratio >>= 1;
 		}
 		debug("size_ratio %d port %d bits chip %d bits\n",
@@ -2157,7 +2157,7 @@ ulong flash_get_size(phys_addr_t base, int banknum)
 		/* multiply the size by the number of chips */
 		info->size *= size_ratio;
 		max_size = cfi_flash_bank_size(banknum);
-		if (max_size && (info->size > max_size)) {
+		if (max_size && info->size > max_size) {
 			debug("[truncated from %ldMiB]", info->size >> 20);
 			info->size = max_size;
 		}
@@ -2172,7 +2172,7 @@ ulong flash_get_size(phys_addr_t base, int banknum)
 			}
 
 			tmp = le32_to_cpu(get_unaligned(
-						&(qry.erase_region_info[i])));
+						&qry.erase_region_info[i]));
 			debug("erase region %u: 0x%08lx\n", i, tmp);
 
 			erase_region_count = (tmp & 0xffff) + 1;
@@ -2261,8 +2261,8 @@ ulong flash_get_size(phys_addr_t base, int banknum)
 		/* round up when converting to ms */
 		info->write_tout = (tmp + 999) / 1000;
 		info->flash_id = FLASH_MAN_CFI;
-		if ((info->interface == FLASH_CFI_X8X16) &&
-		    (info->chipwidth == FLASH_CFI_BY8)) {
+		if (info->interface == FLASH_CFI_X8X16 &&
+		    info->chipwidth == FLASH_CFI_BY8) {
 			/* XXX - Need to test on x8/x16 in parallel. */
 			info->portwidth >>= 1;
 		}
