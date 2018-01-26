@@ -231,7 +231,7 @@ static void flash_make_cmd(flash_info_t *info, u32 cmd, void *cmdbuf)
 	uchar *cp = (uchar *) cmdbuf;
 
 	for (i = info->portwidth; i > 0; i--) {
-		cword_offset = (info->portwidth-i)%info->chipwidth;
+		cword_offset = (info->portwidth - i) % info->chipwidth;
 #if defined(__LITTLE_ENDIAN) || defined(CONFIG_SYS_WRITE_SWAPPED_DATA)
 		cp_offset = info->portwidth - i;
 		val = *((uchar *)&cmd_le + cword_offset);
@@ -252,7 +252,7 @@ static void print_longlong(char *str, unsigned long long data)
 	int i;
 	char *cp;
 
-	cp = (char *) &data;
+	cp = (char *)&data;
 	for (i = 0; i < 8; i++)
 		sprintf(&str[i * 2], "%2.2x", *cp++);
 }
@@ -512,7 +512,7 @@ static int flash_toggle(flash_info_t *info, flash_sect_t sect,
 		break;
 	case FLASH_CFI_64BIT:
 		retval = ((flash_read32(addr) != flash_read32(addr)) ||
-			   (flash_read32(addr+4) != flash_read32(addr+4)));
+			   (flash_read32(addr + 4) != flash_read32(addr + 4)));
 		break;
 	default:
 		retval = 0;
@@ -1212,7 +1212,7 @@ void flash_print_info(flash_info_t *info)
 	printf("%s flash (%d x %d)",
 		info->name,
 		(info->portwidth << 3), (info->chipwidth << 3));
-	if (info->size < 1024*1024)
+	if (info->size < 1024 * 1024)
 		printf("  Size: %ld kB in %d Sectors\n",
 			info->size >> 10, info->sector_count);
 	else
@@ -1888,7 +1888,7 @@ static void __flash_cmd_reset(flash_info_t *info)
 	flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);
 }
 void flash_cmd_reset(flash_info_t *info)
-	__attribute__((weak,alias("__flash_cmd_reset")));
+	__attribute__((weak, alias("__flash_cmd_reset")));
 
 static int __flash_detect_cfi(flash_info_t *info, struct cfi_qry *qry)
 {
@@ -2035,7 +2035,7 @@ static void flash_fixup_sst(flash_info_t *info, struct cfi_qry *qry)
 	if (info->device_id == 0x5D23 || /* SST39VF3201B */
 	    info->device_id == 0x5C23) { /* SST39VF3202B */
 		/* set sector granularity to 4KB */
-		info->cmd_erase_sector=0x50;
+		info->cmd_erase_sector = 0x50;
 	}
 }
 
@@ -2093,9 +2093,9 @@ ulong flash_get_size(phys_addr_t base, int banknum)
 		num_erase_regions = qry.num_erase_regions;
 
 		if (info->ext_addr) {
-			info->cfi_version = (ushort) flash_read_uchar(info,
+			info->cfi_version = (ushort)flash_read_uchar(info,
 						info->ext_addr + 3) << 8;
-			info->cfi_version |= (ushort) flash_read_uchar(info,
+			info->cfi_version |= (ushort)flash_read_uchar(info,
 						info->ext_addr + 4);
 		}
 
@@ -2392,7 +2392,7 @@ unsigned long flash_init(void)
 #ifndef CONFIG_SYS_FLASH_QUIET_TEST
 			printf("## Unknown flash on Bank %d "
 				"- Size = 0x%08lx = %ld MB\n",
-				i+1, flash_info[i].size,
+				i + 1, flash_info[i].size,
 				flash_info[i].size >> 20);
 #endif /* CONFIG_SYS_FLASH_QUIET_TEST */
 		}
