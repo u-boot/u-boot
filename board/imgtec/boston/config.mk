@@ -3,7 +3,10 @@
 #
 
 quiet_cmd_srec_cat = SRECCAT $@
-      cmd_srec_cat = srec_cat -output $@ -$2 $< -binary -offset $3
+      cmd_srec_cat = srec_cat -output $@ -$2 \
+			$< -binary \
+			-fill 0x00 -within $< -binary -range-pad 16 \
+			-offset $3
 
 u-boot.mcs: u-boot.bin
 	$(call cmd,srec_cat,intel,0x7c00000)

@@ -1,12 +1,17 @@
 menu "Broadcom MIPS platforms"
 	depends on ARCH_BMIPS
 
+config SYS_MALLOC_F_LEN
+	default 0x1000
+
 config SYS_SOC
 	default "bcm3380" if SOC_BMIPS_BCM3380
+	default "bcm6318" if SOC_BMIPS_BCM6318
 	default "bcm6328" if SOC_BMIPS_BCM6328
 	default "bcm6338" if SOC_BMIPS_BCM6338
 	default "bcm6348" if SOC_BMIPS_BCM6348
 	default "bcm6358" if SOC_BMIPS_BCM6358
+	default "bcm6368" if SOC_BMIPS_BCM6368
 	default "bcm63268" if SOC_BMIPS_BCM63268
 
 choice
@@ -22,6 +27,17 @@ config SOC_BMIPS_BCM3380
 	select SYSRESET_WATCHDOG
 	help
 	  This supports BMIPS BCM3380 family.
+
+config SOC_BMIPS_BCM6318
+	bool "BMIPS BCM6318 family"
+	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select MIPS_TUNE_4KC
+	select MIPS_L1_CACHE_SHIFT_4
+	select SWAP_IO_SPACE
+	select SYSRESET_SYSCON
+	help
+	  This supports BMIPS BCM6318 family.
 
 config SOC_BMIPS_BCM6328
 	bool "BMIPS BCM6328 family"
@@ -67,6 +83,17 @@ config SOC_BMIPS_BCM6358
 	help
 	  This supports BMIPS BCM6358 family including BCM6358 and BCM6359.
 
+config SOC_BMIPS_BCM6368
+	bool "BMIPS BCM6368 family"
+	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select MIPS_TUNE_4KC
+	select MIPS_L1_CACHE_SHIFT_4
+	select SWAP_IO_SPACE
+	select SYSRESET_SYSCON
+	help
+	  This supports BMIPS BCM6368 family including BCM6368 and BCM6369.
+
 config SOC_BMIPS_BCM63268
 	bool "BMIPS BCM63268 family"
 	select SUPPORTS_BIG_ENDIAN
@@ -83,6 +110,17 @@ endchoice
 
 choice
 	prompt "Board select"
+
+config BOARD_COMTREND_AR5315U
+	bool "Comtrend AR-5315u"
+	depends on SOC_BMIPS_BCM6318
+	select BMIPS_SUPPORTS_BOOT_RAM
+	help
+	  Comtrend AR-5315u boards have a BCM6318 SoC with 64 MB of RAM and 16
+	  MB of flash (SPI).
+	  Between its different peripherals there's an integrated switch with 4
+	  ethernet ports, 1 USB port, 1 UART, GPIO buttons and LEDs, and
+	  a BCM43217 (PCIe).
 
 config BOARD_COMTREND_AR5387UN
 	bool "Comtrend AR-5387un"
@@ -116,6 +154,17 @@ config BOARD_COMTREND_VR3032U
 	  Between its different peripherals there's an integrated switch with 4
 	  ethernet ports, 1 USB port, 1 UART, GPIO buttons and LEDs,
 	  and a BCM6362 (integrated).
+
+config BOARD_COMTREND_WAP5813N
+	bool "Comtrend WAP-5813n board"
+	depends on SOC_BMIPS_BCM6368
+	select BMIPS_SUPPORTS_BOOT_RAM
+	help
+	  Comtrend WAP-5813n boards have a BCM6369 SoC with 64 MB of RAM and
+	  8 MB of flash (CFI).
+	  Between its different peripherals there's a BCM53115 switch with 5
+	  ethernet ports, 1 USB port, 1 UART, GPIO buttons and LEDs,
+	  and a BCM4322 (miniPCI).
 
 config BOARD_HUAWEI_HG556A
 	bool "Huawei EchoLife HG556a"
@@ -179,9 +228,11 @@ endchoice
 config BMIPS_SUPPORTS_BOOT_RAM
 	bool
 
+source "board/comtrend/ar5315u/Kconfig"
 source "board/comtrend/ar5387un/Kconfig"
 source "board/comtrend/ct5361/Kconfig"
 source "board/comtrend/vr3032u/Kconfig"
+source "board/comtrend/wap5813n/Kconfig"
 source "board/huawei/hg556a/Kconfig"
 source "board/netgear/cg3100d/Kconfig"
 source "board/sagem/f@st1704/Kconfig"
