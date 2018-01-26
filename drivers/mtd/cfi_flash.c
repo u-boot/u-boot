@@ -1826,9 +1826,9 @@ static int flash_detect_legacy(phys_addr_t base, int banknum)
 						info->device_id2);
 				if (jedec_flash_match(info, info->start[0]))
 					break;
-				else
-					unmap_physmem((void *)info->start[0],
-						      info->portwidth);
+
+				unmap_physmem((void *)info->start[0],
+					      info->portwidth);
 			}
 		}
 
