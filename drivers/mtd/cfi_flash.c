@@ -329,9 +329,8 @@ static ulong flash_read_long (flash_info_t *info, flash_sect_t sect,
 #ifdef DEBUG
 	debug("long addr is at %p info->portwidth = %d\n", addr,
 	       info->portwidth);
-	for (x = 0; x < 4 * info->portwidth; x++) {
+	for (x = 0; x < 4 * info->portwidth; x++)
 		debug("addr[%x] = 0x%x\n", x, flash_read8(addr + x));
-	}
 #endif
 #if defined(__LITTLE_ENDIAN) || defined(CONFIG_SYS_WRITE_SWAPPED_DATA)
 	retval = ((flash_read8(addr) << 16) |
@@ -1065,11 +1064,9 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 	}
 
 	prot = 0;
-	for (sect = s_first; sect <= s_last; ++sect) {
-		if (info->protect[sect]) {
+	for (sect = s_first; sect <= s_last; ++sect)
+		if (info->protect[sect])
 			prot++;
-		}
-	}
 	if (prot) {
 		printf("- Warning: %d protected sectors will not be erased!\n",
 			prot);
@@ -1396,9 +1393,8 @@ int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 #else
 	while (cnt >= info->portwidth) {
 		cword.w32 = 0;
-		for (i = 0; i < info->portwidth; i++) {
+		for (i = 0; i < info->portwidth; i++)
 			flash_add_byte(info, &cword, *src++);
-		}
 		if ((rc = flash_write_cfiword(info, wp, cword)) != 0)
 			return rc;
 		wp += info->portwidth;
@@ -1410,9 +1406,8 @@ int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	}
 #endif /* CONFIG_SYS_FLASH_USE_BUFFER_WRITE */
 
-	if (cnt == 0) {
+	if (cnt == 0)
 		return (0);
-	}
 
 	/*
 	 * handle unaligned tail bytes
