@@ -230,7 +230,7 @@ static void flash_make_cmd(flash_info_t *info, u32 cmd, void *cmdbuf)
 	uchar val;
 	uchar *cp = (uchar *) cmdbuf;
 
-	for (i = info->portwidth; i > 0; i--){
+	for (i = info->portwidth; i > 0; i--) {
 		cword_offset = (info->portwidth-i)%info->chipwidth;
 #if defined(__LITTLE_ENDIAN) || defined(CONFIG_SYS_WRITE_SWAPPED_DATA)
 		cp_offset = info->portwidth - i;
@@ -511,8 +511,8 @@ static int flash_toggle(flash_info_t *info, flash_sect_t sect,
 		retval = flash_read32(addr) != flash_read32(addr);
 		break;
 	case FLASH_CFI_64BIT:
-		retval = ( (flash_read32( addr ) != flash_read32( addr )) ||
-			   (flash_read32(addr+4) != flash_read32(addr+4)) );
+		retval = ((flash_read32(addr) != flash_read32(addr)) ||
+			   (flash_read32(addr+4) != flash_read32(addr+4)));
 		break;
 	default:
 		retval = 0;
@@ -1719,7 +1719,7 @@ static void cmdset_amd_read_jedec_ids(flash_info_t *info)
 		info->sr_supported = feature & 0x1;
 	}
 
-	switch (info->chipwidth){
+	switch (info->chipwidth) {
 	case FLASH_CFI_8BIT:
 		info->device_id = flash_read_uchar(info,
 						FLASH_OFFSET_DEVICE_ID);
@@ -1838,7 +1838,7 @@ static int flash_detect_legacy(phys_addr_t base, int banknum)
 			}
 		}
 
-		switch(info->vendor) {
+		switch (info->vendor) {
 		case CFI_CMDSET_INTEL_PROG_REGIONS:
 		case CFI_CMDSET_INTEL_STANDARD:
 		case CFI_CMDSET_INTEL_EXTENDED:
@@ -1925,12 +1925,12 @@ static int __flash_detect_cfi(flash_info_t *info, struct cfi_qry *qry)
 			 * modify the unlock address if we are
 			 * in compatibility mode
 			 */
-			if (	/* x8/x16 in x8 mode */
-				((info->chipwidth == FLASH_CFI_BY8) &&
-					(info->interface == FLASH_CFI_X8X16)) ||
-				/* x16/x32 in x16 mode */
-				((info->chipwidth == FLASH_CFI_BY16) &&
-					(info->interface == FLASH_CFI_X16X32)))
+			if (/* x8/x16 in x8 mode */
+			    ((info->chipwidth == FLASH_CFI_BY8) &&
+				(info->interface == FLASH_CFI_X8X16)) ||
+			    /* x16/x32 in x16 mode */
+			    ((info->chipwidth == FLASH_CFI_BY16) &&
+				(info->interface == FLASH_CFI_X16X32)))
 			{
 				info->addr_unlock1 = 0xaaa;
 				info->addr_unlock2 = 0x555;
