@@ -44,6 +44,10 @@ static void efi_ut_print(void)
 
 	snprintf(str, sizeof(str), "_%pD_", buf);
 	assert(!strcmp("_/SD(3)_", str));
+
+	/* NULL device path */
+	snprintf(str, sizeof(str), "_%pD_", NULL);
+	assert(!strcmp("_<NULL>_", str));
 #endif
 }
 
