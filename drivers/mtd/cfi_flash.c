@@ -555,7 +555,7 @@ static int flash_is_busy(flash_info_t *info, flash_sect_t sect)
 	default:
 		retval = 0;
 	}
-	debug("flash_is_busy: %d\n", retval);
+	debug("%s: %d\n", __func__, retval);
 	return retval;
 }
 
