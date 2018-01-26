@@ -1220,29 +1220,29 @@ void flash_print_info(flash_info_t *info)
 			info->size >> 20, info->sector_count);
 	printf("  ");
 	switch (info->vendor) {
-		case CFI_CMDSET_INTEL_PROG_REGIONS:
-			printf("Intel Prog Regions");
-			break;
-		case CFI_CMDSET_INTEL_STANDARD:
-			printf("Intel Standard");
-			break;
-		case CFI_CMDSET_INTEL_EXTENDED:
-			printf("Intel Extended");
-			break;
-		case CFI_CMDSET_AMD_STANDARD:
-			printf("AMD Standard");
-			break;
-		case CFI_CMDSET_AMD_EXTENDED:
-			printf("AMD Extended");
-			break;
+	case CFI_CMDSET_INTEL_PROG_REGIONS:
+		printf("Intel Prog Regions");
+		break;
+	case CFI_CMDSET_INTEL_STANDARD:
+		printf("Intel Standard");
+		break;
+	case CFI_CMDSET_INTEL_EXTENDED:
+		printf("Intel Extended");
+		break;
+	case CFI_CMDSET_AMD_STANDARD:
+		printf("AMD Standard");
+		break;
+	case CFI_CMDSET_AMD_EXTENDED:
+		printf("AMD Extended");
+		break;
 #ifdef CONFIG_FLASH_CFI_LEGACY
-		case CFI_CMDSET_AMD_LEGACY:
-			printf("AMD Legacy");
-			break;
+	case CFI_CMDSET_AMD_LEGACY:
+		printf("AMD Legacy");
+		break;
 #endif
-		default:
-			printf("Unknown (%d)", info->vendor);
-			break;
+	default:
+		printf("Unknown (%d)", info->vendor);
+		break;
 	}
 	printf(" command set, Manufacturer ID: 0x%02X, Device ID: 0x",
 		info->manufacturer_id);
@@ -1480,94 +1480,94 @@ int flash_real_protect(flash_info_t *info, long sector, int prot)
 	int retcode = 0;
 
 	switch (info->vendor) {
-		case CFI_CMDSET_INTEL_PROG_REGIONS:
-		case CFI_CMDSET_INTEL_STANDARD:
-		case CFI_CMDSET_INTEL_EXTENDED:
-			if (!cfi_protect_bugfix(info, sector, prot)) {
-				flash_write_cmd(info, sector, 0,
-					 FLASH_CMD_CLEAR_STATUS);
-				flash_write_cmd(info, sector, 0,
-					FLASH_CMD_PROTECT);
-				if (prot)
-					flash_write_cmd(info, sector, 0,
-						FLASH_CMD_PROTECT_SET);
-				else
-					flash_write_cmd(info, sector, 0,
-						FLASH_CMD_PROTECT_CLEAR);
-
-			}
-			break;
-		case CFI_CMDSET_AMD_EXTENDED:
-		case CFI_CMDSET_AMD_STANDARD:
-			/* U-Boot only checks the first byte */
-			if (manufact_match(info, ATM_MANUFACT)) {
-				if (prot) {
-					flash_unlock_seq(info, 0);
-					flash_write_cmd(info, 0,
-							info->addr_unlock1,
-							ATM_CMD_SOFTLOCK_START);
-					flash_unlock_seq(info, 0);
-					flash_write_cmd(info, sector, 0,
-							ATM_CMD_LOCK_SECT);
-				} else {
-					flash_write_cmd(info, 0,
-							info->addr_unlock1,
-							AMD_CMD_UNLOCK_START);
-					if (info->device_id == ATM_ID_BV6416)
-						flash_write_cmd(info, sector,
-							0, ATM_CMD_UNLOCK_SECT);
-				}
-			}
-			if (info->legacy_unlock) {
-				int flag = disable_interrupts();
-				int lock_flag;
-
-				flash_unlock_seq(info, 0);
-				flash_write_cmd(info, 0, info->addr_unlock1,
-						AMD_CMD_SET_PPB_ENTRY);
-				lock_flag = flash_isset(info, sector, 0, 0x01);
-				if (prot) {
-					if (lock_flag) {
-						flash_write_cmd(info, sector, 0,
-							AMD_CMD_PPB_LOCK_BC1);
-						flash_write_cmd(info, sector, 0,
-							AMD_CMD_PPB_LOCK_BC2);
-					}
-					debug("sector %ld %slocked\n", sector,
-						lock_flag ? "" : "already ");
-				} else {
-					if (!lock_flag) {
-						debug("unlock %ld\n", sector);
-						flash_write_cmd(info, 0, 0,
-							AMD_CMD_PPB_UNLOCK_BC1);
-						flash_write_cmd(info, 0, 0,
-							AMD_CMD_PPB_UNLOCK_BC2);
-					}
-					debug("sector %ld %sunlocked\n", sector,
-						!lock_flag ? "" : "already ");
-				}
-				if (flag)
-					enable_interrupts();
-
-				if (flash_status_check(info, sector,
-						info->erase_blk_tout,
-						prot ? "protect" : "unprotect"))
-					printf("status check error\n");
-
-				flash_write_cmd(info, 0, 0,
-						AMD_CMD_SET_PPB_EXIT_BC1);
-				flash_write_cmd(info, 0, 0,
-						AMD_CMD_SET_PPB_EXIT_BC2);
-			}
-			break;
-#ifdef CONFIG_FLASH_CFI_LEGACY
-		case CFI_CMDSET_AMD_LEGACY:
-			flash_write_cmd(info, sector, 0, FLASH_CMD_CLEAR_STATUS);
-			flash_write_cmd(info, sector, 0, FLASH_CMD_PROTECT);
+	case CFI_CMDSET_INTEL_PROG_REGIONS:
+	case CFI_CMDSET_INTEL_STANDARD:
+	case CFI_CMDSET_INTEL_EXTENDED:
+		if (!cfi_protect_bugfix(info, sector, prot)) {
+			flash_write_cmd(info, sector, 0,
+				 FLASH_CMD_CLEAR_STATUS);
+			flash_write_cmd(info, sector, 0,
+				FLASH_CMD_PROTECT);
 			if (prot)
-				flash_write_cmd(info, sector, 0, FLASH_CMD_PROTECT_SET);
+				flash_write_cmd(info, sector, 0,
+					FLASH_CMD_PROTECT_SET);
 			else
-				flash_write_cmd(info, sector, 0, FLASH_CMD_PROTECT_CLEAR);
+				flash_write_cmd(info, sector, 0,
+					FLASH_CMD_PROTECT_CLEAR);
+
+		}
+		break;
+	case CFI_CMDSET_AMD_EXTENDED:
+	case CFI_CMDSET_AMD_STANDARD:
+		/* U-Boot only checks the first byte */
+		if (manufact_match(info, ATM_MANUFACT)) {
+			if (prot) {
+				flash_unlock_seq(info, 0);
+				flash_write_cmd(info, 0,
+						info->addr_unlock1,
+						ATM_CMD_SOFTLOCK_START);
+				flash_unlock_seq(info, 0);
+				flash_write_cmd(info, sector, 0,
+						ATM_CMD_LOCK_SECT);
+			} else {
+				flash_write_cmd(info, 0,
+						info->addr_unlock1,
+						AMD_CMD_UNLOCK_START);
+				if (info->device_id == ATM_ID_BV6416)
+					flash_write_cmd(info, sector,
+						0, ATM_CMD_UNLOCK_SECT);
+			}
+		}
+		if (info->legacy_unlock) {
+			int flag = disable_interrupts();
+			int lock_flag;
+
+			flash_unlock_seq(info, 0);
+			flash_write_cmd(info, 0, info->addr_unlock1,
+					AMD_CMD_SET_PPB_ENTRY);
+			lock_flag = flash_isset(info, sector, 0, 0x01);
+			if (prot) {
+				if (lock_flag) {
+					flash_write_cmd(info, sector, 0,
+						AMD_CMD_PPB_LOCK_BC1);
+					flash_write_cmd(info, sector, 0,
+						AMD_CMD_PPB_LOCK_BC2);
+				}
+				debug("sector %ld %slocked\n", sector,
+					lock_flag ? "" : "already ");
+			} else {
+				if (!lock_flag) {
+					debug("unlock %ld\n", sector);
+					flash_write_cmd(info, 0, 0,
+						AMD_CMD_PPB_UNLOCK_BC1);
+					flash_write_cmd(info, 0, 0,
+						AMD_CMD_PPB_UNLOCK_BC2);
+				}
+				debug("sector %ld %sunlocked\n", sector,
+					!lock_flag ? "" : "already ");
+			}
+			if (flag)
+				enable_interrupts();
+
+			if (flash_status_check(info, sector,
+					info->erase_blk_tout,
+					prot ? "protect" : "unprotect"))
+				printf("status check error\n");
+
+			flash_write_cmd(info, 0, 0,
+					AMD_CMD_SET_PPB_EXIT_BC1);
+			flash_write_cmd(info, 0, 0,
+					AMD_CMD_SET_PPB_EXIT_BC2);
+		}
+		break;
+#ifdef CONFIG_FLASH_CFI_LEGACY
+	case CFI_CMDSET_AMD_LEGACY:
+		flash_write_cmd(info, sector, 0, FLASH_CMD_CLEAR_STATUS);
+		flash_write_cmd(info, sector, 0, FLASH_CMD_PROTECT);
+		if (prot)
+			flash_write_cmd(info, sector, 0, FLASH_CMD_PROTECT_SET);
+		else
+			flash_write_cmd(info, sector, 0, FLASH_CMD_PROTECT_CLEAR);
 #endif
 	};
 
