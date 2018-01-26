@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <dm.h>
 #include <asm/arch/clock_manager.h>
 #include <wait_bit.h>
 
@@ -37,15 +38,13 @@ static int cm_write_with_phase(u32 value, u32 reg_address, u32 mask)
 	int ret;
 
 	/* poll until phase is zero */
-	ret = wait_for_bit(__func__, (const u32 *)reg_address, mask,
-			   false, 20000, false);
+	ret = wait_for_bit_le32(reg_address, mask, false, 20000, false);
 	if (ret)
 		return ret;
 
 	writel(value, reg_address);
 
-	return wait_for_bit(__func__, (const u32 *)reg_address, mask,
-			    false, 20000, false);
+	return wait_for_bit_le32(reg_address, mask, false, 20000, false);
 }
 
 /*
@@ -507,6 +506,14 @@ unsigned int cm_get_spi_controller_clk_hz(void)
 	clock /= (reg + 1);
 
 	return clock;
+}
+
+/* Override weak dw_spi_get_clk implementation in designware_spi.c driver */
+int dw_spi_get_clk(struct udevice *bus, ulong *rate)
+{
+	*rate = cm_get_spi_controller_clk_hz();
+
+	return 0;
 }
 
 void cm_print_clock_quick_summary(void)

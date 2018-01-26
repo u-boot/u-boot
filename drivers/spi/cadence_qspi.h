@@ -18,14 +18,18 @@ struct cadence_spi_platdata {
 	unsigned int	max_hz;
 	void		*regbase;
 	void		*ahbbase;
+	bool		is_decoded_cs;
+	u32		fifo_depth;
+	u32		fifo_width;
+	u32		trigger_address;
 
+	/* Flash parameters */
 	u32		page_size;
 	u32		block_size;
 	u32		tshsl_ns;
 	u32		tsd2d_ns;
 	u32		tchsh_ns;
 	u32		tslch_ns;
-	u32		sram_size;
 };
 
 struct cadence_spi_priv {

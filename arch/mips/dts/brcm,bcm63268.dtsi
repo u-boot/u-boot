@@ -13,6 +13,11 @@
 / {
 	compatible = "brcm,bcm63268";
 
+	aliases {
+		spi0 = &lsspi;
+		spi1 = &hsspi;
+	};
+
 	cpus {
 		reg = <0x10000000 0x4>;
 		#address-cells = <1>;
@@ -39,6 +44,12 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		u-boot,dm-pre-reloc;
+
+		hsspi_pll: hsspi-pll {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <400000000>;
+		};
 
 		periph_osc: periph-osc {
 			compatible = "fixed-clock";
@@ -134,6 +145,33 @@
 			compatible = "brcm,bcm6328-power-domain";
 			reg = <0x1000184c 0x4>;
 			#power-domain-cells = <1>;
+		};
+
+		lsspi: spi@10000800 {
+			compatible = "brcm,bcm6358-spi";
+			reg = <0x10000800 0x70c>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clocks = <&periph_clk BCM63268_CLK_SPI>;
+			resets = <&periph_rst BCM63268_RST_SPI>;
+			spi-max-frequency = <20000000>;
+			num-cs = <8>;
+
+			status = "disabled";
+		};
+
+		hsspi: spi@10001000 {
+			compatible = "brcm,bcm6328-hsspi";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x10001000 0x600>;
+			clocks = <&periph_clk BCM63268_CLK_HSSPI>, <&hsspi_pll>;
+			clock-names = "hsspi", "pll";
+			resets = <&periph_rst BCM63268_RST_SPI>;
+			spi-max-frequency = <50000000>;
+			num-cs = <8>;
+
+			status = "disabled";
 		};
 
 		leds: led-controller@10001900 {

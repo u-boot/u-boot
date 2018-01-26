@@ -394,8 +394,8 @@ out:
 		 * Wait until the transfer is completely done before
 		 * we deactivate CS.
 		 */
-		wait_for_bit(__func__, &reg_base->sr,
-			     ATMEL_SPI_SR_TXEMPTY, true, 1000, false);
+		wait_for_bit_le32(&reg_base->sr,
+				  ATMEL_SPI_SR_TXEMPTY, true, 1000, false);
 
 		atmel_spi_cs_deactivate(dev);
 	}

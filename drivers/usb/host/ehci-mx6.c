@@ -142,13 +142,12 @@ static int usb_phy_enable(int index, struct usb_ehci *ehci)
 
 	/* Stop then Reset */
 	clrbits_le32(usb_cmd, UCMD_RUN_STOP);
-	ret = wait_for_bit(__func__, usb_cmd, UCMD_RUN_STOP, false, 10000,
-			   false);
+	ret = wait_for_bit_le32(usb_cmd, UCMD_RUN_STOP, false, 10000, false);
 	if (ret)
 		return ret;
 
 	setbits_le32(usb_cmd, UCMD_RESET);
-	ret = wait_for_bit(__func__, usb_cmd, UCMD_RESET, false, 10000, false);
+	ret = wait_for_bit_le32(usb_cmd, UCMD_RESET, false, 10000, false);
 	if (ret)
 		return ret;
 

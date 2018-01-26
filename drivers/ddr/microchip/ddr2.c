@@ -57,8 +57,8 @@ static int ddr2_phy_calib_start(void)
 	writel(SCL_START | SCL_EN, &ddr2_phy->scl_start);
 
 	/* Wait for SCL for data byte to pass */
-	return wait_for_bit(__func__, &ddr2_phy->scl_start, SCL_LUBPASS,
-			    true, CONFIG_SYS_HZ, false);
+	return wait_for_bit_le32(&ddr2_phy->scl_start, SCL_LUBPASS,
+				 true, CONFIG_SYS_HZ, false);
 }
 
 /* DDR2 Controller initialization */
@@ -256,8 +256,8 @@ void ddr2_ctrl_init(void)
 	writel(INIT_START, &ctrl->memcon);
 
 	/* wait for all host cmds to be transmitted */
-	wait_for_bit(__func__, &ctrl->cmdissue, CMD_VALID, false,
-		     CONFIG_SYS_HZ, false);
+	wait_for_bit_le32(&ctrl->cmdissue, CMD_VALID, false,
+			  CONFIG_SYS_HZ, false);
 
 	/* inform all cmds issued, ready for normal operation */
 	writel(INIT_START | INIT_DONE, &ctrl->memcon);

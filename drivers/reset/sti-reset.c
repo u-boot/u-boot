@@ -266,8 +266,8 @@ static int sti_reset_program_hw(struct reset_ctl *reset_ctl, int assert)
 		return 0;
 
 	reg = (void __iomem *)base + ch->ack_offset;
-	if (wait_for_bit(__func__, reg, BIT(ch->ack_bit), ctrl_val,
-			 1000, false)) {
+	if (wait_for_bit_le32(reg, BIT(ch->ack_bit), ctrl_val,
+			      1000, false)) {
 		pr_err("Stuck on waiting ack reset_ctl=%p dev=%p id=%lu\n",
 		      reset_ctl, reset_ctl->dev, reset_ctl->id);
 

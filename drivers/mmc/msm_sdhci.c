@@ -109,15 +109,15 @@ static int msm_sdc_probe(struct udevice *dev)
 
 
 	/* Wait for reset to be written to register */
-	if (wait_for_bit(__func__, prv->base + SDCC_MCI_STATUS2,
-			 SDCC_MCI_STATUS2_MCI_ACT, false, 10, false)) {
+	if (wait_for_bit_le32(prv->base + SDCC_MCI_STATUS2,
+			      SDCC_MCI_STATUS2_MCI_ACT, false, 10, false)) {
 		printf("msm_sdhci: reset request failed\n");
 		return -EIO;
 	}
 
 	/* SW reset can take upto 10HCLK + 15MCLK cycles. (min 40us) */
-	if (wait_for_bit(__func__, prv->base + SDCC_MCI_POWER,
-			 SDCC_MCI_POWER_SW_RST, false, 2, false)) {
+	if (wait_for_bit_le32(prv->base + SDCC_MCI_POWER,
+			      SDCC_MCI_POWER_SW_RST, false, 2, false)) {
 		printf("msm_sdhci: stuck in reset\n");
 		return -ETIMEDOUT;
 	}

@@ -1018,11 +1018,11 @@ static int fsl_qspi_probe(struct udevice *bus)
 	priv->num_chipselect = plat->num_chipselect;
 
 	/* make sure controller is not busy anywhere */
-	ret = wait_for_bit(__func__, &priv->regs->sr,
-			   QSPI_SR_BUSY_MASK |
-			   QSPI_SR_AHB_ACC_MASK |
-			   QSPI_SR_IP_ACC_MASK,
-			   false, 100, false);
+	ret = wait_for_bit_le32(&priv->regs->sr,
+				QSPI_SR_BUSY_MASK |
+				QSPI_SR_AHB_ACC_MASK |
+				QSPI_SR_IP_ACC_MASK,
+				false, 100, false);
 
 	if (ret) {
 		debug("ERROR : The controller is busy\n");
@@ -1185,11 +1185,11 @@ static int fsl_qspi_claim_bus(struct udevice *dev)
 	priv = dev_get_priv(bus);
 
 	/* make sure controller is not busy anywhere */
-	ret = wait_for_bit(__func__, &priv->regs->sr,
-			   QSPI_SR_BUSY_MASK |
-			   QSPI_SR_AHB_ACC_MASK |
-			   QSPI_SR_IP_ACC_MASK,
-			   false, 100, false);
+	ret = wait_for_bit_le32(&priv->regs->sr,
+				QSPI_SR_BUSY_MASK |
+				QSPI_SR_AHB_ACC_MASK |
+				QSPI_SR_IP_ACC_MASK,
+				false, 100, false);
 
 	if (ret) {
 		debug("ERROR : The controller is busy\n");

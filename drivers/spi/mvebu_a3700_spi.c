@@ -95,8 +95,9 @@ static int spi_legacy_shift_byte(struct spi_reg *reg, unsigned int bytelen,
 	din_8 = din;
 
 	while (bytelen) {
-		ret = wait_for_bit(__func__, &reg->ctrl,
-				   MVEBU_SPI_A3700_XFER_RDY, true, 100, false);
+		ret = wait_for_bit_le32(&reg->ctrl,
+					MVEBU_SPI_A3700_XFER_RDY,
+					true,100, false);
 		if (ret)
 			return ret;
 
@@ -109,9 +110,9 @@ static int spi_legacy_shift_byte(struct spi_reg *reg, unsigned int bytelen,
 		writel(pending_dout, &reg->dout);
 
 		if (din) {
-			ret = wait_for_bit(__func__, &reg->ctrl,
-					   MVEBU_SPI_A3700_XFER_RDY,
-					   true, 100, false);
+			ret = wait_for_bit_le32(&reg->ctrl,
+						MVEBU_SPI_A3700_XFER_RDY,
+						true, 100, false);
 			if (ret)
 				return ret;
 
@@ -160,8 +161,9 @@ static int mvebu_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	/* Deactivate CS */
 	if (flags & SPI_XFER_END) {
-		ret = wait_for_bit(__func__, &reg->ctrl,
-				   MVEBU_SPI_A3700_XFER_RDY, true, 100, false);
+		ret = wait_for_bit_le32(&reg->ctrl,
+					MVEBU_SPI_A3700_XFER_RDY,
+					true, 100, false);
 		if (ret)
 			return ret;
 
@@ -231,8 +233,8 @@ static int mvebu_spi_probe(struct udevice *bus)
 	/* Flush read/write FIFO */
 	data = readl(&reg->cfg);
 	writel(data | MVEBU_SPI_A3700_FIFO_FLUSH, &reg->cfg);
-	ret = wait_for_bit(__func__, &reg->cfg, MVEBU_SPI_A3700_FIFO_FLUSH,
-			   false, 1000, false);
+	ret = wait_for_bit_le32(&reg->cfg, MVEBU_SPI_A3700_FIFO_FLUSH,
+				false, 1000, false);
 	if (ret)
 		return ret;
 

@@ -405,7 +405,7 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 
 		if (spi->max_write_size)
 			chunk_len = min(chunk_len,
-					(size_t)spi->max_write_size);
+					spi->max_write_size - sizeof(cmd));
 
 		spi_flash_addr(write_addr, cmd);
 
@@ -515,6 +515,9 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 			read_len = len;
 		else
 			read_len = remain_len;
+
+		if (spi->max_read_size)
+			read_len = min(read_len, spi->max_read_size);
 
 		spi_flash_addr(read_addr, cmd);
 

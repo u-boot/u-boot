@@ -243,6 +243,10 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 
 /* Here now the DM part */
 
+struct mvebu_spi_dev {
+	bool			is_errata_50mhz_ac;
+};
+
 struct mvebu_spi_platdata {
 	struct kwspi_registers *spireg;
 };
@@ -269,10 +273,44 @@ static int mvebu_spi_set_speed(struct udevice *bus, uint hz)
 	return 0;
 }
 
+static void mvebu_spi_50mhz_ac_timing_erratum(struct udevice *bus, uint mode)
+{
+	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct kwspi_registers *reg = plat->spireg;
+	u32 data;
+
+	/*
+	 * Erratum description: (Erratum NO. FE-9144572) The device
+	 * SPI interface supports frequencies of up to 50 MHz.
+	 * However, due to this erratum, when the device core clock is
+	 * 250 MHz and the SPI interfaces is configured for 50MHz SPI
+	 * clock and CPOL=CPHA=1 there might occur data corruption on
+	 * reads from the SPI device.
+	 * Erratum Workaround:
+	 * Work in one of the following configurations:
+	 * 1. Set CPOL=CPHA=0 in "SPI Interface Configuration
+	 * Register".
+	 * 2. Set TMISO_SAMPLE value to 0x2 in "SPI Timing Parameters 1
+	 * Register" before setting the interface.
+	 */
+	data = readl(&reg->timing1);
+	data &= ~KW_SPI_TMISO_SAMPLE_MASK;
+
+	if (CONFIG_SYS_TCLK == 250000000 &&
+	    mode & SPI_CPOL &&
+	    mode & SPI_CPHA)
+		data |= KW_SPI_TMISO_SAMPLE_2;
+	else
+		data |= KW_SPI_TMISO_SAMPLE_1;
+
+	writel(data, &reg->timing1);
+}
+
 static int mvebu_spi_set_mode(struct udevice *bus, uint mode)
 {
 	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
 	struct kwspi_registers *reg = plat->spireg;
+	const struct mvebu_spi_dev *drvdata;
 	u32 data = readl(&reg->cfg);
 
 	data &= ~(KWSPI_CPHA | KWSPI_CPOL | KWSPI_RXLSBF | KWSPI_TXLSBF);
@@ -285,6 +323,10 @@ static int mvebu_spi_set_mode(struct udevice *bus, uint mode)
 		data |= (KWSPI_RXLSBF | KWSPI_TXLSBF);
 
 	writel(data, &reg->cfg);
+
+	drvdata = (struct mvebu_spi_dev *)dev_get_driver_data(bus);
+	if (drvdata->is_errata_50mhz_ac)
+		mvebu_spi_50mhz_ac_timing_erratum(bus, mode);
 
 	return 0;
 }
@@ -343,10 +385,31 @@ static const struct dm_spi_ops mvebu_spi_ops = {
 	 */
 };
 
+static const struct mvebu_spi_dev armada_xp_spi_dev_data = {
+	.is_errata_50mhz_ac = false,
+};
+
+static const struct mvebu_spi_dev armada_375_spi_dev_data = {
+	.is_errata_50mhz_ac = false,
+};
+
+static const struct mvebu_spi_dev armada_380_spi_dev_data = {
+	.is_errata_50mhz_ac = true,
+};
+
 static const struct udevice_id mvebu_spi_ids[] = {
-	{ .compatible = "marvell,armada-375-spi" },
-	{ .compatible = "marvell,armada-380-spi" },
-	{ .compatible = "marvell,armada-xp-spi" },
+	{
+		.compatible = "marvell,armada-375-spi",
+		.data = (ulong)&armada_375_spi_dev_data
+	},
+	{
+		.compatible = "marvell,armada-380-spi",
+		.data = (ulong)&armada_380_spi_dev_data
+	},
+	{
+		.compatible = "marvell,armada-xp-spi",
+		.data = (ulong)&armada_xp_spi_dev_data
+	},
 	{ }
 };
 

@@ -37,8 +37,8 @@ void cm_wait_for_lock(u32 mask)
 /* function to poll in the fsm busy bit */
 int cm_wait_for_fsm(void)
 {
-	return wait_for_bit(__func__, (const u32 *)&clock_manager_base->stat,
-			    CLKMGR_STAT_BUSY, false, 20000, false);
+	return wait_for_bit_le32(&clock_manager_base->stat,
+				 CLKMGR_STAT_BUSY, false, 20000, false);
 }
 
 int set_cpu_clk_info(void)

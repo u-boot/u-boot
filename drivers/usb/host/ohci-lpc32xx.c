@@ -143,8 +143,8 @@ static int usbpll_setup(void)
 	setbits_le32(&clk_pwr->usb_ctrl, CLK_USBCTRL_POSTDIV_2POW(0x01));
 	setbits_le32(&clk_pwr->usb_ctrl, CLK_USBCTRL_PLL_PWRUP);
 
-	ret = wait_for_bit(__func__, &clk_pwr->usb_ctrl, CLK_USBCTRL_PLL_STS,
-			   true, CONFIG_SYS_HZ, false);
+	ret = wait_for_bit_le32(&clk_pwr->usb_ctrl, CLK_USBCTRL_PLL_STS,
+				true, CONFIG_SYS_HZ, false);
 	if (ret)
 		return ret;
 
@@ -178,8 +178,8 @@ int usb_cpu_init(void)
 
 	/* enable I2C clock */
 	writel(OTG_CLK_I2C_EN, &otg->otg_clk_ctrl);
-	ret = wait_for_bit(__func__, &otg->otg_clk_sts, OTG_CLK_I2C_EN, true,
-			   CONFIG_SYS_HZ, false);
+	ret = wait_for_bit_le32(&otg->otg_clk_sts, OTG_CLK_I2C_EN, true,
+				CONFIG_SYS_HZ, false);
 	if (ret)
 		return ret;
 
@@ -199,8 +199,8 @@ int usb_cpu_init(void)
 			 OTG_CLK_I2C_EN | OTG_CLK_HOST_EN;
 	writel(mask, &otg->otg_clk_ctrl);
 
-	ret = wait_for_bit(__func__, &otg->otg_clk_sts, mask, true,
-			   CONFIG_SYS_HZ, false);
+	ret = wait_for_bit_le32(&otg->otg_clk_sts, mask, true,
+				CONFIG_SYS_HZ, false);
 	if (ret)
 		return ret;
 

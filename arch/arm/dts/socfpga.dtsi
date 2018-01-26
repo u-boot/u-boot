@@ -644,8 +644,9 @@
 			clocks = <&qspi_clk>;
 			ext-decoder = <0>;  /* external decoder */
 			num-cs = <4>;
-			fifo-depth = <128>;
-			sram-size = <128>;
+			cdns,fifo-depth = <128>;
+			cdns,fifo-width = <4>;
+			cdns,trigger-address = <0x00000000>;
 			bus-num = <2>;
 			status = "disabled";
 		};

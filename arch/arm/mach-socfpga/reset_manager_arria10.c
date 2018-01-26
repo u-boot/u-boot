@@ -222,8 +222,8 @@ int socfpga_reset_deassert_bridges_handoff(void)
 	clrbits_le32(&reset_manager_base->brgmodrst, mask_rstmgr);
 
 	/* Poll until all idleack to 0, timeout at 1000ms */
-	return wait_for_bit(__func__, &sysmgr_regs->noc_idleack, mask_noc,
-			    false, 1000, false);
+	return wait_for_bit_le32(&sysmgr_regs->noc_idleack, mask_noc,
+				 false, 1000, false);
 }
 
 void socfpga_reset_assert_fpga_connected_peripherals(void)
@@ -343,26 +343,26 @@ int socfpga_bridges_reset(void)
 	writel(ALT_SYSMGR_NOC_TMO_EN_SET_MSK, &sysmgr_regs->noc_timeout);
 
 	/* Poll until all idleack to 1 */
-	ret = wait_for_bit(__func__, &sysmgr_regs->noc_idleack,
-		     ALT_SYSMGR_NOC_H2F_SET_MSK |
-		     ALT_SYSMGR_NOC_LWH2F_SET_MSK |
-		     ALT_SYSMGR_NOC_F2H_SET_MSK |
-		     ALT_SYSMGR_NOC_F2SDR0_SET_MSK |
-		     ALT_SYSMGR_NOC_F2SDR1_SET_MSK |
-		     ALT_SYSMGR_NOC_F2SDR2_SET_MSK,
-		     true, 10000, false);
+	ret = wait_for_bit_le32(&sysmgr_regs->noc_idleack,
+				ALT_SYSMGR_NOC_H2F_SET_MSK |
+				ALT_SYSMGR_NOC_LWH2F_SET_MSK |
+				ALT_SYSMGR_NOC_F2H_SET_MSK |
+				ALT_SYSMGR_NOC_F2SDR0_SET_MSK |
+				ALT_SYSMGR_NOC_F2SDR1_SET_MSK |
+				ALT_SYSMGR_NOC_F2SDR2_SET_MSK,
+				true, 10000, false);
 	if (ret)
 		return ret;
 
 	/* Poll until all idlestatus to 1 */
-	ret = wait_for_bit(__func__, &sysmgr_regs->noc_idlestatus,
-		     ALT_SYSMGR_NOC_H2F_SET_MSK |
-		     ALT_SYSMGR_NOC_LWH2F_SET_MSK |
-		     ALT_SYSMGR_NOC_F2H_SET_MSK |
-		     ALT_SYSMGR_NOC_F2SDR0_SET_MSK |
-		     ALT_SYSMGR_NOC_F2SDR1_SET_MSK |
-		     ALT_SYSMGR_NOC_F2SDR2_SET_MSK,
-		     true, 10000, false);
+	ret = wait_for_bit_le32(&sysmgr_regs->noc_idlestatus,
+				ALT_SYSMGR_NOC_H2F_SET_MSK |
+				ALT_SYSMGR_NOC_LWH2F_SET_MSK |
+				ALT_SYSMGR_NOC_F2H_SET_MSK |
+				ALT_SYSMGR_NOC_F2SDR0_SET_MSK |
+				ALT_SYSMGR_NOC_F2SDR1_SET_MSK |
+				ALT_SYSMGR_NOC_F2SDR2_SET_MSK,
+				true, 10000, false);
 	if (ret)
 		return ret;
 

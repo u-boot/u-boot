@@ -734,8 +734,8 @@
 			clocks = <&l4_main_clk>;
 			ext-decoder = <0>;  /* external decoder */
 			num-chipselect = <4>;
-			fifo-depth = <128>;
-			sram-size = <512>;
+			cdns,fifo-depth = <128>;
+			cdns,fifo-width = <4>;
 			bus-num = <2>;
 			status = "disabled";
 		};

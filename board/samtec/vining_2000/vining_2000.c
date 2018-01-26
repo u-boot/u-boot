@@ -378,7 +378,7 @@ static int read_adc(u32 *val)
 
 	/* start auto calibration */
 	setbits_le32(b + ADCx_GC, ADCx_GC_CAL);
-	ret = wait_for_bit("ADC", b + ADCx_GC, ADCx_GC_CAL, ADCx_GC_CAL, 10, 0);
+	ret = wait_for_bit_le32(b + ADCx_GC, ADCx_GC_CAL, ADCx_GC_CAL, 10, 0);
 	if (ret)
 		goto adc_exit;
 
@@ -386,7 +386,7 @@ static int read_adc(u32 *val)
 	writel(0, b + ADCx_HC0);
 
 	/* wait for conversion */
-	ret = wait_for_bit("ADC", b + ADCx_HS, ADCx_HS_C0, ADCx_HS_C0, 10, 0);
+	ret = wait_for_bit_le32(b + ADCx_HS, ADCx_HS_C0, ADCx_HS_C0, 10, 0);
 	if (ret)
 		goto adc_exit;
 

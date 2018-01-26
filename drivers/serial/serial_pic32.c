@@ -51,8 +51,8 @@ static int pic32_serial_init(void __iomem *base, ulong clk, u32 baudrate)
 	u32 div = DIV_ROUND_CLOSEST(clk, baudrate * 16);
 
 	/* wait for TX FIFO to empty */
-	wait_for_bit(__func__, base + U_STA, UART_TX_EMPTY,
-		     true, CONFIG_SYS_HZ, false);
+	wait_for_bit_le32(base + U_STA, UART_TX_EMPTY,
+			  true, CONFIG_SYS_HZ, false);
 
 	/* send break */
 	writel(UART_TX_BRK, base + U_STASET);

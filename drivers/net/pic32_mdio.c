@@ -22,8 +22,8 @@ static int pic32_mdio_write(struct mii_dev *bus,
 	struct pic32_mii_regs *mii_regs = bus->priv;
 
 	/* Wait for the previous operation to finish */
-	wait_for_bit(__func__, &mii_regs->mind.raw, MIIMIND_BUSY,
-		     false, CONFIG_SYS_HZ, true);
+	wait_for_bit_le32(&mii_regs->mind.raw, MIIMIND_BUSY,
+			  false, CONFIG_SYS_HZ, true);
 
 	/* Put phyaddr and regaddr into MIIMADD */
 	v = (addr << MIIMADD_PHYADDR_SHIFT) | (reg & MIIMADD_REGADDR);
@@ -36,8 +36,8 @@ static int pic32_mdio_write(struct mii_dev *bus,
 	udelay(12);
 
 	/* Wait for write to complete */
-	wait_for_bit(__func__, &mii_regs->mind.raw, MIIMIND_BUSY,
-		     false, CONFIG_SYS_HZ, true);
+	wait_for_bit_le32(&mii_regs->mind.raw, MIIMIND_BUSY,
+			  false, CONFIG_SYS_HZ, true);
 
 	return 0;
 }
@@ -48,8 +48,8 @@ static int pic32_mdio_read(struct mii_dev *bus, int addr, int devaddr, int reg)
 	struct pic32_mii_regs *mii_regs = bus->priv;
 
 	/* Wait for the previous operation to finish */
-	wait_for_bit(__func__, &mii_regs->mind.raw, MIIMIND_BUSY,
-		     false, CONFIG_SYS_HZ, true);
+	wait_for_bit_le32(&mii_regs->mind.raw, MIIMIND_BUSY,
+			  false, CONFIG_SYS_HZ, true);
 
 	/* Put phyaddr and regaddr into MIIMADD */
 	v = (addr << MIIMADD_PHYADDR_SHIFT) | (reg & MIIMADD_REGADDR);
@@ -62,9 +62,9 @@ static int pic32_mdio_read(struct mii_dev *bus, int addr, int devaddr, int reg)
 	udelay(12);
 
 	/* Wait for read to complete */
-	wait_for_bit(__func__, &mii_regs->mind.raw,
-		     MIIMIND_NOTVALID | MIIMIND_BUSY,
-		     false, CONFIG_SYS_HZ, false);
+	wait_for_bit_le32(&mii_regs->mind.raw,
+			  MIIMIND_NOTVALID | MIIMIND_BUSY,
+			  false, CONFIG_SYS_HZ, false);
 
 	/* Clear the command register */
 	writel(0, &mii_regs->mcmd.raw);
@@ -82,22 +82,22 @@ static int pic32_mdio_reset(struct mii_dev *bus)
 	writel(MIIMCFG_RSTMGMT, &mii_regs->mcfg.raw);
 
 	/* Wait for the operation to finish */
-	wait_for_bit(__func__, &mii_regs->mind.raw, MIIMIND_BUSY,
+	wait_for_bit_le32(&mii_regs->mind.raw, MIIMIND_BUSY,
 		     false, CONFIG_SYS_HZ, true);
 
 	/* Clear reset bit */
 	writel(0, &mii_regs->mcfg);
 
 	/* Wait for the operation to finish */
-	wait_for_bit(__func__, &mii_regs->mind.raw, MIIMIND_BUSY,
-		     false, CONFIG_SYS_HZ, true);
+	wait_for_bit_le32(&mii_regs->mind.raw, MIIMIND_BUSY,
+			  false, CONFIG_SYS_HZ, true);
 
 	/* Set the MII Management Clock (MDC) - no faster than 2.5 MHz */
 	writel(MIIMCFG_CLKSEL_DIV40, &mii_regs->mcfg.raw);
 
 	/* Wait for the operation to finish */
-	wait_for_bit(__func__, &mii_regs->mind.raw, MIIMIND_BUSY,
-		     false, CONFIG_SYS_HZ, true);
+	wait_for_bit_le32(&mii_regs->mind.raw, MIIMIND_BUSY,
+			  false, CONFIG_SYS_HZ, true);
 	return 0;
 }
 

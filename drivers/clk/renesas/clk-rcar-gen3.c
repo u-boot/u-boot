@@ -1046,8 +1046,8 @@ static int gen3_clk_endisable(struct clk *clk, bool enable)
 		if (ret)
 			return ret;
 		clrbits_le32(priv->base + SMSTPCR(reg), bitmask);
-		return wait_for_bit("MSTP", priv->base + MSTPSR(reg),
-				    bitmask, 0, 100, 0);
+		return wait_for_bit_le32(priv->base + MSTPSR(reg),
+					 bitmask, 0, 100, 0);
 	} else {
 		setbits_le32(priv->base + SMSTPCR(reg), bitmask);
 		return 0;
