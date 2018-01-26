@@ -1339,7 +1339,8 @@ int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	wp = (addr & ~(info->portwidth - 1));
 
 	/* handle unaligned start */
-	if ((aln = addr - wp) != 0) {
+	aln = addr - wp;
+	if (aln != 0) {
 		cword.w32 = 0;
 		p = (uchar *)wp;
 		for (i = 0; i < aln; ++i)
@@ -1370,7 +1371,8 @@ int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 			cword.w32 = 0;
 			for (i = 0; i < info->portwidth; i++)
 				flash_add_byte(info, &cword, *src++);
-			if ((rc = flash_write_cfiword(info, wp, cword)) != 0)
+			rc = flash_write_cfiword(info, wp, cword);
+			if (rc != 0)
 				return rc;
 			wp += info->portwidth;
 			cnt -= info->portwidth;
@@ -1381,7 +1383,8 @@ int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 		i = buffered_size - (wp % buffered_size);
 		if (i > cnt)
 			i = cnt;
-		if ((rc = flash_write_cfibuffer(info, wp, src, i)) != ERR_OK)
+		rc = flash_write_cfibuffer(info, wp, src, i);
+		if (rc != ERR_OK)
 			return rc;
 		i -= i & (info->portwidth - 1);
 		wp += i;
@@ -1397,7 +1400,8 @@ int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 		cword.w32 = 0;
 		for (i = 0; i < info->portwidth; i++)
 			flash_add_byte(info, &cword, *src++);
-		if ((rc = flash_write_cfiword(info, wp, cword)) != 0)
+		rc = flash_write_cfiword(info, wp, cword);
+		if (rc != 0)
 			return rc;
 		wp += info->portwidth;
 		cnt -= info->portwidth;
@@ -1569,9 +1573,9 @@ int flash_real_protect(flash_info_t *info, long sector, int prot)
 	 * flash_full_status_check() to work correctly
 	 */
 	flash_write_cmd(info, sector, 0, FLASH_CMD_READ_STATUS);
-	if ((retcode =
-	     flash_full_status_check(info, sector, info->erase_blk_tout,
-				      prot ? "protect" : "unprotect")) == 0) {
+	retcode = flash_full_status_check(info, sector, info->erase_blk_tout,
+				      prot ? "protect" : "unprotect");
+	if (retcode == 0) {
 		info->protect[sector] = prot;
 
 		/*
