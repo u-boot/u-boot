@@ -269,6 +269,7 @@ static void flash_printqry(struct cfi_qry *qry)
 		debug(" ");
 		for (y = 0; y < 16; y++) {
 			unsigned char c = p[x + y];
+
 			if (c >= 0x20 && c <= 0x7e)
 				debug("%c", c);
 			else
@@ -278,7 +279,6 @@ static void flash_printqry(struct cfi_qry *qry)
 	}
 }
 #endif
-
 
 /*-----------------------------------------------------------------------
  * read a character at a port width address
@@ -310,7 +310,6 @@ static inline ushort flash_read_word(flash_info_t *info, uint offset)
 	flash_unmap(info, 0, offset, addr);
 	return retval;
 }
-
 
 /*-----------------------------------------------------------------------
  * read a long word by picking the least significant byte of each maximum
@@ -356,7 +355,6 @@ static ulong flash_read_long (flash_info_t *info, flash_sect_t sect,
 static void flash_write_cmd(flash_info_t *info, flash_sect_t sect,
 			    uint offset, u32 cmd)
 {
-
 	void *addr;
 	cfiword_t cword;
 
@@ -1048,7 +1046,6 @@ out_unmap:
 }
 #endif /* CONFIG_SYS_FLASH_USE_BUFFER_WRITE */
 
-
 /*-----------------------------------------------------------------------
  */
 int flash_erase(flash_info_t *info, int s_first, int s_last)
@@ -1079,7 +1076,6 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 	} else if (flash_verbose) {
 		putc('\n');
 	}
-
 
 	for (sect = s_first; sect <= s_last; sect++) {
 		if (ctrlc()) {
@@ -1154,6 +1150,7 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 			if (use_flash_status_poll(info)) {
 				cfiword_t cword;
 				void *dest;
+
 				cword.w64 = 0xffffffffffffffffULL;
 				dest = flash_map(info, sect, 0);
 				st = flash_status_poll(info, &cword, dest,
@@ -1494,7 +1491,6 @@ int flash_real_protect(flash_info_t *info, long sector, int prot)
 			else
 				flash_write_cmd(info, sector, 0,
 					FLASH_CMD_PROTECT_CLEAR);
-
 		}
 		break;
 	case CFI_CMDSET_AMD_EXTENDED:
@@ -1579,7 +1575,6 @@ int flash_real_protect(flash_info_t *info, long sector, int prot)
 	if ((retcode =
 	     flash_full_status_check(info, sector, info->erase_blk_tout,
 				      prot ? "protect" : "unprotect")) == 0) {
-
 		info->protect[sector] = prot;
 
 		/*
@@ -1887,6 +1882,7 @@ static void __flash_cmd_reset(flash_info_t *info)
 	udelay(1);
 	flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);
 }
+
 void flash_cmd_reset(flash_info_t *info)
 	__attribute__((weak, alias("__flash_cmd_reset")));
 
@@ -2370,6 +2366,7 @@ unsigned long flash_init(void)
 #ifdef CONFIG_SYS_FLASH_PROTECTION
 	/* read environment from EEPROM */
 	char s[64];
+
 	env_get_f("unlock", s, sizeof(s));
 #endif
 
