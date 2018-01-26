@@ -32,6 +32,8 @@ def ParseArgs():
           help="Don't build, just configure each commit")
     parser.add_option('-e', '--show_errors', action='store_true',
           default=False, help='Show errors and warnings')
+    parser.add_option('-E', '--warnings-as-errors', action='store_true',
+          default=False, help='Treat all compiler warnings as errors')
     parser.add_option('-f', '--force-build', dest='force_build',
           action='store_true', default=False,
           help='Force build of boards even if already built')

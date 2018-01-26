@@ -216,6 +216,8 @@ class BuilderThread(threading.Thread):
                     args.append('-s')
                 if self.builder.num_jobs is not None:
                     args.extend(['-j', str(self.builder.num_jobs)])
+                if self.builder.warnings_as_errors:
+                    args.append('KCFLAGS=-Werror')
                 config_args = ['%s_defconfig' % brd.target]
                 config_out = ''
                 args.extend(self.builder.toolchains.GetMakeArguments(brd))
