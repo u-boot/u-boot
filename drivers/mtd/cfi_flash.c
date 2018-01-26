@@ -1255,10 +1255,9 @@ void flash_print_info(flash_info_t *info)
 		info->erase_blk_tout,
 		info->write_tout);
 	if (info->buffer_size > 1) {
-		printf("  Buffer write timeout: %ld ms, "
-			"buffer size: %d bytes\n",
-		info->buffer_write_tout,
-		info->buffer_size);
+		printf("  Buffer write timeout: %ld ms, ",
+			info->buffer_write_tout);
+		printf("buffer size: %d bytes\n", info->buffer_size);
 	}
 
 	puts("\n  Sector Start Addresses:");
@@ -2050,8 +2049,8 @@ static void flash_fixup_num(flash_info_t *info, struct cfi_qry *qry)
 			info->device_id2 == 0x2301 ||
 			info->device_id2 == 0x2801 ||
 			info->device_id2 == 0x4801)) {
-		debug("Adjusted buffer size on Numonyx flash"
-			" M29EW family in 8 bit mode\n");
+		debug("Adjusted buffer size on Numonyx flash");
+		debug(" M29EW family in 8 bit mode\n");
 		qry->max_buf_write_size = 0x8;
 	}
 }
@@ -2388,9 +2387,9 @@ unsigned long flash_init(void)
 		size += flash_info[i].size;
 		if (flash_info[i].flash_id == FLASH_UNKNOWN) {
 #ifndef CONFIG_SYS_FLASH_QUIET_TEST
-			printf("## Unknown flash on Bank %d "
-				"- Size = 0x%08lx = %ld MB\n",
-				i + 1, flash_info[i].size,
+			printf("## Unknown flash on Bank %d ", i + 1);
+			printf("- Size = 0x%08lx = %ld MB\n",
+				flash_info[i].size,
 				flash_info[i].size >> 20);
 #endif /* CONFIG_SYS_FLASH_QUIET_TEST */
 		}
