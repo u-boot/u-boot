@@ -611,8 +611,8 @@ static int flash_full_status_check(flash_info_t *info, flash_sect_t sector,
 	case CFI_CMDSET_INTEL_PROG_REGIONS:
 	case CFI_CMDSET_INTEL_EXTENDED:
 	case CFI_CMDSET_INTEL_STANDARD:
-		if ((retcode == ERR_OK)
-		    && !flash_isset(info, sector, 0, FLASH_STATUS_DONE)) {
+		if ((retcode == ERR_OK) &&
+			!flash_isset(info, sector, 0, FLASH_STATUS_DONE)) {
 			retcode = ERR_INVAL;
 			printf("Flash %s error at address %lx\n", prompt,
 				info->start[sector]);
@@ -761,8 +761,8 @@ static flash_sect_t find_sector(flash_info_t *info, ulong addr)
 	if ((info != saved_info) || (sector >= info->sector_count))
 		sector = 0;
 
-	while ((info->start[sector] < addr)
-			&& (sector < info->sector_count - 1))
+	while ((info->start[sector] < addr) &&
+		(sector < info->sector_count - 1))
 		sector++;
 	while ((info->start[sector] > addr) && (sector > 0))
 		/*
@@ -1435,8 +1435,8 @@ static inline int manufact_match(flash_info_t *info, u32 manu)
 
 static int cfi_protect_bugfix(flash_info_t *info, long sector, int prot)
 {
-	if (manufact_match(info, INTEL_MANUFACT)
-	    && info->device_id == NUMONYX_256MBIT) {
+	if (manufact_match(info, INTEL_MANUFACT) &&
+		info->device_id == NUMONYX_256MBIT) {
 		/*
 		 * see errata called
 		 * "Numonyx Axcell P33/P30 Specification Update" :)
@@ -1807,8 +1807,8 @@ static int flash_detect_legacy(phys_addr_t base, int banknum)
 					(ulong)map_physmem(base,
 							   info->portwidth,
 							   MAP_NOCACHE);
-				if (info->portwidth == FLASH_CFI_8BIT
-					&& info->interface == FLASH_CFI_X8X16) {
+				if (info->portwidth == FLASH_CFI_8BIT &&
+					info->interface == FLASH_CFI_X8X16) {
 					info->addr_unlock1 = 0x2AAA;
 					info->addr_unlock2 = 0x5555;
 				} else {
@@ -1892,9 +1892,9 @@ static int __flash_detect_cfi(flash_info_t *info, struct cfi_qry *qry)
 	     cfi_offset++) {
 		flash_write_cmd(info, 0, flash_offset_cfi[cfi_offset],
 				 FLASH_CMD_CFI);
-		if (flash_isequal(info, 0, FLASH_OFFSET_CFI_RESP, 'Q')
-		    && flash_isequal(info, 0, FLASH_OFFSET_CFI_RESP + 1, 'R')
-		    && flash_isequal(info, 0, FLASH_OFFSET_CFI_RESP + 2, 'Y')) {
+		if (flash_isequal(info, 0, FLASH_OFFSET_CFI_RESP, 'Q') &&
+			flash_isequal(info, 0, FLASH_OFFSET_CFI_RESP + 1, 'R') &&
+			flash_isequal(info, 0, FLASH_OFFSET_CFI_RESP + 2, 'Y')) {
 			flash_read_cfi(info, qry, FLASH_OFFSET_CFI_RESP,
 					sizeof(struct cfi_qry));
 			info->interface	= le16_to_cpu(qry->interface_desc);
@@ -2144,8 +2144,8 @@ ulong flash_get_size(phys_addr_t base, int banknum)
 
 		size_ratio = info->portwidth / info->chipwidth;
 		/* if the chip is x8/x16 reduce the ratio by half */
-		if ((info->interface == FLASH_CFI_X8X16)
-		    && (info->chipwidth == FLASH_CFI_BY8)) {
+		if ((info->interface == FLASH_CFI_X8X16) &&
+			(info->chipwidth == FLASH_CFI_BY8)) {
 			size_ratio >>= 1;
 		}
 		debug("size_ratio %d port %d bits chip %d bits\n",
