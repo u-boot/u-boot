@@ -122,7 +122,7 @@ extern int jedec_flash_match(flash_info_t *info, ulong base);
  * return codes from flash_write():
  */
 #define ERR_OK				0
-#define ERR_TIMOUT			1
+#define ERR_TIMEOUT			1
 #define ERR_NOT_ERASED			2
 #define ERR_PROTECTED			4
 #define ERR_INVAL			8

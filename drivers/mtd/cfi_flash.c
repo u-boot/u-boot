@@ -588,7 +588,7 @@ static int flash_status_check(flash_info_t *info, flash_sect_t sector,
 				flash_read_long(info, sector, 0));
 			flash_write_cmd(info, sector, 0, info->cmd_reset);
 			udelay(1);
-			return ERR_TIMOUT;
+			return ERR_TIMEOUT;
 		}
 		udelay(1);		/* also triggers watchdog */
 	}
@@ -696,7 +696,7 @@ static int flash_status_poll(flash_info_t *info, void *src, void *dst,
 		if (get_timer(start) > tout) {
 			printf("Flash %s timeout at address %lx data %lx\n",
 			       prompt, (ulong)dst, (ulong)flash_read8(dst));
-			return ERR_TIMOUT;
+			return ERR_TIMEOUT;
 		}
 		udelay(1);		/* also triggers watchdog */
 	}
