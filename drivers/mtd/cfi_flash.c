@@ -491,7 +491,7 @@ static int flash_isset(flash_info_t *info, flash_sect_t sect,
 static int flash_toggle(flash_info_t *info, flash_sect_t sect,
 			 uint offset, uchar cmd)
 {
-	void *addr;
+	u8 *addr;
 	cfiword_t cword;
 	int retval;
 
@@ -872,9 +872,9 @@ static int flash_write_cfibuffer(flash_info_t *info, ulong dest, uchar *cp,
 	flash_sect_t sector;
 	int cnt;
 	int retcode;
-	void *src = cp;
-	void *dst = (void *)dest;
-	void *dst2 = dst;
+	u8 *src = cp;
+	u8 *dst = (u8 *)dest;
+	u8 *dst2 = dst;
 	int flag = 1;
 	uint offset = 0;
 	unsigned int shift;
