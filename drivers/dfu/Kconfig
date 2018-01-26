@@ -2,6 +2,7 @@ menu "DFU support"
 
 config USB_FUNCTION_DFU
 	bool
+	select HASH
 
 if CMD_DFU
 config DFU_TFTP
