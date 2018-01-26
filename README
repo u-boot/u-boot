@@ -3719,6 +3719,11 @@ this behavior and build U-Boot to some external directory:
 Note that the command line "O=" setting overrides the KBUILD_OUTPUT environment
 variable.
 
+User specific CPPFLAGS, AFLAGS and CFLAGS can be passed to the compiler by
+setting the according environment variables KCPPFLAGS, KAFLAGS and KCFLAGS.
+For example to treat all compiler warnings as errors:
+
+	make KCFLAGS=-Werror
 
 Please be aware that the Makefiles assume you are using GNU make, so
 for instance on NetBSD you might need to use "gmake" instead of
