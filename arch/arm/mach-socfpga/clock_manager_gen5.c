@@ -33,7 +33,7 @@ static void cm_write_ctrl(u32 val)
 }
 
 /* function to write a clock register that has phase information */
-static int cm_write_with_phase(u32 value, u32 reg_address, u32 mask)
+static int cm_write_with_phase(u32 value, const void *reg_address, u32 mask)
 {
 	int ret;
 
@@ -268,26 +268,26 @@ int cm_basic_init(const struct cm_config * const cfg)
 	 * are aligned nicely; so we can change any phase.
 	 */
 	ret = cm_write_with_phase(cfg->ddrdqsclk,
-				  (u32)&clock_manager_base->sdr_pll.ddrdqsclk,
+				  &clock_manager_base->sdr_pll.ddrdqsclk,
 				  CLKMGR_SDRPLLGRP_DDRDQSCLK_PHASE_MASK);
 	if (ret)
 		return ret;
 
 	/* SDRAM DDR2XDQSCLK */
 	ret = cm_write_with_phase(cfg->ddr2xdqsclk,
-				  (u32)&clock_manager_base->sdr_pll.ddr2xdqsclk,
+				  &clock_manager_base->sdr_pll.ddr2xdqsclk,
 				  CLKMGR_SDRPLLGRP_DDR2XDQSCLK_PHASE_MASK);
 	if (ret)
 		return ret;
 
 	ret = cm_write_with_phase(cfg->ddrdqclk,
-				  (u32)&clock_manager_base->sdr_pll.ddrdqclk,
+				  &clock_manager_base->sdr_pll.ddrdqclk,
 				  CLKMGR_SDRPLLGRP_DDRDQCLK_PHASE_MASK);
 	if (ret)
 		return ret;
 
 	ret = cm_write_with_phase(cfg->s2fuser2clk,
-				  (u32)&clock_manager_base->sdr_pll.s2fuser2clk,
+				  &clock_manager_base->sdr_pll.s2fuser2clk,
 				  CLKMGR_SDRPLLGRP_S2FUSER2CLK_PHASE_MASK);
 	if (ret)
 		return ret;
