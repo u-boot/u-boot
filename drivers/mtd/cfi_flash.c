@@ -175,7 +175,8 @@ __maybe_weak u64 flash_read64(void *addr)
 
 /*-----------------------------------------------------------------------
  */
-#if defined(CONFIG_ENV_IS_IN_FLASH) || defined(CONFIG_ENV_ADDR_REDUND) || (CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE)
+#if defined(CONFIG_ENV_IS_IN_FLASH) || defined(CONFIG_ENV_ADDR_REDUND) || \
+	(CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE)
 static flash_info_t *flash_get_info(ulong base)
 {
 	int i;
@@ -569,8 +570,9 @@ static int flash_status_check(flash_info_t *info, flash_sect_t sector,
 	ulong start;
 
 #if CONFIG_SYS_HZ != 1000
+	/* Avoid overflow for large HZ */
 	if ((ulong)CONFIG_SYS_HZ > 100000)
-		tout *= (ulong)CONFIG_SYS_HZ / 1000;  /* for a big HZ, avoid overflow */
+		tout *= (ulong)CONFIG_SYS_HZ / 1000;
 	else
 		tout = DIV_ROUND_UP(tout * (ulong)CONFIG_SYS_HZ, 1000);
 #endif
@@ -661,8 +663,9 @@ static int flash_status_poll(flash_info_t *info, void *src, void *dst,
 	int ready;
 
 #if CONFIG_SYS_HZ != 1000
+	/* Avoid overflow for large HZ */
 	if ((ulong)CONFIG_SYS_HZ > 100000)
-		tout *= (ulong)CONFIG_SYS_HZ / 1000;  /* for a big HZ, avoid overflow */
+		tout *= (ulong)CONFIG_SYS_HZ / 1000;
 	else
 		tout = DIV_ROUND_UP(tout * (ulong)CONFIG_SYS_HZ, 1000);
 #endif
@@ -937,7 +940,8 @@ static int flash_write_cfibuffer(flash_info_t *info, ulong dest, uchar *cp,
 	case CFI_CMDSET_INTEL_STANDARD:
 	case CFI_CMDSET_INTEL_EXTENDED:
 		write_cmd = (info->vendor == CFI_CMDSET_INTEL_PROG_REGIONS) ?
-					FLASH_CMD_WRITE_BUFFER_PROG : FLASH_CMD_WRITE_TO_BUFFER;
+			    FLASH_CMD_WRITE_BUFFER_PROG :
+			    FLASH_CMD_WRITE_TO_BUFFER;
 		flash_write_cmd(info, sector, 0, FLASH_CMD_CLEAR_STATUS);
 		flash_write_cmd(info, sector, 0, FLASH_CMD_READ_STATUS);
 		flash_write_cmd(info, sector, 0, write_cmd);
@@ -1152,7 +1156,8 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 				cword.w64 = 0xffffffffffffffffULL;
 				dest = flash_map(info, sect, 0);
 				st = flash_status_poll(info, &cword, dest,
-						       info->erase_blk_tout, "erase");
+						       info->erase_blk_tout,
+						       "erase");
 				flash_unmap(info, sect, 0, dest);
 			} else {
 				st = flash_full_status_check(info, sect,
@@ -1561,9 +1566,11 @@ int flash_real_protect(flash_info_t *info, long sector, int prot)
 		flash_write_cmd(info, sector, 0, FLASH_CMD_CLEAR_STATUS);
 		flash_write_cmd(info, sector, 0, FLASH_CMD_PROTECT);
 		if (prot)
-			flash_write_cmd(info, sector, 0, FLASH_CMD_PROTECT_SET);
+			flash_write_cmd(info, sector, 0,
+					FLASH_CMD_PROTECT_SET);
 		else
-			flash_write_cmd(info, sector, 0, FLASH_CMD_PROTECT_CLEAR);
+			flash_write_cmd(info, sector, 0,
+					FLASH_CMD_PROTECT_CLEAR);
 #endif
 	};
 
@@ -1899,9 +1906,9 @@ static int __flash_detect_cfi(flash_info_t *info, struct cfi_qry *qry)
 		flash_write_cmd(info, 0, flash_offset_cfi[cfi_offset],
 				 FLASH_CMD_CFI);
 		if (flash_isequal(info, 0, FLASH_OFFSET_CFI_RESP, 'Q') &&
-			flash_isequal(info, 0, FLASH_OFFSET_CFI_RESP + 1, 'R') &&
-			flash_isequal(info, 0, FLASH_OFFSET_CFI_RESP + 2, 'Y')) {
-			flash_read_cfi(info, qry, FLASH_OFFSET_CFI_RESP,
+		    flash_isequal(info, 0, FLASH_OFFSET_CFI_RESP + 1, 'R') &&
+		    flash_isequal(info, 0, FLASH_OFFSET_CFI_RESP + 2, 'Y')) {
+		    flash_read_cfi(info, qry, FLASH_OFFSET_CFI_RESP,
 					sizeof(struct cfi_qry));
 			info->interface	= le16_to_cpu(qry->interface_desc);
 
@@ -2182,8 +2189,8 @@ ulong flash_get_size(phys_addr_t base, int banknum)
 			tmp >>= 16;
 			erase_region_size =
 				(tmp & 0xffff) ? ((tmp & 0xffff) * 256) : 128;
-			debug("erase_region_count = %d erase_region_size = %d\n",
-				erase_region_count, erase_region_size);
+			debug("erase_region_count = %d ", erase_region_count);
+			debug("erase_region_size = %d\n", erase_region_size);
 			for (j = 0; j < erase_region_count; j++) {
 				if (sector - base >= info->size)
 					break;
