@@ -1140,7 +1140,7 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 				break;
 #endif
 			default:
-				debug("Unkown flash vendor %d\n",
+				debug("Unknown flash vendor %d\n",
 				       info->vendor);
 				break;
 			}
