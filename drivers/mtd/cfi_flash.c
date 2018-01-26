@@ -91,6 +91,8 @@ static u16 cfi_flash_config_reg(int i)
 
 #if defined(CONFIG_SYS_MAX_FLASH_BANKS_DETECT)
 int cfi_flash_num_flash_banks = CONFIG_SYS_MAX_FLASH_BANKS_DETECT;
+#else
+int cfi_flash_num_flash_banks;
 #endif
 
 #ifdef CONFIG_CFI_FLASH /* for driver model */
