@@ -1925,8 +1925,7 @@ static int __flash_detect_cfi(flash_info_t *info, struct cfi_qry *qry)
 				info->interface == FLASH_CFI_X8X16) ||
 			    /* x16/x32 in x16 mode */
 			    (info->chipwidth == FLASH_CFI_BY16 &&
-				info->interface == FLASH_CFI_X16X32))
-			{
+				info->interface == FLASH_CFI_X16X32)) {
 				info->addr_unlock1 = 0xaaa;
 				info->addr_unlock2 = 0x555;
 			}
