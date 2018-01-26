@@ -17,6 +17,7 @@
 #include <asm/arch/crm_regs.h>
 #include <dm.h>
 #include <imx_thermal.h>
+#include <fsl_sec.h>
 
 #if defined(CONFIG_IMX_THERMAL)
 static const struct imx_thermal_plat imx7_thermal_plat = {
@@ -189,6 +190,10 @@ int arch_misc_init(void)
 		env_set("soc", "imx7d");
 	else
 		env_set("soc", "imx7s");
+#endif
+
+#ifdef CONFIG_FSL_CAAM
+	sec_init();
 #endif
 
 	return 0;
