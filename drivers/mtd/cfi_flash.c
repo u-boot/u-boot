@@ -1154,10 +1154,12 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 				st = flash_status_poll(info, &cword, dest,
 						       info->erase_blk_tout, "erase");
 				flash_unmap(info, sect, 0, dest);
-			} else
+			} else {
 				st = flash_full_status_check(info, sect,
 							     info->erase_blk_tout,
 							     "erase");
+			}
+
 			if (st)
 				rcode = 1;
 			else if (flash_verbose)
