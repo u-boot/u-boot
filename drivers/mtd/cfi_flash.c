@@ -204,7 +204,7 @@ unsigned long flash_sector_size(flash_info_t *info, flash_sect_t sect)
  * create an address based on the offset and the port width
  */
 static inline void *
-flash_map(flash_info_t * info, flash_sect_t sect, uint offset)
+flash_map(flash_info_t *info, flash_sect_t sect, uint offset)
 {
 	unsigned int byte_offset = offset * info->portwidth;
 
@@ -283,7 +283,7 @@ static void flash_printqry(struct cfi_qry *qry)
 /*-----------------------------------------------------------------------
  * read a character at a port width address
  */
-static inline uchar flash_read_uchar(flash_info_t * info, uint offset)
+static inline uchar flash_read_uchar(flash_info_t *info, uint offset)
 {
 	uchar *cp;
 	uchar retval;
@@ -301,7 +301,7 @@ static inline uchar flash_read_uchar(flash_info_t * info, uint offset)
 /*-----------------------------------------------------------------------
  * read a word at a port width address, assume 16bit bus
  */
-static inline ushort flash_read_word(flash_info_t * info, uint offset)
+static inline ushort flash_read_word(flash_info_t *info, uint offset)
 {
 	ushort *addr, retval;
 
@@ -316,7 +316,7 @@ static inline ushort flash_read_word(flash_info_t * info, uint offset)
  * read a long word by picking the least significant byte of each maximum
  * port size word. Swap for ppc format.
  */
-static ulong flash_read_long (flash_info_t * info, flash_sect_t sect,
+static ulong flash_read_long (flash_info_t *info, flash_sect_t sect,
 			      uint offset)
 {
 	uchar *addr;
@@ -402,7 +402,7 @@ static void flash_write_cmd(flash_info_t *info, flash_sect_t sect,
 	flash_unmap(info, sect, offset, addr);
 }
 
-static void flash_unlock_seq(flash_info_t * info, flash_sect_t sect)
+static void flash_unlock_seq(flash_info_t *info, flash_sect_t sect)
 {
 	flash_write_cmd(info, sect, info->addr_unlock1, AMD_CMD_UNLOCK_START);
 	flash_write_cmd(info, sect, info->addr_unlock2, AMD_CMD_UNLOCK_ACK);
@@ -410,7 +410,7 @@ static void flash_unlock_seq(flash_info_t * info, flash_sect_t sect)
 
 /*-----------------------------------------------------------------------
  */
-static int flash_isequal(flash_info_t * info, flash_sect_t sect,
+static int flash_isequal(flash_info_t *info, flash_sect_t sect,
 			  uint offset, uchar cmd)
 {
 	void *addr;
@@ -458,7 +458,7 @@ static int flash_isequal(flash_info_t * info, flash_sect_t sect,
 
 /*-----------------------------------------------------------------------
  */
-static int flash_isset(flash_info_t * info, flash_sect_t sect,
+static int flash_isset(flash_info_t *info, flash_sect_t sect,
 			uint offset, uchar cmd)
 {
 	void *addr;
@@ -491,7 +491,7 @@ static int flash_isset(flash_info_t * info, flash_sect_t sect,
 
 /*-----------------------------------------------------------------------
  */
-static int flash_toggle(flash_info_t * info, flash_sect_t sect,
+static int flash_toggle(flash_info_t *info, flash_sect_t sect,
 			 uint offset, uchar cmd)
 {
 	void *addr;
@@ -529,7 +529,7 @@ static int flash_toggle(flash_info_t * info, flash_sect_t sect,
  * This routine checks the status of the chip and returns true if the
  * chip is busy.
  */
-static int flash_is_busy(flash_info_t * info, flash_sect_t sect)
+static int flash_is_busy(flash_info_t *info, flash_sect_t sect)
 {
 	int retval;
 
@@ -566,7 +566,7 @@ static int flash_is_busy(flash_info_t * info, flash_sect_t sect)
  *  wait for XSR.7 to be set. Time out with an error if it does not.
  *  This routine does not set the flash to read-array mode.
  */
-static int flash_status_check(flash_info_t * info, flash_sect_t sector,
+static int flash_status_check(flash_info_t *info, flash_sect_t sector,
 			       ulong tout, char *prompt)
 {
 	ulong start;
@@ -604,7 +604,7 @@ static int flash_status_check(flash_info_t * info, flash_sect_t sector,
  *
  * This routine sets the flash to read-array mode.
  */
-static int flash_full_status_check(flash_info_t * info, flash_sect_t sector,
+static int flash_full_status_check(flash_info_t *info, flash_sect_t sector,
 				    ulong tout, char *prompt)
 {
 	int retcode;
@@ -709,7 +709,7 @@ static int flash_status_poll(flash_info_t *info, void *src, void *dst,
 
 /*-----------------------------------------------------------------------
  */
-static void flash_add_byte(flash_info_t * info, cfiword_t * cword, uchar c)
+static void flash_add_byte(flash_info_t *info, cfiword_t *cword, uchar c)
 {
 #if defined(__LITTLE_ENDIAN) && !defined(CONFIG_SYS_WRITE_SWAPPED_DATA)
 	unsigned short	w;
@@ -755,7 +755,7 @@ static void flash_add_byte(flash_info_t * info, cfiword_t * cword, uchar c)
  * Loop through the sector table starting from the previously found sector.
  * Searches forwards or backwards, dependent on the passed address.
  */
-static flash_sect_t find_sector(flash_info_t * info, ulong addr)
+static flash_sect_t find_sector(flash_info_t *info, ulong addr)
 {
 	static flash_sect_t saved_sector; /* previously found sector */
 	static flash_info_t *saved_info; /* previously used flash bank */
@@ -781,7 +781,7 @@ static flash_sect_t find_sector(flash_info_t * info, ulong addr)
 
 /*-----------------------------------------------------------------------
  */
-static int flash_write_cfiword(flash_info_t * info, ulong dest,
+static int flash_write_cfiword(flash_info_t *info, ulong dest,
 				cfiword_t cword)
 {
 	void *dstaddr = (void *)dest;
@@ -869,7 +869,7 @@ static int flash_write_cfiword(flash_info_t * info, ulong dest,
 
 #ifdef CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 
-static int flash_write_cfibuffer(flash_info_t * info, ulong dest, uchar * cp,
+static int flash_write_cfibuffer(flash_info_t *info, ulong dest, uchar *cp,
 				  int len)
 {
 	flash_sect_t sector;
@@ -1051,7 +1051,7 @@ out_unmap:
 
 /*-----------------------------------------------------------------------
  */
-int flash_erase(flash_info_t * info, int s_first, int s_last)
+int flash_erase(flash_info_t *info, int s_first, int s_last)
 {
 	int rcode = 0;
 	int prot;
@@ -1200,7 +1200,7 @@ static int sector_erased(flash_info_t *info, int i)
 }
 #endif /* CONFIG_SYS_FLASH_EMPTY_INFO */
 
-void flash_print_info(flash_info_t * info)
+void flash_print_info(flash_info_t *info)
 {
 	int i;
 
@@ -1315,7 +1315,7 @@ void flash_print_info(flash_info_t * info)
  * 1 - write timeout
  * 2 - Flash not erased
  */
-int write_buff(flash_info_t * info, uchar * src, ulong addr, ulong cnt)
+int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 {
 	ulong wp;
 	uchar *p;
@@ -1475,7 +1475,7 @@ static int cfi_protect_bugfix(flash_info_t *info, long sector, int prot)
 	return 0;
 }
 
-int flash_real_protect(flash_info_t * info, long sector, int prot)
+int flash_real_protect(flash_info_t *info, long sector, int prot)
 {
 	int retcode = 0;
 
@@ -1601,7 +1601,7 @@ int flash_real_protect(flash_info_t * info, long sector, int prot)
 /*-----------------------------------------------------------------------
  * flash_read_user_serial - read the OneTimeProgramming cells
  */
-void flash_read_user_serial(flash_info_t * info, void *buffer, int offset,
+void flash_read_user_serial(flash_info_t *info, void *buffer, int offset,
 			     int len)
 {
 	uchar *src;
@@ -1619,7 +1619,7 @@ void flash_read_user_serial(flash_info_t * info, void *buffer, int offset,
 /*
  * flash_read_factory_serial - read the device Id from the protection area
  */
-void flash_read_factory_serial(flash_info_t * info, void *buffer, int offset,
+void flash_read_factory_serial(flash_info_t *info, void *buffer, int offset,
 				int len)
 {
 	uchar *src;
@@ -1771,7 +1771,7 @@ static int cmdset_amd_init(flash_info_t *info, struct cfi_qry *qry)
 }
 
 #ifdef CONFIG_FLASH_CFI_LEGACY
-static void flash_read_jedec_ids(flash_info_t * info)
+static void flash_read_jedec_ids(flash_info_t *info)
 {
 	info->manufacturer_id = 0;
 	info->device_id       = 0;
@@ -1890,7 +1890,7 @@ static void __flash_cmd_reset(flash_info_t *info)
 void flash_cmd_reset(flash_info_t *info)
 	__attribute__((weak,alias("__flash_cmd_reset")));
 
-static int __flash_detect_cfi(flash_info_t * info, struct cfi_qry *qry)
+static int __flash_detect_cfi(flash_info_t *info, struct cfi_qry *qry)
 {
 	int cfi_offset;
 
@@ -1944,7 +1944,7 @@ static int __flash_detect_cfi(flash_info_t * info, struct cfi_qry *qry)
 	return 0;
 }
 
-static int flash_detect_cfi(flash_info_t * info, struct cfi_qry *qry)
+static int flash_detect_cfi(flash_info_t *info, struct cfi_qry *qry)
 {
 	debug("flash detect cfi\n");
 
