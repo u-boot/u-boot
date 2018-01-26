@@ -234,10 +234,10 @@ static void flash_make_cmd(flash_info_t *info, u32 cmd, void *cmdbuf)
 		cword_offset = (info->portwidth-i)%info->chipwidth;
 #if defined(__LITTLE_ENDIAN) || defined(CONFIG_SYS_WRITE_SWAPPED_DATA)
 		cp_offset = info->portwidth - i;
-		val = *((uchar*)&cmd_le + cword_offset);
+		val = *((uchar *)&cmd_le + cword_offset);
 #else
 		cp_offset = i - 1;
-		val = *((uchar*)&cmd + sizeof(u32) - cword_offset - 1);
+		val = *((uchar *)&cmd + sizeof(u32) - cword_offset - 1);
 #endif
 		cp[cp_offset] = (cword_offset >= sizeof(u32)) ? 0x00 : val;
 	}
