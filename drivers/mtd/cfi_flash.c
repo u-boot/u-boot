@@ -1687,8 +1687,8 @@ static int cmdset_intel_init(flash_info_t *info, struct cfi_qry *qry)
 
 static void cmdset_amd_read_jedec_ids(flash_info_t *info)
 {
-	ushort bankId = 0;
-	uchar  manuId;
+	ushort bank_id = 0;
+	uchar  manu_id;
 	uchar  feature;
 
 	flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
@@ -1696,14 +1696,14 @@ static void cmdset_amd_read_jedec_ids(flash_info_t *info)
 	flash_write_cmd(info, 0, info->addr_unlock1, FLASH_CMD_READ_ID);
 	udelay(1000); /* some flash are slow to respond */
 
-	manuId = flash_read_uchar(info, FLASH_OFFSET_MANUFACTURER_ID);
+	manu_id = flash_read_uchar(info, FLASH_OFFSET_MANUFACTURER_ID);
 	/* JEDEC JEP106Z specifies ID codes up to bank 7 */
-	while (manuId == FLASH_CONTINUATION_CODE && bankId < 0x800) {
-		bankId += 0x100;
-		manuId = flash_read_uchar(info,
-			bankId | FLASH_OFFSET_MANUFACTURER_ID);
+	while (manu_id == FLASH_CONTINUATION_CODE && bank_id < 0x800) {
+		bank_id += 0x100;
+		manu_id = flash_read_uchar(info,
+			bank_id | FLASH_OFFSET_MANUFACTURER_ID);
 	}
-	info->manufacturer_id = manuId;
+	info->manufacturer_id = manu_id;
 
 	debug("info->ext_addr = 0x%x, cfi_version = 0x%x\n",
 	      info->ext_addr, info->cfi_version);
