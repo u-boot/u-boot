@@ -761,8 +761,8 @@ static flash_sect_t find_sector(flash_info_t *info, ulong addr)
 	if (info != saved_info || sector >= info->sector_count)
 		sector = 0;
 
-	while ((info->start[sector] < addr) &&
-		(sector < info->sector_count - 1))
+	while ((sector < info->sector_count - 1) &&
+		(info->start[sector] < addr))
 		sector++;
 	while ((info->start[sector] > addr) && (sector > 0))
 		/*
