@@ -1280,7 +1280,6 @@ void flash_print_info(flash_info_t *info)
 #endif
 	}
 	putc('\n');
-	return;
 }
 
 /*-----------------------------------------------------------------------
