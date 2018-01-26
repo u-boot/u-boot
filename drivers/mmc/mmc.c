@@ -1506,6 +1506,8 @@ int mmc_set_clock(struct mmc *mmc, uint clock, bool disable)
 	mmc->clock = clock;
 	mmc->clk_disable = disable;
 
+	debug("clock is %s (%dHz)\n", disable ? "disabled" : "enabled", clock);
+
 	return mmc_set_ios(mmc);
 }
 
