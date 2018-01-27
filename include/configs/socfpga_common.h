@@ -65,9 +65,6 @@
 #define CONFIG_SYS_HOSTNAME	CONFIG_SYS_BOARD
 #endif
 
-#define CONFIG_CMD_PXE
-#define CONFIG_MENU
-
 /*
  * Cache
  */
@@ -304,6 +301,12 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>
 
+#ifdef CONFIG_CMD_DHCP
+#define BOOT_TARGET_DEVICES_DHCP(func) func(DHCP, dhcp, na)
+#else
+#define BOOT_TARGET_DEVICES_DHCP(func)
+#endif
+
 #ifdef CONFIG_CMD_PXE
 #define BOOT_TARGET_DEVICES_PXE(func) func(PXE, pxe, na)
 #else
@@ -319,7 +322,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
 	BOOT_TARGET_DEVICES_PXE(func) \
-	func(DHCP, dhcp, na)
+	BOOT_TARGET_DEVICES_DHCP(func)
 
 #include <config_distro_bootcmd.h>
 
