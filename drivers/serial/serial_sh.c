@@ -219,8 +219,8 @@ static int sh_serial_ofdata_to_platdata(struct udevice *dev)
 	fdt_addr_t addr;
 	int ret;
 
-	addr = fdtdec_get_addr(gd->fdt_blob, dev_of_offset(dev), "reg");
-	if (addr == FDT_ADDR_T_NONE)
+	addr = devfdt_get_addr(dev);
+	if (!addr)
 		return -EINVAL;
 
 	plat->base = addr;

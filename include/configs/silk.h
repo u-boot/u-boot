@@ -12,7 +12,6 @@
 #define __SILK_H
 
 #undef DEBUG
-#define CONFIG_R8A7794
 #define CONFIG_ARCH_RMOBILE_BOARD_STRING "Silk"
 
 #include "rcar-gen2-common.h"

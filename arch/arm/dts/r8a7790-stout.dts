@@ -1,0 +1,54 @@
+/*
+ * Device Tree Source for the Stout board
+ *
+ * Copyright (C) 2018 Marek Vasut <marek.vasut@gmail.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0
+ */
+
+/dts-v1/;
+#include "r8a7790.dtsi"
+
+/ {
+	model = "Stout";
+	compatible = "renesas,stout", "renesas,r8a7790";
+
+	aliases {
+		serial0 = &scif0;
+	};
+
+	memory@40000000 {
+		device_type = "memory";
+		reg = <0 0x40000000 0 0x40000000>;
+	};
+};
+
+&extal_clk {
+	clock-frequency = <20000000>;
+};
+
+&pfc {
+	pinctrl-0 = <&scif_clk_pins>;
+	pinctrl-names = "default";
+
+	scif0_pins: scif0 {
+		groups = "scif0_data";
+		function = "scif0";
+	};
+
+	scif_clk_pins: scif_clk {
+		groups = "scif_clk";
+		function = "scif_clk";
+	};
+};
+
+&scif0 {
+	pinctrl-0 = <&scif0_pins>;
+	pinctrl-names = "default";
+
+	status = "okay";
+};
+
+&scif_clk {
+	clock-frequency = <14745600>;
+};

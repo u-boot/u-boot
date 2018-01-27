@@ -50,6 +50,15 @@ config PCIE_DW_MVEBU
 	  Armada-8K SoCs. The PCIe controller on Armada-8K is based on
 	  DesignWare hardware.
 
+config PCI_RCAR_GEN2
+	bool "Renesas RCar Gen2 PCIe driver"
+	depends on DM_PCI
+	depends on RCAR_32
+	help
+	  Say Y here if you want to enable PCIe controller support on
+	  Renesas RCar Gen2 SoCs. The PCIe controller on RCar Gen2 is
+	  also used to access EHCI USB controller on the SoC.
+
 config PCI_SANDBOX
 	bool "Sandbox PCI support"
 	depends on SANDBOX && DM_PCI

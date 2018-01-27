@@ -438,7 +438,7 @@ static int ravb_config(struct udevice *dev)
 	return 0;
 }
 
-int ravb_start(struct udevice *dev)
+static int ravb_start(struct udevice *dev)
 {
 	struct ravb_priv *eth = dev_get_priv(dev);
 	int ret;
