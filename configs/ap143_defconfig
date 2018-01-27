@@ -19,7 +19,6 @@ CONFIG_SYS_PROMPT="ap143 # "
 # CONFIG_CMD_EDITENV is not set
 # CONFIG_CMD_CRC32 is not set
 # CONFIG_CMD_FLASH is not set
-# CONFIG_CMD_FPGA is not set
 CONFIG_CMD_SF=y
 CONFIG_CMD_SPI=y
 # CONFIG_CMD_NET is not set

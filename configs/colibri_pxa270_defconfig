@@ -7,7 +7,6 @@ CONFIG_SYS_PROMPT="$ "
 # CONFIG_CMD_ELF is not set
 # CONFIG_CMD_EXPORTENV is not set
 # CONFIG_CMD_IMPORTENV is not set
-# CONFIG_CMD_FPGA is not set
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set
 CONFIG_CMD_MMC=y

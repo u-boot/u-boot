@@ -616,6 +616,7 @@ config CMD_FLASH
 
 config CMD_FPGA
 	bool "fpga"
+	depends on FPGA
 	default y
 	help
 	  FPGA support.

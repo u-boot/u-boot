@@ -8,7 +8,6 @@ CONFIG_SYS_PROMPT="Pb1x00 # "
 CONFIG_CMD_IMLS=y
 # CONFIG_CMD_SAVEENV is not set
 # CONFIG_CMD_FLASH is not set
-# CONFIG_CMD_FPGA is not set
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set
 # CONFIG_CMD_SETEXPR is not set
