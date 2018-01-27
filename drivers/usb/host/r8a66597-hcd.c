@@ -20,7 +20,6 @@
 #define R8A66597_DPRINT(...)
 #endif
 
-static const char hcd_name[] = "r8a66597_hcd";
 static struct r8a66597 gr8a66597;
 
 static void get_hub_data(struct usb_device *dev, u16 *hub_devnum, u16 *hubport)
