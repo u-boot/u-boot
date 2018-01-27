@@ -4722,7 +4722,7 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 	u32 id;
 	u32 phyaddr = 0;
 	int phy_mode = -1;
-	u64 mdio_addr;
+	phys_addr_t mdio_addr;
 
 	phy_node = fdtdec_lookup_phandle(gd->fdt_blob, port_node, "phy");
 
