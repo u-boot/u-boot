@@ -871,6 +871,15 @@ int image_setup_linux(bootm_headers_t *images);
  */
 int bootz_setup(ulong image, ulong *start, ulong *end);
 
+/**
+ * Return the correct start address and size of a Linux aarch64 Image.
+ *
+ * @image: Address of image
+ * @start: Returns start address of image
+ * @size : Returns size image
+ * @return 0 if OK, 1 if the image was not recognised
+ */
+int booti_setup(ulong image, ulong *relocated_addr, ulong *size);
 
 /*******************************************************************/
 /* New uImage format specific code (prefixed with fit_) */
