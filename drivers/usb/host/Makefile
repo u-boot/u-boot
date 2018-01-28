@@ -14,7 +14,6 @@ endif
 obj-$(CONFIG_USB_OHCI_NEW) += ohci-hcd.o
 obj-$(CONFIG_USB_ATMEL) += ohci-at91.o
 obj-$(CONFIG_USB_OHCI_DA8XX) += ohci-da8xx.o
-obj-$(CONFIG_USB_ISP116X_HCD) += isp116x-hcd.o
 obj-$(CONFIG_USB_R8A66597_HCD) += r8a66597-hcd.o
 obj-$(CONFIG_USB_SL811HS) += sl811-hcd.o
 obj-$(CONFIG_USB_OHCI_EP93XX) += ohci-ep93xx.o
