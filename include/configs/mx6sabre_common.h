@@ -208,8 +208,7 @@
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 
-#ifndef CONFIG_SPL
 #define CONFIG_USBD_HS
-#endif
+#define CONFIG_USB_FUNCTION_MASS_STORAGE
 
 #endif                         /* __MX6QSABRE_COMMON_CONFIG_H */
