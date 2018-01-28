@@ -120,11 +120,9 @@ static void *try_load_entry(uint16_t n, struct efi_device_path **device_path,
 
 	if (lo.attributes & LOAD_OPTION_ACTIVE) {
 		efi_status_t ret;
-		u16 *str = NULL;
 
-		debug("%s: trying to load \"%ls\" from: %ls\n", __func__,
-		      lo.label, (str = efi_dp_str(lo.file_path)));
-		efi_free_pool(str);
+		debug("%s: trying to load \"%ls\" from %pD\n",
+		      __func__, lo.label, lo.file_path);
 
 		ret = efi_load_image_from_path(lo.file_path, &image);
 

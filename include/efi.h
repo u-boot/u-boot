@@ -19,7 +19,7 @@
 #include <linux/string.h>
 #include <linux/types.h>
 
-#ifdef CONFIG_EFI_STUB_64BIT
+#if CONFIG_EFI_STUB_64BIT || (!defined(CONFIG_EFI_STUB) && defined(__x86_64__))
 /* EFI uses the Microsoft ABI which is not the default for GCC */
 #define EFIAPI __attribute__((ms_abi))
 #else

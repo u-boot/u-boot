@@ -300,8 +300,9 @@ static char *device_path_string(char *buf, char *end, void *dp, int field_width,
 {
 	u16 *str;
 
+	/* If dp == NULL output the string '<NULL>' */
 	if (!dp)
-		return "<NULL>";
+		return string16(buf, end, dp, field_width, precision, flags);
 
 	str = efi_dp_str((struct efi_device_path *)dp);
 	if (!str)

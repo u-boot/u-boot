@@ -126,8 +126,9 @@ static void *copy_fdt(void *fdt)
 
 static efi_status_t efi_do_enter(
 			efi_handle_t image_handle, struct efi_system_table *st,
-			asmlinkage ulong (*entry)(efi_handle_t image_handle,
-						  struct efi_system_table *st))
+			EFIAPI efi_status_t (*entry)(
+				efi_handle_t image_handle,
+				struct efi_system_table *st))
 {
 	efi_status_t ret = EFI_LOAD_ERROR;
 
@@ -138,7 +139,7 @@ static efi_status_t efi_do_enter(
 }
 
 #ifdef CONFIG_ARM64
-static efi_status_t efi_run_in_el2(asmlinkage ulong (*entry)(
+static efi_status_t efi_run_in_el2(EFIAPI efi_status_t (*entry)(
 			efi_handle_t image_handle, struct efi_system_table *st),
 			efi_handle_t image_handle, struct efi_system_table *st)
 {
@@ -162,8 +163,8 @@ static efi_status_t do_bootefi_exec(void *efi, void *fdt,
 	struct efi_device_path *memdp = NULL;
 	ulong ret;
 
-	ulong (*entry)(efi_handle_t image_handle, struct efi_system_table *st)
-		asmlinkage;
+	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
+				     struct efi_system_table *st);
 	ulong fdt_pages, fdt_size, fdt_start, fdt_end;
 	const efi_guid_t fdt_guid = EFI_FDT_GUID;
 	bootm_headers_t img = { 0 };
@@ -372,6 +373,9 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		saddr = argv[1];
 
 		addr = simple_strtoul(saddr, NULL, 16);
+		/* Check that a numeric value was passed */
+		if (!addr && *saddr != '0')
+			return CMD_RET_USAGE;
 
 		if (argc > 2) {
 			sfdt = argv[2];

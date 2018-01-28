@@ -111,8 +111,11 @@ void efi_restore_gd(void)
 }
 
 /*
- * Two spaces per indent level, maxing out at 10.. which ought to be
- * enough for anyone ;-)
+ * Return a string for indenting with two spaces per level. A maximum of ten
+ * indent levels is supported. Higher indent levels will be truncated.
+ *
+ * @level	indent level
+ * @return	indent string
  */
 static const char *indent_string(int level)
 {
@@ -1364,16 +1367,18 @@ efi_status_t efi_setup_loaded_image(
 	obj->handle = info;
 
 	info->file_path = file_path;
-	if (device_path)
-		info->device_handle = efi_dp_find_obj(device_path, NULL);
 
-	/*
-	 * When asking for the device path interface, return
-	 * bootefi_device_path
-	 */
-	ret = efi_add_protocol(obj->handle, &efi_guid_device_path, device_path);
-	if (ret != EFI_SUCCESS)
-		goto failure;
+	if (device_path) {
+		info->device_handle = efi_dp_find_obj(device_path, NULL);
+		/*
+		 * When asking for the device path interface, return
+		 * bootefi_device_path
+		 */
+		ret = efi_add_protocol(obj->handle, &efi_guid_device_path,
+				       device_path);
+		if (ret != EFI_SUCCESS)
+			goto failure;
+	}
 
 	/*
 	 * When asking for the loaded_image interface, just
@@ -1456,7 +1461,7 @@ error:
  * for details.
  *
  * @boot_policy		true for request originating from the boot manager
- * @parent_image	the calles's image handle
+ * @parent_image	the caller's image handle
  * @file_path		the path of the image to load
  * @source_buffer	memory location from which the image is installed
  * @source_size		size of the memory area from which the image is
@@ -1534,8 +1539,8 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 					   unsigned long *exit_data_size,
 					   s16 **exit_data)
 {
-	asmlinkage ulong (*entry)(efi_handle_t image_handle,
-				  struct efi_system_table *st);
+	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
+				     struct efi_system_table *st);
 	struct efi_loaded_image *info = image_handle;
 	efi_status_t ret;
 
@@ -1575,8 +1580,13 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 
 	ret = EFI_CALL(entry(image_handle, &systab));
 
-	/* Should usually never get here */
-	return EFI_EXIT(ret);
+	/*
+	 * Usually UEFI applications call Exit() instead of returning.
+	 * But because the world doesn not consist of ponies and unicorns,
+	 * we're happy to emulate that behavior on behalf of a payload
+	 * that forgot.
+	 */
+	return EFI_CALL(systab.boottime->exit(image_handle, ret, 0, NULL));
 }
 
 /*
