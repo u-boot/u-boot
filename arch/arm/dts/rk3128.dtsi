@@ -315,7 +315,7 @@
 	pwm0: pwm0@20050000 {
 		compatible = "rockchip,rk3128-pwm", "rockchip,rk3288-pwm";
 		reg = <0x20050000 0x10>;
-		#pwm-cells = <2>;
+		#pwm-cells = <3>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pwm0_pin>;
 		clocks = <&cru PCLK_PWM>;
@@ -325,7 +325,7 @@
 	pwm1: pwm1@20050010 {
 		compatible = "rockchip,rk3128-pwm", "rockchip,rk3288-pwm";
 		reg = <0x20050010 0x10>;
-		#pwm-cells = <2>;
+		#pwm-cells = <3>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pwm1_pin>;
 		clocks = <&cru PCLK_PWM>;
@@ -335,7 +335,7 @@
 	pwm2: pwm2@20050020 {
 		compatible = "rockchip,rk3128-pwm", "rockchip,rk3288-pwm";
 		reg = <0x20050020 0x10>;
-		#pwm-cells = <2>;
+		#pwm-cells = <3>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pwm2_pin>;
 		clocks = <&cru PCLK_PWM>;
@@ -345,7 +345,7 @@
 	pwm3: pwm3@20050030 {
 		compatible = "rockchip,rk3128-pwm", "rockchip,rk3288-pwm";
 		reg = <0x20050030 0x10>;
-		#pwm-cells = <2>;
+		#pwm-cells = <3>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pwm3_pin>;
 		clocks = <&cru PCLK_PWM>;
