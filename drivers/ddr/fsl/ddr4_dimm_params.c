@@ -139,6 +139,7 @@ unsigned int ddr_compute_dimm_parameters(const unsigned int ctrl_num,
 	};
 	int spd_error = 0;
 	u8 *ptr;
+	u8 val;
 
 	if (spd->mem_type) {
 		if (spd->mem_type != SPD_MEMTYPE_DDR4) {
@@ -191,6 +192,26 @@ unsigned int ddr_compute_dimm_parameters(const unsigned int ctrl_num,
 		pdimm->registered_dimm = 1;
 		if (spd->mod_section.registered.reg_map & 0x1)
 			pdimm->mirrored_dimm = 1;
+		val = spd->mod_section.registered.ca_stren;
+		pdimm->rcw[3] = val >> 4;
+		pdimm->rcw[4] = ((val & 0x3) << 2) | ((val & 0xc) >> 2);
+		val = spd->mod_section.registered.clk_stren;
+		pdimm->rcw[5] = ((val & 0x3) << 2) | ((val & 0xc) >> 2);
+		/* Not all in SPD. For convience only. Boards may overwrite. */
+		pdimm->rcw[6] = 0xf;
+		/*
+		 * A17 only used for 16Gb and above devices.
+		 * C[2:0] only used for 3DS.
+		 */
+		pdimm->rcw[8] = pdimm->die_density >= 0x6 ? 0x0 : 0x8 |
+				(pdimm->package_3ds > 0x3 ? 0x0 :
+				 (pdimm->package_3ds > 0x1 ? 0x1 :
+				  (pdimm->package_3ds > 0 ? 0x2 : 0x3)));
+		if (pdimm->package_3ds || pdimm->n_ranks != 4)
+			pdimm->rcw[13] = 0xc;
+		else
+			pdimm->rcw[13] = 0xd;	/* Fix encoded by board */
+
 		break;
 
 	case DDR4_SPD_MODULETYPE_UDIMM:

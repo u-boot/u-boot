@@ -724,10 +724,14 @@ static void set_timing_cfg_2(const unsigned int ctrl_num,
 }
 
 /* DDR SDRAM Register Control Word */
-static void set_ddr_sdram_rcw(fsl_ddr_cfg_regs_t *ddr,
-			       const memctl_options_t *popts,
-			       const common_timing_params_t *common_dimm)
+static void set_ddr_sdram_rcw(const unsigned int ctrl_num,
+			      fsl_ddr_cfg_regs_t *ddr,
+			      const memctl_options_t *popts,
+			      const common_timing_params_t *common_dimm)
 {
+	unsigned int ddr_freq = get_ddr_freq(ctrl_num) / 1000000;
+	unsigned int rc0a, rc0f;
+
 	if (common_dimm->all_dimms_registered &&
 	    !common_dimm->all_dimms_unbuffered)	{
 		if (popts->rcw_override) {
@@ -735,6 +739,16 @@ static void set_ddr_sdram_rcw(fsl_ddr_cfg_regs_t *ddr,
 			ddr->ddr_sdram_rcw_2 = popts->rcw_2;
 			ddr->ddr_sdram_rcw_3 = popts->rcw_3;
 		} else {
+			rc0a = ddr_freq > 3200 ? 0x7 :
+			       (ddr_freq > 2933 ? 0x6 :
+				(ddr_freq > 2666 ? 0x5 :
+				 (ddr_freq > 2400 ? 0x4 :
+				  (ddr_freq > 2133 ? 0x3 :
+				   (ddr_freq > 1866 ? 0x2 :
+				    (ddr_freq > 1600 ? 1 : 0))))));
+			rc0f = ddr_freq > 3200 ? 0x3 :
+			       (ddr_freq > 2400 ? 0x2 :
+				(ddr_freq > 2133 ? 0x1 : 0));
 			ddr->ddr_sdram_rcw_1 =
 				common_dimm->rcw[0] << 28 | \
 				common_dimm->rcw[1] << 24 | \
@@ -747,12 +761,14 @@ static void set_ddr_sdram_rcw(fsl_ddr_cfg_regs_t *ddr,
 			ddr->ddr_sdram_rcw_2 =
 				common_dimm->rcw[8] << 28 | \
 				common_dimm->rcw[9] << 24 | \
-				common_dimm->rcw[10] << 20 | \
+				rc0a << 20 | \
 				common_dimm->rcw[11] << 16 | \
 				common_dimm->rcw[12] << 12 | \
 				common_dimm->rcw[13] << 8 | \
 				common_dimm->rcw[14] << 4 | \
-				common_dimm->rcw[15];
+				rc0f;
+			ddr->ddr_sdram_rcw_3 =
+				((ddr_freq - 1260 + 19) / 20) << 8;
 		}
 		debug("FSLDDR: ddr_sdram_rcw_1 = 0x%08x\n",
 		      ddr->ddr_sdram_rcw_1);
@@ -2561,6 +2577,8 @@ compute_fsl_memctl_config_regs(const unsigned int ctrl_num,
 	set_ddr_sdram_mode_9(ddr, popts, common_dimm, unq_mrs_en);
 	set_ddr_sdram_mode_10(ctrl_num, ddr, popts, common_dimm, unq_mrs_en);
 #endif
+	set_ddr_sdram_rcw(ctrl_num, ddr, popts, common_dimm);
+
 	set_ddr_sdram_interval(ctrl_num, ddr, popts, common_dimm);
 	set_ddr_data_init(ddr);
 	set_ddr_sdram_clk_cntl(ddr, popts);
@@ -2581,8 +2599,6 @@ compute_fsl_memctl_config_regs(const unsigned int ctrl_num,
 	set_ddr_wrlvl_cntl(ddr, wrlvl_en, popts);
 
 	set_ddr_sr_cntr(ddr, sr_it);
-
-	set_ddr_sdram_rcw(ddr, popts, common_dimm);
 
 #ifdef CONFIG_SYS_FSL_DDR_EMU
 	/* disble DDR training for emulator */

@@ -106,7 +106,7 @@ typedef struct dimm_params_s {
 	int tqhs_ps;	/* byte 45, spd->tqhs */
 #endif
 
-	/* DDR3 RDIMM */
+	/* DDR3 & DDR4 RDIMM */
 	unsigned char rcw[16];	/* Register Control Word 0-15 */
 #ifdef CONFIG_SYS_FSL_DDR4
 	unsigned int dq_mapping[18];
