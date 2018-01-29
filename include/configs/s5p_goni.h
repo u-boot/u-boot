@@ -54,9 +54,6 @@
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_32M
 #define DFU_DEFAULT_POLL_TIMEOUT 300
 
-/* TIZEN THOR downloader support */
-#define CONFIG_USB_FUNCTION_THOR
-
 /* USB Samsung's IDs */
 
 #define CONFIG_G_DNL_THOR_VENDOR_NUM 0x04E8

@@ -88,7 +88,6 @@
 # define DFU_DEFAULT_POLL_TIMEOUT	300
 # define CONFIG_USB_CABLE_CHECK
 # define CONFIG_THOR_RESET_OFF
-# define CONFIG_USB_FUNCTION_THOR
 # define DFU_ALT_INFO_RAM \
 	"dfu_ram_info=" \
 	"set dfu_alt_info " \

@@ -142,6 +142,12 @@ config USB_FUNCTION_SDP
 	  allows to download images into memory and execute (jump to) them
 	  using the same protocol as implemented by the i.MX family's boot ROM.
 
+config USB_FUNCTION_THOR
+	bool "Enable USB THOR gadget"
+	help
+	  Enable Tizen's THOR download protocol support in U-Boot. It
+	  allows downloading images into memory and flash them to target device.
+
 endif # USB_GADGET_DOWNLOAD
 
 config USB_ETHER
