@@ -929,6 +929,7 @@ config CMD_ROCKUSB
 
 config CMD_USB_MASS_STORAGE
 	bool "UMS usb mass storage"
+	select USB_FUNCTION_MASS_STORAGE
 	help
 	  USB mass storage support
 
