@@ -179,6 +179,8 @@ unsigned int ddr_compute_dimm_parameters(const unsigned int ctrl_num,
 	case DDR4_SPD_MODULETYPE_RDIMM:
 		/* Registered/buffered DIMMs */
 		pdimm->registered_dimm = 1;
+		if (spd->mod_section.registered.reg_map & 0x1)
+			pdimm->mirrored_dimm = 1;
 		break;
 
 	case DDR4_SPD_MODULETYPE_UDIMM:

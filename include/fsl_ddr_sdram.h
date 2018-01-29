@@ -408,6 +408,7 @@ typedef struct memctl_options_s {
 	unsigned int rcw_override;
 	unsigned int rcw_1;
 	unsigned int rcw_2;
+	unsigned int rcw_3;
 	/* control register 1 */
 	unsigned int ddr_cdr1;
 	unsigned int ddr_cdr2;

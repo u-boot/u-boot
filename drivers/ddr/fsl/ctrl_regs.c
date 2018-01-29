@@ -732,6 +732,7 @@ static void set_ddr_sdram_rcw(fsl_ddr_cfg_regs_t *ddr,
 		if (popts->rcw_override) {
 			ddr->ddr_sdram_rcw_1 = popts->rcw_1;
 			ddr->ddr_sdram_rcw_2 = popts->rcw_2;
+			ddr->ddr_sdram_rcw_3 = popts->rcw_3;
 		} else {
 			ddr->ddr_sdram_rcw_1 =
 				common_dimm->rcw[0] << 28 | \
@@ -752,8 +753,12 @@ static void set_ddr_sdram_rcw(fsl_ddr_cfg_regs_t *ddr,
 				common_dimm->rcw[14] << 4 | \
 				common_dimm->rcw[15];
 		}
-		debug("FSLDDR: ddr_sdram_rcw_1 = 0x%08x\n", ddr->ddr_sdram_rcw_1);
-		debug("FSLDDR: ddr_sdram_rcw_2 = 0x%08x\n", ddr->ddr_sdram_rcw_2);
+		debug("FSLDDR: ddr_sdram_rcw_1 = 0x%08x\n",
+		      ddr->ddr_sdram_rcw_1);
+		debug("FSLDDR: ddr_sdram_rcw_2 = 0x%08x\n",
+		      ddr->ddr_sdram_rcw_2);
+		debug("FSLDDR: ddr_sdram_rcw_3 = 0x%08x\n",
+		      ddr->ddr_sdram_rcw_3);
 	}
 }
 
@@ -1159,8 +1164,14 @@ static void set_ddr_sdram_mode_9(fsl_ddr_cfg_regs_t *ddr,
 		esdmode5 = 0x00000400;	/* Data mask enabled */
 	}
 
-	/* set command/address parity latency */
-	if (ddr->ddr_sdram_cfg_2 & SDRAM_CFG2_AP_EN) {
+	/*
+	 * For DDR3, set C/A latency if address parity is enabled.
+	 * For DDR4, set C/A latency for UDIMM only. For RDIMM the delay is
+	 * handled by register chip and RCW settings.
+	 */
+	if ((ddr->ddr_sdram_cfg_2 & SDRAM_CFG2_AP_EN) &&
+	    ((CONFIG_FSL_SDRAM_TYPE != SDRAM_TYPE_DDR4) ||
+	     !popts->registered_dimm_en)) {
 		if (mclk_ps >= 935) {
 			/* for DDR4-1600/1866/2133 */
 			esdmode5 |= DDR_MR5_CA_PARITY_LAT_4_CLK;
@@ -1193,7 +1204,9 @@ static void set_ddr_sdram_mode_9(fsl_ddr_cfg_regs_t *ddr,
 				esdmode5 = 0x00000400;
 			}
 
-			if (ddr->ddr_sdram_cfg_2 & SDRAM_CFG2_AP_EN) {
+			if ((ddr->ddr_sdram_cfg_2 & SDRAM_CFG2_AP_EN) &&
+			    ((CONFIG_FSL_SDRAM_TYPE != SDRAM_TYPE_DDR4) ||
+			     !popts->registered_dimm_en)) {
 				if (mclk_ps >= 935) {
 					/* for DDR4-1600/1866/2133 */
 					esdmode5 |= DDR_MR5_CA_PARITY_LAT_4_CLK;
@@ -1965,6 +1978,7 @@ static void set_timing_cfg_6(fsl_ddr_cfg_regs_t *ddr)
 
 static void set_timing_cfg_7(const unsigned int ctrl_num,
 			     fsl_ddr_cfg_regs_t *ddr,
+			     const memctl_options_t *popts,
 			     const common_timing_params_t *common_dimm)
 {
 	unsigned int txpr, tcksre, tcksrx;
@@ -1975,16 +1989,11 @@ static void set_timing_cfg_7(const unsigned int ctrl_num,
 	tcksre = max(5U, picos_to_mclk(ctrl_num, 10000));
 	tcksrx = max(5U, picos_to_mclk(ctrl_num, 10000));
 
-	if (ddr->ddr_sdram_cfg_2 & SDRAM_CFG2_AP_EN) {
-		if (mclk_ps >= 935) {
-			/* parity latency 4 clocks in case of 1600/1866/2133 */
-			par_lat = 4;
-		} else if (mclk_ps >= 833) {
-			/* parity latency 5 clocks for DDR4-2400 */
-			par_lat = 5;
-		} else {
-			printf("parity: mclk_ps = %d not supported\n", mclk_ps);
-		}
+	if (ddr->ddr_sdram_cfg_2 & SDRAM_CFG2_AP_EN &&
+	    CONFIG_FSL_SDRAM_TYPE == SDRAM_TYPE_DDR4) {
+		/* for DDR4 only */
+		par_lat = (popts->rcw_2 & 0xf) + 1;
+		debug("PAR_LAT = %u for mclk_ps = %d\n", par_lat, mclk_ps);
 	}
 
 	cs_to_cmd = 0;
@@ -2024,11 +2033,11 @@ static void set_timing_cfg_8(const unsigned int ctrl_num,
 			     const common_timing_params_t *common_dimm,
 			     unsigned int cas_latency)
 {
-	unsigned int rwt_bg, wrt_bg, rrt_bg, wwt_bg;
+	int rwt_bg, wrt_bg, rrt_bg, wwt_bg;
 	unsigned int acttoact_bg, wrtord_bg, pre_all_rec;
-	unsigned int tccdl = picos_to_mclk(ctrl_num, common_dimm->tccdl_ps);
-	unsigned int wr_lat = ((ddr->timing_cfg_2 & 0x00780000) >> 19) +
-			      ((ddr->timing_cfg_2 & 0x00040000) >> 14);
+	int tccdl = picos_to_mclk(ctrl_num, common_dimm->tccdl_ps);
+	int wr_lat = ((ddr->timing_cfg_2 & 0x00780000) >> 19) +
+		      ((ddr->timing_cfg_2 & 0x00040000) >> 14);
 
 	rwt_bg = cas_latency + 2 + 4 - wr_lat;
 	if (rwt_bg < tccdl)
@@ -2130,6 +2139,8 @@ static void set_ddr_sdram_cfg_3(fsl_ddr_cfg_regs_t *ddr,
 	rd_pre = popts->quad_rank_present ? 1 : 0;
 
 	ddr->ddr_sdram_cfg_3 = (rd_pre & 0x1) << 16;
+	/* Disable MRS on parity error for RDIMMs */
+	ddr->ddr_sdram_cfg_3 |= popts->registered_dimm_en ? 1 : 0;
 
 	debug("FSLDDR: ddr_sdram_cfg_3 = 0x%08x\n", ddr->ddr_sdram_cfg_3);
 }
@@ -2535,7 +2546,7 @@ compute_fsl_memctl_config_regs(const unsigned int ctrl_num,
 #ifdef CONFIG_SYS_FSL_DDR4
 	set_ddr_sdram_cfg_3(ddr, popts);
 	set_timing_cfg_6(ddr);
-	set_timing_cfg_7(ctrl_num, ddr, common_dimm);
+	set_timing_cfg_7(ctrl_num, ddr, popts, common_dimm);
 	set_timing_cfg_8(ctrl_num, ddr, popts, common_dimm, cas_latency);
 	set_timing_cfg_9(ddr);
 	set_ddr_dq_mapping(ddr, dimm_params);
