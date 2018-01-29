@@ -79,6 +79,18 @@ config SERIAL_RX_BUFFER_SIZE
 	help
 	  The size of the RX buffer (needs to be power of 2)
 
+config SERIAL_SEARCH_ALL
+	bool "Search for serial devices after default one failed"
+	depends on DM_SERIAL
+	help
+	  The serial subsystem only searches for a single serial device
+	  that was instantiated, but does not check whether it was probed
+	  correctly. With this option set, we make successful probing
+	  mandatory and search for fallback serial devices if the default
+	  device does not work.
+
+	  If unsure, say N.
+
 config SPL_DM_SERIAL
 	bool "Enable Driver Model for serial drivers in SPL"
 	depends on DM_SERIAL

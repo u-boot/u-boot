@@ -74,7 +74,9 @@ static void serial_find_console_or_panic(void)
 {
 	const void *blob = gd->fdt_blob;
 	struct udevice *dev;
+#ifdef CONFIG_SERIAL_SEARCH_ALL
 	int ret;
+#endif
 
 	if (CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		uclass_first_device(UCLASS_SERIAL, &dev);
@@ -113,6 +115,8 @@ static void serial_find_console_or_panic(void)
 #else
 #define INDEX 0
 #endif
+
+#ifdef CONFIG_SERIAL_SEARCH_ALL
 		if (!uclass_get_device_by_seq(UCLASS_SERIAL, INDEX, &dev) ||
 		    !uclass_get_device(UCLASS_SERIAL, INDEX, &dev)) {
 			if (dev->flags & DM_FLAG_ACTIVATED) {
@@ -131,6 +135,15 @@ static void serial_find_console_or_panic(void)
 				return;
 			}
 		}
+#else
+		if (!uclass_get_device_by_seq(UCLASS_SERIAL, INDEX, &dev) ||
+		    !uclass_get_device(UCLASS_SERIAL, INDEX, &dev) ||
+		    (!uclass_first_device(UCLASS_SERIAL, &dev) && dev)) {
+			gd->cur_serial_dev = dev;
+			return;
+		}
+#endif
+
 #undef INDEX
 	}
 

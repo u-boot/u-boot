@@ -550,6 +550,7 @@ config ARCH_BCM283X
 	select DM_GPIO
 	select OF_CONTROL
 	select PL01X_SERIAL
+	select SERIAL_SEARCH_ALL
 	imply FAT_WRITE
 
 config TARGET_VEXPRESS_CA15_TC2
