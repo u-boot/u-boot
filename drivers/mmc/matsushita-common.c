@@ -504,6 +504,7 @@ static int matsu_sd_set_bus_width(struct matsu_sd_priv *priv,
 	u32 val, tmp;
 
 	switch (mmc->bus_width) {
+	case 0:
 	case 1:
 		val = MATSU_SD_OPTION_WIDTH_1;
 		break;
