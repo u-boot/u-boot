@@ -127,13 +127,6 @@ config USB_GADGET_DOWNLOAD
 
 if USB_GADGET_DOWNLOAD
 
-config USB_FUNCTION_SDP
-	bool "Enable USB SDP (Serial Download Protocol)"
-	help
-	  Enable Serial Download Protocol (SDP) device support in U-Boot. This
-	  allows to download images into memory and execute (jump to) them
-	  using the same protocol as implemented by the i.MX family's boot ROM.
-
 config USB_FUNCTION_ROCKUSB
         bool "Enable USB rockusb gadget"
         help
@@ -141,6 +134,13 @@ config USB_FUNCTION_ROCKUSB
           read/write info, image to/from devices. This enables the USB part of
           the rockusb gadget.for more detail about Rockusb protocol, please see
           doc/README.rockusb
+
+config USB_FUNCTION_SDP
+	bool "Enable USB SDP (Serial Download Protocol)"
+	help
+	  Enable Serial Download Protocol (SDP) device support in U-Boot. This
+	  allows to download images into memory and execute (jump to) them
+	  using the same protocol as implemented by the i.MX family's boot ROM.
 
 endif # USB_GADGET_DOWNLOAD
 
