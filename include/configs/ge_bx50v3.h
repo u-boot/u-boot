@@ -72,7 +72,6 @@
 
 #define CONFIG_USBD_HS
 #define CONFIG_USB_GADGET_MASS_STORAGE
-#define CONFIG_USB_FUNCTION_MASS_STORAGE
 #endif
 
 /* Networking Configs */

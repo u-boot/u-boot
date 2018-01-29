@@ -68,8 +68,6 @@
 
 #define CONFIG_USBD_HS
 
-#define CONFIG_USB_FUNCTION_MASS_STORAGE
-
 /* Framebuffer */
 #define CONFIG_VIDEO_IPUV3
 #define CONFIG_VIDEO_BMP_RLE8

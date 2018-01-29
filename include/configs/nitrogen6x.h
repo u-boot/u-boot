@@ -279,6 +279,4 @@
 #define CONFIG_PCIE_IMX
 #endif
 
-#define CONFIG_USB_FUNCTION_MASS_STORAGE
-
 #endif	       /* __CONFIG_H */

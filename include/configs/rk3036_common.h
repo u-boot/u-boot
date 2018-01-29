@@ -47,7 +47,6 @@
 /* usb otg */
 
 /* usb mass storage */
-#define CONFIG_USB_FUNCTION_MASS_STORAGE
 #define CONFIG_CMD_USB_MASS_STORAGE
 
 /* usb host */

@@ -13,8 +13,6 @@
 #ifndef CONFIG_TEGRA20
 #define CONFIG_CI_UDC_HAS_HOSTPC
 #endif
-/* USB mass storage protocol */
-#define CONFIG_USB_FUNCTION_MASS_STORAGE
 /* DFU protocol */
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_1M
 #define CONFIG_SYS_DFU_MAX_FILE_SIZE SZ_32M

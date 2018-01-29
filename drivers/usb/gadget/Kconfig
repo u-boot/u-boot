@@ -127,6 +127,12 @@ config USB_GADGET_DOWNLOAD
 
 if USB_GADGET_DOWNLOAD
 
+config USB_FUNCTION_MASS_STORAGE
+	bool "Enable USB mass storage gadget"
+	help
+	  Enable mass storage protocol support in U-Boot. It allows exporting
+	  the eMMC/SD card content to HOST PC so it can be mounted.
+
 config USB_FUNCTION_ROCKUSB
         bool "Enable USB rockusb gadget"
         help

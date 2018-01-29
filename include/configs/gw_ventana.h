@@ -146,9 +146,6 @@
 #define CONFIG_USBD_HS
 #define CONFIG_NETCONSOLE
 
-/* USB Mass Storage Gadget */
-#define CONFIG_USB_FUNCTION_MASS_STORAGE
-
 /* Framebuffer and LCD */
 #define CONFIG_VIDEO_IPUV3
 #define CONFIG_VIDEO_LOGO

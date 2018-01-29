@@ -57,7 +57,6 @@
 #define CONFIG_MXC_USB_FLAGS	0
 
 #define CONFIG_USBD_HS
-#define CONFIG_USB_FUNCTION_MASS_STORAGE
 
 /* Networking Configs */
 #define CONFIG_FEC_MXC

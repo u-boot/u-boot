@@ -136,6 +136,4 @@
 
 #define CONFIG_IMX_THERMAL
 
-#define CONFIG_USB_FUNCTION_MASS_STORAGE
-
 #endif
