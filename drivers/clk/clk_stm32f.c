@@ -337,6 +337,11 @@ static unsigned long stm32_clk_get_rate(struct clk *clk)
 	}
 }
 
+static ulong stm32_set_rate(struct clk *clk, ulong rate)
+{
+	return 0;
+}
+
 static int stm32_clk_enable(struct clk *clk)
 {
 	struct stm32_clk *priv = dev_get_priv(clk->dev);
@@ -464,6 +469,7 @@ static struct clk_ops stm32_clk_ops = {
 	.of_xlate	= stm32_clk_of_xlate,
 	.enable		= stm32_clk_enable,
 	.get_rate	= stm32_clk_get_rate,
+	.set_rate	= stm32_set_rate,
 };
 
 U_BOOT_DRIVER(stm32fx_clk) = {
