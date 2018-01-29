@@ -1,5 +1,6 @@
 /*
- * Copyright 2010-2014 Freescale Semiconductor, Inc.
+ * Copyright 2010-2016 Freescale Semiconductor, Inc.
+ * Copyright 2017-2018 NXP Semiconductor
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -168,6 +169,7 @@ static void lowest_common_dimm_parameters_edit(fsl_ddr_info_t *pinfo,
 		COMMON_TIMING(trrds_ps),
 		COMMON_TIMING(trrdl_ps),
 		COMMON_TIMING(tccdl_ps),
+		COMMON_TIMING(trfc_slr_ps),
 #else
 		COMMON_TIMING(twtr_ps),
 		COMMON_TIMING(trfc_ps),
@@ -223,6 +225,7 @@ static void fsl_ddr_dimm_parameters_edit(fsl_ddr_info_t *pinfo,
 		DIMM_PARM(data_width),
 		DIMM_PARM(primary_sdram_width),
 		DIMM_PARM(ec_sdram_width),
+		DIMM_PARM(package_3ds),
 		DIMM_PARM(registered_dimm),
 		DIMM_PARM(mirrored_dimm),
 		DIMM_PARM(device_width),
@@ -233,6 +236,7 @@ static void fsl_ddr_dimm_parameters_edit(fsl_ddr_info_t *pinfo,
 #ifdef CONFIG_SYS_FSL_DDR4
 		DIMM_PARM(bank_addr_bits),
 		DIMM_PARM(bank_group_bits),
+		DIMM_PARM_HEX(die_density),
 #else
 		DIMM_PARM(n_banks_per_sdram_device),
 #endif
@@ -260,6 +264,7 @@ static void fsl_ddr_dimm_parameters_edit(fsl_ddr_info_t *pinfo,
 		DIMM_PARM(trrds_ps),
 		DIMM_PARM(trrdl_ps),
 		DIMM_PARM(tccdl_ps),
+		DIMM_PARM(trfc_slr_ps),
 #else
 		DIMM_PARM(twr_ps),
 		DIMM_PARM(twtr_ps),
@@ -320,6 +325,7 @@ static void print_dimm_parameters(const dimm_params_t *pdimm)
 		DIMM_PARM(data_width),
 		DIMM_PARM(primary_sdram_width),
 		DIMM_PARM(ec_sdram_width),
+		DIMM_PARM(package_3ds),
 		DIMM_PARM(registered_dimm),
 		DIMM_PARM(mirrored_dimm),
 		DIMM_PARM(device_width),
@@ -330,6 +336,7 @@ static void print_dimm_parameters(const dimm_params_t *pdimm)
 #ifdef CONFIG_SYS_FSL_DDR4
 		DIMM_PARM(bank_addr_bits),
 		DIMM_PARM(bank_group_bits),
+		DIMM_PARM_HEX(die_density),
 #else
 		DIMM_PARM(n_banks_per_sdram_device),
 #endif
@@ -359,6 +366,7 @@ static void print_dimm_parameters(const dimm_params_t *pdimm)
 		DIMM_PARM(trrds_ps),
 		DIMM_PARM(trrdl_ps),
 		DIMM_PARM(tccdl_ps),
+		DIMM_PARM(trfc_slr_ps),
 #else
 		DIMM_PARM(twr_ps),
 		DIMM_PARM(twtr_ps),
@@ -437,6 +445,7 @@ static void print_lowest_common_dimm_parameters(
 		COMMON_TIMING(trrds_ps),
 		COMMON_TIMING(trrdl_ps),
 		COMMON_TIMING(tccdl_ps),
+		COMMON_TIMING(trfc_slr_ps),
 #else
 		COMMON_TIMING(twtr_ps),
 		COMMON_TIMING(trfc_ps),
@@ -561,6 +570,7 @@ static void fsl_ddr_options_edit(fsl_ddr_info_t *pinfo,
 		CTRL_OPTIONS(mirrored_dimm),
 		CTRL_OPTIONS(ap_en),
 		CTRL_OPTIONS(x4_en),
+		CTRL_OPTIONS(package_3ds),
 		CTRL_OPTIONS(bstopre),
 		CTRL_OPTIONS(wrlvl_override),
 		CTRL_OPTIONS(wrlvl_sample),
@@ -855,6 +865,7 @@ static void print_memctl_options(const memctl_options_t *popts)
 		CTRL_OPTIONS(mirrored_dimm),
 		CTRL_OPTIONS(ap_en),
 		CTRL_OPTIONS(x4_en),
+		CTRL_OPTIONS(package_3ds),
 		CTRL_OPTIONS(bstopre),
 		CTRL_OPTIONS(wrlvl_override),
 		CTRL_OPTIONS(wrlvl_sample),

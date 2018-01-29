@@ -1,5 +1,6 @@
 /*
- * Copyright 2008-2014 Freescale Semiconductor, Inc.
+ * Copyright 2008-2016 Freescale Semiconductor, Inc.
+ * Copyright 2017-2018 NXP Semiconductor
  *
  * SPDX-License-Identifier:	GPL-2.0
  */
@@ -18,12 +19,14 @@ typedef struct dimm_params_s {
 	char mpart[19];		/* guaranteed null terminated */
 
 	unsigned int n_ranks;
+	unsigned int die_density;
 	unsigned long long rank_density;
 	unsigned long long capacity;
 	unsigned int data_width;
 	unsigned int primary_sdram_width;
 	unsigned int ec_sdram_width;
 	unsigned int registered_dimm;
+	unsigned int package_3ds;	/* number of dies in 3DS DIMM */
 	unsigned int device_width;	/* x4, x8, x16 components */
 
 	/* SDRAM device parameters */
@@ -79,6 +82,7 @@ typedef struct dimm_params_s {
 	int trrds_ps;
 	int trrdl_ps;
 	int tccdl_ps;
+	int trfc_slr_ps;
 #else
 	int twr_ps;	/* maximum = 63750 ps */
 	int trfc_ps;	/* max = 255 ns + 256 ns + .75 ns

@@ -1,5 +1,8 @@
 /*
- * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2014-2016 Freescale Semiconductor, Inc.
+ * Copyright 2017-2018 NXP Semiconductor
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
  *
  * calculate the organization and timing parameter
  * from ddr3 spd, please refer to the spec
@@ -98,6 +101,10 @@ compute_ranksize(const struct ddr4_spd_eeprom_s *spd)
 	if ((spd->organization & 0x7) < 4)
 		nbit_sdram_width = (spd->organization & 0x7) + 2;
 	package_3ds = (spd->package_type & 0x3) == 0x2;
+	if ((spd->package_type & 0x80) && !package_3ds) { /* other than 3DS */
+		printf("Warning: not supported SDRAM package type\n");
+		return 0;
+	}
 	if (package_3ds)
 		die_count = (spd->package_type >> 4) & 0x7;
 
@@ -105,7 +112,7 @@ compute_ranksize(const struct ddr4_spd_eeprom_s *spd)
 			 nbit_primary_bus_width - nbit_sdram_width +
 			 die_count);
 
-	debug("DDR: DDR III rank density = 0x%16llx\n", bsize);
+	debug("DDR: DDR rank density = 0x%16llx\n", bsize);
 
 	return bsize;
 }
@@ -163,6 +170,7 @@ unsigned int ddr_compute_dimm_parameters(const unsigned int ctrl_num,
 	pdimm->n_ranks = ((spd->organization >> 3) & 0x7) + 1;
 	pdimm->rank_density = compute_ranksize(spd);
 	pdimm->capacity = pdimm->n_ranks * pdimm->rank_density;
+	pdimm->die_density = spd->density_banks & 0xf;
 	pdimm->primary_sdram_width = 1 << (3 + (spd->bus_width & 0x7));
 	if ((spd->bus_width >> 3) & 0x3)
 		pdimm->ec_sdram_width = 8;
@@ -171,6 +179,8 @@ unsigned int ddr_compute_dimm_parameters(const unsigned int ctrl_num,
 	pdimm->data_width = pdimm->primary_sdram_width
 			  + pdimm->ec_sdram_width;
 	pdimm->device_width = 1 << ((spd->organization & 0x7) + 2);
+	pdimm->package_3ds = (spd->package_type & 0x3) == 0x2 ?
+			     (spd->package_type >> 4) & 0x7 : 0;
 
 	/* These are the types defined by the JEDEC SPD spec */
 	pdimm->mirrored_dimm = 0;
@@ -309,6 +319,17 @@ unsigned int ddr_compute_dimm_parameters(const unsigned int ctrl_num,
 	pdimm->trrdl_ps = spd_to_ps(spd->trrdl_min, spd->fine_trrdl_min);
 	/* min CAS to CAS Delay Time (tCCD_Lmin), same bank group */
 	pdimm->tccdl_ps = spd_to_ps(spd->tccdl_min, spd->fine_tccdl_min);
+
+	if (pdimm->package_3ds) {
+		if (pdimm->die_density <= 0x4) {
+			pdimm->trfc_slr_ps = 260000;
+		} else if (pdimm->die_density <= 0x5) {
+			pdimm->trfc_slr_ps = 350000;
+		} else {
+			printf("WARN: Unsupported logical rank density 0x%x\n",
+			       pdimm->die_density);
+		}
+	}
 
 	/*
 	 * Average periodic refresh interval

@@ -1,5 +1,6 @@
 /*
- * Copyright 2008, 2010-2014 Freescale Semiconductor, Inc.
+ * Copyright 2008, 2010-2016 Freescale Semiconductor, Inc.
+ * Copyright 2017-2018 NXP Semiconductor
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -1291,6 +1292,8 @@ done:
 
 	if (pdimm[0].n_ranks == 4)
 		popts->quad_rank_present = 1;
+
+	popts->package_3ds = pdimm->package_3ds;
 
 	ddr_freq = get_ddr_freq(ctrl_num) / 1000000;
 	if (popts->registered_dimm_en) {
