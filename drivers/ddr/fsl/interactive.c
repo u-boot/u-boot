@@ -241,7 +241,6 @@ static void fsl_ddr_dimm_parameters_edit(fsl_ddr_info_t *pinfo,
 		DIMM_PARM(n_banks_per_sdram_device),
 #endif
 		DIMM_PARM(burst_lengths_bitmask),
-		DIMM_PARM(row_density),
 
 		DIMM_PARM(tckmin_x_ps),
 		DIMM_PARM(tckmin_x_minus_1_ps),

@@ -40,7 +40,6 @@ typedef struct dimm_params_s {
 	unsigned int n_banks_per_sdram_device;
 #endif
 	unsigned int burst_lengths_bitmask;	/* BL=4 bit 2, BL=8 = bit 3 */
-	unsigned int row_density;
 
 	/* used in computing base address of DIMMs */
 	unsigned long long base_address;
