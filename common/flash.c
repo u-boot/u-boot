@@ -112,7 +112,7 @@ addr2info (ulong addr)
  * and no protected sectors are hit.
  * Returns:
  * ERR_OK          0 - OK
- * ERR_TIMOUT      1 - write timeout
+ * ERR_TIMEOUT     1 - write timeout
  * ERR_NOT_ERASED  2 - Flash not erased
  * ERR_PROTECTED   4 - target range includes protected sectors
  * ERR_INVAL       8 - target address not in Flash memory
@@ -185,7 +185,7 @@ void flash_perror (int err)
 	switch (err) {
 	case ERR_OK:
 		break;
-	case ERR_TIMOUT:
+	case ERR_TIMEOUT:
 		puts ("Timeout writing to Flash\n");
 		break;
 	case ERR_NOT_ERASED:
