@@ -210,7 +210,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	if (regs->ddr_sdram_cfg_2 & SDRAM_CFG2_AP_EN) {
 		if (regs->ddr_sdram_cfg & SDRAM_CFG_RD_EN) { /* for RDIMM */
 			ddr_out32(&ddr->ddr_sdram_rcw_2,
-				  regs->ddr_sdram_rcw_2 & ~0x0f000000);
+				  regs->ddr_sdram_rcw_2 & ~0xf0);
 		}
 		ddr_out32(&ddr->err_disable, regs->err_disable |
 			  DDR_ERR_DISABLE_APED);
