@@ -29,6 +29,7 @@ config STM32F7
 	select STM32_SERIAL
 	select SUPPORT_SPL
 	select SPL
+	select SPL_BOARD_INIT
 	select SPL_CLK
 	select SPL_DM
 	select SPL_DM_SEQ_ALIAS
