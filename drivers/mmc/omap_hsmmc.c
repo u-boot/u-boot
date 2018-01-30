@@ -34,6 +34,10 @@
 #endif
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
+#ifdef CONFIG_OMAP54XX
+#include <asm/arch/mux_dra7xx.h>
+#include <asm/arch/dra7xx_iodelay.h>
+#endif
 #if !defined(CONFIG_SOC_KEYSTONE)
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
@@ -56,6 +60,15 @@ DECLARE_GLOBAL_DATA_PTR;
 /* common definitions for all OMAPs */
 #define SYSCTL_SRC	(1 << 25)
 #define SYSCTL_SRD	(1 << 26)
+
+#ifdef CONFIG_IODELAY_RECALIBRATION
+struct omap_hsmmc_pinctrl_state {
+	struct pad_conf_entry *padconf;
+	int npads;
+	struct iodelay_cfg_entry *iodelay;
+	int niodelays;
+};
+#endif
 
 struct omap_hsmmc_data {
 	struct hsmmc *base_addr;
@@ -83,6 +96,21 @@ struct omap_hsmmc_data {
 	struct omap_hsmmc_adma_desc *adma_desc_table;
 	uint desc_slot;
 #endif
+#ifdef CONFIG_IODELAY_RECALIBRATION
+	struct omap_hsmmc_pinctrl_state *default_pinctrl_state;
+	struct omap_hsmmc_pinctrl_state *hs_pinctrl_state;
+	struct omap_hsmmc_pinctrl_state *hs200_1_8v_pinctrl_state;
+	struct omap_hsmmc_pinctrl_state *ddr_1_8v_pinctrl_state;
+	struct omap_hsmmc_pinctrl_state *sdr12_pinctrl_state;
+	struct omap_hsmmc_pinctrl_state *sdr25_pinctrl_state;
+	struct omap_hsmmc_pinctrl_state *ddr50_pinctrl_state;
+	struct omap_hsmmc_pinctrl_state *sdr50_pinctrl_state;
+	struct omap_hsmmc_pinctrl_state *sdr104_pinctrl_state;
+#endif
+};
+
+struct omap_mmc_of_data {
+	u8 controller_flags;
 };
 
 #ifndef CONFIG_OMAP34XX
@@ -119,6 +147,7 @@ struct omap_hsmmc_adma_desc {
 #define OMAP_HSMMC_SUPPORTS_DUAL_VOLT		BIT(0)
 #define OMAP_HSMMC_NO_1_8_V			BIT(1)
 #define OMAP_HSMMC_USE_ADMA			BIT(2)
+#define OMAP_HSMMC_REQUIRE_IODELAY		BIT(3)
 
 static int mmc_read_data(struct hsmmc *mmc_base, char *buf, unsigned int size);
 static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
@@ -261,6 +290,56 @@ void mmc_init_stream(struct hsmmc *mmc_base)
 }
 
 #if CONFIG_IS_ENABLED(DM_MMC)
+#ifdef CONFIG_IODELAY_RECALIBRATION
+static void omap_hsmmc_io_recalibrate(struct mmc *mmc)
+{
+	struct omap_hsmmc_data *priv = omap_hsmmc_get_data(mmc);
+	struct omap_hsmmc_pinctrl_state *pinctrl_state;
+
+	switch (priv->mode) {
+	case MMC_HS_200:
+		pinctrl_state = priv->hs200_1_8v_pinctrl_state;
+		break;
+	case UHS_SDR104:
+		pinctrl_state = priv->sdr104_pinctrl_state;
+		break;
+	case UHS_SDR50:
+		pinctrl_state = priv->sdr50_pinctrl_state;
+		break;
+	case UHS_DDR50:
+		pinctrl_state = priv->ddr50_pinctrl_state;
+		break;
+	case UHS_SDR25:
+		pinctrl_state = priv->sdr25_pinctrl_state;
+		break;
+	case UHS_SDR12:
+		pinctrl_state = priv->sdr12_pinctrl_state;
+		break;
+	case SD_HS:
+	case MMC_HS:
+	case MMC_HS_52:
+		pinctrl_state = priv->hs_pinctrl_state;
+		break;
+	case MMC_DDR_52:
+		pinctrl_state = priv->ddr_1_8v_pinctrl_state;
+	default:
+		pinctrl_state = priv->default_pinctrl_state;
+		break;
+	}
+
+	if (priv->controller_flags & OMAP_HSMMC_REQUIRE_IODELAY) {
+		if (pinctrl_state->iodelay)
+			late_recalibrate_iodelay(pinctrl_state->padconf,
+						 pinctrl_state->npads,
+						 pinctrl_state->iodelay,
+						 pinctrl_state->niodelays);
+		else
+			do_set_mux32((*ctrl)->control_padconf_core_base,
+				     pinctrl_state->padconf,
+				     pinctrl_state->npads);
+	}
+}
+#endif
 static void omap_hsmmc_set_timing(struct mmc *mmc)
 {
 	u32 val;
@@ -269,6 +348,7 @@ static void omap_hsmmc_set_timing(struct mmc *mmc)
 
 	mmc_base = priv->base_addr;
 
+	omap_hsmmc_stop_clock(mmc_base);
 	val = readl(&mmc_base->ac12);
 	val &= ~AC12_UHSMC_MASK;
 	priv->mode = mmc->selected_mode;
@@ -306,6 +386,11 @@ static void omap_hsmmc_set_timing(struct mmc *mmc)
 		break;
 	}
 	writel(val, &mmc_base->ac12);
+
+#ifdef CONFIG_IODELAY_RECALIBRATION
+	omap_hsmmc_io_recalibrate(mmc);
+#endif
+	omap_hsmmc_start_clock(mmc_base);
 }
 
 static void omap_hsmmc_conf_bus_power(struct mmc *mmc)
@@ -1290,10 +1375,271 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 	return 0;
 }
 #else
+
+#ifdef CONFIG_IODELAY_RECALIBRATION
+static struct pad_conf_entry *
+omap_hsmmc_get_pad_conf_entry(const fdt32_t *pinctrl, int count)
+{
+	int index = 0;
+	struct pad_conf_entry *padconf;
+
+	padconf = (struct pad_conf_entry *)malloc(sizeof(*padconf) * count);
+	if (!padconf) {
+		debug("failed to allocate memory\n");
+		return 0;
+	}
+
+	while (index < count) {
+		padconf[index].offset = fdt32_to_cpu(pinctrl[2 * index]);
+		padconf[index].val = fdt32_to_cpu(pinctrl[2 * index + 1]);
+		index++;
+	}
+
+	return padconf;
+}
+
+static struct iodelay_cfg_entry *
+omap_hsmmc_get_iodelay_cfg_entry(const fdt32_t *pinctrl, int count)
+{
+	int index = 0;
+	struct iodelay_cfg_entry *iodelay;
+
+	iodelay = (struct iodelay_cfg_entry *)malloc(sizeof(*iodelay) * count);
+	if (!iodelay) {
+		debug("failed to allocate memory\n");
+		return 0;
+	}
+
+	while (index < count) {
+		iodelay[index].offset = fdt32_to_cpu(pinctrl[3 * index]);
+		iodelay[index].a_delay = fdt32_to_cpu(pinctrl[3 * index + 1]);
+		iodelay[index].g_delay = fdt32_to_cpu(pinctrl[3 * index + 2]);
+		index++;
+	}
+
+	return iodelay;
+}
+
+static const fdt32_t *omap_hsmmc_get_pinctrl_entry(u32  phandle,
+						   const char *name, int *len)
+{
+	const void *fdt = gd->fdt_blob;
+	int offset;
+	const fdt32_t *pinctrl;
+
+	offset = fdt_node_offset_by_phandle(fdt, phandle);
+	if (offset < 0) {
+		debug("failed to get pinctrl node %s.\n",
+		      fdt_strerror(offset));
+		return 0;
+	}
+
+	pinctrl = fdt_getprop(fdt, offset, name, len);
+	if (!pinctrl) {
+		debug("failed to get property %s\n", name);
+		return 0;
+	}
+
+	return pinctrl;
+}
+
+static uint32_t omap_hsmmc_get_pad_conf_phandle(struct mmc *mmc,
+						char *prop_name)
+{
+	const void *fdt = gd->fdt_blob;
+	const __be32 *phandle;
+	int node = dev_of_offset(mmc->dev);
+
+	phandle = fdt_getprop(fdt, node, prop_name, NULL);
+	if (!phandle) {
+		debug("failed to get property %s\n", prop_name);
+		return 0;
+	}
+
+	return fdt32_to_cpu(*phandle);
+}
+
+static uint32_t omap_hsmmc_get_iodelay_phandle(struct mmc *mmc,
+					       char *prop_name)
+{
+	const void *fdt = gd->fdt_blob;
+	const __be32 *phandle;
+	int len;
+	int count;
+	int node = dev_of_offset(mmc->dev);
+
+	phandle = fdt_getprop(fdt, node, prop_name, &len);
+	if (!phandle) {
+		debug("failed to get property %s\n", prop_name);
+		return 0;
+	}
+
+	/* No manual mode iodelay values if count < 2 */
+	count = len / sizeof(*phandle);
+	if (count < 2)
+		return 0;
+
+	return fdt32_to_cpu(*(phandle + 1));
+}
+
+static struct pad_conf_entry *
+omap_hsmmc_get_pad_conf(struct mmc *mmc, char *prop_name, int *npads)
+{
+	int len;
+	int count;
+	struct pad_conf_entry *padconf;
+	u32 phandle;
+	const fdt32_t *pinctrl;
+
+	phandle = omap_hsmmc_get_pad_conf_phandle(mmc, prop_name);
+	if (!phandle)
+		return ERR_PTR(-EINVAL);
+
+	pinctrl = omap_hsmmc_get_pinctrl_entry(phandle, "pinctrl-single,pins",
+					       &len);
+	if (!pinctrl)
+		return ERR_PTR(-EINVAL);
+
+	count = (len / sizeof(*pinctrl)) / 2;
+	padconf = omap_hsmmc_get_pad_conf_entry(pinctrl, count);
+	if (!padconf)
+		return ERR_PTR(-EINVAL);
+
+	*npads = count;
+
+	return padconf;
+}
+
+static struct iodelay_cfg_entry *
+omap_hsmmc_get_iodelay(struct mmc *mmc, char *prop_name, int *niodelay)
+{
+	int len;
+	int count;
+	struct iodelay_cfg_entry *iodelay;
+	u32 phandle;
+	const fdt32_t *pinctrl;
+
+	phandle = omap_hsmmc_get_iodelay_phandle(mmc, prop_name);
+	/* Not all modes have manual mode iodelay values. So its not fatal */
+	if (!phandle)
+		return 0;
+
+	pinctrl = omap_hsmmc_get_pinctrl_entry(phandle, "pinctrl-pin-array",
+					       &len);
+	if (!pinctrl)
+		return ERR_PTR(-EINVAL);
+
+	count = (len / sizeof(*pinctrl)) / 3;
+	iodelay = omap_hsmmc_get_iodelay_cfg_entry(pinctrl, count);
+	if (!iodelay)
+		return ERR_PTR(-EINVAL);
+
+	*niodelay = count;
+
+	return iodelay;
+}
+
+static struct omap_hsmmc_pinctrl_state *
+omap_hsmmc_get_pinctrl_by_mode(struct mmc *mmc, char *mode)
+{
+	int index;
+	int npads = 0;
+	int niodelays = 0;
+	const void *fdt = gd->fdt_blob;
+	int node = dev_of_offset(mmc->dev);
+	char prop_name[11];
+	struct omap_hsmmc_pinctrl_state *pinctrl_state;
+
+	pinctrl_state = (struct omap_hsmmc_pinctrl_state *)
+			 malloc(sizeof(*pinctrl_state));
+	if (!pinctrl_state) {
+		debug("failed to allocate memory\n");
+		return 0;
+	}
+
+	index = fdt_stringlist_search(fdt, node, "pinctrl-names", mode);
+	if (index < 0) {
+		debug("fail to find %s mode %s\n", mode, fdt_strerror(index));
+		goto err_pinctrl_state;
+	}
+
+	sprintf(prop_name, "pinctrl-%d", index);
+
+	pinctrl_state->padconf = omap_hsmmc_get_pad_conf(mmc, prop_name,
+							 &npads);
+	if (IS_ERR(pinctrl_state->padconf))
+		goto err_pinctrl_state;
+	pinctrl_state->npads = npads;
+
+	pinctrl_state->iodelay = omap_hsmmc_get_iodelay(mmc, prop_name,
+							&niodelays);
+	if (IS_ERR(pinctrl_state->iodelay))
+		goto err_padconf;
+	pinctrl_state->niodelays = niodelays;
+
+	return pinctrl_state;
+
+err_padconf:
+	kfree(pinctrl_state->padconf);
+
+err_pinctrl_state:
+	kfree(pinctrl_state);
+	return 0;
+}
+
+#define OMAP_HSMMC_SETUP_PINCTRL(capmask, mode)			\
+	do {							\
+		struct omap_hsmmc_pinctrl_state *s;		\
+		if (!(cfg->host_caps & capmask))		\
+			break;					\
+								\
+		s = omap_hsmmc_get_pinctrl_by_mode(mmc, #mode);	\
+		if (!s) {					\
+			debug("%s: no pinctrl for %s\n",	\
+			      mmc->dev->name, #mode);		\
+			cfg->host_caps &= ~(capmask);		\
+		} else {					\
+			priv->mode##_pinctrl_state = s;		\
+		}						\
+	} while (0)
+
+static int omap_hsmmc_get_pinctrl_state(struct mmc *mmc)
+{
+	struct omap_hsmmc_data *priv = omap_hsmmc_get_data(mmc);
+	struct mmc_config *cfg = omap_hsmmc_get_cfg(mmc);
+	struct omap_hsmmc_pinctrl_state *default_pinctrl;
+
+	if (!(priv->controller_flags & OMAP_HSMMC_REQUIRE_IODELAY))
+		return 0;
+
+	default_pinctrl = omap_hsmmc_get_pinctrl_by_mode(mmc, "default");
+	if (!default_pinctrl) {
+		printf("no pinctrl state for default mode\n");
+		return -EINVAL;
+	}
+
+	priv->default_pinctrl_state = default_pinctrl;
+
+	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(UHS_SDR104), sdr104);
+	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(UHS_SDR50), sdr50);
+	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(UHS_DDR50), ddr50);
+	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(UHS_SDR25), sdr25);
+	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(UHS_SDR12), sdr12);
+
+	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(MMC_HS_200), hs200_1_8v);
+	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(MMC_DDR_52), ddr_1_8v);
+	OMAP_HSMMC_SETUP_PINCTRL(MMC_MODE_HS, hs);
+
+	return 0;
+}
+#endif
+
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 {
 	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
+	struct omap_mmc_of_data *of_data = (void *)dev_get_driver_data(dev);
+
 	struct mmc_config *cfg = &plat->cfg;
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
@@ -1315,6 +1661,8 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 		plat->controller_flags |= OMAP_HSMMC_SUPPORTS_DUAL_VOLT;
 	if (fdtdec_get_bool(fdt, node, "no-1-8-v"))
 		plat->controller_flags |= OMAP_HSMMC_NO_1_8_V;
+	if (of_data)
+		plat->controller_flags |= of_data->controller_flags;
 
 #ifdef OMAP_HSMMC_USE_GPIO
 	plat->cd_inverted = fdtdec_get_bool(fdt, node, "cd-inverted");
@@ -1340,9 +1688,13 @@ static int omap_hsmmc_probe(struct udevice *dev)
 	struct omap_hsmmc_data *priv = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;
 	struct mmc *mmc;
+#ifdef CONFIG_IODELAY_RECALIBRATION
+	int ret;
+#endif
 
 	cfg->name = "OMAP SD/MMC";
 	priv->base_addr = plat->base_addr;
+	priv->controller_flags = plat->controller_flags;
 #ifdef OMAP_HSMMC_USE_GPIO
 	priv->cd_inverted = plat->cd_inverted;
 #endif
@@ -1363,14 +1715,34 @@ static int omap_hsmmc_probe(struct udevice *dev)
 	mmc->dev = dev;
 	upriv->mmc = mmc;
 
+#ifdef CONFIG_IODELAY_RECALIBRATION
+	ret = omap_hsmmc_get_pinctrl_state(mmc);
+	/*
+	 * disable high speed modes for the platforms that require IO delay
+	 * and for which we don't have this information
+	 */
+	if ((ret < 0) &&
+	    (priv->controller_flags & OMAP_HSMMC_REQUIRE_IODELAY)) {
+		priv->controller_flags &= ~OMAP_HSMMC_REQUIRE_IODELAY;
+		cfg->host_caps &= ~(MMC_CAP(MMC_HS_200) | MMC_CAP(MMC_DDR_52) |
+				    UHS_CAPS);
+	}
+#endif
+
 	return omap_hsmmc_init_setup(mmc);
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+
+static const struct omap_mmc_of_data dra7_mmc_of_data = {
+	.controller_flags = OMAP_HSMMC_REQUIRE_IODELAY,
+};
+
 static const struct udevice_id omap_hsmmc_ids[] = {
 	{ .compatible = "ti,omap3-hsmmc" },
 	{ .compatible = "ti,omap4-hsmmc" },
 	{ .compatible = "ti,am33xx-hsmmc" },
+	{ .compatible = "ti,dra7-hsmmc", .data = (ulong)&dra7_mmc_of_data },
 	{ }
 };
 #endif
