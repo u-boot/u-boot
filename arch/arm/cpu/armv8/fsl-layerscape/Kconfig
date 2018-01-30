@@ -3,6 +3,8 @@ config ARCH_LS1012A
 	select ARMV8_SET_SMPEN
 	select ARM_ERRATA_855873
 	select FSL_LSCH2
+	select SYS_FSL_SRDS_1
+	select SYS_HAS_SERDES
 	select SYS_FSL_DDR_BE
 	select SYS_FSL_MMDC
 	select SYS_FSL_ERRATUM_A010315
@@ -19,6 +21,8 @@ config ARCH_LS1043A
 	select ARMV8_SET_SMPEN
 	select ARM_ERRATA_855873
 	select FSL_LSCH2
+	select SYS_FSL_SRDS_1
+	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
 	select SYS_FSL_DDR_VER_50
@@ -45,6 +49,8 @@ config ARCH_LS1046A
 	bool
 	select ARMV8_SET_SMPEN
 	select FSL_LSCH2
+	select SYS_FSL_SRDS_1
+	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
 	select SYS_FSL_DDR_VER_50
@@ -72,6 +78,8 @@ config ARCH_LS1088A
 	select ARMV8_SET_SMPEN
 	select ARM_ERRATA_855873
 	select FSL_LSCH3
+	select SYS_FSL_SRDS_1
+	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_LE
 	select SYS_FSL_DDR_VER_50
@@ -105,6 +113,8 @@ config ARCH_LS2080A
 	select ARM_ERRATA_829520
 	select ARM_ERRATA_833471
 	select FSL_LSCH3
+	select SYS_FSL_SRDS_1
+	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_LE
 	select SYS_FSL_DDR_VER_50
@@ -142,13 +152,9 @@ config FSL_LSCH2
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_5
 	select SYS_FSL_SEC_BE
-	select SYS_FSL_SRDS_1
-	select SYS_HAS_SERDES
 
 config FSL_LSCH3
 	bool
-	select SYS_FSL_SRDS_1
-	select SYS_HAS_SERDES
 
 config FSL_MC_ENET
 	bool "Management Complex network"
