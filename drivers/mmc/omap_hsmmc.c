@@ -1207,12 +1207,18 @@ static int omap_hsmmc_set_ios(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct mmc *mmc = upriv->mmc;
 #endif
+	struct hsmmc *mmc_base = priv->base_addr;
 
 	if (priv->bus_width != mmc->bus_width)
 		omap_hsmmc_set_bus_width(mmc);
 
 	if (priv->clock != mmc->clock)
 		omap_hsmmc_set_clock(mmc);
+
+	if (mmc->clk_disable)
+		omap_hsmmc_stop_clock(mmc_base);
+	else
+		omap_hsmmc_start_clock(mmc_base);
 
 #if CONFIG_IS_ENABLED(DM_MMC)
 	if (priv->mode != mmc->selected_mode)
