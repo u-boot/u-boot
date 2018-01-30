@@ -292,7 +292,7 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 	uint64_t addr;
 
 	switch (type) {
-	case 0:
+	case EFI_ALLOCATE_ANY_PAGES:
 		/* Any page */
 		addr = efi_find_free_memory(len, gd->start_addr_sp);
 		if (!addr) {
@@ -300,7 +300,7 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 			break;
 		}
 		break;
-	case 1:
+	case EFI_ALLOCATE_MAX_ADDRESS:
 		/* Max address */
 		addr = efi_find_free_memory(len, *memory);
 		if (!addr) {
@@ -308,7 +308,7 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 			break;
 		}
 		break;
-	case 2:
+	case EFI_ALLOCATE_ADDRESS:
 		/* Exact address, reserve it. The addr is already in *memory. */
 		addr = *memory;
 		break;
