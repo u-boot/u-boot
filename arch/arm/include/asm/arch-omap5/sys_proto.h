@@ -35,6 +35,12 @@ struct pad_conf_entry {
 	u32 val;
 };
 
+struct mmc_platform_fixups {
+	const char *hw_rev;
+	u32 unsupported_caps;
+	u32 max_freq;
+};
+
 struct omap_sysinfo {
 	char *board_string;
 };
@@ -71,6 +77,7 @@ void force_emif_self_refresh(void);
 void get_ioregs(const struct ctrl_ioregs **regs);
 void srcomp_enable(void);
 void setup_warmreset_time(void);
+const struct mmc_platform_fixups *platform_fixups_mmc(uint32_t addr);
 
 static inline u32 div_round_up(u32 num, u32 den)
 {

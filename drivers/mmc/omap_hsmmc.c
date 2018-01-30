@@ -96,6 +96,7 @@ struct omap_hsmmc_data {
 	struct omap_hsmmc_adma_desc *adma_desc_table;
 	uint desc_slot;
 #endif
+	const char *hw_rev;
 #ifdef CONFIG_IODELAY_RECALIBRATION
 	struct omap_hsmmc_pinctrl_state *default_pinctrl_state;
 	struct omap_hsmmc_pinctrl_state *hs_pinctrl_state;
@@ -1368,6 +1369,7 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 	if ((get_cpu_family() == CPU_OMAP34XX) && (get_cpu_rev() <= CPU_3XX_ES21))
 		cfg->b_max = 1;
 #endif
+
 	mmc = mmc_create(cfg, priv);
 	if (mmc == NULL)
 		return -1;
@@ -1587,20 +1589,28 @@ err_pinctrl_state:
 	return 0;
 }
 
-#define OMAP_HSMMC_SETUP_PINCTRL(capmask, mode)			\
-	do {							\
-		struct omap_hsmmc_pinctrl_state *s;		\
-		if (!(cfg->host_caps & capmask))		\
-			break;					\
-								\
-		s = omap_hsmmc_get_pinctrl_by_mode(mmc, #mode);	\
-		if (!s) {					\
-			debug("%s: no pinctrl for %s\n",	\
-			      mmc->dev->name, #mode);		\
-			cfg->host_caps &= ~(capmask);		\
-		} else {					\
-			priv->mode##_pinctrl_state = s;		\
-		}						\
+#define OMAP_HSMMC_SETUP_PINCTRL(capmask, mode)				\
+	do {								\
+		struct omap_hsmmc_pinctrl_state *s = NULL;		\
+		char str[20];						\
+		if (!(cfg->host_caps & capmask))			\
+			break;						\
+									\
+		if (priv->hw_rev) {					\
+			sprintf(str, "%s-%s", #mode, priv->hw_rev);	\
+			s = omap_hsmmc_get_pinctrl_by_mode(mmc, str);	\
+		}							\
+									\
+		if (!s)							\
+			s = omap_hsmmc_get_pinctrl_by_mode(mmc, #mode);	\
+									\
+		if (!s) {						\
+			debug("%s: no pinctrl for %s\n",		\
+			      mmc->dev->name, #mode);			\
+			cfg->host_caps &= ~(capmask);			\
+		} else {						\
+			priv->mode##_pinctrl_state = s;			\
+		}							\
 	} while (0)
 
 static int omap_hsmmc_get_pinctrl_state(struct mmc *mmc)
@@ -1635,12 +1645,22 @@ static int omap_hsmmc_get_pinctrl_state(struct mmc *mmc)
 #endif
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#ifdef CONFIG_OMAP54XX
+__weak const struct mmc_platform_fixups *platform_fixups_mmc(uint32_t addr)
+{
+	return NULL;
+}
+#endif
+
 static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 {
 	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
 	struct omap_mmc_of_data *of_data = (void *)dev_get_driver_data(dev);
 
 	struct mmc_config *cfg = &plat->cfg;
+#ifdef CONFIG_OMAP54XX
+	const struct mmc_platform_fixups *fixups;
+#endif
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	int ret;
@@ -1663,6 +1683,15 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 		plat->controller_flags |= OMAP_HSMMC_NO_1_8_V;
 	if (of_data)
 		plat->controller_flags |= of_data->controller_flags;
+
+#ifdef CONFIG_OMAP54XX
+	fixups = platform_fixups_mmc(devfdt_get_addr(dev));
+	if (fixups) {
+		plat->hw_rev = fixups->hw_rev;
+		cfg->host_caps &= ~fixups->unsupported_caps;
+		cfg->f_max = fixups->max_freq;
+	}
+#endif
 
 #ifdef OMAP_HSMMC_USE_GPIO
 	plat->cd_inverted = fdtdec_get_bool(fdt, node, "cd-inverted");
@@ -1695,6 +1724,7 @@ static int omap_hsmmc_probe(struct udevice *dev)
 	cfg->name = "OMAP SD/MMC";
 	priv->base_addr = plat->base_addr;
 	priv->controller_flags = plat->controller_flags;
+	priv->hw_rev = plat->hw_rev;
 #ifdef OMAP_HSMMC_USE_GPIO
 	priv->cd_inverted = plat->cd_inverted;
 #endif

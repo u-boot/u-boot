@@ -70,6 +70,7 @@ struct omap_hsmmc_plat {
 	struct mmc mmc;
 	bool cd_inverted;
 	u32 controller_flags;
+	const char *hw_rev;
 };
 
 /*
