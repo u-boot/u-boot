@@ -1147,7 +1147,8 @@ static void omap_hsmmc_set_clock(struct mmc *mmc)
 		}
 	}
 
-	priv->clock = mmc->clock;
+	priv->clock = MMC_CLOCK_REFERENCE * 1000000 / dsor;
+	mmc->clock = priv->clock;
 	omap_hsmmc_start_clock(mmc_base);
 }
 
