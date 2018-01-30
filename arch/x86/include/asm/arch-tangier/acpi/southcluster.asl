@@ -284,7 +284,7 @@ Device (PCI0)
                 Return (STA_VISIBLE)
             }
 
-            Method (_CRS, 0, NotSerialized)
+            Method (_CRS, 0, Serialized)
             {
                 Name (RBUF, ResourceTemplate ()
                 {
