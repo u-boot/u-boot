@@ -271,6 +271,11 @@ static void omap_hsmmc_set_timing(struct mmc *mmc)
 	val &= ~AC12_UHSMC_MASK;
 	priv->mode = mmc->selected_mode;
 
+	if (mmc_is_mode_ddr(priv->mode))
+		writel(readl(&mmc_base->con) | DDR, &mmc_base->con);
+	else
+		writel(readl(&mmc_base->con) & ~DDR, &mmc_base->con);
+
 	switch (priv->mode) {
 	case MMC_HS_200:
 	case UHS_SDR104:
