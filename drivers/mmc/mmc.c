@@ -181,23 +181,18 @@ const char *mmc_mode_name(enum bus_mode mode)
 static uint mmc_mode2freq(struct mmc *mmc, enum bus_mode mode)
 {
 	static const int freqs[] = {
+	      [MMC_LEGACY]	= 25000000,
 	      [SD_LEGACY]	= 25000000,
 	      [MMC_HS]		= 26000000,
 	      [SD_HS]		= 50000000,
-#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
+	      [MMC_HS_52]	= 52000000,
+	      [MMC_DDR_52]	= 52000000,
 	      [UHS_SDR12]	= 25000000,
 	      [UHS_SDR25]	= 50000000,
 	      [UHS_SDR50]	= 100000000,
 	      [UHS_DDR50]	= 50000000,
-#ifdef MMC_SUPPORTS_TUNING
 	      [UHS_SDR104]	= 208000000,
-#endif
-#endif
-	      [MMC_HS_52]	= 52000000,
-	      [MMC_DDR_52]	= 52000000,
-#if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT)
 	      [MMC_HS_200]	= 200000000,
-#endif
 	};
 
 	if (mode == MMC_LEGACY)
