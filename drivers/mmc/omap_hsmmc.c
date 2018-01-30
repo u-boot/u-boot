@@ -76,6 +76,7 @@ struct omap_hsmmc_data {
 #endif
 #if CONFIG_IS_ENABLED(DM_MMC)
 	uint iov;
+	enum bus_mode mode;
 #endif
 	u8 controller_flags;
 #ifndef CONFIG_OMAP34XX
@@ -258,6 +259,48 @@ void mmc_init_stream(struct hsmmc *mmc_base)
 }
 
 #if CONFIG_IS_ENABLED(DM_MMC)
+static void omap_hsmmc_set_timing(struct mmc *mmc)
+{
+	u32 val;
+	struct hsmmc *mmc_base;
+	struct omap_hsmmc_data *priv = omap_hsmmc_get_data(mmc);
+
+	mmc_base = priv->base_addr;
+
+	val = readl(&mmc_base->ac12);
+	val &= ~AC12_UHSMC_MASK;
+	priv->mode = mmc->selected_mode;
+
+	switch (priv->mode) {
+	case MMC_HS_200:
+	case UHS_SDR104:
+		val |= AC12_UHSMC_SDR104;
+		break;
+	case UHS_SDR50:
+		val |= AC12_UHSMC_SDR50;
+		break;
+	case MMC_DDR_52:
+	case UHS_DDR50:
+		val |= AC12_UHSMC_DDR50;
+		break;
+	case SD_HS:
+	case MMC_HS_52:
+	case UHS_SDR25:
+		val |= AC12_UHSMC_SDR25;
+		break;
+	case MMC_LEGACY:
+	case MMC_HS:
+	case SD_LEGACY:
+	case UHS_SDR12:
+		val |= AC12_UHSMC_SDR12;
+		break;
+	default:
+		val |= AC12_UHSMC_RES;
+		break;
+	}
+	writel(val, &mmc_base->ac12);
+}
+
 static void omap_hsmmc_conf_bus_power(struct mmc *mmc)
 {
 	struct hsmmc *mmc_base;
@@ -928,6 +971,10 @@ static int omap_hsmmc_set_ios(struct udevice *dev)
 	if (priv->clock != mmc->clock)
 		omap_hsmmc_set_clock(mmc);
 
+#if CONFIG_IS_ENABLED(DM_MMC)
+	if (priv->mode != mmc->selected_mode)
+		omap_hsmmc_set_timing(mmc);
+#endif
 	return 0;
 }
 
