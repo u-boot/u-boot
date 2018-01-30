@@ -219,6 +219,10 @@ struct omap_hsmmc_plat {
 #define mmc_reg_out(addr, mask, val)\
 	writel((readl(addr) & (~(mask))) | ((val) & (mask)), (addr))
 
+#define INT_EN_MASK (IE_BADA | IE_CERR | IE_DEB | IE_DCRC |\
+		IE_DTO | IE_CIE | IE_CEB | IE_CCRC | IE_ADMAE | IE_CTO |\
+		IE_BRR | IE_BWR | IE_TC | IE_CC)
+
 int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 		int wp_gpio);
 
