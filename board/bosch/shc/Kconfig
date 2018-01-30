@@ -14,7 +14,7 @@ config SYS_CONFIG_NAME
 
 choice
 	prompt "enable different boot versions for the shc board"
-	default EMMC
+	default SHC_EMMC
 	help
 	  Select the boot version of the shc board.
 
