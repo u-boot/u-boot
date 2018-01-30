@@ -124,6 +124,7 @@ static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 			unsigned int siz);
 static void omap_hsmmc_start_clock(struct hsmmc *mmc_base);
 static void omap_hsmmc_stop_clock(struct hsmmc *mmc_base);
+static void mmc_reset_controller_fsm(struct hsmmc *mmc_base, u32 bit);
 
 static inline struct omap_hsmmc_data *omap_hsmmc_get_data(struct mmc *mmc)
 {
@@ -355,6 +356,124 @@ static void omap_hsmmc_set_capabilities(struct mmc *mmc)
 
 	writel(val, &mmc_base->capa);
 }
+
+#ifdef MMC_SUPPORTS_TUNING
+static void omap_hsmmc_disable_tuning(struct mmc *mmc)
+{
+	struct hsmmc *mmc_base;
+	struct omap_hsmmc_data *priv = omap_hsmmc_get_data(mmc);
+	u32 val;
+
+	mmc_base = priv->base_addr;
+	val = readl(&mmc_base->ac12);
+	val &= ~(AC12_SCLK_SEL);
+	writel(val, &mmc_base->ac12);
+
+	val = readl(&mmc_base->dll);
+	val &= ~(DLL_FORCE_VALUE | DLL_SWT);
+	writel(val, &mmc_base->dll);
+}
+
+static void omap_hsmmc_set_dll(struct mmc *mmc, int count)
+{
+	int i;
+	struct hsmmc *mmc_base;
+	struct omap_hsmmc_data *priv = omap_hsmmc_get_data(mmc);
+	u32 val;
+
+	mmc_base = priv->base_addr;
+	val = readl(&mmc_base->dll);
+	val |= DLL_FORCE_VALUE;
+	val &= ~(DLL_FORCE_SR_C_MASK << DLL_FORCE_SR_C_SHIFT);
+	val |= (count << DLL_FORCE_SR_C_SHIFT);
+	writel(val, &mmc_base->dll);
+
+	val |= DLL_CALIB;
+	writel(val, &mmc_base->dll);
+	for (i = 0; i < 1000; i++) {
+		if (readl(&mmc_base->dll) & DLL_CALIB)
+			break;
+	}
+	val &= ~DLL_CALIB;
+	writel(val, &mmc_base->dll);
+}
+
+static int omap_hsmmc_execute_tuning(struct udevice *dev, uint opcode)
+{
+	struct omap_hsmmc_data *priv = dev_get_priv(dev);
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct mmc *mmc = upriv->mmc;
+	struct hsmmc *mmc_base;
+	u32 val;
+	u8 cur_match, prev_match = 0;
+	int ret;
+	u32 phase_delay = 0;
+	u32 start_window = 0, max_window = 0;
+	u32 length = 0, max_len = 0;
+
+	mmc_base = priv->base_addr;
+	val = readl(&mmc_base->capa2);
+
+	/* clock tuning is not needed for upto 52MHz */
+	if (!((mmc->selected_mode == MMC_HS_200) ||
+	      (mmc->selected_mode == UHS_SDR104) ||
+	      ((mmc->selected_mode == UHS_SDR50) && (val & CAPA2_TSDR50))))
+		return 0;
+
+	val = readl(&mmc_base->dll);
+	val |= DLL_SWT;
+	writel(val, &mmc_base->dll);
+	while (phase_delay <= MAX_PHASE_DELAY) {
+		omap_hsmmc_set_dll(mmc, phase_delay);
+
+		cur_match = !mmc_send_tuning(mmc, opcode, NULL);
+
+		if (cur_match) {
+			if (prev_match) {
+				length++;
+			} else {
+				start_window = phase_delay;
+				length = 1;
+			}
+		}
+
+		if (length > max_len) {
+			max_window = start_window;
+			max_len = length;
+		}
+
+		prev_match = cur_match;
+		phase_delay += 4;
+	}
+
+	if (!max_len) {
+		ret = -EIO;
+		goto tuning_error;
+	}
+
+	val = readl(&mmc_base->ac12);
+	if (!(val & AC12_SCLK_SEL)) {
+		ret = -EIO;
+		goto tuning_error;
+	}
+
+	phase_delay = max_window + 4 * ((3 * max_len) >> 2);
+	omap_hsmmc_set_dll(mmc, phase_delay);
+
+	mmc_reset_controller_fsm(mmc_base, SYSCTL_SRD);
+	mmc_reset_controller_fsm(mmc_base, SYSCTL_SRC);
+
+	return 0;
+
+tuning_error:
+
+	omap_hsmmc_disable_tuning(mmc);
+	mmc_reset_controller_fsm(mmc_base, SYSCTL_SRD);
+	mmc_reset_controller_fsm(mmc_base, SYSCTL_SRC);
+
+	return ret;
+}
+#endif
 #endif
 
 static int omap_hsmmc_init_setup(struct mmc *mmc)
@@ -1049,6 +1168,9 @@ static const struct dm_mmc_ops omap_hsmmc_ops = {
 #ifdef OMAP_HSMMC_USE_GPIO
 	.get_cd		= omap_hsmmc_getcd,
 	.get_wp		= omap_hsmmc_getwp,
+#endif
+#ifdef MMC_SUPPORTS_TUNING
+	.execute_tuning = omap_hsmmc_execute_tuning,
 #endif
 };
 #else
