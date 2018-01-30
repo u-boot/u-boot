@@ -31,7 +31,6 @@ config TARGET_CHROMEBOOK_LINK64
 
 config TARGET_CHROMEBOX_PANTHER
 	bool "Chromebox panther (not available)"
-	select n
 	help
 	  Note: At present this must be used with coreboot. See README.x86
 	  for instructions.
