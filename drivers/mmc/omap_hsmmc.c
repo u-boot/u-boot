@@ -62,6 +62,7 @@ struct omap_hsmmc_data {
 #if !CONFIG_IS_ENABLED(DM_MMC)
 	struct mmc_config cfg;
 #endif
+	uint bus_width;
 	uint clock;
 #ifdef OMAP_HSMMC_USE_GPIO
 #if CONFIG_IS_ENABLED(DM_MMC)
@@ -814,17 +815,9 @@ static void omap_hsmmc_set_clock(struct mmc *mmc)
 	omap_hsmmc_start_clock(mmc_base);
 }
 
-#if !CONFIG_IS_ENABLED(DM_MMC)
-static int omap_hsmmc_set_ios(struct mmc *mmc)
+static void omap_hsmmc_set_bus_width(struct mmc *mmc)
 {
 	struct omap_hsmmc_data *priv = omap_hsmmc_get_data(mmc);
-#else
-static int omap_hsmmc_set_ios(struct udevice *dev)
-{
-	struct omap_hsmmc_data *priv = dev_get_priv(dev);
-	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct mmc *mmc = upriv->mmc;
-#endif
 	struct hsmmc *mmc_base;
 
 	mmc_base = priv->base_addr;
@@ -850,6 +843,24 @@ static int omap_hsmmc_set_ios(struct udevice *dev)
 			&mmc_base->hctl);
 		break;
 	}
+
+	priv->bus_width = mmc->bus_width;
+}
+
+#if !CONFIG_IS_ENABLED(DM_MMC)
+static int omap_hsmmc_set_ios(struct mmc *mmc)
+{
+	struct omap_hsmmc_data *priv = omap_hsmmc_get_data(mmc);
+#else
+static int omap_hsmmc_set_ios(struct udevice *dev)
+{
+	struct omap_hsmmc_data *priv = dev_get_priv(dev);
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct mmc *mmc = upriv->mmc;
+#endif
+
+	if (priv->bus_width != mmc->bus_width)
+		omap_hsmmc_set_bus_width(mmc);
 
 	if (priv->clock != mmc->clock)
 		omap_hsmmc_set_clock(mmc);
