@@ -199,7 +199,11 @@ struct omap_hsmmc_plat {
 #define MMC_CMD0	(INDEX(0)  | RSP_TYPE_NONE | DP_NO_DATA | DDIR_WRITE)
 
 /* Clock Configurations and Macros */
+#ifdef CONFIG_OMAP54XX
+#define MMC_CLOCK_REFERENCE	192 /* MHz */
+#else
 #define MMC_CLOCK_REFERENCE	96 /* MHz */
+#endif
 
 /* DLL */
 #define DLL_SWT			BIT(20)
