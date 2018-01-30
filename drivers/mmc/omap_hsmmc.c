@@ -328,6 +328,9 @@ static void omap_hsmmc_io_recalibrate(struct mmc *mmc)
 		break;
 	}
 
+	if (!pinctrl_state)
+		pinctrl_state = priv->default_pinctrl_state;
+
 	if (priv->controller_flags & OMAP_HSMMC_REQUIRE_IODELAY) {
 		if (pinctrl_state->iodelay)
 			late_recalibrate_iodelay(pinctrl_state->padconf,
@@ -1589,7 +1592,7 @@ err_pinctrl_state:
 	return 0;
 }
 
-#define OMAP_HSMMC_SETUP_PINCTRL(capmask, mode)				\
+#define OMAP_HSMMC_SETUP_PINCTRL(capmask, mode, optional)		\
 	do {								\
 		struct omap_hsmmc_pinctrl_state *s = NULL;		\
 		char str[20];						\
@@ -1604,7 +1607,7 @@ err_pinctrl_state:
 		if (!s)							\
 			s = omap_hsmmc_get_pinctrl_by_mode(mmc, #mode);	\
 									\
-		if (!s) {						\
+		if (!s && !optional) {					\
 			debug("%s: no pinctrl for %s\n",		\
 			      mmc->dev->name, #mode);			\
 			cfg->host_caps &= ~(capmask);			\
@@ -1630,15 +1633,15 @@ static int omap_hsmmc_get_pinctrl_state(struct mmc *mmc)
 
 	priv->default_pinctrl_state = default_pinctrl;
 
-	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(UHS_SDR104), sdr104);
-	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(UHS_SDR50), sdr50);
-	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(UHS_DDR50), ddr50);
-	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(UHS_SDR25), sdr25);
-	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(UHS_SDR12), sdr12);
+	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(UHS_SDR104), sdr104, false);
+	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(UHS_SDR50), sdr50, false);
+	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(UHS_DDR50), ddr50, false);
+	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(UHS_SDR25), sdr25, false);
+	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(UHS_SDR12), sdr12, false);
 
-	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(MMC_HS_200), hs200_1_8v);
-	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(MMC_DDR_52), ddr_1_8v);
-	OMAP_HSMMC_SETUP_PINCTRL(MMC_MODE_HS, hs);
+	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(MMC_HS_200), hs200_1_8v, false);
+	OMAP_HSMMC_SETUP_PINCTRL(MMC_CAP(MMC_DDR_52), ddr_1_8v, false);
+	OMAP_HSMMC_SETUP_PINCTRL(MMC_MODE_HS, hs, true);
 
 	return 0;
 }
