@@ -172,6 +172,8 @@ struct omap_hsmmc_plat {
 #define CLK_400KHZ			1
 #define CLK_MISC			2
 
+#define CLKD_MAX			0x3FF	/* max clock divisor: 1023 */
+
 #define RSP_TYPE_NONE	(RSP_TYPE_NORSP   | CCCE_NOCHECK | CICE_NOCHECK)
 #define MMC_CMD0	(INDEX(0)  | RSP_TYPE_NONE | DP_NO_DATA | DDIR_WRITE)
 
