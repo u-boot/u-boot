@@ -330,6 +330,15 @@ void enter_acpi_mode(int pm1_cnt);
 ulong write_acpi_tables(ulong start);
 
 /**
+ * acpi_get_rsdp_addr() - get ACPI RSDP table address
+ *
+ * This routine returns the ACPI RSDP table address in the system memory.
+ *
+ * @return:	ACPI RSDP table address
+ */
+ulong acpi_get_rsdp_addr(void);
+
+/**
  * acpi_find_fadt() - find ACPI FADT table in the sytem memory
  *
  * This routine parses the ACPI table to locate the ACPI FADT table.

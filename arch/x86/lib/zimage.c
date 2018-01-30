@@ -14,6 +14,7 @@
  */
 
 #include <common.h>
+#include <asm/acpi_table.h>
 #include <asm/io.h>
 #include <asm/ptrace.h>
 #include <asm/zimage.h>
@@ -24,7 +25,6 @@
 #include <asm/arch/timestamp.h>
 #endif
 #include <linux/compiler.h>
-#include "acpi_table.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -258,7 +258,7 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 
 #ifdef CONFIG_GENERATE_ACPI_TABLE
 	if (bootproto >= 0x020e)
-		hdr->acpi_rsdp_addr = acpi_rsdp_addr;
+		hdr->acpi_rsdp_addr = acpi_get_rsdp_addr();
 #endif
 
 	setup_video(&setup_base->screen_info);
