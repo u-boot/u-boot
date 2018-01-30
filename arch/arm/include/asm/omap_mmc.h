@@ -65,6 +65,7 @@ struct omap_hsmmc_plat {
 	struct hsmmc *base_addr;
 	struct mmc mmc;
 	bool cd_inverted;
+	u32 controller_flags;
 };
 
 /*
@@ -124,8 +125,10 @@ struct omap_hsmmc_plat {
 #define DTW_8_BITMODE                   (0x1 << 5) /* CON[DW8]*/
 #define SDBP_PWROFF			(0x0 << 8)
 #define SDBP_PWRON			(0x1 << 8)
+#define SDVS_MASK			(0x7 << 9)
 #define SDVS_1V8			(0x5 << 9)
 #define SDVS_3V0			(0x6 << 9)
+#define SDVS_3V3			(0x7 << 9)
 #define DMA_SELECT			(0x2 << 3)
 #define ICE_MASK			(0x1 << 0)
 #define ICE_STOP			(0x0 << 0)
@@ -159,8 +162,13 @@ struct omap_hsmmc_plat {
 #define IE_CERR				(0x01 << 28)
 #define IE_BADA				(0x01 << 29)
 
-#define VS30_3V0SUP			(1 << 25)
-#define VS18_1V8SUP			(1 << 26)
+#define VS33_3V3SUP			BIT(24)
+#define VS30_3V0SUP			BIT(25)
+#define VS18_1V8SUP			BIT(26)
+
+#define IOV_3V3				3300000
+#define IOV_3V0				3000000
+#define IOV_1V8				1800000
 
 /* Driver definitions */
 #define MMCSD_SECTOR_SIZE		512
