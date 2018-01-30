@@ -83,6 +83,9 @@
 void __recalibrate_iodelay(struct pad_conf_entry const *pad, int npads,
 			   struct iodelay_cfg_entry const *iodelay,
 			   int niodelays);
+void late_recalibrate_iodelay(struct pad_conf_entry const *pad, int npads,
+			      struct iodelay_cfg_entry const *iodelay,
+			      int niodelays);
 int __recalibrate_iodelay_start(void);
 void __recalibrate_iodelay_end(int ret);
 
