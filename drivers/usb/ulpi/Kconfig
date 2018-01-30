@@ -3,7 +3,6 @@ comment "ULPI drivers"
 choice
 	prompt "ULPI Viewport type"
 	optional
-	default n
 	help
 	  Select ULPI viewport (SoC-side interface to ULPI) implementation
 	  appropriate for the device if you want to communicate with
