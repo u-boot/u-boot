@@ -4,6 +4,7 @@
  * SPDX-License-Identifier:     GPL-2.0+
  *
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  *
  */
 
@@ -27,6 +28,7 @@
 #error The Cortina PHY needs 10G support
 #endif
 
+#ifndef CORTINA_NO_FW_UPLOAD
 struct cortina_reg_config cortina_reg_cfg[] = {
 	/* CS4315_enable_sr_mode */
 	{VILLA_GLOBAL_MSEQCLKCTRL, 0x8004},
@@ -215,12 +217,22 @@ void cs4340_upload_firmware(struct phy_device *phydev)
 		phy_write(phydev, 0x00, fw_temp.reg_addr, fw_temp.reg_value);
 	}
 }
+#endif
 
 int cs4340_phy_init(struct phy_device *phydev)
 {
+#ifndef CORTINA_NO_FW_UPLOAD
 	int timeout = 100;  /* 100ms */
+#endif
 	int reg_value;
 
+	/*
+	 * Cortina phy has provision to store
+	 * phy firmware in attached dedicated EEPROM.
+	 * Boards designed with EEPROM attached to Cortina
+	 * does not require FW upload.
+	 */
+#ifndef CORTINA_NO_FW_UPLOAD
 	/* step1: BIST test */
 	phy_write(phydev, 0x00, VILLA_GLOBAL_MSEQCLKCTRL,     0x0004);
 	phy_write(phydev, 0x00, VILLA_GLOBAL_LINE_SOFT_RESET, 0x0000);
@@ -241,6 +253,7 @@ int cs4340_phy_init(struct phy_device *phydev)
 
 	/* setp2: upload ucode */
 	cs4340_upload_firmware(phydev);
+#endif
 	reg_value = phy_read(phydev, 0x00, VILLA_GLOBAL_DWNLD_CHECKSUM_STATUS);
 	if (reg_value) {
 		debug("%s checksum status failed.\n", __func__);
