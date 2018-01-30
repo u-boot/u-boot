@@ -222,6 +222,14 @@ out:
 	free(table_loader);
 	return addr;
 }
+
+ulong acpi_get_rsdp_addr(void)
+{
+	struct fw_file *file;
+
+	file = qemu_fwcfg_find_file("etc/acpi/rsdp");
+	return file->addr;
+}
 #endif
 
 /* Read configuration item using fw_cfg PIO interface */
