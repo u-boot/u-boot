@@ -108,6 +108,7 @@ struct omap_hsmmc_adma_desc {
 
 /* If we fail after 1 second wait, something is really bad */
 #define MAX_RETRY_MS	1000
+#define MMC_TIMEOUT_MS	20
 
 /* DMA transfers can take a long time if a lot a data is transferred.
  * The timeout must take in account the amount of data. Let's assume
@@ -598,7 +599,7 @@ static void mmc_reset_controller_fsm(struct hsmmc *mmc_base, u32 bit)
 	if (!(readl(&mmc_base->sysctl) & bit)) {
 		start = get_timer(0);
 		while (!(readl(&mmc_base->sysctl) & bit)) {
-			if (get_timer(0) - start > MAX_RETRY_MS)
+			if (get_timer(0) - start > MMC_TIMEOUT_MS)
 				return;
 		}
 	}
