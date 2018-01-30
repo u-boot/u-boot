@@ -172,10 +172,6 @@ struct omap_hsmmc_plat {
 #define VS30_3V0SUP			BIT(25)
 #define VS18_1V8SUP			BIT(26)
 
-#define IOV_3V3				3300000
-#define IOV_3V0				3000000
-#define IOV_1V8				1800000
-
 #define AC12_ET				BIT(22)
 #define AC12_V1V8_SIGEN			BIT(19)
 #define AC12_SCLK_SEL			BIT(23)
@@ -223,6 +219,12 @@ struct omap_hsmmc_plat {
 #define INT_EN_MASK (IE_BADA | IE_CERR | IE_DEB | IE_DCRC |\
 		IE_DTO | IE_CIE | IE_CEB | IE_CCRC | IE_ADMAE | IE_CTO |\
 		IE_BRR | IE_BWR | IE_TC | IE_CC)
+
+#define CON_CLKEXTFREE		BIT(16)
+#define CON_PADEN		BIT(15)
+#define PSTATE_CLEV		BIT(24)
+#define PSTATE_DLEV		(0xF << 20)
+#define PSTATE_DLEV_DAT0	(0x1 << 20)
 
 int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 		int wp_gpio);
