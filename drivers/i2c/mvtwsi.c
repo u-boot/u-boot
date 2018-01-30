@@ -490,7 +490,8 @@ static void __twsi_i2c_init(struct mvtwsi_registers *twsi, int speed,
 	/* Reset controller */
 	twsi_reset(twsi);
 	/* Set speed */
-	*actual_speed = __twsi_i2c_set_bus_speed(twsi, speed);
+	if (actual_speed)
+		*actual_speed = __twsi_i2c_set_bus_speed(twsi, speed);
 	/* Set slave address; even though we don't use it */
 	writel(slaveadd, &twsi->slave_address);
 	writel(0, &twsi->xtnd_slave_addr);
