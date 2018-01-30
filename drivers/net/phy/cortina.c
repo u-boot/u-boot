@@ -295,45 +295,33 @@ int phy_cortina_init(void)
 int get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id)
 {
 	int phy_reg;
-	bool is_cortina_phy = false;
-
-	switch (addr) {
-#ifdef CORTINA_PHY_ADDR1
-	case CORTINA_PHY_ADDR1:
-#endif
-#ifdef CORTINA_PHY_ADDR2
-	case CORTINA_PHY_ADDR2:
-#endif
-#ifdef CORTINA_PHY_ADDR3
-	case CORTINA_PHY_ADDR3:
-#endif
-#ifdef CORTINA_PHY_ADDR4
-	case CORTINA_PHY_ADDR4:
-#endif
-		is_cortina_phy = true;
-		break;
-	default:
-		break;
-	}
 
 	/* Cortina PHY has non-standard offset of PHY ID registers */
-	if (is_cortina_phy)
-		phy_reg = bus->read(bus, addr, 0, VILLA_GLOBAL_CHIP_ID_LSB);
-	else
-		phy_reg = bus->read(bus, addr, devad, MII_PHYSID1);
-
+	phy_reg = bus->read(bus, addr, 0, VILLA_GLOBAL_CHIP_ID_LSB);
 	if (phy_reg < 0)
 		return -EIO;
-
 	*phy_id = (phy_reg & 0xffff) << 16;
-	if (is_cortina_phy)
-		phy_reg = bus->read(bus, addr, 0, VILLA_GLOBAL_CHIP_ID_MSB);
-	else
-		phy_reg = bus->read(bus, addr, devad, MII_PHYSID2);
 
+	phy_reg = bus->read(bus, addr, 0, VILLA_GLOBAL_CHIP_ID_MSB);
 	if (phy_reg < 0)
 		return -EIO;
+	*phy_id |= (phy_reg & 0xffff);
 
+	if (*phy_id == PHY_UID_CS4340)
+		return 0;
+
+	/*
+	 * If Cortina PHY not detected,
+	 * try generic way to find PHY ID registers
+	 */
+	phy_reg = bus->read(bus, addr, devad, MII_PHYSID1);
+	if (phy_reg < 0)
+		return -EIO;
+	*phy_id = (phy_reg & 0xffff) << 16;
+
+	phy_reg = bus->read(bus, addr, devad, MII_PHYSID2);
+	if (phy_reg < 0)
+		return -EIO;
 	*phy_id |= (phy_reg & 0xffff);
 
 	return 0;
