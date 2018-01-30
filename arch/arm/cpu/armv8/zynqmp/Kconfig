@@ -117,7 +117,7 @@ config SPL_ZYNQMP_ALT_BOOTMODE
 choice
 	prompt "Boot mode"
 	depends on SPL_ZYNQMP_ALT_BOOTMODE_ENABLED
-	default JTAG
+	default JTAG_MODE
 
 config JTAG_MODE
 	bool "JTAG_MODE"
