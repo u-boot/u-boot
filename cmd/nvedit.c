@@ -650,12 +650,14 @@ char *env_get(const char *name)
  */
 int env_get_f(const char *name, char *buf, unsigned len)
 {
-	int i, nxt;
+	int i, nxt, c;
 
 	for (i = 0; env_get_char(i) != '\0'; i = nxt + 1) {
 		int val, n;
 
-		for (nxt = i; env_get_char(nxt) != '\0'; ++nxt) {
+		for (nxt = i; (c = env_get_char(nxt)) != '\0'; ++nxt) {
+			if (c < 0)
+				return c;
 			if (nxt >= CONFIG_ENV_SIZE)
 				return -1;
 		}
@@ -666,7 +668,10 @@ int env_get_f(const char *name, char *buf, unsigned len)
 
 		/* found; copy out */
 		for (n = 0; n < len; ++n, ++buf) {
-			*buf = env_get_char(val++);
+			c = env_get_char(val++);
+			if (c < 0)
+				return c;
+			*buf = c;
 			if (*buf == '\0')
 				return n;
 		}
