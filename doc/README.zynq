@@ -57,23 +57,21 @@ bootmode strings at runtime.
 
 - Added basic board configurations support.
 - Added zynq u-boot bsp code - arch/arm/cpu/armv7/zynq
-- Added zynq boards named - zc70x, zed, microzed, zc770_xm010, zc770_xm012, zc770_xm013
+- Added zynq boards named - zc70x, zed, microzed, zc770_xm010/xm011/xm012/xm013
 - Added zynq drivers:
   serial - drivers/serial/serial_zynq.c
   net - drivers/net/zynq_gem.c
   mmc - drivers/mmc/zynq_sdhci.c
-  mmc - drivers/mmc/zynq_sdhci.c
-  spi-  drivers/spi/zynq_spi.c
+  spi - drivers/spi/zynq_spi.c
+  qspi - drivers/spi/zynq_qspi.c
   i2c - drivers/i2c/zynq_i2c.c
+  nand - drivers/mtd/nand/zynq_nand.c
 - Done proper cleanups on board configurations
 - Added basic FDT support for zynq boards
 - d-cache support for zynq_gem.c
 
 6. TODO
 
-- Add zynq boards support - zc770_xm011
-- Add zynq qspi controller driver
-- Add zynq nand controller driver
 - Add FDT support on individual drivers
 
 [1] http://www.xilinx.com/products/boards-and-kits/EK-Z7-ZC702-G.htm

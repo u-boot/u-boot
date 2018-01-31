@@ -3,7 +3,7 @@
  * Stefan Herbrechtsmeier <stefan.herbrechtsmeier@weidmueller.com>
  *
  * Copyright (C) 2012 Michal Simek <monstr@monstr.eu>
- * Copyright (C) 2011-2012 Xilinx, Inc. All rights reserved.
+ * Copyright (C) 2011-2017 Xilinx, Inc. All rights reserved.
  *
  * (C) Copyright 2008
  * Guennadi Liakhovetki, DENX Software Engineering, <lg@denx.de>

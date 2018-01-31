@@ -13,7 +13,6 @@
 	compatible = "topic,miami", "xlnx,zynq-7000";
 
 	aliases {
-		ethernet0 = &gem0;
 		serial0 = &uart0;
 		spi0 = &qspi;
 		i2c0 = &i2c0;

@@ -76,9 +76,12 @@
 
 #ifdef CONFIG_NAND_ARASAN
 # define CONFIG_SYS_MAX_NAND_DEVICE	1
-# define CONFIG_SYS_NAND_SELF_INIT
 # define CONFIG_SYS_NAND_ONFI_DETECTION
 # define CONFIG_MTD_DEVICE
+#endif
+
+#if defined(CONFIG_SPL_BUILD)
+#define CONFIG_ZYNQMP_PSU_INIT_ENABLED
 #endif
 
 /* Miscellaneous configurable options */
@@ -133,11 +136,6 @@
 #if defined(CONFIG_ZYNQ_GEM)
 # define CONFIG_MII
 # define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-# define CONFIG_PHY_MARVELL
-# define CONFIG_PHY_NATSEMI
-# define CONFIG_PHY_TI
-# define CONFIG_PHY_VITESSE
-# define CONFIG_PHY_REALTEK
 # define PHY_ANEG_TIMEOUT       20000
 #endif
 

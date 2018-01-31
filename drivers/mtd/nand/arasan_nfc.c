@@ -21,6 +21,7 @@
 struct arasan_nand_info {
 	void __iomem *nand_base;
 	u32 page;
+	bool on_die_ecc_enabled;
 };
 
 struct nand_regs {
@@ -64,6 +65,7 @@ struct arasan_nand_command_format {
 };
 
 #define ONDIE_ECC_FEATURE_ADDR			0x90
+#define ENABLE_ONDIE_ECC			0x08
 
 #define ARASAN_PROG_RD_MASK			0x00000001
 #define ARASAN_PROG_BLK_ERS_MASK		0x00000004
@@ -206,6 +208,51 @@ static const struct arasan_ecc_matrix ecc_matrix[] = {
 	{16384, 1024, 24, 1, 4, 0x4220, 0x2A0}
 };
 
+static struct nand_ecclayout ondie_nand_oob_64 = {
+	.eccbytes = 32,
+
+	.eccpos = {
+		8, 9, 10, 11, 12, 13, 14, 15,
+		24, 25, 26, 27, 28, 29, 30, 31,
+		40, 41, 42, 43, 44, 45, 46, 47,
+		56, 57, 58, 59, 60, 61, 62, 63
+	},
+
+	.oobfree = {
+		{ .offset = 4, .length = 4 },
+		{ .offset = 20, .length = 4 },
+		{ .offset = 36, .length = 4 },
+		{ .offset = 52, .length = 4 }
+	}
+};
+
+/*
+ * bbt decriptors for chips with on-die ECC and
+ * chips with 64-byte OOB
+ */
+static u8 bbt_pattern[] = {'B', 'b', 't', '0' };
+static u8 mirror_pattern[] = {'1', 't', 'b', 'B' };
+
+static struct nand_bbt_descr bbt_main_descr = {
+	.options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE |
+		NAND_BBT_2BIT | NAND_BBT_VERSION | NAND_BBT_PERCHIP,
+	.offs = 4,
+	.len = 4,
+	.veroffs = 20,
+	.maxblocks = 4,
+	.pattern = bbt_pattern
+};
+
+static struct nand_bbt_descr bbt_mirror_descr = {
+	.options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE |
+		NAND_BBT_2BIT | NAND_BBT_VERSION | NAND_BBT_PERCHIP,
+	.offs = 4,
+	.len = 4,
+	.veroffs = 20,
+	.maxblocks = 4,
+	.pattern = mirror_pattern
+};
+
 static u8 buf_data[READ_BUFF_SIZE];
 static u32 buf_index;
 
@@ -265,6 +312,7 @@ static u8 arasan_nand_get_addrcycle(struct mtd_info *mtd)
 static int arasan_nand_read_page(struct mtd_info *mtd, u8 *buf, u32 size)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct arasan_nand_info *nand = nand_get_controller_data(chip);
 	u32 reg_val, i, pktsize, pktnum;
 	u32 *bufptr = (u32 *)buf;
 	u32 timeout;
@@ -293,15 +341,17 @@ static int arasan_nand_read_page(struct mtd_info *mtd, u8 *buf, u32 size)
 		    pktsize;
 	writel(reg_val, &arasan_nand_base->pkt_reg);
 
-	arasan_nand_enable_ecc();
-	addr_cycles = arasan_nand_get_addrcycle(mtd);
-	if (addr_cycles == ARASAN_NAND_INVALID_ADDR_CYCL)
-		return ERR_ADDR_CYCLE;
+	if (!nand->on_die_ecc_enabled) {
+		arasan_nand_enable_ecc();
+		addr_cycles = arasan_nand_get_addrcycle(mtd);
+		if (addr_cycles == ARASAN_NAND_INVALID_ADDR_CYCL)
+			return ERR_ADDR_CYCLE;
 
-	writel((NAND_CMD_RNDOUTSTART << ARASAN_NAND_CMD_CMD2_SHIFT) |
-	       NAND_CMD_RNDOUT | (addr_cycles <<
-	       ARASAN_NAND_CMD_ADDR_CYCL_SHIFT),
-	       &arasan_nand_base->ecc_sprcmd_reg);
+		writel((NAND_CMD_RNDOUTSTART << ARASAN_NAND_CMD_CMD2_SHIFT) |
+		       NAND_CMD_RNDOUT | (addr_cycles <<
+		       ARASAN_NAND_CMD_ADDR_CYCL_SHIFT),
+		       &arasan_nand_base->ecc_sprcmd_reg);
+	}
 	writel(curr_cmd->pgm, &arasan_nand_base->pgm_reg);
 
 	while (rdcount < pktnum) {
@@ -363,17 +413,19 @@ static int arasan_nand_read_page(struct mtd_info *mtd, u8 *buf, u32 size)
 	writel(reg_val | ARASAN_NAND_INT_STS_XFR_CMPLT_MASK,
 	       &arasan_nand_base->intsts_reg);
 
-	if (readl(&arasan_nand_base->intsts_reg) &
-	    ARASAN_NAND_INT_STS_MUL_BIT_ERR_MASK) {
-		printf("arasan rd_page:sbiterror\n");
-		return -1;
-	}
+	if (!nand->on_die_ecc_enabled) {
+		if (readl(&arasan_nand_base->intsts_reg) &
+		    ARASAN_NAND_INT_STS_MUL_BIT_ERR_MASK) {
+			printf("arasan rd_page:sbiterror\n");
+			return -1;
+		}
 
-	if (readl(&arasan_nand_base->intsts_reg) &
-	    ARASAN_NAND_INT_STS_ERR_EN_MASK) {
-		mtd->ecc_stats.failed++;
-		printf("arasan rd_page:multibiterror\n");
-		return -1;
+		if (readl(&arasan_nand_base->intsts_reg) &
+		    ARASAN_NAND_INT_STS_ERR_EN_MASK) {
+			mtd->ecc_stats.failed++;
+			printf("arasan rd_page:multibiterror\n");
+			return -1;
+		}
 	}
 
 	return 0;
@@ -460,12 +512,14 @@ static int arasan_nand_write_page_hwecc(struct mtd_info *mtd,
 	reg_val |= (pktnum << ARASAN_NAND_PKT_REG_PKT_CNT_SHFT) | pktsize;
 	writel(reg_val, &arasan_nand_base->pkt_reg);
 
-	arasan_nand_enable_ecc();
-	column_addr_cycles = (chip->onfi_params.addr_cycles &
-			      ARASAN_NAND_COL_ADDR_CYCL_MASK) >>
-			      ARASAN_NAND_COL_ADDR_CYCL_SHIFT;
-	writel((NAND_CMD_RNDIN | (column_addr_cycles << 28)),
-	       &arasan_nand_base->ecc_sprcmd_reg);
+	if (!nand->on_die_ecc_enabled) {
+		arasan_nand_enable_ecc();
+		column_addr_cycles = (chip->onfi_params.addr_cycles &
+				      ARASAN_NAND_COL_ADDR_CYCL_MASK) >>
+				      ARASAN_NAND_COL_ADDR_CYCL_SHIFT;
+		writel((NAND_CMD_RNDIN | (column_addr_cycles << 28)),
+		       &arasan_nand_base->ecc_sprcmd_reg);
+	}
 	writel(curr_cmd->pgm, &arasan_nand_base->pgm_reg);
 
 	while (rdcount < pktnum) {
@@ -1032,18 +1086,55 @@ static void arasan_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 		printf("ERROR:%s:command:0x%x\n", __func__, curr_cmd->cmd1);
 }
 
+static void arasan_check_ondie(struct mtd_info *mtd)
+{
+	struct nand_chip *nand_chip = mtd_to_nand(mtd);
+	struct arasan_nand_info *nand = nand_get_controller_data(nand_chip);
+	u8 maf_id, dev_id;
+	u8 get_feature[4];
+	u8 set_feature[4] = {ENABLE_ONDIE_ECC, 0x00, 0x00, 0x00};
+	u32 i;
+
+	/* Send the command for reading device ID */
+	nand_chip->cmdfunc(mtd, NAND_CMD_RESET, -1, -1);
+	nand_chip->cmdfunc(mtd, NAND_CMD_READID, 0, -1);
+
+	/* Read manufacturer and device IDs */
+	maf_id = nand_chip->read_byte(mtd);
+	dev_id = nand_chip->read_byte(mtd);
+
+	if ((maf_id == NAND_MFR_MICRON) &&
+	    ((dev_id == 0xf1) || (dev_id == 0xa1) || (dev_id == 0xb1) ||
+	     (dev_id == 0xaa) || (dev_id == 0xba) || (dev_id == 0xda) ||
+	     (dev_id == 0xca) || (dev_id == 0xac) || (dev_id == 0xbc) ||
+	     (dev_id == 0xdc) || (dev_id == 0xcc) || (dev_id == 0xa3) ||
+	     (dev_id == 0xb3) || (dev_id == 0xd3) || (dev_id == 0xc3))) {
+		nand_chip->cmdfunc(mtd, NAND_CMD_SET_FEATURES,
+				   ONDIE_ECC_FEATURE_ADDR, -1);
+
+		nand_chip->write_buf(mtd, &set_feature[0], 4);
+		nand_chip->cmdfunc(mtd, NAND_CMD_GET_FEATURES,
+				   ONDIE_ECC_FEATURE_ADDR, -1);
+
+		for (i = 0; i < 4; i++)
+			get_feature[i] = nand_chip->read_byte(mtd);
+
+		if (get_feature[0] & ENABLE_ONDIE_ECC)
+			nand->on_die_ecc_enabled = true;
+		else
+			printf("%s: Unable to enable OnDie ECC\n", __func__);
+
+		/* Use the BBT pattern descriptors */
+		nand_chip->bbt_td = &bbt_main_descr;
+		nand_chip->bbt_md = &bbt_mirror_descr;
+	}
+}
+
 static int arasan_nand_ecc_init(struct mtd_info *mtd)
 {
 	int found = -1;
-	u32 regval, eccpos_start, i;
+	u32 regval, eccpos_start, i, eccaddr;
 	struct nand_chip *nand_chip = mtd_to_nand(mtd);
-
-	nand_chip->ecc.mode = NAND_ECC_HW;
-	nand_chip->ecc.hwctl = NULL;
-	nand_chip->ecc.read_page = arasan_nand_read_page_hwecc;
-	nand_chip->ecc.write_page = arasan_nand_write_page_hwecc;
-	nand_chip->ecc.read_oob = arasan_nand_read_oob;
-	nand_chip->ecc.write_oob = arasan_nand_write_oob;
 
 	for (i = 0; i < ARRAY_SIZE(ecc_matrix); i++) {
 		if ((ecc_matrix[i].pagesize == mtd->writesize) &&
@@ -1061,7 +1152,10 @@ static int arasan_nand_ecc_init(struct mtd_info *mtd)
 	if (found < 0)
 		return 1;
 
-	regval = ecc_matrix[found].eccaddr |
+	eccaddr = mtd->writesize + mtd->oobsize -
+		  ecc_matrix[found].eccsize;
+
+	regval = eccaddr |
 		 (ecc_matrix[found].eccsize << ARASAN_NAND_ECC_SIZE_SHIFT) |
 		 (ecc_matrix[found].bch << ARASAN_NAND_ECC_BCH_SHIFT);
 	writel(regval, &arasan_nand_base->ecc_reg);
@@ -1126,9 +1220,29 @@ static int arasan_nand_init(struct nand_chip *nand_chip, int devnum)
 		goto fail;
 	}
 
-	if (arasan_nand_ecc_init(mtd)) {
-		printf("%s: nand_ecc_init failed\n", __func__);
-		goto fail;
+	nand_chip->ecc.mode = NAND_ECC_HW;
+	nand_chip->ecc.hwctl = NULL;
+	nand_chip->ecc.read_page = arasan_nand_read_page_hwecc;
+	nand_chip->ecc.write_page = arasan_nand_write_page_hwecc;
+	nand_chip->ecc.read_oob = arasan_nand_read_oob;
+	nand_chip->ecc.write_oob = arasan_nand_write_oob;
+
+	arasan_check_ondie(mtd);
+
+	/*
+	 * If on die supported, then give priority to on-die ecc and use
+	 * it instead of controller ecc.
+	 */
+	if (nand->on_die_ecc_enabled) {
+		nand_chip->ecc.strength = 1;
+		nand_chip->ecc.size = mtd->writesize;
+		nand_chip->ecc.bytes = 0;
+		nand_chip->ecc.layout = &ondie_nand_oob_64;
+	} else {
+		if (arasan_nand_ecc_init(mtd)) {
+			printf("%s: nand_ecc_init failed\n", __func__);
+			goto fail;
+		}
 	}
 
 	if (nand_scan_tail(mtd)) {

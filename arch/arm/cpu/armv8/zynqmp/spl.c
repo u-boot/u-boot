@@ -129,14 +129,6 @@ u32 spl_boot_mode(const u32 boot_device)
 	}
 }
 
-__weak void psu_init(void)
-{
-	 /*
-	  * This function is overridden by the one in
-	  * board/xilinx/zynqmp/(platform)/psu_init_gpl.c, if it exists.
-	  */
-}
-
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)
 {

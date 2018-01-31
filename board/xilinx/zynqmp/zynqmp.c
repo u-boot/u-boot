@@ -13,6 +13,7 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/psu_init_gpl.h>
 #include <asm/io.h>
 #include <usb.h>
 #include <dwc3-uboot.h>
@@ -237,15 +238,16 @@ static char *zynqmp_get_silicon_idcode_name(void)
 
 int board_early_init_f(void)
 {
+	int ret = 0;
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_CLK_ZYNQMP)
 	zynqmp_pmufw_version();
 #endif
 
-#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_ZYNQMP_PSU_INIT_ENABLED)
-	psu_init();
+#if defined(CONFIG_ZYNQMP_PSU_INIT_ENABLED)
+	ret = psu_init();
 #endif
 
-	return 0;
+	return ret;
 }
 
 #define ZYNQMP_VERSION_SIZE	9
@@ -346,6 +348,7 @@ int board_late_init(void)
 	u8 bootmode;
 	const char *mode;
 	char *new_targets;
+	char *env_targets;
 	int ret;
 
 	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
@@ -418,10 +421,16 @@ int board_late_init(void)
 	 * One terminating char + one byte for space between mode
 	 * and default boot_targets
 	 */
-	new_targets = calloc(1, strlen(mode) +
-				strlen(env_get("boot_targets")) + 2);
+	env_targets = env_get("boot_targets");
+	if (env_targets) {
+		new_targets = calloc(1, strlen(mode) +
+				     strlen(env_targets) + 2);
+		sprintf(new_targets, "%s %s", mode, env_targets);
+	} else {
+		new_targets = calloc(1, strlen(mode) + 2);
+		sprintf(new_targets, "%s", mode);
+	}
 
-	sprintf(new_targets, "%s %s", mode, env_get("boot_targets"));
 	env_set("boot_targets", new_targets);
 
 	return 0;
