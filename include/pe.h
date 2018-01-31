@@ -11,6 +11,8 @@
 #ifndef _PE_H
 #define _PE_H
 
+#include <asm-generic/pe.h>
+
 typedef struct _IMAGE_DOS_HEADER {
 	uint16_t e_magic;	/* 00: MZ Header signature */
 	uint16_t e_cblp;	/* 02: Bytes on last page of file */
@@ -61,12 +63,6 @@ typedef struct _IMAGE_DATA_DIRECTORY {
 } IMAGE_DATA_DIRECTORY, *PIMAGE_DATA_DIRECTORY;
 
 #define IMAGE_NUMBEROF_DIRECTORY_ENTRIES 16
-
-/* PE32+ Subsystem type for EFI images */
-#define IMAGE_SUBSYSTEM_EFI_APPLICATION         10
-#define IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER 11
-#define IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER      12
-#define IMAGE_SUBSYSTEM_SAL_RUNTIME_DRIVER      13
 
 typedef struct _IMAGE_OPTIONAL_HEADER64 {
 	uint16_t Magic; /* 0x20b */

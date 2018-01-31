@@ -8,6 +8,8 @@
  * This file is taken and modified from the gnu-efi project.
  */
 
+#include <asm-generic/pe.h>
+
 	.section	.text.head
 
 	/*
@@ -62,7 +64,7 @@ extra_header_fields:
 	 */
 	.long	_start - ImageBase		/* SizeOfHeaders */
 	.long	0				/* CheckSum */
-	.short	EFI_SUBSYSTEM			/* Subsystem */
+	.short	IMAGE_SUBSYSTEM_EFI_APPLICATION /* Subsystem */
 	.short	0				/* DllCharacteristics */
 	.quad	0				/* SizeOfStackReserve */
 	.quad	0				/* SizeOfStackCommit */
