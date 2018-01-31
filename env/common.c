@@ -118,21 +118,21 @@ int env_import(const char *buf, int check)
 
 		if (crc32(0, ep->data, ENV_SIZE) != crc) {
 			set_default_env("!bad CRC");
-			return 0;
+			return -EIO;
 		}
 	}
 
 	if (himport_r(&env_htab, (char *)ep->data, ENV_SIZE, '\0', 0, 0,
 			0, NULL)) {
 		gd->flags |= GD_FLG_ENV_READY;
-		return 1;
+		return 0;
 	}
 
 	pr_err("Cannot import environment: errno = %d\n", errno);
 
 	set_default_env("!import failed");
 
-	return 0;
+	return -EIO;
 }
 
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
@@ -153,7 +153,7 @@ int env_import_redund(const char *buf1, const char *buf2)
 
 	if (!crc1_ok && !crc2_ok) {
 		set_default_env("!bad CRC");
-		return 0;
+		return -EIO;
 	} else if (crc1_ok && !crc2_ok) {
 		gd->env_valid = ENV_VALID;
 	} else if (!crc1_ok && crc2_ok) {

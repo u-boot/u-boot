@@ -236,7 +236,7 @@ static int env_sf_load(void)
 		ep = tmp_env2;
 
 	ret = env_import((char *)ep, 0);
-	if (!ret) {
+	if (ret) {
 		pr_err("Cannot import environment: errno = %d\n", errno);
 		set_default_env("!env_import failed");
 	}
@@ -336,7 +336,7 @@ static int env_sf_load(void)
 	}
 
 	ret = env_import(buf, 1);
-	if (ret)
+	if (!ret)
 		gd->env_valid = ENV_VALID;
 
 err_read:

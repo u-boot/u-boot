@@ -57,10 +57,10 @@ static int env_onenand_load(void)
 #endif /* !ENV_IS_EMBEDDED */
 
 	rc = env_import(buf, 1);
-	if (rc)
+	if (!rc)
 		gd->env_valid = ENV_VALID;
 
-	return rc ? 0 : -EIO;
+	return rc;
 }
 
 static int env_onenand_save(void)
