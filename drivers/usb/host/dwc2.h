@@ -775,7 +775,9 @@ struct dwc2_core_regs {
 #define DWC2_PHY_TYPE_UTMI		1
 #define DWC2_PHY_TYPE_ULPI		2
 #define CONFIG_DWC2_PHY_TYPE		DWC2_PHY_TYPE_UTMI	/* PHY type */
+#ifndef CONFIG_DWC2_UTMI_WIDTH
 #define CONFIG_DWC2_UTMI_WIDTH		8	/* UTMI bus width (8/16) */
+#endif
 
 #undef CONFIG_DWC2_PHY_ULPI_DDR			/* ULPI PHY uses DDR mode */
 #define CONFIG_DWC2_PHY_ULPI_EXT_VBUS		/* ULPI PHY controls VBUS */

@@ -375,7 +375,7 @@ static void dwc_otg_core_init(struct dwc2_priv *priv)
 		usbcfg &= ~DWC2_GUSBCFG_DDRSEL;
 #endif
 	} else {	/* UTMI+ interface */
-#if (CONFIG_DWC2_UTMI_PHY_WIDTH == 16)
+#if (CONFIG_DWC2_UTMI_WIDTH == 16)
 		usbcfg |= DWC2_GUSBCFG_PHYIF;
 #endif
 	}
