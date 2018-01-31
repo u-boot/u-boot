@@ -338,6 +338,15 @@ struct pin_cfg k2g_ice_evm_pin_cfg[] = {
 	/* I2C 0 */
 	{ 223,  MODE(0) },		/* SOC_I2C0_SCL */
 	{ 224,  MODE(0) },		/* SOC_I2C0_SDA */
+
+	/* QSPI */
+	{ 129,	MODE(0) },	/* SOC_QSPI_CLK */
+	{ 130,	MODE(0) },	/* SOC_QSPI_RTCLK */
+	{ 131,	MODE(0) },	/* SOC_QSPI_D0 */
+	{ 132,	MODE(0) },	/* SOC_QSPI_D1 */
+	{ 133,	MODE(0) },	/* SOC_QSPI_D2 */
+	{ 134,	MODE(0) },	/* SOC_QSPI_D3 */
+	{ 135,	MODE(0) },	/* SOC_QSPI_CSN0 */
 	{ MAX_PIN_N, }
 };
 
