@@ -29,7 +29,10 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	if (!pdimm->n_ranks)
 		return;
 
-	pbsp = udimms[0];
+	if (popts->registered_dimm_en)
+		pbsp = rdimms[0];
+	else
+		pbsp = udimms[0];
 
 	/* Get clk_adjust, wrlvl_start, wrlvl_ctl, according to the board ddr
 	 * freqency and n_banks specified in board_specific_parameters table.
@@ -66,8 +69,6 @@ found:
 	      pbsp->n_ranks, pbsp->datarate_mhz_high, pbsp->rank_gb);
 
 	popts->data_bus_width = 0;	/* 64-bit data bus */
-	popts->otf_burst_chop_en = 0;
-	popts->burst_length = DDR_BL8;
 	popts->bstopre = 0;		/* enable auto precharge */
 
 	/*
@@ -94,7 +95,7 @@ found:
 			  DDR_CDR2_VREF_TRAIN_EN | DDR_CDR2_VREF_RANGE_2;
 
 	/* optimize cpo for erratum A-009942 */
-	popts->cpo_sample = 0x70;
+	popts->cpo_sample = 0x61;
 }
 
 int fsl_initdram(void)

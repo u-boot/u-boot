@@ -186,7 +186,6 @@ unsigned int ddr_compute_dimm_parameters(const unsigned int ctrl_num,
 	 * BL8 -bit3, BC4 -bit2
 	 */
 	pdimm->burst_lengths_bitmask = 0x0c;
-	pdimm->row_density = __ilog2(pdimm->rank_density);
 
 	/* MTB - medium timebase
 	 * The unit in the SPD spec is ns,

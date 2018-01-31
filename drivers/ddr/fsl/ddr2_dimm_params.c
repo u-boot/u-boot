@@ -269,7 +269,6 @@ unsigned int ddr_compute_dimm_parameters(const unsigned int ctrl_num,
 	pdimm->n_banks_per_sdram_device = spd->nbanks;
 	pdimm->edc_config = spd->config;
 	pdimm->burst_lengths_bitmask = spd->burstl;
-	pdimm->row_density = spd->rank_dens;
 
 	/*
 	 * Calculate the Maximum Data Rate based on the Minimum Cycle time.
