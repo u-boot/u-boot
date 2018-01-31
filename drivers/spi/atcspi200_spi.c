@@ -297,6 +297,8 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 
 	ns = spi_alloc_slave(struct nds_spi_slave, bus, cs);
+	if (!ns)
+		return NULL;
 
 	switch (bus) {
 	case SPI0_BUS:
@@ -316,8 +318,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	ns->to = SPI_TIMEOUT;
 	ns->max_transfer_length = MAX_TRANSFER_LEN;
 	ns->slave.max_write_size = MAX_TRANSFER_LEN;
-	if (!ns)
-		return NULL;
 
 	return &ns->slave;
 }
