@@ -114,8 +114,7 @@ static int env_ext4_load(void)
 		goto err_env_relocate;
 	}
 
-	env_import(buf, 1);
-	return 0;
+	return env_import(buf, 1);
 
 err_env_relocate:
 	set_default_env(NULL);

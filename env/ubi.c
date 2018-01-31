@@ -163,9 +163,7 @@ static int env_ubi_load(void)
 		return -EIO;
 	}
 
-	env_import(buf, 1);
-
-	return 0;
+	return env_import(buf, 1);
 }
 #endif /* CONFIG_SYS_REDUNDAND_ENVIRONMENT */
 

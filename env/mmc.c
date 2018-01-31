@@ -332,8 +332,7 @@ static int env_mmc_load(void)
 		goto fini;
 	}
 
-	env_import(buf, 1);
-	ret = 0;
+	ret = env_import(buf, 1);
 
 fini:
 	fini_mmc_for_env(mmc);

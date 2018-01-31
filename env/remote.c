@@ -49,7 +49,7 @@ static int env_remote_save(void)
 static int env_remote_load(void)
 {
 #ifndef ENV_IS_EMBEDDED
-	env_import((char *)env_ptr, 1);
+	return env_import((char *)env_ptr, 1);
 #endif
 
 	return 0;

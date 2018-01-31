@@ -378,7 +378,7 @@ static int env_nand_load(void)
 		return -EIO;
 	}
 
-	env_import(buf, 1);
+	return env_import(buf, 1);
 #endif /* ! ENV_IS_EMBEDDED */
 
 	return 0;

@@ -351,9 +351,7 @@ static int env_flash_load(void)
 		     "reading environment; recovered successfully\n\n");
 #endif /* CONFIG_ENV_ADDR_REDUND */
 
-	env_import((char *)flash_addr, 1);
-
-	return 0;
+	return env_import((char *)flash_addr, 1);
 }
 #endif /* LOADENV */
 
