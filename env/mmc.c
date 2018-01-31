@@ -290,27 +290,8 @@ static int env_mmc_load(void)
 	read1_fail = read_env(mmc, CONFIG_ENV_SIZE, offset1, tmp_env1);
 	read2_fail = read_env(mmc, CONFIG_ENV_SIZE, offset2, tmp_env2);
 
-	if (read1_fail && read2_fail)
-		puts("*** Error - No Valid Environment Area found\n");
-	else if (read1_fail || read2_fail)
-		puts("*** Warning - some problems detected "
-		     "reading environment; recovered successfully\n");
-
-	if (read1_fail && read2_fail) {
-		errmsg = "!bad CRC";
-		ret = -EIO;
-		goto fini;
-	} else if (!read1_fail && read2_fail) {
-		gd->env_valid = ENV_VALID;
-		env_import((char *)tmp_env1, 1);
-	} else if (read1_fail && !read2_fail) {
-		gd->env_valid = ENV_REDUND;
-		env_import((char *)tmp_env2, 1);
-	} else {
-		env_import_redund((char *)tmp_env1, (char *)tmp_env2);
-	}
-
-	ret = 0;
+	ret = env_import_redund((char *)tmp_env1, read1_fail, (char *)tmp_env2,
+				read2_fail);
 
 fini:
 	fini_mmc_for_env(mmc);

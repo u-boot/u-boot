@@ -297,7 +297,8 @@ int env_export(env_t *env_out);
 
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 /* Select and import one of two redundant environments */
-int env_import_redund(const char *buf1, const char *buf2);
+int env_import_redund(const char *buf1, int buf1_status,
+		      const char *buf2, int buf2_status);
 #endif
 
 /**
