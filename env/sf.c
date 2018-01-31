@@ -166,10 +166,8 @@ static int env_sf_save(void)
 static int env_sf_load(void)
 {
 	int ret;
-	int crc1_ok = 0, crc2_ok = 0;
-	env_t *tmp_env1 = NULL;
-	env_t *tmp_env2 = NULL;
-	env_t *ep = NULL;
+	int read1_fail, read2_fail;
+	env_t *tmp_env1, *tmp_env2;
 
 	tmp_env1 = (env_t *)memalign(ARCH_DMA_MINALIGN,
 			CONFIG_ENV_SIZE);
@@ -185,63 +183,14 @@ static int env_sf_load(void)
 	if (ret)
 		goto out;
 
-	ret = spi_flash_read(env_flash, CONFIG_ENV_OFFSET,
-				CONFIG_ENV_SIZE, tmp_env1);
-	if (ret) {
-		set_default_env("!spi_flash_read() failed");
-		goto err_read;
-	}
+	read1_fail = spi_flash_read(env_flash, CONFIG_ENV_OFFSET,
+				    CONFIG_ENV_SIZE, tmp_env1);
+	read2_fail = spi_flash_read(env_flash, CONFIG_ENV_OFFSET_REDUND,
+				    CONFIG_ENV_SIZE, tmp_env2);
 
-	if (crc32(0, tmp_env1->data, ENV_SIZE) == tmp_env1->crc)
-		crc1_ok = 1;
+	ret = env_import_redund((char *)tmp_env1, read1_fail, (char *)tmp_env2,
+				read2_fail);
 
-	ret = spi_flash_read(env_flash, CONFIG_ENV_OFFSET_REDUND,
-				CONFIG_ENV_SIZE, tmp_env2);
-	if (!ret) {
-		if (crc32(0, tmp_env2->data, ENV_SIZE) == tmp_env2->crc)
-			crc2_ok = 1;
-	}
-
-	if (!crc1_ok && !crc2_ok) {
-		set_default_env("!bad CRC");
-		ret = -EIO;
-		goto err_read;
-	} else if (crc1_ok && !crc2_ok) {
-		gd->env_valid = ENV_VALID;
-	} else if (!crc1_ok && crc2_ok) {
-		gd->env_valid = ENV_REDUND;
-	} else if (tmp_env1->flags == ACTIVE_FLAG &&
-		   tmp_env2->flags == OBSOLETE_FLAG) {
-		gd->env_valid = ENV_VALID;
-	} else if (tmp_env1->flags == OBSOLETE_FLAG &&
-		   tmp_env2->flags == ACTIVE_FLAG) {
-		gd->env_valid = ENV_REDUND;
-	} else if (tmp_env1->flags == tmp_env2->flags) {
-		gd->env_valid = ENV_VALID;
-	} else if (tmp_env1->flags == 0xFF) {
-		gd->env_valid = ENV_VALID;
-	} else if (tmp_env2->flags == 0xFF) {
-		gd->env_valid = ENV_REDUND;
-	} else {
-		/*
-		 * this differs from code in env_flash.c, but I think a sane
-		 * default path is desirable.
-		 */
-		gd->env_valid = ENV_VALID;
-	}
-
-	if (gd->env_valid == ENV_VALID)
-		ep = tmp_env1;
-	else
-		ep = tmp_env2;
-
-	ret = env_import((char *)ep, 0);
-	if (ret) {
-		pr_err("Cannot import environment: errno = %d\n", errno);
-		set_default_env("!env_import failed");
-	}
-
-err_read:
 	spi_flash_free(env_flash);
 	env_flash = NULL;
 out:
