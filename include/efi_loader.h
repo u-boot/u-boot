@@ -272,7 +272,7 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 			    bool overlap_only_ram);
 /* Called by board init to initialize the EFI drivers */
-int efi_driver_init(void);
+efi_status_t efi_driver_init(void);
 /* Called by board init to initialize the EFI memory map */
 int efi_memory_init(void);
 /* Adds new or overrides configuration table entry to the system table */
