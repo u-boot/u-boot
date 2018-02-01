@@ -30,6 +30,7 @@ struct sunxi_mmc_priv {
 	uint32_t *mclkreg;
 	unsigned fatal_err;
 	struct gpio_desc cd_gpio;	/* Change Detect GPIO */
+	int cd_inverted;		/* Inverted Card Detect */
 	struct sunxi_mmc *reg;
 	struct mmc_config cfg;
 };
@@ -544,9 +545,11 @@ static int sunxi_mmc_getcd(struct udevice *dev)
 {
 	struct sunxi_mmc_priv *priv = dev_get_priv(dev);
 
-	if (dm_gpio_is_valid(&priv->cd_gpio))
-		return dm_gpio_get_value(&priv->cd_gpio);
+	if (dm_gpio_is_valid(&priv->cd_gpio)) {
+		int cd_state = dm_gpio_get_value(&priv->cd_gpio);
 
+		return cd_state ^ priv->cd_inverted;
+	}
 	return 1;
 }
 
@@ -609,6 +612,9 @@ static int sunxi_mmc_probe(struct udevice *dev)
 
 		sunxi_gpio_set_pull(cd_pin, SUNXI_GPIO_PULL_UP);
 	}
+
+	/* Check if card detect is inverted */
+	priv->cd_inverted = dev_read_bool(dev, "cd-inverted");
 
 	upriv->mmc = &plat->mmc;
 
