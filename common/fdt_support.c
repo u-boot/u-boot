@@ -410,45 +410,6 @@ static int fdt_pack_reg(const void *fdt, void *buf, u64 *address, u64 *size,
 	return p - (char *)buf;
 }
 
-int fdt_record_loadable(void *blob, u32 index, const char *name,
-			uintptr_t load_addr, u32 size, uintptr_t entry_point,
-			const char *type, const char *os)
-{
-	int err, node;
-
-	err = fdt_check_header(blob);
-	if (err < 0) {
-		printf("%s: %s\n", __func__, fdt_strerror(err));
-		return err;
-	}
-
-	/* find or create "/fit-images" node */
-	node = fdt_find_or_add_subnode(blob, 0, "fit-images");
-	if (node < 0)
-			return node;
-
-	/* find or create "/fit-images/<name>" node */
-	node = fdt_find_or_add_subnode(blob, node, name);
-	if (node < 0)
-		return node;
-
-	/*
-	 * We record these as 32bit entities, possibly truncating addresses.
-	 * However, spl_fit.c is not 64bit safe either: i.e. we should not
-	 * have an issue here.
-	 */
-	fdt_setprop_u32(blob, node, "load-addr", load_addr);
-	if (entry_point != -1)
-		fdt_setprop_u32(blob, node, "entry-point", entry_point);
-	fdt_setprop_u32(blob, node, "size", size);
-	if (type)
-		fdt_setprop_string(blob, node, "type", type);
-	if (os)
-		fdt_setprop_string(blob, node, "os", os);
-
-	return node;
-}
-
 #ifdef CONFIG_NR_DRAM_BANKS
 #define MEMORY_BANKS_MAX CONFIG_NR_DRAM_BANKS
 #else
@@ -582,6 +543,45 @@ void fdt_fixup_ethernet(void *fdt)
 					 &mac_addr, 6, 1);
 		}
 	}
+}
+
+int fdt_record_loadable(void *blob, u32 index, const char *name,
+			uintptr_t load_addr, u32 size, uintptr_t entry_point,
+			const char *type, const char *os)
+{
+	int err, node;
+
+	err = fdt_check_header(blob);
+	if (err < 0) {
+		printf("%s: %s\n", __func__, fdt_strerror(err));
+		return err;
+	}
+
+	/* find or create "/fit-images" node */
+	node = fdt_find_or_add_subnode(blob, 0, "fit-images");
+	if (node < 0)
+		return node;
+
+	/* find or create "/fit-images/<name>" node */
+	node = fdt_find_or_add_subnode(blob, node, name);
+	if (node < 0)
+		return node;
+
+	/*
+	 * We record these as 32bit entities, possibly truncating addresses.
+	 * However, spl_fit.c is not 64bit safe either: i.e. we should not
+	 * have an issue here.
+	 */
+	fdt_setprop_u32(blob, node, "load-addr", load_addr);
+	if (entry_point != -1)
+		fdt_setprop_u32(blob, node, "entry-point", entry_point);
+	fdt_setprop_u32(blob, node, "size", size);
+	if (type)
+		fdt_setprop_string(blob, node, "type", type);
+	if (os)
+		fdt_setprop_string(blob, node, "os", os);
+
+	return node;
 }
 
 /* Resize the fdt to its actual size + a bit of padding */
