@@ -192,17 +192,17 @@
 		"tftpboot $second_image && " \
 		"mmc write $loadaddr 0 100 && " \
 		"tftpboot $third_image && " \
-		"mmc write $loadaddr 100 700\0" \
+		"mmc write $loadaddr 100 f00\0" \
 	"nandupdate=nand erase 0 0x00100000 &&"			\
 		"tftpboot $second_image && " \
 		"nand write $loadaddr 0 0x00020000 && " \
 		"tftpboot $third_image && " \
-		"nand write $loadaddr 0x00020000 0x000e0000\0" \
+		"nand write $loadaddr 0x00020000 0x001e0000\0" \
 	"usbupdate=usb start &&" \
 		"tftpboot $second_image && " \
 		"usb write $loadaddr 0 100 && " \
 		"tftpboot $third_image && " \
-		"usb write $loadaddr 100 700\0" \
+		"usb write $loadaddr 100 f00\0" \
 	BOOT_IMAGES \
 	LINUXBOOT_ENV_SETTINGS
 
