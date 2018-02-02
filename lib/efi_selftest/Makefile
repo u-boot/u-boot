@@ -7,8 +7,10 @@
 # This file only gets included with CONFIG_EFI_LOADER set, so all
 # object inclusion implicitly depends on it
 
-CFLAGS_efi_selftest_miniapp.o := $(CFLAGS_EFI) -Os -ffreestanding
-CFLAGS_REMOVE_efi_selftest_miniapp.o := $(CFLAGS_NON_EFI) -Os
+CFLAGS_efi_selftest_miniapp_exit.o := $(CFLAGS_EFI) -Os -ffreestanding
+CFLAGS_REMOVE_efi_selftest_miniapp_exit.o := $(CFLAGS_NON_EFI) -Os
+CFLAGS_efi_selftest_miniapp_return.o := $(CFLAGS_EFI) -Os -ffreestanding
+CFLAGS_REMOVE_efi_selftest_miniapp_return.o := $(CFLAGS_NON_EFI) -Os
 
 obj-$(CONFIG_CMD_BOOTEFI_SELFTEST) += \
 efi_selftest.o \
