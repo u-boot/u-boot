@@ -288,12 +288,10 @@ extern int soft_i2c_gpio_scl;
 
 /* Ethernet support */
 #ifdef CONFIG_SUN4I_EMAC
-#define CONFIG_PHY_ADDR		1
 #define CONFIG_MII			/* MII PHY management		*/
 #endif
 
 #ifdef CONFIG_SUN7I_GMAC
-#define CONFIG_PHY_ADDR		1
 #define CONFIG_MII			/* MII PHY management		*/
 #define CONFIG_PHY_REALTEK
 #endif
