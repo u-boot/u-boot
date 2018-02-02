@@ -205,7 +205,7 @@ F:	arch/arm/include/asm/arch-sti*/
 
 ARM SUNXI
 M:	Jagan Teki <jagan@openedev.com>
-M:	Maxime Ripard <maxime.ripard@free-electrons.com>
+M:	Maxime Ripard <maxime.ripard@bootlin.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-sunxi.git
 F:	arch/arm/cpu/armv7/sunxi/

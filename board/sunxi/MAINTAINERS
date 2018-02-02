@@ -133,7 +133,7 @@ F:	configs/Bananapi_M2_Ultra_defconfig
 F:	arch/arm/dts/sun8i-r40-bananapi-m2-ultra.dts
 
 BANANAPI M2 MAGIC BOARD
-M:	Maxime Ripard <maxime.ripard@free-electrons.com>
+M:	Maxime Ripard <maxime.ripard@bootlin.com>
 S:	Maintained
 F:	configs/Bananapi_m2m_defconfig
 F:	arch/arm/dts/sun8i-r16-bananapi-m2m.dts
@@ -144,7 +144,7 @@ S:	Maintained
 F:	configs/bananapi_m64_defconfig
 
 COLOMBUS BOARD
-M:	Maxime Ripard <maxime.ripard@free-electrons.com>
+M:	Maxime Ripard <maxime.ripard@bootlin.com>
 S:	Maintained
 F:	configs/Colombus_defconfig
 
@@ -380,7 +380,7 @@ F:	configs/Sunchip_CX-A99_defconfig
 W:	https://linux-sunxi.org/Sunchip_CX-A99
 
 TBS A711 BOARD
-M:	Maxime Ripard <maxime.ripard@free-electrons.com>
+M:	Maxime Ripard <maxime.ripard@bootlin.com>
 S:	Maintained
 F:	configs/tbs_a711_defconfig
 
