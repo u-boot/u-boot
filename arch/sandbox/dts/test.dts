@@ -177,7 +177,7 @@
 		gpio-controller;
 		#gpio-cells = <1>;
 		gpio-bank-name = "a";
-		num-gpios = <20>;
+		sandbox,gpio-count = <20>;
 	};
 
 	gpio_b: extra-gpios {
@@ -185,7 +185,7 @@
 		gpio-controller;
 		#gpio-cells = <5>;
 		gpio-bank-name = "b";
-		num-gpios = <10>;
+		sandbox,gpio-count = <10>;
 	};
 
 	i2c@0 {

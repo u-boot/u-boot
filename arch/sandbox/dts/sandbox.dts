@@ -70,7 +70,7 @@
 		compatible = "sandbox,gpio";
 		#gpio-cells = <1>;
 		gpio-bank-name = "a";
-		num-gpios = <20>;
+		sandbox,gpio-count = <20>;
 	};
 
 	gpio_b: gpios@1 {
@@ -78,7 +78,7 @@
 		compatible = "sandbox,gpio";
 		#gpio-cells = <2>;
 		gpio-bank-name = "b";
-		num-gpios = <10>;
+		sandbox,gpio-count = <10>;
 	};
 
 	hexagon {

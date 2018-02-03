@@ -198,7 +198,8 @@ static int sandbox_gpio_ofdata_to_platdata(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
-	uc_priv->gpio_count = dev_read_u32_default(dev, "num-gpios", 0);
+	uc_priv->gpio_count = dev_read_u32_default(dev, "sandbox,gpio-count",
+						   0);
 	uc_priv->bank_name = dev_read_string(dev, "gpio-bank-name");
 
 	return 0;
