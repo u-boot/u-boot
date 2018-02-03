@@ -12,6 +12,7 @@ config SYS_SOC
 	default "bcm6348" if SOC_BMIPS_BCM6348
 	default "bcm6358" if SOC_BMIPS_BCM6358
 	default "bcm6368" if SOC_BMIPS_BCM6368
+	default "bcm6362" if SOC_BMIPS_BCM6362
 	default "bcm63268" if SOC_BMIPS_BCM63268
 
 choice
@@ -93,6 +94,17 @@ config SOC_BMIPS_BCM6368
 	select SYSRESET_SYSCON
 	help
 	  This supports BMIPS BCM6368 family including BCM6368 and BCM6369.
+
+config SOC_BMIPS_BCM6362
+	bool "BMIPS BCM6362 family"
+	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select MIPS_TUNE_4KC
+	select MIPS_L1_CACHE_SHIFT_4
+	select SWAP_IO_SPACE
+	select SYSRESET_SYSCON
+	help
+	  This supports BMIPS BCM6362 family including BCM6361 and BCM6362.
 
 config SOC_BMIPS_BCM63268
 	bool "BMIPS BCM63268 family"
