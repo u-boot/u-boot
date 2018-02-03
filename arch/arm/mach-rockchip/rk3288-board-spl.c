@@ -78,11 +78,6 @@ fallback:
 	return BOOT_DEVICE_MMC1;
 }
 
-u32 spl_boot_mode(const u32 boot_device)
-{
-	return MMCSD_MODE_RAW;
-}
-
 #ifdef CONFIG_SPL_MMC_SUPPORT
 static int configure_emmc(struct udevice *pinctrl)
 {

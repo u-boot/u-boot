@@ -60,11 +60,6 @@ u32 spl_boot_device(void)
 	return boot_device;
 }
 
-u32 spl_boot_mode(const u32 boot_device)
-{
-	return MMCSD_MODE_RAW;
-}
-
 #define TIMER_CHN10_BASE	0xff8680a0
 #define TIMER_END_COUNT_L	0x00
 #define TIMER_END_COUNT_H	0x04

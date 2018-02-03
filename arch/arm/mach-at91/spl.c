@@ -87,18 +87,3 @@ u32 spl_boot_device(void)
 	return BOOT_DEVICE_NONE;
 }
 #endif
-
-u32 spl_boot_mode(const u32 boot_device)
-{
-	switch (boot_device) {
-#if defined(CONFIG_SYS_USE_MMC) || defined(CONFIG_SD_BOOT)
-	case BOOT_DEVICE_MMC1:
-	case BOOT_DEVICE_MMC2:
-		return MMCSD_MODE_FS;
-		break;
-#endif
-	case BOOT_DEVICE_NONE:
-	default:
-		hang();
-	}
-}

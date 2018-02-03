@@ -72,11 +72,6 @@ fallback:
 	return BOOT_DEVICE_MMC1;
 }
 
-u32 spl_boot_mode(const u32 boot_device)
-{
-	return MMCSD_MODE_RAW;
-}
-
 static int setup_arm_clock(void)
 {
 	struct udevice *dev;

@@ -69,13 +69,6 @@ u32 spl_boot_device(void)
 	return mode;
 }
 
-#ifdef CONFIG_SPL_MMC_SUPPORT
-u32 spl_boot_mode(const u32 boot_device)
-{
-	return MMCSD_MODE_FS;
-}
-#endif
-
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)
 {

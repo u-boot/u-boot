@@ -66,17 +66,6 @@ u32 spl_boot_device(void)
 	}
 }
 
-#ifdef CONFIG_SPL_MMC_SUPPORT
-u32 spl_boot_mode(const u32 boot_device)
-{
-#if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
-	return MMCSD_MODE_FS;
-#else
-	return MMCSD_MODE_RAW;
-#endif
-}
-#endif
-
 #if defined(CONFIG_TARGET_SOCFPGA_GEN5)
 static void socfpga_nic301_slave_ns(void)
 {

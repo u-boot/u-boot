@@ -524,24 +524,3 @@ u32 spl_boot_device(void)
 
 	return BOOT_DEVICE_NONE;
 }
-
-#ifdef CONFIG_SPL_BUILD
-u32 spl_boot_mode(const u32 boot_device)
-{
-	switch (spl_boot_device()) {
-	case BOOT_DEVICE_MMC1:
-#ifdef CONFIG_SPL_FAT_SUPPORT
-		return MMCSD_MODE_FS;
-#else
-		return MMCSD_MODE_RAW;
-#endif
-		break;
-	case BOOT_DEVICE_NAND:
-		return 0;
-		break;
-	default:
-		puts("spl: ERROR:  unsupported device\n");
-		hang();
-	}
-}
-#endif

@@ -281,6 +281,17 @@ static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image, struct mmc *mmc)
 }
 #endif
 
+u32 __weak spl_boot_mode(const u32 boot_device)
+{
+#if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
+	return MMCSD_MODE_FS;
+#elif defined(CONFIG_SUPPORT_EMMC_BOOT)
+	return MMCSD_MODE_EMMCBOOT;
+#else
+	return MMCSD_MODE_RAW;
+#endif
+}
+
 int spl_mmc_load_image(struct spl_image_info *spl_image,
 		       struct spl_boot_device *bootdev)
 {

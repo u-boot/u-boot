@@ -45,11 +45,6 @@ void spl_board_init(void)
 	preloader_console_init();
 }
 
-u32 spl_boot_mode(const u32 boot_device)
-{
-	return MMCSD_MODE_RAW;
-}
-
 u32 spl_boot_device(void)
 {
 	switch (davinci_syscfg_regs->bootcfg) {
