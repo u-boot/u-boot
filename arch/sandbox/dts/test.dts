@@ -480,6 +480,8 @@
 	};
 
 	chosen {
+		#address-cells = <1>;
+		#size-cells = <1>;
 		chosen-test {
 			compatible = "denx,u-boot-fdt-test";
 			reg = <9 1>;
