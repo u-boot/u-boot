@@ -58,7 +58,6 @@
 /* Size of our emulated memory */
 #define CONFIG_SYS_SDRAM_BASE		0
 #define CONFIG_SYS_SDRAM_SIZE		(128 << 20)
-#define CONFIG_SYS_TEXT_BASE		0
 #define CONFIG_SYS_MONITOR_BASE	0
 #define CONFIG_NR_DRAM_BANKS		1
 

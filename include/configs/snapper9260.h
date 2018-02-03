@@ -15,8 +15,6 @@
 #include <asm/hardware.h>
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_TEXT_BASE		0x21f00000
-
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000 /* External Crystal, in Hz */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768

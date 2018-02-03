@@ -22,7 +22,6 @@
 #define CONFIG_MACH_TYPE	MACH_TYPE_TS48XX
 
 /* text base address used when linking */
-#define CONFIG_SYS_TEXT_BASE	0x90008000
 
 #include <asm/arch/imx-regs.h>
 

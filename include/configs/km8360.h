@@ -39,8 +39,6 @@
 #define CONFIG_QE			/* Has QE */
 #define CONFIG_MPC8360			/* MPC8360 CPU specific */
 
-#define	CONFIG_SYS_TEXT_BASE	0xF0000000
-
 /* include common defines/options for all 83xx Keymile boards */
 #include "km/km83xx-common.h"
 

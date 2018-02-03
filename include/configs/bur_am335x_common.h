@@ -91,8 +91,6 @@
  *
  * ----------------------------------------------------------------------------
  */
-#undef  CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE		0x80800000
 #define CONFIG_SPL_BSS_START_ADDR	0x80A00000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */
 #define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_BSS_START_ADDR + \

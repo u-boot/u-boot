@@ -29,7 +29,6 @@
 #define CONFIG_IOMUX_LPSR
 
 #define CONFIG_LOADADDR                 0x80800000
-#define CONFIG_SYS_TEXT_BASE            0x87800000
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

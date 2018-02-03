@@ -31,7 +31,6 @@
  * NOLO loading boot image to random place, so it doesn't really
  * matter what we set this to. We have to copy u-boot to this address
  */
-#define CONFIG_SYS_TEXT_BASE	0x80008000
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>

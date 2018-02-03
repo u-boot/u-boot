@@ -130,7 +130,6 @@
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_SYS_TEXT_BASE		0x17800000
 #define CONFIG_LOADADDR			0x12000000
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 

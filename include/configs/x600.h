@@ -22,7 +22,6 @@
 /* Timer, HZ specific defines */
 #define CONFIG_SYS_HZ_CLOCK			8300000
 
-#define	CONFIG_SYS_TEXT_BASE			0x00800040
 #define CONFIG_SYS_FLASH_BASE			0xf8000000
 /* Reserve 8KiB for SPL */
 #define CONFIG_SPL_PAD_TO			8192	/* decimal for 'dd' */

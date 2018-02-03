@@ -15,6 +15,5 @@
 #include "woodburn_common.h"
 
 /* Set TEXT at the beginning of the NOR flash */
-#define CONFIG_SYS_TEXT_BASE	0xA0000000
 
 #endif				/* __CONFIG_H */

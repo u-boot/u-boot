@@ -378,15 +378,13 @@ config SYS_EXTRA_OPTIONS
 	  new boards should not use this option.
 
 config SYS_TEXT_BASE
-	depends on ARC || X86 || ARCH_UNIPHIER || ARCH_ZYNQMP || \
-		(M68K && !TARGET_ASTRO_MCF5373L) || MICROBLAZE || MIPS || \
-		ARCH_ZYNQ || ARCH_KEYSTONE || ARCH_OMAP2PLUS
+	depends on !NIOS2 && !XTENSA
 	depends on !EFI_APP
+	default 0x80800000 if ARCH_OMAP2PLUS
 	hex "Text Base"
 	help
-	  TODO: Move CONFIG_SYS_TEXT_BASE for all the architecture
+	  The address in memory that U-Boot will be running from, initially.
 
-	default 0x80800000 if ARCH_OMAP2PLUS
 
 
 config SYS_CLK_FREQ

@@ -48,10 +48,8 @@
  */
 #ifdef CONFIG_RAM
 #define CONFIG_MONITOR_IS_IN_RAM
-#define CONFIG_SYS_TEXT_BASE		0x40020000
 #define ENABLE_JFFS	0
 #else
-#define CONFIG_SYS_TEXT_BASE		0x00000000
 #define ENABLE_JFFS	1
 #endif
 

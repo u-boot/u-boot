@@ -30,7 +30,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
 #define CONFIG_ATMEL_LEGACY
-#define CONFIG_SYS_TEXT_BASE		0x21f00000
 
 /*
  * Hardware drivers

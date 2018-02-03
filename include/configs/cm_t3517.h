@@ -15,8 +15,6 @@
  */
 #define CONFIG_CM_T3517	/* working with CM-T3517 */
 
-#define CONFIG_SYS_TEXT_BASE	0x80008000
-
 /*
  * This is needed for the DMA stuff.
  * Although the default iss 64, we still define it

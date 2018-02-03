@@ -16,10 +16,6 @@
 #include "at91-sama5_common.h"
 
 /* The value in the common file is too far away for the VInCo platform */
-#ifdef CONFIG_SYS_TEXT_BASE
-#undef CONFIG_SYS_TEXT_BASE
-#endif
-#define CONFIG_SYS_TEXT_BASE		0x20f00000
 
 /* serial console */
 #define CONFIG_ATMEL_USART

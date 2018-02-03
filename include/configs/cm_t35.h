@@ -257,7 +257,6 @@
  * older x-loader implementations. And move the BSS area so that it
  * doesn't overlap with TEXT_BASE.
  */
-#define CONFIG_SYS_TEXT_BASE		0x80008000
 #define CONFIG_SPL_BSS_START_ADDR	0x80100000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */
 

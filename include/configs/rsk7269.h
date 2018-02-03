@@ -24,7 +24,6 @@
 
 /* Memory */
 /* u-boot relocated to top 256KB of ram */
-#define CONFIG_SYS_TEXT_BASE		0x0DFC0000
 #define CONFIG_SYS_SDRAM_BASE		0x0C000000
 #define CONFIG_SYS_SDRAM_SIZE		(32 * 1024 * 1024)
 

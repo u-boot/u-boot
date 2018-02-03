@@ -18,8 +18,6 @@
  * Physical Memory Map
  */
 
-#define CONFIG_SYS_TEXT_BASE	0x80080000
-
 /* Generic Interrupt Controller */
 #define CONFIG_GICV2
 

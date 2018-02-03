@@ -14,7 +14,6 @@
  /* High Level Configuration Options */
 
 #define CONFIG_SYS_FSL_CLK
-#define CONFIG_SYS_TEXT_BASE	0x97800000
 
 #include <asm/arch/imx-regs.h>
 

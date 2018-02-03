@@ -16,8 +16,6 @@
 #define CONFIG_MPC830x		1 /* MPC830x family */
 #define CONFIG_MPC8308		1 /* MPC8308 CPU specific */
 
-#define	CONFIG_SYS_TEXT_BASE	0xFE000000
-
 #define CONFIG_MISC_INIT_R
 
 #ifdef CONFIG_MMC

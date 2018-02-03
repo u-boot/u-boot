@@ -29,7 +29,6 @@
  * other needs.  We use this rather than the inherited defines from
  * ti_armv7_common.h for backwards compatibility.
  */
-#define CONFIG_SYS_TEXT_BASE		0x80100000
 #define CONFIG_SYS_UBOOT_START		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000
 #define CONFIG_SPL_BSS_MAX_SIZE		(512 << 10)	/* 512 KB */

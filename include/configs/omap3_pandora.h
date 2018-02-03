@@ -13,7 +13,6 @@
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 
 /* override base for compatibility with MLO the device ships with */
-#define CONFIG_SYS_TEXT_BASE		0x80008000
 
 #include <configs/ti_omap3_common.h>
 

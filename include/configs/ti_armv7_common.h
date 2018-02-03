@@ -167,9 +167,6 @@
  * of the BSS area.  We suggest that the stack be placed at 32MiB after the
  * start of DRAM to allow room for all of the above (handled in Kconfig).
  */
-#ifndef CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE		0x80800000
-#endif
 #ifndef CONFIG_SPL_BSS_START_ADDR
 #define CONFIG_SPL_BSS_START_ADDR	0x80a00000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */

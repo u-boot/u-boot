@@ -9,12 +9,6 @@
 
 #include "ls1046a_common.h"
 
-#ifdef CONFIG_SD_BOOT
-#define CONFIG_SYS_TEXT_BASE		0x82000000
-#else
-#define CONFIG_SYS_TEXT_BASE		0x40100000
-#endif
-
 #define CONFIG_SYS_CLK_FREQ		100000000
 #define CONFIG_DDR_CLK_FREQ		100000000
 

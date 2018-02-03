@@ -24,7 +24,6 @@
 #define CONFIG_SYS_MALLOC_LEN			SZ_32M
 
 /* ATF bl33.bin load address (must match) */
-#define CONFIG_SYS_TEXT_BASE			0x37000000
 
 /* USB configuration */
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		2

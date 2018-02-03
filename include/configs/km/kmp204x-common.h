@@ -8,8 +8,6 @@
 #ifndef _CONFIG_KMP204X_H
 #define _CONFIG_KMP204X_H
 
-#define CONFIG_SYS_TEXT_BASE	0xfff40000
-
 #define CONFIG_KM_DEF_NETDEV	"netdev=eth0\0"
 
 /* an additionnal option is required for UBI as subpage access is

@@ -10,8 +10,6 @@
 #ifndef __AT91SAM9N12_CONFIG_H_
 #define __AT91SAM9N12_CONFIG_H_
 
-#define CONFIG_SYS_TEXT_BASE		0x26f00000
-
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	16000000	/* main clock xtal */

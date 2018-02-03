@@ -25,9 +25,6 @@
 /*
  * Custom CONFIG_SYS_TEXT_BASE can be done in <board>.h
  */
-#ifndef CONFIG_SYS_TEXT_BASE
-#define	CONFIG_SYS_TEXT_BASE	0x00600000
-#endif /* CONFIG_SYS_TEXT_BASE */
 
 /* additions for new ARM relocation support */
 #define CONFIG_SYS_SDRAM_BASE	0x00000000

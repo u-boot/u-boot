@@ -21,7 +21,6 @@
 #define CONFIG_SYS_FSL_CLK
 
 /* Set TEXT at the beginning of the NOR flash */
-#define CONFIG_SYS_TEXT_BASE	0xA0000000
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_REVISION_TAG

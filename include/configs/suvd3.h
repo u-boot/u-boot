@@ -22,7 +22,6 @@
  */
 
 /* This needs to be set prior to including km/km83xx-common.h */
-#define	CONFIG_SYS_TEXT_BASE	0xF0000000
 
 #if defined(CONFIG_SUVD3)	/* SUVD3 board specific */
 #define CONFIG_HOSTNAME		suvd3

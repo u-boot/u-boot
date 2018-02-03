@@ -13,10 +13,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifndef CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE	0xfff80000
-#endif
-
 #define CONFIG_SYS_SRIO
 #define CONFIG_SRIO1			/* SRIO port 1 */
 

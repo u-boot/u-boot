@@ -88,7 +88,6 @@
 #define CONFIG_ETHPRIME		"FEC0"
 
 #define CONFIG_LOADADDR		0x72000000	/* loadaddr env var */
-#define CONFIG_SYS_TEXT_BASE    0x77800000
 
 #define PPD_CONFIG_NFS \
 	"nfsserver=192.168.252.95\0" \

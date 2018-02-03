@@ -11,8 +11,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_TEXT_BASE		0x73f00000
-
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 
 /* ARM asynchronous clock */

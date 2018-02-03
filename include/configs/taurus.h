@@ -33,8 +33,6 @@
  * hex number here!
  */
 
-#define CONFIG_SYS_TEXT_BASE		0x21000000
-
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000	/* main clock xtal */

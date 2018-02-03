@@ -23,7 +23,6 @@
  * header. That is 0x800FFFC0--0x80100000 should not be used for any
  * other needs.
  */
-#define CONFIG_SYS_TEXT_BASE		0x80100000
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>

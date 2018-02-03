@@ -15,8 +15,6 @@
 #define CONFIG_MPC832x		1	/* MPC832x CPU specific */
 #define CONFIG_MPC832XEMDS	1	/* MPC832XEMDS board specific */
 
-#define	CONFIG_SYS_TEXT_BASE	0xFE000000
-
 /*
  * System Clock Setup
  */

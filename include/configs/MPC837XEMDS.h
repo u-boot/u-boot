@@ -15,8 +15,6 @@
 #define CONFIG_MPC837x		1 /* MPC837x CPU specific */
 #define CONFIG_MPC837XEMDS	1 /* MPC837XEMDS board specific */
 
-#define	CONFIG_SYS_TEXT_BASE	0xFE000000
-
 /*
  * System Clock Setup
  */

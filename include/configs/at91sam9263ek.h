@@ -17,12 +17,6 @@
  */
 #include <asm/hardware.h>
 
-#ifndef CONFIG_SYS_USE_BOOT_NORFLASH
-#define CONFIG_SYS_TEXT_BASE		0x21F00000
-#else
-#define CONFIG_SYS_TEXT_BASE		0x0000000
-#endif
-
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	16367660 /* 16.367 MHz crystal */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768

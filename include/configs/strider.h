@@ -18,8 +18,6 @@
 #define CONFIG_MPC8308		1 /* MPC8308 CPU specific */
 #define CONFIG_STRIDER		1 /* STRIDER board specific */
 
-#define	CONFIG_SYS_TEXT_BASE	0xFE000000
-
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_LAST_STAGE_INIT
 

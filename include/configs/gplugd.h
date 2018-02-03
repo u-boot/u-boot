@@ -24,8 +24,6 @@
 #define CONFIG_MACH_TYPE		MACH_TYPE_GPLUGD /* Machine type */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
-#define	CONFIG_SYS_TEXT_BASE	0x00f00000
-
 /*
  * There is no internal RAM in ARMADA100, using DRAM
  * TBD: dcache to be used for this

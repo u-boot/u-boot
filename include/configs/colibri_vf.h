@@ -69,7 +69,6 @@
 #define CONFIG_FDTADDR			0x84000000
 
 /* We boot from the gfxRAM area of the OCRAM. */
-#define CONFIG_SYS_TEXT_BASE		0x3f401000
 #define CONFIG_BOARD_SIZE_LIMIT		520192
 
 #define SD_BOOTCMD \

@@ -383,9 +383,6 @@ DEFAULT_LINUX_BOOT_ENV \
  * For NOR boot, we must set this to the start of where NOR is mapped
  * in memory.
  */
-#ifdef CONFIG_NOR_BOOT
-#define CONFIG_SYS_TEXT_BASE		0x08000000
-#endif
 
 /*
  * USB configuration.  We enable MUSB support, both for host and for

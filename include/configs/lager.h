@@ -15,12 +15,6 @@
 
 #include "rcar-gen2-common.h"
 
-#if defined(CONFIG_ARCH_RMOBILE_EXTRAM_BOOT)
-#define CONFIG_SYS_TEXT_BASE	0xB0000000
-#else
-#define CONFIG_SYS_TEXT_BASE	0xE8080000
-#endif
-
 /* STACK */
 #if defined(CONFIGF_RMOBILE_EXTRAM_BOOT)
 #define CONFIG_SYS_INIT_SP_ADDR		0xB003FFFC

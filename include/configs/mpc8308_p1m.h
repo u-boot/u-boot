@@ -16,10 +16,6 @@
 #define CONFIG_MPC830x		1 /* MPC830x family */
 #define CONFIG_MPC8308		1 /* MPC8308 CPU specific */
 
-#ifndef CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE	0xFC000000
-#endif
-
 /*
  * On-board devices
  *

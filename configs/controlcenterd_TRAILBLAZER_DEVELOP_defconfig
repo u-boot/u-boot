@@ -1,4 +1,5 @@
 CONFIG_PPC=y
+CONFIG_SYS_TEXT_BASE=0xf8fc0000
 CONFIG_IDENT_STRING=" controlcenterd trailblazer 0.01"
 CONFIG_MPC85xx=y
 # CONFIG_CMD_ERRATA is not set

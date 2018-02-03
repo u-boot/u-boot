@@ -14,7 +14,6 @@
  * High Level Board Configuration Options
  */
 #define	CONFIG_CPU_PXA27X		1	/* Marvell PXA270 CPU */
-#define	CONFIG_SYS_TEXT_BASE		0x0
 /* Avoid overwriting factory configuration block */
 #define CONFIG_BOARD_SIZE_LIMIT		0x40000
 

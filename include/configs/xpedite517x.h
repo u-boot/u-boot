@@ -22,8 +22,6 @@
 #define CONFIG_HIGH_BATS	1	/* High BATs supported and enabled */
 #define CONFIG_ALTIVEC		1
 
-#define	CONFIG_SYS_TEXT_BASE	0xfff00000
-
 #define CONFIG_PCI_SCAN_SHOW	1	/* show pci devices on startup */
 #define CONFIG_PCIE1		1	/* PCIE controller 1 */
 #define CONFIG_PCIE2		1	/* PCIE controller 2 */

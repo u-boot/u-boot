@@ -24,7 +24,6 @@
  * header. That is 0x800FFFC0--0x80100000 should not be used for any
  * other needs.
  */
-#define CONFIG_SYS_TEXT_BASE	0x80100000
 
 #define CONFIG_SPL_BSS_START_ADDR       0x80000500 /* leave space for bootargs*/
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000

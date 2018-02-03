@@ -17,7 +17,6 @@
 /*
  * Memory configuration
  */
-#define CONFIG_SYS_TEXT_BASE		0xae000000
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define CONFIG_SYS_SDRAM_SIZE		0x80000000

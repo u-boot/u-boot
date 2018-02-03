@@ -26,7 +26,6 @@
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x0001ffff
 #define CONFIG_SYS_UBOOT_BASE		0xfff90000
 #define CONFIG_SYS_UBOOT_START		0x00800000
-#define CONFIG_SYS_TEXT_BASE 		0x00800000
 
 /*
  * High Level Configuration Options (easy to change)

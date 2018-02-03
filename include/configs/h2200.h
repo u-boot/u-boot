@@ -43,8 +43,6 @@
  * --- Header end ---
  */
 
-#define CONFIG_SYS_TEXT_BASE		0xa0041000
-
 /*
  * Static chips
  */

@@ -14,8 +14,6 @@
  * High Level Configuration Options
  */
 
-#define CONFIG_SYS_TEXT_BASE 0x80008000
-
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
 

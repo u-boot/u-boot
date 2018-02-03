@@ -43,8 +43,6 @@
 #error ("Board not supported")
 #endif
 
-#define	CONFIG_SYS_TEXT_BASE	0xF0000000
-
 /* include common defines/options for all 8321 Keymile boards */
 #include "km/km8321-common.h"
 

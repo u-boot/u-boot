@@ -147,7 +147,6 @@
  * header. That is 0x800FFFC0--0x80800000 should not be used for any
  * other needs.
  */
-#define CONFIG_SYS_TEXT_BASE		0x80800000
 #define CONFIG_SYS_SPL_MALLOC_START	0x80208000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 

@@ -16,8 +16,6 @@
 
 #include <asm/hardware.h>
 
-#define CONFIG_SYS_TEXT_BASE		0x23f00000
-
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 
 /* ARM asynchronous clock */

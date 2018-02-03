@@ -25,7 +25,6 @@
  * default CCSRBAR is at 0xff700000
  * assume U-Boot is less than 0.5MB
  */
-#define	CONFIG_SYS_TEXT_BASE	0xeff00000
 
 #ifdef RUN_DIAG
 #define CONFIG_SYS_DIAG_ADDR	     CONFIG_SYS_FLASH_BASE

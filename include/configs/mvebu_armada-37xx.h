@@ -12,8 +12,6 @@
  */
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
-#define	CONFIG_SYS_TEXT_BASE	0x00000000
-
 /* additions for new ARM relocation support */
 #define CONFIG_SYS_SDRAM_BASE	0x00000000
 

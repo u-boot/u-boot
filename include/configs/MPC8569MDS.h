@@ -39,10 +39,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_L2_CACHE				/* toggle L2 cache	*/
 #define CONFIG_BTB				/* toggle branch predition */
 
-#ifndef CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE	0xfff80000
-#endif
-
 #ifndef CONFIG_SYS_MONITOR_BASE
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #endif

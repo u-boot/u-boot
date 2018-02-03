@@ -31,8 +31,6 @@
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x5E00000)
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
 
-#define CONFIG_SYS_TEXT_BASE		0x43e00000
-
 /* select serial console configuration */
 #define CONFIG_SERIAL2
 

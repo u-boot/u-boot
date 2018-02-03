@@ -18,7 +18,6 @@
  * for DDR ECC byte filling in the SPL before loading the main
  * U-Boot into it.
  */
-#define	CONFIG_SYS_TEXT_BASE	0x00800000
 #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 
 /*

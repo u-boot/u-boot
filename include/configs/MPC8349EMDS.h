@@ -20,8 +20,6 @@
 #define CONFIG_MPC834x		1	/* MPC834x family */
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
 
-#define	CONFIG_SYS_TEXT_BASE	0xFE000000
-
 #define CONFIG_PCI_66M
 #ifdef CONFIG_PCI_66M
 #define CONFIG_83XX_CLKIN	66000000	/* in Hz */

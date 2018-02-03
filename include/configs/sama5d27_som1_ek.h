@@ -12,9 +12,7 @@
 
 #include "at91-sama5_common.h"
 
-#undef CONFIG_SYS_TEXT_BASE
 #undef CONFIG_SYS_AT91_MAIN_CLOCK
-#define CONFIG_SYS_TEXT_BASE		0x23f00000
 #define CONFIG_SYS_AT91_MAIN_CLOCK      24000000 /* from 24 MHz crystal */
 
 #define CONFIG_MISC_INIT_R

@@ -22,7 +22,6 @@
  * Leave it at 0x80008000 to allow booting new u-boot.bin with X-loader
  * and older u-boot.bin with the new U-Boot SPL.
  */
-#define CONFIG_SYS_TEXT_BASE		0x80008000
 
 /* Clock Defines */
 #define V_OSCK			26000000	/* Clock output from T2 */

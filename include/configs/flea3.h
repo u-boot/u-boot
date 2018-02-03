@@ -23,7 +23,6 @@
 #define CONFIG_MACH_TYPE		MACH_TYPE_FLEA3
 
 /* Set TEXT at the beginning of the NOR flash */
-#define CONFIG_SYS_TEXT_BASE	0xA0000000
 
 /* This is required to setup the ESDC controller */
 

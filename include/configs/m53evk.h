@@ -37,8 +37,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-#define CONFIG_SYS_TEXT_BASE		0x71000000
-
 /*
  * U-Boot general configurations
  */

@@ -21,7 +21,6 @@
 #define CONFIG_SYS_SDRAM_BASE			PHYS_SDRAM_1
 
 /* define text_base for U-boot image */
-#define CONFIG_SYS_TEXT_BASE			0x85000000
 #define CONFIG_SYS_INIT_SP_ADDR			(PHYS_SDRAM_1 + 0x7ff00)
 #define CONFIG_SYS_LOAD_ADDR			0x90000000
 #define CONFIG_SYS_MALLOC_LEN			SZ_16M

@@ -54,7 +54,6 @@
 #define CONFIG_SPL_BSS_MAX_SIZE        0x100000		/* 1 MB */
 #define CONFIG_SYS_SPL_MALLOC_START    0x88300000
 #define CONFIG_SYS_SPL_MALLOC_SIZE     0x100000		/* 1 MB */
-#define CONFIG_SYS_TEXT_BASE           0x87800000
 
 #endif /* CONFIG_SPL */
 

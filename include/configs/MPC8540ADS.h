@@ -22,7 +22,6 @@
  * default CCARBAR is at 0xff700000
  * assume U-Boot is less than 0.5MB
  */
-#define	CONFIG_SYS_TEXT_BASE	0xfff80000
 
 #ifndef CONFIG_HAS_FEC
 #define CONFIG_HAS_FEC		1	/* 8540 has FEC */

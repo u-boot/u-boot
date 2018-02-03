@@ -12,8 +12,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SYS_TEXT_BASE		0xA0000000
-
 #define CONFIG_SYS_TIMER_RATE		32768
 #define CONFIG_SYS_TIMER_COUNTER	\
 	(&((struct gpt_regs *)IMX_GPT1_BASE)->counter)

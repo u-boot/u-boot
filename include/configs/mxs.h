@@ -78,7 +78,6 @@
  * As for the SPL, we must avoid the first 4 KiB as well, but we load the
  * IVT and CST to 0x8000, so we don't need to waste the subsequent 4 KiB.
  */
-#define CONFIG_SYS_TEXT_BASE		0x40002000
 #define CONFIG_SPL_TEXT_BASE		0x00001000
 
 /* U-Boot general configuration */

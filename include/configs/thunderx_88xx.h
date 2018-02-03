@@ -18,7 +18,6 @@
 #define CONFIG_SYS_LOWMEM_BASE		MEM_BASE
 
 /* Link Definitions */
-#define CONFIG_SYS_TEXT_BASE		0x00500000
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 
 /* SMP Spin Table Definitions */

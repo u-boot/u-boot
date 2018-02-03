@@ -16,8 +16,6 @@
 #define CONFIG_QE		1	/* Has QE */
 #define CONFIG_MPC832x		1	/* MPC832x CPU specific */
 
-#define	CONFIG_SYS_TEXT_BASE	0xFE000000
-
 /*
  * System Clock Setup
  */

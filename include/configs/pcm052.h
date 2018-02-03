@@ -76,7 +76,6 @@
 #define CONFIG_LOADADDR			0x82000000
 
 /* We boot from the gfxRAM area of the OCRAM. */
-#define CONFIG_SYS_TEXT_BASE		0x3f401000
 #define CONFIG_BOARD_SIZE_LIMIT		520192
 
 /* if no target-specific extra environment settings were defined by the

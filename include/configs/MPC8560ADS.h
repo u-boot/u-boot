@@ -25,7 +25,6 @@
  * default CCARBAR is at 0xff700000
  * assume U-Boot is less than 0.5MB
  */
-#define	CONFIG_SYS_TEXT_BASE	0xfff80000
 
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
