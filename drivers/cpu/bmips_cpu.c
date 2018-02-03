@@ -50,6 +50,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DMIPSPLLCFG_6358_N2_SHIFT	29
 #define DMIPSPLLCFG_6358_N2_MASK	(0x7 << DMIPSPLLCFG_6358_N2_SHIFT)
 
+#define REG_BCM6362_MISC_STRAPBUS	0x1814
+#define STRAPBUS_6362_FCVO_SHIFT	1
+#define STRAPBUS_6362_FCVO_MASK		(0x1f << STRAPBUS_6362_FCVO_SHIFT)
+
 #define REG_BCM6368_DDR_DMIPSPLLCFG	0x12a0
 #define DMIPSPLLCFG_6368_P1_SHIFT	0
 #define DMIPSPLLCFG_6368_P1_MASK	(0xf << DMIPSPLLCFG_6368_P1_SHIFT)
@@ -194,6 +198,44 @@ static ulong bcm6358_get_cpu_freq(struct bmips_cpu_priv *priv)
 	return (16 * 1000000 * n1 * n2) / m1;
 }
 
+static ulong bcm6362_get_cpu_freq(struct bmips_cpu_priv *priv)
+{
+	unsigned int mips_pll_fcvo;
+
+	mips_pll_fcvo = readl_be(priv->regs + REG_BCM6362_MISC_STRAPBUS);
+	mips_pll_fcvo = (mips_pll_fcvo & STRAPBUS_6362_FCVO_MASK)
+			>> STRAPBUS_6362_FCVO_SHIFT;
+
+	switch (mips_pll_fcvo) {
+	case 0x03:
+	case 0x0b:
+	case 0x13:
+	case 0x1b:
+		return 240000000;
+	case 0x04:
+	case 0x0c:
+	case 0x14:
+	case 0x1c:
+		return 160000000;
+	case 0x05:
+	case 0x0e:
+	case 0x16:
+	case 0x1e:
+	case 0x1f:
+		return 400000000;
+	case 0x06:
+		return 440000000;
+	case 0x07:
+	case 0x17:
+		return 384000000;
+	case 0x15:
+	case 0x1d:
+		return 200000000;
+	default:
+		return 320000000;
+	}
+}
+
 static ulong bcm6368_get_cpu_freq(struct bmips_cpu_priv *priv)
 {
 	unsigned int tmp, p1, p2, ndiv, m1;
@@ -286,6 +328,12 @@ static const struct bmips_cpu_hw bmips_cpu_bcm6348 = {
 static const struct bmips_cpu_hw bmips_cpu_bcm6358 = {
 	.get_cpu_desc = bmips_short_cpu_desc,
 	.get_cpu_freq = bcm6358_get_cpu_freq,
+	.get_cpu_count = bcm6358_get_cpu_count,
+};
+
+static const struct bmips_cpu_hw bmips_cpu_bcm6362 = {
+	.get_cpu_desc = bmips_short_cpu_desc,
+	.get_cpu_freq = bcm6362_get_cpu_freq,
 	.get_cpu_count = bcm6358_get_cpu_count,
 };
 
@@ -394,6 +442,9 @@ static const struct udevice_id bmips_cpu_ids[] = {
 	}, {
 		.compatible = "brcm,bcm6358-cpu",
 		.data = (ulong)&bmips_cpu_bcm6358,
+	}, {
+		.compatible = "brcm,bcm6362-cpu",
+		.data = (ulong)&bmips_cpu_bcm6362,
 	}, {
 		.compatible = "brcm,bcm6368-cpu",
 		.data = (ulong)&bmips_cpu_bcm6368,
