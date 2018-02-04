@@ -59,6 +59,13 @@ config SPL_NOP_PHY
 	  This is useful when a driver uses the PHY framework but no real PHY
 	  hardware exists.
 
+config BCM6318_USBH_PHY
+	bool "BCM6318 USBH PHY support"
+	depends on PHY && ARCH_BMIPS
+	select POWER_DOMAIN
+	help
+	  Support for the Broadcom MIPS BCM6318 USBH PHY.
+
 config BCM6348_USBH_PHY
 	bool "BCM6348 USBH PHY support"
 	depends on PHY && ARCH_BMIPS
