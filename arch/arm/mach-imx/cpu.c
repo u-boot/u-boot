@@ -16,6 +16,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/mach-imx/boot_mode.h>
 #include <imx_thermal.h>
 #include <ipu_pixfmt.h>
 #include <thermal.h>
@@ -60,6 +61,11 @@ static char *get_reset_cause(void)
 #ifdef CONFIG_MX7
 	case 0x00100:
 		return "WDOG4";
+	case 0x00200:
+		return "TEMPSENSE";
+#elif defined(CONFIG_MX8M)
+	case 0x00100:
+		return "WDOG2";
 	case 0x00200:
 		return "TEMPSENSE";
 #else
@@ -137,6 +143,8 @@ unsigned imx_ddr_size(void)
 const char *get_imx_type(u32 imxtype)
 {
 	switch (imxtype) {
+	case MXC_CPU_MX8MQ:
+		return "8MQ";	/* Quad-core version of the mx8m */
 	case MXC_CPU_MX7S:
 		return "7S";	/* Single-core version of the mx7 */
 	case MXC_CPU_MX7D:
@@ -259,7 +267,7 @@ int cpu_mmc_init(bd_t *bis)
 }
 #endif
 
-#ifndef CONFIG_MX7
+#if !(defined(CONFIG_MX7) || defined(CONFIG_MX8M))
 u32 get_ahb_clk(void)
 {
 	struct mxc_ccm_reg *imx_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
@@ -293,6 +301,7 @@ void arch_preboot_os(void)
 #endif
 }
 
+#ifndef CONFIG_MX8M
 void set_chipselect_size(int const cs_size)
 {
 	unsigned int reg;
@@ -323,6 +332,125 @@ void set_chipselect_size(int const cs_size)
 
 	writel(reg, &iomuxc_regs->gpr[1]);
 }
+#endif
+
+#if defined(CONFIG_MX7) || defined(CONFIG_MX8M)
+/*
+ * OCOTP_TESTER3[9:8] (see Fusemap Description Table offset 0x440)
+ * defines a 2-bit SPEED_GRADING
+ */
+#define OCOTP_TESTER3_SPEED_SHIFT	8
+enum cpu_speed {
+	OCOTP_TESTER3_SPEED_GRADE0,
+	OCOTP_TESTER3_SPEED_GRADE1,
+	OCOTP_TESTER3_SPEED_GRADE2,
+	OCOTP_TESTER3_SPEED_GRADE3,
+};
+
+u32 get_cpu_speed_grade_hz(void)
+{
+	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
+	struct fuse_bank *bank = &ocotp->bank[1];
+	struct fuse_bank1_regs *fuse =
+		(struct fuse_bank1_regs *)bank->fuse_regs;
+	uint32_t val;
+
+	val = readl(&fuse->tester3);
+	val >>= OCOTP_TESTER3_SPEED_SHIFT;
+	val &= 0x3;
+
+	switch(val) {
+	case OCOTP_TESTER3_SPEED_GRADE0:
+		return 800000000;
+	case OCOTP_TESTER3_SPEED_GRADE1:
+		return is_mx7() ? 500000000 : 1000000000;
+	case OCOTP_TESTER3_SPEED_GRADE2:
+		return is_mx7() ? 1000000000 : 1300000000;
+	case OCOTP_TESTER3_SPEED_GRADE3:
+		return is_mx7() ? 1200000000 : 1500000000;
+	}
+
+	return 0;
+}
+
+/*
+ * OCOTP_TESTER3[7:6] (see Fusemap Description Table offset 0x440)
+ * defines a 2-bit SPEED_GRADING
+ */
+#define OCOTP_TESTER3_TEMP_SHIFT	6
+
+u32 get_cpu_temp_grade(int *minc, int *maxc)
+{
+	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
+	struct fuse_bank *bank = &ocotp->bank[1];
+	struct fuse_bank1_regs *fuse =
+		(struct fuse_bank1_regs *)bank->fuse_regs;
+	uint32_t val;
+
+	val = readl(&fuse->tester3);
+	val >>= OCOTP_TESTER3_TEMP_SHIFT;
+	val &= 0x3;
+
+	if (minc && maxc) {
+		if (val == TEMP_AUTOMOTIVE) {
+			*minc = -40;
+			*maxc = 125;
+		} else if (val == TEMP_INDUSTRIAL) {
+			*minc = -40;
+			*maxc = 105;
+		} else if (val == TEMP_EXTCOMMERCIAL) {
+			*minc = -20;
+			*maxc = 105;
+		} else {
+			*minc = 0;
+			*maxc = 95;
+		}
+	}
+	return val;
+}
+#endif
+
+#if defined(CONFIG_MX7) || defined(CONFIG_MX8M)
+enum boot_device get_boot_device(void)
+{
+	struct bootrom_sw_info **p =
+		(struct bootrom_sw_info **)(ulong)ROM_SW_INFO_ADDR;
+
+	enum boot_device boot_dev = SD1_BOOT;
+	u8 boot_type = (*p)->boot_dev_type;
+	u8 boot_instance = (*p)->boot_dev_instance;
+
+	switch (boot_type) {
+	case BOOT_TYPE_SD:
+		boot_dev = boot_instance + SD1_BOOT;
+		break;
+	case BOOT_TYPE_MMC:
+		boot_dev = boot_instance + MMC1_BOOT;
+		break;
+	case BOOT_TYPE_NAND:
+		boot_dev = NAND_BOOT;
+		break;
+	case BOOT_TYPE_QSPI:
+		boot_dev = QSPI_BOOT;
+		break;
+	case BOOT_TYPE_WEIM:
+		boot_dev = WEIM_NOR_BOOT;
+		break;
+	case BOOT_TYPE_SPINOR:
+		boot_dev = SPI_NOR_BOOT;
+		break;
+#ifdef CONFIG_MX8M
+	case BOOT_TYPE_USB:
+		boot_dev = USB_BOOT;
+		break;
+#endif
+	default:
+		break;
+	}
+
+	return boot_dev;
+}
+#endif
 
 #ifdef CONFIG_NXP_BOARD_REVISION
 int nxp_board_rev(void)

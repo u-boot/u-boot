@@ -453,5 +453,4 @@ void board_init_f(ulong dummy)
 			display_calibration(&calibration);
 		}
 	}
-	reset_cpu(0);
 }

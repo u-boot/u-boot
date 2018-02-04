@@ -26,9 +26,19 @@ enum boot_device {
 	MMC4_BOOT,
 	NAND_BOOT,
 	QSPI_BOOT,
+	USB_BOOT,
 	UNKNOWN_BOOT,
 	BOOT_DEV_NUM = UNKNOWN_BOOT,
 };
+
+/* Boot device type */
+#define BOOT_TYPE_SD		0x1
+#define BOOT_TYPE_MMC		0x2
+#define BOOT_TYPE_NAND		0x3
+#define BOOT_TYPE_QSPI		0x4
+#define BOOT_TYPE_WEIM		0x5
+#define BOOT_TYPE_SPINOR	0x6
+#define BOOT_TYPE_USB		0xF
 
 struct boot_mode {
 	const char *name;

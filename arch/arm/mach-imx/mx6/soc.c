@@ -518,40 +518,6 @@ int board_postclk_init(void)
 	return 0;
 }
 
-#if defined(CONFIG_FEC_MXC)
-void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
-{
-	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
-	struct fuse_bank *bank = &ocotp->bank[4];
-	struct fuse_bank4_regs *fuse =
-			(struct fuse_bank4_regs *)bank->fuse_regs;
-
-	if ((is_mx6sx() || is_mx6ul() || is_mx6ull()) && dev_id == 1) {
-		u32 value = readl(&fuse->mac_addr2);
-		mac[0] = value >> 24 ;
-		mac[1] = value >> 16 ;
-		mac[2] = value >> 8 ;
-		mac[3] = value ;
-
-		value = readl(&fuse->mac_addr1);
-		mac[4] = value >> 24 ;
-		mac[5] = value >> 16 ;
-		
-	} else {
-		u32 value = readl(&fuse->mac_addr1);
-		mac[0] = (value >> 8);
-		mac[1] = value ;
-
-		value = readl(&fuse->mac_addr0);
-		mac[2] = value >> 24 ;
-		mac[3] = value >> 16 ;
-		mac[4] = value >> 8 ;
-		mac[5] = value ;
-	}
-
-}
-#endif
-
 #ifndef CONFIG_SPL_BUILD
 /*
  * cfg_val will be used for
@@ -700,41 +666,3 @@ void gpr_init(void)
 		writel(0x007F007F, &iomux->gpr[7]);
 	}
 }
-
-#ifdef CONFIG_IMX_BOOTAUX
-int arch_auxiliary_core_up(u32 core_id, u32 boot_private_data)
-{
-	struct src *src_reg;
-	u32 stack, pc;
-
-	if (!boot_private_data)
-		return -EINVAL;
-
-	stack = *(u32 *)boot_private_data;
-	pc = *(u32 *)(boot_private_data + 4);
-
-	/* Set the stack and pc to M4 bootROM */
-	writel(stack, M4_BOOTROM_BASE_ADDR);
-	writel(pc, M4_BOOTROM_BASE_ADDR + 4);
-
-	/* Enable M4 */
-	src_reg = (struct src *)SRC_BASE_ADDR;
-	clrsetbits_le32(&src_reg->scr, SRC_SCR_M4C_NON_SCLR_RST_MASK,
-			SRC_SCR_M4_ENABLE_MASK);
-
-	return 0;
-}
-
-int arch_auxiliary_core_check_up(u32 core_id)
-{
-	struct src *src_reg = (struct src *)SRC_BASE_ADDR;
-	unsigned val;
-
-	val = readl(&src_reg->scr);
-
-	if (val & SRC_SCR_M4C_NON_SCLR_RST_MASK)
-		return 0;  /* assert in reset */
-
-	return 1;
-}
-#endif

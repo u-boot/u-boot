@@ -19,6 +19,7 @@
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <miiphy.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
@@ -28,7 +29,9 @@
 #include <input.h>
 #include <pwm.h>
 #include <stdlib.h>
+#include "../common/ge_common.h"
 #include "../common/vpd_reader.h"
+#include "../../../drivers/net/e1000.h"
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_SYS_I2C_EEPROM_ADDR
@@ -37,7 +40,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 #ifndef CONFIG_SYS_I2C_EEPROM_BUS
-#define CONFIG_SYS_I2C_EEPROM_BUS       2
+#define CONFIG_SYS_I2C_EEPROM_BUS       4
 #endif
 
 #define NC_PAD_CTRL (PAD_CTL_PUS_100K_UP |	\
@@ -546,63 +549,78 @@ int overwrite_console(void)
 #define VPD_PRODUCT_B850 1
 #define VPD_PRODUCT_B650 2
 #define VPD_PRODUCT_B450 3
+#define VPD_HAS_MAC1 0x1
+#define VPD_HAS_MAC2 0x2
+#define VPD_MAC_ADDRESS_LENGTH 6
 
 struct vpd_cache {
-	uint8_t product_id;
-	uint8_t macbits;
-	unsigned char mac1[6];
+	u8 product_id;
+	u8 has;
+	unsigned char mac1[VPD_MAC_ADDRESS_LENGTH];
+	unsigned char mac2[VPD_MAC_ADDRESS_LENGTH];
 };
 
 /*
  * Extracts MAC and product information from the VPD.
  */
-static int vpd_callback(
-	void *userdata,
-	uint8_t id,
-	uint8_t version,
-	uint8_t type,
-	size_t size,
-	uint8_t const *data)
+static int vpd_callback(void *userdata, u8 id, u8 version, u8 type,
+			size_t size, u8 const *data)
 {
 	struct vpd_cache *vpd = (struct vpd_cache *)userdata;
 
-	if (   id == VPD_BLOCK_HWID
-	    && version == 1
-	    && type != VPD_TYPE_INVALID
-	    && size >= 1) {
+	if (id == VPD_BLOCK_HWID && version == 1 && type != VPD_TYPE_INVALID &&
+	    size >= 1) {
 		vpd->product_id = data[0];
-
-	} else if (   id == VPD_BLOCK_NETWORK
-		   && version == 1
-		   && type != VPD_TYPE_INVALID
-		   && size >= 6) {
-		vpd->macbits |= 1;
-		memcpy(vpd->mac1, data, 6);
+	} else if (id == VPD_BLOCK_NETWORK && version == 1 &&
+		   type != VPD_TYPE_INVALID) {
+		if (size >= 6) {
+			vpd->has |= VPD_HAS_MAC1;
+			memcpy(vpd->mac1, data, VPD_MAC_ADDRESS_LENGTH);
+		}
+		if (size >= 12) {
+			vpd->has |= VPD_HAS_MAC2;
+			memcpy(vpd->mac2, data + 6, VPD_MAC_ADDRESS_LENGTH);
+		}
 	}
 
 	return 0;
 }
 
-static void set_eth0_mac_address(unsigned char * mac)
-{
-	uint32_t *ENET_TCR = (uint32_t*)0x21880c4;
-	uint32_t *ENET_PALR = (uint32_t*)0x21880e4;
-	uint32_t *ENET_PAUR = (uint32_t*)0x21880e8;
-
-	*ENET_TCR |= 0x100;  /* ADDINS */
-	*ENET_PALR |= (mac[0] << 24) | (mac[1] << 16) | (mac[2] << 8) | mac[3];
-	*ENET_PAUR |= (mac[4] << 24) | (mac[5] << 16);
-}
-
 static void process_vpd(struct vpd_cache *vpd)
 {
-	if (   vpd->product_id == VPD_PRODUCT_B850
-	    || vpd->product_id == VPD_PRODUCT_B650
-	    || vpd->product_id == VPD_PRODUCT_B450) {
-		if (vpd->macbits & 1) {
-			set_eth0_mac_address(vpd->mac1);
-		}
+	int fec_index = -1;
+	int i210_index = -1;
+
+	switch (vpd->product_id) {
+	case VPD_PRODUCT_B450:
+		env_set("confidx", "1");
+		break;
+	case VPD_PRODUCT_B650:
+		env_set("confidx", "2");
+		break;
+	case VPD_PRODUCT_B850:
+		env_set("confidx", "3");
+		break;
 	}
+
+	switch (vpd->product_id) {
+	case VPD_PRODUCT_B450:
+		/* fall thru */
+	case VPD_PRODUCT_B650:
+		i210_index = 0;
+		fec_index = 1;
+		break;
+	case VPD_PRODUCT_B850:
+		i210_index = 1;
+		fec_index = 2;
+		break;
+	}
+
+	if (fec_index >= 0 && (vpd->has & VPD_HAS_MAC1))
+		eth_env_set_enetaddr_by_index("eth", fec_index, vpd->mac1);
+
+	if (i210_index >= 0 && (vpd->has & VPD_HAS_MAC2))
+		eth_env_set_enetaddr_by_index("eth", i210_index, vpd->mac2);
 }
 
 static int read_vpd(uint eeprom_bus)
@@ -641,6 +659,8 @@ int board_eth_init(bd_t *bis)
 	setup_iomux_enet();
 	setup_pcie();
 
+	e1000_initialize(bis);
+
 	return cpu_eth_init(bis);
 }
 
@@ -652,6 +672,7 @@ static iomux_v3_cfg_t const misc_pads[] = {
 	MX6_PAD_EIM_OE__GPIO2_IO25	| MUX_PAD_CTRL(NC_PAD_CTRL),
 	MX6_PAD_EIM_BCLK__GPIO6_IO31	| MUX_PAD_CTRL(NC_PAD_CTRL),
 	MX6_PAD_GPIO_1__GPIO1_IO01	| MUX_PAD_CTRL(NC_PAD_CTRL),
+	MX6_PAD_GPIO_9__WDOG1_B         | MUX_PAD_CTRL(NC_PAD_CTRL),
 };
 #define SUS_S3_OUT	IMX_GPIO_NR(4, 11)
 #define WIFI_EN	IMX_GPIO_NR(6, 14)
@@ -693,8 +714,6 @@ int board_init(void)
 	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
 	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
 	setup_i2c(3, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info3);
-
-	read_vpd(CONFIG_SYS_I2C_EEPROM_BUS);
 
 	return 0;
 }
@@ -761,6 +780,8 @@ void pmic_init(void)
 
 int board_late_init(void)
 {
+	read_vpd(CONFIG_SYS_I2C_EEPROM_BUS);
+
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
 #endif
@@ -784,6 +805,35 @@ int board_late_init(void)
 
 	/* board specific pmic init */
 	pmic_init();
+
+	check_time();
+
+	return 0;
+}
+
+/*
+ * Removes the 'eth[0-9]*addr' environment variable with the given index
+ *
+ * @param index [in] the index of the eth_device whose variable is to be removed
+ */
+static void remove_ethaddr_env_var(int index)
+{
+	char env_var_name[9];
+
+	sprintf(env_var_name, index == 0 ? "ethaddr" : "eth%daddr", index);
+	env_set(env_var_name, NULL);
+}
+
+int last_stage_init(void)
+{
+	int i;
+
+	/*
+	 * Remove first three ethaddr which may have been created by
+	 * function process_vpd().
+	 */
+	for (i = 0; i < 3; ++i)
+		remove_ethaddr_env_var(i);
 
 	return 0;
 }

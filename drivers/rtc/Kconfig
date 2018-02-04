@@ -30,6 +30,12 @@ config RTC_DS1307
 	  Support for Dallas Semiconductor (now Maxim) DS1307 and DS1338/9 and
 	  compatible Real Time Clock devices.
 
+config RTC_RX8010SJ
+	bool "Enable RX8010SJ driver"
+	depends on DM_RTC
+	help
+	  Support for Epson RX8010SJ Real Time Clock devices.
+
 config RTC_S35392A
 	bool "Enable S35392A driver"
 	select BITREVERSE

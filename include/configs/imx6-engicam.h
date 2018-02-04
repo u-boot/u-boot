@@ -208,7 +208,7 @@
 
 /* SPL */
 #ifdef CONFIG_SPL
-# ifdef CONFIG_NAND_MXS
+# ifdef CONFIG_ENV_IS_IN_NAND
 #  define CONFIG_SPL_NAND_SUPPORT
 # else
 #  define CONFIG_SPL_MMC_SUPPORT

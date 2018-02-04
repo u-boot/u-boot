@@ -660,6 +660,12 @@ config ARCH_MESON
 	  targeted at media players and tablet computers. We currently
 	  support the S905 (GXBaby) 64-bit SoC.
 
+config ARCH_MX8M
+	bool "NXP i.MX8M platform"
+	select ARM64
+	select DM
+	select SUPPORT_SPL
+
 config ARCH_MX25
 	bool "NXP MX25"
 	select CPU_ARM926EJS
@@ -1254,13 +1260,15 @@ source "arch/arm/cpu/armv7/ls102xa/Kconfig"
 
 source "arch/arm/mach-imx/mx2/Kconfig"
 
-source "arch/arm/mach-imx/mx7ulp/Kconfig"
-
-source "arch/arm/mach-imx/mx7/Kconfig"
+source "arch/arm/mach-imx/mx5/Kconfig"
 
 source "arch/arm/mach-imx/mx6/Kconfig"
 
-source "arch/arm/mach-imx/mx5/Kconfig"
+source "arch/arm/mach-imx/mx7/Kconfig"
+
+source "arch/arm/mach-imx/mx7ulp/Kconfig"
+
+source "arch/arm/mach-imx/mx8m/Kconfig"
 
 source "arch/arm/mach-omap2/Kconfig"
 
