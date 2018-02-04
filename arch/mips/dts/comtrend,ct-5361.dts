@@ -39,11 +39,19 @@
 	status = "okay";
 };
 
+&ohci {
+	status = "okay";
+};
+
 &pflash {
 	status = "okay";
 };
 
 &uart0 {
 	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&usbh {
 	status = "okay";
 };
