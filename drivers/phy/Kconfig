@@ -71,6 +71,12 @@ config BCM6358_USBH_PHY
 	help
 	  Support for the Broadcom MIPS BCM6358 USBH PHY.
 
+config BCM6368_USBH_PHY
+	bool "BCM6368 USBH PHY support"
+	depends on PHY && ARCH_BMIPS
+	help
+	  Support for the Broadcom MIPS BCM6368 USBH PHY.
+
 config PIPE3_PHY
 	bool "Support omap's PIPE3 PHY"
 	depends on PHY && ARCH_OMAP2PLUS
