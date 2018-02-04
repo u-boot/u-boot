@@ -177,6 +177,36 @@
 			#power-domain-cells = <1>;
 		};
 
+		ehci: usb-controller@10002500 {
+			compatible = "brcm,bcm6362-ehci", "generic-ehci";
+			reg = <0x10002500 0x100>;
+			phys = <&usbh>;
+			big-endian;
+
+			status = "disabled";
+		};
+
+		ohci: usb-controller@10002600 {
+			compatible = "brcm,bcm6362-ohci", "generic-ohci";
+			reg = <0x10002600 0x100>;
+			phys = <&usbh>;
+			big-endian;
+
+			status = "disabled";
+		};
+
+		usbh: usb-phy@10002700 {
+			compatible = "brcm,bcm6368-usbh";
+			reg = <0x10002700 0x38>;
+			#phy-cells = <0>;
+			clocks = <&periph_clk BCM6362_CLK_USBH>;
+			clock-names = "usbh";
+			power-domains = <&periph_pwr BCM6362_PWR_USBH>;
+			resets = <&periph_rst BCM6362_RST_USBH>;
+
+			status = "disabled";
+		};
+
 		memory-controller@10003000 {
 			compatible = "brcm,bcm6328-mc";
 			reg = <0x10003000 0x864>;
