@@ -21,6 +21,10 @@
 	};
 };
 
+&ehci {
+	status = "okay";
+};
+
 &leds {
 	status = "okay";
 	brcm,serial-leds;
@@ -64,7 +68,15 @@
 	};
 };
 
+&ohci {
+	status = "okay";
+};
+
 &uart0 {
 	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&usbh {
 	status = "okay";
 };
