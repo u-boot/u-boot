@@ -170,11 +170,6 @@
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
 /*
- * GPIO
- */
-#define CONFIG_MXC_GPIO
-
-/*
  * NOR
  */
 

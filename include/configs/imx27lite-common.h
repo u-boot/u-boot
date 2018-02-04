@@ -132,11 +132,6 @@
 #define CONFIG_MXC_NAND_HWECC
 
 /*
- * GPIO
- */
-#define CONFIG_MXC_GPIO
-
-/*
  * U-Boot general configuration
  */
 #define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size  */

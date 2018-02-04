@@ -12,7 +12,6 @@
 #define __CONFIG_H
 
 #define CONFIG_SYS_FSL_CLK
-#define CONFIG_MXC_GPIO
 
 #include <asm/arch/imx-regs.h>
 

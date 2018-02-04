@@ -12,7 +12,6 @@
 /* High Level Configuration Options */
 
 #define CONFIG_SYS_TEXT_BASE		0x81200000
-#define CONFIG_MXC_GPIO
 #define CONFIG_SYS_FSL_CLK
 
 #define CONFIG_SYS_TIMER_RATE		32768

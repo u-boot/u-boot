@@ -89,7 +89,6 @@
 #define CONFIG_DFU_MMC
 
 /* Miscellaneous commands */
-#define CONFIG_MXC_GPIO
 
 /* Framebuffer and LCD */
 #define CONFIG_VIDEO_IPUV3

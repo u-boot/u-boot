@@ -64,9 +64,6 @@
 #define CONFIG_MXC_OCOTP
 #endif
 
-/* GPIO */
-#define CONFIG_MXC_GPIO
-
 /* I2C Configs */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC

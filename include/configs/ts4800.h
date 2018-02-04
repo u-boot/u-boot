@@ -43,7 +43,6 @@
 
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
-#define CONFIG_MXC_GPIO
 
 /*
  * SPI Configs

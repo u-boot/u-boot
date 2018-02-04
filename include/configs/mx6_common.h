@@ -69,9 +69,6 @@
 #define CONFIG_SYS_CBSIZE	512
 #define CONFIG_SYS_MAXARGS	32
 
-/* GPIO */
-#define CONFIG_MXC_GPIO
-
 /* MMC */
 #define CONFIG_BOUNCE_BUFFER
 #define CONFIG_FSL_ESDHC

@@ -44,7 +44,6 @@
 #define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_SYS_SPD_BUS_NUM		0
 #define CONFIG_MXC_SPI
-#define CONFIG_MXC_GPIO
 
 /* PMIC Controller */
 #define CONFIG_POWER
@@ -75,8 +74,6 @@
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_DNS
-
-#define CONFIG_MXC_GPIO
 
 #define CONFIG_NET_RETRY_COUNT	100
 

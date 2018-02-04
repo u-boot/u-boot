@@ -45,9 +45,6 @@
 #ifndef CONFIG_SYS_DCACHE_OFF
 #endif
 
-/* GPIO */
-#define CONFIG_MXC_GPIO
-
 /* UART */
 #define CONFIG_MXC_UART
 

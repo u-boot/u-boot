@@ -50,7 +50,6 @@
 
 #define CONFIG_LAST_STAGE_INIT
 
-#define CONFIG_MXC_GPIO
 #define CONFIG_MXC_UART
 
 #define CONFIG_MXC_OCOTP

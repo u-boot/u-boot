@@ -147,8 +147,6 @@
 
 /* EET platform additions */
 #ifdef CONFIG_TARGET_IMX31_PHYCORE_EET
-#define CONFIG_MXC_GPIO
-
 #define CONFIG_HARD_SPI
 #define CONFIG_MXC_SPI
 

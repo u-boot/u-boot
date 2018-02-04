@@ -38,11 +38,6 @@
  */
 
 /*
- * GPIO
- */
-#define CONFIG_MXC_GPIO
-
-/*
  * Serial
  */
 #define CONFIG_MXC_UART

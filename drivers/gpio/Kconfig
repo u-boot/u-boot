@@ -108,6 +108,11 @@ config MSM_GPIO
 	  - APQ8016
 	  - MSM8916
 
+config MXC_GPIO
+	bool "Freescale/NXP MXC UART driver"
+	help
+	  Support GPIO controllers on various i.MX platforms
+
 config OMAP_GPIO
 	bool "TI OMAP GPIO driver"
 	depends on ARCH_OMAP2PLUS

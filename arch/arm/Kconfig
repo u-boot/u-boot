@@ -669,11 +669,13 @@ config ARCH_MX8M
 config ARCH_MX25
 	bool "NXP MX25"
 	select CPU_ARM926EJS
+	imply MXC_GPIO
 
 config ARCH_MX7ULP
         bool "NXP MX7ULP"
         select CPU_V7
 	select ROM_UNIFIED_SECTIONS
+	imply MXC_GPIO
 
 config ARCH_MX7
 	bool "Freescale MX7"
@@ -683,6 +685,7 @@ config ARCH_MX7
 	select SYS_FSL_SEC_LE
 	select BOARD_EARLY_INIT_F
 	select ARCH_MISC_INIT
+	imply MXC_GPIO
 
 config ARCH_MX6
 	bool "Freescale MX6"
@@ -691,6 +694,7 @@ config ARCH_MX6
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
 	select SYS_THUMB_BUILD if SPL
+	imply MXC_GPIO
 
 if ARCH_MX6
 config SPL_LDSCRIPT
@@ -701,6 +705,7 @@ config ARCH_MX5
 	bool "Freescale MX5"
 	select CPU_V7
 	select BOARD_EARLY_INIT_F
+	imply MXC_GPIO
 
 config ARCH_QEMU
 	bool "QEMU Virtual Platform"
