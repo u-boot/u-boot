@@ -166,7 +166,14 @@ struct efi_boot_services {
 	void (EFIAPI *copy_mem)(void *destination, const void *source,
 			size_t length);
 	void (EFIAPI *set_mem)(void *buffer, size_t size, uint8_t value);
-	void *create_event_ex;
+	efi_status_t (EFIAPI *create_event_ex)(
+				uint32_t type, efi_uintn_t notify_tpl,
+				void (EFIAPI *notify_function) (
+					struct efi_event *event,
+					void *context),
+				void *notify_context,
+				efi_guid_t *event_group,
+				struct efi_event **event);
 };
 
 /* Types and defines for EFI ResetSystem */
