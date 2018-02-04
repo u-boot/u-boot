@@ -135,6 +135,26 @@
 			status = "disabled";
 		};
 
+		ohci: usb-controller@fffe1b00 {
+			compatible = "brcm,bcm6348-ohci", "generic-ohci";
+			reg = <0xfffe1b00 0x100>;
+			phys = <&usbh>;
+			big-endian;
+
+			status = "disabled";
+		};
+
+		usbh: usb-phy@fffe1c00 {
+			compatible = "brcm,bcm6348-usbh";
+			reg = <0xfffe1c00 0x4>;
+			#phy-cells = <0>;
+			clocks = <&periph_clk BCM6348_CLK_USBH>;
+			clock-names = "usbh";
+			resets = <&periph_rst BCM6348_RST_USBH>;
+
+			status = "disabled";
+		};
+
 		memory-controller@fffe2300 {
 			compatible = "brcm,bcm6338-mc";
 			reg = <0xfffe2300 0x38>;
