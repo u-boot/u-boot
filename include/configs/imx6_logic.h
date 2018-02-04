@@ -28,7 +28,6 @@
 #define CONFIG_FEC_XCV_TYPE            RMII
 #define CONFIG_ETHPRIME                "FEC"
 #define CONFIG_FEC_MXC_PHYADDR         0
-#define CONFIG_PHY_SMSC
 
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
