@@ -504,6 +504,19 @@ config LOG_TEST
 	  in various different ways to test that the logging system works
 	  correctly with varoius settings.
 
+config LOG_ERROR_RETURN
+	bool "Log all functions which return an error"
+	depends on LOG
+	help
+	  When an error is returned in U-Boot it is sometimes difficult to
+	  figure out the root cause. For eaxmple, reading from SPI flash may
+	  fail due to a problem in the SPI controller or due to the flash part
+	  not returning the expected information. This option changes
+	  log_ret() to log any errors it sees. With this option disabled,
+	  log_ret() is a nop.
+
+	  You can add log_ret() to all functions which return an error code.
+
 endmenu
 
 config DEFAULT_FDT_FILE

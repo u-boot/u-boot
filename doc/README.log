@@ -51,6 +51,7 @@ The following main categories are defined:
    LOGC_BOARD	- Related to board-specific code
    LOGC_CORE	- Related to core driver-model support
    LOGC_DT	- Related to device tree control
+   LOGC_EFI	- Related to EFI implementation
 
 
 Enabling logging
@@ -66,6 +67,19 @@ The following options are used to enable logging at compile time:
 If CONFIG_LOG is not set, then no logging will be available.
 
 The above have SPL versions also, e.g. CONFIG_SPL_MAX_LOG_LEVEL.
+
+
+Log commands
+------------
+
+The 'log' command provides access to several features:
+
+   level - access the default log level
+   format - access the console log format
+   rec - output a log record
+   test - run tests
+
+Type 'help log' for details.
 
 
 Using DEBUG
@@ -94,6 +108,20 @@ enabled or disabled independently:
    console - goes to stdout
 
 
+Log format
+----------
+
+You can control the log format using the 'log format' command. The basic
+format is:
+
+   LEVEL.category,file.c:123-func() message
+
+In the above, file.c:123 is the filename where the log record was generated and
+func() is the function name. By default ('log format default') only the
+function name and message are displayed on the console. You can control which
+fields are present, but not the field order.
+
+
 Filters
 -------
 
@@ -120,6 +148,14 @@ The main logging function is:
 Also debug() and error() will generate log records  - these use LOG_CATEGORY
 as the category, so you should #define this right at the top of the source
 file to ensure the category is correct.
+
+You can also define CONFIG_LOG_ERROR_RETURN to enable the log_ret() macro. This
+can be used whenever your function returns an error value:
+
+   return log_ret(uclass_first_device(UCLASS_MMC, &dev));
+
+This will write a log record when an error code is detected (a value < 0). This
+can make it easier to trace errors that are generated deep in the call stack.
 
 
 Code size
