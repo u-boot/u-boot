@@ -2892,7 +2892,7 @@ static uint16_t __efi_runtime_data firmware_vendor[] = L"Das U-Boot";
 struct efi_system_table __efi_runtime_data systab = {
 	.hdr = {
 		.signature = EFI_SYSTEM_TABLE_SIGNATURE,
-		.revision = 0x20005, /* 2.5 */
+		.revision = 2 << 16 | 70, /* 2.7 */
 		.headersize = sizeof(struct efi_table_hdr),
 	},
 	.fw_vendor = (long)firmware_vendor,
