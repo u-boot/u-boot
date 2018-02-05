@@ -40,9 +40,6 @@
 #undef CONFIG_CONS_INDEX
 #define CONFIG_CONS_INDEX               1
 #define CONFIG_SYS_NS16550_COM1         OMAP34XX_UART1
-#if defined(CONFIG_SPL_BUILD)
-#undef CONFIG_SYS_NS16550_REG_SIZE
-#endif /* CONFIG_SPL_BUILD */
 
 /* NAND */
 #if defined(CONFIG_NAND)
