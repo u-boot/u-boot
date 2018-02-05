@@ -227,6 +227,7 @@
 
 		usb_otg: usb@01c19000 {
 			compatible = "allwinner,sun8i-a33-musb";
+			reg = <0x01c19000 0x400>;
 			interrupts = <GIC_SPI 71 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "mc";
 			status = "disabled";
