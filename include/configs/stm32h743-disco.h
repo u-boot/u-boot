@@ -39,6 +39,8 @@
 #define CONFIG_BOOTARGS							\
 	"console=ttyS0,115200 earlyprintk consoleblank=0 ignore_loglevel"
 
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
+
 /*
  * Command line configuration.
  */
