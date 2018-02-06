@@ -14,6 +14,9 @@ config ARCH_LS1012A
 	select SYS_FSL_ERRATUM_A009008
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
+	select SYS_I2C_MXC
+	select SYS_I2C_MXC_I2C1
+	select SYS_I2C_MXC_I2C2
 	imply PANIC_HANG
 
 config ARCH_LS1043A
@@ -41,6 +44,11 @@ config ARCH_LS1043A
 	select SYS_FSL_HAS_DDR4
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
+	select SYS_I2C_MXC
+	select SYS_I2C_MXC_I2C1
+	select SYS_I2C_MXC_I2C2
+	select SYS_I2C_MXC_I2C3
+	select SYS_I2C_MXC_I2C4
 	imply SCSI
 	imply SCSI_AHCI
 	imply CMD_PCI
@@ -70,6 +78,11 @@ config ARCH_LS1046A
 	select SYS_FSL_SRDS_2
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
+	select SYS_I2C_MXC
+	select SYS_I2C_MXC_I2C1
+	select SYS_I2C_MXC_I2C2
+	select SYS_I2C_MXC_I2C3
+	select SYS_I2C_MXC_I2C4
 	imply SCSI
 	imply SCSI_AHCI
 
@@ -102,6 +115,11 @@ config ARCH_LS1088A
 	select FSL_TZASC_1
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
+	select SYS_I2C_MXC
+	select SYS_I2C_MXC_I2C1
+	select SYS_I2C_MXC_I2C2
+	select SYS_I2C_MXC_I2C3
+	select SYS_I2C_MXC_I2C4
 	imply SCSI
 	imply PANIC_HANG
 
@@ -144,6 +162,11 @@ config ARCH_LS2080A
 	select SYS_FSL_ERRATUM_A009203
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
+	select SYS_I2C_MXC
+	select SYS_I2C_MXC_I2C1
+	select SYS_I2C_MXC_I2C2
+	select SYS_I2C_MXC_I2C3
+	select SYS_I2C_MXC_I2C4
 	imply PANIC_HANG
 
 config FSL_LSCH2
