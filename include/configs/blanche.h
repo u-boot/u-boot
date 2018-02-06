@@ -98,6 +98,5 @@
 
 /* SDHI */
 #define CONFIG_SH_SDHI_FREQ	97500000
-#define HAVE_BLOCK_DEVICE
 
 #endif	/* __BLANCHE_H */

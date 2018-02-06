@@ -33,9 +33,6 @@
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		19000000
 
-/* Partition table support */
-#define HAVE_BLOCK_DEVICE
-
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
 

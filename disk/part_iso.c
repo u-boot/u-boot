@@ -10,7 +10,7 @@
 #include <asm/unaligned.h>
 #include "part_iso.h"
 
-#ifdef HAVE_BLOCK_DEVICE
+#ifdef CONFIG_HAVE_BLOCK_DEVICE
 
 /* #define	ISO_PART_DEBUG */
 

@@ -10,7 +10,7 @@
 #include <ide.h>
 #include "part_amiga.h"
 
-#ifdef HAVE_BLOCK_DEVICE
+#ifdef CONFIG_HAVE_BLOCK_DEVICE
 
 #undef AMIGA_DEBUG
 

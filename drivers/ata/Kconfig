@@ -9,6 +9,7 @@ config AHCI
 
 config SATA
 	bool "Support SATA controllers"
+	select HAVE_BLOCK_DEVICE
 	help
 	  This enables support for SATA (Serial Advanced Technology
 	  Attachment), a serial bus standard for connecting to hard drives and

@@ -29,21 +29,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 #endif
 
-/* Rather than repeat this expression each time, add a define for it */
-#if defined(CONFIG_IDE) || \
-	defined(CONFIG_SATA) || \
-	defined(CONFIG_SCSI) || \
-	defined(CONFIG_CMD_USB) || \
-	defined(CONFIG_CMD_PART) || \
-	defined(CONFIG_CMD_GPT) || \
-	defined(CONFIG_MMC) || \
-	defined(CONFIG_NVME) || \
-	defined(CONFIG_SYSTEMACE) || \
-	(defined(CONFIG_EFI_LOADER) && !defined(CONFIG_SPL_BUILD)) || \
-	defined(CONFIG_SANDBOX)
-#define HAVE_BLOCK_DEVICE
-#endif
-
 /* Console I/O Buffer Size */
 #ifndef CONFIG_SYS_CBSIZE
 #if defined(CONFIG_CMD_KGDB)

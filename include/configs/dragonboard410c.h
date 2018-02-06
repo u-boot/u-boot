@@ -43,9 +43,6 @@
 /* Disabled by default as some sub-commands can brick eMMC */
 /*#define CONFIG_SUPPORT_EMMC_BOOT */
 
-/* Partition table support */
-#define HAVE_BLOCK_DEVICE /* Needed for partition commands */
-
 #include <config_distro_defaults.h>
 
 /* BOOTP options */

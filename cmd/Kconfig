@@ -672,6 +672,7 @@ config CMD_GPT
 	bool "GPT (GUID Partition Table) command"
 	select PARTITION_UUIDS
 	select EFI_PARTITION
+	select HAVE_BLOCK_DEVICE
 	imply RANDOM_UUID
 	help
 	  Enable the 'gpt' command to ready and write GPT style partition
@@ -819,6 +820,7 @@ config CMD_ONENAND
 config CMD_PART
 	bool "part"
 	select PARTITION_UUIDS
+	select HAVE_BLOCK_DEVICE
 	help
 	  Read and display information about the partition table on
 	  various media.
@@ -911,6 +913,7 @@ config CMD_UNIVERSE
 
 config CMD_USB
 	bool "usb"
+	select HAVE_BLOCK_DEVICE
 	help
 	  USB support.
 

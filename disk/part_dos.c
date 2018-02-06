@@ -20,7 +20,7 @@
 #include <memalign.h>
 #include "part_dos.h"
 
-#ifdef HAVE_BLOCK_DEVICE
+#ifdef CONFIG_HAVE_BLOCK_DEVICE
 
 #define DOS_PART_DEFAULT_SECTOR 512
 

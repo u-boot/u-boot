@@ -10,6 +10,11 @@ config BLK
 	  be partitioned into several areas, called 'partitions' in U-Boot.
 	  A filesystem can be placed in each partition.
 
+config HAVE_BLOCK_DEVICE
+	bool "Enable Legacy Block Device"
+	help
+	  Some devices require block support whether or not DM is enabled
+
 config SPL_BLK
 	bool "Support block devices in SPL"
 	depends on SPL_DM && BLK
@@ -33,6 +38,7 @@ config BLOCK_CACHE
 
 config IDE
 	bool "Support IDE controllers"
+	select HAVE_BLOCK_DEVICE
 	help
 	  Enables support for IDE (Integrated Drive Electronics) hard drives.
 	  This allows access to raw blocks and filesystems on an IDE drive
@@ -41,6 +47,7 @@ config IDE
 
 config SYSTEMACE
 	bool "Xilinx SystemACE support"
+	select HAVE_BLOCK_DEVICE
 	help
 	  Adding this option adds support for Xilinx SystemACE chips attached
 	  via some sort of local bus. The address of the chip must also be
