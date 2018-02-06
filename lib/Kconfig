@@ -15,6 +15,12 @@ config CC_OPTIMIZE_LIBS_FOR_SPEED
 
 	  If unsure, say N.
 
+config DYNAMIC_CRC_TABLE
+	bool "Enable Dynamic tables for CRC"
+	help
+	  Enable this option to calculate entries for CRC tables at runtime.
+	  This can be helpful when reducing the size of the build image
+
 config HAVE_PRIVATE_LIBGCC
 	bool
 

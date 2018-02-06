@@ -26,7 +26,7 @@
 
 #define tole(x) cpu_to_le32(x)
 
-#ifdef DYNAMIC_CRC_TABLE
+#ifdef CONFIG_DYNAMIC_CRC_TABLE
 
 local int crc_table_empty = 1;
 local uint32_t crc_table[256];
@@ -157,7 +157,7 @@ tole(0xb40bbe37L), tole(0xc30c8ea1L), tole(0x5a05df1bL), tole(0x2d02ef8dL)
  */
 const uint32_t * ZEXPORT get_crc_table()
 {
-#ifdef DYNAMIC_CRC_TABLE
+#ifdef CONFIG_DYNAMIC_CRC_TABLE
   if (crc_table_empty) make_crc_table();
 #endif
   return (const uint32_t *)crc_table;
@@ -181,7 +181,7 @@ uint32_t ZEXPORT crc32_no_comp(uint32_t crc, const Bytef *buf, uInt len)
     const uint32_t *tab = crc_table;
     const uint32_t *b =(const uint32_t *)buf;
     size_t rem_len;
-#ifdef DYNAMIC_CRC_TABLE
+#ifdef CONFIG_DYNAMIC_CRC_TABLE
     if (crc_table_empty)
       make_crc_table();
 #endif
