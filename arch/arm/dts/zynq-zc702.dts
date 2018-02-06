@@ -117,7 +117,7 @@
 	scl-gpios = <&gpio0 50 0>;
 	sda-gpios = <&gpio0 51 0>;
 
-	i2cswitch@74 {
+	i2c-mux@74 {
 		compatible = "nxp,pca9548";
 		#address-cells = <1>;
 		#size-cells = <0>;
