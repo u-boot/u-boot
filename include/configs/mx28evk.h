@@ -12,7 +12,6 @@
 #define __CONFIGS_MX28EVK_H__
 
 /* System configurations */
-#define CONFIG_MX28				/* i.MX28 SoC */
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX28EVK
 
 /* Memory configuration */

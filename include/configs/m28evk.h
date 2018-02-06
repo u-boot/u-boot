@@ -8,7 +8,6 @@
 #define __CONFIGS_M28EVK_H__
 
 /* System configurations */
-#define CONFIG_MX28				/* i.MX28 SoC */
 #define CONFIG_MACH_TYPE	MACH_TYPE_M28EVK
 
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */

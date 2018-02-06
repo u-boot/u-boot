@@ -6,9 +6,6 @@
 #ifndef __CONFIGS_BG0900_H__
 #define __CONFIGS_BG0900_H__
 
-/* System configurations */
-#define CONFIG_MX28				/* i.MX28 SoC */
-
 /* Memory configuration */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */
 #define PHYS_SDRAM_1			0x40000000	/* Base address */
