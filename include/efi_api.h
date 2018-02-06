@@ -180,7 +180,8 @@ struct efi_boot_services {
 enum efi_reset_type {
 	EFI_RESET_COLD = 0,
 	EFI_RESET_WARM = 1,
-	EFI_RESET_SHUTDOWN = 2
+	EFI_RESET_SHUTDOWN = 2,
+	EFI_RESET_PLATFORM_SPECIFIC = 3,
 };
 
 /* EFI Runtime Services table */

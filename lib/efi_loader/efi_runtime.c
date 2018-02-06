@@ -91,6 +91,7 @@ static void EFIAPI efi_reset_system_boottime(
 	switch (reset_type) {
 	case EFI_RESET_COLD:
 	case EFI_RESET_WARM:
+	case EFI_RESET_PLATFORM_SPECIFIC:
 		do_reset(NULL, 0, 0, NULL);
 		break;
 	case EFI_RESET_SHUTDOWN:
