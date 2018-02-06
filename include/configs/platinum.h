@@ -66,7 +66,6 @@
 #ifdef CONFIG_CMD_NAND
 
 /* NAND config */
-#define CONFIG_NAND_MXS
 #ifndef CONFIG_SYS_NAND_MAX_CHIPS
 #define CONFIG_SYS_NAND_MAX_CHIPS		2
 #endif

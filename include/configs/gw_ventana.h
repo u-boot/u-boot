@@ -67,7 +67,6 @@
 #elif defined(CONFIG_SPL_NAND_SUPPORT)
 /* Enable NAND support */
 #ifdef CONFIG_CMD_NAND
-  #define CONFIG_NAND_MXS
   #define CONFIG_SYS_MAX_NAND_DEVICE	1
   #define CONFIG_SYS_NAND_BASE		0x40000000
   #define CONFIG_SYS_NAND_5_ADDR_CYCLE
