@@ -142,6 +142,9 @@ config NAND_MXS
 	bool "MXS NAND support"
 	depends on MX23 || MX28 || MX6 || MX7
 	imply CMD_NAND
+	select APBH_DMA
+	select APBH_DMA_BURST if ARCH_MX6 || ARCH_MX7
+	select APBH_DMA_BURST8 if ARCH_MX6 || ARCH_MX7
 	help
 	  This enables NAND driver for the NAND flash controller on the
 	  MXS processors.

@@ -99,7 +99,6 @@
  */
 
 /* APBH DMA */
-#define CONFIG_APBH_DMA
 
 /* GPIO */
 #define CONFIG_MXS_GPIO

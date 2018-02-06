@@ -170,9 +170,6 @@
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 
 /* DMA stuff, needed for GPMI/MXS NAND support */
-#define CONFIG_APBH_DMA
-#define CONFIG_APBH_DMA_BURST
-#define CONFIG_APBH_DMA_BURST8
 
 /* USB Configs */
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET

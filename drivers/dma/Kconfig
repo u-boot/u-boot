@@ -19,4 +19,19 @@ config TI_EDMA3
 	  This driver support data transfer between memory
 	  regions.
 
+config APBH_DMA
+	bool "Support APBH DMA"
+	depends on MX23 || MX28 || MX6 || MX7
+	help
+	  Enable APBH DMA driver.
+
+if APBH_DMA
+config APBH_DMA_BURST
+	bool "Enable DMA BURST"
+
+config APBH_DMA_BURST8
+	bool "Enable DMA BURST8"
+
+endif
+
 endmenu # menu "DMA Support"

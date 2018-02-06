@@ -161,10 +161,6 @@
 /* MTD device */
 # define CONFIG_MTD_DEVICE
 # define CONFIG_MTD_PARTITIONS
-
-# define CONFIG_APBH_DMA
-# define CONFIG_APBH_DMA_BURST
-# define CONFIG_APBH_DMA_BURST8
 #endif
 
 /* Ethernet */
