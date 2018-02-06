@@ -67,8 +67,6 @@
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-#include <config_distro_defaults.h>
-
 /* Initial environment variables */
 
 /*

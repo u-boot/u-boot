@@ -54,8 +54,6 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 #define CONFIG_BOOTP_MAY_FAIL
 
-/* Diff from config_distro_defaults.h */
-
 #if defined(CONFIG_MMC_SDHCI_ZYNQ)
 # define CONFIG_SUPPORT_EMMC_BOOT
 # ifndef CONFIG_ZYNQ_SDHCI_MAX_FREQ

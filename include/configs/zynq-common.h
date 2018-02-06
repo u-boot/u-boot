@@ -160,7 +160,6 @@
 #ifdef CONFIG_SPL_BUILD
 #define BOOTENV
 #else
-#include <config_distro_defaults.h>
 
 #ifdef CONFIG_CMD_MMC
 #define BOOT_TARGET_DEVICES_MMC(func) func(MMC, mmc, 0)

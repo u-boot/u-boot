@@ -9,7 +9,6 @@
 #include <linux/sizes.h>
 
 #ifndef CONFIG_SPL_BUILD
-#include <config_distro_defaults.h>
 
 /* First try to boot from SD (index 0), then eMMC (index 1) */
 #if CONFIG_IS_ENABLED(CMD_MMC)

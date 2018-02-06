@@ -462,7 +462,6 @@
 #endif
 
 #ifndef SPL_NO_ENV
-#include <config_distro_defaults.h>
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \

@@ -12,7 +12,6 @@
 #define CONFIG_MXC_UART_BASE   UART1_BASE
 #define CONSOLE_DEV            "ttymxc0"
 
-#include <config_distro_defaults.h>
 #include "mx6_common.h"
 
 /* Size of malloc() pool */

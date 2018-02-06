@@ -15,8 +15,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#include <config_distro_defaults.h>
-
 /* U-Boot environment */
 #define CONFIG_ENV_OFFSET	(6 * 64 * 1024)
 #define CONFIG_ENV_SIZE		(8 * 1024)

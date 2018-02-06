@@ -76,8 +76,6 @@
 /* Environment */
 #define CONFIG_PREBOOT                  "usb start"
 
-#include <config_distro_defaults.h>
-
 #define MEM_LAYOUT_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV
 

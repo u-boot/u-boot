@@ -42,8 +42,6 @@
 /* Disabled by default as some sub-commands can brick eMMC */
 /*#define CONFIG_SUPPORT_EMMC_BOOT */
 
-#include <config_distro_defaults.h>
-
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
 

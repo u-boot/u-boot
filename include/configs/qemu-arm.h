@@ -31,8 +31,6 @@
 /* Environment options */
 #define CONFIG_ENV_SIZE				SZ_64K
 
-#include <config_distro_defaults.h>
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(SCSI, scsi, 0)
 

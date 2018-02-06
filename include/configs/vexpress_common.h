@@ -168,8 +168,6 @@
 					 GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_GBL_DATA_OFFSET
 
-#include <config_distro_defaults.h>
-
 /* Basic environment settings */
 #define BOOT_TARGET_DEVICES(func) \
         func(MMC, mmc, 1) \

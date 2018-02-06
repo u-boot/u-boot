@@ -85,8 +85,6 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_INITRD_TAG
 
-#include <config_distro_defaults.h>
-
 /* Environment */
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define ENV_DEVICE_SETTINGS \

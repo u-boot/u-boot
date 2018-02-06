@@ -13,7 +13,6 @@
 #define CONFIG_MISC_INIT_R
 #define CONFIG_KEYBOARD
 
-#include <config_distro_defaults.h>
 #include "mx6_common.h"
 
 /* U-Boot Commands */

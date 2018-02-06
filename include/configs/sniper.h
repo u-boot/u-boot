@@ -157,6 +157,5 @@
  */
 
 #include <config_defaults.h>
-#include <config_distro_defaults.h>
 
 #endif

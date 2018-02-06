@@ -24,8 +24,6 @@
 #define GICD_BASE			0xc4301000
 #define GICC_BASE			0xc4302000
 
-#include <config_distro_defaults.h>
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \

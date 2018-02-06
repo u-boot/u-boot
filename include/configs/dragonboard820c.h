@@ -36,7 +36,6 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 #ifndef CONFIG_SPL_BUILD
-#include <config_distro_defaults.h>
 #include <config_distro_bootcmd.h>
 #endif
 

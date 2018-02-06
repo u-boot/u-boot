@@ -474,7 +474,6 @@ unsigned long get_board_ddr_clk(void);
 
 #endif
 
-#include <config_distro_defaults.h>
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0) \
 	func(MMC, mmc, 0) \

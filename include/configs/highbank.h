@@ -7,8 +7,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <config_distro_defaults.h>
-
 #define CONFIG_SYS_DCACHE_OFF
 
 #define CONFIG_SYS_BOOTMAPSZ		(16 << 20)

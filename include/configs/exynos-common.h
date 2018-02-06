@@ -48,6 +48,4 @@
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#include <config_distro_defaults.h>
-
 #endif	/* __CONFIG_H */

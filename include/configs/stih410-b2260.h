@@ -17,7 +17,6 @@
 
 #define CONFIG_SYS_HZ_CLOCK		1000000000	/* 1 GHz */
 
-#include <config_distro_defaults.h>
 /* Environment */
 
 #define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR

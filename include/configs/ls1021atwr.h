@@ -323,7 +323,6 @@
 
 #define CONFIG_FSL_DEVICE_DISABLE
 
-#include <config_distro_defaults.h>
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(USB, usb, 0)

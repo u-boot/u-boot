@@ -314,7 +314,6 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_MISC_INIT_R
 
 #ifndef CONFIG_SPL_BUILD
-#include <config_distro_defaults.h>
 
 #ifdef CONFIG_ARM64
 /*

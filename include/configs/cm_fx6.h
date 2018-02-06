@@ -13,10 +13,6 @@
 
 #include "mx6_common.h"
 
-#ifndef CONFIG_SPL_BUILD
-#include <config_distro_defaults.h>
-#endif
-
 /* Machine config */
 #define CONFIG_SYS_LITTLE_ENDIAN
 #define CONFIG_MACH_TYPE		4273

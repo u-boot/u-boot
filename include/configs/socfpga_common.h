@@ -288,7 +288,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 
 /* Extra Environment */
 #ifndef CONFIG_SPL_BUILD
-#include <config_distro_defaults.h>
 
 #ifdef CONFIG_CMD_DHCP
 #define BOOT_TARGET_DEVICES_DHCP(func) func(DHCP, dhcp, na)

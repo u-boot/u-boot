@@ -11,7 +11,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#include <config_distro_defaults.h>
 #include "mx6_common.h"
 
 /*

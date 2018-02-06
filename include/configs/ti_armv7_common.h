@@ -226,6 +226,4 @@
 #define NETARGS ""
 #endif
 
-#include <config_distro_defaults.h>
-
 #endif	/* __CONFIG_TI_ARMV7_COMMON_H__ */

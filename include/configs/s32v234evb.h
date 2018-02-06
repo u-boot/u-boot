@@ -9,10 +9,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifndef CONFIG_SPL_BUILD
-#include <config_distro_defaults.h>
-#endif
-
 #include <asm/arch/imx-regs.h>
 
 #define CONFIG_S32V234

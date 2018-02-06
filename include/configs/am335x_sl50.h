@@ -30,8 +30,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 
-#include <config_distro_defaults.h>
-
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"scriptaddr=0x80000000\0" \
 	"pxefile_addr_r=0x80100000\0" \

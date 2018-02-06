@@ -331,8 +331,6 @@ unsigned long get_board_sys_clk(void);
 
 #define CONFIG_MISC_INIT_R
 
-#include <config_distro_defaults.h>
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0) \
 	func(MMC, mmc, 0) \

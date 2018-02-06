@@ -8,8 +8,6 @@
 #ifndef __PCM058_CONFIG_H
 #define __PCM058_CONFIG_H
 
-#include <config_distro_defaults.h>
-
 #ifdef CONFIG_SPL
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(64 * 1024)

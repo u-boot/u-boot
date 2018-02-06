@@ -94,8 +94,4 @@
 /* Misc utility code */
 #define CONFIG_BOUNCE_BUFFER
 
-#ifndef CONFIG_SPL_BUILD
-#include <config_distro_defaults.h>
-#endif
-
 #endif /* _TEGRA_COMMON_H_ */
