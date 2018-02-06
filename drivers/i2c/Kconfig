@@ -268,6 +268,12 @@ config SYS_I2C_BUS_MAX
 	help
 	  Define the maximum number of available I2C buses.
 
+config SYS_I2C_IHS
+        bool "gdsys IHS I2C driver"
+        depends on DM_I2C
+        help
+          Support for gdsys IHS I2C driver on FPGA bus.
+
 source "drivers/i2c/muxes/Kconfig"
 
 endmenu
