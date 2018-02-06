@@ -6,9 +6,6 @@
 #ifndef __CONFIGS_SANSA_FUZE_PLUS_H__
 #define __CONFIGS_SANSA_FUZE_PLUS_H__
 
-/* System configurations */
-#define CONFIG_MX23				/* i.MX23 SoC */
-
 /* U-Boot Commands */
 
 /* Memory configuration */

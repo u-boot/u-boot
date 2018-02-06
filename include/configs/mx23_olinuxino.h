@@ -7,7 +7,6 @@
 #define __CONFIGS_MX23_OLINUXINO_H__
 
 /* System configurations */
-#define CONFIG_MX23				/* i.MX23 SoC */
 #define CONFIG_MACH_TYPE	4105
 
 /* U-Boot Commands */

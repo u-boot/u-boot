@@ -10,7 +10,6 @@
 #define __CONFIGS_MX23EVK_H__
 
 /* System configurations */
-#define CONFIG_MX23				/* i.MX23 SoC */
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX23EVK
 
 /* U-Boot Commands */
