@@ -462,7 +462,6 @@
 #endif
 
 #ifndef SPL_NO_ENV
-#undef CONFIG_CMDLINE_EDITING
 #include <config_distro_defaults.h>
 
 #define BOOT_TARGET_DEVICES(func) \

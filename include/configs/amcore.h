@@ -30,9 +30,7 @@
 		"cp.b 0x20000 0xfff00000 ${filesize}\0"
 
 /* undef to save memory	*/
-#undef	CONFIG_SYS_LONGHELP
 
-#define CONFIG_AUTO_COMPLETE		1 /* add autocompletion support	*/
 #define CONFIG_MX_CYCLIC		1 /* enable mdc/mwc commands	*/
 
 #define CONFIG_SYS_LOAD_ADDR		0x20000	/* default load address */

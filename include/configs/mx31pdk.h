@@ -79,7 +79,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP	/* undef to save memory */
 
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	0x80000000
@@ -87,8 +86,6 @@
 
 /* default load address */
 #define CONFIG_SYS_LOAD_ADDR		0x81000000
-
-#define CONFIG_CMDLINE_EDITING
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map

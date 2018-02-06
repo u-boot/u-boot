@@ -23,6 +23,29 @@ config HUSH_PARSER
 	  If disabled, you get the old, much simpler behaviour with a somewhat
 	  smaller memory footprint.
 
+config CMDLINE_EDITING
+	bool "Enable command line editing"
+	depends on CMDLINE
+	default y
+	help
+	  Enable editing and History functions for interactive command line
+	  input operations
+
+config AUTO_COMPLETE
+	bool "Enable auto complete using TAB"
+	depends on CMDLINE
+	default y
+	help
+	  Enable auto completion of commands using TAB.
+
+config SYS_LONGHELP
+	bool "Enable long help messages"
+	depends on CMDLINE
+	default y if CMDLINE
+	help
+	  Defined when you want long help messages included
+	  Do not set this option when short of memory.
+
 config SYS_PROMPT
 	string "Shell prompt"
 	default "=> "

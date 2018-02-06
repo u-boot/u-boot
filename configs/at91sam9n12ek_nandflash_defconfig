@@ -28,6 +28,9 @@ CONFIG_MTDIDS_DEFAULT="nand0=atmel_nand"
 CONFIG_MTDPARTS_DEFAULT="mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,256k(env),256k(env_redundant),256k(spare),512k(dtb),6M(kernel)ro,-(rootfs)"
 CONFIG_OF_CONTROL=y
 CONFIG_ENV_IS_IN_NAND=y
+CONFIG_BOOTP_BOOTPATH=y
+CONFIG_BOOTP_GATEWAY=y
+CONFIG_BOOTP_HOSTNAME=y
 CONFIG_DM=y
 CONFIG_CLK=y
 CONFIG_CLK_AT91=y

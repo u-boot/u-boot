@@ -26,7 +26,6 @@
 #define SHMIN_SDRAM_BASE		(0x8C000000)
 #define SHMIN_FLASH_BASE_1		(0xA0000000)
 
-#define CONFIG_SYS_LONGHELP		/* undef to save memory	*/
 #define CONFIG_SYS_PBSIZE	256	/* Buffer size for Console output */
 /* List of legal baudrate settings for this board */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600,14400,19200,38400,57600,115200 }

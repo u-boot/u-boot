@@ -19,8 +19,6 @@
 
 #define CONFIG_REMAKE_ELF
 
-#define CONFIG_SUPPORT_RAW_INITRD
-
 /* Physical Memory Map */
 
 /* CONFIG_SYS_TEXT_BASE needs to align with where ATF loads bl33.bin */
@@ -94,12 +92,9 @@
 
 /* Preserve environment on sd card */
 #define CONFIG_ENV_SIZE			0x1000
-#define CONFIG_ENV_VARS_UBOOT_CONFIG
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_MAXARGS		64	/* max command args */
 
 #endif /* __HIKEY_H */

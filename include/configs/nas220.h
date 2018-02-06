@@ -41,9 +41,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
 
 /*
  * mv-common.h should be defined after CMD configs since it used them

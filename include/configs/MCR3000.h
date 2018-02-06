@@ -69,9 +69,7 @@
 #define CONFIG_WATCHDOG		1	/* watchdog enabled */
 
 /* Miscellaneous configurable options */
-#define	CONFIG_SYS_LONGHELP
 
-#define CONFIG_CMDLINE_EDITING		1
 #ifdef	CONFIG_HUSH_PARSER
 #define	CONFIG_SYS_PROMPT_HUSH_PS2	"S3K> "
 #endif

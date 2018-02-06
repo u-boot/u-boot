@@ -44,7 +44,6 @@
 /*
  * Console
  */
-#define CONFIG_SYS_LONGHELP
 
 /*
  * Flash

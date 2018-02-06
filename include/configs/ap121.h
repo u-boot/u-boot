@@ -37,9 +37,6 @@
 #define CONFIG_ENV_SIZE                 0x10000
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_AUTO_COMPLETE
 
 /*
  * Diagnostics

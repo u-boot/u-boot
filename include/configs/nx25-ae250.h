@@ -13,7 +13,6 @@
  */
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
-#define CONFIG_CMDLINE_EDITING
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_BOOTP_SERVERIP
 
@@ -27,7 +26,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size */
 
 /*

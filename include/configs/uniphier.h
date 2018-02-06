@@ -48,9 +48,6 @@
 
 /* serial console configuration */
 
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
-
-#define CONFIG_CMDLINE_EDITING		/* add command line history	*/
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
@@ -93,8 +90,6 @@
 #define CONFIG_LOADADDR			0x84000000
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_BOOTM_LEN		(32 << 20)
-
-#define CONFIG_CMDLINE_EDITING		/* add command line history	*/
 
 #if defined(CONFIG_ARM64)
 /* ARM Trusted Firmware */

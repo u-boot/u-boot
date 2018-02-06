@@ -77,8 +77,6 @@ unsigned char zipitz2_spi_read(void);
 #endif
 #endif
 
-#define	CONFIG_SYS_LONGHELP				/* undef to save memory	*/
-
 #define	CONFIG_SYS_DEVICE_NULLDEV	1
 
 /*

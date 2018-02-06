@@ -20,7 +20,6 @@
 
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 #define CONFIG_SYS_MALLOC_LEN		(1024 << 10)
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_MACH_TYPE		MACH_TYPE_TI8148EVM
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */
@@ -29,7 +28,6 @@
 
 /* commands to include */
 
-#define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \
@@ -160,11 +158,8 @@
 /* Ethernet */
 #define CONFIG_DRIVER_TI_CPSW
 #define CONFIG_MII
-#define CONFIG_BOOTP_DNS
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_NET_RETRY_COUNT         10
 #define CONFIG_PHY_ET1011C
 #define CONFIG_PHY_ET1011C_TX_CLK_FIX

@@ -22,7 +22,6 @@
 #define RSK7203_FLASH_BASE_1	0x20000000	/* Non cache */
 #define RSK7203_FLASH_BANK_SIZE	(4 * 1024 * 1024)
 
-#define CONFIG_SYS_LONGHELP		/* undef to save memory	*/
 /* List of legal baudrate settings for this board */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200 }
 

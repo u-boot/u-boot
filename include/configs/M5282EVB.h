@@ -38,9 +38,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
 /*
  * Command line configuration.
@@ -87,8 +84,6 @@
 	"cp.b ${loadaddr} ffe00000 ${filesize};"\
 	"save\0"				\
 	""
-
-#define	CONFIG_SYS_LONGHELP		/* undef to save memory         */
 
 #define CONFIG_SYS_LOAD_ADDR		0x20000
 

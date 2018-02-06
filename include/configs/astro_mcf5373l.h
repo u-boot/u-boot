@@ -53,8 +53,6 @@
 #define ENABLE_JFFS	1
 #endif
 
-#define CONFIG_CMDLINE_EDITING
-
 #define CONFIG_MCFRTC
 #undef RTC_DEBUG
 
@@ -171,8 +169,6 @@
 
 /* default RAM address for user programs */
 #define CONFIG_SYS_LOAD_ADDR	0x20000
-
-#define CONFIG_SYS_LONGHELP
 
 #define CONFIG_FPGA_COUNT	1
 #define	CONFIG_FPGA_SPARTAN3

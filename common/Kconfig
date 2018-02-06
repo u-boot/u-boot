@@ -519,6 +519,14 @@ config LOG_ERROR_RETURN
 
 endmenu
 
+config SUPPORT_RAW_INITRD
+	bool "Enable raw initrd images"
+	help
+	  Note, defining the SUPPORT_RAW_INITRD allows user to supply
+	  kernel with raw initrd images. The syntax is slightly different, the
+	  address of the initrd must be augmented by it's size, in the following
+	  format: "<initrd address>:<initrd size>".
+
 config DEFAULT_FDT_FILE
 	string "Default fdt file"
 	help

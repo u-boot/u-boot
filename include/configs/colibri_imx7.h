@@ -19,7 +19,6 @@
 
 #define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
 
-#define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 /* Size of malloc() pool */
@@ -124,7 +123,6 @@
 	"updlevel=2\0"
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP
 
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x0c000000)

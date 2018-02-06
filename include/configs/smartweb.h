@@ -51,9 +51,7 @@
 
 /* setting board specific options */
 #define CONFIG_MACH_TYPE		MACH_TYPE_SMARTWEB
-#define CONFIG_AUTO_COMPLETE
 #define CONFIG_ENV_OVERWRITE    1 /* Overwrite ethaddr / serial# */
-#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_AUTOLOAD "yes"
 #define CONFIG_RESET_TO_RETRY
 
@@ -113,9 +111,6 @@
 
 /* BOOTP and DHCP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 #define CONFIG_NFSBOOTCOMMAND						\
 	"setenv autoload yes; setenv autoboot yes; "			\
 	"setenv bootargs ${basicargs} ${mtdparts} "			\
@@ -153,8 +148,6 @@
 /* General Boot Parameter */
 #define CONFIG_BOOTCOMMAND		"run flashboot"
 #define CONFIG_SYS_CBSIZE		512
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
 
 /*
  * RAM Memory address where to put the

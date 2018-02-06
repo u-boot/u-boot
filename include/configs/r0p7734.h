@@ -25,7 +25,6 @@
 #define CONFIG_SH_ETHER_PHY_MODE PHY_INTERFACE_MODE_MII
 
 /* undef to save memory	*/
-#define CONFIG_SYS_LONGHELP
 /* List of legal baudrate settings for this board */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200 }
 

@@ -53,9 +53,6 @@
  * Command line configuration
  */
 
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
-
 /*
  * Environment settings
  */
@@ -71,6 +68,5 @@
 /*
  * Console configuration
  */
-#define CONFIG_SYS_LONGHELP
 
 #endif /* _CONFIG_TB100_H_ */

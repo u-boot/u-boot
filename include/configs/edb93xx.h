@@ -76,7 +76,6 @@
 
 /* Monitor configuration */
 
-#define CONFIG_SYS_LONGHELP			/* Enable "long" help in mon */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O buffer size */
 
 /* Serial port hardware configuration */

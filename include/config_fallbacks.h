@@ -60,9 +60,4 @@
 # endif
 #endif
 
-#ifndef CONFIG_CMDLINE
-#undef CONFIG_CMDLINE_EDITING
-#undef CONFIG_SYS_LONGHELP
-#endif
-
 #endif	/* __CONFIG_FALLBACKS_H */

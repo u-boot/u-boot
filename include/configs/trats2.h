@@ -52,7 +52,6 @@
 
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 /* Tizen - partitions definitions */

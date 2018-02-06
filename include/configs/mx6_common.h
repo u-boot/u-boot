@@ -54,12 +54,8 @@
 #define CONFIG_CONS_INDEX       1
 
 /* Filesystems and image support */
-#define CONFIG_SUPPORT_RAW_INITRD
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE	512
 #define CONFIG_SYS_MAXARGS	32
 

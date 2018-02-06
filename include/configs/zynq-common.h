@@ -38,9 +38,6 @@
 #if defined(CONFIG_ZYNQ_GEM)
 # define CONFIG_MII
 # define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-# define CONFIG_BOOTP_BOOTPATH
-# define CONFIG_BOOTP_GATEWAY
-# define CONFIG_BOOTP_HOSTNAME
 # define CONFIG_BOOTP_MAY_FAIL
 #endif
 
@@ -255,9 +252,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_LONGHELP
 #define CONFIG_CLOCKS
 #define CONFIG_SYS_MAXARGS		32 /* max number of command args */
 

@@ -11,7 +11,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x10000000
 #define CONFIG_SYS_TIMERBASE		0x13000100	/* Timer1 */
 #define CONFIG_SYS_LOAD_ADDR		0x7fc0	/* default load address */
-#define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024) /* Size of malloc() pool */
 
 #define CONFIG_CONS_INDEX		0

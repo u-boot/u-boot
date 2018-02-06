@@ -62,11 +62,8 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_OFFSET		(0x780 * 512)	/* env_mmc_blknum */
 #define CONFIG_ENV_SIZE			0x10000	/* env_mmc_nblks bytes */
-#define CONFIG_ENV_VARS_UBOOT_CONFIG
 
 /* Monitor Command Prompt */
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_CBSIZE		512
 #define CONFIG_SYS_MAXARGS		64
 

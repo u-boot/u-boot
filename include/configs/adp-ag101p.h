@@ -18,8 +18,6 @@
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
-#define CONFIG_CMDLINE_EDITING
-
 #define CONFIG_ARCH_MAP_SYSMEM
 
 #define CONFIG_BOOTP_SEND_HOSTNAME
@@ -94,7 +92,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP			/* undef to save memory */
 
 /*
  * Size of malloc() pool

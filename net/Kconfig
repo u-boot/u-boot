@@ -31,6 +31,24 @@ config NET_TFTP_VARS
 	  If unset, timeout and maximum are hard-defined as 1 second
 	  and 10 timouts per TFTP transfer.
 
+config BOOTP_BOOTPATH
+	bool "Enable BOOTP BOOTPATH"
+
+config BOOTP_DNS
+	bool "Enable bootp DNS"
+
+config BOOTP_GATEWAY
+	bool "Enable BOOTP gateway"
+
+config BOOTP_HOSTNAME
+	bool "Enable BOOTP hostname"
+
+config BOOTP_PXE
+	bool "Enable BOOTP PXE"
+
+config BOOTP_SUBNETMASK
+	bool "Enable BOOTP subnetmask"
+
 config BOOTP_PXE_CLIENTARCH
 	hex
         default 0x16 if ARM64

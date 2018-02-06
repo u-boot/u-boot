@@ -311,11 +311,6 @@
 /*
  * Command line configuration.
  */
-#ifndef CONFIG_TRAILBLAZER
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING			/* Command-line editing */
-#define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
-#endif /* CONFIG_TRAILBLAZER */
 
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 

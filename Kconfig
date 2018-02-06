@@ -79,9 +79,33 @@ config DISTRO_DEFAULTS
 	select CMD_PING if NET
 	select CMD_PART if PARTITIONS
 	select HUSH_PARSER
+	select BOOTP_BOOTPATH if NET
+	select BOOTP_DNS if NET
+	select BOOTP_GATEWAY if NET
+	select BOOTP_HOSTNAME if NET
+	select BOOTP_PXE if NET
+	select BOOTP_SUBNETMASK if NET
+	select CMDLINE_EDITING
+	select AUTO_COMPLETE
+	select SYS_LONGHELP
+	select SUPPORT_RAW_INITRD
+	select ENV_VARS_UBOOT_CONFIG
 	help
 	  Select this to enable various options and commands which are suitable
 	  for building u-boot for booting general purpose Linux distributions.
+
+config ENV_VARS_UBOOT_CONFIG
+	bool "Add arch, board, vendor and soc variables to default environment"
+	help
+	  Define this in order to add variables describing the
+	  U-Boot build configuration to the default environment.
+	  These will be named arch, cpu, board, vendor, and soc.
+	  Enabling this option will cause the following to be defined:
+	  - CONFIG_SYS_ARCH
+	  - CONFIG_SYS_CPU
+	  - CONFIG_SYS_BOARD
+	  - CONFIG_SYS_VENDOR
+	  - CONFIG_SYS_SOC
 
 config SYS_BOOT_GET_CMDLINE
 	bool "Enable kernel command line setup"

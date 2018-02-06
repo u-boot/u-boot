@@ -96,9 +96,6 @@
  */
 
 /* version string, parser, etc */
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_LONGHELP
 
 #define CONFIG_MX_CYCLIC
 

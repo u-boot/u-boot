@@ -30,8 +30,6 @@
 #define CONFIG_ENV_SECT_SIZE		0x40000
 #endif
 
-#define CONFIG_SUPPORT_RAW_INITRD
-
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
 #ifndef CONFIG_SPL
@@ -210,9 +208,6 @@ unsigned long long get_qixis_addr(void);
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING		1
-#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_MAXARGS		64	/* max command args */
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80100000

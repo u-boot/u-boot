@@ -195,7 +195,6 @@
 #define CONFIG_CMD_MII
 
 #define CONFIG_CMDLINE_TAG
-#define CONFIG_CMDLINE_EDITING
 
 #define CONFIG_PEN_ADDR_BIG_ENDIAN
 #define CONFIG_LAYERSCAPE_NS_ACCESS
@@ -215,9 +214,7 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#define CONFIG_AUTO_COMPLETE
 
 #define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_MEMINFO

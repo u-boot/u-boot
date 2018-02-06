@@ -31,18 +31,12 @@
  * BOOTP options
  */
 #undef CONFIG_BOOTP_BOOTFILESIZE
-#undef CONFIG_BOOTP_BOOTPATH
-#undef CONFIG_BOOTP_GATEWAY
-#undef CONFIG_BOOTP_HOSTNAME
 
 /*
  * Command line configuration.
  */
 
-#define CONFIG_SYS_LONGHELP				/* undef to save memory		*/
-
 #define CONFIG_SYS_DEVICE_NULLDEV	1	/* include nulldev device	*/
-#define CONFIG_AUTO_COMPLETE	1	/* add autocompletion support	*/
 #define CONFIG_MX_CYCLIC	1	/* enable mdc/mwc commands	*/
 
 #define CONFIG_SYS_LOAD_ADDR		0x200000	/* default load address */

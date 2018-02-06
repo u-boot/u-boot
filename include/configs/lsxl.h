@@ -46,7 +46,6 @@
 #include "mv-common.h"
 
 /* loading initramfs images without uimage header */
-#define CONFIG_SUPPORT_RAW_INITRD
 
 /* ST M25P40 */
 #undef CONFIG_ENV_SPI_MAX_HZ

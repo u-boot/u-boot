@@ -34,8 +34,6 @@
 
 /* Link Definitions */
 
-#define CONFIG_SUPPORT_RAW_INITRD
-
 #ifdef CONFIG_QSPI_BOOT
 #define CONFIG_SYS_FSL_QSPI_BASE	0x20000000
 #define CONFIG_ENV_OFFSET		0x300000        /* 3MB */
@@ -232,11 +230,6 @@ unsigned long long get_qixis_addr(void);
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Boot args buffer */
-#define CONFIG_SYS_LONGHELP
-#ifndef SPL_NO_ENV
-#define CONFIG_CMDLINE_EDITING		1
-#endif
-#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_MAXARGS		64	/* max command args */
 
 #ifdef CONFIG_SPL

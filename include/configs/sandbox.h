@@ -33,13 +33,10 @@
 #define CONFIG_MALLOC_F_ADDR		0x0010000
 #define CONFIG_SYS_MALLOC_LEN		(32 << 20)	/* 32MB  */
 
-#define CONFIG_SYS_LONGHELP			/* #undef to save memory */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
 /* turn on command-line edit/c/auto */
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_AUTO_COMPLETE
 
 #define CONFIG_ENV_SIZE		8192
 
@@ -76,7 +73,6 @@
 #define CONFIG_KEEP_SERVERADDR
 #define CONFIG_UDP_CHECKSUM
 #define CONFIG_TIMESTAMP
-#define CONFIG_BOOTP_DNS
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_BOOTP_SERVERIP

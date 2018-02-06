@@ -17,7 +17,6 @@
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
 
-#define CONFIG_SYS_LONGHELP	1	/* undef to save memory	*/
 #define CONFIG_SYS_PBSIZE	256	/* Buffer size for Console output */
 
 /* Serial */

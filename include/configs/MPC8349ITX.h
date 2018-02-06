@@ -462,9 +462,6 @@ boards, we say we have two, but don't display a message if we find only one. */
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
 /* Watchdog */
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
@@ -472,9 +469,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_CMDLINE_EDITING		/* Command-line editing */
-#define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
 
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 #define CONFIG_LOADADDR	800000	/* default location for tftp and bootm */

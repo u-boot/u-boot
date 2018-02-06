@@ -26,7 +26,6 @@
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 
 /* Environment */
-#define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_ENV_SIZE			0x2000	/* Total Size Environment */
 
 /*
@@ -50,7 +49,6 @@
 #define CONFIG_ENV_OVERWRITE
 
 /* turn on command-line edit/hist/auto */
-#define CONFIG_CMDLINE_EDITING
 
 /*
  * Increasing the size of the IO buffer as default nfsargs size is more

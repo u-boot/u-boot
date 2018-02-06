@@ -12,6 +12,7 @@ CONFIG_BOOTARGS="root=/dev/mtdblock4 rootfstype=jffs2 fbcon=rotate:3 "
 CONFIG_SYS_CONSOLE_IS_IN_ENV=y
 # CONFIG_DISPLAY_CPUINFO is not set
 CONFIG_BOARD_EARLY_INIT_F=y
+# CONFIG_AUTO_COMPLETE is not set
 CONFIG_SYS_PROMPT="pm9261> "
 # CONFIG_CMD_BDI is not set
 # CONFIG_CMD_IMI is not set
@@ -27,6 +28,9 @@ CONFIG_MTDIDS_DEFAULT="nor0=physmap-flash.0,nand0=nand"
 CONFIG_MTDPARTS_DEFAULT="mtdparts=physmap-flash.0:256k(u-boot)ro,64k(u-boot-env)ro,1408k(kernel),-(rootfs);nand:-(nand)"
 CONFIG_OF_CONTROL=y
 CONFIG_ENV_IS_IN_FLASH=y
+CONFIG_BOOTP_BOOTPATH=y
+CONFIG_BOOTP_GATEWAY=y
+CONFIG_BOOTP_HOSTNAME=y
 CONFIG_DM=y
 CONFIG_CLK=y
 CONFIG_CLK_AT91=y

@@ -17,8 +17,6 @@
 
 #define CONFIG_REMAKE_ELF
 
-#define CONFIG_SUPPORT_RAW_INITRD
-
 /* Link Definitions */
 #if defined(CONFIG_TARGET_VEXPRESS64_BASE_FVP) || \
 	defined(CONFIG_TARGET_VEXPRESS64_BASE_FVP_DRAM)
@@ -118,10 +116,6 @@
 
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
-#define CONFIG_BOOTP_PXE
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		(V2M_BASE + 0x10000000)
@@ -220,8 +214,6 @@
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_MAXARGS		64	/* max command args */
 
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO

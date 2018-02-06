@@ -168,9 +168,6 @@
 /*
  * Shell Settings
  */
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_AUTO_COMPLETE
 
 /*
  * Size of malloc() pool

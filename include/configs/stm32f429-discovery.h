@@ -58,7 +58,6 @@
 #define CONFIG_BOOTCOMMAND						\
 	"run bootcmd_romfs"
 
-#define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootargs_romfs=uclinux.physaddr=0x08180000 root=/dev/mtdblock0\0" \
 	"bootcmd_romfs=setenv bootargs ${bootargs} ${bootargs_romfs};" \
@@ -67,8 +66,5 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
 
 #endif /* __CONFIG_H */

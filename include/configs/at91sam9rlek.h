@@ -105,10 +105,6 @@
 				"bootz 0x22000000 - 0x21000000"
 #endif
 
-#define CONFIG_SYS_LONGHELP		1
-#define CONFIG_CMDLINE_EDITING		1
-#define CONFIG_AUTO_COMPLETE
-
 /*
  * Size of malloc() pool
  */

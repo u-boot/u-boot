@@ -38,9 +38,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS        1
@@ -105,9 +102,6 @@
 #define CONFIG_SYS_MAXARGS          16
 #define CONFIG_SYS_PBSIZE \
     (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_AUTO_COMPLETE
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN       (2 * 1024 * 1024)

@@ -24,9 +24,6 @@
 #define GICD_BASE			0xc4301000
 #define GICC_BASE			0xc4302000
 
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
-
 #include <config_distro_defaults.h>
 
 #define BOOT_TARGET_DEVICES(func) \

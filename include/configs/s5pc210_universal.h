@@ -71,7 +71,6 @@
 
 #define CONFIG_ENV_COMMON_BOOT	"${console} ${meminfo}"
 
-#define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\

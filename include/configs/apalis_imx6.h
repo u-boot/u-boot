@@ -41,7 +41,6 @@
 
 /* Make the HW version stuff available in U-Boot env */
 #define CONFIG_VERSION_VARIABLE		/* ver environment variable */
-#define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 /* I2C Configs */
@@ -250,8 +249,6 @@
 		"fbmem=32M\0 "
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_AUTO_COMPLETE
 #undef CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_CBSIZE		1024
 #undef CONFIG_SYS_MAXARGS
@@ -263,8 +260,6 @@
 #define CONFIG_SYS_MEMTEST_SCRATCH	0x10800000
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
-
-#define CONFIG_CMDLINE_EDITING
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -294,7 +289,5 @@
 #define CONFIG_OF_SYSTEM_SETUP
 
 #define CONFIG_CMD_TIME
-
-#define CONFIG_SUPPORT_RAW_INITRD
 
 #endif	/* __CONFIG_H */

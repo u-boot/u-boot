@@ -26,6 +26,7 @@ CONFIG_MTDIDS_DEFAULT="nand0=omap2-nand.0"
 CONFIG_MTDPARTS_DEFAULT="mtdparts=omap2-nand.0:512k(xloader-nand),1024k(uboot-nand),256k(params-nand),5120k(kernel),-(ubifs)"
 CONFIG_CMD_UBI=y
 CONFIG_ENV_IS_IN_NAND=y
+CONFIG_BOOTP_DNS=y
 CONFIG_SYS_OMAP24_I2C_SPEED=400000
 CONFIG_MMC_OMAP_HS=y
 CONFIG_NAND=y

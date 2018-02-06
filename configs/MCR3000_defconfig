@@ -42,6 +42,7 @@ CONFIG_BOOTDELAY=5
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="ubi.mtd=4 root=ubi0:rootfs rw rootfstype=ubifs rootflags=sync console=ttyCPM0,115200N8 ip=${ipaddr}:::${netmask}:mcr3k:eth0:off"
 CONFIG_HUSH_PARSER=y
+# CONFIG_AUTO_COMPLETE is not set
 CONFIG_SYS_PROMPT="S3K> "
 CONFIG_AUTOBOOT_KEYED=y
 CONFIG_AUTOBOOT_PROMPT="\nEnter password - autoboot in %d sec...\n"

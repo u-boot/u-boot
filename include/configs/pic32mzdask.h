@@ -52,13 +52,11 @@
 /*----------------------------------------------------------------------
  * Commands
  */
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
 /*------------------------------------------------------------
  * Console Configuration
  */
 #define CONFIG_SYS_CBSIZE		1024 /* Console I/O Buffer Size   */
-#define CONFIG_CMDLINE_EDITING		1
 
 /*-----------------------------------------------------------------------
  * Networking Configuration
@@ -73,9 +71,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
 /*--------------------------------------------------
  * USB Configuration

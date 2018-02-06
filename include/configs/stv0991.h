@@ -50,8 +50,6 @@
 #define CONFIG_SYS_MEMTEST_END                 1024*1024
 
 /* Misc configuration */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
 
 #define CONFIG_BOOTCOMMAND                     "go 0x40040000"
 

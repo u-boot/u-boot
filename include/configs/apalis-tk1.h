@@ -147,7 +147,6 @@
 
 #define CONFIG_CMD_TIME
 
-#define CONFIG_SUPPORT_RAW_INITRD
 #define CONFIG_SYS_BOOT_RAMDISK_HIGH
 
 #include "tegra-common-usb-gadget.h"

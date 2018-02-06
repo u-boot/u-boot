@@ -1538,14 +1538,8 @@ The following options need to be configured:
 		You can fine tune the DHCP functionality by defining
 		CONFIG_BOOTP_* symbols:
 
-		CONFIG_BOOTP_SUBNETMASK
-		CONFIG_BOOTP_GATEWAY
-		CONFIG_BOOTP_HOSTNAME
 		CONFIG_BOOTP_NISDOMAIN
-		CONFIG_BOOTP_BOOTPATH
 		CONFIG_BOOTP_BOOTFILESIZE
-		CONFIG_BOOTP_DNS
-		CONFIG_BOOTP_DNS2
 		CONFIG_BOOTP_SEND_HOSTNAME
 		CONFIG_BOOTP_NTPSERVER
 		CONFIG_BOOTP_TIMEOFFSET
@@ -1560,15 +1554,6 @@ The following options need to be configured:
 		instead of starting over.  This can be used to fail over
 		to Link-local IP address configuration if the DHCP server
 		is not available.
-
-		CONFIG_BOOTP_DNS2 - If a DHCP client requests the DNS
-		serverip from a DHCP server, it is possible that more
-		than one DNS serverip is offered to the client.
-		If CONFIG_BOOTP_DNS2 is enabled, the secondary DNS
-		serverip will be stored in the additional environment
-		variable "dnsip2". The first DNS serverip is always
-		stored in the variable "dnsip", when CONFIG_BOOTP_DNS
-		is defined.
 
 		CONFIG_BOOTP_SEND_HOSTNAME - Some DHCP servers are capable
 		to do a dynamic update of a DNS server. To do this, they
@@ -2182,10 +2167,6 @@ The following options need to be configured:
 		#define CONFIG_NFS_TIMEOUT 10000UL
 
 - Command Interpreter:
-		CONFIG_AUTO_COMPLETE
-
-		Enable auto completion of commands using TAB.
-
 		CONFIG_SYS_PROMPT_HUSH_PS2
 
 		This defines the secondary prompt string, which is
@@ -2214,12 +2195,6 @@ The following options need to be configured:
 		symbols.
 
 - Command Line Editing and History:
-		CONFIG_CMDLINE_EDITING
-
-		Enable editing and History functions for interactive
-		command line input operations
-
-- Command Line PS1/PS2 support:
 		CONFIG_CMDLINE_PS_SUPPORT
 
 		Enable support for changing the command prompt string
@@ -2252,20 +2227,6 @@ The following options need to be configured:
 		discouraged. Make sure to check other ways to preset
 		the environment like the "source" command or the
 		boot command first.
-
-		CONFIG_ENV_VARS_UBOOT_CONFIG
-
-		Define this in order to add variables describing the
-		U-Boot build configuration to the default environment.
-		These will be named arch, cpu, board, vendor, and soc.
-
-		Enabling this option will cause the following to be defined:
-
-		- CONFIG_SYS_ARCH
-		- CONFIG_SYS_CPU
-		- CONFIG_SYS_BOARD
-		- CONFIG_SYS_VENDOR
-		- CONFIG_SYS_SOC
 
 		CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 

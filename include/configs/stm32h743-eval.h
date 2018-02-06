@@ -38,14 +38,9 @@
 #define CONFIG_BOOTARGS							\
 	"console=ttyS0,115200 earlyprintk consoleblank=0 ignore_loglevel"
 
-#define CONFIG_ENV_VARS_UBOOT_CONFIG
-
 /*
  * Command line configuration.
  */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
 #define CONFIG_CMD_CACHE
 #define CONFIG_BOARD_LATE_INIT
 

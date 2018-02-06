@@ -75,12 +75,10 @@
 
 /* Environment */
 #define CONFIG_ENV_SIZE			SZ_16K
-#define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_SYS_LOAD_ADDR		0x1000000
 #define CONFIG_PREBOOT			"usb start"
 
 /* Shell */
-#define CONFIG_CMDLINE_EDITING
 
 /* ATAGs support for bootm/bootz */
 #define CONFIG_SETUP_MEMORY_TAGS

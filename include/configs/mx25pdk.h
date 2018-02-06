@@ -57,12 +57,9 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
 /* U-Boot general configuration */
-#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size  */
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_LONGHELP
 
 /* Ethernet */
 #define CONFIG_FEC_MXC
@@ -190,7 +187,5 @@
 	   "else run netboot; fi"
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_AUTO_COMPLETE
 
 #endif /* __CONFIG_H */

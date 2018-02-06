@@ -27,7 +27,6 @@
 #define CONFIG_MACH_TYPE	MACH_TYPE_ECO5_PK
 
 #define CONFIG_BOOTFILE		"uImage"
-#define CONFIG_AUTO_COMPLETE
 
 /*
  * Set its own mtdparts, different from common

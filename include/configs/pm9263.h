@@ -168,9 +168,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE	1
-#define CONFIG_BOOTP_BOOTPATH		1
-#define CONFIG_BOOTP_GATEWAY		1
-#define CONFIG_BOOTP_HOSTNAME		1
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS	1
@@ -298,9 +295,6 @@
 #else
 #error "Undefined memory device"
 #endif
-
-#define CONFIG_SYS_LONGHELP		1
-#define CONFIG_CMDLINE_EDITING		1
 
 /*
  * Size of malloc() pool

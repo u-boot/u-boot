@@ -156,9 +156,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
 #if defined(CONFIG_CMD_JFFS2)
 # define CONFIG_MTD_PARTITIONS
@@ -180,7 +177,6 @@
 #define	CONFIG_SYS_CBSIZE	512
 /* max number of command args */
 #define	CONFIG_SYS_MAXARGS	15
-#define	CONFIG_SYS_LONGHELP
 /* default load address */
 #define	CONFIG_SYS_LOAD_ADDR	0
 
@@ -203,8 +199,6 @@
 					"serial=setenv stdout serial;"\
 					"setenv stdin serial\0"
 #endif
-
-#define CONFIG_CMDLINE_EDITING
 
 /* Enable flat device tree support */
 #define CONFIG_LMB		1

@@ -90,9 +90,6 @@
 
 /* commands to include */
 
-#define CONFIG_CMDLINE_EDITING		/* add command line history */
-#define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
-
 #define CONFIG_SYS_I2C
 
 /*
@@ -311,7 +308,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP			/* undef to save memory */
 
 #define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)
 #define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + 0x01F00000)/*31MB*/

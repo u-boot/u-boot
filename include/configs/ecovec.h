@@ -59,7 +59,6 @@
 #define CONFIG_SUPERH_ON_CHIP_R8A66597
 
 /* undef to save memory	*/
-#define CONFIG_SYS_LONGHELP
 /* Monitor Command Prompt */
 /* Buffer size for Console output */
 #define CONFIG_SYS_PBSIZE		256

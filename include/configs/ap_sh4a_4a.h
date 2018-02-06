@@ -24,7 +24,6 @@
 #define CONFIG_BITBANGMII_MULTI
 
 /* undef to save memory	*/
-#define CONFIG_SYS_LONGHELP
 /* Monitor Command Prompt */
 /* Buffer size for Console output */
 #define CONFIG_SYS_PBSIZE		256

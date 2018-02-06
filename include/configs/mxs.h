@@ -81,13 +81,10 @@
 #define CONFIG_SPL_TEXT_BASE		0x00001000
 
 /* U-Boot general configuration */
-#define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O buffer size */
 #define CONFIG_SYS_MAXARGS	32		/* Max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 						/* Boot argument buffer size */
-#define CONFIG_AUTO_COMPLETE			/* Command auto complete */
-#define CONFIG_CMDLINE_EDITING			/* Command history etc */
 
 /* Booting Linux */
 #define CONFIG_CMDLINE_TAG

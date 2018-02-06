@@ -21,7 +21,6 @@
 #define AP325RXA_FLASH_BANK_SIZE	(128 * 1024 * 1024)
 
 /* undef to save memory	*/
-#define CONFIG_SYS_LONGHELP
 /* Monitor Command Prompt */
 /* Buffer size for Console output */
 #define CONFIG_SYS_PBSIZE		256

@@ -53,15 +53,11 @@
 #define CONFIG_BOOTCOMMAND						\
 	"run boot_sd"
 
-#define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"boot_sd=mmc dev 0;fatload mmc 0 0x00700000 stm32f469-disco.dtb; fatload mmc 0 0x00008000 zImage; icache off; bootz 0x00008000 - 0x00700000"
 
 /*
  * Command line configuration.
  */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
 
 #endif /* __CONFIG_H */
