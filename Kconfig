@@ -69,14 +69,14 @@ config DISTRO_DEFAULTS
 	imply USE_BOOTCOMMAND
 	select CMD_BOOTZ if ARM && !ARM64
 	select CMD_BOOTI if ARM64
-	select CMD_DHCP
-	select CMD_PXE
+	select CMD_DHCP if NET
+	select CMD_PXE if NET
 	select CMD_EXT2
 	select CMD_EXT4
 	select CMD_FAT
 	select CMD_FS_GENERIC
-	select CMD_MII
-	select CMD_PING
+	select CMD_MII if NET
+	select CMD_PING if NET
 	select CMD_PART
 	select HUSH_PARSER
 	help
