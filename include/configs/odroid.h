@@ -177,7 +177,6 @@
 
 /* Security subsystem - enable hw_rand() */
 #define CONFIG_EXYNOS_ACE_SHA
-#define CONFIG_LIB_HW_RAND
 
 /* USB */
 #define CONFIG_USB_EHCI_EXYNOS

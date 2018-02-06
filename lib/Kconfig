@@ -65,10 +65,22 @@ config REGEX
 	  regex support to some commands, for example "env grep" and
 	  "setexpr".
 
-config LIB_RAND
-	bool "Pseudo-random library support "
+choice
+	prompt "Pseudo-random library support type"
+	depends on NET_RANDOM_ETHADDR || RANDOM_UUID || CMD_UUID
+	default LIB_RAND
 	help
-	  This library provides pseudo-random number generator functions.
+	  Select the library to provide pseudo-random number generator
+	  functions.  LIB_HW_RAND supports certain hardware engines that
+	  provide this functionality.  If in doubt, select LIB_RAND.
+
+config LIB_RAND
+	bool "Pseudo-random library support"
+
+config LIB_HW_RAND
+	bool "HW Engine for random libray support"
+
+endchoice
 
 config SPL_TINY_MEMSET
 	bool "Use a very small memset() in SPL"

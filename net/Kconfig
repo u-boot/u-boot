@@ -9,7 +9,6 @@ if NET
 
 config NET_RANDOM_ETHADDR
 	bool "Random ethaddr if unset"
-	select LIB_RAND
 	help
 	  Selecting this will allow the Ethernet interface to function
 	  even when the ethaddr variable for that interface is unset.

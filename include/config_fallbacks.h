@@ -54,13 +54,6 @@
 #define CONFIG_LIB_UUID
 #endif
 
-#if (defined(CONFIG_RANDOM_UUID) || \
-	defined(CONFIG_CMD_UUID)) && \
-	(!defined(CONFIG_LIB_RAND) && \
-	!defined(CONFIG_LIB_HW_RAND))
-#define CONFIG_LIB_RAND
-#endif
-
 /* Console I/O Buffer Size */
 #ifndef CONFIG_SYS_CBSIZE
 #if defined(CONFIG_CMD_KGDB)

@@ -112,10 +112,6 @@
 /* DS414 bus width is 32bits */
 #define CONFIG_DDR_32BIT
 
-/* Use random ethernet address if not configured */
-#define CONFIG_LIB_RAND
-#define CONFIG_NET_RANDOM_ETHADDR
-
 /* Default Environment */
 #define CONFIG_BOOTCOMMAND	"sf read ${loadaddr} 0xd0000 0x700000; bootm"
 #define CONFIG_LOADADDR		0x80000

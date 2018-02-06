@@ -77,7 +77,6 @@
 #define CONFIG_CMDLINE_EDITING		1
 #define CONFIG_SYS_MAXARGS		64		/* max command args */
 #define CONFIG_NO_RELOCATION		1
-#define CONFIG_LIB_RAND
 #define PLL_REF_CLK			50000000	/* 50 MHz */
 #define NS_PER_REF_CLK_TICK		(1000000000/PLL_REF_CLK)
 
