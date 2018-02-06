@@ -179,6 +179,30 @@ config SYS_I2C_MXC_I2C4
 	help
 	 Add support for NXP MXC I2C Controller 4.
 	 Required for SoCs which have I2C MXC controller 4 eg LS1088A, LS2080A
+
+config SYS_I2C_MXC_I2C5
+	bool "NXP MXC I2C5"
+	help
+	 Add support for NXP MXC I2C Controller 5.
+	 Required for SoCs which have I2C MXC controller 5 eg LX2160A
+
+config SYS_I2C_MXC_I2C6
+	bool "NXP MXC I2C6"
+	help
+	 Add support for NXP MXC I2C Controller 6.
+	 Required for SoCs which have I2C MXC controller 6 eg LX2160A
+
+config SYS_I2C_MXC_I2C7
+	bool "NXP MXC I2C7"
+	help
+	 Add support for NXP MXC I2C Controller 7.
+	 Required for SoCs which have I2C MXC controller 7 eg LX2160A
+
+config SYS_I2C_MXC_I2C8
+	bool "NXP MXC I2C8"
+	help
+	 Add support for NXP MXC I2C Controller 8.
+	 Required for SoCs which have I2C MXC controller 8 eg LX2160A
 endif
 
 if SYS_I2C_MXC_I2C1
@@ -237,6 +261,62 @@ config SYS_MXC_I2C4_SLAVE
 	default 0
 	help
 	 MXC I2C4 Slave
+endif
+
+if SYS_I2C_MXC_I2C5
+config SYS_MXC_I2C5_SPEED
+	int "I2C Channel 5 speed"
+	default 100000
+	help
+	 MXC I2C Channel 5 speed
+
+config SYS_MXC_I2C5_SLAVE
+	int "I2C5 Slave"
+	default 0
+	help
+	 MXC I2C5 Slave
+endif
+
+if SYS_I2C_MXC_I2C6
+config SYS_MXC_I2C6_SPEED
+	int "I2C Channel 6 speed"
+	default 100000
+	help
+	 MXC I2C Channel 6 speed
+
+config SYS_MXC_I2C6_SLAVE
+	int "I2C6 Slave"
+	default 0
+	help
+	 MXC I2C6 Slave
+endif
+
+if SYS_I2C_MXC_I2C7
+config SYS_MXC_I2C7_SPEED
+	int "I2C Channel 7 speed"
+	default 100000
+	help
+	 MXC I2C Channel 7 speed
+
+config SYS_MXC_I2C7_SLAVE
+	int "I2C7 Slave"
+	default 0
+	help
+	 MXC I2C7 Slave
+endif
+
+if SYS_I2C_MXC_I2C8
+config SYS_MXC_I2C8_SPEED
+	int "I2C Channel 8 speed"
+	default 100000
+	help
+	 MXC I2C Channel 8 speed
+
+config SYS_MXC_I2C8_SLAVE
+	int "I2C8 Slave"
+	default 0
+	help
+	 MXC I2C8 Slave
 endif
 
 config SYS_I2C_OMAP24XX
