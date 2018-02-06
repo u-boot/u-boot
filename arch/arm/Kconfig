@@ -1331,7 +1331,7 @@ source "arch/arm/Kconfig.debug"
 endmenu
 
 config SPL_LDSCRIPT
-        default "arch/arm/cpu/arm926ejs/mxs/u-boot-spl.lds" if TARGET_APX4DEVKIT || TARGET_BG0900 || TARGET_M28EVK || TARGET_MX23_OLINUXINO || TARGET_MX23EVK || TARGET_MX28EVK || TARGET_SANSA_FUZE_PLUS || TARGET_SC_SPS_1 || TARGET_TS4600 || TARGET_XFI3
+        default "arch/arm/cpu/arm926ejs/mxs/u-boot-spl.lds" if ARCH_MX23 || ARCH_MX28
         default "arch/arm/cpu/arm1136/u-boot-spl.lds" if CPU_ARM1136
 	default "arch/arm/cpu/armv8/u-boot-spl.lds" if ARM64
 
