@@ -679,6 +679,7 @@ config CMD_GPT
 
 config RANDOM_UUID
 	bool "GPT Random UUID generation"
+	select LIB_UUID
 	help
 	  Enable the generation of partitions with random UUIDs if none
 	  are provided.
@@ -1180,6 +1181,7 @@ config CMD_TERMINAL
 
 config CMD_UUID
 	bool "uuid, guid - generation of unique IDs"
+	select LIB_UUID
 	help
 	  This enables two commands:
 

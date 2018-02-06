@@ -18,6 +18,9 @@ config CC_OPTIMIZE_LIBS_FOR_SPEED
 config HAVE_PRIVATE_LIBGCC
 	bool
 
+config LIB_UUID
+	bool
+
 config USE_PRIVATE_LIBGCC
 	bool "Use private libgcc"
 	depends on HAVE_PRIVATE_LIBGCC

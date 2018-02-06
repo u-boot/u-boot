@@ -44,16 +44,6 @@
 #define HAVE_BLOCK_DEVICE
 #endif
 
-#if (CONFIG_IS_ENABLED(PARTITION_UUIDS) || \
-	CONFIG_IS_ENABLED(EFI_PARTITION) || \
-	CONFIG_IS_ENABLED(EFI_LOADER) || \
-	defined(CONFIG_RANDOM_UUID) || \
-	defined(CONFIG_CMD_UUID) || \
-	defined(CONFIG_BOOTP_PXE)) && \
-	!defined(CONFIG_LIB_UUID)
-#define CONFIG_LIB_UUID
-#endif
-
 /* Console I/O Buffer Size */
 #ifndef CONFIG_SYS_CBSIZE
 #if defined(CONFIG_CMD_KGDB)

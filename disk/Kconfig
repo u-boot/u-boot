@@ -72,6 +72,7 @@ config EFI_PARTITION
 	depends on PARTITIONS
 	default y if DISTRO_DEFAULTS
 	default y if TEGRA
+	select LIB_UUID
 	help
 	  Say Y here if you would like to use device under U-Boot which
 	  were partitioned using EFI GPT.
@@ -115,6 +116,7 @@ config PARTITION_UUIDS
 	depends on PARTITIONS
 	default y if DISTRO_DEFAULTS
 	default y if EFI_PARTITION
+	select LIB_UUID
 	help
 	  Activate the configuration of UUID for partition
 
