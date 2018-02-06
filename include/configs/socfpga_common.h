@@ -257,7 +257,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
  * 0xFFFF_zzzz ...... Global Data
  * 0xFFFF_FF00 ...... End of SRAM
  */
-#define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		CONFIG_SYS_INIT_RAM_ADDR
 #define CONFIG_SPL_MAX_SIZE		CONFIG_SYS_INIT_RAM_SIZE
 

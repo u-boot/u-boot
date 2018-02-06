@@ -2704,11 +2704,6 @@ FIT uImage format:
 		CONFIG_SYS_SPL_MALLOC_SIZE
 		The size of the malloc pool used in SPL.
 
-		CONFIG_SPL_FRAMEWORK
-		Enable the SPL framework under common/.  This framework
-		supports MMC, NAND and YMODEM loading of U-Boot and NAND
-		NAND loading of the Linux Kernel.
-
 		CONFIG_SPL_OS_BOOT
 		Enable booting directly to an OS from SPL.
 		See also: doc/README.falcon

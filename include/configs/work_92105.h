@@ -153,7 +153,6 @@
 /* SPL will use SRAM as stack */
 #define CONFIG_SPL_STACK     0x0000FFF8
 /* Use the framework and generic lib */
-#define CONFIG_SPL_FRAMEWORK
 /* SPL will use serial */
 /* SPL will load U-Boot from NAND offset 0x40000 */
 #define CONFIG_SPL_NAND_DRIVERS

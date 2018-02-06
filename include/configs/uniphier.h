@@ -228,8 +228,6 @@
 
 #define CONFIG_SPL_STACK		(0x00100000)
 
-#define CONFIG_SPL_FRAMEWORK
-
 #define CONFIG_SYS_NAND_U_BOOT_OFFS		0x20000
 
 /* subtract sizeof(struct image_header) */

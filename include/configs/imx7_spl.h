@@ -12,9 +12,6 @@
 #define __IMX7_SPL_CONFIG_H
 
 #ifdef CONFIG_SPL
-
-#define CONFIG_SPL_FRAMEWORK
-
 /*
  * see figure 6-22 in i.MX 7Dual/Solo Reference manuals:
  *  - IMX7D/S OCRAM free area RAM (OCRAM) is from 0x00910000 to

@@ -36,7 +36,6 @@
 #define CONFIG_SPL_TEXT_BASE		0x10080800
 /* spl size 32kb sram - 2kb bootrom */
 #define CONFIG_SPL_MAX_SIZE		(0x8000 - 0x800)
-#define CONFIG_SPL_FRAMEWORK		1
 #define CONFIG_ROCKCHIP_SERIAL		1
 
 #define CONFIG_SPL_STACK		0x10087fff

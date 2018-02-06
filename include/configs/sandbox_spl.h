@@ -8,6 +8,4 @@
 
 #include <configs/sandbox.h>
 
-#define CONFIG_SPL_FRAMEWORK
-
 #endif

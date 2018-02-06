@@ -221,8 +221,6 @@
 #define CONFIG_SPL_MAX_SIZE		(CONFIG_SRAM_SIZE - 0xb00)
 #define	CONFIG_SPL_START_S_PATH	"arch/arm/cpu/arm926ejs/spear"
 
-#define CONFIG_SPL_FRAMEWORK
-
 /*
  * Please select/define only one of the following
  * Each definition corresponds to a supported DDR chip.

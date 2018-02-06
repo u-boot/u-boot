@@ -66,7 +66,6 @@
 #define CONFIG_SYS_FSL_PBL_RCW	\
 	board/freescale/ls1021atwr/ls102xa_rcw_sd_ifc.cfg
 #endif
-#define CONFIG_SPL_FRAMEWORK
 
 #ifdef CONFIG_SECURE_BOOT
 /*

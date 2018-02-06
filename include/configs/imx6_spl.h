@@ -8,9 +8,6 @@
 #define __IMX6_SPL_CONFIG_H
 
 #ifdef CONFIG_SPL
-
-#define CONFIG_SPL_FRAMEWORK
-
 /*
  * see Figure 8-3 in IMX6DQ/IMX6SDL Reference manuals:
  *  - IMX6SDL OCRAM (IRAM) is from 0x00907000 to 0x0091FFFF

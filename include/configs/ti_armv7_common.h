@@ -148,7 +148,6 @@
  */
 #if !defined(CONFIG_NOR_BOOT) && \
 	!(defined(CONFIG_QSPI_BOOT) && defined(CONFIG_AM43XX))
-#define CONFIG_SPL_FRAMEWORK
 
 /*
  * We also support Falcon Mode so that the Linux kernel can be booted

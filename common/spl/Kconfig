@@ -16,12 +16,20 @@ config SPL
 	help
 	  If you want to build SPL as well as the normal image, say Y.
 
+config SPL_FRAMEWORK
+	bool "Support SPL based upon the common SPL framework"
+	depends on SPL
+	default y
+	help
+	  Enable the SPL framework under common/spl/.  This framework
+	  supports MMC, NAND and YMODEM and other methods loading of U-Boot
+	  and the Linux Kernel.  If unsure, say Y.
+
 if SPL
 
 config SPL_LDSCRIPT
 	string "Linker script for the SPL stage"
 	default "arch/$(ARCH)/cpu/u-boot-spl.lds"
-	depends on SPL
 	help
 	  The SPL stage will usually require a different linker-script
 	  (as it runs from a different memory region) than the regular
