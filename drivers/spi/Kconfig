@@ -239,6 +239,12 @@ config DAVINCI_SPI
 	help
 	  Enable the Davinci SPI driver
 
+config SH_SPI
+	bool "SuperH SPI driver"
+	help
+	  Enable the SuperH SPI controller driver. This driver can be used
+	  on various SuperH SoCs, such as SH7757.
+
 config TI_QSPI
 	bool "TI QSPI driver"
 	help

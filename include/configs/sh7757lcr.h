@@ -63,7 +63,6 @@
 #define SH7757LCR_GIGA_ETHERNET_NUM_CH	2
 
 /* SPI */
-#define CONFIG_SH_SPI			1
 #define CONFIG_SH_SPI_BASE		0xfe002000
 
 /* MMCIF */
