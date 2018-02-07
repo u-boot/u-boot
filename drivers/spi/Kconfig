@@ -245,6 +245,12 @@ config SH_SPI
 	  Enable the SuperH SPI controller driver. This driver can be used
 	  on various SuperH SoCs, such as SH7757.
 
+config SH_QSPI
+	bool "Renesas Quad SPI driver"
+	help
+	  Enable the Renesas Quad SPI controller driver. This driver can be
+	  used on Renesas SoCs.
+
 config TI_QSPI
 	bool "TI QSPI driver"
 	help
