@@ -51,6 +51,7 @@ typedef struct global_data {
 	unsigned long env_addr;		/* Address  of Environment struct */
 	unsigned long env_valid;	/* Environment valid? enum env_valid */
 	unsigned long env_has_init;	/* Bitmask of boolean of struct env_location offsets */
+	int env_load_location;
 
 	unsigned long ram_top;		/* Top address of RAM used by U-Boot */
 	unsigned long relocaddr;	/* Start address of U-Boot in RAM */

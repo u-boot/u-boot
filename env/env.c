@@ -62,8 +62,6 @@ static enum env_location env_locations[] = {
 #endif
 };
 
-static enum env_location env_load_location = ENVL_UNKNOWN;
-
 static bool env_has_inited(enum env_location location)
 {
 	return gd->env_has_init & BIT(location);
@@ -108,11 +106,11 @@ __weak enum env_location env_get_location(enum env_operation op, int prio)
 		if (prio >= ARRAY_SIZE(env_locations))
 			return ENVL_UNKNOWN;
 
-		env_load_location = env_locations[prio];
-		return env_load_location;
+		gd->env_load_location = env_locations[prio];
+		return gd->env_load_location;
 
 	case ENVOP_SAVE:
-		return env_load_location;
+		return gd->env_load_location;
 	}
 
 	return ENVL_UNKNOWN;

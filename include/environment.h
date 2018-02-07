@@ -188,6 +188,7 @@ enum env_valid {
 };
 
 enum env_location {
+	ENVL_UNKNOWN,
 	ENVL_EEPROM,
 	ENVL_EXT4,
 	ENVL_FAT,
@@ -202,7 +203,6 @@ enum env_location {
 	ENVL_NOWHERE,
 
 	ENVL_COUNT,
-	ENVL_UNKNOWN,
 };
 
 /* value for the various operations we want to perform on the env */
