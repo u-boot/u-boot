@@ -263,6 +263,12 @@ config MPC8XX_SPI
 	help
 	  Enable support for SPI on MPC8XX
 
+config MXC_SPI
+	bool "MXC SPI Driver"
+	help
+	  Enable the MXC SPI controller driver. This driver can be used
+	  on various i.MX SoCs such as i.MX31/35/51/6/7.
+
 config MXS_SPI
 	bool "MXS SPI Driver"
 	help

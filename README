@@ -2019,11 +2019,6 @@ The following options need to be configured:
 		Currently supported on some MPC8xxx processors.	 For an
 		example, see include/configs/mpc8349emds.h.
 
-		CONFIG_MXC_SPI
-
-		Enables the driver for the SPI controllers on i.MX and MXC
-		SoCs. Currently i.MX31/35/51 are supported.
-
 		CONFIG_SYS_SPI_MXC_WAIT
 		Timeout for waiting until spi transfer completed.
 		default: (CONFIG_SYS_HZ/100)     /* 10 ms */

@@ -54,7 +54,6 @@
 
 /* SPI */
 #ifdef CONFIG_CMD_SF
-  #define CONFIG_MXC_SPI
   #define CONFIG_SPI_FLASH_MTD
   #define CONFIG_SPI_FLASH_BAR
   #define CONFIG_SF_DEFAULT_BUS              0

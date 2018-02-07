@@ -175,7 +175,6 @@
 
 /* SPI */
 #define CONFIG_SPI
-#define CONFIG_MXC_SPI
 
 /* NAND */
 #ifndef CONFIG_SPL_BUILD

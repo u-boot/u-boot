@@ -47,7 +47,6 @@
  * SPI Configs
  * */
 #define CONFIG_HARD_SPI /* puts SPI: ready */
-#define CONFIG_MXC_SPI /* driver for the SPI controllers*/
 
 /*
  * MMC Configs

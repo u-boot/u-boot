@@ -21,7 +21,6 @@
 
 /* SF Configs */
 #define CONFIG_SPI
-#define CONFIG_MXC_SPI
 #define CONFIG_SF_DEFAULT_BUS  2
 #define CONFIG_SF_DEFAULT_CS   0
 #define CONFIG_SF_DEFAULT_SPEED 25000000
