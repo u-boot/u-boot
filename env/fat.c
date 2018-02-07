@@ -36,7 +36,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifdef CMD_SAVEENV
 static int env_fat_save(void)
 {
-	env_t	env_new;
+	env_t __aligned(ARCH_DMA_MINALIGN) env_new;
 	struct blk_desc *dev_desc = NULL;
 	disk_partition_t info;
 	int dev, part;
