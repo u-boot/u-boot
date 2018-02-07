@@ -62,7 +62,6 @@
 /*
  * SPI Flash configuration
  */
-#define CONFIG_KIRKWOOD_SPI
 #define CONFIG_ENV_SPI_BUS		0
 #define CONFIG_ENV_SPI_CS		0
 

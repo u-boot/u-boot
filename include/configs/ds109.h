@@ -40,7 +40,6 @@
 
 #ifdef CONFIG_CMD_SF
 #define CONFIG_HARD_SPI			1
-#define CONFIG_KIRKWOOD_SPI		1
 #define CONFIG_ENV_SPI_BUS		0
 #define CONFIG_ENV_SPI_CS		0
 #define CONFIG_ENV_SPI_MAX_HZ		50000000 /* 50 MHz */
