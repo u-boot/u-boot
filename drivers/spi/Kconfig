@@ -212,6 +212,12 @@ config SOFT_SPI
 	 Enable Soft SPI driver. This driver is to use GPIO simulate
 	 the SPI protocol.
 
+config CF_SPI
+	bool "ColdFire SPI driver"
+	help
+	  Enable the ColdFire SPI driver. This driver can be used on
+	  some m68k SoCs.
+
 config FSL_ESPI
 	bool "Freescale eSPI driver"
 	help

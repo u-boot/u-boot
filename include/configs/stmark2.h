@@ -65,7 +65,6 @@
 #undef CONFIG_MCFPIT
 
 /* DSPI and Serial Flash */
-#define CONFIG_CF_SPI
 #define CONFIG_CF_DSPI
 #define CONFIG_SF_DEFAULT_SPEED		50000000
 #define CONFIG_SERIAL_FLASH
