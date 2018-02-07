@@ -72,7 +72,11 @@ before_script:
        wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2016.09-release/arc_gnu_2016.09_prebuilt_uclibc_le_archs_linux_install.tar.gz &&
        tar -C /tmp -xf arc_gnu_2016.09_prebuilt_uclibc_le_archs_linux_install.tar.gz;
     fi
-  - if [[ "${TOOLCHAIN}" == *xtensa* ]]; then ./tools/buildman/buildman --fetch-arch xtensa ; fi
+  - if [[ "${TOOLCHAIN}" == *xtensa* ]]; then
+       wget https://github.com/foss-xtensa/toolchain/releases/download/2018.02/x86_64-2018.02-${TOOLCHAIN}.tar.gz &&
+       tar -C /tmp -xf x86_64-2018.02-${TOOLCHAIN}.tar.gz &&
+       echo -e "\n[toolchain-prefix]\nxtensa = /tmp/2018.02/${TOOLCHAIN}/bin/${TOOLCHAIN}-" >> ~/.buildman;
+    fi
   # If TOOLCHAIN is unset, we're on some flavour of ARM.
   - if [[ "${TOOLCHAIN}" == "" ]]; then
        wget http://releases.linaro.org/components/toolchain/binaries/6.3-2017.02/aarch64-linux-gnu/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu.tar.xz &&
@@ -271,7 +275,7 @@ matrix:
           BUILDMAN="xilinx -x microblaze"
     - env:
         - BUILDMAN="xtensa"
-          TOOLCHAIN="xtensa"
+          TOOLCHAIN="xtensa-dc233c-elf"
     - env:
         - BUILDMAN="riscv"
           TOOLCHAIN="riscv"
