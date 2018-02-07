@@ -495,7 +495,8 @@ static int stm32_sdmmc2_set_ios(struct udevice *dev)
 	if (mmc->bus_width == 8)
 		clk |= SDMMC_CLKCR_WIDBUS_8;
 
-	writel(clk | priv->clk_reg_msk, priv->base + SDMMC_CLKCR);
+	writel(clk | priv->clk_reg_msk | SDMMC_CLKCR_HWFC_EN,
+	       priv->base + SDMMC_CLKCR);
 
 	return 0;
 }
