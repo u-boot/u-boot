@@ -25,7 +25,6 @@
 #define AHB2_PERIPH_BASE	(PERIPH_BASE + 0x10000000)
 #define AHB3_PERIPH_BASE	(PERIPH_BASE + 0x20000000)
 
-#define TIM2_BASE		(APB1_PERIPH_BASE + 0x0000)
 #define USART2_BASE		(APB1_PERIPH_BASE + 0x4400)
 #define USART3_BASE		(APB1_PERIPH_BASE + 0x4800)
 #define PWR_BASE		(APB1_PERIPH_BASE + 0x7000)
@@ -45,7 +44,6 @@
 #define STM32_GPIOI_BASE	(AHB1_PERIPH_BASE + 0x2000)
 #define STM32_GPIOJ_BASE	(AHB1_PERIPH_BASE + 0x2400)
 #define STM32_GPIOK_BASE	(AHB1_PERIPH_BASE + 0x2800)
-#define RCC_BASE		(AHB1_PERIPH_BASE + 0x3800)
 #define FLASH_CNTL_BASE		(AHB1_PERIPH_BASE + 0x3C00)
 
 
@@ -58,9 +56,6 @@ static const u32 sect_sz_kb[CONFIG_SYS_MAX_FLASH_SECT] = {
 };
 
 #define STM32_BUS_MASK		GENMASK(31, 16)
-
-#define STM32_RCC		((struct stm32_rcc_regs *)RCC_BASE)
-
 
 void stm32_flash_latency_cfg(int latency);
 

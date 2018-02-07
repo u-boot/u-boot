@@ -38,9 +38,6 @@ struct stm32_u_id_regs {
 #define STM32_U_ID_BASE		(STM32_SYSMEM_BASE + 0x7A10)
 #define STM32_U_ID		((struct stm32_u_id_regs *)STM32_U_ID_BASE)
 
-#define STM32_RCC_BASE		(STM32_AHB1PERIPH_BASE + 0x3800)
-#define STM32_RCC		((struct stm32_rcc_regs *)STM32_RCC_BASE)
-
 #define FLASH_CNTL_BASE		(STM32_AHB1PERIPH_BASE + 0x3C00)
 
 static const u32 sect_sz_kb[CONFIG_SYS_MAX_FLASH_SECT] = {

@@ -13,6 +13,8 @@ config STM32F4
 	select STM32_RCC
 	select STM32_RESET
 	select STM32_SERIAL
+	select STM32_TIMER
+	select TIMER
 
 config STM32F7
 	bool "stm32f7 family"
@@ -27,6 +29,8 @@ config STM32F7
 	select STM32_RCC
 	select STM32_RESET
 	select STM32_SERIAL
+	select STM32_TIMER
+	select TIMER
 	select SUPPORT_SPL
 	select SPL
 	select SPL_BOARD_INIT
@@ -46,6 +50,7 @@ config STM32F7
 	select SPL_RAM
 	select SPL_SERIAL_SUPPORT
 	select SPL_SYS_MALLOC_SIMPLE
+	select SPL_TIMER
 	select SPL_XIP_SUPPORT
 
 config STM32H7
@@ -62,7 +67,9 @@ config STM32H7
 	select STM32_RCC
 	select STM32_RESET
 	select STM32_SERIAL
+	select STM32_TIMER
 	select SYSCON
+	select TIMER
 
 source "arch/arm/mach-stm32/stm32f4/Kconfig"
 source "arch/arm/mach-stm32/stm32f7/Kconfig"

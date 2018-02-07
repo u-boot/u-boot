@@ -20,8 +20,4 @@ enum periph_id {
 	PERIPH_ID_QUADSPI = 92,
 };
 
-enum periph_clock {
-	TIMER2_CLOCK_CFG,
-};
-
 #endif /* __ASM_ARM_ARCH_PERIPH_H */

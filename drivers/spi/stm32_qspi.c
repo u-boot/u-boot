@@ -16,7 +16,6 @@
 #include <dm.h>
 #include <errno.h>
 #include <asm/arch/stm32.h>
-#include <asm/arch/stm32_defs.h>
 #include <clk.h>
 
 DECLARE_GLOBAL_DATA_PTR;

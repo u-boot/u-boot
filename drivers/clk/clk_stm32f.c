@@ -87,10 +87,6 @@
 #define RCC_APB2ENR_SYSCFGEN		BIT(14)
 #define RCC_APB2ENR_SAI1EN		BIT(22)
 
-enum periph_clock {
-	TIMER2_CLOCK_CFG,
-};
-
 static const struct stm32_clk_info stm32f4_clk_info = {
 	/* 180 MHz */
 	.sys_pll_psc = {
@@ -436,17 +432,6 @@ static int stm32_clk_enable(struct clk *clk)
 	setbits_le32(&regs->ahb1enr + offset, BIT(bit_index));
 
 	return 0;
-}
-
-void clock_setup(int peripheral)
-{
-	switch (peripheral) {
-	case TIMER2_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->apb1enr, RCC_APB1ENR_TIM2EN);
-		break;
-	default:
-		break;
-	}
 }
 
 static int stm32_clk_probe(struct udevice *dev)
