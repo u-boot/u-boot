@@ -635,7 +635,7 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 	struct stm32_rcc_regs *regs = priv->rcc_base;
 	ulong sysclk = 0;
 	u32 gate_offset;
-	u32 d1cfgr;
+	u32 d1cfgr, d3cfgr;
 	/* prescaler table lookups for clock computation */
 	u16 prescaler_table[8] = {2, 4, 8, 16, 64, 128, 256, 512};
 	u8 source, idx;
@@ -712,9 +712,10 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 		break;
 
 	case RCC_APB4ENR:
-		if (d1cfgr & RCC_D3CFGR_D3PPRE_DIVIDED) {
+		d3cfgr = readl(&regs->d3cfgr);
+		if (d3cfgr & RCC_D3CFGR_D3PPRE_DIVIDED) {
 			/* get D3 domain APB4 prescaler */
-			idx = (d1cfgr & RCC_D3CFGR_D3PPRE_DIVIDER) >>
+			idx = (d3cfgr & RCC_D3CFGR_D3PPRE_DIVIDER) >>
 			      RCC_D3CFGR_D3PPRE_SHIFT;
 			sysclk = sysclk / prescaler_table[idx];
 		}
