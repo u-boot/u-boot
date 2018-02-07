@@ -665,6 +665,13 @@ struct efi_gop_mode
 	unsigned long fb_size;
 };
 
+struct efi_gop_pixel {
+	u8 blue;
+	u8 green;
+	u8 red;
+	u8 reserved;
+};
+
 #define EFI_BLT_VIDEO_FILL		0
 #define EFI_BLT_VIDEO_TO_BLT_BUFFER	1
 #define EFI_BLT_BUFFER_TO_VIDEO		2
@@ -676,7 +683,8 @@ struct efi_gop
 					  efi_uintn_t *size_of_info,
 					  struct efi_gop_mode_info **info);
 	efi_status_t (EFIAPI *set_mode)(struct efi_gop *this, u32 mode_number);
-	efi_status_t (EFIAPI *blt)(struct efi_gop *this, void *buffer,
+	efi_status_t (EFIAPI *blt)(struct efi_gop *this,
+				   struct efi_gop_pixel *buffer,
 				   u32 operation, efi_uintn_t sx,
 				   efi_uintn_t sy, efi_uintn_t dx,
 				   efi_uintn_t dy, efi_uintn_t width,

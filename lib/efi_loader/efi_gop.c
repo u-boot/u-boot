@@ -56,64 +56,150 @@ static efi_status_t EFIAPI gop_set_mode(struct efi_gop *this, u32 mode_number)
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
-efi_status_t EFIAPI gop_blt(struct efi_gop *this, void *buffer,
+static inline struct efi_gop_pixel efi_vid16_to_blt_col(u16 vid)
+{
+	struct efi_gop_pixel blt = {
+		.reserved = 0,
+	};
+
+	blt.blue  = (vid & 0x1f) << 3;
+	vid >>= 5;
+	blt.green = (vid & 0x3f) << 2;
+	vid >>= 6;
+	blt.red   = (vid & 0x1f) << 3;
+	return blt;
+}
+
+static inline u16 efi_blt_col_to_vid16(struct efi_gop_pixel *blt)
+{
+	return (u16)(blt->red   >> 3) << 11 |
+	       (u16)(blt->green >> 2) <<  5 |
+	       (u16)(blt->blue  >> 3);
+}
+
+efi_status_t EFIAPI gop_blt(struct efi_gop *this, struct efi_gop_pixel *buffer,
 			    u32 operation, efi_uintn_t sx,
 			    efi_uintn_t sy, efi_uintn_t dx,
 			    efi_uintn_t dy, efi_uintn_t width,
 			    efi_uintn_t height, efi_uintn_t delta)
 {
 	struct efi_gop_obj *gopobj = container_of(this, struct efi_gop_obj, ops);
-	int i, j, line_len16, line_len32;
-	void *fb;
+	efi_uintn_t i, j, linelen;
+	u32 *fb32 = gopobj->fb;
+	u16 *fb16 = gopobj->fb;
+
+	if (delta)
+		linelen = delta;
+	else
+		linelen = width;
 
 	EFI_ENTRY("%p, %p, %u, %zu, %zu, %zu, %zu, %zu, %zu, %zu", this,
 		  buffer, operation, sx, sy, dx, dy, width, height, delta);
 
-	if (operation != EFI_BLT_BUFFER_TO_VIDEO)
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
-
-	fb = gopobj->fb;
-	line_len16 = gopobj->info.width * sizeof(u16);
-	line_len32 = gopobj->info.width * sizeof(u32);
-
-	/* Copy the contents line by line */
-
-	switch (gopobj->bpix) {
-#ifdef CONFIG_DM_VIDEO
-	case VIDEO_BPP32:
-#else
-	case LCD_COLOR32:
-#endif
-		for (i = 0; i < height; i++) {
-			u32 *dest = fb + ((i + dy)  * line_len32) +
-					 (dx * sizeof(u32));
-			u32 *src = buffer + ((i + sy)  * line_len32) +
-					 (sx * sizeof(u32));
-
-			/* Same color format, just memcpy */
-			memcpy(dest, src, width * sizeof(u32));
-		}
+	/* Check source rectangle */
+	switch (operation) {
+	case EFI_BLT_VIDEO_FILL:
 		break;
-#ifdef CONFIG_DM_VIDEO
-	case VIDEO_BPP16:
-#else
-	case LCD_COLOR16:
-#endif
-		for (i = 0; i < height; i++) {
-			u16 *dest = fb + ((i + dy)  * line_len16) +
-					 (dx * sizeof(u16));
-			u32 *src = buffer + ((i + sy)  * line_len32) +
-					 (sx * sizeof(u32));
+	case EFI_BLT_BUFFER_TO_VIDEO:
+		if (sx + width > linelen)
+			return EFI_EXIT(EFI_INVALID_PARAMETER);
+		break;
+	case EFI_BLT_VIDEO_TO_BLT_BUFFER:
+	case EFI_BLT_VIDEO_TO_VIDEO:
+		if (sx + width > gopobj->info.width ||
+		    sy + height > gopobj->info.height)
+			return EFI_EXIT(EFI_INVALID_PARAMETER);
+		break;
+	default:
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+	}
 
-			/* Convert from rgb888 to rgb565 */
-			for (j = 0; j < width; j++) {
-				u32 rgb888 = src[j];
-				dest[j] = ((((rgb888 >> (16 + 3)) & 0x1f) << 11) |
-					   (((rgb888 >> (8 + 2)) & 0x3f) << 5) |
-					   (((rgb888 >> (0 + 3)) & 0x1f) << 0));
+	/* Check destination rectangle */
+	switch (operation) {
+	case EFI_BLT_VIDEO_FILL:
+	case EFI_BLT_BUFFER_TO_VIDEO:
+	case EFI_BLT_VIDEO_TO_VIDEO:
+		if (dx + width > gopobj->info.width ||
+		    dy + height > gopobj->info.height)
+			return EFI_EXIT(EFI_INVALID_PARAMETER);
+		break;
+	case EFI_BLT_VIDEO_TO_BLT_BUFFER:
+		if (dx + width > linelen)
+			return EFI_EXIT(EFI_INVALID_PARAMETER);
+		break;
+	}
+
+	for (i = 0; i < height; i++) {
+		for (j = 0; j < width; j++) {
+			struct efi_gop_pixel pix;
+
+			/* Read source pixel */
+			switch (operation) {
+			case EFI_BLT_VIDEO_FILL:
+				pix = *buffer;
+				break;
+			case EFI_BLT_BUFFER_TO_VIDEO:
+				pix = buffer[linelen * (i + sy) + j + sx];
+				break;
+			case EFI_BLT_VIDEO_TO_BLT_BUFFER:
+			case EFI_BLT_VIDEO_TO_VIDEO:
+				switch (gopobj->bpix) {
+#ifdef CONFIG_DM_VIDEO
+				case VIDEO_BPP32:
+#else
+				case LCD_COLOR32:
+#endif
+					pix = *(struct efi_gop_pixel *)&fb32[
+						gopobj->info.width *
+						(i + sy) + j + sx];
+				break;
+#ifdef CONFIG_DM_VIDEO
+				case VIDEO_BPP16:
+#else
+				case LCD_COLOR16:
+#endif
+					pix = efi_vid16_to_blt_col(fb16[
+						gopobj->info.width *
+						(i + sy) + j + sx]);
+					break;
+				default:
+					return EFI_EXIT(EFI_UNSUPPORTED);
+				}
+				break;
+			}
+
+			/* Write destination pixel */
+			switch (operation) {
+			case EFI_BLT_VIDEO_TO_BLT_BUFFER:
+				buffer[linelen * (i + dy) + j + dx] = pix;
+				break;
+			case EFI_BLT_BUFFER_TO_VIDEO:
+			case EFI_BLT_VIDEO_FILL:
+			case EFI_BLT_VIDEO_TO_VIDEO:
+				switch (gopobj->bpix) {
+#ifdef CONFIG_DM_VIDEO
+				case VIDEO_BPP32:
+#else
+				case LCD_COLOR32:
+#endif
+					fb32[gopobj->info.width *
+					     (i + dy) + j + dx] = *(u32 *)&pix;
+					break;
+#ifdef CONFIG_DM_VIDEO
+				case VIDEO_BPP16:
+#else
+				case LCD_COLOR16:
+#endif
+					fb16[gopobj->info.width *
+					     (i + dy) + j + dx] =
+						efi_blt_col_to_vid16(&pix);
+					break;
+				default:
+					return EFI_EXIT(EFI_UNSUPPORTED);
+				}
+				break;
 			}
 		}
-		break;
 	}
 
 #ifdef CONFIG_DM_VIDEO
