@@ -330,7 +330,6 @@
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x69} }
 
 /* SPI */
-#define CONFIG_MPC8XXX_SPI
 #undef CONFIG_SOFT_SPI			/* SPI bit-banged */
 
 /* GPIOs.  Used as SPI chip selects */

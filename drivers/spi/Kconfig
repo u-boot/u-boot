@@ -263,6 +263,11 @@ config MPC8XX_SPI
 	help
 	  Enable support for SPI on MPC8XX
 
+config MPC8XXX_SPI
+	bool "MPC8XXX SPI Driver"
+	help
+	  Enable support for SPI on the MPC8XXX PowerPC SoCs.
+
 config MXC_SPI
 	bool "MXC SPI Driver"
 	help
