@@ -45,6 +45,11 @@ enum soc_family {
 	STM32F7,
 };
 
+enum apb {
+	APB1,
+	APB2,
+};
+
 struct stm32_rcc_clk {
 	char *drv_name;
 	enum soc_family soc;

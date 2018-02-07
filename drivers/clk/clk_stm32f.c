@@ -63,6 +63,7 @@
 #define RCC_PLLSAICFGR_PLLSAIQ_4	BIT(26)
 #define RCC_PLLSAICFGR_PLLSAIR_2	BIT(29)
 
+#define RCC_DCKCFGRX_TIMPRE		BIT(24)
 #define RCC_DCKCFGRX_CK48MSEL		BIT(27)
 #define RCC_DCKCFGRX_SDMMC1SEL		BIT(28)
 #define RCC_DCKCFGR2_SDMMC2SEL		BIT(29)
@@ -260,20 +261,87 @@ static unsigned long stm32_clk_pll48clk_rate(struct stm32_clk *priv,
 	return sysclk / pllq;
 }
 
-static unsigned long stm32_clk_get_rate(struct clk *clk)
+static bool stm32_get_timpre(struct stm32_clk *priv)
 {
-	struct stm32_clk *priv = dev_get_priv(clk->dev);
 	struct stm32_rcc_regs *regs = priv->base;
-	u32 sysclk = 0;
-	u32 shift = 0;
-	u16 pllm, plln, pllp;
+	u32 val;
+
+	if (priv->info.v2) /*stm32f7 case */
+		val = readl(&regs->dckcfgr2);
+	else
+		val = readl(&regs->dckcfgr);
+	/* get timer prescaler */
+	return !!(val & RCC_DCKCFGRX_TIMPRE);
+}
+
+static u32 stm32_get_hclk_rate(struct stm32_rcc_regs *regs, u32 sysclk)
+{
+	u8 shift;
 	/* Prescaler table lookups for clock computation */
 	u8 ahb_psc_table[16] = {
 		0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9
 	};
+
+	shift = ahb_psc_table[(
+		(readl(&regs->cfgr) & RCC_CFGR_AHB_PSC_MASK)
+		>> RCC_CFGR_HPRE_SHIFT)];
+
+	return sysclk >> shift;
+};
+
+static u8 stm32_get_apb_shift(struct stm32_rcc_regs *regs, enum apb apb)
+{
+	/* Prescaler table lookups for clock computation */
 	u8 apb_psc_table[8] = {
 		0, 0, 0, 0, 1, 2, 3, 4
 	};
+
+	if (apb == APB1)
+		return apb_psc_table[(
+		       (readl(&regs->cfgr) & RCC_CFGR_APB1_PSC_MASK)
+		       >> RCC_CFGR_PPRE1_SHIFT)];
+	else /* APB2 */
+		return apb_psc_table[(
+		       (readl(&regs->cfgr) & RCC_CFGR_APB2_PSC_MASK)
+		       >> RCC_CFGR_PPRE2_SHIFT)];
+};
+
+static u32 stm32_get_timer_rate(struct stm32_clk *priv, u32 sysclk,
+				enum apb apb)
+{
+	struct stm32_rcc_regs *regs = priv->base;
+	u8 shift = stm32_get_apb_shift(regs, apb);
+
+	if (stm32_get_timpre(priv))
+		/*
+		 * if APB prescaler is configured to a
+		 * division factor of 1, 2 or 4
+		 */
+		switch (shift) {
+		case 0:
+		case 1:
+		case 2:
+			return stm32_get_hclk_rate(regs, sysclk);
+		default:
+			return (sysclk >> shift) * 4;
+		}
+	else
+		/*
+		 * if APB prescaler is configured to a
+		 * division factor of 1
+		 */
+		if (shift == 0)
+			return sysclk;
+		else
+			return (sysclk >> shift) * 2;
+};
+
+static ulong stm32_clk_get_rate(struct clk *clk)
+{
+	struct stm32_clk *priv = dev_get_priv(clk->dev);
+	struct stm32_rcc_regs *regs = priv->base;
+	u32 sysclk = 0;
+	u16 pllm, plln, pllp;
 
 	if ((readl(&regs->cfgr) & RCC_CFGR_SWS_MASK) ==
 			RCC_CFGR_SWS_PLL) {
@@ -293,16 +361,24 @@ static unsigned long stm32_clk_get_rate(struct clk *clk)
 	 * AHB1, AHB2 and AHB3
 	 */
 	case STM32F7_AHB1_CLOCK(GPIOA) ... STM32F7_AHB3_CLOCK(QSPI):
-		shift = ahb_psc_table[(
-			(readl(&regs->cfgr) & RCC_CFGR_AHB_PSC_MASK)
-			>> RCC_CFGR_HPRE_SHIFT)];
-		return sysclk >>= shift;
+		return stm32_get_hclk_rate(regs, sysclk);
 	/* APB1 CLOCK */
 	case STM32F7_APB1_CLOCK(TIM2) ... STM32F7_APB1_CLOCK(UART8):
-		shift = apb_psc_table[(
-			(readl(&regs->cfgr) & RCC_CFGR_APB1_PSC_MASK)
-			>> RCC_CFGR_PPRE1_SHIFT)];
-		return sysclk >>= shift;
+		/* For timer clock, an additionnal prescaler is used*/
+		switch (clk->id) {
+		case STM32F7_APB1_CLOCK(TIM2):
+		case STM32F7_APB1_CLOCK(TIM3):
+		case STM32F7_APB1_CLOCK(TIM4):
+		case STM32F7_APB1_CLOCK(TIM5):
+		case STM32F7_APB1_CLOCK(TIM6):
+		case STM32F7_APB1_CLOCK(TIM7):
+		case STM32F7_APB1_CLOCK(TIM12):
+		case STM32F7_APB1_CLOCK(TIM13):
+		case STM32F7_APB1_CLOCK(TIM14):
+			return stm32_get_timer_rate(priv, sysclk, APB1);
+		}
+		return (sysclk >> stm32_get_apb_shift(regs, APB1));
+
 	/* APB2 CLOCK */
 	case STM32F7_APB2_CLOCK(TIM1) ... STM32F7_APB2_CLOCK(LTDC):
 		/*
@@ -325,12 +401,18 @@ static unsigned long stm32_clk_get_rate(struct clk *clk)
 			else
 				return stm32_clk_pll48clk_rate(priv, sysclk);
 			break;
-		}
 
-		shift = apb_psc_table[(
-			(readl(&regs->cfgr) & RCC_CFGR_APB2_PSC_MASK)
-			>> RCC_CFGR_PPRE2_SHIFT)];
-		return sysclk >>= shift;
+		/* For timer clock, an additionnal prescaler is used*/
+		case STM32F7_APB2_CLOCK(TIM1):
+		case STM32F7_APB2_CLOCK(TIM8):
+		case STM32F7_APB2_CLOCK(TIM9):
+		case STM32F7_APB2_CLOCK(TIM10):
+		case STM32F7_APB2_CLOCK(TIM11):
+			return stm32_get_timer_rate(priv, sysclk, APB2);
+		break;
+		}
+		return (sysclk >> stm32_get_apb_shift(regs, APB2));
+
 	default:
 		pr_err("clock index %ld out of range\n", clk->id);
 		return -EINVAL;
