@@ -70,11 +70,9 @@
 #endif
 
 /* The TSEC driver uses the PHYLIB infrastructure */
-#ifndef CONFIG_PHYLIB
-#if defined(CONFIG_TSEC_ENET)
+#if defined(CONFIG_TSEC_ENET) && defined(CONFIG_PHYLIB)
 #include <config_phylib_all_drivers.h>
 #endif /* TSEC_ENET */
-#endif /* !CONFIG_PHYLIB */
 
 /* The FMAN driver uses the PHYLIB infrastructure */
 
