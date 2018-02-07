@@ -63,7 +63,6 @@
 /*
  * SSP/SPI
  */
-#define CONFIG_LPC32XX_SSP
 #define CONFIG_LPC32XX_SSP_TIMEOUT	100000
 
 /*

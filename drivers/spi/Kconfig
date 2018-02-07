@@ -257,6 +257,11 @@ config TI_QSPI
 	  Enable the TI Quad-SPI (QSPI) driver for DRA7xx and AM43xx evms.
 	  This driver support spi flash single, quad and memory reads.
 
+config LPC32XX_SSP
+	bool "LPC32XX SPI Driver"
+	help
+	  Enable support for SPI on LPC32xx
+
 config MPC8XX_SPI
 	bool "MPC8XX SPI Driver"
 	depends on 8xx
