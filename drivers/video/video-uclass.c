@@ -117,9 +117,12 @@ void video_clear(struct udevice *dev)
 void video_set_default_colors(struct video_priv *priv)
 {
 #ifdef CONFIG_SYS_WHITE_ON_BLACK
-	priv->colour_fg = vid_console_color(priv, VID_WHITE);
+	/* White is used when switching to bold, use light gray here */
+	priv->fg_col_idx = VID_LIGHT_GRAY;
+	priv->colour_fg = vid_console_color(priv, VID_LIGHT_GRAY);
 	priv->colour_bg = vid_console_color(priv, VID_BLACK);
 #else
+	priv->fg_col_idx = VID_BLACK;
 	priv->colour_fg = vid_console_color(priv, VID_BLACK);
 	priv->colour_bg = vid_console_color(priv, VID_WHITE);
 #endif

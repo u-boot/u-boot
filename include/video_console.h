@@ -15,16 +15,24 @@
 #define VID_TO_POS(x)	((x) * VID_FRAC_DIV)
 
 /*
- * The 8 colors supported by the console
+ * The 16 colors supported by the console
  */
 enum color_idx {
 	VID_BLACK = 0,
 	VID_RED,
 	VID_GREEN,
-	VID_YELLOW,
+	VID_BROWN,
 	VID_BLUE,
 	VID_MAGENTA,
 	VID_CYAN,
+	VID_LIGHT_GRAY,
+	VID_GRAY,
+	VID_LIGHT_RED,
+	VID_LIGTH_GREEN,
+	VID_YELLOW,
+	VID_LIGHT_BLUE,
+	VID_LIGHT_MAGENTA,
+	VID_LIGHT_CYAN,
 	VID_WHITE,
 
 	VID_COLOR_COUNT

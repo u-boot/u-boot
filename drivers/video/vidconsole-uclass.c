@@ -119,12 +119,20 @@ static void vidconsole_newline(struct udevice *dev)
 
 static const struct vid_rgb colors[VID_COLOR_COUNT] = {
 	{ 0x00, 0x00, 0x00 },  /* black */
-	{ 0xff, 0x00, 0x00 },  /* red */
-	{ 0x00, 0xff, 0x00 },  /* green */
+	{ 0xc0, 0x00, 0x00 },  /* red */
+	{ 0x00, 0xc0, 0x00 },  /* green */
+	{ 0xc0, 0x60, 0x00 },  /* brown */
+	{ 0x00, 0x00, 0xc0 },  /* blue */
+	{ 0xc0, 0x00, 0xc0 },  /* magenta */
+	{ 0x00, 0xc0, 0xc0 },  /* cyan */
+	{ 0xc0, 0xc0, 0xc0 },  /* light gray */
+	{ 0x80, 0x80, 0x80 },  /* gray */
+	{ 0xff, 0x00, 0x00 },  /* bright red */
+	{ 0x00, 0xff, 0x00 },  /* bright green */
 	{ 0xff, 0xff, 0x00 },  /* yellow */
-	{ 0x00, 0x00, 0xff },  /* blue */
-	{ 0xff, 0x00, 0xff },  /* magenta */
-	{ 0x00, 0xff, 0xff },  /* cyan */
+	{ 0x00, 0x00, 0xff },  /* bright blue */
+	{ 0xff, 0x00, 0xff },  /* bright magenta */
+	{ 0x00, 0xff, 0xff },  /* bright cyan */
 	{ 0xff, 0xff, 0xff },  /* white */
 };
 
@@ -278,10 +286,22 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 			s++;
 
 			switch (val) {
+			case 0:
+				/* all attributes off */
+				video_set_default_colors(vid_priv);
+				break;
+			case 1:
+				/* bold */
+				vid_priv->fg_col_idx |= 8;
+				vid_priv->colour_fg = vid_console_color(
+						vid_priv, vid_priv->fg_col_idx);
+				break;
 			case 30 ... 37:
 				/* foreground color */
+				vid_priv->fg_col_idx &= ~7;
+				vid_priv->fg_col_idx |= val - 30;
 				vid_priv->colour_fg = vid_console_color(
-							vid_priv, val - 30);
+						vid_priv, vid_priv->fg_col_idx);
 				break;
 			case 40 ... 47:
 				/* background color */
