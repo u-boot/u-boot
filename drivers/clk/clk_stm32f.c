@@ -432,7 +432,7 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 		return (sysclk >> stm32_get_apb_shift(regs, APB1));
 
 	/* APB2 CLOCK */
-	case STM32F7_APB2_CLOCK(TIM1) ... STM32F7_APB2_CLOCK(LTDC):
+	case STM32F7_APB2_CLOCK(TIM1) ... STM32F7_APB2_CLOCK(DSI):
 		switch (clk->id) {
 		/*
 		 * particular case for SDMMC1 and SDMMC2 :
