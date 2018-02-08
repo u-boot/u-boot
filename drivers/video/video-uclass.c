@@ -114,6 +114,17 @@ void video_clear(struct udevice *dev)
 	}
 }
 
+void video_set_default_colors(struct video_priv *priv)
+{
+#ifdef CONFIG_SYS_WHITE_ON_BLACK
+	priv->colour_fg = vid_console_color(priv, VID_WHITE);
+	priv->colour_bg = vid_console_color(priv, VID_BLACK);
+#else
+	priv->colour_fg = vid_console_color(priv, VID_BLACK);
+	priv->colour_bg = vid_console_color(priv, VID_WHITE);
+#endif
+}
+
 /* Flush video activity to the caches */
 void video_sync(struct udevice *vid)
 {
@@ -203,12 +214,8 @@ static int video_post_probe(struct udevice *dev)
 	priv->line_length = priv->xsize * VNBYTES(priv->bpix);
 	priv->fb_size = priv->line_length * priv->ysize;
 
-	/* Set up colours - we could in future support other colours */
-#ifdef CONFIG_SYS_WHITE_ON_BLACK
-	priv->colour_fg = 0xffffff;
-#else
-	priv->colour_bg = 0xffffff;
-#endif
+	/* Set up colors  */
+	video_set_default_colors(priv);
 
 	if (!CONFIG_IS_ENABLED(NO_FB_CLEAR))
 		video_clear(dev);

@@ -84,8 +84,8 @@ struct video_priv {
 	void *fb;
 	int fb_size;
 	int line_length;
-	int colour_fg;
-	int colour_bg;
+	u32 colour_fg;
+	u32 colour_bg;
 	bool flush_dcache;
 	ushort *cmap;
 };
@@ -182,6 +182,13 @@ int video_get_ysize(struct udevice *dev);
  * @param flush		non-zero to flush cache after update, 0 to skip
  */
 void video_set_flush_dcache(struct udevice *dev, bool flush);
+
+/**
+ * Set default colors and attributes
+ *
+ * @priv	device information
+ */
+void video_set_default_colors(struct video_priv *priv);
 
 #endif /* CONFIG_DM_VIDEO */
 

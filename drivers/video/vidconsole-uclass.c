@@ -15,6 +15,15 @@
 #include <video_console.h>
 #include <video_font.h>		/* Get font data, width and height */
 
+/*
+ * Structure to describe a console color
+ */
+struct vid_rgb {
+	u32 r;
+	u32 g;
+	u32 b;
+};
+
 /* By default we scroll by a single line */
 #ifndef CONFIG_CONSOLE_SCROLL_LINES
 #define CONFIG_CONSOLE_SCROLL_LINES 1
@@ -108,11 +117,7 @@ static void vidconsole_newline(struct udevice *dev)
 	video_sync(dev->parent);
 }
 
-static const struct {
-	unsigned r;
-	unsigned g;
-	unsigned b;
-} colors[] = {
+static const struct vid_rgb colors[VID_COLOR_COUNT] = {
 	{ 0x00, 0x00, 0x00 },  /* black */
 	{ 0xff, 0x00, 0x00 },  /* red */
 	{ 0x00, 0xff, 0x00 },  /* green */
@@ -123,22 +128,26 @@ static const struct {
 	{ 0xff, 0xff, 0xff },  /* white */
 };
 
-static void set_color(struct video_priv *priv, unsigned idx, unsigned *c)
+u32 vid_console_color(struct video_priv *priv, unsigned int idx)
 {
 	switch (priv->bpix) {
 	case VIDEO_BPP16:
-		*c = ((colors[idx].r >> 3) << 11) |
-		     ((colors[idx].g >> 2) <<  5) |
-		     ((colors[idx].b >> 3) <<  0);
-		break;
+		return ((colors[idx].r >> 3) << 11) |
+		       ((colors[idx].g >> 2) <<  5) |
+		       ((colors[idx].b >> 3) <<  0);
 	case VIDEO_BPP32:
-		*c = (colors[idx].r << 16) |
-		     (colors[idx].g <<  8) |
-		     (colors[idx].b <<  0);
-		break;
+		return (colors[idx].r << 16) |
+		       (colors[idx].g <<  8) |
+		       (colors[idx].b <<  0);
 	default:
-		/* unsupported, leave current color in place */
-		break;
+		/*
+		 * For unknown bit arrangements just support
+		 * black and white.
+		 */
+		if (idx)
+			return 0xffffff; /* white */
+		else
+			return 0x000000; /* black */
 	}
 }
 
@@ -270,17 +279,17 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 
 			switch (val) {
 			case 30 ... 37:
-				/* fg color */
-				set_color(vid_priv, val - 30,
-					  (unsigned *)&vid_priv->colour_fg);
+				/* foreground color */
+				vid_priv->colour_fg = vid_console_color(
+							vid_priv, val - 30);
 				break;
 			case 40 ... 47:
-				/* bg color */
-				set_color(vid_priv, val - 40,
-					  (unsigned *)&vid_priv->colour_bg);
+				/* background color */
+				vid_priv->colour_bg = vid_console_color(
+							vid_priv, val - 40);
 				break;
 			default:
-				/* unknown/unsupported */
+				/* ignore unsupported SGR parameter */
 				break;
 			}
 		}
