@@ -91,14 +91,26 @@ void video_clear(struct udevice *dev)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
 
-	if (priv->bpix == VIDEO_BPP32) {
+	switch (priv->bpix) {
+	case VIDEO_BPP16: {
+		u16 *ppix = priv->fb;
+		u16 *end = priv->fb + priv->fb_size;
+
+		while (ppix < end)
+			*ppix++ = priv->colour_bg;
+		break;
+	}
+	case VIDEO_BPP32: {
 		u32 *ppix = priv->fb;
 		u32 *end = priv->fb + priv->fb_size;
 
 		while (ppix < end)
 			*ppix++ = priv->colour_bg;
-	} else {
+		break;
+	}
+	default:
 		memset(priv->fb, priv->colour_bg, priv->fb_size);
+		break;
 	}
 }
 
