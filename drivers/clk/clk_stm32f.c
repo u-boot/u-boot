@@ -230,7 +230,7 @@ static int configure_clocks(struct udevice *dev)
 }
 
 static unsigned long stm32_clk_pll48clk_rate(struct stm32_clk *priv,
-					     u32 sysclk)
+					     u32 vco)
 {
 	struct stm32_rcc_regs *regs = priv->base;
 	u16 pllq, pllm, pllsain, pllsaip;
@@ -254,7 +254,7 @@ static unsigned long stm32_clk_pll48clk_rate(struct stm32_clk *priv,
 		return ((priv->hse_rate / pllm) * pllsain) / pllsaip;
 	}
 	/* PLL48CLK is selected from PLLQ */
-	return sysclk / pllq;
+	return vco / pllq;
 }
 
 static bool stm32_get_timpre(struct stm32_clk *priv)
@@ -337,6 +337,7 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 	struct stm32_clk *priv = dev_get_priv(clk->dev);
 	struct stm32_rcc_regs *regs = priv->base;
 	u32 sysclk = 0;
+	u32 vco;
 	u16 pllm, plln, pllp;
 
 	if ((readl(&regs->cfgr) & RCC_CFGR_SWS_MASK) ==
@@ -346,7 +347,8 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 			>> RCC_PLLCFGR_PLLN_SHIFT);
 		pllp = ((((readl(&regs->pllcfgr) & RCC_PLLCFGR_PLLP_MASK)
 			>> RCC_PLLCFGR_PLLP_SHIFT) + 1) << 1);
-		sysclk = ((priv->hse_rate / pllm) * plln) / pllp;
+		vco = (priv->hse_rate / pllm) * plln;
+		sysclk = vco / pllp;
 	} else {
 		return -EINVAL;
 	}
@@ -388,14 +390,14 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 				/* System clock is selected as SDMMC1 clock */
 				return sysclk;
 			else
-				return stm32_clk_pll48clk_rate(priv, sysclk);
+				return stm32_clk_pll48clk_rate(priv, vco);
 			break;
 		case STM32F7_APB2_CLOCK(SDMMC2):
 			if (readl(&regs->dckcfgr2) & RCC_DCKCFGR2_SDMMC2SEL)
 				/* System clock is selected as SDMMC2 clock */
 				return sysclk;
 			else
-				return stm32_clk_pll48clk_rate(priv, sysclk);
+				return stm32_clk_pll48clk_rate(priv, vco);
 			break;
 
 		/* For timer clock, an additionnal prescaler is used*/
