@@ -127,15 +127,14 @@ static void set_color(struct video_priv *priv, unsigned idx, unsigned *c)
 {
 	switch (priv->bpix) {
 	case VIDEO_BPP16:
-		*c = ((colors[idx].r >> 3) << 0) |
-		     ((colors[idx].g >> 2) << 5) |
-		     ((colors[idx].b >> 3) << 11);
+		*c = ((colors[idx].r >> 3) << 11) |
+		     ((colors[idx].g >> 2) <<  5) |
+		     ((colors[idx].b >> 3) <<  0);
 		break;
 	case VIDEO_BPP32:
-		*c = 0xff000000 |
-		     (colors[idx].r << 0) |
-		     (colors[idx].g << 8) |
-		     (colors[idx].b << 16);
+		*c = (colors[idx].r << 16) |
+		     (colors[idx].g <<  8) |
+		     (colors[idx].b <<  0);
 		break;
 	default:
 		/* unsupported, leave current color in place */
