@@ -2311,18 +2311,6 @@ The following options need to be configured:
 		CONFIG_SF_DEFAULT_MODE 		(see include/spi.h)
 		CONFIG_SF_DEFAULT_SPEED		in Hz
 
-		CONFIG_SYSTEMACE
-
-		Adding this option adds support for Xilinx SystemACE
-		chips attached via some sort of local bus. The address
-		of the chip must also be defined in the
-		CONFIG_SYS_SYSTEMACE_BASE macro. For example:
-
-		#define CONFIG_SYSTEMACE
-		#define CONFIG_SYS_SYSTEMACE_BASE 0xf0000000
-
-		When SystemACE support is added, the "ace" device type
-		becomes available to the fat commands, i.e. fatls.
 
 - TFTP Fixed UDP Port:
 		CONFIG_TFTP_PORT
