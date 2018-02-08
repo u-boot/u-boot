@@ -185,7 +185,7 @@ void zynqmp_pmufw_version(void)
 	       pm_api_version >> ZYNQMP_PM_VERSION_MAJOR_SHIFT,
 	       pm_api_version & ZYNQMP_PM_VERSION_MINOR_MASK);
 
-	if (pm_api_version != ZYNQMP_PM_VERSION)
+	if (pm_api_version < ZYNQMP_PM_VERSION)
 		panic("PMUFW version error. Expected: v%d.%d\n",
 		      ZYNQMP_PM_VERSION_MAJOR, ZYNQMP_PM_VERSION_MINOR);
 }
