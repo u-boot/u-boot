@@ -136,6 +136,9 @@ struct stm32_clk {
 	unsigned long hse_rate;
 };
 
+#ifdef CONFIG_VIDEO_STM32
+static const u8 plldivr_table[] = { 0, 0, 2, 3, 4, 5, 6, 7 };
+#endif
 static const u8 pllsaidivr_table[] = { 2, 4, 8, 16 };
 
 static int configure_clocks(struct udevice *dev)
@@ -484,7 +487,104 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 
 static ulong stm32_set_rate(struct clk *clk, ulong rate)
 {
+#ifdef CONFIG_VIDEO_STM32
+	struct stm32_clk *priv = dev_get_priv(clk->dev);
+	struct stm32_rcc_regs *regs = priv->base;
+	u32 pllsair_rate, pllsai_vco_rate, current_rate;
+	u32 best_div, best_diff, diff;
+	u16 div;
+	u8 best_plldivr, best_pllsaidivr;
+	u8 i, j;
+	bool found = false;
+
+	/* Only set_rate for LTDC clock is implemented */
+	if (clk->id != STM32F7_APB2_CLOCK(LTDC)) {
+		pr_err("set_rate not implemented for clock index %ld\n",
+		       clk->id);
+		return 0;
+	}
+
+	if (rate == stm32_clk_get_rate(clk))
+		/* already set to requested rate */
+		return rate;
+
+	/* get the current PLLSAIR output freq */
+	pllsair_rate = stm32_clk_get_pllsai_rate(priv, PLLSAIR);
+	best_div = pllsair_rate / rate;
+
+	/* look into pllsaidivr_table if this divider is available*/
+	for (i = 0 ; i < sizeof(pllsaidivr_table); i++)
+		if (best_div == pllsaidivr_table[i]) {
+			/* set pll_saidivr with found value */
+			clrsetbits_le32(&regs->dckcfgr,
+					RCC_DCKCFGR_PLLSAIDIVR_MASK,
+					pllsaidivr_table[i]);
+			return rate;
+		}
+
+	/*
+	 * As no pllsaidivr value is suitable to obtain requested freq,
+	 * test all combination of pllsaidivr * pllsair and find the one
+	 * which give freq closest to requested rate.
+	 */
+
+	pllsai_vco_rate = stm32_clk_get_pllsai_vco_rate(priv);
+	best_diff = ULONG_MAX;
+	best_pllsaidivr = 0;
+	best_plldivr = 0;
+	/*
+	 * start at index 2 of plldivr_table as divider value at index 0
+	 * and 1 are 0)
+	 */
+	for (i = 2; i < sizeof(plldivr_table); i++) {
+		for (j = 0; j < sizeof(pllsaidivr_table); j++) {
+			div = plldivr_table[i] * pllsaidivr_table[j];
+			current_rate = pllsai_vco_rate / div;
+			/* perfect combination is found ? */
+			if (current_rate == rate) {
+				best_pllsaidivr = j;
+				best_plldivr = i;
+				found = true;
+				break;
+			}
+
+			diff = (current_rate > rate) ?
+			       current_rate - rate : rate - current_rate;
+
+			/* found a better combination ? */
+			if (diff < best_diff) {
+				best_diff = diff;
+				best_pllsaidivr = j;
+				best_plldivr = i;
+			}
+		}
+
+		if (found)
+			break;
+	}
+
+	/* Disable the SAI PLL */
+	clrbits_le32(&regs->cr, RCC_CR_PLLSAION);
+
+	/* set pll_saidivr with found value */
+	clrsetbits_le32(&regs->dckcfgr, RCC_DCKCFGR_PLLSAIDIVR_MASK,
+			best_pllsaidivr << RCC_DCKCFGR_PLLSAIDIVR_SHIFT);
+
+	/* set pllsair with found value */
+	clrsetbits_le32(&regs->pllsaicfgr, RCC_PLLSAICFGR_PLLSAIR_MASK,
+			plldivr_table[best_plldivr]
+			<< RCC_PLLSAICFGR_PLLSAIR_SHIFT);
+
+	/* Enable the SAI PLL */
+	setbits_le32(&regs->cr, RCC_CR_PLLSAION);
+	while (!(readl(&regs->cr) & RCC_CR_PLLSAIRDY))
+		;
+
+	div = plldivr_table[best_plldivr] * pllsaidivr_table[best_pllsaidivr];
+	return pllsai_vco_rate / div;
+#else
 	return 0;
+#endif
 }
 
 static int stm32_clk_enable(struct clk *clk)
