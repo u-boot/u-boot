@@ -65,12 +65,16 @@
 #define RCC_PLLSAICFGR_PLLSAIR_SHIFT	28
 #define RCC_PLLSAICFGR_PLLSAIP_4	BIT(16)
 #define RCC_PLLSAICFGR_PLLSAIQ_4	BIT(26)
-#define RCC_PLLSAICFGR_PLLSAIR_2	BIT(29)
+#define RCC_PLLSAICFGR_PLLSAIR_3	BIT(29) | BIT(28)
 
 #define RCC_DCKCFGRX_TIMPRE		BIT(24)
 #define RCC_DCKCFGRX_CK48MSEL		BIT(27)
 #define RCC_DCKCFGRX_SDMMC1SEL		BIT(28)
 #define RCC_DCKCFGR2_SDMMC2SEL		BIT(29)
+
+#define RCC_DCKCFGR_PLLSAIDIVR_SHIFT    16
+#define RCC_DCKCFGR_PLLSAIDIVR_MASK	GENMASK(17, 16)
+#define RCC_DCKCFGR_PLLSAIDIVR_2	0
 
 /*
  * RCC AHB1ENR specific definitions
@@ -132,6 +136,8 @@ struct stm32_clk {
 	unsigned long hse_rate;
 };
 
+static const u8 pllsaidivr_table[] = { 2, 4, 8, 16 };
+
 static int configure_clocks(struct udevice *dev)
 {
 	struct stm32_clk *priv = dev_get_priv(dev);
@@ -187,11 +193,29 @@ static int configure_clocks(struct udevice *dev)
 		clrbits_le32(&regs->dckcfgr, RCC_DCKCFGRX_SDMMC1SEL);
 	}
 
+#ifdef CONFIG_VIDEO_STM32
+	/*
+	 * Configure the SAI PLL to generate LTDC pixel clock
+	 */
+	clrsetbits_le32(&regs->pllsaicfgr, RCC_PLLSAICFGR_PLLSAIR_MASK,
+			RCC_PLLSAICFGR_PLLSAIR_3);
+	clrsetbits_le32(&regs->pllsaicfgr, RCC_PLLSAICFGR_PLLSAIN_MASK,
+			195 << RCC_PLLSAICFGR_PLLSAIN_SHIFT);
+
+	clrsetbits_le32(&regs->dckcfgr, RCC_DCKCFGR_PLLSAIDIVR_MASK,
+			RCC_DCKCFGR_PLLSAIDIVR_2 << RCC_DCKCFGR_PLLSAIDIVR_SHIFT);
+#endif
 	/* Enable the main PLL */
 	setbits_le32(&regs->cr, RCC_CR_PLLON);
 	while (!(readl(&regs->cr) & RCC_CR_PLLRDY))
 		;
 
+#ifdef CONFIG_VIDEO_STM32
+/* Enable the SAI PLL */
+	setbits_le32(&regs->cr, RCC_CR_PLLSAION);
+	while (!(readl(&regs->cr) & RCC_CR_PLLSAIRDY))
+		;
+#endif
 	setbits_le32(&regs->apb1enr, RCC_APB1ENR_PWREN);
 
 	if (priv->info.has_overdrive) {
@@ -361,6 +385,8 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 	u32 sysclk = 0;
 	u32 vco;
 	u32 sdmmcxsel_bit;
+	u32 saidivr;
+	u32 pllsai_rate;
 	u16 pllm, plln, pllp, pllq;
 
 	if ((readl(&regs->cfgr) & RCC_CFGR_SWS_MASK) ==
@@ -438,6 +464,15 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 		case STM32F7_APB2_CLOCK(TIM11):
 			return stm32_get_timer_rate(priv, sysclk, APB2);
 		break;
+
+		/* particular case for LTDC clock */
+		case STM32F7_APB2_CLOCK(LTDC):
+			saidivr = readl(&regs->dckcfgr);
+			saidivr = (saidivr & RCC_DCKCFGR_PLLSAIDIVR_MASK)
+				  >> RCC_DCKCFGR_PLLSAIDIVR_SHIFT;
+			pllsai_rate = stm32_clk_get_pllsai_rate(priv, PLLSAIR);
+
+			return pllsai_rate / pllsaidivr_table[saidivr];
 		}
 		return (sysclk >> stm32_get_apb_shift(regs, APB2));
 
