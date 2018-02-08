@@ -230,6 +230,7 @@
 	pinctrl-0 = <&sdio_pins>;
 	pinctrl-1 = <&sdio_pins_od>;
 	bus-width = <4>;
+	max-frequency = <14000000>;
 };
 
 &timers1 {
