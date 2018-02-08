@@ -55,8 +55,8 @@
 #define RCC_CFGR_PPRE1_SHIFT		10
 #define RCC_CFGR_PPRE2_SHIFT		13
 
-#define RCC_PLLCFGR_PLLSAIN_MASK	GENMASK(14, 6)
-#define RCC_PLLCFGR_PLLSAIP_MASK	GENMASK(17, 16)
+#define RCC_PLLSAICFGR_PLLSAIN_MASK	GENMASK(14, 6)
+#define RCC_PLLSAICFGR_PLLSAIP_MASK	GENMASK(17, 16)
 #define RCC_PLLSAICFGR_PLLSAIN_SHIFT	6
 #define RCC_PLLSAICFGR_PLLSAIP_SHIFT	16
 #define RCC_PLLSAICFGR_PLLSAIP_4	BIT(16)
@@ -247,9 +247,9 @@ static unsigned long stm32_clk_pll48clk_rate(struct stm32_clk *priv,
 	if (pllsai) {
 		/* PLL48CLK is selected from PLLSAI, get PLLSAI value */
 		pllm = (readl(&regs->pllcfgr) & RCC_PLLCFGR_PLLM_MASK);
-		pllsain = ((readl(&regs->pllsaicfgr) & RCC_PLLCFGR_PLLSAIN_MASK)
+		pllsain = ((readl(&regs->pllsaicfgr) & RCC_PLLSAICFGR_PLLSAIN_MASK)
 			>> RCC_PLLSAICFGR_PLLSAIN_SHIFT);
-		pllsaip = ((((readl(&regs->pllsaicfgr) & RCC_PLLCFGR_PLLSAIP_MASK)
+		pllsaip = ((((readl(&regs->pllsaicfgr) & RCC_PLLSAICFGR_PLLSAIP_MASK)
 			>> RCC_PLLSAICFGR_PLLSAIP_SHIFT) + 1) << 1);
 		return ((priv->hse_rate / pllm) * pllsain) / pllsaip;
 	}
