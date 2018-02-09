@@ -1333,7 +1333,7 @@ static int sd_set_card_speed(struct mmc *mmc, enum bus_mode mode)
 	if (err)
 		return err;
 
-	if ((__be32_to_cpu(switch_status[4]) >> 24) != speed)
+	if (((__be32_to_cpu(switch_status[4]) >> 24) & 0xF) != speed)
 		return -ENOTSUPP;
 
 	return 0;
