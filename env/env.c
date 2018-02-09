@@ -147,32 +147,17 @@ static struct env_driver *env_driver_lookup(enum env_operation op, int prio)
 	return drv;
 }
 
+__weak int env_get_char_spec(int index)
+{
+	return *(uchar *)(gd->env_addr + index);
+}
+
 int env_get_char(int index)
 {
-	struct env_driver *drv;
-	int prio;
-
 	if (gd->env_valid == ENV_INVALID)
 		return default_environment[index];
-
-	for (prio = 0; (drv = env_driver_lookup(ENVOP_GET_CHAR, prio)); prio++) {
-		int ret;
-
-		if (!drv->get_char)
-			continue;
-
-		if (!env_has_inited(drv->location))
-			continue;
-
-		ret = drv->get_char(index);
-		if (!ret)
-			return 0;
-
-		debug("%s: Environment %s failed to load (err=%d)\n", __func__,
-		      drv->name, ret);
-	}
-
-	return -ENODEV;
+	else
+		return env_get_char_spec(index);
 }
 
 int env_load(void)

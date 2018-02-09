@@ -218,17 +218,6 @@ struct env_driver {
 	enum env_location location;
 
 	/**
-	 * get_char() - Read a character from the environment
-	 *
-	 * This method is optional. If not provided, a default implementation
-	 * will read from gd->env_addr.
-	 *
-	 * @index: Index of character to read (0=first)
-	 * @return character read, or -ve on error
-	 */
-	int (*get_char)(int index);
-
-	/**
 	 * load() - Load the environment from storage
 	 *
 	 * This method is optional. If not provided, no environment will be
