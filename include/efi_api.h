@@ -187,6 +187,17 @@ enum efi_reset_type {
 #define EFI_RUNTIME_SERVICES_SIGNATURE	0x5652453544e5552ULL
 #define EFI_RUNTIME_SERVICES_REVISION	0x00010000
 
+#define CAPSULE_FLAGS_PERSIST_ACROSS_RESET	0x00010000
+#define CAPSULE_FLAGS_POPULATE_SYSTEM_TABLE	0x00020000
+#define CAPSULE_FLAGS_INITIATE_RESET		0x00040000
+
+struct efi_capsule_header {
+	efi_guid_t *capsule_guid;
+	u32 header_size;
+	u32 flags;
+	u32 capsule_image_size;
+};
+
 struct efi_runtime_services {
 	struct efi_table_hdr hdr;
 	efi_status_t (EFIAPI *get_time)(struct efi_time *time,
@@ -216,9 +227,20 @@ struct efi_runtime_services {
 	void (EFIAPI *reset_system)(enum efi_reset_type reset_type,
 				    efi_status_t reset_status,
 				    unsigned long data_size, void *reset_data);
-	void *update_capsule;
-	void *query_capsule_caps;
-	void *query_variable_info;
+	efi_status_t (EFIAPI *update_capsule)(
+			struct efi_capsule_header **capsule_header_array,
+			efi_uintn_t capsule_count,
+			u64 scatter_gather_list);
+	efi_status_t (EFIAPI *query_capsule_caps)(
+			struct efi_capsule_header **capsule_header_array,
+			efi_uintn_t capsule_count,
+			u64 maximum_capsule_size,
+			u32 reset_type);
+	efi_status_t (EFIAPI *query_variable_info)(
+			u32 attributes,
+			u64 maximum_variable_storage_size,
+			u64 remaining_variable_storage_size,
+			u64 maximum_variable_size);
 };
 
 /* EFI Configuration Table and GUID definitions */
