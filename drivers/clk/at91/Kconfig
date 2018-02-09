@@ -27,6 +27,14 @@ config AT91_UTMI
 	  fast crystal oscillator to meet the frequency accuracy
 	  required by USB.
 
+config AT91_USB_CLK
+	bool "Support USB OHCI Input Clock"
+	depends on CLK_AT91
+	help
+	  This option is used to enable the USB Input Clock, from
+	  the device tree, configure the USBS bit (PLLA or UTMI PLL)
+	  and USBDIV field of the PMC_USB register.
+
 config AT91_H32MX
 	bool "Support H32MX 32-bit Matrix Clock"
 	depends on CLK_AT91
