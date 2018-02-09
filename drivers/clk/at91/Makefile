@@ -3,7 +3,7 @@
 #
 
 obj-y += pmc.o sckc.o
-obj-y += clk-slow.o clk-main.o clk-plla.o clk-master.o
+obj-y += clk-slow.o clk-main.o clk-plla.o clk-plladiv.o clk-master.o
 obj-y += clk-system.o clk-peripheral.o
 
 obj-$(CONFIG_AT91_UTMI)		+= clk-utmi.o
