@@ -714,11 +714,6 @@ The following options need to be configured:
 		RAM and NFS.
 
 - Bootcount:
-		CONFIG_BOOTCOUNT_LIMIT
-		Implements a mechanism for detecting a repeating reboot
-		cycle, see:
-		http://www.denx.de/wiki/view/DULG/UBootBootCountLimit
-
 		CONFIG_BOOTCOUNT_ENV
 		If no softreset save registers are found on the hardware
 		"bootcount" is stored in the environment. To prevent a
@@ -2323,11 +2318,6 @@ The following options need to be configured:
 		but sometimes that is not allowed.
 
 - bootcount support:
-		CONFIG_BOOTCOUNT_LIMIT
-
-		This enables the bootcounter support, see:
-		http://www.denx.de/wiki/DULG/UBootBootCountLimit
-
 		CONFIG_AT91SAM9XE
 		enable special bootcounter support on at91sam9xe based boards.
 		CONFIG_SOC_DA8XX

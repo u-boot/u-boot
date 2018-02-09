@@ -11,6 +11,12 @@ config BOOTCOUNT
 	  number of times the board has booted on a number of different
 	  persistent storage mediums.
 
+config BOOTCOUNT_LIMIT
+	bool "Enable support for checking boot count limit"
+	help
+	  Enable checking for exceeding the boot count limit.
+	  More information: http://www.denx.de/wiki/DULG/UBootBootCountLimit
+
 if BOOTCOUNT
 
 config BOOTCOUNT_EXT

@@ -277,7 +277,6 @@
 /* initial stack pointer in internal SRAM */
 #define CONFIG_SYS_INIT_SP_ADDR		(0x8001ff00)
 
-#define CONFIG_BOOTCOUNT_LIMIT
 #define CONFIG_SYS_BOOTCOUNT_LE		/* Use little-endian accessors */
 #define CONFIG_SYS_BOOTCOUNT_ADDR	DAVINCI_RTC_BASE
 

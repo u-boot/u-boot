@@ -12,8 +12,6 @@
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_LAST_STAGE_INIT
 
-#define CONFIG_BOOTCOUNT_LIMIT
-
 #define CONFIG_JFFS2_CMDLINE
 
 /* standard km ethernet_present for piggy */

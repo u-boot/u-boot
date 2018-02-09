@@ -8,8 +8,6 @@
 #ifndef __CONFIG_KEYMILE_H
 #define __CONFIG_KEYMILE_H
 
-#define CONFIG_BOOTCOUNT_LIMIT
-
 #undef	CONFIG_WATCHDOG		/* disable platform specific watchdog */
 
 /*

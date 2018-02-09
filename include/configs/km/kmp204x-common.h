@@ -189,7 +189,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_OR1_PRELIM  CONFIG_SYS_QRIO_OR_PRELIM /* QRIO Options */
 
 /* bootcounter in QRIO */
-#define CONFIG_BOOTCOUNT_LIMIT
 #define CONFIG_SYS_BOOTCOUNT_ADDR	(CONFIG_SYS_QRIO_BASE + 0x20)
 
 #define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */

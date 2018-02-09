@@ -231,7 +231,6 @@
 /* SPL */
 #ifndef CONFIG_NOR_BOOT
 /* Bootcount using the RTC block */
-#define CONFIG_BOOTCOUNT_LIMIT
 #define CONFIG_BOOTCOUNT_AM33XX
 
 /* USB gadget RNDIS */

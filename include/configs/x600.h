@@ -120,7 +120,6 @@
 #define CONFIG_SYS_LOAD_ADDR			0x00800000
 
 /* Use last 2 lwords in internal SRAM for bootcounter */
-#define CONFIG_BOOTCOUNT_LIMIT
 #define CONFIG_SYS_BOOTCOUNT_ADDR		(CONFIG_SRAM_BASE + \
 						 CONFIG_SRAM_SIZE)
 
