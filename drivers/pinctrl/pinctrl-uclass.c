@@ -12,6 +12,7 @@
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <dm/util.h>
+#include <dm/of_access.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -63,16 +64,13 @@ static int pinctrl_config_one(struct udevice *config)
  */
 static int pinctrl_select_state_full(struct udevice *dev, const char *statename)
 {
-	const void *fdt = gd->fdt_blob;
-	int node = dev_of_offset(dev);
 	char propname[32]; /* long enough */
 	const fdt32_t *list;
 	uint32_t phandle;
-	int config_node;
 	struct udevice *config;
 	int state, size, i, ret;
 
-	state = fdt_stringlist_search(fdt, node, "pinctrl-names", statename);
+	state = dev_read_stringlist_search(dev, "pinctrl-names", statename);
 	if (state < 0) {
 		char *end;
 		/*
@@ -85,22 +83,15 @@ static int pinctrl_select_state_full(struct udevice *dev, const char *statename)
 	}
 
 	snprintf(propname, sizeof(propname), "pinctrl-%d", state);
-	list = fdt_getprop(fdt, node, propname, &size);
+	list = dev_read_prop(dev, propname, &size);
 	if (!list)
 		return -EINVAL;
 
 	size /= sizeof(*list);
 	for (i = 0; i < size; i++) {
 		phandle = fdt32_to_cpu(*list++);
-
-		config_node = fdt_node_offset_by_phandle(fdt, phandle);
-		if (config_node < 0) {
-			dev_err(dev, "prop %s index %d invalid phandle\n",
-				propname, i);
-			return -EINVAL;
-		}
-		ret = uclass_get_device_by_of_offset(UCLASS_PINCONFIG,
-						     config_node, &config);
+		ret = uclass_get_device_by_phandle_id(UCLASS_PINCONFIG, phandle,
+						      &config);
 		if (ret)
 			return ret;
 
