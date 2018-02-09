@@ -1950,6 +1950,7 @@ static int mmc_startup_v4(struct mmc *mmc)
 		MMC_VERSION_4_1,
 		MMC_VERSION_4_2,
 		MMC_VERSION_4_3,
+		MMC_VERSION_4_4,
 		MMC_VERSION_4_41,
 		MMC_VERSION_4_5,
 		MMC_VERSION_5_0,
