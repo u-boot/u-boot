@@ -1449,7 +1449,7 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 	struct mmc_config *cfg;
 	uint host_caps_val;
 
-	priv = malloc(sizeof(*priv));
+	priv = calloc(1, sizeof(*priv));
 	if (priv == NULL)
 		return -1;
 
