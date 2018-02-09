@@ -44,6 +44,30 @@ static inline int is_pck(int id)
 	return (id >= 8) && (id <= 15);
 }
 
+static ulong system_clk_get_rate(struct clk *clk)
+{
+	struct clk clk_dev;
+	int ret;
+
+	ret = clk_get_by_index(clk->dev, 0, &clk_dev);
+	if (ret)
+		return -EINVAL;
+
+	return clk_get_rate(&clk_dev);
+}
+
+static ulong system_clk_set_rate(struct clk *clk, ulong rate)
+{
+	struct clk clk_dev;
+	int ret;
+
+	ret = clk_get_by_index(clk->dev, 0, &clk_dev);
+	if (ret)
+		return -EINVAL;
+
+	return clk_set_rate(&clk_dev, rate);
+}
+
 static int system_clk_enable(struct clk *clk)
 {
 	struct pmc_platdata *plat = dev_get_platdata(clk->dev);
@@ -73,6 +97,8 @@ static int system_clk_enable(struct clk *clk)
 
 static struct clk_ops system_clk_ops = {
 	.of_xlate = at91_clk_of_xlate,
+	.get_rate = system_clk_get_rate,
+	.set_rate = system_clk_set_rate,
 	.enable = system_clk_enable,
 };
 
