@@ -226,25 +226,26 @@ efi_fs_from_path(struct efi_device_path *full_path)
  * @offset	offset into disk for simple partitions
  * @return	disk object
  */
-static struct efi_disk_obj *efi_disk_add_dev(
+static efi_status_t efi_disk_add_dev(
 				efi_handle_t parent,
 				struct efi_device_path *dp_parent,
 				const char *if_typename,
 				struct blk_desc *desc,
 				int dev_index,
 				lbaint_t offset,
-				unsigned int part)
+				unsigned int part,
+				struct efi_disk_obj **disk)
 {
 	struct efi_disk_obj *diskobj;
 	efi_status_t ret;
 
 	/* Don't add empty devices */
 	if (!desc->lba)
-		return NULL;
+		return EFI_NOT_READY;
 
 	diskobj = calloc(1, sizeof(*diskobj));
 	if (!diskobj)
-		goto out_of_memory;
+		return EFI_OUT_OF_RESOURCES;
 
 	/* Hook up to the device list */
 	efi_add_handle(&diskobj->parent);
@@ -262,11 +263,11 @@ static struct efi_disk_obj *efi_disk_add_dev(
 	ret = efi_add_protocol(diskobj->parent.handle, &efi_block_io_guid,
 			       &diskobj->ops);
 	if (ret != EFI_SUCCESS)
-		goto out_of_memory;
+		return ret;
 	ret = efi_add_protocol(diskobj->parent.handle, &efi_guid_device_path,
 			       diskobj->dp);
 	if (ret != EFI_SUCCESS)
-		goto out_of_memory;
+		return ret;
 	if (part >= 1) {
 		diskobj->volume = efi_simple_file_system(desc, part,
 							 diskobj->dp);
@@ -274,7 +275,7 @@ static struct efi_disk_obj *efi_disk_add_dev(
 				       &efi_simple_file_system_protocol_guid,
 				       diskobj->volume);
 		if (ret != EFI_SUCCESS)
-			goto out_of_memory;
+			return ret;
 	}
 	diskobj->ops = block_io_disk_template;
 	diskobj->ifname = if_typename;
@@ -291,10 +292,9 @@ static struct efi_disk_obj *efi_disk_add_dev(
 	if (part != 0)
 		diskobj->media.logical_partition = 1;
 	diskobj->ops.media = &diskobj->media;
-	return diskobj;
-out_of_memory:
-	printf("ERROR: Out of memory\n");
-	return NULL;
+	if (disk)
+		*disk = diskobj;
+	return EFI_SUCCESS;
 }
 
 /*
@@ -330,8 +330,12 @@ int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 			continue;
 		snprintf(devname, sizeof(devname), "%s:%d", pdevname,
 			 part);
-		efi_disk_add_dev(parent, dp, if_typename, desc, diskid,
-				 info.start, part);
+		ret = efi_disk_add_dev(parent, dp, if_typename, desc, diskid,
+				       info.start, part, NULL);
+		if (ret != EFI_SUCCESS) {
+			printf("Adding partition %s failed\n", pdevname);
+			continue;
+		}
 		disks++;
 	}
 
@@ -349,26 +353,32 @@ int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
  *
  * This gets called from do_bootefi_exec().
  */
-int efi_disk_register(void)
+efi_status_t efi_disk_register(void)
 {
 	struct efi_disk_obj *disk;
 	int disks = 0;
+	efi_status_t ret;
 #ifdef CONFIG_BLK
 	struct udevice *dev;
 
-	for (uclass_first_device_check(UCLASS_BLK, &dev);
-	     dev;
+	for (uclass_first_device_check(UCLASS_BLK, &dev); dev;
 	     uclass_next_device_check(&dev)) {
 		struct blk_desc *desc = dev_get_uclass_platdata(dev);
 		const char *if_typename = blk_get_if_type_name(desc->if_type);
 
-		printf("Scanning disk %s...\n", dev->name);
-
 		/* Add block device for the full device */
-		disk = efi_disk_add_dev(NULL, NULL, if_typename,
-					desc, desc->devnum, 0, 0);
-		if (!disk)
-			return -ENOMEM;
+		printf("Scanning disk %s...\n", dev->name);
+		ret = efi_disk_add_dev(NULL, NULL, if_typename,
+					desc, desc->devnum, 0, 0, &disk);
+		if (ret == EFI_NOT_READY) {
+			printf("Disk %s not ready\n", dev->name);
+			continue;
+		}
+		if (ret) {
+			printf("ERROR: failure to add disk device %s, r = %lu\n",
+			       dev->name, ret & ~EFI_ERROR_MASK);
+			return ret;
+		}
 		disks++;
 
 		/* Partitions show up as block devices in EFI */
@@ -404,10 +414,17 @@ int efi_disk_register(void)
 				 if_typename, i);
 
 			/* Add block device for the full device */
-			disk = efi_disk_add_dev(NULL, NULL, if_typename, desc,
-						i, 0, 0);
-			if (!disk)
-				return -ENOMEM;
+			ret = efi_disk_add_dev(NULL, NULL, if_typename, desc,
+					       i, 0, 0, &disk);
+			if (ret == EFI_NOT_READY) {
+				printf("Disk %s not ready\n", devname);
+				continue;
+			}
+			if (ret) {
+				printf("ERROR: failure to add disk device %s, r = %lu\n",
+				       devname, ret & ~EFI_ERROR_MASK);
+				return ret;
+			}
 			disks++;
 
 			/* Partitions show up as block devices in EFI */
@@ -419,5 +436,5 @@ int efi_disk_register(void)
 #endif
 	printf("Found %d disks\n", disks);
 
-	return 0;
+	return EFI_SUCCESS;
 }
