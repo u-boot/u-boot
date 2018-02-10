@@ -323,6 +323,11 @@ int env_load(void);
  */
 int env_save(void);
 
+/**
+ * fix_envdriver() - Updates envdriver as per relocation
+ */
+void fix_envdriver(void);
+
 #endif /* DO_DEPS_ONLY */
 
 #endif /* _ENVIRONMENT_H_ */
