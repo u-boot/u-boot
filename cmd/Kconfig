@@ -308,6 +308,12 @@ config CMD_SPL_WRITE_SIZE
 	  flash used by Falcon-mode boot. See the documentation until CMD_SPL
 	  for detail.
 
+config CMD_FITUPD
+	bool "fitImage update command"
+	help
+	  Implements the 'fitupd' command, which allows to automatically
+	  store software updates present on a TFTP server in NOR Flash
+
 config CMD_THOR_DOWNLOAD
 	bool "thor - TIZEN 'thor' download"
 	help
