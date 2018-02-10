@@ -526,6 +526,38 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 }
 
 /*
+ * Create an event in a group.
+ *
+ * This function implements the CreateEventEx service.
+ * See the Unified Extensible Firmware Interface (UEFI) specification
+ * for details.
+ * TODO: Support event groups
+ *
+ * @type		type of the event to create
+ * @notify_tpl		task priority level of the event
+ * @notify_function	notification function of the event
+ * @notify_context	pointer passed to the notification function
+ * @event		created event
+ * @event_group		event group
+ * @return		status code
+ */
+efi_status_t EFIAPI efi_create_event_ex(uint32_t type, efi_uintn_t notify_tpl,
+					void (EFIAPI *notify_function) (
+							struct efi_event *event,
+							void *context),
+					void *notify_context,
+					efi_guid_t *event_group,
+					struct efi_event **event)
+{
+	EFI_ENTRY("%d, 0x%zx, %p, %p, %pUl", type, notify_tpl, notify_function,
+		  notify_context, event_group);
+	if (event_group)
+		return EFI_EXIT(EFI_UNSUPPORTED);
+	return EFI_EXIT(efi_create_event(type, notify_tpl, notify_function,
+					 notify_context, event));
+}
+
+/*
  * Create an event.
  *
  * This function implements the CreateEvent service.
@@ -2851,6 +2883,7 @@ static const struct efi_boot_services efi_boot_services = {
 	.calculate_crc32 = efi_calculate_crc32,
 	.copy_mem = efi_copy_mem,
 	.set_mem = efi_set_mem,
+	.create_event_ex = efi_create_event_ex,
 };
 
 
@@ -2859,7 +2892,7 @@ static uint16_t __efi_runtime_data firmware_vendor[] = L"Das U-Boot";
 struct efi_system_table __efi_runtime_data systab = {
 	.hdr = {
 		.signature = EFI_SYSTEM_TABLE_SIGNATURE,
-		.revision = 0x20005, /* 2.5 */
+		.revision = 2 << 16 | 70, /* 2.7 */
 		.headersize = sizeof(struct efi_table_hdr),
 	},
 	.fw_vendor = (long)firmware_vendor,

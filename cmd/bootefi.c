@@ -411,7 +411,7 @@ static char bootefi_help_text[] =
 	"    Use environment variable efi_selftest to select a single test.\n"
 	"    Use 'setenv efi_selftest list' to enumerate all tests.\n"
 #endif
-	"bootmgr [fdt addr]\n"
+	"bootefi bootmgr [fdt addr]\n"
 	"  - load and boot EFI payload based on BootOrder/BootXXXX variables.\n"
 	"\n"
 	"    If specified, the device tree located at <fdt address> gets\n"

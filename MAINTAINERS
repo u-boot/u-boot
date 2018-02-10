@@ -289,8 +289,11 @@ EFI PAYLOAD
 M:	Alexander Graf <agraf@suse.de>
 S:	Maintained
 T:	git git://github.com/agraf/u-boot.git
+F:	doc/README.efi
 F:	doc/README.iscsi
 F:	include/efi*
+F:	include/pe.h
+F:	include/asm-generic/pe.h
 F:	lib/efi*/
 F:	test/py/tests/test_efi*
 F:	cmd/bootefi.c

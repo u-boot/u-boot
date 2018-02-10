@@ -287,10 +287,10 @@ out:
  *
  * @return	0 = success, any other value will stop further execution
  */
-int efi_driver_init(void)
+efi_status_t efi_driver_init(void)
 {
 	struct driver *drv;
-	int ret = 0;
+	efi_status_t ret = EFI_SUCCESS;
 
 	/* Save 'gd' pointer */
 	efi_save_gd();
@@ -300,7 +300,7 @@ int efi_driver_init(void)
 	     drv < ll_entry_end(struct driver, driver); ++drv) {
 		if (drv->id == UCLASS_EFI) {
 			ret = efi_add_driver(drv);
-			if (ret) {
+			if (ret != EFI_SUCCESS) {
 				printf("EFI: ERROR: failed to add driver %s\n",
 				       drv->name);
 				break;

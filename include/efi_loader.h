@@ -173,7 +173,7 @@ extern struct list_head efi_obj_list;
 /* Called by bootefi to make console interface available */
 int efi_console_register(void);
 /* Called by bootefi to make all disk storage accessible as EFI objects */
-int efi_disk_register(void);
+efi_status_t efi_disk_register(void);
 /* Create handles and protocols for the partitions of a block device */
 int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 			       const char *if_typename, int diskid,
@@ -272,7 +272,7 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 			    bool overlap_only_ram);
 /* Called by board init to initialize the EFI drivers */
-int efi_driver_init(void);
+efi_status_t efi_driver_init(void);
 /* Called by board init to initialize the EFI memory map */
 int efi_memory_init(void);
 /* Adds new or overrides configuration table entry to the system table */
