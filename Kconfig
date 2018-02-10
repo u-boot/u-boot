@@ -77,7 +77,7 @@ config DISTRO_DEFAULTS
 	select CMD_FS_GENERIC
 	select CMD_MII if NET
 	select CMD_PING if NET
-	select CMD_PART
+	select CMD_PART if PARTITIONS
 	select HUSH_PARSER
 	help
 	  Select this to enable various options and commands which are suitable
