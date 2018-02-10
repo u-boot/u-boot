@@ -24,6 +24,7 @@
 #include <malloc.h>
 #include <dfu.h>
 #include <errno.h>
+#include <mtd/cfi_flash.h>
 
 /* env variable holding the location of the update file */
 #define UPDATE_FILE_ENV		"updatefile"
