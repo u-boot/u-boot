@@ -452,7 +452,7 @@ int fw_printenv(int argc, char *argv[], int value_only, struct env_opts *opts)
 
 	if (value_only && argc != 1) {
 		fprintf(stderr,
-			"## Error: `-n' option requires exactly one argument\n");
+			"## Error: `-n'/`--noheader' option requires exactly one argument\n");
 		return -1;
 	}
 
