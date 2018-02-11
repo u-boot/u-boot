@@ -213,7 +213,7 @@ static int rv1108_clk_probe(struct udevice *dev)
 {
 	struct rv1108_clk_priv *priv = dev_get_priv(dev);
 
-	priv->cru = (struct rv1108_cru *)devfdt_get_addr(dev);
+	priv->cru = dev_read_addr_ptr(dev);
 
 	rkclk_init(priv->cru);
 
