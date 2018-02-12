@@ -210,9 +210,9 @@ static void setup_initrd_tag(bd_t *bd, ulong initrd_start, ulong initrd_end)
 #ifdef CONFIG_SERIAL_TAG
 void setup_serial_tag(struct tag **tmp)
 {
+	void get_board_serial(struct tag_serialnr *serialnr);
 	struct tag *params;
 	struct tag_serialnr serialnr;
-	void get_board_serial(struct tag_serialnr *serialnr);
 
 	params = *tmp;
 	get_board_serial(&serialnr);
@@ -228,8 +228,8 @@ void setup_serial_tag(struct tag **tmp)
 #ifdef CONFIG_REVISION_TAG
 void setup_revision_tag(struct tag **in_params)
 {
-	u32 rev;
 	u32 get_board_rev(void);
+	u32 rev;
 
 	rev = get_board_rev();
 	params->hdr.tag = ATAG_REVISION;
