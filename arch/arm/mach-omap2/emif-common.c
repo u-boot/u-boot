@@ -599,7 +599,7 @@ s8 addressing_table_index(u8 type, u8 density, u8 width)
  * tables of the device using DDR clock frequency
  */
 static const struct lpddr2_ac_timings *get_timings_table(const struct
-			lpddr2_ac_timings const *const *device_timings,
+			lpddr2_ac_timings *const *device_timings,
 			u32 freq)
 {
 	u32 i, temp, freq_nearest;
