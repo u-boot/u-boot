@@ -303,7 +303,8 @@ static int st33zp24_i2c_recv_data(struct udevice *dev, u8 *buf, size_t count)
 static int st33zp24_i2c_recv(struct udevice *dev, u8 *buf, size_t count)
 {
 	struct tpm_chip *chip = dev_get_priv(dev);
-	int size, expected;
+	int size;
+	unsigned int expected;
 
 	if (!chip)
 		return -ENODEV;
@@ -320,7 +321,7 @@ static int st33zp24_i2c_recv(struct udevice *dev, u8 *buf, size_t count)
 	}
 
 	expected = get_unaligned_be32(buf + 2);
-	if (expected > count) {
+	if (expected > count || expected < TPM_HEADER_SIZE) {
 		size = -EIO;
 		goto out;
 	}
