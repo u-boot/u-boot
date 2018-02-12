@@ -416,19 +416,17 @@ static inline void writesl(unsigned int *addr, const void *data, int longlen)
 #define eth_io_copy_and_sum(s, c, l, b) \
 	eth_copy_and_sum((s), __mem_pci(c), (l), (b))
 
-static inline int
-check_signature(unsigned long io_addr, const unsigned char *signature,
-		  int length)
+static inline int check_signature(ulong io_addr, const uchar *s, int len)
 {
 	int retval = 0;
 
 	do {
-		if (readb(io_addr) != *signature)
+		if (readb(io_addr) != *s)
 			goto out;
 		io_addr++;
-		signature++;
-		length--;
-	} while (length);
+		s++;
+		len--;
+	} while (len);
 	retval = 1;
 out:
 	return retval;
@@ -455,18 +453,17 @@ out:
 	eth_copy_and_sum((a), __mem_isa(b), (c), (d))
 
 static inline int
-isa_check_signature(unsigned long io_addr, const unsigned char *signature,
-		       int length)
+isa_check_signature(ulong io_addr, const uchar *s, int len)
 {
 	int retval = 0;
 
 	do {
-		if (isa_readb(io_addr) != *signature)
+		if (isa_readb(io_addr) != *s)
 			goto out;
 		io_addr++;
-		signature++;
-		length--;
-	} while (length);
+		s++;
+		len--;
+	} while (len);
 	retval = 1;
 out:
 	return retval;

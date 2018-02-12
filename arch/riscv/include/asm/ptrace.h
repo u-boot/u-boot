@@ -65,8 +65,7 @@ static inline unsigned long instruction_pointer(struct pt_regs *regs)
 	return GET_IP(regs);
 }
 
-static inline void instruction_pointer_set(struct pt_regs *regs,
-					     unsigned long val)
+static inline void instruction_pointer_set(struct pt_regs *regs, ulong val)
 {
 	SET_IP(regs, val);
 }
@@ -82,8 +81,7 @@ static inline unsigned long user_stack_pointer(struct pt_regs *regs)
 	return GET_USP(regs);
 }
 
-static inline void user_stack_pointer_set(struct pt_regs *regs,
-					     unsigned long val)
+static inline void user_stack_pointer_set(struct pt_regs *regs, ulong val)
 {
 	SET_USP(regs, val);
 }
@@ -97,8 +95,7 @@ static inline unsigned long frame_pointer(struct pt_regs *regs)
 	return GET_FP(regs);
 }
 
-static inline void frame_pointer_set(struct pt_regs *regs,
-				       unsigned long val)
+static inline void frame_pointer_set(struct pt_regs *regs, ulong val)
 {
 	SET_FP(regs, val);
 }
