@@ -374,7 +374,8 @@ static int tpm_tis_i2c_recv(struct udevice *dev, u8 *buf, size_t count)
 {
 	struct tpm_chip *chip = dev_get_priv(dev);
 	int size = 0;
-	int expected, status;
+	int status;
+	unsigned int expected;
 	int rc;
 
 	status = tpm_tis_i2c_status(dev);
@@ -394,7 +395,7 @@ static int tpm_tis_i2c_recv(struct udevice *dev, u8 *buf, size_t count)
 	}
 
 	expected = get_unaligned_be32(buf + TPM_RSP_SIZE_BYTE);
-	if ((size_t)expected > count) {
+	if ((size_t)expected > count || (size_t)expected < TPM_HEADER_SIZE) {
 		debug("Error size=%x, expected=%x, count=%x\n", size, expected,
 		      count);
 		return -ENOSPC;
