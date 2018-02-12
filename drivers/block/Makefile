@@ -13,5 +13,4 @@ endif
 
 obj-$(CONFIG_IDE) += ide.o
 obj-$(CONFIG_SANDBOX) += sandbox.o
-obj-$(CONFIG_SYSTEMACE) += systemace.o
 obj-$(CONFIG_BLOCK_CACHE) += blkcache.o

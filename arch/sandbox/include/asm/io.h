@@ -171,10 +171,6 @@ static inline void _outsw(volatile u16 *port, const void *buf, int ns)
 #define insw(port, buf, ns)		_insw((u16 *)port, buf, ns)
 #define outsw(port, buf, ns)		_outsw((u16 *)port, buf, ns)
 
-/* For systemace.c */
-#define out16(addr, val)
-#define in16(addr)		0
-
 #include <iotrace.h>
 #include <asm/types.h>
 

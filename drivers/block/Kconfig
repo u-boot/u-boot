@@ -44,22 +44,3 @@ config IDE
 	  This allows access to raw blocks and filesystems on an IDE drive
 	  from U-Boot. See also CMD_IDE which provides an 'ide' command for
 	  performing various IDE operations.
-
-config SYSTEMACE
-	bool "Xilinx SystemACE support"
-	select HAVE_BLOCK_DEVICE
-	help
-	  Adding this option adds support for Xilinx SystemACE chips attached
-	  via some sort of local bus. The address of the chip must also be
-	  defined in the CONFIG_SYS_SYSTEMACE_BASE macro.
-
-	  When SystemACE support is added, the "ace" device type becomes
-	  available to the fat commands, i.e. fatls.
-
-config SYS_SYSTEMACE_BASE
-	hex "Base address of SystemACE chip"
-	depends on SYSTEMACE
-
-config SYS_SYSTEMACE_WIDTH
-	int "Word size of access to the of SystemACE chip"
-	depends on SYSTEMACE
