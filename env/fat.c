@@ -89,6 +89,9 @@ static int env_fat_load(void)
 	int dev, part;
 	int err;
 
+	if (!strcmp(CONFIG_ENV_FAT_INTERFACE, "mmc"))
+		mmc_initialize(NULL);
+
 	part = blk_get_device_part_str(CONFIG_ENV_FAT_INTERFACE,
 					CONFIG_ENV_FAT_DEVICE_AND_PART,
 					&dev_desc, &info, 1);
