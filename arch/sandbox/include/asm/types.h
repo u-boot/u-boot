@@ -51,14 +51,23 @@ typedef __UINT64_TYPE__ u64;
 #endif
 
 /*
- * Number of bits in a C 'long' on this architecture. Set this to 32 when
- * building on a 32-bit machine.
+ * Number of bits in a C 'long' on this architecture.
  */
-#define BITS_PER_LONG	32
+#ifdef	CONFIG_PHYS64
+#define BITS_PER_LONG 64
+#else	/* CONFIG_PHYS64 */
+#define BITS_PER_LONG 32
+#endif	/* CONFIG_PHYS64 */
 
+#ifdef	CONFIG_PHYS64
+typedef unsigned long long dma_addr_t;
+typedef u64 phys_addr_t;
+typedef u64 phys_size_t;
+#else	/* CONFIG_PHYS64 */
 typedef unsigned long dma_addr_t;
 typedef u32 phys_addr_t;
 typedef u32 phys_size_t;
+#endif	/* CONFIG_PHYS64 */
 
 #endif /* __KERNEL__ */
 
