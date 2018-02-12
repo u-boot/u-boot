@@ -74,9 +74,9 @@ SECTIONS
   SECTION_VECTOR(DoubleExceptionVector,text,XCHAL_DOUBLEEXC_VECTOR_VADDR,
 		 FOLLOWING(.DoubleExceptionVector.literal))
 
-  __monitor_start = CONFIG_SYS_TEXT_ADDR;
+  __monitor_start = XTENSA_SYS_TEXT_ADDR;
 
-  SECTION_text(CONFIG_SYS_TEXT_ADDR, FOLLOWING(.DoubleExceptionVector.text))
+  SECTION_text(XTENSA_SYS_TEXT_ADDR, FOLLOWING(.DoubleExceptionVector.text))
   SECTION_rodata(ALIGN(16), FOLLOWING(.text))
   SECTION_u_boot_list(ALIGN(16), FOLLOWING(.rodata))
   SECTION_data(ALIGN(16), FOLLOWING(.u_boot_list))
