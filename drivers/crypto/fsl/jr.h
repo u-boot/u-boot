@@ -41,6 +41,8 @@
 #define JQ_DEQ_TO_ERR		-2
 #define JQ_ENQ_ERR		-3
 
+#define RNG4_MAX_HANDLES	2
+
 struct op_ring {
 	phys_addr_t desc;
 	uint32_t status;
