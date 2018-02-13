@@ -287,9 +287,8 @@ config ENABLE_ARM_SOC_BOOT0_HOOK
 	bool "prepare BOOT0 header"
 	help
 	  If the SoC's BOOT0 requires a header area filled with (magic)
-	  values, then choose this option, and create a define called
-	  ARM_SOC_BOOT0_HOOK which contains the required assembler
-	  preprocessor code.
+	  values, then choose this option, and create a file included as
+	  <asm/arch/boot0.h> which contains the required assembler code.
 
 config ARM_CORTEX_CPU_IS_UP
 	bool
