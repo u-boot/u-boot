@@ -9,8 +9,6 @@
 
 #include <asm/arch/base_addr_ac5.h>
 
-#define CONFIG_HW_WATCHDOG
-
 /* Memory configurations */
 #define PHYS_SDRAM_1_SIZE		0x10000000
 
