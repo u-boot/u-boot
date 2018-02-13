@@ -37,8 +37,7 @@ static int booti_start(cmd_tbl_t *cmdtp, int flag, int argc,
 				load_addr);
 	} else {
 		ld = simple_strtoul(argv[0], NULL, 16);
-		debug("*  kernel: cmdline image address = 0x%08lx\n",
-			images->ep);
+		debug("*  kernel: cmdline image address = 0x%08lx\n", ld);
 	}
 
 	ret = booti_setup(ld, &relocated_addr, &image_size);
