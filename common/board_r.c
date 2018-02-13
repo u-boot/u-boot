@@ -664,7 +664,7 @@ static int run_main_loop(void)
 
 /*
  * Over time we hope to remove these functions with code fragments and
- * stub funtcions, and instead call the relevant function directly.
+ * stub functions, and instead call the relevant function directly.
  *
  * We also hope to remove most of the driver-related init and do it if/when
  * the driver is later used.

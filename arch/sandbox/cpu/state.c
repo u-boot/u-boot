@@ -153,7 +153,7 @@ int sandbox_read_state(struct sandbox_state *state, const char *fname)
 			return ret;
 	}
 
-	/* Call all the state read funtcions */
+	/* Call all the state read functions */
 	got_err = false;
 	blob = state->state_fdt;
 	io = ll_entry_start(struct sandbox_state_io, state_io);
