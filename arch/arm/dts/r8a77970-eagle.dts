@@ -17,6 +17,7 @@
 	aliases {
 		serial0 = &scif0;
 		ethernet0 = &avb;
+		spi0 = &rpc;
 	};
 
 	chosen {
@@ -56,6 +57,25 @@
 	avb_pins: avb {
 		groups = "avb0_mdc";
 		function = "avb0";
+	};
+};
+
+&rpc {
+	num-cs = <1>;
+	status = "okay";
+	spi-max-frequency = <50000000>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	flash0: spi-flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "s25fs512s", "spi-flash", "jedec,spi-nor";
+		spi-max-frequency = <50000000>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <1>;
+		reg = <0>;
+		status = "okay";
 	};
 };
 
