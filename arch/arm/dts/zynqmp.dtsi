@@ -247,6 +247,21 @@
 		};
 	};
 
+	/* PMU1<->APU IPI mailbox controller */
+	ipi_mailbox_pmu1: mailbox@ff990400 {
+		compatible = "xlnx,zynqmp-ipi-mailbox";
+		reg = <0x0 0xff9905c0 0x0 0x20>,
+		      <0x0 0xff9905e0 0x0 0x20>,
+		      <0x0 0xff990e80 0x0 0x20>,
+		      <0x0 0xff990ea0 0x0 0x20>;
+		reg-names = "local_request_region", "local_response_region",
+			    "remote_request_region", "remote_response_region";
+		#mbox-cells = <1>;
+		xlnx,ipi-ids = <0 4>;
+		interrupt-parent = <&gic>;
+		interrupts = <0 35 4>;
+	};
+
 	pmu {
 		compatible = "arm,armv8-pmuv3";
 		interrupt-parent = <&gic>;
@@ -273,6 +288,13 @@
 			compatible = "xlnx,zynqmp-firmware";
 			method = "smc";
 		};
+	};
+
+	zynqmp_power: zynqmp-power {
+		compatible = "xlnx,zynqmp-power";
+		mboxes = <&ipi_mailbox_pmu1 0>,
+			 <&ipi_mailbox_pmu1 1>;
+		mbox-names = "tx", "rx";
 	};
 
 	timer {
