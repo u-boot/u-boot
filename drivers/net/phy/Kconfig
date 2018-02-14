@@ -139,6 +139,16 @@ config PHY_NATSEMI
 config PHY_REALTEK
 	bool "Realtek Ethernet PHYs support"
 
+config RTL8211E_PINE64_GIGABIT_FIX
+	bool "Fix gigabit throughput on some Pine64+ models"
+	depends on PHY_REALTEK
+	help
+	  Configure the Realtek RTL8211E found on some Pine64+ models differently to
+	  fix throughput on Gigabit links, turning off all internal delays in the
+	  process. The settings that this touches are not documented in the CONFREG
+	  section of the RTL8211E datasheet, but come from Realtek by way of the
+	  Pine64 engineering team.
+
 config RTL8211X_PHY_FORCE_MASTER
 	bool "Ethernet PHY RTL8211x: force 1000BASE-T master mode"
 	depends on PHY_REALTEK
