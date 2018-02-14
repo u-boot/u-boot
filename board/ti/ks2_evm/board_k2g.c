@@ -376,7 +376,7 @@ int get_num_eth_ports(void)
 #ifdef CONFIG_TI_SECURE_DEVICE
 void board_pmmc_image_process(ulong pmmc_image, size_t pmmc_size)
 {
-	int id = getenv_ulong("dev_pmmc", 10, 0);
+	int id = env_get_ulong("dev_pmmc", 10, 0);
 	int ret;
 
 	if (!rproc_is_initialized())
