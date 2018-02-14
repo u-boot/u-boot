@@ -18,6 +18,7 @@ obj-y	+= usb_phy.o
 endif
 obj-$(CONFIG_SUN6I_P2WI)	+= p2wi.o
 obj-$(CONFIG_SUN6I_PRCM)	+= prcm.o
+obj-$(CONFIG_AXP_PMIC_BUS)	+= pmic_bus.o
 obj-$(CONFIG_SUN8I_RSB)		+= rsb.o
 obj-$(CONFIG_MACH_SUN4I)	+= clock_sun4i.o
 obj-$(CONFIG_MACH_SUN5I)	+= clock_sun4i.o
@@ -30,12 +31,6 @@ else
 obj-$(CONFIG_MACH_SUN8I)	+= clock_sun6i.o
 endif
 obj-$(CONFIG_MACH_SUN9I)	+= clock_sun9i.o gtbus_sun9i.o
-
-obj-$(CONFIG_AXP152_POWER)	+= pmic_bus.o
-obj-$(CONFIG_AXP209_POWER)	+= pmic_bus.o
-obj-$(CONFIG_AXP221_POWER)	+= pmic_bus.o
-obj-$(CONFIG_AXP809_POWER)	+= pmic_bus.o
-obj-$(CONFIG_AXP818_POWER)	+= pmic_bus.o
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_MACH_SUN4I)	+= dram_sun4i.o

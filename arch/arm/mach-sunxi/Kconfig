@@ -23,6 +23,12 @@ config SUN6I_PRCM
 	  Support for the PRCM (Power/Reset/Clock Management) unit available
 	  in A31 SoC.
 
+config AXP_PMIC_BUS
+	bool "Sunxi AXP PMIC bus access helpers"
+	help
+	  Select this PMIC bus access helpers for Sunxi platform PRCM or other
+	  AXP family PMIC devices.
+
 config SUN8I_RSB
 	bool "Allwinner sunXi Reduced Serial Bus Driver"
 	help

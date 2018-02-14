@@ -22,6 +22,7 @@ config SUNXI_NO_PMIC
 config AXP152_POWER
 	bool "axp152 pmic support"
 	depends on MACH_SUN5I
+	select AXP_PMIC_BUS
 	select CMD_POWEROFF
 	---help---
 	Select this to enable support for the axp152 pmic found on most
@@ -30,6 +31,7 @@ config AXP152_POWER
 config AXP209_POWER
 	bool "axp209 pmic support"
 	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	select AXP_PMIC_BUS
 	select CMD_POWEROFF
 	---help---
 	Select this to enable support for the axp209 pmic found on most
@@ -38,6 +40,7 @@ config AXP209_POWER
 config AXP221_POWER
 	bool "axp221 / axp223 pmic support"
 	depends on MACH_SUN6I || MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_R40
+	select AXP_PMIC_BUS
 	select CMD_POWEROFF
 	---help---
 	Select this to enable support for the axp221/axp223 pmic found on most
@@ -46,6 +49,7 @@ config AXP221_POWER
 config AXP809_POWER
 	bool "axp809 pmic support"
 	depends on MACH_SUN9I
+	select AXP_PMIC_BUS
 	select CMD_POWEROFF
 	---help---
 	Say y here to enable support for the axp809 pmic found on A80 boards.
@@ -53,6 +57,7 @@ config AXP809_POWER
 config AXP818_POWER
 	bool "axp818 pmic support"
 	depends on MACH_SUN8I_A83T
+	select AXP_PMIC_BUS
 	select CMD_POWEROFF
 	---help---
 	Say y here to enable support for the axp818 pmic found on
