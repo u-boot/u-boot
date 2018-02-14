@@ -1190,6 +1190,16 @@ config ARCH_ASPEED
 
 endchoice
 
+config TI_SECURE_DEVICE
+	bool "HS Device Type Support"
+	depends on ARCH_KEYSTONE || ARCH_OMAP2PLUS
+	help
+	  If a high secure (HS) device type is being used, this config
+	  must be set. This option impacts various aspects of the
+	  build system (to create signed boot images that can be
+	  authenticated) and the code. See the doc/README.ti-secure
+	  file for further details.
+
 source "arch/arm/mach-aspeed/Kconfig"
 
 source "arch/arm/mach-at91/Kconfig"
