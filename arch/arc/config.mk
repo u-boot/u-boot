@@ -50,7 +50,7 @@ ifdef CONFIG_CPU_ARCHS38
 PLATFORM_CPPFLAGS += -mcpu=archs
 endif
 
-PLATFORM_CPPFLAGS += -ffixed-r25 -D__ARC__ -gdwarf-2
+PLATFORM_CPPFLAGS += -ffixed-r25 -D__ARC__ -gdwarf-2 -mno-sdata
 
 # Needed for relocation
 LDFLAGS_FINAL += -pie
