@@ -12,8 +12,6 @@ def test_memtest_failed(u_boot_console):
     response = u_boot_console.run_command('mtest 20 10 0 2')
     assert(expected_response in response)
 
-# CR-992632
-@pytest.mark.xfail
 def test_memtest_ddr(u_boot_console):
     """Test that md reads memory as expected, and that memory can be modified
     using the mw command."""
