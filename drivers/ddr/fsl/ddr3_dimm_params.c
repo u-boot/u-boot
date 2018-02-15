@@ -6,7 +6,7 @@
  * from ddr3 spd, please refer to the spec
  * JEDEC standard No.21-C 4_01_02_11R18.pdf
  *
- * SPDX-License-Identifier:	GPL-2.0	BSD-3-Clause
+ * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
