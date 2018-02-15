@@ -230,6 +230,11 @@ static struct usb_gadget_strings *sdp_generic_strings[] = {
 	NULL,
 };
 
+static inline void *sdp_ptr(u32 val)
+{
+	return (void *)(uintptr_t)val;
+}
+
 static void sdp_rx_command_complete(struct usb_ep *ep, struct usb_request *req)
 {
 	struct f_sdp *sdp = req->context;
@@ -344,7 +349,7 @@ static void sdp_rx_data_complete(struct usb_ep *ep, struct usb_request *req)
 	}
 
 	if (sdp->state == SDP_STATE_RX_FILE_DATA) {
-		memcpy((void *)sdp->dnl_address, req->buf + 1, datalen);
+		memcpy(sdp_ptr(sdp->dnl_address), req->buf + 1, datalen);
 		sdp->dnl_address += datalen;
 	}
 
@@ -622,7 +627,7 @@ static u32 sdp_jump_imxheader(void *address)
 	}
 
 	printf("Jumping to 0x%08x\n", headerv2->entry);
-	entry = (void *)headerv2->entry;
+	entry = sdp_ptr(headerv2->entry);
 	entry();
 
 	/* The image probably never returns hence we won't reach that point */
@@ -665,7 +670,7 @@ static void sdp_handle_in_ep(void)
 		if (datalen > 64)
 			datalen = 64;
 
-		memcpy(&data[1], (void *)sdp_func->dnl_address, datalen);
+		memcpy(&data[1], sdp_ptr(sdp_func->dnl_address), datalen);
 		sdp_func->in_req->length = 65;
 
 		sdp_func->dnl_bytes_remaining -= datalen;
@@ -676,7 +681,7 @@ static void sdp_handle_in_ep(void)
 		break;
 	case SDP_STATE_JUMP:
 		printf("Jumping to header at 0x%08x\n", sdp_func->jmp_address);
-		status = sdp_jump_imxheader((void *)sdp_func->jmp_address);
+		status = sdp_jump_imxheader(sdp_ptr(sdp_func->jmp_address));
 
 		/* If imx header fails, try some U-Boot specific headers */
 		if (status) {
