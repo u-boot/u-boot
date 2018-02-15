@@ -16,6 +16,8 @@
 /* #define CONFIG_SYS_DCACHE_OFF */
 #define CONFIG_SYS_ICACHE_OFF
 
+#define CONFIG_SYS_MEMTEST_SCRATCH     0xfffc0000
+
 #include <configs/xilinx_zynqmp.h>
 
 /* Undef unneeded configs */
