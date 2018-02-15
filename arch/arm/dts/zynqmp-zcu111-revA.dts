@@ -727,7 +727,7 @@
 	ceva,p1-burst-params = /bits/ 8 <0x13 0x08 0x4A 0x06>;
 	ceva,p1-retry-params = /bits/ 16 <0x96A4 0x3FFC>;
 	phy-names = "sata-phy";
-	phys = <&lane3 PHY_TYPE_SATA 1 1 125000000>;
+	phys = <&lane3 PHY_TYPE_SATA 1 3 125000000>;
 };
 
 /* SD1 with level shifter */
@@ -771,7 +771,7 @@
 &xlnx_dp {
 	status = "okay";
 	phy-names = "dp-phy0", "dp-phy1";
-	phys = <&lane1 PHY_TYPE_DP 0 3 27000000>, <&lane0 PHY_TYPE_DP 1 3 27000000>;
+	phys = <&lane1 PHY_TYPE_DP 0 1 27000000>, <&lane0 PHY_TYPE_DP 1 1 27000000>;
 };
 
 &xlnx_dp_sub {
