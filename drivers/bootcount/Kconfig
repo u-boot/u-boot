@@ -28,6 +28,18 @@ config BOOTCOUNT_AM33XX
 	  This requires the RTC clocks, etc, to be enabled prior to use and
 	  not all boards with this IP block on it will have the RTC in use.
 
+config BOOTCOUNT_ENV
+	bool "Boot counter in environment"
+	help
+	  If no softreset save registers are found on the hardware
+	  "bootcount" is stored in the environment. To prevent a
+	  saveenv on all reboots, the environment variable
+	  "upgrade_available" is used. If "upgrade_available" is
+	  0, "bootcount" is always 0, if "upgrade_available" is
+	  1 "bootcount" is incremented in the environment.
+	  So the Userspace Application must set the "upgrade_available"
+	  and "bootcount" variable to 0, if a boot was successfully.
+
 endchoice
 
 config SYS_BOOTCOUNT_SINGLEWORD
