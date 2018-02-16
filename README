@@ -2270,13 +2270,6 @@ The following options need to be configured:
 - bootcount support:
 		CONFIG_AT91SAM9XE
 		enable special bootcounter support on at91sam9xe based boards.
-		CONFIG_BOOTCOUNT_EXT
-		enable support for the bootcounter in EXT filesystem
-			CONFIG_SYS_BOOTCOUNT_ADDR = RAM address used for read
-                                                    and write.
-			CONFIG_SYS_BOOTCOUNT_EXT_INTERFACE = interface
-			CONFIG_SYS_BOOTCOUNT_EXT_DEVPART = device and part
-			CONFIG_SYS_BOOTCOUNT_EXT_NAME = filename
 
 - Show boot progress:
 		CONFIG_SHOW_BOOT_PROGRESS
