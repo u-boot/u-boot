@@ -14,6 +14,16 @@ choice
 	prompt "Boot count device"
 	default BOOTCOUNT_AM33XX if AM33XX || SOC_DA8XX
 	default BOOTCOUNT_AT91 if AT91SAM9XE
+	default BOOTCOUNT_GENERIC
+
+config BOOTCOUNT_GENERIC
+	bool "Generic default boot counter"
+	help
+	  Generic bootcount stored at SYS_BOOTCOUNT_ADDR.
+
+	  SYS_BOOTCOUNT_ADDR:
+	    Set to the address where the bootcount and bootcount magic
+	    will be stored.
 
 config BOOTCOUNT_EXT
 	bool "Boot counter on EXT filesystem"
@@ -64,6 +74,7 @@ endchoice
 
 config SYS_BOOTCOUNT_SINGLEWORD
 	bool "Use single word to pack boot count and magic value"
+	depends on BOOTCOUNT_GENERIC
 	help
 	  This option enables packing boot count magic value and boot count
 	  into single word (32 bits).
