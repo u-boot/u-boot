@@ -50,4 +50,11 @@ config FPGA_SPARTAN3
        help
          Enable Spartan3 FPGA driver for loading in BIT format.
 
+config FPGA_ZYNQPL
+       bool "Enable Xilinx FPGA for Zynq"
+       depends on ARCH_ZYNQ
+       help
+         Enable FPGA driver for loading bitstream in BIT and BIN format
+         on Xilinx Zynq devices.
+
 endmenu

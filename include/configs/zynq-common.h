@@ -269,8 +269,6 @@
 					CONFIG_SYS_INIT_RAM_SIZE - \
 					GENERATED_GBL_DATA_SIZE)
 
-/* Enable the PL to be downloaded */
-#define CONFIG_FPGA_ZYNQPL
 
 /* FIT support */
 #define CONFIG_IMAGE_FORMAT_LEGACY /* enable also legacy image format */
