@@ -2,21 +2,16 @@
 # Boot count configuration
 #
 
-menu "Boot count support"
-
-config BOOTCOUNT_LIMIT
+menuconfig BOOTCOUNT_LIMIT
 	bool "Enable support for checking boot count limit"
 	help
 	  Enable checking for exceeding the boot count limit.
 	  More information: http://www.denx.de/wiki/DULG/UBootBootCountLimit
 
-config SYS_BOOTCOUNT_SINGLEWORD
-	bool "Use single word to pack boot count and magic value"
-	help
-	  This option enables packing boot count magic value and boot count
-	  into single word (32 bits).
-
 if BOOTCOUNT_LIMIT
+
+choice
+	prompt "Boot count device"
 
 config BOOTCOUNT_EXT
 	bool "Boot counter on EXT filesystem"
@@ -24,7 +19,13 @@ config BOOTCOUNT_EXT
 	  Add support for maintaining boot count in a file on an EXT
 	  filesystem.
 
-if BOOTCOUNT_EXT
+endchoice
+
+config SYS_BOOTCOUNT_SINGLEWORD
+	bool "Use single word to pack boot count and magic value"
+	help
+	  This option enables packing boot count magic value and boot count
+	  into single word (32 bits).
 
 config SYS_BOOTCOUNT_EXT_INTERFACE
 	string "Interface on which to find boot counter EXT filesystem"
@@ -57,7 +58,3 @@ config SYS_BOOTCOUNT_ADDR
 	  Set the address used for reading and writing the boot counter.
 
 endif
-
-endif
-
-endmenu
