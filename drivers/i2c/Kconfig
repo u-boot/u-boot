@@ -288,6 +288,18 @@ config SYS_I2C_ZYNQ_SPEED
 	help
 	  Set CONFIG_SYS_I2C_ZYNQ_SPEED for speed setting.
 
+config ZYNQ_I2C0
+	bool "Xilinx I2C0 controller"
+	depends on SYS_I2C_ZYNQ
+	help
+	  Enable Xilinx I2C0 controller.
+
+config ZYNQ_I2C1
+	bool "Xilinx I2C1 controller"
+	depends on SYS_I2C_ZYNQ
+	help
+	  Enable Xilinx I2C1 controller.
+
 config SYS_I2C_IHS
         bool "gdsys IHS I2C driver"
         depends on DM_I2C

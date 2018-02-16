@@ -10,8 +10,6 @@
 #ifndef __CONFIG_TOPIC_MIAMI_H
 #define __CONFIG_TOPIC_MIAMI_H
 
-#define CONFIG_ZYNQ_I2C0
-#define CONFIG_ZYNQ_I2C1
 
 /* Speed up boot time by ignoring the environment which we never used */
 
