@@ -675,7 +675,7 @@ struct sh_ether_priv {
 	struct sh_eth_dev	shdev;
 
 	struct mii_dev		*bus;
-	void __iomem		*iobase;
+	phys_addr_t		iobase;
 	struct clk		clk;
 	struct gpio_desc	reset_gpio;
 };
@@ -811,15 +811,13 @@ static int sh_ether_probe(struct udevice *udev)
 	struct sh_ether_priv *priv = dev_get_priv(udev);
 	struct sh_eth_dev *eth = &priv->shdev;
 	struct mii_dev *mdiodev;
-	void __iomem *iobase;
 	int ret;
 
-	iobase = map_physmem(pdata->iobase, 0x1000, MAP_NOCACHE);
-	priv->iobase = iobase;
+	priv->iobase = pdata->iobase;
 
 	ret = clk_get_by_index(udev, 0, &priv->clk);
 	if (ret < 0)
-		goto err_mdio_alloc;
+		return ret;
 
 	gpio_request_by_name(udev, "reset-gpios", 0, &priv->reset_gpio,
 			     GPIOD_IS_OUT);
@@ -827,7 +825,7 @@ static int sh_ether_probe(struct udevice *udev)
 	mdiodev = mdio_alloc();
 	if (!mdiodev) {
 		ret = -ENOMEM;
-		goto err_mdio_alloc;
+		return ret;
 	}
 
 	mdiodev->read = bb_miiphy_read;
@@ -850,8 +848,6 @@ static int sh_ether_probe(struct udevice *udev)
 
 err_mdio_register:
 	mdio_free(mdiodev);
-err_mdio_alloc:
-	unmap_physmem(priv->iobase, MAP_NOCACHE);
 	return ret;
 }
 
@@ -867,8 +863,6 @@ static int sh_ether_remove(struct udevice *udev)
 
 	if (dm_gpio_is_valid(&priv->reset_gpio))
 		dm_gpio_free(udev, &priv->reset_gpio);
-
-	unmap_physmem(priv->iobase, MAP_NOCACHE);
 
 	return 0;
 }
