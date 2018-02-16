@@ -65,10 +65,18 @@ int board_early_init_f(void)
 	return 0;
 }
 
+#define ETHERNET_PHY_RESET	176	/* GPIO 5 22 */
+
 int board_init(void)
 {
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+
+	/* Force ethernet PHY out of reset */
+	gpio_request(ETHERNET_PHY_RESET, "phy_reset");
+	gpio_direction_output(ETHERNET_PHY_RESET, 0);
+	mdelay(10);
+	gpio_direction_output(ETHERNET_PHY_RESET, 1);
 
 	return 0;
 }
