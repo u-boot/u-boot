@@ -179,7 +179,7 @@ static int sh_eth_reset(struct sh_eth_dev *eth)
 	return ret;
 #else
 	sh_eth_write(port_info, sh_eth_read(port_info, EDMR) | EDMR_SRST, EDMR);
-	udelay(3000);
+	mdelay(3);
 	sh_eth_write(port_info,
 		     sh_eth_read(port_info, EDMR) & ~EDMR_SRST, EDMR);
 
