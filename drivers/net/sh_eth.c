@@ -63,8 +63,8 @@
 
 static int sh_eth_send_common(struct sh_eth_dev *eth, void *packet, int len)
 {
-	int port = eth->port, ret = 0, timeout;
-	struct sh_eth_info *port_info = &eth->port_info[port];
+	int ret = 0, timeout;
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
 	if (!packet || len > 0xffff) {
 		printf(SHETHER_NAME ": %s: Invalid argument\n", __func__);
@@ -120,8 +120,8 @@ err:
 
 static int sh_eth_recv_start(struct sh_eth_dev *eth)
 {
-	int port = eth->port, len = 0;
-	struct sh_eth_info *port_info = &eth->port_info[port];
+	int len = 0;
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
 	/* Check if the rx descriptor is ready */
 	invalidate_cache(port_info->rx_desc_cur, sizeof(struct rx_desc_s));
@@ -192,9 +192,9 @@ static int sh_eth_reset(struct sh_eth_dev *eth)
 
 static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 {
-	int port = eth->port, i, ret = 0;
+	int i, ret = 0;
 	u32 alloc_desc_size = NUM_TX_DESC * sizeof(struct tx_desc_s);
-	struct sh_eth_info *port_info = &eth->port_info[port];
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 	struct tx_desc_s *cur_tx_desc;
 
 	/*
@@ -245,9 +245,9 @@ err:
 
 static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 {
-	int port = eth->port, i, ret = 0;
+	int i, ret = 0;
 	u32 alloc_desc_size = NUM_RX_DESC * sizeof(struct rx_desc_s);
-	struct sh_eth_info *port_info = &eth->port_info[port];
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 	struct rx_desc_s *cur_rx_desc;
 	u8 *rx_buf;
 
@@ -318,8 +318,7 @@ err:
 
 static void sh_eth_tx_desc_free(struct sh_eth_dev *eth)
 {
-	int port = eth->port;
-	struct sh_eth_info *port_info = &eth->port_info[port];
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
 	if (port_info->tx_desc_alloc) {
 		free(port_info->tx_desc_alloc);
@@ -329,8 +328,7 @@ static void sh_eth_tx_desc_free(struct sh_eth_dev *eth)
 
 static void sh_eth_rx_desc_free(struct sh_eth_dev *eth)
 {
-	int port = eth->port;
-	struct sh_eth_info *port_info = &eth->port_info[port];
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
 	if (port_info->rx_desc_alloc) {
 		free(port_info->rx_desc_alloc);
@@ -522,8 +520,8 @@ static int sh_eth_start_common(struct sh_eth_dev *eth)
 #ifndef CONFIG_DM_ETH
 static int sh_eth_phy_config_legacy(struct sh_eth_dev *eth)
 {
-	int port = eth->port, ret = 0;
-	struct sh_eth_info *port_info = &eth->port_info[port];
+	int ret = 0;
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 	struct eth_device *dev = port_info->dev;
 	struct phy_device *phydev;
 
@@ -545,8 +543,8 @@ static int sh_eth_send_legacy(struct eth_device *dev, void *packet, int len)
 
 static int sh_eth_recv_common(struct sh_eth_dev *eth)
 {
-	int port = eth->port, len = 0;
-	struct sh_eth_info *port_info = &eth->port_info[port];
+	int len = 0;
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 	uchar *packet = (uchar *)ADDR_TO_P2(port_info->rx_desc_cur->rd2);
 
 	len = sh_eth_recv_start(eth);
@@ -750,8 +748,8 @@ static int sh_eth_phy_config(struct udevice *dev)
 	struct sh_ether_priv *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct sh_eth_dev *eth = &priv->shdev;
-	int port = eth->port, ret = 0;
-	struct sh_eth_info *port_info = &eth->port_info[port];
+	int ret = 0;
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 	struct phy_device *phydev;
 	int mask = 0xffffffff;
 
