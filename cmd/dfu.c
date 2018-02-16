@@ -25,14 +25,14 @@ static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc < 4)
 		return CMD_RET_USAGE;
 
-#ifdef CONFIG_USB_FUNCTION_DFU
+#ifdef CONFIG_DFU_OVER_USB
 	char *usb_controller = argv[1];
 #endif
 	char *interface = argv[2];
 	char *devstring = argv[3];
 
 	int ret = 0;
-#ifdef CONFIG_TFTP_FUNCTION_DFU
+#ifdef CONFIG_DFU_OVER_TFTP
 	unsigned long addr = 0;
 	if (!strcmp(argv[1], "tftp")) {
 		if (argc == 5)
@@ -41,7 +41,7 @@ static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return update_tftp(addr, interface, devstring);
 	}
 #endif
-#ifdef CONFIG_USB_FUNCTION_DFU
+#ifdef CONFIG_DFU_OVER_USB
 	ret = dfu_init_env_entities(interface, devstring);
 	if (ret)
 		goto done;
@@ -64,15 +64,15 @@ done:
 
 U_BOOT_CMD(dfu, CONFIG_SYS_MAXARGS, 1, do_dfu,
 	"Device Firmware Upgrade",
-#ifdef CONFIG_USB_FUNCTION_DFU
+#ifdef CONFIG_DFU_OVER_USB
 	"<USB_controller> <interface> <dev> [list]\n"
 	"  - device firmware upgrade via <USB_controller>\n"
 	"    on device <dev>, attached to interface\n"
 	"    <interface>\n"
 	"    [list] - list available alt settings\n"
 #endif
-#ifdef CONFIG_TFTP_FUNCTION_DFU
-#ifdef CONFIG_USB_FUNCTION_DFU
+#ifdef CONFIG_DFU_OVER_TFTP
+#ifdef CONFIG_DFU_OVER_USB
 	"dfu "
 #endif
 	"tftp <interface> <dev> [<addr>]\n"

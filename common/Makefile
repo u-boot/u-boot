@@ -67,7 +67,7 @@ obj-$(CONFIG_$(SPL_TPL_)BOOTSTAGE) += bootstage.o
 
 ifdef CONFIG_SPL_BUILD
 ifdef CONFIG_SPL_DFU_SUPPORT
-obj-$(CONFIG_USB_FUNCTION_DFU) += dfu.o
+obj-$(CONFIG_DFU_OVER_USB) += dfu.o
 endif
 obj-$(CONFIG_SPL_DFU_SUPPORT) += cli_hush.o
 obj-$(CONFIG_SPL_HASH_SUPPORT) += hash.o
@@ -130,7 +130,7 @@ endif
 
 obj-y += cli.o
 obj-$(CONFIG_FSL_DDR_INTERACTIVE) += cli_simple.o cli_readline.o
-obj-$(CONFIG_USB_FUNCTION_DFU) += dfu.o
+obj-$(CONFIG_DFU_OVER_USB) += dfu.o
 obj-y += command.o
 obj-$(CONFIG_$(SPL_)LOG) += log.o
 obj-$(CONFIG_$(SPL_)LOG_CONSOLE) += log_console.o

@@ -2,21 +2,21 @@ menu "DFU support"
 
 config DFU
 	bool
-	imply USB_FUNCTION_DFU if USB_GADGET
+	imply DFU_OVER_USB if USB_GADGET
 
-config USB_FUNCTION_DFU
+config DFU_OVER_USB
 	bool
 	select HASH
 	depends on USB_GADGET
 
-config TFTP_FUNCTION_DFU
+config DFU_OVER_TFTP
 	bool
 	depends on NET
 
 if DFU
 config DFU_TFTP
 	bool "DFU via TFTP"
-	select TFTP_FUNCTION_DFU
+	select DFU_OVER_TFTP
 	help
 	  This option allows performing update of DFU-managed medium with data
 	  sent via TFTP boot.

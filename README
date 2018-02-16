@@ -1198,7 +1198,7 @@ The following options need to be configured:
 		key for the Replay Protection Memory Block partition in eMMC.
 
 - USB Device Firmware Update (DFU) class support:
-		CONFIG_USB_FUNCTION_DFU
+		CONFIG_DFU_OVER_USB
 		This enables the USB portion of the DFU USB class
 
 		CONFIG_DFU_MMC
