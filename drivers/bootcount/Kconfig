@@ -4,13 +4,6 @@
 
 menu "Boot count support"
 
-config BOOTCOUNT
-	bool "Enable Boot count support"
-	help
-	  Enable boot count support, which provides the ability to store the
-	  number of times the board has booted on a number of different
-	  persistent storage mediums.
-
 config BOOTCOUNT_LIMIT
 	bool "Enable support for checking boot count limit"
 	help
@@ -23,7 +16,7 @@ config SYS_BOOTCOUNT_SINGLEWORD
 	  This option enables packing boot count magic value and boot count
 	  into single word (32 bits).
 
-if BOOTCOUNT
+if BOOTCOUNT_LIMIT
 
 config BOOTCOUNT_EXT
 	bool "Boot counter on EXT filesystem"
