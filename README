@@ -2267,10 +2267,6 @@ The following options need to be configured:
 		A better solution is to properly configure the firewall,
 		but sometimes that is not allowed.
 
-- bootcount support:
-		CONFIG_AT91SAM9XE
-		enable special bootcounter support on at91sam9xe based boards.
-
 - Show boot progress:
 		CONFIG_SHOW_BOOT_PROGRESS
 

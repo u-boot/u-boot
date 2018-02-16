@@ -13,6 +13,7 @@ if BOOTCOUNT_LIMIT
 choice
 	prompt "Boot count device"
 	default BOOTCOUNT_AM33XX if AM33XX || SOC_DA8XX
+	default BOOTCOUNT_AT91 if AT91SAM9XE
 
 config BOOTCOUNT_EXT
 	bool "Boot counter on EXT filesystem"
@@ -54,6 +55,10 @@ config BOOTCOUNT_I2C
 	  CONFIG_SYS_BOOTCOUNT_ADDR = i2c addr which is used for
 	                              the bootcounter.
 	  CONFIG_BOOTCOUNT_ALEN = address len
+
+config BOOTCOUNT_AT91
+	bool "Boot counter for Atmel AT91SAM9XE"
+	depends on AT91SAM9XE
 
 endchoice
 
