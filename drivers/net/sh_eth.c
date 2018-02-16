@@ -120,7 +120,6 @@ err:
 
 static int sh_eth_recv_start(struct sh_eth_dev *eth)
 {
-	int len = 0;
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
 	/* Check if the rx descriptor is ready */
@@ -132,9 +131,7 @@ static int sh_eth_recv_start(struct sh_eth_dev *eth)
 	if (port_info->rx_desc_cur->rd0 & RD_RFE)
 		return -EINVAL;
 
-	len = port_info->rx_desc_cur->rd1 & 0xffff;
-
-	return len;
+	return port_info->rx_desc_cur->rd1 & 0xffff;
 }
 
 static void sh_eth_recv_finish(struct sh_eth_dev *eth)
