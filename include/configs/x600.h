@@ -85,7 +85,6 @@
 #define CONFIG_SYS_I2C_RTC_ADDR	0x68
 
 /* FPGA config options */
-#define CONFIG_FPGA_SPARTAN3
 #define CONFIG_FPGA_COUNT	1
 
 /* USB EHCI options */
