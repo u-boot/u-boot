@@ -74,7 +74,7 @@
 /* Bootcount using the RTC block */
 #define CONFIG_SYS_BOOTCOUNT_BE
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USB_ETHER)
 /* Remove other SPL modes. */
 /* disable host part of MUSB in SPL */
 #undef CONFIG_MUSB_HOST

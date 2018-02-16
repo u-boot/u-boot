@@ -242,7 +242,7 @@
 #undef CONFIG_DM_USB
 #endif
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USB_ETHER)
 /* Remove other SPL modes. */
 /* disable host part of MUSB in SPL */
 /* disable EFI partitions and partition UUID support */

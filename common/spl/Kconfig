@@ -680,7 +680,7 @@ config SPL_USB_GADGET_SUPPORT
 
 if SPL_USB_GADGET_SUPPORT
 
-config SPL_USBETH_SUPPORT
+config SPL_USB_ETHER
 	bool "Support USB Ethernet drivers"
 	help
 	  Enable access to the USB network subsystem and associated

@@ -99,7 +99,7 @@ void save_omap_boot_params(void)
 			sys_boot_device = 1;
 			break;
 #endif
-#if defined(BOOT_DEVICE_USBETH) && !defined(CONFIG_SPL_USBETH_SUPPORT)
+#if defined(BOOT_DEVICE_USBETH) && !defined(CONFIG_SPL_USB_ETHER)
 		case BOOT_DEVICE_USBETH:
 			sys_boot_device = 1;
 			break;

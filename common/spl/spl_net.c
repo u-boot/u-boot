@@ -15,7 +15,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_SPL_ETH_SUPPORT) || defined(CONFIG_SPL_USBETH_SUPPORT)
+#if defined(CONFIG_SPL_ETH_SUPPORT) || defined(CONFIG_SPL_USB_ETHER)
 static ulong spl_net_load_read(struct spl_load_info *load, ulong sector,
 			       ulong count, void *buf)
 {
@@ -83,7 +83,7 @@ SPL_LOAD_IMAGE_METHOD("eth device", 0, BOOT_DEVICE_CPGMAC,
 		      spl_net_load_image_cpgmac);
 #endif
 
-#ifdef CONFIG_SPL_USBETH_SUPPORT
+#ifdef CONFIG_SPL_USB_ETHER
 int spl_net_load_image_usb(struct spl_image_info *spl_image,
 			   struct spl_boot_device *bootdev)
 {

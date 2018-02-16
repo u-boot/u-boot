@@ -815,7 +815,7 @@ static struct cpsw_platform_data cpsw_data = {
 };
 #endif
 
-#if ((defined(CONFIG_SPL_ETH_SUPPORT) || defined(CONFIG_SPL_USBETH_SUPPORT)) &&\
+#if ((defined(CONFIG_SPL_ETH_SUPPORT) || defined(CONFIG_SPL_USB_ETHER)) &&\
 	defined(CONFIG_SPL_BUILD)) || \
 	((defined(CONFIG_DRIVER_TI_CPSW) || \
 	  defined(CONFIG_USB_ETHER) && defined(CONFIG_MUSB_GADGET)) && \
@@ -836,7 +836,7 @@ int board_eth_init(bd_t *bis)
 {
 	int rv, n = 0;
 #if defined(CONFIG_USB_ETHER) && \
-	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_USBETH_SUPPORT))
+	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_USB_ETHER))
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;
 
@@ -906,7 +906,7 @@ int board_eth_init(bd_t *bis)
 	}
 #endif
 #if defined(CONFIG_USB_ETHER) && \
-	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_USBETH_SUPPORT))
+	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_USB_ETHER))
 	if (is_valid_ethaddr(mac_addr))
 		eth_env_set_enetaddr("usbnet_devaddr", mac_addr);
 

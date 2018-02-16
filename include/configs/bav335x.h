@@ -395,7 +395,7 @@ DEFAULT_LINUX_BOOT_ENV \
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE MUSB_HOST
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USB_ETHER)
 /* disable host part of MUSB in SPL */
 /* disable EFI partitions and partition UUID support */
 #endif
