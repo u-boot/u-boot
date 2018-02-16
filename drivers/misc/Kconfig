@@ -214,6 +214,12 @@ config SPL_I2C_EEPROM
 	  This option is an SPL-variant of the I2C_EEPROM option.
 	  See the help of I2C_EEPROM for details.
 
+config ZYNQ_GEM_I2C_MAC_OFFSET
+	hex "Set the I2C MAC offset"
+	default 0x0
+	help
+	  Set the MAC offset for i2C.
+
 if I2C_EEPROM
 
 config SYS_I2C_EEPROM_ADDR
