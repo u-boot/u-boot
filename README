@@ -2270,12 +2270,6 @@ The following options need to be configured:
 - bootcount support:
 		CONFIG_AT91SAM9XE
 		enable special bootcounter support on at91sam9xe based boards.
-		CONFIG_BOOTCOUNT_I2C
-		enable support for the bootcounter on an i2c (like RTC) device.
-			CONFIG_SYS_I2C_RTC_ADDR = i2c chip address
-			CONFIG_SYS_BOOTCOUNT_ADDR = i2c addr which is used for
-						    the bootcounter.
-			CONFIG_BOOTCOUNT_ALEN = address len
 		CONFIG_BOOTCOUNT_EXT
 		enable support for the bootcounter in EXT filesystem
 			CONFIG_SYS_BOOTCOUNT_ADDR = RAM address used for read

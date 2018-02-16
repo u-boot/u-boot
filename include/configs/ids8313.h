@@ -509,7 +509,6 @@
 #define CONFIG_MTD_PARTITIONS
 
 /* bootcount support */
-#define CONFIG_BOOTCOUNT_I2C
 #define CONFIG_BOOTCOUNT_ALEN	1
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0x9
 
