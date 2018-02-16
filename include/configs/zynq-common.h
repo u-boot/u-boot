@@ -117,10 +117,6 @@
 # define DFU_ALT_INFO
 #endif
 
-#if defined(CONFIG_ZYNQ_I2C0) || defined(CONFIG_ZYNQ_I2C1)
-#define CONFIG_SYS_I2C_ZYNQ
-#endif
-
 /* I2C */
 #if defined(CONFIG_SYS_I2C_ZYNQ)
 # define CONFIG_SYS_I2C
