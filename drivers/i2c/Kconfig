@@ -281,6 +281,13 @@ config SYS_I2C_ZYNQ_SLAVE
 	help
 	  Set CONFIG_SYS_I2C_ZYNQ_SLAVE for slave addr.
 
+config SYS_I2C_ZYNQ_SPEED
+	int "Set I2C speed"
+	depends on SYS_I2C_ZYNQ
+	default 100000
+	help
+	  Set CONFIG_SYS_I2C_ZYNQ_SPEED for speed setting.
+
 config SYS_I2C_IHS
         bool "gdsys IHS I2C driver"
         depends on DM_I2C
