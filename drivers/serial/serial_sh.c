@@ -149,7 +149,7 @@ static int sh_serial_getc_generic(struct uart_port *port)
 	return ch;
 }
 
-#ifdef CONFIG_DM_SERIAL
+#if CONFIG_IS_ENABLED(DM_SERIAL)
 
 static int sh_serial_pending(struct udevice *dev, bool input)
 {
@@ -204,7 +204,7 @@ static const struct dm_serial_ops sh_serial_ops = {
 	.setbrg = sh_serial_setbrg,
 };
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct udevice_id sh_serial_id[] ={
 	{.compatible = "renesas,sci", .data = PORT_SCI},
 	{.compatible = "renesas,scif", .data = PORT_SCIF},
