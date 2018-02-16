@@ -274,6 +274,13 @@ config SYS_I2C_ZYNQ
 	help
 	  Support for Xilinx I2C controller.
 
+config SYS_I2C_ZYNQ_SLAVE
+	hex "Set slave addr"
+	depends on SYS_I2C_ZYNQ
+	default 0
+	help
+	  Set CONFIG_SYS_I2C_ZYNQ_SLAVE for slave addr.
+
 config SYS_I2C_IHS
         bool "gdsys IHS I2C driver"
         depends on DM_I2C
