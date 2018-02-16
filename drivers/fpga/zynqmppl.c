@@ -224,6 +224,20 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	return ret;
 }
 
+static int zynqmp_pcap_info(xilinx_desc *desc)
+{
+	int ret;
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+
+	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_STATUS, 0, 0, 0,
+			 0, ret_payload);
+	if (!ret)
+		printf("PCAP status\t0x%x\n", ret_payload[1]);
+
+	return ret;
+}
+
 struct xilinx_fpga_op zynqmp_op = {
 	.load = zynqmp_load,
+	.info = zynqmp_pcap_info,
 };
