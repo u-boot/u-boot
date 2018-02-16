@@ -225,7 +225,8 @@ dtb-$(CONFIG_STM32F4) += stm32f429-disco.dtb \
 	stm32f469-disco.dtb
 
 dtb-$(CONFIG_STM32F7) += stm32f746-disco.dtb \
-	stm32f769-disco.dtb
+	stm32f769-disco.dtb \
+	stm32746g-eval.dtb
 dtb-$(CONFIG_STM32H7) += stm32h743i-disco.dtb \
 	stm32h743i-eval.dtb
 
