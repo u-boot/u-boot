@@ -123,7 +123,6 @@
 
 /* SPL */
 /* Bootcount using the RTC block */
-#define CONFIG_BOOTCOUNT_AM33XX
 #define CONFIG_SYS_BOOTCOUNT_BE
 
 /* NAND: device related configs */

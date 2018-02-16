@@ -22,7 +22,6 @@
 
 /* Bootcount using the RTC block */
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0x44E3E000
-#define CONFIG_BOOTCOUNT_AM33XX
 
 /* memory */
 #define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
