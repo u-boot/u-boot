@@ -9,8 +9,6 @@
 
 #include <asm/arch/base_addr_a10.h>
 
-#define CONFIG_HW_WATCHDOG
-
 /* Booting Linux */
 #define CONFIG_LOADADDR		0x01000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
