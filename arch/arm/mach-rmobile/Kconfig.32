@@ -70,6 +70,8 @@ config TARGET_PORTER
 	bool "Porter board"
 	select DM
 	select DM_SERIAL
+	select SUPPORT_SPL
+	select SPL_DM if SPL
 
 config TARGET_STOUT
 	bool "Stout board"

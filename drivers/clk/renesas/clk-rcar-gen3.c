@@ -288,6 +288,8 @@ static ulong gen3_clk_get_rate(struct clk *clk)
 
 static ulong gen3_clk_set_rate(struct clk *clk, ulong rate)
 {
+	/* Force correct SD-IF divider configuration if applicable */
+	gen3_clk_setup_sdif_div(clk);
 	return gen3_clk_get_rate(clk);
 }
 

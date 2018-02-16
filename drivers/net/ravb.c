@@ -399,7 +399,7 @@ static int ravb_dmac_init(struct udevice *dev)
 static int ravb_config(struct udevice *dev)
 {
 	struct ravb_priv *eth = dev_get_priv(dev);
-	struct phy_device *phy;
+	struct phy_device *phy = eth->phydev;
 	u32 mask = ECMR_CHG_DM | ECMR_RE | ECMR_TE;
 	int ret;
 
@@ -409,13 +409,6 @@ static int ravb_config(struct udevice *dev)
 	/* Configure E-MAC registers */
 	ravb_mac_init(eth);
 	ravb_write_hwaddr(dev);
-
-	/* Configure phy */
-	ret = ravb_phy_config(dev);
-	if (ret)
-		return ret;
-
-	phy = eth->phydev;
 
 	ret = phy_startup(phy);
 	if (ret)
@@ -443,10 +436,6 @@ static int ravb_start(struct udevice *dev)
 	struct ravb_priv *eth = dev_get_priv(dev);
 	int ret;
 
-	ret = clk_enable(&eth->clk);
-	if (ret)
-		return ret;
-
 	ret = ravb_reset(dev);
 	if (ret)
 		goto err;
@@ -473,8 +462,8 @@ static void ravb_stop(struct udevice *dev)
 {
 	struct ravb_priv *eth = dev_get_priv(dev);
 
+	phy_shutdown(eth->phydev);
 	ravb_reset(dev);
-	clk_disable(&eth->clk);
 }
 
 static int ravb_probe(struct udevice *dev)
@@ -512,8 +501,23 @@ static int ravb_probe(struct udevice *dev)
 
 	eth->bus = miiphy_get_dev_by_name(dev->name);
 
+	/* Bring up PHY */
+	ret = clk_enable(&eth->clk);
+	if (ret)
+		goto err_mdio_register;
+
+	ret = ravb_reset(dev);
+	if (ret)
+		goto err_mdio_reset;
+
+	ret = ravb_phy_config(dev);
+	if (ret)
+		goto err_mdio_reset;
+
 	return 0;
 
+err_mdio_reset:
+	clk_disable(&eth->clk);
 err_mdio_register:
 	mdio_free(mdiodev);
 err_mdio_alloc:
@@ -524,6 +528,8 @@ err_mdio_alloc:
 static int ravb_remove(struct udevice *dev)
 {
 	struct ravb_priv *eth = dev_get_priv(dev);
+
+	clk_disable(&eth->clk);
 
 	free(eth->phydev);
 	mdio_unregister(eth->bus);

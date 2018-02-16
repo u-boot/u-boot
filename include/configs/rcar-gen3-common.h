@@ -16,6 +16,7 @@
 
 /* boot option */
 #define CONFIG_SUPPORT_RAW_INITRD
+#define CONFIG_AUTO_COMPLETE
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
