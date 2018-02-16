@@ -40,6 +40,12 @@ config BOOTCOUNT_ENV
 	  So the Userspace Application must set the "upgrade_available"
 	  and "bootcount" variable to 0, if a boot was successfully.
 
+config BOOTCOUNT_RAM
+	bool "Boot counter in RAM"
+	help
+	  Store the bootcount in DRAM protected against against bit errors
+	  due to short power loss or holding a system in RESET.
+
 endchoice
 
 config SYS_BOOTCOUNT_SINGLEWORD

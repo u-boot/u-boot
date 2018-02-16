@@ -276,8 +276,6 @@ int get_scl(void);
 #define CONFIG_KM_RESERVED_PRAM 0x801000
 /* address for the bootcount (taken from end of RAM) */
 #define BOOTCOUNT_ADDR          (CONFIG_KM_RESERVED_PRAM)
-/* Use generic bootcount RAM driver */
-#define CONFIG_BOOTCOUNT_RAM
 
 /* enable POST tests */
 #define CONFIG_POST	(CONFIG_SYS_POST_MEM_REGIONS)

@@ -82,7 +82,6 @@
 /*
  * Bootcounter
  */
-#define CONFIG_BOOTCOUNT_RAM
 /* Max size of RAM minus BOOTCOUNT_ADDR is the bootcounter address */
 #define BOOTCOUNT_ADDR			0x1000
 
