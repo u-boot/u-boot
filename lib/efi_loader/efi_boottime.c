@@ -1333,6 +1333,9 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid, void *table
 {
 	int i;
 
+	if (!guid)
+		return EFI_INVALID_PARAMETER;
+
 	/* Check for guid override */
 	for (i = 0; i < systab.nr_tables; i++) {
 		if (!guidcmp(guid, &efi_conf_table[i].guid)) {
