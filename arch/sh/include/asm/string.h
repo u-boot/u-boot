@@ -81,37 +81,8 @@ static inline int strcmp(const char *__cs, const char *__ct)
 	return __res;
 }
 
-#define __HAVE_ARCH_STRNCMP
-static inline int strncmp(const char *__cs, const char *__ct, size_t __n)
-{
-	register int __res;
-	unsigned long __dummy;
-
-	if (__n == 0)
-		return 0;
-
-	__asm__ __volatile__(
-		"mov.b	@%1+, %3\n"
-		"1:\n\t"
-		"mov.b	@%0+, %2\n\t"
-		"cmp/eq %6, %0\n\t"
-		"bt/s	2f\n\t"
-		" cmp/eq #0, %3\n\t"
-		"bt/s	3f\n\t"
-		" cmp/eq %3, %2\n\t"
-		"bt/s	1b\n\t"
-		" mov.b	@%1+, %3\n\t"
-		"add	#-2, %1\n\t"
-		"mov.b	@%1, %3\n"
-		"2:\n\t"
-		"sub	%3, %2\n"
-		"3:"
-		:"=r" (__cs), "=r" (__ct), "=&r" (__res), "=&z" (__dummy)
-		: "0" (__cs), "1" (__ct), "r" (__cs+__n)
-		: "t");
-
-	return __res;
-}
+#undef __HAVE_ARCH_STRNCMP
+extern int strncmp(const char *__cs, const char *__ct, size_t __n);
 
 #undef __HAVE_ARCH_MEMSET
 extern void *memset(void *__s, int __c, size_t __count);
