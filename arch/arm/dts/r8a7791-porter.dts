@@ -214,7 +214,6 @@
 &scif0 {
 	pinctrl-0 = <&scif0_pins>;
 	pinctrl-names = "default";
-	u-boot,dm-pre-reloc;
 
 	status = "okay";
 };
@@ -350,6 +349,11 @@
 			};
 		};
 	};
+};
+
+&i2c6 {
+	status = "okay";
+	clock-frequency = <400000>;
 };
 
 &sata0 {

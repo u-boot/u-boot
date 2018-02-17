@@ -65,10 +65,18 @@ int board_early_init_f(void)
 	return 0;
 }
 
+#define ETHERNET_PHY_RESET	176	/* GPIO 5 22 */
+
 int board_init(void)
 {
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+
+	/* Force ethernet PHY out of reset */
+	gpio_request(ETHERNET_PHY_RESET, "phy_reset");
+	gpio_direction_output(ETHERNET_PHY_RESET, 0);
+	mdelay(10);
+	gpio_direction_output(ETHERNET_PHY_RESET, 1);
 
 	return 0;
 }
@@ -108,12 +116,25 @@ const struct rmobile_sysinfo sysinfo = {
 
 void reset_cpu(ulong addr)
 {
-	u8 val;
+	struct udevice *dev;
+	const u8 pmic_bus = 6;
+	const u8 pmic_addr = 0x5a;
+	u8 data;
+	int ret;
 
-	i2c_set_bus_num(2); /* PowerIC connected to ch2 */
-	i2c_read(CONFIG_SYS_I2C_POWERIC_ADDR, 0x13, 1, &val, 1);
-	val |= 0x02;
-	i2c_write(CONFIG_SYS_I2C_POWERIC_ADDR, 0x13, 1, &val, 1);
+	ret = i2c_get_chip_for_busnum(pmic_bus, pmic_addr, 1, &dev);
+	if (ret)
+		hang();
+
+	ret = dm_i2c_read(dev, 0x13, &data, 1);
+	if (ret)
+		hang();
+
+	data |= BIT(1);
+
+	ret = dm_i2c_write(dev, 0x13, &data, 1);
+	if (ret)
+		hang();
 }
 
 #ifdef CONFIG_SPL_BUILD
