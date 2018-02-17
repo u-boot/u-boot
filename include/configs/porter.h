@@ -63,6 +63,10 @@
 
 #define CONFIG_SYS_I2C_POWERIC_ADDR	0x58 /* da9063 */
 
+#define CONFIG_EXTRA_ENV_SETTINGS	\
+	"fdt_high=0xffffffff\0"		\
+	"initrd_high=0xffffffff\0"
+
 /* SPL support */
 #define CONFIG_SPL_TEXT_BASE		0xe6304000
 #define CONFIG_SPL_STACK		0xe6340000
