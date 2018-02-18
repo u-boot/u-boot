@@ -341,7 +341,7 @@ efi_status_t efi_net_register(void)
 	 * Create WaitForPacket event.
 	 */
 	r = efi_create_event(EVT_NOTIFY_WAIT, TPL_CALLBACK,
-			     efi_network_timer_notify, NULL,
+			     efi_network_timer_notify, NULL, NULL,
 			     &wait_for_packet);
 	if (r != EFI_SUCCESS) {
 		printf("ERROR: Failed to register network event\n");
@@ -355,7 +355,7 @@ efi_status_t efi_net_register(void)
 	 * has been received.
 	 */
 	r = efi_create_event(EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK,
-			     efi_network_timer_notify, NULL,
+			     efi_network_timer_notify, NULL, NULL,
 			     &network_timer_event);
 	if (r != EFI_SUCCESS) {
 		printf("ERROR: Failed to register network event\n");

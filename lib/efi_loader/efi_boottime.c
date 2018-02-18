@@ -27,7 +27,7 @@ static efi_uintn_t efi_tpl = TPL_APPLICATION;
 LIST_HEAD(efi_obj_list);
 
 /* List of all events */
-static LIST_HEAD(efi_events);
+LIST_HEAD(efi_events);
 
 /*
  * If we're running on nasty systems (32bit ARM booting into non-EFI Linux)
@@ -176,7 +176,7 @@ const char *__efi_nesting_dec(void)
  * @event	event to signal
  * @check_tpl	check the TPL level
  */
-void efi_signal_event(struct efi_event *event, bool check_tpl)
+static void efi_queue_event(struct efi_event *event, bool check_tpl)
 {
 	if (event->notify_function) {
 		event->is_queued = true;
@@ -187,6 +187,50 @@ void efi_signal_event(struct efi_event *event, bool check_tpl)
 						     event->notify_context));
 	}
 	event->is_queued = false;
+}
+
+/*
+ * Signal an EFI event.
+ *
+ * This function signals an event. If the event belongs to an event group
+ * all events of the group are signaled. If they are of type EVT_NOTIFY_SIGNAL
+ * their notification function is queued.
+ *
+ * For the SignalEvent service see efi_signal_event_ext.
+ *
+ * @event	event to signal
+ * @check_tpl	check the TPL level
+ */
+void efi_signal_event(struct efi_event *event, bool check_tpl)
+{
+	if (event->group) {
+		struct efi_event *evt;
+
+		/*
+		 * The signaled state has to set before executing any
+		 * notification function
+		 */
+		list_for_each_entry(evt, &efi_events, link) {
+			if (!evt->group || guidcmp(evt->group, event->group))
+				continue;
+			if (evt->is_signaled)
+				continue;
+			evt->is_signaled = true;
+			if (evt->type & EVT_NOTIFY_SIGNAL &&
+			    evt->notify_function)
+				evt->is_queued = true;
+		}
+		list_for_each_entry(evt, &efi_events, link) {
+			if (!evt->group || guidcmp(evt->group, event->group))
+				continue;
+			if (evt->is_queued)
+				efi_queue_event(evt, check_tpl);
+		}
+	} else if (!event->is_signaled) {
+		event->is_signaled = true;
+		if (event->type & EVT_NOTIFY_SIGNAL)
+			efi_queue_event(event, check_tpl);
+	}
 }
 
 /*
@@ -529,7 +573,8 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 			      void (EFIAPI *notify_function) (
 					struct efi_event *event,
 					void *context),
-			      void *notify_context, struct efi_event **event)
+			      void *notify_context, efi_guid_t *group,
+			      struct efi_event **event)
 {
 	struct efi_event *evt;
 
@@ -550,6 +595,7 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 	evt->notify_tpl = notify_tpl;
 	evt->notify_function = notify_function;
 	evt->notify_context = notify_context;
+	evt->group = group;
 	/* Disable timers on bootup */
 	evt->trigger_next = -1ULL;
 	evt->is_queued = false;
@@ -585,10 +631,8 @@ efi_status_t EFIAPI efi_create_event_ex(uint32_t type, efi_uintn_t notify_tpl,
 {
 	EFI_ENTRY("%d, 0x%zx, %p, %p, %pUl", type, notify_tpl, notify_function,
 		  notify_context, event_group);
-	if (event_group)
-		return EFI_EXIT(EFI_UNSUPPORTED);
 	return EFI_EXIT(efi_create_event(type, notify_tpl, notify_function,
-					 notify_context, event));
+					 notify_context, event_group, event));
 }
 
 /*
@@ -615,7 +659,7 @@ static efi_status_t EFIAPI efi_create_event_ext(
 	EFI_ENTRY("%d, 0x%zx, %p, %p", type, notify_tpl, notify_function,
 		  notify_context);
 	return EFI_EXIT(efi_create_event(type, notify_tpl, notify_function,
-					 notify_context, event));
+					 notify_context, NULL, event));
 }
 
 /*
@@ -632,7 +676,7 @@ void efi_timer_check(void)
 
 	list_for_each_entry(evt, &efi_events, link) {
 		if (evt->is_queued)
-			efi_signal_event(evt, true);
+			efi_queue_event(evt, true);
 		if (!(evt->type & EVT_TIMER) || now < evt->trigger_next)
 			continue;
 		switch (evt->trigger_type) {
@@ -645,7 +689,7 @@ void efi_timer_check(void)
 		default:
 			continue;
 		}
-		evt->is_signaled = true;
+		evt->is_signaled = false;
 		efi_signal_event(evt, true);
 	}
 	WATCHDOG_RESET();
@@ -744,7 +788,7 @@ static efi_status_t EFIAPI efi_wait_for_event(efi_uintn_t num_events,
 		if (!event[i]->type || event[i]->type & EVT_NOTIFY_SIGNAL)
 			return EFI_EXIT(EFI_INVALID_PARAMETER);
 		if (!event[i]->is_signaled)
-			efi_signal_event(event[i], true);
+			efi_queue_event(event[i], true);
 	}
 
 	/* Wait for signal */
@@ -787,11 +831,7 @@ static efi_status_t EFIAPI efi_signal_event_ext(struct efi_event *event)
 	EFI_ENTRY("%p", event);
 	if (efi_is_event(event) != EFI_SUCCESS)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
-	if (!event->is_signaled) {
-		event->is_signaled = true;
-		if (event->type & EVT_NOTIFY_SIGNAL)
-			efi_signal_event(event, true);
-	}
+	efi_signal_event(event, true);
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
@@ -836,7 +876,7 @@ static efi_status_t EFIAPI efi_check_event(struct efi_event *event)
 	    event->type & EVT_NOTIFY_SIGNAL)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 	if (!event->is_signaled)
-		efi_signal_event(event, true);
+		efi_queue_event(event, true);
 	if (event->is_signaled) {
 		event->is_signaled = false;
 		return EFI_EXIT(EFI_SUCCESS);
@@ -1333,6 +1373,7 @@ static void efi_remove_configuration_table(int i)
 efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
 					     void *table)
 {
+	struct efi_event *evt;
 	int i;
 
 	if (!guid)
@@ -1345,7 +1386,7 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
 				efi_conf_table[i].table = table;
 			else
 				efi_remove_configuration_table(i);
-			return EFI_SUCCESS;
+			goto out;
 		}
 	}
 
@@ -1360,6 +1401,15 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
 	memcpy(&efi_conf_table[i].guid, guid, sizeof(*guid));
 	efi_conf_table[i].table = table;
 	systab.nr_tables = i + 1;
+
+out:
+	/* Notify that the configuration table was changed */
+	list_for_each_entry(evt, &efi_events, link) {
+		if (evt->group && !guidcmp(evt->group, guid)) {
+			efi_signal_event(evt, false);
+			break;
+		}
+	}
 
 	return EFI_SUCCESS;
 }
@@ -1764,12 +1814,19 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 	if (!systab.boottime)
 		return EFI_EXIT(EFI_SUCCESS);
 
+	/* Add related events to the event group */
+	list_for_each_entry(evt, &efi_events, link) {
+		if (evt->type == EVT_SIGNAL_EXIT_BOOT_SERVICES)
+			evt->group = &efi_guid_event_group_exit_boot_services;
+	}
 	/* Notify that ExitBootServices is invoked. */
 	list_for_each_entry(evt, &efi_events, link) {
-		if (evt->type != EVT_SIGNAL_EXIT_BOOT_SERVICES)
-			continue;
-		evt->is_signaled = true;
-		efi_signal_event(evt, false);
+		if (evt->group &&
+		    !guidcmp(evt->group,
+			     &efi_guid_event_group_exit_boot_services)) {
+			efi_signal_event(evt, false);
+			break;
+		}
 	}
 
 	/* TODO Should persist EFI variables here */

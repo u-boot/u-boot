@@ -572,14 +572,14 @@ int efi_console_register(void)
 		goto out_of_memory;
 
 	/* Create console events */
-	r = efi_create_event(EVT_NOTIFY_WAIT, TPL_CALLBACK,
-			     efi_key_notify, NULL, &efi_con_in.wait_for_key);
+	r = efi_create_event(EVT_NOTIFY_WAIT, TPL_CALLBACK, efi_key_notify,
+			     NULL, NULL, &efi_con_in.wait_for_key);
 	if (r != EFI_SUCCESS) {
 		printf("ERROR: Failed to register WaitForKey event\n");
 		return r;
 	}
 	r = efi_create_event(EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK,
-			     efi_console_timer_notify, NULL,
+			     efi_console_timer_notify, NULL, NULL,
 			     &console_timer_event);
 	if (r != EFI_SUCCESS) {
 		printf("ERROR: Failed to register console event\n");

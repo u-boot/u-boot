@@ -67,7 +67,7 @@ efi_status_t efi_watchdog_register(void)
 	 * Create a timer event.
 	 */
 	r = efi_create_event(EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK,
-			     efi_watchdog_timer_notify, NULL,
+			     efi_watchdog_timer_notify, NULL, NULL,
 			     &watchdog_timer_event);
 	if (r != EFI_SUCCESS) {
 		printf("ERROR: Failed to register watchdog event\n");

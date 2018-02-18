@@ -165,6 +165,7 @@ struct efi_object {
  * @notify_tpl:		Task priority level of notifications
  * @nofify_function:	Function to call when the event is triggered
  * @notify_context:	Data to be passed to the notify function
+ * @group:		Event group
  * @trigger_time:	Period of the timer
  * @trigger_next:	Next time to trigger the timer
  * @trigger_type:	Type of timer, see efi_set_timer
@@ -177,6 +178,7 @@ struct efi_event {
 	efi_uintn_t notify_tpl;
 	void (EFIAPI *notify_function)(struct efi_event *event, void *context);
 	void *notify_context;
+	const efi_guid_t *group;
 	u64 trigger_next;
 	u64 trigger_time;
 	enum efi_timer_delay trigger_type;
@@ -186,6 +188,8 @@ struct efi_event {
 
 /* This list contains all UEFI objects we know of */
 extern struct list_head efi_obj_list;
+/* List of all events */
+extern struct list_head efi_events;
 
 /* Called by bootefi to make console interface available */
 int efi_console_register(void);
@@ -252,7 +256,8 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 			      void (EFIAPI *notify_function) (
 					struct efi_event *event,
 					void *context),
-			      void *notify_context, struct efi_event **event);
+			      void *notify_context, efi_guid_t *group,
+			      struct efi_event **event);
 /* Call this to set a timer */
 efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
 			   uint64_t trigger_time);

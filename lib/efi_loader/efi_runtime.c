@@ -74,9 +74,20 @@ static void EFIAPI efi_reset_system_boottime(
 			efi_status_t reset_status,
 			unsigned long data_size, void *reset_data)
 {
+	struct efi_event *evt;
+
 	EFI_ENTRY("%d %lx %lx %p", reset_type, reset_status, data_size,
 		  reset_data);
 
+	/* Notify reset */
+	list_for_each_entry(evt, &efi_events, link) {
+		if (evt->group &&
+		    !guidcmp(evt->group,
+			     &efi_guid_event_group_reset_system)) {
+			efi_signal_event(evt, false);
+			break;
+		}
+	}
 	switch (reset_type) {
 	case EFI_RESET_COLD:
 	case EFI_RESET_WARM:
