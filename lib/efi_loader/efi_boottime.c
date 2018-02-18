@@ -818,7 +818,8 @@ static efi_status_t EFIAPI efi_close_event(struct efi_event *event)
  * See the Unified Extensible Firmware Interface (UEFI) specification
  * for details.
  *
- * If an event is not signaled yet the notification function is queued.
+ * If an event is not signaled yet, the notification function is queued.
+ * The signaled state is cleared.
  *
  * @event	event to check
  * @return	status code
@@ -836,8 +837,10 @@ static efi_status_t EFIAPI efi_check_event(struct efi_event *event)
 			break;
 		if (!event->is_signaled)
 			efi_signal_event(event, true);
-		if (event->is_signaled)
+		if (event->is_signaled) {
+			event->is_signaled = false;
 			return EFI_EXIT(EFI_SUCCESS);
+		}
 		return EFI_EXIT(EFI_NOT_READY);
 	}
 	return EFI_EXIT(EFI_INVALID_PARAMETER);
