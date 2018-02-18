@@ -19,6 +19,7 @@ efi_selftest_controllers.o \
 efi_selftest_console.o \
 efi_selftest_devicepath.o \
 efi_selftest_events.o \
+efi_selftest_event_groups.o \
 efi_selftest_exitbootservices.o \
 efi_selftest_fdt.o \
 efi_selftest_gop.o \
