@@ -123,6 +123,7 @@ static const char *indent_string(int level)
 {
 	const char *indent = "                    ";
 	const int max = strlen(indent);
+
 	level = min(max, level * 2);
 	return &indent[max - level];
 }
@@ -257,7 +258,7 @@ static efi_status_t EFIAPI efi_free_pages_ext(uint64_t memory,
 {
 	efi_status_t r;
 
-	EFI_ENTRY("%"PRIx64", 0x%zx", memory, pages);
+	EFI_ENTRY("%" PRIx64 ", 0x%zx", memory, pages);
 	r = efi_free_pages(memory, pages);
 	return EFI_EXIT(r);
 }
@@ -586,7 +587,6 @@ static efi_status_t EFIAPI efi_create_event_ext(
 					 notify_context, event));
 }
 
-
 /*
  * Check if a timer event has occurred or a queued notification function should
  * be called.
@@ -688,7 +688,7 @@ static efi_status_t EFIAPI efi_set_timer_ext(struct efi_event *event,
 					     enum efi_timer_delay type,
 					     uint64_t trigger_time)
 {
-	EFI_ENTRY("%p, %d, %"PRIx64, event, type, trigger_time);
+	EFI_ENTRY("%p, %d, %" PRIx64, event, type, trigger_time);
 	return EFI_EXIT(efi_set_timer(event, type, trigger_time));
 }
 
@@ -1264,7 +1264,7 @@ static efi_status_t efi_locate_handle(
 	/* Count how much space we need */
 	list_for_each_entry(efiobj, &efi_obj_list, link) {
 		if (!efi_search(search_type, protocol, search_key, efiobj))
-			size += sizeof(void*);
+			size += sizeof(void *);
 	}
 
 	if (*buffer_size < size) {
@@ -1315,7 +1315,7 @@ static efi_status_t EFIAPI efi_locate_handle_ext(
 static void efi_remove_configuration_table(int i)
 {
 	struct efi_configuration_table *this = &efi_conf_table[i];
-	struct efi_configuration_table *next = &efi_conf_table[i+1];
+	struct efi_configuration_table *next = &efi_conf_table[i + 1];
 	struct efi_configuration_table *end = &efi_conf_table[systab.nr_tables];
 
 	memmove(this, next, (ulong)end - (ulong)next);
@@ -1332,7 +1332,8 @@ static void efi_remove_configuration_table(int i)
  * @table		table to be installed
  * @return		status code
  */
-efi_status_t efi_install_configuration_table(const efi_guid_t *guid, void *table)
+efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
+					     void *table)
 {
 	int i;
 
@@ -1664,8 +1665,9 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
  * @return		status code
  */
 static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
-			efi_status_t exit_status, unsigned long exit_data_size,
-			int16_t *exit_data)
+				    efi_status_t exit_status,
+				    unsigned long exit_data_size,
+				    int16_t *exit_data)
 {
 	/*
 	 * We require that the handle points to the original loaded
@@ -1678,7 +1680,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 	 * TODO: We should call the unload procedure of the loaded
 	 *	 image protocol.
 	 */
-	struct efi_loaded_image *loaded_image_info = (void*)image_handle;
+	struct efi_loaded_image *loaded_image_info = (void *)image_handle;
 
 	EFI_ENTRY("%p, %ld, %ld, %p", image_handle, exit_status,
 		  exit_data_size, exit_data);
@@ -1815,7 +1817,8 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
  */
 static efi_status_t EFIAPI efi_get_next_monotonic_count(uint64_t *count)
 {
-	static uint64_t mono = 0;
+	static uint64_t mono;
+
 	EFI_ENTRY("%p", count);
 	*count = mono++;
 	return EFI_EXIT(EFI_SUCCESS);
@@ -1856,7 +1859,7 @@ static efi_status_t EFIAPI efi_set_watchdog_timer(unsigned long timeout,
 						  unsigned long data_size,
 						  uint16_t *watchdog_data)
 {
-	EFI_ENTRY("%ld, 0x%"PRIx64", %ld, %p", timeout, watchdog_code,
+	EFI_ENTRY("%ld, 0x%" PRIx64 ", %ld, %p", timeout, watchdog_code,
 		  data_size, watchdog_data);
 	return EFI_EXIT(efi_set_watchdog(timeout));
 }
@@ -1921,8 +1924,8 @@ out:
  * @entry_count		number of entries available in the buffer
  * @return		status code
  */
-static efi_status_t EFIAPI efi_open_protocol_information(efi_handle_t handle,
-			const efi_guid_t *protocol,
+static efi_status_t EFIAPI efi_open_protocol_information(
+			efi_handle_t handle, const efi_guid_t *protocol,
 			struct efi_open_protocol_info_entry **entry_buffer,
 			efi_uintn_t *entry_count)
 {
@@ -2907,14 +2910,15 @@ static const struct efi_boot_services efi_boot_services = {
 	.protocols_per_handle = efi_protocols_per_handle,
 	.locate_handle_buffer = efi_locate_handle_buffer,
 	.locate_protocol = efi_locate_protocol,
-	.install_multiple_protocol_interfaces = efi_install_multiple_protocol_interfaces,
-	.uninstall_multiple_protocol_interfaces = efi_uninstall_multiple_protocol_interfaces,
+	.install_multiple_protocol_interfaces =
+			efi_install_multiple_protocol_interfaces,
+	.uninstall_multiple_protocol_interfaces =
+			efi_uninstall_multiple_protocol_interfaces,
 	.calculate_crc32 = efi_calculate_crc32,
 	.copy_mem = efi_copy_mem,
 	.set_mem = efi_set_mem,
 	.create_event_ex = efi_create_event_ex,
 };
-
 
 static uint16_t __efi_runtime_data firmware_vendor[] = L"Das U-Boot";
 
@@ -2925,11 +2929,11 @@ struct efi_system_table __efi_runtime_data systab = {
 		.headersize = sizeof(struct efi_table_hdr),
 	},
 	.fw_vendor = (long)firmware_vendor,
-	.con_in = (void*)&efi_con_in,
-	.con_out = (void*)&efi_con_out,
-	.std_err = (void*)&efi_con_out,
-	.runtime = (void*)&efi_runtime_services,
-	.boottime = (void*)&efi_boot_services,
+	.con_in = (void *)&efi_con_in,
+	.con_out = (void *)&efi_con_out,
+	.std_err = (void *)&efi_con_out,
+	.runtime = (void *)&efi_runtime_services,
+	.boottime = (void *)&efi_boot_services,
 	.nr_tables = 0,
-	.tables = (void*)efi_conf_table,
+	.tables = (void *)efi_conf_table,
 };
