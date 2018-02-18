@@ -150,17 +150,19 @@ struct efi_object {
 /**
  * struct efi_event
  *
+ * @link:		Link to list of all events
  * @type:		Type of event, see efi_create_event
  * @notify_tpl:		Task priority level of notifications
- * @trigger_time:	Period of the timer
- * @trigger_next:	Next time to trigger the timer
  * @nofify_function:	Function to call when the event is triggered
  * @notify_context:	Data to be passed to the notify function
+ * @trigger_time:	Period of the timer
+ * @trigger_next:	Next time to trigger the timer
  * @trigger_type:	Type of timer, see efi_set_timer
- * @queued:		The notification function is queued
- * @signaled:		The event occurred. The event is in the signaled state.
+ * @is_queued:		The notification function is queued
+ * @is_signaled:	The event occurred. The event is in the signaled state.
  */
 struct efi_event {
+	struct list_head link;
 	uint32_t type;
 	efi_uintn_t notify_tpl;
 	void (EFIAPI *notify_function)(struct efi_event *event, void *context);
@@ -171,7 +173,6 @@ struct efi_event {
 	bool is_queued;
 	bool is_signaled;
 };
-
 
 /* This list contains all UEFI objects we know of */
 extern struct list_head efi_obj_list;
