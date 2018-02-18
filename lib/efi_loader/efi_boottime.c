@@ -65,6 +65,22 @@ const efi_guid_t efi_guid_fdt = EFI_FDT_GUID;
 const efi_guid_t efi_guid_driver_binding_protocol =
 			EFI_DRIVER_BINDING_PROTOCOL_GUID;
 
+/* event group ExitBootServices() invoked */
+const efi_guid_t efi_guid_event_group_exit_boot_services =
+			EFI_EVENT_GROUP_EXIT_BOOT_SERVICES;
+/* event group SetVirtualAddressMap() invoked */
+const efi_guid_t efi_guid_event_group_virtual_address_change =
+			EFI_EVENT_GROUP_VIRTUAL_ADDRESS_CHANGE;
+/* event group memory map changed */
+const efi_guid_t efi_guid_event_group_memory_map_change =
+			EFI_EVENT_GROUP_MEMORY_MAP_CHANGE;
+/* event group boot manager about to boot */
+const efi_guid_t efi_guid_event_group_ready_to_boot =
+			EFI_EVENT_GROUP_READY_TO_BOOT;
+/* event group ResetSystem() invoked (before ExitBootServices) */
+const efi_guid_t efi_guid_event_group_reset_system =
+			EFI_EVENT_GROUP_RESET_SYSTEM;
+
 static efi_status_t EFIAPI efi_disconnect_controller(
 					efi_handle_t controller_handle,
 					efi_handle_t driver_image_handle,

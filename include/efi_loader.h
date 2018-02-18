@@ -96,6 +96,16 @@ extern const efi_guid_t efi_guid_console_control;
 extern const efi_guid_t efi_guid_device_path;
 /* GUID of the EFI_DRIVER_BINDING_PROTOCOL */
 extern const efi_guid_t efi_guid_driver_binding_protocol;
+/* event group ExitBootServices() invoked */
+extern const efi_guid_t efi_guid_event_group_exit_boot_services;
+/* event group SetVirtualAddressMap() invoked */
+extern const efi_guid_t efi_guid_event_group_virtual_address_change;
+/* event group memory map changed */
+extern const efi_guid_t efi_guid_event_group_memory_map_change;
+/* event group boot manager about to boot */
+extern const efi_guid_t efi_guid_event_group_ready_to_boot;
+/* event group ResetSystem() invoked (before ExitBootServices) */
+extern const efi_guid_t efi_guid_event_group_reset_system;
 /* GUID of the device tree table */
 extern const efi_guid_t efi_guid_fdt;
 extern const efi_guid_t efi_guid_loaded_image;
