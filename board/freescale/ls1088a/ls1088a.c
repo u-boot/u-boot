@@ -31,6 +31,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_early_init_f(void)
 {
+#if defined(CONFIG_SYS_I2C_EARLY_INIT) && defined(CONFIG_TARGET_LS1088AQDS)
+	i2c_early_init_f();
+#endif
 	fsl_lsch3_early_init_f();
 	return 0;
 }
