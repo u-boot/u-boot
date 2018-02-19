@@ -71,9 +71,9 @@ int do_demo_list(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	     dev;
 	     ret = uclass_next_device(&dev)) {
 		printf("entry %d - instance %08x, ops %08x, platdata %08x\n",
-		       i++, map_to_sysmem(dev),
-		       map_to_sysmem(dev->driver->ops),
-		       map_to_sysmem(dev_get_platdata(dev)));
+		       i++, (uint)map_to_sysmem(dev),
+		       (uint)map_to_sysmem(dev->driver->ops),
+		       (uint)map_to_sysmem(dev_get_platdata(dev)));
 	}
 
 	return cmd_process_error(cmdtp, ret);

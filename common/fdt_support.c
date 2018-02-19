@@ -418,7 +418,7 @@ static int fdt_pack_reg(const void *fdt, void *buf, u64 *address, u64 *size,
 int fdt_fixup_memory_banks(void *blob, u64 start[], u64 size[], int banks)
 {
 	int err, nodeoffset;
-	int len;
+	int len, i;
 	u8 tmp[MEMORY_BANKS_MAX * 16]; /* Up to 64-bit address + 64-bit size */
 
 	if (banks > MEMORY_BANKS_MAX) {
@@ -449,6 +449,12 @@ int fdt_fixup_memory_banks(void *blob, u64 start[], u64 size[], int banks)
 
 	if (!banks)
 		return 0;
+
+	for (i = 0; i < banks; i++)
+		if (start[i] == 0 && size[i] == 0)
+			break;
+
+	banks = i;
 
 	len = fdt_pack_reg(blob, tmp, start, size, banks);
 

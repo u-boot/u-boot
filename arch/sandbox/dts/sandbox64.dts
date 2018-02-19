@@ -3,8 +3,8 @@
 #define USB_CLASS_HUB			9
 
 / {
-	#address-cells = <1>;
-	#size-cells = <1>;
+	#address-cells = <2>;
+	#size-cells = <2>;
 	model = "sandbox";
 
 	aliases {
@@ -19,7 +19,7 @@
 	};
 
 	cros_ec: cros-ec@0 {
-		reg = <0 0>;
+		reg = <0 0 0 0>;
 		compatible = "google,cros-ec-sandbox";
 
 		/*
@@ -49,19 +49,19 @@
 
 	eth@10002000 {
 		compatible = "sandbox,eth";
-		reg = <0x10002000 0x1000>;
+		reg = <0x0 0x10002000 0x0 0x1000>;
 		fake-host-hwaddr = [00 00 66 44 22 00];
 	};
 
 	eth@80000000 {
 		compatible = "sandbox,eth-raw";
-		reg = <0x80000000 0x1000>;
+		reg = <0x0 0x80000000 0x0 0x1000>;
 		host-raw-interface = "eth0";
 	};
 
 	eth@90000000 {
 		compatible = "sandbox,eth-raw";
-		reg = <0x90000000 0x1000>;
+		reg = <0x0 0x90000000 0x0 0x1000>;
 		host-raw-interface = "lo";
 	};
 
@@ -90,7 +90,7 @@
 	i2c_0: i2c@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		reg = <0 0>;
+		reg = <0 0 0 0>;
 		compatible = "sandbox,i2c";
 		clock-frequency = <400000>;
 		pinctrl-names = "default";
@@ -143,8 +143,8 @@
 		device_type = "pci";
 		#address-cells = <3>;
 		#size-cells = <2>;
-		ranges = <0x02000000 0 0x10000000 0x10000000 0 0x2000
-				0x01000000 0 0x20000000 0x20000000 0 0x2000>;
+		ranges = <0x02000000 0 0x10000000 0 0x10000000 0 0x2000
+				0x01000000 0 0x20000000 0 0x20000000 0 0x2000>;
 		pci@1f,0 {
 			compatible = "pci-generic";
 			reg = <0xf800 0 0 0 0>;
@@ -176,7 +176,7 @@
 	spi@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		reg = <0 0>;
+		reg = <0 0 0 0>;
 		compatible = "sandbox,spi";
 		cs-gpios = <0>, <&gpio_a 0>;
 		firmware_storage_spi: flash@0 {

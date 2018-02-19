@@ -454,6 +454,11 @@ __weak int ft_verify_fdt(void *fdt)
 	return 1;
 }
 
+__weak int arch_fixup_fdt(void *blob)
+{
+	return 0;
+}
+
 int image_setup_libfdt(bootm_headers_t *images, void *blob,
 		       int of_size, struct lmb *lmb)
 {

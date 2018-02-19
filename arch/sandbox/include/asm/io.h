@@ -43,9 +43,15 @@ phys_addr_t map_to_sysmem(const void *ptr);
 #define readb(addr) ((void)addr, 0)
 #define readw(addr) ((void)addr, 0)
 #define readl(addr) ((void)addr, 0)
+#ifdef CONFIG_SANDBOX64
+#define readq(addr) ((void)addr, 0)
+#endif
 #define writeb(v, addr) ((void)addr)
 #define writew(v, addr) ((void)addr)
 #define writel(v, addr) ((void)addr)
+#ifdef CONFIG_SANDBOX64
+#define writeq(v, addr) ((void)addr)
+#endif
 
 /*
  * Clear and set bits in one shot. These macros can be used to clear and

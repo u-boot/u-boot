@@ -24,8 +24,11 @@ single board in board/sandbox.
 CONFIG_SANDBOX_BIG_ENDIAN should be defined when running on big-endian
 machines.
 
-By default sandbox builds and runs on 64-bit hosts. If you are going to build
-and run sandbox on a 32-bit host, select CONFIG_SANDBOX_32BIT.
+There are two versions of the sandbox: One using 32-bit-wide integers, and one
+using 64-bit-wide integers. The 32-bit version can be build and run on either
+32 or 64-bit hosts by either selecting or deselecting CONFIG_SANDBOX_32BIT; by
+default, the sandbox it built for a 32-bit host. The sandbox using 64-bit-wide
+integers can only be built on 64-bit hosts.
 
 Note that standalone/API support is not available at present.
 

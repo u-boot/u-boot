@@ -24,7 +24,7 @@
 typedef phys_addr_t fdt_addr_t;
 typedef phys_size_t fdt_size_t;
 #ifdef CONFIG_PHYS_64BIT
-#define FDT_ADDR_T_NONE (-1ULL)
+#define FDT_ADDR_T_NONE (-1U)
 #define fdt_addr_to_cpu(reg) be64_to_cpu(reg)
 #define fdt_size_to_cpu(reg) be64_to_cpu(reg)
 typedef fdt64_t fdt_val_t;
