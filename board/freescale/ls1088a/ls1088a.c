@@ -168,6 +168,7 @@ int checkboard(void)
 
 	return 0;
 }
+#endif
 
 bool if_board_diff_clk(void)
 {
@@ -221,7 +222,6 @@ unsigned long get_board_ddr_clk(void)
 
 	return 66666666;
 }
-#endif
 
 int select_i2c_ch_pca9547(u8 ch)
 {
