@@ -361,6 +361,48 @@ static efi_status_t EFIAPI efi_cin_reset(
 	return EFI_EXIT(EFI_UNSUPPORTED);
 }
 
+/*
+ * Analyze modifiers (shift, alt, ctrl) for function keys.
+ * This gets called when we have already parsed CSI.
+ *
+ * @modifiers:  bitmask (shift, alt, ctrl)
+ * @return:	the unmodified code
+ */
+static char skip_modifiers(int *modifiers)
+{
+	char c, mod = 0, ret = 0;
+
+	c = getc();
+
+	if (c != ';') {
+		ret = c;
+		if (c == '~')
+			goto out;
+		c = getc();
+	}
+	for (;;) {
+		switch (c) {
+		case '0'...'9':
+			mod *= 10;
+			mod += c - '0';
+		/* fall through */
+		case ';':
+			c = getc();
+			break;
+		default:
+			goto out;
+		}
+	}
+out:
+	if (mod)
+		--mod;
+	if (modifiers)
+		*modifiers = mod;
+	if (!ret)
+		ret = c;
+	return ret;
+}
+
 static efi_status_t EFIAPI efi_cin_read_key_stroke(
 			struct efi_simple_input_interface *this,
 			struct efi_input_key *key)
@@ -383,14 +425,21 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
 
 	ch = getc();
 	if (ch == cESC) {
-		/* Escape Sequence */
+		/*
+		 * Xterm Control Sequences
+		 * https://www.xfree86.org/4.8.0/ctlseqs.html
+		 */
 		ch = getc();
 		switch (ch) {
 		case cESC: /* ESC */
 			pressed_key.scan_code = 23;
 			break;
 		case 'O': /* F1 - F4 */
-			pressed_key.scan_code = getc() - 'P' + 11;
+			ch = getc();
+			/* skip modifiers */
+			if (ch <= '9')
+				ch = getc();
+			pressed_key.scan_code = ch - 'P' + 11;
 			break;
 		case 'a'...'z':
 			ch = ch - 'a';
@@ -407,17 +456,51 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
 			case 'H': /* Home */
 				pressed_key.scan_code = 5;
 				break;
-			case '1': /* F5 - F8 */
-				pressed_key.scan_code = getc() - '0' + 11;
-				getc();
+			case '1':
+				ch = skip_modifiers(NULL);
+				switch (ch) {
+				case '1'...'5': /* F1 - F5 */
+					pressed_key.scan_code = ch - '1' + 11;
+					break;
+				case '7'...'9': /* F6 - F8 */
+					pressed_key.scan_code = ch - '7' + 16;
+					break;
+				case 'A'...'D': /* up, down right, left */
+					pressed_key.scan_code = ch - 'A' + 1;
+					break;
+				case 'F':
+					pressed_key.scan_code = 6; /* End */
+					break;
+				case 'H':
+					pressed_key.scan_code = 5; /* Home */
+					break;
+				}
 				break;
-			case '2': /* F9 - F12 */
-				pressed_key.scan_code = getc() - '0' + 19;
-				getc();
+			case '2':
+				ch = skip_modifiers(NULL);
+				switch (ch) {
+				case '0'...'1': /* F9 - F10 */
+					pressed_key.scan_code = ch - '0' + 19;
+					break;
+				case '3'...'4': /* F11 - F12 */
+					pressed_key.scan_code = ch - '3' + 21;
+					break;
+				case '~': /* INS */
+					pressed_key.scan_code = 7;
+					break;
+				}
 				break;
 			case '3': /* DEL */
 				pressed_key.scan_code = 8;
-				getc();
+				skip_modifiers(NULL);
+				break;
+			case '5': /* PG UP */
+				pressed_key.scan_code = 9;
+				skip_modifiers(NULL);
+				break;
+			case '6': /* PG DOWN */
+				pressed_key.scan_code = 10;
+				skip_modifiers(NULL);
 				break;
 			}
 			break;
@@ -426,7 +509,8 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
 		/* Backspace */
 		ch = 0x08;
 	}
-	pressed_key.unicode_char = ch;
+	if (!pressed_key.scan_code)
+		pressed_key.unicode_char = ch;
 	*key = pressed_key;
 
 	return EFI_EXIT(EFI_SUCCESS);
