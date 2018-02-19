@@ -27,7 +27,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_SIZE			0x2000
 #else
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x300000)
 #define CONFIG_ENV_SECT_SIZE		0x20000
 #define CONFIG_ENV_SIZE			0x20000
@@ -41,6 +40,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_CLK_FREQ		100000000
 #define CONFIG_DDR_CLK_FREQ		100000000
 #else
+#define CONFIG_QIXIS_I2C_ACCESS
+#define CONFIG_SYS_I2C_EARLY_INIT
 #define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
 #define CONFIG_DDR_CLK_FREQ		get_board_ddr_clk()
 #endif
@@ -89,13 +90,14 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_NOR_CSOR	CSOR_NOR_ADM_SHIFT(12)
 #define CONFIG_SYS_NOR_FTIM0	(FTIM0_NOR_TACSE(0x4) | \
 				FTIM0_NOR_TEADC(0x5) | \
+				FTIM0_NOR_TAVDS(0x6) | \
 				FTIM0_NOR_TEAHC(0x5))
 #define CONFIG_SYS_NOR_FTIM1	(FTIM1_NOR_TACO(0x35) | \
-				FTIM1_NOR_TRAD_NOR(0x1a) |\
+				FTIM1_NOR_TRAD_NOR(0x1a) | \
 				FTIM1_NOR_TSEQRAD_NOR(0x13))
-#define CONFIG_SYS_NOR_FTIM2	(FTIM2_NOR_TCS(0x4) | \
-				FTIM2_NOR_TCH(0x4) | \
-				FTIM2_NOR_TWPH(0x0E) | \
+#define CONFIG_SYS_NOR_FTIM2	(FTIM2_NOR_TCS(0x8) | \
+				FTIM2_NOR_TCH(0x8) | \
+				FTIM2_NOR_TWPH(0xe) | \
 				FTIM2_NOR_TWP(0x1c))
 #define CONFIG_SYS_NOR_FTIM3	0x04000000
 #define CONFIG_SYS_IFC_CCR	0x01000000
