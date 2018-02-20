@@ -4,9 +4,11 @@ S:	Maintained
 F:	board/engicam/imx6q
 F:	include/configs/imx6-engicam.h
 F:	configs/imx6qdl_icore_mmc_defconfig
-F:	configs/imx6qdl_icore_nand_defconfig
+F:	configs/imx6q_icore_nand_defconfig
+F:	configs/imx6dl_icore_nand_defconfig
 F:	configs/imx6qdl_icore_rqs_defconfig
 F:	configs/imx6qdl_icore_mipi_defconfig
+F:	configs/imx6qdl_icore_nand_defconfig
 F:	arch/arm/dts/imx6qdl-icore.dtsi
 F:	arch/arm/dts/imx6q-icore.dts
 F:	arch/arm/dts/imx6dl-icore.dts
