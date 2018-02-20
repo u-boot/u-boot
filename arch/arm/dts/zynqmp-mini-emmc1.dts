@@ -1,7 +1,7 @@
 /*
  * dts file for Xilinx ZynqMP Mini Configuration
  *
- * (C) Copyright 2016, Xilinx, Inc.
+ * (C) Copyright 2018, Xilinx, Inc.
  *
  * Siva Durga Prasad <siva.durga.paladugu@xilinx.com>
  *
@@ -11,15 +11,14 @@
 /dts-v1/;
 
 / {
-	model = "ZynqMP MINI EMMC";
+	model = "ZynqMP MINI EMMC1";
 	compatible = "xlnx,zynqmp";
 	#address-cells = <2>;
 	#size-cells = <2>;
 
 	aliases {
 		serial0 = &dcc;
-		mmc0 = &sdhci0;
-		mmc1 = &sdhci1;
+		mmc0 = &sdhci1;
 	};
 
 	chosen {
@@ -43,15 +42,6 @@
 		#size-cells = <2>;
 		ranges;
 
-		sdhci0: sdhci@ff160000 {
-			u-boot,dm-pre-reloc;
-			compatible = "xlnx,zynqmp-8.9a", "arasan,sdhci-8.9a";
-			status = "disabled";
-			reg = <0x0 0xff160000 0x0 0x1000>;
-			clock-names = "clk_xin", "clk_ahb";
-			xlnx,device_id = <0>;
-		};
-
 		sdhci1: sdhci@ff170000 {
 			u-boot,dm-pre-reloc;
 			compatible = "xlnx,zynqmp-8.9a", "arasan,sdhci-8.9a";
@@ -64,10 +54,6 @@
 };
 
 &dcc {
-	status = "okay";
-};
-
-&sdhci0 {
 	status = "okay";
 };
 
