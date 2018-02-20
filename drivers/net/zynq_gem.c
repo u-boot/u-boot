@@ -326,7 +326,8 @@ static int zynq_phy_init(struct udevice *dev)
 	/* Enable only MDIO bus */
 	writel(ZYNQ_GEM_NWCTRL_MDEN_MASK, &regs->nwctrl);
 
-	if (priv->interface != PHY_INTERFACE_MODE_SGMII) {
+	if ((priv->interface != PHY_INTERFACE_MODE_SGMII) &&
+	    (priv->interface != PHY_INTERFACE_MODE_GMII)) {
 		ret = phy_detection(dev);
 		if (ret) {
 			printf("GEM PHY init failed\n");
