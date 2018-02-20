@@ -24,7 +24,8 @@
 #include <openssl/err.h>
 #include <openssl/evp.h>
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
+    (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x2070000fL)
 static void RSA_get0_key(const RSA *r,
                  const BIGNUM **n, const BIGNUM **e, const BIGNUM **d)
 {
@@ -36,7 +37,7 @@ static void RSA_get0_key(const RSA *r,
        *d = r->d;
 }
 
-#else
+#elif !defined(LIBRESSL_VERSION_NUMBER)
 void EVP_MD_CTX_cleanup(EVP_MD_CTX *ctx)
 {
 	EVP_MD_CTX_reset(ctx);
