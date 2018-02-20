@@ -518,6 +518,26 @@ static bool csf_is_valid(struct ivt *ivt, ulong start_addr, size_t bytes)
 	}
 
 	do {
+		struct hab_hdr *cmd;
+
+		cmd = (struct hab_hdr *)&csf_hdr[offset];
+
+		switch (cmd->tag) {
+		case (HAB_CMD_WRT_DAT):
+			puts("Error: Deprecated write command found\n");
+			return false;
+		case (HAB_CMD_CHK_DAT):
+			puts("Error: Deprecated check command found\n");
+			return false;
+		case (HAB_CMD_SET):
+			if (cmd->par == HAB_PAR_MID) {
+				puts("Error: Deprecated Set MID command found\n");
+				return false;
+			}
+		default:
+			break;
+		}
+
 		cmd_hdr_len = get_csf_cmd_hdr_len(&csf_hdr[offset]);
 		if (!cmd_hdr_len) {
 			puts("Error: Invalid command length\n");

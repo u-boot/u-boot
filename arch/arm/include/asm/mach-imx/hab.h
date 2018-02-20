@@ -189,6 +189,10 @@ typedef void hapi_clock_init_t(void);
 #define HAB_CID_UBOOT 1 /**< UBOOT Caller ID*/
 
 #define HAB_CMD_HDR          0xD4  /* CSF Header */
+#define HAB_CMD_WRT_DAT      0xCC  /* Write Data command tag */
+#define HAB_CMD_CHK_DAT      0xCF  /* Check Data command tag */
+#define HAB_CMD_SET          0xB1  /* Set command tag */
+#define HAB_PAR_MID          0x01  /* MID parameter value */
 
 #define IVT_SIZE			0x20
 #define CSF_PAD_SIZE			0x2000
