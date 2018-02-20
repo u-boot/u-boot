@@ -516,6 +516,12 @@ int imx_hab_authenticate_image(uint32_t ddr_start, uint32_t image_size,
 		goto hab_authentication_exit;
 	}
 
+	/* Verify if IVT DCD pointer is NULL */
+	if (ivt->dcd) {
+		puts("Error: DCD pointer must be NULL\n");
+		goto hab_authentication_exit;
+	}
+
 	start = ddr_start;
 	bytes = image_size;
 
