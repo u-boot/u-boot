@@ -507,13 +507,13 @@ int imx_hab_authenticate_image(uint32_t ddr_start, uint32_t image_size,
 
 	/* Verify IVT header bugging out on error */
 	if (verify_ivt_header(ivt_hdr))
-		goto hab_caam_clock_disable;
+		goto hab_authentication_exit;
 
 	/* Verify IVT body */
 	if (ivt->self != ivt_addr) {
 		printf("ivt->self 0x%08x pointer is 0x%08x\n",
 		       ivt->self, ivt_addr);
-		goto hab_caam_clock_disable;
+		goto hab_authentication_exit;
 	}
 
 	start = ddr_start;
@@ -591,8 +591,7 @@ hab_exit_failure_print_status:
 	get_hab_status();
 #endif
 
-hab_caam_clock_disable:
-	hab_caam_clock_enable(0);
+hab_authentication_exit:
 
 	if (load_addr != 0)
 		result = 0;
