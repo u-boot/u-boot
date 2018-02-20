@@ -38,6 +38,12 @@ struct ivt {
 	uint32_t reserved2;	/* Reserved should be zero */
 };
 
+struct __packed hab_hdr {
+	u8 tag;              /* Tag field */
+	u8 len[2];           /* Length field in bytes (big-endian) */
+	u8 par;              /* Parameters field */
+};
+
 /* -------- start of HAB API updates ------------*/
 /* The following are taken from HAB4 SIS */
 
@@ -181,6 +187,8 @@ typedef void hapi_clock_init_t(void);
 
 #define HAB_CID_ROM 0 /**< ROM Caller ID */
 #define HAB_CID_UBOOT 1 /**< UBOOT Caller ID*/
+
+#define HAB_CMD_HDR          0xD4  /* CSF Header */
 
 #define IVT_SIZE			0x20
 #define CSF_PAD_SIZE			0x2000

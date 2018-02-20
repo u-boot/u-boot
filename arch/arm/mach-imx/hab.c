@@ -453,6 +453,83 @@ U_BOOT_CMD(
 
 #endif /* !defined(CONFIG_SPL_BUILD) */
 
+/* Get CSF Header length */
+static int get_hab_hdr_len(struct hab_hdr *hdr)
+{
+	return (size_t)((hdr->len[0] << 8) + (hdr->len[1]));
+}
+
+/* Check whether addr lies between start and
+ * end and is within the length of the image
+ */
+static int chk_bounds(u8 *addr, size_t bytes, u8 *start, u8 *end)
+{
+	size_t csf_size = (size_t)((end + 1) - addr);
+
+	return (addr && (addr >= start) && (addr <= end) &&
+		(csf_size >= bytes));
+}
+
+/* Get Length of each command in CSF */
+static int get_csf_cmd_hdr_len(u8 *csf_hdr)
+{
+	if (*csf_hdr == HAB_CMD_HDR)
+		return sizeof(struct hab_hdr);
+
+	return get_hab_hdr_len((struct hab_hdr *)csf_hdr);
+}
+
+/* Check if CSF is valid */
+static bool csf_is_valid(struct ivt *ivt, ulong start_addr, size_t bytes)
+{
+	u8 *start = (u8 *)start_addr;
+	u8 *csf_hdr;
+	u8 *end;
+
+	size_t csf_hdr_len;
+	size_t cmd_hdr_len;
+	size_t offset = 0;
+
+	if (bytes != 0)
+		end = start + bytes - 1;
+	else
+		end = start;
+
+	/* Verify if CSF pointer content is zero */
+	if (!ivt->csf) {
+		puts("Error: CSF pointer is NULL\n");
+		return false;
+	}
+
+	csf_hdr = (u8 *)ivt->csf;
+
+	/* Verify if CSF Header exist */
+	if (*csf_hdr != HAB_CMD_HDR) {
+		puts("Error: CSF header command not found\n");
+		return false;
+	}
+
+	csf_hdr_len = get_hab_hdr_len((struct hab_hdr *)csf_hdr);
+
+	/* Check if the CSF lies within the image bounds */
+	if (!chk_bounds(csf_hdr, csf_hdr_len, start, end)) {
+		puts("Error: CSF lies outside the image bounds\n");
+		return false;
+	}
+
+	do {
+		cmd_hdr_len = get_csf_cmd_hdr_len(&csf_hdr[offset]);
+		if (!cmd_hdr_len) {
+			puts("Error: Invalid command length\n");
+			return false;
+		}
+		offset += cmd_hdr_len;
+
+	} while (offset < csf_hdr_len);
+
+	return true;
+}
+
 bool imx_hab_is_enabled(void)
 {
 	struct imx_sec_config_fuse_t *fuse =
@@ -524,6 +601,10 @@ int imx_hab_authenticate_image(uint32_t ddr_start, uint32_t image_size,
 
 	start = ddr_start;
 	bytes = image_size;
+
+	/* Verify CSF */
+	if (!csf_is_valid(ivt, start, bytes))
+		goto hab_authentication_exit;
 
 	if (hab_rvt_entry() != HAB_SUCCESS) {
 		puts("hab entry function fail\n");
