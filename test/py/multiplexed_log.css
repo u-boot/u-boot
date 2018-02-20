@@ -70,6 +70,10 @@ pre {
     color: #00ff00
 }
 
+.status-warning {
+    color: #ffff00
+}
+
 .status-skipped {
     color: #ffff00
 }
