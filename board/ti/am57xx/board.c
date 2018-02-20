@@ -30,6 +30,7 @@
 #include <dwc3-uboot.h>
 #include <dwc3-omap-uboot.h>
 #include <ti-usb-phy-uboot.h>
+#include <mmc.h>
 
 #include "../common/board_detect.h"
 #include "mux_data.h"
@@ -814,6 +815,35 @@ int board_mmc_init(bd_t *bis)
 	omap_mmc_init(0, 0, 0, -1, -1);
 	omap_mmc_init(1, 0, 0, -1, -1);
 	return 0;
+}
+
+static const struct mmc_platform_fixups am57x_es1_1_mmc1_fixups = {
+	.hw_rev = "rev11",
+	.unsupported_caps = MMC_CAP(MMC_HS_200) |
+			    MMC_CAP(UHS_SDR104),
+	.max_freq = 96000000,
+};
+
+static const struct mmc_platform_fixups am57x_es1_1_mmc23_fixups = {
+	.hw_rev = "rev11",
+	.unsupported_caps = MMC_CAP(MMC_HS_200) |
+			    MMC_CAP(UHS_SDR104) |
+			    MMC_CAP(UHS_SDR50),
+	.max_freq = 48000000,
+};
+
+const struct mmc_platform_fixups *platform_fixups_mmc(uint32_t addr)
+{
+	switch (omap_revision()) {
+	case DRA752_ES1_0:
+	case DRA752_ES1_1:
+		if (addr == OMAP_HSMMC1_BASE)
+			return &am57x_es1_1_mmc1_fixups;
+		else
+			return &am57x_es1_1_mmc23_fixups;
+	default:
+		return NULL;
+	}
 }
 #endif
 

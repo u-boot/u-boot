@@ -14,9 +14,7 @@
 
 #include <environment/ti/dfu.h>
 
-#ifdef CONFIG_SPL_BUILD
 #define CONFIG_IODELAY_RECALIBRATION
-#endif
 
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_NR_DRAM_BANKS		2
