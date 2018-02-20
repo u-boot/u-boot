@@ -13,96 +13,6 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/hab.h>
 
-/* -------- start of HAB API updates ------------*/
-
-#define hab_rvt_report_event_p					\
-(								\
-	(is_mx6dqp()) ?						\
-	((hab_rvt_report_event_t *)HAB_RVT_REPORT_EVENT_NEW) :	\
-	(is_mx6dq() && (soc_rev() >= CHIP_REV_1_5)) ?		\
-	((hab_rvt_report_event_t *)HAB_RVT_REPORT_EVENT_NEW) :	\
-	(is_mx6sdl() &&	(soc_rev() >= CHIP_REV_1_2)) ?		\
-	((hab_rvt_report_event_t *)HAB_RVT_REPORT_EVENT_NEW) :	\
-	((hab_rvt_report_event_t *)HAB_RVT_REPORT_EVENT)	\
-)
-
-#define hab_rvt_report_status_p					\
-(								\
-	(is_mx6dqp()) ?						\
-	((hab_rvt_report_status_t *)HAB_RVT_REPORT_STATUS_NEW) :\
-	(is_mx6dq() && (soc_rev() >= CHIP_REV_1_5)) ?		\
-	((hab_rvt_report_status_t *)HAB_RVT_REPORT_STATUS_NEW) :\
-	(is_mx6sdl() &&	(soc_rev() >= CHIP_REV_1_2)) ?		\
-	((hab_rvt_report_status_t *)HAB_RVT_REPORT_STATUS_NEW) :\
-	((hab_rvt_report_status_t *)HAB_RVT_REPORT_STATUS)	\
-)
-
-#define hab_rvt_authenticate_image_p				\
-(								\
-	(is_mx6dqp()) ?						\
-	((hab_rvt_authenticate_image_t *)HAB_RVT_AUTHENTICATE_IMAGE_NEW) : \
-	(is_mx6dq() && (soc_rev() >= CHIP_REV_1_5)) ?		\
-	((hab_rvt_authenticate_image_t *)HAB_RVT_AUTHENTICATE_IMAGE_NEW) : \
-	(is_mx6sdl() &&	(soc_rev() >= CHIP_REV_1_2)) ?		\
-	((hab_rvt_authenticate_image_t *)HAB_RVT_AUTHENTICATE_IMAGE_NEW) : \
-	((hab_rvt_authenticate_image_t *)HAB_RVT_AUTHENTICATE_IMAGE)	\
-)
-
-#define hab_rvt_entry_p						\
-(								\
-	(is_mx6dqp()) ?						\
-	((hab_rvt_entry_t *)HAB_RVT_ENTRY_NEW) :		\
-	(is_mx6dq() && (soc_rev() >= CHIP_REV_1_5)) ?		\
-	((hab_rvt_entry_t *)HAB_RVT_ENTRY_NEW) :		\
-	(is_mx6sdl() &&	(soc_rev() >= CHIP_REV_1_2)) ?		\
-	((hab_rvt_entry_t *)HAB_RVT_ENTRY_NEW) :		\
-	((hab_rvt_entry_t *)HAB_RVT_ENTRY)			\
-)
-
-#define hab_rvt_exit_p						\
-(								\
-	(is_mx6dqp()) ?						\
-	((hab_rvt_exit_t *)HAB_RVT_EXIT_NEW) :			\
-	(is_mx6dq() && (soc_rev() >= CHIP_REV_1_5)) ?		\
-	((hab_rvt_exit_t *)HAB_RVT_EXIT_NEW) :			\
-	(is_mx6sdl() &&	(soc_rev() >= CHIP_REV_1_2)) ?		\
-	((hab_rvt_exit_t *)HAB_RVT_EXIT_NEW) :			\
-	((hab_rvt_exit_t *)HAB_RVT_EXIT)			\
-)
-
-static inline void hab_rvt_failsafe_new(void)
-{
-}
-
-#define hab_rvt_failsafe_p				\
-(							\
-	(is_mx6dqp()) ?					\
-	((hab_rvt_failsafe_t *)hab_rvt_failsafe_new) :	\
-	(is_mx6dq() && (soc_rev() >= CHIP_REV_1_5)) ?	\
-	((hab_rvt_failsafe_t *)hab_rvt_failsafe_new) :	\
-	(is_mx6sdl() && (soc_rev() >= CHIP_REV_1_2)) ?	\
-	((hab_rvt_failsafe_t *)hab_rvt_failsafe_new) :	\
-	((hab_rvt_failsafe_t *)HAB_RVT_FAILSAFE)	\
-)
-
-static inline enum hab_status hab_rvt_check_target_new(enum hab_target target,
-						       const void *start,
-						       size_t bytes)
-{
-	return HAB_SUCCESS;
-}
-
-#define hab_rvt_check_target_p					\
-(								\
-	(is_mx6dqp()) ?						\
-	((hab_rvt_check_target_t *)hab_rvt_check_target_new) :	\
-	(is_mx6dq() && (soc_rev() >= CHIP_REV_1_5)) ?		\
-	((hab_rvt_check_target_t *)hab_rvt_check_target_new) :	\
-	(is_mx6sdl() &&	(soc_rev() >= CHIP_REV_1_2)) ?		\
-	((hab_rvt_check_target_t *)hab_rvt_check_target_new) :	\
-	((hab_rvt_check_target_t *)HAB_RVT_CHECK_TARGET)	\
-)
-
 #define ALIGN_SIZE		0x1000
 #define MX6DQ_PU_IROM_MMU_EN_VAR	0x009024a8
 #define MX6DLS_PU_IROM_MMU_EN_VAR	0x00901dd0
@@ -344,8 +254,9 @@ static int get_hab_status(void)
 	hab_rvt_report_event_t *hab_rvt_report_event;
 	hab_rvt_report_status_t *hab_rvt_report_status;
 
-	hab_rvt_report_event = hab_rvt_report_event_p;
-	hab_rvt_report_status = hab_rvt_report_status_p;
+	hab_rvt_report_event = (hab_rvt_report_event_t *)HAB_RVT_REPORT_EVENT;
+	hab_rvt_report_status =
+			(hab_rvt_report_status_t *)HAB_RVT_REPORT_STATUS;
 
 	if (imx_hab_is_enabled())
 		puts("\nSecure boot enabled\n");
@@ -424,7 +335,7 @@ static int do_hab_failsafe(cmd_tbl_t *cmdtp, int flag, int argc,
 		return 1;
 	}
 
-	hab_rvt_failsafe = hab_rvt_failsafe_p;
+	hab_rvt_failsafe = (hab_rvt_failsafe_t *)HAB_RVT_FAILSAFE;
 	hab_rvt_failsafe();
 
 	return 0;
@@ -582,10 +493,11 @@ int imx_hab_authenticate_image(uint32_t ddr_start, uint32_t image_size,
 	struct ivt_header *ivt_hdr;
 	enum hab_status status;
 
-	hab_rvt_authenticate_image = hab_rvt_authenticate_image_p;
-	hab_rvt_entry = hab_rvt_entry_p;
-	hab_rvt_exit = hab_rvt_exit_p;
-	hab_rvt_check_target = hab_rvt_check_target_p;
+	hab_rvt_authenticate_image =
+		(hab_rvt_authenticate_image_t *)HAB_RVT_AUTHENTICATE_IMAGE;
+	hab_rvt_entry = (hab_rvt_entry_t *)HAB_RVT_ENTRY;
+	hab_rvt_exit = (hab_rvt_exit_t *)HAB_RVT_EXIT;
+	hab_rvt_check_target = (hab_rvt_check_target_t *)HAB_RVT_CHECK_TARGET;
 
 	if (!imx_hab_is_enabled()) {
 		puts("hab fuse not enabled\n");
