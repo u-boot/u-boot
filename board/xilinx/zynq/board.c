@@ -6,9 +6,11 @@
  */
 
 #include <common.h>
+#include <dm/uclass.h>
 #include <fdtdec.h>
 #include <fpga.h>
 #include <mmc.h>
+#include <wdt.h>
 #include <zynqpl.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
@@ -31,6 +33,22 @@ static xilinx_desc fpga030 = XILINX_XC7Z030_DESC(0x30);
 static xilinx_desc fpga035 = XILINX_XC7Z035_DESC(0x35);
 static xilinx_desc fpga045 = XILINX_XC7Z045_DESC(0x45);
 static xilinx_desc fpga100 = XILINX_XC7Z100_DESC(0x100);
+#endif
+
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT)
+static struct udevice *watchdog_dev;
+#endif
+
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_BOARD_EARLY_INIT_F)
+int board_early_init_f(void)
+{
+# if defined(CONFIG_WDT)
+	/* bss is not cleared at time when watchdog_reset() is called */
+	watchdog_dev = NULL;
+# endif
+
+	return 0;
+}
 #endif
 
 int board_init(void)
@@ -74,6 +92,15 @@ int board_init(void)
 		break;
 	}
 #endif
+
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT)
+	if (uclass_get_device(UCLASS_WDT, 0, &watchdog_dev)) {
+		puts("Watchdog: Not found!\n");
+	} else {
+		wdt_start(watchdog_dev, 0, 0);
+		puts("Watchdog: Started\n");
+	}
+# endif
 
 #if (defined(CONFIG_FPGA) && !defined(CONFIG_SPL_BUILD)) || \
     (defined(CONFIG_SPL_FPGA_SUPPORT) && defined(CONFIG_SPL_BUILD))
@@ -162,5 +189,27 @@ int dram_init(void)
 	zynq_ddrc_init();
 
 	return 0;
+}
+#endif
+
+#if defined(CONFIG_WATCHDOG)
+/* Called by macro WATCHDOG_RESET */
+void watchdog_reset(void)
+{
+# if !defined(CONFIG_SPL_BUILD)
+	static ulong next_reset;
+	ulong now;
+
+	if (!watchdog_dev)
+		return;
+
+	now = timer_get_us();
+
+	/* Do not reset the watchdog too often */
+	if (now > next_reset) {
+		wdt_reset(watchdog_dev);
+		next_reset = now + 1000;
+	}
+# endif
 }
 #endif
