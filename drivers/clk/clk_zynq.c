@@ -394,7 +394,7 @@ static ulong zynq_clk_get_rate(struct clk *clk)
 		return zynq_clk_get_peripheral_rate(priv, id, two_divs);
 	case dma_clk:
 		return zynq_clk_get_cpu_rate(priv, cpu_2x_clk);
-	case usb0_aper_clk ... smc_aper_clk:
+	case usb0_aper_clk ... swdt_clk:
 		return zynq_clk_get_cpu_rate(priv, cpu_1x_clk);
 	default:
 		return -ENXIO;
