@@ -744,6 +744,7 @@ config ARCH_ZYNQ
 	select SUPPORT_SPL
 	select OF_CONTROL
 	select SPL_BOARD_INIT if SPL
+	select BOARD_EARLY_INIT_F if WDT
 	select SPL_OF_CONTROL if SPL
 	select DM
 	select DM_ETH if NET
