@@ -1858,8 +1858,8 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 static int omap_hsmmc_bind(struct udevice *dev)
 {
 	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
-
-	return mmc_bind(dev, &plat->mmc, &plat->cfg);
+	plat->mmc = calloc(1, sizeof(struct mmc));
+	return mmc_bind(dev, plat->mmc, &plat->cfg);
 }
 #endif
 static int omap_hsmmc_probe(struct udevice *dev)
@@ -1882,7 +1882,7 @@ static int omap_hsmmc_probe(struct udevice *dev)
 #endif
 
 #ifdef CONFIG_BLK
-	mmc = &plat->mmc;
+	mmc = plat->mmc;
 #else
 	mmc = mmc_create(cfg, priv);
 	if (mmc == NULL)
