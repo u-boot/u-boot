@@ -1181,8 +1181,9 @@ static int mmc_read_data(struct hsmmc *mmc_base, char *buf, unsigned int size)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(MMC_WRITE)
 static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
-				unsigned int size)
+			  unsigned int size)
 {
 	unsigned int *input_buf = (unsigned int *)buf;
 	unsigned int mmc_stat;
@@ -1235,7 +1236,13 @@ static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 	}
 	return 0;
 }
-
+#else
+static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
+			  unsigned int size)
+{
+	return -ENOTSUPP;
+}
+#endif
 static void omap_hsmmc_stop_clock(struct hsmmc *mmc_base)
 {
 	writel(readl(&mmc_base->sysctl) & ~CEN_ENABLE, &mmc_base->sysctl);
