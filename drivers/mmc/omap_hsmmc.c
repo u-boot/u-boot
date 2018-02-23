@@ -1832,6 +1832,8 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
+	if (!cfg->f_max)
+		cfg->f_max = 52000000;
 	cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 	cfg->f_min = 400000;
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
