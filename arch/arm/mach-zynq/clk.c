@@ -94,7 +94,8 @@ int soc_clk_dump(void)
 
 			clk_free(&clk);
 
-			if (rate == (unsigned long)-ENOSYS)
+			if ((rate == (unsigned long)-ENOSYS) ||
+			    (rate == (unsigned long)-ENXIO))
 				printf("%10s%20s\n", name, "unknown");
 			else
 				printf("%10s%20lu\n", name, rate);
