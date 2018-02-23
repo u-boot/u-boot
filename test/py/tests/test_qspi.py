@@ -146,10 +146,10 @@ def test_qspi_erase_block(u_boot_console):
 # Random write till page size, random till size and full size
 def qspi_write_twice(u_boot_console):
 
-    qspi_erase_block(u_boot_console)
     addr = u_boot_utils.find_ram_base(u_boot_console)
     expected_write = "Written: OK"
     expected_read = "Read: OK"
+    expected_erase = "Erased: OK"
 
     old_size = 0
     # TODO maybe add alignment and different start for pages
@@ -163,6 +163,23 @@ def qspi_write_twice(u_boot_console):
 
         expected_crc32 = m.group(1)
         # print expected_crc32
+        if old_size % page_size:
+            old_size /= page_size
+            old_size *= page_size
+
+        if size % erase_size:
+            erasesize = size/erase_size + 1
+            erasesize *= erase_size
+
+        eraseoffset = old_size/erase_size
+        eraseoffset *= erase_size
+
+        timeout = 100000000
+        start = 0
+        with u_boot_console.temporary_timeout(timeout):
+           output = u_boot_console.run_command('sf erase %x %x' % (eraseoffset, erasesize))
+           assert expected_erase in output
+
         output = u_boot_console.run_command('sf write %x %x %x' % (addr + total_size, old_size, size))
         assert expected_write in output
         output = u_boot_console.run_command('sf read %x %x %x' % (addr + total_size + offset, old_size, size))
