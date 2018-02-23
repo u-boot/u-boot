@@ -847,6 +847,11 @@ static int uniphier_sd_probe(struct udevice *dev)
 }
 
 static const struct udevice_id uniphier_sd_match[] = {
+	{ .compatible = "renesas,sdhi-r8a7790", .data = 0 },
+	{ .compatible = "renesas,sdhi-r8a7791", .data = 0 },
+	{ .compatible = "renesas,sdhi-r8a7792", .data = 0 },
+	{ .compatible = "renesas,sdhi-r8a7793", .data = 0 },
+	{ .compatible = "renesas,sdhi-r8a7794", .data = 0 },
 	{ .compatible = "renesas,sdhi-r8a7795", .data = UNIPHIER_SD_CAP_64BIT },
 	{ .compatible = "renesas,sdhi-r8a7796", .data = UNIPHIER_SD_CAP_64BIT },
 	{ .compatible = "renesas,sdhi-r8a77970", .data = UNIPHIER_SD_CAP_64BIT },
