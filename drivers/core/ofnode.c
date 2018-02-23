@@ -188,6 +188,19 @@ const char *ofnode_get_name(ofnode node)
 	return fdt_get_name(gd->fdt_blob, ofnode_to_offset(node), NULL);
 }
 
+ofnode ofnode_get_by_phandle(uint phandle)
+{
+	ofnode node;
+
+	if (of_live_active())
+		node = np_to_ofnode(of_find_node_by_phandle(phandle));
+	else
+		node.of_offset = fdt_node_offset_by_phandle(gd->fdt_blob,
+							    phandle);
+
+	return node;
+}
+
 int ofnode_read_size(ofnode node, const char *propname)
 {
 	int len;

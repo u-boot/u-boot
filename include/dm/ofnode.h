@@ -318,6 +318,14 @@ ofnode ofnode_get_parent(ofnode node);
 const char *ofnode_get_name(ofnode node);
 
 /**
+ * ofnode_get_by_phandle() - get ofnode from phandle
+ *
+ * @phandle:	phandle to look up
+ * @return ofnode reference to the phandle
+ */
+ofnode ofnode_get_by_phandle(uint phandle);
+
+/**
  * ofnode_read_size() - read the size of a property
  *
  * @node: node to check
