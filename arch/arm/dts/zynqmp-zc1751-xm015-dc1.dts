@@ -241,12 +241,12 @@
 		};
 
 		mux-cd {
-			groups = "sdio0_0_cd_grp";
+			groups = "sdio0_cd_0_grp";
 			function = "sdio0_cd";
 		};
 
 		conf-cd {
-			groups = "sdio0_0_cd_grp";
+			groups = "sdio0_cd_0_grp";
 			bias-high-impedance;
 			bias-pull-up;
 			slew-rate = <SLEW_RATE_SLOW>;
@@ -254,12 +254,12 @@
 		};
 
 		mux-wp {
-			groups = "sdio0_0_wp_grp";
+			groups = "sdio0_wp_0_grp";
 			function = "sdio0_wp";
 		};
 
 		conf-wp {
-			groups = "sdio0_0_wp_grp";
+			groups = "sdio0_wp_0_grp";
 			bias-high-impedance;
 			bias-pull-up;
 			slew-rate = <SLEW_RATE_SLOW>;
@@ -281,12 +281,12 @@
 		};
 
 		mux-cd {
-			groups = "sdio1_0_cd_grp";
+			groups = "sdio1_cd_0_grp";
 			function = "sdio1_cd";
 		};
 
 		conf-cd {
-			groups = "sdio1_0_cd_grp";
+			groups = "sdio1_cd_0_grp";
 			bias-high-impedance;
 			bias-pull-up;
 			slew-rate = <SLEW_RATE_SLOW>;
@@ -294,12 +294,12 @@
 		};
 
 		mux-wp {
-			groups = "sdio1_0_wp_grp";
+			groups = "sdio1_wp_0_grp";
 			function = "sdio1_wp";
 		};
 
 		conf-wp {
-			groups = "sdio1_0_wp_grp";
+			groups = "sdio1_wp_0_grp";
 			bias-high-impedance;
 			bias-pull-up;
 			slew-rate = <SLEW_RATE_SLOW>;

@@ -395,32 +395,32 @@
 		};
 
 		mux-ce {
-			groups = "nand0_0_ce_grp";
+			groups = "nand0_ce_0_grp";
 			function = "nand0_ce";
 		};
 
 		conf-ce {
-			groups = "nand0_0_ce_grp";
+			groups = "nand0_ce_0_grp";
 			bias-pull-up;
 		};
 
 		mux-rb {
-			groups = "nand0_0_rb_grp";
+			groups = "nand0_rb_0_grp";
 			function = "nand0_rb";
 		};
 
 		conf-rb {
-			groups = "nand0_0_rb_grp";
+			groups = "nand0_rb_0_grp";
 			bias-pull-up;
 		};
 
 		mux-dqs {
-			groups = "nand0_0_dqs_grp";
+			groups = "nand0_dqs_0_grp";
 			function = "nand0_dqs";
 		};
 
 		conf-dqs {
-			groups = "nand0_0_dqs_grp";
+			groups = "nand0_dqs_0_grp";
 			bias-pull-up;
 		};
 	};
@@ -439,14 +439,14 @@
 		};
 
 		mux-cs {
-			groups = "spi0_0_ss0_grp", "spi0_0_ss1_grp",
-							"spi0_0_ss2_grp";
+			groups = "spi0_ss_0_grp", "spi0_ss_1_grp",
+							"spi0_ss_2_grp";
 			function = "spi0_ss";
 		};
 
 		conf-cs {
-			groups = "spi0_0_ss0_grp", "spi0_0_ss1_grp",
-							"spi0_0_ss2_grp";
+			groups = "spi0_ss_0_grp", "spi0_ss_1_grp",
+							"spi0_ss_2_grp";
 			bias-disable;
 		};
 	};
@@ -465,14 +465,14 @@
 		};
 
 		mux-cs {
-			groups = "spi1_3_ss0_grp", "spi1_3_ss1_grp",
-							"spi1_3_ss2_grp";
+			groups = "spi1_ss_9_grp", "spi1_ss_10_grp",
+							"spi1_ss_11_grp";
 			function = "spi1_ss";
 		};
 
 		conf-cs {
-			groups = "spi1_3_ss0_grp", "spi1_3_ss1_grp",
-							"spi1_3_ss2_grp";
+			groups = "spi1_ss_9_grp", "spi1_ss_10_grp",
+							"spi1_ss_11_grp";
 			bias-disable;
 		};
 	};

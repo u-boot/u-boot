@@ -767,12 +767,12 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 		};
 
 		mux-cd {
-			groups = "sdio1_0_cd_grp";
+			groups = "sdio1_cd_0_grp";
 			function = "sdio1_cd";
 		};
 
 		conf-cd {
-			groups = "sdio1_0_cd_grp";
+			groups = "sdio1_cd_0_grp";
 			bias-high-impedance;
 			bias-pull-up;
 			slew-rate = <SLEW_RATE_SLOW>;
@@ -780,12 +780,12 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 		};
 
 		mux-wp {
-			groups = "sdio1_0_wp_grp";
+			groups = "sdio1_wp_0_grp";
 			function = "sdio1_wp";
 		};
 
 		conf-wp {
-			groups = "sdio1_0_wp_grp";
+			groups = "sdio1_wp_0_grp";
 			bias-high-impedance;
 			bias-pull-up;
 			slew-rate = <SLEW_RATE_SLOW>;

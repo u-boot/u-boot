@@ -290,12 +290,12 @@
 		};
 
 		mux-cd {
-			groups = "sdio1_0_cd_grp";
+			groups = "sdio1_cd_0_grp";
 			function = "sdio1_cd";
 		};
 
 		conf-cd {
-			groups = "sdio1_0_cd_grp";
+			groups = "sdio1_cd_0_grp";
 			bias-high-impedance;
 			bias-pull-up;
 			slew-rate = <SLEW_RATE_SLOW>;

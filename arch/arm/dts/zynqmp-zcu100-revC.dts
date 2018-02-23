@@ -412,24 +412,24 @@
 
 	pinctrl_sdhci0_default: sdhci0-default {
 		mux {
-			groups = "sdio0_4bit_0_0_grp";
+			groups = "sdio0_3_grp";
 			function = "sdio0";
 		};
 
 		conf {
-			groups = "sdio0_4bit_0_0_grp";
+			groups = "sdio0_3_grp";
 			slew-rate = <SLEW_RATE_SLOW>;
 			io-standard = <IO_STANDARD_LVCMOS18>;
 			bias-disable;
 		};
 
 		mux-cd {
-			groups = "sdio0_0_cd_grp";
+			groups = "sdio0_cd_0_grp";
 			function = "sdio0_cd";
 		};
 
 		conf-cd {
-			groups = "sdio0_0_cd_grp";
+			groups = "sdio0_cd_0_grp";
 			bias-high-impedance;
 			bias-pull-up;
 			slew-rate = <SLEW_RATE_SLOW>;
@@ -439,12 +439,12 @@
 
 	pinctrl_sdhci1_default: sdhci1-default {
 		mux {
-			groups = "sdio1_4bit_0_1_grp";
+			groups = "sdio1_2_grp";
 			function = "sdio1";
 		};
 
 		conf {
-			groups = "sdio1_4bit_0_1_grp";
+			groups = "sdio1_2_grp";
 			slew-rate = <SLEW_RATE_SLOW>;
 			io-standard = <IO_STANDARD_LVCMOS18>;
 			bias-disable;
@@ -465,12 +465,12 @@
 		};
 
 		mux-cs {
-			groups = "spi0_3_ss0_grp";
+			groups = "spi0_ss_9_grp";
 			function = "spi0_ss";
 		};
 
 		conf-cs {
-			groups = "spi0_3_ss0_grp";
+			groups = "spi0_ss_9_grp";
 			bias-disable;
 		};
 
@@ -490,12 +490,12 @@
 		};
 
 		mux-cs {
-			groups = "spi1_0_ss0_grp";
+			groups = "spi1_ss_0_grp";
 			function = "spi1_ss";
 		};
 
 		conf-cs {
-			groups = "spi1_0_ss0_grp";
+			groups = "spi1_ss_0_grp";
 			bias-disable;
 		};
 

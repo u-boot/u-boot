@@ -98,6 +98,11 @@
 		u-boot,dm-pre-reloc;
 	};
 
+	pinctrl0: pinctrl {
+		compatible = "xlnx,zynqmp-pinctrl";
+		status = "disabled";
+	};
+
 	power-domains {
 		compatible = "xlnx,zynqmp-genpd";
 
@@ -942,12 +947,6 @@
 			power-domains = <&pd_sd1>;
 			nvmem-cells = <&soc_revision>;
 			nvmem-cell-names = "soc_revision";
-		};
-
-		pinctrl0: pinctrl@ff180000 {
-			compatible = "xlnx,pinctrl-zynqmp";
-			status = "disabled";
-			reg = <0x0 0xff180000 0x0 0x1000>;
 		};
 
 		smmu: smmu@fd800000 {
