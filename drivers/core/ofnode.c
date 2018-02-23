@@ -165,6 +165,20 @@ ofnode ofnode_next_subnode(ofnode node)
 		fdt_next_subnode(gd->fdt_blob, ofnode_to_offset(node)));
 }
 
+ofnode ofnode_get_parent(ofnode node)
+{
+	ofnode parent;
+
+	assert(ofnode_valid(node));
+	if (ofnode_is_np(node))
+		parent = np_to_ofnode(of_get_parent(ofnode_to_np(node)));
+	else
+		parent.of_offset = fdt_parent_offset(gd->fdt_blob,
+						     ofnode_to_offset(node));
+
+	return parent;
+}
+
 const char *ofnode_get_name(ofnode node)
 {
 	assert(ofnode_valid(node));

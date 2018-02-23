@@ -302,6 +302,14 @@ ofnode ofnode_first_subnode(ofnode node);
 ofnode ofnode_next_subnode(ofnode node);
 
 /**
+ * ofnode_get_parent() - get the ofnode's parent (enclosing ofnode)
+ *
+ * @node: valid node to look up
+ * @return ofnode reference of the parent node
+ */
+ofnode ofnode_get_parent(ofnode node);
+
+/**
  * ofnode_get_name() - get the name of a node
  *
  * @node: valid node to look up
