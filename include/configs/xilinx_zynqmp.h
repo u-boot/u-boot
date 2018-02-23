@@ -152,8 +152,8 @@
 	"fdt_high=0x10000000\0" \
 	"loadbootenv_addr=0x100000\0" \
 	"sdbootdev=0\0"\
-	"kernel_offset=0x180000\0" \
-	"fdt_offset=0x100000\0" \
+	"kernel_offset=0x280000\0" \
+	"fdt_offset=0x200000\0" \
 	"kernel_size=0x1e00000\0" \
 	"fdt_size=0x80000\0" \
 	"bootenv=uEnv.txt\0" \
