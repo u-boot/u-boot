@@ -281,13 +281,6 @@
 		method = "smc";
 	};
 
-	pmufw: zynqmp-pm {
-		compatible = "xlnx,zynqmp-pm";
-		method = "smc";
-		interrupt-parent = <&gic>;
-		interrupts = <0 35 4>;
-	};
-
 	firmware {
 		zynqmp_firmware: zynqmp-firmware {
 			compatible = "xlnx,zynqmp-firmware";
