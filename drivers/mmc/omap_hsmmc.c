@@ -93,7 +93,7 @@ struct omap_hsmmc_data {
 	enum bus_mode mode;
 #endif
 	u8 controller_flags;
-#ifndef CONFIG_OMAP34XX
+#ifdef CONFIG_MMC_OMAP_HS_ADMA
 	struct omap_hsmmc_adma_desc *adma_desc_table;
 	uint desc_slot;
 #endif
@@ -117,7 +117,7 @@ struct omap_mmc_of_data {
 	u8 controller_flags;
 };
 
-#ifndef CONFIG_OMAP34XX
+#ifdef CONFIG_MMC_OMAP_HS_ADMA
 struct omap_hsmmc_adma_desc {
 	u8 attr;
 	u8 reserved;
@@ -741,7 +741,7 @@ static int omap_hsmmc_init_setup(struct mmc *mmc)
 			return -ETIMEDOUT;
 		}
 	}
-#ifndef CONFIG_OMAP34XX
+#ifdef CONFIG_MMC_OMAP_HS_ADMA
 	reg_val = readl(&mmc_base->hl_hwinfo);
 	if (reg_val & MADMA_EN)
 		priv->controller_flags |= OMAP_HSMMC_USE_ADMA;
@@ -834,7 +834,7 @@ static void mmc_reset_controller_fsm(struct hsmmc *mmc_base, u32 bit)
 	}
 }
 
-#ifndef CONFIG_OMAP34XX
+#ifdef CONFIG_MMC_OMAP_HS_ADMA
 static void omap_hsmmc_adma_desc(struct mmc *mmc, char *buf, u16 len, bool end)
 {
 	struct omap_hsmmc_data *priv = omap_hsmmc_get_data(mmc);
@@ -1037,7 +1037,7 @@ static int omap_hsmmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		else
 			flags |= (DP_DATA | DDIR_WRITE);
 
-#ifndef CONFIG_OMAP34XX
+#ifdef CONFIG_MMC_OMAP_HS_ADMA
 		if ((priv->controller_flags & OMAP_HSMMC_USE_ADMA) &&
 		    !mmc_is_tuning_cmd(cmd->cmdidx)) {
 			omap_hsmmc_prepare_data(mmc, data);
@@ -1082,7 +1082,7 @@ static int omap_hsmmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		}
 	}
 
-#ifndef CONFIG_OMAP34XX
+#ifdef CONFIG_MMC_OMAP_HS_ADMA
 	if ((priv->controller_flags & OMAP_HSMMC_USE_ADMA) && data &&
 	    !mmc_is_tuning_cmd(cmd->cmdidx)) {
 		u32 sz_mb, timeout;
