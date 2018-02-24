@@ -163,6 +163,7 @@ F:	drivers/misc/rockchip-efuse.c
 F:	drivers/pinctrl/rockchip/
 F:	drivers/ram/rockchip/
 F:	drivers/sysreset/sysreset_rockchip.c
+F:	drivers/video/rockchip/
 F:	tools/rkcommon.c
 F:	tools/rkcommon.h
 F:	tools/rkimage.c

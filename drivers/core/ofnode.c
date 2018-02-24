@@ -165,6 +165,20 @@ ofnode ofnode_next_subnode(ofnode node)
 		fdt_next_subnode(gd->fdt_blob, ofnode_to_offset(node)));
 }
 
+ofnode ofnode_get_parent(ofnode node)
+{
+	ofnode parent;
+
+	assert(ofnode_valid(node));
+	if (ofnode_is_np(node))
+		parent = np_to_ofnode(of_get_parent(ofnode_to_np(node)));
+	else
+		parent.of_offset = fdt_parent_offset(gd->fdt_blob,
+						     ofnode_to_offset(node));
+
+	return parent;
+}
+
 const char *ofnode_get_name(ofnode node)
 {
 	assert(ofnode_valid(node));
@@ -172,6 +186,19 @@ const char *ofnode_get_name(ofnode node)
 		return strrchr(node.np->full_name, '/') + 1;
 
 	return fdt_get_name(gd->fdt_blob, ofnode_to_offset(node), NULL);
+}
+
+ofnode ofnode_get_by_phandle(uint phandle)
+{
+	ofnode node;
+
+	if (of_live_active())
+		node = np_to_ofnode(of_find_node_by_phandle(phandle));
+	else
+		node.of_offset = fdt_node_offset_by_phandle(gd->fdt_blob,
+							    phandle);
+
+	return node;
 }
 
 int ofnode_read_size(ofnode node, const char *propname)
