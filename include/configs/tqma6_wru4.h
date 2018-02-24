@@ -34,7 +34,6 @@
 /* LED */
 
 /* Bootcounter */
-#define CONFIG_SYS_BOOTCOUNT_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_BOOTCOUNT_BE
 
 #endif /* __CONFIG_TQMA6_WRU4_H */

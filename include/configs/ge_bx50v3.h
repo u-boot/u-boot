@@ -263,6 +263,4 @@
 
 #define CONFIG_BCH
 
-#define CONFIG_SYS_BOOTCOUNT_ADDR		0x7000A000
-
 #endif	/* __GE_BX50V3_CONFIG_H */

@@ -42,7 +42,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(4 * SZ_1M)
 
 /* Bootcounter */
-#define CONFIG_SYS_BOOTCOUNT_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_BOOTCOUNT_BE
 
 /* FEC ethernet */

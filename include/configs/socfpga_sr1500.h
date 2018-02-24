@@ -29,8 +29,6 @@
 /*
  * Bootcounter
  */
-/* last 2 lwords in OCRAM */
-#define CONFIG_SYS_BOOTCOUNT_ADDR	0xfffffff8
 #define CONFIG_SYS_BOOTCOUNT_BE
 
 /* Environment setting for SPI flash */

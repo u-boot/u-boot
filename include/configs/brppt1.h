@@ -20,9 +20,6 @@
 #define CONFIG_LCD_DT_SIMPLEFB
 #define LCD_BPP				LCD_COLOR32
 
-/* Bootcount using the RTC block */
-#define CONFIG_SYS_BOOTCOUNT_ADDR	0x44E3E000
-
 /* memory */
 #define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
 

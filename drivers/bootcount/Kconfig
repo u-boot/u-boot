@@ -111,8 +111,10 @@ config SYS_BOOTCOUNT_EXT_NAME
 
 config SYS_BOOTCOUNT_ADDR
 	hex "RAM address used for reading and writing the boot counter"
-	default 0x7000A000
-	depends on BOOTCOUNT_EXT
+	default 0x44E3E000 if BOOTCOUNT_AM33XX
+	default 0xE0115FF8 if ARCH_LS1043A || ARCH_LS1021A
+	depends on BOOTCOUNT_AM33XX || BOOTCOUNT_GENERIC || BOOTCOUNT_EXT || \
+		   BOOTCOUNT_I2C
 	help
 	  Set the address used for reading and writing the boot counter.
 

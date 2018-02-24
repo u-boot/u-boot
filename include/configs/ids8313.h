@@ -508,9 +508,6 @@
 /* UBI Support */
 #define CONFIG_MTD_PARTITIONS
 
-/* bootcount support */
-#define CONFIG_SYS_BOOTCOUNT_ADDR	0x9
-
 #define CONFIG_IMAGE_FORMAT_LEGACY
 
 #endif	/* __CONFIG_H */

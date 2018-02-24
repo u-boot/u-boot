@@ -8,22 +8,7 @@
 #include <bootcount.h>
 #include <linux/compiler.h>
 
-/*
- * Only override CONFIG_SYS_BOOTCOUNT_ADDR if not already defined. This
- * way, some boards can define it directly in their config header.
- */
-#if !defined(CONFIG_SYS_BOOTCOUNT_ADDR)
-
-#if defined(CONFIG_QE)
-#include <linux/immap_qe.h>
-#define CONFIG_SYS_BOOTCOUNT_ADDR	(CONFIG_SYS_IMMR + 0x110000 + \
-					 QE_MURAM_SIZE - 2 * sizeof(u32))
-#endif /* defined(CONFIG_QE) */
-
-#endif /* !defined(CONFIG_SYS_BOOTCOUNT_ADDR) */
-
 /* Now implement the generic default functions */
-#if defined(CONFIG_SYS_BOOTCOUNT_ADDR)
 __weak void bootcount_store(ulong a)
 {
 	void *reg = (void *)CONFIG_SYS_BOOTCOUNT_ADDR;
@@ -54,4 +39,3 @@ __weak ulong bootcount_load(void)
 		return raw_bootcount_load(reg);
 #endif /* defined(CONFIG_SYS_BOOTCOUNT_SINGLEWORD) */
 }
-#endif /* defined(CONFIG_SYS_BOOTCOUNT_ADDR) */
