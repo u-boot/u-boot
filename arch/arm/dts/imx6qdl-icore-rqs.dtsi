@@ -114,6 +114,7 @@
 };
 
 &usdhc4 {
+	u-boot,dm-spl;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usdhc4>;
 	no-1-8-v;
@@ -183,6 +184,7 @@
 	};
 
 	pinctrl_usdhc4: usdhc4grp {
+		u-boot,dm-spl;
 		fsl,pins = <
 			MX6QDL_PAD_SD4_CMD__SD4_CMD    0x17070
 			MX6QDL_PAD_SD4_CLK__SD4_CLK    0x10070

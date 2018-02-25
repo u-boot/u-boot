@@ -13,96 +13,6 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/hab.h>
 
-/* -------- start of HAB API updates ------------*/
-
-#define hab_rvt_report_event_p					\
-(								\
-	(is_mx6dqp()) ?						\
-	((hab_rvt_report_event_t *)HAB_RVT_REPORT_EVENT_NEW) :	\
-	(is_mx6dq() && (soc_rev() >= CHIP_REV_1_5)) ?		\
-	((hab_rvt_report_event_t *)HAB_RVT_REPORT_EVENT_NEW) :	\
-	(is_mx6sdl() &&	(soc_rev() >= CHIP_REV_1_2)) ?		\
-	((hab_rvt_report_event_t *)HAB_RVT_REPORT_EVENT_NEW) :	\
-	((hab_rvt_report_event_t *)HAB_RVT_REPORT_EVENT)	\
-)
-
-#define hab_rvt_report_status_p					\
-(								\
-	(is_mx6dqp()) ?						\
-	((hab_rvt_report_status_t *)HAB_RVT_REPORT_STATUS_NEW) :\
-	(is_mx6dq() && (soc_rev() >= CHIP_REV_1_5)) ?		\
-	((hab_rvt_report_status_t *)HAB_RVT_REPORT_STATUS_NEW) :\
-	(is_mx6sdl() &&	(soc_rev() >= CHIP_REV_1_2)) ?		\
-	((hab_rvt_report_status_t *)HAB_RVT_REPORT_STATUS_NEW) :\
-	((hab_rvt_report_status_t *)HAB_RVT_REPORT_STATUS)	\
-)
-
-#define hab_rvt_authenticate_image_p				\
-(								\
-	(is_mx6dqp()) ?						\
-	((hab_rvt_authenticate_image_t *)HAB_RVT_AUTHENTICATE_IMAGE_NEW) : \
-	(is_mx6dq() && (soc_rev() >= CHIP_REV_1_5)) ?		\
-	((hab_rvt_authenticate_image_t *)HAB_RVT_AUTHENTICATE_IMAGE_NEW) : \
-	(is_mx6sdl() &&	(soc_rev() >= CHIP_REV_1_2)) ?		\
-	((hab_rvt_authenticate_image_t *)HAB_RVT_AUTHENTICATE_IMAGE_NEW) : \
-	((hab_rvt_authenticate_image_t *)HAB_RVT_AUTHENTICATE_IMAGE)	\
-)
-
-#define hab_rvt_entry_p						\
-(								\
-	(is_mx6dqp()) ?						\
-	((hab_rvt_entry_t *)HAB_RVT_ENTRY_NEW) :		\
-	(is_mx6dq() && (soc_rev() >= CHIP_REV_1_5)) ?		\
-	((hab_rvt_entry_t *)HAB_RVT_ENTRY_NEW) :		\
-	(is_mx6sdl() &&	(soc_rev() >= CHIP_REV_1_2)) ?		\
-	((hab_rvt_entry_t *)HAB_RVT_ENTRY_NEW) :		\
-	((hab_rvt_entry_t *)HAB_RVT_ENTRY)			\
-)
-
-#define hab_rvt_exit_p						\
-(								\
-	(is_mx6dqp()) ?						\
-	((hab_rvt_exit_t *)HAB_RVT_EXIT_NEW) :			\
-	(is_mx6dq() && (soc_rev() >= CHIP_REV_1_5)) ?		\
-	((hab_rvt_exit_t *)HAB_RVT_EXIT_NEW) :			\
-	(is_mx6sdl() &&	(soc_rev() >= CHIP_REV_1_2)) ?		\
-	((hab_rvt_exit_t *)HAB_RVT_EXIT_NEW) :			\
-	((hab_rvt_exit_t *)HAB_RVT_EXIT)			\
-)
-
-static inline void hab_rvt_failsafe_new(void)
-{
-}
-
-#define hab_rvt_failsafe_p				\
-(							\
-	(is_mx6dqp()) ?					\
-	((hab_rvt_failsafe_t *)hab_rvt_failsafe_new) :	\
-	(is_mx6dq() && (soc_rev() >= CHIP_REV_1_5)) ?	\
-	((hab_rvt_failsafe_t *)hab_rvt_failsafe_new) :	\
-	(is_mx6sdl() && (soc_rev() >= CHIP_REV_1_2)) ?	\
-	((hab_rvt_failsafe_t *)hab_rvt_failsafe_new) :	\
-	((hab_rvt_failsafe_t *)HAB_RVT_FAILSAFE)	\
-)
-
-static inline enum hab_status hab_rvt_check_target_new(enum hab_target target,
-						       const void *start,
-						       size_t bytes)
-{
-	return HAB_SUCCESS;
-}
-
-#define hab_rvt_check_target_p					\
-(								\
-	(is_mx6dqp()) ?						\
-	((hab_rvt_check_target_t *)hab_rvt_check_target_new) :	\
-	(is_mx6dq() && (soc_rev() >= CHIP_REV_1_5)) ?		\
-	((hab_rvt_check_target_t *)hab_rvt_check_target_new) :	\
-	(is_mx6sdl() &&	(soc_rev() >= CHIP_REV_1_2)) ?		\
-	((hab_rvt_check_target_t *)hab_rvt_check_target_new) :	\
-	((hab_rvt_check_target_t *)HAB_RVT_CHECK_TARGET)	\
-)
-
 #define ALIGN_SIZE		0x1000
 #define MX6DQ_PU_IROM_MMU_EN_VAR	0x009024a8
 #define MX6DLS_PU_IROM_MMU_EN_VAR	0x00901dd0
@@ -344,8 +254,9 @@ static int get_hab_status(void)
 	hab_rvt_report_event_t *hab_rvt_report_event;
 	hab_rvt_report_status_t *hab_rvt_report_status;
 
-	hab_rvt_report_event = hab_rvt_report_event_p;
-	hab_rvt_report_status = hab_rvt_report_status_p;
+	hab_rvt_report_event = (hab_rvt_report_event_t *)HAB_RVT_REPORT_EVENT;
+	hab_rvt_report_status =
+			(hab_rvt_report_status_t *)HAB_RVT_REPORT_STATUS;
 
 	if (imx_hab_is_enabled())
 		puts("\nSecure boot enabled\n");
@@ -424,7 +335,7 @@ static int do_hab_failsafe(cmd_tbl_t *cmdtp, int flag, int argc,
 		return 1;
 	}
 
-	hab_rvt_failsafe = hab_rvt_failsafe_p;
+	hab_rvt_failsafe = (hab_rvt_failsafe_t *)HAB_RVT_FAILSAFE;
 	hab_rvt_failsafe();
 
 	return 0;
@@ -452,6 +363,103 @@ U_BOOT_CMD(
 	  );
 
 #endif /* !defined(CONFIG_SPL_BUILD) */
+
+/* Get CSF Header length */
+static int get_hab_hdr_len(struct hab_hdr *hdr)
+{
+	return (size_t)((hdr->len[0] << 8) + (hdr->len[1]));
+}
+
+/* Check whether addr lies between start and
+ * end and is within the length of the image
+ */
+static int chk_bounds(u8 *addr, size_t bytes, u8 *start, u8 *end)
+{
+	size_t csf_size = (size_t)((end + 1) - addr);
+
+	return (addr && (addr >= start) && (addr <= end) &&
+		(csf_size >= bytes));
+}
+
+/* Get Length of each command in CSF */
+static int get_csf_cmd_hdr_len(u8 *csf_hdr)
+{
+	if (*csf_hdr == HAB_CMD_HDR)
+		return sizeof(struct hab_hdr);
+
+	return get_hab_hdr_len((struct hab_hdr *)csf_hdr);
+}
+
+/* Check if CSF is valid */
+static bool csf_is_valid(struct ivt *ivt, ulong start_addr, size_t bytes)
+{
+	u8 *start = (u8 *)start_addr;
+	u8 *csf_hdr;
+	u8 *end;
+
+	size_t csf_hdr_len;
+	size_t cmd_hdr_len;
+	size_t offset = 0;
+
+	if (bytes != 0)
+		end = start + bytes - 1;
+	else
+		end = start;
+
+	/* Verify if CSF pointer content is zero */
+	if (!ivt->csf) {
+		puts("Error: CSF pointer is NULL\n");
+		return false;
+	}
+
+	csf_hdr = (u8 *)ivt->csf;
+
+	/* Verify if CSF Header exist */
+	if (*csf_hdr != HAB_CMD_HDR) {
+		puts("Error: CSF header command not found\n");
+		return false;
+	}
+
+	csf_hdr_len = get_hab_hdr_len((struct hab_hdr *)csf_hdr);
+
+	/* Check if the CSF lies within the image bounds */
+	if (!chk_bounds(csf_hdr, csf_hdr_len, start, end)) {
+		puts("Error: CSF lies outside the image bounds\n");
+		return false;
+	}
+
+	do {
+		struct hab_hdr *cmd;
+
+		cmd = (struct hab_hdr *)&csf_hdr[offset];
+
+		switch (cmd->tag) {
+		case (HAB_CMD_WRT_DAT):
+			puts("Error: Deprecated write command found\n");
+			return false;
+		case (HAB_CMD_CHK_DAT):
+			puts("Error: Deprecated check command found\n");
+			return false;
+		case (HAB_CMD_SET):
+			if (cmd->par == HAB_PAR_MID) {
+				puts("Error: Deprecated Set MID command found\n");
+				return false;
+			}
+		default:
+			break;
+		}
+
+		cmd_hdr_len = get_csf_cmd_hdr_len(&csf_hdr[offset]);
+		if (!cmd_hdr_len) {
+			puts("Error: Invalid command length\n");
+			return false;
+		}
+		offset += cmd_hdr_len;
+
+	} while (offset < csf_hdr_len);
+
+	return true;
+}
 
 bool imx_hab_is_enabled(void)
 {
@@ -485,10 +493,11 @@ int imx_hab_authenticate_image(uint32_t ddr_start, uint32_t image_size,
 	struct ivt_header *ivt_hdr;
 	enum hab_status status;
 
-	hab_rvt_authenticate_image = hab_rvt_authenticate_image_p;
-	hab_rvt_entry = hab_rvt_entry_p;
-	hab_rvt_exit = hab_rvt_exit_p;
-	hab_rvt_check_target = hab_rvt_check_target_p;
+	hab_rvt_authenticate_image =
+		(hab_rvt_authenticate_image_t *)HAB_RVT_AUTHENTICATE_IMAGE;
+	hab_rvt_entry = (hab_rvt_entry_t *)HAB_RVT_ENTRY;
+	hab_rvt_exit = (hab_rvt_exit_t *)HAB_RVT_EXIT;
+	hab_rvt_check_target = (hab_rvt_check_target_t *)HAB_RVT_CHECK_TARGET;
 
 	if (!imx_hab_is_enabled()) {
 		puts("hab fuse not enabled\n");
@@ -507,17 +516,27 @@ int imx_hab_authenticate_image(uint32_t ddr_start, uint32_t image_size,
 
 	/* Verify IVT header bugging out on error */
 	if (verify_ivt_header(ivt_hdr))
-		goto hab_caam_clock_disable;
+		goto hab_authentication_exit;
 
 	/* Verify IVT body */
 	if (ivt->self != ivt_addr) {
 		printf("ivt->self 0x%08x pointer is 0x%08x\n",
 		       ivt->self, ivt_addr);
-		goto hab_caam_clock_disable;
+		goto hab_authentication_exit;
+	}
+
+	/* Verify if IVT DCD pointer is NULL */
+	if (ivt->dcd) {
+		puts("Error: DCD pointer must be NULL\n");
+		goto hab_authentication_exit;
 	}
 
 	start = ddr_start;
 	bytes = image_size;
+
+	/* Verify CSF */
+	if (!csf_is_valid(ivt, start, bytes))
+		goto hab_authentication_exit;
 
 	if (hab_rvt_entry() != HAB_SUCCESS) {
 		puts("hab entry function fail\n");
@@ -591,8 +610,7 @@ hab_exit_failure_print_status:
 	get_hab_status();
 #endif
 
-hab_caam_clock_disable:
-	hab_caam_clock_enable(0);
+hab_authentication_exit:
 
 	if (load_addr != 0)
 		result = 0;
