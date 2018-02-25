@@ -72,6 +72,16 @@ config ROCKCHIP_RK3288
 	  and video codec support. Peripherals include Gigabit Ethernet,
 	  USB2 host and OTG, SDIO, I2S, UARTs, SPI, I2C and PWMs.
 
+if ROCKCHIP_RK3288
+
+config TPL_LDSCRIPT
+	default "arch/arm/mach-rockchip/rk3288/u-boot-tpl.lds"
+
+config TPL_TEXT_BASE
+	default 0xff704000
+
+endif
+
 config ROCKCHIP_RK3328
 	bool "Support Rockchip RK3328"
 	select ARM64
