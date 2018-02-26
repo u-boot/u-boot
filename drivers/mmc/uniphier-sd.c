@@ -854,6 +854,7 @@ static const struct udevice_id uniphier_sd_match[] = {
 	{ .compatible = "renesas,sdhi-r8a7794", .data = 0 },
 	{ .compatible = "renesas,sdhi-r8a7795", .data = UNIPHIER_SD_CAP_64BIT },
 	{ .compatible = "renesas,sdhi-r8a7796", .data = UNIPHIER_SD_CAP_64BIT },
+	{ .compatible = "renesas,sdhi-r8a77965", .data = UNIPHIER_SD_CAP_64BIT },
 	{ .compatible = "renesas,sdhi-r8a77970", .data = UNIPHIER_SD_CAP_64BIT },
 	{ .compatible = "renesas,sdhi-r8a77995", .data = UNIPHIER_SD_CAP_64BIT },
 	{ .compatible = "socionext,uniphier-sdhc", .data = 0 },
