@@ -100,6 +100,7 @@ void rcar_gen3_memmap_fixup(void)
 		mem_map = r8a7795_mem_map;
 		break;
 	case RMOBILE_CPU_TYPE_R8A7796:
+	case RMOBILE_CPU_TYPE_R8A77965:
 		mem_map = r8a7796_mem_map;
 		break;
 	case RMOBILE_CPU_TYPE_R8A77970:
