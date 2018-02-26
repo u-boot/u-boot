@@ -931,6 +931,11 @@ OBJCOPYFLAGS_u-boot-elf.srec := $(OBJCOPYFLAGS_u-boot.srec)
 u-boot-elf.srec: u-boot.elf FORCE
 	$(call if_changed,objcopy)
 
+OBJCOPYFLAGS_u-boot-spl.srec = $(OBJCOPYFLAGS_u-boot.srec)
+
+spl/u-boot-spl.srec: spl/u-boot-spl FORCE
+	$(call if_changed,objcopy)
+
 OBJCOPYFLAGS_u-boot-nodtb.bin := -O binary \
 		$(if $(CONFIG_X86_16BIT_INIT),-R .start16 -R .resetvec)
 
