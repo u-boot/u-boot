@@ -42,7 +42,7 @@ static void efi_init_obj_list(void)
 #if defined(CONFIG_LCD) || defined(CONFIG_DM_VIDEO)
 	efi_gop_register();
 #endif
-#ifdef CONFIG_NET
+#ifdef CONFIG_CMD_NET
 	efi_net_register();
 #endif
 #ifdef CONFIG_GENERATE_SMBIOS_TABLE
@@ -450,7 +450,7 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 
 		bootefi_device_path = efi_dp_from_part(desc, part);
 	} else {
-#ifdef CONFIG_NET
+#ifdef CONFIG_CMD_NET
 		bootefi_device_path = efi_dp_from_eth();
 #endif
 	}

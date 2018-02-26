@@ -133,7 +133,4 @@
 	"fi; fi; run $modeboot"
 #undef CONFIG_DISPLAY_BOARDINFO
 
-/* Further tweaks to reduce image size */
-#undef CONFIG_CMD_NET
-
 #endif /* __CONFIG_TOPIC_MIAMI_H */

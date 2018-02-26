@@ -746,7 +746,7 @@ struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
 	return start;
 }
 
-#ifdef CONFIG_NET
+#ifdef CONFIG_CMD_NET
 struct efi_device_path *efi_dp_from_eth(void)
 {
 	struct efi_device_path_mac_addr *ndp;

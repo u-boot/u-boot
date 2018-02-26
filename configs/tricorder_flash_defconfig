@@ -15,13 +15,12 @@ CONFIG_CMD_MMC=y
 CONFIG_CMD_NAND=y
 CONFIG_CMD_NAND_LOCK_UNLOCK=y
 # CONFIG_CMD_SETEXPR is not set
-# CONFIG_CMD_NET is not set
-# CONFIG_CMD_NFS is not set
 CONFIG_CMD_EXT2=y
 CONFIG_CMD_FAT=y
 CONFIG_MTDIDS_DEFAULT="nand0=omap2-nand.0"
 CONFIG_MTDPARTS_DEFAULT="mtdparts=omap2-nand.0:128k(SPL),1m(u-boot),384k(u-boot-env1),1152k(mtdoops),384k(u-boot-env2),5m(kernel),2m(fdt),-(ubi)"
 CONFIG_CMD_UBI=y
+# CONFIG_NET is not set
 CONFIG_LED_STATUS=y
 CONFIG_LED_STATUS0=y
 CONFIG_LED_STATUS_BIT=1
