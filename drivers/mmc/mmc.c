@@ -181,23 +181,18 @@ const char *mmc_mode_name(enum bus_mode mode)
 static uint mmc_mode2freq(struct mmc *mmc, enum bus_mode mode)
 {
 	static const int freqs[] = {
+	      [MMC_LEGACY]	= 25000000,
 	      [SD_LEGACY]	= 25000000,
 	      [MMC_HS]		= 26000000,
 	      [SD_HS]		= 50000000,
-#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
+	      [MMC_HS_52]	= 52000000,
+	      [MMC_DDR_52]	= 52000000,
 	      [UHS_SDR12]	= 25000000,
 	      [UHS_SDR25]	= 50000000,
 	      [UHS_SDR50]	= 100000000,
 	      [UHS_DDR50]	= 50000000,
-#ifdef MMC_SUPPORTS_TUNING
 	      [UHS_SDR104]	= 208000000,
-#endif
-#endif
-	      [MMC_HS_52]	= 52000000,
-	      [MMC_DDR_52]	= 52000000,
-#if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT)
 	      [MMC_HS_200]	= 200000000,
-#endif
 	};
 
 	if (mode == MMC_LEGACY)
@@ -1974,7 +1969,7 @@ static int mmc_startup_v4(struct mmc *mmc)
 		return -ENOMEM;
 	memcpy(mmc->ext_csd, ext_csd, MMC_MAX_BLOCK_LEN);
 
-	if (ext_csd[EXT_CSD_REV] > ARRAY_SIZE(mmc_versions))
+	if (ext_csd[EXT_CSD_REV] >= ARRAY_SIZE(mmc_versions))
 		return -EINVAL;
 
 	mmc->version = mmc_versions[ext_csd[EXT_CSD_REV]];
@@ -2658,12 +2653,7 @@ void mmc_set_preinit(struct mmc *mmc, int preinit)
 	mmc->preinit = preinit;
 }
 
-#if CONFIG_IS_ENABLED(DM_MMC) && defined(CONFIG_SPL_BUILD)
-static int mmc_probe(bd_t *bis)
-{
-	return 0;
-}
-#elif CONFIG_IS_ENABLED(DM_MMC)
+#if CONFIG_IS_ENABLED(DM_MMC)
 static int mmc_probe(bd_t *bis)
 {
 	int ret, i;

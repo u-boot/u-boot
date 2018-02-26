@@ -239,6 +239,15 @@ config MMC_OMAP_HS
 
 	  If unsure, say N.
 
+config MMC_OMAP_HS_ADMA
+	bool "ADMA support for OMAP HS MMC"
+	depends on MMC_OMAP_HS && !OMAP34XX
+	default y if !AM33XX
+	help
+	  This enables support for the ADMA2 controller (SDA3.00 Part A2 DMA
+	  controller). If supported by the hardware, selecting this option will
+	  increase performances.
+
 config MMC_OMAP36XX_PINS
 	bool "Enable MMC1 on OMAP36xx/37xx"
 	depends on OMAP34XX && MMC_OMAP_HS
