@@ -22,6 +22,11 @@
 #include <part.h>
 #include <vsprintf.h>
 
+enum cmd_part_info {
+	CMD_PART_INFO_START = 0,
+	CMD_PART_INFO_SIZE,
+};
+
 static int do_part_uuid(int argc, char * const argv[])
 {
 	int part;
@@ -108,7 +113,7 @@ static int do_part_list(int argc, char * const argv[])
 	return 0;
 }
 
-static int do_part_start(int argc, char * const argv[])
+static int do_part_info(int argc, char * const argv[], enum cmd_part_info param)
 {
 	struct blk_desc *desc;
 	disk_partition_t info;
@@ -138,7 +143,17 @@ static int do_part_start(int argc, char * const argv[])
 			return 1;
 	}
 
-	snprintf(buf, sizeof(buf), LBAF, info.start);
+	switch (param) {
+	case CMD_PART_INFO_START:
+		snprintf(buf, sizeof(buf), LBAF, info.start);
+		break;
+	case CMD_PART_INFO_SIZE:
+		snprintf(buf, sizeof(buf), LBAF, info.size);
+		break;
+	default:
+		printf("** Unknown cmd_part_info value: %d\n", param);
+		return 1;
+	}
 
 	if (argc > 3)
 		env_set(argv[3], buf);
@@ -148,44 +163,14 @@ static int do_part_start(int argc, char * const argv[])
 	return 0;
 }
 
+static int do_part_start(int argc, char * const argv[])
+{
+	return do_part_info(argc, argv, CMD_PART_INFO_START);
+}
+
 static int do_part_size(int argc, char * const argv[])
 {
-	struct blk_desc *desc;
-	disk_partition_t info;
-	char buf[512] = { 0 };
-	char *endp;
-	int part;
-	int err;
-	int ret;
-
-	if (argc < 3)
-		return CMD_RET_USAGE;
-	if (argc > 4)
-		return CMD_RET_USAGE;
-
-	ret = blk_get_device_by_str(argv[0], argv[1], &desc);
-	if (ret < 0)
-		return 1;
-
-	part = simple_strtoul(argv[2], &endp, 0);
-	if (*endp == '\0') {
-		err = part_get_info(desc, part, &info);
-		if (err)
-			return 1;
-	} else {
-		part = part_get_info_by_name(desc, argv[2], &info);
-		if (part == -1)
-			return 1;
-	}
-
-	snprintf(buf, sizeof(buf), LBAF, info.size);
-
-	if (argc > 3)
-		env_set(argv[3], buf);
-	else
-		printf("%s\n", buf);
-
-	return 0;
+	return do_part_info(argc, argv, CMD_PART_INFO_SIZE);
 }
 
 static int do_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
