@@ -113,6 +113,7 @@ static int do_part_start(int argc, char * const argv[])
 	struct blk_desc *desc;
 	disk_partition_t info;
 	char buf[512] = { 0 };
+	char *endp;
 	int part;
 	int err;
 	int ret;
@@ -122,15 +123,20 @@ static int do_part_start(int argc, char * const argv[])
 	if (argc > 4)
 		return CMD_RET_USAGE;
 
-	part = simple_strtoul(argv[2], NULL, 0);
-
 	ret = blk_get_device_by_str(argv[0], argv[1], &desc);
 	if (ret < 0)
 		return 1;
 
-	err = part_get_info(desc, part, &info);
-	if (err)
-		return 1;
+	part = simple_strtoul(argv[2], &endp, 0);
+	if (*endp == '\0') {
+		err = part_get_info(desc, part, &info);
+		if (err)
+			return 1;
+	} else {
+		part = part_get_info_by_name(desc, argv[2], &info);
+		if (part == -1)
+			return 1;
+	}
 
 	snprintf(buf, sizeof(buf), LBAF, info.start);
 
@@ -147,6 +153,7 @@ static int do_part_size(int argc, char * const argv[])
 	struct blk_desc *desc;
 	disk_partition_t info;
 	char buf[512] = { 0 };
+	char *endp;
 	int part;
 	int err;
 	int ret;
@@ -156,15 +163,20 @@ static int do_part_size(int argc, char * const argv[])
 	if (argc > 4)
 		return CMD_RET_USAGE;
 
-	part = simple_strtoul(argv[2], NULL, 0);
-
 	ret = blk_get_device_by_str(argv[0], argv[1], &desc);
 	if (ret < 0)
 		return 1;
 
-	err = part_get_info(desc, part, &info);
-	if (err)
-		return 1;
+	part = simple_strtoul(argv[2], &endp, 0);
+	if (*endp == '\0') {
+		err = part_get_info(desc, part, &info);
+		if (err)
+			return 1;
+	} else {
+		part = part_get_info_by_name(desc, argv[2], &info);
+		if (part == -1)
+			return 1;
+	}
 
 	snprintf(buf, sizeof(buf), LBAF, info.size);
 
@@ -207,6 +219,8 @@ U_BOOT_CMD(
 	"      flags can be -bootable (list only bootable partitions)\n"
 	"part start <interface> <dev> <part> <varname>\n"
 	"    - set environment variable to the start of the partition (in blocks)\n"
+	"      part can be either partition number or partition name\n"
 	"part size <interface> <dev> <part> <varname>\n"
-	"    - set environment variable to the size of the partition (in blocks)"
+	"    - set environment variable to the size of the partition (in blocks)\n"
+	"      part can be either partition number or partition name"
 );
