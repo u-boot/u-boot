@@ -862,6 +862,9 @@ static const struct udevice_id sh_pfc_pinctrl_ids[] = {
 	{
 		.compatible = "renesas,pfc-r8a7796",
 		.data = SH_PFC_R8A7796,
+	}, {
+		.compatible = "renesas,pfc-r8a77965",
+		.data = SH_PFC_R8A7796,
 	},
 #endif
 #ifdef CONFIG_PINCTRL_PFC_R8A77970
