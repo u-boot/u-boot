@@ -767,6 +767,16 @@ int board_late_init(void)
 	}
 #endif
 
+	if (!env_get("serial#")) {
+		char *board_serial = env_get("board_serial");
+		char *ethaddr = env_get("ethaddr");
+
+		if (!board_serial || !strncmp(board_serial, "unknown", 7))
+			env_set("serial#", ethaddr);
+		else
+			env_set("serial#", board_serial);
+	}
+
 	return 0;
 }
 #endif
