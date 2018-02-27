@@ -13,3 +13,15 @@
 &cpsw_emac1 {
 	phy-handle = <&dp83867_1>;
 };
+
+&mmc2_pins_default {
+	u-boot,dm-spl;
+};
+
+&mmc2_pins_hs200 {
+	u-boot,dm-spl;
+};
+
+&mmc2_iodelay_hs200_conf {
+	u-boot,dm-spl;
+};
