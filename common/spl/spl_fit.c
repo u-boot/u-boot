@@ -174,6 +174,9 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	uint8_t image_comp = -1, type = -1;
 	const void *data;
 	bool external_data = false;
+#ifdef CONFIG_SPL_FIT_SIGNATURE
+	int ret;
+#endif
 
 	if (IS_ENABLED(CONFIG_SPL_OS_BOOT) && IS_ENABLED(CONFIG_SPL_GZIP)) {
 		if (fit_image_get_comp(fit, node, &image_comp))
@@ -252,7 +255,16 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 		image_info->entry_point = fdt_getprop_u32(fit, node, "entry");
 	}
 
+#ifdef CONFIG_SPL_FIT_SIGNATURE
+	printf("## Checking hash(es) for Image %s ...\n",
+	       fit_get_name(fit, node, NULL));
+	ret = fit_image_verify_with_data(fit, node,
+					 (const void *)load_addr, length);
+	printf("\n");
+	return !ret;
+#else
 	return 0;
+#endif
 }
 
 static int spl_fit_append_fdt(struct spl_image_info *spl_image,

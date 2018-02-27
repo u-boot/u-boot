@@ -1013,6 +1013,8 @@ int fit_add_verification_data(const char *keydir, void *keydest, void *fit,
 			      const char *comment, int require_keys,
 			      const char *engine_id);
 
+int fit_image_verify_with_data(const void *fit, int image_noffset,
+			       const void *data, size_t size);
 int fit_image_verify(const void *fit, int noffset);
 int fit_config_verify(const void *fit, int conf_noffset);
 int fit_all_image_verify(const void *fit);
