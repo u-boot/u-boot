@@ -7,6 +7,8 @@
 #include <common.h>
 #include <asm/setup.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/omap_common.h>
+
 static void do_cancel_out(u32 *num, u32 *den, u32 factor)
 {
 	while (1) {
