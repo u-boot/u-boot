@@ -263,6 +263,8 @@ static int nand_change_column(u16 column)
 	return 0;
 }
 
+static const int ecc_bytes[] = {32, 46, 54, 60, 74, 88, 102, 110, 116};
+
 static int nand_read_page(const struct nfc_config *conf, u32 offs,
 			  void *dest, int len)
 {
@@ -350,7 +352,6 @@ static int nand_read_page(const struct nfc_config *conf, u32 offs,
 
 static int nand_max_ecc_strength(struct nfc_config *conf)
 {
-	static const int ecc_bytes[] = { 32, 46, 54, 60, 74, 88, 102, 110, 116 };
 	int max_oobsize, max_ecc_bytes;
 	int nsectors = conf->page_size / conf->ecc_size;
 	int i;
