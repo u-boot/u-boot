@@ -290,11 +290,6 @@ static void nand_clock_setup(void)
     defined CONFIG_MACH_SUN9I || defined CONFIG_MACH_SUN50I
 	setbits_le32(&ccm->ahb_reset0_cfg, (1 << AHB_GATE_OFFSET_NAND0));
 #endif
-#ifdef CONFIG_MACH_SUN9I
-	setbits_le32(&ccm->ahb_gate1, (1 << AHB_GATE_OFFSET_DMA));
-#else
-	setbits_le32(&ccm->ahb_gate0, (1 << AHB_GATE_OFFSET_DMA));
-#endif
 	setbits_le32(&ccm->nand0_clk_cfg, CCM_NAND_CTRL_ENABLE | AHB_DIV_1);
 }
 
