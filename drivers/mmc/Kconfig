@@ -487,6 +487,13 @@ config ZYNQ_SDHCI_MAX_FREQ
 	help
 	  Set the maximum frequency of the controller.
 
+config ZYNQ_SDHCI_MIN_FREQ
+	int "Set the minimum frequency of the controller"
+	depends on MMC_SDHCI_ZYNQ
+	default 0
+	help
+	  Set the minimum frequency of the controller.
+
 config MMC_SUNXI
 	bool "Allwinner sunxi SD/MMC Host Controller support"
 	depends on ARCH_SUNXI && !UART0_PORT_F

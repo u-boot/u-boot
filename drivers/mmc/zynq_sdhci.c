@@ -16,10 +16,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_ZYNQ_SDHCI_MIN_FREQ
-# define CONFIG_ZYNQ_SDHCI_MIN_FREQ	0
-#endif
-
 struct arasan_sdhci_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
