@@ -475,11 +475,12 @@ static int nand_detect_config(struct nfc_config *conf, u32 offs, void *dest)
 static int nand_read_buffer(struct nfc_config *conf, uint32_t offs,
 			    unsigned int size, void *dest)
 {
-	int first_seed, page, ret;
+	int first_seed = 0, page, ret;
 
 	size = ALIGN(size, conf->page_size);
 	page = offs / conf->page_size;
-	first_seed = page % conf->nseeds;
+	if (conf->randomize)
+		first_seed = page % conf->nseeds;
 
 	for (; size; size -= conf->page_size) {
 		if (nand_load_page(conf, offs))
