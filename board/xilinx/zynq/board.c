@@ -13,7 +13,6 @@
 #include <zynqpl.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/ps7_init_gpl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -72,22 +71,6 @@ int board_late_init(void)
 
 	return 0;
 }
-
-#ifdef CONFIG_DISPLAY_BOARDINFO
-int checkboard(void)
-{
-	u32 version = zynq_get_silicon_version();
-
-	version <<= 1;
-	if (version > (PCW_SILICON_VERSION_3 << 1))
-		version += 1;
-
-	puts("Board: Xilinx Zynq\n");
-	printf("Silicon: v%d.%d\n", version >> 1, version & 1);
-
-	return 0;
-}
-#endif
 
 int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 {
