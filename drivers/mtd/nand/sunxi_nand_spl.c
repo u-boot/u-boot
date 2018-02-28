@@ -155,6 +155,17 @@ static inline int check_value_negated(int offset, int unexpected_bits,
 	return check_value_inner(offset, unexpected_bits, timeout_us, 1);
 }
 
+static int nand_wait_cmd_fifo_empty(void)
+{
+	if (!check_value_negated(SUNXI_NFC_BASE + NFC_ST, NFC_ST_CMD_FIFO_STAT,
+				 DEFAULT_TIMEOUT_US)) {
+		printf("nand: timeout waiting for empty cmd FIFO\n");
+		return -ETIMEDOUT;
+	}
+
+	return 0;
+}
+
 static int nand_wait_int(void)
 {
 	if (!check_value(SUNXI_NFC_BASE + NFC_ST, NFC_ST_CMD_INT_FLAG,
@@ -183,6 +194,8 @@ void nand_init(void)
 	}
 
 	/* reset NAND */
+	nand_wait_cmd_fifo_empty();
+
 	writel(NFC_ST_CMD_INT_FLAG, SUNXI_NFC_BASE + NFC_ST);
 	writel(NFC_SEND_CMD1 | NFC_WAIT_FLAG | NAND_CMD_RESET,
 	       SUNXI_NFC_BASE + NFC_CMD);
@@ -193,6 +206,8 @@ void nand_init(void)
 static void nand_apply_config(const struct nfc_config *conf)
 {
 	u32 val;
+
+	nand_wait_cmd_fifo_empty();
 
 	val = readl(SUNXI_NFC_BASE + NFC_CTL);
 	val &= ~NFC_CTL_PAGE_SIZE_MASK;
@@ -205,6 +220,8 @@ static void nand_apply_config(const struct nfc_config *conf)
 static int nand_load_page(const struct nfc_config *conf, u32 offs)
 {
 	int page = offs / conf->page_size;
+
+	nand_wait_cmd_fifo_empty();
 
 	writel((NFC_CMD_RNDOUTSTART << NFC_RANDOM_READ_CMD1_OFFSET) |
 	       (NFC_CMD_RNDOUT << NFC_RANDOM_READ_CMD0_OFFSET) |
@@ -222,6 +239,8 @@ static int nand_load_page(const struct nfc_config *conf, u32 offs)
 
 static int nand_reset_column(void)
 {
+	nand_wait_cmd_fifo_empty();
+
 	writel((NFC_CMD_RNDOUTSTART << NFC_RANDOM_READ_CMD1_OFFSET) |
 	       (NFC_CMD_RNDOUT << NFC_RANDOM_READ_CMD0_OFFSET) |
 	       (NFC_CMD_RNDOUTSTART << NFC_READ_CMD_OFFSET),
