@@ -245,3 +245,15 @@ config USB_DWC2
 	  Hi-Speed (480 Mbps), Full-Speed (12 Mbps), and Low-Speed (1.5 Mbps)
 	  operation is compliant to the controller Supplement. If you want to
 	  enable this controller in host mode, say Y.
+
+if USB_DWC2
+config USB_DWC2_BUFFER_SIZE
+	int "Data buffer size in kB"
+	default 64
+	---help---
+	  By default 64 kB buffer is used but if amount of RAM avaialble on
+	  the target is not enough to accommodate allocation of buffer of
+	  that size it is possible to shrink it. Smaller sizes should be fine
+	  because larger transactions could be split in smaller ones.
+
+endif # USB_DWC2
