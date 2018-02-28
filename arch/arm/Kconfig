@@ -1293,6 +1293,7 @@ source "board/technologic/ts4600/Kconfig"
 source "board/vscom/baltos/Kconfig"
 source "board/woodburn/Kconfig"
 source "board/work-microwave/work_92105/Kconfig"
+source "board/xilinx/zynqmp/Kconfig"
 source "board/zipitz2/Kconfig"
 
 source "arch/arm/Kconfig.debug"

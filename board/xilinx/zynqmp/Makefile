@@ -28,6 +28,10 @@ endif
 
 obj-$(CONFIG_MMC_SDHCI_ZYNQ) += tap_delays.o
 
+ifndef CONFIG_SPL_BUILD
+obj-$(CONFIG_CMD_ZYNQMP) += cmds.o
+endif
+
 # Suppress "warning: function declaration isn't a prototype"
 CFLAGS_REMOVE_psu_init_gpl.o := -Wstrict-prototypes
 
