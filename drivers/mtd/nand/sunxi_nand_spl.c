@@ -155,6 +155,17 @@ static inline int check_value_negated(int offset, int unexpected_bits,
 	return check_value_inner(offset, unexpected_bits, timeout_us, 1);
 }
 
+static int nand_wait_int(void)
+{
+	if (!check_value(SUNXI_NFC_BASE + NFC_ST, NFC_ST_CMD_INT_FLAG,
+			 DEFAULT_TIMEOUT_US)) {
+		printf("nand: timeout waiting for interruption\n");
+		return -ETIMEDOUT;
+	}
+
+	return 0;
+}
+
 void nand_init(void)
 {
 	uint32_t val;
@@ -176,12 +187,7 @@ void nand_init(void)
 	writel(NFC_SEND_CMD1 | NFC_WAIT_FLAG | NAND_CMD_RESET,
 	       SUNXI_NFC_BASE + NFC_CMD);
 
-	if (!check_value(SUNXI_NFC_BASE + NFC_ST, NFC_ST_CMD_INT_FLAG,
-			 DEFAULT_TIMEOUT_US)) {
-		printf("Error timeout waiting for nand reset\n");
-		return;
-	}
-	writel(NFC_ST_CMD_INT_FLAG, SUNXI_NFC_BASE + NFC_ST);
+	nand_wait_int();
 }
 
 static void nand_apply_config(const struct nfc_config *conf)
@@ -211,13 +217,7 @@ static int nand_load_page(const struct nfc_config *conf, u32 offs)
 	       ((conf->addr_cycles - 1) << NFC_ADDR_NUM_OFFSET) | NFC_SEND_ADDR,
 	       SUNXI_NFC_BASE + NFC_CMD);
 
-	if (!check_value(SUNXI_NFC_BASE + NFC_ST, NFC_ST_CMD_INT_FLAG,
-			 DEFAULT_TIMEOUT_US)) {
-		printf("Error while initializing dma interrupt\n");
-		return -EIO;
-	}
-
-	return 0;
+	return nand_wait_int();
 }
 
 static int nand_reset_column(void)
@@ -231,13 +231,7 @@ static int nand_reset_column(void)
 	       (1 << NFC_ADDR_NUM_OFFSET) | NFC_SEND_ADDR | NFC_CMD_RNDOUT,
 	       SUNXI_NFC_BASE + NFC_CMD);
 
-	if (!check_value(SUNXI_NFC_BASE + NFC_ST, NFC_ST_CMD_INT_FLAG,
-			 DEFAULT_TIMEOUT_US)) {
-		printf("Error while initializing dma interrupt\n");
-		return -1;
-	}
-
-	return 0;
+	return nand_wait_int();
 }
 
 static int nand_read_page(const struct nfc_config *conf, u32 offs,
