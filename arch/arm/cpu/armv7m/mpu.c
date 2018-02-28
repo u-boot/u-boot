@@ -10,12 +10,13 @@
 #include <asm/armv7m_mpu.h>
 #include <asm/io.h>
 
-#define V7M_MPU_CTRL_ENABLE		(1 << 0)
+#define V7M_MPU_CTRL_ENABLE		BIT(0)
 #define V7M_MPU_CTRL_DISABLE		(0 << 0)
-#define V7M_MPU_CTRL_HFNMIENA		(1 << 1)
-#define VALID_REGION			(1 << 4)
+#define V7M_MPU_CTRL_HFNMIENA		BIT(1)
+#define V7M_MPU_CTRL_PRIVDEFENA		BIT(2)
+#define VALID_REGION			BIT(4)
 
-#define ENABLE_REGION			(1 << 0)
+#define ENABLE_REGION			BIT(0)
 
 #define AP_SHIFT			24
 #define XN_SHIFT			28
@@ -36,7 +37,7 @@ void disable_mpu(void)
 
 void enable_mpu(void)
 {
-	writel(V7M_MPU_CTRL_ENABLE | V7M_MPU_CTRL_HFNMIENA, &V7M_MPU->ctrl);
+	writel(V7M_MPU_CTRL_ENABLE | V7M_MPU_CTRL_PRIVDEFENA, &V7M_MPU->ctrl);
 
 	/* Make sure new mpu config is effective for next memory access */
 	dsb();

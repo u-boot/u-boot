@@ -15,35 +15,21 @@ int arch_cpu_init(void)
 
 	struct mpu_region_config stm32_region_config[] = {
 		/*
-		 * Make all 4GB cacheable & executable. We are overriding it
-		 * with next region for any requirement. e.g. below region1,
-		 * 2 etc.
-		 * In other words, the area not coming in following
-		 * regions configuration is the one configured here in region_0
-		 * (cacheable & executable).
+		 * Make SDRAM area cacheable & executable.
 		 */
+#if defined(CONFIG_STM32F4)
 		{ 0x00000000, REGION_0, XN_DIS, PRIV_RW_USR_RW,
-		O_I_WB_RD_WR_ALLOC, REGION_4GB },
+		O_I_WB_RD_WR_ALLOC, REGION_16MB },
+#endif
 
-		/* armv7m code area */
-		{ 0x00000000, REGION_1, XN_DIS, PRIV_RW_USR_RW,
-		STRONG_ORDER, REGION_512MB },
+#if defined(CONFIG_STM32F7)
+		{ 0xC0000000, REGION_0, XN_DIS, PRIV_RW_USR_RW,
+		O_I_WB_RD_WR_ALLOC, REGION_16MB },
+#endif
 
-		/* Device area : Not executable */
-		{ 0x40000000, REGION_2, XN_EN, PRIV_RW_USR_RW,
-		DEVICE_NON_SHARED, REGION_512MB },
-
-		/*
-		 * Armv7m fixed configuration: strongly ordered & not
-		 * executable, not cacheable
-		 */
-		{ 0xE0000000, REGION_3, XN_EN, PRIV_RW_USR_RW,
-		STRONG_ORDER, REGION_512MB },
-
-#if !defined(CONFIG_STM32H7)
-		/* Device area : Not executable */
-		{ 0xA0000000, REGION_4, XN_EN, PRIV_RW_USR_RW,
-		DEVICE_NON_SHARED, REGION_512MB },
+#if defined(CONFIG_STM32H7)
+		{ 0xD0000000, REGION_0, XN_DIS, PRIV_RW_USR_RW,
+		O_I_WB_RD_WR_ALLOC, REGION_32MB },
 #endif
 	};
 
