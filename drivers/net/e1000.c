@@ -1181,7 +1181,7 @@ e1000_put_hw_eeprom_semaphore(struct e1000_hw *hw)
 		return;
 
 	swsm = E1000_READ_REG(hw, SWSM);
-	if (hw->mac_type == e1000_80003es2lan) {
+	if (hw->mac_type == e1000_80003es2lan || hw->mac_type == e1000_igb) {
 		/* Release both semaphores. */
 		swsm &= ~(E1000_SWSM_SMBI | E1000_SWSM_SWESMBI);
 	} else
