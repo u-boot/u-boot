@@ -73,11 +73,6 @@
 #define CONFIG_MTD_DEVICE
 #endif
 
-/* MMC */
-#if defined(CONFIG_MMC_SDHCI_ZYNQ)
-# define CONFIG_ZYNQ_SDHCI_MAX_FREQ	52000000
-#endif
-
 #ifdef CONFIG_USB_EHCI_ZYNQ
 # define CONFIG_EHCI_IS_TDI
 

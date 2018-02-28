@@ -96,6 +96,9 @@ config SPL_ZYNQMP_ALT_BOOTMODE_ENABLED
 	  Overwrite bootmode selected via boot mode pins to tell SPL what should
 	  be the next boot device.
 
+config ZYNQ_SDHCI_MAX_FREQ
+	default 200000000
+
 config SPL_ZYNQMP_ALT_BOOTMODE
 	hex
 	default 0x0 if JTAG_MODE

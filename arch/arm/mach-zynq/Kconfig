@@ -63,4 +63,7 @@ config BOOT_INIT_FILE
 	  Add register writes to boot.bin format (max 256 pairs).
 	  Expect a table of register-value pairs, e.g. "0x12345678 0x4321"
 
+config ZYNQ_SDHCI_MAX_FREQ
+	default 52000000
+
 endif
