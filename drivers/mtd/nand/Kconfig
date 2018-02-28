@@ -168,6 +168,28 @@ config NAND_ZYNQ_USE_BOOTLOADER1_TIMINGS
 
 comment "Generic NAND options"
 
+config SYS_NAND_BLOCK_SIZE
+	hex "NAND chip eraseblock size"
+	depends on ARCH_SUNXI
+	help
+	  Number of data bytes in one eraseblock for the NAND chip on the
+	  board. This is the multiple of NAND_PAGE_SIZE and the number of
+	  pages.
+
+config SYS_NAND_PAGE_SIZE
+	hex "NAND chip page size"
+	depends on ARCH_SUNXI
+	help
+	  Number of data bytes in one page for the NAND chip on the
+	  board, not including the OOB area.
+
+config SYS_NAND_OOBSIZE
+	hex "NAND chip OOB size"
+	depends on ARCH_SUNXI
+	help
+	  Number of bytes in the Out-Of-Band area for the NAND chip on
+	  the board.
+
 # Enhance depends when converting drivers to Kconfig which use this config
 # option (mxc_nand, ndfc, omap_gpmc).
 config SYS_NAND_BUSWIDTH_16BIT
