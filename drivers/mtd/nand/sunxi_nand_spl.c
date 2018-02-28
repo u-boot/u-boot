@@ -243,15 +243,24 @@ static int nand_load_page(const struct nfc_config *conf, u32 offs)
 
 static int nand_reset_column(void)
 {
+	int ret;
+
 	writel((NFC_CMD_RNDOUTSTART << NFC_RANDOM_READ_CMD1_OFFSET) |
 	       (NFC_CMD_RNDOUT << NFC_RANDOM_READ_CMD0_OFFSET) |
 	       (NFC_CMD_RNDOUTSTART << NFC_READ_CMD_OFFSET),
 	       SUNXI_NFC_BASE + NFC_RCMD_SET);
 	writel(0, SUNXI_NFC_BASE + NFC_ADDR_LOW);
 
-	return nand_exec_cmd(NFC_SEND_CMD1 | NFC_SEND_CMD2 | NFC_RAW_CMD |
-			     (1 << NFC_ADDR_NUM_OFFSET) | NFC_SEND_ADDR |
-			     NFC_CMD_RNDOUT);
+	ret = nand_exec_cmd(NFC_SEND_CMD1 | NFC_SEND_CMD2 | NFC_RAW_CMD |
+			    (1 << NFC_ADDR_NUM_OFFSET) | NFC_SEND_ADDR |
+			    NFC_CMD_RNDOUT);
+	if (ret)
+		return ret;
+
+	/* Ensure tCCS has passed before reading data */
+	udelay(1);
+
+	return 0;
 }
 
 static int nand_read_page(const struct nfc_config *conf, u32 offs,
