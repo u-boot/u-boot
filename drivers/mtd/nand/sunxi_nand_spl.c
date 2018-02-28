@@ -241,7 +241,7 @@ static int nand_load_page(const struct nfc_config *conf, u32 offs)
 			     ((conf->addr_cycles - 1) << NFC_ADDR_NUM_OFFSET));
 }
 
-static int nand_reset_column(void)
+static int nand_change_column(u16 column)
 {
 	int ret;
 
@@ -249,7 +249,7 @@ static int nand_reset_column(void)
 	       (NFC_CMD_RNDOUT << NFC_RANDOM_READ_CMD0_OFFSET) |
 	       (NFC_CMD_RNDOUTSTART << NFC_READ_CMD_OFFSET),
 	       SUNXI_NFC_BASE + NFC_RCMD_SET);
-	writel(0, SUNXI_NFC_BASE + NFC_ADDR_LOW);
+	writel(column, SUNXI_NFC_BASE + NFC_ADDR_LOW);
 
 	ret = nand_exec_cmd(NFC_SEND_CMD1 | NFC_SEND_CMD2 | NFC_RAW_CMD |
 			    (1 << NFC_ADDR_NUM_OFFSET) | NFC_SEND_ADDR |
@@ -416,7 +416,7 @@ static int nand_detect_ecc_config(struct nfc_config *conf, u32 offs,
 		     conf->ecc_strength >= 0;
 		     conf->ecc_strength--) {
 			conf->randomize = false;
-			if (nand_reset_column())
+			if (nand_change_column(0))
 				return -EIO;
 
 			/*
@@ -436,7 +436,7 @@ static int nand_detect_ecc_config(struct nfc_config *conf, u32 offs,
 			conf->randomize = true;
 			conf->nseeds = ARRAY_SIZE(random_seed);
 			do {
-				if (nand_reset_column())
+				if (nand_change_column(0))
 					return -EIO;
 
 				if (!nand_read_page(conf, offs, dest,
@@ -528,7 +528,7 @@ static int nand_read_buffer(struct nfc_config *conf, uint32_t offs,
 			/* Try to adjust ->nseeds and read the page again... */
 			conf->nseeds = cur_seed;
 
-			if (nand_reset_column())
+			if (nand_change_column(0))
 				return -EIO;
 
 			/* ... it still fails => it's a real corruption. */
