@@ -781,7 +781,11 @@ ALL-$(CONFIG_SPL) += spl/u-boot-spl.bin
 ifeq ($(CONFIG_MX6)$(CONFIG_SECURE_BOOT), yy)
 ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot-ivt.img
 else
+ifeq ($(CONFIG_MX7)$(CONFIG_SECURE_BOOT), yy)
+ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot-ivt.img
+else
 ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot.img
+endif
 endif
 ALL-$(CONFIG_TPL) += tpl/u-boot-tpl.bin
 ALL-$(CONFIG_OF_SEPARATE) += u-boot.dtb
