@@ -885,12 +885,11 @@
 		};
 
 		serdes: zynqmp_phy@fd400000 {
-			compatible = "xlnx,zynqmp-psgtr";
+			compatible = "xlnx,zynqmp-psgtr-v1.1";
 			status = "disabled";
 			reg = <0x0 0xfd400000 0x0 0x40000>,
-			      <0x0 0xfd3d0000 0x0 0x1000>,
-			      <0x0 0xff5e0000 0x0 0x1000>;
-			reg-names = "serdes", "siou", "lpd";
+			      <0x0 0xfd3d0000 0x0 0x1000>;
+			reg-names = "serdes", "siou";
 			nvmem-cells = <&soc_revision>;
 			nvmem-cell-names = "soc_revision";
 			resets = <&rst 16>, <&rst 59>, <&rst 60>,
