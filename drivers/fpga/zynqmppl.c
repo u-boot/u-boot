@@ -224,88 +224,40 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 static int zynqmp_loads(xilinx_desc *desc, const void *buf, size_t bsize,
 		       fpga_secure_info *fpga_sec_info)
 {
-	u32 keyaddr, keysize, ivaddr, ivsize;
-	char *key_str, *size_str, *dup_str;
-	u32 *tmpbuf = (u32 *)buf;
-	ulong bitsize = bsize;
-	ulong key_iv_size;
 	int ret;
 	u32 buf_lo, buf_hi;
 	u32 ret_payload[PAYLOAD_ARG_CNT];
-	u8 flag;
+	u8 flag = 0;
 
-	size_str = strchr(fpga_sec_info->keyaddr_size, ':');
-	if (size_str) {
-		dup_str = strdup(fpga_sec_info->keyaddr_size);
-		dup_str[size_str - fpga_sec_info->keyaddr_size] = 0;
-		key_str = dup_str;
-		size_str++;
-	} else {
-		debug("No Key Size mentioned\n");
-		return FPGA_FAIL;
+	flush_dcache_range((ulong)buf, (ulong)buf + bsize);
+
+	if (!fpga_sec_info->encflag)
+		flag |= BIT(ZYNQMP_FPGA_BIT_ENC_DEV_KEY);
+
+	if (fpga_sec_info->userkey_addr &&
+	    fpga_sec_info->encflag == ZYNQMP_FPGA_ENC_USR_KEY) {
+		flush_dcache_range((ulong)fpga_sec_info->userkey_addr,
+				   (ulong)fpga_sec_info->userkey_addr +
+				   KEY_PTR_LEN);
+		flag |= BIT(ZYNQMP_FPGA_BIT_ENC_USR_KEY);
 	}
 
-	keyaddr = simple_strtoul(key_str, NULL, 16);
-	keysize = simple_strtoul(size_str, NULL, 16);
+	if (!fpga_sec_info->authflag)
+		flag |= BIT(ZYNQMP_FPGA_BIT_AUTH_OCM);
 
-	size_str = strchr(fpga_sec_info->ivaddr_size, ':');
-	if (size_str) {
-		dup_str = strdup(fpga_sec_info->ivaddr_size);
-		dup_str[size_str - fpga_sec_info->ivaddr_size] = 0;
-		key_str = dup_str;
-		size_str++;
-	} else {
-		debug("No IV Size mentioned\n");
-		return FPGA_FAIL;
-	}
-
-	ivaddr = simple_strtoul(key_str, NULL, 16);
-	ivsize = simple_strtoul(size_str, NULL, 16);
-
-	debug("Keyaddr:0x%x, keysize:P0x%x\n", keyaddr, keysize);
-	debug("ivaddr:0x%x, ivsize:P0x%x\n", ivaddr, ivsize);
-
-	key_iv_size = keysize + ivsize;
-
-	if (bsize % 4)
-		bsize = bsize / 4 + 1;
-	else
-		bsize = bsize / 4;
-
-	tmpbuf += bsize;
-
-	memcpy(tmpbuf, (const void *)(uintptr_t)keyaddr, keysize);
-
-	if (keysize % 4)
-		keysize = keysize / 4 + 1;
-	else
-		keysize = keysize / 4;
-
-	tmpbuf += keysize;
-
-	memcpy(tmpbuf, (const void *)(uintptr_t)ivaddr, ivsize);
-
-	debug("%s called!\n", __func__);
-	flush_dcache_range((ulong)buf, (ulong)buf + bitsize + key_iv_size);
+	if (fpga_sec_info->authflag == ZYNQMP_FPGA_AUTH_DDR)
+		flag |= BIT(ZYNQMP_FPGA_BIT_AUTH_DDR);
 
 	buf_lo = (u32)(ulong)buf;
 	buf_hi = upper_32_bits((ulong)buf);
 
-	switch (fpga_sec_info->sec_img_type) {
-	case 0:
-		flag = ZYNQMP_FPGA_FLAG_ENCRYPTED;
-		break;
-	case 1:
-		flag = ZYNQMP_FPGA_FLAG_AUTHENTICATED;
-		break;
-	default:
-		return FPGA_FAIL;
-	}
-
-	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo, buf_hi, bsize,
+	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo, buf_hi,
+			 (u32)(uintptr_t)fpga_sec_info->userkey_addr,
 			 flag, ret_payload);
 	if (ret)
-		debug("PL FPGA LOAD fail\n");
+		printf("PL FPGA LOAD fail\n");
+	else
+		printf("Bitstream successfully loaded\n");
 
 	return ret;
 }
