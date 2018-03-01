@@ -357,7 +357,7 @@ static int get_config (char *);
 static char *skip_chars(char *s)
 {
 	for (; *s != '\0'; s++) {
-		if (isblank(*s))
+		if (isblank(*s) || *s == '=')
 			return s;
 	}
 	return NULL;
