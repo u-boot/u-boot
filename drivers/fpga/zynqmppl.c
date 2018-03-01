@@ -209,13 +209,9 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	debug("%s called!\n", __func__);
 	flush_dcache_range(bin_buf, bin_buf + bsize);
 
-	if (bsize % 4)
-		bsize = bsize / 4 + 1;
-	else
-		bsize = bsize / 4;
-
 	buf_lo = (u32)bin_buf;
 	buf_hi = upper_32_bits(bin_buf);
+	bstype |= BIT(ZYNQMP_FPGA_BIT_NS);
 	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo, buf_hi, bsize,
 			 bstype, ret_payload);
 	if (ret)
