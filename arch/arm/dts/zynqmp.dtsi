@@ -802,6 +802,24 @@
 			interrupts = <0 10 4>;
 		};
 
+		perf_monitor_ocm: perf-monitor@ffa00000 {
+			compatible = "xlnx,axi-perf-monitor";
+			reg = <0x0 0xffa00000 0x0 0x10000>;
+			interrupts = <0 25 4>;
+			interrupt-parent = <&gic>;
+			xlnx,enable-profile = <0>;
+			xlnx,enable-trace = <0>;
+			xlnx,num-monitor-slots = <4>;
+			xlnx,enable-event-count = <1>;
+			xlnx,enable-event-log = <1>;
+			xlnx,have-sampled-metric-cnt = <1>;
+			xlnx,num-of-counters = <8>;
+			xlnx,metric-count-width = <32>;
+			xlnx,metrics-sample-count-width = <32>;
+			xlnx,global-count-width = <32>;
+			xlnx,metric-count-scale = <1>;
+		};
+
 		pcie: pcie@fd0e0000 {
 			compatible = "xlnx,nwl-pcie-2.11";
 			status = "disabled";

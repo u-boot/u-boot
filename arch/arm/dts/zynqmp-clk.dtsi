@@ -178,6 +178,10 @@
 	clocks = <&clk100>;
 };
 
+&perf_monitor_ocm {
+	clocks = <&clk100>;
+};
+
 &qspi {
 	clocks = <&clk300 &clk300>;
 };

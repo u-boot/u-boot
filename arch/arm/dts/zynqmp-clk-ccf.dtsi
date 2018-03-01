@@ -200,6 +200,10 @@
 	clocks = <&clk 62>;
 };
 
+&perf_monitor_ocm {
+	clocks = <&clk 31>;
+};
+
 &pcie {
 	clocks = <&clk 23>;
 };
