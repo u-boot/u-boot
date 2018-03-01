@@ -246,10 +246,12 @@ static int pca953x_probe(struct udevice *dev)
 {
 	struct pca953x_info *info = dev_get_platdata(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-	char name[32], *str;
+	char name[32], label[8], *str;
 	int addr;
 	ulong driver_data;
 	int ret;
+	int size;
+	const u8 *tmp;
 
 	addr = dev_read_addr(dev);
 	if (addr == 0)
@@ -285,7 +287,16 @@ static int pca953x_probe(struct udevice *dev)
 		return ret;
 	}
 
-	snprintf(name, sizeof(name), "gpio@%x_", info->addr);
+	tmp = dev_read_prop(dev, "label", &size);
+
+	if (tmp) {
+		memcpy(label, tmp, sizeof(label) - 1);
+		label[sizeof(label) - 1] = '\0';
+		snprintf(name, sizeof(name), "%s@%x_", label, info->addr);
+	} else {
+		snprintf(name, sizeof(name), "gpio@%x_", info->addr);
+	}
+
 	str = strdup(name);
 	if (!str)
 		return -ENOMEM;
