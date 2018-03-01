@@ -520,7 +520,16 @@
 		};
 
 		avb: ethernet@e6800000 {
-			/* placeholder */
+			compatible = "renesas,etheravb-r8a77965",
+				     "renesas,etheravb-rcar-gen3";
+			reg = <0 0xe6800000 0 0x800>, <0 0xe6a00000 0 0x10000>;
+			clocks = <&cpg CPG_MOD 812>;
+			power-domains = <&sysc 32>;
+			resets = <&cpg 812>;
+			phy-mode = "rgmii-txid";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
 		};
 
 		csi20: csi2@fea80000 {
