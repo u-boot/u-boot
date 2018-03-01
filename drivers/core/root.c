@@ -333,7 +333,8 @@ static int dm_scan_fdt_node(struct udevice *parent, const void *blob,
 
 int dm_extended_scan_fdt(const void *blob, bool pre_reloc_only)
 {
-	int node, ret;
+	int ret;
+	ofnode node;
 
 	ret = dm_scan_fdt(gd->fdt_blob, pre_reloc_only);
 	if (ret) {
@@ -342,13 +343,18 @@ int dm_extended_scan_fdt(const void *blob, bool pre_reloc_only)
 	}
 
 	/* bind fixed-clock */
-	node = ofnode_to_offset(ofnode_path("/clocks"));
+	node = ofnode_path("/clocks");
 	/* if no DT "clocks" node, no need to go further */
-	if (node < 0)
+	if (!ofnode_valid(node))
 		return ret;
 
-	ret = dm_scan_fdt_node(gd->dm_root, gd->fdt_blob, node,
-			       pre_reloc_only);
+#if CONFIG_IS_ENABLED(OF_LIVE)
+	if (of_live_active())
+		ret = dm_scan_fdt_live(gd->dm_root, node.np, pre_reloc_only);
+	else
+#endif
+		ret = dm_scan_fdt_node(gd->dm_root, gd->fdt_blob, node.of_offset,
+				       pre_reloc_only);
 	if (ret)
 		debug("dm_scan_fdt_node() failed: %d\n", ret);
 
