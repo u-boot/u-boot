@@ -56,9 +56,6 @@
 
 #if defined(CONFIG_MMC_SDHCI_ZYNQ)
 # define CONFIG_SUPPORT_EMMC_BOOT
-# ifndef CONFIG_ZYNQ_SDHCI_MAX_FREQ
-#  define CONFIG_ZYNQ_SDHCI_MAX_FREQ	200000000
-# endif
 #endif
 
 #ifdef CONFIG_NAND_ARASAN
@@ -126,8 +123,6 @@
 /* I2C */
 #if defined(CONFIG_SYS_I2C_ZYNQ)
 # define CONFIG_SYS_I2C
-# define CONFIG_SYS_I2C_ZYNQ_SPEED		100000
-# define CONFIG_SYS_I2C_ZYNQ_SLAVE		0
 #endif
 
 /* EEPROM */

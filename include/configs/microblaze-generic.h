@@ -41,7 +41,6 @@
 
 /* gpio */
 #ifdef XILINX_GPIO_BASEADDR
-# define CONFIG_XILINX_GPIO
 # define CONFIG_SYS_GPIO_0_ADDR		XILINX_GPIO_BASEADDR
 #endif
 

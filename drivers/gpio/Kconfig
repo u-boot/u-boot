@@ -183,6 +183,11 @@ config SANDBOX_GPIO_COUNT
 	  of 'anonymous' GPIOs that do not belong to any device or bank.
 	  Select a suitable value depending on your needs.
 
+config XILINX_GPIO
+	bool "Xilinx GPIO driver"
+	help
+	  This config enable the Xilinx GPIO driver for Microblaze.
+
 config CMD_TCA642X
 	bool "tca642x - Command to access tca642x state"
 	help
