@@ -240,7 +240,7 @@ endif # !LOGO_BMP
 #
 HOST_EXTRACFLAGS += -include $(srctree)/include/libfdt_env.h \
 		$(patsubst -I%,-idirafter%, $(filter -I%, $(UBOOTINCLUDE))) \
-		-I$(srctree)/lib/libfdt \
+		-I$(srctree)/scripts/dtc/libfdt \
 		-I$(srctree)/tools \
 		-DUSE_HOSTCC \
 		-D__KERNEL_STRICT_NAMES \
