@@ -11,6 +11,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <panel.h>
+#include <reset.h>
 #include <video.h>
 #include <asm/io.h>
 #include <asm/arch/gpio.h>
@@ -302,6 +303,7 @@ static int stm32_ltdc_probe(struct udevice *dev)
 	struct stm32_ltdc_priv *priv = dev_get_priv(dev);
 	struct udevice *panel;
 	struct clk pclk, pxclk;
+	struct reset_ctl rst;
 	int ret;
 
 	priv->regs = (void *)dev_read_addr(dev);
@@ -315,6 +317,15 @@ static int stm32_ltdc_probe(struct udevice *dev)
 		debug("%s: panel device error %d\n", __func__, ret);
 		return ret;
 	}
+
+	ret = reset_get_by_index(dev, 0, &rst);
+	if (ret) {
+		debug("%s: missing ltdc hardware reset\n", __func__);
+		return -ENODEV;
+	}
+
+	/* Reset */
+	reset_deassert(&rst);
 
 	ret = panel_enable_backlight(panel);
 	if (ret) {
