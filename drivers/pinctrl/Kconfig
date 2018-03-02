@@ -47,9 +47,9 @@ config PINMUX
 	default y
 	help
 	  This option enables pin multiplexing through the generic pinctrl
-	  framework. Most SoCs have their own own multiplexing arrangement
-	  where a single pin can be used for several functions. An SoC pinctrl
-	  driver allows the required function to be selected for each pin.
+	  framework. Most SoCs have their own multiplexing arrangement where
+	  a single pin can be used for several functions. An SoC pinctrl driver
+	  allows the required function to be selected for each pin.
 	  The driver is typically controlled by the device tree.
 
 config PINCONF
