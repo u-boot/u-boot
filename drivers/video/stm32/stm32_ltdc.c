@@ -219,6 +219,8 @@ static void stm32_ltdc_set_mode(struct stm32_ltdc_priv *priv)
 	val = (total_w << 16) | total_h;
 	clrsetbits_le32(regs + LTDC_TWCR, TWCR_TOTALH | TWCR_TOTALW, val);
 
+	setbits_le32(regs + LTDC_LIPCR, acc_act_h + 1);
+
 	/* Signal polarities */
 	val = 0;
 	debug("%s: timing->flags 0x%08x\n", __func__, timing->flags);
