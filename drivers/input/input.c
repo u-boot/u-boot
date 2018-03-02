@@ -83,6 +83,9 @@ static unsigned char kbd_ctrl_xlate[] = {
 	'\r', 0xff, '/',  '*',
 };
 
+/*
+ * German keymap. Special letters are mapped according to code page 437.
+ */
 static const uchar kbd_plain_xlate_german[] = {
 	0xff, 0x1b,  '1',  '2',  '3',  '4',  '5',  '6', /* scan 00-07 */
 	 '7',  '8',  '9',  '0', 0xe1, '\'', 0x08, '\t', /* scan 08-0F */
@@ -124,7 +127,7 @@ static unsigned char kbd_shift_xlate_german[] = {
 };
 
 static unsigned char kbd_right_alt_xlate_german[] = {
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 00-07 */
+	0xff, 0xff, 0xff, 0xfd, 0xff, 0xff, 0xff, 0xff, /* scan 00-07 */
 	 '{',  '[',  ']',  '}', '\\', 0xff, 0xff, 0xff, /* scan 08-0F */
 	 '@', 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, /* scan 10-17 */
 	0xff, 0xff, 0xff,  '~', 0xff, 0xff, 0xff, 0xff, /* scan 18-1F */
