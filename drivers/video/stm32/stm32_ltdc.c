@@ -301,9 +301,9 @@ static int stm32_ltdc_probe(struct udevice *dev)
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct stm32_ltdc_priv *priv = dev_get_priv(dev);
 	struct udevice *panel;
-	struct clk pclk, pxclk;
+	struct clk pclk;
 	struct reset_ctl rst;
-	int ret;
+	int rate, ret;
 
 	priv->regs = (void *)dev_read_addr(dev);
 	if ((fdt_addr_t)priv->regs == FDT_ADDR_T_NONE) {
@@ -311,9 +311,16 @@ static int stm32_ltdc_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	ret = uclass_first_device(UCLASS_PANEL, &panel);
+	ret = clk_get_by_index(dev, 0, &pclk);
 	if (ret) {
-		debug("%s: panel device error %d\n", __func__, ret);
+		debug("%s: peripheral clock get error %d\n", __func__, ret);
+		return ret;
+	}
+
+	ret = clk_enable(&pclk);
+	if (ret) {
+		debug("%s: peripheral clock enable error %d\n",
+		      __func__, ret);
 		return ret;
 	}
 
@@ -326,6 +333,12 @@ static int stm32_ltdc_probe(struct udevice *dev)
 	/* Reset */
 	reset_deassert(&rst);
 
+	ret = uclass_first_device(UCLASS_PANEL, &panel);
+	if (ret) {
+		debug("%s: panel device error %d\n", __func__, ret);
+		return ret;
+	}
+
 	ret = panel_enable_backlight(panel);
 	if (ret) {
 		debug("%s: panel %s enable backlight error %d\n",
@@ -333,31 +346,24 @@ static int stm32_ltdc_probe(struct udevice *dev)
 		return ret;
 	}
 
-	ret = fdtdec_decode_display_timing(gd->fdt_blob, dev_of_offset(dev),
-					   0, &priv->timing);
+	ret = fdtdec_decode_display_timing(gd->fdt_blob,
+					   dev_of_offset(dev), 0,
+					   &priv->timing);
 	if (ret) {
-		debug("%s: decode display timing error %d\n", __func__, ret);
+		debug("%s: decode display timing error %d\n",
+		      __func__, ret);
 		return -EINVAL;
 	}
 
-	ret = clk_get_by_name(dev, "pclk", &pclk);
-	if (ret) {
-		debug("%s: peripheral clock get error %d\n", __func__, ret);
-		return ret;
+	rate = clk_set_rate(&pclk, priv->timing.pixelclock.typ);
+	if (rate < 0) {
+		debug("%s: fail to set pixel clock %d hz %d hz\n",
+		      __func__, priv->timing.pixelclock.typ, rate);
+		return rate;
 	}
 
-	ret = clk_enable(&pclk);
-	if (ret) {
-		debug("%s: peripheral clock enable error %d\n", __func__, ret);
-		return ret;
-	}
-
-	/* Verify pixel clock value if any & inform user accordingly */
-	ret = clk_get_by_name(dev, "pxclk", &pxclk);
-	if (!ret) {
-		if (clk_get_rate(&pxclk) != priv->timing.pixelclock.typ)
-			printf("Warning: please adjust ltdc pixel clock\n");
-	}
+	debug("%s: Set pixel clock req %d hz get %d hz\n", __func__,
+	      priv->timing.pixelclock.typ, rate);
 
 	/* TODO Below parameters are hard-coded for the moment... */
 	priv->l2bpp = VIDEO_BPP16;
