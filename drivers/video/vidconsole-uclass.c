@@ -13,7 +13,7 @@
 #include <dm.h>
 #include <video.h>
 #include <video_console.h>
-#include <video_font.h>		/* Get font data, width and height */
+#include <video_font.h>		/* Bitmap font for code page 437 */
 
 /*
  * Structure to describe a console color
