@@ -1,8 +1,7 @@
 /*
- * Copyright (C) STMicroelectronics SA 2017
- *
- * Authors: Philippe Cornu <philippe.cornu@st.com>
- *          Yannick Fertre <yannick.fertre@st.com>
+ * Copyright (C) 2017-2018 STMicroelectronics - All Rights Reserved
+ * Author(s): Philippe Cornu <philippe.cornu@st.com> for STMicroelectronics.
+ *	      Yannick Fertre <yannick.fertre@st.com> for STMicroelectronics.
  *
  * SPDX-License-Identifier: GPL-2.0+
  */
@@ -408,10 +407,10 @@ static const struct udevice_id stm32_ltdc_ids[] = {
 };
 
 U_BOOT_DRIVER(stm32_ltdc) = {
-	.name	= "stm32_ltdc",
-	.id	= UCLASS_VIDEO,
-	.of_match = stm32_ltdc_ids,
-	.probe	= stm32_ltdc_probe,
-	.bind	= stm32_ltdc_bind,
+	.name			= "stm32_display",
+	.id			= UCLASS_VIDEO,
+	.of_match		= stm32_ltdc_ids,
+	.probe			= stm32_ltdc_probe,
+	.bind			= stm32_ltdc_bind,
 	.priv_auto_alloc_size	= sizeof(struct stm32_ltdc_priv),
 };
