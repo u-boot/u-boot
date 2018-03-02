@@ -31,6 +31,7 @@ static const struct {
 	u32 id;
 	u32 ver;
 	char *name;
+	bool evexists;
 } zynqmp_devices[] = {
 	{
 		.id = 0x10,
@@ -53,11 +54,13 @@ static const struct {
 	{
 		.id = 0x20,
 		.name = "5ev",
+		.evexists = 1,
 	},
 	{
 		.id = 0x20,
 		.ver = 0x100,
 		.name = "5eg",
+		.evexists = 1,
 	},
 	{
 		.id = 0x20,
@@ -67,11 +70,13 @@ static const struct {
 	{
 		.id = 0x21,
 		.name = "4ev",
+		.evexists = 1,
 	},
 	{
 		.id = 0x21,
 		.ver = 0x100,
 		.name = "4eg",
+		.evexists = 1,
 	},
 	{
 		.id = 0x21,
@@ -81,11 +86,13 @@ static const struct {
 	{
 		.id = 0x30,
 		.name = "7ev",
+		.evexists = 1,
 	},
 	{
 		.id = 0x30,
 		.ver = 0x100,
 		.name = "7eg",
+		.evexists = 1,
 	},
 	{
 		.id = 0x30,
@@ -219,20 +226,48 @@ int chip_id(unsigned char id)
 	return val;
 }
 
+#define ZYNQMP_VERSION_SIZE		9
+#define ZYNQMP_PL_STATUS_BIT		9
+#define ZYNQMP_PL_STATUS_MASK		BIT(ZYNQMP_PL_STATUS_BIT)
+#define ZYNQMP_CSU_VERSION_MASK		~(ZYNQMP_PL_STATUS_MASK)
+
 #if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
 	!defined(CONFIG_SPL_BUILD)
 static char *zynqmp_get_silicon_idcode_name(void)
 {
 	u32 i, id, ver;
+	char *buf;
+	static char name[ZYNQMP_VERSION_SIZE];
 
 	id = chip_id(IDCODE);
 	ver = chip_id(IDCODE2);
 
 	for (i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
-		if (zynqmp_devices[i].id == id && zynqmp_devices[i].ver == ver)
-			return zynqmp_devices[i].name;
+		if ((zynqmp_devices[i].id == id) &&
+		    (zynqmp_devices[i].ver == (ver &
+		    ZYNQMP_CSU_VERSION_MASK))) {
+			strncat(name, "zu", 2);
+			strncat(name, zynqmp_devices[i].name,
+				ZYNQMP_VERSION_SIZE - 3);
+			break;
+		}
 	}
-	return "unknown";
+
+	if (i >= ARRAY_SIZE(zynqmp_devices))
+		return "unknown";
+
+	if (!zynqmp_devices[i].evexists)
+		return name;
+
+	if (ver & ZYNQMP_PL_STATUS_MASK)
+		return name;
+
+	if (strstr(name, "eg") || strstr(name, "ev")) {
+		buf = strstr(name, "e");
+		*buf = '\0';
+	}
+
+	return name;
 }
 #endif
 
@@ -250,8 +285,6 @@ int board_early_init_f(void)
 	return ret;
 }
 
-#define ZYNQMP_VERSION_SIZE	9
-
 int board_init(void)
 {
 	printf("EL Level:\tEL%d\n", current_el());
@@ -260,12 +293,7 @@ int board_init(void)
     !defined(CONFIG_SPL_BUILD) || (defined(CONFIG_SPL_FPGA_SUPPORT) && \
     defined(CONFIG_SPL_BUILD))
 	if (current_el() != 3) {
-		static char version[ZYNQMP_VERSION_SIZE];
-
-		strncat(version, "zu", 2);
-		zynqmppl.name = strncat(version,
-					zynqmp_get_silicon_idcode_name(),
-					ZYNQMP_VERSION_SIZE - 3);
+		zynqmppl.name = zynqmp_get_silicon_idcode_name();
 		printf("Chip ID:\t%s\n", zynqmppl.name);
 		fpga_init();
 		fpga_add(fpga_xilinx, &zynqmppl);
