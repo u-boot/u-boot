@@ -654,9 +654,9 @@ void __efi_runtime EFIAPI efi_reset_system(
 	while (1) { }
 }
 
-void efi_reset_system_init(void)
+efi_status_t efi_reset_system_init(void)
 {
-       efi_add_runtime_mmio(&rstcr, sizeof(*rstcr));
+	return efi_add_runtime_mmio(&rstcr, sizeof(*rstcr));
 }
 
 #endif

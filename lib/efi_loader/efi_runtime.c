@@ -134,8 +134,9 @@ void __weak __efi_runtime EFIAPI efi_reset_system(
 	while (1) { }
 }
 
-void __weak efi_reset_system_init(void)
+efi_status_t __weak efi_reset_system_init(void)
 {
+	return EFI_SUCCESS;
 }
 
 efi_status_t __weak __efi_runtime EFIAPI efi_get_time(
@@ -332,18 +333,26 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 	return EFI_EXIT(EFI_INVALID_PARAMETER);
 }
 
-void efi_add_runtime_mmio(void *mmio_ptr, u64 len)
+efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
 {
 	struct efi_runtime_mmio_list *newmmio;
+	efi_status_t ret;
 
 	u64 pages = (len + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
-	efi_add_memory_map(*(uintptr_t *)mmio_ptr, pages, EFI_MMAP_IO, false);
+	ret = efi_add_memory_map(*(uintptr_t *)mmio_ptr, pages, EFI_MMAP_IO,
+				 false);
+	if (ret != EFI_SUCCESS)
+		return ret;
 
 	newmmio = calloc(1, sizeof(*newmmio));
+	if (!newmmio)
+		return EFI_OUT_OF_RESOURCES;
 	newmmio->ptr = mmio_ptr;
 	newmmio->paddr = *(uintptr_t *)mmio_ptr;
 	newmmio->len = len;
 	list_add_tail(&newmmio->link, &efi_runtime_mmio);
+
+	return ret;
 }
 
 /*

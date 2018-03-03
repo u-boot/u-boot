@@ -350,7 +350,7 @@ static inline int guidcmp(const efi_guid_t *g1, const efi_guid_t *g2)
 
 /* Call this with mmio_ptr as the _pointer_ to a pointer to an MMIO region
  * to make it available at runtime */
-void efi_add_runtime_mmio(void *mmio_ptr, u64 len);
+efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len);
 
 /* Boards may provide the functions below to implement RTS functionality */
 
@@ -358,7 +358,9 @@ void __efi_runtime EFIAPI efi_reset_system(
 			enum efi_reset_type reset_type,
 			efi_status_t reset_status,
 			unsigned long data_size, void *reset_data);
-void efi_reset_system_init(void);
+
+/* Architecture specific initialization of the EFI subsystem */
+efi_status_t efi_reset_system_init(void);
 
 efi_status_t __efi_runtime EFIAPI efi_get_time(
 			struct efi_time *time,
@@ -392,7 +394,10 @@ void *efi_bootmgr_load(struct efi_device_path **device_path,
 /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
 #define __efi_runtime_data
 #define __efi_runtime
-static inline void efi_add_runtime_mmio(void *mmio_ptr, u64 len) { }
+static inline efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
+{
+	return EFI_SUCCESS;
+}
 
 /* No loader configured, stub out EFI_ENTRY */
 static inline void efi_restore_gd(void) { }
