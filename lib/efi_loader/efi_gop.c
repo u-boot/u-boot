@@ -125,8 +125,13 @@ efi_status_t EFIAPI gop_blt(struct efi_gop *this, void *buffer,
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
-/* This gets called from do_bootefi_exec(). */
-int efi_gop_register(void)
+/*
+ * Install graphical output protocol.
+ *
+ * If no supported video device exists this is not considered as an
+ * error.
+ */
+efi_status_t efi_gop_register(void)
 {
 	struct efi_gop_obj *gopobj;
 	u32 bpix, col, row;
@@ -136,12 +141,15 @@ int efi_gop_register(void)
 
 #ifdef CONFIG_DM_VIDEO
 	struct udevice *vdev;
+	struct video_priv *priv;
 
 	/* We only support a single video output device for now */
-	if (uclass_first_device(UCLASS_VIDEO, &vdev) || !vdev)
-		return -1;
+	if (uclass_first_device(UCLASS_VIDEO, &vdev) || !vdev) {
+		debug("WARNING: No video device\n");
+		return EFI_SUCCESS;
+	}
 
-	struct video_priv *priv = dev_get_uclass_priv(vdev);
+	priv = dev_get_uclass_priv(vdev);
 	bpix = priv->bpix;
 	col = video_get_xsize(vdev);
 	row = video_get_ysize(vdev);
@@ -170,13 +178,14 @@ int efi_gop_register(void)
 		break;
 	default:
 		/* So far, we only work in 16 or 32 bit mode */
-		return -1;
+		debug("WARNING: Unsupported video mode\n");
+		return EFI_SUCCESS;
 	}
 
 	gopobj = calloc(1, sizeof(*gopobj));
 	if (!gopobj) {
 		printf("ERROR: Out of memory\n");
-		return 1;
+		return EFI_OUT_OF_RESOURCES;
 	}
 
 	/* Hook up to the device list */
@@ -186,8 +195,8 @@ int efi_gop_register(void)
 	ret = efi_add_protocol(gopobj->parent.handle, &efi_gop_guid,
 			       &gopobj->ops);
 	if (ret != EFI_SUCCESS) {
-		printf("ERROR: Out of memory\n");
-		return 1;
+		printf("ERROR: Failure adding gop protocol\n");
+		return ret;
 	}
 	gopobj->ops.query_mode = gop_query_mode;
 	gopobj->ops.set_mode = gop_set_mode;
@@ -199,10 +208,11 @@ int efi_gop_register(void)
 	gopobj->mode.info_size = sizeof(gopobj->info);
 
 #ifdef CONFIG_DM_VIDEO
-	if (bpix == VIDEO_BPP32) {
+	if (bpix == VIDEO_BPP32)
 #else
-	if (bpix == LCD_COLOR32) {
+	if (bpix == LCD_COLOR32)
 #endif
+	{
 		/* With 32bit color space we can directly expose the fb */
 		gopobj->mode.fb_base = fb_base;
 		gopobj->mode.fb_size = fb_size;
@@ -217,5 +227,5 @@ int efi_gop_register(void)
 	gopobj->bpix = bpix;
 	gopobj->fb = fb;
 
-	return 0;
+	return EFI_SUCCESS;
 }

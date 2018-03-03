@@ -183,7 +183,7 @@ int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 			       const char *if_typename, int diskid,
 			       const char *pdevname);
 /* Called by bootefi to make GOP (graphical) interface available */
-int efi_gop_register(void);
+efi_status_t efi_gop_register(void);
 /* Called by bootefi to make the network interface available */
 int efi_net_register(void);
 /* Called by bootefi to make the watchdog available */
