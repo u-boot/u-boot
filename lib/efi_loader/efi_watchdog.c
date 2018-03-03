@@ -59,7 +59,7 @@ efi_status_t efi_set_watchdog(unsigned long timeout)
  *
  * This function is called by efi_init_obj_list()
  */
-int efi_watchdog_register(void)
+efi_status_t efi_watchdog_register(void)
 {
 	efi_status_t r;
 
@@ -85,5 +85,5 @@ int efi_watchdog_register(void)
 		printf("ERROR: Failed to set watchdog timer\n");
 		return r;
 	}
-	return 0;
+	return EFI_SUCCESS;
 }

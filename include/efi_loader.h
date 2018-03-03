@@ -187,7 +187,7 @@ efi_status_t efi_gop_register(void);
 /* Called by bootefi to make the network interface available */
 efi_status_t efi_net_register(void);
 /* Called by bootefi to make the watchdog available */
-int efi_watchdog_register(void);
+efi_status_t efi_watchdog_register(void);
 /* Called by bootefi to make SMBIOS tables available */
 efi_status_t efi_smbios_register(void);
 
