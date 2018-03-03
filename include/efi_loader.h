@@ -189,7 +189,7 @@ int efi_net_register(void);
 /* Called by bootefi to make the watchdog available */
 int efi_watchdog_register(void);
 /* Called by bootefi to make SMBIOS tables available */
-void efi_smbios_register(void);
+efi_status_t efi_smbios_register(void);
 
 struct efi_simple_file_system_protocol *
 efi_fs_from_path(struct efi_device_path *fp);
