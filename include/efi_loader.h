@@ -185,7 +185,7 @@ int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 /* Called by bootefi to make GOP (graphical) interface available */
 efi_status_t efi_gop_register(void);
 /* Called by bootefi to make the network interface available */
-int efi_net_register(void);
+efi_status_t efi_net_register(void);
 /* Called by bootefi to make the watchdog available */
 int efi_watchdog_register(void);
 /* Called by bootefi to make SMBIOS tables available */

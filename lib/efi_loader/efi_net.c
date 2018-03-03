@@ -280,20 +280,22 @@ static void EFIAPI efi_network_timer_notify(struct efi_event *event,
 }
 
 /* This gets called from do_bootefi_exec(). */
-int efi_net_register(void)
+efi_status_t efi_net_register(void)
 {
 	struct efi_net_obj *netobj;
 	efi_status_t r;
 
 	if (!eth_get_dev()) {
 		/* No eth device active, don't expose any */
-		return 0;
+		return EFI_SUCCESS;
 	}
 
 	/* We only expose the "active" eth device, so one is enough */
 	netobj = calloc(1, sizeof(*netobj));
-	if (!netobj)
-		goto out_of_memory;
+	if (!netobj) {
+		printf("ERROR: Out of memory\n");
+		return EFI_OUT_OF_RESOURCES;
+	}
 
 	/* Hook net up to the device list */
 	efi_add_handle(&netobj->parent);
@@ -302,15 +304,15 @@ int efi_net_register(void)
 	r = efi_add_protocol(netobj->parent.handle, &efi_net_guid,
 			     &netobj->net);
 	if (r != EFI_SUCCESS)
-		goto out_of_memory;
+		goto failure_to_add_protocol;
 	r = efi_add_protocol(netobj->parent.handle, &efi_guid_device_path,
 			     efi_dp_from_eth());
 	if (r != EFI_SUCCESS)
-		goto out_of_memory;
+		goto failure_to_add_protocol;
 	r = efi_add_protocol(netobj->parent.handle, &efi_pxe_guid,
 			     &netobj->pxe);
 	if (r != EFI_SUCCESS)
-		goto out_of_memory;
+		goto failure_to_add_protocol;
 	netobj->net.revision = EFI_SIMPLE_NETWORK_PROTOCOL_REVISION;
 	netobj->net.start = efi_net_start;
 	netobj->net.stop = efi_net_stop;
@@ -366,8 +368,8 @@ int efi_net_register(void)
 		return r;
 	}
 
-	return 0;
-out_of_memory:
-	printf("ERROR: Out of memory\n");
-	return 1;
+	return EFI_SUCCESS;
+failure_to_add_protocol:
+	printf("ERROR: Failure to add protocol\n");
+	return r;
 }
