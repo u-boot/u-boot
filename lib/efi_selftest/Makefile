@@ -24,6 +24,7 @@ efi_selftest_fdt.o \
 efi_selftest_gop.o \
 efi_selftest_manageprotocols.o \
 efi_selftest_snp.o \
+efi_selftest_textinput.o \
 efi_selftest_textoutput.o \
 efi_selftest_tpl.o \
 efi_selftest_util.o \
