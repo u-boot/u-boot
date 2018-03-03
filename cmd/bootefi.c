@@ -22,7 +22,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static uint8_t efi_obj_list_initalized;
+static u8 efi_obj_list_initialized;
 
 static struct efi_device_path *bootefi_image_path;
 static struct efi_device_path *bootefi_device_path;
@@ -30,7 +30,10 @@ static struct efi_device_path *bootefi_device_path;
 /* Initialize and populate EFI object list */
 static void efi_init_obj_list(void)
 {
-	efi_obj_list_initalized = 1;
+	/* Initialize once only */
+	if (efi_obj_list_initialized)
+		return;
+	efi_obj_list_initialized = 1;
 
 	/* Initialize EFI driver uclass */
 	efi_driver_init();
@@ -184,8 +187,7 @@ static efi_status_t do_bootefi_exec(void *efi, void *fdt,
 	}
 
 	/* Initialize and populate EFI object list */
-	if (!efi_obj_list_initalized)
-		efi_init_obj_list();
+	efi_init_obj_list();
 
 	efi_setup_loaded_image(&loaded_image_info, &loaded_image_info_obj,
 			       device_path, image_path);
@@ -284,8 +286,7 @@ static int do_bootefi_bootmgr_exec(unsigned long fdt_addr)
 	efi_status_t r;
 
 	/* Initialize and populate EFI object list */
-	if (!efi_obj_list_initalized)
-		efi_init_obj_list();
+	efi_init_obj_list();
 
 	/*
 	 * gd lives in a fixed register which may get clobbered while we execute
@@ -350,8 +351,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		 */
 		efi_save_gd();
 		/* Initialize and populate EFI object list */
-		if (!efi_obj_list_initalized)
-			efi_init_obj_list();
+		efi_init_obj_list();
 		/* Transfer environment variable efi_selftest as load options */
 		set_load_options(&loaded_image_info, "efi_selftest");
 		/* Execute the test */
