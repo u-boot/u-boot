@@ -56,6 +56,8 @@ static volatile void *efi_gd, *app_gd;
 
 static int entry_count;
 static int nesting_level;
+/* GUID of the device tree table */
+const efi_guid_t efi_guid_fdt = EFI_FDT_GUID;
 /* GUID of the EFI_DRIVER_BINDING_PROTOCOL */
 const efi_guid_t efi_guid_driver_binding_protocol =
 			EFI_DRIVER_BINDING_PROTOCOL_GUID;

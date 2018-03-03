@@ -178,11 +178,49 @@ static efi_status_t efi_run_in_el2(EFIAPI efi_status_t (*entry)(
 }
 #endif
 
+static efi_status_t efi_install_fdt(void *fdt)
+{
+	bootm_headers_t img = { 0 };
+	ulong fdt_pages, fdt_size, fdt_start, fdt_end;
+	efi_status_t ret;
+
+	if (fdt_check_header(fdt)) {
+		printf("ERROR: invalid device tree\n");
+		return EFI_INVALID_PARAMETER;
+	}
+
+	/* Prepare fdt for payload */
+	fdt = copy_fdt(fdt);
+	if (!fdt)
+		return EFI_OUT_OF_RESOURCES;
+
+	if (image_setup_libfdt(&img, fdt, 0, NULL)) {
+		printf("ERROR: failed to process device tree\n");
+		return EFI_LOAD_ERROR;
+	}
+
+	/* Link to it in the efi tables */
+	ret = efi_install_configuration_table(&efi_guid_fdt, fdt);
+	if (ret != EFI_SUCCESS)
+		return EFI_OUT_OF_RESOURCES;
+
+	/* And reserve the space in the memory map */
+	fdt_start = ((ulong)fdt) & ~EFI_PAGE_MASK;
+	fdt_end = ((ulong)fdt) + fdt_totalsize(fdt);
+	fdt_size = (fdt_end - fdt_start) + EFI_PAGE_MASK;
+	fdt_pages = fdt_size >> EFI_PAGE_SHIFT;
+	/* Give a bootloader the chance to modify the device tree */
+	fdt_pages += 2;
+	ret = efi_add_memory_map(fdt_start, fdt_pages,
+				 EFI_BOOT_SERVICES_DATA, true);
+	return ret;
+}
+
 /*
  * Load an EFI payload into a newly allocated piece of memory, register all
  * EFI objects it would want to access and jump to it.
  */
-static efi_status_t do_bootefi_exec(void *efi, void *fdt,
+static efi_status_t do_bootefi_exec(void *efi,
 				    struct efi_device_path *device_path,
 				    struct efi_device_path *image_path)
 {
@@ -193,9 +231,6 @@ static efi_status_t do_bootefi_exec(void *efi, void *fdt,
 
 	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
 				     struct efi_system_table *st);
-	ulong fdt_pages, fdt_size, fdt_start, fdt_end;
-	const efi_guid_t fdt_guid = EFI_FDT_GUID;
-	bootm_headers_t img = { 0 };
 
 	/*
 	 * Special case for efi payload not loaded from disk, such as
@@ -219,32 +254,6 @@ static efi_status_t do_bootefi_exec(void *efi, void *fdt,
 	 * the payload. So save it here and restore it on every callback entry
 	 */
 	efi_save_gd();
-
-	if (fdt && !fdt_check_header(fdt)) {
-		/* Prepare fdt for payload */
-		fdt = copy_fdt(fdt);
-
-		if (image_setup_libfdt(&img, fdt, 0, NULL)) {
-			printf("ERROR: Failed to process device tree\n");
-			return -EINVAL;
-		}
-
-		/* Link to it in the efi tables */
-		efi_install_configuration_table(&fdt_guid, fdt);
-
-		/* And reserve the space in the memory map */
-		fdt_start = ((ulong)fdt) & ~EFI_PAGE_MASK;
-		fdt_end = ((ulong)fdt) + fdt_totalsize(fdt);
-		fdt_size = (fdt_end - fdt_start) + EFI_PAGE_MASK;
-		fdt_pages = fdt_size >> EFI_PAGE_SHIFT;
-		/* Give a bootloader the chance to modify the device tree */
-		fdt_pages += 2;
-		efi_add_memory_map(fdt_start, fdt_pages,
-				   EFI_BOOT_SERVICES_DATA, true);
-	} else {
-		printf("WARNING: Invalid device tree, expect boot to fail\n");
-		efi_install_configuration_table(&fdt_guid, NULL);
-	}
 
 	/* Transfer environment variable bootargs as load options */
 	set_load_options(&loaded_image_info, "bootargs");
@@ -301,7 +310,7 @@ exit:
 	return ret;
 }
 
-static int do_bootefi_bootmgr_exec(unsigned long fdt_addr)
+static int do_bootefi_bootmgr_exec(void)
 {
 	struct efi_device_path *device_path, *file_path;
 	void *addr;
@@ -318,7 +327,7 @@ static int do_bootefi_bootmgr_exec(unsigned long fdt_addr)
 		return 1;
 
 	printf("## Starting EFI application at %p ...\n", addr);
-	r = do_bootefi_exec(addr, (void *)fdt_addr, device_path, file_path);
+	r = do_bootefi_exec(addr, device_path, file_path);
 	printf("## Application terminated, r = %lu\n",
 	       r & ~EFI_ERROR_MASK);
 
@@ -331,9 +340,10 @@ static int do_bootefi_bootmgr_exec(unsigned long fdt_addr)
 /* Interpreter command to boot an arbitrary EFI image from memory */
 static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	char *saddr, *sfdt;
-	unsigned long addr, fdt_addr = 0;
+	unsigned long addr;
+	char *saddr;
 	efi_status_t r;
+	void *fdt_addr;
 
 	/* Initialize EFI drivers */
 	r = efi_init_obj_list();
@@ -345,6 +355,22 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
+
+	if (argc > 2) {
+		fdt_addr = (void *)simple_strtoul(argv[2], NULL, 16);
+		if (!fdt_addr && *argv[2] != '0')
+			return CMD_RET_USAGE;
+		/* Install device tree */
+		r = efi_install_fdt(fdt_addr);
+		if (r != EFI_SUCCESS) {
+			printf("ERROR: failed to install device tree\n");
+			return CMD_RET_FAILURE;
+		}
+	} else {
+		/* Remove device tree. EFI_NOT_FOUND can be ignored here */
+		efi_install_configuration_table(&efi_guid_fdt, NULL);
+		printf("WARNING: booting without device tree\n");
+	}
 #ifdef CONFIG_CMD_BOOTEFI_HELLO
 	if (!strcmp(argv[1], "hello")) {
 		ulong size = __efi_helloworld_end - __efi_helloworld_begin;
@@ -390,12 +416,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	} else
 #endif
 	if (!strcmp(argv[1], "bootmgr")) {
-		unsigned long fdt_addr = 0;
-
-		if (argc > 2)
-			fdt_addr = simple_strtoul(argv[2], NULL, 16);
-
-		return do_bootefi_bootmgr_exec(fdt_addr);
+		return do_bootefi_bootmgr_exec();
 	} else {
 		saddr = argv[1];
 
@@ -404,15 +425,11 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (!addr && *saddr != '0')
 			return CMD_RET_USAGE;
 
-		if (argc > 2) {
-			sfdt = argv[2];
-			fdt_addr = simple_strtoul(sfdt, NULL, 16);
-		}
 	}
 
 	printf("## Starting EFI application at %08lx ...\n", addr);
-	r = do_bootefi_exec((void *)addr, (void *)fdt_addr,
-			    bootefi_device_path, bootefi_image_path);
+	r = do_bootefi_exec((void *)addr, bootefi_device_path,
+			    bootefi_image_path);
 	printf("## Application terminated, r = %lu\n",
 	       r & ~EFI_ERROR_MASK);
 
@@ -433,7 +450,7 @@ static char bootefi_help_text[] =
 	"  - boot a sample Hello World application stored within U-Boot\n"
 #endif
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
-	"bootefi selftest\n"
+	"bootefi selftest [fdt address]\n"
 	"  - boot an EFI selftest application stored within U-Boot\n"
 	"    Use environment variable efi_selftest to select a single test.\n"
 	"    Use 'setenv efi_selftest list' to enumerate all tests.\n"
