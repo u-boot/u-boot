@@ -22,40 +22,65 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static u8 efi_obj_list_initialized;
+#define OBJ_LIST_NOT_INITIALIZED 1
+
+static efi_status_t efi_obj_list_initialized = OBJ_LIST_NOT_INITIALIZED;
 
 static struct efi_device_path *bootefi_image_path;
 static struct efi_device_path *bootefi_device_path;
 
 /* Initialize and populate EFI object list */
-static void efi_init_obj_list(void)
+efi_status_t efi_init_obj_list(void)
 {
+	efi_status_t ret = EFI_SUCCESS;
+
 	/* Initialize once only */
-	if (efi_obj_list_initialized)
-		return;
-	efi_obj_list_initialized = 1;
+	if (efi_obj_list_initialized != OBJ_LIST_NOT_INITIALIZED)
+		return efi_obj_list_initialized;
 
 	/* Initialize EFI driver uclass */
-	efi_driver_init();
+	ret = efi_driver_init();
+	if (ret != EFI_SUCCESS)
+		goto out;
 
-	efi_console_register();
+	ret = efi_console_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
 #ifdef CONFIG_PARTITIONS
-	efi_disk_register();
+	ret = efi_disk_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
 #endif
 #if defined(CONFIG_LCD) || defined(CONFIG_DM_VIDEO)
-	efi_gop_register();
+	ret = efi_gop_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
 #endif
 #ifdef CONFIG_CMD_NET
-	efi_net_register();
+	ret = efi_net_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
 #endif
 #ifdef CONFIG_GENERATE_SMBIOS_TABLE
-	efi_smbios_register();
+	ret = efi_smbios_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
 #endif
-	efi_watchdog_register();
+	ret = efi_watchdog_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
 
 	/* Initialize EFI runtime services */
-	efi_reset_system_init();
-	efi_get_time_init();
+	ret = efi_reset_system_init();
+	if (ret != EFI_SUCCESS)
+		goto out;
+	ret = efi_get_time_init();
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+out:
+	efi_obj_list_initialized = ret;
+	return ret;
 }
 
 /*
@@ -186,9 +211,6 @@ static efi_status_t do_bootefi_exec(void *efi, void *fdt,
 		assert(device_path && image_path);
 	}
 
-	/* Initialize and populate EFI object list */
-	efi_init_obj_list();
-
 	efi_setup_loaded_image(&loaded_image_info, &loaded_image_info_obj,
 			       device_path, image_path);
 
@@ -285,9 +307,6 @@ static int do_bootefi_bootmgr_exec(unsigned long fdt_addr)
 	void *addr;
 	efi_status_t r;
 
-	/* Initialize and populate EFI object list */
-	efi_init_obj_list();
-
 	/*
 	 * gd lives in a fixed register which may get clobbered while we execute
 	 * the payload. So save it here and restore it on every callback entry
@@ -315,6 +334,14 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *saddr, *sfdt;
 	unsigned long addr, fdt_addr = 0;
 	efi_status_t r;
+
+	/* Initialize EFI drivers */
+	r = efi_init_obj_list();
+	if (r != EFI_SUCCESS) {
+		printf("Error: Cannot set up EFI drivers, r = %lu\n",
+		       r & ~EFI_ERROR_MASK);
+		return CMD_RET_FAILURE;
+	}
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
