@@ -164,7 +164,7 @@ static efi_status_t do_bootefi_exec(void *efi, void *fdt,
 	struct efi_loaded_image loaded_image_info = {};
 	struct efi_object loaded_image_info_obj = {};
 	struct efi_device_path *memdp = NULL;
-	ulong ret;
+	efi_status_t ret;
 
 	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
 				     struct efi_system_table *st);
@@ -229,7 +229,7 @@ static efi_status_t do_bootefi_exec(void *efi, void *fdt,
 	/* Load the EFI payload */
 	entry = efi_load_pe(efi, &loaded_image_info);
 	if (!entry) {
-		ret = -ENOENT;
+		ret = EFI_LOAD_ERROR;
 		goto exit;
 	}
 
