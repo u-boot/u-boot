@@ -45,7 +45,6 @@ static struct cout_mode efi_cout_modes[] = {
 	},
 };
 
-const efi_guid_t efi_guid_console_control = CONSOLE_CONTROL_GUID;
 const efi_guid_t efi_guid_text_output_protocol =
 			EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL_GUID;
 const efi_guid_t efi_guid_text_input_protocol =
@@ -53,43 +52,6 @@ const efi_guid_t efi_guid_text_input_protocol =
 
 #define cESC '\x1b'
 #define ESC "\x1b"
-
-static efi_status_t EFIAPI efi_cin_get_mode(
-			struct efi_console_control_protocol *this,
-			int *mode, char *uga_exists, char *std_in_locked)
-{
-	EFI_ENTRY("%p, %p, %p, %p", this, mode, uga_exists, std_in_locked);
-
-	if (mode)
-		*mode = EFI_CONSOLE_MODE_TEXT;
-	if (uga_exists)
-		*uga_exists = 0;
-	if (std_in_locked)
-		*std_in_locked = 0;
-
-	return EFI_EXIT(EFI_SUCCESS);
-}
-
-static efi_status_t EFIAPI efi_cin_set_mode(
-			struct efi_console_control_protocol *this, int mode)
-{
-	EFI_ENTRY("%p, %d", this, mode);
-	return EFI_EXIT(EFI_UNSUPPORTED);
-}
-
-static efi_status_t EFIAPI efi_cin_lock_std_in(
-			struct efi_console_control_protocol *this,
-			uint16_t *password)
-{
-	EFI_ENTRY("%p, %p", this, password);
-	return EFI_EXIT(EFI_UNSUPPORTED);
-}
-
-struct efi_console_control_protocol efi_console_control = {
-	.get_mode = efi_cin_get_mode,
-	.set_mode = efi_cin_set_mode,
-	.lock_std_in = efi_cin_lock_std_in,
-};
 
 /* Default to mode 0 */
 static struct simple_text_output_mode efi_con_mode = {
@@ -506,18 +468,10 @@ static void EFIAPI efi_console_timer_notify(struct efi_event *event,
 int efi_console_register(void)
 {
 	efi_status_t r;
-	struct efi_object *efi_console_control_obj;
 	struct efi_object *efi_console_output_obj;
 	struct efi_object *efi_console_input_obj;
 
 	/* Create handles */
-	r = efi_create_handle((efi_handle_t *)&efi_console_control_obj);
-	if (r != EFI_SUCCESS)
-		goto out_of_memory;
-	r = efi_add_protocol(efi_console_control_obj->handle,
-			     &efi_guid_console_control, &efi_console_control);
-	if (r != EFI_SUCCESS)
-		goto out_of_memory;
 	r = efi_create_handle((efi_handle_t *)&efi_console_output_obj);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;

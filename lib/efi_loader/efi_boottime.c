@@ -1420,11 +1420,6 @@ efi_status_t efi_setup_loaded_image(
 	if (ret != EFI_SUCCESS)
 		goto failure;
 
-	ret = efi_add_protocol(obj->handle, &efi_guid_console_control,
-			       (void *)&efi_console_control);
-	if (ret != EFI_SUCCESS)
-		goto failure;
-
 	ret = efi_add_protocol(obj->handle,
 			       &efi_guid_device_path_to_text_protocol,
 			       (void *)&efi_device_path_to_text);

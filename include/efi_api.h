@@ -571,24 +571,6 @@ struct efi_simple_input_interface {
 	struct efi_event *wait_for_key;
 };
 
-#define CONSOLE_CONTROL_GUID \
-	EFI_GUID(0xf42f7782, 0x12e, 0x4c12, \
-		 0x99, 0x56, 0x49, 0xf9, 0x43, 0x4, 0xf7, 0x21)
-#define EFI_CONSOLE_MODE_TEXT	0
-#define EFI_CONSOLE_MODE_GFX	1
-
-struct efi_console_control_protocol
-{
-	efi_status_t (EFIAPI *get_mode)(
-			struct efi_console_control_protocol *this, int *mode,
-			char *uga_exists, char *std_in_locked);
-	efi_status_t (EFIAPI *set_mode)(
-			struct efi_console_control_protocol *this, int mode);
-	efi_status_t (EFIAPI *lock_std_in)(
-			struct efi_console_control_protocol *this,
-			uint16_t *password);
-};
-
 #define EFI_DEVICE_PATH_TO_TEXT_PROTOCOL_GUID \
 	EFI_GUID(0x8b843e20, 0x8132, 0x4852, \
 		 0x90, 0xcc, 0x55, 0x1a, 0x4e, 0x4a, 0x7f, 0x1c)
