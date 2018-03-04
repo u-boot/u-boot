@@ -12,8 +12,6 @@
 #ifndef __CONFIG_TI_ARMV7_OMAP_H__
 #define __CONFIG_TI_ARMV7_OMAP_H__
 
-/* I2C IP block */
-
 /*
  * GPMC NAND block.  We support 1 device and the physical address to
  * access CS0 at is 0x8000000.
