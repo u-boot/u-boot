@@ -14,7 +14,7 @@
 #include <binman_sym.h>
 #include <mapmem.h>
 #include <spl.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 
 #ifndef CONFIG_SPL_LOAD_FIT_ADDRESS
 # define CONFIG_SPL_LOAD_FIT_ADDRESS	0

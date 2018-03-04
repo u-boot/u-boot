@@ -8,7 +8,7 @@
 #include <spl.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 
 #ifdef CONFIG_SPL_OS_BOOT
 #error CONFIG_SPL_OS_BOOT is not supported yet

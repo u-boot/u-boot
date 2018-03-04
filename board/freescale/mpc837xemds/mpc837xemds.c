@@ -12,7 +12,7 @@
 #include <asm/fsl_mpc83xx_serdes.h>
 #include <spd_sdram.h>
 #include <tsec.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <fsl_esdhc.h>
 #include <fsl_mdio.h>

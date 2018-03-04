@@ -10,7 +10,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <fdtdec.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <linux/compat.h>
 #include <linux/err.h>
 #include <asm/arch/dsim.h>

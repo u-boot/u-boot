@@ -14,7 +14,7 @@
 #include <asm/io.h>
 #include <asm/cache.h>
 #include <asm/mmu.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <pca953x.h>
 

@@ -19,7 +19,7 @@
 #include <image.h>
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <mapmem.h>
 #include <fdt_support.h>
 #include <asm/bootm.h>

@@ -8,7 +8,7 @@
  */
 
 #include <common.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <linux/usb/otg.h>
 
 DECLARE_GLOBAL_DATA_PTR;

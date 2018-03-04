@@ -9,7 +9,7 @@
 #include <spl.h>
 #include <asm/io.h>
 #include <nand.h>
-#include <libfdt_env.h>
+#include <linux/libfdt_env.h>
 #include <fdt.h>
 
 #if defined(CONFIG_SPL_NAND_RAW_ONLY)

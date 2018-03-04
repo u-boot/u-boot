@@ -6,7 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <os.h>
 #include <asm/io.h>
 #include <asm/state.h>

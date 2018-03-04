@@ -8,7 +8,7 @@
 
 #include <common.h>
 #include <spl.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <nand.h>
 #include <stdio.h>
 #include <linux/io.h>

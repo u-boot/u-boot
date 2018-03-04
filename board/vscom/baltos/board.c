@@ -10,7 +10,7 @@
 
 #include <common.h>
 #include <errno.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>

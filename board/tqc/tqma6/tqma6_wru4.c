@@ -23,7 +23,7 @@
 
 #include <common.h>
 #include <fsl_esdhc.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <malloc.h>
 #include <i2c.h>
 #include <micrel.h>

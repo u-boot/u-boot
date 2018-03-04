@@ -19,7 +19,7 @@
 #include <fsl_ddr_sdram.h>
 #include <asm/fsl_portals.h>
 #include <fsl_qbman.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <netdev.h>
 #include <malloc.h>

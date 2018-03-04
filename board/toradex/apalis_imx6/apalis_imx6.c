@@ -892,7 +892,7 @@ void ldo_mode_set(int ldo_bypass)
 
 #ifdef CONFIG_SPL_BUILD
 #include <spl.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include "asm/arch/mx6q-ddr.h"
 #include "asm/arch/iomux.h"
 #include "asm/arch/crm_regs.h"

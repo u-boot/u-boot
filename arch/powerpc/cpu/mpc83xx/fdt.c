@@ -8,7 +8,7 @@
  */
 
 #include <common.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <asm/processor.h>
 

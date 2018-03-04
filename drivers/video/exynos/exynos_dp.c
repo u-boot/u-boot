@@ -11,7 +11,7 @@
 #include <common.h>
 #include <display.h>
 #include <fdtdec.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <malloc.h>
 #include <video_bridge.h>
 #include <linux/compat.h>

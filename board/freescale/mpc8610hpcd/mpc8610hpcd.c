@@ -14,7 +14,7 @@
 #include <asm/fsl_serdes.h>
 #include <i2c.h>
 #include <asm/io.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <spd_sdram.h>
 #include <netdev.h>

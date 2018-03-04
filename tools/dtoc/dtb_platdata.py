@@ -422,7 +422,7 @@ class DtbPlatdata(object):
         """
         self.out_header()
         self.out('#include <stdbool.h>\n')
-        self.out('#include <libfdt.h>\n')
+        self.out('#include <linux/libfdt.h>\n')
 
         # Output the struct definition
         for name in sorted(structs):

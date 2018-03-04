@@ -400,7 +400,7 @@ int board_late_init(void)
 #ifdef CONFIG_SPL_BUILD
 #include <asm/arch/mx6-ddr.h>
 #include <spl.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 
 #define MX6_PHYFLEX_ERR006282	IMX_GPIO_NR(2, 11)
 static void phyflex_err006282_workaround(void)

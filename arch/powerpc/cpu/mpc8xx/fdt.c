@@ -7,7 +7,7 @@
  */
 
 #include <common.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;

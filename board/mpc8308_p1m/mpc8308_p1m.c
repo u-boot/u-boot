@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <i2c.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <pci.h>
 #include <mpc83xx.h>

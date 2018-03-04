@@ -8,7 +8,7 @@
 #include <errno.h>
 #include <linux/bug.h>
 #include <asm/io.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <net.h>
 #include <fdt_support.h>
 #include <fsl-mc/fsl_mc.h>

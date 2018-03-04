@@ -13,7 +13,7 @@
 #include <asm/arch/dp_info.h>
 #include <asm/arch/dp.h>
 #include <fdtdec.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include "exynos_dp_lowlevel.h"
 
 /* Declare global data pointer */

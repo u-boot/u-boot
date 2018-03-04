@@ -22,7 +22,7 @@
 #include <mapmem.h>
 
 #if IMAGE_ENABLE_FIT || IMAGE_ENABLE_OF_LIBFDT
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <fpga.h>
 #include <xilinx.h>

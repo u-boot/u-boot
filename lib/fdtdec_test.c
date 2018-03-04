@@ -8,7 +8,7 @@
 
 #include <common.h>
 #include <fdtdec.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <malloc.h>
 #include <os.h>
 

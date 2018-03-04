@@ -10,7 +10,7 @@
 
 #ifdef CONFIG_OF_LIBFDT
 
-#include <libfdt.h>
+#include <linux/libfdt.h>
 
 u32 fdt_getprop_u32_default_node(const void *fdt, int off, int cell,
 				const char *prop, const u32 dflt);

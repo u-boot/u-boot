@@ -6,7 +6,7 @@
 
 #include <common.h>
 #include <g_dnl.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 
 #include "tdx-cfg-block.h"
 #include <asm/setup.h>

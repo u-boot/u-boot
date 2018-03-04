@@ -8,7 +8,7 @@
  */
 
 #include <common.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <dm/of_access.h>
 #include <dm/of_addr.h>
 #include <linux/err.h>

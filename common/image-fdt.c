@@ -13,7 +13,7 @@
 #include <fdt_support.h>
 #include <errno.h>
 #include <image.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <mapmem.h>
 #include <asm/io.h>
 

@@ -11,7 +11,7 @@
 #include <dm.h>
 #include <lcd.h>
 #include <fdt_support.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <video.h>
 
 DECLARE_GLOBAL_DATA_PTR;

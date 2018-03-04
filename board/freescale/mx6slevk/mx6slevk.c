@@ -254,7 +254,7 @@ int checkboard(void)
 
 #ifdef CONFIG_SPL_BUILD
 #include <spl.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 
 #define USDHC1_CD_GPIO	IMX_GPIO_NR(4, 7)
 #define USDHC2_CD_GPIO	IMX_GPIO_NR(5, 0)

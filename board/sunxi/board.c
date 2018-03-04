@@ -29,7 +29,7 @@
 #include <asm/io.h>
 #include <crc.h>
 #include <environment.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <nand.h>
 #include <net.h>
 #include <spl.h>

@@ -9,7 +9,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <fdtdec.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <mmc.h>
 #include <reset.h>
 #include <asm/io.h>

@@ -11,7 +11,7 @@
 #include <asm/mmu.h>
 #include <asm/fsl_pci.h>
 #include <asm/io.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <netdev.h>
 #include <fdtdec.h>

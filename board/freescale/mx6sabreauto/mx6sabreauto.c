@@ -734,7 +734,7 @@ int board_ehci_power(int port, int on)
 #ifdef CONFIG_SPL_BUILD
 #include <asm/arch/mx6-ddr.h>
 #include <spl.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)

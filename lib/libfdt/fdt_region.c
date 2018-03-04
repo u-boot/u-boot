@@ -5,11 +5,11 @@
  * SPDX-License-Identifier:	GPL-2.0+ BSD-2-Clause
  */
 
-#include <libfdt_env.h>
+#include <linux/libfdt_env.h>
 
 #ifndef USE_HOSTCC
 #include <fdt.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #else
 #include "fdt_host.h"
 #endif

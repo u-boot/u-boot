@@ -8,7 +8,7 @@
 #include <asm/io.h>
 #include <errno.h>
 #include <fdtdec.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <altera.h>
 #include <miiphy.h>
 #include <netdev.h>

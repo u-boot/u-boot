@@ -5,7 +5,7 @@
  */
 
 #include <common.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <linux/err.h>
 #include <asm/arch/gxbb.h>
 #include <asm/arch/sm.h>

@@ -13,7 +13,7 @@
 #include <errno.h>
 #include <pwm.h>
 #include <power/regulator.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <fdtdec.h>
 

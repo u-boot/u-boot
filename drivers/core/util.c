@@ -6,7 +6,7 @@
 
 #include <common.h>
 #include <dm/util.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <vsprintf.h>
 
 #ifdef CONFIG_DM_WARN

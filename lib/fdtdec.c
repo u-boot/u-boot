@@ -11,7 +11,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <serial.h>
 #include <asm/sections.h>
 #include <linux/ctype.h>

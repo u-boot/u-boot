@@ -12,7 +12,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <dm/lists.h>
 #include <regmap.h>
 #include <reset-uclass.h>

@@ -12,7 +12,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <usb.h>
 #include <usb/ehci-ci.h>
 #include <usb/ulpi.h>

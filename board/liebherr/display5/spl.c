@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <spl.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/mx6-ddr.h>

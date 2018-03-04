@@ -9,7 +9,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <dm/of_access.h>
 #include <dm/of_addr.h>
 #include <dm/ofnode.h>

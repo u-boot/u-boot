@@ -11,7 +11,7 @@
 #include <command.h>
 #include <pci.h>
 #include <asm/fsl_pci.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <asm/fsl_serdes.h>
 #include <linux/errno.h>

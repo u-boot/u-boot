@@ -20,7 +20,7 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/regs-usbphy.h>
 #include <usb/ehci-ci.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdtdec.h>
 
 #include "ehci.h"

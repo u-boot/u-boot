@@ -11,7 +11,7 @@
 #include <linux/io.h>
 #include <linux/iopoll.h>
 #include <linux/sizes.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <mmc.h>
 #include <sdhci.h>
 

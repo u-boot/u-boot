@@ -10,7 +10,7 @@
  */
 
 #include <common.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <pci.h>
 #include <mpc83xx.h>
 #include <ns16550.h>

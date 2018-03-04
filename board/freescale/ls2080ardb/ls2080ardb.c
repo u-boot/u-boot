@@ -13,7 +13,7 @@
 #include <asm/io.h>
 #include <hwconfig.h>
 #include <fdt_support.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fsl-mc/fsl_mc.h>
 #include <environment.h>
 #include <efi_loader.h>

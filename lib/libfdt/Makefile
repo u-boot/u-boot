@@ -23,3 +23,5 @@ obj-y += fdt_ro.o
 
 # U-Boot own file
 obj-y += fdt_region.o
+
+ccflags-y := -I$(srctree)/scripts/dtc/libfdt

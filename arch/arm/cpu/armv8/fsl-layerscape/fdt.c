@@ -6,7 +6,7 @@
 
 #include <common.h>
 #include <efi_loader.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <phy.h>
 #ifdef CONFIG_FSL_LSCH3

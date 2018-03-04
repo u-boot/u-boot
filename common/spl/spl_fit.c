@@ -8,7 +8,7 @@
 #include <common.h>
 #include <errno.h>
 #include <image.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <spl.h>
 
 #ifndef CONFIG_SYS_BOOTM_LEN

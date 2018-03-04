@@ -12,7 +12,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <generic-phy.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <regmap.h>
 #include <reset-uclass.h>
 #include <syscon.h>

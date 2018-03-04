@@ -154,7 +154,7 @@ int dram_init(void)
 #ifdef CONFIG_SPL_BUILD
 #include <asm/arch/mx6-ddr.h>
 #include <asm/arch/opos6ul.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <spl.h>
 
 #define USDHC_PAD_CTRL (                                       \

@@ -6,7 +6,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 
 #include "../gadget/dwc2_udc_otg_priv.h"
 

@@ -17,7 +17,7 @@
 #include <spd_sdram.h>
 #include <asm/mmu.h>
 #if defined(CONFIG_OF_LIBFDT)
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
