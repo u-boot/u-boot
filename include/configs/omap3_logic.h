@@ -18,13 +18,6 @@
 #include <configs/ti_omap3_common.h>
 
 #ifdef CONFIG_SPL_BUILD
-/*
- * Disable MMC DM for SPL build and can be re-enabled after adding
- * DM support in SPL
- */
-#undef CONFIG_DM_MMC
-#undef OMAP_HSMMC_USE_GPIO
-
 /* select serial console configuration for SPL */
 #undef CONFIG_CONS_INDEX
 #define CONFIG_CONS_INDEX              1
