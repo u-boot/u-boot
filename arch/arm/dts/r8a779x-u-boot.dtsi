@@ -20,14 +20,6 @@
 	u-boot,dm-pre-reloc;
 };
 
-&pfc {
-	u-boot,dm-pre-reloc;
-};
-
 &prr {
-	u-boot,dm-pre-reloc;
-};
-
-&rst {
 	u-boot,dm-pre-reloc;
 };

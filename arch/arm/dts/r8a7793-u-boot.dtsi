@@ -11,3 +11,11 @@
 &usb_extal_clk {
 	u-boot,dm-pre-reloc;
 };
+
+&pfc {
+	u-boot,dm-pre-reloc;
+};
+
+&rst {
+	u-boot,dm-pre-reloc;
+};
