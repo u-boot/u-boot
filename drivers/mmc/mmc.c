@@ -1689,7 +1689,7 @@ static int sd_select_mode_and_width(struct mmc *mmc, uint card_caps)
 
 #if CONFIG_IS_ENABLED(MMC_WRITE)
 				err = sd_read_ssr(mmc);
-				if (!err)
+				if (err)
 					pr_warn("unable to read ssr\n");
 #endif
 				if (!err)
