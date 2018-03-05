@@ -44,7 +44,6 @@
 /* CPU configuration */
 #define CONFIG_AT91RM9200
 #define CONFIG_AT91RM9200EK
-#define CONFIG_CPUAT91
 #define USE_920T_MMU
 
 #include <asm/hardware.h>	/* needed for port definitions */

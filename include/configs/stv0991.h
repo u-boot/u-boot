@@ -10,8 +10,6 @@
 #define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_SYS_EXCEPTION_VECTORS_HIGH
 
-#define CONFIG_SYS_CORTEX_R4
-
 /* ram memory-related information */
 #define CONFIG_NR_DRAM_BANKS			1
 #define PHYS_SDRAM_1				0x00000000
