@@ -354,10 +354,47 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-mmc.git
 F:	drivers/mmc/
 
+NETWORK
+M:	Joe Hershberger <joe.hershberger@ni.com>
+S:	Maintained
+T:	git git://git.denx.de/u-boot-net.git
+F:	drivers/net/
+F:	net/
+
+NAND FLASH
+M:	Scott Wood <oss@buserror.net>
+S:	Maintained
+T:	git git://git.denx.de/u-boot-nand-flash.git
+F:	drivers/mtd/nand/
+
+NDS32
+M:	Macpaul Lin <macpaul@andestech.com>
+S:	Maintained
+T:	git git://git.denx.de/u-boot-nds32.git
+F:	arch/nds32/
+
+NIOS
+M:	Thomas Chou <thomas@wytron.com.tw>
+S:	Maintained
+T:	git git://git.denx.de/u-boot-nios.git
+F:	arch/nios2/
+
+ONENAND
+#M:	Lukasz Majewski <l.majewski@majess.pl>
+S:	Orphaned (Since 2017-01)
+T:	git git://git.denx.de/u-boot-onenand.git
+F:	drivers/mtd/onenand/
+
 PATMAN
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 F:	tools/patman/
+
+POWER
+M:	Jaehoon Chung <jh80.chung@samsung.com>
+S:	Maintained
+T:	git git://git.denx.de/u-boot-pmic.git
+F:	drivers/power/
 
 POWERPC
 M:	Wolfgang Denk <wd@denx.de>
@@ -395,49 +432,19 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-ppc4xx.git
 F:	arch/powerpc/cpu/ppc4xx/
 
-POWER
-M:	Jaehoon Chung <jh80.chung@samsung.com>
-S:	Maintained
-T:	git git://git.denx.de/u-boot-pmic.git
-F:	drivers/power/
-
-NETWORK
-M:	Joe Hershberger <joe.hershberger@ni.com>
-S:	Maintained
-T:	git git://git.denx.de/u-boot-net.git
-F:	drivers/net/
-F:	net/
-
-NAND FLASH
-M:	Scott Wood <oss@buserror.net>
-S:	Maintained
-T:	git git://git.denx.de/u-boot-nand-flash.git
-F:	drivers/mtd/nand/
-
-NDS32
-M:	Macpaul Lin <macpaul@andestech.com>
-S:	Maintained
-T:	git git://git.denx.de/u-boot-nds32.git
-F:	arch/nds32/
-
-NIOS
-M:	Thomas Chou <thomas@wytron.com.tw>
-S:	Maintained
-T:	git git://git.denx.de/u-boot-nios.git
-F:	arch/nios2/
-
-ONENAND
-#M:	Lukasz Majewski <l.majewski@majess.pl>
-S:	Orphaned (Since 2017-01)
-T:	git git://git.denx.de/u-boot-onenand.git
-F:	drivers/mtd/onenand/
-
 RISC-V
 M:	Rick Chen <rick@andestech.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-riscv.git
 F:	arch/riscv/
 F:	tools/prelink-riscv.c
+
+ROCKUSB
+M:	Eddie Cai <eddie.cai.linux@gmail.com>
+S:	Maintained
+F:	drivers/usb/gadget/f_rockusb.c
+F:	cmd/rockusb.c
+F:	doc/README.rockusb
 
 SANDBOX
 M:	Simon Glass <sjg@chromium.org>
@@ -503,13 +510,6 @@ M:	Bin Meng <bmeng.cn@gmail.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-usb.git topic-xhci
 F:	drivers/usb/host/xhci*
-
-ROCKUSB
-M:	Eddie Cai <eddie.cai.linux@gmail.com>
-S:	Maintained
-F:	drivers/usb/gadget/f_rockusb.c
-F:	cmd/rockusb.c
-F:	doc/README.rockusb
 
 VIDEO
 M:	Anatolij Gustschin <agust@denx.de>
