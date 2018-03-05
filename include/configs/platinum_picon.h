@@ -7,7 +7,6 @@
 #ifndef __PLATINUM_PICON_CONFIG_H__
 #define __PLATINUM_PICON_CONFIG_H__
 
-#define CONFIG_PLATINUM_PICON
 #define CONFIG_PLATINUM_BOARD			"Barco Picon"
 #define CONFIG_PLATINUM_PROJECT			"picon"
 #define CONFIG_PLATINUM_CPU			"imx6dl"

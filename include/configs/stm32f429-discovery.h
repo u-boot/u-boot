@@ -8,8 +8,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_STM32F4DISCOVERY
-
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_SYS_FLASH_BASE		0x08000000

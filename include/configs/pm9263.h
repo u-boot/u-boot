@@ -27,7 +27,6 @@
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 
 #define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9263"
-#define CONFIG_PM9263		1	/* on a Ronetix PM9263 Board	*/
 #define CONFIG_ARCH_CPU_INIT
 
 #define CONFIG_MACH_TYPE	MACH_TYPE_PM9263

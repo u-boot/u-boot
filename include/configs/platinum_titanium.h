@@ -7,7 +7,6 @@
 #ifndef __PLATINUM_TITANIUM_CONFIG_H__
 #define __PLATINUM_TITANIUM_CONFIG_H__
 
-#define CONFIG_PLATINUM_TITANIUM
 #define CONFIG_PLATINUM_BOARD			"Barco Titanium"
 #define CONFIG_PLATINUM_PROJECT			"titanium"
 #define CONFIG_PLATINUM_CPU			"imx6q"

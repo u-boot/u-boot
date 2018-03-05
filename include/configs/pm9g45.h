@@ -22,7 +22,6 @@
  */
 #include <asm/hardware.h>
 
-#define CONFIG_PM9G45		1	/* It's an Ronetix PM9G45 */
 #define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9G45"
 
 #define CONFIG_MACH_TYPE	MACH_TYPE_PM9G45

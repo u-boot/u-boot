@@ -17,8 +17,6 @@
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	12000000	/* main clock xtal */
 
-#define CONFIG_AT91SAM9RLEK		1	/* It's an AT91SAM9RLEK Board */
-
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SKIP_LOWLEVEL_INIT
 

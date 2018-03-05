@@ -19,7 +19,6 @@
  * Board
  */
 #define CONFIG_DRIVER_TI_EMAC
-#define CONFIG_BARIX_IPAM390
 
 /*
  * SoC Configuration

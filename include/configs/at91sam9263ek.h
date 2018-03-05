@@ -21,8 +21,6 @@
 #define CONFIG_SYS_AT91_MAIN_CLOCK	16367660 /* 16.367 MHz crystal */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768
 
-#define CONFIG_AT91SAM9263EK	1	/* It's an AT91SAM9263EK Board */
-
 #define CONFIG_ARCH_CPU_INIT
 
 #define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs	*/

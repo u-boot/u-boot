@@ -17,7 +17,6 @@
 
 /* High Level Configuration Options */
 #define CONFIG_EXYNOS4210		1	/* which is a EXYNOS4210 SoC */
-#define CONFIG_SMDKV310			1	/* working with SMDKV310*/
 
 /* Mach Type */
 #define CONFIG_MACH_TYPE		MACH_TYPE_SMDKV310
