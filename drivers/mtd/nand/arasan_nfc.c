@@ -86,7 +86,7 @@ struct arasan_nand_command_format {
 #define ARASAN_NAND_CMD_ADDR_CYCL_MASK		0x70000000
 #define ARASAN_NAND_CMD_ADDR_CYCL_SHIFT		28
 
-#define ARASAN_NAND_MEM_ADDR1_PAGE_MASK		0xFFFF0000
+#define ARASAN_NAND_MEM_ADDR1_PAGE_MASK		0xFFFF
 #define ARASAN_NAND_MEM_ADDR1_COL_MASK		0xFFFF
 #define ARASAN_NAND_MEM_ADDR1_PAGE_SHIFT	16
 #define ARASAN_NAND_MEM_ADDR2_PAGE_MASK		0xFF
@@ -795,10 +795,11 @@ static int arasan_nand_erase(struct arasan_nand_command_format *curr_cmd,
 
 	writel(reg_val, &arasan_nand_base->cmd_reg);
 
-	page = (page_addr << ARASAN_NAND_MEM_ADDR1_PAGE_SHIFT) &
+	page = (page_addr >> ARASAN_NAND_MEM_ADDR1_PAGE_SHIFT) &
 		ARASAN_NAND_MEM_ADDR1_PAGE_MASK;
 	column = page_addr & ARASAN_NAND_MEM_ADDR1_COL_MASK;
-	writel(page | column, &arasan_nand_base->memadr_reg1);
+	writel(column | (page << ARASAN_NAND_MEM_ADDR1_PAGE_SHIFT),
+	       &arasan_nand_base->memadr_reg1);
 
 	reg_val = readl(&arasan_nand_base->memadr_reg2);
 	reg_val &= ~ARASAN_NAND_MEM_ADDR2_PAGE_MASK;
