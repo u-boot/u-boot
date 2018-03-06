@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013 Guntermann & Drunck, GmbH
  *
- * Written by Dirk Eibach <eibach@gdsys.de>
+ * Written by Dirk Eibach <dirk.eibach@gdsys.cc>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */

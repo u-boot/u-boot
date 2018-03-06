@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2016
- * Mario Six, Guntermann & Drunck GmbH, six@gdsys.de
+ * Mario Six, Guntermann & Drunck GmbH, mario.six@gdsys.cc
  *
  * based on arch/powerpc/include/asm/mpc85xx_gpio.h, which is
  *
