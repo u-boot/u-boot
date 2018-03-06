@@ -508,6 +508,8 @@ struct xilinx_fpga_op zynq_op = {
 int zynq_decrypt_load(u32 srcaddr, u32 srclen, u32 dstaddr, u32 dstlen,
 		      u8 bstype)
 {
+	u32 isr_status, ts;
+
 	if ((srcaddr < SZ_1M) || (dstaddr < SZ_1M)) {
 		printf("%s: src and dst addr should be > 1M\n",
 		       __func__);
@@ -538,6 +540,25 @@ int zynq_decrypt_load(u32 srcaddr, u32 srclen, u32 dstaddr, u32 dstlen,
 
 	if (zynq_dma_transfer(srcaddr | 1, srclen, dstaddr | 1, dstlen))
 		return FPGA_FAIL;
+
+	if (bstype == BIT_FULL) {
+		isr_status = readl(&devcfg_base->int_sts);
+		/* Check FPGA configuration completion */
+		ts = get_timer(0);
+		while (!(isr_status & DEVCFG_ISR_PCFG_DONE)) {
+			if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT) {
+				printf("%s: Timeout wait for FPGA to config\n",
+				       __func__);
+				return FPGA_FAIL;
+			}
+			isr_status = readl(&devcfg_base->int_sts);
+		}
+
+		printf("%s: FPGA config done\n", __func__);
+
+		if (bstype != BIT_PARTIAL)
+			zynq_slcr_devcfg_enable();
+	}
 
 	return FPGA_SUCCESS;
 }
