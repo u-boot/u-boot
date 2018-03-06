@@ -509,12 +509,19 @@ int zynq_decrypt_load(u32 srcaddr, u32 srclen, u32 dstaddr, u32 dstlen,
 	debug("%s: Source = 0x%08X\n", __func__, (u32)srcaddr);
 	debug("%s: Size = %zu\n", __func__, srclen);
 
-	dcache_disable();
-	if (zynq_dma_transfer(srcaddr | 1, srclen, dstaddr | 1, dstlen)) {
-		dcache_enable();
+	/* flush(clean & invalidate) d-cache range buf */
+	flush_dcache_range((u32)srcaddr, (u32)srcaddr +
+			   roundup(srclen << 2, ARCH_DMA_MINALIGN));
+	/*
+	 * Flush destination address range only if image is not
+	 * bitstream.
+	 */
+	if (bstype == BIT_NONE)
+		flush_dcache_range((u32)dstaddr, (u32)dstaddr +
+				   roundup(dstlen << 2, ARCH_DMA_MINALIGN));
+
+	if (zynq_dma_transfer(srcaddr | 1, srclen, dstaddr | 1, dstlen))
 		return FPGA_FAIL;
-	}
-	dcache_enable();
 
 	return FPGA_SUCCESS;
 }
