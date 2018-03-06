@@ -800,6 +800,11 @@ ifneq ($(BUILD_ROM)$(CONFIG_BUILD_ROM),)
 ALL-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
 endif
 
+# Build a combined spl + u-boot image for sunxi
+ifeq ($(CONFIG_ARCH_SUNXI)$(CONFIG_SPL),yy)
+ALL-y += u-boot-sunxi-with-spl.bin
+endif
+
 # enable combined SPL/u-boot/dtb rules for tegra
 ifeq ($(CONFIG_TEGRA)$(CONFIG_SPL),yy)
 ALL-y += u-boot-tegra.bin u-boot-nodtb-tegra.bin
