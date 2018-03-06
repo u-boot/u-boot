@@ -101,6 +101,29 @@ u32 spl_boot_device(void)
 /* Translate iMX7/MX8M boot device to the SPL boot device enumeration */
 u32 spl_boot_device(void)
 {
+#if defined(CONFIG_MX7)
+	unsigned int bmode = readl(&src_base->sbmr2);
+
+	/*
+	 * Check for BMODE if serial downloader is enabled
+	 * BOOT_MODE - see IMX7DRM Table 6-24
+	 */
+	if (((bmode >> 24) & 0x03) == 0x01) /* Serial Downloader */
+		return BOOT_DEVICE_BOARD;
+
+	/*
+	 * The above method does not detect that the boot ROM used
+	 * serial downloader in case the boot ROM decided to use the
+	 * serial downloader as a fall back (primary boot source failed).
+	 *
+	 * Infer that the boot ROM used the USB serial downloader by
+	 * checking whether the USB PHY is currently active... This
+	 * assumes that SPL did not (yet) initialize the USB PHY...
+	 */
+	if (is_boot_from_usb())
+		return BOOT_DEVICE_BOARD;
+#endif
+
 	enum boot_device boot_device_spl = get_boot_device();
 
 	switch (boot_device_spl) {
