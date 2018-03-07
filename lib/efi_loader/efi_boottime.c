@@ -1515,8 +1515,27 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 	EFI_ENTRY("%d, %p, %pD, %p, %ld, %p", boot_policy, parent_image,
 		  file_path, source_buffer, source_size, image_handle);
 
+	if (!image_handle || !parent_image) {
+		ret = EFI_INVALID_PARAMETER;
+		goto error;
+	}
+
+	if (!source_buffer && !file_path) {
+		ret = EFI_NOT_FOUND;
+		goto error;
+	}
+
 	info = calloc(1, sizeof(*info));
+	if (!info) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto error;
+	}
 	obj = calloc(1, sizeof(*obj));
+	if (!obj) {
+		free(info);
+		ret = EFI_OUT_OF_RESOURCES;
+		goto error;
+	}
 
 	if (!source_buffer) {
 		struct efi_device_path *dp, *fp;
@@ -1552,6 +1571,7 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 failure:
 	free(info);
 	efi_delete_handle(obj);
+error:
 	return EFI_EXIT(ret);
 }
 
