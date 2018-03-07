@@ -43,7 +43,6 @@
  * STUART - the lower serial port on Colibri board
  */
 #define	CONFIG_STUART			1
-#define CONFIG_CONS_INDEX		2
 
 /*
  * Bootloader Components Configuration

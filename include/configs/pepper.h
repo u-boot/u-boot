@@ -72,7 +72,6 @@
 	"fi;" \
 
 /* Serial console configuration */
-#define CONFIG_CONS_INDEX		1 /* UART0 */
 #define CONFIG_SERIAL1			1
 #define CONFIG_SYS_NS16550_COM1		0x44e09000
 

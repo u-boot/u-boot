@@ -82,7 +82,6 @@
  */
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
-#define CONFIG_CONS_INDEX	1		/* use UART0 for console */
 
 /*
  * Flash & Environment

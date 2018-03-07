@@ -74,7 +74,6 @@
 #define CONFIG_SYS_I2C_MXC_I2C4		/* enable I2C bus 4 */
 
 /* Serial Port */
-#define CONFIG_CONS_INDEX       1
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE     1
 #define CONFIG_SYS_NS16550_CLK          (get_bus_freq(0) / 2)

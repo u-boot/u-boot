@@ -43,7 +43,6 @@
 /*
  * select serial console configuration
  */
-#define CONFIG_CONS_INDEX	1
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

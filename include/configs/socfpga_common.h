@@ -192,7 +192,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SYS_NS16550_COM1        SOCFPGA_UART1_ADDRESS
 #define CONFIG_SYS_NS16550_CLK		50000000
 #endif
-#define CONFIG_CONS_INDEX		1
 
 /*
  * USB

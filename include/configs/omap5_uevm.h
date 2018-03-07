@@ -29,7 +29,6 @@
 
 #include <configs/ti_omap5_common.h>
 
-#define CONFIG_CONS_INDEX		3
 #define CONFIG_SYS_NS16550_COM3		UART3_BASE
 
 #define CONFIG_MISC_INIT_R

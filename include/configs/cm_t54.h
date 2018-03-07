@@ -25,7 +25,6 @@
 #define OMAP_HSMMC_USE_GPIO
 
 /* UART setup */
-#define CONFIG_CONS_INDEX		4
 #define CONFIG_SYS_NS16550_COM4		UART4_BASE
 
 /* MMC ENV related defines */

@@ -122,7 +122,6 @@
 #define CONFIG_ARCH_CPU_INIT
 
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_CONS_INDEX		1
 
 /* Defines for SPL */
 #define CONFIG_SPL_TEXT_BASE		0x40300000

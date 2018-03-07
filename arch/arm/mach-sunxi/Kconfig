@@ -80,6 +80,7 @@ config MACH_SUN5I
 	select ARM_CORTEX_CPU_IS_UP
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
+	imply CONS_INDEX_2 if !DM_SERIAL
 
 config MACH_SUN6I
 	bool "sun6i (Allwinner A31)"
@@ -110,6 +111,7 @@ config MACH_SUN8I_A23
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
+	imply CONS_INDEX_5 if !DM_SERIAL
 
 config MACH_SUN8I_A33
 	bool "sun8i (Allwinner A33)"
@@ -120,6 +122,7 @@ config MACH_SUN8I_A33
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
+	imply CONS_INDEX_5 if !DM_SERIAL
 
 config MACH_SUN8I_A83T
 	bool "sun8i (Allwinner A83T)"

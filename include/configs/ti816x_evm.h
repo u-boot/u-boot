@@ -56,7 +56,6 @@
 #define CONFIG_SERIAL1
 #define CONFIG_SERIAL2
 #define CONFIG_SERIAL3
-#define CONFIG_CONS_INDEX	1
 
 /*
  * GPMC NAND block.  We support 1 device and the physical address to

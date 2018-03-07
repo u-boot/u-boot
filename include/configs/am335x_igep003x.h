@@ -107,7 +107,6 @@
 
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* UART0 */
-#define CONFIG_CONS_INDEX		1
 
 /* Ethernet support */
 #define CONFIG_PHY_SMSC

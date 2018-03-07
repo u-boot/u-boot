@@ -98,8 +98,6 @@
  * for your console driver.
  */
 
-#define CONFIG_CONS_INDEX	1	/* Console on UART0 */
-
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is

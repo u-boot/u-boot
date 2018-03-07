@@ -40,7 +40,6 @@
  */
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART2_BASE
-#define CONFIG_CONS_INDEX	1	/* use UART2 for console */
 
 /*
  * Ethernet

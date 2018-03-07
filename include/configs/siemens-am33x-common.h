@@ -87,7 +87,6 @@
 #define CONFIG_SYS_NS16550_COM4		0x481a6000
 
 #define CONFIG_SERIAL1                  1
-#define CONFIG_CONS_INDEX               1
 
 /* I2C Configuration */
 #define CONFIG_I2C

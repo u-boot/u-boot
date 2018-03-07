@@ -53,7 +53,6 @@
 /*
  * select serial console configuration
  */
-#define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550_COM1		OMAP34XX_UART1
 #define CONFIG_SERIAL1			/* UART1 */
 

@@ -83,7 +83,6 @@
 #define CONFIG_SYS_AUTOLOAD		"no"
 
 /* Serial console configuration */
-#define CONFIG_CONS_INDEX		1
 #define CONFIG_SERIAL1			1	/* UART0 */
 
 /* NS16550 Configuration */

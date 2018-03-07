@@ -143,7 +143,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_OR1_PRELIM	CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
 
 /* Serial Port */
-#define CONFIG_CONS_INDEX		1
 #undef	CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1

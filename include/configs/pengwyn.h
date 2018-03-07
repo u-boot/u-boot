@@ -12,7 +12,6 @@
 #define __CONFIG_PENGWYN_H
 
 #define CONFIG_SERIAL1
-#define CONFIG_CONS_INDEX		1
 
 #include <configs/ti_am335x_common.h>
 

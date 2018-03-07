@@ -42,8 +42,6 @@
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART1_BASE /* select UART1/UART2 */
 
-#define CONFIG_CONS_INDEX		1
-
 /* Filesystems / image support */
 
 /* MMC */

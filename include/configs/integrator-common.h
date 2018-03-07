@@ -13,8 +13,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x7fc0	/* default load address */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024) /* Size of malloc() pool */
 
-#define CONFIG_CONS_INDEX		0
-
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_MISC_INIT_R		/* call misc_init_r during start up */

@@ -9,15 +9,6 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "am57xx_evm"
 
-config CONS_INDEX
-        int "UART used for console"
-        range 1 6
-        default 3
-        help
-          The AM57x (and DRA7xx) SoC has a total of 6 UARTs available to it.
-          Depending on your specific board you may want something other than UART3
-          here.
-
 source "board/ti/common/Kconfig"
 
 endif

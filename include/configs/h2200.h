@@ -100,7 +100,6 @@
  * Serial port
  */
 #define CONFIG_FFUART
-#define CONFIG_CONS_INDEX		3
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 38400, 115200 }
 

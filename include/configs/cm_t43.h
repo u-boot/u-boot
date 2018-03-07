@@ -128,8 +128,6 @@
 		"run emmcboot; " \
 	"fi;"
 
-#define CONFIG_CONS_INDEX		1
-
 /* SPL defines. */
 #define CONFIG_SPL_TEXT_BASE		0x40300350
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + (128 << 20))

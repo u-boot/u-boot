@@ -725,6 +725,7 @@ config ARCH_SUNXI
 	select OF_BOARD_SETUP
 	select OF_CONTROL
 	select OF_SEPARATE
+	select SPECIFY_CONSOLE_INDEX
 	select SPL_STACK_R if SPL
 	select SPL_SYS_MALLOC_SIMPLE if SPL
 	select SYS_NS16550
@@ -914,6 +915,7 @@ config TARGET_HIKEY
 	select DM_SERIAL
 	select OF_CONTROL
 	select PL01X_SERIAL
+	select SPECIFY_CONSOLE_INDEX
 	  help
 	  Support for HiKey 96boards platform. It features a HI6220
 	  SoC, with 8xA53 CPU, mali450 gpu, and 1GB RAM.

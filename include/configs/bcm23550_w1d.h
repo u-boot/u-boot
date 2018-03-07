@@ -76,7 +76,6 @@
 /* Post pad 3 bytes after each reg addr */
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		13000000
-#define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550_COM1		0x3e000000
 
 /* must fit into GPT:u-boot-env partition */

@@ -12,13 +12,4 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "baltos"
 
-config CONS_INDEX
-	int "UART used for console"
-	range 1 6
-	default 1
-	help
-	  The AM335x SoC has a total of 6 UARTs (UART0 to UART5 as referenced
-	  in documentation, etc) available to it.  Depending on your specific
-	  board you may want something other than UART0.
-
 endif

@@ -19,8 +19,6 @@
 
 #ifdef CONFIG_SPL_BUILD
 /* select serial console configuration for SPL */
-#undef CONFIG_CONS_INDEX
-#define CONFIG_CONS_INDEX              1
 #define CONFIG_SYS_NS16550_COM1                OMAP34XX_UART1
 #endif
 

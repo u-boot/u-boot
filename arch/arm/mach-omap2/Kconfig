@@ -74,6 +74,7 @@ config OMAP54XX
 
 config TI814X
 	bool "TI814X SoC"
+	select SPECIFY_CONSOLE_INDEX
 	help
 	  Support for AM335x SOC from Texas Instruments.
 	  The AM335x high performance SOC features a Cortex-A8
@@ -81,6 +82,7 @@ config TI814X
 
 config TI816X
 	bool "TI816X SoC"
+	select SPECIFY_CONSOLE_INDEX
 	imply NAND_OMAP_ELM
 	imply NAND_OMAP_GPMC
 	help
@@ -90,6 +92,7 @@ config TI816X
 
 config AM43XX
 	bool "AM43XX SoC"
+	select SPECIFY_CONSOLE_INDEX
 	imply NAND_OMAP_ELM
 	imply NAND_OMAP_GPMC
 	imply SPL_DM
@@ -111,6 +114,7 @@ config AM43XX
 
 config AM33XX
 	bool "AM33XX SoC"
+	select SPECIFY_CONSOLE_INDEX
 	imply NAND_OMAP_ELM
 	imply NAND_OMAP_GPMC
 	imply SPL_NAND_AM33XX_BCH

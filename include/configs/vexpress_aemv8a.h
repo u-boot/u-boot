@@ -105,7 +105,6 @@
 #endif
 
 /* PL011 Serial Configuration */
-#define CONFIG_CONS_INDEX		0
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO
 #define CONFIG_PL011_CLOCK		7273800
 #else

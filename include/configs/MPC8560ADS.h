@@ -205,7 +205,6 @@
 /* Serial Port */
 #define CONFIG_CONS_ON_SCC	/* define if console on SCC */
 #undef  CONFIG_CONS_NONE	/* define if console on something else */
-#define CONFIG_CONS_INDEX       1  /* which serial channel for console */
 
 #define CONFIG_SYS_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}

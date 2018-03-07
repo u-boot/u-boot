@@ -84,7 +84,6 @@
  * for your console driver.
  */
 
-#define CONFIG_CONS_INDEX	1	/*Console on UART0 */
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{ 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600 }
 

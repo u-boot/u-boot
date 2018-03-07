@@ -10,9 +10,6 @@
 
 #include "ls2080a_common.h"
 
-#undef CONFIG_CONS_INDEX
-#define CONFIG_CONS_INDEX       2
-
 #ifdef CONFIG_FSL_QSPI
 #ifdef CONFIG_TARGET_LS2081ARDB
 #define CONFIG_QIXIS_I2C_ACCESS
