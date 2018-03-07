@@ -226,6 +226,18 @@ static u32 zynqmp_clk_get_register(enum zynqmp_clk id)
 		return CRL_APB_CAN0_REF_CTRL;
 	case can1_ref:
 		return CRL_APB_CAN1_REF_CTRL;
+	case pl0:
+		return CRL_APB_PL0_REF_CTRL;
+	case pl1:
+		return CRL_APB_PL1_REF_CTRL;
+	case pl2:
+		return CRL_APB_PL2_REF_CTRL;
+	case pl3:
+		return CRL_APB_PL3_REF_CTRL;
+	case wdt:
+		return CRF_APB_TOPSW_LSBUS_CTRL;
+	case iopll_to_fpd:
+		return CRL_APB_IOPLL_TO_FPD_CTRL;
 	default:
 		debug("Invalid clk id%d\n", id);
 	}
@@ -275,6 +287,22 @@ static enum zynqmp_clk zynqmp_clk_get_peripheral_pll(u32 clk_ctrl)
 	case 0 ... 1:
 	default:
 		return iopll;
+	}
+}
+
+static enum zynqmp_clk zynqmp_clk_get_wdt_pll(u32 clk_ctrl)
+{
+	u32 srcsel = (clk_ctrl & CLK_CTRL_SRCSEL_MASK) >>
+		      CLK_CTRL_SRCSEL_SHIFT;
+
+	switch (srcsel) {
+	case 2:
+		return iopll_to_fpd;
+	case 3:
+		return dpll;
+	case 0 ... 1:
+	default:
+		return apll;
 	}
 }
 
@@ -420,6 +448,49 @@ static ulong zynqmp_clk_get_peripheral_rate(struct zynqmp_clk_priv *priv,
 			DIV_ROUND_CLOSEST(pllrate, div0), div1);
 }
 
+static ulong zynqmp_clk_get_wdt_rate(struct zynqmp_clk_priv *priv,
+				     enum zynqmp_clk id, bool two_divs)
+{
+	enum zynqmp_clk pll;
+	u32 clk_ctrl, div0;
+	u32 div1 = 1;
+	int ret;
+	ulong pllrate;
+
+	ret = zynqmp_mmio_read(zynqmp_clk_get_register(id), &clk_ctrl);
+	if (ret) {
+		printf("%d %s mio read fail\n", __LINE__, __func__);
+		return -EIO;
+	}
+
+	div0 = (clk_ctrl & CLK_CTRL_DIV0_MASK) >> CLK_CTRL_DIV0_SHIFT;
+	if (!div0)
+		div0 = 1;
+
+	pll = zynqmp_clk_get_wdt_pll(clk_ctrl);
+	if (two_divs) {
+		ret = zynqmp_mmio_read(zynqmp_clk_get_register(pll), &clk_ctrl);
+		if (ret) {
+			printf("%d %s mio read fail\n", __LINE__, __func__);
+			return -EIO;
+		}
+		div1 = (clk_ctrl & CLK_CTRL_DIV0_MASK) >> CLK_CTRL_DIV0_SHIFT;
+		if (!div1)
+			div1 = 1;
+	}
+
+	if (pll == iopll_to_fpd)
+		pll = iopll;
+
+	pllrate = zynqmp_clk_get_pll_rate(priv, pll);
+	if (IS_ERR_VALUE(pllrate))
+		return pllrate;
+
+	return
+		DIV_ROUND_CLOSEST(
+			DIV_ROUND_CLOSEST(pllrate, div0), div1);
+}
+
 static unsigned long zynqmp_clk_calc_peripheral_two_divs(ulong rate,
 						       ulong pll_rate,
 						       u32 *div0, u32 *div1)
@@ -510,8 +581,12 @@ static ulong zynqmp_clk_get_rate(struct clk *clk)
 		return zynqmp_clk_get_ddr_rate(priv);
 	case gem0_ref ... gem3_ref:
 	case qspi_ref ... can1_ref:
+	case pl0 ... pl3:
 		two_divs = true;
 		return zynqmp_clk_get_peripheral_rate(priv, id, two_divs);
+	case wdt:
+		two_divs = true;
+		return zynqmp_clk_get_wdt_rate(priv, id, two_divs);
 	default:
 		return -ENXIO;
 	}
