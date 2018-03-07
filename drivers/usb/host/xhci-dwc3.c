@@ -137,6 +137,12 @@ static int xhci_dwc3_probe(struct udevice *dev)
 			pr_err("Can't init USB PHY for %s\n", dev->name);
 			return ret;
 		}
+
+		ret = generic_phy_power_on(&plat->usb_phy);
+		if (ret) {
+			pr_err("Can't power on USB PHY for %s\n", dev->name);
+			return ret;
+		}
 	}
 
 	dwc3_reg = (struct dwc3 *)((char *)(hccr) + DWC3_REG_OFFSET);
@@ -159,6 +165,12 @@ static int xhci_dwc3_remove(struct udevice *dev)
 	int ret;
 
 	if (generic_phy_valid(&plat->usb_phy)) {
+		ret = generic_phy_power_off(&plat->usb_phy);
+		if (ret) {
+			pr_err("Can't poweroff USB PHY for %s\n", dev->name);
+			return ret;
+		}
+
 		ret = generic_phy_exit(&plat->usb_phy);
 		if (ret) {
 			pr_err("Can't deinit USB PHY for %s\n", dev->name);
