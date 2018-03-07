@@ -390,6 +390,9 @@ void enable_board_pin_mux(void)
 #else
 		configure_module_pin_mux(mmc1_pin_mux);
 #endif
+	} else if (board_is_pb()) {
+		configure_module_pin_mux(mii1_pin_mux);
+		configure_module_pin_mux(mmc0_pin_mux);
 	} else if (board_is_icev2()) {
 		configure_module_pin_mux(mmc0_pin_mux);
 		configure_module_pin_mux(gpio0_18_pin_mux);

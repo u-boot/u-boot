@@ -34,6 +34,11 @@ static inline int board_is_bone_lt(void)
 	return board_ti_is("A335BNLT");
 }
 
+static inline int board_is_pb(void)
+{
+	return board_ti_is("A335PBGL");
+}
+
 static inline int board_is_bbg1(void)
 {
 	return board_is_bone_lt() && !strncmp(board_ti_get_rev(), "BBG1", 4);
@@ -41,7 +46,7 @@ static inline int board_is_bbg1(void)
 
 static inline int board_is_beaglebonex(void)
 {
-	return board_is_bone() || board_is_bone_lt() || board_is_bbg1();
+	return board_is_pb() || board_is_bone() || board_is_bone_lt() || board_is_bbg1();
 }
 
 static inline int board_is_evm_sk(void)
