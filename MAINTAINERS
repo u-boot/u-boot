@@ -59,12 +59,6 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-arc.git
 F:	arch/arc/
 
-ARC HSDK CREG GPIO
-M:	Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
-S:	Maintained
-L:	uboot-snps-arc@synopsys.com
-F:	drivers/gpio/hsdk-creg-gpio.c
-
 ARC HSDK CGU CLOCK
 M:	Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
 S:	Maintained
@@ -72,6 +66,12 @@ L:	uboot-snps-arc@synopsys.com
 F:	drivers/clk/clk-hsdk-cgu.c
 F:	include/dt-bindings/clock/snps,hsdk-cgu.h
 F:	doc/device-tree-bindings/clock/snps,hsdk-cgu.txt
+
+ARC HSDK CREG GPIO
+M:	Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+S:	Maintained
+L:	uboot-snps-arc@synopsys.com
+F:	drivers/gpio/hsdk-creg-gpio.c
 
 ARM
 M:	Albert Aribaud <albert.u.boot@aribaud.net>
@@ -185,6 +185,12 @@ M:	Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
 S:	Maintained
 F:	arch/arm/mach-snapdragon/
 
+ARM STI
+M:	Patrice Chotard <patrice.chotard@st.com>
+S:	Maintained
+F:	arch/arm/mach-sti/
+F:	arch/arm/include/asm/arch-sti*/
+
 ARM STM SPEAR
 #M:	Vipin Kumar <vipin.kumar@st.com>
 S:	Orphaned (Since 2016-02)
@@ -197,12 +203,6 @@ M:	Vikas Manocha <vikas.manocha@st.com>
 S:	Maintained
 F:	arch/arm/cpu/armv7/stv0991/
 F:	arch/arm/include/asm/arch-stv0991/
-
-ARM STI
-M:	Patrice Chotard <patrice.chotard@st.com>
-S:	Maintained
-F:	arch/arm/mach-sti/
-F:	arch/arm/include/asm/arch-sti*/
 
 ARM SUNXI
 M:	Jagan Teki <jagan@openedev.com>
@@ -354,13 +354,6 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-mmc.git
 F:	drivers/mmc/
 
-NETWORK
-M:	Joe Hershberger <joe.hershberger@ni.com>
-S:	Maintained
-T:	git git://git.denx.de/u-boot-net.git
-F:	drivers/net/
-F:	net/
-
 NAND FLASH
 M:	Scott Wood <oss@buserror.net>
 S:	Maintained
@@ -372,6 +365,13 @@ M:	Macpaul Lin <macpaul@andestech.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-nds32.git
 F:	arch/nds32/
+
+NETWORK
+M:	Joe Hershberger <joe.hershberger@ni.com>
+S:	Maintained
+T:	git git://git.denx.de/u-boot-net.git
+F:	drivers/net/
+F:	net/
 
 NIOS
 M:	Thomas Chou <thomas@wytron.com.tw>
