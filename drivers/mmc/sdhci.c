@@ -640,7 +640,8 @@ static int sdhci_set_ios(struct mmc *mmc)
 	else
 		ctrl &= ~SDHCI_CTRL_HISPD;
 
-	if (host->quirks & SDHCI_QUIRK_NO_HISPD_BIT)
+	if ((host->quirks & SDHCI_QUIRK_NO_HISPD_BIT) ||
+	    (host->quirks & SDHCI_QUIRK_BROKEN_HISPD_MODE))
 		ctrl &= ~SDHCI_CTRL_HISPD;
 
 	sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
@@ -837,6 +838,11 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 
 	if (caps_1 & SDHCI_USE_SDR50_TUNING)
 		cfg->host_caps |= MMC_MODE_NEEDS_TUNING;
+
+	if (host->quirks & SDHCI_QUIRK_BROKEN_HISPD_MODE) {
+		cfg->host_caps &= ~MMC_MODE_HS;
+		cfg->host_caps &= ~MMC_MODE_HS_52MHz;
+	}
 
 	if (host->host_caps)
 		cfg->host_caps |= host->host_caps;
