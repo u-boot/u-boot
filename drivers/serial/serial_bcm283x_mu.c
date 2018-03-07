@@ -51,6 +51,8 @@ struct bcm283x_mu_priv {
 	struct bcm283x_mu_regs *regs;
 };
 
+static int bcm283x_mu_serial_getc(struct udevice *dev);
+
 static int bcm283x_mu_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct bcm283x_mu_serial_platdata *plat = dev_get_platdata(dev);
@@ -59,12 +61,16 @@ static int bcm283x_mu_serial_setbrg(struct udevice *dev, int baudrate)
 	u32 divider;
 
 	if (plat->skip_init)
-		return 0;
+		goto out;
 
 	divider = plat->clock / (baudrate * 8);
 
 	writel(BCM283X_MU_LCR_DATA_SIZE_8, &regs->lcr);
 	writel(divider - 1, &regs->baud);
+
+out:
+	/* Flush the RX queue - all data in there is bogus */
+	while (bcm283x_mu_serial_getc(dev) != -EAGAIN) ;
 
 	return 0;
 }
