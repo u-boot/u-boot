@@ -9,6 +9,7 @@
 #include <asm/gpio.h>
 #include <dm/pinctrl.h>
 #include <dm/platform_data/serial_pl01x.h>
+#include <serial.h>
 #include "serial_pl01x_internal.h"
 
 /*
@@ -55,6 +56,28 @@ static int bcm283x_pl011_serial_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
+static int bcm283x_pl011_serial_setbrg(struct udevice *dev, int baudrate)
+{
+	int r;
+
+	r = pl01x_serial_setbrg(dev, baudrate);
+
+	/*
+	 * We may have been muxed to a bogus line before. Drain the RX
+	 * queue so we start at a clean slate.
+	 */
+	while (pl01x_serial_getc(dev) != -EAGAIN) ;
+
+	return r;
+}
+
+static const struct dm_serial_ops bcm283x_pl011_serial_ops = {
+	.putc = pl01x_serial_putc,
+	.pending = pl01x_serial_pending,
+	.getc = pl01x_serial_getc,
+	.setbrg = bcm283x_pl011_serial_setbrg,
+};
+
 static const struct udevice_id bcm283x_pl011_serial_id[] = {
 	{.compatible = "brcm,bcm2835-pl011", .data = TYPE_PL011},
 	{}
@@ -67,7 +90,7 @@ U_BOOT_DRIVER(bcm283x_pl011_uart) = {
 	.ofdata_to_platdata = of_match_ptr(bcm283x_pl011_serial_ofdata_to_platdata),
 	.platdata_auto_alloc_size = sizeof(struct pl01x_serial_platdata),
 	.probe	= pl01x_serial_probe,
-	.ops	= &pl01x_serial_ops,
+	.ops	= &bcm283x_pl011_serial_ops,
 	.flags	= DM_FLAG_PRE_RELOC,
 	.priv_auto_alloc_size = sizeof(struct pl01x_priv),
 };

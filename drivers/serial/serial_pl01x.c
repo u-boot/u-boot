@@ -273,7 +273,7 @@ __weak struct serial_device *default_serial_console(void)
 
 #ifdef CONFIG_DM_SERIAL
 
-static int pl01x_serial_setbrg(struct udevice *dev, int baudrate)
+int pl01x_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct pl01x_serial_platdata *plat = dev_get_platdata(dev);
 	struct pl01x_priv *priv = dev_get_priv(dev);
@@ -299,21 +299,21 @@ int pl01x_serial_probe(struct udevice *dev)
 		return 0;
 }
 
-static int pl01x_serial_getc(struct udevice *dev)
+int pl01x_serial_getc(struct udevice *dev)
 {
 	struct pl01x_priv *priv = dev_get_priv(dev);
 
 	return pl01x_getc(priv->regs);
 }
 
-static int pl01x_serial_putc(struct udevice *dev, const char ch)
+int pl01x_serial_putc(struct udevice *dev, const char ch)
 {
 	struct pl01x_priv *priv = dev_get_priv(dev);
 
 	return pl01x_putc(priv->regs, ch);
 }
 
-static int pl01x_serial_pending(struct udevice *dev, bool input)
+int pl01x_serial_pending(struct udevice *dev, bool input)
 {
 	struct pl01x_priv *priv = dev_get_priv(dev);
 	unsigned int fr = readl(&priv->regs->fr);
@@ -324,7 +324,7 @@ static int pl01x_serial_pending(struct udevice *dev, bool input)
 		return fr & UART_PL01x_FR_TXFF ? 0 : 1;
 }
 
-const struct dm_serial_ops pl01x_serial_ops = {
+static const struct dm_serial_ops pl01x_serial_ops = {
 	.putc = pl01x_serial_putc,
 	.pending = pl01x_serial_pending,
 	.getc = pl01x_serial_getc,
