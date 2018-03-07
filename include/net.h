@@ -676,7 +676,7 @@ int net_send_udp_packet(uchar *ether, struct in_addr dest, int dport,
 /* Processes a received packet */
 void net_process_received_packet(uchar *in_packet, int len);
 
-#ifdef CONFIG_NETCONSOLE
+#if defined(CONFIG_NETCONSOLE) && !defined(CONFIG_SPL_BUILD)
 void nc_start(void);
 int nc_input_packet(uchar *pkt, struct in_addr src_ip, unsigned dest_port,
 	unsigned src_port, unsigned len);
@@ -684,7 +684,7 @@ int nc_input_packet(uchar *pkt, struct in_addr src_ip, unsigned dest_port,
 
 static __always_inline int eth_is_on_demand_init(void)
 {
-#ifdef CONFIG_NETCONSOLE
+#if defined(CONFIG_NETCONSOLE) && !defined(CONFIG_SPL_BUILD)
 	extern enum proto_t net_loop_last_protocol;
 
 	return net_loop_last_protocol != NETCONS;
@@ -695,7 +695,7 @@ static __always_inline int eth_is_on_demand_init(void)
 
 static inline void eth_set_last_protocol(int protocol)
 {
-#ifdef CONFIG_NETCONSOLE
+#if defined(CONFIG_NETCONSOLE) && !defined(CONFIG_SPL_BUILD)
 	extern enum proto_t net_loop_last_protocol;
 
 	net_loop_last_protocol = protocol;
