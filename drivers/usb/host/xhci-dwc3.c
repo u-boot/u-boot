@@ -23,6 +23,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct xhci_dwc3_platdata {
 	struct phy usb_phy;
+	struct phy usb3_phy;
 };
 
 void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode)
@@ -175,6 +176,13 @@ static int xhci_dwc3_probe(struct udevice *dev)
 		return ret;
 	}
 
+	ret = xhci_dwc3_setup_phy(dev, 1, &plat->usb3_phy);
+	if (ret) {
+		pr_err("Failed to setup USB3 PHY for %s\n", dev->name);
+		xhci_dwc3_shutdown_phy(&plat->usb_phy);
+		return ret;
+	}
+
 	dwc3_reg = (struct dwc3 *)((char *)(hccr) + DWC3_REG_OFFSET);
 
 	dwc3_core_init(dwc3_reg);
@@ -198,6 +206,9 @@ static int xhci_dwc3_remove(struct udevice *dev)
 	if (ret)
 		pr_err("Can't shutdown USB PHY for %s\n", dev->name);
 
+	ret = xhci_dwc3_shutdown_phy(&plat->usb3_phy);
+	if (ret)
+		pr_err("Can't shutdown USB3 PHY for %s\n", dev->name);
 
 	return xhci_deregister(dev);
 }
