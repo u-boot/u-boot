@@ -650,9 +650,9 @@ static int fit_handle_file(struct image_tool_params *params)
 		}
 		*cmd = '\0';
 	} else if (params->datafile) {
-		/* dtc -I dts -O dtb -p 500 datafile > tmpfile */
-		snprintf(cmd, sizeof(cmd), "%s %s \"%s\" > \"%s\"",
-			 MKIMAGE_DTC, params->dtc, params->datafile, tmpfile);
+		/* dtc -I dts -O dtb -p 500 -o tmpfile datafile */
+		snprintf(cmd, sizeof(cmd), "%s %s -o \"%s\" \"%s\"",
+			 MKIMAGE_DTC, params->dtc, tmpfile, params->datafile);
 		debug("Trying to execute \"%s\"\n", cmd);
 	} else {
 		snprintf(cmd, sizeof(cmd), "cp \"%s\" \"%s\"",
