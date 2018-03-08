@@ -26,6 +26,7 @@
 
 static inline void ls1012ardb_reset_phy(void)
 {
+#ifdef CONFIG_TARGET_LS1012ARDB
 	/* Through reset IO expander reset both RGMII and SGMII PHYs */
 	i2c_reg_write(I2C_MUX_IO2_ADDR, 6, __PHY_MASK);
 	i2c_reg_write(I2C_MUX_IO2_ADDR, 2, __PHY_ETH2_MASK);
@@ -34,6 +35,7 @@ static inline void ls1012ardb_reset_phy(void)
 	mdelay(10);
 	i2c_reg_write(I2C_MUX_IO2_ADDR, 2, 0xFF);
 	mdelay(50);
+#endif
 }
 
 int pfe_eth_board_init(struct udevice *dev)
@@ -42,6 +44,11 @@ int pfe_eth_board_init(struct udevice *dev)
 	struct mii_dev *bus;
 	struct pfe_mdio_info mac_mdio_info;
 	struct pfe_eth_dev *priv = dev_get_priv(dev);
+	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+
+	int srds_s1 = in_be32(&gur->rcwsr[4]) &
+			FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_MASK;
+	srds_s1 >>= FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_SHIFT;
 
 	if (!init_done) {
 		ls1012ardb_reset_phy();
@@ -59,14 +66,36 @@ int pfe_eth_board_init(struct udevice *dev)
 	pfe_set_mdio(priv->gemac_port,
 		     miiphy_get_dev_by_name(DEFAULT_PFE_MDIO_NAME));
 
-	if (!priv->gemac_port) {
-		/* MAC1 */
-		pfe_set_phy_address_mode(priv->gemac_port, EMAC1_PHY_ADDR,
-					 PHY_INTERFACE_MODE_SGMII);
-	} else {
-		/* MAC2 */
-		pfe_set_phy_address_mode(priv->gemac_port, EMAC2_PHY_ADDR,
-					 PHY_INTERFACE_MODE_RGMII_TXID);
+	switch (srds_s1) {
+	case 0x3508:
+		if (!priv->gemac_port) {
+			/* MAC1 */
+			pfe_set_phy_address_mode(priv->gemac_port,
+						 CONFIG_PFE_EMAC1_PHY_ADDR,
+						 PHY_INTERFACE_MODE_SGMII);
+		} else {
+			/* MAC2 */
+			pfe_set_phy_address_mode(priv->gemac_port,
+						 CONFIG_PFE_EMAC2_PHY_ADDR,
+						 PHY_INTERFACE_MODE_RGMII_TXID);
+		}
+		break;
+	case 0x2208:
+		if (!priv->gemac_port) {
+			/* MAC1 */
+			pfe_set_phy_address_mode(priv->gemac_port,
+						 CONFIG_PFE_EMAC1_PHY_ADDR,
+						 PHY_INTERFACE_MODE_SGMII_2500);
+		} else {
+			/* MAC2 */
+			pfe_set_phy_address_mode(priv->gemac_port,
+						 CONFIG_PFE_EMAC2_PHY_ADDR,
+						 PHY_INTERFACE_MODE_SGMII_2500);
+		}
+		break;
+	default:
+		printf("unsupported SerDes PRCTL= %d\n", srds_s1);
+		break;
 	}
 	return 0;
 }
