@@ -62,7 +62,7 @@ int timer_init(void)
 	unsigned long val, freq;
 
 	freq = CONFIG_SC_TIMER_CLK;
-	asm("mcr p15, 0, %0, c14, c0, 0" : : "r" (freq));
+	asm volatile("mcr p15, 0, %0, c14, c0, 0" : : "r" (freq));
 
 	writel(freq, &sctr->cntfid0);
 
@@ -82,7 +82,7 @@ unsigned long long get_ticks(void)
 {
 	unsigned long long now;
 
-	asm("mrrc p15, 0, %Q0, %R0, c14" : "=r" (now));
+	asm volatile("mrrc p15, 0, %Q0, %R0, c14" : "=r" (now));
 
 	gd->arch.tbl = (unsigned long)(now & 0xffffffff);
 	gd->arch.tbu = (unsigned long)(now >> 32);
