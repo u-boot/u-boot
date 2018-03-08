@@ -395,6 +395,21 @@ struct ccsr_gur {
 #define SCFG_SNPCNFGCR_SATARDSNP	0x00800000
 #define SCFG_SNPCNFGCR_SATAWRSNP	0x00400000
 
+/* RGMIIPCR bit definitions*/
+#define SCFG_RGMIIPCR_EN_AUTO		BIT(3)
+#define SCFG_RGMIIPCR_SETSP_1000M	BIT(2)
+#define SCFG_RGMIIPCR_SETSP_100M	0
+#define SCFG_RGMIIPCR_SETSP_10M		BIT(1)
+#define SCFG_RGMIIPCR_SETFD		BIT(0)
+
+/* PFEASBCR bit definitions */
+#define SCFG_PFEASBCR_ARCACHE0		BIT(31)
+#define SCFG_PFEASBCR_AWCACHE0		BIT(30)
+#define SCFG_PFEASBCR_ARCACHE1		BIT(29)
+#define SCFG_PFEASBCR_AWCACHE1		BIT(28)
+#define SCFG_PFEASBCR_ARSNP		BIT(27)
+#define SCFG_PFEASBCR_AWSNP		BIT(26)
+
 /* Supplemental Configuration Unit */
 struct ccsr_scfg {
 	u8 res_000[0x100-0x000];
@@ -412,7 +427,12 @@ struct ccsr_scfg {
 	u8 res_140[0x158-0x140];
 	u32 altcbar;
 	u32 qspi_cfg;
-	u8 res_160[0x180-0x160];
+	u8 res_160[0x164 - 0x160];
+	u32 wr_qos1;
+	u32 wr_qos2;
+	u32 rd_qos1;
+	u32 rd_qos2;
+	u8 res_174[0x180 - 0x174];
 	u32 dmamcr;
 	u8 res_184[0x188-0x184];
 	u32 gic_align;
@@ -443,7 +463,21 @@ struct ccsr_scfg {
 	u32 usb_refclk_selcr1;
 	u32 usb_refclk_selcr2;
 	u32 usb_refclk_selcr3;
-	u8 res_424[0x600-0x424];
+	u8 res_424[0x434 - 0x424];
+	u32 rgmiipcr;
+	u32 res_438;
+	u32 rgmiipsr;
+	u32 pfepfcssr1;
+	u32 pfeintencr1;
+	u32 pfepfcssr2;
+	u32 pfeintencr2;
+	u32 pfeerrcr;
+	u32 pfeeerrintencr;
+	u32 pfeasbcr;
+	u32 pfebsbcr;
+	u8 res_460[0x484 - 0x460];
+	u32 mdioselcr;
+	u8 res_468[0x600 - 0x488];
 	u32 scratchrw[4];
 	u8 res_610[0x680-0x610];
 	u32 corebcr;
