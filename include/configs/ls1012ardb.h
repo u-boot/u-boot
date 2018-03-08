@@ -25,6 +25,7 @@
  */
 
 #define I2C_MUX_IO_ADDR		0x24
+#define I2C_MUX_IO2_ADDR	0x25
 #define I2C_MUX_IO_0		0
 #define I2C_MUX_IO_1		1
 #define SW_BOOT_MASK		0x03
@@ -39,6 +40,9 @@
 #define SW_REV_C2		0xD8
 #define SW_REV_D		0xD0
 #define SW_REV_E		0xC8
+#define __PHY_MASK		0xF9
+#define __PHY_ETH2_MASK		0xFB
+#define __PHY_ETH1_MASK		0xFD
 
 /*  MMC  */
 #ifdef CONFIG_MMC
