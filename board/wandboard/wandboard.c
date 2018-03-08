@@ -28,7 +28,6 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <phy.h>
-#include <input.h>
 #include <i2c.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
