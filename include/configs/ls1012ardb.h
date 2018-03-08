@@ -117,7 +117,7 @@
 		"bootm $load_addr#$board\0"
 
 #undef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "	\
+#define CONFIG_BOOTCOMMAND "pfe stop; run distro_bootcmd; run qspi_bootcmd; "\
 			   "env exists secureboot && esbc_halt;"
 
 #include <asm/fsl_secure_boot.h>
