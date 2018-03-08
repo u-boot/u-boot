@@ -127,6 +127,9 @@ void fsl_lsch2_early_init_f(void);
 int setup_chip_volt(void);
 /* Setup core vdd in unit mV */
 int board_setup_core_volt(u32 vdd);
+#ifdef CONFIG_FSL_PFE
+void init_pfe_scfg_dcfg_regs(void);
+#endif
 #endif
 
 void cpu_name(char *name);

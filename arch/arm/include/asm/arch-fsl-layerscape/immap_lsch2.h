@@ -205,6 +205,8 @@ struct sys_info {
 
 /* Device Configuration and Pin Control */
 #define DCFG_DCSR_PORCR1		0x0
+#define DCFG_DCSR_ECCCR2		0x524
+#define DISABLE_PFE_ECC			BIT(13)
 
 struct ccsr_gur {
 	u32     porsr1;         /* POR status 1 */
@@ -409,6 +411,14 @@ struct ccsr_gur {
 #define SCFG_PFEASBCR_AWCACHE1		BIT(28)
 #define SCFG_PFEASBCR_ARSNP		BIT(27)
 #define SCFG_PFEASBCR_AWSNP		BIT(26)
+
+/* WR_QoS1 PFE bit definitions */
+#define SCFG_WR_QOS1_PFE1_QOS		GENMASK(27, 24)
+#define SCFG_WR_QOS1_PFE2_QOS		GENMASK(23, 20)
+
+/* RD_QoS1 PFE bit definitions */
+#define SCFG_RD_QOS1_PFE1_QOS		GENMASK(27, 24)
+#define SCFG_RD_QOS1_PFE2_QOS		GENMASK(23, 20)
 
 /* Supplemental Configuration Unit */
 struct ccsr_scfg {
