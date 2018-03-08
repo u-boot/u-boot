@@ -11,7 +11,7 @@
 
 /* BRDCFG4[4:7] select EC1 and EC2 as a pair */
 #define BRDCFG4_EMISEL_MASK		0xe0
-#define BRDCFG4_EMISEL_SHIFT		5
+#define BRDCFG4_EMISEL_SHIFT		6
 
 /* SYSCLK */
 #define QIXIS_SYSCLK_66			0x0
