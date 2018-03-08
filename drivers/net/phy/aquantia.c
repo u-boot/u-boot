@@ -7,6 +7,7 @@
  */
 #include <config.h>
 #include <common.h>
+#include <dm.h>
 #include <phy.h>
 
 #ifndef CONFIG_PHYLIB_10G
