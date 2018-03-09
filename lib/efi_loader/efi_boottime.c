@@ -1426,6 +1426,12 @@ efi_status_t efi_setup_loaded_image(
 	if (ret != EFI_SUCCESS)
 		goto failure;
 
+	ret = efi_add_protocol(obj->handle,
+			       &efi_guid_device_path_utilities_protocol,
+			       (void *)&efi_device_path_utilities);
+	if (ret != EFI_SUCCESS)
+		goto failure;
+
 	return ret;
 failure:
 	printf("ERROR: Failure to install protocols for loaded image\n");

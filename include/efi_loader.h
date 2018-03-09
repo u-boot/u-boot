@@ -83,6 +83,9 @@ extern struct efi_simple_text_output_protocol efi_con_out;
 extern struct efi_simple_input_interface efi_con_in;
 extern struct efi_console_control_protocol efi_console_control;
 extern const struct efi_device_path_to_text_protocol efi_device_path_to_text;
+/* implementation of the EFI_DEVICE_PATH_UTILITIES_PROTOCOL */
+extern const struct efi_device_path_utilities_protocol
+					efi_device_path_utilities;
 
 uint16_t *efi_dp_str(struct efi_device_path *dp);
 
@@ -97,6 +100,7 @@ extern const efi_guid_t efi_guid_loaded_image;
 extern const efi_guid_t efi_guid_device_path_to_text_protocol;
 extern const efi_guid_t efi_simple_file_system_protocol_guid;
 extern const efi_guid_t efi_file_info_guid;
+extern const efi_guid_t efi_guid_device_path_utilities_protocol;
 
 extern unsigned int __efi_runtime_start, __efi_runtime_stop;
 extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;

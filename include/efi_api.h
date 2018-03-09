@@ -587,6 +587,35 @@ struct efi_device_path_to_text_protocol
 			bool allow_shortcuts);
 };
 
+#define EFI_DEVICE_PATH_UTILITIES_PROTOCOL_GUID \
+	EFI_GUID(0x0379be4e, 0xd706, 0x437d, \
+		 0xb0, 0x37, 0xed, 0xb8, 0x2f, 0xb7, 0x72, 0xa4)
+
+struct efi_device_path_utilities_protocol {
+	efi_uintn_t (EFIAPI *get_device_path_size)(
+		const struct efi_device_path *device_path);
+	struct efi_device_path *(EFIAPI *duplicate_device_path)(
+		const struct efi_device_path *device_path);
+	struct efi_device_path *(EFIAPI *append_device_path)(
+		const struct efi_device_path *src1,
+		const struct efi_device_path *src2);
+	struct efi_device_path *(EFIAPI *append_device_node)(
+		const struct efi_device_path *device_path,
+		const struct efi_device_path *device_node);
+	struct efi_device_path *(EFIAPI *append_device_path_instance)(
+		const struct efi_device_path *device_path,
+		const struct efi_device_path *device_path_instance);
+	struct efi_device_path *(EFIAPI *get_next_device_path_instance)(
+		struct efi_device_path **device_path_instance,
+		efi_uintn_t *device_path_instance_size);
+	bool (EFIAPI *is_device_path_multi_instance)(
+		const struct efi_device_path *device_path);
+	struct efi_device_path *(EFIAPI *create_device_node)(
+		uint8_t node_type,
+		uint8_t node_sub_type,
+		uint16_t node_length);
+};
+
 #define EFI_GOP_GUID \
 	EFI_GUID(0x9042a9de, 0x23dc, 0x4a38, \
 		 0x96, 0xfb, 0x7a, 0xde, 0xd0, 0x80, 0x51, 0x6a)
