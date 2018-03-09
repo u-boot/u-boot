@@ -1225,9 +1225,57 @@ static int flash_read(int fd)
 	return 0;
 }
 
+static int flash_io_write(int fd_current)
+{
+	int fd_target, rc, dev_target;
+
+	if (have_redund_env) {
+		/* switch to next partition for writing */
+		dev_target = !dev_current;
+		/* dev_target: fd_target, erase_target */
+		fd_target = open(DEVNAME(dev_target), O_RDWR);
+		if (fd_target < 0) {
+			fprintf(stderr,
+				"Can't open %s: %s\n",
+				DEVNAME(dev_target), strerror(errno));
+			rc = -1;
+			goto exit;
+		}
+	} else {
+		dev_target = dev_current;
+		fd_target = fd_current;
+	}
+
+	rc = flash_write(fd_current, fd_target, dev_target);
+
+	if (fsync(fd_current) && !(errno == EINVAL || errno == EROFS)) {
+		fprintf(stderr,
+			"fsync failed on %s: %s\n",
+			DEVNAME(dev_current), strerror(errno));
+	}
+
+	if (have_redund_env) {
+		if (fsync(fd_target) &&
+		    !(errno == EINVAL || errno == EROFS)) {
+			fprintf(stderr,
+				"fsync failed on %s: %s\n",
+				DEVNAME(dev_current), strerror(errno));
+		}
+
+		if (close(fd_target)) {
+			fprintf(stderr,
+				"I/O error on %s: %s\n",
+				DEVNAME(dev_target), strerror(errno));
+			rc = -1;
+		}
+	}
+ exit:
+	return rc;
+}
+
 static int flash_io(int mode)
 {
-	int fd_current, fd_target, rc, dev_target;
+	int fd_current, rc;
 
 	/* dev_current: fd_current, erase_current */
 	fd_current = open(DEVNAME(dev_current), mode);
@@ -1239,51 +1287,11 @@ static int flash_io(int mode)
 	}
 
 	if (mode == O_RDWR) {
-		if (have_redund_env) {
-			/* switch to next partition for writing */
-			dev_target = !dev_current;
-			/* dev_target: fd_target, erase_target */
-			fd_target = open(DEVNAME(dev_target), mode);
-			if (fd_target < 0) {
-				fprintf(stderr,
-					"Can't open %s: %s\n",
-					DEVNAME(dev_target), strerror(errno));
-				rc = -1;
-				goto exit;
-			}
-		} else {
-			dev_target = dev_current;
-			fd_target = fd_current;
-		}
-
-		rc = flash_write(fd_current, fd_target, dev_target);
-
-		if (fsync(fd_current) && !(errno == EINVAL || errno == EROFS)) {
-			fprintf(stderr,
-				"fsync failed on %s: %s\n",
-				DEVNAME(dev_current), strerror(errno));
-		}
-
-		if (have_redund_env) {
-			if (fsync(fd_target) &&
-			    !(errno == EINVAL || errno == EROFS)) {
-				fprintf(stderr,
-					"fsync failed on %s: %s\n",
-					DEVNAME(dev_current), strerror(errno));
-			}
-
-			if (close(fd_target)) {
-				fprintf(stderr,
-					"I/O error on %s: %s\n",
-					DEVNAME(dev_target), strerror(errno));
-				rc = -1;
-			}
-		}
+		rc = flash_io_write(fd_current);
 	} else {
 		rc = flash_read(fd_current);
 	}
 
- exit:
 	if (close(fd_current)) {
 		fprintf(stderr,
 			"I/O error on %s: %s\n",
