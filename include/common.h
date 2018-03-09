@@ -62,6 +62,9 @@ typedef void (interrupt_handler_t)(void *);
 #define	TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
 #endif
 
+/* startup functions */
+#include <init.h>
+
 /*
  * Function Prototypes
  */
@@ -463,16 +466,6 @@ int	cpu_num_dspcores(void);
 u32	cpu_mask      (void);
 u32	cpu_dsp_mask(void);
 int	is_core_valid (unsigned int);
-
-/**
- * arch_cpu_init() - basic cpu-dependent setup for an architecture
- *
- * This is called after early malloc is available. It should handle any
- * CPU- or SoC- specific init needed to continue the init sequence. See
- * board_f.c for where it is called. If this is not provided, a default
- * version (which does nothing) will be used.
- */
-int arch_cpu_init(void);
 
 void s_init(void);
 
