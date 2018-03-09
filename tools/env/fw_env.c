@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <env_flags.h>
 #include <fcntl.h>
+#include <libgen.h>
 #include <linux/fs.h>
 #include <linux/stringify.h>
 #include <ctype.h>
@@ -1225,9 +1226,48 @@ static int flash_read(int fd)
 	return 0;
 }
 
+static int flash_open_tempfile(const char **dname, const char **target_temp)
+{
+	char *dup_name = strdup(DEVNAME(dev_current));
+	char *temp_name = NULL;
+	int rc = -1;
+
+	if (!dup_name)
+		return -1;
+
+	*dname = dirname(dup_name);
+	if (!*dname)
+		goto err;
+
+	rc = asprintf(&temp_name, "%s/XXXXXX", *dname);
+	if (rc == -1)
+		goto err;
+
+	rc = mkstemp(temp_name);
+	if (rc == -1) {
+		/* fall back to in place write */
+		fprintf(stderr,
+			"Can't create %s: %s\n", temp_name, strerror(errno));
+		free(temp_name);
+	} else {
+		*target_temp = temp_name;
+		/* deliberately leak dup_name as dname /might/ point into
+		 * it and we need it for our caller
+		 */
+		dup_name = NULL;
+	}
+
+err:
+	if (dup_name)
+		free(dup_name);
+
+	return rc;
+}
+
 static int flash_io_write(int fd_current)
 {
-	int fd_target, rc, dev_target;
+	int fd_target = -1, rc, dev_target;
+	const char *dname, *target_temp = NULL;
 
 	if (have_redund_env) {
 		/* switch to next partition for writing */
@@ -1242,8 +1282,17 @@ static int flash_io_write(int fd_current)
 			goto exit;
 		}
 	} else {
+		struct stat sb;
+
+		if (fstat(fd_current, &sb) == 0 && S_ISREG(sb.st_mode)) {
+			/* if any part of flash_open_tempfile() fails we fall
+			 * back to in-place writes
+			 */
+			fd_target = flash_open_tempfile(&dname, &target_temp);
+		}
 		dev_target = dev_current;
-		fd_target = fd_current;
+		if (fd_target == -1)
+			fd_target = fd_current;
 	}
 
 	rc = flash_write(fd_current, fd_target, dev_target);
@@ -1254,7 +1303,7 @@ static int flash_io_write(int fd_current)
 			DEVNAME(dev_current), strerror(errno));
 	}
 
-	if (have_redund_env) {
+	if (fd_current != fd_target) {
 		if (fsync(fd_target) &&
 		    !(errno == EINVAL || errno == EROFS)) {
 			fprintf(stderr,
@@ -1267,6 +1316,34 @@ static int flash_io_write(int fd_current)
 				"I/O error on %s: %s\n",
 				DEVNAME(dev_target), strerror(errno));
 			rc = -1;
+		}
+
+		if (target_temp) {
+			int dir_fd;
+
+			dir_fd = open(dname, O_DIRECTORY | O_RDONLY);
+			if (dir_fd == -1)
+				fprintf(stderr,
+					"Can't open %s: %s\n",
+					dname, strerror(errno));
+
+			if (rename(target_temp, DEVNAME(dev_target))) {
+				fprintf(stderr,
+					"rename failed %s => %s: %s\n",
+					target_temp, DEVNAME(dev_target),
+					strerror(errno));
+				rc = -1;
+			}
+
+			if (dir_fd != -1 && fsync(dir_fd))
+				fprintf(stderr,
+					"fsync failed on %s: %s\n",
+					dname, strerror(errno));
+
+			if (dir_fd != -1 && close(dir_fd))
+				fprintf(stderr,
+					"I/O error on %s: %s\n",
+					dname, strerror(errno));
 		}
 	}
  exit:
