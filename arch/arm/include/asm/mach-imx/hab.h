@@ -9,6 +9,7 @@
 #define __SECURE_MX6Q_H__
 
 #include <linux/types.h>
+#include <linux/compiler.h>
 
 /*
  * IVT header definitions
