@@ -412,35 +412,26 @@
 	phys = <&lane2 PHY_TYPE_USB3 0 2 26000000>;
 };
 
-&xilinx_drm {
-	status = "okay";
-};
-
-&xlnx_dp {
+&zynqmp_dpsub {
 	status = "okay";
 	phy-names = "dp-phy0", "dp-phy1";
 	phys = <&lane1 PHY_TYPE_DP 0 0 27000000>,
 	       <&lane0 PHY_TYPE_DP 1 1 27000000>;
 };
 
-&xlnx_dp_sub {
-	status = "okay";
-	xlnx,vid-clk-pl;
-};
-
-&xlnx_dp_snd_pcm0 {
+&zynqmp_dp_snd_pcm0 {
 	status = "okay";
 };
 
-&xlnx_dp_snd_pcm1 {
+&zynqmp_dp_snd_pcm1 {
 	status = "okay";
 };
 
-&xlnx_dp_snd_card {
+&zynqmp_dp_snd_card0 {
 	status = "okay";
 };
 
-&xlnx_dp_snd_codec0 {
+&zynqmp_dp_snd_codec0 {
 	status = "okay";
 };
 

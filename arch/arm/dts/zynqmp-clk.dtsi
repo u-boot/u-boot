@@ -226,18 +226,14 @@
 	clocks = <&clk250>;
 };
 
-&xilinx_drm {
-	clocks = <&drm_clock>;
-};
-
-&xlnx_dp {
-	clocks = <&dp_aclk>, <&dp_aud_clk>;
+&zynqmp_dpsub {
+	clocks = <&dp_aclk>, <&dp_aud_clk>, <&drm_clock>;
 };
 
 &xlnx_dpdma {
 	clocks = <&dpdma_clk>;
 };
 
-&xlnx_dp_snd_codec0 {
+&zynqmp_dp_snd_codec0 {
 	clocks = <&dp_aud_clk>;
 };

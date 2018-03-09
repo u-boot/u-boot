@@ -256,18 +256,14 @@
 	clocks = <&clk 70>;
 };
 
-&xilinx_drm {
-	clocks = <&clk 16>;
-};
-
-&xlnx_dp {
-	clocks = <&dp_aclk>, <&clk 17>;
+&zynqmp_dpsub {
+	clocks = <&dp_aclk>, <&clk 17>, <&clk 16>;
 };
 
 &xlnx_dpdma {
 	clocks = <&clk 20>;
 };
 
-&xlnx_dp_snd_codec0 {
+&zynqmp_dp_snd_codec0 {
 	clocks = <&clk 17>;
 };
