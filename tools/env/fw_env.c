@@ -116,7 +116,7 @@ static struct environment environment = {
 	.flag_scheme = FLAG_NONE,
 };
 
-static int HaveRedundEnv = 0;
+static int have_redund_env;
 
 static unsigned char active_flag = 1;
 /* obsolete_flag must be 0 to efficiently set it on NOR flash without erasing */
@@ -1239,7 +1239,7 @@ static int flash_io(int mode)
 	}
 
 	if (mode == O_RDWR) {
-		if (HaveRedundEnv) {
+		if (have_redund_env) {
 			/* switch to next partition for writing */
 			dev_target = !dev_current;
 			/* dev_target: fd_target, erase_target */
@@ -1264,7 +1264,7 @@ static int flash_io(int mode)
 				DEVNAME(dev_current), strerror(errno));
 		}
 
-		if (HaveRedundEnv) {
+		if (have_redund_env) {
 			if (fsync(fd_target) &&
 			    !(errno == EINVAL || errno == EROFS)) {
 				fprintf(stderr,
@@ -1330,7 +1330,7 @@ int fw_env_open(struct env_opts *opts)
 	/* read environment from FLASH to local buffer */
 	environment.image = addr0;
 
-	if (HaveRedundEnv) {
+	if (have_redund_env) {
 		redundant = addr0;
 		environment.crc = &redundant->crc;
 		environment.flags = &redundant->flags;
@@ -1351,7 +1351,7 @@ int fw_env_open(struct env_opts *opts)
 	crc0 = crc32(0, (uint8_t *)environment.data, ENV_SIZE);
 
 	crc0_ok = (crc0 == *environment.crc);
-	if (!HaveRedundEnv) {
+	if (!have_redund_env) {
 		if (!crc0_ok) {
 			fprintf(stderr,
 				"Warning: Bad CRC, using default environment\n");
@@ -1644,14 +1644,14 @@ static int parse_config(struct env_opts *opts)
 #ifdef DEVICE2_ENVSECTORS
 	ENVSECTORS(1) = DEVICE2_ENVSECTORS;
 #endif
-	HaveRedundEnv = 1;
+	have_redund_env = 1;
 #endif
 #endif
 	rc = check_device_config(0);
 	if (rc < 0)
 		return rc;
 
-	if (HaveRedundEnv) {
+	if (have_redund_env) {
 		rc = check_device_config(1);
 		if (rc < 0)
 			return rc;
@@ -1664,7 +1664,7 @@ static int parse_config(struct env_opts *opts)
 	}
 
 	usable_envsize = CUR_ENVSIZE - sizeof(uint32_t);
-	if (HaveRedundEnv)
+	if (have_redund_env)
 		usable_envsize -= sizeof(char);
 
 	return 0;
@@ -1706,7 +1706,7 @@ static int get_config(char *fname)
 	}
 	fclose(fp);
 
-	HaveRedundEnv = i - 1;
+	have_redund_env = i - 1;
 	if (!i) {		/* No valid entries found */
 		errno = EINVAL;
 		return -1;
