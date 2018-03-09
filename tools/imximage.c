@@ -777,11 +777,6 @@ static uint32_t parse_cfg_file(struct imx_header *imxhdr, char *name)
 	(*set_dcd_rst)(imxhdr, dcd_len, name, lineno);
 	fclose(fd);
 
-	/* Exit if there is no BOOT_FROM field specifying the flash_offset */
-	if (imximage_ivt_offset == FLASH_OFFSET_UNDEFINED) {
-		fprintf(stderr, "Error: No BOOT_FROM tag in %s\n", name);
-		exit(EXIT_FAILURE);
-	}
 	return dcd_len;
 }
 
