@@ -207,7 +207,7 @@ config SYS_I2C_S3C24X0
 
 config SYS_I2C_STM32F7
 	bool "STMicroelectronics STM32F7 I2C support"
-	depends on (STM32F7 || STM32H7) && DM_I2C
+	depends on (STM32F7 || STM32H7 || ARCH_STM32MP) && DM_I2C
 	help
 	  Enable this option to add support for STM32 I2C controller
 	  introduced with STM32F7/H7 SoCs. This I2C controller supports :

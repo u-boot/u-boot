@@ -195,6 +195,11 @@ T:	git git://git.denx.de/u-boot-stm.git
 F:	arch/arm/cpu/arm926ejs/spear/
 F:	arch/arm/include/asm/arch-spear/
 
+ARM STM STM32MP
+M:	Patrick Delaunay <patrick.delaunay@st.com>
+S:	Maintained
+F:	arch/arm/mach-stm32mp
+
 ARM STM STV0991
 M:	Vikas Manocha <vikas.manocha@st.com>
 S:	Maintained

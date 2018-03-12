@@ -1132,7 +1132,7 @@ config ARCH_UNIPHIER
 	  (formerly, System LSI Business Division of Panasonic Corporation)
 
 config STM32
-	bool "Support STM32"
+	bool "Support STMicroelectronics STM32 MCU with cortex M"
 	select CPU_V7M
 	select DM
 	select DM_SERIAL
@@ -1149,6 +1149,27 @@ config ARCH_STI
 	help
 	  Support for STMicroelectronics STiH407/10 SoC family.
 	  This SoC is used on Linaro 96Board STiH410-B2260
+
+config ARCH_STM32MP
+	bool "Support STMicroelectronics STM32MP Socs with cortex A"
+	select BOARD_LATE_INIT
+	select CLK
+	select DM
+	select DM_GPIO
+	select DM_RESET
+	select DM_SERIAL
+	select OF_CONTROL
+	select OF_LIBFDT
+	select PINCTRL
+	select REGMAP
+	select SUPPORT_SPL
+	select SYSCON
+	select SYS_THUMB_BUILD
+	help
+	  Support for STM32MP SoC family developed by STMicroelectronics,
+	  MPUs based on ARM cortex A core
+	  U-BOOT is running in DDR and SPL support is the unsecure First Stage
+	  BootLoader (FSBL)
 
 config ARCH_ROCKCHIP
 	bool "Support Rockchip SoCs"
@@ -1261,6 +1282,8 @@ source "arch/arm/mach-socfpga/Kconfig"
 source "arch/arm/mach-sti/Kconfig"
 
 source "arch/arm/mach-stm32/Kconfig"
+
+source "arch/arm/mach-stm32mp/Kconfig"
 
 source "arch/arm/mach-sunxi/Kconfig"
 

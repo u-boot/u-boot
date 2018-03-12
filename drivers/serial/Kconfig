@@ -609,10 +609,10 @@ config STI_ASC_SERIAL
 
 config STM32_SERIAL
 	bool "STMicroelectronics STM32 SoCs on-chip UART"
-	depends on DM_SERIAL && (STM32F4 || STM32F7 || STM32H7)
+	depends on DM_SERIAL && (STM32F4 || STM32F7 || STM32H7 || ARCH_STM32MP)
 	help
-	  If you have a machine based on a STM32 F4, F7 or H7 SoC you can
-	  enable its onboard serial ports, say Y to this option.
+	  If you have a machine based on a STM32 F4, F7, H7 or MP1 SOC
+	  you can enable its onboard serial ports, say Y to this option.
 	  If unsure, say N.
 
 config ZYNQ_SERIAL

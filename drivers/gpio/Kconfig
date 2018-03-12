@@ -234,7 +234,7 @@ config PIC32_GPIO
 
 config STM32F7_GPIO
 	bool "ST STM32 GPIO driver"
-	depends on DM_GPIO && STM32
+	depends on DM_GPIO && (STM32 || ARCH_STM32MP)
 	default y
 	help
 	  Device model driver support for STM32 GPIO controller. It should be
