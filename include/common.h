@@ -154,25 +154,15 @@ void arch_setup_gd(gd_t *gd_ptr);
 
 int checkboard(void);
 int show_board_info(void);
-int checkflash(void);
-int checkdram(void);
 int last_stage_init(void);
 extern ulong monitor_flash_len;
 int mac_read_from_eeprom(void);
 extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
 extern u8 __dtb_dt_spl_begin[];	/* embedded device tree blob for SPL/TPL */
 int set_cpu_clk_info(void);
-int mdm_init(void);
 int print_cpuinfo(void);
 int update_flash_size(int flash_size);
 int arch_early_init_r(void);
-
-/*
- * setup_board_extra() - Fill in extra details in the bd_t structure
- *
- * @return 0 if OK, -ve on error
- */
-int setup_board_extra(void);
 
 /**
  * arch_fsp_init() - perform firmware support package init
