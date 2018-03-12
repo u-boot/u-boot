@@ -209,3 +209,11 @@ config DM_PMIC_TPS65910
 	The TPS65910 is a PMIC containing 3 buck DC-DC converters, one boost
 	DC-DC converter, 8 LDOs and a RTC. This driver binds the SMPS and LDO
 	pmic children.
+
+config PMIC_STPMU1
+	bool "Enable support for STMicroelectronics STPMU1 PMIC"
+	depends on DM_PMIC && DM_I2C
+	---help---
+	The STPMU1 PMIC provides 4 BUCKs, 6 LDOs, 1 VREF and 2 power switches.
+	It is accessed via an I2C interface. The device is used with STM32MP1
+	SoCs. This driver implements register read/write operations.
