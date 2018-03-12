@@ -199,6 +199,7 @@ ARM STM STM32MP
 M:	Patrick Delaunay <patrick.delaunay@st.com>
 S:	Maintained
 F:	arch/arm/mach-stm32mp
+F:	ram/stm32mp1
 
 ARM STM STV0991
 M:	Vikas Manocha <vikas.manocha@st.com>

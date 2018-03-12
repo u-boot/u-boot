@@ -1,0 +1,12 @@
+
+config STM32MP1_DDR
+	bool "STM32MP1 DDR driver"
+	depends on DM && OF_CONTROL && ARCH_STM32MP
+	select RAM
+	select SPL_RAM if SPL
+	default y
+	help
+		activate STM32MP1 DDR controller driver for STM32MP1 soc
+		family:	support for LPDDR2, LPDDR3 and DDR3
+		the SDRAM parameters for controleur and phy need to be provided
+		in device tree (computed by DDR tuning tools)

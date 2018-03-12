@@ -33,3 +33,5 @@ config STM32_SDRAM
 	  STM32F7 family devices support flexible memory controller(FMC) to
 	  support external memories like sdram, psram & nand.
 	  This driver is for the sdram memory interface with the FMC.
+
+source "drivers/ram/stm32mp1/Kconfig"
