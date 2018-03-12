@@ -12,7 +12,7 @@
  */
 
 #include <efi_selftest.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 
 static struct efi_boot_services *boottime;
 static const char *fdt;
