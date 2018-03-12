@@ -90,7 +90,8 @@ static int gpio_stm32_probe(struct udevice *dev)
 	if (!name)
 		return -EINVAL;
 	uc_priv->bank_name = name;
-	uc_priv->gpio_count = STM32_GPIOS_PER_BANK;
+	uc_priv->gpio_count = dev_read_u32_default(dev, "ngpios",
+						   STM32_GPIOS_PER_BANK);
 	debug("%s, addr = 0x%p, bank_name = %s\n", __func__, (u32 *)priv->regs,
 	      uc_priv->bank_name);
 
