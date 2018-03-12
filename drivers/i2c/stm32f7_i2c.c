@@ -533,7 +533,7 @@ static int stm32_i2c_compute_solutions(struct stm32_i2c_setup *setup,
 				if (((sdadel >= sdadel_min) &&
 				     (sdadel <= sdadel_max)) &&
 				    (p != p_prev)) {
-					v = kmalloc(sizeof(*v), GFP_KERNEL);
+					v = calloc(1, sizeof(*v));
 					if (!v)
 						return -ENOMEM;
 
@@ -689,7 +689,7 @@ exit:
 	/* Release list and memory */
 	list_for_each_entry_safe(v, _v, &solutions, node) {
 		list_del(&v->node);
-		kfree(v);
+		free(v);
 	}
 
 	return ret;
