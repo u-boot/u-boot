@@ -123,7 +123,7 @@ ARM HISILICON
 M:	Peter Griffin <peter.griffin@linaro.org>
 S:	Maintained
 F:	arch/arm/cpu/armv8/hisilicon
-F:	arm/include/asm/arch-hi6220/
+F:	arch/arm/include/asm/arch-hi6220/
 
 ARM MARVELL KIRKWOOD ARMADA-XP ARMADA-38X
 M:	Prafulla Wadaskar <prafulla@marvell.com>
