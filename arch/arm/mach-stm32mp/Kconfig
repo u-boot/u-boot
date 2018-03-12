@@ -38,4 +38,6 @@ config SYS_TEXT_BASE
 		when DDR driver is used:
 		  DDR + 1MB (0xC0100000)
 
+source "board/st/stm32mp1/Kconfig"
+
 endif
