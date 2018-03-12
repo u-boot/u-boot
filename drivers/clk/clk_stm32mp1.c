@@ -12,9 +12,20 @@
 #include <spl.h>
 #include <syscon.h>
 #include <linux/io.h>
+#include <linux/iopoll.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
+#include <dt-bindings/clock/stm32mp1-clksrc.h>
+
+#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
+/* activate clock tree initialization in the driver */
+#define STM32MP1_CLOCK_TREE_INIT
+#endif
 
 #define MAX_HSI_HZ		64000000
+
+/* TIMEOUT */
+#define TIMEOUT_200MS		200000
+#define TIMEOUT_1S		1000000
 
 /* RCC registers */
 #define RCC_OCENSETR		0x0C
@@ -1079,6 +1090,565 @@ static ulong stm32mp1_clk_get_rate(struct clk *clk)
 	return rate;
 }
 
+#ifdef STM32MP1_CLOCK_TREE_INIT
+static void stm32mp1_ls_osc_set(int enable, fdt_addr_t rcc, u32 offset,
+				u32 mask_on)
+{
+	u32 address = rcc + offset;
+
+	if (enable)
+		setbits_le32(address, mask_on);
+	else
+		clrbits_le32(address, mask_on);
+}
+
+static void stm32mp1_hs_ocs_set(int enable, fdt_addr_t rcc, u32 mask_on)
+{
+	if (enable)
+		setbits_le32(rcc + RCC_OCENSETR, mask_on);
+	else
+		setbits_le32(rcc + RCC_OCENCLRR, mask_on);
+}
+
+static int stm32mp1_osc_wait(int enable, fdt_addr_t rcc, u32 offset,
+			     u32 mask_rdy)
+{
+	u32 mask_test = 0;
+	u32 address = rcc + offset;
+	u32 val;
+	int ret;
+
+	if (enable)
+		mask_test = mask_rdy;
+
+	ret = readl_poll_timeout(address, val,
+				 (val & mask_rdy) == mask_test,
+				 TIMEOUT_1S);
+
+	if (ret)
+		pr_err("OSC %x @ %x timeout for enable=%d : 0x%x\n",
+		       mask_rdy, address, enable, readl(address));
+
+	return ret;
+}
+
+static void stm32mp1_lse_enable(fdt_addr_t rcc, int bypass, int lsedrv)
+{
+	u32 value;
+
+	if (bypass)
+		setbits_le32(rcc + RCC_BDCR, RCC_BDCR_LSEBYP);
+
+	/*
+	 * warning: not recommended to switch directly from "high drive"
+	 * to "medium low drive", and vice-versa.
+	 */
+	value = (readl(rcc + RCC_BDCR) & RCC_BDCR_LSEDRV_MASK)
+		>> RCC_BDCR_LSEDRV_SHIFT;
+
+	while (value != lsedrv) {
+		if (value > lsedrv)
+			value--;
+		else
+			value++;
+
+		clrsetbits_le32(rcc + RCC_BDCR,
+				RCC_BDCR_LSEDRV_MASK,
+				value << RCC_BDCR_LSEDRV_SHIFT);
+	}
+
+	stm32mp1_ls_osc_set(1, rcc, RCC_BDCR, RCC_BDCR_LSEON);
+}
+
+static void stm32mp1_lse_wait(fdt_addr_t rcc)
+{
+	stm32mp1_osc_wait(1, rcc, RCC_BDCR, RCC_BDCR_LSERDY);
+}
+
+static void stm32mp1_lsi_set(fdt_addr_t rcc, int enable)
+{
+	stm32mp1_ls_osc_set(enable, rcc, RCC_RDLSICR, RCC_RDLSICR_LSION);
+	stm32mp1_osc_wait(enable, rcc, RCC_RDLSICR, RCC_RDLSICR_LSIRDY);
+}
+
+static void stm32mp1_hse_enable(fdt_addr_t rcc, int bypass, int css)
+{
+	if (bypass)
+		setbits_le32(rcc + RCC_OCENSETR, RCC_OCENR_HSEBYP);
+
+	stm32mp1_hs_ocs_set(1, rcc, RCC_OCENR_HSEON);
+	stm32mp1_osc_wait(1, rcc, RCC_OCRDYR, RCC_OCRDYR_HSERDY);
+
+	if (css)
+		setbits_le32(rcc + RCC_OCENSETR, RCC_OCENR_HSECSSON);
+}
+
+static void stm32mp1_csi_set(fdt_addr_t rcc, int enable)
+{
+	stm32mp1_ls_osc_set(enable, rcc, RCC_OCENSETR, RCC_OCENR_CSION);
+	stm32mp1_osc_wait(enable, rcc, RCC_OCRDYR, RCC_OCRDYR_CSIRDY);
+}
+
+static void stm32mp1_hsi_set(fdt_addr_t rcc, int enable)
+{
+	stm32mp1_hs_ocs_set(enable, rcc, RCC_OCENR_HSION);
+	stm32mp1_osc_wait(enable, rcc, RCC_OCRDYR, RCC_OCRDYR_HSIRDY);
+}
+
+static int stm32mp1_set_hsidiv(fdt_addr_t rcc, u8 hsidiv)
+{
+	u32 address = rcc + RCC_OCRDYR;
+	u32 val;
+	int ret;
+
+	clrsetbits_le32(rcc + RCC_HSICFGR,
+			RCC_HSICFGR_HSIDIV_MASK,
+			RCC_HSICFGR_HSIDIV_MASK & hsidiv);
+
+	ret = readl_poll_timeout(address, val,
+				 val & RCC_OCRDYR_HSIDIVRDY,
+				 TIMEOUT_200MS);
+	if (ret)
+		pr_err("HSIDIV failed @ 0x%x: 0x%x\n",
+		       address, readl(address));
+
+	return ret;
+}
+
+static int stm32mp1_hsidiv(fdt_addr_t rcc, ulong hsifreq)
+{
+	u8 hsidiv;
+	u32 hsidivfreq = MAX_HSI_HZ;
+
+	for (hsidiv = 0; hsidiv < 4; hsidiv++,
+	     hsidivfreq = hsidivfreq / 2)
+		if (hsidivfreq == hsifreq)
+			break;
+
+	if (hsidiv == 4) {
+		pr_err("clk-hsi frequency invalid");
+		return -1;
+	}
+
+	if (hsidiv > 0)
+		return stm32mp1_set_hsidiv(rcc, hsidiv);
+
+	return 0;
+}
+
+static void pll_start(struct stm32mp1_clk_priv *priv, int pll_id)
+{
+	const struct stm32mp1_clk_pll *pll = priv->data->pll;
+
+	writel(RCC_PLLNCR_PLLON, priv->base + pll[pll_id].pllxcr);
+}
+
+static int pll_output(struct stm32mp1_clk_priv *priv, int pll_id, int output)
+{
+	const struct stm32mp1_clk_pll *pll = priv->data->pll;
+	u32 pllxcr = priv->base + pll[pll_id].pllxcr;
+	u32 val;
+	int ret;
+
+	ret = readl_poll_timeout(pllxcr, val, val & RCC_PLLNCR_PLLRDY,
+				 TIMEOUT_200MS);
+
+	if (ret) {
+		pr_err("PLL%d start failed @ 0x%x: 0x%x\n",
+		       pll_id, pllxcr, readl(pllxcr));
+		return ret;
+	}
+
+	/* start the requested output */
+	setbits_le32(pllxcr, output << RCC_PLLNCR_DIVEN_SHIFT);
+
+	return 0;
+}
+
+static int pll_stop(struct stm32mp1_clk_priv *priv, int pll_id)
+{
+	const struct stm32mp1_clk_pll *pll = priv->data->pll;
+	u32 pllxcr = priv->base + pll[pll_id].pllxcr;
+	u32 val;
+
+	/* stop all output */
+	clrbits_le32(pllxcr,
+		     RCC_PLLNCR_DIVPEN | RCC_PLLNCR_DIVQEN | RCC_PLLNCR_DIVREN);
+
+	/* stop PLL */
+	clrbits_le32(pllxcr, RCC_PLLNCR_PLLON);
+
+	/* wait PLL stopped */
+	return readl_poll_timeout(pllxcr, val, (val & RCC_PLLNCR_PLLRDY) == 0,
+				  TIMEOUT_200MS);
+}
+
+static void pll_config_output(struct stm32mp1_clk_priv *priv,
+			      int pll_id, u32 *pllcfg)
+{
+	const struct stm32mp1_clk_pll *pll = priv->data->pll;
+	fdt_addr_t rcc = priv->base;
+	u32 value;
+
+	value = (pllcfg[PLLCFG_P] << RCC_PLLNCFGR2_DIVP_SHIFT)
+		& RCC_PLLNCFGR2_DIVP_MASK;
+	value |= (pllcfg[PLLCFG_Q] << RCC_PLLNCFGR2_DIVQ_SHIFT)
+		 & RCC_PLLNCFGR2_DIVQ_MASK;
+	value |= (pllcfg[PLLCFG_R] << RCC_PLLNCFGR2_DIVR_SHIFT)
+		 & RCC_PLLNCFGR2_DIVR_MASK;
+	writel(value, rcc + pll[pll_id].pllxcfgr2);
+}
+
+static int pll_config(struct stm32mp1_clk_priv *priv, int pll_id,
+		      u32 *pllcfg, u32 fracv)
+{
+	const struct stm32mp1_clk_pll *pll = priv->data->pll;
+	fdt_addr_t rcc = priv->base;
+	enum stm32mp1_plltype type = pll[pll_id].plltype;
+	int src;
+	ulong refclk;
+	u8 ifrge = 0;
+	u32 value;
+
+	src = readl(priv->base + pll[pll_id].rckxselr) & RCC_SELR_SRC_MASK;
+
+	refclk = stm32mp1_clk_get_fixed(priv, pll[pll_id].refclk[src]) /
+		 (pllcfg[PLLCFG_M] + 1);
+
+	if (refclk < (stm32mp1_pll[type].refclk_min * 1000000) ||
+	    refclk > (stm32mp1_pll[type].refclk_max * 1000000)) {
+		debug("invalid refclk = %x\n", (u32)refclk);
+		return -EINVAL;
+	}
+	if (type == PLL_800 && refclk >= 8000000)
+		ifrge = 1;
+
+	value = (pllcfg[PLLCFG_N] << RCC_PLLNCFGR1_DIVN_SHIFT)
+		 & RCC_PLLNCFGR1_DIVN_MASK;
+	value |= (pllcfg[PLLCFG_M] << RCC_PLLNCFGR1_DIVM_SHIFT)
+		 & RCC_PLLNCFGR1_DIVM_MASK;
+	value |= (ifrge << RCC_PLLNCFGR1_IFRGE_SHIFT)
+		 & RCC_PLLNCFGR1_IFRGE_MASK;
+	writel(value, rcc + pll[pll_id].pllxcfgr1);
+
+	/* fractional configuration: load sigma-delta modulator (SDM) */
+
+	/* Write into FRACV the new fractional value , and FRACLE to 0 */
+	writel(fracv << RCC_PLLNFRACR_FRACV_SHIFT,
+	       rcc + pll[pll_id].pllxfracr);
+
+	/* Write FRACLE to 1 : FRACV value is loaded into the SDM */
+	setbits_le32(rcc + pll[pll_id].pllxfracr,
+		     RCC_PLLNFRACR_FRACLE);
+
+	pll_config_output(priv, pll_id, pllcfg);
+
+	return 0;
+}
+
+static void pll_csg(struct stm32mp1_clk_priv *priv, int pll_id, u32 *csg)
+{
+	const struct stm32mp1_clk_pll *pll = priv->data->pll;
+	u32 pllxcsg;
+
+	pllxcsg = ((csg[PLLCSG_MOD_PER] << RCC_PLLNCSGR_MOD_PER_SHIFT) &
+		    RCC_PLLNCSGR_MOD_PER_MASK) |
+		  ((csg[PLLCSG_INC_STEP] << RCC_PLLNCSGR_INC_STEP_SHIFT) &
+		    RCC_PLLNCSGR_INC_STEP_MASK) |
+		  ((csg[PLLCSG_SSCG_MODE] << RCC_PLLNCSGR_SSCG_MODE_SHIFT) &
+		    RCC_PLLNCSGR_SSCG_MODE_MASK);
+
+	writel(pllxcsg, priv->base + pll[pll_id].pllxcsgr);
+}
+
+static int set_clksrc(struct stm32mp1_clk_priv *priv, unsigned int clksrc)
+{
+	u32 address = priv->base + (clksrc >> 4);
+	u32 val;
+	int ret;
+
+	clrsetbits_le32(address, RCC_SELR_SRC_MASK, clksrc & RCC_SELR_SRC_MASK);
+	ret = readl_poll_timeout(address, val, val & RCC_SELR_SRCRDY,
+				 TIMEOUT_200MS);
+	if (ret)
+		pr_err("CLKSRC %x start failed @ 0x%x: 0x%x\n",
+		       clksrc, address, readl(address));
+
+	return ret;
+}
+
+static int set_clkdiv(unsigned int clkdiv, u32 address)
+{
+	u32 val;
+	int ret;
+
+	clrsetbits_le32(address, RCC_DIVR_DIV_MASK, clkdiv & RCC_DIVR_DIV_MASK);
+	ret = readl_poll_timeout(address, val, val & RCC_DIVR_DIVRDY,
+				 TIMEOUT_200MS);
+	if (ret)
+		pr_err("CLKDIV %x start failed @ 0x%x: 0x%x\n",
+		       clkdiv, address, readl(address));
+
+	return ret;
+}
+
+static void stm32mp1_mco_csg(struct stm32mp1_clk_priv *priv,
+			     u32 clksrc, u32 clkdiv)
+{
+	u32 address = priv->base + (clksrc >> 4);
+
+	/*
+	 * binding clksrc : bit15-4 offset
+	 *                  bit3:   disable
+	 *                  bit2-0: MCOSEL[2:0]
+	 */
+	if (clksrc & 0x8) {
+		clrbits_le32(address, RCC_MCOCFG_MCOON);
+	} else {
+		clrsetbits_le32(address,
+				RCC_MCOCFG_MCOSRC_MASK,
+				clksrc & RCC_MCOCFG_MCOSRC_MASK);
+		clrsetbits_le32(address,
+				RCC_MCOCFG_MCODIV_MASK,
+				clkdiv << RCC_MCOCFG_MCODIV_SHIFT);
+		setbits_le32(address, RCC_MCOCFG_MCOON);
+	}
+}
+
+static void set_rtcsrc(struct stm32mp1_clk_priv *priv,
+		       unsigned int clksrc,
+		       int lse_css)
+{
+	u32 address = priv->base + RCC_BDCR;
+
+	if (readl(address) & RCC_BDCR_RTCCKEN)
+		goto skip_rtc;
+
+	if (clksrc == CLK_RTC_DISABLED)
+		goto skip_rtc;
+
+	clrsetbits_le32(address,
+			RCC_BDCR_RTCSRC_MASK,
+			clksrc << RCC_BDCR_RTCSRC_SHIFT);
+
+	setbits_le32(address, RCC_BDCR_RTCCKEN);
+
+skip_rtc:
+	if (lse_css)
+		setbits_le32(address, RCC_BDCR_LSECSSON);
+}
+
+static void pkcs_config(struct stm32mp1_clk_priv *priv, u32 pkcs)
+{
+	u32 address = priv->base + ((pkcs >> 4) & 0xFFF);
+	u32 value = pkcs & 0xF;
+	u32 mask = 0xF;
+
+	if (pkcs & BIT(31)) {
+		mask <<= 4;
+		value <<= 4;
+	}
+	clrsetbits_le32(address, mask, value);
+}
+
+static int stm32mp1_clktree(struct udevice *dev)
+{
+	struct stm32mp1_clk_priv *priv = dev_get_priv(dev);
+	fdt_addr_t rcc = priv->base;
+	unsigned int clksrc[CLKSRC_NB];
+	unsigned int clkdiv[CLKDIV_NB];
+	unsigned int pllcfg[_PLL_NB][PLLCFG_NB];
+	ofnode plloff[_PLL_NB];
+	int ret;
+	int i, len;
+	int lse_css = 0;
+	const u32 *pkcs_cell;
+
+	/* check mandatory field */
+	ret = dev_read_u32_array(dev, "st,clksrc", clksrc, CLKSRC_NB);
+	if (ret < 0) {
+		debug("field st,clksrc invalid: error %d\n", ret);
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	ret = dev_read_u32_array(dev, "st,clkdiv", clkdiv, CLKDIV_NB);
+	if (ret < 0) {
+		debug("field st,clkdiv invalid: error %d\n", ret);
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	/* check mandatory field in each pll */
+	for (i = 0; i < _PLL_NB; i++) {
+		char name[12];
+
+		sprintf(name, "st,pll@%d", i);
+		plloff[i] = dev_read_subnode(dev, name);
+		if (!ofnode_valid(plloff[i]))
+			continue;
+		ret = ofnode_read_u32_array(plloff[i], "cfg",
+					    pllcfg[i], PLLCFG_NB);
+		if (ret < 0) {
+			debug("field cfg invalid: error %d\n", ret);
+			return -FDT_ERR_NOTFOUND;
+		}
+	}
+
+	debug("configuration MCO\n");
+	stm32mp1_mco_csg(priv, clksrc[CLKSRC_MCO1], clkdiv[CLKDIV_MCO1]);
+	stm32mp1_mco_csg(priv, clksrc[CLKSRC_MCO2], clkdiv[CLKDIV_MCO2]);
+
+	debug("switch ON osillator\n");
+	/*
+	 * switch ON oscillator found in device-tree,
+	 * HSI already ON after bootrom
+	 */
+	if (priv->osc[_LSI])
+		stm32mp1_lsi_set(rcc, 1);
+
+	if (priv->osc[_LSE]) {
+		int bypass;
+		int lsedrv;
+		struct udevice *dev = priv->osc_dev[_LSE];
+
+		bypass = dev_read_bool(dev, "st,bypass");
+		lse_css = dev_read_bool(dev, "st,css");
+		lsedrv = dev_read_u32_default(dev, "st,drive",
+					      LSEDRV_MEDIUM_HIGH);
+
+		stm32mp1_lse_enable(rcc, bypass, lsedrv);
+	}
+
+	if (priv->osc[_HSE]) {
+		int bypass, css;
+		struct udevice *dev = priv->osc_dev[_HSE];
+
+		bypass = dev_read_bool(dev, "st,bypass");
+		css = dev_read_bool(dev, "st,css");
+
+		stm32mp1_hse_enable(rcc, bypass, css);
+	}
+	/* CSI is mandatory for automatic I/O compensation (SYSCFG_CMPCR)
+	 * => switch on CSI even if node is not present in device tree
+	 */
+	stm32mp1_csi_set(rcc, 1);
+
+	/* come back to HSI */
+	debug("come back to HSI\n");
+	set_clksrc(priv, CLK_MPU_HSI);
+	set_clksrc(priv, CLK_AXI_HSI);
+	set_clksrc(priv, CLK_MCU_HSI);
+
+	debug("pll stop\n");
+	for (i = 0; i < _PLL_NB; i++)
+		pll_stop(priv, i);
+
+	/* configure HSIDIV */
+	debug("configure HSIDIV\n");
+	if (priv->osc[_HSI])
+		stm32mp1_hsidiv(rcc, priv->osc[_HSI]);
+
+	/* select DIV */
+	debug("select DIV\n");
+	/* no ready bit when MPUSRC != CLK_MPU_PLL1P_DIV, MPUDIV is disabled */
+	writel(clkdiv[CLKDIV_MPU] & RCC_DIVR_DIV_MASK, rcc + RCC_MPCKDIVR);
+	set_clkdiv(clkdiv[CLKDIV_AXI], rcc + RCC_AXIDIVR);
+	set_clkdiv(clkdiv[CLKDIV_APB4], rcc + RCC_APB4DIVR);
+	set_clkdiv(clkdiv[CLKDIV_APB5], rcc + RCC_APB5DIVR);
+	set_clkdiv(clkdiv[CLKDIV_MCU], rcc + RCC_MCUDIVR);
+	set_clkdiv(clkdiv[CLKDIV_APB1], rcc + RCC_APB1DIVR);
+	set_clkdiv(clkdiv[CLKDIV_APB2], rcc + RCC_APB2DIVR);
+	set_clkdiv(clkdiv[CLKDIV_APB3], rcc + RCC_APB3DIVR);
+
+	/* no ready bit for RTC */
+	writel(clkdiv[CLKDIV_RTC] & RCC_DIVR_DIV_MASK, rcc + RCC_RTCDIVR);
+
+	/* configure PLLs source */
+	debug("configure PLLs source\n");
+	set_clksrc(priv, clksrc[CLKSRC_PLL12]);
+	set_clksrc(priv, clksrc[CLKSRC_PLL3]);
+	set_clksrc(priv, clksrc[CLKSRC_PLL4]);
+
+	/* configure and start PLLs */
+	debug("configure PLLs\n");
+	for (i = 0; i < _PLL_NB; i++) {
+		u32 fracv;
+		u32 csg[PLLCSG_NB];
+
+		debug("configure PLL %d @ %d\n", i,
+		      ofnode_to_offset(plloff[i]));
+		if (!ofnode_valid(plloff[i]))
+			continue;
+
+		fracv = ofnode_read_u32_default(plloff[i], "frac", 0);
+		pll_config(priv, i, pllcfg[i], fracv);
+		ret = ofnode_read_u32_array(plloff[i], "csg", csg, PLLCSG_NB);
+		if (!ret) {
+			pll_csg(priv, i, csg);
+		} else if (ret != -FDT_ERR_NOTFOUND) {
+			debug("invalid csg node for pll@%d res=%d\n", i, ret);
+			return ret;
+		}
+		pll_start(priv, i);
+	}
+
+	/* wait and start PLLs ouptut when ready */
+	for (i = 0; i < _PLL_NB; i++) {
+		if (!ofnode_valid(plloff[i]))
+			continue;
+		debug("output PLL %d\n", i);
+		pll_output(priv, i, pllcfg[i][PLLCFG_O]);
+	}
+
+	/* wait LSE ready before to use it */
+	if (priv->osc[_LSE])
+		stm32mp1_lse_wait(rcc);
+
+	/* configure with expected clock source */
+	debug("CLKSRC\n");
+	set_clksrc(priv, clksrc[CLKSRC_MPU]);
+	set_clksrc(priv, clksrc[CLKSRC_AXI]);
+	set_clksrc(priv, clksrc[CLKSRC_MCU]);
+	set_rtcsrc(priv, clksrc[CLKSRC_RTC], lse_css);
+
+	/* configure PKCK */
+	debug("PKCK\n");
+	pkcs_cell = dev_read_prop(dev, "st,pkcs", &len);
+	if (pkcs_cell) {
+		bool ckper_disabled = false;
+
+		for (i = 0; i < len / sizeof(u32); i++) {
+			u32 pkcs = (u32)fdt32_to_cpu(pkcs_cell[i]);
+
+			if (pkcs == CLK_CKPER_DISABLED) {
+				ckper_disabled = true;
+				continue;
+			}
+			pkcs_config(priv, pkcs);
+		}
+		/* CKPER is source for some peripheral clock
+		 * (FMC-NAND / QPSI-NOR) and switching source is allowed
+		 * only if previous clock is still ON
+		 * => deactivated CKPER only after switching clock
+		 */
+		if (ckper_disabled)
+			pkcs_config(priv, CLK_CKPER_DISABLED);
+	}
+
+	debug("oscillator off\n");
+	/* switch OFF HSI if not found in device-tree */
+	if (!priv->osc[_HSI])
+		stm32mp1_hsi_set(rcc, 0);
+
+	/* Software Self-Refresh mode (SSR) during DDR initilialization */
+	clrsetbits_le32(priv->base + RCC_DDRITFCR,
+			RCC_DDRITFCR_DDRCKMOD_MASK,
+			RCC_DDRITFCR_DDRCKMOD_SSR <<
+			RCC_DDRITFCR_DDRCKMOD_SHIFT);
+
+	return 0;
+}
+#endif /* STM32MP1_CLOCK_TREE_INIT */
+
 static void stm32mp1_osc_clk_init(const char *name,
 				  struct stm32mp1_clk_priv *priv,
 				  int index)
@@ -1132,6 +1702,12 @@ static int stm32mp1_clk_probe(struct udevice *dev)
 		return -EINVAL;
 
 	stm32mp1_osc_init(dev);
+
+#ifdef STM32MP1_CLOCK_TREE_INIT
+	/* clock tree init is done only one time, before relocation */
+	if (!(gd->flags & GD_FLG_RELOC))
+		result = stm32mp1_clktree(dev);
+#endif
 
 	return result;
 }
