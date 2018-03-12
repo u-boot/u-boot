@@ -104,12 +104,6 @@
 			gpios = <&gpio 25 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
 		};
-
-		bt_power {
-			label = "bt_power";
-			gpios = <&gpio 8 GPIO_ACTIVE_HIGH>;
-			default-state = "on";
-		};
 	};
 
 	ltc2954: ltc2954 { /* U7 */
@@ -652,6 +646,11 @@
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart0_default>;
+	bluetooth {
+		compatible = "ti,wl1831-st";
+		enable-gpios = <&gpio 8 GPIO_ACTIVE_HIGH>;
+	};
+
 };
 
 &uart1 {
