@@ -415,7 +415,6 @@ int board_fix_fdt (void *rw_fdt_blob); /* manipulate the U-Boot fdt before its r
 int board_late_init (void);
 int board_postclk_init (void); /* after clocks/timebase, before env/serial */
 int board_early_init_r (void);
-void board_poweroff (void);
 
 #if defined(CONFIG_SYS_DRAM_TEST)
 int testdram(void);

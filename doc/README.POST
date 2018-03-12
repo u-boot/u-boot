@@ -159,17 +159,6 @@ The POST layer will export the following interface routines:
 Also, the following board-specific routines will be called from the
 U-Boot common code:
 
-  o) int board_power_mode(void)
-
-     This routine will return the mode the system is running in
-     (POST_POWERON, POST_NORMAL or POST_SHUTDOWN).
-
-  o) void board_poweroff(void)
-
-     This routine will turn off the power supply of the board. It
-     will be called on power-fail booting after running all POST
-     tests.
-
   o) int post_hotkeys_pressed(gd_t *gd)
 
      This routine will scan the keyboard to detect if a magic key
