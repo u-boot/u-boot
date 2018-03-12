@@ -75,6 +75,14 @@ config CLK_ZYNQMP
 	  This clock driver adds support for clock realted settings for
 	  ZynqMP platform.
 
+config CLK_STM32MP1
+	bool "Enable RCC clock driver for STM32MP1"
+	depends on ARCH_STM32MP && CLK
+	default y
+	help
+	  Enable the STM32 clock (RCC) driver. Enable support for
+	  manipulating STM32MP1's on-SoC clocks.
+
 source "drivers/clk/tegra/Kconfig"
 source "drivers/clk/uniphier/Kconfig"
 source "drivers/clk/exynos/Kconfig"
