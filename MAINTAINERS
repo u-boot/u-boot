@@ -306,7 +306,7 @@ T:	git git://git.denx.de/u-boot-fdt.git
 F:	lib/fdtdec*
 F:	lib/libfdt/
 F:	include/fdt*
-F:	include/libfdt*
+F:	include/linux/libfdt*
 F:	cmd/fdt.c
 F:	common/fdt_support.c
 
