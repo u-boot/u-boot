@@ -49,12 +49,17 @@ fdt_addr_t devfdt_get_addr_index(struct udevice *dev, int index)
 
 		reg += index * (na + ns);
 
-		/*
-		 * Use the full-fledged translate function for complex
-		 * bus setups.
-		 */
-		addr = fdt_translate_address((void *)gd->fdt_blob,
-					     dev_of_offset(dev), reg);
+		if (ns) {
+			/*
+			 * Use the full-fledged translate function for complex
+			 * bus setups.
+			 */
+			addr = fdt_translate_address((void *)gd->fdt_blob,
+						     dev_of_offset(dev), reg);
+		} else {
+			/* Non translatable if #size-cells == 0 */
+			addr = fdt_read_number(reg, na);
+		}
 	} else {
 		/*
 		 * Use the "simple" translate function for less complex
