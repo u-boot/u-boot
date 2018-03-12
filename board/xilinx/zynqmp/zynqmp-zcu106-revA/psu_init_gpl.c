@@ -10,7 +10,7 @@
 static unsigned long psu_pll_init_data(void)
 {
 	psu_mask_write(0xFF5E0034, 0xFE7FEDEFU, 0x7E4E2C62U);
-	psu_mask_write(0xFF5E0030, 0x00717F00U, 0x00013C00U);
+	psu_mask_write(0xFF5E0030, 0x00717F00U, 0x00014600U);
 	psu_mask_write(0xFF5E0030, 0x00000008U, 0x00000008U);
 	psu_mask_write(0xFF5E0030, 0x00000001U, 0x00000001U);
 	psu_mask_write(0xFF5E0030, 0x00000001U, 0x00000000U);
