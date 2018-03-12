@@ -30,7 +30,7 @@ config STI_RESET
 
 config STM32_RESET
 	bool "Enable the STM32 reset"
-	depends on STM32
+	depends on STM32 || ARCH_STM32MP
 	help
 	  Support for reset controllers on STMicroelectronics STM32 family SoCs.
 	  This resset driver is compatible with STM32 F4/F7 and H7 SoCs.
