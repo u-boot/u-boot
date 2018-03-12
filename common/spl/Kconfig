@@ -568,6 +568,15 @@ config SPL_POST_MEM_SUPPORT
 	  performed before booting. This enables the drivers in post/drivers
 	  as part of an SPL build.
 
+config SPL_RESET_SUPPORT
+	bool "Support reset drivers"
+	depends on SPL
+	help
+	  Enable support for reset control in SPL.
+	  That can be useful in SPL to handle IP reset in driver, as in U-Boot,
+	  by using the generic reset API provided by driver model.
+	  This enables the drivers in drivers/reset as part of an SPL build.
+
 config SPL_POWER_SUPPORT
 	bool "Support power drivers"
 	help
