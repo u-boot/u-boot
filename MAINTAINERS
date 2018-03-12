@@ -173,11 +173,9 @@ ARM SAMSUNG
 M:	Minkyu Kang <mk7.kang@samsung.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-samsung.git
-F:	arch/arm/cpu/arm920t/s3c24x0/
 F:	arch/arm/mach-exynos/
 F:	arch/arm/mach-s5pc1xx/
 F:	arch/arm/cpu/armv7/s5p-common/
-F:	arch/arm/include/asm/arch-s3c24x0/
 
 ARM SNAPDRAGON
 M:	Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
