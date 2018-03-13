@@ -428,12 +428,6 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-mpc86xx.git
 F:	arch/powerpc/cpu/mpc86xx/
 
-POWERPC PPC4XX
-M:	Stefan Roese <sr@denx.de>
-S:	Maintained
-T:	git git://git.denx.de/u-boot-ppc4xx.git
-F:	arch/powerpc/cpu/ppc4xx/
-
 RISC-V
 M:	Rick Chen <rick@andestech.com>
 S:	Maintained
