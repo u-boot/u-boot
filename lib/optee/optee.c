@@ -8,6 +8,12 @@
 #include <common.h>
 #include <tee/optee.h>
 
+#define optee_hdr_err_msg \
+	"OPTEE verification error:" \
+	"\n\thdr=%p image=0x%08lx magic=0x%08x tzdram 0x%08lx-0x%08lx " \
+	"\n\theader lo=0x%08x hi=0x%08x size=0x%08lx arch=0x%08x" \
+	"\n\tuimage params 0x%08lx-0x%08lx\n"
+
 int optee_verify_image(struct optee_header *hdr, unsigned long tzdram_start,
 		       unsigned long tzdram_len, unsigned long image_len)
 {
@@ -42,10 +48,19 @@ int optee_verify_bootm_image(unsigned long image_addr,
 
 	ret = optee_verify_image(hdr, tzdram_start, tzdram_len, image_len);
 	if (ret)
-		return ret;
+		goto error;
 
-	if (image_load_addr + sizeof(*hdr) != hdr->init_load_addr_lo)
+	if (image_load_addr + sizeof(*hdr) != hdr->init_load_addr_lo) {
 		ret = -EINVAL;
+		goto error;
+	}
+
+	return ret;
+error:
+	printf(optee_hdr_err_msg, hdr, image_addr, hdr->magic, tzdram_start,
+	       tzdram_start + tzdram_len, hdr->init_load_addr_lo,
+	       hdr->init_load_addr_hi, image_len, hdr->arch, image_load_addr,
+	       image_load_addr + image_len);
 
 	return ret;
 }
