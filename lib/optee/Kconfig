@@ -14,3 +14,11 @@ config OPTEE_TZDRAM_SIZE
 	help
 	  The size of pre-allocated Trust Zone DRAM to allocate for the OPTEE
 	  runtime.
+
+config OPTEE_TZDRAM_BASE
+	hex "Base address of Trust-Zone RAM for the OPTEE image"
+	depends on OPTEE
+	default 0x9d000000
+	help
+	  The base address of pre-allocated Trust Zone DRAM for
+	  the OPTEE runtime.
