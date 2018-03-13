@@ -6,3 +6,11 @@ config OPTEE
           enable an OPTEE specific bootm command that will perform additional
           OPTEE specific checks before booting an OPTEE image created with
           mkimage.
+
+config OPTEE_TZDRAM_SIZE
+	hex "Amount of Trust-Zone RAM for the OPTEE image"
+	depends on OPTEE
+	default 0x3000000
+	help
+	  The size of pre-allocated Trust Zone DRAM to allocate for the OPTEE
+	  runtime.
