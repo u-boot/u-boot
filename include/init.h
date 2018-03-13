@@ -149,6 +149,20 @@ void board_init_f_init_reserve(ulong base);
 void arch_setup_gd(gd_t *gd_ptr);
 
 /* common/board_r.c */
+void board_init_r(gd_t *id, ulong dest_addr) __attribute__ ((noreturn));
+
+int cpu_init_r(void);
+int last_stage_init(void);
+int mac_read_from_eeprom(void);
+int set_cpu_clk_info(void);
+int update_flash_size(int flash_size);
+int arch_early_init_r(void);
+void pci_init(void);
+int misc_init_r(void);
+#if defined(CONFIG_VID)
+int init_func_vid(void);
+#endif
+
 
 #endif	/* __ASSEMBLY__ */
 /* Put only stuff here that the assembler can digest */

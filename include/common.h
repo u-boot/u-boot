@@ -65,6 +65,7 @@ typedef void (interrupt_handler_t)(void *);
 /* startup functions, used in:
  * common/board_f.c
  * common/init/board_init.c
+ * common/board_r.c
  */
 #include <init.h>
 
@@ -95,19 +96,13 @@ int run_command_repeatable(const char *cmd, int flag);
  */
 int run_command_list(const char *cmd, int len, int flag);
 
-/* arch/$(ARCH)/lib/board.c */
-void board_init_r(gd_t *, ulong) __attribute__ ((noreturn));
-
 int checkboard(void);
 int show_board_info(void);
-int last_stage_init(void);
-int mac_read_from_eeprom(void);
+int checkflash(void);
+int checkdram(void);
 extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
 extern u8 __dtb_dt_spl_begin[];	/* embedded device tree blob for SPL/TPL */
-int set_cpu_clk_info(void);
 int mdm_init(void);
-int update_flash_size(int flash_size);
-int arch_early_init_r(void);
 
 /**
  * Show the DRAM size in a board-specific way
@@ -254,13 +249,7 @@ int env_complete(char *var, int maxv, char *cmdv[], int maxsz, char *buf);
 #endif
 int get_env_id (void);
 
-void	pci_init      (void);
 void	pci_init_board(void);
-
-int	misc_init_r   (void);
-#if defined(CONFIG_VID)
-int	init_func_vid(void);
-#endif
 
 /* common/exports.c */
 void	jumptable_init(void);
@@ -385,8 +374,6 @@ int	serial_tstc   (void);
 int	get_clocks (void);
 ulong	get_bus_freq  (ulong);
 int get_serial_clock(void);
-
-int	cpu_init_r    (void);
 
 /* $(CPU)/interrupts.c */
 int	interrupt_init	   (void);
