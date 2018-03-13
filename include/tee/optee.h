@@ -55,4 +55,17 @@ static inline int optee_verify_image(struct optee_header *hdr,
 
 #endif
 
+#if defined(CONFIG_OPTEE)
+int optee_verify_bootm_image(unsigned long image_addr,
+			     unsigned long image_load_addr,
+			     unsigned long image_len);
+#else
+static inline int optee_verify_bootm_image(unsigned long image_addr,
+					   unsigned long image_load_addr,
+					   unsigned long image_len)
+{
+	return -EPERM;
+}
+#endif
+
 #endif /* _OPTEE_H */
