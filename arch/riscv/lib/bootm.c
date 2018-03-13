@@ -46,7 +46,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	bd_t	*bd = gd->bd;
 	char	*s;
 	int	machid = bd->bi_arch_number;
-	void	(*theKernel)(int zero, int arch, uint params);
+	void	(*theKernel)(int arch, uint params);
 
 #ifdef CONFIG_CMDLINE_TAG
 	char *commandline = env_get("bootargs");
@@ -61,7 +61,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 
-	theKernel = (void (*)(int, int, uint))images->ep;
+	theKernel = (void (*)(int, uint))images->ep;
 
 	s = env_get("machid");
 	if (s) {
@@ -120,9 +120,9 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	}
 	cleanup_before_linux();
 	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len)
-		theKernel(0, machid, (unsigned long)images->ft_addr);
+		theKernel(machid, (unsigned long)images->ft_addr);
 	else
-	theKernel(0, machid, bd->bi_boot_params);
+	theKernel(machid, bd->bi_boot_params);
 	/* does not return */
 
 	return 1;
