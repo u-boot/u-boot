@@ -29,6 +29,13 @@ struct optee_header {
 	uint32_t paged_size;
 };
 
+static inline uint32_t optee_image_get_entry_point(const image_header_t *hdr)
+{
+	struct optee_header *optee_hdr = (struct optee_header *)(hdr + 1);
+
+	return optee_hdr->init_load_addr_lo;
+}
+
 #if defined(CONFIG_OPTEE)
 int optee_verify_image(struct optee_header *hdr, unsigned long tzdram_start,
 		       unsigned long tzdram_len, unsigned long image_len);
