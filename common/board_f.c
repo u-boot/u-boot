@@ -489,7 +489,7 @@ static int reserve_bootstage(void)
 	return 0;
 }
 
-int arch_reserve_stacks(void)
+__weak int arch_reserve_stacks(void)
 {
 	return 0;
 }

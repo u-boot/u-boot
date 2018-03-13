@@ -62,34 +62,16 @@ typedef void (interrupt_handler_t)(void *);
 #define	TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
 #endif
 
-/* startup functions */
+/* startup functions, used in:
+ * common/board_f.c
+ */
 #include <init.h>
 
 /*
  * Function Prototypes
  */
-int dram_init(void);
-
-/**
- * dram_init_banksize() - Set up DRAM bank sizes
- *
- * This can be implemented by boards to set up the DRAM bank information in
- * gd->bd->bi_dram(). It is called just before relocation, after dram_init()
- * is called.
- *
- * If this is not provided, a default implementation will try to set up a
- * single bank. It will do this if CONFIG_NR_DRAM_BANKS and
- * CONFIG_SYS_SDRAM_BASE are set. The bank will have a start address of
- * CONFIG_SYS_SDRAM_BASE and the size will be determined by a call to
- * get_effective_memsize().
- *
- * @return 0 if OK, -ve on error
- */
-int dram_init_banksize(void);
-
 void	hang		(void) __attribute__ ((noreturn));
 
-int	timer_init(void);
 int	cpu_init(void);
 
 #include <display_options.h>
@@ -113,7 +95,6 @@ int run_command_repeatable(const char *cmd, int flag);
 int run_command_list(const char *cmd, int len, int flag);
 
 /* arch/$(ARCH)/lib/board.c */
-void board_init_f(ulong);
 void board_init_r(gd_t *, ulong) __attribute__ ((noreturn));
 
 /**
@@ -160,47 +141,9 @@ int mac_read_from_eeprom(void);
 extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
 extern u8 __dtb_dt_spl_begin[];	/* embedded device tree blob for SPL/TPL */
 int set_cpu_clk_info(void);
-int print_cpuinfo(void);
+int mdm_init(void);
 int update_flash_size(int flash_size);
 int arch_early_init_r(void);
-
-/**
- * arch_fsp_init() - perform firmware support package init
- *
- * Where U-Boot relies on binary blobs to handle part of the system init, this
- * function can be used to set up the blobs. This is used on some Intel
- * platforms.
- */
-int arch_fsp_init(void);
-
-/**
- * arch_cpu_init_dm() - init CPU after driver model is available
- *
- * This is called immediately after driver model is available before
- * relocation. This is similar to arch_cpu_init() but is able to reference
- * devices
- *
- * @return 0 if OK, -ve on error
- */
-int arch_cpu_init_dm(void);
-
-/**
- * Reserve all necessary stacks
- *
- * This is used in generic board init sequence in common/board_f.c. Each
- * architecture could provide this function to tailor the required stacks.
- *
- * On entry gd->start_addr_sp is pointing to the suggested top of the stack.
- * The callee ensures gd->start_add_sp is 16-byte aligned, so architectures
- * require only this can leave it untouched.
- *
- * On exit gd->start_addr_sp and gd->irq_sp should be set to the respective
- * positions of the stack. The stack pointer(s) will be set to this later.
- * gd->irq_sp is only required, if the architecture needs it.
- *
- * @return 0 if no error
- */
-__weak int arch_reserve_stacks(void);
 
 /**
  * Show the DRAM size in a board-specific way
@@ -221,7 +164,6 @@ void board_show_dram(phys_size_t size);
  */
 int arch_fixup_fdt(void *blob);
 
-int reserve_mmu(void);
 /* common/flash.c */
 void flash_perror (int);
 
@@ -351,11 +293,6 @@ int get_env_id (void);
 void	pci_init      (void);
 void	pci_init_board(void);
 
-#if defined(CONFIG_DTB_RESELECT)
-int	embedded_dtb_select(void);
-#endif
-
-int	misc_init_f   (void);
 int	misc_init_r   (void);
 #if defined(CONFIG_VID)
 int	init_func_vid(void);
