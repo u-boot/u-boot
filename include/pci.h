@@ -585,8 +585,6 @@ struct pci_controller {
 	/* Used by auto config */
 	struct pci_region *pci_mem, *pci_io, *pci_prefetch;
 
-	/* Used by ppc405 autoconfig*/
-	struct pci_region *pci_fb;
 #ifndef CONFIG_DM_PCI
 	int current_busno;
 
