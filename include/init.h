@@ -163,6 +163,9 @@ int misc_init_r(void);
 int init_func_vid(void);
 #endif
 
+/* common/board_info.c */
+int checkboard(void);
+int show_board_info(void);
 
 #endif	/* __ASSEMBLY__ */
 /* Put only stuff here that the assembler can digest */

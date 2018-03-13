@@ -66,6 +66,7 @@ typedef void (interrupt_handler_t)(void *);
  * common/board_f.c
  * common/init/board_init.c
  * common/board_r.c
+ * common/board_info.c
  */
 #include <init.h>
 
@@ -96,8 +97,6 @@ int run_command_repeatable(const char *cmd, int flag);
  */
 int run_command_list(const char *cmd, int len, int flag);
 
-int checkboard(void);
-int show_board_info(void);
 int checkflash(void);
 int checkdram(void);
 extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
