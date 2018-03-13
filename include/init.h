@@ -109,6 +109,45 @@ int misc_init_f(void);
 int embedded_dtb_select(void);
 #endif
 
+/* common/init/board_init.c */
+extern ulong monitor_flash_len;
+
+/**
+ * ulong board_init_f_alloc_reserve - allocate reserved area
+ *
+ * This function is called by each architecture very early in the start-up
+ * code to allow the C runtime to reserve space on the stack for writable
+ * 'globals' such as GD and the malloc arena.
+ *
+ * @top:	top of the reserve area, growing down.
+ * @return:	bottom of reserved area
+ */
+ulong board_init_f_alloc_reserve(ulong top);
+
+/**
+ * board_init_f_init_reserve - initialize the reserved area(s)
+ *
+ * This function is called once the C runtime has allocated the reserved
+ * area on the stack. It must initialize the GD at the base of that area.
+ *
+ * @base:	top from which reservation was done
+ */
+void board_init_f_init_reserve(ulong base);
+
+/**
+ * arch_setup_gd() - Set up the global_data pointer
+ *
+ * This pointer is special in some architectures and cannot easily be assigned
+ * to. For example on x86 it is implemented by adding a specific record to its
+ * Global Descriptor Table! So we we provide a function to carry out this task.
+ * For most architectures this can simply be:
+ *
+ *    gd = gd_ptr;
+ *
+ * @gd_ptr:	Pointer to global data
+ */
+void arch_setup_gd(gd_t *gd_ptr);
+
 /* common/board_r.c */
 
 #endif	/* __ASSEMBLY__ */

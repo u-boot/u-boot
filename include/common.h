@@ -64,6 +64,7 @@ typedef void (interrupt_handler_t)(void *);
 
 /* startup functions, used in:
  * common/board_f.c
+ * common/init/board_init.c
  */
 #include <init.h>
 
@@ -97,46 +98,9 @@ int run_command_list(const char *cmd, int len, int flag);
 /* arch/$(ARCH)/lib/board.c */
 void board_init_r(gd_t *, ulong) __attribute__ ((noreturn));
 
-/**
- * ulong board_init_f_alloc_reserve - allocate reserved area
- *
- * This function is called by each architecture very early in the start-up
- * code to allow the C runtime to reserve space on the stack for writable
- * 'globals' such as GD and the malloc arena.
- *
- * @top:	top of the reserve area, growing down.
- * @return:	bottom of reserved area
- */
-ulong board_init_f_alloc_reserve(ulong top);
-
-/**
- * board_init_f_init_reserve - initialize the reserved area(s)
- *
- * This function is called once the C runtime has allocated the reserved
- * area on the stack. It must initialize the GD at the base of that area.
- *
- * @base:	top from which reservation was done
- */
-void board_init_f_init_reserve(ulong base);
-
-/**
- * arch_setup_gd() - Set up the global_data pointer
- *
- * This pointer is special in some architectures and cannot easily be assigned
- * to. For example on x86 it is implemented by adding a specific record to its
- * Global Descriptor Table! So we we provide a function to carry out this task.
- * For most architectures this can simply be:
- *
- *    gd = gd_ptr;
- *
- * @gd_ptr:	Pointer to global data
- */
-void arch_setup_gd(gd_t *gd_ptr);
-
 int checkboard(void);
 int show_board_info(void);
 int last_stage_init(void);
-extern ulong monitor_flash_len;
 int mac_read_from_eeprom(void);
 extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
 extern u8 __dtb_dt_spl_begin[];	/* embedded device tree blob for SPL/TPL */
