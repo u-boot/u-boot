@@ -91,15 +91,41 @@ void video_clear(struct udevice *dev)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
 
-	if (priv->bpix == VIDEO_BPP32) {
+	switch (priv->bpix) {
+	case VIDEO_BPP16: {
+		u16 *ppix = priv->fb;
+		u16 *end = priv->fb + priv->fb_size;
+
+		while (ppix < end)
+			*ppix++ = priv->colour_bg;
+		break;
+	}
+	case VIDEO_BPP32: {
 		u32 *ppix = priv->fb;
 		u32 *end = priv->fb + priv->fb_size;
 
 		while (ppix < end)
 			*ppix++ = priv->colour_bg;
-	} else {
-		memset(priv->fb, priv->colour_bg, priv->fb_size);
+		break;
 	}
+	default:
+		memset(priv->fb, priv->colour_bg, priv->fb_size);
+		break;
+	}
+}
+
+void video_set_default_colors(struct video_priv *priv)
+{
+#ifdef CONFIG_SYS_WHITE_ON_BLACK
+	/* White is used when switching to bold, use light gray here */
+	priv->fg_col_idx = VID_LIGHT_GRAY;
+	priv->colour_fg = vid_console_color(priv, VID_LIGHT_GRAY);
+	priv->colour_bg = vid_console_color(priv, VID_BLACK);
+#else
+	priv->fg_col_idx = VID_BLACK;
+	priv->colour_fg = vid_console_color(priv, VID_BLACK);
+	priv->colour_bg = vid_console_color(priv, VID_WHITE);
+#endif
 }
 
 /* Flush video activity to the caches */
@@ -191,12 +217,8 @@ static int video_post_probe(struct udevice *dev)
 	priv->line_length = priv->xsize * VNBYTES(priv->bpix);
 	priv->fb_size = priv->line_length * priv->ysize;
 
-	/* Set up colours - we could in future support other colours */
-#ifdef CONFIG_SYS_WHITE_ON_BLACK
-	priv->colour_fg = 0xffffff;
-#else
-	priv->colour_bg = 0xffffff;
-#endif
+	/* Set up colors  */
+	video_set_default_colors(priv);
 
 	if (!CONFIG_IS_ENABLED(NO_FB_CLEAR))
 		video_clear(dev);
