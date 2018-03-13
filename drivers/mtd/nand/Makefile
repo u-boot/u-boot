@@ -57,7 +57,6 @@ obj-$(CONFIG_NAND_LPC32XX_SLC) += lpc32xx_nand_slc.o
 obj-$(CONFIG_NAND_VF610_NFC) += vf610_nfc.o
 obj-$(CONFIG_NAND_MXC) += mxc_nand.o
 obj-$(CONFIG_NAND_MXS) += mxs_nand.o
-obj-$(CONFIG_NAND_NDFC) += ndfc.o
 obj-$(CONFIG_NAND_PXA3XX) += pxa3xx_nand.o
 obj-$(CONFIG_NAND_SPEAR) += spr_nand.o
 obj-$(CONFIG_TEGRA_NAND) += tegra_nand.o

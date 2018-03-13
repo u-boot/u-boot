@@ -29,11 +29,6 @@
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand_ecc.h>
 
-/* The PPC4xx NDFC uses Smart Media (SMC) bytes order */
-#ifdef CONFIG_NAND_NDFC
-#define CONFIG_MTD_NAND_ECC_SMC
-#endif
-
 /*
  * NAND-SPL has no sofware ECC for now, so don't include nand_calculate_ecc(),
  * only nand_correct_data() is needed
@@ -110,13 +105,8 @@ int nand_calculate_ecc(struct mtd_info *mtd, const u_char *dat,
 	tmp2 |= (reg2 & 0x01) << 0; /* B7 -> B0 */
 
 	/* Calculate final ECC code */
-#ifdef CONFIG_MTD_NAND_ECC_SMC
-	ecc_code[0] = ~tmp2;
-	ecc_code[1] = ~tmp1;
-#else
 	ecc_code[0] = ~tmp1;
 	ecc_code[1] = ~tmp2;
-#endif
 	ecc_code[2] = ((~reg1) << 2) | 0x03;
 
 	return 0;
@@ -146,15 +136,9 @@ int nand_correct_data(struct mtd_info *mtd, u_char *dat,
 {
 	uint8_t s0, s1, s2;
 
-#ifdef CONFIG_MTD_NAND_ECC_SMC
-	s0 = calc_ecc[0] ^ read_ecc[0];
-	s1 = calc_ecc[1] ^ read_ecc[1];
-	s2 = calc_ecc[2] ^ read_ecc[2];
-#else
 	s1 = calc_ecc[0] ^ read_ecc[0];
 	s0 = calc_ecc[1] ^ read_ecc[1];
 	s2 = calc_ecc[2] ^ read_ecc[2];
-#endif
 	if ((s0 | s1 | s2) == 0)
 		return 0;
 
