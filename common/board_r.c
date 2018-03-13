@@ -23,7 +23,6 @@
 #include <fdtdec.h>
 #include <ide.h>
 #include <initcall.h>
-#include <init_helpers.h>
 #ifdef CONFIG_PS2KBD
 #include <keyboard.h>
 #endif

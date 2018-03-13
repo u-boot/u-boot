@@ -18,7 +18,6 @@
 #include <fs.h>
 #include <i2c.h>
 #include <initcall.h>
-#include <init_helpers.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <os.h>

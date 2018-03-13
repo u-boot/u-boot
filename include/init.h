@@ -101,6 +101,13 @@ int dram_init_banksize(void);
  */
 int arch_reserve_stacks(void);
 
+/**
+ * init_cache_f_r() - Turn on the cache in preparation for relocation
+ *
+ * @return 0 if OK, -ve on error
+ */
+int init_cache_f_r(void);
+
 int print_cpuinfo(void);
 int timer_init(void);
 int reserve_mmu(void);
