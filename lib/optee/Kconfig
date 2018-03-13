@@ -1,0 +1,8 @@
+config OPTEE
+	bool "Support OPTEE images"
+	help
+	  U-Boot can be configured to boot OPTEE images.
+	  Selecting this option will enable shared OPTEE library code and
+          enable an OPTEE specific bootm command that will perform additional
+          OPTEE specific checks before booting an OPTEE image created with
+          mkimage.
