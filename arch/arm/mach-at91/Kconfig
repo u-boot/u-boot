@@ -238,6 +238,7 @@ config TARGET_VINCO
 	select SAMA5D4
 	select SUPPORT_SPL
 	select DM
+	select DM_SPI
 
 config TARGET_WB45N
 	bool "Support Laird WB45N"
