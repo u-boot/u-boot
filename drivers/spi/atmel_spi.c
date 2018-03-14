@@ -236,7 +236,9 @@ struct atmel_spi_priv {
 	unsigned int freq;		/* Default frequency */
 	unsigned int mode;
 	ulong bus_clk_rate;
+#ifdef CONFIG_DM_GPIO
 	struct gpio_desc cs_gpios[MAX_CS_COUNT];
+#endif
 };
 
 static int atmel_spi_claim_bus(struct udevice *dev)
@@ -291,6 +293,7 @@ static int atmel_spi_release_bus(struct udevice *dev)
 
 static void atmel_spi_cs_activate(struct udevice *dev)
 {
+#ifdef CONFIG_DM_GPIO
 	struct udevice *bus = dev_get_parent(dev);
 	struct atmel_spi_priv *priv = dev_get_priv(bus);
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
@@ -300,10 +303,12 @@ static void atmel_spi_cs_activate(struct udevice *dev)
 		return;
 
 	dm_gpio_set_value(&priv->cs_gpios[cs], 0);
+#endif
 }
 
 static void atmel_spi_cs_deactivate(struct udevice *dev)
 {
+#ifdef CONFIG_DM_GPIO
 	struct udevice *bus = dev_get_parent(dev);
 	struct atmel_spi_priv *priv = dev_get_priv(bus);
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
@@ -313,6 +318,7 @@ static void atmel_spi_cs_deactivate(struct udevice *dev)
 		return;
 
 	dm_gpio_set_value(&priv->cs_gpios[cs], 1);
+#endif
 }
 
 static int atmel_spi_xfer(struct udevice *dev, unsigned int bitlen,
@@ -462,14 +468,17 @@ static int atmel_spi_enable_clk(struct udevice *bus)
 static int atmel_spi_probe(struct udevice *bus)
 {
 	struct atmel_spi_platdata *bus_plat = dev_get_platdata(bus);
-	struct atmel_spi_priv *priv = dev_get_priv(bus);
-	int i, ret;
+	int ret;
 
 	ret = atmel_spi_enable_clk(bus);
 	if (ret)
 		return ret;
 
 	bus_plat->regs = (struct at91_spi *)devfdt_get_addr(bus);
+
+#ifdef CONFIG_DM_GPIO
+	struct atmel_spi_priv *priv = dev_get_priv(bus);
+	int i;
 
 	ret = gpio_request_list_by_name(bus, "cs-gpios", priv->cs_gpios,
 					ARRAY_SIZE(priv->cs_gpios), 0);
@@ -485,6 +494,7 @@ static int atmel_spi_probe(struct udevice *bus)
 		dm_gpio_set_dir_flags(&priv->cs_gpios[i],
 				      GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 	}
+#endif
 
 	writel(ATMEL_SPI_CR_SWRST, &bus_plat->regs->cr);
 
