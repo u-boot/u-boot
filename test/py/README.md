@@ -150,7 +150,7 @@ processing.
   option takes a single argument which is used to filter test names. Simple
   logical operators are supported. For example:
   - `'ums'` runs only tests with "ums" in their name.
-  - ``ut_dm'` runs only tests with "ut_dm" in their name. Note that in this
+  - `'ut_dm'` runs only tests with "ut_dm" in their name. Note that in this
     case, "ut_dm" is a parameter to a test rather than the test name. The full
     test name is e.g. "test_ut[ut_dm_leak]".
   - `'not reset'` runs everything except tests with "reset" in their name.
