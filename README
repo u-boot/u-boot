@@ -1420,10 +1420,6 @@ The following options need to be configured:
 		be at least 4MB.
 
 - MII/PHY support:
-		CONFIG_PHY_ADDR
-
-		The address of PHY on MII bus.
-
 		CONFIG_PHY_CLOCK_FREQ (ppc4xx)
 
 		The clock frequency of the MII bus

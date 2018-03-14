@@ -95,9 +95,8 @@ Transfer the SPL and the U-Boot FIT image directly to an uSD card:
 (replace /dev/sdx with you SD card device file name, which could be
 /dev/mmcblk[x] as well).
 
-Alternatively you can concatenate the SPL and the U-Boot FIT image into a
+Alternatively you can use the SPL and the U-Boot FIT image combined into a
 single file and transfer that instead:
-$ cat spl/sunxi-spl.bin u-boot.itb > u-boot-sunxi-with-spl.bin
 # dd if=u-boot-sunxi-with-spl.bin of=/dev/sdx bs=8k seek=1
 
 You can partition the microSD card, but leave the first MB unallocated (most

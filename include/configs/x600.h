@@ -70,7 +70,6 @@
 /* Ethernet config options */
 #define CONFIG_MII
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
-#define CONFIG_PHY_ADDR		0	/* PHY address */
 
 #define CONFIG_SPEAR_GPIO
 

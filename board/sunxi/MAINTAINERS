@@ -311,6 +311,12 @@ M:	FUKAUMI Naoki <naobsd@gmail.com>
 S:	Maintained
 F:	configs/Nintendo_NES_Classic_Edition_defconfig
 
+OLIMEX A20-SOM204 BOARD
+M:	Stefan Mavrodiev <stefan@olimex.com>
+S:	Maintained
+F:	configs/A20-Olimex-SOM204-EVB_defconfig
+F:	configs/A20-Olimex-SOM204-EVB-eMMC_defconfig
+
 ORANGEPI WIN/WIN PLUS BOARD
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained

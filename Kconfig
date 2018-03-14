@@ -405,6 +405,9 @@ config SYS_TEXT_BASE
 	depends on !NIOS2 && !XTENSA
 	depends on !EFI_APP
 	default 0x80800000 if ARCH_OMAP2PLUS
+	default 0x4a000000 if ARCH_SUNXI && !MACH_SUN9I && !MACH_SUN8I_V3S
+	default 0x2a000000 if ARCH_SUNXI && MACH_SUN9I
+	default 0x42e00000 if ARCH_SUNXI && MACH_SUN8I_V3S
 	hex "Text Base"
 	help
 	  The address in memory that U-Boot will be running from, initially.

@@ -431,7 +431,7 @@ static int _sun8i_emac_eth_init(struct emac_eth_dev *priv, u8 *enetaddr)
 	tx_descs_init(priv);
 
 	/* PHY Start Up */
-	genphy_parse_link(priv->phydev);
+	phy_startup(priv->phydev);
 
 	sun8i_adjust_link(priv, priv->phydev);
 

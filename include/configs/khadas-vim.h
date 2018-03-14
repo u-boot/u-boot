@@ -12,8 +12,6 @@
 
 #define CONFIG_MISC_INIT_R
 
-#define CONFIG_PHY_ADDR		8
-
 #define MESON_FDTFILE_SETTING "fdtfile=amlogic/meson-gxl-s905x-khadas-vim.dtb\0"
 
 #include <configs/meson-gxbb-common.h>

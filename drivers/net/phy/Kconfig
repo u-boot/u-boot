@@ -13,6 +13,13 @@ menuconfig PHYLIB
 
 if PHYLIB
 
+config PHY_ADDR
+	int "PHY address"
+	default 1 if ARCH_SUNXI
+	default 0
+	help
+	  The address of PHY on MII bus. Usually in range of 0 to 31.
+
 config B53_SWITCH
 	bool "Broadcom BCM53xx (RoboSwitch) Ethernet switch PHY support."
 	help
