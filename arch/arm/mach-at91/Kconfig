@@ -85,6 +85,7 @@ config TARGET_GURNARD
 	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
+	select DM_SPI
 	select DM_GPIO
 	select DM_ETH
 
