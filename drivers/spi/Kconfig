@@ -41,7 +41,7 @@ config ATH79_SPI
 
 config ATMEL_SPI
 	bool "Atmel SPI driver"
-	depends on ARCH_AT91
+	default y if ARCH_AT91
 	help
 	  This enables driver for the Atmel SPI Controller, present on
 	  many AT91 (ARM) chips. This driver can be used to access
