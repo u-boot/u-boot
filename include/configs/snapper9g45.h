@@ -64,8 +64,6 @@
 #define CONFIG_ATMEL_LCD
 #define CONFIG_GURNARD_SPLASH
 
-#define CONFIG_ATMEL_SPI
-
 /* GPIOs and IO expander */
 #define CONFIG_ATMEL_LEGACY
 #define CONFIG_AT91_GPIO
