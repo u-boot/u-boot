@@ -18,3 +18,38 @@ time may be removed in a subsequent release.
 
 Note that this implies use of driver model for all block devices (e.g.
 MMC, USB, SCSI, SATA).
+
+CONFIG_DM_SPI
+CONFIG_DM_SPI_FLASH
+-------------------
+
+Board Maintainers should submit the patches for enabling DM_SPI and DM_SPI_FLASH
+to move the migration with in the deadline.
+
+Status: In progress
+Deadline: 2018.09
+
+No dm conversion yet:
+	drivers/spi/cf_spi.c
+	drivers/spi/fsl_espi.c
+	drivers/spi/lpc32xx_ssp.c
+	drivers/spi/mpc8xx_spi.c
+	drivers/spi/mpc8xxx_spi.c
+	drivers/spi/mxs_spi.c
+	drivers/spi/sh_qspi.c
+	drivers/spi/sh_spi.c
+	drivers/spi/soft_spi_legacy.c
+
+Partially converted:
+	drivers/spi/atcspi200_spi.c
+	drivers/spi/davinci_spi.c
+	drivers/spi/fsl_dspi.c
+	drivers/spi/fsl_qspi.c
+	drivers/spi/kirkwood_spi.c
+	drivers/spi/mxc_spi.c
+	drivers/spi/omap3_spi.c
+	drivers/spi/ti_qspi.c
+
+--
+Jagan Teki <jagan@openedev.com>
+03/14/2018
