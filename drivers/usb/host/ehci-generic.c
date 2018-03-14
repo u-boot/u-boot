@@ -101,7 +101,7 @@ static int ehci_usb_probe(struct udevice *dev)
 				break;
 			err = clk_enable(&priv->clocks[i]);
 			if (err) {
-				pr_err("failed to enable clock %d\n", i);
+				dev_err(dev, "failed to enable clock %d\n", i);
 				clk_free(&priv->clocks[i]);
 				goto clk_err;
 			}
@@ -109,7 +109,8 @@ static int ehci_usb_probe(struct udevice *dev)
 		}
 	} else {
 		if (clock_nb != -ENOENT) {
-			pr_err("failed to get clock phandle(%d)\n", clock_nb);
+			dev_err(dev, "failed to get clock phandle(%d)\n",
+				clock_nb);
 			return clock_nb;
 		}
 	}
@@ -130,7 +131,8 @@ static int ehci_usb_probe(struct udevice *dev)
 				break;
 
 			if (reset_deassert(&priv->resets[i])) {
-				pr_err("failed to deassert reset %d\n", i);
+				dev_err(dev, "failed to deassert reset %d\n",
+					i);
 				reset_free(&priv->resets[i]);
 				goto reset_err;
 			}
@@ -138,14 +140,14 @@ static int ehci_usb_probe(struct udevice *dev)
 		}
 	} else {
 		if (reset_nb != -ENOENT) {
-			pr_err("failed to get reset phandle(%d)\n", reset_nb);
+			dev_err(dev, "failed to get reset phandle(%d)\n",
+				reset_nb);
 			goto clk_err;
 		}
 	}
 
 	err = ehci_setup_phy(dev, 0);
 	if (err)
-
 		goto reset_err;
 
 	hccr = map_physmem(dev_read_addr(dev), 0x100, MAP_NOCACHE);
@@ -166,11 +168,11 @@ phy_err:
 reset_err:
 	ret = reset_release_all(priv->resets, priv->reset_count);
 	if (ret)
-		pr_err("failed to assert all resets\n");
+		dev_err(dev, "failed to assert all resets\n");
 clk_err:
 	ret = clk_release_all(priv->clocks, priv->clock_count);
 	if (ret)
-		pr_err("failed to disable all clocks\n");
+		dev_err(dev, "failed to disable all clocks\n");
 
 	return err;
 }
