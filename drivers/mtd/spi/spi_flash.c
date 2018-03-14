@@ -320,7 +320,7 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 
 	erase_size = flash->erase_size;
 	if (offset % erase_size || len % erase_size) {
-		debug("SF: Erase offset/length not multiple of erase size\n");
+		printf("SF: Erase offset/length not multiple of erase size\n");
 		return -1;
 	}
 
