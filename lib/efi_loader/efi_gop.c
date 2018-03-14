@@ -77,6 +77,24 @@ static inline u16 efi_blt_col_to_vid16(struct efi_gop_pixel *blt)
 	       (u16)(blt->blue  >> 3);
 }
 
+/*
+ * Copy rectangle.
+ *
+ * This function implements the Blt service of the EFI_GRAPHICS_OUTPUT_PROTOCOL.
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @this:	EFI_GRAPHICS_OUTPUT_PROTOCOL
+ * @buffer:	pixel buffer
+ * @sx:		source x-coordinate
+ * @sy:		source y-coordinate
+ * @dx:		destination x-coordinate
+ * @dy:		destination y-coordinate
+ * @width:	width of rectangle
+ * @height:	height of rectangle
+ * @delta:	length in bytes of a line in the pixel buffer (optional)
+ * @return:	status code
+ */
 efi_status_t EFIAPI gop_blt(struct efi_gop *this, struct efi_gop_pixel *buffer,
 			    u32 operation, efi_uintn_t sx,
 			    efi_uintn_t sy, efi_uintn_t dx,
@@ -88,13 +106,17 @@ efi_status_t EFIAPI gop_blt(struct efi_gop *this, struct efi_gop_pixel *buffer,
 	u32 *fb32 = gopobj->fb;
 	u16 *fb16 = gopobj->fb;
 
-	if (delta)
-		linelen = delta;
-	else
-		linelen = width;
-
 	EFI_ENTRY("%p, %p, %u, %zu, %zu, %zu, %zu, %zu, %zu, %zu", this,
 		  buffer, operation, sx, sy, dx, dy, width, height, delta);
+
+	if (delta) {
+		/* Check for 4 byte alignment */
+		if (delta & 3)
+			return EFI_EXIT(EFI_INVALID_PARAMETER);
+		linelen = delta >> 2;
+	} else {
+		linelen = width;
+	}
 
 	/* Check source rectangle */
 	switch (operation) {

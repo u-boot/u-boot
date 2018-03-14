@@ -87,7 +87,7 @@ static void EFIAPI notify(struct efi_event *event, void *context)
 
 	/* Copy image to video */
 	gop->blt(gop, bitmap, EFI_BLT_BUFFER_TO_VIDEO, sx, 0, dx, DEPTH,
-		 width, HEIGHT, WIDTH);
+		 width, HEIGHT, WIDTH * sizeof(struct efi_gop_pixel));
 }
 
 /*
@@ -276,7 +276,7 @@ static int execute(void)
 	/* Copy port holes back to buffer */
 	ret = gop->blt(gop, bitmap, EFI_BLT_VIDEO_TO_BLT_BUFFER,
 		       94, 57 + DEPTH, 94, 57,
-		       90, 26, WIDTH);
+		       90, 26, WIDTH * sizeof(struct efi_gop_pixel));
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("EFI_BLT_VIDEO_TO_BLT_BUFFER failed\n");
 		return EFI_ST_FAILURE;
