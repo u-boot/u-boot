@@ -480,6 +480,9 @@ dtb-$(CONFIG_TARGET_SAMA5D3XEK) += \
 dtb-$(CONFIG_TARGET_SAMA5D3_XPLAINED) += \
 	at91-sama5d3_xplained.dtb
 
+dtb-$(CONFIG_TARGET_MA5D4EK) += \
+	at91-sama5d4_ma5d4evk.dts.dtb
+
 dtb-$(CONFIG_TARGET_SAMA5D4EK) += \
 	at91-sama5d4ek.dtb
 
