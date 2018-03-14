@@ -147,6 +147,12 @@ static int zynqimage_verify_header(unsigned char *ptr, int image_size,
 	if (image_size < sizeof(struct zynq_header))
 		return -1;
 
+	if (zynqhdr->__reserved1 != 0)
+		return -1;
+
+	if (zynqhdr->__reserved2 != 0)
+		return -1;
+
 	if (zynqhdr->width_detection != HEADER_WIDTHDETECTION)
 		return -1;
 	if (zynqhdr->image_identifier != HEADER_IMAGEIDENTIFIER)
