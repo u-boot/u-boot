@@ -359,7 +359,7 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_SPL_BUILD
 void spl_board_init(void)
 {
-#ifdef CONFIG_ATMEL_SPI
+#ifndef CONFIG_DM_SPI
 	ma5d4evk_spi0_hw_init();
 #endif
 #ifdef CONFIG_GENERIC_ATMEL_MCI
