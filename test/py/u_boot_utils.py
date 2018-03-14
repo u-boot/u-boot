@@ -11,6 +11,7 @@ import os.path
 import pytest
 import sys
 import time
+import re
 
 def md5sum_data(data):
     """Calculate the MD5 hash of some data.
@@ -310,3 +311,25 @@ def persistent_file_helper(u_boot_log, filename):
     """
 
     return PersistentFileHelperCtxMgr(u_boot_log, filename)
+
+def crc32(u_boot_console, address, count):
+    """Helper function used to compute the CRC32 value of a section of RAM.
+
+    Args:
+        u_boot_console: A U-Boot console connection.
+        address: Address where data starts.
+        count: Amount of data to use for calculation.
+
+    Returns:
+        CRC32 value
+    """
+
+    bcfg = u_boot_console.config.buildconfig
+    has_cmd_crc32 = bcfg.get('config_cmd_crc32', 'n') == 'y'
+    assert has_cmd_crc32, 'Cannot compute crc32 without CONFIG_CMD_CRC32.'
+    output = u_boot_console.run_command('crc32 %08x %x' % (address, count))
+
+    m = re.search('==> ([0-9a-fA-F]{8})$', output)
+    assert m, 'CRC32 operation failed.'
+
+    return m.group(1)
