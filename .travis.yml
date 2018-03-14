@@ -27,6 +27,7 @@ addons:
     - rpm2cpio
     - wget
     - device-tree-compiler
+    - lzop
 
 install:
  # Clone uboot-test-hooks
