@@ -98,6 +98,12 @@ static int ohci_usb_probe(struct udevice *dev)
 			pr_err("failed to init usb phy\n");
 			goto reset_err;
 		}
+
+		err = generic_phy_power_on(&priv->phy);
+		if (err) {
+			dev_err(dev, "failed to power on usb phy\n");
+			goto phy_power_err;
+		}
 	}
 
 	err = ohci_register(dev, regs);
@@ -107,6 +113,13 @@ static int ohci_usb_probe(struct udevice *dev)
 	return 0;
 
 phy_err:
+	if (generic_phy_valid(&priv->phy)) {
+		ret = generic_phy_power_off(&priv->phy);
+		if (ret)
+			dev_err(dev, "failed to power off usb phy\n");
+	}
+
+phy_power_err:
 	if (generic_phy_valid(&priv->phy)) {
 		ret = generic_phy_exit(&priv->phy);
 		if (ret)
@@ -135,6 +148,10 @@ static int ohci_usb_remove(struct udevice *dev)
 		return ret;
 
 	if (generic_phy_valid(&priv->phy)) {
+		ret = generic_phy_power_off(&priv->phy);
+		if (ret)
+			return ret;
+
 		ret = generic_phy_exit(&priv->phy);
 		if (ret)
 			return ret;
