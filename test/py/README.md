@@ -320,7 +320,7 @@ If U-Boot has already been built:
 
 ```bash
 PATH=$HOME/ubtest/bin:$PATH \
-    PYTHONPATH=${HOME}/ubtest/py:${PYTHONPATH} \
+    PYTHONPATH=${HOME}/ubtest/py/${HOSTNAME}:${PYTHONPATH} \
     ./test/py/test.py --bd seaboard
 ```
 
@@ -331,7 +331,7 @@ follow:
 ```bash
 CROSS_COMPILE=arm-none-eabi- \
     PATH=$HOME/ubtest/bin:$PATH \
-    PYTHONPATH=${HOME}/ubtest/py:${PYTHONPATH} \
+    PYTHONPATH=${HOME}/ubtest/py/${HOSTNAME}:${PYTHONPATH} \
     ./test/py/test.py --bd seaboard --build
 ```
 
