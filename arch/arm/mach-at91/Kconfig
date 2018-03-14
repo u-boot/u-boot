@@ -201,6 +201,7 @@ config TARGET_MA5D4EVK
 	select SAMA5D4
 	select SUPPORT_SPL
 	select DM
+	select DM_SPI
 
 config TARGET_MEESC
 	bool "Support meesc"
