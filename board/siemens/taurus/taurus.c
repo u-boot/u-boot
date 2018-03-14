@@ -283,6 +283,8 @@ int board_early_init_f(void)
 	return 0;
 }
 
+/* FIXME gpio code here need to handle through DM_GPIO */
+#ifndef CONFIG_DM_SPI
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
 	return bus == 0 && cs == 0;
@@ -297,6 +299,7 @@ void spi_cs_deactivate(struct spi_slave *slave)
 {
 	at91_set_gpio_value(TAURUS_SPI_CS_PIN, 1);
 }
+#endif
 
 #ifdef CONFIG_USB_GADGET_AT91
 #include <linux/usb/at91_udc.h>
