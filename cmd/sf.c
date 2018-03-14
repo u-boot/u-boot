@@ -287,7 +287,7 @@ static int do_spi_flash_read_write(int argc, char * const argv[])
 	}
 
 	buf = map_physmem(addr, len, MAP_WRBACK);
-	if (!buf) {
+	if (!buf && addr) {
 		puts("Failed to map physical memory\n");
 		return 1;
 	}
