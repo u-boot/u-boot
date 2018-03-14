@@ -645,7 +645,7 @@ static int omap3_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	return _spi_xfer(priv, bitlen, dout, din, flags);
 }
 
-static int omap3_spi_set_speed(struct udevice *bus, unsigned int speed)
+static int omap3_spi_set_speed(struct udevice *dev, unsigned int speed)
 {
 	struct udevice *bus = dev->parent;
 	struct omap3_spi_priv *priv = dev_get_priv(bus);
@@ -658,7 +658,7 @@ static int omap3_spi_set_speed(struct udevice *bus, unsigned int speed)
 	return 0;
 }
 
-static int omap3_spi_set_mode(struct udevice *bus, uint mode)
+static int omap3_spi_set_mode(struct udevice *dev, uint mode)
 {
 	struct udevice *bus = dev->parent;
 	struct omap3_spi_priv *priv = dev_get_priv(bus);
