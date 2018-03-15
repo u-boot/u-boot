@@ -456,9 +456,6 @@ static void _omap3_spi_claim_bus(struct omap3_spi_priv *priv)
 	conf |= OMAP3_MCSPI_MODULCTRL_SINGLE;
 
 	writel(conf, &priv->regs->modulctrl);
-
-	_omap3_spi_set_mode(priv);
-	_omap3_spi_set_speed(priv);
 }
 
 #ifndef CONFIG_DM_SPI
@@ -594,8 +591,6 @@ static int omap3_spi_claim_bus(struct udevice *dev)
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
 
 	priv->cs = slave_plat->cs;
-	priv->mode = slave_plat->mode;
-	priv->freq = slave_plat->max_hz;
 	_omap3_spi_claim_bus(priv);
 
 	return 0;
@@ -650,13 +645,29 @@ static int omap3_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	return _spi_xfer(priv, bitlen, dout, din, flags);
 }
 
-static int omap3_spi_set_speed(struct udevice *bus, unsigned int speed)
+static int omap3_spi_set_speed(struct udevice *dev, unsigned int speed)
 {
+	struct udevice *bus = dev->parent;
+	struct omap3_spi_priv *priv = dev_get_priv(bus);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+
+	priv->cs = slave_plat->cs;
+	priv->freq = slave_plat->max_hz;
+	_omap3_spi_set_speed(priv);
+
 	return 0;
 }
 
-static int omap3_spi_set_mode(struct udevice *bus, uint mode)
+static int omap3_spi_set_mode(struct udevice *dev, uint mode)
 {
+	struct udevice *bus = dev->parent;
+	struct omap3_spi_priv *priv = dev_get_priv(bus);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+
+	priv->cs = slave_plat->cs;
+	priv->mode = slave_plat->mode;
+	_omap3_spi_set_mode(priv);
+
 	return 0;
 }
 
