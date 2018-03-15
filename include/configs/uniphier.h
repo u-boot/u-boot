@@ -87,7 +87,7 @@
 #define CONFIG_GATEWAYIP		192.168.11.1
 #define CONFIG_NETMASK			255.255.255.0
 
-#define CONFIG_LOADADDR			0x84000000
+#define CONFIG_LOADADDR			0x85000000
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_BOOTM_LEN		(32 << 20)
 
@@ -115,7 +115,7 @@
 #define CONFIG_BOOTFILE			"fitImage"
 #define LINUXBOOT_ENV_SETTINGS \
 	"fit_addr=0x00100000\0" \
-	"fit_addr_r=0x84100000\0" \
+	"fit_addr_r=0x85100000\0" \
 	"fit_size=0x00f00000\0" \
 	"norboot=setexpr fit_addr $nor_base + $fit_addr &&" \
 		"bootm $fit_addr\0" \
@@ -128,7 +128,7 @@
 #ifdef CONFIG_ARM64
 #define CONFIG_BOOTFILE			"Image.gz"
 #define LINUXBOOT_CMD			"booti"
-#define KERNEL_ADDR_LOAD		"kernel_addr_load=0x84200000\0"
+#define KERNEL_ADDR_LOAD		"kernel_addr_load=0x85200000\0"
 #define KERNEL_ADDR_R			"kernel_addr_r=0x82080000\0"
 #else
 #define CONFIG_BOOTFILE			"zImage"
@@ -138,15 +138,15 @@
 #endif
 #define LINUXBOOT_ENV_SETTINGS \
 	"fdt_addr=0x00100000\0" \
-	"fdt_addr_r=0x84100000\0" \
+	"fdt_addr_r=0x85100000\0" \
 	"fdt_size=0x00008000\0" \
 	"kernel_addr=0x00200000\0" \
 	KERNEL_ADDR_LOAD \
 	KERNEL_ADDR_R \
-	"kernel_size=0x00800000\0" \
-	"ramdisk_addr=0x00a00000\0" \
-	"ramdisk_addr_r=0x84a00000\0" \
-	"ramdisk_size=0x00600000\0" \
+	"kernel_size=0x00e00000\0" \
+	"ramdisk_addr=0x01000000\0" \
+	"ramdisk_addr_r=0x86000000\0" \
+	"ramdisk_size=0x00800000\0" \
 	"ramdisk_file=rootfs.cpio.uboot\0" \
 	"boot_common=setexpr bootm_low $kernel_addr_r '&' fe000000 && " \
 		"if test $kernel_addr_load = $kernel_addr_r; then " \
@@ -192,17 +192,17 @@
 		"tftpboot $second_image && " \
 		"mmc write $loadaddr 0 100 && " \
 		"tftpboot $third_image && " \
-		"mmc write $loadaddr 100 700\0" \
+		"mmc write $loadaddr 100 f00\0" \
 	"nandupdate=nand erase 0 0x00100000 &&"			\
 		"tftpboot $second_image && " \
 		"nand write $loadaddr 0 0x00020000 && " \
 		"tftpboot $third_image && " \
-		"nand write $loadaddr 0x00020000 0x000e0000\0" \
+		"nand write $loadaddr 0x00020000 0x001e0000\0" \
 	"usbupdate=usb start &&" \
 		"tftpboot $second_image && " \
 		"usb write $loadaddr 0 100 && " \
 		"tftpboot $third_image && " \
-		"usb write $loadaddr 100 700\0" \
+		"usb write $loadaddr 100 f00\0" \
 	BOOT_IMAGES \
 	LINUXBOOT_ENV_SETTINGS
 
