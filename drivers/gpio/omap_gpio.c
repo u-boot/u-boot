@@ -345,6 +345,7 @@ U_BOOT_DRIVER(gpio_omap) = {
 	.bind	= omap_gpio_bind,
 	.probe	= omap_gpio_probe,
 	.priv_auto_alloc_size = sizeof(struct gpio_bank),
+	.flags = DM_FLAG_PRE_RELOC,
 };
 
 #endif /* CONFIG_DM_GPIO */
