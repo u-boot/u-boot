@@ -78,18 +78,20 @@ static __always_inline u16 efi_blt_col_to_vid16(struct efi_gop_pixel *blt)
 }
 
 static __always_inline efi_status_t gop_blt_int(struct efi_gop *this,
-						struct efi_gop_pixel *buffer,
+						struct efi_gop_pixel *bufferp,
 						u32 operation, efi_uintn_t sx,
 						efi_uintn_t sy, efi_uintn_t dx,
 						efi_uintn_t dy,
 						efi_uintn_t width,
 						efi_uintn_t height,
-						efi_uintn_t delta)
+						efi_uintn_t delta,
+						efi_uintn_t vid_bpp)
 {
 	struct efi_gop_obj *gopobj = container_of(this, struct efi_gop_obj, ops);
-	efi_uintn_t i, j, linelen;
+	efi_uintn_t i, j, linelen, slineoff = 0, dlineoff, swidth, dwidth;
 	u32 *fb32 = gopobj->fb;
 	u16 *fb16 = gopobj->fb;
+	struct efi_gop_pixel *buffer = __builtin_assume_aligned(bufferp, 4);
 
 	if (delta) {
 		/* Check for 4 byte alignment */
@@ -133,6 +135,37 @@ static __always_inline efi_status_t gop_blt_int(struct efi_gop *this,
 		break;
 	}
 
+	/* Calculate line width */
+	switch (operation) {
+	case EFI_BLT_BUFFER_TO_VIDEO:
+		swidth = linelen;
+		break;
+	case EFI_BLT_VIDEO_TO_BLT_BUFFER:
+	case EFI_BLT_VIDEO_TO_VIDEO:
+		swidth = gopobj->info.width;
+		if (!vid_bpp)
+			return EFI_UNSUPPORTED;
+		break;
+	case EFI_BLT_VIDEO_FILL:
+		swidth = 0;
+		break;
+	}
+
+	switch (operation) {
+	case EFI_BLT_BUFFER_TO_VIDEO:
+	case EFI_BLT_VIDEO_FILL:
+	case EFI_BLT_VIDEO_TO_VIDEO:
+		dwidth = gopobj->info.width;
+		if (!vid_bpp)
+			return EFI_UNSUPPORTED;
+		break;
+	case EFI_BLT_VIDEO_TO_BLT_BUFFER:
+		dwidth = linelen;
+		break;
+	}
+
+	slineoff = swidth * sy;
+	dlineoff = dwidth * dy;
 	for (i = 0; i < height; i++) {
 		for (j = 0; j < width; j++) {
 			struct efi_gop_pixel pix;
@@ -143,70 +176,65 @@ static __always_inline efi_status_t gop_blt_int(struct efi_gop *this,
 				pix = *buffer;
 				break;
 			case EFI_BLT_BUFFER_TO_VIDEO:
-				pix = buffer[linelen * (i + sy) + j + sx];
+				pix = buffer[slineoff + j + sx];
 				break;
 			case EFI_BLT_VIDEO_TO_BLT_BUFFER:
 			case EFI_BLT_VIDEO_TO_VIDEO:
-				switch (gopobj->bpix) {
-#ifdef CONFIG_DM_VIDEO
-				case VIDEO_BPP32:
-#else
-				case LCD_COLOR32:
-#endif
+				if (vid_bpp == 32)
 					pix = *(struct efi_gop_pixel *)&fb32[
-						gopobj->info.width *
-						(i + sy) + j + sx];
-				break;
-#ifdef CONFIG_DM_VIDEO
-				case VIDEO_BPP16:
-#else
-				case LCD_COLOR16:
-#endif
+						slineoff + j + sx];
+				else
 					pix = efi_vid16_to_blt_col(fb16[
-						gopobj->info.width *
-						(i + sy) + j + sx]);
-					break;
-				default:
-					return EFI_UNSUPPORTED;
-				}
+						slineoff + j + sx]);
 				break;
 			}
 
 			/* Write destination pixel */
 			switch (operation) {
 			case EFI_BLT_VIDEO_TO_BLT_BUFFER:
-				buffer[linelen * (i + dy) + j + dx] = pix;
+				buffer[dlineoff + j + dx] = pix;
 				break;
 			case EFI_BLT_BUFFER_TO_VIDEO:
 			case EFI_BLT_VIDEO_FILL:
 			case EFI_BLT_VIDEO_TO_VIDEO:
-				switch (gopobj->bpix) {
-#ifdef CONFIG_DM_VIDEO
-				case VIDEO_BPP32:
-#else
-				case LCD_COLOR32:
-#endif
-					fb32[gopobj->info.width *
-					     (i + dy) + j + dx] = *(u32 *)&pix;
-					break;
-#ifdef CONFIG_DM_VIDEO
-				case VIDEO_BPP16:
-#else
-				case LCD_COLOR16:
-#endif
-					fb16[gopobj->info.width *
-					     (i + dy) + j + dx] =
+				if (vid_bpp == 32)
+					fb32[dlineoff + j + dx] = *(u32 *)&pix;
+				else
+					fb16[dlineoff + j + dx] =
 						efi_blt_col_to_vid16(&pix);
-					break;
-				default:
-					return EFI_UNSUPPORTED;
-				}
 				break;
 			}
 		}
+		slineoff += swidth;
+		dlineoff += dwidth;
 	}
 
 	return EFI_SUCCESS;
+}
+
+static efi_uintn_t gop_get_bpp(struct efi_gop *this)
+{
+	struct efi_gop_obj *gopobj = container_of(this, struct efi_gop_obj, ops);
+	efi_uintn_t vid_bpp = 0;
+
+	switch (gopobj->bpix) {
+#ifdef CONFIG_DM_VIDEO
+	case VIDEO_BPP32:
+#else
+	case LCD_COLOR32:
+#endif
+		vid_bpp = 32;
+		break;
+#ifdef CONFIG_DM_VIDEO
+	case VIDEO_BPP16:
+#else
+	case LCD_COLOR16:
+#endif
+		vid_bpp = 16;
+		break;
+	}
+
+	return vid_bpp;
 }
 
 /*
@@ -223,21 +251,33 @@ static efi_status_t gop_blt_video_fill(struct efi_gop *this,
 				       u32 foo, efi_uintn_t sx,
 				       efi_uintn_t sy, efi_uintn_t dx,
 				       efi_uintn_t dy, efi_uintn_t width,
-				       efi_uintn_t height, efi_uintn_t delta)
+				       efi_uintn_t height, efi_uintn_t delta,
+				       efi_uintn_t vid_bpp)
 {
 	return gop_blt_int(this, buffer, EFI_BLT_VIDEO_FILL, sx, sy, dx,
-			   dy, width, height, delta);
+			   dy, width, height, delta, vid_bpp);
 }
 
-static efi_status_t gop_blt_buf_to_vid(struct efi_gop *this,
-				       struct efi_gop_pixel *buffer,
-				       u32 foo, efi_uintn_t sx,
-				       efi_uintn_t sy, efi_uintn_t dx,
-				       efi_uintn_t dy, efi_uintn_t width,
-				       efi_uintn_t height, efi_uintn_t delta)
+static efi_status_t gop_blt_buf_to_vid16(struct efi_gop *this,
+					 struct efi_gop_pixel *buffer,
+					 u32 foo, efi_uintn_t sx,
+					 efi_uintn_t sy, efi_uintn_t dx,
+					 efi_uintn_t dy, efi_uintn_t width,
+					 efi_uintn_t height, efi_uintn_t delta)
 {
 	return gop_blt_int(this, buffer, EFI_BLT_BUFFER_TO_VIDEO, sx, sy, dx,
-			   dy, width, height, delta);
+			   dy, width, height, delta, 16);
+}
+
+static efi_status_t gop_blt_buf_to_vid32(struct efi_gop *this,
+					 struct efi_gop_pixel *buffer,
+					 u32 foo, efi_uintn_t sx,
+					 efi_uintn_t sy, efi_uintn_t dx,
+					 efi_uintn_t dy, efi_uintn_t width,
+					 efi_uintn_t height, efi_uintn_t delta)
+{
+	return gop_blt_int(this, buffer, EFI_BLT_BUFFER_TO_VIDEO, sx, sy, dx,
+			   dy, width, height, delta, 32);
 }
 
 static efi_status_t gop_blt_vid_to_vid(struct efi_gop *this,
@@ -245,10 +285,11 @@ static efi_status_t gop_blt_vid_to_vid(struct efi_gop *this,
 				       u32 foo, efi_uintn_t sx,
 				       efi_uintn_t sy, efi_uintn_t dx,
 				       efi_uintn_t dy, efi_uintn_t width,
-				       efi_uintn_t height, efi_uintn_t delta)
+				       efi_uintn_t height, efi_uintn_t delta,
+				       efi_uintn_t vid_bpp)
 {
 	return gop_blt_int(this, buffer, EFI_BLT_VIDEO_TO_VIDEO, sx, sy, dx,
-			   dy, width, height, delta);
+			   dy, width, height, delta, vid_bpp);
 }
 
 static efi_status_t gop_blt_vid_to_buf(struct efi_gop *this,
@@ -256,10 +297,11 @@ static efi_status_t gop_blt_vid_to_buf(struct efi_gop *this,
 				       u32 foo, efi_uintn_t sx,
 				       efi_uintn_t sy, efi_uintn_t dx,
 				       efi_uintn_t dy, efi_uintn_t width,
-				       efi_uintn_t height, efi_uintn_t delta)
+				       efi_uintn_t height, efi_uintn_t delta,
+				       efi_uintn_t vid_bpp)
 {
 	return gop_blt_int(this, buffer, EFI_BLT_VIDEO_TO_BLT_BUFFER, sx, sy,
-			   dx, dy, width, height, delta);
+			   dx, dy, width, height, delta, vid_bpp);
 }
 
 /*
@@ -287,27 +329,37 @@ efi_status_t EFIAPI gop_blt(struct efi_gop *this, struct efi_gop_pixel *buffer,
 			    efi_uintn_t height, efi_uintn_t delta)
 {
 	efi_status_t ret = EFI_INVALID_PARAMETER;
+	efi_uintn_t vid_bpp;
 
 	EFI_ENTRY("%p, %p, %u, %zu, %zu, %zu, %zu, %zu, %zu, %zu", this,
 		  buffer, operation, sx, sy, dx, dy, width, height, delta);
+
+	vid_bpp = gop_get_bpp(this);
 
 	/* Allow for compiler optimization */
 	switch (operation) {
 	case EFI_BLT_VIDEO_FILL:
 		ret = gop_blt_video_fill(this, buffer, operation, sx, sy, dx,
-					 dy, width, height, delta);
+					 dy, width, height, delta, vid_bpp);
 		break;
 	case EFI_BLT_BUFFER_TO_VIDEO:
-		ret = gop_blt_buf_to_vid(this, buffer, operation, sx, sy, dx,
-					 dy, width, height, delta);
+		/* This needs to be super-fast, so duplicate for 16/32bpp */
+		if (vid_bpp == 32)
+			ret = gop_blt_buf_to_vid32(this, buffer, operation, sx,
+						   sy, dx, dy, width, height,
+						   delta);
+		else
+			ret = gop_blt_buf_to_vid16(this, buffer, operation, sx,
+						   sy, dx, dy, width, height,
+						   delta);
 		break;
 	case EFI_BLT_VIDEO_TO_VIDEO:
 		ret = gop_blt_vid_to_vid(this, buffer, operation, sx, sy, dx,
-					 dy, width, height, delta);
+					 dy, width, height, delta, vid_bpp);
 		break;
 	case EFI_BLT_VIDEO_TO_BLT_BUFFER:
 		ret = gop_blt_vid_to_buf(this, buffer, operation, sx, sy, dx,
-					 dy, width, height, delta);
+					 dy, width, height, delta, vid_bpp);
 		break;
 	default:
 		ret = EFI_UNSUPPORTED;
