@@ -811,7 +811,7 @@ int wait_for_chhltd(struct dwc2_hc_regs *hc_regs, uint32_t *sub, u8 *toggle)
 	uint32_t hcint, hctsiz;
 
 	ret = wait_for_bit_le32(&hc_regs->hcint, DWC2_HCINT_CHHLTD, true,
-				1000, false);
+				2000, false);
 	if (ret)
 		return ret;
 
