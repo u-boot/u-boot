@@ -77,42 +77,24 @@ static __always_inline u16 efi_blt_col_to_vid16(struct efi_gop_pixel *blt)
 	       (u16)(blt->blue  >> 3);
 }
 
-/*
- * Copy rectangle.
- *
- * This function implements the Blt service of the EFI_GRAPHICS_OUTPUT_PROTOCOL.
- * See the Unified Extensible Firmware Interface (UEFI) specification for
- * details.
- *
- * @this:	EFI_GRAPHICS_OUTPUT_PROTOCOL
- * @buffer:	pixel buffer
- * @sx:		source x-coordinate
- * @sy:		source y-coordinate
- * @dx:		destination x-coordinate
- * @dy:		destination y-coordinate
- * @width:	width of rectangle
- * @height:	height of rectangle
- * @delta:	length in bytes of a line in the pixel buffer (optional)
- * @return:	status code
- */
-efi_status_t EFIAPI gop_blt(struct efi_gop *this, struct efi_gop_pixel *buffer,
-			    u32 operation, efi_uintn_t sx,
-			    efi_uintn_t sy, efi_uintn_t dx,
-			    efi_uintn_t dy, efi_uintn_t width,
-			    efi_uintn_t height, efi_uintn_t delta)
+static __always_inline efi_status_t gop_blt_int(struct efi_gop *this,
+						struct efi_gop_pixel *buffer,
+						u32 operation, efi_uintn_t sx,
+						efi_uintn_t sy, efi_uintn_t dx,
+						efi_uintn_t dy,
+						efi_uintn_t width,
+						efi_uintn_t height,
+						efi_uintn_t delta)
 {
 	struct efi_gop_obj *gopobj = container_of(this, struct efi_gop_obj, ops);
 	efi_uintn_t i, j, linelen;
 	u32 *fb32 = gopobj->fb;
 	u16 *fb16 = gopobj->fb;
 
-	EFI_ENTRY("%p, %p, %u, %zu, %zu, %zu, %zu, %zu, %zu, %zu", this,
-		  buffer, operation, sx, sy, dx, dy, width, height, delta);
-
 	if (delta) {
 		/* Check for 4 byte alignment */
 		if (delta & 3)
-			return EFI_EXIT(EFI_INVALID_PARAMETER);
+			return EFI_INVALID_PARAMETER;
 		linelen = delta >> 2;
 	} else {
 		linelen = width;
@@ -124,16 +106,16 @@ efi_status_t EFIAPI gop_blt(struct efi_gop *this, struct efi_gop_pixel *buffer,
 		break;
 	case EFI_BLT_BUFFER_TO_VIDEO:
 		if (sx + width > linelen)
-			return EFI_EXIT(EFI_INVALID_PARAMETER);
+			return EFI_INVALID_PARAMETER;
 		break;
 	case EFI_BLT_VIDEO_TO_BLT_BUFFER:
 	case EFI_BLT_VIDEO_TO_VIDEO:
 		if (sx + width > gopobj->info.width ||
 		    sy + height > gopobj->info.height)
-			return EFI_EXIT(EFI_INVALID_PARAMETER);
+			return EFI_INVALID_PARAMETER;
 		break;
 	default:
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
+		return EFI_INVALID_PARAMETER;
 	}
 
 	/* Check destination rectangle */
@@ -143,11 +125,11 @@ efi_status_t EFIAPI gop_blt(struct efi_gop *this, struct efi_gop_pixel *buffer,
 	case EFI_BLT_VIDEO_TO_VIDEO:
 		if (dx + width > gopobj->info.width ||
 		    dy + height > gopobj->info.height)
-			return EFI_EXIT(EFI_INVALID_PARAMETER);
+			return EFI_INVALID_PARAMETER;
 		break;
 	case EFI_BLT_VIDEO_TO_BLT_BUFFER:
 		if (dx + width > linelen)
-			return EFI_EXIT(EFI_INVALID_PARAMETER);
+			return EFI_INVALID_PARAMETER;
 		break;
 	}
 
@@ -185,7 +167,7 @@ efi_status_t EFIAPI gop_blt(struct efi_gop *this, struct efi_gop_pixel *buffer,
 						(i + sy) + j + sx]);
 					break;
 				default:
-					return EFI_EXIT(EFI_UNSUPPORTED);
+					return EFI_UNSUPPORTED;
 				}
 				break;
 			}
@@ -217,12 +199,122 @@ efi_status_t EFIAPI gop_blt(struct efi_gop *this, struct efi_gop_pixel *buffer,
 						efi_blt_col_to_vid16(&pix);
 					break;
 				default:
-					return EFI_EXIT(EFI_UNSUPPORTED);
+					return EFI_UNSUPPORTED;
 				}
 				break;
 			}
 		}
 	}
+
+	return EFI_SUCCESS;
+}
+
+/*
+ * Gcc can't optimize our BLT function well, but we need to make sure that
+ * our 2-dimensional loop gets executed very quickly, otherwise the system
+ * will feel slow.
+ *
+ * By manually putting all obvious branch targets into functions which call
+ * our generic blt function with constants, the compiler can successfully
+ * optimize for speed.
+ */
+static efi_status_t gop_blt_video_fill(struct efi_gop *this,
+				       struct efi_gop_pixel *buffer,
+				       u32 foo, efi_uintn_t sx,
+				       efi_uintn_t sy, efi_uintn_t dx,
+				       efi_uintn_t dy, efi_uintn_t width,
+				       efi_uintn_t height, efi_uintn_t delta)
+{
+	return gop_blt_int(this, buffer, EFI_BLT_VIDEO_FILL, sx, sy, dx,
+			   dy, width, height, delta);
+}
+
+static efi_status_t gop_blt_buf_to_vid(struct efi_gop *this,
+				       struct efi_gop_pixel *buffer,
+				       u32 foo, efi_uintn_t sx,
+				       efi_uintn_t sy, efi_uintn_t dx,
+				       efi_uintn_t dy, efi_uintn_t width,
+				       efi_uintn_t height, efi_uintn_t delta)
+{
+	return gop_blt_int(this, buffer, EFI_BLT_BUFFER_TO_VIDEO, sx, sy, dx,
+			   dy, width, height, delta);
+}
+
+static efi_status_t gop_blt_vid_to_vid(struct efi_gop *this,
+				       struct efi_gop_pixel *buffer,
+				       u32 foo, efi_uintn_t sx,
+				       efi_uintn_t sy, efi_uintn_t dx,
+				       efi_uintn_t dy, efi_uintn_t width,
+				       efi_uintn_t height, efi_uintn_t delta)
+{
+	return gop_blt_int(this, buffer, EFI_BLT_VIDEO_TO_VIDEO, sx, sy, dx,
+			   dy, width, height, delta);
+}
+
+static efi_status_t gop_blt_vid_to_buf(struct efi_gop *this,
+				       struct efi_gop_pixel *buffer,
+				       u32 foo, efi_uintn_t sx,
+				       efi_uintn_t sy, efi_uintn_t dx,
+				       efi_uintn_t dy, efi_uintn_t width,
+				       efi_uintn_t height, efi_uintn_t delta)
+{
+	return gop_blt_int(this, buffer, EFI_BLT_VIDEO_TO_BLT_BUFFER, sx, sy,
+			   dx, dy, width, height, delta);
+}
+
+/*
+ * Copy rectangle.
+ *
+ * This function implements the Blt service of the EFI_GRAPHICS_OUTPUT_PROTOCOL.
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @this:	EFI_GRAPHICS_OUTPUT_PROTOCOL
+ * @buffer:	pixel buffer
+ * @sx:		source x-coordinate
+ * @sy:		source y-coordinate
+ * @dx:		destination x-coordinate
+ * @dy:		destination y-coordinate
+ * @width:	width of rectangle
+ * @height:	height of rectangle
+ * @delta:	length in bytes of a line in the pixel buffer (optional)
+ * @return:	status code
+ */
+efi_status_t EFIAPI gop_blt(struct efi_gop *this, struct efi_gop_pixel *buffer,
+			    u32 operation, efi_uintn_t sx,
+			    efi_uintn_t sy, efi_uintn_t dx,
+			    efi_uintn_t dy, efi_uintn_t width,
+			    efi_uintn_t height, efi_uintn_t delta)
+{
+	efi_status_t ret = EFI_INVALID_PARAMETER;
+
+	EFI_ENTRY("%p, %p, %u, %zu, %zu, %zu, %zu, %zu, %zu, %zu", this,
+		  buffer, operation, sx, sy, dx, dy, width, height, delta);
+
+	/* Allow for compiler optimization */
+	switch (operation) {
+	case EFI_BLT_VIDEO_FILL:
+		ret = gop_blt_video_fill(this, buffer, operation, sx, sy, dx,
+					 dy, width, height, delta);
+		break;
+	case EFI_BLT_BUFFER_TO_VIDEO:
+		ret = gop_blt_buf_to_vid(this, buffer, operation, sx, sy, dx,
+					 dy, width, height, delta);
+		break;
+	case EFI_BLT_VIDEO_TO_VIDEO:
+		ret = gop_blt_vid_to_vid(this, buffer, operation, sx, sy, dx,
+					 dy, width, height, delta);
+		break;
+	case EFI_BLT_VIDEO_TO_BLT_BUFFER:
+		ret = gop_blt_vid_to_buf(this, buffer, operation, sx, sy, dx,
+					 dy, width, height, delta);
+		break;
+	default:
+		ret = EFI_UNSUPPORTED;
+	}
+
+	if (ret != EFI_SUCCESS)
+		return EFI_EXIT(ret);
 
 #ifdef CONFIG_DM_VIDEO
 	video_sync_all();
