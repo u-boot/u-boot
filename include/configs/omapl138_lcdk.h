@@ -57,7 +57,8 @@
  * PLL configuration
  */
 
-#define CONFIG_SYS_DA850_PLL0_PLLM     37
+/* Requires CONFIG_SYS_DA850_PLL0_POSTDIV=0, set in Kconfig */
+#define CONFIG_SYS_DA850_PLL0_PLLM     18
 #define CONFIG_SYS_DA850_PLL1_PLLM     21
 
 /*
