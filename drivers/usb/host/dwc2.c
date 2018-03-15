@@ -114,7 +114,7 @@ static void dwc_otg_flush_tx_fifo(struct dwc2_core_regs *regs, const int num)
 	ret = wait_for_bit_le32(&regs->grstctl, DWC2_GRSTCTL_TXFFLSH,
 				false, 1000, false);
 	if (ret)
-		printf("%s: Timeout!\n", __func__);
+		dev_info(dev, "%s: Timeout!\n", __func__);
 
 	/* Wait for 3 PHY Clocks */
 	udelay(1);
@@ -133,7 +133,7 @@ static void dwc_otg_flush_rx_fifo(struct dwc2_core_regs *regs)
 	ret = wait_for_bit_le32(&regs->grstctl, DWC2_GRSTCTL_RXFFLSH,
 				false, 1000, false);
 	if (ret)
-		printf("%s: Timeout!\n", __func__);
+		dev_info(dev, "%s: Timeout!\n", __func__);
 
 	/* Wait for 3 PHY Clocks */
 	udelay(1);
@@ -151,14 +151,14 @@ static void dwc_otg_core_reset(struct dwc2_core_regs *regs)
 	ret = wait_for_bit_le32(&regs->grstctl, DWC2_GRSTCTL_AHBIDLE,
 				true, 1000, false);
 	if (ret)
-		printf("%s: Timeout!\n", __func__);
+		dev_info(dev, "%s: Timeout!\n", __func__);
 
 	/* Core Soft Reset */
 	writel(DWC2_GRSTCTL_CSFTRST, &regs->grstctl);
 	ret = wait_for_bit_le32(&regs->grstctl, DWC2_GRSTCTL_CSFTRST,
 				false, 1000, false);
 	if (ret)
-		printf("%s: Timeout!\n", __func__);
+		dev_info(dev, "%s: Timeout!\n", __func__);
 
 	/*
 	 * Wait for core to come out of reset.
@@ -183,7 +183,7 @@ static int dwc_vbus_supply_init(struct udevice *dev)
 
 	ret = regulator_set_enable(priv->vbus_supply, true);
 	if (ret) {
-		pr_err("Error enabling vbus supply\n");
+		dev_err(dev, "Error enabling vbus supply\n");
 		return ret;
 	}
 
@@ -297,7 +297,7 @@ static void dwc_otg_core_host_init(struct udevice *dev,
 		ret = wait_for_bit_le32(&regs->hc_regs[i].hcchar,
 					DWC2_HCCHAR_CHEN, false, 1000, false);
 		if (ret)
-			printf("%s: Timeout!\n", __func__);
+			dev_info("%s: Timeout!\n", __func__);
 	}
 
 	/* Turn on the vbus power. */
@@ -1118,7 +1118,7 @@ int _submit_int_msg(struct dwc2_priv *priv, struct usb_device *dev,
 	timeout = get_timer(0) + USB_TIMEOUT_MS(pipe);
 	for (;;) {
 		if (get_timer(0) > timeout) {
-			printf("Timeout poll on interrupt endpoint\n");
+			dev_err(dev, "Timeout poll on interrupt endpoint\n");
 			return -ETIMEDOUT;
 		}
 		ret = _submit_bulk_msg(priv, dev, pipe, buffer, len);
@@ -1134,11 +1134,13 @@ static int dwc2_init_common(struct udevice *dev, struct dwc2_priv *priv)
 	int i, j;
 
 	snpsid = readl(&regs->gsnpsid);
-	printf("Core Release: %x.%03x\n", snpsid >> 12 & 0xf, snpsid & 0xfff);
+	dev_info(dev, "Core Release: %x.%03x\n",
+		 snpsid >> 12 & 0xf, snpsid & 0xfff);
 
 	if ((snpsid & DWC2_SNPSID_DEVID_MASK) != DWC2_SNPSID_DEVID_VER_2xx &&
 	    (snpsid & DWC2_SNPSID_DEVID_MASK) != DWC2_SNPSID_DEVID_VER_3xx) {
-		printf("SNPSID invalid (not DWC2 OTG device): %08x\n", snpsid);
+		dev_info(dev, "SNPSID invalid (not DWC2 OTG device): %08x\n",
+			 snpsid);
 		return -ENODEV;
 	}
 
