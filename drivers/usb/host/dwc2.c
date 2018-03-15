@@ -34,6 +34,9 @@ struct dwc2_priv {
 #ifdef CONFIG_DM_USB
 	uint8_t aligned_buffer[DWC2_DATA_BUF_SIZE] __aligned(ARCH_DMA_MINALIGN);
 	uint8_t status_buffer[DWC2_STATUS_BUF_SIZE] __aligned(ARCH_DMA_MINALIGN);
+#ifdef CONFIG_DM_REGULATOR
+	struct udevice *vbus_supply;
+#endif
 #else
 	uint8_t *aligned_buffer;
 	uint8_t *status_buffer;
@@ -168,19 +171,36 @@ static void dwc_otg_core_reset(struct dwc2_core_regs *regs)
 #if defined(CONFIG_DM_USB) && defined(CONFIG_DM_REGULATOR)
 static int dwc_vbus_supply_init(struct udevice *dev)
 {
-	struct udevice *vbus_supply;
+	struct dwc2_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = device_get_supply_regulator(dev, "vbus-supply", &vbus_supply);
+	ret = device_get_supply_regulator(dev, "vbus-supply",
+					  &priv->vbus_supply);
 	if (ret) {
 		debug("%s: No vbus supply\n", dev->name);
 		return 0;
 	}
 
-	ret = regulator_set_enable(vbus_supply, true);
+	ret = regulator_set_enable(priv->vbus_supply, true);
 	if (ret) {
 		pr_err("Error enabling vbus supply\n");
 		return ret;
+	}
+
+	return 0;
+}
+
+static int dwc_vbus_supply_exit(struct udevice *dev)
+{
+	struct dwc2_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	if (priv->vbus_supply) {
+		ret = regulator_set_enable(priv->vbus_supply, false);
+		if (ret) {
+			dev_err(dev, "Error disabling vbus supply\n");
+			return ret;
+		}
 	}
 
 	return 0;
@@ -190,6 +210,13 @@ static int dwc_vbus_supply_init(struct udevice *dev)
 {
 	return 0;
 }
+
+#if defined(CONFIG_DM_USB)
+static int dwc_vbus_supply_exit(struct udevice *dev)
+{
+	return 0;
+}
+#endif
 #endif
 
 /*
@@ -1269,6 +1296,11 @@ static int dwc2_usb_probe(struct udevice *dev)
 static int dwc2_usb_remove(struct udevice *dev)
 {
 	struct dwc2_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = dwc_vbus_supply_exit(dev);
+	if (ret)
+		return ret;
 
 	dwc2_uninit_common(priv->regs);
 
