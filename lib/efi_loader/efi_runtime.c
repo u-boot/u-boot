@@ -349,13 +349,13 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
 {
 	struct efi_runtime_mmio_list *newmmio;
-	efi_status_t ret;
-
 	u64 pages = (len + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
-	ret = efi_add_memory_map(*(uintptr_t *)mmio_ptr, pages, EFI_MMAP_IO,
-				 false);
-	if (ret != EFI_SUCCESS)
-		return ret;
+	uint64_t addr = *(uintptr_t *)mmio_ptr;
+	uint64_t retaddr;
+
+	retaddr = efi_add_memory_map(addr, pages, EFI_MMAP_IO, false);
+	if (retaddr != addr)
+		return EFI_OUT_OF_RESOURCES;
 
 	newmmio = calloc(1, sizeof(*newmmio));
 	if (!newmmio)
@@ -365,7 +365,7 @@ efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
 	newmmio->len = len;
 	list_add_tail(&newmmio->link, &efi_runtime_mmio);
 
-	return ret;
+	return EFI_SUCCESS;
 }
 
 /*
