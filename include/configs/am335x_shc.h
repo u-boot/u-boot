@@ -16,7 +16,6 @@
 #include <configs/ti_am335x_common.h>
 
 /* settings we don;t want on this board */
-#undef CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 #undef CONFIG_CMD_SPI
 
 #define CONFIG_CMD_CACHE

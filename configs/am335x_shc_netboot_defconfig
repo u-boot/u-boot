@@ -24,6 +24,7 @@ CONFIG_SPL_I2C_SUPPORT=y
 CONFIG_SPL_OS_BOOT=y
 CONFIG_SPL_POWER_SUPPORT=y
 CONFIG_SPL_YMODEM_SUPPORT=y
+# CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC is not set
 CONFIG_SYS_PROMPT="U-Boot# "
 CONFIG_AUTOBOOT_KEYED=y
 CONFIG_AUTOBOOT_PROMPT="Enter 'shc' to enter prompt (times out) %d \nEnter 'noautoboot' to enter prompt without timeout\n"

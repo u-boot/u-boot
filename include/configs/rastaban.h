@@ -16,7 +16,6 @@
 #include "siemens-am33x-common.h"
 
 #define DDR_PLL_FREQ	303
-#undef CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 
 /* FWD Button = 27
  * SRV Button = 87 */

@@ -15,7 +15,6 @@
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
-#define CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 
 #include <asm/arch/omap.h>
 

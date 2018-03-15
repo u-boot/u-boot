@@ -34,6 +34,7 @@ config BOOTCOUNT_EXT
 config BOOTCOUNT_AM33XX
 	bool "Boot counter in AM33XX RTC IP block"
 	depends on AM33XX || SOC_DA8XX
+	select SPL_AM33XX_ENABLE_RTC32K_OSC if AM33XX
 	help
 	  A bootcount driver for the RTC IP block found on many TI platforms.
 	  This requires the RTC clocks, etc, to be enabled prior to use and

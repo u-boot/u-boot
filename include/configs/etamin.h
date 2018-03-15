@@ -70,7 +70,6 @@
 
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define DDR_PLL_FREQ	303
-#undef CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 
 /* FWD Button = 27
  * SRV Button = 87 */

@@ -772,6 +772,13 @@ config SPL_ATF_NO_PLATFORM_PARAM
 
 	  If your ATF is affected, say Y.
 
+config SPL_AM33XX_ENABLE_RTC32K_OSC
+	bool "Enable the RTC32K OSC on AM33xx based platforms"
+	default y if AM33XX
+	help
+	  Enable access to the AM33xx RTC and select the external 32kHz clock
+	  source.
+
 config TPL
 	bool
 	depends on SUPPORT_TPL

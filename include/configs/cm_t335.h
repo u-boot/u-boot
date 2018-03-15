@@ -16,7 +16,6 @@
 #include <configs/ti_am335x_common.h>
 
 #undef CONFIG_SPI
-#undef CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 
 #undef CONFIG_MAX_RAM_BANK_SIZE
 #define CONFIG_MAX_RAM_BANK_SIZE	(512 << 20)	/* 512MB */

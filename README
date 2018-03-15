@@ -3430,9 +3430,6 @@ Low Level (hardware related) configuration options:
 		If defined, the x86 reset vector code is included. This is not
 		needed when U-Boot is running from Coreboot.
 
-- CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC:
-		Enables the RTC32K OSC on AM33xx based plattforms
-
 - CONFIG_SYS_NAND_NO_SUBPAGE_WRITE
 		Option to disable subpage write in NAND driver
 		driver that uses this:
