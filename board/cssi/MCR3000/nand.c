@@ -17,7 +17,7 @@
 
 static void nand_hwcontrol(struct mtd_info *mtdinfo, int cmd, unsigned int ctrl)
 {
-	struct nand_chip *this	= mtdinfo->priv;
+	struct nand_chip *this	= mtd_to_nand(mtdinfo);
 	immap_t __iomem *immr	= (immap_t __iomem *)CONFIG_SYS_IMMR;
 	unsigned short pddat	= 0;
 
