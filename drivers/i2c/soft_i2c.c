@@ -25,9 +25,6 @@
 #include <asm/arch/gpio.h>
 #endif
 #endif
-#if defined(CONFIG_8xx)
-#include <asm/io.h>
-#endif
 #include <i2c.h>
 
 #if defined(CONFIG_SOFT_I2C_GPIO_SCL)
