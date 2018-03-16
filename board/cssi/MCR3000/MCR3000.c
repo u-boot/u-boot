@@ -16,6 +16,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define SDRAM_MAX_SIZE			(32 * 1024 * 1024)
+
 static const uint cs1_dram_table_66[] = {
 	/* DRAM - single read. (offset 0 in upm RAM) */
 	0x0F3DFC04, 0x0FEFBC04, 0x00BE7804, 0x0FFDF400,
