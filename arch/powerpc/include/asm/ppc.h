@@ -40,14 +40,13 @@
 
 #include <asm/processor.h>
 
-#if defined(CONFIG_8xx)
 static inline uint get_immr(uint mask)
 {
 	uint immr = mfspr(SPRN_IMMR);
 
 	return mask ? (immr & mask) : immr;
 }
-#endif
+
 static inline uint get_pvr(void)
 {
 	return mfspr(PVR);
