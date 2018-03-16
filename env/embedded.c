@@ -35,11 +35,11 @@
  * a seperate section.
  */
 #if defined(USE_HOSTCC) /* Native for 'tools/envcrc' */
-#  define __UBOOT_ENV_SECTION__	/*XXX DO_NOT_DEL_THIS_COMMENT*/
+#  define __UBOOT_ENV_SECTION__(name)	/*XXX DO_NOT_DEL_THIS_COMMENT*/
 
 #else /* Environment is embedded in U-Boot's .text section */
 /* XXX - This only works with GNU C */
-#  define __UBOOT_ENV_SECTION__	__attribute__ ((section(".text")))
+#  define __UBOOT_ENV_SECTION__(name)	__attribute__ ((section(".text."#name)))
 #endif
 
 /*
@@ -70,7 +70,7 @@
 #include <env_default.h>
 
 #ifdef CONFIG_ENV_ADDR_REDUND
-env_t redundand_environment __UBOOT_ENV_SECTION__ = {
+env_t redundand_environment __UBOOT_ENV_SECTION__(redundand_environment) = {
 	0,		/* CRC Sum: invalid */
 	0,		/* Flags:   invalid */
 	{
@@ -87,7 +87,7 @@ env_t redundand_environment __UBOOT_ENV_SECTION__ = {
  * .data/.sdata section.
  *
  */
-unsigned long env_size __UBOOT_ENV_SECTION__ = sizeof(env_t);
+unsigned long env_size __UBOOT_ENV_SECTION__(env_size) = sizeof(env_t);
 
 /*
  * Add in absolutes.

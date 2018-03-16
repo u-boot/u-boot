@@ -11,7 +11,7 @@
 #include <env_callback.h>
 
 #ifdef DEFAULT_ENV_INSTANCE_EMBEDDED
-env_t environment __UBOOT_ENV_SECTION__ = {
+env_t environment __UBOOT_ENV_SECTION__(environment) = {
 	ENV_CRC,	/* CRC Sum */
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 	1,		/* Flags: valid */
