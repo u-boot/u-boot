@@ -36,7 +36,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int check_CPU(long clock, uint pvr, uint immr)
 {
-	immap_t __iomem *immap = (immap_t __iomem *)(immr & 0xFFFF0000);
+	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	uint k;
 	char buf[32];
 
@@ -237,8 +237,7 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  */
 unsigned long get_tbclk(void)
 {
-	uint immr = get_immr(0);	/* Return full IMMR contents */
-	immap_t __iomem *immap = (immap_t __iomem *)(immr & 0xFFFF0000);
+	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	ulong oscclk, factor, pll;
 
 	if (in_be32(&immap->im_clkrst.car_sccr) & SCCR_TBS)
