@@ -40,11 +40,9 @@
 
 #include <asm/processor.h>
 
-static inline uint get_immr(uint mask)
+static inline uint get_immr(void)
 {
-	uint immr = mfspr(SPRN_IMMR);
-
-	return mask ? (immr & mask) : immr;
+	return mfspr(SPRN_IMMR);
 }
 
 static inline uint get_pvr(void)

@@ -22,7 +22,7 @@ void print_reginfo(void)
 	 */
 
 	printf("\nSystem Configuration registers\n"
-		"\tIMMR\t0x%08X\n", get_immr(0));
+		"\tIMMR\t0x%08X\n", get_immr());
 
 	printf("\tSIUMCR\t0x%08X", in_be32(&sysconf->sc_siumcr));
 	printf("\tSYPCR\t0x%08X\n", in_be32(&sysconf->sc_sypcr));

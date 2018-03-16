@@ -90,7 +90,7 @@ static int check_CPU(long clock, uint pvr, uint immr)
 int checkcpu(void)
 {
 	ulong clock = gd->cpu_clk;
-	uint immr = get_immr(0);	/* Return full IMMR contents */
+	uint immr = get_immr();	/* Return full IMMR contents */
 	uint pvr = get_pvr();
 
 	puts("CPU:   ");
