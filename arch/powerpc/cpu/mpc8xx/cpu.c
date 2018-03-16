@@ -272,24 +272,11 @@ unsigned long get_tbclk(void)
 
 /* ------------------------------------------------------------------------- */
 
-#if defined(CONFIG_WATCHDOG)
-void watchdog_reset(void)
+#if defined(CONFIG_HW_WATCHDOG)
+void hw_watchdog_reset(void)
 {
-	int re_enable = disable_interrupts();
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
-	reset_8xx_watchdog((immap_t __iomem *)CONFIG_SYS_IMMR);
-	if (re_enable)
-		enable_interrupts();
-}
-#endif /* CONFIG_WATCHDOG */
-
-#if defined(CONFIG_WATCHDOG)
-
-void reset_8xx_watchdog(immap_t __iomem *immr)
-{
-	/*
-	 * All other boards use the MPC8xx Internal Watchdog
-	 */
 	out_be16(&immr->im_siu_conf.sc_swsr, 0x556c);	/* write magic1 */
 	out_be16(&immr->im_siu_conf.sc_swsr, 0xaa39);	/* write magic2 */
 }

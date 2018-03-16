@@ -72,11 +72,6 @@ int init_func_watchdog_reset(void);
  * Prototypes from $(CPU)/cpu.c.
  */
 
-/* MPC 8xx */
-#if defined(CONFIG_MPC8xx) && !defined(__ASSEMBLY__)
-	void reset_8xx_watchdog(immap_t __iomem *immr);
-#endif
-
 #if defined(CONFIG_HW_WATCHDOG) && !defined(__ASSEMBLY__)
 	void hw_watchdog_init(void);
 #endif

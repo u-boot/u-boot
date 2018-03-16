@@ -60,8 +60,6 @@
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 
-#define CONFIG_WATCHDOG		1	/* watchdog enabled */
-
 /* Miscellaneous configurable options */
 
 #define CONFIG_SYS_MEMTEST_START	0x00002000
