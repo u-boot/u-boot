@@ -18,13 +18,13 @@ SECTIONS
 	.text          :
 	{
 		arch/powerpc/cpu/mpc8xx/start.o	(.text)
-		arch/powerpc/cpu/mpc8xx/start.o	(.text*)
 		arch/powerpc/cpu/mpc8xx/traps.o	(.text*)
-		arch/powerpc/cpu/mpc8xx/built-in.o	(.text*)
 		arch/powerpc/lib/built-in.o		(.text*)
 		board/cssi/MCR3000/built-in.o	(.text*)
-		disk/built-in.o			(.text*)
 		drivers/net/built-in.o		(.text*)
+
+		. = DEFINED(env_offset) ? env_offset : .;
+		env/embedded.o			(.text.environment)
 
 		*(.text)
 	}

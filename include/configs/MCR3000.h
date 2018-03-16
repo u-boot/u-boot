@@ -93,15 +93,15 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define	CONFIG_SYS_BOOTMAPSZ		(8 << 20)
-#define	CONFIG_SYS_MONITOR_LEN		(256 << 10)
+#define	CONFIG_SYS_MONITOR_LEN		(320 << 10)
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MALLOC_LEN		(4096 << 10)
 
 /* Environment Configuration */
 
 /* environment is in FLASH */
-#define CONFIG_ENV_SECT_SIZE	(64 * 1024)
-#define CONFIG_ENV_OFFSET	CONFIG_SYS_MONITOR_LEN
+#define CONFIG_ENV_SECT_SIZE	0x2000
+#define CONFIG_ENV_OFFSET	0x4000
 #define CONFIG_ENV_OVERWRITE	1
 
 /* Ethernet configuration part */
