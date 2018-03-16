@@ -56,7 +56,7 @@ static efi_status_t EFIAPI gop_set_mode(struct efi_gop *this, u32 mode_number)
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
-static inline struct efi_gop_pixel efi_vid16_to_blt_col(u16 vid)
+static __always_inline struct efi_gop_pixel efi_vid16_to_blt_col(u16 vid)
 {
 	struct efi_gop_pixel blt = {
 		.reserved = 0,
@@ -70,7 +70,7 @@ static inline struct efi_gop_pixel efi_vid16_to_blt_col(u16 vid)
 	return blt;
 }
 
-static inline u16 efi_blt_col_to_vid16(struct efi_gop_pixel *blt)
+static __always_inline u16 efi_blt_col_to_vid16(struct efi_gop_pixel *blt)
 {
 	return (u16)(blt->red   >> 3) << 11 |
 	       (u16)(blt->green >> 2) <<  5 |
