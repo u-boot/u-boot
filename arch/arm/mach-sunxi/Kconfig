@@ -18,6 +18,12 @@ config DRAM_SUN6I
 	  Select this dram controller driver for Sun6i platforms,
 	  like A31/A31s.
 
+config DRAM_SUN9I
+	bool
+	help
+	  Select this dram controller driver for Sun9i platforms,
+	  like A80.
+
 config SUN6I_P2WI
 	bool "Allwinner sun6i internal P2WI controller"
 	help
@@ -215,6 +221,7 @@ config MACH_SUN8I_V3S
 config MACH_SUN9I
 	bool "sun9i (Allwinner A80)"
 	select CPU_V7
+	select DRAM_SUN9I
 	select SUN6I_PRCM
 	select SUNXI_HIGH_SRAM
 	select SUNXI_GEN_SUN6I
