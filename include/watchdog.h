@@ -73,7 +73,7 @@ int init_func_watchdog_reset(void);
  */
 
 /* MPC 8xx */
-#if defined(CONFIG_8xx) && !defined(__ASSEMBLY__)
+#if defined(CONFIG_MPC8xx) && !defined(__ASSEMBLY__)
 	void reset_8xx_watchdog(immap_t __iomem *immr);
 #endif
 

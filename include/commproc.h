@@ -16,7 +16,7 @@
 #ifndef __CPM_8XX__
 #define __CPM_8XX__
 
-#include <asm/8xx_immap.h>
+#include <asm/immap_8xx.h>
 
 /* CPM Command register.
 */

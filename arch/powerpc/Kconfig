@@ -30,7 +30,7 @@ config MPC86xx
 	select SYS_FSL_DDR_BE
 	imply CMD_REGINFO
 
-config 8xx
+config MPC8xx
 	bool "MPC8xx"
 	imply CMD_REGINFO
 

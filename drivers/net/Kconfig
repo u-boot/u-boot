@@ -331,7 +331,7 @@ config RENESAS_RAVB
 
 config MPC8XX_FEC
 	bool "Fast Ethernet Controller on MPC8XX"
-	depends on 8xx
+	depends on MPC8xx
 	select MII
 	help
 	  This driver implements support for the Fast Ethernet Controller

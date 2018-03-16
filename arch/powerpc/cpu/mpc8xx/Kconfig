@@ -1,5 +1,5 @@
 menu "mpc8xx CPU"
-	depends on 8xx
+	depends on MPC8xx
 
 config SYS_CPU
 	default "mpc8xx"

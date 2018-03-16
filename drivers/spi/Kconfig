@@ -276,7 +276,7 @@ config LPC32XX_SSP
 
 config MPC8XX_SPI
 	bool "MPC8XX SPI Driver"
-	depends on 8xx
+	depends on MPC8xx
 	help
 	  Enable support for SPI on MPC8XX
 

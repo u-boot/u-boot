@@ -12,7 +12,7 @@
 #include <common.h>
 #include <command.h>
 
-#include <asm/8xx_immap.h>
+#include <asm/immap_8xx.h>
 #include <commproc.h>
 #include <asm/iopin_8xx.h>
 #include <asm/io.h>

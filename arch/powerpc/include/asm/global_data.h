@@ -19,7 +19,7 @@ struct arch_global_data {
 	u8 sdhc_adapter;
 #endif
 #endif
-#if defined(CONFIG_8xx)
+#if defined(CONFIG_MPC8xx)
 	unsigned long brg_clk;
 #endif
 #if defined(CONFIG_CPM2)

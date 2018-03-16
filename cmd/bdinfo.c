@@ -180,7 +180,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_bi_flash(bd);
 	print_num("sramstart",		bd->bi_sramstart);
 	print_num("sramsize",		bd->bi_sramsize);
-#if	defined(CONFIG_8xx) || defined(CONFIG_E500)
+#if	defined(CONFIG_MPC8xx) || defined(CONFIG_E500)
 	print_num("immr_base",		bd->bi_immr_base);
 #endif
 	print_num("bootflags",		bd->bi_bootflags);
