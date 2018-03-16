@@ -42,7 +42,7 @@ static int check_CPU(long clock, uint pvr, uint immr)
 
 	/* the highest 16 bits should be 0x0050 for a 860 */
 
-	if ((pvr >> 16) != 0x0050)
+	if (PVR_VER(pvr) != PVR_VER(PVR_8xx))
 		return -1;
 
 	k = (immr << 16) |
