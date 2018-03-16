@@ -51,14 +51,14 @@
 /*
  * DPRAM defines and allocation functions
  */
-#define CPM_SERIAL_BASE		0x0800
-#define CPM_I2C_BASE		0x0820
-#define CPM_SPI_BASE		0x0840
-#define CPM_FEC_BASE		0x0860
-#define CPM_SERIAL2_BASE	0x08E0
-#define CPM_SCC_BASE		0x0900
-#define CPM_POST_BASE		0x0980
-#define CPM_WLKBD_BASE		0x0a00
+#define CPM_SERIAL_BASE		0x1800
+#define CPM_I2C_BASE		0x1820
+#define CPM_SPI_BASE		0x1840
+#define CPM_FEC_BASE		0x1860
+#define CPM_SERIAL2_BASE	0x18e0
+#define CPM_SCC_BASE		0x1900
+#define CPM_POST_BASE		0x1980
+#define CPM_WLKBD_BASE		0x1a00
 
 #define BD_IIC_START	((uint) 0x0400) /* <- please use CPM_I2C_BASE !! */
 
