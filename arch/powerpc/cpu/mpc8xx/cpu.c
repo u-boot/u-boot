@@ -270,18 +270,6 @@ unsigned long get_tbclk(void)
 	return oscclk / 16;
 }
 
-/* ------------------------------------------------------------------------- */
-
-#if defined(CONFIG_HW_WATCHDOG)
-void hw_watchdog_reset(void)
-{
-	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
-
-	out_be16(&immr->im_siu_conf.sc_swsr, 0x556c);	/* write magic1 */
-	out_be16(&immr->im_siu_conf.sc_swsr, 0xaa39);	/* write magic2 */
-}
-#endif /* CONFIG_WATCHDOG */
-
 /*
  * Initializes on-chip ethernet controllers.
  * to override, implement board_eth_init()
