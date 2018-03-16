@@ -6,10 +6,10 @@
  */
 
 #include <common.h>
-#include <commproc.h>
 #include <command.h>
 #include <serial.h>
 #include <watchdog.h>
+#include <asm/cpm_8xx.h>
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;

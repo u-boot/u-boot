@@ -7,10 +7,10 @@
 
 #include <common.h>
 #include <command.h>
-#include <commproc.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>
+#include <asm/cpm_8xx.h>
 #include <asm/io.h>
 
 #include <phy.h>

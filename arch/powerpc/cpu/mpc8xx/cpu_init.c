@@ -9,7 +9,7 @@
 #include <watchdog.h>
 
 #include <mpc8xx.h>
-#include <commproc.h>
+#include <asm/cpm_8xx.h>
 #include <asm/io.h>
 
 /*

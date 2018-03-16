@@ -21,9 +21,9 @@
 #include <watchdog.h>
 #include <command.h>
 #include <mpc8xx.h>
-#include <commproc.h>
 #include <netdev.h>
 #include <asm/cache.h>
+#include <asm/cpm_8xx.h>
 #include <linux/compiler.h>
 #include <asm/io.h>
 
