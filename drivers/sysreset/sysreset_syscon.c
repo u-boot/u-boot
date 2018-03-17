@@ -15,8 +15,6 @@
 #include <sysreset.h>
 #include <syscon.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct syscon_reboot_priv {
 	struct regmap *regmap;
 	unsigned int offset;
@@ -55,10 +53,8 @@ int syscon_reboot_probe(struct udevice *dev)
 		return -ENODEV;
 	}
 
-	priv->offset = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
-				       "offset", 0);
-	priv->mask = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
-				       "mask", 0);
+	priv->offset = dev_read_u32_default(dev, "offset", 0);
+	priv->mask = dev_read_u32_default(dev, "mask", 0);
 
 	return 0;
 }
