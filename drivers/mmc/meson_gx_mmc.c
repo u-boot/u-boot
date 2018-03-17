@@ -35,6 +35,9 @@ static void meson_mmc_config_clock(struct mmc *mmc)
 	uint32_t meson_mmc_clk = 0;
 	unsigned int clk, clk_src, clk_div;
 
+	if (!mmc->clock)
+		return;
+
 	/* 1GHz / CLK_MAX_DIV = 15,9 MHz */
 	if (mmc->clock > 16000000) {
 		clk = SD_EMMC_CLKSRC_DIV2;
