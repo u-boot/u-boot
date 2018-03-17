@@ -239,6 +239,20 @@ config TARGET_CM_T43
 
 endchoice
 
+config SPL_RTC_DDR_SUPPORT
+	bool
+	depends on SPL
+	prompt "Enable RTC-DDR ONLY Support"
+	help
+	  If you want RTC-DDR ONLY Support, say Y. RTC Only with DDR in
+	  self-refresh mode is a special power saving mode where in all
+	  the other voltages are turned off apart from the RTC domain and DDR.
+	  So only RTC is alive and ticking and one can program it to wake
+	  up after a predetermined period. Once RTC alarm fires, the PMIC
+	  powers up all the voltage domains. U-Boot takes a special path
+	  as the DDR has contents is in self-refresh and restore path is
+	  followed.
+
 endif
 
 if AM43XX || AM33XX

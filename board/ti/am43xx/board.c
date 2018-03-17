@@ -520,6 +520,62 @@ static void enable_vtt_regulator(void)
 	writel(temp, AM33XX_GPIO5_BASE + OMAP_GPIO_OE);
 }
 
+enum {
+	RTC_BOARD_EPOS = 1,
+	RTC_BOARD_EVM14,
+	RTC_BOARD_EVM12,
+	RTC_BOARD_GPEVM,
+	RTC_BOARD_SK,
+};
+
+/*
+ * In the rtc_only+DRR in self-refresh boot path we have the board type info
+ * in the rtc scratch pad register hence we bypass the costly i2c reads to
+ * eeprom and directly programthe board name string
+ */
+void rtc_only_update_board_type(u32 btype)
+{
+	const char *name = "";
+	const char *rev = "1.0";
+
+	switch (btype) {
+	case RTC_BOARD_EPOS:
+		name = "AM43EPOS";
+		break;
+	case RTC_BOARD_EVM14:
+		name = "AM43__GP";
+		rev = "1.4";
+		break;
+	case RTC_BOARD_EVM12:
+		name = "AM43__GP";
+		rev = "1.2";
+		break;
+	case RTC_BOARD_GPEVM:
+		name = "AM43__GP";
+		break;
+	case RTC_BOARD_SK:
+		name = "AM43__SK";
+		break;
+	}
+	ti_i2c_eeprom_am_set(name, rev);
+}
+
+u32 rtc_only_get_board_type(void)
+{
+	if (board_is_eposevm())
+		return RTC_BOARD_EPOS;
+	else if (board_is_evm_14_or_later())
+		return RTC_BOARD_EVM14;
+	else if (board_is_evm_12_or_later())
+		return RTC_BOARD_EVM12;
+	else if (board_is_gpevm())
+		return RTC_BOARD_GPEVM;
+	else if (board_is_sk())
+		return RTC_BOARD_SK;
+
+	return 0;
+}
+
 void sdram_init(void)
 {
 	/*
