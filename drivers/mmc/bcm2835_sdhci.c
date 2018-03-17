@@ -183,7 +183,7 @@ static int bcm2835_sdhci_probe(struct udevice *dev)
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	ret = bcm2835_get_mmc_clock();
+	ret = bcm2835_get_mmc_clock(BCM2835_MBOX_CLOCK_ID_EMMC);
 	if (ret < 0) {
 		debug("%s: Failed to set MMC clock (err=%d)\n", __func__, ret);
 		return ret;
