@@ -277,7 +277,7 @@ config ENV_IS_IN_ONENAND
 	  provision.
 
 config ENV_IS_IN_REMOTE
-	bool "Environment is in remove memory space"
+	bool "Environment is in remote memory space"
 	depends on !CHAIN_OF_TRUST
 	help
 	  Define this if you have a remote memory space which you
