@@ -26,7 +26,8 @@
  * OpenSSL 1.1.0 and newer compatibility functions:
  * https://wiki.openssl.org/index.php/1.1_API_Changes
  */
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
+    (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x2070000fL)
 static void *OPENSSL_zalloc(size_t num)
 {
 	void *ret = OPENSSL_malloc(num);
