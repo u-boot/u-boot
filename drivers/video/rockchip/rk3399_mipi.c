@@ -128,7 +128,7 @@ static int rk_mipi_ofdata_to_platdata(struct udevice *dev)
 	struct rk_mipi_priv *priv = dev_get_priv(dev);
 
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
-	if (priv->grf <= 0) {
+	if (!priv->grf || IS_ERR(priv->grf)) {
 		debug("%s: Get syscon grf failed (ret=%p)\n",
 		      __func__, priv->grf);
 		return  -ENXIO;
