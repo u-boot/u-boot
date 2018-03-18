@@ -606,7 +606,6 @@ int biosemu_run(pci_dev_t pcidev, uchar *bios_rom, int bios_len,
 		    (ulong)(vga_info->BIOSImage) != 0xc0000)
 			free(vga_info->BIOSImage);
 		free(vga_info);
-		vga_info = NULL;
 	}
 
 	return 0;
