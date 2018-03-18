@@ -768,7 +768,7 @@ static void parse_putc(const char c)
 		break;
 
 	case '\n':		/* next line */
-		if (console_col || (!console_col && nl))
+		if (console_col || nl)
 			console_newline(1);
 		nl = 1;
 		break;
