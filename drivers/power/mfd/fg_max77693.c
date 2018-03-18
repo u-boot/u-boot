@@ -60,8 +60,6 @@ static int power_update_battery(struct pmic *p, struct pmic *bat)
 		return ret;
 
 	max77693_get_vcell(&pb->bat->voltage_uV);
-	if (ret)
-		return ret;
 
 	return 0;
 }
