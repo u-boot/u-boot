@@ -8,16 +8,16 @@
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
 
-void enable_caches(void)
-{
-	/* Enable D-cache. I-cache is already enabled in start.S */
-	dcache_enable();
-}
+/* RCC register */
+#define RCC_TZCR		(STM32_RCC_BASE + 0x00)
+#define RCC_DBGCFGR		(STM32_RCC_BASE + 0x080C)
+#define RCC_BDCR		(STM32_RCC_BASE + 0x0140)
+#define RCC_MP_APB5ENSETR	(STM32_RCC_BASE + 0x0208)
+#define RCC_BDCR_VSWRST		BIT(31)
+#define RCC_BDCR_RTCSRC		GENMASK(17, 16)
+#define RCC_DBGCFGR_DBGCKEN	BIT(8)
 
-#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
-/**********************************************
- * Security init
- *********************************************/
+/* Security register */
 #define ETZPC_TZMA1_SIZE	(STM32_ETZPC_BASE + 0x04)
 #define ETZPC_DECPROT0		(STM32_ETZPC_BASE + 0x10)
 
@@ -30,13 +30,11 @@ void enable_caches(void)
 #define PWR_CR1			(STM32_PWR_BASE + 0x00)
 #define PWR_CR1_DBP		BIT(8)
 
-#define RCC_TZCR		(STM32_RCC_BASE + 0x00)
-#define RCC_BDCR		(STM32_RCC_BASE + 0x0140)
-#define RCC_MP_APB5ENSETR	(STM32_RCC_BASE + 0x0208)
+/* DBGMCU register */
+#define DBGMCU_APB4FZ1		(STM32_DBGMCU_BASE + 0x2C)
+#define DBGMCU_APB4FZ1_IWDG2	BIT(2)
 
-#define RCC_BDCR_VSWRST		BIT(31)
-#define RCC_BDCR_RTCSRC		GENMASK(17, 16)
-
+#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
 static void security_init(void)
 {
 	/* Disable the backup domain write protection */
@@ -93,15 +91,9 @@ static void security_init(void)
 	writel(0x0, TAMP_CR1);
 }
 
-/**********************************************
+/*
  * Debug init
- *********************************************/
-#define RCC_DBGCFGR (STM32_RCC_BASE + 0x080C)
-#define RCC_DBGCFGR_DBGCKEN BIT(8)
-
-#define DBGMCU_APB4FZ1 (STM32_DBGMCU_BASE + 0x2C)
-#define DBGMCU_APB4FZ1_IWDG2 BIT(2)
-
+ */
 static void dbgmcu_init(void)
 {
 	setbits_le32(RCC_DBGCFGR, RCC_DBGCFGR_DBGCKEN);
@@ -123,6 +115,12 @@ int arch_cpu_init(void)
 #endif
 
 	return 0;
+}
+
+void enable_caches(void)
+{
+	/* Enable D-cache. I-cache is already enabled in start.S */
+	dcache_enable();
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
