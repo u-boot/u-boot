@@ -23,9 +23,6 @@
 #include <fdtdec.h>
 #include <ide.h>
 #include <initcall.h>
-#ifdef CONFIG_PS2KBD
-#include <keyboard.h>
-#endif
 #if defined(CONFIG_CMD_KGDB)
 #include <kgdb.h>
 #endif
@@ -641,15 +638,6 @@ static int initr_bedbug(void)
 }
 #endif
 
-#ifdef CONFIG_PS2KBD
-static int initr_kbd(void)
-{
-	puts("PS/2:  ");
-	kbd_init();
-	return 0;
-}
-#endif
-
 static int run_main_loop(void)
 {
 #ifdef CONFIG_SANDBOX
@@ -857,9 +845,6 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 #if defined(CONFIG_PRAM)
 	initr_mem,
-#endif
-#ifdef CONFIG_PS2KBD
-	initr_kbd,
 #endif
 	run_main_loop,
 };
