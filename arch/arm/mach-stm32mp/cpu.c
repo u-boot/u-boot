@@ -7,6 +7,7 @@
 #include <clk.h>
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
+#include <asm/arch/sys_proto.h>
 
 /* RCC register */
 #define RCC_TZCR		(STM32_RCC_BASE + 0x00)
@@ -31,8 +32,13 @@
 #define PWR_CR1_DBP		BIT(8)
 
 /* DBGMCU register */
+#define DBGMCU_IDC		(STM32_DBGMCU_BASE + 0x00)
 #define DBGMCU_APB4FZ1		(STM32_DBGMCU_BASE + 0x2C)
 #define DBGMCU_APB4FZ1_IWDG2	BIT(2)
+#define DBGMCU_IDC_DEV_ID_MASK	GENMASK(11, 0)
+#define DBGMCU_IDC_DEV_ID_SHIFT	0
+#define DBGMCU_IDC_REV_ID_MASK	GENMASK(31, 16)
+#define DBGMCU_IDC_REV_ID_SHIFT	16
 
 #if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
 static void security_init(void)
@@ -123,10 +129,50 @@ void enable_caches(void)
 	dcache_enable();
 }
 
+static u32 read_idc(void)
+{
+	setbits_le32(RCC_DBGCFGR, RCC_DBGCFGR_DBGCKEN);
+
+	return readl(DBGMCU_IDC);
+}
+
+u32 get_cpu_rev(void)
+{
+	return (read_idc() & DBGMCU_IDC_REV_ID_MASK) >> DBGMCU_IDC_REV_ID_SHIFT;
+}
+
+u32 get_cpu_type(void)
+{
+	return (read_idc() & DBGMCU_IDC_DEV_ID_MASK) >> DBGMCU_IDC_DEV_ID_SHIFT;
+}
+
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
-	printf("CPU: STM32MP15x\n");
+	char *cpu_s, *cpu_r;
+
+	switch (get_cpu_type()) {
+	case CPU_STMP32MP15x:
+		cpu_s = "15x";
+		break;
+	default:
+		cpu_s = "?";
+		break;
+	}
+
+	switch (get_cpu_rev()) {
+	case CPU_REVA:
+		cpu_r = "A";
+		break;
+	case CPU_REVB:
+		cpu_r = "B";
+		break;
+	default:
+		cpu_r = "?";
+		break;
+	}
+
+	printf("CPU: STM32MP%s.%s\n", cpu_s, cpu_r);
 
 	return 0;
 }
