@@ -6,6 +6,73 @@ config SPL_LDSCRIPT
 config IDENT_STRING
 	default " Allwinner Technology"
 
+config DRAM_SUN4I
+	bool
+	help
+	  Select this dram controller driver for Sun4/5/7i platforms,
+	  like A10/A13/A20.
+
+config DRAM_SUN6I
+	bool
+	help
+	  Select this dram controller driver for Sun6i platforms,
+	  like A31/A31s.
+
+config DRAM_SUN8I_A23
+	bool
+	help
+	  Select this dram controller driver for Sun8i platforms,
+	  for A23 SOC.
+
+config DRAM_SUN8I_A33
+	bool
+	help
+	  Select this dram controller driver for Sun8i platforms,
+	  for A33 SOC.
+
+config DRAM_SUN8I_A83T
+	bool
+	help
+	  Select this dram controller driver for Sun8i platforms,
+	  for A83T SOC.
+
+config DRAM_SUN9I
+	bool
+	help
+	  Select this dram controller driver for Sun9i platforms,
+	  like A80.
+
+config SUN6I_P2WI
+	bool "Allwinner sun6i internal P2WI controller"
+	help
+	  If you say yes to this option, support will be included for the
+	  P2WI (Push/Pull 2 Wire Interface) controller embedded in some sunxi
+	  SOCs.
+	  The P2WI looks like an SMBus controller (which supports only byte
+	  accesses), except that it only supports one slave device.
+	  This interface is used to connect to specific PMIC devices (like the
+	  AXP221).
+
+config SUN6I_PRCM
+	bool
+	help
+	  Support for the PRCM (Power/Reset/Clock Management) unit available
+	  in A31 SoC.
+
+config AXP_PMIC_BUS
+	bool "Sunxi AXP PMIC bus access helpers"
+	help
+	  Select this PMIC bus access helpers for Sunxi platform PRCM or other
+	  AXP family PMIC devices.
+
+config SUN8I_RSB
+	bool "Allwinner sunXi Reduced Serial Bus Driver"
+	help
+	  Say y here to enable support for Allwinner's Reduced Serial Bus
+	  (RSB) support. This controller is responsible for communicating
+	  with various RSB based devices, such as AXP223, AXP8XX PMICs,
+	  and AC100/AC200 ICs.
+
 config SUNXI_HIGH_SRAM
 	bool
 	default n
@@ -71,6 +138,7 @@ config MACH_SUN4I
 	bool "sun4i (Allwinner A10)"
 	select CPU_V7
 	select ARM_CORTEX_CPU_IS_UP
+	select DRAM_SUN4I
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 
@@ -78,6 +146,7 @@ config MACH_SUN5I
 	bool "sun5i (Allwinner A13)"
 	select CPU_V7
 	select ARM_CORTEX_CPU_IS_UP
+	select DRAM_SUN4I
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 	imply CONS_INDEX_2 if !DM_SERIAL
@@ -88,6 +157,9 @@ config MACH_SUN6I
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
+	select DRAM_SUN6I
+	select SUN6I_P2WI
+	select SUN6I_PRCM
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
@@ -98,6 +170,7 @@ config MACH_SUN7I
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
+	select DRAM_SUN4I
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
@@ -108,6 +181,7 @@ config MACH_SUN8I_A23
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
+	select DRAM_SUN8I_A23
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
@@ -119,6 +193,7 @@ config MACH_SUN8I_A33
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
+	select DRAM_SUN8I_A33
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
@@ -127,6 +202,7 @@ config MACH_SUN8I_A33
 config MACH_SUN8I_A83T
 	bool "sun8i (Allwinner A83T)"
 	select CPU_V7
+	select DRAM_SUN8I_A83T
 	select SUNXI_GEN_SUN6I
 	select MMC_SUNXI_HAS_NEW_MODE
 	select SUPPORT_SPL
@@ -166,8 +242,11 @@ config MACH_SUN8I_V3S
 config MACH_SUN9I
 	bool "sun9i (Allwinner A80)"
 	select CPU_V7
+	select DRAM_SUN9I
+	select SUN6I_PRCM
 	select SUNXI_HIGH_SRAM
 	select SUNXI_GEN_SUN6I
+	select SUN8I_RSB
 	select SUPPORT_SPL
 
 config MACH_SUN50I
@@ -196,6 +275,8 @@ endchoice
 # The sun8i SoCs share a lot, this helps to avoid a lot of "if A23 || A33"
 config MACH_SUN8I
 	bool
+	select SUN8I_RSB
+	select SUN6I_PRCM
 	default y if MACH_SUN8I_A23
 	default y if MACH_SUN8I_A33
 	default y if MACH_SUN8I_A83T
