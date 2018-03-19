@@ -853,9 +853,10 @@ static u32 wait_for_event(u32 event)
 	do {
 		ret = lcdc_irq_handler();
 		udelay(1000);
-	} while (!(ret & event));
+		--timeout;
+	} while (!(ret & event) && timeout);
 
-	if (timeout <= 0) {
+	if (!(ret & event)) {
 		printf("%s: event %d not hit\n", __func__, event);
 		return -1;
 	}

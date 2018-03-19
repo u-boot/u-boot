@@ -7,8 +7,12 @@
 
 #include <common.h>
 #include <dm.h>
+#include <lcd.h>
 #include <ram.h>
 #include <spl.h>
+#include <splash.h>
+#include <st_logo_data.h>
+#include <video.h>
 #include <asm/io.h>
 #include <asm/armv7m.h>
 #include <asm/arch/stm32.h>
@@ -152,6 +156,11 @@ int board_init(void)
 	/* Set >RMII mode */
 	STM32_SYSCFG->pmc |= SYSCFG_PMC_MII_RMII_SEL;
 #endif
+
+#if defined(CONFIG_CMD_BMP)
+	bmp_display((ulong)stmicroelectronics_uboot_logo_8bit_rle,
+		    BMP_ALIGN_CENTER, BMP_ALIGN_CENTER);
+#endif /* CONFIG_CMD_BMP */
 
 	return 0;
 }
