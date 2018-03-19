@@ -221,7 +221,3 @@ int btrfs_uuid(char *uuid_str)
 #endif
 	return -ENOSYS;
 }
-
-/*
-		btrfs_list_subvols();
-*/
