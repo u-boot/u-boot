@@ -30,6 +30,18 @@ config RTC_DS1307
 	  Support for Dallas Semiconductor (now Maxim) DS1307 and DS1338/9 and
 	  compatible Real Time Clock devices.
 
+config RTC_ISL1208
+	bool "Enable ISL1208 driver"
+	depends on DM_RTC
+	help
+	  The Renesas (formerly Intersil) ISL1208 is a I2C Real Time Clock (RTC) and
+	  calendar with automatic leap year correction, 2-byte battery backed SRAM,
+	  automatic power switch-over, alarm function and 15 selectable frequency
+	  outputs.
+
+	  This driver supports reading and writing the RTC/calendar and detects
+	  total power failures.
+
 config RTC_RX8010SJ
 	bool "Enable RX8010SJ driver"
 	depends on DM_RTC
