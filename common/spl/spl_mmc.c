@@ -292,6 +292,14 @@ u32 __weak spl_boot_mode(const u32 boot_device)
 #endif
 }
 
+#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
+__weak
+int spl_boot_partition(const u32 boot_device)
+{
+	return CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION;
+}
+#endif
+
 int spl_mmc_load_image(struct spl_image_info *spl_image,
 		       struct spl_boot_device *bootdev)
 {
@@ -347,8 +355,11 @@ int spl_mmc_load_image(struct spl_image_info *spl_image,
 				return err;
 		}
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
-		err = mmc_load_image_raw_partition(spl_image, mmc,
-			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION);
+		err = spl_boot_partition(bootdev->boot_device);
+		if (!err)
+			return err;
+
+		err = mmc_load_image_raw_partition(spl_image, mmc, err);
 		if (!err)
 			return err;
 #endif
