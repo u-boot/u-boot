@@ -69,8 +69,6 @@
 #define CONFIG_RESERVED_04_BASE		0x98C00000
 /* Compat Flash Controller */
 #define CONFIG_FTCFC010_BASE		0x98D00000
-/* SD Controller */
-#define CONFIG_FTSDC010_BASE		0x98E00000
 
 /* Synchronous Serial Port Controller (SSP) I2S/AC97 */
 #define CONFIG_FTSSP010_02_BASE		0x99400000
