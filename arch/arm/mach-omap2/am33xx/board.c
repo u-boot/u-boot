@@ -376,6 +376,9 @@ static void watchdog_disable(void)
 static void rtc_only(void)
 {
 	struct davinci_rtc *rtc = (struct davinci_rtc *)RTC_BASE;
+	struct prm_device_inst *prm_device =
+				(struct prm_device_inst *)PRM_DEVICE_INST;
+
 	u32 scratch1;
 	void (*resume_func)(void);
 
@@ -403,8 +406,19 @@ static void rtc_only(void)
 	 */
 	rtc_only_update_board_type(scratch1 >> RTC_BOARD_TYPE_SHIFT);
 
+	/*
+	 * Enable EMIF_DEVOFF in PRCM_PRM_EMIF_CTRL to indicate to EMIF we
+	 * are resuming from self-refresh. This avoids an unnecessary re-init
+	 * of the DDR. The re-init takes time and we would need to wait for
+	 * it to complete before accessing DDR to avoid L3 NOC errors.
+	 */
+	writel(EMIF_CTRL_DEVOFF, &prm_device->emif_ctrl);
+
 	rtc_only_prcm_init();
 	sdram_init();
+
+	/* Disable EMIF_DEVOFF for normal operation and to exit self-refresh */
+	writel(0, &prm_device->emif_ctrl);
 
 	resume_func = (void *)readl(&rtc->scratch0);
 	if (resume_func)
