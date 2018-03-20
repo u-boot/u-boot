@@ -935,7 +935,7 @@ static int ahci_scsi_exec(struct udevice *dev, struct scsi_cmd *pccb)
 {
 	struct ahci_uc_priv *uc_priv;
 #ifdef CONFIG_DM_SCSI
-	uc_priv = dev_get_uclass_priv(dev->parent);
+	uc_priv = dev_get_uclass_priv(dev);
 #else
 	uc_priv = probe_ent;
 #endif
