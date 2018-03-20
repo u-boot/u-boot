@@ -1166,6 +1166,7 @@ config ARCH_STM32MP
 	select REGMAP
 	select SUPPORT_SPL
 	select SYSCON
+	select SYSRESET
 	select SYS_THUMB_BUILD
 	help
 	  Support for STM32MP SoC family developed by STMicroelectronics,

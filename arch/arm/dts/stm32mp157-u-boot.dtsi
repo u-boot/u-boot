@@ -72,6 +72,10 @@
 	u-boot,dm-pre-reloc;
 };
 
+&rcc_reboot {
+	u-boot,dm-pre-reloc;
+};
+
 &pinctrl {
 	u-boot,dm-pre-reloc;
 };

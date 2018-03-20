@@ -114,6 +114,13 @@
 				#reset-cells = <1>;
 				compatible = "st,stm32mp1-rcc-rst";
 			};
+
+			rcc_reboot: rcc-reboot@50000000 {
+				compatible = "syscon-reboot";
+				regmap = <&rcc>;
+				offset = <0x404>;
+				mask = <0x1>;
+			};
 		};
 
 		pinctrl: pin-controller {
