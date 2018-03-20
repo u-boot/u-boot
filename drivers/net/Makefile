@@ -23,7 +23,6 @@ obj-$(CONFIG_E1000_SPI) += e1000_spi.o
 obj-$(CONFIG_EEPRO100) += eepro100.o
 obj-$(CONFIG_SUN4I_EMAC) += sunxi_emac.o
 obj-$(CONFIG_SUN8I_EMAC) += sun8i_emac.o
-obj-$(CONFIG_ENC28J60) += enc28j60.o
 obj-$(CONFIG_EP93XX) += ep93xx_eth.o
 obj-$(CONFIG_ETHOC) += ethoc.o
 obj-$(CONFIG_FEC_MXC) += fec_mxc.o
