@@ -535,6 +535,13 @@ config FTSDC010
 	help
 	  This SD/MMC controller is present in Andestech SoCs which is based on Faraday IP.
 
+config FTSDC010_SDIO
+	bool "Support ftsdc010 sdio"
+	default n
+	depends on FTSDC010
+	help
+		This can enable ftsdc010 sdio function.
+
 endif
 
 config TEGRA124_MMC_DISABLE_EXT_LOOPBACK
