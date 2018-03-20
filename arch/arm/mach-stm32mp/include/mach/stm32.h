@@ -25,6 +25,11 @@
 #define STM32_DDR_SIZE			SZ_1G
 
 #ifndef __ASSEMBLY__
+/* enumerated used to identify the SYSCON driver instance */
+enum {
+	STM32MP_SYSCON_UNKNOWN,
+	STM32MP_SYSCON_STGEN,
+};
 
 /*
  * enumerated for boot interface from Bootrom, used in TAMP_BOOT_CONTEXT
