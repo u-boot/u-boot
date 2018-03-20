@@ -43,11 +43,6 @@ extern const struct dm_mmc_ops dm_ftsdc010_ops;
 #endif
 void ftsdc_setup_cfg(struct mmc_config *cfg, const char *name, int buswidth,
 		     uint caps, u32 max_clk, u32 min_clk);
-void set_bus_width(struct ftsdc010_mmc __iomem *regs, struct mmc_config *cfg);
-
-#ifdef CONFIG_BLK
 int ftsdc010_bind(struct udevice *dev, struct mmc *mmc, struct mmc_config *cfg);
-#endif
-
 
 #endif /* __FTSDC010_MCI_H */

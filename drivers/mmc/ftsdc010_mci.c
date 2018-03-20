@@ -138,16 +138,10 @@ static int ftsdc010_wait(struct ftsdc010_mmc __iomem *regs, uint32_t mask)
 /*
  * u-boot mmc api
  */
-#ifdef CONFIG_DM_MMC
 static int ftsdc010_request(struct udevice *dev, struct mmc_cmd *cmd,
 	struct mmc_data *data)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
-#else
-static int ftsdc010_request(struct mmc *mmc, struct mmc_cmd *cmd,
-	struct mmc_data *data)
-{
-#endif
 	int ret = -EOPNOTSUPP;
 	uint32_t len = 0;
 	struct ftsdc010_chip *chip = mmc->priv;
@@ -248,14 +242,9 @@ static int ftsdc010_request(struct mmc *mmc, struct mmc_cmd *cmd,
 	return ret;
 }
 
-#ifdef CONFIG_DM_MMC
 static int ftsdc010_set_ios(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
-#else
-static int ftsdc010_set_ios(struct mmc *mmc)
-{
-#endif
 	struct ftsdc010_chip *chip = mmc->priv;
 	struct ftsdc010_mmc __iomem *regs = chip->regs;
 
@@ -277,27 +266,17 @@ static int ftsdc010_set_ios(struct mmc *mmc)
 	return 0;
 }
 
-#ifdef CONFIG_DM_MMC
 static int ftsdc010_get_cd(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
-#else
-static int ftsdc010_get_cd(struct mmc *mmc)
-{
-#endif
 	struct ftsdc010_chip *chip = mmc->priv;
 	struct ftsdc010_mmc __iomem *regs = chip->regs;
 	return !(readl(&regs->status) & FTSDC010_STATUS_CARD_DETECT);
 }
 
-#ifdef CONFIG_DM_MMC
 static int ftsdc010_get_wp(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
-#else
-static int ftsdc010_get_wp(struct mmc *mmc)
-{
-#endif
 	struct ftsdc010_chip *chip = mmc->priv;
 	struct ftsdc010_mmc __iomem *regs = chip->regs;
 	if (readl(&regs->status) & FTSDC010_STATUS_WRITE_PROT) {
@@ -337,7 +316,6 @@ static int ftsdc010_init(struct mmc *mmc)
 	return 0;
 }
 
-#ifdef CONFIG_DM_MMC
 int ftsdc010_probe(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
@@ -350,16 +328,6 @@ const struct dm_mmc_ops dm_ftsdc010_ops = {
 	.get_cd		= ftsdc010_get_cd,
 	.get_wp		= ftsdc010_get_wp,
 };
-
-#else
-static const struct mmc_ops ftsdc010_ops = {
-	.send_cmd	= ftsdc010_request,
-	.set_ios	= ftsdc010_set_ios,
-	.getcd		= ftsdc010_get_cd,
-	.getwp		= ftsdc010_get_wp,
-	.init		= ftsdc010_init,
-};
-#endif
 
 void ftsdc_setup_cfg(struct mmc_config *cfg, const char *name, int buswidth,
 		     uint caps, u32 max_clk, u32 min_clk)
@@ -380,73 +348,7 @@ void ftsdc_setup_cfg(struct mmc_config *cfg, const char *name, int buswidth,
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 }
 
-void set_bus_width(struct ftsdc010_mmc __iomem *regs, struct mmc_config *cfg)
-{
-	switch (readl(&regs->bwr) & FTSDC010_BWR_CAPS_MASK) {
-	case FTSDC010_BWR_CAPS_4BIT:
-		cfg->host_caps |= MMC_MODE_4BIT;
-		break;
-	case FTSDC010_BWR_CAPS_8BIT:
-		cfg->host_caps |= MMC_MODE_4BIT | MMC_MODE_8BIT;
-		break;
-	default:
-		break;
-	}
-}
-
-#ifdef CONFIG_BLK
 int ftsdc010_bind(struct udevice *dev, struct mmc *mmc, struct mmc_config *cfg)
 {
 	return mmc_bind(dev, mmc, cfg);
 }
-#else
-
-int ftsdc010_mmc_init(int devid)
-{
-	struct mmc *mmc;
-	struct ftsdc010_chip *chip;
-	struct ftsdc010_mmc __iomem *regs;
-#ifdef CONFIG_FTSDC010_BASE_LIST
-	uint32_t base_list[] = CONFIG_FTSDC010_BASE_LIST;
-
-	if (devid < 0 || devid >= ARRAY_SIZE(base_list))
-		return -1;
-	regs = (void __iomem *)base_list[devid];
-#else
-	regs = (void __iomem *)(CONFIG_FTSDC010_BASE + (devid << 20));
-#endif
-
-	chip = malloc(sizeof(struct ftsdc010_chip));
-	if (!chip)
-		return -ENOMEM;
-	memset(chip, 0, sizeof(struct ftsdc010_chip));
-
-	chip->regs = regs;
-#ifdef CONFIG_SYS_CLK_FREQ
-	chip->sclk = CONFIG_SYS_CLK_FREQ;
-#else
-	chip->sclk = clk_get_rate("SDC");
-#endif
-
-	chip->cfg.name = "ftsdc010";
-#ifndef CONFIG_DM_MMC
-	chip->cfg.ops = &ftsdc010_ops;
-#endif
-	chip->cfg.host_caps = MMC_MODE_HS | MMC_MODE_HS_52MHz;
-	set_bus_width(regs , &chip->cfg);
-	chip->cfg.voltages  = MMC_VDD_32_33 | MMC_VDD_33_34;
-	chip->cfg.f_max     = chip->sclk / 2;
-	chip->cfg.f_min     = chip->sclk / 0x100;
-
-	chip->cfg.part_type = PART_TYPE_DOS;
-	chip->cfg.b_max	    = CONFIG_SYS_MMC_MAX_BLK_COUNT;
-
-	mmc = mmc_create(&chip->cfg, chip);
-	if (mmc == NULL) {
-		free(chip);
-		return -ENOMEM;
-	}
-
-	return 0;
-}
-#endif
