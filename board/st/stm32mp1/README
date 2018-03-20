@@ -115,7 +115,31 @@ the supported device trees for stm32mp157 are:
    + FSBL = spl/u-boot-spl.stm32
    + SSBL = u-boot.img
 
-6. Prepare an SDCard
+6. Switch Setting for Boot Mode
+===============================
+
+You can select the boot mode, on the board ed1 with the switch SW1
+
+ -----------------------------------
+  Boot Mode   BOOT2   BOOT1   BOOT0
+ -----------------------------------
+  Reserved	0	0	0
+  NOR		0	0	1
+  SD-Card	1	1	1
+  SD-Card	1	0	1
+  eMMC		0	1	0
+  NAND		0	1	1
+  Recovery	1	1	0
+  Recovery	0	0	0
+
+Recovery is a boot from serial link (UART/USB) and it is used with
+STM32CubeProgrammer tool to load executable in RAM and to update the flash
+devices available on the board (NOR/NAND/eMMC/SDCARD).
+The communication between HOST and board is based on
+- for UARTs : the uart protocol used with all MCU STM32
+- for USB : based on USB DFU 1.1 (without the ST extensions used on MCU STM32)
+
+7. Prepare an SDCard
 ===================
 
 The minimal requirements for STMP32MP1 boot up to U-Boot are:
@@ -147,13 +171,13 @@ for example: with gpt table with 128 entries
 	# sgdisk -o /dev/<SDCard dev>
 
   b) create minimal image
-	# sgdisk	--resize-table=128 -a 1 \
+	# sgdisk --resize-table=128 -a 1 \
 		-n 1:34:545		-c 1:fsbl1 \
 		-n 2:546:1057		-c 2:fsbl2 \
 		-n 3:1058:5153		-c 3:ssbl \
 		-p /dev/<SDCard dev>
 
-	you can add other partition for kernel (rootfs)
+	you can add other partition for kernel (rootfs for example)
 
   c) copy the FSBL (2 times) and SSBL file on the correct partition.
      in this example in partition 1 to 3
@@ -163,29 +187,40 @@ for example: with gpt table with 128 entries
 	# dd if=u-boot-spl.stm32 of=/dev/mmcblk0p2
 	# dd if=u-boot.img of=/dev/mmcblk0p3
 
-7. Switch Setting
-==================
+To boot from SDCard, select BootPinMode = 1 1 1 and reset.
 
-You can select the boot mode, on the board ed1 with the switch SW1
+8. Prepare eMMC
+===============
+You can use U-Boot to copy binary in eMMC.
 
- -----------------------------------
-  Boot Mode   BOOT2   BOOT1   BOOT0
- -----------------------------------
-  Reserved	0	0	0
-  NOR		0	0	1
-  SD-Card	1	1	1
-  SD-Card	1	0	1
-  eMMC		0	1	0
-  NAND		0	1	1
-  Recovery	1	1	0
-  Recovery	0	0	0
-
+In the next example, you need to boot from SDCARD and the images (u-boot-spl.stm32, u-boot.img)
+are presents on SDCARD (mmc 0) in ext4 partition 4 (bootfs).
 
 To boot from SDCard, select BootPinMode = 1 1 1 and reset.
 
-Recovery is a boot from serial link (UART/USB) and it is used with
-STM32CubeProgrammer tool to load executable in RAM and to update the flash
-devices available on the board (NOR/NAND/eMMC/SDCARD).
-The communication between HOST and board is based on
-- for UARTs : the uart protocol used with all MCU STM32
-- for USB : based on USB DFU 1.1 (without the ST extensions used on MCU STM32)
+Then you update the eMMC with the next U-Boot command :
+
+a) prepare GPT on eMMC,
+	example with 2 partitions, bootfs and roots:
+
+	# setenv emmc_part "name=ssbl,size=2MiB;name=bootfs,type=linux,bootable,size=64MiB;name=rootfs,type=linux,size=512"
+	# gpt write mmc 1 ${emmc_part}
+
+b) copy SPL on eMMC on firts boot partition
+	(SPL max size is 256kB, with LBA 512, 0x200)
+
+	# ext4load mmc 0:4 0xC0000000 u-boot-spl.stm32
+	# mmc dev 1
+	# mmc partconf 1 1 1 1
+	# mmc write ${fileaddr} 0 200
+	# mmc partconf 1 1 1 0
+
+b) copy U-Boot in first GPT partition of eMMC
+
+	# ext4load mmc 0:4 0xC0000000 u-boot.img
+	# mmc dev 1
+	# part start mmc 1 1 partstart
+	# part size mmc 1 1 partsize
+	# mmc write ${fileaddr} ${partstart} ${partsize}
+
+To boot from eMMC, select BootPinMode = 0 1 0 and reset.

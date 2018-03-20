@@ -86,6 +86,20 @@
 			status = "disabled";
 		};
 
+		sdmmc3: sdmmc@48004000 {
+			compatible = "st,stm32-sdmmc2";
+			reg = <0x48004000 0x400>, <0x48005000 0x400>;
+			reg-names = "sdmmc", "delay";
+			interrupts = <GIC_SPI 137 IRQ_TYPE_NONE>;
+			clocks = <&rcc_clk SDMMC3_K>;
+			resets = <&rcc_rst SDMMC3_R>;
+			st,idma = <1>;
+			cap-sd-highspeed;
+			cap-mmc-highspeed;
+			max-frequency = <120000000>;
+			status = "disabled";
+		};
+
 		rcc: rcc@50000000 {
 			compatible = "syscon", "simple-mfd";
 
@@ -281,6 +295,20 @@
 			reg-names = "sdmmc", "delay";
 			clocks = <&rcc_clk SDMMC1_K>;
 			resets = <&rcc_rst SDMMC1_R>;
+			st,idma = <1>;
+			cap-sd-highspeed;
+			cap-mmc-highspeed;
+			max-frequency = <120000000>;
+			status = "disabled";
+		};
+
+		sdmmc2: sdmmc@58007000 {
+			compatible = "st,stm32-sdmmc2";
+			reg = <0x58007000 0x1000>, <0x58008000 0x1000>;
+			reg-names = "sdmmc", "delay";
+			interrupts = <GIC_SPI 124 IRQ_TYPE_NONE>;
+			clocks = <&rcc_clk SDMMC2_K>;
+			resets = <&rcc_rst SDMMC2_R>;
 			st,idma = <1>;
 			cap-sd-highspeed;
 			cap-mmc-highspeed;

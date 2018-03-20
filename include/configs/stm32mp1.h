@@ -71,6 +71,7 @@
 
 /*MMC SD*/
 #define CONFIG_SYS_MMC_MAX_DEVICE	3
+#define CONFIG_SUPPORT_EMMC_BOOT
 
 #if !defined(CONFIG_SPL) || !defined(CONFIG_SPL_BUILD)
 
