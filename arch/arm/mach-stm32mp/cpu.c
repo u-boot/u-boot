@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/sys_proto.h>
+#include <dm/uclass.h>
 
 /* RCC register */
 #define RCC_TZCR		(STM32_RCC_BASE + 0x00)
@@ -39,6 +40,16 @@
 #define DBGMCU_IDC_DEV_ID_SHIFT	0
 #define DBGMCU_IDC_REV_ID_MASK	GENMASK(31, 16)
 #define DBGMCU_IDC_REV_ID_SHIFT	16
+
+/* boot interface from Bootrom
+ * - boot instance = bit 31:16
+ * - boot device = bit 15:0
+ */
+#define BOOTROM_PARAM_ADDR	0x2FFC0078
+#define BOOTROM_MODE_MASK	GENMASK(15, 0)
+#define BOOTROM_MODE_SHIFT	0
+#define BOOTROM_INSTANCE_MASK	 GENMASK(31, 16)
+#define BOOTROM_INSTANCE_SHIFT	16
 
 #if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
 static void security_init(void)
@@ -109,6 +120,37 @@ static void dbgmcu_init(void)
 }
 #endif /* !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD) */
 
+static u32 get_bootmode(void)
+{
+	u32 boot_mode;
+#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
+	u32 bootrom_itf = readl(BOOTROM_PARAM_ADDR);
+	u32 bootrom_device, bootrom_instance;
+
+	bootrom_device =
+		(bootrom_itf & BOOTROM_MODE_MASK) >> BOOTROM_MODE_SHIFT;
+	bootrom_instance =
+		(bootrom_itf & BOOTROM_INSTANCE_MASK) >> BOOTROM_INSTANCE_SHIFT;
+	boot_mode =
+		((bootrom_device << BOOT_TYPE_SHIFT) & BOOT_TYPE_MASK) |
+		((bootrom_instance << BOOT_INSTANCE_SHIFT) &
+		 BOOT_INSTANCE_MASK);
+
+	/* save the boot mode in TAMP backup register */
+	clrsetbits_le32(TAMP_BOOT_CONTEXT,
+			TAMP_BOOT_MODE_MASK,
+			boot_mode << TAMP_BOOT_MODE_SHIFT);
+#else
+	/* read TAMP backup register */
+	boot_mode = (readl(TAMP_BOOT_CONTEXT) & TAMP_BOOT_MODE_MASK) >>
+		    TAMP_BOOT_MODE_SHIFT;
+#endif
+	return boot_mode;
+}
+
+/*
+ * Early system init
+ */
 int arch_cpu_init(void)
 {
 	/* early armv7 timer init: needed for polling */
@@ -119,6 +161,8 @@ int arch_cpu_init(void)
 
 	security_init();
 #endif
+	/* get bootmode from BootRom context: saved in TAMP register */
+	get_bootmode();
 
 	return 0;
 }
@@ -177,6 +221,54 @@ int print_cpuinfo(void)
 	return 0;
 }
 #endif /* CONFIG_DISPLAY_CPUINFO */
+
+static void setup_boot_mode(void)
+{
+	char cmd[60];
+	u32 boot_ctx = readl(TAMP_BOOT_CONTEXT);
+	u32 boot_mode =
+		(boot_ctx & TAMP_BOOT_MODE_MASK) >> TAMP_BOOT_MODE_SHIFT;
+	int instance = (boot_mode & TAMP_BOOT_INSTANCE_MASK) - 1;
+
+	pr_debug("%s: boot_ctx=0x%x => boot_mode=%x, instance=%d\n",
+		 __func__, boot_ctx, boot_mode, instance);
+
+	switch (boot_mode & TAMP_BOOT_DEVICE_MASK) {
+	case BOOT_SERIAL_UART:
+		sprintf(cmd, "%d", instance);
+		env_set("boot_device", "uart");
+		env_set("boot_instance", cmd);
+		break;
+	case BOOT_SERIAL_USB:
+		env_set("boot_device", "usb");
+		env_set("boot_instance", "0");
+		break;
+	case BOOT_FLASH_SD:
+	case BOOT_FLASH_EMMC:
+		sprintf(cmd, "%d", instance);
+		env_set("boot_device", "mmc");
+		env_set("boot_instance", cmd);
+		break;
+	case BOOT_FLASH_NAND:
+		env_set("boot_device", "nand");
+		env_set("boot_instance", "0");
+		break;
+	case BOOT_FLASH_NOR:
+		env_set("boot_device", "nor");
+		env_set("boot_instance", "0");
+		break;
+	default:
+		pr_debug("unexpected boot mode = %x\n", boot_mode);
+		break;
+	}
+}
+
+int arch_misc_init(void)
+{
+	setup_boot_mode();
+
+	return 0;
+}
 
 void reset_cpu(ulong addr)
 {
