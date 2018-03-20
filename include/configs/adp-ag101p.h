@@ -85,7 +85,6 @@
 /*
  * SD (MMC) controller
  */
-#define CONFIG_FTSDC010_NUMBER		1
 #define CONFIG_FTSDC010_SDIO
 
 /*
