@@ -7,15 +7,45 @@
 #include <common.h>
 #include <dm.h>
 #include <spl.h>
+#include <asm/io.h>
 
 u32 spl_boot_device(void)
 {
+	u32 boot_mode;
+
+	boot_mode = (readl(TAMP_BOOT_CONTEXT) & TAMP_BOOT_MODE_MASK) >>
+		    TAMP_BOOT_MODE_SHIFT;
+	clrsetbits_le32(TAMP_BOOT_CONTEXT,
+			TAMP_BOOT_MODE_MASK,
+			boot_mode << TAMP_BOOT_MODE_SHIFT);
+
+	switch (boot_mode) {
+	case BOOT_FLASH_SD_1:
+	case BOOT_FLASH_EMMC_1:
+		return BOOT_DEVICE_MMC1;
+	case BOOT_FLASH_SD_2:
+	case BOOT_FLASH_EMMC_2:
+		return BOOT_DEVICE_MMC2;
+	}
+
 	return BOOT_DEVICE_MMC1;
 }
 
 u32 spl_boot_mode(const u32 boot_device)
 {
 	return MMCSD_MODE_RAW;
+}
+
+int spl_boot_partition(const u32 boot_device)
+{
+	switch (boot_device) {
+	case BOOT_DEVICE_MMC1:
+		return CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION;
+	case BOOT_DEVICE_MMC2:
+		return CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_MMC2;
+	default:
+		return -EINVAL;
+	}
 }
 
 void board_init_f(ulong dummy)

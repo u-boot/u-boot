@@ -82,6 +82,12 @@
 
 #include <config_distro_bootcmd.h>
 
+#define STM32MP_PREBOOT	\
+	"echo \"Boot over ${boot_device}${boot_instance}!\"; " \
+	"if test \"${boot_device}\" = \"mmc\"; then " \
+		"env set boot_targets \"mmc${boot_instance}\"; "\
+	"fi;"
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"scriptaddr=0xC0000000\0" \
 	"pxefile_addr_r=0xC0000000\0" \
@@ -90,6 +96,7 @@
 	"ramdisk_addr_r=0xC4100000\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
+	"preboot=" STM32MP_PREBOOT "\0" \
 	BOOTENV
 
 #endif /* ifndef CONFIG_SPL_BUILD */
