@@ -27,6 +27,15 @@
 #define TIMEOUT_200MS		200000
 #define TIMEOUT_1S		1000000
 
+/* STGEN registers */
+#define STGENC_CNTCR		0x00
+#define STGENC_CNTSR		0x04
+#define STGENC_CNTCVL		0x08
+#define STGENC_CNTCVU		0x0C
+#define STGENC_CNTFID0		0x20
+
+#define STGENC_CNTCR_EN		BIT(0)
+
 /* RCC registers */
 #define RCC_OCENSETR		0x0C
 #define RCC_OCENCLRR		0x10
@@ -1377,6 +1386,36 @@ static int set_clksrc(struct stm32mp1_clk_priv *priv, unsigned int clksrc)
 	return ret;
 }
 
+static void stgen_config(struct stm32mp1_clk_priv *priv)
+{
+	int p;
+	u32 stgenc, cntfid0;
+	ulong rate;
+
+	stgenc = (u32)syscon_get_first_range(STM32MP_SYSCON_STGEN);
+
+	cntfid0 = readl(stgenc + STGENC_CNTFID0);
+	p = stm32mp1_clk_get_parent(priv, STGEN_K);
+	rate = stm32mp1_clk_get(priv, p);
+
+	if (cntfid0 != rate) {
+		pr_debug("System Generic Counter (STGEN) update\n");
+		clrbits_le32(stgenc + STGENC_CNTCR, STGENC_CNTCR_EN);
+		writel(0x0, stgenc + STGENC_CNTCVL);
+		writel(0x0, stgenc + STGENC_CNTCVU);
+		writel(rate, stgenc + STGENC_CNTFID0);
+		setbits_le32(stgenc + STGENC_CNTCR, STGENC_CNTCR_EN);
+
+		__asm__ volatile("mcr p15, 0, %0, c14, c0, 0" : : "r" (rate));
+
+		/* need to update gd->arch.timer_rate_hz with new frequency */
+		timer_init();
+		pr_debug("gd->arch.timer_rate_hz = %x\n",
+			 (u32)gd->arch.timer_rate_hz);
+		pr_debug("Tick = %x\n", (u32)(get_ticks()));
+	}
+}
+
 static int set_clkdiv(unsigned int clkdiv, u32 address)
 {
 	u32 val;
@@ -1544,8 +1583,10 @@ static int stm32mp1_clktree(struct udevice *dev)
 
 	/* configure HSIDIV */
 	debug("configure HSIDIV\n");
-	if (priv->osc[_HSI])
+	if (priv->osc[_HSI]) {
 		stm32mp1_hsidiv(rcc, priv->osc[_HSI]);
+		stgen_config(priv);
+	}
 
 	/* select DIV */
 	debug("select DIV\n");
@@ -1633,6 +1674,9 @@ static int stm32mp1_clktree(struct udevice *dev)
 		if (ckper_disabled)
 			pkcs_config(priv, CLK_CKPER_DISABLED);
 	}
+
+	/* STGEN clock source can change with CLK_STGEN_XXX */
+	stgen_config(priv);
 
 	debug("oscillator off\n");
 	/* switch OFF HSI if not found in device-tree */
