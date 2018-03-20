@@ -479,4 +479,22 @@ config ENV_SIZE
 
 endif
 
+config USE_DEFAULT_ENV_FILE
+	bool "Create default environment from file"
+	help
+	  Normally, the default environment is automatically generated
+	  based on the settings of various CONFIG_* options, as well
+	  as the CONFIG_EXTRA_ENV_SETTINGS. By selecting this option,
+	  you can instead define the entire default environment in an
+	  external file.
+
+config DEFAULT_ENV_FILE
+	string "Path to default environment file"
+	depends on USE_DEFAULT_ENV_FILE
+	help
+	  The path containing the default environment. The format is
+	  the same as accepted by the mkenvimage tool: lines
+	  containing key=value pairs, blank lines and lines beginning
+	  with # are ignored.
+
 endmenu
