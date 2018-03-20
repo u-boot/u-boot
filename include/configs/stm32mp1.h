@@ -18,7 +18,6 @@
  */
 #define CONFIG_SYS_HZ				1000
 #define CONFIG_SYS_ARCH_TIMER
-#define CONFIG_SYS_HZ_CLOCK			64000000
 
 /*
  * malloc() pool size
