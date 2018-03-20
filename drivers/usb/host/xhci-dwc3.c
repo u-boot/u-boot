@@ -23,6 +23,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct xhci_dwc3_platdata {
 	struct phy usb_phy;
+	struct phy usb3_phy;
 };
 
 void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode)
@@ -112,6 +113,50 @@ void dwc3_set_fladj(struct dwc3 *dwc3_reg, u32 val)
 }
 
 #ifdef CONFIG_DM_USB
+static int xhci_dwc3_setup_phy(struct udevice *dev, int index, struct phy *phy)
+{
+	int ret = 0;
+
+	ret = generic_phy_get_by_index(dev, index, phy);
+	if (ret) {
+		if (ret != -ENOENT) {
+			pr_err("Failed to get USB PHY for %s\n", dev->name);
+			return ret;
+		}
+	} else {
+		ret = generic_phy_init(phy);
+		if (ret) {
+			pr_err("Can't init USB PHY for %s\n", dev->name);
+			return ret;
+		}
+		ret = generic_phy_power_on(phy);
+		if (ret) {
+			pr_err("Can't power on USB PHY for %s\n", dev->name);
+			generic_phy_exit(phy);
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
+static int xhci_dwc3_shutdown_phy(struct phy *phy)
+{
+	int ret = 0;
+
+	if (generic_phy_valid(phy)) {
+		ret = generic_phy_power_off(phy);
+		if (ret)
+			return ret;
+
+		ret = generic_phy_exit(phy);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
 static int xhci_dwc3_probe(struct udevice *dev)
 {
 	struct xhci_dwc3_platdata *plat = dev_get_platdata(dev);
@@ -125,18 +170,17 @@ static int xhci_dwc3_probe(struct udevice *dev)
 	hcor = (struct xhci_hcor *)((uintptr_t)hccr +
 			HC_LENGTH(xhci_readl(&(hccr)->cr_capbase)));
 
-	ret = generic_phy_get_by_index(dev, 0, &plat->usb_phy);
+	ret = xhci_dwc3_setup_phy(dev, 0, &plat->usb_phy);
 	if (ret) {
-		if (ret != -ENOENT) {
-			pr_err("Failed to get USB PHY for %s\n", dev->name);
-			return ret;
-		}
-	} else {
-		ret = generic_phy_init(&plat->usb_phy);
-		if (ret) {
-			pr_err("Can't init USB PHY for %s\n", dev->name);
-			return ret;
-		}
+		pr_err("Failed to setup USB PHY for %s\n", dev->name);
+		return ret;
+	}
+
+	ret = xhci_dwc3_setup_phy(dev, 1, &plat->usb3_phy);
+	if (ret) {
+		pr_err("Failed to setup USB3 PHY for %s\n", dev->name);
+		xhci_dwc3_shutdown_phy(&plat->usb_phy);
+		return ret;
 	}
 
 	dwc3_reg = (struct dwc3 *)((char *)(hccr) + DWC3_REG_OFFSET);
@@ -158,13 +202,13 @@ static int xhci_dwc3_remove(struct udevice *dev)
 	struct xhci_dwc3_platdata *plat = dev_get_platdata(dev);
 	int ret;
 
-	if (generic_phy_valid(&plat->usb_phy)) {
-		ret = generic_phy_exit(&plat->usb_phy);
-		if (ret) {
-			pr_err("Can't deinit USB PHY for %s\n", dev->name);
-			return ret;
-		}
-	}
+	ret = xhci_dwc3_shutdown_phy(&plat->usb_phy);
+	if (ret)
+		pr_err("Can't shutdown USB PHY for %s\n", dev->name);
+
+	ret = xhci_dwc3_shutdown_phy(&plat->usb3_phy);
+	if (ret)
+		pr_err("Can't shutdown USB3 PHY for %s\n", dev->name);
 
 	return xhci_deregister(dev);
 }
