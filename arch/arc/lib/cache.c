@@ -315,20 +315,27 @@ void icache_disable(void)
 			      IC_CTRL_CACHE_DISABLE);
 }
 
+/* IC supports only invalidation */
+static inline void __ic_entire_invalidate(void)
+{
+	if (!icache_status())
+		return;
+
+	/* Any write to IC_IVIC register triggers invalidation of entire I$ */
+	write_aux_reg(ARC_AUX_IC_IVIC, 1);
+	/*
+	 * As per ARC HS databook (see chapter 5.3.3.2)
+	 * it is required to add 3 NOPs after each write to IC_IVIC.
+	 */
+	__builtin_arc_nop();
+	__builtin_arc_nop();
+	__builtin_arc_nop();
+	read_aux_reg(ARC_AUX_IC_CTRL);  /* blocks */
+}
+
 void invalidate_icache_all(void)
 {
-	/* Any write to IC_IVIC register triggers invalidation of entire I$ */
-	if (icache_status()) {
-		write_aux_reg(ARC_AUX_IC_IVIC, 1);
-		/*
-		 * As per ARC HS databook (see chapter 5.3.3.2)
-		 * it is required to add 3 NOPs after each write to IC_IVIC.
-		 */
-		__builtin_arc_nop();
-		__builtin_arc_nop();
-		__builtin_arc_nop();
-		read_aux_reg(ARC_AUX_IC_CTRL);	/* blocks */
-	}
+	__ic_entire_invalidate();
 
 #ifdef CONFIG_ISA_ARCV2
 	if (slc_exists)
