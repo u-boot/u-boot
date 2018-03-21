@@ -10,6 +10,7 @@
 #include <linux/kernel.h>
 #include <linux/log2.h>
 #include <asm/arcregs.h>
+#include <asm/arc-bcr.h>
 #include <asm/cache.h>
 
 /*
@@ -129,24 +130,11 @@ void read_decode_mmu_bcr(void)
 {
 	/* TODO: should we compare mmu version from BCR and from CONFIG? */
 #if (CONFIG_ARC_MMU_VER >= 4)
-	u32 tmp;
+	union bcr_mmu_4 mmu4;
 
-	tmp = read_aux_reg(ARC_AUX_MMU_BCR);
+	mmu4.word = read_aux_reg(ARC_AUX_MMU_BCR);
 
-	struct bcr_mmu_4 {
-#ifdef CONFIG_CPU_BIG_ENDIAN
-	unsigned int ver:8, sasid:1, sz1:4, sz0:4, res:2, pae:1,
-		     n_ways:2, n_entry:2, n_super:2, u_itlb:3, u_dtlb:3;
-#else
-	/*           DTLB      ITLB      JES        JE         JA      */
-	unsigned int u_dtlb:3, u_itlb:3, n_super:2, n_entry:2, n_ways:2,
-		     pae:1, res:2, sz0:4, sz1:4, sasid:1, ver:8;
-#endif /* CONFIG_CPU_BIG_ENDIAN */
-	} *mmu4;
-
-	mmu4 = (struct bcr_mmu_4 *)&tmp;
-
-	pae_exists = !!mmu4->pae;
+	pae_exists = !!mmu4.fields.pae;
 #endif /* (CONFIG_ARC_MMU_VER >= 4) */
 }
 
@@ -264,27 +252,9 @@ static void arc_ioc_setup(void)
 #ifdef CONFIG_ISA_ARCV2
 static void read_decode_cache_bcr_arcv2(void)
 {
-	union {
-		struct {
-#ifdef CONFIG_CPU_BIG_ENDIAN
-			unsigned int pad:24, way:2, lsz:2, sz:4;
-#else
-			unsigned int sz:4, lsz:2, way:2, pad:24;
-#endif
-		} fields;
-		unsigned int word;
-	} slc_cfg;
-
-	union {
-		struct {
-#ifdef CONFIG_CPU_BIG_ENDIAN
-			unsigned int pad:24, ver:8;
-#else
-			unsigned int ver:8, pad:24;
-#endif
-		} fields;
-		unsigned int word;
-	} sbcr;
+	union bcr_slc_cfg slc_cfg;
+	union bcr_clust_cfg cbcr;
+	union bcr_generic sbcr;
 
 	sbcr.word = read_aux_reg(ARC_BCR_SLC);
 	if (sbcr.fields.ver) {
@@ -292,17 +262,6 @@ static void read_decode_cache_bcr_arcv2(void)
 		slc_exists = true;
 		slc_line_sz = (slc_cfg.fields.lsz == 0) ? 128 : 64;
 	}
-
-	union {
-		struct bcr_clust_cfg {
-#ifdef CONFIG_CPU_BIG_ENDIAN
-			unsigned int pad:7, c:1, num_entries:8, num_cores:8, ver:8;
-#else
-			unsigned int ver:8, num_cores:8, num_entries:8, c:1, pad:7;
-#endif
-		} fields;
-		unsigned int word;
-	} cbcr;
 
 	cbcr.word = read_aux_reg(ARC_BCR_CLUSTER);
 	if (cbcr.fields.c && ioc_enable)
@@ -313,17 +272,7 @@ static void read_decode_cache_bcr_arcv2(void)
 void read_decode_cache_bcr(void)
 {
 	int dc_line_sz = 0, ic_line_sz = 0;
-
-	union {
-		struct {
-#ifdef CONFIG_CPU_BIG_ENDIAN
-			unsigned int pad:12, line_len:4, sz:4, config:4, ver:8;
-#else
-			unsigned int ver:8, config:4, sz:4, line_len:4, pad:12;
-#endif
-		} fields;
-		unsigned int word;
-	} ibcr, dbcr;
+	union bcr_di_cache ibcr, dbcr;
 
 	ibcr.word = read_aux_reg(ARC_BCR_IC_BUILD);
 	if (ibcr.fields.ver) {
