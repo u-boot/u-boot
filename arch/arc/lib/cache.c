@@ -591,3 +591,26 @@ void flush_dcache_all(void)
 	if (is_isa_arcv2() && !slc_data_bypass())
 		__slc_entire_op(OP_FLUSH);
 }
+
+/*
+ * This is function to cleanup all caches (and therefore sync I/D caches) which
+ * can be used for cleanup before linux launch or to sync caches during
+ * relocation.
+ */
+void sync_n_cleanup_cache_all(void)
+{
+	__dc_entire_op(OP_FLUSH_N_INV);
+
+	/*
+	 * If SL$ is bypassed for data it is used only for instructions,
+	 * and we shouldn't flush it. So invalidate it instead of flush_n_inv.
+	 */
+	if (is_isa_arcv2()) {
+		if (slc_data_bypass())
+			__slc_entire_op(OP_INV);
+		else
+			__slc_entire_op(OP_FLUSH_N_INV);
+	}
+
+	__ic_entire_invalidate();
+}
