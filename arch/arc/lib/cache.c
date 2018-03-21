@@ -94,7 +94,6 @@
 #define DC_CTRL_CACHE_DISABLE	BIT(0)
 #define DC_CTRL_INV_MODE_FLUSH	BIT(6)
 #define DC_CTRL_FLUSH_STATUS	BIT(8)
-#define CACHE_VER_NUM_MASK	0xF
 
 #define OP_INV			BIT(0)
 #define OP_FLUSH		BIT(1)
@@ -112,20 +111,16 @@
  * relocation but will be used after being zeroed.
  */
 int l1_line_sz __section(".data");
-bool dcache_exists __section(".data") = false;
-bool icache_exists __section(".data") = false;
 
 #define CACHE_LINE_MASK		(~(l1_line_sz - 1))
 
 int slc_line_sz __section(".data");
-bool slc_exists __section(".data") = false;
 bool ioc_exists __section(".data") = false;
-bool pae_exists __section(".data") = false;
 
 /* To force enable IOC set ioc_enable to 'true' */
 bool ioc_enable __section(".data") = false;
 
-void read_decode_mmu_bcr(void)
+static inline bool pae_exists(void)
 {
 	/* TODO: should we compare mmu version from BCR and from CONFIG? */
 #if (CONFIG_ARC_MMU_VER >= 4)
@@ -133,15 +128,46 @@ void read_decode_mmu_bcr(void)
 
 	mmu4.word = read_aux_reg(ARC_AUX_MMU_BCR);
 
-	pae_exists = !!mmu4.fields.pae;
+	if (mmu4.fields.pae)
+		return true;
 #endif /* (CONFIG_ARC_MMU_VER >= 4) */
+
+	return false;
+}
+
+static inline bool icache_exists(void)
+{
+	union bcr_di_cache ibcr;
+
+	ibcr.word = read_aux_reg(ARC_BCR_IC_BUILD);
+	return !!ibcr.fields.ver;
+}
+
+static inline bool dcache_exists(void)
+{
+	union bcr_di_cache dbcr;
+
+	dbcr.word = read_aux_reg(ARC_BCR_DC_BUILD);
+	return !!dbcr.fields.ver;
+}
+
+static inline bool slc_exists(void)
+{
+	if (is_isa_arcv2()) {
+		union bcr_generic sbcr;
+
+		sbcr.word = read_aux_reg(ARC_BCR_SLC);
+		return !!sbcr.fields.ver;
+	}
+
+	return false;
 }
 
 static void __slc_entire_op(const int op)
 {
 	unsigned int ctrl;
 
-	if (!slc_exists)
+	if (!slc_exists())
 		return;
 
 	ctrl = read_aux_reg(ARC_AUX_SLC_CTRL);
@@ -182,7 +208,7 @@ static void __slc_rgn_op(unsigned long paddr, unsigned long sz, const int op)
 	unsigned int ctrl;
 	unsigned long end;
 
-	if (!slc_exists)
+	if (!slc_exists())
 		return;
 
 	/*
@@ -263,12 +289,9 @@ static void read_decode_cache_bcr_arcv2(void)
 
 	union bcr_slc_cfg slc_cfg;
 	union bcr_clust_cfg cbcr;
-	union bcr_generic sbcr;
 
-	sbcr.word = read_aux_reg(ARC_BCR_SLC);
-	if (sbcr.fields.ver) {
+	if (slc_exists()) {
 		slc_cfg.word = read_aux_reg(ARC_AUX_SLC_CONFIG);
-		slc_exists = true;
 		slc_line_sz = (slc_cfg.fields.lsz == 0) ? 128 : 64;
 	}
 
@@ -286,7 +309,6 @@ void read_decode_cache_bcr(void)
 
 	ibcr.word = read_aux_reg(ARC_BCR_IC_BUILD);
 	if (ibcr.fields.ver) {
-		icache_exists = true;
 		l1_line_sz = ic_line_sz = 8 << ibcr.fields.line_len;
 		if (!ic_line_sz)
 			panic("Instruction exists but line length is 0\n");
@@ -294,7 +316,6 @@ void read_decode_cache_bcr(void)
 
 	dbcr.word = read_aux_reg(ARC_BCR_DC_BUILD);
 	if (dbcr.fields.ver) {
-		dcache_exists = true;
 		l1_line_sz = dc_line_sz = 16 << dbcr.fields.line_len;
 		if (!dc_line_sz)
 			panic("Data cache exists but line length is 0\n");
@@ -314,20 +335,18 @@ void cache_init(void)
 	if (is_isa_arcv2() && ioc_exists)
 		arc_ioc_setup();
 
-	read_decode_mmu_bcr();
-
 	/*
 	 * ARC_AUX_SLC_RGN_START1 and ARC_AUX_SLC_RGN_END1 register exist
 	 * only if PAE exists in current HW. So we had to check pae_exist
 	 * before using them.
 	 */
-	if (is_isa_arcv2() && slc_exists && pae_exists)
+	if (is_isa_arcv2() && slc_exists() && pae_exists())
 		slc_upper_region_init();
 }
 
 int icache_status(void)
 {
-	if (!icache_exists)
+	if (!icache_exists())
 		return 0;
 
 	if (read_aux_reg(ARC_AUX_IC_CTRL) & IC_CTRL_CACHE_DISABLE)
@@ -338,14 +357,14 @@ int icache_status(void)
 
 void icache_enable(void)
 {
-	if (icache_exists)
+	if (icache_exists())
 		write_aux_reg(ARC_AUX_IC_CTRL, read_aux_reg(ARC_AUX_IC_CTRL) &
 			      ~IC_CTRL_CACHE_DISABLE);
 }
 
 void icache_disable(void)
 {
-	if (icache_exists)
+	if (icache_exists())
 		write_aux_reg(ARC_AUX_IC_CTRL, read_aux_reg(ARC_AUX_IC_CTRL) |
 			      IC_CTRL_CACHE_DISABLE);
 }
@@ -378,7 +397,7 @@ void invalidate_icache_all(void)
 
 int dcache_status(void)
 {
-	if (!dcache_exists)
+	if (!dcache_exists())
 		return 0;
 
 	if (read_aux_reg(ARC_AUX_DC_CTRL) & DC_CTRL_CACHE_DISABLE)
@@ -389,7 +408,7 @@ int dcache_status(void)
 
 void dcache_enable(void)
 {
-	if (!dcache_exists)
+	if (!dcache_exists())
 		return;
 
 	write_aux_reg(ARC_AUX_DC_CTRL, read_aux_reg(ARC_AUX_DC_CTRL) &
@@ -398,7 +417,7 @@ void dcache_enable(void)
 
 void dcache_disable(void)
 {
-	if (!dcache_exists)
+	if (!dcache_exists())
 		return;
 
 	write_aux_reg(ARC_AUX_DC_CTRL, read_aux_reg(ARC_AUX_DC_CTRL) |
