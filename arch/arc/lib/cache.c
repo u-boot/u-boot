@@ -168,6 +168,15 @@ static inline bool slc_exists(void)
 	return false;
 }
 
+static inline bool slc_data_bypass(void)
+{
+	/*
+	 * If L1 data cache is disabled SL$ is bypassed and all load/store
+	 * requests are sent directly to main memory.
+	 */
+	return !dcache_enabled();
+}
+
 static inline bool ioc_exists(void)
 {
 	if (is_isa_arcv2()) {
@@ -412,7 +421,13 @@ void invalidate_icache_all(void)
 {
 	__ic_entire_invalidate();
 
-	if (is_isa_arcv2())
+	/*
+	 * If SL$ is bypassed for data it is used only for instructions,
+	 * so we need to invalidate it too.
+	 * TODO: HS 3.0 supports SLC disable so we need to check slc
+	 * enable/disable status here.
+	 */
+	if (is_isa_arcv2() && slc_data_bypass())
 		__slc_entire_op(OP_INV);
 }
 
@@ -520,14 +535,15 @@ void invalidate_dcache_range(unsigned long start, unsigned long end)
 		return;
 
 	/*
-	 * ARCv1                  -> call __dc_line_op
-	 * ARCv2 && no IOC        -> call __dc_line_op; call __slc_rgn_op
-	 * ARCv2 && IOC enabled   -> nothing
+	 * ARCv1                                 -> call __dc_line_op
+	 * ARCv2 && L1 D$ disabled               -> nothing
+	 * ARCv2 && L1 D$ enabled && IOC enabled -> nothing
+	 * ARCv2 && L1 D$ enabled && no IOC      -> call __dc_line_op; call __slc_rgn_op
 	 */
 	if (!is_isa_arcv2() || !ioc_enabled())
 		__dc_line_op(start, end - start, OP_INV);
 
-	if (is_isa_arcv2() && !ioc_enabled())
+	if (is_isa_arcv2() && !ioc_enabled() && !slc_data_bypass())
 		__slc_rgn_op(start, end - start, OP_INV);
 }
 
@@ -537,14 +553,15 @@ void flush_dcache_range(unsigned long start, unsigned long end)
 		return;
 
 	/*
-	 * ARCv1                  -> call __dc_line_op
-	 * ARCv2 && no IOC        -> call __dc_line_op; call __slc_rgn_op
-	 * ARCv2 && IOC enabled   -> nothing
+	 * ARCv1                                 -> call __dc_line_op
+	 * ARCv2 && L1 D$ disabled               -> nothing
+	 * ARCv2 && L1 D$ enabled && IOC enabled -> nothing
+	 * ARCv2 && L1 D$ enabled && no IOC      -> call __dc_line_op; call __slc_rgn_op
 	 */
 	if (!is_isa_arcv2() || !ioc_enabled())
 		__dc_line_op(start, end - start, OP_FLUSH);
 
-	if (is_isa_arcv2() && !ioc_enabled())
+	if (is_isa_arcv2() && !ioc_enabled() && !slc_data_bypass())
 		__slc_rgn_op(start, end - start, OP_FLUSH);
 }
 
@@ -563,7 +580,7 @@ void flush_n_invalidate_dcache_all(void)
 {
 	__dc_entire_op(OP_FLUSH_N_INV);
 
-	if (is_isa_arcv2())
+	if (is_isa_arcv2() && !slc_data_bypass())
 		__slc_entire_op(OP_FLUSH_N_INV);
 }
 
@@ -571,6 +588,6 @@ void flush_dcache_all(void)
 {
 	__dc_entire_op(OP_FLUSH);
 
-	if (is_isa_arcv2())
+	if (is_isa_arcv2() && !slc_data_bypass())
 		__slc_entire_op(OP_FLUSH);
 }
