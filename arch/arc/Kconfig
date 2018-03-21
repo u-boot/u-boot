@@ -116,6 +116,24 @@ config SYS_DCACHE_OFF
 	bool "Do not use Data Cache"
 	default n
 
+menuconfig ARC_DBG
+	bool "ARC debugging"
+	default n
+
+if ARC_DBG
+
+config ARC_DBG_IOC_ENABLE
+	bool "Enable IO coherency unit"
+	depends on CPU_ARCHS38
+	default n
+	help
+	  Enable IO coherency unit to debug problems with caches and
+	  DMA peripherals.
+	  NOTE: as of today linux will not work properly if this option
+	  is enabled in u-boot!
+
+endif
+
 choice
 	prompt "Target select"
 	default TARGET_AXS103

@@ -107,17 +107,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SLC_CTRL_BUSY		0x100
 #define SLC_CTRL_RGN_OP_INV	0x200
 
-/*
- * By default that variable will fall into .bss section.
- * But .bss section is not relocated and so it will be initilized before
- * relocation but will be used after being zeroed.
- */
 #define CACHE_LINE_MASK		(~(gd->arch.l1_line_sz - 1))
-
-bool ioc_exists __section(".data") = false;
-
-/* To force enable IOC set ioc_enable to 'true' */
-bool ioc_enable __section(".data") = false;
 
 static inline bool pae_exists(void)
 {
@@ -158,6 +148,30 @@ static inline bool slc_exists(void)
 		sbcr.word = read_aux_reg(ARC_BCR_SLC);
 		return !!sbcr.fields.ver;
 	}
+
+	return false;
+}
+
+static inline bool ioc_exists(void)
+{
+	if (is_isa_arcv2()) {
+		union bcr_clust_cfg cbcr;
+
+		cbcr.word = read_aux_reg(ARC_BCR_CLUSTER);
+		return cbcr.fields.c;
+	}
+
+	return false;
+}
+
+static inline bool ioc_enabled(void)
+{
+	/*
+	 * We check only CONFIG option instead of IOC HW state check as IOC
+	 * must be disabled by default.
+	 */
+	if (is_ioc_enabled())
+		return ioc_exists();
 
 	return false;
 }
@@ -295,16 +309,11 @@ static void read_decode_cache_bcr_arcv2(void)
 #ifdef CONFIG_ISA_ARCV2
 
 	union bcr_slc_cfg slc_cfg;
-	union bcr_clust_cfg cbcr;
 
 	if (slc_exists()) {
 		slc_cfg.word = read_aux_reg(ARC_AUX_SLC_CONFIG);
 		gd->arch.slc_line_sz = (slc_cfg.fields.lsz == 0) ? 128 : 64;
 	}
-
-	cbcr.word = read_aux_reg(ARC_BCR_CLUSTER);
-	if (cbcr.fields.c && ioc_enable)
-		ioc_exists = true;
 
 #endif /* CONFIG_ISA_ARCV2 */
 }
@@ -339,7 +348,7 @@ void cache_init(void)
 	if (is_isa_arcv2())
 		read_decode_cache_bcr_arcv2();
 
-	if (is_isa_arcv2() && ioc_exists)
+	if (is_isa_arcv2() && ioc_enabled())
 		arc_ioc_setup();
 
 	if (is_isa_arcv2() && slc_exists())
@@ -511,10 +520,10 @@ void invalidate_dcache_range(unsigned long start, unsigned long end)
 	 * ARCv2 && no IOC        -> call __dc_line_op; call __slc_rgn_op
 	 * ARCv2 && IOC enabled   -> nothing
 	 */
-	if (!is_isa_arcv2() || !ioc_exists)
+	if (!is_isa_arcv2() || !ioc_enabled())
 		__dc_line_op(start, end - start, OP_INV);
 
-	if (is_isa_arcv2() && !ioc_exists)
+	if (is_isa_arcv2() && !ioc_enabled())
 		__slc_rgn_op(start, end - start, OP_INV);
 }
 
@@ -528,10 +537,10 @@ void flush_dcache_range(unsigned long start, unsigned long end)
 	 * ARCv2 && no IOC        -> call __dc_line_op; call __slc_rgn_op
 	 * ARCv2 && IOC enabled   -> nothing
 	 */
-	if (!is_isa_arcv2() || !ioc_exists)
+	if (!is_isa_arcv2() || !ioc_enabled())
 		__dc_line_op(start, end - start, OP_FLUSH);
 
-	if (is_isa_arcv2() && !ioc_exists)
+	if (is_isa_arcv2() && !ioc_enabled())
 		__slc_rgn_op(start, end - start, OP_FLUSH);
 }
 

@@ -32,6 +32,11 @@
 void cache_init(void);
 void flush_n_invalidate_dcache_all(void);
 
+static const inline int is_ioc_enabled(void)
+{
+	return IS_ENABLED(CONFIG_ARC_DBG_IOC_ENABLE);
+}
+
 #endif /* __ASSEMBLY__ */
 
 #endif /* __ASM_ARC_CACHE_H */
