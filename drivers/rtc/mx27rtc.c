@@ -61,9 +61,5 @@ int rtc_set(struct rtc_time *time)
 
 void rtc_reset(void)
 {
-	struct rtc_regs *rtc_regs = (struct rtc_regs *)IMX_RTC_BASE;
-
-	writel(0, &rtc_regs->dayr);
-	writel(0, &rtc_regs->hourmin);
-	writel(0, &rtc_regs->seconds);
+	/* nothing to do */
 }
