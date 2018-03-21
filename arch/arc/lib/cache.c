@@ -132,12 +132,28 @@ static inline bool icache_exists(void)
 	return !!ibcr.fields.ver;
 }
 
+static inline bool icache_enabled(void)
+{
+	if (!icache_exists())
+		return false;
+
+	return !(read_aux_reg(ARC_AUX_IC_CTRL) & IC_CTRL_CACHE_DISABLE);
+}
+
 static inline bool dcache_exists(void)
 {
 	union bcr_di_cache dbcr;
 
 	dbcr.word = read_aux_reg(ARC_BCR_DC_BUILD);
 	return !!dbcr.fields.ver;
+}
+
+static inline bool dcache_enabled(void)
+{
+	if (!dcache_exists())
+		return false;
+
+	return !(read_aux_reg(ARC_AUX_DC_CTRL) & DC_CTRL_CACHE_DISABLE);
 }
 
 static inline bool slc_exists(void)
@@ -357,13 +373,7 @@ void cache_init(void)
 
 int icache_status(void)
 {
-	if (!icache_exists())
-		return 0;
-
-	if (read_aux_reg(ARC_AUX_IC_CTRL) & IC_CTRL_CACHE_DISABLE)
-		return 0;
-	else
-		return 1;
+	return icache_enabled();
 }
 
 void icache_enable(void)
@@ -383,7 +393,7 @@ void icache_disable(void)
 /* IC supports only invalidation */
 static inline void __ic_entire_invalidate(void)
 {
-	if (!icache_status())
+	if (!icache_enabled())
 		return;
 
 	/* Any write to IC_IVIC register triggers invalidation of entire I$ */
@@ -408,13 +418,7 @@ void invalidate_icache_all(void)
 
 int dcache_status(void)
 {
-	if (!dcache_exists())
-		return 0;
-
-	if (read_aux_reg(ARC_AUX_DC_CTRL) & DC_CTRL_CACHE_DISABLE)
-		return 0;
-	else
-		return 1;
+	return dcache_enabled();
 }
 
 void dcache_enable(void)
@@ -484,7 +488,7 @@ static inline void __dc_entire_op(const int cacheop)
 {
 	int aux;
 
-	if (!dcache_status())
+	if (!dcache_enabled())
 		return;
 
 	__before_dc_op(cacheop);
@@ -502,7 +506,7 @@ static inline void __dc_entire_op(const int cacheop)
 static inline void __dc_line_op(unsigned long paddr, unsigned long sz,
 				const int cacheop)
 {
-	if (!dcache_status())
+	if (!dcache_enabled())
 		return;
 
 	__before_dc_op(cacheop);
