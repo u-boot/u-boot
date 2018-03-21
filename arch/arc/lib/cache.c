@@ -12,6 +12,80 @@
 #include <asm/arcregs.h>
 #include <asm/cache.h>
 
+/*
+ * [ NOTE 1 ]:
+ * Data cache (L1 D$ or SL$) entire invalidate operation or data cache disable
+ * operation may result in unexpected behavior and data loss even if we flush
+ * data cache right before invalidation. That may happens if we store any context
+ * on stack (like we store BLINK register on stack before function call).
+ * BLINK register is the register where return address is automatically saved
+ * when we do function call with instructions like 'bl'.
+ *
+ * There is the real example:
+ * We may hang in the next code as we store any BLINK register on stack in
+ * invalidate_dcache_all() function.
+ *
+ * void flush_dcache_all() {
+ *     __dc_entire_op(OP_FLUSH);
+ *     // Other code //
+ * }
+ *
+ * void invalidate_dcache_all() {
+ *     __dc_entire_op(OP_INV);
+ *     // Other code //
+ * }
+ *
+ * void foo(void) {
+ *     flush_dcache_all();
+ *     invalidate_dcache_all();
+ * }
+ *
+ * Now let's see what really happens during that code execution:
+ *
+ * foo()
+ *   |->> call flush_dcache_all
+ *     [return address is saved to BLINK register]
+ *     [push BLINK] (save to stack)              ![point 1]
+ *     |->> call __dc_entire_op(OP_FLUSH)
+ *         [return address is saved to BLINK register]
+ *         [flush L1 D$]
+ *         return [jump to BLINK]
+ *     <<------
+ *     [other flush_dcache_all code]
+ *     [pop BLINK] (get from stack)
+ *     return [jump to BLINK]
+ *   <<------
+ *   |->> call invalidate_dcache_all
+ *     [return address is saved to BLINK register]
+ *     [push BLINK] (save to stack)               ![point 2]
+ *     |->> call __dc_entire_op(OP_FLUSH)
+ *         [return address is saved to BLINK register]
+ *         [invalidate L1 D$]                 ![point 3]
+ *         // Oops!!!
+ *         // We lose return address from invalidate_dcache_all function:
+ *         // we save it to stack and invalidate L1 D$ after that!
+ *         return [jump to BLINK]
+ *     <<------
+ *     [other invalidate_dcache_all code]
+ *     [pop BLINK] (get from stack)
+ *     // we don't have this data in L1 dcache as we invalidated it in [point 3]
+ *     // so we get it from next memory level (for example DDR memory)
+ *     // but in the memory we have value which we save in [point 1], which
+ *     // is return address from flush_dcache_all function (instead of
+ *     // address from current invalidate_dcache_all function which we
+ *     // saved in [point 2] !)
+ *     return [jump to BLINK]
+ *   <<------
+ *   // As BLINK points to invalidate_dcache_all, we call it again and
+ *   // loop forever.
+ *
+ * Fortunately we may fix that by using flush & invalidation of D$ with a single
+ * one instruction (instead of flush and invalidation instructions pair) and
+ * enabling force function inline with '__attribute__((always_inline))' gcc
+ * attribute to avoid any function call (and BLINK store) between cache flush
+ * and disable.
+ */
+
 /* Bit values in IC_CTRL */
 #define IC_CTRL_CACHE_DISABLE	BIT(0)
 
@@ -256,8 +330,7 @@ void cache_init(void)
 		/* IOC Aperture size is equal to DDR size */
 		long ap_size = CONFIG_SYS_SDRAM_SIZE;
 
-		flush_dcache_all();
-		invalidate_dcache_all();
+		flush_n_invalidate_dcache_all();
 
 		if (!is_power_of_2(ap_size) || ap_size < 4096)
 			panic("IOC Aperture size must be power of 2 and bigger 4Kib");
@@ -483,13 +556,19 @@ void flush_cache(unsigned long start, unsigned long size)
 	flush_dcache_range(start, start + size);
 }
 
-void invalidate_dcache_all(void)
+/*
+ * As invalidate_dcache_all() is not used in generic U-Boot code and as we
+ * don't need it in arch/arc code alone (invalidate without flush) we implement
+ * flush_n_invalidate_dcache_all (flush and invalidate in 1 operation) because
+ * it's much safer. See [ NOTE 1 ] for more details.
+ */
+void flush_n_invalidate_dcache_all(void)
 {
-	__dc_entire_op(OP_INV);
+	__dc_entire_op(OP_FLUSH_N_INV);
 
 #ifdef CONFIG_ISA_ARCV2
 	if (slc_exists)
-		__slc_entire_op(OP_INV);
+		__slc_entire_op(OP_FLUSH_N_INV);
 #endif
 }
 

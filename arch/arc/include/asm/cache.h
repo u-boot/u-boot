@@ -30,6 +30,7 @@
 #ifndef __ASSEMBLY__
 
 void cache_init(void);
+void flush_n_invalidate_dcache_all(void);
 
 #endif /* __ASSEMBLY__ */
 
