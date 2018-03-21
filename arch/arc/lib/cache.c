@@ -23,7 +23,6 @@
 
 #define OP_INV		0x1
 #define OP_FLUSH	0x2
-#define OP_INV_IC	0x3
 
 /* Bit val in SLC_CONTROL */
 #define SLC_CTRL_DIS		0x001
@@ -373,30 +372,15 @@ void dcache_disable(void)
 }
 
 #ifndef CONFIG_SYS_DCACHE_OFF
-/*
- * Common Helper for Line Operations on {I,D}-Cache
- */
-static inline void __cache_line_loop(unsigned long paddr, unsigned long sz,
-				     const int cacheop)
+/* Common Helper for Line Operations on D-cache */
+static inline void __dcache_line_loop(unsigned long paddr, unsigned long sz,
+				      const int cacheop)
 {
 	unsigned int aux_cmd;
-#if (CONFIG_ARC_MMU_VER == 3)
-	unsigned int aux_tag;
-#endif
 	int num_lines;
 
-	if (cacheop == OP_INV_IC) {
-		aux_cmd = ARC_AUX_IC_IVIL;
-#if (CONFIG_ARC_MMU_VER == 3)
-		aux_tag = ARC_AUX_IC_PTAG;
-#endif
-	} else {
-		/* d$ cmd: INV (discard or wback-n-discard) OR FLUSH (wback) */
-		aux_cmd = cacheop & OP_INV ? ARC_AUX_DC_IVDL : ARC_AUX_DC_FLDL;
-#if (CONFIG_ARC_MMU_VER == 3)
-		aux_tag = ARC_AUX_DC_PTAG;
-#endif
-	}
+	/* d$ cmd: INV (discard or wback-n-discard) OR FLUSH (wback) */
+	aux_cmd = cacheop & OP_INV ? ARC_AUX_DC_IVDL : ARC_AUX_DC_FLDL;
 
 	sz += paddr & ~CACHE_LINE_MASK;
 	paddr &= CACHE_LINE_MASK;
@@ -405,7 +389,7 @@ static inline void __cache_line_loop(unsigned long paddr, unsigned long sz,
 
 	while (num_lines-- > 0) {
 #if (CONFIG_ARC_MMU_VER == 3)
-		write_aux_reg(aux_tag, paddr);
+		write_aux_reg(ARC_AUX_DC_PTAG, paddr);
 #endif
 		write_aux_reg(aux_cmd, paddr);
 		paddr += l1_line_sz;
@@ -458,7 +442,7 @@ static inline void __dc_line_op(unsigned long paddr, unsigned long sz,
 {
 	unsigned int ctrl_reg = __before_dc_op(cacheop);
 
-	__cache_line_loop(paddr, sz, cacheop);
+	__dcache_line_loop(paddr, sz, cacheop);
 	__after_dc_op(cacheop, ctrl_reg);
 }
 #else
