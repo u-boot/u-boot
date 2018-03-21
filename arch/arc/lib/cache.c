@@ -169,6 +169,16 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define CACHE_LINE_MASK		(~(gd->arch.l1_line_sz - 1))
 
+/*
+ * We don't want to use '__always_inline' macro here as it can be redefined
+ * to simple 'inline' in some cases which breaks stuff. See [ NOTE 1 ] for more
+ * details about the reasons we need to use always_inline functions.
+ */
+#define inlined_cachefunc	 inline __attribute__((always_inline))
+
+static inlined_cachefunc void __ic_entire_invalidate(void);
+static inlined_cachefunc void __dc_entire_op(const int cacheop);
+
 static inline bool pae_exists(void)
 {
 	/* TODO: should we compare mmu version from BCR and from CONFIG? */
@@ -184,7 +194,7 @@ static inline bool pae_exists(void)
 	return false;
 }
 
-static inline bool icache_exists(void)
+static inlined_cachefunc bool icache_exists(void)
 {
 	union bcr_di_cache ibcr;
 
@@ -192,7 +202,7 @@ static inline bool icache_exists(void)
 	return !!ibcr.fields.ver;
 }
 
-static inline bool icache_enabled(void)
+static inlined_cachefunc bool icache_enabled(void)
 {
 	if (!icache_exists())
 		return false;
@@ -200,7 +210,7 @@ static inline bool icache_enabled(void)
 	return !(read_aux_reg(ARC_AUX_IC_CTRL) & IC_CTRL_CACHE_DISABLE);
 }
 
-static inline bool dcache_exists(void)
+static inlined_cachefunc bool dcache_exists(void)
 {
 	union bcr_di_cache dbcr;
 
@@ -208,7 +218,7 @@ static inline bool dcache_exists(void)
 	return !!dbcr.fields.ver;
 }
 
-static inline bool dcache_enabled(void)
+static inlined_cachefunc bool dcache_enabled(void)
 {
 	if (!dcache_exists())
 		return false;
@@ -216,7 +226,7 @@ static inline bool dcache_enabled(void)
 	return !(read_aux_reg(ARC_AUX_DC_CTRL) & DC_CTRL_CACHE_DISABLE);
 }
 
-static inline bool slc_exists(void)
+static inlined_cachefunc bool slc_exists(void)
 {
 	if (is_isa_arcv2()) {
 		union bcr_generic sbcr;
@@ -228,7 +238,7 @@ static inline bool slc_exists(void)
 	return false;
 }
 
-static inline bool slc_data_bypass(void)
+static inlined_cachefunc bool slc_data_bypass(void)
 {
 	/*
 	 * If L1 data cache is disabled SL$ is bypassed and all load/store
@@ -261,7 +271,7 @@ static inline bool ioc_enabled(void)
 	return false;
 }
 
-static void __slc_entire_op(const int op)
+static inlined_cachefunc void __slc_entire_op(const int op)
 {
 	unsigned int ctrl;
 
@@ -469,13 +479,17 @@ void icache_enable(void)
 
 void icache_disable(void)
 {
-	if (icache_exists())
-		write_aux_reg(ARC_AUX_IC_CTRL, read_aux_reg(ARC_AUX_IC_CTRL) |
-			      IC_CTRL_CACHE_DISABLE);
+	if (!icache_exists())
+		return;
+
+	__ic_entire_invalidate();
+
+	write_aux_reg(ARC_AUX_IC_CTRL, read_aux_reg(ARC_AUX_IC_CTRL) |
+		      IC_CTRL_CACHE_DISABLE);
 }
 
 /* IC supports only invalidation */
-static inline void __ic_entire_invalidate(void)
+static inlined_cachefunc void __ic_entire_invalidate(void)
 {
 	if (!icache_enabled())
 		return;
@@ -525,6 +539,17 @@ void dcache_disable(void)
 	if (!dcache_exists())
 		return;
 
+	__dc_entire_op(OP_FLUSH_N_INV);
+
+	/*
+	 * As SLC will be bypassed for data after L1 D$ disable we need to
+	 * flush it first before L1 D$ disable. Also we invalidate SLC to
+	 * avoid any inconsistent data problems after enabling L1 D$ again with
+	 * dcache_enable function.
+	 */
+	if (is_isa_arcv2())
+		__slc_entire_op(OP_FLUSH_N_INV);
+
 	write_aux_reg(ARC_AUX_DC_CTRL, read_aux_reg(ARC_AUX_DC_CTRL) |
 		      DC_CTRL_CACHE_DISABLE);
 }
@@ -553,7 +578,7 @@ static inline void __dcache_line_loop(unsigned long paddr, unsigned long sz,
 	}
 }
 
-static void __before_dc_op(const int op)
+static inlined_cachefunc void __before_dc_op(const int op)
 {
 	unsigned int ctrl;
 
@@ -568,13 +593,13 @@ static void __before_dc_op(const int op)
 	write_aux_reg(ARC_AUX_DC_CTRL, ctrl);
 }
 
-static void __after_dc_op(const int op)
+static inlined_cachefunc void __after_dc_op(const int op)
 {
 	if (op & OP_FLUSH)	/* flush / flush-n-inv both wait */
 		while (read_aux_reg(ARC_AUX_DC_CTRL) & DC_CTRL_FLUSH_STATUS);
 }
 
-static inline void __dc_entire_op(const int cacheop)
+static inlined_cachefunc void __dc_entire_op(const int cacheop)
 {
 	int aux;
 
