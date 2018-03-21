@@ -386,10 +386,14 @@ static void arc_ioc_setup(void)
 	if (!dcache_enabled())
 		panic("Try to enable IOC but L1 D$ is disabled");
 
-	flush_n_invalidate_dcache_all();
-
 	if (!is_power_of_2(ap_size) || ap_size < 4096)
 		panic("IOC Aperture size must be power of 2 and bigger 4Kib");
+
+	/* IOC Aperture start must be aligned to the size of the aperture */
+	if (ap_base % ap_size != 0)
+		panic("IOC Aperture start must be aligned to the size of the aperture");
+
+	flush_n_invalidate_dcache_all();
 
 	/*
 	 * IOC Aperture size decoded as 2 ^ (SIZE + 2) KB,
@@ -397,10 +401,6 @@ static void arc_ioc_setup(void)
 	 */
 	write_aux_reg(ARC_AUX_IO_COH_AP0_SIZE,
 		      order_base_2(ap_size / 1024) - 2);
-
-	/* IOC Aperture start must be aligned to the size of the aperture */
-	if (ap_base % ap_size != 0)
-		panic("IOC Aperture start must be aligned to the size of the aperture");
 
 	write_aux_reg(ARC_AUX_IO_COH_AP0_BASE, ap_base >> 12);
 	write_aux_reg(ARC_AUX_IO_COH_PARTIAL, 1);
