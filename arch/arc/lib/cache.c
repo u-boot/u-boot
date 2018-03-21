@@ -85,6 +85,66 @@
  * enabling force function inline with '__attribute__((always_inline))' gcc
  * attribute to avoid any function call (and BLINK store) between cache flush
  * and disable.
+ *
+ *
+ * [ NOTE 2 ]:
+ * As of today we only support the following cache configurations on ARC.
+ * Other configurations may exist in HW (for example, since version 3.0 HS
+ * supports SL$ (L2 system level cache) disable) but we don't support it in SW.
+ * Configuration 1:
+ *        ______________________
+ *       |                      |
+ *       |   ARC CPU            |
+ *       |______________________|
+ *        ___|___        ___|___
+ *       |       |      |       |
+ *       | L1 I$ |      | L1 D$ |
+ *       |_______|      |_______|
+ *        on/off         on/off
+ *        ___|______________|____
+ *       |                      |
+ *       |   main memory        |
+ *       |______________________|
+ *
+ * Configuration 2:
+ *        ______________________
+ *       |                      |
+ *       |   ARC CPU            |
+ *       |______________________|
+ *        ___|___        ___|___
+ *       |       |      |       |
+ *       | L1 I$ |      | L1 D$ |
+ *       |_______|      |_______|
+ *        on/off         on/off
+ *        ___|______________|____
+ *       |                      |
+ *       |   L2 (SL$)           |
+ *       |______________________|
+ *          always must be on
+ *        ___|______________|____
+ *       |                      |
+ *       |   main memory        |
+ *       |______________________|
+ *
+ * Configuration 3:
+ *        ______________________
+ *       |                      |
+ *       |   ARC CPU            |
+ *       |______________________|
+ *        ___|___        ___|___
+ *       |       |      |       |
+ *       | L1 I$ |      | L1 D$ |
+ *       |_______|      |_______|
+ *        on/off        must be on
+ *        ___|______________|____      _______
+ *       |                      |     |       |
+ *       |   L2 (SL$)           |-----|  IOC  |
+ *       |______________________|     |_______|
+ *          always must be on          on/off
+ *        ___|______________|____
+ *       |                      |
+ *       |   main memory        |
+ *       |______________________|
  */
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -308,6 +368,14 @@ static void arc_ioc_setup(void)
 	/* IOC Aperture size is equal to DDR size */
 	long ap_size = CONFIG_SYS_SDRAM_SIZE;
 
+	/* Unsupported configuration. See [ NOTE 2 ] for more details. */
+	if (!slc_exists())
+		panic("Try to enable IOC but SLC is not present");
+
+	/* Unsupported configuration. See [ NOTE 2 ] for more details. */
+	if (!dcache_enabled())
+		panic("Try to enable IOC but L1 D$ is disabled");
+
 	flush_n_invalidate_dcache_all();
 
 	if (!is_power_of_2(ap_size) || ap_size < 4096)
@@ -338,6 +406,13 @@ static void read_decode_cache_bcr_arcv2(void)
 	if (slc_exists()) {
 		slc_cfg.word = read_aux_reg(ARC_AUX_SLC_CONFIG);
 		gd->arch.slc_line_sz = (slc_cfg.fields.lsz == 0) ? 128 : 64;
+
+		/*
+		 * We don't support configuration where L1 I$ or L1 D$ is
+		 * absent but SL$ exists. See [ NOTE 2 ] for more details.
+		 */
+		if (!icache_exists() || !dcache_exists())
+			panic("Unsupported cache configuration: SLC exists but one of L1 caches is absent");
 	}
 
 #endif /* CONFIG_ISA_ARCV2 */
