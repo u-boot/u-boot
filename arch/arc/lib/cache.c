@@ -398,7 +398,6 @@ void dcache_disable(void)
 		      DC_CTRL_CACHE_DISABLE);
 }
 
-#ifndef CONFIG_SYS_DCACHE_OFF
 /* Common Helper for Line Operations on D-cache */
 static inline void __dcache_line_loop(unsigned long paddr, unsigned long sz,
 				      const int cacheop)
@@ -448,6 +447,9 @@ static inline void __dc_entire_op(const int cacheop)
 {
 	int aux;
 
+	if (!dcache_status())
+		return;
+
 	__before_dc_op(cacheop);
 
 	if (cacheop & OP_INV)	/* Inv or flush-n-inv use same cmd reg */
@@ -463,14 +465,13 @@ static inline void __dc_entire_op(const int cacheop)
 static inline void __dc_line_op(unsigned long paddr, unsigned long sz,
 				const int cacheop)
 {
+	if (!dcache_status())
+		return;
+
 	__before_dc_op(cacheop);
 	__dcache_line_loop(paddr, sz, cacheop);
 	__after_dc_op(cacheop);
 }
-#else
-#define __dc_entire_op(cacheop)
-#define __dc_line_op(paddr, sz, cacheop)
-#endif /* !CONFIG_SYS_DCACHE_OFF */
 
 void invalidate_dcache_range(unsigned long start, unsigned long end)
 {
