@@ -21,8 +21,9 @@
 #define DC_CTRL_FLUSH_STATUS	BIT(8)
 #define CACHE_VER_NUM_MASK	0xF
 
-#define OP_INV		0x1
-#define OP_FLUSH	0x2
+#define OP_INV			BIT(0)
+#define OP_FLUSH		BIT(1)
+#define OP_FLUSH_N_INV		(OP_FLUSH | OP_INV)
 
 /* Bit val in SLC_CONTROL */
 #define SLC_CTRL_DIS		0x001
@@ -396,36 +397,32 @@ static inline void __dcache_line_loop(unsigned long paddr, unsigned long sz,
 	}
 }
 
-static unsigned int __before_dc_op(const int op)
+static void __before_dc_op(const int op)
 {
-	unsigned int reg;
+	unsigned int ctrl;
 
-	if (op == OP_INV) {
-		/*
-		 * IM is set by default and implies Flush-n-inv
-		 * Clear it here for vanilla inv
-		 */
-		reg = read_aux_reg(ARC_AUX_DC_CTRL);
-		write_aux_reg(ARC_AUX_DC_CTRL, reg & ~DC_CTRL_INV_MODE_FLUSH);
-	}
+	ctrl = read_aux_reg(ARC_AUX_DC_CTRL);
 
-	return reg;
+	/* IM bit implies flush-n-inv, instead of vanilla inv */
+	if (op == OP_INV)
+		ctrl &= ~DC_CTRL_INV_MODE_FLUSH;
+	else
+		ctrl |= DC_CTRL_INV_MODE_FLUSH;
+
+	write_aux_reg(ARC_AUX_DC_CTRL, ctrl);
 }
 
-static void __after_dc_op(const int op, unsigned int reg)
+static void __after_dc_op(const int op)
 {
 	if (op & OP_FLUSH)	/* flush / flush-n-inv both wait */
 		while (read_aux_reg(ARC_AUX_DC_CTRL) & DC_CTRL_FLUSH_STATUS);
-
-	/* Switch back to default Invalidate mode */
-	if (op == OP_INV)
-		write_aux_reg(ARC_AUX_DC_CTRL, reg | DC_CTRL_INV_MODE_FLUSH);
 }
 
 static inline void __dc_entire_op(const int cacheop)
 {
 	int aux;
-	unsigned int ctrl_reg = __before_dc_op(cacheop);
+
+	__before_dc_op(cacheop);
 
 	if (cacheop & OP_INV)	/* Inv or flush-n-inv use same cmd reg */
 		aux = ARC_AUX_DC_IVDC;
@@ -434,16 +431,15 @@ static inline void __dc_entire_op(const int cacheop)
 
 	write_aux_reg(aux, 0x1);
 
-	__after_dc_op(cacheop, ctrl_reg);
+	__after_dc_op(cacheop);
 }
 
 static inline void __dc_line_op(unsigned long paddr, unsigned long sz,
 				const int cacheop)
 {
-	unsigned int ctrl_reg = __before_dc_op(cacheop);
-
+	__before_dc_op(cacheop);
 	__dcache_line_loop(paddr, sz, cacheop);
-	__after_dc_op(cacheop, ctrl_reg);
+	__after_dc_op(cacheop);
 }
 #else
 #define __dc_entire_op(cacheop)
