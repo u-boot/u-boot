@@ -193,6 +193,14 @@ static void __slc_entire_op(const int op)
 static void slc_upper_region_init(void)
 {
 	/*
+	 * ARC_AUX_SLC_RGN_START1 and ARC_AUX_SLC_RGN_END1 register exist
+	 * only if PAE exists in current HW. So we had to check pae_exist
+	 * before using them.
+	 */
+	if (!pae_exists())
+		return;
+
+	/*
 	 * ARC_AUX_SLC_RGN_END1 and ARC_AUX_SLC_RGN_START1 are always == 0
 	 * as we don't use PAE40.
 	 */
@@ -334,12 +342,7 @@ void cache_init(void)
 	if (is_isa_arcv2() && ioc_exists)
 		arc_ioc_setup();
 
-	/*
-	 * ARC_AUX_SLC_RGN_START1 and ARC_AUX_SLC_RGN_END1 register exist
-	 * only if PAE exists in current HW. So we had to check pae_exist
-	 * before using them.
-	 */
-	if (is_isa_arcv2() && slc_exists() && pae_exists())
+	if (is_isa_arcv2() && slc_exists())
 		slc_upper_region_init();
 }
 
