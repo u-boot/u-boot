@@ -172,8 +172,6 @@ int rtc_set (struct rtc_time *tmp){
  */
 void rtc_reset (void){
 
-	struct rtc_time tmp;
-
 	/* clear status flags */
 	rtc_write(RTC_SR_ADDR, (RTC_SR_BIT_AF|RTC_SR_BIT_OSF), false); /* clearing OSF and AF */
 
@@ -189,19 +187,6 @@ void rtc_reset (void){
 				|RTC_CTL_BIT_BBSQW), true);/* disable WD/ALM, WDSTR set to INT-pin,
 							      set BBSQW and SQW to 32k
 							      - set to 1 */
-	tmp.tm_year = 1970;
-	tmp.tm_mon = 1;
-	tmp.tm_mday= 1;
-	tmp.tm_hour = 0;
-	tmp.tm_min = 0;
-	tmp.tm_sec = 0;
-
-	rtc_set(&tmp);
-
-	printf("RTC:   %4d-%02d-%02d %2d:%02d:%02d UTC\n",
-		tmp.tm_year, tmp.tm_mon, tmp.tm_mday,
-		tmp.tm_hour, tmp.tm_min, tmp.tm_sec);
-
 	rtc_write(RTC_WD_ALM_CNT_BYTE2_ADDR, 0xAC, true);
 	rtc_write(RTC_WD_ALM_CNT_BYTE1_ADDR, 0xDE, true);
 	rtc_write(RTC_WD_ALM_CNT_BYTE2_ADDR, 0xAD, true);
