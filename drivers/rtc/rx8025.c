@@ -163,11 +163,10 @@ int rtc_set (struct rtc_time *tmp)
 }
 
 /*
- * Reset the RTC. We setting the date back to 1970-01-01.
+ * Reset the RTC
  */
 void rtc_reset (void)
 {
-	struct rtc_time tmp;
 	uchar buf[16];
 	uchar ctl2;
 
@@ -178,21 +177,6 @@ void rtc_reset (void)
 	ctl2 &= ~(RTC_CTL2_BIT_PON | RTC_CTL2_BIT_VDET);
 	ctl2 |= RTC_CTL2_BIT_XST | RTC_CTL2_BIT_VDSL;
 	rtc_write (RTC_CTL2_REG_ADDR, ctl2);
-
-	tmp.tm_year = 1970;
-	tmp.tm_mon = 1;
-	tmp.tm_mday= 1;
-	tmp.tm_hour = 0;
-	tmp.tm_min = 0;
-	tmp.tm_sec = 0;
-
-	rtc_set(&tmp);
-
-	printf ( "RTC:   %4d-%02d-%02d %2d:%02d:%02d UTC\n",
-		tmp.tm_year, tmp.tm_mon, tmp.tm_mday,
-		tmp.tm_hour, tmp.tm_min, tmp.tm_sec);
-
-	return;
 }
 
 /*
