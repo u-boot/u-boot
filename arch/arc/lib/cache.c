@@ -87,6 +87,8 @@
  * and disable.
  */
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* Bit values in IC_CTRL */
 #define IC_CTRL_CACHE_DISABLE	BIT(0)
 
@@ -110,11 +112,8 @@
  * But .bss section is not relocated and so it will be initilized before
  * relocation but will be used after being zeroed.
  */
-int l1_line_sz __section(".data");
+#define CACHE_LINE_MASK		(~(gd->arch.l1_line_sz - 1))
 
-#define CACHE_LINE_MASK		(~(l1_line_sz - 1))
-
-int slc_line_sz __section(".data");
 bool ioc_exists __section(".data") = false;
 
 /* To force enable IOC set ioc_enable to 'true' */
@@ -237,7 +236,7 @@ static void __slc_rgn_op(unsigned long paddr, unsigned long sz, const int op)
 	 * END needs to be setup before START (latter triggers the operation)
 	 * END can't be same as START, so add (l2_line_sz - 1) to sz
 	 */
-	end = paddr + sz + slc_line_sz - 1;
+	end = paddr + sz + gd->arch.slc_line_sz - 1;
 
 	/*
 	 * Upper addresses (ARC_AUX_SLC_RGN_END1 and ARC_AUX_SLC_RGN_START1)
@@ -292,7 +291,7 @@ static void read_decode_cache_bcr_arcv2(void)
 
 	if (slc_exists()) {
 		slc_cfg.word = read_aux_reg(ARC_AUX_SLC_CONFIG);
-		slc_line_sz = (slc_cfg.fields.lsz == 0) ? 128 : 64;
+		gd->arch.slc_line_sz = (slc_cfg.fields.lsz == 0) ? 128 : 64;
 	}
 
 	cbcr.word = read_aux_reg(ARC_BCR_CLUSTER);
@@ -309,14 +308,14 @@ void read_decode_cache_bcr(void)
 
 	ibcr.word = read_aux_reg(ARC_BCR_IC_BUILD);
 	if (ibcr.fields.ver) {
-		l1_line_sz = ic_line_sz = 8 << ibcr.fields.line_len;
+		gd->arch.l1_line_sz = ic_line_sz = 8 << ibcr.fields.line_len;
 		if (!ic_line_sz)
 			panic("Instruction exists but line length is 0\n");
 	}
 
 	dbcr.word = read_aux_reg(ARC_BCR_DC_BUILD);
 	if (dbcr.fields.ver) {
-		l1_line_sz = dc_line_sz = 16 << dbcr.fields.line_len;
+		gd->arch.l1_line_sz = dc_line_sz = 16 << dbcr.fields.line_len;
 		if (!dc_line_sz)
 			panic("Data cache exists but line length is 0\n");
 	}
@@ -437,14 +436,14 @@ static inline void __dcache_line_loop(unsigned long paddr, unsigned long sz,
 	sz += paddr & ~CACHE_LINE_MASK;
 	paddr &= CACHE_LINE_MASK;
 
-	num_lines = DIV_ROUND_UP(sz, l1_line_sz);
+	num_lines = DIV_ROUND_UP(sz, gd->arch.l1_line_sz);
 
 	while (num_lines-- > 0) {
 #if (CONFIG_ARC_MMU_VER == 3)
 		write_aux_reg(ARC_AUX_DC_PTAG, paddr);
 #endif
 		write_aux_reg(aux_cmd, paddr);
-		paddr += l1_line_sz;
+		paddr += gd->arch.l1_line_sz;
 	}
 }
 
