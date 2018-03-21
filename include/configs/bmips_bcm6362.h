@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
+ * Copyright (C) 2018 Ãlvaro FernÃ¡ndez Rojas <noltari@gmail.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __CONFIG_BMIPS_BCM63268_H
-#define __CONFIG_BMIPS_BCM63268_H
+#ifndef __CONFIG_BMIPS_BCM6362_H
+#define __CONFIG_BMIPS_BCM6362_H
 
 /* CPU */
 #define CONFIG_SYS_MIPS_TIMER_FREQ	200000000
@@ -29,4 +29,4 @@
 #define CONFIG_SYS_INIT_SP_OFFSET	0x2000
 #endif
 
-#endif /* __CONFIG_BMIPS_BCM63268_H */
+#endif /* __CONFIG_BMIPS_BCM6362_H */

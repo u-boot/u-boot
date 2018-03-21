@@ -164,5 +164,34 @@
 			reg = <0x10001200 0x4c>;
 			u-boot,dm-pre-reloc;
 		};
+
+		ehci: usb-controller@10001500 {
+			compatible = "brcm,bcm6368-ehci", "generic-ehci";
+			reg = <0x10001500 0x100>;
+			phys = <&usbh>;
+			big-endian;
+
+			status = "disabled";
+		};
+
+		ohci: usb-controller@10001600 {
+			compatible = "brcm,bcm6368-ohci", "generic-ohci";
+			reg = <0x10001600 0x100>;
+			phys = <&usbh>;
+			big-endian;
+
+			status = "disabled";
+		};
+
+		usbh: usb-phy@10001700 {
+			compatible = "brcm,bcm6368-usbh";
+			reg = <0x10001700 0x38>;
+			#phy-cells = <0>;
+			clocks = <&periph_clk BCM6368_CLK_USBH>;
+			clock-names = "usbh";
+			resets = <&periph_rst BCM6368_RST_USBH>;
+
+			status = "disabled";
+		};
 	};
 };

@@ -1,20 +1,21 @@
 /*
- * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
+ * Copyright (C) 2018 Ãlvaro FernÃ¡ndez Rojas <noltari@gmail.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <dt-bindings/clock/bcm6328-clock.h>
+#include <dt-bindings/clock/bcm6362-clock.h>
 #include <dt-bindings/gpio/gpio.h>
-#include <dt-bindings/power-domain/bcm6328-power-domain.h>
-#include <dt-bindings/reset/bcm6328-reset.h>
+#include <dt-bindings/power-domain/bcm6362-power-domain.h>
+#include <dt-bindings/reset/bcm6362-reset.h>
 #include "skeleton.dtsi"
 
 / {
-	compatible = "brcm,bcm6328";
+	compatible = "brcm,bcm6362";
 
 	aliases {
-		spi0 = &spi;
+		spi0 = &lsspi;
+		spi1 = &hsspi;
 	};
 
 	cpus {
@@ -24,14 +25,14 @@
 		u-boot,dm-pre-reloc;
 
 		cpu@0 {
-			compatible = "brcm,bcm6328-cpu", "mips,mips4Kc";
+			compatible = "brcm,bcm6362-cpu", "mips,mips4Kc";
 			device_type = "cpu";
 			reg = <0>;
 			u-boot,dm-pre-reloc;
 		};
 
 		cpu@1 {
-			compatible = "brcm,bcm6328-cpu", "mips,mips4Kc";
+			compatible = "brcm,bcm6362-cpu", "mips,mips4Kc";
 			device_type = "cpu";
 			reg = <1>;
 			u-boot,dm-pre-reloc;
@@ -70,15 +71,9 @@
 		#size-cells = <1>;
 		u-boot,dm-pre-reloc;
 
-		periph_rst: reset-controller@10000010 {
-			compatible = "brcm,bcm6345-reset";
-			reg = <0x10000010 0x4>;
-			#reset-cells = <1>;
-		};
-
-		pll_cntl: syscon@10000068 {
+		pll_cntl: syscon@10000008 {
 			compatible = "syscon";
-			reg = <0x10000068 0x4>;
+			reg = <0x10000008 0x4>;
 		};
 
 		syscon-reboot {
@@ -86,6 +81,12 @@
 			regmap = <&pll_cntl>;
 			offset = <0x0>;
 			mask = <0x1>;
+		};
+
+		periph_rst: reset-controller@10000010 {
+			compatible = "brcm,bcm6345-reset";
+			reg = <0x10000010 0x4>;
+			#reset-cells = <1>;
 		};
 
 		wdt: watchdog@1000005c {
@@ -99,7 +100,17 @@
 			wdt = <&wdt>;
 		};
 
-		gpio: gpio-controller@10000084 {
+		gpio1: gpio-controller@10000080 {
+			compatible = "brcm,bcm6345-gpio";
+			reg = <0x10000080 0x4>, <0x10000088 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			ngpios = <16>;
+
+			status = "disabled";
+		};
+
+		gpio0: gpio-controller@10000084 {
 			compatible = "brcm,bcm6345-gpio";
 			reg = <0x10000084 0x4>, <0x1000008c 0x4>;
 			gpio-controller;
@@ -124,25 +135,38 @@
 			status = "disabled";
 		};
 
-		leds: led-controller@10000800 {
-			compatible = "brcm,bcm6328-leds";
-			reg = <0x10000800 0x24>;
+		lsspi: spi@10000800 {
+			compatible = "brcm,bcm6358-spi";
+			reg = <0x10000800 0x70c>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+			clocks = <&periph_clk BCM6362_CLK_SPI>;
+			resets = <&periph_rst BCM6362_RST_SPI>;
+			spi-max-frequency = <20000000>;
+			num-cs = <8>;
 
 			status = "disabled";
 		};
 
-		spi: spi@10001000 {
+		hsspi: spi@10001000 {
 			compatible = "brcm,bcm6328-hsspi";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0x10001000 0x600>;
-			clocks = <&periph_clk BCM6328_CLK_HSSPI>, <&hsspi_pll>;
+			clocks = <&periph_clk BCM6362_CLK_HSSPI>, <&hsspi_pll>;
 			clock-names = "hsspi", "pll";
-			resets = <&periph_rst BCM6328_RST_SPI>;
-			spi-max-frequency = <33333334>;
-			num-cs = <3>;
+			resets = <&periph_rst BCM6362_RST_SPI>;
+			spi-max-frequency = <50000000>;
+			num-cs = <8>;
+
+			status = "disabled";
+		};
+
+		leds: led-controller@10001900 {
+			compatible = "brcm,bcm6328-leds";
+			reg = <0x10001900 0x24>;
+			#address-cells = <1>;
+			#size-cells = <0>;
 
 			status = "disabled";
 		};
@@ -154,7 +178,7 @@
 		};
 
 		ehci: usb-controller@10002500 {
-			compatible = "brcm,bcm6328-ehci", "generic-ehci";
+			compatible = "brcm,bcm6362-ehci", "generic-ehci";
 			reg = <0x10002500 0x100>;
 			phys = <&usbh>;
 			big-endian;
@@ -163,7 +187,7 @@
 		};
 
 		ohci: usb-controller@10002600 {
-			compatible = "brcm,bcm6328-ohci", "generic-ohci";
+			compatible = "brcm,bcm6362-ohci", "generic-ohci";
 			reg = <0x10002600 0x100>;
 			phys = <&usbh>;
 			big-endian;
@@ -172,13 +196,13 @@
 		};
 
 		usbh: usb-phy@10002700 {
-			compatible = "brcm,bcm6328-usbh";
+			compatible = "brcm,bcm6368-usbh";
 			reg = <0x10002700 0x38>;
 			#phy-cells = <0>;
-			clocks = <&periph_clk BCM6328_CLK_USBH>;
+			clocks = <&periph_clk BCM6362_CLK_USBH>;
 			clock-names = "usbh";
-			power-domains = <&periph_pwr BCM6328_PWR_USBH>;
-			resets = <&periph_rst BCM6328_RST_USBH>;
+			power-domains = <&periph_pwr BCM6362_PWR_USBH>;
+			resets = <&periph_rst BCM6362_RST_USBH>;
 
 			status = "disabled";
 		};

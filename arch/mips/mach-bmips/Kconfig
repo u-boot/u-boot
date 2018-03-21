@@ -12,6 +12,7 @@ config SYS_SOC
 	default "bcm6348" if SOC_BMIPS_BCM6348
 	default "bcm6358" if SOC_BMIPS_BCM6358
 	default "bcm6368" if SOC_BMIPS_BCM6368
+	default "bcm6362" if SOC_BMIPS_BCM6362
 	default "bcm63268" if SOC_BMIPS_BCM63268
 
 choice
@@ -93,6 +94,17 @@ config SOC_BMIPS_BCM6368
 	select SYSRESET_SYSCON
 	help
 	  This supports BMIPS BCM6368 family including BCM6368 and BCM6369.
+
+config SOC_BMIPS_BCM6362
+	bool "BMIPS BCM6362 family"
+	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select MIPS_TUNE_4KC
+	select MIPS_L1_CACHE_SHIFT_4
+	select SWAP_IO_SPACE
+	select SYSRESET_SYSCON
+	help
+	  This supports BMIPS BCM6362 family including BCM6361 and BCM6362.
 
 config SOC_BMIPS_BCM63268
 	bool "BMIPS BCM63268 family"
@@ -188,6 +200,17 @@ config BOARD_NETGEAR_CG3100D
 	  ethernet ports, 1 UART, GPIO buttons and LEDs, and a BCM43225
 	  (miniPCIe).
 
+config BOARD_NETGEAR_DGND3700V2
+	bool "Netgear DGND3700v2"
+	depends on SOC_BMIPS_BCM6362
+	select BMIPS_SUPPORTS_BOOT_RAM
+	help
+	  Netgear DGND3700v2 boards have a BCM6362 SoC with 64 MB of RAM and
+	  32 MB of flash (NAND).
+	  Between its different peripherals there's a BCM53125 switch with 5
+	  ethernet ports, 2 USB ports, 1 UART, GPIO buttons and LEDs, and a
+	  BCM43228 (miniPCIe).
+
 config BOARD_SAGEM_FAST1704
 	bool "Sagem F@ST1704"
 	depends on SOC_BMIPS_BCM6338
@@ -235,6 +258,7 @@ source "board/comtrend/vr3032u/Kconfig"
 source "board/comtrend/wap5813n/Kconfig"
 source "board/huawei/hg556a/Kconfig"
 source "board/netgear/cg3100d/Kconfig"
+source "board/netgear/dgnd3700v2/Kconfig"
 source "board/sagem/f@st1704/Kconfig"
 source "board/sfr/nb4_ser/Kconfig"
 

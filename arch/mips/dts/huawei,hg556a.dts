@@ -90,7 +90,15 @@
 	};
 };
 
+&ehci {
+	status = "okay";
+};
+
 &gpio0 {
+	status = "okay";
+};
+
+&ohci {
 	status = "okay";
 };
 
@@ -100,5 +108,9 @@
 
 &uart0 {
 	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&usbh {
 	status = "okay";
 };
