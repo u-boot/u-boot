@@ -286,28 +286,16 @@ static void dw_writer(struct dw_spi_priv *priv)
 	}
 }
 
-static int dw_reader(struct dw_spi_priv *priv)
+static void dw_reader(struct dw_spi_priv *priv)
 {
-	unsigned start = get_timer(0);
-	u32 max;
+	u32 max = rx_max(priv);
 	u16 rxw;
-
-	/* Wait for rx data to be ready */
-	while (rx_max(priv) == 0) {
-		if (get_timer(start) > RX_TIMEOUT)
-			return -ETIMEDOUT;
-	}
-
-	max = rx_max(priv);
 
 	while (max--) {
 		rxw = dw_readw(priv, DW_SPI_DR);
 		debug("%s: rx=0x%02x\n", __func__, rxw);
 
-		/*
-		 * Care about rx only if the transfer's original "rx" is
-		 * not null
-		 */
+		/* Care about rx if the transfer's original "rx" is not null */
 		if (priv->rx_end - priv->len) {
 			if (priv->bits_per_word == 8)
 				*(u8 *)(priv->rx) = rxw;
@@ -316,19 +304,13 @@ static int dw_reader(struct dw_spi_priv *priv)
 		}
 		priv->rx += priv->bits_per_word >> 3;
 	}
-
-	return 0;
 }
 
 static int poll_transfer(struct dw_spi_priv *priv)
 {
-	int ret;
-
 	do {
 		dw_writer(priv);
-		ret = dw_reader(priv);
-		if (ret < 0)
-			return ret;
+		dw_reader(priv);
 	} while (priv->rx_end > priv->rx);
 
 	return 0;
