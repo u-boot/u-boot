@@ -37,8 +37,6 @@
 #define LED_MODE_OFF			3
 #define LED_MODE_MASK			0x3
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct bcm6328_led_priv {
 	void __iomem *regs;
 	void __iomem *mode;
@@ -149,34 +147,25 @@ static const struct led_ops bcm6328_led_ops = {
 static int bcm6328_led_probe(struct udevice *dev)
 {
 	struct led_uc_plat *uc_plat = dev_get_uclass_platdata(dev);
-	fdt_addr_t addr;
-	fdt_size_t size;
 
 	/* Top-level LED node */
 	if (!uc_plat->label) {
 		void __iomem *regs;
 		u32 set_bits = 0;
 
-		addr = devfdt_get_addr_size_index(dev, 0, &size);
-		if (addr == FDT_ADDR_T_NONE)
+		regs = dev_remap_addr(dev);
+		if (!regs)
 			return -EINVAL;
 
-		regs = ioremap(addr, size);
-
-		if (fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
-				    "brcm,serial-leds"))
+		if (dev_read_bool(dev, "brcm,serial-leds"))
 			set_bits |= LED_INIT_SLEDEN_MASK;
-		if (fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
-				    "brcm,serial-mux"))
+		if (dev_read_bool(dev, "brcm,serial-mux"))
 			set_bits |= LED_INIT_SLEDMUX_MASK;
-		if (fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
-				    "brcm,serial-clk-low"))
+		if (dev_read_bool(dev, "brcm,serial-clk-low"))
 			set_bits |= LED_INIT_SLEDCLKNPOL_MASK;
-		if (!fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
-				     "brcm,serial-dat-low"))
+		if (!dev_read_bool(dev, "brcm,serial-dat-low"))
 			set_bits |= LED_INIT_SLEDDATANPOL_MASK;
-		if (!fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
-				     "brcm,serial-shift-inv"))
+		if (!dev_read_bool(dev, "brcm,serial-shift-inv"))
 			set_bits |= LED_INIT_SLEDSHIFTDIR_MASK;
 
 		clrsetbits_be32(regs + LED_INIT_REG, ~0, set_bits);
@@ -184,17 +173,14 @@ static int bcm6328_led_probe(struct udevice *dev)
 		struct bcm6328_led_priv *priv = dev_get_priv(dev);
 		unsigned int pin;
 
-		addr = devfdt_get_addr_size_index(dev_get_parent(dev), 0,
-						  &size);
-		if (addr == FDT_ADDR_T_NONE)
+		priv->regs = dev_remap_addr(dev);
+		if (!priv->regs)
 			return -EINVAL;
 
-		pin = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev), "reg",
-				      LEDS_MAX);
+		pin = dev_read_u32_default(dev, "reg", LEDS_MAX);
 		if (pin >= LEDS_MAX)
 			return -EINVAL;
 
-		priv->regs = ioremap(addr, size);
 		if (pin < 8) {
 			/* LEDs 0-7 (bits 47:32) */
 			priv->mode = priv->regs + LED_MODE_REG_HI;
@@ -205,8 +191,7 @@ static int bcm6328_led_probe(struct udevice *dev)
 			priv->shift = ((pin - 8) << 1);
 		}
 
-		if (fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
-				    "active-low"))
+		if (dev_read_bool(dev, "active-low"))
 			priv->active_low = true;
 	}
 
@@ -215,27 +200,24 @@ static int bcm6328_led_probe(struct udevice *dev)
 
 static int bcm6328_led_bind(struct udevice *parent)
 {
-	const void *blob = gd->fdt_blob;
-	int node;
+	ofnode node;
 
-	for (node = fdt_first_subnode(blob, dev_of_offset(parent));
-	     node > 0;
-	     node = fdt_next_subnode(blob, node)) {
+	dev_for_each_subnode(node, parent) {
 		struct led_uc_plat *uc_plat;
 		struct udevice *dev;
 		const char *label;
 		int ret;
 
-		label = fdt_getprop(blob, node, "label", NULL);
+		label = ofnode_read_string(node, "label");
 		if (!label) {
 			debug("%s: node %s has no label\n", __func__,
-			      fdt_get_name(blob, node, NULL));
+			      ofnode_get_name(node));
 			return -EINVAL;
 		}
 
 		ret = device_bind_driver_to_node(parent, "bcm6328-led",
-						 fdt_get_name(blob, node, NULL),
-						 offset_to_ofnode(node), &dev);
+						 ofnode_get_name(node),
+						 node, &dev);
 		if (ret)
 			return ret;
 
