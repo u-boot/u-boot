@@ -15,8 +15,6 @@
 #include <wait_bit.h>
 #include <asm/io.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* BCM6348 SPI core */
 #define SPI_6348_CLK			0x06
 #define SPI_6348_CMD			0x00
@@ -373,18 +371,14 @@ static int bcm63xx_spi_probe(struct udevice *dev)
 		(const unsigned long *)dev_get_driver_data(dev);
 	struct reset_ctl rst_ctl;
 	struct clk clk;
-	fdt_addr_t addr;
-	fdt_size_t size;
 	int ret;
 
-	addr = devfdt_get_addr_size_index(dev, 0, &size);
-	if (addr == FDT_ADDR_T_NONE)
+	priv->base = dev_remap_addr(dev);
+	if (!priv->base)
 		return -EINVAL;
 
 	priv->regs = regs;
-	priv->base = ioremap(addr, size);
-	priv->num_cs = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
-				       "num-cs", 8);
+	priv->num_cs = dev_read_u32_default(dev, "num-cs", 8);
 
 	/* enable clock */
 	ret = clk_get_by_index(dev, 0, &clk);
