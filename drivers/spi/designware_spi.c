@@ -361,7 +361,11 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	else if (rx)
 		priv->tmode = SPI_TMOD_RO;
 	else
-		priv->tmode = SPI_TMOD_TO;
+		/*
+		 * In transmit only mode (SPI_TMOD_TO) input FIFO never gets
+		 * any data which breaks our logic in poll_transfer() above.
+		 */
+		priv->tmode = SPI_TMOD_TR;
 
 	cr0 &= ~SPI_TMOD_MASK;
 	cr0 |= (priv->tmode << SPI_TMOD_OFFSET);
