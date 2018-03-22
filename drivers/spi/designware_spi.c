@@ -18,6 +18,7 @@
 #include <spi.h>
 #include <fdtdec.h>
 #include <linux/compat.h>
+#include <linux/iopoll.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -342,6 +343,7 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	u8 *rx = din;
 	int ret = 0;
 	u32 cr0 = 0;
+	u32 val;
 	u32 cs;
 
 	/* spi core configured to do 8 bit transfers */
@@ -393,6 +395,19 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	/* Start transfer in a polling loop */
 	ret = poll_transfer(priv);
+
+	/*
+	 * Wait for current transmit operation to complete.
+	 * Otherwise if some data still exists in Tx FIFO it can be
+	 * silently flushed, i.e. dropped on disabling of the controller,
+	 * which happens when writing 0 to DW_SPI_SSIENR which happens
+	 * in the beginning of new transfer.
+	 */
+	if (readl_poll_timeout(priv->regs + DW_SPI_SR, val,
+			       !(val & SR_TF_EMPT) || (val & SR_BUSY),
+			       RX_TIMEOUT * 1000)) {
+		ret = -ETIMEDOUT;
+	}
 
 	return ret;
 }
