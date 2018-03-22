@@ -68,7 +68,7 @@
 		"$kernel_addr $kernel_size && bootm $load_addr#$board\0"
 
 #undef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND "run distro_bootcmd;run qspi_bootcmd"
+#define CONFIG_BOOTCOMMAND "pfe stop;run distro_bootcmd;run qspi_bootcmd"
 
 #define CONFIG_CMD_MEMINFO
 #define CONFIG_CMD_MEMTEST

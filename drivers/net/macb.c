@@ -915,7 +915,7 @@ static int macb_recv(struct eth_device *netdev)
 		if (length >= 0) {
 			net_process_received_packet(packet, length);
 			reclaim_rx_buffers(macb, macb->next_rx_tail);
-		} else if (length < 0) {
+		} else {
 			return length;
 		}
 	}

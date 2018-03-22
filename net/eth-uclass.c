@@ -336,7 +336,7 @@ int eth_send(void *packet, int length)
 	if (!current)
 		return -ENODEV;
 
-	if (!device_active(current))
+	if (!eth_is_active(current))
 		return -EINVAL;
 
 	ret = eth_get_ops(current)->send(current, packet, length);
@@ -359,7 +359,7 @@ int eth_rx(void)
 	if (!current)
 		return -ENODEV;
 
-	if (!device_active(current))
+	if (!eth_is_active(current))
 		return -EINVAL;
 
 	/* Process up to 32 packets at one time */

@@ -949,7 +949,7 @@ static int _cpsw_recv(struct cpsw_priv *priv, uchar **pkt)
 {
 	void *buffer;
 	int len;
-	int ret = -EAGAIN;
+	int ret;
 
 	ret = cpdma_process(priv, &priv->rx_chan, &buffer, &len);
 	if (ret < 0)

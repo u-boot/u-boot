@@ -5598,6 +5598,10 @@ static int mvpp2_base_bind(struct udevice *parent)
 		id += base_id_add;
 
 		name = calloc(1, 16);
+		if (!name) {
+			free(plat);
+			return -ENOMEM;
+		}
 		sprintf(name, "mvpp2-%d", id);
 
 		/* Create child device UCLASS_ETH and bind it */

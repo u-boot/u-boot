@@ -612,6 +612,29 @@ int setup_chip_volt(void)
 	return 0;
 }
 
+#ifdef CONFIG_FSL_PFE
+void init_pfe_scfg_dcfg_regs(void)
+{
+	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+	u32 ecccr2;
+
+	out_be32(&scfg->pfeasbcr,
+		 in_be32(&scfg->pfeasbcr) | SCFG_PFEASBCR_AWCACHE0);
+	out_be32(&scfg->pfebsbcr,
+		 in_be32(&scfg->pfebsbcr) | SCFG_PFEASBCR_AWCACHE0);
+
+	/* CCI-400 QoS settings for PFE */
+	out_be32(&scfg->wr_qos1, (unsigned int)(SCFG_WR_QOS1_PFE1_QOS
+		 | SCFG_WR_QOS1_PFE2_QOS));
+	out_be32(&scfg->rd_qos1, (unsigned int)(SCFG_RD_QOS1_PFE1_QOS
+		 | SCFG_RD_QOS1_PFE2_QOS));
+
+	ecccr2 = in_be32(CONFIG_SYS_DCSR_DCFG_ADDR + DCFG_DCSR_ECCCR2);
+	out_be32((void *)CONFIG_SYS_DCSR_DCFG_ADDR + DCFG_DCSR_ECCCR2,
+		 ecccr2 | (unsigned int)DISABLE_PFE_ECC);
+}
+#endif
+
 void fsl_lsch2_early_init_f(void)
 {
 	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)(CONFIG_SYS_IMMR +

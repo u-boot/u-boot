@@ -9,15 +9,6 @@
 
 #include "ls1012a_common.h"
 
-/* PFE Ethernet */
-#ifdef CONFIG_FSL_PFE
-#define EMAC1_PHY_ADDR          0x2
-#define EMAC2_PHY_ADDR          0x1
-#define CONFIG_PHYLIB
-#define CONFIG_PHYLIB_10G
-#define CONFIG_PHY_AQUANTIA
-#endif
-
 /* DDR */
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	1
@@ -110,7 +101,7 @@
 
 #undef CONFIG_BOOTCOMMAND
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; " \
+#define CONFIG_BOOTCOMMAND "pfe stop;run distro_bootcmd; run qspi_bootcmd; " \
 			   "env exists secureboot && esbc_halt;"
 #endif
 

@@ -683,7 +683,7 @@ int net_start_again(void)
 		retry_forever = 0;
 	}
 
-	if ((!retry_forever) && (net_try_count >= retrycnt)) {
+	if ((!retry_forever) && (net_try_count > retrycnt)) {
 		eth_halt();
 		net_set_state(NETLOOP_FAIL);
 		/*
