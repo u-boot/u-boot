@@ -155,6 +155,25 @@ static void qspi_write32(u32 flags, u32 *addr, u32 val)
 		out_be32(addr, val) : out_le32(addr, val);
 }
 
+static inline int is_controller_busy(const struct fsl_qspi_priv *priv)
+{
+	u32 val;
+	const u32 mask = QSPI_SR_BUSY_MASK | QSPI_SR_AHB_ACC_MASK |
+			 QSPI_SR_IP_ACC_MASK;
+	unsigned int retry = 5;
+
+	do {
+		val = qspi_read32(priv->flags, &priv->regs->sr);
+
+		if ((~val & mask) == mask)
+			return 0;
+
+		udelay(1);
+	} while (--retry);
+
+	return -ETIMEDOUT;
+}
+
 /* QSPI support swapping the flash read/write data
  * in hardware for LS102xA, but not for VF610 */
 static inline u32 qspi_endian_xchg(u32 data)
@@ -1017,11 +1036,7 @@ static int fsl_qspi_probe(struct udevice *bus)
 	priv->num_chipselect = plat->num_chipselect;
 
 	/* make sure controller is not busy anywhere */
-	ret = wait_for_bit_le32(&priv->regs->sr,
-				QSPI_SR_BUSY_MASK |
-				QSPI_SR_AHB_ACC_MASK |
-				QSPI_SR_IP_ACC_MASK,
-				false, 100, false);
+	ret = is_controller_busy(priv);
 
 	if (ret) {
 		debug("ERROR : The controller is busy\n");
@@ -1184,11 +1199,7 @@ static int fsl_qspi_claim_bus(struct udevice *dev)
 	priv = dev_get_priv(bus);
 
 	/* make sure controller is not busy anywhere */
-	ret = wait_for_bit_le32(&priv->regs->sr,
-				QSPI_SR_BUSY_MASK |
-				QSPI_SR_AHB_ACC_MASK |
-				QSPI_SR_IP_ACC_MASK,
-				false, 100, false);
+	ret = is_controller_busy(priv);
 
 	if (ret) {
 		debug("ERROR : The controller is busy\n");
