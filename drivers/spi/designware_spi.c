@@ -10,6 +10,7 @@
  * SPDX-License-Identifier:	GPL-2.0
  */
 
+#include <asm-generic/gpio.h>
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
@@ -98,6 +99,8 @@ struct dw_spi_priv {
 	struct clk clk;
 	unsigned long bus_clk_rate;
 
+	struct gpio_desc cs_gpio;	/* External chip-select gpio */
+
 	int bits_per_word;
 	u8 cs;			/* chip select pin */
 	u8 tmode;		/* TR/TO/RO/EEPROM */
@@ -131,6 +134,32 @@ static inline void dw_writew(struct dw_spi_priv *priv, u32 offset, u16 val)
 	__raw_writew(val, priv->regs + offset);
 }
 
+static int request_gpio_cs(struct udevice *bus)
+{
+#if defined(CONFIG_DM_GPIO) && !defined(CONFIG_SPL_BUILD)
+	struct dw_spi_priv *priv = dev_get_priv(bus);
+	int ret;
+
+	/* External chip select gpio line is optional */
+	ret = gpio_request_by_name(bus, "cs-gpio", 0, &priv->cs_gpio, 0);
+	if (ret == -ENOENT)
+		return 0;
+
+	if (ret < 0) {
+		printf("Error: %d: Can't get %s gpio!\n", ret, bus->name);
+		return ret;
+	}
+
+	if (dm_gpio_is_valid(&priv->cs_gpio)) {
+		dm_gpio_set_dir_flags(&priv->cs_gpio,
+				      GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+	}
+
+	debug("%s: used external gpio for CS management\n", __func__);
+#endif
+	return 0;
+}
+
 static int dw_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct dw_spi_platdata *plat = bus->platdata;
@@ -145,7 +174,7 @@ static int dw_spi_ofdata_to_platdata(struct udevice *bus)
 	debug("%s: regs=%p max-frequency=%d\n", __func__, plat->regs,
 	      plat->frequency);
 
-	return 0;
+	return request_gpio_cs(bus);
 }
 
 static inline void spi_enable_chip(struct dw_spi_priv *priv, int enable)
@@ -316,6 +345,18 @@ static int poll_transfer(struct dw_spi_priv *priv)
 	return 0;
 }
 
+static void external_cs_manage(struct udevice *dev, bool on)
+{
+#if defined(CONFIG_DM_GPIO) && !defined(CONFIG_SPL_BUILD)
+	struct dw_spi_priv *priv = dev_get_priv(dev->parent);
+
+	if (!dm_gpio_is_valid(&priv->cs_gpio))
+		return;
+
+	dm_gpio_set_value(&priv->cs_gpio, on ? 1 : 0);
+#endif
+}
+
 static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		       const void *dout, void *din, unsigned long flags)
 {
@@ -333,6 +374,10 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		debug("Non byte aligned SPI transfer.\n");
 		return -1;
 	}
+
+	/* Start the transaction if necessary. */
+	if (flags & SPI_XFER_BEGIN)
+		external_cs_manage(dev, false);
 
 	cr0 = (priv->bits_per_word - 1) | (priv->type << SPI_FRF_OFFSET) |
 		(priv->mode << SPI_MODE_OFFSET) |
@@ -394,6 +439,10 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			       RX_TIMEOUT * 1000)) {
 		ret = -ETIMEDOUT;
 	}
+
+	/* Stop the transaction if necessary */
+	if (flags & SPI_XFER_END)
+		external_cs_manage(dev, true);
 
 	return ret;
 }
