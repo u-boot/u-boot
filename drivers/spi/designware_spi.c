@@ -114,24 +114,14 @@ struct dw_spi_priv {
 	void *rx_end;
 };
 
-static inline u32 dw_readl(struct dw_spi_priv *priv, u32 offset)
+static inline u32 dw_read(struct dw_spi_priv *priv, u32 offset)
 {
 	return __raw_readl(priv->regs + offset);
 }
 
-static inline void dw_writel(struct dw_spi_priv *priv, u32 offset, u32 val)
+static inline void dw_write(struct dw_spi_priv *priv, u32 offset, u32 val)
 {
 	__raw_writel(val, priv->regs + offset);
-}
-
-static inline u16 dw_readw(struct dw_spi_priv *priv, u32 offset)
-{
-	return __raw_readw(priv->regs + offset);
-}
-
-static inline void dw_writew(struct dw_spi_priv *priv, u32 offset, u16 val)
-{
-	__raw_writew(val, priv->regs + offset);
 }
 
 static int request_gpio_cs(struct udevice *bus)
@@ -179,14 +169,14 @@ static int dw_spi_ofdata_to_platdata(struct udevice *bus)
 
 static inline void spi_enable_chip(struct dw_spi_priv *priv, int enable)
 {
-	dw_writel(priv, DW_SPI_SSIENR, (enable ? 1 : 0));
+	dw_write(priv, DW_SPI_SSIENR, (enable ? 1 : 0));
 }
 
 /* Restart the controller, disable all interrupts, clean rx fifo */
 static void spi_hw_init(struct dw_spi_priv *priv)
 {
 	spi_enable_chip(priv, 0);
-	dw_writel(priv, DW_SPI_IMR, 0xff);
+	dw_write(priv, DW_SPI_IMR, 0xff);
 	spi_enable_chip(priv, 1);
 
 	/*
@@ -197,13 +187,13 @@ static void spi_hw_init(struct dw_spi_priv *priv)
 		u32 fifo;
 
 		for (fifo = 1; fifo < 256; fifo++) {
-			dw_writew(priv, DW_SPI_TXFLTR, fifo);
-			if (fifo != dw_readw(priv, DW_SPI_TXFLTR))
+			dw_write(priv, DW_SPI_TXFLTR, fifo);
+			if (fifo != dw_read(priv, DW_SPI_TXFLTR))
 				break;
 		}
 
 		priv->fifo_len = (fifo == 1) ? 0 : fifo;
-		dw_writew(priv, DW_SPI_TXFLTR, 0);
+		dw_write(priv, DW_SPI_TXFLTR, 0);
 	}
 	debug("%s: fifo_len=%d\n", __func__, priv->fifo_len);
 }
@@ -272,7 +262,7 @@ static inline u32 tx_max(struct dw_spi_priv *priv)
 	u32 tx_left, tx_room, rxtx_gap;
 
 	tx_left = (priv->tx_end - priv->tx) / (priv->bits_per_word >> 3);
-	tx_room = priv->fifo_len - dw_readw(priv, DW_SPI_TXFLR);
+	tx_room = priv->fifo_len - dw_read(priv, DW_SPI_TXFLR);
 
 	/*
 	 * Another concern is about the tx/rx mismatch, we
@@ -293,7 +283,7 @@ static inline u32 rx_max(struct dw_spi_priv *priv)
 {
 	u32 rx_left = (priv->rx_end - priv->rx) / (priv->bits_per_word >> 3);
 
-	return min_t(u32, rx_left, dw_readw(priv, DW_SPI_RXFLR));
+	return min_t(u32, rx_left, dw_read(priv, DW_SPI_RXFLR));
 }
 
 static void dw_writer(struct dw_spi_priv *priv)
@@ -309,7 +299,7 @@ static void dw_writer(struct dw_spi_priv *priv)
 			else
 				txw = *(u16 *)(priv->tx);
 		}
-		dw_writew(priv, DW_SPI_DR, txw);
+		dw_write(priv, DW_SPI_DR, txw);
 		debug("%s: tx=0x%02x\n", __func__, txw);
 		priv->tx += priv->bits_per_word >> 3;
 	}
@@ -321,7 +311,7 @@ static void dw_reader(struct dw_spi_priv *priv)
 	u16 rxw;
 
 	while (max--) {
-		rxw = dw_readw(priv, DW_SPI_DR);
+		rxw = dw_read(priv, DW_SPI_DR);
 		debug("%s: rx=0x%02x\n", __func__, rxw);
 
 		/* Care about rx if the transfer's original "rx" is not null */
@@ -410,8 +400,8 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	debug("%s: cr0=%08x\n", __func__, cr0);
 	/* Reprogram cr0 only if changed */
-	if (dw_readw(priv, DW_SPI_CTRL0) != cr0)
-		dw_writew(priv, DW_SPI_CTRL0, cr0);
+	if (dw_read(priv, DW_SPI_CTRL0) != cr0)
+		dw_write(priv, DW_SPI_CTRL0, cr0);
 
 	/*
 	 * Configure the desired SS (slave select 0...3) in the controller
@@ -419,7 +409,7 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	 * automatically. So no cs_activate() etc is needed in this driver.
 	 */
 	cs = spi_chip_select(dev);
-	dw_writel(priv, DW_SPI_SER, 1 << cs);
+	dw_write(priv, DW_SPI_SER, 1 << cs);
 
 	/* Enable controller after writing control registers */
 	spi_enable_chip(priv, 1);
@@ -462,7 +452,7 @@ static int dw_spi_set_speed(struct udevice *bus, uint speed)
 	/* clk_div doesn't support odd number */
 	clk_div = priv->bus_clk_rate / speed;
 	clk_div = (clk_div + 1) & 0xfffe;
-	dw_writel(priv, DW_SPI_BAUDR, clk_div);
+	dw_write(priv, DW_SPI_BAUDR, clk_div);
 
 	/* Enable controller after writing control registers */
 	spi_enable_chip(priv, 1);
