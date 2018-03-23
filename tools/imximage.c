@@ -516,7 +516,7 @@ static void print_hdr_v2(struct imx_header *imx_hdr)
 			offs = (char *)&hdr_v2->data.dcd_table
 				- (char *)hdr_v2;
 
-			printf("HAB Blocks:   %08x %08x %08x\n",
+			printf("HAB Blocks:   0x%08x 0x%08x 0x%08x\n",
 			       (uint32_t)fhdr_v2->self, 0,
 			       hdr_v2->boot_data.size - imximage_ivt_offset -
 			       imximage_csf_size);
