@@ -30,6 +30,13 @@
 #ifndef __ASSEMBLY__
 
 void cache_init(void);
+void flush_n_invalidate_dcache_all(void);
+void sync_n_cleanup_cache_all(void);
+
+static const inline int is_ioc_enabled(void)
+{
+	return IS_ENABLED(CONFIG_ARC_DBG_IOC_ENABLE);
+}
 
 #endif /* __ASSEMBLY__ */
 

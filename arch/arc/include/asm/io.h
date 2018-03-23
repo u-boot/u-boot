@@ -10,7 +10,7 @@
 #include <linux/types.h>
 #include <asm/byteorder.h>
 
-#ifdef CONFIG_ISA_ARCV2
+#ifdef __ARCHS__
 
 /*
  * ARCv2 based HS38 cores are in-order issue, but still weakly ordered
@@ -42,12 +42,12 @@
 #define mb()	asm volatile("sync\n" : : : "memory")
 #endif
 
-#ifdef CONFIG_ISA_ARCV2
+#ifdef __ARCHS__
 #define __iormb()		rmb()
 #define __iowmb()		wmb()
 #else
-#define __iormb()		do { } while (0)
-#define __iowmb()		do { } while (0)
+#define __iormb()		asm volatile("" : : : "memory")
+#define __iowmb()		asm volatile("" : : : "memory")
 #endif
 
 static inline void sync(void)
