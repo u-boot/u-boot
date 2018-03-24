@@ -360,11 +360,6 @@ config ENV_IS_IN_UBI
 	  the environment in.  This will enable redundant environments in UBI.
 	  It is assumed that both volumes are in the same MTD partition.
 
-	  - CONFIG_UBI_SILENCE_MSG
-
-	  You will probably want to define these to avoid a really noisy system
-	  when storing the env in UBI.
-
 config ENV_FAT_INTERFACE
 	string "Name of the block device for the environment"
 	depends on ENV_IS_IN_FAT

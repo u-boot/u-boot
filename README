@@ -2482,12 +2482,6 @@ FIT uImage format:
 		kernel. Needed for UBI support.
 
 - UBI support
-		CONFIG_UBI_SILENCE_MSG
-
-		Make the verbose messages from UBI stop printing.  This leaves
-		warnings and errors enabled.
-
-
 		CONFIG_MTD_UBI_WL_THRESHOLD
 		This parameter defines the maximum difference between the highest
 		erase counter value and the lowest erase counter value of eraseblocks
