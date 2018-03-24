@@ -361,7 +361,6 @@ config ENV_IS_IN_UBI
 	  It is assumed that both volumes are in the same MTD partition.
 
 	  - CONFIG_UBI_SILENCE_MSG
-	  - CONFIG_UBIFS_SILENCE_MSG
 
 	  You will probably want to define these to avoid a really noisy system
 	  when storing the env in UBI.

@@ -137,7 +137,6 @@
 #define CONFIG_ENV_UBI_VOLUME		"config"
 #define CONFIG_ENV_UBI_VOLUME_REDUND	"config_r"
 #define CONFIG_UBI_SILENCE_MSG		1
-#define CONFIG_UBIFS_SILENCE_MSG	1
 #define CONFIG_ENV_SIZE			(32*1024)
 
 #endif /* __IGEP00X0_H */
