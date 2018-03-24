@@ -278,6 +278,11 @@ static void EFIAPI efi_restore_tpl(efi_uintn_t old_tpl)
 	if (efi_tpl > TPL_HIGH_LEVEL)
 		efi_tpl = TPL_HIGH_LEVEL;
 
+	/*
+	 * Lowering the TPL may have made queued events eligible for execution.
+	 */
+	efi_timer_check();
+
 	EFI_EXIT(EFI_SUCCESS);
 }
 
