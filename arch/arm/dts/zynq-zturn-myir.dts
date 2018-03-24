@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  *  Copyright (C) 2015 Andrea Merello <adnrea.merello@gmail.com>
  *  Copyright (C) 2017 Alexander Graf <agraf@suse.de>
@@ -6,31 +7,23 @@
  *  Copyright (C) 2011 - 2014 Xilinx
  *  Copyright (C) 2012 National Instruments Corp.
  *
- * This software is licensed under the terms of the GNU General Public
- * License version 2, as published by the Free Software Foundation, and
- * may be copied, distributed, and modified under those terms.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
  */
+
 /dts-v1/;
 /include/ "zynq-7000.dtsi"
 
 / {
 	model = "Zynq Z-Turn MYIR Board";
-	compatible = "xlnx,zynq-7000";
+	compatible = "myir,zynq-zturn", "xlnx,zynq-7000";
 
 	aliases {
 		ethernet0 = &gem0;
 		serial0 = &uart1;
 		serial1 = &uart0;
-		spi0 = &qspi;
 		mmc0 = &sdhci0;
 	};
 
-	memory {
+	memory@0 {
 		device_type = "memory";
 		reg = <0x0 0x40000000>;
 	};
@@ -41,52 +34,23 @@
 
 	gpio-leds {
 		compatible = "gpio-leds";
-		led_r {
-			label = "led_r";
-			gpios = <&gpio0 0x72 0x1>;
-			default-state = "on";
-			linux,default-trigger = "heartbeat";
-		};
-
-		led_g {
-			label = "led_g";
-			gpios = <&gpio0 0x73 0x1>;
-			default-state = "on";
-			linux,default-trigger = "heartbeat";
-		};
-
-		led_b {
-			label = "led_b";
-			gpios = <&gpio0 0x74 0x1>;
-			default-state = "on";
-			linux,default-trigger = "heartbeat";
-		};
-
-		usr_led1 {
-			label = "usr_led1";
+		usr-led1 {
+			label = "usr-led1";
 			gpios = <&gpio0 0x0 0x1>;
 			default-state = "off";
-			linux,default-trigger = "none";
 		};
 
-		usr_led2 {
-			label = "usr_led2";
+		usr-led2 {
+			label = "usr-led2";
 			gpios = <&gpio0 0x9 0x1>;
 			default-state = "off";
-			linux,default-trigger = "none";
 		};
-	};
-
-	gpio-beep {
-		compatible = "gpio-beeper";
-		label = "pl-beep";
-		gpios = <&gpio0 0x75 0x0>;
 	};
 
 	gpio-keys {
 		compatible = "gpio-keys";
-		#address-cells = <0x1>;
-		#size-cells = <0x0>;
+		#address-cells = <1>;
+		#size-cells = <0>;
 		autorepeat;
 		K1 {
 			label = "K1";
@@ -100,7 +64,6 @@
 
 &clkc {
 	ps-clk-frequency = <33333333>;
-	fclk-enable = <0xf>;
 };
 
 &qspi {
@@ -152,8 +115,8 @@
 		reg = <0x49>;
 	};
 
-	adxl345@53 {
-		compatible = "adi,adxl34x", "adxl34x";
+	accelerometer@53 {
+		compatible = "adi,adxl345", "adxl345", "adi,adxl34x", "adxl34x";
 		reg = <0x53>;
 		interrupt-parent = <&intc>;
 		interrupts = <0x0 0x1e 0x4>;
