@@ -353,8 +353,10 @@ efi_status_t efi_net_register(void)
 	 *
 	 * The notification function is used to check if a new network packet
 	 * has been received.
+	 *
+	 * iPXE is running at TPL_CALLBACK most of the time. Use a higher TPL.
 	 */
-	r = efi_create_event(EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK,
+	r = efi_create_event(EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_NOTIFY,
 			     efi_network_timer_notify, NULL, NULL,
 			     &network_timer_event);
 	if (r != EFI_SUCCESS) {
