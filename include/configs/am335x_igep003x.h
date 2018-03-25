@@ -22,10 +22,6 @@
 
 #define CONFIG_ENV_SIZE			(96 << 10)	/*  96 KiB */
 
-/* Make the verbose messages from UBI stop printing */
-#define CONFIG_UBI_SILENCE_MSG
-#define CONFIG_UBIFS_SILENCE_MSG
-
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 #ifndef CONFIG_SPL_BUILD

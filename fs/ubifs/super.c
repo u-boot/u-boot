@@ -1334,7 +1334,10 @@ static int check_free_space(struct ubifs_info *c)
 static int mount_ubifs(struct ubifs_info *c)
 {
 	int err;
-	long long x, y;
+	long long x;
+#ifndef CONFIG_UBIFS_SILENCE_MSG
+	long long y;
+#endif
 	size_t sz;
 
 	c->ro_mount = !!(c->vfs_sb->s_flags & MS_RDONLY);
@@ -1613,7 +1616,9 @@ static int mount_ubifs(struct ubifs_info *c)
 		  c->vi.ubi_num, c->vi.vol_id, c->vi.name,
 		  c->ro_mount ? ", R/O mode" : "");
 	x = (long long)c->main_lebs * c->leb_size;
+#ifndef CONFIG_UBIFS_SILENCE_MSG
 	y = (long long)c->log_lebs * c->leb_size + c->max_bud_bytes;
+#endif
 	ubifs_msg(c, "LEB size: %d bytes (%d KiB), min./max. I/O unit sizes: %d bytes/%d bytes",
 		  c->leb_size, c->leb_size >> 10, c->min_io_size,
 		  c->max_write_size);
