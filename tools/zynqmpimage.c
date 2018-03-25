@@ -178,7 +178,7 @@ static void zynqmpimage_print_header(const void *ptr)
 	struct zynqmp_header *zynqhdr = (struct zynqmp_header *)ptr;
 	int i;
 
-	printf("Image Type   : Xilinx Zynq Boot Image support\n");
+	printf("Image Type   : Xilinx ZynqMP Boot Image support\n");
 	printf("Image Offset : 0x%08x\n", le32_to_cpu(zynqhdr->image_offset));
 	printf("Image Size   : %lu bytes (%lu bytes packed)\n",
 	       (unsigned long)le32_to_cpu(zynqhdr->image_size),

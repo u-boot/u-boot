@@ -11,6 +11,8 @@
 #ifndef __CONFIG_ZYNQMP_MINI_H
 #define __CONFIG_ZYNQMP_MINI_H
 
+#define CONFIG_SYS_MEMTEST_SCRATCH     0xfffc0000
+
 #include <configs/xilinx_zynqmp.h>
 
 /* Undef unneeded configs */

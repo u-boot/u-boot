@@ -245,14 +245,50 @@ N:	uniphier
 ARM ZYNQ
 M:	Michal Simek <monstr@monstr.eu>
 S:	Maintained
-F:	arch/arm/cpu/armv7/zynq/
-F:	arch/arm/include/asm/arch-zynq/
+T:	git git://git.denx.de/u-boot-microblaze.git
+F:	arch/arm/mach-zynq/
+F:	drivers/clk/clk_zynq.c
+F:	drivers/fpga/zynqpl.c
+F:	drivers/gpio/zynq_gpio.c
+F:	drivers/i2c/i2c-cdns.c
+F:	drivers/i2c/muxes/pca954x.c
+F:	drivers/i2c/zynq_i2c.c
+F:	drivers/mmc/zynq_sdhci.c
+F:	drivers/mtd/nand/zynq_nand.c
+F:	drivers/net/phy/xilinx_phy.c
+F:	drivers/net/zynq_gem.c
+F:	drivers/serial/serial_zynq.c
+F:	drivers/spi/zynq_qspi.c
+F:	drivers/spi/zynq_spi.c
+F:	drivers/usb/host/ehci-zynq.c
+F:	drivers/watchdog/cdns_wdt.c
+F:	include/zynqmp.h
+F:	tools/zynqimage.c
+N:	zynq
 
 ARM ZYNQMP
 M:	Michal Simek <michal.simek@xilinx.com>
 S:	Maintained
-F:	arch/arm/cpu/armv8/zynqmp/
-F:	arch/arm/include/asm/arch-zynqmp/
+T:	git git://git.denx.de/u-boot-microblaze.git
+F:	arch/arm/mach-zynq/
+F:	drivers/clk/clk_zynq.c
+F:	drivers/fpga/zynqpl.c
+F:	drivers/gpio/zynq_gpio.c
+F:	drivers/i2c/i2c-cdns.c
+F:	drivers/i2c/muxes/pca954x.c
+F:	drivers/i2c/zynq_i2c.c
+F:	drivers/mmc/zynq_sdhci.c
+F:	drivers/mtd/nand/zynq_nand.c
+F:	drivers/net/phy/xilinx_phy.c
+F:	drivers/net/zynq_gem.c
+F:	drivers/serial/serial_zynq.c
+F:	drivers/spi/zynq_qspi.c
+F:	drivers/spi/zynq_spi.c
+F:	drivers/usb/host/ehci-zynq.c
+F:	drivers/watchdog/cdns_wdt.c
+F:	include/zynqmp.h
+F:	tools/zynqimage.c
+N:	zynqmp
 
 BUILDMAN
 M:	Simon Glass <sjg@chromium.org>
@@ -343,6 +379,14 @@ M:	Michal Simek <monstr@monstr.eu>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-microblaze.git
 F:	arch/microblaze/
+F:	cmd/mfsl.c
+F:	drivers/gpio/xilinx_gpio.c
+F:	drivers/net/xilinx_axi_emac.c
+F:	drivers/net/xilinx_emaclite.c
+F:	drivers/serial/serial_xuartlite.c
+F:	drivers/spi/xilinx_spi.c
+F:	drivers/watchdog/xilinx_tb_wdt.c
+N:	xilinx
 
 MIPS
 M:	Daniel Schwierzeck <daniel.schwierzeck@gmail.com>
