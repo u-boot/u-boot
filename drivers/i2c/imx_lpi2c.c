@@ -156,7 +156,7 @@ static int bus_i2c_receive(struct imx_lpi2c_reg *regs, u8 *rxbuf, int len)
 
 static int bus_i2c_start(struct imx_lpi2c_reg *regs, u8 addr, u8 dir)
 {
-	lpi2c_status_t result = LPI2C_SUCESS;
+	lpi2c_status_t result;
 	u32 val;
 
 	result = imx_lpci2c_check_busy_bus(regs);
@@ -184,7 +184,7 @@ static int bus_i2c_start(struct imx_lpi2c_reg *regs, u8 addr, u8 dir)
 
 static int bus_i2c_stop(struct imx_lpi2c_reg *regs)
 {
-	lpi2c_status_t result = LPI2C_SUCESS;
+	lpi2c_status_t result;
 	u32 status;
 
 	result = bus_i2c_wait_for_tx_ready(regs);
@@ -213,7 +213,7 @@ static int bus_i2c_stop(struct imx_lpi2c_reg *regs)
 
 static int bus_i2c_read(struct imx_lpi2c_reg *regs, u32 chip, u8 *buf, int len)
 {
-	lpi2c_status_t result = LPI2C_SUCESS;
+	lpi2c_status_t result;
 
 	result = bus_i2c_start(regs, chip, 1);
 	if (result)
@@ -230,7 +230,7 @@ static int bus_i2c_read(struct imx_lpi2c_reg *regs, u32 chip, u8 *buf, int len)
 
 static int bus_i2c_write(struct imx_lpi2c_reg *regs, u32 chip, u8 *buf, int len)
 {
-	lpi2c_status_t result = LPI2C_SUCESS;
+	lpi2c_status_t result;
 
 	result = bus_i2c_start(regs, chip, 0);
 	if (result)
@@ -354,7 +354,7 @@ static int imx_lpi2c_probe_chip(struct udevice *bus, u32 chip,
 				u32 chip_flags)
 {
 	struct imx_lpi2c_reg *regs;
-	lpi2c_status_t result = LPI2C_SUCESS;
+	lpi2c_status_t result;
 
 	regs = (struct imx_lpi2c_reg *)devfdt_get_addr(bus);
 	result = bus_i2c_start(regs, chip, 0);
