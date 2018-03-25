@@ -630,8 +630,10 @@ static int omap3_spi_probe(struct udevice *dev)
 		(struct omap2_mcspi_platform_config*)dev_get_driver_data(dev);
 
 	priv->regs = (struct mcspi *)(devfdt_get_addr(dev) + data->regs_offset);
-	priv->pin_dir = fdtdec_get_uint(blob, node, "ti,pindir-d0-out-d1-in",
-					    MCSPI_PINDIR_D0_IN_D1_OUT);
+	if (fdtdec_get_bool(blob, node, "ti,pindir-d0-out-d1-in"))
+		priv->pin_dir = MCSPI_PINDIR_D0_OUT_D1_IN;
+	else
+		priv->pin_dir = MCSPI_PINDIR_D0_IN_D1_OUT;
 	priv->wordlen = SPI_DEFAULT_WORDLEN;
 	return 0;
 }
