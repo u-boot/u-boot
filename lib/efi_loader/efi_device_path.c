@@ -66,6 +66,7 @@ static void *dp_alloc(size_t sz)
 		return NULL;
 	}
 
+	memset(buf, 0, sz);
 	return buf;
 }
 
