@@ -26,6 +26,16 @@ config DM_PCI_COMPAT
 	  measure when porting a board to use driver model for PCI. Once the
 	  board is fully supported, this option should be disabled.
 
+config PCI_AARDVARK
+	bool "Enable Aardvark PCIe driver"
+	default n
+	depends on DM_PCI
+	depends on ARMADA_3700
+	help
+	  Say Y here if you want to enable PCIe controller support on
+	  Armada37x0 SoCs. The PCIe controller on Armada37x0 is based on
+	  Aardvark hardware.
+
 config PCI_PNP
 	bool "Enable Plug & Play support for PCI"
 	depends on PCI || DM_PCI
