@@ -202,6 +202,27 @@ int arch_misc_init(void)
 #endif
 
 #ifdef CONFIG_SERIAL_TAG
+/*
+ * OCOTP_TESTER
+ * i.MX 7Solo Applications Processor Reference Manual, Rev. 0.1, 08/2016
+ * OCOTP_TESTER describes a unique ID based on silicon wafer
+ * and die X/Y position
+ *
+ * OCOTOP_TESTER offset 0x410
+ * 31:0 fuse 0
+ * FSL-wide unique, encoded LOT ID STD II/SJC CHALLENGE/ Unique ID
+ *
+ * OCOTP_TESTER1 offset 0x420
+ * 31:24 fuse 1
+ * The X-coordinate of the die location on the wafer/SJC CHALLENGE/ Unique ID
+ * 23:16 fuse 1
+ * The Y-coordinate of the die location on the wafer/SJC CHALLENGE/ Unique ID
+ * 15:11 fuse 1
+ * The wafer number of the wafer on which the device was fabricated/SJC
+ * CHALLENGE/ Unique ID
+ * 10:0 fuse 1
+ * FSL-wide unique, encoded LOT ID STD II/SJC CHALLENGE/ Unique ID
+ */
 void get_board_serial(struct tag_serialnr *serialnr)
 {
 	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
