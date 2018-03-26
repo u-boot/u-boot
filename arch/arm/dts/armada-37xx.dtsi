@@ -294,5 +294,21 @@
 				max-lanes = <2>;
 			};
 		};
+
+		pcie0: pcie@d0070000 {
+			compatible = "marvell,armada-37xx-pcie";
+			reg = <0 0xd0070000 0 0x20000>;
+			#address-cells = <3>;
+			#size-cells = <2>;
+			device_type = "pci";
+			num-lanes = <1>;
+			status = "disabled";
+
+			bus-range = <0 0xff>;
+			ranges = <0x82000000 0 0xe8000000
+				 0 0xe8000000 0 0x1000000 /* Port 0 MEM */
+				 0x81000000 0 0xe9000000
+				 0 0xe9000000 0 0x10000>; /* Port 0 IO*/
+		};
 	};
 };
