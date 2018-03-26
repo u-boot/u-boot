@@ -44,7 +44,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define IRQ_STATUS	0x10
 #define IRQ_WKUP	0x18
 
-#define NB_FUNCS 2
+#define NB_FUNCS 3
 #define GPIO_PER_REG	32
 
 /**
@@ -128,6 +128,16 @@ struct armada_37xx_pinctrl {
 		.funcs = {_func1, "gpio"}	\
 	}
 
+#define PIN_GRP_GPIO_3(_name, _start, _nr, _mask, _v1, _v2, _v3, _f1, _f2) \
+	{					\
+		.name = _name,			\
+		.start_pin = _start,		\
+		.npins = _nr,			\
+		.reg_mask = _mask,		\
+		.val = {_v1, _v2, _v3},	\
+		.funcs = {_f1, _f2, "gpio"}	\
+	}
+
 #define PIN_GRP_EXTRA(_name, _start, _nr, _mask, _v1, _v2, _start2, _nr2, \
 		      _f1, _f2)				\
 	{						\
@@ -178,7 +188,8 @@ static struct armada_37xx_pin_group armada_37xx_sb_groups[] = {
 	PIN_GRP_GPIO("ptp", 20, 3, BIT(5), "ptp"),
 	PIN_GRP("ptp_clk", 21, 1, BIT(6), "ptp", "mii"),
 	PIN_GRP("ptp_trig", 22, 1, BIT(7), "ptp", "mii"),
-	PIN_GRP("mii_col", 23, 1, BIT(8), "mii", "mii_err"),
+	PIN_GRP_GPIO_3("mii_col", 23, 1, BIT(8) | BIT(14), 0, BIT(8), BIT(14),
+		       "mii", "mii_err"),
 };
 
 const struct armada_37xx_pin_data armada_37xx_pin_nb = {
@@ -210,7 +221,7 @@ static int armada_37xx_get_func_reg(struct armada_37xx_pin_group *grp,
 {
 	int f;
 
-	for (f = 0; f < NB_FUNCS; f++)
+	for (f = 0; (f < NB_FUNCS) && grp->funcs[f]; f++)
 		if (!strcmp(grp->funcs[f], func))
 			return f;
 
@@ -352,7 +363,7 @@ static int armada_37xx_fill_group(struct armada_37xx_pinctrl *info)
 		for (j = 0; j < grp->extra_npins; j++)
 			grp->pins[i+j] = grp->extra_pin + j;
 
-		for (f = 0; f < NB_FUNCS; f++) {
+		for (f = 0; (f < NB_FUNCS) && grp->funcs[f]; f++) {
 			int ret;
 			/* check for unique functions and count groups */
 			ret = armada_37xx_add_function(info->funcs, &funcsize,
@@ -404,7 +415,7 @@ static int armada_37xx_fill_func(struct armada_37xx_pinctrl *info)
 			struct armada_37xx_pin_group *gp = &info->groups[g];
 			int f;
 
-			for (f = 0; f < NB_FUNCS; f++) {
+			for (f = 0; (f < NB_FUNCS) && gp->funcs[f]; f++) {
 				if (strcmp(gp->funcs[f], name) == 0) {
 					*groups = gp->name;
 					groups++;
