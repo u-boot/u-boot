@@ -18,6 +18,7 @@
 #include <dm.h>
 #include <imx_thermal.h>
 #include <fsl_sec.h>
+#include <asm/setup.h>
 
 #if defined(CONFIG_IMX_THERMAL)
 static const struct imx_thermal_plat imx7_thermal_plat = {
