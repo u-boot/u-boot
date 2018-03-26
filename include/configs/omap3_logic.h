@@ -153,10 +153,10 @@
 		"run loadramdisk\0" \
 	"mmcramboot=setenv bootfile uImage; " \
 		"run mmcrambootcommon; " \
-		"bootm ${loadaddr} ${rdaddr} ${fdtimage}\0" \
+		"bootm ${loadaddr} ${rdaddr} ${fdtaddr}\0" \
 	"mmcrambootz=setenv bootfile zImage; " \
 		"run mmcrambootcommon; " \
-		"bootz ${loadaddr} ${rdaddr} ${fdtimage}\0" \
+		"bootz ${loadaddr} ${rdaddr} ${fdtaddr}\0" \
 	"tftpboot=echo 'Booting kernel/ramdisk rootfs from tftp...'; " \
 		"run ramargs; " \
 		"run common_bootargs; " \
