@@ -46,6 +46,7 @@
 
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/comphy/comphy_data.h>
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	model = "Marvell Armada 37xx SoC";
