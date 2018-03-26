@@ -159,6 +159,8 @@ F:	board/rockchip/
 F:	drivers/clk/rockchip/
 F:	drivers/gpio/rk_gpio.c
 F:	drivers/misc/rockchip-efuse.c
+F:	drivers/mmc/rockchip_sdhci.c
+F:	drivers/mmc/rockchip_dw_mmc.c
 F:	drivers/pinctrl/rockchip/
 F:	drivers/ram/rockchip/
 F:	drivers/sysreset/sysreset_rockchip.c
