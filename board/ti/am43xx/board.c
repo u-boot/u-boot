@@ -908,10 +908,14 @@ int ft_board_setup(void *blob, bd_t *bd)
 }
 #endif
 
-#ifdef CONFIG_SPL_LOAD_FIT
+#if defined(CONFIG_SPL_LOAD_FIT) || defined(CONFIG_DTB_RESELECT)
 int board_fit_config_name_match(const char *name)
 {
-	if (board_is_evm() && !strcmp(name, "am437x-gp-evm"))
+	bool eeprom_read = board_ti_was_eeprom_read();
+
+	if (!strcmp(name, "am4372-generic") && !eeprom_read)
+		return 0;
+	else if (board_is_evm() && !strcmp(name, "am437x-gp-evm"))
 		return 0;
 	else if (board_is_sk() && !strcmp(name, "am437x-sk-evm"))
 		return 0;
@@ -921,6 +925,16 @@ int board_fit_config_name_match(const char *name)
 		return 0;
 	else
 		return -1;
+}
+#endif
+
+#ifdef CONFIG_DTB_RESELECT
+int embedded_dtb_select(void)
+{
+	do_board_detect();
+	fdtdec_setup();
+
+	return 0;
 }
 #endif
 
