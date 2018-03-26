@@ -1610,6 +1610,10 @@ void fit_conf_print(const void *fit, int noffset, const char *p)
 	if (uname)
 		printf("%s  Init Ramdisk: %s\n", p, uname);
 
+	uname = fdt_getprop(fit, noffset, FIT_FIRMWARE_PROP, NULL);
+	if (uname)
+		printf("%s  Firmware:     %s\n", p, uname);
+
 	for (fdt_index = 0;
 	     uname = fdt_stringlist_get(fit, noffset, FIT_FDT_PROP,
 					fdt_index, NULL), uname;
