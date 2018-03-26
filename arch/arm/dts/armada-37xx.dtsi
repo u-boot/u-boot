@@ -183,6 +183,11 @@
 					function = "mii";
 				};
 
+				smi_pins: smi-pins {
+					groups = "smi";
+					function = "smi";
+				};
+
 				sdio_pins: sdio-pins {
 					groups = "sdio_sb";
 					function = "sdio";
@@ -190,7 +195,7 @@
 
 				pcie_pins: pcie-pins {
 					groups = "pcie1";
-					function = "pcie";
+					function = "gpio";
 				};
 			};
 

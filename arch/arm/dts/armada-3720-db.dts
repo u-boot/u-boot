@@ -82,7 +82,7 @@
 
 &eth0 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&rgmii_pins>;
+	pinctrl-0 = <&rgmii_pins>, <&smi_pins>;
 	status = "okay";
 	phy-mode = "rgmii";
 };

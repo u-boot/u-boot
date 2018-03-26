@@ -90,7 +90,7 @@
 &eth0 {
 	status = "okay";
 	pinctrl-names = "default";
-	pinctrl-0 = <&rgmii_pins>;
+	pinctrl-0 = <&rgmii_pins>, <&smi_pins>;
 	phy-mode = "rgmii";
 	phy_addr = <0x1>;
 	fixed-link {
