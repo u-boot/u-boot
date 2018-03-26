@@ -23,6 +23,8 @@
 #include <power/pmic.h>
 #include <power/pfuze3000_pmic.h>
 #include "../freescale/common/pfuze.h"
+#include <asm/setup.h>
+#include <asm/bootm.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -186,6 +188,10 @@ int board_usb_phy_mode(int port)
 int board_late_init(void)
 {
 	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
+#ifdef CONFIG_SERIAL_TAG
+	struct tag_serialnr serialnr;
+	char serial_string[0x20];
+#endif
 
 	imx_iomux_v3_setup_multiple_pads(wdog_pads, ARRAY_SIZE(wdog_pads));
 
@@ -196,6 +202,14 @@ int board_late_init(void)
 	 * since we use PMIC_PWRON to reset the board.
 	 */
 	clrsetbits_le16(&wdog->wcr, 0, 0x10);
+
+#ifdef CONFIG_SERIAL_TAG
+	/* Set serial# standard environment variable based on OTP settings */
+	get_board_serial(&serialnr);
+	snprintf(serial_string, sizeof(serial_string), "WaRP7-0x%08x%08x",
+		 serialnr.low, serialnr.high);
+	env_set("serial#", serial_string);
+#endif
 
 	return 0;
 }

@@ -24,6 +24,9 @@
 #define CONFIG_SYS_FSL_ESDHC_HAS_DDR_MODE
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
+/* Switch on SERIAL_TAG */
+#define CONFIG_SERIAL_TAG
+
 #define CONFIG_DFU_ENV_SETTINGS \
 	"dfu_alt_info=boot raw 0x2 0x400 mmcpart 1\0" \
 
