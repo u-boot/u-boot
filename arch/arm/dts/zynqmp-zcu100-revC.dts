@@ -501,7 +501,7 @@
 	vqmmc-supply = <&wmmcsdio_fixed>;
 	#address-cells = <1>;
 	#size-cells = <0>;
-	wlcore: wlcore@2 {
+	wlcore: wifi@2 {
 		compatible = "ti,wl1831";
 		reg = <2>;
 		interrupt-parent = <&gpio>;
