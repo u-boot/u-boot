@@ -144,12 +144,6 @@
 	sda-gpios = <&gpio 15 GPIO_ACTIVE_HIGH>;
 
 	tca6416_u97: gpio@20 {
-		/*
-		 * Enable all GTs to out from U-Boot
-		 * i2c mw 20 6 0  - setup IO to output
-		 * i2c mw 20 2 ef - setup output values on pins 0-7
-		 * i2c mw 20 3 ff - setup output values on pins 10-17
-		 */
 		compatible = "ti,tca6416";
 		reg = <0x20>;
 		gpio-controller;
@@ -193,7 +187,7 @@
 		};
 	};
 
-	tca6416_u61: gpio@21 { /* FIXME enable it by i2c mw 21 6 0 */
+	tca6416_u61: gpio@21 {
 		compatible = "ti,tca6416";
 		reg = <0x21>;
 		gpio-controller;
@@ -224,7 +218,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x75>;
-		i2c@0 { /* i2c mw 75 0 1 */
+		i2c@0 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0>;
@@ -280,7 +274,7 @@
 				shunt-resistor = <5000>;
 			};
 		};
-		i2c@1 { /* i2c mw 75 0 1 */
+		i2c@1 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <1>;
@@ -326,7 +320,7 @@
 				shunt-resistor = <5000>;
 			};
 		};
-		i2c@2 { /* i2c mw 75 0 1 */
+		i2c@2 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <2>;
@@ -409,7 +403,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x74>;
-		i2c@0 { /* i2c mw 74 0 1 */
+		i2c@0 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0>;
@@ -426,7 +420,7 @@
 				reg = <0x54>;
 			};
 		};
-		i2c@1 { /* i2c mw 74 0 2 */
+		i2c@1 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <1>;
@@ -436,7 +430,7 @@
 			};
 
 		};
-		i2c@2 { /* i2c mw 74 0 4 */
+		i2c@2 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <2>;
@@ -449,7 +443,7 @@
 				clock-frequency = <300000000>;
 			};
 		};
-		i2c@3 { /* i2c mw 74 0 8 */
+		i2c@3 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <3>;
@@ -462,7 +456,7 @@
 				clock-frequency = <148500000>;
 			};
 		};
-		i2c@4 { /* i2c mw 74 0 10 */
+		i2c@4 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <4>;
@@ -503,7 +497,7 @@
 			reg = <2>;
 			/* SYSMON */
 		};
-		i2c@3 { /* i2c mw 75 0 8 */
+		i2c@3 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <3>;
