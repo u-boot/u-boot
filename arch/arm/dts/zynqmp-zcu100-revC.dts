@@ -74,7 +74,7 @@
 		compatible = "gpio-leds";
 		ds2 {
 			label = "ds2";
-			gpios = <&gpio 20 GPIO_ACTIVE_HIGH>; /* uboot: gpio toggle 20 */
+			gpios = <&gpio 20 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "heartbeat";
 		};
 
@@ -185,7 +185,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x75>;
-		i2csw_0: i2c@0 { /* i2c mw 75 0 1 */
+		i2csw_0: i2c@0 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0>;
@@ -193,7 +193,7 @@
 			 * LSEXP_I2C0
 			 */
 		};
-		i2csw_1: i2c@1 { /* i2c mw 75 0 2 */
+		i2csw_1: i2c@1 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <1>;
@@ -201,7 +201,7 @@
 			 * LSEXP_I2C1
 			 */
 		};
-		i2csw_2: i2c@2 { /* i2c mw 75 0 4 */
+		i2csw_2: i2c@2 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <2>;
@@ -209,7 +209,7 @@
 			 * HSEXP_I2C2
 			 */
 		};
-		i2csw_3: i2c@3 { /* i2c mw 75 0 8 */
+		i2csw_3: i2c@3 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <3>;
@@ -217,7 +217,7 @@
 			 * HSEXP_I2C3
 			 */
 		};
-		i2csw_4: i2c@4 { /* i2c mw 75 0 10 */
+		i2csw_4: i2c@4 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0x4>;
@@ -343,7 +343,7 @@
 				*/
 			};
 		};
-		i2csw_5: i2c@5 { /* i2c mw 75 0 20 */
+		i2csw_5: i2c@5 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <5>;
@@ -355,7 +355,7 @@
 				/* MIO31 is alert which should be routed to PMUFW */
 			};
 		};
-		i2csw_6: i2c@6 { /* i2c mw 75 0 40 */
+		i2csw_6: i2c@6 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <6>;
@@ -363,7 +363,7 @@
 			 * Not Connected
 			 */
 		};
-		i2csw_7: i2c@7 { /* i2c mw 75 0 80 */
+		i2csw_7: i2c@7 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <7>;
