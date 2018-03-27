@@ -1,10 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
- * Xilinx ZC702 board DTS
- *
  *  Copyright (C) 2011 - 2015 Xilinx
  *  Copyright (C) 2012 National Instruments Corp.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 /dts-v1/;
 #include "zynq-7000.dtsi"
