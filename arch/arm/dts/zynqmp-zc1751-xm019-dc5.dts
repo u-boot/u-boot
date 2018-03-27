@@ -94,6 +94,22 @@
 	status = "okay";
 };
 
+&ttc0 {
+	status = "okay";
+};
+
+&ttc1 {
+	status = "okay";
+};
+
+&ttc2 {
+	status = "okay";
+};
+
+&ttc3 {
+	status = "okay";
+};
+
 &uart0 {
 	status = "okay";
 };
