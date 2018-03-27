@@ -897,8 +897,9 @@ static int decode_regions(struct pci_controller *hose, ofnode parent_node,
 #endif
 	if (gd->pci_ram_top && gd->pci_ram_top < base + size)
 		size = gd->pci_ram_top - base;
-	pci_set_region(hose->regions + hose->region_count++, base, base,
-		       size, PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
+	if (size)
+		pci_set_region(hose->regions + hose->region_count++, base,
+			base, size, PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 #endif
 
 	return 0;
