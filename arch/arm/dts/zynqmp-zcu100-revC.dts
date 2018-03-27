@@ -183,33 +183,25 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0>;
-			/*
-			 * LSEXP_I2C0
-			 */
+			label = "LS-I2C0";
 		};
 		i2csw_1: i2c@1 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <1>;
-			/*
-			 * LSEXP_I2C1
-			 */
+			label = "LS-I2C1";
 		};
 		i2csw_2: i2c@2 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <2>;
-			/*
-			 * HSEXP_I2C2
-			 */
+			label = "HS-I2C2";
 		};
 		i2csw_3: i2c@3 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <3>;
-			/*
-			 * HSEXP_I2C3
-			 */
+			label = "HS-I2C3";
 		};
 		i2csw_4: i2c@4 {
 			#address-cells = <1>;
@@ -514,12 +506,14 @@
 
 &spi0 { /* Low Speed connector */
 	status = "okay";
+	label = "LS-SPI0";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_spi0_default>;
 };
 
 &spi1 { /* High Speed connector */
 	status = "okay";
+	label = "HS-SPI1";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_spi1_default>;
 };
