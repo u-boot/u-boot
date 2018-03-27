@@ -105,7 +105,7 @@
 			 * 768B - 1024B address 0x57
 			 */
 			eeprom@54 { /* u23 */
-				compatible = "at,24c08";
+				compatible = "atmel,24c08";
 				reg = <0x54>;
 				#address-cells = <1>;
 				#size-cells = <1>;

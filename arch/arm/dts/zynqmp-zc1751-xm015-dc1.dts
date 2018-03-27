@@ -107,7 +107,7 @@
 	sda-gpios = <&gpio 37 GPIO_ACTIVE_HIGH>;
 
 	eeprom@55 {
-		compatible = "at,24c64"; /* 24AA64 */
+		compatible = "atmel,24c64"; /* 24AA64 */
 		reg = <0x55>;
 	};
 };
