@@ -886,6 +886,10 @@
 	phys = <&lane2 PHY_TYPE_USB3 0 2 26000000>;
 };
 
+&watchdog0 {
+	status = "okay";
+};
+
 &zynqmp_dpsub {
 	status = "okay";
 	phy-names = "dp-phy0", "dp-phy1";
