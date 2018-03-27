@@ -703,7 +703,7 @@ struct efi_mac_address {
 
 struct efi_ip_address {
 	u8 ip_addr[16];
-};
+} __attribute__((aligned(4)));
 
 enum efi_simple_network_state {
 	EFI_NETWORK_STOPPED,
@@ -797,7 +797,28 @@ struct efi_pxe_packet {
 
 struct efi_pxe_mode
 {
-	u8 unused[52];
+	u8 started;
+	u8 ipv6_available;
+	u8 ipv6_supported;
+	u8 using_ipv6;
+	u8 bis_supported;
+	u8 bis_detected;
+	u8 auto_arp;
+	u8 send_guid;
+	u8 dhcp_discover_valid;
+	u8 dhcp_ack_received;
+	u8 proxy_offer_received;
+	u8 pxe_discover_valid;
+	u8 pxe_reply_received;
+	u8 pxe_bis_reply_received;
+	u8 icmp_error_received;
+	u8 tftp_error_received;
+	u8 make_callbacks;
+	u8 ttl;
+	u8 tos;
+	u8 pad;
+	struct efi_ip_address station_ip;
+	struct efi_ip_address subnet_mask;
 	struct efi_pxe_packet dhcp_discover;
 	struct efi_pxe_packet dhcp_ack;
 	struct efi_pxe_packet proxy_offer;
