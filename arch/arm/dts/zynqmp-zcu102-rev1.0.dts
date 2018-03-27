@@ -18,19 +18,19 @@
 	#address-cells = <1>;
 	#size-cells = <1>;
 
-	board_sn: board_sn@0 {
+	board_sn: board-sn@0 {
 		reg = <0x0 0x14>;
 	};
 
-	eth_mac: eth_mac@20 {
+	eth_mac: eth-mac@20 {
 		reg = <0x20 0x6>;
 	};
 
-	board_name: board_name@d0 {
+	board_name: board-name@d0 {
 		reg = <0xd0 0x6>;
 	};
 
-	board_revision: board_revision@e0 {
+	board_revision: board-revision@e0 {
 		reg = <0xe0 0x3>;
 	};
 };
