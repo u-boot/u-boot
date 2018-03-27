@@ -427,7 +427,7 @@
 			#size-cells = <0>;
 			reg = <1>;
 			si5341: clock-generator@36 { /* SI5341 - u69 */
-				compatible = "si5341";
+				compatible = "silabs,si5341";
 				reg = <0x36>;
 			};
 
