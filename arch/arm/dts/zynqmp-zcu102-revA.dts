@@ -333,51 +333,51 @@
 			reg = <2>;
 			/* MAXIM_PMBUS - 00 */
 			max15301@a { /* u46 */
-				compatible = "max15301";
+				compatible = "maxim,max15301";
 				reg = <0xa>;
 			};
 			max15303@b { /* u4 */
-				compatible = "max15303";
+				compatible = "maxim,max15303";
 				reg = <0xb>;
 			};
 			max15303@10 { /* u13 */
-				compatible = "max15303";
+				compatible = "maxim,max15303";
 				reg = <0x10>;
 			};
 			max15301@13 { /* u47 */
-				compatible = "max15301";
+				compatible = "maxim,max15301";
 				reg = <0x13>;
 			};
 			max15303@14 { /* u7 */
-				compatible = "max15303";
+				compatible = "maxim,max15303";
 				reg = <0x14>;
 			};
 			max15303@15 { /* u6 */
-				compatible = "max15303";
+				compatible = "maxim,max15303";
 				reg = <0x15>;
 			};
 			max15303@16 { /* u10 */
-				compatible = "max15303";
+				compatible = "maxim,max15303";
 				reg = <0x16>;
 			};
 			max15303@17 { /* u9 */
-				compatible = "max15303";
+				compatible = "maxim,max15303";
 				reg = <0x17>;
 			};
 			max15301@18 { /* u63 */
-				compatible = "max15301";
+				compatible = "maxim,max15301";
 				reg = <0x18>;
 			};
 			max15303@1a { /* u49 */
-				compatible = "max15303";
+				compatible = "maxim,max15303";
 				reg = <0x1a>;
 			};
 			max15303@1d { /* u18 */
-				compatible = "max15303";
+				compatible = "maxim,max15303";
 				reg = <0x1d>;
 			};
 			max15303@20 { /* u8 */
-				compatible = "max15303";
+				compatible = "maxim,max15303";
 				status = "disabled"; /* unreachable */
 				reg = <0x20>;
 			};
@@ -386,11 +386,11 @@
 drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 */
 			max20751@72 { /* u95 FIXME - not detected */
-				compatible = "max20751";
+				compatible = "maxim,max20751";
 				reg = <0x72>;
 			};
 			max20751@73 { /* u96 FIXME - not detected */
-				compatible = "max20751";
+				compatible = "maxim,max20751";
 				reg = <0x73>;
 			};
 		};
