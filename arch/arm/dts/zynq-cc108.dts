@@ -1,13 +1,12 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Xilinx CC108 board DTS
  *
- * (C) Copyright 2007-2013 Xilinx, Inc.
+ * (C) Copyright 2007-2018 Xilinx, Inc.
  * (C) Copyright 2007-2013 Michal Simek
  * (C) Copyright 2007-2012 PetaLogix Qld Pty Ltd
  *
  * Michal SIMEK <monstr@monstr.eu>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 /dts-v1/;
 /include/ "zynq-7000.dtsi"
