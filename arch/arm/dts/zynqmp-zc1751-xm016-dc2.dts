@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * dts file for Xilinx ZynqMP zc1751-xm016-dc2
  *
- * (C) Copyright 2015, Xilinx, Inc.
+ * (C) Copyright 2015 - 2018, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /dts-v1/;

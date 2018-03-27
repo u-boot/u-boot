@@ -1,12 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * dts file for Xilinx ZynqMP ZCU100 revC
  *
- * (C) Copyright 2016, Xilinx, Inc.
+ * (C) Copyright 2016 - 2018, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
- * Nathalie Chan King Choy <nathalie@xilinx.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
+ * Nathalie Chan King Choy
  */
 
 /dts-v1/;

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * dts file for Xilinx ZynqMP ZC1232
  *
- * (C) Copyright 2017, Xilinx, Inc.
+ * (C) Copyright 2017 - 2018, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /dts-v1/;
