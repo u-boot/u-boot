@@ -10,8 +10,11 @@
 #include <asm/video/edid.h>
 
 /* setup data types */
-#define SETUP_NONE			0
-#define SETUP_E820_EXT			1
+enum {
+	SETUP_NONE = 0,
+	SETUP_E820_EXT,
+	SETUP_DTB,
+};
 
 /* extensible setup data list node */
 struct setup_data {
