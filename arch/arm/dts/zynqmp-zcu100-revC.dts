@@ -56,7 +56,7 @@
 			label = "sw4";
 			gpios = <&gpio 23 GPIO_ACTIVE_LOW>;
 			linux,code = <108>; /* down */
-			gpio-key,wakeup; /* FIXME test this */
+			gpio-key,wakeup;
 			autorepeat;
 		};
 	};
@@ -98,7 +98,6 @@
 			linux,default-trigger = "bluetooth-power";
 		};
 
-		/* FIXME this is not correct - used fixed-regulator for it */
 		vbus_det { /* U5 USB5744  VBUS detection via MIO25 */
 			label = "vbus_det";
 			gpios = <&gpio 25 GPIO_ACTIVE_HIGH>;
@@ -107,10 +106,6 @@
 	};
 
 	ltc2954: ltc2954 { /* U7 */
-		/*
-		 * FIXME this is ltc2954 not ltc2952 - try this driver and
-		 * maybe just extend compatible string.
-		 */
 		compatible = "lltc,ltc2954", "lltc,ltc2952";
 		trigger-gpios = <&gpio 26 GPIO_ACTIVE_LOW>; /* INT line - input */
 		/* If there is HW watchdog on mezzanine this signal should be connected there */
@@ -221,9 +216,6 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0x4>;
-
-			/* Comment it out because will be pre-programmed
-			   at the factory */
 
 			pmic: tps65086x@5e { // Custom TI PMIC u33
 				compatible = "ti,tps65086";

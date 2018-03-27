@@ -142,7 +142,6 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <4>;
-			/* FIXME Npt detected */
 			tca6416_u97: gpio@21 {
 				compatible = "ti,tca6416";
 				reg = <0x21>;

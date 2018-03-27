@@ -79,7 +79,6 @@
 	status = "okay";
 };
 
-/* fpd_dma clk 667MHz, lpd_dma 500MHz */
 &fpd_dma_chan1 {
 	status = "okay";
 };
@@ -378,23 +377,17 @@
 				reg = <0x20>;
 			};
 
-/*			drivers/hwmon/pmbus/Kconfig:86:   be called max20751.
-drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
-*/
-			max20751@72 { /* u95 FIXME - not detected */
+			max20751@72 { /* u95 */
 				compatible = "maxim,max20751";
 				reg = <0x72>;
 			};
-			max20751@73 { /* u96 FIXME - not detected */
+			max20751@73 { /* u96 */
 				compatible = "maxim,max20751";
 				reg = <0x73>;
 			};
 		};
 		/* Bus 3 is not connected */
 	};
-
-	/* FIXME PMOD - j160 */
-	/* FIXME MSP430F - u41 - not detected */
 };
 
 &i2c1 {
@@ -406,8 +399,7 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 	scl-gpios = <&gpio 16 GPIO_ACTIVE_HIGH>;
 	sda-gpios = <&gpio 17 GPIO_ACTIVE_HIGH>;
 
-	/* FIXME PL i2c via PCA9306 - u45 */
-	/* FIXME MSP430 - u41 - not detected */
+	/* PL i2c via PCA9306 - u45 */
 	i2c-mux@74 { /* u34 */
 		compatible = "nxp,pca9548";
 		#address-cells = <1>;
@@ -512,24 +504,19 @@ drivers/hwmon/pmbus/Makefile:11:obj-$(CONFIG_SENSORS_MAX20751)  += max20751.o
 			#size-cells = <0>;
 			reg = <3>;
 			/* DDR4 SODIMM */
-			dev@19 { /* u-boot detection */
-				compatible = "xxx";
+			dev@19 {
 				reg = <0x19>;
 			};
-			dev@30 { /* u-boot detection */
-				compatible = "xxx";
+			dev@30 {
 				reg = <0x30>;
 			};
-			dev@35 { /* u-boot detection */
-				compatible = "xxx";
+			dev@35 {
 				reg = <0x35>;
 			};
-			dev@36 { /* u-boot detection */
-				compatible = "xxx";
+			dev@36 {
 				reg = <0x36>;
 			};
-			dev@51 { /* u-boot detection - maybe SPD */
-				compatible = "xxx";
+			dev@51 {
 				reg = <0x51>;
 			};
 		};

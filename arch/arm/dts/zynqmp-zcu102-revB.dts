@@ -28,8 +28,6 @@
 	/delete-node/ phy@21;
 };
 
-/* Different qspi 512Mbit version */
-
 /* Fix collision with u61 */
 &i2c0 {
 	i2c-mux@75 {

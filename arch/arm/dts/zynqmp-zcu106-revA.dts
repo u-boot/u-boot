@@ -79,7 +79,6 @@
 	status = "okay";
 };
 
-/* fpd_dma clk 667MHz, lpd_dma 500MHz */
 &fpd_dma_chan1 {
 	status = "okay";
 };
@@ -362,9 +361,6 @@
 		};
 		/* Bus 3 is not connected */
 	};
-
-	/* FIXME PMOD - j160 */
-	/* FIXME MSP430F - u41 - not detected */
 };
 
 &i2c1 {
@@ -376,8 +372,7 @@
 	scl-gpios = <&gpio 16 GPIO_ACTIVE_HIGH>;
 	sda-gpios = <&gpio 17 GPIO_ACTIVE_HIGH>;
 
-	/* FIXME PL i2c via PCA9306 - u45 */
-	/* FIXME MSP430 - u41 - not detected */
+	/* PL i2c via PCA9306 - u45 */
 	i2c-mux@74 { /* u34 */
 		compatible = "nxp,pca9548";
 		#address-cells = <1>;
@@ -451,7 +446,7 @@
 			reg = <5>; /* FAN controller */
 			temp@4c {/* lm96163 - u128 */
 				compatible = "national,lm96163";
-				reg = <0x4c>; /* FIXME */
+				reg = <0x4c>;
 			};
 		};
 		/* 6 - 7 unconnected */
