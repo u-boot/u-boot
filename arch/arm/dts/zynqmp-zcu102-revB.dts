@@ -32,7 +32,7 @@
 
 /* Fix collision with u61 */
 &i2c0 {
-	i2cswitch@75 {
+	i2c-mux@75 {
 		i2c@2 {
 			max15303@1b { /* u8 */
 				compatible = "max15303";

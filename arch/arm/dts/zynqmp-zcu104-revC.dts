@@ -106,7 +106,7 @@
 	};
 
 	/* Another connection to this bus via PL i2c via PCA9306 - u45 */
-	i2cswitch@74 { /* u34 */
+	i2c-mux@74 { /* u34 */
 		compatible = "nxp,pca9548";
 		#address-cells = <1>;
 		#size-cells = <0>;

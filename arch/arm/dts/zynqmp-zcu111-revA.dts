@@ -162,7 +162,7 @@
 		 */
 	};
 
-	i2cswitch@75 { /* u23 */
+	i2c-mux@75 { /* u23 */
 		compatible = "nxp,pca9544";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -294,7 +294,7 @@
 	scl-gpios = <&gpio 16 GPIO_ACTIVE_HIGH>;
 	sda-gpios = <&gpio 17 GPIO_ACTIVE_HIGH>;
 
-	i2cswitch@74 { /* u26 */
+	i2c-mux@74 { /* u26 */
 		compatible = "nxp,pca9548";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -387,7 +387,7 @@
 		/* 7 NC */
 	};
 
-	i2cswitch@75 {
+	i2c-mux@75 {
 		compatible = "nxp,pca9548"; /* u27 */
 		#address-cells = <1>;
 		#size-cells = <0>;
