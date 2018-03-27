@@ -147,19 +147,19 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 		oclk_dly = 0;
 		sclk_dly = 5;
 #ifdef CONFIG_MACH_SUN9I
-	} else if (hz <= 50000000) {
+	} else if (hz <= 52000000) {
 		oclk_dly = 5;
 		sclk_dly = 4;
 	} else {
-		/* hz > 50000000 */
+		/* hz > 52000000 */
 		oclk_dly = 2;
 		sclk_dly = 4;
 #else
-	} else if (hz <= 50000000) {
+	} else if (hz <= 52000000) {
 		oclk_dly = 3;
 		sclk_dly = 4;
 	} else {
-		/* hz > 50000000 */
+		/* hz > 52000000 */
 		oclk_dly = 1;
 		sclk_dly = 4;
 #endif
