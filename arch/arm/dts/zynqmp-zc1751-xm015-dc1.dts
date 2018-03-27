@@ -91,7 +91,8 @@
 &i2c1 {
 	status = "okay";
 	clock-frequency = <400000>;
-	eeprom@55 {
+
+	eeprom: eeprom@55 {
 		compatible = "atmel,24c64"; /* 24AA64 */
 		reg = <0x55>;
 	};
