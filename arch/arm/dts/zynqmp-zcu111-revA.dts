@@ -254,7 +254,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <2>;
-			irps5401_43: irps54012@43 { /* IRPS5401 - u53 check these   */
+			irps5401_43: irps54012@43 { /* IRPS5401 - u53 check these */
 				#clock-cells = <0>;
 				compatible = "infineon,irps5401";
 				reg = <0x43>;

@@ -233,19 +233,19 @@
 };
 
 &uart0 {
-	clocks = <&clk 56>,  <&clk 31>;
+	clocks = <&clk 56>, <&clk 31>;
 };
 
 &uart1 {
-	clocks = <&clk 57>,  <&clk 31>;
+	clocks = <&clk 57>, <&clk 31>;
 };
 
 &usb0 {
-	clocks = <&clk 32>,  <&clk 34>;
+	clocks = <&clk 32>, <&clk 34>;
 };
 
 &usb1 {
-	clocks = <&clk 33>,  <&clk 34>;
+	clocks = <&clk 33>, <&clk 34>;
 };
 
 &watchdog0 {
