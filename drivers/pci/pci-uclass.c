@@ -876,6 +876,9 @@ static int decode_regions(struct pci_controller *hose, ofnode parent_node,
 #ifdef CONFIG_NR_DRAM_BANKS
 	bd_t *bd = gd->bd;
 
+	if (!bd)
+		return 0;
+
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
 		if (bd->bi_dram[i].size) {
 			pci_set_region(hose->regions + hose->region_count++,
