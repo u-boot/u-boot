@@ -2461,27 +2461,28 @@ unsigned long flash_init(void)
 #ifdef CONFIG_CFI_FLASH /* for driver model */
 static int cfi_flash_probe(struct udevice *dev)
 {
-	void *blob = (void *)gd->fdt_blob;
-	int node = dev_of_offset(dev);
 	const fdt32_t *cell;
-	phys_addr_t addr;
-	int parent, addrc, sizec;
+	int addrc, sizec;
 	int len, idx;
 
-	parent = fdt_parent_offset(blob, node);
-	fdt_support_default_count_cells(blob, parent, &addrc, &sizec);
-	/* decode regs, there may be multiple reg tuples. */
-	cell = fdt_getprop(blob, node, "reg", &len);
+	addrc = dev_read_addr_cells(dev);
+	sizec = dev_read_size_cells(dev);
+
+	/* decode regs; there may be multiple reg tuples. */
+	cell = dev_read_prop(dev, "reg", &len);
 	if (!cell)
 		return -ENOENT;
 	idx = 0;
 	len /= sizeof(fdt32_t);
 	while (idx < len) {
-		addr = fdt_translate_address((void *)blob,
-					     node, cell + idx);
+		phys_addr_t addr;
+
+		addr = dev_translate_address(dev, cell + idx);
+
 		flash_info[cfi_flash_num_flash_banks].dev = dev;
 		flash_info[cfi_flash_num_flash_banks].base = addr;
 		cfi_flash_num_flash_banks++;
+
 		idx += addrc + sizec;
 	}
 	gd->bd->bi_flashstart = flash_info[0].base;
