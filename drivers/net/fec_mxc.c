@@ -1251,7 +1251,6 @@ static int fecmxc_probe(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct fec_priv *priv = dev_get_priv(dev);
 	struct mii_dev *bus = NULL;
-	int dev_id = -1;
 	uint32_t start;
 	int ret;
 
@@ -1272,9 +1271,9 @@ static int fecmxc_probe(struct udevice *dev)
 	}
 
 	fec_reg_setup(priv);
-	priv->dev_id = (dev_id == -1) ? 0 : dev_id;
 
-	bus = fec_get_miibus((ulong)priv->eth, dev_id);
+	priv->dev_id = dev->seq;
+	bus = fec_get_miibus((ulong)priv->eth, dev->seq);
 	if (!bus) {
 		ret = -ENOMEM;
 		goto err_mii;
