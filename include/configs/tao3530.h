@@ -139,7 +139,6 @@
 
 /* turn on command-line edit/hist/auto */
 
-#define CONFIG_SYS_ALT_MEMTEST		1
 #define CONFIG_SYS_MEMTEST_START	(0x82000000)		/* memtest */
 								/* defaults */
 #define CONFIG_SYS_MEMTEST_END		(0x83FFFFFF)		/* 64MB */

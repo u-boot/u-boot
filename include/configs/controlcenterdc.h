@@ -73,8 +73,6 @@
 #define CONFIG_PCI_SCAN_SHOW
 #endif
 
-#define CONFIG_SYS_ALT_MEMTEST
-
 /*
  * Software (bit-bang) MII driver configuration
  */

@@ -533,6 +533,15 @@ config CMD_MEMTEST
 	help
 	  Simple RAM read/write test.
 
+if CMD_MEMTEST
+
+config SYS_ALT_MEMTEST
+	bool "Alternative test"
+	help
+	  Use a more complete alternative memory test.
+
+endif
+
 config CMD_MX_CYCLIC
 	bool "mdc, mwc"
 	help

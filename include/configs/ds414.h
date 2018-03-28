@@ -42,8 +42,6 @@
 #define CONFIG_PHY_MARVELL		/* there is a marvell phy */
 #define CONFIG_SYS_NETA_INTERFACE_TYPE	PHY_INTERFACE_MODE_RGMII
 
-#define CONFIG_SYS_ALT_MEMTEST
-
 /* PCIe support */
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_PCI_MVEBU

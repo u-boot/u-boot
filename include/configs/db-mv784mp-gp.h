@@ -44,8 +44,6 @@
 #define CONFIG_PHY_MARVELL		/* there is a marvell phy */
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
-#define CONFIG_SYS_ALT_MEMTEST
-
 /* SATA support */
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
 #define CONFIG_LBA48

@@ -32,7 +32,6 @@
 #define CONFIG_SYS_MEMTEST_START	(MS7722SE_SDRAM_BASE)
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + (60 * 1024 * 1024))
 
-#undef  CONFIG_SYS_ALT_MEMTEST		/* Enable alternate, more extensive, memory test */
 #undef  CONFIG_SYS_MEMTEST_SCRATCH	/* Scratch address used by the alternate memory test */
 
 #undef  CONFIG_SYS_LOADS_BAUD_CHANGE	/* Enable temporary baudrate change while serial download */

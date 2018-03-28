@@ -43,7 +43,6 @@
 /* FPGA commands that we don't use */
 
 /* Extras */
-#define CONFIG_CMD_MEMTEST
 #undef CONFIG_SYS_MEMTEST_START
 #define CONFIG_SYS_MEMTEST_START	0
 #undef CONFIG_SYS_MEMTEST_END

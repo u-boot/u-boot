@@ -45,6 +45,4 @@
 #define CONFIG_RTC_MV
 #endif /* CONFIG_CMD_DATE */
 
-#define CONFIG_SYS_ALT_MEMTEST
-
 #endif /* _CONFIG_MARVELL_PLUG_H */

@@ -123,7 +123,6 @@
 #define CONFIG_POST CONFIG_SYS_POST_MEMORY	/* test POST memory test */
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
-#define CONFIG_SYS_ALT_MEMTEST
 
 /*
  *  Config the L3 Cache as L3 SRAM

@@ -268,8 +268,6 @@
 #define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
 #endif
 
-#define CONFIG_SYS_ALT_MEMTEST
-
 /*
  * PCI express
  */

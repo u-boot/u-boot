@@ -2802,9 +2802,6 @@ Configuration Settings:
 		Begin and End addresses of the area used by the
 		simple memory test.
 
-- CONFIG_SYS_ALT_MEMTEST:
-		Enable an alternate, more extensive memory test.
-
 - CONFIG_SYS_MEMTEST_SCRATCH:
 		Scratch address used by the alternate memory test
 		You only need to set this if address zero isn't writeable

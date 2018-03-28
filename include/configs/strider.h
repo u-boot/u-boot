@@ -24,8 +24,6 @@
 #define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC83xx_ESDHC_ADDR
 
-#define CONFIG_SYS_ALT_MEMTEST
-
 /*
  * System Clock Setup
  */

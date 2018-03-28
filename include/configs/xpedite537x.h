@@ -72,7 +72,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 /*
  * Diagnostics
  */
-#define CONFIG_SYS_ALT_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x10000000
 #define CONFIG_SYS_MEMTEST_END		0x20000000
 #define CONFIG_POST			(CONFIG_SYS_POST_MEMORY | \
