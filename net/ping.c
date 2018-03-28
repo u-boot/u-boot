@@ -107,7 +107,8 @@ void ping_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		icmph->type = ICMP_ECHO_REPLY;
 		icmph->checksum = 0;
 		icmph->checksum = compute_ip_checksum(icmph, len - IP_HDR_SIZE);
-		net_send_packet((uchar *)et, eth_hdr_size + len);
+		memcpy(net_tx_packet, et, eth_hdr_size + len);
+		net_send_packet(net_tx_packet, eth_hdr_size + len);
 		return;
 /*	default:
 		return;*/

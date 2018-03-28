@@ -182,7 +182,8 @@ void arp_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		    (net_read_ip(&arp->ar_spa).s_addr & net_netmask.s_addr))
 			udelay(5000);
 #endif
-		net_send_packet((uchar *)et, eth_hdr_size + ARP_HDR_SIZE);
+		memcpy(net_tx_packet, et, eth_hdr_size + ARP_HDR_SIZE);
+		net_send_packet(net_tx_packet, eth_hdr_size + ARP_HDR_SIZE);
 		return;
 
 	case ARPOP_REPLY:		/* arp reply */
