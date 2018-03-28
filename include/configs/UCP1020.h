@@ -46,8 +46,6 @@
 
 #define CONFIG_SYS_L2_SIZE	(256 << 10)
 
-#define CONFIG_LAST_STAGE_INIT
-
 #endif
 
 #if defined(CONFIG_TARGET_UCP1020)
@@ -80,8 +78,6 @@
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
 #define CONFIG_SYS_L2_SIZE	(256 << 10)
-
-#define CONFIG_LAST_STAGE_INIT
 
 #endif
 

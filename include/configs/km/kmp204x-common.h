@@ -190,7 +190,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_MISC_INIT_F
 #define CONFIG_MISC_INIT_R
-#define CONFIG_LAST_STAGE_INIT
 
 #define CONFIG_HWCONFIG
 

@@ -112,8 +112,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
 
-#define CONFIG_LAST_STAGE_INIT
-
 /*
  * Command line configuration.
  */
