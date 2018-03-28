@@ -182,7 +182,6 @@
 /*
  * TSEC
  */
-#define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_MII
 
 #define CONFIG_SYS_TSEC1_OFFSET	0x24000

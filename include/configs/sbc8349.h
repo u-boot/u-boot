@@ -338,7 +338,6 @@
 /*
  * TSEC configuration
  */
-#define CONFIG_TSEC_ENET		/* TSEC ethernet support */
 
 #if defined(CONFIG_TSEC_ENET)
 

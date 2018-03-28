@@ -68,7 +68,6 @@
 
 #define CONFIG_RTC_DS1337
 #define CONFIG_SYS_I2C
-#define CONFIG_TSEC_ENET		/* TSEC Ethernet support */
 
 /*
  * Device configurations

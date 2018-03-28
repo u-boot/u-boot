@@ -88,7 +88,6 @@
 #endif
 
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_TSEC_ENET /* ethernet */
 
 #if defined(CONFIG_SYS_CLK_100_DDR_100)
 #define CONFIG_SYS_CLK_FREQ	100000000

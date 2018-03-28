@@ -53,7 +53,6 @@
 #define CONFIG_FSL_PCIE_RESET   1	/* need PCIe reset errata */
 #endif
 
-#define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */

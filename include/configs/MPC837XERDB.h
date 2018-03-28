@@ -22,7 +22,6 @@
 /*
  * On-board devices
  */
-#define CONFIG_TSEC_ENET		/* TSEC Ethernet support */
 #define CONFIG_VSC7385_ENET
 
 /*

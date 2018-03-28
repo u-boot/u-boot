@@ -255,7 +255,6 @@
 /*
  * Ethernet
  */
-#define CONFIG_TSEC_ENET
 
 #define CONFIG_TSECV2
 

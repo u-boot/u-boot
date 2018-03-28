@@ -162,7 +162,6 @@
  */
 #define CONFIG_TSEC1
 #define CONFIG_TSEC2
-#define CONFIG_TSEC_ENET
 #define CONFIG_HARD_SPI
 
 /*

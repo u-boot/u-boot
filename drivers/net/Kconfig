@@ -411,4 +411,11 @@ config SYS_DPAA_QBMAN
 	help
 	  QBman fixups to allow deep sleep in DPAA 1 SOCs
 
+config TSEC_ENET
+	select PHYLIB
+	bool "Enable Three-Speed Ethernet Controller"
+	help
+	  This driver implements support for the (Enhanced) Three-Speed
+	  Ethernet Controller found on Freescale SoCs.
+
 endif # NETDEVICES

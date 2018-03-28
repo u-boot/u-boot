@@ -22,8 +22,6 @@
 
 #define CONFIG_PCI_INDIRECT_BRIDGE
 
-#define CONFIG_TSEC_ENET		/* tsec ethernet support	*/
-
 #define CONFIG_MISC_INIT_R	1	/* Call misc_init_r		*/
 
 /*
