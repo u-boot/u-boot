@@ -13,8 +13,6 @@
 #include <asm/arch/config.h>
 #include <asm/arch/stream_id_lsch2.h>
 
-#define CONFIG_DISPLAY_BOARDINFO_LATE
-
 #define CONFIG_SYS_CLK_FREQ		125000000
 
 #define CONFIG_SKIP_LOWLEVEL_INIT

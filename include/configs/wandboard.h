@@ -12,7 +12,6 @@
 #include "mx6_common.h"
 
 #include "imx6_spl.h"
-#define CONFIG_DISPLAY_BOARDINFO_LATE
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_WANDBOARD_IMX6
 

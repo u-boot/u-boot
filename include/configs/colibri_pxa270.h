@@ -20,8 +20,6 @@
 /* We will never enable dcache because we have to setup MMU first */
 #define CONFIG_SYS_DCACHE_OFF
 
-#define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
-
 /*
  * Environment settings
  */

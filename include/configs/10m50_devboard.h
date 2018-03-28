@@ -12,7 +12,6 @@
 /*
  * BOARD/CPU
  */
-#define CONFIG_DISPLAY_BOARDINFO_LATE
 
 /*
  * SERIAL

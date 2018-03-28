@@ -9,10 +9,6 @@
 
 #include "ls1088a_common.h"
 
-#ifndef SPL_NO_BOARDINFO
-#define CONFIG_DISPLAY_BOARDINFO_LATE
-#endif
-
 #define CONFIG_MISC_INIT_R
 
 #if defined(CONFIG_QSPI_BOOT)

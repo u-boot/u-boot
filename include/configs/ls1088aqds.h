@@ -10,9 +10,6 @@
 #include "ls1088a_common.h"
 
 
-#define CONFIG_DISPLAY_BOARDINFO_LATE
-
-
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(void);
 unsigned long get_board_ddr_clk(void);

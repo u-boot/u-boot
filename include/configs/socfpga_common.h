@@ -12,7 +12,6 @@
 /*
  * High level configuration
  */
-#define CONFIG_DISPLAY_BOARDINFO_LATE
 #define CONFIG_CLOCKS
 
 #define CONFIG_SYS_BOOTMAPSZ		(64 * 1024 * 1024)

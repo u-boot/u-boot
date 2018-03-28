@@ -25,7 +25,6 @@
 #define CONSOLE_DEV		"ttymxc3"
 
 /* Early setup */
-#define CONFIG_DISPLAY_BOARDINFO_LATE
 
 
 /* Size of malloc() pool */

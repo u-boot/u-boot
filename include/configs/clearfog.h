@@ -11,8 +11,6 @@
  * High Level Configuration Options (easy to change)
  */
 
-#define CONFIG_DISPLAY_BOARDINFO_LATE
-
 /*
  * TEXT_BASE needs to be below 16MiB, since this area is scrubbed
  * for DDR ECC byte filling in the SPL before loading the main

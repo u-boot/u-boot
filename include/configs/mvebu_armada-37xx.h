@@ -10,7 +10,6 @@
 /*
  * High Level Configuration Options (easy to change)
  */
-#define CONFIG_DISPLAY_BOARDINFO_LATE
 
 /* additions for new ARM relocation support */
 #define CONFIG_SYS_SDRAM_BASE	0x00000000

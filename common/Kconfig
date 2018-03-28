@@ -561,12 +561,19 @@ config DISPLAY_CPUINFO
 	  to do this.
 
 config DISPLAY_BOARDINFO
-	bool "Display information about the board during start up"
+	bool "Display information about the board during early start up"
 	default y if ARM || M68K || MIPS || PPC || SANDBOX || XTENSA
 	help
 	  Display information about the board that U-Boot is running on
 	  when U-Boot starts up. The board function checkboard() is called
 	  to do this.
+
+config DISPLAY_BOARDINFO_LATE
+	bool "Display information about the board during late start up"
+	help
+	  Display information about the board that U-Boot is running on after
+	  the relocation phase. The board function checkboard() is called to do
+	  this.
 
 menu "Start-up hooks"
 

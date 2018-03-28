@@ -14,7 +14,6 @@
 #define CONFIG_CUSTOMER_BOARD_SUPPORT
 
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-#define CONFIG_DISPLAY_BOARDINFO_LATE
 #define CONFIG_BOARD_LATE_INIT
 
 /*

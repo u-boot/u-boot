@@ -27,7 +27,6 @@
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
 
 /* Early setup */
-#define CONFIG_DISPLAY_BOARDINFO_LATE
 
 
 /* Size of malloc() pool */

@@ -12,7 +12,6 @@
 #include "mx6_common.h"
 
 #undef CONFIG_DISPLAY_BOARDINFO
-#define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
 
 #define CONFIG_SYS_GENERIC_BOARD
 

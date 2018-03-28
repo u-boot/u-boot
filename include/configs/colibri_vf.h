@@ -16,8 +16,6 @@
 
 #define CONFIG_SYS_FSL_CLK
 
-#define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
-
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
 #ifdef CONFIG_CMD_FUSE
