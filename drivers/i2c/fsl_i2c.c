@@ -573,11 +573,8 @@ static int fsl_i2c_set_bus_speed(struct udevice *bus, uint speed)
 static int fsl_i2c_ofdata_to_platdata(struct udevice *bus)
 {
 	struct fsl_i2c_dev *dev = dev_get_priv(bus);
-	fdt_addr_t addr;
 
-	addr = dev_read_u32_default(bus, "reg", -1);
-
-	dev->base = map_sysmem(CONFIG_SYS_IMMR + addr, sizeof(struct fsl_i2c_base));
+	dev->base = map_sysmem(dev_read_addr(bus), sizeof(struct fsl_i2c_base));
 
 	if (!dev->base)
 		return -ENOMEM;
