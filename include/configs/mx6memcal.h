@@ -14,7 +14,6 @@
 #include "mx6_common.h"
 #include "imx6_spl.h"
 
-#undef CONFIG_FSL_ESDHC
 #undef CONFIG_MMC
 #undef CONFIG_SPL_MMC_SUPPORT
 #undef CONFIG_GENERIC_MMC

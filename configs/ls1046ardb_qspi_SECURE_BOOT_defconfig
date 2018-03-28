@@ -23,6 +23,7 @@ CONFIG_CMD_CACHE=y
 CONFIG_MTDPARTS_DEFAULT="mtdparts=1550000.quadspi:1m(rcw),15m(u-boot),48m(kernel.itb);7e800000.flash:16m(nand_uboot),48m(nand_kernel),448m(nand_free)"
 CONFIG_OF_CONTROL=y
 CONFIG_DM=y
+CONFIG_FSL_ESDHC=y
 CONFIG_SPI_FLASH=y
 CONFIG_PHYLIB=y
 CONFIG_NETDEVICES=y

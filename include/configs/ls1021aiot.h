@@ -117,7 +117,6 @@
  * MMC
  */
 #define CONFIG_CMD_MMC
-#define CONFIG_FSL_ESDHC
 
 /* SATA */
 #define CONFIG_SCSI_AHCI_PLAT

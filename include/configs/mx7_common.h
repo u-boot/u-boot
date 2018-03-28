@@ -45,7 +45,6 @@
 
 /* MMC */
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_FSL_ESDHC
 #define CONFIG_FSL_USDHC
 
 /* Fuses */
