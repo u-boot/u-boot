@@ -85,7 +85,7 @@
 #endif			/* CONFIG_SYS_DISCOVER_PHY */
 #endif
 
-#define CONFIG_HOSTNAME		M54418TWR
+#define CONFIG_HOSTNAME		"M54418TWR"
 
 #if defined(CONFIG_CF_SBF)
 /* ST Micro serial flash */

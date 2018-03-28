@@ -14,7 +14,7 @@
 #define __ARISTAINETOS_CONFIG_H
 
 #define CONFIG_SYS_BOARD_VERSION	1
-#define CONFIG_HOSTNAME		aristainetos
+#define CONFIG_HOSTNAME		"aristainetos"
 #define CONFIG_BOARDNAME	"aristainetos"
 
 #define CONFIG_MXC_UART_BASE	UART5_BASE

@@ -72,7 +72,7 @@
 #	define CONFIG_GATEWAYIP	192.162.1.1
 #endif				/* CONFIG_MCFFEC */
 
-#define CONFIG_HOSTNAME		M5282EVB
+#define CONFIG_HOSTNAME		"M5282EVB"
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\
 	"loadaddr=10000\0"			\

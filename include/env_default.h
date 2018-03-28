@@ -75,7 +75,7 @@ const uchar default_environment[] = {
 	"netmask="	__stringify(CONFIG_NETMASK)	"\0"
 #endif
 #ifdef	CONFIG_HOSTNAME
-	"hostname="	__stringify(CONFIG_HOSTNAME)	"\0"
+	"hostname="	CONFIG_HOSTNAME	"\0"
 #endif
 #ifdef	CONFIG_BOOTFILE
 	"bootfile="	CONFIG_BOOTFILE			"\0"

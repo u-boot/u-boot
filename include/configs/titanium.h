@@ -54,17 +54,17 @@
 #define CONFIG_SYS_MEMTEST_START	0x10000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + (500 << 20))
 
-#define CONFIG_HOSTNAME			titanium
+#define CONFIG_HOSTNAME			"titanium"
 #define CONFIG_UBI_PART			ubi
 #define CONFIG_UBIFS_VOLUME		rootfs0
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"kernel=" __stringify(CONFIG_HOSTNAME) "/uImage\0"		\
+	"kernel=" CONFIG_HOSTNAME "/uImage\0"		\
 	"kernel_fs=/boot/uImage\0"					\
 	"kernel_addr=11000000\0"					\
-	"dtb=" __stringify(CONFIG_HOSTNAME) "/"				\
-		__stringify(CONFIG_HOSTNAME) ".dtb\0"			\
-	"dtb_fs=/boot/" __stringify(CONFIG_HOSTNAME) ".dtb\0"		\
+	"dtb=" CONFIG_HOSTNAME "/"				\
+		CONFIG_HOSTNAME ".dtb\0"			\
+	"dtb_fs=/boot/" CONFIG_HOSTNAME ".dtb\0"		\
 	"dtb_addr=12800000\0"						\
 	"script=boot.scr\0" \
 	"uimage=uImage\0" \
@@ -93,7 +93,7 @@
 	"rootpath=/opt/eldk-5.3/armv7a/rootfs-minimal-mtdutils\0"	\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
-	"ubifs=" __stringify(CONFIG_HOSTNAME) "/ubifs.img\0"		\
+	"ubifs=" CONFIG_HOSTNAME "/ubifs.img\0"		\
 	"part=" __stringify(CONFIG_UBI_PART) "\0"			\
 	"boot_vol=0\0"							\
 	"vol=" __stringify(CONFIG_UBIFS_VOLUME) "\0"			\

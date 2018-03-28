@@ -23,7 +23,7 @@
 
 #define CONFIG_BOOTFILE		"uImage"
 
-#define CONFIG_HOSTNAME mt_ventoux
+#define CONFIG_HOSTNAME "mt_ventoux"
 
 /*
  * Set its own mtdparts, different from common

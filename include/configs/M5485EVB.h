@@ -98,7 +98,7 @@
 
 #define CONFIG_UDP_CHECKSUM
 
-#define CONFIG_HOSTNAME		M548xEVB
+#define CONFIG_HOSTNAME		"M548xEVB"
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\
 	"loadaddr=10000\0"			\

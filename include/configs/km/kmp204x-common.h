@@ -391,7 +391,7 @@ int get_scl(void);
 		"cramfsload ${fdt_addr_r} "				\
 		"fdt_0x${IVM_BoardId}_0x${IVM_HWKey}.dtb\0"		\
 	"fdt_addr_r=" __stringify(CONFIG_KM_FDT_ADDR) "\0"		\
-	"u-boot="__stringify(CONFIG_HOSTNAME) "/u-boot.pbl\0"		\
+	"u-boot="CONFIG_HOSTNAME "/u-boot.pbl\0"		\
 	"update="							\
 		"sf probe 0;sf erase 0 +${filesize};"			\
 		"sf write ${load_addr_r} 0 ${filesize};\0"		\

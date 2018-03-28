@@ -479,7 +479,7 @@
 
 #define CONFIG_IPADDR		192.168.0.50
 
-#define CONFIG_HOSTNAME		sbc8641d
+#define CONFIG_HOSTNAME		"sbc8641d"
 #define CONFIG_ROOTPATH		"/opt/eldk/ppc_74xx"
 #define CONFIG_BOOTFILE		"uImage"
 

@@ -685,7 +685,7 @@
 #define CONFIG_HAS_ETH0
 #endif
 
-#define CONFIG_HOSTNAME		mpc8349emds
+#define CONFIG_HOSTNAME		"mpc8349emds"
 #define CONFIG_ROOTPATH		"/nfsroot/rootfs"
 #define CONFIG_BOOTFILE		"uImage"
 

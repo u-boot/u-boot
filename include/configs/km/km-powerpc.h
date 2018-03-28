@@ -65,7 +65,7 @@
 #define CONFIG_KM_DEF_BOOT_ARGS_CPU		""
 
 #define CONFIG_KM_DEF_ENV_CPU						\
-	"u-boot="__stringify(CONFIG_HOSTNAME) "/u-boot.bin\0"		\
+	"u-boot="CONFIG_HOSTNAME "/u-boot.bin\0"		\
 	"update="							\
 		"protect off " __stringify(BOOTFLASH_START) " +${filesize} && "\
 		"erase " __stringify(BOOTFLASH_START) "  +${filesize} && "\

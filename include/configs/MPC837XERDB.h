@@ -622,7 +622,7 @@
 
 #define CONFIG_NETDEV		"eth1"
 
-#define CONFIG_HOSTNAME		mpc837x_rdb
+#define CONFIG_HOSTNAME		"mpc837x_rdb"
 #define CONFIG_ROOTPATH		"/nfsroot"
 #define CONFIG_RAMDISKFILE	"rootfs.ext2.gz.uboot"
 #define CONFIG_BOOTFILE		"uImage"

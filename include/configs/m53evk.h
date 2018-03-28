@@ -184,7 +184,7 @@
  * Extra Environments
  */
 #define CONFIG_PREBOOT		"run try_bootscript"
-#define CONFIG_HOSTNAME		m53evk
+#define CONFIG_HOSTNAME		"m53evk"
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"consdev=ttymxc1\0"						\

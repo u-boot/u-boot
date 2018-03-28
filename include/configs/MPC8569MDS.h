@@ -469,7 +469,7 @@ extern unsigned long get_clock_freq(void);
 /*
  * Environment Configuration
  */
-#define CONFIG_HOSTNAME mpc8569mds
+#define CONFIG_HOSTNAME "mpc8569mds"
 #define CONFIG_ROOTPATH  "/nfsroot"
 #define CONFIG_BOOTFILE  "your.uImage"
 

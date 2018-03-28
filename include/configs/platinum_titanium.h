@@ -21,7 +21,7 @@
 
 #define CONFIG_PHY_RESET_DELAY			1000
 
-#define CONFIG_HOSTNAME				titanium
+#define CONFIG_HOSTNAME				"titanium"
 
 #define CONFIG_PLATFORM_ENV_SETTINGS		"\0"
 

@@ -437,7 +437,7 @@
 
 #define CONFIG_NETDEV		eth0
 
-#define CONFIG_HOSTNAME		ve8313
+#define CONFIG_HOSTNAME		"ve8313"
 #define CONFIG_UBOOTPATH	ve8313/u-boot.bin
 
 #define CONFIG_EXTRA_ENV_SETTINGS \

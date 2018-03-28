@@ -73,7 +73,7 @@
 #	define CONFIG_GATEWAYIP	192.162.1.1
 #endif				/* FEC_ENET */
 
-#define CONFIG_HOSTNAME		M5373EVB
+#define CONFIG_HOSTNAME		"M5373EVB"
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"			\
 	"loadaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0"	\

@@ -528,7 +528,7 @@ combinations. this should be removed later
 #define CONFIG_HAS_ETH1
 #endif
 
-#define CONFIG_HOSTNAME		BSC9132qds
+#define CONFIG_HOSTNAME		"BSC9132qds"
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	"u-boot.bin"

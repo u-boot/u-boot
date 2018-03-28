@@ -77,7 +77,7 @@
 		""
 #endif
 
-#define CONFIG_HOSTNAME		M5253DEMO
+#define CONFIG_HOSTNAME		"M5253DEMO"
 
 /* I2C */
 #define CONFIG_SYS_I2C

@@ -51,7 +51,7 @@
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
 /* Linux boot */
-#define CONFIG_HOSTNAME		usbarmory
+#define CONFIG_HOSTNAME		"usbarmory"
 #define CONFIG_BOOTCOMMAND						\
 	"run distro_bootcmd; "						\
 	"setenv bootargs console=${console} ${bootargs_default}; "	\

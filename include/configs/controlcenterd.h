@@ -343,7 +343,7 @@
 
 #else
 
-#define CONFIG_HOSTNAME		controlcenterd
+#define CONFIG_HOSTNAME		"controlcenterd"
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	u-boot.bin	/* U-Boot image on TFTP */

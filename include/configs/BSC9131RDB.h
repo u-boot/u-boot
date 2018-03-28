@@ -324,7 +324,7 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_HAS_ETH0
 #endif
 
-#define CONFIG_HOSTNAME		BSC9131rdb
+#define CONFIG_HOSTNAME		"BSC9131rdb"
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	"u-boot.bin" /* U-Boot image on TFTP server */

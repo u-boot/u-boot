@@ -370,7 +370,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_IPADDR	192.168.1.251
 
-#define CONFIG_HOSTNAME	8544ds_unknown
+#define CONFIG_HOSTNAME	"8544ds_unknown"
 #define CONFIG_ROOTPATH	"/nfs/mpc85xx"
 #define CONFIG_BOOTFILE	"8544ds/uImage.uboot"
 #define CONFIG_UBOOTPATH	8544ds/u-boot.bin	/* TFTP server */

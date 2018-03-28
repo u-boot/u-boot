@@ -141,7 +141,7 @@
 
 #define CONFIG_BAUDRATE 115200
 
-#define CONFIG_HOSTNAME		ccdc
+#define CONFIG_HOSTNAME		"ccdc"
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_BOOTFILE		"ccdc.img"
 

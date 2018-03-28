@@ -150,9 +150,9 @@
 		" console=ttymxc0,${baudrate}\0"			\
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
 	"addmisc=setenv bootargs ${bootargs}\0"				\
-	"u-boot=" __stringify(CONFIG_HOSTNAME) "/u-boot.bin\0"		\
+	"u-boot=" CONFIG_HOSTNAME "/u-boot.bin\0"		\
 	"kernel_addr_r=a0800000\0"					\
-	"bootfile=" __stringify(CONFIG_HOSTNAME) "/uImage\0"		\
+	"bootfile=" CONFIG_HOSTNAME "/uImage\0"		\
 	"rootpath=/opt/eldk-4.2-arm/arm\0"				\
 	"net_nfs=tftp ${kernel_addr_r} ${bootfile};"			\
 		"run nfsargs addip addtty addmtd addmisc;"		\

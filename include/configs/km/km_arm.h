@@ -69,7 +69,7 @@
 		" boardid=0x${IVM_BoardId} hwkey=0x${IVM_HWKey}"
 
 #define CONFIG_KM_DEF_ENV_CPU						\
-	"u-boot="__stringify(CONFIG_HOSTNAME) "/u-boot.kwb\0"		\
+	"u-boot="CONFIG_HOSTNAME "/u-boot.kwb\0"		\
 	CONFIG_KM_UPDATE_UBOOT						\
 	"set_fdthigh=setenv fdt_high ${kernelmem}\0"			\
 	"checkfdt="							\

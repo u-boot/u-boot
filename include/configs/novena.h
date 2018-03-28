@@ -37,7 +37,7 @@
 
 /* Booting Linux */
 #define CONFIG_BOOTFILE			"fitImage"
-#define CONFIG_HOSTNAME			novena
+#define CONFIG_HOSTNAME			"novena"
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1

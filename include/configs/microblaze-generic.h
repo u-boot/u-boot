@@ -179,7 +179,7 @@
 /* default load address */
 #define	CONFIG_SYS_LOAD_ADDR	0
 
-#define	CONFIG_HOSTNAME		XILINX_BOARD_NAME
+#define	CONFIG_HOSTNAME		"microblaze-generic"
 #define	CONFIG_BOOTCOMMAND	"base 0;tftp 11000000 image.img;bootm"
 
 /* architecture dependent code */

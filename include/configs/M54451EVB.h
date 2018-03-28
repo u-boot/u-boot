@@ -64,7 +64,7 @@
 #	endif			/* CONFIG_SYS_DISCOVER_PHY */
 #endif
 
-#define CONFIG_HOSTNAME		M54451EVB
+#define CONFIG_HOSTNAME		"M54451EVB"
 #ifdef CONFIG_SYS_STMICRO_BOOT
 /* ST Micro serial flash */
 #define	CONFIG_SYS_LOAD_ADDR2		0x40010007

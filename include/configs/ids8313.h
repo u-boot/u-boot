@@ -426,7 +426,7 @@
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 #define CONFIG_NETDEV			eth1
-#define CONFIG_HOSTNAME		ids8313
+#define CONFIG_HOSTNAME		"ids8313"
 #define CONFIG_ROOTPATH		"/opt/eldk-4.2/ppc_6xx"
 #define CONFIG_BOOTFILE		"ids8313/uImage"
 #define CONFIG_UBOOTPATH		"ids8313/u-boot.bin"

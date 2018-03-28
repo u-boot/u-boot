@@ -13,7 +13,7 @@
 #define __ARISTAINETOS2B_CONFIG_H
 
 #define CONFIG_SYS_BOARD_VERSION	3
-#define CONFIG_HOSTNAME		aristainetos2
+#define CONFIG_HOSTNAME		"aristainetos2"
 #define CONFIG_BOARDNAME	"aristainetos2-revB"
 
 #define CONFIG_MXC_UART_BASE	UART2_BASE

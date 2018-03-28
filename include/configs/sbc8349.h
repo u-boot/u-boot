@@ -597,7 +597,7 @@
 #define CONFIG_HAS_ETH1
 #endif
 
-#define CONFIG_HOSTNAME		SBC8349
+#define CONFIG_HOSTNAME		"SBC8349"
 #define CONFIG_ROOTPATH		"/tftpboot/rootfs"
 #define CONFIG_BOOTFILE		"uImage"
 

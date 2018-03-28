@@ -22,7 +22,7 @@
 
 #define CONFIG_BOOTFILE		"uImage"
 
-#define CONFIG_HOSTNAME twister
+#define CONFIG_HOSTNAME "twister"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS	CONFIG_TAM3517_SETTINGS \
 	"bootcmd=run nandboot\0"

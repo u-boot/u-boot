@@ -9,7 +9,7 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_HOSTNAME				northstar2
+#define CONFIG_HOSTNAME				"northstar2"
 
 /* Physical Memory Map */
 #define V2M_BASE				0x80000000

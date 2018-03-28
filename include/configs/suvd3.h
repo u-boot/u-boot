@@ -24,13 +24,13 @@
 /* This needs to be set prior to including km/km83xx-common.h */
 
 #if defined(CONFIG_SUVD3)	/* SUVD3 board specific */
-#define CONFIG_HOSTNAME		suvd3
+#define CONFIG_HOSTNAME		"suvd3"
 #define CONFIG_KM_BOARD_NAME   "suvd3"
 /* include common defines/options for all 8321 Keymile boards */
 #include "km/km8321-common.h"
 
 #elif defined(CONFIG_KMVECT1)   /* VECT1 board specific */
-#define CONFIG_HOSTNAME		kmvect1
+#define CONFIG_HOSTNAME		"kmvect1"
 #define CONFIG_KM_BOARD_NAME   "kmvect1"
 /* at end of uboot partition, before env */
 #define CONFIG_SYS_QE_FW_ADDR   0xF00B0000
@@ -38,7 +38,7 @@
 #include "km/km8309-common.h"
 
 #elif defined(CONFIG_KMTEGR1)   /* TEGR1 board specific */
-#define CONFIG_HOSTNAME   kmtegr1
+#define CONFIG_HOSTNAME   "kmtegr1"
 #define CONFIG_KM_BOARD_NAME   "kmtegr1"
 #define CONFIG_KM_UBI_PARTITION_NAME_BOOT	"ubi0"
 #define CONFIG_KM_UBI_PARTITION_NAME_APP	"ubi1"

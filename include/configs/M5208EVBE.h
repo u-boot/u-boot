@@ -64,7 +64,7 @@
 #	define CONFIG_GATEWAYIP	192.162.1.1
 #endif				/* CONFIG_MCFFEC */
 
-#define CONFIG_HOSTNAME		M5208EVBe
+#define CONFIG_HOSTNAME		"M5208EVBe"
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\
 	"loadaddr=40010000\0"			\

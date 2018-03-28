@@ -26,6 +26,8 @@
 
 #define CONFIG_BOOTFILE		"uImage"
 
+#define CONFIG_HOSTNAME "eco5pk"
+
 /*
  * Set its own mtdparts, different from common
  */

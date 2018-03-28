@@ -14,11 +14,11 @@
 #define CONFIG_SYS_KMBEC_FPGA_SIZE	64
 
 #if defined CONFIG_KMETER1
-#define CONFIG_HOSTNAME		kmeter1
+#define CONFIG_HOSTNAME		"kmeter1"
 #define CONFIG_KM_BOARD_NAME   "kmeter1"
 #define CONFIG_KM_DEF_NETDEV	"netdev=eth2\0"
 #elif defined CONFIG_KMCOGE5NE
-#define CONFIG_HOSTNAME		kmcoge5ne
+#define CONFIG_HOSTNAME		"kmcoge5ne"
 #define CONFIG_KM_BOARD_NAME	"kmcoge5ne"
 #define CONFIG_KM_DEF_NETDEV	"netdev=eth1\0"
 #define CONFIG_NAND_ECC_BCH
