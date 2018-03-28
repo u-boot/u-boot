@@ -148,6 +148,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
 dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-mini-emmc.dtb			\
 	zynqmp-mini-nand.dtb			\
+	zynqmp-zcu100-revC.dtb			\
 	zynqmp-zcu102-revA.dtb			\
 	zynqmp-zcu102-revB.dtb			\
 	zynqmp-zcu102-rev1.0.dtb		\
