@@ -423,6 +423,12 @@ endmenu
 
 menu "Memory commands"
 
+config CMD_BINOP
+	bool "binop"
+	help
+	  Compute binary operations (xor, or, and) of byte arrays of arbitrary
+	  size from memory and store the result in memory or the environment.
+
 config CMD_CRC32
 	bool "crc32"
 	select HASH
