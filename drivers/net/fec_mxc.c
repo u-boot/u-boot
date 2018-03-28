@@ -1146,12 +1146,12 @@ int fecmxc_initialize_multi(bd_t *bd, int dev_id, int phy_id, uint32_t addr)
 #endif
 	int ret;
 
-#ifdef CONFIG_MX28
+#ifdef CONFIG_FEC_MXC_MDIO_BASE
 	/*
 	 * The i.MX28 has two ethernet interfaces, but they are not equal.
 	 * Only the first one can access the MDIO bus.
 	 */
-	base_mii = MXS_ENET0_BASE;
+	base_mii = CONFIG_FEC_MXC_MDIO_BASE;
 #else
 	base_mii = addr;
 #endif
@@ -1273,7 +1273,11 @@ static int fecmxc_probe(struct udevice *dev)
 	fec_reg_setup(priv);
 
 	priv->dev_id = dev->seq;
+#ifdef CONFIG_FEC_MXC_MDIO_BASE
+	bus = fec_get_miibus((ulong)CONFIG_FEC_MXC_MDIO_BASE, dev->seq);
+#else
 	bus = fec_get_miibus((ulong)priv->eth, dev->seq);
+#endif
 	if (!bus) {
 		ret = -ENOMEM;
 		goto err_mii;

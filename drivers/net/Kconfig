@@ -155,9 +155,20 @@ config ETHOC
 	help
 	  This MAC is present in OpenRISC and Xtensa XTFPGA boards.
 
+config FEC_MXC_SHARE_MDIO
+	bool "Share the MDIO bus for FEC controller"
+	depends on FEC_MXC
+
+config FEC_MXC_MDIO_BASE
+	hex "MDIO base address for the FEC controller"
+	depends on FEC_MXC_SHARE_MDIO
+	help
+	  This specifies the MDIO registers base address. It is used when
+	  two FEC controllers share MDIO bus.
+
 config FEC_MXC
 	bool "FEC Ethernet controller"
-	depends on MX5 || MX6
+	depends on MX5 || MX6 || MX7
 	help
 	  This driver supports the 10/100 Fast Ethernet controller for
 	  NXP i.MX processors.
