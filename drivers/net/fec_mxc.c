@@ -1292,12 +1292,11 @@ static int fecmxc_probe(struct udevice *dev)
 
 	return 0;
 
-err_timeout:
-	free(priv->phydev);
 err_phy:
 	mdio_unregister(bus);
 	free(bus);
 err_mii:
+err_timeout:
 	fec_free_descs(priv);
 	return ret;
 }
