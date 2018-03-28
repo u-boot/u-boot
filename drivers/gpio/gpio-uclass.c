@@ -655,7 +655,7 @@ static int gpio_request_tail(int ret, ofnode node,
 	ret = uclass_get_device_by_ofnode(UCLASS_GPIO, args->node,
 					  &desc->dev);
 	if (ret) {
-		debug("%s: uclass_get_device_by_of_offset failed\n", __func__);
+		debug("%s: uclass_get_device_by_ofnode failed\n", __func__);
 		goto err;
 	}
 	ret = gpio_find_and_xlate(desc, args);
