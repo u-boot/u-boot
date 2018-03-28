@@ -1160,7 +1160,6 @@ config CMD_SOUND
 
 config CMD_ZYNQ_AES
 	bool "Zynq AES"
-	depends on CMD_ZYNQ_RSA
 	help
 	  Decrypts the encrypted image present in source address
 	  and places the decrypted image at destination address
@@ -1169,6 +1168,7 @@ config CMD_ZYNQ_RSA
 	bool "Zynq RSA"
 	depends on ARCH_ZYNQ
 	select RSA
+	select CMD_ZYNQ_AES
 	help
 	  Verifies the authenticated and encrypted zynq images.
 
