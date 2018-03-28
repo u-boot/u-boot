@@ -166,8 +166,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 
-#define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */
-
 #define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000
 /* Initial L1 address */

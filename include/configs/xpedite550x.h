@@ -17,7 +17,6 @@
 #define CONFIG_SYS_BOARD_NAME	"XPedite5500"
 #define CONFIG_SYS_FORM_PMC_XMC	1
 #define CONFIG_PRPMC_PCI_ALIAS	"pci0"	/* Processor PMC interface on pci0 */
-#define CONFIG_BOARD_EARLY_INIT_R	/* Call board_pre_init */
 
 #define CONFIG_PCI_SCAN_SHOW	1	/* show pci devices on startup */
 #define CONFIG_PCIE1		1	/* PCIE controller 1 (PEX8112 or XMC) */

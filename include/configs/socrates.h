@@ -25,7 +25,6 @@
 #define CONFIG_TSEC_ENET		/* tsec ethernet support	*/
 
 #define CONFIG_MISC_INIT_R	1	/* Call misc_init_r		*/
-#define CONFIG_BOARD_EARLY_INIT_R 1	/* Call board_early_init_r	*/
 
 /*
  * Only possible on E500 Version 2 or newer cores.

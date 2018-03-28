@@ -73,8 +73,6 @@
 
 #define CONFIG_SYS_CLK_FREQ	CONFIG_83XX_CLKIN
 
-#define CONFIG_BOARD_EARLY_INIT_R		/* call board_early_init_r */
-
 #define CONFIG_SYS_IMMR		0xE0000000
 
 #if defined(CONFIG_NAND) && !defined(CONFIG_SPL_BUILD)

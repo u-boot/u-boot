@@ -18,7 +18,6 @@
 #define CONFIG_MPC8308		1 /* MPC8308 CPU specific */
 #define CONFIG_HRCON		1 /* HRCON board specific */
 
-#define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_LAST_STAGE_INIT
 
 #define CONFIG_FSL_ESDHC

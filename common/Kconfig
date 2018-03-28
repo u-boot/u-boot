@@ -595,6 +595,13 @@ config BOARD_EARLY_INIT_F
 	  Note that the normal serial console is not yet set up, but the
 	  debug UART will be available if enabled.
 
+config BOARD_EARLY_INIT_R
+	bool "Call board-specific init after relocation"
+	help
+	  Some boards need to perform initialisation as directly after
+	  relocation. With this option, U-Boot calls board_early_init_r()
+	  in the post-relocation init sequence.
+
 endmenu
 
 menu "Security support"

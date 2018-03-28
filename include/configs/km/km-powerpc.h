@@ -9,7 +9,6 @@
 #define __CONFIG_KEYMILE_POWERPC_H
 
 /* Do boardspecific init for all boards */
-#define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_LAST_STAGE_INIT
 
 #define CONFIG_JFFS2_CMDLINE

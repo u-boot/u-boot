@@ -431,7 +431,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_RAMBOOT
 #endif
 
-#define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_HWCONFIG

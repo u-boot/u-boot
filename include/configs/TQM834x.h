@@ -40,7 +40,6 @@
 /* board pre init: do not call, nothing to do */
 
 /* detect the number of flash banks */
-#define CONFIG_BOARD_EARLY_INIT_R
 
 /*
  * DDR Setup
