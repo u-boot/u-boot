@@ -56,9 +56,9 @@ config WDT_SANDBOX
 	bool "Enable Watchdog Timer support for Sandbox"
 	depends on SANDBOX && WDT
 	help
-		Enable Watchdog Timer support in Sandbox. This is a dummy device that
-		can be probed and supports all of the methods of WDT, but does not
-		really do anything.
+	  Enable Watchdog Timer support in Sandbox. This is a dummy device that
+	  can be probed and supports all of the methods of WDT, but does not
+	  really do anything.
 
 config WDT_ASPEED
 	bool "Aspeed ast2400/ast2500 watchdog timer support"
