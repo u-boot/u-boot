@@ -1015,6 +1015,7 @@ static int switch_to_phy_index1(struct dram_info *dram,
 	writel(RK_CLRSETBITS(1 << 1, 1 << 1), &dram->cic->cic_ctrl0);
 	while (!(readl(&dram->cic->cic_status0) & (1 << 0))) {
 		mdelay(10);
+		i++;
 		if (i > 10) {
 			debug("index1 frequency done overtime\n");
 			return -ETIME;

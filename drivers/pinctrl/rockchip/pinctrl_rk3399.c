@@ -70,6 +70,60 @@ static void pinctrl_rk3399_i2c_config(struct rk3399_grf_regs *grf,
 			     PMUGRF_GPIO1C0_SEL_MASK,
 			     PMUGRF_I2C0PMU_SCL << PMUGRF_GPIO1C0_SEL_SHIFT);
 		break;
+
+	case PERIPH_ID_I2C1:
+		rk_clrsetreg(&grf->gpio4a_iomux,
+			     GRF_GPIO4A1_SEL_MASK,
+			     GRF_I2C1_SDA << GRF_GPIO4A1_SEL_SHIFT);
+		rk_clrsetreg(&grf->gpio4a_iomux,
+			     GRF_GPIO4A2_SEL_MASK,
+			     GRF_I2C1_SCL << GRF_GPIO4A2_SEL_SHIFT);
+		break;
+
+	case PERIPH_ID_I2C2:
+		rk_clrsetreg(&grf->gpio2a_iomux,
+			     GRF_GPIO2A0_SEL_MASK,
+			     GRF_I2C2_SDA << GRF_GPIO2A0_SEL_SHIFT);
+		rk_clrsetreg(&grf->gpio2a_iomux,
+			     GRF_GPIO2A1_SEL_MASK,
+			     GRF_I2C2_SCL << GRF_GPIO2A1_SEL_SHIFT);
+		break;
+	case PERIPH_ID_I2C3:
+		rk_clrsetreg(&grf->gpio4c_iomux,
+			     GRF_GPIO4C0_SEL_MASK,
+			     GRF_HDMII2C_SCL << GRF_GPIO4C0_SEL_SHIFT);
+		rk_clrsetreg(&grf->gpio4c_iomux,
+			     GRF_GPIO4C1_SEL_MASK,
+			     GRF_HDMII2C_SDA << GRF_GPIO4C1_SEL_SHIFT);
+		break;
+
+	case PERIPH_ID_I2C4:
+		rk_clrsetreg(&pmugrf->gpio1b_iomux,
+			     PMUGRF_GPIO1B3_SEL_MASK,
+			     PMUGRF_I2C4_SDA << PMUGRF_GPIO1B3_SEL_SHIFT);
+		rk_clrsetreg(&pmugrf->gpio1b_iomux,
+			     PMUGRF_GPIO1B4_SEL_MASK,
+			     PMUGRF_I2C4_SCL << PMUGRF_GPIO1B4_SEL_SHIFT);
+		break;
+
+	case PERIPH_ID_I2C7:
+		rk_clrsetreg(&grf->gpio2a_iomux,
+			     GRF_GPIO2A7_SEL_MASK,
+			     GRF_I2C7_SDA << GRF_GPIO2A7_SEL_SHIFT);
+		rk_clrsetreg(&grf->gpio2b_iomux,
+			     GRF_GPIO2B0_SEL_MASK,
+			     GRF_I2C7_SCL << GRF_GPIO2B0_SEL_SHIFT);
+		break;
+
+	case PERIPH_ID_I2C6:
+		rk_clrsetreg(&grf->gpio2b_iomux,
+			     GRF_GPIO2B1_SEL_MASK,
+			     GRF_I2C6_SDA << GRF_GPIO2B1_SEL_SHIFT);
+		rk_clrsetreg(&grf->gpio2b_iomux,
+			     GRF_GPIO2B2_SEL_MASK,
+			     GRF_I2C6_SDA << GRF_GPIO2B2_SEL_SHIFT);
+		break;
+
 	case PERIPH_ID_I2C8:
 		rk_clrsetreg(&pmugrf->gpio1c_iomux,
 			     PMUGRF_GPIO1C4_SEL_MASK,
@@ -78,13 +132,8 @@ static void pinctrl_rk3399_i2c_config(struct rk3399_grf_regs *grf,
 			     PMUGRF_GPIO1C5_SEL_MASK,
 			     PMUGRF_I2C8PMU_SCL << PMUGRF_GPIO1C5_SEL_SHIFT);
 		break;
-	case PERIPH_ID_I2C1:
-	case PERIPH_ID_I2C2:
-	case PERIPH_ID_I2C3:
-	case PERIPH_ID_I2C4:
+
 	case PERIPH_ID_I2C5:
-	case PERIPH_ID_I2C6:
-	case PERIPH_ID_I2C7:
 	default:
 		debug("i2c id = %d iomux error!\n", i2c_id);
 		break;
