@@ -11,17 +11,8 @@
 /*
  * CPU and Board Configuration Options
  */
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_BOOTP_SERVERIP
-
-#ifdef CONFIG_SKIP_LOWLEVEL_INIT
-#ifdef CONFIG_OF_CONTROL
-#undef CONFIG_OF_SEPARATE
-#define CONFIG_OF_EMBED
-#endif
-#endif
 
 /*
  * Miscellaneous configurable options
@@ -49,6 +40,9 @@
  * 512kB is suggested, (CONFIG_ENV_SIZE + 128 * 1024) was not enough
  */
 #define CONFIG_SYS_MALLOC_LEN   (512 << 10)
+
+/* DT blob (fdt) address */
+#define CONFIG_SYS_FDT_BASE		0x000f0000
 
 /*
  * Physical Memory Map

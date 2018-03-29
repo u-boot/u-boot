@@ -45,6 +45,8 @@ trap_vector:
 
 .global trap_entry
 handle_reset:
+	li t0, CONFIG_SYS_SDRAM_BASE
+	SREG a2, 0(t0)
 	la t0, trap_entry
 	csrw mtvec, t0
 	csrwi mstatus, 0

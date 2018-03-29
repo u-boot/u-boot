@@ -64,3 +64,12 @@ ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
 {
 	return 0;
 }
+
+void *board_fdt_blob_setup(void)
+{
+	void **ptr = (void *)CONFIG_SYS_SDRAM_BASE;
+	if (fdt_magic(*ptr) == FDT_MAGIC)
+			return (void *)*ptr;
+
+	return (void *)CONFIG_SYS_FDT_BASE;
+}
