@@ -30,6 +30,7 @@ obj-$(CONFIG_SH4_PCI) += pci_sh4.o
 obj-$(CONFIG_SH7751_PCI) +=pci_sh7751.o
 obj-$(CONFIG_SH7780_PCI) +=pci_sh7780.o
 obj-$(CONFIG_PCI_TEGRA) += pci_tegra.o
+obj-$(CONFIG_PCI_AARDVARK) += pci-aardvark.o
 obj-$(CONFIG_PCIE_DW_MVEBU) += pcie_dw_mvebu.o
 obj-$(CONFIG_PCIE_LAYERSCAPE) += pcie_layerscape.o
 obj-$(CONFIG_PCIE_LAYERSCAPE) += pcie_layerscape_fixup.o

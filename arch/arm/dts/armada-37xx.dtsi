@@ -46,6 +46,7 @@
 
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/comphy/comphy_data.h>
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	model = "Marvell Armada 37xx SoC";
@@ -154,6 +155,11 @@
 					groups = "uart2";
 					function = "uart";
 				};
+
+				mmc_pins: mmc-pins {
+					groups = "emmc_nb";
+					function = "emmc";
+				};
 			};
 
 			pinctrl_sb: pinctrl-sb@18800 {
@@ -162,7 +168,7 @@
 				reg = <0x18800 0x100>, <0x18C00 0x20>;
 				gpiosb: gpiosb {
 					#gpio-cells = <2>;
-					gpio-ranges = <&pinctrl_sb 0 0 29>;
+					gpio-ranges = <&pinctrl_sb 0 0 30>;
 					gpio-controller;
 					interrupts =
 					<GIC_SPI 160 IRQ_TYPE_LEVEL_HIGH>,
@@ -177,6 +183,20 @@
 					function = "mii";
 				};
 
+				smi_pins: smi-pins {
+					groups = "smi";
+					function = "smi";
+				};
+
+				sdio_pins: sdio-pins {
+					groups = "sdio_sb";
+					function = "sdio";
+				};
+
+				pcie_pins: pcie-pins {
+					groups = "pcie1";
+					function = "gpio";
+				};
 			};
 
 			usb3: usb@58000 {
@@ -266,20 +286,6 @@
 				status = "disabled";
 			};
 
-			pinctl0: pinctl@13830 { /* north bridge */
-				compatible = "marvell,armada-3700-pinctl";
-				bank-name = "armada-3700-nb";
-				reg = <0x13830 0x4>;
-				pin-count = <36>;
-			};
-
-			pinctl1: pinctl@18830 { /* south bridge */
-				compatible = "marvell,armada-3700-pinctl";
-				bank-name = "armada-3700-sb";
-				reg = <0x18830 0x4>;
-				pin-count = <30>;
-			};
-
 			comphy: comphy@18300 {
 				compatible = "marvell,mvebu-comphy", "marvell,comphy-armada-3700";
 				reg = <0x18300 0x28>,
@@ -287,6 +293,22 @@
 				mux-bitcount = <1>;
 				max-lanes = <2>;
 			};
+		};
+
+		pcie0: pcie@d0070000 {
+			compatible = "marvell,armada-37xx-pcie";
+			reg = <0 0xd0070000 0 0x20000>;
+			#address-cells = <3>;
+			#size-cells = <2>;
+			device_type = "pci";
+			num-lanes = <1>;
+			status = "disabled";
+
+			bus-range = <0 0xff>;
+			ranges = <0x82000000 0 0xe8000000
+				 0 0xe8000000 0 0x1000000 /* Port 0 MEM */
+				 0x81000000 0 0xe9000000
+				 0 0xe9000000 0 0x10000>; /* Port 0 IO*/
 		};
 	};
 };
