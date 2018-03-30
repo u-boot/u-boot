@@ -588,9 +588,8 @@ int main(int argc, char **argv)
 	if (tparams->print_header)
 		tparams->print_header (ptr);
 	else {
-		fprintf (stderr, "%s: Can't print header for %s: %s\n",
-			params.cmdname, tparams->name, strerror(errno));
-		exit (EXIT_FAILURE);
+		fprintf (stderr, "%s: Can't print header for %s\n",
+			params.cmdname, tparams->name);
 	}
 
 	(void) munmap((void *)ptr, sbuf.st_size);
