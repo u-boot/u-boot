@@ -37,6 +37,9 @@ int cleanup_before_linux(void)
 	 * dcache flushing and disabling dcache */
 	invalidate_dcache_all();
 
+	icache_disable();
+	invalidate_icache_all();
+
 	return 0;
 }
 
