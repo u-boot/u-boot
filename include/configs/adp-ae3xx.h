@@ -81,12 +81,6 @@
 #define CONFIG_SYS_NS16550_CLK		((18432000 * 20) / 25)	/* AG101P */
 
 /*
- * SD (MMC) controller
- */
-#define CONFIG_FTSDC010_NUMBER		1
-#define CONFIG_FTSDC010_SDIO
-
-/*
  * Miscellaneous configurable options
  */
 

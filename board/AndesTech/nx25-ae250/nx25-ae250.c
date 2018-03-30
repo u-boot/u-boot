@@ -11,7 +11,6 @@
 #include <netdev.h>
 #endif
 #include <linux/io.h>
-#include <faraday/ftsdc010.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -66,12 +65,11 @@ ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
 	return 0;
 }
 
-int board_mmc_init(bd_t *bis)
+void *board_fdt_blob_setup(void)
 {
-#ifndef CONFIG_DM_MMC
-#ifdef CONFIG_FTSDC010
-	ftsdc010_mmc_init(0);
-#endif
-#endif
-	return 0;
+	void **ptr = (void *)CONFIG_SYS_SDRAM_BASE;
+	if (fdt_magic(*ptr) == FDT_MAGIC)
+			return (void *)*ptr;
+
+	return (void *)CONFIG_SYS_FDT_BASE;
 }

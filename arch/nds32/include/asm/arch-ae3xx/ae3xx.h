@@ -44,8 +44,6 @@
 #define CONFIG_FTGPIO010_BASE		0xf0700000
 /* I2C */
 #define CONFIG_FTIIC010_BASE		0xf0a00000
-/* SD Controller */
-#define CONFIG_FTSDC010_BASE		0xf0e00000
 
 /* The following address was not defined in Linux */
 

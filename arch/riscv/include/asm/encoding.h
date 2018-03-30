@@ -121,7 +121,9 @@
 #define PTE_SW(PTE)	((0x88888880U >> ((PTE) & 0x1F)) & 1)
 #define PTE_SX(PTE)	((0xA0A0A000U >> ((PTE) & 0x1F)) & 1)
 
-#define PTE_CHECK_PERM(PTE, SUPERVISOR, STORE, FETCH) \
+#define PTE_CHECK_PERM(_PTE, _SUPERVISOR, STORE, FETCH) \
+	typeof(_PTE) (PTE) = (_PTE); \
+	typeof(_SUPERVISOR) (SUPERVISOR) = (_SUPERVISOR); \
 	((STORE) ? ((SUPERVISOR) ? PTE_SW(PTE) : PTE_UW(PTE)) : \
 	(FETCH) ? ((SUPERVISOR) ? PTE_SX(PTE) : PTE_UX(PTE)) : \
 	((SUPERVISOR) ? PTE_SR(PTE) : PTE_UR(PTE)))
@@ -151,27 +153,31 @@
 	asm volatile ("csrr %0, " #reg : "=r"(__tmp)); \
 	__tmp; })
 
-#define write_csr(reg, val) ({ \
+#define write_csr(reg, _val) ({ \
+typeof(_val) (val) = (_val); \
 if (__builtin_constant_p(val) && (unsigned long)(val) < 32) \
 	asm volatile ("csrw " #reg ", %0" :: "i"(val)); \
 else \
 	asm volatile ("csrw " #reg ", %0" :: "r"(val)); })
 
-#define swap_csr(reg, val) ({ unsigned long __tmp; \
+#define swap_csr(reg, _val) ({ unsigned long __tmp; \
+typeof(_val) (val) = (_val); \
 if (__builtin_constant_p(val) && (unsigned long)(val) < 32) \
 	asm volatile ("csrrw %0, " #reg ", %1" : "=r"(__tmp) : "i"(val)); \
 else \
 	asm volatile ("csrrw %0, " #reg ", %1" : "=r"(__tmp) : "r"(val)); \
 	__tmp; })
 
-#define set_csr(reg, bit) ({ unsigned long __tmp; \
+#define set_csr(reg, _bit) ({ unsigned long __tmp; \
+typeof(_bit) (bit) = (_bit); \
 if (__builtin_constant_p(bit) && (unsigned long)(bit) < 32) \
 	asm volatile ("csrrs %0, " #reg ", %1" : "=r"(__tmp) : "i"(bit)); \
 else \
 	asm volatile ("csrrs %0, " #reg ", %1" : "=r"(__tmp) : "r"(bit)); \
 	__tmp; })
 
-#define clear_csr(reg, bit) ({ unsigned long __tmp; \
+#define clear_csr(reg, _bit) ({ unsigned long __tmp; \
+typeof(_bit) (bit) = (_bit); \
 if (__builtin_constant_p(bit) && (unsigned long)(bit) < 32) \
 	asm volatile ("csrrc %0, " #reg ", %1" : "=r"(__tmp) : "i"(bit)); \
 else \

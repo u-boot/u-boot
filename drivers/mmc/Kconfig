@@ -523,17 +523,17 @@ config STM32_SDMMC2
 	  If you have a board based on such a SoC and with a SD/MMC slot,
 	  say Y or M here.
 
-config MMC_NDS32
-	bool "Andestech SD/MMC controller support"
-	depends on DM_MMC && OF_CONTROL && BLK && FTSDC010
-	help
-	  This enables support for the Andestech SD/MMM controller, which is
-	  based on Faraday IP.
-
 config FTSDC010
 	bool "Ftsdc010 SD/MMC controller Support"
 	help
 	  This SD/MMC controller is present in Andestech SoCs which is based on Faraday IP.
+
+config FTSDC010_SDIO
+	bool "Support ftsdc010 sdio"
+	default n
+	depends on FTSDC010
+	help
+		This can enable ftsdc010 sdio function.
 
 endif
 

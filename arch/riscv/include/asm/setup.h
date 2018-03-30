@@ -145,14 +145,18 @@ struct tagtable {
 	int (*parse)(const struct tag *);
 };
 
-#define tag_member_present(tag, member)				\
+#define tag_member_present(_tag, member)				\
+	typeof(_tag) (tag) = (_tag); \
 	((unsigned long)(&((struct tag *)0L)->member + 1)	\
 		<= (tag)->hdr.size * 4)
 
-#define tag_next(t)	((struct tag *)((u32 *)(t) + (t)->hdr.size))
+#define tag_next(_t)	\
+	typeof(_t) (t) = (_t); \
+	((struct tag *)((u32 *)(t) + (t)->hdr.size))
 #define tag_size(type)	((sizeof(struct tag_header) + sizeof(struct type)) >> 2)
 
-#define for_each_tag(t, base) \
+#define for_each_tag(_t, base) \
+	typeof(_t) (t) = (_t); \
 	for (t = base; t->hdr.size; t = tag_next(t))
 
 #ifdef __KERNEL__

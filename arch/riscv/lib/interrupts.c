@@ -63,7 +63,7 @@ __attribute__((weak)) void timer_interrupt(struct pt_regs *regs)
 
 static void _exit_trap(int code, uint epc, struct pt_regs *regs)
 {
-	static const char *exception_code[] = {
+	static const char * const exception_code[] = {
 		"Instruction address misaligned",
 		"Instruction access fault",
 		"Illegal instruction",
