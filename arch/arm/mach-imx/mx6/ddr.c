@@ -85,6 +85,23 @@ static void modify_dg_result(u32 *reg_st0, u32 *reg_st1, u32 *reg_ctrl)
 	writel(val_ctrl, reg_ctrl);
 }
 
+static void correct_mpwldectr_result(void *reg)
+{
+	/* Limit is 200/256 of CK, which is WL_HC_DELx | 0x48. */
+	const unsigned int limit = 0x148;
+	u32 val = readl(reg);
+	u32 old = val;
+
+	if ((val & 0x17f) > limit)
+		val &= 0xffff << 16;
+
+	if (((val >> 16) & 0x17f) > limit)
+		val &= 0xffff;
+
+	if (old != val)
+		writel(val, reg);
+}
+
 int mmdc_do_write_level_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 {
 	struct mmdc_p_regs *mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
@@ -174,6 +191,13 @@ int mmdc_do_write_level_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 			writel(ldectrl[3], &mmdc1->mpwldectrl1);
 		}
 		errors |= 4;
+	}
+
+	correct_mpwldectr_result(&mmdc0->mpwldectrl0);
+	correct_mpwldectr_result(&mmdc0->mpwldectrl1);
+	if (sysinfo->dsize == 2) {
+		correct_mpwldectr_result(&mmdc1->mpwldectrl0);
+		correct_mpwldectr_result(&mmdc1->mpwldectrl1);
 	}
 
 	/*
