@@ -19,6 +19,7 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/sata.h>
+#include <environment.h>
 #include <errno.h>
 #include <fsl_esdhc.h>
 #include <fuse.h>

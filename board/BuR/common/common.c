@@ -11,6 +11,7 @@
  */
 #include <version.h>
 #include <common.h>
+#include <environment.h>
 #include <errno.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>

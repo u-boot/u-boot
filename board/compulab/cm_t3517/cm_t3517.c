@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <environment.h>
 #include <status_led.h>
 #include <net.h>
 #include <netdev.h>

@@ -8,6 +8,7 @@
 #include <inttypes.h>
 #include <config.h>
 #include <dm.h>
+#include <environment.h>
 #include <efi_loader.h>
 #include <fdt_support.h>
 #include <fdt_simplefb.h>

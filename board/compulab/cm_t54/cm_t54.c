@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <environment.h>
 #include <fdt_support.h>
 #include <usb.h>
 #include <mmc.h>

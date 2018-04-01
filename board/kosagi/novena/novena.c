@@ -21,6 +21,7 @@
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/sata.h>
 #include <asm/mach-imx/video.h>
+#include <environment.h>
 #include <fsl_esdhc.h>
 #include <i2c.h>
 #include <input.h>

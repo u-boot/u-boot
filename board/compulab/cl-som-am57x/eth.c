@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <cpsw.h>
+#include <environment.h>
 #include <miiphy.h>
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>

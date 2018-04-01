@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <common.h>
 #include <dm.h>
+#include <environment.h>
 #include <i2c.h>
 #include <i2c_eeprom.h>
 #include <netdev.h>

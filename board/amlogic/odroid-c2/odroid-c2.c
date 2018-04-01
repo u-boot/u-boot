@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <environment.h>
 #include <asm/io.h>
 #include <asm/arch/gxbb.h>
 #include <asm/arch/sm.h>

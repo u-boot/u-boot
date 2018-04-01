@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <cpsw.h>
+#include <environment.h>
 #include <errno.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>

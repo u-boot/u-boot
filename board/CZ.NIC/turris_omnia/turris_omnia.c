@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <environment.h>
 #include <i2c.h>
 #include <miiphy.h>
 #include <netdev.h>

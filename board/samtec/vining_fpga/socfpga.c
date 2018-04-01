@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <environment.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/io.h>
 #include <asm/gpio.h>

@@ -12,6 +12,7 @@
 #include <ahci.h>
 #include <dm.h>
 #include <dwc_ahsata.h>
+#include <environment.h>
 #include <fsl_esdhc.h>
 #include <miiphy.h>
 #include <mtd_node.h>

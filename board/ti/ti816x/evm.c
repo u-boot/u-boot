@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <environment.h>
 #include <spl.h>
 #include <netdev.h>
 #include <asm/cache.h>

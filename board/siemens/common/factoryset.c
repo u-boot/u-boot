@@ -9,6 +9,7 @@
 #if !defined(CONFIG_SPL_BUILD)
 
 #include <common.h>
+#include <environment.h>
 #include <i2c.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>

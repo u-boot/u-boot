@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <environment.h>
 #include <malloc.h>
 
 #include <command.h>
