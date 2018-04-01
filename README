@@ -812,14 +812,6 @@ The following options need to be configured:
 		CONFIG_AT91_HW_WDT_TIMEOUT
 		specify the timeout in seconds. default 2 seconds.
 
-- U-Boot Version:
-		CONFIG_VERSION_VARIABLE
-		If this variable is defined, an environment variable
-		named "ver" is created by U-Boot showing the U-Boot
-		version as printed by the "version" command.
-		Any change to this variable will be reverted at the
-		next reset.
-
 - Real-Time Clock:
 
 		When CONFIG_CMD_DATE is selected, the type of the RTC

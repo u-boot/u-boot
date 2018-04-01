@@ -36,9 +36,6 @@
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
-/* Make the HW version stuff available in U-Boot env */
-#define CONFIG_VERSION_VARIABLE		/* ver environment variable */
-
 /* I2C Configs */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
