@@ -88,7 +88,6 @@
 #define CONFIG_SET_DFU_ALT_BUF_LEN	(SZ_1K)
 
 /* Set soc_rev, soc_id, board_rev, boardname, fdtfile */
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_ODROID_REV_AIN			9
 #define CONFIG_REVISION_TAG
 #define CONFIG_BOARD_TYPES

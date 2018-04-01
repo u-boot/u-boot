@@ -497,4 +497,11 @@ config DEFAULT_ENV_FILE
 	  containing key=value pairs, blank lines and lines beginning
 	  with # are ignored.
 
+config ENV_VARS_UBOOT_RUNTIME_CONFIG
+	bool "Add run-time information to the environment"
+	help
+	  Enable this in order to add variables describing certain
+	  run-time determined information about the hardware to the
+	  environment.  These will be named board_name, board_rev.
+
 endmenu

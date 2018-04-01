@@ -185,7 +185,6 @@
  * TODO: Add Odroid X support
  */
 #define CONFIG_MISC_COMMON
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_BOARD_TYPES
 #define CONFIG_MISC_INIT_R
 

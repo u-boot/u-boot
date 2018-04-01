@@ -38,7 +38,6 @@
 
 /* Make the HW version stuff available in U-Boot env */
 #define CONFIG_VERSION_VARIABLE		/* ver environment variable */
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 /* I2C Configs */
 #define CONFIG_SYS_I2C

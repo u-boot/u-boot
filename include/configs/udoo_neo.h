@@ -27,7 +27,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0  /*USDHC2*/
 
 /* Linux only */
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0,115200\0" \
 	"fdt_high=0xffffffff\0" \

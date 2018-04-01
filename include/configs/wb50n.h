@@ -23,7 +23,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_IMAGE_FORMAT_LEGACY
 
 /* general purpose I/O */

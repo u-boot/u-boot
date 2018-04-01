@@ -56,7 +56,6 @@
 
 #define CONFIG_BOARD_NAME	EL6Q
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS                                               \
 	"board="__stringify(CONFIG_BOARD_NAME)"\0"                              \
 	"cma_size="__stringify(EL6Q_CMA_SIZE)"\0"                               \

@@ -24,7 +24,6 @@
  * Environment settings
  */
 #define	CONFIG_ENV_OVERWRITE
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define	CONFIG_SYS_MALLOC_LEN		(128 * 1024)
 #define	CONFIG_ARCH_CPU_INIT
 #define	CONFIG_BOOTCOMMAND						\

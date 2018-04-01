@@ -34,6 +34,4 @@
 
 /* ENV related config options */
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
 #endif /* __CONFIG_DUOVERO_H */

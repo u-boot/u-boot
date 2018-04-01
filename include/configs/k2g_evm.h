@@ -16,8 +16,6 @@
 /* Platform type */
 #define CONFIG_SOC_K2G
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
 /* U-Boot general configuration */
 #define CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
 	DEFAULT_MMC_TI_ARGS						\

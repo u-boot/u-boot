@@ -2213,12 +2213,6 @@ The following options need to be configured:
 		the environment like the "source" command or the
 		boot command first.
 
-		CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
-		Define this in order to add variables describing certain
-		run-time determined information about the hardware to the
-		environment.  These will be named board_name, board_rev.
-
 		CONFIG_DELAY_ENVIRONMENT
 
 		Normally the environment is loaded when the board is

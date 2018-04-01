@@ -62,8 +62,6 @@
 /* Always 64 KiB env size */
 #define CONFIG_ENV_SIZE			(64 << 10)
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)

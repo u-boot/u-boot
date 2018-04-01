@@ -86,7 +86,6 @@
 #define CONFIG_INITRD_TAG
 
 /* Environment */
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define ENV_DEVICE_SETTINGS \
 	"stdin=serial,usbkbd\0" \
 	"stdout=serial,vidconsole\0" \

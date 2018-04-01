@@ -22,8 +22,6 @@
 /* set env size */
 #define CONFIG_ENV_SIZE			0x4000
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \

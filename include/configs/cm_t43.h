@@ -83,7 +83,6 @@
 #undef CONFIG_SYS_MONITOR_LEN
 
 #define CONFIG_ENV_SIZE			(16 * 1024)
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)

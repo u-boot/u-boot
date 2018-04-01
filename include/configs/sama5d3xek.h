@@ -15,8 +15,6 @@
 
 #include "at91-sama5_common.h"
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
 /*
  * This needs to be defined for the OHCI code to work but it is defined as
  * ATMEL_ID_UHPHS in the CPU specific header files.

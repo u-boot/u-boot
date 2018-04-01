@@ -30,7 +30,6 @@
 
 /* ENV related config options */
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_ENV_OVERWRITE
 
 #endif /* __CONFIG_PANDA_H */
