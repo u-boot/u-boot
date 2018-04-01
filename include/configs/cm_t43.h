@@ -45,7 +45,6 @@
 					 50, 51, 52, 53, 54, 55, 56, 57, }
 
 /* CPSW Ethernet support */
-#define CONFIG_DRIVER_TI_CPSW
 #define CONFIG_MII
 #define CONFIG_BOOTP_DEFAULT
 #define CONFIG_BOOTP_SEND_HOSTNAME

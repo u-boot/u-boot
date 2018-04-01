@@ -155,7 +155,6 @@
 #endif
 
 /* Ethernet */
-#define CONFIG_DRIVER_TI_CPSW
 #define CONFIG_MII
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME

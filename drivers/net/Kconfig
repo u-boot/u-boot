@@ -11,6 +11,13 @@ config DM_ETH
 	  This is currently implemented in net/eth.c
 	  Look in include/net.h for details.
 
+config DRIVER_TI_CPSW
+	bool "TI Common Platform Ethernet Switch"
+	select PHYLIB
+	help
+	  This driver supports the TI three port switch gigabit ethernet
+	  subsystem found in the TI SoCs.
+
 menuconfig NETDEVICES
 	bool "Network device support"
 	depends on NET

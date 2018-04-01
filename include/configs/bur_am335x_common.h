@@ -28,7 +28,6 @@
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* UART0 */
 
 /* Network defines */
-#define CONFIG_DRIVER_TI_CPSW		/* Driver for IP block */
 #define CONFIG_MII			/* Required in net/eth.c */
 #define CONFIG_PHY_NATSEMI
 

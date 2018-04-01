@@ -78,7 +78,6 @@
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT		10
-#define CONFIG_DRIVER_TI_CPSW		/* Driver for IP block */
 #define CONFIG_MII			/* Required in net/eth.c */
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs longer aneg time at 1G */
 

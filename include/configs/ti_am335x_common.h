@@ -35,7 +35,6 @@
 #define CONFIG_MII			/* Required in net/eth.c */
 #endif
 
-#define CONFIG_DRIVER_TI_CPSW		/* Driver for IP block */
 /*
  * SPL related defines.  The Public RAM memory map the ROM defines the
  * area between 0x402F0400 and 0x4030B800 as a download area and
