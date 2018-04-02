@@ -224,6 +224,7 @@ int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
 {
 	struct log_filter *filt;
 	struct log_device *ldev;
+	int ret;
 	int i;
 
 	ldev = log_device_find_by_name(drv_name);
@@ -236,8 +237,10 @@ int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
 	if (cat_list) {
 		filt->flags |= LOGFF_HAS_CAT;
 		for (i = 0; ; i++) {
-			if (i == ARRAY_SIZE(filt->cat_list))
-				return -ENOSPC;
+			if (i == ARRAY_SIZE(filt->cat_list)) {
+				ret = -ENOSPC;
+				goto err;
+			}
 			filt->cat_list[i] = cat_list[i];
 			if (cat_list[i] == LOGC_END)
 				break;
@@ -246,17 +249,19 @@ int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
 	filt->max_level = max_level;
 	if (file_list) {
 		filt->file_list = strdup(file_list);
-		if (!filt->file_list)
-			goto nomem;
+		if (!filt->file_list) {
+			ret = ENOMEM;
+			goto err;
+		}
 	}
 	filt->filter_num = ldev->next_filter_num++;
 	list_add_tail(&filt->sibling_node, &ldev->filter_head);
 
 	return filt->filter_num;
 
-nomem:
+err:
 	free(filt);
-	return -ENOMEM;
+	return ret;
 }
 
 int log_remove_filter(const char *drv_name, int filter_num)
