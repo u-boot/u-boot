@@ -168,9 +168,9 @@ static int file_cbfs_load_header(uintptr_t end_of_rom,
 				 struct cbfs_header *header)
 {
 	struct cbfs_header *header_in_rom;
+	int32_t offset = *(u32 *)(end_of_rom - 3);
 
-	header_in_rom = (struct cbfs_header *)(uintptr_t)
-			*(u32 *)(end_of_rom - 3);
+	header_in_rom = (struct cbfs_header *)(end_of_rom + offset + 1);
 	swap_header(header, header_in_rom);
 
 	if (header->magic != good_magic || header->offset >

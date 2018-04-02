@@ -14,8 +14,6 @@
 #include "fdt_host.h"
 #endif
 
-#include "libfdt_internal.h"
-
 #define FDT_MAX_DEPTH	32
 
 static int str_in_list(const char *str, char * const list[], int count)

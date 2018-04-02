@@ -211,6 +211,22 @@ int uclass_get_device_by_ofnode(enum uclass_id id, ofnode node,
 				struct udevice **devp);
 
 /**
+ * uclass_get_device_by_phandle_id() - Get a uclass device by phandle id
+ *
+ * This searches the devices in the uclass for one with the given phandle id.
+ *
+ * The device is probed to activate it ready for use.
+ *
+ * @id: uclass ID to look up
+ * @phandle_id: the phandle id to look up
+ * @devp: Returns pointer to device (there is only one for each node)
+ * @return 0 if OK, -ENODEV if there is no device match the phandle, other
+ *	-ve on error
+ */
+int uclass_get_device_by_phandle_id(enum uclass_id id, uint phandle_id,
+				    struct udevice **devp);
+
+/**
  * uclass_get_device_by_phandle() - Get a uclass device by phandle
  *
  * This searches the devices in the uclass for one with the given phandle.

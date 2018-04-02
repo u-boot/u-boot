@@ -419,3 +419,46 @@ static int dm_test_first_next_ok_device(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_first_next_ok_device, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+static const struct udevice_id fdt_dummy_ids[] = {
+	{ .compatible = "denx,u-boot-fdt-dummy", },
+	{ }
+};
+
+UCLASS_DRIVER(fdt_dummy) = {
+	.name		= "fdt_dummy",
+	.id		= UCLASS_TEST_DUMMY,
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
+};
+
+U_BOOT_DRIVER(fdt_dummy_drv) = {
+	.name	= "fdt_dummy_drv",
+	.of_match	= fdt_dummy_ids,
+	.id	= UCLASS_TEST_DUMMY,
+};
+
+static int dm_test_fdt_translation(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	/* Some simple translations */
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, true, &dev));
+	ut_asserteq_str("dev@0,0", dev->name);
+	ut_asserteq(0x8000, dev_read_addr(dev));
+
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 1, true, &dev));
+	ut_asserteq_str("dev@1,100", dev->name);
+	ut_asserteq(0x9000, dev_read_addr(dev));
+
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 2, true, &dev));
+	ut_asserteq_str("dev@2,200", dev->name);
+	ut_asserteq(0xA000, dev_read_addr(dev));
+
+	/* No translation for busses with #size-cells == 0 */
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 3, true, &dev));
+	ut_asserteq_str("dev@42", dev->name);
+	ut_asserteq(0x42, dev_read_addr(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_fdt_translation, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

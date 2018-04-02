@@ -227,13 +227,16 @@ fdt_addr_t ofnode_get_addr_index(ofnode node, int index)
 		uint flags;
 		u64 size;
 		int na;
+		int ns;
 
 		prop_val = of_get_address(ofnode_to_np(node), index, &size,
 					  &flags);
 		if (!prop_val)
 			return FDT_ADDR_T_NONE;
 
-		if (IS_ENABLED(CONFIG_OF_TRANSLATE)) {
+		ns = of_n_size_cells(ofnode_to_np(node));
+
+		if (IS_ENABLED(CONFIG_OF_TRANSLATE) && ns > 0) {
 			return of_translate_address(ofnode_to_np(node), prop_val);
 		} else {
 			na = of_n_addr_cells(ofnode_to_np(node));

@@ -22,7 +22,7 @@ static int do_cbfs_init(cmd_tbl_t *cmdtp, int flag, int argc,
 		return 0;
 	}
 	if (argc == 2) {
-		end_of_rom = (int)simple_strtoul(argv[1], &ep, 16);
+		end_of_rom = simple_strtoul(argv[1], &ep, 16);
 		if (*ep) {
 			puts("\n** Invalid end of ROM **\n");
 			return 1;
