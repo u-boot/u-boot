@@ -28,6 +28,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MV_SIP_COMPHY_POWER_ON	0x82000001
 #define MV_SIP_COMPHY_POWER_OFF	0x82000002
 #define MV_SIP_COMPHY_PLL_LOCK	0x82000003
+#define MV_SIP_COMPHY_XFI_TRAIN	0x82000004
 
 /* Used to distinguish between different possible callers (U-boot/Linux) */
 #define COMPHY_CALLER_UBOOT			(0x1 << 21)
@@ -133,196 +134,6 @@ static u32 polling_with_timeout(void __iomem *addr, u32 val,
 	return 0;
 }
 
-/* This function performs RX training for single FFE value.
- * The result of the RX training is located in:
- *	Saved DFE values Register[10:15].
- *
- * The result is returned to the caller using *result
- *
- * Return '1' on succsess.
- * Return '0' on failure.
- */
-static int comphy_cp110_test_single_ffe(
-			struct chip_serdes_phy_config *ptr_chip_cfg,
-			u32 lane, u32 ffe, u32 *result)
-{
-	u32 mask, data, timeout;
-	void __iomem *hpipe_base_addr = ptr_chip_cfg->hpipe3_base_addr;
-	void __iomem *hpipe_addr = HPIPE_ADDR(hpipe_base_addr, lane);
-	void __iomem *sd_ip_addr = SD_ADDR(hpipe_base_addr, lane);
-
-	/* Configure PRBS counters */
-	mask = HPIPE_PHY_TEST_PATTERN_SEL_MASK;
-	data = 0xe << HPIPE_PHY_TEST_PATTERN_SEL_OFFSET;
-	reg_set(hpipe_addr + HPIPE_PHY_TEST_CONTROL_REG, data, mask);
-
-	mask = HPIPE_PHY_TEST_DATA_MASK;
-	data = 0x64 << HPIPE_PHY_TEST_DATA_OFFSET;
-	reg_set(hpipe_addr + HPIPE_PHY_TEST_DATA_REG, data, mask);
-
-	mask = HPIPE_PHY_TEST_EN_MASK;
-	data = 0x1 << HPIPE_PHY_TEST_EN_OFFSET;
-	reg_set(hpipe_addr + HPIPE_PHY_TEST_CONTROL_REG, data, mask);
-
-	mdelay(50);
-
-	/* Set the FFE value */
-	mask = HPIPE_G1_SETTINGS_3_G1_FFE_RES_SEL_MASK;
-	data = ffe << HPIPE_G1_SETTINGS_3_G1_FFE_RES_SEL_OFFSET;
-	reg_set(hpipe_addr + HPIPE_G1_SETTINGS_3_REG, data, mask);
-
-	/* Start RX training */
-	mask = SD_EXTERNAL_STATUS_START_RX_TRAINING_MASK;
-	data = 1 << SD_EXTERNAL_STATUS_START_RX_TRAINING_OFFSET;
-	reg_set(sd_ip_addr + SD_EXTERNAL_STATUS_REG, data, mask);
-
-	/* Check the result of RX training */
-	timeout = RX_TRAINING_TIMEOUT;
-	while (timeout) {
-		data = readl(sd_ip_addr + SD_EXTERNAL_STATUS1_REG);
-		if (data & SD_EXTERNAL_STATUS1_REG_RX_TRAIN_COMP_MASK)
-			break;
-		mdelay(1);
-		timeout--;
-	}
-
-	if (timeout == 0)
-		return 0;
-
-	if (data & SD_EXTERNAL_STATUS1_REG_RX_TRAIN_FAILED_MASK)
-		return 0;
-
-	/* Stop RX training */
-	mask = SD_EXTERNAL_STATUS_START_RX_TRAINING_MASK;
-	data = 0 << SD_EXTERNAL_STATUS_START_RX_TRAINING_OFFSET;
-	reg_set(sd_ip_addr + SD_EXTERNAL_STATUS_REG, data, mask);
-
-	/* Read the result */
-	data = readl(hpipe_addr + HPIPE_SAVED_DFE_VALUES_REG);
-	data &= HPIPE_SAVED_DFE_VALUES_SAV_F0D_MASK;
-	data >>= HPIPE_SAVED_DFE_VALUES_SAV_F0D_OFFSET;
-	*result = data;
-
-	printf("FFE = %d, result = 0x%x\n", ffe, *result);
-
-	/* Clear the PRBS counters */
-	mask = HPIPE_PHY_TEST_RESET_MASK;
-	data = 0x1 << HPIPE_PHY_TEST_RESET_OFFSET;
-	mask |= HPIPE_PHY_TEST_EN_MASK;
-	data |= 0x0 << HPIPE_PHY_TEST_EN_OFFSET;
-	reg_set(hpipe_addr + HPIPE_PHY_TEST_CONTROL_REG, data, mask);
-
-	mask = HPIPE_PHY_TEST_RESET_MASK;
-	data = 0x0 << HPIPE_PHY_TEST_RESET_OFFSET;
-	reg_set(hpipe_addr + HPIPE_PHY_TEST_CONTROL_REG, data, mask);
-
-	return 1;
-}
-
-/* This function performs RX training for all FFE possible values.
- * We get the result for each FFE and eventually the best FFE will
- * be used and set to the HW.
- *
- * Return '1' on succsess.
- * Return '0' on failure.
- */
-int comphy_cp110_sfi_rx_training(struct chip_serdes_phy_config *ptr_chip_cfg,
-				 u32 lane)
-{
-	u32 mask, data, i, rx_train_result;
-	u32 max_rx_train = 0, max_rx_train_index = 0;
-	void __iomem *hpipe_base_addr = ptr_chip_cfg->hpipe3_base_addr;
-	void __iomem *hpipe_addr = HPIPE_ADDR(hpipe_base_addr, lane);
-	int ret;
-
-	debug_enter();
-
-	if (ptr_chip_cfg->comphy_map_data[lane].type != COMPHY_TYPE_SFI) {
-		pr_err("Comphy %d isn't configured to SFI\n", lane);
-		return 0;
-	}
-
-	/* Configure SQ threshold and CDR lock */
-	mask = HPIPE_SQUELCH_THRESH_IN_MASK;
-	data = 0xc << HPIPE_SQUELCH_THRESH_IN_OFFSET;
-	reg_set(hpipe_addr + HPIPE_SQUELCH_FFE_SETTING_REG, data, mask);
-
-	mask = HPIPE_SQ_DEGLITCH_WIDTH_P_MASK;
-	data = 0xf << HPIPE_SQ_DEGLITCH_WIDTH_P_OFFSET;
-	mask |= HPIPE_SQ_DEGLITCH_WIDTH_N_MASK;
-	data |= 0xf << HPIPE_SQ_DEGLITCH_WIDTH_N_OFFSET;
-	mask |= HPIPE_SQ_DEGLITCH_EN_MASK;
-	data |= 0x1 << HPIPE_SQ_DEGLITCH_EN_OFFSET;
-	reg_set(hpipe_addr + HPIPE_SQ_GLITCH_FILTER_CTRL, data, mask);
-
-	mask = HPIPE_CDR_LOCK_DET_EN_MASK;
-	data = 0x1 << HPIPE_CDR_LOCK_DET_EN_OFFSET;
-	reg_set(hpipe_addr + HPIPE_LOOPBACK_REG, data, mask);
-
-	udelay(100);
-
-	/* Determine if we have a cable attached to this comphy, if not,
-	 * we can't perform RX training.
-	 */
-	data = readl(hpipe_addr + HPIPE_SQUELCH_FFE_SETTING_REG);
-	if (data & HPIPE_SQUELCH_DETECTED_MASK) {
-		pr_err("Squelsh is not detected, can't perform RX training\n");
-		return 0;
-	}
-
-	data = readl(hpipe_addr + HPIPE_LOOPBACK_REG);
-	if (!(data & HPIPE_CDR_LOCK_MASK)) {
-		pr_err("CDR is not locked, can't perform RX training\n");
-		return 0;
-	}
-
-	/* Do preparations for RX training */
-	mask = HPIPE_DFE_RES_FORCE_MASK;
-	data = 0x0 << HPIPE_DFE_RES_FORCE_OFFSET;
-	reg_set(hpipe_addr + HPIPE_DFE_REG0, data, mask);
-
-	mask = HPIPE_G1_SETTINGS_3_G1_FFE_CAP_SEL_MASK;
-	data = 0xf << HPIPE_G1_SETTINGS_3_G1_FFE_CAP_SEL_OFFSET;
-	mask |= HPIPE_G1_SETTINGS_3_G1_FFE_SETTING_FORCE_MASK;
-	data |= 1 << HPIPE_G1_SETTINGS_3_G1_FFE_SETTING_FORCE_OFFSET;
-	reg_set(hpipe_addr + HPIPE_G1_SETTINGS_3_REG, data, mask);
-
-	/* Performs RX training for all possible FFE (Feed Forward
-	 * Equalization, possible values are 0-7).
-	 * We update the best value reached and the FFE which gave this value.
-	 */
-	for (i = 0; i < MAX_NUM_OF_FFE; i++) {
-		rx_train_result = 0;
-		ret = comphy_cp110_test_single_ffe(ptr_chip_cfg, lane,
-						   i, &rx_train_result);
-
-		if (ret && (rx_train_result > max_rx_train)) {
-			max_rx_train = rx_train_result;
-			max_rx_train_index = i;
-		}
-	}
-
-	/* If we were able to determine which FFE gives the best value,
-	 * now we need to set it and run RX training again (only for this
-	 * FFE).
-	 */
-	if (max_rx_train) {
-		ret = comphy_cp110_test_single_ffe(ptr_chip_cfg, lane,
-						   max_rx_train_index,
-						   &rx_train_result);
-		if (ret == 1)
-			printf("RX Training passed(FFE = %d, result = 0x%x)\n",
-			       max_rx_train_index, rx_train_result);
-	} else {
-		pr_err("RX training failed\n");
-		ret = 0;
-	}
-
-	debug_exit();
-
-	return ret;
-}
-
 static int comphy_smc(u32 function_id, void __iomem *comphy_base_addr,
 		      u32 lane, u32 mode)
 {
@@ -341,6 +152,34 @@ static int comphy_smc(u32 function_id, void __iomem *comphy_base_addr,
 	 * u-boot should be change and this conversion removed
 	 */
 	return pregs.regs[0] ? 0 : 1;
+}
+
+/* This function performs RX training for all FFE possible values.
+ * We get the result for each FFE and eventually the best FFE will
+ * be used and set to the HW.
+ *
+ * Return '1' on succsess.
+ * Return '0' on failure.
+ */
+int comphy_cp110_sfi_rx_training(struct chip_serdes_phy_config *ptr_chip_cfg,
+				 u32 lane)
+{
+	int ret;
+
+	debug_enter();
+
+	if (ptr_chip_cfg->comphy_map_data[lane].type != COMPHY_TYPE_SFI) {
+		pr_err("Comphy %d isn't configured to SFI\n", lane);
+		return 0;
+	}
+
+	/* Mode is not relevant for xfi training */
+	ret = comphy_smc(MV_SIP_COMPHY_XFI_TRAIN,
+			 ptr_chip_cfg->comphy_base_addr, lane, 0);
+
+	debug_exit();
+
+	return ret;
 }
 
 static int comphy_sata_power_up(u32 lane, void __iomem *hpipe_base,
