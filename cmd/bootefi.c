@@ -17,6 +17,7 @@
 #include <memalign.h>
 #include <asm/global_data.h>
 #include <asm-generic/sections.h>
+#include <asm-generic/unaligned.h>
 #include <linux/linkage.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -80,6 +81,15 @@ efi_status_t efi_init_obj_list(void)
 out:
 	efi_obj_list_initialized = ret;
 	return ret;
+}
+
+/*
+ * Allow unaligned memory access.
+ *
+ * This routine is overridden by architectures providing this feature.
+ */
+void __weak allow_unaligned(void)
+{
 }
 
 /*
@@ -369,6 +379,9 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *saddr;
 	efi_status_t r;
 	void *fdt_addr;
+
+	/* Allow unaligned memory access */
+	allow_unaligned();
 
 	/* Initialize EFI drivers */
 	r = efi_init_obj_list();
