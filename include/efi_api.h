@@ -858,17 +858,19 @@ struct efi_file_handle {
 	efi_status_t (EFIAPI *close)(struct efi_file_handle *file);
 	efi_status_t (EFIAPI *delete)(struct efi_file_handle *file);
 	efi_status_t (EFIAPI *read)(struct efi_file_handle *file,
-			u64 *buffer_size, void *buffer);
+			efi_uintn_t *buffer_size, void *buffer);
 	efi_status_t (EFIAPI *write)(struct efi_file_handle *file,
-			u64 *buffer_size, void *buffer);
+			efi_uintn_t *buffer_size, void *buffer);
 	efi_status_t (EFIAPI *getpos)(struct efi_file_handle *file,
-			u64 *pos);
+			efi_uintn_t *pos);
 	efi_status_t (EFIAPI *setpos)(struct efi_file_handle *file,
-			u64 pos);
+			efi_uintn_t pos);
 	efi_status_t (EFIAPI *getinfo)(struct efi_file_handle *file,
-			efi_guid_t *info_type, u64 *buffer_size, void *buffer);
+			efi_guid_t *info_type, efi_uintn_t *buffer_size,
+			void *buffer);
 	efi_status_t (EFIAPI *setinfo)(struct efi_file_handle *file,
-			efi_guid_t *info_type, u64 buffer_size, void *buffer);
+			efi_guid_t *info_type, efi_uintn_t buffer_size,
+			void *buffer);
 	efi_status_t (EFIAPI *flush)(struct efi_file_handle *file);
 };
 

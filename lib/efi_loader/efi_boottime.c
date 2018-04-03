@@ -1513,7 +1513,7 @@ efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
 	struct efi_file_info *info = NULL;
 	struct efi_file_handle *f;
 	static efi_status_t ret;
-	uint64_t bs;
+	efi_uintn_t bs;
 
 	f = efi_file_from_path(file_path);
 	if (!f)
@@ -1534,7 +1534,8 @@ efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
 	if (ret)
 		goto error;
 
-	EFI_CALL(ret = f->read(f, &info->file_size, *buffer));
+	bs = info->file_size;
+	EFI_CALL(ret = f->read(f, &bs, *buffer));
 
 error:
 	free(info);

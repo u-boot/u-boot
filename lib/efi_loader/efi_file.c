@@ -314,29 +314,41 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
 }
 
 static efi_status_t EFIAPI efi_file_read(struct efi_file_handle *file,
-		u64 *buffer_size, void *buffer)
+					 efi_uintn_t *buffer_size, void *buffer)
 {
 	struct file_handle *fh = to_fh(file);
 	efi_status_t ret = EFI_SUCCESS;
+	u64 bs;
 
 	EFI_ENTRY("%p, %p, %p", file, buffer_size, buffer);
+
+	if (!buffer_size || !buffer) {
+		ret = EFI_INVALID_PARAMETER;
+		goto error;
+	}
 
 	if (set_blk_dev(fh)) {
 		ret = EFI_DEVICE_ERROR;
 		goto error;
 	}
 
+	bs = *buffer_size;
 	if (fh->isdir)
-		ret = dir_read(fh, buffer_size, buffer);
+		ret = dir_read(fh, &bs, buffer);
 	else
-		ret = file_read(fh, buffer_size, buffer);
+		ret = file_read(fh, &bs, buffer);
+	if (bs <= SIZE_MAX)
+		*buffer_size = bs;
+	else
+		*buffer_size = SIZE_MAX;
 
 error:
 	return EFI_EXIT(ret);
 }
 
 static efi_status_t EFIAPI efi_file_write(struct efi_file_handle *file,
-		u64 *buffer_size, void *buffer)
+					  efi_uintn_t *buffer_size,
+					  void *buffer)
 {
 	struct file_handle *fh = to_fh(file);
 	efi_status_t ret = EFI_SUCCESS;
@@ -363,21 +375,27 @@ error:
 }
 
 static efi_status_t EFIAPI efi_file_getpos(struct efi_file_handle *file,
-		u64 *pos)
+					   efi_uintn_t *pos)
 {
 	struct file_handle *fh = to_fh(file);
+
 	EFI_ENTRY("%p, %p", file, pos);
-	*pos = fh->offset;
-	return EFI_EXIT(EFI_SUCCESS);
+
+	if (fh->offset <= SIZE_MAX) {
+		*pos = fh->offset;
+		return EFI_EXIT(EFI_SUCCESS);
+	} else {
+		return EFI_EXIT(EFI_DEVICE_ERROR);
+	}
 }
 
 static efi_status_t EFIAPI efi_file_setpos(struct efi_file_handle *file,
-		u64 pos)
+		efi_uintn_t pos)
 {
 	struct file_handle *fh = to_fh(file);
 	efi_status_t ret = EFI_SUCCESS;
 
-	EFI_ENTRY("%p, %llu", file, pos);
+	EFI_ENTRY("%p, %zu", file, pos);
 
 	if (fh->isdir) {
 		if (pos != 0) {
@@ -411,7 +429,9 @@ error:
 }
 
 static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
-		efi_guid_t *info_type, u64 *buffer_size, void *buffer)
+					    efi_guid_t *info_type,
+					    efi_uintn_t *buffer_size,
+					    void *buffer)
 {
 	struct file_handle *fh = to_fh(file);
 	efi_status_t ret = EFI_SUCCESS;
@@ -461,9 +481,12 @@ error:
 }
 
 static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
-		efi_guid_t *info_type, u64 buffer_size, void *buffer)
+					    efi_guid_t *info_type,
+					    efi_uintn_t buffer_size,
+					    void *buffer)
 {
-	EFI_ENTRY("%p, %p, %llu, %p", file, info_type, buffer_size, buffer);
+	EFI_ENTRY("%p, %p, %zu, %p", file, info_type, buffer_size, buffer);
+
 	return EFI_EXIT(EFI_UNSUPPORTED);
 }
 

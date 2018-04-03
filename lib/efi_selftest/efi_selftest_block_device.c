@@ -302,7 +302,7 @@ static int execute(void)
 	struct efi_device_path *dp_partition;
 	struct efi_simple_file_system_protocol *file_system;
 	struct efi_file_handle *root, *file;
-	u64 buf_size;
+	efi_uintn_t buf_size;
 	char buf[16] __aligned(ARCH_DMA_MINALIGN);
 
 	ret = boottime->connect_controller(disk_handle, NULL, NULL, 1);
