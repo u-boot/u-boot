@@ -1568,14 +1568,14 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 					  efi_handle_t parent_image,
 					  struct efi_device_path *file_path,
 					  void *source_buffer,
-					  unsigned long source_size,
+					  efi_uintn_t source_size,
 					  efi_handle_t *image_handle)
 {
 	struct efi_loaded_image *info;
 	struct efi_object *obj;
 	efi_status_t ret;
 
-	EFI_ENTRY("%d, %p, %pD, %p, %ld, %p", boot_policy, parent_image,
+	EFI_ENTRY("%d, %p, %pD, %p, %zd, %p", boot_policy, parent_image,
 		  file_path, source_buffer, source_size, image_handle);
 
 	if (!image_handle || !parent_image) {

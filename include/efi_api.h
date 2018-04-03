@@ -107,7 +107,7 @@ struct efi_boot_services {
 	efi_status_t (EFIAPI *load_image)(bool boot_policiy,
 			efi_handle_t parent_image,
 			struct efi_device_path *file_path, void *source_buffer,
-			unsigned long source_size, efi_handle_t *image);
+			efi_uintn_t source_size, efi_handle_t *image);
 	efi_status_t (EFIAPI *start_image)(efi_handle_t handle,
 					   unsigned long *exitdata_size,
 					   s16 **exitdata);
