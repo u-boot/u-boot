@@ -175,6 +175,7 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 		entry = efi_reloc + opt->AddressOfEntryPoint;
 		rel_size = opt->DataDirectory[rel_idx].Size;
 		rel = efi_reloc + opt->DataDirectory[rel_idx].VirtualAddress;
+		virt_size = ALIGN(virt_size, opt->SectionAlignment);
 	} else if (can_run_nt32 &&
 		   (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC)) {
 		IMAGE_OPTIONAL_HEADER32 *opt = &nt->OptionalHeader;
@@ -190,6 +191,7 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 		entry = efi_reloc + opt->AddressOfEntryPoint;
 		rel_size = opt->DataDirectory[rel_idx].Size;
 		rel = efi_reloc + opt->DataDirectory[rel_idx].VirtualAddress;
+		virt_size = ALIGN(virt_size, opt->SectionAlignment);
 	} else {
 		printf("%s: Invalid optional header magic %x\n", __func__,
 		       nt->OptionalHeader.Magic);
