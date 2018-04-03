@@ -60,6 +60,23 @@ struct clk {
 	unsigned long id;
 };
 
+/**
+ * struct clk_bulk - A handle to (allowing control of) a bulk of clocks.
+ *
+ * Clients provide storage for the clock bulk. The content of the structure is
+ * managed solely by the clock API. A clock bulk struct is
+ * initialized by "get"ing the clock bulk struct.
+ * The clock bulk struct is passed to all other bulk clock APIs to apply
+ * the API to all the clock in the bulk struct.
+ *
+ * @clks: An array of clock handles.
+ * @count: The number of clock handles in the clks array.
+ */
+struct clk_bulk {
+	struct clk *clks;
+	unsigned int count;
+};
+
 #if CONFIG_IS_ENABLED(OF_CONTROL) && CONFIG_IS_ENABLED(CLK)
 struct phandle_1_arg;
 int clk_get_by_index_platdata(struct udevice *dev, int index,
@@ -81,6 +98,21 @@ int clk_get_by_index_platdata(struct udevice *dev, int index,
  * @return 0 if OK, or a negative error code.
  */
 int clk_get_by_index(struct udevice *dev, int index, struct clk *clk);
+
+/**
+ * clock_get_bulk - Get/request all clocks of a device.
+ *
+ * This looks up and requests all clocks of the client device; each device is
+ * assumed to have n clocks associated with it somehow, and this function finds
+ * and requests all of them in a separate structure. The mapping of client
+ * device clock indices to provider clocks may be via device-tree properties,
+ * board-provided mapping tables, or some other mechanism.
+ *
+ * @dev:	The client device.
+ * @bulk	A pointer to a clock bulk struct to initialize.
+ * @return 0 if OK, or a negative error code.
+ */
+int clk_get_bulk(struct udevice *dev, struct clk_bulk *bulk);
 
 /**
  * clock_get_by_name - Get/request a clock by name.
@@ -120,6 +152,11 @@ static inline int clk_get_by_index(struct udevice *dev, int index,
 	return -ENOSYS;
 }
 
+static inline int clk_get_bulk(struct udevice *dev, struct clk_bulk *bulk)
+{
+	return -ENOSYS;
+}
+
 static inline int clk_get_by_name(struct udevice *dev, const char *name,
 			   struct clk *clk)
 {
@@ -130,7 +167,6 @@ static inline int clk_release_all(struct clk *clk, int count)
 {
 	return -ENOSYS;
 }
-
 #endif
 
 #if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) && \
@@ -149,6 +185,22 @@ static inline int clk_set_defaults(struct udevice *dev)
 	return 0;
 }
 #endif
+
+/**
+ * clk_release_bulk() - Disable (turn off)/Free an array of previously
+ * requested clocks in a clock bulk struct.
+ *
+ * For each clock contained in the clock bulk struct, this function will check
+ * if clock has been previously requested and then will disable and free it.
+ *
+ * @clk:	A clock bulk struct that was previously successfully
+ *		requested by clk_get_bulk().
+ * @return zero on success, or -ve error code.
+ */
+static inline int clk_release_bulk(struct clk_bulk *bulk)
+{
+	return clk_release_all(bulk->clks, bulk->count);
+}
 
 /**
  * clk_request - Request a clock by provider-specific ID.
@@ -215,6 +267,15 @@ int clk_set_parent(struct clk *clk, struct clk *parent);
 int clk_enable(struct clk *clk);
 
 /**
+ * clk_enable_bulk() - Enable (turn on) all clocks in a clock bulk struct.
+ *
+ * @bulk:	A clock bulk struct that was previously successfully requested
+ *		by clk_get_bulk().
+ * @return zero on success, or -ve error code.
+ */
+int clk_enable_bulk(struct clk_bulk *bulk);
+
+/**
  * clk_disable() - Disable (turn off) a clock.
  *
  * @clk:	A clock struct that was previously successfully requested by
@@ -222,6 +283,15 @@ int clk_enable(struct clk *clk);
  * @return zero on success, or -ve error code.
  */
 int clk_disable(struct clk *clk);
+
+/**
+ * clk_disable_bulk() - Disable (turn off) all clocks in a clock bulk struct.
+ *
+ * @bulk:	A clock bulk struct that was previously successfully requested
+ *		by clk_get_bulk().
+ * @return zero on success, or -ve error code.
+ */
+int clk_disable_bulk(struct clk_bulk *bulk);
 
 int soc_clk_dump(void);
 
