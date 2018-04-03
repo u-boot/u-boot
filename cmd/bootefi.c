@@ -468,16 +468,6 @@ U_BOOT_CMD(
 	bootefi_help_text
 );
 
-static int parse_partnum(const char *devnr)
-{
-	const char *str = strchr(devnr, ':');
-	if (str) {
-		str++;
-		return simple_strtoul(str, NULL, 16);
-	}
-	return 0;
-}
-
 void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 {
 	char filename[32] = { 0 }; /* dp->str is u16[32] long */
@@ -485,12 +475,13 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 
 	if (strcmp(dev, "Net")) {
 		struct blk_desc *desc;
+		disk_partition_t fs_partition;
 		int part;
 
-		desc = blk_get_dev(dev, simple_strtol(devnr, NULL, 10));
-		if (!desc)
+		part = blk_get_device_part_str(dev, devnr, &desc, &fs_partition,
+					       1);
+		if (part < 0)
 			return;
-		part = parse_partnum(devnr);
 
 		bootefi_device_path = efi_dp_from_part(desc, part);
 	} else {
