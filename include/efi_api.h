@@ -331,6 +331,8 @@ struct efi_loaded_image {
 
 	/* Below are efi loader private fields */
 #ifdef CONFIG_EFI_LOADER
+	void *reloc_base;
+	aligned_u64 reloc_size;
 	efi_status_t exit_status;
 	struct jmp_buf_data exit_jmp;
 #endif

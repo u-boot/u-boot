@@ -221,6 +221,8 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 	/* Populate the loaded image interface bits */
 	loaded_image_info->image_base = efi;
 	loaded_image_info->image_size = image_size;
+	loaded_image_info->reloc_base = efi_reloc;
+	loaded_image_info->reloc_size = virt_size;
 
 	return entry;
 }
