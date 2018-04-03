@@ -10,7 +10,7 @@
 #include <asm/io.h>
 #include <asm/reset.h>
 
-#define SANDBOX_RESET_SIGNALS 3
+#define SANDBOX_RESET_SIGNALS 101
 
 struct sandbox_reset_signal {
 	bool asserted;
