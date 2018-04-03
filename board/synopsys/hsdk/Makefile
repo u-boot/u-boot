@@ -5,3 +5,5 @@
 #
 
 obj-y	+= hsdk.o
+obj-y	+= env-lib.o
+obj-y	+= clk-lib.o
