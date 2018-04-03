@@ -318,8 +318,8 @@ struct efi_loaded_image {
 	u32 revision;
 	void *parent_handle;
 	struct efi_system_table *system_table;
-	void *device_handle;
-	void *file_path;
+	efi_handle_t device_handle;
+	struct efi_device_path *file_path;
 	void *reserved;
 	u32 load_options_size;
 	void *load_options;
