@@ -59,4 +59,10 @@
 #define CONFIG_SPL_MAX_SIZE		0x40000
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x140000
 
+/* TPL support */
+#ifdef CONFIG_TPL_BUILD
+#define CONFIG_CONS_SCIF0
+#define CONFIG_SH_SCIF_CLK_FREQ		65000000
+#endif
+
 #endif /* __PORTER_H */
