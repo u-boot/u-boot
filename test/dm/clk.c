@@ -101,3 +101,40 @@ static int dm_test_clk(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_clk, DM_TESTF_SCAN_FDT);
+
+static int dm_test_clk_bulk(struct unit_test_state *uts)
+{
+	struct udevice *dev_clk, *dev_test;
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_CLK, "clk-sbox",
+					      &dev_clk));
+	ut_assertok(uclass_get_device_by_name(UCLASS_MISC, "clk-test",
+					      &dev_test));
+	ut_assertok(sandbox_clk_test_get_bulk(dev_test));
+
+	ut_asserteq(0, sandbox_clk_query_enable(dev_clk, SANDBOX_CLK_ID_SPI));
+	ut_asserteq(0, sandbox_clk_query_enable(dev_clk, SANDBOX_CLK_ID_I2C));
+
+	/* Fixed clock does not support enable, thus should not fail */
+	ut_assertok(sandbox_clk_test_enable_bulk(dev_test));
+	ut_asserteq(1, sandbox_clk_query_enable(dev_clk, SANDBOX_CLK_ID_SPI));
+	ut_asserteq(1, sandbox_clk_query_enable(dev_clk, SANDBOX_CLK_ID_I2C));
+
+	/* Fixed clock does not support disable, thus should not fail */
+	ut_assertok(sandbox_clk_test_disable_bulk(dev_test));
+	ut_asserteq(0, sandbox_clk_query_enable(dev_clk, SANDBOX_CLK_ID_SPI));
+	ut_asserteq(0, sandbox_clk_query_enable(dev_clk, SANDBOX_CLK_ID_I2C));
+
+	/* Fixed clock does not support enable, thus should not fail */
+	ut_assertok(sandbox_clk_test_enable_bulk(dev_test));
+	ut_asserteq(1, sandbox_clk_query_enable(dev_clk, SANDBOX_CLK_ID_SPI));
+	ut_asserteq(1, sandbox_clk_query_enable(dev_clk, SANDBOX_CLK_ID_I2C));
+
+	/* Fixed clock does not support disable, thus should not fail */
+	ut_assertok(sandbox_clk_test_release_bulk(dev_test));
+	ut_asserteq(0, sandbox_clk_query_enable(dev_clk, SANDBOX_CLK_ID_SPI));
+	ut_asserteq(0, sandbox_clk_query_enable(dev_clk, SANDBOX_CLK_ID_I2C));
+
+	return 0;
+}
+DM_TEST(dm_test_clk_bulk, DM_TESTF_SCAN_FDT);

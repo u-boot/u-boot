@@ -64,6 +64,14 @@ int sandbox_clk_query_enable(struct udevice *dev, int id);
  */
 int sandbox_clk_test_get(struct udevice *dev);
 /**
+ * sandbox_clk_test_get_bulk - Ask the sandbox clock test device to request its
+ * clocks with the bulk clk API.
+ *
+ * @dev:	The sandbox clock test (client) devivce.
+ * @return:	0 if OK, or a negative error code.
+ */
+int sandbox_clk_test_get_bulk(struct udevice *dev);
+/**
  * sandbox_clk_test_get_rate - Ask the sandbox clock test device to query a
  * clock's rate.
  *
@@ -91,6 +99,14 @@ ulong sandbox_clk_test_set_rate(struct udevice *dev, int id, ulong rate);
  */
 int sandbox_clk_test_enable(struct udevice *dev, int id);
 /**
+ * sandbox_clk_test_enable_bulk - Ask the sandbox clock test device to enable
+ * all clocks in it's clock bulk struct.
+ *
+ * @dev:	The sandbox clock test (client) devivce.
+ * @return:	0 if OK, or a negative error code.
+ */
+int sandbox_clk_test_enable_bulk(struct udevice *dev);
+/**
  * sandbox_clk_test_disable - Ask the sandbox clock test device to disable a
  * clock.
  *
@@ -100,6 +116,14 @@ int sandbox_clk_test_enable(struct udevice *dev, int id);
  */
 int sandbox_clk_test_disable(struct udevice *dev, int id);
 /**
+ * sandbox_clk_test_disable_bulk - Ask the sandbox clock test device to disable
+ * all clocks in it's clock bulk struct.
+ *
+ * @dev:	The sandbox clock test (client) devivce.
+ * @return:	0 if OK, or a negative error code.
+ */
+int sandbox_clk_test_disable_bulk(struct udevice *dev);
+/**
  * sandbox_clk_test_free - Ask the sandbox clock test device to free its
  * clocks.
  *
@@ -107,5 +131,13 @@ int sandbox_clk_test_disable(struct udevice *dev, int id);
  * @return:	0 if OK, or a negative error code.
  */
 int sandbox_clk_test_free(struct udevice *dev);
+/**
+ * sandbox_clk_test_release_bulk - Ask the sandbox clock test device to release
+ * all clocks in it's clock bulk struct.
+ *
+ * @dev:	The sandbox clock test (client) devivce.
+ * @return:	0 if OK, or a negative error code.
+ */
+int sandbox_clk_test_release_bulk(struct udevice *dev);
 
 #endif
