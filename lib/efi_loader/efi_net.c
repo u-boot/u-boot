@@ -54,14 +54,46 @@ static efi_status_t EFIAPI efi_net_stop(struct efi_simple_network *this)
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
+/*
+ * Initialize network adapter and allocate transmit and receive buffers.
+ *
+ * This function implements the Initialize service of the
+ * EFI_SIMPLE_NETWORK_PROTOCOL. See the Unified Extensible Firmware Interface
+ * (UEFI) specification for details.
+ *
+ * @this:	pointer to the protocol instance
+ * @extra_rx:	extra receive buffer to be allocated
+ * @extra_tx:	extra transmit buffer to be allocated
+ * @return:	status code
+ */
 static efi_status_t EFIAPI efi_net_initialize(struct efi_simple_network *this,
 					      ulong extra_rx, ulong extra_tx)
 {
+	int ret;
+	efi_status_t r = EFI_SUCCESS;
+
 	EFI_ENTRY("%p, %lx, %lx", this, extra_rx, extra_tx);
 
-	eth_init();
+	if (!this) {
+		r = EFI_INVALID_PARAMETER;
+		goto error;
+	}
 
-	return EFI_EXIT(EFI_SUCCESS);
+	/* Setup packet buffers */
+	net_init();
+	/* Disable hardware and put it into the reset state */
+	eth_halt();
+	/* Set current device according to environment variables */
+	eth_set_current();
+	/* Get hardware ready for send and receive operations */
+	ret = eth_init();
+	if (ret < 0) {
+		eth_halt();
+		r = EFI_DEVICE_ERROR;
+	}
+
+error:
+	return EFI_EXIT(r);
 }
 
 static efi_status_t EFIAPI efi_net_reset(struct efi_simple_network *this,
