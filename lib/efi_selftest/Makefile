@@ -31,6 +31,10 @@ efi_selftest_util.o \
 efi_selftest_variables.o \
 efi_selftest_watchdog.o
 
+ifeq ($(CONFIG_CMD_BOOTEFI_SELFTEST),y)
+obj-$(CONFIG_CPU_V7) += efi_selftest_unaligned.o
+endif
+
 ifeq ($(CONFIG_BLK)$(CONFIG_PARTITIONS),yy)
 obj-$(CONFIG_CMD_BOOTEFI_SELFTEST) += efi_selftest_block_device.o
 endif
