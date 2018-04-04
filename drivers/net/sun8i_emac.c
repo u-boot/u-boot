@@ -21,6 +21,7 @@
 #include <malloc.h>
 #include <miiphy.h>
 #include <net.h>
+#include <dt-bindings/pinctrl/sun4i-a10.h>
 #ifdef CONFIG_DM_GPIO
 #include <asm-generic/gpio.h>
 #endif
@@ -465,30 +466,55 @@ static int parse_phy_pins(struct udevice *dev)
 	}
 
 	drive = fdt_getprop_u32_default_node(gd->fdt_blob, offset, 0,
-					     "allwinner,drive", 4);
-	pull = fdt_getprop_u32_default_node(gd->fdt_blob, offset, 0,
-					    "allwinner,pull", 0);
+					     "drive-strength", ~0);
+	if (drive != ~0) {
+		if (drive <= 10)
+			drive = SUN4I_PINCTRL_10_MA;
+		else if (drive <= 20)
+			drive = SUN4I_PINCTRL_20_MA;
+		else if (drive <= 30)
+			drive = SUN4I_PINCTRL_30_MA;
+		else
+			drive = SUN4I_PINCTRL_40_MA;
+	} else {
+		drive = fdt_getprop_u32_default_node(gd->fdt_blob, offset, 0,
+						     "allwinner,drive", 4);
+	}
+
+	if (fdt_get_property(gd->fdt_blob, offset, "bias-pull-up", NULL))
+		pull = SUN4I_PINCTRL_PULL_UP;
+	else if (fdt_get_property(gd->fdt_blob, offset, "bias-disable", NULL))
+		pull = SUN4I_PINCTRL_NO_PULL;
+	else if (fdt_get_property(gd->fdt_blob, offset, "bias-pull-down", NULL))
+		pull = SUN4I_PINCTRL_PULL_DOWN;
+	else
+		pull = fdt_getprop_u32_default_node(gd->fdt_blob, offset, 0,
+						    "allwinner,pull", 0);
 	for (i = 0; ; i++) {
 		int pin;
 
 		pin_name = fdt_stringlist_get(gd->fdt_blob, offset,
 					      "allwinner,pins", i, NULL);
-		if (!pin_name)
-			break;
-		if (pin_name[0] != 'P')
+		if (!pin_name) {
+			pin_name = fdt_stringlist_get(gd->fdt_blob, offset,
+						      "pins", i, NULL);
+			if (!pin_name)
+				break;
+		}
+
+		pin = sunxi_name_to_gpio(pin_name);
+		if (pin < 0)
 			continue;
-		pin = (pin_name[1] - 'A') << 5;
-		if (pin >= 26 << 5)
-			continue;
-		pin += simple_strtol(&pin_name[2], NULL, 10);
 
 		sunxi_gpio_set_cfgpin(pin, SUN8I_GPD8_GMAC);
-		sunxi_gpio_set_drv(pin, drive);
-		sunxi_gpio_set_pull(pin, pull);
+		if (drive != ~0)
+			sunxi_gpio_set_drv(pin, drive);
+		if (pull != ~0)
+			sunxi_gpio_set_pull(pin, pull);
 	}
 
 	if (!i) {
-		printf("WARNING: emac: cannot find allwinner,pins property\n");
+		printf("WARNING: emac: cannot find pins property\n");
 		return -2;
 	}
 
