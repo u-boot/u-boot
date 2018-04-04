@@ -352,6 +352,7 @@ static inline void ascii2unicode(u16 *unicode, const char *ascii)
 {
 	while (*ascii)
 		*(unicode++) = *(ascii++);
+	*unicode = 0;
 }
 
 static inline int guidcmp(const efi_guid_t *g1, const efi_guid_t *g2)
