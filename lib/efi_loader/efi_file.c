@@ -12,6 +12,9 @@
 #include <malloc.h>
 #include <fs.h>
 
+/* GUID for file system information */
+const efi_guid_t efi_file_system_info_guid = EFI_FILE_SYSTEM_INFO_GUID;
+
 struct file_system {
 	struct efi_simple_file_system_protocol base;
 	struct efi_device_path *dp;
@@ -472,6 +475,41 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 			info->attribute |= EFI_FILE_DIRECTORY;
 
 		ascii2unicode((u16 *)info->file_name, filename);
+	} else if (!guidcmp(info_type, &efi_file_system_info_guid)) {
+		struct efi_file_system_info *info = buffer;
+		disk_partition_t part;
+		efi_uintn_t required_size;
+		int r;
+
+		if (fh->fs->part >= 1)
+			r = part_get_info(fh->fs->desc, fh->fs->part, &part);
+		else
+			r = part_get_info_whole_disk(fh->fs->desc, &part);
+		if (r < 0) {
+			ret = EFI_DEVICE_ERROR;
+			goto error;
+		}
+		required_size = sizeof(info) + 2 *
+				(strlen((const char *)part.name) + 1);
+		if (*buffer_size < required_size) {
+			*buffer_size = required_size;
+			ret = EFI_BUFFER_TOO_SMALL;
+			goto error;
+		}
+
+		memset(info, 0, required_size);
+
+		info->size = required_size;
+		info->read_only = true;
+		info->volume_size = part.size * part.blksz;
+		info->free_space = 0;
+		info->block_size = part.blksz;
+		/*
+		 * TODO: The volume label is not available in U-Boot.
+		 * Use the partition name as substitute.
+		 */
+		ascii2unicode((u16 *)info->volume_label,
+			      (const char *)part.name);
 	} else {
 		ret = EFI_UNSUPPORTED;
 	}

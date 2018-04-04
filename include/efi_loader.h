@@ -112,6 +112,8 @@ extern const efi_guid_t efi_guid_loaded_image;
 extern const efi_guid_t efi_guid_device_path_to_text_protocol;
 extern const efi_guid_t efi_simple_file_system_protocol_guid;
 extern const efi_guid_t efi_file_info_guid;
+/* GUID for file system information */
+extern const efi_guid_t efi_file_system_info_guid;
 extern const efi_guid_t efi_guid_device_path_utilities_protocol;
 
 extern unsigned int __efi_runtime_start, __efi_runtime_stop;

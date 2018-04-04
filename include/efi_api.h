@@ -889,6 +889,10 @@ struct efi_simple_file_system_protocol {
 	EFI_GUID(0x9576e92, 0x6d3f, 0x11d2, \
 		 0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
 
+#define EFI_FILE_SYSTEM_INFO_GUID \
+	EFI_GUID(0x09576e93, 0x6d3f, 0x11d2, \
+		 0x8e, 0x39, 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
+
 #define EFI_FILE_MODE_READ	0x0000000000000001
 #define EFI_FILE_MODE_WRITE	0x0000000000000002
 #define EFI_FILE_MODE_CREATE	0x8000000000000000
@@ -910,6 +914,15 @@ struct efi_file_info {
 	struct efi_time modification_time;
 	u64 attribute;
 	s16 file_name[0];
+};
+
+struct efi_file_system_info {
+	u64 size;
+	u8 read_only;
+	u64 volume_size;
+	u64 free_space;
+	u32 block_size;
+	u16 volume_label[0];
 };
 
 #define EFI_DRIVER_BINDING_PROTOCOL_GUID \
