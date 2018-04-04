@@ -95,9 +95,11 @@ config NAND_PXA3XX
 
 config NAND_SUNXI
 	bool "Support for NAND on Allwinner SoCs"
-	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	default ARCH_SUNXI
+	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I || MACH_SUN8I
 	select SYS_NAND_SELF_INIT
 	select SYS_NAND_U_BOOT_LOCATIONS
+	select SPL_NAND_SUPPORT
 	imply CMD_NAND
 	---help---
 	Enable support for NAND. This option enables the standard and
@@ -165,6 +167,28 @@ config NAND_ZYNQ_USE_BOOTLOADER1_TIMINGS
 	  the NAND timing from 1st stage bootloader.
 
 comment "Generic NAND options"
+
+config SYS_NAND_BLOCK_SIZE
+	hex "NAND chip eraseblock size"
+	depends on ARCH_SUNXI
+	help
+	  Number of data bytes in one eraseblock for the NAND chip on the
+	  board. This is the multiple of NAND_PAGE_SIZE and the number of
+	  pages.
+
+config SYS_NAND_PAGE_SIZE
+	hex "NAND chip page size"
+	depends on ARCH_SUNXI
+	help
+	  Number of data bytes in one page for the NAND chip on the
+	  board, not including the OOB area.
+
+config SYS_NAND_OOBSIZE
+	hex "NAND chip OOB size"
+	depends on ARCH_SUNXI
+	help
+	  Number of bytes in the Out-Of-Band area for the NAND chip on
+	  the board.
 
 # Enhance depends when converting drivers to Kconfig which use this config
 # option (mxc_nand, ndfc, omap_gpmc).

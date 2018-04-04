@@ -55,6 +55,7 @@
 	aliases {
 		serial0 = &uart0;
 		/* ethernet0 is the H3 emac, defined in sun8i-h3.dtsi */
+		ethernet0 = &emac;
 		ethernet1 = &rtl8189;
 	};
 
@@ -110,14 +111,10 @@
 };
 
 &emac {
-	phy = <&phy1>;
+	phy-handle = <&int_mii_phy>;
 	phy-mode = "mii";
-	allwinner,use-internal-phy;
 	allwinner,leds-active-low;
 	status = "okay";
-	phy1: ethernet-phy@1 {
-		reg = <1>;
-	};
 };
 
 &ir {

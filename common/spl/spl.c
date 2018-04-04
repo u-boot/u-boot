@@ -127,8 +127,14 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 	ulong u_boot_pos = binman_sym(ulong, u_boot_any, pos);
 
 	spl_image->size = CONFIG_SYS_MONITOR_LEN;
-	if (u_boot_pos != BINMAN_SYM_MISSING) {
-		/* biman does not support separate entry addresses at present */
+
+	/*
+	 * Binman error cases: address of the end of the previous region or the
+	 * start of the image's entry area (usually 0) if there is no previous
+	 * region.
+	 */
+	if (u_boot_pos && u_boot_pos != BINMAN_SYM_MISSING) {
+		/* Binman does not support separated entry addresses */
 		spl_image->entry_point = u_boot_pos;
 		spl_image->load_addr = u_boot_pos;
 	} else {

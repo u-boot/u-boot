@@ -38,6 +38,12 @@ the root of your U-Boot build directory (or create a symbolic link).
 $ export BL31=/src/arm-trusted-firmware/build/sun50iw1p1/debug/bl31.bin
   (adjust the actual path accordingly)
 
+If you run into size issues with the resulting U-Boot image file, it might
+help to use a release build, by using "DEBUG=0" when building bl31.bin.
+As sometimes the ATF build process is a bit picky about the toolchain used,
+or if you can't be bothered with building ATF, there are known working
+binaries in the firmware repository[3], purely for convenience reasons.
+
  SPL/U-Boot
 ------------
 Both U-Boot proper and the SPL are using the 64-bit mode. As the boot ROM

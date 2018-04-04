@@ -152,7 +152,6 @@ config ENV_IS_IN_MMC
 	bool "Environment in an MMC device"
 	depends on !CHAIN_OF_TRUST
 	depends on MMC
-	default y if ARCH_SUNXI
 	default y if ARCH_EXYNOS4
 	default y if MX6SX || MX7D
 	default y if TEGRA30 || TEGRA124
