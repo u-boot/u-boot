@@ -264,7 +264,7 @@ F:	drivers/spi/zynq_qspi.c
 F:	drivers/spi/zynq_spi.c
 F:	drivers/usb/host/ehci-zynq.c
 F:	drivers/watchdog/cdns_wdt.c
-F:	include/zynqmp.h
+F:	include/zynqpl.h
 F:	tools/zynqimage.c
 N:	zynq
 
@@ -288,7 +288,7 @@ F:	drivers/spi/zynq_qspi.c
 F:	drivers/spi/zynq_spi.c
 F:	drivers/usb/host/ehci-zynq.c
 F:	drivers/watchdog/cdns_wdt.c
-F:	include/zynqmp.h
+F:	include/zynqmppl.h
 F:	tools/zynqimage.c
 N:	zynqmp
 
