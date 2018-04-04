@@ -279,7 +279,7 @@ static int sun8i_emac_set_syscon(struct emac_eth_dev *priv)
 	int ret;
 	u32 reg;
 
-	reg = readl(priv->sysctl_reg);
+	reg = readl(priv->sysctl_reg + 0x30);
 
 	if (priv->variant == H3_EMAC) {
 		ret = sun8i_emac_set_syscon_ephy(priv, &reg);
@@ -310,7 +310,7 @@ static int sun8i_emac_set_syscon(struct emac_eth_dev *priv)
 		return -EINVAL;
 	}
 
-	writel(reg, priv->sysctl_reg);
+	writel(reg, priv->sysctl_reg + 0x30);
 
 	return 0;
 }
@@ -806,17 +806,52 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 #endif
 
 	pdata->iobase = devfdt_get_addr_name(dev, "emac");
+	if (pdata->iobase == FDT_ADDR_T_NONE)
+		pdata->iobase = devfdt_get_addr(dev);
+	if (pdata->iobase == FDT_ADDR_T_NONE) {
+		debug("%s: Cannot find MAC base address\n", __func__);
+		return -EINVAL;
+	}
+
 	priv->sysctl_reg = devfdt_get_addr_name(dev, "syscon");
+	if (priv->sysctl_reg == FDT_ADDR_T_NONE) {
+		const fdt32_t *reg;
+
+		offset = fdtdec_lookup_phandle(gd->fdt_blob, node, "syscon");
+		if (offset < 0) {
+			debug("%s: cannot find syscon node\n", __func__);
+			return -EINVAL;
+		}
+		reg = fdt_getprop(gd->fdt_blob, offset, "reg", NULL);
+		if (!reg) {
+			debug("%s: cannot find reg property in syscon node\n",
+			      __func__);
+			return -EINVAL;
+		}
+		priv->sysctl_reg = fdt_translate_address((void *)gd->fdt_blob,
+							 offset, reg);
+	} else {
+		priv->sysctl_reg -= 0x30;
+	}
+
+	if (priv->sysctl_reg == FDT_ADDR_T_NONE) {
+		debug("%s: Cannot find syscon base address\n", __func__);
+		return -EINVAL;
+	}
 
 	pdata->phy_interface = -1;
 	priv->phyaddr = -1;
 	priv->use_internal_phy = false;
 
-	offset = fdtdec_lookup_phandle(gd->fdt_blob, node,
-				       "phy");
-	if (offset > 0)
-		priv->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg",
-					       -1);
+	offset = fdtdec_lookup_phandle(gd->fdt_blob, node, "phy");
+	if (offset < 0)
+		offset = fdtdec_lookup_phandle(gd->fdt_blob, node,
+					       "phy-handle");
+	if (offset < 0) {
+		debug("%s: Cannot find PHY address\n", __func__);
+		return -EINVAL;
+	}
+	priv->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg", -1);
 
 	phy_mode = fdt_getprop(gd->fdt_blob, node, "phy-mode", NULL);
 
@@ -839,8 +874,16 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 
 	if (priv->variant == H3_EMAC) {
 		if (fdt_getprop(gd->fdt_blob, node,
-				"allwinner,use-internal-phy", NULL))
+				"allwinner,use-internal-phy", NULL)) {
 			priv->use_internal_phy = true;
+		} else {
+			int parent = fdt_parent_offset(gd->fdt_blob, offset);
+
+			if (parent >= 0 &&
+			    !fdt_node_check_compatible(gd->fdt_blob, parent,
+					"allwinner,sun8i-h3-mdio-internal"))
+				priv->use_internal_phy = true;
+		}
 	}
 
 	priv->interface = pdata->phy_interface;
