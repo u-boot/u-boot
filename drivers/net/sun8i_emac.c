@@ -456,7 +456,7 @@ static int parse_phy_pins(struct udevice *dev)
 {
 	int offset;
 	const char *pin_name;
-	int drive, pull, i;
+	int drive, pull = SUN4I_PINCTRL_NO_PULL, i;
 
 	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev_of_offset(dev),
 				       "pinctrl-0");
@@ -476,31 +476,20 @@ static int parse_phy_pins(struct udevice *dev)
 			drive = SUN4I_PINCTRL_30_MA;
 		else
 			drive = SUN4I_PINCTRL_40_MA;
-	} else {
-		drive = fdt_getprop_u32_default_node(gd->fdt_blob, offset, 0,
-						     "allwinner,drive", 4);
 	}
 
 	if (fdt_get_property(gd->fdt_blob, offset, "bias-pull-up", NULL))
 		pull = SUN4I_PINCTRL_PULL_UP;
-	else if (fdt_get_property(gd->fdt_blob, offset, "bias-disable", NULL))
-		pull = SUN4I_PINCTRL_NO_PULL;
 	else if (fdt_get_property(gd->fdt_blob, offset, "bias-pull-down", NULL))
 		pull = SUN4I_PINCTRL_PULL_DOWN;
-	else
-		pull = fdt_getprop_u32_default_node(gd->fdt_blob, offset, 0,
-						    "allwinner,pull", 0);
+
 	for (i = 0; ; i++) {
 		int pin;
 
 		pin_name = fdt_stringlist_get(gd->fdt_blob, offset,
-					      "allwinner,pins", i, NULL);
-		if (!pin_name) {
-			pin_name = fdt_stringlist_get(gd->fdt_blob, offset,
-						      "pins", i, NULL);
-			if (!pin_name)
-				break;
-		}
+					      "pins", i, NULL);
+		if (!pin_name)
+			break;
 
 		pin = sunxi_name_to_gpio(pin_name);
 		if (pin < 0)
@@ -798,6 +787,7 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 	struct eth_pdata *pdata = &sun8i_pdata->eth_pdata;
 	struct emac_eth_dev *priv = dev_get_priv(dev);
 	const char *phy_mode;
+	const fdt32_t *reg;
 	int node = dev_of_offset(dev);
 	int offset = 0;
 #ifdef CONFIG_DM_GPIO
@@ -805,35 +795,25 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 	int ret = 0;
 #endif
 
-	pdata->iobase = devfdt_get_addr_name(dev, "emac");
-	if (pdata->iobase == FDT_ADDR_T_NONE)
-		pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = devfdt_get_addr(dev);
 	if (pdata->iobase == FDT_ADDR_T_NONE) {
 		debug("%s: Cannot find MAC base address\n", __func__);
 		return -EINVAL;
 	}
 
-	priv->sysctl_reg = devfdt_get_addr_name(dev, "syscon");
-	if (priv->sysctl_reg == FDT_ADDR_T_NONE) {
-		const fdt32_t *reg;
-
-		offset = fdtdec_lookup_phandle(gd->fdt_blob, node, "syscon");
-		if (offset < 0) {
-			debug("%s: cannot find syscon node\n", __func__);
-			return -EINVAL;
-		}
-		reg = fdt_getprop(gd->fdt_blob, offset, "reg", NULL);
-		if (!reg) {
-			debug("%s: cannot find reg property in syscon node\n",
-			      __func__);
-			return -EINVAL;
-		}
-		priv->sysctl_reg = fdt_translate_address((void *)gd->fdt_blob,
-							 offset, reg);
-	} else {
-		priv->sysctl_reg -= 0x30;
+	offset = fdtdec_lookup_phandle(gd->fdt_blob, node, "syscon");
+	if (offset < 0) {
+		debug("%s: cannot find syscon node\n", __func__);
+		return -EINVAL;
 	}
-
+	reg = fdt_getprop(gd->fdt_blob, offset, "reg", NULL);
+	if (!reg) {
+		debug("%s: cannot find reg property in syscon node\n",
+		      __func__);
+		return -EINVAL;
+	}
+	priv->sysctl_reg = fdt_translate_address((void *)gd->fdt_blob,
+						 offset, reg);
 	if (priv->sysctl_reg == FDT_ADDR_T_NONE) {
 		debug("%s: Cannot find syscon base address\n", __func__);
 		return -EINVAL;
@@ -843,10 +823,7 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 	priv->phyaddr = -1;
 	priv->use_internal_phy = false;
 
-	offset = fdtdec_lookup_phandle(gd->fdt_blob, node, "phy");
-	if (offset < 0)
-		offset = fdtdec_lookup_phandle(gd->fdt_blob, node,
-					       "phy-handle");
+	offset = fdtdec_lookup_phandle(gd->fdt_blob, node, "phy-handle");
 	if (offset < 0) {
 		debug("%s: Cannot find PHY address\n", __func__);
 		return -EINVAL;
@@ -873,17 +850,12 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 	}
 
 	if (priv->variant == H3_EMAC) {
-		if (fdt_getprop(gd->fdt_blob, node,
-				"allwinner,use-internal-phy", NULL)) {
-			priv->use_internal_phy = true;
-		} else {
-			int parent = fdt_parent_offset(gd->fdt_blob, offset);
+		int parent = fdt_parent_offset(gd->fdt_blob, offset);
 
-			if (parent >= 0 &&
-			    !fdt_node_check_compatible(gd->fdt_blob, parent,
-					"allwinner,sun8i-h3-mdio-internal"))
-				priv->use_internal_phy = true;
-		}
+		if (parent >= 0 &&
+		    !fdt_node_check_compatible(gd->fdt_blob, parent,
+				"allwinner,sun8i-h3-mdio-internal"))
+			priv->use_internal_phy = true;
 	}
 
 	priv->interface = pdata->phy_interface;
