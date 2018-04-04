@@ -611,7 +611,7 @@ static inline ino_t parent_ino(struct dentry *dentry)
 /* misc.h */
 #define mutex_lock_nested(...)
 #define mutex_unlock_nested(...)
-#define mutex_is_locked(...)	0
+#define mutex_is_locked(...)	1
 #endif
 
 /* Version of this UBIFS implementation */
