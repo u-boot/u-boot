@@ -4,25 +4,38 @@
 	};
 
 	soc {
-		emac: ethernet@01c30000 {
+		syscon: syscon@1c00000 {
+			compatible = "allwinner,sun50i-a64-system-controller",
+				     "syscon";
+			reg = <0x01c00000 0x1000>;
+		};
+
+		emac: ethernet@1c30000 {
 			compatible = "allwinner,sun50i-a64-emac";
-			reg = <0x01c30000 0x2000>, <0x01c00030 0x4>;
-			reg-names = "emac", "syscon";
+			syscon = <&syscon>;
+			reg = <0x01c30000 0x10000>;
 			interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "macirq";
 			resets = <&ccu RST_BUS_EMAC>;
-			reset-names = "ahb";
+			reset-names = "stmmaceth";
 			clocks = <&ccu CLK_BUS_EMAC>;
-			clock-names = "ahb";
+			clock-names = "stmmaceth";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&rgmii_pins>;
 			phy-mode = "rgmii";
-			phy = <&phy1>;
+			phy-handle = <&ext_rgmii_phy>;
 			status = "okay";
 
-			phy1: ethernet-phy@1 {
-				reg = <1>;
+			mdio: mdio {
+				compatible = "snps,dwmac-mdio";
+				#address-cells = <1>;
+				#size-cells = <0>;
+				ext_rgmii_phy: ethernet-phy@1 {
+					compatible = "ethernet-phy-ieee802.3-c22";
+					reg = <1>;
+				};
 			};
 		};
 	};
@@ -30,21 +43,17 @@
 
 &pio {
 	rmii_pins: rmii_pins {
-		allwinner,pins = "PD10", "PD11", "PD13", "PD14",
-				 "PD17", "PD18", "PD19", "PD20",
-				 "PD22", "PD23";
-		allwinner,function = "emac";
-		allwinner,drive = <3>;
-		allwinner,pull = <0>;
+		pins = "PD10", "PD11", "PD13", "PD14", "PD17",
+		       "PD18", "PD19", "PD20", "PD22", "PD23";
+		function = "emac";
+		drive-strength = <40>;
 	};
 
 	rgmii_pins: rgmii_pins {
-		allwinner,pins = "PD8", "PD9", "PD10", "PD11",
-				 "PD12", "PD13", "PD15",
-				 "PD16", "PD17", "PD18", "PD19",
-				 "PD20", "PD21", "PD22", "PD23";
-		allwinner,function = "emac";
-		allwinner,drive = <3>;
-		allwinner,pull = <0>;
+		pins = "PD8", "PD9", "PD10", "PD11", "PD12",
+		       "PD13", "PD15", "PD16", "PD17", "PD18",
+		       "PD19", "PD20", "PD21", "PD22", "PD23";
+		function = "emac";
+		drive-strength = <40>;
 	};
 };
