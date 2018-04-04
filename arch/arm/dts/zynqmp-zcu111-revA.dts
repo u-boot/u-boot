@@ -630,19 +630,6 @@
 			slew-rate = <SLEW_RATE_SLOW>;
 			io-standard = <IO_STANDARD_LVCMOS18>;
 		};
-
-		mux-wp {
-			groups = "sdio1_wp_0_grp";
-			function = "sdio1_wp";
-		};
-
-		conf-wp {
-			groups = "sdio1_wp_0_grp";
-			bias-high-impedance;
-			bias-pull-up;
-			slew-rate = <SLEW_RATE_SLOW>;
-			io-standard = <IO_STANDARD_LVCMOS18>;
-		};
 	};
 
 	pinctrl_gpio_default: gpio-default {
@@ -735,6 +722,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_sdhci1_default>;
 	no-1-8-v;
+	disable-wp;
 	xlnx,mio_bank = <1>;
 };
 
