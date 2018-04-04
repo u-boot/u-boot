@@ -91,4 +91,11 @@ config RESET_MESON
 	help
 	  Support for reset controller on Amlogic Meson SoC.
 
+config RESET_SOCFPGA
+	bool "Reset controller driver for SoCFPGA"
+	depends on DM_RESET && ARCH_SOCFPGA
+	default y
+	help
+	  Support for reset controller on SoCFPGA platform.
+
 endmenu
