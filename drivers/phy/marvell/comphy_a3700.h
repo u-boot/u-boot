@@ -7,7 +7,6 @@
 #define _COMPHY_A3700_H_
 
 #include "comphy_core.h"
-#include "comphy_hpipe.h"
 
 #define MVEBU_REG(offs)			\
 	((void __iomem *)(ulong)MVEBU_REGISTER(offs))

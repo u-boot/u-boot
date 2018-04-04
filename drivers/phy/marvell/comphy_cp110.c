@@ -14,15 +14,10 @@
 #include <linux/delay.h>
 
 #include "comphy_core.h"
-#include "comphy_hpipe.h"
 #include "sata.h"
 #include "utmi_phy.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#define SD_ADDR(base, lane)			(base + 0x1000 * lane)
-#define HPIPE_ADDR(base, lane)			(SD_ADDR(base, lane) + 0x800)
-#define COMPHY_ADDR(base, lane)			(base + 0x28 * lane)
 
 /* Firmware related definitions used for SMC calls */
 #define MV_SIP_COMPHY_POWER_ON	0x82000001
