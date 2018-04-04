@@ -56,6 +56,18 @@
 	status = "okay";
 };
 
+&i2c0 {
+	status = "okay";
+
+	dxl345: adxl345@0 {
+		compatible = "adi,adxl345";
+		reg = <0x53>;
+
+		interrupt-parent = <&portc>;
+		interrupts = <3 2>;
+	};
+};
+
 &mmc0 {
 	status = "okay";
 	u-boot,dm-pre-reloc;
