@@ -429,7 +429,7 @@ error:
 }
 
 static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
-					    efi_guid_t *info_type,
+					    const efi_guid_t *info_type,
 					    efi_uintn_t *buffer_size,
 					    void *buffer)
 {
@@ -481,7 +481,7 @@ error:
 }
 
 static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
-					    efi_guid_t *info_type,
+					    const efi_guid_t *info_type,
 					    efi_uintn_t buffer_size,
 					    void *buffer)
 {
