@@ -426,7 +426,6 @@ menu "Memory commands"
 config CMD_CRC32
 	bool "crc32"
 	select HASH
-	default n if ARCH_SUNXI
 	default y
 	help
 	  Compute CRC32.
@@ -568,7 +567,6 @@ config CMD_LZMADEC
 
 config CMD_UNZIP
 	bool "unzip"
-	default n if ARCH_SUNXI
 	default y if CMD_BOOTI
 	help
 	  Uncompress a zip-compressed memory region.
@@ -780,14 +778,12 @@ config CMD_I2C
 
 config CMD_LOADB
 	bool "loadb"
-	default n if ARCH_SUNXI
 	default y
 	help
 	  Load a binary file over serial line.
 
 config CMD_LOADS
 	bool "loads"
-	default n if ARCH_SUNXI
 	default y
 	help
 	  Load an S-Record file over serial line
@@ -1187,7 +1183,6 @@ config CMD_GETTIME
 # TODO: rename to CMD_SLEEP
 config CMD_MISC
 	bool "sleep"
-	default n if ARCH_SUNXI
 	default y
 	help
 	  Delay execution for some time
