@@ -19,6 +19,7 @@
 #define DEVCFG_CTRL_PCFG_PROG_B		0x40000000
 #define DEVCFG_CTRL_PCFG_AES_EFUSE_MASK	0x00001000
 #define DEVCFG_CTRL_PCAP_RATE_EN_MASK	0x02000000
+#define DEVCFG_CTRL_PCFG_AES_EN_MASK	0x00000E00
 #define DEVCFG_ISR_FATAL_ERROR_MASK	0x00740040
 #define DEVCFG_ISR_ERROR_FLAGS_MASK	0x00340840
 #define DEVCFG_ISR_RX_FIFO_OV		0x00040000
@@ -513,6 +514,12 @@ int zynq_decrypt_load(u32 srcaddr, u32 srclen, u32 dstaddr, u32 dstlen,
 	if ((srcaddr < SZ_1M) || (dstaddr < SZ_1M)) {
 		printf("%s: src and dst addr should be > 1M\n",
 		       __func__);
+		return FPGA_FAIL;
+	}
+
+	/* Check AES engine is enabled */
+	if (!(readl(&devcfg_base->ctrl) & DEVCFG_CTRL_PCFG_AES_EN_MASK)) {
+		printf("%s: AES engine is not enabled\n", __func__);
 		return FPGA_FAIL;
 	}
 
