@@ -180,6 +180,8 @@ int arch_cpu_init(void)
 	isolate_resource();
 #endif
 
+	init_snvs();
+
 	return 0;
 }
 
