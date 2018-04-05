@@ -308,6 +308,10 @@ efi_status_t efi_setup_loaded_image(
 			struct efi_device_path *file_path);
 efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
 				      void **buffer);
+/* Print information about a loaded image */
+efi_status_t efi_print_image_info(struct efi_loaded_image *image, void *pc);
+/* Print information about all loaded images */
+void efi_print_image_infos(void *pc);
 
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
 extern void *efi_bounce_buffer;
@@ -425,6 +429,7 @@ static inline void efi_restore_gd(void) { }
 static inline void efi_set_bootdev(const char *dev, const char *devnr,
 				   const char *path) { }
 static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
+static inline void efi_print_image_infos(void *pc) { }
 
 #endif /* CONFIG_EFI_LOADER && !CONFIG_SPL_BUILD */
 

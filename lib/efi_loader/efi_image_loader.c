@@ -22,6 +22,52 @@ const efi_guid_t efi_simple_file_system_protocol_guid =
 		EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
 const efi_guid_t efi_file_info_guid = EFI_FILE_INFO_GUID;
 
+/*
+ * Print information about a loaded image.
+ *
+ * If the program counter is located within the image the offset to the base
+ * address is shown.
+ *
+ * @image:	loaded image
+ * @pc:		program counter (use NULL to suppress offset output)
+ * @return:	status code
+ */
+efi_status_t efi_print_image_info(struct efi_loaded_image *image, void *pc)
+{
+	if (!image)
+		return EFI_INVALID_PARAMETER;
+	printf("UEFI image");
+	printf(" [0x%p:0x%p]",
+	       image->reloc_base, image->reloc_base + image->reloc_size - 1);
+	if (pc && pc >= image->reloc_base &&
+	    pc < image->reloc_base + image->reloc_size)
+		printf(" pc=0x%zx", pc - image->reloc_base);
+	if (image->file_path)
+		printf(" '%pD'", image->file_path);
+	printf("\n");
+	return EFI_SUCCESS;
+}
+
+/*
+ * Print information about all loaded images.
+ *
+ * @pc:		program counter (use NULL to suppress offset output)
+ */
+void efi_print_image_infos(void *pc)
+{
+	struct efi_object *efiobj;
+	struct efi_handler *handler;
+
+	list_for_each_entry(efiobj, &efi_obj_list, link) {
+		list_for_each_entry(handler, &efiobj->protocols, link) {
+			if (!guidcmp(handler->guid, &efi_guid_loaded_image)) {
+				efi_print_image_info(
+					handler->protocol_interface, pc);
+			}
+		}
+	}
+}
+
 static efi_status_t efi_loader_relocate(const IMAGE_BASE_RELOCATION *rel,
 			unsigned long rel_size, void *efi_reloc)
 {
