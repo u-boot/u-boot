@@ -165,13 +165,6 @@
 /* enable preboot to be loaded before CONFIG_BOOTDELAY */
 #define CONFIG_PREBOOT
 
-/* Boot configuration */
-/* default boot is according to the bootmode switch settings */
-#if defined(CONFIG_CMD_ZYNQ_RSA)
-#define CONFIG_BOOTCOMMAND		"run rsa_$modeboot || run distro_bootcmd"
-#else
-#define CONFIG_BOOTCOMMAND		"run $modeboot || run distro_bootcmd"
-#endif
 #define CONFIG_SYS_LOAD_ADDR		0 /* default? */
 
 /* Distro boot enablement */
