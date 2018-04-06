@@ -51,7 +51,7 @@
 
 void write_sparse_image(
 		struct sparse_storage *info, const char *part_name,
-		void *data, unsigned sz)
+		void *data)
 {
 	lbaint_t blk;
 	lbaint_t blkcnt;

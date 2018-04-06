@@ -342,8 +342,7 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 		       sparse.start);
 
 		sparse.priv = &sparse_priv;
-		write_sparse_image(&sparse, cmd, download_buffer,
-				   download_bytes);
+		write_sparse_image(&sparse, cmd, download_buffer);
 	} else {
 		write_raw_image(dev_desc, &info, cmd, download_buffer,
 				download_bytes);
