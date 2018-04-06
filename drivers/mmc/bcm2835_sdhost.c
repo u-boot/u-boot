@@ -35,6 +35,7 @@
 #include <dm.h>
 #include <mmc.h>
 #include <asm/arch/msg.h>
+#include <asm/arch/mbox.h>
 #include <asm/unaligned.h>
 #include <linux/compat.h>
 #include <linux/io.h>
@@ -941,7 +942,7 @@ static int bcm2835_probe(struct udevice *dev)
 	if (!host->ioaddr)
 		return -ENOMEM;
 
-	host->max_clk = bcm2835_get_mmc_clock();
+	host->max_clk = bcm2835_get_mmc_clock(BCM2835_MBOX_CLOCK_ID_CORE);
 
 	bcm2835_add_host(host);
 
