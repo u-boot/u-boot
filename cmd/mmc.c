@@ -8,6 +8,8 @@
 #include <command.h>
 #include <console.h>
 #include <mmc.h>
+#include <sparse_format.h>
+#include <image-sparse.h>
 
 static int curr_device = -1;
 
@@ -307,6 +309,71 @@ static int do_mmc_read(cmd_tbl_t *cmdtp, int flag,
 }
 
 #if CONFIG_IS_ENABLED(MMC_WRITE)
+#if defined(CONFIG_FASTBOOT_FLASH)
+static lbaint_t mmc_sparse_write(struct sparse_storage *info, lbaint_t blk,
+				 lbaint_t blkcnt, const void *buffer)
+{
+	struct blk_desc *dev_desc = info->priv;
+
+	return blk_dwrite(dev_desc, blk, blkcnt, buffer);
+}
+
+static lbaint_t mmc_sparse_reserve(struct sparse_storage *info,
+				   lbaint_t blk, lbaint_t blkcnt)
+{
+	return blkcnt;
+}
+
+static int do_mmc_sparse_write(cmd_tbl_t *cmdtp, int flag,
+			       int argc, char * const argv[])
+{
+	struct sparse_storage sparse;
+	struct blk_desc *dev_desc;
+	struct mmc *mmc;
+	char dest[11];
+	void *addr;
+	u32 blk;
+
+	if (argc != 3)
+		return CMD_RET_USAGE;
+
+	addr = (void *)simple_strtoul(argv[1], NULL, 16);
+	blk = simple_strtoul(argv[2], NULL, 16);
+
+	if (!is_sparse_image(addr)) {
+		printf("Not a sparse image\n");
+		return CMD_RET_FAILURE;
+	}
+
+	mmc = init_mmc_device(curr_device, false);
+	if (!mmc)
+		return CMD_RET_FAILURE;
+
+	printf("\nMMC Sparse write: dev # %d, block # %d ... ",
+	       curr_device, blk);
+
+	if (mmc_getwp(mmc) == 1) {
+		printf("Error: card is write protected!\n");
+		return CMD_RET_FAILURE;
+	}
+
+	dev_desc = mmc_get_blk_desc(mmc);
+	sparse.priv = dev_desc;
+	sparse.blksz = 512;
+	sparse.start = blk;
+	sparse.size = dev_desc->lba - blk;
+	sparse.write = mmc_sparse_write;
+	sparse.reserve = mmc_sparse_reserve;
+	sparse.mssg = NULL;
+	sprintf(dest, "0x" LBAF, sparse.start * sparse.blksz);
+
+	if (write_sparse_image(&sparse, dest, addr))
+		return CMD_RET_FAILURE;
+	else
+		return CMD_RET_SUCCESS;
+}
+#endif
+
 static int do_mmc_write(cmd_tbl_t *cmdtp, int flag,
 			int argc, char * const argv[])
 {
@@ -801,6 +868,9 @@ static cmd_tbl_t cmd_mmc[] = {
 	U_BOOT_CMD_MKENT(read, 4, 1, do_mmc_read, "", ""),
 #if CONFIG_IS_ENABLED(MMC_WRITE)
 	U_BOOT_CMD_MKENT(write, 4, 0, do_mmc_write, "", ""),
+#if defined(CONFIG_FASTBOOT_FLASH)
+	U_BOOT_CMD_MKENT(swrite, 3, 0, do_mmc_sparse_write, "", ""),
+#endif
 	U_BOOT_CMD_MKENT(erase, 3, 0, do_mmc_erase, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(rescan, 1, 1, do_mmc_rescan, "", ""),
@@ -857,6 +927,9 @@ U_BOOT_CMD(
 	"info - display info of the current MMC device\n"
 	"mmc read addr blk# cnt\n"
 	"mmc write addr blk# cnt\n"
+#if defined(CONFIG_FASTBOOT_FLASH)
+	"mmc swrite addr blk#\n"
+#endif
 	"mmc erase blk# cnt\n"
 	"mmc rescan\n"
 	"mmc part - lists available partition on current mmc device\n"
