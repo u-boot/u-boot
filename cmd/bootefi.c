@@ -178,6 +178,27 @@ static efi_status_t efi_run_in_el2(EFIAPI efi_status_t (*entry)(
 }
 #endif
 
+/* Carve out DT reserved memory ranges */
+static efi_status_t efi_carve_out_dt_rsv(void *fdt)
+{
+	int nr_rsv, i;
+	uint64_t addr, size, pages;
+
+	nr_rsv = fdt_num_mem_rsv(fdt);
+
+	/* Look for an existing entry and add it to the efi mem map. */
+	for (i = 0; i < nr_rsv; i++) {
+		if (fdt_get_mem_rsv(fdt, i, &addr, &size) != 0)
+			continue;
+
+		pages = ALIGN(size, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT;
+		efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
+				   false);
+	}
+
+	return EFI_SUCCESS;
+}
+
 static efi_status_t efi_install_fdt(void *fdt)
 {
 	bootm_headers_t img = { 0 };
@@ -196,6 +217,11 @@ static efi_status_t efi_install_fdt(void *fdt)
 
 	if (image_setup_libfdt(&img, fdt, 0, NULL)) {
 		printf("ERROR: failed to process device tree\n");
+		return EFI_LOAD_ERROR;
+	}
+
+	if (efi_carve_out_dt_rsv(fdt) != EFI_SUCCESS) {
+		printf("ERROR: failed to carve out memory\n");
 		return EFI_LOAD_ERROR;
 	}
 
