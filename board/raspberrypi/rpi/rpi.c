@@ -91,10 +91,35 @@ static const struct rpi_model rpi_model_unknown = {
 };
 
 static const struct rpi_model rpi_models_new_scheme[] = {
+	[0x0] = {
+		"Model A",
+		DTB_DIR "bcm2835-rpi-a.dtb",
+		false,
+	},
+	[0x1] = {
+		"Model B",
+		DTB_DIR "bcm2835-rpi-b.dtb",
+		true,
+	},
+	[0x2] = {
+		"Model A+",
+		DTB_DIR "bcm2835-rpi-a-plus.dtb",
+		false,
+	},
+	[0x3] = {
+		"Model B+",
+		DTB_DIR "bcm2835-rpi-b-plus.dtb",
+		true,
+	},
 	[0x4] = {
 		"2 Model B",
 		DTB_DIR "bcm2836-rpi-2-b.dtb",
 		true,
+	},
+	[0x6] = {
+		"Compute Module",
+		DTB_DIR "bcm2835-rpi-cm.dtb",
+		false,
 	},
 	[0x8] = {
 		"3 Model B",
@@ -104,6 +129,11 @@ static const struct rpi_model rpi_models_new_scheme[] = {
 	[0x9] = {
 		"Zero",
 		DTB_DIR "bcm2835-rpi-zero.dtb",
+		false,
+	},
+	[0xA] = {
+		"Compute Module 3",
+		DTB_DIR "bcm2837-rpi-cm3.dtb",
 		false,
 	},
 	[0xC] = {
