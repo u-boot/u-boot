@@ -329,6 +329,7 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 	if (is_sparse_image(download_buffer)) {
 		struct fb_mmc_sparse sparse_priv;
 		struct sparse_storage sparse;
+		int err;
 
 		sparse_priv.dev_desc = dev_desc;
 
@@ -337,12 +338,15 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 		sparse.size = info.size;
 		sparse.write = fb_mmc_sparse_write;
 		sparse.reserve = fb_mmc_sparse_reserve;
+		sparse.mssg = fastboot_fail;
 
 		printf("Flashing sparse image at offset " LBAFU "\n",
 		       sparse.start);
 
 		sparse.priv = &sparse_priv;
-		write_sparse_image(&sparse, cmd, download_buffer);
+		err = write_sparse_image(&sparse, cmd, download_buffer);
+		if (!err)
+			fastboot_okay("");
 	} else {
 		write_raw_image(dev_desc, &info, cmd, download_buffer,
 				download_bytes);

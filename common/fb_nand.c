@@ -174,12 +174,15 @@ void fb_nand_flash_write(const char *cmd, void *download_buffer,
 		sparse.size = part->size / sparse.blksz;
 		sparse.write = fb_nand_sparse_write;
 		sparse.reserve = fb_nand_sparse_reserve;
+		sparse.mssg = fastboot_fail;
 
 		printf("Flashing sparse image at offset " LBAFU "\n",
 		       sparse.start);
 
 		sparse.priv = &sparse_priv;
-		write_sparse_image(&sparse, cmd, download_buffer);
+		ret = write_sparse_image(&sparse, cmd, download_buffer);
+		if (!ret)
+			fastboot_okay("");
 	} else {
 		printf("Flashing raw image at offset 0x%llx\n",
 		       part->offset);
