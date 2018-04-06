@@ -22,6 +22,30 @@ const efi_guid_t efi_simple_file_system_protocol_guid =
 		EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
 const efi_guid_t efi_file_info_guid = EFI_FILE_INFO_GUID;
 
+static int machines[] = {
+#if defined(CONFIG_ARM64)
+	IMAGE_FILE_MACHINE_ARM64,
+#elif defined(CONFIG_ARM)
+	IMAGE_FILE_MACHINE_ARM,
+	IMAGE_FILE_MACHINE_THUMB,
+	IMAGE_FILE_MACHINE_ARMNT,
+#endif
+
+#if defined(CONFIG_X86_64)
+	IMAGE_FILE_MACHINE_AMD64,
+#elif defined(CONFIG_X86)
+	IMAGE_FILE_MACHINE_I386,
+#endif
+
+#if defined(CONFIG_CPU_RISCV_32)
+	IMAGE_FILE_MACHINE_RISCV32,
+#endif
+
+#if defined(CONFIG_CPU_RISCV_64)
+	IMAGE_FILE_MACHINE_RISCV64,
+#endif
+	0 };
+
 /*
  * Print information about a loaded image.
  *
@@ -172,14 +196,7 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 	void *entry;
 	uint64_t image_size;
 	unsigned long virt_size = 0;
-	bool can_run_nt64 = true;
-	bool can_run_nt32 = true;
-
-#if defined(CONFIG_ARM64)
-	can_run_nt32 = false;
-#elif defined(CONFIG_ARM)
-	can_run_nt64 = false;
-#endif
+	int supported = 0;
 
 	dos = efi;
 	if (dos->e_magic != IMAGE_DOS_SIGNATURE) {
@@ -190,6 +207,18 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 	nt = (void *) ((char *)efi + dos->e_lfanew);
 	if (nt->Signature != IMAGE_NT_SIGNATURE) {
 		printf("%s: Invalid NT Signature\n", __func__);
+		return NULL;
+	}
+
+	for (i = 0; machines[i]; i++)
+		if (machines[i] == nt->FileHeader.Machine) {
+			supported = 1;
+			break;
+		}
+
+	if (!supported) {
+		printf("%s: Machine type 0x%04x is not supported\n",
+		       __func__, nt->FileHeader.Machine);
 		return NULL;
 	}
 
@@ -205,8 +234,7 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 	}
 
 	/* Read 32/64bit specific header bits */
-	if (can_run_nt64 &&
-	    (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC)) {
+	if (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC) {
 		IMAGE_NT_HEADERS64 *nt64 = (void *)nt;
 		IMAGE_OPTIONAL_HEADER64 *opt = &nt64->OptionalHeader;
 		image_size = opt->SizeOfImage;
@@ -222,8 +250,7 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 		rel_size = opt->DataDirectory[rel_idx].Size;
 		rel = efi_reloc + opt->DataDirectory[rel_idx].VirtualAddress;
 		virt_size = ALIGN(virt_size, opt->SectionAlignment);
-	} else if (can_run_nt32 &&
-		   (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC)) {
+	} else if (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
 		IMAGE_OPTIONAL_HEADER32 *opt = &nt->OptionalHeader;
 		image_size = opt->SizeOfImage;
 		efi_set_code_and_data_type(loaded_image_info, opt->Subsystem);
