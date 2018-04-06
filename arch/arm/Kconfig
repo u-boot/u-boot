@@ -444,11 +444,6 @@ config TARGET_X600
 	select SUPPORT_SPL
 	select PL011_SERIAL
 
-config TARGET_MX31ADS
-	bool "Support mx31ads"
-	select CPU_ARM1136
-	select BOARD_EARLY_INIT_F
-
 config TARGET_MX31PDK
 	bool "Support mx31pdk"
 	select BOARD_LATE_INIT
@@ -1296,7 +1291,6 @@ source "board/freescale/ls1046ardb/Kconfig"
 source "board/freescale/ls1012aqds/Kconfig"
 source "board/freescale/ls1012ardb/Kconfig"
 source "board/freescale/ls1012afrdm/Kconfig"
-source "board/freescale/mx31ads/Kconfig"
 source "board/freescale/mx31pdk/Kconfig"
 source "board/freescale/mx35pdk/Kconfig"
 source "board/freescale/s32v234evb/Kconfig"
