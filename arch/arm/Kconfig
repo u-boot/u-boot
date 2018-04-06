@@ -444,17 +444,6 @@ config TARGET_X600
 	select SUPPORT_SPL
 	select PL011_SERIAL
 
-config TARGET_IMX31_PHYCORE
-	bool "Support imx31_phycore_eet"
-	select CPU_ARM1136
-	select BOARD_EARLY_INIT_F
-
-config TARGET_IMX31_PHYCORE_EET
-	bool "Support imx31_phycore_eet"
-	select BOARD_LATE_INIT
-	select CPU_ARM1136
-	select BOARD_EARLY_INIT_F
-
 config TARGET_MX31ADS
 	bool "Support mx31ads"
 	select CPU_ARM1136
@@ -1317,7 +1306,6 @@ source "board/gumstix/pepper/Kconfig"
 source "board/h2200/Kconfig"
 source "board/hisilicon/hikey/Kconfig"
 source "board/hisilicon/poplar/Kconfig"
-source "board/imx31_phycore/Kconfig"
 source "board/isee/igep003x/Kconfig"
 source "board/phytec/pcm051/Kconfig"
 source "board/silica/pengwyn/Kconfig"
