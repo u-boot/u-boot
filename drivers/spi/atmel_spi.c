@@ -22,90 +22,11 @@
 #include <asm/gpio.h>
 #endif
 
+#include "atmel_spi.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Register offsets */
-#define ATMEL_SPI_CR			0x0000
-#define ATMEL_SPI_MR			0x0004
-#define ATMEL_SPI_RDR			0x0008
-#define ATMEL_SPI_TDR			0x000c
-#define ATMEL_SPI_SR			0x0010
-#define ATMEL_SPI_IER			0x0014
-#define ATMEL_SPI_IDR			0x0018
-#define ATMEL_SPI_IMR			0x001c
-#define ATMEL_SPI_CSR(x)		(0x0030 + 4 * (x))
-#define ATMEL_SPI_VERSION		0x00fc
-
-/* Bits in CR */
-#define ATMEL_SPI_CR_SPIEN		BIT(0)
-#define ATMEL_SPI_CR_SPIDIS		BIT(1)
-#define ATMEL_SPI_CR_SWRST		BIT(7)
-#define ATMEL_SPI_CR_LASTXFER		BIT(24)
-
-/* Bits in MR */
-#define ATMEL_SPI_MR_MSTR		BIT(0)
-#define ATMEL_SPI_MR_PS			BIT(1)
-#define ATMEL_SPI_MR_PCSDEC		BIT(2)
-#define ATMEL_SPI_MR_FDIV		BIT(3)
-#define ATMEL_SPI_MR_MODFDIS		BIT(4)
-#define ATMEL_SPI_MR_WDRBT		BIT(5)
-#define ATMEL_SPI_MR_LLB		BIT(7)
-#define ATMEL_SPI_MR_PCS(x)		(((x) & 15) << 16)
-#define ATMEL_SPI_MR_DLYBCS(x)		((x) << 24)
-
-/* Bits in RDR */
-#define ATMEL_SPI_RDR_RD(x)		(x)
-#define ATMEL_SPI_RDR_PCS(x)		((x) << 16)
-
-/* Bits in TDR */
-#define ATMEL_SPI_TDR_TD(x)		(x)
-#define ATMEL_SPI_TDR_PCS(x)		((x) << 16)
-#define ATMEL_SPI_TDR_LASTXFER		BIT(24)
-
-/* Bits in SR/IER/IDR/IMR */
-#define ATMEL_SPI_SR_RDRF		BIT(0)
-#define ATMEL_SPI_SR_TDRE		BIT(1)
-#define ATMEL_SPI_SR_MODF		BIT(2)
-#define ATMEL_SPI_SR_OVRES		BIT(3)
-#define ATMEL_SPI_SR_ENDRX		BIT(4)
-#define ATMEL_SPI_SR_ENDTX		BIT(5)
-#define ATMEL_SPI_SR_RXBUFF		BIT(6)
-#define ATMEL_SPI_SR_TXBUFE		BIT(7)
-#define ATMEL_SPI_SR_NSSR		BIT(8)
-#define ATMEL_SPI_SR_TXEMPTY		BIT(9)
-#define ATMEL_SPI_SR_SPIENS		BIT(16)
-
-/* Bits in CSRx */
-#define ATMEL_SPI_CSR_CPOL		BIT(0)
-#define ATMEL_SPI_CSR_NCPHA		BIT(1)
-#define ATMEL_SPI_CSR_CSAAT		BIT(3)
-#define ATMEL_SPI_CSR_BITS(x)		((x) << 4)
-#define ATMEL_SPI_CSR_SCBR(x)		((x) << 8)
-#define ATMEL_SPI_CSR_SCBR_MAX		GENMASK(7, 0)
-#define ATMEL_SPI_CSR_DLYBS(x)		((x) << 16)
-#define ATMEL_SPI_CSR_DLYBCT(x)		((x) << 24)
-
-/* Bits in VERSION */
-#define ATMEL_SPI_VERSION_REV(x)	((x) & 0xfff)
-#define ATMEL_SPI_VERSION_MFN(x)	((x) << 16)
-
-/* Constants for CSRx:BITS */
-#define ATMEL_SPI_BITS_8		0
-#define ATMEL_SPI_BITS_9		1
-#define ATMEL_SPI_BITS_10		2
-#define ATMEL_SPI_BITS_11		3
-#define ATMEL_SPI_BITS_12		4
-#define ATMEL_SPI_BITS_13		5
-#define ATMEL_SPI_BITS_14		6
-#define ATMEL_SPI_BITS_15		7
-#define ATMEL_SPI_BITS_16		8
-
-#define MAX_CS_COUNT			4
-
-struct atmel_spi_slave {
-	void		*regs;
-	u32		mr;
-};
+#define MAX_CS_COUNT	4
 
 struct atmel_spi_platdata {
 	struct at91_spi *regs;
@@ -132,19 +53,19 @@ static int atmel_spi_claim_bus(struct udevice *dev)
 	u32 scbr, csrx, mode;
 
 	scbr = (priv->bus_clk_rate + freq - 1) / freq;
-	if (scbr > ATMEL_SPI_CSR_SCBR_MAX)
+	if (scbr > ATMEL_SPI_CSRx_SCBR_MAX)
 		return -EINVAL;
 
 	if (scbr < 1)
 		scbr = 1;
 
-	csrx = ATMEL_SPI_CSR_SCBR(scbr);
-	csrx |= ATMEL_SPI_CSR_BITS(ATMEL_SPI_BITS_8);
+	csrx = ATMEL_SPI_CSRx_SCBR(scbr);
+	csrx |= ATMEL_SPI_CSRx_BITS(ATMEL_SPI_BITS_8);
 
 	if (!(priv->mode & SPI_CPHA))
-		csrx |= ATMEL_SPI_CSR_NCPHA;
+		csrx |= ATMEL_SPI_CSRx_NCPHA;
 	if (priv->mode & SPI_CPOL)
-		csrx |= ATMEL_SPI_CSR_CPOL;
+		csrx |= ATMEL_SPI_CSRx_CPOL;
 
 	writel(csrx, &reg_base->csr[cs]);
 
@@ -366,7 +287,7 @@ static int atmel_spi_probe(struct udevice *bus)
 		return ret;
 	}
 
-	for (i = 0; i < ARRAY_SIZE(priv->cs_gpios); i++) {
+	for(i = 0; i < ARRAY_SIZE(priv->cs_gpios); i++) {
 		if (!dm_gpio_is_valid(&priv->cs_gpios[i]))
 			continue;
 
