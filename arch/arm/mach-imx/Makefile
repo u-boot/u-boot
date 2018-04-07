@@ -78,9 +78,11 @@ endif
 quiet_cmd_cpp_cfg = CFGS    $@
       cmd_cpp_cfg = $(CPP) $(cpp_flags) -x c -o $@ $<
 
-IMX_CONFIG = $(CONFIG_IMX_CONFIG:"%"=%).cfgtmp
+# mkimage source config file
+IMX_CONFIG = $(CONFIG_IMX_CONFIG:"%"=%)
 
-$(IMX_CONFIG): %.cfgtmp: % FORCE
+# How to create a cpp processed config file, they all use the same source
+%.cfgout: $(IMX_CONFIG) FORCE
 	$(Q)mkdir -p $(dir $@)
 	$(call if_changed_dep,cpp_cfg)
 
@@ -88,7 +90,7 @@ MKIMAGEFLAGS_u-boot.imx = -n $(filter-out $(PLUGIN).bin $< $(PHONY),$^) -T imxim
 	-e $(CONFIG_SYS_TEXT_BASE)
 u-boot.imx: MKIMAGEOUTPUT = u-boot.imx.log
 
-u-boot.imx: u-boot.bin $(IMX_CONFIG) $(PLUGIN).bin FORCE
+u-boot.imx: u-boot.bin u-boot.cfgout $(PLUGIN).bin FORCE
 	$(call if_changed,mkimage)
 
 ifeq ($(CONFIG_OF_SEPARATE),y)
@@ -96,16 +98,15 @@ MKIMAGEFLAGS_u-boot-dtb.imx = -n $(filter-out $(PLUGIN).bin $< $(PHONY),$^) -T i
 	-e $(CONFIG_SYS_TEXT_BASE)
 u-boot-dtb.imx: MKIMAGEOUTPUT = u-boot-dtb.imx.log
 
-u-boot-dtb.imx: u-boot-dtb.bin $(IMX_CONFIG) $(PLUGIN).bin FORCE
+u-boot-dtb.imx: u-boot-dtb.bin u-boot-dtb.cfgout $(PLUGIN).bin FORCE
 	$(call if_changed,mkimage)
 endif
 
 MKIMAGEFLAGS_SPL = -n $(filter-out $(PLUGIN).bin $< $(PHONY),$^) -T imximage \
 	-e $(CONFIG_SPL_TEXT_BASE)
-
 SPL: MKIMAGEOUTPUT = SPL.log
 
-SPL: spl/u-boot-spl.bin $(IMX_CONFIG) $(PLUGIN).bin FORCE
+SPL: spl/u-boot-spl.bin spl/u-boot-spl.cfgout $(PLUGIN).bin FORCE
 	$(call if_changed,mkimage)
 
 MKIMAGEFLAGS_u-boot.uim = -A arm -O U-Boot -a $(CONFIG_SYS_TEXT_BASE) \
@@ -133,7 +134,7 @@ cmd_u-boot-nand-spl_imx = (printf '\000\000\000\000\106\103\102\040\001' && \
 spl/u-boot-nand-spl.imx: SPL FORCE
 	$(call if_changed,u-boot-nand-spl_imx)
 
-targets += $(addprefix ../../../,$(IMX_CONFIG) SPL u-boot.uim spl/u-boot-nand-spl.imx)
+targets += $(addprefix ../../../,SPL spl/u-boot-spl.cfgout u-boot-dtb.cfgout u-boot.cfgout u-boot.uim spl/u-boot-nand-spl.imx)
 
 obj-$(CONFIG_ARM64) += sip.o
 
