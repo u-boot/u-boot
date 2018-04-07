@@ -463,6 +463,27 @@ void spl_board_init(void)
 
 void board_boot_order(u32 *spl_boot_list)
 {
+#ifdef CONFIG_TPL_BUILD
+	const u32 jtag_magic = 0x1337c0de;
+	const u32 load_magic = 0xb33fc0de;
+
+	/*
+	 * If JTAG probe sets special word at 0xe6300020, then it must
+	 * put U-Boot into RAM and TPL will start it from RAM.
+	 */
+	if (readl(CONFIG_TPL_TEXT_BASE + 0x20) == jtag_magic) {
+		printf("JTAG boot detected!\n");
+
+		while (readl(CONFIG_TPL_TEXT_BASE + 0x24) != load_magic)
+			;
+
+		spl_boot_list[0] = BOOT_DEVICE_RAM;
+		spl_boot_list[1] = BOOT_DEVICE_NONE;
+
+		return;
+	}
+#endif
+
 	/* Boot from SPI NOR with YMODEM UART fallback. */
 	spl_boot_list[0] = BOOT_DEVICE_SPI;
 	spl_boot_list[1] = BOOT_DEVICE_UART;
