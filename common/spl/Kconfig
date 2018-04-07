@@ -935,6 +935,14 @@ config TPL_SPI_SUPPORT
 	  Enable support for using SPI in TPL. See SPL_SPI_SUPPORT for
 	  details.
 
+config TPL_YMODEM_SUPPORT
+	bool "Support loading using Ymodem"
+	help
+	  While loading from serial is slow it can be a useful backup when
+	  there is no other option. The Ymodem protocol provides a reliable
+	  means of transmitting U-Boot over a serial line for using in TPL,
+	  with a checksum to ensure correctness.
+
 endif # TPL
 
 endif # SPL
