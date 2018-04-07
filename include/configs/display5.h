@@ -49,7 +49,6 @@
 
 #include "imx6_spl.h"
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
-#define CONFIG_SPL_SPI_LOAD
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS

@@ -123,7 +123,6 @@
 
 #if defined(CONFIG_SPL_BUILD)
 /* SPL related */
-#define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 
 #define CONFIG_SF_DEFAULT_BUS 0

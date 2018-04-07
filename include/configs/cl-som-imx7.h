@@ -184,7 +184,6 @@
 /* SPL */
 #include "imx7_spl.h"
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(64 * 1024)
 #endif /* CONFIG_SPL_BUILD */
 

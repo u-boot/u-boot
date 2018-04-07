@@ -13,9 +13,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(32 << 20)
 #define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#if defined(CONFIG_SPL_SPI_SUPPORT)
-#define CONFIG_SPL_SPI_LOAD
-#endif
 
 #define COUNTER_FREQUENCY               24000000
 

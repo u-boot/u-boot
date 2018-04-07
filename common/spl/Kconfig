@@ -643,6 +643,13 @@ config SPL_SPI_FLASH_SUPPORT
 	  lines). This enables the drivers in drivers/mtd/spi as part of an
 	  SPL build. This normally requires SPL_SPI_SUPPORT.
 
+config SPL_SPI_LOAD
+	bool "Support loading from SPI flash"
+	depends on SPL_SPI_FLASH_SUPPORT
+	help
+	  Enable support for loading next stage, U-Boot or otherwise, from
+	  SPI NOR in U-Boot SPL.
+
 config SPL_SPI_SUPPORT
 	bool "Support SPI drivers"
 	help
