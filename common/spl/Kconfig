@@ -922,6 +922,13 @@ config TPL_SPI_FLASH_SUPPORT
 	  Enable support for using SPI flash in TPL. See SPL_SPI_FLASH_SUPPORT
 	  for details.
 
+config TPL_SPI_LOAD
+	bool "Support loading from SPI flash"
+	depends on TPL_SPI_FLASH_SUPPORT
+	help
+	  Enable support for loading next stage, U-Boot or otherwise, from
+	  SPI NOR in U-Boot TPL.
+
 config TPL_SPI_SUPPORT
 	bool "Support SPI drivers"
 	help
