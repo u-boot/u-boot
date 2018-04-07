@@ -86,6 +86,8 @@
  * SPI NOR (boot memory)
  */
 #ifdef CONFIG_CMD_SF
+#define CONFIG_ATMEL_SPI
+#define CONFIG_ATMEL_SPI0
 #define CONFIG_SPI_FLASH_ATMEL
 #define CONFIG_SF_DEFAULT_BUS		0
 #define CONFIG_SF_DEFAULT_CS		0
