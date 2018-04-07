@@ -910,6 +910,20 @@ config TPL_NAND_SUPPORT
 	help
 	  Enable support for NAND in TPL. See SPL_NAND_SUPPORT for details.
 
+config TPL_RAM_SUPPORT
+	bool "Support booting from RAM"
+	help
+	  Enable booting of an image in RAM. The image can be preloaded or
+	  it can be loaded by TPL directly into RAM (e.g. using USB).
+
+config TPL_RAM_DEVICE
+	bool "Support booting from preloaded image in RAM"
+	depends on TPL_RAM_SUPPORT
+	help
+	  Enable booting of an image already loaded in RAM. The image has to
+	  be already in memory when TPL takes over, e.g. loaded by the boot
+	  ROM.
+
 config TPL_SERIAL_SUPPORT
 	bool "Support serial"
 	help
