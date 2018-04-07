@@ -5,11 +5,27 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifdef CONFIG_DM_SERIAL
-obj-$(CONFIG_$(SPL_TPL_)DM_SERIAL) += serial-uclass.o
-obj-$(CONFIG_PL01X_SERIAL) += serial_pl01x.o
+ifdef CONFIG_SPL_BUILD
+
+ifeq ($(CONFIG_$(SPL_TPL_)BUILD)$(CONFIG_$(SPL_TPL_)DM_SERIAL),yy)
+obj-y += serial-uclass.o
 else
 obj-y += serial.o
+endif
+
+else
+
+ifdef CONFIG_DM_SERIAL
+obj-y += serial-uclass.o
+else
+obj-y += serial.o
+endif
+
+endif
+
+ifdef CONFIG_DM_SERIAL
+obj-$(CONFIG_PL01X_SERIAL) += serial_pl01x.o
+else
 obj-$(CONFIG_PL010_SERIAL) += serial_pl01x.o
 obj-$(CONFIG_PL011_SERIAL) += serial_pl01x.o
 obj-$(CONFIG_SYS_NS16550_SERIAL) += serial_ns16550.o
