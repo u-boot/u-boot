@@ -132,11 +132,36 @@ static int matsu_sd_wait_for_irq(struct udevice *dev, unsigned int reg,
 	return 0;
 }
 
+#define matsu_pio_read_fifo(__width, __suffix)				\
+static void matsu_pio_read_fifo_##__width(struct matsu_sd_priv *priv,	\
+					  char *pbuf, uint blksz)	\
+{									\
+	u##__width *buf = (u##__width *)pbuf;				\
+	int i;								\
+									\
+	if (likely(IS_ALIGNED((uintptr_t)buf, ((__width) / 8)))) {	\
+		for (i = 0; i < blksz / ((__width) / 8); i++) {		\
+			*buf++ = matsu_sd_read##__suffix(priv,		\
+							 MATSU_SD_BUF);	\
+		}							\
+	} else {							\
+		for (i = 0; i < blksz / ((__width) / 8); i++) {		\
+			u##__width data;				\
+			data = matsu_sd_read##__suffix(priv,		\
+						       MATSU_SD_BUF);	\
+			put_unaligned(data, buf++);			\
+		}							\
+	}								\
+}
+
+matsu_pio_read_fifo(64, q)
+matsu_pio_read_fifo(32, l)
+
 static int matsu_sd_pio_read_one_block(struct udevice *dev, char *pbuf,
 					  uint blocksize)
 {
 	struct matsu_sd_priv *priv = dev_get_priv(dev);
-	int i, ret;
+	int ret;
 
 	/* wait until the buffer is filled with data */
 	ret = matsu_sd_wait_for_irq(dev, MATSU_SD_INFO2,
@@ -150,83 +175,56 @@ static int matsu_sd_pio_read_one_block(struct udevice *dev, char *pbuf,
 	 */
 	matsu_sd_writel(priv, 0, MATSU_SD_INFO2);
 
-	if (priv->caps & MATSU_SD_CAP_64BIT) {
-		u64 *buf = (u64 *)pbuf;
-		if (likely(IS_ALIGNED((uintptr_t)buf, 8))) {
-			for (i = 0; i < blocksize / 8; i++) {
-				*buf++ = matsu_sd_readq(priv,
-							   MATSU_SD_BUF);
-			}
-		} else {
-			for (i = 0; i < blocksize / 8; i++) {
-				u64 data;
-				data = matsu_sd_readq(priv,
-							 MATSU_SD_BUF);
-				put_unaligned(data, buf++);
-			}
-		}
-	} else {
-		u32 *buf = (u32 *)pbuf;
-		if (likely(IS_ALIGNED((uintptr_t)buf, 4))) {
-			for (i = 0; i < blocksize / 4; i++) {
-				*buf++ = matsu_sd_readl(priv,
-							   MATSU_SD_BUF);
-			}
-		} else {
-			for (i = 0; i < blocksize / 4; i++) {
-				u32 data;
-				data = matsu_sd_readl(priv, MATSU_SD_BUF);
-				put_unaligned(data, buf++);
-			}
-		}
-	}
+	if (priv->caps & MATSU_SD_CAP_64BIT)
+		matsu_pio_read_fifo_64(priv, pbuf, blocksize);
+	else
+		matsu_pio_read_fifo_32(priv, pbuf, blocksize);
 
 	return 0;
 }
+
+#define matsu_pio_write_fifo(__width, __suffix)				\
+static void matsu_pio_write_fifo_##__width(struct matsu_sd_priv *priv,	\
+					   const char *pbuf, uint blksz)\
+{									\
+	const u##__width *buf = (const u##__width *)pbuf;		\
+	int i;								\
+									\
+	if (likely(IS_ALIGNED((uintptr_t)buf, ((__width) / 8)))) {	\
+		for (i = 0; i < blksz / ((__width) / 8); i++) {		\
+			matsu_sd_write##__suffix(priv, *buf++,		\
+						 MATSU_SD_BUF);		\
+		}							\
+	} else {							\
+		for (i = 0; i < blksz / ((__width) / 8); i++) {		\
+			u##__width data = get_unaligned(buf++);		\
+			matsu_sd_write##__suffix(priv, data,		\
+						 MATSU_SD_BUF);		\
+		}							\
+	}								\
+}
+
+matsu_pio_write_fifo(64, q)
+matsu_pio_write_fifo(32, l)
 
 static int matsu_sd_pio_write_one_block(struct udevice *dev,
 					   const char *pbuf, uint blocksize)
 {
 	struct matsu_sd_priv *priv = dev_get_priv(dev);
-	int i, ret;
+	int ret;
 
 	/* wait until the buffer becomes empty */
 	ret = matsu_sd_wait_for_irq(dev, MATSU_SD_INFO2,
-				       MATSU_SD_INFO2_BWE);
+				    MATSU_SD_INFO2_BWE);
 	if (ret)
 		return ret;
 
 	matsu_sd_writel(priv, 0, MATSU_SD_INFO2);
 
-	if (priv->caps & MATSU_SD_CAP_64BIT) {
-		const u64 *buf = (const u64 *)pbuf;
-		if (likely(IS_ALIGNED((uintptr_t)buf, 8))) {
-			for (i = 0; i < blocksize / 8; i++) {
-				matsu_sd_writeq(priv, *buf++,
-						   MATSU_SD_BUF);
-			}
-		} else {
-			for (i = 0; i < blocksize / 8; i++) {
-				u64 data = get_unaligned(buf++);
-				matsu_sd_writeq(priv, data,
-						   MATSU_SD_BUF);
-			}
-		}
-	} else {
-		const u32 *buf = (const u32 *)pbuf;
-		if (likely(IS_ALIGNED((uintptr_t)buf, 4))) {
-			for (i = 0; i < blocksize / 4; i++) {
-				matsu_sd_writel(priv, *buf++,
-						   MATSU_SD_BUF);
-			}
-		} else {
-			for (i = 0; i < blocksize / 4; i++) {
-				u32 data = get_unaligned(buf++);
-				matsu_sd_writel(priv, data,
-						   MATSU_SD_BUF);
-			}
-		}
-	}
+	if (priv->caps & MATSU_SD_CAP_64BIT)
+		matsu_pio_write_fifo_64(priv, pbuf, blocksize);
+	else
+		matsu_pio_write_fifo_32(priv, pbuf, blocksize);
 
 	return 0;
 }
