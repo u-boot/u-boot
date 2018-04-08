@@ -24,17 +24,21 @@ static const struct dm_mmc_ops renesas_sdhi_ops = {
 	.get_cd = matsu_sd_get_cd,
 };
 
+#define RENESAS_GEN2_QUIRKS	MATSU_SD_CAP_RCAR_GEN2
+#define RENESAS_GEN3_QUIRKS				\
+	MATSU_SD_CAP_64BIT | MATSU_SD_CAP_RCAR_GEN3 | MATSU_SD_CAP_RCAR_UHS
+
 static const struct udevice_id renesas_sdhi_match[] = {
-	{ .compatible = "renesas,sdhi-r8a7790", .data = 0 },
-	{ .compatible = "renesas,sdhi-r8a7791", .data = 0 },
-	{ .compatible = "renesas,sdhi-r8a7792", .data = 0 },
-	{ .compatible = "renesas,sdhi-r8a7793", .data = 0 },
-	{ .compatible = "renesas,sdhi-r8a7794", .data = 0 },
-	{ .compatible = "renesas,sdhi-r8a7795", .data = MATSU_SD_CAP_64BIT },
-	{ .compatible = "renesas,sdhi-r8a7796", .data = MATSU_SD_CAP_64BIT },
-	{ .compatible = "renesas,sdhi-r8a77965", .data = MATSU_SD_CAP_64BIT },
-	{ .compatible = "renesas,sdhi-r8a77970", .data = MATSU_SD_CAP_64BIT },
-	{ .compatible = "renesas,sdhi-r8a77995", .data = MATSU_SD_CAP_64BIT },
+	{ .compatible = "renesas,sdhi-r8a7790", .data = RENESAS_GEN2_QUIRKS },
+	{ .compatible = "renesas,sdhi-r8a7791", .data = RENESAS_GEN2_QUIRKS },
+	{ .compatible = "renesas,sdhi-r8a7792", .data = RENESAS_GEN2_QUIRKS },
+	{ .compatible = "renesas,sdhi-r8a7793", .data = RENESAS_GEN2_QUIRKS },
+	{ .compatible = "renesas,sdhi-r8a7794", .data = RENESAS_GEN2_QUIRKS },
+	{ .compatible = "renesas,sdhi-r8a7795", .data = RENESAS_GEN3_QUIRKS },
+	{ .compatible = "renesas,sdhi-r8a7796", .data = RENESAS_GEN3_QUIRKS },
+	{ .compatible = "renesas,sdhi-r8a77965", .data = RENESAS_GEN3_QUIRKS },
+	{ .compatible = "renesas,sdhi-r8a77970", .data = RENESAS_GEN3_QUIRKS },
+	{ .compatible = "renesas,sdhi-r8a77995", .data = RENESAS_GEN3_QUIRKS },
 	{ /* sentinel */ }
 };
 
@@ -45,15 +49,18 @@ static int renesas_sdhi_probe(struct udevice *dev)
 	DECLARE_GLOBAL_DATA_PTR;
 	int ret;
 
-	ret = fdt_get_resource(gd->fdt_blob, dev_of_offset(dev), "reg",
-			       0, &reg_res);
-	if (ret < 0) {
-		dev_err(dev, "\"reg\" resource not found, ret=%i\n", ret);
-		return ret;
-	}
+	if (quirks == RENESAS_GEN2_QUIRKS) {
+		ret = fdt_get_resource(gd->fdt_blob, dev_of_offset(dev),
+				       "reg", 0, &reg_res);
+		if (ret < 0) {
+			dev_err(dev, "\"reg\" resource not found, ret=%i\n",
+				ret);
+			return ret;
+		}
 
-	if (quirks == 0 && fdt_resource_size(&reg_res) == 0x100)
-		quirks = MATSU_SD_CAP_16BIT;
+		if (fdt_resource_size(&reg_res) == 0x100)
+			quirks |= MATSU_SD_CAP_16BIT;
+	}
 
 	return matsu_sd_probe(dev, quirks);
 }

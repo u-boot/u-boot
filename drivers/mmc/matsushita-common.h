@@ -124,6 +124,11 @@ struct matsu_sd_priv {
 #define MATSU_SD_CAP_DIV1024		BIT(2)	/* divisor 1024 is available */
 #define MATSU_SD_CAP_64BIT		BIT(3)	/* Controller is 64bit */
 #define MATSU_SD_CAP_16BIT		BIT(4)	/* Controller is 16bit */
+#define MATSU_SD_CAP_RCAR_GEN2		BIT(5)	/* Renesas RCar version of IP */
+#define MATSU_SD_CAP_RCAR_GEN3		BIT(6)	/* Renesas RCar version of IP */
+#define MATSU_SD_CAP_RCAR_UHS		BIT(7)	/* Renesas RCar UHS/SDR modes */
+#define MATSU_SD_CAP_RCAR		\
+	(MATSU_SD_CAP_RCAR_GEN2 | MATSU_SD_CAP_RCAR_GEN3)
 };
 
 int matsu_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
