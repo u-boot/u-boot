@@ -32,11 +32,31 @@ static void matsu_sd_writeq(struct matsu_sd_priv *priv,
 	writeq(val, priv->regbase + (reg << 1));
 }
 
+static u16 matsu_sd_readw(struct matsu_sd_priv *priv, unsigned int reg)
+{
+	return readw(priv->regbase + (reg >> 1));
+}
+
+static void matsu_sd_writew(struct matsu_sd_priv *priv,
+			       u16 val, unsigned int reg)
+{
+	writew(val, priv->regbase + (reg >> 1));
+}
+
 static u32 matsu_sd_readl(struct matsu_sd_priv *priv, unsigned int reg)
 {
+	u32 val;
+
 	if (priv->caps & MATSU_SD_CAP_64BIT)
 		return readl(priv->regbase + (reg << 1));
-	else
+	else if (priv->caps & MATSU_SD_CAP_16BIT) {
+		val = readw(priv->regbase + (reg >> 1)) & 0xffff;
+		if ((reg == MATSU_SD_RSP10) || (reg == MATSU_SD_RSP32) ||
+		    (reg == MATSU_SD_RSP54) || (reg == MATSU_SD_RSP76)) {
+			val |= readw(priv->regbase + (reg >> 1) + 2) << 16;
+		}
+		return val;
+	} else
 		return readl(priv->regbase + reg);
 }
 
@@ -45,7 +65,11 @@ static void matsu_sd_writel(struct matsu_sd_priv *priv,
 {
 	if (priv->caps & MATSU_SD_CAP_64BIT)
 		writel(val, priv->regbase + (reg << 1));
-	else
+	if (priv->caps & MATSU_SD_CAP_16BIT) {
+		writew(val & 0xffff, priv->regbase + (reg >> 1));
+		if (val >> 16)
+			writew(val >> 16, priv->regbase + (reg >> 1) + 2);
+	} else
 		writel(val, priv->regbase + reg);
 }
 
@@ -150,6 +174,7 @@ static void matsu_pio_read_fifo_##__width(struct matsu_sd_priv *priv,	\
 
 matsu_pio_read_fifo(64, q)
 matsu_pio_read_fifo(32, l)
+matsu_pio_read_fifo(16, w)
 
 static int matsu_sd_pio_read_one_block(struct udevice *dev, char *pbuf,
 					  uint blocksize)
@@ -171,6 +196,8 @@ static int matsu_sd_pio_read_one_block(struct udevice *dev, char *pbuf,
 
 	if (priv->caps & MATSU_SD_CAP_64BIT)
 		matsu_pio_read_fifo_64(priv, pbuf, blocksize);
+	else if (priv->caps & MATSU_SD_CAP_16BIT)
+		matsu_pio_read_fifo_16(priv, pbuf, blocksize);
 	else
 		matsu_pio_read_fifo_32(priv, pbuf, blocksize);
 
@@ -200,6 +227,7 @@ static void matsu_pio_write_fifo_##__width(struct matsu_sd_priv *priv,	\
 
 matsu_pio_write_fifo(64, q)
 matsu_pio_write_fifo(32, l)
+matsu_pio_write_fifo(16, w)
 
 static int matsu_sd_pio_write_one_block(struct udevice *dev,
 					   const char *pbuf, uint blocksize)
@@ -217,6 +245,8 @@ static int matsu_sd_pio_write_one_block(struct udevice *dev,
 
 	if (priv->caps & MATSU_SD_CAP_64BIT)
 		matsu_pio_write_fifo_64(priv, pbuf, blocksize);
+	else if (priv->caps & MATSU_SD_CAP_16BIT)
+		matsu_pio_write_fifo_16(priv, pbuf, blocksize);
 	else
 		matsu_pio_write_fifo_32(priv, pbuf, blocksize);
 
@@ -602,8 +632,12 @@ static void matsu_sd_host_init(struct matsu_sd_priv *priv)
 	 * This register dropped backward compatibility at version 0x10.
 	 * Write an appropriate value depending on the IP version.
 	 */
-	matsu_sd_writel(priv, priv->version >= 0x10 ? 0x00000101 : 0x00000000,
-			   MATSU_SD_HOST_MODE);
+	if (priv->version >= 0x10)
+		matsu_sd_writel(priv, 0x101, MATSU_SD_HOST_MODE);
+	else if (priv->caps & MATSU_SD_CAP_16BIT)
+		matsu_sd_writel(priv, 0x1, MATSU_SD_HOST_MODE);
+	else
+		matsu_sd_writel(priv, 0x0, MATSU_SD_HOST_MODE);
 
 	if (priv->caps & MATSU_SD_CAP_DMA_INTERNAL) {
 		tmp = matsu_sd_readl(priv, MATSU_SD_DMA_MODE);

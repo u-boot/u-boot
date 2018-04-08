@@ -123,6 +123,7 @@ struct matsu_sd_priv {
 #define MATSU_SD_CAP_DMA_INTERNAL	BIT(1)	/* have internal DMA engine */
 #define MATSU_SD_CAP_DIV1024		BIT(2)	/* divisor 1024 is available */
 #define MATSU_SD_CAP_64BIT		BIT(3)	/* Controller is 64bit */
+#define MATSU_SD_CAP_16BIT		BIT(4)	/* Controller is 16bit */
 };
 
 int matsu_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
