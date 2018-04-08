@@ -41,6 +41,19 @@ static const struct udevice_id renesas_sdhi_match[] = {
 static int renesas_sdhi_probe(struct udevice *dev)
 {
 	u32 quirks = dev_get_driver_data(dev);
+	struct fdt_resource reg_res;
+	DECLARE_GLOBAL_DATA_PTR;
+	int ret;
+
+	ret = fdt_get_resource(gd->fdt_blob, dev_of_offset(dev), "reg",
+			       0, &reg_res);
+	if (ret < 0) {
+		dev_err(dev, "\"reg\" resource not found, ret=%i\n", ret);
+		return ret;
+	}
+
+	if (quirks == 0 && fdt_resource_size(&reg_res) == 0x100)
+		quirks = MATSU_SD_CAP_16BIT;
 
 	return matsu_sd_probe(dev, quirks);
 }
