@@ -132,6 +132,6 @@ int matsu_sd_set_ios(struct udevice *dev);
 int matsu_sd_get_cd(struct udevice *dev);
 
 int matsu_sd_bind(struct udevice *dev);
-int matsu_sd_probe(struct udevice *dev);
+int matsu_sd_probe(struct udevice *dev, u32 quirks);
 
 #endif /* __MATSUSHITA_COMMON_H__ */

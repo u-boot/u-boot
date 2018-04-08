@@ -653,12 +653,11 @@ int matsu_sd_bind(struct udevice *dev)
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
 
-int matsu_sd_probe(struct udevice *dev)
+int matsu_sd_probe(struct udevice *dev, u32 quirks)
 {
 	struct matsu_sd_plat *plat = dev_get_platdata(dev);
 	struct matsu_sd_priv *priv = dev_get_priv(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	const u32 quirks = dev_get_driver_data(dev);
 	fdt_addr_t base;
 	struct clk clk;
 	int ret;

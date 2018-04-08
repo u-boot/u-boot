@@ -38,12 +38,19 @@ static const struct udevice_id renesas_sdhi_match[] = {
 	{ /* sentinel */ }
 };
 
+static int renesas_sdhi_probe(struct udevice *dev)
+{
+	u32 quirks = dev_get_driver_data(dev);
+
+	return matsu_sd_probe(dev, quirks);
+}
+
 U_BOOT_DRIVER(renesas_sdhi) = {
 	.name = "renesas-sdhi",
 	.id = UCLASS_MMC,
 	.of_match = renesas_sdhi_match,
 	.bind = matsu_sd_bind,
-	.probe = matsu_sd_probe,
+	.probe = renesas_sdhi_probe,
 	.priv_auto_alloc_size = sizeof(struct matsu_sd_priv),
 	.platdata_auto_alloc_size = sizeof(struct matsu_sd_plat),
 	.ops = &renesas_sdhi_ops,

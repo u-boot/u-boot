@@ -30,12 +30,17 @@ static const struct udevice_id uniphier_sd_match[] = {
 	{ /* sentinel */ }
 };
 
+static int uniphier_sd_probe(struct udevice *dev)
+{
+	return matsu_sd_probe(dev, 0);
+}
+
 U_BOOT_DRIVER(uniphier_mmc) = {
 	.name = "uniphier-mmc",
 	.id = UCLASS_MMC,
 	.of_match = uniphier_sd_match,
 	.bind = matsu_sd_bind,
-	.probe = matsu_sd_probe,
+	.probe = uniphier_sd_probe,
 	.priv_auto_alloc_size = sizeof(struct matsu_sd_priv),
 	.platdata_auto_alloc_size = sizeof(struct matsu_sd_plat),
 	.ops = &uniphier_sd_ops,
