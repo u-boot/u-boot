@@ -23,19 +23,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static u64 matsu_sd_readq(struct matsu_sd_priv *priv, unsigned int reg)
 {
-	if (priv->caps & MATSU_SD_CAP_64BIT)
-		return readq(priv->regbase + (reg << 1));
-	else
-		return readq(priv->regbase + reg);
+	return readq(priv->regbase + (reg << 1));
 }
 
 static void matsu_sd_writeq(struct matsu_sd_priv *priv,
 			       u64 val, unsigned int reg)
 {
-	if (priv->caps & MATSU_SD_CAP_64BIT)
-		writeq(val, priv->regbase + (reg << 1));
-	else
-		writeq(val, priv->regbase + reg);
+	writeq(val, priv->regbase + (reg << 1));
 }
 
 static u32 matsu_sd_readl(struct matsu_sd_priv *priv, unsigned int reg)
