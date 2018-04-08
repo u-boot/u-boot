@@ -143,4 +143,8 @@ int matsu_sd_get_cd(struct udevice *dev);
 int matsu_sd_bind(struct udevice *dev);
 int matsu_sd_probe(struct udevice *dev, u32 quirks);
 
+u32 matsu_sd_readl(struct matsu_sd_priv *priv, unsigned int reg);
+void matsu_sd_writel(struct matsu_sd_priv *priv,
+		     u32 val, unsigned int reg);
+
 #endif /* __MATSUSHITA_COMMON_H__ */

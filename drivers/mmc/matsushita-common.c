@@ -44,7 +44,7 @@ static void matsu_sd_writew(struct matsu_sd_priv *priv,
 	writew(val, priv->regbase + (reg >> 1));
 }
 
-static u32 matsu_sd_readl(struct matsu_sd_priv *priv, unsigned int reg)
+u32 matsu_sd_readl(struct matsu_sd_priv *priv, unsigned int reg)
 {
 	u32 val;
 
@@ -61,7 +61,7 @@ static u32 matsu_sd_readl(struct matsu_sd_priv *priv, unsigned int reg)
 		return readl(priv->regbase + reg);
 }
 
-static void matsu_sd_writel(struct matsu_sd_priv *priv,
+void matsu_sd_writel(struct matsu_sd_priv *priv,
 			       u32 val, unsigned int reg)
 {
 	if (priv->caps & MATSU_SD_CAP_64BIT)
