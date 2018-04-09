@@ -750,9 +750,9 @@ static int mmc_change_freq(struct mmc *mmc)
 		return 0;
 
 	/* High Speed is set, there are three types: 200MHZ, 52MHz and 26MHz */
-	if (cardtype & EXT_CSD_CARD_TYPE_HS200) {
+	if (cardtype & EXT_CSD_CARD_TYPE_HS200)
 		mmc->card_caps |= MMC_MODE_HS200;
-	} else if (cardtype & EXT_CSD_CARD_TYPE_52) {
+	if (cardtype & EXT_CSD_CARD_TYPE_52) {
 		if (cardtype & EXT_CSD_CARD_TYPE_DDR_1_8V)
 			mmc->card_caps |= MMC_MODE_DDR_52MHz;
 		mmc->card_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
