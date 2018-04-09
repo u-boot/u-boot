@@ -68,7 +68,9 @@ void matsu_sd_writel(struct matsu_sd_priv *priv,
 		writel(val, priv->regbase + (reg << 1));
 	if (priv->caps & MATSU_SD_CAP_16BIT) {
 		writew(val & 0xffff, priv->regbase + (reg >> 1));
-		if (val >> 16)
+		if (reg == MATSU_SD_INFO1 || reg == MATSU_SD_INFO1_MASK ||
+		    reg == MATSU_SD_INFO2 || reg == MATSU_SD_INFO2_MASK ||
+		    reg == MATSU_SD_ARG)
 			writew(val >> 16, priv->regbase + (reg >> 1) + 2);
 	} else
 		writel(val, priv->regbase + reg);
