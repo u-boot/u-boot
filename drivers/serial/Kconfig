@@ -454,6 +454,13 @@ config BCM6345_SERIAL
 	help
 	  Select this to enable UART on BCM6345 SoCs.
 
+config FSL_LINFLEXUART
+	bool "Freescale Linflex UART support"
+	depends on DM_SERIAL
+	help
+	  Select this to enable the Linflex serial module found on some
+	  NXP SoCs like S32V234.
+
 config FSL_LPUART
 	bool "Freescale LPUART support"
 	help

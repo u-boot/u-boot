@@ -35,10 +35,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_DM_SERIAL
-#error "The linflex serial driver does not have non-DM support."
-#endif
-
 static void _linflex_serial_setbrg(struct linflex_fsl *base, int baudrate)
 {
 	u32 clk = mxc_get_clock(MXC_UART_CLK);
