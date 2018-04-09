@@ -725,6 +725,12 @@ else
 PLATFORM_LIBGCC := -L $(shell dirname `$(CC) $(c_flags) -print-libgcc-file-name`) -lgcc
 endif
 PLATFORM_LIBS += $(PLATFORM_LIBGCC)
+
+ifdef CONFIG_CC_COVERAGE
+KBUILD_CFLAGS += --coverage
+PLATFORM_LIBGCC += -lgcov
+endif
+
 export PLATFORM_LIBS
 export PLATFORM_LIBGCC
 

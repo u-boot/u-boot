@@ -85,3 +85,7 @@ GTAGS
 *.orig
 *~
 \#*#
+
+# gcc code coverage files
+*.gcda
+*.gcno

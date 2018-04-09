@@ -59,6 +59,13 @@ config CC_OPTIMIZE_FOR_SIZE
 
 	  This option is enabled by default for U-Boot.
 
+config CC_COVERAGE
+	bool "Enable code coverage analysis"
+	depends on SANDBOX
+	help
+	  Enabling this option will pass "--coverage" to gcc to compile
+	  and link code instrumented for coverage analysis.
+
 config DISTRO_DEFAULTS
 	bool "Select defaults suitable for booting general purpose Linux distributions"
 	default y if ARCH_SUNXI || TEGRA
