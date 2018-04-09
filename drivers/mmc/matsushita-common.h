@@ -38,6 +38,7 @@
 #define MATSU_SD_INFO2			0x03c	/* IRQ status 2 */
 #define   MATSU_SD_INFO2_ERR_ILA	BIT(15)	/* illegal access err */
 #define   MATSU_SD_INFO2_CBSY		BIT(14)	/* command busy */
+#define   MATSU_SD_INFO2_SCLKDIVEN	BIT(13)	/* command setting reg ena */
 #define   MATSU_SD_INFO2_BWE		BIT(9)	/* write buffer ready */
 #define   MATSU_SD_INFO2_BRE		BIT(8)	/* read buffer ready */
 #define   MATSU_SD_INFO2_DAT0		BIT(7)	/* SDDAT0 */

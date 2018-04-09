@@ -498,6 +498,8 @@ int matsu_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 			return ret;
 	}
 
+	matsu_sd_wait_for_irq(dev, MATSU_SD_INFO2, MATSU_SD_INFO2_SCLKDIVEN);
+
 	return ret;
 }
 
