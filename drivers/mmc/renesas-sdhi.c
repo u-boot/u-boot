@@ -289,6 +289,9 @@ out:
 static int renesas_sdhi_set_ios(struct udevice *dev)
 {
 	int ret = matsu_sd_set_ios(dev);
+
+	mdelay(10);
+
 #if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT)
 	struct matsu_sd_priv *priv = dev_get_priv(dev);
 
