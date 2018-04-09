@@ -12,7 +12,6 @@
 #include <asm/arch/imx-regs.h>
 
 #define CONFIG_S32V234
-#define CONFIG_DM
 
 /* Config GIC */
 #define CONFIG_GICV2
@@ -58,7 +57,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
 #endif
 
-#define CONFIG_DM_SERIAL
 #define CONFIG_FSL_LINFLEXUART
 #define LINFLEXUART_BASE		LINFLEXD0_BASE_ADDR
 
