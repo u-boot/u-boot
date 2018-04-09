@@ -11,6 +11,7 @@
 #include <zynqmppl.h>
 #include <linux/sizes.h>
 #include <asm/arch/sys_proto.h>
+#include <memalign.h>
 
 #define DUMMY_WORD	0xffffffff
 
@@ -195,6 +196,7 @@ static int zynqmp_validate_bitstream(xilinx_desc *desc, const void *buf,
 static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 		     bitstream_type bstype)
 {
+	ALLOC_CACHE_ALIGN_BUFFER(u32, bsizeptr, 1);
 	u32 swap;
 	ulong bin_buf;
 	int ret;
@@ -205,25 +207,37 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 		return FPGA_FAIL;
 
 	bin_buf = zynqmp_align_dma_buffer((u32 *)buf, bsize, swap);
+	bsizeptr = (u32 *)&bsize;
 
 	debug("%s called!\n", __func__);
 	flush_dcache_range(bin_buf, bin_buf + bsize);
-
-	if (bsize % 4)
-		bsize = bsize / 4 + 1;
-	else
-		bsize = bsize / 4;
+	flush_dcache_range((ulong)bsizeptr, (ulong)bsizeptr + sizeof(size_t));
 
 	buf_lo = (u32)bin_buf;
 	buf_hi = upper_32_bits(bin_buf);
-	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo, buf_hi, bsize,
-			 bstype, ret_payload);
+	bstype |= BIT(ZYNQMP_FPGA_BIT_NS);
+	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo, buf_hi,
+			 (u32)(uintptr_t)bsizeptr, bstype, ret_payload);
 	if (ret)
 		debug("PL FPGA LOAD fail\n");
 
 	return ret;
 }
 
+static int zynqmp_pcap_info(xilinx_desc *desc)
+{
+	int ret;
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+
+	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_STATUS, 0, 0, 0,
+			 0, ret_payload);
+	if (!ret)
+		printf("PCAP status\t0x%x\n", ret_payload[1]);
+
+	return ret;
+}
+
 struct xilinx_fpga_op zynqmp_op = {
 	.load = zynqmp_load,
+	.info = zynqmp_pcap_info,
 };

@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Xilinx ZC770 XM010 board DTS
  *
- * Copyright (C) 2013 - 2015 Xilinx, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
+ * Copyright (C) 2013-2018 Xilinx, Inc.
  */
 /dts-v1/;
 #include "zynq-7000.dtsi"
@@ -55,8 +54,8 @@
 	status = "okay";
 	clock-frequency = <400000>;
 
-	m24c02_eeprom@52 {
-		compatible = "at,24c02";
+	eeprom: eeprom@52 {
+		compatible = "atmel,24c02";
 		reg = <0x52>;
 	};
 
@@ -75,14 +74,17 @@
 	num-cs = <4>;
 	is-decoded-cs = <0>;
 	flash@0 {
-		compatible = "sst25wf080";
+		compatible = "sst25wf080", "jedec,spi-nor";
 		reg = <1>;
 		spi-max-frequency = <1000000>;
-		#address-cells = <1>;
-		#size-cells = <1>;
-		partition@test {
-			label = "spi-flash";
-			reg = <0x0 0x100000>;
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			partition@0 {
+				label = "data";
+				reg = <0x0 0x100000>;
+			};
 		};
 	};
 };

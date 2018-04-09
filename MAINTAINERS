@@ -264,7 +264,7 @@ F:	drivers/spi/zynq_qspi.c
 F:	drivers/spi/zynq_spi.c
 F:	drivers/usb/host/ehci-zynq.c
 F:	drivers/watchdog/cdns_wdt.c
-F:	include/zynqmp.h
+F:	include/zynqpl.h
 F:	tools/zynqimage.c
 N:	zynq
 
@@ -273,7 +273,7 @@ M:	Michal Simek <michal.simek@xilinx.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-microblaze.git
 F:	arch/arm/mach-zynq/
-F:	drivers/clk/clk_zynq.c
+F:	drivers/clk/clk_zynqmp.c
 F:	drivers/fpga/zynqpl.c
 F:	drivers/gpio/zynq_gpio.c
 F:	drivers/i2c/i2c-cdns.c
@@ -288,7 +288,7 @@ F:	drivers/spi/zynq_qspi.c
 F:	drivers/spi/zynq_spi.c
 F:	drivers/usb/host/ehci-zynq.c
 F:	drivers/watchdog/cdns_wdt.c
-F:	include/zynqmp.h
+F:	include/zynqmppl.h
 F:	tools/zynqimage.c
 N:	zynqmp
 

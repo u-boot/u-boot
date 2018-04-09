@@ -1,13 +1,12 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Xilinx CC108 board DTS
  *
- * (C) Copyright 2007-2013 Xilinx, Inc.
+ * (C) Copyright 2007-2018 Xilinx, Inc.
  * (C) Copyright 2007-2013 Michal Simek
  * (C) Copyright 2007-2012 PetaLogix Qld Pty Ltd
  *
  * Michal SIMEK <monstr@monstr.eu>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 /dts-v1/;
 /include/ "zynq-7000.dtsi"
@@ -70,23 +69,23 @@
 			label = "qspi-fsbl-uboot-bs";
 			reg = <0x0 0x400000>; /* 4MB */
 		};
-		partition@0x400000 {
+		partition@400000 {
 			label = "qspi-linux";
 			reg = <0x400000 0x400000>; /* 4MB */
 		};
-		partition@0x800000 {
+		partition@800000 {
 			label = "qspi-rootfs";
 			reg = <0x800000 0x400000>; /* 4MB */
 		};
-		partition@0xc00000 {
+		partition@c00000 {
 			label = "qspi-devicetree";
 			reg = <0xc00000 0x100000>; /* 1MB */
 		};
-		partition@0xd00000 {
+		partition@d00000 {
 			label = "qspi-scratch";
 			reg = <0xd00000 0x200000>; /* 2MB */
 		};
-		partition@0xf00000 {
+		partition@f00000 {
 			label = "qspi-uboot-env";
 			reg = <0xf00000 0x100000>; /* 1MB */
 		};

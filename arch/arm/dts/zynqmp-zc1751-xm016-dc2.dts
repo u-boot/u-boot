@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * dts file for Xilinx ZynqMP zc1751-xm016-dc2
  *
- * (C) Copyright 2015, Xilinx, Inc.
+ * (C) Copyright 2015 - 2018, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /dts-v1/;
@@ -50,7 +49,6 @@
 	status = "okay";
 };
 
-/* fpd_dma clk 667MHz, lpd_dma 500MHz */
 &fpd_dma_chan1 {
 	status = "okay";
 };
@@ -180,15 +178,15 @@
 &spi0 {
 	status = "okay";
 	num-cs = <1>;
-	spi0_flash0: spi0_flash0@0 {
-		compatible = "m25p80";
+	spi0_flash0: flash@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
+		compatible = "sst,sst25wf080", "jedec,spi-nor";
 		spi-max-frequency = <50000000>;
 		reg = <0>;
 
-		spi0_flash0@0 {
-			label = "spi0_flash0";
+		partition@0 {
+			label = "data";
 			reg = <0x0 0x100000>;
 		};
 	};
@@ -197,15 +195,15 @@
 &spi1 {
 	status = "okay";
 	num-cs = <1>;
-	spi1_flash0: spi1_flash0@0 {
-		compatible = "mtd_dataflash";
+	spi1_flash0: flash@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
+		compatible = "atmel,at45db041e", "atmel,at45", "atmel,dataflash";
 		spi-max-frequency = <20000000>;
 		reg = <0>;
 
-		spi1_flash0@0 {
-			label = "spi1_flash0";
+		partition@0 {
+			label = "data";
 			reg = <0x0 0x84000>;
 		};
 	};

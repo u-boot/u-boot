@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Xilinx ZC770 XM013 board DTS
  *
  * Copyright (C) 2013 Xilinx, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 /dts-v1/;
 #include "zynq-7000.dtsi"
@@ -68,7 +67,7 @@
 	status = "okay";
 	num-cs = <4>;
 	is-decoded-cs = <0>;
-	eeprom: at25@0 {
+	eeprom: eeprom@0 {
 		at25,byte-len = <8192>;
 		at25,addr-mode = <2>;
 		at25,page-size = <32>;

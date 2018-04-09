@@ -1,10 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
- * Xilinx ZC702 board DTS
- *
  *  Copyright (C) 2011 - 2015 Xilinx
  *  Copyright (C) 2012 National Instruments Corp.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 /dts-v1/;
 #include "zynq-7000.dtsi"
@@ -114,7 +111,7 @@
 	scl-gpios = <&gpio0 50 0>;
 	sda-gpios = <&gpio0 51 0>;
 
-	i2cswitch@74 {
+	i2c-mux@74 {
 		compatible = "nxp,pca9548";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -154,7 +151,7 @@
 			#size-cells = <0>;
 			reg = <2>;
 			eeprom@54 {
-				compatible = "at,24c08";
+				compatible = "atmel,24c08";
 				reg = <0x54>;
 			};
 		};

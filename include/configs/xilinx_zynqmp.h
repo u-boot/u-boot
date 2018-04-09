@@ -172,12 +172,24 @@
 # define BOOT_TARGET_DEVICES_USB(func)
 #endif
 
+#if defined(CONFIG_CMD_PXE)
+# define BOOT_TARGET_DEVICES_PXE(func)	func(PXE, pxe, na)
+#else
+# define BOOT_TARGET_DEVICES_PXE(func)
+#endif
+
+#if defined(CONFIG_CMD_DHCP)
+# define BOOT_TARGET_DEVICES_DHCP(func)	func(DHCP, dhcp, na)
+#else
+# define BOOT_TARGET_DEVICES_DHCP(func)
+#endif
+
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
 	BOOT_TARGET_DEVICES_USB(func) \
 	BOOT_TARGET_DEVICES_SCSI(func) \
-	func(PXE, pxe, na) \
-	func(DHCP, dhcp, na)
+	BOOT_TARGET_DEVICES_PXE(func) \
+	BOOT_TARGET_DEVICES_DHCP(func)
 
 #include <config_distro_bootcmd.h>
 
