@@ -688,8 +688,6 @@ static void matsu_sd_host_init(struct matsu_sd_priv *priv)
 	 */
 	if (priv->version >= 0x10)
 		matsu_sd_writel(priv, 0x101, MATSU_SD_HOST_MODE);
-	else if (priv->caps & MATSU_SD_CAP_16BIT)
-		matsu_sd_writel(priv, 0x1, MATSU_SD_HOST_MODE);
 	else
 		matsu_sd_writel(priv, 0x0, MATSU_SD_HOST_MODE);
 
