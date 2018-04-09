@@ -66,6 +66,7 @@ static void *dp_alloc(size_t sz)
 		return NULL;
 	}
 
+	memset(buf, 0, sz);
 	return buf;
 }
 
@@ -749,7 +750,9 @@ struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
 #ifdef CONFIG_CMD_NET
 struct efi_device_path *efi_dp_from_eth(void)
 {
+#ifndef CONFIG_DM_ETH
 	struct efi_device_path_mac_addr *ndp;
+#endif
 	void *buf, *start;
 	unsigned dpsize = 0;
 
@@ -759,8 +762,8 @@ struct efi_device_path *efi_dp_from_eth(void)
 	dpsize += dp_size(eth_get_dev());
 #else
 	dpsize += sizeof(ROOT);
-#endif
 	dpsize += sizeof(*ndp);
+#endif
 
 	start = buf = dp_alloc(dpsize + sizeof(END));
 	if (!buf)
@@ -771,14 +774,15 @@ struct efi_device_path *efi_dp_from_eth(void)
 #else
 	memcpy(buf, &ROOT, sizeof(ROOT));
 	buf += sizeof(ROOT);
-#endif
 
 	ndp = buf;
 	ndp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
 	ndp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR;
 	ndp->dp.length = sizeof(*ndp);
+	ndp->if_type = 1; /* Ethernet */
 	memcpy(ndp->mac.addr, eth_get_ethaddr(), ARP_HLEN);
 	buf = &ndp[1];
+#endif
 
 	*((struct efi_device_path *)buf) = END;
 

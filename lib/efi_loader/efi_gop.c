@@ -56,27 +56,166 @@ static efi_status_t EFIAPI gop_set_mode(struct efi_gop *this, u32 mode_number)
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
-efi_status_t EFIAPI gop_blt(struct efi_gop *this, void *buffer,
-			    u32 operation, efi_uintn_t sx,
-			    efi_uintn_t sy, efi_uintn_t dx,
-			    efi_uintn_t dy, efi_uintn_t width,
-			    efi_uintn_t height, efi_uintn_t delta)
+static __always_inline struct efi_gop_pixel efi_vid16_to_blt_col(u16 vid)
+{
+	struct efi_gop_pixel blt = {
+		.reserved = 0,
+	};
+
+	blt.blue  = (vid & 0x1f) << 3;
+	vid >>= 5;
+	blt.green = (vid & 0x3f) << 2;
+	vid >>= 6;
+	blt.red   = (vid & 0x1f) << 3;
+	return blt;
+}
+
+static __always_inline u16 efi_blt_col_to_vid16(struct efi_gop_pixel *blt)
+{
+	return (u16)(blt->red   >> 3) << 11 |
+	       (u16)(blt->green >> 2) <<  5 |
+	       (u16)(blt->blue  >> 3);
+}
+
+static __always_inline efi_status_t gop_blt_int(struct efi_gop *this,
+						struct efi_gop_pixel *bufferp,
+						u32 operation, efi_uintn_t sx,
+						efi_uintn_t sy, efi_uintn_t dx,
+						efi_uintn_t dy,
+						efi_uintn_t width,
+						efi_uintn_t height,
+						efi_uintn_t delta,
+						efi_uintn_t vid_bpp)
 {
 	struct efi_gop_obj *gopobj = container_of(this, struct efi_gop_obj, ops);
-	int i, j, line_len16, line_len32;
-	void *fb;
+	efi_uintn_t i, j, linelen, slineoff = 0, dlineoff, swidth, dwidth;
+	u32 *fb32 = gopobj->fb;
+	u16 *fb16 = gopobj->fb;
+	struct efi_gop_pixel *buffer = __builtin_assume_aligned(bufferp, 4);
 
-	EFI_ENTRY("%p, %p, %u, %zu, %zu, %zu, %zu, %zu, %zu, %zu", this,
-		  buffer, operation, sx, sy, dx, dy, width, height, delta);
+	if (delta) {
+		/* Check for 4 byte alignment */
+		if (delta & 3)
+			return EFI_INVALID_PARAMETER;
+		linelen = delta >> 2;
+	} else {
+		linelen = width;
+	}
 
-	if (operation != EFI_BLT_BUFFER_TO_VIDEO)
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
+	/* Check source rectangle */
+	switch (operation) {
+	case EFI_BLT_VIDEO_FILL:
+		break;
+	case EFI_BLT_BUFFER_TO_VIDEO:
+		if (sx + width > linelen)
+			return EFI_INVALID_PARAMETER;
+		break;
+	case EFI_BLT_VIDEO_TO_BLT_BUFFER:
+	case EFI_BLT_VIDEO_TO_VIDEO:
+		if (sx + width > gopobj->info.width ||
+		    sy + height > gopobj->info.height)
+			return EFI_INVALID_PARAMETER;
+		break;
+	default:
+		return EFI_INVALID_PARAMETER;
+	}
 
-	fb = gopobj->fb;
-	line_len16 = gopobj->info.width * sizeof(u16);
-	line_len32 = gopobj->info.width * sizeof(u32);
+	/* Check destination rectangle */
+	switch (operation) {
+	case EFI_BLT_VIDEO_FILL:
+	case EFI_BLT_BUFFER_TO_VIDEO:
+	case EFI_BLT_VIDEO_TO_VIDEO:
+		if (dx + width > gopobj->info.width ||
+		    dy + height > gopobj->info.height)
+			return EFI_INVALID_PARAMETER;
+		break;
+	case EFI_BLT_VIDEO_TO_BLT_BUFFER:
+		if (dx + width > linelen)
+			return EFI_INVALID_PARAMETER;
+		break;
+	}
 
-	/* Copy the contents line by line */
+	/* Calculate line width */
+	switch (operation) {
+	case EFI_BLT_BUFFER_TO_VIDEO:
+		swidth = linelen;
+		break;
+	case EFI_BLT_VIDEO_TO_BLT_BUFFER:
+	case EFI_BLT_VIDEO_TO_VIDEO:
+		swidth = gopobj->info.width;
+		if (!vid_bpp)
+			return EFI_UNSUPPORTED;
+		break;
+	case EFI_BLT_VIDEO_FILL:
+		swidth = 0;
+		break;
+	}
+
+	switch (operation) {
+	case EFI_BLT_BUFFER_TO_VIDEO:
+	case EFI_BLT_VIDEO_FILL:
+	case EFI_BLT_VIDEO_TO_VIDEO:
+		dwidth = gopobj->info.width;
+		if (!vid_bpp)
+			return EFI_UNSUPPORTED;
+		break;
+	case EFI_BLT_VIDEO_TO_BLT_BUFFER:
+		dwidth = linelen;
+		break;
+	}
+
+	slineoff = swidth * sy;
+	dlineoff = dwidth * dy;
+	for (i = 0; i < height; i++) {
+		for (j = 0; j < width; j++) {
+			struct efi_gop_pixel pix;
+
+			/* Read source pixel */
+			switch (operation) {
+			case EFI_BLT_VIDEO_FILL:
+				pix = *buffer;
+				break;
+			case EFI_BLT_BUFFER_TO_VIDEO:
+				pix = buffer[slineoff + j + sx];
+				break;
+			case EFI_BLT_VIDEO_TO_BLT_BUFFER:
+			case EFI_BLT_VIDEO_TO_VIDEO:
+				if (vid_bpp == 32)
+					pix = *(struct efi_gop_pixel *)&fb32[
+						slineoff + j + sx];
+				else
+					pix = efi_vid16_to_blt_col(fb16[
+						slineoff + j + sx]);
+				break;
+			}
+
+			/* Write destination pixel */
+			switch (operation) {
+			case EFI_BLT_VIDEO_TO_BLT_BUFFER:
+				buffer[dlineoff + j + dx] = pix;
+				break;
+			case EFI_BLT_BUFFER_TO_VIDEO:
+			case EFI_BLT_VIDEO_FILL:
+			case EFI_BLT_VIDEO_TO_VIDEO:
+				if (vid_bpp == 32)
+					fb32[dlineoff + j + dx] = *(u32 *)&pix;
+				else
+					fb16[dlineoff + j + dx] =
+						efi_blt_col_to_vid16(&pix);
+				break;
+			}
+		}
+		slineoff += swidth;
+		dlineoff += dwidth;
+	}
+
+	return EFI_SUCCESS;
+}
+
+static efi_uintn_t gop_get_bpp(struct efi_gop *this)
+{
+	struct efi_gop_obj *gopobj = container_of(this, struct efi_gop_obj, ops);
+	efi_uintn_t vid_bpp = 0;
 
 	switch (gopobj->bpix) {
 #ifdef CONFIG_DM_VIDEO
@@ -84,37 +223,150 @@ efi_status_t EFIAPI gop_blt(struct efi_gop *this, void *buffer,
 #else
 	case LCD_COLOR32:
 #endif
-		for (i = 0; i < height; i++) {
-			u32 *dest = fb + ((i + dy)  * line_len32) +
-					 (dx * sizeof(u32));
-			u32 *src = buffer + ((i + sy)  * line_len32) +
-					 (sx * sizeof(u32));
-
-			/* Same color format, just memcpy */
-			memcpy(dest, src, width * sizeof(u32));
-		}
+		vid_bpp = 32;
 		break;
 #ifdef CONFIG_DM_VIDEO
 	case VIDEO_BPP16:
 #else
 	case LCD_COLOR16:
 #endif
-		for (i = 0; i < height; i++) {
-			u16 *dest = fb + ((i + dy)  * line_len16) +
-					 (dx * sizeof(u16));
-			u32 *src = buffer + ((i + sy)  * line_len32) +
-					 (sx * sizeof(u32));
-
-			/* Convert from rgb888 to rgb565 */
-			for (j = 0; j < width; j++) {
-				u32 rgb888 = src[j];
-				dest[j] = ((((rgb888 >> (16 + 3)) & 0x1f) << 11) |
-					   (((rgb888 >> (8 + 2)) & 0x3f) << 5) |
-					   (((rgb888 >> (0 + 3)) & 0x1f) << 0));
-			}
-		}
+		vid_bpp = 16;
 		break;
 	}
+
+	return vid_bpp;
+}
+
+/*
+ * Gcc can't optimize our BLT function well, but we need to make sure that
+ * our 2-dimensional loop gets executed very quickly, otherwise the system
+ * will feel slow.
+ *
+ * By manually putting all obvious branch targets into functions which call
+ * our generic blt function with constants, the compiler can successfully
+ * optimize for speed.
+ */
+static efi_status_t gop_blt_video_fill(struct efi_gop *this,
+				       struct efi_gop_pixel *buffer,
+				       u32 foo, efi_uintn_t sx,
+				       efi_uintn_t sy, efi_uintn_t dx,
+				       efi_uintn_t dy, efi_uintn_t width,
+				       efi_uintn_t height, efi_uintn_t delta,
+				       efi_uintn_t vid_bpp)
+{
+	return gop_blt_int(this, buffer, EFI_BLT_VIDEO_FILL, sx, sy, dx,
+			   dy, width, height, delta, vid_bpp);
+}
+
+static efi_status_t gop_blt_buf_to_vid16(struct efi_gop *this,
+					 struct efi_gop_pixel *buffer,
+					 u32 foo, efi_uintn_t sx,
+					 efi_uintn_t sy, efi_uintn_t dx,
+					 efi_uintn_t dy, efi_uintn_t width,
+					 efi_uintn_t height, efi_uintn_t delta)
+{
+	return gop_blt_int(this, buffer, EFI_BLT_BUFFER_TO_VIDEO, sx, sy, dx,
+			   dy, width, height, delta, 16);
+}
+
+static efi_status_t gop_blt_buf_to_vid32(struct efi_gop *this,
+					 struct efi_gop_pixel *buffer,
+					 u32 foo, efi_uintn_t sx,
+					 efi_uintn_t sy, efi_uintn_t dx,
+					 efi_uintn_t dy, efi_uintn_t width,
+					 efi_uintn_t height, efi_uintn_t delta)
+{
+	return gop_blt_int(this, buffer, EFI_BLT_BUFFER_TO_VIDEO, sx, sy, dx,
+			   dy, width, height, delta, 32);
+}
+
+static efi_status_t gop_blt_vid_to_vid(struct efi_gop *this,
+				       struct efi_gop_pixel *buffer,
+				       u32 foo, efi_uintn_t sx,
+				       efi_uintn_t sy, efi_uintn_t dx,
+				       efi_uintn_t dy, efi_uintn_t width,
+				       efi_uintn_t height, efi_uintn_t delta,
+				       efi_uintn_t vid_bpp)
+{
+	return gop_blt_int(this, buffer, EFI_BLT_VIDEO_TO_VIDEO, sx, sy, dx,
+			   dy, width, height, delta, vid_bpp);
+}
+
+static efi_status_t gop_blt_vid_to_buf(struct efi_gop *this,
+				       struct efi_gop_pixel *buffer,
+				       u32 foo, efi_uintn_t sx,
+				       efi_uintn_t sy, efi_uintn_t dx,
+				       efi_uintn_t dy, efi_uintn_t width,
+				       efi_uintn_t height, efi_uintn_t delta,
+				       efi_uintn_t vid_bpp)
+{
+	return gop_blt_int(this, buffer, EFI_BLT_VIDEO_TO_BLT_BUFFER, sx, sy,
+			   dx, dy, width, height, delta, vid_bpp);
+}
+
+/*
+ * Copy rectangle.
+ *
+ * This function implements the Blt service of the EFI_GRAPHICS_OUTPUT_PROTOCOL.
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @this:	EFI_GRAPHICS_OUTPUT_PROTOCOL
+ * @buffer:	pixel buffer
+ * @sx:		source x-coordinate
+ * @sy:		source y-coordinate
+ * @dx:		destination x-coordinate
+ * @dy:		destination y-coordinate
+ * @width:	width of rectangle
+ * @height:	height of rectangle
+ * @delta:	length in bytes of a line in the pixel buffer (optional)
+ * @return:	status code
+ */
+efi_status_t EFIAPI gop_blt(struct efi_gop *this, struct efi_gop_pixel *buffer,
+			    u32 operation, efi_uintn_t sx,
+			    efi_uintn_t sy, efi_uintn_t dx,
+			    efi_uintn_t dy, efi_uintn_t width,
+			    efi_uintn_t height, efi_uintn_t delta)
+{
+	efi_status_t ret = EFI_INVALID_PARAMETER;
+	efi_uintn_t vid_bpp;
+
+	EFI_ENTRY("%p, %p, %u, %zu, %zu, %zu, %zu, %zu, %zu, %zu", this,
+		  buffer, operation, sx, sy, dx, dy, width, height, delta);
+
+	vid_bpp = gop_get_bpp(this);
+
+	/* Allow for compiler optimization */
+	switch (operation) {
+	case EFI_BLT_VIDEO_FILL:
+		ret = gop_blt_video_fill(this, buffer, operation, sx, sy, dx,
+					 dy, width, height, delta, vid_bpp);
+		break;
+	case EFI_BLT_BUFFER_TO_VIDEO:
+		/* This needs to be super-fast, so duplicate for 16/32bpp */
+		if (vid_bpp == 32)
+			ret = gop_blt_buf_to_vid32(this, buffer, operation, sx,
+						   sy, dx, dy, width, height,
+						   delta);
+		else
+			ret = gop_blt_buf_to_vid16(this, buffer, operation, sx,
+						   sy, dx, dy, width, height,
+						   delta);
+		break;
+	case EFI_BLT_VIDEO_TO_VIDEO:
+		ret = gop_blt_vid_to_vid(this, buffer, operation, sx, sy, dx,
+					 dy, width, height, delta, vid_bpp);
+		break;
+	case EFI_BLT_VIDEO_TO_BLT_BUFFER:
+		ret = gop_blt_vid_to_buf(this, buffer, operation, sx, sy, dx,
+					 dy, width, height, delta, vid_bpp);
+		break;
+	default:
+		ret = EFI_UNSUPPORTED;
+	}
+
+	if (ret != EFI_SUCCESS)
+		return EFI_EXIT(ret);
 
 #ifdef CONFIG_DM_VIDEO
 	video_sync_all();
@@ -125,8 +377,13 @@ efi_status_t EFIAPI gop_blt(struct efi_gop *this, void *buffer,
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
-/* This gets called from do_bootefi_exec(). */
-int efi_gop_register(void)
+/*
+ * Install graphical output protocol.
+ *
+ * If no supported video device exists this is not considered as an
+ * error.
+ */
+efi_status_t efi_gop_register(void)
 {
 	struct efi_gop_obj *gopobj;
 	u32 bpix, col, row;
@@ -136,12 +393,15 @@ int efi_gop_register(void)
 
 #ifdef CONFIG_DM_VIDEO
 	struct udevice *vdev;
+	struct video_priv *priv;
 
 	/* We only support a single video output device for now */
-	if (uclass_first_device(UCLASS_VIDEO, &vdev) || !vdev)
-		return -1;
+	if (uclass_first_device(UCLASS_VIDEO, &vdev) || !vdev) {
+		debug("WARNING: No video device\n");
+		return EFI_SUCCESS;
+	}
 
-	struct video_priv *priv = dev_get_uclass_priv(vdev);
+	priv = dev_get_uclass_priv(vdev);
 	bpix = priv->bpix;
 	col = video_get_xsize(vdev);
 	row = video_get_ysize(vdev);
@@ -170,13 +430,14 @@ int efi_gop_register(void)
 		break;
 	default:
 		/* So far, we only work in 16 or 32 bit mode */
-		return -1;
+		debug("WARNING: Unsupported video mode\n");
+		return EFI_SUCCESS;
 	}
 
 	gopobj = calloc(1, sizeof(*gopobj));
 	if (!gopobj) {
 		printf("ERROR: Out of memory\n");
-		return 1;
+		return EFI_OUT_OF_RESOURCES;
 	}
 
 	/* Hook up to the device list */
@@ -186,8 +447,8 @@ int efi_gop_register(void)
 	ret = efi_add_protocol(gopobj->parent.handle, &efi_gop_guid,
 			       &gopobj->ops);
 	if (ret != EFI_SUCCESS) {
-		printf("ERROR: Out of memory\n");
-		return 1;
+		printf("ERROR: Failure adding gop protocol\n");
+		return ret;
 	}
 	gopobj->ops.query_mode = gop_query_mode;
 	gopobj->ops.set_mode = gop_set_mode;
@@ -199,10 +460,11 @@ int efi_gop_register(void)
 	gopobj->mode.info_size = sizeof(gopobj->info);
 
 #ifdef CONFIG_DM_VIDEO
-	if (bpix == VIDEO_BPP32) {
+	if (bpix == VIDEO_BPP32)
 #else
-	if (bpix == LCD_COLOR32) {
+	if (bpix == LCD_COLOR32)
 #endif
+	{
 		/* With 32bit color space we can directly expose the fb */
 		gopobj->mode.fb_base = fb_base;
 		gopobj->mode.fb_size = fb_size;
@@ -217,5 +479,5 @@ int efi_gop_register(void)
 	gopobj->bpix = bpix;
 	gopobj->fb = fb;
 
-	return 0;
+	return EFI_SUCCESS;
 }

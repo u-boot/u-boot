@@ -29,6 +29,7 @@ static const efi_guid_t block_io_protocol_guid = BLOCK_IO_GUID;
 static const efi_guid_t guid_device_path = DEVICE_PATH_GUID;
 static const efi_guid_t guid_simple_file_system_protocol =
 					EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
+static const efi_guid_t guid_file_system_info = EFI_FILE_SYSTEM_INFO_GUID;
 static efi_guid_t guid_vendor =
 	EFI_GUID(0xdbca4c98, 0x6cb0, 0x694d,
 		 0x08, 0x72, 0x81, 0x9c, 0x65, 0x0c, 0xb7, 0xb8);
@@ -302,7 +303,11 @@ static int execute(void)
 	struct efi_device_path *dp_partition;
 	struct efi_simple_file_system_protocol *file_system;
 	struct efi_file_handle *root, *file;
-	u64 buf_size;
+	struct {
+		struct efi_file_system_info info;
+		u16 label[12];
+	} system_info;
+	efi_uintn_t buf_size;
 	char buf[16] __aligned(ARCH_DMA_MINALIGN);
 
 	ret = boottime->connect_controller(disk_handle, NULL, NULL, 1);
@@ -355,6 +360,23 @@ static int execute(void)
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Failed to open volume\n");
 		return EFI_ST_FAILURE;
+	}
+	buf_size = sizeof(system_info);
+	ret = root->getinfo(root, &guid_file_system_info, &buf_size,
+			    &system_info);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Failed to get file system info\n");
+		return EFI_ST_FAILURE;
+	}
+	if (system_info.info.block_size != 512) {
+		efi_st_error("Wrong block size %u, expected 512\n",
+			     system_info.info.block_size);
+		return EFI_ST_FAILURE;
+	}
+	if (efi_st_strcmp_16_8(system_info.info.volume_label, "U-BOOT TEST")) {
+		efi_st_todo(
+			"Wrong volume label '%ps', expected 'U-BOOT TEST'\n",
+			system_info.info.volume_label);
 	}
 	ret = root->open(root, &file, (s16 *)L"hello.txt", EFI_FILE_MODE_READ,
 			 0);

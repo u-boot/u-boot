@@ -146,6 +146,7 @@ void __efi_runtime EFIAPI efi_reset_system(
 	switch (reset_type) {
 	case EFI_RESET_COLD:
 	case EFI_RESET_WARM:
+	case EFI_RESET_PLATFORM_SPECIFIC:
 		psci_system_reset();
 		break;
 	case EFI_RESET_SHUTDOWN:

@@ -20,6 +20,7 @@
  */
 
 #include <common.h>
+#include <efi_loader.h>
 #include <asm/proc-armv/ptrace.h>
 #include <asm/u-boot-arm.h>
 #include <efi_loader.h>
@@ -49,6 +50,11 @@ void bad_mode (void)
 {
 	panic ("Resetting CPU ...\n");
 	reset_cpu (0);
+}
+
+static void show_efi_loaded_images(struct pt_regs *regs)
+{
+	efi_print_image_infos((void *)instruction_pointer(regs));
 }
 
 void show_regs (struct pt_regs *regs)
@@ -106,6 +112,7 @@ void do_undefined_instruction (struct pt_regs *pt_regs)
 	printf ("undefined instruction\n");
 	fixup_pc(pt_regs, -4);
 	show_regs (pt_regs);
+	show_efi_loaded_images(pt_regs);
 	bad_mode ();
 }
 
@@ -115,6 +122,7 @@ void do_software_interrupt (struct pt_regs *pt_regs)
 	printf ("software interrupt\n");
 	fixup_pc(pt_regs, -4);
 	show_regs (pt_regs);
+	show_efi_loaded_images(pt_regs);
 	bad_mode ();
 }
 
@@ -124,6 +132,7 @@ void do_prefetch_abort (struct pt_regs *pt_regs)
 	printf ("prefetch abort\n");
 	fixup_pc(pt_regs, -8);
 	show_regs (pt_regs);
+	show_efi_loaded_images(pt_regs);
 	bad_mode ();
 }
 
@@ -133,6 +142,7 @@ void do_data_abort (struct pt_regs *pt_regs)
 	printf ("data abort\n");
 	fixup_pc(pt_regs, -8);
 	show_regs (pt_regs);
+	show_efi_loaded_images(pt_regs);
 	bad_mode ();
 }
 
@@ -142,6 +152,7 @@ void do_not_used (struct pt_regs *pt_regs)
 	printf ("not used\n");
 	fixup_pc(pt_regs, -8);
 	show_regs (pt_regs);
+	show_efi_loaded_images(pt_regs);
 	bad_mode ();
 }
 
@@ -151,6 +162,7 @@ void do_fiq (struct pt_regs *pt_regs)
 	printf ("fast interrupt request\n");
 	fixup_pc(pt_regs, -8);
 	show_regs (pt_regs);
+	show_efi_loaded_images(pt_regs);
 	bad_mode ();
 }
 
@@ -160,5 +172,6 @@ void do_irq (struct pt_regs *pt_regs)
 	printf ("interrupt request\n");
 	fixup_pc(pt_regs, -8);
 	show_regs (pt_regs);
+	show_efi_loaded_images(pt_regs);
 	bad_mode ();
 }

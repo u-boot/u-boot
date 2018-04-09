@@ -12,6 +12,9 @@
 #include <malloc.h>
 #include <fs.h>
 
+/* GUID for file system information */
+const efi_guid_t efi_file_system_info_guid = EFI_FILE_SYSTEM_INFO_GUID;
+
 struct file_system {
 	struct efi_simple_file_system_protocol base;
 	struct efi_device_path *dp;
@@ -314,29 +317,41 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
 }
 
 static efi_status_t EFIAPI efi_file_read(struct efi_file_handle *file,
-		u64 *buffer_size, void *buffer)
+					 efi_uintn_t *buffer_size, void *buffer)
 {
 	struct file_handle *fh = to_fh(file);
 	efi_status_t ret = EFI_SUCCESS;
+	u64 bs;
 
 	EFI_ENTRY("%p, %p, %p", file, buffer_size, buffer);
+
+	if (!buffer_size || !buffer) {
+		ret = EFI_INVALID_PARAMETER;
+		goto error;
+	}
 
 	if (set_blk_dev(fh)) {
 		ret = EFI_DEVICE_ERROR;
 		goto error;
 	}
 
+	bs = *buffer_size;
 	if (fh->isdir)
-		ret = dir_read(fh, buffer_size, buffer);
+		ret = dir_read(fh, &bs, buffer);
 	else
-		ret = file_read(fh, buffer_size, buffer);
+		ret = file_read(fh, &bs, buffer);
+	if (bs <= SIZE_MAX)
+		*buffer_size = bs;
+	else
+		*buffer_size = SIZE_MAX;
 
 error:
 	return EFI_EXIT(ret);
 }
 
 static efi_status_t EFIAPI efi_file_write(struct efi_file_handle *file,
-		u64 *buffer_size, void *buffer)
+					  efi_uintn_t *buffer_size,
+					  void *buffer)
 {
 	struct file_handle *fh = to_fh(file);
 	efi_status_t ret = EFI_SUCCESS;
@@ -363,21 +378,27 @@ error:
 }
 
 static efi_status_t EFIAPI efi_file_getpos(struct efi_file_handle *file,
-		u64 *pos)
+					   efi_uintn_t *pos)
 {
 	struct file_handle *fh = to_fh(file);
+
 	EFI_ENTRY("%p, %p", file, pos);
-	*pos = fh->offset;
-	return EFI_EXIT(EFI_SUCCESS);
+
+	if (fh->offset <= SIZE_MAX) {
+		*pos = fh->offset;
+		return EFI_EXIT(EFI_SUCCESS);
+	} else {
+		return EFI_EXIT(EFI_DEVICE_ERROR);
+	}
 }
 
 static efi_status_t EFIAPI efi_file_setpos(struct efi_file_handle *file,
-		u64 pos)
+		efi_uintn_t pos)
 {
 	struct file_handle *fh = to_fh(file);
 	efi_status_t ret = EFI_SUCCESS;
 
-	EFI_ENTRY("%p, %llu", file, pos);
+	EFI_ENTRY("%p, %zu", file, pos);
 
 	if (fh->isdir) {
 		if (pos != 0) {
@@ -411,7 +432,9 @@ error:
 }
 
 static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
-		efi_guid_t *info_type, u64 *buffer_size, void *buffer)
+					    const efi_guid_t *info_type,
+					    efi_uintn_t *buffer_size,
+					    void *buffer)
 {
 	struct file_handle *fh = to_fh(file);
 	efi_status_t ret = EFI_SUCCESS;
@@ -452,6 +475,41 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 			info->attribute |= EFI_FILE_DIRECTORY;
 
 		ascii2unicode((u16 *)info->file_name, filename);
+	} else if (!guidcmp(info_type, &efi_file_system_info_guid)) {
+		struct efi_file_system_info *info = buffer;
+		disk_partition_t part;
+		efi_uintn_t required_size;
+		int r;
+
+		if (fh->fs->part >= 1)
+			r = part_get_info(fh->fs->desc, fh->fs->part, &part);
+		else
+			r = part_get_info_whole_disk(fh->fs->desc, &part);
+		if (r < 0) {
+			ret = EFI_DEVICE_ERROR;
+			goto error;
+		}
+		required_size = sizeof(info) + 2 *
+				(strlen((const char *)part.name) + 1);
+		if (*buffer_size < required_size) {
+			*buffer_size = required_size;
+			ret = EFI_BUFFER_TOO_SMALL;
+			goto error;
+		}
+
+		memset(info, 0, required_size);
+
+		info->size = required_size;
+		info->read_only = true;
+		info->volume_size = part.size * part.blksz;
+		info->free_space = 0;
+		info->block_size = part.blksz;
+		/*
+		 * TODO: The volume label is not available in U-Boot.
+		 * Use the partition name as substitute.
+		 */
+		ascii2unicode((u16 *)info->volume_label,
+			      (const char *)part.name);
 	} else {
 		ret = EFI_UNSUPPORTED;
 	}
@@ -461,9 +519,12 @@ error:
 }
 
 static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
-		efi_guid_t *info_type, u64 buffer_size, void *buffer)
+					    const efi_guid_t *info_type,
+					    efi_uintn_t buffer_size,
+					    void *buffer)
 {
-	EFI_ENTRY("%p, %p, %llu, %p", file, info_type, buffer_size, buffer);
+	EFI_ENTRY("%p, %p, %zu, %p", file, info_type, buffer_size, buffer);
+
 	return EFI_EXIT(EFI_UNSUPPORTED);
 }
 

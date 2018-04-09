@@ -63,6 +63,7 @@ void __efi_runtime EFIAPI efi_reset_system(
 	switch (reset_type) {
 	case EFI_RESET_COLD:
 	case EFI_RESET_WARM:
+	case EFI_RESET_PLATFORM_SPECIFIC:
 		reset_cpu(0);
 		break;
 	case EFI_RESET_SHUTDOWN:
@@ -82,9 +83,9 @@ void __efi_runtime EFIAPI efi_reset_system(
 	while (1) { }
 }
 
-void efi_reset_system_init(void)
+efi_status_t efi_reset_system_init(void)
 {
-	efi_add_runtime_mmio(&wdog_regs, sizeof(*wdog_regs));
+	return efi_add_runtime_mmio(&wdog_regs, sizeof(*wdog_regs));
 }
 
 #endif

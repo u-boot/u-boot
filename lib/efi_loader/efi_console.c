@@ -45,7 +45,6 @@ static struct cout_mode efi_cout_modes[] = {
 	},
 };
 
-const efi_guid_t efi_guid_console_control = CONSOLE_CONTROL_GUID;
 const efi_guid_t efi_guid_text_output_protocol =
 			EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL_GUID;
 const efi_guid_t efi_guid_text_input_protocol =
@@ -53,43 +52,6 @@ const efi_guid_t efi_guid_text_input_protocol =
 
 #define cESC '\x1b'
 #define ESC "\x1b"
-
-static efi_status_t EFIAPI efi_cin_get_mode(
-			struct efi_console_control_protocol *this,
-			int *mode, char *uga_exists, char *std_in_locked)
-{
-	EFI_ENTRY("%p, %p, %p, %p", this, mode, uga_exists, std_in_locked);
-
-	if (mode)
-		*mode = EFI_CONSOLE_MODE_TEXT;
-	if (uga_exists)
-		*uga_exists = 0;
-	if (std_in_locked)
-		*std_in_locked = 0;
-
-	return EFI_EXIT(EFI_SUCCESS);
-}
-
-static efi_status_t EFIAPI efi_cin_set_mode(
-			struct efi_console_control_protocol *this, int mode)
-{
-	EFI_ENTRY("%p, %d", this, mode);
-	return EFI_EXIT(EFI_UNSUPPORTED);
-}
-
-static efi_status_t EFIAPI efi_cin_lock_std_in(
-			struct efi_console_control_protocol *this,
-			uint16_t *password)
-{
-	EFI_ENTRY("%p, %p", this, password);
-	return EFI_EXIT(EFI_UNSUPPORTED);
-}
-
-struct efi_console_control_protocol efi_console_control = {
-	.get_mode = efi_cin_get_mode,
-	.set_mode = efi_cin_set_mode,
-	.lock_std_in = efi_cin_lock_std_in,
-};
 
 /* Default to mode 0 */
 static struct simple_text_output_mode efi_con_mode = {
@@ -399,6 +361,48 @@ static efi_status_t EFIAPI efi_cin_reset(
 	return EFI_EXIT(EFI_UNSUPPORTED);
 }
 
+/*
+ * Analyze modifiers (shift, alt, ctrl) for function keys.
+ * This gets called when we have already parsed CSI.
+ *
+ * @modifiers:  bitmask (shift, alt, ctrl)
+ * @return:	the unmodified code
+ */
+static char skip_modifiers(int *modifiers)
+{
+	char c, mod = 0, ret = 0;
+
+	c = getc();
+
+	if (c != ';') {
+		ret = c;
+		if (c == '~')
+			goto out;
+		c = getc();
+	}
+	for (;;) {
+		switch (c) {
+		case '0'...'9':
+			mod *= 10;
+			mod += c - '0';
+		/* fall through */
+		case ';':
+			c = getc();
+			break;
+		default:
+			goto out;
+		}
+	}
+out:
+	if (mod)
+		--mod;
+	if (modifiers)
+		*modifiers = mod;
+	if (!ret)
+		ret = c;
+	return ret;
+}
+
 static efi_status_t EFIAPI efi_cin_read_key_stroke(
 			struct efi_simple_input_interface *this,
 			struct efi_input_key *key)
@@ -421,14 +425,21 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
 
 	ch = getc();
 	if (ch == cESC) {
-		/* Escape Sequence */
+		/*
+		 * Xterm Control Sequences
+		 * https://www.xfree86.org/4.8.0/ctlseqs.html
+		 */
 		ch = getc();
 		switch (ch) {
 		case cESC: /* ESC */
 			pressed_key.scan_code = 23;
 			break;
 		case 'O': /* F1 - F4 */
-			pressed_key.scan_code = getc() - 'P' + 11;
+			ch = getc();
+			/* skip modifiers */
+			if (ch <= '9')
+				ch = getc();
+			pressed_key.scan_code = ch - 'P' + 11;
 			break;
 		case 'a'...'z':
 			ch = ch - 'a';
@@ -445,17 +456,51 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
 			case 'H': /* Home */
 				pressed_key.scan_code = 5;
 				break;
-			case '1': /* F5 - F8 */
-				pressed_key.scan_code = getc() - '0' + 11;
-				getc();
+			case '1':
+				ch = skip_modifiers(NULL);
+				switch (ch) {
+				case '1'...'5': /* F1 - F5 */
+					pressed_key.scan_code = ch - '1' + 11;
+					break;
+				case '7'...'9': /* F6 - F8 */
+					pressed_key.scan_code = ch - '7' + 16;
+					break;
+				case 'A'...'D': /* up, down right, left */
+					pressed_key.scan_code = ch - 'A' + 1;
+					break;
+				case 'F':
+					pressed_key.scan_code = 6; /* End */
+					break;
+				case 'H':
+					pressed_key.scan_code = 5; /* Home */
+					break;
+				}
 				break;
-			case '2': /* F9 - F12 */
-				pressed_key.scan_code = getc() - '0' + 19;
-				getc();
+			case '2':
+				ch = skip_modifiers(NULL);
+				switch (ch) {
+				case '0'...'1': /* F9 - F10 */
+					pressed_key.scan_code = ch - '0' + 19;
+					break;
+				case '3'...'4': /* F11 - F12 */
+					pressed_key.scan_code = ch - '3' + 21;
+					break;
+				case '~': /* INS */
+					pressed_key.scan_code = 7;
+					break;
+				}
 				break;
 			case '3': /* DEL */
 				pressed_key.scan_code = 8;
-				getc();
+				skip_modifiers(NULL);
+				break;
+			case '5': /* PG UP */
+				pressed_key.scan_code = 9;
+				skip_modifiers(NULL);
+				break;
+			case '6': /* PG DOWN */
+				pressed_key.scan_code = 10;
+				skip_modifiers(NULL);
 				break;
 			}
 			break;
@@ -464,7 +509,8 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
 		/* Backspace */
 		ch = 0x08;
 	}
-	pressed_key.unicode_char = ch;
+	if (!pressed_key.scan_code)
+		pressed_key.unicode_char = ch;
 	*key = pressed_key;
 
 	return EFI_EXIT(EFI_SUCCESS);
@@ -506,18 +552,10 @@ static void EFIAPI efi_console_timer_notify(struct efi_event *event,
 int efi_console_register(void)
 {
 	efi_status_t r;
-	struct efi_object *efi_console_control_obj;
 	struct efi_object *efi_console_output_obj;
 	struct efi_object *efi_console_input_obj;
 
 	/* Create handles */
-	r = efi_create_handle((efi_handle_t *)&efi_console_control_obj);
-	if (r != EFI_SUCCESS)
-		goto out_of_memory;
-	r = efi_add_protocol(efi_console_control_obj->handle,
-			     &efi_guid_console_control, &efi_console_control);
-	if (r != EFI_SUCCESS)
-		goto out_of_memory;
 	r = efi_create_handle((efi_handle_t *)&efi_console_output_obj);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
@@ -534,14 +572,14 @@ int efi_console_register(void)
 		goto out_of_memory;
 
 	/* Create console events */
-	r = efi_create_event(EVT_NOTIFY_WAIT, TPL_CALLBACK,
-			     efi_key_notify, NULL, &efi_con_in.wait_for_key);
+	r = efi_create_event(EVT_NOTIFY_WAIT, TPL_CALLBACK, efi_key_notify,
+			     NULL, NULL, &efi_con_in.wait_for_key);
 	if (r != EFI_SUCCESS) {
 		printf("ERROR: Failed to register WaitForKey event\n");
 		return r;
 	}
 	r = efi_create_event(EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK,
-			     efi_console_timer_notify, NULL,
+			     efi_console_timer_notify, NULL, NULL,
 			     &console_timer_event);
 	if (r != EFI_SUCCESS) {
 		printf("ERROR: Failed to register console event\n");
