@@ -36,6 +36,8 @@
 			SPCMD_BRDV0
 #define SPBFCR_TXRST	BIT(7)
 #define SPBFCR_RXRST	BIT(6)
+#define SPBFCR_TXTRG	0x30
+#define SPBFCR_RXTRG	0x07
 
 /* SH QSPI register set */
 struct sh_qspi_regs {
@@ -201,8 +203,8 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	     void *din, unsigned long flags)
 {
 	struct sh_qspi_slave *ss = to_sh_qspi(slave);
-	u32 nbyte;
-	int ret = 0;
+	u32 nbyte, chunk;
+	int i, ret = 0;
 	u8 dtdata = 0, drdata;
 	u8 *tdata = &dtdata, *rdata = &drdata;
 	u32 *spbmul0 = &ss->regs->spbmul0;
@@ -237,26 +239,38 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		rdata = din;
 
 	while (nbyte > 0) {
+		/*
+		 * Check if there is 32 Byte chunk and if there is, transfer
+		 * it in one burst, otherwise transfer on byte-by-byte basis.
+		 */
+		chunk = (nbyte >= 32) ? 32 : 1;
+
+		clrsetbits_8(&ss->regs->spbfcr, SPBFCR_TXTRG | SPBFCR_RXTRG,
+			     chunk == 32 ? SPBFCR_TXTRG | SPBFCR_RXTRG : 0);
+
 		ret = wait_for_bit_8(&ss->regs->spsr, SPSR_SPTEF,
 				     true, 1000, true);
 		if (ret)
 			return ret;
 
-		writeb(*tdata, (u8 *)(&ss->regs->spdr));
+		for (i = 0; i < chunk; i++) {
+			writeb(*tdata, &ss->regs->spdr);
+			if (dout != NULL)
+				tdata++;
+		}
 
 		ret = wait_for_bit_8(&ss->regs->spsr, SPSR_SPRFF,
 				     true, 1000, true);
 		if (ret)
 			return ret;
 
-		*rdata = readb((u8 *)(&ss->regs->spdr));
+		for (i = 0; i < chunk; i++) {
+			*rdata = readb(&ss->regs->spdr);
+			if (din != NULL)
+				rdata++;
+		}
 
-		if (dout != NULL)
-			tdata++;
-		if (din != NULL)
-			rdata++;
-
-		nbyte--;
+		nbyte -= chunk;
 	}
 
 	if (flags & SPI_XFER_END)
