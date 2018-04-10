@@ -246,14 +246,6 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 
 		writeb(*tdata, (u8 *)(&ss->regs->spdr));
 
-		while ((readw(&ss->regs->spbdcr) != SPBDCR_RXBC0)) {
-			if (ctrlc()) {
-				puts("abort\n");
-				return 1;
-			}
-			udelay(1);
-		}
-
 		while (!(readb(&ss->regs->spsr) & SPSR_SPRFF)) {
 			if (ctrlc()) {
 				puts("abort\n");
