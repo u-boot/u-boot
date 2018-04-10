@@ -18,7 +18,7 @@
 bool armv7_boot_nonsec_default(void)
 {
 #ifdef CONFIG_ARMV7_BOOT_SEC_DEFAULT
-	return false
+	return false;
 #else
 	/*
 	 * The Serial Configuration Controller (SCC) register at address 0x700
