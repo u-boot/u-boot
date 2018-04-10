@@ -11,6 +11,7 @@
 #include <console.h>
 #include <malloc.h>
 #include <spi.h>
+#include <wait_bit.h>
 #include <asm/arch/rmobile.h>
 #include <asm/io.h>
 
@@ -236,23 +237,17 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		rdata = din;
 
 	while (nbyte > 0) {
-		while (!(readb(&ss->regs->spsr) & SPSR_SPTEF)) {
-			if (ctrlc()) {
-				puts("abort\n");
-				return 1;
-			}
-			udelay(10);
-		}
+		ret = wait_for_bit_8(&ss->regs->spsr, SPSR_SPTEF,
+				     true, 1000, true);
+		if (ret)
+			return ret;
 
 		writeb(*tdata, (u8 *)(&ss->regs->spdr));
 
-		while (!(readb(&ss->regs->spsr) & SPSR_SPRFF)) {
-			if (ctrlc()) {
-				puts("abort\n");
-				return 1;
-			}
-			udelay(10);
-		}
+		ret = wait_for_bit_8(&ss->regs->spsr, SPSR_SPRFF,
+				     true, 1000, true);
+		if (ret)
+			return ret;
 
 		*rdata = readb((u8 *)(&ss->regs->spdr));
 
