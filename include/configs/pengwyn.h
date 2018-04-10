@@ -165,16 +165,9 @@
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE MUSB_HOST
 
-#if defined(CONFIG_SPL_BUILD)
-/* disable host part of MUSB in SPL */
-/* Disable CPSW SPL support so we fit within the 101KiB limit. */
-#endif
-
 /* Network */
 #define CONFIG_PHY_RESET	1
 #define CONFIG_PHY_NATSEMI
 #define CONFIG_PHY_REALTEK
-
-/* CPSW support */
 
 #endif	/* ! __CONFIG_PENGWYN_H */
