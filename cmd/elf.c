@@ -369,6 +369,11 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("## Starting vxWorks at 0x%08lx ...\n", addr);
 
 	dcache_disable();
+#if defined(CONFIG_ARM64) && defined(CONFIG_ARMV8_PSCI)
+	armv8_setup_psci();
+	smp_kick_all_cpus();
+#endif
+
 #ifdef CONFIG_X86
 	/* VxWorks on x86 uses stack to pass parameters */
 	((asmlinkage void (*)(int))addr)(0);
