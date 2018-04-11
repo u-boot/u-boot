@@ -10,6 +10,7 @@
 #include <led.h>
 #include <asm/gpio.h>
 #include <dm/lists.h>
+#include <dm/uclass-internal.h>
 
 struct led_gpio_priv {
 	struct gpio_desc gpio;
@@ -117,6 +118,14 @@ static int led_gpio_bind(struct udevice *parent)
 			return ret;
 		uc_plat = dev_get_uclass_platdata(dev);
 		uc_plat->label = label;
+
+		if (ofnode_read_bool(node, "default-state")) {
+			struct udevice *devp;
+
+			ret = uclass_get_device_tail(dev, 0, &devp);
+			if (ret)
+				return ret;
+		}
 	}
 
 	return 0;
