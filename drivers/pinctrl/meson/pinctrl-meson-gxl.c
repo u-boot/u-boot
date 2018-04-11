@@ -13,7 +13,7 @@
 
 #include "pinctrl-meson.h"
 
-#define EE_OFF	10
+#define EE_OFF	11
 
 static const unsigned int emmc_nand_d07_pins[] = {
 	PIN(BOOT_0, EE_OFF), PIN(BOOT_1, EE_OFF), PIN(BOOT_2, EE_OFF),
@@ -289,7 +289,7 @@ static struct meson_pmx_group meson_gxl_periphs_groups[] = {
 	GPIO_GROUP(GPIOCLK_0, EE_OFF),
 	GPIO_GROUP(GPIOCLK_1, EE_OFF),
 
-	GPIO_GROUP(GPIO_TEST_N, EE_OFF),
+	GPIO_GROUP(GPIO_TEST_N, 0),
 
 	/* Bank X */
 	GROUP(sdio_d0,		5,	31),
@@ -471,8 +471,6 @@ static const char * const gpio_periphs_groups[] = {
 	"GPIOX_5", "GPIOX_6", "GPIOX_7", "GPIOX_8", "GPIOX_9",
 	"GPIOX_10", "GPIOX_11", "GPIOX_12", "GPIOX_13", "GPIOX_14",
 	"GPIOX_15", "GPIOX_16", "GPIOX_17", "GPIOX_18",
-
-	"GPIO_TEST_N",
 };
 
 static const char * const emmc_groups[] = {
@@ -587,6 +585,8 @@ static const char * const tsin_a_groups[] = {
 static const char * const gpio_aobus_groups[] = {
 	"GPIOAO_0", "GPIOAO_1", "GPIOAO_2", "GPIOAO_3", "GPIOAO_4",
 	"GPIOAO_5", "GPIOAO_6", "GPIOAO_7", "GPIOAO_8", "GPIOAO_9",
+
+	"GPIO_TEST_N",
 };
 
 static const char * const uart_ao_groups[] = {
@@ -691,11 +691,11 @@ static struct meson_bank meson_gxl_aobus_banks[] = {
 
 struct meson_pinctrl_data meson_gxl_periphs_pinctrl_data = {
 	.name		= "periphs-banks",
-	.pin_base	= 10,
+	.pin_base	= 11,
 	.groups		= meson_gxl_periphs_groups,
 	.funcs		= meson_gxl_periphs_functions,
 	.banks		= meson_gxl_periphs_banks,
-	.num_pins	= 101,
+	.num_pins	= 100,
 	.num_groups	= ARRAY_SIZE(meson_gxl_periphs_groups),
 	.num_funcs	= ARRAY_SIZE(meson_gxl_periphs_functions),
 	.num_banks	= ARRAY_SIZE(meson_gxl_periphs_banks),
@@ -707,7 +707,7 @@ struct meson_pinctrl_data meson_gxl_aobus_pinctrl_data = {
 	.groups		= meson_gxl_aobus_groups,
 	.funcs		= meson_gxl_aobus_functions,
 	.banks		= meson_gxl_aobus_banks,
-	.num_pins	= 10,
+	.num_pins	= 11,
 	.num_groups	= ARRAY_SIZE(meson_gxl_aobus_groups),
 	.num_funcs	= ARRAY_SIZE(meson_gxl_aobus_functions),
 	.num_banks	= ARRAY_SIZE(meson_gxl_aobus_banks),
