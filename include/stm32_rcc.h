@@ -40,7 +40,8 @@ struct stm32_clk_info {
 };
 
 enum soc_family {
-	STM32F4,
+	STM32F42X,
+	STM32F469,
 	STM32F7,
 };
 

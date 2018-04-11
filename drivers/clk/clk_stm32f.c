@@ -133,6 +133,7 @@ struct stm32_clk {
 	struct stm32_pwr_regs *pwr_regs;
 	struct stm32_clk_info info;
 	unsigned long hse_rate;
+	bool pllsaip;
 };
 
 #ifdef CONFIG_VIDEO_STM32
@@ -179,8 +180,12 @@ static int configure_clocks(struct udevice *dev)
 
 	/* configure SDMMC clock */
 	if (priv->info.v2) { /*stm32f7 case */
-		/* select PLLQ as 48MHz clock source */
-		clrbits_le32(&regs->dckcfgr2, RCC_DCKCFGRX_CK48MSEL);
+		if (priv->pllsaip)
+			/* select PLLSAIP as 48MHz clock source */
+			setbits_le32(&regs->dckcfgr2, RCC_DCKCFGRX_CK48MSEL);
+		else
+			/* select PLLQ as 48MHz clock source */
+			clrbits_le32(&regs->dckcfgr2, RCC_DCKCFGRX_CK48MSEL);
 
 		/* select 48MHz as SDMMC1 clock source */
 		clrbits_le32(&regs->dckcfgr2, RCC_DCKCFGRX_SDMMC1SEL);
@@ -188,17 +193,23 @@ static int configure_clocks(struct udevice *dev)
 		/* select 48MHz as SDMMC2 clock source */
 		clrbits_le32(&regs->dckcfgr2, RCC_DCKCFGR2_SDMMC2SEL);
 	} else  { /* stm32f4 case */
-		/* select PLLQ as 48MHz clock source */
-		clrbits_le32(&regs->dckcfgr, RCC_DCKCFGRX_CK48MSEL);
+		if (priv->pllsaip)
+			/* select PLLSAIP as 48MHz clock source */
+			setbits_le32(&regs->dckcfgr, RCC_DCKCFGRX_CK48MSEL);
+		else
+			/* select PLLQ as 48MHz clock source */
+			clrbits_le32(&regs->dckcfgr, RCC_DCKCFGRX_CK48MSEL);
 
 		/* select 48MHz as SDMMC1 clock source */
 		clrbits_le32(&regs->dckcfgr, RCC_DCKCFGRX_SDMMC1SEL);
 	}
 
-#ifdef CONFIG_VIDEO_STM32
 	/*
-	 * Configure the SAI PLL to generate LTDC pixel clock
+	 * Configure the SAI PLL to generate LTDC pixel clock and
+	 * 48 Mhz for SDMMC and USB
 	 */
+	clrsetbits_le32(&regs->pllsaicfgr, RCC_PLLSAICFGR_PLLSAIP_MASK,
+			RCC_PLLSAICFGR_PLLSAIP_4);
 	clrsetbits_le32(&regs->pllsaicfgr, RCC_PLLSAICFGR_PLLSAIR_MASK,
 			RCC_PLLSAICFGR_PLLSAIR_3);
 	clrsetbits_le32(&regs->pllsaicfgr, RCC_PLLSAICFGR_PLLSAIN_MASK,
@@ -206,18 +217,16 @@ static int configure_clocks(struct udevice *dev)
 
 	clrsetbits_le32(&regs->dckcfgr, RCC_DCKCFGR_PLLSAIDIVR_MASK,
 			RCC_DCKCFGR_PLLSAIDIVR_2 << RCC_DCKCFGR_PLLSAIDIVR_SHIFT);
-#endif
+
 	/* Enable the main PLL */
 	setbits_le32(&regs->cr, RCC_CR_PLLON);
 	while (!(readl(&regs->cr) & RCC_CR_PLLRDY))
 		;
 
-#ifdef CONFIG_VIDEO_STM32
-/* Enable the SAI PLL */
+	/* Enable the SAI PLL */
 	setbits_le32(&regs->cr, RCC_CR_PLLSAION);
 	while (!(readl(&regs->cr) & RCC_CR_PLLSAIRDY))
 		;
-#endif
 	setbits_le32(&regs->apb1enr, RCC_APB1ENR_PWREN);
 
 	if (priv->info.has_overdrive) {
@@ -617,12 +626,17 @@ static int stm32_clk_probe(struct udevice *dev)
 		return -EINVAL;
 
 	priv->base = (struct stm32_rcc_regs *)addr;
+	priv->pllsaip = true;
 
 	switch (dev_get_driver_data(dev)) {
-	case STM32F4:
+	case STM32F42X:
+		priv->pllsaip = false;
+		/* fallback into STM32F469 case */
+	case STM32F469:
 		memcpy(&priv->info, &stm32f4_clk_info,
 		       sizeof(struct stm32_clk_info));
 		break;
+
 	case STM32F7:
 		memcpy(&priv->info, &stm32f7_clk_info,
 		       sizeof(struct stm32_clk_info));
