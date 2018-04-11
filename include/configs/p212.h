@@ -15,6 +15,6 @@
 
 #define MESON_FDTFILE_SETTING "fdtfile=amlogic/meson-gxl-s905x-p212.dtb\0"
 
-#include <configs/meson-gxbb-common.h>
+#include <configs/meson-gx-common.h>
 
 #endif /* __CONFIG_H */

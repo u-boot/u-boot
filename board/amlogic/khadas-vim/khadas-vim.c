@@ -8,7 +8,7 @@
 #include <dm.h>
 #include <environment.h>
 #include <asm/io.h>
-#include <asm/arch/gxbb.h>
+#include <asm/arch/gx.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/sm.h>
 #include <asm/arch/eth.h>

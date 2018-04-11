@@ -6,7 +6,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/gxbb.h>
+#include <asm/arch/gx.h>
 #include <linux/kernel.h>
 
 #define FN_GET_SHARE_MEM_INPUT_BASE	0x82000020

@@ -6,7 +6,7 @@
 #include <common.h>
 #include <linux/libfdt.h>
 #include <linux/err.h>
-#include <asm/arch/gxbb.h>
+#include <asm/arch/gx.h>
 #include <asm/arch/sm.h>
 #include <asm/armv8/mmu.h>
 #include <asm/unaligned.h>
@@ -39,8 +39,8 @@ int dram_init(void)
 phys_size_t get_effective_memsize(void)
 {
 	/* Size is reported in MiB, convert it in bytes */
-	return ((readl(GXBB_AO_SEC_GP_CFG0) & GXBB_AO_MEM_SIZE_MASK)
-			>> GXBB_AO_MEM_SIZE_SHIFT) * SZ_1M;
+	return ((readl(GX_AO_SEC_GP_CFG0) & GX_AO_MEM_SIZE_MASK)
+			>> GX_AO_MEM_SIZE_SHIFT) * SZ_1M;
 }
 
 static void meson_board_add_reserved_memory(void *fdt, u64 start, u64 size)
@@ -71,27 +71,27 @@ void meson_gx_init_reserved_memory(void *fdt)
 	 * - AO_SEC_GP_CFG4: bl32 physical start address, can be NULL
 	 */
 
-	reg = readl(GXBB_AO_SEC_GP_CFG3);
+	reg = readl(GX_AO_SEC_GP_CFG3);
 
-	bl31_size = ((reg & GXBB_AO_BL31_RSVMEM_SIZE_MASK)
-			>> GXBB_AO_BL31_RSVMEM_SIZE_SHIFT) * SZ_1K;
-	bl32_size = (reg & GXBB_AO_BL32_RSVMEM_SIZE_MASK) * SZ_1K;
+	bl31_size = ((reg & GX_AO_BL31_RSVMEM_SIZE_MASK)
+			>> GX_AO_BL31_RSVMEM_SIZE_SHIFT) * SZ_1K;
+	bl32_size = (reg & GX_AO_BL32_RSVMEM_SIZE_MASK) * SZ_1K;
 
-	bl31_start = readl(GXBB_AO_SEC_GP_CFG5);
-	bl32_start = readl(GXBB_AO_SEC_GP_CFG4);
+	bl31_start = readl(GX_AO_SEC_GP_CFG5);
+	bl32_start = readl(GX_AO_SEC_GP_CFG4);
 
 	/*
-	 * Early Meson GXBB Firmware revisions did not provide the reserved
+	 * Early Meson GX Firmware revisions did not provide the reserved
 	 * memory zones in the registers, keep fixed memory zone handling.
 	 */
-	if (IS_ENABLED(CONFIG_MESON_GXBB) &&
+	if (IS_ENABLED(CONFIG_MESON_GX) &&
 	    !reg && !bl31_start && !bl32_start) {
 		bl31_start = 0x10000000;
 		bl31_size = 0x200000;
 	}
 
 	/* Add first 16MiB reserved zone */
-	meson_board_add_reserved_memory(fdt, 0, GXBB_FIRMWARE_MEM_SIZE);
+	meson_board_add_reserved_memory(fdt, 0, GX_FIRMWARE_MEM_SIZE);
 
 	/* Add BL31 reserved zone */
 	if (bl31_start && bl31_size)
@@ -107,7 +107,7 @@ void reset_cpu(ulong addr)
 	psci_system_reset();
 }
 
-static struct mm_region gxbb_mem_map[] = {
+static struct mm_region gx_mem_map[] = {
 	{
 		.virt = 0x0UL,
 		.phys = 0x0UL,
@@ -127,4 +127,4 @@ static struct mm_region gxbb_mem_map[] = {
 	}
 };
 
-struct mm_region *mem_map = gxbb_mem_map;
+struct mm_region *mem_map = gx_mem_map;

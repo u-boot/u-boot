@@ -8,7 +8,7 @@
 #include <dm.h>
 #include <environment.h>
 #include <asm/io.h>
-#include <asm/arch/gxbb.h>
+#include <asm/arch/gx.h>
 #include <asm/arch/sm.h>
 #include <asm/arch/eth.h>
 #include <asm/arch/mem.h>
@@ -33,8 +33,8 @@ int misc_init_r(void)
 			  MESON_GXL_USE_INTERNAL_RMII_PHY);
 
 	/* Enable power and clock gate */
-	setbits_le32(GXBB_GCLK_MPEG_1, GXBB_GCLK_MPEG_1_ETH);
-	clrbits_le32(GXBB_MEM_PD_REG_0, GXBB_MEM_PD_REG_0_ETH_MASK);
+	setbits_le32(GX_GCLK_MPEG_1, GX_GCLK_MPEG_1_ETH);
+	clrbits_le32(GX_MEM_PD_REG_0, GX_MEM_PD_REG_0_ETH_MASK);
 
 	if (!eth_env_get_enetaddr("ethaddr", mac_addr)) {
 		len = meson_sm_read_efuse(EFUSE_MAC_OFFSET,
