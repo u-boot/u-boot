@@ -16,6 +16,5 @@
 };
 
 &usdhc3 {
-	u-boot,dm-spl;
 	status = "okay";
 };

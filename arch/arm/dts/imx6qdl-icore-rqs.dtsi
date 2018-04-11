@@ -105,7 +105,6 @@
 };
 
 &usdhc3 {
-	u-boot,dm-spl;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usdhc3>;
 	cd-gpios = <&gpio1 1 GPIO_ACTIVE_LOW>;
@@ -114,7 +113,6 @@
 };
 
 &usdhc4 {
-	u-boot,dm-spl;
 	pinctrl-names = "default", "state_100mhz", "state_200mhz";
 	pinctrl-0 = <&pinctrl_usdhc4>;
 	pinctrl-1 = <&pinctrl_usdhc4_100mhz>;
@@ -176,7 +174,6 @@
 	};
 
 	pinctrl_usdhc3: usdhc3grp {
-		u-boot,dm-spl;
 		fsl,pins = <
 			MX6QDL_PAD_SD3_CMD__SD3_CMD    0x17070
 			MX6QDL_PAD_SD3_CLK__SD3_CLK    0x10070
@@ -188,7 +185,6 @@
 	};
 
 	pinctrl_usdhc4: usdhc4grp {
-		u-boot,dm-spl;
 		fsl,pins = <
 			MX6QDL_PAD_SD4_CMD__SD4_CMD    0x17070
 			MX6QDL_PAD_SD4_CLK__SD4_CLK    0x10070
