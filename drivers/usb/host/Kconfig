@@ -21,6 +21,13 @@ config USB_XHCI_DWC3
 	  Say Y or if your system has a Dual Role SuperSpeed
 	  USB controller based on the DesignWare USB3 IP Core.
 
+config USB_XHCI_DWC3_OF_SIMPLE
+	bool "DesignWare USB3 DRD Generic OF Simple Glue Layer"
+	select MISC
+	help
+	  Support USB2/3 functionality in simple SoC integrations with
+	  USB controller based on the DesignWare USB3 IP Core.
+
 config USB_XHCI_MVEBU
 	bool "MVEBU USB 3.0 support"
 	default y
