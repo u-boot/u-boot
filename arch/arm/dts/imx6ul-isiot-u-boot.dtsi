@@ -1,0 +1,19 @@
+/*
+ * Copyright (C) 2018 Jagan Teki <jagan@amarulasolutions.com>
+ *
+ * SPDX-License-Identifier:     GPL-2.0+
+ */
+
+#include "imx6ul-u-boot.dtsi"
+
+&usdhc1 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc1 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc2 {
+	u-boot,dm-spl;
+};

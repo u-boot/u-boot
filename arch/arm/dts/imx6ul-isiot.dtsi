@@ -42,7 +42,6 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
-#include "imx6ul.dtsi"
 
 / {
 	memory {
@@ -82,7 +81,6 @@
 };
 
 &usdhc1 {
-	u-boot,dm-spl;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usdhc1>;
 	cd-gpios = <&gpio1 19 GPIO_ACTIVE_LOW>;
@@ -138,7 +136,6 @@
 	};
 
 	pinctrl_usdhc1: usdhc1grp {
-		u-boot,dm-spl;
 		fsl,pins = <
 			MX6UL_PAD_SD1_CMD__USDHC1_CMD     0x17059
 			MX6UL_PAD_SD1_CLK__USDHC1_CLK     0x10059

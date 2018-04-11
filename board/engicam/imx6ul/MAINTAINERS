@@ -8,7 +8,12 @@ F:	configs/imx6ul_geam_nand_defconfig
 F:	configs/imx6ul_isiot_emmc_defconfig
 F:	configs/imx6ul_isiot_mmc_defconfig
 F:	configs/imx6ul_isiot_nand_defconfig
+F:	arch/arm/dts/imx6ul.dtsi
+F:	arch/arm/dts/imx6ul-u-boot.dtsi
 F:	arch/arm/dts/imx6ul-geam-kit.dts
+F:	arch/arm/dts/imx6ul-geam-kit-u-boot.dtsi
 F:	arch/arm/dts/imx6ul-isiot.dtsi
+F:	arch/arm/dts/imx6ul-isiot-u-boot.dtsi
 F:	arch/arm/dts/imx6ul-isiot-emmc.dts
+F:	arch/arm/dts/imx6ul-isiot-emmc-u-boot.dtsi
 F:	arch/arm/dts/imx6ul-isiot-nand.dts
