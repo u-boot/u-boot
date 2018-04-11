@@ -19,11 +19,29 @@ static int dm_test_led_base(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_LED, 0, &dev));
 	ut_assertok(uclass_get_device(UCLASS_LED, 1, &dev));
 	ut_assertok(uclass_get_device(UCLASS_LED, 2, &dev));
-	ut_asserteq(-ENODEV, uclass_get_device(UCLASS_LED, 3, &dev));
+	ut_assertok(uclass_get_device(UCLASS_LED, 3, &dev));
+	ut_assertok(uclass_get_device(UCLASS_LED, 4, &dev));
+	ut_asserteq(-ENODEV, uclass_get_device(UCLASS_LED, 5, &dev));
 
 	return 0;
 }
 DM_TEST(dm_test_led_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test of the LED 'default-state' device tree property */
+static int dm_test_led_default_state(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	/* Check that we handle the default-state property correctly. */
+	ut_assertok(led_get_by_label("sandbox:default_on", &dev));
+	ut_asserteq(LEDST_ON, led_get_state(dev));
+
+	ut_assertok(led_get_by_label("sandbox:default_off", &dev));
+	ut_asserteq(LEDST_OFF, led_get_state(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_led_default_state, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Test of the led uclass using the led_gpio driver */
 static int dm_test_led_gpio(struct unit_test_state *uts)

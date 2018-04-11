@@ -254,6 +254,18 @@
 			gpios = <&gpio_a 2 0>;
 			label = "sandbox:green";
 		};
+
+		default_on {
+			gpios = <&gpio_a 5 0>;
+			label = "sandbox:default_on";
+			default-state = "on";
+		};
+
+		default_off {
+			gpios = <&gpio_a 6 0>;
+			label = "sandbox:default_off";
+			default-state = "off";
+		};
 	};
 
 	mbox: mbox {
