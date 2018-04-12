@@ -169,8 +169,8 @@ static void tpl_init_lbsc(void)
 	static const struct reg_config lbsc_config[] = {
 		{ 0x00, 0x00000020 },
 		{ 0x08, 0x00002020 },
-		{ 0x10, 0x2a103320 },
-		{ 0x18, 0xff70ff70 },
+		{ 0x30, 0x2a103320 },
+		{ 0x38, 0xff70ff70 },
 	};
 
 	static const u16 lbsc_offs[] = {
