@@ -50,7 +50,7 @@ static int dwc3_of_simple_clk_init(struct udevice *dev,
 	int ret;
 
 	ret = clk_get_bulk(dev, &simple->clks);
-	if (ret == -ENOTSUPP)
+	if (ret == -ENOSYS)
 		return 0;
 	if (ret)
 		return ret;
