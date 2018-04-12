@@ -100,7 +100,7 @@ static struct sfi_table_simple *sfi_search_mmap(void)
 	     i++, mentry++)						\
 
 static unsigned int sfi_setup_e820(unsigned int max_entries,
-				   struct e820entry *entries)
+				   struct e820_entry *entries)
 {
 	struct sfi_table_simple *sb;
 	struct sfi_mem_entry *mentry;
@@ -190,7 +190,7 @@ static phys_size_t sfi_get_ram_size(void)
 }
 
 unsigned int install_e820_map(unsigned int max_entries,
-			      struct e820entry *entries)
+			      struct e820_entry *entries)
 {
 	return sfi_setup_e820(max_entries, entries);
 }

@@ -211,7 +211,7 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_X86
 	ulong base;
 	struct e820_info *info;
-	struct e820entry *data;
+	struct e820_entry *data;
 #endif
 
 	/*
@@ -340,13 +340,13 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * if we don't specify it in the environment, use a default one.
 	 */
 	base = env_get_hex("vx_phys_mem_base", VXWORKS_PHYS_MEM_BASE);
-	data = (struct e820entry *)(base + E820_DATA_OFFSET);
+	data = (struct e820_entry *)(base + E820_DATA_OFFSET);
 	info = (struct e820_info *)(base + E820_INFO_OFFSET);
 
 	memset(info, 0, sizeof(struct e820_info));
 	info->sign = E820_SIGNATURE;
 	info->entries = install_e820_map(E820MAX, data);
-	info->addr = (info->entries - 1) * sizeof(struct e820entry) +
+	info->addr = (info->entries - 1) * sizeof(struct e820_entry) +
 		     E820_DATA_OFFSET;
 
 	/*

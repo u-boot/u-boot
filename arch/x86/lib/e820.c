@@ -18,7 +18,7 @@ DECLARE_GLOBAL_DATA_PTR;
  *	CONFIG_PCIE_ECAM_BASE	PCIe ECAM
  */
 __weak unsigned int install_e820_map(unsigned int max_entries,
-				     struct e820entry *entries)
+				     struct e820_entry *entries)
 {
 	entries[0].addr = 0;
 	entries[0].size = ISA_START_ADDRESS;

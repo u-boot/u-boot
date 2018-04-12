@@ -63,7 +63,7 @@ ulong board_get_usable_ram_top(ulong total_size)
 }
 
 unsigned int install_e820_map(unsigned int max_entries,
-			      struct e820entry *entries)
+			      struct e820_entry *entries)
 {
 	unsigned int num_entries = 0;
 	const struct hob_header *hdr;
