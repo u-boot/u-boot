@@ -17,8 +17,6 @@ For booting old kernels (6.9.x) on PowerPC and ARM, and all kernel versions
 on other architectures, 'bootvx' shall be used. For booting VxWorks 7 kernels
 on PowerPC and ARM, 'bootm' shall be used.
 
-64-bit x86 kernel cannot be loaded as of today.
-
 VxWorks 7 on PowerPC and ARM
 ---------------------------
 From VxWorks 7, VxWorks starts adopting device tree as its hardware decription
@@ -79,3 +77,22 @@ For boards on which ACPI is not supported by U-Boot yet, VxWorks kernel must
 be configured to use MP table and virtual wire interrupt mode. This requires
 INCLUDE_MPTABLE_BOOT_OP and INCLUDE_VIRTUAL_WIRE_MODE to be included in a
 VxWorks kernel configuration.
+
+Both 32-bit x86 and 64-bit x64 kernels can be loaded.
+
+There are two types of graphics console drivers in VxWorks. One is the 80x25
+VGA text mode driver. The other one is the EFI console bitmapped graphics mode
+driver. To make these drivers function, U-Boot needs to load and run the VGA
+BIOS of the graphics card first.
+
+    - If the kernel is configured with 80x25 VGA text mode driver,
+      CONFIG_FRAMEBUFFER_SET_VESA_MODE must be unset in U-Boot.
+    - If the kernel is configured with bitmapped graphics mode driver,
+      CONFIG_FRAMEBUFFER_SET_VESA_MODE need remain set but care must be taken
+      at which VESA mode is to be set. The supported pixel format is 32-bit
+      RGBA, hence the available VESA mode can only be one of the following:
+        * FRAMEBUFFER_VESA_MODE_10F
+        * FRAMEBUFFER_VESA_MODE_112
+        * FRAMEBUFFER_VESA_MODE_115
+        * FRAMEBUFFER_VESA_MODE_118
+        * FRAMEBUFFER_VESA_MODE_11B
