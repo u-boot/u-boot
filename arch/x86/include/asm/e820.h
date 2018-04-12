@@ -24,6 +24,7 @@ struct e820entry {
 #endif /* __ASSEMBLY__ */
 
 /* Implementation defined function to install an e820 map */
-unsigned install_e820_map(unsigned max_entries, struct e820entry *);
+unsigned int install_e820_map(unsigned int max_entries,
+			      struct e820entry *);
 
 #endif /* _ASM_X86_E820_H */

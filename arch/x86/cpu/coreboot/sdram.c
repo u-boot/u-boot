@@ -12,12 +12,13 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-unsigned install_e820_map(unsigned max_entries, struct e820entry *entries)
+unsigned int install_e820_map(unsigned int max_entries,
+			      struct e820entry *entries)
 {
-	unsigned num_entries;
+	unsigned int num_entries;
 	int i;
 
-	num_entries = min((unsigned)lib_sysinfo.n_memranges, max_entries);
+	num_entries = min((unsigned int)lib_sysinfo.n_memranges, max_entries);
 	if (num_entries < lib_sysinfo.n_memranges) {
 		printf("Warning: Limiting e820 map to %d entries.\n",
 			num_entries);
