@@ -25,8 +25,46 @@
 #endif
 
 /*
- * A very simple elf loader, assumes the image is valid, returns the
+ * A very simple ELF64 loader, assumes the image is valid, returns the
  * entry point address.
+ *
+ * Note if U-Boot is 32-bit, the loader assumes the to segment's
+ * physical address and size is within the lower 32-bit address space.
+ */
+static unsigned long load_elf64_image_phdr(unsigned long addr)
+{
+	Elf64_Ehdr *ehdr; /* Elf header structure pointer */
+	Elf64_Phdr *phdr; /* Program header structure pointer */
+	int i;
+
+	ehdr = (Elf64_Ehdr *)addr;
+	phdr = (Elf64_Phdr *)(addr + (ulong)ehdr->e_phoff);
+
+	/* Load each program header */
+	for (i = 0; i < ehdr->e_phnum; ++i) {
+		void *dst = (void *)(ulong)phdr->p_paddr;
+		void *src = (void *)addr + phdr->p_offset;
+
+		debug("Loading phdr %i to 0x%p (%lu bytes)\n",
+		      i, dst, (ulong)phdr->p_filesz);
+		if (phdr->p_filesz)
+			memcpy(dst, src, phdr->p_filesz);
+		if (phdr->p_filesz != phdr->p_memsz)
+			memset(dst + phdr->p_filesz, 0x00,
+			       phdr->p_memsz - phdr->p_filesz);
+		flush_cache((unsigned long)dst, phdr->p_filesz);
+		++phdr;
+	}
+
+	return ehdr->e_entry;
+}
+
+/*
+ * A very simple ELF loader, assumes the image is valid, returns the
+ * entry point address.
+ *
+ * The loader firstly reads the EFI class to see if it's a 64-bit image.
+ * If yes, call the ELF64 loader. Otherwise continue with the ELF32 loader.
  */
 static unsigned long load_elf_image_phdr(unsigned long addr)
 {
@@ -35,12 +73,16 @@ static unsigned long load_elf_image_phdr(unsigned long addr)
 	int i;
 
 	ehdr = (Elf32_Ehdr *)addr;
+	if (ehdr->e_ident[EI_CLASS] == ELFCLASS64)
+		return load_elf64_image_phdr(addr);
+
 	phdr = (Elf32_Phdr *)(addr + ehdr->e_phoff);
 
 	/* Load each program header */
 	for (i = 0; i < ehdr->e_phnum; ++i) {
 		void *dst = (void *)(uintptr_t)phdr->p_paddr;
 		void *src = (void *)addr + phdr->p_offset;
+
 		debug("Loading phdr %i to 0x%p (%i bytes)\n",
 		      i, dst, phdr->p_filesz);
 		if (phdr->p_filesz)
