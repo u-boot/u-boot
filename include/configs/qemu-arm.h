@@ -20,7 +20,6 @@
 #define CONFIG_SYS_MALLOC_LEN		SZ_16M
 
 /* For timer, QEMU emulates an ARMv7/ARMv8 architected timer */
-#define CONFIG_SYS_ARCH_TIMER
 #define CONFIG_SYS_HZ                       1000
 
 /* For block devices, QEMU emulates an ICH9 AHCI controller over PCI */

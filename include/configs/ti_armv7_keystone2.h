@@ -17,7 +17,6 @@
 
 /* SoC Configuration */
 #define CONFIG_ARCH_CPU_INIT
-#define CONFIG_SYS_ARCH_TIMER
 #define CONFIG_SPL_TARGET		"u-boot-spi.gph"
 #define CONFIG_SYS_DCACHE_OFF
 

@@ -242,6 +242,16 @@ config SYS_CACHELINE_SIZE
 	default 64 if SYS_CACHE_SHIFT_6
 	default 32 if SYS_CACHE_SHIFT_5
 
+config SYS_ARCH_TIMER
+	bool "ARM Generic Timer support"
+	depends on CPU_V7 || ARM64
+	default y if ARM64
+	help
+	  The ARM Generic Timer (aka arch-timer) provides an architected
+	  interface to a timer source on an SoC.
+	  It is mandantory for ARMv8 implementation and widely available
+	  on ARMv7 systems.
+
 config ARM_SMCCC
 	bool "Support for ARM SMC Calling Convention (SMCCC)"
 	depends on CPU_V7 || ARM64
@@ -570,6 +580,7 @@ config ARCH_KEYSTONE
 	select SUPPORT_SPL
 	select SYS_THUMB_BUILD
 	select CMD_POWEROFF
+	select SYS_ARCH_TIMER
 	imply CMD_MTDPARTS
 	imply FIT
 	imply CMD_SAVES

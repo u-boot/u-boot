@@ -46,7 +46,6 @@
 /* Using ULP WDOG for reset */
 #define WDOG_BASE_ADDR			WDG1_RBASE
 
-#define CONFIG_SYS_ARCH_TIMER
 #define CONFIG_SYS_HZ_CLOCK		1000000 /* Fixed at 1Mhz from TSTMR */
 
 #define CONFIG_INITRD_TAG

@@ -17,7 +17,6 @@
  * Number of clock ticks in 1 sec
  */
 #define CONFIG_SYS_HZ				1000
-#define CONFIG_SYS_ARCH_TIMER
 
 /*
  * malloc() pool size
