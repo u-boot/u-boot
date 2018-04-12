@@ -43,6 +43,15 @@ struct e820info {
 	u32 error;	/* must be zero */
 };
 
+/*
+ * VxWorks bootloader stores its size at a pre-defined offset @ 0x5004.
+ * Later when VxWorks kernel boots up and system memory information is
+ * retrieved from the E820 table, the bootloader size will be subtracted
+ * from the total system memory size to calculate the size of available
+ * memory for the OS.
+ */
+#define BOOT_IMAGE_SIZE_OFFSET	0x5004
+
 int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 void boot_prep_vxworks(bootm_headers_t *images);
 void boot_jump_vxworks(bootm_headers_t *images);

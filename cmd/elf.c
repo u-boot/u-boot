@@ -348,6 +348,13 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	info->entries = install_e820_map(E820MAX, data);
 	info->addr = (info->entries - 1) * sizeof(struct e820entry) +
 		     E820_DATA_OFFSET;
+
+	/*
+	 * Explicitly clear the bootloader image size otherwise if memory
+	 * at this offset happens to contain some garbage data, the final
+	 * available memory size for the kernel is insane.
+	 */
+	*(u32 *)(base + BOOT_IMAGE_SIZE_OFFSET) = 0;
 #endif
 
 	/*
