@@ -53,7 +53,6 @@ config ISO_PARTITION
 config SPL_ISO_PARTITION
 	bool "Enable ISO partition table for SPL"
 	depends on SPL && PARTITIONS
-	default y if ISO_PARTITION
 
 config AMIGA_PARTITION
 	bool "Enable AMIGA partition table"
