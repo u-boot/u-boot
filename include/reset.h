@@ -243,7 +243,8 @@ static inline int reset_get_by_index(struct udevice *dev, int index,
 	return -ENOTSUPP;
 }
 
-static inline int reset_get_bulk(struct udevice *dev, struct clk_bulk *bulk)
+static inline int reset_get_bulk(struct udevice *dev,
+				 struct reset_ctl_bulk *bulk)
 {
 	return -ENOTSUPP;
 }
@@ -284,7 +285,7 @@ static inline int reset_release_all(struct reset_ctl *reset_ctl, int count)
 	return 0;
 }
 
-static inline int reset_release_bulk(struct clk_bulk *bulk)
+static inline int reset_release_bulk(struct reset_ctl_bulk *bulk)
 {
 	return 0;
 }
