@@ -304,75 +304,72 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	tmp = env_get("bootaddr");
 	if (!tmp) {
 		printf("## VxWorks bootline address not specified\n");
-	} else {
-		bootaddr = simple_strtoul(tmp, NULL, 16);
+		return 1;
+	}
 
-		/*
-		 * Check to see if the bootline is defined in the 'bootargs'
-		 * parameter. If it is not defined, we may be able to
-		 * construct the info.
-		 */
-		bootline = env_get("bootargs");
-		if (!bootline) {
-			tmp = env_get("bootdev");
-			if (tmp) {
-				strcpy(build_buf, tmp);
-				ptr = strlen(tmp);
-			} else
-				printf("## VxWorks boot device not specified\n");
+	bootaddr = simple_strtoul(tmp, NULL, 16);
 
-			tmp = env_get("bootfile");
-			if (tmp)
-				ptr += sprintf(build_buf + ptr,
-					       "host:%s ", tmp);
-			else
-				ptr += sprintf(build_buf + ptr,
-					       "host:vxWorks ");
-
-			/*
-			 * The following parameters are only needed if 'bootdev'
-			 * is an ethernet device, otherwise they are optional.
-			 */
-			tmp = env_get("ipaddr");
-			if (tmp) {
-				ptr += sprintf(build_buf + ptr, "e=%s", tmp);
-				tmp = env_get("netmask");
-				if (tmp) {
-					u32 mask = env_get_ip("netmask").s_addr;
-					ptr += sprintf(build_buf + ptr,
-						       ":%08x ", ntohl(mask));
-				} else {
-					ptr += sprintf(build_buf + ptr, " ");
-				}
-			}
-
-			tmp = env_get("serverip");
-			if (tmp)
-				ptr += sprintf(build_buf + ptr, "h=%s ", tmp);
-
-			tmp = env_get("gatewayip");
-			if (tmp)
-				ptr += sprintf(build_buf + ptr, "g=%s ", tmp);
-
-			tmp = env_get("hostname");
-			if (tmp)
-				ptr += sprintf(build_buf + ptr, "tn=%s ", tmp);
-
-			tmp = env_get("othbootargs");
-			if (tmp) {
-				strcpy(build_buf + ptr, tmp);
-				ptr += strlen(tmp);
-			}
-
-			bootline = build_buf;
+	/*
+	 * Check to see if the bootline is defined in the 'bootargs' parameter.
+	 * If it is not defined, we may be able to construct the info.
+	 */
+	bootline = env_get("bootargs");
+	if (!bootline) {
+		tmp = env_get("bootdev");
+		if (tmp) {
+			strcpy(build_buf, tmp);
+			ptr = strlen(tmp);
+		} else {
+			printf("## VxWorks boot device not specified\n");
 		}
 
-		memcpy((void *)bootaddr, bootline,
-		       max(strlen(bootline), (size_t)255));
-		flush_cache(bootaddr, max(strlen(bootline), (size_t)255));
-		printf("## Using bootline (@ 0x%lx): %s\n", bootaddr,
-		       (char *)bootaddr);
+		tmp = env_get("bootfile");
+		if (tmp)
+			ptr += sprintf(build_buf + ptr, "host:%s ", tmp);
+		else
+			ptr += sprintf(build_buf + ptr, "host:vxWorks ");
+
+		/*
+		 * The following parameters are only needed if 'bootdev'
+		 * is an ethernet device, otherwise they are optional.
+		 */
+		tmp = env_get("ipaddr");
+		if (tmp) {
+			ptr += sprintf(build_buf + ptr, "e=%s", tmp);
+			tmp = env_get("netmask");
+			if (tmp) {
+				u32 mask = env_get_ip("netmask").s_addr;
+				ptr += sprintf(build_buf + ptr,
+					       ":%08x ", ntohl(mask));
+			} else {
+				ptr += sprintf(build_buf + ptr, " ");
+			}
+		}
+
+		tmp = env_get("serverip");
+		if (tmp)
+			ptr += sprintf(build_buf + ptr, "h=%s ", tmp);
+
+		tmp = env_get("gatewayip");
+		if (tmp)
+			ptr += sprintf(build_buf + ptr, "g=%s ", tmp);
+
+		tmp = env_get("hostname");
+		if (tmp)
+			ptr += sprintf(build_buf + ptr, "tn=%s ", tmp);
+
+		tmp = env_get("othbootargs");
+		if (tmp) {
+			strcpy(build_buf + ptr, tmp);
+			ptr += strlen(tmp);
+		}
+
+		bootline = build_buf;
 	}
+
+	memcpy((void *)bootaddr, bootline, max(strlen(bootline), (size_t)255));
+	flush_cache(bootaddr, max(strlen(bootline), (size_t)255));
+	printf("## Using bootline (@ 0x%lx): %s\n", bootaddr, (char *)bootaddr);
 
 #ifdef CONFIG_X86
 	/*
