@@ -906,7 +906,10 @@ int sh_ether_ofdata_to_platdata(struct udevice *dev)
 }
 
 static const struct udevice_id sh_ether_ids[] = {
+	{ .compatible = "renesas,ether-r8a7790" },
 	{ .compatible = "renesas,ether-r8a7791" },
+	{ .compatible = "renesas,ether-r8a7793" },
+	{ .compatible = "renesas,ether-r8a7794" },
 	{ }
 };
 
