@@ -20,6 +20,7 @@
 #include <net.h>
 #include <vxworks.h>
 #ifdef CONFIG_X86
+#include <vbe.h>
 #include <asm/e820.h>
 #include <linux/linkage.h>
 #endif
@@ -254,6 +255,8 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	ulong base;
 	struct e820_info *info;
 	struct e820_entry *data;
+	struct efi_gop_info *gop;
+	struct vesa_mode_info *vesa = &mode_info.vesa;
 #endif
 
 	/*
@@ -397,6 +400,22 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * available memory size for the kernel is insane.
 	 */
 	*(u32 *)(base + BOOT_IMAGE_SIZE_OFFSET) = 0;
+
+	/*
+	 * Prepare compatible framebuffer information block.
+	 * The VESA mode has to be 32-bit RGBA.
+	 */
+	if (vesa->x_resolution && vesa->y_resolution) {
+		gop = (struct efi_gop_info *)(base + EFI_GOP_INFO_OFFSET);
+		gop->magic = EFI_GOP_INFO_MAGIC;
+		gop->info.version = 0;
+		gop->info.width = vesa->x_resolution;
+		gop->info.height = vesa->y_resolution;
+		gop->info.pixel_format = EFI_GOT_RGBA8;
+		gop->info.pixels_per_scanline = vesa->bytes_per_scanline / 4;
+		gop->fb_base = vesa->phys_base_ptr;
+		gop->fb_size = vesa->bytes_per_scanline * vesa->y_resolution;
+	}
 #endif
 
 	/*

@@ -8,6 +8,8 @@
 #ifndef _VXWORKS_H_
 #define _VXWORKS_H_
 
+#include <efi_api.h>
+
 /*
  * Physical address of memory base for VxWorks x86
  * This is LOCAL_MEM_LOCAL_ADRS in the VxWorks kernel configuration.
@@ -51,6 +53,30 @@ struct e820_info {
  * memory for the OS.
  */
 #define BOOT_IMAGE_SIZE_OFFSET	0x5004
+
+/*
+ * When booting from EFI BIOS, VxWorks bootloader stores the EFI GOP
+ * framebuffer info at a pre-defined offset @ 0x6100. When VxWorks kernel
+ * boots up, its EFI console driver tries to find such a block and if
+ * the signature matches, the framebuffer information will be used to
+ * initialize the driver.
+ *
+ * However it is not necessary to prepare an EFI environment for VxWorks's
+ * EFI console driver to function (eg: EFI loader in U-Boot). If U-Boot has
+ * already initialized the graphics card and set it to a VESA mode that is
+ * compatible with EFI GOP, we can simply prepare such a block for VxWorks.
+ */
+#define EFI_GOP_INFO_OFFSET	0x6100
+
+/* EFI GOP info signatiure */
+#define EFI_GOP_INFO_MAGIC	0xfeedface
+
+struct efi_gop_info {
+	u32 magic;			/* signature */
+	struct efi_gop_mode_info info;	/* EFI GOP mode info structure */
+	phys_addr_t fb_base;		/* framebuffer base address */
+	u32 fb_size;			/* framebuffer size */
+};
 
 int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 void boot_prep_vxworks(bootm_headers_t *images);
