@@ -32,7 +32,7 @@
 /* E820 info signatiure "SMAP" - System MAP */
 #define E820_SIGNATURE	0x534d4150
 
-struct e820info {
+struct e820_info {
 	u32 sign;	/* "SMAP" signature */
 	u32 x0;		/* don't care, used by VxWorks */
 	u32 x1;		/* don't care, used by VxWorks */
