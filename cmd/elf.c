@@ -313,12 +313,7 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		 * construct the info.
 		 */
 		bootline = env_get("bootargs");
-		if (bootline) {
-			memcpy((void *)bootaddr, bootline,
-			       max(strlen(bootline), (size_t)255));
-			flush_cache(bootaddr, max(strlen(bootline),
-						  (size_t)255));
-		} else {
+		if (!bootline) {
 			tmp = env_get("bootdev");
 			if (tmp) {
 				strcpy(build_buf, tmp);
@@ -369,12 +364,12 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				ptr += strlen(tmp);
 			}
 
-			memcpy((void *)bootaddr, build_buf,
-			       max(strlen(build_buf), (size_t)255));
-			flush_cache(bootaddr, max(strlen(build_buf),
-						  (size_t)255));
+			bootline = build_buf;
 		}
 
+		memcpy((void *)bootaddr, bootline,
+		       max(strlen(bootline), (size_t)255));
+		flush_cache(bootaddr, max(strlen(bootline), (size_t)255));
 		printf("## Using bootline (@ 0x%lx): %s\n", bootaddr,
 		       (char *)bootaddr);
 	}
