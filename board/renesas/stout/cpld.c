@@ -13,10 +13,10 @@
 #include <asm/gpio.h>
 #include "cpld.h"
 
-#define SCLK			GPIO_GP_3_24
-#define SSTBZ			GPIO_GP_3_25
-#define MOSI			GPIO_GP_3_26
-#define MISO			GPIO_GP_3_27
+#define SCLK			(92 + 24)
+#define SSTBZ			(92 + 25)
+#define MOSI			(92 + 26)
+#define MISO			(92 + 27)
 
 #define CPLD_ADDR_MODE		0x00 /* RW */
 #define CPLD_ADDR_MUX		0x01 /* RW */
@@ -91,10 +91,10 @@ void cpld_init(void)
 	val |= PUPR3_SD3_DAT1;
 	writel(val, PUPR3);
 
-	gpio_request(SCLK, NULL);
-	gpio_request(SSTBZ, NULL);
-	gpio_request(MOSI, NULL);
-	gpio_request(MISO, NULL);
+	gpio_request(SCLK, "SCLK");
+	gpio_request(SSTBZ, "SSTBZ");
+	gpio_request(MOSI, "MOSI");
+	gpio_request(MISO, "MISO");
 
 	gpio_direction_output(SCLK, 0);
 	gpio_direction_output(SSTBZ, 1);

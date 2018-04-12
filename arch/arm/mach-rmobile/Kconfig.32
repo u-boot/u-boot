@@ -78,6 +78,9 @@ config TARGET_STOUT
 	bool "Stout board"
 	select DM
 	select DM_SERIAL
+	select SUPPORT_TPL
+	select SUPPORT_SPL
+	select SPL_DM if SPL
 
 endchoice
 
