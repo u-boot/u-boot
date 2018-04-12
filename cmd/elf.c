@@ -209,6 +209,7 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char build_buf[128]; /* Buffer for building the bootline */
 	int ptr = 0;
 #ifdef CONFIG_X86
+	ulong base;
 	struct e820info *info;
 	struct e820entry *data;
 #endif
@@ -335,25 +336,18 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #ifdef CONFIG_X86
 	/*
-	 * Since E820 information is critical to the kernel, if we don't
-	 * specify these in the environments, use a default one.
+	 * Get VxWorks's physical memory base address from environment,
+	 * if we don't specify it in the environment, use a default one.
 	 */
-	tmp = env_get("e820data");
-	if (tmp)
-		data = (struct e820entry *)simple_strtoul(tmp, NULL, 16);
-	else
-		data = (struct e820entry *)VXWORKS_E820_DATA_ADDR;
-	tmp = env_get("e820info");
-	if (tmp)
-		info = (struct e820info *)simple_strtoul(tmp, NULL, 16);
-	else
-		info = (struct e820info *)VXWORKS_E820_INFO_ADDR;
+	base = env_get_hex("vx_phys_mem_base", VXWORKS_PHYS_MEM_BASE);
+	data = (struct e820entry *)(base + E820_DATA_OFFSET);
+	info = (struct e820info *)(base + E820_INFO_OFFSET);
 
 	memset(info, 0, sizeof(struct e820info));
 	info->sign = E820_SIGNATURE;
 	info->entries = install_e820_map(E820MAX, data);
 	info->addr = (info->entries - 1) * sizeof(struct e820entry) +
-		     VXWORKS_E820_DATA_ADDR;
+		     E820_DATA_OFFSET;
 #endif
 
 	/*

@@ -67,17 +67,13 @@ look like VxWorks hangs somewhere as nothing outputs on the serial console.
 
 x86-specific information
 ------------------------
-Before loading an x86 kernel, two additional environment variables need to be
-provided. They are "e820data" and "e820info", which represent the address of
-E820 table and E820 information (defined by VxWorks) in system memory.
+Before loading an x86 kernel, one additional environment variable need to be
+provided. This is "vx_phys_mem_base", which represent the physical memory
+base address of VxWorks.
 
-Check VxWorks kernel configuration to look for BIOS_E820_DATA_START and
-BIOS_E820_INFO_START, and assign their values to "e820data" and "e820info"
-accordingly. If neither of these two are supplied, U-Boot assumes a default
-location at 0x4000 for "e820data" and 0x4a00 for "e820info". Typical values
-for "e820data" and "e820info" are 0x104000 and 0x104a00. But there is one
-exception on Intel Galileo, where "e820data" and "e820info" should be left
-unset, which assume the default location for VxWorks.
+Check VxWorks kernel configuration to look for LOCAL_MEM_LOCAL_ADRS. For
+VxWorks 7, this is normally a virtual address and you need find out its
+corresponding physical address and assign its value to "vx_phys_mem_base".
 
 For boards on which ACPI is not supported by U-Boot yet, VxWorks kernel must
 be configured to use MP table and virtual wire interrupt mode. This requires
