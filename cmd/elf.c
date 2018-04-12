@@ -246,7 +246,7 @@ int do_bootelf(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long addr; /* Address of image */
-	unsigned long bootaddr; /* Address to put the bootline */
+	unsigned long bootaddr = 0; /* Address to put the bootline */
 	char *bootline; /* Text of the bootline */
 	char *tmp; /* Temporary char pointer */
 	char build_buf[128]; /* Buffer for building the bootline */
@@ -295,6 +295,45 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	puts("## Ethernet MAC address not copied to NV RAM\n");
 #endif
 
+#ifdef CONFIG_X86
+	/*
+	 * Get VxWorks's physical memory base address from environment,
+	 * if we don't specify it in the environment, use a default one.
+	 */
+	base = env_get_hex("vx_phys_mem_base", VXWORKS_PHYS_MEM_BASE);
+	data = (struct e820_entry *)(base + E820_DATA_OFFSET);
+	info = (struct e820_info *)(base + E820_INFO_OFFSET);
+
+	memset(info, 0, sizeof(struct e820_info));
+	info->sign = E820_SIGNATURE;
+	info->entries = install_e820_map(E820MAX, data);
+	info->addr = (info->entries - 1) * sizeof(struct e820_entry) +
+		     E820_DATA_OFFSET;
+
+	/*
+	 * Explicitly clear the bootloader image size otherwise if memory
+	 * at this offset happens to contain some garbage data, the final
+	 * available memory size for the kernel is insane.
+	 */
+	*(u32 *)(base + BOOT_IMAGE_SIZE_OFFSET) = 0;
+
+	/*
+	 * Prepare compatible framebuffer information block.
+	 * The VESA mode has to be 32-bit RGBA.
+	 */
+	if (vesa->x_resolution && vesa->y_resolution) {
+		gop = (struct efi_gop_info *)(base + EFI_GOP_INFO_OFFSET);
+		gop->magic = EFI_GOP_INFO_MAGIC;
+		gop->info.version = 0;
+		gop->info.width = vesa->x_resolution;
+		gop->info.height = vesa->y_resolution;
+		gop->info.pixel_format = EFI_GOT_RGBA8;
+		gop->info.pixels_per_scanline = vesa->bytes_per_scanline / 4;
+		gop->fb_base = vesa->phys_base_ptr;
+		gop->fb_size = vesa->bytes_per_scanline * vesa->y_resolution;
+	}
+#endif
+
 	/*
 	 * Use bootaddr to find the location in memory that VxWorks
 	 * will look for the bootline string. The default value is
@@ -303,11 +342,16 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 */
 	tmp = env_get("bootaddr");
 	if (!tmp) {
+#ifdef CONFIG_X86
+		bootaddr = base + X86_BOOT_LINE_OFFSET;
+#else
 		printf("## VxWorks bootline address not specified\n");
 		return 1;
+#endif
 	}
 
-	bootaddr = simple_strtoul(tmp, NULL, 16);
+	if (!bootaddr)
+		bootaddr = simple_strtoul(tmp, NULL, 16);
 
 	/*
 	 * Check to see if the bootline is defined in the 'bootargs' parameter.
@@ -370,45 +414,6 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	memcpy((void *)bootaddr, bootline, max(strlen(bootline), (size_t)255));
 	flush_cache(bootaddr, max(strlen(bootline), (size_t)255));
 	printf("## Using bootline (@ 0x%lx): %s\n", bootaddr, (char *)bootaddr);
-
-#ifdef CONFIG_X86
-	/*
-	 * Get VxWorks's physical memory base address from environment,
-	 * if we don't specify it in the environment, use a default one.
-	 */
-	base = env_get_hex("vx_phys_mem_base", VXWORKS_PHYS_MEM_BASE);
-	data = (struct e820_entry *)(base + E820_DATA_OFFSET);
-	info = (struct e820_info *)(base + E820_INFO_OFFSET);
-
-	memset(info, 0, sizeof(struct e820_info));
-	info->sign = E820_SIGNATURE;
-	info->entries = install_e820_map(E820MAX, data);
-	info->addr = (info->entries - 1) * sizeof(struct e820_entry) +
-		     E820_DATA_OFFSET;
-
-	/*
-	 * Explicitly clear the bootloader image size otherwise if memory
-	 * at this offset happens to contain some garbage data, the final
-	 * available memory size for the kernel is insane.
-	 */
-	*(u32 *)(base + BOOT_IMAGE_SIZE_OFFSET) = 0;
-
-	/*
-	 * Prepare compatible framebuffer information block.
-	 * The VESA mode has to be 32-bit RGBA.
-	 */
-	if (vesa->x_resolution && vesa->y_resolution) {
-		gop = (struct efi_gop_info *)(base + EFI_GOP_INFO_OFFSET);
-		gop->magic = EFI_GOP_INFO_MAGIC;
-		gop->info.version = 0;
-		gop->info.width = vesa->x_resolution;
-		gop->info.height = vesa->y_resolution;
-		gop->info.pixel_format = EFI_GOT_RGBA8;
-		gop->info.pixels_per_scanline = vesa->bytes_per_scanline / 4;
-		gop->fb_base = vesa->phys_base_ptr;
-		gop->fb_size = vesa->bytes_per_scanline * vesa->y_resolution;
-	}
-#endif
 
 	/*
 	 * If the data at the load address is an elf image, then

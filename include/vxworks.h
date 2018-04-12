@@ -16,6 +16,9 @@
  */
 #define VXWORKS_PHYS_MEM_BASE	0x100000
 
+/* x86 bootline offset relative to LOCAL_MEM_LOCAL_ADRS in VxWorks */
+#define X86_BOOT_LINE_OFFSET	0x1200
+
 /*
  * VxWorks x86 E820 related stuff
  *
