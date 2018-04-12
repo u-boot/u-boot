@@ -295,6 +295,12 @@ F:	include/zynqmppl.h
 F:	tools/zynqmp*
 N:	zynqmp
 
+ARM ZYNQMP R5
+M:	Michal Simek <michal.simek@xilinx.com>
+S:	Maintained
+T:	git git://git.denx.de/u-boot-microblaze.git
+F:	arch/arm/mach-zynqmp-r5/
+
 BUILDMAN
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
