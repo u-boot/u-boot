@@ -62,5 +62,6 @@ obj-$(CONFIG_MMC_SDHCI_XENON)		+= xenon_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_ZYNQ)		+= zynq_sdhci.o
 
 obj-$(CONFIG_MMC_SUNXI)			+= sunxi_mmc.o
-obj-$(CONFIG_MMC_UNIPHIER)		+= uniphier-sd.o
+obj-$(CONFIG_MMC_UNIPHIER)		+= matsushita-common.o uniphier-sd.o
+obj-$(CONFIG_RENESAS_SDHI)		+= matsushita-common.o renesas-sdhi.o
 obj-$(CONFIG_MMC_BCM2835)		+= bcm2835_sdhost.o

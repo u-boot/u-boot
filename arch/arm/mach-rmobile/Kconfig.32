@@ -70,6 +70,7 @@ config TARGET_PORTER
 	bool "Porter board"
 	select DM
 	select DM_SERIAL
+	select SUPPORT_TPL
 	select SUPPORT_SPL
 	select SPL_DM if SPL
 

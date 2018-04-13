@@ -18,9 +18,6 @@ int arch_cpu_init(void)
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {
-#if defined(CONFIG_RCAR_GEN3)
-	rcar_gen3_memmap_fixup();
-#endif
 	dcache_enable();
 }
 #endif

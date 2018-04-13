@@ -136,25 +136,3 @@ void reset_cpu(ulong addr)
 	if (ret)
 		hang();
 }
-
-#ifdef CONFIG_SPL_BUILD
-#include <spl.h>
-void board_init_f(ulong dummy)
-{
-	board_early_init_f();
-}
-
-void spl_board_init(void)
-{
-	/* UART clocks enabled and gd valid - init serial console */
-	preloader_console_init();
-}
-
-void board_boot_order(u32 *spl_boot_list)
-{
-	/* Boot from SPI NOR with YMODEM UART fallback. */
-	spl_boot_list[0] = BOOT_DEVICE_SPI;
-	spl_boot_list[1] = BOOT_DEVICE_UART;
-	spl_boot_list[2] = BOOT_DEVICE_NONE;
-}
-#endif

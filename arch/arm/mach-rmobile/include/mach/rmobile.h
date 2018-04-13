@@ -41,7 +41,6 @@
 u32 rmobile_get_cpu_type(void);
 u32 rmobile_get_cpu_rev_integer(void);
 u32 rmobile_get_cpu_rev_fraction(void);
-void rcar_gen3_memmap_fixup(void);
 #endif /* __ASSEMBLY__ */
 
 #endif /* __ASM_ARCH_RMOBILE_H */
