@@ -1042,23 +1042,32 @@ config CMD_DHCP
 	  Boot image via network using DHCP/TFTP protocol
 
 config BOOTP_BOOTPATH
-	bool "Enable BOOTP BOOTPATH"
+	bool "Request & store 'rootpath' from BOOTP/DHCP server"
 	depends on CMD_BOOTP
+	help
+	  Even though the config is called BOOTP_BOOTPATH, it stores the
+	  path in the variable 'rootpath'.
 
 config BOOTP_DNS
-	bool "Enable bootp DNS"
+	bool "Request & store 'dnsip' from BOOTP/DHCP server"
 	depends on CMD_BOOTP
+	help
+	  The primary DNS server is stored as 'dnsip'. If two servers are
+	  returned, you must set BOOTP_DNS2 to store that second server IP
+	  also.
 
 config BOOTP_GATEWAY
-	bool "Enable BOOTP gateway"
+	bool "Request & store 'gatewayip' from BOOTP/DHCP server"
 	depends on CMD_BOOTP
 
 config BOOTP_HOSTNAME
-	bool "Enable BOOTP hostname"
+	bool "Request & store 'hostname' from BOOTP/DHCP server"
 	depends on CMD_BOOTP
+	help
+	  The name may or may not be qualified with the local domain name.
 
 config BOOTP_SUBNETMASK
-	bool "Enable BOOTP subnetmask"
+	bool "Request & store 'netmask' from BOOTP/DHCP server"
 	depends on CMD_BOOTP
 
 config BOOTP_PXE
