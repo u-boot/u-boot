@@ -1082,12 +1082,14 @@ config BOOTP_SUBNETMASK
 	depends on CMD_BOOTP
 
 config BOOTP_PXE
-	bool "Enable BOOTP PXE"
-	depends on CMD_BOOTP
+	bool "Send PXE client arch to BOOTP/DHCP server"
+	depends on CMD_BOOTP && CMD_PXE
+	help
+	  Supported for ARM, ARM64, and x86 for now.
 
 config BOOTP_PXE_CLIENTARCH
 	hex
-	depends on CMD_BOOTP
+	depends on BOOTP_PXE
 	default 0x16 if ARM64
 	default 0x15 if ARM
 	default 0 if X86
