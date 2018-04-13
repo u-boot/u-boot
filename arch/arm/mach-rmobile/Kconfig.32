@@ -73,6 +73,8 @@ config TARGET_PORTER
 	select SUPPORT_TPL
 	select SUPPORT_SPL
 	select SPL_DM if SPL
+	select USE_TINY_PRINTF
+	select TPL_TINY_MEMSET
 
 config TARGET_STOUT
 	bool "Stout board"
@@ -81,6 +83,8 @@ config TARGET_STOUT
 	select SUPPORT_TPL
 	select SUPPORT_SPL
 	select SPL_DM if SPL
+	select USE_TINY_PRINTF
+	select TPL_TINY_MEMSET
 
 endchoice
 
