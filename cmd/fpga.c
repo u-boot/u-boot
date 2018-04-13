@@ -13,7 +13,6 @@
 #include <fpga.h>
 #include <fs.h>
 #include <malloc.h>
-#include <asm/arch/sys_proto.h>
 
 /* Local functions */
 static int fpga_get_op(char *opstr);
@@ -82,15 +81,15 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 					     simple_strtoull(argv[7], NULL, 16);
 	case 7:
 		fpga_sec_info.encflag = (u8)simple_strtoul(argv[6], NULL, 16);
-		if (((fpga_sec_info.encflag == ZYNQMP_FPGA_ENC_USR_KEY) &&
+		if (((fpga_sec_info.encflag == FPGA_ENC_USR_KEY) &&
 		     !fpga_sec_info.userkey_addr) ||
-		    (fpga_sec_info.encflag > ZYNQMP_FPGA_NO_ENC)) {
+		    (fpga_sec_info.encflag > FPGA_NO_ENC)) {
 			op = FPGA_NONE;
 			break;
 		}
 	case 6:
 		fpga_sec_info.authflag = (u8)simple_strtoul(argv[5], NULL, 16);
-		if (fpga_sec_info.authflag > ZYNQMP_FPGA_NO_AUTH) {
+		if (fpga_sec_info.authflag > FPGA_NO_AUTH) {
 			op = FPGA_NONE;
 			break;
 		}
@@ -172,8 +171,8 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 #endif
 #if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
 	case FPGA_LOADS:
-		if (fpga_sec_info.authflag == ZYNQMP_FPGA_NO_AUTH &&
-		    fpga_sec_info.encflag == ZYNQMP_FPGA_NO_ENC) {
+		if (fpga_sec_info.authflag == FPGA_NO_AUTH &&
+		    fpga_sec_info.encflag == FPGA_NO_ENC) {
 			wrong_parms = 1;
 			break;
 		}

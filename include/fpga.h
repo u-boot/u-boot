@@ -21,6 +21,10 @@
 /* device numbers must be non-negative */
 #define FPGA_INVALID_DEVICE	-1
 
+#define FPGA_ENC_USR_KEY	1
+#define FPGA_NO_ENC		2
+#define FPGA_NO_AUTH		2
+
 /* root data type defintions */
 typedef enum {			/* typedef fpga_type */
 	fpga_min_type,		/* range check value */

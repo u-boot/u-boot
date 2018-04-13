@@ -239,7 +239,7 @@ static int zynqmp_loads(xilinx_desc *desc, const void *buf, size_t bsize,
 		flag |= BIT(ZYNQMP_FPGA_BIT_ENC_DEV_KEY);
 
 	if (fpga_sec_info->userkey_addr &&
-	    fpga_sec_info->encflag == ZYNQMP_FPGA_ENC_USR_KEY) {
+	    fpga_sec_info->encflag == FPGA_ENC_USR_KEY) {
 		flush_dcache_range((ulong)fpga_sec_info->userkey_addr,
 				   (ulong)fpga_sec_info->userkey_addr +
 				   KEY_PTR_LEN);
