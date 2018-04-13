@@ -111,6 +111,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			ublimage.o \
 			zynqimage.o \
 			zynqmpimage.o \
+			zynqmpbif.o \
 			$(LIBFDT_OBJS) \
 			gpimage.o \
 			gpimage-common.o \

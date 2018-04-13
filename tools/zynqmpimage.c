@@ -86,7 +86,7 @@ static uint32_t zynqmpimage_checksum(struct zynqmp_header *ptr)
 	return cpu_to_le32(checksum);
 }
 
-static void zynqmpimage_default_header(struct zynqmp_header *ptr)
+void zynqmpimage_default_header(struct zynqmp_header *ptr)
 {
 	int i;
 
@@ -209,7 +209,7 @@ static void print_partition(const void *ptr, const struct partition_header *ph)
 	printf("    Checksum   : 0x%08x\n", le32_to_cpu(ph->checksum));
 }
 
-static void zynqmpimage_print_header(const void *ptr)
+void zynqmpimage_print_header(const void *ptr)
 {
 	struct zynqmp_header *zynqhdr = (struct zynqmp_header *)ptr;
 	int i;

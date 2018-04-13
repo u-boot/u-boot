@@ -19,7 +19,11 @@
 #define HEADER_REGINIT_NULL (cpu_to_le32(0xffffffff))
 #define HEADER_WIDTHDETECTION (cpu_to_le32(0xaa995566))
 #define HEADER_IMAGEIDENTIFIER (cpu_to_le32(0x584c4e58))
+#define HEADER_CPU_SELECT_MASK		(0x3 << 10)
+#define HEADER_CPU_SELECT_R5_SINGLE	(0x0 << 10)
+#define HEADER_CPU_SELECT_A53_32BIT	(0x1 << 10)
 #define HEADER_CPU_SELECT_A53_64BIT	(0x2 << 10)
+#define HEADER_CPU_SELECT_R5_DUAL	(0x3 << 10)
 
 enum {
 	ENCRYPTION_EFUSE = 0xa5c3c5a3,
@@ -128,5 +132,8 @@ struct zynqmp_header {
 	struct zynqmp_reginit register_init[HEADER_REGINITS]; /* 0xb8 */
 	uint32_t __reserved4[66]; /* 0x9c0 */
 };
+
+void zynqmpimage_default_header(struct zynqmp_header *ptr);
+void zynqmpimage_print_header(const void *ptr);
 
 #endif /* _ZYNQMPIMAGE_H_ */
