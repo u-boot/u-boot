@@ -1566,9 +1566,11 @@ int spi_flash_scan(struct spi_flash *flash)
 
 	/* Configure the BAR - discover bank cmds and read current bank */
 #ifdef CONFIG_SPI_FLASH_BAR
-	ret = read_bar(flash, info);
-	if (ret < 0)
-		return ret;
+	if (flash->spi->bytemode != SPI_4BYTE_MODE) {
+		ret = read_bar(flash, info);
+		if (ret < 0)
+			return ret;
+	}
 #endif
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
