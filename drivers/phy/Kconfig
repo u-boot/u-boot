@@ -110,4 +110,12 @@ config STI_USB_PHY
 	  used by USB2 and USB3 Host controllers available on
 	  STiH407 SoC families.
 
+config MESON_GXL_USB_PHY
+	bool "Amlogic Meson GXL USB PHYs"
+	depends on PHY && ARCH_MESON && MESON_GXL
+	imply REGMAP
+	help
+	  This is the generic phy driver for the Amlogic Meson GXL
+	  USB2 and USB3 PHYS.
+
 endmenu
