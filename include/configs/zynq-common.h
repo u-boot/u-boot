@@ -162,7 +162,7 @@
 #define BOOT_TARGET_DEVICES_USB(func)
 #endif
 
-#if defined(CONFIG_CMD_PXE)
+#if defined(CONFIG_CMD_PXE) && defined(CONFIG_CMD_DHCP)
 #define BOOT_TARGET_DEVICES_PXE(func) func(PXE, pxe, na)
 #else
 #define BOOT_TARGET_DEVICES_PXE(func)
