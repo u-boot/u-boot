@@ -123,7 +123,7 @@
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"fdt_high=ffffffff\0" \
 	"initrd_high=ffffffff\0" \
-	"fdt_addr_r=0x00000100\0" \
+	"fdt_addr_r=0x01f00000\0" \
 	"pxefile_addr_r=0x00100000\0" \
 	"kernel_addr_r=0x01000000\0" \
 	"scriptaddr=0x02000000\0" \
