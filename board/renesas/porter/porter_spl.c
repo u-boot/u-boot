@@ -27,7 +27,6 @@
 #define SD2CKCR		0xE615026C
 #define SD_97500KHZ	0x7
 
-#ifdef CONFIG_TPL_BUILD
 struct reg_config {
 	u16	off;
 	u32	val;
@@ -45,7 +44,7 @@ static void dbsc_wait(u16 reg)
 		;
 }
 
-static void tpl_init_sys(void)
+static void spl_init_sys(void)
 {
 	u32 r0 = 0;
 
@@ -65,7 +64,7 @@ static void tpl_init_sys(void)
 		:"=r"(r0));
 }
 
-static void tpl_init_pfc(void)
+static void spl_init_pfc(void)
 {
 	static const struct reg_config pfc_with_unlock[] = {
 		{ 0x0090, 0x60000000 },
@@ -125,7 +124,7 @@ static void tpl_init_pfc(void)
 		       pfc_base | pfc_without_unlock[i].off);
 }
 
-static void tpl_init_gpio(void)
+static void spl_init_gpio(void)
 {
 	static const u16 gpio_offs[] = {
 		0x1000, 0x2000, 0x3000, 0x4000, 0x5000, 0x5400, 0x5800
@@ -164,7 +163,7 @@ static void tpl_init_gpio(void)
 		writel(gpio_clr[i].val, gpio_base | 0x04 | gpio_clr[i].off);
 }
 
-static void tpl_init_lbsc(void)
+static void spl_init_lbsc(void)
 {
 	static const struct reg_config lbsc_config[] = {
 		{ 0x00, 0x00000020 },
@@ -192,7 +191,7 @@ static void tpl_init_lbsc(void)
 		writel(0, lbsc_base | lbsc_offs[i]);
 }
 
-static void tpl_init_dbsc(void)
+static void spl_init_dbsc(void)
 {
 	static const struct reg_config dbsc_config1[] = {
 		{ 0x0280, 0x0000a55a },
@@ -412,7 +411,7 @@ static void tpl_init_dbsc(void)
 
 }
 
-static void tpl_init_qspi(void)
+static void spl_init_qspi(void)
 {
 	mstp_clrbits_le32(MSTPSR9, SMSTPCR9, QSPI_MSTP917);
 
@@ -446,14 +445,13 @@ void board_init_f(ulong dummy)
 	 */
 	writel(SD_97500KHZ, SD2CKCR);
 
-	tpl_init_sys();
-	tpl_init_pfc();
-	tpl_init_gpio();
-	tpl_init_lbsc();
-	tpl_init_dbsc();
-	tpl_init_qspi();
+	spl_init_sys();
+	spl_init_pfc();
+	spl_init_gpio();
+	spl_init_lbsc();
+	spl_init_dbsc();
+	spl_init_qspi();
 }
-#endif
 
 void spl_board_init(void)
 {
@@ -463,18 +461,17 @@ void spl_board_init(void)
 
 void board_boot_order(u32 *spl_boot_list)
 {
-#ifdef CONFIG_TPL_BUILD
 	const u32 jtag_magic = 0x1337c0de;
 	const u32 load_magic = 0xb33fc0de;
 
 	/*
 	 * If JTAG probe sets special word at 0xe6300020, then it must
-	 * put U-Boot into RAM and TPL will start it from RAM.
+	 * put U-Boot into RAM and SPL will start it from RAM.
 	 */
-	if (readl(CONFIG_TPL_TEXT_BASE + 0x20) == jtag_magic) {
+	if (readl(CONFIG_SPL_TEXT_BASE + 0x20) == jtag_magic) {
 		printf("JTAG boot detected!\n");
 
-		while (readl(CONFIG_TPL_TEXT_BASE + 0x24) != load_magic)
+		while (readl(CONFIG_SPL_TEXT_BASE + 0x24) != load_magic)
 			;
 
 		spl_boot_list[0] = BOOT_DEVICE_RAM;
@@ -482,7 +479,6 @@ void board_boot_order(u32 *spl_boot_list)
 
 		return;
 	}
-#endif
 
 	/* Boot from SPI NOR with YMODEM UART fallback. */
 	spl_boot_list[0] = BOOT_DEVICE_SPI;
