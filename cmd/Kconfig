@@ -1043,6 +1043,7 @@ config CMD_DHCP
 
 config BOOTP_BOOTPATH
 	bool "Request & store 'rootpath' from BOOTP/DHCP server"
+	default y
 	depends on CMD_BOOTP
 	help
 	  Even though the config is called BOOTP_BOOTPATH, it stores the
@@ -1050,6 +1051,7 @@ config BOOTP_BOOTPATH
 
 config BOOTP_DNS
 	bool "Request & store 'dnsip' from BOOTP/DHCP server"
+	default y
 	depends on CMD_BOOTP
 	help
 	  The primary DNS server is stored as 'dnsip'. If two servers are
@@ -1069,20 +1071,24 @@ config BOOTP_DNS2
 
 config BOOTP_GATEWAY
 	bool "Request & store 'gatewayip' from BOOTP/DHCP server"
+	default y
 	depends on CMD_BOOTP
 
 config BOOTP_HOSTNAME
 	bool "Request & store 'hostname' from BOOTP/DHCP server"
+	default y
 	depends on CMD_BOOTP
 	help
 	  The name may or may not be qualified with the local domain name.
 
 config BOOTP_SUBNETMASK
 	bool "Request & store 'netmask' from BOOTP/DHCP server"
+	default y
 	depends on CMD_BOOTP
 
 config BOOTP_PXE
 	bool "Send PXE client arch to BOOTP/DHCP server"
+	default y
 	depends on CMD_BOOTP && CMD_PXE
 	help
 	  Supported for ARM, ARM64, and x86 for now.
