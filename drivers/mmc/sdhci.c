@@ -323,7 +323,8 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	else
 		return -ECOMM;
 }
-#ifdef CONFIG_DM_MMC
+
+#if CONFIG_IS_ENABLED(DM_MMC)
 static int sdhci_execute_tuning(struct udevice *dev, u8 opcode)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
@@ -379,7 +380,11 @@ static int sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 		sdhci_writew(host, data.blocks, SDHCI_BLOCK_COUNT);
 		sdhci_writew(host, SDHCI_TRNS_READ, SDHCI_TRANSFER_MODE);
 
+#if CONFIG_IS_ENABLED(DM_MMC)
 		sdhci_send_command(dev, &cmd, &data);
+#else
+		sdhci_send_command(mmc, &cmd, &data);
+#endif
 		ctrl = sdhci_readw(host, SDHCI_HOST_CTRL2);
 
 		if (cmd.cmdidx == MMC_CMD_SEND_TUNING_BLOCK)

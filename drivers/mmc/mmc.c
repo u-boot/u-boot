@@ -339,7 +339,7 @@ static int mmc_go_idle(struct mmc *mmc)
 	return 0;
 }
 
-#ifndef CONFIG_DM_MMC
+#if !CONFIG_IS_ENABLED(DM_MMC)
 static int mmc_set_voltage(struct mmc *mmc)
 {
 	int err = 0;
@@ -597,11 +597,37 @@ int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 
 }
 
-#ifndef CONFIG_DM_MMC
+#if !CONFIG_IS_ENABLED(DM_MMC)
 static void mmc_set_ios(struct mmc *mmc)
 {
 	if (mmc->cfg->ops->set_ios)
 		mmc->cfg->ops->set_ios(mmc);
+}
+
+static int mmc_switch_uhs(struct mmc *mmc)
+{
+	int err = 0;
+
+	if (mmc->cfg->ops->set_uhs)
+		err = mmc->cfg->ops->set_uhs(mmc);
+
+	return err;
+}
+
+static int mmc_execute_tuning(struct mmc *mmc)
+{
+	int err = 0;
+	u8 cmd;
+
+	if (mmc->cfg->ops->execute_tuning) {
+		if (IS_SD(mmc))
+			cmd = MMC_CMD_SEND_TUNING_BLOCK;
+		else
+			cmd = MMC_CMD_SEND_TUNING_BLOCK_HS200;
+		err = mmc->cfg->ops->execute_tuning(mmc, cmd);
+	}
+
+	return err;
 }
 #endif
 
@@ -1345,14 +1371,6 @@ static const u8 multipliers[] = {
 	80,
 };
 
-#if !CONFIG_IS_ENABLED(DM_MMC)
-static void mmc_set_ios(struct mmc *mmc)
-{
-	if (mmc->cfg->ops->set_ios)
-		mmc->cfg->ops->set_ios(mmc);
-}
-#endif
-
 void mmc_set_clock(struct mmc *mmc, uint clock)
 {
 	if (clock > mmc->cfg->f_max)
@@ -1365,34 +1383,6 @@ void mmc_set_clock(struct mmc *mmc, uint clock)
 
 	mmc_set_ios(mmc);
 }
-
-#ifndef CONFIG_DM_MMC
-static int mmc_switch_uhs(struct mmc *mmc)
-{
-	int err = 0;
-
-	if (mmc->cfg->ops->set_uhs)
-		err = mmc->cfg->ops->set_uhs(mmc);
-
-	return err;
-}
-
-static int mmc_execute_tuning(struct mmc *mmc)
-{
-	int err = 0;
-	u8 cmd;
-
-	if (mmc->cfg->ops->execute_tuning) {
-		if (IS_SD(mmc))
-			cmd = MMC_CMD_SEND_TUNING_BLOCK;
-		else
-			cmd = MMC_CMD_SEND_TUNING_BLOCK_HS200;
-		err = mmc->cfg->ops->execute_tuning(mmc, cmd);
-	}
-
-	return err;
-}
-#endif
 
 static int mmc_startup(struct mmc *mmc)
 {
