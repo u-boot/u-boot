@@ -1056,6 +1056,17 @@ config BOOTP_DNS
 	  returned, you must set BOOTP_DNS2 to store that second server IP
 	  also.
 
+config BOOTP_DNS2
+	bool "Store 'dnsip2' from BOOTP/DHCP server"
+	depends on BOOTP_DNS
+	help
+	  If a DHCP client requests the DNS server IP from a DHCP server,
+	  it is possible that more than one DNS serverip is offered to the
+	  client. If CONFIG_BOOTP_DNS2 is enabled, the secondary DNS
+	  server IP will be stored in the additional environment
+	  variable "dnsip2". The first DNS serverip is always
+	  stored in the variable "dnsip", when BOOTP_DNS is defined.
+
 config BOOTP_GATEWAY
 	bool "Request & store 'gatewayip' from BOOTP/DHCP server"
 	depends on CMD_BOOTP
