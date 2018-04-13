@@ -9,7 +9,7 @@
 
 obj-y += checksum.o
 obj-$(CONFIG_CMD_NET)  += arp.o
-obj-$(CONFIG_CMD_NET)  += bootp.o
+obj-$(CONFIG_CMD_BOOTP) += bootp.o
 obj-$(CONFIG_CMD_CDP)  += cdp.o
 obj-$(CONFIG_CMD_DNS)  += dns.o
 ifdef CONFIG_DM_ETH
@@ -24,7 +24,7 @@ obj-$(CONFIG_CMD_NFS)  += nfs.o
 obj-$(CONFIG_CMD_PING) += ping.o
 obj-$(CONFIG_CMD_RARP) += rarp.o
 obj-$(CONFIG_CMD_SNTP) += sntp.o
-obj-$(CONFIG_CMD_NET)  += tftp.o
+obj-$(CONFIG_CMD_TFTPBOOT) += tftp.o
 
 # Disable this warning as it is triggered by:
 # sprintf(buf, index ? "foo%d" : "foo", index)

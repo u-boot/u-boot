@@ -1021,25 +1021,35 @@ config CMD_SETEXPR
 
 endmenu
 
-menu "Network commands"
-
 if NET
 
-config CMD_NET
-	bool "bootp, tftpboot"
+menuconfig CMD_NET
+	bool "Network commands"
+	default y
+
+if CMD_NET
+
+config CMD_BOOTP
+	bool "bootp"
 	default y
 	help
-	  Network commands.
 	  bootp - boot image via network using BOOTP/TFTP protocol
+
+config CMD_TFTPBOOT
+	bool "tftpboot"
+	default y
+	help
 	  tftpboot - boot image via network using TFTP protocol
 
 config CMD_TFTPPUT
 	bool "tftp put"
+	depends on CMD_TFTPBOOT
 	help
 	  TFTP put command, for uploading files to a server
 
 config CMD_TFTPSRV
 	bool "tftpsrv"
+	depends on CMD_TFTPBOOT
 	help
 	  Act as a TFTP server and boot the first received file
 
@@ -1050,13 +1060,12 @@ config CMD_RARP
 
 config CMD_DHCP
 	bool "dhcp"
-	depends on CMD_NET
+	depends on CMD_BOOTP
 	help
 	  Boot image via network using DHCP/TFTP protocol
 
 config CMD_PXE
 	bool "pxe"
-	depends on CMD_NET
 	select MENU
 	help
 	  Boot image via network using PXE protocol
@@ -1107,7 +1116,7 @@ config CMD_ETHSW
 
 endif
 
-endmenu
+endif
 
 menu "Misc commands"
 
