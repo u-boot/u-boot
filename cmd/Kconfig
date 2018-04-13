@@ -1035,6 +1035,12 @@ config CMD_BOOTP
 	help
 	  bootp - boot image via network using BOOTP/TFTP protocol
 
+config CMD_DHCP
+	bool "dhcp"
+	depends on CMD_BOOTP
+	help
+	  Boot image via network using DHCP/TFTP protocol
+
 config BOOTP_BOOTPATH
 	bool "Enable BOOTP BOOTPATH"
 	depends on CMD_BOOTP
@@ -1107,12 +1113,6 @@ config CMD_RARP
 	bool "rarpboot"
 	help
 	  Boot image via network using RARP/TFTP protocol
-
-config CMD_DHCP
-	bool "dhcp"
-	depends on CMD_BOOTP
-	help
-	  Boot image via network using DHCP/TFTP protocol
 
 config CMD_NFS
 	bool "nfs"
