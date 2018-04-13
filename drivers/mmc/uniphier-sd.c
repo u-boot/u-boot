@@ -17,12 +17,12 @@
 #include <power/regulator.h>
 #include <asm/unaligned.h>
 
-#include "matsushita-common.h"
+#include "tmio-common.h"
 
 static const struct dm_mmc_ops uniphier_sd_ops = {
-	.send_cmd = matsu_sd_send_cmd,
-	.set_ios = matsu_sd_set_ios,
-	.get_cd = matsu_sd_get_cd,
+	.send_cmd = tmio_sd_send_cmd,
+	.set_ios = tmio_sd_set_ios,
+	.get_cd = tmio_sd_get_cd,
 };
 
 static const struct udevice_id uniphier_sd_match[] = {
@@ -32,16 +32,16 @@ static const struct udevice_id uniphier_sd_match[] = {
 
 static int uniphier_sd_probe(struct udevice *dev)
 {
-	return matsu_sd_probe(dev, 0);
+	return tmio_sd_probe(dev, 0);
 }
 
 U_BOOT_DRIVER(uniphier_mmc) = {
 	.name = "uniphier-mmc",
 	.id = UCLASS_MMC,
 	.of_match = uniphier_sd_match,
-	.bind = matsu_sd_bind,
+	.bind = tmio_sd_bind,
 	.probe = uniphier_sd_probe,
-	.priv_auto_alloc_size = sizeof(struct matsu_sd_priv),
-	.platdata_auto_alloc_size = sizeof(struct matsu_sd_plat),
+	.priv_auto_alloc_size = sizeof(struct tmio_sd_priv),
+	.platdata_auto_alloc_size = sizeof(struct tmio_sd_plat),
 	.ops = &uniphier_sd_ops,
 };
