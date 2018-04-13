@@ -1349,10 +1349,24 @@ int spi_flash_scan(struct spi_flash *flash)
 	   (JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_SST) ||
 	   (JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_MACRONIX)) {
 		u8 sr = 0;
+#ifdef CONFIG_SPI_GENERIC
+		u8 sr_up = 0;
+#endif
 
 		if (JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_MACRONIX) {
+#ifdef CONFIG_SPI_GENERIC
+			if (flash->spi->option & SF_DUAL_PARALLEL_FLASH)
+				flash->spi->flags |= SPI_XFER_LOWER;
+#endif
 			read_sr(flash, &sr);
 			sr &= STATUS_QEB_MXIC;
+#ifdef CONFIG_SPI_GENERIC
+			if (flash->spi->option & SF_DUAL_PARALLEL_FLASH) {
+				flash->spi->flags |= SPI_XFER_UPPER;
+				read_sr(flash, &sr_up);
+				sr_up &= STATUS_QEB_MXIC;
+			}
+#endif
 		}
 
 #ifdef CONFIG_SPI_GENERIC
@@ -1364,7 +1378,7 @@ int spi_flash_scan(struct spi_flash *flash)
 #ifdef CONFIG_SPI_GENERIC
 		if (flash->dual_flash & SF_DUAL_PARALLEL_FLASH) {
 			flash->spi->flags |= SPI_XFER_UPPER;
-			write_sr(flash, 0);
+			write_sr(flash, sr_up);
 		}
 #endif
 	}
