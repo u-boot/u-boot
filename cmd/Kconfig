@@ -1445,6 +1445,20 @@ config CMD_HASH
 	  saved to memory or to an environment variable. It is also possible
 	  to verify a hash against data in memory.
 
+config CMD_HVC
+	bool "Support the 'hvc' command"
+	depends on ARM_SMCCC
+	help
+	  Allows issuing Hypervisor Calls (HVCs). Mostly useful for
+	  development and testing.
+
+config CMD_SMC
+	bool "Support the 'smc' command"
+	depends on ARM_SMCCC
+	help
+	  Allows issuing Secure Monitor Calls (SMCs). Mostly useful for
+	  development and testing.
+
 config HASH_VERIFY
 	bool "hash -v"
 	depends on CMD_HASH
