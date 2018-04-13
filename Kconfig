@@ -71,7 +71,7 @@ config DISTRO_DEFAULTS
 	select CMD_BOOTI if ARM64
 	select CMD_DHCP if CMD_NET
 	select CMD_PING if CMD_NET
-	select CMD_PXE if NET && CMD_NET
+	select CMD_PXE if NET
 	select CMD_EXT2
 	select CMD_EXT4
 	select CMD_FAT
