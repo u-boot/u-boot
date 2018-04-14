@@ -23,29 +23,8 @@
 
 static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage);
 static int mmc_power_cycle(struct mmc *mmc);
+#if !CONFIG_IS_ENABLED(MMC_TINY)
 static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps);
-
-#if CONFIG_IS_ENABLED(MMC_TINY)
-static struct mmc mmc_static;
-struct mmc *find_mmc_device(int dev_num)
-{
-	return &mmc_static;
-}
-
-void mmc_do_preinit(void)
-{
-	struct mmc *m = &mmc_static;
-#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
-	mmc_set_preinit(m, 1);
-#endif
-	if (m->preinit)
-		mmc_start_init(m);
-}
-
-struct blk_desc *mmc_get_blk_desc(struct mmc *mmc)
-{
-	return &mmc->block_dev;
-}
 #endif
 
 #if !CONFIG_IS_ENABLED(DM_MMC)
@@ -772,6 +751,7 @@ int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 
 }
 
+#if !CONFIG_IS_ENABLED(MMC_TINY)
 static int mmc_set_card_speed(struct mmc *mmc, enum bus_mode mode)
 {
 	int err;
@@ -855,6 +835,7 @@ static int mmc_get_capabilities(struct mmc *mmc)
 
 	return 0;
 }
+#endif
 
 static int mmc_set_capacity(struct mmc *mmc, int part_num)
 {
@@ -1154,6 +1135,7 @@ int mmc_getcd(struct mmc *mmc)
 }
 #endif
 
+#if !CONFIG_IS_ENABLED(MMC_TINY)
 static int sd_switch(struct mmc *mmc, int mode, int group, u8 value, u8 *resp)
 {
 	struct mmc_cmd cmd;
@@ -1173,7 +1155,6 @@ static int sd_switch(struct mmc *mmc, int mode, int group, u8 value, u8 *resp)
 
 	return mmc_send_cmd(mmc, &cmd, &data);
 }
-
 
 static int sd_get_capabilities(struct mmc *mmc)
 {
@@ -1361,6 +1342,7 @@ static int sd_select_bus_width(struct mmc *mmc, int w)
 
 	return 0;
 }
+#endif
 
 #if CONFIG_IS_ENABLED(MMC_WRITE)
 static int sd_read_ssr(struct mmc *mmc)
@@ -1584,6 +1566,7 @@ static inline int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage)
 }
 #endif
 
+#if !CONFIG_IS_ENABLED(MMC_TINY)
 static const struct mode_width_tuning sd_modes_by_pref[] = {
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
 #ifdef MMC_SUPPORTS_TUNING
@@ -1936,6 +1919,11 @@ error:
 
 	return -ENOTSUPP;
 }
+#endif
+
+#if CONFIG_IS_ENABLED(MMC_TINY)
+DEFINE_CACHE_ALIGN_BUFFER(u8, ext_csd_bkup, MMC_MAX_BLOCK_LEN);
+#endif
 
 static int mmc_startup_v4(struct mmc *mmc)
 {
@@ -1955,6 +1943,23 @@ static int mmc_startup_v4(struct mmc *mmc)
 		MMC_VERSION_5_1
 	};
 
+#if CONFIG_IS_ENABLED(MMC_TINY)
+	u8 *ext_csd = ext_csd_bkup;
+
+	if (IS_SD(mmc) || mmc->version < MMC_VERSION_4)
+		return 0;
+
+	if (!mmc->ext_csd)
+		memset(ext_csd_bkup, 0, sizeof(ext_csd_bkup));
+
+	err = mmc_send_ext_csd(mmc, ext_csd);
+	if (err)
+		goto error;
+
+	/* store the ext csd for future reference */
+	if (!mmc->ext_csd)
+		mmc->ext_csd = ext_csd;
+#else
 	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
 
 	if (IS_SD(mmc) || (mmc->version < MMC_VERSION_4))
@@ -1971,7 +1976,7 @@ static int mmc_startup_v4(struct mmc *mmc)
 	if (!mmc->ext_csd)
 		return -ENOMEM;
 	memcpy(mmc->ext_csd, ext_csd, MMC_MAX_BLOCK_LEN);
-
+#endif
 	if (ext_csd[EXT_CSD_REV] >= ARRAY_SIZE(mmc_versions))
 		return -EINVAL;
 
@@ -2110,7 +2115,9 @@ static int mmc_startup_v4(struct mmc *mmc)
 	return 0;
 error:
 	if (mmc->ext_csd) {
+#if !CONFIG_IS_ENABLED(MMC_TINY)
 		free(mmc->ext_csd);
+#endif
 		mmc->ext_csd = NULL;
 	}
 	return err;
@@ -2299,6 +2306,11 @@ static int mmc_startup(struct mmc *mmc)
 	if (err)
 		return err;
 
+#if CONFIG_IS_ENABLED(MMC_TINY)
+	mmc_set_clock(mmc, mmc->legacy_speed, false);
+	mmc_select_mode(mmc, IS_SD(mmc) ? SD_LEGACY : MMC_LEGACY);
+	mmc_set_bus_width(mmc, 1);
+#else
 	if (IS_SD(mmc)) {
 		err = sd_get_capabilities(mmc);
 		if (err)
@@ -2310,7 +2322,7 @@ static int mmc_startup(struct mmc *mmc)
 			return err;
 		mmc_select_mode_and_width(mmc, mmc->card_caps);
 	}
-
+#endif
 	if (err)
 		return err;
 
