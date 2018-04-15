@@ -270,6 +270,8 @@ U_BOOT_DRIVER(serial_sh) = {
 # define SCIF_BASE	SCIF6_BASE
 #elif defined(CONFIG_CONS_SCIF7)
 # define SCIF_BASE	SCIF7_BASE
+#elif defined(CONFIG_CONS_SCIFA0)
+# define SCIF_BASE	SCIFA0_BASE
 #else
 # error "Default SCIF doesn't set....."
 #endif

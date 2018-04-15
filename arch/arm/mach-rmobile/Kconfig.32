@@ -70,14 +70,17 @@ config TARGET_PORTER
 	bool "Porter board"
 	select DM
 	select DM_SERIAL
-	select SUPPORT_TPL
 	select SUPPORT_SPL
-	select SPL_DM if SPL
+	select USE_TINY_PRINTF
+	select SPL_TINY_MEMSET
 
 config TARGET_STOUT
 	bool "Stout board"
 	select DM
 	select DM_SERIAL
+	select SUPPORT_SPL
+	select USE_TINY_PRINTF
+	select SPL_TINY_MEMSET
 
 endchoice
 

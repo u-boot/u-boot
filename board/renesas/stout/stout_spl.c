@@ -1,5 +1,5 @@
 /*
- * board/renesas/porter/porter_spl.c
+ * board/renesas/stout/stout_spl.c
  *
  * Copyright (C) 2018 Marek Vasut <marek.vasut@gmail.com>
  *
@@ -21,7 +21,7 @@
 #include <spl.h>
 
 #define TMU0_MSTP125	BIT(25)
-#define SCIF0_MSTP721	BIT(21)
+#define SCIFA0_MSTP204	BIT(4)
 #define QSPI_MSTP917	BIT(17)
 
 #define SD2CKCR		0xE615026C
@@ -67,46 +67,41 @@ static void spl_init_sys(void)
 static void spl_init_pfc(void)
 {
 	static const struct reg_config pfc_with_unlock[] = {
-		{ 0x0090, 0x60000000 },
-		{ 0x0094, 0x60000000 },
-		{ 0x0098, 0x00800200 },
-		{ 0x009c, 0x00000000 },
-		{ 0x0020, 0x00000000 },
-		{ 0x0024, 0x00000000 },
-		{ 0x0028, 0x000244c8 },
-		{ 0x002c, 0x00000000 },
-		{ 0x0030, 0x00002400 },
-		{ 0x0034, 0x01520000 },
-		{ 0x0038, 0x00724003 },
-		{ 0x003c, 0x00000000 },
-		{ 0x0040, 0x00000000 },
-		{ 0x0044, 0x00000000 },
-		{ 0x0048, 0x00000000 },
-		{ 0x004c, 0x00000000 },
-		{ 0x0050, 0x00000000 },
-		{ 0x0054, 0x00000000 },
-		{ 0x0058, 0x00000000 },
-		{ 0x005c, 0x00000000 },
-		{ 0x0160, 0x00000000 },
-		{ 0x0004, 0xffffffff },
-		{ 0x0008, 0x00ec3fff },
-		{ 0x000c, 0x3bc001e7 },
-		{ 0x0010, 0x5bffffff },
-		{ 0x0014, 0x1ffffffb },
-		{ 0x0018, 0x01bffff0 },
-		{ 0x001c, 0xcf7fffff },
-		{ 0x0074, 0x0381fc00 },
+		{ 0x0090, 0x00140300 },
+		{ 0x0094, 0x09500000 },
+		{ 0x0098, 0xc0000084 },
+		{ 0x0020, 0x01a33492 },
+		{ 0x0024, 0x10000000 },
+		{ 0x0028, 0x08449252 },
+		{ 0x002c, 0x2925b322 },
+		{ 0x0030, 0x0c311249 },
+		{ 0x0034, 0x10124000 },
+		{ 0x0038, 0x00001295 },
+		{ 0x003c, 0x50890000 },
+		{ 0x0040, 0x0eaa56aa },
+		{ 0x0044, 0x55550000 },
+		{ 0x0048, 0x00000005 },
+		{ 0x004c, 0x54800000 },
+		{ 0x0050, 0x3736db55 },
+		{ 0x0054, 0x29148da3 },
+		{ 0x0058, 0x48c446e1 },
+		{ 0x005c, 0x2a3a54dc },
+		{ 0x0160, 0x00000023 },
+		{ 0x0004, 0xfca0ffff },
+		{ 0x0008, 0x3fbffbf0 },
+		{ 0x000c, 0x3ffdffff },
+		{ 0x0010, 0x00ffffff },
+		{ 0x0014, 0xfc3ffff3 },
+		{ 0x0018, 0xe4fdfff7 },
 	};
 
 	static const struct reg_config pfc_without_unlock[] = {
-		{ 0x0100, 0xffffffdf },
-		{ 0x0104, 0xc883c3ff },
-		{ 0x0108, 0x1201f3c9 },
-		{ 0x010c, 0x00000000 },
-		{ 0x0110, 0xffffeb04 },
-		{ 0x0114, 0xc003ffff },
-		{ 0x0118, 0x0800000f },
-		{ 0x011c, 0x00187ff0 },
+		{ 0x0104, 0xffffbfff },
+		{ 0x0108, 0xb1ffffe1 },
+		{ 0x010c, 0xffffffff },
+		{ 0x0110, 0xffffffff },
+		{ 0x0114, 0xe047beab },
+		{ 0x0118, 0x00000203 },
 	};
 
 	static const u32 pfc_base = 0xe6060000;
@@ -127,23 +122,19 @@ static void spl_init_pfc(void)
 static void spl_init_gpio(void)
 {
 	static const u16 gpio_offs[] = {
-		0x1000, 0x2000, 0x3000, 0x4000, 0x5000, 0x5400, 0x5800
+		0x1000, 0x3000, 0x4000, 0x5000
 	};
 
 	static const struct reg_config gpio_set[] = {
-		{ 0x2000, 0x04381000 },
-		{ 0x5000, 0x00000000 },
-		{ 0x5800, 0x000e0000 },
+		{ 0x4000, 0x00c00000 },
+		{ 0x5000, 0x63020000 },
 	};
 
 	static const struct reg_config gpio_clr[] = {
 		{ 0x1000, 0x00000000 },
-		{ 0x2000, 0x04381010 },
 		{ 0x3000, 0x00000000 },
-		{ 0x4000, 0x00000000 },
-		{ 0x5000, 0x00400000 },
-		{ 0x5400, 0x00000000 },
-		{ 0x5800, 0x000e0380 },
+		{ 0x4000, 0x00c00000 },
+		{ 0x5000, 0xe3020000 },
 	};
 
 	static const u32 gpio_base = 0xe6050000;
@@ -168,8 +159,8 @@ static void spl_init_lbsc(void)
 	static const struct reg_config lbsc_config[] = {
 		{ 0x00, 0x00000020 },
 		{ 0x08, 0x00002020 },
-		{ 0x30, 0x2a103320 },
-		{ 0x38, 0xff70ff70 },
+		{ 0x30, 0x02150326 },
+		{ 0x38, 0x077f077f },
 	};
 
 	static const u16 lbsc_offs[] = {
@@ -195,8 +186,6 @@ static void spl_init_dbsc(void)
 {
 	static const struct reg_config dbsc_config1[] = {
 		{ 0x0280, 0x0000a55a },
-		{ 0x4000, 0x0000a55a },
-		{ 0x4008, 0x00000001 },
 		{ 0x0018, 0x21000000 },
 		{ 0x0018, 0x11000000 },
 		{ 0x0018, 0x10000000 },
@@ -230,6 +219,7 @@ static void spl_init_dbsc(void)
 		{ 0x0290, 0x000000e0 },
 		{ 0x02a0, 0x7c000880 },
 	};
+
 	static const struct reg_config dbsc_config3r0d1[] = {
 		{ 0x0290, 0x0000000f },
 		{ 0x02a0, 0x00181885 },
@@ -289,7 +279,7 @@ static void spl_init_dbsc(void)
 	static const struct reg_config dbsc_config5[] = {
 		{ 0x0244, 0x00000011 },
 		{ 0x0290, 0x00000003 },
-		{ 0x02a0, 0x0300c561 },
+		{ 0x02a0, 0x0300c4e1 },
 		{ 0x0290, 0x00000023 },
 		{ 0x02a0, 0x00fcdb60 },
 		{ 0x0290, 0x00000011 },
@@ -323,7 +313,7 @@ static void spl_init_dbsc(void)
 		{ 0x02a0, 0x0000fe01 },
 		{ 0x0304, 0x00000000 },
 		{ 0x00f4, 0x01004c20 },
-		{ 0x00f8, 0x014a00b9 },
+		{ 0x00f8, 0x014000aa },
 		{ 0x00e0, 0x00000140 },
 		{ 0x00e4, 0x00081860 },
 		{ 0x00e8, 0x00010000 },
@@ -332,10 +322,6 @@ static void spl_init_dbsc(void)
 
 	static const struct reg_config dbsc_config8[] = {
 		{ 0x0014, 0x00000001 },
-		{ 0x0290, 0x00000010 },
-		{ 0x02a0, 0xf00464db },
-		{ 0x4008, 0x00000000 },
-		{ 0x4000, 0x00000000 },
 		{ 0x0010, 0x00000001 },
 		{ 0x0280, 0x00000000 },
 	};
@@ -358,7 +344,7 @@ static void spl_init_dbsc(void)
 		writel(dbsc_config2[i].val, dbsc3_1_base | dbsc_config2[i].off);
 	}
 
-	if (prr_rev == 0x4700) {
+	if (prr_rev == 0x4500) {
 		for (i = 0; i < ARRAY_SIZE(dbsc_config3r0d0); i++) {
 			writel(dbsc_config3r0d0[i].val,
 				dbsc3_0_base | dbsc_config3r0d0[i].off);
@@ -367,7 +353,7 @@ static void spl_init_dbsc(void)
 			writel(dbsc_config3r0d1[i].val,
 				dbsc3_1_base | dbsc_config3r0d1[i].off);
 		}
-	} else if (prr_rev != 0x4710) {
+	} else if (prr_rev != 0x4510) {
 		for (i = 0; i < ARRAY_SIZE(dbsc_config3r2); i++) {
 			writel(dbsc_config3r2[i].val,
 				dbsc3_0_base | dbsc_config3r2[i].off);
@@ -437,7 +423,7 @@ static void spl_init_qspi(void)
 void board_init_f(ulong dummy)
 {
 	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125);
-	mstp_clrbits_le32(MSTPSR7, SMSTPCR7, SCIF0_MSTP721);
+	mstp_clrbits_le32(MSTPSR2, SMSTPCR2, SCIFA0_MSTP204);
 
 	/*
 	 * SD0 clock is set to 97.5MHz by default.

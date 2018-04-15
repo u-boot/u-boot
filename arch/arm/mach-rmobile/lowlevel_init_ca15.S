@@ -11,7 +11,7 @@
 #include <linux/linkage.h>
 
 ENTRY(lowlevel_init)
-#ifndef CONFIG_TPL_BUILD
+#ifndef CONFIG_SPL_BUILD
 	mrc	p15, 0, r4, c0, c0, 5 /* mpidr */
 	orr	r4, r4, r4, lsr #6
 	and	r4, r4, #7 /* id 0-3 = ca15.0,1,2,3 */

@@ -8,4 +8,8 @@
 # SPDX-License-Identifier: GPL-2.0
 #
 
-obj-y	:= stout.o cpld.o qos.o ../rcar-common/common.o
+ifdef CONFIG_SPL_BUILD
+obj-y	:= stout_spl.o
+else
+obj-y	:= stout.o cpld.o qos.o
+endif
