@@ -124,6 +124,7 @@
 	"swappartitions=" \
 		"setexpr partnum 3 - ${partnum}\0" \
 	"failbootcmd=" \
+		"bx50_backlight_enable; " \
 		"msg=\"Monitor failed to start.  Try again, or contact GE Service for support.\"; " \
 		"echo $msg; " \
 		"setenv stdout vga; " \

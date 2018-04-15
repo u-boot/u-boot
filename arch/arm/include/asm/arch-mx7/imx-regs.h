@@ -264,6 +264,8 @@ struct src {
 	u32 ddrc_rcr;
 };
 
+#define src_base ((struct src *)SRC_BASE_ADDR)
+
 #define SRC_M4_REG_OFFSET		0xC
 #define SRC_M4C_NON_SCLR_RST_OFFSET	0
 #define SRC_M4C_NON_SCLR_RST_MASK	BIT(0)

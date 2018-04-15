@@ -56,6 +56,7 @@
 #define DCD_CHECK_BITS_SET_PARAM	0x14
 #define DCD_CHECK_BITS_CLR_PARAM	0x04
 
+#ifndef __ASSEMBLY__
 enum imximage_cmd {
 	CMD_INVALID,
 	CMD_IMAGE_VERSION,
@@ -197,4 +198,5 @@ typedef void (*set_dcd_rst_t)(struct imx_header *imxhdr,
 typedef void (*set_imx_hdr_t)(struct imx_header *imxhdr, uint32_t dcd_len,
 		uint32_t entry_point, uint32_t flash_offset);
 
+#endif /* __ASSEMBLY__ */
 #endif /* _IMXIMAGE_H_ */

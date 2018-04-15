@@ -387,6 +387,16 @@ config TARGET_TBS2910
 config TARGET_TITANIUM
 	bool "titanium"
 
+config TARGET_KP_IMX6Q_TPC
+	bool "K+P KP_IMX6Q_TPC i.MX6 Quad"
+	select MX6QDL
+	select BOARD_LATE_INIT
+	select BOARD_EARLY_INIT_F
+	select SUPPORT_SPL
+	select DM
+	select DM_THERMAL
+	imply CMD_SPL
+
 config TARGET_TQMA6
 	bool "TQ Systems TQMa6 board"
 	select BOARD_LATE_INIT
@@ -493,6 +503,7 @@ source "board/tbs/tbs2910/Kconfig"
 source "board/tqc/tqma6/Kconfig"
 source "board/toradex/apalis_imx6/Kconfig"
 source "board/toradex/colibri_imx6/Kconfig"
+source "board/k+p/kp_imx6q_tpc/Kconfig"
 source "board/udoo/Kconfig"
 source "board/udoo/neo/Kconfig"
 source "board/wandboard/Kconfig"

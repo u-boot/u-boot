@@ -33,12 +33,12 @@ Image Ver:    2 (i.MX53/6 compatible)
 Data Size:    327680 Bytes = 320.00 kB = 0.31 MB
 Load Address: 177ff420
 Entry Point:  17800000
-HAB Blocks:   177ff400 00000000 0004dc00
-	      ^^^^^^^^ ^^^^^^^^ ^^^^^^^^
-		|	|	   |
-		|	|	   -------- (1)
-		|	|
-		|	------------------- (2)
+HAB Blocks:   0x177ff400 0x00000000 0x0004dc00
+	      ^^^^^^^^^^ ^^^^^^^^^^ ^^^^^^^^^^
+		|	   |	      |
+		|	   |	      ----- (1)
+		|	   |
+		|	   ---------------- (2)
 		|
 		--------------------------- (3)
 
@@ -78,7 +78,7 @@ Example Output of the SPL (imximage) creation:
  Data Size:    61440 Bytes = 60.00 kB = 0.06 MB
  Load Address: 00907420
  Entry Point:  00908000
- HAB Blocks:   00907400 00000000 0000cc00
+ HAB Blocks:   0x00907400 0x00000000 0x0000cc00
 
 Example Output of the u-boot-ivt.img (firmware_ivt) creation:
  Image Name:   U-Boot 2016.11-rc1-31589-g2a4411

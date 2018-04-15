@@ -341,6 +341,31 @@ static int do_hab_failsafe(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static int do_authenticate_image_or_failover(cmd_tbl_t *cmdtp, int flag,
+					     int argc, char * const argv[])
+{
+	int ret = CMD_RET_FAILURE;
+
+	if (argc != 4) {
+		ret = CMD_RET_USAGE;
+		goto error;
+	}
+
+	if (!imx_hab_is_enabled()) {
+		printf("error: secure boot disabled\n");
+		goto error;
+	}
+
+	if (do_authenticate_image(NULL, flag, argc, argv) != CMD_RET_SUCCESS) {
+		fprintf(stderr, "authentication fail -> %s %s %s %s\n",
+			argv[0], argv[1], argv[2], argv[3]);
+		do_hab_failsafe(0, 0, 1, NULL);
+	};
+	ret = CMD_RET_SUCCESS;
+error:
+	return ret;
+}
+
 U_BOOT_CMD(
 		hab_status, CONFIG_SYS_MAXARGS, 1, do_hab_status,
 		"display HAB status",
@@ -360,6 +385,16 @@ U_BOOT_CMD(
 		hab_failsafe, CONFIG_SYS_MAXARGS, 1, do_hab_failsafe,
 		"run BootROM failsafe routine",
 		""
+	  );
+
+U_BOOT_CMD(
+		hab_auth_img_or_fail, 4, 0,
+		do_authenticate_image_or_failover,
+		"authenticate image via HAB on failure drop to USB BootROM mode",
+		"addr length ivt_offset\n"
+		"addr - image hex address\n"
+		"length - image hex length\n"
+		"ivt_offset - hex offset of IVT in the image"
 	  );
 
 #endif /* !defined(CONFIG_SPL_BUILD) */
