@@ -1345,6 +1345,7 @@ static const struct udevice_id fecmxc_ids[] = {
 	{ .compatible = "fsl,imx6sl-fec" },
 	{ .compatible = "fsl,imx6sx-fec" },
 	{ .compatible = "fsl,imx6ul-fec" },
+	{ .compatible = "fsl,imx53-fec" },
 	{ }
 };
 
