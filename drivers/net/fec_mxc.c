@@ -807,7 +807,16 @@ static int fec_recv(struct eth_device *dev)
 	uint16_t bd_status;
 	ulong addr, size, end;
 	int i;
+
+#ifdef CONFIG_DM_ETH
+	*packetp = memalign(ARCH_DMA_MINALIGN, FEC_MAX_PKT_SIZE);
+	if (*packetp == 0) {
+		printf("%s: error allocating packetp\n", __func__);
+		return -ENOMEM;
+	}
+#else
 	ALLOC_CACHE_ALIGN_BUFFER(uchar, buff, FEC_MAX_PKT_SIZE);
+#endif
 
 	/* Check if any critical events have happened */
 	ievent = readl(&fec->eth->ievent);
@@ -883,8 +892,13 @@ static int fec_recv(struct eth_device *dev)
 #ifdef CONFIG_FEC_MXC_SWAP_PACKET
 			swap_packet((uint32_t *)addr, frame_length);
 #endif
+
+#ifdef CONFIG_DM_ETH
+			memcpy(*packetp, (char *)addr, frame_length);
+#else
 			memcpy(buff, (char *)addr, frame_length);
 			net_process_received_packet(buff, frame_length);
+#endif
 			len = frame_length;
 		} else {
 			if (bd_status & FEC_RBD_ERR)
@@ -998,18 +1012,9 @@ static void fec_free_descs(struct fec_priv *fec)
 	free(fec->tbd_base);
 }
 
-#ifdef CONFIG_DM_ETH
-struct mii_dev *fec_get_miibus(struct udevice *dev, int dev_id)
-#else
-struct mii_dev *fec_get_miibus(uint32_t base_addr, int dev_id)
-#endif
+struct mii_dev *fec_get_miibus(ulong base_addr, int dev_id)
 {
-#ifdef CONFIG_DM_ETH
-	struct fec_priv *priv = dev_get_priv(dev);
-	struct ethernet_regs *eth = priv->eth;
-#else
-	struct ethernet_regs *eth = (struct ethernet_regs *)(ulong)base_addr;
-#endif
+	struct ethernet_regs *eth = (struct ethernet_regs *)base_addr;
 	struct mii_dev *bus;
 	int ret;
 
@@ -1141,12 +1146,12 @@ int fecmxc_initialize_multi(bd_t *bd, int dev_id, int phy_id, uint32_t addr)
 #endif
 	int ret;
 
-#ifdef CONFIG_MX28
+#ifdef CONFIG_FEC_MXC_MDIO_BASE
 	/*
 	 * The i.MX28 has two ethernet interfaces, but they are not equal.
 	 * Only the first one can access the MDIO bus.
 	 */
-	base_mii = MXS_ENET0_BASE;
+	base_mii = CONFIG_FEC_MXC_MDIO_BASE;
 #else
 	base_mii = addr;
 #endif
@@ -1202,10 +1207,19 @@ static int fecmxc_read_rom_hwaddr(struct udevice *dev)
 	return fec_get_hwaddr(priv->dev_id, pdata->enetaddr);
 }
 
+static int fecmxc_free_pkt(struct udevice *dev, uchar *packet, int length)
+{
+	if (packet)
+		free(packet);
+
+	return 0;
+}
+
 static const struct eth_ops fecmxc_ops = {
 	.start			= fecmxc_init,
 	.send			= fecmxc_send,
 	.recv			= fecmxc_recv,
+	.free_pkt		= fecmxc_free_pkt,
 	.stop			= fecmxc_halt,
 	.write_hwaddr		= fecmxc_set_hwaddr,
 	.read_rom_hwaddr	= fecmxc_read_rom_hwaddr,
@@ -1237,7 +1251,6 @@ static int fecmxc_probe(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct fec_priv *priv = dev_get_priv(dev);
 	struct mii_dev *bus = NULL;
-	int dev_id = -1;
 	uint32_t start;
 	int ret;
 
@@ -1258,9 +1271,13 @@ static int fecmxc_probe(struct udevice *dev)
 	}
 
 	fec_reg_setup(priv);
-	priv->dev_id = (dev_id == -1) ? 0 : dev_id;
 
-	bus = fec_get_miibus(dev, dev_id);
+	priv->dev_id = dev->seq;
+#ifdef CONFIG_FEC_MXC_MDIO_BASE
+	bus = fec_get_miibus((ulong)CONFIG_FEC_MXC_MDIO_BASE, dev->seq);
+#else
+	bus = fec_get_miibus((ulong)priv->eth, dev->seq);
+#endif
 	if (!bus) {
 		ret = -ENOMEM;
 		goto err_mii;
@@ -1275,12 +1292,11 @@ static int fecmxc_probe(struct udevice *dev)
 
 	return 0;
 
-err_timeout:
-	free(priv->phydev);
 err_phy:
 	mdio_unregister(bus);
 	free(bus);
 err_mii:
+err_timeout:
 	fec_free_descs(priv);
 	return ret;
 }
@@ -1326,6 +1342,9 @@ static int fecmxc_ofdata_to_platdata(struct udevice *dev)
 
 static const struct udevice_id fecmxc_ids[] = {
 	{ .compatible = "fsl,imx6q-fec" },
+	{ .compatible = "fsl,imx6sl-fec" },
+	{ .compatible = "fsl,imx6sx-fec" },
+	{ .compatible = "fsl,imx6ul-fec" },
 	{ }
 };
 

@@ -1021,45 +1021,126 @@ config CMD_SETEXPR
 
 endmenu
 
-menu "Network commands"
-
 if NET
 
-config CMD_NET
-	bool "bootp, tftpboot"
+menuconfig CMD_NET
+	bool "Network commands"
+	default y
+
+if CMD_NET
+
+config CMD_BOOTP
+	bool "bootp"
 	default y
 	help
-	  Network commands.
 	  bootp - boot image via network using BOOTP/TFTP protocol
+
+config CMD_DHCP
+	bool "dhcp"
+	depends on CMD_BOOTP
+	help
+	  Boot image via network using DHCP/TFTP protocol
+
+config BOOTP_BOOTPATH
+	bool "Request & store 'rootpath' from BOOTP/DHCP server"
+	default y
+	depends on CMD_BOOTP
+	help
+	  Even though the config is called BOOTP_BOOTPATH, it stores the
+	  path in the variable 'rootpath'.
+
+config BOOTP_DNS
+	bool "Request & store 'dnsip' from BOOTP/DHCP server"
+	default y
+	depends on CMD_BOOTP
+	help
+	  The primary DNS server is stored as 'dnsip'. If two servers are
+	  returned, you must set BOOTP_DNS2 to store that second server IP
+	  also.
+
+config BOOTP_DNS2
+	bool "Store 'dnsip2' from BOOTP/DHCP server"
+	depends on BOOTP_DNS
+	help
+	  If a DHCP client requests the DNS server IP from a DHCP server,
+	  it is possible that more than one DNS serverip is offered to the
+	  client. If CONFIG_BOOTP_DNS2 is enabled, the secondary DNS
+	  server IP will be stored in the additional environment
+	  variable "dnsip2". The first DNS serverip is always
+	  stored in the variable "dnsip", when BOOTP_DNS is defined.
+
+config BOOTP_GATEWAY
+	bool "Request & store 'gatewayip' from BOOTP/DHCP server"
+	default y
+	depends on CMD_BOOTP
+
+config BOOTP_HOSTNAME
+	bool "Request & store 'hostname' from BOOTP/DHCP server"
+	default y
+	depends on CMD_BOOTP
+	help
+	  The name may or may not be qualified with the local domain name.
+
+config BOOTP_SUBNETMASK
+	bool "Request & store 'netmask' from BOOTP/DHCP server"
+	default y
+	depends on CMD_BOOTP
+
+config BOOTP_PXE
+	bool "Send PXE client arch to BOOTP/DHCP server"
+	default y
+	depends on CMD_BOOTP && CMD_PXE
+	help
+	  Supported for ARM, ARM64, and x86 for now.
+
+config BOOTP_PXE_CLIENTARCH
+	hex
+	depends on BOOTP_PXE
+	default 0x16 if ARM64
+	default 0x15 if ARM
+	default 0 if X86
+
+config BOOTP_VCI_STRING
+	string
+	depends on CMD_BOOTP
+	default "U-Boot.armv7" if CPU_V7 || CPU_V7M
+	default "U-Boot.armv8" if ARM64
+	default "U-Boot.arm" if ARM
+	default "U-Boot"
+
+config CMD_TFTPBOOT
+	bool "tftpboot"
+	default y
+	help
 	  tftpboot - boot image via network using TFTP protocol
 
 config CMD_TFTPPUT
 	bool "tftp put"
+	depends on CMD_TFTPBOOT
 	help
 	  TFTP put command, for uploading files to a server
 
 config CMD_TFTPSRV
 	bool "tftpsrv"
+	depends on CMD_TFTPBOOT
 	help
 	  Act as a TFTP server and boot the first received file
+
+config NET_TFTP_VARS
+	bool "Control TFTP timeout and count through environment"
+	depends on CMD_TFTPBOOT
+	default y
+	help
+	  If set, allows controlling the TFTP timeout through the
+	  environment variable tftptimeout, and the TFTP maximum
+	  timeout count through the variable tftptimeoutcountmax.
+	  If unset, timeout and maximum are hard-defined as 1 second
+	  and 10 timouts per TFTP transfer.
 
 config CMD_RARP
 	bool "rarpboot"
 	help
 	  Boot image via network using RARP/TFTP protocol
-
-config CMD_DHCP
-	bool "dhcp"
-	depends on CMD_NET
-	help
-	  Boot image via network using DHCP/TFTP protocol
-
-config CMD_PXE
-	bool "pxe"
-	depends on CMD_NET
-	select MENU
-	help
-	  Boot image via network using PXE protocol
 
 config CMD_NFS
 	bool "nfs"
@@ -1097,6 +1178,8 @@ config CMD_LINK_LOCAL
 	help
 	  Acquire a network IP address using the link-local protocol
 
+endif
+
 config CMD_ETHSW
 	bool "ethsw"
 	help
@@ -1105,9 +1188,13 @@ config CMD_ETHSW
 	  operations such as enabling / disabling a port and
 	  viewing/maintaining the filtering database (FDB)
 
-endif
+config CMD_PXE
+	bool "pxe"
+	select MENU
+	help
+	  Boot image via network using PXE protocol
 
-endmenu
+endif
 
 menu "Misc commands"
 

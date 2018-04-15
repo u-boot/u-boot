@@ -182,6 +182,7 @@ struct zynq_gem_priv {
 	int phy_of_handle;
 	struct mii_dev *bus;
 	struct clk clk;
+	u32 max_speed;
 	bool int_pcs;
 };
 
@@ -341,6 +342,12 @@ static int zynq_phy_init(struct udevice *dev)
 
 	priv->phydev->supported &= supported | ADVERTISED_Pause |
 				  ADVERTISED_Asym_Pause;
+	if (priv->max_speed) {
+		ret = phy_set_supported(priv->phydev, priv->max_speed);
+		if (ret)
+			return ret;
+	}
+
 	priv->phydev->advertising = priv->phydev->supported;
 
 	if (priv->phy_of_handle > 0)
@@ -704,6 +711,8 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	}
 	priv->interface = pdata->phy_interface;
 
+	priv->max_speed = fdtdec_get_uint(gd->fdt_blob, priv->phy_of_handle,
+					  "max-speed", SPEED_1000);
 	priv->int_pcs = fdtdec_get_bool(gd->fdt_blob, node,
 					"is-internal-pcspma");
 

@@ -747,7 +747,7 @@ struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
 	return start;
 }
 
-#ifdef CONFIG_CMD_NET
+#ifdef CONFIG_NET
 struct efi_device_path *efi_dp_from_eth(void)
 {
 #ifndef CONFIG_DM_ETH

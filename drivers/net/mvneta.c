@@ -890,6 +890,15 @@ static void mvneta_mac_addr_set(struct mvneta_port *pp, unsigned char *addr,
 	mvneta_set_ucast_addr(pp, addr[5], queue);
 }
 
+static int mvneta_write_hwaddr(struct udevice *dev)
+{
+	mvneta_mac_addr_set(dev_get_priv(dev),
+		((struct eth_pdata *)dev_get_platdata(dev))->enetaddr,
+		rxq_def);
+
+	return 0;
+}
+
 /* Handle rx descriptor fill by setting buf_cookie and buf_phys_addr */
 static void mvneta_rx_desc_fill(struct mvneta_rx_desc *rx_desc,
 				u32 phys_addr, u32 cookie)
@@ -1753,6 +1762,7 @@ static const struct eth_ops mvneta_ops = {
 	.send		= mvneta_send,
 	.recv		= mvneta_recv,
 	.stop		= mvneta_stop,
+	.write_hwaddr	= mvneta_write_hwaddr,
 };
 
 static int mvneta_ofdata_to_platdata(struct udevice *dev)

@@ -76,22 +76,16 @@ config DISTRO_DEFAULTS
 	imply USE_BOOTCOMMAND
 	select CMD_BOOTZ if ARM && !ARM64
 	select CMD_BOOTI if ARM64
-	select CMD_DHCP if NET && CMD_NET
-	select CMD_PXE if NET && CMD_NET
+	select CMD_DHCP if CMD_NET
+	select CMD_PING if CMD_NET
+	select CMD_PXE if NET
 	select CMD_EXT2
 	select CMD_EXT4
 	select CMD_FAT
 	select CMD_FS_GENERIC
 	imply CMD_MII if NET
-	select CMD_PING if NET
 	select CMD_PART if PARTITIONS
 	select HUSH_PARSER
-	select BOOTP_BOOTPATH if NET && CMD_NET
-	select BOOTP_DNS if NET && CMD_NET
-	select BOOTP_GATEWAY if NET && CMD_NET
-	select BOOTP_HOSTNAME if NET && CMD_NET
-	select BOOTP_PXE if NET && CMD_NET
-	select BOOTP_SUBNETMASK if NET && CMD_NET
 	select CMDLINE_EDITING
 	select AUTO_COMPLETE
 	select SYS_LONGHELP

@@ -56,7 +56,7 @@ efi_status_t efi_init_obj_list(void)
 	if (ret != EFI_SUCCESS)
 		goto out;
 #endif
-#ifdef CONFIG_CMD_NET
+#ifdef CONFIG_NET
 	ret = efi_net_register();
 	if (ret != EFI_SUCCESS)
 		goto out;
@@ -511,7 +511,7 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 
 		bootefi_device_path = efi_dp_from_part(desc, part);
 	} else {
-#ifdef CONFIG_CMD_NET
+#ifdef CONFIG_NET
 		bootefi_device_path = efi_dp_from_eth();
 #endif
 	}

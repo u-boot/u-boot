@@ -13,12 +13,20 @@ menuconfig PHYLIB
 
 if PHYLIB
 
+config PHY_ADDR_ENABLE
+	bool "Limit phy address"
+	default y if ARCH_SUNXI
+	help
+	  Select this if you want to control which phy address is used
+
+if PHY_ADDR_ENABLE
 config PHY_ADDR
 	int "PHY address"
 	default 1 if ARCH_SUNXI
 	default 0
 	help
 	  The address of PHY on MII bus. Usually in range of 0 to 31.
+endif
 
 config B53_SWITCH
 	bool "Broadcom BCM53xx (RoboSwitch) Ethernet switch PHY support."
