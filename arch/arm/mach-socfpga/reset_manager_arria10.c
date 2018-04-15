@@ -27,18 +27,6 @@ static const struct socfpga_system_manager *sysmgr_regs =
 	ALT_RSTMGR_PER0MODRST_QSPIECC_SET_MSK | \
 	ALT_RSTMGR_PER0MODRST_SDMMCECC_SET_MSK)
 
-void socfpga_reset_uart(int assert)
-{
-	unsigned int com_port;
-
-	com_port = uart_com_port(gd->fdt_blob);
-
-	if (com_port == SOCFPGA_UART1_ADDRESS)
-		socfpga_per_reset(SOCFPGA_RESET(UART1), assert);
-	else if (com_port == SOCFPGA_UART0_ADDRESS)
-		socfpga_per_reset(SOCFPGA_RESET(UART0), assert);
-}
-
 static const u32 per0fpgamasks[] = {
 	ALT_RSTMGR_PER0MODRST_EMACECC0_SET_MSK |
 	ALT_RSTMGR_PER0MODRST_EMAC0_SET_MSK,

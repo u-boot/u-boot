@@ -75,9 +75,6 @@ void spl_board_init(void)
 	config_dedicated_pins(gd->fdt_blob);
 	WATCHDOG_RESET();
 
-	/* Release UART from reset */
-	socfpga_reset_uart(0);
-
 	/* enable console uart printing */
 	preloader_console_init();
 
