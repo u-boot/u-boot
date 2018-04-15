@@ -45,14 +45,14 @@
 
 static uint8_t buffer[PADDED_SIZE];
 
-static struct socfpga_header {
+struct socfpga_header {
 	uint32_t validation;
 	uint8_t  version;
 	uint8_t  flags;
 	uint16_t length_u32;
 	uint16_t zero;
 	uint16_t checksum;
-} header;
+};
 
 /*
  * The header checksum is just a very simple checksum over
@@ -75,6 +75,8 @@ static uint16_t hdr_checksum(struct socfpga_header *header)
 static void build_header(uint8_t *buf, uint8_t version, uint8_t flags,
 			 uint16_t length_bytes)
 {
+	struct socfpga_header header;
+
 	header.validation = cpu_to_le32(VALIDATION_WORD);
 	header.version = version;
 	header.flags = flags;
@@ -91,6 +93,8 @@ static void build_header(uint8_t *buf, uint8_t version, uint8_t flags,
  */
 static int verify_header(const uint8_t *buf)
 {
+	struct socfpga_header header;
+
 	memcpy(&header, buf, sizeof(header));
 
 	if (le32_to_cpu(header.validation) != VALIDATION_WORD)
