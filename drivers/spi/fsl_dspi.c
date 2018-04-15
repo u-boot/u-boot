@@ -396,16 +396,6 @@ void spi_init(void)
 	/* Nothing to do */
 }
 
-void spi_init_f(void)
-{
-	/* Nothing to do */
-}
-
-void spi_init_r(void)
-{
-	/* Nothing to do */
-}
-
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
 	if (((cs >= 0) && (cs < 8)) && ((bus >= 0) && (bus < 8)))

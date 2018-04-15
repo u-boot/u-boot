@@ -37,7 +37,6 @@
 
 /* FLASH */
 #if !defined(CONFIG_MTD_NOR_FLASH)
-#define CONFIG_SPI
 #define CONFIG_SH_QSPI_BASE	0xE6B10000
 #else
 #define CONFIG_SYS_FLASH_CFI

@@ -288,14 +288,6 @@ int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 		return 0;
 }
 
-void spi_init_f(void)
-{
-}
-
-void spi_init_r(void)
-{
-}
-
 void spi_init(void)
 {
 	cfspi_init();

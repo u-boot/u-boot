@@ -35,6 +35,7 @@ config TEGRA_COMMON
 	select DM_SPI
 	select DM_SPI_FLASH
 	select MISC
+	select SPI
 	select OF_CONTROL
 	select VIDCONSOLE_AS_LCD if DM_VIDEO
 	select BOARD_EARLY_INIT_F

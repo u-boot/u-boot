@@ -1,4 +1,7 @@
-menu "SPI Support"
+menuconfig SPI
+	bool "SPI Support"
+
+if SPI
 
 config DM_SPI
 	bool "Enable Driver Model for SPI drivers"
@@ -312,4 +315,4 @@ config OMAP3_SPI
 	  (McSPI). This driver be used to access SPI chips on platforms
 	  embedding this OMAP3 McSPI IP core.
 
-endmenu # menu "SPI Support"
+endif # menu "SPI Support"

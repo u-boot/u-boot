@@ -75,6 +75,7 @@ config SANDBOX
 	select DM_GPIO
 	select DM_MMC
 	select HAVE_BLOCK_DEVICE
+	select SPI
 	select LZO
 	imply CMD_GETTIME
 	imply CMD_HASH

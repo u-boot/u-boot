@@ -98,11 +98,6 @@
 #define CONFIG_DM_I2C_COMPAT
 #endif
 
-/* McSPI IP block */
-#define CONFIG_SPI
-
-/* GPIO block */
-
 /*
  * The following are general good-enough settings for U-Boot.  We set a
  * large malloc pool as we generally have a lot of DDR, and we opt for

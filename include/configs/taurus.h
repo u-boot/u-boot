@@ -117,7 +117,6 @@
 #endif
 
 /* SPI EEPROM */
-#define CONFIG_SPI
 #define TAURUS_SPI_MASK (1 << 4)
 #define TAURUS_SPI_CS_PIN	AT91_PIN_PA3
 

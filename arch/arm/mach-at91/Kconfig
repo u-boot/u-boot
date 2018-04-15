@@ -88,6 +88,7 @@ config TARGET_GURNARD
 	select DM_SPI
 	select DM_GPIO
 	select DM_ETH
+	select SPI
 
 config TARGET_AT91SAM9261EK
 	bool "Atmel at91sam9261 reference board"
@@ -202,6 +203,7 @@ config TARGET_MA5D4EVK
 	select SUPPORT_SPL
 	select DM
 	select DM_SPI
+	select SPI
 
 config TARGET_MEESC
 	bool "Support meesc"
@@ -225,6 +227,7 @@ config TARGET_TAURUS
 	select DM_SPI
 	select DM_GPIO
 	select DM_ETH
+	select SPI
 
 config TARGET_SMARTWEB
 	bool "Support smartweb"
@@ -241,6 +244,7 @@ config TARGET_VINCO
 	select SUPPORT_SPL
 	select DM
 	select DM_SPI
+	select SPI
 
 config TARGET_WB45N
 	bool "Support Laird WB45N"

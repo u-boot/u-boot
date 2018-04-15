@@ -57,11 +57,6 @@
 #define CONFIG_DM9000_NO_SROM		1
 #undef	CONFIG_DM9000_DEBUG
 
-/* SPI */
-#undef CONFIG_SPI
-
-/* I2C */
-
 /* TWL4030 */
 #define CONFIG_TWL4030_LED		1
 

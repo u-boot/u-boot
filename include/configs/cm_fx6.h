@@ -168,9 +168,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS
 #endif
 
-/* SPI */
-#define CONFIG_SPI
-
 /* NAND */
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_NAND_BASE		0x40000000

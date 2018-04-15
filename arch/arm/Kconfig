@@ -379,6 +379,7 @@ config ARCH_MVEBU
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
+	select SPI
 
 config TARGET_DEVKIT3250
 	bool "Support devkit3250"
@@ -434,6 +435,7 @@ config TARGET_STV0991
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
+	select SPI
 	select SPI_FLASH
 	select PL01X_SERIAL
 
@@ -540,6 +542,7 @@ config ARCH_EXYNOS
 	select DM_SPI
 	select DM_GPIO
 	select DM_KEYBOARD
+	select SPI
 	imply FAT_WRITE
 
 config ARCH_S5PC1XX
@@ -760,6 +763,7 @@ config ARCH_ZYNQ
 	select CLK
 	select SPL_CLK if SPL
 	select CLK_ZYNQ
+	select SPI
 	imply CMD_CLK
 	imply FAT_WRITE
 	imply CMD_SPL
@@ -1177,6 +1181,7 @@ config ARCH_ROCKCHIP
 	select DM_PWM
 	select DM_REGULATOR
 	select ENABLE_ARM_SOC_BOOT0_HOOK
+	select SPI
 	imply CMD_FASTBOOT
 	imply FASTBOOT
 	imply FAT_WRITE

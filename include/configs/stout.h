@@ -31,7 +31,6 @@
 #define CONFIG_SCIF_A
 
 /* SPI */
-#define CONFIG_SPI
 #define CONFIG_SPI_FLASH_QUAD
 
 /* SH Ether */
