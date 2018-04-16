@@ -89,7 +89,8 @@ ENTRY(psci_cpu_on)
 	mov	r4, r1
 	mov	r0, r1
 	mov	r1, r2
-	bl	psci_save_target_pc	@ store target PC
+	mov	r2, r3
+	bl	psci_save		@ store target PC and context id
 	mov	r1, r4
 
 	ldr	r6, =TEGRA_RESET_EXCEPTION_VECTOR
