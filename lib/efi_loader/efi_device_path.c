@@ -149,7 +149,7 @@ static struct efi_object *find_obj(struct efi_device_path *dp, bool short_path,
 				   struct efi_device_path **rem)
 {
 	struct efi_object *efiobj;
-	unsigned int dp_size = efi_dp_size(dp);
+	efi_uintn_t dp_size = efi_dp_instance_size(dp);
 
 	list_for_each_entry(efiobj, &efi_obj_list, link) {
 		struct efi_handler *handler;
@@ -170,11 +170,12 @@ static struct efi_object *find_obj(struct efi_device_path *dp, bool short_path,
 					 * the caller.
 					 */
 					*rem = ((void *)dp) +
-						efi_dp_size(obj_dp);
+						efi_dp_instance_size(obj_dp);
 					return efiobj;
 				} else {
 					/* Only return on exact matches */
-					if (efi_dp_size(obj_dp) == dp_size)
+					if (efi_dp_instance_size(obj_dp) ==
+					    dp_size)
 						return efiobj;
 				}
 			}
@@ -229,10 +230,10 @@ const struct efi_device_path *efi_dp_last_node(const struct efi_device_path *dp)
 	return ret;
 }
 
-/* return size not including End node: */
-unsigned efi_dp_size(const struct efi_device_path *dp)
+/* get size of the first device path instance excluding end node */
+efi_uintn_t efi_dp_instance_size(const struct efi_device_path *dp)
 {
-	unsigned sz = 0;
+	efi_uintn_t sz = 0;
 
 	if (!dp || dp->type == DEVICE_PATH_TYPE_END)
 		return 0;
@@ -244,10 +245,25 @@ unsigned efi_dp_size(const struct efi_device_path *dp)
 	return sz;
 }
 
+/* get size of multi-instance device path excluding end node */
+efi_uintn_t efi_dp_size(const struct efi_device_path *dp)
+{
+	const struct efi_device_path *p = dp;
+
+	if (!p)
+		return 0;
+	while (p->type != DEVICE_PATH_TYPE_END ||
+	       p->sub_type != DEVICE_PATH_SUB_TYPE_END)
+		p = (void *)p + p->length;
+
+	return (void *)p - (void *)dp;
+}
+
+/* copy multi-instance device path */
 struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp)
 {
 	struct efi_device_path *ndp;
-	unsigned sz = efi_dp_size(dp) + sizeof(END);
+	size_t sz = efi_dp_size(dp) + sizeof(END);
 
 	if (!dp)
 		return NULL;
@@ -298,7 +314,7 @@ struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
 	} else if (!node) {
 		ret = efi_dp_dup(dp);
 	} else if (!dp) {
-		unsigned sz = node->length;
+		size_t sz = node->length;
 		void *p = dp_alloc(sz + sizeof(END));
 		if (!p)
 			return NULL;
@@ -307,7 +323,7 @@ struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
 		ret = p;
 	} else {
 		/* both dp and node are non-null */
-		unsigned sz = efi_dp_size(dp);
+		size_t sz = efi_dp_size(dp);
 		void *p = dp_alloc(sz + node->length + sizeof(END));
 		if (!p)
 			return NULL;
