@@ -234,6 +234,8 @@ unsigned efi_dp_size(const struct efi_device_path *dp)
 {
 	unsigned sz = 0;
 
+	if (!dp || dp->type == DEVICE_PATH_TYPE_END)
+		return 0;
 	while (dp) {
 		sz += dp->length;
 		dp = efi_dp_next(dp);
