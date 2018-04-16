@@ -24,7 +24,10 @@ config SYS_SOC
 
 config TARGET_STM32MP1
 	bool "Support stm32mp1xx"
+	select ARCH_SUPPORT_PSCI
 	select CPU_V7
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
 	select PINCTRL_STM32
 	select STM32_RESET
 	select SYS_ARCH_TIMER

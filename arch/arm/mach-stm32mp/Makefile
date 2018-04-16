@@ -8,3 +8,4 @@ obj-y += dram_init.o
 obj-y += syscon.o
 
 obj-$(CONFIG_SPL_BUILD) += spl.o
+obj-$(CONFIG_ARMV7_PSCI) += psci.o
