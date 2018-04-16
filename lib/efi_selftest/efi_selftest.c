@@ -77,20 +77,20 @@ void efi_st_exit_boot_services(void)
  */
 static int setup(struct efi_unit_test *test, unsigned int *failures)
 {
-	int ret;
-
-	if (!test->setup)
+	if (!test->setup) {
+		test->setup_ok = EFI_ST_SUCCESS;
 		return EFI_ST_SUCCESS;
+	}
 	efi_st_printc(EFI_LIGHTBLUE, "\nSetting up '%s'\n", test->name);
-	ret = test->setup(handle, systable);
-	if (ret != EFI_ST_SUCCESS) {
+	test->setup_ok = test->setup(handle, systable);
+	if (test->setup_ok != EFI_ST_SUCCESS) {
 		efi_st_error("Setting up '%s' failed\n", test->name);
 		++*failures;
 	} else {
 		efi_st_printc(EFI_LIGHTGREEN,
 			      "Setting up '%s' succeeded\n", test->name);
 	}
-	return ret;
+	return test->setup_ok;
 }
 
 /*
@@ -200,7 +200,7 @@ void efi_st_do_tests(const u16 *testname, unsigned int phase,
 			continue;
 		if (steps & EFI_ST_SETUP)
 			setup(test, failures);
-		if (steps & EFI_ST_EXECUTE)
+		if (steps & EFI_ST_EXECUTE && test->setup_ok == EFI_ST_SUCCESS)
 			execute(test, failures);
 		if (steps & EFI_ST_TEARDOWN)
 			teardown(test, failures);
