@@ -70,11 +70,26 @@ static bool EFIAPI is_device_path_multi_instance(
 	return EFI_EXIT(false);
 }
 
+/*
+ * Create device node.
+ *
+ * This function implements the CreateDeviceNode service of the device path
+ * utilities protocol.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification
+ * for details.
+ *
+ * @node_type		node type
+ * @node_sub_type	node sub type
+ * @node_length		node length
+ * @return		device path node
+ */
 static struct efi_device_path * EFIAPI create_device_node(
 	uint8_t node_type, uint8_t node_sub_type, uint16_t node_length)
 {
 	EFI_ENTRY("%u, %u, %u", node_type, node_sub_type, node_length);
-	return EFI_EXIT(NULL);
+	return EFI_EXIT(efi_dp_create_device_node(node_type, node_sub_type,
+			node_length));
 }
 
 const struct efi_device_path_utilities_protocol efi_device_path_utilities = {

@@ -315,6 +315,21 @@ struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
 	return ret;
 }
 
+struct efi_device_path *efi_dp_create_device_node(const u8 type,
+						  const u8 sub_type,
+						  const u16 length)
+{
+	struct efi_device_path *ret;
+
+	ret = dp_alloc(length);
+	if (!ret)
+		return ret;
+	ret->type = type;
+	ret->sub_type = sub_type;
+	ret->length = length;
+	return ret;
+}
+
 #ifdef CONFIG_DM
 /* size of device-path not including END node for device and all parents
  * up to the root device.
