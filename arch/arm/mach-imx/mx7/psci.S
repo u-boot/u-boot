@@ -23,7 +23,8 @@ psci_cpu_on:
 	mov	r5, r1
 	mov	r0, r1
 	mov	r1, r2
-	bl	psci_save_target_pc
+	mov	r2, r3
+	bl	psci_save
 
 	mov	r0, r4
 	mov	r1, r5
