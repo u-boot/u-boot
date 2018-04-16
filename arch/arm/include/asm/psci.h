@@ -93,10 +93,9 @@
 #ifndef __ASSEMBLY__
 #include <asm/types.h>
 
-/* These 4 helper functions assume cpu < CONFIG_ARMV7_PSCI_NR_CPUS */
+/* These 3 helper functions assume cpu < CONFIG_ARMV7_PSCI_NR_CPUS */
 u32 psci_get_target_pc(int cpu);
 u32 psci_get_context_id(int cpu);
-void psci_save_target_pc(int cpu, u32 pc);
 void psci_save(int cpu, u32 pc, u32 context_id);
 
 void psci_cpu_entry(void);
