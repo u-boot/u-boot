@@ -52,7 +52,7 @@ struct efi_device_path_to_text_protocol *device_path_to_text;
  * Setup unit test.
  *
  * Create three handles. Install a new protocol on two of them and
- * provice device paths.
+ * provide device paths.
  *
  * handle1
  *   guid interface
