@@ -595,6 +595,9 @@ endif
 KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
 KBUILD_CFLAGS += $(call cc-option,-fno-delete-null-pointer-checks)
 
+# change __FILE__ to the relative path from the srctree
+KBUILD_CFLAGS	+= $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
+
 KBUILD_CFLAGS	+= -g
 # $(KBUILD_AFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
 # option to the assembler.
