@@ -174,7 +174,7 @@ config FRAMEBUFFER_SET_VESA_MODE
 
 choice
 	prompt "framebuffer graphics resolution"
-	default FRAMEBUFFER_VESA_MODE_117
+	default FRAMEBUFFER_VESA_MODE_118
 	depends on FRAMEBUFFER_SET_VESA_MODE
 	help
 	  This option sets the resolution used for the U-Boot framebuffer (and

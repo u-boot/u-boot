@@ -46,7 +46,7 @@ Build Instructions for U-Boot as coreboot payload
 Building U-Boot as a coreboot payload is just like building U-Boot for targets
 on other architectures, like below:
 
-$ make coreboot-x86_defconfig
+$ make coreboot_defconfig
 $ make all
 
 Note this default configuration will build a U-Boot payload for the QEMU board.
