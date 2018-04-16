@@ -337,6 +337,15 @@ struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
 struct efi_device_path *efi_dp_create_device_node(const u8 type,
 						  const u8 sub_type,
 						  const u16 length);
+/* Append device path instance */
+struct efi_device_path *efi_dp_append_instance(
+		const struct efi_device_path *dp,
+		const struct efi_device_path *dpi);
+/* Get next device path instance */
+struct efi_device_path *efi_dp_get_next_instance(struct efi_device_path **dp,
+						 efi_uintn_t *size);
+/* Check if a device path contains muliple instances */
+bool efi_dp_is_multi_instance(const struct efi_device_path *dp);
 
 struct efi_device_path *efi_dp_from_dev(struct udevice *dev);
 struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part);
