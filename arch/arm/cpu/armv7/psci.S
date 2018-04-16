@@ -321,10 +321,17 @@ ENTRY(psci_arch_init)
 ENDPROC(psci_arch_init)
 .weak psci_arch_init
 
+ENTRY(psci_arch_cpu_entry)
+	mov	pc, lr
+ENDPROC(psci_arch_cpu_entry)
+.weak psci_arch_cpu_entry
+
 ENTRY(psci_cpu_entry)
 	bl	psci_enable_smp
 
 	bl	_nonsec_init
+
+	bl	psci_arch_cpu_entry
 
 	bl	psci_get_cpu_id			@ CPU ID => r0
 	mov	r2, r0				@ CPU ID => r2
