@@ -263,7 +263,10 @@ struct efi_device_path *efi_dp_append(const struct efi_device_path *dp1,
 {
 	struct efi_device_path *ret;
 
-	if (!dp1) {
+	if (!dp1 && !dp2) {
+		/* return an end node */
+		ret = efi_dp_dup(&END);
+	} else if (!dp1) {
 		ret = efi_dp_dup(dp2);
 	} else if (!dp2) {
 		ret = efi_dp_dup(dp1);
@@ -275,8 +278,8 @@ struct efi_device_path *efi_dp_append(const struct efi_device_path *dp1,
 		if (!p)
 			return NULL;
 		memcpy(p, dp1, sz1);
-		memcpy(p + sz1, dp2, sz2);
-		memcpy(p + sz1 + sz2, &END, sizeof(END));
+		/* the end node of the second device path has to be retained */
+		memcpy(p + sz1, dp2, sz2 + sizeof(END));
 		ret = p;
 	}
 
