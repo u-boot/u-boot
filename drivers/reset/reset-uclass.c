@@ -88,8 +88,8 @@ int reset_get_bulk(struct udevice *dev, struct reset_ctl_bulk *bulk)
 	bulk->count = 0;
 
 	count = dev_count_phandle_with_args(dev, "resets", "#reset-cells");
-	if (!count)
-		return 0;
+	if (count < 1)
+		return count;
 
 	bulk->resets = devm_kcalloc(dev, count, sizeof(struct reset_ctl),
 				    GFP_KERNEL);
