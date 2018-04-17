@@ -55,7 +55,9 @@ Maintainers List (try to look for most precise areas first)
 		-----------------------------------
 ARC
 M:	Alexey Brodkin <alexey.brodkin@synopsys.com>
+M:	Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
 S:	Maintained
+L:	uboot-snps-arc@synopsys.com
 T:	git git://git.denx.de/u-boot-arc.git
 F:	arch/arc/
 
