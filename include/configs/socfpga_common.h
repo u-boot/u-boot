@@ -137,6 +137,7 @@
 /*
  * I2C support
  */
+#ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_BASE		SOCFPGA_I2C0_ADDRESS
 #define CONFIG_SYS_I2C_BASE1		SOCFPGA_I2C1_ADDRESS
@@ -157,6 +158,7 @@
 unsigned int cm_get_l4_sp_clk_hz(void);
 #define IC_CLK				(cm_get_l4_sp_clk_hz() / 1000000)
 #endif
+#endif /* CONFIG_DM_I2C */
 
 /*
  * QSPI support

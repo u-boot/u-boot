@@ -14,6 +14,10 @@
 	aliases {
 		ethernet0 = &gmac0;
 		ethernet1 = &gmac1;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
+		i2c3 = &i2c3;
 		serial0 = &uart0;
 		serial1 = &uart1;
 		timer0 = &timer0;
@@ -505,6 +509,8 @@
 			compatible = "snps,designware-i2c";
 			reg = <0xffc04000 0x1000>;
 			clocks = <&l4_sp_clk>;
+			resets = <&rst I2C0_RESET>;
+			reset-names = "i2c";
 			interrupts = <0 158 0x4>;
 			status = "disabled";
 		};
@@ -515,6 +521,8 @@
 			compatible = "snps,designware-i2c";
 			reg = <0xffc05000 0x1000>;
 			clocks = <&l4_sp_clk>;
+			resets = <&rst I2C1_RESET>;
+			reset-names = "i2c";
 			interrupts = <0 159 0x4>;
 			status = "disabled";
 		};
@@ -525,6 +533,8 @@
 			compatible = "snps,designware-i2c";
 			reg = <0xffc06000 0x1000>;
 			clocks = <&l4_sp_clk>;
+			resets = <&rst I2C2_RESET>;
+			reset-names = "i2c";
 			interrupts = <0 160 0x4>;
 			status = "disabled";
 		};
@@ -535,6 +545,8 @@
 			compatible = "snps,designware-i2c";
 			reg = <0xffc07000 0x1000>;
 			clocks = <&l4_sp_clk>;
+			resets = <&rst I2C3_RESET>;
+			reset-names = "i2c";
 			interrupts = <0 161 0x4>;
 			status = "disabled";
 		};
