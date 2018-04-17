@@ -11,6 +11,7 @@
 #include <malloc.h>
 #include <dm.h>
 #include <dm/platform_data/serial_sh.h>
+#include <environment.h>
 #include <asm/processor.h>
 #include <asm/mach-types.h>
 #include <asm/io.h>
@@ -135,4 +136,19 @@ void reset_cpu(ulong addr)
 	ret = dm_i2c_write(dev, 0x13, &data, 1);
 	if (ret)
 		hang();
+}
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	const u32 load_magic = 0xb33fc0de;
+
+	/* Block environment access if loaded using JTAG */
+	if ((readl(CONFIG_SPL_TEXT_BASE + 0x24) == load_magic) &&
+	    (op != ENVOP_INIT))
+		return ENVL_UNKNOWN;
+
+	if (prio)
+		return ENVL_UNKNOWN;
+
+	return ENVL_SPI_FLASH;
 }
