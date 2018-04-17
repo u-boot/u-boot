@@ -288,6 +288,7 @@ F:	drivers/net/zynq_gem.c
 F:	drivers/serial/serial_zynq.c
 F:	drivers/spi/zynq_qspi.c
 F:	drivers/spi/zynq_spi.c
+F:	drivers/timer/cadence-ttc.c
 F:	drivers/usb/host/ehci-zynq.c
 F:	drivers/watchdog/cdns_wdt.c
 F:	include/zynqmppl.h

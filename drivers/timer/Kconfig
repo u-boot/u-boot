@@ -52,6 +52,13 @@ config ATMEL_PIT_TIMER
 	  it is designed to offer maximum accuracy and efficient management,
 	  even for systems with long response time.
 
+config CADENCE_TTC_TIMER
+	bool "Cadence TTC (Triple Timer Counter)"
+	depends on TIMER
+	help
+	  Enables support for the cadence ttc driver. This driver is present
+	  on Xilinx Zynq and ZynqMP SoCs.
+
 config SANDBOX_TIMER
 	bool "Sandbox timer support"
 	depends on SANDBOX && TIMER
