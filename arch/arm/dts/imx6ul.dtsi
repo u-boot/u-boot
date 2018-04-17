@@ -194,6 +194,7 @@
 				#size-cells = <1>;
 				reg = <0x02000000 0x40000>;
 				ranges;
+				u-boot,dm-spl;
 
 				ecspi1: ecspi@02008000 {
 					#address-cells = <1>;

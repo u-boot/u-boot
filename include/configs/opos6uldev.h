@@ -15,11 +15,7 @@
 #include "imx6_spl.h"
 
 #ifdef CONFIG_SPL_BUILD
-#undef CONFIG_DM_GPIO
-#undef CONFIG_DM_MMC
-#undef CONFIG_BLK
-
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#undef CONFIG_DM_REGULATOR
 #endif
 #endif
 
@@ -40,7 +36,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* MMC */
-#define CONFIG_SYS_FSL_ESDHC_ADDR 0
 #define CONFIG_SUPPORT_EMMC_BOOT
 
 /* USB */
@@ -61,6 +56,7 @@
 #endif
 
 /* LCD */
+#ifndef CONFIG_SPL_BUILD
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SPLASH_SCREEN
@@ -71,6 +67,7 @@
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_MXS
 #define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR
+#endif
 #endif
 
 /* Environment is stored in the eMMC boot partition */
