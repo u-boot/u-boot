@@ -208,6 +208,16 @@ static struct mx6_ddr3_cfg mem_ddr = {
 	.trasmin = 3750,
 };
 
+void board_boot_order(u32 *spl_boot_list)
+{
+	unsigned int bmode = readl(&src_base->sbmr2);
+
+	if (((bmode >> 24) & 0x03) == 0x01) /* Serial Downloader */
+		spl_boot_list[0] = BOOT_DEVICE_UART;
+	else
+		spl_boot_list[0] = spl_boot_device();
+}
+
 static void ccgr_init(void)
 {
 	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
