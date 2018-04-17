@@ -111,8 +111,8 @@ int clk_get_bulk(struct udevice *dev, struct clk_bulk *bulk)
 	bulk->count = 0;
 
 	count = dev_count_phandle_with_args(dev, "clocks", "#clock-cells");
-	if (!count)
-		return 0;
+	if (count < 1)
+		return count;
 
 	bulk->clks = devm_kcalloc(dev, count, sizeof(struct clk), GFP_KERNEL);
 	if (!bulk->clks)
