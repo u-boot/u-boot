@@ -19,7 +19,6 @@ CONFIG_SYS_PROMPT="ThunderX_88XX> "
 # CONFIG_CMD_ENV_EXISTS is not set
 # CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_NET is not set
-# CONFIG_CMD_NFS is not set
 CONFIG_DM=y
 # CONFIG_MMC is not set
 CONFIG_DM_SERIAL=y
