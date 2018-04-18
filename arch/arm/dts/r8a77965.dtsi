@@ -748,6 +748,14 @@
 			status = "disabled";
 		};
 
+		rpc: rpc@0xee200000 {
+			compatible = "renesas,rpc-r8a77965", "renesas,rpc";
+			reg = <0 0xee200000 0 0x100>, <0 0x08000000 0 0>;
+			clocks = <&cpg CPG_MOD 917>;
+			bank-width = <2>;
+			status = "disabled";
+		};
+
 		sdhi0: sd@ee100000 {
 			compatible = "renesas,sdhi-r8a77965";
 			reg = <0 0xee100000 0 0x2000>;

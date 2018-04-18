@@ -128,3 +128,18 @@ int board_phy_config(struct phy_device *phydev)
 const struct rmobile_sysinfo sysinfo = {
 	CONFIG_ARCH_RMOBILE_BOARD_STRING
 };
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	const u32 load_magic = 0xb33fc0de;
+
+	/* Block environment access if loaded using JTAG */
+	if ((readl(CONFIG_SPL_TEXT_BASE + 0x24) == load_magic) &&
+	    (op != ENVOP_INIT))
+		return ENVL_UNKNOWN;
+
+	if (prio)
+		return ENVL_UNKNOWN;
+
+	return ENVL_SPI_FLASH;
+}
