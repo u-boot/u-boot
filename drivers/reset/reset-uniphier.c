@@ -43,6 +43,7 @@ struct uniphier_reset_data {
 /* System reset data */
 static const struct uniphier_reset_data uniphier_pro4_sys_reset_data[] = {
 	UNIPHIER_RESETX(2, 0x2000, 2),		/* NAND */
+	UNIPHIER_RESETX(6, 0x2000, 12),		/* ETHER */
 	UNIPHIER_RESETX(8, 0x2000, 10),		/* STDMAC */
 	UNIPHIER_RESETX(12, 0x2000, 6),		/* GIO */
 	UNIPHIER_RESETX(14, 0x2000, 17),	/* USB30 */
@@ -52,6 +53,7 @@ static const struct uniphier_reset_data uniphier_pro4_sys_reset_data[] = {
 
 static const struct uniphier_reset_data uniphier_pxs2_sys_reset_data[] = {
 	UNIPHIER_RESETX(2, 0x2000, 2),		/* NAND */
+	UNIPHIER_RESETX(6, 0x2000, 12),		/* ETHER */
 	UNIPHIER_RESETX(8, 0x2000, 10),		/* STDMAC */
 	UNIPHIER_RESETX(14, 0x2000, 17),	/* USB30 */
 	UNIPHIER_RESETX(15, 0x2004, 17),	/* USB31 */
@@ -68,6 +70,7 @@ static const struct uniphier_reset_data uniphier_pxs2_sys_reset_data[] = {
 static const struct uniphier_reset_data uniphier_ld20_sys_reset_data[] = {
 	UNIPHIER_RESETX(2, 0x200c, 0),		/* NAND */
 	UNIPHIER_RESETX(4, 0x200c, 2),		/* eMMC */
+	UNIPHIER_RESETX(6, 0x200c, 6),		/* ETHER */
 	UNIPHIER_RESETX(8, 0x200c, 8),		/* STDMAC */
 	UNIPHIER_RESETX(12, 0x200c, 5),		/* GIO */
 	UNIPHIER_RESETX(16, 0x200c, 12),	/* USB30-PHY0 */
@@ -80,6 +83,8 @@ static const struct uniphier_reset_data uniphier_ld20_sys_reset_data[] = {
 static const struct uniphier_reset_data uniphier_pxs3_sys_reset_data[] = {
 	UNIPHIER_RESETX(2, 0x200c, 0),		/* NAND */
 	UNIPHIER_RESETX(4, 0x200c, 2),		/* eMMC */
+	UNIPHIER_RESETX(6, 0x200c, 9),		/* ETHER0 */
+	UNIPHIER_RESETX(7, 0x200c, 10),		/* ETHER1 */
 	UNIPHIER_RESETX(8, 0x200c, 12),		/* STDMAC */
 	UNIPHIER_RESETX(12, 0x200c, 5),		/* USB30 (GIO0) */
 	UNIPHIER_RESETX(13, 0x200c, 6),		/* USB31 (GIO1) */
