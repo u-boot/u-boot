@@ -16,8 +16,6 @@
 #include <fdt_support.h>
 #include <pca953x.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 extern void ft_board_pci_setup(void *blob, bd_t *bd);
 
 static void flash_cs_fixup(void)

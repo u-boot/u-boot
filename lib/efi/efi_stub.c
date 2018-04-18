@@ -21,8 +21,6 @@
 #include <linux/err.h>
 #include <linux/types.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifndef CONFIG_X86
 /*
  * Problem areas:

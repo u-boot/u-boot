@@ -244,8 +244,6 @@ static struct stm32_i2c_setup stm32f7_setup = {
 	.analog_filter = STM32_I2C_ANALOG_FILTER_ENABLE,
 };
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static int stm32_i2c_check_device_busy(struct stm32_i2c_priv *i2c_priv)
 {
 	struct stm32_i2c_regs *regs = i2c_priv->regs;

@@ -17,8 +17,6 @@
 #endif
 #include "vid.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int __weak i2c_multiplexer_select_vid_channel(u8 channel)
 {
 	return 0;

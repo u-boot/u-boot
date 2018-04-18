@@ -27,8 +27,6 @@
 #include <power/regulator.h>
 #include <power/rk8xx_pmic.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct chan_info {
 	struct rk3288_ddr_pctl *pctl;
 	struct rk3288_ddr_publ *publ;

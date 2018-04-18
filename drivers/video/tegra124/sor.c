@@ -17,8 +17,6 @@
 #include "displayport.h"
 #include "sor.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define DEBUG_SOR 0
 
 #define APBDEV_PMC_DPD_SAMPLE				0x20

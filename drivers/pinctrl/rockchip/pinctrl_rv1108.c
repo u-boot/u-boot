@@ -14,8 +14,6 @@
 #include <asm/arch/periph.h>
 #include <dm/pinctrl.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct rv1108_pinctrl_priv {
 	struct rv1108_grf *grf;
 };

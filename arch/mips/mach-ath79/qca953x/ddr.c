@@ -12,8 +12,6 @@
 #include <mach/ar71xx_regs.h>
 #include <mach/ath79.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define DDR_CTRL_UPD_EMR3S      BIT(5)
 #define DDR_CTRL_UPD_EMR2S      BIT(4)
 #define DDR_CTRL_PRECHARGE      BIT(3)

@@ -12,8 +12,6 @@
 #include <asm/arch/scu_ast2500.h>
 #include <dm/pinctrl.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * This driver works with very simple configuration that has the same name
  * for group and function. This way it is compatible with the Linux Kernel

@@ -14,8 +14,6 @@
 #include <errno.h>
 #include <linux/iopoll.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static struct anamix_pll *ana_pll = (struct anamix_pll *)ANATOP_BASE_ADDR;
 
 static u32 decode_frac_pll(enum clk_root_src frac_pll)

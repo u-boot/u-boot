@@ -9,8 +9,6 @@
 #include <image.h>
 #include <linux/compiler.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * This function jumps to an image with argument. Normally an FDT or ATAGS
  * image.

@@ -15,8 +15,6 @@
 
 #include <dt-bindings/clock/stm32h7-clks.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* RCC CR specific definitions */
 #define RCC_CR_HSION			BIT(0)
 #define RCC_CR_HSIRDY			BIT(2)

@@ -8,8 +8,6 @@
 #include <spl.h>
 #include <asm/arch/mx6-ddr.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Configure MX6Q/DUAL mmdc DDR io registers */
 static struct mx6dq_iomux_ddr_regs ot1200_ddr_ioregs = {
 	/* SDCLK[0:1], CAS, RAS, Reset: Differential input, 48ohm */

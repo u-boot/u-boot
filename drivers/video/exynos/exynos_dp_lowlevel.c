@@ -17,8 +17,6 @@
 #include "exynos_dp_lowlevel.h"
 
 /* Declare global data pointer */
-DECLARE_GLOBAL_DATA_PTR;
-
 static void exynos_dp_enable_video_input(struct exynos_dp *dp_regs,
 					 unsigned int enable)
 {

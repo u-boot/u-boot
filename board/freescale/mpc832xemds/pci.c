@@ -16,8 +16,6 @@
 #include <asm/fsl_i2c.h>
 #include "../common/pq-mds-pib.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static struct pci_region pci1_regions[] = {
 	{
 		bus_start: CONFIG_SYS_PCI1_MEM_BASE,

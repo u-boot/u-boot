@@ -16,8 +16,6 @@
 
 #include <malloc.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 ssize_t atf_read_mmc(uintptr_t offset, void *buffer, size_t size)
 {
 	struct pt_regs regs;

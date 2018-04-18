@@ -35,8 +35,6 @@
 #include "../common/factoryset.h"
 #include "../../../drivers/video/da8xx-fb.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * Read header information from EEPROM into global structure.
  */

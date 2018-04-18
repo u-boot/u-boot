@@ -12,8 +12,6 @@
 #include <power/pmic.h>
 #include <power/regulator.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int regulator_mode(struct udevice *dev, struct dm_regulator_mode **modep)
 {
 	struct dm_regulator_uclass_platdata *uc_pdata;

@@ -15,8 +15,6 @@
 #include <fsl_esdhc.h>
 #include "common.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef CONFIG_FSL_ESDHC
 #define USDHC_PAD_CTRL (PAD_CTL_PUS_47K_UP |			\
 	PAD_CTL_SPEED_LOW | PAD_CTL_DSE_80ohm |			\

@@ -12,8 +12,6 @@
 #include <dm/lists.h>
 #include <dm/root.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int cpu_get_desc(struct udevice *dev, char *buf, int size)
 {
 	struct cpu_ops *ops = cpu_get_ops(dev);

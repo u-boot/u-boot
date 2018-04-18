@@ -218,8 +218,6 @@ struct lpc32xx_eth_device {
 
 #define MII_MAX_PHY (MADR_PHY_MASK >> MADR_PHY_OFFSET)
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #if defined(CONFIG_PHYLIB) || defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 /*
  * mii_reg_read - miiphy_read callback function.

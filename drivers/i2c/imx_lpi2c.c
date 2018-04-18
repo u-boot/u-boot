@@ -15,7 +15,6 @@
 #include <fdtdec.h>
 #include <i2c.h>
 
-DECLARE_GLOBAL_DATA_PTR;
 #define LPI2C_FIFO_SIZE 4
 #define LPI2C_TIMEOUT_MS 100
 

@@ -19,8 +19,6 @@
 #include <mapmem.h>
 #include <wait_bit.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* i2c register set */
 struct cdns_i2c_regs {
 	u32 control;

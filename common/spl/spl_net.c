@@ -13,8 +13,6 @@
 #include <net.h>
 #include <linux/libfdt.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #if defined(CONFIG_SPL_ETH_SUPPORT) || defined(CONFIG_SPL_USB_ETHER)
 static ulong spl_net_load_read(struct spl_load_info *load, ulong sector,
 			       ulong count, void *buf)

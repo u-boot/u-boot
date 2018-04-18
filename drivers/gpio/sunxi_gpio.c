@@ -21,8 +21,6 @@
 #include <dm/device-internal.h>
 #include <dt-bindings/gpio/gpio.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define SUNXI_GPIOS_PER_BANK	SUNXI_GPIO_A_NR
 
 struct sunxi_gpio_platdata {

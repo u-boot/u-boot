@@ -24,8 +24,6 @@
 #include <asm/emif.h>
 #include <asm/omap_common.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 u32 *const omap_si_rev = (u32 *)OMAP_SRAM_SCRATCH_OMAP_REV;
 
 #ifndef CONFIG_DM_GPIO

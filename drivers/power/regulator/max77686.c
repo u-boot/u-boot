@@ -16,8 +16,6 @@
 #include <power/regulator.h>
 #include <power/max77686_pmic.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define MODE(_id, _val, _name) { \
 	.id = _id, \
 	.register_value = _val, \

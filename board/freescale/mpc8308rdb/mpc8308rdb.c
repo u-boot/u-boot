@@ -20,8 +20,6 @@
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_mpc83xx_serdes.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * The following are used to control the SPI chip selects for the SPI command.
  */

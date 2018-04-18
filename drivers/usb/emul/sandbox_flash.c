@@ -11,8 +11,6 @@
 #include <scsi.h>
 #include <usb.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * This driver emulates a flash stick using the UFI command specification and
  * the BBB (bulk/bulk/bulk) protocol. It supports only a single logical unit

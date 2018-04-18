@@ -20,8 +20,6 @@
 #include <sandbox-adc.h>
 #include <test/ut.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static int dm_test_adc_bind(struct unit_test_state *uts)
 {
 	struct udevice *dev;

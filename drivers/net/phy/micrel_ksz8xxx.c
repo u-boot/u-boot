@@ -15,8 +15,6 @@
 #include <micrel.h>
 #include <phy.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static struct phy_driver KSZ804_driver = {
 	.name = "Micrel KSZ804",
 	.uid = 0x221510,

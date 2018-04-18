@@ -14,8 +14,6 @@
 #include <asm/byteorder.h>
 #include <linux/compiler.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /**
  * do_aes() - Handle the "aes" command-line command
  * @cmdtp:	Command data struct pointer

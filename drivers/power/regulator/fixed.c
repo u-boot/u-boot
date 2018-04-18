@@ -14,8 +14,6 @@
 #include <power/pmic.h>
 #include <power/regulator.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct fixed_regulator_platdata {
 	struct gpio_desc gpio; /* GPIO for regulator enable control */
 	unsigned int startup_delay_us;

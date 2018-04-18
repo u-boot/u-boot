@@ -20,8 +20,6 @@
 #include <asm/arch/sdram.h>
 #include <asm/arch/sdram_common.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct dram_info {
 	struct ram_info info;
 	struct clk ddr_clk;

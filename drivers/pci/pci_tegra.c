@@ -43,8 +43,6 @@
  * use the new standard APIs, with no ifdefs.
  */
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define AFI_AXI_BAR0_SZ	0x00
 #define AFI_AXI_BAR1_SZ	0x04
 #define AFI_AXI_BAR2_SZ	0x08

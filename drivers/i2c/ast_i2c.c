@@ -22,8 +22,6 @@
 
 #define HIGHSPEED_TTIMEOUT		3
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * Device private data
  */

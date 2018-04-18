@@ -10,8 +10,6 @@
 #include <usb.h>
 #include <dm/root.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct sandbox_usb_ctrl {
 	int rootdev;
 };

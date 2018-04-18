@@ -13,8 +13,6 @@
 #include <power/act8846_pmic.h>
 #include <power/pmic.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const struct pmic_child_info pmic_children_info[] = {
 	{ .prefix = "REG", .driver = "act8846_reg"},
 	{ },

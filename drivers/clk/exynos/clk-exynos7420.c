@@ -14,8 +14,6 @@
 #include <dt-bindings/clock/exynos7420-clk.h>
 #include "clk-pll.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define DIVIDER(reg, shift, mask)	\
 	(((readl(reg) >> shift) & mask) + 1)
 

@@ -11,8 +11,6 @@
 #include <asm/arch/sdram_rk3036.h>
 #include <asm/gpio.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 void get_ddr_config(struct rk3036_ddr_config *config)
 {
 	/* K4B4G1646Q config */

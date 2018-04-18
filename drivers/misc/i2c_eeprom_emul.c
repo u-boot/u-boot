@@ -19,8 +19,6 @@
 #define debug_buffer(x, ...)
 #endif
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct sandbox_i2c_flash_plat_data {
 	enum sandbox_i2c_eeprom_test_mode test_mode;
 	const char *filename;

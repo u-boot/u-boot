@@ -10,8 +10,6 @@
 #include <dm.h>
 #include <asm/arch/clock_manager.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static u32 eosc1_hz;
 static u32 cb_intosc_hz;
 static u32 f2s_free_hz;

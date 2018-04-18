@@ -13,8 +13,6 @@
 #include <asm/gpio.h>
 #include <test/ut.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Test that sandbox GPIOs work correctly */
 static int dm_test_gpio(struct unit_test_state *uts)
 {

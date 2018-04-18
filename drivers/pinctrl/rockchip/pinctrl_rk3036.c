@@ -16,8 +16,6 @@
 #include <asm/arch/periph.h>
 #include <dm/pinctrl.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* GRF_GPIO0A_IOMUX */
 enum {
 	GPIO0A3_SHIFT		= 6,

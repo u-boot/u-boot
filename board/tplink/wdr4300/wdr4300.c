@@ -13,8 +13,6 @@
 #include <mach/ddr.h>
 #include <debug_uart.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef CONFIG_USB
 static void wdr4300_usb_start(void)
 {

@@ -15,8 +15,6 @@
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int do_bootm_linux(int flag, int argc, char * const argv[],
 		   bootm_headers_t *images)
 {

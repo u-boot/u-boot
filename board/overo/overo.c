@@ -32,8 +32,6 @@
 #include <asm/ehci-omap.h>
 #endif
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define TWL4030_I2C_BUS			0
 #define EXPANSION_EEPROM_I2C_BUS	2
 #define EXPANSION_EEPROM_I2C_ADDRESS	0x51

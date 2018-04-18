@@ -14,8 +14,6 @@
 #include <asm/gpio.h>
 #include <linux/bitops.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Register offset for each gpio */
 #define REG_OFFSET(x)          ((x) * 0x100)
 

@@ -13,8 +13,6 @@
 #include <power/regulator.h>
 #include <power/s5m8767.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const struct pmic_child_info pmic_children_info[] = {
 	{ .prefix = "LDO", .driver = S5M8767_LDO_DRIVER },
 	{ .prefix = "BUCK", .driver = S5M8767_BUCK_DRIVER },

@@ -38,8 +38,6 @@
 
 #include "MCD_dma.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct fec_info_dma fec_info[] = {
 #ifdef CONFIG_SYS_FEC0_IOBASE
 	{

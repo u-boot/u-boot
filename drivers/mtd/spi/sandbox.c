@@ -24,8 +24,6 @@
 #include <dm/lists.h>
 #include <dm/uclass-internal.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * The different states that our SPI flash transitions between.
  * We need to keep track of this across multiple xfer calls since

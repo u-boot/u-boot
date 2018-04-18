@@ -18,8 +18,6 @@
 #include "sor.h"
 #include "displayport.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define DO_FAST_LINK_TRAINING		1
 
 struct tegra_dp_plat {

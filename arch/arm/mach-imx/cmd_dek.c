@@ -16,8 +16,6 @@
 #include <asm/arch/clock.h>
 #include <mapmem.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /**
 * blob_dek() - Encapsulate the DEK as a blob using CAM's Key
 * @src: - Address of data to be encapsulated

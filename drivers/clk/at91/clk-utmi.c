@@ -14,8 +14,6 @@
 #include <mach/sama5_sfr.h>
 #include "pmc.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * The purpose of this clock is to generate a 480 MHz signal. A different
  * rate can't be configured.

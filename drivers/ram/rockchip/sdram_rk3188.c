@@ -25,8 +25,6 @@
 #include <asm/arch/sdram_common.h>
 #include <linux/err.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct chan_info {
 	struct rk3288_ddr_pctl *pctl;
 	struct rk3288_ddr_publ *publ;

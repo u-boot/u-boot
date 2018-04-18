@@ -14,8 +14,6 @@
 #define MEM_MODE_MASK	GENMASK(2, 0)
 #define NOT_FOUND	0xff
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct stm32_fmc_regs {
 	/* 0x0 */
 	u32 bcr1;	/* NOR/PSRAM Chip select control register 1 */

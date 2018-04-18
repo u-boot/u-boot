@@ -20,8 +20,6 @@
 #include <fsl_esdhc.h>
 #include "common.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 enum ddr_config {
 	DDR_16BIT_256MB,
 	DDR_32BIT_512MB,

@@ -19,8 +19,6 @@
 #include <linux/usb/dwc3.h>
 #include <linux/usb/otg.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct xhci_dwc3_platdata {
 	struct phy *usb_phys;
 	int num_phys;

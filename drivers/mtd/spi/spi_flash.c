@@ -21,8 +21,6 @@
 
 #include "sf_internal.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static void spi_flash_addr(u32 addr, u8 *cmd)
 {
 	/* cmd[0] is actual command */

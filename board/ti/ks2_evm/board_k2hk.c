@@ -12,8 +12,6 @@
 #include <asm/arch/hardware.h>
 #include <asm/ti-common/keystone_net.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 unsigned int external_clk[ext_clk_count] = {
 	[sys_clk]	=	122880000,
 	[alt_core_clk]	=	125000000,

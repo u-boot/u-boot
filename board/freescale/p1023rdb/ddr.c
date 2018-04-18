@@ -13,8 +13,6 @@
 #include <asm/io.h>
 #include <asm/fsl_law.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* CONFIG_SYS_DDR_RAW_TIMING */
 /*
  * Hynix H5TQ1G83TFR-H9C

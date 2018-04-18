@@ -20,8 +20,6 @@
 #include <asm/arch/grf_rk3288.h>
 #include <dt-bindings/clock/rk3288-cru.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define MAX_CR_LOOP 5
 #define MAX_EQ_LOOP 5
 #define DP_LINK_STATUS_SIZE 6

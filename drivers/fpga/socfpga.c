@@ -12,8 +12,6 @@
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Timeout count */
 #define FPGA_TIMEOUT_CNT		0x1000000
 

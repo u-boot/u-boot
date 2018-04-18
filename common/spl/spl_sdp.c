@@ -11,8 +11,6 @@
 #include <g_dnl.h>
 #include <sdp.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static int spl_sdp_load_image(struct spl_image_info *spl_image,
 			      struct spl_boot_device *bootdev)
 {

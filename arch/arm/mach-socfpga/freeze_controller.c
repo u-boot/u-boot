@@ -11,8 +11,6 @@
 #include <asm/arch/freeze_controller.h>
 #include <linux/errno.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const struct socfpga_freeze_controller *freeze_controller_base =
 		(void *)(SOCFPGA_SYSMGR_ADDRESS + SYSMGR_FRZCTRL_ADDRESS);
 

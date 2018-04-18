@@ -13,8 +13,6 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Timer register bits */
 #define TCLR_START			BIT(0)	/* Start=1 */
 #define TCLR_AUTO_RELOAD		BIT(1)	/* Auto reload */

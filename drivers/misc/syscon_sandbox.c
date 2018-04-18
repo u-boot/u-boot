@@ -12,8 +12,6 @@
 #include <asm/test.h>
 #include <dm/lists.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const struct udevice_id sandbox_syscon_ids[] = {
 	{ .compatible = "sandbox,syscon0", .data = SYSCON0 },
 	{ .compatible = "sandbox,syscon1", .data = SYSCON1 },

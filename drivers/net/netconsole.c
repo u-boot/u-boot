@@ -10,8 +10,6 @@
 #include <stdio_dev.h>
 #include <net.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifndef CONFIG_NETCONSOLE_BUFFER_SIZE
 #define CONFIG_NETCONSOLE_BUFFER_SIZE 512
 #endif

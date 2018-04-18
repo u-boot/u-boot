@@ -12,8 +12,6 @@
 #include <linux/types.h>
 #include <api_public.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define DEBUG
 #undef DEBUG
 

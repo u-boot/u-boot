@@ -15,8 +15,6 @@
 
 #include "xhci.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct mvebu_xhci_platdata {
 	fdt_addr_t hcd_base;
 };

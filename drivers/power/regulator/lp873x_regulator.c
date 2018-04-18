@@ -16,8 +16,6 @@
 #include <power/regulator.h>
 #include <power/lp873x.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const char lp873x_buck_ctrl[LP873X_BUCK_NUM] = {0x2, 0x4};
 static const char lp873x_buck_volt[LP873X_BUCK_NUM] = {0x6, 0x7};
 static const char lp873x_ldo_ctrl[LP873X_LDO_NUM] = {0x8, 0x9};

@@ -12,8 +12,6 @@
 #include <pci.h>
 #include <dm/lists.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct sandbox_pci_priv {
 	int dev_count;
 };

@@ -189,8 +189,6 @@ struct stm32_sdmmc2_ctx {
 
 #define SDMMC_CMD_TIMEOUT		0xFFFFFFFF
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static void stm32_sdmmc2_start_data(struct stm32_sdmmc2_priv *priv,
 				    struct mmc_data *data,
 				    struct stm32_sdmmc2_ctx *ctx)

@@ -16,8 +16,6 @@
 #include <linux/ioport.h>
 #include <dm/read.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct pbias_reg_info {
 	u32 enable;
 	u32 enable_mask;

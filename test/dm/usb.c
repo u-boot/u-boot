@@ -16,8 +16,6 @@
 #include <dm/uclass-internal.h>
 #include <test/ut.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Test that sandbox USB works correctly */
 static int dm_test_usb_base(struct unit_test_state *uts)
 {

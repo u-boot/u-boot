@@ -108,8 +108,6 @@
 #include "sntp.h"
 #endif
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /** BOOTP EXTENTIONS **/
 
 /* Our subnet mask (0=unknown) */

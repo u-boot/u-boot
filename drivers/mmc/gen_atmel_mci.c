@@ -22,8 +22,6 @@
 #include <asm/arch/hardware.h>
 #include "atmel_mci.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifndef CONFIG_SYS_MMC_CLK_OD
 # define CONFIG_SYS_MMC_CLK_OD	150000
 #endif

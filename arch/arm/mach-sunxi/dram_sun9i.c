@@ -20,8 +20,6 @@
 #include <asm/arch/dram.h>
 #include <asm/arch/sys_proto.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define DRAM_CLK (CONFIG_DRAM_CLK * 1000000)
 
 /*

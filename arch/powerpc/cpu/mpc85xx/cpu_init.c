@@ -54,8 +54,6 @@
 #include <fsl_qe.h>
 #endif
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
 /*
  * For deriving usb clock from 100MHz sysclk, reference divisor is set

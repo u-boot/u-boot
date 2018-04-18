@@ -22,8 +22,6 @@
 #include <dm/pinctrl.h>
 #include "rk_spi.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Change to 1 to output registers at the start of each transaction */
 #define DEBUG_RK_SPI	0
 

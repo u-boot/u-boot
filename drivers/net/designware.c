@@ -23,8 +23,6 @@
 #include <power/regulator.h>
 #include "designware.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static int dw_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
 #ifdef CONFIG_DM_ETH

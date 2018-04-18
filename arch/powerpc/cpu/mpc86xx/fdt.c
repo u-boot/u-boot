@@ -9,8 +9,6 @@
 #include <fdt_support.h>
 #include <asm/mp.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 extern void ft_fixup_num_cores(void *blob);
 extern void ft_srio_setup(void *blob);
 

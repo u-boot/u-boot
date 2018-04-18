@@ -12,8 +12,6 @@
 #include <asm/arch/timer.h>
 #include <syscon.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int mach_cpu_init(void)
 {
 	return 0;

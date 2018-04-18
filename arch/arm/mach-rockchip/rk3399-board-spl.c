@@ -19,8 +19,6 @@
 #include <spl.h>
 #include <syscon.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 void board_return_to_bootrom(void)
 {
 	back_to_bootrom(BROM_BOOT_NEXTSTAGE);

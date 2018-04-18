@@ -14,8 +14,6 @@
 #include <power/regulator.h>
 #include <power/pfuze100_pmic.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const struct pmic_child_info pmic_children_info[] = {
 	/* sw[x], swbst */
 	{ .prefix = "s", .driver = PFUZE100_REGULATOR_DRIVER },

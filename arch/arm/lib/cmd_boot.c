@@ -21,8 +21,6 @@
 #include <common.h>
 #include <command.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * ARMv7M does not support ARM instruction mode. However, the
  * interworking BLX and BX instructions do encode the ARM/Thumb

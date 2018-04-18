@@ -12,8 +12,6 @@
 #include <asm/io.h>
 #include <asm/u-boot.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 bool boot_linux;
 
 u32 spl_boot_device(void)

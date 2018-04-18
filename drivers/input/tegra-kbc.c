@@ -19,8 +19,6 @@
 #include <asm/arch-tegra/timer.h>
 #include <linux/input.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 enum {
 	KBC_MAX_GPIO		= 24,
 	KBC_MAX_KPENT		= 8,	/* size of keypress entry queue */

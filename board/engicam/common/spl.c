@@ -23,8 +23,6 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/video.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define UART_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |             \
         PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |               \
         PAD_CTL_DSE_40ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)

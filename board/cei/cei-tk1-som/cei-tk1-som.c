@@ -13,8 +13,6 @@
 
 #include "pinmux-config-cei-tk1-som.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * Routine: pinmux_init
  * Description: Do individual peripheral pinmux configs

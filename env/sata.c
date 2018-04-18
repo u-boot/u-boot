@@ -24,8 +24,6 @@
 #error CONFIG_ENV_OFFSET or CONFIG_ENV_SIZE not defined
 #endif
 
-DECLARE_GLOBAL_DATA_PTR;
-
 __weak int sata_get_env_dev(void)
 {
 	return CONFIG_SYS_SATA_ENV_DEV;

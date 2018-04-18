@@ -24,8 +24,6 @@
 
 #include "atmel_spi.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifndef CONFIG_DM_SPI
 
 static int spi_has_wdrbt(struct atmel_spi_slave *slave)

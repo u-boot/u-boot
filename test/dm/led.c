@@ -11,8 +11,6 @@
 #include <dm/test.h>
 #include <test/ut.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Base test of the led uclass */
 static int dm_test_led_base(struct unit_test_state *uts)
 {

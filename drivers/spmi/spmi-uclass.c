@@ -12,8 +12,6 @@
 #include <spmi/spmi.h>
 #include <linux/ctype.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int spmi_reg_read(struct udevice *dev, int usid, int pid, int reg)
 {
 	const struct dm_spmi_ops *ops = dev_get_driver_ops(dev);

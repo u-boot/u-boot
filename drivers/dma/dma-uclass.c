@@ -16,8 +16,6 @@
 #include <dm/device-internal.h>
 #include <errno.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int dma_get_device(u32 transfer_type, struct udevice **devp)
 {
 	struct udevice *dev;

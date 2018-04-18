@@ -9,4 +9,3 @@
 #include <asm/io.h>
 #include <asm/arch/uart.h>
 
-DECLARE_GLOBAL_DATA_PTR;

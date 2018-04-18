@@ -344,8 +344,6 @@ union chan_param_mem {
 	struct chan_param_mem_interleaved	ip;
 };
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* graphics setup */
 static GraphicDevice panel;
 static struct ctfb_res_modes *mode;

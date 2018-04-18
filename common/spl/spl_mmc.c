@@ -16,8 +16,6 @@
 #include <mmc.h>
 #include <image.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static int mmc_load_legacy(struct spl_image_info *spl_image, struct mmc *mmc,
 			   ulong sector, struct image_header *header)
 {

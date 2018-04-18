@@ -25,8 +25,6 @@
 
 #ifdef CONFIG_DM_MMC
 #include <dm.h>
-DECLARE_GLOBAL_DATA_PTR;
-
 #define MMC_CLOCK_MAX	48000000
 #define MMC_CLOCK_MIN	400000
 

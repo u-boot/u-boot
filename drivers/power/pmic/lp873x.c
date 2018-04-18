@@ -15,8 +15,6 @@
 #include <power/lp873x.h>
 #include <dm/device.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const struct pmic_child_info pmic_children_info[] = {
 	{ .prefix = "ldo", .driver = LP873X_LDO_DRIVER },
 	{ .prefix = "buck", .driver = LP873X_BUCK_DRIVER },

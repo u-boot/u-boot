@@ -17,8 +17,6 @@
 #include <asm/scu.h>
 #include <asm/u-boot-x86.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static struct dwc3_device dwc3_device_data = {
 	.maximum_speed = USB_SPEED_HIGH,
 	.base = CONFIG_SYS_USB_OTG_BASE,

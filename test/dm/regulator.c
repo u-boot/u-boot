@@ -22,8 +22,6 @@
 #include <power/sandbox_pmic.h>
 #include <test/ut.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 enum {
 	BUCK1,
 	BUCK2,

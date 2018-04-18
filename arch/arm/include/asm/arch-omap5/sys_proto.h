@@ -16,8 +16,6 @@
 #include <asm/arch/clock.h>
 #include <asm/ti-common/sys_proto.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * Structure for Iodelay configuration registers.
  * Theoretical max for g_delay is 21560 ps.

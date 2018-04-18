@@ -18,8 +18,6 @@
 #include <asm/arch/periph.h>
 #include <linux/err.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct rockchip_mmc_plat {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct dtd_rockchip_rk3288_dw_mshc dtplat;

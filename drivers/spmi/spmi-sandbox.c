@@ -15,8 +15,6 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define EMUL_GPIO_PID_START 0xC0
 #define EMUL_GPIO_PID_END   0xC3
 

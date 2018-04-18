@@ -31,8 +31,6 @@
 #include <ext4fs.h>
 #include <mmc.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef CONFIG_CMD_SAVEENV
 static int env_ext4_save(void)
 {

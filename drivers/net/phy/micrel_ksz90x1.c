@@ -17,8 +17,6 @@
 #include <micrel.h>
 #include <phy.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * KSZ9021 - KSZ9031 common
  */

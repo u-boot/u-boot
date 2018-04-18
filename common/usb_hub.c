@@ -37,8 +37,6 @@
 #endif
 #include <asm/unaligned.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #include <usb.h>
 
 #define USB_BUFSIZ	512

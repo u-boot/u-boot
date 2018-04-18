@@ -158,8 +158,6 @@ int gpio_direction_output(unsigned gpio, int value)
 
 #ifdef CONFIG_DM_GPIO
 #include <fdtdec.h>
-DECLARE_GLOBAL_DATA_PTR;
-
 static int mxc_gpio_is_output(struct gpio_regs *regs, int offset)
 {
 	u32 val;

@@ -11,8 +11,6 @@
 #include <dm/test.h>
 #include <test/ut.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Base test of system controllers */
 static int dm_test_syscon_base(struct unit_test_state *uts)
 {

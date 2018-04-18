@@ -28,8 +28,6 @@
 
 #include "../common/ngpixis.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int board_early_init_f(void)
 {
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;

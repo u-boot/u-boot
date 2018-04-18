@@ -11,8 +11,6 @@
 #include <qfw.h>
 #include <asm/cpu.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int cpu_qemu_get_desc(struct udevice *dev, char *buf, int size)
 {
 	if (size < CPU_MAX_NAME_LEN)

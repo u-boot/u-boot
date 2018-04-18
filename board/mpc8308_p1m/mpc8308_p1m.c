@@ -16,8 +16,6 @@
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_mpc83xx_serdes.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int checkboard(void)
 {
 	printf("Board: MPC8308 P1M\n");

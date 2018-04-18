@@ -18,8 +18,6 @@
 #include <asm/eth.h>
 #include <test/ut.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define DM_TEST_ETH_NUM		4
 
 static int dm_test_eth(struct unit_test_state *uts)

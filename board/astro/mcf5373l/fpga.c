@@ -25,8 +25,6 @@
 #include <asm/io.h>
 #include "fpga.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int altera_pre_fn(int cookie)
 {
 	gpio_t *gpiop = (gpio_t *)MMAP_GPIO;

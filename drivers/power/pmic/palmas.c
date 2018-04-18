@@ -15,8 +15,6 @@
 #include <power/palmas.h>
 #include <dm/device.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const struct pmic_child_info pmic_children_info[] = {
 	{ .prefix = "ldo", .driver = PALMAS_LDO_DRIVER },
 	{ .prefix = "smps", .driver = PALMAS_SMPS_DRIVER },

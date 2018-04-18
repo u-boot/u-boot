@@ -9,8 +9,6 @@
 #include <dm.h>
 #include <dt-structs.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static int sandbox_spl_probe(struct udevice *dev)
 {
 	struct dtd_sandbox_spl_test *plat = dev_get_platdata(dev);

@@ -16,8 +16,6 @@
 #include <asm/arch/pinmux.h>
 #include "pinctrl-exynos.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define	GPD1_OFFSET	0xc0
 
 static struct exynos_pinctrl_config_data serial2_conf[] = {

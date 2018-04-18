@@ -17,8 +17,6 @@
 #include <scf0403_lcd.h>
 #include <asm/arch-omap3/dss.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 enum display_type {
 	NONE,
 	DVI,

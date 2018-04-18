@@ -11,8 +11,6 @@
 #include <scsi.h>
 #include <usb.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * This driver emulates a USB keyboard using the USB HID specification (boot
  * protocol)

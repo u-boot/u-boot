@@ -24,8 +24,6 @@
 #include <asm/arch/grf_rk3399.h>
 #include <asm/arch/rockchip_mipi_dsi.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Select mipi dsi source, big or little vop */
 static int rk_mipi_dsi_source_select(struct udevice *dev)
 {

@@ -12,8 +12,6 @@
 #include <timer.h>
 #include <linux/io.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * Timer Control Register
  */

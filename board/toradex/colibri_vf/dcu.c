@@ -11,8 +11,6 @@
 #include <fsl_dcu_fb.h>
 #include "div64.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 unsigned int dcu_set_pixel_clock(unsigned int pixclock)
 {
 	struct ccm_reg *ccm = (struct ccm_reg *)CCM_BASE_ADDR;

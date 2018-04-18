@@ -36,8 +36,6 @@
 #include "../common/factoryset.h"
 #include <nand.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef CONFIG_SPL_BUILD
 static struct draco_baseboard_id __attribute__((section(".data"))) settings;
 

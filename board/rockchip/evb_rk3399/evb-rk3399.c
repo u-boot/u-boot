@@ -12,8 +12,6 @@
 #include <power/regulator.h>
 #include <spl.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int board_init(void)
 {
 	struct udevice *pinctrl, *regulator;

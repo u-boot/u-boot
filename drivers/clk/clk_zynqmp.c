@@ -13,8 +13,6 @@
 #include <asm/arch/sys_proto.h>
 #include <dm.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const resource_size_t zynqmp_crf_apb_clkc_base = 0xfd1a0020;
 static const resource_size_t zynqmp_crl_apb_clkc_base = 0xff5e0020;
 

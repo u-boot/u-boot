@@ -9,8 +9,6 @@
 #include <dm.h>
 #include <generic-phy.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct sandbox_phy_priv {
 	bool initialized;
 	bool on;

@@ -24,8 +24,6 @@
 #include <power/regulator.h>
 #include <u-boot/sha256.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int board_init(void)
 {
 	int ret;

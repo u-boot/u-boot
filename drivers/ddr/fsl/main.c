@@ -15,8 +15,6 @@
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY is the physical address from the view
  * of DDR controllers. It is the same as CONFIG_SYS_DDR_SDRAM_BASE for

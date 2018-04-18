@@ -14,8 +14,6 @@
 #include <asm/arch/timer.h>
 #include <asm/arch/uart.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define GRF_BASE	0x20008000
 
 #define DEBUG_UART_BASE	0x20068000

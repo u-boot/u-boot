@@ -16,8 +16,6 @@
 #include <dm/uclass-internal.h>
 #endif
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /**
  * smbios_add_string() - add a string to the string area
  *

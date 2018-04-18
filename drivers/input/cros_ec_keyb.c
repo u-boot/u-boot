@@ -15,8 +15,6 @@
 #include <key_matrix.h>
 #include <stdio_dev.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 enum {
 	KBC_MAX_KEYS		= 8,	/* Maximum keys held down at once */
 	KBC_REPEAT_RATE_MS	= 30,

@@ -16,8 +16,6 @@
 #include <asm/io.h>
 #include <asm/arch-tegra/tegra_mmc.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct tegra_mmc_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;

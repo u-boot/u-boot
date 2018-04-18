@@ -20,8 +20,6 @@
 
 #include "ehci.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define USB1_ADDR_MASK	0xFFFF0000
 
 #define HOSTPC1_DEVLC	0x84

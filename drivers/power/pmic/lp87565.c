@@ -15,8 +15,6 @@
 #include <power/lp87565.h>
 #include <dm/device.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const struct pmic_child_info pmic_children_info[] = {
 	{ .prefix = "buck", .driver = LP87565_BUCK_DRIVER },
 	{ },

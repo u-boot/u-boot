@@ -13,8 +13,6 @@
 #include <asm/arch/stm32.h>
 #include "serial_stm32.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static int stm32_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct stm32x7_serial_platdata *plat = dev_get_platdata(dev);

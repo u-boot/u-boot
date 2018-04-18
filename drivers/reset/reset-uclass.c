@@ -10,8 +10,6 @@
 #include <reset.h>
 #include <reset-uclass.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static inline struct reset_ops *reset_dev_ops(struct udevice *dev)
 {
 	return (struct reset_ops *)dev->driver->ops;

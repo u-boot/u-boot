@@ -10,8 +10,6 @@
 #include <asm/io.h>
 #include <errno.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define MVEBU_GPIOS_PER_BANK	32
 
 struct mvebu_gpio_regs {

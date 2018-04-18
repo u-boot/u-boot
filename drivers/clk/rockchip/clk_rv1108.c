@@ -17,8 +17,6 @@
 #include <dm/lists.h>
 #include <dt-bindings/clock/rv1108-cru.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 enum {
 	VCO_MAX_HZ	= 2400U * 1000000,
 	VCO_MIN_HZ	= 600 * 1000000,

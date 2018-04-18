@@ -8,8 +8,6 @@
 #include <common.h>
 #include <dm.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const struct udevice_id at91_sckc_match[] = {
 	{ .compatible = "atmel,at91sam9x5-sckc" },
 	{}

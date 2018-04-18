@@ -14,8 +14,6 @@
 #include <asm/arch/soc.h>
 #include <asm/armv8/mmu.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Armada 3700 */
 #define MVEBU_GPIO_NB_REG_BASE		(MVEBU_REGISTER(0x13800))
 

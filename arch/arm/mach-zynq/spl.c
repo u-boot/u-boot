@@ -13,8 +13,6 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/ps7_init_gpl.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 void board_init_f(ulong dummy)
 {
 	ps7_init();

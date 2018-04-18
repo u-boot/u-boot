@@ -21,8 +21,6 @@ u32 spl_boot_device(void)
 {
 	return BOOT_DEVICE_MMC1;
 }
-DECLARE_GLOBAL_DATA_PTR;
-
 #define GRF_BASE	0x11000000
 #define SGRF_BASE	0x10140000
 

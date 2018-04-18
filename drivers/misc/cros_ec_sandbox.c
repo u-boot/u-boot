@@ -51,8 +51,6 @@
  * the EC image in with U-Boot (Vic has demonstrated a prototype for this).
  */
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define KEYBOARD_ROWS	8
 #define KEYBOARD_COLS	13
 

@@ -28,8 +28,6 @@
 #define debug_buffer(x, ...)
 #endif
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /**
  * struct sandbox_i2c_rtc_plat_data - platform data for the RTC
  *

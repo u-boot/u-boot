@@ -16,8 +16,6 @@
 #include <errno.h>
 #include <linux/printk.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define HSDK_CREG_MAX_GPIO	8
 
 #define GPIO_ACTIVATE		0x2

@@ -8,8 +8,6 @@
 #include <common.h>
 #include <dm.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 UCLASS_DRIVER(lpc) = {
 	.id		= UCLASS_LPC,
 	.name		= "lpc",

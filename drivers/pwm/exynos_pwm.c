@@ -12,8 +12,6 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/pwm.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct exynos_pwm_priv {
 	struct s5p_timer *regs;
 };

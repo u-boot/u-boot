@@ -36,8 +36,6 @@
 
 #include <miiphy.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define MAX_MUX_CHANNELS 2
 
 enum {

@@ -14,8 +14,6 @@
 #include <power/regulator.h>
 #include <power/max77686_pmic.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const struct pmic_child_info pmic_children_info[] = {
 	{ .prefix = "LDO", .driver = MAX77686_LDO_DRIVER },
 	{ .prefix = "BUCK", .driver = MAX77686_BUCK_DRIVER },

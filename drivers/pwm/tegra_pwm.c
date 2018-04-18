@@ -11,8 +11,6 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/pwm.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct tegra_pwm_priv {
 	struct pwm_ctlr *regs;
 };

@@ -13,8 +13,6 @@
 #include <asm/io.h>
 #include <asm/fsl_law.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifndef CONFIG_SYS_DDR_RAW_TIMING
 
 fsl_ddr_cfg_regs_t ddr_cfg_regs_800 = {

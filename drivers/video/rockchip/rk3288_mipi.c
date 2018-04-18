@@ -24,8 +24,6 @@
 #include <asm/arch/grf_rk3288.h>
 #include <asm/arch/rockchip_mipi_dsi.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define MHz 1000000
 
 /* Select mipi dsi source, big or little vop */

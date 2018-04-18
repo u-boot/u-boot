@@ -12,7 +12,6 @@
 #include <asm/arch/grf_rk3128.h>
 #include <asm/arch/sdram_common.h>
 
-DECLARE_GLOBAL_DATA_PTR;
 struct dram_info {
 	struct ram_info info;
 	struct rk3128_grf *grf;

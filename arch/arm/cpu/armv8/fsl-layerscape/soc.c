@@ -26,8 +26,6 @@
 #endif
 #include <fsl_immap.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 bool soc_has_dp_ddr(void)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);

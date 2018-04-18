@@ -14,8 +14,6 @@
 #include <adc.h>
 #include <power/regulator.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define ADC_UCLASS_PLATDATA_SIZE	sizeof(struct adc_uclass_platdata)
 #define CHECK_NUMBER			true
 #define CHECK_MASK			(!CHECK_NUMBER)

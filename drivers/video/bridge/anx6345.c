@@ -16,8 +16,6 @@
 #define DP_MAX_LANE_COUNT		0x002
 #define DP_MAX_LANE_COUNT_MASK		0x1f
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct anx6345_priv {
 	u8 edid[EDID_SIZE];
 };

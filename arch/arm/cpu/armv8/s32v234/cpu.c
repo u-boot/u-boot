@@ -12,8 +12,6 @@
 #include <asm/arch/mc_me_regs.h>
 #include "cpu.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 u32 cpu_mask(void)
 {
 	return readl(MC_ME_CS);

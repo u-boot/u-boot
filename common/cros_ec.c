@@ -13,8 +13,6 @@
 #include <dm.h>
 #include <errno.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct cros_ec_dev *board_get_cros_ec_dev(void)
 {
 	struct udevice *dev;

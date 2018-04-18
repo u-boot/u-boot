@@ -27,8 +27,6 @@
 
 #include "novena.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define UART_PAD_CTRL						\
 	(PAD_CTL_PKE | PAD_CTL_PUE |				\
 	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |		\

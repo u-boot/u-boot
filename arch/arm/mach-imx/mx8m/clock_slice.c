@@ -12,8 +12,6 @@
 #include <asm/io.h>
 #include <errno.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static struct ccm_reg *ccm_reg = (struct ccm_reg *)CCM_BASE_ADDR;
 
 static struct clk_root_map root_array[] = {

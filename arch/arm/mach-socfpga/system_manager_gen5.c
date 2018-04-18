@@ -9,8 +9,6 @@
 #include <asm/arch/system_manager.h>
 #include <asm/arch/fpga_manager.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static struct socfpga_system_manager *sysmgr_regs =
 	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
 

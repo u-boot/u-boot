@@ -15,8 +15,6 @@
 #include <asm/io.h>
 #include <dm/pinctrl.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 enum {
 	/* GPIO0A_IOMUX */
 	GPIO0A5_SEL_SHIFT	= 10,

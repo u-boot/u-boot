@@ -22,8 +22,6 @@
 
 #include "../common/board.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef CONFIG_NAND_MXS
 #define GPMI_PAD_CTRL0	(PAD_CTL_PKE | PAD_CTL_PUE | PAD_CTL_PUS_100K_UP)
 #define GPMI_PAD_CTRL1	(PAD_CTL_DSE_40ohm | PAD_CTL_SPEED_MED | \

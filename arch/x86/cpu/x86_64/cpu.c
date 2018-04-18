@@ -8,8 +8,6 @@
 #include <common.h>
 #include <debug_uart.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Global declaration of gd */
 struct global_data *global_data_ptr;
 

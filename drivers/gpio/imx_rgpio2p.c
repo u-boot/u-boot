@@ -14,8 +14,6 @@
 #include <asm/io.h>
 #include <malloc.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 enum imx_rgpio2p_direction {
 	IMX_RGPIO2P_DIRECTION_IN,
 	IMX_RGPIO2P_DIRECTION_OUT,

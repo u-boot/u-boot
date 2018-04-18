@@ -24,8 +24,6 @@
 /* Check all partition types */
 #define PART_TYPE_ALL		-1
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static struct part_driver *part_driver_lookup_type(struct blk_desc *dev_desc)
 {
 	struct part_driver *drv =

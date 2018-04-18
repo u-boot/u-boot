@@ -9,8 +9,6 @@
 #include <asm/io.h>
 #include <asm/arch/reset_manager.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const struct socfpga_reset_manager *reset_manager_base =
 		(void *)SOCFPGA_RSTMGR_ADDRESS;
 

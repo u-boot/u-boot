@@ -12,8 +12,6 @@
 #include <timer.h>
 #include <linux/io.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define REG32_TMR(x)	(*(u32 *)	((plat->regs) + (x>>2)))
 
 /*

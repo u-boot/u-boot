@@ -8,8 +8,6 @@
 #include <asm/scu.h>
 #include <asm/u-boot-x86.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * Miscellaneous platform dependent initializations
  */

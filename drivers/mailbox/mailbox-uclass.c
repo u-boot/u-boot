@@ -9,8 +9,6 @@
 #include <mailbox.h>
 #include <mailbox-uclass.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static inline struct mbox_ops *mbox_dev_ops(struct udevice *dev)
 {
 	return (struct mbox_ops *)dev->driver->ops;

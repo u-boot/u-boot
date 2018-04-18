@@ -12,8 +12,6 @@
 #include <mach/at91_pmc.h>
 #include "pmc.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static int at91_plladiv_clk_enable(struct clk *clk)
 {
 	return 0;

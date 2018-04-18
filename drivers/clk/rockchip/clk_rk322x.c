@@ -17,8 +17,6 @@
 #include <dt-bindings/clock/rk3228-cru.h>
 #include <linux/log2.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 enum {
 	VCO_MAX_HZ	= 3200U * 1000000,
 	VCO_MIN_HZ	= 800 * 1000000,

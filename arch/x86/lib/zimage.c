@@ -28,8 +28,6 @@
 #include <linux/compiler.h>
 #include <linux/libfdt.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * Memory lay-out:
  *

@@ -8,8 +8,6 @@
 #include <common.h>
 #include <asm/armv8/mmu.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef CONFIG_EXYNOS7420
 static struct mm_region exynos7420_mem_map[] = {
 	{

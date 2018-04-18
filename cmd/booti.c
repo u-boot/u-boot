@@ -14,8 +14,6 @@
 #include <linux/kernel.h>
 #include <linux/sizes.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * Image booting support
  */

@@ -10,8 +10,6 @@
 #include <asm/arch/clock_manager.h>
 #include <wait_bit.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const struct socfpga_clock_manager *clock_manager_base =
 	(struct socfpga_clock_manager *)SOCFPGA_CLKMGR_ADDRESS;
 

@@ -30,8 +30,6 @@
 
 #include "tqma6_bb.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define UART_PAD_CTRL  (PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
 	PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
 

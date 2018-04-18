@@ -18,8 +18,6 @@
 #include <asm/io.h>
 #include <generic-phy.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct dwc_ahci_priv {
 	void *base;
 	void *wrapper_base;

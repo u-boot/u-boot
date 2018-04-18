@@ -13,8 +13,6 @@
 #include <asm/arch/pinmux.h>
 #include <usb.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 u32 get_board_rev(void)
 {
 	return 0;

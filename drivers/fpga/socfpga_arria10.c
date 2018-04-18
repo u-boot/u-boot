@@ -23,8 +23,6 @@
 #define FPGA_TIMEOUT_MSEC	1000  /* timeout in ms */
 #define FPGA_TIMEOUT_CNT	0x1000000
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const struct socfpga_fpga_manager *fpga_manager_base =
 		(void *)SOCFPGA_FPGAMGRREGS_ADDRESS;
 

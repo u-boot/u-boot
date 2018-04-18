@@ -22,8 +22,6 @@
 #include <dm/uclass-internal.h>
 #include "displayport.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* return in 1000ths of a Hertz */
 static int tegra_dc_calc_refresh(const struct display_timing *timing)
 {

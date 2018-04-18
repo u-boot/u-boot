@@ -11,8 +11,6 @@
 #include <dm/of.h>
 #include <dt-bindings/gpio/gpio.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Flags for each GPIO */
 #define GPIOF_OUTPUT	(1 << 0)	/* Currently set as an output */
 #define GPIOF_HIGH	(1 << 1)	/* Currently set high */

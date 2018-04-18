@@ -9,8 +9,6 @@
 #include <dm.h>
 #include <generic-phy.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static inline struct phy_ops *phy_dev_ops(struct udevice *dev)
 {
 	return (struct phy_ops *)dev->driver->ops;

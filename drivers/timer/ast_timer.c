@@ -11,8 +11,6 @@
 #include <asm/io.h>
 #include <asm/arch/timer.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define AST_TICK_TIMER  1
 #define AST_TMC_RELOAD_VAL  0xffffffff
 

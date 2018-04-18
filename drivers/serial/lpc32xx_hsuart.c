@@ -12,8 +12,6 @@
 #include <asm/arch/uart.h>
 #include <linux/compiler.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct lpc32xx_hsuart_priv {
 	struct hsuart_regs *hsuart;
 };

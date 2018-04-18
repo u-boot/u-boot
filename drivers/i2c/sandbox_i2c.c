@@ -14,8 +14,6 @@
 #include <dm/lists.h>
 #include <dm/device-internal.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct sandbox_i2c_priv {
 	bool test_mode;
 };

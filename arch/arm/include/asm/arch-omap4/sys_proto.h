@@ -16,8 +16,6 @@
 #include <asm/arch/mux_omap4.h>
 #include <asm/ti-common/sys_proto.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
 extern const struct emif_regs emif_regs_elpida_200_mhz_2cs;
 extern const struct emif_regs emif_regs_elpida_380_mhz_1cs;

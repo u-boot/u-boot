@@ -12,8 +12,6 @@
 #include <asm/gpio.h>
 #include <power/regulator.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct simple_panel_priv {
 	struct udevice *reg;
 	struct udevice *backlight;

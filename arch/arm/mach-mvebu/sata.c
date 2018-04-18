@@ -8,8 +8,6 @@
 #include <ahci.h>
 #include <dm.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * Dummy implementation that can be overwritten by a board
  * specific function

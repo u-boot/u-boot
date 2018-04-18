@@ -23,8 +23,6 @@
 #include <dm/device-internal.h>
 #include <dt-bindings/gpio/gpio.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const int CONFIG_SFIO = 0;
 static const int CONFIG_GPIO = 1;
 static const int DIRECTION_INPUT = 0;

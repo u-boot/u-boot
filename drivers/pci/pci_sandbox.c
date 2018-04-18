@@ -11,8 +11,6 @@
 #include <inttypes.h>
 #include <pci.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static int sandbox_pci_write_config(struct udevice *bus, pci_dev_t devfn,
 				    uint offset, ulong value,
 				    enum pci_size_t size)

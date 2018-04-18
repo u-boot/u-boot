@@ -33,8 +33,6 @@
 #include "tpm_tis.h"
 #include "tpm_internal.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 enum i2c_chip_type {
 	SLB9635,
 	SLB9645,

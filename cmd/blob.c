@@ -12,8 +12,6 @@
 #include <asm/byteorder.h>
 #include <linux/compiler.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /**
  * blob_decap() - Decapsulate the data as a blob
  * @key_mod:	- Pointer to key modifier/key

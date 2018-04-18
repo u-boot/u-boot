@@ -9,8 +9,6 @@
 #include <power-domain.h>
 #include <power-domain-uclass.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static inline struct power_domain_ops *power_domain_dev_ops(struct udevice *dev)
 {
 	return (struct power_domain_ops *)dev->driver->ops;

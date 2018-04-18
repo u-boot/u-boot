@@ -16,8 +16,6 @@
 
 #include "xhci.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct rockchip_xhci_platdata {
 	fdt_addr_t hcd_base;
 	fdt_addr_t phy_base;

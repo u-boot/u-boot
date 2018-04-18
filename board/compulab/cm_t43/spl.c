@@ -14,8 +14,6 @@
 #include <power/tps65218.h>
 #include "board.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 const struct dpll_params dpll_mpu  = { 800,  24, 1,  -1, -1, -1, -1 };
 const struct dpll_params dpll_core = { 1000, 24, -1, -1, 10,  8,  4 };
 const struct dpll_params dpll_per  = { 960,  24, 5,  -1, -1, -1, -1 };

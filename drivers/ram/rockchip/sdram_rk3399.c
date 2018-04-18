@@ -23,7 +23,6 @@
 #include <linux/err.h>
 #include <time.h>
 
-DECLARE_GLOBAL_DATA_PTR;
 struct chan_info {
 	struct rk3399_ddr_pctl_regs *pctl;
 	struct rk3399_ddr_pi_regs *pi;

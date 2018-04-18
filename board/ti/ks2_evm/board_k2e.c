@@ -12,8 +12,6 @@
 #include <asm/arch/hardware.h>
 #include <asm/ti-common/keystone_net.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 unsigned int get_external_clk(u32 clk)
 {
 	unsigned int clk_freq;

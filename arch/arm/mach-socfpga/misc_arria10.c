@@ -28,8 +28,6 @@
 #define PINMUX_UART1_TX_SHARED_IO_OFFSET_Q3_7	0x78
 #define PINMUX_UART1_TX_SHARED_IO_OFFSET_Q4_3	0x98
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #if defined(CONFIG_SPL_BUILD)
 static struct pl310_regs *const pl310 =
 	(struct pl310_regs *)CONFIG_SYS_PL310_BASE;

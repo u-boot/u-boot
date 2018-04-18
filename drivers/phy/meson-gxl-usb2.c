@@ -21,8 +21,6 @@
 #include <linux/bitops.h>
 #include <linux/compat.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* bits [31:27] are read-only */
 #define U2P_R0							0x0
 	#define U2P_R0_BYPASS_SEL				BIT(0)

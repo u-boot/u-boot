@@ -17,8 +17,6 @@
 #include <serial.h>
 #include <asm/arch/hardware.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define ZYNQ_UART_SR_TXEMPTY	(1 << 3) /* TX FIFO empty */
 #define ZYNQ_UART_SR_TXACTIVE	(1 << 11)  /* TX active */
 #define ZYNQ_UART_SR_RXEMPTY	0x00000002 /* RX FIFO empty */

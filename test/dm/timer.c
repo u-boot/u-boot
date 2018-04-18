@@ -10,8 +10,6 @@
 #include <dm/test.h>
 #include <test/ut.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * Basic test of the timer uclass.
  */

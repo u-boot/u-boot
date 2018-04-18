@@ -15,8 +15,6 @@
 #include <spi.h>
 #include <asm/io.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define ALTERA_SPI_STATUS_RRDY_MSK	BIT(7)
 #define ALTERA_SPI_CONTROL_SSO_MSK	BIT(10)
 

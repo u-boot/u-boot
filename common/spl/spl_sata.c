@@ -18,8 +18,6 @@
 #include <fat.h>
 #include <image.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static int spl_sata_load_image(struct spl_image_info *spl_image,
 			       struct spl_boot_device *bootdev)
 {

@@ -42,8 +42,6 @@ extern int cpu_post_test_multi (void);
 extern int cpu_post_test_string (void);
 extern int cpu_post_test_complex (void);
 
-DECLARE_GLOBAL_DATA_PTR;
-
 ulong cpu_post_makecr (long v)
 {
 	ulong cr = 0;

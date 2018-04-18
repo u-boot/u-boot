@@ -15,8 +15,6 @@
 #include <asm/arch/clock.h>
 #include <dm/pinctrl.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct rk3399_pinctrl_priv {
 	struct rk3399_grf_regs *grf;
 	struct rk3399_pmugrf_regs *pmugrf;

@@ -25,8 +25,6 @@
 #include <dt-bindings/clock/rk3288-cru.h>
 #include "designware.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * Platform data for the gmac
  *

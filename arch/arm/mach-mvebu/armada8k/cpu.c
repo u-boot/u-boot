@@ -14,8 +14,6 @@
 #include <asm/arch/soc.h>
 #include <asm/armv8/mmu.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Armada 7k/8k */
 #define MVEBU_RFU_BASE			(MVEBU_REGISTER(0x6f0000))
 #define RFU_GLOBAL_SW_RST		(MVEBU_RFU_BASE + 0x84)

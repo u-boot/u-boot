@@ -14,8 +14,6 @@
 #include <spi.h>
 #include "tegra_spi.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* COMMAND1 */
 #define SPI_CMD1_GO			BIT(31)
 #define SPI_CMD1_M_S			BIT(30)

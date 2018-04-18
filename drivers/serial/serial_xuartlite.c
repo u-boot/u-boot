@@ -15,8 +15,6 @@
 #include <linux/compiler.h>
 #include <serial.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define SR_TX_FIFO_FULL		BIT(3) /* transmit FIFO full */
 #define SR_TX_FIFO_EMPTY	BIT(2) /* transmit FIFO empty */
 #define SR_RX_FIFO_VALID_DATA	BIT(0) /* data in receive FIFO */

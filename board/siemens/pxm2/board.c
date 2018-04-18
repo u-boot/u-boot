@@ -39,8 +39,6 @@
 #include <nand.h>
 #include <bmp_layout.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef CONFIG_SPL_BUILD
 static void board_init_ddr(void)
 {

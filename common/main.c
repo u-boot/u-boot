@@ -13,8 +13,6 @@
 #include <console.h>
 #include <version.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * Board-specific Platform code can reimplement show_boot_progress () if needed
  */

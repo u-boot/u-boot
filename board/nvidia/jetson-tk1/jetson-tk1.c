@@ -15,8 +15,6 @@
 
 #include "pinmux-config-jetson-tk1.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * Routine: pinmux_init
  * Description: Do individual peripheral pinmux configs

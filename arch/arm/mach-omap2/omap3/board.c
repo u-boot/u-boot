@@ -28,8 +28,6 @@
 #include <asm/omap_common.h>
 #include <linux/compiler.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Declarations */
 extern omap3_sysinfo sysinfo;
 #ifndef CONFIG_SYS_L2CACHE_OFF

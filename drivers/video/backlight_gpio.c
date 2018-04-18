@@ -10,8 +10,6 @@
 #include <backlight.h>
 #include <asm/gpio.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct gpio_backlight_priv {
 	struct gpio_desc gpio;
 	bool def_value;

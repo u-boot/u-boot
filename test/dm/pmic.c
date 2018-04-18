@@ -21,8 +21,6 @@
 #include <power/sandbox_pmic.h>
 #include <test/ut.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Test PMIC get method */
 static int dm_test_power_pmic_get(struct unit_test_state *uts)
 {

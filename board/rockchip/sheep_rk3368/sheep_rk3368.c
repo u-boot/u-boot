@@ -9,8 +9,6 @@
 #include <asm/arch/grf_rk3368.h>
 #include <syscon.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int mach_cpu_init(void)
 {
 	return 0;

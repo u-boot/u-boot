@@ -24,8 +24,6 @@
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 void local_bus_init(void);
 
 int board_early_init_f (void)

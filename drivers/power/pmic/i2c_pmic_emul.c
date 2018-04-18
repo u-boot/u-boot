@@ -12,8 +12,6 @@
 #include <power/pmic.h>
 #include <power/sandbox_pmic.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /**
  * struct sandbox_i2c_pmic_plat_data - platform data for the PMIC
  *

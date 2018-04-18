@@ -23,8 +23,6 @@
 #include "xhci.h"
 
 /* Declare global data pointer */
-DECLARE_GLOBAL_DATA_PTR;
-
 static struct omap_xhci omap;
 
 static int omap_xhci_core_init(struct omap_xhci *omap)

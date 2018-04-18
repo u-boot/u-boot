@@ -31,8 +31,6 @@
 # endif
 #endif
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef CMD_SAVEENV
 static int env_fat_save(void)
 {

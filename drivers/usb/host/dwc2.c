@@ -19,8 +19,6 @@
 
 #include "dwc2.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Use only HC channel 0. */
 #define DWC2_HC_CHANNEL			0
 

@@ -79,8 +79,6 @@
 #include <asm/byteorder.h>
 #include <linux/compiler.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Display values from last command.
  * Memory modify remembered values are different from display memory.
  */

@@ -9,8 +9,6 @@
 #include <dm.h>
 #include <pch.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int pch_get_spi_base(struct udevice *dev, ulong *sbasep)
 {
 	struct pch_ops *ops = pch_get_ops(dev);

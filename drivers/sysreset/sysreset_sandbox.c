@@ -12,8 +12,6 @@
 #include <asm/state.h>
 #include <asm/test.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static int sandbox_warm_sysreset_request(struct udevice *dev,
 					 enum sysreset_t type)
 {

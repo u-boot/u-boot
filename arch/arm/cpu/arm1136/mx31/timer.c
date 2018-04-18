@@ -23,8 +23,6 @@
 #define GPTCR_CLKSOURCE_32	(4 << 6)	/* Clock source		*/
 #define GPTCR_TEN		1		/* Timer enable		*/
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* The 32768Hz 32-bit timer overruns in 131072 seconds */
 int timer_init(void)
 {

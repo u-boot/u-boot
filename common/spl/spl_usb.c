@@ -16,8 +16,6 @@
 #include <usb.h>
 #include <fat.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef CONFIG_USB_STORAGE
 static int usb_stor_curr_dev = -1; /* current device */
 #endif

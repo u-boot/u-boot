@@ -10,8 +10,6 @@
 #include <usb.h>
 #include <dm/device-internal.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* We only support up to 8 */
 #define SANDBOX_NUM_PORTS	4
 

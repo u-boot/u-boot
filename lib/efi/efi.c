@@ -17,8 +17,6 @@
 #include <efi.h>
 #include <efi_api.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * Unfortunately we cannot access any code outside what is built especially
  * for the stub. lib/string.c is already being built for the U-Boot payload

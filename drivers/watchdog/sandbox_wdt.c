@@ -9,8 +9,6 @@
 #include <wdt.h>
 #include <asm/state.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static int sandbox_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
 {
 	struct sandbox_state *state = state_get_current();

@@ -21,8 +21,6 @@
 
 #include "platinum.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #undef RTT_NOM_120OHM	/* use 120ohm Rtt_nom vs 60ohm (lower power) */
 
 /* Configure MX6Q/DUAL mmdc DDR io registers */

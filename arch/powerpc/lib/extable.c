@@ -21,8 +21,6 @@
  * on our cache or tlb entries.
  */
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct exception_table_entry
 {
 	unsigned long insn, fixup;

@@ -10,8 +10,6 @@
 #include <usb.h>
 #include <dm/device-internal.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static int copy_to_unicode(char *buff, int length, const char *str)
 {
 	int ptr;

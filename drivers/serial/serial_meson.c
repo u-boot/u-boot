@@ -11,8 +11,6 @@
 #include <linux/compiler.h>
 #include <serial.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct meson_uart {
 	u32 wfifo;
 	u32 rfifo;

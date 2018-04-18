@@ -42,8 +42,6 @@ enum {
 	CROS_EC_CMD_HASH_TIMEOUT_MS = 2000,
 };
 
-DECLARE_GLOBAL_DATA_PTR;
-
 void cros_ec_dump_data(const char *name, int cmd, const uint8_t *data, int len)
 {
 #ifdef DEBUG

@@ -28,8 +28,6 @@
 #define SCANMGR_STAT_ACTIVE		(1 << 31)
 #define SCANMGR_STAT_WFIFOCNT_MASK	0x70000000
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const struct socfpga_scan_manager *scan_manager_base =
 		(void *)(SOCFPGA_SCANMGR_ADDRESS);
 static const struct socfpga_freeze_controller *freeze_controller_base =

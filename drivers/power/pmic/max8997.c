@@ -12,8 +12,6 @@
 #include <power/max8997_pmic.h>
 #include <errno.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static int max8997_reg_count(struct udevice *dev)
 {
 	return PMIC_NUM_OF_REGS;

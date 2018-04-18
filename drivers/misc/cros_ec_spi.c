@@ -19,8 +19,6 @@
 #include <errno.h>
 #include <spi.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int cros_ec_spi_packet(struct udevice *udev, int out_bytes, int in_bytes)
 {
 	struct cros_ec_dev *dev = dev_get_uclass_priv(udev);

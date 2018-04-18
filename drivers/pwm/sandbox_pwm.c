@@ -11,8 +11,6 @@
 #include <pwm.h>
 #include <asm/test.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 enum {
 	NUM_CHANNELS	= 3,
 };

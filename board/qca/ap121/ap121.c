@@ -13,8 +13,6 @@
 #include <mach/ath79.h>
 #include <debug_uart.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef CONFIG_DEBUG_UART_BOARD_INIT
 void board_debug_uart_init(void)
 {

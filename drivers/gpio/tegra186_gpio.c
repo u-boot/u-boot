@@ -17,8 +17,6 @@
 #include <dt-bindings/gpio/gpio.h>
 #include "tegra186_gpio_priv.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct tegra186_gpio_port_data {
 	const char *name;
 	uint32_t offset;

@@ -59,8 +59,6 @@
  *                     |---------------------------->
  */
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define CGU_ARC_IDIV		0x080
 #define CGU_TUN_IDIV_TUN	0x380
 #define CGU_TUN_IDIV_ROM	0x390

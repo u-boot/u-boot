@@ -16,8 +16,6 @@
 #include <dm/lists.h>
 #include <dm/uclass-internal.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 extern bool usb_started; /* flag for the started/stopped USB status */
 static bool asynch_allowed;
 

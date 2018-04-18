@@ -15,8 +15,6 @@
 #define CONFIG_SYS_NAND_BASE_LIST { CONFIG_SYS_NAND_BASE }
 #endif
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int nand_curr_device = -1;
 
 static struct mtd_info *nand_info[CONFIG_SYS_MAX_NAND_DEVICE];

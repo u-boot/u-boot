@@ -12,8 +12,6 @@
 #include <mmc.h>
 #include <asm/test.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct sandbox_mmc_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;

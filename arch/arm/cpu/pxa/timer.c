@@ -9,8 +9,6 @@
 #include <common.h>
 #include <asm/io.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int timer_init(void)
 {
 	writel(0, CONFIG_SYS_TIMER_COUNTER);

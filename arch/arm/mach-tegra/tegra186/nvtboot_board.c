@@ -11,8 +11,6 @@
 #include <asm/arch/tegra.h>
 #include <asm/armv8/mmu.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 extern unsigned long nvtboot_boot_x0;
 
 /*

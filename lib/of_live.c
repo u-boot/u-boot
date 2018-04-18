@@ -16,8 +16,6 @@
 #include <dm/of_access.h>
 #include <linux/err.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static void *unflatten_dt_alloc(void **mem, unsigned long size,
 				unsigned long align)
 {

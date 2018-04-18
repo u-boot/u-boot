@@ -19,8 +19,6 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/timer.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define GRF_BASE		0xff770000
 void board_init_f(ulong dummy)
 {

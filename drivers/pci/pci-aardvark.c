@@ -131,8 +131,6 @@
 #define CFG_RD_UR_VAL			0xFFFFFFFF
 #define CFG_RD_CRS_VAL			0xFFFF0001
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /**
  * struct pcie_advk - Advk PCIe controller state
  *

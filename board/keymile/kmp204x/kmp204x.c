@@ -24,8 +24,6 @@
 #include "../common/common.h"
 #include "kmp204x.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static uchar ivm_content[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
 
 int checkboard(void)

@@ -15,8 +15,6 @@
 #include <asm/arch/clk.h>
 #include <spl.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static void switch_to_main_crystal_osc(void)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;

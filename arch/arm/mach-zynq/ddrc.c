@@ -10,8 +10,6 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifndef CONFIG_ZYNQ_DDRC_INIT
 void zynq_ddrc_init(void) {}
 #else

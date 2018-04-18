@@ -21,8 +21,6 @@
 #include <linux/compat.h>
 #include <linux/bitfield.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define USB_R0							0x00
 	#define USB_R0_P30_FSEL_MASK				GENMASK(5, 0)
 	#define USB_R0_P30_PHY_RESET				BIT(6)

@@ -12,8 +12,6 @@
 #include <power/pmic.h>
 #include <power/max8998_pmic.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static int max8998_reg_count(struct udevice *dev)
 {
 	return PMIC_NUM_OF_REGS;

@@ -14,8 +14,6 @@
 #include <power/regulator.h>
 #include <power/s2mps11.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define MODE(_id, _val, _name) { \
 	.id = _id, \
 	.register_value = _val, \

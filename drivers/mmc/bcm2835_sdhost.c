@@ -44,8 +44,6 @@
 #include <mach/gpio.h>
 #include <power/regulator.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define msleep(a) udelay(a * 1000)
 
 #define SDCMD  0x00 /* Command to SD card              - 16 R/W */

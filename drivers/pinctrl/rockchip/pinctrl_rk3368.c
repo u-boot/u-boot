@@ -17,8 +17,6 @@
 #include <asm/arch/periph.h>
 #include <dm/pinctrl.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* PMUGRF_GPIO0B_IOMUX */
 enum {
 	GPIO0B5_SHIFT           = 10,

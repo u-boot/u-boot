@@ -21,8 +21,6 @@
 
 #include "sh_pfc.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 enum sh_pfc_model {
 	SH_PFC_R8A7790 = 0,
 	SH_PFC_R8A7791,

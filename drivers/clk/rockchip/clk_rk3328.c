@@ -18,8 +18,6 @@
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3328-cru.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct pll_div {
 	u32 refdiv;
 	u32 fbdiv;

@@ -17,8 +17,6 @@
 #include <asm/arch/periph.h>
 #include <asm/arch/timer.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 void board_debug_uart_init(void)
 {
 }

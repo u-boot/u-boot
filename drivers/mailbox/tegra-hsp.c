@@ -36,8 +36,6 @@ struct tegra_hsp {
 	uint32_t db_base;
 };
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static uint32_t *tegra_hsp_reg(struct tegra_hsp *thsp, uint32_t db_id,
 			       uint32_t reg)
 {

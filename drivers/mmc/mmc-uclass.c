@@ -12,8 +12,6 @@
 #include <dm/lists.h>
 #include "mmc_private.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		    struct mmc_data *data)
 {

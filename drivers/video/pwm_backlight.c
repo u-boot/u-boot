@@ -12,8 +12,6 @@
 #include <asm/gpio.h>
 #include <power/regulator.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct pwm_backlight_priv {
 	struct udevice *reg;
 	struct gpio_desc enable;

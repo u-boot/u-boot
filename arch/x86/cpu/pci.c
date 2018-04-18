@@ -17,8 +17,6 @@
 #include <asm/io.h>
 #include <asm/pci.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int pci_x86_read_config(struct udevice *bus, pci_dev_t bdf, uint offset,
 			ulong *valuep, enum pci_size_t size)
 {

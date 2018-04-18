@@ -16,8 +16,6 @@
 #include <spi_flash.h>
 #include <mmc.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifndef CONFIG_SPL_LIBCOMMON_SUPPORT
 void puts(const char *str)
 {

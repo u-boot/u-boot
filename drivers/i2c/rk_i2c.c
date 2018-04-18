@@ -19,8 +19,6 @@
 #include <dm/pinctrl.h>
 #include <linux/sizes.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* i2c timerout */
 #define I2C_TIMEOUT_MS		100
 #define I2C_RETRY_COUNT		3

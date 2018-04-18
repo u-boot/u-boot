@@ -12,8 +12,6 @@
 #include <lcd.h>
 #include <malloc.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const efi_guid_t efi_net_guid = EFI_SIMPLE_NETWORK_GUID;
 static const efi_guid_t efi_pxe_guid = EFI_PXE_GUID;
 static struct efi_pxe_packet *dhcp_ack;

@@ -11,8 +11,6 @@
 #include <power/regulator.h>
 #include <power/tps65910_pmic.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const struct pmic_child_info pmic_children_info[] = {
 	{ .prefix = "ldo_", .driver = TPS65910_LDO_DRIVER },
 	{ .prefix = "buck_", .driver = TPS65910_BUCK_DRIVER },

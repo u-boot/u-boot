@@ -14,8 +14,6 @@
 #include <timer.h>
 #include <asm/io.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* control register */
 #define ALTERA_TIMER_CONT	BIT(1)	/* Continuous mode */
 #define ALTERA_TIMER_START	BIT(2)	/* Start timer */

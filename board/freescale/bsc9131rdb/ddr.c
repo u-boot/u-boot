@@ -13,8 +13,6 @@
 #include <asm/io.h>
 #include <asm/fsl_law.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifndef CONFIG_SYS_DDR_RAW_TIMING
 #define CONFIG_SYS_DRAM_SIZE	1024
 

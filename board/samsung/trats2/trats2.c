@@ -24,8 +24,6 @@
 #include <usb/dwc2_udc.h>
 #include <usb_mass_storage.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static unsigned int board_rev = -1;
 
 static inline u32 get_model_rev(void);

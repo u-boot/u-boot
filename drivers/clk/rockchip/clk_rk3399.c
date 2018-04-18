@@ -20,8 +20,6 @@
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3399-cru.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 struct rk3399_clk_plat {
 	struct dtd_rockchip_rk3399_cru dtd;

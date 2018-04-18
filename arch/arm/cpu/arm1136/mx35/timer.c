@@ -12,8 +12,6 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* General purpose timers bitfields */
 #define GPTCR_SWR       (1<<15)	/* Software reset */
 #define GPTCR_FRR       (1<<9)	/* Freerun / restart */

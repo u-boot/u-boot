@@ -16,8 +16,6 @@
 #include <power/regulator.h>
 #include <power/palmas.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define	REGULATOR_ON		0x1
 #define	REGULATOR_OFF		0x0
 

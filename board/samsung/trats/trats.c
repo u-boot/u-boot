@@ -30,8 +30,6 @@
 
 #include "setup.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 unsigned int board_rev;
 
 #ifdef CONFIG_REVISION_TAG

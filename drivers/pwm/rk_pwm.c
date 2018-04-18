@@ -16,8 +16,6 @@
 #include <asm/arch/pwm.h>
 #include <power/regulator.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct rk_pwm_priv {
 	struct rk3288_pwm *regs;
 	ulong freq;

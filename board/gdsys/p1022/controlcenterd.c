@@ -44,8 +44,6 @@
 #include "../common/dp501.h"
 #include "controlcenterd-id.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 enum {
 	HWVER_100 = 0,
 	HWVER_110 = 1,

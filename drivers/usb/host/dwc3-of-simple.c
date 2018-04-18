@@ -17,8 +17,6 @@
 #include <reset.h>
 #include <clk.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct dwc3_of_simple {
 	struct clk_bulk		clks;
 	struct reset_ctl_bulk	resets;

@@ -16,8 +16,6 @@
 #include <asm/gpio.h>
 #include <test/ut.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Test if bus childs got probed propperly*/
 static int dm_test_spmi_probe(struct unit_test_state *uts)
 {

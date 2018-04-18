@@ -21,8 +21,6 @@
 #include <asm/arch/sys_proto.h>
 #include <spl.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #if defined(CONFIG_SPL_BUILD)
 #include <asm/arch/mx6-ddr.h>
 

@@ -13,8 +13,6 @@
 #include <asm/io.h>
 #include <common.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef CONFIG_VIDEO_MXS
 #define LCD_PAD_CTRL ( \
 	PAD_CTL_HYS | PAD_CTL_PUS_100K_UP | PAD_CTL_PUE | \

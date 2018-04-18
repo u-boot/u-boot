@@ -15,7 +15,6 @@
 #include <sdhci.h>
 #include <clk.h>
 
-DECLARE_GLOBAL_DATA_PTR;
 /* 400KHz is max freq for card ID etc. Use that as min */
 #define EMMC_MIN_FREQ	400000
 

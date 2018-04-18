@@ -13,8 +13,6 @@
 #include <asm/io.h>
 #include "stm32mp1_ddr.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static const char *const clkname[] = {
 	"ddrc1",
 	"ddrc2",

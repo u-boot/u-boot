@@ -12,8 +12,6 @@
 #include <asm/arch/pcc.h>
 #include <asm/arch/sys_proto.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 scg_p scg1_regs = (scg_p)SCG1_RBASE;
 
 static u32 scg_src_get_rate(enum scg_clk clksrc)

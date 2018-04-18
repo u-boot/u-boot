@@ -12,8 +12,6 @@
 #include <asm/gpio.h>
 #include <dm/lists.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct led_gpio_priv {
 	struct gpio_desc gpio;
 };

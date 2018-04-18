@@ -11,8 +11,6 @@
 #include <asm/io.h>
 #include <asm/arch/soc.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define TIMER_LOAD_VAL			0xffffffff
 
 static int init_done __attribute__((section(".data"))) = 0;

@@ -18,8 +18,6 @@
 #include <fsl-mc/fsl_mc.h>
 #include <fsl-mc/ldpaa_wriop.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int board_eth_init(bd_t *bis)
 {
 #if defined(CONFIG_FSL_MC_ENET)

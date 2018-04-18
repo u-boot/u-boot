@@ -12,8 +12,6 @@
 #include <asm/arch/system_manager.h>
 #include <asm/io.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct sdram_prot_rule {
 	u32	sdram_start;	/* SDRAM start address */
 	u32	sdram_end;	/* SDRAM end address */

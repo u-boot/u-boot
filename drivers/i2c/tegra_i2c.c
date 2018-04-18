@@ -20,8 +20,6 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch-tegra/tegra_i2c.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 enum i2c_type {
 	TYPE_114,
 	TYPE_STD,

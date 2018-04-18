@@ -18,8 +18,6 @@
 #include <asm/gpio.h>
 #include <dm/pinctrl.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int board_late_init(void)
 {
 	struct rk3188_grf *grf;
