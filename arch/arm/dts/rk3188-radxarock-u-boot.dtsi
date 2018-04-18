@@ -1,0 +1,18 @@
+/*
+ * Copyright (c) 2018 Fuzhou Rockchip Electronics Co., Ltd.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+&cru {
+	u-boot,dm-spl;
+};
+
+&pinctrl {
+	u-boot,dm-spl;
+};
+
+&uart2 {
+	status = "okay";
+	u-boot,dm-spl;
+};
