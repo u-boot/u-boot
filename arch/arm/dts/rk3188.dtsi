@@ -123,6 +123,12 @@
 		};
 	};
 
+	timer3: timer@2000e000 {
+		compatible = "rockchip,rk3188-timer", "rockchip,rk3288-timer";
+		reg = <0x2000e000 0x20>;
+		interrupts = <GIC_SPI 46 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
 	usbphy: phy {
 		compatible = "rockchip,rk3188-usb-phy", "rockchip,rk3288-usb-phy";
 		rockchip,grf = <&grf>;

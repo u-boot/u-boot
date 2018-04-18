@@ -16,3 +16,9 @@
 	status = "okay";
 	u-boot,dm-spl;
 };
+
+&timer3 {
+	compatible = "rockchip,rk3368-timer", "rockchip,rk3288-timer";
+	u-boot,dm-spl;
+	clock-frequency = <24000000>;
+};
