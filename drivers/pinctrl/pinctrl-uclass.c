@@ -199,6 +199,12 @@ static int pinctrl_select_state_simple(struct udevice *dev)
 int pinctrl_select_state(struct udevice *dev, const char *statename)
 {
 	/*
+	 * Some device which is logical like mmc.blk, do not have
+	 * a valid ofnode.
+	 */
+	if (!ofnode_valid(dev->node))
+		return 0;
+	/*
 	 * Try full-implemented pinctrl first.
 	 * If it fails or is not implemented, try simple one.
 	 */
