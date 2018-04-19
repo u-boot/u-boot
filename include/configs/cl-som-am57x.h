@@ -17,6 +17,8 @@
 
 #define CONFIG_SYS_OMAP_ABE_SYSCK
 
+#define PARTS_DEFAULT
+
 #include <configs/ti_omap5_common.h>
 
 /* misc */

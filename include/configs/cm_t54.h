@@ -13,6 +13,8 @@
 #define CONFIG_CM_T54
 #define CONFIG_DRAM_2G
 
+#define PARTS_DEFAULT
+
 #include <configs/ti_omap5_common.h>
 
 /* EEPROM related defines */
