@@ -16,7 +16,15 @@ int __weak soc_clk_dump(void)
 static int do_clk_dump(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
-	return soc_clk_dump();
+	int ret;
+
+	ret = soc_clk_dump();
+	if (ret < 0) {
+		printf("Clock dump error %d\n", ret);
+		ret = CMD_RET_FAILURE;
+	}
+
+	return ret;
 }
 
 static cmd_tbl_t cmd_clk_sub[] = {
