@@ -143,12 +143,12 @@ static int cdns_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
 		return -1;
 	}
 
-	debug("%s: CLK_FREQ %ld, timeout %lld\n", __func__, clk_f, timeout);
-
 	if ((timeout < CDNS_WDT_MIN_TIMEOUT) ||
 	    (timeout > CDNS_WDT_MAX_TIMEOUT)) {
 		timeout = priv->timeout;
 	}
+
+	debug("%s: CLK_FREQ %ld, timeout %lld\n", __func__, clk_f, timeout);
 
 	if (clk_f <= CDNS_WDT_CLK_75MHZ) {
 		prescaler = CDNS_WDT_PRESCALE_512;
