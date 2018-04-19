@@ -11,11 +11,13 @@
 #include <ahci.h>
 #include <scsi.h>
 #include <malloc.h>
+#include <wdt.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/psu_init_gpl.h>
 #include <asm/io.h>
+#include <dm/uclass.h>
 #include <usb.h>
 #include <dwc3-uboot.h>
 #include <zynqmppl.h>
@@ -23,6 +25,10 @@
 #include <g_dnl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT)
+static struct udevice *watchdog_dev;
+#endif
 
 #if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
     !defined(CONFIG_SPL_BUILD)
@@ -283,6 +289,11 @@ int board_early_init_f(void)
 	ret = psu_init();
 #endif
 
+#if defined(CONFIG_WDT) && !defined(CONFIG_SPL_BUILD)
+	/* bss is not cleared at time when watchdog_reset() is called */
+	watchdog_dev = NULL;
+#endif
+
 	return ret;
 }
 
@@ -301,8 +312,39 @@ int board_init(void)
 	}
 #endif
 
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT)
+	if (uclass_get_device(UCLASS_WDT, 0, &watchdog_dev)) {
+		puts("Watchdog: Not found!\n");
+	} else {
+		wdt_start(watchdog_dev, 0, 0);
+		puts("Watchdog: Started\n");
+	}
+#endif
+
 	return 0;
 }
+
+#ifdef CONFIG_WATCHDOG
+/* Called by macro WATCHDOG_RESET */
+void watchdog_reset(void)
+{
+# if !defined(CONFIG_SPL_BUILD)
+	static ulong next_reset;
+	ulong now;
+
+	if (!watchdog_dev)
+		return;
+
+	now = timer_get_us();
+
+	/* Do not reset the watchdog too often */
+	if (now > next_reset) {
+		wdt_reset(watchdog_dev);
+		next_reset = now + 1000;
+	}
+# endif
+}
+#endif
 
 int board_early_init_r(void)
 {
