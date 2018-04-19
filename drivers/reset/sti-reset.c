@@ -217,7 +217,7 @@ phys_addr_t sti_reset_get_regmap(const char *compatible)
 		return -ENODEV;
 	}
 
-	return regmap->base;
+	return regmap->ranges[0].start;
 }
 
 static int sti_reset_program_hw(struct reset_ctl *reset_ctl, int assert)

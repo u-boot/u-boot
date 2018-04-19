@@ -21,15 +21,12 @@ struct regmap_range {
 /**
  * struct regmap - a way of accessing hardware/bus registers
  *
- * @base:	Base address of register map
  * @range_count: Number of ranges available within the map
- * @range:	Pointer to the list of ranges, allocated if @range_count > 1
- * @base_range:	If @range_count is <= 1, @range points here
+ * @ranges:	Array of ranges
  */
 struct regmap {
-	phys_addr_t base;
 	int range_count;
-	struct regmap_range *range, base_range;
+	struct regmap_range ranges[0];
 };
 
 /*

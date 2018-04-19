@@ -133,7 +133,7 @@ static int sti_dwc3_glue_ofdata_to_platdata(struct udevice *dev)
 		pr_err("unable to find regmap\n");
 		return -ENODEV;
 	}
-	plat->syscfg_base = regmap->base;
+	plat->syscfg_base = regmap->ranges[0].start;
 
 	/* get powerdown reset */
 	ret = reset_get_by_name(dev, "powerdown", &plat->powerdown_ctl);

@@ -23,23 +23,20 @@ static int dm_test_regmap_base(struct unit_test_state *uts)
 	map = syscon_get_regmap(dev);
 	ut_assertok_ptr(map);
 	ut_asserteq(1, map->range_count);
-	ut_asserteq(0x10, map->base);
-	ut_asserteq(0x10, map->range->start);
-	ut_asserteq(4, map->range->size);
-	ut_asserteq_ptr(&map->base_range, map->range);
+	ut_asserteq(0x10, map->ranges[0].start);
+	ut_asserteq(4, map->ranges[0].size);
 	ut_asserteq(0x10, map_to_sysmem(regmap_get_range(map, 0)));
 
 	ut_assertok(uclass_get_device(UCLASS_SYSCON, 1, &dev));
 	map = syscon_get_regmap(dev);
 	ut_assertok_ptr(map);
 	ut_asserteq(4, map->range_count);
-	ut_asserteq(0x20, map->base);
-	ut_assert(&map->base_range != map->range);
+	ut_asserteq(0x20, map->ranges[0].start);
 	for (i = 0; i < 4; i++) {
 		const unsigned long addr = 0x20 + 8 * i;
 
-		ut_asserteq(addr, map->range[i].start);
-		ut_asserteq(5 + i, map->range[i].size);
+		ut_asserteq(addr, map->ranges[i].start);
+		ut_asserteq(5 + i, map->ranges[i].size);
 		ut_asserteq(addr, map_to_sysmem(regmap_get_range(map, i)));
 	}
 

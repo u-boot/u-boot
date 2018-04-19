@@ -74,7 +74,7 @@ static u32 rmobile_get_prr(void)
 		hang();
 	}
 
-	return readl(map->base);
+	return readl(map->ranges[0].start);
 }
 
 static const struct udevice_id renesas_prr_ids[] = {

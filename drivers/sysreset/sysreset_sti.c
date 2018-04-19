@@ -58,7 +58,7 @@ static int sti_sysreset_probe(struct udevice *dev)
 		return -ENODEV;
 	}
 
-	priv->base = regmap->base;
+	priv->base = regmap->ranges[0].start;
 
 	return 0;
 }
