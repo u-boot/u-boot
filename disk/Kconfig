@@ -4,6 +4,10 @@ menu "Partition Types"
 config PARTITIONS
 	bool "Enable Partition Labels (disklabels) support"
 	default y
+	select SPL_SPRINTF if SPL
+	select TPL_SPRINTF if TPL
+	select SPL_STRTO if SPL
+	select TPL_STRTO if TPL
 	help
 	  Partition Labels (disklabels) Supported:
 	  Zero or more of the following:

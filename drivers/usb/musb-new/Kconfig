@@ -5,12 +5,16 @@ comment "MUSB Controller Driver"
 
 config USB_MUSB_HOST
 	bool "MUSB host mode support"
+	select SPL_SPRINTF if SPL
+	select TPL_SPRINTF if TPL
 	help
 	  Enables the MUSB USB dual-role controller in host mode.
 
 config USB_MUSB_GADGET
 	bool "MUSB gadget mode support"
 	select USB_GADGET_DUALSPEED
+	select SPL_SPRINTF if SPL
+	select TPL_SPRINTF if TPL
 	help
 	  Enables the MUSB USB dual-role controller in gadget mode.
 
