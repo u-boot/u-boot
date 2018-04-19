@@ -196,9 +196,10 @@ u32 spl_boot_mode(const u32 boot_device)
 
 void spl_board_init(void)
 {
+#ifdef CONFIG_SPL_SERIAL_SUPPORT
 	/* Prepare console output */
 	preloader_console_init();
-
+#endif
 #if defined(CONFIG_SPL_NAND_SUPPORT) || defined(CONFIG_SPL_ONENAND_SUPPORT)
 	gpmc_init();
 #endif
