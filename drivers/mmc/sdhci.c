@@ -305,6 +305,24 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 		return -ECOMM;
 }
 
+#if defined(CONFIG_DM_MMC) && defined(MMC_SUPPORTS_TUNING)
+static int sdhci_execute_tuning(struct udevice *dev, uint opcode)
+{
+	int err;
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	struct sdhci_host *host = mmc->priv;
+
+	debug("%s\n", __func__);
+
+	if (host->ops->platform_execute_tuning) {
+		err = host->ops->platform_execute_tuning(mmc, opcode);
+		if (err)
+			return err;
+		return 0;
+	}
+	return 0;
+}
+#endif
 static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 {
 	struct sdhci_host *host = mmc->priv;
@@ -328,6 +346,9 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 
 	if (clock == 0)
 		return 0;
+
+	if (host->ops->set_delay)
+		host->ops->set_delay(host);
 
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
 		/*
@@ -521,6 +542,9 @@ int sdhci_probe(struct udevice *dev)
 const struct dm_mmc_ops sdhci_ops = {
 	.send_cmd	= sdhci_send_command,
 	.set_ios	= sdhci_set_ios,
+#ifdef MMC_SUPPORTS_TUNING
+	.execute_tuning	= sdhci_execute_tuning,
+#endif
 };
 #else
 static const struct mmc_ops sdhci_ops = {
