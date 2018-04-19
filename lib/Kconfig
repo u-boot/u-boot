@@ -27,6 +27,40 @@ config HAVE_PRIVATE_LIBGCC
 config LIB_UUID
 	bool
 
+config PRINTF
+	bool
+	default y
+
+config SPL_PRINTF
+	bool
+	select SPL_SPRINTF
+	select SPL_STRTO if !USE_TINY_PRINTF
+
+config TPL_PRINTF
+	bool
+	select TPL_SPRINTF
+	select TPL_STRTO if !USE_TINY_PRINTF
+
+config SPRINTF
+	bool
+	default y
+
+config SPL_SPRINTF
+	bool
+
+config TPL_SPRINTF
+	bool
+
+config STRTO
+	bool
+	default y
+
+config SPL_STRTO
+	bool
+
+config TPL_STRTO
+	bool
+
 config USE_PRIVATE_LIBGCC
 	bool "Use private libgcc"
 	depends on HAVE_PRIVATE_LIBGCC

@@ -626,6 +626,8 @@ config SPL_SATA_SUPPORT
 
 config SPL_SERIAL_SUPPORT
 	bool "Support serial"
+	select SPL_PRINTF
+	select SPL_STRTO
 	help
 	  Enable support for serial in SPL. This allows use of a serial UART
 	  for displaying messages while SPL is running. It also brings in
@@ -927,6 +929,8 @@ config TPL_RAM_DEVICE
 
 config TPL_SERIAL_SUPPORT
 	bool "Support serial"
+	select TPL_PRINTF
+	select TPL_STRTO
 	help
 	  Enable support for serial in TPL. See SPL_SERIAL_SUPPORT for
 	  details.
