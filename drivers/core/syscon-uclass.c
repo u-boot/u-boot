@@ -40,7 +40,7 @@ static int syscon_pre_probe(struct udevice *dev)
 	return regmap_init_mem_platdata(dev, plat->reg, ARRAY_SIZE(plat->reg),
 					&priv->regmap);
 #else
-	return regmap_init_mem(dev, &priv->regmap);
+	return regmap_init_mem(dev_ofnode(dev), &priv->regmap);
 #endif
 }
 

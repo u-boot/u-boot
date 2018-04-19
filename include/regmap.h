@@ -47,10 +47,10 @@ int regmap_read(struct regmap *map, uint offset, uint *valp);
  *
  * Use regmap_uninit() to free it.
  *
- * @dev:	Device that uses this map
+ * @node:	Device node that uses this map
  * @mapp:	Returns allocated map
  */
-int regmap_init_mem(struct udevice *dev, struct regmap **mapp);
+int regmap_init_mem(ofnode node, struct regmap **mapp);
 
 /**
  * regmap_init_mem_platdata() - Set up a new memory register map for of-platdata

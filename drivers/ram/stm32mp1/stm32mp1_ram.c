@@ -146,7 +146,7 @@ static int stm32mp1_ddr_probe(struct udevice *dev)
 	debug("STM32MP1 DDR probe\n");
 	priv->dev = dev;
 
-	ret = regmap_init_mem(dev, &map);
+	ret = regmap_init_mem(dev_ofnode(dev), &map);
 	if (ret)
 		return ret;
 

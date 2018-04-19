@@ -76,7 +76,7 @@ static int meson_reset_probe(struct udevice *dev)
 {
 	struct meson_reset_priv *priv = dev_get_priv(dev);
 	
-	return regmap_init_mem(dev, &priv->regmap);
+	return regmap_init_mem(dev_ofnode(dev), &priv->regmap);
 }
 
 U_BOOT_DRIVER(meson_reset) = {

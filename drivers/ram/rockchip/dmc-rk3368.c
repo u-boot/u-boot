@@ -877,7 +877,7 @@ static int rk3368_dmc_ofdata_to_platdata(struct udevice *dev)
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3368_sdram_params *plat = dev_get_platdata(dev);
 
-	ret = regmap_init_mem(dev, &plat->map);
+	ret = regmap_init_mem(dev_ofnode(dev), &plat->map);
 	if (ret)
 		return ret;
 #endif

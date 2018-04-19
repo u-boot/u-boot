@@ -50,7 +50,7 @@ int regmap_init_mem_platdata(struct udevice *dev, fdt_val_t *reg, int count,
 	return 0;
 }
 #else
-int regmap_init_mem(struct udevice *dev, struct regmap **mapp)
+int regmap_init_mem(ofnode node, struct regmap **mapp)
 {
 	struct regmap_range *range;
 	struct regmap *map;
@@ -58,14 +58,13 @@ int regmap_init_mem(struct udevice *dev, struct regmap **mapp)
 	int addr_len, size_len, both_len;
 	int len;
 	int index;
-	ofnode node = dev_ofnode(dev);
 	struct resource r;
 
-	addr_len = dev_read_simple_addr_cells(dev->parent);
-	size_len = dev_read_simple_size_cells(dev->parent);
+	addr_len = ofnode_read_simple_addr_cells(ofnode_get_parent(node));
+	size_len = ofnode_read_simple_size_cells(ofnode_get_parent(node));
 	both_len = addr_len + size_len;
 
-	len = dev_read_size(dev, "reg");
+	len = ofnode_read_size(node, "reg");
 	if (len < 0)
 		return len;
 	len /= sizeof(fdt32_t);
@@ -86,7 +85,7 @@ int regmap_init_mem(struct udevice *dev, struct regmap **mapp)
 			range->size = r.end - r.start + 1;
 		} else {
 			range->start = fdtdec_get_addr_size_fixed(gd->fdt_blob,
-					dev_of_offset(dev), "reg", index,
+					ofnode_to_offset(node), "reg", index,
 					addr_len, size_len, &sz, true);
 			range->size = sz;
 		}
