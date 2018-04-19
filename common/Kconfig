@@ -424,6 +424,7 @@ menu "Logging"
 
 config LOG
 	bool "Enable logging support"
+	select DM
 	help
 	  This enables support for logging of status and debug messages. These
 	  can be displayed on the console, recorded in a memory buffer, or
