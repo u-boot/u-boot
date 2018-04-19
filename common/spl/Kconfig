@@ -751,6 +751,7 @@ config SPL_WATCHDOG_SUPPORT
 
 config SPL_YMODEM_SUPPORT
 	bool "Support loading using Ymodem"
+	depends on SPL_SERIAL_SUPPORT
 	help
 	  While loading from serial is slow it can be a useful backup when
 	  there is no other option. The Ymodem protocol provides a reliable
@@ -951,6 +952,7 @@ config TPL_SPI_SUPPORT
 
 config TPL_YMODEM_SUPPORT
 	bool "Support loading using Ymodem"
+	depends on TPL_SERIAL_SUPPORT
 	help
 	  While loading from serial is slow it can be a useful backup when
 	  there is no other option. The Ymodem protocol provides a reliable
