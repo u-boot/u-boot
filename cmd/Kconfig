@@ -1660,6 +1660,7 @@ config CMD_KGDB
 
 config CMD_LOG
 	bool "log - Generation, control and access to logging"
+	select LOG
 	help
 	  This provides access to logging features. It allows the output of
 	  log data to be controlled to a limited extent (setting up the default
