@@ -827,14 +827,6 @@ int vprintf(const char *fmt, va_list args)
 }
 #endif
 
-void __assert_fail(const char *assertion, const char *file, unsigned line,
-		   const char *function)
-{
-	/* This will not return */
-	panic("%s:%u: %s: Assertion `%s' failed.", file, line, function,
-	      assertion);
-}
-
 char *simple_itoa(ulong i)
 {
 	/* 21 digits plus null terminator, good for 64-bit or smaller ints */
