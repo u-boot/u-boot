@@ -19,8 +19,6 @@
 #define	CONFIG_SYS_TIMER_BASE		0xff810020 /* TIMER7 */
 #define CONFIG_SYS_TIMER_COUNTER	(CONFIG_SYS_TIMER_BASE + 8)
 
-#define CONFIG_SYS_NS16550_MEM32
-
 #ifdef CONFIG_SPL_ROCKCHIP_BACK_TO_BROM
 /* Bootrom will load u-boot binary to 0x0 once return from SPL */
 #endif

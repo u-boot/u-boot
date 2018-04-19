@@ -103,7 +103,6 @@ config ROCKCHIP_RK3368
 	imply SPL_SERIAL_SUPPORT
 	imply TPL_SERIAL_SUPPORT
 	select DEBUG_UART_BOARD_INIT
-	select SYS_NS16550
 	help
 	  The Rockchip RK3368 is a ARM-based SoC with a octa-core (organised
 	  into a big and little cluster with 4 cores each) Cortex-A53 including
