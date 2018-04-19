@@ -708,13 +708,7 @@ int device_set_name(struct udevice *dev, const char *name)
 
 bool device_is_compatible(struct udevice *dev, const char *compat)
 {
-	const void *fdt = gd->fdt_blob;
-	ofnode node = dev_ofnode(dev);
-
-	if (ofnode_is_np(node))
-		return of_device_is_compatible(ofnode_to_np(node), compat, NULL, NULL);
-	else
-		return !fdt_node_check_compatible(fdt, ofnode_to_offset(node), compat);
+	return ofnode_device_is_compatible(dev_ofnode(dev), compat);
 }
 
 bool of_machine_is_compatible(const char *compat)

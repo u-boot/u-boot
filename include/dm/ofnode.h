@@ -680,4 +680,15 @@ int ofnode_read_resource_byname(ofnode node, const char *name,
  * @return the translated address; OF_BAD_ADDR on error
  */
 u64 ofnode_translate_address(ofnode node, const fdt32_t *in_addr);
+
+/**
+ * ofnode_device_is_compatible() - check if the node is compatible with compat
+ *
+ * This allows to check whether the node is comaptible with the compat.
+ *
+ * @node:	Device tree node for which compatible needs to be verified.
+ * @compat:	Compatible string which needs to verified in the given node.
+ * @return true if OK, false if the compatible is not found
+ */
+int ofnode_device_is_compatible(ofnode node, const char *compat);
 #endif
