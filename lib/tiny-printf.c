@@ -23,11 +23,6 @@ struct printf_info {
 	void (*putc)(struct printf_info *info, char ch);
 };
 
-static void putc_normal(struct printf_info *info, char ch)
-{
-	putc(ch);
-}
-
 static void out(struct printf_info *info, char c)
 {
 	*info->bf++ = c;
@@ -321,6 +316,12 @@ abort:
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(PRINTF)
+static void putc_normal(struct printf_info *info, char ch)
+{
+	putc(ch);
+}
+
 int vprintf(const char *fmt, va_list va)
 {
 	struct printf_info info;
@@ -343,6 +344,7 @@ int printf(const char *fmt, ...)
 
 	return ret;
 }
+#endif
 
 static void putc_outstr(struct printf_info *info, char ch)
 {

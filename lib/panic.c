@@ -37,9 +37,11 @@ void panic_str(const char *str)
 
 void panic(const char *fmt, ...)
 {
+#if CONFIG_IS_ENABLED(PRINTF)
 	va_list args;
 	va_start(args, fmt);
 	vprintf(fmt, args);
 	va_end(args);
+#endif
 	panic_finish();
 }
