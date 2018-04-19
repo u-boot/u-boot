@@ -243,9 +243,11 @@ static struct emif_regs ddr3_icev2_emif_reg_data = {
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)
 {
+#ifdef CONFIG_SPL_SERIAL_SUPPORT
 	/* break into full u-boot on 'c' */
 	if (serial_tstc() && serial_getc() == 'c')
 		return 1;
+#endif
 
 #ifdef CONFIG_SPL_ENV_SUPPORT
 	env_init();
