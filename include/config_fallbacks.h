@@ -46,14 +46,6 @@
 #define CONFIG_SYS_MAXARGS	16
 #endif
 
-#ifndef CONFIG_FIT_SIGNATURE
-#define CONFIG_IMAGE_FORMAT_LEGACY
-#endif
-
-#ifdef CONFIG_DISABLE_IMAGE_LEGACY
-#undef CONFIG_IMAGE_FORMAT_LEGACY
-#endif
-
 #ifdef CONFIG_DM_I2C
 # ifdef CONFIG_SYS_I2C
 #  error "Cannot define CONFIG_SYS_I2C when CONFIG_DM_I2C is used"

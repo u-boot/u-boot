@@ -23,8 +23,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
-#define CONFIG_IMAGE_FORMAT_LEGACY
-
 /* general purpose I/O */
 #define CONFIG_AT91_GPIO
 

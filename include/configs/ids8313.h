@@ -506,6 +506,4 @@
 /* UBI Support */
 #define CONFIG_MTD_PARTITIONS
 
-#define CONFIG_IMAGE_FORMAT_LEGACY
-
 #endif	/* __CONFIG_H */

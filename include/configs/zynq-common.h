@@ -263,9 +263,6 @@
 					GENERATED_GBL_DATA_SIZE)
 
 
-/* FIT support */
-#define CONFIG_IMAGE_FORMAT_LEGACY /* enable also legacy image format */
-
 /* Extend size of kernel image for uncompression */
 #define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
 
