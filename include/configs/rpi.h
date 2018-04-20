@@ -90,6 +90,14 @@
 	"stdout=serial,vidconsole\0" \
 	"stderr=serial,vidconsole\0"
 
+#ifdef CONFIG_ARM64
+#define FDT_HIGH "ffffffffffffffff"
+#define INITRD_HIGH "ffffffffffffffff"
+#else
+#define FDT_HIGH "ffffffff"
+#define INITRD_HIGH "ffffffff"
+#endif
+
 /*
  * Memory layout for where various images get loaded by boot scripts:
  *
@@ -132,8 +140,8 @@
  * large initrds before they start colliding with U-Boot.
  */
 #define ENV_MEM_LAYOUT_SETTINGS \
-	"fdt_high=ffffffff\0" \
-	"initrd_high=ffffffff\0" \
+	"fdt_high=" FDT_HIGH "\0" \
+	"initrd_high=" INITRD_HIGH "\0" \
 	"kernel_addr_r=0x00080000\0" \
 	"scriptaddr=0x02400000\0" \
 	"pxefile_addr_r=0x02500000\0" \
