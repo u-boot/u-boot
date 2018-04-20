@@ -43,9 +43,18 @@ static int stm32_serial_getc(struct udevice *dev)
 	struct stm32x7_serial_platdata *plat = dev_get_platdata(dev);
 	bool stm32f4 = plat->uart_info->stm32f4;
 	fdt_addr_t base = plat->base;
+	u32 isr = readl(base + ISR_OFFSET(stm32f4));
 
-	if ((readl(base + ISR_OFFSET(stm32f4)) & USART_SR_FLAG_RXNE) == 0)
+	if ((isr & USART_SR_FLAG_RXNE) == 0)
 		return -EAGAIN;
+
+	if (isr & USART_SR_FLAG_ORE) {
+		if (!stm32f4)
+			setbits_le32(base + ICR_OFFSET, USART_ICR_OREF);
+		else
+			readl(base + RDR_OFFSET(stm32f4));
+		return -EIO;
+	}
 
 	return readl(base + RDR_OFFSET(stm32f4));
 }
@@ -107,11 +116,9 @@ static int stm32_serial_probe(struct udevice *dev)
 		return plat->clock_rate;
 	};
 
-	/* Disable uart-> disable overrun-> enable uart */
+	/* Disable uart-> enable fifo-> enable uart */
 	clrbits_le32(base + CR1_OFFSET(stm32f4), USART_CR1_RE | USART_CR1_TE |
 		     BIT(uart_enable_bit));
-	if (plat->uart_info->has_overrun_disable)
-		setbits_le32(base + CR3_OFFSET(stm32f4), USART_CR3_OVRDIS);
 	if (plat->uart_info->has_fifo)
 		setbits_le32(base + CR1_OFFSET(stm32f4), USART_CR1_FIFOEN);
 	setbits_le32(base + CR1_OFFSET(stm32f4), USART_CR1_RE | USART_CR1_TE |
