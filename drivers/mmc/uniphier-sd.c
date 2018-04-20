@@ -32,6 +32,31 @@ static const struct udevice_id uniphier_sd_match[] = {
 
 static int uniphier_sd_probe(struct udevice *dev)
 {
+	struct tmio_sd_priv *priv = dev_get_priv(dev);
+	struct clk clk;
+	int ret;
+
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret < 0) {
+		dev_err(dev, "failed to get host clock\n");
+		return ret;
+	}
+
+	/* set to max rate */
+	priv->mclk = clk_set_rate(&clk, ULONG_MAX);
+	if (IS_ERR_VALUE(priv->mclk)) {
+		dev_err(dev, "failed to set rate for host clock\n");
+		clk_free(&clk);
+		return priv->mclk;
+	}
+
+	ret = clk_enable(&clk);
+	clk_free(&clk);
+	if (ret) {
+		dev_err(dev, "failed to enable host clock\n");
+		return ret;
+	}
+
 	return tmio_sd_probe(dev, 0);
 }
 
