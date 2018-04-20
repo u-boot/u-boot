@@ -165,12 +165,21 @@ static int write_cr(struct spi_flash *flash, u8 wc)
 static int clean_bar(struct spi_flash *flash)
 {
 	u8 cmd, bank_sel = 0;
+	int ret;
 
 	if (flash->bank_curr == 0)
 		return 0;
 	cmd = flash->bank_write_cmd;
 
-	return spi_flash_write_common(flash, &cmd, 1, &bank_sel, 1);
+	ret = spi_flash_write_common(flash, &cmd, 1, &bank_sel, 1);
+	if (ret) {
+		debug("SF: fail to write bank register\n");
+		return ret;
+	}
+
+	flash->bank_curr = bank_sel;
+
+	return ret;
 }
 
 static int write_bar(struct spi_flash *flash, u32 offset)
