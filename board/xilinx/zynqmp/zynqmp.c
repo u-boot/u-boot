@@ -405,7 +405,15 @@ unsigned long do_go_exec(ulong (*entry)(int, char * const []), int argc,
 #if !defined(CONFIG_SYS_SDRAM_BASE) && !defined(CONFIG_SYS_SDRAM_SIZE)
 int dram_init_banksize(void)
 {
-	return fdtdec_setup_memory_banksize();
+	int ret;
+
+	ret = fdtdec_setup_memory_banksize();
+	if (ret)
+		return ret;
+
+	mem_map_fill();
+
+	return 0;
 }
 
 int dram_init(void)
@@ -416,6 +424,18 @@ int dram_init(void)
 	return 0;
 }
 #else
+int dram_init_banksize(void)
+{
+#if defined(CONFIG_NR_DRAM_BANKS)
+	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].size = get_effective_memsize();
+#endif
+
+	mem_map_fill();
+
+	return 0;
+}
+
 int dram_init(void)
 {
 	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
