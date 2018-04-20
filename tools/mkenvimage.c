@@ -168,7 +168,7 @@ int main(int argc, char **argv)
 				return EXIT_FAILURE;
 			}
 			readbytes = read(txt_fd, filebuf + filesize, readlen);
-			if (errno) {
+			if (readbytes < 0) {
 				fprintf(stderr, "Error while reading stdin: %s\n",
 						strerror(errno));
 				return EXIT_FAILURE;
