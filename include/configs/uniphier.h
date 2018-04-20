@@ -186,6 +186,7 @@
 		"setexpr tmp_addr $nor_base + 0x70000 && " \
 		"tftpboot $tmp_addr $third_image\0" \
 	"emmcupdate=mmcsetn &&"					\
+		"mmc dev $mmc_first_dev &&"			\
 		"mmc partconf $mmc_first_dev 0 1 1 &&"		\
 		"tftpboot $second_image && " \
 		"mmc write $loadaddr 0 100 && " \
