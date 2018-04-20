@@ -33,6 +33,7 @@ static const struct udevice_id uniphier_sd_match[] = {
 static int uniphier_sd_probe(struct udevice *dev)
 {
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
+#ifndef CONFIG_SPL_BUILD
 	struct clk clk;
 	int ret;
 
@@ -56,6 +57,9 @@ static int uniphier_sd_probe(struct udevice *dev)
 		dev_err(dev, "failed to enable host clock\n");
 		return ret;
 	}
+#else
+	priv->mclk = 100000000;
+#endif
 
 	return tmio_sd_probe(dev, 0);
 }
