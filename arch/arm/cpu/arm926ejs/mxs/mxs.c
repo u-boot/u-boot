@@ -178,8 +178,7 @@ const char *get_imx_type(u32 imxtype)
 int print_cpuinfo(void)
 {
 	u32 cpurev;
-	struct mxs_spl_data *data = (struct mxs_spl_data *)
-		((CONFIG_SYS_TEXT_BASE - sizeof(struct mxs_spl_data)) & ~0xf);
+	struct mxs_spl_data *data = MXS_SPL_DATA;
 
 	cpurev = get_cpu_rev();
 	printf("CPU:   Freescale i.MX%s rev%d.%d at %d MHz\n",
@@ -277,8 +276,7 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 
 int mxs_dram_init(void)
 {
-	struct mxs_spl_data *data = (struct mxs_spl_data *)
-		((CONFIG_SYS_TEXT_BASE - sizeof(struct mxs_spl_data)) & ~0xf);
+	struct mxs_spl_data *data = MXS_SPL_DATA;
 
 	if (data->mem_dram_size == 0) {
 		printf("MXS:\n"
