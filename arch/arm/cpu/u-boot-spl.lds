@@ -21,6 +21,7 @@ SECTIONS
 		*(.vectors)
 		CPUDIR/start.o (.text*)
 		*(.text*)
+		*(.glue*)
 	}
 
 	. = ALIGN(4);
