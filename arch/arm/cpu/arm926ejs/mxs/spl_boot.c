@@ -146,6 +146,7 @@ void mxs_common_spl_init(const uint32_t arg, const uint32_t *resptr,
 	}
 }
 
+#ifndef CONFIG_SPL_FRAMEWORK
 /* Support aparatus */
 inline void board_init_f(unsigned long bootflag)
 {
@@ -158,3 +159,4 @@ inline void board_init_r(gd_t *id, ulong dest_addr)
 	for (;;)
 		;
 }
+#endif
