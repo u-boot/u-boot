@@ -339,6 +339,12 @@ config SYS_OMAP24_I2C_SPEED
 	  OMAP24xx Slave speed channel 0
 endif
 
+config SYS_I2C_RCAR_I2C
+	bool "Renesas RCar I2C driver"
+	depends on (RCAR_GEN3 || RCAR_GEN2) && DM_I2C
+	help
+	  Support for Renesas RCar I2C controller.
+
 config SYS_I2C_RCAR_IIC
 	bool "Renesas RCar Gen3 IIC driver"
 	depends on (RCAR_GEN3 || RCAR_GEN2) && DM_I2C
