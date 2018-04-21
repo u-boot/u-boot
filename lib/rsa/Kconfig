@@ -13,14 +13,14 @@ config RSA
 	  option. The software based modular exponentiation is built into
 	  mkimage irrespective of this option.
 
+if RSA
+
 config SPL_RSA
 	bool "Use RSA Library within SPL"
-	depends on RSA
 
-if RSA
 config RSA_SOFTWARE_EXP
 	bool "Enable driver for RSA Modular Exponentiation in software"
-	depends on DM && RSA
+	depends on DM
 	help
 	  Enables driver for modular exponentiation in software. This is a RSA
 	  algorithm used in FIT image verification. It required RSA Key as
@@ -29,7 +29,7 @@ config RSA_SOFTWARE_EXP
 
 config RSA_FREESCALE_EXP
 	bool "Enable RSA Modular Exponentiation with FSL crypto accelerator"
-	depends on DM && RSA && FSL_CAAM && !ARCH_MX7 && !ARCH_MX6 && !ARCH_MX5
+	depends on DM && FSL_CAAM && !ARCH_MX7 && !ARCH_MX6 && !ARCH_MX5
 	help
 	Enables driver for RSA modular exponentiation using Freescale cryptographic
 	accelerator - CAAM.
