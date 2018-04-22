@@ -114,7 +114,7 @@ void reset_cpu(ulong addr)
 {
 	struct udevice *dev;
 	const u8 pmic_bus = 1;
-	const u8 pmic_addr = 0x58;
+	const u8 pmic_addr = 0x5a;
 	u8 data;
 	int ret;
 
