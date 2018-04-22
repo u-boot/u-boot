@@ -23,9 +23,8 @@ PLATFORM_RELFLAGS += $(call cc-option, -msoft-float) \
       $(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))
 
 # LLVM support
-LLVMS_RELFLAGS		:= $(call cc-option,-mllvm,) \
-			$(call cc-option,-target arm-none-eabi,) \
-			$(call cc-option,-arm-use-movt=0,)
+LLVM_RELFLAGS		:= $(call cc-option,-mllvm,) \
+			$(call cc-option,-mno-movt,)
 PLATFORM_RELFLAGS	+= $(LLVM_RELFLAGS)
 
 PLATFORM_CPPFLAGS += -D__ARM__
