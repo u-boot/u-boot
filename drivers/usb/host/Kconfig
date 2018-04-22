@@ -23,7 +23,8 @@ config USB_XHCI_DWC3
 
 config USB_XHCI_DWC3_OF_SIMPLE
 	bool "DesignWare USB3 DRD Generic OF Simple Glue Layer"
-	select MISC
+	depends on DM_USB
+	default y if DRA7XX
 	help
 	  Support USB2/3 functionality in simple SoC integrations with
 	  USB controller based on the DesignWare USB3 IP Core.
