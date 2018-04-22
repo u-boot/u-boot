@@ -8,3 +8,7 @@
 
 #include "r8a7794-silk.dts"
 #include "r8a7794-u-boot.dtsi"
+
+&scif2 {
+	u-boot,dm-pre-reloc;
+};

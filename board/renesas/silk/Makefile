@@ -7,4 +7,8 @@
 # SPDX-License-Identifier: GPL-2.0
 #
 
-obj-y	:= silk.o qos.o ../rcar-common/common.o
+ifdef CONFIG_SPL_BUILD
+obj-y	:= silk_spl.o
+else
+obj-y	:= silk.o qos.o
+endif
