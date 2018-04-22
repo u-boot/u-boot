@@ -11,11 +11,7 @@ void reset_cpu(ulong addr);
 void socfpga_per_reset(u32 reset, int set);
 void socfpga_per_reset_all(void);
 
-#if defined(CONFIG_SOCFPGA_VIRTUAL_TARGET)
-#define RSTMGR_CTRL_SWWARMRSTREQ_LSB 2
-#else
 #define RSTMGR_CTRL_SWWARMRSTREQ_LSB 1
-#endif
 
 /*
  * Define a reset identifier, from which a permodrst bank ID

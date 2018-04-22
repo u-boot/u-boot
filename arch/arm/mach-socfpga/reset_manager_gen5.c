@@ -69,14 +69,6 @@ void reset_deassert_peripherals_handoff(void)
 	writel(0, &reset_manager_base->per_mod_reset);
 }
 
-#if defined(CONFIG_SOCFPGA_VIRTUAL_TARGET)
-void socfpga_bridges_reset(int enable)
-{
-	/* For SoCFPGA-VT, this is NOP. */
-	return;
-}
-#else
-
 #define L3REGS_REMAP_LWHPS2FPGA_MASK	0x10
 #define L3REGS_REMAP_HPS2FPGA_MASK	0x08
 #define L3REGS_REMAP_OCRAM_MASK		0x01
@@ -110,4 +102,3 @@ void socfpga_bridges_reset(int enable)
 	}
 	return;
 }
-#endif

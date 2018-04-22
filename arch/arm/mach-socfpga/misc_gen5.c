@@ -264,12 +264,8 @@ int arch_early_init_r(void)
 	setbits_le32(&scu_regs->sacr, 0xfff);
 
 	/* Configure the L2 controller to make SDRAM start at 0 */
-#ifdef CONFIG_SOCFPGA_VIRTUAL_TARGET
-	writel(0x2, &nic301_regs->remap);
-#else
 	writel(0x1, &nic301_regs->remap);	/* remap.mpuzero */
 	writel(0x1, &pl310->pl310_addr_filter_start);
-#endif
 
 	/* Add device descriptor to FPGA device table */
 	socfpga_fpga_add();

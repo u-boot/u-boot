@@ -5,9 +5,6 @@
 #ifndef __CONFIG_SOCFPGA_COMMON_H__
 #define __CONFIG_SOCFPGA_COMMON_H__
 
-/* Virtual target or real hardware */
-#undef CONFIG_SOCFPGA_VIRTUAL_TARGET
-
 /*
  * High level configuration
  */
@@ -76,7 +73,7 @@
 /*
  * Ethernet on SoC (EMAC)
  */
-#if defined(CONFIG_CMD_NET) && !defined(CONFIG_SOCFPGA_VIRTUAL_TARGET)
+#ifdef CONFIG_CMD_NET
 #define CONFIG_DW_ALTDESCRIPTOR
 #define CONFIG_MII
 #endif
@@ -95,11 +92,7 @@
 #define CONFIG_SYS_TIMERBASE		SOCFPGA_OSC1TIMER0_ADDRESS
 #define CONFIG_SYS_TIMER_COUNTS_DOWN
 #define CONFIG_SYS_TIMER_COUNTER	(CONFIG_SYS_TIMERBASE + 0x4)
-#ifdef CONFIG_SOCFPGA_VIRTUAL_TARGET
-#define CONFIG_SYS_TIMER_RATE		2400000
-#else
 #define CONFIG_SYS_TIMER_RATE		25000000
-#endif
 
 /*
  * L4 Watchdog
@@ -181,9 +174,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
  */
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	-4
-#ifdef CONFIG_SOCFPGA_VIRTUAL_TARGET
-#define CONFIG_SYS_NS16550_CLK		1000000
-#elif defined(CONFIG_TARGET_SOCFPGA_GEN5)
+#if defined(CONFIG_TARGET_SOCFPGA_GEN5)
 #define CONFIG_SYS_NS16550_COM1		SOCFPGA_UART0_ADDRESS
 #define CONFIG_SYS_NS16550_CLK		100000000
 #elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10)

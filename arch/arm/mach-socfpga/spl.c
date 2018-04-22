@@ -78,9 +78,7 @@ static void socfpga_nic301_slave_ns(void)
 
 void board_init_f(ulong dummy)
 {
-#ifndef CONFIG_SOCFPGA_VIRTUAL_TARGET
 	const struct cm_config *cm_default_cfg = cm_get_default_config();
-#endif
 	unsigned long sdram_size;
 	unsigned long reg;
 
@@ -107,7 +105,6 @@ void board_init_f(ulong dummy)
 	writel(0x1, &nic301_regs->remap);	/* remap.mpuzero */
 	writel(0x1, &pl310->pl310_addr_filter_start);
 
-#ifndef CONFIG_SOCFPGA_VIRTUAL_TARGET
 	debug("Freezing all I/O banks\n");
 	/* freeze all IO banks */
 	sys_mgr_frzctrl_freeze_req();
@@ -141,8 +138,6 @@ void board_init_f(ulong dummy)
 	sysmgr_config_warmrstcfgio(1);
 	sysmgr_pinmux_init();
 	sysmgr_config_warmrstcfgio(0);
-
-#endif /* CONFIG_SOCFPGA_VIRTUAL_TARGET */
 
 	/* De-assert reset for peripherals and bridges based on handoff */
 	reset_deassert_peripherals_handoff();
