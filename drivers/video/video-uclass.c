@@ -272,7 +272,7 @@ static int video_post_bind(struct udevice *dev)
 	ulong size;
 
 	/* Before relocation there is nothing to do here */
-	if ((!gd->flags & GD_FLG_RELOC))
+	if (!(gd->flags & GD_FLG_RELOC))
 		return 0;
 	size = alloc_fb(dev, &addr);
 	if (addr < gd->video_bottom) {
