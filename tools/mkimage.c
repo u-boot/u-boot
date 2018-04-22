@@ -301,6 +301,8 @@ static void process_args(int argc, char **argv)
 		else if (!params.datafile)
 			usage("Missing data file for auto-FIT (use -d)");
 	} else if (type != IH_TYPE_INVALID) {
+		if (type == IH_TYPE_SCRIPT && !params.datafile)
+			usage("Missing data file for script (use -d)");
 		params.type = type;
 	}
 
