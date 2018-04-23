@@ -26,6 +26,13 @@
 	.globl	__secondary_start_page
 	.align	12
 __secondary_start_page:
+#ifdef CONFIG_SYS_FSL_ERRATUM_A005125
+	msync
+	isync
+	mfspr	r3, SPRN_HDBCR0
+	oris	r3, r3, 0x0080
+	mtspr	SPRN_HDBCR0, r3
+#endif
 /* First do some preliminary setup */
 	lis	r3, HID0_EMCP@h		/* enable machine check */
 #ifndef CONFIG_E500MC
