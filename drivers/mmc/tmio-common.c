@@ -713,7 +713,6 @@ int tmio_sd_probe(struct udevice *dev, u32 quirks)
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	fdt_addr_t base;
-	struct clk clk;
 	int ret;
 
 	base = devfdt_get_addr(dev);
@@ -727,27 +726,6 @@ int tmio_sd_probe(struct udevice *dev, u32 quirks)
 #ifdef CONFIG_DM_REGULATOR
 	device_get_supply_regulator(dev, "vqmmc-supply", &priv->vqmmc_dev);
 #endif
-
-	ret = clk_get_by_index(dev, 0, &clk);
-	if (ret < 0) {
-		dev_err(dev, "failed to get host clock\n");
-		return ret;
-	}
-
-	/* set to max rate */
-	priv->mclk = clk_set_rate(&clk, ULONG_MAX);
-	if (IS_ERR_VALUE(priv->mclk)) {
-		dev_err(dev, "failed to set rate for host clock\n");
-		clk_free(&clk);
-		return priv->mclk;
-	}
-
-	ret = clk_enable(&clk);
-	clk_free(&clk);
-	if (ret) {
-		dev_err(dev, "failed to enable host clock\n");
-		return ret;
-	}
 
 	ret = mmc_of_parse(dev, &plat->cfg);
 	if (ret < 0) {

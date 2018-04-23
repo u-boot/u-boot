@@ -330,8 +330,10 @@ static const struct udevice_id renesas_sdhi_match[] = {
 
 static int renesas_sdhi_probe(struct udevice *dev)
 {
+	struct tmio_sd_priv *priv = dev_get_priv(dev);
 	u32 quirks = dev_get_driver_data(dev);
 	struct fdt_resource reg_res;
+	struct clk clk;
 	DECLARE_GLOBAL_DATA_PTR;
 	int ret;
 
@@ -346,6 +348,27 @@ static int renesas_sdhi_probe(struct udevice *dev)
 
 		if (fdt_resource_size(&reg_res) == 0x100)
 			quirks |= TMIO_SD_CAP_16BIT;
+	}
+
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret < 0) {
+		dev_err(dev, "failed to get host clock\n");
+		return ret;
+	}
+
+	/* set to max rate */
+	priv->mclk = clk_set_rate(&clk, ULONG_MAX);
+	if (IS_ERR_VALUE(priv->mclk)) {
+		dev_err(dev, "failed to set rate for host clock\n");
+		clk_free(&clk);
+		return priv->mclk;
+	}
+
+	ret = clk_enable(&clk);
+	clk_free(&clk);
+	if (ret) {
+		dev_err(dev, "failed to enable host clock\n");
+		return ret;
 	}
 
 	ret = tmio_sd_probe(dev, quirks);
