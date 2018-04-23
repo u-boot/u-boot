@@ -149,7 +149,7 @@ static struct efi_object *find_obj(struct efi_device_path *dp, bool short_path,
 				   struct efi_device_path **rem)
 {
 	struct efi_object *efiobj;
-	unsigned int dp_size = efi_dp_size(dp);
+	efi_uintn_t dp_size = efi_dp_instance_size(dp);
 
 	list_for_each_entry(efiobj, &efi_obj_list, link) {
 		struct efi_handler *handler;
@@ -170,11 +170,12 @@ static struct efi_object *find_obj(struct efi_device_path *dp, bool short_path,
 					 * the caller.
 					 */
 					*rem = ((void *)dp) +
-						efi_dp_size(obj_dp);
+						efi_dp_instance_size(obj_dp);
 					return efiobj;
 				} else {
 					/* Only return on exact matches */
-					if (efi_dp_size(obj_dp) == dp_size)
+					if (efi_dp_instance_size(obj_dp) ==
+					    dp_size)
 						return efiobj;
 				}
 			}
@@ -229,11 +230,13 @@ const struct efi_device_path *efi_dp_last_node(const struct efi_device_path *dp)
 	return ret;
 }
 
-/* return size not including End node: */
-unsigned efi_dp_size(const struct efi_device_path *dp)
+/* get size of the first device path instance excluding end node */
+efi_uintn_t efi_dp_instance_size(const struct efi_device_path *dp)
 {
-	unsigned sz = 0;
+	efi_uintn_t sz = 0;
 
+	if (!dp || dp->type == DEVICE_PATH_TYPE_END)
+		return 0;
 	while (dp) {
 		sz += dp->length;
 		dp = efi_dp_next(dp);
@@ -242,10 +245,25 @@ unsigned efi_dp_size(const struct efi_device_path *dp)
 	return sz;
 }
 
+/* get size of multi-instance device path excluding end node */
+efi_uintn_t efi_dp_size(const struct efi_device_path *dp)
+{
+	const struct efi_device_path *p = dp;
+
+	if (!p)
+		return 0;
+	while (p->type != DEVICE_PATH_TYPE_END ||
+	       p->sub_type != DEVICE_PATH_SUB_TYPE_END)
+		p = (void *)p + p->length;
+
+	return (void *)p - (void *)dp;
+}
+
+/* copy multi-instance device path */
 struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp)
 {
 	struct efi_device_path *ndp;
-	unsigned sz = efi_dp_size(dp) + sizeof(END);
+	size_t sz = efi_dp_size(dp) + sizeof(END);
 
 	if (!dp)
 		return NULL;
@@ -263,7 +281,10 @@ struct efi_device_path *efi_dp_append(const struct efi_device_path *dp1,
 {
 	struct efi_device_path *ret;
 
-	if (!dp1) {
+	if (!dp1 && !dp2) {
+		/* return an end node */
+		ret = efi_dp_dup(&END);
+	} else if (!dp1) {
 		ret = efi_dp_dup(dp2);
 	} else if (!dp2) {
 		ret = efi_dp_dup(dp1);
@@ -275,8 +296,8 @@ struct efi_device_path *efi_dp_append(const struct efi_device_path *dp1,
 		if (!p)
 			return NULL;
 		memcpy(p, dp1, sz1);
-		memcpy(p + sz1, dp2, sz2);
-		memcpy(p + sz1 + sz2, &END, sizeof(END));
+		/* the end node of the second device path has to be retained */
+		memcpy(p + sz1, dp2, sz2 + sizeof(END));
 		ret = p;
 	}
 
@@ -293,7 +314,7 @@ struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
 	} else if (!node) {
 		ret = efi_dp_dup(dp);
 	} else if (!dp) {
-		unsigned sz = node->length;
+		size_t sz = node->length;
 		void *p = dp_alloc(sz + sizeof(END));
 		if (!p)
 			return NULL;
@@ -302,7 +323,7 @@ struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
 		ret = p;
 	} else {
 		/* both dp and node are non-null */
-		unsigned sz = efi_dp_size(dp);
+		size_t sz = efi_dp_size(dp);
 		void *p = dp_alloc(sz + node->length + sizeof(END));
 		if (!p)
 			return NULL;
@@ -313,6 +334,85 @@ struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
 	}
 
 	return ret;
+}
+
+struct efi_device_path *efi_dp_create_device_node(const u8 type,
+						  const u8 sub_type,
+						  const u16 length)
+{
+	struct efi_device_path *ret;
+
+	ret = dp_alloc(length);
+	if (!ret)
+		return ret;
+	ret->type = type;
+	ret->sub_type = sub_type;
+	ret->length = length;
+	return ret;
+}
+
+struct efi_device_path *efi_dp_append_instance(
+		const struct efi_device_path *dp,
+		const struct efi_device_path *dpi)
+{
+	size_t sz, szi;
+	struct efi_device_path *p, *ret;
+
+	if (!dpi)
+		return NULL;
+	if (!dp)
+		return efi_dp_dup(dpi);
+	sz = efi_dp_size(dp);
+	szi = efi_dp_instance_size(dpi);
+	p = dp_alloc(sz + szi + 2 * sizeof(END));
+	if (!p)
+		return NULL;
+	ret = p;
+	memcpy(p, dp, sz + sizeof(END));
+	p = (void *)p + sz;
+	p->sub_type = DEVICE_PATH_SUB_TYPE_INSTANCE_END;
+	p = (void *)p + sizeof(END);
+	memcpy(p, dpi, szi);
+	p = (void *)p + szi;
+	memcpy(p, &END, sizeof(END));
+	return ret;
+}
+
+struct efi_device_path *efi_dp_get_next_instance(struct efi_device_path **dp,
+						 efi_uintn_t *size)
+{
+	size_t sz;
+	struct efi_device_path *p;
+
+	if (size)
+		*size = 0;
+	if (!dp || !*dp)
+		return NULL;
+	p = *dp;
+	sz = efi_dp_instance_size(*dp);
+	p = dp_alloc(sz + sizeof(END));
+	if (!p)
+		return NULL;
+	memcpy(p, *dp, sz + sizeof(END));
+	*dp = (void *)*dp + sz;
+	if ((*dp)->sub_type == DEVICE_PATH_SUB_TYPE_INSTANCE_END)
+		*dp = (void *)*dp + sizeof(END);
+	else
+		*dp = NULL;
+	if (size)
+		*size = sz + sizeof(END);
+	return p;
+}
+
+bool efi_dp_is_multi_instance(const struct efi_device_path *dp)
+{
+	const struct efi_device_path *p = dp;
+
+	if (!p)
+		return false;
+	while (p->type != DEVICE_PATH_TYPE_END)
+		p = (void *)p + p->length;
+	return p->sub_type == DEVICE_PATH_SUB_TYPE_INSTANCE_END;
 }
 
 #ifdef CONFIG_DM

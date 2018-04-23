@@ -1,6 +1,8 @@
 config EFI_LOADER
 	bool "Support running EFI Applications in U-Boot"
 	depends on (ARM || X86) && OF_LIBFDT
+	# We do not support bootefi booting ARMv7 in non-secure mode
+	depends on !ARMV7_NONSEC
 	# We need EFI_STUB_64BIT to be set on x86_64 with EFI_STUB
 	depends on !EFI_STUB || !X86_64 || EFI_STUB_64BIT
 	# We need EFI_STUB_32BIT to be set on x86_32 with EFI_STUB

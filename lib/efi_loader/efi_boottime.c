@@ -2219,7 +2219,7 @@ static efi_status_t EFIAPI efi_locate_device_path(
 	}
 
 	/* Find end of device path */
-	len = efi_dp_size(*device_path);
+	len = efi_dp_instance_size(*device_path);
 
 	/* Get all handles implementing the protocol */
 	ret = EFI_CALL(efi_locate_handle_buffer(BY_PROTOCOL, protocol, NULL,
@@ -2234,7 +2234,7 @@ static efi_status_t EFIAPI efi_locate_device_path(
 		if (ret != EFI_SUCCESS)
 			continue;
 		dp = (struct efi_device_path *)handler->protocol_interface;
-		len_dp = efi_dp_size(dp);
+		len_dp = efi_dp_instance_size(dp);
 		/*
 		 * This handle can only be a better fit
 		 * if its device path length is longer than the best fit and

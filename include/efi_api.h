@@ -343,6 +343,7 @@ struct efi_loaded_image {
 		 0x8e, 0x39, 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b )
 
 #define DEVICE_PATH_TYPE_END			0x7f
+#  define DEVICE_PATH_SUB_TYPE_INSTANCE_END	0x01
 #  define DEVICE_PATH_SUB_TYPE_END		0xff
 
 struct efi_device_path {

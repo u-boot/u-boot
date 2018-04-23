@@ -324,13 +324,28 @@ int efi_dp_match(const struct efi_device_path *a,
 		 const struct efi_device_path *b);
 struct efi_object *efi_dp_find_obj(struct efi_device_path *dp,
 				   struct efi_device_path **rem);
-unsigned efi_dp_size(const struct efi_device_path *dp);
+/* get size of the first device path instance excluding end node */
+efi_uintn_t efi_dp_instance_size(const struct efi_device_path *dp);
+/* size of multi-instance device path excluding end node */
+efi_uintn_t efi_dp_size(const struct efi_device_path *dp);
 struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp);
 struct efi_device_path *efi_dp_append(const struct efi_device_path *dp1,
 				      const struct efi_device_path *dp2);
 struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
 					   const struct efi_device_path *node);
-
+/* Create a device path node of given type, sub-type, length */
+struct efi_device_path *efi_dp_create_device_node(const u8 type,
+						  const u8 sub_type,
+						  const u16 length);
+/* Append device path instance */
+struct efi_device_path *efi_dp_append_instance(
+		const struct efi_device_path *dp,
+		const struct efi_device_path *dpi);
+/* Get next device path instance */
+struct efi_device_path *efi_dp_get_next_instance(struct efi_device_path **dp,
+						 efi_uintn_t *size);
+/* Check if a device path contains muliple instances */
+bool efi_dp_is_multi_instance(const struct efi_device_path *dp);
 
 struct efi_device_path *efi_dp_from_dev(struct udevice *dev);
 struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part);
