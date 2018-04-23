@@ -104,4 +104,21 @@
 /* Increase max gunzip size */
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)
 
+/* When we use RAM as ENV */
+#define CONFIG_ENV_SIZE 0x2000
+
+/* Enable distro boot */
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(DHCP, dhcp, na)
+#include <config_distro_bootcmd.h>
+
+#define CONFIG_EXTRA_ENV_SETTINGS	\
+				"kernel_addr_r=0x00080000\0" \
+				"pxefile_addr_r=0x01f00000\0" \
+				"scriptaddr=0x01f00000\0" \
+				"fdt_addr_r=0x02000000\0" \
+				"ramdisk_addr_r=0x02800000\0" \
+				BOOTENV
+
 #endif /* __CONFIG_H */
