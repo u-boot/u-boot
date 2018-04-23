@@ -52,7 +52,7 @@ static struct hard_trap_info
 	{ 0x300, SIGSEGV },			/* address error (store) */
 	{ 0x400, SIGBUS },			/* instruction bus error */
 	{ 0x500, SIGINT },			/* interrupt */
-	{ 0x600, SIGBUS },			/* alingment */
+	{ 0x600, SIGBUS },			/* alignment */
 	{ 0x700, SIGTRAP },			/* breakpoint trap */
 	{ 0x800, SIGFPE },			/* fpu unavail */
 	{ 0x900, SIGALRM },			/* decrementer */
