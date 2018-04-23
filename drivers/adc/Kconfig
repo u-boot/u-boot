@@ -29,6 +29,16 @@ config ADC_SANDBOX
 	  - 16-bit resolution
 	  - single and multi-channel conversion mode
 
+config SARADC_MESON
+	bool "Enable Amlogic Meson SARADC driver"
+	imply REGMAP
+	help
+	  This enables driver for Amlogic Meson SARADC.
+	  It provides:
+	  - 8 analog input channels
+	  - 1O or 12 bits resolution
+	  - Up to 1MSPS of sample rate
+
 config SARADC_ROCKCHIP
 	bool "Enable Rockchip SARADC driver"
 	help
