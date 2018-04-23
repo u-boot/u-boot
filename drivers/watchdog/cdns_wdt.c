@@ -25,7 +25,6 @@ struct cdns_regs {
 struct cdns_wdt_priv {
 	bool rst;
 	u32 timeout;
-	void __iomem *reg;
 	struct cdns_regs *regs;
 };
 
@@ -224,11 +223,7 @@ static int cdns_wdt_stop(struct udevice *dev)
  */
 static int cdns_wdt_probe(struct udevice *dev)
 {
-	struct cdns_wdt_priv *priv = dev_get_priv(dev);
-
 	debug("%s: Probing wdt%u\n", __func__, dev->seq);
-
-	priv->reg = ioremap((u32)priv->regs, sizeof(struct cdns_regs));
 
 	cdns_wdt_stop(dev);
 

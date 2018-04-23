@@ -36,6 +36,7 @@ config ZYNQ_DDRC_INIT
 	  want to skip ddr init and this option is useful for it.
 
 config SYS_BOARD
+	string "Board name"
 	default "zynq"
 
 config SYS_VENDOR
