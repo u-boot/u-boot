@@ -17,6 +17,7 @@ static int dm_test_regmap_base(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 	struct regmap *map;
+	ofnode node;
 	int i;
 
 	ut_assertok(uclass_get_device(UCLASS_SYSCON, 0, &dev));
@@ -44,6 +45,22 @@ static int dm_test_regmap_base(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_I2C, 0, &dev));
 	map = syscon_get_regmap(dev);
 	ut_asserteq_ptr(ERR_PTR(-ENOEXEC), map);
+
+	/* A different device can be a syscon by using Linux-compat API */
+	node = ofnode_path("/syscon@2");
+	ut_assert(ofnode_valid(node));
+
+	map = syscon_node_to_regmap(node);
+	ut_assertok_ptr(map);
+	ut_asserteq(4, map->range_count);
+	ut_asserteq(0x40, map->ranges[0].start);
+	for (i = 0; i < 4; i++) {
+		const unsigned long addr = 0x40 + 8 * i;
+
+		ut_asserteq(addr, map->ranges[i].start);
+		ut_asserteq(5 + i, map->ranges[i].size);
+		ut_asserteq(addr, map_to_sysmem(regmap_get_range(map, i)));
+	}
 
 	return 0;
 }
