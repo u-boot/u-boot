@@ -29,13 +29,6 @@ static efi_status_t __efi_runtime EFIAPI efi_unimplemented(void);
 static efi_status_t __efi_runtime EFIAPI efi_device_error(void);
 static efi_status_t __efi_runtime EFIAPI efi_invalid_parameter(void);
 
-#ifdef CONFIG_SYS_CACHELINE_SIZE
-#define EFI_CACHELINE_SIZE CONFIG_SYS_CACHELINE_SIZE
-#else
-/* Just use the greatest cache flush alignment requirement I'm aware of */
-#define EFI_CACHELINE_SIZE 128
-#endif
-
 #if defined(CONFIG_ARM64)
 #define R_RELATIVE	1027
 #define R_MASK		0xffffffffULL
