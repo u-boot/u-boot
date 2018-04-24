@@ -104,6 +104,7 @@ config ICH_SPI
 
 config MVEBU_A3700_SPI
 	bool "Marvell Armada 3700 SPI driver"
+	select CLK_ARMADA_3720
 	help
 	  Enable the Marvell Armada 3700 SPI driver. This driver can be
 	  used to access the SPI NOR flash on platforms embedding this

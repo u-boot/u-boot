@@ -301,8 +301,8 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				#clock-cells = <0>;
-				clock-frequency = <160000>;
-				spi-max-frequency = <40000>;
+				spi-max-frequency = <50000000>;
+				clocks = <&nb_periph_clk 7>;
 				status = "disabled";
 			};
 
