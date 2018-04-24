@@ -53,6 +53,14 @@
 		"root=PARTUUID=${uuid} rootwait rw\0" \
 	"ivt_offset=" __stringify(BOOTROM_IVT_HDR_OFFSET)"\0"\
 	"warp7_auth_or_fail=hab_auth_img_or_fail ${hab_ivt_addr} ${filesize} 0;\0" \
+	"do_bootscript_hab=" \
+		"if test ${hab_enabled} -eq 1; then " \
+			"setexpr hab_ivt_addr ${loadaddr} - ${ivt_offset}; " \
+			"setenv script ${script_signed}; " \
+			"load mmc ${mmcdev}:${mmcpart} ${hab_ivt_addr} ${script}; " \
+			"run warp7_auth_or_fail; " \
+			"run bootscript; "\
+		"fi;\0" \
 	"loadbootscript=" \
 		"load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
@@ -79,6 +87,7 @@
 #define CONFIG_BOOTCOMMAND \
 	   "mmc dev ${mmcdev};" \
 	   "mmc dev ${mmcdev}; if mmc rescan; then " \
+		   "run do_bootscript_hab;" \
 		   "if run loadbootscript; then " \
 			   "run bootscript; " \
 		   "else " \
