@@ -50,6 +50,7 @@
 	"finduuid=part uuid mmc 0:${rootpart} uuid\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=PARTUUID=${uuid} rootwait rw\0" \
+	"warp7_auth_or_fail=hab_auth_img_or_fail ${hab_ivt_addr} ${filesize} 0;\0" \
 	"loadbootscript=" \
 		"load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
