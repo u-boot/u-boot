@@ -181,7 +181,17 @@ int checkboard(void)
 	else
 		mode = "non-secure";
 
+#ifdef CONFIG_OPTEE_TZDRAM_SIZE
+	unsigned long optee_start, optee_end;
+
+	optee_end = PHYS_SDRAM + PHYS_SDRAM_SIZE;
+	optee_start = optee_end - CONFIG_OPTEE_TZDRAM_SIZE;
+
+	printf("Board: WARP7 in %s mode OPTEE DRAM 0x%08lx-0x%08lx\n",
+	       mode, optee_start, optee_end);
+#else
 	printf("Board: WARP7 in %s mode\n", mode);
+#endif
 
 	return 0;
 }
