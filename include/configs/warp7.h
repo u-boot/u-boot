@@ -139,4 +139,7 @@
 
 #define CONFIG_USBNET_DEV_ADDR		"de:ad:be:af:00:01"
 
+/* Environment variable name to represent HAB enable state */
+#define HAB_ENABLED_ENVNAME		"hab_enabled"
+
 #endif

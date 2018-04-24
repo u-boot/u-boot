@@ -10,6 +10,7 @@
 #include <asm/arch/mx7-pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
+#include <asm/mach-imx/hab.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/io.h>
@@ -202,6 +203,13 @@ int board_late_init(void)
 	 * since we use PMIC_PWRON to reset the board.
 	 */
 	clrsetbits_le16(&wdog->wcr, 0, 0x10);
+
+#ifdef CONFIG_SECURE_BOOT
+	/* Determine HAB state */
+	env_set_ulong(HAB_ENABLED_ENVNAME, imx_hab_is_enabled());
+#else
+	env_set_ulong(HAB_ENABLED_ENVNAME, 0);
+#endif
 
 #ifdef CONFIG_SERIAL_TAG
 	/* Set serial# standard environment variable based on OTP settings */
