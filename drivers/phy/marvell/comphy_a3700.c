@@ -382,19 +382,17 @@ static int comphy_usb3_power_up(u32 lane, u32 type, u32 speed, u32 invert)
 	/*
 	 * 3. Check crystal jumper setting and program the Power and PLL
 	 * Control accordingly
+	 * 4. Change RX wait
 	 */
 	if (get_ref_clk() == 40) {
 		/* 40 MHz */
 		usb3_reg_set16(PWR_PLL_CTRL, 0xFCA3, 0xFFFF, lane);
+		usb3_reg_set16(PWR_MGM_TIM1, 0x10C, 0xFFFF, lane);
 	} else {
 		/* 25 MHz */
 		usb3_reg_set16(PWR_PLL_CTRL, 0xFCA2, 0xFFFF, lane);
+		usb3_reg_set16(PWR_MGM_TIM1, 0x107, 0xFFFF, lane);
 	}
-
-	/*
-	 * 4. Change RX wait
-	 */
-	usb3_reg_set16(PWR_MGM_TIM1, 0x10C, 0xFFFF, lane);
 
 	/*
 	 * 5. Enable idle sync
