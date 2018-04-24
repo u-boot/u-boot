@@ -697,13 +697,15 @@ static void comphy_sgmii_phy_init(u32 lane, u32 speed)
 static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 {
 	int ret;
+	u32 saved_selector;
 
 	debug_enter();
 
 	/*
 	 * 1. Configure PHY to SATA/SAS mode by setting pin PIN_PIPE_SEL=0
 	 */
-	reg_set(COMPHY_SEL_ADDR, 0, rf_compy_select(lane));
+	saved_selector = readl(COMPHY_SEL_ADDR);
+	reg_set(COMPHY_SEL_ADDR, 0, 0xFFFFFFFF);
 
 	/*
 	 * 2. Reset PHY by setting PHY input port PIN_RESET=1.
@@ -873,6 +875,11 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 			      POLL_32B_REG);			/* 32bit */
 	if (!ret)
 		printf("Failed to init RX of SGMII PHY %d\n", lane);
+
+	/*
+	 * Restore saved selector.
+	 */
+	reg_set(COMPHY_SEL_ADDR, saved_selector, 0xFFFFFFFF);
 
 	debug_exit();
 

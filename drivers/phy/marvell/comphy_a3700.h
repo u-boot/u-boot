@@ -22,7 +22,6 @@
  * COMPHY SB definitions
  */
 #define COMPHY_SEL_ADDR			MVEBU_REG(0x0183FC)
-#define rf_compy_select(lane)		(0x1 << (((lane) == 1) ? 4 : 0))
 
 #define COMPHY_PHY_CFG1_ADDR(lane)	MVEBU_REG(0x018300 + (1 - lane) * 0x28)
 #define rb_pin_pu_iveref		BIT(1)
