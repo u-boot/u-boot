@@ -72,14 +72,14 @@ struct atmel_pio4_port {
 #define AT91_PIO_PORTC		0x2
 #define AT91_PIO_PORTD		0x3
 
-int atmel_pio4_set_gpio(u32 port, u32 pin, u32 use_pullup);
-int atmel_pio4_set_a_periph(u32 port, u32 pin, u32 use_pullup);
-int atmel_pio4_set_b_periph(u32 port, u32 pin, u32 use_pullup);
-int atmel_pio4_set_c_periph(u32 port, u32 pin, u32 use_pullup);
-int atmel_pio4_set_d_periph(u32 port, u32 pin, u32 use_pullup);
-int atmel_pio4_set_e_periph(u32 port, u32 pin, u32 use_pullup);
-int atmel_pio4_set_f_periph(u32 port, u32 pin, u32 use_pullup);
-int atmel_pio4_set_g_periph(u32 port, u32 pin, u32 use_pullup);
+int atmel_pio4_set_gpio(u32 port, u32 pin, u32 config);
+int atmel_pio4_set_a_periph(u32 port, u32 pin, u32 config);
+int atmel_pio4_set_b_periph(u32 port, u32 pin, u32 config);
+int atmel_pio4_set_c_periph(u32 port, u32 pin, u32 config);
+int atmel_pio4_set_d_periph(u32 port, u32 pin, u32 config);
+int atmel_pio4_set_e_periph(u32 port, u32 pin, u32 config);
+int atmel_pio4_set_f_periph(u32 port, u32 pin, u32 config);
+int atmel_pio4_set_g_periph(u32 port, u32 pin, u32 config);
 int atmel_pio4_set_pio_output(u32 port, u32 pin, u32 value);
 int atmel_pio4_get_pio_input(u32 port, u32 pin);
 

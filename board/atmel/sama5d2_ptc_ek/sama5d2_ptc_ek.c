@@ -58,22 +58,22 @@ static void board_nand_hw_init(void)
 	atmel_pio4_set_b_periph(AT91_PIO_PORTA, 29, ATMEL_PIO_DRVSTR_ME);	/* D7 */
 	atmel_pio4_set_b_periph(AT91_PIO_PORTB, 2, 0);	/* RE */
 	atmel_pio4_set_b_periph(AT91_PIO_PORTA, 30, 0);	/* WE */
-	atmel_pio4_set_b_periph(AT91_PIO_PORTA, 31, 1);	/* NCS */
-	atmel_pio4_set_b_periph(AT91_PIO_PORTC, 8, 1);	/* RDY */
-	atmel_pio4_set_b_periph(AT91_PIO_PORTB, 0, 1);	/* ALE */
-	atmel_pio4_set_b_periph(AT91_PIO_PORTB, 1, 1);	/* CLE */
+	atmel_pio4_set_b_periph(AT91_PIO_PORTA, 31, ATMEL_PIO_PUEN_MASK);	/* NCS */
+	atmel_pio4_set_b_periph(AT91_PIO_PORTC, 8, ATMEL_PIO_PUEN_MASK);	/* RDY */
+	atmel_pio4_set_b_periph(AT91_PIO_PORTB, 0, ATMEL_PIO_PUEN_MASK);	/* ALE */
+	atmel_pio4_set_b_periph(AT91_PIO_PORTB, 1, ATMEL_PIO_PUEN_MASK);	/* CLE */
 }
 #endif
 
 static void board_usb_hw_init(void)
 {
-	atmel_pio4_set_pio_output(AT91_PIO_PORTB, 12, 1);
+	atmel_pio4_set_pio_output(AT91_PIO_PORTB, 12, ATMEL_PIO_PUEN_MASK);
 }
 
 #ifdef CONFIG_DEBUG_UART_BOARD_INIT
 static void board_uart0_hw_init(void)
 {
-	atmel_pio4_set_c_periph(AT91_PIO_PORTB, 26, 1);	/* URXD0 */
+	atmel_pio4_set_c_periph(AT91_PIO_PORTB, 26, ATMEL_PIO_PUEN_MASK);	/* URXD0 */
 	atmel_pio4_set_c_periph(AT91_PIO_PORTB, 27, 0);	/* UTXD0 */
 
 	at91_periph_clk_enable(ATMEL_ID_UART0);
