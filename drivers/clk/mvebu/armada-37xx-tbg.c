@@ -93,6 +93,7 @@ static ulong armada_37xx_tbg_clk_get_rate(struct clk *clk)
 	return priv->rates[clk->id];
 }
 
+#if defined(CONFIG_CMD_CLK) && defined(CONFIG_CLK_ARMADA_3720)
 int armada_37xx_tbg_clk_dump(struct udevice *dev)
 {
 	struct a37xx_tbgclk *priv = dev_get_priv(dev);
@@ -105,6 +106,7 @@ int armada_37xx_tbg_clk_dump(struct udevice *dev)
 
 	return 0;
 }
+#endif
 
 static int armada_37xx_tbg_clk_probe(struct udevice *dev)
 {

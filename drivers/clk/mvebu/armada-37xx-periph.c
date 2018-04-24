@@ -337,7 +337,8 @@ static int armada_37xx_periph_clk_disable(struct clk *clk)
 	return periph_clk_enable(clk, 0);
 }
 
-int armada_37xx_periph_clk_dump(struct udevice *dev)
+#if defined(CONFIG_CMD_CLK) && defined(CONFIG_CLK_ARMADA_3720)
+static int armada_37xx_periph_clk_dump(struct udevice *dev)
 {
 	struct a37xx_periphclk *priv = dev_get_priv(dev);
 	const struct clk_periph *clks;
@@ -355,6 +356,39 @@ int armada_37xx_periph_clk_dump(struct udevice *dev)
 
 	return 0;
 }
+
+static int clk_dump(const char *name, int (*func)(struct udevice *))
+{
+	struct udevice *dev;
+
+	if (uclass_get_device_by_name(UCLASS_CLK, name, &dev)) {
+		printf("Cannot find device %s\n", name);
+		return -ENODEV;
+	}
+
+	return func(dev);
+}
+
+int armada_37xx_tbg_clk_dump(struct udevice *);
+
+int soc_clk_dump(void)
+{
+	printf("  xtal at %u000000 Hz\n\n", get_ref_clk());
+
+	if (clk_dump("tbg@13200", armada_37xx_tbg_clk_dump))
+		return 1;
+
+	if (clk_dump("nb-periph-clk@13000",
+		     armada_37xx_periph_clk_dump))
+		return 1;
+
+	if (clk_dump("sb-periph-clk@18000",
+		     armada_37xx_periph_clk_dump))
+		return 1;
+
+	return 0;
+}
+#endif
 
 static int armada_37xx_periph_clk_probe(struct udevice *dev)
 {
