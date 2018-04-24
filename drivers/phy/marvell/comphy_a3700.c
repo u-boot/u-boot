@@ -214,7 +214,7 @@ static int comphy_pcie_power_up(u32 speed, u32 invert)
 			      rb_txdclk_pclk_en,		/* value */
 			      rb_txdclk_pclk_en,		/* mask */
 			      POLL_16B_REG);			/* 16bit */
-	if (ret == 0)
+	if (!ret)
 		printf("Failed to lock PCIe PLL\n");
 
 	debug_exit();
@@ -283,7 +283,7 @@ static int comphy_sata_power_up(void)
 			      bs_pll_ready_tx,	/* value */
 			      bs_pll_ready_tx,	/* mask */
 			      POLL_32B_REG);	/* 32bit */
-	if (ret == 0)
+	if (!ret)
 		printf("Failed to lock SATA PLL\n");
 
 	debug_exit();
@@ -412,7 +412,7 @@ static int comphy_usb3_power_up(u32 type, u32 speed, u32 invert)
 			      rb_txdclk_pclk_en,	/* value */
 			      rb_txdclk_pclk_en,	/* mask */
 			      POLL_16B_REG);		/* 16bit */
-	if (ret == 0)
+	if (!ret)
 		printf("Failed to lock USB3 PLL\n");
 
 	/*
@@ -492,7 +492,7 @@ static int comphy_usb2_power_up(u8 usb32)
 			      rb_usb2phy_pllcal_done,	/* value */
 			      rb_usb2phy_pllcal_done,	/* mask */
 			      POLL_32B_REG);		/* 32bit */
-	if (ret == 0)
+	if (!ret)
 		printf("Failed to end USB2 PLL calibration\n");
 
 	/* Assert impedance calibration done */
@@ -500,7 +500,7 @@ static int comphy_usb2_power_up(u8 usb32)
 			      rb_usb2phy_impcal_done,	/* value */
 			      rb_usb2phy_impcal_done,	/* mask */
 			      POLL_32B_REG);		/* 32bit */
-	if (ret == 0)
+	if (!ret)
 		printf("Failed to end USB2 impedance calibration\n");
 
 	/* Assert squetch calibration done */
@@ -508,7 +508,7 @@ static int comphy_usb2_power_up(u8 usb32)
 			      rb_usb2phy_sqcal_done,	/* value */
 			      rb_usb2phy_sqcal_done,	/* mask */
 			      POLL_32B_REG);		/* 32bit */
-	if (ret == 0)
+	if (!ret)
 		printf("Failed to end USB2 unknown calibration\n");
 
 	/* Assert PLL is ready */
@@ -517,7 +517,7 @@ static int comphy_usb2_power_up(u8 usb32)
 			      rb_usb2phy_pll_ready,		/* mask */
 			      POLL_32B_REG);		/* 32bit */
 
-	if (ret == 0)
+	if (!ret)
 		printf("Failed to lock USB2 PLL\n");
 
 	debug_exit();
@@ -765,7 +765,7 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 			      rb_pll_ready_tx | rb_pll_ready_rx, /* value */
 			      rb_pll_ready_tx | rb_pll_ready_rx, /* mask */
 			      POLL_32B_REG);			/* 32bit */
-	if (ret == 0)
+	if (!ret)
 		printf("Failed to lock PLL for SGMII PHY %d\n", lane);
 
 	/*
@@ -787,7 +787,7 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 			      rb_rx_init_done,			/* value */
 			      rb_rx_init_done,			/* mask */
 			      POLL_32B_REG);			/* 32bit */
-	if (ret == 0)
+	if (!ret)
 		printf("Failed to init RX of SGMII PHY %d\n", lane);
 
 	debug_exit();
@@ -818,7 +818,7 @@ void comphy_dedicated_phys_init(void)
 		if (node > 0) {
 			if (fdtdec_get_is_enabled(blob, node)) {
 				ret = comphy_usb2_power_up(usb32);
-				if (ret == 0)
+				if (!ret)
 					printf("Failed to initialize UTMI PHY\n");
 				else
 					debug("UTMI PHY init succeed\n");
@@ -836,7 +836,7 @@ void comphy_dedicated_phys_init(void)
 	if (node > 0) {
 		if (fdtdec_get_is_enabled(blob, node)) {
 			ret = comphy_sata_power_up();
-			if (ret == 0)
+			if (!ret)
 				printf("Failed to initialize SATA PHY\n");
 			else
 				debug("SATA PHY init succeed\n");
@@ -857,7 +857,7 @@ void comphy_dedicated_phys_init(void)
 	if (node > 0) {
 		if (fdtdec_get_is_enabled(blob, node)) {
 			ret = comphy_emmc_power_up();
-			if (ret == 0)
+			if (!ret)
 				printf("Failed to initialize SDIO/eMMC PHY\n");
 			else
 				debug("SDIO/eMMC PHY init succeed\n");
@@ -915,7 +915,7 @@ int comphy_a3700_init(struct chip_serdes_phy_config *chip_cfg,
 			ret = 1;
 			break;
 		}
-		if (ret == 0)
+		if (!ret)
 			printf("PLL is not locked - Failed to initialize lane %d\n",
 			       lane);
 	}
