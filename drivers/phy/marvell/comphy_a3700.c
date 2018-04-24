@@ -610,7 +610,7 @@ static void comphy_sgmii_phy_init(u32 lane, u32 speed)
 			val = sgmii_phy_init[addr];
 		}
 
-		phy_write16(lane, addr, val, 0xFFFF);
+		reg_set16(sgmiiphy_addr(lane, addr), val, 0xFFFF);
 	}
 }
 
@@ -673,26 +673,26 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 	mdelay(10);
 
 	/* 9. Program COMPHY register PHY_MODE */
-	phy_write16(lane, PHY_PWR_PLL_CTRL_ADDR,
-		    PHY_MODE_SGMII << rf_phy_mode_shift, rf_phy_mode_mask);
+	reg_set16(sgmiiphy_addr(lane, PHY_PWR_PLL_CTRL_ADDR),
+		  PHY_MODE_SGMII << rf_phy_mode_shift, rf_phy_mode_mask);
 
 	/*
 	 * 10. Set COMPHY register REFCLK_SEL to select the correct REFCLK
 	 *     source
 	 */
-	phy_write16(lane, PHY_MISC_REG0_ADDR, 0, rb_ref_clk_sel);
+	reg_set16(sgmiiphy_addr(lane, PHY_MISC_REG0_ADDR), 0, rb_ref_clk_sel);
 
 	/*
 	 * 11. Set correct reference clock frequency in COMPHY register
 	 *     REF_FREF_SEL.
 	 */
 	if (get_ref_clk() == 40) {
-		phy_write16(lane, PHY_PWR_PLL_CTRL_ADDR,
-			    0x4 << rf_ref_freq_sel_shift, rf_ref_freq_sel_mask);
+		reg_set16(sgmiiphy_addr(lane, PHY_PWR_PLL_CTRL_ADDR),
+			  0x4 << rf_ref_freq_sel_shift, rf_ref_freq_sel_mask);
 	} else {
 		/* 25MHz */
-		phy_write16(lane, PHY_PWR_PLL_CTRL_ADDR,
-			    0x1 << rf_ref_freq_sel_shift, rf_ref_freq_sel_mask);
+		reg_set16(sgmiiphy_addr(lane, PHY_PWR_PLL_CTRL_ADDR),
+			  0x1 << rf_ref_freq_sel_shift, rf_ref_freq_sel_mask);
 	}
 
 	/* 12. Program COMPHY register PHY_GEN_MAX[1:0] */
@@ -708,7 +708,8 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 	 *     bus width
 	 */
 	/* 10bit */
-	phy_write16(lane, PHY_DIG_LB_EN_ADDR, 0, rf_data_width_mask);
+	reg_set16(sgmiiphy_addr(lane, PHY_DIG_LB_EN_ADDR), 0,
+		  rf_data_width_mask);
 
 	/*
 	 * 14. As long as DFE function needs to be enabled in any mode,
@@ -751,10 +752,12 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 	 * 18. Check the PHY Polarity invert bit
 	 */
 	if (invert & PHY_POLARITY_TXD_INVERT)
-		phy_write16(lane, PHY_SYNC_PATTERN_ADDR, phy_txd_inv, 0);
+		reg_set16(sgmiiphy_addr(lane, PHY_SYNC_PATTERN_ADDR),
+			  phy_txd_inv, 0);
 
 	if (invert & PHY_POLARITY_RXD_INVERT)
-		phy_write16(lane, PHY_SYNC_PATTERN_ADDR, phy_rxd_inv, 0);
+		reg_set16(sgmiiphy_addr(lane, PHY_SYNC_PATTERN_ADDR),
+			  phy_rxd_inv, 0);
 
 	/*
 	 * 19. Set PHY input ports PIN_PU_PLL, PIN_PU_TX and PIN_PU_RX to 1

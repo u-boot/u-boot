@@ -60,13 +60,14 @@
 #define USB32_CTRL_BASE			MVEBU_REG(0x05D800)
 #define USB3PHY_SHFT			2
 
-#define SGMIIPHY_BASE(l)	(l == 1 ? USB3PHY_BASE : PCIEPHY_BASE)
-#define SGMIIPHY_ADDR(l, a)		\
-	((void __iomem *)(((a & 0x00007FF) * 2) + SGMIIPHY_BASE(l)))
-
-#define phy_read16(l, a)	read16((void __iomem *)SGMIIPHY_ADDR(l, a))
-#define phy_write16(l, a, data, mask)	\
-	reg_set16(SGMIIPHY_ADDR(l, a), data, mask)
+static inline void __iomem *sgmiiphy_addr(u32 lane, u32 addr)
+{
+	addr = (addr & 0x00007FF) * 2;
+	if (lane == 1)
+		return PCIEPHY_BASE + addr;
+	else
+		return USB3PHY_BASE + addr;
+}
 
 /* units */
 #define PCIE				1
