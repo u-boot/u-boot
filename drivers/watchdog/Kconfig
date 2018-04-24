@@ -60,6 +60,15 @@ config WDT_SANDBOX
 	  can be probed and supports all of the methods of WDT, but does not
 	  really do anything.
 
+config WDT_ARMADA_37XX
+	bool "Marvell Armada 37xx watchdog timer support"
+	depends on WDT && ARMADA_3700
+	help
+	   Enable this to support Watchdog Timer on Marvell Armada 37xx SoC.
+	   There are 4 possible clocks which can be used on these SoCs. This
+	   driver uses the second clock (ID 1), assuming that so will also
+	   Linux's driver.
+
 config WDT_ASPEED
 	bool "Aspeed ast2400/ast2500 watchdog timer support"
 	depends on WDT

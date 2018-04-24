@@ -16,6 +16,7 @@ obj-$(CONFIG_TANGIER_WATCHDOG) += tangier_wdt.o
 obj-$(CONFIG_ULP_WATCHDOG) += ulp_wdog.o
 obj-$(CONFIG_WDT) += wdt-uclass.o
 obj-$(CONFIG_WDT_SANDBOX) += sandbox_wdt.o
+obj-$(CONFIG_WDT_ARMADA_37XX) += armada-37xx-wdt.o
 obj-$(CONFIG_WDT_ASPEED) += ast_wdt.o
 obj-$(CONFIG_WDT_BCM6345) += bcm6345_wdt.o
 obj-$(CONFIG_BCM2835_WDT)       += bcm2835_wdt.o
