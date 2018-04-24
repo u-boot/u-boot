@@ -59,6 +59,7 @@
 #define USB2PHY2_BASE			MVEBU_REG(0x05F000)
 #define USB32_CTRL_BASE			MVEBU_REG(0x05D800)
 #define USB3PHY_SHFT			2
+#define USB3PHY_LANE2_REG_BASE_OFFSET	0x200
 
 static inline void __iomem *sgmiiphy_addr(u32 lane, u32 addr)
 {
