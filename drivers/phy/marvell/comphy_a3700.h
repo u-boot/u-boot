@@ -24,7 +24,7 @@
 #define COMPHY_SEL_ADDR			MVEBU_REG(0x0183FC)
 #define rf_compy_select(lane)		(0x1 << (((lane) == 1) ? 4 : 0))
 
-#define COMPHY_PHY_CFG1_ADDR(lane)	MVEBU_REG(0x018300 + (lane) * 0x28)
+#define COMPHY_PHY_CFG1_ADDR(lane)	MVEBU_REG(0x018300 + (1 - lane) * 0x28)
 #define rb_pin_pu_iveref		BIT(1)
 #define rb_pin_reset_core		BIT(11)
 #define rb_pin_reset_comphy		BIT(12)
@@ -38,7 +38,7 @@
 #define rf_gen_tx_select		(0x0F << rf_gen_tx_sel_shift)
 #define rb_phy_rx_init			BIT(30)
 
-#define COMPHY_PHY_STAT1_ADDR(lane)	MVEBU_REG(0x018318 + (lane) * 0x28)
+#define COMPHY_PHY_STAT1_ADDR(lane)	MVEBU_REG(0x018318 + (1 - lane) * 0x28)
 #define rb_rx_init_done			BIT(0)
 #define rb_pll_ready_rx			BIT(2)
 #define rb_pll_ready_tx			BIT(3)
