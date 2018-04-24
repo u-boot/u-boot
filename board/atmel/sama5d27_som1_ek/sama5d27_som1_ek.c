@@ -19,7 +19,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static void board_usb_hw_init(void)
 {
-	atmel_pio4_set_pio_output(AT91_PIO_PORTB, 10, 1);
+	atmel_pio4_set_pio_output(AT91_PIO_PORTA, 27, 1);
 }
 
 #ifdef CONFIG_BOARD_LATE_INIT
