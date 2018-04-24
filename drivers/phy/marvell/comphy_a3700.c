@@ -140,78 +140,72 @@ static int comphy_pcie_power_up(u32 speed, u32 invert)
 	/*
 	 * 1. Enable max PLL.
 	 */
-	reg_set16((void __iomem *)LANE_CFG1_ADDR(PCIE),
-		  bf_use_max_pll_rate, 0);
+	reg_set16(LANE_CFG1_ADDR(PCIE), bf_use_max_pll_rate, 0);
 
 	/*
 	 * 2. Select 20 bit SERDES interface.
 	 */
-	reg_set16((void __iomem *)GLOB_CLK_SRC_LO_ADDR(PCIE),
-		  bf_cfg_sel_20b, 0);
+	reg_set16(GLOB_CLK_SRC_LO_ADDR(PCIE), bf_cfg_sel_20b, 0);
 
 	/*
 	 * 3. Force to use reg setting for PCIe mode
 	 */
-	reg_set16((void __iomem *)MISC_REG1_ADDR(PCIE),
-		  bf_sel_bits_pcie_force, 0);
+	reg_set16(MISC_REG1_ADDR(PCIE), bf_sel_bits_pcie_force, 0);
 
 	/*
 	 * 4. Change RX wait
 	 */
-	reg_set16((void __iomem *)PWR_MGM_TIM1_ADDR(PCIE), 0x10C, 0xFFFF);
+	reg_set16(PWR_MGM_TIM1_ADDR(PCIE), 0x10C, 0xFFFF);
 
 	/*
 	 * 5. Enable idle sync
 	 */
-	reg_set16((void __iomem *)UNIT_CTRL_ADDR(PCIE),
-		  0x60 | rb_idle_sync_en, 0xFFFF);
+	reg_set16(UNIT_CTRL_ADDR(PCIE), 0x60 | rb_idle_sync_en, 0xFFFF);
 
 	/*
 	 * 6. Enable the output of 100M/125M/500M clock
 	 */
-	reg_set16((void __iomem *)MISC_REG0_ADDR(PCIE),
+	reg_set16(MISC_REG0_ADDR(PCIE),
 		  0xA00D | rb_clk500m_en | rb_clk100m_125m_en, 0xFFFF);
 
 	/*
 	 * 7. Enable TX
 	 */
-	reg_set((void __iomem *)PHY_REF_CLK_ADDR, 0x1342, 0xFFFFFFFF);
+	reg_set(PHY_REF_CLK_ADDR, 0x1342, 0xFFFFFFFF);
 
 	/*
 	 * 8. Check crystal jumper setting and program the Power and PLL
 	 *    Control accordingly
 	 */
 	if (get_ref_clk() == 40) {
-		reg_set16((void __iomem *)PWR_PLL_CTRL_ADDR(PCIE),
+		reg_set16(PWR_PLL_CTRL_ADDR(PCIE),
 			  0xFC63, 0xFFFF); /* 40 MHz */
 	} else {
-		reg_set16((void __iomem *)PWR_PLL_CTRL_ADDR(PCIE),
+		reg_set16(PWR_PLL_CTRL_ADDR(PCIE),
 			  0xFC62, 0xFFFF); /* 25 MHz */
 	}
 
 	/*
 	 * 9. Override Speed_PLL value and use MAC PLL
 	 */
-	reg_set16((void __iomem *)KVCO_CAL_CTRL_ADDR(PCIE),
-		  0x0040 | rb_use_max_pll_rate, 0xFFFF);
+	reg_set16(KVCO_CAL_CTRL_ADDR(PCIE), 0x0040 | rb_use_max_pll_rate,
+		  0xFFFF);
 
 	/*
 	 * 10. Check the Polarity invert bit
 	 */
 	if (invert & PHY_POLARITY_TXD_INVERT) {
-		reg_set16((void __iomem *)SYNC_PATTERN_ADDR(PCIE),
-			  phy_txd_inv, 0);
+		reg_set16(SYNC_PATTERN_ADDR(PCIE), phy_txd_inv, 0);
 	}
 
 	if (invert & PHY_POLARITY_RXD_INVERT) {
-		reg_set16((void __iomem *)SYNC_PATTERN_ADDR(PCIE),
-			  phy_rxd_inv, 0);
+		reg_set16(SYNC_PATTERN_ADDR(PCIE), phy_rxd_inv, 0);
 	}
 
 	/*
 	 * 11. Release SW reset
 	 */
-	reg_set16((void __iomem *)GLOB_PHY_CTRL0_ADDR(PCIE),
+	reg_set16(GLOB_PHY_CTRL0_ADDR(PCIE),
 		  rb_mode_core_clk_freq_sel | rb_mode_pipe_width_32,
 		  bf_soft_rst | bf_mode_refdiv);
 
@@ -219,11 +213,11 @@ static int comphy_pcie_power_up(u32 speed, u32 invert)
 	udelay(PLL_SET_DELAY_US);
 
 	/* Assert PCLK enabled */
-	ret = comphy_poll_reg((void *)LANE_STAT1_ADDR(PCIE),	/* address */
-			      rb_txdclk_pclk_en,		/* value */
-			      rb_txdclk_pclk_en,		/* mask */
-			      PLL_LOCK_TIMEOUT,			/* timeout */
-			      POLL_16B_REG);			/* 16bit */
+	ret = comphy_poll_reg(LANE_STAT1_ADDR(PCIE),	/* address */
+			      rb_txdclk_pclk_en,	/* value */
+			      rb_txdclk_pclk_en,	/* mask */
+			      PLL_LOCK_TIMEOUT,		/* timeout */
+			      POLL_16B_REG);		/* 16bit */
 	if (ret == 0)
 		printf("Failed to lock PCIe PLL\n");
 
@@ -247,57 +241,53 @@ static int comphy_sata_power_up(void)
 	/*
 	 * 0. Swap SATA TX lines
 	 */
-	reg_set((void __iomem *)rh_vsreg_addr,
-		vphy_sync_pattern_reg, 0xFFFFFFFF);
-	reg_set((void __iomem *)rh_vsreg_data, bs_txd_inv, bs_txd_inv);
+	reg_set(rh_vsreg_addr, vphy_sync_pattern_reg, 0xFFFFFFFF);
+	reg_set(rh_vsreg_data, bs_txd_inv, bs_txd_inv);
 
 	/*
 	 * 1. Select 40-bit data width width
 	 */
-	reg_set((void __iomem *)rh_vsreg_addr, vphy_loopback_reg0, 0xFFFFFFFF);
-	reg_set((void __iomem *)rh_vsreg_data, 0x800, bs_phyintf_40bit);
+	reg_set(rh_vsreg_addr, vphy_loopback_reg0, 0xFFFFFFFF);
+	reg_set(rh_vsreg_data, 0x800, bs_phyintf_40bit);
 
 	/*
 	 * 2. Select reference clock and PHY mode (SATA)
 	 */
-	reg_set((void __iomem *)rh_vsreg_addr, vphy_power_reg0, 0xFFFFFFFF);
+	reg_set(rh_vsreg_addr, vphy_power_reg0, 0xFFFFFFFF);
 	if (get_ref_clk() == 40) {
-		reg_set((void __iomem *)rh_vsreg_data,
-			0x3, 0x00FF); /* 40 MHz */
+		reg_set(rh_vsreg_data, 0x3, 0x00FF); /* 40 MHz */
 	} else {
-		reg_set((void __iomem *)rh_vsreg_data,
-			0x1, 0x00FF); /* 25 MHz */
+		reg_set(rh_vsreg_data, 0x1, 0x00FF); /* 25 MHz */
 	}
 
 	/*
 	 * 3. Use maximum PLL rate (no power save)
 	 */
-	reg_set((void __iomem *)rh_vsreg_addr, vphy_calctl_reg, 0xFFFFFFFF);
-	reg_set((void __iomem *)rh_vsreg_data,
-		bs_max_pll_rate, bs_max_pll_rate);
+	reg_set(rh_vsreg_addr, vphy_calctl_reg, 0xFFFFFFFF);
+	reg_set(rh_vsreg_data, bs_max_pll_rate, bs_max_pll_rate);
 
 	/*
 	 * 4. Reset reserved bit (??)
 	 */
-	reg_set((void __iomem *)rh_vsreg_addr, vphy_reserve_reg, 0xFFFFFFFF);
-	reg_set((void __iomem *)rh_vsreg_data, 0, bs_phyctrl_frm_pin);
+	reg_set(rh_vsreg_addr, vphy_reserve_reg, 0xFFFFFFFF);
+	reg_set(rh_vsreg_data, 0, bs_phyctrl_frm_pin);
 
 	/*
 	 * 5. Set vendor-specific configuration (??)
 	 */
-	reg_set((void __iomem *)rh_vs0_a, vsata_ctrl_reg, 0xFFFFFFFF);
-	reg_set((void __iomem *)rh_vs0_d, bs_phy_pu_pll, bs_phy_pu_pll);
+	reg_set(rh_vs0_a, vsata_ctrl_reg, 0xFFFFFFFF);
+	reg_set(rh_vs0_d, bs_phy_pu_pll, bs_phy_pu_pll);
 
 	/* Wait for > 55 us to allow PLL be enabled */
 	udelay(PLL_SET_DELAY_US);
 
 	/* Assert SATA PLL enabled */
-	reg_set((void __iomem *)rh_vsreg_addr, vphy_loopback_reg0, 0xFFFFFFFF);
-	ret = comphy_poll_reg((void *)rh_vsreg_data,	/* address */
-			      bs_pll_ready_tx,		/* value */
-			      bs_pll_ready_tx,		/* mask */
-			      PLL_LOCK_TIMEOUT,		/* timeout */
-			      POLL_32B_REG);		/* 32bit */
+	reg_set(rh_vsreg_addr, vphy_loopback_reg0, 0xFFFFFFFF);
+	ret = comphy_poll_reg(rh_vsreg_data,	/* address */
+			      bs_pll_ready_tx,	/* value */
+			      bs_pll_ready_tx,	/* mask */
+			      PLL_LOCK_TIMEOUT,	/* timeout */
+			      POLL_32B_REG);	/* 32bit */
 	if (ret == 0)
 		printf("Failed to lock SATA PLL\n");
 
@@ -320,19 +310,18 @@ static int comphy_usb3_power_up(u32 type, u32 speed, u32 invert)
 	/*
 	 * 1. Power up OTG module
 	 */
-	reg_set((void __iomem *)USB2_PHY_OTG_CTRL_ADDR, rb_pu_otg, 0);
+	reg_set(USB2_PHY_OTG_CTRL_ADDR, rb_pu_otg, 0);
 
 	/*
 	 * 2. Set counter for 100us pulse in USB3 Host and Device
 	 * restore default burst size limit (Reference Clock 31:24)
 	 */
-	reg_set((void __iomem *)USB3_CTRPUL_VAL_REG,
-		0x8 << 24, rb_usb3_ctr_100ns);
+	reg_set(USB3_CTRPUL_VAL_REG, 0x8 << 24, rb_usb3_ctr_100ns);
 
 
 	/* 0xd005c300 = 0x1001 */
 	/* set PRD_TXDEEMPH (3.5db de-emph) */
-	reg_set16((void __iomem *)LANE_CFG0_ADDR(USB3), 0x1, 0xFF);
+	reg_set16(LANE_CFG0_ADDR(USB3), 0x1, 0xFF);
 
 	/*
 	 * unset BIT0: set Tx Electrical Idle Mode: Transmitter is in
@@ -340,91 +329,82 @@ static int comphy_usb3_power_up(u32 type, u32 speed, u32 invert)
 	 */
 	/* unset BIT4: set G2 Tx Datapath with no Delayed Latency */
 	/* unset BIT6: set Tx Detect Rx Mode at LoZ mode */
-	reg_set16((void __iomem *)LANE_CFG1_ADDR(USB3), 0x0, 0xFFFF);
+	reg_set16(LANE_CFG1_ADDR(USB3), 0x0, 0xFFFF);
 
 
 	/* 0xd005c310 = 0x93: set Spread Spectrum Clock Enabled  */
-	reg_set16((void __iomem *)LANE_CFG4_ADDR(USB3),
-		  bf_spread_spectrum_clock_en, 0x80);
+	reg_set16(LANE_CFG4_ADDR(USB3), bf_spread_spectrum_clock_en, 0x80);
 
 	/*
 	 * set Override Margining Controls From the MAC: Use margining signals
 	 * from lane configuration
 	 */
-	reg_set16((void __iomem *)TEST_MODE_CTRL_ADDR(USB3),
-		  rb_mode_margin_override, 0xFFFF);
+	reg_set16(TEST_MODE_CTRL_ADDR(USB3), rb_mode_margin_override, 0xFFFF);
 
 	/* set Lane-to-Lane Bundle Clock Sampling Period = per PCLK cycles */
 	/* set Mode Clock Source = PCLK is generated from REFCLK */
-	reg_set16((void __iomem *)GLOB_CLK_SRC_LO_ADDR(USB3), 0x0, 0xFF);
+	reg_set16(GLOB_CLK_SRC_LO_ADDR(USB3), 0x0, 0xFF);
 
 	/* set G2 Spread Spectrum Clock Amplitude at 4K */
-	reg_set16((void __iomem *)GEN2_SETTING_2_ADDR(USB3), g2_tx_ssc_amp,
-		  0xF000);
+	reg_set16(GEN2_SETTING_2_ADDR(USB3), g2_tx_ssc_amp, 0xF000);
 
 	/*
 	 * unset G3 Spread Spectrum Clock Amplitude & set G3 TX and RX Register
 	 * Master Current Select
 	 */
-	reg_set16((void __iomem *)GEN2_SETTING_3_ADDR(USB3), 0x0, 0xFFFF);
+	reg_set16(GEN2_SETTING_3_ADDR(USB3), 0x0, 0xFFFF);
 
 	/*
 	 * 3. Check crystal jumper setting and program the Power and PLL
 	 * Control accordingly
 	 */
 	if (get_ref_clk() == 40) {
-		reg_set16((void __iomem *)PWR_PLL_CTRL_ADDR(USB3), 0xFCA3,
-			  0xFFFF); /* 40 MHz */
+		reg_set16(PWR_PLL_CTRL_ADDR(USB3), 0xFCA3, 0xFFFF); /* 40 MHz */
 	} else {
-		reg_set16((void __iomem *)PWR_PLL_CTRL_ADDR(USB3), 0xFCA2,
-			  0xFFFF); /* 25 MHz */
+		reg_set16(PWR_PLL_CTRL_ADDR(USB3), 0xFCA2, 0xFFFF); /* 25 MHz */
 	}
 
 	/*
 	 * 4. Change RX wait
 	 */
-	reg_set16((void __iomem *)PWR_MGM_TIM1_ADDR(USB3), 0x10C, 0xFFFF);
+	reg_set16(PWR_MGM_TIM1_ADDR(USB3), 0x10C, 0xFFFF);
 
 	/*
 	 * 5. Enable idle sync
 	 */
-	reg_set16((void __iomem *)UNIT_CTRL_ADDR(USB3), 0x60 | rb_idle_sync_en,
-		  0xFFFF);
+	reg_set16(UNIT_CTRL_ADDR(USB3), 0x60 | rb_idle_sync_en, 0xFFFF);
 
 	/*
 	 * 6. Enable the output of 500M clock
 	 */
-	reg_set16((void __iomem *)MISC_REG0_ADDR(USB3), 0xA00D | rb_clk500m_en,
-		  0xFFFF);
+	reg_set16(MISC_REG0_ADDR(USB3), 0xA00D | rb_clk500m_en, 0xFFFF);
 
 	/*
 	 * 7. Set 20-bit data width
 	 */
-	reg_set16((void __iomem *)DIG_LB_EN_ADDR(USB3), 0x0400, 0xFFFF);
+	reg_set16(DIG_LB_EN_ADDR(USB3), 0x0400, 0xFFFF);
 
 	/*
 	 * 8. Override Speed_PLL value and use MAC PLL
 	 */
-	reg_set16((void __iomem *)KVCO_CAL_CTRL_ADDR(USB3),
-		  0x0040 | rb_use_max_pll_rate, 0xFFFF);
+	reg_set16(KVCO_CAL_CTRL_ADDR(USB3), 0x0040 | rb_use_max_pll_rate,
+		  0xFFFF);
 
 	/*
 	 * 9. Check the Polarity invert bit
 	 */
 	if (invert & PHY_POLARITY_TXD_INVERT) {
-		reg_set16((void __iomem *)SYNC_PATTERN_ADDR(USB3),
-			  phy_txd_inv, 0);
+		reg_set16(SYNC_PATTERN_ADDR(USB3), phy_txd_inv, 0);
 	}
 
 	if (invert & PHY_POLARITY_RXD_INVERT) {
-		reg_set16((void __iomem *)SYNC_PATTERN_ADDR(USB3),
-			  phy_rxd_inv, 0);
+		reg_set16(SYNC_PATTERN_ADDR(USB3), phy_rxd_inv, 0);
 	}
 
 	/*
 	 * 10. Release SW reset
 	 */
-	reg_set16((void __iomem *)GLOB_PHY_CTRL0_ADDR(USB3),
+	reg_set16(GLOB_PHY_CTRL0_ADDR(USB3),
 		  rb_mode_core_clk_freq_sel | rb_mode_pipe_width_32 | 0x20,
 		  0xFFFF);
 
@@ -432,11 +412,11 @@ static int comphy_usb3_power_up(u32 type, u32 speed, u32 invert)
 	udelay(PLL_SET_DELAY_US);
 
 	/* Assert PCLK enabled */
-	ret = comphy_poll_reg((void *)LANE_STAT1_ADDR(USB3),	/* address */
-			      rb_txdclk_pclk_en,		/* value */
-			      rb_txdclk_pclk_en,		/* mask */
-			      PLL_LOCK_TIMEOUT,			/* timeout */
-			      POLL_16B_REG);			/* 16bit */
+	ret = comphy_poll_reg(LANE_STAT1_ADDR(USB3),	/* address */
+			      rb_txdclk_pclk_en,	/* value */
+			      rb_txdclk_pclk_en,	/* mask */
+			      PLL_LOCK_TIMEOUT,		/* timeout */
+			      POLL_16B_REG);		/* 16bit */
 	if (ret == 0)
 		printf("Failed to lock USB3 PLL\n");
 
@@ -454,7 +434,7 @@ static int comphy_usb3_power_up(u32 type, u32 speed, u32 invert)
 		 *             INT_MODE=ID in order to avoid unexpected
 		 *             behaviour or both interrupts together
 		 */
-		reg_set((void __iomem *)USB32_CTRL_BASE,
+		reg_set(USB32_CTRL_BASE,
 			usb32_ctrl_id_mode | usb32_ctrl_int_mode,
 			usb32_ctrl_id_mode | usb32_ctrl_soft_id |
 			usb32_ctrl_int_mode);
@@ -488,32 +468,32 @@ static int comphy_usb2_power_up(u8 usb32)
 	 *    See "PLL Settings for Typical REFCLK" table
 	 */
 	if (get_ref_clk() == 25) {
-		reg_set((void __iomem *)USB2_PHY_BASE(usb32),
-			5 | (96 << 16), 0x3F | (0xFF << 16) | (0x3 << 28));
+		reg_set(USB2_PHY_BASE(usb32), 5 | (96 << 16),
+			0x3F | (0xFF << 16) | (0x3 << 28));
 	}
 
 	/*
 	 * 1. PHY pull up and disable USB2 suspend
 	 */
-	reg_set((void __iomem *)USB2_PHY_CTRL_ADDR(usb32),
+	reg_set(USB2_PHY_CTRL_ADDR(usb32),
 		RB_USB2PHY_SUSPM(usb32) | RB_USB2PHY_PU(usb32), 0);
 
 	if (usb32 != 0) {
 		/*
 		 * 2. Power up OTG module
 		 */
-		reg_set((void __iomem *)USB2_PHY_OTG_CTRL_ADDR, rb_pu_otg, 0);
+		reg_set(USB2_PHY_OTG_CTRL_ADDR, rb_pu_otg, 0);
 
 		/*
 		 * 3. Configure PHY charger detection
 		 */
-		reg_set((void __iomem *)USB2_PHY_CHRGR_DET_ADDR, 0,
+		reg_set(USB2_PHY_CHRGR_DET_ADDR, 0,
 			rb_cdp_en | rb_dcp_en | rb_pd_en | rb_cdp_dm_auto |
 			rb_enswitch_dp | rb_enswitch_dm | rb_pu_chrg_dtc);
 	}
 
 	/* Assert PLL calibration done */
-	ret = comphy_poll_reg((void *)USB2_PHY_CAL_CTRL_ADDR(usb32),
+	ret = comphy_poll_reg(USB2_PHY_CAL_CTRL_ADDR(usb32),
 			      rb_usb2phy_pllcal_done,	/* value */
 			      rb_usb2phy_pllcal_done,	/* mask */
 			      PLL_LOCK_TIMEOUT,		/* timeout */
@@ -522,7 +502,7 @@ static int comphy_usb2_power_up(u8 usb32)
 		printf("Failed to end USB2 PLL calibration\n");
 
 	/* Assert impedance calibration done */
-	ret = comphy_poll_reg((void *)USB2_PHY_CAL_CTRL_ADDR(usb32),
+	ret = comphy_poll_reg(USB2_PHY_CAL_CTRL_ADDR(usb32),
 			      rb_usb2phy_impcal_done,	/* value */
 			      rb_usb2phy_impcal_done,	/* mask */
 			      PLL_LOCK_TIMEOUT,		/* timeout */
@@ -531,7 +511,7 @@ static int comphy_usb2_power_up(u8 usb32)
 		printf("Failed to end USB2 impedance calibration\n");
 
 	/* Assert squetch calibration done */
-	ret = comphy_poll_reg((void *)USB2_PHY_RX_CHAN_CTRL1_ADDR(usb32),
+	ret = comphy_poll_reg(USB2_PHY_RX_CHAN_CTRL1_ADDR(usb32),
 			      rb_usb2phy_sqcal_done,	/* value */
 			      rb_usb2phy_sqcal_done,	/* mask */
 			      PLL_LOCK_TIMEOUT,		/* timeout */
@@ -540,7 +520,7 @@ static int comphy_usb2_power_up(u8 usb32)
 		printf("Failed to end USB2 unknown calibration\n");
 
 	/* Assert PLL is ready */
-	ret = comphy_poll_reg((void *)USB2_PHY_PLL_CTRL0_ADDR(usb32),
+	ret = comphy_poll_reg(USB2_PHY_PLL_CTRL0_ADDR(usb32),
 			      rb_usb2phy_pll_ready,		/* value */
 			      rb_usb2phy_pll_ready,		/* mask */
 			      PLL_LOCK_TIMEOUT,		/* timeout */
@@ -566,35 +546,34 @@ static int comphy_emmc_power_up(void)
 	/*
 	 * 1. Bus power ON, Bus voltage 1.8V
 	 */
-	reg_set((void __iomem *)SDIO_HOST_CTRL1_ADDR, 0xB00, 0xF00);
+	reg_set(SDIO_HOST_CTRL1_ADDR, 0xB00, 0xF00);
 
 	/*
 	 * 2. Set FIFO parameters
 	 */
-	reg_set((void __iomem *)SDIO_SDHC_FIFO_ADDR, 0x315, 0xFFFFFFFF);
+	reg_set(SDIO_SDHC_FIFO_ADDR, 0x315, 0xFFFFFFFF);
 
 	/*
 	 * 3. Set Capabilities 1_2
 	 */
-	reg_set((void __iomem *)SDIO_CAP_12_ADDR, 0x25FAC8B2, 0xFFFFFFFF);
+	reg_set(SDIO_CAP_12_ADDR, 0x25FAC8B2, 0xFFFFFFFF);
 
 	/*
 	 * 4. Set Endian
 	 */
-	reg_set((void __iomem *)SDIO_ENDIAN_ADDR, 0x00c00000, 0);
+	reg_set(SDIO_ENDIAN_ADDR, 0x00c00000, 0);
 
 	/*
 	 * 4. Init PHY
 	 */
-	reg_set((void __iomem *)SDIO_PHY_TIMING_ADDR, 0x80000000, 0x80000000);
-	reg_set((void __iomem *)SDIO_PHY_PAD_CTRL0_ADDR, 0x50000000,
-		0xF0000000);
+	reg_set(SDIO_PHY_TIMING_ADDR, 0x80000000, 0x80000000);
+	reg_set(SDIO_PHY_PAD_CTRL0_ADDR, 0x50000000, 0xF0000000);
 
 	/*
 	 * 5. DLL reset
 	 */
-	reg_set((void __iomem *)SDIO_DLL_RST_ADDR, 0xFFFEFFFF, 0);
-	reg_set((void __iomem *)SDIO_DLL_RST_ADDR, 0x00010000, 0);
+	reg_set(SDIO_DLL_RST_ADDR, 0xFFFEFFFF, 0);
+	reg_set(SDIO_DLL_RST_ADDR, 0x00010000, 0);
 
 	debug_exit();
 
@@ -649,7 +628,7 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 	/*
 	 * 1. Configure PHY to SATA/SAS mode by setting pin PIN_PIPE_SEL=0
 	 */
-	reg_set((void __iomem *)COMPHY_SEL_ADDR, 0, rf_compy_select(lane));
+	reg_set(COMPHY_SEL_ADDR, 0, rf_compy_select(lane));
 
 	/*
 	 * 2. Reset PHY by setting PHY input port PIN_RESET=1.
@@ -657,7 +636,7 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 	 *    PHY TXP/TXN output to idle state during PHY initialization
 	 * 4. Set PHY input port PIN_PU_PLL=0, PIN_PU_RX=0, PIN_PU_TX=0.
 	 */
-	reg_set((void __iomem *)COMPHY_PHY_CFG1_ADDR(lane),
+	reg_set(COMPHY_PHY_CFG1_ADDR(lane),
 		rb_pin_reset_comphy | rb_pin_tx_idle | rb_pin_pu_iveref,
 		rb_pin_reset_core | rb_pin_pu_pll |
 		rb_pin_pu_rx | rb_pin_pu_tx);
@@ -665,21 +644,20 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 	/*
 	 * 5. Release reset to the PHY by setting PIN_RESET=0.
 	 */
-	reg_set((void __iomem *)COMPHY_PHY_CFG1_ADDR(lane),
-		0, rb_pin_reset_comphy);
+	reg_set(COMPHY_PHY_CFG1_ADDR(lane), 0, rb_pin_reset_comphy);
 
 	/*
 	 * 7. Set PIN_PHY_GEN_TX[3:0] and PIN_PHY_GEN_RX[3:0] to decide
 	 *    COMPHY bit rate
 	 */
 	if (speed == PHY_SPEED_3_125G) { /* 3.125 GHz */
-		reg_set((void __iomem *)COMPHY_PHY_CFG1_ADDR(lane),
+		reg_set(COMPHY_PHY_CFG1_ADDR(lane),
 			(0x8 << rf_gen_rx_sel_shift) |
 			(0x8 << rf_gen_tx_sel_shift),
 			rf_gen_rx_select | rf_gen_tx_select);
 
 	} else if (speed == PHY_SPEED_1_25G) { /* 1.25 GHz */
-		reg_set((void __iomem *)COMPHY_PHY_CFG1_ADDR(lane),
+		reg_set(COMPHY_PHY_CFG1_ADDR(lane),
 			(0x6 << rf_gen_rx_sel_shift) |
 			(0x6 << rf_gen_tx_sel_shift),
 			rf_gen_rx_select | rf_gen_tx_select);
@@ -784,7 +762,7 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 	 *     programming should be done before PIN_PU_PLL=1. There should be
 	 *     no register programming for normal PHY operation from this point.
 	 */
-	reg_set((void __iomem *)COMPHY_PHY_CFG1_ADDR(lane),
+	reg_set(COMPHY_PHY_CFG1_ADDR(lane),
 		rb_pin_pu_pll | rb_pin_pu_rx | rb_pin_pu_tx,
 		rb_pin_pu_pll | rb_pin_pu_rx | rb_pin_pu_tx);
 
@@ -792,7 +770,7 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 	 * 20. Wait for PHY power up sequence to finish by checking output ports
 	 *     PIN_PLL_READY_TX=1 and PIN_PLL_READY_RX=1.
 	 */
-	ret = comphy_poll_reg((void *)COMPHY_PHY_STAT1_ADDR(lane), /* address */
+	ret = comphy_poll_reg(COMPHY_PHY_STAT1_ADDR(lane),	/* address */
 			      rb_pll_ready_tx | rb_pll_ready_rx, /* value */
 			      rb_pll_ready_tx | rb_pll_ready_rx, /* mask */
 			      PLL_LOCK_TIMEOUT,			/* timeout */
@@ -803,8 +781,7 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 	/*
 	 * 21. Set COMPHY input port PIN_TX_IDLE=0
 	 */
-	reg_set((void __iomem *)COMPHY_PHY_CFG1_ADDR(lane),
-		0x0, rb_pin_tx_idle);
+	reg_set(COMPHY_PHY_CFG1_ADDR(lane), 0x0, rb_pin_tx_idle);
 
 	/*
 	 * 22. After valid data appear on PIN_RXDATA bus, set PIN_RX_INIT=1.
@@ -814,10 +791,9 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 	 *     PIN_RX_INIT_DONE= 1.
 	 *     Please refer to RX initialization part for details.
 	 */
-	reg_set((void __iomem *)COMPHY_PHY_CFG1_ADDR(lane), rb_phy_rx_init,
-		0x0);
+	reg_set(COMPHY_PHY_CFG1_ADDR(lane), rb_phy_rx_init, 0x0);
 
-	ret = comphy_poll_reg((void *)COMPHY_PHY_STAT1_ADDR(lane), /* address */
+	ret = comphy_poll_reg(COMPHY_PHY_STAT1_ADDR(lane), /* address */
 			      rb_rx_init_done,			/* value */
 			      rb_rx_init_done,			/* mask */
 			      PLL_LOCK_TIMEOUT,		/* timeout */

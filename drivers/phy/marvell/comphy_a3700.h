@@ -9,7 +9,8 @@
 #include "comphy.h"
 #include "comphy_hpipe.h"
 
-#define MVEBU_REG(offs)			((uintptr_t)MVEBU_REGISTER(offs))
+#define MVEBU_REG(offs)			\
+	((void __iomem *)(ulong)MVEBU_REGISTER(offs))
 
 #define DEFAULT_REFCLK_MHZ		25
 #define PLL_SET_DELAY_US		600
@@ -60,11 +61,12 @@
 #define USB3PHY_SHFT			2
 
 #define SGMIIPHY_BASE(l)	(l == 1 ? USB3PHY_BASE : PCIEPHY_BASE)
-#define SGMIIPHY_ADDR(l, a)	(((a & 0x00007FF) * 2) | SGMIIPHY_BASE(l))
+#define SGMIIPHY_ADDR(l, a)		\
+	((void __iomem *)(((a & 0x00007FF) * 2) + SGMIIPHY_BASE(l)))
 
 #define phy_read16(l, a)	read16((void __iomem *)SGMIIPHY_ADDR(l, a))
 #define phy_write16(l, a, data, mask)	\
-	reg_set16((void __iomem *)SGMIIPHY_ADDR(l, a), data, mask)
+	reg_set16(SGMIIPHY_ADDR(l, a), data, mask)
 
 /* units */
 #define PCIE				1
