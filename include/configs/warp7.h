@@ -10,6 +10,7 @@
 #define __WARP7_CONFIG_H
 
 #include "mx7_common.h"
+#include <imximage.h>
 
 #define PHYS_SDRAM_SIZE			SZ_512M
 
@@ -50,6 +51,7 @@
 	"finduuid=part uuid mmc 0:${rootpart} uuid\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=PARTUUID=${uuid} rootwait rw\0" \
+	"ivt_offset=" __stringify(BOOTROM_IVT_HDR_OFFSET)"\0"\
 	"warp7_auth_or_fail=hab_auth_img_or_fail ${hab_ivt_addr} ${filesize} 0;\0" \
 	"loadbootscript=" \
 		"load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
