@@ -290,8 +290,9 @@
 				compatible = "marvell,mvebu-comphy", "marvell,comphy-armada-3700";
 				reg = <0x18300 0x28>,
 				      <0x1f300 0x3d000>;
-				mux-bitcount = <1>;
-				max-lanes = <2>;
+				mux-bitcount = <4>;
+				mux-lane-order = <1 0 2>;
+				max-lanes = <3>;
 			};
 		};
 

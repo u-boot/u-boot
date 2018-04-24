@@ -13,6 +13,38 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+struct comphy_mux_data a3700_comphy_mux_data[] = {
+/* Lane 0 */
+	{
+		4,
+		{
+			{ PHY_TYPE_UNCONNECTED,	0x0 },
+			{ PHY_TYPE_SGMII1,	0x0 },
+			{ PHY_TYPE_USB3_HOST0,	0x1 },
+			{ PHY_TYPE_USB3_DEVICE,	0x1 }
+		}
+	},
+/* Lane 1 */
+	{
+		3,
+		{
+			{ PHY_TYPE_UNCONNECTED,	0x0},
+			{ PHY_TYPE_SGMII0,	0x0},
+			{ PHY_TYPE_PEX0,	0x1}
+		}
+	},
+/* Lane 2 */
+	{
+		4,
+		{
+			{ PHY_TYPE_UNCONNECTED,	0x0},
+			{ PHY_TYPE_SATA0,	0x0},
+			{ PHY_TYPE_USB3_HOST0,	0x1},
+			{ PHY_TYPE_USB3_DEVICE,	0x1}
+		}
+	},
+};
+
 struct sgmii_phy_init_data_fix {
 	u16 addr;
 	u16 value;
@@ -931,6 +963,10 @@ int comphy_a3700_init(struct chip_serdes_phy_config *chip_cfg,
 	u32 lane, ret = 0;
 
 	debug_enter();
+
+	/* Initialize PHY mux */
+	chip_cfg->mux_data = a3700_comphy_mux_data;
+	comphy_mux_init(chip_cfg, serdes_map, COMPHY_SEL_ADDR);
 
 	for (lane = 0, comphy_map = serdes_map; lane < comphy_max_count;
 	     lane++, comphy_map++) {
