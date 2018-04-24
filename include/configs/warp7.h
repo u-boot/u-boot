@@ -45,7 +45,8 @@
 	"ip_dyn=yes\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
-	"finduuid=part uuid mmc 0:2 uuid\0" \
+	"rootpart=" __stringify(CONFIG_WARP7_ROOT_PART) "\0" \
+	"finduuid=part uuid mmc 0:${rootpart} uuid\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=PARTUUID=${uuid} rootwait rw\0" \
 	"loadbootscript=" \
