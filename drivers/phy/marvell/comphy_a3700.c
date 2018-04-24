@@ -105,12 +105,11 @@ static u16 sgmii_phy_init[512] = {
  *
  * return: 1 on success, 0 on timeout
  */
-static u32 comphy_poll_reg(void *addr, u32 val, u32 mask, u32 timeout,
-			   u8 op_type)
+static u32 comphy_poll_reg(void *addr, u32 val, u32 mask, u8 op_type)
 {
-	u32 rval = 0xDEAD;
+	u32 rval = 0xDEAD, timeout;
 
-	for (; timeout > 0; timeout--) {
+	for (timeout = PLL_LOCK_TIMEOUT; timeout > 0; timeout--) {
 		if (op_type == POLL_16B_REG)
 			rval = readw(addr);	/* 16 bit */
 		else
@@ -214,7 +213,6 @@ static int comphy_pcie_power_up(u32 speed, u32 invert)
 	ret = comphy_poll_reg(phy_addr(PCIE, LANE_STAT1),	/* address */
 			      rb_txdclk_pclk_en,		/* value */
 			      rb_txdclk_pclk_en,		/* mask */
-			      PLL_LOCK_TIMEOUT,			/* timeout */
 			      POLL_16B_REG);			/* 16bit */
 	if (ret == 0)
 		printf("Failed to lock PCIe PLL\n");
@@ -284,7 +282,6 @@ static int comphy_sata_power_up(void)
 	ret = comphy_poll_reg(rh_vsreg_data,	/* address */
 			      bs_pll_ready_tx,	/* value */
 			      bs_pll_ready_tx,	/* mask */
-			      PLL_LOCK_TIMEOUT,	/* timeout */
 			      POLL_32B_REG);	/* 32bit */
 	if (ret == 0)
 		printf("Failed to lock SATA PLL\n");
@@ -414,7 +411,6 @@ static int comphy_usb3_power_up(u32 type, u32 speed, u32 invert)
 	ret = comphy_poll_reg(phy_addr(USB3, LANE_STAT1),	/* address */
 			      rb_txdclk_pclk_en,	/* value */
 			      rb_txdclk_pclk_en,	/* mask */
-			      PLL_LOCK_TIMEOUT,		/* timeout */
 			      POLL_16B_REG);		/* 16bit */
 	if (ret == 0)
 		printf("Failed to lock USB3 PLL\n");
@@ -495,7 +491,6 @@ static int comphy_usb2_power_up(u8 usb32)
 	ret = comphy_poll_reg(USB2_PHY_CAL_CTRL_ADDR(usb32),
 			      rb_usb2phy_pllcal_done,	/* value */
 			      rb_usb2phy_pllcal_done,	/* mask */
-			      PLL_LOCK_TIMEOUT,		/* timeout */
 			      POLL_32B_REG);		/* 32bit */
 	if (ret == 0)
 		printf("Failed to end USB2 PLL calibration\n");
@@ -504,7 +499,6 @@ static int comphy_usb2_power_up(u8 usb32)
 	ret = comphy_poll_reg(USB2_PHY_CAL_CTRL_ADDR(usb32),
 			      rb_usb2phy_impcal_done,	/* value */
 			      rb_usb2phy_impcal_done,	/* mask */
-			      PLL_LOCK_TIMEOUT,		/* timeout */
 			      POLL_32B_REG);		/* 32bit */
 	if (ret == 0)
 		printf("Failed to end USB2 impedance calibration\n");
@@ -513,7 +507,6 @@ static int comphy_usb2_power_up(u8 usb32)
 	ret = comphy_poll_reg(USB2_PHY_RX_CHAN_CTRL1_ADDR(usb32),
 			      rb_usb2phy_sqcal_done,	/* value */
 			      rb_usb2phy_sqcal_done,	/* mask */
-			      PLL_LOCK_TIMEOUT,		/* timeout */
 			      POLL_32B_REG);		/* 32bit */
 	if (ret == 0)
 		printf("Failed to end USB2 unknown calibration\n");
@@ -522,7 +515,6 @@ static int comphy_usb2_power_up(u8 usb32)
 	ret = comphy_poll_reg(USB2_PHY_PLL_CTRL0_ADDR(usb32),
 			      rb_usb2phy_pll_ready,		/* value */
 			      rb_usb2phy_pll_ready,		/* mask */
-			      PLL_LOCK_TIMEOUT,		/* timeout */
 			      POLL_32B_REG);		/* 32bit */
 
 	if (ret == 0)
@@ -772,7 +764,6 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 	ret = comphy_poll_reg(COMPHY_PHY_STAT1_ADDR(lane),	/* address */
 			      rb_pll_ready_tx | rb_pll_ready_rx, /* value */
 			      rb_pll_ready_tx | rb_pll_ready_rx, /* mask */
-			      PLL_LOCK_TIMEOUT,			/* timeout */
 			      POLL_32B_REG);			/* 32bit */
 	if (ret == 0)
 		printf("Failed to lock PLL for SGMII PHY %d\n", lane);
@@ -795,7 +786,6 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 	ret = comphy_poll_reg(COMPHY_PHY_STAT1_ADDR(lane), /* address */
 			      rb_rx_init_done,			/* value */
 			      rb_rx_init_done,			/* mask */
-			      PLL_LOCK_TIMEOUT,		/* timeout */
 			      POLL_32B_REG);			/* 32bit */
 	if (ret == 0)
 		printf("Failed to init RX of SGMII PHY %d\n", lane);
