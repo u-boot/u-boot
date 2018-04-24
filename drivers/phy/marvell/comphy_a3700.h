@@ -141,6 +141,11 @@ static inline void __iomem *phy_addr(enum phy_unit unit, u32 addr)
 
 #define LANE_CFG1			0x181
 #define bf_use_max_pll_rate		BIT(9)
+#define prd_txdeemph1_mask		BIT(15)
+#define tx_det_rx_mode			BIT(6)
+#define gen2_tx_data_dly_deft		(2 << 3)
+#define gen2_tx_data_dly_mask		(BIT(3) | BIT(4))
+#define tx_elec_idle_mode_en		BIT(0)
 
 #define LANE_CFG4			0x188
 #define bf_spread_spectrum_clock_en	BIT(7)
