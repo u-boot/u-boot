@@ -418,6 +418,7 @@ static int do_zynq_verify_image(cmd_tbl_t *cmdtp, int flag, int argc,
 	u8 encrypt_part_flag;
 	u8 part_chksum_flag;
 	u8 signed_part_flag;
+	u8 bstype;
 	char *endp;
 
 	if (argc < 2)
@@ -553,15 +554,23 @@ static int do_zynq_verify_image(cmd_tbl_t *cmdtp, int flag, int argc,
 				debug("DECRYPTION \r\n");
 
 				part_dst_addr = part_load_addr;
-
-				if (part_attr & ZYNQ_ATTRIBUTE_PL_IMAGE_MASK)
+				/*
+				 * bootgen does not know whether the bitstream
+				 * is full or partial. As of now we supports
+				 * BIT_FULL which is the part of BOOT.BIN.
+				 */
+				if (part_attr & ZYNQ_ATTRIBUTE_PL_IMAGE_MASK) {
 					part_dst_addr = 0xFFFFFFFF;
+					bstype = BIT_FULL;
+				} else {
+					bstype = BIT_NONE;
+				}
 
 				status = zynq_decrypt_load(part_load_addr,
 							   part_img_len,
 							   part_dst_addr,
 							   part_data_len,
-							   BIT_NONE);
+							   bstype);
 				if (status != 0) {
 					printf("DECRYPTION_FAIL\r\n");
 					return -1;
