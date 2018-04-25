@@ -13,8 +13,6 @@ import getopt
 
 # pip install pyelftools
 from elftools.elf.elffile import ELFFile
-from elftools.elf.sections import SymbolTableSection
-from elftools.elf.segments import Segment, InterpSegment, NoteSegment
 
 ELF_SEG_P_TYPE='p_type'
 ELF_SEG_P_PADDR='p_paddr'
