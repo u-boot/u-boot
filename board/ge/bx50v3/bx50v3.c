@@ -33,6 +33,11 @@
 #include "../../../drivers/net/e1000.h"
 DECLARE_GLOBAL_DATA_PTR;
 
+struct vpd_cache;
+
+static int confidx = 3;  /* Default to b850v3. */
+static struct vpd_cache vpd;
+
 #ifndef CONFIG_SYS_I2C_EEPROM_ADDR
 # define CONFIG_SYS_I2C_EEPROM_ADDR     0x50
 # define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
@@ -619,7 +624,6 @@ static void process_vpd(struct vpd_cache *vpd)
 
 static int read_vpd(uint eeprom_bus)
 {
-	struct vpd_cache vpd;
 	int res;
 	int size = 1024;
 	uint8_t *data;
@@ -639,7 +643,6 @@ static int read_vpd(uint eeprom_bus)
 	if (res == 0) {
 		memset(&vpd, 0, sizeof(vpd));
 		vpd_reader(size, data, &vpd, vpd_callback);
-		process_vpd(&vpd);
 	}
 
 	free(data);
@@ -689,8 +692,31 @@ int board_early_init_f(void)
 	return 0;
 }
 
+static void set_confidx(const struct vpd_cache* vpd)
+{
+	switch (vpd->product_id) {
+	case VPD_PRODUCT_B450:
+		confidx = 1;
+		break;
+	case VPD_PRODUCT_B650:
+		confidx = 2;
+		break;
+	case VPD_PRODUCT_B850:
+		confidx = 3;
+		break;
+	}
+}
+
 int board_init(void)
 {
+	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+	setup_i2c(3, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info3);
+
+	read_vpd(CONFIG_SYS_I2C_EEPROM_BUS);
+
+	set_confidx(&vpd);
+
 	gpio_direction_output(SUS_S3_OUT, 1);
 	gpio_direction_output(WIFI_EN, 1);
 #if defined(CONFIG_VIDEO_IPUV3)
@@ -705,10 +731,6 @@ int board_init(void)
 #ifdef CONFIG_MXC_SPI
 	setup_spi();
 #endif
-	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
-	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
-	setup_i2c(3, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info3);
-
 	return 0;
 }
 
@@ -774,7 +796,7 @@ void pmic_init(void)
 
 int board_late_init(void)
 {
-	read_vpd(CONFIG_SYS_I2C_EEPROM_BUS);
+	process_vpd(&vpd);
 
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
