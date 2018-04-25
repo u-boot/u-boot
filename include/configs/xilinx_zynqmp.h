@@ -231,9 +231,6 @@
 
 #define CONFIG_PREBOOT		"run setup"
 
-/* Do not preserve environment */
-#define CONFIG_ENV_SIZE			0x8000
-
 /* Monitor Command Prompt */
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		2048

@@ -445,4 +445,30 @@ config ENV_SIZE
 
 endif
 
+if ARCH_ZYNQMP
+
+config ENV_OFFSET
+	hex "Environment Offset"
+	depends on !ENV_IS_NOWHERE
+	depends on ENV_IS_IN_SPI_FLASH
+	default 0x1e00000
+	help
+	  Offset from the start of the device (or partition)
+
+config ENV_SIZE
+	hex "Environment Size"
+	default 0x40000 if ENV_IS_IN_SPI_FLASH
+	default 0x8000 if !ENV_IS_IN_SPI_FLASH
+	help
+	  Size of the environment storage area.
+
+config ENV_SECT_SIZE
+	hex "Environment Sector-Size"
+	depends on ENV_IS_IN_SPI_FLASH
+	default 0x40000
+	help
+	  Size of the sector containing the environment.
+
+endif
+
 endmenu
