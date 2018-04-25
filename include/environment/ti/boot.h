@@ -36,6 +36,7 @@
 		"run mmcboot;\0" \
 	"emmc_android_boot=" \
 		"echo Trying to boot Android from eMMC ...; " \
+		"run update_to_fit; " \
 		"setenv eval_bootargs setenv bootargs $bootargs; " \
 		"run eval_bootargs; " \
 		"setenv mmcdev 1; " \
@@ -48,7 +49,7 @@
 		"part size mmc ${mmcdev} boot boot_size; " \
 		"mmc read ${fdtaddr} ${fdt_start} ${fdt_size}; " \
 		"mmc read ${loadaddr} ${boot_start} ${boot_size}; " \
-		"bootm $loadaddr $loadaddr $fdtaddr;\0"
+		"bootm ${loadaddr}#${fdtfile};\0 "
 
 #ifdef CONFIG_OMAP54XX
 
