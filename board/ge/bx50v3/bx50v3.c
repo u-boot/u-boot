@@ -366,13 +366,14 @@ int board_cfb_skip(void)
 	return 0;
 }
 
+static int is_b850v3(void)
+{
+	return confidx == 3;
+}
+
 static int detect_lcd(struct display_info_t const *dev)
 {
-	if (IS_ENABLED(CONFIG_TARGET_GE_B450V3) ||
-	    IS_ENABLED(CONFIG_TARGET_GE_B650V3))
-		return 1;
-
-	return 0;
+	return !is_b850v3();
 }
 
 struct display_info_t const displays[] = {{
@@ -682,7 +683,7 @@ int board_early_init_f(void)
 	setup_iomux_uart();
 
 #if defined(CONFIG_VIDEO_IPUV3)
-	if (IS_ENABLED(CONFIG_TARGET_GE_B850V3))
+	if (is_b850v3())
 		/* Set LDB clock to Video PLL */
 		select_ldb_di_clock_source(MXC_PLL5_CLK);
 	else
@@ -720,7 +721,7 @@ int board_init(void)
 	gpio_direction_output(SUS_S3_OUT, 1);
 	gpio_direction_output(WIFI_EN, 1);
 #if defined(CONFIG_VIDEO_IPUV3)
-	if (IS_ENABLED(CONFIG_TARGET_GE_B850V3))
+	if (is_b850v3())
 		setup_display_b850v3();
 	else
 		setup_display_bx50v3();
