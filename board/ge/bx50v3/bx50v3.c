@@ -803,6 +803,9 @@ int board_late_init(void)
 	add_board_boot_modes(board_boot_modes);
 #endif
 
+	if (is_b850v3())
+		env_set("videoargs", "video=DP-1:1024x768@60 video=HDMI-A-1:1024x768@60");
+
 	/* board specific pmic init */
 	pmic_init();
 
