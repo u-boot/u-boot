@@ -15,6 +15,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/psu_init_gpl.h>
 #include <asm/io.h>
+#include <dm/device.h>
 #include <dm/uclass.h>
 #include <usb.h>
 #include <dwc3-uboot.h>
@@ -494,6 +495,9 @@ int board_late_init(void)
 {
 	u32 reg = 0;
 	u8 bootmode;
+	struct udevice *dev;
+	int bootseq = -1;
+	int bootseq_len = 0;
 	int env_targets_len = 0;
 	const char *mode;
 	char *new_targets;
@@ -539,7 +543,15 @@ int board_late_init(void)
 		break;
 	case SD_MODE:
 		puts("SD_MODE\n");
-		mode = "mmc0";
+		if (uclass_get_device_by_name(UCLASS_MMC,
+					      "sdhci@ff160000", &dev)) {
+			puts("Boot from SD0 but without SD0 enabled!\n");
+			return -1;
+		}
+		debug("mmc0 device found at %p, seq %d\n", dev, dev->seq);
+
+		mode = "mmc";
+		bootseq = dev->seq;
 		env_set("modeboot", "sdboot");
 		break;
 	case SD1_LSHFT_MODE:
@@ -547,12 +559,15 @@ int board_late_init(void)
 		/* fall through */
 	case SD_MODE1:
 		puts("SD_MODE1\n");
-#if defined(CONFIG_ZYNQ_SDHCI0) && defined(CONFIG_ZYNQ_SDHCI1)
-		mode = "mmc1";
-		env_set("sdbootdev", "1");
-#else
-		mode = "mmc0";
-#endif
+		if (uclass_get_device_by_name(UCLASS_MMC,
+					      "sdhci@ff170000", &dev)) {
+			puts("Boot from SD1 but without SD1 enabled!\n");
+			return -1;
+		}
+		debug("mmc1 device found at %p, seq %d\n", dev, dev->seq);
+
+		mode = "mmc";
+		bootseq = dev->seq;
 		env_set("modeboot", "sdboot");
 		break;
 	case NAND_MODE:
@@ -566,6 +581,11 @@ int board_late_init(void)
 		break;
 	}
 
+	if (bootseq >= 0) {
+		bootseq_len = snprintf(NULL, 0, "%i", bootseq);
+		debug("Bootseq len: %x\n", bootseq_len);
+	}
+
 	/*
 	 * One terminating char + one byte for space between mode
 	 * and default boot_targets
@@ -574,10 +594,15 @@ int board_late_init(void)
 	if (env_targets)
 		env_targets_len = strlen(env_targets);
 
-	new_targets = calloc(1, strlen(mode) + env_targets_len + 2);
+	new_targets = calloc(1, strlen(mode) + env_targets_len + 2 +
+			     bootseq_len);
 
-	sprintf(new_targets, "%s %s", mode,
-		env_targets ? env_targets : "");
+	if (bootseq >= 0)
+		sprintf(new_targets, "%s%x %s", mode, bootseq,
+			env_targets ? env_targets : "");
+	else
+		sprintf(new_targets, "%s %s", mode,
+			env_targets ? env_targets : "");
 
 	env_set("boot_targets", new_targets);
 
