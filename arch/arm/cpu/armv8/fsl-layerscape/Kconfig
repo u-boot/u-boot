@@ -167,6 +167,7 @@ config ARCH_LS2080A
 	select SYS_I2C_MXC_I2C2
 	select SYS_I2C_MXC_I2C3
 	select SYS_I2C_MXC_I2C4
+	imply DISTRO_DEFAULTS
 	imply PANIC_HANG
 
 config FSL_LSCH2

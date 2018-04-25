@@ -584,6 +584,7 @@ config ARCH_OMAP2PLUS
 
 config ARCH_MESON
 	bool "Amlogic Meson"
+	imply DISTRO_DEFAULTS
 	help
 	  Support for the Meson SoC family developed by Amlogic Inc.,
 	  targeted at media players and tablet computers. We currently
@@ -723,6 +724,7 @@ config ARCH_SUNXI
 	select USB_KEYBOARD if DISTRO_DEFAULTS
 	select USE_TINY_PRINTF
 	imply CMD_GPT
+	imply DISTRO_DEFAULTS
 	imply FAT_WRITE
 	imply OF_LIBFDT_OVERLAY
 	imply PRE_CONSOLE_BUFFER
@@ -784,6 +786,7 @@ config ARCH_ZYNQMP
 
 config TEGRA
 	bool "NVIDIA Tegra"
+	imply DISTRO_DEFAULTS
 	imply FAT_WRITE
 
 config TARGET_VEXPRESS64_AEMV8A
@@ -1183,6 +1186,7 @@ config ARCH_ROCKCHIP
 	select ENABLE_ARM_SOC_BOOT0_HOOK
 	select SPI
 	imply CMD_FASTBOOT
+	imply DISTRO_DEFAULTS
 	imply FASTBOOT
 	imply FAT_WRITE
 	imply USB_FUNCTION_FASTBOOT
