@@ -286,6 +286,7 @@ config OF_LIBFDT
 
 config OF_LIBFDT_OVERLAY
 	bool "Enable the FDT library overlay support"
+	default y if ARCH_OMAP2PLUS || ARCH_KEYSTONE
 	help
 	  This enables the FDT library (libfdt) overlay support.
 
