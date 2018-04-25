@@ -14,16 +14,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/gpio.h>
 
-#if defined(CONFIG_TARGET_GE_B450V3)
-#define CONFIG_BOARD_NAME	"General Electric B450v3"
-#elif defined(CONFIG_TARGET_GE_B650V3)
-#define CONFIG_BOARD_NAME	"General Electric B650v3"
-#elif defined(CONFIG_TARGET_GE_B850V3)
-#define CONFIG_BOARD_NAME	"General Electric B850v3"
-#undef BX50V3_BOOTARGS_EXTRA
-#else
-#define CONFIG_BOARD_NAME	"General Electric BA16 Generic"
-#endif
+#define CONFIG_BOARD_NAME	"General Electric Bx50v3"
 
 #define CONFIG_MXC_UART_BASE	UART3_BASE
 #define CONSOLE_DEV	"ttymxc2"

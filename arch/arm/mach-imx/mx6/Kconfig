@@ -167,18 +167,8 @@ config TARGET_EMBESTMX6BOARDS
 	bool "embestmx6boards"
 	select BOARD_LATE_INIT
 
-config TARGET_GE_B450V3
-	bool "General Electric B450v3"
-	select BOARD_LATE_INIT
-	select MX6Q
-
-config TARGET_GE_B650V3
-	bool "General Electric B650v3"
-	select BOARD_LATE_INIT
-	select MX6Q
-
-config TARGET_GE_B850V3
-	bool "General Electric B850v3"
+config TARGET_GE_BX50V3
+	bool "General Electric Bx50v3"
 	select BOARD_LATE_INIT
 	select MX6Q
 
