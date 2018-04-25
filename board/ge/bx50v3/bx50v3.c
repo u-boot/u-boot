@@ -361,7 +361,7 @@ int board_cfb_skip(void)
 	return 0;
 }
 
-static int detect_baseboard(struct display_info_t const *dev)
+static int detect_lcd(struct display_info_t const *dev)
 {
 	if (IS_ENABLED(CONFIG_TARGET_GE_B450V3) ||
 	    IS_ENABLED(CONFIG_TARGET_GE_B650V3))
@@ -374,7 +374,7 @@ struct display_info_t const displays[] = {{
 	.bus	= -1,
 	.addr	= -1,
 	.pixfmt	= IPU_PIX_FMT_RGB24,
-	.detect	= detect_baseboard,
+	.detect	= detect_lcd,
 	.enable	= NULL,
 	.mode	= {
 		.name           = "G121X1-L03",
