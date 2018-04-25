@@ -492,6 +492,8 @@ static void setup_display_bx50v3(void)
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
 
+	enable_videopll();
+
 	/* When a reset/reboot is performed the display power needs to be turned
 	 * off for atleast 500ms. The boot time is ~300ms, we need to wait for
 	 * an additional 200ms here. Unfortunately we use external PMIC for
