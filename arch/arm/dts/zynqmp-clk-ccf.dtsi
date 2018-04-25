@@ -231,6 +231,22 @@
 	clocks = <&clk 59>, <&clk 31>;
 };
 
+&ttc0 {
+	clocks = <&clk 31>;
+};
+
+&ttc1 {
+	clocks = <&clk 31>;
+};
+
+&ttc2 {
+	clocks = <&clk 31>;
+};
+
+&ttc3 {
+	clocks = <&clk 31>;
+};
+
 &uart0 {
 	clocks = <&clk 56>, <&clk 31>;
 };
