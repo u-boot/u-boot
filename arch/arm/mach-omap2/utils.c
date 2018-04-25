@@ -29,6 +29,8 @@ static void omap_set_fastboot_cpu(void)
 
 	switch (cpu_rev) {
 	case DRA762_ES1_0:
+	case DRA762_ABZ_ES1_0:
+	case DRA762_ACD_ES1_0:
 		cpu = "DRA762";
 		break;
 	case DRA752_ES1_0:
