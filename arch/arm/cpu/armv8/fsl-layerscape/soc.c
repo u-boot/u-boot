@@ -517,6 +517,7 @@ static void erratum_a010539(void)
 	porsr1 &= ~FSL_CHASSIS2_CCSR_PORSR1_RCW_MASK;
 	out_be32((void *)(CONFIG_SYS_DCSR_DCFG_ADDR + DCFG_DCSR_PORCR1),
 		 porsr1);
+	out_be32((void *)(CONFIG_SYS_FSL_SCFG_ADDR + 0x1a8), 0xffffffff);
 #endif
 }
 
