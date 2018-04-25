@@ -248,6 +248,22 @@
 	clocks = <&clkc 59>, <&clkc 31>;
 };
 
+&ttc0 {
+	clocks = <&clkc 31>;
+};
+
+&ttc1 {
+	clocks = <&clkc 31>;
+};
+
+&ttc2 {
+	clocks = <&clkc 31>;
+};
+
+&ttc3 {
+	clocks = <&clkc 31>;
+};
+
 &uart0 {
 	clocks = <&clkc 56>,  <&clkc 31>;
 };
