@@ -593,23 +593,16 @@ static void process_vpd(struct vpd_cache *vpd)
 	switch (vpd->product_id) {
 	case VPD_PRODUCT_B450:
 		env_set("confidx", "1");
+		i210_index = 0;
+		fec_index = 1;
 		break;
 	case VPD_PRODUCT_B650:
 		env_set("confidx", "2");
-		break;
-	case VPD_PRODUCT_B850:
-		env_set("confidx", "3");
-		break;
-	}
-
-	switch (vpd->product_id) {
-	case VPD_PRODUCT_B450:
-		/* fall thru */
-	case VPD_PRODUCT_B650:
 		i210_index = 0;
 		fec_index = 1;
 		break;
 	case VPD_PRODUCT_B850:
+		env_set("confidx", "3");
 		i210_index = 1;
 		fec_index = 2;
 		break;
