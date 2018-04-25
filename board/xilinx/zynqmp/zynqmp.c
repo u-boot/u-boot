@@ -453,6 +453,7 @@ int board_late_init(void)
 {
 	u32 reg = 0;
 	u8 bootmode;
+	int env_targets_len = 0;
 	const char *mode;
 	char *new_targets;
 	char *env_targets;
@@ -529,14 +530,13 @@ int board_late_init(void)
 	 * and default boot_targets
 	 */
 	env_targets = env_get("boot_targets");
-	if (env_targets) {
-		new_targets = calloc(1, strlen(mode) +
-				     strlen(env_targets) + 2);
-		sprintf(new_targets, "%s %s", mode, env_targets);
-	} else {
-		new_targets = calloc(1, strlen(mode) + 2);
-		sprintf(new_targets, "%s", mode);
-	}
+	if (env_targets)
+		env_targets_len = strlen(env_targets);
+
+	new_targets = calloc(1, strlen(mode) + env_targets_len + 2);
+
+	sprintf(new_targets, "%s %s", mode,
+		env_targets ? env_targets : "");
 
 	env_set("boot_targets", new_targets);
 
