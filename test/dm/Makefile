@@ -21,6 +21,7 @@ obj-$(CONFIG_DM_I2C) += i2c.o
 obj-$(CONFIG_LED) += led.o
 obj-$(CONFIG_DM_MAILBOX) += mailbox.o
 obj-$(CONFIG_DM_MMC) += mmc.o
+obj-y += ofnode.o
 obj-$(CONFIG_DM_PCI) += pci.o
 obj-$(CONFIG_PHY) += phy.o
 obj-$(CONFIG_POWER_DOMAIN) += power-domain.o
