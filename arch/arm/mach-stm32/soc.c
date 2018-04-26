@@ -6,7 +6,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/armv7m_mpu.h>
+#include <asm/armv7_mpu.h>
 
 int arch_cpu_init(void)
 {

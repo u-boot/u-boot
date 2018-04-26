@@ -87,6 +87,15 @@ config SYS_ARM_MMU
 	  Select if you want MMU-based virtualised addressing space
 	  support by paged memory management.
 
+config SYS_ARM_MPU
+	bool 'Use the ARM v7 PMSA Compliant MPU'
+	help
+	  Some ARM systems without an MMU have instead a Memory Protection
+	  Unit (MPU) that defines the type and permissions for regions of
+	  memory.
+	  If your CPU has an MPU then you should choose 'y' here unless you
+	  know that you do not want to use the MPU.
+
 # If set, the workarounds for these ARM errata are applied early during U-Boot
 # startup. Note that in general these options force the workarounds to be
 # applied; no CPU-type/version detection exists, unlike the similar options in
@@ -211,11 +220,14 @@ config CPU_V7M
 	select HAS_THUMB2
 	select THUMB2_KERNEL
 	select SYS_CACHE_SHIFT_5
+	select SYS_ARM_MPU
 
 config CPU_V7R
 	bool
 	select HAS_THUMB2
 	select SYS_CACHE_SHIFT_6
+	select SYS_ARM_MPU
+	select SYS_ARM_CACHE_CP15
 
 config CPU_PXA
 	bool
