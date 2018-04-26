@@ -50,7 +50,7 @@ config TEGRA_NO_BPMP
 
 config TEGRA_ARMV7_COMMON
 	bool "Tegra 32-bit common options"
-	select CPU_V7
+	select CPU_V7A
 	select SPL
 	select SPL_BOARD_INIT if SPL
 	select SUPPORT_SPL

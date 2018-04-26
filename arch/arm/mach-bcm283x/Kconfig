@@ -7,7 +7,7 @@ config BCM2836
 	bool "Broadcom BCM2836 SoC support"
 	depends on ARCH_BCM283X
 	select ARMV7_LPAE
-	select CPU_V7
+	select CPU_V7A
 
 config BCM2837
 	bool "Broadcom BCM2837 SoC support"
@@ -18,7 +18,7 @@ config BCM2837_32B
 	depends on ARCH_BCM283X
 	select BCM2837
 	select ARMV7_LPAE
-	select CPU_V7
+	select CPU_V7A
 
 config BCM2837_64B
 	bool "Broadcom BCM2837 SoC 64-bit support"

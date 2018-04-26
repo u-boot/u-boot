@@ -5,7 +5,7 @@ config SYS_CONFIG_NAME
 
 config ARCH_UNIPHIER_32BIT
 	bool
-	select CPU_V7
+	select CPU_V7A
 	select CPU_V7_HAS_NONSEC
 	select ARMV7_NONSEC
 	select ARCH_SUPPORT_PSCI

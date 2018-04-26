@@ -20,7 +20,7 @@ void *secondary_boot_addr = (void *)_main;
 
 void reset_cpu(ulong addr)
 {
-#ifdef CONFIG_CPU_V7
+#ifdef CONFIG_CPU_V7A
 	writel(0x1, samsung_get_base_swreset());
 #endif
 }

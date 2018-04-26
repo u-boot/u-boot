@@ -2,7 +2,7 @@ if ARCH_ROCKCHIP
 
 config ROCKCHIP_RK3036
 	bool "Support Rockchip RK3036"
-	select CPU_V7
+	select CPU_V7A
 	select SUPPORT_SPL
 	select SPL
 	imply USB_FUNCTION_ROCKUSB
@@ -15,7 +15,7 @@ config ROCKCHIP_RK3036
 
 config ROCKCHIP_RK3128
 	bool "Support Rockchip RK3128"
-	select CPU_V7
+	select CPU_V7A
 	help
 	  The Rockchip RK3128 is a ARM-based SoC with a quad-core Cortex-A7
 	  including NEON and GPU, Mali-400 graphics, several DDR3 options
@@ -24,7 +24,7 @@ config ROCKCHIP_RK3128
 
 config ROCKCHIP_RK3188
 	bool "Support Rockchip RK3188"
-	select CPU_V7
+	select CPU_V7A
 	select SPL_BOARD_INIT if SPL
 	select SUPPORT_SPL
 	select SPL
@@ -46,7 +46,7 @@ config ROCKCHIP_RK3188
 
 config ROCKCHIP_RK322X
 	bool "Support Rockchip RK3228/RK3229"
-	select CPU_V7
+	select CPU_V7A
 	select SUPPORT_SPL
 	select SPL
 	select ROCKCHIP_BROM_HELPER
@@ -59,7 +59,7 @@ config ROCKCHIP_RK322X
 
 config ROCKCHIP_RK3288
 	bool "Support Rockchip RK3288"
-	select CPU_V7
+	select CPU_V7A
 	select SPL_BOARD_INIT if SPL
 	select SUPPORT_SPL
 	select SPL
@@ -151,7 +151,7 @@ config ROCKCHIP_RK3399
 
 config ROCKCHIP_RV1108
 	bool "Support Rockchip RV1108"
-	select CPU_V7
+	select CPU_V7A
 	help
 	  The Rockchip RV1108 is a ARM-based SoC with a single-core Cortex-A7
 	  and a DSP.

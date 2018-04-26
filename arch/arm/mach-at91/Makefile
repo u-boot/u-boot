@@ -16,4 +16,4 @@ endif
 obj-y += clock.o
 obj-$(CONFIG_CPU_ARM920T)	+= arm920t/
 obj-$(CONFIG_CPU_ARM926EJS)	+= arm926ejs/
-obj-$(CONFIG_CPU_V7)		+= armv7/
+obj-$(CONFIG_CPU_V7A)		+= armv7/

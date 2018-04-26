@@ -160,7 +160,7 @@ static inline void mmu_setup(void)
 		asm volatile("mcr p15, 0, %0, c10, c2, 0"
 			: : "r" (MEMORY_ATTRIBUTES) : "memory");
 	}
-#elif defined(CONFIG_CPU_V7)
+#elif defined(CONFIG_CPU_V7A)
 	if (is_hyp()) {
 		/* Set HTCR to disable LPAE */
 		asm volatile("mcr p15, 4, %0, c2, c0, 2"

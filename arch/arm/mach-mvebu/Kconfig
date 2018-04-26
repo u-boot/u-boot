@@ -6,7 +6,7 @@ config HAVE_MVEBU_EFUSE
 
 config ARMADA_32BIT
 	bool
-	select CPU_V7
+	select CPU_V7A
 	select SUPPORT_SPL
 	select SPL_DM
 	select SPL_DM_SEQ_ALIAS

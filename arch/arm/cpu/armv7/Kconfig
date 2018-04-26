@@ -1,4 +1,4 @@
-if CPU_V7
+if CPU_V7A
 
 config CPU_V7_HAS_NONSEC
         bool
@@ -52,7 +52,7 @@ config ARMV7_PSCI_NR_CPUS
 
 config ARMV7_LPAE
 	bool "Use LPAE page table format" if EXPERT
-	depends on CPU_V7
+	depends on CPU_V7A
 	default n
 	---help---
 	Say Y here to use the long descriptor page table format. This is

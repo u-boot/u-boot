@@ -31,5 +31,5 @@ obj-y += dram/
 
 obj-$(CONFIG_DEBUG_UART_UNIPHIER) += debug-uart/
 
-obj-$(CONFIG_CPU_V7) += arm32/
+obj-$(CONFIG_CPU_V7A) += arm32/
 obj-$(CONFIG_ARM64) += arm64/

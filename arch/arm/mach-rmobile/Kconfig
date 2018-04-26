@@ -6,7 +6,7 @@ choice
 
 config RCAR_32
 	bool "Renesas ARM SoCs R-Car Gen1/Gen2 (32bit)"
-	select CPU_V7
+	select CPU_V7A
 
 config RCAR_GEN3
 	bool "Renesas ARM SoCs R-Car Gen3 (64bit)"

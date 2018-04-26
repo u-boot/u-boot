@@ -6,7 +6,7 @@ choice
 
 config ARCH_EXYNOS4
 	bool "Exynos4 SoC family"
-	select CPU_V7
+	select CPU_V7A
 	select BOARD_EARLY_INIT_F
 	help
 	  Samsung Exynos4 SoC family are based on ARM Cortex-A9 CPU. There
@@ -15,7 +15,7 @@ config ARCH_EXYNOS4
 
 config ARCH_EXYNOS5
 	bool "Exynos5 SoC family"
-	select CPU_V7
+	select CPU_V7A
 	select BOARD_EARLY_INIT_F
 	select SHA_HW_ACCEL
 	imply CRC32_VERIFY

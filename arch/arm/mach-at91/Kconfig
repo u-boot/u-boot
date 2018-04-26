@@ -45,15 +45,15 @@ config AT91SAM9X5
 
 config SAMA5D2
 	bool
-	select CPU_V7
+	select CPU_V7A
 
 config SAMA5D3
 	bool
-	select CPU_V7
+	select CPU_V7A
 
 config SAMA5D4
 	bool
-	select CPU_V7
+	select CPU_V7A
 
 choice
 	prompt "Atmel AT91 board select"
@@ -159,7 +159,7 @@ config TARGET_SAMA5D2_XPLAINED
 
 config TARGET_SAMA5D27_SOM1_EK
 	bool "SAMA5D27 SOM1 EK board"
-	select CPU_V7
+	select CPU_V7A
 	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
@@ -254,7 +254,7 @@ config TARGET_WB45N
 config TARGET_WB50N
 	bool "Support Laird WB50N"
 	select BOARD_LATE_INIT
-	select CPU_V7
+	select CPU_V7A
 	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
 
@@ -297,6 +297,6 @@ source "board/laird/wb50n/Kconfig"
 
 config SPL_LDSCRIPT
 	default "arch/arm/mach-at91/arm926ejs/u-boot-spl.lds" if CPU_ARM926EJS
-	default "arch/arm/mach-at91/armv7/u-boot-spl.lds" if CPU_V7
+	default "arch/arm/mach-at91/armv7/u-boot-spl.lds" if CPU_V7A
 
 endif
