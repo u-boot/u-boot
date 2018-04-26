@@ -16,6 +16,17 @@ choice
 	prompt "MX5 board select"
 	optional
 
+config TARGET_KP_IMX53
+	bool "Support K+P imx53 board"
+	select BOARD_LATE_INIT
+	select MX53
+	select DM
+	select DM_SERIAL
+	select DM_ETH
+	select DM_I2C
+	select DM_GPIO
+	select DM_PMIC
+
 config TARGET_M53EVK
 	bool "Support m53evk"
 	select MX53
@@ -79,6 +90,7 @@ source "board/freescale/mx53loco/Kconfig"
 source "board/freescale/mx53smd/Kconfig"
 source "board/ge/mx53ppd/Kconfig"
 source "board/inversepath/usbarmory/Kconfig"
+source "board/k+p/kp_imx53/Kconfig"
 source "board/technologic/ts4800/Kconfig"
 
 endif
