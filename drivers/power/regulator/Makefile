@@ -23,3 +23,4 @@ obj-$(CONFIG_$(SPL_)DM_REGULATOR_PBIAS) += pbias_regulator.o
 obj-$(CONFIG_$(SPL_)DM_REGULATOR_LP873X) += lp873x_regulator.o
 obj-$(CONFIG_$(SPL_)DM_REGULATOR_LP87565) += lp87565_regulator.o
 obj-$(CONFIG_DM_REGULATOR_TPS65910) += tps65910_regulator.o
+obj-$(CONFIG_$(SPL_)DM_REGULATOR_STPMU1) += stpmu1.o
