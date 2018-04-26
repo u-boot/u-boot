@@ -72,9 +72,11 @@ switch_to_hypervisor_ret:
 	bic	r0, #CR_V		@ V = 0
 	mcr	p15, 0, r0, c1, c0, 0	@ Write CP15 SCTLR Register
 
+#ifdef CONFIG_HAS_VBAR
 	/* Set vector address in CP15 VBAR register */
 	ldr	r0, =_start
 	mcr	p15, 0, r0, c12, c0, 0	@Set VBAR
+#endif
 #endif
 
 	/* the mask ROM code should have PLL and others stable */
