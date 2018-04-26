@@ -106,3 +106,14 @@ void setup_mpu_regions(struct mpu_region_config *rgns, u32 num_rgns)
 
 	icache_enable();
 }
+
+void enable_caches(void)
+{
+	/*
+	 * setup_mpu_regions() might have enabled Icache. So add a check
+	 * before enabling Icache
+	 */
+	if (!icache_status())
+		icache_enable();
+	dcache_enable();
+}
