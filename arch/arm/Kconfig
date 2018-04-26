@@ -1185,6 +1185,7 @@ config ARCH_ROCKCHIP
 	imply TPL_SYSRESET
 	imply ADC
 	imply SARADC_ROCKCHIP
+	imply SYS_NS16550
 
 config TARGET_THUNDERX_88XX
 	bool "Support ThunderX 88xx"

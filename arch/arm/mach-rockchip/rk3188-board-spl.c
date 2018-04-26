@@ -131,8 +131,6 @@ void board_init_f(ulong dummy)
 		hang();
 	}
 
-	rockchip_timer_init();
-
 	ret = rockchip_get_clk(&dev);
 	if (ret) {
 		debug("CLK init failed: %d\n", ret);

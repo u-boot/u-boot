@@ -209,11 +209,18 @@ static void rkclk_init(struct rv1108_cru *cru)
 	printf("APLL: %d DPLL:%d GPLL:%d\n", apll, dpll, gpll);
 }
 
-static int rv1108_clk_probe(struct udevice *dev)
+static int rv1108_clk_ofdata_to_platdata(struct udevice *dev)
 {
 	struct rv1108_clk_priv *priv = dev_get_priv(dev);
 
 	priv->cru = dev_read_addr_ptr(dev);
+
+	return 0;
+}
+
+static int rv1108_clk_probe(struct udevice *dev)
+{
+	struct rv1108_clk_priv *priv = dev_get_priv(dev);
 
 	rkclk_init(priv->cru);
 
@@ -260,6 +267,7 @@ U_BOOT_DRIVER(clk_rv1108) = {
 	.id		= UCLASS_CLK,
 	.of_match	= rv1108_clk_ids,
 	.priv_auto_alloc_size = sizeof(struct rv1108_clk_priv),
+	.ofdata_to_platdata = rv1108_clk_ofdata_to_platdata,
 	.ops		= &rv1108_clk_ops,
 	.bind		= rv1108_clk_bind,
 	.probe		= rv1108_clk_probe,

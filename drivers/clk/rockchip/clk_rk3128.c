@@ -546,11 +546,19 @@ static struct clk_ops rk3128_clk_ops = {
 	.set_rate	= rk3128_clk_set_rate,
 };
 
+static int rk3128_clk_ofdata_to_platdata(struct udevice *dev)
+{
+	struct rk3128_clk_priv *priv = dev_get_priv(dev);
+
+	priv->cru = dev_read_addr_ptr(dev);
+
+	return 0;
+}
+
 static int rk3128_clk_probe(struct udevice *dev)
 {
 	struct rk3128_clk_priv *priv = dev_get_priv(dev);
 
-	priv->cru = (struct rk3128_cru *)dev_read_addr(dev);
 	rkclk_init(priv->cru);
 
 	return 0;
@@ -590,6 +598,7 @@ U_BOOT_DRIVER(rockchip_rk3128_cru) = {
 	.id		= UCLASS_CLK,
 	.of_match	= rk3128_clk_ids,
 	.priv_auto_alloc_size = sizeof(struct rk3128_clk_priv),
+	.ofdata_to_platdata = rk3128_clk_ofdata_to_platdata,
 	.ops		= &rk3128_clk_ops,
 	.bind		= rk3128_clk_bind,
 	.probe		= rk3128_clk_probe,
