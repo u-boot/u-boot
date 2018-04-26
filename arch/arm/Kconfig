@@ -74,6 +74,12 @@ config ARM_ASM_UNIFIED
 config THUMB2_KERNEL
 	bool
 
+config SYS_ARM_MMU
+	bool "MMU-based Paged Memory Management Support"
+	help
+	  Select if you want MMU-based virtualised addressing space
+	  support by paged memory management.
+
 # If set, the workarounds for these ARM errata are applied early during U-Boot
 # startup. Note that in general these options force the workarounds to be
 # applied; no CPU-type/version detection exists, unlike the similar options in
@@ -158,33 +164,40 @@ config ARM_ERRATA_855873
 config CPU_ARM720T
 	bool
 	select SYS_CACHE_SHIFT_5
+	imply SYS_ARM_MMU
 
 config CPU_ARM920T
 	bool
 	select SYS_CACHE_SHIFT_5
+	imply SYS_ARM_MMU
 
 config CPU_ARM926EJS
 	bool
 	select SYS_CACHE_SHIFT_5
+	imply SYS_ARM_MMU
 
 config CPU_ARM946ES
 	bool
 	select SYS_CACHE_SHIFT_5
+	imply SYS_ARM_MMU
 
 config CPU_ARM1136
 	bool
 	select SYS_CACHE_SHIFT_5
+	imply SYS_ARM_MMU
 
 config CPU_ARM1176
 	bool
 	select HAS_VBAR
 	select SYS_CACHE_SHIFT_5
+	imply SYS_ARM_MMU
 
 config CPU_V7A
 	bool
 	select HAS_VBAR
 	select HAS_THUMB2
 	select SYS_CACHE_SHIFT_6
+	imply SYS_ARM_MMU
 
 config CPU_V7M
 	bool
@@ -195,10 +208,12 @@ config CPU_V7M
 config CPU_PXA
 	bool
 	select SYS_CACHE_SHIFT_5
+	imply SYS_ARM_MMU
 
 config CPU_SA1100
 	bool
 	select SYS_CACHE_SHIFT_5
+	imply SYS_ARM_MMU
 
 config SYS_CPU
 	default "arm720t" if CPU_ARM720T
