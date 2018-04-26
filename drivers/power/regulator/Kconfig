@@ -197,6 +197,15 @@ config DM_REGULATOR_LP87565
 	be configured in multi phase modes. The driver implements
 	get/set api for value and enable.
 
+config DM_REGULATOR_STM32_VREFBUF
+	bool "Enable driver for STMicroelectronics STM32 VREFBUF"
+	depends on DM_REGULATOR && (STM32H7 || ARCH_STM32MP)
+	help
+	This driver supports STMicroelectronics STM32 VREFBUF (voltage
+	reference buffer) which can be used as voltage reference for
+	internal ADCs, DACs and also for external components through
+	dedicated Vref+ pin.
+
 config DM_REGULATOR_TPS65910
 	bool "Enable driver for TPS65910 PMIC regulators"
 	depends on DM_PMIC_TPS65910
