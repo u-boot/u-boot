@@ -74,8 +74,15 @@ config ARM_ASM_UNIFIED
 config THUMB2_KERNEL
 	bool
 
+config SYS_ARM_CACHE_CP15
+	bool "CP15 based cache enabling support"
+	help
+	  Select this if your processor suports enabling caches by using
+	  CP15 registers.
+
 config SYS_ARM_MMU
 	bool "MMU-based Paged Memory Management Support"
+	select SYS_ARM_CACHE_CP15
 	help
 	  Select if you want MMU-based virtualised addressing space
 	  support by paged memory management.
