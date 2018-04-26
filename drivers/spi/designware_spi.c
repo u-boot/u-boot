@@ -425,7 +425,7 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	 * in the beginning of new transfer.
 	 */
 	if (readl_poll_timeout(priv->regs + DW_SPI_SR, val,
-			       !(val & SR_TF_EMPT) || (val & SR_BUSY),
+			       (val & SR_TF_EMPT) && !(val & SR_BUSY),
 			       RX_TIMEOUT * 1000)) {
 		ret = -ETIMEDOUT;
 	}
