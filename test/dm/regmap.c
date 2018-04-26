@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2015 Google, Inc
-2 *
+ *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
