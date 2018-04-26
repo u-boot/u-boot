@@ -156,6 +156,15 @@
 			};
 		};
 
+		vrefbuf: vrefbuf@50025000 {
+			compatible = "st,stm32-vrefbuf";
+			reg = <0x50025000 0x8>;
+			regulator-min-microvolt = <1500000>;
+			regulator-max-microvolt = <2500000>;
+			clocks = <&rcc_clk VREF>;
+			status = "disabled";
+		};
+
 		pinctrl: pin-controller {
 			compatible = "st,stm32mp157-pinctrl";
 			#address-cells = <1>;
