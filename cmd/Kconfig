@@ -1103,7 +1103,7 @@ config BOOTP_PXE_CLIENTARCH
 config BOOTP_VCI_STRING
 	string
 	depends on CMD_BOOTP
-	default "U-Boot.armv7" if CPU_V7A || CPU_V7M
+	default "U-Boot.armv7" if CPU_V7A || CPU_V7M || CPU_V7R
 	default "U-Boot.armv8" if ARM64
 	default "U-Boot.arm" if ARM
 	default "U-Boot"

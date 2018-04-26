@@ -212,6 +212,11 @@ config CPU_V7M
 	select THUMB2_KERNEL
 	select SYS_CACHE_SHIFT_5
 
+config CPU_V7R
+	bool
+	select HAS_THUMB2
+	select SYS_CACHE_SHIFT_6
+
 config CPU_PXA
 	bool
 	select SYS_CACHE_SHIFT_5
@@ -230,6 +235,7 @@ config SYS_CPU
 	default "arm1136" if CPU_ARM1136
 	default "arm1176" if CPU_ARM1176
 	default "armv7" if CPU_V7A
+	default "armv7" if CPU_V7R
 	default "armv7m" if CPU_V7M
 	default "pxa" if CPU_PXA
 	default "sa1100" if CPU_SA1100
@@ -245,6 +251,7 @@ config SYS_ARM_ARCH
 	default 6 if CPU_ARM1176
 	default 7 if CPU_V7A
 	default 7 if CPU_V7M
+	default 7 if CPU_V7R
 	default 5 if CPU_PXA
 	default 4 if CPU_SA1100
 	default 8 if ARM64

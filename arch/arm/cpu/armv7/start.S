@@ -81,7 +81,9 @@ switch_to_hypervisor_ret:
 
 	/* the mask ROM code should have PLL and others stable */
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#ifdef CONFIG_CPU_V7A
 	bl	cpu_init_cp15
+#endif
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 	bl	cpu_init_crit
 #endif
