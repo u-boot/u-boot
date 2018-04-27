@@ -32,7 +32,6 @@
  */
 #define CONFIG_SYS_RX_ETH_BUFFER	0
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-#define CONFIG_PHY_MARVELL
 
 /*
  * BOOTP options

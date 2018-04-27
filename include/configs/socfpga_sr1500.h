@@ -17,7 +17,6 @@
 /* Ethernet on SoC (EMAC) */
 #define CONFIG_PHY_INTERFACE_MODE	PHY_INTERFACE_MODE_RGMII
 /* The PHY is autodetected, so no MII PHY address is needed here */
-#define CONFIG_PHY_MARVELL
 #define PHY_ANEG_TIMEOUT	8000
 
 /* Environment */

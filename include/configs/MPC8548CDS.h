@@ -407,8 +407,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_TSEC4_NAME	"eTSEC3"
 #undef CONFIG_MPC85XX_FEC
 
-#define CONFIG_PHY_MARVELL
-
 #define TSEC1_PHY_ADDR		0
 #define TSEC2_PHY_ADDR		1
 #define TSEC3_PHY_ADDR		2

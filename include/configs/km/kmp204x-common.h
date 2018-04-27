@@ -324,7 +324,6 @@ int get_scl(void);
 
 #define CONFIG_FMAN_ENET
 #define CONFIG_PHYLIB_10G
-#define CONFIG_PHY_MARVELL		/* there is a marvell phy */
 
 #define CONFIG_PCI_INDIRECT_BRIDGE
 

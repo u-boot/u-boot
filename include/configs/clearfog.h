@@ -54,7 +54,6 @@
 #define CONFIG_ENV_OFFSET		0xf0000
 #define CONFIG_ENV_ADDR			CONFIG_ENV_OFFSET
 
-#define CONFIG_PHY_MARVELL		/* there is a marvell phy */
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
 /* PCIe support */
