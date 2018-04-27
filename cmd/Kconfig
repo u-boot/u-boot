@@ -601,6 +601,14 @@ config CMD_ARMFLASH
 	help
 	  ARM Ltd reference designs flash partition access
 
+config CMD_ADC
+	bool "adc - Access Analog to Digital Converters info and data"
+	select ADC
+	select DM_REGULATOR
+	help
+	  Shows ADC device info and permit printing one-shot analog converted
+	  data from a named Analog to Digital Converter.
+
 config CMD_CLK
 	bool "clk - Show clock frequencies"
 	help
