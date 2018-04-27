@@ -10,7 +10,6 @@
 #include <dm.h>
 #include <efi_loader.h>
 #include <rtc.h>
-#include <asm/global_data.h>
 
 /* For manual relocation support */
 DECLARE_GLOBAL_DATA_PTR;

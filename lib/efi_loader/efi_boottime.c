@@ -10,7 +10,6 @@
 #include <efi_loader.h>
 #include <environment.h>
 #include <malloc.h>
-#include <asm/global_data.h>
 #include <linux/libfdt_env.h>
 #include <u-boot/crc.h>
 #include <bootm.h>

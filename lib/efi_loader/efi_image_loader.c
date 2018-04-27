@@ -10,7 +10,6 @@
 #include <common.h>
 #include <efi_loader.h>
 #include <pe.h>
-#include <asm/global_data.h>
 
 const efi_guid_t efi_global_variable_guid = EFI_GLOBAL_VARIABLE_GUID;
 const efi_guid_t efi_guid_device_path = DEVICE_PATH_GUID;

@@ -10,7 +10,6 @@
 #include <inttypes.h>
 #include <malloc.h>
 #include <watchdog.h>
-#include <asm/global_data.h>
 #include <linux/list_sort.h>
 
 DECLARE_GLOBAL_DATA_PTR;
