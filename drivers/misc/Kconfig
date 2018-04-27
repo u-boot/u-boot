@@ -263,5 +263,9 @@ config SYS_I2C_EEPROM_ADDR_OVERFLOW
 
 endif
 
-
+config GDSYS_RXAUI_CTRL
+	bool "Enable gdsys RXAUI control driver"
+	depends on MISC
+	help
+	  Support gdsys FPGA's RXAUI control.
 endmenu

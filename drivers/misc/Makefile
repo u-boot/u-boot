@@ -52,3 +52,4 @@ obj-$(CONFIG_QFW) += qfw.o
 obj-$(CONFIG_ROCKCHIP_EFUSE) += rockchip-efuse.o
 obj-$(CONFIG_STM32_RCC) += stm32_rcc.o
 obj-$(CONFIG_SYS_DPAA_QBMAN) += fsl_portals.o
+obj-$(CONFIG_GDSYS_RXAUI_CTRL) += gdsys_rxaui_ctrl.o
