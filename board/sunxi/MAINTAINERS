@@ -126,6 +126,11 @@ M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
 F:	configs/bananapi_m1_plus_defconfig
 
+BANANAPI M2 BERRY
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/bananapi_m2_berry_defconfig
+
 BANANAPI M2 ULTRA BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
