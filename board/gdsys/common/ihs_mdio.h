@@ -8,7 +8,12 @@
 #define _IHS_MDIO_H_
 
 struct ihs_mdio_info {
+#ifdef CONFIG_GDSYS_LEGACY_DRIVERS
 	u32 fpga;
+#else
+	struct udevice *fpga;
+	int base;
+#endif
 	char *name;
 };
 

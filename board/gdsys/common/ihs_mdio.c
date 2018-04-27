@@ -6,36 +6,84 @@
 
 #include <common.h>
 
-#include <gdsys_fpga.h>
 #include <miiphy.h>
+#ifdef CONFIG_GDSYS_LEGACY_DRIVERS
+#include <gdsys_fpga.h>
+#else
+#include <fdtdec.h>
+#include <regmap.h>
+#endif
 
 #include "ihs_mdio.h"
+
+#ifndef CONFIG_GDSYS_LEGACY_DRIVERS
+enum {
+	REG_MDIO_CONTROL = 0x0,
+	REG_MDIO_ADDR_DATA = 0x2,
+	REG_MDIO_RX_DATA = 0x4,
+};
+
+static inline u16 read_reg(struct udevice *fpga, uint base, uint addr)
+{
+	struct regmap *map;
+	u8 *ptr;
+
+	regmap_init_mem(fpga, &map);
+	ptr = regmap_get_range(map, 0);
+
+	return in_le16((u16 *)(ptr + base + addr));
+}
+
+static inline void write_reg(struct udevice *fpga, uint base, uint addr,
+			     u16 val)
+{
+	struct regmap *map;
+	u8 *ptr;
+
+	regmap_init_mem(fpga, &map);
+	ptr = regmap_get_range(map, 0);
+
+	out_le16((u16 *)(ptr + base + addr), val);
+}
+#endif
 
 static inline u16 read_control(struct ihs_mdio_info *info)
 {
 	u16 val;
-
+#ifdef CONFIG_GDSYS_LEGACY_DRIVERS
 	FPGA_GET_REG(info->fpga, mdio.control, &val);
-
+#else
+	val = read_reg(info->fpga, info->base, REG_MDIO_CONTROL);
+#endif
 	return val;
 }
 
 static inline void write_control(struct ihs_mdio_info *info, u16 val)
 {
+#ifdef CONFIG_GDSYS_LEGACY_DRIVERS
 	FPGA_SET_REG(info->fpga, mdio.control, val);
+#else
+	write_reg(info->fpga, info->base, REG_MDIO_CONTROL, val);
+#endif
 }
 
 static inline void write_addr_data(struct ihs_mdio_info *info, u16 val)
 {
+#ifdef CONFIG_GDSYS_LEGACY_DRIVERS
 	FPGA_SET_REG(info->fpga, mdio.address_data, val);
+#else
+	write_reg(info->fpga, info->base, REG_MDIO_ADDR_DATA, val);
+#endif
 }
 
 static inline u16 read_rx_data(struct ihs_mdio_info *info)
 {
 	u16 val;
-
+#ifdef CONFIG_GDSYS_LEGACY_DRIVERS
 	FPGA_GET_REG(info->fpga, mdio.rx_data, &val);
-
+#else
+	val = read_reg(info->fpga, info->base, REG_MDIO_RX_DATA);
+#endif
 	return val;
 }
 
