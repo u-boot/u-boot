@@ -11,6 +11,34 @@
 
 #include "ihs_mdio.h"
 
+static inline u16 read_control(struct ihs_mdio_info *info)
+{
+	u16 val;
+
+	FPGA_GET_REG(info->fpga, mdio.control, &val);
+
+	return val;
+}
+
+static inline void write_control(struct ihs_mdio_info *info, u16 val)
+{
+	FPGA_SET_REG(info->fpga, mdio.control, val);
+}
+
+static inline void write_addr_data(struct ihs_mdio_info *info, u16 val)
+{
+	FPGA_SET_REG(info->fpga, mdio.address_data, val);
+}
+
+static inline u16 read_rx_data(struct ihs_mdio_info *info)
+{
+	u16 val;
+
+	FPGA_GET_REG(info->fpga, mdio.rx_data, &val);
+
+	return val;
+}
+
 static int ihs_mdio_idle(struct mii_dev *bus)
 {
 	struct ihs_mdio_info *info = bus->priv;
@@ -18,7 +46,7 @@ static int ihs_mdio_idle(struct mii_dev *bus)
 	unsigned int ctr = 0;
 
 	do {
-		FPGA_GET_REG(info->fpga, mdio.control, &val);
+		val = read_control(info);
 		udelay(100);
 		if (ctr++ > 10)
 			return -1;
@@ -42,13 +70,13 @@ static int ihs_mdio_read(struct mii_dev *bus, int addr, int dev_addr,
 
 	ihs_mdio_idle(bus);
 
-	FPGA_SET_REG(info->fpga, mdio.control,
-		     ((addr & 0x1f) << 5) | (regnum & 0x1f) | (2 << 10));
+	write_control(info,
+		      ((addr & 0x1f) << 5) | (regnum & 0x1f) | (2 << 10));
 
 	/* wait for rx data available */
 	udelay(100);
 
-	FPGA_GET_REG(info->fpga, mdio.rx_data, &val);
+	val = read_rx_data(info);
 
 	return val;
 }
@@ -60,9 +88,8 @@ static int ihs_mdio_write(struct mii_dev *bus, int addr, int dev_addr,
 
 	ihs_mdio_idle(bus);
 
-	FPGA_SET_REG(info->fpga, mdio.address_data, value);
-	FPGA_SET_REG(info->fpga, mdio.control,
-		     ((addr & 0x1f) << 5) | (regnum & 0x1f) | (1 << 10));
+	write_addr_data(info, value);
+	write_control(info, ((addr & 0x1f) << 5) | (regnum & 0x1f) | (1 << 10));
 
 	return 0;
 }
