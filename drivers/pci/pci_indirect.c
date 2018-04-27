@@ -7,7 +7,7 @@
 
 #include <common.h>
 
-#if !defined(__I386__)
+#if !defined(__I386__) && !defined(CONFIG_DM_PCI)
 
 #include <asm/processor.h>
 #include <asm/io.h>
