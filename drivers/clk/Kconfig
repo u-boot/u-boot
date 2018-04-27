@@ -89,4 +89,12 @@ source "drivers/clk/exynos/Kconfig"
 source "drivers/clk/at91/Kconfig"
 source "drivers/clk/renesas/Kconfig"
 
+config ICS8N3QV01
+	bool "Enable ICS8N3QV01 VCXO driver"
+	depends on CLK
+	help
+	  Support for the ICS8N3QV01 Quad-Frequency VCXO (Voltage-Controlled
+	  Crystal Oscillator). The output frequency can be programmed via an
+	  I2C interface.
+
 endmenu
