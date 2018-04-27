@@ -132,3 +132,17 @@ int regmap_write(struct regmap *map, uint offset, uint val)
 
 	return 0;
 }
+
+int regmap_update_bits(struct regmap *map, uint offset, uint mask, uint val)
+{
+	uint reg;
+	int ret;
+
+	ret = regmap_read(map, offset, &reg);
+	if (ret)
+		return ret;
+
+	reg &= ~mask;
+
+	return regmap_write(map, offset, reg | val);
+}

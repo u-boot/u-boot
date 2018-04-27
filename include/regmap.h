@@ -43,6 +43,16 @@ int regmap_read(struct regmap *map, uint offset, uint *valp);
 	regmap_read(map, (uint32_t *)(ptr)->member - (uint32_t *)(ptr), valp)
 
 /**
+ * regmap_update_bits() - Perform a read/modify/write using a mask
+ *
+ * @map:	The map returned by regmap_init_mem*()
+ * @offset:	Offset of the memory
+ * @mask:	Mask to apply to the read value
+ * @val:	Value to apply to the value to write
+ */
+int regmap_update_bits(struct regmap *map, uint offset, uint mask, uint val);
+
+/**
  * regmap_init_mem() - Set up a new register map that uses memory access
  *
  * Use regmap_uninit() to free it.
