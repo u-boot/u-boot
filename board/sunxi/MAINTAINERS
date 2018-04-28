@@ -266,9 +266,10 @@ M:	Siarhei Siamashka <siarhei.siamashka@gmail.com>
 S:	Maintained
 F:	configs/MSI_Primo81_defconfig
 
-LIBRETECH ALL-H3-CC H3 BOARD
+LIBRETECH ALL-H3-CC BOARDS
 M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
+F:	configs/libretech_all_h3_cc_h2_plus_defconfig
 F:	configs/libretech_all_h3_cc_h3_defconfig
 
 NANOPI-M1 BOARD
