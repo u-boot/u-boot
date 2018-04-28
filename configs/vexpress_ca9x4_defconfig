@@ -9,7 +9,6 @@ CONFIG_BOOTCOMMAND="run distro_bootcmd; run bootflash"
 # CONFIG_CMD_BOOTD is not set
 # CONFIG_CMD_XIMG is not set
 # CONFIG_CMD_EDITENV is not set
-# CONFIG_CMD_ENV_EXISTS is not set
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set
 CONFIG_CMD_MMC=y
