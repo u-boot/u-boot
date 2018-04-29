@@ -12,8 +12,6 @@
 #include <stdio_dev.h>
 #include <video_console.h>
 
-static bool console_size_queried;
-
 #define EFI_COUT_MODE_2 2
 #define EFI_MAX_COUT_MODE 3
 
@@ -205,6 +203,51 @@ static int query_console_serial(int *rows, int *cols)
 	return 0;
 }
 
+/*
+ * Update the mode table.
+ *
+ * By default the only mode available is 80x25. If the console has at least 50
+ * lines, enable mode 80x50. If we can query the console size and it is neither
+ * 80x25 nor 80x50, set it as an additional mode.
+ */
+static void query_console_size(void)
+{
+	const char *stdout_name = env_get("stdout");
+	int rows, cols;
+
+	if (stdout_name && !strcmp(stdout_name, "vidconsole") &&
+	    IS_ENABLED(CONFIG_DM_VIDEO)) {
+		struct stdio_dev *stdout_dev =
+			stdio_get_by_name("vidconsole");
+		struct udevice *dev = stdout_dev->priv;
+		struct vidconsole_priv *priv =
+			dev_get_uclass_priv(dev);
+		rows = priv->rows;
+		cols = priv->cols;
+	} else if (query_console_serial(&rows, &cols)) {
+		return;
+	}
+
+	/* Test if we can have Mode 1 */
+	if (cols >= 80 && rows >= 50) {
+		efi_cout_modes[1].present = 1;
+		efi_con_mode.max_mode = 2;
+	}
+
+	/*
+	 * Install our mode as mode 2 if it is different
+	 * than mode 0 or 1 and set it as the currently selected mode
+	 */
+	if (!cout_mode_matches(&efi_cout_modes[0], rows, cols) &&
+	    !cout_mode_matches(&efi_cout_modes[1], rows, cols)) {
+		efi_cout_modes[EFI_COUT_MODE_2].columns = cols;
+		efi_cout_modes[EFI_COUT_MODE_2].rows = rows;
+		efi_cout_modes[EFI_COUT_MODE_2].present = 1;
+		efi_con_mode.max_mode = EFI_MAX_COUT_MODE;
+		efi_con_mode.mode = EFI_COUT_MODE_2;
+	}
+}
+
 static efi_status_t EFIAPI efi_cout_query_mode(
 			struct efi_simple_text_output_protocol *this,
 			unsigned long mode_number, unsigned long *columns,
@@ -212,52 +255,12 @@ static efi_status_t EFIAPI efi_cout_query_mode(
 {
 	EFI_ENTRY("%p, %ld, %p, %p", this, mode_number, columns, rows);
 
-	if (!console_size_queried) {
-		const char *stdout_name = env_get("stdout");
-		int rows, cols;
-
-		console_size_queried = true;
-
-		if (stdout_name && !strcmp(stdout_name, "vidconsole") &&
-		    IS_ENABLED(CONFIG_DM_VIDEO)) {
-			struct stdio_dev *stdout_dev =
-				stdio_get_by_name("vidconsole");
-			struct udevice *dev = stdout_dev->priv;
-			struct vidconsole_priv *priv =
-				dev_get_uclass_priv(dev);
-			rows = priv->rows;
-			cols = priv->cols;
-		} else if (query_console_serial(&rows, &cols)) {
-			goto out;
-		}
-
-		/* Test if we can have Mode 1 */
-		if (cols >= 80 && rows >= 50) {
-			efi_cout_modes[1].present = 1;
-			efi_con_mode.max_mode = 2;
-		}
-
-		/*
-		 * Install our mode as mode 2 if it is different
-		 * than mode 0 or 1 and set it  as the currently selected mode
-		 */
-		if (!cout_mode_matches(&efi_cout_modes[0], rows, cols) &&
-		    !cout_mode_matches(&efi_cout_modes[1], rows, cols)) {
-			efi_cout_modes[EFI_COUT_MODE_2].columns = cols;
-			efi_cout_modes[EFI_COUT_MODE_2].rows = rows;
-			efi_cout_modes[EFI_COUT_MODE_2].present = 1;
-			efi_con_mode.max_mode = EFI_MAX_COUT_MODE;
-			efi_con_mode.mode = EFI_COUT_MODE_2;
-		}
-	}
-
 	if (mode_number >= efi_con_mode.max_mode)
 		return EFI_EXIT(EFI_UNSUPPORTED);
 
 	if (efi_cout_modes[mode_number].present != 1)
 		return EFI_EXIT(EFI_UNSUPPORTED);
 
-out:
 	if (columns)
 		*columns = efi_cout_modes[mode_number].columns;
 	if (rows)
@@ -564,6 +567,9 @@ int efi_console_register(void)
 	efi_status_t r;
 	struct efi_object *efi_console_output_obj;
 	struct efi_object *efi_console_input_obj;
+
+	/* Set up mode information */
+	query_console_size();
 
 	/* Create handles */
 	r = efi_create_handle((efi_handle_t *)&efi_console_output_obj);
