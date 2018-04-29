@@ -4,6 +4,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#include <asm/types.h>
+#include <asm/io.h>
 #include <common.h>
 #include <dm.h>
 #include <mapmem.h>
@@ -57,6 +59,16 @@ fdt_addr_t dev_read_addr_index(struct udevice *dev, int index)
 		return devfdt_get_addr_index(dev, index);
 }
 
+void *dev_remap_addr_index(struct udevice *dev, int index)
+{
+	fdt_addr_t addr = dev_read_addr_index(dev, index);
+
+	if (addr == FDT_ADDR_T_NONE)
+		return NULL;
+
+	return map_physmem(addr, 0, MAP_NOCACHE);
+}
+
 fdt_addr_t dev_read_addr(struct udevice *dev)
 {
 	return dev_read_addr_index(dev, 0);
@@ -67,6 +79,11 @@ void *dev_read_addr_ptr(struct udevice *dev)
 	fdt_addr_t addr = dev_read_addr(dev);
 
 	return (addr == FDT_ADDR_T_NONE) ? NULL : map_sysmem(addr, 0);
+}
+
+void *dev_remap_addr(struct udevice *dev)
+{
+	return dev_remap_addr_index(dev, 0);
 }
 
 fdt_addr_t dev_read_addr_size(struct udevice *dev, const char *property,
