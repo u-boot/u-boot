@@ -116,25 +116,36 @@ static efi_status_t EFIAPI efi_cout_output_string(
 
 	unsigned int n16 = utf16_strlen(string);
 	char buf[MAX_UTF8_PER_UTF16 * n16 + 1];
-	char *p;
+	u16 *p;
 
 	*utf16_to_utf8((u8 *)buf, string, n16) = '\0';
 
 	fputs(stdout, buf);
 
-	for (p = buf; *p; p++) {
+	/*
+	 * Update the cursor position.
+	 *
+	 * The UEFI spec provides advance rules for U+0000, U+0008, U+000A,
+	 * and U000D. All other characters, including control characters
+	 * U+0007 (bel) and U+0009 (tab), have to increase the column by one.
+	 */
+	for (p = string; *p; ++p) {
 		switch (*p) {
-		case '\r':   /* carriage-return */
-			con->cursor_column = 0;
+		case '\b':	/* U+0008, backspace */
+			con->cursor_column = max(0, con->cursor_column - 1);
 			break;
-		case '\n':   /* newline */
+		case '\n':	/* U+000A, newline */
 			con->cursor_column = 0;
 			con->cursor_row++;
 			break;
-		case '\t':   /* tab, assume 8 char align */
+		case '\r':	/* U+000D, carriage-return */
+			con->cursor_column = 0;
 			break;
-		case '\b':   /* backspace */
-			con->cursor_column = max(0, con->cursor_column - 1);
+		case 0xd800 ... 0xdbff:
+			/*
+			 * Ignore high surrogates, we do not want to count a
+			 * Unicode character twice.
+			 */
 			break;
 		default:
 			con->cursor_column++;
