@@ -61,6 +61,8 @@ static inline void __clear_bit(int nr, void *addr)
 	local_irq_restore(flags);
 }
 
+#define PLATFORM__CLEAR_BIT
+
 extern void change_bit(int nr, void *addr);
 
 static inline void __change_bit(int nr, void *addr)
