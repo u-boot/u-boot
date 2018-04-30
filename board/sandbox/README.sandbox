@@ -106,8 +106,8 @@ recreate the binary file.
 
 To execute commands directly, use the -c option. You can specify a single
 command, or multiple commands separated by a semicolon, as is normal in
-U-Boot. Be careful with quoting as the shall will normally process and
-swallow quotes. When -c is used, U-Boot exists after the command is complete,
+U-Boot. Be careful with quoting as the shell will normally process and
+swallow quotes. When -c is used, U-Boot exits after the command is complete,
 but you can force it to go to interactive mode instead with -i.
 
 
@@ -188,7 +188,7 @@ U-Boot sandbox supports these emulations:
 - SPI flash
 - TPM (Trusted Platform Module)
 
-A wide range of commands is implemented. Filesystems which use a block
+A wide range of commands are implemented. Filesystems which use a block
 device are supported.
 
 Also sandbox supports driver model (CONFIG_DM) and associated commands.
@@ -245,7 +245,7 @@ dhcp
 set serverip WWW.XXX.YYY.ZZZ
 tftpboot u-boot.bin
 
-The bridge also support (to a lesser extent) the localhost inderface, 'lo'.
+The bridge also supports (to a lesser extent) the localhost interface, 'lo'.
 
 The 'lo' interface cannot use the RAW AF_PACKET API because the lo interface
 doesn't support Ethernet-level traffic. It is a higher-level interface that is
