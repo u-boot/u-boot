@@ -54,6 +54,8 @@ static inline void __clear_bit(int nr, void *addr)
 	*a &= ~mask;
 }
 
+#define PLATFORM__CLEAR_BIT
+
 static inline void __change_bit(int nr, void *addr)
 {
 	int mask;
