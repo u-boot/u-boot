@@ -1571,6 +1571,7 @@ int fit_conf_get_prop_node(const void *fit, int noffset,
 	return fit_conf_get_prop_node_index(fit, noffset, prop_name, 0);
 }
 
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_FIT_SPL_PRINT)
 /**
  * fit_conf_print - prints out the FIT configuration details
  * @fit: pointer to the FIT format image header
@@ -1589,6 +1590,7 @@ void fit_conf_print(const void *fit, int noffset, const char *p)
 	const char *uname;
 	int ret;
 	int fdt_index, loadables_index;
+	int ndepth;
 
 	/* Mandatory properties */
 	ret = fit_get_desc(fit, noffset, &desc);
@@ -1642,7 +1644,18 @@ void fit_conf_print(const void *fit, int noffset, const char *p)
 		}
 		printf("%s\n", uname);
 	}
+
+	/* Process all hash subnodes of the component configuration node */
+	for (ndepth = 0, noffset = fdt_next_node(fit, noffset, &ndepth);
+	     (noffset >= 0) && (ndepth > 0);
+	     noffset = fdt_next_node(fit, noffset, &ndepth)) {
+		if (ndepth == 1) {
+			/* Direct child node of the component configuration node */
+			fit_image_print_verification_data(fit, noffset, p);
+		}
+	}
 }
+#endif /* !defined(CONFIG_SPL_BUILD) || defined(CONFIG_FIT_SPL_PRINT) */
 
 static int fit_image_select(const void *fit, int rd_noffset, int verify)
 {
