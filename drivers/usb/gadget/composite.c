@@ -378,7 +378,7 @@ static int set_config(struct usb_composite_dev *cdev,
 			ep = (struct usb_endpoint_descriptor *)*descriptors;
 			addr = ((ep->bEndpointAddress & 0x80) >> 3)
 			     |	(ep->bEndpointAddress & 0x0f);
-			__set_bit(addr, f->endpoints);
+			generic_set_bit(addr, f->endpoints);
 		}
 
 		result = f->set_alt(f, tmp, 0);
