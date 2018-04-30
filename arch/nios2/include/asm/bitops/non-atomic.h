@@ -30,6 +30,8 @@ static inline void __clear_bit(int nr, volatile unsigned long *addr)
 	*p &= ~mask;
 }
 
+#define PLATFORM__CLEAR_BIT
+
 /**
  * __change_bit - Toggle a bit in memory
  * @nr: the bit to change
