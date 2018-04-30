@@ -42,6 +42,8 @@ static inline void __set_bit(int nr, void *addr)
 	*a |= mask;
 }
 
+#define PLATFORM__SET_BIT
+
 static inline void __clear_bit(int nr, void *addr)
 {
 	int *a = (int *)addr;
