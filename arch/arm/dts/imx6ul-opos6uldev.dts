@@ -228,6 +228,7 @@
 };
 
 &uart1 {
+	u-boot,dm-spl;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart1>;
 	status = "okay";
@@ -373,6 +374,7 @@
 	};
 
 	pinctrl_uart1: uart1grp {
+		u-boot,dm-spl;
 		fsl,pins = <
 			MX6UL_PAD_UART1_TX_DATA__UART1_DCE_TX	0x1b0b1
 			MX6UL_PAD_UART1_RX_DATA__UART1_DCE_RX	0x1b0b1

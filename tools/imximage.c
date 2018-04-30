@@ -520,7 +520,7 @@ static void print_hdr_v2(struct imx_header *imx_hdr)
 			       (uint32_t)fhdr_v2->self, 0,
 			       hdr_v2->boot_data.size - imximage_ivt_offset -
 			       imximage_csf_size);
-			printf("DCD Blocks:   00910000 %08x %08x\n",
+			printf("DCD Blocks:   0x00910000 0x%08x 0x%08x\n",
 			       offs, be16_to_cpu(dcdlen));
 		}
 	} else {
@@ -777,6 +777,11 @@ static uint32_t parse_cfg_file(struct imx_header *imxhdr, char *name)
 	(*set_dcd_rst)(imxhdr, dcd_len, name, lineno);
 	fclose(fd);
 
+	/* Exit if there is no BOOT_FROM field specifying the flash_offset */
+	if (imximage_ivt_offset == FLASH_OFFSET_UNDEFINED) {
+		fprintf(stderr, "Error: No BOOT_FROM tag in %s\n", name);
+		exit(EXIT_FAILURE);
+	}
 	return dcd_len;
 }
 

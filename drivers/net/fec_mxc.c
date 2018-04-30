@@ -1230,7 +1230,7 @@ static int fec_phy_init(struct fec_priv *priv, struct udevice *dev)
 	struct phy_device *phydev;
 	int mask = 0xffffffff;
 
-#ifdef CONFIG_PHYLIB
+#ifdef CONFIG_FEC_MXC_PHYADDR
 	mask = 1 << CONFIG_FEC_MXC_PHYADDR;
 #endif
 
@@ -1345,6 +1345,7 @@ static const struct udevice_id fecmxc_ids[] = {
 	{ .compatible = "fsl,imx6sl-fec" },
 	{ .compatible = "fsl,imx6sx-fec" },
 	{ .compatible = "fsl,imx6ul-fec" },
+	{ .compatible = "fsl,imx53-fec" },
 	{ }
 };
 

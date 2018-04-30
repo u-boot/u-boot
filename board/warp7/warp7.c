@@ -10,6 +10,7 @@
 #include <asm/arch/mx7-pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
+#include <asm/mach-imx/hab.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/io.h>
@@ -56,6 +57,11 @@ static struct i2c_pads_info i2c_pad_info1 = {
 int dram_init(void)
 {
 	gd->ram_size = PHYS_SDRAM_SIZE;
+
+	/* Subtract the defined OPTEE runtime firmware length */
+#ifdef CONFIG_OPTEE_TZDRAM_SIZE
+		gd->ram_size -= CONFIG_OPTEE_TZDRAM_SIZE;
+#endif
 
 	return 0;
 }
@@ -175,7 +181,17 @@ int checkboard(void)
 	else
 		mode = "non-secure";
 
+#ifdef CONFIG_OPTEE_TZDRAM_SIZE
+	unsigned long optee_start, optee_end;
+
+	optee_end = PHYS_SDRAM + PHYS_SDRAM_SIZE;
+	optee_start = optee_end - CONFIG_OPTEE_TZDRAM_SIZE;
+
+	printf("Board: WARP7 in %s mode OPTEE DRAM 0x%08lx-0x%08lx\n",
+	       mode, optee_start, optee_end);
+#else
 	printf("Board: WARP7 in %s mode\n", mode);
+#endif
 
 	return 0;
 }
@@ -202,6 +218,13 @@ int board_late_init(void)
 	 * since we use PMIC_PWRON to reset the board.
 	 */
 	clrsetbits_le16(&wdog->wcr, 0, 0x10);
+
+#ifdef CONFIG_SECURE_BOOT
+	/* Determine HAB state */
+	env_set_ulong(HAB_ENABLED_ENVNAME, imx_hab_is_enabled());
+#else
+	env_set_ulong(HAB_ENABLED_ENVNAME, 0);
+#endif
 
 #ifdef CONFIG_SERIAL_TAG
 	/* Set serial# standard environment variable based on OTP settings */

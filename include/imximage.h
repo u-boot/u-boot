@@ -14,6 +14,9 @@
 #define APP_CODE_BARKER	0xB1
 #define DCD_BARKER	0xB17219E9
 
+/* Specify the offset of the IVT in the IMX header as expected by BootROM */
+#define BOOTROM_IVT_HDR_OFFSET	0xC00
+
 /*
  * NOTE: This file must be kept in sync with arch/arm/include/asm/\
  *       mach-imx/imximage.cfg because tools/imximage.c can not
