@@ -61,6 +61,8 @@ static __inline__ void __set_bit(int nr, volatile void * addr)
 		:"Ir" (nr));
 }
 
+#define PLATFORM__SET_BIT
+
 /**
  * clear_bit - Clears a bit in memory
  * @nr: Bit to clear
