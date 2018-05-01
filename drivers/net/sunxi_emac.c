@@ -334,8 +334,8 @@ static int _sunxi_write_hwaddr(struct emac_eth_dev *priv, u8 *enetaddr)
 	enetaddr_lo = enetaddr[2] | (enetaddr[1] << 8) | (enetaddr[0] << 16);
 	enetaddr_hi = enetaddr[5] | (enetaddr[4] << 8) | (enetaddr[3] << 16);
 
-	writel(enetaddr_hi, &regs->mac_a1);
-	writel(enetaddr_lo, &regs->mac_a0);
+	writel(enetaddr_hi, &regs->mac_a0);
+	writel(enetaddr_lo, &regs->mac_a1);
 
 	return 0;
 }
