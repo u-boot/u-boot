@@ -7,13 +7,36 @@ family contains an ARM Cortex-A9/A53/A57.
 
 Currently the following boards are supported:
 
-* KMC KZM-A9-GT [3]
-* Atmark-Techno Armadillo-800-EVA [4]
-* Renesas Electronics Lager
-* Renesas Electronics Koelsch
-* Renesas Electronics Salvator-X  M3
-* Renesas Electronics Salvator-XS H3 ES2.0+
-* Renesas Electronics ULCB M3 / H3 ES2.0+
+| SoC           | Board                                  | defconfig
+|===============+========================================+===================
+| R8A73A0       | KMC KZM-A9-GT [3]                      | kzm9g_config
+| R8A7734       | Atmark-Techno Armadillo-800-EVA [4]    | armadillo-800eva_config
+|===============+========================================+===================
+| R8A7790  H2   | Renesas Electronics Lager              | lager_defconfig
+|               | Renesas Electronics Stout              | stout_defconfig
+|---------------+----------------------------------------+-------------------
+| R8A7791  M2-W | Renesas Electronics Koelsch            | koelsch_defconfig
+|               | Renesas Electronics Porter             | porter_defconfig
+|---------------+----------------------------------------+-------------------
+| R8A7792  V2H  | Renesas Electronics Blanche            | blanche_defconfig
+|---------------+----------------------------------------+-------------------
+| R8A7793  M2-N | Renesas Electronics Gose               | gose_defconfig
+|---------------+----------------------------------------+-------------------
+| R8A7794  E2   | Renesas Electronics Alt                | alt_defconfig
+|               | Renesas Electronics Silk               | silk_defconfig
+|===============+========================================+===================
+| R8A7795  H3   | Renesas Electronics Salvator-XS ES2.0+ | r8a7795_salvator-x_defconfig
+| R8A7795  H3   | Renesas Electronics ULCB ES2.0+        | r8a7795_ulcb
+|---------------+----------------------------------------+-------------------
+| R8A7796  M3-W | Renesas Electronics Salvator-X         | r8a7796_salvator-x_defconfig
+| R8A7796  M3-W | Renesas Electronics ULCB               | r8a7796_ulcb
+|---------------+----------------------------------------+-------------------
+| R8A77965 M3-N | Renesas Electronics Salvator-XS        | r8a77965_salvator-x_defconfig
+|---------------+----------------------------------------+-------------------
+| R8A77970 V3M  | Renesas Electronics Eagle              | r8a77970_eagle_defconfig
+|---------------+----------------------------------------+-------------------
+| R8A77995 D3   | Renesas Electronics Draak              | r8a77995_draak_defconfig
+'===============+========================================+===================
 
 Toolchain
 =========
@@ -30,48 +53,13 @@ in their package feeds.
 Build
 =====
 
-* KZM-A9-GT
+Locate defconfig in the table above. Then apply standard build procedure:
 
-  make kzm9g_config
-  make
-
-* Armadillo-800-EVA
-
-  make armadillo-800eva_config
+  make <board>_defconfig
   make
 
   Note: Armadillo-800-EVA's U-Boot supports booting from SDcard only.
         Please see "B.2 Appendix B Boot Specifications" in hardware manual.
-
-* Lager
-
-  make lager_config
-  make
-
-* Koelsch
-
-  make koelsch_config
-  make
-
-* Salvator-X M3
-
-  make r8a7796_salvator-x_defconfig
-  make
-
-* Salvator-XS H3 ES2.0
-
-  make r8a7795_salvator-x_defconfig
-  make
-
-* ULCB M3
-
-  make r8a7796_ulcb_defconfig
-  make
-
-* ULCB H3 ES2.0
-
-  make r8a7795_ulcb_defconfig
-  make
 
 Links
 =====
