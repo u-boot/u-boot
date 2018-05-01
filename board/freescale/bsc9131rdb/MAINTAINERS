@@ -1,5 +1,5 @@
 BSC9131RDB BOARD
-M:	Poonam Aggrwal <poonam.aggrwal@freescale.com>
+M:	Poonam Aggrwal <poonam.aggrwal@nxp.com>
 S:	Maintained
 F:	board/freescale/bsc9131rdb/
 F:	include/configs/BSC9131RDB.h

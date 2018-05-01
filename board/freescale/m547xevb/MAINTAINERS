@@ -1,5 +1,5 @@
 M547XEVB BOARD
-M:	TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+M:	TsiChung Liew <Tsi-Chung.Liew@nxp.com>
 S:	Maintained
 F:	board/freescale/m547xevb/
 F:	include/configs/M5475EVB.h
