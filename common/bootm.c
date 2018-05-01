@@ -424,17 +424,17 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
 }
 
 #ifndef USE_HOSTCC
-static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
-			 int boot_progress)
+static int bootm_load_os(bootm_headers_t *images, int boot_progress)
 {
 	image_info_t os = images->os;
 	ulong load = os.load;
+	ulong load_end;
 	ulong blob_start = os.start;
 	ulong blob_end = os.end;
 	ulong image_start = os.image_start;
 	ulong image_len = os.image_len;
 	ulong flush_start = ALIGN_DOWN(load, ARCH_DMA_MINALIGN);
-	ulong flush_len = *load_end - load;
+	ulong flush_len;
 	bool no_overlap;
 	void *load_buf, *image_buf;
 	int err;
@@ -443,27 +443,28 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 	image_buf = map_sysmem(os.image_start, image_len);
 	err = bootm_decomp_image(os.comp, load, os.image_start, os.type,
 				 load_buf, image_buf, image_len,
-				 CONFIG_SYS_BOOTM_LEN, load_end);
+				 CONFIG_SYS_BOOTM_LEN, &load_end);
 	if (err) {
 		bootstage_error(BOOTSTAGE_ID_DECOMP_IMAGE);
 		return err;
 	}
 
+	flush_len = load_end - load;
 	if (flush_start < load)
 		flush_len += load - flush_start;
 
 	flush_cache(flush_start, ALIGN(flush_len, ARCH_DMA_MINALIGN));
 
-	debug("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, *load_end);
+	debug("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, load_end);
 	bootstage_mark(BOOTSTAGE_ID_KERNEL_LOADED);
 
 	no_overlap = (os.comp == IH_COMP_NONE && load == image_start);
 
-	if (!no_overlap && (load < blob_end) && (*load_end > blob_start)) {
+	if (!no_overlap && load < blob_end && load_end > blob_start) {
 		debug("images.os.start = 0x%lX, images.os.end = 0x%lx\n",
 		      blob_start, blob_end);
 		debug("images.os.load = 0x%lx, load_end = 0x%lx\n", load,
-		      *load_end);
+		      load_end);
 
 		/* Check what type of image this is. */
 		if (images->legacy_hdr_valid) {
@@ -478,6 +479,8 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 		}
 	}
 
+	lmb_reserve(&images->lmb, images->os.load, (load_end -
+						    images->os.load));
 	return 0;
 }
 
@@ -629,14 +632,9 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 
 	/* Load the OS */
 	if (!ret && (states & BOOTM_STATE_LOADOS)) {
-		ulong load_end;
-
 		iflag = bootm_disable_interrupts();
-		ret = bootm_load_os(images, &load_end, 0);
-		if (ret == 0)
-			lmb_reserve(&images->lmb, images->os.load,
-				    (load_end - images->os.load));
-		else if (ret && ret != BOOTM_ERR_OVERLAP)
+		ret = bootm_load_os(images, 0);
+		if (ret && ret != BOOTM_ERR_OVERLAP)
 			goto err;
 		else if (ret == BOOTM_ERR_OVERLAP)
 			ret = 0;
