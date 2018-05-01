@@ -700,6 +700,7 @@ static int fsl_ifc_wait(struct mtd_info *mtd, struct nand_chip *chip)
 	struct fsl_ifc_ctrl *ctrl = priv->ctrl;
 	struct fsl_ifc_runtime *ifc = ctrl->regs.rregs;
 	u32 nand_fsr;
+	int status;
 
 	if (ctrl->status != IFC_NAND_EVTER_STAT_OPC)
 		return NAND_STATUS_FAIL;
@@ -720,10 +721,10 @@ static int fsl_ifc_wait(struct mtd_info *mtd, struct nand_chip *chip)
 		return NAND_STATUS_FAIL;
 
 	nand_fsr = ifc_in32(&ifc->ifc_nand.nand_fsr);
+	status = nand_fsr >> 24;
 
 	/* Chip sometimes reporting write protect even when it's not */
-	nand_fsr = nand_fsr | NAND_STATUS_WP;
-	return nand_fsr;
+	return status | NAND_STATUS_WP;
 }
 
 static int fsl_ifc_read_page(struct mtd_info *mtd, struct nand_chip *chip,
