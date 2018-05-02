@@ -385,7 +385,7 @@ const struct dpll_params *get_dpll_per_params(void)
 
 void scale_vcores_generic(u32 m)
 {
-	int mpu_vdd;
+	int mpu_vdd, ddr_volt;
 
 	if (i2c_probe(TPS65218_CHIP_PM))
 		return;
@@ -424,9 +424,13 @@ void scale_vcores_generic(u32 m)
 		return;
 	}
 
+	if (board_is_eposevm())
+		ddr_volt = TPS65218_DCDC3_VOLT_SEL_1200MV;
+	else
+		ddr_volt = TPS65218_DCDC3_VOLT_SEL_1350MV;
+
 	/* Set DCDC3 (DDR) voltage */
-	if (tps65218_voltage_update(TPS65218_DCDC3,
-	    TPS65218_DCDC3_VOLT_SEL_1350MV)) {
+	if (tps65218_voltage_update(TPS65218_DCDC3, ddr_volt)) {
 		printf("%s failure\n", __func__);
 		return;
 	}
