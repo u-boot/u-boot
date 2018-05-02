@@ -314,10 +314,6 @@ int dram_init(void)
 	return 0;
 }
 
-const struct rmobile_sysinfo sysinfo = {
-	CONFIG_ARCH_RMOBILE_BOARD_STRING
-};
-
 int board_late_init(void)
 {
 	return 0;

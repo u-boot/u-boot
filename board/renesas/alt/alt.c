@@ -106,10 +106,6 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 
-const struct rmobile_sysinfo sysinfo = {
-	CONFIG_ARCH_RMOBILE_BOARD_STRING
-};
-
 void reset_cpu(ulong addr)
 {
 	struct udevice *dev;
