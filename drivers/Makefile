@@ -18,6 +18,7 @@ obj-$(CONFIG_$(SPL_TPL_)TIMER) += timer/
 ifndef CONFIG_TPL_BUILD
 ifdef CONFIG_SPL_BUILD
 
+obj-$(CONFIG_SPL_BOOTCOUNT_LIMIT) += bootcount/
 obj-$(CONFIG_SPL_CPU_SUPPORT) += cpu/
 obj-$(CONFIG_SPL_CRYPTO_SUPPORT) += crypto/
 obj-$(CONFIG_SPL_GPIO_SUPPORT) += gpio/

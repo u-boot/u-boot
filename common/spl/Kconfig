@@ -54,6 +54,15 @@ config SPL_BOOTROM_SUPPORT
 	  BOOT_DEVICE_BOOTROM (or fall-through to the next boot device in the
 	  boot device list, if not implemented for a given board)
 
+config SPL_BOOTCOUNT_LIMIT
+	bool "Support bootcount in SPL"
+	depends on SPL_ENV_SUPPORT
+	help
+	  On some boards, which use 'falcon' mode, it is necessary to check
+	  and increment the number of boot attempts. Such boards do not
+	  use proper U-Boot for normal boot flow and hence needs those
+	  adjustments to be done in the SPL.
+
 config SPL_RAW_IMAGE_SUPPORT
 	bool "Support SPL loading and booting of RAW images"
 	default n if (ARCH_MX6 && (SPL_MMC_SUPPORT || SPL_SATA_SUPPORT))
