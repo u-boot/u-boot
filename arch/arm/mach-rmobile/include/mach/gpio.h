@@ -7,9 +7,6 @@ void sh73a0_pinmux_init(void);
 #elif defined(CONFIG_R8A7740)
 #include "r8a7740-gpio.h"
 void r8a7740_pinmux_init(void);
-#elif defined(CONFIG_R8A7792)
-#include "r8a7792-gpio.h"
-void r8a7792_pinmux_init(void);
 #elif defined(CONFIG_R8A7793)
 #include "r8a7793-gpio.h"
 void r8a7793_pinmux_init(void);
