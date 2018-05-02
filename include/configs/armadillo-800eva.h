@@ -9,7 +9,6 @@
 #ifndef __ARMADILLO_800EVA_H
 #define __ARMADILLO_800EVA_H
 
-#undef DEBUG
 #define CONFIG_SH_GPIO_PFC
 
 #include <asm/arch/rmobile.h>

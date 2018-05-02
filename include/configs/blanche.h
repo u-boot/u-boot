@@ -10,8 +10,6 @@
 #ifndef __BLANCHE_H
 #define __BLANCHE_H
 
-#undef DEBUG
-
 #include "rcar-gen2-common.h"
 
 /* STACK */

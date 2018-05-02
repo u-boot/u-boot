@@ -8,8 +8,6 @@
 #ifndef __KZM9G_H
 #define __KZM9G_H
 
-#undef DEBUG
-
 #define CONFIG_SH73A0
 #define CONFIG_MACH_TYPE MACH_TYPE_KZM9G
 

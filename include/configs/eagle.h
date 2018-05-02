@@ -10,8 +10,6 @@
 #ifndef __EAGLE_H
 #define __EAGLE_H
 
-#undef DEBUG
-
 #include "rcar-gen3-common.h"
 
 /* Ethernet RAVB */
