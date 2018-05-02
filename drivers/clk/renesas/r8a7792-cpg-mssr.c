@@ -214,10 +214,8 @@ static const struct cpg_mssr_info r8a7792_cpg_mssr_info = {
 	.mstp_table		= r8a7792_mstp_table,
 	.mstp_table_size	= ARRAY_SIZE(r8a7792_mstp_table),
 	.reset_node		= "renesas,r8a7792-rst",
-	.extal_usb_node		= "usb_extal",
 	.mod_clk_base		= MOD_CLK_BASE,
 	.clk_extal_id		= CLK_EXTAL,
-	.clk_extal_usb_id	= CLK_USB_EXTAL,
 	.pll0_div		= 2,
 	.get_pll_config		= r8a7792_get_pll_config,
 };
