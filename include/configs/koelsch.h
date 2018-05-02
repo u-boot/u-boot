@@ -10,7 +10,6 @@
 #define __KOELSCH_H
 
 #undef DEBUG
-#define CONFIG_ARCH_RMOBILE_BOARD_STRING "Koelsch"
 
 #include "rcar-gen2-common.h"
 

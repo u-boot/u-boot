@@ -11,7 +11,6 @@
 #define __LAGER_H
 
 #undef DEBUG
-#define CONFIG_ARCH_RMOBILE_BOARD_STRING "Lager"
 
 #include "rcar-gen2-common.h"
 
