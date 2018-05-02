@@ -11,7 +11,7 @@
 #define __BLANCHE_H
 
 #undef DEBUG
-#define CONFIG_RMOBILE_BOARD_STRING "Blanche"
+#define CONFIG_ARCH_RMOBILE_BOARD_STRING "Blanche"
 
 #include "rcar-gen2-common.h"
 
