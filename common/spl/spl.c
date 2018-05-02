@@ -19,6 +19,7 @@
 #include <dm/root.h>
 #include <linux/compiler.h>
 #include <fdt_support.h>
+#include <bootcount.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -415,6 +416,8 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 #if CONFIG_IS_ENABLED(BOARD_INIT)
 	spl_board_init();
 #endif
+
+	bootcount_inc();
 
 	memset(&spl_image, '\0', sizeof(spl_image));
 #ifdef CONFIG_SYS_SPL_ARGS_ADDR
