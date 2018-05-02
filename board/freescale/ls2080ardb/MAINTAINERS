@@ -18,8 +18,8 @@ S:	Maintained
 F:	configs/ls2081ardb_defconfig
 
 LS2080A_SECURE_BOOT BOARD
-M:	Saksham Jain <saksham.jain@nxp.freescale.com>
-S:	Maintained
+#M:	Saksham Jain <saksham.jain@nxp.freescale.com>
+S:	Orphan (since 2018-05)
 F:	configs/ls2080ardb_SECURE_BOOT_defconfig
 
 LS2088A_QSPI_SECURE_BOOT BOARD

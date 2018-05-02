@@ -10,6 +10,6 @@ F:	configs/ls2080aqds_qspi_defconfig
 F:	configs/ls2080aqds_sdcard_defconfig
 
 LS2080A_SECURE_BOOT BOARD
-M:	Saksham Jain <saksham.jain@nxp.freescale.com>
-S:	Maintained
+#M:	Saksham Jain <saksham.jain@nxp.freescale.com>
+S:	Orphan (since 2018-05)
 F:	configs/ls2080aqds_SECURE_BOOT_defconfig

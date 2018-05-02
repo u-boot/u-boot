@@ -1,6 +1,6 @@
 T102XRDB BOARD
-M:	Shengzhou Liu  <Shengzhou.Liu@freescale.com>
-S:	Maintained
+#M:	Shengzhou Liu  <Shengzhou.Liu@freescale.com>
+S:	Orphan (since 2018-05)
 F:	board/freescale/t102xrdb/
 F:	include/configs/T102xRDB.h
 F:	configs/T1024RDB_defconfig

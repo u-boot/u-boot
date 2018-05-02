@@ -1,6 +1,6 @@
 T4QDS BOARD
-M:	Shaohui Xie <Shaohui.Xie@freescale.com>
-S:	Maintained
+#M:	Shaohui Xie <Shaohui.Xie@freescale.com>
+S:	Orphan (since 2018-05)
 F:	board/freescale/t4qds/
 F:	include/configs/T4240QDS.h
 F:	configs/T4160QDS_defconfig
