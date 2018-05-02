@@ -1,5 +1,5 @@
 P1022DS BOARD
-M:	Timur Tabi <timur@freescale.com>
+M:	Timur Tabi <timur@tabi.org>
 S:	Maintained
 F:	board/freescale/p1022ds/
 F:	include/configs/P1022DS.h
