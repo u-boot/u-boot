@@ -54,7 +54,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 		       SDHCI_QUIRK_BROKEN_R1B;
 
 #ifdef CONFIG_ZYNQ_HISPD_BROKEN
-	host->quirks |= SDHCI_QUIRK_NO_HISPD_BIT;
+	host->quirks |= SDHCI_QUIRK_BROKEN_HISPD_MODE;
 #endif
 
 	host->max_clk = clock;
