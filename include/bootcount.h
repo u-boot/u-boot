@@ -3,6 +3,8 @@
  * (C) Copyright 2012
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  */
+#ifndef _BOOTCOUNT_H__
+#define _BOOTCOUNT_H__
 
 #include <common.h>
 #include <asm/io.h>
@@ -37,3 +39,4 @@ static inline u32 raw_bootcount_load(volatile u32 *addr)
 	return in_be32(addr);
 }
 #endif
+#endif /* _BOOTCOUNT_H__ */
