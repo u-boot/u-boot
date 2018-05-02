@@ -253,6 +253,7 @@ config FIT_SIGNATURE
 	bool "Enable signature verification of FIT uImages"
 	depends on DM
 	select RSA
+	select HASH
 	help
 	  This option enables signature verification of FIT uImages,
 	  using a hash signed and verified using RSA. If
