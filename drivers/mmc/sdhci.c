@@ -151,7 +151,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	u32 mask, flags, mode;
 	unsigned int time = 0, start_addr = 0;
 	int mmc_dev = mmc_get_blk_desc(mmc)->devnum;
-	unsigned start = get_timer(0);
+	ulong start = get_timer(0);
 
 	/* Timeout unit - ms */
 	static unsigned int cmd_timeout = SDHCI_CMD_DEFAULT_TIMEOUT;
