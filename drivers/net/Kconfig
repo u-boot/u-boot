@@ -178,6 +178,14 @@ config FTMAC100
 	help
 	  This MAC is present in Andestech SoCs.
 
+config MVGBE
+	bool "Marvell Orion5x/Kirkwood network interface support"
+	depends on KIRKWOOD || ORION5X
+	select PHYLIB
+	help
+	  This driver supports the network interface units in the
+	  Marvell Orion5x and Kirkwood SoCs
+
 config MVNETA
 	bool "Marvell Armada XP/385/3700 network interface support"
 	depends on ARMADA_XP || ARMADA_38X || ARMADA_3700

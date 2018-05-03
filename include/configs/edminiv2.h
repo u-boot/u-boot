@@ -117,7 +117,6 @@
  */
 
 #ifdef CONFIG_CMD_NET
-#define CONFIG_MVGBE				/* Enable Marvell GbE Driver */
 #define CONFIG_MVGBE_PORTS	{1}		/* enable port 0 only */
 #define CONFIG_SKIP_LOCAL_MAC_RANDOMIZATION	/* don't randomize MAC */
 #define CONFIG_PHY_BASE_ADR	0x8
