@@ -1094,6 +1094,10 @@ config BOOTP_SUBNETMASK
 	default y
 	depends on CMD_BOOTP
 
+config BOOTP_NTPSERVER
+	bool "Request & store 'ntpserverip' from BOOTP/DHCP server"
+	depends on CMD_BOOTP
+
 config BOOTP_PXE
 	bool "Send PXE client arch to BOOTP/DHCP server"
 	default y
