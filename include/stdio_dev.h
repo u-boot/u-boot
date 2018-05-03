@@ -8,6 +8,7 @@
 #ifndef _STDIO_DEV_H_
 #define _STDIO_DEV_H_
 
+#include <stdio.h>
 #include <linux/list.h>
 
 /*
