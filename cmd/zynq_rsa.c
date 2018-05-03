@@ -342,9 +342,7 @@ static int zynq_authenticate_part(u8 *buffer, u32 size)
 
 	signature_ptr += ZYNQ_RSA_MAGIC_WORD_SIZE;
 
-	ppkmodular = (u8 *)signature_ptr;
 	signature_ptr += ZYNQ_RSA_MODULAR_SIZE;
-	ppkmodularex = signature_ptr;
 	signature_ptr += ZYNQ_RSA_MODULAR_EXT_SIZE;
 	signature_ptr += ZYNQ_RSA_EXPO_SIZE;
 
