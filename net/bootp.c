@@ -333,7 +333,7 @@ static void bootp_process_vendor(u8 *ext, int size)
 		debug("net_nis_domain : %s\n", net_nis_domain);
 
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_NTPSERVER)
-	if (net_ntp_server)
+	if (net_ntp_server.s_addr)
 		debug("net_ntp_server : %pI4\n", &net_ntp_server);
 #endif
 }
