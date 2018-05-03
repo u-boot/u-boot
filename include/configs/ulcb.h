@@ -10,8 +10,6 @@
 #ifndef __ULCB_H
 #define __ULCB_H
 
-#undef DEBUG
-
 #include "rcar-gen3-common.h"
 
 /* Ethernet RAVB */

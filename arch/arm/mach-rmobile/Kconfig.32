@@ -1,5 +1,9 @@
 if RCAR_32
 
+config ARCH_RMOBILE_BOARD_STRING
+	string "Renesas RCar Gen2 board name"
+	default "Board"
+
 config RCAR_GEN2
 	bool "Renesas RCar Gen2"
 

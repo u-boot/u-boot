@@ -11,9 +11,6 @@
 #ifndef __PORTER_H
 #define __PORTER_H
 
-#undef DEBUG
-#define CONFIG_ARCH_RMOBILE_BOARD_STRING "Porter"
-
 #include "rcar-gen2-common.h"
 
 #define CONFIG_SYS_INIT_SP_ADDR		0x4f000000

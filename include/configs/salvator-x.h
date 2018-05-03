@@ -10,8 +10,6 @@
 #ifndef __SALVATOR_X_H
 #define __SALVATOR_X_H
 
-#undef DEBUG
-
 #include "rcar-gen3-common.h"
 
 /* Ethernet RAVB */

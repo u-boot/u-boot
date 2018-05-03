@@ -10,9 +10,6 @@
 #ifndef __LAGER_H
 #define __LAGER_H
 
-#undef DEBUG
-#define CONFIG_ARCH_RMOBILE_BOARD_STRING "Lager"
-
 #include "rcar-gen2-common.h"
 
 #define CONFIG_SYS_INIT_SP_ADDR		0x4f000000

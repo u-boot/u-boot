@@ -9,9 +9,6 @@
 #ifndef __KOELSCH_H
 #define __KOELSCH_H
 
-#undef DEBUG
-#define CONFIG_ARCH_RMOBILE_BOARD_STRING "Koelsch"
-
 #include "rcar-gen2-common.h"
 
 #define CONFIG_SYS_INIT_SP_ADDR		0x4f000000

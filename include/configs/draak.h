@@ -10,8 +10,6 @@
 #ifndef __DRAAK_H
 #define __DRAAK_H
 
-#undef DEBUG
-
 #include "rcar-gen3-common.h"
 
 /* Ethernet RAVB */

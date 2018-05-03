@@ -8,10 +8,7 @@
 #ifndef __KZM9G_H
 #define __KZM9G_H
 
-#undef DEBUG
-
 #define CONFIG_SH73A0
-#define CONFIG_ARCH_RMOBILE_BOARD_STRING	"KMC KZM-A9-GT"
 #define CONFIG_MACH_TYPE MACH_TYPE_KZM9G
 
 #include <asm/arch/rmobile.h>
