@@ -44,7 +44,11 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void enable_caches(void)
 {
-	/* Enable D-cache. I-cache is already enabled in start.S */
+
+	/* Enable I cache if not enabled */
+	if (!icache_status())
+		icache_enable();
+
 	dcache_enable();
 }
 
