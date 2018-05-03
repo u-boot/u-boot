@@ -1744,7 +1744,7 @@ static int check_command(struct fsg_common *common, int cmnd_size,
 		    common->lun, lun);
 
 	/* Check the LUN */
-	if (common->lun >= 0 && common->lun < common->nluns) {
+	if (common->lun < common->nluns) {
 		curlun = &common->luns[common->lun];
 		if (common->cmnd[0] != SC_REQUEST_SENSE) {
 			curlun->sense_data = SS_NO_SENSE;

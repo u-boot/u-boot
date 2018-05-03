@@ -165,7 +165,7 @@ static int config_buf(struct usb_configuration *config,
 	int				len = USB_BUFSIZ - USB_DT_CONFIG_SIZE;
 	void				*next = buf + USB_DT_CONFIG_SIZE;
 	struct usb_descriptor_header    **descriptors;
-	struct usb_config_descriptor	*c = buf;
+	struct usb_config_descriptor	*c;
 	int				status;
 	struct usb_function		*f;
 
