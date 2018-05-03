@@ -49,24 +49,6 @@ struct stdio_dev {
 };
 
 /*
- * VIDEO EXTENSIONS
- */
-#define VIDEO_FORMAT_RGB_INDEXED	0x0000
-#define VIDEO_FORMAT_RGB_DIRECTCOLOR	0x0001
-#define VIDEO_FORMAT_YUYV_4_4_4		0x0010
-#define VIDEO_FORMAT_YUYV_4_2_2		0x0011
-
-typedef struct {
-	void *address;			/* Address of framebuffer		*/
-	ushort	width;			/* Horizontal resolution		*/
-	ushort	height;			/* Vertical resolution			*/
-	uchar	format;			/* Format				*/
-	uchar	colors;			/* Colors number or color depth		*/
-	void (*setcolreg) (int, int, int, int);
-	void (*getcolreg) (int, void *);
-} video_ext_t;
-
-/*
  * VARIABLES
  */
 extern struct stdio_dev *stdio_devices[];
