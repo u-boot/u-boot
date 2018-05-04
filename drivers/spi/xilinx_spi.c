@@ -268,7 +268,8 @@ static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		reg = readl(&regs->spicr) & ~SPICR_MASTER_INHIBIT;
 		writel(reg, &regs->spicr);
 		txbytes -= count;
-		txp += count;
+		if (txp)
+			txp += count;
 
 		timeout = 10000000;
 		do {
@@ -283,7 +284,8 @@ static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		debug("txbytes:0x%x,txp:0x%p\n", txbytes, txp);
 		count = xilinx_spi_read_rxfifo(bus, rxp, rxbytes);
 		rxbytes -= count;
-		rxp += count;
+		if (rxp)
+			rxp += count;
 		debug("rxbytes:0x%x rxp:0x%p\n", rxbytes, rxp);
 	}
 
