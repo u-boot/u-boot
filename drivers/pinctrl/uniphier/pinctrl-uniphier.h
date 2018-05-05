@@ -27,7 +27,8 @@ static inline unsigned int uniphier_pin_get_iectrl(unsigned long data)
  */
 struct uniphier_pinctrl_pin {
 	unsigned number;
-	unsigned long data;
+	const char *name;
+	unsigned int data;
 };
 
 /**

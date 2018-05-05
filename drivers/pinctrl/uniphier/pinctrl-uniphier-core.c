@@ -21,6 +21,34 @@
 
 static const char *uniphier_pinctrl_dummy_name = "_dummy";
 
+static int uniphier_pinctrl_get_pins_count(struct udevice *dev)
+{
+	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
+	const struct uniphier_pinctrl_pin *pins = priv->socdata->pins;
+	int pins_count = priv->socdata->pins_count;
+
+	/*
+	 * We do not list all pins in the pin table to save memory footprint.
+	 * Report the max pin number + 1 to fake the framework.
+	 */
+	return pins[pins_count - 1].number + 1;
+}
+
+static const char *uniphier_pinctrl_get_pin_name(struct udevice *dev,
+						 unsigned int selector)
+{
+	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
+	const struct uniphier_pinctrl_pin *pins = priv->socdata->pins;
+	int pins_count = priv->socdata->pins_count;
+	int i;
+
+	for (i = 0; i < pins_count; i++)
+		if (pins[i].number == selector)
+			return pins[i].name;
+
+	return uniphier_pinctrl_dummy_name;
+}
+
 static int uniphier_pinctrl_get_groups_count(struct udevice *dev)
 {
 	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
@@ -157,8 +185,8 @@ static int uniphier_pinconf_bias_set(struct udevice *dev, unsigned int pin,
 	return 0;
 }
 
-static int uniphier_pinconf_set_one(struct udevice *dev, unsigned int pin,
-				    unsigned int param, unsigned int arg)
+static int uniphier_pinconf_set(struct udevice *dev, unsigned int pin,
+				unsigned int param, unsigned int arg)
 {
 	int ret;
 
@@ -190,7 +218,7 @@ static int uniphier_pinconf_group_set(struct udevice *dev,
 	int i, ret;
 
 	for (i = 0; i < grp->num_pins; i++) {
-		ret = uniphier_pinconf_set_one(dev, grp->pins[i], param, arg);
+		ret = uniphier_pinconf_set(dev, grp->pins[i], param, arg);
 		if (ret)
 			return ret;
 	}
@@ -268,6 +296,8 @@ static int uniphier_pinmux_group_set(struct udevice *dev,
 }
 
 const struct pinctrl_ops uniphier_pinctrl_ops = {
+	.get_pins_count = uniphier_pinctrl_get_pins_count,
+	.get_pin_name = uniphier_pinctrl_get_pin_name,
 	.get_groups_count = uniphier_pinctrl_get_groups_count,
 	.get_group_name = uniphier_pinctrl_get_group_name,
 	.get_functions_count = uniphier_pinmux_get_functions_count,
@@ -276,6 +306,7 @@ const struct pinctrl_ops uniphier_pinctrl_ops = {
 #if CONFIG_IS_ENABLED(PINCONF)
 	.pinconf_num_params = ARRAY_SIZE(uniphier_pinconf_params),
 	.pinconf_params = uniphier_pinconf_params,
+	.pinconf_set = uniphier_pinconf_set,
 	.pinconf_group_set = uniphier_pinconf_group_set,
 #endif
 	.set_state = pinctrl_generic_set_state,
