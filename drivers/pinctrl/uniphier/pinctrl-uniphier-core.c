@@ -173,7 +173,7 @@ static int uniphier_pinconf_set_one(struct udevice *dev, unsigned int pin,
 		ret = uniphier_pinconf_input_enable(dev, pin, arg);
 		break;
 	default:
-		printf("unsupported configuration parameter %u\n", param);
+		dev_err(dev, "unsupported configuration parameter %u\n", param);
 		return -EINVAL;
 	}
 
