@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *
  * (c) 2009 Ilya Yanok, Emcraft Systems <yanok@emcraft.com>
  *
  * Modified for mx25 by John Rigby <jrigby@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_ARCH_CLOCK_H

@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017-2018 STMicroelectronics - All Rights Reserved
  * Author(s): Philippe Cornu <philippe.cornu@st.com> for STMicroelectronics.
  *	      Yannick Fertre <yannick.fertre@st.com> for STMicroelectronics.
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <common.h>

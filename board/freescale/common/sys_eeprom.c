@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2006, 2008-2009, 2011 Freescale Semiconductor
  * York Sun (yorksun@freescale.com)
  * Haiying Wang (haiying.wang@freescale.com)
  * Timur Tabi (timur@freescale.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

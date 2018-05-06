@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Common configuration settings for IGEP technology based boards
  *
  * (C) Copyright 2012
  * ISEE 2007 SL, <www.iseebcn.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __IGEP00X0_H

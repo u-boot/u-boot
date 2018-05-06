@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014 O.S. Systems Software LTDA.
  * Copyright (C) 2014 Kynetics LLC.
@@ -6,8 +7,6 @@
  * Author: Otavio Salvador <otavio@ossystems.com.br>
  *
  * Configuration settings for the WaRP Board
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

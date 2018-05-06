@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013 - 2014 Xilinx, Inc
  *
  * Michal Simek <michal.simek@xilinx.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <asm-offsets.h>

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * MPC85xx Internal Memory Map
  *
@@ -5,8 +6,6 @@
  *
  * Copyright(c) 2002,2003 Motorola Inc.
  * Xianghua Xiao (x.xiao@motorola.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __IMMAP_85xx__

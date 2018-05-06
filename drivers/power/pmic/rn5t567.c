@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Toradex AG
  * Stefan Agner <stefan.agner@toradex.com>
- *
- * SPDX-License-Identifier:      GPL-2.0+
  */
 
 #include <common.h>

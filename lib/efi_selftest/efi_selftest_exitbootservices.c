@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * efi_selftest_exitbootservices
  *
  * Copyright (c) 2017 Heinrich Schuchardt <xypron.glpk@gmx.de>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  *
  * This unit test checks that the notification function of an
  * EVT_SIGNAL_EXIT_BOOT_SERVICES event is called exactly once.

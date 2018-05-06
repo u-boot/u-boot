@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 1996, 99, 2003 by Ralf Baechle
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef _ASM_BYTEORDER_H
 #define _ASM_BYTEORDER_H

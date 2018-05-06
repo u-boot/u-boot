@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014 Marek Vasut <marex@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __CONFIG_SOCFPGA_ARRIA5_H__
 #define __CONFIG_SOCFPGA_ARRIA5_H__

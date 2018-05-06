@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Based on Linux i.MX iomux-v3.h file:
  * Copyright (C) 2009 by Jan Weitzel Phytec Messtechnik GmbH,
  *			<armlinux@phytec.de>
  *
  * Copyright (C) 2016 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MACH_IOMUX_H__

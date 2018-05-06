@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Intel PXA25x on-chip full speed USB device controller
  *
  * Copyright (C) 2003 Robert Schwebel <r.schwebel@pengutronix.de>, Pengutronix
  * Copyright (C) 2003 David Brownell
  * Copyright (C) 2012 Lukasz Dalek <luk0104@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __LINUX_USB_GADGET_PXA25X_H

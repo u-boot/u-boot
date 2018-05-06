@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Brought in from Linux 4.1, removed things not useful to U-Boot.
  * The definitions perhaps came from the GNU Library which is GPL.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _ASM_X86_ELF_H

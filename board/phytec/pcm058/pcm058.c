@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Stefano Babic <sbabic@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

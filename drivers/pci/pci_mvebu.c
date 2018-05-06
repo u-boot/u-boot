@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * PCIe driver for Marvell MVEBU SoCs
  *
@@ -6,8 +7,6 @@
  * Ported to U-Boot by:
  * Anton Schubert <anton.schubert@gmx.de>
  * Stefan Roese <sr@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

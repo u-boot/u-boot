@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2011
  * Ilya Yanok, EmCraft Systems
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <linux/types.h>
 #include <common.h>

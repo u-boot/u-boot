@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * ARM Cortex M3/M4/M7 SysTick timer driver
  * (C) Copyright 2017 Renesas Electronics Europe Ltd
@@ -8,8 +9,6 @@
  *
  * Copyright 2015 ATS Advanced Telematics Systems GmbH
  * Copyright 2015 Konsulko Group, Matt Porter <mporter@konsulko.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  *
  * The SysTick timer is a 24-bit count down timer. The clock can be either the
  * CPU clock or a reference clock. Since the timer will wrap around very quickly

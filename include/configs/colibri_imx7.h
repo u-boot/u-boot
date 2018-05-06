@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2016 Toradex AG
  *
@@ -5,8 +6,6 @@
  *
  * based on mx7dsabresd.h:
  * Copyright (C) 2015 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __COLIBRI_IMX7_CONFIG_H

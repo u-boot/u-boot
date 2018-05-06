@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2004-2009
  * Texas Instruments Incorporated
  * Richard Woodruff		<r-woodruff2@ti.com>
  * Aneesh V			<aneesh@ti.com>
  * Balaji Krishnamoorthy	<balajitk@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _MUX_OMAP5_H_
 #define _MUX_OMAP5_H_

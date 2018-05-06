@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 #ifndef __ADDR_MAP_H
 #define __ADDR_MAP_H
 
 /*
  * Copyright 2008 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <asm/types.h>

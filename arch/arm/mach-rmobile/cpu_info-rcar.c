@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * arch/arm/cpu/armv7/rmobile/cpu_info-rcar.c
  *
  * Copyright (C) 2013,2014 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 #include <common.h>
 #include <asm/io.h>

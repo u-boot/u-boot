@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2010-2017 CS Systemes d'Information
  * Florent Trinh Thai <florent.trinh-thai@c-s.fr>
  * Christophe Leroy <christophe.leroy@c-s.fr>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

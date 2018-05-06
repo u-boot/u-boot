@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015 Moritz Fischer <moritz.fischer@ettus.com>
  * IP from Cadence (ID T-CS-PE-0007-100, Version R1p10f2)
  *
  * This file is based on: drivers/i2c/zynq_i2c.c,
  * with added driver-model support and code cleanup.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

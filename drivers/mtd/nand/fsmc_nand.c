@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2010
  * Vipin Kumar, ST Microelectronics, vipin.kumar@st.com.
  *
  * (C) Copyright 2012
  * Amit Virdi, ST Microelectronics, amit.virdi@st.com.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

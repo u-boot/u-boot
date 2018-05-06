@@ -1,6 +1,4 @@
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
+# SPDX-License-Identifier: GPL-2.0+
 
 dtb-$(CONFIG_TARGET_ADP_AG101P) += ag101p.dtb
 dtb-$(CONFIG_TARGET_ADP_AE3XX) += ae3xx.dtb

@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /* Copyright (C) 2011
  * Corscience GmbH & Co. KG - Simon Schwarz <schwarz@corscience.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _NAND_SPL_H_
 #define	_NAND_SPL_H_

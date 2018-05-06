@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (c) Copyright 2012 by National Instruments,
  *        Joe Hershberger <joe.hershberger@ni.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

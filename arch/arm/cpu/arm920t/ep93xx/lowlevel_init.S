@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Low-level initialization for EP93xx
  *
@@ -10,8 +11,6 @@
  *
  * See file CREDITS for list of people who contributed to this
  * project.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

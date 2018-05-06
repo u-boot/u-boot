@@ -1,10 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * This file provides ECC correction for more than 1 bit per block of data,
  * using binary BCH codes. It relies on the generic BCH library lib/bch.c.
  *
  * Copyright © 2011 Ivan Djelic <ivan.djelic@parrot.com>
  *
-  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

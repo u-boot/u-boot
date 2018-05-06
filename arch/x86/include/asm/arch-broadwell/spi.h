@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 2014 Google Inc.
  *
  * This file is from coreboot soc/intel/broadwell/include/soc/spi.h
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _BROADWELL_SPI_H_

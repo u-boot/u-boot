@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2013 Google Inc.
  * Copyright (C) 2014 Sage Electronics Engineering, LLC.
  * Copyright (C) 2016 Bin Meng <bmeng.cn@gmail.com>
  *
  * Modified from coreboot src/soc/intel/baytrail/include/soc/irq_helper.h
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

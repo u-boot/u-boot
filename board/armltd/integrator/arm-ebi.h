@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011
  * Linaro
  * Linus Walleij <linus.walleij@linaro.org>
  * Register definitions for the External Bus Interface (EBI)
  * found in the ARM Integrator AP and CP reference designs
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ARM_EBI_H

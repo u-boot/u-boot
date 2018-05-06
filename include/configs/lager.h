@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * include/configs/lager.h
  *     This file is lager board configuration.
  *
  * Copyright (C) 2013, 2014 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #ifndef __LAGER_H

@@ -1,9 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0
 # ===========================================================================
 # Kernel configuration targets
 # These targets are used from top-level makefile
-#
-# SPDX-License-Identifier:	GPL-2.0
-#
 
 PHONY += xconfig gconfig menuconfig config silentoldconfig update-po-config \
 	localmodconfig localyesconfig

@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Fake include for Types.h
  *
  * Copyright (C) 2007-2009 Industrie Dial Face S.p.A.
  * Luigi 'Comio' Mantellini (luigi.mantellini@idf-hit.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+ 
  */
 
 #ifndef __TYPES_H__FAKE__

@@ -1,9 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 objs-before-objcopy := 20001122-1.o 20010114-2.o 20010226-1.o 980619-1.o \
 	acc1.o compare-fp-1.o fpu.o mul-subnormal-single-1.o darwin-ldouble.o

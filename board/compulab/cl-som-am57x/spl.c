@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * SPL data and initialization for CompuLab CL-SOM-AM57x board
  *
  * (C) Copyright 2016 CompuLab, Ltd. http://compulab.co.il/
  *
  * Author: Uri Mashiach <uri.mashiach@compulab.co.il>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/emif.h>

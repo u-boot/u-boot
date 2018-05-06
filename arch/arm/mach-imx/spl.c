@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014 Gateworks Corporation
  * Copyright (C) 2011-2012 Freescale Semiconductor, Inc.
  *
  * Author: Tim Harvey <tharvey@gateworks.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>

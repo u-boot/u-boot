@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017, Intel Corporation
  *
  * based on socfpga_cyclone5_de0_nano_soc.dts
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include "socfpga_cyclone5.dtsi"

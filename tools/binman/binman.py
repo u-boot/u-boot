@@ -1,9 +1,8 @@
 #!/usr/bin/env python2
+# SPDX-License-Identifier: GPL-2.0+
 
 # Copyright (c) 2016 Google, Inc
 # Written by Simon Glass <sjg@chromium.org>
-#
-# SPDX-License-Identifier:	GPL-2.0+
 #
 # Creates binary images from input files controlled by a description
 #

@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * SPI flash internal definitions
  *
  * Copyright (C) 2008 Atmel Corporation
  * Copyright (C) 2013 Jagannadha Sutradharudu Teki, Xilinx Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SF_INTERNAL_H_

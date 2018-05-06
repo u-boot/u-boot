@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /* Only eth0 supported for now
  *
  * (C) Copyright 2003
  * Thomas.Lange@corelatus.se
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <config.h>
 

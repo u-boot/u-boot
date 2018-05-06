@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2016
  * Author: Amit Singh Tomar, amittomer25@gmail.com
- *
- * SPDX-License-Identifier:     GPL-2.0+
  *
  * Ethernet driver for H3/A64/A83T based SoC's
  *

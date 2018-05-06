@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2011 Vladimir Zapolskiy <vz@mleia.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _LPC32XX_SYS_PROTO_H

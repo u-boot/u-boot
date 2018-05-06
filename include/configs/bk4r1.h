@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2016 3ADEV <http://3adev.com>
  * Written-by: Albert ARIBAUD <albert.aribaud@3adev.fr>
  *
  * Configuration settings for the phytec PCM-052 SoM-based BK4R1.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* Define the BK4r1-specific env commands */

@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * SMSC PHY drivers
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Base code from drivers/net/phy/davicom.c
  *   Copyright 2010-2011 Freescale Semiconductor, Inc.

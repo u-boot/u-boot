@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * [origin: Linux kernel include/asm-arm/arch-at91/at91_pit.h]
  *
@@ -6,8 +7,6 @@
  *
  * Periodic Interval Timer (PIT) - System peripherals regsters.
  * Based on AT91SAM9261 datasheet revision D.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef AT91_PIT_H

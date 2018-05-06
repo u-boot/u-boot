@@ -1,6 +1,5 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * SPDX-License-Identifier:	GPL-2.0+
- *
  * Based on bitrev from the Linux kernel, by Akinobu Mita
  */
 

@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: Intel */
 /*
  * Copyright (C) 2013, Intel Corporation
  * Copyright (C) 2015, Google, Inc
- *
- * SPDX-License-Identifier:	Intel
  */
 
 #ifndef _FSP_AZALIA_H_

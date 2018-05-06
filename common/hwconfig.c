@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * An inteface for configuring a hardware via u-boot environment.
  *
@@ -5,8 +6,6 @@
  * Copyright 2011 Freescale Semiconductor, Inc.
  *
  * Author: Anton Vorontsov <avorontsov@ru.mvista.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef HWCONFIG_TEST

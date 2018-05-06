@@ -1,9 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2014, Simon Glass <sjg@chromium.org>
 # Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 U-Boot on x86
 =============

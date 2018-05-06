@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * LayerScape Internal Memory Map
  *
  * Copyright (C) 2017 NXP Semiconductors
  * Copyright 2014 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ARCH_FSL_LSCH3_IMMAP_H_

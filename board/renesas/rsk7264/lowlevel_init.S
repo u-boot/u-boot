@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2011 Renesas Electronics Europe Ltd.
  * Copyright (C) 2008 Renesas Solutions Corp.
  * Copyright (C) 2008 Nobuhiro Iwamatsu
  *
  * Based on board/renesas/rsk7203/lowlevel_init.S
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <config.h>
 

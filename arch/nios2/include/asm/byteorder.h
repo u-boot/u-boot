@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
-* (C) Copyright 2004, Psyent Corporation <www.psyent.com>
-* Scott McNutt <smcnutt@psyent.com>
-*
- * SPDX-License-Identifier:	GPL-2.0+
-*/
+ * (C) Copyright 2004, Psyent Corporation <www.psyent.com>
+ * Scott McNutt <smcnutt@psyent.com>
+ */
 
 #ifndef __ASM_NIOS2_BYTEORDER_H_
 #define __ASM_NIOS2_BYTEORDER_H_

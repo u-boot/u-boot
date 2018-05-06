@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2011 Ilya Yanok, Emcraft Systems
  *
  * Based on ti/evm/evm.h
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _AM3517EVM_H_

@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
  * (C) Copyright 2008
  * Graeme Russ, graeme.russ@gmail.com.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* board early intialization */

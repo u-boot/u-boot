@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Marek Vasut <marek.vasut@gmail.com>
  *
  * Renesas RCar USB HOST xHCI Controller
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

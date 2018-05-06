@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2000-2002
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -8,7 +9,6 @@
 # Copyright (C) 2017 Andes Technology Corporation
 # Rick Chen, Andes Technology Corporation <rick@andestech.com>
 #
-# SPDX-License-Identifier:	GPL-2.0+
 
 ifeq ($(CROSS_COMPILE),)
 CROSS_COMPILE := riscv32-unknown-linux-gnu-

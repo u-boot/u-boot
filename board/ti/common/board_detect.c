@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Library to support early TI EVM EEPROM handling
  *
  * Copyright (C) 2015-2016 Texas Instruments Incorporated - http://www.ti.com/
  *	Lokesh Vutla
  *	Steve Kipisz
- *
- * SPDX-License-Identifier:    GPL-2.0+
  */
 
 #include <common.h>

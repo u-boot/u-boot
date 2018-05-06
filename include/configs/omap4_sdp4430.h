@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010
  * Texas Instruments Incorporated.
@@ -6,8 +7,6 @@
  *
  * Configuration settings for the TI SDP4430 board.
  * See ti_omap4_common.h for OMAP4 common part
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_SDP4430_H

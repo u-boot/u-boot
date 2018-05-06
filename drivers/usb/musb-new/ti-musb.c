@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * MISC driver for TI MUSB Glue.
  *
  * (C) Copyright 2016
  *     Texas Instruments Incorporated, <www.ti.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 #include <common.h>
 #include <command.h>

@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * From coreboot soc/intel/broadwell/include/soc/me.h
  *
  * Copyright (C) 2014 Google Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _asm_arch_me_h

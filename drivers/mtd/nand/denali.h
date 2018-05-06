@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2013-2014 Altera Corporation <www.altera.com>
  * Copyright (C) 2009-2010, Intel Corporation and its suppliers.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __DENALI_H__

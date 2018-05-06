@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * cmd_gpt.c -- GPT (GUID Partition Table) handling command
  *
@@ -7,8 +8,6 @@
  * Copyright (C) 2012 Samsung Electronics
  * author: Lukasz Majewski <l.majewski@samsung.com>
  * author: Piotr Wilczek <p.wilczek@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,9 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2000-2008
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-$(CONFIG_AT91SAM9260)	+= at91sam9260_devices.o
 obj-$(CONFIG_AT91SAM9G20)	+= at91sam9260_devices.o

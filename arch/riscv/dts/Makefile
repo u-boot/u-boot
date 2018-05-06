@@ -1,6 +1,4 @@
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
+# SPDX-License-Identifier: GPL-2.0+
 
 dtb-$(CONFIG_TARGET_NX25_AE250) += ae250.dtb
 targets += $(dtb-y)

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Bluewater Systems Snapper 9260/9G20 modules
  *
  * (C) Copyright 2011 Bluewater Systems
  *   Author: Andre Renaud <andre@bluewatersys.com>
  *   Author: Ryan Mallon <ryan@bluewatersys.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

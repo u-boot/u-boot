@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014-2015 Freescale Semiconductor, Inc.
  * Copyright (C) Jasbir Matharu
@@ -5,8 +6,6 @@
  *
  * Author: Breno Lima <breno.lima@nxp.com>
  * Author: Francesco Montefoschi <francesco.monte@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/clock.h>

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Driver for the Atmel USBA high speed USB device controller
  * [Original from Linux kernel: drivers/usb/gadget/atmel_usba_udc.c]
  *
  * Copyright (C) 2005-2013 Atmel Corporation
  *			   Bo Shen <voice.shen@atmel.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>

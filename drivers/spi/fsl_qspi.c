@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2013-2015 Freescale Semiconductor, Inc.
  *
  * Freescale Quad Serial Peripheral Interface (QSPI) driver
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

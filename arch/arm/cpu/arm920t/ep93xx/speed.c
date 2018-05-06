@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Cirrus Logic EP93xx PLL support.
  *
  * Copyright (C) 2009 Matthias Kaehlcke <matthias@kaehlcke.net>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2012 Michal Simek <monstr@monstr.eu>
  * (C) Copyright 2013 - 2018 Xilinx, Inc.
  *
  * Common configuration options for all Zynq boards.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_ZYNQ_COMMON_H

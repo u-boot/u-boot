@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1+
 /*
  * Tiny printf version for SPL
  *
@@ -5,8 +6,6 @@
  * http://www.sparetimelabs.com/printfrevisited/printfrevisited.php
  *
  * Copyright (C) 2004,2008  Kustaa Nyholm
- *
- * SPDX-License-Identifier:	LGPL-2.1+
  */
 
 #include <common.h>

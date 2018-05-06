@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 #ifndef load_kernel_h
 #define load_kernel_h
 /*-------------------------------------------------------------------------
@@ -7,9 +8,6 @@
  * Author:        Russ Dill <Russ.Dill@asu.edu>
  * Description:   header for load kernel modules
  *-----------------------------------------------------------------------*/
-/*
- * SPDX-License-Identifier:	GPL-2.0+
- */
 
 #include <linux/list.h>
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2003
  * Texas Instruments <www.ti.com>
@@ -17,8 +18,6 @@
  * Philippe Robin, ARM Ltd. <philippe.robin@arm.com>
  *
  * Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

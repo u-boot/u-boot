@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 2005-2006 by Texas Instruments
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef __MUSB_OMAP243X_H__

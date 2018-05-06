@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2016 Rockchip Electronics Co., Ltd
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 #ifndef _ASM_ARCH_GRF_RV1108_H
 #define _ASM_ARCH_GRF_RV1108_H

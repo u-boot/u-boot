@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
  * Copyright (c) 2013 NVIDIA Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _TEGRA_USB_H_

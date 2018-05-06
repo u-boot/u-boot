@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Board functions for Gumstix Pepper and AM335x-based boards
  *
  * Copyright (C) 2014, Gumstix, Incorporated - http://www.gumstix.com/
  * Based on board/ti/am335x/board.c from Texas Instruments, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

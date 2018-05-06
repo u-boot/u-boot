@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * include/configs/rcar-gen3-common.h
  *	This file is R-Car Gen3 common configuration file.
  *
  * Copyright (C) 2015-2017 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #ifndef __RCAR_GEN3_COMMON_H

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Renesas RCar IIC driver
  *
@@ -6,8 +7,6 @@
  * Based on
  * Copyright (C) 2011, 2013 Renesas Solutions Corp.
  * Copyright (C) 2011, 2013 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

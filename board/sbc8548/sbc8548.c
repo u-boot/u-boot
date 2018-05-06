@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2007,2009 Wind River Systems, Inc. <www.windriver.com>
  *
@@ -6,8 +7,6 @@
  * Copyright 2004, 2007 Freescale Semiconductor.
  *
  * (C) Copyright 2002 Scott McNutt <smcnutt@artesyncp.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2008 Semihalf
  *
  * (C) Copyright 2000-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  ********************************************************************
  * NOTE: This header file defines an interface to U-Boot. Including
  * this (unmodified) header file in another file is considered normal

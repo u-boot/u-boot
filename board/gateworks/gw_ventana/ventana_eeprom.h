@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2013 Gateworks Corporation
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #ifndef _VENTANA_EEPROM_

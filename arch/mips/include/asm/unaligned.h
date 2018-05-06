@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 2007 Ralf Baechle (ralf@linux-mips.org)
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef _ASM_MIPS_UNALIGNED_H
 #define _ASM_MIPS_UNALIGNED_H

@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Pinmux configurations for the DAxxx SoCs
  *
  * Copyright (C) 2011 OMICRON electronics GmbH
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_ARCH_PINMUX_DEFS_H

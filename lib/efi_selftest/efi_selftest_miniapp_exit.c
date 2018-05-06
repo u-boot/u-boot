@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * efi_selftest_miniapp_exit
  *
  * Copyright (c) 2018 Heinrich Schuchardt
- *
- * SPDX-License-Identifier:     GPL-2.0+
  *
  * This EFI application is run by the StartImage selftest.
  * It uses the Exit boot service to return.

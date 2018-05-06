@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * board.h
  *
@@ -6,8 +7,6 @@
  * Copyright (C) 2018 EETS GmbH - http://www.eets.ch/
  *
  * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #ifndef _BOARD_H_

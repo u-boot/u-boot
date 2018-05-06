@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (c) Copyright 2011 by Tigris Elektronik GmbH
  *
  * Author:
  *  Maximilian Schwerin <mvs@tigris.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com*
  * Author: Govindraj R <govindraj.raja@ti.com>
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #ifndef _EHCI_H

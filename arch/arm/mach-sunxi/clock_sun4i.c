@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * sun4i, sun5i and sun7i specific clock code
  *
@@ -6,8 +7,6 @@
  * Tom Cubie <tangliang@allwinnertech.com>
  *
  * (C) Copyright 2013 Luke Kenneth Casson Leighton <lkcl@lkcl.net>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2011 - 2012 Samsung Electronics
  * EXT4 filesystem implementation in Uboot by
@@ -13,8 +14,6 @@
  *
  * (C) Copyright 2003 - 2004
  * Sysgo AG, <www.elinos.com>, Pavel Bartusek <pba@sysgo.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

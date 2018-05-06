@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2010 Thomas Chou <thomas@wytron.com.tw>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

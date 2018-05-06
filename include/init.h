@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2000-2009
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * Copy the startup prototype, previously defined in common.h
  * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __INIT_H_

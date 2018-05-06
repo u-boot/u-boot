@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * sun8i H3 platform dram controller init
  *
@@ -6,8 +7,6 @@
  * (C) Copyright 2015      Vishnu Patekar <vishnupatekar0510@gmail.com>
  * (C) Copyright 2015      Hans de Goede <hdegoede@redhat.com>
  * (C) Copyright 2015      Jens Kuske <jenskuske@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <asm/io.h>

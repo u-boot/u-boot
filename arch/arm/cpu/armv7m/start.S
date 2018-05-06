@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2015
  * Kamil Lulko, <kamil.lulko@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/assembler.h>

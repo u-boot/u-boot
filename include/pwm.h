@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * header file for pwm driver.
  *
  * Copyright 2016 Google Inc.
  * Copyright (c) 2011 samsung electronics
  * Donghwa Lee <dh09.lee@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _pwm_h_

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * mx6memcal board support - provides a minimal, UART-only
  * U-Boot that's capable of running a memory test.
  *
  * Copyright (C) 2016 Nelson Integration, LLC
  * Author: Eric Nelson <eric@nelint.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

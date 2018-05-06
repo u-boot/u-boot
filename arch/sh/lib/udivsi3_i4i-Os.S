@@ -1,6 +1,6 @@
-/* Copyright (C) 2006 Free Software Foundation, Inc.
-
- * SPDX-License-Identifier:	GPL-2.0+
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+ * Copyright (C) 2006 Free Software Foundation, Inc.
  */
 
 /* Moderately Space-optimized libgcc routines for the Renesas SH /

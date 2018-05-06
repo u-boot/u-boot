@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2006-2008
  * Texas Instruments.
@@ -6,8 +7,6 @@
  * Nishanth Menon <nm@ti.com>
  *
  * Configuration settings for the TI OMAP3430 Zoom MDK board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2012
  * Konstantin Kozhevnikov, Cogent Embedded
@@ -6,8 +7,6 @@
  *
  * (C) Copyright 2006-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

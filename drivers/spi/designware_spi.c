@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Designware master SPI core controller driver
  *
@@ -6,8 +7,6 @@
  * Very loosely based on the Linux driver:
  * drivers/spi/spi-dw.c, which is:
  * Copyright (c) 2009, Intel Corporation.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <asm-generic/gpio.h>

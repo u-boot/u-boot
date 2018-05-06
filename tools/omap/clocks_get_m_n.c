@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Program for finding M & N values for DPLLs
  * To be run on Host PC
@@ -6,8 +7,6 @@
  * Texas Instruments, <www.ti.com>
  *
  * Aneesh V <aneesh@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <stdlib.h>
 #include <stdio.h>

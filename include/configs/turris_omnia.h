@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2017 Marek Behun <marek.behun@nic.cz>
  * Copyright (C) 2016 Tomas Hlavacek <tomas.hlavacek@nic.cz>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CONFIG_TURRIS_OMNIA_H

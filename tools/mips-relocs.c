@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * MIPS Relocation Data Generator
  *
  * Copyright (c) 2017 Imagination Technologies Ltd.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <assert.h>

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2010-2017 CS Systemes d'Information
  * Florent Trinh Thai <florent.trinh-thai@c-s.fr>
  * Christophe Leroy <christophe.leroy@c-s.fr>
  *
  * Board specific routines for the MCR3000 board
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

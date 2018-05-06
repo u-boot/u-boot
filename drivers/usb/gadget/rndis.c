@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * RNDIS MSG parser
  *
@@ -15,8 +16,6 @@
  *
  * Copyright (C) 2004 by David Brownell
  *		updates to merge with Linux 2.6, better match RNDIS spec
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

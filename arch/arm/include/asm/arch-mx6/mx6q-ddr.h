@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2013 Boundary Devices Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __ASM_ARCH_MX6Q_DDR_H__
 #define __ASM_ARCH_MX6Q_DDR_H__

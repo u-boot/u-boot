@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Freescale Layerscape Management Complex (MC) Environment-specific code
  *
  * Copyright (C) 2014 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _FSL_MC_SYS_H

@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2008
  * Nishanth Menon <menon.nishanth@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _EVM_H_
 #define _EVM_H_

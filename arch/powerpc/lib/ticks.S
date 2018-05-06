@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2000, 2001
  * Erik Theisen, Wave 7 Optics, etheisen@mindspring.com.
  *  base on code by
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <ppc_asm.tmpl>

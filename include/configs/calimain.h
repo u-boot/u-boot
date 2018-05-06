@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2011-2014 OMICRON electronics GmbH
  *
@@ -5,8 +6,6 @@
  *
  * Copyright (C) 2010 Texas Instruments Incorporated - http://www.ti.com/
  * Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * SoC-specific lowlevel code for tms320dm365 and similar chips
  *
  * Copyright (C) 2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __DM365_LOWLEVEL_H
 #define __DM365_LOWLEVEL_H

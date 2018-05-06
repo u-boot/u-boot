@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) Freescale Semiconductor, Inc. 2006.
  * Author: Jason Jin<Jason.jin@freescale.com>
  *         Zhang Wei<wei.zhang@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _AHCI_H_
 #define _AHCI_H_

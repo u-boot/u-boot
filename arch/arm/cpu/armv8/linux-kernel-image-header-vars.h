@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * (C) Copyright 2017 NVIDIA Corporation <www.nvidia.com>
  *
@@ -17,8 +18,6 @@
  *
  * arch/arm64/kernel/image.h:
  * Copyright (C) 2014 ARM Ltd.
- *
- * SPDX-License-Identifier:     GPL-2.0
  */
 
 /*

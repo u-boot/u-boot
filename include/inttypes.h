@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 1997-2001, 2004, 2007 Free Software Foundation, Inc.
  *
  * This file is taken from the GNU C Library v2.15, with the unimplemented
  * functions removed and a few style fixes.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

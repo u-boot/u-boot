@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * f_thor.c -- USB TIZEN THOR Downloader gadget function
  *
@@ -11,8 +12,6 @@
  * Copyright (C) 2009 Samsung Electronics
  * Minkyu Kang <mk7.kang@samsung.com>
  * Sanghee Kim <sh0130.kim@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <errno.h>

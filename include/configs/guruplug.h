@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2009-2014
  * Gerald Kerma <dreagle@doukki.net>
  * Marvell Semiconductor <www.marvell.com>
  * Written-by: Siddarth Gore <gores@marvell.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CONFIG_GURUPLUG_H

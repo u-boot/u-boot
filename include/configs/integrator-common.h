@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2012
  * Linaro
  * Linus Walleij <linus.walleij@linaro.org>
  * Common ARM Integrator configuration settings
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #define CONFIG_SYS_MEMTEST_START	0x100000

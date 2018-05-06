@@ -1,13 +1,11 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2018
 # Lukasz Majewski, DENX Software Engineering, lukma@denx.de
-#
-#
 # This is an example file to generate boot.scr - a boot script for U-Boot
 # Generate boot.scr:
 # ./tools/mkimage -c none -A arm -T script -d tpcboot.cmd boot.scr
 #
-# SPDX-License-Identifier:	GPL-2.0+
 
 
 # Input envs (to be set in environment)

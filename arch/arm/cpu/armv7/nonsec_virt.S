@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * code for switching cores into non-secure state and into HYP mode
  *
  * Copyright (c) 2013	Andre Przywara <andre.przywara@linaro.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

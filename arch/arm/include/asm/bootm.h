@@ -1,12 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2013, Google Inc.
  *
  * Copyright (C) 2011
  * Corscience GmbH & Co. KG - Simon Schwarz <schwarz@corscience.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef ARM_BOOTM_H
 #define ARM_BOOTM_H

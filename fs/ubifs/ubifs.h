@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * This file is part of UBIFS.
  *
@@ -5,8 +6,6 @@
  *
  * (C) Copyright 2008-2009
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Authors: Artem Bityutskiy (Битюцкий Артём)
  *          Adrian Hunter

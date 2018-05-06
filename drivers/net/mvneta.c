@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Driver for Marvell NETA network card for Armada XP and Armada 370 SoCs.
  *
@@ -9,8 +10,6 @@
  *
  * Rami Rosen <rosenr@marvell.com>
  * Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

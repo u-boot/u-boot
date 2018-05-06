@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /* include/samsung-usb-phy-uboot.h
  *
  * Copyright (c) 2015 Samsung Electronics
  *
  * USB3 (DWC3) PHY uboot init
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef __SAMSUNG_USB_PHY_UBOOT_H_

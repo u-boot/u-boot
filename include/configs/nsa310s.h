@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2015
  * Gerald Kerma <dreagle@doukki.net>
  * Tony Dinh <mibodhi@gmail.com>
  * Luka Perkov <luka.perkov@sartura.hr>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CONFIG_NSA310S_H

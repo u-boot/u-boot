@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * board/renesas/blanche/blanche.c
  *     This file is blanche board support.
  *
  * Copyright (C) 2016 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #include <common.h>

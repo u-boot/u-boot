@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2008 (C) Bryan O'Donoghue
  *
  * Code copied & edited from Freescale mpc85xx stuff.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

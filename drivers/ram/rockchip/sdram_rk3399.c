@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * (C) Copyright 2016-2017 Rockchip Inc.
- *
- * SPDX-License-Identifier:     GPL-2.0
  *
  * Adapted from coreboot.
  */

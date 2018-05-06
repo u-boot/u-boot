@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * include/configs/rcar-gen2-common.h
  *
  * Copyright (C) 2013,2014 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #ifndef __RCAR_GEN2_COMMON_H

@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Device Tree Source for the r8a7793 SoC
  *
  * Copyright (C) 2014-2015 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <dt-bindings/clock/r8a7793-cpg-mssr.h>

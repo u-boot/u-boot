@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2007 Michal Simek
  *
  * Michal SIMEK <monstr@monstr.eu>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

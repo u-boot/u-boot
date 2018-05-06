@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2009 BuS Elektronik GmbH & Co. KG
  * Jens Scharsig (esw@bus-elektronik.de)
  *
  * (C) Copyright 2003
  * Author : Hamid Ikdoumi (Atmel)
-
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

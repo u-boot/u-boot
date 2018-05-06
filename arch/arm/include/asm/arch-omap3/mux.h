@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2006-2008
  * Texas Instruments, <www.ti.com>
  * Syed Mohammed Khasim <x0khasim@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _MUX_H_
 #define _MUX_H_

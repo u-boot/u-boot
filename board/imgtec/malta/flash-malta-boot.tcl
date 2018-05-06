@@ -1,10 +1,8 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2013 Imagination Technologies
 #
 # Programs a MIPS Malta boot flash with a flat binary image.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 proc flash-boot { binfile } {
   puts "flash monitor binary $binfile"

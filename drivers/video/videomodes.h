@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2004
  * Pierre Aubert, Staubli Faverges , <p.aubert@staubli.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <edid.h>

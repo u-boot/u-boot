@@ -1,5 +1,5 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * based on: cmd_jffs2.c
  *

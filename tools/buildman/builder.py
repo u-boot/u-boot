@@ -1,8 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 # Copyright (c) 2013 The Chromium OS Authors.
 #
 # Bloat-o-meter code used here Copyright 2004 Matt Mackall <mpm@selenic.com>
-#
-# SPDX-License-Identifier:	GPL-2.0+
 #
 
 import collections

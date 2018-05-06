@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2016 Fuzhou Rockchip Electronics Co., Ltd
  *
  * Rockchip SD Host Controller Interface
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

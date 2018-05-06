@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * LPC32xx GPIO interface macro for pin mapping.
  *
  * (C) Copyright 2015  DENX Software Engineering GmbH
  * Written-by: Sylvain Lemieux <slemieux@@tycoint.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _LPC32XX_GPIO_GRP_H

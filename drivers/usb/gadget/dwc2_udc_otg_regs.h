@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /* linux/arch/arm/plat-s3c/include/plat/regs-otg.h
  *
  * Copyright (C) 2004 Herbert Poetzl <herbert@13thfloor.at>
  *
  * Registers remapping:
  * Lukasz Majewski <l.majewski@samsumg.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_ARCH_REGS_USB_OTG_HS_H

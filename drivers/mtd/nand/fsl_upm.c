@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * FSL UPM NAND driver
  *
  * Copyright (C) 2007 MontaVista Software, Inc.
  *                    Anton Vorontsov <avorontsov@ru.mvista.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

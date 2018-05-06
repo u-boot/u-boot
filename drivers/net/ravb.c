@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * drivers/net/ravb.c
  *     This file is driver for Renesas Ethernet AVB.
@@ -5,8 +6,6 @@
  * Copyright (C) 2015-2017  Renesas Electronics Corporation
  *
  * Based on the SuperH Ethernet driver.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

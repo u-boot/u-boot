@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * hardware_ti814x.h
  *
  * TI814x hardware specific header
  *
  * Copyright (C) 2013, Texas Instruments, Incorporated - http://www.ti.com/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __AM33XX_HARDWARE_TI814X_H

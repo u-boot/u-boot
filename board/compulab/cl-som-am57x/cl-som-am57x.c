@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Board functions for CompuLab cl_som_am57x board
  *
  * (C) Copyright 2016 CompuLab, Ltd. http://compulab.co.il/
  *
  * Author: Dmitry Lifshitz <lifshitz@compulab.co.il>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

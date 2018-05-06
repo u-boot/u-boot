@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2016 Marcel Ziswiler <marcel.ziswiler@toradex.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef __SERIAL_PXA_H

@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * ET1011C PHY driver
  *
  * Derived from Linux kernel driver by Chaithrika U S
  * Copyright (C) 2013, Texas Instruments, Incorporated - http://www.ti.com/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <config.h>
 #include <phy.h>

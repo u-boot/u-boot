@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (c) 2010, CompuLab, Ltd.
  * Author: Mike Rapoport <mike@compulab.co.il>
@@ -6,8 +7,6 @@
  * Copyright (c) 2008-2009, NVIDIA Corporation.
  *
  * Copyright (c) 2013-2014, NVIDIA Corporation.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #define pr_fmt(fmt) "tegra-pcie: " fmt

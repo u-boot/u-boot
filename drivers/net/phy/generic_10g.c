@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Generic PHY Management code
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Copyright 2011 Freescale Semiconductor, Inc.
  * author Andy Fleming

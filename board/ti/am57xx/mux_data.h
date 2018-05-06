@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014 Texas Instruments Incorporated - http://www.ti.com
  *
  * Author: Felipe Balbi <balbi@ti.com>
  *
  * Based on board/ti/dra7xx/evm.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _MUX_DATA_BEAGLE_X15_H_
 #define _MUX_DATA_BEAGLE_X15_H_

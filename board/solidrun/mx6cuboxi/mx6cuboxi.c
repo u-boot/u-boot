@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015 Freescale Semiconductor, Inc.
  *
@@ -10,8 +11,6 @@
  *
  * Derived from EDM_CF_IMX6 code by TechNexion,Inc
  * Ported to SolidRun microSOM by Rabeeh Khoury <rabeeh@solid-run.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/clock.h>

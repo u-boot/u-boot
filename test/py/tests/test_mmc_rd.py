@@ -1,6 +1,5 @@
-# Copyright (c) 2018, NVIDIA CORPORATION. All rights reserved.
-#
 # SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2018, NVIDIA CORPORATION. All rights reserved.
 
 # Test U-Boot's "mmc read" command. The test reads data from the eMMC or SD
 # card, and validates the no errors occurred, and that the expected data was

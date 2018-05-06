@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
@@ -5,8 +6,6 @@
  * Based on:
  * Copyright (c) 2011 IDS GmbH, Germany
  * Sergej Stepanov <ste@ids.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

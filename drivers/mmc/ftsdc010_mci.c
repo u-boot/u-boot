@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Faraday MMC/SD Host Controller
  *
@@ -6,8 +7,6 @@
  *
  * Copyright 2018 Andes Technology, Inc.
  * Author: Rick Chen (rick@andestech.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

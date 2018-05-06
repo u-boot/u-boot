@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2017 Intel Corporation
  *
@@ -7,8 +8,6 @@
  * is servicing watchdog and controlling system reset function.
  *
  * This driver enables IPC channel to SCU.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <dm.h>

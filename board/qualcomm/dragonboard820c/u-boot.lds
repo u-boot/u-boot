@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Override linker script for fastboot-readable images
  *
  * (C) Copyright 2015 Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
  *
  * Based on arch/arm/cpu/armv8/u-boot.lds (Just add header)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 OUTPUT_FORMAT("elf64-littleaarch64", "elf64-littleaarch64", "elf64-littleaarch64")

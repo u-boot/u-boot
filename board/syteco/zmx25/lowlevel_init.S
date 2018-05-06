@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011
  * Matthias Weisser <weisserm@arcor.de>
@@ -7,8 +8,6 @@
  *
  * Based on U-Boot and RedBoot sources for several different i.mx
  * platforms.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/macro.h>

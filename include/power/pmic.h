@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  Copyright (C) 2014-2015 Samsung Electronics
  *  Przemyslaw Marczak <p.marczak@samsung.com>
  *
  *  Copyright (C) 2011-2012 Samsung Electronics
  *  Lukasz Majewski <l.majewski@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CORE_PMIC_H_

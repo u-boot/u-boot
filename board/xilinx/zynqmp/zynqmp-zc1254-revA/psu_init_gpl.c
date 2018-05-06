@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (c) Copyright 2015 Xilinx, Inc. All rights reserved.
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <asm/arch/psu_init_gpl.h>

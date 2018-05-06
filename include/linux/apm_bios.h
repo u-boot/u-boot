@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 #ifndef _LINUX_APM_H
 #define _LINUX_APM_H
 
 /*
  * Include file for the interface to an APM BIOS
  * Copyright 1994-2001 Stephen Rothwell (sfr@canb.auug.org.au)
- *
-  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <linux/types.h>

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011, Stefano Babic <sbabic@denx.de>
  *
@@ -6,8 +7,6 @@
  * Copyright (C) 2007, Guennadi Liakhovetski <lg@denx.de>
  *
  * Configuration for the flea3 board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

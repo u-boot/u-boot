@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * efi_selftest_snp
  *
  * Copyright (c) 2017 Heinrich Schuchardt <xypron.glpk@gmx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * This unit test covers the Simple Network Protocol as well as
  * the CopyMem and SetMem boottime services.

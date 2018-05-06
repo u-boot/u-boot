@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * include/configs/salvator-x.h
  *     This file is Salvator-X board configuration.
  *
  * Copyright (C) 2015 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #ifndef __SALVATOR_X_H

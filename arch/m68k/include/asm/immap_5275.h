@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * MCF5274/5 Internal Memory Map
  *
  * Copyright (c) 2005 Arthur Shipkowski <art@videon-central.com>
  * Based on work Copyright (c) 2003 Josef Baumgartner
  *                                  <josef.baumgartner@telex.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __IMMAP_5275__

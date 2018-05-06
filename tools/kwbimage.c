@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Image manipulator for Marvell SoCs
  *  supports Kirkwood, Dove, Armada 370, Armada XP, and Armada 38x
  *
  * (C) Copyright 2013 Thomas Petazzoni
  * <thomas.petazzoni@free-electrons.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Not implemented: support for the register headers in v1 images
  */

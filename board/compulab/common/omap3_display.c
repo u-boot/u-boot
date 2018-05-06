@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2012 - 2013 CompuLab, Ltd. <www.compulab.co.il>
  *
  * Authors: Nikita Kiryanov <nikita@compulab.co.il>
  *
  * Parsing code based on linux/drivers/video/pxafb.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

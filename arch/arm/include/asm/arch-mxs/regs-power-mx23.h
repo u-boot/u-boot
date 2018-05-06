@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Freescale i.MX23 Power Controller Register Definitions
  *
  * Copyright (C) 2012 Marek Vasut <marex@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MX23_REGS_POWER_H__

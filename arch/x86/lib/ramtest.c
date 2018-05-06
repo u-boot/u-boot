@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (c) 2014 Google, Inc
  *
  * From Coreboot src/lib/ramtest.c
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

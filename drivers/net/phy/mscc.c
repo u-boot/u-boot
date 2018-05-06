@@ -1,7 +1,7 @@
+// SPDX-License-Identifier: MIT
 /*
  * Microsemi PHY drivers
  *
- * SPDX-License-Identifier: The MIT License (MIT)
  *
  * Copyright (c) 2016 Microsemi Corporation
  *

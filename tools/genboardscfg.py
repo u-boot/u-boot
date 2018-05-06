@@ -1,8 +1,7 @@
 #!/usr/bin/env python2
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
-#
-# SPDX-License-Identifier:	GPL-2.0+
 #
 
 """

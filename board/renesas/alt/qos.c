@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * board/renesas/alt/qos.c
  *
  * Copyright (C) 2014 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier: GPL-2.0
  *
  */
 

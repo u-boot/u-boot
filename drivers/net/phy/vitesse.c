@@ -1,10 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Vitesse PHY drivers
  *
  * Copyright 2010-2014 Freescale Semiconductor, Inc.
  * Original Author: Andy Fleming
  * Add vsc8662 phy support - Priyanka Jain
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <miiphy.h>
 

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * (C) Copyright 2003
  * Kai-Uwe Bloem, Auerswald GmbH & Co KG, <linux-development@auerswald.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 

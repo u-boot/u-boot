@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Common part of configuration settings for the AT91 SAMA5 board.
  *
  * Copyright (C) 2015 Atmel Corporation
  *		      Josh Wu <josh.wu@atmel.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __AT91_SAMA5_COMMON_H

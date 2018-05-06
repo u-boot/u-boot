@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * (C) Copyright 2015 Google, Inc
  * (C) Copyright 2016 Heiko Stuebner <heiko@sntech.de>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

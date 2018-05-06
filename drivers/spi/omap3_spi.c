@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Jagan Teki <jteki@openedev.com>
  *		      Christophe Ricard <christophe.ricard@gmail.com>
@@ -13,8 +14,6 @@
  * Copyright (C) 2005, 2006 Nokia Corporation
  *
  * Modified by Ruslan Araslanov <ruslan.araslanov@vitecmm.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

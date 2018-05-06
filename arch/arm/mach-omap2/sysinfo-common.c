@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * System information routines for all OMAP based boards.
  *
  * (C) Copyright 2017 Linaro Ltd.
  * Sam Protsenko <semen.protsenko@linaro.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/omap.h>

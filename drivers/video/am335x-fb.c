@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2013-2018 Hannes Schmelzer <oe5hpm@oevsv.at>
  * B&R Industrial Automation GmbH - http://www.br-automation.com
@@ -8,8 +9,6 @@
  * - supporting 16/24/32bit RGB/TFT raster Mode (not using palette)
  * - sets up LCD controller as in 'am335x_lcdpanel' struct given
  * - starts output DMA from gd->fb_base buffer
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <asm/io.h>

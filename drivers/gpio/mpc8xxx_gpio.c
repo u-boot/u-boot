@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2016
  * Mario Six, Guntermann & Drunck GmbH, mario.six@gdsys.cc
@@ -5,8 +6,6 @@
  * based on arch/powerpc/include/asm/mpc85xx_gpio.h, which is
  *
  * Copyright 2010 eXMeritus, A Boeing Company
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

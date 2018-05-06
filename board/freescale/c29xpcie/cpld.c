@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /**
  * Copyright 2013 Freescale Semiconductor
  * Author: Mingkai Hu <Mingkai.hu@freescale.com>
  *         Po Liu <Po.Liu@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * This file provides support for the board-specific CPLD used on some Freescale
  * reference boards.

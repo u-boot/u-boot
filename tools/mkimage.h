@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2000-2004
  * DENX Software Engineering
  * Wolfgang Denk, wd@denx.de
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _MKIIMAGE_H_

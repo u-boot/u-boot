@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * f_dfu.h -- Device Firmware Update gadget
  *
  * Copyright (C) 2011-2012 Samsung Electronics
  * author: Andrzej Pietrasiewicz <andrzej.p@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __F_DFU_H_

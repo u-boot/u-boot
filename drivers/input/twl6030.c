@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * TWL6030 input
  *
  * Copyright (C) 2016 Paul Kocialkowski <contact@paulk.fr>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <twl6030.h>

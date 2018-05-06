@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * NAND driver for TI DaVinci based boards.
  *
@@ -15,8 +16,6 @@
  * Copyright (C) 2006 Texas Instruments.
  *
  * ----------------------------------------------------------------------------
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * ----------------------------------------------------------------------------
  *

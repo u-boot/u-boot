@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * LPC32xx MUX interface
  *
  * (C) Copyright 2015  DENX Software Engineering GmbH
  * Written-by: Albert ARIBAUD <albert.aribaud@3adev.fr>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /**

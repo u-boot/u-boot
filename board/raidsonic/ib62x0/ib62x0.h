@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2011-2012
  * Gerald Kerma <dreagle@doukki.net>
  * Simon Baatz <gmbnomis@gmail.com>
  * Luka Perkov <luka@openwrt.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __IB62x0_H

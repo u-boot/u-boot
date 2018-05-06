@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2011 Stefano Babic <sbabic@denx.de>
  *
  * Author: Hardy Weng <hardy.weng@technexion.com>
  *
  * Copyright (C) 2010 TechNexion Ltd.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _MT_VENTOUX_H_

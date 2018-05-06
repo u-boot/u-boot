@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010-2011 Texas Instruments, <www.ti.com>
  * Mansoor Ahamed <mansoor.ahamed@ti.com>
  *
  * Derived from work done by Rohit Choraria <rohitkc@ti.com> for omap3
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __ASM_ARCH_ELM_H
 #define __ASM_ARCH_ELM_H

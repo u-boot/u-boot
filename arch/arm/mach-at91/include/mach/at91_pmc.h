@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * [origin: Linux kernel arch/arm/mach-at91/include/mach/at91_pmc.h]
  *
@@ -7,8 +8,6 @@
  *
  * Power Management Controller (PMC) - System peripherals registers.
  * Based on AT91RM9200 datasheet revision E.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef AT91_PMC_H

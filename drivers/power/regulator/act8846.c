@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
@@ -5,8 +6,6 @@
  * Based on Rockchip's drivers/power/pmic/pmic_act8846.c:
  * Copyright (C) 2012 rockchips
  * zyw <zyw@rock-chips.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2002
  * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
@@ -5,8 +6,6 @@
  * (C) Copyright 2010
  * Texas Instruments, <www.ti.com>
  *	Aneesh V <aneesh@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 MEMORY { .sram : ORIGIN = CONFIG_SPL_TEXT_BASE,\

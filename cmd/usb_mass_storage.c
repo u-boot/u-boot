@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2011 Samsung Electronics
  * Lukasz Majewski <l.majewski@samsung.com>
  *
  * Copyright (c) 2015, NVIDIA CORPORATION. All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <errno.h>

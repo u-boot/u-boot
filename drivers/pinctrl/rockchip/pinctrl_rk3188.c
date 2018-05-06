@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Pinctrl driver for Rockchip RK3188 SoCs
  * Copyright (c) 2016 Heiko Stuebner <heiko@sntech.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

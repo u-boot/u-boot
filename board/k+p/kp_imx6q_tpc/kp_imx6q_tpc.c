@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * K+P iMX6Q KP_IMX6Q_TPC board configuration
  *
  * Copyright (C) 2018 Lukasz Majewski <lukma@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

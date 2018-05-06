@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2008
  * Mark Jonas <mark.jonas@de.bosch.com>
  *
  * board/mpr2/mpr2.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

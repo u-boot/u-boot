@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration settings for the TechNexion TAO-3530 SOM
  * equipped on Thunder baseboard.
@@ -6,8 +7,6 @@
  * Tapani Utriainen <linuxfae@technexion.com>
  *
  * Copyright (C) 2013 Stefan Roese <sr@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

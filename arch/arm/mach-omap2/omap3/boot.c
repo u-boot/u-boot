@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * OMAP3 boot
  *
  * Copyright (C) 2015 Paul Kocialkowski <contact@paulk.fr>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

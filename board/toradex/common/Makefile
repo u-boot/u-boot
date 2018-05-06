@@ -1,5 +1,5 @@
+# SPDX-License-Identifier: GPL-2.0+
 # Copyright (c) 2016 Toradex, Inc.
-# SPDX-License-Identifier:	GPL-2.0+
 
 # Common for all Toradex modules
 ifeq ($(CONFIG_SPL_BUILD),y)

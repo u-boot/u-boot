@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * sbc8349.c -- WindRiver SBC8349 board support.
  * Copyright (c) 2006-2007 Wind River Systems, Inc.
  *
  * Paul Gortmaker <paul.gortmaker@windriver.com>
  * Based on board/mpc8349emds/mpc8349emds.c (and previous 834x releases.)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

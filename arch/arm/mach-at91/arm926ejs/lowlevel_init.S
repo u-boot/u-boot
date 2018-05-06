@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Memory Setup stuff - taken from blob memsetup.S
  *
@@ -6,8 +7,6 @@
  *
  * Copyright (C) 2008 Ronetix Ilko Iliev (www.ronetix.at)
  * Copyright (C) 2009 Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

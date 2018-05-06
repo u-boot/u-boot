@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * fat_write.c
  *
  * R/W (V)FAT 12/16/32 filesystem implementation by Donggeun Kim
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

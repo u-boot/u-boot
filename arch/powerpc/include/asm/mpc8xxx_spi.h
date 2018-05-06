@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Freescale non-CPM SPI Controller
  *
  * Copyright 2008 Qstreams Networks, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _ASM_MPC8XXX_SPI_H_

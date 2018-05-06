@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2015 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
  *
  * usb_match_device() modified from Linux kernel v4.0.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

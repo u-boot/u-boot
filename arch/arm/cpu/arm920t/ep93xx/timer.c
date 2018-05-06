@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Cirrus Logic EP93xx timer support.
  *
@@ -8,8 +9,6 @@
  *
  * Based on the original intr.c Cirrus Logic EP93xx Rev D. interrupt support,
  * author unknown.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

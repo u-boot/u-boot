@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Andestech ATFTMR010 timer driver
  *
  * (C) Copyright 2016
  * Rick Chen, NDS32 Software Engineering, rick@andestech.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <dm.h>

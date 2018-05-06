@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration settings for CompuLab CL-SOM-AM57x board
  *
  * (C) Copyright 2016 CompuLab, Ltd. http://compulab.co.il/
  *
  * Author: Dmitry Lifshitz <lifshitz@compulab.co.il>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_CL_SOM_AM57X_H

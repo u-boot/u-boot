@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: BSD-3-Clause
 /*
  * reloc_ia32.c - position independent x86 ELF shared object relocator
  * Copyright (C) 1999 Hewlett-Packard Co.
  * Contributed by David Mosberger <davidm@hpl.hp.com>.
  *
  * All rights reserved.
- *
- * SPDX-License-Identifier:	BSD-3-Clause
  */
 
 #include <common.h>

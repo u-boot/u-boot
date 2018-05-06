@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013 ADVANSEE
  * Benoît Thébaudeau <benoit.thebaudeau@advansee.com>
@@ -9,8 +10,6 @@
  * Copyright 2008 Freescale Semiconductor, Inc. All Rights Reserved.
  * and Linux arch/arm/plat-mxc/include/mach/iomux-mx35.h:
  * Copyright (C) 2009 by Jan Weitzel Phytec Messtechnik GmbH <armlinux@phytec.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __IOMUX_MX25_H__

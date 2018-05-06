@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * efi_selftest_textinput
  *
  * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  *
  * Provides a unit test for the EFI_SIMPLE_TEXT_INPUT_PROTOCOL.
  * The unicode character and the scan code are printed for text

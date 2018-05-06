@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * bur_cfg_common.h
  *
@@ -5,8 +6,6 @@
  *
  * Copyright (C) 2016 Hannes Schmelzer <oe5hpm@oevsv.at> -
  * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com
- *
- * SPDX-License-Identifier:        GPL-2.0+
  */
 
 #ifndef __BUR_CFG_COMMON_H__

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011-2012
  * Pali Rohár <pali.rohar@gmail.com>
@@ -12,8 +13,6 @@
  * Syed Mohammed Khasim <x0khasim@ti.com>
  *
  * Configuration settings for the Nokia RX-51 aka N900.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

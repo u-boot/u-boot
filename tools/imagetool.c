@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2013
  *
  * Written by Guilherme Maciel Ferreira <guilherme.maciel.ferreira@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include "imagetool.h"

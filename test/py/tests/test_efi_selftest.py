@@ -1,6 +1,5 @@
-# Copyright (c) 2017, Heinrich Schuchardt <xypron.glpk@gmx.de>
-#
 # SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2017, Heinrich Schuchardt <xypron.glpk@gmx.de>
 
 # Test efi API implementation
 

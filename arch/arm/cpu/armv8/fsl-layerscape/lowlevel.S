@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2014-2015 Freescale Semiconductor
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Extracted from armv8/start.S
  */

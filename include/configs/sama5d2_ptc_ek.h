@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration file for the SAMA5D2 PTC EK Board.
  *
  * Copyright (C) 2017 Microchip Technology Inc.
  *		      Wenyou Yang <wenyou.yang@microchip.com>
  *		      Ludovic Desroches <ludovic.desroches@microchip.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

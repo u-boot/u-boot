@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * PCI autoconfiguration library (legacy version, do not change)
  *
  * Author: Matt Porter <mporter@mvista.com>
  *
  * Copyright 2000 MontaVista Software Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

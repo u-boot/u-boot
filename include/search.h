@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: LGPL-2.1+ */
 /*
  * Declarations for System V style searching functions.
  * Copyright (C) 1995-1999, 2000 Free Software Foundation, Inc.
  * This file is part of the GNU C Library.
- *
- * SPDX-License-Identifier:	LGPL-2.1+
  */
 
 /*

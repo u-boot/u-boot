@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * IO header file
  *
  * Copyright (C) 2001-2007 Tensilica Inc.
  * Based on the Linux/Xtensa version of this header.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _XTENSA_IO_H

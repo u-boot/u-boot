@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

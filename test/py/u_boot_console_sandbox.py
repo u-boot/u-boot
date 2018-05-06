@@ -1,7 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0
 # Copyright (c) 2015 Stephen Warren
 # Copyright (c) 2015-2016, NVIDIA CORPORATION. All rights reserved.
-#
-# SPDX-License-Identifier: GPL-2.0
 
 # Logic to interact with the sandbox port of U-Boot, running as a sub-process.
 

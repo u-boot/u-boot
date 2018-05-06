@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2015
  * Linus Walleij, Linaro
  *
  * Support for ARM Flash Partitions
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 #include <common.h>
 #include <command.h>

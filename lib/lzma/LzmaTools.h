@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Usefuls routines based on the LzmaTest.c file from LZMA SDK 4.65
  *
@@ -5,8 +6,6 @@
  * Luigi 'Comio' Mantellini (luigi.mantellini@idf-hit.com)
  *
  * Copyright (C) 1999-2005 Igor Pavlov
- *
- * SPDX-License-Identifier:	GPL-2.0+ 
  */
 
 #ifndef __LZMA_TOOL_H__

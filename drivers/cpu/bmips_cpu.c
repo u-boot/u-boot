@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
  *
  * Derived from linux/arch/mips/bcm63xx/cpu.c:
  *	Copyright (C) 2008 Maxime Bizon <mbizon@freebox.fr>
  *	Copyright (C) 2009 Florian Fainelli <florian@openwrt.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

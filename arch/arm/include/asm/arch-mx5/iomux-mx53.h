@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013 ADVANSEE
  * Benoît Thébaudeau <benoit.thebaudeau@advansee.com>
  *
  * Based on Freescale's Linux i.MX iomux-mx53.h file:
  * Copyright (C) 2010-2011 Freescale Semiconductor, Inc. All Rights Reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __IOMUX_MX53_H__

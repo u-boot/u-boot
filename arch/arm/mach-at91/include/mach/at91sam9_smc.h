@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * [origin: Linux kernel include/asm-arm/arch-at91/at91sam9_smc.h]
  *
@@ -6,8 +7,6 @@
  *
  * Static Memory Controllers (SMC) - System peripherals registers.
  * Based on AT91SAM9261 datasheet revision D.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef AT91SAM9_SMC_H

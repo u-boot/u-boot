@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 2013 Gabor Juhos <juhosg@openwrt.org>
  * Copyright (C) 2013 Imagination Technologies
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _MIPS_ASM_MALTA_H

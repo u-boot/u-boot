@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
 /*
  * Altera SoCFPGA SDRAM configuration
- *
- * SPDX-License-Identifier:    BSD-3-Clause
  */
 #ifndef __SDRAM_CONFIG_H
 #define __SDRAM_CONFIG_H

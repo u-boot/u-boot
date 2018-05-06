@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * SPI driver for rockchip
  *
@@ -5,8 +6,6 @@
  *
  * (C) Copyright 2008-2013 Rockchip Electronics
  * Peter, Software Engineering, <superpeter.cai@gmail.com>.
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef __RK_SPI_H

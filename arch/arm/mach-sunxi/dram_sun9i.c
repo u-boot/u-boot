@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * sun9i dram controller initialisation
  *
@@ -7,8 +8,6 @@
  *
  * (C) Copyright 2016 Theobroma Systems Design und Consulting GmbH
  *                    Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

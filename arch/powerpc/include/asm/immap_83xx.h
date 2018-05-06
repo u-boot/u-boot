@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2004-2011 Freescale Semiconductor, Inc.
  *
@@ -8,8 +9,6 @@
  *	Tanya Jiang <tanya.jiang@freescale.com>
  *	Mandy Lavi <mandy.lavi@freescale.com>
  *	Eran Liberty <liberty@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __IMMAP_83xx__
 #define __IMMAP_83xx__

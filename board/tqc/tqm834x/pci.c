@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  * Copyright (C) 2006-2009 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/mmu.h>

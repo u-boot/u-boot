@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2014 Google, Inc
  *
  * From Coreboot file of the same name
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _ASM_MTRR_H

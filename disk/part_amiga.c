@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2001
  * Hans-Joerg Frieden, Hyperion Entertainment
  * Hans-JoergF@hyperion-entertainment.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <command.h>

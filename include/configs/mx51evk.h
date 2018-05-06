@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2007, Guennadi Liakhovetski <lg@denx.de>
  *
  * (C) Copyright 2009 Freescale Semiconductor, Inc.
  *
  * Configuration settings for the MX51EVK Board
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

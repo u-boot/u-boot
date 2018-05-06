@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * efi_selftest_start_image
  *
  * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  *
  * This test checks the StartImage boot service.
  * The efi_selftest_miniapp_exit.efi application is loaded into memory

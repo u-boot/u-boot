@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * IGEP COM AQUILA boards information header
  *
  * Copyright (C) 2013, ISEE 2007 SL - http://www.isee.biz/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _BOARD_H_

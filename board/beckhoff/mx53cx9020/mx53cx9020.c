@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015  Beckhoff Automation GmbH & Co. KG
  * Patrick Bruenn <p.bruenn@beckhoff.com>
  *
  * Based on <u-boot>/board/freescale/mx53loco/mx53loco.c
  * Copyright (C) 2011 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

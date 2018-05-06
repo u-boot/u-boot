@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Based on Linux/Xtensa kernel version
  *
  * Copyright (C) 2001 - 2007 Tensilica Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _XTENSA_BYTEORDER_H

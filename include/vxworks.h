@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2008
  * Niklaus Giger, niklaus.giger@member.fsf.org
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _VXWORKS_H_

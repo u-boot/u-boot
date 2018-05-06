@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2007
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
@@ -8,8 +9,6 @@
  *
  * Information and datasheet:
  * http://www.intersil.com/cda/deviceinfo/0,1477,X1205,00.html
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

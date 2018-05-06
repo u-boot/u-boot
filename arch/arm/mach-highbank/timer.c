@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2010-2011 Calxeda, Inc.
  *
  * Based on arm926ejs/mx27/timer.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

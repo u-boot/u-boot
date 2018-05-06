@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014-2016 Freescale Semiconductor, Inc.
  * Copyright 2017-2018 NXP Semiconductor
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * calculate the organization and timing parameter
  * from ddr3 spd, please refer to the spec

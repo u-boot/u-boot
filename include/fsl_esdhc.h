@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * FSL SD/MMC Defines
  *-------------------------------------------------------------------
  *
  * Copyright 2007-2008,2010-2011 Freescale Semiconductor, Inc
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef  __FSL_ESDHC_H__

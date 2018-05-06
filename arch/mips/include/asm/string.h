@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 1994, 95, 96, 97, 98, 2000, 01 Ralf Baechle
  * Copyright (c) 2000 by Silicon Graphics, Inc.
  * Copyright (c) 2001 MIPS Technologies, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef _ASM_STRING_H
 #define _ASM_STRING_H

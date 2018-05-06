@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * This file configures the internal USB PHY in AM35X.
  *
@@ -5,8 +6,6 @@
  *
  * Based on omap_phy_internal.c code from Linux by
  * Hema HK <hemahk@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

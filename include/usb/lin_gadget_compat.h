@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2011 Samsung Electronics
  * Lukasz Majewski <l.majewski@samsung.com>
  *
  * This is a Linux kernel compatibility layer for USB Gadget
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __LIN_COMPAT_H__

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2016
  *
  * Michael Kurz, <michi.kurz@gmail.com>
  *
  * STM32 QSPI driver
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

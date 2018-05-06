@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /**
  * linux-compat.h - DesignWare USB3 Linux Compatibiltiy Adapter  Header
  *
  * Copyright (C) 2015 Texas Instruments Incorporated - http://www.ti.com
  *
  * Authors: Kishon Vijay Abraham I <kishon@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  *
  */
 

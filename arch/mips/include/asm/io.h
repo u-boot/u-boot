@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 1994, 1995 Waldorf GmbH
  * Copyright (C) 1994 - 2000, 06 Ralf Baechle
  * Copyright (C) 1999, 2000 Silicon Graphics, Inc.
  * Copyright (C) 2004, 2005  MIPS Technologies, Inc.  All rights reserved.
  *	Author: Maciej W. Rozycki <macro@mips.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef _ASM_IO_H
 #define _ASM_IO_H

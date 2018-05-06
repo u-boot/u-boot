@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * pengwyn.h
  *
  * Copyright (C) 2013 Lothar Felten <lothar.felten@gmail.com>
  *
  * based on am335x_evm.h, Copyright (C) 2011 Texas Instruments Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_PENGWYN_H

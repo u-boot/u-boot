@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
-* (C) Copyright 2010-2015
-* NVIDIA Corporation <www.nvidia.com>
-*
- * SPDX-License-Identifier:	GPL-2.0+
-*/
+ * (C) Copyright 2010-2015
+ * NVIDIA Corporation <www.nvidia.com>
+ */
 
 /* Tegra AP (Application Processor) code */
 

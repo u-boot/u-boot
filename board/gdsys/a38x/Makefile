@@ -1,10 +1,8 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2015 Stefan Roese <sr@denx.de>
 # Copyright (C) 2015 Reinhard Pfau <reinhard.pfau@gdsys.cc>
 # Copyright (C) 2016 Mario Six <mario.six@gdsys.cc>
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-$(CONFIG_TARGET_CONTROLCENTERDC) += controlcenterdc.o hre.o spl.o keyprogram.o dt_helpers.o
 

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Meson GXL USB3 PHY driver
  *
  * Copyright (C) 2018 Martin Blumenstingl <martin.blumenstingl@googlemail.com>
  * Copyright (C) 2018 BayLibre, SAS
  * Author: Neil Armstrong <narmstron@baylibre.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

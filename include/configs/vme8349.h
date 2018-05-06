@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * esd vme8349 U-Boot configuration file
  * Copyright (c) 2008, 2009 esd gmbh Hannover Germany
@@ -7,8 +8,6 @@
  *
  * reinhard.arlt@esd-electronics.de
  * Based on the MPC8349EMDS config.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

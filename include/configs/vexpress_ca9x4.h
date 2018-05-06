@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011 Linaro
  * Ryan Harkin, <ryan.harkin@linaro.org>
  *
  * Configuration for Versatile Express. Parts were derived from other ARM
  *   configurations.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __VEXPRESS_CA9X4_H

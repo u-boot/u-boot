@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * f_sdp.c -- USB HID Serial Download Protocol
  *
@@ -13,8 +14,6 @@
  * SKIP_DCD_HEADER are only stubs.
  *
  * Parts of the implementation are based on f_dfu and f_thor.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <errno.h>

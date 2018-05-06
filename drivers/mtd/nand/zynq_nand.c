@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2016 Xilinx, Inc.
  *
  * Xilinx Zynq NAND Flash Controller Driver
  * This driver is based on plat_nand.c and mxc_nand.c drivers
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

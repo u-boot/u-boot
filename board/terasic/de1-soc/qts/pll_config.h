@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
 /*
  * Altera SoCFPGA Clock and PLL configuration
- *
- * SPDX-License-Identifier:	BSD-3-Clause
  */
 
 #ifndef __SOCFPGA_PLL_CONFIG_H__

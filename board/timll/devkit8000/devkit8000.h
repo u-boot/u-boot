@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2008
  * Dirk Behme <dirk.behme@gmail.com>
  *
  * (C) Copyright 2009
  * Frederik Kriewitz <frederik@kriewitz.eu>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _DEVKIT8000_H_
 #define _DEVKIT8000_H_

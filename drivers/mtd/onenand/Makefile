@@ -1,9 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2005-2007 Samsung Electronics.
 # Kyungmin Park <kyungmin.park@samsung.com>
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 ifndef	CONFIG_SPL_BUILD
 obj-$(CONFIG_CMD_ONENAND)	:= onenand_uboot.o onenand_base.o onenand_bbt.o

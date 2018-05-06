@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * sunxi DRAM controller initialization
  * (C) Copyright 2012 Henrik Nordstrom <henrik@henriknordstrom.net>
@@ -10,8 +11,6 @@
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
  * Berg Xing <bergxing@allwinnertech.com>
  * Tom Cubie <tangliang@allwinnertech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

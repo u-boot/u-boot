@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2016 Stephen Warren <swarren@wwwdotorg.org>
  *
@@ -9,8 +10,6 @@
  * (C) Copyright 2004
  * ARM Ltd.
  * Philippe Robin, <philippe.robin@arm.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* Simple U-Boot driver for the BCM283x mini UART */

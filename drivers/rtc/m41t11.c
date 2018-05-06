@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2002
  * Andrew May, Viasat Inc, amay@viasat.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * sh.c -- a prototype Bourne shell grammar parser
  *      Intended to follow the original Thompson and Ritchie
@@ -70,8 +71,6 @@
  *      document how quoting rules not precisely followed for variable assignments
  *      maybe change map[] to use 2-bit entries
  *      (eventually) remove all the printf's
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #define __U_BOOT__

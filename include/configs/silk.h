@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * include/configs/silk.h
  *     This file is silk board configuration.
  *
  * Copyright (C) 2015 Renesas Electronics Corporation
  * Copyright (C) 2015 Cogent Embedded, Inc.
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #ifndef __SILK_H

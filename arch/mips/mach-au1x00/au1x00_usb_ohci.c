@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * URB OHCI HCD (Host Controller Driver) for USB on the AU1x00.
  *
  * (C) Copyright 2003
  * Gary Jennejohn, DENX Software Engineering <garyj@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  * Note: Part of this code has been derived from linux
  *
  */

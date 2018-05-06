@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014 Charles Manning <cdhmanning@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Reference doc http://www.altera.com.cn/literature/hb/cyclone-v/cv_5400A.pdf
  * Note this doc is not entirely accurate. Of particular interest to us is the

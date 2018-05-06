@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2014, Barco (www.barco.com)
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-y := platinum.o
 obj-$(CONFIG_TARGET_PLATINUM_PICON)     += platinum_picon.o

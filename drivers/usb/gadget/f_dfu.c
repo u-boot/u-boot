@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * f_dfu.c -- Device Firmware Update USB function
  *
@@ -11,8 +12,6 @@
  *
  * based on existing SAM7DFU code from OpenPCD:
  * (C) Copyright 2006 by Harald Welte <hwelte at hmw-consulting.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <errno.h>

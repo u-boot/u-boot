@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * am3517_evm.h - Default configuration for AM3517 EVM board.
  *
@@ -6,8 +7,6 @@
  * Based on omap3_evm_config.h
  *
  * Copyright (C) 2010 Texas Instruments Incorporated
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

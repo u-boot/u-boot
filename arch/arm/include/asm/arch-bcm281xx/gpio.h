@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2013 Broadcom Corporation.
- *
- * SPDX-License-Identifier:      GPL-2.0+
  */
 
 #ifndef __ARCH_BCM281XX_GPIO_H

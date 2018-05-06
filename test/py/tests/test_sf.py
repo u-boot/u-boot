@@ -1,7 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0
 # Copyright (c) 2016, Xilinx Inc. Michal Simek
 # Copyright (c) 2017, Xiphos Systems Corp. All rights reserved.
-#
-# SPDX-License-Identifier: GPL-2.0
 
 import re
 import pytest

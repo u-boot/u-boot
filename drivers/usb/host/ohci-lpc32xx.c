@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2008 by NXP Semiconductors
  * @Author: Based on code by Kevin Wells
  * @Descr: USB driver - Embedded Artists LPC3250 OEM Board support functions
  *
  * Copyright (c) 2015 Tyco Fire Protection Products.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

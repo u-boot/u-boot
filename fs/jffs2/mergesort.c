@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: MIT
 /*
  * This file is copyright 2001 Simon Tatham.
  * Rewritten from original source 2006 by Dan Merillat for use in u-boot.
  *
  * Original code can be found at:
  * http://www.chiark.greenend.org.uk/~sgtatham/algorithms/listsort.html
- *
- * SPDX-License-Identifier:	MIT
  */
 
 #include <common.h>

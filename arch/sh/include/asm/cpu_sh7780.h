@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 #ifndef	_ASM_CPU_SH7780_H_
 #define	_ASM_CPU_SH7780_H_
 
 /*
  * Copyright (c) 2007,2008 Nobuhiro Iwamatsu
  * Copyright (c) 2008 Yusuke Goda <goda.yusuke@renesas.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #define	CACHE_OC_NUM_WAYS	1

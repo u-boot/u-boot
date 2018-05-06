@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2013
  * Texas Instruments, <www.ti.com>
  *
  * Dan Murphy <dmurphy@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Derived work from spl_usb.c
  */

@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * include/linux/serial_reg.h
  *
  * Copyright (C) 1992, 1994 by Theodore Ts'o.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  * 
  * These are the UART port assignments, expressed as offsets from the base
  * register.  These assignments should hold for any serial port based on

@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2008 Extreme Engineering Solutions, Inc.
  *
  * This driver support NAND devices which have address lines
  * connected as ALE and CLE inputs.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2015 Timesys Corporation
  * Copyright (C) 2015 General Electric Company
@@ -5,8 +6,6 @@
  * Copyright (C) 2012 Freescale Semiconductor, Inc.
  *
  * Configuration settings for the GE MX6Q Bx50v3 boards.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __GE_BX50V3_CONFIG_H

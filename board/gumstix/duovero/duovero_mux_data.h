@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2012
  * Gumstix Incorporated, <www.gumstix.com>
  * Maintainer: Ash Charles <ash@gumstix.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 #ifndef _DUOVERO_MUX_DATA_H_
 #define _DUOVERO_MUX_DATA_H_

@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Aeronix Zipit Z2 configuration file
  *
  * Copyright (C) 2009-2010 Marek Vasut <marek.vasut@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

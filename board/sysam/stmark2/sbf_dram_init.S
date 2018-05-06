@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Board-specific early ddr/sdram init.
  *
  * (C) Copyright 2017 Angelo Dureghello <angelo@sysam.it>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 .equ	PPMCR0, 	0xfc04002d

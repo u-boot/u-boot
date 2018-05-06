@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2000-2005, DENX Software Engineering
  *		Wolfgang Denk <wd@denx.de>
@@ -6,8 +7,6 @@
  *			<mushtaqk_921@yahoo.co.in>
  * Copyright (C) 2008 Freescale Semiconductor, Inc.
  *		Dave Liu <daveliu@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

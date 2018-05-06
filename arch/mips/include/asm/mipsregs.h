@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 1994, 1995, 1996, 1997, 2000, 2001 by Ralf Baechle
  * Copyright (C) 2000 Silicon Graphics, Inc.
@@ -5,8 +6,6 @@
  * Kevin D. Kissell, kevink@mips.com and Carsten Langgaard, carstenl@mips.com
  * Copyright (C) 2000, 07 MIPS Technologies, Inc.
  * Copyright (C) 2003, 2004  Maciej W. Rozycki
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef _ASM_MIPSREGS_H
 #define _ASM_MIPSREGS_H

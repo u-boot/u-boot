@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * AU1X00 UART support
  *
@@ -5,8 +6,6 @@
  * Speed and options also hardcoded to 115200 8N1
  *
  *  Copyright (c) 2003	Thomas.Lange@corelatus.se
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * USB armory MkI board configuration settings
  * http://inversepath.com/usbarmory
  *
  * Copyright (C) 2015, Inverse Path
  * Andrej Rosano <andrej@inversepath.com>
- *
- * SPDX-License-Identifier:|____GPL-2.0+
  */
 
 #ifndef __CONFIG_H

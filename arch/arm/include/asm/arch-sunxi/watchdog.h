@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2014
  * Chen-Yu Tsai <wens@csie.org>
  *
  * Watchdog register definitions
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SUNXI_WATCHDOG_H_

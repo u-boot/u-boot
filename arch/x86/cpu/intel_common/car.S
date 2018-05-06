@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2014 Google, Inc
  *
@@ -7,8 +8,6 @@
  * Copyright (C) 2005 Tyan (written by Yinghai Lu for Tyan)
  * Copyright (C) 2007-2008 coresystems GmbH
  * Copyright (C) 2012 Kyösti Mälkki <kyosti.malkki@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

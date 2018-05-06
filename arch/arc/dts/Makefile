@@ -1,6 +1,4 @@
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
+# SPDX-License-Identifier: GPL-2.0+
 
 dtb-$(CONFIG_TARGET_AXS101) +=  axs101.dtb
 dtb-$(CONFIG_TARGET_AXS103) +=  axs103.dtb

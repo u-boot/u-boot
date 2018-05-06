@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2008
  * Texas Instruments
@@ -5,8 +6,6 @@
  *
  * Derived from: board/omap3/beagle/beagle.h
  * Dirk Behme <dirk.behme@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _BOARD_ZOOM1_H_
 #define _BOARD_ZOOM1_H_

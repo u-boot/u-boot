@@ -1,9 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2000-2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 obj-$(CONFIG_DM_I2C) += i2c-uclass.o
 obj-$(CONFIG_DM_I2C_COMPAT) += i2c-uclass-compat.o
 obj-$(CONFIG_DM_I2C_GPIO) += i2c-gpio.o

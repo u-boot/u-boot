@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013
  * Corscience GmbH & Co. KG, <www.corscience.de>
  * Andreas Bießmann <andreas.biessmann@corscience.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef TRICORDER_EEPROM_H_
 #define TRICORDER_EEPROM_H_

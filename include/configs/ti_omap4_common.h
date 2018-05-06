@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010
  * Texas Instruments Incorporated.
@@ -5,8 +6,6 @@
  * Steve Sakoman  <steve@sakoman.com>
  *
  * TI OMAP4 common configuration settings
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_TI_OMAP4_COMMON_H

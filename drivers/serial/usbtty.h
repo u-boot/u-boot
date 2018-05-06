@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2003
  * Gerry Hamel, geh@ti.com, Texas Instruments
  *
  * (C) Copyright 2006
  * Bryan O'Donoghue, bodonoghue@codehermit.ie, CodeHermit
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __USB_TTY_H__

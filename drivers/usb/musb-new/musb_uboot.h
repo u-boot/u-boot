@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * MUSB OTG driver u-boot specific functions
  *
  * Copyright © 2015 Hans de Goede <hdegoede@redhat.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __MUSB_UBOOT_H__
 #define __MUSB_UBOOT_H__

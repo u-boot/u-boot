@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 1994 - 1999, 2000, 01, 06 Ralf Baechle
  * Copyright (C) 1995, 1996 Paul M. Antoine
@@ -7,8 +8,6 @@
  * Copyright (C) 2002, 2003, 2004, 2005, 2007  Maciej W. Rozycki
  * Copyright (C) 2000, 2001, 2012 MIPS Technologies, Inc.  All rights reserved.
  * Copyright (C) 2014, Imagination Technologies Ltd.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

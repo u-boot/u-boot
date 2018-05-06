@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2001
  * Murray Jensen <Murray.Jensen@cmst.csiro.au>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <stdio.h>

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2000-2002
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -6,7 +7,6 @@
 # Shawn Lin, Andes Technology Corporation <nobuhiro@andestech.com>
 # Macpaul Lin, Andes Technology Corporation <macpaul@andestech.com>
 #
-# SPDX-License-Identifier:	GPL-2.0+
 
 ifeq ($(CROSS_COMPILE),)
 CROSS_COMPILE := nds32le-linux-

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010
  * Ilko Iliev <iliev@ronetix.at>
@@ -9,8 +10,6 @@
  * Lead Tech Design <www.leadtechdesign.com>
  *
  * Configuation settings for the PM9G45 board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

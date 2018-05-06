@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Borrowed from GCC 4.2.2 (which still was GPL v2+)
  */
@@ -6,8 +7,6 @@
    Free Software Foundation, Inc.
 
 This file is part of GCC.
-
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

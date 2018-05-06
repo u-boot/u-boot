@@ -1,6 +1,4 @@
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
+# SPDX-License-Identifier: GPL-2.0+
 
 quiet_cmd_srec_cat = SRECCAT $@
       cmd_srec_cat = srec_cat -output $@ -$2 \

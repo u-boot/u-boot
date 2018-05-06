@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (c) 2014 Google, Inc
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 ifdef CONFIG_HAVE_FSP
 obj-y += fsp_configs.o ivybridge.o

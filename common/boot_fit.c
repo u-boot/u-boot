@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2017
  * Texas Instruments, <www.ti.com>
  *
  * Franklin S Cooper Jr. <fcooper@ti.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <boot_fit.h>

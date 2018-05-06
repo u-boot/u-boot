@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *  Sandbox PMIC dts node
  *
  *  Copyright (C) 2015 Samsung Electronics
  *  Przemyslaw Marczak  <p.marczak@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <dt-bindings/pmic/sandbox_pmic.h>

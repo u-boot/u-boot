@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * crt0 - C-runtime startup Code for AArch64 U-Boot
  *
@@ -6,8 +7,6 @@
  *
  * (C) Copyright 2012
  * Albert ARIBAUD <albert.u.boot@aribaud.net>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

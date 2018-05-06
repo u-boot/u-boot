@@ -1,7 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2017 Rockchip Electronics Co., Ltd
  * Author: Andy Yan <andy.yan@rock-chips.com>
- * SPDX-License-Identifier:     GPL-2.0+
  */
 #ifndef _ASM_ARCH_CRU_RK3368_H
 #define _ASM_ARCH_CRU_RK3368_H

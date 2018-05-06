@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2013 - 2015 Xilinx, Inc.
  *
  * Xilinx Zynq SD Host Controller Interface
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <clk.h>

@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright 2006,2009 Freescale Semiconductor, Inc.
  *
  * 2012, Heiko Schocher, DENX Software Engineering, hs@denx.de.
  * Changes for multibus/multiadapter I2C support.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

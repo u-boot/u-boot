@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2010-2017 CS Systemes d'Information
  * Christophe Leroy <christophe.leroy@c-s.fr>
@@ -6,8 +7,6 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * Modified by Yuli Barcohen <yuli@arabellasw.com>
- *
- * SPDX-License-Identifier:    GPL-2.0+
  */
 
 OUTPUT_ARCH(powerpc)

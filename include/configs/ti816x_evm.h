@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * ti816x_evm.h
  *
  * Copyright (C) 2013, Adeneo Embedded <www.adeneo-embedded.com>
  * Antoine Tenart, <atenart@adeneo-embedded.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_TI816X_EVM_H

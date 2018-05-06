@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Pin Control driver for SuperH Pin Function Controller.
  *
@@ -6,8 +7,6 @@
  * Copyright (C) 2008 Magnus Damm
  * Copyright (C) 2009 - 2012 Paul Mundt
  * Copyright (C) 2017 Marek Vasut
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #define DRV_NAME "sh-pfc"

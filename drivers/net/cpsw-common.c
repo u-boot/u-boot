@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * CPSW common - libs used across TI ethernet devices.
  *
  * Copyright (C) 2016, Texas Instruments, Incorporated
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <common.h>

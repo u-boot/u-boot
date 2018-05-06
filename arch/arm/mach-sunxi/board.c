@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2012 Henrik Nordstrom <henrik@henriknordstrom.net>
  *
@@ -6,8 +7,6 @@
  * Tom Cubie <tangliang@allwinnertech.com>
  *
  * Some init for sunxi platform.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /* longlong.h -- definitions for mixed size 32/64 bit arithmetic.
    Copyright (C) 1991, 1992, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2004,
    2005  Free Software Foundation, Inc.
-
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* You have to define the following before including this file:

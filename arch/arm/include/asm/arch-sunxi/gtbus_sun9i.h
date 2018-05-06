@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * GTBUS initialisation for sun9i
  *
  * (C) Copyright 2016 Theobroma Systems Design und Consulting GmbH
  *                    Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SUNXI_GTBUS_SUN9I_H

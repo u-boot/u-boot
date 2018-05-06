@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2013 Samsung Electronics
  * Sanghee Kim <sh0130.kim@samsung.com>
  * Piotr Wilczek <p.wilczek@samsung.com>
  *
  * Configuation settings for the SAMSUNG TRATS2 (EXYNOS4412) board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_TRATS2_H

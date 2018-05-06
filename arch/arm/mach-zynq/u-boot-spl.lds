@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2014 Xilinx, Inc. Michal Simek
  * Copyright (c) 2004-2008 Texas Instruments
  *
  * (C) Copyright 2002
  * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 MEMORY { .sram : ORIGIN = CONFIG_SPL_TEXT_BASE,\

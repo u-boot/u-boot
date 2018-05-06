@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010 Samsung Electronics
  * Naveen Krishna Ch <ch.naveen@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Note: This file contains the register description for SROMC
  */

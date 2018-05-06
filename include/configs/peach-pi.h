@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014 Samsung Electronics
  *
  * Configuration settings for the SAMSUNG/GOOGLE PEACH-PI board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_PEACH_PI_H

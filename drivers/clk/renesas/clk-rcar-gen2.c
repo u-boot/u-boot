@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Renesas RCar Gen2 CPG MSSR driver
  *
@@ -7,8 +8,6 @@
  * r8a7796 Clock Pulse Generator / Module Standby and Software Reset
  *
  * Copyright (C) 2016 Glider bvba
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

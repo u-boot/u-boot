@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Originally from Linux v4.9
  * Copyright (C) 1996-2005 Paul Mackerras.
@@ -11,8 +12,6 @@
  *
  * Modified for U-Boot
  * Copyright (c) 2017 Google, Inc
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _DM_OF_ACCESS_H

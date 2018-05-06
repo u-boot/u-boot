@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2012-2020  ASPEED Technology Inc.
  * Copyright 2016 IBM Corporation
  * Copyright 2017 Google, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __AST_I2C_H_
 #define __AST_I2C_H_

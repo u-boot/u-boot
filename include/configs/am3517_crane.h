@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * am3517_crane.h - Default configuration for AM3517 CraneBoard.
  *
@@ -6,8 +7,6 @@
  * Based on include/configs/am3517evm.h
  *
  * Copyright (C) 2011 Mistral Solutions pvt Ltd
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

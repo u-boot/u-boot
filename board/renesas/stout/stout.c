@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * board/renesas/stout/stout.c
  *     This file is Stout board support.
@@ -5,8 +6,6 @@
  * Copyright (C) 2015 Renesas Electronics Europe GmbH
  * Copyright (C) 2015 Renesas Electronics Corporation
  * Copyright (C) 2015 Cogent Embedded, Inc.
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #include <common.h>

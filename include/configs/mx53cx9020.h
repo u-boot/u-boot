@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2015  Beckhoff Automation GmbH & Co. KG
  * Patrick Bruenn <p.bruenn@beckhoff.com>
@@ -6,8 +7,6 @@
  *
  * Based on Freescale's Linux i.MX mx53loco.h file:
  * Copyright (C) 2010-2011 Freescale Semiconductor.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

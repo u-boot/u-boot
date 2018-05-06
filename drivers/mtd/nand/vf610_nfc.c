@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2009-2015 Freescale Semiconductor, Inc. and others
  *
@@ -11,8 +12,6 @@
  *          Jason Jin <Jason.jin@freescale.com>
  *
  * Based on original driver mpc5121_nfc.c.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Limitations:
  * - Untested on MPC5125 and M54418.

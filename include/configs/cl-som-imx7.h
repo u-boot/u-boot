@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2015 CompuLab, Ltd.
  *
  * Configuration settings for the CompuLab CL-SOM-iMX7 System-on-Module.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CL_SOM_IMX7_CONFIG_H

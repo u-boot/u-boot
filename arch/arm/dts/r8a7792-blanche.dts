@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Device Tree Source for the Blanche board
  *
  * Copyright (C) 2014 Renesas Electronics Corporation
  * Copyright (C) 2016 Cogent  Embedded, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 /dts-v1/;

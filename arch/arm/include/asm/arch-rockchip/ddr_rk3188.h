@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * (C) Copyright 2015 Google, Inc
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _ASM_ARCH_DDR_RK3188_H

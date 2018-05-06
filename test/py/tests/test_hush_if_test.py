@@ -1,6 +1,5 @@
-# Copyright (c) 2015-2016, NVIDIA CORPORATION. All rights reserved.
-#
 # SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2015-2016, NVIDIA CORPORATION. All rights reserved.
 
 # Test operation of the "if" shell command.
 

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * clock_ti814x.c
  *
  * Clocks for TI814X based boards
  *
  * Copyright (C) 2013, Texas Instruments, Incorporated
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

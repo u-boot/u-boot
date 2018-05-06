@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * R8A7790 processor support
  *
@@ -5,8 +6,6 @@
  * Copyright (C) 2013  Magnus Damm
  * Copyright (C) 2012  Renesas Solutions Corp.
  * Copyright (C) 2012  Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

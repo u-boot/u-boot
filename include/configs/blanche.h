@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * include/configs/blanche.h
  *     This file is blanche board configuration.
  *
  * Copyright (C) 2016 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #ifndef __BLANCHE_H

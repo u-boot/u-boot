@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2015 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
  *
  * Copyright (c) 1992 Simon Glass
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

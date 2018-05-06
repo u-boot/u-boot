@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2003, 2004
  * ARM Ltd.
  * Philippe Robin, <philippe.robin@arm.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

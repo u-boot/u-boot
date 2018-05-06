@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Device Tree Source for the Salvator-X board
  *
  * Copyright (C) 2015 Renesas Electronics Corp.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 /dts-v1/;

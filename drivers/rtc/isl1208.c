@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2008
  * Tor Krill, Excito Elektronik i Skåne , tor@excito.com
  *
  * Modelled after the ds1337 driver
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

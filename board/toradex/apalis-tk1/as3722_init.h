@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2012-2016 Toradex, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* AS3722-PMIC-specific early init regs */

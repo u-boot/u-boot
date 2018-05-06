@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 2012 ARM Limited
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef __ASM_ARM_OPCODES_SEC_H

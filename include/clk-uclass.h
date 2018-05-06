@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2015 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
  * Copyright (c) 2016, NVIDIA CORPORATION.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CLK_UCLASS_H

@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2017 Intel Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _X86_ASM_PMU_IPC_H_
 #define _X86_ASM_PMU_IPC_H_

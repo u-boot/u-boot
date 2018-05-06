@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2003 - 2004
  * Sysgo Real-Time Solutions, AG <www.elinos.com>
  * Pavel Bartusek <pba@sysgo.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

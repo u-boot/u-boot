@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (c) 2011 Graf-Syteco, Matthias Weisser
  * <weisserm@arcor.de>
  *
  * Configuation settings for the zmx25 board
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

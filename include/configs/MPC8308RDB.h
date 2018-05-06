@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2009-2010 Freescale Semiconductor, Inc.
  * Copyright (C) 2010 Ilya Yanok, Emcraft Systems, yanok@emcraft.com
  *
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

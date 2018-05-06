@@ -1,6 +1,4 @@
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
+# SPDX-License-Identifier: GPL-2.0+
 
 dtb-$(CONFIG_AT91FAMILY) += at91sam9260-smartweb.dtb \
 	at91sam9g20-taurus.dtb \

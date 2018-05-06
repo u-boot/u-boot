@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: Intel
 /*
  * Copyright (C) 2013, Intel Corporation
  * Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
  * Copyright (C) 2015, Kodak Alaris, Inc
- *
- * SPDX-License-Identifier:	Intel
  */
 
 #include <common.h>

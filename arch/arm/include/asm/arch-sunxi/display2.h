@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Sunxi platform display controller register and constant defines
  *
@@ -6,8 +7,6 @@
  * Based on out of tree Linux DRM driver defines:
  * Copyright (C) 2016 Jean-Francois Moine <moinejf@free.fr>
  * Copyright (c) 2016 Allwinnertech Co., Ltd.
-*
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SUNXI_DISPLAY2_H

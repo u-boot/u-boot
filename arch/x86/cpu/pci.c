@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
  * (C) Copyright 2008,2009
@@ -5,8 +6,6 @@
  *
  * (C) Copyright 2002
  * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

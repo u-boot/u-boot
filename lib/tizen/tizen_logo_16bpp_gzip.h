@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013 Samsung Electronics
  * Przemyslaw Marczak <p.marczak@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
-*/
+ */
 
 #ifndef __TIZEN_LOGO_16BPP_GZIP__
 #define __TIZEN_LOGO_16BPP_GZIP__

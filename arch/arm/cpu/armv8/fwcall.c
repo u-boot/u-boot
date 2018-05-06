@@ -1,8 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /**
  * (C) Copyright 2014, Cavium Inc.
  * (C) Copyright 2017, Xilinx Inc.
  *
- * SPDX-License-Identifier:	GPL-2.0+
 **/
 
 #include <asm-offsets.h>

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2008 by NXP Semiconductors
  * @Author: Kevin Wells
  * @Descr: LPC3250 DMA controller interface support functions
  *
  * Copyright (c) 2015 Tyco Fire Protection Products.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

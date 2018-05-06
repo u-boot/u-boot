@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration settings for the VInCo platform.
  *
@@ -6,8 +7,6 @@
  *		      Bo Shen <voice.shen@atmel.com>
  * Copyright (C) 2015 Free Electrons
  *		      Gregory CLEMENT gregory.clement@free-electrons.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

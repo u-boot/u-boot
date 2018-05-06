@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2006 Freescale Semiconductor, Inc.
  *                    Dave Liu <daveliu@freescale.com>
@@ -14,8 +15,6 @@
  * (C) Copyright 2010-2013
  * Lukas Roggli, KEYMILE Ltd, lukas.roggli@keymile.com
  * Holger Brunck,  Keymile GmbH, holger.bruncl@keymile.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

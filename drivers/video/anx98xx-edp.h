@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2015 Hans de Goede <hdegoede@redhat.com>
  * Copyright (C) 2017 Vasily Khoruzhick <anarsoul@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* Registers at i2c address 0x38 */

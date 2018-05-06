@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014 Soeren Moch <smoch@web.de>
  *
  * Configuration settings for the TBS2910 MatrixARM board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __TBS2910_CONFIG_H

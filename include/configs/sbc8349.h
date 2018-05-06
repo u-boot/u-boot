@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * WindRiver SBC8349 U-Boot configuration file.
  * Copyright (c) 2006, 2007 Wind River Systems, Inc.
  *
  * Paul Gortmaker <paul.gortmaker@windriver.com>
  * Based on the MPC8349EMDS config.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

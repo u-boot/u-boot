@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright 2014-2015, Freescale Semiconductor
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-y += cpu.o
 obj-y += lowlevel.o

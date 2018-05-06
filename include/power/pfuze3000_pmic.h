@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  Copyright (C) 2015 Freescale Semiconductor, Inc
  *  Peng Fan <Peng.Fan@freescale.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 #ifndef __PFUZE3000_PMIC_H_
 #define __PFUZE3000_PMIC_H_

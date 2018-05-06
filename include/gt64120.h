@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 2000, 2004, 2005  MIPS Technologies, Inc.
  *	All rights reserved.
  *	Authors: Carsten Langgaard <carstenl@mips.com>
  *		 Maciej W. Rozycki <macro@mips.com>
  * Copyright (C) 2005 Ralf Baechle (ralf@linux-mips.org)
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef _ASM_GT64120_H
 #define _ASM_GT64120_H

@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  Copyright (C) 1998	Dan Malek <dmalek@jlc.net>
  *  Copyright (C) 1999	Magnus Damm <kieraypc01.p.y.kie.era.ericsson.se>
  *  Copyright (C) 2000,2001,2002 Wolfgang Denk <wd@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*  U-Boot - Startup Code for PowerPC based Embedded Boards

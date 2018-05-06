@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Sysam stmark2 board configuration
  *
  * (C) Copyright 2017  Angelo Dureghello <angelo@sysam.it>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef __STMARK2_CONFIG_H

@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Device Tree Source for the Gose board
  *
  * Copyright (C) 2014-2015 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 /*

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Sunxi ohci glue
  *
@@ -5,8 +6,6 @@
  *
  * Based on code from
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

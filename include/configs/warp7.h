@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2016 NXP Semiconductors
  *
  * Configuration settings for the i.MX7S Warp board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __WARP7_CONFIG_H

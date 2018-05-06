@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2012-2013, Xilinx, Michal Simek
  *
  * (C) Copyright 2012
  * Joe Hershberger <joe.hershberger@ni.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _ZYNQPL_H_

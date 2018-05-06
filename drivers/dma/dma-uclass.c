@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Direct Memory Access U-Class driver
  *
@@ -5,8 +6,6 @@
  *     Texas Instruments Incorporated, <www.ti.com>
  *
  * Author: Mugunthan V N <mugunthanvnm@ti.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>

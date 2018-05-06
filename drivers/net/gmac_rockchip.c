@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2015 Sjoerd Simons <sjoerd.simons@collabora.co.uk>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Rockchip GMAC ethernet IP driver for U-Boot
  */

@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2015
  * Toradex, Inc.
  *
  * Authors: Stefan Agner
  *          Sanchayan Maity
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_ARCH_VF610_DDRMC_H

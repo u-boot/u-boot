@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014, Barco (www.barco.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __PLATINUM_CONFIG_H__

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011
  * Matthias Weisser <weisserm@arcor.de>
@@ -6,8 +7,6 @@
  * Author: John Rigby <jrigby@gmail.com>
  *
  * Common asm macros for imx25
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_ARM_ARCH_MACRO_H__

@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2002
  * David Mueller, ELSOFT AG, d.mueller@elsoft.ch
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

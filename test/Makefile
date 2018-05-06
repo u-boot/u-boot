@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2012 The Chromium Authors
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-$(CONFIG_UNIT_TEST) += cmd_ut.o
 obj-$(CONFIG_UNIT_TEST) += ut.o

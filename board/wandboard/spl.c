@@ -1,8 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014 Wandboard
  * Author: Tungyi Lin <tungyilin1127@gmail.com>
  *         Richard Hu <hakahu@gmail.com>
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <asm/arch/clock.h>

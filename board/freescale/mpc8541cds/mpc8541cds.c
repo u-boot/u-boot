@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2004, 2011 Freescale Semiconductor.
  *
  * (C) Copyright 2002 Scott McNutt <smcnutt@artesyncp.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

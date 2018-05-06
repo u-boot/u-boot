@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2014 Google, Inc
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Memory Type Range Regsters - these are used to tell the CPU whether
  * memory is cacheable and if so the cache write mode to use.

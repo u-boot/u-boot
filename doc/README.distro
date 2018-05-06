@@ -1,9 +1,8 @@
+SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2014 Red Hat Inc.
  * Copyright (c) 2014-2015, NVIDIA CORPORATION.  All rights reserved.
  * Copyright (C) 2015 K. Merker <merker@debian.org>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 Generic Distro Configuration Concept

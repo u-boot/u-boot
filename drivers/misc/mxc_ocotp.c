@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2013 ADVANSEE
  * Benoît Thébaudeau <benoit.thebaudeau@advansee.com>
@@ -8,8 +9,6 @@
  * http://git.freescale.com/git/cgit.cgi/imx/uboot-imx.git/tree/drivers/misc/imx_otp.c?h=imx_v2009.08_1.1.0&id=9aa74e6,
  * which is:
  * Copyright (C) 2011 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

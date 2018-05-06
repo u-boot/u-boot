@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2004,2009-2011 Freescale Semiconductor, Inc.
  * Jeff Brown
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

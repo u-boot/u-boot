@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2010-2011 Freescale Semiconductor, Inc.
  * Based on mx6qsabrelite.c file
  * Copyright (C) 2013, Adeneo Embedded <www.adeneo-embedded.com>
  * Leo Sartre, <lsartre@adeneo-embedded.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

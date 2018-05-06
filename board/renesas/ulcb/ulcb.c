@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * board/renesas/ulcb/ulcb.c
  *     This file is ULCB board support.
  *
  * Copyright (C) 2017 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <common.h>

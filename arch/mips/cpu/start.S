@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  Startup Code for MIPS32 CPU-core
  *
  *  Copyright (c) 2003	Wolfgang Denk <wd@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm-offsets.h>

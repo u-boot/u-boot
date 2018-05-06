@@ -1,10 +1,9 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Written by Guilherme Maciel Ferreira <guilherme.maciel.ferreira@gmail.com>
 #
 # Sanity check for mkimage and dumpimage tools
-#
-# SPDX-License-Identifier:	GPL-2.0+
 #
 # To run this:
 #

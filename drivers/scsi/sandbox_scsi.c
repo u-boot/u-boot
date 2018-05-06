@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * This file contains dummy implementations of SCSI functions requried so
  * that CONFIG_SCSI can be enabled for sandbox.

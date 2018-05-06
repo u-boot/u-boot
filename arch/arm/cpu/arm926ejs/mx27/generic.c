@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *  Copyright (c) 2008 Eric Jarrige <eric.jarrige@armadeus.org>
  *  Copyright (c) 2009 Ilya Yanok <yanok@emcraft.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

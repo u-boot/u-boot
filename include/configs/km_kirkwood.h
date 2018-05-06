@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2009
  * Marvell Semiconductor <www.marvell.com>
@@ -9,8 +10,6 @@
  * (C) Copyright 2011-2012
  * Holger Brunck, Keymile GmbH Hannover, holger.brunck@keymile.com
  * Valentin Longchamp, Keymile AG, valentin.longchamp@keymile.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

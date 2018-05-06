@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2006-2008
  * Texas Instruments.
@@ -5,8 +6,6 @@
  * Syed Mohammed Khasim <x0khasim@ti.com>
  *
  * Configuration settings for the TI OMAP3530 Beagle board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

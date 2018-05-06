@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * cmd_thordown.c -- USB TIZEN "THOR" Downloader gadget
  *
  * Copyright (C) 2013 Lukasz Majewski <l.majewski@samsung.com>
  * All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

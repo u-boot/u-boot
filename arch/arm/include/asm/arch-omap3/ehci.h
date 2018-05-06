@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011
  * Alexander Holler <holler@ahsoftware.de>
@@ -5,8 +6,6 @@
  * Based on "drivers/usb/host/ehci-omap.c" from Linux 2.6.37
  *
  * See there for additional Copyrights.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _OMAP3_EHCI_H_
 #define _OMAP3_EHCI_H_

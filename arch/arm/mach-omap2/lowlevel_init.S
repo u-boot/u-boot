@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Board specific setup info
  *
@@ -6,8 +7,6 @@
  *
  * Author :
  *	Aneesh V	<aneesh@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

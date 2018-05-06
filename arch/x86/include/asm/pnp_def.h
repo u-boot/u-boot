@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
  *
  * Adapted from coreboot src/include/device/pnp_def.h
  * and arch/x86/include/arch/io.h
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _ASM_PNP_DEF_H_

@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * SuperH SCIF device driver.
  * Copyright (C) 2013  Renesas Electronics Corporation
  * Copyright (C) 2007,2008,2010, 2014 Nobuhiro Iwamatsu
  * Copyright (C) 2002 - 2008  Paul Mundt
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

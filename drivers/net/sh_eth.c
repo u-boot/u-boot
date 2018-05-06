@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * sh_eth.c - Driver for Renesas ethernet controller.
  *
@@ -5,8 +6,6 @@
  * Copyright (c) 2008, 2011, 2014 2014 Nobuhiro Iwamatsu
  * Copyright (c) 2007 Carlos Munoz <carlos@kenati.com>
  * Copyright (C) 2013, 2014 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

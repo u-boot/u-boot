@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Heiko Schocher, DENX Software Engineering, hs@denx.de.
  * Based on:
@@ -8,8 +9,6 @@
  * Based on davinci_dvevm.h. Original Copyrights follow:
  *
  * Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

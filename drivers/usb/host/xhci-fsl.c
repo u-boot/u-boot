@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2015,2016 Freescale Semiconductor, Inc.
  *
  * FSL USB HOST xHCI Controller
  *
  * Author: Ramneek Mehresh<ramneek.mehresh@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

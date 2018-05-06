@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Board init file for Dragonboard 820C
  *
  * (C) Copyright 2017 Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/sysmap-apq8096.h>

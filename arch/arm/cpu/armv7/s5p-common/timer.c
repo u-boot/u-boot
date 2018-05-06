@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2009 Samsung Electronics
  * Heungjun Kim <riverful.kim@samsung.com>
  * Inki Dae <inki.dae@samsung.com>
  * Minkyu Kang <mk7.kang@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2014 DENX Software Engineering
  *     Heiko Schocher <hs@denx.de>
@@ -5,8 +6,6 @@
  * Based on:
  * Copyright (C) 2013 Atmel Corporation
  *		      Bo Shen <voice.shen@atmel.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

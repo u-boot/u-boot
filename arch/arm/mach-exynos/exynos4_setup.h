@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Machine Specific Values for EXYNOS4012 based board
  *
  * Copyright (C) 2011 Samsung Electronics
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _ORIGEN_SETUP_H

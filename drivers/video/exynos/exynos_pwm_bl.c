@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * PWM BACKLIGHT driver for Board based on EXYNOS.
  *
  * Author: Donghwa Lee  <dh09.lee@samsung.com>
  *
  * Derived from linux/drivers/video/backlight/pwm_backlight.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

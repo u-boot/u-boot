@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * From coreboot file of same name
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _PCI_ROM_H

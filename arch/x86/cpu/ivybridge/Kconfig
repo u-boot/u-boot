@@ -1,9 +1,9 @@
+# SPDX-License-Identifier: GPL-2.0
 #
 # From Coreboot src/northbridge/intel/sandybridge/Kconfig
 #
 # Copyright (C) 2010 Google Inc.
 #
-# SPDX-License-Identifier:	GPL-2.0
 
 config NORTHBRIDGE_INTEL_IVYBRIDGE
 	bool

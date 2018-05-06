@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * arch/arm/cpu/armv7/rmobile/pfc-r8a7792.c
  *     This file is r8a7792 processor support - PFC hardware block.
  *
  * Copyright (C) 2016 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #include <common.h>

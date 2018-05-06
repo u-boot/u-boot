@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2015, Linaro Limited
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #include <linux/linkage.h>
 #include <linux/arm-smccc.h>

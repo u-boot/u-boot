@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * From coreboot southbridge/intel/bd82x6x/lpc.c
  *
  * Copyright (C) 2008-2009 coresystems GmbH
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

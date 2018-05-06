@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * LCD: LG4573, TFT 4.3", 480x800, RGB24
  * LCD initialization via SPI
- *
- * SPDX-License-Identifier:	GPL-2.0
  *
  */
 #include <common.h>

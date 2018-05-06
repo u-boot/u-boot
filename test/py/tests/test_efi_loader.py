@@ -1,9 +1,8 @@
+# SPDX-License-Identifier: GPL-2.0
 # Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
 # Copyright (c) 2016, Alexander Graf <agraf@suse.de>
 #
 # based on test_net.py.
-#
-# SPDX-License-Identifier: GPL-2.0
 
 # Test efi loader implementation
 

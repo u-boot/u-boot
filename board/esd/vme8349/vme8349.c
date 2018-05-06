@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * vme8349.c -- esd VME8349 board support
  *
@@ -8,8 +9,6 @@
  *
  * Reinhard Arlt <reinhard.arlt@esd-electronics.com>
  * Based on board/mpc8349emds/mpc8349emds.c (and previous 834x releases.)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2012 8D Technologies inc.
  * Based on mt_ventoux.h, original banner below:
@@ -6,8 +7,6 @@
  * Stefano Babic, DENX Software Engineering, sbabic@denx.de.
  *
  * Copyright (C) 2009 TechNexion Ltd.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

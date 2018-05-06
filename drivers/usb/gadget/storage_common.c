@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * storage_common.c -- Common definitions for mass storage functionality
  *
@@ -10,8 +11,6 @@
  *
  * Code refactoring & cleanup:
  * Łukasz Majewski <l.majewski@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 

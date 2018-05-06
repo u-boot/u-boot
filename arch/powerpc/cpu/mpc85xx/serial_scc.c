@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2003 Motorola Inc.
  * Xianghua Xiao (X.Xiao@motorola.com)
@@ -5,8 +6,6 @@
  *
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Hacked for MPC8260 by Murray.Jensen@cmst.csiro.au, 19-Oct-00.
  */

@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2008 RuggedCom, Inc.
  * Richard Retanubun <RichardRetanubun@RuggedCom.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

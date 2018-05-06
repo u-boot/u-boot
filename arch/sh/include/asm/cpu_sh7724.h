@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2008, 2011 Renesas Solutions Corp.
  *
  * SH7724 Internal I/O register
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _ASM_CPU_SH7724_H_

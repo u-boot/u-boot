@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2017 NXP Semiconductors
  *
  * Configuration settings for the i.MX7D Pico board.
- *
- * SPDX-License-Identifier:    GPL-2.0+
  */
 
 #ifndef __PICO_IMX7D_CONFIG_H

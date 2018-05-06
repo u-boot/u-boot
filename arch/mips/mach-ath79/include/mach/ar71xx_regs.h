@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Atheros AR71XX/AR724X/AR913X SoC register definitions
  *
@@ -5,8 +6,6 @@
  * Copyright (C) 2010-2011 Jaiganesh Narayanan <jnarayanan@atheros.com>
  * Copyright (C) 2008-2010 Gabor Juhos <juhosg@openwrt.org>
  * Copyright (C) 2008 Imre Kaloz <kaloz@openwrt.org>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef __ASM_MACH_AR71XX_REGS_H

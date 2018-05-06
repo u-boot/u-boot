@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Allwinner DE2 display driver
  *
  * (C) Copyright 2017 Jernej Skrabec <jernej.skrabec@siol.net>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

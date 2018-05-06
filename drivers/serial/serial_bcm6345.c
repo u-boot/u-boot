@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
  *
  * Derived from linux/drivers/tty/serial/bcm63xx_uart.c:
  *	Copyright (C) 2008 Maxime Bizon <mbizon@freebox.fr>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <clk.h>

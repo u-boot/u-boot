@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010
  * Texas Instruments Incorporated, <www.ti.com>
  *
  *	Balaji Krishnamoorthy	<balajitk@ti.com>
  *	Aneesh V		<aneesh@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _PANDA_MUX_DATA_H_
 #define _PANDA_MUX_DATA_H_

@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (c) 2010-2016, NVIDIA CORPORATION.
  * (based on tegra_gpio.c)
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #include <common.h>

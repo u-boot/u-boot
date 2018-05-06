@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * SAMSUNG EXYNOS5 USB HOST XHCI Controller
  *
  * Copyright (C) 2012 Samsung Electronics Co.Ltd
  *	Vivek Gautam <gautam.vivek@samsung.com>
  *	Vikas Sajjan <vikas.sajjan@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

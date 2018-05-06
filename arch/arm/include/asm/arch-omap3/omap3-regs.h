@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (c) 2011 Comelit Group SpA, Luca Ceresoli <luca.ceresoli@comelit.it>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _OMAP3_REGS_H

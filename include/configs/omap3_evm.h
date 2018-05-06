@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration settings for the TI OMAP3 EVM board.
  *
@@ -10,8 +11,6 @@
  *	Syed Mohammed Khasim <khasim@ti.com>
  *
  * Manikandan Pillai <mani.pillai@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

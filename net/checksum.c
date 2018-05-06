@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: BSD-2-Clause
 /*
  * This file was originally taken from the FreeBSD project.
  *
  * Copyright (c) 2001 Charles Mott <cm@linktel.net>
  * Copyright (c) 2008 coresystems GmbH
  * All rights reserved.
- *
- * SPDX-License-Identifier:	BSD-2-Clause
  */
 
 #include <common.h>

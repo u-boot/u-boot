@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2010
  * Eastman Kodak Company, <www.kodak.com>
@@ -5,8 +6,6 @@
  *
  * The code is based on the cpu/mpc83xx/ecc.c written by
  * Dave Liu <daveliu@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration settings for the Allwinner A64 (sun50i) CPU
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #if defined(CONFIG_RESERVE_ALLWINNER_BOOT0_HEADER) && !defined(CONFIG_SPL_BUILD)

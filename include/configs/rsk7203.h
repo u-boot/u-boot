@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for the Renesas Technology RSK 7203
  *
  * Copyright (C) 2008 Nobuhiro Iwamatsu
  * Copyright (C) 2008 Renesas Solutions Corp.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __RSK7203_H

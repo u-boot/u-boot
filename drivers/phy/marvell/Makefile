@@ -1,6 +1,4 @@
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
+# SPDX-License-Identifier: GPL-2.0+
 
 obj-$(CONFIG_MVEBU_COMPHY_SUPPORT) += comphy_core.o
 obj-$(CONFIG_MVEBU_COMPHY_SUPPORT) += comphy_mux.o

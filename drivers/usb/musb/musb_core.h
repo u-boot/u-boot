@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /******************************************************************
  * Copyright 2008 Mentor Graphics Corporation
  * Copyright (C) 2008 by Texas Instruments
  *
  * This file is part of the Inventra Controller Driver for Linux.
- *
- * SPDX-License-Identifier:	GPL-2.0
  ******************************************************************/
 
 #ifndef __MUSB_HDRC_DEFS_H__

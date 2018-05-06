@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Texas Instruments AM35x "glue layer"
  *
@@ -7,8 +8,6 @@
  * Copyright (c) 2008-2009, MontaVista Software, Inc. <source@mvista.com>
  *
  * This file is part of the Inventra Controller Driver for Linux.
- *
- * SPDX-License-Identifier:	GPL-2.0
  *
  */
 

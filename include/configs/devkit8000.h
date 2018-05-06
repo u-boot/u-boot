@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2006-2008
  * Texas Instruments.
@@ -8,8 +9,6 @@
  * Frederik Kriewitz <frederik@kriewitz.eu>
  *
  * Configuration settings for the DevKit8000 board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

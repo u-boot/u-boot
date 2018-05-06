@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) Stefano Babic <sbabic@denx.de>
  *
  * Configuration settings for the E+L i.MX6Q DO82 board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __EL_ZC5601_H

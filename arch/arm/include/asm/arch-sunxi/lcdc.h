@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Sunxi platform timing controller register and constant defines
  *
  * (C) Copyright 2014 Hans de Goede <hdegoede@redhat.com>
  * (C) Copyright 2017 Jernej Skrabec <jernej.skrabec@siol.net>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _LCDC_H

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * USB virtual root hub descriptors
  *
@@ -5,8 +6,6 @@
  * Stephen Warren swarren@wwwdotorg.org
  *
  * Based on ohci-hcd.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __USBROOTHUBDES_H__

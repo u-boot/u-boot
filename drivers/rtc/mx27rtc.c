@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Freescale i.MX27 RTC Driver
  *
  * Copyright (C) 2012 Philippe Reynes <tremyfr@yahoo.fr>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

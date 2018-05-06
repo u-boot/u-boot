@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013 Oliver Schinagl <oliver@schinagl.nl>
  *
  * X-Powers AXP221 Power Management IC driver
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* Page 0 addresses */

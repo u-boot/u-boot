@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (c) 2016 Google, Inc
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 # Script to convert coreboot code to something similar to what U-Boot uses
 # sed -f coreboot.sed <coreboot_file.c>
 # Remember to add attribution to coreboot for new files added to U-Boot.

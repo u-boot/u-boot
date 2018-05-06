@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015 Marvell International Ltd.
  *
@@ -7,8 +8,6 @@
  *   - drivers/pci/pcie_imx.c
  *   - drivers/pci/pci_mvebu.c
  *   - drivers/pci/pcie_xilinx.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

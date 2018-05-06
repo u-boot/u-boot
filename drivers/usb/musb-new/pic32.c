@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Microchip PIC32 MUSB "glue layer"
  *
  * Copyright (C) 2015, Microchip Technology Inc.
  *  Cristian Birsan <cristian.birsan@microchip.com>
  *  Purna Chandra Mandal <purna.mandal@microchip.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  *
  * Based on the dsps "glue layer" code.
  */

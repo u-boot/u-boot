@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Freescale Three Speed Ethernet Controller driver
  *
  * Copyright 2004-2011, 2013 Freescale Semiconductor, Inc.
  * (C) Copyright 2003, Motorola, Inc.
  * author Andy Fleming
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

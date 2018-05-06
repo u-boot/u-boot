@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * caddy.c -- esd VME8349 support for "missing" access modes in TSI148.
  * Copyright (c) 2009 esd gmbh.
  *
  * Reinhard Arlt <reinhard.arlt@esd-electronics.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CADDY_H__

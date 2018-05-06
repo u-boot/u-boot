@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014 Marek Vasut <marex@denx.de>
  * Copyright (C) 2016 Pavel Machek <pavel@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __CONFIG_SOCFPGA_IS1_H__
 #define __CONFIG_SOCFPGA_IS1_H__

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 2011 Infineon Technologies
  *
@@ -12,8 +13,6 @@
  *
  * It is based on the Linux kernel driver tpm.c from Leendert van
  * Dorn, Dave Safford, Reiner Sailer, and Kyleen Hall.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _TPM_TIS_I2C_H

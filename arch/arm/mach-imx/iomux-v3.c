@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Based on the iomux-v3.c from Linux kernel:
  * Copyright (C) 2008 by Sascha Hauer <kernel@pengutronix.de>
@@ -5,8 +6,6 @@
  *                       <armlinux@phytec.de>
  *
  * Copyright (C) 2004-2011 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <asm/io.h>

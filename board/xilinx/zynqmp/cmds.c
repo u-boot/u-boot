@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * (C) Copyright 2018 Xilinx, Inc.
  * Siva Durga Prasad Paladugu <siva.durga.paladugu@xilinx.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

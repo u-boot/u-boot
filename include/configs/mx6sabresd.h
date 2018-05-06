@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2012 Freescale Semiconductor, Inc.
  *
  * Configuration settings for the Freescale i.MX6Q SabreSD board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MX6SABRESD_CONFIG_H

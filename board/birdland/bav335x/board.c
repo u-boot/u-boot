@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * board.c
  *
  * Board functions for Birdland Audio BAV335x Network Processor
  *
  * Copyright (c) 2012-2014 Birdland Audio - http://birdland.com/oem
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

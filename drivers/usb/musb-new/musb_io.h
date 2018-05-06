@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * MUSB OTG driver register I/O
  *
@@ -8,8 +9,6 @@
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef __MUSB_LINUX_PLATFORM_ARCH_H__

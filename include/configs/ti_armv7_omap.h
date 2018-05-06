@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * ti_armv7_omap.h
  *
  * Copyright (C) 2015 Texas Instruments Incorporated - http://www.ti.com/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * The various ARMv7 SoCs from TI all share a number of IP blocks when
  * implementing a given feature. This is meant to isolate the features

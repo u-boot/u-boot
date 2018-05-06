@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Andes Technology
  * Chih-Mao Chen <cmchen@andestech.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  *
  * Statically process runtime relocations on RISC-V ELF images
  * so that it can be directly executed when loaded at LMA

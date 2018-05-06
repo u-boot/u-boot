@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (c) 2014 Google, Inc
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 # We don't want the bootrom-helper present in a full U-Boot build, as
 # this may have entered from ATF with the stack-pointer pointing to

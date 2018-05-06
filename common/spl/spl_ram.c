@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2016
  * Xilinx, Inc.
@@ -7,8 +8,6 @@
  *
  * Michal Simek <michal.simek@xilinx.com>
  * Stefan Agner <stefan.agner@toradex.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <binman_sym.h>

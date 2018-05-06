@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * EFI device path from u-boot device-model mapping
  *
  * (C) Copyright 2017 Rob Clark
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #define LOG_CATEGORY LOGL_ERR

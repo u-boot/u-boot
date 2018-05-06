@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2012
  * Holger Brunck, Keymile GmbH Hannover, <holger.brunck@keymile.com>
  * Christian Herzig, Keymile AG Switzerland, <christian.herzig@keymile.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2013-2015 Arcturus Networks, Inc.
  *           http://www.arcturusnetworks.com/products/ucp1020/
  *           by Oleksandr G Zhadan et al.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __UCP1020_H__

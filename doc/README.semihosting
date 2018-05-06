@@ -1,7 +1,6 @@
+SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Broadcom Corporation.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 Semihosting is ARM's way of having a real or virtual target communicate

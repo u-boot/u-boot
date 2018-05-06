@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013
  * Texas Instruments Incorporated.
@@ -5,8 +6,6 @@
  *
  * Configuration settings for the TI EVM5430 board.
  * See ti_omap5_common.h for omap5 common settings.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_OMAP5_EVM_H

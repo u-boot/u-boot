@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2017 Intel Corporation
  *
  * Partially based on global_nvs.asl for other x86 platforms
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/acpi/global_nvs.h>

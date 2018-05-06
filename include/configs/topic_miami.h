@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2014 Topic Embedded Products
  *
  * Configuration for Zynq Evaluation and Development Board - Miami
  * See zynq-common.h for Zynq common configs
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_TOPIC_MIAMI_H

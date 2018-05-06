@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * EMIF: DDR3 test commands
  *
  * Copyright (C) 2012-2017 Texas Instruments Incorporated, <www.ti.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <asm/arch/hardware.h>

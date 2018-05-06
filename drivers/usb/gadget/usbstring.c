@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: LGPL-2.1+
 /*
  * Copyright (C) 2003 David Brownell
- *
- * SPDX-License-Identifier:	LGPL-2.1+
  *
  * Ported to U-Boot by: Thomas Smits <ts.smits@gmail.com> and
  *                      Remy Bohmer <linux@bohmer.net>

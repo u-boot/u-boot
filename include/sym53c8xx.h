@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2001
  * Denis Peter, MPL AG Switzerland
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Most of these definitions are derived from
  * linux/drivers/scsi/sym53c8xx_defs.h

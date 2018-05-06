@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for the esd TASREG board.
  *
  * (C) Copyright 2004
  * Stefan Roese, esd gmbh germany, stefan.roese@esd-electronics.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

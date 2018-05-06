@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013 Atmel Corporation.
  * Josh Wu <josh.wu@atmel.com>
  *
  * Configuation settings for the AT91SAM9N12-EK boards.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __AT91SAM9N12_CONFIG_H_

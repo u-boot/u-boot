@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013
  * Texas Instruments Incorporated, <www.ti.com>
  *
  * Sricharan R	<r.sricharan@ti.com>
  * Nishant Kamat <nskamat@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _MUX_DATA_DRA7XX_H_
 #define _MUX_DATA_DRA7XX_H_

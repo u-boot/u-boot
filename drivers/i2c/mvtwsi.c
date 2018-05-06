@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Driver for the TWSI (i2c) controller found on the Marvell
  * orion5x and kirkwood SoC families.
  *
  * Author: Albert Aribaud <albert.u.boot@aribaud.net>
  * Copyright (c) 2010 Albert Aribaud.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

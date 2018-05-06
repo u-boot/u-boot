@@ -1,6 +1,5 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __AT91RM9200_H__

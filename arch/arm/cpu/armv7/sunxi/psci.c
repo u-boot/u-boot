@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2016
  * Author: Chen-Yu Tsai <wens@csie.org>
  *
  * Based on assembly code by Marc Zyngier <marc.zyngier@arm.com>,
  * which was based on code by Carl van Schaik <carl@ok-labs.com>.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #include <config.h>
 #include <common.h>

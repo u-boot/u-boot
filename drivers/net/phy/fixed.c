@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Fixed-Link phy
  *
  * Copyright 2017 Bernecker & Rainer Industrieelektronik GmbH
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

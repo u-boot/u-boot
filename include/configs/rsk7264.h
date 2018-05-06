@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for the Renesas RSK2+SH7264 board
  *
  * Copyright (C) 2011 Renesas Electronics Europe Ltd.
  * Copyright (C) 2008 Nobuhiro Iwamatsu
  * Copyright (C) 2008 Renesas Solutions Corp.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __RSK7264_H

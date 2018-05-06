@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Marek Vasut <marex@denx.de>
  *
  * Based on RAM init sequence by Piotr Dymacz <pepe2k@gmail.com>
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <common.h>

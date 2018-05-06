@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2016 NextThing Co
  * Copyright (c) 2016 Free Electrons
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __TEST_OVERLAY_H__

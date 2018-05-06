@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2011
  * Texas Instruments, <www.ti.com>
@@ -8,8 +9,6 @@
  * Initial Code from:
  *     Richard Woodruff <r-woodruff2@ti.com>
  *     Jian Zhang <jzhang@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

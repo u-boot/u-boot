@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *
  * Command for encapsulating/decapsulating blob of memory.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

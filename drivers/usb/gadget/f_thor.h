@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * f_thor.h - USB TIZEN THOR - internal gadget definitions
  *
  * Copyright (C) 2013 Samsung Electronics
  * Lukasz Majewski  <l.majewski@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _USB_THOR_H_

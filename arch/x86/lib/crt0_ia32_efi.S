@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
 /*
  * crt0-efi-ia32.S - x86 EFI startup code.
  *
  * Copyright (C) 1999 Hewlett-Packard Co.
  * Contributed by David Mosberger <davidm@hpl.hp.com>.
  * All rights reserved.
- *
- * SPDX-License-Identifier:	BSD-3-Clause
  */
 
 	.text

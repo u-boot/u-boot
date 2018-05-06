@@ -1,6 +1,5 @@
-# Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
-#
 # SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
 
 # Test various network-related functionality, such as the dhcp, ping, and
 # tftpboot commands.

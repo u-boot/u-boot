@@ -1,11 +1,9 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2000-2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # Copyright (C) 2012-2017 Altera Corporation <www.altera.com>
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-y	+= board.o
 obj-y	+= clock_manager.o

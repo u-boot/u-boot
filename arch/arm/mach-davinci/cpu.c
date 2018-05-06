@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2004 Texas Instruments.
  * Copyright (C) 2009 David Brownell
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

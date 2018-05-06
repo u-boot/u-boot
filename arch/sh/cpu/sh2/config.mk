@@ -1,9 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2007-2008
 # Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 #
 ENDIANNESS += -EB
 

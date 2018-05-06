@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:    GPL-2.0+
-*/
+ */
 
 #ifndef _RSA_MOD_EXP_H
 #define _RSA_MOD_EXP_H

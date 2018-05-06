@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015 Google, Inc
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Based on code from the coreboot file of the same name
  */

@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * From coreboot src/southbridge/intel/bd82x6x/mrccache.c
  *
  * Copyright (C) 2014 Google Inc.
  * Copyright (C) 2015 Bin Meng <bmeng.cn@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

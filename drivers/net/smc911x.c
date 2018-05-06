@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * SMSC LAN9[12]1[567] Network driver
  *
  * (c) 2007 Pengutronix, Sascha Hauer <s.hauer@pengutronix.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

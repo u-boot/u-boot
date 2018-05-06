@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2005, 2009 Freescale Semiconductor, Inc
  * Copyright (c) 2005 MontaVista Software
  * Copyright (c) 2008 Excito Elektronik i Sk=E5ne AB
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _EHCI_CI_H

@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * GPIO driver for TI DaVinci DA8xx SOCs.
  *
  * (C) Copyright 2011 Guralp Systems Ltd.
  * Laurence Withers <lwithers@guralp.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

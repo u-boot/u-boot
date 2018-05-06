@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
  * (C) Copyright 2011 NVIDIA Corporation <www.nvidia.com>
  * (C) Copyright 2006 Detlev Zundel, dzu@denx.de
  * (C) Copyright 2006 DENX Software Engineering
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

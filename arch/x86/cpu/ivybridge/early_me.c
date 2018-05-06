@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * From Coreboot src/southbridge/intel/bd82x6x/early_me.c
  *
  * Copyright (C) 2011 The Chromium OS Authors. All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2009
  * Marvell Semiconductor <www.marvell.com>
@@ -5,8 +6,6 @@
  *
  * based on - Driver for MV64360X ethernet ports
  * Copyright (C) 2002 rabeeh@galileo.co.il
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MVGBE_H__

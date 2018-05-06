@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2016 Cadence Design Systems Inc.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-$(CONFIG_SYSRESET) += sysreset-uclass.o
 obj-$(CONFIG_SYSRESET_PSCI) += sysreset_psci.o

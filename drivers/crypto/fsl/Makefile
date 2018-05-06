@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright 2014 Freescale Semiconductor, Inc.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-y += sec.o
 obj-$(CONFIG_FSL_CAAM) += jr.o fsl_hash.o jobdesc.o error.o

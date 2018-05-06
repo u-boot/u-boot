@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (c) Copyright 2016 by VRT Technology
  *
@@ -15,8 +16,6 @@
  * EXT4 filesystem implementation in Uboot by
  * Uma Shankar <uma.shankar@samsung.com>
  * Manjunatha C Achar <a.manjunatha@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

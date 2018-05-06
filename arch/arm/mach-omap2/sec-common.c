@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *
  * Common security related functions for OMAP devices
@@ -9,8 +10,6 @@
  * Andreas Dannenberg <dannenberg@ti.com>
  * Harinarayan Bhatta <harinarayan@ti.com>
  * Andrew F. Davis <afd@ti.com>
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <common.h>

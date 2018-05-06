@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (c) 2011 The Chromium OS Authors.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 # This Makefile builds the internal U-Boot fdt if CONFIG_OF_CONTROL is
 # enabled. See doc/README.fdt-control for more details.

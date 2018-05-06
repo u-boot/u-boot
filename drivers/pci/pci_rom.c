@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2014 Google, Inc
  *
@@ -19,8 +20,6 @@
  * David Mosberger-Tang
  *
  * Copyright 1997 -- 1999 Martin Mares <mj@atrey.karlin.mff.cuni.cz>
-
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * UniPhier DDR PHY registers
  *
  * Copyright (C) 2014      Panasonic Corporation
  * Copyright (C) 2015-2016 Socionext Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef ARCH_DDRPHY_REGS_H

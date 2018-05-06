@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Device Tree file for the Guntermann & Drunck ControlCenter-Compact board
  *
@@ -9,8 +10,6 @@
  * Copyright (C) 2014 Marvell
  *
  * Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 /dts-v1/;

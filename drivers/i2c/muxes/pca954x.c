@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015 - 2016 Xilinx, Inc.
  * Copyright (C) 2017 National Instruments Corp
  * Written by Michal Simek
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

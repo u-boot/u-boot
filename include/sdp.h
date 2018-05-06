@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * sdp.h - Serial Download Protocol
  *
  * Copyright (C) 2017 Toradex
  * Author: Stefan Agner <stefan.agner@toradex.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __SDP_H_

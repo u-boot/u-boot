@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0
 /*-
  * Copyright (c) 2007-2008, Juniper Networks, Inc.
  * Copyright (c) 2008, Excito Elektronik i Skåne AB
  * Copyright (c) 2008, Michael Trimarchi <trimarchimichael@yahoo.it>
  *
  * All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #include <common.h>
 #include <dm.h>

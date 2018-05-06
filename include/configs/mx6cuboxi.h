@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2015 Freescale Semiconductor, Inc.
  *
  * Configuration settings for the SolidRun mx6 based boards
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __MX6CUBOXI_CONFIG_H
 #define __MX6CUBOXI_CONFIG_H

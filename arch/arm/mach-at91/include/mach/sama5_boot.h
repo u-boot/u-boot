@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Boot mode definitions for the SAMA5Dx SoC
  *
  * Copyright (C) 2016 Marek Vasut <marex@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __SAMA5_BOOT_H

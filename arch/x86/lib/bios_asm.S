@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * From coreboot x86_asm.S, cleaned up substantially
  *
  * Copyright (C) 2009-2010 coresystems GmbH
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <asm/processor.h>

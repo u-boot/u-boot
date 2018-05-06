@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2007 Semihalf
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 # Provide symbol API_BUILD to signal that the API example is being built.
 KBUILD_CPPFLAGS += -DAPI_BUILD

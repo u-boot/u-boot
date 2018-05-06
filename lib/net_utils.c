@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Generic network code. Moved from net.c
  *
@@ -6,8 +7,6 @@
  * Copyright 2000 Paolo Scaffardi
  * Copyright 2000-2002 Wolfgang Denk, wd@denx.de
  * Copyright 2009 Dirk Behme, dirk.behme@googlemail.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

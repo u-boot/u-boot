@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Qualcomm APQ8096 based Dragonboard 820C board device tree source
  *
  * (C) Copyright 2017 Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /dts-v1/;

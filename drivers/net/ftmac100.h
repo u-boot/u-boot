@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Faraday FTMAC100 Ethernet
  *
  * (C) Copyright 2009 Faraday Technology
  * Po-Yu Chuang <ratbert@faraday-tech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __FTMAC100_H

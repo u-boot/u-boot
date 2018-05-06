@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2012 SAMSUNG Electronics
  * SAMSUNG EXYNOS5250 SoC device tree source
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include "exynos5.dtsi"

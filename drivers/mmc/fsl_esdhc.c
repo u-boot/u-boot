@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2007, 2010-2011 Freescale Semiconductor, Inc
  * Andy Fleming
@@ -5,8 +6,6 @@
  * Based vaguely on the pxa mmc code:
  * (C) Copyright 2003
  * Kyle Harris, Nexus Technologies, Inc. kharris@nexus-tech.net
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

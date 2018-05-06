@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
  *
  * Derived from linux/arch/mips/include/asm/mach-bcm63xx/bcm63xx_regs.h
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __DT_BINDINGS_RESET_BCM6348_H

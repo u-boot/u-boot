@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Intel PXA25x and IXP4xx on-chip full speed USB device controllers
  *
@@ -7,8 +8,6 @@
  * Copyright (C) 2003 David Brownell
  * Copyright (C) 2003 Joshua Wise
  * Copyright (C) 2012 Lukasz Dalek <luk0104@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * MODULE_AUTHOR("Frank Becker, Robert Schwebel, David Brownell");
  */

@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: BSD-2-Clause */
 /*
  * OP-TEE related definitions
  *
  * (C) Copyright 2016 Linaro Limited
  * Andrew F. Davis <andrew.davis@linaro.org>
- *
- * SPDX-License-Identifier: BSD-2-Clause
  */
 
 #ifndef	_OPTEE_H

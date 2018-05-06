@@ -1,9 +1,9 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-2.0
 #
 ######################################################
 # Copyright (C) 2016 Marvell International Ltd.
 #
-# SPDX-License-Identifier:	GPL-2.0
 # https://spdx.org/licenses
 #
 # Author: Konstantin Porotchkin kostap@marvell.com

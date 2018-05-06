@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014 Eukréa Electromatique
  * Author: Eric Bénard <eric@eukrea.com>
@@ -9,8 +10,6 @@
  * and on hummingboard.c which is :
  * Copyright (C) 2013 SolidRun ltd.
  * Copyright (C) 2013 Jon Nettleton <jon.nettleton@gmail.com>.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/clock.h>

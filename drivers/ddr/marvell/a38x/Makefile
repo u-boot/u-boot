@@ -1,6 +1,4 @@
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
+# SPDX-License-Identifier: GPL-2.0+
 
 obj-$(CONFIG_SPL_BUILD) += ddr3_a38x.o
 obj-$(CONFIG_SPL_BUILD) += ddr3_a38x_training.o

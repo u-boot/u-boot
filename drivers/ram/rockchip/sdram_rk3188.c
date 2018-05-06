@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * (C) Copyright 2015 Google, Inc
  * Copyright 2014 Rockchip Inc.
- *
- * SPDX-License-Identifier:     GPL-2.0
  *
  * Adapted from the very similar rk3288 ddr init.
  */

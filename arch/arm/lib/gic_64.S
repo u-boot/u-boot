@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * GIC Initialization Routines.
  *
  * (C) Copyright 2013
  * David Feng <fenghua@phytium.com.cn>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm-offsets.h>

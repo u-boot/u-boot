@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2016 Amarula Solutions B.V.
  * Copyright (C) 2016 Engicam S.r.l.
  *
  * Configuration settings for the Engicam i.MX6 SOM Starter Kits.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __IMX6_ENGICAM_CONFIG_H

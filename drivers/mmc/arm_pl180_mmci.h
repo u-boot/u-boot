@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * ARM PrimeCell MultiMedia Card Interface - PL180
  *
@@ -6,8 +7,6 @@
  * Author: Ulf Hansson <ulf.hansson@stericsson.com>
  * Author: Martin Lundholm <martin.xa.lundholm@stericsson.com>
  * Ported to drivers/mmc/ by: Matt Waddel <matt.waddel@linaro.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ARM_PL180_MMCI_H__

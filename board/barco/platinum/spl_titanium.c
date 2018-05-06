@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014 Stefan Roese <sr@denx.de>
  *
  * Based on: gw_ventana_spl.c which is:
  * Copyright (C) 2014 Gateworks Corporation
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>

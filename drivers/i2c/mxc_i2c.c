@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * i2c driver for Freescale i.MX series
  *
@@ -10,8 +11,6 @@
  *  Copyright (C) 2007 RightHand Technologies, Inc.
  *  Copyright (C) 2008 Darius Augulis <darius.augulis at teltonika.lt>
  *
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

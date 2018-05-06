@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * arch/arm/include/asm/arch-rmobile/r8a7792.h
  *
  * Copyright (C) 2016 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier: GPL-2.0
-*/
+ */
 
 #ifndef __ASM_ARCH_R8A7792_H
 #define __ASM_ARCH_R8A7792_H

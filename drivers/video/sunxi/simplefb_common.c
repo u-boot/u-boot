@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Common code for Allwinner SimpleFB with pipeline.
  *
  * (C) Copyright 2013-2014 Luc Verhaegen <libv@skynet.be>
  * (C) Copyright 2014-2015 Hans de Goede <hdegoede@redhat.com>
  * (C) Copyright 2017 Icenowy Zheng <icenowy@aosc.io>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <fdtdec.h>

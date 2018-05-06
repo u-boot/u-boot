@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Xilinx PCS/PMA Core phy driver
  *
  * Copyright (C) 2015 - 2016 Xilinx, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

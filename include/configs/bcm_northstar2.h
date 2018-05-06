@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration for Broadcom NS2.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __BCM_NORTHSTAR2_H

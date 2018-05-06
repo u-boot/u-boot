@@ -1,9 +1,8 @@
 #!/usr/bin/env python2
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2016 Google, Inc
 # Written by Simon Glass <sjg@chromium.org>
-#
-# SPDX-License-Identifier:	GPL-2.0+
 #
 
 """Device tree to C tool

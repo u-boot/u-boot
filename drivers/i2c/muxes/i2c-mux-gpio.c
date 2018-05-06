@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * I2C multiplexer using GPIO API
  *
  * Copyright 2017 NXP
  *
  * Peng Fan <peng.fan@nxp.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/io.h>

@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for the WB45N CPU Module.
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #ifndef __CONFIG_H__

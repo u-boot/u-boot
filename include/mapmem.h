@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2015 National Instruments
  *
  * (C) Copyright 2015
  * Joe Hershberger <joe.hershberger@ni.com>
- *
- * SPDX-License-Identifier:    GPL-2.0
  */
 
 #ifndef __MAPMEM_H

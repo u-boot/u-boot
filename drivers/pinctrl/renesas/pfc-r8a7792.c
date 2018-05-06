@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * r8a7792 processor support - PFC hardware block.
  *
  * Copyright (C) 2013-2014 Renesas Electronics Corporation
  * Copyright (C) 2016 Cogent Embedded, Inc., <source@cogentembedded.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

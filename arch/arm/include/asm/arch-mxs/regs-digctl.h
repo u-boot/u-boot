@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Freescale i.MX28 DIGCTL Register Definitions
  *
  * Copyright (C) 2012 Robert Delien <robert@delien.nl>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MX28_REGS_DIGCTL_H__

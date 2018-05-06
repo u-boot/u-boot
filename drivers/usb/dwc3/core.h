@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /**
  * core.h - DesignWare USB3 DRD Core Header
  *
@@ -10,8 +11,6 @@
  * to uboot.
  *
  * commit 460d098cb6 : usb: dwc3: make HIRD threshold configurable
- *
- * SPDX-License-Identifier:     GPL-2.0
  *
  */
 

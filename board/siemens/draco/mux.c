@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * pinmux setup for siemens draco board
  *
@@ -7,8 +8,6 @@
  * Based on:
  * u-boot:/board/ti/am335x/mux.c
  * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2014
  * NVIDIA Corporation <www.nvidia.com>
  *
  * Copyright 2014 Red Hat, Inc.
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef _CONFIG_CMD_DISTRO_BOOTCMD_H

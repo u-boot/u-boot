@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * board/renesas/draak/draak.c
  *     This file is Draak board support.
  *
  * Copyright (C) 2017 Marek Vasut <marek.vasut+renesas@gmail.com>
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <common.h>

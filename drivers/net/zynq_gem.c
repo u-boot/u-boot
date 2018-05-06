@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2011 Michal Simek
  *
@@ -5,8 +6,6 @@
  *
  * Based on Xilinx gmac driver:
  * (C) Copyright 2011 Xilinx
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <clk.h>

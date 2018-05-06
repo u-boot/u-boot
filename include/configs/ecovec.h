@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for the Renesas Solutions ECOVEC board
  *
  * Copyright (C) 2009 - 2011 Renesas Solutions Corp.
  * Copyright (C) 2009 Kuninori Morimoto <morimoto.kuninori@renesas.com>
  * Copyright (C) 2010, 2011 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ECOVEC_H

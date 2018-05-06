@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2008
  * Gururaja Hebbar gururajakr@sanyo.co.in
  *
  * reference linux-2.6.20.6/drivers/rtc/rtc-pl031.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

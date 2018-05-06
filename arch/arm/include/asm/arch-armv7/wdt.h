@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010
  * Matt Waddel, <matt.waddel@linaro.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _WDT_H_
 #define _WDT_H_

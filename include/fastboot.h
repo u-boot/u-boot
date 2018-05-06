@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2008 - 2009
  * Windriver, <www.windriver.com>
@@ -7,8 +8,6 @@
  *
  * Copyright 2014 Linaro, Ltd.
  * Rob Herring <robh@kernel.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _FASTBOOT_H_
 #define _FASTBOOT_H_

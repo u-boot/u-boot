@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2013 Stefan Roese <sr@denx.de>
  *
@@ -6,8 +7,6 @@
  *
  * Based on mx6qsabrelite.h which is:
  * Copyright (C) 2010-2011 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Device Tree Source for RK3288 SoC thermal
  *
  * Copyright (c) 2014, Fuzhou Rockchip Electronics Co., Ltd
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <dt-bindings/thermal/thermal.h>

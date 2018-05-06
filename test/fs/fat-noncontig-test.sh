@@ -1,8 +1,7 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-2.0+
 
 # (C) Copyright 2015 Stephen Warren
-#
-# SPDX-License-Identifier:	GPL-2.0+
 
 # This script tests U-Boot's FAT filesystem code's ability to read non-
 # contiguous files.

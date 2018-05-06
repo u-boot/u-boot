@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * U-Boot Marvell 37xx SoC pinctrl driver
  *
@@ -12,8 +13,6 @@
  * (C) Copyright 2016 - Beniamino Galvani <b.galvani@gmail.com>
  * Based on code from Linux kernel:
  * Copyright (C) 2016 Endless Mobile, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  * https://spdx.org/licenses
  */
 

@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2012 Linutronix GmbH
  * Copyright (c) 2014 sigma star gmbh
  * Author: Richard Weinberger <richard@nod.at>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  */
 

@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2012 Samsung Electronics
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __WM8994_REGISTERS_H__

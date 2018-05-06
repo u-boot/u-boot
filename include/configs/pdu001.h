@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * pdu001.h
  *
  * Copyright (C) 2018 EETS GmbH - http://www.eets.ch/
  *
  * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #ifndef __CONFIG_PDU001_H

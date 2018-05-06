@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Freescale i.MX6 PCI Express Root-Complex driver
  *
@@ -6,8 +7,6 @@
  * Based on upstream Linux kernel driver:
  * pci-imx6.c:		Sean Cross <xobs@kosagi.com>
  * pcie-designware.c:	Jingoo Han <jg1.han@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

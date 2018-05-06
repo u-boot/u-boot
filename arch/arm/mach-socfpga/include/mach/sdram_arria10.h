@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 2015-2017 Intel Corporation <www.intel.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _SOCFPGA_SDRAM_ARRIA10_H_

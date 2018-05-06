@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *
  * DaVinci EMAC initialization.
  *
  * (C) Copyright 2011, Ilya Yanok, Emcraft Systems
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

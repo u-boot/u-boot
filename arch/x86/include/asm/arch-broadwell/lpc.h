@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * From coreboot soc/intel/broadwell/include/soc/lpc.h
  *
  * Copyright (C) 2016 Google Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _ASM_ARCH_LPC_H

@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2014-2015, Antmicro Ltd <www.antmicro.com>
  * Copyright (c) 2015, AW-SOM Technologies <www.aw-som.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <asm/arch/clock.h>

@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2012 Atmel Corporation.
  *
  * Static Memory Controllers (SMC) - System peripherals registers.
  * Based on SAMA5D3 datasheet.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef SAMA5D3_SMC_H

@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2015-2016 Stefan Roese <sr@denx.de>
  *
  * Configuration settings for the CCV xPress board
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __XPRESS_CONFIG_H
 #define __XPRESS_CONFIG_H

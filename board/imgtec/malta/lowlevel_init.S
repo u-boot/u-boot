@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 2013 Gabor Juhos <juhosg@openwrt.org>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <config.h>

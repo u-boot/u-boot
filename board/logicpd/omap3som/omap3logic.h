@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011
  * Logic Product Development <www.logicpd.com>
  *
  * Author:
  * Peter Barada <peter.barada@logicpd.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _OMAP3LOGIC_H_
 #define _OMAP3LOGIC_H_

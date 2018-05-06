@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Generic bounce buffer implementation
  *
  * Copyright (C) 2012 Marek Vasut <marex@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __INCLUDE_BOUNCEBUF_H__

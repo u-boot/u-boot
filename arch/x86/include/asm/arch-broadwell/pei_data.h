@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
 /*
  * From Coreboot soc/intel/broadwell/include/soc/pei_data.h
  *
  * Copyright (C) 2014 Google Inc.
- *
- * SPDX-License-Identifier:	BSD-3-Clause
  */
 
 #ifndef ASM_ARCH_PEI_DATA_H

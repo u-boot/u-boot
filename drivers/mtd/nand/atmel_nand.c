@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2007-2008
  * Stelian Pop <stelian@popies.net>
@@ -7,8 +8,6 @@
  *
  * Add Programmable Multibit ECC support for various AT91 SoC
  *     (C) Copyright 2012 ATMEL, Hong Xu
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

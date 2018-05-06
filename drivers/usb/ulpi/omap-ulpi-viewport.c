@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * OMAP ulpi viewport support
  * Based on drivers/usb/ulpi/ulpi-viewport.c
  *
  * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com
  * Author: Govindraj R <govindraj.raja@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

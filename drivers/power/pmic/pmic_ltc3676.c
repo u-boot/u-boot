@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014 Gateworks Corporation
  * Tim Harvey <tharvey@gateworks.com>
- *
- * SPDX-License-Identifier:      GPL-2.0+
  */
 
 #include <common.h>

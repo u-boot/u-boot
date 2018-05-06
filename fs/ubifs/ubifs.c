@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * This file is part of UBIFS.
  *
@@ -8,8 +9,6 @@
  *
  * Authors: Artem Bityutskiy (Битюцкий Артём)
  *          Adrian Hunter
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

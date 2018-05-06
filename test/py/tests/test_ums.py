@@ -1,6 +1,5 @@
-# Copyright (c) 2015-2016, NVIDIA CORPORATION. All rights reserved.
-#
 # SPDX-License-Identifier: GPL-2.0
+# Copyright (c) 2015-2016, NVIDIA CORPORATION. All rights reserved.
 
 # Test U-Boot's "ums" command. The test starts UMS in U-Boot, waits for USB
 # device enumeration on the host, reads a small block of data from the UMS

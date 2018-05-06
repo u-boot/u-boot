@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2013-2014 Synopsys, Inc. All rights reserved.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 ifndef CONFIG_CPU_BIG_ENDIAN
 CONFIG_SYS_LITTLE_ENDIAN = 1

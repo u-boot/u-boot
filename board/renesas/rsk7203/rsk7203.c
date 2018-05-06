@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2008 Nobuhiro Iwamatsu
  * Copyright (C) 2008 Renesas Solutions Corp.
  *
  * u-boot/board/rsk7203/rsk7203.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

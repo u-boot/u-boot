@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Functions related to OMAP3 SDRC.
  *
@@ -18,8 +19,6 @@
  *      Sunil Kumar <sunilsaini05@gmail.com>
  *      Shashi Ranjan <shashiranjanmca05@gmail.com>
  *      Manikandan Pillai <mani.pillai@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

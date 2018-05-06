@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -5,8 +6,6 @@
  * Add to readline cmdline-editing by
  * (C) Copyright 2005
  * JinHua Luo, GuangDong Linux Center, <luo.jinhua@gd-linux.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: BSD-2-Clause */
 /*
  * This is from the Android Project,
  * Repository: https://android.googlesource.com/platform/system/core/
@@ -5,8 +6,6 @@
  * Commit: d162828814b08ada310846a33205befb69ef5799
  *
  * Copyright (C) 2008 The Android Open Source Project
- *
- * SPDX-License-Identifier: BSD-2-Clause
  */
 
 #ifndef _ANDROID_IMAGE_H_

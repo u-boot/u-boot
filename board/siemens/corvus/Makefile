@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Makefile for siemens CORVUS (AT91SAM9G45) based board
 # (C) Copyright 2013 Siemens AG
@@ -11,8 +12,5 @@
 # (C) Copyright 2008
 # Stelian Pop <stelian@popies.net>
 # Lead Tech Design <www.leadtechdesign.com>
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-y += board.o

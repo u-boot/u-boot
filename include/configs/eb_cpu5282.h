@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for the BuS EB+CPU5283 boards (aka EB+MCF-EV123)
  *
  * (C) Copyright 2005-2009 BuS Elektronik GmbH & Co.KG <esw@bus-elektonik.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CONFIG_EB_CPU5282_H_

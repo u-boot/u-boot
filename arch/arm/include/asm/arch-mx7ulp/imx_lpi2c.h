@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2016 Freescale Semiconductors, Inc.
  *
  * I2CLP driver for i.MX
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  */
 #ifndef __IMX_LPI2C_H__

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
  *
  * Derived from linux/drivers/power/reset/syscon-reboot.c:
  *	Copyright (C) 2013, Applied Micro Circuits Corporation
  *	Author: Feng Kan <fkan@apm.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014-2017 Broadcom.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _BCM_SF2_ETH_H_

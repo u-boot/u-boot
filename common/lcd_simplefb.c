@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Simplefb device tree support
  *
  * (C) Copyright 2015
  * Stephen Warren <swarren@wwwdotorg.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

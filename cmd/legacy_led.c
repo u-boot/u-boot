@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2010
  * Jason Kridner <jkridner@beagleboard.org>
@@ -6,8 +7,6 @@
  * http://www.mail-archive.com/u-boot@lists.denx.de/msg06873.html
  * (C) Copyright 2008
  * Ulf Samuelsson <ulf.samuelsson@atmel.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

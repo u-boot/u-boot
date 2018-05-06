@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * From coreboot src/soc/intel/broadwell/include/soc/pm.h
  *
  * Copyright (C) 2016 Google, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef __ASM_ARCH_PM_H

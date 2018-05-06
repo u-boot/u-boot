@@ -1,7 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Rockchip Electronics Co., Ltd
  * Author: Andy Yan <andy.yan@rock-chips.org>
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

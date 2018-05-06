@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * drivers/mtd/nand/nand_util.c
  *
@@ -15,8 +16,6 @@
  * Artem Bityutskiy <dedekind1@gmail.com> from mtd-utils
  *
  * Copyright 2010 Freescale Semiconductor
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Novena video output support
  *
@@ -6,8 +7,6 @@
  * 3d85836ee1377d445531928361809612aa0a18db
  *
  * Copyright (C) 2014 Marek Vasut <marex@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

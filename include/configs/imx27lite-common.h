@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2010 Heiko Schocher <hs@denx.de>
  *
  * based on:
  * Copyright (C) 2009 Ilya Yanok <yanok@emcraft.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __IMX27LITE_COMMON_CONFIG_H

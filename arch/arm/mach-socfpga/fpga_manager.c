@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: BSD-3-Clause
 /*
  * Copyright (C) 2012 Altera Corporation <www.altera.com>
  * All rights reserved.
  *
  * This file contains only support functions used also by the SoCFPGA
  * platform code, the real meat is located in drivers/fpga/socfpga.c .
- *
- * SPDX-License-Identifier:	BSD-3-Clause
  */
 
 #include <common.h>

@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: BSD-2-Clause */
 /******************************************************************************
  * Copyright (c) 2004, 2008 IBM Corporation
  * Copyright (c) 2009 Pattrick Hueper <phueper@hueper.net>
  * All rights reserved.
- *
- * SPDX-License-Identifier:	BSD-2-Clause
  *
  * Contributors:
  *     IBM Corporation - initial implementation

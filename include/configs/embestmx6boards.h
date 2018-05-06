@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014 Eukréa Electromatique
  * Author: Eric Bénard <eric@eukrea.com>
@@ -6,8 +7,6 @@
  *
  * based on mx6*sabre*.h which are :
  * Copyright (C) 2012 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __RIOTBOARD_CONFIG_H

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Allwinner SUNXI "glue layer"
  *
@@ -13,8 +14,6 @@
  *  Copyright (C) 2005-2006 by Texas Instruments
  *
  * This file is part of the Inventra Controller Driver for Linux.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #include <common.h>
 #include <dm.h>

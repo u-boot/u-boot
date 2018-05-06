@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Boot related environment variable definitions on TI boards.
  *
  * (C) Copyright 2017 Linaro Ltd.
  * Sam Protsenko <semen.protsenko@linaro.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __TI_BOOT_H

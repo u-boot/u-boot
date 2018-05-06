@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1+
 /*
  * This implementation is based on code from uClibc-0.9.30.3 but was
  * modified and extended for use within U-Boot.
@@ -9,8 +10,6 @@
  * Copyright (C) 1993, 1995, 1996, 1997, 2002 Free Software Foundation, Inc.
  * This file is part of the GNU C Library.
  * Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, 1993.
- *
- * SPDX-License-Identifier:	LGPL-2.1+
  */
 
 #include <errno.h>

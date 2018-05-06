@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * PXA25x UDC definitions
  *
  * Copyright (C) 2012 Łukasz Dałek <luk0104@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __REGS_USB_H__

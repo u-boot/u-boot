@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2009
  * Marvell Semiconductor <www.marvell.com>
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
  *
  * Derived from drivers/spi/mpc8xxx_spi.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __KW_SPI_H__

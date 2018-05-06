@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Masami Komiya <mkomiya@sonare.it> 2004
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __NFS_H__

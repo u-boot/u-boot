@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2008 Magnus Lilja <lilja.magnus@gmail.com>
  *
@@ -7,8 +8,6 @@
  * Kshitij Gupta <kshitij@ti.com>
  *
  * Configuration settings for the Freescale i.MX31 PDK board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

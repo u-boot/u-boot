@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Pinmux configurations for the DA850 SoCs
  *
  * Copyright (C) 2011 OMICRON electronics GmbH
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

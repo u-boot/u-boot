@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2006
  * Wolfgang Wegner, ASTRO Strobel Kommunikationssysteme GmbH,
@@ -8,8 +9,6 @@
  * and
  * Rich Ireland, Enterasys Networks, rireland@enterasys.com.
  * Keith Outwater, keith_outwater@mvis.com.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* Altera/Xilinx FPGA configuration support for the ASTRO "URMEL" board */

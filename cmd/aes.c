@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014 Marek Vasut <marex@denx.de>
  *
  * Command for en/de-crypting block of memory with AES-128-CBC cipher.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

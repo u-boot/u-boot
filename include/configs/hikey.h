@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2015 Linaro
  *
@@ -5,8 +6,6 @@
  *
  * Configuration for HiKey 96boards CE. Parts were derived from other ARM
  * configurations.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __HIKEY_H

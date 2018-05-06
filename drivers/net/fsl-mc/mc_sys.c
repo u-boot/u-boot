@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Freescale Layerscape MC I/O wrapper
  *
  * Copyright (C) 2013-2015 Freescale Semiconductor, Inc.
  * Author: German Rivera <German.Rivera@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <fsl-mc/fsl_mc_sys.h>

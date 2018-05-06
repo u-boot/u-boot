@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Broadcom Corporation.
  * Copyright 2015 Free Electrons.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

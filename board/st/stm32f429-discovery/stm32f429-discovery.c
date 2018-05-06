@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2011, 2012, 2013
  * Yuri Tikhonov, Emcraft Systems, yur@emcraft.com
@@ -7,8 +8,6 @@
  *
  * (C) Copyright 2015
  * Kamil Lulko, <kamil.lulko@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

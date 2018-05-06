@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2016 Timesys Corporation
  * Copyright (C) 2016 Advantech Corporation
  * Copyright (C) 2012 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ADVANTECH_DMSBA16_CONFIG_H

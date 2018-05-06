@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * include/configs/ulcb.h
  *     This file is ULCB board configuration.
  *
  * Copyright (C) 2017 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #ifndef __ULCB_H

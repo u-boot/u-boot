@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2011 Samsung Electronics
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 ifdef CONFIG_SPL_BUILD
 # necessary to create built-in.o

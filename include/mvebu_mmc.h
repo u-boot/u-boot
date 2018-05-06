@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Marvell MMC/SD/SDIO driver
  *
  * (C) Copyright 2012
  * Marvell Semiconductor <www.marvell.com>
  * Written-by: Maen Suleiman, Gerald Kerma
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MVEBU_MMC_H__

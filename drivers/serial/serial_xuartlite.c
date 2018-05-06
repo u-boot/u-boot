@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2008 - 2015 Michal Simek <monstr@monstr.eu>
  * Clean driver and add xilinx constant from header file
  *
  * (C) Copyright 2004 Atmark Techno, Inc.
  * Yasushi SHOJI <yashi@atmark-techno.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

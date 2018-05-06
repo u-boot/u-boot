@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * TI OMAP timer driver
  *
  * Copyright (C) 2015, Texas Instruments, Incorporated
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <common.h>

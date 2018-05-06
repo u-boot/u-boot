@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: BSD-3-Clause
 /*
  * Clock drivers for Qualcomm APQ8096
  *
  * (C) Copyright 2017 Jorge Ramirez Ortiz <jorge.ramirez-ortiz@linaro.org>
  *
  * Based on Little Kernel driver, simplified
- *
- * SPDX-License-Identifier:	BSD-3-Clause
  */
 
 #include <common.h>

@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * board/renesas/eagle/eagle.c
  *     This file is Eagle board support.
  *
  * Copyright (C) 2017 Marek Vasut <marek.vasut+renesas@gmail.com>
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <common.h>

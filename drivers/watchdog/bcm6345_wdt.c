@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
  *
  * Derived from linux/drivers/watchdog/bcm63xx_wdt.c:
  *	Copyright (C) 2007 Miguel Gaio <miguel.gaio@efixo.com>
  *	Copyright (C) 2008 Florian Fainelli <florian@openwrt.org>
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <common.h>

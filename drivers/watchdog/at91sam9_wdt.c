@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * [origin: Linux kernel drivers/watchdog/at91sam9_wdt.c]
  *
@@ -5,8 +6,6 @@
  *
  * Copyright (C) 2008 Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
  * Copyright (C) 2008 Renaud CERRATO r.cerrato@til-technologies.fr
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

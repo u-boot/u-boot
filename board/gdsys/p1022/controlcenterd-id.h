@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013
  * Reinhard Pfau, Guntermann & Drunck GmbH, reinhard.pfau@gdsys.cc
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONTROLCENTER_ID_H

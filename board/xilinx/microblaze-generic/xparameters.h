@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2007 Michal Simek
  *
  * Michal  SIMEK <monstr@monstr.eu>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * CAUTION: This file is a faked configuration !!!
  *          There is no real target for the microblaze-generic

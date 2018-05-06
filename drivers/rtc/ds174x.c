@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2001
  * ARIO Data Networks, Inc. dchiu@ariodata.com
  *
  * Based on MontaVista DS1743 code and U-Boot mc146818 code
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

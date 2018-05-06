@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2007 Stanislav Galabov <sgalabov@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * This file contains routines that fetch data from bd_info sources
  */

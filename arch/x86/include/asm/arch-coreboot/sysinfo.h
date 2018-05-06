@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
 /*
  * This file is part of the libpayload project.
  *
  * Copyright (C) 2008 Advanced Micro Devices, Inc.
- *
- * SPDX-License-Identifier:	BSD-3-Clause
  */
 
 #ifndef _COREBOOT_SYSINFO_H

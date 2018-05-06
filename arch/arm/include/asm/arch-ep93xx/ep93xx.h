@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Cirrus Logic EP93xx register definitions.
  *
@@ -18,8 +19,6 @@
  * Copyright (C) 2004 Ray Lehtiniemi
  * Copyright (C) 2003 Cirrus Logic, Inc
  * Copyright (C) 1999 ARM Limited.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #define EP93XX_AHB_BASE			0x80000000

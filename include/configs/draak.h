@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * include/configs/draak.h
  *     This file is Draak board configuration.
  *
  * Copyright (C) 2015 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #ifndef __DRAAK_H

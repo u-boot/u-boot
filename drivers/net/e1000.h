@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*******************************************************************************
 
 
   Copyright(c) 1999 - 2002 Intel Corporation. All rights reserved.
   Copyright 2011 Freescale Semiconductor, Inc.
-
- * SPDX-License-Identifier:	GPL-2.0+
 
   Contact Information:
   Linux NICS <linux.nics@intel.com>

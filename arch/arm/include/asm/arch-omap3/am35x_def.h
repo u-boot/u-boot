@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * am35x_def.h - TI's AM35x specific definitions.
  *
@@ -6,8 +7,6 @@
  * Author: Ajay Kumar Gupta <ajay.gupta@ti.com>
  *
  * Copyright (c) 2010 Texas Instruments Incorporated
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _AM35X_DEF_H_

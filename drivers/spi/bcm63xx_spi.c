@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
  *
  * Derived from linux/drivers/spi/spi-bcm63xx.c:
  *	Copyright (C) 2009-2012 Florian Fainelli <florian@openwrt.org>
  *	Copyright (C) 2010 Tanguy Bouzeloc <tanguy.bouzeloc@efixo.com>
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <common.h>

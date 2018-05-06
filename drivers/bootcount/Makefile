@@ -1,6 +1,4 @@
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
+# SPDX-License-Identifier: GPL-2.0+
 
 obj-$(CONFIG_BOOTCOUNT_GENERIC)	+= bootcount.o
 obj-$(CONFIG_BOOTCOUNT_AT91)	+= bootcount_at91.o

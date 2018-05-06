@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (c) 2016 Google, Inc
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 ifdef CONFIG_HAVE_MRC
 obj-$(CONFIG_$(SPL_)X86_32BIT_INIT) += car.o

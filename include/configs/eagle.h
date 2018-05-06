@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * include/configs/eagle.h
  *     This file is Eagle board configuration.
  *
  * Copyright (C) 2015 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #ifndef __EAGLE_H

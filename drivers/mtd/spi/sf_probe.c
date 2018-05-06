@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * SPI flash probing
  *
  * Copyright (C) 2008 Atmel Corporation
  * Copyright (C) 2010 Reinhard Meyer, EMK Elektronik
  * Copyright (C) 2013 Jagannadha Sutradharudu Teki, Xilinx Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

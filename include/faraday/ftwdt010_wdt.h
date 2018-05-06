@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Watchdog driver for the FTWDT010 Watch Dog Driver
  *
@@ -7,8 +8,6 @@
  *
  * Copyright (C) 2011 Andes Technology Corporation
  * Macpaul Lin, Andes Technology Corporation <macpaul@andestech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * 27/11/2004 Initial release, Faraday.
  * 12/01/2011 Port to u-boot, Macpaul Lin.

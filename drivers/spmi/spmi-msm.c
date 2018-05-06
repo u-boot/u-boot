@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: BSD-3-Clause
 /*
  * Qualcomm SPMI bus driver
  *
  * (C) Copyright 2015 Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
  *
  * Loosely based on Little Kernel driver
- *
- * SPDX-License-Identifier:	BSD-3-Clause
  */
 
 #include <common.h>

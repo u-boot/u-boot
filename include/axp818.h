@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2015 Vishnu Patekar <vishnupatekar0510@gmail.com>
  *
  * X-Powers AXP818 Power Management IC driver
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #define AXP818_CHIP_ID		0x03

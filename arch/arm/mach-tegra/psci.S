@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014, NVIDIA
  * Copyright (C) 2015, Siemens AG
@@ -5,8 +6,6 @@
  * Authors:
  *  Thierry Reding <treding@nvidia.com>
  *  Jan Kiszka <jan.kiszka@siemens.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <linux/linkage.h>

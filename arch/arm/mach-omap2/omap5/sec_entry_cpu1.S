@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Secure entry function for CPU Core #1
  *
@@ -6,8 +7,6 @@
  *
  * Author :
  *	Harinarayan Bhatta <harinarayan@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

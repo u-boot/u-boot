@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Board specific setup info
  *
@@ -7,8 +8,6 @@
  * Initial Code by:
  * Richard Woodruff <r-woodruff2@ti.com>
  * Syed Mohammed Khasim <khasim@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

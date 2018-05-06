@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2003
  * David Müller ELSOFT AG Switzerland. d.mueller@elsoft.ch
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

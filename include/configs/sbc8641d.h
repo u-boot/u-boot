@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2007 Wind River Systems <www.windriver.com>
  * Copyright 2007 Embedded Specialties, Inc.
@@ -6,8 +7,6 @@
  * Copyright 2006 Freescale Semiconductor.
  *
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

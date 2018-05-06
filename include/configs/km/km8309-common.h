@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2012 Keymile AG
  *                    Gerlando Falauto <gerlando.falauto@keymile.com>
  *
  * Based on km8321-common.h, see respective copyright notice for credits
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_KM8309_COMMON_H

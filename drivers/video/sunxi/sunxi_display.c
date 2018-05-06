@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Display driver for Allwinner SoCs.
  *
  * (C) Copyright 2013-2014 Luc Verhaegen <libv@skynet.be>
  * (C) Copyright 2014-2015 Hans de Goede <hdegoede@redhat.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

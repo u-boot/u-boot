@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * MIPS Coherence Manager (CM) Initialisation
  *
  * Copyright (c) 2016 Imagination Technologies Ltd.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/addrspace.h>

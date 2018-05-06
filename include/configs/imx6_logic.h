@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2017 Logic PD, Inc.
  *
  * Configuration settings for the LogicPD i.MX6 SOM.
- *
- * SPDX-License-Identifier:    GPL-2.0+
  */
 
 #ifndef __IMX6LOGIC_CONFIG_H

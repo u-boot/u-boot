@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
  *
@@ -12,8 +13,6 @@
  * (C) Copyright 2003 - 2004
  * Sysgo Real-Time Solutions, AG <www.elinos.com>
  * Pavel Bartusek <pba@sysgo.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

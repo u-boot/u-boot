@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2007, Guennadi Liakhovetski <lg@denx.de>
  *
  * (C) Copyright 2008-2010 Freescale Semiconductor, Inc.
  *
  * Copyright (C) 2011, Stefano Babic <sbabic@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

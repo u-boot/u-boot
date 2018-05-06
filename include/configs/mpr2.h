@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for MPR2
  *
  * Copyright (C) 2008
  * Mark Jonas <mark.jonas@de.bosch.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MPR2_H

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  *  linux/arch/arm/lib/div64.S
  *
@@ -6,8 +7,6 @@
  *  Author:	Nicolas Pitre
  *  Created:	Oct 5, 2003
  *  Copyright:	Monta Vista Software, Inc.
- *
- *  SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <linux/linkage.h>

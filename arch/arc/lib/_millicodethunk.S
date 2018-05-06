@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 1995, 1997, 2007-2013 Free Software Foundation, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
  /* ANSI concatenation macros.  */

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /* Freescale Enhanced Local Bus Controller FCM NAND driver
  *
  * Copyright (c) 2006-2008 Freescale Semiconductor
  *
  * Authors: Nick Spence <nick.spence@freescale.com>,
  *          Scott Wood <scottwood@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

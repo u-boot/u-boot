@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2017
  *
  * Eddie Cai <eddie.cai.linux@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <config.h>
 #include <common.h>

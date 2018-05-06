@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2016
  * Vikas Manocha, <vikas.manocha@st.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _STM32_GPIO_H_

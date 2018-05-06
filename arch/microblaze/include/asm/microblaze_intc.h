@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2007 Michal Simek
  *
  * Michal  SIMEK <monstr@monstr.cz>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 typedef volatile struct microblaze_intc_t {

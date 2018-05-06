@@ -1,11 +1,9 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # (C) Copyright 2011 Freescale Semiconductor, Inc.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 ifeq ($(SOC),$(filter $(SOC),mx25 mx35 mx5 mx6 mx7 mx8m vf610))
 obj-y	= iomux-v3.o

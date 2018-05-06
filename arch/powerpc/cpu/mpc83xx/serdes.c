@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Freescale SerDes initialization routine
  *
@@ -5,8 +6,6 @@
  * Copyright (C) 2008 MontaVista Software, Inc.
  *
  * Author: Li Yang <leoli@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

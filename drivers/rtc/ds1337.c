@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2001-2008
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  * Keith Outwater, keith_outwater@mvis.com`
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

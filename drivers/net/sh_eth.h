@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * sh_eth.h - Driver for Renesas SuperH ethernet controller.
  *
  * Copyright (C) 2008 - 2012 Renesas Solutions Corp.
  * Copyright (c) 2008 - 2012 Nobuhiro Iwamatsu
  * Copyright (c) 2007 Carlos Munoz <carlos@kenati.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <netdev.h>

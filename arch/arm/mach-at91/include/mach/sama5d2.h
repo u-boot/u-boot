@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Chip-specific header file for the SAMA5D2 SoC
  *
  * Copyright (C) 2015 Atmel
  *		      Wenyou Yang <wenyou.yang@atmel.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __SAMA5D2_H

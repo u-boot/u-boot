@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Watchdog driver for Broadcom BCM2835
  *
  * Copyright (C) 2017 Paolo Pisati <p.pisati@gmail.com>
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #include <common.h>

@@ -1,8 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2017 Toradex AG
  *
  * FSL DCU platform driver
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/crm_regs.h>

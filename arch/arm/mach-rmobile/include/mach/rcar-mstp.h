@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * arch/arm/include/asm/arch-rmobile/rcar-mstp.h
  *
  * Copyright (C) 2013, 2014 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
  * Copyright (C) 2013, 2014 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef __ASM_ARCH_RCAR_MSTP_H

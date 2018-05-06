@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * arch/arm/cpu/armv7/rmobile/pfc-r8a7793.c
  *
  * Copyright (C) 2013 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #include <common.h>

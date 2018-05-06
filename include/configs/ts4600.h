@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2016 Savoir-faire Linux Inc.
  *
@@ -8,8 +9,6 @@
  *   Freescale Semiconductor, Inc.
  *
  * Configuration settings for the TS4600 Board
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __CONFIGS_TS4600_H__
 #define __CONFIGS_TS4600_H__

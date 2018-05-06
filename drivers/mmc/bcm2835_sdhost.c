@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * bcm2835 sdhost driver.
  *
@@ -27,8 +28,6 @@
  *  sdhci-bcm2708.c by Broadcom
  *  sdhci-bcm2835.c by Stephen Warren and Oleksandr Tymoshenko
  *  sdhci.c and sdhci-pci.c by Pierre Ossman
- *
- * SPDX-License-Identifier:    GPL-2.0
  */
 #include <clk.h>
 #include <common.h>

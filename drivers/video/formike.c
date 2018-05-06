@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * LCD: Formike, TFT 4.3", 480x800, RGB24, KWH043ST20-F01, DriverIC NT35510-16
  * LCD initialization via SPI
- *
- * SPDX-License-Identifier:	GPL-2.0
  * Based on:
  *
  */

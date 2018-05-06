@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2008 - 2009 Windriver, <www.windriver.com>
  * Author: Tom Rix <Tom.Rix@windriver.com>
  *
  * (C) Copyright 2014 Linaro, Ltd.
  * Rob Herring <robh@kernel.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <command.h>

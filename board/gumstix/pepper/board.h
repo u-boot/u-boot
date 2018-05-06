@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Gumstix Pepper and AM335x-based boards information header
  *
  * Copyright (C) 2014, Gumstix, Inc. - http://www.gumstix.com/
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef _BOARD_H_

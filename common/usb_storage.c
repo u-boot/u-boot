@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Most of this source has been derived from the Linux USB
  * project:
@@ -17,8 +18,6 @@
  *
  * BBB support based on /sys/dev/usb/umass.c from
  * FreeBSD.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* Note:

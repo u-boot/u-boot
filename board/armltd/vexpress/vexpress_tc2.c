@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2016 Linaro
  * Jon Medhurst <tixy@linaro.org>
  *
  * TC2 specific code for Versatile Express.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/armv7.h>

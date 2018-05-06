@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2016 Google, Inc
  * (C) Copyright 2008-2014 Rockchip Electronics
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef _ASM_ARCH_PWM_H

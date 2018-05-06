@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*-------------------------------------------------------------------------
  * Filename:      mini_inflate.c
  * Version:       $Id: mini_inflate.c,v 1.3 2002/01/24 22:58:42 rfeany Exp $
@@ -5,9 +6,6 @@
  * Author:        Russ Dill <Russ.Dill@asu.edu>
  * Description:   Mini inflate implementation (RFC 1951)
  *-----------------------------------------------------------------------*/
-/*
- * SPDX-License-Identifier:	GPL-2.0+
- */
 
 #include <config.h>
 #include <jffs2/mini_inflate.h>

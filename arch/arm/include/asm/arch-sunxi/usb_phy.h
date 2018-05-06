@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Sunxi usb-phy code
  *
@@ -6,8 +7,6 @@
  *
  * Based on code from
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 int sunxi_usb_phy_probe(void);

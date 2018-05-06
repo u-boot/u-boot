@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2009 Jens Scharsig (js_at_ng@scharsoft.de)
  *
  * based on AT91RM9200 datasheet revision I (36. Ethernet MAC (EMAC))
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef AT91_H

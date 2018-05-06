@@ -1,9 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2007
 # Stefan Roese, DENX Software Engineering, sr@denx.de.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-$(CONFIG_SYS_FPGA_COMMON) += fpga.o
 obj-$(CONFIG_CMD_IOLOOP) += cmd_ioloop.o

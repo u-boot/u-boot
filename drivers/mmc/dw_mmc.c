@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2012 SAMSUNG Electronics
  * Jaehoon Chung <jh80.chung@samsung.com>
  * Rajeshawari Shinde <rajeshwari.s@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <bouncebuf.h>

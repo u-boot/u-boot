@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2015 Xilinx, Inc.
  *
@@ -6,8 +7,6 @@
  * Author: Siva Durga Prasad Paladugu<sivadur@xilinx.com>
  *
  * This file was reused from Freescale USB xHCI
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

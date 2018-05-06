@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Operating System Interface
  *
@@ -5,7 +6,6 @@
  * They are kept in a separate file so we can include system headers.
  *
  * Copyright (c) 2011 The Chromium OS Authors.
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __OS_H__

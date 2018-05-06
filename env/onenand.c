@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2010 DENX Software Engineering
  * Wolfgang Denk <wd@denx.de>
  *
  * (C) Copyright 2005-2009 Samsung Electronics
  * Kyungmin Park <kyungmin.park@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

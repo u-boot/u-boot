@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * based on a the Linux rtc-m41t80.c driver which is:
  *   Alexander Bigga <ab@mycable.de>, 2006 (c) mycable GmbH
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

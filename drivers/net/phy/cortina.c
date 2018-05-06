@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Cortina CS4315/CS4340 10G PHY drivers
- *
- * SPDX-License-Identifier:     GPL-2.0+
  *
  * Copyright 2014 Freescale Semiconductor, Inc.
  * Copyright 2018 NXP

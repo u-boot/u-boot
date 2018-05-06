@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Startup Code for RISC-V Core
  *
@@ -6,8 +7,6 @@
  *
  * Copyright (C) 2017 Andes Technology Corporation
  * Rick Chen, Andes Technology Corporation <rick@andestech.com>
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <asm-offsets.h>

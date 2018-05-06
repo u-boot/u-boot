@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * From coreboot file of same name
  *
  * Copyright (C) 2014 Google, Inc
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _ARCH_ASM_LAPIC_H

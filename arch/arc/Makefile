@@ -1,6 +1,4 @@
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
+# SPDX-License-Identifier: GPL-2.0+
 
 libs-y += arch/arc/cpu/$(CPU)/
 libs-y += arch/arc/lib/

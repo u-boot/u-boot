@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011 CompuLab, Ltd.
  * Mike Rapoport <mike@compulab.co.il>
@@ -10,8 +11,6 @@
  * Syed Mohammed Khasim <x0khasim@ti.com>
  *
  * Configuration settings for the CompuLab CM-T35 and CM-T3730 boards
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Procedures for maintaining information about logical memory blocks.
  *
  * Peter Bergner, IBM Corp.	June 2001.
  * Copyright (C) 2001 Peter Bergner.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

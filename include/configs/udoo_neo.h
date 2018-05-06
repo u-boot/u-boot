@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
  * Copyright Jasbir Matharu
  * Copyright 2015 UDOO Team
  *
  * Configuration settings for the UDOO NEO board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

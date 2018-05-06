@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) Freescale Semiconductor, Inc. 2006, 2010.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 /*
  * mpc8313epb board configuration file

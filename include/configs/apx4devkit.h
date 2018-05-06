@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2012 Bluegiga Technologies Oy
  *
@@ -8,8 +9,6 @@
  * Based on m28evk.h:
  * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
  * on behalf of DENX Software Engineering GmbH
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __CONFIGS_APX4DEVKIT_H__
 #define __CONFIGS_APX4DEVKIT_H__

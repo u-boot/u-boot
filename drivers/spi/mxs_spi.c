@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Freescale i.MX28 SPI driver
  *
  * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
  * on behalf of DENX Software Engineering GmbH
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * NOTE: This driver only supports the SPI-controller chipselects,
  *       GPIO driven chipselects are not supported.

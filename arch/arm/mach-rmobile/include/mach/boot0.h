@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Specialty padding for the RCar Gen2 SPL JTAG loading
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef __BOOT0_H

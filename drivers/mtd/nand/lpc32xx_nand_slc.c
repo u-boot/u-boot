@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * LPC32xx SLC NAND flash controller driver
  *
@@ -8,8 +9,6 @@
  * Author: Kevin Wells
  *
  * Copyright (c) 2015 Tyco Fire Protection Products.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

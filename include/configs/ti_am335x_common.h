@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * ti_am335x_common.h
  *
  * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * For more details, please see the technical documents listed at
  * http://www.ti.com/product/am3359#technicaldocuments

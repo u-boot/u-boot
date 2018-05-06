@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Error Corrected Code Controller (ECC) - System peripherals regsters.
  * Based on AT91SAM9260 datasheet revision B.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef ATMEL_NAND_ECC_H

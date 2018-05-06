@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Common definitions for LPC32XX board configurations
  *
  * Copyright (C) 2011-2015 Vladimir Zapolskiy <vz@mleia.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _LPC32XX_CONFIG_H

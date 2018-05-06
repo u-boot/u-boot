@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2009 Wind River Systems, Inc.
  * Tom Rix <Tom.Rix@windriver.com>
@@ -12,8 +13,6 @@
  * Author: Thomas Abraham t-abraham@ti.com, Texas Instruments
  *
  * --------------------------------------------------------------------
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _MUSB_OMAP3_H_
 #define _MUSB_OMAP3_H_

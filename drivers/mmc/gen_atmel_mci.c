@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2010
  * Rob Emanuele <rob@emanuele.us>
@@ -5,8 +6,6 @@
  *
  * Original Driver:
  * Copyright (C) 2004-2006 Atmel Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

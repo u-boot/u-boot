@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *
  * Congatec Conga-QEVAl board configuration file.
@@ -6,8 +7,6 @@
  * Based on Freescale i.MX6Q Sabre Lite board configuration file.
  * Copyright (C) 2013, Adeneo Embedded <www.adeneo-embedded.com>
  * Leo Sartre, <lsartre@adeneo-embedded.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_CGTQMX6EVAL_H

@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0
 /*-
  * Copyright (c) 2007-2008, Juniper Networks, Inc.
  * All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

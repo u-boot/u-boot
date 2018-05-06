@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for the Renesas RSK2+SH7269 board
  *
  * Copyright (C) 2012 Renesas Electronics Europe Ltd.
  * Copyright (C) 2012 Phil Edworthy
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __RSK7269_H

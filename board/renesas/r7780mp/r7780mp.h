@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2007 Nobuhiro Iwamatsu
  * Copyright (C) 2008 Yusuke Goda <goda.yusuke@renesas.com>
  *
  * u-boot/board/r7780mp/r7780mp.h
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _BOARD_R7780MP_R7780MP_H_

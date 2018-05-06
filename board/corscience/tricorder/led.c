@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2013 Corscience GmbH & Co.KG
  * Andreas Bießmann <andreas.biessmann@corscience.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <status_led.h>

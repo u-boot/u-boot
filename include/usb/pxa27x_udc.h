@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * PXA27x register declarations and HCD data structures
  *
  * Copyright (C) 2007 Rodolfo Giometti <giometti@linux.it>
  * Copyright (C) 2007 Eurotech S.p.A. <info@eurotech.it>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 

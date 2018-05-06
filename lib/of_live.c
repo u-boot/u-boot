@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2009 Benjamin Herrenschmidt, IBM Corp
  * benh@kernel.crashing.org
@@ -5,8 +6,6 @@
  * Based on parts of drivers/of/fdt.c from Linux v4.9
  * Modifications for U-Boot
  * Copyright (c) 2017 Google, Inc
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

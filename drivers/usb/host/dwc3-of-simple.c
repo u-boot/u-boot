@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * dwc3-of-simple.c - OF glue layer for simple integrations
  *
@@ -7,8 +8,6 @@
  *
  * Copyright (C) 2018 BayLibre, SAS
  * Author: Neil Armstrong <narmstron@baylibre.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>

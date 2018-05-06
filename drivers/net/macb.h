@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2005-2006 Atmel Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __DRIVERS_MACB_H__
 #define __DRIVERS_MACB_H__

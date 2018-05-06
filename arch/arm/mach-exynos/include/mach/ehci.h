@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * SAMSUNG EXYNOS USB HOST EHCI Controller
  *
  * Copyright (C) 2012 Samsung Electronics Co.Ltd
  *	Vivek Gautam <gautam.vivek@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_ARM_ARCH_EHCI_H__

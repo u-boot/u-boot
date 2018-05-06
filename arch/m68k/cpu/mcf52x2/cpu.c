@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2003
  * Josef Baumgartner <josef.baumgartner@telex.de>
@@ -10,8 +11,6 @@
  * Copyright (C) 2008 Arthur Shipkowski (art@videon-central.com)
  *
  * Copyright (C) 2012 Freescale Semiconductor, Inc. All Rights Reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

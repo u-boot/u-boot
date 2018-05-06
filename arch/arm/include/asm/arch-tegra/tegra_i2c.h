@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * NVIDIA Tegra I2C controller
  *
  * Copyright 2010-2011 NVIDIA Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _TEGRA_I2C_H_

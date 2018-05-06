@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * fat.c
  *
@@ -5,8 +6,6 @@
  *
  * 2002-07-28 - rjones@nexus-tech.net - ported to ppcboot v1.1.6
  * 2003-03-10 - kharris@nexus-tech.net - ported to uboot
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

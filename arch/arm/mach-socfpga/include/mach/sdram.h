@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright Altera Corporation (C) 2014-2015
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef	_SDRAM_H_
 #define	_SDRAM_H_

@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Based on acpi.c from coreboot
  *
  * Copyright (C) 2015, Saket Sinha <saket.sinha89@gmail.com>
  * Copyright (C) 2016, Bin Meng <bmeng.cn@gmail.com>
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #define RSDP_SIG		"RSD PTR "	/* RSDP pointer signature */

@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2015 Google, Inc
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-$(CONFIG_EFI_APP) += efi_app.o efi.o
 obj-$(CONFIG_EFI_STUB) += efi_info.o

@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * include/linker_lists.h
  *
  * Implementation of linker-generated arrays
  *
  * Copyright (C) 2012 Marek Vasut <marex@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __LINKER_LISTS_H__

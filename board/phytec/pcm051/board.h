@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * board.h
  *
@@ -5,8 +6,6 @@
  *
  * Copyright (C) 2013, Lemonage Software GmbH
  * Author Lars Poeschel <poeschel@lemonage.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _BOARD_H_

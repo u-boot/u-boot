@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *
  * Configuration settings for the Armadeus Project motherboard APF27
  *
  * Copyright (C) 2008-2013 Eric Jarrige <eric.jarrige@armadeus.org>
- *
- * SPDX-License-Identifier:    GPL-2.0+
  */
 
 #ifndef __CONFIG_H

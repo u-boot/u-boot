@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2012 The Chromium OS Authors.
  *
  * TSC calibration codes are adapted from Linux kernel
  * arch/x86/kernel/tsc_msr.c and arch/x86/kernel/tsc.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

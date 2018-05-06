@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /**
  * gadget.h - DesignWare USB3 DRD Gadget Header
  *
@@ -11,8 +12,6 @@
  *
  * commit 7a60855972 : usb: dwc3: gadget: fix set_halt() bug with pending
 		       transfers
- *
- * SPDX-License-Identifier:     GPL-2.0
  *
  */
 

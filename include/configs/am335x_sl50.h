@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * am335x_sl50.h
  *
  * Copyright (C) 2015 Toby Churchill Ltd - http://www.toby-churchill.com/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_AM335X_EVM_H

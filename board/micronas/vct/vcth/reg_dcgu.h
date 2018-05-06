@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2008-2009 Stefan Roese <sr@denx.de>, DENX Software Engineering
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #define DCGU_BASE		0x00084000

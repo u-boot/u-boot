@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * am3517crane.h - Header file for the AM3517 CraneBoard.
  *
@@ -6,8 +7,6 @@
  * Based on logicpd/am3517evm/am3517evm.h
  *
  * Copyright (C) 2011 Mistral Solutions Pvt Ltd
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _AM3517CRANE_H_

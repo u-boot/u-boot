@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * GTBUS initialisation
  *
  * (C) Copyright 2016 Theobroma Systems Design und Consulting GmbH
  *                    Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SUNXI_GTBUS_H

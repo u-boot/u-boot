@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *
  * HW regs data for OMAP5 Soc
@@ -6,8 +7,6 @@
  * Texas Instruments, <www.ti.com>
  *
  * Sricharan R <r.sricharan@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/omap_common.h>

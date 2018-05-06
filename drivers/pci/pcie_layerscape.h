@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2017 NXP
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
  * Layerscape PCIe driver
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _PCIE_LAYERSCAPE_H_

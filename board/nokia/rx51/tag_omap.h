@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011-2012
  * Pali Rohár <pali.rohar@gmail.com>
@@ -7,8 +8,6 @@
  *
  * (C) Copyright 2004-2005
  * Nokia Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 

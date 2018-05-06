@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2000-2013
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -6,8 +7,6 @@
  * Andreas Heppel <aheppel@sysgo.de>
  *
  * Copyright 2011 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

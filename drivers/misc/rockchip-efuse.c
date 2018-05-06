@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * eFuse driver for Rockchip devices
  *
  * Copyright 2017, Theobroma Systems Design und Consulting GmbH
  * Written by Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

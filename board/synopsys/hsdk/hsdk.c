@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2018 Synopsys, Inc. All rights reserved.
  * Author: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

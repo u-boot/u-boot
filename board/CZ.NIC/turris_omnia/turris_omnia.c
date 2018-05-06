@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Marek Behun <marek.behun@nic.cz>
  * Copyright (C) 2016 Tomas Hlavacek <tomas.hlavacek@nic.cz>
  *
  * Derived from the code for
  *   Marvell/db-88f6820-gp by Stefan Roese <sr@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

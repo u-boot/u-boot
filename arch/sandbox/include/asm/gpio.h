@@ -1,9 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * This is the interface to the sandbox GPIO driver for test code which
  * wants to change the GPIO values reported to U-Boot.
  *
  * Copyright (c) 2011 The Chromium OS Authors.
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_SANDBOX_GPIO_H

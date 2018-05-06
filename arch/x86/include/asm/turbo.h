@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * From coreboot file of the same name
  *
  * Copyright (C) 2011 The ChromiumOS Authors. All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _ASM_TURBO_H

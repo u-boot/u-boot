@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 1994 - 1999 by Ralf Baechle
  * Copyright (C) 1996 by Paul M. Antoine
@@ -8,8 +9,6 @@
  *
  * Kevin D. Kissell, kevink@mips.org and Carsten Langgaard, carstenl@mips.com
  * Copyright (C) 2000 MIPS Technologies, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef _ASM_SYSTEM_H
 #define _ASM_SYSTEM_H

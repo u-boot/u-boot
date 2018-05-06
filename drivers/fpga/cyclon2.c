@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2006
  * Heiko Schocher, hs@denx.de
  * Based on ACE1XK.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>		/* core U-Boot definitions */

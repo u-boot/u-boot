@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2016-17 Microsemi Corporation.
  * Padmarao Begari, Microsemi Corporation <padmarao.begari@microsemi.com>
  *
  * Copyright (C) 2017 Andes Technology Corporation
  * Rick Chen, Andes Technology Corporation <rick@andestech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

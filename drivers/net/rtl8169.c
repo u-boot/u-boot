@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * rtl8169.c : U-Boot driver for the RealTek RTL8169
  *
@@ -10,8 +11,6 @@
 /**************************************************************************
 *    r8169.c: Etherboot device driver for the RealTek RTL-8169 Gigabit
 *    Written 2003 by Timothy Legge <tlegge@rogers.com>
-*
- * SPDX-License-Identifier:	GPL-2.0+
 *
 *    Portions of this code based on:
 *	r8169.c: A RealTek RTL-8169 Gigabit Ethernet driver

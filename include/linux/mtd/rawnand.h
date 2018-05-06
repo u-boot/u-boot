@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  Copyright © 2000-2010 David Woodhouse <dwmw2@infradead.org>
  *                        Steven J. Hill <sjhill@realitydiluted.com>
  *		          Thomas Gleixner <tglx@linutronix.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Info:
  *	Contains standard defines and IDs for NAND flash devices

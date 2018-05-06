@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2011 Michal Simek <monstr@monstr.eu>
  * Copyright (C) 2011 PetaLogix
  * Copyright (C) 2010 Xilinx, Inc. All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

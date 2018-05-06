@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2004-2007 ARM Limited.
  * Copyright (C) 2008 Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
  * Copyright (C) 2015 - 2016 Xilinx, Inc, Michal Simek
- *
- * SPDX-License-Identifier:	GPL-2.0
  *
  * As a special exception, if other files instantiate templates or use macros
  * or inline functions from this file, or you compile this file and link it

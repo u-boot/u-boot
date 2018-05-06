@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2017 Armadeus Systems
  *
  * Configuration settings for the OPOS6ULDev board
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __OPOS6ULDEV_CONFIG_H

@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2004, 2007, 2011 Freescale Semiconductor.
  * Srikanth Srinivasan <srikanth.srinivaan@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*  U-Boot - Startup Code for 86xx PowerPC based Embedded Boards

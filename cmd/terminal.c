@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2007 OpenMoko, Inc.
  * Written by Harald Welte <laforge@openmoko.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

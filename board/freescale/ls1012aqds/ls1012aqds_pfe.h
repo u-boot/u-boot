@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2017 NXP
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #define ETH_1_1G_BUS_ID		0x1

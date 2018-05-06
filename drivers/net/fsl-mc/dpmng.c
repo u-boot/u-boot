@@ -1,6 +1,5 @@
+// SPDX-License-Identifier: GPL-2.0+
 /* Copyright 2013-2015 Freescale Semiconductor Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <fsl-mc/fsl_mc_sys.h>
 #include <fsl-mc/fsl_mc_cmd.h>

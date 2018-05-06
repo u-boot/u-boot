@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2007 (C)
  * Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
@@ -6,8 +7,6 @@
  * Mark Jonas <mark.jonas@de.bosch.com>
  *
  * SH7720 Internal I/O register
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _ASM_CPU_SH7720_H_

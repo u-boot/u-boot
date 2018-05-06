@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * R/O (V)FAT 12/16/32 filesystem implementation by Marcus Sundberg
  *
  * 2002-07-28 - rjones@nexus-tech.net - ported to ppcboot v1.1.6
  * 2003-03-10 - kharris@nexus-tech.net - ported to u-boot
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _FAT_H_

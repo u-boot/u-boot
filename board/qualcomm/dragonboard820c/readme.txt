@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2017 Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 ================================================================================
              What is working (enough to boot a distro from SD card)

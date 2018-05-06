@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * pic32_mdio.c: PIC32 MDIO/MII driver, part of pic32_eth.c.
  *
  * Copyright 2015 Microchip Inc.
  *	Purna Chandra Mandal <purna.mandal@microchip.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <phy.h>

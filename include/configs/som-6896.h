@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration settings for the SOM-6896
  *
  * Copyright (C) 2015 NovaTech LLC
  * George McCollister <george.mccollister@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

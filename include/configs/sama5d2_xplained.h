@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration file for the SAMA5D2 Xplained Board.
  *
  * Copyright (C) 2015 Atmel Corporation
  *		      Wenyou Yang <wenyou.yang@atmel.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

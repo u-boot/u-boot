@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2010 Albert ARIBAUD <albert.u.boot@aribaud.net>
  *
@@ -7,8 +8,6 @@
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
  *
  * Header file for Marvell's Orion SoC with Feroceon CPU core.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _ASM_ARCH_ORION5X_H

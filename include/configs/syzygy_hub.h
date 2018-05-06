@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2012 Xilinx
  * (C) Copyright 2017 Opal Kelly Inc.
  *
  * Configuration settings for the SYZYGY Hub development board
  * See zynq-common.h for Zynq common configs
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_SYZYGY_HUB_H

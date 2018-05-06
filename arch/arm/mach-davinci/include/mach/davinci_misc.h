@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2008 Lyrtech <www.lyrtech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MISC_H

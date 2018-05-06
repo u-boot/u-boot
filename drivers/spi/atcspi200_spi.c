@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Andestech ATCSPI200 SPI controller driver.
  *
  * Copyright 2017 Andes Technology, Inc.
  * Author: Rick Chen (rick@andestech.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <clk.h>

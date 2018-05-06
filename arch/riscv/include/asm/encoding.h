@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2017 Microsemi Corporation.
  * Padmarao Begari, Microsemi Corporation <padmarao.begari@microsemi.com>
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #ifndef RISCV_CSR_ENCODING_H

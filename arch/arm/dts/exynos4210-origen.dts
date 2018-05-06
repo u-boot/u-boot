@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Samsung's Exynos4210 based Origen board device tree source
  *
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /dts-v1/;
