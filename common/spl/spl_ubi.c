@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 /*
  * Copyright (C) 2016
  * Ladislav Michl <ladis@linux-mips.org>
- *
- * SPDX-License-Identifier: GPL 2.0+ BSD-3-Clause
  */
 
 #include <common.h>

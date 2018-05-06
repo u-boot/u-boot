@@ -1,6 +1,5 @@
+/* SPDX-License-Identifier: GPL-2.0 OR IBM-pibs */
 /*
- * SPDX-License-Identifier:	GPL-2.0	IBM-pibs
- *
  * Additions (C) Copyright 2009 Industrie Dial Face S.p.A.
  */
 /*----------------------------------------------------------------------------+

@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
 /*
  * Copyright (c) 2016 Heiko Stuebner <heiko@sntech.de>
- *
- * SPDX-License-Identifier:     GPL-2.0+ X11
  */
 
 #include "rk3288.dtsi"

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 /*
  * f_mass_storage.c -- Mass Storage USB Composite Function
  *
@@ -5,8 +6,6 @@
  * Copyright (C) 2009 Samsung Electronics
  *                    Author: Michal Nazarewicz <m.nazarewicz@samsung.com>
  * All rights reserved.
- *
- * SPDX-License-Identifier: GPL-2.0+	BSD-3-Clause
  */
 
 /*

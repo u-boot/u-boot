@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
 /*
  * Copyright 2014 Toradex AG
- *
- * SPDX-License-Identifier:     GPL-2.0+ or X11
  */
 #include "vf.dtsi"
 

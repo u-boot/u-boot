@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause */
 /*
  * Copyright (C) 2015-2017, STMicroelectronics - All Rights Reserved
- *
- * SPDX-License-Identifier:	GPL-2.0+	BSD-3-Clause
  */
 
 #define CPU_STMP32MP15x	0x500

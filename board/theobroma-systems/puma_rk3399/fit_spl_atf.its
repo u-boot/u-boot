@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ OR X11 */
 /*
  * Copyright (C) 2017 Theobroma Systems Design und Consulting GmbH
  *
  * Minimal dts for a SPL FIT image payload.
- *
- * SPDX-License-Identifier: GPL-2.0+  X11
  */
 
 /dts-v1/;

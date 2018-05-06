@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
 /*
  * Copyright 2016 Beckhoff Automation
  * Copyright 2011 Freescale Semiconductor, Inc.
  * Copyright 2011 Linaro Ltd.
- *
- * SPDX-License-Identifier:     GPL-2.0+ or X11
  */
 
 /dts-v1/;

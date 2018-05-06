@@ -1,8 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+ OR BSD-2-Clause
 /*
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2013 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
- * SPDX-License-Identifier:	GPL-2.0+ BSD-2-Clause
  */
 
 #include <linux/libfdt_env.h>
