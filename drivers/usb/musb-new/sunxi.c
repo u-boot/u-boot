@@ -77,6 +77,8 @@
 
 struct sunxi_musb_config {
 	struct musb_hdrc_config *config;
+	u8 rst_bit;
+	u8 clkgate_bit;
 };
 
 struct sunxi_glue {
@@ -274,9 +276,16 @@ static int sunxi_musb_init(struct musb *musb)
 	musb->isr = sunxi_musb_interrupt;
 
 	setbits_le32(&glue->ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_USB0);
+	if (glue->cfg->clkgate_bit)
+		setbits_le32(&glue->ccm->ahb_gate0,
+			     1 << glue->cfg->clkgate_bit);
 #ifdef CONFIG_SUNXI_GEN_SUN6I
 	setbits_le32(&glue->ccm->ahb_reset0_cfg, 1 << AHB_GATE_OFFSET_USB0);
+	if (glue->cfg->rst_bit)
+		setbits_le32(&glue->ccm->ahb_reset0_cfg,
+			     1 << glue->cfg->rst_bit);
 #endif
+
 	sunxi_usb_phy_init(0);
 
 	USBC_ConfigFIFO_Base();
@@ -407,8 +416,14 @@ static int musb_usb_remove(struct udevice *dev)
 	sunxi_usb_phy_exit(0);
 #ifdef CONFIG_SUNXI_GEN_SUN6I
 	clrbits_le32(&glue->ccm->ahb_reset0_cfg, 1 << AHB_GATE_OFFSET_USB0);
+	if (glue->cfg->rst_bit)
+		clrbits_le32(&glue->ccm->ahb_reset0_cfg,
+			     1 << glue->cfg->rst_bit);
 #endif
 	clrbits_le32(&glue->ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_USB0);
+	if (glue->cfg->clkgate_bit)
+		clrbits_le32(&glue->ccm->ahb_gate0,
+			     1 << glue->cfg->clkgate_bit);
 
 	free(host->host);
 	host->host = NULL;
@@ -422,6 +437,8 @@ static const struct sunxi_musb_config sun4i_a10_cfg = {
 
 static const struct sunxi_musb_config sun8i_h3_cfg = {
 	.config = &musb_config_h3,
+	.rst_bit = 23,
+	.clkgate_bit = 23,
 };
 
 static const struct udevice_id sunxi_musb_ids[] = {
