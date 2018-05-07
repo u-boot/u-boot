@@ -57,6 +57,7 @@
 
 enum sun4i_usb_phy_type {
 	sun8i_h3_phy,
+	sun8i_v3s_phy,
 	sun50i_a64_phy,
 };
 
@@ -424,6 +425,15 @@ static const struct sun4i_usb_phy_cfg sun8i_h3_cfg = {
 	.phy0_dual_route = true,
 };
 
+static const struct sun4i_usb_phy_cfg sun8i_v3s_cfg = {
+	.num_phys = 1,
+	.type = sun8i_v3s_phy,
+	.disc_thresh = 3,
+	.phyctl_offset = REG_PHYCTL_A33,
+	.enable_pmu_unk1 = true,
+	.phy0_dual_route = true,
+};
+
 static const struct sun4i_usb_phy_cfg sun50i_a64_cfg = {
 	.num_phys = 2,
 	.type = sun50i_a64_phy,
@@ -435,6 +445,7 @@ static const struct sun4i_usb_phy_cfg sun50i_a64_cfg = {
 
 static const struct udevice_id sun4i_usb_phy_ids[] = {
 	{ .compatible = "allwinner,sun8i-h3-usb-phy", .data = (ulong)&sun8i_h3_cfg },
+	{ .compatible = "allwinner,sun8i-v3s-usb-phy", .data = (ulong)&sun8i_v3s_cfg },
 	{ .compatible = "allwinner,sun50i-a64-usb-phy", .data = (ulong)&sun50i_a64_cfg},
 	{ }
 };
