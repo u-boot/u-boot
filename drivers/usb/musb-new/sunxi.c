@@ -17,10 +17,11 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <generic-phy.h>
+#include <phy-sun4i-usb.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch/usb_phy.h>
 #include <asm-generic/gpio.h>
 #include <dm/lists.h>
 #include <dm/root.h>
@@ -86,6 +87,7 @@ struct sunxi_glue {
 	struct sunxi_ccm_reg *ccm;
 	struct sunxi_musb_config *cfg;
 	struct device dev;
+	struct phy *phy;
 };
 #define to_sunxi_glue(d)	container_of(d, struct sunxi_glue, dev)
 
@@ -218,6 +220,7 @@ static bool enabled = false;
 
 static int sunxi_musb_enable(struct musb *musb)
 {
+	struct sunxi_glue *glue = to_sunxi_glue(musb->controller);
 	int ret;
 
 	pr_debug("%s():\n", __func__);
@@ -232,17 +235,23 @@ static int sunxi_musb_enable(struct musb *musb)
 	musb_writeb(musb->mregs, USBC_REG_o_VEND0, 0);
 
 	if (is_host_enabled(musb)) {
-		ret = sunxi_usb_phy_vbus_detect(0);
+		ret = sun4i_usb_phy_vbus_detect(glue->phy);
 		if (ret == 1) {
 			printf("A charger is plugged into the OTG: ");
 			return -ENODEV;
 		}
-		ret = sunxi_usb_phy_id_detect(0);
+
+		ret = sun4i_usb_phy_id_detect(glue->phy);
 		if (ret == 1) {
 			printf("No host cable detected: ");
 			return -ENODEV;
 		}
-		sunxi_usb_phy_power_on(0); /* port power on */
+
+		ret = generic_phy_power_on(glue->phy);
+		if (ret) {
+			pr_err("failed to power on USB PHY\n");
+			return ret;
+		}
 	}
 
 	USBC_ForceVbusValidToHigh(musb->mregs);
@@ -253,13 +262,21 @@ static int sunxi_musb_enable(struct musb *musb)
 
 static void sunxi_musb_disable(struct musb *musb)
 {
+	struct sunxi_glue *glue = to_sunxi_glue(musb->controller);
+	int ret;
+
 	pr_debug("%s():\n", __func__);
 
 	if (!enabled)
 		return;
 
-	if (is_host_enabled(musb))
-		sunxi_usb_phy_power_off(0); /* port power off */
+	if (is_host_enabled(musb)) {
+		ret = generic_phy_power_off(glue->phy);
+		if (ret) {
+			pr_err("failed to power off USB PHY\n");
+			return;
+		}
+	}
 
 	USBC_ForceVbusValidToLow(musb->mregs);
 	mdelay(200); /* Wait for the current session to timeout */
@@ -270,8 +287,15 @@ static void sunxi_musb_disable(struct musb *musb)
 static int sunxi_musb_init(struct musb *musb)
 {
 	struct sunxi_glue *glue = to_sunxi_glue(musb->controller);
+	int ret;
 
 	pr_debug("%s():\n", __func__);
+
+	ret = generic_phy_init(glue->phy);
+	if (ret) {
+		pr_err("failed to init USB PHY\n");
+		return ret;
+	}
 
 	musb->isr = sunxi_musb_interrupt;
 
@@ -285,8 +309,6 @@ static int sunxi_musb_init(struct musb *musb)
 		setbits_le32(&glue->ccm->ahb_reset0_cfg,
 			     BIT(glue->cfg->rst_bit));
 #endif
-
-	sunxi_usb_phy_init(0);
 
 	USBC_ConfigFIFO_Base();
 	USBC_EnableDpDmPullUp(musb->mregs);
@@ -383,6 +405,7 @@ static int musb_usb_probe(struct udevice *dev)
 	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
 	struct musb_hdrc_platform_data pdata;
 	void *base = dev_read_addr_ptr(dev);
+	struct phy phy;
 	int ret;
 
 	if (!base)
@@ -396,6 +419,13 @@ static int musb_usb_probe(struct udevice *dev)
 	if (IS_ERR(glue->ccm))
 		return PTR_ERR(glue->ccm);
 
+	ret = generic_phy_get_by_name(dev, "usb", &phy);
+	if (ret) {
+		pr_err("failed to get usb PHY\n");
+		return ret;
+	}
+
+	glue->phy = &phy;
 	priv->desc_before_addr = true;
 
 	memset(&pdata, 0, sizeof(pdata));
@@ -426,10 +456,18 @@ static int musb_usb_remove(struct udevice *dev)
 {
 	struct sunxi_glue *glue = dev_get_priv(dev);
 	struct musb_host_data *host = &glue->mdata;
+	int ret;
+
+	if (generic_phy_valid(glue->phy)) {
+		ret = generic_phy_exit(glue->phy);
+		if (ret) {
+			pr_err("failed to exit %s USB PHY\n", dev->name);
+			return ret;
+		}
+	}
 
 	musb_stop(host->host);
 
-	sunxi_usb_phy_exit(0);
 #ifdef CONFIG_SUNXI_GEN_SUN6I
 	clrbits_le32(&glue->ccm->ahb_reset0_cfg, BIT(AHB_GATE_OFFSET_USB0));
 	if (glue->cfg->rst_bit)

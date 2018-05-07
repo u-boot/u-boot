@@ -1,9 +1,6 @@
 #include <common.h>
 #include <console.h>
 #include <watchdog.h>
-#ifdef CONFIG_ARCH_SUNXI
-#include <asm/arch/usb_phy.h>
-#endif
 #include <linux/errno.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
