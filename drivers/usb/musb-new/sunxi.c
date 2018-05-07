@@ -75,9 +75,14 @@
  * From usbc/usbc.c
  ******************************************************************************/
 
+struct sunxi_musb_config {
+	struct musb_hdrc_config *config;
+};
+
 struct sunxi_glue {
 	struct musb_host_data mdata;
 	struct sunxi_ccm_reg *ccm;
+	struct sunxi_musb_config *cfg;
 	struct device dev;
 };
 #define to_sunxi_glue(d)	container_of(d, struct sunxi_glue, dev)
@@ -300,10 +305,49 @@ static const struct musb_platform_ops sunxi_musb_ops = {
 #define SUNXI_MUSB_MAX_EP_NUM		6
 #define SUNXI_MUSB_RAM_BITS		11
 
+static struct musb_fifo_cfg sunxi_musb_mode_cfg[] = {
+	MUSB_EP_FIFO_SINGLE(1, FIFO_TX, 512),
+	MUSB_EP_FIFO_SINGLE(1, FIFO_RX, 512),
+	MUSB_EP_FIFO_SINGLE(2, FIFO_TX, 512),
+	MUSB_EP_FIFO_SINGLE(2, FIFO_RX, 512),
+	MUSB_EP_FIFO_SINGLE(3, FIFO_TX, 512),
+	MUSB_EP_FIFO_SINGLE(3, FIFO_RX, 512),
+	MUSB_EP_FIFO_SINGLE(4, FIFO_TX, 512),
+	MUSB_EP_FIFO_SINGLE(4, FIFO_RX, 512),
+	MUSB_EP_FIFO_SINGLE(5, FIFO_TX, 512),
+	MUSB_EP_FIFO_SINGLE(5, FIFO_RX, 512),
+};
+
+/* H3/V3s OTG supports only 4 endpoints */
+#define SUNXI_MUSB_MAX_EP_NUM_H3	5
+
+static struct musb_fifo_cfg sunxi_musb_mode_cfg_h3[] = {
+	MUSB_EP_FIFO_SINGLE(1, FIFO_TX, 512),
+	MUSB_EP_FIFO_SINGLE(1, FIFO_RX, 512),
+	MUSB_EP_FIFO_SINGLE(2, FIFO_TX, 512),
+	MUSB_EP_FIFO_SINGLE(2, FIFO_RX, 512),
+	MUSB_EP_FIFO_SINGLE(3, FIFO_TX, 512),
+	MUSB_EP_FIFO_SINGLE(3, FIFO_RX, 512),
+	MUSB_EP_FIFO_SINGLE(4, FIFO_TX, 512),
+	MUSB_EP_FIFO_SINGLE(4, FIFO_RX, 512),
+};
+
 static struct musb_hdrc_config musb_config = {
+	.fifo_cfg       = sunxi_musb_mode_cfg,
+	.fifo_cfg_size  = ARRAY_SIZE(sunxi_musb_mode_cfg),
 	.multipoint	= true,
 	.dyn_fifo	= true,
 	.num_eps	= SUNXI_MUSB_MAX_EP_NUM,
+	.ram_bits	= SUNXI_MUSB_RAM_BITS,
+};
+
+static struct musb_hdrc_config musb_config_h3 = {
+	.fifo_cfg       = sunxi_musb_mode_cfg_h3,
+	.fifo_cfg_size  = ARRAY_SIZE(sunxi_musb_mode_cfg_h3),
+	.multipoint	= true,
+	.dyn_fifo	= true,
+	.soft_con       = true,
+	.num_eps	= SUNXI_MUSB_MAX_EP_NUM_H3,
 	.ram_bits	= SUNXI_MUSB_RAM_BITS,
 };
 
@@ -319,6 +363,10 @@ static int musb_usb_probe(struct udevice *dev)
 	if (!base)
 		return -EINVAL;
 
+	glue->cfg = (struct sunxi_musb_config *)dev_get_driver_data(dev);
+	if (!glue->cfg)
+		return -EINVAL;
+
 	glue->ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	if (IS_ERR(glue->ccm))
 		return PTR_ERR(glue->ccm);
@@ -328,7 +376,7 @@ static int musb_usb_probe(struct udevice *dev)
 	memset(&pdata, 0, sizeof(pdata));
 	pdata.power = 250;
 	pdata.platform_ops = &sunxi_musb_ops;
-	pdata.config = &musb_config;
+	pdata.config = glue->cfg->config;
 
 #ifdef CONFIG_USB_MUSB_HOST
 	pdata.mode = MUSB_HOST;
@@ -368,11 +416,23 @@ static int musb_usb_remove(struct udevice *dev)
 	return 0;
 }
 
+static const struct sunxi_musb_config sun4i_a10_cfg = {
+	.config = &musb_config,
+};
+
+static const struct sunxi_musb_config sun8i_h3_cfg = {
+	.config = &musb_config_h3,
+};
+
 static const struct udevice_id sunxi_musb_ids[] = {
-	{ .compatible = "allwinner,sun4i-a10-musb" },
-	{ .compatible = "allwinner,sun6i-a31-musb" },
-	{ .compatible = "allwinner,sun8i-a33-musb" },
-	{ .compatible = "allwinner,sun8i-h3-musb" },
+	{ .compatible = "allwinner,sun4i-a10-musb",
+			.data = (ulong)&sun4i_a10_cfg },
+	{ .compatible = "allwinner,sun6i-a31-musb",
+			.data = (ulong)&sun4i_a10_cfg },
+	{ .compatible = "allwinner,sun8i-a33-musb",
+			.data = (ulong)&sun4i_a10_cfg },
+	{ .compatible = "allwinner,sun8i-h3-musb",
+			.data = (ulong)&sun8i_h3_cfg },
 	{ }
 };
 
