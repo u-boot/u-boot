@@ -67,6 +67,7 @@
 enum sun4i_usb_phy_type {
 	sun4i_a10_phy,
 	sun6i_a31_phy,
+	sun8i_a33_phy,
 	sun8i_a83t_phy,
 	sun8i_h3_phy,
 	sun8i_v3s_phy,
@@ -494,6 +495,14 @@ static const struct sun4i_usb_phy_cfg sun7i_a20_cfg = {
 	.enable_pmu_unk1 = false,
 };
 
+static const struct sun4i_usb_phy_cfg sun8i_a33_cfg = {
+	.num_phys = 2,
+	.type = sun8i_a33_phy,
+	.disc_thresh = 3,
+	.phyctl_offset = REG_PHYCTL_A33,
+	.enable_pmu_unk1 = false,
+};
+
 static const struct sun4i_usb_phy_cfg sun8i_a83t_cfg = {
 	.num_phys = 3,
 	.type = sun8i_a83t_phy,
@@ -532,6 +541,7 @@ static const struct udevice_id sun4i_usb_phy_ids[] = {
 	{ .compatible = "allwinner,sun5i-a13-usb-phy", .data = (ulong)&sun5i_a13_cfg },
 	{ .compatible = "allwinner,sun6i-a31-usb-phy", .data = (ulong)&sun6i_a31_cfg },
 	{ .compatible = "allwinner,sun7i-a20-usb-phy", .data = (ulong)&sun7i_a20_cfg },
+	{ .compatible = "allwinner,sun8i-a33-usb-phy", .data = (ulong)&sun8i_a33_cfg },
 	{ .compatible = "allwinner,sun8i-a83t-usb-phy", .data = (ulong)&sun8i_a83t_cfg },
 	{ .compatible = "allwinner,sun8i-h3-usb-phy", .data = (ulong)&sun8i_h3_cfg },
 	{ .compatible = "allwinner,sun8i-v3s-usb-phy", .data = (ulong)&sun8i_v3s_cfg },
