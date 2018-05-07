@@ -15,6 +15,8 @@ The following methods can be used for booting Mamoj boards:
 
 2. eMMC boot (via DFU)
 
+3. Falcon mode
+
 1. USB SDP boot:
 ---------------
 
@@ -91,6 +93,31 @@ The following methods can be used for booting Mamoj boards:
      # dfu-util -D u-boot-dtb.img -a u-boot
 
   Poweroff and Poweron the board and see U-Boot booting from eMMC.
+
+3. Falcon mode:
+--------------
+
+  - Skip 10M space and create dual partitions for eMMC, start sector is 20480
+
+    Partition Map for MMC device 2  --   Partition Type: DOS
+
+    Part    Start Sector    Num Sectors     UUID            Type
+      1     20480           131072          c52e78be-01     83
+      2     151552          7581696         c52e78be-02     83
+
+  - Write uImage
+
+    => fatload mmc 2:1 $kernel_addr_r uImage
+    => mmc write $kernel_addr_r 0x1000 0x4000
+
+  - Write dtb and args
+
+    => setenv bootargs console=ttymxc2,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait rw quiet
+    => fatload mmc 2:1 $fdt_addr_r imx6dl-mamoj.dtb
+    => spl export fdt $kernel_addr_r - $fdt_addr_r
+    => mmc write 0x13000000 0x800 0x800
+
+  Poweroff and Poweron the board and see Linux booting directly after SPL.
 
 --
 Jagan Teki <jagan@amarulasolutions.com>

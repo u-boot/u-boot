@@ -30,6 +30,17 @@ static iomux_v3_cfg_t const uart3_pads[] = {
 	IOMUX_PADS(PAD_EIM_D25__UART3_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 };
 
+#ifdef CONFIG_SPL_OS_BOOT
+int spl_start_uboot(void)
+{
+	/* break into full u-boot on 'c' */
+	if (serial_tstc() && serial_getc() == 'c')
+		return 1;
+
+	return 0;
+}
+#endif
+
 struct mx6sdl_iomux_ddr_regs mx6sdl_ddr_ioregs = {
 	.dram_sdclk_0 = IMX6SDL_DRIVE_STRENGTH,
 	.dram_sdclk_1 = IMX6SDL_DRIVE_STRENGTH,
