@@ -350,13 +350,10 @@ struct sunxi_ccm_reg {
 #define CCM_USB_CTRL_PHY2_CLK (0x1 << 10)
 #define CCM_USB_CTRL_PHY3_CLK (0x1 << 11)
 #ifdef CONFIG_MACH_SUNXI_H3_H5
-/*
- * These are OHCI1 - OHCI3 in the datasheet (OHCI0 is for the OTG) we call
- * them 0 - 2 like they were called on older SoCs.
- */
-#define CCM_USB_CTRL_OHCI0_CLK (0x1 << 17)
-#define CCM_USB_CTRL_OHCI1_CLK (0x1 << 18)
-#define CCM_USB_CTRL_OHCI2_CLK (0x1 << 19)
+#define CCM_USB_CTRL_OHCI0_CLK (0x1 << 16)
+#define CCM_USB_CTRL_OHCI1_CLK (0x1 << 17)
+#define CCM_USB_CTRL_OHCI2_CLK (0x1 << 18)
+#define CCM_USB_CTRL_OHCI3_CLK (0x1 << 19)
 #else
 #define CCM_USB_CTRL_OHCI0_CLK (0x1 << 16)
 #define CCM_USB_CTRL_OHCI1_CLK (0x1 << 17)
