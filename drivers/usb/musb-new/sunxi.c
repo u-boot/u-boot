@@ -307,22 +307,12 @@ static struct musb_hdrc_config musb_config = {
 	.ram_bits	= SUNXI_MUSB_RAM_BITS,
 };
 
-static struct musb_hdrc_platform_data musb_plat = {
-#if defined(CONFIG_USB_MUSB_HOST)
-	.mode           = MUSB_HOST,
-#else
-	.mode		= MUSB_PERIPHERAL,
-#endif
-	.config         = &musb_config,
-	.power          = 250,
-	.platform_ops	= &sunxi_musb_ops,
-};
-
 static int musb_usb_probe(struct udevice *dev)
 {
 	struct sunxi_glue *glue = dev_get_priv(dev);
 	struct musb_host_data *host = &glue->mdata;
 	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
+	struct musb_hdrc_platform_data pdata;
 	void *base = dev_read_addr_ptr(dev);
 	int ret;
 
@@ -335,8 +325,14 @@ static int musb_usb_probe(struct udevice *dev)
 
 	priv->desc_before_addr = true;
 
+	memset(&pdata, 0, sizeof(pdata));
+	pdata.power = 250;
+	pdata.platform_ops = &sunxi_musb_ops;
+	pdata.config = &musb_config;
+
 #ifdef CONFIG_USB_MUSB_HOST
-	host->host = musb_init_controller(&musb_plat, &glue->dev, base);
+	pdata.mode = MUSB_HOST;
+	host->host = musb_init_controller(&pdata, &glue->dev, base);
 	if (!host->host)
 		return -EIO;
 
@@ -344,7 +340,8 @@ static int musb_usb_probe(struct udevice *dev)
 	if (!ret)
 		printf("Allwinner mUSB OTG (Host)\n");
 #else
-	ret = musb_register(&musb_plat, &glue->dev, base);
+	pdata.mode = MUSB_PERIPHERAL;
+	ret = musb_register(&pdata, &glue->dev, base);
 	if (!ret)
 		printf("Allwinner mUSB OTG (Peripheral)\n");
 #endif
