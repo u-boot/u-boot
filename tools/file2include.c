@@ -62,12 +62,11 @@ int main(int argc, char *argv[])
 	count = fread(buf, 1, count, file);
 
 	/* Generate output */
+	printf("/* SPDX-License-Identifier: GPL-2.0+ */\n");
 	printf("/*\n");
 	printf(" *  Non-zero %u byte strings of a disk image\n", BLOCK_SIZE);
 	printf(" *\n");
 	printf(" *  Generated with tools/file2include\n");
-	printf(" *\n");
-	printf(" *  SPDX-License-Identifier:	GPL-2.0+\n");
 	printf(" */\n\n");
 	printf("#define EFI_ST_DISK_IMG { 0x%08zx, { \\\n", count);
 
