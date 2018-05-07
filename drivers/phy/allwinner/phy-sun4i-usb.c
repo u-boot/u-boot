@@ -36,6 +36,7 @@
 #define PHY_TX_AMPLITUDE_TUNE		0x20
 #define PHY_TX_SLEWRATE_TUNE		0x22
 #define PHY_DISCON_TH_SEL		0x2a
+#define PHY_SQUELCH_DETECT		0x3c
 
 #define PHYCTL_DATA			BIT(7)
 #define OTGCTL_ROUTE_MUSB		BIT(0)
@@ -381,6 +382,11 @@ int sun4i_usb_phy_id_detect(struct phy *phy)
 		return usb_phy->gpio_id_det;
 
 	return gpio_get_value(usb_phy->gpio_id_det);
+}
+
+void sun4i_usb_phy_set_squelch_detect(struct phy *phy, bool enabled)
+{
+	sun4i_usb_phy_write(phy, PHY_SQUELCH_DETECT, enabled ? 0 : 2, 2);
 }
 
 static struct phy_ops sun4i_usb_phy_ops = {

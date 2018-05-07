@@ -304,10 +304,26 @@ static int sunxi_musb_init(struct musb *musb)
 	return 0;
 }
 
+static void sunxi_musb_pre_root_reset_end(struct musb *musb)
+{
+	struct sunxi_glue *glue = to_sunxi_glue(musb->controller);
+
+	sun4i_usb_phy_set_squelch_detect(glue->phy, false);
+}
+
+static void sunxi_musb_post_root_reset_end(struct musb *musb)
+{
+	struct sunxi_glue *glue = to_sunxi_glue(musb->controller);
+
+	sun4i_usb_phy_set_squelch_detect(glue->phy, true);
+}
+
 static const struct musb_platform_ops sunxi_musb_ops = {
 	.init		= sunxi_musb_init,
 	.enable		= sunxi_musb_enable,
 	.disable	= sunxi_musb_disable,
+	.pre_root_reset_end = sunxi_musb_pre_root_reset_end,
+	.post_root_reset_end = sunxi_musb_post_root_reset_end,
 };
 
 /* Allwinner OTG supports up to 5 endpoints */

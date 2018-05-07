@@ -200,6 +200,8 @@ enum musb_g_ep0_state {
  * @vbus_status: returns vbus status if possible
  * @set_vbus:	forces vbus status
  * @adjust_channel_params: pre check for standard dma channel_program func
+ * @pre_root_reset_end: called before the root usb port reset flag gets cleared
+ * @post_root_reset_end: called after the root usb port reset flag gets cleared
  */
 struct musb_platform_ops {
 	int	(*init)(struct musb *musb);
@@ -221,6 +223,8 @@ struct musb_platform_ops {
 	int	(*adjust_channel_params)(struct dma_channel *channel,
 				u16 packet_sz, u8 *mode,
 				dma_addr_t *dma_addr, u32 *len);
+	void	(*pre_root_reset_end)(struct musb *musb);
+	void	(*post_root_reset_end)(struct musb *musb);
 };
 
 /*
