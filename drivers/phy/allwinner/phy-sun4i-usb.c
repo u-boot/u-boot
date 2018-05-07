@@ -56,6 +56,7 @@
 #define MAX_PHYS			4
 
 enum sun4i_usb_phy_type {
+	sun8i_h3_phy,
 	sun50i_a64_phy,
 };
 
@@ -414,6 +415,15 @@ static int sun4i_usb_phy_probe(struct udevice *dev)
 	return 0;
 }
 
+static const struct sun4i_usb_phy_cfg sun8i_h3_cfg = {
+	.num_phys = 4,
+	.type = sun8i_h3_phy,
+	.disc_thresh = 3,
+	.phyctl_offset = REG_PHYCTL_A33,
+	.enable_pmu_unk1 = true,
+	.phy0_dual_route = true,
+};
+
 static const struct sun4i_usb_phy_cfg sun50i_a64_cfg = {
 	.num_phys = 2,
 	.type = sun50i_a64_phy,
@@ -424,6 +434,7 @@ static const struct sun4i_usb_phy_cfg sun50i_a64_cfg = {
 };
 
 static const struct udevice_id sun4i_usb_phy_ids[] = {
+	{ .compatible = "allwinner,sun8i-h3-usb-phy", .data = (ulong)&sun8i_h3_cfg },
 	{ .compatible = "allwinner,sun50i-a64-usb-phy", .data = (ulong)&sun50i_a64_cfg},
 	{ }
 };
