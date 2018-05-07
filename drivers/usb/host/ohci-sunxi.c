@@ -25,6 +25,7 @@
 #endif
 
 struct ohci_sunxi_priv {
+	struct sunxi_ccm_reg *ccm;
 	ohci_t ohci;
 	int ahb_gate_mask; /* Mask of ahb_gate0 clk gate bits for this hcd */
 	int usb_gate_mask; /* Mask of usb_clk_cfg clk gate bits for this hcd */
@@ -33,11 +34,14 @@ struct ohci_sunxi_priv {
 
 static int ohci_usb_probe(struct udevice *dev)
 {
-	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	struct usb_bus_priv *bus_priv = dev_get_uclass_priv(dev);
 	struct ohci_sunxi_priv *priv = dev_get_priv(dev);
 	struct ohci_regs *regs = (struct ohci_regs *)devfdt_get_addr(dev);
 	int extra_ahb_gate_mask = 0;
+
+	priv->ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	if (IS_ERR(priv->ccm))
+		return PTR_ERR(priv->ccm);
 
 	bus_priv->companion = true;
 
@@ -56,11 +60,11 @@ static int ohci_usb_probe(struct udevice *dev)
 	priv->usb_gate_mask <<= priv->phy_index;
 	priv->phy_index++; /* Non otg phys start at 1 */
 
-	setbits_le32(&ccm->ahb_gate0,
+	setbits_le32(&priv->ccm->ahb_gate0,
 		     priv->ahb_gate_mask | extra_ahb_gate_mask);
-	setbits_le32(&ccm->usb_clk_cfg, priv->usb_gate_mask);
+	setbits_le32(&priv->ccm->usb_clk_cfg, priv->usb_gate_mask);
 #ifdef CONFIG_SUNXI_GEN_SUN6I
-	setbits_le32(&ccm->ahb_reset0_cfg,
+	setbits_le32(&priv->ccm->ahb_reset0_cfg,
 		     priv->ahb_gate_mask | extra_ahb_gate_mask);
 #endif
 
@@ -72,7 +76,6 @@ static int ohci_usb_probe(struct udevice *dev)
 
 static int ohci_usb_remove(struct udevice *dev)
 {
-	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	struct ohci_sunxi_priv *priv = dev_get_priv(dev);
 	int ret;
 
@@ -83,10 +86,10 @@ static int ohci_usb_remove(struct udevice *dev)
 	sunxi_usb_phy_exit(priv->phy_index);
 
 #ifdef CONFIG_SUNXI_GEN_SUN6I
-	clrbits_le32(&ccm->ahb_reset0_cfg, priv->ahb_gate_mask);
+	clrbits_le32(&priv->ccm->ahb_reset0_cfg, priv->ahb_gate_mask);
 #endif
-	clrbits_le32(&ccm->usb_clk_cfg, priv->usb_gate_mask);
-	clrbits_le32(&ccm->ahb_gate0, priv->ahb_gate_mask);
+	clrbits_le32(&priv->ccm->usb_clk_cfg, priv->usb_gate_mask);
+	clrbits_le32(&priv->ccm->ahb_gate0, priv->ahb_gate_mask);
 
 	return 0;
 }
