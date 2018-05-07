@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 			printf("\\x%02x", buf[j]);
 		printf("\"}, /* ");
 		for (j = i; j < i + BLOCK_SIZE && j < count; ++j) {
-			if (buf[j] >= 0x20 && buf[j] <= 0x7e)
+			if (buf[j] != '*' && buf[j] >= 0x20 && buf[j] <= 0x7e)
 				printf("%c", buf[j]);
 			else
 				printf(".");
