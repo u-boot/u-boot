@@ -230,6 +230,8 @@ config TARGET_MX6DL_MAMOJ
 	select DM_GPIO
 	select DM_I2C
 	select DM_MMC
+	select DM_PMIC
+	select DM_PMIC_PFUZE100
 	select DM_THERMAL
 	select SPL
 	select SUPPORT_SPL
