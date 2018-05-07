@@ -13,6 +13,8 @@ The following methods can be used for booting Mamoj boards:
 
 1. USB SDP boot
 
+2. eMMC boot (via DFU)
+
 1. USB SDP boot:
 ---------------
 
@@ -54,6 +56,41 @@ The following methods can be used for booting Mamoj boards:
      $ ./imx_usb
 
   We can see U-Boot boot from USB SDP on minicom
+
+2. eMMC boot via DFU:
+--------------------
+
+  Once booted from USB SDP, program the eMMC as below(make sure to connect USB OTG)
+
+  - Change eMMC partition config
+
+     => mmc partconf 2 1 0 0
+
+  - Partition eMMC on host
+
+     => ums 0 mmc 2
+
+    Host will able to detect the eMMC disk as UMS, partition the same.
+
+  - Program SPL
+
+     => setenv dfu_alt_info $dfu_alt_info_spl
+     => dfu 0 mmc 2
+
+     At Host
+
+     # dfu-util -D SPL -a spl
+
+  - Program u-boot-dtb.img
+
+     => setenv dfu_alt_info $dfu_alt_info_uboot
+     => dfu 0 mmc 2
+
+     At Host
+
+     # dfu-util -D u-boot-dtb.img -a u-boot
+
+  Poweroff and Poweron the board and see U-Boot booting from eMMC.
 
 --
 Jagan Teki <jagan@amarulasolutions.com>
