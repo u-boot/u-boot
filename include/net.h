@@ -1,9 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  *	LiMon Monitor (LiMon) - Network.
  *
  *	Copyright 1994 - 2000 Neil Russell.
  *	(See License)
- *	SPDX-License-Identifier:	GPL-2.0
  *
  * History
  *	9/16/00	  bor  adapted to TQM823L/STK8xxL board, RARP/TFTP boot added

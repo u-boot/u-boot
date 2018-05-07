@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  Thumb-1 drop-in for the linux/include/asm-arm/proc-armv/system.h
  *
@@ -7,8 +8,6 @@
  * The original file does not build in Thumb mode. However, in U-Boot
  * we don't use interrupt context, so we can redefine these as empty
  * memory barriers, which makes Thumb-1 compiler happy.
- *
- *  SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

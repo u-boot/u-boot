@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  EFI application loader
  *
  *  Copyright (c) 2017 Heinrich Schuchardt <xypron.glpk@gmx.de>
- *
- *  SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef _EFI_SELFTEST_H

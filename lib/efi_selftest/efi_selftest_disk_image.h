@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  Non-zero 8 byte strings of a disk image
  *
  *  Generated with tools/file2include
- *
- *  SPDX-License-Identifier:	GPL-2.0+
  */
 
 #define EFI_ST_DISK_IMG { 0x00010000, { \

@@ -757,7 +757,7 @@ static void print_version(void)
 {
 	printf("ifdtool v%s -- ", IFDTOOL_VERSION);
 	printf("Copyright (C) 2014 Google Inc.\n\n");
-	printf("SPDX-License-Identifier:	GPL-2.0+\n");
+	printf("SPDX-License-Identifier: GPL-2.0+\n");
 }
 
 static void print_usage(const char *name)

@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  Portable Executable binary format structures
  *
  *  Copyright (c) 2016 Alexander Graf
  *
  *  Based on wine code
- *
- *  SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef _PE_H

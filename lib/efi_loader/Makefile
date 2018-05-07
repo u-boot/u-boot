@@ -1,7 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2016 Alexander Graf
-#
-#  SPDX-License-Identifier:     GPL-2.0+
 #
 
 # This file only gets included with CONFIG_EFI_LOADER set, so all

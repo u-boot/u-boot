@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *  EFI device path interface
  *
  *  Copyright (c) 2017 Heinrich Schuchardt
- *
- *  SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>

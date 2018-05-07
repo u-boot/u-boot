@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  Portable Executable and Common Object Constants
  *
@@ -5,8 +6,6 @@
  *
  *  based on the "Microsoft Portable Executable and Common Object File Format
  *  Specification", revision 11, 2017-01-23
- *
- *  SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef _ASM_PE_H

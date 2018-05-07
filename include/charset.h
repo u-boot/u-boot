@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  charset conversion utils
  *
  *  Copyright (c) 2017 Rob Clark
- *
- *  SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef __CHARSET_H_

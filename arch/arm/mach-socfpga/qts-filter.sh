@@ -145,10 +145,10 @@ process_sdram_config() {
 
 	(
 	cat << EOF
+/* SPDX-License-Identifier: BSD-3-Clause */
 /*
  * Altera SoCFPGA SDRAM configuration
  *
- * SPDX-License-Identifier:	BSD-3-Clause
  */
 
 #ifndef __SOCFPGA_SDRAM_CONFIG_H__

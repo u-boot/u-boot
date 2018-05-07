@@ -1,9 +1,7 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2014 Suriyan Ramasami
-#
-#  SPDX-License-Identifier:	GPL-2.0+
-#
 
 # Invoke this test script from U-Boot base directory as ./test/fs/fs-test.sh
 # It currently tests the fs/sb and native commands for ext4 and fat partitions
