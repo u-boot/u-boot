@@ -296,11 +296,15 @@ static const struct musb_platform_ops sunxi_musb_ops = {
 	.disable	= sunxi_musb_disable,
 };
 
+/* Allwinner OTG supports up to 5 endpoints */
+#define SUNXI_MUSB_MAX_EP_NUM		6
+#define SUNXI_MUSB_RAM_BITS		11
+
 static struct musb_hdrc_config musb_config = {
-	.multipoint     = 1,
-	.dyn_fifo       = 1,
-	.num_eps        = 6,
-	.ram_bits       = 11,
+	.multipoint	= true,
+	.dyn_fifo	= true,
+	.num_eps	= SUNXI_MUSB_MAX_EP_NUM,
+	.ram_bits	= SUNXI_MUSB_RAM_BITS,
 };
 
 static struct musb_hdrc_platform_data musb_plat = {
