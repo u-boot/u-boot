@@ -93,9 +93,9 @@ static u32 USBC_WakeUp_ClearChangeDetect(u32 reg_val)
 {
 	u32 temp = reg_val;
 
-	temp &= ~(1 << USBC_BP_ISCR_VBUS_CHANGE_DETECT);
-	temp &= ~(1 << USBC_BP_ISCR_ID_CHANGE_DETECT);
-	temp &= ~(1 << USBC_BP_ISCR_DPDM_CHANGE_DETECT);
+	temp &= ~BIT(USBC_BP_ISCR_VBUS_CHANGE_DETECT);
+	temp &= ~BIT(USBC_BP_ISCR_ID_CHANGE_DETECT);
+	temp &= ~BIT(USBC_BP_ISCR_DPDM_CHANGE_DETECT);
 
 	return temp;
 }
@@ -105,7 +105,7 @@ static void USBC_EnableIdPullUp(__iomem void *base)
 	u32 reg_val;
 
 	reg_val = musb_readl(base, USBC_REG_o_ISCR);
-	reg_val |= (1 << USBC_BP_ISCR_ID_PULLUP_EN);
+	reg_val |= BIT(USBC_BP_ISCR_ID_PULLUP_EN);
 	reg_val = USBC_WakeUp_ClearChangeDetect(reg_val);
 	musb_writel(base, USBC_REG_o_ISCR, reg_val);
 }
@@ -115,7 +115,7 @@ static void USBC_EnableDpDmPullUp(__iomem void *base)
 	u32 reg_val;
 
 	reg_val = musb_readl(base, USBC_REG_o_ISCR);
-	reg_val |= (1 << USBC_BP_ISCR_DPDM_PULLUP_EN);
+	reg_val |= BIT(USBC_BP_ISCR_DPDM_PULLUP_EN);
 	reg_val = USBC_WakeUp_ClearChangeDetect(reg_val);
 	musb_writel(base, USBC_REG_o_ISCR, reg_val);
 }
@@ -171,7 +171,7 @@ static void USBC_ConfigFIFO_Base(void)
 	/* config usb fifo, 8kb mode */
 	reg_value = readl(SUNXI_SRAMC_BASE + 0x04);
 	reg_value &= ~(0x03 << 0);
-	reg_value |= (1 << 0);
+	reg_value |= BIT(0);
 	writel(reg_value, SUNXI_SRAMC_BASE + 0x04);
 }
 
@@ -275,15 +275,15 @@ static int sunxi_musb_init(struct musb *musb)
 
 	musb->isr = sunxi_musb_interrupt;
 
-	setbits_le32(&glue->ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_USB0);
+	setbits_le32(&glue->ccm->ahb_gate0, BIT(AHB_GATE_OFFSET_USB0));
 	if (glue->cfg->clkgate_bit)
 		setbits_le32(&glue->ccm->ahb_gate0,
-			     1 << glue->cfg->clkgate_bit);
+			     BIT(glue->cfg->clkgate_bit));
 #ifdef CONFIG_SUNXI_GEN_SUN6I
-	setbits_le32(&glue->ccm->ahb_reset0_cfg, 1 << AHB_GATE_OFFSET_USB0);
+	setbits_le32(&glue->ccm->ahb_reset0_cfg, BIT(AHB_GATE_OFFSET_USB0));
 	if (glue->cfg->rst_bit)
 		setbits_le32(&glue->ccm->ahb_reset0_cfg,
-			     1 << glue->cfg->rst_bit);
+			     BIT(glue->cfg->rst_bit));
 #endif
 
 	sunxi_usb_phy_init(0);
@@ -415,15 +415,15 @@ static int musb_usb_remove(struct udevice *dev)
 
 	sunxi_usb_phy_exit(0);
 #ifdef CONFIG_SUNXI_GEN_SUN6I
-	clrbits_le32(&glue->ccm->ahb_reset0_cfg, 1 << AHB_GATE_OFFSET_USB0);
+	clrbits_le32(&glue->ccm->ahb_reset0_cfg, BIT(AHB_GATE_OFFSET_USB0));
 	if (glue->cfg->rst_bit)
 		clrbits_le32(&glue->ccm->ahb_reset0_cfg,
-			     1 << glue->cfg->rst_bit);
+			     BIT(glue->cfg->rst_bit));
 #endif
-	clrbits_le32(&glue->ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_USB0);
+	clrbits_le32(&glue->ccm->ahb_gate0, BIT(AHB_GATE_OFFSET_USB0));
 	if (glue->cfg->clkgate_bit)
 		clrbits_le32(&glue->ccm->ahb_gate0,
-			     1 << glue->cfg->clkgate_bit);
+			     BIT(glue->cfg->clkgate_bit));
 
 	free(host->host);
 	host->host = NULL;
