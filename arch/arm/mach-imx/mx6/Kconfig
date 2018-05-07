@@ -228,6 +228,7 @@ config TARGET_MX6DL_MAMOJ
 	select DM
 	select DM_ETH
 	select DM_GPIO
+	select DM_I2C
 	select DM_MMC
 	select DM_THERMAL
 	select SPL

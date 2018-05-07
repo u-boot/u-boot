@@ -21,6 +21,20 @@
 	status = "okay";
 };
 
+&i2c3 {
+	clock-frequency = <400000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_i2c3>;
+	status = "okay";
+};
+
+&i2c4 {
+	clock-frequency = <100000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_i2c4>;
+	status = "okay";
+};
+
 &uart3 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart3>;
@@ -57,6 +71,20 @@
 			MX6QDL_PAD_ENET_RX_ER__ENET_RX_ER	0x1b0b0
 			MX6QDL_PAD_KEY_COL3__ENET_CRS		0x1b0b0
 			MX6QDL_PAD_KEY_ROW1__ENET_COL		0x1b0b0
+		>;
+	};
+
+	pinctrl_i2c3: i2c3grp {
+		fsl,pins = <
+			MX6QDL_PAD_GPIO_3__I2C3_SCL     0x4001b8b1
+			MX6QDL_PAD_GPIO_6__I2C3_SDA     0x4001b8b1
+		>;
+	};
+
+	pinctrl_i2c4: i2c4grp {
+		fsl,pins = <
+			MX6QDL_PAD_GPIO_7__I2C4_SCL	0x4001b8b1
+			MX6QDL_PAD_GPIO_8__I2C4_SDA	0x4001b8b1
 		>;
 	};
 
