@@ -1046,8 +1046,6 @@ int fit_conf_get_node(const void *fit, const char *conf_uname);
 int fit_conf_get_prop_node(const void *fit, int noffset,
 		const char *prop_name);
 
-void fit_conf_print(const void *fit, int noffset, const char *p);
-
 int fit_check_ramdisk(const void *fit, int os_noffset,
 		uint8_t arch, int verify);
 
