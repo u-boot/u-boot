@@ -13,7 +13,8 @@
 #define AS3722_SD_VOLTAGE(n) (0x00 + (n))
 #define AS3722_LDO_VOLTAGE(n) (0x10 + (n))
 #define AS3722_SD_CONTROL 0x4d
-#define AS3722_LDO_CONTROL 0x4e
+#define AS3722_LDO_CONTROL0 0x4e
+#define AS3722_LDO_CONTROL1 0x4f
 #define AS3722_ASIC_ID1 0x90
 #define AS3722_ASIC_ID2 0x91
 
