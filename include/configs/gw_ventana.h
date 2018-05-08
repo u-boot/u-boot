@@ -89,7 +89,6 @@
 
 /* eMMC Configs */
 #define CONFIG_SUPPORT_EMMC_BOOT
-#define CONFIG_SUPPORT_EMMC_RPMB
 
 /*
  * SATA Configs

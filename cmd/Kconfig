@@ -816,6 +816,13 @@ config CMD_MMC
 	help
 	  MMC memory mapped support.
 
+config CMD_MMC_RPMB
+	bool "Enable support for RPMB in the mmc command"
+	depends on CMD_MMC
+	help
+	  Enable the commands for reading, writing and programming the
+	  key for the Replay Protection Memory Block partition in eMMC.
+
 config CMD_NAND
 	bool "nand"
 	default y if NAND_SUNXI

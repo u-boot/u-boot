@@ -1172,10 +1172,6 @@ The following options need to be configured:
 		CONFIG_SUPPORT_EMMC_BOOT
 		Enable some additional features of the eMMC boot partitions.
 
-		CONFIG_SUPPORT_EMMC_RPMB
-		Enable the commands for reading, writing and programming the
-		key for the Replay Protection Memory Block partition in eMMC.
-
 - USB Device Firmware Update (DFU) class support:
 		CONFIG_DFU_OVER_USB
 		This enables the USB portion of the DFU USB class

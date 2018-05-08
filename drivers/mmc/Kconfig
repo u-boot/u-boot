@@ -71,6 +71,13 @@ config MMC_HW_PARTITIONING
 	  This adds a command and an API to do hardware partitioning on eMMC
 	  devices.
 
+config SUPPORT_EMMC_RPMB
+	bool "Support eMMC replay protected memory block (RPMB)"
+	imply CMD_MMC_RPMB
+	help
+	  Enable support for reading, writing and programming the
+	  key for the Replay Protection Memory Block partition in eMMC.
+
 config MMC_IO_VOLTAGE
 	bool "Support IO voltage configuration"
 	help
