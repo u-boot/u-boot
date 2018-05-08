@@ -529,7 +529,7 @@ static int mmc_switch_voltage(struct mmc *mmc, int signal_voltage)
 	 * During a signal voltage level switch, the clock must be gated
 	 * for 5 ms according to the SD spec
 	 */
-	mmc_set_clock(mmc, mmc->clock, true);
+	mmc_set_clock(mmc, mmc->clock, MMC_CLK_DISABLE);
 
 	err = mmc_set_signal_voltage(mmc, signal_voltage);
 	if (err)
@@ -537,7 +537,7 @@ static int mmc_switch_voltage(struct mmc *mmc, int signal_voltage)
 
 	/* Keep clock gated for at least 10 ms, though spec only says 5 ms */
 	mdelay(10);
-	mmc_set_clock(mmc, mmc->clock, false);
+	mmc_set_clock(mmc, mmc->clock, MMC_CLK_ENABLE);
 
 	/*
 	 * Failure to switch is indicated by the card holding
@@ -1506,6 +1506,8 @@ int mmc_set_clock(struct mmc *mmc, uint clock, bool disable)
 	mmc->clock = clock;
 	mmc->clk_disable = disable;
 
+	debug("clock is %s (%dHz)\n", disable ? "disabled" : "enabled", clock);
+
 	return mmc_set_ios(mmc);
 }
 
@@ -1672,7 +1674,8 @@ static int sd_select_mode_and_width(struct mmc *mmc, uint card_caps)
 
 				/* configure the bus mode (host) */
 				mmc_select_mode(mmc, mwt->mode);
-				mmc_set_clock(mmc, mmc->tran_speed, false);
+				mmc_set_clock(mmc, mmc->tran_speed,
+						MMC_CLK_ENABLE);
 
 #ifdef MMC_SUPPORTS_TUNING
 				/* execute tuning if needed */
@@ -1697,7 +1700,8 @@ static int sd_select_mode_and_width(struct mmc *mmc, uint card_caps)
 error:
 				/* revert to a safer bus speed */
 				mmc_select_mode(mmc, SD_LEGACY);
-				mmc_set_clock(mmc, mmc->tran_speed, false);
+				mmc_set_clock(mmc, mmc->tran_speed,
+						MMC_CLK_ENABLE);
 			}
 		}
 	}
@@ -1858,7 +1862,7 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 		return -ENOTSUPP;
 	}
 
-	mmc_set_clock(mmc, mmc->legacy_speed, false);
+	mmc_set_clock(mmc, mmc->legacy_speed, MMC_CLK_ENABLE);
 
 	for_each_mmc_mode_by_pref(card_caps, mwt) {
 		for_each_supported_width(card_caps & mwt->widths,
@@ -1901,7 +1905,7 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 
 			/* configure the bus mode (host) */
 			mmc_select_mode(mmc, mwt->mode);
-			mmc_set_clock(mmc, mmc->tran_speed, false);
+			mmc_set_clock(mmc, mmc->tran_speed, MMC_CLK_ENABLE);
 #ifdef MMC_SUPPORTS_TUNING
 
 			/* execute tuning if needed */
@@ -2426,7 +2430,7 @@ static void mmc_set_initial_state(struct mmc *mmc)
 
 	mmc_select_mode(mmc, MMC_LEGACY);
 	mmc_set_bus_width(mmc, 1);
-	mmc_set_clock(mmc, 0, false);
+	mmc_set_clock(mmc, 0, MMC_CLK_ENABLE);
 }
 
 static int mmc_power_on(struct mmc *mmc)
@@ -2446,7 +2450,7 @@ static int mmc_power_on(struct mmc *mmc)
 
 static int mmc_power_off(struct mmc *mmc)
 {
-	mmc_set_clock(mmc, 0, true);
+	mmc_set_clock(mmc, 0, MMC_CLK_DISABLE);
 #if CONFIG_IS_ENABLED(DM_MMC) && CONFIG_IS_ENABLED(DM_REGULATOR)
 	if (mmc->vmmc_supply) {
 		int ret = regulator_set_enable(mmc->vmmc_supply, false);

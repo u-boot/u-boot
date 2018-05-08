@@ -124,6 +124,14 @@ config MMC_VERBOSE
 	  Enable the output of more information about the card such as the
 	  operating mode.
 
+config MMC_TRACE
+	bool "MMC debugging"
+	default n
+	help
+	  This is an option for use by developer. Enable MMC core debugging.
+
+	  If you need to see the MMC core message, say Y.
+
 config SPL_MMC_TINY
 	bool "Tiny MMC framework in SPL"
 	help
