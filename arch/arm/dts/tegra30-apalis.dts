@@ -43,16 +43,19 @@
 		vddio-pex-ctl-supply = <&sys_3v3_reg>;
 		hvdd-pex-supply = <&sys_3v3_reg>;
 
+		/* Apalis Type Specific 4 Lane PCIe */
 		pci@1,0 {
 			/* TS_DIFF1/2/3/4 left disabled */
 			nvidia,num-lanes = <4>;
 		};
 
+		/* Apalis PCIe */
 		pci@2,0 {
 			/* PCIE1_RX/TX left disabled */
 			nvidia,num-lanes = <1>;
 		};
 
+		/* I210 Gigabit Ethernet Controller (On-module) */
 		pci@3,0 {
 			status = "okay";
 			nvidia,num-lanes = <1>;
