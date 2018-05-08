@@ -221,6 +221,7 @@ config CPU_V7M
 	select THUMB2_KERNEL
 	select SYS_CACHE_SHIFT_5
 	select SYS_ARM_MPU
+	select SYS_THUMB_BUILD
 
 config CPU_V7R
 	bool

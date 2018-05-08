@@ -3,4 +3,4 @@
 # (C) Copyright 2015
 # Kamil Lulko, <kamil.lulko@gmail.com>
 
-PLATFORM_CPPFLAGS += -march=armv7-m -mthumb -mno-unaligned-access
+PLATFORM_CPPFLAGS += -mno-unaligned-access
