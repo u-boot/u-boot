@@ -7,6 +7,8 @@
 #define _ROCKCHIP_COMMON_H_
 #include <linux/sizes.h>
 
+#define CONFIG_SYS_NS16550_MEM32
+
 #ifndef CONFIG_SPL_BUILD
 
 /* First try to boot from SD (index 0), then eMMC (index 1) */
