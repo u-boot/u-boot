@@ -15,8 +15,6 @@
 /*
  * U-Boot general configurations
  */
-/* Cache options */
-#define CONFIG_SYS_DCACHE_OFF
 
 /* Memory configurations  */
 #define PHYS_SDRAM_1_SIZE		0x40000000

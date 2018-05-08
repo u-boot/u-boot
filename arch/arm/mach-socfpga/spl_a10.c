@@ -77,6 +77,8 @@ void spl_board_init(void)
 
 void board_init_f(ulong dummy)
 {
+	dcache_disable();
+
 	socfpga_init_security_policies();
 	socfpga_sdram_remap_zero();
 
