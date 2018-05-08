@@ -25,5 +25,6 @@
 #define AS3722_GPIO_CONTROL_INVERT (1 << 7)
 
 int as3722_sd_set_voltage(struct udevice *dev, unsigned int sd, u8 value);
+int as3722_ldo_set_voltage(struct udevice *dev, unsigned int ldo, u8 value);
 
 #endif /* __POWER_AS3722_H__ */
