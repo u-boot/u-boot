@@ -393,6 +393,7 @@ void net_init(void)
 int net_loop(enum proto_t protocol)
 {
 	int ret = -EINVAL;
+	enum net_loop_state prev_net_state = net_state;
 
 	net_restarted = 0;
 	net_dev_exists = 0;
@@ -430,6 +431,7 @@ restart:
 	case 1:
 		/* network not configured */
 		eth_halt();
+		net_set_state(prev_net_state);
 		return -ENODEV;
 
 	case 2:
@@ -655,6 +657,7 @@ done:
 	net_set_udp_handler(NULL);
 	net_set_icmp_handler(NULL);
 #endif
+	net_set_state(prev_net_state);
 	return ret;
 }
 
