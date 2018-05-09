@@ -26,7 +26,7 @@ static ulong sama5d4_h32mx_clk_get_rate(struct clk *clk)
 		rate /= 2;
 
 	if (rate > H32MX_MAX_FREQ)
-		dm_warn("H32MX clock is too fast\n");
+		dev_dbg(clk->dev, "H32MX clock is too fast\n");
 
 	return rate;
 }
