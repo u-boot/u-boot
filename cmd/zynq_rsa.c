@@ -548,7 +548,7 @@ static int do_zynq_verify_image(cmd_tbl_t *cmdtp, int flag, int argc,
 				debug("Authentication Done\r\n");
 			}
 
-			if (encrypt_part_flag) {
+			if (encrypt_part_flag || signed_part_flag) {
 				debug("DECRYPTION \r\n");
 
 				part_dst_addr = part_load_addr;
@@ -568,7 +568,8 @@ static int do_zynq_verify_image(cmd_tbl_t *cmdtp, int flag, int argc,
 							   part_img_len,
 							   part_dst_addr,
 							   part_data_len,
-							   bstype);
+							   bstype,
+							   encrypt_part_flag);
 				if (status != 0) {
 					printf("DECRYPTION_FAIL\r\n");
 					return -1;

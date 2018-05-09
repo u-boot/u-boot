@@ -507,7 +507,7 @@ struct xilinx_fpga_op zynq_op = {
  * place it back the decrypted image into dstaddr.
  */
 int zynq_decrypt_load(u32 srcaddr, u32 srclen, u32 dstaddr, u32 dstlen,
-		      u8 bstype)
+		      u8 bstype, bool encrypt_part_flag)
 {
 	u32 isr_status, ts;
 
@@ -517,10 +517,13 @@ int zynq_decrypt_load(u32 srcaddr, u32 srclen, u32 dstaddr, u32 dstlen,
 		return FPGA_FAIL;
 	}
 
-	/* Check AES engine is enabled */
-	if (!(readl(&devcfg_base->ctrl) & DEVCFG_CTRL_PCFG_AES_EN_MASK)) {
-		printf("%s: AES engine is not enabled\n", __func__);
-		return FPGA_FAIL;
+	if (encrypt_part_flag) {
+		/* Check AES engine is enabled */
+		if (!(readl(&devcfg_base->ctrl) &
+		      DEVCFG_CTRL_PCFG_AES_EN_MASK)) {
+			printf("%s: AES engine is not enabled\n", __func__);
+			return FPGA_FAIL;
+		}
 	}
 
 	if (zynq_dma_xfer_init(bstype)) {
@@ -528,8 +531,9 @@ int zynq_decrypt_load(u32 srcaddr, u32 srclen, u32 dstaddr, u32 dstlen,
 		return FPGA_FAIL;
 	}
 
-	writel((readl(&devcfg_base->ctrl) | DEVCFG_CTRL_PCAP_RATE_EN_MASK),
-	       &devcfg_base->ctrl);
+	if (encrypt_part_flag)
+		writel((readl(&devcfg_base->ctrl) |
+			DEVCFG_CTRL_PCAP_RATE_EN_MASK), &devcfg_base->ctrl);
 
 	debug("%s: Source = 0x%08X\n", __func__, (u32)srcaddr);
 	debug("%s: Size = %zu\n", __func__, srclen);
@@ -633,7 +637,7 @@ static int do_zynq_decrypt_image(cmd_tbl_t *cmdtp, int flag, int argc,
 		dstlen = roundup(dstlen, 4);
 
 	status = zynq_decrypt_load(srcaddr, srclen >> 2, dstaddr, dstlen >> 2,
-				   imgtype);
+				   imgtype, true);
 	if (status != 0)
 		return -1;
 
