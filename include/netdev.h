@@ -69,7 +69,6 @@ int sh_eth_initialize(bd_t *bis);
 int skge_initialize(bd_t *bis);
 int smc91111_initialize(u8 dev_num, int base_addr);
 int smc911x_initialize(u8 dev_num, int base_addr);
-int tsi108_eth_initialize(bd_t *bis);
 int uec_standard_init(bd_t *bis);
 int uli526x_initialize(bd_t *bis);
 int armada100_fec_register(unsigned long base_addr);
