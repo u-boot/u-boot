@@ -428,7 +428,7 @@ int adjust_vdd(ulong vdd_override)
 		0,      /* reserved */
 		0,      /* reserved */
 		0,      /* reserved */
-		0,      /* reserved */
+		9000,      /* reserved */
 		0,      /* reserved */
 		0,      /* reserved */
 		0,      /* reserved */
