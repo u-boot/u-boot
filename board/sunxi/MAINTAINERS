@@ -126,6 +126,11 @@ M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
 F:	configs/bananapi_m1_plus_defconfig
 
+BANANAPI M2 BERRY
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/bananapi_m2_berry_defconfig
+
 BANANAPI M2 ULTRA BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
@@ -266,10 +271,12 @@ M:	Siarhei Siamashka <siarhei.siamashka@gmail.com>
 S:	Maintained
 F:	configs/MSI_Primo81_defconfig
 
-LIBRETECH ALL-H3-CC H3 BOARD
+LIBRETECH ALL-H3-CC BOARDS
 M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
+F:	configs/libretech_all_h3_cc_h2_plus_defconfig
 F:	configs/libretech_all_h3_cc_h3_defconfig
+F:	configs/libretech_all_h3_cc_h5_defconfig
 
 NANOPI-M1 BOARD
 M:	Mylène Josserand <mylene.josserand@free-electrons.com>
