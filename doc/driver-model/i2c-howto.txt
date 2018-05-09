@@ -16,7 +16,6 @@ ones remain:
    sh_i2c
    sh_sh7734_i2c
    soft_i2c
-   tsi108_i2c
    zynq_i2c
 
 The deadline for this work is the end of June 2017. If no one steps
