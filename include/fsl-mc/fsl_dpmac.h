@@ -2,7 +2,7 @@
 /*
  * Freescale Layerscape MC I/O wrapper
  *
- * Copyright (C) 2015-2016 Freescale Semiconductor, Inc.
+ * Copyright 2015-2016 Freescale Semiconductor, Inc.
  * Copyright 2017 NXP
  * Author: Prabhakar Kushwaha <prabhakar@freescale.com>
  */
