@@ -223,6 +223,8 @@ setenv bind 'if test "\$sb" != sb; then sb bind 0 "$1"; fi'
 run bind
 # Test Case 1 - ls
 ${PREFIX}ls host${SUFFIX} $6
+# In addition, test with a nonexistent directory to see if we crash.
+${PREFIX}ls host${SUFFIX} invalid_d
 #
 # We want ${PREFIX}size host 0:0 $3 for host commands and
 # sb size hostfs - $3 for hostfs commands.
