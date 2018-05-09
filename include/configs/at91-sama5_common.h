@@ -57,7 +57,7 @@
 
 #ifdef CONFIG_NAND_BOOT
 /* u-boot env in nand flash */
-#define CONFIG_ENV_OFFSET		0xc0000
+#define CONFIG_ENV_OFFSET		0x140000
 #define CONFIG_ENV_OFFSET_REDUND	0x100000
 #define CONFIG_ENV_SIZE			0x20000
 #define CONFIG_BOOTCOMMAND		"nand read 0x21000000 0x180000 0x80000;"	\
