@@ -867,15 +867,6 @@ static int ddr3_tip_access_atr(u32 dev_num, u32 flag_id, u32 value, u32 **ptr)
 	case 0x25:
 		*ptr = (u32 *)&is_adll_calib_before_init;
 		break;
-#ifdef STATIC_ALGO_SUPPORT
-	case 0x26:
-		*ptr = (u32 *)&(silicon_delay[0]);
-		break;
-
-	case 0x27:
-		*ptr = (u32 *)&wl_debug_delay;
-		break;
-#endif
 	case 0x28:
 		*ptr = (u32 *)&is_tune_result;
 		break;

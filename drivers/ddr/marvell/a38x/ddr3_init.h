@@ -8,7 +8,6 @@
 
 #if defined(CONFIG_ARMADA_38X)
 #include "ddr3_a38x.h"
-#include "ddr3_a38x_mc_static.h"
 #include "ddr3_a38x_topology.h"
 #endif
 #include "ddr3_hws_hw_training.h"

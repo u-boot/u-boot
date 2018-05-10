@@ -635,12 +635,6 @@ int hws_ddr3_tip_init_controller(u32 dev_num, struct init_cntr_param *init_cntr_
 				      MASK_ALL_BITS));
 		}
 	} else {
-#ifdef STATIC_ALGO_SUPPORT
-		CHECK_STATUS(ddr3_tip_static_init_controller(dev_num));
-#if defined(CONFIG_ARMADA_38X) || defined(CONFIG_ARMADA_39X)
-		CHECK_STATUS(ddr3_tip_static_phy_init_controller(dev_num));
-#endif
-#endif /* STATIC_ALGO_SUPPORT */
 	}
 
 	for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1; if_id++) {
@@ -814,25 +808,6 @@ int hws_ddr3_tip_run_alg(u32 dev_num, enum hws_algo_type algo_type)
 	if (algo_type == ALGO_TYPE_DYNAMIC) {
 		ret = ddr3_tip_ddr3_auto_tune(dev_num);
 	} else {
-#ifdef STATIC_ALGO_SUPPORT
-		{
-			enum hws_ddr_freq freq;
-			freq = init_freq;
-
-			/* add to mask */
-			if (is_adll_calib_before_init != 0) {
-				printf("with adll calib before init\n");
-				adll_calibration(dev_num, ACCESS_TYPE_MULTICAST,
-						 0, freq);
-			}
-			/*
-			 * Frequency per interface is not relevant,
-			 * only interface 0
-			 */
-			ret = ddr3_tip_run_static_alg(dev_num,
-						      freq);
-		}
-#endif
 	}
 
 	if (ret != MV_OK) {
@@ -2027,22 +2002,6 @@ static int ddr3_tip_ddr3_training_main_flow(u32 dev_num)
 		}
 	}
 
-#ifdef STATIC_ALGO_SUPPORT
-	if (mask_tune_func & STATIC_LEVELING_MASK_BIT) {
-		training_stage = STATIC_LEVELING;
-		DEBUG_TRAINING_IP(DEBUG_LEVEL_INFO,
-				  ("STATIC_LEVELING_MASK_BIT\n"));
-		ret = ddr3_tip_run_static_alg(dev_num, freq);
-		if (is_reg_dump != 0)
-			ddr3_tip_reg_dump(dev_num);
-		if (ret != MV_OK) {
-			DEBUG_TRAINING_IP(DEBUG_LEVEL_ERROR,
-					  ("ddr3_tip_run_static_alg failure\n"));
-			if (debug_mode == 0)
-				return MV_FAIL;
-		}
-	}
-#endif
 
 	if (mask_tune_func & SET_LOW_FREQ_MASK_BIT) {
 		training_stage = SET_LOW_FREQ;

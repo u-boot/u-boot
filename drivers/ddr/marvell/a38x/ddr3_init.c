@@ -59,20 +59,6 @@ struct dram_modes {
 };
 
 struct dram_modes ddr_modes[] = {
-#ifdef SUPPORT_STATIC_DUNIT_CONFIG
-	/* Conf name, CPUFreq, Fab_freq, Chip ID, Chip/Board, MC regs*/
-#ifdef CONFIG_CUSTOMER_BOARD_SUPPORT
-	{"a38x_customer_0_800", DDR_FREQ_800, 0, 0x0, A38X_CUSTOMER_BOARD_ID0,
-	 ddr3_customer_800},
-	{"a38x_customer_1_800", DDR_FREQ_800, 0, 0x0, A38X_CUSTOMER_BOARD_ID1,
-	 ddr3_customer_800},
-#else
-	{"a38x_533", DDR_FREQ_533, 0, 0x0, MARVELL_BOARD, ddr3_a38x_533},
-	{"a38x_667", DDR_FREQ_667, 0, 0x0, MARVELL_BOARD, ddr3_a38x_667},
-	{"a38x_800", DDR_FREQ_800, 0, 0x0, MARVELL_BOARD, ddr3_a38x_800},
-	{"a38x_933", DDR_FREQ_933, 0, 0x0, MARVELL_BOARD, ddr3_a38x_933},
-#endif
-#endif
 };
 #endif /* defined(CONFIG_ARMADA_38X) */
 
@@ -91,9 +77,6 @@ static char *ddr_type = "DDR3";
  */
 u8 generic_init_controller = 1;
 
-#ifdef SUPPORT_STATIC_DUNIT_CONFIG
-static u32 ddr3_get_static_ddr_mode(void);
-#endif
 static int ddr3_hws_tune_training_params(u8 dev_num);
 
 /* device revision */
@@ -342,18 +325,6 @@ int ddr3_init(void)
 	/* Set X-BAR windows for the training sequence */
 	ddr3_save_and_set_training_windows(win);
 
-#ifdef SUPPORT_STATIC_DUNIT_CONFIG
-	/*
-	 * Load static controller configuration (in case dynamic/generic init
-	 * is not enabled
-	 */
-	if (generic_init_controller == 0) {
-		ddr3_tip_init_specific_reg_config(0,
-						  ddr_modes
-						  [ddr3_get_static_ddr_mode
-						   ()].regs);
-	}
-#endif
 
 	/* Tune training algo paramteres */
 	status = ddr3_hws_tune_training_params(0);

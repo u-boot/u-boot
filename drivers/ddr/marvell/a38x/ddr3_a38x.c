@@ -76,41 +76,6 @@ struct trip_delay_element a38x_board_round_trip_delay_array[] = {
 	{ 4282, 6160 }	/* ECC PUP */
 };
 
-#ifdef STATIC_ALGO_SUPPORT
-/* package trace */
-static struct trip_delay_element a38x_package_round_trip_delay_array[] = {
-	/* IF BUS DQ_DELAY CK_DELAY */
-	{ 0, 0 },
-	{ 0, 0 },
-	{ 0, 0 },
-	{ 0, 0 },
-	{ 0, 0 },
-	{ 0, 0 },
-	{ 0, 0 },
-	{ 0, 0 },
-	{ 0, 0 },
-	{ 0, 0 },
-	{ 0, 0 },
-	{ 0, 0 },
-	{ 0, 0 },
-	{ 0, 0 },
-	{ 0, 0 },
-	{ 0, 0 },
-	{ 0, 0 },
-	{ 0, 0 },
-	{ 0, 0 },
-	{ 0, 0 }
-};
-
-static int a38x_silicon_delay_offset[] = {
-	/* board 0 */
-	0,
-	/* board 1 */
-	0,
-	/* board 2 */
-	0
-};
-#endif
 
 static u8 a38x_bw_per_freq[DDR_FREQ_LIMIT] = {
 	0x3,			/* DDR_FREQ_100 */
@@ -367,22 +332,6 @@ static int ddr3_tip_init_a38x_silicon(u32 dev_num, u32 board_id)
 
 	ddr3_tip_register_dq_table(dev_num, dq_bit_map_2_phy_pin);
 
-#ifdef STATIC_ALGO_SUPPORT
-	{
-		struct hws_tip_static_config_info static_config;
-		u32 board_offset =
-		    board_id * A38X_NUMBER_OF_INTERFACES *
-		    tm->num_of_bus_per_interface;
-
-		static_config.silicon_delay =
-			a38x_silicon_delay_offset[board_id];
-		static_config.package_trace_arr =
-			a38x_package_round_trip_delay_array;
-		static_config.board_trace_arr =
-			&a38x_board_round_trip_delay_array[board_offset];
-		ddr3_tip_init_static_config_db(dev_num, &static_config);
-	}
-#endif
 	status = ddr3_tip_a38x_get_init_freq(dev_num, &ddr_freq);
 	if (MV_OK != status) {
 		DEBUG_TRAINING_ACCESS(DEBUG_LEVEL_ERROR,
