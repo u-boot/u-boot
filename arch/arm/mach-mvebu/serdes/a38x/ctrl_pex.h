@@ -46,6 +46,7 @@
 
 /* Controller revision info */
 #define PEX_DEVICE_AND_VENDOR_ID	0x000
+#define PEX_CFG_DIRECT_ACCESS(if, reg)	(PEX_IF_REGS_BASE(if) + (reg))
 
 /* PCI Express Configuration Address Register */
 #define PXCAR_REG_NUM_OFFS		2

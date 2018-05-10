@@ -421,8 +421,6 @@
 
 /* Power Management Clock Gating Control Register */
 #define POWER_MNG_CTRL_REG			0x18220
-#define PEX_DEVICE_AND_VENDOR_ID		0x000
-#define PEX_CFG_DIRECT_ACCESS(if, reg)	(PEX_IF_REGS_BASE(if) + (reg))
 #define PMC_PEXSTOPCLOCK_OFFS(p)	((p) < 8 ? (5 + (p)) : (18 + (p)))
 #define PMC_PEXSTOPCLOCK_MASK(p)	(1 << PMC_PEXSTOPCLOCK_OFFS(p))
 #define PMC_PEXSTOPCLOCK_EN(p)		(1 << PMC_PEXSTOPCLOCK_OFFS(p))
