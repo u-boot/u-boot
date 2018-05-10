@@ -108,30 +108,6 @@ static int ddr3_hws_tune_training_params(u8 dev_num);
 #define MV_88F69XX_Z1_ID		0x2
 
 /*
- * sys_env_device_rev_get - Get Marvell controller device revision number
- *
- * DESCRIPTION:
- *       This function returns 8bit describing the device revision as defined
- *       Revision ID Register.
- *
- * INPUT:
- *       None.
- *
- * OUTPUT:
- *       None.
- *
- * RETURN:
- *       8bit desscribing Marvell controller revision number
- */
-u8 sys_env_device_rev_get(void)
-{
-	u32 value;
-
-	value = reg_read(DEV_VERSION_ID_REG);
-	return (value & (REVISON_ID_MASK)) >> REVISON_ID_OFFS;
-}
-
-/*
  * sys_env_dlb_config_ptr_get
  *
  * DESCRIPTION: defines pointer to to DLB COnfiguration table
