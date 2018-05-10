@@ -232,4 +232,5 @@ u32 mv_ddr_dm_pad_get(void);
 int mv_ddr_pre_training_fixup(void);
 int mv_ddr_post_training_fixup(void);
 int mv_ddr_manual_cal_do(void);
+int ddr3_calc_mem_cs_size(u32 cs, uint64_t *cs_size);
 #endif /* _MV_DDR_PLAT_H */
