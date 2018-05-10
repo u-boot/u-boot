@@ -6,8 +6,6 @@
 #ifndef _DDR3_TRAINING_IP_DEF_H
 #define _DDR3_TRAINING_IP_DEF_H
 
-#include "silicon_if.h"
-
 #define PATTERN_55			0x55555555
 #define PATTERN_AA			0xaaaaaaaa
 #define PATTERN_80			0x80808080
@@ -35,6 +33,7 @@
 #define ADLL_RX_LENGTH			32
 
 #define PARAM_NOT_CARE			0
+#define PARAM_UNDEFINED			0xffffffff
 
 #define READ_LEVELING_PHY_OFFSET	2
 #define WRITE_LEVELING_PHY_OFFSET	0
@@ -99,6 +98,8 @@
 
 #define _1G				0x40000000
 #define _2G				0x80000000
+#define _4G				0x100000000
+#define _8G				0x200000000
 
 #define ADDR_SIZE_512MB			0x04000000
 #define ADDR_SIZE_1GB			0x08000000
@@ -163,10 +164,33 @@ enum hws_wl_supp {
 	ALIGN_SHIFT
 };
 
+enum  mv_ddr_tip_bit_state {
+	BIT_LOW_UI,
+	BIT_HIGH_UI,
+	BIT_SPLIT_IN,
+	BIT_SPLIT_OUT,
+	BIT_STATE_LAST
+};
+
+enum  mv_ddr_tip_byte_state{
+	BYTE_NOT_DEFINED,
+	BYTE_HOMOGENEOUS_LOW = 0x1,
+	BYTE_HOMOGENEOUS_HIGH = 0x2,
+	BYTE_HOMOGENEOUS_SPLIT_IN = 0x4,
+	BYTE_HOMOGENEOUS_SPLIT_OUT = 0x8,
+	BYTE_SPLIT_OUT_MIX = 0x10,
+	BYTE_STATE_LAST
+};
+
 struct reg_data {
-	u32 reg_addr;
-	u32 reg_data;
-	u32 reg_mask;
+	unsigned int reg_addr;
+	unsigned int reg_data;
+	unsigned int reg_mask;
+};
+
+enum dm_direction {
+	DM_DIR_INVERSE,
+	DM_DIR_DIRECT
 };
 
 #endif /* _DDR3_TRAINING_IP_DEF_H */
