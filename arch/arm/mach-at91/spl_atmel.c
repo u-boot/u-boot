@@ -98,8 +98,10 @@ void board_init_f(ulong dummy)
 	configure_2nd_sram_as_l2_cache();
 #endif
 
+#if !defined(CONFIG_AT91SAM9_WATCHDOG)
 	/* disable watchdog */
 	at91_disable_wdt();
+#endif
 
 	/* PMC configuration */
 	at91_pmc_init();

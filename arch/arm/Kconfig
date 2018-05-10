@@ -393,7 +393,7 @@ choice
 
 config ARCH_AT91
 	bool "Atmel AT91"
-	select SPL_BOARD_INIT if SPL
+	select SPL_BOARD_INIT if SPL && !TARGET_SMARTWEB
 
 config TARGET_EDB93XX
 	bool "Support edb93xx"
