@@ -41,7 +41,7 @@ install:
  # prepare buildman environment
  - echo -e "[toolchain]\nroot = /usr" > ~/.buildman
  - echo -e "arc = /tmp/arc_gnu_2017.09_prebuilt_uclibc_le_archs_linux_install" >> ~/.buildman
- - echo -e "\n[toolchain-alias]\nsh = sh2\nx86 = x86_64\nsandbox = x86_64\n" >> ~/.buildman
+ - echo -e "\n[toolchain-alias]\nsh = sh2\n" >> ~/.buildman
  - cat ~/.buildman
  - virtualenv /tmp/venv
  - . /tmp/venv/bin/activate
@@ -150,26 +150,16 @@ matrix:
         - BUILDMAN="arc"
           TOOLCHAIN="arc"
     - env:
-        - BUILDMAN="arm11"
-    - env:
-        - BUILDMAN="arm7"
-    - env:
-        - BUILDMAN="arm920t"
+        - BUILDMAN="arm11 arm7 arm920t arm946es"
     - env:
         - JOB="arm926ejs"
           BUILDMAN="arm926ejs -x mx,siemens,atmel"
-    - env:
-        - BUILDMAN="arm946es"
     - env:
         - BUILDMAN="atmel"
     - env:
         - BUILDMAN="aries"
     - env:
-        - JOB="Boundary Devices"
-          BUILDMAN="boundary"
-    - env:
-        - JOB="engicam"
-          BUILDMAN="engicam"
+          BUILDMAN="boundary engicam toradex"
     - env:
         - JOB="Freescale ARM32"
           BUILDMAN="freescale -x powerpc,m68k,aarch64"
@@ -185,9 +175,7 @@ matrix:
     - env:
         - BUILDMAN="k2"
     - env:
-        - BUILDMAN="samsung"
-    - env:
-        - BUILDMAN="socfpga"
+        - BUILDMAN="samsung socfpga"
     - env:
         - BUILDMAN="sun4i"
     - env:
@@ -204,12 +192,10 @@ matrix:
         - BUILDMAN="sun50i"
     - env:
         - JOB="Catch-all ARM"
-          BUILDMAN="arm -x arm11,arm7,arm9,aarch64,atmel,aries,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap3,omap4,omap5,pxa,rockchip,toradex,socfpga,k2,xilinx"
+          BUILDMAN="arm -x arm11,arm7,arm9,aarch64,atmel,aries,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,pxa,rockchip,toradex,socfpga,k2,xilinx"
     - env:
         - BUILDMAN="sandbox x86"
           TOOLCHAIN="x86_64"
-    - env:
-        - BUILDMAN="toradex"
     - env:
         - BUILDMAN="kirkwood"
     - env:
@@ -227,19 +213,17 @@ matrix:
         - BUILDMAN="mips"
           TOOLCHAIN="mips"
     - env:
-        - BUILDMAN="mpc83xx"
+        - JOB="Non-Freescale PowerPC"
+          BUILDMAN="powerpc -x freescale"
           TOOLCHAIN="powerpc"
     - env:
-        - BUILDMAN="mpc85xx -x freescale"
+        - BUILDMAN="mpc85xx&freescale -x t208xrdb -x t4qds -x t102* -x p1_p2_rdb_pc -x p1010rdb -x corenet_ds -x b4860qds -x bsc91*"
           TOOLCHAIN="powerpc"
     - env:
-        - BUILDMAN="mpc85xx -x t208xrdb -x t4qds -x t102* -x p1_p2_rdb_pc -x p1010rdb -x corenet_ds -x b4860qds -x sbc8548 -x bsc91*"
+        - BUILDMAN="t208xrdb corenet_ds"
           TOOLCHAIN="powerpc"
     - env:
-        - BUILDMAN="t208xrdb"
-          TOOLCHAIN="powerpc"
-    - env:
-        - BUILDMAN="t4qds"
+        - BUILDMAN="t4qds b4860qds mpc83xx&freescale mpc86xx&freescale"
           TOOLCHAIN="powerpc"
     - env:
         - BUILDMAN="t102*"
@@ -248,16 +232,7 @@ matrix:
         - BUILDMAN="p1_p2_rdb_pc"
           TOOLCHAIN="powerpc"
     - env:
-        - BUILDMAN="p1010rdb"
-          TOOLCHAIN="powerpc"
-    - env:
-        - BUILDMAN="corenet_ds b4860qds sbc8548 bsc91*"
-          TOOLCHAIN="powerpc"
-    - env:
-        - BUILDMAN="mpc86xx"
-          TOOLCHAIN="powerpc"
-    - env:
-        - BUILDMAN="mpc8xx"
+        - BUILDMAN="p1010rdb bsc91"
           TOOLCHAIN="powerpc"
     - env:
         - BUILDMAN="siemens"
@@ -268,16 +243,12 @@ matrix:
         - JOB="am33xx"
           BUILDMAN="am33xx -x siemens"
     - env:
-        - BUILDMAN="omap3"
-    - env:
-        - BUILDMAN="omap4"
-    - env:
-        - BUILDMAN="omap5"
+        - BUILDMAN="omap"
     - env:
         - BUILDMAN="uniphier"
     - env:
-        - JOB="aarch64"
-          BUILDMAN="aarch64 -x tegra,freescale,mvebu,uniphier,sunxi,samsung,rockchip"
+        - JOB="Catch-all AArch64"
+          BUILDMAN="aarch64 -x tegra,freescale,mvebu,uniphier,sunxi,samsung,rockchip,xilinx"
     - env:
         - BUILDMAN="rockchip"
     - env:
