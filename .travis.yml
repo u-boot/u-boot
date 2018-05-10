@@ -21,13 +21,17 @@ addons:
     - python-virtualenv
     - swig
     - libpython-dev
-    - gcc-powerpc-linux-gnu
     - iasl
     - grub-efi-ia32-bin
     - rpm2cpio
     - wget
     - device-tree-compiler
     - lzop
+
+before_install:
+ - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+ - sudo apt-get update -q
+ - sudo apt-get install libisl15 -y
 
 install:
  # Clone uboot-test-hooks
@@ -36,10 +40,8 @@ install:
  - ln -s travis-ci /tmp/uboot-test-hooks/py/`hostname`
  # prepare buildman environment
  - echo -e "[toolchain]\nroot = /usr" > ~/.buildman
- - echo -e "aarch64 = /tmp/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu" >> ~/.buildman
- - echo -e "arm = /tmp/gcc-linaro-6.3.1-2017.02-x86_64_arm-linux-gnueabihf" >> ~/.buildman
  - echo -e "arc = /tmp/arc_gnu_2017.09_prebuilt_uclibc_le_archs_linux_install" >> ~/.buildman
- - echo -e "\n[toolchain-alias]\nsh = sh4\nopenrisc = or32" >> ~/.buildman
+ - echo -e "\n[toolchain-alias]\nsh = sh2\nx86 = x86_64\nsandbox = x86_64\n" >> ~/.buildman
  - cat ~/.buildman
  - virtualenv /tmp/venv
  - . /tmp/venv/bin/activate
@@ -64,10 +66,10 @@ before_script:
   - if [[ "${TOOLCHAIN}" == *microblaze* ]]; then ./tools/buildman/buildman --fetch-arch microblaze ; fi
   - if [[ "${TOOLCHAIN}" == *mips* ]]; then ./tools/buildman/buildman --fetch-arch mips ; fi
   - if [[ "${TOOLCHAIN}" == *or32* ]]; then ./tools/buildman/buildman --fetch-arch or32 ; fi
-  - if [[ "${TOOLCHAIN}" == *sh4* ]]; then ./tools/buildman/buildman --fetch-arch sh4 ; fi
+  - if [[ "${TOOLCHAIN}" == *sh* ]]; then ./tools/buildman/buildman --fetch-arch sh2 ; fi
   - if [[ "${TOOLCHAIN}" == *x86_64* ]]; then
       ./tools/buildman/buildman --fetch-arch x86_64;
-      echo -e "\n[toolchain-prefix]\nx86 = ${HOME}/.buildman-toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin/x86_64-linux-" >> ~/.buildman;
+      echo -e "\n[toolchain-prefix]\nx86 = ${HOME}/.buildman-toolchains/gcc-7.3.0-nolibc/x86_64-linux/bin/x86_64-linux-" >> ~/.buildman;
     fi
   - if [[ "${TOOLCHAIN}" == arc ]]; then
        wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2017.09-release/arc_gnu_2017.09_prebuilt_uclibc_le_archs_linux_install.tar.gz &&
@@ -80,11 +82,10 @@ before_script:
     fi
   # If TOOLCHAIN is unset, we're on some flavour of ARM.
   - if [[ "${TOOLCHAIN}" == "" ]]; then
-       wget http://releases.linaro.org/components/toolchain/binaries/6.3-2017.02/aarch64-linux-gnu/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu.tar.xz &&
-       wget http://releases.linaro.org/components/toolchain/binaries/6.3-2017.02/arm-linux-gnueabihf/gcc-linaro-6.3.1-2017.02-x86_64_arm-linux-gnueabihf.tar.xz &&
-       tar -C /tmp -xf gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu.tar.xz &&
-       tar -C /tmp -xf gcc-linaro-6.3.1-2017.02-x86_64_arm-linux-gnueabihf.tar.xz;
+       ./tools/buildman/buildman --fetch-arch arm &&
+       ./tools/buildman/buildman --fetch-arch aarch64;
     fi
+  - if [[ "${TOOLCHAIN}" == "powerpc" ]]; then ./tools/buildman/buildman --fetch-arch powerpc; fi
   - if [[ "${TOOLCHAIN}" == "riscv" ]]; then
         wget https://github.com/PkmX/riscv-prebuilt-toolchains/releases/download/20180111/riscv32-unknown-elf-toolchain.tar.gz &&
         tar -C /tmp -xf riscv32-unknown-elf-toolchain.tar.gz &&
@@ -227,26 +228,37 @@ matrix:
           TOOLCHAIN="mips"
     - env:
         - BUILDMAN="mpc83xx"
+          TOOLCHAIN="powerpc"
     - env:
         - BUILDMAN="mpc85xx -x freescale"
+          TOOLCHAIN="powerpc"
     - env:
         - BUILDMAN="mpc85xx -x t208xrdb -x t4qds -x t102* -x p1_p2_rdb_pc -x p1010rdb -x corenet_ds -x b4860qds -x sbc8548 -x bsc91*"
+          TOOLCHAIN="powerpc"
     - env:
         - BUILDMAN="t208xrdb"
+          TOOLCHAIN="powerpc"
     - env:
         - BUILDMAN="t4qds"
+          TOOLCHAIN="powerpc"
     - env:
         - BUILDMAN="t102*"
+          TOOLCHAIN="powerpc"
     - env:
         - BUILDMAN="p1_p2_rdb_pc"
+          TOOLCHAIN="powerpc"
     - env:
         - BUILDMAN="p1010rdb"
+          TOOLCHAIN="powerpc"
     - env:
         - BUILDMAN="corenet_ds b4860qds sbc8548 bsc91*"
+          TOOLCHAIN="powerpc"
     - env:
         - BUILDMAN="mpc86xx"
+          TOOLCHAIN="powerpc"
     - env:
         - BUILDMAN="mpc8xx"
+          TOOLCHAIN="powerpc"
     - env:
         - BUILDMAN="siemens"
     - env:
@@ -269,8 +281,9 @@ matrix:
     - env:
         - BUILDMAN="rockchip"
     - env:
-        - BUILDMAN="sh4"
-          TOOLCHAIN="sh4"
+        - JOB="sh"
+          BUILDMAN="sh -x arm"
+          TOOLCHAIN="sh"
     - env:
         - JOB="Xilinx (ARM)"
           BUILDMAN="xilinx -x microblaze"
@@ -376,6 +389,7 @@ matrix:
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="ppc-softmmu"
           BUILDMAN="^qemu-ppce500$"
+          TOOLCHAIN="powerpc"
     - env:
         - TEST_PY_BD="qemu-x86"
           TEST_PY_TEST_SPEC="not sleep"
