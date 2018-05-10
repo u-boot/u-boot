@@ -47,7 +47,7 @@ DEFINE_CACHE_ALIGN_BUFFER(unsigned char, thor_rx_data_buf,
 /* ********************************************************** */
 /*         THOR protocol - transmission handling	      */
 /* ********************************************************** */
-DEFINE_CACHE_ALIGN_BUFFER(char, f_name, F_NAME_BUF_SIZE);
+DEFINE_CACHE_ALIGN_BUFFER(char, f_name, F_NAME_BUF_SIZE + 1);
 static unsigned long long int thor_file_size;
 static int alt_setting_num;
 
@@ -276,6 +276,7 @@ static long long int process_rqt_download(const struct rqt_box *rqt)
 
 		thor_file_size = rqt->int_data[1];
 		memcpy(f_name, rqt->str_data[0], F_NAME_BUF_SIZE);
+		f_name[F_NAME_BUF_SIZE] = '\0';
 
 		debug("INFO: name(%s, %d), size(%llu), type(%d)\n",
 		      f_name, 0, thor_file_size, file_type);
