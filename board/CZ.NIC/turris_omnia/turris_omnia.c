@@ -214,7 +214,8 @@ static struct mv_ddr_topology_map board_topology_map_1g = {
 	    MV_DDR_DIE_CAP_4GBIT,			/* mem_size */
 	    DDR_FREQ_800,		/* frequency */
 	    0, 0,			/* cas_wl cas_l */
-	    MV_DDR_TEMP_NORMAL} },	/* temperature */
+	    MV_DDR_TEMP_NORMAL,		/* temperature */
+	    MV_DDR_TIM_2T} },		/* timing */
 	BUS_MASK_32BIT,			/* Busses mask */
 	MV_DDR_CFG_DEFAULT,		/* ddr configuration data source */
 	{ {0} },			/* raw spd data */
@@ -235,7 +236,8 @@ static struct mv_ddr_topology_map board_topology_map_2g = {
 	    MV_DDR_DIE_CAP_8GBIT,			/* mem_size */
 	    DDR_FREQ_800,		/* frequency */
 	    0, 0,			/* cas_wl cas_l */
-	    MV_DDR_TEMP_NORMAL} },	/* temperature */
+	    MV_DDR_TEMP_NORMAL,		/* temperature */
+	    MV_DDR_TIM_2T} },		/* timing */
 	BUS_MASK_32BIT,			/* Busses mask */
 	MV_DDR_CFG_DEFAULT,		/* ddr configuration data source */
 	{ {0} },			/* raw spd data */

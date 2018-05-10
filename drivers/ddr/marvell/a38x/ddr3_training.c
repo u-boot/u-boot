@@ -365,6 +365,7 @@ int hws_ddr3_tip_init_controller(u32 dev_num, struct init_cntr_param *init_cntr_
 	u32 octets_per_if_num = ddr3_tip_dev_attr_get(dev_num, MV_ATTR_OCTET_PER_INTERFACE);
 	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
 	enum hws_ddr_freq freq = tm->interface_params[0].memory_freq;
+	enum mv_ddr_timing timing;
 
 	DEBUG_TRAINING_IP(DEBUG_LEVEL_TRACE,
 			  ("Init_controller, do_mrs_phy=%d, is_ctrl64_bit=%d\n",
@@ -603,8 +604,12 @@ int hws_ddr3_tip_init_controller(u32 dev_num, struct init_cntr_param *init_cntr_
 				      DUNIT_CTRL_HIGH_REG,
 				      (init_cntr_prm->msys_init << 7), (1 << 7)));
 
+			timing = tm->interface_params[if_id].timing;
+
 			if (mode_2t != 0xff) {
 				t2t = mode_2t;
+			} else if (timing != MV_DDR_TIM_DEFAULT) {
+				t2t = (timing == MV_DDR_TIM_2T) ? 1 : 0;
 			} else {
 				/* calculate number of CS (per interface) */
 				CHECK_STATUS(calc_cs_num
@@ -1268,6 +1273,7 @@ int ddr3_tip_freq_set(u32 dev_num, enum hws_access_type access_type,
 	u32 octets_per_if_num = ddr3_tip_dev_attr_get(dev_num, MV_ATTR_OCTET_PER_INTERFACE);
 	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
 	unsigned int tclk;
+	enum mv_ddr_timing timing = tm->interface_params[if_id].timing;
 
 	DEBUG_TRAINING_IP(DEBUG_LEVEL_TRACE,
 			  ("dev %d access %d IF %d freq %d\n", dev_num,
@@ -1410,6 +1416,8 @@ int ddr3_tip_freq_set(u32 dev_num, enum hws_access_type access_type,
 		/* Calculate 2T mode */
 		if (mode_2t != 0xff) {
 			t2t = mode_2t;
+		} else if (timing != MV_DDR_TIM_DEFAULT) {
+			t2t = (timing == MV_DDR_TIM_2T) ? 1 : 0;
 		} else {
 			/* Calculate number of CS per interface */
 			CHECK_STATUS(calc_cs_num(dev_num, if_id, &cs_num));

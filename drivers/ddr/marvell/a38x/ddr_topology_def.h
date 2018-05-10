@@ -64,6 +64,9 @@ struct if_params {
 
 	/* operation temperature */
 	enum mv_ddr_temperature interface_temp;
+
+	/* 2T vs 1T mode (by default computed from number of CSs) */
+	enum mv_ddr_timing timing;
 };
 
 struct mv_ddr_topology_map {
