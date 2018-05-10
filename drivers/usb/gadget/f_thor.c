@@ -262,8 +262,10 @@ static long long int process_rqt_download(const struct rqt_box *rqt)
 
 	switch (rqt->rqt_data) {
 	case RQT_DL_INIT:
-		thor_file_size = rqt->int_data[0];
-		debug("INIT: total %d bytes\n", rqt->int_data[0]);
+		thor_file_size = (unsigned long long int)rqt->int_data[0] +
+				 (((unsigned long long int)rqt->int_data[1])
+				  << 32);
+		debug("INIT: total %llu bytes\n", thor_file_size);
 		break;
 	case RQT_DL_FILE_INFO:
 		file_type = rqt->int_data[0];
@@ -274,7 +276,9 @@ static long long int process_rqt_download(const struct rqt_box *rqt)
 			break;
 		}
 
-		thor_file_size = rqt->int_data[1];
+		thor_file_size = (unsigned long long int)rqt->int_data[1] +
+				 (((unsigned long long int)rqt->int_data[2])
+				  << 32);
 		memcpy(f_name, rqt->str_data[0], F_NAME_BUF_SIZE);
 		f_name[F_NAME_BUF_SIZE] = '\0';
 

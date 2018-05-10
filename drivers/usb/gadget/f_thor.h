@@ -34,7 +34,7 @@ struct usb_cdc_attribute_vendor_descriptor {
 	__u8 DAUValue;
 } __packed;
 
-#define VER_PROTOCOL_MAJOR	4
+#define VER_PROTOCOL_MAJOR	5
 #define VER_PROTOCOL_MINOR	0
 
 enum rqt {
