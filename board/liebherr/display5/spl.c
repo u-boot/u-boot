@@ -16,6 +16,7 @@
 #include <asm/arch/imx-regs.h>
 #include "asm/arch/iomux.h"
 #include <asm/mach-imx/iomux-v3.h>
+#include <asm/gpio.h>
 #include <environment.h>
 #include <fsl_esdhc.h>
 #include <netdev.h>
@@ -194,8 +195,22 @@ void board_init_f(ulong dummy)
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
+	displ5_set_iomux_misc_spl();
+
 	/* load/boot image from boot device */
 	board_init_r(NULL, 0);
+}
+
+#define EM_PAD IMX_GPIO_NR(3, 29)
+int board_check_emergency_pad(void)
+{
+	int ret;
+
+	ret = gpio_direction_input(EM_PAD);
+	if (ret)
+		return ret;
+
+	return !gpio_get_value(EM_PAD);
 }
 
 void board_boot_order(u32 *spl_boot_list)
@@ -205,6 +220,13 @@ void board_boot_order(u32 *spl_boot_list)
 	spl_boot_list[1] = BOOT_DEVICE_MMC1;
 	spl_boot_list[2] = BOOT_DEVICE_UART;
 	spl_boot_list[3] = BOOT_DEVICE_NONE;
+
+	/*
+	 * In case of emergency PAD pressed, we always boot
+	 * to proper u-boot and perform recovery tasks there.
+	 */
+	if (board_check_emergency_pad())
+		return;
 
 #ifdef CONFIG_SPL_ENV_SUPPORT
 	/* 'fastboot' */

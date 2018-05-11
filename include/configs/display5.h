@@ -100,11 +100,13 @@
 #define CONFIG_BAUDRATE			115200
 
 #ifndef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND "if test ${BOOT_FROM} = FACTORY; then " \
+#define CONFIG_BOOTCOMMAND "if run check_em_pad; then " \
+	     "run recovery;" \
+	"else if test ${BOOT_FROM} = FACTORY; then " \
 	     "run factory_nfs;" \
 	"else " \
 	     "run boot_mmc;" \
-	"fi"
+	"fi;fi"
 #endif
 
 #define PARTS_DEFAULT \
@@ -246,6 +248,8 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS	  \
 	PARTS_DEFAULT \
+	"gpio_recovery=93\0" \
+	"check_em_pad=gpio input ${gpio_recovery};test $? -eq 0;\0" \
 	"display=tianma-tm070-800x480\0" \
 	"board=display5\0" \
 	"mmcdev=0\0" \

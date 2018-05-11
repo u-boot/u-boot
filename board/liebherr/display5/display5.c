@@ -44,6 +44,7 @@ static bool sw_ids_valid;
 static u32 cpu_id;
 static u32 unit_id;
 
+#define EM_PAD IMX_GPIO_NR(3, 29)
 #define SW0	IMX_GPIO_NR(2, 4)
 #define SW1	IMX_GPIO_NR(2, 5)
 #define SW2	IMX_GPIO_NR(2, 6)
@@ -179,6 +180,9 @@ iomux_v3_cfg_t const misc_pads[] = {
 
 	/* XTALOSC */
 	MX6_PAD_GPIO_3__XTALOSC_REF_CLK_24M | MUX_PAD_CTRL(NO_PAD_CTRL),
+
+	/* Emergency recovery pin */
+	MX6_PAD_EIM_D29__GPIO3_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
 #ifdef CONFIG_FSL_ESDHC
@@ -369,7 +373,22 @@ static inline void setup_boot_modes(void) {}
 
 int misc_init_r(void)
 {
+	int ret;
+
 	setup_boot_modes();
+
+	ret = gpio_request(EM_PAD, "Emergency_PAD");
+	if (ret) {
+		printf("Can't request emergency PAD gpio\n");
+		return ret;
+	}
+
+	ret = gpio_direction_input(EM_PAD);
+	if (ret) {
+		printf("Can't set emergency PAD direction\n");
+		return ret;
+	}
+
 	return 0;
 }
 
