@@ -1022,29 +1022,6 @@ out:
 }
 
 /*
- * Reinstall protocol interface.
- *
- * This function implements the ReinstallProtocolInterface service.
- * See the Unified Extensible Firmware Interface (UEFI) specification
- * for details.
- *
- * @handle			handle on which the protocol shall be
- *				reinstalled
- * @protocol			GUID of the protocol to be installed
- * @old_interface		interface to be removed
- * @new_interface		interface to be installed
- * @return			status code
- */
-static efi_status_t EFIAPI efi_reinstall_protocol_interface(
-			efi_handle_t handle, const efi_guid_t *protocol,
-			void *old_interface, void *new_interface)
-{
-	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, old_interface,
-		  new_interface);
-	return EFI_EXIT(EFI_ACCESS_DENIED);
-}
-
-/*
  * Get all drivers associated to a controller.
  * The allocated buffer has to be freed with free().
  *
@@ -2770,6 +2747,49 @@ static efi_status_t EFIAPI efi_connect_controller(
 	if (ret != EFI_SUCCESS && remain_device_path &&
 	    remain_device_path->type == DEVICE_PATH_TYPE_END)
 		ret = EFI_SUCCESS;
+out:
+	return EFI_EXIT(ret);
+}
+
+/*
+ * Reinstall protocol interface.
+ *
+ * This function implements the ReinstallProtocolInterface service.
+ * See the Unified Extensible Firmware Interface (UEFI) specification
+ * for details.
+ *
+ * The old interface is uninstalled. The new interface is installed.
+ * Drivers are connected.
+ *
+ * @handle			handle on which the protocol shall be
+ *				reinstalled
+ * @protocol			GUID of the protocol to be installed
+ * @old_interface		interface to be removed
+ * @new_interface		interface to be installed
+ * @return			status code
+ */
+static efi_status_t EFIAPI efi_reinstall_protocol_interface(
+			efi_handle_t handle, const efi_guid_t *protocol,
+			void *old_interface, void *new_interface)
+{
+	efi_status_t ret;
+
+	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, old_interface,
+		  new_interface);
+	ret = EFI_CALL(efi_uninstall_protocol_interface(handle, protocol,
+							old_interface));
+	if (ret != EFI_SUCCESS)
+		goto out;
+	ret = EFI_CALL(efi_install_protocol_interface(&handle, protocol,
+						      EFI_NATIVE_INTERFACE,
+						      new_interface));
+	if (ret != EFI_SUCCESS)
+		goto out;
+	/*
+	 * The returned status code has to be ignored.
+	 * Do not create an error if no suitable driver for the handle exists.
+	 */
+	EFI_CALL(efi_connect_controller(handle, NULL, NULL, true));
 out:
 	return EFI_EXIT(ret);
 }
