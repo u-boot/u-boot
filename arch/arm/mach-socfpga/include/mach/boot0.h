@@ -17,8 +17,8 @@ _start:
 	.word	0xcafec0d3;	/* Checksum, zero-pad */
 	nop;
 
-	b reset;		/* SoCFPGA jumps here */
-	nop;
+	b reset;		/* SoCFPGA Gen5 jumps here */
+	b reset;		/* SoCFPGA Gen10 trampoline */
 	nop;
 	nop;
 #endif

@@ -259,7 +259,7 @@ enum {
 	IH_TYPE_MXSIMAGE,		/* Freescale MXSBoot Image	*/
 	IH_TYPE_GPIMAGE,		/* TI Keystone GPHeader Image	*/
 	IH_TYPE_ATMELIMAGE,		/* ATMEL ROM bootable Image	*/
-	IH_TYPE_SOCFPGAIMAGE,		/* Altera SOCFPGA Preloader	*/
+	IH_TYPE_SOCFPGAIMAGE,		/* Altera SOCFPGA CV/AV Preloader */
 	IH_TYPE_X86_SETUP,		/* x86 setup.bin Image		*/
 	IH_TYPE_LPC32XXIMAGE,		/* x86 setup.bin Image		*/
 	IH_TYPE_LOADABLE,		/* A list of typeless images	*/
@@ -274,6 +274,7 @@ enum {
 	IH_TYPE_FIRMWARE_IVT,		/* Firmware Image with HABv4 IVT */
 	IH_TYPE_PMMC,            /* TI Power Management Micro-Controller Firmware */
 	IH_TYPE_STM32IMAGE,		/* STMicroelectronics STM32 Image */
+	IH_TYPE_SOCFPGAIMAGE_V1,	/* Altera SOCFPGA A10 Preloader	*/
 
 	IH_TYPE_COUNT,			/* Number of image types */
 };

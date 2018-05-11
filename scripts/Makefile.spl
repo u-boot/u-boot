@@ -307,7 +307,11 @@ LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
 endif
 endif
 
+ifdef CONFIG_TARGET_SOCFPGA_ARRIA10
+MKIMAGEFLAGS_$(SPL_BIN).sfp = -T socfpgaimage_v1
+else
 MKIMAGEFLAGS_$(SPL_BIN).sfp = -T socfpgaimage
+endif
 $(obj)/$(SPL_BIN).sfp: $(obj)/$(SPL_BIN).bin FORCE
 	$(call if_changed,mkimage)
 
