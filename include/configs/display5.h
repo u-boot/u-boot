@@ -263,7 +263,7 @@
 	"hostname=display5\0" \
 	"loadaddr=0x12000000\0" \
 	"fdtaddr=0x12800000\0" \
-	"console=ttymxc4,115200 quiet\0" \
+	"console=ttymxc4,115200 quiet cma=256M\0" \
 	"fdtfile=imx6q-display5.dtb\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
