@@ -209,7 +209,7 @@
 	"; fi\0"	  \
 
 #define TFTP_UPDATE_RECOVERY_SWU_INITRAMFS \
-	"swu_initramfs_file=swupdate-image-display5.ext3.gz.u-boot\0" \
+	"swu_initramfs_file=swupdate-image-display5.ext4.gz.u-boot\0" \
 	"tftp_sf_initramfs_SWU=" \
 	    "if tftp ${loadaddr} ${swu_initramfs_file}; then " \
 		"sf probe;" \
