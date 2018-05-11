@@ -900,7 +900,7 @@ void comphy_dedicated_phys_init(void)
 		 */
 		if (usb32 == 0) {
 			node = fdt_node_offset_by_compatible(
-				blob, -1, "marvell,armada-3700-ehci");
+				blob, -1, "marvell,armada3700-ehci");
 		} else {
 			node = fdt_node_offset_by_compatible(
 				blob, -1, "marvell,armada3700-xhci");
