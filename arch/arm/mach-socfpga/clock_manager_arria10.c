@@ -9,6 +9,9 @@
 #include <dm.h>
 #include <asm/arch/clock_manager.h>
 
+static const struct socfpga_clock_manager *clock_manager_base =
+	(struct socfpga_clock_manager *)SOCFPGA_CLKMGR_ADDRESS;
+
 static u32 eosc1_hz;
 static u32 cb_intosc_hz;
 static u32 f2s_free_hz;
@@ -64,89 +67,150 @@ struct perpll_cfg {
 	u32 cntr8clk_cnt;
 	u32 cntr8clk_src;
 	u32 cntr9clk_cnt;
+	u32 cntr9clk_src;
 	u32 emacctl_emac0sel;
 	u32 emacctl_emac1sel;
 	u32 emacctl_emac2sel;
 	u32 gpiodiv_gpiodbclk;
 };
 
-struct alteragrp_cfg {
-	u32 nocclk;
-	u32 mpuclk;
+struct strtou32 {
+	const char *str;
+	const u32 val;
 };
 
-static const struct socfpga_clock_manager *clock_manager_base =
-	(struct socfpga_clock_manager *)SOCFPGA_CLKMGR_ADDRESS;
+static const struct strtou32 mainpll_cfg_tab[] = {
+	{ "vco0-psrc", offsetof(struct mainpll_cfg, vco0_psrc) },
+	{ "vco1-denom", offsetof(struct mainpll_cfg, vco1_denom) },
+	{ "vco1-numer", offsetof(struct mainpll_cfg, vco1_numer) },
+	{ "mpuclk-cnt", offsetof(struct mainpll_cfg, mpuclk_cnt) },
+	{ "mpuclk-src", offsetof(struct mainpll_cfg, mpuclk_src) },
+	{ "nocclk-cnt", offsetof(struct mainpll_cfg, nocclk_cnt) },
+	{ "nocclk-src", offsetof(struct mainpll_cfg, nocclk_src) },
+	{ "cntr2clk-cnt", offsetof(struct mainpll_cfg, cntr2clk_cnt) },
+	{ "cntr3clk-cnt", offsetof(struct mainpll_cfg, cntr3clk_cnt) },
+	{ "cntr4clk-cnt", offsetof(struct mainpll_cfg, cntr4clk_cnt) },
+	{ "cntr5clk-cnt", offsetof(struct mainpll_cfg, cntr5clk_cnt) },
+	{ "cntr6clk-cnt", offsetof(struct mainpll_cfg, cntr6clk_cnt) },
+	{ "cntr7clk-cnt", offsetof(struct mainpll_cfg, cntr7clk_cnt) },
+	{ "cntr7clk-src", offsetof(struct mainpll_cfg, cntr7clk_src) },
+	{ "cntr8clk-cnt", offsetof(struct mainpll_cfg, cntr8clk_cnt) },
+	{ "cntr9clk-cnt", offsetof(struct mainpll_cfg, cntr9clk_cnt) },
+	{ "cntr9clk-src", offsetof(struct mainpll_cfg, cntr9clk_src) },
+	{ "cntr15clk-cnt", offsetof(struct mainpll_cfg, cntr15clk_cnt) },
+	{ "nocdiv-l4mainclk", offsetof(struct mainpll_cfg, nocdiv_l4mainclk) },
+	{ "nocdiv-l4mpclk", offsetof(struct mainpll_cfg, nocdiv_l4mpclk) },
+	{ "nocdiv-l4spclk", offsetof(struct mainpll_cfg, nocdiv_l4spclk) },
+	{ "nocdiv-csatclk", offsetof(struct mainpll_cfg, nocdiv_csatclk) },
+	{ "nocdiv-cstraceclk", offsetof(struct mainpll_cfg, nocdiv_cstraceclk) },
+	{ "nocdiv-cspdbgclk", offsetof(struct mainpll_cfg, nocdiv_cspdbclk) },
+};
 
-static int of_to_struct(const void *blob, int node, int cfg_len, void *cfg)
+static const struct strtou32 perpll_cfg_tab[] = {
+	{ "vco0-psrc", offsetof(struct perpll_cfg, vco0_psrc) },
+	{ "vco1-denom", offsetof(struct perpll_cfg, vco1_denom) },
+	{ "vco1-numer", offsetof(struct perpll_cfg, vco1_numer) },
+	{ "cntr2clk-cnt", offsetof(struct perpll_cfg, cntr2clk_cnt) },
+	{ "cntr2clk-src", offsetof(struct perpll_cfg, cntr2clk_src) },
+	{ "cntr3clk-cnt", offsetof(struct perpll_cfg, cntr3clk_cnt) },
+	{ "cntr3clk-src", offsetof(struct perpll_cfg, cntr3clk_src) },
+	{ "cntr4clk-cnt", offsetof(struct perpll_cfg, cntr4clk_cnt) },
+	{ "cntr4clk-src", offsetof(struct perpll_cfg, cntr4clk_src) },
+	{ "cntr5clk-cnt", offsetof(struct perpll_cfg, cntr5clk_cnt) },
+	{ "cntr5clk-src", offsetof(struct perpll_cfg, cntr5clk_src) },
+	{ "cntr6clk-cnt", offsetof(struct perpll_cfg, cntr6clk_cnt) },
+	{ "cntr6clk-src", offsetof(struct perpll_cfg, cntr6clk_src) },
+	{ "cntr7clk-cnt", offsetof(struct perpll_cfg, cntr7clk_cnt) },
+	{ "cntr8clk-cnt", offsetof(struct perpll_cfg, cntr8clk_cnt) },
+	{ "cntr8clk-src", offsetof(struct perpll_cfg, cntr8clk_src) },
+	{ "cntr9clk-cnt", offsetof(struct perpll_cfg, cntr9clk_cnt) },
+	{ "emacctl-emac0sel", offsetof(struct perpll_cfg, emacctl_emac0sel) },
+	{ "emacctl-emac1sel", offsetof(struct perpll_cfg, emacctl_emac1sel) },
+	{ "emacctl-emac2sel", offsetof(struct perpll_cfg, emacctl_emac2sel) },
+	{ "gpiodiv-gpiodbclk", offsetof(struct perpll_cfg, gpiodiv_gpiodbclk) },
+};
+
+static const struct strtou32 alteragrp_cfg_tab[] = {
+	{ "nocclk", offsetof(struct mainpll_cfg, nocclk) },
+	{ "mpuclk", offsetof(struct mainpll_cfg, mpuclk) },
+};
+
+struct strtopu32 {
+	const char *str;
+	u32 *p;
+};
+
+const struct strtopu32 dt_to_val[] = {
+	{ "/clocks/altera_arria10_hps_eosc1", &eosc1_hz},
+	{ "/clocks/altera_arria10_hps_cb_intosc_ls", &cb_intosc_hz},
+	{ "/clocks/altera_arria10_hps_f2h_free", &f2s_free_hz},
+};
+
+static int of_to_struct(const void *blob, int node, const struct strtou32 *cfg_tab,
+			int cfg_tab_len, void *cfg)
 {
-	if (fdtdec_get_int_array(blob, node, "altr,of_reg_value",
-				 (u32 *)cfg, cfg_len)) {
-		/* could not find required property */
-		return -EINVAL;
+	int i;
+	u32 val;
+
+	for (i = 0; i < cfg_tab_len; i++) {
+		if (fdtdec_get_int_array(blob, node, cfg_tab[i].str, &val, 1)) {
+			/* could not find required property */
+			return -EINVAL;
+		}
+		*(u32 *)(cfg + cfg_tab[i].val) = val;
 	}
 
 	return 0;
 }
 
-static int of_get_input_clks(const void *blob, int node, u32 *val)
+static void of_get_input_clks(const void *blob)
 {
-	*val = fdtdec_get_uint(blob, node, "clock-frequency", 0);
-	if (!*val)
-		return -EINVAL;
+	int node, i;
 
-	return 0;
+	for (i = 0; i < ARRAY_SIZE(dt_to_val); i++) {
+		node = fdt_path_offset(blob, dt_to_val[i].str);
+
+		if (node < 0)
+			continue;
+
+		fdtdec_get_int_array(blob, node, "clock-frequency",
+				     dt_to_val[i].p, 1);
+	}
 }
 
 static int of_get_clk_cfg(const void *blob, struct mainpll_cfg *main_cfg,
-			  struct perpll_cfg *per_cfg,
-			  struct alteragrp_cfg *altrgrp_cfg)
+			  struct perpll_cfg *per_cfg)
 {
 	int node, child, len;
 	const char *node_name;
 
-	node = fdtdec_next_compatible(blob, 0, COMPAT_ALTERA_SOCFPGA_CLK);
+	of_get_input_clks(blob);
+
+	node = fdtdec_next_compatible(blob, 0, COMPAT_ALTERA_SOCFPGA_CLK_INIT);
+
 	if (node < 0)
 		return -EINVAL;
 
 	child = fdt_first_subnode(blob, node);
-	if (child < 0)
-		return -EINVAL;
 
-	child = fdt_first_subnode(blob, child);
 	if (child < 0)
 		return -EINVAL;
 
 	node_name = fdt_get_name(blob, child, &len);
 
 	while (node_name) {
-		if (!strcmp(node_name, "osc1")) {
-			if (of_get_input_clks(blob, child, &eosc1_hz))
+		if (!strcmp(node_name, "mainpll")) {
+			if (of_to_struct(blob, child, mainpll_cfg_tab,
+					 ARRAY_SIZE(mainpll_cfg_tab), main_cfg))
 				return -EINVAL;
-		} else if (!strcmp(node_name, "cb_intosc_ls_clk")) {
-			if (of_get_input_clks(blob, child, &cb_intosc_hz))
+		} else if (!strcmp(node_name, "perpll")) {
+			if (of_to_struct(blob, child, perpll_cfg_tab,
+					 ARRAY_SIZE(perpll_cfg_tab), per_cfg))
 				return -EINVAL;
-		} else if (!strcmp(node_name, "f2s_free_clk")) {
-			if (of_get_input_clks(blob, child, &f2s_free_hz))
+		} else if (!strcmp(node_name, "alteragrp")) {
+			if (of_to_struct(blob, child, alteragrp_cfg_tab,
+					 ARRAY_SIZE(alteragrp_cfg_tab), main_cfg))
 				return -EINVAL;
-		} else if (!strcmp(node_name, "main_pll")) {
-			if (of_to_struct(blob, child,
-					 sizeof(*main_cfg)/sizeof(u32),
-					 main_cfg))
-				return -EINVAL;
-		} else if (!strcmp(node_name, "periph_pll")) {
-			if (of_to_struct(blob, child,
-					 sizeof(*per_cfg)/sizeof(u32),
-					 per_cfg))
-				return -EINVAL;
-		} else if (!strcmp(node_name, "altera")) {
-			if (of_to_struct(blob, child,
-					 sizeof(*altrgrp_cfg)/sizeof(u32),
-					 altrgrp_cfg))
-				return -EINVAL;
-
-			main_cfg->mpuclk = altrgrp_cfg->mpuclk;
-			main_cfg->nocclk = altrgrp_cfg->nocclk;
 		}
 		child = fdt_next_subnode(blob, child);
 
@@ -878,15 +942,13 @@ int cm_basic_init(const void *blob)
 {
 	struct mainpll_cfg main_cfg;
 	struct perpll_cfg per_cfg;
-	struct alteragrp_cfg altrgrp_cfg;
 	int rval;
 
 	/* initialize to zero for use case of optional node */
 	memset(&main_cfg, 0, sizeof(main_cfg));
 	memset(&per_cfg, 0, sizeof(per_cfg));
-	memset(&altrgrp_cfg, 0, sizeof(altrgrp_cfg));
 
-	rval = of_get_clk_cfg(blob, &main_cfg, &per_cfg, &altrgrp_cfg);
+	rval = of_get_clk_cfg(blob, &main_cfg, &per_cfg);
 	if (rval)
 		return rval;
 
