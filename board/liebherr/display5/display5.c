@@ -254,6 +254,25 @@ static void setup_iomux_enet(void)
 	gpio_direction_input(IMX_GPIO_NR(1, 28)); /*INT#_GBE*/
 }
 
+static int setup_mac_from_fuse(void)
+{
+	unsigned char enetaddr[6];
+	int ret;
+
+	ret = eth_env_get_enetaddr("ethaddr", enetaddr);
+	if (ret)	/* ethaddr is already set */
+		return 0;
+
+	imx_get_mac_from_fuse(0, enetaddr);
+
+	if (is_valid_ethaddr(enetaddr)) {
+		eth_env_set_enetaddr("ethaddr", enetaddr);
+		return 0;
+	}
+
+	return 0;
+}
+
 int board_eth_init(bd_t *bd)
 {
 	struct phy_device *phydev;
@@ -267,6 +286,8 @@ int board_eth_init(bd_t *bd)
 	ret = enable_fec_anatop_clock(0, ENET_125MHZ);
 	if (ret)
 		return ret;
+
+	setup_mac_from_fuse();
 
 	bus = fec_get_miibus(IMX_FEC_BASE, -1);
 	if (!bus)
