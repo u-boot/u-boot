@@ -21,6 +21,7 @@
 #include <fsl_esdhc.h>
 #include <netdev.h>
 #include <bootcount.h>
+#include <watchdog.h>
 #include "common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -196,6 +197,10 @@ void board_init_f(ulong dummy)
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
 	displ5_set_iomux_misc_spl();
+
+	/* Initialize and reset WDT in SPL */
+	hw_watchdog_init();
+	WATCHDOG_RESET();
 
 	/* load/boot image from boot device */
 	board_init_r(NULL, 0);
