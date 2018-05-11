@@ -33,6 +33,7 @@
  * 0x140000 - 0x940000 : SPI.fitImage-recovery (8MiB)
  * 0x940000 - 0xD40000 : SPI.swupdate-kernel-FIT (4MiB)
  * 0xD40000 - 0x1540000 : SPI.swupdate-initramfs  (8MiB)
+ * 0x1540000 - 0x1640000 : SPI.factory  (1MiB)
  */
 
 #ifndef CONFIG_SPL_BUILD
