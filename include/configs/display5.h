@@ -253,6 +253,16 @@
 		"sf write ${loadaddr} 0x400 ${filesize};" \
 	"fi\0" \
 
+#define TFTP_UPDATE_SPINOR \
+	"spinorfile=core-image-lwn-display5.spinor\0" \
+	"spinorsize=0x2000000\0" \
+	"tftp_sf_img=" \
+	    "if tftp ${loadaddr} ${spinorfile}; then " \
+		"sf probe;" \
+		"sf erase 0x0 ${spinorsize};" \
+		"sf write ${loadaddr} 0x0 ${filesize};" \
+	"fi\0" \
+
 #define CONFIG_EXTRA_ENV_SETTINGS	  \
 	PARTS_DEFAULT \
 	"display=tianma-tm070-800x480\0" \
@@ -353,6 +363,7 @@
 	"BOOT_FROM=ACTIVE\0" \
 	"BOOT_FROM_RECOVERY=Linux\0" \
 	TFTP_UPDATE_BOOTLOADER \
+	TFTP_UPDATE_SPINOR \
 	"kernel_part_active=1\0" \
 	"kernel_part_backup=3\0" \
 	__TFTP_UPDATE_KERNEL \
