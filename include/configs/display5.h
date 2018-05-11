@@ -151,7 +151,7 @@
 	"sf probe;" \
 	"sf read ${loadaddr} swu-kernel;" \
 	"sf read ${loadaddr_swu_initramfs} swu-initramfs;" \
-	"bootm ${loadaddr} ${loadaddr_swu_initramfs};"
+	"bootm ${loadaddr} ${loadaddr_swu_initramfs};reset;"
 
 #define KERNEL_RECOVERY_PROCEDURE \
 	"echo '#######################';" \
@@ -159,7 +159,7 @@
 	"echo '#######################';" \
 	"sf probe;" \
 	"sf read ${loadaddr} lin-recovery;" \
-	"bootm;"
+	"bootm;reset;"
 
 #define SETUP_BOOTARGS \
 	"run set_rootfs_part;" \
@@ -309,7 +309,7 @@
 	"if run download_kernel; then "	  \
 	     "setenv bootargs console=${console} " \
 	     "root=/dev/mmcblk0p2 rootwait;" \
-	     "bootm ${loadaddr} - ${fdtaddr};" \
+	     "bootm ${loadaddr} - ${fdtaddr};reset;" \
 	"fi\0" \
 	"addip=setenv bootargs ${bootargs} " \
 	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:" \
@@ -326,7 +326,7 @@
 	     "run addip;"	  \
 	     "setenv bootargs ${bootargs} console=${console};"	  \
 	     "setenv fdt_conf imx6q-${board}-${display}.dtb; " \
-	     "bootm ${loadaddr}#conf@${fdt_conf};" \
+	     "bootm ${loadaddr}#conf@${fdt_conf};reset;" \
 	"fi\0" \
 	"falcon_setup=" \
 	"if mmc dev ${mmcdev}; then "	  \
@@ -340,7 +340,7 @@
 	"boot_mmc=" \
 	"if mmc dev ${mmcdev}; then "	  \
 	     SETUP_BOOTARGS \
-	     "bootm ${loadaddr}#conf@${fdt_conf};" \
+	     "bootm ${loadaddr}#conf@${fdt_conf};reset;" \
 	"fi\0" \
 	"set_kernel_part=" \
 	"if test ${BOOT_FROM} = ACTIVE; then " \
