@@ -493,6 +493,8 @@ efi_status_t efi_remove_protocol(const efi_handle_t handle,
 		return ret;
 	if (guidcmp(handler->guid, protocol))
 		return EFI_INVALID_PARAMETER;
+	if (handler->protocol_interface != protocol_interface)
+		return EFI_INVALID_PARAMETER;
 	list_del(&handler->link);
 	free(handler);
 	return EFI_SUCCESS;
