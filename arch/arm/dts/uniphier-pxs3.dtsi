@@ -434,6 +434,7 @@
 			resets = <&sys_rst 6>;
 			phy-mode = "rgmii";
 			local-mac-address = [00 00 00 00 00 00];
+			socionext,syscon-phy-mode = <&soc_glue 0>;
 
 			mdio0: mdio {
 				#address-cells = <1>;
@@ -452,6 +453,7 @@
 			resets = <&sys_rst 7>;
 			phy-mode = "rgmii";
 			local-mac-address = [00 00 00 00 00 00];
+			socionext,syscon-phy-mode = <&soc_glue 1>;
 
 			mdio1: mdio {
 				#address-cells = <1>;
