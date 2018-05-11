@@ -49,7 +49,7 @@
 	(strlen("efi_xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxxxxxx_") + \
 		(MAX_VAR_NAME * MAX_UTF8_PER_UTF16))
 
-static int hex(unsigned char ch)
+static int hex(int ch)
 {
 	if (ch >= 'a' && ch <= 'f')
 		return ch-'a'+10;
@@ -60,44 +60,32 @@ static int hex(unsigned char ch)
 	return -1;
 }
 
-static const char *hex2mem(u8 *mem, const char *hexstr, int count)
+static int hex2mem(u8 *mem, const char *hexstr, int size)
 {
-	memset(mem, 0, count/2);
+	int nibble;
+	int i;
 
-	do {
-		int nibble;
-
-		*mem = 0;
-
-		if (!count || !*hexstr)
+	for (i = 0; i < size; i++) {
+		if (*hexstr == '\0')
 			break;
 
 		nibble = hex(*hexstr);
 		if (nibble < 0)
-			break;
+			return -1;
 
 		*mem = nibble;
-		count--;
 		hexstr++;
-
-		if (!count || !*hexstr)
-			break;
 
 		nibble = hex(*hexstr);
 		if (nibble < 0)
-			break;
+			return -1;
 
 		*mem = (*mem << 4) | nibble;
-		count--;
 		hexstr++;
 		mem++;
+	}
 
-	} while (1);
-
-	if (*hexstr)
-		return hexstr;
-
-	return NULL;
+	return i;
 }
 
 static char *mem2hex(char *hexstr, const u8 *mem, int count)
@@ -209,8 +197,12 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name, efi_guid_t *vendor,
 	if ((s = prefix(val, "(blob)"))) {
 		unsigned len = strlen(s);
 
+		/* number of hexadecimal digits must be even */
+		if (len & 1)
+			return EFI_EXIT(EFI_DEVICE_ERROR);
+
 		/* two characters per byte: */
-		len = DIV_ROUND_UP(len, 2);
+		len /= 2;
 		*data_size = len;
 
 		if (in_size < len)
@@ -219,7 +211,7 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name, efi_guid_t *vendor,
 		if (!data)
 			return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-		if (hex2mem(data, s, len * 2))
+		if (hex2mem(data, s, len) != len)
 			return EFI_EXIT(EFI_DEVICE_ERROR);
 
 		debug("%s: got value: \"%s\"\n", __func__, s);
