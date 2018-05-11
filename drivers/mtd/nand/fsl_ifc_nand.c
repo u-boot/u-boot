@@ -269,14 +269,9 @@ static int is_blank(struct mtd_info *mtd, struct fsl_ifc_ctrl *ctrl,
 
 /* returns nonzero if entire page is blank */
 static int check_read_ecc(struct mtd_info *mtd, struct fsl_ifc_ctrl *ctrl,
-			  u32 *eccstat, unsigned int bufnum)
+			  u32 eccstat, unsigned int bufnum)
 {
-	u32 reg = eccstat[bufnum / 4];
-	int errors;
-
-	errors = (reg >> ((3 - bufnum % 4) * 8)) & 15;
-
-	return errors;
+	return (eccstat >> ((3 - bufnum % 4) * 8)) & 15;
 }
 
 /*
@@ -290,7 +285,7 @@ static int fsl_ifc_run_command(struct mtd_info *mtd)
 	struct fsl_ifc_runtime *ifc = ctrl->regs.rregs;
 	u32 timeo = (CONFIG_SYS_HZ * 10) / 1000;
 	u32 time_start;
-	u32 eccstat[8] = {0};
+	u32 eccstat;
 	int i;
 
 	/* set the chip select for NAND Transaction */
@@ -320,20 +315,17 @@ static int fsl_ifc_run_command(struct mtd_info *mtd)
 	if (ctrl->eccread) {
 		int errors;
 		int bufnum = ctrl->page & priv->bufnum_mask;
-		int sector = bufnum * chip->ecc.steps;
-		int sector_end = sector + chip->ecc.steps - 1;
+		int sector_start = bufnum * chip->ecc.steps;
+		int sector_end = sector_start + chip->ecc.steps - 1;
+		u32 *eccstat_regs;
 
-		for (i = sector / 4; i <= sector_end / 4; i++) {
-			if (i >= ARRAY_SIZE(eccstat)) {
-				printf("%s: eccstat too small for %d\n",
-				       __func__, i);
-				return -EIO;
-			}
+		eccstat_regs = ifc->ifc_nand.nand_eccstat;
+		eccstat = ifc_in32(&eccstat_regs[sector_start / 4]);
 
-			eccstat[i] = ifc_in32(&ifc->ifc_nand.nand_eccstat[i]);
-		}
+		for (i = sector_start; i <= sector_end; i++) {
+			if ((i != sector_start) && !(i % 4))
+				eccstat = ifc_in32(&eccstat_regs[i / 4]);
 
-		for (i = sector; i <= sector_end; i++) {
 			errors = check_read_ecc(mtd, ctrl, eccstat, i);
 
 			if (errors == 15) {
@@ -708,6 +700,7 @@ static int fsl_ifc_wait(struct mtd_info *mtd, struct nand_chip *chip)
 	struct fsl_ifc_ctrl *ctrl = priv->ctrl;
 	struct fsl_ifc_runtime *ifc = ctrl->regs.rregs;
 	u32 nand_fsr;
+	int status;
 
 	if (ctrl->status != IFC_NAND_EVTER_STAT_OPC)
 		return NAND_STATUS_FAIL;
@@ -728,10 +721,10 @@ static int fsl_ifc_wait(struct mtd_info *mtd, struct nand_chip *chip)
 		return NAND_STATUS_FAIL;
 
 	nand_fsr = ifc_in32(&ifc->ifc_nand.nand_fsr);
+	status = nand_fsr >> 24;
 
 	/* Chip sometimes reporting write protect even when it's not */
-	nand_fsr = nand_fsr | NAND_STATUS_WP;
-	return nand_fsr;
+	return status | NAND_STATUS_WP;
 }
 
 static int fsl_ifc_read_page(struct mtd_info *mtd, struct nand_chip *chip,

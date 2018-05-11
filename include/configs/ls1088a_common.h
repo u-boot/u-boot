@@ -148,7 +148,6 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(512UL * 1024 * 1024)
 #endif
 /* Command line configuration */
-#define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_CACHE
 
 /* Miscellaneous configurable options */
@@ -195,10 +194,6 @@ unsigned long long get_qixis_addr(void);
 	"mcinitcmd=fsl_mc start mc 0x580a00000"	\
 	" 0x580e00000 \0"
 
-#define CONFIG_BOOTARGS		"console=ttyS0,115200 root=/dev/ram0 " \
-				"earlycon=uart8250,mmio,0x21c0500 " \
-				"ramdisk_size=0x3000000 default_hugepagesz=2m" \
-				" hugepagesz=2m hugepages=256"
 #if defined(CONFIG_QSPI_BOOT)
 #define CONFIG_BOOTCOMMAND	"sf probe 0:0;" \
 				"sf read 0x80200000 0xd00000 0x100000;"\

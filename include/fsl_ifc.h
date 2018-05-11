@@ -891,8 +891,8 @@ struct fsl_ifc_nand {
 	u32 nand_erattr1;
 	u32 res19[0x10];
 	u32 nand_fsr;
-	u32 res20[0x3];
-	u32 nand_eccstat[6];
+	u32 res20[0x1];
+	u32 nand_eccstat[8];
 	u32 res21[0x1c];
 	u32 nanndcr;
 	u32 res22[0x2];

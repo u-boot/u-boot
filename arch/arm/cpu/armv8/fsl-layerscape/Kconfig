@@ -469,6 +469,14 @@ config SYS_FSL_SDHC_CLK_DIV
 	help
 	  This is the divider that is used to derive SDHC clock from Platform
 	  clock, in another word SDHC_clk = Platform_clk / this_divider.
+
+config SYS_FSL_QMAN_CLK_DIV
+	int "QMAN clock divider"
+	default 1 if ARCH_LS1043A
+	default 2
+	help
+	  This is the divider that is used to derive QMAN clock from Platform
+	  clock, in another word QMAN_clk = Platform_clk / this_divider.
 endmenu
 
 config RESV_RAM

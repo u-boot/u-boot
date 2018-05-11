@@ -4,12 +4,14 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <asm/arch/fsl_serdes.h>
 #include <hwconfig.h>
 #include <fsl_mdio.h>
 #include <malloc.h>
+#include <phy.h>
 #include <fm_eth.h>
 #include <i2c.h>
 #include <miiphy.h>
