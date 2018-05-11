@@ -24,6 +24,8 @@ ifneq ($(call ifdef_any_of, CONFIG_ZYNQMP_PSU_INIT_ENABLED CONFIG_SPL_BUILD),)
 obj-y += $(init-objs)
 endif
 
+obj-$(CONFIG_MMC_SDHCI_ZYNQ) += tap_delays.o
+
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_CMD_ZYNQMP) += cmds.o
 endif

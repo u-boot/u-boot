@@ -821,6 +821,15 @@ config ARCH_ZYNQ
 	imply CMD_CLK
 	imply FAT_WRITE
 	imply CMD_SPL
+	imply ARCH_EARLY_INIT_R
+
+config ARCH_ZYNQMP_R5
+	bool "Xilinx ZynqMP R5 based platform"
+	select CPU_V7R
+	select OF_CONTROL
+	select DM
+	select DM_SERIAL
+	select CLK
 
 config ARCH_ZYNQMP
 	bool "Xilinx ZynqMP based platform"
@@ -1343,6 +1352,8 @@ source "arch/arm/mach-uniphier/Kconfig"
 source "arch/arm/cpu/armv7/vf610/Kconfig"
 
 source "arch/arm/mach-zynq/Kconfig"
+
+source "arch/arm/mach-zynqmp-r5/Kconfig"
 
 source "arch/arm/cpu/armv7/Kconfig"
 

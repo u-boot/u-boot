@@ -14,7 +14,6 @@
 #include <asm/io.h>
 #include <linux/compiler.h>
 #include <serial.h>
-#include <asm/arch/hardware.h>
 
 #define ZYNQ_UART_SR_TXEMPTY	(1 << 3) /* TX FIFO empty */
 #define ZYNQ_UART_SR_TXACTIVE	(1 << 11)  /* TX active */

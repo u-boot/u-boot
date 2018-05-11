@@ -6,6 +6,7 @@
  * The following Boot Header format/structures and values are defined in the
  * following documents:
  *   * ug1085 ZynqMP TRM doc v1.4 (Chapter 11, Table 11-4)
+ *   * ug1137 ZynqMP Software Developer Guide v6.0 (Chapter 16)
  *
  * Expected Header Size = 0x9C0
  * Forced as 'little' endian, 32-bit words
@@ -56,46 +57,8 @@
 
 #include "imagetool.h"
 #include "mkimage.h"
+#include "zynqmpimage.h"
 #include <image.h>
-
-#define HEADER_INTERRUPT_DEFAULT (cpu_to_le32(0xeafffffe))
-#define HEADER_REGINIT_NULL (cpu_to_le32(0xffffffff))
-#define HEADER_WIDTHDETECTION (cpu_to_le32(0xaa995566))
-#define HEADER_IMAGEIDENTIFIER (cpu_to_le32(0x584c4e58))
-
-enum {
-	ENCRYPTION_EFUSE = 0xa5c3c5a3,
-	ENCRYPTION_OEFUSE = 0xa5c3c5a7,
-	ENCRYPTION_BBRAM = 0x3a5c3c5a,
-	ENCRYPTION_OBBRAM = 0xa35c7ca5,
-	ENCRYPTION_NONE = 0x0,
-};
-
-struct zynqmp_reginit {
-	uint32_t address;
-	uint32_t data;
-};
-
-#define HEADER_INTERRUPT_VECTORS	8
-#define HEADER_REGINITS			256
-
-struct zynqmp_header {
-	uint32_t interrupt_vectors[HEADER_INTERRUPT_VECTORS]; /* 0x0 */
-	uint32_t width_detection; /* 0x20 */
-	uint32_t image_identifier; /* 0x24 */
-	uint32_t encryption; /* 0x28 */
-	uint32_t image_load; /* 0x2c */
-	uint32_t image_offset; /* 0x30 */
-	uint32_t pfw_image_length; /* 0x34 */
-	uint32_t total_pfw_image_length; /* 0x38 */
-	uint32_t image_size; /* 0x3c */
-	uint32_t image_stored_size; /* 0x40 */
-	uint32_t image_attributes; /* 0x44 */
-	uint32_t checksum; /* 0x48 */
-	uint32_t __reserved1[27]; /* 0x4c */
-	struct zynqmp_reginit register_init[HEADER_REGINITS]; /* 0xb8 */
-	uint32_t __reserved4[66]; /* 0x9c0 */
-};
 
 static struct zynqmp_header zynqmpimage_header;
 static void *dynamic_header;
@@ -123,7 +86,7 @@ static uint32_t zynqmpimage_checksum(struct zynqmp_header *ptr)
 	return cpu_to_le32(checksum);
 }
 
-static void zynqmpimage_default_header(struct zynqmp_header *ptr)
+void zynqmpimage_default_header(struct zynqmp_header *ptr)
 {
 	int i;
 
@@ -131,7 +94,7 @@ static void zynqmpimage_default_header(struct zynqmp_header *ptr)
 		return;
 
 	ptr->width_detection = HEADER_WIDTHDETECTION;
-	ptr->image_attributes = 0x800;
+	ptr->image_attributes = HEADER_CPU_SELECT_A53_64BIT;
 	ptr->image_identifier = HEADER_IMAGEIDENTIFIER;
 	ptr->encryption = cpu_to_le32(ENCRYPTION_NONE);
 
@@ -172,7 +135,81 @@ static int zynqmpimage_verify_header(unsigned char *ptr, int image_size,
 	return 0;
 }
 
-static void zynqmpimage_print_header(const void *ptr)
+static void print_partition(const void *ptr, const struct partition_header *ph)
+{
+	uint32_t attr = le32_to_cpu(ph->attributes);
+	unsigned long len = le32_to_cpu(ph->len) * 4;
+	const char *part_owner;
+	const char *dest_devs[0x8] = {
+		"none", "PS", "PL", "PMU", "unknown", "unknown", "unknown",
+		"unknown"
+	};
+
+	switch (attr & PART_ATTR_PART_OWNER_MASK) {
+	case PART_ATTR_PART_OWNER_FSBL:
+		part_owner = "FSBL";
+		break;
+	case PART_ATTR_PART_OWNER_UBOOT:
+		part_owner = "U-Boot";
+		break;
+	default:
+		part_owner = "Unknown";
+		break;
+	}
+
+	printf("%s payload on CPU %s (%s):\n", part_owner,
+	       dest_cpus[(attr & PART_ATTR_DEST_CPU_MASK) >> 8],
+	       dest_devs[(attr & PART_ATTR_DEST_DEVICE_MASK) >> 4]);
+
+	printf("    Offset     : 0x%08x\n", le32_to_cpu(ph->offset) * 4);
+	printf("    Size       : %lu (0x%lx) bytes\n", len, len);
+	printf("    Load       : 0x%08llx",
+	       (unsigned long long)le64_to_cpu(ph->load_address));
+	if (ph->load_address != ph->entry_point)
+		printf(" (entry=0x%08llx)\n",
+		       (unsigned long long)le64_to_cpu(ph->entry_point));
+	else
+		printf("\n");
+	printf("    Attributes : ");
+
+	if (attr & PART_ATTR_VEC_LOCATION)
+		printf("vec ");
+
+	if (attr & PART_ATTR_ENCRYPTED)
+		printf("encrypted ");
+
+	switch (attr & PART_ATTR_CHECKSUM_MASK) {
+	case PART_ATTR_CHECKSUM_MD5:
+		printf("md5 ");
+		break;
+	case PART_ATTR_CHECKSUM_SHA2:
+		printf("sha2 ");
+		break;
+	case PART_ATTR_CHECKSUM_SHA3:
+		printf("sha3 ");
+		break;
+	}
+
+	if (attr & PART_ATTR_BIG_ENDIAN)
+		printf("BigEndian ");
+
+	if (attr & PART_ATTR_RSA_SIG)
+		printf("RSA ");
+
+	if (attr & PART_ATTR_A53_EXEC_AARCH32)
+		printf("AArch32 ");
+
+	if (attr & PART_ATTR_TARGET_EL_MASK)
+		printf("EL%d ", (attr & PART_ATTR_TARGET_EL_MASK) >> 1);
+
+	if (attr & PART_ATTR_TZ_SECURE)
+		printf("secure ");
+	printf("\n");
+
+	printf("    Checksum   : 0x%08x\n", le32_to_cpu(ph->checksum));
+}
+
+void zynqmpimage_print_header(const void *ptr)
 {
 	struct zynqmp_header *zynqhdr = (struct zynqmp_header *)ptr;
 	int i;
@@ -210,6 +247,27 @@ static void zynqmpimage_print_header(const void *ptr)
 		printf("    @ 0x%08x -> 0x%08x\n",
 		       le32_to_cpu(zynqhdr->register_init[i].address),
 		       le32_to_cpu(zynqhdr->register_init[i].data));
+	}
+
+	if (zynqhdr->image_header_table_offset) {
+		struct image_header_table *iht = (void *)ptr +
+			zynqhdr->image_header_table_offset;
+		struct partition_header *ph;
+		uint32_t ph_offset;
+		uint32_t next;
+		int i;
+
+		ph_offset = le32_to_cpu(iht->partition_header_offset) * 4;
+		ph = (void *)ptr + ph_offset;
+		for (i = 0; i < le32_to_cpu(iht->nr_parts); i++) {
+			next = le32_to_cpu(ph->next_partition_offset) * 4;
+
+			/* Partition 0 is the base image itself */
+			if (i)
+				print_partition(ptr, ph);
+
+			ph = (void *)ptr + next;
+		}
 	}
 
 	free(dynamic_header);

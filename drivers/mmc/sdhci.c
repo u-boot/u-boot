@@ -151,7 +151,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	u32 mask, flags, mode;
 	unsigned int time = 0, start_addr = 0;
 	int mmc_dev = mmc_get_blk_desc(mmc)->devnum;
-	unsigned start = get_timer(0);
+	ulong start = get_timer(0);
 
 	/* Timeout unit - ms */
 	static unsigned int cmd_timeout = SDHCI_CMD_DEFAULT_TIMEOUT;
@@ -160,7 +160,8 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	/* We shouldn't wait for data inihibit for stop commands, even
 	   though they might use busy signaling */
-	if (cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION)
+	if (cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION ||
+	    cmd->cmdidx ==  MMC_CMD_SEND_TUNING_BLOCK)
 		mask &= ~SDHCI_DATA_INHIBIT;
 
 	while (sdhci_readl(host, SDHCI_PRESENT_STATE) & mask) {
@@ -182,6 +183,9 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	sdhci_writel(host, SDHCI_INT_ALL_MASK, SDHCI_INT_STATUS);
 
 	mask = SDHCI_INT_RESPONSE;
+	if (cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK)
+		mask = SDHCI_INT_DATA_AVAIL;
+
 	if (!(cmd->resp_type & MMC_RSP_PRESENT))
 		flags = SDHCI_CMD_RESP_NONE;
 	else if (cmd->resp_type & MMC_RSP_136)
@@ -197,7 +201,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 		flags |= SDHCI_CMD_CRC;
 	if (cmd->resp_type & MMC_RSP_OPCODE)
 		flags |= SDHCI_CMD_INDEX;
-	if (data)
+	if (data || cmd->cmdidx ==  MMC_CMD_SEND_TUNING_BLOCK)
 		flags |= SDHCI_CMD_DATA;
 
 	/* Set Transfer mode regarding to data flag */
@@ -301,6 +305,24 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 		return -ECOMM;
 }
 
+#if defined(CONFIG_DM_MMC) && defined(MMC_SUPPORTS_TUNING)
+static int sdhci_execute_tuning(struct udevice *dev, uint opcode)
+{
+	int err;
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	struct sdhci_host *host = mmc->priv;
+
+	debug("%s\n", __func__);
+
+	if (host->ops->platform_execute_tuning) {
+		err = host->ops->platform_execute_tuning(mmc, opcode);
+		if (err)
+			return err;
+		return 0;
+	}
+	return 0;
+}
+#endif
 static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 {
 	struct sdhci_host *host = mmc->priv;
@@ -324,6 +346,9 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 
 	if (clock == 0)
 		return 0;
+
+	if (host->ops->set_delay)
+		host->ops->set_delay(host);
 
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
 		/*
@@ -439,6 +464,9 @@ static int sdhci_set_ios(struct mmc *mmc)
 	if (mmc->clock != host->clock)
 		sdhci_set_clock(mmc, mmc->clock);
 
+	if (mmc->clk_disable)
+		sdhci_set_clock(mmc, 0);
+
 	/* Set bus width */
 	ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
 	if (mmc->bus_width == 8) {
@@ -514,6 +542,9 @@ int sdhci_probe(struct udevice *dev)
 const struct dm_mmc_ops sdhci_ops = {
 	.send_cmd	= sdhci_send_command,
 	.set_ios	= sdhci_set_ios,
+#ifdef MMC_SUPPORTS_TUNING
+	.execute_tuning	= sdhci_execute_tuning,
+#endif
 };
 #else
 static const struct mmc_ops sdhci_ops = {
@@ -526,7 +557,7 @@ static const struct mmc_ops sdhci_ops = {
 int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		u32 f_max, u32 f_min)
 {
-	u32 caps, caps_1;
+	u32 caps, caps_1 = 0;
 
 	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
 
@@ -606,6 +637,32 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		cfg->host_caps &= ~MMC_MODE_HS;
 		cfg->host_caps &= ~MMC_MODE_HS_52MHz;
 	}
+
+	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
+		caps_1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
+
+	if (!(cfg->voltages & MMC_VDD_165_195) ||
+	    (host->quirks & SDHCI_QUIRK_NO_1_8_V))
+		caps_1 &= ~(SDHCI_SUPPORT_SDR104 | SDHCI_SUPPORT_SDR50 |
+			    SDHCI_SUPPORT_DDR50);
+
+	if (caps_1 & (SDHCI_SUPPORT_SDR104 | SDHCI_SUPPORT_SDR50 |
+		      SDHCI_SUPPORT_DDR50))
+		cfg->host_caps |= MMC_CAP(UHS_SDR12) | MMC_CAP(UHS_SDR25);
+
+	if (caps_1 & SDHCI_SUPPORT_SDR104) {
+		cfg->host_caps |= MMC_CAP(UHS_SDR104) | MMC_CAP(UHS_SDR50);
+		/*
+		 * SD3.0: SDR104 is supported so (for eMMC) the caps2
+		 * field can be promoted to support HS200.
+		 */
+		cfg->host_caps |= MMC_CAP(MMC_HS_200);
+	} else if (caps_1 & SDHCI_SUPPORT_SDR50) {
+		cfg->host_caps |= MMC_CAP(UHS_SDR50);
+	}
+
+	if (caps_1 & SDHCI_SUPPORT_DDR50)
+		cfg->host_caps |= MMC_CAP(UHS_DDR50);
 
 	if (host->host_caps)
 		cfg->host_caps |= host->host_caps;

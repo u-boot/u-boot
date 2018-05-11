@@ -274,7 +274,7 @@ ARM ZYNQMP
 M:	Michal Simek <michal.simek@xilinx.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-microblaze.git
-F:	arch/arm/mach-zynq/
+F:	arch/arm/cpu/armv8/zynqmp/
 F:	drivers/clk/clk_zynqmp.c
 F:	drivers/fpga/zynqpl.c
 F:	drivers/gpio/zynq_gpio.c
@@ -288,11 +288,18 @@ F:	drivers/net/zynq_gem.c
 F:	drivers/serial/serial_zynq.c
 F:	drivers/spi/zynq_qspi.c
 F:	drivers/spi/zynq_spi.c
+F:	drivers/timer/cadence-ttc.c
 F:	drivers/usb/host/ehci-zynq.c
 F:	drivers/watchdog/cdns_wdt.c
 F:	include/zynqmppl.h
-F:	tools/zynqimage.c
+F:	tools/zynqmp*
 N:	zynqmp
+
+ARM ZYNQMP R5
+M:	Michal Simek <michal.simek@xilinx.com>
+S:	Maintained
+T:	git git://git.denx.de/u-boot-microblaze.git
+F:	arch/arm/mach-zynqmp-r5/
 
 BUILDMAN
 M:	Simon Glass <sjg@chromium.org>

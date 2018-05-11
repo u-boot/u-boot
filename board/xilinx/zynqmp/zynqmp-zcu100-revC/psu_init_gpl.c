@@ -481,7 +481,7 @@ static unsigned long psu_mio_init_data(void)
 
 static unsigned long psu_peripherals_init_data(void)
 {
-	psu_mask_write(0xFD1A0100, 0x0001007CU, 0x00000000U);
+	psu_mask_write(0xFD1A0100, 0x0001807CU, 0x00000000U);
 	psu_mask_write(0xFF5E0238, 0x001A0000U, 0x00000000U);
 	psu_mask_write(0xFF5E023C, 0x0093C018U, 0x00000000U);
 	psu_mask_write(0xFF5E023C, 0x00000FC0U, 0x00000000U);
