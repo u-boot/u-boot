@@ -210,8 +210,8 @@ void board_boot_order(u32 *spl_boot_list)
 	/* 'fastboot' */
 	const char *s;
 
-	env_init();
-	env_load();
+	if (env_init() || env_load())
+		return;
 
 	s = env_get("BOOT_FROM");
 	if (s && !bootcount_error() && strcmp(s, "ACTIVE") == 0) {
