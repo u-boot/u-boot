@@ -30,7 +30,6 @@
  * 0x020000 - 0x120000 : SPI.u-boot (1MiB)
  * 0x120000 - 0x130000 : SPI.u-boot-env1 (64KiB)
  * 0x130000 - 0x140000 : SPI.u-boot-env2 (64KiB)
- * 0x140000 - 0x940000 : SPI.fitImage-recovery (8MiB)
  * 0x940000 - 0xD40000 : SPI.swupdate-kernel-FIT (4MiB)
  * 0xD40000 - 0x1540000 : SPI.swupdate-initramfs  (8MiB)
  * 0x1540000 - 0x1640000 : SPI.factory  (1MiB)
@@ -128,7 +127,6 @@
 	"run tftp_sf_SPL;" \
 	"run tftp_sf_uboot;" \
 	TFTP_UPDATE_KERNEL \
-	"run tftp_sf_fitImg_recovery;" \
 	"run tftp_sf_fitImg_SWU;" \
 	"run tftp_sf_initramfs_SWU;" \
 	TFTP_UPDATE_ROOTFS \
@@ -152,14 +150,6 @@
 	"sf read ${loadaddr} swu-kernel;" \
 	"sf read ${loadaddr_swu_initramfs} swu-initramfs;" \
 	"bootm ${loadaddr} ${loadaddr_swu_initramfs};reset;"
-
-#define KERNEL_RECOVERY_PROCEDURE \
-	"echo '#######################';" \
-	"echo '# RECOVERY KERNEL IMG #';" \
-	"echo '#######################';" \
-	"sf probe;" \
-	"sf read ${loadaddr} lin-recovery;" \
-	"bootm;reset;"
 
 #define SETUP_BOOTARGS \
 	"run set_rootfs_part;" \
@@ -227,15 +217,6 @@
 		"sf write ${loadaddr} swu-initramfs ${filesize};" \
 	"; fi\0"	  \
 
-#define TFTP_UPDATE_RECOVERY_KERNEL_INITRAMFS \
-	"kernel_recovery_file=fitImage-initramfs\0" \
-	"tftp_sf_fitImg_recovery=" \
-	    "if tftp ${loadaddr} ${kernel_recovery_file}; then " \
-		"sf probe;" \
-		"sf erase lin-recovery +${filesize};" \
-		"sf write ${loadaddr} lin-recovery ${filesize};" \
-	"; fi\0"	  \
-
 #define TFTP_UPDATE_BOOTLOADER \
 	"ubootfile=u-boot.img\0" \
 	"ubootfileSPL=SPL\0" \
@@ -295,16 +276,10 @@
 	     "setenv serverip 192.168.1.2;" \
 	     "echo BOOT: FACTORY (LEG);" \
 	     "run boot_nfs\0" \
-	"boot_kernel_recovery=" KERNEL_RECOVERY_PROCEDURE "\0" \
 	"boot_swu_recovery=" SWUPDATE_RECOVERY_PROCEDURE "\0" \
 	"recovery=" \
-	"if test ${BOOT_FROM_RECOVERY} = SWU; then " \
 	     "echo BOOT: RECOVERY: SWU;" \
-	     "run boot_swu_recovery;" \
-	"else " \
-	     "echo BOOT: RECOVERY: Linux;" \
-	     "run boot_kernel_recovery;" \
-	"fi\0" \
+	     "run boot_swu_recovery\0" \
 	"boot_tftp=" \
 	"if run download_kernel; then "	  \
 	     "setenv bootargs console=${console} " \
@@ -361,7 +336,6 @@
 	     "run recovery;" \
 	"fi;fi\0" \
 	"BOOT_FROM=ACTIVE\0" \
-	"BOOT_FROM_RECOVERY=Linux\0" \
 	TFTP_UPDATE_BOOTLOADER \
 	TFTP_UPDATE_SPINOR \
 	"kernel_part_active=1\0" \
@@ -371,7 +345,6 @@
 	"rootfs_part_backup=4\0" \
 	"rootfs_file=core-image-lwn-display5.ext4\0" \
 	__TFTP_UPDATE_ROOTFS \
-	TFTP_UPDATE_RECOVERY_KERNEL_INITRAMFS \
 	TFTP_UPDATE_RECOVERY_SWU_KERNEL \
 	TFTP_UPDATE_RECOVERY_SWU_INITRAMFS \
 	"\0" \
