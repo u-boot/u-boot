@@ -7,7 +7,7 @@
 # To add a new book the only step required is to add the book to the
 # list of DOCBOOKS.
 
-DOCBOOKS := linker_lists.xml stdio.xml
+DOCBOOKS := efi.xml linker_lists.xml stdio.xml
 
 ###
 # The build process is as follows (targets):
