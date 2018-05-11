@@ -144,6 +144,16 @@
 	"echo '#######################';" \
 	"echo '# RECOVERY SWUupdate  #';" \
 	"echo '#######################';" \
+	"echo '#######################';" \
+	"echo '# GPT verify          #';" \
+	"if gpt verify mmc ${mmcdev} ${partitions}; then " \
+		"echo '# OK !                #';" \
+	"else " \
+		"echo '# FAILED !            #';" \
+		"echo '# GPT RESTORATION     #';" \
+		"gpt write mmc ${mmcdev} ${partitions};" \
+	"fi;" \
+	"echo '#######################';" \
 	"setenv loadaddr_swu_initramfs 0x14000000;" \
 	"setenv bootargs console=${console} " \
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}" \
