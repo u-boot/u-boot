@@ -100,7 +100,11 @@
 #define CONFIG_BAUDRATE			115200
 
 #ifndef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND "run boot_mmc"
+#define CONFIG_BOOTCOMMAND "if test ${BOOT_FROM} = FACTORY; then " \
+	     "run factory_nfs;" \
+	"else " \
+	     "run boot_mmc;" \
+	"fi"
 #endif
 
 #define PARTS_DEFAULT \
@@ -273,6 +277,9 @@
 	"up=run tftp_sf_SPL; run tftp_sf_uboot\0" \
 	"download_kernel=" \
 		"tftpboot ${loadaddr} ${kernel_file};\0" \
+	"factory_nfs=" \
+	     "echo BOOT: FACTORY (LEG);" \
+	     "run boot_nfs\0" \
 	"boot_kernel_recovery=" KERNEL_RECOVERY_PROCEDURE "\0" \
 	"boot_swu_recovery=" SWUPDATE_RECOVERY_PROCEDURE "\0" \
 	"recovery=" \
