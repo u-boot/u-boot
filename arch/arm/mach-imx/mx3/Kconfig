@@ -15,6 +15,20 @@ config TARGET_MX31PDK
 
 endchoice
 
+config MX31_HCLK_FREQ
+       int "i.MX31 HCLK frequency"
+       default 26000000
+       help
+         Frequency in Hz of the high frequency input clock. Typically
+	 26000000 Hz.
+
+config MX31_CLK32
+       int "i.MX31 CLK32 Frequency"
+       default 32768
+       help
+         Frequency in Hz of the low frequency input clock. Typically
+	 32768 or 32000 Hz.
+
 source "board/freescale/mx31pdk/Kconfig"
 
 endif
