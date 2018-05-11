@@ -25,6 +25,7 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <i2c.h>
+#include <environment.h>
 
 #include <dm.h>
 #include <dm/platform_data/serial_mxc.h>
