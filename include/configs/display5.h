@@ -348,7 +348,12 @@
 	"rootfs_part_active=2\0" \
 	"rootfs_part_backup=4\0" \
 	"rootfs_file=core-image-lwn-display5.ext4\0" \
+	"rootfs_file_backup=core-image-lwn-backup-display5.ext4\0" \
 	__TFTP_UPDATE_ROOTFS \
+	"tftp_mmc_rootfs_bkp=" \
+	   "setenv rootfs_part ${rootfs_part_backup};" \
+	   "setenv rootfs_file ${rootfs_file_backup};" \
+	   "run tftp_mmc_rootfs\0" \
 	TFTP_UPDATE_RECOVERY_SWU_KERNEL \
 	TFTP_UPDATE_RECOVERY_SWU_INITRAMFS \
 	"\0" \
