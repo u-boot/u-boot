@@ -194,13 +194,11 @@
 	       "mmc write ${loadaddr} ${lba_start} ${fw_sz}; " \
 	   "; fi\0" \
 
-/* To save some considerable time, we only once download the rootfs image */
-/* and store it on 'active' and 'backup' rootfs partitions */
 #define TFTP_UPDATE_ROOTFS \
 	"setenv rootfs_part ${rootfs_part_active};" \
 	"run tftp_mmc_rootfs;" \
-	"part start mmc ${mmcdev} ${rootfs_part_backup} lba_start;" \
-	"mmc write ${loadaddr} ${lba_start} ${fw_sz};" \
+	"run tftp_mmc_rootfs_bkp;" \
+
 
 #define TFTP_UPDATE_RECOVERY_SWU_KERNEL \
 	"tftp_sf_fitImg_SWU=" \
