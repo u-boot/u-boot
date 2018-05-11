@@ -30,8 +30,8 @@
  * 0x020000 - 0x120000 : SPI.u-boot (1MiB)
  * 0x120000 - 0x130000 : SPI.u-boot-env1 (64KiB)
  * 0x130000 - 0x140000 : SPI.u-boot-env2 (64KiB)
- * 0x940000 - 0xD40000 : SPI.swupdate-kernel-FIT (4MiB)
- * 0xD40000 - 0x1540000 : SPI.swupdate-initramfs  (8MiB)
+ * 0x140000 - 0x540000 : SPI.swupdate-kernel-FIT (4MiB)
+ * 0x540000 - 0x1540000 : SPI.swupdate-initramfs  (16MiB)
  * 0x1540000 - 0x1640000 : SPI.factory  (1MiB)
  */
 
