@@ -430,7 +430,9 @@
 			interrupts = <0 66 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_ether_rgmii>;
+			clock-names = "ether";
 			clocks = <&sys_clk 6>;
+			reset-names = "ether";
 			resets = <&sys_rst 6>;
 			phy-mode = "rgmii";
 			local-mac-address = [00 00 00 00 00 00];
@@ -449,7 +451,9 @@
 			interrupts = <0 67 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_ether1_rgmii>;
+			clock-names = "ether";
 			clocks = <&sys_clk 7>;
+			reset-names = "ether";
 			resets = <&sys_rst 7>;
 			phy-mode = "rgmii";
 			local-mac-address = [00 00 00 00 00 00];
