@@ -1,0 +1,20 @@
+if ARCH_MX31
+
+config MX31
+       bool
+       default y
+choice
+	prompt "MX31 board select"
+	optional
+
+config TARGET_MX31PDK
+	bool "Support the i.MX31 PDK board from Freescale/NXP"
+	select BOARD_LATE_INIT
+	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
+
+endchoice
+
+source "board/freescale/mx31pdk/Kconfig"
+
+endif
