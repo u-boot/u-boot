@@ -116,7 +116,7 @@
 	"name=kernel_raw1,start=128K,size=8M,uuid=${uuid_gpt_kernel_raw1};" \
 	"name=rootfs1,size=1528M,uuid=${uuid_gpt_rootfs1};" \
 	"name=kernel_raw2,size=8M,uuid=${uuid_gpt_kernel_raw2};" \
-	"name=rootfs2,size=1528M,uuid=${uuid_gpt_rootfs2};" \
+	"name=rootfs2,size=512M,uuid=${uuid_gpt_rootfs2};" \
 	"name=data,size=-,uuid=${uuid_gpt_data}\0"
 
 #define FACTORY_PROCEDURE \
