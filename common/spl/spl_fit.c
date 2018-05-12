@@ -140,6 +140,14 @@ static int get_aligned_image_size(struct spl_load_info *info, int data_size,
 	return (data_size + info->bl_len - 1) / info->bl_len;
 }
 
+#ifdef CONFIG_SPL_FPGA_SUPPORT
+__weak int spl_load_fpga_image(struct spl_load_info *info, size_t length,
+			       int nr_sectors, int sector_offset)
+{
+	return 0;
+}
+#endif
+
 /**
  * spl_load_fit_image(): load the image described in a certain FIT node
  * @info:	points to information about the device to load data from
@@ -161,7 +169,7 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 			      void *fit, ulong base_offset, int node,
 			      struct spl_image_info *image_info)
 {
-	int offset;
+	int offset, sector_offset;
 	size_t length;
 	int len;
 	ulong size;
@@ -209,9 +217,16 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 
 		overhead = get_aligned_image_overhead(info, offset);
 		nr_sectors = get_aligned_image_size(info, length, offset);
+		sector_offset = sector + get_aligned_image_offset(info, offset);
 
-		if (info->read(info,
-			       sector + get_aligned_image_offset(info, offset),
+#ifdef CONFIG_SPL_FPGA_SUPPORT
+		if (type == IH_TYPE_FPGA) {
+			return spl_load_fpga_image(info, length, nr_sectors,
+						   sector_offset);
+		}
+#endif
+
+		if (info->read(info, sector_offset,
 			       nr_sectors, (void *)load_ptr) != nr_sectors)
 			return -EIO;
 
@@ -386,6 +401,20 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 		debug("%s: Cannot find /images node: %d\n", __func__, images);
 		return -1;
 	}
+
+#ifdef CONFIG_SPL_FPGA_SUPPORT
+	node = spl_fit_get_image_node(fit, images, "fpga", 0);
+	if (node >= 0) {
+		/* Load the image and set up the spl_image structure */
+		ret = spl_load_fit_image(info, sector, fit, base_offset, node,
+					 spl_image);
+		if (ret) {
+			printf("%s: Cannot load the FPGA: %i\n", __func__, ret);
+			return ret;
+		}
+		node = -1;
+	}
+#endif
 
 	/*
 	 * Find the U-Boot image using the following search order:
