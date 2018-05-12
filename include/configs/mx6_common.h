@@ -51,8 +51,6 @@
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
-/* Filesystems and image support */
-
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE	512
 #define CONFIG_SYS_MAXARGS	32
