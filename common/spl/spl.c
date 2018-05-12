@@ -145,9 +145,84 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 	spl_image->name = "U-Boot";
 }
 
+#ifdef CONFIG_SPL_LOAD_FIT_FULL
+/* Parse and load full fitImage in SPL */
+static int spl_load_fit_image(struct spl_image_info *spl_image,
+			      const struct image_header *header)
+{
+	bootm_headers_t images;
+	const char *fit_uname_config = NULL;
+	const char *fit_uname_fdt = FIT_FDT_PROP;
+	const char *uname;
+	ulong fw_data = 0, dt_data = 0, img_data = 0;
+	ulong fw_len = 0, dt_len = 0, img_len = 0;
+	int idx, conf_noffset;
+	int ret;
+
+#ifdef CONFIG_SPL_FIT_SIGNATURE
+	images.verify = 1;
+#endif
+	ret = fit_image_load(&images, (ulong)header,
+			     NULL, &fit_uname_config,
+			     IH_ARCH_DEFAULT, IH_TYPE_STANDALONE, -1,
+			     FIT_LOAD_REQUIRED, &fw_data, &fw_len);
+	if (ret < 0)
+		return ret;
+
+	spl_image->size = fw_len;
+	spl_image->entry_point = fw_data;
+	spl_image->load_addr = fw_data;
+	spl_image->os = IH_OS_U_BOOT;
+	spl_image->name = "U-Boot";
+
+	debug("spl: payload image: %.*s load addr: 0x%lx size: %d\n",
+	      (int)sizeof(spl_image->name), spl_image->name,
+		spl_image->load_addr, spl_image->size);
+
+#ifdef CONFIG_SPL_FIT_SIGNATURE
+	images.verify = 1;
+#endif
+	fit_image_load(&images, (ulong)header,
+		       &fit_uname_fdt, &fit_uname_config,
+		       IH_ARCH_DEFAULT, IH_TYPE_FLATDT, -1,
+		       FIT_LOAD_OPTIONAL, &dt_data, &dt_len);
+
+	conf_noffset = fit_conf_get_node((const void *)header,
+					 fit_uname_config);
+	if (conf_noffset <= 0)
+		return 0;
+
+	for (idx = 0;
+	     uname = fdt_stringlist_get((const void *)header, conf_noffset,
+					FIT_LOADABLE_PROP, idx,
+				NULL), uname;
+	     idx++)
+	{
+#ifdef CONFIG_SPL_FIT_SIGNATURE
+		images.verify = 1;
+#endif
+		ret = fit_image_load(&images, (ulong)header,
+				     &uname, &fit_uname_config,
+				     IH_ARCH_DEFAULT, IH_TYPE_LOADABLE, -1,
+				     FIT_LOAD_OPTIONAL_NON_ZERO,
+				     &img_data, &img_len);
+		if (ret < 0)
+			return ret;
+	}
+
+	return 0;
+}
+#endif
+
 int spl_parse_image_header(struct spl_image_info *spl_image,
 			   const struct image_header *header)
 {
+#ifdef CONFIG_SPL_LOAD_FIT_FULL
+	int ret = spl_load_fit_image(spl_image, header);
+
+	if (!ret)
+		return ret;
+#endif
 	if (image_get_magic(header) == IH_MAGIC) {
 #ifdef CONFIG_SPL_LEGACY_IMAGE_SUPPORT
 		u32 header_size = sizeof(struct image_header);
