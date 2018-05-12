@@ -2691,7 +2691,7 @@ FIT uImage format:
 		use an arch-specific makefile fragment instead, for
 		example if more than one image needs to be produced.
 
-		CONFIG_FIT_SPL_PRINT
+		CONFIG_SPL_FIT_PRINT
 		Printing information about a FIT image adds quite a bit of
 		code to SPL. So this is normally disabled in SPL. Use this
 		option to re-enable it. This will affect the output of the
