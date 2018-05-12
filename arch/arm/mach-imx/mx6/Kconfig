@@ -5,6 +5,7 @@ config MX6_SMP
 	select ARM_ERRATA_761320
 	select ARM_ERRATA_794072
 	select ARM_ERRATA_845369
+	select MP
 	bool
 
 config MX6
