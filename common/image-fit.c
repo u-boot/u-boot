@@ -1725,6 +1725,8 @@ static const char *fit_get_image_type_property(int type)
 		return FIT_LOADABLE_PROP;
 	case IH_TYPE_FPGA:
 		return FIT_FPGA_PROP;
+	case IH_TYPE_STANDALONE:
+		return FIT_STANDALONE_PROP;
 	}
 
 	return "unknown";
