@@ -542,7 +542,9 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 		}
 	}
 }
-
+#else
+void fit_print_contents(const void *fit) { }
+void fit_image_print(const void *fit, int image_noffset, const char *p) { }
 #endif /* !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_FIT_PRINT) */
 
 /**
