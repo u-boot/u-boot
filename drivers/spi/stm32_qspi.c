@@ -206,6 +206,7 @@ static void _stm32_qspi_wait_for_ftf(struct stm32_qspi_priv *priv)
 static void _stm32_qspi_set_flash_size(struct stm32_qspi_priv *priv, u32 size)
 {
 	u32 fsize = fls(size) - 1;
+
 	clrsetbits_le32(&priv->regs->dcr,
 			STM32_QSPI_DCR_FSIZE_MASK << STM32_QSPI_DCR_FSIZE_SHIFT,
 			fsize << STM32_QSPI_DCR_FSIZE_SHIFT);
@@ -255,13 +256,15 @@ static unsigned int _stm32_qspi_gen_ccr(struct stm32_qspi_priv *priv)
 }
 
 static void _stm32_qspi_enable_mmap(struct stm32_qspi_priv *priv,
-		struct spi_flash *flash)
+				    struct spi_flash *flash)
 {
+	unsigned int ccr_reg;
+
 	priv->command = flash->read_cmd | CMD_HAS_ADR | CMD_HAS_DATA
 			| CMD_HAS_DUMMY;
 	priv->dummycycles = flash->dummy_byte * 8;
 
-	unsigned int ccr_reg = _stm32_qspi_gen_ccr(priv);
+	ccr_reg = _stm32_qspi_gen_ccr(priv);
 	ccr_reg |= (STM32_QSPI_CCR_MEM_MAP << STM32_QSPI_CCR_FMODE_SHIFT);
 
 	_stm32_qspi_wait_for_not_busy(priv);
@@ -291,10 +294,12 @@ static void _stm32_qspi_start_xfer(struct stm32_qspi_priv *priv, u32 cr_reg)
 }
 
 static int _stm32_qspi_xfer(struct stm32_qspi_priv *priv,
-		struct spi_flash *flash, unsigned int bitlen,
-		const u8 *dout, u8 *din, unsigned long flags)
+			    struct spi_flash *flash, unsigned int bitlen,
+			    const u8 *dout, u8 *din, unsigned long flags)
 {
 	unsigned int words = bitlen / 8;
+	u32 ccr_reg;
+	int i;
 
 	if (flags & SPI_XFER_MMAP) {
 		_stm32_qspi_enable_mmap(priv, flash);
@@ -346,7 +351,7 @@ static int _stm32_qspi_xfer(struct stm32_qspi_priv *priv,
 		}
 
 		if (flags & SPI_XFER_END) {
-			u32 ccr_reg = _stm32_qspi_gen_ccr(priv);
+			ccr_reg = _stm32_qspi_gen_ccr(priv);
 			ccr_reg |= STM32_QSPI_CCR_IND_WRITE
 					<< STM32_QSPI_CCR_FMODE_SHIFT;
 
@@ -365,7 +370,7 @@ static int _stm32_qspi_xfer(struct stm32_qspi_priv *priv,
 
 				debug("%s: words:%d data:", __func__, words);
 
-				int i = 0;
+				i = 0;
 				while (words > i) {
 					writeb(dout[i], &priv->regs->dr);
 					debug("%02x ", dout[i]);
@@ -379,7 +384,7 @@ static int _stm32_qspi_xfer(struct stm32_qspi_priv *priv,
 			}
 		}
 	} else if (din) {
-		u32 ccr_reg = _stm32_qspi_gen_ccr(priv);
+		ccr_reg = _stm32_qspi_gen_ccr(priv);
 		ccr_reg |= STM32_QSPI_CCR_IND_READ
 				<< STM32_QSPI_CCR_FMODE_SHIFT;
 
@@ -394,7 +399,7 @@ static int _stm32_qspi_xfer(struct stm32_qspi_priv *priv,
 
 		debug("%s: data:", __func__);
 
-		int i = 0;
+		i = 0;
 		while (words > i) {
 			din[i] = readb(&priv->regs->dr);
 			debug("%02x ", din[i]);
@@ -518,7 +523,7 @@ static int stm32_qspi_release_bus(struct udevice *dev)
 }
 
 static int stm32_qspi_xfer(struct udevice *dev, unsigned int bitlen,
-		const void *dout, void *din, unsigned long flags)
+			   const void *dout, void *din, unsigned long flags)
 {
 	struct stm32_qspi_priv *priv;
 	struct udevice *bus;
@@ -536,12 +541,13 @@ static int stm32_qspi_set_speed(struct udevice *bus, uint speed)
 {
 	struct stm32_qspi_platdata *plat = bus->platdata;
 	struct stm32_qspi_priv *priv = dev_get_priv(bus);
+	u32 qspi_clk = priv->clock_rate;
+	u32 prescaler = 255;
+	u32 csht;
 
 	if (speed > plat->max_hz)
 		speed = plat->max_hz;
 
-	u32 qspi_clk = priv->clock_rate;
-	u32 prescaler = 255;
 	if (speed > 0) {
 		prescaler = DIV_ROUND_UP(qspi_clk, speed) - 1;
 		if (prescaler > 255)
@@ -550,7 +556,7 @@ static int stm32_qspi_set_speed(struct udevice *bus, uint speed)
 			prescaler = 0;
 	}
 
-	u32 csht = DIV_ROUND_UP((5 * qspi_clk) / (prescaler + 1), 100000000);
+	csht = DIV_ROUND_UP((5 * qspi_clk) / (prescaler + 1), 100000000);
 	csht = (csht - 1) & STM32_QSPI_DCR_CSHT_MASK;
 
 	_stm32_qspi_wait_for_not_busy(priv);
@@ -559,7 +565,6 @@ static int stm32_qspi_set_speed(struct udevice *bus, uint speed)
 			STM32_QSPI_CR_PRESCALER_MASK <<
 			STM32_QSPI_CR_PRESCALER_SHIFT,
 			prescaler << STM32_QSPI_CR_PRESCALER_SHIFT);
-
 
 	clrsetbits_le32(&priv->regs->dcr,
 			STM32_QSPI_DCR_CSHT_MASK << STM32_QSPI_DCR_CSHT_SHIFT,
