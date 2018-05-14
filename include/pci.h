@@ -680,6 +680,19 @@ extern int pci_write_config_dword(pci_dev_t dev, int where, u32 val);
 void pciauto_region_init(struct pci_region *res);
 void pciauto_region_align(struct pci_region *res, pci_size_t size);
 void pciauto_config_init(struct pci_controller *hose);
+
+/**
+ * pciauto_region_allocate() - Allocate resources from a PCI resource region
+ *
+ * Allocates @size bytes from the PCI resource @res. If @supports_64bit is
+ * false, the result will be guaranteed to fit in 32 bits.
+ *
+ * @res:		PCI region to allocate from
+ * @size:		Amount of bytes to allocate
+ * @bar:		Returns the PCI bus address of the allocated resource
+ * @supports_64bit:	Whether to allow allocations above the 32-bit boundary
+ * @return 0 if successful, -1 on failure
+ */
 int pciauto_region_allocate(struct pci_region *res, pci_size_t size,
 			    pci_addr_t *bar, bool supports_64bit);
 
