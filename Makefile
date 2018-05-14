@@ -258,6 +258,15 @@ HOSTCFLAGS   = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer \
 		$(if $(CONFIG_TOOLS_DEBUG),-g)
 HOSTCXXFLAGS = -O2
 
+# With the move to GCC 6, we have implicitly upgraded our language
+# standard to GNU11 (see https://gcc.gnu.org/gcc-5/porting_to.html).
+# Some Linux distributions (including RHEL7, SLES13, Debian 8) still
+# have older compilers as their default, so we make it explicit for
+# these that our host tools are GNU11 (i.e. C11 w/ GNU extensions).
+ifeq ($(HOSTOS),linux)
+HOSTCFLAGS += --std=gnu11
+endif
+
 ifeq ($(HOSTOS),cygwin)
 HOSTCFLAGS	+= -ansi
 endif
