@@ -420,13 +420,13 @@ static int stm32_qspi_ofdata_to_platdata(struct udevice *bus)
 	int ret;
 
 	ret = fdt_get_named_resource(blob, node, "reg", "reg-names",
-				     "QuadSPI", &res_regs);
+				     "qspi", &res_regs);
 	if (ret) {
 		debug("Error: can't get regs base addresses(ret = %d)!\n", ret);
 		return -ENOMEM;
 	}
 	ret = fdt_get_named_resource(blob, node, "reg", "reg-names",
-				     "QuadSPI-memory", &res_mem);
+				     "qspi_mm", &res_mem);
 	if (ret) {
 		debug("Error: can't get mmap base address(ret = %d)!\n", ret);
 		return -ENOMEM;
