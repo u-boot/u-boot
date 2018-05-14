@@ -314,7 +314,7 @@ static int sdhci_execute_tuning(struct udevice *dev, uint opcode)
 
 	debug("%s\n", __func__);
 
-	if (host->ops->platform_execute_tuning) {
+	if (host->ops && host->ops->platform_execute_tuning) {
 		err = host->ops->platform_execute_tuning(mmc, opcode);
 		if (err)
 			return err;
@@ -347,7 +347,7 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 	if (clock == 0)
 		return 0;
 
-	if (host->ops->set_delay)
+	if (host->ops && host->ops->set_delay)
 		host->ops->set_delay(host);
 
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
