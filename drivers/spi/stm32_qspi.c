@@ -8,14 +8,14 @@
  */
 
 #include <common.h>
+#include <clk.h>
+#include <dm.h>
+#include <errno.h>
 #include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/io.h>
-#include <dm.h>
-#include <errno.h>
 #include <asm/arch/stm32.h>
-#include <clk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
