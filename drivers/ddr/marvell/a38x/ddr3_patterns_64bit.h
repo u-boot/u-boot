@@ -6,6 +6,7 @@
 #ifndef __DDR3_PATTERNS_64_H
 #define __DDR3_PATTERNS_64_H
 
+#define FAB_OPT		21
 /*
  * Patterns Declerations
  */

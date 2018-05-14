@@ -9,7 +9,8 @@
 #include "comphy.h"
 #include "comphy_hpipe.h"
 
-#define MVEBU_REG(offs)			((uintptr_t)MVEBU_REGISTER(offs))
+#define MVEBU_REG(offs)			\
+	((void __iomem *)(ulong)MVEBU_REGISTER(offs))
 
 #define DEFAULT_REFCLK_MHZ		25
 #define PLL_SET_DELAY_US		600
@@ -21,9 +22,8 @@
  * COMPHY SB definitions
  */
 #define COMPHY_SEL_ADDR			MVEBU_REG(0x0183FC)
-#define rf_compy_select(lane)		(0x1 << (((lane) == 1) ? 4 : 0))
 
-#define COMPHY_PHY_CFG1_ADDR(lane)	MVEBU_REG(0x018300 + (lane) * 0x28)
+#define COMPHY_PHY_CFG1_ADDR(lane)	MVEBU_REG(0x018300 + (1 - lane) * 0x28)
 #define rb_pin_pu_iveref		BIT(1)
 #define rb_pin_reset_core		BIT(11)
 #define rb_pin_reset_comphy		BIT(12)
@@ -37,7 +37,7 @@
 #define rf_gen_tx_select		(0x0F << rf_gen_tx_sel_shift)
 #define rb_phy_rx_init			BIT(30)
 
-#define COMPHY_PHY_STAT1_ADDR(lane)	MVEBU_REG(0x018318 + (lane) * 0x28)
+#define COMPHY_PHY_STAT1_ADDR(lane)	MVEBU_REG(0x018318 + (1 - lane) * 0x28)
 #define rb_rx_init_done			BIT(0)
 #define rb_pll_ready_rx			BIT(2)
 #define rb_pll_ready_tx			BIT(3)
@@ -58,125 +58,115 @@
 #define USB2PHY2_BASE			MVEBU_REG(0x05F000)
 #define USB32_CTRL_BASE			MVEBU_REG(0x05D800)
 #define USB3PHY_SHFT			2
+#define USB3PHY_LANE2_REG_BASE_OFFSET	0x200
 
-#define SGMIIPHY_BASE(l)	(l == 1 ? USB3PHY_BASE : PCIEPHY_BASE)
-#define SGMIIPHY_ADDR(l, a)	(((a & 0x00007FF) * 2) | SGMIIPHY_BASE(l))
-
-#define phy_read16(l, a)	read16((void __iomem *)SGMIIPHY_ADDR(l, a))
-#define phy_write16(l, a, data, mask)	\
-	reg_set16((void __iomem *)SGMIIPHY_ADDR(l, a), data, mask)
+static inline void __iomem *sgmiiphy_addr(u32 lane, u32 addr)
+{
+	addr = (addr & 0x00007FF) * 2;
+	if (lane == 1)
+		return PCIEPHY_BASE + addr;
+	else
+		return USB3PHY_BASE + addr;
+}
 
 /* units */
-#define PCIE				1
-#define USB3				2
+enum phy_unit {
+	PCIE = 1,
+	USB3 = 2,
+};
 
-#define PHY_BASE(unit)		((unit == PCIE) ? PCIEPHY_BASE : USB3PHY_BASE)
-#define PHY_SHFT(unit)		((unit == PCIE) ? PCIEPHY_SHFT : USB3PHY_SHFT)
+static inline void __iomem *phy_addr(enum phy_unit unit, u32 addr)
+{
+	if (unit == PCIE)
+		return PCIEPHY_BASE + addr * PCIEPHY_SHFT;
+	else
+		return USB3PHY_BASE + addr * USB3PHY_SHFT;
+}
 
 /* bit definition for USB32_CTRL_BASE (USB32 Control Mode) */
 #define usb32_ctrl_id_mode		BIT(0)
 #define usb32_ctrl_soft_id		BIT(1)
 #define usb32_ctrl_int_mode		BIT(4)
 
-
-#define PHY_PWR_PLL_CTRL_ADDR	0x01	/* for phy_read16 and phy_write16 */
-#define PWR_PLL_CTRL_ADDR(unit)		\
-	(PHY_PWR_PLL_CTRL_ADDR * PHY_SHFT(unit) + PHY_BASE(unit))
+#define PWR_PLL_CTRL			0x01
 #define rf_phy_mode_shift		5
 #define rf_phy_mode_mask		(0x7 << rf_phy_mode_shift)
 #define rf_ref_freq_sel_shift		0
 #define rf_ref_freq_sel_mask		(0x1F << rf_ref_freq_sel_shift)
 #define PHY_MODE_SGMII			0x4
 
-/* for phy_read16 and phy_write16 */
-#define PHY_REG_KVCO_CAL_CTRL_ADDR	0x02
-#define KVCO_CAL_CTRL_ADDR(unit)	\
-	(PHY_REG_KVCO_CAL_CTRL_ADDR * PHY_SHFT(unit) + PHY_BASE(unit))
+#define KVCO_CAL_CTRL			0x02
 #define rb_use_max_pll_rate		BIT(12)
 #define rb_force_calibration_done	BIT(9)
 
-/* for phy_read16 and phy_write16 */
-#define PHY_DIG_LB_EN_ADDR		0x23
-#define DIG_LB_EN_ADDR(unit)		\
-	(PHY_DIG_LB_EN_ADDR * PHY_SHFT(unit) + PHY_BASE(unit))
+#define DIG_LB_EN			0x23
 #define rf_data_width_shift		10
 #define rf_data_width_mask		(0x3 << rf_data_width_shift)
 
-/* for phy_read16 and phy_write16 */
-#define PHY_SYNC_PATTERN_ADDR		0x24
-#define SYNC_PATTERN_ADDR(unit)		\
-	(PHY_SYNC_PATTERN_ADDR * PHY_SHFT(unit) + PHY_BASE(unit))
+#define SYNC_PATTERN			0x24
 #define phy_txd_inv			BIT(10)
 #define phy_rxd_inv			BIT(11)
 
-/* for phy_read16 and phy_write16 */
-#define PHY_REG_UNIT_CTRL_ADDR		0x48
-#define UNIT_CTRL_ADDR(unit)		\
-	(PHY_REG_UNIT_CTRL_ADDR * PHY_SHFT(unit) + PHY_BASE(unit))
+#define SYNC_MASK_GEN			0x25
 #define rb_idle_sync_en			BIT(12)
 
-/* for phy_read16 and phy_write16 */
-#define PHY_REG_GEN2_SETTINGS_2		0x3e
-#define GEN2_SETTING_2_ADDR(unit)	\
-	(PHY_REG_GEN2_SETTINGS_2 * PHY_SHFT(unit) + PHY_BASE(unit))
+#define UNIT_CTRL			0x48
+
+#define GEN2_SETTINGS_2			0x3e
 #define g2_tx_ssc_amp			BIT(14)
 
-/* for phy_read16 and phy_write16 */
-#define PHY_REG_GEN2_SETTINGS_3		0x3f
-#define GEN2_SETTING_3_ADDR(unit)	\
-	(PHY_REG_GEN2_SETTINGS_3 * PHY_SHFT(unit) + PHY_BASE(unit))
+#define GEN2_SETTINGS_3			0x3f
 
-/* for phy_read16 and phy_write16 */
-#define PHY_MISC_REG0_ADDR		0x4f
-#define MISC_REG0_ADDR(unit)		\
-	(PHY_MISC_REG0_ADDR * PHY_SHFT(unit) + PHY_BASE(unit))
+#define GEN3_SETTINGS_3			0x112
+
+#define MISC_REG0			0x4f
 #define rb_clk100m_125m_en		BIT(4)
 #define rb_clk500m_en			BIT(7)
 #define rb_ref_clk_sel			BIT(10)
 
-/* for phy_read16 and phy_write16 */
-#define PHY_REG_IFACE_REF_CLK_CTRL_ADDR		0x51
-#define UNIT_IFACE_REF_CLK_CTRL_ADDR(unit)	\
-	(PHY_REG_IFACE_REF_CLK_CTRL_ADDR * PHY_SHFT(unit) + PHY_BASE(unit))
+#define UNIT_IFACE_REF_CLK_CTRL		0x51
 #define rb_ref1m_gen_div_force		BIT(8)
 #define rf_ref1m_gen_div_value_shift	0
 #define rf_ref1m_gen_div_value_mask	(0xFF << rf_ref1m_gen_div_value_shift)
 
-/* for phy_read16 and phy_write16 */
-#define PHY_REG_ERR_CNT_CONST_CTRL_ADDR	0x6A
-#define UNIT_ERR_CNT_CONST_CTRL_ADDR(unit) \
-	(PHY_REG_ERR_CNT_CONST_CTRL_ADDR * PHY_SHFT(unit) + PHY_BASE(unit))
+#define UNIT_ERR_CNT_CONST_CTRL		0x6a
 #define rb_fast_dfe_enable		BIT(13)
 
-#define MISC_REG1_ADDR(u)		(0x73 * PHY_SHFT(u) + PHY_BASE(u))
+#define MISC_REG1			0x73
 #define bf_sel_bits_pcie_force		BIT(15)
 
-#define LANE_CFG0_ADDR(u)		(0x180 * PHY_SHFT(u) + PHY_BASE(u))
+#define LANE_CFG0			0x180
 #define bf_use_max_pll_rate		BIT(9)
-#define LANE_CFG1_ADDR(u)		(0x181 * PHY_SHFT(u) + PHY_BASE(u))
+
+#define LANE_CFG1			0x181
 #define bf_use_max_pll_rate		BIT(9)
-/* 0x5c310 = 0x93 (set BIT7) */
-#define LANE_CFG4_ADDR(u)		(0x188 * PHY_SHFT(u) + PHY_BASE(u))
+#define prd_txdeemph1_mask		BIT(15)
+#define tx_det_rx_mode			BIT(6)
+#define gen2_tx_data_dly_deft		(2 << 3)
+#define gen2_tx_data_dly_mask		(BIT(3) | BIT(4))
+#define tx_elec_idle_mode_en		BIT(0)
+
+#define LANE_CFG4			0x188
 #define bf_spread_spectrum_clock_en	BIT(7)
 
-#define LANE_STAT1_ADDR(u)		(0x183 * PHY_SHFT(u) + PHY_BASE(u))
+#define LANE_STAT1			0x183
 #define rb_txdclk_pclk_en		BIT(0)
 
-#define GLOB_PHY_CTRL0_ADDR(u)		(0x1c1 * PHY_SHFT(u) + PHY_BASE(u))
+#define GLOB_PHY_CTRL0			0x1c1
 #define bf_soft_rst			BIT(0)
 #define bf_mode_refdiv			0x30
 #define rb_mode_core_clk_freq_sel	BIT(9)
 #define rb_mode_pipe_width_32		BIT(3)
 
-#define TEST_MODE_CTRL_ADDR(u)		(0x1c2 * PHY_SHFT(u) + PHY_BASE(u))
+#define TEST_MODE_CTRL			0x1c2
 #define rb_mode_margin_override		BIT(2)
 
-#define GLOB_CLK_SRC_LO_ADDR(u)		(0x1c3 * PHY_SHFT(u) + PHY_BASE(u))
+#define GLOB_CLK_SRC_LO			0x1c3
 #define bf_cfg_sel_20b			BIT(15)
 
-#define PWR_MGM_TIM1_ADDR(u)		(0x1d0 * PHY_SHFT(u) + PHY_BASE(u))
+#define PWR_MGM_TIM1			0x1d0
 
-#define PHY_REF_CLK_ADDR		(0x4814 + PCIE_BASE)
+#define PCIE_REF_CLK_ADDR		(PCIE_BASE + 0x4814)
 
 #define USB3_CTRPUL_VAL_REG		(0x20 + USB32_BASE)
 #define USB3H_CTRPUL_VAL_REG		(0x3454 + USB32H_BASE)

@@ -27,7 +27,7 @@
 # include <wdt.h>
 #endif
 
-#include "../drivers/ddr/marvell/a38x/ddr3_a38x_topology.h"
+#include "../drivers/ddr/marvell/a38x/ddr3_init.h"
 #include <../serdes/a38x/high_speed_env_spec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -200,7 +200,8 @@ static bool omnia_read_eeprom(struct omnia_eeprom *oep)
  * be used by the DDR3 init code in the SPL U-Boot version to configure
  * the DDR3 controller.
  */
-static struct hws_topology_map board_topology_map_1g = {
+static struct mv_ddr_topology_map board_topology_map_1g = {
+	DEBUG_LEVEL_ERROR,
 	0x1, /* active interfaces */
 	/* cs_mask, mirror, dqs_swap, ck_swap X PUPs */
 	{ { { {0x1, 0, 0, 0},
@@ -209,17 +210,20 @@ static struct hws_topology_map board_topology_map_1g = {
 	      {0x1, 0, 0, 0},
 	      {0x1, 0, 0, 0} },
 	    SPEED_BIN_DDR_1600K,	/* speed_bin */
-	    BUS_WIDTH_16,		/* memory_width */
-	    MEM_4G,			/* mem_size */
+	    MV_DDR_DEV_WIDTH_16BIT,	/* memory_width */
+	    MV_DDR_DIE_CAP_4GBIT,			/* mem_size */
 	    DDR_FREQ_800,		/* frequency */
 	    0, 0,			/* cas_wl cas_l */
-	    HWS_TEMP_NORMAL,		/* temperature */
-	    HWS_TIM_2T} },		/* timing (force 2t) */
-	5,				/* Num Of Bus Per Interface*/
-	BUS_MASK_32BIT			/* Busses mask */
+	    MV_DDR_TEMP_NORMAL,		/* temperature */
+	    MV_DDR_TIM_2T} },		/* timing */
+	BUS_MASK_32BIT,			/* Busses mask */
+	MV_DDR_CFG_DEFAULT,		/* ddr configuration data source */
+	{ {0} },			/* raw spd data */
+	{0}				/* timing parameters */
 };
 
-static struct hws_topology_map board_topology_map_2g = {
+static struct mv_ddr_topology_map board_topology_map_2g = {
+	DEBUG_LEVEL_ERROR,
 	0x1, /* active interfaces */
 	/* cs_mask, mirror, dqs_swap, ck_swap X PUPs */
 	{ { { {0x1, 0, 0, 0},
@@ -228,17 +232,19 @@ static struct hws_topology_map board_topology_map_2g = {
 	      {0x1, 0, 0, 0},
 	      {0x1, 0, 0, 0} },
 	    SPEED_BIN_DDR_1600K,	/* speed_bin */
-	    BUS_WIDTH_16,		/* memory_width */
-	    MEM_8G,			/* mem_size */
+	    MV_DDR_DEV_WIDTH_16BIT,	/* memory_width */
+	    MV_DDR_DIE_CAP_8GBIT,			/* mem_size */
 	    DDR_FREQ_800,		/* frequency */
 	    0, 0,			/* cas_wl cas_l */
-	    HWS_TEMP_NORMAL,		/* temperature */
-	    HWS_TIM_2T} },		/* timing (force 2t) */
-	5,				/* Num Of Bus Per Interface*/
-	BUS_MASK_32BIT			/* Busses mask */
+	    MV_DDR_TEMP_NORMAL,		/* temperature */
+	    MV_DDR_TIM_2T} },		/* timing */
+	BUS_MASK_32BIT,			/* Busses mask */
+	MV_DDR_CFG_DEFAULT,		/* ddr configuration data source */
+	{ {0} },			/* raw spd data */
+	{0}				/* timing parameters */
 };
 
-struct hws_topology_map *ddr3_get_topology_map(void)
+struct mv_ddr_topology_map *mv_ddr_topology_map_get(void)
 {
 	static int mem = 0;
 	struct omnia_eeprom oep;

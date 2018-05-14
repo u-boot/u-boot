@@ -6,8 +6,9 @@
 #ifndef _DDR3_TOPOLOGY_DEF_H
 #define _DDR3_TOPOLOGY_DEF_H
 
-/* TOPOLOGY */
+#define DEV_NUM_0	0
 
+/* TOPOLOGY */
 enum hws_speed_bin {
 	SPEED_BIN_DDR_800D,
 	SPEED_BIN_DDR_800E,
@@ -53,7 +54,8 @@ enum hws_ddr_freq {
 	DDR_FREQ_900,
 	DDR_FREQ_360,
 	DDR_FREQ_1000,
-	DDR_FREQ_LIMIT
+	DDR_FREQ_LAST,
+	DDR_FREQ_SAR
 };
 
 enum speed_bin_table_elements {

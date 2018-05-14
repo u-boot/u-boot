@@ -96,14 +96,48 @@ struct chip_serdes_phy_config {
 	void __iomem *hpipe3_base_addr;
 	u32 comphy_lanes_count;
 	u32 comphy_mux_bitcount;
+	const fdt32_t *comphy_mux_lane_order;
 	u32 cp_index;
 };
 
 /* Register helper functions */
-void reg_set(void __iomem *addr, u32 data, u32 mask);
-void reg_set_silent(void __iomem *addr, u32 data, u32 mask);
-void reg_set16(void __iomem *addr, u16 data, u16 mask);
-void reg_set_silent16(void __iomem *addr, u16 data, u16 mask);
+static inline void reg_set_silent(void __iomem *addr, u32 data, u32 mask)
+{
+	u32 reg_data;
+
+	reg_data = readl(addr);
+	reg_data &= ~mask;
+	reg_data |= data;
+	writel(reg_data, addr);
+}
+
+static inline void reg_set(void __iomem *addr, u32 data, u32 mask)
+{
+	debug("Write to address = %#010lx, data = %#010x (mask = %#010x) - ",
+	      (unsigned long)addr, data, mask);
+	debug("old value = %#010x ==> ", readl(addr));
+	reg_set_silent(addr, data, mask);
+	debug("new value %#010x\n", readl(addr));
+}
+
+static inline void reg_set_silent16(void __iomem *addr, u16 data, u16 mask)
+{
+	u16 reg_data;
+
+	reg_data = readw(addr);
+	reg_data &= ~mask;
+	reg_data |= data;
+	writew(reg_data, addr);
+}
+
+static inline void reg_set16(void __iomem *addr, u16 data, u16 mask)
+{
+	debug("Write to address = %#010lx, data = %#06x (mask = %#06x) - ",
+	      (unsigned long)addr, data, mask);
+	debug("old value = %#06x ==> ", readw(addr));
+	reg_set_silent16(addr, data, mask);
+	debug("new value %#06x\n", readw(addr));
+}
 
 /* SoC specific init functions */
 #ifdef CONFIG_ARMADA_3700
