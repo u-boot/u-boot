@@ -71,6 +71,9 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{"is25lp064",	   INFO(0x9d6017, 0x0, 64 * 1024,   128, 0) },
 	{"is25lp128",	   INFO(0x9d6018, 0x0, 64 * 1024,   256, 0) },
 	{"is25lp256",	   INFO(0x9d6019, 0x0, 64 * 1024,   512, 0) },
+	{"is25wp032",	   INFO(0x9d7016, 0x0, 64 * 1024,    64, RD_FULL | SECT_4K) },
+	{"is25wp064",	   INFO(0x9d7017, 0x0, 64 * 1024,   128, RD_FULL | SECT_4K) },
+	{"is25wp128",	   INFO(0x9d7018, 0x0, 64 * 1024,   256, RD_FULL | SECT_4K) },
 #endif
 #ifdef CONFIG_SPI_FLASH_MACRONIX	/* MACRONIX */
 	{"mx25l2006e",	   INFO(0xc22012, 0x0, 64 * 1024,     4, 0) },
