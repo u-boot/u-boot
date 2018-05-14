@@ -32,7 +32,7 @@ void pciauto_region_align(struct pci_region *res, pci_size_t size)
 }
 
 int pciauto_region_allocate(struct pci_region *res, pci_size_t size,
-	pci_addr_t *bar)
+	pci_addr_t *bar, bool supports_64bit)
 {
 	pci_addr_t addr;
 
@@ -45,6 +45,11 @@ int pciauto_region_allocate(struct pci_region *res, pci_size_t size,
 
 	if (addr - res->bus_start + size > res->size) {
 		debug("No room in resource");
+		goto error;
+	}
+
+	if (upper_32_bits(addr) && !supports_64bit) {
+		debug("Cannot assign 64-bit address to 32-bit-only resource\n");
 		goto error;
 	}
 

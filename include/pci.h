@@ -681,7 +681,7 @@ void pciauto_region_init(struct pci_region *res);
 void pciauto_region_align(struct pci_region *res, pci_size_t size);
 void pciauto_config_init(struct pci_controller *hose);
 int pciauto_region_allocate(struct pci_region *res, pci_size_t size,
-			    pci_addr_t *bar);
+			    pci_addr_t *bar, bool supports_64bit);
 
 #if !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT)
 extern int pci_hose_read_config_byte_via_dword(struct pci_controller *hose,

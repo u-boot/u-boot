@@ -98,7 +98,8 @@ void dm_pciauto_setup_device(struct udevice *dev, int bars_num,
 		}
 
 		if (!enum_only && pciauto_region_allocate(bar_res, bar_size,
-							  &bar_value) == 0) {
+							  &bar_value,
+							  found_mem64) == 0) {
 			/* Write it out and update our limit */
 			dm_pci_write_config32(dev, bar, (u32)bar_value);
 
@@ -140,7 +141,8 @@ void dm_pciauto_setup_device(struct udevice *dev, int bars_num,
 				debug("PCI Autoconfig: ROM, size=%#x, ",
 				      (unsigned int)bar_size);
 				if (pciauto_region_allocate(mem, bar_size,
-							    &bar_value) == 0) {
+							    &bar_value,
+							    false) == 0) {
 					dm_pci_write_config32(dev, rom_addr,
 							      bar_value);
 				}
