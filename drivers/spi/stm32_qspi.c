@@ -12,6 +12,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
+#include <reset.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/io.h>
@@ -457,6 +458,7 @@ static int stm32_qspi_probe(struct udevice *bus)
 	struct stm32_qspi_priv *priv = dev_get_priv(bus);
 	struct dm_spi_bus *dm_spi_bus;
 	struct clk clk;
+	struct reset_ctl reset_ctl;
 	int ret;
 
 	dm_spi_bus = bus->uclass_priv;
@@ -484,6 +486,19 @@ static int stm32_qspi_probe(struct udevice *bus)
 		return priv->clock_rate;
 	}
 
+	ret = reset_get_by_index(bus, 0, &reset_ctl);
+	if (ret) {
+		if (ret != -ENOENT) {
+			dev_err(bus, "failed to get reset\n");
+			clk_disable(&clk);
+			return ret;
+		}
+	} else {
+		/* Reset QSPI controller */
+		reset_assert(&reset_ctl);
+		udelay(2);
+		reset_deassert(&reset_ctl);
+	}
 
 	setbits_le32(&priv->regs->cr, STM32_QSPI_CR_SSHIFT);
 
