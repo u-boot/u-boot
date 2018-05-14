@@ -183,7 +183,7 @@
 		phy-type = <COMPHY_TYPE_PEX0>;
 	};
 	phy4 {
-		phy-type = <COMPHY_TYPE_SFI>;
+		phy-type = <COMPHY_TYPE_SFI0>;
 	};
 	phy5 {
 		phy-type = <COMPHY_TYPE_SATA1>;
@@ -299,7 +299,7 @@
 		phy-type = <COMPHY_TYPE_SATA1>;
 	};
 	phy4 {
-		phy-type = <COMPHY_TYPE_SFI>;
+		phy-type = <COMPHY_TYPE_SFI0>;
 	};
 	phy5 {
 		phy-type = <COMPHY_TYPE_SGMII2>;

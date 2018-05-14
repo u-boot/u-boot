@@ -109,10 +109,11 @@ int comphy_cp110_sfi_rx_training(struct chip_serdes_phy_config *ptr_chip_cfg,
 				 u32 lane)
 {
 	int ret;
+	u32 type = ptr_chip_cfg->comphy_map_data[lane].type;
 
 	debug_enter();
 
-	if (ptr_chip_cfg->comphy_map_data[lane].type != COMPHY_TYPE_SFI) {
+	if (type != COMPHY_TYPE_SFI0 && type != COMPHY_TYPE_SFI1) {
 		pr_err("Comphy %d isn't configured to SFI\n", lane);
 		return 0;
 	}
@@ -630,13 +631,14 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 					 ptr_chip_cfg->comphy_base_addr, lane,
 					 mode);
 			break;
-		case COMPHY_TYPE_SFI:
-			mode = COMPHY_FW_FORMAT(COMPHY_SFI_MODE,
-						COMPHY_UNIT_ID0,
+		case COMPHY_TYPE_SFI0:
+		case COMPHY_TYPE_SFI1:
+			/* Calculate SFI id */
+			id = ptr_comphy_map->type - COMPHY_TYPE_SFI0;
+			mode = COMPHY_FW_FORMAT(COMPHY_SFI_MODE, id,
 						ptr_comphy_map->speed);
 			ret = comphy_smc(MV_SIP_COMPHY_POWER_ON,
-					 ptr_chip_cfg->comphy_base_addr, lane,
-					 mode);
+				ptr_chip_cfg->comphy_base_addr, lane, mode);
 			break;
 		case COMPHY_TYPE_RXAUI0:
 		case COMPHY_TYPE_RXAUI1:

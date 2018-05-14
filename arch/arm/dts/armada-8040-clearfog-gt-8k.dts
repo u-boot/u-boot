@@ -154,7 +154,7 @@
 	 * CP0 Serdes Configuration:
 	 * Lane 0: PCIe0 (x1)
 	 * Lane 1: Not connected
-	 * Lane 2: SFI (10G)
+	 * Lane 2: SFI0 (10G)
 	 * Lane 3: Not connected
 	 * Lane 4: USB 3.0 host port1 (can be PCIe)
 	 * Lane 5: Not connected
@@ -166,7 +166,7 @@
 		phy-type = <COMPHY_TYPE_UNCONNECTED>;
 	};
 	phy2 {
-		phy-type = <COMPHY_TYPE_SFI>;
+		phy-type = <COMPHY_TYPE_SFI0>;
 	};
 	phy3 {
 		phy-type = <COMPHY_TYPE_UNCONNECTED>;
