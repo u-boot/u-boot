@@ -21,6 +21,17 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static unsigned long cpu_mhz_from_cpuid(void)
+{
+	if (gd->arch.x86_vendor != X86_VENDOR_INTEL)
+		return 0;
+
+	if (cpuid_eax(0) < 0x16)
+		return 0;
+
+	return cpuid_eax(0x16);
+}
+
 /*
  * According to Intel 64 and IA-32 System Programming Guide,
  * if MSR_PERF_STAT[31] is set, the maximum resolved bus ratio can be
@@ -343,13 +354,21 @@ static void tsc_timer_ensure_setup(void)
 	if (!gd->arch.clock_rate) {
 		unsigned long fast_calibrate;
 
-		fast_calibrate = cpu_mhz_from_msr();
-		if (!fast_calibrate) {
-			fast_calibrate = quick_pit_calibrate();
-			if (!fast_calibrate)
-				panic("TSC frequency is ZERO");
-		}
+		fast_calibrate = cpu_mhz_from_cpuid();
+		if (fast_calibrate)
+			goto done;
 
+		fast_calibrate = cpu_mhz_from_msr();
+		if (fast_calibrate)
+			goto done;
+
+		fast_calibrate = quick_pit_calibrate();
+		if (fast_calibrate)
+			goto done;
+
+		panic("TSC frequency is ZERO");
+
+done:
 		gd->arch.clock_rate = fast_calibrate * 1000000;
 	}
 }
