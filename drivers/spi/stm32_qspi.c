@@ -16,8 +16,7 @@
 #include <spi_flash.h>
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
-
-DECLARE_GLOBAL_DATA_PTR;
+#include <linux/ioport.h>
 
 struct stm32_qspi_regs {
 	u32 cr;		/* 0x00 */
@@ -421,27 +420,23 @@ static int _stm32_qspi_xfer(struct stm32_qspi_priv *priv,
 
 static int stm32_qspi_ofdata_to_platdata(struct udevice *bus)
 {
-	struct fdt_resource res_regs, res_mem;
+	struct resource res_regs, res_mem;
 	struct stm32_qspi_platdata *plat = bus->platdata;
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(bus);
 	int ret;
 
-	ret = fdt_get_named_resource(blob, node, "reg", "reg-names",
-				     "qspi", &res_regs);
+	ret = dev_read_resource_byname(bus, "qspi", &res_regs);
 	if (ret) {
 		debug("Error: can't get regs base addresses(ret = %d)!\n", ret);
 		return -ENOMEM;
 	}
-	ret = fdt_get_named_resource(blob, node, "reg", "reg-names",
-				     "qspi_mm", &res_mem);
+	ret = dev_read_resource_byname(bus, "qspi_mm", &res_mem);
 	if (ret) {
 		debug("Error: can't get mmap base address(ret = %d)!\n", ret);
 		return -ENOMEM;
 	}
 
-	plat->max_hz = fdtdec_get_int(blob, node, "spi-max-frequency",
-					STM32_QSPI_DEFAULT_SCK_FREQ);
+	plat->max_hz = dev_read_u32_default(bus, "spi-max-frequency",
+					    STM32_QSPI_DEFAULT_SCK_FREQ);
 
 	plat->base = res_regs.start;
 	plat->memory_map = res_mem.start;
