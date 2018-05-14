@@ -39,13 +39,12 @@ Running U-Boot
 The minimal QEMU command line to get U-Boot up and running is:
 
 - For ARM:
-    qemu-system-arm -machine virt,highmem=off -bios u-boot.bin
+    qemu-system-arm -machine virt -bios u-boot.bin
 
 - For AArch64:
-    qemu-system-aarch64 -machine virt,highmem=off -cpu cortex-a57 -bios u-boot.bin
+    qemu-system-aarch64 -machine virt -cpu cortex-a57 -bios u-boot.bin
 
-The 'highmem=off' parameter to the 'virt' machine is required for PCI to work
-in U-Boot. Also, for some odd reason qemu-system-aarch64 needs to be explicitly
+Note that for some odd reason qemu-system-aarch64 needs to be explicitly
 told to use a 64-bit CPU or it will boot in 32-bit mode.
 
 Additional peripherals that have been tested to work in both U-Boot and Linux
