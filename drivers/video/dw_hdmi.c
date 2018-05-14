@@ -401,11 +401,11 @@ static void hdmi_av_composer(struct dw_hdmi *hdmi,
 	/* set up hdmi_fc_invidconf */
 	inv_val = HDMI_FC_INVIDCONF_HDCP_KEEPOUT_INACTIVE;
 
-	inv_val |= (edid->flags & DISPLAY_FLAGS_HSYNC_HIGH ?
+	inv_val |= (edid->flags & DISPLAY_FLAGS_VSYNC_HIGH ?
 		   HDMI_FC_INVIDCONF_VSYNC_IN_POLARITY_ACTIVE_HIGH :
 		   HDMI_FC_INVIDCONF_VSYNC_IN_POLARITY_ACTIVE_LOW);
 
-	inv_val |= (edid->flags & DISPLAY_FLAGS_VSYNC_HIGH ?
+	inv_val |= (edid->flags & DISPLAY_FLAGS_HSYNC_HIGH ?
 		   HDMI_FC_INVIDCONF_HSYNC_IN_POLARITY_ACTIVE_HIGH :
 		   HDMI_FC_INVIDCONF_HSYNC_IN_POLARITY_ACTIVE_LOW);
 
