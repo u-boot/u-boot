@@ -37,7 +37,7 @@ int pciauto_region_allocate(struct pci_region *res, pci_size_t size,
 	pci_addr_t addr;
 
 	if (!res) {
-		debug("No resource");
+		debug("No resource\n");
 		goto error;
 	}
 
@@ -50,7 +50,7 @@ int pciauto_region_allocate(struct pci_region *res, pci_size_t size,
 
 	res->bus_lower = addr + size;
 
-	debug("address=0x%llx bus_lower=0x%llx", (unsigned long long)addr,
+	debug("address=0x%llx bus_lower=0x%llx\n", (unsigned long long)addr,
 	      (unsigned long long)res->bus_lower);
 
 	*bar = addr;
