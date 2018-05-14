@@ -155,6 +155,8 @@ enum STM32_QSPI_CCR_FMODE {
 /* default SCK frequency, unit: HZ */
 #define STM32_QSPI_DEFAULT_SCK_FREQ 108000000
 
+#define STM32_MAX_NORCHIP 2
+
 struct stm32_qspi_platdata {
 	u32 base;
 	u32 memory_map;
@@ -210,6 +212,12 @@ static void _stm32_qspi_set_flash_size(struct stm32_qspi_priv *priv, u32 size)
 	clrsetbits_le32(&priv->regs->dcr,
 			STM32_QSPI_DCR_FSIZE_MASK << STM32_QSPI_DCR_FSIZE_SHIFT,
 			fsize << STM32_QSPI_DCR_FSIZE_SHIFT);
+}
+
+static void _stm32_qspi_set_cs(struct stm32_qspi_priv *priv, unsigned int cs)
+{
+	clrsetbits_le32(&priv->regs->cr, STM32_QSPI_CR_FSEL,
+			cs ? STM32_QSPI_CR_FSEL : 0);
 }
 
 static unsigned int _stm32_qspi_gen_ccr(struct stm32_qspi_priv *priv)
@@ -497,10 +505,17 @@ static int stm32_qspi_claim_bus(struct udevice *dev)
 	struct stm32_qspi_priv *priv;
 	struct udevice *bus;
 	struct spi_flash *flash;
+	struct dm_spi_slave_platdata *slave_plat;
 
 	bus = dev->parent;
 	priv = dev_get_priv(bus);
 	flash = dev_get_uclass_priv(dev);
+	slave_plat = dev_get_parent_platdata(dev);
+
+	if (slave_plat->cs >= STM32_MAX_NORCHIP)
+		return -ENODEV;
+
+	_stm32_qspi_set_cs(priv, slave_plat->cs);
 
 	_stm32_qspi_set_flash_size(priv, flash->size);
 
