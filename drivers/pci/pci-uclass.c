@@ -860,6 +860,13 @@ static int decode_regions(struct pci_controller *hose, ofnode parent_node,
 		} else {
 			continue;
 		}
+
+		if (!IS_ENABLED(CONFIG_SYS_PCI_64BIT) &&
+		    type == PCI_REGION_MEM && upper_32_bits(pci_addr)) {
+			debug(" - beyond the 32-bit boundary, ignoring\n");
+			continue;
+		}
+
 		pos = -1;
 		for (i = 0; i < hose->region_count; i++) {
 			if (hose->regions[i].flags == type)
