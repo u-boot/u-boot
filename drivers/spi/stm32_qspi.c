@@ -448,6 +448,8 @@ static int stm32_qspi_probe(struct udevice *bus)
 	struct stm32_qspi_platdata *plat = dev_get_platdata(bus);
 	struct stm32_qspi_priv *priv = dev_get_priv(bus);
 	struct dm_spi_bus *dm_spi_bus;
+	struct clk clk;
+	int ret;
 
 	dm_spi_bus = bus->uclass_priv;
 
@@ -457,9 +459,6 @@ static int stm32_qspi_probe(struct udevice *bus)
 
 	priv->max_hz = plat->max_hz;
 
-#ifdef CONFIG_CLK
-	int ret;
-	struct clk clk;
 	ret = clk_get_by_index(bus, 0, &clk);
 	if (ret < 0)
 		return ret;
@@ -477,7 +476,6 @@ static int stm32_qspi_probe(struct udevice *bus)
 		return priv->clock_rate;
 	}
 
-#endif
 
 	setbits_le32(&priv->regs->cr, STM32_QSPI_CR_SSHIFT);
 
