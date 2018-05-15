@@ -1491,24 +1491,36 @@ config HASH_VERIFY
 	help
 	  Add -v option to verify data against a hash.
 
+config CMD_TPM_V1
+	bool
+
+config CMD_TPM_V2
+	bool
+
 config CMD_TPM
 	bool "Enable the 'tpm' command"
-	depends on TPM
+	depends on TPM_V1 || TPM_V2
+	select CMD_TPM_V1 if TPM_V1
+	select CMD_TPM_V2 if TPM_V2
 	help
 	  This provides a means to talk to a TPM from the command line. A wide
 	  range of commands if provided - see 'tpm help' for details. The
 	  command requires a suitable TPM on your board and the correct driver
 	  must be enabled.
 
+if CMD_TPM
+
 config CMD_TPM_TEST
 	bool "Enable the 'tpm test' command"
-	depends on CMD_TPM
+	depends on TPM_V1
 	help
-	  This provides a a series of tests to confirm that the TPM is working
-	  correctly. The tests cover initialisation, non-volatile RAM, extend,
-	  global lock and checking that timing is within expectations. The
-	  tests pass correctly on Infineon TPMs but may need to be adjusted
+	  This provides a a series of tests to confirm that the TPMv1.x is
+	  working correctly. The tests cover initialisation, non-volatile RAM,
+	  extend, global lock and checking that timing is within expectations.
+	  The tests pass correctly on Infineon TPMs but may need to be adjusted
 	  for other devices.
+
+endif
 
 endmenu
 
