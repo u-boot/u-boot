@@ -508,7 +508,7 @@ u32 tpm_tsc_physical_presence(u16 presence);
  * Issue a TPM_ReadPubek command.
  *
  * @param data		output buffer for the public endorsement key
- * @param count		size of ouput buffer
+ * @param count		size of output buffer
  * @return return code of the operation
  */
 u32 tpm_read_pubek(void *data, size_t count);
@@ -550,13 +550,13 @@ u32 tpm_physical_set_deactivated(u8 state);
  * @param sub_cap	further definition of capability, which is
  *			limited to be 4-byte wide
  * @param cap		output buffer for capability information
- * @param count		size of ouput buffer
+ * @param count		size of output buffer
  * @return return code of the operation
  */
 u32 tpm_get_capability(u32 cap_area, u32 sub_cap, void *cap, size_t count);
 
 /**
- * Issue a TPM_FlushSpecific command for a AUTH ressource.
+ * Issue a TPM_FlushSpecific command for a AUTH resource.
  *
  * @param auth_handle	handle of the auth session
  * @return return code of the operation
@@ -564,7 +564,7 @@ u32 tpm_get_capability(u32 cap_area, u32 sub_cap, void *cap, size_t count);
 u32 tpm_terminate_auth_session(u32 auth_handle);
 
 /**
- * Issue a TPM_OIAP command to setup an object independant authorization
+ * Issue a TPM_OIAP command to setup an object independent authorization
  * session.
  * Information about the session is stored internally.
  * If there was already an OIAP session active it is terminated and a new

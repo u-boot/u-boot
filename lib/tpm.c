@@ -825,7 +825,7 @@ u32 tpm_terminate_auth_session(u32 auth_handle)
 		0x00, 0x00, 0x00, 0x00,	/* parameter size */
 		0x00, 0x00, 0x00, 0xba,	/* TPM_COMMAND_CODE */
 		0x00, 0x00, 0x00, 0x00,	/* TPM_HANDLE */
-		0x00, 0x00, 0x00, 0x02,	/* TPM_RESSOURCE_TYPE */
+		0x00, 0x00, 0x00, 0x02,	/* TPM_RESOURCE_TYPE */
 	};
 	const size_t req_handle_offset = TPM_REQUEST_HEADER_LENGTH;
 	u8 request[COMMAND_BUFFER_SIZE];
