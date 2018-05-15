@@ -157,3 +157,36 @@ u32 tpm2_pcr_read(u32 idx, unsigned int idx_min_sz, void *data,
 
 	return 0;
 }
+
+u32 tpm2_get_capability(u32 capability, u32 property, void *buf,
+			size_t prop_count)
+{
+	u8 command_v2[COMMAND_BUFFER_SIZE] = {
+		tpm_u16(TPM2_ST_NO_SESSIONS),		/* TAG */
+		tpm_u32(22),				/* Length */
+		tpm_u32(TPM2_CC_GET_CAPABILITY),	/* Command code */
+
+		tpm_u32(capability),			/* Capability */
+		tpm_u32(property),			/* Property */
+		tpm_u32(prop_count),			/* Property count */
+	};
+	u8 response[COMMAND_BUFFER_SIZE];
+	size_t response_len = COMMAND_BUFFER_SIZE;
+	unsigned int properties_off;
+	int ret;
+
+	ret = tpm_sendrecv_command(command_v2, response, &response_len);
+	if (ret)
+		return ret;
+
+	/*
+	 * In the response buffer, the properties are located after the:
+	 * tag (u16), response size (u32), response code (u32),
+	 * YES/NO flag (u8), TPM_CAP (u32) and TPMU_CAPABILITIES (u32).
+	 */
+	properties_off = sizeof(u16) + sizeof(u32) + sizeof(u32) +
+			 sizeof(u8) + sizeof(u32) + sizeof(u32);
+	memcpy(buf, &response[properties_off], response_len - properties_off);
+
+	return 0;
+}

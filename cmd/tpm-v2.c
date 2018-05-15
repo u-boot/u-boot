@@ -144,6 +144,43 @@ static int do_tpm_pcr_read(cmd_tbl_t *cmdtp, int flag, int argc,
 	return report_return_code(rc);
 }
 
+static int do_tpm_get_capability(cmd_tbl_t *cmdtp, int flag, int argc,
+				 char * const argv[])
+{
+	u32 capability, property, rc;
+	u8 *data;
+	size_t count;
+	int i, j;
+
+	if (argc != 5)
+		return CMD_RET_USAGE;
+
+	capability = simple_strtoul(argv[1], NULL, 0);
+	property = simple_strtoul(argv[2], NULL, 0);
+	data = map_sysmem(simple_strtoul(argv[3], NULL, 0), 0);
+	count = simple_strtoul(argv[4], NULL, 0);
+
+	rc = tpm2_get_capability(capability, property, data, count);
+	if (rc)
+		goto unmap_data;
+
+	printf("Capabilities read from TPM:\n");
+	for (i = 0; i < count; i++) {
+		printf("Property 0x");
+		for (j = 0; j < 4; j++)
+			printf("%02x", data[(i * 8) + j]);
+		printf(": 0x");
+		for (j = 4; j < 8; j++)
+			printf("%02x", data[(i * 8) + j]);
+		printf("\n");
+	}
+
+unmap_data:
+	unmap_sysmem(data);
+
+	return report_return_code(rc);
+}
+
 static cmd_tbl_t tpm2_commands[] = {
 	U_BOOT_CMD_MKENT(info, 0, 1, do_tpm_info, "", ""),
 	U_BOOT_CMD_MKENT(init, 0, 1, do_tpm_init, "", ""),
@@ -152,6 +189,7 @@ static cmd_tbl_t tpm2_commands[] = {
 	U_BOOT_CMD_MKENT(clear, 0, 1, do_tpm2_clear, "", ""),
 	U_BOOT_CMD_MKENT(pcr_extend, 0, 1, do_tpm2_pcr_extend, "", ""),
 	U_BOOT_CMD_MKENT(pcr_read, 0, 1, do_tpm_pcr_read, "", ""),
+	U_BOOT_CMD_MKENT(get_capability, 0, 1, do_tpm_get_capability, "", ""),
 };
 
 cmd_tbl_t *get_tpm_commands(unsigned int *size)
@@ -191,4 +229,11 @@ U_BOOT_CMD(tpm, CONFIG_SYS_MAXARGS, 1, do_tpm, "Issue a TPMv2.x command",
 "    Read PCR #<pcr> to memory address <digest_addr>.\n"
 "    <pcr>: index of the PCR\n"
 "    <digest_addr>: address to store the a 32-byte SHA256 digest\n"
+"get_capability <capability> <property> <addr> <count>\n"
+"    Read and display <count> entries indexed by <capability>/<property>.\n"
+"    Values are 4 bytes long and are written at <addr>.\n"
+"    <capability>: capability\n"
+"    <property>: property\n"
+"    <addr>: address to store <count> entries of 4 bytes\n"
+"    <count>: number of entries to retrieve\n"
 );

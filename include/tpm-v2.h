@@ -177,4 +177,18 @@ u32 tpm2_pcr_extend(u32 index, const uint8_t *digest);
 u32 tpm2_pcr_read(u32 idx, unsigned int idx_min_sz, void *data,
 		  unsigned int *updates);
 
+/**
+ * Issue a TPM2_GetCapability command.  This implementation is limited
+ * to query property index that is 4-byte wide.
+ *
+ * @capability	Partition of capabilities
+ * @property	Further definition of capability, limited to be 4 bytes wide
+ * @buf		Output buffer for capability information
+ * @prop_count	Size of output buffer
+ *
+ * @return code of the operation
+ */
+u32 tpm2_get_capability(u32 capability, u32 property, void *buf,
+			size_t prop_count);
+
 #endif /* __TPM_V2_H */
