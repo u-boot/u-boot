@@ -820,7 +820,6 @@ static uint32_t verify_response_auth(uint32_t command_code,
 	return TPM_SUCCESS;
 }
 
-
 uint32_t tpm_terminate_auth_session(uint32_t auth_handle)
 {
 	const uint8_t command[18] = {
