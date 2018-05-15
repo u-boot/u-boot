@@ -41,6 +41,7 @@ obj-y += rc4.o
 obj-$(CONFIG_SUPPORT_EMMC_RPMB) += sha256.o
 obj-$(CONFIG_TPM) += tpm-common.o
 obj-$(CONFIG_TPM_V1) += tpm-v1.o
+obj-$(CONFIG_TPM_V2) += tpm-v2.o
 obj-$(CONFIG_RBTREE)	+= rbtree.o
 obj-$(CONFIG_BITREVERSE) += bitrev.o
 obj-y += list_sort.o

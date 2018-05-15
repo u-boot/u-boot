@@ -35,11 +35,17 @@ enum tpm_duration {
  *
  * @duration_ms:	Length of each duration type in milliseconds
  * @retry_time_ms:	Time to wait before retrying receive
+ * @pcr_count:		Number of PCR per bank
+ * @pcr_select_min:	Minimum size in bytes of the pcrSelect array
  * @buf:		Buffer used during the exchanges with the chip
  */
 struct tpm_chip_priv {
 	uint duration_ms[TPM_DURATION_COUNT];
 	uint retry_time_ms;
+#if defined(CONFIG_TPM_V2)
+	uint pcr_count;
+	uint pcr_select_min;
+#endif
 	u8 buf[TPM_DEV_BUFSIZE + sizeof(u8)];  /* Max buffer size + addr */
 };
 
