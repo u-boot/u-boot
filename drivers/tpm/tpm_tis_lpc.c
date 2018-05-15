@@ -15,7 +15,7 @@
 #include <common.h>
 #include <dm.h>
 #include <mapmem.h>
-#include <tpm.h>
+#include <tpm-v1.h>
 #include <asm/io.h>
 
 #define PREFIX "lpc_tpm: "

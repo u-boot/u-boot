@@ -16,7 +16,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <spi.h>
-#include <tpm.h>
+#include <tpm-v1.h>
 #include <errno.h>
 #include <linux/types.h>
 #include <asm/unaligned.h>

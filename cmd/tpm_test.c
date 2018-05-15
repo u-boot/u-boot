@@ -6,7 +6,7 @@
 #include <common.h>
 #include <command.h>
 #include <environment.h>
-#include <tpm.h>
+#include <tpm-v1.h>
 
 /* Prints error and returns on failure */
 #define TPM_CHECK(tpm_command) do { \

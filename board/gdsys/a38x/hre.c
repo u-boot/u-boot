@@ -9,7 +9,7 @@
 #include <fs.h>
 #include <i2c.h>
 #include <mmc.h>
-#include <tpm.h>
+#include <tpm-v1.h>
 #include <u-boot/sha1.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>

@@ -7,7 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <miiphy.h>
-#include <tpm.h>
+#include <tpm-v1.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm-generic/gpio.h>

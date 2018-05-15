@@ -5,7 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
-#include <tpm.h>
+#include <tpm-v1.h>
 #include <asm/state.h>
 #include <asm/unaligned.h>
 #include <linux/crc8.h>

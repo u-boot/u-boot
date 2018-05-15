@@ -46,7 +46,7 @@ config TPM_TIS_INFINEON
 
 config TPM_TIS_I2C_BURST_LIMITATION
 	bool "Enable I2C burst length limitation"
-	depends on TPM_V1 && TPM_TIS_INFINEON
+	depends on TPM_TIS_INFINEON
 	help
 	  Some broken TPMs have a limitation on the number of bytes they can
 	  receive in one message. Enable this option to allow you to set this
@@ -62,6 +62,7 @@ config TPM_TIS_I2C_BURST_LIMITATION_LEN
 config TPM_TIS_LPC
 	bool "Enable support for Infineon SLB9635/45 TPMs on LPC"
 	depends on TPM_V1 && X86
+	select TPM_DRIVER_SELECTED
 	help
 	  This driver supports Infineon TPM devices connected on the LPC bus.
 	  The usual tpm operations and the 'tpm' command can be used to talk

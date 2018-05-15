@@ -6,8 +6,10 @@
 
 #include <common.h>
 #include <dm.h>
-#include <tpm.h>
 #include <linux/unaligned/be_byteshift.h>
+#if defined(CONFIG_TPM_V1)
+#include <tpm-v1.h>
+#endif
 #include "tpm_internal.h"
 
 int tpm_open(struct udevice *dev)

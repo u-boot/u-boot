@@ -5,7 +5,7 @@
  */
 
 #include <common.h>
-#include <tpm.h>
+#include <tpm-v1.h>
 #include <malloc.h>
 #include <linux/ctype.h>
 #include <asm/unaligned.h>
