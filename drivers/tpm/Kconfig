@@ -129,6 +129,16 @@ config TPM_V2
 
 if TPM_V2 && !TPM_V1
 
+config TPM2_TIS_SPI
+	bool "Enable support for TPMv2.x SPI chips"
+	depends on TPM_V2 && DM_SPI
+	select TPM_DRIVER_SELECTED
+	help
+	  This driver supports TPMv2.x devices connected on the SPI bus.
+	  The usual TPM operations and the 'tpm' command can be used to talk
+	  to the device using the standard TPM Interface Specification (TIS)
+	  protocol.
+
 endif # TPM_V2
 
 endmenu
