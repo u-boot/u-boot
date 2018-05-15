@@ -21,9 +21,9 @@
 #include <test/ut.h>
 
 /* Test PMIC get method */
-static int dm_test_power_pmic_get(struct unit_test_state *uts)
+
+static inline int power_pmic_get(struct unit_test_state *uts, char *name)
 {
-	const char *name = "sandbox_pmic";
 	struct udevice *dev;
 
 	ut_assertok(pmic_get(name, &dev));
@@ -31,6 +31,14 @@ static int dm_test_power_pmic_get(struct unit_test_state *uts)
 
 	/* Check PMIC's name */
 	ut_asserteq_str(name, dev->name);
+
+	return 0;
+}
+
+/* Test PMIC get method */
+static int dm_test_power_pmic_get(struct unit_test_state *uts)
+{
+	power_pmic_get(uts, "sandbox_pmic");
 
 	return 0;
 }
