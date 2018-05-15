@@ -61,3 +61,10 @@ unsigned long usec2ticks(unsigned long usec)
 
 	return ticks;
 }
+
+ulong timer_get_boot_us(void)
+{
+	u64 val = get_ticks() * 1000000;
+
+	return val / get_tbclk();
+}
