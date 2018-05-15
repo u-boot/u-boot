@@ -264,6 +264,43 @@ static int do_tpm_change_auth(cmd_tbl_t *cmdtp, int flag, int argc,
 						   oldpw, oldpw_sz));
 }
 
+static int do_tpm_pcr_setauthpolicy(cmd_tbl_t *cmdtp, int flag, int argc,
+				    char * const argv[])
+{
+	u32 index = simple_strtoul(argv[1], NULL, 0);
+	char *key = argv[2];
+	const char *pw = (argc < 4) ? NULL : argv[3];
+	const ssize_t pw_sz = pw ? strlen(pw) : 0;
+
+	if (strlen(key) != TPM2_DIGEST_LEN)
+		return -EINVAL;
+
+	if (argc < 3 || argc > 4)
+		return CMD_RET_USAGE;
+
+	return report_return_code(tpm2_pcr_setauthpolicy(pw, pw_sz, index,
+							 key));
+}
+
+static int do_tpm_pcr_setauthvalue(cmd_tbl_t *cmdtp, int flag,
+				   int argc, char * const argv[])
+{
+	u32 index = simple_strtoul(argv[1], NULL, 0);
+	char *key = argv[2];
+	const ssize_t key_sz = strlen(key);
+	const char *pw = (argc < 4) ? NULL : argv[3];
+	const ssize_t pw_sz = pw ? strlen(pw) : 0;
+
+	if (strlen(key) != TPM2_DIGEST_LEN)
+		return -EINVAL;
+
+	if (argc < 3 || argc > 4)
+		return CMD_RET_USAGE;
+
+	return report_return_code(tpm2_pcr_setauthvalue(pw, pw_sz, index,
+							key, key_sz));
+}
+
 static cmd_tbl_t tpm2_commands[] = {
 	U_BOOT_CMD_MKENT(info, 0, 1, do_tpm_info, "", ""),
 	U_BOOT_CMD_MKENT(init, 0, 1, do_tpm_init, "", ""),
@@ -276,6 +313,10 @@ static cmd_tbl_t tpm2_commands[] = {
 	U_BOOT_CMD_MKENT(dam_reset, 0, 1, do_tpm_dam_reset, "", ""),
 	U_BOOT_CMD_MKENT(dam_parameters, 0, 1, do_tpm_dam_parameters, "", ""),
 	U_BOOT_CMD_MKENT(change_auth, 0, 1, do_tpm_change_auth, "", ""),
+	U_BOOT_CMD_MKENT(pcr_setauthpolicy, 0, 1,
+			 do_tpm_pcr_setauthpolicy, "", ""),
+	U_BOOT_CMD_MKENT(pcr_setauthvalue, 0, 1,
+			 do_tpm_pcr_setauthvalue, "", ""),
 };
 
 cmd_tbl_t *get_tpm_commands(unsigned int *size)
@@ -338,4 +379,11 @@ U_BOOT_CMD(tpm, CONFIG_SYS_MAXARGS, 1, do_tpm, "Issue a TPMv2.x command",
 "    <hierarchy>: the hierarchy\n"
 "    <new_pw>: new password for <hierarchy>\n"
 "    <old_pw>: optional previous password of <hierarchy>\n"
+"pcr_setauthpolicy|pcr_setauthvalue <pcr> <key> [<password>]\n"
+"    Change the <key> to access PCR #<pcr>.\n"
+"    hierarchy and may be empty.\n"
+"    /!\\WARNING: untested function, use at your own risks !\n"
+"    <pcr>: index of the PCR\n"
+"    <key>: secret to protect the access of PCR #<pcr>\n"
+"    <password>: optional password of the PLATFORM hierarchy\n"
 );

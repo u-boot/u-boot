@@ -80,11 +80,13 @@ enum tpm2_command_codes {
 	TPM2_CC_CLEAR		= 0x0126,
 	TPM2_CC_CLEARCONTROL	= 0x0127,
 	TPM2_CC_HIERCHANGEAUTH	= 0x0129,
+	TPM2_CC_PCR_SETAUTHPOL	= 0x012C,
 	TPM2_CC_DAM_RESET	= 0x0139,
 	TPM2_CC_DAM_PARAMETERS	= 0x013A,
 	TPM2_CC_GET_CAPABILITY	= 0x017A,
 	TPM2_CC_PCR_READ	= 0x017E,
 	TPM2_CC_PCR_EXTEND	= 0x0182,
+	TPM2_CC_PCR_SETAUTHVAL	= 0x0183,
 };
 
 /**
@@ -229,5 +231,32 @@ u32 tpm2_dam_parameters(const char *pw, const ssize_t pw_sz,
  */
 int tpm2_change_auth(u32 handle, const char *newpw, const ssize_t newpw_sz,
 		     const char *oldpw, const ssize_t oldpw_sz);
+
+/**
+ * Issue a TPM_PCR_SetAuthPolicy command.
+ *
+ * @pw		Platform password
+ * @pw_sz	Length of the password
+ * @index	Index of the PCR
+ * @digest	New key to access the PCR
+ *
+ * @return code of the operation
+ */
+u32 tpm2_pcr_setauthpolicy(const char *pw, const ssize_t pw_sz, u32 index,
+			   const char *key);
+
+/**
+ * Issue a TPM_PCR_SetAuthValue command.
+ *
+ * @pw		Platform password
+ * @pw_sz	Length of the password
+ * @index	Index of the PCR
+ * @digest	New key to access the PCR
+ * @key_sz	Length of the new key
+ *
+ * @return code of the operation
+ */
+u32 tpm2_pcr_setauthvalue(const char *pw, const ssize_t pw_sz, u32 index,
+			  const char *key, const ssize_t key_sz);
 
 #endif /* __TPM_V2_H */

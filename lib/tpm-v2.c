@@ -317,3 +317,103 @@ int tpm2_change_auth(u32 handle, const char *newpw, const ssize_t newpw_sz,
 
 	return tpm_sendrecv_command(command_v2, NULL, NULL);
 }
+
+u32 tpm2_pcr_setauthpolicy(const char *pw, const ssize_t pw_sz, u32 index,
+			   const char *key)
+{
+	u8 command_v2[COMMAND_BUFFER_SIZE] = {
+		tpm_u16(TPM2_ST_SESSIONS),	/* TAG */
+		tpm_u32(35 + pw_sz + TPM2_DIGEST_LEN), /* Length */
+		tpm_u32(TPM2_CC_PCR_SETAUTHPOL), /* Command code */
+
+		/* HANDLE */
+		tpm_u32(TPM2_RH_PLATFORM),	/* TPM resource handle */
+
+		/* AUTH_SESSION */
+		tpm_u32(9 + pw_sz),		/* Authorization size */
+		tpm_u32(TPM2_RS_PW),		/* session handle */
+		tpm_u16(0),			/* Size of <nonce> */
+						/* <nonce> (if any) */
+		0,				/* Attributes: Cont/Excl/Rst */
+		tpm_u16(pw_sz)			/* Size of <hmac/password> */
+		/* STRING(pw)			   <hmac/password> (if any) */
+
+		/* TPM2B_AUTH (TPM2B_DIGEST) */
+		/* tpm_u16(TPM2_DIGEST_LEN)	   Digest size length */
+		/* STRING(key)			   Digest buffer (PCR key) */
+
+		/* TPMI_ALG_HASH */
+		/* tpm_u16(TPM2_ALG_SHA256)   Algorithm of the hash */
+
+		/* TPMI_DH_PCR */
+		/* tpm_u32(index),		   PCR Index */
+	};
+	unsigned int offset = 27;
+	int ret;
+
+	/*
+	 * Fill the command structure starting from the first buffer:
+	 *     - the password (if any)
+	 *     - the PCR key length
+	 *     - the PCR key
+	 *     - the hash algorithm
+	 *     - the PCR index
+	 */
+	ret = pack_byte_string(command_v2, sizeof(command_v2), "swswd",
+			       offset, pw, pw_sz,
+			       offset + pw_sz, TPM2_DIGEST_LEN,
+			       offset + pw_sz + 2, key, TPM2_DIGEST_LEN,
+			       offset + pw_sz + 2 + TPM2_DIGEST_LEN,
+			       TPM2_ALG_SHA256,
+			       offset + pw_sz + 4 + TPM2_DIGEST_LEN, index);
+	offset += pw_sz + 2 + TPM2_DIGEST_LEN + 2 + 4;
+	if (ret)
+		return TPM_LIB_ERROR;
+
+	return tpm_sendrecv_command(command_v2, NULL, NULL);
+}
+
+u32 tpm2_pcr_setauthvalue(const char *pw, const ssize_t pw_sz, u32 index,
+			  const char *key, const ssize_t key_sz)
+{
+	u8 command_v2[COMMAND_BUFFER_SIZE] = {
+		tpm_u16(TPM2_ST_SESSIONS),	/* TAG */
+		tpm_u32(33 + pw_sz + TPM2_DIGEST_LEN), /* Length */
+		tpm_u32(TPM2_CC_PCR_SETAUTHVAL), /* Command code */
+
+		/* HANDLE */
+		tpm_u32(index),			/* Handle (PCR Index) */
+
+		/* AUTH_SESSION */
+		tpm_u32(9 + pw_sz),		/* Authorization size */
+		tpm_u32(TPM2_RS_PW),		/* session handle */
+		tpm_u16(0),			/* Size of <nonce> */
+						/* <nonce> (if any) */
+		0,				/* Attributes: Cont/Excl/Rst */
+		tpm_u16(pw_sz),			/* Size of <hmac/password> */
+		/* STRING(pw)			   <hmac/password> (if any) */
+
+		/* TPM2B_DIGEST */
+		/* tpm_u16(key_sz)		   Key length */
+		/* STRING(key)			   Key */
+	};
+	unsigned int offset = 27;
+	int ret;
+
+	/*
+	 * Fill the command structure starting from the first buffer:
+	 *     - the password (if any)
+	 *     - the number of digests, 1 in our case
+	 *     - the algorithm, sha256 in our case
+	 *     - the digest (64 bytes)
+	 */
+	ret = pack_byte_string(command_v2, sizeof(command_v2), "sws",
+			       offset, pw, pw_sz,
+			       offset + pw_sz, key_sz,
+			       offset + pw_sz + 2, key, key_sz);
+	offset += pw_sz + 2 + key_sz;
+	if (ret)
+		return TPM_LIB_ERROR;
+
+	return tpm_sendrecv_command(command_v2, NULL, NULL);
+}
