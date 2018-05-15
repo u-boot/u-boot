@@ -181,6 +181,59 @@ unmap_data:
 	return report_return_code(rc);
 }
 
+static int do_tpm_dam_reset(cmd_tbl_t *cmdtp, int flag, int argc,
+			    char *const argv[])
+{
+	const char *pw = (argc < 2) ? NULL : argv[1];
+	const ssize_t pw_sz = pw ? strlen(pw) : 0;
+
+	if (argc > 2)
+		return CMD_RET_USAGE;
+
+	if (pw_sz > TPM2_DIGEST_LEN)
+		return -EINVAL;
+
+	return report_return_code(tpm2_dam_reset(pw, pw_sz));
+}
+
+static int do_tpm_dam_parameters(cmd_tbl_t *cmdtp, int flag, int argc,
+				 char *const argv[])
+{
+	const char *pw = (argc < 5) ? NULL : argv[4];
+	const ssize_t pw_sz = pw ? strlen(pw) : 0;
+	/*
+	 * No Dictionary Attack Mitigation (DAM) means:
+	 * maxtries = 0xFFFFFFFF, recovery_time = 1, lockout_recovery = 0
+	 */
+	unsigned long int max_tries;
+	unsigned long int recovery_time;
+	unsigned long int lockout_recovery;
+
+	if (argc < 4 || argc > 5)
+		return CMD_RET_USAGE;
+
+	if (pw_sz > TPM2_DIGEST_LEN)
+		return -EINVAL;
+
+	if (strict_strtoul(argv[1], 0, &max_tries))
+		return CMD_RET_USAGE;
+
+	if (strict_strtoul(argv[2], 0, &recovery_time))
+		return CMD_RET_USAGE;
+
+	if (strict_strtoul(argv[3], 0, &lockout_recovery))
+		return CMD_RET_USAGE;
+
+	log(LOGC_NONE, LOGL_INFO, "Changing dictionary attack parameters:\n");
+	log(LOGC_NONE, LOGL_INFO, "- maxTries: %lu", max_tries);
+	log(LOGC_NONE, LOGL_INFO, "- recoveryTime: %lu\n", recovery_time);
+	log(LOGC_NONE, LOGL_INFO, "- lockoutRecovery: %lu\n", lockout_recovery);
+
+	return report_return_code(tpm2_dam_parameters(pw, pw_sz, max_tries,
+						      recovery_time,
+						      lockout_recovery));
+}
+
 static cmd_tbl_t tpm2_commands[] = {
 	U_BOOT_CMD_MKENT(info, 0, 1, do_tpm_info, "", ""),
 	U_BOOT_CMD_MKENT(init, 0, 1, do_tpm_init, "", ""),
@@ -190,6 +243,8 @@ static cmd_tbl_t tpm2_commands[] = {
 	U_BOOT_CMD_MKENT(pcr_extend, 0, 1, do_tpm2_pcr_extend, "", ""),
 	U_BOOT_CMD_MKENT(pcr_read, 0, 1, do_tpm_pcr_read, "", ""),
 	U_BOOT_CMD_MKENT(get_capability, 0, 1, do_tpm_get_capability, "", ""),
+	U_BOOT_CMD_MKENT(dam_reset, 0, 1, do_tpm_dam_reset, "", ""),
+	U_BOOT_CMD_MKENT(dam_parameters, 0, 1, do_tpm_dam_parameters, "", ""),
 };
 
 cmd_tbl_t *get_tpm_commands(unsigned int *size)
@@ -236,4 +291,16 @@ U_BOOT_CMD(tpm, CONFIG_SYS_MAXARGS, 1, do_tpm, "Issue a TPMv2.x command",
 "    <property>: property\n"
 "    <addr>: address to store <count> entries of 4 bytes\n"
 "    <count>: number of entries to retrieve\n"
+"  dam_reset_counter [<password>]\n"
+"    - If the TPM is not in a LOCKOUT state, reset the internal error\n"
+"      counter (TPMv2 only)\n"
+"  dam_set_parameters <maxTries> <recoveryTime> <lockoutRecovery> [<password>]\n"
+"    - If the TPM is not in a LOCKOUT state, set the dictionary attack\n"
+"      parameters:\n"
+"          * maxTries: maximum number of failures before lockout.\n"
+"                          0 means always locking.\n"
+"          * recoveryTime: time before decrementation of the error counter,\n"
+"                          0 means no lockout.\n"
+"          * lockoutRecovery: time of a lockout (before the next try)\n"
+"                          0 means a reboot is needed.\n"
 );

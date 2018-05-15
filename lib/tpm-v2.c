@@ -190,3 +190,86 @@ u32 tpm2_get_capability(u32 capability, u32 property, void *buf,
 
 	return 0;
 }
+
+u32 tpm2_dam_reset(const char *pw, const ssize_t pw_sz)
+{
+	u8 command_v2[COMMAND_BUFFER_SIZE] = {
+		tpm_u16(TPM2_ST_SESSIONS),	/* TAG */
+		tpm_u32(27 + pw_sz),		/* Length */
+		tpm_u32(TPM2_CC_DAM_RESET),	/* Command code */
+
+		/* HANDLE */
+		tpm_u32(TPM2_RH_LOCKOUT),	/* TPM resource handle */
+
+		/* AUTH_SESSION */
+		tpm_u32(9 + pw_sz),		/* Authorization size */
+		tpm_u32(TPM2_RS_PW),		/* Session handle */
+		tpm_u16(0),			/* Size of <nonce> */
+						/* <nonce> (if any) */
+		0,				/* Attributes: Cont/Excl/Rst */
+		tpm_u16(pw_sz),			/* Size of <hmac/password> */
+		/* STRING(pw)			   <hmac/password> (if any) */
+	};
+	unsigned int offset = 27;
+	int ret;
+
+	/*
+	 * Fill the command structure starting from the first buffer:
+	 *     - the password (if any)
+	 */
+	ret = pack_byte_string(command_v2, sizeof(command_v2), "s",
+			       offset, pw, pw_sz);
+	offset += pw_sz;
+	if (ret)
+		return TPM_LIB_ERROR;
+
+	return tpm_sendrecv_command(command_v2, NULL, NULL);
+}
+
+u32 tpm2_dam_parameters(const char *pw, const ssize_t pw_sz,
+			unsigned int max_tries, unsigned int recovery_time,
+			unsigned int lockout_recovery)
+{
+	u8 command_v2[COMMAND_BUFFER_SIZE] = {
+		tpm_u16(TPM2_ST_SESSIONS),	/* TAG */
+		tpm_u32(27 + pw_sz + 12),	/* Length */
+		tpm_u32(TPM2_CC_DAM_PARAMETERS), /* Command code */
+
+		/* HANDLE */
+		tpm_u32(TPM2_RH_LOCKOUT),	/* TPM resource handle */
+
+		/* AUTH_SESSION */
+		tpm_u32(9 + pw_sz),		/* Authorization size */
+		tpm_u32(TPM2_RS_PW),		/* Session handle */
+		tpm_u16(0),			/* Size of <nonce> */
+						/* <nonce> (if any) */
+		0,				/* Attributes: Cont/Excl/Rst */
+		tpm_u16(pw_sz),			/* Size of <hmac/password> */
+		/* STRING(pw)			   <hmac/password> (if any) */
+
+		/* LOCKOUT PARAMETERS */
+		/* tpm_u32(max_tries)		   Max tries (0, always lock) */
+		/* tpm_u32(recovery_time)	   Recovery time (0, no lock) */
+		/* tpm_u32(lockout_recovery)	   Lockout recovery */
+	};
+	unsigned int offset = 27;
+	int ret;
+
+	/*
+	 * Fill the command structure starting from the first buffer:
+	 *     - the password (if any)
+	 *     - max tries
+	 *     - recovery time
+	 *     - lockout recovery
+	 */
+	ret = pack_byte_string(command_v2, sizeof(command_v2), "sddd",
+			       offset, pw, pw_sz,
+			       offset + pw_sz, max_tries,
+			       offset + pw_sz + 4, recovery_time,
+			       offset + pw_sz + 8, lockout_recovery);
+	offset += pw_sz + 12;
+	if (ret)
+		return TPM_LIB_ERROR;
+
+	return tpm_sendrecv_command(command_v2, NULL, NULL);
+}

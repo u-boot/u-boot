@@ -191,4 +191,29 @@ u32 tpm2_pcr_read(u32 idx, unsigned int idx_min_sz, void *data,
 u32 tpm2_get_capability(u32 capability, u32 property, void *buf,
 			size_t prop_count);
 
+/**
+ * Issue a TPM2_DictionaryAttackLockReset command.
+ *
+ * @pw		Password
+ * @pw_sz	Length of the password
+ *
+ * @return code of the operation
+ */
+u32 tpm2_dam_reset(const char *pw, const ssize_t pw_sz);
+
+/**
+ * Issue a TPM2_DictionaryAttackParameters command.
+ *
+ * @pw		Password
+ * @pw_sz	Length of the password
+ * @max_tries	Count of authorizations before lockout
+ * @recovery_time Time before decrementation of the failure count
+ * @lockout_recovery Time to wait after a lockout
+ *
+ * @return code of the operation
+ */
+u32 tpm2_dam_parameters(const char *pw, const ssize_t pw_sz,
+			unsigned int max_tries, unsigned int recovery_time,
+			unsigned int lockout_recovery);
+
 #endif /* __TPM_V2_H */
