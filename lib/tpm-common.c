@@ -169,7 +169,8 @@ u32 tpm_sendrecv_command(const void *command, void *response, size_t *size_ptr)
 		       response, &response_length);
 
 	if (err < 0)
-		return TPM_LIB_ERROR;
+		return err;
+
 	if (size_ptr)
 		*size_ptr = response_length;
 
