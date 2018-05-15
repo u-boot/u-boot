@@ -156,4 +156,5 @@ enum {
 #define SW_MODE_PWMPFM		0x0d
 #define SW_MODE_PFMPFM		0x0f
 
+#define MC34708_TRANSFER_SIZE 3
 #endif
