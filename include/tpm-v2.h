@@ -125,4 +125,13 @@ enum tpm2_algorithms {
 	TPM2_ALG_NULL		= 0x10,
 };
 
+/**
+ * Issue a TPM2_Startup command.
+ *
+ * @mode	TPM startup mode
+ *
+ * @return code of the operation
+ */
+u32 tpm2_startup(enum tpm2_startup_types mode);
+
 #endif /* __TPM_V2_H */
