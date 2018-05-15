@@ -273,3 +273,47 @@ u32 tpm2_dam_parameters(const char *pw, const ssize_t pw_sz,
 
 	return tpm_sendrecv_command(command_v2, NULL, NULL);
 }
+
+int tpm2_change_auth(u32 handle, const char *newpw, const ssize_t newpw_sz,
+		     const char *oldpw, const ssize_t oldpw_sz)
+{
+	unsigned int offset = 27;
+	u8 command_v2[COMMAND_BUFFER_SIZE] = {
+		tpm_u16(TPM2_ST_SESSIONS),	/* TAG */
+		tpm_u32(offset + oldpw_sz + 2 + newpw_sz), /* Length */
+		tpm_u32(TPM2_CC_HIERCHANGEAUTH), /* Command code */
+
+		/* HANDLE */
+		tpm_u32(handle),		/* TPM resource handle */
+
+		/* AUTH_SESSION */
+		tpm_u32(9 + oldpw_sz),		/* Authorization size */
+		tpm_u32(TPM2_RS_PW),		/* Session handle */
+		tpm_u16(0),			/* Size of <nonce> */
+						/* <nonce> (if any) */
+		0,				/* Attributes: Cont/Excl/Rst */
+		tpm_u16(oldpw_sz)		/* Size of <hmac/password> */
+		/* STRING(oldpw)		   <hmac/password> (if any) */
+
+		/* TPM2B_AUTH (TPM2B_DIGEST) */
+		/* tpm_u16(newpw_sz)		   Digest size, new pw length */
+		/* STRING(newpw)		   Digest buffer, new pw */
+	};
+	int ret;
+
+	/*
+	 * Fill the command structure starting from the first buffer:
+	 *     - the old password (if any)
+	 *     - size of the new password
+	 *     - new password
+	 */
+	ret = pack_byte_string(command_v2, sizeof(command_v2), "sws",
+			       offset, oldpw, oldpw_sz,
+			       offset + oldpw_sz, newpw_sz,
+			       offset + oldpw_sz + 2, newpw, newpw_sz);
+	offset += oldpw_sz + 2 + newpw_sz;
+	if (ret)
+		return TPM_LIB_ERROR;
+
+	return tpm_sendrecv_command(command_v2, NULL, NULL);
+}

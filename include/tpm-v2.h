@@ -216,4 +216,18 @@ u32 tpm2_dam_parameters(const char *pw, const ssize_t pw_sz,
 			unsigned int max_tries, unsigned int recovery_time,
 			unsigned int lockout_recovery);
 
+/**
+ * Issue a TPM2_HierarchyChangeAuth command.
+ *
+ * @handle	Handle
+ * @newpw	New password
+ * @newpw_sz	Length of the new password
+ * @oldpw	Old password
+ * @oldpw_sz	Length of the old password
+ *
+ * @return code of the operation
+ */
+int tpm2_change_auth(u32 handle, const char *newpw, const ssize_t newpw_sz,
+		     const char *oldpw, const ssize_t oldpw_sz);
+
 #endif /* __TPM_V2_H */

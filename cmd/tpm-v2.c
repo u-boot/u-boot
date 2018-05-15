@@ -234,6 +234,36 @@ static int do_tpm_dam_parameters(cmd_tbl_t *cmdtp, int flag, int argc,
 						      lockout_recovery));
 }
 
+static int do_tpm_change_auth(cmd_tbl_t *cmdtp, int flag, int argc,
+			      char *const argv[])
+{
+	u32 handle;
+	const char *newpw = argv[2];
+	const char *oldpw = (argc == 3) ? NULL : argv[3];
+	const ssize_t newpw_sz = strlen(newpw);
+	const ssize_t oldpw_sz = oldpw ? strlen(oldpw) : 0;
+
+	if (argc < 3 || argc > 4)
+		return CMD_RET_USAGE;
+
+	if (newpw_sz > TPM2_DIGEST_LEN || oldpw_sz > TPM2_DIGEST_LEN)
+		return -EINVAL;
+
+	if (!strcasecmp("TPM2_RH_LOCKOUT", argv[1]))
+		handle = TPM2_RH_LOCKOUT;
+	else if (!strcasecmp("TPM2_RH_ENDORSEMENT", argv[1]))
+		handle = TPM2_RH_ENDORSEMENT;
+	else if (!strcasecmp("TPM2_RH_OWNER", argv[1]))
+		handle = TPM2_RH_OWNER;
+	else if (!strcasecmp("TPM2_RH_PLATFORM", argv[1]))
+		handle = TPM2_RH_PLATFORM;
+	else
+		return CMD_RET_USAGE;
+
+	return report_return_code(tpm2_change_auth(handle, newpw, newpw_sz,
+						   oldpw, oldpw_sz));
+}
+
 static cmd_tbl_t tpm2_commands[] = {
 	U_BOOT_CMD_MKENT(info, 0, 1, do_tpm_info, "", ""),
 	U_BOOT_CMD_MKENT(init, 0, 1, do_tpm_init, "", ""),
@@ -245,6 +275,7 @@ static cmd_tbl_t tpm2_commands[] = {
 	U_BOOT_CMD_MKENT(get_capability, 0, 1, do_tpm_get_capability, "", ""),
 	U_BOOT_CMD_MKENT(dam_reset, 0, 1, do_tpm_dam_reset, "", ""),
 	U_BOOT_CMD_MKENT(dam_parameters, 0, 1, do_tpm_dam_parameters, "", ""),
+	U_BOOT_CMD_MKENT(change_auth, 0, 1, do_tpm_change_auth, "", ""),
 };
 
 cmd_tbl_t *get_tpm_commands(unsigned int *size)
@@ -291,16 +322,20 @@ U_BOOT_CMD(tpm, CONFIG_SYS_MAXARGS, 1, do_tpm, "Issue a TPMv2.x command",
 "    <property>: property\n"
 "    <addr>: address to store <count> entries of 4 bytes\n"
 "    <count>: number of entries to retrieve\n"
-"  dam_reset_counter [<password>]\n"
-"    - If the TPM is not in a LOCKOUT state, reset the internal error\n"
-"      counter (TPMv2 only)\n"
-"  dam_set_parameters <maxTries> <recoveryTime> <lockoutRecovery> [<password>]\n"
-"    - If the TPM is not in a LOCKOUT state, set the dictionary attack\n"
-"      parameters:\n"
-"          * maxTries: maximum number of failures before lockout.\n"
-"                          0 means always locking.\n"
-"          * recoveryTime: time before decrementation of the error counter,\n"
-"                          0 means no lockout.\n"
-"          * lockoutRecovery: time of a lockout (before the next try)\n"
-"                          0 means a reboot is needed.\n"
+"dam_reset [<password>]\n"
+"    If the TPM is not in a LOCKOUT state, reset the internal error counter.\n"
+"    <password>: optional password\n"
+"dam_parameters <max_tries> <recovery_time> <lockout_recovery> [<password>]\n"
+"    If the TPM is not in a LOCKOUT state, set the DAM parameters\n"
+"    <maxTries>: maximum number of failures before lockout,\n"
+"                0 means always locking\n"
+"    <recoveryTime>: time before decrement of the error counter,\n"
+"                    0 means no lockout\n"
+"    <lockoutRecovery>: time of a lockout (before the next try),\n"
+"                       0 means a reboot is needed\n"
+"    <password>: optional password of the LOCKOUT hierarchy\n"
+"change_auth <hierarchy> <new_pw> [<old_pw>]\n"
+"    <hierarchy>: the hierarchy\n"
+"    <new_pw>: new password for <hierarchy>\n"
+"    <old_pw>: optional previous password of <hierarchy>\n"
 );
