@@ -69,6 +69,13 @@ config DM_PMIC_MAX8998
 	This config enables implementation of driver-model pmic uclass features
 	for PMIC MAX8998. The driver implements read/write operations.
 
+config DM_PMIC_MC34708
+	bool "Enable Driver Model for PMIC MC34708"
+	depends on DM_PMIC
+	help
+	 This config enables implementation of driver-model pmic uclass features
+	 for PMIC MC34708. The driver implements read/write operations.
+
 config PMIC_MAX8997
 	bool "Enable Driver Model for PMIC MAX8997"
 	depends on DM_PMIC
