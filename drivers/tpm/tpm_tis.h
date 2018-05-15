@@ -40,6 +40,7 @@ struct tpm_chip {
 	int is_open;
 	int locality;
 	u32 vend_dev;
+	u8 rid;
 	unsigned long timeout_a, timeout_b, timeout_c, timeout_d;  /* msec */
 	ulong chip_type;
 };
