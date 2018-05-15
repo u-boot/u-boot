@@ -42,3 +42,38 @@ u32 tpm2_self_test(enum tpm2_yes_no full_test)
 
 	return tpm_sendrecv_command(command_v2, NULL, NULL);
 }
+
+u32 tpm2_clear(u32 handle, const char *pw, const ssize_t pw_sz)
+{
+	u8 command_v2[COMMAND_BUFFER_SIZE] = {
+		tpm_u16(TPM2_ST_SESSIONS),	/* TAG */
+		tpm_u32(27 + pw_sz),		/* Length */
+		tpm_u32(TPM2_CC_CLEAR),		/* Command code */
+
+		/* HANDLE */
+		tpm_u32(handle),		/* TPM resource handle */
+
+		/* AUTH_SESSION */
+		tpm_u32(9 + pw_sz),		/* Authorization size */
+		tpm_u32(TPM2_RS_PW),		/* Session handle */
+		tpm_u16(0),			/* Size of <nonce> */
+						/* <nonce> (if any) */
+		0,				/* Attributes: Cont/Excl/Rst */
+		tpm_u16(pw_sz),			/* Size of <hmac/password> */
+		/* STRING(pw)			   <hmac/password> (if any) */
+	};
+	unsigned int offset = 27;
+	int ret;
+
+	/*
+	 * Fill the command structure starting from the first buffer:
+	 *     - the password (if any)
+	 */
+	ret = pack_byte_string(command_v2, sizeof(command_v2), "s",
+			       offset, pw, pw_sz);
+	offset += pw_sz;
+	if (ret)
+		return TPM_LIB_ERROR;
+
+	return tpm_sendrecv_command(command_v2, NULL, NULL);
+}

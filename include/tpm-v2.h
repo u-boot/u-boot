@@ -143,4 +143,15 @@ u32 tpm2_startup(enum tpm2_startup_types mode);
  */
 u32 tpm2_self_test(enum tpm2_yes_no full_test);
 
+/**
+ * Issue a TPM2_Clear command.
+ *
+ * @handle	Handle
+ * @pw		Password
+ * @pw_sz	Length of the password
+ *
+ * @return code of the operation
+ */
+u32 tpm2_clear(u32 handle, const char *pw, const ssize_t pw_sz);
+
 #endif /* __TPM_V2_H */
