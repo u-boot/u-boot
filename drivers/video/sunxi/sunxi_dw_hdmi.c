@@ -303,10 +303,10 @@ static int sunxi_dw_hdmi_enable(struct udevice *dev, int panel_bpp,
 
 	sunxi_dw_hdmi_lcdc_init(priv->mux, edid, panel_bpp);
 
-	if (edid->flags & DISPLAY_FLAGS_HSYNC_LOW)
+	if (edid->flags & DISPLAY_FLAGS_VSYNC_LOW)
 		setbits_le32(&phy->pol, 0x200);
 
-	if (edid->flags & DISPLAY_FLAGS_VSYNC_LOW)
+	if (edid->flags & DISPLAY_FLAGS_HSYNC_LOW)
 		setbits_le32(&phy->pol, 0x100);
 
 	setbits_le32(&phy->ctrl, 0xf << 12);
