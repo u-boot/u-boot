@@ -14,8 +14,8 @@ struct scu_registers {
 	u32	_pad_0x10_0x3c[12];	/* 0x10 */
 	u32	fsar;			/* 0x40 */
 	u32	fear;
-	u32	_pad_0x48_0x50[2];
-	u32	acr;			/* 0x54 */
+	u32	_pad_0x48_0x4c[2];
+	u32	acr;			/* 0x50 */
 	u32	sacr;
 };
 
