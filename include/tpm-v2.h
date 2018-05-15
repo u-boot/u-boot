@@ -154,4 +154,14 @@ u32 tpm2_self_test(enum tpm2_yes_no full_test);
  */
 u32 tpm2_clear(u32 handle, const char *pw, const ssize_t pw_sz);
 
+/**
+ * Issue a TPM2_PCR_Extend command.
+ *
+ * @index	Index of the PCR
+ * @digest	Value representing the event to be recorded
+ *
+ * @return code of the operation
+ */
+u32 tpm2_pcr_extend(u32 index, const uint8_t *digest);
+
 #endif /* __TPM_V2_H */

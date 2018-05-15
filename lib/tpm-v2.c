@@ -77,3 +77,41 @@ u32 tpm2_clear(u32 handle, const char *pw, const ssize_t pw_sz)
 
 	return tpm_sendrecv_command(command_v2, NULL, NULL);
 }
+
+u32 tpm2_pcr_extend(u32 index, const uint8_t *digest)
+{
+	u8 command_v2[COMMAND_BUFFER_SIZE] = {
+		tpm_u16(TPM2_ST_SESSIONS),	/* TAG */
+		tpm_u32(33 + TPM2_DIGEST_LEN),	/* Length */
+		tpm_u32(TPM2_CC_PCR_EXTEND),	/* Command code */
+
+		/* HANDLE */
+		tpm_u32(index),			/* Handle (PCR Index) */
+
+		/* AUTH_SESSION */
+		tpm_u32(9),			/* Authorization size */
+		tpm_u32(TPM2_RS_PW),		/* Session handle */
+		tpm_u16(0),			/* Size of <nonce> */
+						/* <nonce> (if any) */
+		0,				/* Attributes: Cont/Excl/Rst */
+		tpm_u16(0),			/* Size of <hmac/password> */
+						/* <hmac/password> (if any) */
+		tpm_u32(1),			/* Count (number of hashes) */
+		tpm_u16(TPM2_ALG_SHA256),	/* Algorithm of the hash */
+		/* STRING(digest)		   Digest */
+	};
+	unsigned int offset = 33;
+	int ret;
+
+	/*
+	 * Fill the command structure starting from the first buffer:
+	 *     - the digest
+	 */
+	ret = pack_byte_string(command_v2, sizeof(command_v2), "s",
+			       offset, digest, TPM2_DIGEST_LEN);
+	offset += TPM2_DIGEST_LEN;
+	if (ret)
+		return TPM_LIB_ERROR;
+
+	return tpm_sendrecv_command(command_v2,	NULL, NULL);
+}

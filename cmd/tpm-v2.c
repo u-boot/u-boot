@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <log.h>
+#include <mapmem.h>
 #include <tpm-common.h>
 #include <tpm-v2.h>
 #include "tpm-user-utils.h"
@@ -74,12 +75,44 @@ static int do_tpm2_clear(cmd_tbl_t *cmdtp, int flag, int argc,
 	return report_return_code(tpm2_clear(handle, pw, pw_sz));
 }
 
+static int do_tpm2_pcr_extend(cmd_tbl_t *cmdtp, int flag, int argc,
+			      char * const argv[])
+{
+	struct udevice *dev;
+	struct tpm_chip_priv *priv;
+	u32 index = simple_strtoul(argv[1], NULL, 0);
+	void *digest = map_sysmem(simple_strtoul(argv[2], NULL, 0), 0);
+	int ret;
+	u32 rc;
+
+	if (argc != 3)
+		return CMD_RET_USAGE;
+
+	ret = uclass_first_device_err(UCLASS_TPM, &dev);
+	if (ret)
+		return ret;
+
+	priv = dev_get_uclass_priv(dev);
+	if (!priv)
+		return -EINVAL;
+
+	if (index >= priv->pcr_count)
+		return -EINVAL;
+
+	rc = tpm2_pcr_extend(index, digest);
+
+	unmap_sysmem(digest);
+
+	return report_return_code(rc);
+}
+
 static cmd_tbl_t tpm2_commands[] = {
 	U_BOOT_CMD_MKENT(info, 0, 1, do_tpm_info, "", ""),
 	U_BOOT_CMD_MKENT(init, 0, 1, do_tpm_init, "", ""),
 	U_BOOT_CMD_MKENT(startup, 0, 1, do_tpm2_startup, "", ""),
 	U_BOOT_CMD_MKENT(self_test, 0, 1, do_tpm2_self_test, "", ""),
 	U_BOOT_CMD_MKENT(clear, 0, 1, do_tpm2_clear, "", ""),
+	U_BOOT_CMD_MKENT(pcr_extend, 0, 1, do_tpm2_pcr_extend, "", ""),
 };
 
 cmd_tbl_t *get_tpm_commands(unsigned int *size)
@@ -111,4 +144,8 @@ U_BOOT_CMD(tpm, CONFIG_SYS_MAXARGS, 1, do_tpm, "Issue a TPMv2.x command",
 "    <hierarchy> is one of:\n"
 "        * TPM2_RH_LOCKOUT\n"
 "        * TPM2_RH_PLATFORM\n"
+"pcr_extend <pcr> <digest_addr>\n"
+"    Extend PCR #<pcr> with digest at <digest_addr>.\n"
+"    <pcr>: index of the PCR\n"
+"    <digest_addr>: address of a 32-byte SHA256 digest\n"
 );
