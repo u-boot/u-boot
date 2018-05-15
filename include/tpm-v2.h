@@ -164,4 +164,17 @@ u32 tpm2_clear(u32 handle, const char *pw, const ssize_t pw_sz);
  */
 u32 tpm2_pcr_extend(u32 index, const uint8_t *digest);
 
+/**
+ * Issue a TPM2_PCR_Read command.
+ *
+ * @idx		Index of the PCR
+ * @idx_min_sz	Minimum size in bytes of the pcrSelect array
+ * @data	Output buffer for contents of the named PCR
+ * @updates	Optional out parameter: number of updates for this PCR
+ *
+ * @return code of the operation
+ */
+u32 tpm2_pcr_read(u32 idx, unsigned int idx_min_sz, void *data,
+		  unsigned int *updates);
+
 #endif /* __TPM_V2_H */

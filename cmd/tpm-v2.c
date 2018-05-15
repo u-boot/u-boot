@@ -106,6 +106,44 @@ static int do_tpm2_pcr_extend(cmd_tbl_t *cmdtp, int flag, int argc,
 	return report_return_code(rc);
 }
 
+static int do_tpm_pcr_read(cmd_tbl_t *cmdtp, int flag, int argc,
+			   char * const argv[])
+{
+	struct udevice *dev;
+	struct tpm_chip_priv *priv;
+	u32 index, rc;
+	unsigned int updates;
+	void *data;
+	int ret;
+
+	if (argc != 3)
+		return CMD_RET_USAGE;
+
+	ret = uclass_first_device_err(UCLASS_TPM, &dev);
+	if (ret)
+		return ret;
+
+	priv = dev_get_uclass_priv(dev);
+	if (!priv)
+		return -EINVAL;
+
+	index = simple_strtoul(argv[1], NULL, 0);
+	if (index >= priv->pcr_count)
+		return -EINVAL;
+
+	data = map_sysmem(simple_strtoul(argv[2], NULL, 0), 0);
+
+	rc = tpm2_pcr_read(index, priv->pcr_select_min, data, &updates);
+	if (!rc) {
+		printf("PCR #%u content (%d known updates):\n", index, updates);
+		print_byte_string(data, TPM2_DIGEST_LEN);
+	}
+
+	unmap_sysmem(data);
+
+	return report_return_code(rc);
+}
+
 static cmd_tbl_t tpm2_commands[] = {
 	U_BOOT_CMD_MKENT(info, 0, 1, do_tpm_info, "", ""),
 	U_BOOT_CMD_MKENT(init, 0, 1, do_tpm_init, "", ""),
@@ -113,6 +151,7 @@ static cmd_tbl_t tpm2_commands[] = {
 	U_BOOT_CMD_MKENT(self_test, 0, 1, do_tpm2_self_test, "", ""),
 	U_BOOT_CMD_MKENT(clear, 0, 1, do_tpm2_clear, "", ""),
 	U_BOOT_CMD_MKENT(pcr_extend, 0, 1, do_tpm2_pcr_extend, "", ""),
+	U_BOOT_CMD_MKENT(pcr_read, 0, 1, do_tpm_pcr_read, "", ""),
 };
 
 cmd_tbl_t *get_tpm_commands(unsigned int *size)
@@ -148,4 +187,8 @@ U_BOOT_CMD(tpm, CONFIG_SYS_MAXARGS, 1, do_tpm, "Issue a TPMv2.x command",
 "    Extend PCR #<pcr> with digest at <digest_addr>.\n"
 "    <pcr>: index of the PCR\n"
 "    <digest_addr>: address of a 32-byte SHA256 digest\n"
+"pcr_read <pcr> <digest_addr>\n"
+"    Read PCR #<pcr> to memory address <digest_addr>.\n"
+"    <pcr>: index of the PCR\n"
+"    <digest_addr>: address to store the a 32-byte SHA256 digest\n"
 );
