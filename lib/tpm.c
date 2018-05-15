@@ -610,7 +610,7 @@ uint32_t tpm_get_permanent_flags(struct tpm_permanent_flags *pflags)
 		0x0, 0x0, 0x1, 0x8,	/* subcap value */
 	};
 	const size_t data_size_offset = TPM_HEADER_SIZE;
-	const size_t data_offset = TPM_HEADER_SIZE + sizeof (uint32_t);
+	const size_t data_offset = TPM_HEADER_SIZE + sizeof(uint32_t);
 	uint8_t response[COMMAND_BUFFER_SIZE];
 	size_t response_length = sizeof(response);
 	uint32_t err;
@@ -1068,7 +1068,7 @@ uint32_t tpm_get_random(void *data, uint32_t count)
 
 	while (count > 0) {
 		uint32_t this_bytes = min((size_t)count,
-					  sizeof (response) - data_offset);
+					  sizeof(response) - data_offset);
 		uint32_t err;
 
 		if (pack_byte_string(buf, sizeof(buf), "sd",
