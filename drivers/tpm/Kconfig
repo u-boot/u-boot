@@ -21,7 +21,7 @@ config TPM_TIS_SANDBOX
 	bool "Enable sandbox TPM driver"
 	depends on TPM_V1 && SANDBOX
 	help
-	  This driver emulates a TPM, providing access to base functions
+	  This driver emulates a TPMv1.x, providing access to base functions
 	  such as reading and writing TPM private data. This is enough to
 	  support Chrome OS verified boot. Extend functionality is not
 	  implemented.
@@ -128,6 +128,15 @@ config TPM_V2
 	  one or the other. This option enables TPMv2.x drivers/commands.
 
 if TPM_V2 && !TPM_V1
+
+config TPM2_TIS_SANDBOX
+	bool "Enable sandbox TPMv2.x driver"
+	depends on TPM_V2 && SANDBOX
+	select TPM_DRIVER_SELECTED
+	help
+	  This driver emulates a TPMv2.x, providing access to base functions
+	  such as basic configuration, PCR extension and PCR read. Extended
+	  functionalities are not implemented.
 
 config TPM2_TIS_SPI
 	bool "Enable support for TPMv2.x SPI chips"
