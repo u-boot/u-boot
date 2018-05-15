@@ -12,6 +12,12 @@
 /* Internal error of TPM command library */
 #define TPM_LIB_ERROR ((u32)~0u)
 
+/* To make strings of commands more easily */
+#define __MSB(x) ((x) >> 8)
+#define __LSB(x) ((x) & 0xFF)
+#define tpm_u16(x) __MSB(x), __LSB(x)
+#define tpm_u32(x) tpm_u16((x) >> 16), tpm_u16((x) & 0xFFFF)
+
 /**
  * tpm_open() - Request access to locality 0 for the caller
  *
