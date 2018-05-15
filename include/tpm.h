@@ -308,8 +308,7 @@ struct tpm_ops {
 	 *
 	 * Returns 0 on success or -ve on failure.
 	 */
-	int (*send)(struct udevice *dev, const uint8_t *sendbuf,
-		    size_t send_size);
+	int (*send)(struct udevice *dev, const u8 *sendbuf, size_t send_size);
 
 	/**
 	 * recv() - receive a response from the TPM
@@ -322,7 +321,7 @@ struct tpm_ops {
 	 * response is not ready, -EINTR if cancelled, or other -ve value on
 	 * failure.
 	 */
-	int (*recv)(struct udevice *dev, uint8_t *recvbuf, size_t max_size);
+	int (*recv)(struct udevice *dev, u8 *recvbuf, size_t max_size);
 
 	/**
 	 * cleanup() - clean up after an operation in progress
@@ -351,8 +350,8 @@ struct tpm_ops {
 	 * Returns 0 on success (and places the number of response bytes at
 	 * recv_size) or -ve on failure.
 	 */
-	int (*xfer)(struct udevice *dev, const uint8_t *sendbuf,
-		    size_t send_size, uint8_t *recvbuf, size_t *recv_size);
+	int (*xfer)(struct udevice *dev, const u8 *sendbuf, size_t send_size,
+		    u8 *recvbuf, size_t *recv_size);
 };
 
 #define tpm_get_ops(dev)        ((struct tpm_ops *)device_get_ops(dev))
@@ -406,8 +405,8 @@ int tpm_get_desc(struct udevice *dev, char *buf, int size);
  * Returns 0 on success (and places the number of response bytes at
  * recv_len) or -ve on failure.
  */
-int tpm_xfer(struct udevice *dev, const uint8_t *sendbuf, size_t send_size,
-	     uint8_t *recvbuf, size_t *recv_size);
+int tpm_xfer(struct udevice *dev, const u8 *sendbuf, size_t send_size,
+	     u8 *recvbuf, size_t *recv_size);
 
 /**
  * Initialize TPM device.  It must be called before any TPM commands.
@@ -422,21 +421,21 @@ int tpm_init(void);
  * @param mode		TPM startup mode
  * @return return code of the operation
  */
-uint32_t tpm_startup(enum tpm_startup_type mode);
+u32 tpm_startup(enum tpm_startup_type mode);
 
 /**
  * Issue a TPM_SelfTestFull command.
  *
  * @return return code of the operation
  */
-uint32_t tpm_self_test_full(void);
+u32 tpm_self_test_full(void);
 
 /**
  * Issue a TPM_ContinueSelfTest command.
  *
  * @return return code of the operation
  */
-uint32_t tpm_continue_self_test(void);
+u32 tpm_continue_self_test(void);
 
 /**
  * Issue a TPM_NV_DefineSpace command.  The implementation is limited
@@ -448,7 +447,7 @@ uint32_t tpm_continue_self_test(void);
  * @param size		size of the area
  * @return return code of the operation
  */
-uint32_t tpm_nv_define_space(uint32_t index, uint32_t perm, uint32_t size);
+u32 tpm_nv_define_space(u32 index, u32 perm, u32 size);
 
 /**
  * Issue a TPM_NV_ReadValue command.  This implementation is limited
@@ -460,7 +459,7 @@ uint32_t tpm_nv_define_space(uint32_t index, uint32_t perm, uint32_t size);
  * @param count		size of output buffer
  * @return return code of the operation
  */
-uint32_t tpm_nv_read_value(uint32_t index, void *data, uint32_t count);
+u32 tpm_nv_read_value(u32 index, void *data, u32 count);
 
 /**
  * Issue a TPM_NV_WriteValue command.  This implementation is limited
@@ -472,7 +471,7 @@ uint32_t tpm_nv_read_value(uint32_t index, void *data, uint32_t count);
  * @param length	length of data bytes of input buffer
  * @return return code of the operation
  */
-uint32_t tpm_nv_write_value(uint32_t index, const void *data, uint32_t length);
+u32 tpm_nv_write_value(u32 index, const void *data, u32 length);
 
 /**
  * Issue a TPM_Extend command.
@@ -484,7 +483,7 @@ uint32_t tpm_nv_write_value(uint32_t index, const void *data, uint32_t length);
  *			command
  * @return return code of the operation
  */
-uint32_t tpm_extend(uint32_t index, const void *in_digest, void *out_digest);
+u32 tpm_extend(u32 index, const void *in_digest, void *out_digest);
 
 /**
  * Issue a TPM_PCRRead command.
@@ -494,7 +493,7 @@ uint32_t tpm_extend(uint32_t index, const void *in_digest, void *out_digest);
  * @param count		size of output buffer
  * @return return code of the operation
  */
-uint32_t tpm_pcr_read(uint32_t index, void *data, size_t count);
+u32 tpm_pcr_read(u32 index, void *data, size_t count);
 
 /**
  * Issue a TSC_PhysicalPresence command.  TPM physical presence flag
@@ -503,7 +502,7 @@ uint32_t tpm_pcr_read(uint32_t index, void *data, size_t count);
  * @param presence	TPM physical presence flag
  * @return return code of the operation
  */
-uint32_t tpm_tsc_physical_presence(uint16_t presence);
+u32 tpm_tsc_physical_presence(u16 presence);
 
 /**
  * Issue a TPM_ReadPubek command.
@@ -512,28 +511,28 @@ uint32_t tpm_tsc_physical_presence(uint16_t presence);
  * @param count		size of ouput buffer
  * @return return code of the operation
  */
-uint32_t tpm_read_pubek(void *data, size_t count);
+u32 tpm_read_pubek(void *data, size_t count);
 
 /**
  * Issue a TPM_ForceClear command.
  *
  * @return return code of the operation
  */
-uint32_t tpm_force_clear(void);
+u32 tpm_force_clear(void);
 
 /**
  * Issue a TPM_PhysicalEnable command.
  *
  * @return return code of the operation
  */
-uint32_t tpm_physical_enable(void);
+u32 tpm_physical_enable(void);
 
 /**
  * Issue a TPM_PhysicalDisable command.
  *
  * @return return code of the operation
  */
-uint32_t tpm_physical_disable(void);
+u32 tpm_physical_disable(void);
 
 /**
  * Issue a TPM_PhysicalSetDeactivated command.
@@ -541,7 +540,7 @@ uint32_t tpm_physical_disable(void);
  * @param state		boolean state of the deactivated flag
  * @return return code of the operation
  */
-uint32_t tpm_physical_set_deactivated(uint8_t state);
+u32 tpm_physical_set_deactivated(u8 state);
 
 /**
  * Issue a TPM_GetCapability command.  This implementation is limited
@@ -554,8 +553,7 @@ uint32_t tpm_physical_set_deactivated(uint8_t state);
  * @param count		size of ouput buffer
  * @return return code of the operation
  */
-uint32_t tpm_get_capability(uint32_t cap_area, uint32_t sub_cap,
-		void *cap, size_t count);
+u32 tpm_get_capability(u32 cap_area, u32 sub_cap, void *cap, size_t count);
 
 /**
  * Issue a TPM_FlushSpecific command for a AUTH ressource.
@@ -563,7 +561,7 @@ uint32_t tpm_get_capability(uint32_t cap_area, uint32_t sub_cap,
  * @param auth_handle	handle of the auth session
  * @return return code of the operation
  */
-uint32_t tpm_terminate_auth_session(uint32_t auth_handle);
+u32 tpm_terminate_auth_session(u32 auth_handle);
 
 /**
  * Issue a TPM_OIAP command to setup an object independant authorization
@@ -575,14 +573,14 @@ uint32_t tpm_terminate_auth_session(uint32_t auth_handle);
  * @param auth_handle	pointer to the (new) auth handle or NULL.
  * @return return code of the operation
  */
-uint32_t tpm_oiap(uint32_t *auth_handle);
+u32 tpm_oiap(u32 *auth_handle);
 
 /**
  * Ends an active OIAP session.
  *
  * @return return code of the operation
  */
-uint32_t tpm_end_oiap(void);
+u32 tpm_end_oiap(void);
 
 /**
  * Issue a TPM_LoadKey2 (Auth1) command using an OIAP session for authenticating
@@ -595,10 +593,8 @@ uint32_t tpm_end_oiap(void);
  * @param key_handle	pointer to the key handle
  * @return return code of the operation
  */
-uint32_t tpm_load_key2_oiap(uint32_t parent_handle,
-		const void *key, size_t key_length,
-		const void *parent_key_usage_auth,
-		uint32_t *key_handle);
+u32 tpm_load_key2_oiap(u32 parent_handle, const void *key, size_t key_length,
+		       const void *parent_key_usage_auth, u32 *key_handle);
 
 /**
  * Issue a TPM_GetPubKey (Auth1) command using an OIAP session for
@@ -613,8 +609,8 @@ uint32_t tpm_load_key2_oiap(uint32_t parent_handle,
  *			of the stored TPM_PUBKEY structure (iff pubkey != NULL).
  * @return return code of the operation
  */
-uint32_t tpm_get_pub_key_oiap(uint32_t key_handle, const void *usage_auth,
-		void *pubkey, size_t *pubkey_len);
+u32 tpm_get_pub_key_oiap(u32 key_handle, const void *usage_auth, void *pubkey,
+			 size_t *pubkey_len);
 
 /**
  * Get the TPM permanent flags value
@@ -622,7 +618,7 @@ uint32_t tpm_get_pub_key_oiap(uint32_t key_handle, const void *usage_auth,
  * @param pflags	Place to put permanent flags
  * @return return code of the operation
  */
-uint32_t tpm_get_permanent_flags(struct tpm_permanent_flags *pflags);
+u32 tpm_get_permanent_flags(struct tpm_permanent_flags *pflags);
 
 /**
  * Get the TPM permissions
@@ -630,7 +626,7 @@ uint32_t tpm_get_permanent_flags(struct tpm_permanent_flags *pflags);
  * @param perm		Returns permissions value
  * @return return code of the operation
  */
-uint32_t tpm_get_permissions(uint32_t index, uint32_t *perm);
+u32 tpm_get_permissions(u32 index, u32 *perm);
 
 /**
  * Flush a resource with a given handle and type from the TPM
@@ -639,7 +635,7 @@ uint32_t tpm_get_permissions(uint32_t index, uint32_t *perm);
  * @param resource_type                type of the resource
  * @return return code of the operation
  */
-uint32_t tpm_flush_specific(uint32_t key_handle, uint32_t resource_type);
+u32 tpm_flush_specific(u32 key_handle, u32 resource_type);
 
 #ifdef CONFIG_TPM_LOAD_KEY_BY_SHA1
 /**
@@ -650,8 +646,8 @@ uint32_t tpm_flush_specific(uint32_t key_handle, uint32_t resource_type);
  * @param[out] handle	The handle of the key (Non-null iff found)
  * @return 0 if key was found in TPM; != 0 if not.
  */
-uint32_t tpm_find_key_sha1(const uint8_t auth[20], const uint8_t
-			   pubkey_digest[20], uint32_t *handle);
+u32 tpm_find_key_sha1(const u8 auth[20], const u8 pubkey_digest[20],
+		      u32 *handle);
 #endif /* CONFIG_TPM_LOAD_KEY_BY_SHA1 */
 
 /**
@@ -663,6 +659,6 @@ uint32_t tpm_find_key_sha1(const uint8_t auth[20], const uint8_t
  * @param count		size of output buffer
  * @return return code of the operation
  */
-uint32_t tpm_get_random(void *data, uint32_t count);
+u32 tpm_get_random(void *data, u32 count);
 
 #endif /* __TPM_H */
