@@ -280,8 +280,8 @@ u32 tpm_startup(enum tpm_startup_type mode)
 	u8 buf[COMMAND_BUFFER_SIZE];
 
 	if (pack_byte_string(buf, sizeof(buf), "sw",
-				0, command, sizeof(command),
-				mode_offset, mode))
+			     0, command, sizeof(command),
+			     mode_offset, mode))
 		return TPM_LIB_ERROR;
 
 	return tpm_sendrecv_command(buf, NULL, NULL);
@@ -337,10 +337,10 @@ u32 tpm_nv_define_space(u32 index, u32 perm, u32 size)
 	u8 buf[COMMAND_BUFFER_SIZE];
 
 	if (pack_byte_string(buf, sizeof(buf), "sddd",
-				0, command, sizeof(command),
-				index_offset, index,
-				perm_offset, perm,
-				size_offset, size))
+			     0, command, sizeof(command),
+			     index_offset, index,
+			     perm_offset, perm,
+			     size_offset, size))
 		return TPM_LIB_ERROR;
 
 	return tpm_sendrecv_command(buf, NULL, NULL);
@@ -361,20 +361,20 @@ u32 tpm_nv_read_value(u32 index, void *data, u32 count)
 	u32 err;
 
 	if (pack_byte_string(buf, sizeof(buf), "sdd",
-				0, command, sizeof(command),
-				index_offset, index,
-				length_offset, count))
+			     0, command, sizeof(command),
+			     index_offset, index,
+			     length_offset, count))
 		return TPM_LIB_ERROR;
 	err = tpm_sendrecv_command(buf, response, &response_length);
 	if (err)
 		return err;
 	if (unpack_byte_string(response, response_length, "d",
-				data_size_offset, &data_size))
+			       data_size_offset, &data_size))
 		return TPM_LIB_ERROR;
 	if (data_size > count)
 		return TPM_LIB_ERROR;
 	if (unpack_byte_string(response, response_length, "s",
-				data_offset, data, data_size))
+			       data_offset, data, data_size))
 		return TPM_LIB_ERROR;
 
 	return 0;
@@ -397,11 +397,11 @@ u32 tpm_nv_write_value(u32 index, const void *data, u32 length)
 	u32 err;
 
 	if (pack_byte_string(buf, sizeof(buf), "sddds",
-				0, command, sizeof(command),
-				command_size_offset, total_length,
-				index_offset, index,
-				length_offset, length,
-				data_offset, data, length))
+			     0, command, sizeof(command),
+			     command_size_offset, total_length,
+			     index_offset, index,
+			     length_offset, length,
+			     data_offset, data, length))
 		return TPM_LIB_ERROR;
 	err = tpm_sendrecv_command(buf, response, &response_length);
 	if (err)
@@ -424,18 +424,18 @@ u32 tpm_extend(u32 index, const void *in_digest, void *out_digest)
 	u32 err;
 
 	if (pack_byte_string(buf, sizeof(buf), "sds",
-				0, command, sizeof(command),
-				index_offset, index,
-				in_digest_offset, in_digest,
-				PCR_DIGEST_LENGTH))
+			     0, command, sizeof(command),
+			     index_offset, index,
+			     in_digest_offset, in_digest,
+			     PCR_DIGEST_LENGTH))
 		return TPM_LIB_ERROR;
 	err = tpm_sendrecv_command(buf, response, &response_length);
 	if (err)
 		return err;
 
 	if (unpack_byte_string(response, response_length, "s",
-				out_digest_offset, out_digest,
-				PCR_DIGEST_LENGTH))
+			       out_digest_offset, out_digest,
+			       PCR_DIGEST_LENGTH))
 		return TPM_LIB_ERROR;
 
 	return 0;
@@ -456,14 +456,14 @@ u32 tpm_pcr_read(u32 index, void *data, size_t count)
 		return TPM_LIB_ERROR;
 
 	if (pack_byte_string(buf, sizeof(buf), "sd",
-				0, command, sizeof(command),
-				index_offset, index))
+			     0, command, sizeof(command),
+			     index_offset, index))
 		return TPM_LIB_ERROR;
 	err = tpm_sendrecv_command(buf, response, &response_length);
 	if (err)
 		return err;
 	if (unpack_byte_string(response, response_length, "s",
-				out_digest_offset, data, PCR_DIGEST_LENGTH))
+			       out_digest_offset, data, PCR_DIGEST_LENGTH))
 		return TPM_LIB_ERROR;
 
 	return 0;
@@ -478,8 +478,8 @@ u32 tpm_tsc_physical_presence(u16 presence)
 	u8 buf[COMMAND_BUFFER_SIZE];
 
 	if (pack_byte_string(buf, sizeof(buf), "sw",
-				0, command, sizeof(command),
-				presence_offset, presence))
+			     0, command, sizeof(command),
+			     presence_offset, presence))
 		return TPM_LIB_ERROR;
 
 	return tpm_sendrecv_command(buf, NULL, NULL);
@@ -502,7 +502,7 @@ u32 tpm_read_pubek(void *data, size_t count)
 	if (err)
 		return err;
 	if (unpack_byte_string(response, response_length, "d",
-				response_size_offset, &data_size))
+			       response_size_offset, &data_size))
 		return TPM_LIB_ERROR;
 	if (data_size < header_and_checksum_size)
 		return TPM_LIB_ERROR;
@@ -510,7 +510,7 @@ u32 tpm_read_pubek(void *data, size_t count)
 	if (data_size > count)
 		return TPM_LIB_ERROR;
 	if (unpack_byte_string(response, response_length, "s",
-				data_offset, data, data_size))
+			       data_offset, data, data_size))
 		return TPM_LIB_ERROR;
 
 	return 0;
@@ -552,8 +552,8 @@ u32 tpm_physical_set_deactivated(u8 state)
 	u8 buf[COMMAND_BUFFER_SIZE];
 
 	if (pack_byte_string(buf, sizeof(buf), "sb",
-				0, command, sizeof(command),
-				state_offset, state))
+			     0, command, sizeof(command),
+			     state_offset, state))
 		return TPM_LIB_ERROR;
 
 	return tpm_sendrecv_command(buf, NULL, NULL);
@@ -579,20 +579,20 @@ u32 tpm_get_capability(u32 cap_area, u32 sub_cap, void *cap, size_t count)
 	u32 err;
 
 	if (pack_byte_string(buf, sizeof(buf), "sdd",
-				0, command, sizeof(command),
-				cap_area_offset, cap_area,
-				sub_cap_offset, sub_cap))
+			     0, command, sizeof(command),
+			     cap_area_offset, cap_area,
+			     sub_cap_offset, sub_cap))
 		return TPM_LIB_ERROR;
 	err = tpm_sendrecv_command(buf, response, &response_length);
 	if (err)
 		return err;
 	if (unpack_byte_string(response, response_length, "d",
-				cap_size_offset, &cap_size))
+			       cap_size_offset, &cap_size))
 		return TPM_LIB_ERROR;
 	if (cap_size > response_length || cap_size > count)
 		return TPM_LIB_ERROR;
 	if (unpack_byte_string(response, response_length, "s",
-				cap_offset, cap, cap_size))
+			       cap_offset, cap, cap_size))
 		return TPM_LIB_ERROR;
 
 	return 0;
@@ -913,9 +913,9 @@ u32 tpm_load_key2_oiap(u32 parent_handle, const void *key, size_t key_length,
 		return TPM_LIB_ERROR;
 
 	err = create_request_auth(request, sizeof(command) + key_length, 4,
-				&oiap_session,
-				request + sizeof(command) + key_length,
-				parent_key_usage_auth);
+				  &oiap_session,
+				  request + sizeof(command) + key_length,
+				  parent_key_usage_auth);
 	if (err)
 		return err;
 	err = tpm_sendrecv_command(request, response, &response_length);
@@ -926,10 +926,11 @@ u32 tpm_load_key2_oiap(u32 parent_handle, const void *key, size_t key_length,
 	}
 
 	err = verify_response_auth(0x00000041, response,
-			response_length - TPM_RESPONSE_AUTH_LENGTH,
-			4, &oiap_session,
-			response + response_length - TPM_RESPONSE_AUTH_LENGTH,
-			parent_key_usage_auth);
+				   response_length - TPM_RESPONSE_AUTH_LENGTH,
+				   4, &oiap_session,
+				   response + response_length -
+				   TPM_RESPONSE_AUTH_LENGTH,
+				   parent_key_usage_auth);
 	if (err)
 		return err;
 
@@ -974,7 +975,7 @@ u32 tpm_get_pub_key_oiap(u32 key_handle, const void *usage_auth, void *pubkey,
 		))
 		return TPM_LIB_ERROR;
 	err = create_request_auth(request, sizeof(command), 4, &oiap_session,
-			request + sizeof(command), usage_auth);
+				  request + sizeof(command), usage_auth);
 	if (err)
 		return err;
 	err = tpm_sendrecv_command(request, response, &response_length);
@@ -984,16 +985,17 @@ u32 tpm_get_pub_key_oiap(u32 key_handle, const void *usage_auth, void *pubkey,
 		return err;
 	}
 	err = verify_response_auth(0x00000021, response,
-			response_length - TPM_RESPONSE_AUTH_LENGTH,
-			0, &oiap_session,
-			response + response_length - TPM_RESPONSE_AUTH_LENGTH,
-			usage_auth);
+				   response_length - TPM_RESPONSE_AUTH_LENGTH,
+				   0, &oiap_session,
+				   response + response_length -
+				   TPM_RESPONSE_AUTH_LENGTH,
+				   usage_auth);
 	if (err)
 		return err;
 
 	if (pubkey) {
 		if ((response_length - TPM_RESPONSE_HEADER_LENGTH
-			- TPM_RESPONSE_AUTH_LENGTH) > *pubkey_len)
+		     - TPM_RESPONSE_AUTH_LENGTH) > *pubkey_len)
 			return TPM_LIB_ERROR;
 		*pubkey_len = response_length - TPM_RESPONSE_HEADER_LENGTH
 			- TPM_RESPONSE_AUTH_LENGTH;

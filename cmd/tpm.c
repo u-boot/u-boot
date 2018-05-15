@@ -237,8 +237,8 @@ static int type_string_write_vars(const char *type_str, u8 *data,
 	return 0;
 }
 
-static int do_tpm_startup(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_tpm_startup(cmd_tbl_t *cmdtp, int flag, int argc,
+			  char * const argv[])
 {
 	enum tpm_startup_type mode;
 
@@ -258,8 +258,8 @@ static int do_tpm_startup(cmd_tbl_t *cmdtp, int flag,
 	return report_return_code(tpm_startup(mode));
 }
 
-static int do_tpm_nv_define_space(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_tpm_nv_define_space(cmd_tbl_t *cmdtp, int flag, int argc,
+				  char * const argv[])
 {
 	u32 index, perm, size;
 
@@ -272,8 +272,8 @@ static int do_tpm_nv_define_space(cmd_tbl_t *cmdtp, int flag,
 	return report_return_code(tpm_nv_define_space(index, perm, size));
 }
 
-static int do_tpm_nv_read_value(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_tpm_nv_read_value(cmd_tbl_t *cmdtp, int flag, int argc,
+				char * const argv[])
 {
 	u32 index, count, rc;
 	void *data;
@@ -293,8 +293,8 @@ static int do_tpm_nv_read_value(cmd_tbl_t *cmdtp, int flag,
 	return report_return_code(rc);
 }
 
-static int do_tpm_nv_write_value(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_tpm_nv_write_value(cmd_tbl_t *cmdtp, int flag, int argc,
+				 char * const argv[])
 {
 	u32 index, rc;
 	size_t count;
@@ -315,8 +315,8 @@ static int do_tpm_nv_write_value(cmd_tbl_t *cmdtp, int flag,
 	return report_return_code(rc);
 }
 
-static int do_tpm_extend(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_tpm_extend(cmd_tbl_t *cmdtp, int flag, int argc,
+			 char * const argv[])
 {
 	u32 index, rc;
 	u8 in_digest[20], out_digest[20];
@@ -338,8 +338,8 @@ static int do_tpm_extend(cmd_tbl_t *cmdtp, int flag,
 	return report_return_code(rc);
 }
 
-static int do_tpm_pcr_read(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_tpm_pcr_read(cmd_tbl_t *cmdtp, int flag, int argc,
+			   char * const argv[])
 {
 	u32 index, count, rc;
 	void *data;
@@ -359,8 +359,8 @@ static int do_tpm_pcr_read(cmd_tbl_t *cmdtp, int flag,
 	return report_return_code(rc);
 }
 
-static int do_tpm_tsc_physical_presence(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_tpm_tsc_physical_presence(cmd_tbl_t *cmdtp, int flag, int argc,
+					char * const argv[])
 {
 	u16 presence;
 
@@ -371,8 +371,8 @@ static int do_tpm_tsc_physical_presence(cmd_tbl_t *cmdtp, int flag,
 	return report_return_code(tpm_tsc_physical_presence(presence));
 }
 
-static int do_tpm_read_pubek(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_tpm_read_pubek(cmd_tbl_t *cmdtp, int flag, int argc,
+			     char * const argv[])
 {
 	u32 count, rc;
 	void *data;
@@ -391,8 +391,8 @@ static int do_tpm_read_pubek(cmd_tbl_t *cmdtp, int flag,
 	return report_return_code(rc);
 }
 
-static int do_tpm_physical_set_deactivated(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_tpm_physical_set_deactivated(cmd_tbl_t *cmdtp, int flag, int argc,
+					   char * const argv[])
 {
 	u8 state;
 
@@ -403,8 +403,8 @@ static int do_tpm_physical_set_deactivated(cmd_tbl_t *cmdtp, int flag,
 	return report_return_code(tpm_physical_set_deactivated(state));
 }
 
-static int do_tpm_get_capability(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_tpm_get_capability(cmd_tbl_t *cmdtp, int flag, int argc,
+				 char * const argv[])
 {
 	u32 cap_area, sub_cap, rc;
 	void *cap;
@@ -428,7 +428,7 @@ static int do_tpm_get_capability(cmd_tbl_t *cmdtp, int flag,
 
 #define TPM_COMMAND_NO_ARG(cmd)				\
 static int do_##cmd(cmd_tbl_t *cmdtp, int flag,		\
-		int argc, char * const argv[])		\
+		    int argc, char * const argv[])	\
 {							\
 	if (argc != 1)					\
 		return CMD_RET_USAGE;			\
@@ -455,8 +455,7 @@ static int get_tpm(struct udevice **devp)
 	return 0;
 }
 
-static int do_tpm_info(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char *const argv[])
+static int do_tpm_info(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct udevice *dev;
 	char buf[80];
@@ -475,8 +474,8 @@ static int do_tpm_info(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int do_tpm_raw_transfer(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_tpm_raw_transfer(cmd_tbl_t *cmdtp, int flag, int argc,
+			       char * const argv[])
 {
 	struct udevice *dev;
 	void *command;
@@ -504,8 +503,8 @@ static int do_tpm_raw_transfer(cmd_tbl_t *cmdtp, int flag,
 	return report_return_code(rc);
 }
 
-static int do_tpm_nv_define(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_tpm_nv_define(cmd_tbl_t *cmdtp, int flag, int argc,
+			    char * const argv[])
 {
 	u32 index, perm, size;
 
@@ -522,8 +521,8 @@ static int do_tpm_nv_define(cmd_tbl_t *cmdtp, int flag,
 	return report_return_code(tpm_nv_define_space(index, perm, size));
 }
 
-static int do_tpm_nv_read(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_tpm_nv_read(cmd_tbl_t *cmdtp, int flag, int argc,
+			  char * const argv[])
 {
 	u32 index, count, err;
 	void *data;
@@ -551,8 +550,8 @@ static int do_tpm_nv_read(cmd_tbl_t *cmdtp, int flag,
 	return report_return_code(err);
 }
 
-static int do_tpm_nv_write(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_tpm_nv_write(cmd_tbl_t *cmdtp, int flag, int argc,
+			   char * const argv[])
 {
 	u32 index, count, err;
 	void *data;
@@ -581,8 +580,8 @@ static int do_tpm_nv_write(cmd_tbl_t *cmdtp, int flag,
 
 #ifdef CONFIG_TPM_AUTH_SESSIONS
 
-static int do_tpm_oiap(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_tpm_oiap(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
 {
 	u32 auth_handle, err;
 
@@ -630,8 +629,8 @@ static int do_tpm_load_key_by_sha1(cmd_tbl_t *cmdtp, int flag, int argc, char *
 }
 #endif /* CONFIG_TPM_LOAD_KEY_BY_SHA1 */
 
-static int do_tpm_load_key2_oiap(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_tpm_load_key2_oiap(cmd_tbl_t *cmdtp, int flag, int argc,
+				 char * const argv[])
 {
 	u32 parent_handle, key_len, key_handle, err;
 	u8 usage_auth[DIGEST_LENGTH];
@@ -648,15 +647,15 @@ static int do_tpm_load_key2_oiap(cmd_tbl_t *cmdtp, int flag,
 	parse_byte_string(argv[4], usage_auth, NULL);
 
 	err = tpm_load_key2_oiap(parent_handle, key, key_len, usage_auth,
-			&key_handle);
+				 &key_handle);
 	if (!err)
 		printf("Key handle is 0x%x\n", key_handle);
 
 	return report_return_code(err);
 }
 
-static int do_tpm_get_pub_key_oiap(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_tpm_get_pub_key_oiap(cmd_tbl_t *cmdtp, int flag, int argc,
+				   char * const argv[])
 {
 	u32 key_handle, err;
 	u8 usage_auth[DIGEST_LENGTH];
@@ -671,8 +670,8 @@ static int do_tpm_get_pub_key_oiap(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	parse_byte_string(argv[2], usage_auth, NULL);
 
-	err = tpm_get_pub_key_oiap(key_handle, usage_auth,
-			pub_key_buffer, &pub_key_len);
+	err = tpm_get_pub_key_oiap(key_handle, usage_auth, pub_key_buffer,
+				   &pub_key_len);
 	if (!err) {
 		printf("dump of received pub key structure:\n");
 		print_byte_string(pub_key_buffer, pub_key_len);
@@ -818,46 +817,45 @@ static int do_tpm_list(cmd_tbl_t *cmdtp, int flag, int argc,
 
 static cmd_tbl_t tpm_commands[] = {
 	U_BOOT_CMD_MKENT(info, 0, 1, do_tpm_info, "", ""),
-	U_BOOT_CMD_MKENT(init, 0, 1,
-			do_tpm_init, "", ""),
+	U_BOOT_CMD_MKENT(init, 0, 1, do_tpm_init, "", ""),
 	U_BOOT_CMD_MKENT(startup, 0, 1,
-			do_tpm_startup, "", ""),
+			 do_tpm_startup, "", ""),
 	U_BOOT_CMD_MKENT(self_test_full, 0, 1,
-			do_tpm_self_test_full, "", ""),
+			 do_tpm_self_test_full, "", ""),
 	U_BOOT_CMD_MKENT(continue_self_test, 0, 1,
-			do_tpm_continue_self_test, "", ""),
+			 do_tpm_continue_self_test, "", ""),
 	U_BOOT_CMD_MKENT(force_clear, 0, 1,
-			do_tpm_force_clear, "", ""),
+			 do_tpm_force_clear, "", ""),
 	U_BOOT_CMD_MKENT(physical_enable, 0, 1,
-			do_tpm_physical_enable, "", ""),
+			 do_tpm_physical_enable, "", ""),
 	U_BOOT_CMD_MKENT(physical_disable, 0, 1,
-			do_tpm_physical_disable, "", ""),
+			 do_tpm_physical_disable, "", ""),
 	U_BOOT_CMD_MKENT(nv_define_space, 0, 1,
-			do_tpm_nv_define_space, "", ""),
+			 do_tpm_nv_define_space, "", ""),
 	U_BOOT_CMD_MKENT(nv_read_value, 0, 1,
-			do_tpm_nv_read_value, "", ""),
+			 do_tpm_nv_read_value, "", ""),
 	U_BOOT_CMD_MKENT(nv_write_value, 0, 1,
-			do_tpm_nv_write_value, "", ""),
+			 do_tpm_nv_write_value, "", ""),
 	U_BOOT_CMD_MKENT(extend, 0, 1,
-			do_tpm_extend, "", ""),
+			 do_tpm_extend, "", ""),
 	U_BOOT_CMD_MKENT(pcr_read, 0, 1,
-			do_tpm_pcr_read, "", ""),
+			 do_tpm_pcr_read, "", ""),
 	U_BOOT_CMD_MKENT(tsc_physical_presence, 0, 1,
-			do_tpm_tsc_physical_presence, "", ""),
+			 do_tpm_tsc_physical_presence, "", ""),
 	U_BOOT_CMD_MKENT(read_pubek, 0, 1,
-			do_tpm_read_pubek, "", ""),
+			 do_tpm_read_pubek, "", ""),
 	U_BOOT_CMD_MKENT(physical_set_deactivated, 0, 1,
-			do_tpm_physical_set_deactivated, "", ""),
+			 do_tpm_physical_set_deactivated, "", ""),
 	U_BOOT_CMD_MKENT(get_capability, 0, 1,
-			do_tpm_get_capability, "", ""),
+			 do_tpm_get_capability, "", ""),
 	U_BOOT_CMD_MKENT(raw_transfer, 0, 1,
-			do_tpm_raw_transfer, "", ""),
+			 do_tpm_raw_transfer, "", ""),
 	U_BOOT_CMD_MKENT(nv_define, 0, 1,
-			do_tpm_nv_define, "", ""),
+			 do_tpm_nv_define, "", ""),
 	U_BOOT_CMD_MKENT(nv_read, 0, 1,
-			do_tpm_nv_read, "", ""),
+			 do_tpm_nv_read, "", ""),
 	U_BOOT_CMD_MKENT(nv_write, 0, 1,
-			do_tpm_nv_write, "", ""),
+			 do_tpm_nv_write, "", ""),
 #ifdef CONFIG_TPM_AUTH_SESSIONS
 	U_BOOT_CMD_MKENT(oiap, 0, 1,
 			 do_tpm_oiap, "", ""),
