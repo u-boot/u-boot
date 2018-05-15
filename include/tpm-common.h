@@ -35,6 +35,7 @@ enum tpm_duration {
  *
  * @duration_ms:	Length of each duration type in milliseconds
  * @retry_time_ms:	Time to wait before retrying receive
+ * @buf:		Buffer used during the exchanges with the chip
  */
 struct tpm_chip_priv {
 	uint duration_ms[TPM_DURATION_COUNT];
