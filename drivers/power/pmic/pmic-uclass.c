@@ -165,7 +165,17 @@ int pmic_clrsetbits(struct udevice *dev, uint reg, uint clr, uint set)
 	return pmic_reg_write(dev, reg, byte);
 }
 
+static int pmic_pre_probe(struct udevice *dev)
+{
+	struct uc_pmic_priv *pmic_priv = dev_get_uclass_priv(dev);
+
+	pmic_priv->trans_len = 1;
+	return 0;
+}
+
 UCLASS_DRIVER(pmic) = {
 	.id		= UCLASS_PMIC,
 	.name		= "pmic",
+	.pre_probe	= pmic_pre_probe,
+	.per_device_auto_alloc_size = sizeof(struct uc_pmic_priv),
 };
