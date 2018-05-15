@@ -204,6 +204,7 @@ int unpack_byte_string(const u8 *str, size_t size, const char *format, ...)
 static u32 tpm_command_size(const void *command)
 {
 	const size_t command_size_offset = 2;
+
 	return get_unaligned_be32(command + command_size_offset);
 }
 
@@ -216,6 +217,7 @@ static u32 tpm_command_size(const void *command)
 static u32 tpm_return_code(const void *response)
 {
 	const size_t return_code_offset = 6;
+
 	return get_unaligned_be32(response + return_code_offset);
 }
 
@@ -843,6 +845,7 @@ u32 tpm_terminate_auth_session(u32 auth_handle)
 u32 tpm_end_oiap(void)
 {
 	u32 err = TPM_SUCCESS;
+
 	if (oiap_session.valid)
 		err = tpm_terminate_auth_session(oiap_session.handle);
 	return err;
