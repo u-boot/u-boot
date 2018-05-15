@@ -134,4 +134,13 @@ enum tpm2_algorithms {
  */
 u32 tpm2_startup(enum tpm2_startup_types mode);
 
+/**
+ * Issue a TPM2_SelfTest command.
+ *
+ * @full_test	Asking to perform all tests or only the untested ones
+ *
+ * @return code of the operation
+ */
+u32 tpm2_self_test(enum tpm2_yes_no full_test);
+
 #endif /* __TPM_V2_H */

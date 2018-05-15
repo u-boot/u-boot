@@ -30,3 +30,15 @@ u32 tpm2_startup(enum tpm2_startup_types mode)
 
 	return 0;
 }
+
+u32 tpm2_self_test(enum tpm2_yes_no full_test)
+{
+	const u8 command_v2[12] = {
+		tpm_u16(TPM2_ST_NO_SESSIONS),
+		tpm_u32(11),
+		tpm_u32(TPM2_CC_SELF_TEST),
+		full_test,
+	};
+
+	return tpm_sendrecv_command(command_v2, NULL, NULL);
+}
