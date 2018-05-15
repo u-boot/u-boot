@@ -422,6 +422,10 @@
 		clock-frequency = <1000000>;
 	};
 
+	tpm2 {
+		compatible = "sandbox,tpm2";
+	};
+
 	uart0: serial {
 		compatible = "sandbox,serial";
 		u-boot,dm-pre-reloc;
