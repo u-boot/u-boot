@@ -181,10 +181,12 @@ static int msm_uart_clk_init(struct udevice *dev)
 
 static int msm_serial_probe(struct udevice *dev)
 {
+	int ret;
 	struct msm_serial_data *priv = dev_get_priv(dev);
 
-	msm_uart_clk_init(dev); /* Ignore return value and hope clock was
-				  properly initialized by earlier loaders */
+	ret = msm_uart_clk_init(dev);
+	if (ret)
+		return ret;
 
 	if (readl(priv->base + UARTDM_SR) & UARTDM_SR_UART_OVERRUN)
 		writel(UARTDM_CR_CMD_RESET_ERR, priv->base + UARTDM_CR);
