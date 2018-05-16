@@ -23,6 +23,7 @@
 #include <linux/compiler.h>
 #include <linux/types.h>
 #include <linux/unaligned/be_byteshift.h>
+#include <asm-generic/gpio.h>
 
 #include "tpm_tis.h"
 #include "tpm_internal.h"
@@ -573,6 +574,21 @@ static int tpm_tis_spi_probe(struct udevice *dev)
 	struct tpm_chip_priv *priv = dev_get_uclass_priv(dev);
 	struct tpm_chip *chip = dev_get_priv(dev);
 	int ret;
+
+	if (IS_ENABLED(CONFIG_DM_GPIO)) {
+		struct gpio_desc reset_gpio;
+
+		ret = gpio_request_by_name(dev, "gpio-reset", 0,
+					   &reset_gpio, GPIOD_IS_OUT);
+		if (ret) {
+			log(LOGC_NONE, LOGL_NOTICE, "%s: missing reset GPIO\n",
+			    __func__);
+		} else {
+			dm_gpio_set_value(&reset_gpio, 0);
+			mdelay(1);
+			dm_gpio_set_value(&reset_gpio, 1);
+		}
+	}
 
 	/* Ensure a minimum amount of time elapsed since reset of the TPM */
 	mdelay(drv_data->time_before_first_cmd_ms);
