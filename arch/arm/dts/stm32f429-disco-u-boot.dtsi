@@ -37,6 +37,8 @@
 			clocks = <&rcc 0 STM32F4_AHB3_CLOCK(FMC)>;
 			pinctrl-0 = <&fmc_pins>;
 			pinctrl-names = "default";
+			st,syscfg = <&syscfg>;
+			st,swp_fmc = <1>;
 			u-boot,dm-pre-reloc;
 
 			/*
