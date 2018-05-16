@@ -283,25 +283,21 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 		return -1;
 
 	priv->host->name = dev->name;
-	priv->host->ioaddr = (void *)devfdt_get_addr(dev);
-
-	priv->deviceid = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					"xlnx,device_id", -1);
-	priv->bank = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-				    "xlnx,mio_bank", -1);
-	if (fdt_get_property(gd->fdt_blob, dev_of_offset(dev),
-			     "no-1-8-v", NULL))
-		priv->no_1p8 = 1;
-	else
-		priv->no_1p8 = 0;
 
 #if defined(CONFIG_DM_MMC) && defined(CONFIG_ARCH_ZYNQMP)
 	priv->host->ops = &arasan_ops;
 #endif
 
-	plat->f_max = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-				"max-frequency", CONFIG_ZYNQ_SDHCI_MAX_FREQ);
+	priv->host->ioaddr = (void *)dev_read_addr(dev);
+	if (IS_ERR(priv->host->ioaddr))
+		return PTR_ERR(priv->host->ioaddr);
 
+	priv->deviceid = dev_read_u32_default(dev, "xlnx,device_id", -1);
+	priv->bank = dev_read_u32_default(dev, "xlnx,mio_bank", -1);
+	priv->no_1p8 = dev_read_bool(dev, "no-1-8-v");
+
+	plat->f_max = dev_read_u32_default(dev, "max-frequency",
+					   CONFIG_ZYNQ_SDHCI_MAX_FREQ);
 	return 0;
 }
 
