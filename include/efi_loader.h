@@ -214,6 +214,13 @@ efi_status_t efi_net_register(void);
 /* Called by bootefi to make the watchdog available */
 efi_status_t efi_watchdog_register(void);
 /* Called by bootefi to make SMBIOS tables available */
+/**
+ * efi_smbios_register() - write out SMBIOS tables
+ *
+ * Called by bootefi to make SMBIOS tables available
+ *
+ * @return 0 if OK, -ENOMEM if no memory is available for the tables
+ */
 efi_status_t efi_smbios_register(void);
 
 struct efi_simple_file_system_protocol *
