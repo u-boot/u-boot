@@ -13,6 +13,7 @@
 /* Clocks: (from CLK_CTL_BASE)  */
 #define GPLL0_STATUS			(0x2101C)
 #define APCS_GPLL_ENA_VOTE		(0x45000)
+#define APCS_CLOCK_BRANCH_ENA_VOTE (0x45004)
 
 #define SDCC_BCR(n)			((n * 0x1000) + 0x41000)
 #define SDCC_CMD_RCGR(n)		((n * 0x1000) + 0x41004)

@@ -30,7 +30,7 @@ void clk_enable_cbc(phys_addr_t cbcr)
 		;
 }
 
-void clk_enable_gpll0(phys_addr_t base, const struct gpll0_ctrl *gpll0)
+void clk_enable_gpll0(phys_addr_t base, const struct pll_vote_clk *gpll0)
 {
 	if (readl(base + gpll0->status) & gpll0->status_bit)
 		return; /* clock already enabled */
@@ -39,6 +39,21 @@ void clk_enable_gpll0(phys_addr_t base, const struct gpll0_ctrl *gpll0)
 
 	while ((readl(base + gpll0->status) & gpll0->status_bit) == 0)
 		;
+}
+
+#define BRANCH_ON_VAL (0)
+#define BRANCH_NOC_FSM_ON_VAL BIT(29)
+#define BRANCH_CHECK_MASK GENMASK(31, 28)
+
+void clk_enable_vote_clk(phys_addr_t base, const struct vote_clk *vclk)
+{
+	u32 val;
+
+	setbits_le32(base + vclk->ena_vote, vclk->vote_bit);
+	do {
+		val = readl(base + vclk->cbcr_reg);
+		val &= BRANCH_CHECK_MASK;
+	} while ((val != BRANCH_ON_VAL) && (val != BRANCH_NOC_FSM_ON_VAL));
 }
 
 #define APPS_CMD_RGCR_UPDATE BIT(0)

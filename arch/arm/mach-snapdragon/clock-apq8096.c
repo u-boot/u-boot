@@ -27,7 +27,7 @@ static const struct bcr_regs sdc_regs = {
 	.D = SDCC2_D,
 };
 
-static const struct gpll0_ctrl gpll0_ctrl = {
+static const struct pll_vote_clk gpll0_vote_clk = {
 	.status = GPLL0_STATUS,
 	.status_bit = GPLL0_STATUS_ACTIVE,
 	.ena_vote = APCS_GPLL_ENA_VOTE,
@@ -41,7 +41,7 @@ static int clk_init_sdc(struct msm_clk_priv *priv, uint rate)
 	clk_enable_cbc(priv->base + SDCC2_AHB_CBCR);
 	clk_rcg_set_rate_mnd(priv->base, &sdc_regs, div, 0, 0,
 			     CFG_CLK_SRC_GPLL0);
-	clk_enable_gpll0(priv->base, &gpll0_ctrl);
+	clk_enable_gpll0(priv->base, &gpll0_vote_clk);
 	clk_enable_cbc(priv->base + SDCC2_APPS_CBCR);
 
 	return rate;

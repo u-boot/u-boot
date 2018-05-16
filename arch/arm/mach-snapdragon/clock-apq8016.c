@@ -17,7 +17,6 @@
 
 /* GPLL0 clock control registers */
 #define GPLL0_STATUS_ACTIVE BIT(17)
-#define APCS_GPLL_ENA_VOTE_GPLL0 BIT(0)
 
 static const struct bcr_regs sdc_regs[] = {
 	{
@@ -36,11 +35,17 @@ static const struct bcr_regs sdc_regs[] = {
 	}
 };
 
-static struct gpll0_ctrl gpll0_ctrl = {
+static struct pll_vote_clk gpll0_vote_clk = {
 	.status = GPLL0_STATUS,
 	.status_bit = GPLL0_STATUS_ACTIVE,
 	.ena_vote = APCS_GPLL_ENA_VOTE,
-	.vote_bit = APCS_GPLL_ENA_VOTE_GPLL0,
+	.vote_bit = BIT(0),
+};
+
+static struct vote_clk gcc_blsp1_ahb_clk = {
+	.cbcr_reg = BLSP1_AHB_CBCR,
+	.ena_vote = APCS_CLOCK_BRANCH_ENA_VOTE,
+	.vote_bit = BIT(10),
 };
 
 /* SDHCI */
@@ -55,7 +60,7 @@ static int clk_init_sdc(struct msm_clk_priv *priv, int slot, uint rate)
 	/* 800Mhz/div, gpll0 */
 	clk_rcg_set_rate_mnd(priv->base, &sdc_regs[slot], div, 0, 0,
 			     CFG_CLK_SRC_GPLL0);
-	clk_enable_gpll0(priv->base, &gpll0_ctrl);
+	clk_enable_gpll0(priv->base, &gpll0_vote_clk);
 	clk_enable_cbc(priv->base + SDCC_APPS_CBCR(slot));
 
 	return rate;
@@ -72,12 +77,16 @@ static const struct bcr_regs uart2_regs = {
 /* UART: 115200 */
 static int clk_init_uart(struct msm_clk_priv *priv)
 {
-	/* Enable iface clk */
-	clk_enable_cbc(priv->base + BLSP1_AHB_CBCR);
+	/* Enable AHB clock */
+	clk_enable_vote_clk(priv->base, &gcc_blsp1_ahb_clk);
+
 	/* 7372800 uart block clock @ GPLL0 */
 	clk_rcg_set_rate_mnd(priv->base, &uart2_regs, 1, 144, 15625,
 			     CFG_CLK_SRC_GPLL0);
-	clk_enable_gpll0(priv->base, &gpll0_ctrl);
+
+	/* Vote for gpll0 clock */
+	clk_enable_gpll0(priv->base, &gpll0_vote_clk);
+
 	/* Enable core clk */
 	clk_enable_cbc(priv->base + BLSP1_UART2_APPS_CBCR);
 
