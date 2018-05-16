@@ -148,7 +148,7 @@ index 0000000..2234c87
 --- /dev/null
 +++ b/common/bootstage.c
 @@ -0,0 +1,37 @@
-+/* SPDX-License-Identifier: GPL-2.0+ */
++// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Copyright (c) 2011, Google Inc. All rights reserved.
 + *
