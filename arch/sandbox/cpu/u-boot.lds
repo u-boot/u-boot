@@ -18,6 +18,35 @@ SECTIONS
 	__u_boot_sandbox_option_end = .;
 
 	__bss_start = .;
+
+		.__efi_runtime_start : {
+		*(.__efi_runtime_start)
+	}
+
+	.efi_runtime : {
+		*(efi_runtime_text)
+		*(efi_runtime_data)
+	}
+
+	.__efi_runtime_stop : {
+		*(.__efi_runtime_stop)
+	}
+
+	.efi_runtime_rel_start :
+	{
+		*(.__efi_runtime_rel_start)
+	}
+
+	.efi_runtime_rel : {
+		*(.relefi_runtime_text)
+		*(.relefi_runtime_data)
+	}
+
+	.efi_runtime_rel_stop :
+	{
+		*(.__efi_runtime_rel_stop)
+	}
+
 }
 
 INSERT BEFORE .data;
