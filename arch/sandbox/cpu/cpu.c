@@ -9,6 +9,7 @@
 #include <linux/libfdt.h>
 #include <os.h>
 #include <asm/io.h>
+#include <asm/setjmp.h>
 #include <asm/state.h>
 #include <dm/root.h>
 
@@ -163,4 +164,16 @@ ulong timer_get_boot_us(void)
 		base_count = count;
 
 	return (count - base_count) / 1000;
+}
+
+int setjmp(jmp_buf jmp)
+{
+	return os_setjmp((ulong *)jmp, sizeof(*jmp));
+}
+
+void longjmp(jmp_buf jmp, int ret)
+{
+	os_longjmp((ulong *)jmp, ret);
+	while (1)
+		;
 }
