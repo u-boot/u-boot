@@ -60,7 +60,15 @@ static struct simple_text_output_mode efi_con_mode = {
 	.cursor_visible = 1,
 };
 
-static int term_read_reply(int *n, int maxnum, char end_char)
+/*
+ * Receive and parse a reply from the terminal.
+ *
+ * @n:		array of return values
+ * @num:	number of return values expected
+ * @end_char:	character indicating end of terminal message
+ * @return:	non-zero indicates error
+ */
+static int term_read_reply(int *n, int num, char end_char)
 {
 	char c;
 	int i = 0;
@@ -77,7 +85,7 @@ static int term_read_reply(int *n, int maxnum, char end_char)
 		c = getc();
 		if (c == ';') {
 			i++;
-			if (i >= maxnum)
+			if (i >= num)
 				return -1;
 			n[i] = 0;
 			continue;
@@ -91,6 +99,8 @@ static int term_read_reply(int *n, int maxnum, char end_char)
 		n[i] *= 10;
 		n[i] += c - '0';
 	}
+	if (i != num - 1)
+		return -1;
 
 	return 0;
 }
