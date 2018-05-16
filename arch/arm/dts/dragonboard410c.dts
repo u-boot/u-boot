@@ -8,6 +8,7 @@
 /dts-v1/;
 
 #include "skeleton64.dtsi"
+#include <dt-bindings/pinctrl/pinctrl-snapdragon.h>
 
 / {
 	model = "Qualcomm Technologies, Inc. Dragonboard 410c";
@@ -38,6 +39,17 @@
 		ranges = <0x0 0x0 0x0 0xffffffff>;
 		compatible = "simple-bus";
 
+		pinctrl: qcom,tlmm@1000000 {
+			compatible = "qcom,tlmm-apq8016";
+			reg = <0x1000000 0x400000>;
+
+			blsp1_uart: uart {
+				function = "blsp1_uart";
+				pins = "GPIO_4", "GPIO_5";
+				drive-strength = <DRIVE_STRENGTH_8MA>;
+				bias-disable;
+			};
+		};
 		clkc: qcom,gcc@1800000 {
 			compatible = "qcom,gcc-apq8016";
 			reg = <0x1800000 0x80000>;
@@ -49,6 +61,8 @@
 			compatible = "qcom,msm-uartdm-v1.4";
 			reg = <0x78b0000 0x200>;
 			clock = <&clkc 4>;
+			pinctrl-names = "uart";
+			pinctrl-0 = <&blsp1_uart>;
 		};
 
 		soc_gpios: pinctrl@1000000 {
