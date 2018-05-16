@@ -184,6 +184,10 @@ static int msm_serial_probe(struct udevice *dev)
 	int ret;
 	struct msm_serial_data *priv = dev_get_priv(dev);
 
+	/* No need to reinitialize the UART after relocation */
+	if (gd->flags & GD_FLG_RELOC)
+		return 0;
+
 	ret = msm_uart_clk_init(dev);
 	if (ret)
 		return ret;
