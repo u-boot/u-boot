@@ -177,6 +177,7 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{"w25q32dw",	   INFO(0xef6016, 0x0,	64 * 1024,    64, RD_FULL | WR_QPP | SECT_4K) },
 	{"w25q64dw",	   INFO(0xef6017, 0x0,	64 * 1024,   128, RD_FULL | WR_QPP | SECT_4K) },
 	{"w25q128fw",	   INFO(0xef6018, 0x0,	64 * 1024,   256, RD_FULL | WR_QPP | SECT_4K) },
+	{"w25q256fw",	   INFO(0xef6019, 0x0,	64 * 1024,   512, RD_FULL | WR_QPP | SECT_4K) },
 #endif
 	{},	/* Empty entry to terminate the list */
 	/*
@@ -191,5 +192,6 @@ const struct spi_flash_info spi_flash_ids[] = {
 	 * (w25q32dw, w25q32fv_qpi)
 	 * (w25q64dw, w25q64fv_qpi)
 	 * (w25q128fw, w25q128fv_qpi)
+	 * (w25q256fw, w25q256fv_qpi)
 	 */
 };
