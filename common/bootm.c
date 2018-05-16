@@ -46,6 +46,10 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 				   char * const argv[], bootm_headers_t *images,
 				   ulong *os_data, ulong *os_len);
 
+__weak void board_quiesce_devices(void)
+{
+}
+
 #ifdef CONFIG_LMB
 static void boot_start_lmb(bootm_headers_t *images)
 {

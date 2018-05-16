@@ -72,4 +72,6 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
 		       void *load_buf, void *image_buf, ulong image_len,
 		       uint unc_len, ulong *load_end);
 
+void board_quiesce_devices(void);
+
 #endif
