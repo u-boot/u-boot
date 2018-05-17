@@ -324,6 +324,15 @@ config DEBUG_UART_MXC
 	  will need to provide parameters to make this work. The driver will
 	  be available until the real driver model serial is running.
 
+config DEBUG_UART_STM32
+	bool "STMicroelectronics STM32"
+	depends on STM32_SERIAL
+	help
+	  Select this to enable a debug UART using the serial_stm32 driver
+	  You will need to provide parameters to make this work.
+	  The driver will be available until the real driver model
+	  serial is running.
+
 config DEBUG_UART_UNIPHIER
 	bool "UniPhier on-chip UART"
 	depends on ARCH_UNIPHIER
