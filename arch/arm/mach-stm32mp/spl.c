@@ -14,9 +14,6 @@ u32 spl_boot_device(void)
 
 	boot_mode = (readl(TAMP_BOOT_CONTEXT) & TAMP_BOOT_MODE_MASK) >>
 		    TAMP_BOOT_MODE_SHIFT;
-	clrsetbits_le32(TAMP_BOOT_CONTEXT,
-			TAMP_BOOT_MODE_MASK,
-			boot_mode << TAMP_BOOT_MODE_SHIFT);
 
 	switch (boot_mode) {
 	case BOOT_FLASH_SD_1:
