@@ -13,6 +13,7 @@
 #define STM32_RCC_BASE			0x50000000
 #define STM32_PWR_BASE			0x50001000
 #define STM32_DBGMCU_BASE		0x50081000
+#define STM32_BSEC_BASE			0x5C005000
 #define STM32_TZC_BASE			0x5C006000
 #define STM32_ETZPC_BASE		0x5C007000
 #define STM32_TAMP_BASE			0x5C00A000
@@ -94,6 +95,10 @@ enum boot_device {
 #define TAMP_BOOT_MODE_SHIFT		8
 #define TAMP_BOOT_DEVICE_MASK		GENMASK(7, 4)
 #define TAMP_BOOT_INSTANCE_MASK		GENMASK(3, 0)
+
+/* offset used for BSEC driver: misc_read and misc_write */
+#define STM32_BSEC_SHADOW_OFFSET	0x0
+#define STM32_BSEC_OTP_OFFSET		0x80000000
 
 #endif /* __ASSEMBLY__*/
 #endif /* _MACH_STM32_H_ */

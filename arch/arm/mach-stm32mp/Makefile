@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2018, STMicroelectronics - All Rights Reserved
 #
@@ -7,6 +7,10 @@ obj-y += cpu.o
 obj-y += dram_init.o
 obj-y += syscon.o
 
-obj-$(CONFIG_SPL_BUILD) += spl.o
+ifdef CONFIG_SPL_BUILD
+obj-y += spl.o
+else
+obj-y += bsec.o
+endif
 obj-$(CONFIG_ARMV7_PSCI) += psci.o
 obj-$(CONFIG_$(SPL_)DM_REGULATOR) += pwr_regulator.o
