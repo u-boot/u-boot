@@ -5,9 +5,12 @@
 #include <common.h>
 #include <clk.h>
 #include <debug_uart.h>
+#include <environment.h>
+#include <misc.h>
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/sys_proto.h>
+#include <dm/device.h>
 #include <dm/uclass.h>
 
 /* RCC register */
@@ -50,6 +53,10 @@
 #define BOOTROM_MODE_SHIFT	0
 #define BOOTROM_INSTANCE_MASK	 GENMASK(31, 16)
 #define BOOTROM_INSTANCE_SHIFT	16
+
+/* BSEC OTP index */
+#define BSEC_OTP_SERIAL	13
+#define BSEC_OTP_MAC	57
 
 #if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
 static void security_init(void)
@@ -274,9 +281,83 @@ static void setup_boot_mode(void)
 	}
 }
 
+/*
+ * If there is no MAC address in the environment, then it will be initialized
+ * (silently) from the value in the OTP.
+ */
+static int setup_mac_address(void)
+{
+#if defined(CONFIG_NET)
+	int ret;
+	int i;
+	u32 otp[2];
+	uchar enetaddr[6];
+	struct udevice *dev;
+
+	/* MAC already in environment */
+	if (eth_env_get_enetaddr("ethaddr", enetaddr))
+		return 0;
+
+	ret = uclass_get_device_by_driver(UCLASS_MISC,
+					  DM_GET_DRIVER(stm32mp_bsec),
+					  &dev);
+	if (ret)
+		return ret;
+
+	ret = misc_read(dev, BSEC_OTP_MAC * 4 + STM32_BSEC_OTP_OFFSET,
+			otp, sizeof(otp));
+	if (ret)
+		return ret;
+
+	for (i = 0; i < 6; i++)
+		enetaddr[i] = ((uint8_t *)&otp)[i];
+
+	if (!is_valid_ethaddr(enetaddr)) {
+		pr_err("invalid MAC address in OTP %pM", enetaddr);
+		return -EINVAL;
+	}
+	pr_debug("OTP MAC address = %pM\n", enetaddr);
+	ret = !eth_env_set_enetaddr("ethaddr", enetaddr);
+	if (!ret)
+		pr_err("Failed to set mac address %pM from OTP: %d\n",
+		       enetaddr, ret);
+#endif
+
+	return 0;
+}
+
+static int setup_serial_number(void)
+{
+	char serial_string[25];
+	u32 otp[3] = {0, 0, 0 };
+	struct udevice *dev;
+	int ret;
+
+	if (env_get("serial#"))
+		return 0;
+
+	ret = uclass_get_device_by_driver(UCLASS_MISC,
+					  DM_GET_DRIVER(stm32mp_bsec),
+					  &dev);
+	if (ret)
+		return ret;
+
+	ret = misc_read(dev, BSEC_OTP_SERIAL * 4 + STM32_BSEC_OTP_OFFSET,
+			otp, sizeof(otp));
+	if (ret)
+		return ret;
+
+	sprintf(serial_string, "%08x%08x%08x", otp[0], otp[1], otp[2]);
+	env_set("serial#", serial_string);
+
+	return 0;
+}
+
 int arch_misc_init(void)
 {
 	setup_boot_mode();
+	setup_mac_address();
+	setup_serial_number();
 
 	return 0;
 }
