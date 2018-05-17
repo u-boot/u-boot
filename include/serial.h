@@ -67,6 +67,12 @@ extern int usbtty_tstc(void);
 
 struct udevice;
 
+enum serial_par {
+	SERIAL_PAR_NONE,
+	SERIAL_PAR_ODD,
+	SERIAL_PAR_EVEN
+};
+
 /**
  * struct struct dm_serial_ops - Driver model serial operations
  *
@@ -143,6 +149,16 @@ struct dm_serial_ops {
 	 */
 	int (*loop)(struct udevice *dev, int on);
 #endif
+	/**
+	 * setparity() - Set up the parity
+	 *
+	 * Set up a new parity for this device.
+	 *
+	 * @dev: Device pointer
+	 * @parity: parity to use
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*setparity)(struct udevice *dev, enum serial_par parity);
 };
 
 /**
