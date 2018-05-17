@@ -158,6 +158,15 @@ config PCA9551_I2C_ADDR
 	help
 	  The I2C address of the PCA9551 LED controller.
 
+config STM32MP_FUSE
+	bool "Enable STM32MP fuse wrapper providing the fuse API"
+	depends on ARCH_STM32MP && MISC
+	default y if CMD_FUSE
+	help
+	  If you say Y here, you will get support for the fuse API (OTP)
+	  for STM32MP architecture.
+	  This API is needed for CMD_FUSE.
+
 config STM32_RCC
 	bool "Enable RCC driver for the STM32 SoC's family"
 	depends on STM32 && MISC
