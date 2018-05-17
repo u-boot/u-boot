@@ -449,6 +449,47 @@ void reset_cpu(ulong addr)
 {
 }
 
+static const struct {
+	u32 bit;
+	const char *name;
+} reset_reasons[] = {
+	{ RESET_REASON_DEBUG_SYS, "DEBUG" },
+	{ RESET_REASON_SOFT, "SOFT" },
+	{ RESET_REASON_SRST, "SRST" },
+	{ RESET_REASON_PSONLY, "PS-ONLY" },
+	{ RESET_REASON_PMU, "PMU" },
+	{ RESET_REASON_INTERNAL, "INTERNAL" },
+	{ RESET_REASON_EXTERNAL, "EXTERNAL" },
+	{}
+};
+
+static u32 reset_reason(void)
+{
+	u32 ret;
+	int i;
+	const char *reason = NULL;
+
+	ret = readl(&crlapb_base->reset_reason);
+
+	puts("Reset reason:\t");
+
+	for (i = 0; i < ARRAY_SIZE(reset_reasons); i++) {
+		if (ret & reset_reasons[i].bit) {
+			reason = reset_reasons[i].name;
+			printf("%s ", reset_reasons[i].name);
+			break;
+		}
+	}
+
+	puts("\n");
+
+	env_set("reset_reason", reason);
+
+	writel(~0, &crlapb_base->reset_reason);
+
+	return ret;
+}
+
 int board_late_init(void)
 {
 	u32 reg = 0;
@@ -539,6 +580,8 @@ int board_late_init(void)
 		env_targets ? env_targets : "");
 
 	env_set("boot_targets", new_targets);
+
+	reset_reason();
 
 	return 0;
 }
