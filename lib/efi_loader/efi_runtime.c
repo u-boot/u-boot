@@ -212,7 +212,7 @@ static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
 		.ptr = &efi_runtime_services.get_variable,
 		.patchto = &efi_device_error,
 	}, {
-		.ptr = &efi_runtime_services.get_next_variable,
+		.ptr = &efi_runtime_services.get_next_variable_name,
 		.patchto = &efi_device_error,
 	}, {
 		.ptr = &efi_runtime_services.set_variable,
@@ -444,9 +444,9 @@ efi_status_t __efi_runtime EFIAPI efi_query_capsule_caps(
 
 efi_status_t __efi_runtime EFIAPI efi_query_variable_info(
 			u32 attributes,
-			u64 maximum_variable_storage_size,
-			u64 remaining_variable_storage_size,
-			u64 maximum_variable_size)
+			u64 *maximum_variable_storage_size,
+			u64 *remaining_variable_storage_size,
+			u64 *maximum_variable_size)
 {
 	return EFI_UNSUPPORTED;
 }
@@ -464,7 +464,7 @@ struct efi_runtime_services __efi_runtime_data efi_runtime_services = {
 	.set_virtual_address_map = &efi_set_virtual_address_map,
 	.convert_pointer = (void *)&efi_invalid_parameter,
 	.get_variable = efi_get_variable,
-	.get_next_variable = efi_get_next_variable,
+	.get_next_variable_name = efi_get_next_variable_name,
 	.set_variable = efi_set_variable,
 	.get_next_high_mono_count = (void *)&efi_device_error,
 	.reset_system = &efi_reset_system_boottime,
