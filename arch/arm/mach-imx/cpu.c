@@ -467,12 +467,14 @@ enum boot_device get_boot_device(void)
 	case BOOT_TYPE_SPINOR:
 		boot_dev = SPI_NOR_BOOT;
 		break;
-#ifdef CONFIG_IMX8M
 	case BOOT_TYPE_USB:
 		boot_dev = USB_BOOT;
 		break;
-#endif
 	default:
+#ifdef CONFIG_IMX8M
+		if (((readl(SRC_BASE_ADDR + 0x58) & 0x00007FFF) >> 12) == 0x4)
+			boot_dev = QSPI_BOOT;
+#endif
 		break;
 	}
 

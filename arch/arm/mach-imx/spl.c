@@ -172,6 +172,8 @@ u32 spl_boot_device(void)
 		return BOOT_DEVICE_NAND;
 	case SPI_NOR_BOOT:
 		return BOOT_DEVICE_SPI;
+	case QSPI_BOOT:
+		return BOOT_DEVICE_NOR;
 	case USB_BOOT:
 		return BOOT_DEVICE_USB;
 	default:
