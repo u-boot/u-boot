@@ -54,12 +54,12 @@ static int stm32_serial_getc(struct udevice *dev)
 	fdt_addr_t base = plat->base;
 	u32 isr = readl(base + ISR_OFFSET(stm32f4));
 
-	if ((isr & USART_ISR_FLAG_RXNE) == 0)
+	if ((isr & USART_ISR_RXNE) == 0)
 		return -EAGAIN;
 
-	if (isr & USART_ISR_FLAG_ORE) {
+	if (isr & (USART_ISR_ORE)) {
 		if (!stm32f4)
-			setbits_le32(base + ICR_OFFSET, USART_ICR_OREF);
+			setbits_le32(base + ICR_OFFSET, USART_ICR_ORECF);
 		else
 			readl(base + RDR_OFFSET(stm32f4));
 		return -EIO;
@@ -74,7 +74,7 @@ static int _stm32_serial_putc(fdt_addr_t base,
 {
 	bool stm32f4 = uart_info->stm32f4;
 
-	if ((readl(base + ISR_OFFSET(stm32f4)) & USART_ISR_FLAG_TXE) == 0)
+	if ((readl(base + ISR_OFFSET(stm32f4)) & USART_ISR_TXE) == 0)
 		return -EAGAIN;
 
 	writel(c, base + TDR_OFFSET(stm32f4));
@@ -97,10 +97,10 @@ static int stm32_serial_pending(struct udevice *dev, bool input)
 
 	if (input)
 		return readl(base + ISR_OFFSET(stm32f4)) &
-			USART_ISR_FLAG_RXNE ? 1 : 0;
+			USART_ISR_RXNE ? 1 : 0;
 	else
 		return readl(base + ISR_OFFSET(stm32f4)) &
-			USART_ISR_FLAG_TXE ? 0 : 1;
+			USART_ISR_TXE ? 0 : 1;
 }
 
 static void _stm32_serial_init(fdt_addr_t base,

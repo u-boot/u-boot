@@ -59,13 +59,13 @@ struct stm32x7_serial_platdata {
 
 #define USART_CR3_OVRDIS		BIT(12)
 
-#define USART_ISR_FLAG_ORE		BIT(3)
-#define USART_ISR_FLAG_RXNE		BIT(5)
-#define USART_ISR_FLAG_TXE		BIT(7)
+#define USART_ISR_TXE			BIT(7)
+#define USART_ISR_RXNE			BIT(5)
+#define USART_ISR_ORE			BIT(3)
 
 #define USART_BRR_F_MASK		GENMASK(7, 0)
 #define USART_BRR_M_SHIFT		4
 #define USART_BRR_M_MASK		GENMASK(15, 4)
 
-#define USART_ICR_OREF			BIT(3)
+#define USART_ICR_ORECF			BIT(3)
 #endif
