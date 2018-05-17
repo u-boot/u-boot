@@ -428,8 +428,6 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		 * callback entry
 		 */
 		efi_save_gd();
-		/* Initialize and populate EFI object list */
-		efi_init_obj_list();
 		/* Transfer environment variable efi_selftest as load options */
 		set_load_options(&loaded_image_info, "efi_selftest");
 		/* Execute the test */
