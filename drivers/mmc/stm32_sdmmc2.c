@@ -235,8 +235,8 @@ static void stm32_sdmmc2_start_data(struct stm32_sdmmc2_priv *priv,
 static void stm32_sdmmc2_start_cmd(struct stm32_sdmmc2_priv *priv,
 				   struct mmc_cmd *cmd, u32 cmd_param)
 {
-	if (readl(priv->base + SDMMC_ARG) & SDMMC_CMD_CPSMEN)
-		writel(0, priv->base + SDMMC_ARG);
+	if (readl(priv->base + SDMMC_CMD) & SDMMC_CMD_CPSMEN)
+		writel(0, priv->base + SDMMC_CMD);
 
 	cmd_param |= cmd->cmdidx | SDMMC_CMD_CPSMEN;
 	if (cmd->resp_type & MMC_RSP_PRESENT) {
