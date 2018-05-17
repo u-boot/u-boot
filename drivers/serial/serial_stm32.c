@@ -47,6 +47,45 @@ static int stm32_serial_setbrg(struct udevice *dev, int baudrate)
 	return 0;
 }
 
+static int stm32_serial_setparity(struct udevice *dev, enum serial_par parity)
+{
+	struct stm32x7_serial_platdata *plat = dev_get_platdata(dev);
+	bool stm32f4 = plat->uart_info->stm32f4;
+	u8 uart_enable_bit = plat->uart_info->uart_enable_bit;
+	u32 cr1 = plat->base + CR1_OFFSET(stm32f4);
+	u32 config = 0;
+
+	if (stm32f4)
+		return -EINVAL; /* not supported in driver*/
+
+	clrbits_le32(cr1, USART_CR1_RE | USART_CR1_TE | BIT(uart_enable_bit));
+	/* update usart configuration (uart need to be disable)
+	 * PCE: parity check control
+	 * PS : '0' : Even / '1' : Odd
+	 * M[1:0] = '00' : 8 Data bits
+	 * M[1:0] = '01' : 9 Data bits with parity
+	 */
+	switch (parity) {
+	default:
+	case SERIAL_PAR_NONE:
+		config = 0;
+		break;
+	case SERIAL_PAR_ODD:
+		config = USART_CR1_PCE | USART_CR1_PS | USART_CR1_M0;
+		break;
+	case SERIAL_PAR_EVEN:
+		config = USART_CR1_PCE | USART_CR1_M0;
+		break;
+	}
+	clrsetbits_le32(cr1,
+			USART_CR1_PCE | USART_CR1_PS | USART_CR1_M1 |
+			USART_CR1_M0,
+			config);
+	setbits_le32(cr1, USART_CR1_RE | USART_CR1_TE | BIT(uart_enable_bit));
+
+	return 0;
+}
+
 static int stm32_serial_getc(struct udevice *dev)
 {
 	struct stm32x7_serial_platdata *plat = dev_get_platdata(dev);
@@ -57,9 +96,10 @@ static int stm32_serial_getc(struct udevice *dev)
 	if ((isr & USART_ISR_RXNE) == 0)
 		return -EAGAIN;
 
-	if (isr & (USART_ISR_ORE)) {
+	if (isr & (USART_ISR_PE | USART_ISR_ORE)) {
 		if (!stm32f4)
-			setbits_le32(base + ICR_OFFSET, USART_ICR_ORECF);
+			setbits_le32(base + ICR_OFFSET,
+				     USART_ICR_PCECF | USART_ICR_ORECF);
 		else
 			readl(base + RDR_OFFSET(stm32f4));
 		return -EIO;
@@ -170,6 +210,7 @@ static const struct dm_serial_ops stm32_serial_ops = {
 	.pending = stm32_serial_pending,
 	.getc = stm32_serial_getc,
 	.setbrg = stm32_serial_setbrg,
+	.setparity = stm32_serial_setparity
 };
 
 U_BOOT_DRIVER(serial_stm32) = {

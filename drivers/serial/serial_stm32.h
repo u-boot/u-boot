@@ -13,6 +13,7 @@
 #define ISR_OFFSET(x)	(x ? 0x00 : 0x1c)
 
 #define ICR_OFFSET	0x20
+
 /*
  * STM32F4 has one Data Register (DR) for received or transmitted
  * data, so map Receive Data Register (RDR) and Transmit Data
@@ -53,7 +54,11 @@ struct stm32x7_serial_platdata {
 };
 
 #define USART_CR1_FIFOEN		BIT(29)
+#define USART_CR1_M1			BIT(28)
 #define USART_CR1_OVER8			BIT(15)
+#define USART_CR1_M0			BIT(12)
+#define USART_CR1_PCE			BIT(10)
+#define USART_CR1_PS			BIT(9)
 #define USART_CR1_TE			BIT(3)
 #define USART_CR1_RE			BIT(2)
 
@@ -62,10 +67,13 @@ struct stm32x7_serial_platdata {
 #define USART_ISR_TXE			BIT(7)
 #define USART_ISR_RXNE			BIT(5)
 #define USART_ISR_ORE			BIT(3)
+#define USART_ISR_PE			BIT(0)
 
 #define USART_BRR_F_MASK		GENMASK(7, 0)
 #define USART_BRR_M_SHIFT		4
 #define USART_BRR_M_MASK		GENMASK(15, 4)
 
 #define USART_ICR_ORECF			BIT(3)
+#define USART_ICR_PCECF			BIT(0)
+
 #endif
