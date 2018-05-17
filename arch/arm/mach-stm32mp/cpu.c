@@ -4,6 +4,7 @@
  */
 #include <common.h>
 #include <clk.h>
+#include <debug_uart.h>
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/sys_proto.h>
@@ -152,6 +153,8 @@ static u32 get_bootmode(void)
  */
 int arch_cpu_init(void)
 {
+	u32 boot_mode;
+
 	/* early armv7 timer init: needed for polling */
 	timer_init();
 
@@ -160,8 +163,17 @@ int arch_cpu_init(void)
 
 	security_init();
 #endif
+
 	/* get bootmode from BootRom context: saved in TAMP register */
-	get_bootmode();
+	boot_mode = get_bootmode();
+
+	if ((boot_mode & TAMP_BOOT_DEVICE_MASK) == BOOT_SERIAL_UART)
+		gd->flags |= GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE;
+#if defined(CONFIG_DEBUG_UART) && \
+	(!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
+	else
+		debug_uart_init();
+#endif
 
 	return 0;
 }

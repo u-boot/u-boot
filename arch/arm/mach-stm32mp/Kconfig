@@ -54,4 +54,19 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_MMC2
 
 source "board/st/stm32mp1/Kconfig"
 
+# currently activated for debug / should be deactivated for real product
+if DEBUG_UART
+
+config DEBUG_UART_BOARD_INIT
+	default y
+
+# debug on UART4 by default
+config DEBUG_UART_BASE
+	default 0x40010000
+
+# clock source is HSI on reset
+config DEBUG_UART_CLOCK
+	default 64000000
+endif
+
 endif
