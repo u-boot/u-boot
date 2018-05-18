@@ -5,6 +5,7 @@ config MX6_SMP
 	select ARM_ERRATA_761320
 	select ARM_ERRATA_794072
 	select ARM_ERRATA_845369
+	select MP
 	bool
 
 config MX6
@@ -167,18 +168,8 @@ config TARGET_EMBESTMX6BOARDS
 	bool "embestmx6boards"
 	select BOARD_LATE_INIT
 
-config TARGET_GE_B450V3
-	bool "General Electric B450v3"
-	select BOARD_LATE_INIT
-	select MX6Q
-
-config TARGET_GE_B650V3
-	bool "General Electric B650v3"
-	select BOARD_LATE_INIT
-	select MX6Q
-
-config TARGET_GE_B850V3
-	bool "General Electric B850v3"
+config TARGET_GE_BX50V3
+	bool "General Electric Bx50v3"
 	select BOARD_LATE_INIT
 	select MX6Q
 
@@ -228,6 +219,37 @@ config TARGET_MX6MEMCAL
 
 config TARGET_MX6QARM2
 	bool "mx6qarm2"
+
+config TARGET_MX6DL_MAMOJ
+	bool "Support BTicino Mamoj"
+	select MX6QDL
+	select OF_CONTROL
+	select PINCTRL
+	select DM
+	select DM_ETH
+	select DM_GPIO
+	select DM_I2C
+	select DM_MMC
+	select DM_PMIC
+	select DM_PMIC_PFUZE100
+	select DM_THERMAL
+	select SPL
+	select SUPPORT_SPL
+	select SPL_DM if SPL
+	select SPL_OF_LIBFDT if SPL
+	select SPL_OF_CONTROL if SPL
+	select SPL_PINCTRL if SPL
+	select SPL_SEPARATE_BSS if SPL
+	select SPL_GPIO_SUPPORT if SPL
+	select SPL_LIBCOMMON_SUPPORT if SPL
+	select SPL_LIBDISK_SUPPORT if SPL
+	select SPL_LIBGENERIC_SUPPORT if SPL
+	select SPL_MMC_SUPPORT if SPL
+	select SPL_SERIAL_SUPPORT if SPL
+	select SPL_USB_HOST_SUPPORT if SPL
+	select SPL_USB_GADGET_SUPPORT if SPL
+	select SPL_USB_SDP_SUPPORT if SPL
+	select SPL_WATCHDOG_SUPPORT if SPL
 
 config TARGET_MX6Q_ENGICAM
 	bool "Support Engicam i.Core(RQS)"
@@ -472,6 +494,7 @@ source "board/bachmann/ot1200/Kconfig"
 source "board/barco/platinum/Kconfig"
 source "board/barco/titanium/Kconfig"
 source "board/boundary/nitrogen6x/Kconfig"
+source "board/bticino/mamoj/Kconfig"
 source "board/ccv/xpress/Kconfig"
 source "board/compulab/cm_fx6/Kconfig"
 source "board/congatec/cgtqmx6eval/Kconfig"

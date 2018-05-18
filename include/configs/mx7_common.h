@@ -36,9 +36,6 @@
 #define CONFIG_SYS_CBSIZE		512
 #define CONFIG_SYS_MAXARGS		32
 
-#ifndef CONFIG_SYS_DCACHE_OFF
-#endif
-
 /* UART */
 #define CONFIG_MXC_UART
 

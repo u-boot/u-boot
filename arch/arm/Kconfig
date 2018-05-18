@@ -497,13 +497,6 @@ config TARGET_X600
 	select SUPPORT_SPL
 	select PL011_SERIAL
 
-config TARGET_MX31PDK
-	bool "Support mx31pdk"
-	select BOARD_LATE_INIT
-	select CPU_ARM1136
-	select SUPPORT_SPL
-	select BOARD_EARLY_INIT_F
-
 config TARGET_WOODBURN
 	bool "Support woodburn"
 	select CPU_ARM1136
@@ -664,6 +657,10 @@ config ARCH_MX28
 	select CPU_ARM926EJS
 	select PL011_SERIAL
 	select SUPPORT_SPL
+
+config ARCH_MX31
+	bool "NXP i.MX31 family"
+	select CPU_ARM1136
 
 config ARCH_MX7ULP
         bool "NXP MX7ULP"
@@ -1305,6 +1302,8 @@ source "arch/arm/cpu/armv7/ls102xa/Kconfig"
 
 source "arch/arm/mach-imx/mx2/Kconfig"
 
+source "arch/arm/mach-imx/mx3/Kconfig"
+
 source "arch/arm/mach-imx/mx5/Kconfig"
 
 source "arch/arm/mach-imx/mx6/Kconfig"
@@ -1392,7 +1391,6 @@ source "board/freescale/ls1046ardb/Kconfig"
 source "board/freescale/ls1012aqds/Kconfig"
 source "board/freescale/ls1012ardb/Kconfig"
 source "board/freescale/ls1012afrdm/Kconfig"
-source "board/freescale/mx31pdk/Kconfig"
 source "board/freescale/mx35pdk/Kconfig"
 source "board/freescale/s32v234evb/Kconfig"
 source "board/gdsys/a38x/Kconfig"

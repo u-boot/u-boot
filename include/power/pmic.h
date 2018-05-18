@@ -297,6 +297,15 @@ int pmic_reg_write(struct udevice *dev, uint reg, uint value);
  */
 int pmic_clrsetbits(struct udevice *dev, uint reg, uint clr, uint set);
 
+/*
+ * This structure holds the private data for PMIC uclass
+ * For now we store information about the number of bytes
+ * being sent at once to the device.
+ */
+struct uc_pmic_priv {
+	uint trans_len;
+};
+
 #endif /* CONFIG_DM_PMIC */
 
 #ifdef CONFIG_POWER

@@ -16,8 +16,6 @@
 #include <asm/arch/imx-regs.h>
 
 /* High Level Configuration Options */
-#define CONFIG_MX31			/* This is a mx31 */
-
 #define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG

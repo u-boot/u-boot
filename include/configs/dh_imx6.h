@@ -33,7 +33,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
-#define CONFIG_BOUNCE_BUFFER
 #define CONFIG_BZIP2
 
 /* Size of malloc() pool */

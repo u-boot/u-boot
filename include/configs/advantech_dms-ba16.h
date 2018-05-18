@@ -45,7 +45,6 @@
 /* MMC Configs */
 #define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
-#define CONFIG_BOUNCE_BUFFER
 
 /* USB Configs */
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2

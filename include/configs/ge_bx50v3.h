@@ -14,19 +14,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/gpio.h>
 
-#define BX50V3_BOOTARGS_EXTRA
-#if defined(CONFIG_TARGET_GE_B450V3)
-#define CONFIG_BOARD_NAME	"General Electric B450v3"
-#elif defined(CONFIG_TARGET_GE_B650V3)
-#define CONFIG_BOARD_NAME	"General Electric B650v3"
-#elif defined(CONFIG_TARGET_GE_B850V3)
-#define CONFIG_BOARD_NAME	"General Electric B850v3"
-#undef BX50V3_BOOTARGS_EXTRA
-#define BX50V3_BOOTARGS_EXTRA	"video=DP-1:1024x768@60 " \
-				"video=HDMI-A-1:1024x768@60 "
-#else
-#define CONFIG_BOARD_NAME	"General Electric BA16 Generic"
-#endif
+#define CONFIG_BOARD_NAME	"General Electric Bx50v3"
 
 #define CONFIG_MXC_UART_BASE	UART3_BASE
 #define CONSOLE_DEV	"ttymxc2"
@@ -62,7 +50,6 @@
 /* MMC Configs */
 #define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
-#define CONFIG_BOUNCE_BUFFER
 
 /* USB Configs */
 #ifdef CONFIG_USB
@@ -113,7 +100,7 @@
 		"ro rootwait cma=128M " \
 		"bootcause=${bootcause} " \
 		"${quiet} console=${console} ${rtc_status} " \
-		BX50V3_BOOTARGS_EXTRA "\0" \
+		"${videoargs}" "\0" \
 	"doquiet=" \
 		"if ext2load ${dev} ${devnum}:5 0x7000A000 /boot/console; " \
 			"then setenv quiet; fi\0" \

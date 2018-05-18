@@ -1,0 +1,7 @@
+/*
+ * Copyright (C) 2018 Jagan Teki <jagan@amarulasolutions.com>
+ *
+ * SPDX-License-Identifier:     GPL-2.0+
+ */
+
+#include "imx6qdl-icore-rqs-u-boot.dtsi"

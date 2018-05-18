@@ -115,6 +115,10 @@
 		sandbox_pmic: sandbox_pmic {
 			reg = <0x40>;
 		};
+
+		mc34708: pmic@41 {
+			reg = <0x41>;
+		};
 	};
 
 	lcd {

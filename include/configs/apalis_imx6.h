@@ -56,7 +56,6 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 
 #define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
-#define CONFIG_BOUNCE_BUFFER
 
 /*
  * SATA Configs
