@@ -9,8 +9,6 @@
 #ifndef __CONFIG_ZYNQMP_ZC1751_XM016_DC2_H
 #define __CONFIG_ZYNQMP_ZC1751_XM016_DC2_H
 
-#define CONFIG_ZYNQMP_XHCI_LIST {ZYNQMP_USB1_XHCI_BASEADDR}
-
 #include <configs/xilinx_zynqmp.h>
 
 #endif /* __CONFIG_ZYNQMP_ZC1751_XM016_DC2_H */
