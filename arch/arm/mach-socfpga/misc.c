@@ -22,8 +22,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_SYS_L2_PL310
 static const struct pl310_regs *const pl310 =
 	(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
+#endif
 
 struct bsel bsel_str[] = {
 	{ "rsvd", "Reserved", },
@@ -52,6 +54,7 @@ void enable_caches(void)
 #endif
 }
 
+#ifdef CONFIG_SYS_L2_PL310
 void v7_outer_cache_enable(void)
 {
 	/* Disable the L2 cache */
@@ -72,6 +75,7 @@ void v7_outer_cache_disable(void)
 	/* Disable the L2 cache */
 	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
 }
+#endif
 
 #if defined(CONFIG_SYS_CONSOLE_IS_IN_ENV) && \
 defined(CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE)
