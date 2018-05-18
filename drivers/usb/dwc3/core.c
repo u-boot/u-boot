@@ -603,8 +603,6 @@ static void dwc3_core_exit_mode(struct dwc3 *dwc)
 
 #define DWC3_ALIGN_MASK		(16 - 1)
 
-#ifndef CONFIG_DM_USB
-
 /**
  * dwc3_uboot_init - dwc3 core uboot initialization code
  * @dwc3_dev: struct dwc3_device containing initialization data
@@ -792,7 +790,7 @@ MODULE_AUTHOR("Felipe Balbi <balbi@ti.com>");
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("DesignWare USB3 DRD Controller Driver");
 
-#else
+#ifdef CONFIG_DM_USB
 
 int dwc3_init(struct dwc3 *dwc)
 {
