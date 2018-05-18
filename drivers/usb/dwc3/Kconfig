@@ -37,6 +37,12 @@ config USB_DWC3_OMAP
 
 	  Say 'Y' here if you have one such device
 
+config USB_DWC3_GENERIC
+	bool "Xilinx ZynqMP and similar Platforms"
+	depends on DM_USB && USB_DWC3
+	help
+	  Some platforms can reuse this DWC3 generic implementation.
+
 config USB_DWC3_UNIPHIER
 	bool "DesignWare USB3 Host Support on UniPhier Platforms"
 	depends on ARCH_UNIPHIER && USB_XHCI_DWC3
