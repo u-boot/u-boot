@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2018 Simone CIANNI <simone.cianni@bticino.it>
  * Copyright (C) 2018 Raffaele RECALCATI <raffaele.recalcati@bticino.it>
  * Copyright (C) 2018 Jagan Teki <jagan@amarulasolutions.com>
  *
  * Configuration settings for the BTicion i.MX6DL Mamoj board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __IMX6DL_MAMOJ_CONFIG_H

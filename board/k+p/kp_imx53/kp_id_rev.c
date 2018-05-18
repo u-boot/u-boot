@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2018
  * Lukasz Majewski, DENX Software Engineering, lukma@denx.de
@@ -6,8 +7,6 @@
  *
  * Copyright (C) 2012 TQ-Systems GmbH
  * Daniel Gericke <daniel.gericke@tqs.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
