@@ -30,6 +30,7 @@ endif
 
 ifdef CONFIG_TARGET_SOCFPGA_STRATIX10
 obj-y	+= clock_manager_s10.o
+obj-y	+= reset_manager_s10.o
 obj-y	+= wrap_pll_config_s10.o
 endif
 ifdef CONFIG_SPL_BUILD

@@ -42,6 +42,8 @@ int socfpga_eth_reset_common(void (*resetfn)(const u8 of_reset_id,
 #include <asm/arch/reset_manager_gen5.h>
 #elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
 #include <asm/arch/reset_manager_arria10.h>
+#elif defined(CONFIG_TARGET_SOCFPGA_STRATIX10)
+#include <asm/arch/reset_manager_s10.h>
 #endif
 
 #endif /* _RESET_MANAGER_H_ */
