@@ -68,8 +68,18 @@ extra-$(CONFIG_EFI_STUB_64BIT) += crt0_x86_64_efi.o reloc_x86_64_efi.o
 
 endif
 
-ifneq ($(CONFIG_EFI_STUB)$(CONFIG_CMD_BOOTEFI_HELLO_COMPILE),)
+ifdef CONFIG_EFI_STUB
+
 ifeq ($(CONFIG_$(SPL_)X86_64),)
 extra-y += $(EFI_CRT0) $(EFI_RELOC)
 endif
+
+else
+
+ifndef CONFIG_SPL_BUILD
+ifneq ($(CONFIG_CMD_BOOTEFI_SELFTEST)$(CONFIG_CMD_BOOTEFI_HELLO_COMPILE),)
+extra-y += $(EFI_CRT0) $(EFI_RELOC)
+endif
+endif
+
 endif
