@@ -785,3 +785,58 @@ MODULE_ALIAS("platform:dwc3");
 MODULE_AUTHOR("Felipe Balbi <balbi@ti.com>");
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("DesignWare USB3 DRD Controller Driver");
+
+#ifdef CONFIG_DM_USB
+
+int dwc3_init(struct dwc3 *dwc)
+{
+	int ret;
+
+	dwc3_cache_hwparams(dwc);
+
+	ret = dwc3_alloc_event_buffers(dwc, DWC3_EVENT_BUFFERS_SIZE);
+	if (ret) {
+		dev_err(dwc->dev, "failed to allocate event buffers\n");
+		return -ENOMEM;
+	}
+
+	ret = dwc3_core_init(dwc);
+	if (ret) {
+		dev_err(dev, "failed to initialize core\n");
+		goto core_fail;
+	}
+
+	ret = dwc3_event_buffers_setup(dwc);
+	if (ret) {
+		dev_err(dwc->dev, "failed to setup event buffers\n");
+		goto event_fail;
+	}
+
+	ret = dwc3_core_init_mode(dwc);
+	if (ret)
+		goto mode_fail;
+
+	return 0;
+
+mode_fail:
+	dwc3_event_buffers_cleanup(dwc);
+
+event_fail:
+	dwc3_core_exit(dwc);
+
+core_fail:
+	dwc3_free_event_buffers(dwc);
+
+	return ret;
+}
+
+void dwc3_remove(struct dwc3 *dwc)
+{
+	dwc3_core_exit_mode(dwc);
+	dwc3_event_buffers_cleanup(dwc);
+	dwc3_free_event_buffers(dwc);
+	dwc3_core_exit(dwc);
+	kfree(dwc->mem);
+}
+
+#endif
