@@ -6,6 +6,9 @@
 #ifndef _SYSTEM_MANAGER_H_
 #define _SYSTEM_MANAGER_H_
 
+#if defined(CONFIG_TARGET_SOCFPGA_STRATIX10)
+#include <asm/arch/system_manager_s10.h>
+#else
 #define SYSMGR_ROMCODEGRP_CTRL_WARMRSTCFGPINMUX	BIT(0)
 #define SYSMGR_ROMCODEGRP_CTRL_WARMRSTCFGIO	BIT(1)
 #define SYSMGR_ECC_OCRAM_EN	BIT(0)
@@ -88,5 +91,5 @@
 
 #define SYSMGR_GET_BOOTINFO_BSEL(bsel)		\
 		(((bsel) >> SYSMGR_BOOTINFO_BSEL_SHIFT) & 7)
-
+#endif
 #endif /* _SYSTEM_MANAGER_H_ */
