@@ -55,23 +55,15 @@
 #define USBOTGSS_IRQ_SET_1_DMADISABLECLR_EN	BIT(17)
 
 struct zynqmp_xhci {
-#ifdef CONFIG_DM_USB
 	struct usb_platdata usb_plat;
-#endif
 	struct xhci_ctrl ctrl;
 	struct xhci_hccr *hcd;
 	struct dwc3 *dwc3_reg;
 };
 
-#ifdef CONFIG_DM_USB
 struct zynqmp_xhci_platdata {
 	fdt_addr_t hcd_base;
 };
-#else
-static struct zynqmp_xhci zynqmp_xhci;
-
-unsigned long ctr_addr[] = CONFIG_ZYNQMP_XHCI_LIST;
-#endif
 
 static int zynqmp_xhci_core_init(struct zynqmp_xhci *zynqmp_xhci)
 {
@@ -89,42 +81,6 @@ static int zynqmp_xhci_core_init(struct zynqmp_xhci *zynqmp_xhci)
 	return ret;
 }
 
-#ifndef CONFIG_DM_USB
-int xhci_hcd_init(int index, struct xhci_hccr **hccr, struct xhci_hcor **hcor)
-{
-	struct zynqmp_xhci *ctx = &zynqmp_xhci;
-	int ret = 0;
-	uint32_t hclen;
-
-	if (index < 0 || index >= ARRAY_SIZE(ctr_addr))
-		return -EINVAL;
-
-	ctx->hcd = (struct xhci_hccr *)ctr_addr[index];
-	ctx->dwc3_reg = (struct dwc3 *)((void *)ctx->hcd + DWC3_REG_OFFSET);
-
-	ret = board_usb_init(index, USB_INIT_HOST);
-	if (ret != 0) {
-		puts("Failed to initialize board for USB\n");
-		return ret;
-	}
-
-	ret = zynqmp_xhci_core_init(ctx);
-	if (ret < 0) {
-		puts("Failed to initialize xhci\n");
-		return ret;
-	}
-
-	*hccr = (struct xhci_hccr *)ctx->hcd;
-	hclen = HC_LENGTH(xhci_readl(&(*hccr)->cr_capbase));
-	*hcor = (struct xhci_hcor *)((uintptr_t) *hccr + hclen);
-
-	debug("zynqmp-xhci: init hccr %p and hcor %p hc_length %d\n",
-	      *hccr, *hcor, hclen);
-
-	return ret;
-}
-#endif
-
 void xhci_hcd_stop(int index)
 {
 	/*
@@ -135,7 +91,6 @@ void xhci_hcd_stop(int index)
 	return;
 }
 
-#ifdef CONFIG_DM_USB
 static int xhci_usb_probe(struct udevice *dev)
 {
 	struct zynqmp_xhci_platdata *plat = dev_get_platdata(dev);
@@ -189,4 +144,3 @@ U_BOOT_DRIVER(dwc3_generic_host) = {
 	.priv_auto_alloc_size = sizeof(struct zynqmp_xhci),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
-#endif
