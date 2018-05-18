@@ -16,6 +16,8 @@ void cm_print_clock_quick_summary(void);
 #include <asm/arch/clock_manager_gen5.h>
 #elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
 #include <asm/arch/clock_manager_arria10.h>
+#elif defined(CONFIG_TARGET_SOCFPGA_STRATIX10)
+#include <asm/arch/clock_manager_s10.h>
 #endif
 
 #endif /* _CLOCK_MANAGER_H_ */
