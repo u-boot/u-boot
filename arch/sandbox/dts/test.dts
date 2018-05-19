@@ -27,10 +27,10 @@
 		testfdt3 = "/b-test";
 		testfdt5 = "/some-bus/c-test@5";
 		testfdt8 = "/a-test";
-		fdt_dummy0 = "/translation-test@8000/dev@0,0";
-		fdt_dummy1 = "/translation-test@8000/dev@1,100";
-		fdt_dummy2 = "/translation-test@8000/dev@2,200";
-		fdt_dummy3 = "/translation-test@8000/noxlatebus@3,300/dev@42";
+		fdt-dummy0 = "/translation-test@8000/dev@0,0";
+		fdt-dummy1 = "/translation-test@8000/dev@1,100";
+		fdt-dummy2 = "/translation-test@8000/dev@2,200";
+		fdt-dummy3 = "/translation-test@8000/noxlatebus@3,300/dev@42";
 		usb0 = &usb_0;
 		usb1 = &usb_1;
 		usb2 = &usb_2;

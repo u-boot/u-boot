@@ -425,7 +425,7 @@ static const struct udevice_id fdt_dummy_ids[] = {
 };
 
 UCLASS_DRIVER(fdt_dummy) = {
-	.name		= "fdt_dummy",
+	.name		= "fdt-dummy",
 	.id		= UCLASS_TEST_DUMMY,
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };
