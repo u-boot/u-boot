@@ -988,6 +988,8 @@ int fit_image_get_data_offset(const void *fit, int noffset, int *data_offset);
 int fit_image_get_data_position(const void *fit, int noffset,
 				int *data_position);
 int fit_image_get_data_size(const void *fit, int noffset, int *data_size);
+int fit_image_get_data_and_size(const void *fit, int noffset,
+				const void **data, size_t *size);
 
 int fit_image_hash_get_algo(const void *fit, int noffset, char **algo);
 int fit_image_hash_get_value(const void *fit, int noffset, uint8_t **value,

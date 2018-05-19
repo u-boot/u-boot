@@ -474,7 +474,7 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 	fit_image_get_comp(fit, image_noffset, &comp);
 	printf("%s  Compression:  %s\n", p, genimg_get_comp_name(comp));
 
-	ret = fit_image_get_data(fit, image_noffset, &data, &size);
+	ret = fit_image_get_data_and_size(fit, image_noffset, &data, &size);
 
 #ifndef USE_HOSTCC
 	printf("%s  Data Start:   ", p);
@@ -941,6 +941,54 @@ int fit_image_get_data_size(const void *fit, int noffset, int *data_size)
 }
 
 /**
+ * fit_image_get_data_and_size - get data and its size including
+ *				 both embedded and external data
+ * @fit: pointer to the FIT format image header
+ * @noffset: component image node offset
+ * @data: double pointer to void, will hold data property's data address
+ * @size: pointer to size_t, will hold data property's data size
+ *
+ * fit_image_get_data_and_size() finds data and its size including
+ * both embedded and external data. If the property is found
+ * its data start address and size are returned to the caller.
+ *
+ * returns:
+ *     0, on success
+ *     otherwise, on failure
+ */
+int fit_image_get_data_and_size(const void *fit, int noffset,
+				const void **data, size_t *size)
+{
+	bool external_data = false;
+	int offset;
+	int len;
+	int ret;
+
+	if (!fit_image_get_data_position(fit, noffset, &offset)) {
+		external_data = true;
+	} else if (!fit_image_get_data_offset(fit, noffset, &offset)) {
+		external_data = true;
+		/*
+		 * For FIT with external data, figure out where
+		 * the external images start. This is the base
+		 * for the data-offset properties in each image.
+		 */
+		offset += ((fdt_totalsize(fit) + 3) & ~3);
+	}
+
+	if (external_data) {
+		debug("External Data\n");
+		ret = fit_image_get_data_size(fit, noffset, &len);
+		*data = fit + offset;
+		*size = len;
+	} else {
+		ret = fit_image_get_data(fit, noffset, data, size);
+	}
+
+	return ret;
+}
+
+/**
  * fit_image_hash_get_algo - get hash algorithm name
  * @fit: pointer to the FIT format image header
  * @noffset: hash node offset
@@ -1238,7 +1286,7 @@ int fit_image_verify(const void *fit, int image_noffset)
 	char		*err_msg = "";
 
 	/* Get image data and data length */
-	if (fit_image_get_data(fit, image_noffset, &data, &size)) {
+	if (fit_image_get_data_and_size(fit, image_noffset, &data, &size)) {
 		err_msg = "Can't get image data/size";
 		printf("error!\n%s for '%s' hash node in '%s' image node\n",
 		       err_msg, fit_get_name(fit, noffset, NULL),
@@ -1876,7 +1924,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_CHECK_ALL_OK);
 
 	/* get image data address and length */
-	if (fit_image_get_data(fit, noffset, &buf, &size)) {
+	if (fit_image_get_data_and_size(fit, noffset, &buf, &size)) {
 		printf("Could not find %s subimage data!\n", prop_name);
 		bootstage_error(bootstage_id + BOOTSTAGE_SUB_GET_DATA);
 		return -ENOENT;
