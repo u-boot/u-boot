@@ -19,7 +19,7 @@ config SYS_CONFIG_NAME
 
 choice
 	prompt "State of Run LED"
-	default PDU001_RUN_LED_RED
+	default RUN_LED_RED
 	help
 	  The PDU001 has a bi-color (red/green) LED labeled 'Run' which
 	  can be used to indicate the operating state of the board. By
