@@ -76,8 +76,8 @@ uint32_t fdt_get_max_phandle(const void *fdt)
 int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)
 {
 	FDT_CHECK_HEADER(fdt);
-	*address = fdt64_to_cpu(_fdt_mem_rsv(fdt, n)->address);
-	*size = fdt64_to_cpu(_fdt_mem_rsv(fdt, n)->size);
+	*address = fdt64_to_cpu(fdt_mem_rsv_(fdt, n)->address);
+	*size = fdt64_to_cpu(fdt_mem_rsv_(fdt, n)->size);
 	return 0;
 }
 
@@ -85,7 +85,7 @@ int fdt_num_mem_rsv(const void *fdt)
 {
 	int i = 0;
 
-	while (fdt64_to_cpu(_fdt_mem_rsv(fdt, i)->size) != 0)
+	while (fdt64_to_cpu(fdt_mem_rsv_(fdt, i)->size) != 0)
 		i++;
 	return i;
 }
@@ -211,11 +211,11 @@ int fdt_path_offset(const void *fdt, const char *path)
 
 const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
 {
-	const struct fdt_node_header *nh = _fdt_offset_ptr(fdt, nodeoffset);
+	const struct fdt_node_header *nh = fdt_offset_ptr_(fdt, nodeoffset);
 	int err;
 
 	if (((err = fdt_check_header(fdt)) != 0)
-	    || ((err = _fdt_check_node_offset(fdt, nodeoffset)) < 0))
+	    || ((err = fdt_check_node_offset_(fdt, nodeoffset)) < 0))
 			goto fail;
 
 	if (len)
@@ -233,7 +233,7 @@ int fdt_first_property_offset(const void *fdt, int nodeoffset)
 {
 	int offset;
 
-	if ((offset = _fdt_check_node_offset(fdt, nodeoffset)) < 0)
+	if ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
 		return offset;
 
 	return _nextprop(fdt, offset);
@@ -241,7 +241,7 @@ int fdt_first_property_offset(const void *fdt, int nodeoffset)
 
 int fdt_next_property_offset(const void *fdt, int offset)
 {
-	if ((offset = _fdt_check_prop_offset(fdt, offset)) < 0)
+	if ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
 		return offset;
 
 	return _nextprop(fdt, offset);
@@ -254,13 +254,13 @@ const struct fdt_property *fdt_get_property_by_offset(const void *fdt,
 	int err;
 	const struct fdt_property *prop;
 
-	if ((err = _fdt_check_prop_offset(fdt, offset)) < 0) {
+	if ((err = fdt_check_prop_offset_(fdt, offset)) < 0) {
 		if (lenp)
 			*lenp = err;
 		return NULL;
 	}
 
-	prop = _fdt_offset_ptr(fdt, offset);
+	prop = fdt_offset_ptr_(fdt, offset);
 
 	if (lenp)
 		*lenp = fdt32_to_cpu(prop->len);
