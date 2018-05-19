@@ -209,47 +209,30 @@ $(foreach m, $(notdir $1), \
 	$(addprefix $(obj)/, $(foreach s, $3, $($(m:%$(strip $2)=%$(s)))))))
 endef
 
-ifdef REGENERATE_PARSERS
-
-# GPERF
-# ---------------------------------------------------------------------------
-quiet_cmd_gperf = GPERF $@
-      cmd_gperf = gperf -t --output-file $@ -a -C -E -g -k 1,3,$$ -p -t $<
-
-.PRECIOUS: $(src)/%.hash.c_shipped
-$(src)/%.hash.c_shipped: $(src)/%.gperf
-	$(call cmd,gperf)
-
 # LEX
 # ---------------------------------------------------------------------------
-LEX_PREFIX = $(if $(LEX_PREFIX_${baseprereq}),$(LEX_PREFIX_${baseprereq}),yy)
-
 quiet_cmd_flex = LEX     $@
-      cmd_flex = flex -o$@ -L -P $(LEX_PREFIX) $<
+      cmd_flex = $(LEX) -o$@ -L $<
 
-.PRECIOUS: $(src)/%.lex.c_shipped
-$(src)/%.lex.c_shipped: $(src)/%.l
-	$(call cmd,flex)
+.PRECIOUS: $(obj)/%.lex.c
+$(obj)/%.lex.c: $(src)/%.l FORCE
+	$(call if_changed,flex)
 
 # YACC
 # ---------------------------------------------------------------------------
-YACC_PREFIX = $(if $(YACC_PREFIX_${baseprereq}),$(YACC_PREFIX_${baseprereq}),yy)
-
 quiet_cmd_bison = YACC    $@
-      cmd_bison = bison -o$@ -t -l -p $(YACC_PREFIX) $<
+      cmd_bison = $(YACC) -o$@ -t -l $<
 
-.PRECIOUS: $(src)/%.tab.c_shipped
-$(src)/%.tab.c_shipped: $(src)/%.y
-	$(call cmd,bison)
+.PRECIOUS: $(obj)/%.tab.c
+$(obj)/%.tab.c: $(src)/%.y FORCE
+	$(call if_changed,bison)
 
 quiet_cmd_bison_h = YACC    $@
-      cmd_bison_h = bison -o/dev/null --defines=$@ -t -l -p $(YACC_PREFIX) $<
+      cmd_bison_h = $(YACC) -o/dev/null --defines=$@ -t -l $<
 
-.PRECIOUS: $(src)/%.tab.h_shipped
-$(src)/%.tab.h_shipped: $(src)/%.y
-	$(call cmd,bison_h)
-
-endif
+.PRECIOUS: $(obj)/%.tab.h
+$(obj)/%.tab.h: $(src)/%.y FORCE
+	$(call if_changed,bison_h)
 
 # Shipped files
 # ===========================================================================
