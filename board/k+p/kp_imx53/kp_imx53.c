@@ -23,6 +23,7 @@
 #define PHY_nRST IMX_GPIO_NR(7, 6)
 #define BOOSTER_OFF IMX_GPIO_NR(2, 23)
 #define LCD_BACKLIGHT IMX_GPIO_NR(1, 1)
+#define KEY1 IMX_GPIO_NR(2, 26)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -196,6 +197,17 @@ void board_disable_display(void)
 	gpio_direction_output(LCD_BACKLIGHT, 0);
 }
 
+void board_misc_setup(void)
+{
+	gpio_request(KEY1, "KEY1_GPIO");
+	gpio_direction_input(KEY1);
+
+	if (gpio_get_value(KEY1))
+		env_set("key1", "off");
+	else
+		env_set("key1", "on");
+}
+
 int board_late_init(void)
 {
 	int ret = 0;
@@ -214,6 +226,8 @@ int board_late_init(void)
 
 	show_eeprom();
 	read_board_id();
+
+	board_misc_setup();
 
 	return ret;
 }
