@@ -14,8 +14,8 @@ see if there is a boot.scr file on the first FAT partition of the mmc. If there
 is, it will run the script and boot the kernel from the uImage file also in
 the FAT partition. Otherwise, it will load a kernel and rootfs from the flash.
 The kernel must be stored at address 0x50000 on the flash and have a maximum
-size of 3MiB. The rootfs must be a squasfs image and stored at 0x350000 in the
-flash and have a maximum size of 9.3MiB. The flash starting at 0xCB0000 is
+size of 4MiB. The rootfs must be a squasfs image and stored at 0x450000 in the
+flash and have a maximum size of 10MiB. The flash starting at 0xE50000 is
 reserved for user data.
 
 Writing image to flash

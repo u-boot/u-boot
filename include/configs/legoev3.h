@@ -164,7 +164,7 @@
 	"mmcargs=setenv bootargs mem=${memsize} console=${console} root=/dev/mmcblk0p2 rw rootwait lpj=747520\0" \
 	"mmcboot=bootm ${loadaddr}\0" \
 	"flashargs=setenv bootargs mem=${memsize} initrd=${filesysaddr},${filesyssize} root=/dev/ram0 rw rootfstype=squashfs console=${console} lpj=747520\0" \
-	"flashboot=sf probe 0; sf read ${loadaddr} 0x50000 0x300000; sf read ${filesysaddr} 0x350000 0x960000; bootm ${loadaddr}\0" \
+	"flashboot=sf probe 0; sf read ${loadaddr} 0x50000 0x400000; sf read ${filesysaddr} 0x450000 0xA00000; bootm ${loadaddr}\0" \
 	"loadimage=fatload mmc 0 ${loadaddr} uImage\0" \
 	"loadbootscr=fatload mmc 0 ${bootscraddr} boot.scr\0" \
 	"bootscript=source ${bootscraddr}\0" \
