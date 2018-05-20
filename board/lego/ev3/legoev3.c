@@ -132,6 +132,11 @@ void get_board_serial(struct tag_serialnr *serialnr)
 
 int board_early_init_f(void)
 {
+	/* enable the console UART */
+	writel((DAVINCI_UART_PWREMU_MGMT_FREE | DAVINCI_UART_PWREMU_MGMT_URRST |
+		DAVINCI_UART_PWREMU_MGMT_UTRST),
+	       &davinci_uart1_ctrl_regs->pwremu_mgmt);
+
 	/*
 	 * Power on required peripherals
 	 * ARM does not have access by default to PSC0 and PSC1
@@ -165,11 +170,6 @@ int board_init(void)
 	/* configure pinmux settings */
 	if (davinci_configure_pin_mux_items(pinmuxes, ARRAY_SIZE(pinmuxes)))
 		return 1;
-
-	/* enable the console UART */
-	writel((DAVINCI_UART_PWREMU_MGMT_FREE | DAVINCI_UART_PWREMU_MGMT_URRST |
-		DAVINCI_UART_PWREMU_MGMT_UTRST),
-	       &davinci_uart1_ctrl_regs->pwremu_mgmt);
 
 	return 0;
 }
