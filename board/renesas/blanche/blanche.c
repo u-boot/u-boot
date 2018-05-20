@@ -7,114 +7,40 @@
  */
 
 #include <common.h>
-#include <malloc.h>
-#include <netdev.h>
+#include <asm/arch/mmc.h>
+#include <asm/arch/rcar-mstp.h>
+#include <asm/arch/rmobile.h>
+#include <asm/arch/sh_sdhi.h>
+#include <asm/arch/sys_proto.h>
+#include <asm/gpio.h>
+#include <asm/io.h>
+#include <asm/mach-types.h>
+#include <asm/processor.h>
 #include <dm.h>
 #include <dm/platform_data/serial_sh.h>
 #include <environment.h>
-#include <asm/processor.h>
-#include <asm/mach-types.h>
-#include <asm/io.h>
-#include <linux/errno.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/gpio.h>
-#include <asm/arch/rmobile.h>
-#include <asm/arch/rcar-mstp.h>
-#include <asm/arch/mmc.h>
-#include <asm/arch/sh_sdhi.h>
-#include <miiphy.h>
 #include <i2c.h>
+#include <linux/errno.h>
+#include <malloc.h>
+#include <miiphy.h>
 #include <mmc.h>
+#include <netdev.h>
 #include "qos.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct pin_db {
-	u32	addr;	/* register address */
-	u32	mask;	/* mask value */
-	u32	val;	/* setting value */
-};
-
-#define	PMMR		0xE6060000
-#define	GPSR0		0xE6060004
-#define	GPSR1		0xE6060008
-#define	GPSR4		0xE6060014
-#define	GPSR5		0xE6060018
-#define	GPSR6		0xE606001C
-#define	GPSR7		0xE6060020
-#define	GPSR8		0xE6060024
-#define	GPSR9		0xE6060028
-#define	GPSR10		0xE606002C
-#define	GPSR11		0xE6060030
-#define	IPSR6		0xE6060058
-#define	PUPR2		0xE6060108
-#define	PUPR3		0xE606010C
-#define	PUPR4		0xE6060110
-#define	PUPR5		0xE6060114
-#define	PUPR7		0xE606011C
-#define	PUPR9		0xE6060124
-#define	PUPR10		0xE6060128
-#define	PUPR11		0xE606012C
-
 #define	CPG_PLL1CR	0xE6150028
 #define	CPG_PLL3CR	0xE61500DC
 
-#define	SetREG(x) \
-	writel((readl((x)->addr) & ~((x)->mask)) | ((x)->val), (x)->addr)
+#define TMU0_MSTP125	BIT(25)
+#define QSPI_MSTP917	BIT(17)
 
-#define	SetGuardREG(x)				\
-{ \
-	u32	val; \
-	val = (readl((x)->addr) & ~((x)->mask)) | ((x)->val); \
-	writel(~val, PMMR); \
-	writel(val, (x)->addr); \
-}
-
-struct pin_db	pin_guard[] = {
-	{ GPSR0,	0xFFFFFFFF,	0x0BFFFFFF },
-	{ GPSR1,	0xFFFFFFFF,	0x002FFFFF },
-	{ GPSR4,	0xFFFFFFFF,	0x00000FFF },
-	{ GPSR5,	0xFFFFFFFF,	0x00010FFF },
-	{ GPSR6,	0xFFFFFFFF,	0x00010FFF },
-	{ GPSR7,	0xFFFFFFFF,	0x00010FFF },
-	{ GPSR8,	0xFFFFFFFF,	0x00010FFF },
-	{ GPSR9,	0xFFFFFFFF,	0x00010FFF },
-	{ GPSR10,	0xFFFFFFFF,	0x04006000 },
-	{ GPSR11,	0xFFFFFFFF,	0x303FEFE0 },
-	{ IPSR6,	0xFFFFFFFF,	0x0002000E },
+struct reg_config {
+	u16	off;
+	u32	val;
 };
 
-struct pin_db	pin_tbl[] = {
-	{ PUPR2,	0xFFFFFFFF,	0x00000000 },
-	{ PUPR3,	0xFFFFFFFF,	0x0803FF40 },
-	{ PUPR4,	0xFFFFFFFF,	0x0000FFFF },
-	{ PUPR5,	0xFFFFFFFF,	0x00010FFF },
-	{ PUPR7,	0xFFFFFFFF,	0x0001AFFF },
-	{ PUPR9,	0xFFFFFFFF,	0x0001CFFF },
-	{ PUPR10,	0xFFFFFFFF,	0xC0438001 },
-	{ PUPR11,	0xFFFFFFFF,	0x0FC00007 },
-};
-
-void pin_init(void)
-{
-	struct pin_db	*db;
-
-	for (db = pin_guard; db < &pin_guard[sizeof(pin_guard)/sizeof(struct pin_db)]; db++) {
-		SetGuardREG(db);
-	}
-	for (db = pin_tbl; db < &pin_tbl[sizeof(pin_tbl) /sizeof(struct pin_db)]; db++) {
-		SetREG(db);
-	}
-}
-
-#define s_init_wait(cnt) \
-		({	\
-			volatile u32 i = 0x10000 * cnt;	\
-			while (i > 0)	\
-				i--;	\
-		})
-
-void s_init(void)
+static void blanche_init_sys(void)
 {
 	struct rcar_rwdt *rwdt = (struct rcar_rwdt *)RWDT_BASE;
 	struct rcar_swdt *swdt = (struct rcar_swdt *)SWDT_BASE;
@@ -129,299 +55,277 @@ void s_init(void)
 	/* Watchdog init */
 	writel(0xA5A5A500, &rwdt->rwtcsra);
 	writel(0xA5A5A500, &swdt->swtcsra);
+}
 
-	/* QoS(Quality-of-Service) Init */
-	qos_init();
+static void blanche_init_pfc(void)
+{
+	static const struct reg_config pfc_with_unlock[] = {
+		{ 0x0004, 0x0bffffff },
+		{ 0x0008, 0x002fffff },
+		{ 0x0014, 0x00000fff },
+		{ 0x0018, 0x00010fff },
+		{ 0x001c, 0x00010fff },
+		{ 0x0020, 0x00010fff },
+		{ 0x0024, 0x00010fff },
+		{ 0x0028, 0x00010fff },
+		{ 0x002c, 0x04006000 },
+		{ 0x0030, 0x303fefe0 },
+		{ 0x0058, 0x0002000e },
+	};
 
-	/* SCIF Init */
-	pin_init();
+	static const struct reg_config pfc_without_unlock[] = {
+		{ 0x0108, 0x00000000 },
+		{ 0x010c, 0x0803FF40 },
+		{ 0x0110, 0x0000FFFF },
+		{ 0x0114, 0x00010FFF },
+		{ 0x011c, 0x0001AFFF },
+		{ 0x0124, 0x0001CFFF },
+		{ 0x0128, 0xC0438001 },
+		{ 0x012c, 0x0FC00007 },
+	};
+
+	static const u32 pfc_base = 0xe6060000;
+
+	unsigned int i;
+
+	for (i = 0; i < ARRAY_SIZE(pfc_with_unlock); i++) {
+		writel(~pfc_with_unlock[i].val, pfc_base);
+		writel(pfc_with_unlock[i].val,
+		       pfc_base | pfc_with_unlock[i].off);
+	}
+
+	for (i = 0; i < ARRAY_SIZE(pfc_without_unlock); i++)
+		writel(pfc_without_unlock[i].val,
+		       pfc_base | pfc_without_unlock[i].off);
+}
+
+static void blanche_init_lbsc(void)
+{
+	static const struct reg_config lbsc_config[] = {
+		{ 0x00, 0x00000020 },
+		{ 0x08, 0x00002020 },
+		{ 0x30, 0x2a103320 },
+		{ 0x38, 0x19102110 },
+	};
+
+	static const u32 lbsc_base = 0xfec00200;
+
+	unsigned int i;
+
+	for (i = 0; i < ARRAY_SIZE(lbsc_config); i++) {
+		writel(lbsc_config[i].val,
+		       lbsc_base | lbsc_config[i].off);
+		writel(lbsc_config[i].val,
+		       lbsc_base | (lbsc_config[i].off + 4));
+	}
+}
 
 #if defined(CONFIG_MTD_NOR_FLASH)
-	struct rcar_lbsc *lbsc = (struct rcar_lbsc *)LBSC_BASE;
-	struct rcar_dbsc3 *dbsc3_0 = (struct rcar_dbsc3 *)DBSC3_0_BASE;
+static void dbsc_wait(u16 reg)
+{
+	static const u32 dbsc3_0_base = DBSC3_0_BASE;
 
-	/* LBSC */
-	writel(0x00000020, &lbsc->cs0ctrl);
-	writel(0x00000020, &lbsc->cs1ctrl);
-	writel(0x00002020, &lbsc->ecs0ctrl);
-	writel(0x00002020, &lbsc->ecs1ctrl);
+	while (!(readl(dbsc3_0_base + reg) & BIT(0)))
+		;
+}
 
-	writel(0x2A103320, &lbsc->cswcr0);
-	writel(0x2A103320, &lbsc->cswcr1);
-	writel(0x19102110, &lbsc->ecswcr0);
-	writel(0x19102110, &lbsc->ecswcr1);
+static void blanche_init_dbsc(void)
+{
+	static const struct reg_config dbsc_config1[] = {
+		{ 0x0280, 0x0000a55a },
+		{ 0x0018, 0x21000000 },
+		{ 0x0018, 0x11000000 },
+		{ 0x0018, 0x10000000 },
+		{ 0x0290, 0x00000001 },
+		{ 0x02a0, 0x80000000 },
+		{ 0x0290, 0x00000004 },
+	};
 
-	/* DBSC3 */
-	s_init_wait(10);
+	static const struct reg_config dbsc_config2[] = {
+		{ 0x0290, 0x00000006 },
+		{ 0x02a0, 0x0001c000 },
+	};
 
-	writel(0x0000A55A, &dbsc3_0->dbpdlck);
+	static const struct reg_config dbsc_config4[] = {
+		{ 0x0290, 0x0000000f },
+		{ 0x02a0, 0x00181ee4 },
+		{ 0x0290, 0x00000010 },
+		{ 0x02a0, 0xf00464db },
+		{ 0x0290, 0x00000061 },
+		{ 0x02a0, 0x0000008d },
+		{ 0x0290, 0x00000001 },
+		{ 0x02a0, 0x00000073 },
+		{ 0x0020, 0x00000007 },
+		{ 0x0024, 0x0f030a02 },
+		{ 0x0030, 0x00000001 },
+		{ 0x00b0, 0x00000000 },
+		{ 0x0040, 0x0000000b },
+		{ 0x0044, 0x00000008 },
+		{ 0x0048, 0x00000000 },
+		{ 0x0050, 0x0000000b },
+		{ 0x0054, 0x000c000b },
+		{ 0x0058, 0x00000027 },
+		{ 0x005c, 0x0000001c },
+		{ 0x0060, 0x00000006 },
+		{ 0x0064, 0x00000020 },
+		{ 0x0068, 0x00000008 },
+		{ 0x006c, 0x0000000c },
+		{ 0x0070, 0x00000009 },
+		{ 0x0074, 0x00000012 },
+		{ 0x0078, 0x000000d0 },
+		{ 0x007c, 0x00140005 },
+		{ 0x0080, 0x00050004 },
+		{ 0x0084, 0x70233005 },
+		{ 0x0088, 0x000c0000 },
+		{ 0x008c, 0x00000300 },
+		{ 0x0090, 0x00000040 },
+		{ 0x0100, 0x00000001 },
+		{ 0x00c0, 0x00020001 },
+		{ 0x00c8, 0x20082004 },
+		{ 0x0380, 0x00020002 },
+		{ 0x0390, 0x0000001f },
+	};
 
-	writel(0x21000000, &dbsc3_0->dbcmd);		/* opc=RstH (RESET => H) */
-	writel(0x11000000, &dbsc3_0->dbcmd);		/* opc=PDXt(CKE=H) */
-	writel(0x10000000, &dbsc3_0->dbcmd);		/* opc=PDEn(CKE=L) */
+	static const struct reg_config dbsc_config5[] = {
+		{ 0x0244, 0x00000011 },
+		{ 0x0290, 0x00000003 },
+		{ 0x02a0, 0x0300c4e1 },
+		{ 0x0290, 0x00000023 },
+		{ 0x02a0, 0x00fcdb60 },
+		{ 0x0290, 0x00000011 },
+		{ 0x02a0, 0x1000040b },
+		{ 0x0290, 0x00000012 },
+		{ 0x02a0, 0x9d9cbb66 },
+		{ 0x0290, 0x00000013 },
+		{ 0x02a0, 0x1a868400 },
+		{ 0x0290, 0x00000014 },
+		{ 0x02a0, 0x300214d8 },
+		{ 0x0290, 0x00000015 },
+		{ 0x02a0, 0x00000d70 },
+		{ 0x0290, 0x00000016 },
+		{ 0x02a0, 0x00000004 },
+		{ 0x0290, 0x00000017 },
+		{ 0x02a0, 0x00000018 },
+		{ 0x0290, 0x0000001a },
+		{ 0x02a0, 0x910035c7 },
+		{ 0x0290, 0x00000004 },
+	};
 
-	/* Stop Auto-Calibration */
-	writel(0x00000001, &dbsc3_0->dbpdrga);
-	writel(0x80000000, &dbsc3_0->dbpdrgd);
+	static const struct reg_config dbsc_config6[] = {
+		{ 0x0290, 0x00000001 },
+		{ 0x02a0, 0x00000181 },
+		{ 0x0018, 0x11000000 },
+		{ 0x0290, 0x00000004 },
+	};
 
-	writel(0x00000004, &dbsc3_0->dbpdrga);
-	while ((readl(&dbsc3_0->dbpdrgd) & 0x00000001) != 0x00000001);
+	static const struct reg_config dbsc_config7[] = {
+		{ 0x0290, 0x00000001 },
+		{ 0x02a0, 0x0000fe01 },
+		{ 0x0304, 0x00000000 },
+		{ 0x00f4, 0x01004c20 },
+		{ 0x00f8, 0x014000aa },
+		{ 0x00e0, 0x00000140 },
+		{ 0x00e4, 0x00081860 },
+		{ 0x00e8, 0x00010000 },
+		{ 0x0290, 0x00000004 },
+	};
 
-	/* PLLCR: PLL Control Register */
-	writel(0x00000006, &dbsc3_0->dbpdrga);
-	writel(0x0001C000, &dbsc3_0->dbpdrgd);	// > DDR1440
+	static const struct reg_config dbsc_config8[] = {
+		{ 0x0014, 0x00000001 },
+		{ 0x0010, 0x00000001 },
+		{ 0x0280, 0x00000000 },
+	};
 
-	/* DXCCR: DATX8 Common Configuration Register */
-	writel(0x0000000F, &dbsc3_0->dbpdrga);
-	writel(0x00181EE4, &dbsc3_0->dbpdrgd);
+	static const u32 dbsc3_0_base = DBSC3_0_BASE;
+	unsigned int i;
 
-	/* DSGCR	:DDR System General Configuration Register */
-	writel(0x00000010, &dbsc3_0->dbpdrga);
-	writel(0xF00464DB, &dbsc3_0->dbpdrgd);
+	for (i = 0; i < ARRAY_SIZE(dbsc_config1); i++)
+		writel(dbsc_config1[i].val, dbsc3_0_base | dbsc_config1[i].off);
 
-	writel(0x00000061, &dbsc3_0->dbpdrga);
-	writel(0x0000008D, &dbsc3_0->dbpdrgd);
+	dbsc_wait(0x2a0);
 
-	/* Re-Execute ZQ calibration */
-	writel(0x00000001, &dbsc3_0->dbpdrga);
-	writel(0x00000073, &dbsc3_0->dbpdrgd);
+	for (i = 0; i < ARRAY_SIZE(dbsc_config2); i++)
+		writel(dbsc_config2[i].val, dbsc3_0_base | dbsc_config2[i].off);
 
-	writel(0x00000007, &dbsc3_0->dbkind);
-	writel(0x0F030A02, &dbsc3_0->dbconf0);
-	writel(0x00000001, &dbsc3_0->dbphytype);
-	writel(0x00000000, &dbsc3_0->dbbl);
+	for (i = 0; i < ARRAY_SIZE(dbsc_config4); i++)
+		writel(dbsc_config4[i].val, dbsc3_0_base | dbsc_config4[i].off);
 
-	writel(0x0000000B, &dbsc3_0->dbtr0);	// tCL=11
-	writel(0x00000008, &dbsc3_0->dbtr1);	// tCWL=8
-	writel(0x00000000, &dbsc3_0->dbtr2);	// tAL=0
-	writel(0x0000000B, &dbsc3_0->dbtr3);	// tRCD=11
-	writel(0x000C000B, &dbsc3_0->dbtr4);	// tRPA=12,tRP=11
-	writel(0x00000027, &dbsc3_0->dbtr5);	// tRC = 39
-	writel(0x0000001C, &dbsc3_0->dbtr6);	// tRAS = 28
-	writel(0x00000006, &dbsc3_0->dbtr7);	// tRRD = 6
-	writel(0x00000020, &dbsc3_0->dbtr8);	// tRFAW = 32
-	writel(0x00000008, &dbsc3_0->dbtr9);	// tRDPR = 8
-	writel(0x0000000C, &dbsc3_0->dbtr10);	// tWR = 12
-	writel(0x00000009, &dbsc3_0->dbtr11);	// tRDWR = 9
-	writel(0x00000012, &dbsc3_0->dbtr12);	// tWRRD = 18
-	writel(0x000000D0, &dbsc3_0->dbtr13);	// tRFC = 208
-	writel(0x00140005, &dbsc3_0->dbtr14);
-	writel(0x00050004, &dbsc3_0->dbtr15);
-	writel(0x70233005, &dbsc3_0->dbtr16);		/* DQL = 35, WDQL = 5 */
-	writel(0x000C0000, &dbsc3_0->dbtr17);
-	writel(0x00000300, &dbsc3_0->dbtr18);
-	writel(0x00000040, &dbsc3_0->dbtr19);
-	writel(0x00000001, &dbsc3_0->dbrnk0);
-	writel(0x00020001, &dbsc3_0->dbadj0);
-	writel(0x20082004, &dbsc3_0->dbadj2);		/* blanche QoS rev0.1 */
-	writel(0x00020002, &dbsc3_0->dbwt0cnf0);	/* 1600 */
-	writel(0x0000001F, &dbsc3_0->dbwt0cnf4);
+	dbsc_wait(0x240);
 
-	while ((readl(&dbsc3_0->dbdfistat) & 0x00000001) != 0x00000001);
-	writel(0x00000011, &dbsc3_0->dbdficnt);
+	for (i = 0; i < ARRAY_SIZE(dbsc_config5); i++)
+		writel(dbsc_config5[i].val, dbsc3_0_base | dbsc_config5[i].off);
 
-	/* PGCR1	:PHY General Configuration Register 1 */
-	writel(0x00000003, &dbsc3_0->dbpdrga);
-	writel(0x0300C4E1, &dbsc3_0->dbpdrgd);		/* DDR3 */
+	dbsc_wait(0x2a0);
 
-	/* PGCR2: PHY General Configuration Registers 2 */
-	writel(0x00000023, &dbsc3_0->dbpdrga);
-	writel(0x00FCDB60, &dbsc3_0->dbpdrgd);
+	for (i = 0; i < ARRAY_SIZE(dbsc_config6); i++)
+		writel(dbsc_config6[i].val, dbsc3_0_base | dbsc_config6[i].off);
 
-	writel(0x00000011, &dbsc3_0->dbpdrga);
-	writel(0x1000040B, &dbsc3_0->dbpdrgd);
+	dbsc_wait(0x2a0);
 
-	/* DTPR0	:DRAM Timing Parameters Register 0 */
-	writel(0x00000012, &dbsc3_0->dbpdrga);
-	writel(0x9D9CBB66, &dbsc3_0->dbpdrgd);
+	for (i = 0; i < ARRAY_SIZE(dbsc_config7); i++)
+		writel(dbsc_config7[i].val, dbsc3_0_base | dbsc_config7[i].off);
 
-	/* DTPR1	:DRAM Timing Parameters Register 1 */
-	writel(0x00000013, &dbsc3_0->dbpdrga);
-	writel(0x1A868400, &dbsc3_0->dbpdrgd);
+	dbsc_wait(0x2a0);
 
-	/* DTPR2	::DRAM Timing Parameters Register 2 */
-	writel(0x00000014, &dbsc3_0->dbpdrga);
-	writel(0x300214D8, &dbsc3_0->dbpdrgd);
-
-	/* MR0	:Mode Register 0 */
-	writel(0x00000015, &dbsc3_0->dbpdrga);
-	writel(0x00000D70, &dbsc3_0->dbpdrgd);
-
-	/* MR1	:Mode Register 1 */
-	writel(0x00000016, &dbsc3_0->dbpdrga);
-	writel(0x00000004, &dbsc3_0->dbpdrgd);	/* DRAM Drv 40ohm */
-
-	/* MR2	:Mode Register 2 */
-	writel(0x00000017, &dbsc3_0->dbpdrga);
-	writel(0x00000018, &dbsc3_0->dbpdrgd);	/* CWL=8 */
-
-	/* VREF(ZQCAL) */
-	writel(0x0000001A, &dbsc3_0->dbpdrga);
-	writel(0x910035C7, &dbsc3_0->dbpdrgd);
-
-	/* PGSR0	:PHY General Status Registers 0 */
-	writel(0x00000004, &dbsc3_0->dbpdrga);
-	while ((readl(&dbsc3_0->dbpdrgd) & 0x00000001) != 0x00000001);
-
-	/* DRAM Init (set MRx etc) */
-	writel(0x00000001, &dbsc3_0->dbpdrga);
-	writel(0x00000181, &dbsc3_0->dbpdrgd);
-
-	/* CKE  = H */
-	writel(0x11000000, &dbsc3_0->dbcmd);		/* opc=PDXt(CKE=H) */
-
-	/* PGSR0	:PHY General Status Registers 0 */
-	writel(0x00000004, &dbsc3_0->dbpdrga);
-	while ((readl(&dbsc3_0->dbpdrgd) & 0x00000001) != 0x00000001);
-
-	/* RAM ACC Training */
-	writel(0x00000001, &dbsc3_0->dbpdrga);
-	writel(0x0000FE01, &dbsc3_0->dbpdrgd);
-
-	/* Bus control 0 */
-	writel(0x00000000, &dbsc3_0->dbbs0cnt1);
-	/* DDR3 Calibration set */
-	writel(0x01004C20, &dbsc3_0->dbcalcnf);
-	/* DDR3 Calibration timing */
-	writel(0x014000AA, &dbsc3_0->dbcaltr);
-	/* Refresh */
-	writel(0x00000140, &dbsc3_0->dbrfcnf0);
-	writel(0x00081860, &dbsc3_0->dbrfcnf1);
-	writel(0x00010000, &dbsc3_0->dbrfcnf2);
-
-	/* PGSR0	:PHY General Status Registers 0 */
-	writel(0x00000004, &dbsc3_0->dbpdrga);
-	while ((readl(&dbsc3_0->dbpdrgd) & 0x00000001) != 0x00000001);
-
-	/* Enable Auto-Refresh */
-	writel(0x00000001, &dbsc3_0->dbrfen);
-	/* Permit DDR-Access */
-	writel(0x00000001, &dbsc3_0->dbacen);
-
-	/* This locks the access to the PHY unit registers */
-	writel(0x00000000, &dbsc3_0->dbpdlck);
-#endif /* CONFIG_MTD_NOR_FLASH */
+	for (i = 0; i < ARRAY_SIZE(dbsc_config8); i++)
+		writel(dbsc_config8[i].val, dbsc3_0_base | dbsc_config8[i].off);
 
 }
 
-#define TMU0_MSTP125	(1 << 25)
-#define SCIF0_MSTP721	(1 << 21)
-#define SDHI0_MSTP314	(1 << 14)
-#define QSPI_MSTP917	(1 << 17)
+static void s_init_wait(volatile unsigned int cnt)
+{
+	volatile u32 i = cnt * 0x10000;
+
+	while (i-- > 0)
+		;
+}
+#endif
+
+void s_init(void)
+{
+	blanche_init_sys();
+	qos_init();
+	blanche_init_pfc();
+	blanche_init_lbsc();
+#if defined(CONFIG_MTD_NOR_FLASH)
+	s_init_wait(10);
+	blanche_init_dbsc();
+#endif /* CONFIG_MTD_NOR_FLASH */
+}
 
 int board_early_init_f(void)
 {
 	/* TMU0 */
 	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125);
-	/* SCIF0 */
-	mstp_clrbits_le32(MSTPSR7, SMSTPCR7, SCIF0_MSTP721);
-	/* SDHI0 */
-	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SDHI0_MSTP314);
 	/* QSPI */
 	mstp_clrbits_le32(MSTPSR9, SMSTPCR9, QSPI_MSTP917);
 
 	return 0;
 }
 
-DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
-	/* Init PFC controller */
-	r8a7792_pinmux_init();
-
-	gpio_request(GPIO_FN_D0, NULL);
-	gpio_request(GPIO_FN_D1, NULL);
-	gpio_request(GPIO_FN_D2, NULL);
-	gpio_request(GPIO_FN_D3, NULL);
-	gpio_request(GPIO_FN_D4, NULL);
-	gpio_request(GPIO_FN_D5, NULL);
-	gpio_request(GPIO_FN_D6, NULL);
-	gpio_request(GPIO_FN_D7, NULL);
-	gpio_request(GPIO_FN_D8, NULL);
-	gpio_request(GPIO_FN_D9, NULL);
-	gpio_request(GPIO_FN_D10, NULL);
-	gpio_request(GPIO_FN_D11, NULL);
-	gpio_request(GPIO_FN_D12, NULL);
-	gpio_request(GPIO_FN_D13, NULL);
-	gpio_request(GPIO_FN_D14, NULL);
-	gpio_request(GPIO_FN_D15, NULL);
-	gpio_request(GPIO_FN_A0, NULL);
-	gpio_request(GPIO_FN_A1, NULL);
-	gpio_request(GPIO_FN_A2, NULL);
-	gpio_request(GPIO_FN_A3, NULL);
-	gpio_request(GPIO_FN_A4, NULL);
-	gpio_request(GPIO_FN_A5, NULL);
-	gpio_request(GPIO_FN_A6, NULL);
-	gpio_request(GPIO_FN_A7, NULL);
-	gpio_request(GPIO_FN_A8, NULL);
-	gpio_request(GPIO_FN_A9, NULL);
-	gpio_request(GPIO_FN_A10, NULL);
-	gpio_request(GPIO_FN_A11, NULL);
-	gpio_request(GPIO_FN_A12, NULL);
-	gpio_request(GPIO_FN_A13, NULL);
-	gpio_request(GPIO_FN_A14, NULL);
-	gpio_request(GPIO_FN_A15, NULL);
-	gpio_request(GPIO_FN_A16, NULL);
-	gpio_request(GPIO_FN_A17, NULL);
-	gpio_request(GPIO_FN_A18, NULL);
-	gpio_request(GPIO_FN_A19, NULL);
-#if !defined(CONFIG_MTD_NOR_FLASH)
-	gpio_request(GPIO_FN_MOSI_IO0, NULL);
-	gpio_request(GPIO_FN_MISO_IO1, NULL);
-	gpio_request(GPIO_FN_IO2, NULL);
-	gpio_request(GPIO_FN_IO3, NULL);
-	gpio_request(GPIO_FN_SPCLK, NULL);
-	gpio_request(GPIO_FN_SSL, NULL);
-#else	/* CONFIG_MTD_NOR_FLASH */
-	gpio_request(GPIO_FN_A20, NULL);
-	gpio_request(GPIO_FN_A21, NULL);
-	gpio_request(GPIO_FN_A22, NULL);
-	gpio_request(GPIO_FN_A23, NULL);
-	gpio_request(GPIO_FN_A24, NULL);
-	gpio_request(GPIO_FN_A25, NULL);
-#endif	/* CONFIG_MTD_NOR_FLASH */
-
-	gpio_request(GPIO_FN_CS1_A26, NULL);
-	gpio_request(GPIO_FN_EX_CS0, NULL);
-	gpio_request(GPIO_FN_EX_CS1, NULL);
-	gpio_request(GPIO_FN_BS, NULL);
-	gpio_request(GPIO_FN_RD, NULL);
-	gpio_request(GPIO_FN_WE0, NULL);
-	gpio_request(GPIO_FN_WE1, NULL);
-	gpio_request(GPIO_FN_EX_WAIT0, NULL);
-	gpio_request(GPIO_FN_IRQ0, NULL);
-	gpio_request(GPIO_FN_IRQ2, NULL);
-	gpio_request(GPIO_FN_IRQ3, NULL);
-	gpio_request(GPIO_FN_CS0, NULL);
-
-	/* Init timer */
-	timer_init();
-
 	return 0;
 }
 
-/*
- Added for BLANCHE(R-CarV2H board)
-*/
+/* Added for BLANCHE(R-CarV2H board) */
 int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
 
 #ifdef CONFIG_SMC911X
-#define STR_ENV_ETHADDR	"ethaddr"
-
 	struct eth_device *dev;
 	uchar eth_addr[6];
 
 	rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
 
-	if (!eth_env_get_enetaddr(STR_ENV_ETHADDR, eth_addr)) {
+	if (!eth_env_get_enetaddr("ethaddr", eth_addr)) {
 		dev = eth_get_dev_by_index(0);
 		if (dev) {
-			eth_env_set_enetaddr(STR_ENV_ETHADDR, dev->enetaddr);
+			eth_env_set_enetaddr("ethaddr", dev->enetaddr);
 		} else {
 			printf("blanche: Couldn't get eth device\n");
 			rc = -1;
@@ -433,36 +337,17 @@ int board_eth_init(bd_t *bis)
 	return rc;
 }
 
-int board_mmc_init(bd_t *bis)
-{
-	int ret = -ENODEV;
-
-#ifdef CONFIG_SH_SDHI
-	gpio_request(GPIO_FN_SD0_DAT0, NULL);
-	gpio_request(GPIO_FN_SD0_DAT1, NULL);
-	gpio_request(GPIO_FN_SD0_DAT2, NULL);
-	gpio_request(GPIO_FN_SD0_DAT3, NULL);
-	gpio_request(GPIO_FN_SD0_CLK, NULL);
-	gpio_request(GPIO_FN_SD0_CMD, NULL);
-	gpio_request(GPIO_FN_SD0_CD, NULL);
-
-	gpio_request(GPIO_GP_11_12, NULL);
-	gpio_direction_output(GPIO_GP_11_12, 1);	/* power on */
-
-
-	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI0_BASE, 0,
-			   SH_SDHI_QUIRK_16BIT_BUF);
-
-	if (ret)
-		return ret;
-#endif
-	return ret;
-}
-
 int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+	if (fdtdec_setup_memory_size() != 0)
+		return -EINVAL;
+
+	return 0;
+}
+
+int dram_init_banksize(void)
+{
+	fdtdec_setup_memory_banksize();
 
 	return 0;
 }
@@ -470,15 +355,3 @@ int dram_init(void)
 void reset_cpu(ulong addr)
 {
 }
-
-static const struct sh_serial_platdata serial_platdata = {
-	.base = SCIF0_BASE,
-	.type = PORT_SCIF,
-	.clk = 14745600,
-	.clk_mode = EXT_CLK,
-};
-
-U_BOOT_DEVICE(blanche_serials) = {
-	.name = "serial_sh",
-	.platdata = &serial_platdata,
-};

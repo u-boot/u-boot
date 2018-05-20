@@ -41,6 +41,7 @@ config TARGET_BLANCHE
 	bool "Blanche board"
 	select DM
 	select DM_SERIAL
+	select USE_TINY_PRINTF
 
 config TARGET_GOSE
 	bool "Gose board"
