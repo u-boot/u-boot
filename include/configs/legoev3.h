@@ -43,7 +43,6 @@
 	DAVINCI_SYSCFG_SUSPSRC_TIMER0 |		\
 	DAVINCI_SYSCFG_SUSPSRC_SPI0 |		\
 	DAVINCI_SYSCFG_SUSPSRC_UART1 |		\
-	DAVINCI_SYSCFG_SUSPSRC_EMAC |		\
 	DAVINCI_SYSCFG_SUSPSRC_I2C)
 
 /*
@@ -152,7 +151,6 @@
 		"run flashboot; " \
 	"fi"
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"hostname=EV3\0" \
 	"memsize=64M\0" \
 	"filesyssize=10M\0" \
 	"verify=n\0" \

@@ -14,8 +14,6 @@
 
 #include <common.h>
 #include <i2c.h>
-#include <net.h>
-#include <netdev.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/arch/hardware.h>
@@ -162,7 +160,7 @@ int board_init(void)
 
 	/* setup the SUSPSRC for ARM to control emulation suspend */
 	writel(readl(&davinci_syscfg_regs->suspsrc) &
-	       ~(DAVINCI_SYSCFG_SUSPSRC_EMAC | DAVINCI_SYSCFG_SUSPSRC_I2C |
+	       ~(DAVINCI_SYSCFG_SUSPSRC_I2C |
 		 DAVINCI_SYSCFG_SUSPSRC_SPI0 | DAVINCI_SYSCFG_SUSPSRC_TIMER0 |
 		 DAVINCI_SYSCFG_SUSPSRC_UART1),
 	       &davinci_syscfg_regs->suspsrc);
