@@ -22,6 +22,7 @@
 #define VBUS_PWR_EN IMX_GPIO_NR(7, 8)
 #define PHY_nRST IMX_GPIO_NR(7, 6)
 #define BOOSTER_OFF IMX_GPIO_NR(2, 23)
+#define LCD_BACKLIGHT IMX_GPIO_NR(1, 1)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -189,10 +190,17 @@ void eth_phy_reset(void)
 	udelay(50);
 }
 
+void board_disable_display(void)
+{
+	gpio_request(LCD_BACKLIGHT, "LCD_BACKLIGHT");
+	gpio_direction_output(LCD_BACKLIGHT, 0);
+}
+
 int board_late_init(void)
 {
 	int ret = 0;
 
+	board_disable_display();
 	setup_ups();
 
 	if (!power_init())
