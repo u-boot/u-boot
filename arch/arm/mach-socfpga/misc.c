@@ -22,8 +22,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_SYS_L2_PL310
 static const struct pl310_regs *const pl310 =
 	(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
+#endif
 
 struct bsel bsel_str[] = {
 	{ "rsvd", "Reserved", },
@@ -52,6 +54,7 @@ void enable_caches(void)
 #endif
 }
 
+#ifdef CONFIG_SYS_L2_PL310
 void v7_outer_cache_enable(void)
 {
 	/* Disable the L2 cache */
@@ -72,6 +75,7 @@ void v7_outer_cache_disable(void)
 	/* Disable the L2 cache */
 	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
 }
+#endif
 
 #if defined(CONFIG_SYS_CONSOLE_IS_IN_ENV) && \
 defined(CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE)
@@ -135,3 +139,68 @@ int arch_cpu_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_ETH_DESIGNWARE
+static int dwmac_phymode_to_modereg(const char *phymode, u32 *modereg)
+{
+	if (!phymode)
+		return -EINVAL;
+
+	if (!strcmp(phymode, "mii") || !strcmp(phymode, "gmii")) {
+		*modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_GMII_MII;
+		return 0;
+	}
+
+	if (!strcmp(phymode, "rgmii")) {
+		*modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RGMII;
+		return 0;
+	}
+
+	if (!strcmp(phymode, "rmii")) {
+		*modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RMII;
+		return 0;
+	}
+
+	return -EINVAL;
+}
+
+int socfpga_eth_reset_common(void (*resetfn)(const u8 of_reset_id,
+					     const u8 phymode))
+{
+	const void *fdt = gd->fdt_blob;
+	struct fdtdec_phandle_args args;
+	const char *phy_mode;
+	u32 phy_modereg;
+	int nodes[2];	/* Max. two GMACs */
+	int ret, count;
+	int i, node;
+
+	count = fdtdec_find_aliases_for_id(fdt, "ethernet",
+					   COMPAT_ALTERA_SOCFPGA_DWMAC,
+					   nodes, ARRAY_SIZE(nodes));
+	for (i = 0; i < count; i++) {
+		node = nodes[i];
+		if (node <= 0)
+			continue;
+
+		ret = fdtdec_parse_phandle_with_args(fdt, node, "resets",
+						     "#reset-cells", 1, 0,
+						     &args);
+		if (ret || (args.args_count != 1)) {
+			debug("GMAC%i: Failed to parse DT 'resets'!\n", i);
+			continue;
+		}
+
+		phy_mode = fdt_getprop(fdt, node, "phy-mode", NULL);
+		ret = dwmac_phymode_to_modereg(phy_mode, &phy_modereg);
+		if (ret) {
+			debug("GMAC%i: Failed to parse DT 'phy-mode'!\n", i);
+			continue;
+		}
+
+		resetfn(args.args[0], phy_modereg);
+	}
+
+	return 0;
+}
+#endif

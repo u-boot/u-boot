@@ -737,6 +737,7 @@
 			reg-shift = <2>;
 			reg-io-width = <4>;
 			clocks = <&l4_sp_clk>;
+			clock-frequency = <100000000>;
 		};
 
 		uart1: serial1@ffc03000 {
@@ -746,6 +747,7 @@
 			reg-shift = <2>;
 			reg-io-width = <4>;
 			clocks = <&l4_sp_clk>;
+			clock-frequency = <100000000>;
 		};
 
 		rst: rstmgr@ffd05000 {

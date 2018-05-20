@@ -1,35 +1,5 @@
 if ARCH_SOCFPGA
 
-config SPL_LIBCOMMON_SUPPORT
-	default y
-
-config SPL_LIBDISK_SUPPORT
-	default y
-
-config SPL_LIBGENERIC_SUPPORT
-	default y
-
-config SPL_MMC_SUPPORT
-	default y if DM_MMC
-
-config SPL_NAND_SUPPORT
-	default y if SPL_NAND_DENALI
-
-config SPL_SERIAL_SUPPORT
-	default y
-
-config SPL_SPI_FLASH_SUPPORT
-	default y if SPL_SPI_SUPPORT
-
-config SPL_SPI_SUPPORT
-	default y if DM_SPI
-
-config SPL_WATCHDOG_SUPPORT
-	default y
-
-config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE
-	default y
-
 config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_TYPE
 	default 0xa2
 
@@ -40,6 +10,7 @@ config TARGET_SOCFPGA_ARRIA5
 config TARGET_SOCFPGA_ARRIA10
 	bool
 	select SPL_BOARD_INIT if SPL
+	select ALTERA_SDRAM
 
 config TARGET_SOCFPGA_CYCLONE5
 	bool

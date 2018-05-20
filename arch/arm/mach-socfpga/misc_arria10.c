@@ -41,8 +41,7 @@ static struct socfpga_system_manager *sysmgr_regs =
  * DesignWare Ethernet initialization
  */
 #ifdef CONFIG_ETH_DESIGNWARE
-void dwmac_deassert_reset(const unsigned int of_reset_id,
-				 const u32 phymode)
+static void arria10_dwmac_reset(const u8 of_reset_id, const u8 phymode)
 {
 	u32 reset;
 
@@ -64,6 +63,20 @@ void dwmac_deassert_reset(const unsigned int of_reset_id,
 	/* Release the EMAC controller from reset */
 	socfpga_per_reset(reset, 0);
 }
+
+static int socfpga_eth_reset(void)
+{
+	/* Put all GMACs into RESET state. */
+	socfpga_per_reset(SOCFPGA_RESET(EMAC0), 1);
+	socfpga_per_reset(SOCFPGA_RESET(EMAC1), 1);
+	socfpga_per_reset(SOCFPGA_RESET(EMAC2), 1);
+	return socfpga_eth_reset_common(arria10_dwmac_reset);
+};
+#else
+static int socfpga_eth_reset(void)
+{
+	return 0;
+};
 #endif
 
 #if defined(CONFIG_SPL_BUILD)
@@ -91,11 +104,6 @@ int arch_early_init_r(void)
 	/* assert reset to all except L4WD0 and L4TIMER0 */
 	socfpga_per_reset_all();
 
-	/* configuring the clock based on handoff */
-	/* TODO: Add call to cm_basic_init() */
-
-	/* Add device descriptor to FPGA device table */
-	socfpga_fpga_add();
 	return 0;
 }
 #else
@@ -251,6 +259,6 @@ int print_cpuinfo(void)
 #ifdef CONFIG_ARCH_MISC_INIT
 int arch_misc_init(void)
 {
-	return 0;
+	return socfpga_eth_reset();
 }
 #endif
