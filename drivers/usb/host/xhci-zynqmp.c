@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <usb.h>
 #include <linux/errno.h>
 #include <asm/arch-zynqmp/hardware.h>
@@ -54,13 +55,15 @@
 #define USBOTGSS_IRQ_SET_1_DMADISABLECLR_EN	BIT(17)
 
 struct zynqmp_xhci {
+	struct usb_platdata usb_plat;
+	struct xhci_ctrl ctrl;
 	struct xhci_hccr *hcd;
 	struct dwc3 *dwc3_reg;
 };
 
-static struct zynqmp_xhci zynqmp_xhci;
-
-unsigned long ctr_addr[] = CONFIG_ZYNQMP_XHCI_LIST;
+struct zynqmp_xhci_platdata {
+	fdt_addr_t hcd_base;
+};
 
 static int zynqmp_xhci_core_init(struct zynqmp_xhci *zynqmp_xhci)
 {
@@ -78,40 +81,6 @@ static int zynqmp_xhci_core_init(struct zynqmp_xhci *zynqmp_xhci)
 	return ret;
 }
 
-int xhci_hcd_init(int index, struct xhci_hccr **hccr, struct xhci_hcor **hcor)
-{
-	struct zynqmp_xhci *ctx = &zynqmp_xhci;
-	int ret = 0;
-	uint32_t hclen;
-
-	if (index < 0 || index >= ARRAY_SIZE(ctr_addr))
-		return -EINVAL;
-
-	ctx->hcd = (struct xhci_hccr *)ctr_addr[index];
-	ctx->dwc3_reg = (struct dwc3 *)((void *)ctx->hcd + DWC3_REG_OFFSET);
-
-	ret = board_usb_init(index, USB_INIT_HOST);
-	if (ret != 0) {
-		puts("Failed to initialize board for USB\n");
-		return ret;
-	}
-
-	ret = zynqmp_xhci_core_init(ctx);
-	if (ret < 0) {
-		puts("Failed to initialize xhci\n");
-		return ret;
-	}
-
-	*hccr = (struct xhci_hccr *)ctx->hcd;
-	hclen = HC_LENGTH(xhci_readl(&(*hccr)->cr_capbase));
-	*hcor = (struct xhci_hcor *)((uintptr_t) *hccr + hclen);
-
-	debug("zynqmp-xhci: init hccr %p and hcor %p hc_length %d\n",
-	      *hccr, *hcor, hclen);
-
-	return ret;
-}
-
 void xhci_hcd_stop(int index)
 {
 	/*
@@ -121,3 +90,57 @@ void xhci_hcd_stop(int index)
 
 	return;
 }
+
+static int xhci_usb_probe(struct udevice *dev)
+{
+	struct zynqmp_xhci_platdata *plat = dev_get_platdata(dev);
+	struct zynqmp_xhci *ctx = dev_get_priv(dev);
+	struct xhci_hcor *hcor;
+	int ret;
+
+	ctx->hcd = (struct xhci_hccr *)plat->hcd_base;
+	ctx->dwc3_reg = (struct dwc3 *)((char *)(ctx->hcd) + DWC3_REG_OFFSET);
+
+	ret = zynqmp_xhci_core_init(ctx);
+	if (ret) {
+		puts("XHCI: failed to initialize controller\n");
+		return -EINVAL;
+	}
+
+	hcor = (struct xhci_hcor *)((ulong)ctx->hcd +
+				  HC_LENGTH(xhci_readl(&ctx->hcd->cr_capbase)));
+
+	return xhci_register(dev, ctx->hcd, hcor);
+}
+
+static int xhci_usb_remove(struct udevice *dev)
+{
+	return xhci_deregister(dev);
+}
+
+static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
+{
+	struct zynqmp_xhci_platdata *plat = dev_get_platdata(dev);
+	const void *blob = gd->fdt_blob;
+
+	/* Get the base address for XHCI controller from the device node */
+	plat->hcd_base = fdtdec_get_addr(blob, dev_of_offset(dev), "reg");
+	if (plat->hcd_base == FDT_ADDR_T_NONE) {
+		debug("Can't get the XHCI register base address\n");
+		return -ENXIO;
+	}
+
+	return 0;
+}
+
+U_BOOT_DRIVER(dwc3_generic_host) = {
+	.name = "dwc3-generic-host",
+	.id = UCLASS_USB,
+	.ofdata_to_platdata = xhci_usb_ofdata_to_platdata,
+	.probe = xhci_usb_probe,
+	.remove = xhci_usb_remove,
+	.ops = &xhci_usb_ops,
+	.platdata_auto_alloc_size = sizeof(struct zynqmp_xhci_platdata),
+	.priv_auto_alloc_size = sizeof(struct zynqmp_xhci),
+	.flags = DM_FLAG_ALLOC_PRIV_DMA,
+};

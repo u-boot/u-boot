@@ -110,6 +110,19 @@ config STI_USB_PHY
 	  used by USB2 and USB3 Host controllers available on
 	  STiH407 SoC families.
 
+config PHY_STM32_USBPHYC
+	tristate "STMicroelectronics STM32 SoC USB HS PHY driver"
+	depends on PHY && ARCH_STM32MP
+	help
+	  Enable this to support the High-Speed USB transceiver that is part of
+	  STMicroelectronics STM32 SoCs.
+
+	  This driver controls the entire USB PHY block: the USB PHY controller
+	  (USBPHYC) and the two 8-bit wide UTMI+ interface. First interface is
+	  used by an HS USB Host controller, and the second one is shared
+	  between an HS USB OTG controller and an HS USB Host controller,
+	  selected by an USB switch.
+
 config MESON_GXL_USB_PHY
 	bool "Amlogic Meson GXL USB PHYs"
 	depends on PHY && ARCH_MESON && MESON_GXL

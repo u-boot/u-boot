@@ -712,7 +712,11 @@ struct dwc3 {
 	/* device lock */
 	spinlock_t		lock;
 
+#if defined(__UBOOT__) && defined(CONFIG_DM_USB)
+	struct udevice		*dev;
+#else
 	struct device		*dev;
+#endif
 
 	struct platform_device	*xhci;
 	struct resource		xhci_resources[DWC3_XHCI_RESOURCES_NUM];
@@ -987,6 +991,8 @@ struct dwc3_gadget_ep_cmd_params {
 
 /* prototypes */
 int dwc3_gadget_resize_tx_fifos(struct dwc3 *dwc);
+int dwc3_init(struct dwc3 *dwc);
+void dwc3_remove(struct dwc3 *dwc);
 
 #ifdef CONFIG_USB_DWC3_HOST
 int dwc3_host_init(struct dwc3 *dwc);
