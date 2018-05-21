@@ -425,6 +425,13 @@ config AR933X_UART
 	  tree binding to operate, please refer to the document at
 	  doc/device-tree-bindings/serial/qca,ar9330-uart.txt.
 
+config ARC_SERIAL
+	bool "ARC UART support"
+	depends on DM_SERIAL
+	help
+	  Select this to enable support for ARC UART now typically
+	  only used in Synopsys DesignWare ARC simulators like nSIM.
+
 config ATMEL_USART
 	bool "Atmel USART support"
 	help
