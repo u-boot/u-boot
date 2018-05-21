@@ -20,6 +20,7 @@
 #include <efi.h>
 
 #define MSDOS_MBR_SIGNATURE 0xAA55
+#define MSDOS_MBR_BOOT_CODE_SIZE 440
 #define EFI_PMBR_OSTYPE_EFI 0xEF
 #define EFI_PMBR_OSTYPE_EFI_GPT 0xEE
 
@@ -111,7 +112,7 @@ typedef struct _gpt_entry {
 } __packed gpt_entry;
 
 typedef struct _legacy_mbr {
-	u8 boot_code[440];
+	u8 boot_code[MSDOS_MBR_BOOT_CODE_SIZE];
 	__le32 unique_mbr_signature;
 	__le16 unknown;
 	struct partition partition_record[4];
