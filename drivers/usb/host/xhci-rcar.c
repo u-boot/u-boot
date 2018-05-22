@@ -117,12 +117,15 @@ err_clk:
 
 static int xhci_rcar_deregister(struct udevice *dev)
 {
+	int ret;
 	struct rcar_xhci_platdata *plat = dev_get_platdata(dev);
+
+	ret = xhci_deregister(dev);
 
 	clk_disable(&plat->clk);
 	clk_free(&plat->clk);
 
-	return xhci_deregister(dev);
+	return ret;
 }
 
 static int xhci_rcar_ofdata_to_platdata(struct udevice *dev)
