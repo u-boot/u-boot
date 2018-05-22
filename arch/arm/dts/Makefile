@@ -130,6 +130,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
 	zynq-cc108.dtb \
 	zynq-cse-qspi-single.dtb \
 	zynq-microzed.dtb \
+	zynq-minized.dtb \
 	zynq-picozed.dtb \
 	zynq-syzygy-hub.dtb \
 	zynq-topic-miami.dtb \
