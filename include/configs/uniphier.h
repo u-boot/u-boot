@@ -168,10 +168,10 @@
 		"run boot_common\0" \
 	"tftpboot=tftpboot $kernel_addr_load $bootfile && " \
 		"tftpboot $ramdisk_addr_r $ramdisk_file &&" \
-		"tftpboot $fdt_addr_r $fdt_file &&" \
+		"tftpboot $fdt_addr_r $fdtfile &&" \
 		"run boot_common\0" \
 	"__nfsboot=tftpboot $kernel_addr_load $bootfile && " \
-		"tftpboot $fdt_addr_r $fdt_file &&" \
+		"tftpboot $fdt_addr_r $fdtfile &&" \
 		"setenv ramdisk_addr_r - &&" \
 		"run boot_common\0"
 #endif

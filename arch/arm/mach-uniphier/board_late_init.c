@@ -38,7 +38,7 @@ static int uniphier_set_fdt_file(void)
 	char dtb_name[256];
 	int buf_len = sizeof(dtb_name);
 
-	if (env_get("fdt_file"))
+	if (env_get("fdtfile"))
 		return 0;	/* do nothing if it is already set */
 
 	compat = fdt_stringlist_get(gd->fdt_blob, 0, "compatible", 0, NULL);
@@ -56,7 +56,7 @@ static int uniphier_set_fdt_file(void)
 
 	strncat(dtb_name, ".dtb", buf_len);
 
-	return env_set("fdt_file", dtb_name);
+	return env_set("fdtfile", dtb_name);
 }
 
 int board_late_init(void)
