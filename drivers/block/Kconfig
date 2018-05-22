@@ -29,7 +29,8 @@ config SPL_BLK
 
 config BLOCK_CACHE
 	bool "Use block device cache"
-	default n
+	depends on BLK
+	default y
 	help
 	  This option enables a disk-block cache for all block devices.
 	  This is most useful when accessing filesystems under U-Boot since
