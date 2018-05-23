@@ -12,6 +12,10 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "ls1012afrdm"
 
+config SYS_LS_PPA_FW_ADDR
+	hex "PPA Firmware Addr"
+	default 0x40400000
+
 if FSL_PFE
 
 config BOARD_SPECIFIC_OPTIONS # dummy
