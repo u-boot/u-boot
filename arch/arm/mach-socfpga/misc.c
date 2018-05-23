@@ -227,12 +227,11 @@ static int do_bridge(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-U_BOOT_CMD(
-	bridge, 2, 1, do_bridge,
-	"SoCFPGA HPS FPGA bridge control",
-	"enable  - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
-	"bridge disable - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
-	""
+U_BOOT_CMD(bridge, 2, 1, do_bridge,
+	   "SoCFPGA HPS FPGA bridge control",
+	   "enable  - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
+	   "bridge disable - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
+	   ""
 );
 
 #endif
