@@ -27,4 +27,6 @@ unsigned int shared_uart_com_port(const void *blob);
 unsigned int uart_com_port(const void *blob);
 #endif
 
+void do_bridge_reset(int enable);
+
 #endif /* _MISC_H_ */
