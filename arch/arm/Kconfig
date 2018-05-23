@@ -1037,6 +1037,7 @@ config TARGET_LS1012A2G5RDB
 config TARGET_LS1012AFRWY
 	bool "Support ls1012afrwy"
 	select ARCH_LS1012A
+	select BOARD_LATE_INIT
 	select ARM64
 	imply SCSI
 	imply SCSI_AHCI
