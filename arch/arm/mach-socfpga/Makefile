@@ -32,6 +32,7 @@ ifdef CONFIG_TARGET_SOCFPGA_STRATIX10
 obj-y	+= clock_manager_s10.o
 obj-y	+= mailbox_s10.o
 obj-y	+= misc_s10.o
+obj-y	+= mmu-arm64_s10.o
 obj-y	+= reset_manager_s10.o
 obj-y	+= system_manager_s10.o
 obj-y	+= wrap_pinmux_config_s10.o
