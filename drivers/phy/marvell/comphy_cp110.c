@@ -553,6 +553,10 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 		}
 		switch (ptr_comphy_map->type) {
 		case COMPHY_TYPE_UNCONNECTED:
+			ret = comphy_smc(MV_SIP_COMPHY_POWER_OFF,
+					 ptr_chip_cfg->comphy_base_addr,
+					 lane,
+					 ptr_comphy_map->type);
 		case COMPHY_TYPE_IGNORE:
 			continue;
 			break;
