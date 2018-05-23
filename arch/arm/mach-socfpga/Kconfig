@@ -20,6 +20,12 @@ config TARGET_SOCFPGA_GEN5
 	bool
 	select ALTERA_SDRAM
 
+config TARGET_SOCFPGA_STRATIX10
+	bool
+	select ARMV8_MULTIENTRY
+	select ARMV8_SPIN_TABLE
+	select ARMV8_SET_SMPEN
+
 choice
 	prompt "Altera SOCFPGA board select"
 	optional
@@ -57,6 +63,10 @@ config TARGET_SOCFPGA_SR1500
 	bool "SR1500 (Cyclone V)"
 	select TARGET_SOCFPGA_CYCLONE5
 
+config TARGET_SOCFPGA_STRATIX10_SOCDK
+	bool "Intel SOCFPGA SoCDK (Stratix 10)"
+	select TARGET_SOCFPGA_STRATIX10
+
 config TARGET_SOCFPGA_TERASIC_DE0_NANO
 	bool "Terasic DE0-Nano-Atlas (Cyclone V)"
 	select TARGET_SOCFPGA_CYCLONE5
@@ -87,12 +97,14 @@ config SYS_BOARD
 	default "sockit" if TARGET_SOCFPGA_TERASIC_SOCKIT
 	default "socrates" if TARGET_SOCFPGA_EBV_SOCRATES
 	default "sr1500" if TARGET_SOCFPGA_SR1500
+	default "stratix10-socdk" if TARGET_SOCFPGA_STRATIX10_SOCDK
 	default "vining_fpga" if TARGET_SOCFPGA_SAMTEC_VINING_FPGA
 
 config SYS_VENDOR
 	default "altera" if TARGET_SOCFPGA_ARRIA5_SOCDK
 	default "altera" if TARGET_SOCFPGA_ARRIA10_SOCDK
 	default "altera" if TARGET_SOCFPGA_CYCLONE5_SOCDK
+	default "altera" if TARGET_SOCFPGA_STRATIX10_SOCDK
 	default "devboards" if TARGET_SOCFPGA_DEVBOARDS_DBM_SOC1
 	default "ebv" if TARGET_SOCFPGA_EBV_SOCRATES
 	default "samtec" if TARGET_SOCFPGA_SAMTEC_VINING_FPGA
@@ -116,6 +128,7 @@ config SYS_CONFIG_NAME
 	default "socfpga_sockit" if TARGET_SOCFPGA_TERASIC_SOCKIT
 	default "socfpga_socrates" if TARGET_SOCFPGA_EBV_SOCRATES
 	default "socfpga_sr1500" if TARGET_SOCFPGA_SR1500
+	default "socfpga_stratix10_socdk" if TARGET_SOCFPGA_STRATIX10_SOCDK
 	default "socfpga_vining_fpga" if TARGET_SOCFPGA_SAMTEC_VINING_FPGA
 
 endif
