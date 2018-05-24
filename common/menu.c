@@ -194,8 +194,7 @@ static inline int menu_interactive_choice(struct menu *m, void **choice)
 
 		if (!m->item_choice) {
 			readret = cli_readline_into_buffer("Enter choice: ",
-							   cbuf,
-							   m->timeout / 10);
+							   cbuf, m->timeout);
 
 			if (readret >= 0) {
 				choice_item = menu_item_by_key(m, cbuf);
