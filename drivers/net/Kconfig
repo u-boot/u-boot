@@ -362,6 +362,16 @@ config MPC8XX_FEC
 	  This driver implements support for the Fast Ethernet Controller
 	  on MPC8XX
 
+config SNI_AVE
+	bool "Socionext AVE Ethernet support"
+	depends on DM_ETH && ARCH_UNIPHIER
+	select PHYLIB
+	select SYSCON
+	select REGMAP
+	help
+	  This driver implements support for the Socionext AVE Ethernet
+	  controller, as found on the Socionext UniPhier family.
+
 config ETHER_ON_FEC1
 	bool "FEC1"
 	depends on MPC8XX_FEC
