@@ -56,6 +56,7 @@ def test_net_tftpboot_boot(u_boot_console):
 	    u_boot_console.drain_console()
 	    u_boot_console.cleanup_spawn()
 
+@pytest.mark.buildconfigspec('cmd_net')
 def test_net_tftpboot_boot_config2(u_boot_console):
     if not test_net.net_set_up:
         pytest.skip('Network not initialized')
