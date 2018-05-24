@@ -1452,6 +1452,7 @@ static int xhci_update_hub_device(struct udevice *dev, struct usb_device *udev)
 		think_time = (think_time / 666) - 1;
 	if (udev->speed == USB_SPEED_HIGH)
 		slot_ctx->tt_info |= cpu_to_le32(TT_THINK_TIME(think_time));
+	slot_ctx->dev_state = 0;
 
 	return xhci_configure_endpoints(udev, false);
 }
