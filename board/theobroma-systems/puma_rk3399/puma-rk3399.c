@@ -196,11 +196,85 @@ static void setup_iodomain(void)
 	rk_setreg(&grf->io_vsel, 1 << GRF_IO_VSEL_GPIO4CD_SHIFT);
 }
 
+/*
+ * Swap mmc0 and mmc1 in boot_targets if booted from SD-Card.
+ *
+ * If bootsource is uSD-card we can assume that we want to use the
+ * SD-Card instead of the eMMC as first boot_target for distroboot.
+ * We only want to swap the defaults and not any custom environment a
+ * user has set. We exit early if a changed boot_targets environment
+ * is detected.
+ */
+static int setup_boottargets(void)
+{
+	const char *boot_device =
+		ofnode_get_chosen_prop("u-boot,spl-boot-device");
+	char *env_default, *env;
+
+	if (!boot_device) {
+		debug("%s: /chosen/u-boot,spl-boot-device not set\n",
+		      __func__);
+		return -1;
+	}
+	debug("%s: booted from %s\n", __func__, boot_device);
+
+	env_default = env_get_default("boot_targets");
+	env = env_get("boot_targets");
+	if (!env) {
+		debug("%s: boot_targets does not exist\n", __func__);
+		return -1;
+	}
+	debug("%s: boot_targets current: %s - default: %s\n",
+	      __func__, env, env_default);
+
+	if (strcmp(env_default, env) != 0) {
+		debug("%s: boot_targets not default, don't change it\n",
+		      __func__);
+		return 0;
+	}
+
+	/*
+	 * Only run, if booting from mmc1 (i.e. /dwmmc@fe320000) and
+	 * only consider cases where the default boot-order first
+	 * tries to boot from mmc0 (eMMC) and then from mmc1
+	 * (i.e. external SD).
+	 *
+	 * In other words: the SD card will be moved to earlier in the
+	 * order, if U-Boot was also loaded from the SD-card.
+	 */
+	if (!strcmp(boot_device, "/dwmmc@fe320000")) {
+		char *mmc0, *mmc1;
+
+		debug("%s: booted from SD-Card\n", __func__);
+		mmc0 = strstr(env, "mmc0");
+		mmc1 = strstr(env, "mmc1");
+
+		if (!mmc0 || !mmc1) {
+			debug("%s: only one mmc boot_target found\n", __func__);
+			return -1;
+		}
+
+		/*
+		 * If mmc0 comes first in the boot order, we need to change
+		 * the strings to make mmc1 first.
+		 */
+		if (mmc0 < mmc1) {
+			mmc0[3] = '1';
+			mmc1[3] = '0';
+			debug("%s: set boot_targets to: %s\n", __func__, env);
+			env_set("boot_targets", env);
+		}
+	}
+
+	return 0;
+}
+
 int misc_init_r(void)
 {
 	setup_serial();
 	setup_macaddr();
 	setup_iodomain();
+	setup_boottargets();
 
 	return 0;
 }
