@@ -75,6 +75,11 @@ ENTRY(_start)
 	/* Initialize reserved area - note: r0 already contains address */
 	bl	board_init_f_init_reserve
 
+#ifdef CONFIG_DEBUG_UART
+	/* Earliest point to set up early debug uart */
+	bl	debug_uart_init
+#endif
+
 	/* Zero the one and only argument of "board_init_f" */
 	mov_s	%r0, 0
 	bl	board_init_f

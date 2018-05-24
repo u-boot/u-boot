@@ -25,16 +25,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x82000000
 
 /*
- * UART configuration
- *
- */
-#define CONFIG_ARC_SERIAL
-
-/*
- * Command line configuration
- */
-
-/*
  * Environment settings
  */
 #define CONFIG_ENV_SIZE			SZ_512

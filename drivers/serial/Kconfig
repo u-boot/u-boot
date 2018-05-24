@@ -197,6 +197,15 @@ config DEBUG_UART_AR933X
 	  driver will be available until the real driver model serial is
 	  running.
 
+config DEBUG_ARC_SERIAL
+	bool "ARC UART"
+	depends on ARC_SERIAL
+	help
+	  Select this to enable a debug UART using the ARC UART driver.
+	  You will need to provide parameters to make this work. The
+	  driver will be available until the real driver model serial is
+	  running.
+
 config DEBUG_UART_ATMEL
 	bool "Atmel USART"
 	help
@@ -424,6 +433,13 @@ config AR933X_UART
 	  devices. This driver uses driver model and requires a device
 	  tree binding to operate, please refer to the document at
 	  doc/device-tree-bindings/serial/qca,ar9330-uart.txt.
+
+config ARC_SERIAL
+	bool "ARC UART support"
+	depends on DM_SERIAL
+	help
+	  Select this to enable support for ARC UART now typically
+	  only used in Synopsys DesignWare ARC simulators like nSIM.
 
 config ATMEL_USART
 	bool "Atmel USART support"
