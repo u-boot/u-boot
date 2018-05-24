@@ -1435,8 +1435,15 @@ static int xhci_update_hub_device(struct udevice *dev, struct usb_device *udev)
 
 	/* Update hub related fields */
 	slot_ctx->dev_info |= cpu_to_le32(DEV_HUB);
-	if (hub->tt.multi && udev->speed == USB_SPEED_HIGH)
+	/*
+	 * refer to section 6.2.2: MTT should be 0 for full speed hub,
+	 * but it may be already set to 1 when setup an xHCI virtual
+	 * device, so clear it anyway.
+	 */
+	if (hub->tt.multi)
 		slot_ctx->dev_info |= cpu_to_le32(DEV_MTT);
+	else if (udev->speed == USB_SPEED_FULL)
+		slot_ctx->dev_info &= cpu_to_le32(~DEV_MTT);
 	slot_ctx->dev_info2 |= cpu_to_le32(XHCI_MAX_PORTS(udev->maxchild));
 	/*
 	 * Set TT think time - convert from ns to FS bit times.
