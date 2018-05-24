@@ -366,16 +366,6 @@
 /* SPL part */
 #define CONFIG_SPL_FRAMEWORK
 
-/* FPGA support */
-#define CONFIG_SPL_FPGA_SUPPORT
-#define CONFIG_SPL_FPGA_LOAD_ADDR      0x1000000
-/* #define CONFIG_SPL_FPGA_BIT */
-#ifdef CONFIG_SPL_FPGA_BIT
-# define CONFIG_SPL_FPGA_LOAD_ARGS_NAME "download.bit"
-#else
-# define CONFIG_SPL_FPGA_LOAD_ARGS_NAME "fpga.bin"
-#endif
-
 /* MMC support */
 #ifdef CONFIG_MMC_SDHCI_ZYNQ
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1

@@ -15,9 +15,6 @@
 #include <errno.h>
 #include <mmc.h>
 #include <image.h>
-#include <fat.h>
-#include <fpga.h>
-#include <xilinx.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -235,36 +232,6 @@ static int mmc_load_image_raw_os(struct spl_image_info *spl_image,
 }
 #endif
 
-#ifdef CONFIG_SPL_FPGA_SUPPORT
-static int mmc_load_fpga_image_fat(struct spl_image_info *spl_image,
-				   struct mmc *mmc)
-{
-	int err;
-	int devnum = 0;
-	const fpga_desc *const desc = fpga_get_desc(devnum);
-	xilinx_desc *desc_xilinx = desc->devdesc;
-
-	err = spl_load_image_fat(spl_image, mmc_get_blk_desc(mmc),
-					CONFIG_SYS_MMCSD_FS_BOOT_PARTITION,
-					CONFIG_SPL_FPGA_LOAD_ARGS_NAME);
-
-	if (err) {
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-		printf("spl: error reading image %s, err - %d\n",
-		       CONFIG_SPL_FPGA_LOAD_ARGS_NAME, err);
-#endif
-		return -1;
-	}
-#ifdef CONFIG_SPL_FPGA_BIT
-	return fpga_loadbitstream(devnum, (char *)spl_image->load_addr,
-				  desc_xilinx->size, BIT_FULL);
-#else
-	return fpga_load(devnum, (const void *)spl_image->load_addr,
-			 desc_xilinx->size, BIT_FULL);
-#endif
-}
-#endif
-
 #ifdef CONFIG_SYS_MMCSD_FS_BOOT_PARTITION
 static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image, struct mmc *mmc)
 {
@@ -383,10 +350,6 @@ int spl_mmc_load_image(struct spl_image_info *spl_image,
 		/* If RAW mode fails, try FS mode. */
 	case MMCSD_MODE_FS:
 		debug("spl: mmc boot mode: fs\n");
-
-#ifdef CONFIG_SPL_FPGA_SUPPORT
-		mmc_load_fpga_image_fat(spl_image, mmc);
-#endif
 
 		err = spl_mmc_do_fs_boot(spl_image, mmc);
 		if (!err)
