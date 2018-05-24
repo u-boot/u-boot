@@ -31,6 +31,7 @@
 			"fdtfile=stih410-b2260.dtb\0"		\
 			"fdt_addr_r=0x47000000\0"		\
 			"scriptaddr=0x50000000\0"		\
+			"pxefile_addr_r=0x50100000\0"		\
 			"fdt_high=0xffffffffffffffff\0"		\
 			"initrd_high=0xffffffffffffffff\0"	\
 			"ramdisk_addr_r=0x48000000\0"		\
