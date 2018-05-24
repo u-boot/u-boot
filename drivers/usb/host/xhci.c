@@ -1424,7 +1424,7 @@ static int xhci_update_hub_device(struct udevice *dev, struct usb_device *udev)
 
 	ctrl_ctx = xhci_get_input_control_ctx(in_ctx);
 	/* Initialize the input context control */
-	ctrl_ctx->add_flags |= cpu_to_le32(SLOT_FLAG);
+	ctrl_ctx->add_flags = cpu_to_le32(SLOT_FLAG);
 	ctrl_ctx->drop_flags = 0;
 
 	xhci_inval_cache((uintptr_t)out_ctx->bytes, out_ctx->size);
