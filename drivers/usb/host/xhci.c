@@ -536,7 +536,7 @@ static int xhci_set_configuration(struct usb_device *udev)
 	/* slot context */
 	xhci_slot_copy(ctrl, in_ctx, out_ctx);
 	slot_ctx = xhci_get_slot_ctx(ctrl, in_ctx);
-	slot_ctx->dev_info &= ~(LAST_CTX_MASK);
+	slot_ctx->dev_info &= ~(cpu_to_le32(LAST_CTX_MASK));
 	slot_ctx->dev_info |= cpu_to_le32(LAST_CTX(max_ep_flag + 1) | 0);
 
 	xhci_endpoint_copy(ctrl, in_ctx, out_ctx, 0);
