@@ -161,10 +161,10 @@ static struct pinctrl_ops mvebu_pinctrl_ops = {
 
 static const struct udevice_id mvebu_pinctrl_ids[] = {
 	{ .compatible = "marvell,mvebu-pinctrl" },
-	{ .compatible = "marvell,armada-ap806-pinctrl" },
-	{ .compatible = "marvell,a70x0-pinctrl" },
-	{ .compatible = "marvell,a80x0-cp0-pinctrl" },
-	{ .compatible = "marvell,a80x0-cp1-pinctrl" },
+	{ .compatible = "marvell,ap806-pinctrl" },
+	{ .compatible = "marvell,armada-7k-pinctrl" },
+	{ .compatible = "marvell,armada-8k-cpm-pinctrl" },
+	{ .compatible = "marvell,armada-8k-cps-pinctrl" },
 	{ }
 };
 
