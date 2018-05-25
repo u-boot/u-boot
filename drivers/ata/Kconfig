@@ -104,6 +104,7 @@ config AHCI_MVEBU
 	depends on ARCH_MVEBU
 	depends on AHCI
 	select SCSI_AHCI
+	select DM_SCSI
 	help
 	  This option enables support for the Marvell EBU SoC's
 	  onboard AHCI SATA.
