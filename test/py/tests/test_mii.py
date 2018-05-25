@@ -4,12 +4,14 @@
 
 import pytest
 
+@pytest.mark.xfail
 @pytest.mark.buildconfigspec("cmd_mii")
 def test_mii_info(u_boot_console):
     expected_response = "PHY"
     response = u_boot_console.run_command("mii info")
     assert(expected_response in response)
 
+@pytest.mark.xfail
 @pytest.mark.buildconfigspec("cmd_mii")
 def test_mii_list(u_boot_console):
     expected_response = "Current device"
