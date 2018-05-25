@@ -36,6 +36,7 @@ def test_i2c_probe(u_boot_console):
     response = u_boot_console.run_command("i2c probe")
     assert(expected_response in response)
 
+@pytest.mark.xfail
 @pytest.mark.boardspec("zynq_zc702")
 @pytest.mark.boardspec("zynq_zc706")
 @pytest.mark.buildconfigspec("cmd_i2c")
