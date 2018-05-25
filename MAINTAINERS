@@ -135,6 +135,7 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-marvell.git
 F:	arch/arm/mach-kirkwood/
 F:	arch/arm/mach-mvebu/
+F:	drivers/ata/ahci_mvebu.c
 
 ARM MARVELL PXA
 M:	Marek Vasut <marex@denx.de>
