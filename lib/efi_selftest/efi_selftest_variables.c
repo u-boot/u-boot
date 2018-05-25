@@ -49,7 +49,7 @@ static int execute(void)
 	u32 attr;
 	u8 v[16] = {0x5d, 0xd1, 0x5e, 0x51, 0x5a, 0x05, 0xc7, 0x0c,
 		    0x35, 0x4a, 0xae, 0x87, 0xa5, 0xdf, 0x0f, 0x65,};
-	u8 *data[EFI_ST_MAX_DATA_SIZE];
+	u8 data[EFI_ST_MAX_DATA_SIZE];
 	u16 varname[EFI_ST_MAX_VARNAME_SIZE];
 	int flag;
 	efi_guid_t guid;
@@ -70,6 +70,22 @@ static int execute(void)
 				    3, v + 4);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("SetVariable failed\n");
+		return EFI_ST_FAILURE;
+	}
+	data[3] = 0xff;
+	len = 3;
+	ret = runtime->get_variable(L"efi_st_var0", &guid_vendor0,
+				    &attr, &len, data);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("GetVariable failed\n");
+		return EFI_ST_FAILURE;
+	}
+	if (efi_st_memcmp(data, v + 4, 3)) {
+		efi_st_error("GetVariable returned wrong value\n");
+		return EFI_ST_FAILURE;
+	}
+	if (data[3] != 0xff) {
+		efi_st_error("GetVariable wrote past the end of the buffer\n");
 		return EFI_ST_FAILURE;
 	}
 	/* Set variable 1 */
