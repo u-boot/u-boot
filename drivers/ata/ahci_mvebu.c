@@ -16,14 +16,6 @@ __weak int board_ahci_enable(void)
 	return 0;
 }
 
-#ifdef CONFIG_ARMADA_8K
-/* CP110 has different AHCI port addresses */
-void __iomem *ahci_port_base(void __iomem *base, u32 port)
-{
-	return base + 0x10000 + (port * 0x10000);
-}
-#endif
-
 static int mvebu_ahci_probe(struct udevice *dev)
 {
 	/*
