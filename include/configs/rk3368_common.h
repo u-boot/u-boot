@@ -46,6 +46,7 @@
 #include <config_distro_bootcmd.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	ENV_MEM_LAYOUT_SETTINGS	\
 	BOOTENV
 
