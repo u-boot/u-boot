@@ -23,7 +23,6 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
 #include <asm/arch/spl.h>
-#include <asm/arch/usb_phy.h>
 #ifndef CONFIG_ARM64
 #include <asm/armv7.h>
 #endif
@@ -773,12 +772,6 @@ int misc_init_r(void)
 	}
 
 	setup_environment(gd->fdt_blob);
-
-#ifndef CONFIG_MACH_SUN9I
-	ret = sunxi_usb_phy_probe();
-	if (ret)
-		return ret;
-#endif
 
 #ifdef CONFIG_USB_ETHER
 	usb_ether_init();
