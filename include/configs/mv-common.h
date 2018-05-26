@@ -29,10 +29,6 @@
 #define CONFIG_SYS_SDRAM_BASE	0x00000000
 
 /*
- * CLKs configurations
- */
-
-/*
  * NS16550 Configuration
  */
 #define CONFIG_SYS_NS16550_SERIAL
