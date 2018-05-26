@@ -102,12 +102,6 @@
 #endif
 
 /*
- * Common SPI Flash configuration
- */
-#ifdef CONFIG_CMD_SF
-#endif
-
-/*
  * File system
  */
 #ifdef CONFIG_SYS_MVFS
