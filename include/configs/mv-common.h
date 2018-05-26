@@ -97,12 +97,4 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE     1
 #endif
 
-/*
- * File system
- */
-#ifdef CONFIG_SYS_MVFS
-#define CONFIG_MTD_DEVICE               /* needed for mtdparts commands */
-#define CONFIG_MTD_PARTITIONS
-#endif
-
 #endif /* _MV_COMMON_H */
