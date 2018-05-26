@@ -337,7 +337,8 @@ void *efi_alloc(uint64_t len, int memory_type)
 	uint64_t pages = (len + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
 	efi_status_t r;
 
-	r = efi_allocate_pages(0, memory_type, pages, &ret);
+	r = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES, memory_type, pages,
+			       &ret);
 	if (r == EFI_SUCCESS)
 		return (void*)(uintptr_t)ret;
 
@@ -384,7 +385,8 @@ efi_status_t efi_allocate_pool(int pool_type, efi_uintn_t size, void **buffer)
 		return EFI_SUCCESS;
 	}
 
-	r = efi_allocate_pages(0, pool_type, num_pages, &t);
+	r = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES, pool_type, num_pages,
+			       &t);
 
 	if (r == EFI_SUCCESS) {
 		struct efi_pool_allocation *alloc = (void *)(uintptr_t)t;
@@ -515,7 +517,7 @@ int efi_memory_init(void)
 	/* Request a 32bit 64MB bounce buffer region */
 	uint64_t efi_bounce_buffer_addr = 0xffffffff;
 
-	if (efi_allocate_pages(1, EFI_LOADER_DATA,
+	if (efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS, EFI_LOADER_DATA,
 			       (64 * 1024 * 1024) >> EFI_PAGE_SHIFT,
 			       &efi_bounce_buffer_addr) != EFI_SUCCESS)
 		return -1;
