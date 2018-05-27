@@ -71,6 +71,7 @@
 #define RX_REG3				0xa0188
 #define PCIE_REG1			0xa0288
 #define PCIE_REG3			0xa0290
+#define LANE_CFG0_REG			0xa0600
 #define LANE_CFG1_REG			0xa0604
 #define LANE_CFG4_REG			0xa0620
 #define LANE_CFG5_REG			0xa0624
