@@ -431,16 +431,15 @@ void efi_add_handle(struct efi_object *obj)
 efi_status_t efi_create_handle(efi_handle_t *handle)
 {
 	struct efi_object *obj;
-	efi_status_t r;
 
-	r = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES,
-			      sizeof(struct efi_object),
-			      (void **)&obj);
-	if (r != EFI_SUCCESS)
-		return r;
+	obj = calloc(1, sizeof(struct efi_object));
+	if (!obj)
+		return EFI_OUT_OF_RESOURCES;
+
 	efi_add_handle(obj);
 	*handle = obj->handle;
-	return r;
+
+	return EFI_SUCCESS;
 }
 
 /**
