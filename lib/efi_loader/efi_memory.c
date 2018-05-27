@@ -68,23 +68,27 @@ static void efi_mem_sort(void)
 	list_sort(NULL, &efi_mem, efi_mem_cmp);
 }
 
-/*
- * Unmaps all memory occupied by the carve_desc region from the
- * list entry pointed to by map.
+/** efi_mem_carve_out - unmap memory region
  *
- * Returns EFI_CARVE_NO_OVERLAP if the regions don't overlap.
- * Returns EFI_CARVE_OVERLAPS_NONRAM if the carve and map overlap,
- *    and the map contains anything but free ram.
- *    (only when overlap_only_ram is true)
- * Returns EFI_CARVE_LOOP_AGAIN if the mapping list should be traversed
- *    again, as it has been altered
- * Returns the number of overlapping pages. The pages are removed from
- *     the mapping list.
+ * @map:		memory map
+ * @carve_desc:		memory region to unmap
+ * @overlap_only_ram:	the carved out region may only overlap RAM
+ * Return Value:	the number of overlapping pages which have been
+ *			removed from the map,
+ *			EFI_CARVE_NO_OVERLAP, if the regions don't overlap,
+ *			EFI_CARVE_OVERLAPS_NONRAM, if the carve and map overlap,
+ *			and the map contains anything but free ram
+ *			(only when overlap_only_ram is true),
+ *			EFI_CARVE_LOOP_AGAIN, if the mapping list should be
+ *			traversed again, as it has been altered.
+ *
+ * Unmaps all memory occupied by the carve_desc region from the list entry
+ * pointed to by map.
  *
  * In case of EFI_CARVE_OVERLAPS_NONRAM it is the callers responsibility
- * to readd the already carved out pages to the mapping.
+ * to re-add the already carved out pages to the mapping.
  */
-static int efi_mem_carve_out(struct efi_mem_list *map,
+static s64 efi_mem_carve_out(struct efi_mem_list *map,
 			     struct efi_mem_desc *carve_desc,
 			     bool overlap_only_ram)
 {
@@ -183,7 +187,7 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 		carve_again = false;
 		list_for_each(lhandle, &efi_mem) {
 			struct efi_mem_list *lmem;
-			int r;
+			s64 r;
 
 			lmem = list_entry(lhandle, struct efi_mem_list, link);
 			r = efi_mem_carve_out(lmem, &newlist->desc,
