@@ -48,6 +48,13 @@ config RTC_RX8010SJ
 	help
 	  Support for Epson RX8010SJ Real Time Clock devices.
 
+config RTC_MV
+	bool "Enable Marvell RTC driver"
+	depends on DM_RTC
+	help
+	  Enable Marvell RTC driver. This driver supports the rtc that is present
+	  on some Marvell SoCs.
+
 config RTC_S35392A
 	bool "Enable S35392A driver"
 	select BITREVERSE

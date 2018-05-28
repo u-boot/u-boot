@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <rtc.h>
 #include <asm/io.h>
 #include "mvrtc.h"
@@ -127,3 +128,58 @@ void rtc_reset(void)
 	__mv_rtc_reset(regs);
 }
 #endif /* !CONFIG_DM_RTC */
+
+#ifdef CONFIG_DM_RTC
+static int mv_rtc_get(struct udevice *dev, struct rtc_time *tm)
+{
+	struct mvrtc_pdata *pdata = dev_get_platdata(dev);
+	struct mvrtc_registers *regs = (struct mvrtc_registers *)pdata->iobase;
+
+	return __mv_rtc_get(regs, tm);
+}
+
+static int mv_rtc_set(struct udevice *dev, const struct rtc_time *tm)
+{
+	struct mvrtc_pdata *pdata = dev_get_platdata(dev);
+	struct mvrtc_registers *regs = (struct mvrtc_registers *)pdata->iobase;
+
+	return __mv_rtc_set(regs, tm);
+}
+
+static int mv_rtc_reset(struct udevice *dev)
+{
+	struct mvrtc_pdata *pdata = dev_get_platdata(dev);
+	struct mvrtc_registers *regs = (struct mvrtc_registers *)pdata->iobase;
+
+	__mv_rtc_reset(regs);
+	return 0;
+}
+
+static const struct rtc_ops mv_rtc_ops = {
+	.get = mv_rtc_get,
+	.set = mv_rtc_set,
+	.reset = mv_rtc_reset,
+};
+
+static const struct udevice_id mv_rtc_ids[] = {
+	{ .compatible = "marvell,kirkwood-rtc" },
+	{ .compatible = "marvell,orion-rtc" },
+	{ }
+};
+
+static int mv_rtc_ofdata_to_platdata(struct udevice *dev)
+{
+	struct mvrtc_pdata *pdata = dev_get_platdata(dev);
+
+	pdata->iobase = devfdt_get_addr(dev);
+	return 0;
+}
+
+U_BOOT_DRIVER(rtc_mv) = {
+	.name	= "rtc-mv",
+	.id	= UCLASS_RTC,
+	.ofdata_to_platdata = mv_rtc_ofdata_to_platdata,
+	.of_match = mv_rtc_ids,
+	.ops	= &mv_rtc_ops,
+};
+#endif /* CONFIG_DM_RTC */

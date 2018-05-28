@@ -20,6 +20,11 @@ struct mvrtc_registers {
 	u32 date;
 };
 
+/* Platform data */
+struct mvrtc_pdata {
+	phys_addr_t iobase;
+};
+
 /* time register */
 #define MVRTC_SEC_SFT		0
 #define MVRTC_SEC_MSK		0x7f
