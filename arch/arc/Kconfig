@@ -150,6 +150,10 @@ config TARGET_AXS101
 config TARGET_AXS103
 	bool "Support Synopsys Designware SDP board AXS103"
 
+config TARGET_EMDK
+	bool "Synopsys EM Development kit"
+	select CPU_ARCEM6
+
 config TARGET_HSDK
 	bool "Support Synpsys HS DevelopmentKit board"
 
@@ -158,6 +162,7 @@ endchoice
 source "board/abilis/tb100/Kconfig"
 source "board/synopsys/Kconfig"
 source "board/synopsys/axs10x/Kconfig"
+source "board/synopsys/emdk/Kconfig"
 source "board/synopsys/hsdk/Kconfig"
 
 endmenu

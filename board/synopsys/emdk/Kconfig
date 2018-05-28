@@ -1,0 +1,12 @@
+if TARGET_EMDK
+
+config SYS_BOARD
+	default "emdk"
+
+config SYS_VENDOR
+	default "synopsys"
+
+config SYS_CONFIG_NAME
+	default "emdk"
+
+endif
