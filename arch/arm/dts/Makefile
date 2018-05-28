@@ -381,6 +381,7 @@ dtb-$(CONFIG_MACH_SUN50I_H5) += \
 	sun50i-h5-orangepi-prime.dtb \
 	sun50i-h5-orangepi-zero-plus2.dtb
 dtb-$(CONFIG_MACH_SUN50I) += \
+	sun50i-a64-amarula-relic.dtb \
 	sun50i-a64-bananapi-m64.dtb \
 	sun50i-a64-nanopi-a64.dtb \
 	sun50i-a64-olinuxino.dtb \
