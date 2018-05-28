@@ -32,9 +32,9 @@ def test_sata_probe_zcu102(u_boot_console):
     expected_response = "Type: Hard Disk"
     assert(expected_response in response)
 
+@pytest.mark.xfail
 @pytest.mark.boardspec("!xilinx_zynqmp_zcu102_rev1_0")
 @pytest.mark.boardspec("!xilinx_zynqmp_zcu102_revA")
-@pytest.mark.buildconfigspec("cmd_i2c")
 @pytest.mark.buildconfigspec("cmd_scsi")
 def test_sata_probe(u_boot_console):
     response = u_boot_console.run_command("scsi reset")
