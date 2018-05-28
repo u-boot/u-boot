@@ -21,13 +21,6 @@
  * Commands configuration
  */
 
-/* I2C */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MVTWSI
-#define CONFIG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
-#define CONFIG_SYS_I2C_SLAVE		0x0
-#define CONFIG_SYS_I2C_SPEED		100000
-
 /* SPI NOR flash default params, used by sf commands */
 #define CONFIG_SF_DEFAULT_BUS		1
 
