@@ -3,6 +3,12 @@ if ARCH_SNAPDRAGON
 config SYS_SOC
 	default "snapdragon"
 
+config SYS_MALLOC_F_LEN
+	default 0x2000
+
+config SPL_SYS_MALLOC_F_LEN
+	default 0x2000
+
 choice
 	prompt "Snapdragon board select"
 
