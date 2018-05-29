@@ -577,12 +577,12 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 
 	fastboot_fail("no flash device defined", response);
 #ifdef CONFIG_FASTBOOT_FLASH_MMC
-	fb_mmc_flash_write(cmd, (void *)CONFIG_FASTBOOT_BUF_ADDR,
-			   download_bytes, response);
+	fastboot_mmc_flash_write(cmd, (void *)CONFIG_FASTBOOT_BUF_ADDR,
+				 download_bytes, response);
 #endif
 #ifdef CONFIG_FASTBOOT_FLASH_NAND
-	fb_nand_flash_write(cmd, (void *)CONFIG_FASTBOOT_BUF_ADDR,
-			    download_bytes, response);
+	fastboot_nand_flash_write(cmd, (void *)CONFIG_FASTBOOT_BUF_ADDR,
+				  download_bytes, response);
 #endif
 	fastboot_tx_write_str(response);
 }
@@ -625,10 +625,10 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 
 	fastboot_fail("no flash device defined", response);
 #ifdef CONFIG_FASTBOOT_FLASH_MMC
-	fb_mmc_erase(cmd, response);
+	fastboot_mmc_erase(cmd, response);
 #endif
 #ifdef CONFIG_FASTBOOT_FLASH_NAND
-	fb_nand_erase(cmd, response);
+	fastboot_nand_erase(cmd, response);
 #endif
 	fastboot_tx_write_str(response);
 }
