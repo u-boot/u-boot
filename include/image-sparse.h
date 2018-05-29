@@ -23,7 +23,7 @@ struct sparse_storage {
 				 lbaint_t blk,
 				 lbaint_t blkcnt);
 
-	void		(*mssg)(const char *str);
+	void		(*mssg)(const char *str, char *response);
 };
 
 static inline int is_sparse_image(void *buf)
@@ -38,4 +38,4 @@ static inline int is_sparse_image(void *buf)
 }
 
 int write_sparse_image(struct sparse_storage *info, const char *part_name,
-		       void *data);
+		       void *data, char *response);

@@ -5,5 +5,5 @@
  */
 
 void fb_nand_flash_write(const char *cmd, void *download_buffer,
-			 unsigned int download_bytes);
-void fb_nand_erase(const char *cmd);
+			 unsigned int download_bytes, char *response);
+void fb_nand_erase(const char *cmd, char *response);

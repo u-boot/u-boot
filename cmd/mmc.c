@@ -367,7 +367,7 @@ static int do_mmc_sparse_write(cmd_tbl_t *cmdtp, int flag,
 	sparse.mssg = NULL;
 	sprintf(dest, "0x" LBAF, sparse.start * sparse.blksz);
 
-	if (write_sparse_image(&sparse, dest, addr))
+	if (write_sparse_image(&sparse, dest, addr, NULL))
 		return CMD_RET_FAILURE;
 	else
 		return CMD_RET_SUCCESS;
