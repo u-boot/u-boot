@@ -12,6 +12,8 @@
 #ifndef _FASTBOOT_H_
 #define _FASTBOOT_H_
 
+#define FASTBOOT_VERSION	"0.4"
+
 /* The 64 defined bytes plus \0 */
 #define FASTBOOT_RESPONSE_LEN	(64 + 1)
 
