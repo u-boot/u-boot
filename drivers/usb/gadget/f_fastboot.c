@@ -20,10 +20,10 @@
 #include <linux/compiler.h>
 #include <version.h>
 #include <g_dnl.h>
-#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+#ifdef CONFIG_FASTBOOT_FLASH_MMC
 #include <fb_mmc.h>
 #endif
-#ifdef CONFIG_FASTBOOT_FLASH_NAND_DEV
+#ifdef CONFIG_FASTBOOT_FLASH_NAND
 #include <fb_nand.h>
 #endif
 
@@ -583,11 +583,11 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 	}
 
 	fastboot_fail("no flash device defined", response);
-#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+#ifdef CONFIG_FASTBOOT_FLASH_MMC
 	fb_mmc_flash_write(cmd, (void *)CONFIG_FASTBOOT_BUF_ADDR,
 			   download_bytes, response);
 #endif
-#ifdef CONFIG_FASTBOOT_FLASH_NAND_DEV
+#ifdef CONFIG_FASTBOOT_FLASH_NAND
 	fb_nand_flash_write(cmd, (void *)CONFIG_FASTBOOT_BUF_ADDR,
 			    download_bytes, response);
 #endif
@@ -598,7 +598,7 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 static void cb_oem(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
-#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+#ifdef CONFIG_FASTBOOT_FLASH_MMC
 	if (strncmp("format", cmd + 4, 6) == 0) {
 		char cmdbuf[32];
                 sprintf(cmdbuf, "gpt write mmc %x $partitions",
@@ -631,10 +631,10 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 	}
 
 	fastboot_fail("no flash device defined", response);
-#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+#ifdef CONFIG_FASTBOOT_FLASH_MMC
 	fb_mmc_erase(cmd, response);
 #endif
-#ifdef CONFIG_FASTBOOT_FLASH_NAND_DEV
+#ifdef CONFIG_FASTBOOT_FLASH_NAND
 	fb_nand_erase(cmd, response);
 #endif
 	fastboot_tx_write_str(response);

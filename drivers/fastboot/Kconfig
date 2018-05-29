@@ -56,6 +56,7 @@ config FASTBOOT_USB_DEV
 config FASTBOOT_FLASH
 	bool "Enable FASTBOOT FLASH command"
 	default y if ARCH_SUNXI
+	depends on MMC || (NAND && CMD_MTDPARTS)
 	help
 	  The fastboot protocol includes a "flash" command for writing
 	  the downloaded image to a non-volatile storage device. Define
@@ -71,7 +72,7 @@ config FASTBOOT_FLASH_MMC
 
 config FASTBOOT_FLASH_NAND
 	bool "FASTBOOT on NAND"
-	depends on NAND
+	depends on NAND && CMD_MTDPARTS
 
 endchoice
 
@@ -85,19 +86,9 @@ config FASTBOOT_FLASH_MMC_DEV
 	  regarding the non-volatile storage device. Define this to
 	  the eMMC device that fastboot should use to store the image.
 
-config FASTBOOT_FLASH_NAND_DEV
-	int "Define FASTBOOT NAND FLASH default device"
-	depends on FASTBOOT_FLASH_NAND
-	depends on CMD_MTDPARTS
-	default 0 if ARCH_SUNXI && NAND_SUNXI
-	help
-	  The fastboot "flash" command requires additional information
-	  regarding the non-volatile storage device. Define this to
-	  the NAND device that fastboot should use to store the image.
-
 config FASTBOOT_GPT_NAME
 	string "Target name for updating GPT"
-	depends on FASTBOOT_FLASH
+	depends on FASTBOOT_FLASH_MMC && EFI_PARTITION
 	default "gpt"
 	help
 	  The fastboot "flash" command supports writing the downloaded
@@ -110,7 +101,7 @@ config FASTBOOT_GPT_NAME
 
 config FASTBOOT_MBR_NAME
 	string "Target name for updating MBR"
-	depends on FASTBOOT_FLASH
+	depends on FASTBOOT_FLASH_MMC && DOS_PARTITION
 	default "mbr"
 	help
 	  The fastboot "flash" command allows to write the downloaded image
