@@ -15,19 +15,6 @@
 #include <linux/compat.h>
 #include <android_image.h>
 
-/*
- * FIXME: Ensure we always set these names via Kconfig once xxx_PARTITION is
- * migrated
- */
-#ifndef CONFIG_FASTBOOT_GPT_NAME
-#define CONFIG_FASTBOOT_GPT_NAME "gpt"
-#endif
-
-
-#ifndef CONFIG_FASTBOOT_MBR_NAME
-#define CONFIG_FASTBOOT_MBR_NAME "mbr"
-#endif
-
 #define BOOT_PARTITION_NAME "boot"
 
 struct fb_mmc_sparse {
