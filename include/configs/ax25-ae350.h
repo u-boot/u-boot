@@ -79,6 +79,44 @@
 #define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_0
 #define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_0 + PHYS_SDRAM_0_SIZE)
 
+/*
+ * FLASH and environment organization
+ */
+
+/* use CFI framework */
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_FLASH_CFI_DRIVER
+
+#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
+#define CONFIG_SYS_CFI_FLASH_STATUS_POLL
+
+/* support JEDEC */
+#ifdef CONFIG_CFI_FLASH
+#define CONFIG_SYS_MAX_FLASH_BANKS_DETECT	1
+#endif/* Do not use CONFIG_FLASH_CFI_LEGACY to detect on board flash */
+#define PHYS_FLASH_1			0x88000000	/* BANK 0 */
+#define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
+#define CONFIG_SYS_FLASH_BANKS_LIST	{ PHYS_FLASH_1, }
+#define CONFIG_SYS_MONITOR_BASE		PHYS_FLASH_1
+
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* TO for Flash Erase (ms) */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* TO for Flash Write (ms) */
+
+/* max number of memory banks */
+/*
+ * There are 4 banks supported for this Controller,
+ * but we have only 1 bank connected to flash on board
+*/
+#ifndef CONFIG_SYS_MAX_FLASH_BANKS_DETECT
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+#endif
+#define CONFIG_SYS_FLASH_BANKS_SIZES {0x4000000}
+
+/* max number of sectors on one chip */
+#define CONFIG_FLASH_SECTOR_SIZE	(0x10000*2)
+#define CONFIG_SYS_MAX_FLASH_SECT	512
+
 /* environments */
 #define CONFIG_ENV_SPI_BUS		0
 #define CONFIG_ENV_SPI_CS		0
