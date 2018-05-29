@@ -85,9 +85,9 @@
 	scl-gpios = <&gpio 16 GPIO_ACTIVE_HIGH>;
 	sda-gpios = <&gpio 17 GPIO_ACTIVE_HIGH>;
 
-	tca6416_u97: gpio@21 {
+	tca6416_u97: gpio@20 {
 		compatible = "ti,tca6416";
-		reg = <0x21>;
+		reg = <0x20>;
 		gpio-controller;
 		#gpio-cells = <2>;
 		/*
