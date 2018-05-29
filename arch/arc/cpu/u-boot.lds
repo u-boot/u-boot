@@ -12,13 +12,6 @@ SECTIONS
 {
 	. = CONFIG_SYS_TEXT_BASE;
 	__image_copy_start = .;
-	__text_start = .;
-	.text :	{
-		arch/arc/lib/start.o (.text*)
-		*(.text*)
-	}
-	__text_end = .;
-
 	. = ALIGN(1024);
 	__ivt_start = .;
 	.ivt :
@@ -26,6 +19,14 @@ SECTIONS
 		KEEP(*(.ivt))
 	}
 	__ivt_end = .;
+
+	. = ALIGN(1024);
+	__text_start = .;
+	.text :	{
+		arch/arc/lib/start.o (.text*)
+		*(.text*)
+	}
+	__text_end = .;
 
 	. = ALIGN(4);
 	.rodata : {
