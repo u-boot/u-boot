@@ -1,32 +1,20 @@
-comment "FASTBOOT"
+menu "Fastboot support"
 
-menuconfig FASTBOOT
-	bool "Fastboot support"
-	depends on USB_GADGET
-	default y if ARCH_SUNXI && USB_MUSB_GADGET
-
-if FASTBOOT
+config FASTBOOT
+	bool
+	imply ANDROID_BOOT_IMAGE
+	imply CMD_FASTBOOT
 
 config USB_FUNCTION_FASTBOOT
 	bool "Enable USB fastboot gadget"
-	default y
+	depends on USB_GADGET
+	default y if ARCH_SUNXI && USB_MUSB_GADGET
+	select FASTBOOT
 	select USB_GADGET_DOWNLOAD
-	imply ANDROID_BOOT_IMAGE
-	imply CMD_FASTBOOT
 	help
 	  This enables the USB part of the fastboot gadget.
 
-config CMD_FASTBOOT
-	bool "Enable FASTBOOT command"
-	help
-	  This enables the command "fastboot" which enables the Android
-	  fastboot mode for the platform's USB device. Fastboot is a USB
-	  protocol for downloading images, flashing and device control
-	  used on Android devices.
-
-	  See doc/README.android-fastboot for more information.
-
-if USB_FUNCTION_FASTBOOT
+if FASTBOOT
 
 config FASTBOOT_BUF_ADDR
 	hex "Define FASTBOOT buffer address"
@@ -58,6 +46,7 @@ config FASTBOOT_BUF_SIZE
 
 config FASTBOOT_USB_DEV
 	int "USB controller number"
+	depends on USB_FUNCTION_FASTBOOT
 	default 0
 	help
 	  Some boards have USB OTG controller other than 0. Define this
@@ -129,6 +118,6 @@ config FASTBOOT_MBR_NAME
 	  specified on the "fastboot flash" command line matches the value
 	  defined here. The default target name for updating MBR is "mbr".
 
-endif # USB_FUNCTION_FASTBOOT
-
 endif # FASTBOOT
+
+endmenu

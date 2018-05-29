@@ -25,7 +25,6 @@ config TI_COMMON_CMD_OPTIONS
 	imply CMD_EXT2
 	imply CMD_EXT4
 	imply CMD_EXT4_WRITE
-	imply CMD_FASTBOOT if FASTBOOT
 	imply CMD_FAT
 	imply FAT_WRITE if CMD_FAT
 	imply CMD_FS_GENERIC
