@@ -11,7 +11,7 @@ SECTIONS
 	. = ALIGN(4);
 	.text :
 	{
-		arch/riscv/cpu/nx25/start.o	(.text)
+		arch/riscv/cpu/ax25/start.o	(.text)
 		*(.text)
 	}
 
