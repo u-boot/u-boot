@@ -655,8 +655,8 @@ config CMD_FASTBOOT
 	  This enables the command "fastboot" which enables the Android
 	  fastboot mode for the platform. Fastboot is a protocol for
 	  downloading images, flashing and device control used on
-	  Android devices. Fastboot requires support for acting as a USB
-	  device.
+	  Android devices. Fastboot requires either the network stack
+	  enabled or support for acting as a USB device.
 
 	  See doc/README.android-fastboot for more information.
 

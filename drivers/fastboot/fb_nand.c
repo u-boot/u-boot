@@ -88,7 +88,7 @@ static int _fb_nand_erase(struct mtd_info *mtd, struct part_info *part)
 }
 
 static int _fb_nand_write(struct mtd_info *mtd, struct part_info *part,
-			  void *buffer, unsigned int offset,
+			  void *buffer, u32 offset,
 			  size_t length, size_t *written)
 {
 	int flags = WITH_WR_VERIFY;
@@ -146,6 +146,21 @@ static lbaint_t fb_nand_sparse_reserve(struct sparse_storage *info,
 }
 
 /**
+ * fastboot_nand_get_part_info() - Lookup NAND partion by name
+ *
+ * @part_name: Named device to lookup
+ * @part_info: Pointer to returned part_info pointer
+ * @response: Pointer to fastboot response buffer
+ */
+int fastboot_nand_get_part_info(char *part_name, struct part_info **part_info,
+				char *response)
+{
+	struct mtd_info *mtd = NULL;
+
+	return fb_nand_lookup(part_name, &mtd, part_info, response);
+}
+
+/**
  * fastboot_nand_flash_write() - Write image to NAND for fastboot
  *
  * @cmd: Named device to write image to
@@ -154,7 +169,7 @@ static lbaint_t fb_nand_sparse_reserve(struct sparse_storage *info,
  * @response: Pointer to fastboot response buffer
  */
 void fastboot_nand_flash_write(const char *cmd, void *download_buffer,
-			       unsigned int download_bytes, char *response)
+			       u32 download_bytes, char *response)
 {
 	struct part_info *part;
 	struct mtd_info *mtd = NULL;

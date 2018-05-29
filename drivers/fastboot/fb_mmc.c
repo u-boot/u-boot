@@ -7,6 +7,7 @@
 #include <common.h>
 #include <blk.h>
 #include <fastboot.h>
+#include <fastboot-internal.h>
 #include <fb_mmc.h>
 #include <image-sparse.h>
 #include <part.h>
@@ -14,6 +15,8 @@
 #include <div64.h>
 #include <linux/compat.h>
 #include <android_image.h>
+
+#define FASTBOOT_MAX_BLK_WRITE 16384
 
 #define BOOT_PARTITION_NAME "boot"
 
@@ -43,13 +46,48 @@ static int part_get_info_by_name_or_alias(struct blk_desc *dev_desc,
 	return ret;
 }
 
+/**
+ * fb_mmc_blk_write() - Write/erase MMC in chunks of FASTBOOT_MAX_BLK_WRITE
+ *
+ * @block_dev: Pointer to block device
+ * @start: First block to write/erase
+ * @blkcnt: Count of blocks
+ * @buffer: Pointer to data buffer for write or NULL for erase
+ */
+static lbaint_t fb_mmc_blk_write(struct blk_desc *block_dev, lbaint_t start,
+				 lbaint_t blkcnt, const void *buffer)
+{
+	lbaint_t blk = start;
+	lbaint_t blks_written;
+	lbaint_t cur_blkcnt;
+	lbaint_t blks = 0;
+	int i;
+
+	for (i = 0; i < blkcnt; i += FASTBOOT_MAX_BLK_WRITE) {
+		cur_blkcnt = min((int)blkcnt - i, FASTBOOT_MAX_BLK_WRITE);
+		if (buffer) {
+			if (fastboot_progress_callback)
+				fastboot_progress_callback("writing");
+			blks_written = blk_dwrite(block_dev, blk, cur_blkcnt,
+						  buffer + (i * block_dev->blksz));
+		} else {
+			if (fastboot_progress_callback)
+				fastboot_progress_callback("erasing");
+			blks_written = blk_derase(block_dev, blk, cur_blkcnt);
+		}
+		blk += blks_written;
+		blks += blks_written;
+	}
+	return blks;
+}
+
 static lbaint_t fb_mmc_sparse_write(struct sparse_storage *info,
 		lbaint_t blk, lbaint_t blkcnt, const void *buffer)
 {
 	struct fb_mmc_sparse *sparse = info->priv;
 	struct blk_desc *dev_desc = sparse->dev_desc;
 
-	return blk_dwrite(dev_desc, blk, blkcnt, buffer);
+	return fb_mmc_blk_write(dev_desc, blk, blkcnt, buffer);
 }
 
 static lbaint_t fb_mmc_sparse_reserve(struct sparse_storage *info,
@@ -60,7 +98,7 @@ static lbaint_t fb_mmc_sparse_reserve(struct sparse_storage *info,
 
 static void write_raw_image(struct blk_desc *dev_desc, disk_partition_t *info,
 		const char *part_name, void *buffer,
-		unsigned int download_bytes, char *response)
+		u32 download_bytes, char *response)
 {
 	lbaint_t blkcnt;
 	lbaint_t blks;
@@ -77,7 +115,8 @@ static void write_raw_image(struct blk_desc *dev_desc, disk_partition_t *info,
 
 	puts("Flashing Raw Image\n");
 
-	blks = blk_dwrite(dev_desc, info->start, blkcnt, buffer);
+	blks = fb_mmc_blk_write(dev_desc, info->start, blkcnt, buffer);
+
 	if (blks != blkcnt) {
 		pr_err("failed writing to device %d\n", dev_desc->devnum);
 		fastboot_fail("failed writing to device", response);
@@ -148,7 +187,7 @@ static lbaint_t fb_mmc_get_boot_header(struct blk_desc *dev_desc,
  */
 static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
 				void *download_buffer,
-				unsigned int download_bytes,
+				u32 download_bytes,
 				char *response)
 {
 	uintptr_t hdr_addr;			/* boot image header address */
@@ -252,6 +291,38 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
 #endif
 
 /**
+ * fastboot_mmc_get_part_info() - Lookup eMMC partion by name
+ *
+ * @part_name: Named partition to lookup
+ * @dev_desc: Pointer to returned blk_desc pointer
+ * @part_info: Pointer to returned disk_partition_t
+ * @response: Pointer to fastboot response buffer
+ */
+int fastboot_mmc_get_part_info(char *part_name, struct blk_desc **dev_desc,
+			       disk_partition_t *part_info, char *response)
+{
+	int r;
+
+	*dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
+	if (!*dev_desc) {
+		fastboot_fail("block device not found", response);
+		return -ENOENT;
+	}
+	if (!part_name) {
+		fastboot_fail("partition not found", response);
+		return -ENOENT;
+	}
+
+	r = part_get_info_by_name_or_alias(*dev_desc, part_name, part_info);
+	if (r < 0) {
+		fastboot_fail("partition not found", response);
+		return r;
+	}
+
+	return r;
+}
+
+/**
  * fastboot_mmc_flash_write() - Write image to eMMC for fastboot
  *
  * @cmd: Named partition to write image to
@@ -260,7 +331,7 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
  * @response: Pointer to fastboot response buffer
  */
 void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
-			      unsigned int download_bytes, char *response)
+			      u32 download_bytes, char *response)
 {
 	struct blk_desc *dev_desc;
 	disk_partition_t info;
@@ -403,7 +474,8 @@ void fastboot_mmc_erase(const char *cmd, char *response)
 	printf("Erasing blocks " LBAFU " to " LBAFU " due to alignment\n",
 	       blks_start, blks_start + blks_size);
 
-	blks = blk_derase(dev_desc, blks_start, blks_size);
+	blks = fb_mmc_blk_write(dev_desc, blks_start, blks_size, NULL);
+
 	if (blks != blks_size) {
 		pr_err("failed erasing from device %d\n", dev_desc->devnum);
 		fastboot_fail("failed erasing from device", response);

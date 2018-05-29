@@ -14,6 +14,13 @@ config USB_FUNCTION_FASTBOOT
 	help
 	  This enables the USB part of the fastboot gadget.
 
+config UDP_FUNCTION_FASTBOOT
+	depends on NET
+	select FASTBOOT
+	bool "Enable fastboot protocol over UDP"
+	help
+	  This enables the fastboot protocol over UDP.
+
 if FASTBOOT
 
 config FASTBOOT_BUF_ADDR
