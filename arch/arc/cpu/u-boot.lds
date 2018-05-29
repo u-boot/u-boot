@@ -23,7 +23,7 @@ SECTIONS
 	__ivt_start = .;
 	.ivt :
 	{
-		*(.ivt)
+		KEEP(*(.ivt))
 	}
 	__ivt_end = .;
 
