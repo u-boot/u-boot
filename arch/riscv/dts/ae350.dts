@@ -117,6 +117,18 @@
     interrupt-parent = <&plic0>;
 	};
 
+  smc0: smc@e0400000 {
+    compatible = "andestech,atfsmc020";
+    reg = <0x0 0xe0400000 0x0 0x1000>;
+  };
+
+  nor@0,0 {
+    compatible = "cfi-flash";
+    reg = <0x0 0x88000000 0x0 0x1000>;
+    bank-width = <2>;
+    device-width = <1>;
+  };
+
 	spi: spi@f0b00000 {
 		compatible = "andestech,atcspi200";
     reg = <0x0 0xf0b00000 0x0 0x1000>;
