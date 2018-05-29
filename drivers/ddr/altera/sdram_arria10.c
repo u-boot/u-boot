@@ -713,28 +713,3 @@ int ddr_calibration_sequence(void)
 
 	return 0;
 }
-
-void dram_bank_mmu_setup(int bank)
-{
-	bd_t *bd = gd->bd;
-	int	i;
-
-	debug("%s: bank: %d\n", __func__, bank);
-	for (i = bd->bi_dram[bank].start >> 20;
-	     i < (bd->bi_dram[bank].start + bd->bi_dram[bank].size) >> 20;
-	     i++) {
-#if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
-		set_section_dcache(i, DCACHE_WRITETHROUGH);
-#else
-		set_section_dcache(i, DCACHE_WRITEBACK);
-#endif
-	}
-
-	/* same as above but just that we would want cacheable for ocram too */
-	i = CONFIG_SYS_INIT_RAM_ADDR >> 20;
-#if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
-	set_section_dcache(i, DCACHE_WRITETHROUGH);
-#else
-	set_section_dcache(i, DCACHE_WRITEBACK);
-#endif
-}
