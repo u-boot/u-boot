@@ -10,6 +10,8 @@
 #include <netdev.h>
 #endif
 #include <linux/io.h>
+#include <faraday/ftsmc020.h>
+#include <fdtdec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -72,3 +74,35 @@ void *board_fdt_blob_setup(void)
 
 	return (void *)CONFIG_SYS_FDT_BASE;
 }
+
+int smc_init(void)
+{
+	int node = -1;
+	const char *compat = "andestech,atfsmc020";
+	void *blob = (void *)gd->fdt_blob;
+	fdt_addr_t addr;
+	struct ftsmc020_bank *regs;
+
+	node = fdt_node_offset_by_compatible(blob, -1, compat);
+	if (node < 0)
+		return -FDT_ERR_NOTFOUND;
+
+	addr = fdtdec_get_addr(blob, node, "reg");
+
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	regs = (struct ftsmc020_bank *)addr;
+	regs->cr &= ~FTSMC020_BANK_WPROT;
+
+	return 0;
+}
+
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+int board_early_init_f(void)
+{
+	smc_init();
+
+	return 0;
+}
+#endif
