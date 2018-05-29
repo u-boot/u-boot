@@ -32,12 +32,21 @@ struct arasan_sdhci_priv {
 };
 
 #if defined(CONFIG_ARCH_ZYNQMP)
+#define MMC_HS200_BUS_SPEED	5
+
 static const u8 mode2timing[] = {
-	     [UHS_SDR12] = UHS_SDR12_BUS_SPEED,
-	     [UHS_SDR25] = UHS_SDR25_BUS_SPEED,
-	     [UHS_SDR50] = UHS_SDR50_BUS_SPEED,
-	     [UHS_SDR104] = UHS_SDR104_BUS_SPEED,
-	     [UHS_DDR50] = UHS_DDR50_BUS_SPEED,
+	[MMC_LEGACY] = UHS_SDR12_BUS_SPEED,
+	[SD_LEGACY] = UHS_SDR12_BUS_SPEED,
+	[MMC_HS] = HIGH_SPEED_BUS_SPEED,
+	[SD_HS] = HIGH_SPEED_BUS_SPEED,
+	[MMC_HS_52] = HIGH_SPEED_BUS_SPEED,
+	[MMC_DDR_52] = HIGH_SPEED_BUS_SPEED,
+	[UHS_SDR12] = UHS_SDR12_BUS_SPEED,
+	[UHS_SDR25] = UHS_SDR25_BUS_SPEED,
+	[UHS_SDR50] = UHS_SDR50_BUS_SPEED,
+	[UHS_DDR50] = UHS_DDR50_BUS_SPEED,
+	[UHS_SDR104] = UHS_SDR104_BUS_SPEED,
+	[MMC_HS_200] = MMC_HS200_BUS_SPEED,
 };
 
 #define SDHCI_HOST_CTRL2	0x3E
@@ -160,9 +169,6 @@ static void arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	u8 uhsmode;
 
-	if (!IS_SD(mmc))
-		return;
-
 	uhsmode = mode2timing[mmc->selected_mode];
 
 	if (uhsmode >= UHS_SDR25_BUS_SPEED)
@@ -174,6 +180,9 @@ static void arasan_sdhci_set_control_reg(struct sdhci_host *host)
 {
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	u32 reg;
+
+	if (!IS_SD(mmc))
+		return;
 
 	if (mmc->signal_voltage == MMC_SIGNAL_VOLTAGE_180) {
 		reg = sdhci_readw(host, SDHCI_HOST_CTRL2);
