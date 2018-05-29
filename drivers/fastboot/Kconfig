@@ -86,6 +86,13 @@ config FASTBOOT_FLASH_MMC_DEV
 	  regarding the non-volatile storage device. Define this to
 	  the eMMC device that fastboot should use to store the image.
 
+config FASTBOOT_FLASH_NAND_TRIMFFS
+	bool "Skip empty pages when flashing NAND"
+	depends on FASTBOOT_FLASH_NAND
+	help
+	  When flashing NAND enable the DROP_FFS flag to drop trailing all-0xff
+	  pages.
+
 config FASTBOOT_GPT_NAME
 	string "Target name for updating GPT"
 	depends on FASTBOOT_FLASH_MMC && EFI_PARTITION
