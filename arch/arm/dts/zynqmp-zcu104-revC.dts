@@ -156,10 +156,15 @@
 			};
 		};
 
-		i2c@4 {
+		i2c@3 {
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <4>;
+			reg = <3>;
+			ina226@40 { /* u183 */
+				compatible = "ti,ina226";
+				reg = <0x40>;
+				shunt-resistor = <5000>;
+			};
 		};
 
 		i2c@5 {
@@ -174,7 +179,7 @@
 			reg = <7>;
 		};
 
-		/* 3, 6 not connected */
+		/* 4, 6 not connected */
 	};
 };
 
