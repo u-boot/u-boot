@@ -89,7 +89,7 @@ static int _fb_nand_erase(struct mtd_info *mtd, struct part_info *part)
 
 static int _fb_nand_write(struct mtd_info *mtd, struct part_info *part,
 			  void *buffer, unsigned int offset,
-			  unsigned int length, size_t *written)
+			  size_t length, size_t *written)
 {
 	int flags = WITH_WR_VERIFY;
 
