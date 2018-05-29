@@ -59,3 +59,18 @@ void fastboot_okay(const char *reason, char *response)
 	else
 		fastboot_response("OKAY", response, NULL);
 }
+
+/**
+ * fastboot_set_reboot_flag() - Set flag to indicate reboot-bootloader
+ *
+ * Set flag which indicates that we should reboot into the bootloader
+ * following the reboot that fastboot executes after this function.
+ *
+ * This function should be overridden in your board file with one
+ * which sets whatever flag your board specific Android bootloader flow
+ * requires in order to re-enter the bootloader.
+ */
+int __weak fastboot_set_reboot_flag(void)
+{
+	return -ENOSYS;
+}

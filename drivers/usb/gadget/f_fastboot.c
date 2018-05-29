@@ -357,16 +357,11 @@ static void compl_do_reset(struct usb_ep *ep, struct usb_request *req)
 	do_reset(NULL, 0, 0, NULL);
 }
 
-int __weak fb_set_reboot_flag(void)
-{
-	return -ENOSYS;
-}
-
 static void cb_reboot(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
 	if (!strcmp_l1("reboot-bootloader", cmd)) {
-		if (fb_set_reboot_flag()) {
+		if (fastboot_set_reboot_flag()) {
 			fastboot_tx_write_str("FAILCannot set reboot flag");
 			return;
 		}

@@ -41,5 +41,5 @@ void fastboot_fail(const char *reason, char *response);
  * @response: Pointer to fastboot response buffer
  */
 void fastboot_okay(const char *reason, char *response);
-
+int fastboot_set_reboot_flag(void);
 #endif /* _FASTBOOT_H_ */

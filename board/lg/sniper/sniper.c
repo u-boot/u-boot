@@ -173,7 +173,7 @@ void reset_misc(void)
 	omap_reboot_mode_store(reboot_mode);
 }
 
-int fb_set_reboot_flag(void)
+int fastboot_set_reboot_flag(void)
 {
 	return omap_reboot_mode_store("b");
 }
