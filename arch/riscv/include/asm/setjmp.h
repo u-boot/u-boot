@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2018 Alexander Graf <agraf@suse.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SETJMP_H_
