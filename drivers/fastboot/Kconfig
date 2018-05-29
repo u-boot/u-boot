@@ -124,6 +124,14 @@ config FASTBOOT_MBR_NAME
 	  specified on the "fastboot flash" command line matches the value
 	  defined here. The default target name for updating MBR is "mbr".
 
+config FASTBOOT_CMD_OEM_FORMAT
+	bool "Enable the 'oem format' command"
+	depends on FASTBOOT_FLASH_MMC && CMD_GPT
+	help
+	  Add support for the "oem format" command from a client. This
+	  relies on the env variable partitions to contain the list of
+	  partitions as required by the gpt command.
+
 endif # FASTBOOT
 
 endmenu

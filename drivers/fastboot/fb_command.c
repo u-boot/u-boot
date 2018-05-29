@@ -34,6 +34,9 @@ static void flash(char *, char *);
 static void erase(char *, char *);
 #endif
 static void reboot_bootloader(char *, char *);
+#if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_FORMAT)
+static void oem_format(char *, char *);
+#endif
 
 static const struct {
 	const char *command;
@@ -77,6 +80,12 @@ static const struct {
 		.command = "set_active",
 		.dispatch = okay
 	},
+#if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_FORMAT)
+	[FASTBOOT_COMMAND_OEM_FORMAT] = {
+		.command = "oem format",
+		.dispatch = oem_format,
+	},
+#endif
 };
 
 /**
@@ -300,3 +309,27 @@ static void reboot_bootloader(char *cmd_parameter, char *response)
 	else
 		fastboot_okay(NULL, response);
 }
+
+#if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_FORMAT)
+/**
+ * oem_format() - Execute the OEM format command
+ *
+ * @cmd_parameter: Pointer to command parameter
+ * @response: Pointer to fastboot response buffer
+ */
+static void oem_format(char *cmd_parameter, char *response)
+{
+	char cmdbuf[32];
+
+	if (!env_get("partitions")) {
+		fastboot_fail("partitions not set", response);
+	} else {
+		sprintf(cmdbuf, "gpt write mmc %x $partitions",
+			CONFIG_FASTBOOT_FLASH_MMC_DEV);
+		if (run_command(cmdbuf, 0))
+			fastboot_fail("", response);
+		else
+			fastboot_okay(NULL, response);
+	}
+}
+#endif
