@@ -57,6 +57,7 @@ config FASTBOOT_FLASH
 	bool "Enable FASTBOOT FLASH command"
 	default y if ARCH_SUNXI
 	depends on MMC || (NAND && CMD_MTDPARTS)
+	select IMAGE_SPARSE
 	help
 	  The fastboot protocol includes a "flash" command for writing
 	  the downloaded image to a non-volatile storage device. Define

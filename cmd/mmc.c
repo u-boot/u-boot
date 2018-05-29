@@ -308,8 +308,7 @@ static int do_mmc_read(cmd_tbl_t *cmdtp, int flag,
 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
 }
 
-#if CONFIG_IS_ENABLED(MMC_WRITE)
-#if defined(CONFIG_FASTBOOT_FLASH)
+#if CONFIG_IS_ENABLED(CMD_MMC_SWRITE)
 static lbaint_t mmc_sparse_write(struct sparse_storage *info, lbaint_t blk,
 				 lbaint_t blkcnt, const void *buffer)
 {
@@ -374,6 +373,7 @@ static int do_mmc_sparse_write(cmd_tbl_t *cmdtp, int flag,
 }
 #endif
 
+#if CONFIG_IS_ENABLED(MMC_WRITE)
 static int do_mmc_write(cmd_tbl_t *cmdtp, int flag,
 			int argc, char * const argv[])
 {
@@ -868,10 +868,10 @@ static cmd_tbl_t cmd_mmc[] = {
 	U_BOOT_CMD_MKENT(read, 4, 1, do_mmc_read, "", ""),
 #if CONFIG_IS_ENABLED(MMC_WRITE)
 	U_BOOT_CMD_MKENT(write, 4, 0, do_mmc_write, "", ""),
-#if defined(CONFIG_FASTBOOT_FLASH)
-	U_BOOT_CMD_MKENT(swrite, 3, 0, do_mmc_sparse_write, "", ""),
-#endif
 	U_BOOT_CMD_MKENT(erase, 3, 0, do_mmc_erase, "", ""),
+#endif
+#if CONFIG_IS_ENABLED(CMD_MMC_SWRITE)
+	U_BOOT_CMD_MKENT(swrite, 3, 0, do_mmc_sparse_write, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(rescan, 1, 1, do_mmc_rescan, "", ""),
 	U_BOOT_CMD_MKENT(part, 1, 1, do_mmc_part, "", ""),
@@ -927,7 +927,7 @@ U_BOOT_CMD(
 	"info - display info of the current MMC device\n"
 	"mmc read addr blk# cnt\n"
 	"mmc write addr blk# cnt\n"
-#if defined(CONFIG_FASTBOOT_FLASH)
+#if CONFIG_IS_ENABLED(CMD_MMC_SWRITE)
 	"mmc swrite addr blk#\n"
 #endif
 	"mmc erase blk# cnt\n"

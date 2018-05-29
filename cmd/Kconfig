@@ -833,6 +833,14 @@ config CMD_MMC_RPMB
 	  Enable the commands for reading, writing and programming the
 	  key for the Replay Protection Memory Block partition in eMMC.
 
+config CMD_MMC_SWRITE
+	bool "mmc swrite"
+	depends on CMD_MMC && MMC_WRITE
+	select IMAGE_SPARSE
+	help
+	  Enable support for the "mmc swrite" command to write Android sparse
+	  images to eMMC.
+
 config CMD_NAND
 	bool "nand"
 	default y if NAND_SUNXI

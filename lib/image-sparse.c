@@ -44,10 +44,6 @@
 
 #include <linux/math64.h>
 
-#ifndef CONFIG_FASTBOOT_FLASH_FILLBUF_SIZE
-#define CONFIG_FASTBOOT_FLASH_FILLBUF_SIZE (1024 * 512)
-#endif
-
 static void default_log(const char *ignored, char *response) {}
 
 int write_sparse_image(struct sparse_storage *info,
@@ -69,7 +65,7 @@ int write_sparse_image(struct sparse_storage *info,
 	int i;
 	int j;
 
-	fill_buf_num_blks = CONFIG_FASTBOOT_FLASH_FILLBUF_SIZE / info->blksz;
+	fill_buf_num_blks = CONFIG_IMAGE_SPARSE_FILLBUF_SIZE / info->blksz;
 
 	/* Read and skip over sparse image header */
 	sparse_header = (sparse_header_t *)data;
