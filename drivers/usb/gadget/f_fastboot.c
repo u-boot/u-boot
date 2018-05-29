@@ -149,19 +149,6 @@ static struct usb_gadget_strings *fastboot_strings[] = {
 static void rx_handler_command(struct usb_ep *ep, struct usb_request *req);
 static int strcmp_l1(const char *s1, const char *s2);
 
-
-void fastboot_fail(const char *reason, char *response)
-{
-	strncpy(response, "FAIL\0", 5);
-	strncat(response, reason, FASTBOOT_RESPONSE_LEN - 4 - 1);
-}
-
-void fastboot_okay(const char *reason, char *response)
-{
-	strncpy(response, "OKAY\0", 5);
-	strncat(response, reason, FASTBOOT_RESPONSE_LEN - 4 - 1);
-}
-
 static void fastboot_complete(struct usb_ep *ep, struct usb_request *req)
 {
 	int status = req->status;

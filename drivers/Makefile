@@ -71,9 +71,7 @@ obj-y += block/
 obj-$(CONFIG_BOOTCOUNT_LIMIT) += bootcount/
 obj-$(CONFIG_CPU) += cpu/
 obj-y += crypto/
-ifneq ($(CONFIG_FASTBOOT_FLASH_MMC_DEV)$(CONFIG_FASTBOOT_FLASH_NAND_DEV),)
-obj-y += fastboot/
-endif
+obj-$(CONFIG_FASTBOOT) += fastboot/
 obj-y += firmware/
 obj-$(CONFIG_FPGA) += fpga/
 obj-y += misc/
