@@ -99,4 +99,15 @@ config SATA_SIL3114
 	help
 	  Enable this driver to support the SIL3114 SATA controllers.
 
+config AHCI_MVEBU
+	bool "Marvell EBU AHCI SATA support"
+	depends on ARCH_MVEBU
+	depends on AHCI
+	select SCSI_AHCI
+	select DM_SCSI
+	help
+	  This option enables support for the Marvell EBU SoC's
+	  onboard AHCI SATA.
+
+	  If unsure, say N.
 endmenu

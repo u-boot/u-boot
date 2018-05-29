@@ -27,7 +27,8 @@
 /*
  * Commands configuration
  */
-#define CONFIG_SYS_MVFS
+#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
+#define CONFIG_MTD_PARTITIONS
 
 #define CONFIG_NR_DRAM_BANKS		1
 

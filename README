@@ -331,11 +331,6 @@ The following options need to be configured:
 
 - Board Type:	Define exactly one, e.g. CONFIG_MPC8540ADS.
 
-- Marvell Family Member
-		CONFIG_SYS_MVFS		- define it if you want to enable
-					  multiple fs option at one time
-					  for marvell soc family
-
 - 85xx CPU Options:
 		CONFIG_SYS_PPC64
 

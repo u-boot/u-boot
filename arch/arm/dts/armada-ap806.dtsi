@@ -141,7 +141,7 @@
 			};
 
 			ap_pinctl: ap-pinctl@6F4000 {
-				compatible = "marvell,armada-ap806-pinctrl";
+				compatible = "marvell,ap806-pinctrl";
 				bank-name ="apn-806";
 				reg = <0x6F4000 0x10>;
 				pin-count = <20>;

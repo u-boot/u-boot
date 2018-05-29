@@ -29,10 +29,6 @@
 #define CONFIG_SYS_SDRAM_BASE	0x00000000
 
 /*
- * CLKs configurations
- */
-
-/*
  * NS16550 Configuration
  */
 #define CONFIG_SYS_NS16550_SERIAL
@@ -99,20 +95,6 @@
  */
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE     1
-#endif
-
-/*
- * Common SPI Flash configuration
- */
-#ifdef CONFIG_CMD_SF
-#endif
-
-/*
- * File system
- */
-#ifdef CONFIG_SYS_MVFS
-#define CONFIG_MTD_DEVICE               /* needed for mtdparts commands */
-#define CONFIG_MTD_PARTITIONS
 #endif
 
 #endif /* _MV_COMMON_H */

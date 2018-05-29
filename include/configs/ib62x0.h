@@ -26,7 +26,8 @@
 /*
  * Commands configuration
  */
-#define CONFIG_SYS_MVFS
+#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
+#define CONFIG_MTD_PARTITIONS
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
