@@ -1188,5 +1188,15 @@ void board_tee_image_process(ulong tee_image, size_t tee_size)
 	secure_tee_install((u32)tee_image);
 }
 
+#if CONFIG_IS_ENABLED(FASTBOOT) && !CONFIG_IS_ENABLED(ENV_IS_NOWHERE)
+int fastboot_set_reboot_flag(void)
+{
+	printf("Setting reboot to fastboot flag ...\n");
+	env_set("dofastboot", "1");
+	env_save();
+	return 0;
+}
+#endif
+
 U_BOOT_FIT_LOADABLE_HANDLER(IH_TYPE_TEE, board_tee_image_process);
 #endif
