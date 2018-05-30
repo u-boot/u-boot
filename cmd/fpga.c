@@ -13,9 +13,6 @@
 #include <fs.h>
 #include <malloc.h>
 
-/* Local functions */
-static int fpga_get_op(char *opstr);
-
 /* Local defines */
 enum {
 	FPGA_NONE = -1,
@@ -29,6 +26,46 @@ enum {
 	FPGA_LOADFS,
 	FPGA_LOADS,
 };
+
+/*
+ * Map op to supported operations.  We don't use a table since we
+ * would just have to relocate it from flash anyway.
+ */
+static int fpga_get_op(char *opstr)
+{
+	int op = FPGA_NONE;
+
+	if (!strcmp("info", opstr))
+		op = FPGA_INFO;
+	else if (!strcmp("loadb", opstr))
+		op = FPGA_LOADB;
+	else if (!strcmp("load", opstr))
+		op = FPGA_LOAD;
+#if defined(CONFIG_CMD_FPGA_LOADP)
+	else if (!strcmp("loadp", opstr))
+		op = FPGA_LOADP;
+#endif
+#if defined(CONFIG_CMD_FPGA_LOADBP)
+	else if (!strcmp("loadbp", opstr))
+		op = FPGA_LOADBP;
+#endif
+#if defined(CONFIG_CMD_FPGA_LOADFS)
+	else if (!strcmp("loadfs", opstr))
+		op = FPGA_LOADFS;
+#endif
+#if defined(CONFIG_CMD_FPGA_LOADMK)
+	else if (!strcmp("loadmk", opstr))
+		op = FPGA_LOADMK;
+#endif
+	else if (!strcmp("dump", opstr))
+		op = FPGA_DUMP;
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+	else if (!strcmp("loads", opstr))
+		op = FPGA_LOADS;
+#endif
+
+	return op;
+}
 
 /* ------------------------------------------------------------------------- */
 /* command form:
@@ -71,7 +108,7 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		return CMD_RET_USAGE;
 	}
 
-	op = (int)fpga_get_op(argv[1]);
+	op = fpga_get_op(argv[1]);
 
 	switch (op) {
 	case FPGA_NONE:
@@ -324,46 +361,6 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		return CMD_RET_USAGE;
 	}
 	return rc;
-}
-
-/*
- * Map op to supported operations.  We don't use a table since we
- * would just have to relocate it from flash anyway.
- */
-static int fpga_get_op(char *opstr)
-{
-	int op = FPGA_NONE;
-
-	if (!strcmp("info", opstr))
-		op = FPGA_INFO;
-	else if (!strcmp("loadb", opstr))
-		op = FPGA_LOADB;
-	else if (!strcmp("load", opstr))
-		op = FPGA_LOAD;
-#if defined(CONFIG_CMD_FPGA_LOADP)
-	else if (!strcmp("loadp", opstr))
-		op = FPGA_LOADP;
-#endif
-#if defined(CONFIG_CMD_FPGA_LOADBP)
-	else if (!strcmp("loadbp", opstr))
-		op = FPGA_LOADBP;
-#endif
-#if defined(CONFIG_CMD_FPGA_LOADFS)
-	else if (!strcmp("loadfs", opstr))
-		op = FPGA_LOADFS;
-#endif
-#if defined(CONFIG_CMD_FPGA_LOADMK)
-	else if (!strcmp("loadmk", opstr))
-		op = FPGA_LOADMK;
-#endif
-	else if (!strcmp("dump", opstr))
-		op = FPGA_DUMP;
-#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
-	else if (!strcmp("loads", opstr))
-		op = FPGA_LOADS;
-#endif
-
-	return op;
 }
 
 #if defined(CONFIG_CMD_FPGA_LOADFS) || defined(CONFIG_CMD_FPGA_LOAD_SECURE)
