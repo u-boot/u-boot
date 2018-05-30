@@ -129,7 +129,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		int status = readl(&lslave->regs->sr);
 		if ((idx_out < bytelen) && (status & SSP_SR_TNF))
 			writel(((u8 *)dout)[idx_out++], &lslave->regs->data);
-		if ((idx_in < bytelen) && (status & status & SSP_SR_RNE))
+		if ((idx_in < bytelen) && (status & SSP_SR_RNE))
 			((u8 *)din)[idx_in++] = readl(&lslave->regs->data);
 		if (get_timer(start_time) >= CONFIG_LPC32XX_SSP_TIMEOUT)
 			return -1;

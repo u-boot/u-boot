@@ -407,7 +407,7 @@ static inline void qspi_ahb_read(struct fsl_qspi_priv *priv, u8 *rxbuf, int len)
 {
 	struct fsl_qspi_regs *regs = priv->regs;
 	u32 mcr_reg;
-	void *rx_addr = NULL;
+	void *rx_addr;
 
 	mcr_reg = qspi_read32(priv->flags, &regs->mcr);
 

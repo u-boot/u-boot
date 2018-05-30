@@ -88,10 +88,11 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0xA0001000 0x1000>, <0x90000000 0x10000000>;
-			reg-names = "QuadSPI", "QuadSPI-memory";
+			reg-names = "qspi", "qspi_mm";
 			interrupts = <92>;
 			spi-max-frequency = <108000000>;
 			clocks = <&rcc 0 STM32F7_AHB3_CLOCK(QSPI)>;
+			resets = <&rcc STM32F7_AHB3_RESET(QSPI)>;
 			status = "disabled";
 		};
 		usart1: serial@40011000 {
