@@ -59,6 +59,9 @@ config TARGET_NAS220
 config TARGET_NSA310S
 	bool "Zyxel NSA310S"
 
+config TARGET_SBx81LIFKW
+	bool "Allied Telesis SBx81GS24/SBx81GT40/SBx81XS6/SBx81XS16"
+
 endchoice
 
 config SYS_SOC
@@ -81,5 +84,6 @@ source "board/Seagate/dockstar/Kconfig"
 source "board/Seagate/goflexhome/Kconfig"
 source "board/Seagate/nas220/Kconfig"
 source "board/zyxel/nsa310s/Kconfig"
+source "board/alliedtelesis/SBx81LIFKW/Kconfig"
 
 endif
