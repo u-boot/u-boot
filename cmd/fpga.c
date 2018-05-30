@@ -123,6 +123,14 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		fpga_fsinfo.interface = argv[6];
 		fpga_fsinfo.dev_part = argv[7];
 		fpga_fsinfo.filename = argv[8];
+
+		/* Blocksize can be zero */
+		if (!fpga_fsinfo.interface || !fpga_fsinfo.dev_part ||
+		    !fpga_fsinfo.filename) {
+			puts("ERR: Wrong interface, dev_part or filename\n");
+			return CMD_RET_USAGE;
+		}
+
 		argc = 5;
 		break;
 #endif
@@ -136,6 +144,19 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 								     NULL, 16);
 		fpga_sec_info.encflag = (u8)simple_strtoul(argv[6], NULL, 16);
 		fpga_sec_info.authflag = (u8)simple_strtoul(argv[5], NULL, 16);
+
+		if (fpga_sec_info.authflag >= FPGA_NO_ENC_OR_NO_AUTH &&
+		    fpga_sec_info.encflag >= FPGA_NO_ENC_OR_NO_AUTH) {
+			puts("ERR: Use <fpga load> for NonSecure bitstream\n");
+			return CMD_RET_USAGE;
+		}
+
+		if (fpga_sec_info.encflag == FPGA_ENC_USR_KEY &&
+		    !fpga_sec_info.userkey_addr) {
+			puts("ERR: User key not provided\n");
+			return CMD_RET_USAGE;
+		}
+
 		argc = 5;
 		break;
 #endif
@@ -177,29 +198,6 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	switch (op) {
 	case FPGA_INFO:
 		break;
-#if defined(CONFIG_CMD_FPGA_LOADFS)
-	case FPGA_LOADFS:
-		/* Blocksize can be zero */
-		if (!fpga_fsinfo.interface || !fpga_fsinfo.dev_part ||
-		    !fpga_fsinfo.filename)
-			wrong_parms = 1;
-		break;
-#endif
-#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
-	case FPGA_LOADS:
-		if (fpga_sec_info.authflag >= FPGA_NO_ENC_OR_NO_AUTH &&
-		    fpga_sec_info.encflag >= FPGA_NO_ENC_OR_NO_AUTH) {
-			puts("ERR: use <fpga load> for NonSecure bitstream\n");
-			wrong_parms = 1;
-		}
-
-		if (fpga_sec_info.encflag == FPGA_ENC_USR_KEY &&
-		    !fpga_sec_info.userkey_addr) {
-			wrong_parms = 1;
-			puts("ERR:User key not provided\n");
-		}
-		break;
-#endif
 	case FPGA_LOAD:
 	case FPGA_LOADP:
 	case FPGA_LOADB:
