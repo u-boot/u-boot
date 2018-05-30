@@ -148,6 +148,13 @@ config TARGET_COLIBRI_IMX6
 	select DM_SERIAL
 	select DM_THERMAL
 
+config TARGET_COLIBRI_IMX6ULL
+	bool "Toradex Colibri iMX6ULL"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_THERMAL
+	select MX6ULL
+
 config TARGET_DHCOMIMX6
 	bool "dh_imx6"
 	select MX6QDL
@@ -530,6 +537,7 @@ source "board/tbs/tbs2910/Kconfig"
 source "board/tqc/tqma6/Kconfig"
 source "board/toradex/apalis_imx6/Kconfig"
 source "board/toradex/colibri_imx6/Kconfig"
+source "board/toradex/colibri-imx6ull/Kconfig"
 source "board/k+p/kp_imx6q_tpc/Kconfig"
 source "board/udoo/Kconfig"
 source "board/udoo/neo/Kconfig"
