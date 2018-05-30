@@ -147,7 +147,12 @@
 #endif
 
 /* Total Size of Environment Sector */
-#define CONFIG_ENV_SIZE			(128 << 10)
+#ifdef CONFIG_ENV_IS_IN_EEPROM
+# define CONFIG_ENV_SIZE			CONFIG_SYS_EEPROM_SIZE
+# define CONFIG_EXTRA_ENV_SETTINGS
+#else
+# define CONFIG_ENV_SIZE			(128 << 10)
+#endif
 
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
