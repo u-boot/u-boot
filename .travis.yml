@@ -87,9 +87,9 @@ before_script:
     fi
   - if [[ "${TOOLCHAIN}" == "powerpc" ]]; then ./tools/buildman/buildman --fetch-arch powerpc; fi
   - if [[ "${TOOLCHAIN}" == "riscv" ]]; then
-        wget https://github.com/PkmX/riscv-prebuilt-toolchains/releases/download/20180111/riscv32-unknown-elf-toolchain.tar.gz &&
-        tar -C /tmp -xf riscv32-unknown-elf-toolchain.tar.gz &&
-        echo -e "\n[toolchain-prefix]\nriscv = /tmp/riscv32-unknown-elf/bin/riscv32-unknown-elf-" >> ~/.buildman;
+        wget https://github.com/andestech/prebuilt/releases/download/20180530/riscv64-unknown-linux-gnu.tar.gz &&
+        tar -C /tmp -xf riscv64-unknown-linux-gnu.tar.gz &&
+        echo -e "\n[toolchain-prefix]\nriscv = /tmp/riscv64-unknown-linux-gnu/bin/riscv64-unknown-linux-gnu-" >> ~/.buildman;
     fi
   - if [[ "${QEMU_TARGET}" != "" ]]; then
        git clone git://git.qemu.org/qemu.git /tmp/qemu;
