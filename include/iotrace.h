@@ -59,6 +59,30 @@ void iotrace_reset_checksum(void);
 u32 iotrace_get_checksum(void);
 
 /**
+ * iotrace_set_region() - Set whether iotrace is limited to a specific
+ * io region.
+ *
+ * Defines the address and size of the limited region.
+ *
+ * @start: address of the beginning of the region
+ * @size: size of the region in bytes.
+ */
+void iotrace_set_region(ulong start, ulong size);
+
+/**
+ * iotrace_reset_region() - Reset the region limit
+ */
+void iotrace_reset_region(void);
+
+/**
+ * iotrace_get_region() - Get region information
+ *
+ * @start: Returns start address of region
+ * @size: Returns size of region in bytes
+ */
+void iotrace_get_region(ulong *start, ulong *size);
+
+/**
  * iotrace_set_enabled() - Set whether iotracing is enabled or not
  *
  * This controls whether the checksum is updated and a trace record added
