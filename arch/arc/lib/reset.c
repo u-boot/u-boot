@@ -12,7 +12,7 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 #ifdef DEBUG
 	/* Stop debug session here */
-	__asm__("brk");
+	__builtin_arc_brk();
 #endif
 	return 0;
 }
