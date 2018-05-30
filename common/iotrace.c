@@ -27,11 +27,13 @@ enum iotrace_flags {
  * struct iotrace_record - Holds a single I/O trace record
  *
  * @flags: I/O access type
+ * @timestamp: Timestamp of access
  * @addr: Address of access
  * @value: Value written or read
  */
 struct iotrace_record {
 	enum iotrace_flags flags;
+	u64 timestamp;
 	phys_addr_t addr;
 	iovalue_t value;
 };
@@ -81,7 +83,7 @@ static void add_record(int flags, const void *ptr, ulong value)
 					iotrace.start + iotrace.offset,
 					sizeof(value));
 	}
-
+	rec->timestamp = timer_get_us();
 	rec->flags = flags;
 	rec->addr = map_to_sysmem(ptr);
 	rec->value = value;
