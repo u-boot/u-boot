@@ -6,13 +6,17 @@
 #include <command.h>
 #include <common.h>
 
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+__weak void reset_cpu(ulong addr)
 {
-	printf("Put your restart handler here\n");
-
-#ifdef DEBUG
 	/* Stop debug session here */
 	__builtin_arc_brk();
-#endif
+}
+
+int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	printf("Resetting the board...\n");
+
+	reset_cpu(0);
+
 	return 0;
 }
