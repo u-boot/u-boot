@@ -75,6 +75,13 @@ const char *__efi_nesting_dec(void);
 		##__VA_ARGS__); \
 	})
 
+#ifdef CONFIG_SYS_CACHELINE_SIZE
+#define EFI_CACHELINE_SIZE CONFIG_SYS_CACHELINE_SIZE
+#else
+/* Just use the greatest cache flush alignment requirement I'm aware of */
+#define EFI_CACHELINE_SIZE 128
+#endif
+
 extern struct efi_runtime_services efi_runtime_services;
 extern struct efi_system_table systab;
 

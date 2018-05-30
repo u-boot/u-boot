@@ -287,7 +287,7 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 
 	/* Flush cache */
 	flush_cache((ulong)efi_reloc,
-		    ALIGN(virt_size, CONFIG_SYS_CACHELINE_SIZE));
+		    ALIGN(virt_size, EFI_CACHELINE_SIZE));
 	invalidate_icache_all();
 
 	/* Populate the loaded image interface bits */

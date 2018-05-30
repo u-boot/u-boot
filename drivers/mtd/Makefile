@@ -12,7 +12,6 @@ obj-$(CONFIG_MTD_CONCAT) += mtdconcat.o
 obj-$(CONFIG_ALTERA_QSPI) += altera_qspi.o
 obj-$(CONFIG_FLASH_CFI_DRIVER) += cfi_flash.o
 obj-$(CONFIG_FLASH_CFI_MTD) += cfi_mtd.o
-obj-$(CONFIG_FTSMC020) += ftsmc020.o
 obj-$(CONFIG_FLASH_CFI_LEGACY) += jedec_flash.o
 obj-$(CONFIG_MW_EEPROM) += mw_eeprom.o
 obj-$(CONFIG_FLASH_PIC32) += pic32_flash.o

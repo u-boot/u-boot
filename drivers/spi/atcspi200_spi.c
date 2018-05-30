@@ -197,7 +197,7 @@ static int __atcspi200_spi_xfer(struct nds_spi_slave *ns,
 		int num_bytes;
 		u8 *cmd_buf = ns->cmd_buf;
 		size_t cmd_len = ns->cmd_len;
-		size_t data_len = bitlen / 8;
+		unsigned long data_len = bitlen / 8;
 		int rf_cnt;
 		int ret = 0;
 
@@ -229,13 +229,13 @@ static int __atcspi200_spi_xfer(struct nds_spi_slave *ns,
 			__atcspi200_spi_start(ns);
 			break;
 		}
-		debug("spi_xfer: data_out %08X(%p) data_in %08X(%p) data_len %u\n",
+		debug("spi_xfer: data_out %08X(%p) data_in %08X(%p) data_len %lu\n",
 		      *(uint *)data_out, data_out, *(uint *)data_in, data_in, data_len);
 		num_chunks = DIV_ROUND_UP(data_len, max_tran_len);
 		din = data_in;
 		dout = data_out;
 		while (num_chunks--) {
-			tran_len = min(data_len, (size_t)max_tran_len);
+			tran_len = min((size_t)data_len, (size_t)max_tran_len);
 			ns->tran_len = tran_len;
 			num_blks = DIV_ROUND_UP(tran_len , CHUNK_SIZE);
 			num_bytes = (tran_len) % CHUNK_SIZE;

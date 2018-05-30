@@ -1,16 +1,16 @@
-Andes Technology SoC AE250
+Andes Technology SoC AE350
 ===========================
 
-AE250 is the mainline SoC produced by Andes Technology using NX25 CPU core
+AE350 is the mainline SoC produced by Andes Technology using AX25 CPU core
 base on RISC-V architecture.
 
-AE250 has integrated both AHB and APB bus and many periphals for application
+AE350 has integrated both AHB and APB bus and many periphals for application
 and product development.
 
-NX25-AE250
+AX25-AE350
 =========
 
-NX25-AE250 is the SoC with AE250 hardcore CPU.
+AX25-AE350 is the SoC with AE350 hardcore CPU.
 
 Configurations
 ==============
@@ -18,14 +18,14 @@ Configurations
 CONFIG_SKIP_LOWLEVEL_INIT:
 	If you want to boot this system from SPI ROM and bypass e-bios (the
 	other boot loader on ROM). You should undefine CONFIG_SKIP_LOWLEVEL_INIT
-	in "include/configs/nx25-ae250.h".
+	in "include/configs/ax25-ae350.h".
 
 Build and boot steps
 ====================
 
 build:
 1. Prepare the toolchains and make sure the $PATH to toolchains is correct.
-2. Use `make nx25-ae250_defconfig` in u-boot root to build the image.
+2. Use `make ax25-ae350_defconfig` in u-boot root to build the image.
 
 Verification
 ====================
@@ -49,7 +49,7 @@ Steps
 5. Burn this u-boot image to spi rom by spi driver
 6. Re-boot u-boot from spi flash with power off and power on.
 
-Messages of U-Boot boot on AE250 board
+Messages of U-Boot boot on AE350 board
 ======================================
 U-Boot 2018.01-rc2-00033-g824f89a (Dec 21 2017 - 16:51:26 +0800)
 
@@ -77,9 +77,9 @@ host 10.0.4.97 is alive
 
 RISC-V # mmc rescan
 RISC-V # fatls mmc 0:1
-   318907   u-boot-ae250-64.bin
-     1252   hello_world_ae250_32.bin
-   328787   u-boot-ae250-32.bin
+   318907   u-boot-ae350-64.bin
+     1252   hello_world_ae350_32.bin
+   328787   u-boot-ae350-32.bin
 
 3 file(s), 0 dir(s)
 
@@ -98,8 +98,8 @@ Test passed
 2 write: 40 ticks, 100 KiB/s 0.800 Mbps
 3 read: 20 ticks, 200 KiB/s 1.600 Mbps
 
-RISC-V # fatload mmc 0:1 0x600000 u-boot-ae250-32.bin
-reading u-boot-ae250-32.bin
+RISC-V # fatload mmc 0:1 0x600000 u-boot-ae350-32.bin
+reading u-boot-ae350-32.bin
 328787 bytes read in 324 ms (990.2 KiB/s)
 
 RISC-V # sf erase 0x0 0x51000
@@ -136,7 +136,7 @@ Boot bbl and riscv-linux via U-Boot on QEMU
 ===========================================
 1. Build riscv-linux
 2. Build bbl and riscv-linux with --with-payload
-3. Prepare ae250.dtb
+3. Prepare ae350.dtb
 4. Creating OS-kernel images
 	./mkimage -A riscv -O linux -T kernel -C none -a 0x0000 -e 0x0000 -d bbl.bin bootmImage-bbl.bin
 	Image Name:
@@ -146,7 +146,7 @@ Boot bbl and riscv-linux via U-Boot on QEMU
 	Load Address: 00000000
 	Entry Point:  00000000
 
-4. Copy bootmImage-bbl.bin and ae250.dtb to qemu sd card image
+4. Copy bootmImage-bbl.bin and ae350.dtb to qemu sd card image
 5. Message of booting riscv-linux from bbl via u-boot on qemu
 
 U-Boot 2018.03-rc4-00031-g2631273 (Mar 13 2018 - 15:02:55 +0800)
@@ -177,7 +177,7 @@ RISC-V # fatls mmc 0:0
 
 RISC-V # fatload mmc 0:0 0x00600000 bootmImage-bbl.bin
 17901268 bytes read in 4642 ms (3.7 MiB/s)
-RISC-V # fatload mmc 0:0 0x2000000 ae250.dtb
+RISC-V # fatload mmc 0:0 0x2000000 ae350.dtb
 1954 bytes read in 1 ms (1.9 MiB/s)
 RISC-V # setenv bootm_size 0x2000000
 RISC-V # setenv fdt_high 0x1f00000
@@ -272,4 +272,4 @@ Wed Dec  1 10:00:00 CST 2010
 
 TODO
 ==================================================
-Boot bbl and riscv-linux via U-Boot on AE250 board
+Boot bbl and riscv-linux via U-Boot on AE350 board

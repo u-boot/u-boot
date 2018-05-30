@@ -12,18 +12,18 @@
 extern unsigned int __machine_arch_type;
 #endif
 
-#define MACH_TYPE_AE250		1
+#define MACH_TYPE_AE350		1
 
-#ifdef CONFIG_ARCH_AE250
+#ifdef CONFIG_ARCH_AE350
 # ifdef machine_arch_type
 #  undef machine_arch_type
 #  define machine_arch_type __machine_arch_type
 # else
-#  define machine_arch_type MACH_TYPE_AE250
+#  define machine_arch_type MACH_TYPE_AE350
 # endif
-# define machine_is_ae250() (machine_arch_type == MACH_TYPE_AE250)
+# define machine_is_ae350() (machine_arch_type == MACH_TYPE_AE350)
 #else
-# define machine_is_ae250() (1)
+# define machine_is_ae350() (1)
 #endif
 
 #endif /* __ASM_RISCV_MACH_TYPE_H */

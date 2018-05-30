@@ -16,5 +16,6 @@ int cleanup_before_linux(void);
 
 /* board/.../... */
 int board_init(void);
+void board_quiesce_devices(void);
 
 #endif	/* _U_BOOT_RISCV_H_ */

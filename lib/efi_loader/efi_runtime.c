@@ -29,13 +29,6 @@ static efi_status_t __efi_runtime EFIAPI efi_unimplemented(void);
 static efi_status_t __efi_runtime EFIAPI efi_device_error(void);
 static efi_status_t __efi_runtime EFIAPI efi_invalid_parameter(void);
 
-#ifdef CONFIG_SYS_CACHELINE_SIZE
-#define EFI_CACHELINE_SIZE CONFIG_SYS_CACHELINE_SIZE
-#else
-/* Just use the greatest cache flush alignment requirement I'm aware of */
-#define EFI_CACHELINE_SIZE 128
-#endif
-
 #if defined(CONFIG_ARM64)
 #define R_RELATIVE	1027
 #define R_MASK		0xffffffffULL
@@ -47,6 +40,25 @@ static efi_status_t __efi_runtime EFIAPI efi_invalid_parameter(void);
 #include <asm/elf.h>
 #define R_RELATIVE	R_386_RELATIVE
 #define R_MASK		0xffULL
+#elif defined(CONFIG_RISCV)
+#include <elf.h>
+#define R_RELATIVE	R_RISCV_RELATIVE
+#define R_MASK		0xffULL
+#define IS_RELA		1
+
+struct dyn_sym {
+	ulong foo1;
+	ulong addr;
+	u32 foo2;
+	u32 foo3;
+};
+#ifdef CONFIG_CPU_RISCV_32
+#define R_ABSOLUTE	R_RISCV_32
+#define SYM_INDEX	8
+#else
+#define R_ABSOLUTE	R_RISCV_64
+#define SYM_INDEX	32
+#endif
 #else
 #error Need to add relocation awareness
 #endif
@@ -253,15 +265,27 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 
 		p = (void*)((ulong)rel->offset - base) + gd->relocaddr;
 
-		if ((rel->info & R_MASK) != R_RELATIVE) {
-			continue;
-		}
+		debug("%s: rel->info=%#lx *p=%#lx rel->offset=%p\n", __func__, rel->info, *p, rel->offset);
 
+		switch (rel->info & R_MASK) {
+		case R_RELATIVE:
 #ifdef IS_RELA
 		newaddr = rel->addend + offset - CONFIG_SYS_TEXT_BASE;
 #else
 		newaddr = *p - lastoff + offset;
 #endif
+			break;
+#ifdef R_ABSOLUTE
+		case R_ABSOLUTE: {
+			ulong symidx = rel->info >> SYM_INDEX;
+			extern struct dyn_sym __dyn_sym_start[];
+			newaddr = __dyn_sym_start[symidx].addr + offset;
+			break;
+		}
+#endif
+		default:
+			continue;
+		}
 
 		/* Check if the relocation is inside bounds */
 		if (map && ((newaddr < map->virtual_start) ||

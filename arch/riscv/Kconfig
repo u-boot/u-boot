@@ -8,12 +8,12 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_NX25_AE250
-	bool "Support nx25-ae250"
+config TARGET_AX25_AE350
+	bool "Support ax25-ae350"
 
 endchoice
 
-source "board/AndesTech/nx25-ae250/Kconfig"
+source "board/AndesTech/ax25-ae350/Kconfig"
 
 choice
 	prompt "CPU selection"
