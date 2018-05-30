@@ -5,7 +5,7 @@
 
 #include <config.h>
 
-OUTPUT_FORMAT("elf32-littlearc", "elf32-littlearc", "elf32-littlearc")
+OUTPUT_FORMAT("elf32-littlearc", "elf32-bigarc", "elf32-littlearc")
 OUTPUT_ARCH(arc)
 ENTRY(_start)
 SECTIONS
