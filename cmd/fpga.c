@@ -83,7 +83,6 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	char *devstr = env_get("fpga");
 	char *datastr = env_get("fpgadata");
 	int rc = FPGA_FAIL;
-	int wrong_parms = 0;
 #if defined(CONFIG_FIT)
 	const char *fit_uname = NULL;
 	ulong fit_addr;
@@ -160,7 +159,10 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	switch (argc) {
 	case 5:		/* fpga <op> <dev> <data> <datasize> */
 		data_size = simple_strtoul(argv[4], NULL, 16);
-
+		if (!data_size) {
+			puts("Zero data_size\n");
+			return CMD_RET_USAGE;
+		}
 	case 4:		/* fpga <op> <dev> <data> */
 #if defined(CONFIG_FIT)
 		if (fit_parse_subimage(argv[3], (ulong)fpga_data,
@@ -177,7 +179,10 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			      (ulong)fpga_data);
 		}
 		debug("%s: fpga_data = 0x%lx\n", __func__, (ulong)fpga_data);
-
+		if (!fpga_data) {
+			puts("Zero fpga_data address\n");
+			return CMD_RET_USAGE;
+		}
 	case 3:		/* fpga <op> <dev | data addr> */
 		dev = (int)simple_strtoul(argv[2], NULL, 16);
 		debug("%s: device = %d\n", __func__, dev);
@@ -185,30 +190,6 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 	if (dev == FPGA_INVALID_DEVICE) {
 		puts("FPGA device not specified\n");
-		return CMD_RET_USAGE;
-	}
-
-	switch (op) {
-	case FPGA_INFO:
-		break;
-	case FPGA_LOAD:
-	case FPGA_LOADP:
-	case FPGA_LOADB:
-	case FPGA_LOADBP:
-	case FPGA_DUMP:
-		if (!fpga_data || !data_size)
-			wrong_parms = 1;
-		break;
-#if defined(CONFIG_CMD_FPGA_LOADMK)
-	case FPGA_LOADMK:
-		if (!fpga_data)
-			wrong_parms = 1;
-		break;
-#endif
-	}
-
-	if (wrong_parms) {
-		puts("Wrong parameters for FPGA request\n");
 		return CMD_RET_USAGE;
 	}
 
