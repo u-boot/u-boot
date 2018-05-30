@@ -171,11 +171,10 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 	if (dev == FPGA_INVALID_DEVICE) {
 		puts("FPGA device not specified\n");
-		op = FPGA_NONE;
+		return CMD_RET_USAGE;
 	}
 
 	switch (op) {
-	case FPGA_NONE:
 	case FPGA_INFO:
 		break;
 #if defined(CONFIG_CMD_FPGA_LOADFS)
@@ -219,13 +218,10 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 	if (wrong_parms) {
 		puts("Wrong parameters for FPGA request\n");
-		op = FPGA_NONE;
+		return CMD_RET_USAGE;
 	}
 
 	switch (op) {
-	case FPGA_NONE:
-		return CMD_RET_USAGE;
-
 	case FPGA_INFO:
 		rc = fpga_info(dev);
 		break;
