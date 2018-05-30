@@ -91,6 +91,13 @@ const char * const toradex_modules[] = {
 	[33] = "Colibri iMX7 Dual 512MB",
 	[34] = "Apalis TK1 2GB",
 	[35] = "Apalis iMX6 Dual 1GB IT",
+	[36] = "Colibri iMX6ULL 256MB",
+	[37] = "Apalis iMX8 QuadMax 4GB Wi-Fi / Bluetooth",
+	[38] = "Colibri iMX8X",
+	[39] = "Colibri iMX7 Dual 1GB (eMMC)",
+	[40] = "Colibri iMX6ULL 512MB Wi-Fi / Bluetooth IT",
+	[41] = "Colibri iMX7 Dual 512MB EPDC",
+	[42] = "Apalis TK1 4GB",
 };
 
 #ifdef CONFIG_TDX_CFG_BLOCK_IS_IN_MMC
