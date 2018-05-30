@@ -74,6 +74,9 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	op = (int)fpga_get_op(argv[1]);
 
 	switch (op) {
+	case FPGA_NONE:
+		printf("Unknown fpga operation \"%s\"\n", argv[1]);
+		return CMD_RET_USAGE;
 #if defined(CONFIG_CMD_FPGA_LOADFS)
 	case FPGA_LOADFS:
 		if (argc < 9)
@@ -359,9 +362,6 @@ static int fpga_get_op(char *opstr)
 	else if (!strcmp("loads", opstr))
 		op = FPGA_LOADS;
 #endif
-
-	if (op == FPGA_NONE)
-		printf("Unknown fpga operation \"%s\"\n", opstr);
 
 	return op;
 }
