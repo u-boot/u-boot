@@ -432,9 +432,16 @@ void read_decode_cache_bcr(void)
 	int dc_line_sz = 0, ic_line_sz = 0;
 	union bcr_di_cache ibcr, dbcr;
 
+	/*
+	 * We don't care much about I$ line length really as there're
+	 * no per-line ops on I$ instead we only do full invalidation of it
+	 * on occasion of relocation and right before jumping to the OS.
+	 * Still we check insane config with zero-encoded line length in
+	 * presense of version field in I$ BCR. Just in case.
+	 */
 	ibcr.word = read_aux_reg(ARC_BCR_IC_BUILD);
 	if (ibcr.fields.ver) {
-		gd->arch.l1_line_sz = ic_line_sz = 8 << ibcr.fields.line_len;
+		ic_line_sz = 8 << ibcr.fields.line_len;
 		if (!ic_line_sz)
 			panic("Instruction exists but line length is 0\n");
 	}
@@ -445,9 +452,6 @@ void read_decode_cache_bcr(void)
 		if (!dc_line_sz)
 			panic("Data cache exists but line length is 0\n");
 	}
-
-	if (ic_line_sz && dc_line_sz && (ic_line_sz != dc_line_sz))
-		panic("Instruction and data cache line lengths differ\n");
 }
 
 void cache_init(void)
