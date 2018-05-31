@@ -327,6 +327,9 @@ class TestFunctional(unittest.TestCase):
     def _HandleCommandObjdump(self, args):
         return command.CommandResult(return_code=0)
 
+    def _HandleCommandObjcopy(self, args):
+        return command.CommandResult(return_code=0)
+
     def _HandleCommandSize(self, args):
         return command.CommandResult(return_code=0)
 
@@ -359,6 +362,8 @@ class TestFunctional(unittest.TestCase):
             return self._HandleCommandNm(args)
         elif cmd.endswith('objdump'):
             return self._HandleCommandObjdump(args)
+        elif cmd.endswith('objcopy'):
+            return self._HandleCommandObjcopy(args)
         elif cmd.endswith( 'size'):
             return self._HandleCommandSize(args)
 
