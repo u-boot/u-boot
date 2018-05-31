@@ -200,9 +200,11 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 
 	case CLK_TYPE_GEN3_PLL1:
 		rate = gen3_clk_get_rate64(&parent) * pll_config->pll1_mult;
-		debug("%s[%i] PLL1 clk: parent=%i mul=%i => rate=%llu\n",
+		rate /= pll_config->pll1_div;
+		debug("%s[%i] PLL1 clk: parent=%i mul=%i div=%i => rate=%llu\n",
 		      __func__, __LINE__,
-		      core->parent, pll_config->pll1_mult, rate);
+		      core->parent, pll_config->pll1_mult,
+		      pll_config->pll1_div, rate);
 		return rate;
 
 	case CLK_TYPE_GEN3_PLL2:
@@ -215,9 +217,11 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 
 	case CLK_TYPE_GEN3_PLL3:
 		rate = gen3_clk_get_rate64(&parent) * pll_config->pll3_mult;
-		debug("%s[%i] PLL3 clk: parent=%i mul=%i => rate=%llu\n",
+		rate /= pll_config->pll3_div;
+		debug("%s[%i] PLL3 clk: parent=%i mul=%i div=%i => rate=%llu\n",
 		      __func__, __LINE__,
-		      core->parent, pll_config->pll3_mult, rate);
+		      core->parent, pll_config->pll3_mult,
+		      pll_config->pll3_div, rate);
 		return rate;
 
 	case CLK_TYPE_GEN3_PLL4:
