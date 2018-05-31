@@ -319,7 +319,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         builder.SetDisplayOptions(options.show_errors, options.show_sizes,
                                   options.show_detail, options.show_bloat,
                                   options.list_error_boards,
-                                  options.show_config)
+                                  options.show_config,
+                                  options.show_environment)
         if options.summary:
             builder.ShowSummary(commits, board_selected)
         else:
