@@ -1838,23 +1838,25 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 					BOOTSTAGE_SUB_NO_UNIT_NAME);
 			return -ENOENT;
 		}
+
 		fit_base_uname_config = fdt_get_name(fit, cfg_noffset, NULL);
 		printf("   Using '%s' configuration\n", fit_base_uname_config);
-		if (image_type == IH_TYPE_KERNEL) {
-			/* Remember (and possibly verify) this config */
+		/* Remember this config */
+		if (image_type == IH_TYPE_KERNEL)
 			images->fit_uname_cfg = fit_base_uname_config;
-			if (IMAGE_ENABLE_VERIFY && images->verify) {
-				puts("   Verifying Hash Integrity ... ");
-				if (fit_config_verify(fit, cfg_noffset)) {
-					puts("Bad Data Hash\n");
-					bootstage_error(bootstage_id +
-						BOOTSTAGE_SUB_HASH);
-					return -EACCES;
-				}
-				puts("OK\n");
+
+		if (IMAGE_ENABLE_VERIFY && images->verify) {
+			puts("   Verifying Hash Integrity ... ");
+			if (fit_config_verify(fit, cfg_noffset)) {
+				puts("Bad Data Hash\n");
+				bootstage_error(bootstage_id +
+					BOOTSTAGE_SUB_HASH);
+				return -EACCES;
 			}
-			bootstage_mark(BOOTSTAGE_ID_FIT_CONFIG);
+			puts("OK\n");
 		}
+
+		bootstage_mark(BOOTSTAGE_ID_FIT_CONFIG);
 
 		noffset = fit_conf_get_prop_node(fit, cfg_noffset,
 						 prop_name);
