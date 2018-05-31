@@ -52,6 +52,24 @@
 #define RTC_STAT_BIT_RTCF	0x01	/* REAL TIME CLOCK FAIL BIT */
 
 /*
+ * Read an RTC register
+ */
+
+static int isl1208_rtc_read8(struct udevice *dev, unsigned int reg)
+{
+	return dm_i2c_reg_read(dev, reg);
+}
+
+/*
+ * Write an RTC register
+ */
+
+static int isl1208_rtc_write8(struct udevice *dev, unsigned int reg, int val)
+{
+	return dm_i2c_reg_write(dev, reg, val);
+}
+
+/*
  * Get the current time from the RTC
  */
 
@@ -161,6 +179,8 @@ static const struct rtc_ops isl1208_rtc_ops = {
 	.get = isl1208_rtc_get,
 	.set = isl1208_rtc_set,
 	.reset = isl1208_rtc_reset,
+	.read8 = isl1208_rtc_read8,
+	.write8 = isl1208_rtc_write8,
 };
 
 static const struct udevice_id isl1208_rtc_ids[] = {
