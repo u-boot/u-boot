@@ -48,6 +48,7 @@ config STM32F7
 	imply SPL_OS_BOOT
 	select SPL_PINCTRL
 	select SPL_RAM
+	select SPL_RESET_SUPPORT
 	select SPL_SERIAL_SUPPORT
 	select SPL_SYS_MALLOC_SIMPLE
 	select SPL_TIMER

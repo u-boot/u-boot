@@ -53,13 +53,9 @@ static int stm32_rcc_bind(struct udevice *dev)
 	if (ret)
 		return ret;
 
-#ifdef CONFIG_SPL_BUILD
-	return 0;
-#else
 	return device_bind_driver_to_node(dev, "stm32_rcc_reset",
 					  "stm32_rcc_reset",
 					  dev_ofnode(dev), &child);
-#endif
 }
 
 static const struct misc_ops stm32_rcc_ops = {
