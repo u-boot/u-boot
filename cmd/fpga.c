@@ -60,15 +60,31 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	if (datastr)
 		fpga_data = (void *)simple_strtoul(datastr, NULL, 16);
 
-	switch (argc) {
+	if (argc > 9 || argc < 2) {
+		debug("%s: Too many or too few args (%d)\n", __func__, argc);
+		return CMD_RET_USAGE;
+	}
+
+	op = (int)fpga_get_op(argv[1]);
+
+	switch (op) {
 #if defined(CONFIG_CMD_FPGA_LOADFS)
-	case 9:
+	case FPGA_LOADFS:
+		if (argc < 9)
+			return CMD_RET_USAGE;
 		fpga_fsinfo.blocksize = (unsigned int)
-					     simple_strtoul(argv[5], NULL, 16);
+					simple_strtoul(argv[5], NULL, 16);
 		fpga_fsinfo.interface = argv[6];
 		fpga_fsinfo.dev_part = argv[7];
 		fpga_fsinfo.filename = argv[8];
+		argc = 5;
+		break;
 #endif
+	default:
+		break;
+	}
+
+	switch (argc) {
 	case 5:		/* fpga <op> <dev> <data> <datasize> */
 		data_size = simple_strtoul(argv[4], NULL, 16);
 
@@ -117,15 +133,6 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			      __func__, (ulong)fpga_data);
 			dev = FPGA_INVALID_DEVICE;	/* reset device num */
 		}
-
-	case 2:		/* fpga <op> */
-		op = (int)fpga_get_op(argv[1]);
-		break;
-
-	default:
-		debug("%s: Too many or too few args (%d)\n", __func__, argc);
-		op = FPGA_NONE;	/* force usage display */
-		break;
 	}
 
 	if (dev == FPGA_INVALID_DEVICE) {
