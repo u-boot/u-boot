@@ -85,6 +85,28 @@ static const struct sd_div_table cpg_sd_div_table[] = {
 	CPG_SD_DIV_TABLE_DATA(1,        0,        4,          0,       32),
 };
 
+static int gen3_clk_get_parent(struct gen3_clk_priv *priv, struct clk *clk,
+			       struct cpg_mssr_info *info, struct clk *parent)
+{
+	const struct cpg_core_clk *core;
+	int ret;
+
+	if (!renesas_clk_is_mod(clk)) {
+		ret = renesas_clk_get_core(clk, info, &core);
+		if (ret)
+			return ret;
+
+		if (core->type == CLK_TYPE_GEN3_PE) {
+			parent->dev = clk->dev;
+			parent->id = core->parent >> (priv->sscg ? 16 : 0);
+			parent->id &= 0xffff;
+			return 0;
+		}
+	}
+
+	return renesas_clk_get_parent(clk, info, parent);
+}
+
 static int gen3_clk_setup_sdif_div(struct clk *clk)
 {
 	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
@@ -93,7 +115,7 @@ static int gen3_clk_setup_sdif_div(struct clk *clk)
 	struct clk parent;
 	int ret;
 
-	ret = renesas_clk_get_parent(clk, info, &parent);
+	ret = gen3_clk_get_parent(priv, clk, info, &parent);
 	if (ret) {
 		printf("%s[%i] parent fail, ret=%i\n", __func__, __LINE__, ret);
 		return ret;
@@ -142,13 +164,13 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 	const struct cpg_core_clk *core;
 	const struct rcar_gen3_cpg_pll_config *pll_config =
 					priv->cpg_pll_config;
-	u32 value, mult, prediv, postdiv;
+	u32 value, mult, div, prediv, postdiv;
 	u64 rate = 0;
 	int i, ret;
 
 	debug("%s[%i] Clock: id=%lu\n", __func__, __LINE__, clk->id);
 
-	ret = renesas_clk_get_parent(clk, info, &parent);
+	ret = gen3_clk_get_parent(priv, clk, info, &parent);
 	if (ret) {
 		printf("%s[%i] parent fail, ret=%i\n", __func__, __LINE__, ret);
 		return ret;
@@ -233,11 +255,19 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		return rate;
 
 	case CLK_TYPE_FF:
-	case CLK_TYPE_GEN3_PE:		/* FIXME */
 		rate = (gen3_clk_get_rate64(&parent) * core->mult) / core->div;
 		debug("%s[%i] FIXED clk: parent=%i mul=%i div=%i => rate=%llu\n",
 		      __func__, __LINE__,
 		      core->parent, core->mult, core->div, rate);
+		return rate;
+
+	case CLK_TYPE_GEN3_PE:
+		div = (core->div >> (priv->sscg ? 16 : 0)) & 0xffff;
+		rate = gen3_clk_get_rate64(&parent) / div;
+		debug("%s[%i] PE clk: parent=%i div=%u => rate=%llu\n",
+		      __func__, __LINE__,
+		      (core->parent >> (priv->sscg ? 16 : 0)) & 0xffff,
+		      div, rate);
 		return rate;
 
 	case CLK_TYPE_GEN3_SD:		/* FIXME */
@@ -350,6 +380,8 @@ int gen3_clk_probe(struct udevice *dev)
 		(struct rcar_gen3_cpg_pll_config *)info->get_pll_config(cpg_mode);
 	if (!priv->cpg_pll_config->extal_div)
 		return -EINVAL;
+
+	priv->sscg = !(cpg_mode & BIT(12));
 
 	ret = clk_get_by_name(dev, "extal", &priv->clk_extal);
 	if (ret < 0)
