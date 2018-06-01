@@ -72,7 +72,12 @@ class Entry(object):
         """
         if not etype:
             etype = fdt_util.GetString(node, 'type', node.name)
+
+        # Convert something like 'u-boot@0' to 'u_boot' since we are only
+        # interested in the type.
         module_name = etype.replace('-', '_')
+        if '@' in module_name:
+            module_name = module_name.split('@')[0]
         module = modules.get(module_name)
 
         # Import the module if we have not already done so.

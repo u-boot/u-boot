@@ -909,6 +909,11 @@ class TestFunctional(unittest.TestCase):
                     sym_values + U_BOOT_SPL_DATA[16:])
         self.assertEqual(expected, data)
 
+    def testPackUnitAddress(self):
+        """Test that we support multiple binaries with the same name"""
+        data = self._DoReadFile('54_unit_address.dts')
+        self.assertEqual(U_BOOT_DATA + U_BOOT_DATA, data)
+
 
 if __name__ == "__main__":
     unittest.main()
