@@ -137,8 +137,6 @@ config AUTOBOOT_STOP_STR_SHA256
 
 endmenu
 
-source "cmd/fastboot/Kconfig"
-
 config BUILD_BIN2C
 	bool
 
@@ -650,6 +648,18 @@ config CMD_DM
 	  can be useful to see the state of driver model for debugging or
 	  interest.
 
+config CMD_FASTBOOT
+	bool "fastboot - Android fastboot support"
+	depends on FASTBOOT
+	help
+	  This enables the command "fastboot" which enables the Android
+	  fastboot mode for the platform. Fastboot is a protocol for
+	  downloading images, flashing and device control used on
+	  Android devices. Fastboot requires either the network stack
+	  enabled or support for acting as a USB device.
+
+	  See doc/README.android-fastboot for more information.
+
 config CMD_FDC
 	bool "fdcboot - Boot from floppy device"
 	help
@@ -822,6 +832,14 @@ config CMD_MMC_RPMB
 	help
 	  Enable the commands for reading, writing and programming the
 	  key for the Replay Protection Memory Block partition in eMMC.
+
+config CMD_MMC_SWRITE
+	bool "mmc swrite"
+	depends on CMD_MMC && MMC_WRITE
+	select IMAGE_SPARSE
+	help
+	  Enable support for the "mmc swrite" command to write Android sparse
+	  images to eMMC.
 
 config CMD_NAND
 	bool "nand"

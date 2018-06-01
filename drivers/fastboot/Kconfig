@@ -1,32 +1,27 @@
-comment "FASTBOOT"
+menu "Fastboot support"
 
-menuconfig FASTBOOT
-	bool "Fastboot support"
-	depends on USB_GADGET
-	default y if ARCH_SUNXI && USB_MUSB_GADGET
-
-if FASTBOOT
+config FASTBOOT
+	bool
+	imply ANDROID_BOOT_IMAGE
+	imply CMD_FASTBOOT
 
 config USB_FUNCTION_FASTBOOT
 	bool "Enable USB fastboot gadget"
-	default y
+	depends on USB_GADGET
+	default y if ARCH_SUNXI && USB_MUSB_GADGET
+	select FASTBOOT
 	select USB_GADGET_DOWNLOAD
-	imply ANDROID_BOOT_IMAGE
-	imply CMD_FASTBOOT
 	help
 	  This enables the USB part of the fastboot gadget.
 
-config CMD_FASTBOOT
-	bool "Enable FASTBOOT command"
+config UDP_FUNCTION_FASTBOOT
+	depends on NET
+	select FASTBOOT
+	bool "Enable fastboot protocol over UDP"
 	help
-	  This enables the command "fastboot" which enables the Android
-	  fastboot mode for the platform's USB device. Fastboot is a USB
-	  protocol for downloading images, flashing and device control
-	  used on Android devices.
+	  This enables the fastboot protocol over UDP.
 
-	  See doc/README.android-fastboot for more information.
-
-if USB_FUNCTION_FASTBOOT
+if FASTBOOT
 
 config FASTBOOT_BUF_ADDR
 	hex "Define FASTBOOT buffer address"
@@ -58,6 +53,7 @@ config FASTBOOT_BUF_SIZE
 
 config FASTBOOT_USB_DEV
 	int "USB controller number"
+	depends on USB_FUNCTION_FASTBOOT
 	default 0
 	help
 	  Some boards have USB OTG controller other than 0. Define this
@@ -67,6 +63,8 @@ config FASTBOOT_USB_DEV
 config FASTBOOT_FLASH
 	bool "Enable FASTBOOT FLASH command"
 	default y if ARCH_SUNXI
+	depends on MMC || (NAND && CMD_MTDPARTS)
+	select IMAGE_SPARSE
 	help
 	  The fastboot protocol includes a "flash" command for writing
 	  the downloaded image to a non-volatile storage device. Define
@@ -82,7 +80,7 @@ config FASTBOOT_FLASH_MMC
 
 config FASTBOOT_FLASH_NAND
 	bool "FASTBOOT on NAND"
-	depends on NAND
+	depends on NAND && CMD_MTDPARTS
 
 endchoice
 
@@ -96,19 +94,16 @@ config FASTBOOT_FLASH_MMC_DEV
 	  regarding the non-volatile storage device. Define this to
 	  the eMMC device that fastboot should use to store the image.
 
-config FASTBOOT_FLASH_NAND_DEV
-	int "Define FASTBOOT NAND FLASH default device"
+config FASTBOOT_FLASH_NAND_TRIMFFS
+	bool "Skip empty pages when flashing NAND"
 	depends on FASTBOOT_FLASH_NAND
-	depends on CMD_MTDPARTS
-	default 0 if ARCH_SUNXI && NAND_SUNXI
 	help
-	  The fastboot "flash" command requires additional information
-	  regarding the non-volatile storage device. Define this to
-	  the NAND device that fastboot should use to store the image.
+	  When flashing NAND enable the DROP_FFS flag to drop trailing all-0xff
+	  pages.
 
 config FASTBOOT_GPT_NAME
 	string "Target name for updating GPT"
-	depends on FASTBOOT_FLASH
+	depends on FASTBOOT_FLASH_MMC && EFI_PARTITION
 	default "gpt"
 	help
 	  The fastboot "flash" command supports writing the downloaded
@@ -121,7 +116,7 @@ config FASTBOOT_GPT_NAME
 
 config FASTBOOT_MBR_NAME
 	string "Target name for updating MBR"
-	depends on FASTBOOT_FLASH
+	depends on FASTBOOT_FLASH_MMC && DOS_PARTITION
 	default "mbr"
 	help
 	  The fastboot "flash" command allows to write the downloaded image
@@ -129,6 +124,14 @@ config FASTBOOT_MBR_NAME
 	  specified on the "fastboot flash" command line matches the value
 	  defined here. The default target name for updating MBR is "mbr".
 
-endif # USB_FUNCTION_FASTBOOT
+config FASTBOOT_CMD_OEM_FORMAT
+	bool "Enable the 'oem format' command"
+	depends on FASTBOOT_FLASH_MMC && CMD_GPT
+	help
+	  Add support for the "oem format" command from a client. This
+	  relies on the env variable partitions to contain the list of
+	  partitions as required by the gpt command.
 
 endif # FASTBOOT
+
+endmenu

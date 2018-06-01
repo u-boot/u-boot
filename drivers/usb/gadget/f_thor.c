@@ -620,22 +620,6 @@ static void thor_rx_tx_complete(struct usb_ep *ep, struct usb_request *req)
 	      status, req->actual, req->length);
 }
 
-static struct usb_request *thor_start_ep(struct usb_ep *ep)
-{
-	struct usb_request *req;
-
-	req = alloc_ep_req(ep, THOR_PACKET_SIZE);
-	debug("%s: ep:%p req:%p\n", __func__, ep, req);
-
-	if (!req)
-		return NULL;
-
-	memset(req->buf, 0, req->length);
-	req->complete = thor_rx_tx_complete;
-
-	return req;
-}
-
 static void thor_setup_complete(struct usb_ep *ep, struct usb_request *req)
 {
 	if (req->status || req->actual != req->length)
@@ -752,6 +736,13 @@ int thor_handle(void)
 	return 0;
 }
 
+static void free_ep_req(struct usb_ep *ep, struct usb_request *req)
+{
+	if (req->buf)
+		free(req->buf);
+	usb_ep_free_request(ep, req);
+}
+
 static int thor_func_bind(struct usb_configuration *c, struct usb_function *f)
 {
 	struct usb_gadget *gadget = c->cdev->gadget;
@@ -860,14 +851,10 @@ static int thor_func_bind(struct usb_configuration *c, struct usb_function *f)
 	return 0;
 
  fail:
+	if (dev->req)
+		free_ep_req(gadget->ep0, dev->req);
 	free(dev);
 	return status;
-}
-
-static void free_ep_req(struct usb_ep *ep, struct usb_request *req)
-{
-	free(req->buf);
-	usb_ep_free_request(ep, req);
 }
 
 static void thor_unbind(struct usb_configuration *c, struct usb_function *f)
@@ -875,6 +862,7 @@ static void thor_unbind(struct usb_configuration *c, struct usb_function *f)
 	struct f_thor *f_thor = func_to_thor(f);
 	struct thor_dev *dev = f_thor->dev;
 
+	free_ep_req(dev->gadget->ep0, dev->req);
 	free(dev);
 	memset(thor_func, 0, sizeof(*thor_func));
 	thor_func = NULL;
@@ -895,8 +883,6 @@ static void thor_func_disable(struct usb_function *f)
 	}
 
 	if (dev->out_ep->driver_data) {
-		free(dev->out_req->buf);
-		dev->out_req->buf = NULL;
 		usb_ep_free_request(dev->out_ep, dev->out_req);
 		usb_ep_disable(dev->out_ep);
 		dev->out_ep->driver_data = NULL;
@@ -924,16 +910,17 @@ static int thor_eps_setup(struct usb_function *f)
 
 	result = usb_ep_enable(ep, d);
 	if (result)
-		goto exit;
+		goto err;
 
 	ep->driver_data = cdev; /* claim */
-	req = thor_start_ep(ep);
+	req = alloc_ep_req(ep, THOR_PACKET_SIZE);
 	if (!req) {
-		usb_ep_disable(ep);
 		result = -EIO;
-		goto exit;
+		goto err_disable_in_ep;
 	}
 
+	memset(req->buf, 0, req->length);
+	req->complete = thor_rx_tx_complete;
 	dev->in_req = req;
 	ep = dev->out_ep;
 	d = ep_desc(gadget, &hs_out_desc, &fs_out_desc);
@@ -941,22 +928,34 @@ static int thor_eps_setup(struct usb_function *f)
 
 	result = usb_ep_enable(ep, d);
 	if (result)
-		goto exit;
+		goto err_free_in_req;
 
 	ep->driver_data = cdev; /* claim */
-	req = thor_start_ep(ep);
+	req = usb_ep_alloc_request(ep, 0);
 	if (!req) {
-		usb_ep_disable(ep);
 		result = -EIO;
-		goto exit;
+		goto err_disable_out_ep;
 	}
 
+	req->complete = thor_rx_tx_complete;
 	dev->out_req = req;
 	/* ACM control EP */
 	ep = dev->int_ep;
 	ep->driver_data = cdev;	/* claim */
 
- exit:
+	return 0;
+
+ err_disable_out_ep:
+	usb_ep_disable(dev->out_ep);
+
+ err_free_in_req:
+	free_ep_req(dev->in_ep, dev->in_req);
+	dev->in_req = NULL;
+
+ err_disable_in_ep:
+	usb_ep_disable(dev->in_ep);
+
+ err:
 	return result;
 }
 

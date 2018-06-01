@@ -61,6 +61,17 @@ config SPL_STRTO
 config TPL_STRTO
 	bool
 
+config IMAGE_SPARSE
+	bool
+
+config IMAGE_SPARSE_FILLBUF_SIZE
+	hex "Android sparse image CHUNK_TYPE_FILL buffer size"
+	default 0x80000
+	depends on IMAGE_SPARSE
+	help
+	  Set the size of the fill buffer used when processing CHUNK_TYPE_FILL
+	  chunks.
+
 config USE_PRIVATE_LIBGCC
 	bool "Use private libgcc"
 	depends on HAVE_PRIVATE_LIBGCC

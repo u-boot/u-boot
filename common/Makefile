@@ -29,7 +29,6 @@ obj-$(CONFIG_CMD_BOOTI) += bootm.o bootm_os.o
 
 obj-$(CONFIG_CMD_BEDBUG) += bedbug.o
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += fdt_support.o
-
 obj-$(CONFIG_MII) += miiphyutil.o
 obj-$(CONFIG_CMD_MII) += miiphyutil.o
 obj-$(CONFIG_PHYLIB) += miiphyutil.o
@@ -108,19 +107,6 @@ obj-$(CONFIG_$(SPL_TPL_)FIT_SIGNATURE) += image-sig.o
 obj-$(CONFIG_IO_TRACE) += iotrace.o
 obj-y += memsize.o
 obj-y += stdio.o
-
-ifndef CONFIG_SPL_BUILD
-# This option is not just y/n - it can have a numeric value
-ifdef CONFIG_FASTBOOT_FLASH
-obj-y += image-sparse.o
-ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
-obj-y += fb_mmc.o
-endif
-ifdef CONFIG_FASTBOOT_FLASH_NAND_DEV
-obj-y += fb_nand.o
-endif
-endif
-endif
 
 ifdef CONFIG_CMD_EEPROM_LAYOUT
 obj-y += eeprom/eeprom_field.o eeprom/eeprom_layout.o

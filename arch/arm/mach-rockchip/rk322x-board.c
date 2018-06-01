@@ -139,8 +139,8 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 }
 #endif
 
-#if defined(CONFIG_USB_FUNCTION_FASTBOOT)
-int fb_set_reboot_flag(void)
+#if CONFIG_IS_ENABLED(FASTBOOT)
+int fastboot_set_reboot_flag(void)
 {
 	struct rk322x_grf *grf;
 

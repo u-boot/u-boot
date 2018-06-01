@@ -17,7 +17,6 @@
 
 struct rockchip_xhci_platdata {
 	fdt_addr_t hcd_base;
-	fdt_addr_t phy_base;
 	struct udevice *vbus_supply;
 };
 
@@ -35,7 +34,6 @@ struct rockchip_xhci {
 static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
 {
 	struct rockchip_xhci_platdata *plat = dev_get_platdata(dev);
-	struct udevice *child;
 	int ret = 0;
 
 	/*
@@ -44,20 +42,6 @@ static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
 	plat->hcd_base = dev_read_addr(dev);
 	if (plat->hcd_base == FDT_ADDR_T_NONE) {
 		pr_err("Can't get the XHCI register base address\n");
-		return -ENXIO;
-	}
-
-	/* Get the base address for usbphy from the device node */
-	for (device_find_first_child(dev, &child); child;
-	     device_find_next_child(&child)) {
-		if (!device_is_compatible(child, "rockchip,rk3399-usb3-phy"))
-			continue;
-		plat->phy_base = devfdt_get_addr(child);
-		break;
-	}
-
-	if (plat->phy_base == FDT_ADDR_T_NONE) {
-		pr_err("Can't get the usbphy register address\n");
 		return -ENXIO;
 	}
 

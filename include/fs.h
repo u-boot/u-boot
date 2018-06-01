@@ -37,6 +37,16 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype);
  */
 int fs_set_blk_dev_with_part(struct blk_desc *desc, int part);
 
+/**
+ * fs_get_type_name() - Get type of current filesystem
+ *
+ * Return: Pointer to filesystem name
+ *
+ * Returns a string describing the current filesystem, or the sentinel
+ * "unsupported" for any unrecognised filesystem.
+ */
+const char *fs_get_type_name(void);
+
 /*
  * Print the list of files on the partition previously set by fs_set_blk_dev(),
  * in directory "dirname".

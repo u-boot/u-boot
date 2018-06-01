@@ -236,13 +236,3 @@ void arch_preboot_os(void)
 	ahci_reset((void __iomem *)DWC_AHSATA_BASE);
 }
 #endif
-
-#if defined(CONFIG_USB_FUNCTION_FASTBOOT) && !defined(CONFIG_ENV_IS_NOWHERE)
-int fb_set_reboot_flag(void)
-{
-	printf("Setting reboot to fastboot flag ...\n");
-	env_set("dofastboot", "1");
-	env_save();
-	return 0;
-}
-#endif
