@@ -692,8 +692,8 @@ int cadence_qspi_apb_indirect_write_setup(struct cadence_spi_platdata *plat,
 	unsigned int addr_bytes = cmdlen > 4 ? 4 : 3;
 
 	if (cmdlen < 4 || cmdbuf == NULL) {
-		printf("QSPI: iInvalid input argument, len %d cmdbuf 0x%08x\n",
-		       cmdlen, (unsigned int)cmdbuf);
+		printf("QSPI: Invalid input argument, len %d cmdbuf %p\n",
+		       cmdlen, cmdbuf);
 		return -EINVAL;
 	}
 	/* Setup the indirect trigger address */
