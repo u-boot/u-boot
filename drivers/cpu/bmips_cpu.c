@@ -13,8 +13,6 @@
 #include <errno.h>
 #include <asm/io.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define REV_CHIPID_SHIFT		16
 #define REV_CHIPID_MASK			(0xffff << REV_CHIPID_SHIFT)
 #define REV_LONG_CHIPID_SHIFT		12
@@ -397,8 +395,7 @@ int bmips_cpu_bind(struct udevice *dev)
 {
 	struct cpu_platdata *plat = dev_get_parent_platdata(dev);
 
-	plat->cpu_id = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-		"reg", -1);
+	plat->cpu_id = dev_read_u32_default(dev, "reg", -1);
 	plat->device_id = read_c0_prid();
 
 	return 0;
@@ -409,14 +406,11 @@ int bmips_cpu_probe(struct udevice *dev)
 	struct bmips_cpu_priv *priv = dev_get_priv(dev);
 	const struct bmips_cpu_hw *hw =
 		(const struct bmips_cpu_hw *)dev_get_driver_data(dev);
-	fdt_addr_t addr;
-	fdt_size_t size;
 
-	addr = devfdt_get_addr_size_index(dev_get_parent(dev), 0, &size);
-	if (addr == FDT_ADDR_T_NONE)
+	priv->regs = dev_remap_addr(dev);
+	if (!priv->regs)
 		return -EINVAL;
 
-	priv->regs = ioremap(addr, size);
 	priv->hw = hw;
 
 	return 0;

@@ -85,14 +85,10 @@ static const struct udevice_id bcm6345_wdt_ids[] = {
 static int bcm6345_wdt_probe(struct udevice *dev)
 {
 	struct bcm6345_wdt_priv *priv = dev_get_priv(dev);
-	fdt_addr_t addr;
-	fdt_size_t size;
 
-	addr = devfdt_get_addr_size_index(dev, 0, &size);
-	if (addr == FDT_ADDR_T_NONE)
+	priv->regs = dev_remap_addr(dev);
+	if (!priv->regs)
 		return -EINVAL;
-
-	priv->regs = ioremap(addr, size);
 
 	bcm6345_wdt_stop(dev);
 

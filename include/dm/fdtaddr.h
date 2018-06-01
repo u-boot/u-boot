@@ -34,6 +34,28 @@ fdt_addr_t devfdt_get_addr(struct udevice *dev);
 void *devfdt_get_addr_ptr(struct udevice *dev);
 
 /**
+ * devfdt_remap_addr() - Return pointer to the memory-mapped I/O address
+ *                           of the reg property of a device
+ *
+ * @dev: Pointer to a device
+ *
+ * @return Pointer to addr, or NULL if there is no such property
+ */
+void *devfdt_remap_addr(struct udevice *dev);
+
+/**
+ * devfdt_remap_addr_index() - Return indexed pointer to the memory-mapped
+ *                                 I/O address of the reg property of a device
+ * @index: the 'reg' property can hold a list of <addr, size> pairs
+ *	   and @index is used to select which one is required
+ *
+ * @dev: Pointer to a device
+ *
+ * @return Pointer to addr, or NULL if there is no such property
+ */
+void *devfdt_remap_addr_index(struct udevice *dev, int index);
+
+/**
  * devfdt_map_physmem() - Read device address from reg property of the
  *                     device node and map the address into CPU address
  *                     space.
