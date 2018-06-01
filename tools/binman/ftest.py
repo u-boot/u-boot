@@ -413,7 +413,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(0, retcode)
         self.assertIn('image', control.images)
         image = control.images['image']
-        entries = image._entries
+        entries = image.GetEntries()
         self.assertEqual(5, len(entries))
 
         # First u-boot
@@ -456,7 +456,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(0, retcode)
         self.assertIn('image', control.images)
         image = control.images['image']
-        entries = image._entries
+        entries = image.GetEntries()
         self.assertEqual(5, len(entries))
 
         # First u-boot with padding before and after
@@ -540,7 +540,7 @@ class TestFunctional(unittest.TestCase):
         """Test that entries which overflow the image size are detected"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('16_pack_image_overflow.dts')
-        self.assertIn("Image '/binman': contents size 0x4 (4) exceeds image "
+        self.assertIn("Section '/binman': contents size 0x4 (4) exceeds section "
                       "size 0x3 (3)", str(e.exception))
 
     def testPackImageSize(self):
@@ -563,14 +563,14 @@ class TestFunctional(unittest.TestCase):
         """Test that invalid image alignment is detected"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('19_pack_inv_image_align.dts')
-        self.assertIn("Image '/binman': Size 0x7 (7) does not match "
+        self.assertIn("Section '/binman': Size 0x7 (7) does not match "
                       "align-size 0x8 (8)", str(e.exception))
 
     def testPackAlignPowerOf2(self):
         """Test that invalid image alignment is detected"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('20_pack_inv_image_align_power2.dts')
-        self.assertIn("Image '/binman': Alignment size 131 must be a power of "
+        self.assertIn("Section '/binman': Alignment size 131 must be a power of "
                       "two", str(e.exception))
 
     def testImagePadByte(self):
@@ -620,7 +620,7 @@ class TestFunctional(unittest.TestCase):
         """Test that the end-at-4gb property requires a size property"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('27_pack_4gb_no_size.dts')
-        self.assertIn("Image '/binman': Image size must be provided when "
+        self.assertIn("Section '/binman': Section size must be provided when "
                       "using end-at-4gb", str(e.exception))
 
     def testPackX86RomOutside(self):
@@ -628,7 +628,7 @@ class TestFunctional(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('28_pack_4gb_outside.dts')
         self.assertIn("Node '/binman/u-boot': Position 0x0 (0) is outside "
-                      "the image starting at 0xffffffe0 (4294967264)",
+                      "the section starting at 0xffffffe0 (4294967264)",
                       str(e.exception))
 
     def testPackX86Rom(self):
@@ -823,7 +823,7 @@ class TestFunctional(unittest.TestCase):
         """Test that microcode must be placed within the image"""
         with self.assertRaises(ValueError) as e:
             self._DoReadFile('41_unknown_pos_size.dts', True)
-        self.assertIn("Image '/binman': Unable to set pos/size for unknown "
+        self.assertIn("Section '/binman': Unable to set pos/size for unknown "
                 "entry 'invalid-entry'", str(e.exception))
 
     def testPackFsp(self):
