@@ -302,9 +302,9 @@ align-size:
 align-end:
 	This sets the alignment of the end of an entry. Some entries require
 	that they end on an alignment boundary, regardless of where they
-	start. If 'align-end' is not provided, no alignment is performed.
-
-	Note: This is not yet implemented in binman.
+	start. This does not move the start of the entry, so the contents of
+	the entry will still start at the beginning. But there may be padding
+	at the end. If 'align-end' is not provided, no alignment is performed.
 
 filename:
 	For 'blob' types this provides the filename containing the binary to
@@ -662,7 +662,6 @@ Some ideas:
   configurable build directory
 - Consider making binman work with buildman, although if it is used in the
   Makefile, this will be automatic
-- Implement align-end
 
 --
 Simon Glass <sjg@chromium.org>
