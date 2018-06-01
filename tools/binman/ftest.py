@@ -146,16 +146,19 @@ class TestFunctional(unittest.TestCase):
         # options.verbosity = tout.DEBUG
         return control.Binman(options, args)
 
-    def _DoTestFile(self, fname, debug=False):
+    def _DoTestFile(self, fname, debug=False, map=False):
         """Run binman with a given test file
 
         Args:
             fname: Device-tree source filename to use (e.g. 05_simple.dts)
             debug: True to enable debugging output
+            map: True to output map files for the images
         """
         args = ['-p', '-I', self._indir, '-d', self.TestFile(fname)]
         if debug:
             args.append('-D')
+        if map:
+            args.append('-m')
         return self._DoBinman(*args)
 
     def _SetupDtb(self, fname, outfile='u-boot.dtb'):
@@ -180,7 +183,7 @@ class TestFunctional(unittest.TestCase):
             TestFunctional._MakeInputFile(outfile, data)
             return data
 
-    def _DoReadFileDtb(self, fname, use_real_dtb=False):
+    def _DoReadFileDtb(self, fname, use_real_dtb=False, map=False):
         """Run binman and return the resulting image
 
         This runs binman with a given test file and then reads the resulting
@@ -195,11 +198,13 @@ class TestFunctional(unittest.TestCase):
                 the u-boot-dtb entry. Normally this is not needed and the
                 test contents (the U_BOOT_DTB_DATA string) can be used.
                 But in some test we need the real contents.
+            map: True to output map files for the images
 
         Returns:
             Tuple:
                 Resulting image contents
                 Device tree contents
+                Map data showing contents of image (or None if none)
         """
         dtb_data = None
         # Use the compiled test file as the u-boot-dtb input
@@ -207,15 +212,21 @@ class TestFunctional(unittest.TestCase):
             dtb_data = self._SetupDtb(fname)
 
         try:
-            retcode = self._DoTestFile(fname)
+            retcode = self._DoTestFile(fname, map=map)
             self.assertEqual(0, retcode)
 
             # Find the (only) image, read it and return its contents
             image = control.images['image']
             fname = tools.GetOutputFilename('image.bin')
             self.assertTrue(os.path.exists(fname))
+            if map:
+                map_fname = tools.GetOutputFilename('image.map')
+                with open(map_fname) as fd:
+                    map_data = fd.read()
+            else:
+                map_data = None
             with open(fname) as fd:
-                return fd.read(), dtb_data
+                return fd.read(), dtb_data, map_data
         finally:
             # Put the test file back
             if use_real_dtb:
@@ -815,7 +826,7 @@ class TestFunctional(unittest.TestCase):
         """Test that we can cope with an image without microcode (e.g. qemu)"""
         with open(self.TestFile('u_boot_no_ucode_ptr')) as fd:
             TestFunctional._MakeInputFile('u-boot', fd.read())
-        data, dtb = self._DoReadFileDtb('44_x86_optional_ucode.dts', True)
+        data, dtb, _ = self._DoReadFileDtb('44_x86_optional_ucode.dts', True)
 
         # Now check the device tree has no microcode
         self.assertEqual(U_BOOT_NODTB_DATA, data[:len(U_BOOT_NODTB_DATA)])
@@ -928,6 +939,16 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('55_sections.dts')
         expected = U_BOOT_DATA + '!' * 12 + U_BOOT_DATA + 'a' * 12 + '&' * 8
         self.assertEqual(expected, data)
+
+    def testMap(self):
+        """Tests outputting a map of the images"""
+        _, _, map_data = self._DoReadFileDtb('55_sections.dts', map=True)
+        self.assertEqual('''Position      Size  Name
+00000000  00000010  section@0
+ 00000000  00000004  u-boot
+00000010  00000010  section@1
+ 00000000  00000004  u-boot
+''', map_data)
 
 if __name__ == "__main__":
     unittest.main()

@@ -4,6 +4,8 @@
 # Base class for all entries
 #
 
+from __future__ import print_function
+
 # importlib was introduced in Python 2.7 but there was a report of it not
 # working in 2.7.12, so we work around this:
 # http://lists.denx.de/pipermail/u-boot/2016-October/269729.html
@@ -50,6 +52,7 @@ class Entry(object):
         self.section = section
         self.etype = etype
         self._node = node
+        self.name = node and node.name or 'none'
         self.pos = None
         self.size = None
         self.contents_size = 0
@@ -229,3 +232,13 @@ class Entry(object):
         this function and raise if there is a problem.
         """
         pass
+
+    def WriteMap(self, fd, indent):
+        """Write a map of the entry to a .map file
+
+        Args:
+            fd: File to write the map to
+            indent: Curent indent level of map (0=none, 1=one level, etc.)
+        """
+        print('%s%08x  %08x  %s' % (' ' * indent, self.pos, self.size,
+                                    self.name), file=fd)

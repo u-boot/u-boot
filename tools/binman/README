@@ -548,6 +548,25 @@ At present this feature is only supported in SPL. In principle it is possible
 to fill in such symbols in U-Boot proper, as well.
 
 
+Map files
+---------
+
+The -m option causes binman to output a .map file for each image that it
+generates. This shows the position and size of each entry. For example:
+
+    Position      Size  Name
+    00000000  00000010  section@0
+     00000000  00000004  u-boot
+    00000010  00000010  section@1
+     00000000  00000004  u-boot
+
+This shows a hierarchical image with two sections, each with a single entry. The
+positions of the sections are absolute hex byte offsets within the image. The
+positions of the entries are relative to their respective sections. The size of
+each entry is also shown, in bytes (hex). The indentation shows the entries
+nested inside their sections.
+
+
 Code coverage
 -------------
 
@@ -628,7 +647,6 @@ Some ideas:
   'Access to binman entry positions at run time' above
 - Use of-platdata to make the information available to code that is unable
   to use device tree (such as a very small SPL image)
-- Write an image map to a text file
 - Allow easy building of images by specifying just the board name
 - Produce a full Python binding for libfdt (for upstream)
 - Add an option to decode an image into the constituent binaries

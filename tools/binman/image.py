@@ -98,3 +98,11 @@ class Image:
 
     def GetEntries(self):
         return self._section.GetEntries()
+
+    def WriteMap(self):
+        """Write a map of the image to a .map file"""
+        filename = '%s.map' % self._name
+        fname = tools.GetOutputFilename(filename)
+        with open(fname, 'w') as fd:
+            print('%8s  %8s  %s' % ('Position', 'Size', 'Name'), file=fd)
+            self._section.WriteMap(fd, 0)

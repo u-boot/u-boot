@@ -301,3 +301,12 @@ class Section(object):
 
     def GetEntries(self):
         return self._entries
+
+    def WriteMap(self, fd, indent):
+        """Write a map of the section to a .map file
+
+        Args:
+            fd: File to write the map to
+        """
+        for entry in self._entries.values():
+            entry.WriteMap(fd, indent)

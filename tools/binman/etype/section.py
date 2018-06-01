@@ -48,3 +48,12 @@ class Entry_section(Entry):
 
     def CheckPosition(self):
         self._section.CheckEntries()
+
+    def WriteMap(self, fd, indent):
+        """Write a map of the section to a .map file
+
+        Args:
+            fd: File to write the map to
+        """
+        super(Entry_section, self).WriteMap(fd, indent)
+        self._section.WriteMap(fd, indent + 1)

@@ -112,6 +112,8 @@ def Binman(options, args):
                 image.ProcessEntryContents()
                 image.WriteSymbols()
                 image.BuildImage()
+                if options.map:
+                    image.WriteMap()
         finally:
             tools.FinaliseOutputDir()
     finally:
