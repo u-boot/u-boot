@@ -417,11 +417,13 @@ and can be programmed:
 	binman {
 		section@0 {
 			read-only;
+			name-prefix = "ro-";
 			size = <0x100000>;
 			u-boot {
 			};
 		};
 		section@1 {
+			name-prefix = "rw-";
 			size = <0x100000>;
 			u-boot {
 			};
@@ -436,6 +438,12 @@ A few special properties are provided for sections:
 read-only:
 	Indicates that this section is read-only. This has no impact on binman's
 	operation, but his property can be read at run time.
+
+name-prefix:
+	This string is prepended to all the names of the binaries in the
+	section. In the example above, the 'u-boot' binaries which actually be
+	renamed to 'ro-u-boot' and 'rw-u-boot'. This can be useful to
+	distinguish binaries with otherwise identical names.
 
 
 Special properties

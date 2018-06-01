@@ -41,6 +41,8 @@ class Section(object):
              memory address (like 0xff800000) is the first entry position.
              This causes _skip_at_start to be set to the starting memory
              address.
+        _name_prefix: Prefix to add to the name of all entries within this
+            section
         _entries: OrderedDict() of entries
     """
     def __init__(self, name, node, test=False):
@@ -58,6 +60,7 @@ class Section(object):
         self._sort = False
         self._skip_at_start = 0
         self._end_4gb = False
+        self._name_prefix = ''
         self._entries = OrderedDict()
         if not test:
             self._ReadNode()
@@ -79,10 +82,13 @@ class Section(object):
             self._Raise("Section size must be provided when using end-at-4gb")
         if self._end_4gb:
             self._skip_at_start = 0x100000000 - self._size
+        self._name_prefix = fdt_util.GetString(self._node, 'name-prefix')
 
     def _ReadEntries(self):
         for node in self._node.subnodes:
-            self._entries[node.name] = Entry.Create(self, node)
+            entry = Entry.Create(self, node)
+            entry.SetPrefix(self._name_prefix)
+            self._entries[node.name] = entry
 
     def CheckSize(self):
         """Check that the section contents does not exceed its size, etc."""

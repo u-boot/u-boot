@@ -48,11 +48,11 @@ class Entry(object):
         pad_after: Number of pad bytes after the contents, 0 if none
         data: Contents of entry (string of bytes)
     """
-    def __init__(self, section, etype, node, read_node=True):
+    def __init__(self, section, etype, node, read_node=True, name_prefix=''):
         self.section = section
         self.etype = etype
         self._node = node
-        self.name = node and node.name or 'none'
+        self.name = node and (name_prefix + node.name) or 'none'
         self.pos = None
         self.size = None
         self.contents_size = 0
@@ -128,6 +128,15 @@ class Entry(object):
                              "of two" % (self._node.path, self.align_size))
         self.align_end = fdt_util.GetInt(self._node, 'align-end')
         self.pos_unset = fdt_util.GetBool(self._node, 'pos-unset')
+
+    def SetPrefix(self, prefix):
+        """Set the name prefix for a node
+
+        Args:
+            prefix: Prefix to set, or '' to not use a prefix
+        """
+        if prefix:
+            self.name = prefix + self.name
 
     def ObtainContents(self):
         """Figure out the contents of an entry.
