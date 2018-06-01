@@ -32,12 +32,21 @@ struct arasan_sdhci_priv {
 };
 
 #if defined(CONFIG_ARCH_ZYNQMP)
+#define MMC_HS200_BUS_SPEED	5
+
 static const u8 mode2timing[] = {
-	     [UHS_SDR12] = UHS_SDR12_BUS_SPEED,
-	     [UHS_SDR25] = UHS_SDR25_BUS_SPEED,
-	     [UHS_SDR50] = UHS_SDR50_BUS_SPEED,
-	     [UHS_SDR104] = UHS_SDR104_BUS_SPEED,
-	     [UHS_DDR50] = UHS_DDR50_BUS_SPEED,
+	[MMC_LEGACY] = UHS_SDR12_BUS_SPEED,
+	[SD_LEGACY] = UHS_SDR12_BUS_SPEED,
+	[MMC_HS] = HIGH_SPEED_BUS_SPEED,
+	[SD_HS] = HIGH_SPEED_BUS_SPEED,
+	[MMC_HS_52] = HIGH_SPEED_BUS_SPEED,
+	[MMC_DDR_52] = HIGH_SPEED_BUS_SPEED,
+	[UHS_SDR12] = UHS_SDR12_BUS_SPEED,
+	[UHS_SDR25] = UHS_SDR25_BUS_SPEED,
+	[UHS_SDR50] = UHS_SDR50_BUS_SPEED,
+	[UHS_DDR50] = UHS_DDR50_BUS_SPEED,
+	[UHS_SDR104] = UHS_SDR104_BUS_SPEED,
+	[MMC_HS_200] = MMC_HS200_BUS_SPEED,
 };
 
 #define SDHCI_HOST_CTRL2	0x3E
@@ -160,9 +169,6 @@ static void arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	u8 uhsmode;
 
-	if (!IS_SD(mmc))
-		return;
-
 	uhsmode = mode2timing[mmc->selected_mode];
 
 	if (uhsmode >= UHS_SDR25_BUS_SPEED)
@@ -174,6 +180,9 @@ static void arasan_sdhci_set_control_reg(struct sdhci_host *host)
 {
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	u32 reg;
+
+	if (!IS_SD(mmc))
+		return;
 
 	if (mmc->signal_voltage == MMC_SIGNAL_VOLTAGE_180) {
 		reg = sdhci_readw(host, SDHCI_HOST_CTRL2);
@@ -283,25 +292,21 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 		return -1;
 
 	priv->host->name = dev->name;
-	priv->host->ioaddr = (void *)devfdt_get_addr(dev);
-
-	priv->deviceid = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					"xlnx,device_id", -1);
-	priv->bank = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-				    "xlnx,mio_bank", -1);
-	if (fdt_get_property(gd->fdt_blob, dev_of_offset(dev),
-			     "no-1-8-v", NULL))
-		priv->no_1p8 = 1;
-	else
-		priv->no_1p8 = 0;
 
 #if defined(CONFIG_DM_MMC) && defined(CONFIG_ARCH_ZYNQMP)
 	priv->host->ops = &arasan_ops;
 #endif
 
-	plat->f_max = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-				"max-frequency", CONFIG_ZYNQ_SDHCI_MAX_FREQ);
+	priv->host->ioaddr = (void *)dev_read_addr(dev);
+	if (IS_ERR(priv->host->ioaddr))
+		return PTR_ERR(priv->host->ioaddr);
 
+	priv->deviceid = dev_read_u32_default(dev, "xlnx,device_id", -1);
+	priv->bank = dev_read_u32_default(dev, "xlnx,mio_bank", -1);
+	priv->no_1p8 = dev_read_bool(dev, "no-1-8-v");
+
+	plat->f_max = dev_read_u32_default(dev, "max-frequency",
+					   CONFIG_ZYNQ_SDHCI_MAX_FREQ);
 	return 0;
 }
 

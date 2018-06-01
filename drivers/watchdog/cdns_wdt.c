@@ -231,17 +231,16 @@ static int cdns_wdt_probe(struct udevice *dev)
 
 static int cdns_wdt_ofdata_to_platdata(struct udevice *dev)
 {
-	int node = dev_of_offset(dev);
 	struct cdns_wdt_priv *priv = dev_get_priv(dev);
 
-	priv->regs = devfdt_get_addr_ptr(dev);
+	priv->regs = (struct cdns_regs *)dev_read_addr(dev);
 	if (IS_ERR(priv->regs))
 		return PTR_ERR(priv->regs);
 
-	priv->timeout = fdtdec_get_int(gd->fdt_blob, node, "timeout-sec",
-				       CDNS_WDT_DEFAULT_TIMEOUT);
+	priv->timeout = dev_read_u32_default(dev, "timeout-sec",
+					     CDNS_WDT_DEFAULT_TIMEOUT);
 
-	priv->rst = fdtdec_get_bool(gd->fdt_blob, node, "reset-on-timeout");
+	priv->rst = dev_read_bool(dev, "reset-on-timeout");
 
 	debug("%s: timeout %d, reset %d\n", __func__, priv->timeout, priv->rst);
 

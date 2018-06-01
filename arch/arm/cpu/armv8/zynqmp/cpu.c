@@ -135,12 +135,8 @@ unsigned int zynqmp_get_silicon_version(void)
 	gd->cpu_clk = get_tbclk();
 
 	switch (gd->cpu_clk) {
-	case 0 ... 1000000:
-		return ZYNQMP_CSU_VERSION_VELOCE;
 	case 50000000:
 		return ZYNQMP_CSU_VERSION_QEMU;
-	case 4000000:
-		return ZYNQMP_CSU_VERSION_EP108;
 	}
 
 	return ZYNQMP_CSU_VERSION_SILICON;
@@ -177,8 +173,8 @@ int __maybe_unused invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2,
 
 #define ZYNQMP_SIP_SVC_GET_API_VERSION		0xC2000001
 
-#define ZYNQMP_PM_VERSION_MAJOR		0
-#define ZYNQMP_PM_VERSION_MINOR		3
+#define ZYNQMP_PM_VERSION_MAJOR		1
+#define ZYNQMP_PM_VERSION_MINOR		0
 #define ZYNQMP_PM_VERSION_MAJOR_SHIFT	16
 #define ZYNQMP_PM_VERSION_MINOR_MASK	0xFFFF
 

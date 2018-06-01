@@ -27,6 +27,7 @@ enum {
 	FPGA_LOADP,
 	FPGA_LOADBP,
 	FPGA_LOADFS,
+	FPGA_LOADS,
 };
 
 /* ------------------------------------------------------------------------- */
@@ -54,21 +55,55 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	fpga_fs_info fpga_fsinfo;
 	fpga_fsinfo.fstype = FS_TYPE_ANY;
 #endif
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+	struct fpga_secure_info fpga_sec_info;
+
+	memset(&fpga_sec_info, 0, sizeof(fpga_sec_info));
+#endif
 
 	if (devstr)
 		dev = (int) simple_strtoul(devstr, NULL, 16);
 	if (datastr)
 		fpga_data = (void *)simple_strtoul(datastr, NULL, 16);
 
-	switch (argc) {
+	if (argc > 9 || argc < 2) {
+		debug("%s: Too many or too few args (%d)\n", __func__, argc);
+		return CMD_RET_USAGE;
+	}
+
+	op = (int)fpga_get_op(argv[1]);
+
+	switch (op) {
 #if defined(CONFIG_CMD_FPGA_LOADFS)
-	case 9:
+	case FPGA_LOADFS:
+		if (argc < 9)
+			return CMD_RET_USAGE;
 		fpga_fsinfo.blocksize = (unsigned int)
-					     simple_strtoul(argv[5], NULL, 16);
+					simple_strtoul(argv[5], NULL, 16);
 		fpga_fsinfo.interface = argv[6];
 		fpga_fsinfo.dev_part = argv[7];
 		fpga_fsinfo.filename = argv[8];
+		argc = 5;
+		break;
 #endif
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+	case FPGA_LOADS:
+		if (argc < 7)
+			return CMD_RET_USAGE;
+		if (argc == 8)
+			fpga_sec_info.userkey_addr = (u8 *)(uintptr_t)
+						     simple_strtoull(argv[7],
+								     NULL, 16);
+		fpga_sec_info.encflag = (u8)simple_strtoul(argv[6], NULL, 16);
+		fpga_sec_info.authflag = (u8)simple_strtoul(argv[5], NULL, 16);
+		argc = 5;
+		break;
+#endif
+	default:
+		break;
+	}
+
+	switch (argc) {
 	case 5:		/* fpga <op> <dev> <data> <datasize> */
 		data_size = simple_strtoul(argv[4], NULL, 16);
 
@@ -117,15 +152,6 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			      __func__, (ulong)fpga_data);
 			dev = FPGA_INVALID_DEVICE;	/* reset device num */
 		}
-
-	case 2:		/* fpga <op> */
-		op = (int)fpga_get_op(argv[1]);
-		break;
-
-	default:
-		debug("%s: Too many or too few args (%d)\n", __func__, argc);
-		op = FPGA_NONE;	/* force usage display */
-		break;
 	}
 
 	if (dev == FPGA_INVALID_DEVICE) {
@@ -143,6 +169,22 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		if (!fpga_fsinfo.interface || !fpga_fsinfo.dev_part ||
 		    !fpga_fsinfo.filename)
 			wrong_parms = 1;
+		break;
+#endif
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+	case FPGA_LOADS:
+		if (fpga_sec_info.authflag >= FPGA_NO_ENC_OR_NO_AUTH &&
+		    fpga_sec_info.encflag >= FPGA_NO_ENC_OR_NO_AUTH) {
+			puts("ERR: use <fpga load> for NonSecure bitstream\n");
+			wrong_parms = 1;
+		}
+
+		if (fpga_sec_info.encflag == FPGA_ENC_USR_KEY &&
+		    !fpga_sec_info.userkey_addr) {
+			wrong_parms = 1;
+			puts("ERR:User key not provided\n");
+		}
+		break;
 #endif
 	case FPGA_LOAD:
 	case FPGA_LOADP:
@@ -196,6 +238,12 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 #if defined(CONFIG_CMD_FPGA_LOADFS)
 	case FPGA_LOADFS:
 		rc = fpga_fsload(dev, fpga_data, data_size, &fpga_fsinfo);
+		break;
+#endif
+
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+	case FPGA_LOADS:
+		rc = fpga_loads(dev, fpga_data, data_size, &fpga_sec_info);
 		break;
 #endif
 
@@ -332,6 +380,10 @@ static int fpga_get_op(char *opstr)
 #endif
 	else if (!strcmp("dump", opstr))
 		op = FPGA_DUMP;
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+	else if (!strcmp("loads", opstr))
+		op = FPGA_LOADS;
+#endif
 
 	if (op == FPGA_NONE)
 		printf("Unknown fpga operation \"%s\"\n", opstr);
@@ -339,7 +391,7 @@ static int fpga_get_op(char *opstr)
 	return op;
 }
 
-#if defined(CONFIG_CMD_FPGA_LOADFS)
+#if defined(CONFIG_CMD_FPGA_LOADFS) || defined(CONFIG_CMD_FPGA_LOAD_SECURE)
 U_BOOT_CMD(fpga, 9, 1, do_fpga,
 #else
 U_BOOT_CMD(fpga, 6, 1, do_fpga,
@@ -373,5 +425,20 @@ U_BOOT_CMD(fpga, 6, 1, do_fpga,
 	   "\tFor loadmk operating on FIT format uImage address must include\n"
 	   "\tsubimage unit name in the form of addr:<subimg_uname>"
 #endif
+#endif
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+	   "Load encrypted bitstream (Xilinx only)\n"
+	   "  loads [dev] [address] [size] [auth-OCM-0/DDR-1/noauth-2]\n"
+	   "        [enc-devkey(0)/userkey(1)/nenc(2) [Userkey address]\n"
+	   "Loads the secure bistreams(authenticated/encrypted/both\n"
+	   "authenticated and encrypted) of [size] from [address].\n"
+	   "The auth-OCM/DDR flag specifies to perform authentication\n"
+	   "in OCM or in DDR. 0 for OCM, 1 for DDR, 2 for no authentication.\n"
+	   "The enc flag specifies which key to be used for decryption\n"
+	   "0-device key, 1-user key, 2-no encryption.\n"
+	   "The optional Userkey address specifies from which address key\n"
+	   "has to be used for decryption if user key is selected.\n"
+	   "NOTE: the sceure bitstream has to be created using xilinx\n"
+	   "bootgen tool only.\n"
 #endif
 );

@@ -13,7 +13,7 @@
 #include <dm.h>
 #include <usb.h>
 #include <linux/errno.h>
-#include <asm/arch-zynqmp/hardware.h>
+#include <asm/arch/hardware.h>
 #include <linux/compat.h>
 #include <linux/usb/dwc3.h>
 #include "xhci.h"

@@ -707,6 +707,13 @@ config CMD_FPGA_LOADP
 	  Supports loading an FPGA device from a bitstream buffer containing
 	  a partial bitstream.
 
+config CMD_FPGA_LOAD_SECURE
+	bool "fpga loads - loads secure bitstreams (Xilinx only)"
+	depends on CMD_FPGA
+	help
+	  Enables the fpga loads command which is used to load secure
+	  (authenticated or encrypted or both) bitstreams on to FPGA.
+
 config CMD_FPGAD
 	bool "fpgad - dump FPGA registers"
 	help

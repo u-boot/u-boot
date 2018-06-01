@@ -223,6 +223,51 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	return ret;
 }
 
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE) && !defined(CONFIG_SPL_BUILD)
+static int zynqmp_loads(xilinx_desc *desc, const void *buf, size_t bsize,
+			struct fpga_secure_info *fpga_sec_info)
+{
+	int ret;
+	u32 buf_lo, buf_hi;
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+	u8 flag = 0;
+
+	flush_dcache_range((ulong)buf, (ulong)buf +
+			   ALIGN(bsize, CONFIG_SYS_CACHELINE_SIZE));
+
+	if (!fpga_sec_info->encflag)
+		flag |= BIT(ZYNQMP_FPGA_BIT_ENC_DEV_KEY);
+
+	if (fpga_sec_info->userkey_addr &&
+	    fpga_sec_info->encflag == FPGA_ENC_USR_KEY) {
+		flush_dcache_range((ulong)fpga_sec_info->userkey_addr,
+				   (ulong)fpga_sec_info->userkey_addr +
+				   ALIGN(KEY_PTR_LEN,
+					 CONFIG_SYS_CACHELINE_SIZE));
+		flag |= BIT(ZYNQMP_FPGA_BIT_ENC_USR_KEY);
+	}
+
+	if (!fpga_sec_info->authflag)
+		flag |= BIT(ZYNQMP_FPGA_BIT_AUTH_OCM);
+
+	if (fpga_sec_info->authflag == ZYNQMP_FPGA_AUTH_DDR)
+		flag |= BIT(ZYNQMP_FPGA_BIT_AUTH_DDR);
+
+	buf_lo = lower_32_bits((ulong)buf);
+	buf_hi = upper_32_bits((ulong)buf);
+
+	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo, buf_hi,
+			 (u32)(uintptr_t)fpga_sec_info->userkey_addr,
+			 flag, ret_payload);
+	if (ret)
+		puts("PL FPGA LOAD fail\n");
+	else
+		puts("Bitstream successfully loaded\n");
+
+	return ret;
+}
+#endif
+
 static int zynqmp_pcap_info(xilinx_desc *desc)
 {
 	int ret;
@@ -238,5 +283,8 @@ static int zynqmp_pcap_info(xilinx_desc *desc)
 
 struct xilinx_fpga_op zynqmp_op = {
 	.load = zynqmp_load,
+#if defined CONFIG_CMD_FPGA_LOAD_SECURE
+	.loads = zynqmp_loads,
+#endif
 	.info = zynqmp_pcap_info,
 };

@@ -64,8 +64,10 @@ static int cadence_ttc_ofdata_to_platdata(struct udevice *dev)
 {
 	struct cadence_ttc_priv *priv = dev_get_priv(dev);
 
-	priv->regs = map_physmem(devfdt_get_addr(dev),
+	priv->regs = map_physmem(dev_read_addr(dev),
 				 sizeof(struct cadence_ttc_regs), MAP_NOCACHE);
+	if (IS_ERR(priv->regs))
+		return PTR_ERR(priv->regs);
 
 	return 0;
 }

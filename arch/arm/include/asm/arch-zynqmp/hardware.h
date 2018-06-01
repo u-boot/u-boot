@@ -30,6 +30,14 @@
 #define PS_MODE2	BIT(2)
 #define PS_MODE3	BIT(3)
 
+#define RESET_REASON_DEBUG_SYS	BIT(6)
+#define RESET_REASON_SOFT	BIT(5)
+#define RESET_REASON_SRST	BIT(4)
+#define RESET_REASON_PSONLY	BIT(3)
+#define RESET_REASON_PMU	BIT(2)
+#define RESET_REASON_INTERNAL	BIT(1)
+#define RESET_REASON_EXTERNAL	BIT(0)
+
 struct crlapb_regs {
 	u32 reserved0[36];
 	u32 cpu_r5_ctrl; /* 0x90 */
@@ -37,7 +45,9 @@ struct crlapb_regs {
 	u32 timestamp_ref_ctrl; /* 0x128 */
 	u32 reserved2[53];
 	u32 boot_mode; /* 0x200 */
-	u32 reserved3[14];
+	u32 reserved3_0[7];
+	u32 reset_reason; /* 0x220 */
+	u32 reserved3_1[6];
 	u32 rst_lpd_top; /* 0x23C */
 	u32 reserved4[4];
 	u32 boot_pin_ctrl; /* 0x250 */
@@ -120,8 +130,6 @@ struct apu_regs {
 /* Board version value */
 #define ZYNQMP_CSU_BASEADDR		0xFFCA0000
 #define ZYNQMP_CSU_VERSION_SILICON	0x0
-#define ZYNQMP_CSU_VERSION_EP108	0x1
-#define ZYNQMP_CSU_VERSION_VELOCE	0x2
 #define ZYNQMP_CSU_VERSION_QEMU		0x3
 
 #define ZYNQMP_CSU_VERSION_EMPTY_SHIFT		20
