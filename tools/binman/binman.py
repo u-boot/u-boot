@@ -23,9 +23,6 @@ for dirname in ['../patman', '../dtoc', '..']:
 # Bring in the libfdt module
 sys.path.insert(0, 'scripts/dtc/pylibfdt')
 
-# Also allow entry-type modules to be brought in from the etype directory.
-sys.path.insert(0, os.path.join(our_path, 'etype'))
-
 import cmdline
 import command
 import control

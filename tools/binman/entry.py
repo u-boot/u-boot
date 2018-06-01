@@ -14,9 +14,13 @@ except:
     have_importlib = False
 
 import fdt_util
+import os
+import sys
 import tools
 
 modules = {}
+
+our_path = os.path.dirname(os.path.realpath(__file__))
 
 class Entry(object):
     """An Entry in the section
@@ -80,8 +84,12 @@ class Entry(object):
             module_name = module_name.split('@')[0]
         module = modules.get(module_name)
 
+        # Also allow entry-type modules to be brought in from the etype directory.
+
         # Import the module if we have not already done so.
         if not module:
+            old_path = sys.path
+            sys.path.insert(0, os.path.join(our_path, 'etype'))
             try:
                 if have_importlib:
                     module = importlib.import_module(module_name)
@@ -90,6 +98,8 @@ class Entry(object):
             except ImportError:
                 raise ValueError("Unknown entry type '%s' in node '%s'" %
                         (etype, node.path))
+            finally:
+                sys.path = old_path
             modules[module_name] = module
 
         # Call its constructor to get the object we want.
