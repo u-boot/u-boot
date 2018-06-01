@@ -800,7 +800,7 @@ class TestFunctional(unittest.TestCase):
             self._DoReadFile('40_x86_ucode_not_in_image.dts', True)
         self.assertIn("Node '/binman/u-boot-with-ucode-ptr': Microcode "
                 "pointer _dt_ucode_base_size at fffffe14 is outside the "
-                "image ranging from 00000000 to 0000002e", str(e.exception))
+                "section ranging from 00000000 to 0000002e", str(e.exception))
 
     def testWithoutMicrocode(self):
         """Test that we can cope with an image without microcode (e.g. qemu)"""

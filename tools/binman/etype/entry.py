@@ -19,10 +19,10 @@ import tools
 modules = {}
 
 class Entry(object):
-    """An Entry in the image
+    """An Entry in the section
 
     An entry corresponds to a single node in the device-tree description
-    of the image. Each entry ends up being a part of the final image.
+    of the section. Each entry ends up being a part of the final section.
     Entries can be placed either right next to each other, or with padding
     between them. The type of the entry determines the data that is in it.
 
@@ -30,9 +30,9 @@ class Entry(object):
     Entry.
 
     Attributes:
-        image: The image containing this entry
+        section: The section containing this entry
         node: The node that created this entry
-        pos: Absolute position of entry within the image, None if not known
+        pos: Absolute position of entry within the section, None if not known
         size: Entry size in bytes, None if not known
         contents_size: Size of contents in bytes, 0 by default
         align: Entry start position alignment, or None
@@ -42,8 +42,8 @@ class Entry(object):
         pad_after: Number of pad bytes after the contents, 0 if none
         data: Contents of entry (string of bytes)
     """
-    def __init__(self, image, etype, node, read_node=True):
-        self.image = image
+    def __init__(self, section, etype, node, read_node=True):
+        self.section = section
         self.etype = etype
         self._node = node
         self.pos = None
@@ -59,11 +59,11 @@ class Entry(object):
             self.ReadNode()
 
     @staticmethod
-    def Create(image, node, etype=None):
+    def Create(section, node, etype=None):
         """Create a new entry for a node.
 
         Args:
-            image:  Image object containing this node
+            section:  Image object containing this node
             node:   Node object containing information about the entry to create
             etype:  Entry type to use, or None to work it out (used for tests)
 
@@ -94,7 +94,7 @@ class Entry(object):
 
         # Call its constructor to get the object we want.
         obj = getattr(module, 'Entry_%s' % module_name)
-        return obj(image, etype, node)
+        return obj(section, etype, node)
 
     def ReadNode(self):
         """Read entry information from the node
@@ -127,7 +127,7 @@ class Entry(object):
         return True
 
     def Pack(self, pos):
-        """Figure out how to pack the entry into the image
+        """Figure out how to pack the entry into the section
 
         Most of the time the entries are not fully specified. There may be
         an alignment but no size. In that case we take the size from the
@@ -139,10 +139,10 @@ class Entry(object):
         entry will be know.
 
         Args:
-            Current image position pointer
+            Current section position pointer
 
         Returns:
-            New image position pointer (after this entry)
+            New section position pointer (after this entry)
         """
         if self.pos is None:
             if self.pos_unset:

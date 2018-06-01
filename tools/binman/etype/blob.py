@@ -10,8 +10,8 @@ import fdt_util
 import tools
 
 class Entry_blob(Entry):
-    def __init__(self, image, etype, node):
-        Entry.__init__(self, image, etype, node)
+    def __init__(self, section, etype, node):
+        Entry.__init__(self, section, etype, node)
         self._filename = fdt_util.GetString(self._node, "filename", self.etype)
 
     def ObtainContents(self):

@@ -11,8 +11,8 @@ from entry import Entry
 from blob import Entry_blob
 
 class Entry_u_boot_spl(Entry_blob):
-    def __init__(self, image, etype, node):
-        Entry_blob.__init__(self, image, etype, node)
+    def __init__(self, section, etype, node):
+        Entry_blob.__init__(self, section, etype, node)
         self.elf_fname = 'spl/u-boot-spl'
 
     def GetDefaultFilename(self):

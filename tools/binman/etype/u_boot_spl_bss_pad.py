@@ -14,8 +14,8 @@ from blob import Entry_blob
 import tools
 
 class Entry_u_boot_spl_bss_pad(Entry_blob):
-    def __init__(self, image, etype, node):
-        Entry_blob.__init__(self, image, etype, node)
+    def __init__(self, section, etype, node):
+        Entry_blob.__init__(self, section, etype, node)
 
     def ObtainContents(self):
         fname = tools.GetInputFilename('spl/u-boot-spl')
