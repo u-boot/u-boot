@@ -201,6 +201,7 @@ class Section(object):
         pos = 0
         prev_name = 'None'
         for entry in self._entries.values():
+            entry.CheckPosition()
             if (entry.pos < self._skip_at_start or
                 entry.pos >= self._skip_at_start + self._size):
                 entry.Raise("Position %#x (%d) is outside the section starting "

@@ -392,6 +392,45 @@ either by using a unit number suffix (u-boot@0, u-boot@1) or by using a
 different name for each and specifying the type with the 'type' attribute.
 
 
+Sections and hiearchical images
+-------------------------------
+
+Sometimes it is convenient to split an image into several pieces, each of which
+contains its own set of binaries. An example is a flash device where part of
+the image is read-only and part is read-write. We can set up sections for each
+of these, and place binaries in them independently. The image is still produced
+as a single output file.
+
+This feature provides a way of creating hierarchical images. For example here
+is an example with two copies of U-Boot. One is read-only (ro), intended to be
+written only in the factory. Another is read-write (rw), so that it can be
+upgraded in the field. The sizes are fixed so that the ro/rw boundary is known
+and can be programmed:
+
+	binman {
+		section@0 {
+			read-only;
+			size = <0x100000>;
+			u-boot {
+			};
+		};
+		section@1 {
+			size = <0x100000>;
+			u-boot {
+			};
+		};
+	};
+
+This image could be placed into a SPI flash chip, with the protection boundary
+set at 1MB.
+
+A few special properties are provided for sections:
+
+read-only:
+	Indicates that this section is read-only. This has no impact on binman's
+	operation, but his property can be read at run time.
+
+
 Special properties
 ------------------
 
@@ -586,8 +625,6 @@ Some ideas:
 - Allow easy building of images by specifying just the board name
 - Produce a full Python binding for libfdt (for upstream)
 - Add an option to decode an image into the constituent binaries
-- Suppoort hierarchical images (packing of binaries into another binary
-  which is then placed in the image)
 - Support building an image for a board (-b) more completely, with a
   configurable build directory
 - Consider making binman work with buildman, although if it is used in the

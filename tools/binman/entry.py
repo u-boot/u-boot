@@ -220,3 +220,12 @@ class Entry(object):
           section: Section containing the entry
         """
         pass
+
+    def CheckPosition(self):
+        """Check that the entry positions are correct
+
+        This is used for entries which have extra position requirements (other
+        than having to be fully inside their section). Sub-classes can implement
+        this function and raise if there is a problem.
+        """
+        pass

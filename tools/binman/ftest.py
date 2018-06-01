@@ -914,6 +914,11 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('54_unit_address.dts')
         self.assertEqual(U_BOOT_DATA + U_BOOT_DATA, data)
 
+    def testSections(self):
+        """Basic test of sections"""
+        data = self._DoReadFile('55_sections.dts')
+        expected = U_BOOT_DATA + '!' * 12 + U_BOOT_DATA + 'a' * 12 + '&' * 8
+        self.assertEqual(expected, data)
 
 if __name__ == "__main__":
     unittest.main()
