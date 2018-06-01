@@ -30,6 +30,11 @@ class Image:
         _size: Image size in bytes, or None if not known yet
         _filename: Output filename for image
         _sections: Sections present in this image (may be one or more)
+
+    Args:
+        test: True if this is being called from a test of Images. This this case
+            there is no device tree defining the structure of the section, so
+            we create a section manually.
     """
     def __init__(self, name, node, test=False):
         self._node = node

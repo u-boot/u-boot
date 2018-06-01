@@ -409,8 +409,8 @@ of these, and place binaries in them independently. The image is still produced
 as a single output file.
 
 This feature provides a way of creating hierarchical images. For example here
-is an example with two copies of U-Boot. One is read-only (ro), intended to be
-written only in the factory. Another is read-write (rw), so that it can be
+is an example image with two copies of U-Boot. One is read-only (ro), intended
+to be written only in the factory. Another is read-write (rw), so that it can be
 upgraded in the field. The sizes are fixed so that the ro/rw boundary is known
 and can be programmed:
 
@@ -597,7 +597,7 @@ Binman takes a lot of inspiration from a Chrome OS tool called
 a reasonably simple and sound design but has expanded greatly over the
 years. In particular its handling of x86 images is convoluted.
 
-Quite a few lessons have been learned which are hopefully be applied here.
+Quite a few lessons have been learned which are hopefully applied here.
 
 
 Design notes

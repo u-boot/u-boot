@@ -150,7 +150,8 @@ class TestFunctional(unittest.TestCase):
         """Run binman with a given test file
 
         Args:
-            fname: Device tree source filename to use (e.g. 05_simple.dts)
+            fname: Device-tree source filename to use (e.g. 05_simple.dts)
+            debug: True to enable debugging output
         """
         args = ['-p', '-I', self._indir, '-d', self.TestFile(fname)]
         if debug:
@@ -165,10 +166,10 @@ class TestFunctional(unittest.TestCase):
 
         Args:
             fname: Filename of .dts file to read
-            outfile: Output filename for compiled device tree binary
+            outfile: Output filename for compiled device-tree binary
 
         Returns:
-            Contents of device tree binary
+            Contents of device-tree binary
         """
         if not self._output_setup:
             tools.PrepareOutputDir(self._indir, True)
@@ -189,7 +190,7 @@ class TestFunctional(unittest.TestCase):
         Raises an assertion failure if binman returns a non-zero exit code.
 
         Args:
-            fname: Device tree source filename to use (e.g. 05_simple.dts)
+            fname: Device-tree source filename to use (e.g. 05_simple.dts)
             use_real_dtb: True to use the test file as the contents of
                 the u-boot-dtb entry. Normally this is not needed and the
                 test contents (the U_BOOT_DTB_DATA string) can be used.
@@ -221,7 +222,15 @@ class TestFunctional(unittest.TestCase):
                 TestFunctional._MakeInputFile('u-boot.dtb', U_BOOT_DTB_DATA)
 
     def _DoReadFile(self, fname, use_real_dtb=False):
-        """Helper function which discards the device-tree binary"""
+        """Helper function which discards the device-tree binary
+
+        Args:
+            fname: Device-tree source filename to use (e.g. 05_simple.dts)
+            use_real_dtb: True to use the test file as the contents of
+                the u-boot-dtb entry. Normally this is not needed and the
+                test contents (the U_BOOT_DTB_DATA string) can be used.
+                But in some test we need the real contents.
+        """
         return self._DoReadFileDtb(fname, use_real_dtb)[0]
 
     @classmethod
@@ -270,13 +279,13 @@ class TestFunctional(unittest.TestCase):
             pos += entry.size
 
     def GetFdtLen(self, dtb):
-        """Get the totalsize field from a device tree binary
+        """Get the totalsize field from a device-tree binary
 
         Args:
-            dtb: Device tree binary contents
+            dtb: Device-tree binary contents
 
         Returns:
-            Total size of device tree binary, from the header
+            Total size of device-tree binary, from the header
         """
         return struct.unpack('>L', dtb[4:8])[0]
 
@@ -326,7 +335,7 @@ class TestFunctional(unittest.TestCase):
                 str(e.exception))
 
     def testMissingDt(self):
-        """Test that an invalid device tree file generates an error"""
+        """Test that an invalid device-tree file generates an error"""
         with self.assertRaises(Exception) as e:
             self._RunBinman('-d', 'missing_file')
         # We get one error from libfdt, and a different one from fdtget.
@@ -334,7 +343,7 @@ class TestFunctional(unittest.TestCase):
                            'No such file or directory'], str(e.exception))
 
     def testBrokenDt(self):
-        """Test that an invalid device tree source file generates an error
+        """Test that an invalid device-tree source file generates an error
 
         Since this is a source file it should be compiled and the error
         will come from the device-tree compiler (dtc).
