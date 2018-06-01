@@ -316,6 +316,13 @@ type:
 	possible to use any name, and then add (for example) 'type = "u-boot"'
 	to specify the type.
 
+pos-unset:
+	Indicates that the position of this entry should not be set by placing
+	it immediately after the entry before. Instead, is set by another
+	entry which knows where this entry should go. When this boolean
+	property is present, binman will give an error if another entry does
+	not set the position (with the GetPositions() method).
+
 
 The attributes supported for images are described below. Several are similar
 to those for entries.
