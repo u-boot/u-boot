@@ -18,5 +18,5 @@ class Entry_u_boot_spl(Entry_blob):
     def GetDefaultFilename(self):
         return 'spl/u-boot-spl.bin'
 
-    def WriteSymbols(self, image):
-        elf.LookupAndWriteSymbols(self.elf_fname, self, image)
+    def WriteSymbols(self, section):
+        elf.LookupAndWriteSymbols(self.elf_fname, self, section)
