@@ -57,10 +57,8 @@
 #include <environment/ti/mmc.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	DEFAULT_LINUX_BOOT_ENV \
 	DEFAULT_MMC_TI_ARGS \
-	"loadaddr=0x80007fc0\0" \
-	"fdtaddr=0x80000000\0" \
-	"rdaddr=0x81000000\0" \
 	"bootfile=uImage\0" \
 	"fdtfile=pcm051.dtb\0" \
 	"console=ttyO0,115200n8\0" \
