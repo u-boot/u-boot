@@ -590,6 +590,8 @@ static int omap3_spi_claim_bus(struct udevice *dev)
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
 
 	priv->cs = slave_plat->cs;
+	priv->freq = slave_plat->max_hz;
+
 	_omap3_spi_claim_bus(priv);
 
 	return 0;
