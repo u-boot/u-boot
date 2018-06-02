@@ -53,7 +53,11 @@
 
 #include <config_distro_bootcmd.h>
 
+#include <environment/ti/dfu.h>
+#include <environment/ti/mmc.h>
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	DEFAULT_MMC_TI_ARGS \
 	"loadaddr=0x80007fc0\0" \
 	"fdtaddr=0x80000000\0" \
 	"rdaddr=0x81000000\0" \
@@ -61,15 +65,8 @@
 	"fdtfile=pcm051.dtb\0" \
 	"console=ttyO0,115200n8\0" \
 	"optargs=\0" \
-	"mmcdev=0\0" \
-	"mmcroot=/dev/mmcblk0p2 ro\0" \
-	"mmcrootfstype=ext4 rootwait\0" \
 	"ramroot=/dev/ram0 rw ramdisk_size=65536 initrd=${rdaddr},64M\0" \
 	"ramrootfstype=ext2\0" \
-	"mmcargs=setenv bootargs console=${console} " \
-		"${optargs} " \
-		"root=${mmcroot} " \
-		"rootfstype=${mmcrootfstype}\0" \
 	"bootenv=uEnv.txt\0" \
 	"loadbootscript=load mmc ${mmcdev} ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc${mmcdev} ...; " \
@@ -85,7 +82,7 @@
 	"loaduimagefat=fatload mmc ${mmcdev} ${loadaddr} ${bootfile}\0" \
 	"loaduimage=ext2load mmc ${mmcdev}:2 ${loadaddr} ${bootfile}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
-		"run mmcargs; " \
+		"run args_mmc; " \
 		"bootm ${loadaddr}\0" \
 	"ramboot=echo Booting from ramdisk ...; " \
 		"run ramargs; " \
