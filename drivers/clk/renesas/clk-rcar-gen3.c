@@ -85,6 +85,28 @@ static const struct sd_div_table cpg_sd_div_table[] = {
 	CPG_SD_DIV_TABLE_DATA(1,        0,        4,          0,       32),
 };
 
+static int gen3_clk_get_parent(struct gen3_clk_priv *priv, struct clk *clk,
+			       struct cpg_mssr_info *info, struct clk *parent)
+{
+	const struct cpg_core_clk *core;
+	int ret;
+
+	if (!renesas_clk_is_mod(clk)) {
+		ret = renesas_clk_get_core(clk, info, &core);
+		if (ret)
+			return ret;
+
+		if (core->type == CLK_TYPE_GEN3_PE) {
+			parent->dev = clk->dev;
+			parent->id = core->parent >> (priv->sscg ? 16 : 0);
+			parent->id &= 0xffff;
+			return 0;
+		}
+	}
+
+	return renesas_clk_get_parent(clk, info, parent);
+}
+
 static int gen3_clk_setup_sdif_div(struct clk *clk)
 {
 	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
@@ -93,7 +115,7 @@ static int gen3_clk_setup_sdif_div(struct clk *clk)
 	struct clk parent;
 	int ret;
 
-	ret = renesas_clk_get_parent(clk, info, &parent);
+	ret = gen3_clk_get_parent(priv, clk, info, &parent);
 	if (ret) {
 		printf("%s[%i] parent fail, ret=%i\n", __func__, __LINE__, ret);
 		return ret;
@@ -134,7 +156,7 @@ static int gen3_clk_disable(struct clk *clk)
 	return renesas_clk_endisable(clk, priv->base, false);
 }
 
-static ulong gen3_clk_get_rate(struct clk *clk)
+static u64 gen3_clk_get_rate64(struct clk *clk)
 {
 	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
 	struct cpg_mssr_info *info = priv->info;
@@ -142,20 +164,21 @@ static ulong gen3_clk_get_rate(struct clk *clk)
 	const struct cpg_core_clk *core;
 	const struct rcar_gen3_cpg_pll_config *pll_config =
 					priv->cpg_pll_config;
-	u32 value, mult, prediv, postdiv, rate = 0;
+	u32 value, mult, div, prediv, postdiv;
+	u64 rate = 0;
 	int i, ret;
 
 	debug("%s[%i] Clock: id=%lu\n", __func__, __LINE__, clk->id);
 
-	ret = renesas_clk_get_parent(clk, info, &parent);
+	ret = gen3_clk_get_parent(priv, clk, info, &parent);
 	if (ret) {
 		printf("%s[%i] parent fail, ret=%i\n", __func__, __LINE__, ret);
 		return ret;
 	}
 
 	if (renesas_clk_is_mod(clk)) {
-		rate = gen3_clk_get_rate(&parent);
-		debug("%s[%i] MOD clk: parent=%lu => rate=%u\n",
+		rate = gen3_clk_get_rate64(&parent);
+		debug("%s[%i] MOD clk: parent=%lu => rate=%llu\n",
 		      __func__, __LINE__, parent.id, rate);
 		return rate;
 	}
@@ -168,14 +191,14 @@ static ulong gen3_clk_get_rate(struct clk *clk)
 	case CLK_TYPE_IN:
 		if (core->id == info->clk_extal_id) {
 			rate = clk_get_rate(&priv->clk_extal);
-			debug("%s[%i] EXTAL clk: rate=%u\n",
+			debug("%s[%i] EXTAL clk: rate=%llu\n",
 			      __func__, __LINE__, rate);
 			return rate;
 		}
 
 		if (core->id == info->clk_extalr_id) {
 			rate = clk_get_rate(&priv->clk_extalr);
-			debug("%s[%i] EXTALR clk: rate=%u\n",
+			debug("%s[%i] EXTALR clk: rate=%llu\n",
 			      __func__, __LINE__, rate);
 			return rate;
 		}
@@ -183,8 +206,8 @@ static ulong gen3_clk_get_rate(struct clk *clk)
 		return -EINVAL;
 
 	case CLK_TYPE_GEN3_MAIN:
-		rate = gen3_clk_get_rate(&parent) / pll_config->extal_div;
-		debug("%s[%i] MAIN clk: parent=%i extal_div=%i => rate=%u\n",
+		rate = gen3_clk_get_rate64(&parent) / pll_config->extal_div;
+		debug("%s[%i] MAIN clk: parent=%i extal_div=%i => rate=%llu\n",
 		      __func__, __LINE__,
 		      core->parent, pll_config->extal_div, rate);
 		return rate;
@@ -192,47 +215,59 @@ static ulong gen3_clk_get_rate(struct clk *clk)
 	case CLK_TYPE_GEN3_PLL0:
 		value = readl(priv->base + CPG_PLL0CR);
 		mult = (((value >> 24) & 0x7f) + 1) * 2;
-		rate = gen3_clk_get_rate(&parent) * mult;
-		debug("%s[%i] PLL0 clk: parent=%i mult=%u => rate=%u\n",
+		rate = gen3_clk_get_rate64(&parent) * mult;
+		debug("%s[%i] PLL0 clk: parent=%i mult=%u => rate=%llu\n",
 		      __func__, __LINE__, core->parent, mult, rate);
 		return rate;
 
 	case CLK_TYPE_GEN3_PLL1:
-		rate = gen3_clk_get_rate(&parent) * pll_config->pll1_mult;
-		debug("%s[%i] PLL1 clk: parent=%i mul=%i => rate=%u\n",
+		rate = gen3_clk_get_rate64(&parent) * pll_config->pll1_mult;
+		rate /= pll_config->pll1_div;
+		debug("%s[%i] PLL1 clk: parent=%i mul=%i div=%i => rate=%llu\n",
 		      __func__, __LINE__,
-		      core->parent, pll_config->pll1_mult, rate);
+		      core->parent, pll_config->pll1_mult,
+		      pll_config->pll1_div, rate);
 		return rate;
 
 	case CLK_TYPE_GEN3_PLL2:
 		value = readl(priv->base + CPG_PLL2CR);
 		mult = (((value >> 24) & 0x7f) + 1) * 2;
-		rate = gen3_clk_get_rate(&parent) * mult;
-		debug("%s[%i] PLL2 clk: parent=%i mult=%u => rate=%u\n",
+		rate = gen3_clk_get_rate64(&parent) * mult;
+		debug("%s[%i] PLL2 clk: parent=%i mult=%u => rate=%llu\n",
 		      __func__, __LINE__, core->parent, mult, rate);
 		return rate;
 
 	case CLK_TYPE_GEN3_PLL3:
-		rate = gen3_clk_get_rate(&parent) * pll_config->pll3_mult;
-		debug("%s[%i] PLL3 clk: parent=%i mul=%i => rate=%u\n",
+		rate = gen3_clk_get_rate64(&parent) * pll_config->pll3_mult;
+		rate /= pll_config->pll3_div;
+		debug("%s[%i] PLL3 clk: parent=%i mul=%i div=%i => rate=%llu\n",
 		      __func__, __LINE__,
-		      core->parent, pll_config->pll3_mult, rate);
+		      core->parent, pll_config->pll3_mult,
+		      pll_config->pll3_div, rate);
 		return rate;
 
 	case CLK_TYPE_GEN3_PLL4:
 		value = readl(priv->base + CPG_PLL4CR);
 		mult = (((value >> 24) & 0x7f) + 1) * 2;
-		rate = gen3_clk_get_rate(&parent) * mult;
-		debug("%s[%i] PLL4 clk: parent=%i mult=%u => rate=%u\n",
+		rate = gen3_clk_get_rate64(&parent) * mult;
+		debug("%s[%i] PLL4 clk: parent=%i mult=%u => rate=%llu\n",
 		      __func__, __LINE__, core->parent, mult, rate);
 		return rate;
 
 	case CLK_TYPE_FF:
-	case CLK_TYPE_GEN3_PE:		/* FIXME */
-		rate = (gen3_clk_get_rate(&parent) * core->mult) / core->div;
-		debug("%s[%i] FIXED clk: parent=%i div=%i mul=%i => rate=%u\n",
+		rate = (gen3_clk_get_rate64(&parent) * core->mult) / core->div;
+		debug("%s[%i] FIXED clk: parent=%i mul=%i div=%i => rate=%llu\n",
 		      __func__, __LINE__,
 		      core->parent, core->mult, core->div, rate);
+		return rate;
+
+	case CLK_TYPE_GEN3_PE:
+		div = (core->div >> (priv->sscg ? 16 : 0)) & 0xffff;
+		rate = gen3_clk_get_rate64(&parent) / div;
+		debug("%s[%i] PE clk: parent=%i div=%u => rate=%llu\n",
+		      __func__, __LINE__,
+		      (core->parent >> (priv->sscg ? 16 : 0)) & 0xffff,
+		      div, rate);
 		return rate;
 
 	case CLK_TYPE_GEN3_SD:		/* FIXME */
@@ -243,9 +278,9 @@ static ulong gen3_clk_get_rate(struct clk *clk)
 			if (cpg_sd_div_table[i].val != value)
 				continue;
 
-			rate = gen3_clk_get_rate(&parent) /
+			rate = gen3_clk_get_rate64(&parent) /
 			       cpg_sd_div_table[i].div;
-			debug("%s[%i] SD clk: parent=%i div=%i => rate=%u\n",
+			debug("%s[%i] SD clk: parent=%i div=%i => rate=%llu\n",
 			      __func__, __LINE__,
 			      core->parent, cpg_sd_div_table[i].div, rate);
 
@@ -255,7 +290,7 @@ static ulong gen3_clk_get_rate(struct clk *clk)
 		return -EINVAL;
 
 	case CLK_TYPE_GEN3_RPC:
-		rate = gen3_clk_get_rate(&parent);
+		rate = gen3_clk_get_rate64(&parent);
 
 		value = readl(priv->base + core->offset);
 
@@ -272,7 +307,7 @@ static ulong gen3_clk_get_rate(struct clk *clk)
 			  CPG_RPC_POSTDIV_MASK;
 		rate /= postdiv + 1;
 
-		debug("%s[%i] RPC clk: parent=%i prediv=%i postdiv=%i => rate=%u\n",
+		debug("%s[%i] RPC clk: parent=%i prediv=%i postdiv=%i => rate=%llu\n",
 		      __func__, __LINE__,
 		      core->parent, prediv, postdiv, rate);
 
@@ -285,11 +320,16 @@ static ulong gen3_clk_get_rate(struct clk *clk)
 	return -ENOENT;
 }
 
+static ulong gen3_clk_get_rate(struct clk *clk)
+{
+	return gen3_clk_get_rate64(clk);
+}
+
 static ulong gen3_clk_set_rate(struct clk *clk, ulong rate)
 {
 	/* Force correct SD-IF divider configuration if applicable */
 	gen3_clk_setup_sdif_div(clk);
-	return gen3_clk_get_rate(clk);
+	return gen3_clk_get_rate64(clk);
 }
 
 static int gen3_clk_of_xlate(struct clk *clk, struct ofnode_phandle_args *args)
@@ -340,6 +380,8 @@ int gen3_clk_probe(struct udevice *dev)
 		(struct rcar_gen3_cpg_pll_config *)info->get_pll_config(cpg_mode);
 	if (!priv->cpg_pll_config->extal_div)
 		return -EINVAL;
+
+	priv->sscg = !(cpg_mode & BIT(12));
 
 	ret = clk_get_by_name(dev, "extal", &priv->clk_extal);
 	if (ret < 0)
