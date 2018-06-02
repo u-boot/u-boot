@@ -60,7 +60,7 @@
 	DEFAULT_LINUX_BOOT_ENV \
 	DEFAULT_MMC_TI_ARGS \
 	"bootfile=uImage\0" \
-	"fdtfile=pcm051.dtb\0" \
+	"fdtfile=am335x-wega-rdk.dtb\0" \
 	"console=ttyO0,115200n8\0" \
 	"optargs=\0" \
 	"ramroot=/dev/ram0 rw ramdisk_size=65536 initrd=${rdaddr},64M\0" \
