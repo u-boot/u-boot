@@ -515,8 +515,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * eSPI - Enhanced SPI
  */
-#ifndef CONFIG_SPL_BUILD
-#endif
 #define CONFIG_SPI_FLASH_BAR
 #define CONFIG_SF_DEFAULT_SPEED	 10000000
 #define CONFIG_SF_DEFAULT_MODE	  0

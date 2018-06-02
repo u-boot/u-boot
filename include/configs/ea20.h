@@ -111,9 +111,6 @@
 #define CONFIG_CLOCKS
 #endif
 
-#ifndef CONFIG_DRIVER_TI_EMAC
-#endif
-
 /* NAND Setup */
 #ifdef CONFIG_SYS_USE_NAND
 #define CONFIG_MTD_DEVICE
@@ -128,10 +125,6 @@
 #define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
 #define	CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_MAX_NAND_DEVICE	1 /* Max number of NAND devices */
-#endif
-
-/* SPI Flash */
-#ifdef CONFIG_USE_SPIFLASH
 #endif
 
 #if !defined(CONFIG_SYS_USE_NAND) && \

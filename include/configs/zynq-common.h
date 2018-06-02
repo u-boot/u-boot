@@ -40,10 +40,6 @@
 # define CONFIG_BOOTP_MAY_FAIL
 #endif
 
-/* SPI */
-#ifdef CONFIG_ZYNQ_SPI
-#endif
-
 /* QSPI */
 #ifdef CONFIG_ZYNQ_QSPI
 # define CONFIG_SF_DEFAULT_SPEED	30000000

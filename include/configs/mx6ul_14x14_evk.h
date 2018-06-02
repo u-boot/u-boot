@@ -166,9 +166,6 @@
 #define CONFIG_SYS_MMC_ENV_PART		0	/* user area */
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
 
-#ifndef CONFIG_SYS_DCACHE_OFF
-#endif
-
 #ifdef CONFIG_FSL_QSPI
 #define CONFIG_SF_DEFAULT_BUS		0
 #define CONFIG_SF_DEFAULT_CS		0

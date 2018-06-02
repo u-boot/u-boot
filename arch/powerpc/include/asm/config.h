@@ -14,9 +14,6 @@
 #include <asm/config_mpc86xx.h>
 #endif
 
-#ifdef CONFIG_MPC83xx
-#endif
-
 #ifndef HWCONFIG_BUFFER_SIZE
   #define HWCONFIG_BUFFER_SIZE 256
 #endif
