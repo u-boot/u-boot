@@ -155,6 +155,9 @@ obj-$(CONFIG_CMD_REGULATOR) += regulator.o
 
 obj-$(CONFIG_CMD_BLOB) += blob.o
 
+# Android Verified Boot 2.0
+obj-$(CONFIG_CMD_AVB) += avb.o
+
 obj-$(CONFIG_X86) += x86/
 endif # !CONFIG_SPL_BUILD
 

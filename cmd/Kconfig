@@ -1754,6 +1754,22 @@ config CMD_TRACE
 	  for analsys (e.g. using bootchart). See doc/README.trace for full
 	  details.
 
+config CMD_AVB
+	bool "avb - Android Verified Boot 2.0 operations"
+	depends on LIBAVB
+	default n
+	help
+	  Enables a "avb" command to perform verification of partitions using
+	  Android Verified Boot 2.0 functionality. It includes such subcommands:
+	    avb init - initialize avb2 subsystem
+	    avb read_rb - read rollback index
+	    avb write_rb - write rollback index
+	    avb is_unlocked - check device lock state
+	    avb get_uuid - read and print uuid of a partition
+	    avb read_part - read data from partition
+	    avb read_part_hex - read data from partition and output to stdout
+	    avb write_part - write data to partition
+	    avb verify - run full verification chain
 endmenu
 
 config CMD_UBI
