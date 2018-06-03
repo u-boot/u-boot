@@ -172,7 +172,7 @@ void board_init_f(ulong dummy)
 	 * printascii("string");
 	 */
 	debug_uart_init();
-	printascii("U-Boot SPL board init");
+	printascii("U-Boot SPL board init\n");
 #endif
 
 	ret = spl_early_init();
