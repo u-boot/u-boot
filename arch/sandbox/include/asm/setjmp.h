@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0+
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) 2018 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
