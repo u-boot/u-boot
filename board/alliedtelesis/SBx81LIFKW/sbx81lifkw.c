@@ -164,9 +164,15 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_MV88E61XX_SWITCH
-/* Configure and enable Switch and PHY */
+#ifdef CONFIG_RESET_PHY_R
+/* automatically defined by kirkwood config.h */
 void reset_phy(void)
+{
+}
+#endif
+
+#ifdef CONFIG_MV88E61XX_SWITCH
+int mv88e61xx_hw_reset(struct phy_device *phydev)
 {
 	/* Ensure the 88e6097 gets at least 10ms Reset
 	 */
@@ -174,6 +180,10 @@ void reset_phy(void)
 	mdelay(20);
 	kw_gpio_set_value(MV88E6097_RESET, 1);
 	mdelay(20);
+
+	phydev->advertising = ADVERTISED_10baseT_Half | ADVERTISED_10baseT_Full;
+
+	return 0;
 }
 #endif
 

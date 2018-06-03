@@ -103,15 +103,10 @@
 #define CONFIG_NETCONSOLE	/* include NetConsole support */
 #define CONFIG_NET_MULTI	/* specify more that one ports available */
 #define CONFIG_MII		/* expose smi over miiphy interface */
-#define CONFIG_PHYLIB
 #define CONFIG_MVGBE	/* Enable kirkwood Gbe Controller Driver */
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable a single port */
 #define CONFIG_PHY_BASE_ADR	0x01
 #define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
-#define CONFIG_RESET_PHY_R	/* use reset_phy() to init switch */
-#define CONFIG_MV88E61XX_SWITCH	/* Enable MV88E61XX switch driver */
-#define CONFIG_MV88E61XX_PHY_PORTS 0x303 /* Pt0,1,8,9 */
-#define CONFIG_MV88E61XX_CPU_PORT 10 /* 10(CPU) */
 #endif /* CONFIG_CMD_NET */
 
 /*
