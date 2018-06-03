@@ -119,6 +119,137 @@ const unsigned char avb_root_pub[1032] = {
 
 /**
  * ============================================================================
+ * Boot states support (GREEN, YELLOW, ORANGE, RED) and dm_verity
+ * ============================================================================
+ */
+char *avb_set_state(AvbOps *ops, enum avb_boot_state boot_state)
+{
+	struct AvbOpsData *data;
+	char *cmdline = NULL;
+
+	if (!ops)
+		return NULL;
+
+	data = (struct AvbOpsData *)ops->user_data;
+	if (!data)
+		return NULL;
+
+	data->boot_state = boot_state;
+	switch (boot_state) {
+	case AVB_GREEN:
+		cmdline = "androidboot.verifiedbootstate=green";
+		break;
+	case AVB_YELLOW:
+		cmdline = "androidboot.verifiedbootstate=yellow";
+		break;
+	case AVB_ORANGE:
+		cmdline = "androidboot.verifiedbootstate=orange";
+	case AVB_RED:
+		break;
+	}
+
+	return cmdline;
+}
+
+char *append_cmd_line(char *cmdline_orig, char *cmdline_new)
+{
+	char *cmd_line;
+
+	if (!cmdline_new)
+		return cmdline_orig;
+
+	if (cmdline_orig)
+		cmd_line = cmdline_orig;
+	else
+		cmd_line = " ";
+
+	cmd_line = avb_strdupv(cmd_line, " ", cmdline_new, NULL);
+
+	return cmd_line;
+}
+
+static int avb_find_dm_args(char **args, char *str)
+{
+	int i;
+
+	if (!str)
+		return -1;
+
+	for (i = 0; i < AVB_MAX_ARGS, args[i]; ++i) {
+		if (strstr(args[i], str))
+			return i;
+	}
+
+	return -1;
+}
+
+static char *avb_set_enforce_option(const char *cmdline, const char *option)
+{
+	char *cmdarg[AVB_MAX_ARGS];
+	char *newargs = NULL;
+	int i = 0;
+	int total_args;
+
+	memset(cmdarg, 0, sizeof(cmdarg));
+	cmdarg[i++] = strtok((char *)cmdline, " ");
+
+	do {
+		cmdarg[i] = strtok(NULL, " ");
+		if (!cmdarg[i])
+			break;
+
+		if (++i >= AVB_MAX_ARGS) {
+			printf("%s: Can't handle more then %d args\n",
+			       __func__, i);
+			return NULL;
+		}
+	} while (true);
+
+	total_args = i;
+	i = avb_find_dm_args(&cmdarg[0], VERITY_TABLE_OPT_LOGGING);
+	if (i >= 0) {
+		cmdarg[i] = (char *)option;
+	} else {
+		i = avb_find_dm_args(&cmdarg[0], VERITY_TABLE_OPT_RESTART);
+		if (i < 0) {
+			printf("%s: No verity options found\n", __func__);
+			return NULL;
+		}
+
+		cmdarg[i] = (char *)option;
+	}
+
+	for (i = 0; i <= total_args; i++)
+		newargs = append_cmd_line(newargs, cmdarg[i]);
+
+	return newargs;
+}
+
+char *avb_set_ignore_corruption(const char *cmdline)
+{
+	char *newargs = NULL;
+
+	newargs = avb_set_enforce_option(cmdline, VERITY_TABLE_OPT_LOGGING);
+	if (newargs)
+		newargs = append_cmd_line(newargs,
+					  "androidboot.veritymode=eio");
+
+	return newargs;
+}
+
+char *avb_set_enforce_verity(const char *cmdline)
+{
+	char *newargs;
+
+	newargs = avb_set_enforce_option(cmdline, VERITY_TABLE_OPT_RESTART);
+	if (newargs)
+		newargs = append_cmd_line(newargs,
+					  "androidboot.veritymode=enforcing");
+	return newargs;
+}
+
+/**
+ * ============================================================================
  * IO(mmc) auxiliary functions
  * ============================================================================
  */
@@ -478,7 +609,7 @@ static AvbIOResult read_rollback_index(AvbOps *ops,
 				       u64 *out_rollback_index)
 {
 	/* For now we always return 0 as the stored rollback index. */
-	printf("TODO: implement %s.\n", __func__);
+	printf("%s not supported yet\n", __func__);
 
 	if (out_rollback_index)
 		*out_rollback_index = 0;
@@ -502,7 +633,7 @@ static AvbIOResult write_rollback_index(AvbOps *ops,
 					u64 rollback_index)
 {
 	/* For now this is a no-op. */
-	printf("TODO: implement %s.\n", __func__);
+	printf("%s not supported yet\n", __func__);
 
 	return AVB_IO_RESULT_OK;
 }
@@ -522,7 +653,7 @@ static AvbIOResult read_is_device_unlocked(AvbOps *ops, bool *out_is_unlocked)
 {
 	/* For now we always return that the device is unlocked. */
 
-	printf("TODO: implement %s.\n", __func__);
+	printf("%s not supported yet\n", __func__);
 
 	*out_is_unlocked = true;
 

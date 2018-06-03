@@ -11,11 +11,22 @@
 #include <../lib/libavb/libavb.h>
 #include <mmc.h>
 
-#define ALLOWED_BUF_ALIGN	8
+#define AVB_MAX_ARGS			1024
+#define VERITY_TABLE_OPT_RESTART	"restart_on_corruption"
+#define VERITY_TABLE_OPT_LOGGING	"ignore_corruption"
+#define ALLOWED_BUF_ALIGN		8
+
+enum avb_boot_state {
+	AVB_GREEN,
+	AVB_YELLOW,
+	AVB_ORANGE,
+	AVB_RED,
+};
 
 struct AvbOpsData {
 	struct AvbOps ops;
 	int mmc_dev;
+	enum avb_boot_state boot_state;
 };
 
 struct mmc_part {
@@ -32,6 +43,12 @@ enum mmc_io_type {
 
 AvbOps *avb_ops_alloc(int boot_device);
 void avb_ops_free(AvbOps *ops);
+
+char *avb_set_state(AvbOps *ops, enum avb_boot_state boot_state);
+char *avb_set_enforce_verity(const char *cmdline);
+char *avb_set_ignore_corruption(const char *cmdline);
+
+char *append_cmd_line(char *cmdline_orig, char *cmdline_new);
 
 /**
  * ============================================================================
