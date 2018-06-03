@@ -10,7 +10,6 @@
 #include <inttypes.h>
 #include <malloc.h>
 #include <watchdog.h>
-#include <asm/global_data.h>
 #include <linux/list_sort.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -69,23 +68,27 @@ static void efi_mem_sort(void)
 	list_sort(NULL, &efi_mem, efi_mem_cmp);
 }
 
-/*
- * Unmaps all memory occupied by the carve_desc region from the
- * list entry pointed to by map.
+/** efi_mem_carve_out - unmap memory region
  *
- * Returns EFI_CARVE_NO_OVERLAP if the regions don't overlap.
- * Returns EFI_CARVE_OVERLAPS_NONRAM if the carve and map overlap,
- *    and the map contains anything but free ram.
- *    (only when overlap_only_ram is true)
- * Returns EFI_CARVE_LOOP_AGAIN if the mapping list should be traversed
- *    again, as it has been altered
- * Returns the number of overlapping pages. The pages are removed from
- *     the mapping list.
+ * @map:		memory map
+ * @carve_desc:		memory region to unmap
+ * @overlap_only_ram:	the carved out region may only overlap RAM
+ * Return Value:	the number of overlapping pages which have been
+ *			removed from the map,
+ *			EFI_CARVE_NO_OVERLAP, if the regions don't overlap,
+ *			EFI_CARVE_OVERLAPS_NONRAM, if the carve and map overlap,
+ *			and the map contains anything but free ram
+ *			(only when overlap_only_ram is true),
+ *			EFI_CARVE_LOOP_AGAIN, if the mapping list should be
+ *			traversed again, as it has been altered.
+ *
+ * Unmaps all memory occupied by the carve_desc region from the list entry
+ * pointed to by map.
  *
  * In case of EFI_CARVE_OVERLAPS_NONRAM it is the callers responsibility
- * to readd the already carved out pages to the mapping.
+ * to re-add the already carved out pages to the mapping.
  */
-static int efi_mem_carve_out(struct efi_mem_list *map,
+static s64 efi_mem_carve_out(struct efi_mem_list *map,
 			     struct efi_mem_desc *carve_desc,
 			     bool overlap_only_ram)
 {
@@ -184,7 +187,7 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 		carve_again = false;
 		list_for_each(lhandle, &efi_mem) {
 			struct efi_mem_list *lmem;
-			int r;
+			s64 r;
 
 			lmem = list_entry(lhandle, struct efi_mem_list, link);
 			r = efi_mem_carve_out(lmem, &newlist->desc,
@@ -338,7 +341,8 @@ void *efi_alloc(uint64_t len, int memory_type)
 	uint64_t pages = (len + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
 	efi_status_t r;
 
-	r = efi_allocate_pages(0, memory_type, pages, &ret);
+	r = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES, memory_type, pages,
+			       &ret);
 	if (r == EFI_SUCCESS)
 		return (void*)(uintptr_t)ret;
 
@@ -385,7 +389,8 @@ efi_status_t efi_allocate_pool(int pool_type, efi_uintn_t size, void **buffer)
 		return EFI_SUCCESS;
 	}
 
-	r = efi_allocate_pages(0, pool_type, num_pages, &t);
+	r = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES, pool_type, num_pages,
+			       &t);
 
 	if (r == EFI_SUCCESS) {
 		struct efi_pool_allocation *alloc = (void *)(uintptr_t)t;
@@ -516,7 +521,7 @@ int efi_memory_init(void)
 	/* Request a 32bit 64MB bounce buffer region */
 	uint64_t efi_bounce_buffer_addr = 0xffffffff;
 
-	if (efi_allocate_pages(1, EFI_LOADER_DATA,
+	if (efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS, EFI_LOADER_DATA,
 			       (64 * 1024 * 1024) >> EFI_PAGE_SHIFT,
 			       &efi_bounce_buffer_addr) != EFI_SUCCESS)
 		return -1;

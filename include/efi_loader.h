@@ -214,6 +214,13 @@ efi_status_t efi_net_register(void);
 /* Called by bootefi to make the watchdog available */
 efi_status_t efi_watchdog_register(void);
 /* Called by bootefi to make SMBIOS tables available */
+/**
+ * efi_smbios_register() - write out SMBIOS tables
+ *
+ * Called by bootefi to make SMBIOS tables available
+ *
+ * @return 0 if OK, -ENOMEM if no memory is available for the tables
+ */
 efi_status_t efi_smbios_register(void);
 
 struct efi_simple_file_system_protocol *
@@ -422,15 +429,15 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 				 struct efi_system_table *systab);
 #endif
 
-efi_status_t EFIAPI efi_get_variable(s16 *variable_name,
-		efi_guid_t *vendor, u32 *attributes,
-		unsigned long *data_size, void *data);
-efi_status_t EFIAPI efi_get_next_variable(
-		unsigned long *variable_name_size,
-		s16 *variable_name, efi_guid_t *vendor);
-efi_status_t EFIAPI efi_set_variable(s16 *variable_name,
-		efi_guid_t *vendor, u32 attributes,
-		unsigned long data_size, void *data);
+efi_status_t EFIAPI efi_get_variable(u16 *variable_name, efi_guid_t *vendor,
+				     u32 *attributes, efi_uintn_t *data_size,
+				     void *data);
+efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+					       u16 *variable_name,
+					       efi_guid_t *vendor);
+efi_status_t EFIAPI efi_set_variable(u16 *variable_name, efi_guid_t *vendor,
+				     u32 attributes, efi_uintn_t data_size,
+				     void *data);
 
 void *efi_bootmgr_load(struct efi_device_path **device_path,
 		       struct efi_device_path **file_path);

@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>
+#include <setjmp.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -627,4 +628,26 @@ void os_localtime(struct rtc_time *rt)
 	rt->tm_wday = tm->tm_wday;
 	rt->tm_yday = tm->tm_yday;
 	rt->tm_isdst = tm->tm_isdst;
+}
+
+int os_setjmp(ulong *jmp, int size)
+{
+	jmp_buf dummy;
+
+	/*
+	 * We cannot rely on the struct name that jmp_buf uses, so use a
+	 * local variable here
+	 */
+	if (size < sizeof(dummy)) {
+		printf("setjmp: jmpbuf is too small (%d bytes, need %d)\n",
+		       size, sizeof(jmp_buf));
+		return -ENOSPC;
+	}
+
+	return setjmp((struct __jmp_buf_tag *)jmp);
+}
+
+void os_longjmp(ulong *jmp, int ret)
+{
+	longjmp((struct __jmp_buf_tag *)jmp, ret);
 }

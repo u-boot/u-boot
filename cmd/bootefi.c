@@ -17,6 +17,7 @@
 #include <memalign.h>
 #include <asm/global_data.h>
 #include <asm-generic/sections.h>
+#include <asm-generic/unaligned.h>
 #include <linux/linkage.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -83,6 +84,15 @@ out:
 }
 
 /*
+ * Allow unaligned memory access.
+ *
+ * This routine is overridden by architectures providing this feature.
+ */
+void __weak allow_unaligned(void)
+{
+}
+
+/*
  * Set the load options of an image from an environment variable.
  *
  * @loaded_image_info:	the image
@@ -133,11 +143,13 @@ static void *copy_fdt(void *fdt)
 
 	/* Safe fdt location is at 128MB */
 	new_fdt_addr = fdt_ram_start + (128 * 1024 * 1024) + fdt_size;
-	if (efi_allocate_pages(1, EFI_RUNTIME_SERVICES_DATA, fdt_pages,
+	if (efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
+			       EFI_RUNTIME_SERVICES_DATA, fdt_pages,
 			       &new_fdt_addr) != EFI_SUCCESS) {
 		/* If we can't put it there, put it somewhere */
 		new_fdt_addr = (ulong)memalign(EFI_PAGE_SIZE, fdt_size);
-		if (efi_allocate_pages(1, EFI_RUNTIME_SERVICES_DATA, fdt_pages,
+		if (efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
+				       EFI_RUNTIME_SERVICES_DATA, fdt_pages,
 				       &new_fdt_addr) != EFI_SUCCESS) {
 			printf("ERROR: Failed to reserve space for FDT\n");
 			return NULL;
@@ -370,6 +382,9 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	efi_status_t r;
 	void *fdt_addr;
 
+	/* Allow unaligned memory access */
+	allow_unaligned();
+
 	/* Initialize EFI drivers */
 	r = efi_init_obj_list();
 	if (r != EFI_SUCCESS) {
@@ -428,8 +443,6 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		 * callback entry
 		 */
 		efi_save_gd();
-		/* Initialize and populate EFI object list */
-		efi_init_obj_list();
 		/* Transfer environment variable efi_selftest as load options */
 		set_load_options(&loaded_image_info, "efi_selftest");
 		/* Execute the test */

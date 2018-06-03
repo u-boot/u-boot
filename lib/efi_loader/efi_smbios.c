@@ -29,7 +29,12 @@ efi_status_t efi_smbios_register(void)
 	if (ret != EFI_SUCCESS)
 		return ret;
 
-	/* Generate SMBIOS tables */
+	/*
+	 * Generate SMBIOS tables - we know that efi_allocate_pages() returns
+	 * a 4k-aligned address, so it is safe to assume that
+	 * write_smbios_table() will write the table at that address.
+	 */
+	assert(!(dmi & 0xf));
 	write_smbios_table(dmi);
 
 	/* And expose them to our EFI payload */

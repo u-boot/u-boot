@@ -330,4 +330,25 @@ int os_spl_to_uboot(const char *fname);
  */
 void os_localtime(struct rtc_time *rt);
 
+/**
+ * os_setjmp() - Call setjmp()
+ *
+ * Call the host system's setjmp() function.
+ *
+ * @jmp: Buffer to store current execution state
+ * @size: Size of buffer
+ * @return normal setjmp() value if OK, -ENOSPC if @size is too small
+ */
+int os_setjmp(ulong *jmp, int size);
+
+/**
+ * os_longjmp() - Call longjmp()
+ *
+ * Call the host system's longjmp() function.
+ *
+ * @jmp: Buffer where previous execution state was stored
+ * @ret: Value to pass to longjmp()
+ */
+void os_longjmp(ulong *jmp, int ret);
+
 #endif

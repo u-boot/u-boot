@@ -335,7 +335,7 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 	ret = boottime->uninstall_protocol_interface(handle1, &guid3,
-						     &interface1);
+						     &interface3);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("UninstallProtocolInterface failed\n");
 		return EFI_ST_FAILURE;

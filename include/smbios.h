@@ -231,8 +231,9 @@ typedef int (*smbios_write_type)(ulong *addr, int handle);
  *
  * This writes SMBIOS table at a given address.
  *
- * @addr:	start address to write SMBIOS table
- * @return:	end address of SMBIOS table
+ * @addr:	start address to write SMBIOS table. If this is not
+ *	16-byte-aligned then it will be aligned before the table is written
+ * @return:	end address of SMBIOS table (and start address for next entry)
  */
 ulong write_smbios_table(ulong addr);
 
