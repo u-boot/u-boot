@@ -101,7 +101,6 @@
 	EXYNOS_FDTFILE_SETTING \
 	MEM_LAYOUT_ENV_SETTINGS \
 	BOOTENV \
-	"bootdelay=0\0" \
 	"rootfstype=ext4\0" \
 	"console=" CONFIG_DEFAULT_CONSOLE "\0"\
 	"fdtfile=exynos5422-odroidxu3.dtb\0" \
