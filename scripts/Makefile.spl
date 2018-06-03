@@ -391,6 +391,10 @@ MKIMAGEFLAGS_$(SPL_BIN).multidtb.fit = -f auto -A $(ARCH) -T firmware -C none -O
 
 $(obj)/$(SPL_BIN).multidtb.fit: /dev/null $(SHRUNK_ARCH_DTB) FORCE
 	$(call if_changed,mkimage)
+ifneq ($(SOURCE_DATE_EPOCH),)
+	touch -d @$(SOURCE_DATE_EPOCH) $(obj)/$(SPL_BIN).multidtb.fit
+	chmod 0600 $(obj)/$(SPL_BIN).multidtb.fit
+endif
 
 $(obj)/$(SPL_BIN).multidtb.fit.gz: $(obj)/$(SPL_BIN).multidtb.fit
 	@gzip -kf9 $< > $@
