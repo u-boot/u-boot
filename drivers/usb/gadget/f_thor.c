@@ -877,14 +877,14 @@ static void thor_func_disable(struct usb_function *f)
 
 	/* Avoid freeing memory when ep is still claimed */
 	if (dev->in_ep->driver_data) {
-		free_ep_req(dev->in_ep, dev->in_req);
 		usb_ep_disable(dev->in_ep);
+		free_ep_req(dev->in_ep, dev->in_req);
 		dev->in_ep->driver_data = NULL;
 	}
 
 	if (dev->out_ep->driver_data) {
-		usb_ep_free_request(dev->out_ep, dev->out_req);
 		usb_ep_disable(dev->out_ep);
+		usb_ep_free_request(dev->out_ep, dev->out_req);
 		dev->out_ep->driver_data = NULL;
 	}
 
