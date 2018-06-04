@@ -66,7 +66,6 @@ static int do_fpga_check_params(long *dev, long *fpga_data, size_t *data_size,
 enum {
 	FPGA_NONE = -1,
 	FPGA_LOADMK,
-	FPGA_LOADFS,
 	FPGA_LOADS,
 };
 
@@ -78,12 +77,8 @@ static int fpga_get_op(char *opstr)
 {
 	int op = FPGA_NONE;
 
-#if defined(CONFIG_CMD_FPGA_LOADFS)
-	if (!strcmp("loadfs", opstr))
-		op = FPGA_LOADFS;
-#endif
 #if defined(CONFIG_CMD_FPGA_LOADMK)
-	else if (!strcmp("loadmk", opstr))
+	if (!strcmp("loadmk", opstr))
 		op = FPGA_LOADMK;
 #endif
 #if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
@@ -114,10 +109,6 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	const char *fit_uname = NULL;
 	ulong fit_addr;
 #endif
-#if defined(CONFIG_CMD_FPGA_LOADFS)
-	fpga_fs_info fpga_fsinfo;
-	fpga_fsinfo.fstype = FS_TYPE_ANY;
-#endif
 #if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
 	struct fpga_secure_info fpga_sec_info;
 
@@ -140,19 +131,6 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	case FPGA_NONE:
 		printf("Unknown fpga operation \"%s\"\n", argv[1]);
 		return CMD_RET_USAGE;
-#if defined(CONFIG_CMD_FPGA_LOADFS)
-	case FPGA_LOADFS:
-		if (argc < 9)
-			return CMD_RET_USAGE;
-		fpga_fsinfo.blocksize = (unsigned int)
-					simple_strtoul(argv[5], NULL, 16);
-		fpga_fsinfo.interface = argv[6];
-		fpga_fsinfo.dev_part = argv[7];
-		fpga_fsinfo.filename = argv[8];
-
-		argc = 5;
-		break;
-#endif
 #if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
 	case FPGA_LOADS:
 		if (argc < 7)
@@ -221,18 +199,11 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	switch (op) {
-#if defined(CONFIG_CMD_FPGA_LOADFS)
-	case FPGA_LOADFS:
-		rc = fpga_fsload(dev, fpga_data, data_size, &fpga_fsinfo);
-		break;
-#endif
-
 #if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
 	case FPGA_LOADS:
 		rc = fpga_loads(dev, fpga_data, data_size, &fpga_sec_info);
 		break;
 #endif
-
 #if defined(CONFIG_CMD_FPGA_LOADMK)
 	case FPGA_LOADMK:
 		switch (genimg_get_format(fpga_data)) {
@@ -329,6 +300,30 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	}
 	return rc;
 }
+
+#if defined(CONFIG_CMD_FPGA_LOADFS)
+static int do_fpga_loadfs(cmd_tbl_t *cmdtp, int flag, int argc,
+			  char *const argv[])
+{
+	size_t data_size = 0;
+	long fpga_data, dev;
+	int ret;
+	fpga_fs_info fpga_fsinfo;
+
+	ret = do_fpga_check_params(&dev, &fpga_data, &data_size,
+				   cmdtp, argc, argv);
+	if (ret)
+		return ret;
+
+	fpga_fsinfo.fstype = FS_TYPE_ANY;
+	fpga_fsinfo.blocksize = (unsigned int)simple_strtoul(argv[3], NULL, 16);
+	fpga_fsinfo.interface = argv[4];
+	fpga_fsinfo.dev_part = argv[5];
+	fpga_fsinfo.filename = argv[6];
+
+	return fpga_fsload(dev, (void *)fpga_data, data_size, &fpga_fsinfo);
+}
+#endif
 
 static int do_fpga_info(cmd_tbl_t *cmdtp, int flag, int argc,
 			char * const argv[])
@@ -428,6 +423,9 @@ static cmd_tbl_t fpga_commands[] = {
 #endif
 #if defined(CONFIG_CMD_FPGA_LOADBP)
 	U_BOOT_CMD_MKENT(loadbp, 3, 1, do_fpga_loadbp, "", ""),
+#endif
+#if defined(CONFIG_CMD_FPGA_LOADFS)
+	U_BOOT_CMD_MKENT(loadfs, 7, 1, do_fpga_loadfs, "", ""),
 #endif
 };
 
