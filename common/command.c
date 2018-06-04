@@ -549,8 +549,8 @@ int cmd_process_error(cmd_tbl_t *cmdtp, int err)
 {
 	if (err) {
 		printf("Command '%s' failed: Error %d\n", cmdtp->name, err);
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
-	return 0;
+	return CMD_RET_SUCCESS;
 }
