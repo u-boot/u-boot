@@ -70,7 +70,7 @@ static int curr_dev_and_platdata(struct udevice **devp,
 
 	*uc_pdata = dev_get_uclass_platdata(*devp);
 	if (!*uc_pdata) {
-		pr_err("Regulator: %s - missing platform data!", currdev->name);
+		pr_err("Regulator: %s - missing platform data!\n", currdev->name);
 		return CMD_RET_FAILURE;
 	}
 

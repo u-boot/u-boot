@@ -161,21 +161,21 @@ static int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 	controller_index = (unsigned int)(simple_strtoul(
 				usb_controller,	NULL, 0));
 	if (board_usb_init(controller_index, USB_INIT_DEVICE)) {
-		pr_err("Couldn't init USB controller.");
+		pr_err("Couldn't init USB controller.\n");
 		rc = CMD_RET_FAILURE;
 		goto cleanup_ums_init;
 	}
 
 	rc = fsg_init(ums, ums_count);
 	if (rc) {
-		pr_err("fsg_init failed");
+		pr_err("fsg_init failed\n");
 		rc = CMD_RET_FAILURE;
 		goto cleanup_board;
 	}
 
 	rc = g_dnl_register("usb_dnl_ums");
 	if (rc) {
-		pr_err("g_dnl_register failed");
+		pr_err("g_dnl_register failed\n");
 		rc = CMD_RET_FAILURE;
 		goto cleanup_board;
 	}
