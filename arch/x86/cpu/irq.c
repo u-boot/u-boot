@@ -23,9 +23,11 @@ bool pirq_check_irq_routed(struct udevice *dev, int link, u8 irq)
 	int base = priv->link_base;
 
 	if (priv->config == PIRQ_VIA_PCI)
-		dm_pci_read_config8(dev->parent, LINK_N2V(link, base), &pirq);
+		dm_pci_read_config8(dev->parent,
+				    pirq_linkno_to_reg(link, base), &pirq);
 	else
-		pirq = readb((uintptr_t)priv->ibase + LINK_N2V(link, base));
+		pirq = readb((uintptr_t)priv->ibase +
+			     pirq_linkno_to_reg(link, base));
 
 	pirq &= 0xf;
 
@@ -40,7 +42,7 @@ int pirq_translate_link(struct udevice *dev, int link)
 {
 	struct irq_router *priv = dev_get_priv(dev);
 
-	return LINK_V2N(link, priv->link_base);
+	return pirq_reg_to_linkno(link, priv->link_base);
 }
 
 void pirq_assign_irq(struct udevice *dev, int link, u8 irq)
@@ -53,9 +55,11 @@ void pirq_assign_irq(struct udevice *dev, int link, u8 irq)
 		return;
 
 	if (priv->config == PIRQ_VIA_PCI)
-		dm_pci_write_config8(dev->parent, LINK_N2V(link, base), irq);
+		dm_pci_write_config8(dev->parent,
+				     pirq_linkno_to_reg(link, base), irq);
 	else
-		writeb(irq, (uintptr_t)priv->ibase + LINK_N2V(link, base));
+		writeb(irq, (uintptr_t)priv->ibase +
+		       pirq_linkno_to_reg(link, base));
 }
 
 static struct irq_info *check_dup_entry(struct irq_info *slot_base,
@@ -78,7 +82,7 @@ static inline void fill_irq_info(struct irq_router *priv, struct irq_info *slot,
 {
 	slot->bus = bus;
 	slot->devfn = (device << 3) | 0;
-	slot->irq[pin - 1].link = LINK_N2V(pirq, priv->link_base);
+	slot->irq[pin - 1].link = pirq_linkno_to_reg(pirq, priv->link_base);
 	slot->irq[pin - 1].bitmap = priv->irq_mask;
 }
 
@@ -199,7 +203,7 @@ static int create_pirq_routing_table(struct udevice *dev)
 				 * routing information in the device tree.
 				 */
 				if (slot->irq[pr.pin - 1].link !=
-					LINK_N2V(pr.pirq, priv->link_base))
+				    pirq_linkno_to_reg(pr.pirq, priv->link_base))
 					debug("WARNING: Inconsistent PIRQ routing information\n");
 				continue;
 			}

@@ -52,9 +52,29 @@ struct pirq_routing {
 	int pirq;
 };
 
-/* PIRQ link number and value conversion */
-#define LINK_V2N(link, base)	(link - base)
-#define LINK_N2V(link, base)	(link + base)
+/**
+ * pirq_reg_to_linkno() - Convert a PIRQ routing register offset to link number
+ *
+ * @reg:	PIRQ routing register offset from the base address
+ * @base:	PIRQ routing register block base address
+ * @return:	PIRQ link number (0 for PIRQA, 1 for PIRQB, etc)
+ */
+static inline int pirq_reg_to_linkno(int reg, int base)
+{
+	return reg - base;
+}
+
+/**
+ * pirq_linkno_to_reg() - Convert a PIRQ link number to routing register offset
+ *
+ * @linkno:	PIRQ link number (0 for PIRQA, 1 for PIRQB, etc)
+ * @base:	PIRQ routing register block base address
+ * @return:	PIRQ routing register offset from the base address
+ */
+static inline int pirq_linkno_to_reg(int linkno, int base)
+{
+	return linkno + base;
+}
 
 #define PIRQ_BITMAP		0xdef8
 
