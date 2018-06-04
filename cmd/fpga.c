@@ -13,10 +13,26 @@
 #include <fs.h>
 #include <malloc.h>
 
+static long do_fpga_get_device(char *arg)
+{
+	long dev = FPGA_INVALID_DEVICE;
+	char *devstr = env_get("fpga");
+
+	if (devstr)
+		/* Should be strtol to handle -1 cases */
+		dev = simple_strtol(devstr, NULL, 16);
+
+	if (arg)
+		dev = simple_strtol(arg, NULL, 16);
+
+	debug("%s: device = %ld\n", __func__, dev);
+
+	return dev;
+}
+
 /* Local defines */
 enum {
 	FPGA_NONE = -1,
-	FPGA_INFO,
 	FPGA_LOAD,
 	FPGA_LOADB,
 	FPGA_DUMP,
@@ -35,9 +51,7 @@ static int fpga_get_op(char *opstr)
 {
 	int op = FPGA_NONE;
 
-	if (!strcmp("info", opstr))
-		op = FPGA_INFO;
-	else if (!strcmp("loadb", opstr))
+	if (!strcmp("loadb", opstr))
 		op = FPGA_LOADB;
 	else if (!strcmp("load", opstr))
 		op = FPGA_LOAD;
@@ -194,10 +208,6 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	switch (op) {
-	case FPGA_INFO:
-		rc = fpga_info(dev);
-		break;
-
 	case FPGA_LOAD:
 		rc = fpga_load(dev, fpga_data, data_size, BIT_FULL);
 		break;
@@ -331,7 +341,16 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	return rc;
 }
 
+static int do_fpga_info(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
+{
+	long dev = do_fpga_get_device(argv[0]);
+
+	return fpga_info(dev);
+}
+
 static cmd_tbl_t fpga_commands[] = {
+	U_BOOT_CMD_MKENT(info, 1, 1, do_fpga_info, "", ""),
 };
 
 static int do_fpga_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
