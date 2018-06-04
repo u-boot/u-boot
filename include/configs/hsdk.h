@@ -62,6 +62,12 @@
 #define CONFIG_ENV_SIZE			SZ_16K
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"upgrade=if mmc rescan && " \
+		"fatload mmc 0:1 ${loadaddr} u-boot-update.scr && " \
+		"iminfo ${loadaddr} && source ${loadaddr}; then; else echo " \
+		"\"Fail to upgrade.\n" \
+		"Do you have u-boot-update.scr and u-boot.head on first (FAT) SD card partition?\"" \
+		"; fi\0" \
 	"core_dccm_0=0x10\0" \
 	"core_dccm_1=0x6\0" \
 	"core_dccm_2=0x10\0" \
