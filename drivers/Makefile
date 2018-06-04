@@ -80,6 +80,7 @@ obj-$(CONFIG_NVME) += nvme/
 obj-y += pcmcia/
 obj-y += dfu/
 obj-$(CONFIG_X86) += pch/
+obj-y += phy/allwinner/
 obj-y += phy/marvell/
 obj-y += rtc/
 obj-y += scsi/

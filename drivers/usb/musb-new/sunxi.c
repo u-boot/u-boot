@@ -17,10 +17,11 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <generic-phy.h>
+#include <phy-sun4i-usb.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch/usb_phy.h>
 #include <asm-generic/gpio.h>
 #include <dm/lists.h>
 #include <dm/root.h>
@@ -75,13 +76,28 @@
  * From usbc/usbc.c
  ******************************************************************************/
 
+struct sunxi_musb_config {
+	struct musb_hdrc_config *config;
+	u8 rst_bit;
+	u8 clkgate_bit;
+};
+
+struct sunxi_glue {
+	struct musb_host_data mdata;
+	struct sunxi_ccm_reg *ccm;
+	struct sunxi_musb_config *cfg;
+	struct device dev;
+	struct phy *phy;
+};
+#define to_sunxi_glue(d)	container_of(d, struct sunxi_glue, dev)
+
 static u32 USBC_WakeUp_ClearChangeDetect(u32 reg_val)
 {
 	u32 temp = reg_val;
 
-	temp &= ~(1 << USBC_BP_ISCR_VBUS_CHANGE_DETECT);
-	temp &= ~(1 << USBC_BP_ISCR_ID_CHANGE_DETECT);
-	temp &= ~(1 << USBC_BP_ISCR_DPDM_CHANGE_DETECT);
+	temp &= ~BIT(USBC_BP_ISCR_VBUS_CHANGE_DETECT);
+	temp &= ~BIT(USBC_BP_ISCR_ID_CHANGE_DETECT);
+	temp &= ~BIT(USBC_BP_ISCR_DPDM_CHANGE_DETECT);
 
 	return temp;
 }
@@ -91,7 +107,7 @@ static void USBC_EnableIdPullUp(__iomem void *base)
 	u32 reg_val;
 
 	reg_val = musb_readl(base, USBC_REG_o_ISCR);
-	reg_val |= (1 << USBC_BP_ISCR_ID_PULLUP_EN);
+	reg_val |= BIT(USBC_BP_ISCR_ID_PULLUP_EN);
 	reg_val = USBC_WakeUp_ClearChangeDetect(reg_val);
 	musb_writel(base, USBC_REG_o_ISCR, reg_val);
 }
@@ -101,7 +117,7 @@ static void USBC_EnableDpDmPullUp(__iomem void *base)
 	u32 reg_val;
 
 	reg_val = musb_readl(base, USBC_REG_o_ISCR);
-	reg_val |= (1 << USBC_BP_ISCR_DPDM_PULLUP_EN);
+	reg_val |= BIT(USBC_BP_ISCR_DPDM_PULLUP_EN);
 	reg_val = USBC_WakeUp_ClearChangeDetect(reg_val);
 	musb_writel(base, USBC_REG_o_ISCR, reg_val);
 }
@@ -157,7 +173,7 @@ static void USBC_ConfigFIFO_Base(void)
 	/* config usb fifo, 8kb mode */
 	reg_value = readl(SUNXI_SRAMC_BASE + 0x04);
 	reg_value &= ~(0x03 << 0);
-	reg_value |= (1 << 0);
+	reg_value |= BIT(0);
 	writel(reg_value, SUNXI_SRAMC_BASE + 0x04);
 }
 
@@ -204,6 +220,7 @@ static bool enabled = false;
 
 static int sunxi_musb_enable(struct musb *musb)
 {
+	struct sunxi_glue *glue = to_sunxi_glue(musb->controller);
 	int ret;
 
 	pr_debug("%s():\n", __func__);
@@ -218,17 +235,23 @@ static int sunxi_musb_enable(struct musb *musb)
 	musb_writeb(musb->mregs, USBC_REG_o_VEND0, 0);
 
 	if (is_host_enabled(musb)) {
-		ret = sunxi_usb_phy_vbus_detect(0);
+		ret = sun4i_usb_phy_vbus_detect(glue->phy);
 		if (ret == 1) {
 			printf("A charger is plugged into the OTG: ");
 			return -ENODEV;
 		}
-		ret = sunxi_usb_phy_id_detect(0);
+
+		ret = sun4i_usb_phy_id_detect(glue->phy);
 		if (ret == 1) {
 			printf("No host cable detected: ");
 			return -ENODEV;
 		}
-		sunxi_usb_phy_power_on(0); /* port power on */
+
+		ret = generic_phy_power_on(glue->phy);
+		if (ret) {
+			pr_err("failed to power on USB PHY\n");
+			return ret;
+		}
 	}
 
 	USBC_ForceVbusValidToHigh(musb->mregs);
@@ -239,13 +262,21 @@ static int sunxi_musb_enable(struct musb *musb)
 
 static void sunxi_musb_disable(struct musb *musb)
 {
+	struct sunxi_glue *glue = to_sunxi_glue(musb->controller);
+	int ret;
+
 	pr_debug("%s():\n", __func__);
 
 	if (!enabled)
 		return;
 
-	if (is_host_enabled(musb))
-		sunxi_usb_phy_power_off(0); /* port power off */
+	if (is_host_enabled(musb)) {
+		ret = generic_phy_power_off(glue->phy);
+		if (ret) {
+			pr_err("failed to power off USB PHY\n");
+			return;
+		}
+	}
 
 	USBC_ForceVbusValidToLow(musb->mregs);
 	mdelay(200); /* Wait for the current session to timeout */
@@ -255,17 +286,29 @@ static void sunxi_musb_disable(struct musb *musb)
 
 static int sunxi_musb_init(struct musb *musb)
 {
-	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	struct sunxi_glue *glue = to_sunxi_glue(musb->controller);
+	int ret;
 
 	pr_debug("%s():\n", __func__);
 
+	ret = generic_phy_init(glue->phy);
+	if (ret) {
+		pr_err("failed to init USB PHY\n");
+		return ret;
+	}
+
 	musb->isr = sunxi_musb_interrupt;
 
-	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_USB0);
+	setbits_le32(&glue->ccm->ahb_gate0, BIT(AHB_GATE_OFFSET_USB0));
+	if (glue->cfg->clkgate_bit)
+		setbits_le32(&glue->ccm->ahb_gate0,
+			     BIT(glue->cfg->clkgate_bit));
 #ifdef CONFIG_SUNXI_GEN_SUN6I
-	setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_GATE_OFFSET_USB0);
+	setbits_le32(&glue->ccm->ahb_reset0_cfg, BIT(AHB_GATE_OFFSET_USB0));
+	if (glue->cfg->rst_bit)
+		setbits_le32(&glue->ccm->ahb_reset0_cfg,
+			     BIT(glue->cfg->rst_bit));
 #endif
-	sunxi_usb_phy_init(0);
 
 	USBC_ConfigFIFO_Base();
 	USBC_EnableDpDmPullUp(musb->mregs);
@@ -283,44 +326,116 @@ static int sunxi_musb_init(struct musb *musb)
 	return 0;
 }
 
+static void sunxi_musb_pre_root_reset_end(struct musb *musb)
+{
+	struct sunxi_glue *glue = to_sunxi_glue(musb->controller);
+
+	sun4i_usb_phy_set_squelch_detect(glue->phy, false);
+}
+
+static void sunxi_musb_post_root_reset_end(struct musb *musb)
+{
+	struct sunxi_glue *glue = to_sunxi_glue(musb->controller);
+
+	sun4i_usb_phy_set_squelch_detect(glue->phy, true);
+}
+
 static const struct musb_platform_ops sunxi_musb_ops = {
 	.init		= sunxi_musb_init,
 	.enable		= sunxi_musb_enable,
 	.disable	= sunxi_musb_disable,
+	.pre_root_reset_end = sunxi_musb_pre_root_reset_end,
+	.post_root_reset_end = sunxi_musb_post_root_reset_end,
+};
+
+/* Allwinner OTG supports up to 5 endpoints */
+#define SUNXI_MUSB_MAX_EP_NUM		6
+#define SUNXI_MUSB_RAM_BITS		11
+
+static struct musb_fifo_cfg sunxi_musb_mode_cfg[] = {
+	MUSB_EP_FIFO_SINGLE(1, FIFO_TX, 512),
+	MUSB_EP_FIFO_SINGLE(1, FIFO_RX, 512),
+	MUSB_EP_FIFO_SINGLE(2, FIFO_TX, 512),
+	MUSB_EP_FIFO_SINGLE(2, FIFO_RX, 512),
+	MUSB_EP_FIFO_SINGLE(3, FIFO_TX, 512),
+	MUSB_EP_FIFO_SINGLE(3, FIFO_RX, 512),
+	MUSB_EP_FIFO_SINGLE(4, FIFO_TX, 512),
+	MUSB_EP_FIFO_SINGLE(4, FIFO_RX, 512),
+	MUSB_EP_FIFO_SINGLE(5, FIFO_TX, 512),
+	MUSB_EP_FIFO_SINGLE(5, FIFO_RX, 512),
+};
+
+/* H3/V3s OTG supports only 4 endpoints */
+#define SUNXI_MUSB_MAX_EP_NUM_H3	5
+
+static struct musb_fifo_cfg sunxi_musb_mode_cfg_h3[] = {
+	MUSB_EP_FIFO_SINGLE(1, FIFO_TX, 512),
+	MUSB_EP_FIFO_SINGLE(1, FIFO_RX, 512),
+	MUSB_EP_FIFO_SINGLE(2, FIFO_TX, 512),
+	MUSB_EP_FIFO_SINGLE(2, FIFO_RX, 512),
+	MUSB_EP_FIFO_SINGLE(3, FIFO_TX, 512),
+	MUSB_EP_FIFO_SINGLE(3, FIFO_RX, 512),
+	MUSB_EP_FIFO_SINGLE(4, FIFO_TX, 512),
+	MUSB_EP_FIFO_SINGLE(4, FIFO_RX, 512),
 };
 
 static struct musb_hdrc_config musb_config = {
-	.multipoint     = 1,
-	.dyn_fifo       = 1,
-	.num_eps        = 6,
-	.ram_bits       = 11,
+	.fifo_cfg       = sunxi_musb_mode_cfg,
+	.fifo_cfg_size  = ARRAY_SIZE(sunxi_musb_mode_cfg),
+	.multipoint	= true,
+	.dyn_fifo	= true,
+	.num_eps	= SUNXI_MUSB_MAX_EP_NUM,
+	.ram_bits	= SUNXI_MUSB_RAM_BITS,
 };
 
-static struct musb_hdrc_platform_data musb_plat = {
-#if defined(CONFIG_USB_MUSB_HOST)
-	.mode           = MUSB_HOST,
-#else
-	.mode		= MUSB_PERIPHERAL,
-#endif
-	.config         = &musb_config,
-	.power          = 250,
-	.platform_ops	= &sunxi_musb_ops,
+static struct musb_hdrc_config musb_config_h3 = {
+	.fifo_cfg       = sunxi_musb_mode_cfg_h3,
+	.fifo_cfg_size  = ARRAY_SIZE(sunxi_musb_mode_cfg_h3),
+	.multipoint	= true,
+	.dyn_fifo	= true,
+	.soft_con       = true,
+	.num_eps	= SUNXI_MUSB_MAX_EP_NUM_H3,
+	.ram_bits	= SUNXI_MUSB_RAM_BITS,
 };
 
 static int musb_usb_probe(struct udevice *dev)
 {
-	struct musb_host_data *host = dev_get_priv(dev);
+	struct sunxi_glue *glue = dev_get_priv(dev);
+	struct musb_host_data *host = &glue->mdata;
 	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
+	struct musb_hdrc_platform_data pdata;
 	void *base = dev_read_addr_ptr(dev);
+	struct phy phy;
 	int ret;
 
 	if (!base)
 		return -EINVAL;
 
+	glue->cfg = (struct sunxi_musb_config *)dev_get_driver_data(dev);
+	if (!glue->cfg)
+		return -EINVAL;
+
+	glue->ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	if (IS_ERR(glue->ccm))
+		return PTR_ERR(glue->ccm);
+
+	ret = generic_phy_get_by_name(dev, "usb", &phy);
+	if (ret) {
+		pr_err("failed to get usb PHY\n");
+		return ret;
+	}
+
+	glue->phy = &phy;
 	priv->desc_before_addr = true;
 
+	memset(&pdata, 0, sizeof(pdata));
+	pdata.power = 250;
+	pdata.platform_ops = &sunxi_musb_ops;
+	pdata.config = glue->cfg->config;
+
 #ifdef CONFIG_USB_MUSB_HOST
-	host->host = musb_init_controller(&musb_plat, NULL, base);
+	pdata.mode = MUSB_HOST;
+	host->host = musb_init_controller(&pdata, &glue->dev, base);
 	if (!host->host)
 		return -EIO;
 
@@ -328,7 +443,8 @@ static int musb_usb_probe(struct udevice *dev)
 	if (!ret)
 		printf("Allwinner mUSB OTG (Host)\n");
 #else
-	ret = musb_register(&musb_plat, NULL, base);
+	pdata.mode = MUSB_PERIPHERAL;
+	ret = musb_register(&pdata, &glue->dev, base);
 	if (!ret)
 		printf("Allwinner mUSB OTG (Peripheral)\n");
 #endif
@@ -338,16 +454,30 @@ static int musb_usb_probe(struct udevice *dev)
 
 static int musb_usb_remove(struct udevice *dev)
 {
-	struct musb_host_data *host = dev_get_priv(dev);
-	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	struct sunxi_glue *glue = dev_get_priv(dev);
+	struct musb_host_data *host = &glue->mdata;
+	int ret;
+
+	if (generic_phy_valid(glue->phy)) {
+		ret = generic_phy_exit(glue->phy);
+		if (ret) {
+			pr_err("failed to exit %s USB PHY\n", dev->name);
+			return ret;
+		}
+	}
 
 	musb_stop(host->host);
 
-	sunxi_usb_phy_exit(0);
 #ifdef CONFIG_SUNXI_GEN_SUN6I
-	clrbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_GATE_OFFSET_USB0);
+	clrbits_le32(&glue->ccm->ahb_reset0_cfg, BIT(AHB_GATE_OFFSET_USB0));
+	if (glue->cfg->rst_bit)
+		clrbits_le32(&glue->ccm->ahb_reset0_cfg,
+			     BIT(glue->cfg->rst_bit));
 #endif
-	clrbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_USB0);
+	clrbits_le32(&glue->ccm->ahb_gate0, BIT(AHB_GATE_OFFSET_USB0));
+	if (glue->cfg->clkgate_bit)
+		clrbits_le32(&glue->ccm->ahb_gate0,
+			     BIT(glue->cfg->clkgate_bit));
 
 	free(host->host);
 	host->host = NULL;
@@ -355,11 +485,25 @@ static int musb_usb_remove(struct udevice *dev)
 	return 0;
 }
 
+static const struct sunxi_musb_config sun4i_a10_cfg = {
+	.config = &musb_config,
+};
+
+static const struct sunxi_musb_config sun8i_h3_cfg = {
+	.config = &musb_config_h3,
+	.rst_bit = 23,
+	.clkgate_bit = 23,
+};
+
 static const struct udevice_id sunxi_musb_ids[] = {
-	{ .compatible = "allwinner,sun4i-a10-musb" },
-	{ .compatible = "allwinner,sun6i-a31-musb" },
-	{ .compatible = "allwinner,sun8i-a33-musb" },
-	{ .compatible = "allwinner,sun8i-h3-musb" },
+	{ .compatible = "allwinner,sun4i-a10-musb",
+			.data = (ulong)&sun4i_a10_cfg },
+	{ .compatible = "allwinner,sun6i-a31-musb",
+			.data = (ulong)&sun4i_a10_cfg },
+	{ .compatible = "allwinner,sun8i-a33-musb",
+			.data = (ulong)&sun4i_a10_cfg },
+	{ .compatible = "allwinner,sun8i-h3-musb",
+			.data = (ulong)&sun8i_h3_cfg },
 	{ }
 };
 
@@ -377,5 +521,5 @@ U_BOOT_DRIVER(usb_musb) = {
 	.ops		= &musb_usb_ops,
 #endif
 	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
-	.priv_auto_alloc_size = sizeof(struct musb_host_data),
+	.priv_auto_alloc_size = sizeof(struct sunxi_glue),
 };

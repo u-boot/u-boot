@@ -1,9 +1,6 @@
 #include <common.h>
 #include <console.h>
 #include <watchdog.h>
-#ifdef CONFIG_ARCH_SUNXI
-#include <asm/arch/usb_phy.h>
-#endif
 #include <linux/errno.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
@@ -193,19 +190,16 @@ static int _musb_reset_root_port(struct musb_host_data *host,
 	power &= 0xf0;
 	musb_writeb(mbase, MUSB_POWER, MUSB_POWER_RESET | power);
 	mdelay(50);
-#ifdef CONFIG_ARCH_SUNXI
-	/*
-	 * sunxi phy has a bug and it will wrongly detect high speed squelch
-	 * when clearing reset on low-speed devices, temporary disable
-	 * squelch detection to work around this.
-	 */
-	sunxi_usb_phy_enable_squelch_detect(0, 0);
-#endif
+
+	if (host->host->ops->pre_root_reset_end)
+		host->host->ops->pre_root_reset_end(host->host);
+
 	power = musb_readb(mbase, MUSB_POWER);
 	musb_writeb(mbase, MUSB_POWER, ~MUSB_POWER_RESET & power);
-#ifdef CONFIG_ARCH_SUNXI
-	sunxi_usb_phy_enable_squelch_detect(0, 1);
-#endif
+
+	if (host->host->ops->post_root_reset_end)
+		host->host->ops->post_root_reset_end(host->host);
+
 	host->host->isr(0, host->host);
 	host->host_speed = (musb_readb(mbase, MUSB_POWER) & MUSB_POWER_HSMODE) ?
 			USB_SPEED_HIGH :

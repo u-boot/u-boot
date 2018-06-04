@@ -116,6 +116,12 @@ M:	Paul Kocialkowski <contact@paulk.fr>
 S:	Maintained
 F:	configs/Ainol_AW1_defconfig
 
+AMARULA A64-RELIC
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/amarula_a64_relic_defconfig
+F:	arch/arm/dts/sun50i-a64-amarula-relic.dts
+
 AMPE A76 BOARD
 M:	Paul Kocialkowski <contact@paulk.fr>
 S:	Maintained

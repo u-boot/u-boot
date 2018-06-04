@@ -124,6 +124,7 @@ endif
 config MACH_SUNXI_H3_H5
 	bool
 	select DM_I2C
+	select PHY_SUN4I_USB
 	select SUNXI_DE2
 	select SUNXI_DRAM_DW
 	select SUNXI_DRAM_DW_32BIT
@@ -138,6 +139,7 @@ config MACH_SUN4I
 	bool "sun4i (Allwinner A10)"
 	select CPU_V7A
 	select ARM_CORTEX_CPU_IS_UP
+	select PHY_SUN4I_USB
 	select DRAM_SUN4I
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
@@ -147,6 +149,7 @@ config MACH_SUN5I
 	select CPU_V7A
 	select ARM_CORTEX_CPU_IS_UP
 	select DRAM_SUN4I
+	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 	imply CONS_INDEX_2 if !DM_SERIAL
@@ -158,6 +161,7 @@ config MACH_SUN6I
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
 	select DRAM_SUN6I
+	select PHY_SUN4I_USB
 	select SUN6I_P2WI
 	select SUN6I_PRCM
 	select SUNXI_GEN_SUN6I
@@ -171,6 +175,7 @@ config MACH_SUN7I
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
 	select DRAM_SUN4I
+	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
@@ -182,6 +187,7 @@ config MACH_SUN8I_A23
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
 	select DRAM_SUN8I_A23
+	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
@@ -194,6 +200,7 @@ config MACH_SUN8I_A33
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
 	select DRAM_SUN8I_A33
+	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
@@ -203,6 +210,7 @@ config MACH_SUN8I_A83T
 	bool "sun8i (Allwinner A83T)"
 	select CPU_V7A
 	select DRAM_SUN8I_A83T
+	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN6I
 	select MMC_SUNXI_HAS_NEW_MODE
 	select SUPPORT_SPL
@@ -253,6 +261,7 @@ config MACH_SUN50I
 	bool "sun50i (Allwinner A64)"
 	select ARM64
 	select DM_I2C
+	select PHY_SUN4I_USB
 	select SUNXI_DE2
 	select SUNXI_GEN_SUN6I
 	select SUNXI_HIGH_SRAM
