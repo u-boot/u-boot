@@ -124,13 +124,6 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		fpga_fsinfo.dev_part = argv[7];
 		fpga_fsinfo.filename = argv[8];
 
-		/* Blocksize can be zero */
-		if (!fpga_fsinfo.interface || !fpga_fsinfo.dev_part ||
-		    !fpga_fsinfo.filename) {
-			puts("ERR: Wrong interface, dev_part or filename\n");
-			return CMD_RET_USAGE;
-		}
-
 		argc = 5;
 		break;
 #endif
