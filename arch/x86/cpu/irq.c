@@ -237,7 +237,7 @@ static void irq_enable_sci(struct udevice *dev)
 	}
 }
 
-int irq_router_common_init(struct udevice *dev)
+int irq_router_probe(struct udevice *dev)
 {
 	int ret;
 
@@ -254,11 +254,6 @@ int irq_router_common_init(struct udevice *dev)
 		irq_enable_sci(dev);
 
 	return 0;
-}
-
-int irq_router_probe(struct udevice *dev)
-{
-	return irq_router_common_init(dev);
 }
 
 ulong write_pirq_routing_table(ulong addr)

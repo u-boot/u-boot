@@ -58,11 +58,4 @@ struct pirq_routing {
 
 #define PIRQ_BITMAP		0xdef8
 
-/**
- * irq_router_common_init() - Perform common x86 interrupt init
- *
- * This creates the PIRQ routing table and routes the IRQs
- */
-int irq_router_common_init(struct udevice *dev);
-
 #endif /* _ARCH_IRQ_H_ */
