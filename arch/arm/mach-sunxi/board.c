@@ -207,9 +207,6 @@ void s_init(void)
 	eth_init_board();
 }
 
-#ifdef CONFIG_SPL_BUILD
-#endif
-
 /* The sunxi internal brom will try to loader external bootloader
  * from mmc0, nand flash, mmc2.
  */
