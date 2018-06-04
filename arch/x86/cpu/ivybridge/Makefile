@@ -8,7 +8,6 @@ else
 obj-$(CONFIG_$(SPL_)X86_32BIT_INIT) += cpu.o
 obj-y += early_me.o
 obj-y += lpc.o
-obj-y += model_206ax.o
 obj-y += northbridge.o
 ifndef CONFIG_SPL_BUILD
 obj-y += sata.o
@@ -18,4 +17,5 @@ ifndef CONFIG_$(SPL_)X86_32BIT_INIT
 obj-y += sdram_nop.o
 endif
 endif
+obj-y += model_206ax.o
 obj-y += bd82x6x.o
