@@ -256,7 +256,9 @@ the board manual. The SPI-0 flash should have flash descriptor plus ME firmware
 and SPI-1 flash is used to store U-Boot. For convenience, the complete 8MB SPI-0
 flash image is included in the FSP package (named Rom00_8M_MB_PPT.bin). Program
 this image to the SPI-0 flash according to the board manual just once and we are
-all set. For programming U-Boot we just need to program SPI-1 flash.
+all set. For programming U-Boot we just need to program SPI-1 flash. Since the
+default u-boot.rom image for this board is set to 2MB, it should be programmed
+to the last 2MB of the 8MB chip, address range [600000, 7FFFFF].
 
 ---
 
