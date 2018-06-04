@@ -23,7 +23,7 @@ else
 fi
 
 env_obj_file_path=$(find ${path} -path "*/env/*" -not -path "*/spl/*" \
-			 -name "${ENV_OBJ_FILE}")
+			 -not -path "*/tools/*" -name "${ENV_OBJ_FILE}")
 [ -z "${env_obj_file_path}" ] && \
     { echoerr "File '${ENV_OBJ_FILE}' not found!"; exit 1; }
 
