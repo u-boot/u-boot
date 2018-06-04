@@ -30,15 +30,42 @@ static long do_fpga_get_device(char *arg)
 	return dev;
 }
 
+static int do_fpga_check_params(long *dev, long *fpga_data, size_t *data_size,
+				cmd_tbl_t *cmdtp, int argc, char *const argv[])
+{
+	size_t local_data_size;
+	long local_fpga_data;
+
+	debug("%s %d, %d\n", __func__, argc, cmdtp->maxargs);
+
+	if (argc != cmdtp->maxargs) {
+		debug("fpga: incorrect parameters passed\n");
+		return CMD_RET_USAGE;
+	}
+
+	*dev = do_fpga_get_device(argv[0]);
+
+	local_fpga_data = simple_strtol(argv[1], NULL, 16);
+	if (!local_fpga_data) {
+		debug("fpga: zero fpga_data address\n");
+		return CMD_RET_USAGE;
+	}
+	*fpga_data = local_fpga_data;
+
+	local_data_size = simple_strtoul(argv[2], NULL, 16);
+	if (!local_data_size) {
+		debug("fpga: zero size\n");
+		return CMD_RET_USAGE;
+	}
+	*data_size = local_data_size;
+
+	return 0;
+}
+
 /* Local defines */
 enum {
 	FPGA_NONE = -1,
-	FPGA_LOAD,
-	FPGA_LOADB,
-	FPGA_DUMP,
 	FPGA_LOADMK,
-	FPGA_LOADP,
-	FPGA_LOADBP,
 	FPGA_LOADFS,
 	FPGA_LOADS,
 };
@@ -51,28 +78,14 @@ static int fpga_get_op(char *opstr)
 {
 	int op = FPGA_NONE;
 
-	if (!strcmp("loadb", opstr))
-		op = FPGA_LOADB;
-	else if (!strcmp("load", opstr))
-		op = FPGA_LOAD;
-#if defined(CONFIG_CMD_FPGA_LOADP)
-	else if (!strcmp("loadp", opstr))
-		op = FPGA_LOADP;
-#endif
-#if defined(CONFIG_CMD_FPGA_LOADBP)
-	else if (!strcmp("loadbp", opstr))
-		op = FPGA_LOADBP;
-#endif
 #if defined(CONFIG_CMD_FPGA_LOADFS)
-	else if (!strcmp("loadfs", opstr))
+	if (!strcmp("loadfs", opstr))
 		op = FPGA_LOADFS;
 #endif
 #if defined(CONFIG_CMD_FPGA_LOADMK)
 	else if (!strcmp("loadmk", opstr))
 		op = FPGA_LOADMK;
 #endif
-	else if (!strcmp("dump", opstr))
-		op = FPGA_DUMP;
 #if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
 	else if (!strcmp("loads", opstr))
 		op = FPGA_LOADS;
@@ -208,26 +221,6 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	switch (op) {
-	case FPGA_LOAD:
-		rc = fpga_load(dev, fpga_data, data_size, BIT_FULL);
-		break;
-
-#if defined(CONFIG_CMD_FPGA_LOADP)
-	case FPGA_LOADP:
-		rc = fpga_load(dev, fpga_data, data_size, BIT_PARTIAL);
-		break;
-#endif
-
-	case FPGA_LOADB:
-		rc = fpga_loadbitstream(dev, fpga_data, data_size, BIT_FULL);
-		break;
-
-#if defined(CONFIG_CMD_FPGA_LOADBP)
-	case FPGA_LOADBP:
-		rc = fpga_loadbitstream(dev, fpga_data, data_size, BIT_PARTIAL);
-		break;
-#endif
-
 #if defined(CONFIG_CMD_FPGA_LOADFS)
 	case FPGA_LOADFS:
 		rc = fpga_fsload(dev, fpga_data, data_size, &fpga_fsinfo);
@@ -330,10 +323,6 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		break;
 #endif
 
-	case FPGA_DUMP:
-		rc = fpga_dump(dev, fpga_data, data_size);
-		break;
-
 	default:
 		printf("Unknown operation\n");
 		return CMD_RET_USAGE;
@@ -349,8 +338,97 @@ static int do_fpga_info(cmd_tbl_t *cmdtp, int flag, int argc,
 	return fpga_info(dev);
 }
 
+static int do_fpga_dump(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
+{
+	size_t data_size = 0;
+	long fpga_data, dev;
+	int ret;
+
+	ret = do_fpga_check_params(&dev, &fpga_data, &data_size,
+				   cmdtp, argc, argv);
+	if (ret)
+		return ret;
+
+	return fpga_dump(dev, (void *)fpga_data, data_size);
+}
+
+static int do_fpga_load(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
+{
+	size_t data_size = 0;
+	long fpga_data, dev;
+	int ret;
+
+	ret = do_fpga_check_params(&dev, &fpga_data, &data_size,
+				   cmdtp, argc, argv);
+	if (ret)
+		return ret;
+
+	return fpga_load(dev, (void *)fpga_data, data_size, BIT_FULL);
+}
+
+static int do_fpga_loadb(cmd_tbl_t *cmdtp, int flag, int argc,
+			 char * const argv[])
+{
+	size_t data_size = 0;
+	long fpga_data, dev;
+	int ret;
+
+	ret = do_fpga_check_params(&dev, &fpga_data, &data_size,
+				   cmdtp, argc, argv);
+	if (ret)
+		return ret;
+
+	return fpga_loadbitstream(dev, (void *)fpga_data, data_size, BIT_FULL);
+}
+
+#if defined(CONFIG_CMD_FPGA_LOADP)
+static int do_fpga_loadp(cmd_tbl_t *cmdtp, int flag, int argc,
+			 char * const argv[])
+{
+	size_t data_size = 0;
+	long fpga_data, dev;
+	int ret;
+
+	ret = do_fpga_check_params(&dev, &fpga_data, &data_size,
+				   cmdtp, argc, argv);
+	if (ret)
+		return ret;
+
+	return fpga_load(dev, (void *)fpga_data, data_size, BIT_PARTIAL);
+}
+#endif
+
+#if defined(CONFIG_CMD_FPGA_LOADBP)
+static int do_fpga_loadbp(cmd_tbl_t *cmdtp, int flag, int argc,
+			  char * const argv[])
+{
+	size_t data_size = 0;
+	long fpga_data, dev;
+	int ret;
+
+	ret = do_fpga_check_params(&dev, &fpga_data, &data_size,
+				   cmdtp, argc, argv);
+	if (ret)
+		return ret;
+
+	return fpga_loadbitstream(dev, (void *)fpga_data, data_size,
+				  BIT_PARTIAL);
+}
+#endif
+
 static cmd_tbl_t fpga_commands[] = {
 	U_BOOT_CMD_MKENT(info, 1, 1, do_fpga_info, "", ""),
+	U_BOOT_CMD_MKENT(dump, 3, 1, do_fpga_dump, "", ""),
+	U_BOOT_CMD_MKENT(load, 3, 1, do_fpga_load, "", ""),
+	U_BOOT_CMD_MKENT(loadb, 3, 1, do_fpga_loadb, "", ""),
+#if defined(CONFIG_CMD_FPGA_LOADP)
+	U_BOOT_CMD_MKENT(loadp, 3, 1, do_fpga_loadp, "", ""),
+#endif
+#if defined(CONFIG_CMD_FPGA_LOADBP)
+	U_BOOT_CMD_MKENT(loadbp, 3, 1, do_fpga_loadbp, "", ""),
+#endif
 };
 
 static int do_fpga_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
