@@ -70,6 +70,8 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				compatible = "intel,ich9-spi";
+				intel,spi-lock-down;
+
 				spi-flash@0 {
 					reg = <0>;
 					compatible = "winbond,w25q64bv", "spi-flash";
