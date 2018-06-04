@@ -180,7 +180,7 @@ static inline u32 clust_to_sect(fsdata *fsdata, u32 clust)
 	return fsdata->data_begin + clust * fsdata->clust_size;
 }
 
-static inline u32 sect_to_clust(fsdata *fsdata, u32 sect)
+static inline u32 sect_to_clust(fsdata *fsdata, int sect)
 {
 	return (sect - fsdata->data_begin) / fsdata->clust_size;
 }
