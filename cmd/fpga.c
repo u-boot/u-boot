@@ -331,10 +331,48 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	return rc;
 }
 
+static cmd_tbl_t fpga_commands[] = {
+};
+
+static int do_fpga_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
+			   char *const argv[])
+{
+	cmd_tbl_t *fpga_cmd;
+	int ret;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	fpga_cmd = find_cmd_tbl(argv[1], fpga_commands,
+				ARRAY_SIZE(fpga_commands));
+
+	/* This should be removed when all functions are converted */
+	if (!fpga_cmd)
+		return do_fpga(cmdtp, flag, argc, argv);
+
+	/* FIXME This can't be reached till all functions are converted */
+	if (!fpga_cmd) {
+		debug("fpga: non existing command\n");
+		return CMD_RET_USAGE;
+	}
+
+	argc -= 2;
+	argv += 2;
+
+	if (argc > fpga_cmd->maxargs) {
+		debug("fpga: more parameters passed\n");
+		return CMD_RET_USAGE;
+	}
+
+	ret = fpga_cmd->cmd(fpga_cmd, flag, argc, argv);
+
+	return cmd_process_error(fpga_cmd, ret);
+}
+
 #if defined(CONFIG_CMD_FPGA_LOADFS) || defined(CONFIG_CMD_FPGA_LOAD_SECURE)
-U_BOOT_CMD(fpga, 9, 1, do_fpga,
+U_BOOT_CMD(fpga, 9, 1, do_fpga_wrapper,
 #else
-U_BOOT_CMD(fpga, 6, 1, do_fpga,
+U_BOOT_CMD(fpga, 6, 1, do_fpga_wrapper,
 #endif
 	   "loadable FPGA image support",
 	   "[operation type] [device number] [image address] [image size]\n"
