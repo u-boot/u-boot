@@ -65,7 +65,6 @@ static int do_fpga_check_params(long *dev, long *fpga_data, size_t *data_size,
 /* Local defines */
 enum {
 	FPGA_NONE = -1,
-	FPGA_LOADMK,
 	FPGA_LOADS,
 };
 
@@ -77,12 +76,8 @@ static int fpga_get_op(char *opstr)
 {
 	int op = FPGA_NONE;
 
-#if defined(CONFIG_CMD_FPGA_LOADMK)
-	if (!strcmp("loadmk", opstr))
-		op = FPGA_LOADMK;
-#endif
 #if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
-	else if (!strcmp("loads", opstr))
+	if (!strcmp("loads", opstr))
 		op = FPGA_LOADS;
 #endif
 
@@ -102,23 +97,12 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	int op, dev = FPGA_INVALID_DEVICE;
 	size_t data_size = 0;
 	void *fpga_data = NULL;
-	char *devstr = env_get("fpga");
-	char *datastr = env_get("fpgadata");
 	int rc = FPGA_FAIL;
-#if defined(CONFIG_FIT)
-	const char *fit_uname = NULL;
-	ulong fit_addr;
-#endif
 #if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
 	struct fpga_secure_info fpga_sec_info;
 
 	memset(&fpga_sec_info, 0, sizeof(fpga_sec_info));
 #endif
-
-	if (devstr)
-		dev = (int) simple_strtoul(devstr, NULL, 16);
-	if (datastr)
-		fpga_data = (void *)simple_strtoul(datastr, NULL, 16);
 
 	if (argc > 9 || argc < 2) {
 		debug("%s: Too many or too few args (%d)\n", __func__, argc);
@@ -169,15 +153,6 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			return CMD_RET_USAGE;
 		}
 	case 4:		/* fpga <op> <dev> <data> */
-#if defined(CONFIG_FIT)
-		if (fit_parse_subimage(argv[3], (ulong)fpga_data,
-				       &fit_addr, &fit_uname)) {
-			fpga_data = (void *)fit_addr;
-			debug("*  fpga: subimage '%s' from FIT image ",
-			      fit_uname);
-			debug("at 0x%08lx\n", fit_addr);
-		} else
-#endif
 		{
 			fpga_data = (void *)simple_strtoul(argv[3], NULL, 16);
 			debug("*  fpga: cmdline image address = 0x%08lx\n",
@@ -202,95 +177,6 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 #if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
 	case FPGA_LOADS:
 		rc = fpga_loads(dev, fpga_data, data_size, &fpga_sec_info);
-		break;
-#endif
-#if defined(CONFIG_CMD_FPGA_LOADMK)
-	case FPGA_LOADMK:
-		switch (genimg_get_format(fpga_data)) {
-#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
-		case IMAGE_FORMAT_LEGACY:
-			{
-				image_header_t *hdr =
-						(image_header_t *)fpga_data;
-				ulong data;
-				uint8_t comp;
-
-				comp = image_get_comp(hdr);
-				if (comp == IH_COMP_GZIP) {
-#if defined(CONFIG_GZIP)
-					ulong image_buf = image_get_data(hdr);
-					data = image_get_load(hdr);
-					ulong image_size = ~0UL;
-
-					if (gunzip((void *)data, ~0UL,
-						   (void *)image_buf,
-						   &image_size) != 0) {
-						puts("GUNZIP: error\n");
-						return 1;
-					}
-					data_size = image_size;
-#else
-					puts("Gunzip image is not supported\n");
-					return 1;
-#endif
-				} else {
-					data = (ulong)image_get_data(hdr);
-					data_size = image_get_data_size(hdr);
-				}
-				rc = fpga_load(dev, (void *)data, data_size,
-					       BIT_FULL);
-			}
-			break;
-#endif
-#if defined(CONFIG_FIT)
-		case IMAGE_FORMAT_FIT:
-			{
-				const void *fit_hdr = (const void *)fpga_data;
-				int noffset;
-				const void *fit_data;
-
-				if (fit_uname == NULL) {
-					puts("No FIT subimage unit name\n");
-					return 1;
-				}
-
-				if (!fit_check_format(fit_hdr)) {
-					puts("Bad FIT image format\n");
-					return 1;
-				}
-
-				/* get fpga component image node offset */
-				noffset = fit_image_get_node(fit_hdr,
-							     fit_uname);
-				if (noffset < 0) {
-					printf("Can't find '%s' FIT subimage\n",
-					       fit_uname);
-					return 1;
-				}
-
-				/* verify integrity */
-				if (!fit_image_verify(fit_hdr, noffset)) {
-					puts ("Bad Data Hash\n");
-					return 1;
-				}
-
-				/* get fpga subimage data address and length */
-				if (fit_image_get_data(fit_hdr, noffset,
-						       &fit_data, &data_size)) {
-					puts("Fpga subimage data not found\n");
-					return 1;
-				}
-
-				rc = fpga_load(dev, fit_data, data_size,
-					       BIT_FULL);
-			}
-			break;
-#endif
-		default:
-			puts("** Unknown image type\n");
-			rc = FPGA_FAIL;
-			break;
-		}
 		break;
 #endif
 
@@ -413,6 +299,125 @@ static int do_fpga_loadbp(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 #endif
 
+#if defined(CONFIG_CMD_FPGA_LOADMK)
+static int do_fpga_loadmk(cmd_tbl_t *cmdtp, int flag, int argc,
+			  char * const argv[])
+{
+	size_t data_size = 0;
+	void *fpga_data = NULL;
+#if defined(CONFIG_FIT)
+	const char *fit_uname = NULL;
+	ulong fit_addr;
+#endif
+	ulong dev = do_fpga_get_device(argv[0]);
+	char *datastr = env_get("fpgadata");
+
+	if (datastr)
+		fpga_data = (void *)simple_strtoul(datastr, NULL, 16);
+
+	if (argc == 2) {
+#if defined(CONFIG_FIT)
+		if (fit_parse_subimage(argv[1], (ulong)fpga_data,
+				       &fit_addr, &fit_uname)) {
+			fpga_data = (void *)fit_addr;
+			debug("*  fpga: subimage '%s' from FIT image ",
+			      fit_uname);
+			debug("at 0x%08lx\n", fit_addr);
+		} else
+#endif
+		{
+			fpga_data = (void *)simple_strtoul(argv[1], NULL, 16);
+			debug("*  fpga: cmdline image address = 0x%08lx\n",
+			      (ulong)fpga_data);
+		}
+		debug("%s: fpga_data = 0x%lx\n", __func__, (ulong)fpga_data);
+		if (!fpga_data) {
+			puts("Zero fpga_data address\n");
+			return CMD_RET_USAGE;
+		}
+	}
+
+	switch (genimg_get_format(fpga_data)) {
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
+	case IMAGE_FORMAT_LEGACY:
+	{
+		image_header_t *hdr = (image_header_t *)fpga_data;
+		ulong data;
+		u8 comp;
+
+		comp = image_get_comp(hdr);
+		if (comp == IH_COMP_GZIP) {
+#if defined(CONFIG_GZIP)
+			ulong image_buf = image_get_data(hdr);
+			ulong image_size = ~0UL;
+
+			data = image_get_load(hdr);
+
+			if (gunzip((void *)data, ~0UL, (void *)image_buf,
+				   &image_size) != 0) {
+				puts("GUNZIP: error\n");
+				return 1;
+			}
+			data_size = image_size;
+#else
+			puts("Gunzip image is not supported\n");
+			return 1;
+#endif
+		} else {
+			data = (ulong)image_get_data(hdr);
+			data_size = image_get_data_size(hdr);
+		}
+		return fpga_load(dev, (void *)data, data_size,
+				  BIT_FULL);
+	}
+#endif
+#if defined(CONFIG_FIT)
+	case IMAGE_FORMAT_FIT:
+	{
+		const void *fit_hdr = (const void *)fpga_data;
+		int noffset;
+		const void *fit_data;
+
+		if (!fit_uname) {
+			puts("No FIT subimage unit name\n");
+			return 1;
+		}
+
+		if (!fit_check_format(fit_hdr)) {
+			puts("Bad FIT image format\n");
+			return 1;
+		}
+
+		/* get fpga component image node offset */
+		noffset = fit_image_get_node(fit_hdr, fit_uname);
+		if (noffset < 0) {
+			printf("Can't find '%s' FIT subimage\n", fit_uname);
+			return 1;
+		}
+
+		/* verify integrity */
+		if (!fit_image_verify(fit_hdr, noffset)) {
+			puts("Bad Data Hash\n");
+			return 1;
+		}
+
+		/* get fpga subimage data address and length */
+		if (fit_image_get_data(fit_hdr, noffset, &fit_data,
+				       &data_size)) {
+			puts("Fpga subimage data not found\n");
+			return 1;
+		}
+
+		return fpga_load(dev, fit_data, data_size, BIT_FULL);
+	}
+#endif
+	default:
+		puts("** Unknown image type\n");
+		return FPGA_FAIL;
+	}
+}
+#endif
+
 static cmd_tbl_t fpga_commands[] = {
 	U_BOOT_CMD_MKENT(info, 1, 1, do_fpga_info, "", ""),
 	U_BOOT_CMD_MKENT(dump, 3, 1, do_fpga_dump, "", ""),
@@ -426,6 +431,9 @@ static cmd_tbl_t fpga_commands[] = {
 #endif
 #if defined(CONFIG_CMD_FPGA_LOADFS)
 	U_BOOT_CMD_MKENT(loadfs, 7, 1, do_fpga_loadfs, "", ""),
+#endif
+#if defined(CONFIG_CMD_FPGA_LOADMK)
+	U_BOOT_CMD_MKENT(loadmk, 2, 1, do_fpga_loadmk, "", ""),
 #endif
 };
 
