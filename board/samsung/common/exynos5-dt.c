@@ -164,7 +164,7 @@ int board_usb_init(int index, enum usb_init_type init)
 		samsung_get_base_usb3_phy();
 
 	if (!phy) {
-		pr_err("usb3 phy not supported");
+		pr_err("usb3 phy not supported\n");
 		return -ENODEV;
 	}
 

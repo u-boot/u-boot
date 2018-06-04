@@ -456,7 +456,7 @@ void draw_logo(void)
 
 	addr = panel_info.logo_addr;
 	if (!addr) {
-		pr_err("There is no logo data.");
+		pr_err("There is no logo data.\n");
 		return;
 	}
 
