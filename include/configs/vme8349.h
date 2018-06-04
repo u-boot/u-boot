@@ -257,9 +257,6 @@
 #undef PCI_ONE_PCI1
 #endif
 
-#ifndef VME_CADDY2
-#endif
-
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
