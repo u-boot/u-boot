@@ -124,7 +124,7 @@
 # define dump_msg(fsg, label, buf, length) do {                         \
 	if (length < 512) {						\
 		DBG(fsg, "%s, length %u:\n", label, length);		\
-		print_hex_dump(KERN_DEBUG, "", DUMP_PREFIX_OFFSET,	\
+		print_hex_dump("", DUMP_PREFIX_OFFSET,	\
 			       16, 1, buf, length, 0);			\
 	}								\
 } while (0)
@@ -139,7 +139,7 @@
 #  ifdef VERBOSE_DEBUG
 
 #    define dump_cdb(fsg)						\
-	print_hex_dump(KERN_DEBUG, "SCSI CDB: ", DUMP_PREFIX_NONE,	\
+	print_hex_dump("SCSI CDB: ", DUMP_PREFIX_NONE,	\
 		       16, 1, (fsg)->cmnd, (fsg)->cmnd_size, 0)		\
 
 #  else

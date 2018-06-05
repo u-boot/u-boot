@@ -32,6 +32,7 @@ OBJ-y += libgenwrap.o
 EXT_COBJ-y += lib/crc32.o
 EXT_COBJ-y += lib/ctype.o
 EXT_COBJ-y += lib/div64.o
+EXT_COBJ-y += lib/hexdump.o
 EXT_COBJ-y += lib/string.o
 EXT_COBJ-y += lib/time.o
 EXT_COBJ-y += lib/vsprintf.o

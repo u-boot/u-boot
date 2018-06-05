@@ -240,6 +240,7 @@
 /* #define DUMP_MSGS */
 
 #include <config.h>
+#include <hexdump.h>
 #include <malloc.h>
 #include <common.h>
 #include <console.h>
