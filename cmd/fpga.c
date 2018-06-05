@@ -62,130 +62,57 @@ static int do_fpga_check_params(long *dev, long *fpga_data, size_t *data_size,
 	return 0;
 }
 
-/* Local defines */
-enum {
-	FPGA_NONE = -1,
-	FPGA_LOADS,
-};
-
-/*
- * Map op to supported operations.  We don't use a table since we
- * would just have to relocate it from flash anyway.
- */
-static int fpga_get_op(char *opstr)
-{
-	int op = FPGA_NONE;
-
 #if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
-	if (!strcmp("loads", opstr))
-		op = FPGA_LOADS;
-#endif
-
-	return op;
-}
-
-/* ------------------------------------------------------------------------- */
-/* command form:
- *   fpga <op> <device number> <data addr> <datasize>
- * where op is 'load', 'dump', or 'info'
- * If there is no device number field, the fpga environment variable is used.
- * If there is no data addr field, the fpgadata environment variable is used.
- * The info command requires no data address field.
- */
-int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_fpga_loads(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-	int op, dev = FPGA_INVALID_DEVICE;
 	size_t data_size = 0;
-	void *fpga_data = NULL;
-	int rc = FPGA_FAIL;
-#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+	long fpga_data, dev;
+	int ret;
 	struct fpga_secure_info fpga_sec_info;
 
 	memset(&fpga_sec_info, 0, sizeof(fpga_sec_info));
-#endif
 
-	if (argc > 9 || argc < 2) {
-		debug("%s: Too many or too few args (%d)\n", __func__, argc);
+	if (argc < 5) {
+		debug("fpga: incorrect parameters passed\n");
 		return CMD_RET_USAGE;
 	}
 
-	op = fpga_get_op(argv[1]);
+	if (argc == 6)
+		fpga_sec_info.userkey_addr = (u8 *)(uintptr_t)
+					      simple_strtoull(argv[5],
+							      NULL, 16);
+	else
+		/*
+		 * If 6th parameter is not passed then do_fpga_check_params
+		 * will get 5 instead of expected 6 which means that function
+		 * return CMD_RET_USAGE. Increase number of params +1 to pass
+		 * this.
+		 */
+		argc++;
 
-	switch (op) {
-	case FPGA_NONE:
-		printf("Unknown fpga operation \"%s\"\n", argv[1]);
-		return CMD_RET_USAGE;
-#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
-	case FPGA_LOADS:
-		if (argc < 7)
-			return CMD_RET_USAGE;
-		if (argc == 8)
-			fpga_sec_info.userkey_addr = (u8 *)(uintptr_t)
-						     simple_strtoull(argv[7],
-								     NULL, 16);
-		fpga_sec_info.encflag = (u8)simple_strtoul(argv[6], NULL, 16);
-		fpga_sec_info.authflag = (u8)simple_strtoul(argv[5], NULL, 16);
+	fpga_sec_info.encflag = (u8)simple_strtoul(argv[4], NULL, 16);
+	fpga_sec_info.authflag = (u8)simple_strtoul(argv[3], NULL, 16);
 
-		if (fpga_sec_info.authflag >= FPGA_NO_ENC_OR_NO_AUTH &&
-		    fpga_sec_info.encflag >= FPGA_NO_ENC_OR_NO_AUTH) {
-			puts("ERR: Use <fpga load> for NonSecure bitstream\n");
-			return CMD_RET_USAGE;
-		}
-
-		if (fpga_sec_info.encflag == FPGA_ENC_USR_KEY &&
-		    !fpga_sec_info.userkey_addr) {
-			puts("ERR: User key not provided\n");
-			return CMD_RET_USAGE;
-		}
-
-		argc = 5;
-		break;
-#endif
-	default:
-		break;
-	}
-
-	switch (argc) {
-	case 5:		/* fpga <op> <dev> <data> <datasize> */
-		data_size = simple_strtoul(argv[4], NULL, 16);
-		if (!data_size) {
-			puts("Zero data_size\n");
-			return CMD_RET_USAGE;
-		}
-	case 4:		/* fpga <op> <dev> <data> */
-		{
-			fpga_data = (void *)simple_strtoul(argv[3], NULL, 16);
-			debug("*  fpga: cmdline image address = 0x%08lx\n",
-			      (ulong)fpga_data);
-		}
-		debug("%s: fpga_data = 0x%lx\n", __func__, (ulong)fpga_data);
-		if (!fpga_data) {
-			puts("Zero fpga_data address\n");
-			return CMD_RET_USAGE;
-		}
-	case 3:		/* fpga <op> <dev | data addr> */
-		dev = (int)simple_strtoul(argv[2], NULL, 16);
-		debug("%s: device = %d\n", __func__, dev);
-	}
-
-	if (dev == FPGA_INVALID_DEVICE) {
-		puts("FPGA device not specified\n");
+	if (fpga_sec_info.authflag >= FPGA_NO_ENC_OR_NO_AUTH &&
+	    fpga_sec_info.encflag >= FPGA_NO_ENC_OR_NO_AUTH) {
+		debug("fpga: Use <fpga load> for NonSecure bitstream\n");
 		return CMD_RET_USAGE;
 	}
 
-	switch (op) {
-#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
-	case FPGA_LOADS:
-		rc = fpga_loads(dev, fpga_data, data_size, &fpga_sec_info);
-		break;
-#endif
-
-	default:
-		printf("Unknown operation\n");
+	if (fpga_sec_info.encflag == FPGA_ENC_USR_KEY &&
+	    !fpga_sec_info.userkey_addr) {
+		debug("fpga: User key not provided\n");
 		return CMD_RET_USAGE;
 	}
-	return rc;
+
+	ret = do_fpga_check_params(&dev, &fpga_data, &data_size,
+				   cmdtp, argc, argv);
+	if (ret)
+		return ret;
+
+	return fpga_loads(dev, (void *)fpga_data, data_size, &fpga_sec_info);
 }
+#endif
 
 #if defined(CONFIG_CMD_FPGA_LOADFS)
 static int do_fpga_loadfs(cmd_tbl_t *cmdtp, int flag, int argc,
@@ -450,6 +377,9 @@ static cmd_tbl_t fpga_commands[] = {
 #if defined(CONFIG_CMD_FPGA_LOADMK)
 	U_BOOT_CMD_MKENT(loadmk, 2, 1, do_fpga_loadmk, "", ""),
 #endif
+#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+	U_BOOT_CMD_MKENT(loads, 6, 1, do_fpga_loads, "", ""),
+#endif
 };
 
 static int do_fpga_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
@@ -463,12 +393,6 @@ static int do_fpga_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	fpga_cmd = find_cmd_tbl(argv[1], fpga_commands,
 				ARRAY_SIZE(fpga_commands));
-
-	/* This should be removed when all functions are converted */
-	if (!fpga_cmd)
-		return do_fpga(cmdtp, flag, argc, argv);
-
-	/* FIXME This can't be reached till all functions are converted */
 	if (!fpga_cmd) {
 		debug("fpga: non existing command\n");
 		return CMD_RET_USAGE;
