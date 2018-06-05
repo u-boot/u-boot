@@ -127,31 +127,6 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	case 3:		/* fpga <op> <dev | data addr> */
 		dev = (int)simple_strtoul(argv[2], NULL, 16);
 		debug("%s: device = %d\n", __func__, dev);
-		/* FIXME - this is a really weak test */
-		if ((argc == 3) && (dev > fpga_count())) {
-			/* must be buffer ptr */
-			debug("%s: Assuming buffer pointer in arg 3\n",
-			      __func__);
-
-#if defined(CONFIG_FIT)
-			if (fit_parse_subimage(argv[2], (ulong)fpga_data,
-					       &fit_addr, &fit_uname)) {
-				fpga_data = (void *)fit_addr;
-				debug("*  fpga: subimage '%s' from FIT image ",
-				      fit_uname);
-				debug("at 0x%08lx\n", fit_addr);
-			} else
-#endif
-			{
-				fpga_data = (void *)(uintptr_t)dev;
-				debug("*  fpga: cmdline image addr = 0x%08lx\n",
-				      (ulong)fpga_data);
-			}
-
-			debug("%s: fpga_data = 0x%lx\n",
-			      __func__, (ulong)fpga_data);
-			dev = FPGA_INVALID_DEVICE;	/* reset device num */
-		}
 	}
 
 	if (dev == FPGA_INVALID_DEVICE) {
