@@ -201,10 +201,13 @@ typedef struct _IMAGE_RELOCATION
 #define IMAGE_REL_BASED_MIPS_JMPADDR            5
 #define IMAGE_REL_BASED_ARM_MOV32A              5 /* yes, 5 too */
 #define IMAGE_REL_BASED_ARM_MOV32               5 /* yes, 5 too */
+#define IMAGE_REL_BASED_RISCV_HI20		5 /* yes, 5 too */
 #define IMAGE_REL_BASED_SECTION                 6
 #define IMAGE_REL_BASED_REL                     7
 #define IMAGE_REL_BASED_ARM_MOV32T              7 /* yes, 7 too */
 #define IMAGE_REL_BASED_THUMB_MOV32             7 /* yes, 7 too */
+#define IMAGE_REL_BASED_RISCV_LOW12I		7 /* yes, 7 too */
+#define IMAGE_REL_BASED_RISCV_LOW12S		8
 #define IMAGE_REL_BASED_MIPS_JMPADDR16          9
 #define IMAGE_REL_BASED_IA64_IMM64              9 /* yes, 9 too */
 #define IMAGE_REL_BASED_DIR64                   10
