@@ -597,6 +597,8 @@ struct op_params pex_electrical_config_serdes_rev2_params[] = {
 	{LANE_CFG4_REG, 0x800, 0x8, {0x8}, 0, 0},
 	/* tximpcal_th and rximpcal_th */
 	{VTHIMPCAL_CTRL_REG, 0x800, 0xff00, {0x3000}, 0, 0},
+	/* Force receiver detected */
+	{LANE_CFG0_REG, 0x800, 0x8000, {0x8000}, 0, 0},
 };
 
 /* PEX - configuration seq for REF_CLOCK_25MHz */

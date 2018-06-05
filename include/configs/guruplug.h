@@ -39,6 +39,11 @@
  */
 #define CONFIG_ENV_SIZE			0x20000	/* 128k */
 #define CONFIG_ENV_OFFSET		0xE0000	/* env starts here */
+/*
+ * Environment is right behind U-Boot in flash. Make sure U-Boot
+ * doesn't grow into the environment area.
+ */
+#define CONFIG_BOARD_SIZE_LIMIT		CONFIG_ENV_OFFSET
 
 /*
  * Default environment variables

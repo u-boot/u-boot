@@ -32,22 +32,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define BOARD_GPP_POL_LOW	0x0
 #define BOARD_GPP_POL_MID	0x0
 
-/* IO expander on Marvell GP board includes e.g. fan enabling */
-struct marvell_io_exp {
-	u8 chip;
-	u8 addr;
-	u8 val;
-};
-
-static struct marvell_io_exp io_exp[] = {
-	{ 0x20, 2, 0x40 },	/* Deassert both mini pcie reset signals */
-	{ 0x20, 6, 0xf9 },
-	{ 0x20, 2, 0x46 },	/* rst signals and ena USB3 current limiter */
-	{ 0x20, 6, 0xb9 },
-	{ 0x20, 3, 0x00 },	/* Set SFP_TX_DIS to zero */
-	{ 0x20, 7, 0xbf },	/* Drive SFP_TX_DIS to zero */
-};
-
 static struct serdes_map board_serdes_map[] = {
 	{SATA0, SERDES_SPEED_3_GBPS, SERDES_DEFAULT_MODE, 0, 0},
 	{SGMII1, SERDES_SPEED_1_25_GBPS, SERDES_DEFAULT_MODE, 0, 0},
@@ -126,8 +110,6 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	int i;
-
 	/* Address of boot parameters */
 	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
@@ -141,10 +123,6 @@ int board_init(void)
 	setbits_le32(MVEBU_GPIO1_BASE + 0x0, BIT(9));
 	setbits_le32(MVEBU_GPIO0_BASE + 0x0, BIT(19));
 	mdelay(10);
-
-	/* Init I2C IO expanders */
-	for (i = 0; i < ARRAY_SIZE(io_exp); i++)
-		i2c_write(io_exp[i].chip, io_exp[i].addr, 1, &io_exp[i].val, 1);
 
 	return 0;
 }

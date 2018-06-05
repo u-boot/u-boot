@@ -21,13 +21,6 @@
  * Commands configuration
  */
 
-/* I2C */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MVTWSI
-#define CONFIG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
-#define CONFIG_SYS_I2C_SLAVE		0x0
-#define CONFIG_SYS_I2C_SPEED		100000
-
 /* SPI NOR flash default params, used by sf commands */
 #define CONFIG_SF_DEFAULT_BUS		1
 
@@ -60,6 +53,15 @@
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_PCI_MVEBU
 #define CONFIG_PCI_SCAN_SHOW
+#endif
+
+/* SATA support */
+#ifdef CONFIG_SCSI
+#define CONFIG_SCSI_AHCI_PLAT
+#define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
+#define CONFIG_SYS_SCSI_MAX_LUN		1
+#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
+					CONFIG_SYS_SCSI_MAX_LUN)
 #endif
 
 /* Keep device tree and initrd in lower memory so the kernel can access them */

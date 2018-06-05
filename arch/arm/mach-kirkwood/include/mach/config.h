@@ -59,7 +59,6 @@
  * SPI Flash configuration
  */
 #ifdef CONFIG_CMD_SF
-#define CONFIG_HARD_SPI			1
 #ifndef CONFIG_ENV_SPI_BUS
 # define CONFIG_ENV_SPI_BUS		0
 #endif
@@ -116,7 +115,7 @@
 /*
  * I2C related stuff
  */
-#ifdef CONFIG_CMD_I2C
+#if defined(CONFIG_CMD_I2C) && !defined(CONFIG_DM_I2C)
 #ifndef CONFIG_SYS_I2C_SOFT
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MVTWSI
