@@ -5,12 +5,6 @@
 #include <linux/list.h>
 #include <linux/compat.h>
 
-#define WARN(condition, fmt, args...) ({	\
-	int ret_warn = !!condition;		\
-	if (ret_warn)				\
-		printf(fmt, ##args);		\
-	ret_warn; })
-
 #define device_init_wakeup(dev, a) do {} while (0)
 
 #define platform_data device_data
