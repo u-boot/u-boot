@@ -18,7 +18,6 @@
 	aliases {
 		serial0 = &dcc;
 		mmc0 = &sdhci0;
-		mmc1 = &sdhci1;
 	};
 
 	chosen {
@@ -36,6 +35,12 @@
 		u-boot,dm-pre-reloc;
 	};
 
+	clk_xin: clk_xin {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <200000000>;
+	};
+
 	amba: amba {
 		compatible = "simple-bus";
 		#address-cells = <2>;
@@ -50,15 +55,6 @@
 			clock-names = "clk_xin", "clk_ahb";
 			xlnx,device_id = <0>;
 		};
-
-		sdhci1: sdhci@ff170000 {
-			u-boot,dm-pre-reloc;
-			compatible = "xlnx,zynqmp-8.9a", "arasan,sdhci-8.9a";
-			status = "disabled";
-			reg = <0x0 0xff170000 0x0 0x1000>;
-			clock-names = "clk_xin", "clk_ahb";
-			xlnx,device_id = <1>;
-		};
 	};
 };
 
@@ -67,9 +63,5 @@
 };
 
 &sdhci0 {
-	status = "okay";
-};
-
-&sdhci1 {
 	status = "okay";
 };
