@@ -195,17 +195,17 @@ unsigned long long get_qixis_addr(void);
 
 #if defined(CONFIG_QSPI_BOOT)
 #define CONFIG_BOOTCOMMAND	"sf probe 0:0;" \
-				"sf read 0x80200000 0xd00000 0x100000;"\
-				" fsl_mc apply dpl 0x80200000 &&" \
+				"sf read 0x80001000 0xd00000 0x100000;"\
+				" fsl_mc lazyapply dpl 0x80001000 &&" \
 				" sf read $kernel_load $kernel_start" \
 				" $kernel_size && bootm $kernel_load"
 #elif defined(CONFIG_SD_BOOT)
-#define CONFIG_BOOTCOMMAND	"mmcinfo;mmc read 0x80200000 0x6800 0x800;"\
-				" fsl_mc apply dpl 0x80200000 &&" \
+#define CONFIG_BOOTCOMMAND	"mmcinfo;mmc read 0x80001000 0x6800 0x800;"\
+				" fsl_mc lazyapply dpl 0x80001000 &&" \
 				" mmc read $kernel_load $kernel_start" \
 				" $kernel_size && bootm $kernel_load"
 #else /* NOR BOOT*/
-#define CONFIG_BOOTCOMMAND	"fsl_mc apply dpl 0x580d00000 &&" \
+#define CONFIG_BOOTCOMMAND	"fsl_mc lazyapply dpl 0x580d00000 &&" \
 				" cp.b $kernel_start $kernel_load" \
 				" $kernel_size && bootm $kernel_load"
 #endif
