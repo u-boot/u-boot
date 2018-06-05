@@ -16,6 +16,7 @@
 	aliases {
 		serial0 = &uart_AO;
 		serial1 = &uart_A;
+		ethernet0 = &ethmac;
 	};
 
 	chosen {
@@ -183,4 +184,8 @@
 	status = "okay";
 	pinctrl-0 = <&uart_ao_a_pins>;
 	pinctrl-names = "default";
+};
+
+&usb0 {
+	status = "okay";
 };
