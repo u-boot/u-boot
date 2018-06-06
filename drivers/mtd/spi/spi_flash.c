@@ -128,6 +128,7 @@ static int clean_bar(struct spi_flash *flash)
 	if (flash->bank_curr == 0)
 		return 0;
 	cmd = flash->bank_write_cmd;
+	flash->bank_curr = 0;
 
 	return spi_flash_write_common(flash, &cmd, 1, &bank_sel, 1);
 }

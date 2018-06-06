@@ -283,18 +283,9 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 	int subnode;
-	u32 data[4];
-	int ret;
 
-	/* 2 base addresses are needed, lets get them from the DT */
-	ret = fdtdec_get_int_array(blob, node, "reg", data, ARRAY_SIZE(data));
-	if (ret) {
-		printf("Error: Can't get base addresses (ret=%d)!\n", ret);
-		return -ENODEV;
-	}
-
-	plat->regbase = (void *)data[0];
-	plat->ahbbase = (void *)data[2];
+	plat->regbase = (void *)devfdt_get_addr_index(bus, 0);
+	plat->ahbbase = (void *)devfdt_get_addr_index(bus, 1);
 	plat->is_decoded_cs = fdtdec_get_bool(blob, node, "cdns,is-decoded-cs");
 	plat->fifo_depth = fdtdec_get_uint(blob, node, "cdns,fifo-depth", 128);
 	plat->fifo_width = fdtdec_get_uint(blob, node, "cdns,fifo-width", 4);
