@@ -737,7 +737,8 @@ int fw_env_set(int argc, char *argv[], struct env_opts *opts)
 int fw_parse_script(char *fname, struct env_opts *opts)
 {
 	FILE *fp;
-	char dump[1024];	/* Maximum line length in the file */
+	char *line = NULL;
+	size_t linesize = 0;
 	char *name;
 	char *val;
 	int lineno = 0;
@@ -763,36 +764,34 @@ int fw_parse_script(char *fname, struct env_opts *opts)
 		}
 	}
 
-	while (fgets(dump, sizeof(dump), fp)) {
+	while ((len = getline(&line, &linesize, fp)) != -1) {
 		lineno++;
-		len = strlen(dump);
 
 		/*
-		 * Read a whole line from the file. If the line is too long
-		 * or is not terminated, reports an error and exit.
+		 * Read a whole line from the file. If the line is not
+		 * terminated, reports an error and exit.
 		 */
-		if (dump[len - 1] != '\n') {
+		if (line[len - 1] != '\n') {
 			fprintf(stderr,
-				"Line %d not corrected terminated or too long\n",
+				"Line %d not correctly terminated\n",
 				lineno);
 			ret = -1;
 			break;
 		}
 
 		/* Drop ending line feed / carriage return */
-		dump[--len] = '\0';
-		if (len && dump[len - 1] == '\r')
-			dump[--len] = '\0';
+		line[--len] = '\0';
+		if (len && line[len - 1] == '\r')
+			line[--len] = '\0';
 
 		/* Skip comment or empty lines */
-		if (len == 0 || dump[0] == '#')
+		if (len == 0 || line[0] == '#')
 			continue;
 
 		/*
-		 * Search for variable's name,
-		 * remove leading whitespaces
+		 * Search for variable's name remove leading whitespaces
 		 */
-		name = skip_blanks(dump);
+		name = skip_blanks(line);
 		if (!name)
 			continue;
 
@@ -829,6 +828,7 @@ int fw_parse_script(char *fname, struct env_opts *opts)
 		}
 
 	}
+	free(line);
 
 	/* Close file if not stdin */
 	if (strcmp(fname, "-") != 0)
@@ -1760,19 +1760,20 @@ static int get_config(char *fname)
 	FILE *fp;
 	int i = 0;
 	int rc;
-	char dump[128];
+	char *line = NULL;
+	size_t linesize = 0;
 	char *devname;
 
 	fp = fopen(fname, "r");
 	if (fp == NULL)
 		return -1;
 
-	while (i < 2 && fgets(dump, sizeof(dump), fp)) {
-		/* Skip incomplete conversions and comment strings */
-		if (dump[0] == '#')
+	while (i < 2 && getline(&line, &linesize, fp) != -1) {
+		/* Skip comment strings */
+		if (line[0] == '#')
 			continue;
 
-		rc = sscanf(dump, "%ms %lli %lx %lx %lx",
+		rc = sscanf(line, "%ms %lli %lx %lx %lx",
 			    &devname,
 			    &DEVOFFSET(i),
 			    &ENVSIZE(i), &DEVESIZE(i), &ENVSECTORS(i));
@@ -1788,6 +1789,7 @@ static int get_config(char *fname)
 
 		i++;
 	}
+	free(line);
 	fclose(fp);
 
 	have_redund_env = i - 1;
