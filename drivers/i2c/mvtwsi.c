@@ -11,6 +11,7 @@
 #include <i2c.h>
 #include <linux/errno.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 #include <linux/compat.h>
 #ifdef CONFIG_DM_I2C
 #include <dm.h>
@@ -57,6 +58,7 @@ struct  mvtwsi_registers {
 	u32 status;
 	u32 baudrate;
 	u32 soft_reset;
+	u32 debug; /* Dummy field for build compatibility with mvebu */
 };
 
 #else
@@ -70,8 +72,10 @@ struct  mvtwsi_registers {
 		u32 baudrate;	/* When writing */
 	};
 	u32 xtnd_slave_addr;
-	u32 reserved[2];
+	u32 reserved0[2];
 	u32 soft_reset;
+	u32 reserved1[27];
+	u32 debug;
 };
 
 #endif
@@ -795,6 +799,23 @@ static int mvtwsi_i2c_ofdata_to_platdata(struct udevice *bus)
 	return 0;
 }
 
+static void twsi_disable_i2c_slave(struct mvtwsi_registers *twsi)
+{
+	clrbits_le32(&twsi->debug, BIT(18));
+}
+
+static int mvtwsi_i2c_bind(struct udevice *bus)
+{
+	struct mvtwsi_registers *twsi = devfdt_get_addr_ptr(bus);
+
+	/* Disable the hidden slave in i2c0 of these platforms */
+	if ((IS_ENABLED(CONFIG_ARMADA_38X) || IS_ENABLED(CONFIG_KIRKWOOD))
+			&& bus->req_seq == 0)
+		twsi_disable_i2c_slave(twsi);
+
+	return 0;
+}
+
 static int mvtwsi_i2c_probe(struct udevice *bus)
 {
 	struct mvtwsi_i2c_dev *dev = dev_get_priv(bus);
@@ -850,6 +871,7 @@ U_BOOT_DRIVER(i2c_mvtwsi) = {
 	.name = "i2c_mvtwsi",
 	.id = UCLASS_I2C,
 	.of_match = mvtwsi_i2c_ids,
+	.bind = mvtwsi_i2c_bind,
 	.probe = mvtwsi_i2c_probe,
 	.ofdata_to_platdata = mvtwsi_i2c_ofdata_to_platdata,
 	.priv_auto_alloc_size = sizeof(struct mvtwsi_i2c_dev),
