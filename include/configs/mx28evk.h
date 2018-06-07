@@ -43,7 +43,7 @@
 		(CONFIG_ENV_OFFSET + CONFIG_ENV_RANGE)
 #endif
 
-/* Environemnt is in SPI flash */
+/* Environment is in SPI flash */
 #if defined(CONFIG_CMD_SF) && defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_OFFSET		0x40000		/* 256K */

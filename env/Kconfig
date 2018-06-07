@@ -15,7 +15,7 @@ config ENV_IS_NOWHERE
 	default y
 	help
 	  Define this if you don't want to or can't have an environment stored
-	  on a storage medium. In this case the environemnt will still exist
+	  on a storage medium. In this case the environment will still exist
 	  while U-Boot is running, but once U-Boot exits it will not be
 	  stored. U-Boot will therefore always start up with a default
 	  environment.
@@ -391,7 +391,7 @@ config ENV_FAT_DEVICE_AND_PART
 	                   partition table then means device D.
 
 config ENV_FAT_FILE
-	string "Name of the FAT file to use for the environemnt"
+	string "Name of the FAT file to use for the environment"
 	depends on ENV_IS_IN_FAT
 	default "uboot.env"
 	help
@@ -423,7 +423,7 @@ config ENV_EXT4_DEVICE_AND_PART
 	                   partition table then means device D.
 
 config ENV_EXT4_FILE
-	string "Name of the EXT4 file to use for the environemnt"
+	string "Name of the EXT4 file to use for the environment"
 	depends on ENV_IS_IN_EXT4
 	default "uboot.env"
 	help

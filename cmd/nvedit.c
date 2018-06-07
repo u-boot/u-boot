@@ -720,7 +720,7 @@ int env_get_f(const char *name, char *buf, unsigned len)
 /**
  * Decode the integer value of an environment variable and return it.
  *
- * @param name		Name of environemnt variable
+ * @param name		Name of environment variable
  * @param base		Number base to use (normally 10, or 16 for hex)
  * @param default_val	Default value to return if the variable is not
  *			found

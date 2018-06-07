@@ -292,7 +292,7 @@ int env_import_redund(const char *buf1, int buf1_status,
 /**
  * env_get_char() - Get a character from the early environment
  *
- * This reads from the pre-relocation environemnt
+ * This reads from the pre-relocation environment
  *
  * @index: Index of character to read (0 = first)
  * @return character read, or -ve on error

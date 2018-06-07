@@ -334,7 +334,7 @@ config SPL_SAVEENV
 	  example OS may set "reboot_image" environment variable to
 	  "recovery" inorder to boot recovery image by SPL. The SPL read
 	  "reboot_image" and act accordingly and change the reboot_image
-	  to default mode using setenv and save the environemnt.
+	  to default mode using setenv and save the environment.
 
 config SPL_ETH_SUPPORT
 	bool "Support Ethernet"

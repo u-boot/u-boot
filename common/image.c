@@ -1413,7 +1413,7 @@ int boot_get_loadable(int argc, char * const argv[], bootm_headers_t *images,
  * @cmd_end: pointer to a ulong variable, will hold cmdline end
  *
  * boot_get_cmdline() allocates space for kernel command line below
- * BOOTMAPSZ + env_get_bootm_low() address. If "bootargs" U-Boot environemnt
+ * BOOTMAPSZ + env_get_bootm_low() address. If "bootargs" U-Boot environment
  * variable is present its contents is copied to allocated kernel
  * command line.
  *

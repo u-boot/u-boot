@@ -842,10 +842,10 @@ int fw_parse_script(char *fname, struct env_opts *opts)
 }
 
 /**
- * environment_end() - compute offset of first byte right after environemnt
+ * environment_end() - compute offset of first byte right after environment
  * @dev - index of enviroment buffer
  * Return:
- *  device offset of first byte right after environemnt
+ *  device offset of first byte right after environment
  */
 off_t environment_end(int dev)
 {
