@@ -109,7 +109,7 @@ config MSM_GPIO
 	  - MSM8916
 
 config MXC_GPIO
-	bool "Freescale/NXP MXC UART driver"
+	bool "Freescale/NXP MXC GPIO driver"
 	help
 	  Support GPIO controllers on various i.MX platforms
 
