@@ -25,6 +25,7 @@
 struct ohci_sunxi_cfg {
 	bool has_reset;
 	u32 extra_ahb_gate_mask;
+	u32 extra_usb_gate_mask;
 };
 
 struct ohci_sunxi_priv {
@@ -89,7 +90,8 @@ no_phy:
 
 	setbits_le32(&priv->ccm->ahb_gate0,
 		     priv->ahb_gate_mask | extra_ahb_gate_mask);
-	setbits_le32(&priv->ccm->usb_clk_cfg, priv->usb_gate_mask);
+	setbits_le32(&priv->ccm->usb_clk_cfg,
+		     priv->usb_gate_mask | priv->cfg->extra_usb_gate_mask);
 	if (priv->cfg->has_reset)
 		setbits_le32(&priv->ccm->ahb_reset0_cfg,
 			     priv->ahb_gate_mask | extra_ahb_gate_mask);
@@ -135,6 +137,12 @@ static const struct ohci_sunxi_cfg sun8i_h3_cfg = {
 	.extra_ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0,
 };
 
+static const struct ohci_sunxi_cfg sun50i_a64_cfg = {
+	.has_reset = true,
+	.extra_ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0,
+	.extra_usb_gate_mask = CCM_USB_CTRL_OHCI0_CLK,
+};
+
 static const struct udevice_id ohci_usb_ids[] = {
 	{
 		.compatible = "allwinner,sun4i-a10-ohci",
@@ -170,7 +178,7 @@ static const struct udevice_id ohci_usb_ids[] = {
 	},
 	{
 		.compatible = "allwinner,sun50i-a64-ohci",
-		.data = (ulong)&sun6i_a31_cfg,
+		.data = (ulong)&sun50i_a64_cfg,
 	},
 	{ /* sentinel */ }
 };
