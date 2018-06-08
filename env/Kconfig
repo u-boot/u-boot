@@ -3,6 +3,7 @@ menu "Environment"
 config ENV_IS_NOWHERE
 	bool "Environment is not stored"
 	depends on !ENV_IS_IN_EEPROM
+	depends on !ENV_IS_IN_EXT4
 	depends on !ENV_IS_IN_FAT
 	depends on !ENV_IS_IN_FLASH
 	depends on !ENV_IS_IN_MMC
