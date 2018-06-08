@@ -24,6 +24,36 @@ static void do_print_stats(void)
 	printf("CRC32:  %08lx\n", (ulong)iotrace_get_checksum());
 }
 
+static void do_print_trace(void)
+{
+	ulong start, size, offset, count;
+
+	struct iotrace_record *cur_record;
+
+	iotrace_get_buffer(&start, &size, &offset, &count);
+
+	if (!start || !size || !count)
+		return;
+
+	printf("Timestamp  Value          Address\n");
+
+	cur_record = (struct iotrace_record *)start;
+	for (int i = 0; i < count; i++) {
+		if (cur_record->flags & IOT_WRITE)
+			printf("%08llu: 0x%08lx --> 0x%08llx\n",
+			       cur_record->timestamp,
+					cur_record->value,
+					(unsigned long long)cur_record->addr);
+		else
+			printf("%08llu: 0x%08lx <-- 0x%08llx\n",
+			       cur_record->timestamp,
+					cur_record->value,
+					(unsigned long long)cur_record->addr);
+
+		cur_record++;
+	}
+}
+
 static int do_set_buffer(int argc, char * const argv[])
 {
 	ulong addr = 0, size = 0;
@@ -76,6 +106,9 @@ int do_iotrace(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	case 's':
 		do_print_stats();
 		break;
+	case 'd':
+		do_print_trace();
+		break;
 	default:
 		return CMD_RET_USAGE;
 	}
@@ -90,5 +123,6 @@ U_BOOT_CMD(
 	"iotrace buffer <address> <size>      - set iotrace buffer\n"
 	"iotrace limit <address> <size>       - set iotrace region limit\n"
 	"iotrace pause                        - pause tracing\n"
-	"iotrace resume                       - resume tracing"
+	"iotrace resume                       - resume tracing\n"
+	"iotrace dump                         - dump iotrace buffer"
 );
