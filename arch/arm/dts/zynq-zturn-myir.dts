@@ -85,8 +85,6 @@
 
 	gpio-keys {
 		compatible = "gpio-keys";
-		#address-cells = <0x1>;
-		#size-cells = <0x0>;
 		autorepeat;
 		K1 {
 			label = "K1";
