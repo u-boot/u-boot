@@ -74,6 +74,7 @@ ARC HSDK CREG GPIO
 M:	Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
 S:	Maintained
 L:	uboot-snps-arc@synopsys.com
+F:	doc/device-tree-bindings/gpio/snps,creg-gpio.txt
 F:	drivers/gpio/hsdk-creg-gpio.c
 
 ARM
