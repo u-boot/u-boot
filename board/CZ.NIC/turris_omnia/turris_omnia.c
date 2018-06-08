@@ -321,7 +321,11 @@ int board_early_init_f(void)
 	writel(OMNIA_GPP_OUT_ENA_LOW, MVEBU_GPIO0_BASE + 0x04);
 	writel(OMNIA_GPP_OUT_ENA_MID, MVEBU_GPIO1_BASE + 0x04);
 
-	/* Disable I2C debug mode blocking 0x64 I2C address */
+	/*
+	 * Disable I2C debug mode blocking 0x64 I2C address.
+	 * Note: that would be redundant once Turris Omnia migrates to DM_I2C,
+	 * because the mvtwsi driver includes equivalent code.
+	 */
 	i2c_debug_reg = readl(MVEBU_TWSI_BASE + MVTWSI_ARMADA_DEBUG_REG);
 	i2c_debug_reg &= ~(1<<18);
 	writel(i2c_debug_reg, MVEBU_TWSI_BASE + MVTWSI_ARMADA_DEBUG_REG);
