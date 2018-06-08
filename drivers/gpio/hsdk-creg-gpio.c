@@ -16,25 +16,24 @@
 #include <errno.h>
 #include <linux/printk.h>
 
-#define HSDK_CREG_MAX_GPIO	8
-
-#define GPIO_ACTIVATE		0x2
-#define GPIO_DEACTIVATE		0x3
-#define GPIO_PIN_MASK		0x3
-#define BIT_PER_GPIO		2
+#define DRV_NAME	"gpio_creg"
 
 struct hsdk_creg_gpio {
-	uint32_t *regs;
+	u32	*regs;
+	u8	shift;
+	u8	activate;
+	u8	deactivate;
+	u8	bit_per_gpio;
 };
 
 static int hsdk_creg_gpio_set_value(struct udevice *dev, unsigned oft, int val)
 {
 	struct hsdk_creg_gpio *hcg = dev_get_priv(dev);
-	uint32_t reg = readl(hcg->regs);
-	uint32_t cmd = val ? GPIO_DEACTIVATE : GPIO_ACTIVATE;
+	u8 reg_shift = oft * hcg->bit_per_gpio + hcg->shift;
+	u32 reg = readl(hcg->regs);
 
-	reg &= ~(GPIO_PIN_MASK << (oft * BIT_PER_GPIO));
-	reg |=  (cmd << (oft * BIT_PER_GPIO));
+	reg &= ~(GENMASK(hcg->bit_per_gpio - 1, 0) << reg_shift);
+	reg |=  ((val ? hcg->deactivate : hcg->activate) << reg_shift);
 
 	writel(reg, hcg->regs);
 
@@ -51,7 +50,9 @@ static int hsdk_creg_gpio_direction_output(struct udevice *dev, unsigned oft,
 
 static int hsdk_creg_gpio_direction_input(struct udevice *dev, unsigned oft)
 {
-	pr_err("hsdk-creg-gpio can't be used as input!\n");
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	pr_err("%s can't be used as input!\n", uc_priv->bank_name);
 
 	return -ENOTSUPP;
 }
@@ -59,10 +60,11 @@ static int hsdk_creg_gpio_direction_input(struct udevice *dev, unsigned oft)
 static int hsdk_creg_gpio_get_value(struct udevice *dev, unsigned int oft)
 {
 	struct hsdk_creg_gpio *hcg = dev_get_priv(dev);
-	uint32_t val = readl(hcg->regs);
+	u32 val = readl(hcg->regs);
 
-	val = (val >> (oft * BIT_PER_GPIO)) & GPIO_PIN_MASK;
-	return (val == GPIO_DEACTIVATE) ? 1 : 0;
+	val >>= oft * hcg->bit_per_gpio + hcg->shift;
+	val &= GENMASK(hcg->bit_per_gpio - 1, 0);
+	return (val == hcg->deactivate) ? 1 : 0;
 }
 
 static const struct dm_gpio_ops hsdk_creg_gpio_ops = {
@@ -76,16 +78,73 @@ static int hsdk_creg_gpio_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct hsdk_creg_gpio *hcg = dev_get_priv(dev);
+	u32 shift, bit_per_gpio, activate, deactivate, gpio_count;
+	const u8 *defaults;
 
-	hcg->regs = (uint32_t *)devfdt_get_addr_ptr(dev);
-
-	uc_priv->gpio_count = dev_read_u32_default(dev, "gpio-count", 1);
-	if (uc_priv->gpio_count > HSDK_CREG_MAX_GPIO)
-		uc_priv->gpio_count = HSDK_CREG_MAX_GPIO;
+	hcg->regs = (u32 *)devfdt_get_addr_ptr(dev);
+	gpio_count = dev_read_u32_default(dev, "gpio-count", 1);
+	shift = dev_read_u32_default(dev, "gpio-first-shift", 0);
+	bit_per_gpio = dev_read_u32_default(dev, "gpio-bit-per-line", 1);
+	activate = dev_read_u32_default(dev, "gpio-activate-val", 1);
+	deactivate = dev_read_u32_default(dev, "gpio-deactivate-val", 0);
+	defaults = dev_read_u8_array_ptr(dev, "gpio-default-val", gpio_count);
 
 	uc_priv->bank_name = dev_read_string(dev, "gpio-bank-name");
 	if (!uc_priv->bank_name)
 		uc_priv->bank_name = dev_read_name(dev);
+
+	if (!bit_per_gpio) {
+		pr_err("%s: 'gpio-bit-per-line' can't be 0\n",
+		       uc_priv->bank_name);
+
+		return -EINVAL;
+	}
+
+	if (!gpio_count) {
+		pr_err("%s: 'gpio-count' can't be 0\n",
+		       uc_priv->bank_name);
+
+		return -EINVAL;
+	}
+
+	if ((gpio_count * bit_per_gpio + shift) > 32) {
+		pr_err("%s: u32 io register overflow: try to use %u bits\n",
+		       uc_priv->bank_name, gpio_count * bit_per_gpio + shift);
+
+		return -EINVAL;
+	}
+
+	if (GENMASK(31, bit_per_gpio) & activate) {
+		pr_err("%s: 'gpio-activate-val' can't be more than %lu\n",
+		       uc_priv->bank_name, GENMASK(bit_per_gpio - 1, 0));
+
+		return -EINVAL;
+	}
+
+	if (GENMASK(31, bit_per_gpio) & deactivate) {
+		pr_err("%s: 'gpio-deactivate-val' can't be more than %lu\n",
+		       uc_priv->bank_name, GENMASK(bit_per_gpio - 1, 0));
+
+		return -EINVAL;
+	}
+
+	if (activate == deactivate) {
+		pr_err("%s: 'gpio-deactivate-val' and 'gpio-activate-val' can't be equal\n",
+		       uc_priv->bank_name);
+
+		return -EINVAL;
+	}
+
+	hcg->shift = (u8)shift;
+	hcg->bit_per_gpio = (u8)bit_per_gpio;
+	hcg->activate = (u8)activate;
+	hcg->deactivate = (u8)deactivate;
+	uc_priv->gpio_count = gpio_count;
+
+	/* Setup default GPIO value if we have "gpio-default-val" array */
+	if (defaults)
+		for (u8 i = 0; i < gpio_count; i++)
+			hsdk_creg_gpio_set_value(dev, i, defaults[i]);
 
 	pr_debug("%s GPIO [0x%p] controller with %d gpios probed\n",
 		 uc_priv->bank_name, hcg->regs, uc_priv->gpio_count);
@@ -94,12 +153,12 @@ static int hsdk_creg_gpio_probe(struct udevice *dev)
 }
 
 static const struct udevice_id hsdk_creg_gpio_ids[] = {
-	{ .compatible = "snps,hsdk-creg-gpio" },
+	{ .compatible = "snps,creg-gpio" },
 	{ }
 };
 
 U_BOOT_DRIVER(gpio_hsdk_creg) = {
-	.name	= "gpio_hsdk_creg",
+	.name	= DRV_NAME,
 	.id	= UCLASS_GPIO,
 	.ops	= &hsdk_creg_gpio_ops,
 	.probe	= hsdk_creg_gpio_probe,
