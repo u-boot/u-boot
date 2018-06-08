@@ -22,12 +22,18 @@
 #define AHB_CLK_DIST		1
 #endif
 
+struct ohci_sunxi_cfg {
+	bool has_reset;
+	u32 extra_ahb_gate_mask;
+};
+
 struct ohci_sunxi_priv {
 	struct sunxi_ccm_reg *ccm;
 	ohci_t ohci;
 	int ahb_gate_mask; /* Mask of ahb_gate0 clk gate bits for this hcd */
 	int usb_gate_mask; /* Mask of usb_clk_cfg clk gate bits for this hcd */
 	struct phy phy;
+	const struct ohci_sunxi_cfg *cfg;
 };
 
 static int ohci_usb_probe(struct udevice *dev)
@@ -38,6 +44,7 @@ static int ohci_usb_probe(struct udevice *dev)
 	int extra_ahb_gate_mask = 0;
 	int phys, ret;
 
+	priv->cfg = (const struct ohci_sunxi_cfg *)dev_get_driver_data(dev);
 	priv->ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	if (IS_ERR(priv->ccm))
 		return PTR_ERR(priv->ccm);
@@ -74,9 +81,7 @@ no_phy:
 	 * clocks resp. phys.
 	 */
 	priv->ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_OHCI0;
-#ifdef CONFIG_MACH_SUN8I_H3
-	extra_ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0;
-#endif
+	extra_ahb_gate_mask = priv->cfg->extra_ahb_gate_mask;
 	priv->usb_gate_mask = CCM_USB_CTRL_OHCI0_CLK;
 	priv->ahb_gate_mask <<= phys * AHB_CLK_DIST;
 	extra_ahb_gate_mask <<= phys * AHB_CLK_DIST;
@@ -85,10 +90,9 @@ no_phy:
 	setbits_le32(&priv->ccm->ahb_gate0,
 		     priv->ahb_gate_mask | extra_ahb_gate_mask);
 	setbits_le32(&priv->ccm->usb_clk_cfg, priv->usb_gate_mask);
-#ifdef CONFIG_SUNXI_GEN_SUN6I
-	setbits_le32(&priv->ccm->ahb_reset0_cfg,
-		     priv->ahb_gate_mask | extra_ahb_gate_mask);
-#endif
+	if (priv->cfg->has_reset)
+		setbits_le32(&priv->ccm->ahb_reset0_cfg,
+			     priv->ahb_gate_mask | extra_ahb_gate_mask);
 
 	return ohci_register(dev, regs);
 }
@@ -110,26 +114,65 @@ static int ohci_usb_remove(struct udevice *dev)
 	if (ret)
 		return ret;
 
-#ifdef CONFIG_SUNXI_GEN_SUN6I
-	clrbits_le32(&priv->ccm->ahb_reset0_cfg, priv->ahb_gate_mask);
-#endif
+	if (priv->cfg->has_reset)
+		clrbits_le32(&priv->ccm->ahb_reset0_cfg, priv->ahb_gate_mask);
 	clrbits_le32(&priv->ccm->usb_clk_cfg, priv->usb_gate_mask);
 	clrbits_le32(&priv->ccm->ahb_gate0, priv->ahb_gate_mask);
 
 	return 0;
 }
 
+static const struct ohci_sunxi_cfg sun4i_a10_cfg = {
+	.has_reset = false,
+};
+
+static const struct ohci_sunxi_cfg sun6i_a31_cfg = {
+	.has_reset = true,
+};
+
+static const struct ohci_sunxi_cfg sun8i_h3_cfg = {
+	.has_reset = true,
+	.extra_ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0,
+};
+
 static const struct udevice_id ohci_usb_ids[] = {
-	{ .compatible = "allwinner,sun4i-a10-ohci", },
-	{ .compatible = "allwinner,sun5i-a13-ohci", },
-	{ .compatible = "allwinner,sun6i-a31-ohci", },
-	{ .compatible = "allwinner,sun7i-a20-ohci", },
-	{ .compatible = "allwinner,sun8i-a23-ohci", },
-	{ .compatible = "allwinner,sun8i-a83t-ohci", },
-	{ .compatible = "allwinner,sun8i-h3-ohci",  },
-	{ .compatible = "allwinner,sun9i-a80-ohci", },
-	{ .compatible = "allwinner,sun50i-a64-ohci", },
-	{ }
+	{
+		.compatible = "allwinner,sun4i-a10-ohci",
+		.data = (ulong)&sun4i_a10_cfg,
+	},
+	{
+		.compatible = "allwinner,sun5i-a13-ohci",
+		.data = (ulong)&sun4i_a10_cfg,
+	},
+	{
+		.compatible = "allwinner,sun6i-a31-ohci",
+		.data = (ulong)&sun6i_a31_cfg,
+	},
+	{
+		.compatible = "allwinner,sun7i-a20-ohci",
+		.data = (ulong)&sun4i_a10_cfg,
+	},
+	{
+		.compatible = "allwinner,sun8i-a23-ohci",
+		.data = (ulong)&sun6i_a31_cfg,
+	},
+	{
+		.compatible = "allwinner,sun8i-a83t-ohci",
+		.data = (ulong)&sun6i_a31_cfg,
+	},
+	{
+		.compatible = "allwinner,sun8i-h3-ohci",
+		.data = (ulong)&sun8i_h3_cfg,
+	},
+	{
+		.compatible = "allwinner,sun9i-a80-ohci",
+		.data = (ulong)&sun6i_a31_cfg,
+	},
+	{
+		.compatible = "allwinner,sun50i-a64-ohci",
+		.data = (ulong)&sun6i_a31_cfg,
+	},
+	{ /* sentinel */ }
 };
 
 U_BOOT_DRIVER(usb_ohci) = {
