@@ -6,7 +6,35 @@
 #ifndef __IOTRACE_H
 #define __IOTRACE_H
 
+//#include <common.h>
 #include <linux/types.h>
+
+/* Support up to the machine word length for now */
+typedef ulong iovalue_t;
+
+enum iotrace_flags {
+	IOT_8 = 0,
+	IOT_16,
+	IOT_32,
+
+	IOT_READ = 0 << 3,
+	IOT_WRITE = 1 << 3,
+};
+
+/**
+ * struct iotrace_record - Holds a single I/O trace record
+ *
+ * @flags: I/O access type
+ * @timestamp: Timestamp of access
+ * @addr: Address of access
+ * @value: Value written or read
+ */
+struct iotrace_record {
+	enum iotrace_flags flags;
+	u64 timestamp;
+	phys_addr_t addr;
+	iovalue_t value;
+};
 
 /*
  * This file is designed to be included in arch/<arch>/include/asm/io.h.

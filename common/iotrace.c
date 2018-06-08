@@ -11,33 +11,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Support up to the machine word length for now */
-typedef ulong iovalue_t;
-
-enum iotrace_flags {
-	IOT_8 = 0,
-	IOT_16,
-	IOT_32,
-
-	IOT_READ = 0 << 3,
-	IOT_WRITE = 1 << 3,
-};
-
-/**
- * struct iotrace_record - Holds a single I/O trace record
- *
- * @flags: I/O access type
- * @timestamp: Timestamp of access
- * @addr: Address of access
- * @value: Value written or read
- */
-struct iotrace_record {
-	enum iotrace_flags flags;
-	u64 timestamp;
-	phys_addr_t addr;
-	iovalue_t value;
-};
-
 /**
  * struct iotrace - current trace status and checksum
  *
