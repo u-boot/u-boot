@@ -196,7 +196,7 @@ const struct pad_conf_entry core_padconf_array_essential_x15[] = {
 	{SPI1_CS0, (M14 | PIN_INPUT)},	/* spi1_cs0.gpio7_10 */
 	{SPI1_CS1, (M14 | PIN_INPUT)},	/* spi1_cs1.gpio7_11 */
 	{SPI1_CS2, (M14 | PIN_INPUT_SLEW)},	/* spi1_cs2.gpio7_12 */
-	{SPI1_CS3, (M6 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* spi1_cs3.hdmi1_cec */
+	{SPI1_CS3, (M6 | PIN_INPUT | SLEWCONTROL)},	/* spi1_cs3.hdmi1_cec */
 	{SPI2_SCLK, (M14 | PIN_INPUT_PULLDOWN)},	/* spi2_sclk.gpio7_14 */
 	{SPI2_D1, (M14 | PIN_INPUT_SLEW)},	/* spi2_d1.gpio7_15 */
 	{SPI2_D0, (M14 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* spi2_d0.gpio7_16 */
@@ -481,7 +481,7 @@ const struct pad_conf_entry core_padconf_array_essential_am574x_idk[] = {
 	{SPI1_CS0, (M14 | PIN_OUTPUT)},	/* spi1_cs0.gpio7_10 */
 	{SPI1_CS1, (M14 | PIN_OUTPUT)},	/* spi1_cs1.gpio7_11 */
 	{SPI1_CS2, (M14 | PIN_INPUT_SLEW)},	/* spi1_cs2.gpio7_12 */
-	{SPI1_CS3, (M6 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* spi1_cs3.hdmi1_cec */
+	{SPI1_CS3, (M6 | PIN_INPUT | SLEWCONTROL)},	/* spi1_cs3.hdmi1_cec */
 	{SPI2_SCLK, (M0 | PIN_INPUT)},	/* spi2_sclk.spi2_sclk */
 	{SPI2_D1, (M0 | PIN_INPUT | SLEWCONTROL)},	/* spi2_d1.spi2_d1 */
 	{SPI2_D0, (M0 | PIN_INPUT | SLEWCONTROL)},	/* spi2_d0.spi2_d0 */
@@ -701,7 +701,7 @@ const struct pad_conf_entry core_padconf_array_essential_am572x_idk[] = {
 	{SPI1_CS0, (M14 | PIN_OUTPUT)},	/* spi1_cs0.gpio7_10 */
 	{SPI1_CS1, (M14 | PIN_OUTPUT)},	/* spi1_cs1.gpio7_11 */
 	{SPI1_CS2, (M14 | PIN_INPUT_SLEW)},	/* spi1_cs2.gpio7_12 */
-	{SPI1_CS3, (M6 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* spi1_cs3.hdmi1_cec */
+	{SPI1_CS3, (M6 | PIN_INPUT | SLEWCONTROL)},	/* spi1_cs3.hdmi1_cec */
 	{SPI2_SCLK, (M0 | PIN_INPUT)},	/* spi2_sclk.spi2_sclk */
 	{SPI2_D1, (M0 | PIN_INPUT | SLEWCONTROL)},	/* spi2_d1.spi2_d1 */
 	{SPI2_D0, (M0 | PIN_INPUT | SLEWCONTROL)},	/* spi2_d0.spi2_d0 */
