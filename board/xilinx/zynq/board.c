@@ -9,6 +9,7 @@
 #include <fdtdec.h>
 #include <fpga.h>
 #include <mmc.h>
+#include <watchdog.h>
 #include <wdt.h>
 #include <zynqpl.h>
 #include <asm/arch/hardware.h>
