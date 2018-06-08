@@ -37,20 +37,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CPGMACSS_SW_RST		(1 << 1)
 #define PHY_GPIO		30
 
-/* This is only needed until SPL gets OF support */
-#ifdef CONFIG_SPL_BUILD
-static const struct ns16550_platdata am3517_serial = {
-	.base = OMAP34XX_UART3,
-	.reg_shift = 2,
-	.clock = V_NS16550_CLK,
-	.fcr = UART_FCR_DEFVAL,
-};
-
-U_BOOT_DEVICE(am3517_uart) = {
-	"ns16550_serial",
-	&am3517_serial
-};
-#endif
 
 /*
  * Routine: board_init
