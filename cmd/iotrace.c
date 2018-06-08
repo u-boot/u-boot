@@ -9,12 +9,13 @@
 
 static void do_print_stats(void)
 {
-	ulong start, size, offset, count;
+	ulong start, size, needed_size, offset, count;
 
 	printf("iotrace is %sabled\n", iotrace_get_enabled() ? "en" : "dis");
-	iotrace_get_buffer(&start, &size, &offset, &count);
+	iotrace_get_buffer(&start, &size, &needed_size, &offset, &count);
 	printf("Start:  %08lx\n", start);
-	printf("Size:   %08lx\n", size);
+	printf("Actual Size:   %08lx\n", size);
+	printf("Needed Size:   %08lx\n", needed_size);
 	iotrace_get_region(&start, &size);
 	printf("Region: %08lx\n", start);
 	printf("Size:   %08lx\n", size);
@@ -26,11 +27,11 @@ static void do_print_stats(void)
 
 static void do_print_trace(void)
 {
-	ulong start, size, offset, count;
+	ulong start, size, needed_size, offset, count;
 
 	struct iotrace_record *cur_record;
 
-	iotrace_get_buffer(&start, &size, &offset, &count);
+	iotrace_get_buffer(&start, &size, &needed_size, &offset, &count);
 
 	if (!start || !size || !count)
 		return;

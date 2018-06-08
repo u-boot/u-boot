@@ -15,7 +15,8 @@ DECLARE_GLOBAL_DATA_PTR;
  * struct iotrace - current trace status and checksum
  *
  * @start:	Start address of iotrace buffer
- * @size:	Size of iotrace buffer in bytes
+ * @size:	Actual size of iotrace buffer in bytes
+ * @needed_size: Needed of iotrace buffer in bytes
  * @offset:	Current write offset into iotrace buffer
  * @region_start: Address of IO region to trace
  * @region_size: Size of region to trace. if 0 will trace all address space
@@ -25,6 +26,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static struct iotrace {
 	ulong start;
 	ulong size;
+	ulong needed_size;
 	ulong offset;
 	ulong region_start;
 	ulong region_size;
@@ -55,7 +57,12 @@ static void add_record(int flags, const void *ptr, ulong value)
 		rec = (struct iotrace_record *)map_sysmem(
 					iotrace.start + iotrace.offset,
 					sizeof(value));
+	} else {
+		WARN_ONCE(1, "WARNING: iotrace buffer exhausted, please check needed length using \"iotrace stats\"\n");
+		iotrace.needed_size += sizeof(struct iotrace_record);
+		return;
 	}
+
 	rec->timestamp = timer_get_us();
 	rec->flags = flags;
 	rec->addr = map_to_sysmem(ptr);
@@ -65,6 +72,7 @@ static void add_record(int flags, const void *ptr, ulong value)
 	iotrace.crc32 = crc32(iotrace.crc32, (unsigned char *)rec,
 			      sizeof(*rec));
 
+	iotrace.needed_size += sizeof(struct iotrace_record);
 	iotrace.offset += sizeof(struct iotrace_record);
 }
 
@@ -162,10 +170,11 @@ void iotrace_set_buffer(ulong start, ulong size)
 	iotrace.crc32 = 0;
 }
 
-void iotrace_get_buffer(ulong *start, ulong *size, ulong *offset, ulong *count)
+void iotrace_get_buffer(ulong *start, ulong *size, ulong *needed_size, ulong *offset, ulong *count)
 {
 	*start = iotrace.start;
 	*size = iotrace.size;
+	*needed_size = iotrace.needed_size;
 	*offset = iotrace.offset;
 	*count = iotrace.offset / sizeof(struct iotrace_record);
 }

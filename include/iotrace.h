@@ -146,11 +146,12 @@ void iotrace_set_buffer(ulong start, ulong size);
  * iotrace_get_buffer() - Get buffer information
  *
  * @start: Returns start address of buffer
- * @size: Returns size of buffer in bytes
+ * @size: Returns actual size of buffer in bytes
+ * @needed_size: Returns needed size of buffer in bytes
  * @offset: Returns the byte offset where the next output trace record will
  * @count: Returns the number of trace records recorded
  * be written (or would be if the buffer was large enough)
  */
-void iotrace_get_buffer(ulong *start, ulong *size, ulong *offset, ulong *count);
+void iotrace_get_buffer(ulong *start, ulong *size, ulong *needed_size, ulong *offset, ulong *count);
 
 #endif /* __IOTRACE_H */
