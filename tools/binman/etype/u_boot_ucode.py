@@ -51,13 +51,13 @@ class Entry_u_boot_ucode(Entry_blob):
             the Entry_u_boot_dtb_with_ucode entry, and uses it as the
             contents of this entry.
     """
-    def __init__(self, image, etype, node):
-        Entry_blob.__init__(self, image, etype, node)
+    def __init__(self, section, etype, node):
+        Entry_blob.__init__(self, section, etype, node)
 
     def ObtainContents(self):
-        # If the image does not need microcode, there is nothing to do
-        ucode_dest_entry = self.image.FindEntryType('u-boot-with-ucode-ptr')
-        ucode_dest_entry_spl = self.image.FindEntryType(
+        # If the section does not need microcode, there is nothing to do
+        ucode_dest_entry = self.section.FindEntryType('u-boot-with-ucode-ptr')
+        ucode_dest_entry_spl = self.section.FindEntryType(
             'u-boot-spl-with-ucode-ptr')
         if ((not ucode_dest_entry or not ucode_dest_entry.target_pos) and
             (not ucode_dest_entry_spl or not ucode_dest_entry_spl.target_pos)):
@@ -65,12 +65,12 @@ class Entry_u_boot_ucode(Entry_blob):
             return True
 
         # Get the microcode from the device tree entry
-        fdt_entry = self.image.FindEntryType('u-boot-dtb-with-ucode')
+        fdt_entry = self.section.FindEntryType('u-boot-dtb-with-ucode')
         if not fdt_entry or not fdt_entry.ucode_data:
             return False
 
         if not fdt_entry.collate:
-            # This section can be empty
+            # This binary can be empty
             self.data = ''
             return True
 

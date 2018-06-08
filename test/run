@@ -11,8 +11,7 @@ result=0
 run_test ./test/py/test.py --bd sandbox --build
 
 # Run tests which require sandbox_spl
-run_test ./test/py/test.py --bd sandbox_spl --build -k \
-		test/py/tests/test_ofplatdata.py
+run_test ./test/py/test.py --bd sandbox_spl --build -k test_ofplatdata.py
 
 # Run tests for the flat DT version of sandbox
 ./test/py/test.py --bd sandbox_flattree --build

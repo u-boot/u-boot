@@ -20,8 +20,8 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
     See Entry_u_boot_ucode for full details of the 3 entries involved in this
     process.
     """
-    def __init__(self, image, etype, node):
-        Entry_blob.__init__(self, image, etype, node)
+    def __init__(self, section, etype, node):
+        Entry_blob.__init__(self, section, etype, node)
         self.elf_fname = 'u-boot'
         self.target_pos = None
 
@@ -45,24 +45,24 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
             return
 
         # Get the position of the microcode
-        ucode_entry = self.image.FindEntryType('u-boot-ucode')
+        ucode_entry = self.section.FindEntryType('u-boot-ucode')
         if not ucode_entry:
             self.Raise('Cannot find microcode region u-boot-ucode')
 
-        # Check the target pos is in the image. If it is not, then U-Boot is
+        # Check the target pos is in the section. If it is not, then U-Boot is
         # being linked incorrectly, or is being placed at the wrong position
-        # in the image.
+        # in the section.
         #
-        # The image must be set up so that U-Boot is placed at the
+        # The section must be set up so that U-Boot is placed at the
         # flash address to which it is linked. For example, if
         # CONFIG_SYS_TEXT_BASE is 0xfff00000, and the ROM is 8MB, then
-        # the U-Boot region must start at position 7MB in the image. In this
+        # the U-Boot region must start at position 7MB in the section. In this
         # case the ROM starts at 0xff800000, so the position of the first
-        # entry in the image corresponds to that.
+        # entry in the section corresponds to that.
         if (self.target_pos < self.pos or
                 self.target_pos >= self.pos + self.size):
             self.Raise('Microcode pointer _dt_ucode_base_size at %08x is '
-                'outside the image ranging from %08x to %08x' %
+                'outside the section ranging from %08x to %08x' %
                 (self.target_pos, self.pos, self.pos + self.size))
 
         # Get the microcode, either from u-boot-ucode or u-boot-dtb-with-ucode.
@@ -72,7 +72,7 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
         if ucode_entry.size:
             pos, size = ucode_entry.pos, ucode_entry.size
         else:
-            dtb_entry = self.image.FindEntryType('u-boot-dtb-with-ucode')
+            dtb_entry = self.section.FindEntryType('u-boot-dtb-with-ucode')
             if not dtb_entry:
                 self.Raise('Cannot find microcode region u-boot-dtb-with-ucode')
             pos = dtb_entry.pos + dtb_entry.ucode_offset

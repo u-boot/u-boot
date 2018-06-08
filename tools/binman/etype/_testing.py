@@ -10,8 +10,8 @@ import fdt_util
 import tools
 
 class Entry__testing(Entry):
-    def __init__(self, image, etype, node):
-        Entry.__init__(self, image, etype, node)
+    def __init__(self, section, etype, node):
+        Entry.__init__(self, section, etype, node)
 
     def ObtainContents(self):
         self.data = 'a'

@@ -40,12 +40,12 @@ class FakeEntry:
     def GetPath(self):
         return 'entry_path'
 
-class FakeImage:
+class FakeSection:
     def __init__(self, sym_value=1):
         self.sym_value = sym_value
 
     def GetPath(self):
-        return 'image_path'
+        return 'section_path'
 
     def LookupSymbol(self, name, weak, msg):
         return self.sym_value
@@ -67,51 +67,51 @@ class TestElf(unittest.TestCase):
 
     def testMissingFile(self):
         entry = FakeEntry(10)
-        image = FakeImage()
+        section = FakeSection()
         with self.assertRaises(ValueError) as e:
-            syms = elf.LookupAndWriteSymbols('missing-file', entry, image)
+            syms = elf.LookupAndWriteSymbols('missing-file', entry, section)
         self.assertIn("Filename 'missing-file' not found in input path",
                       str(e.exception))
 
     def testOutsideFile(self):
         entry = FakeEntry(10)
-        image = FakeImage()
+        section = FakeSection()
         elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms')
         with self.assertRaises(ValueError) as e:
-            syms = elf.LookupAndWriteSymbols(elf_fname, entry, image)
+            syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
         self.assertIn('entry_path has offset 4 (size 8) but the contents size '
                       'is a', str(e.exception))
 
     def testMissingImageStart(self):
         entry = FakeEntry(10)
-        image = FakeImage()
+        section = FakeSection()
         elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms_bad')
-        self.assertEqual(elf.LookupAndWriteSymbols(elf_fname, entry, image),
+        self.assertEqual(elf.LookupAndWriteSymbols(elf_fname, entry, section),
                          None)
 
     def testBadSymbolSize(self):
         entry = FakeEntry(10)
-        image = FakeImage()
+        section = FakeSection()
         elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms_size')
         with self.assertRaises(ValueError) as e:
-            syms = elf.LookupAndWriteSymbols(elf_fname, entry, image)
+            syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
         self.assertIn('has size 1: only 4 and 8 are supported',
                       str(e.exception))
 
     def testNoValue(self):
         entry = FakeEntry(20)
-        image = FakeImage(sym_value=None)
+        section = FakeSection(sym_value=None)
         elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms')
-        syms = elf.LookupAndWriteSymbols(elf_fname, entry, image)
+        syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
         self.assertEqual(chr(255) * 16 + 'a' * 4, entry.data)
 
     def testDebug(self):
         elf.debug = True
         entry = FakeEntry(20)
-        image = FakeImage()
+        section = FakeSection()
         elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms')
         with capture_sys_output() as (stdout, stderr):
-            syms = elf.LookupAndWriteSymbols(elf_fname, entry, image)
+            syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
         elf.debug = False
         self.assertTrue(len(stdout.getvalue()) > 0)
 

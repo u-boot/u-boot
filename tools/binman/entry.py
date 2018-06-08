@@ -4,6 +4,8 @@
 # Base class for all entries
 #
 
+from __future__ import print_function
+
 # importlib was introduced in Python 2.7 but there was a report of it not
 # working in 2.7.12, so we work around this:
 # http://lists.denx.de/pipermail/u-boot/2016-October/269729.html
@@ -14,15 +16,19 @@ except:
     have_importlib = False
 
 import fdt_util
+import os
+import sys
 import tools
 
 modules = {}
 
+our_path = os.path.dirname(os.path.realpath(__file__))
+
 class Entry(object):
-    """An Entry in the image
+    """An Entry in the section
 
     An entry corresponds to a single node in the device-tree description
-    of the image. Each entry ends up being a part of the final image.
+    of the section. Each entry ends up being a part of the final section.
     Entries can be placed either right next to each other, or with padding
     between them. The type of the entry determines the data that is in it.
 
@@ -30,9 +36,9 @@ class Entry(object):
     Entry.
 
     Attributes:
-        image: The image containing this entry
+        section: The section containing this entry
         node: The node that created this entry
-        pos: Absolute position of entry within the image, None if not known
+        pos: Absolute position of entry within the section, None if not known
         size: Entry size in bytes, None if not known
         contents_size: Size of contents in bytes, 0 by default
         align: Entry start position alignment, or None
@@ -42,10 +48,11 @@ class Entry(object):
         pad_after: Number of pad bytes after the contents, 0 if none
         data: Contents of entry (string of bytes)
     """
-    def __init__(self, image, etype, node, read_node=True):
-        self.image = image
+    def __init__(self, section, etype, node, read_node=True, name_prefix=''):
+        self.section = section
         self.etype = etype
         self._node = node
+        self.name = node and (name_prefix + node.name) or 'none'
         self.pos = None
         self.size = None
         self.contents_size = 0
@@ -59,11 +66,11 @@ class Entry(object):
             self.ReadNode()
 
     @staticmethod
-    def Create(image, node, etype=None):
+    def Create(section, node, etype=None):
         """Create a new entry for a node.
 
         Args:
-            image:  Image object containing this node
+            section:  Image object containing this node
             node:   Node object containing information about the entry to create
             etype:  Entry type to use, or None to work it out (used for tests)
 
@@ -72,11 +79,20 @@ class Entry(object):
         """
         if not etype:
             etype = fdt_util.GetString(node, 'type', node.name)
+
+        # Convert something like 'u-boot@0' to 'u_boot' since we are only
+        # interested in the type.
         module_name = etype.replace('-', '_')
+        if '@' in module_name:
+            module_name = module_name.split('@')[0]
         module = modules.get(module_name)
+
+        # Also allow entry-type modules to be brought in from the etype directory.
 
         # Import the module if we have not already done so.
         if not module:
+            old_path = sys.path
+            sys.path.insert(0, os.path.join(our_path, 'etype'))
             try:
                 if have_importlib:
                     module = importlib.import_module(module_name)
@@ -85,11 +101,13 @@ class Entry(object):
             except ImportError:
                 raise ValueError("Unknown entry type '%s' in node '%s'" %
                         (etype, node.path))
+            finally:
+                sys.path = old_path
             modules[module_name] = module
 
         # Call its constructor to get the object we want.
         obj = getattr(module, 'Entry_%s' % module_name)
-        return obj(image, etype, node)
+        return obj(section, etype, node)
 
     def ReadNode(self):
         """Read entry information from the node
@@ -111,6 +129,15 @@ class Entry(object):
         self.align_end = fdt_util.GetInt(self._node, 'align-end')
         self.pos_unset = fdt_util.GetBool(self._node, 'pos-unset')
 
+    def SetPrefix(self, prefix):
+        """Set the name prefix for a node
+
+        Args:
+            prefix: Prefix to set, or '' to not use a prefix
+        """
+        if prefix:
+            self.name = prefix + self.name
+
     def ObtainContents(self):
         """Figure out the contents of an entry.
 
@@ -122,7 +149,7 @@ class Entry(object):
         return True
 
     def Pack(self, pos):
-        """Figure out how to pack the entry into the image
+        """Figure out how to pack the entry into the section
 
         Most of the time the entries are not fully specified. There may be
         an alignment but no size. In that case we take the size from the
@@ -134,10 +161,10 @@ class Entry(object):
         entry will be know.
 
         Args:
-            Current image position pointer
+            Current section position pointer
 
         Returns:
-            New image position pointer (after this entry)
+            New section position pointer (after this entry)
         """
         if self.pos is None:
             if self.pos_unset:
@@ -198,10 +225,29 @@ class Entry(object):
     def ProcessContents(self):
         pass
 
-    def WriteSymbols(self, image):
+    def WriteSymbols(self, section):
         """Write symbol values into binary files for access at run time
 
         Args:
-          image: Image containing the entry
+          section: Section containing the entry
         """
         pass
+
+    def CheckPosition(self):
+        """Check that the entry positions are correct
+
+        This is used for entries which have extra position requirements (other
+        than having to be fully inside their section). Sub-classes can implement
+        this function and raise if there is a problem.
+        """
+        pass
+
+    def WriteMap(self, fd, indent):
+        """Write a map of the entry to a .map file
+
+        Args:
+            fd: File to write the map to
+            indent: Curent indent level of map (0=none, 1=one level, etc.)
+        """
+        print('%s%08x  %08x  %s' % (' ' * indent, self.pos, self.size,
+                                    self.name), file=fd)

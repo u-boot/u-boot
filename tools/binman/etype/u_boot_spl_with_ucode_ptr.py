@@ -19,8 +19,8 @@ class Entry_u_boot_spl_with_ucode_ptr(Entry_u_boot_with_ucode_ptr):
     See Entry_u_boot_ucode for full details of the entries involved in this
     process.
     """
-    def __init__(self, image, etype, node):
-        Entry_u_boot_with_ucode_ptr.__init__(self, image, etype, node)
+    def __init__(self, section, etype, node):
+        Entry_u_boot_with_ucode_ptr.__init__(self, section, etype, node)
         self.elf_fname = 'spl/u-boot-spl'
 
     def GetDefaultFilename(self):

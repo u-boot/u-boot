@@ -75,7 +75,7 @@ def GetSymbolAddress(fname, sym_name):
         return None
     return sym.address
 
-def LookupAndWriteSymbols(elf_fname, entry, image):
+def LookupAndWriteSymbols(elf_fname, entry, section):
     """Replace all symbols in an entry with their correct values
 
     The entry contents is updated so that values for referenced symbols will be
@@ -87,7 +87,7 @@ def LookupAndWriteSymbols(elf_fname, entry, image):
         elf_fname: Filename of ELF image containing the symbol information for
             entry
         entry: Entry to process
-        image: Image which can be used to lookup symbol values
+        section: Section which can be used to lookup symbol values
     """
     fname = tools.GetInputFilename(elf_fname)
     syms = GetSymbols(fname, ['image', 'binman'])
@@ -98,8 +98,8 @@ def LookupAndWriteSymbols(elf_fname, entry, image):
         return
     for name, sym in syms.iteritems():
         if name.startswith('_binman'):
-            msg = ("Image '%s': Symbol '%s'\n   in entry '%s'" %
-                   (image.GetPath(), name, entry.GetPath()))
+            msg = ("Section '%s': Symbol '%s'\n   in entry '%s'" %
+                   (section.GetPath(), name, entry.GetPath()))
             offset = sym.address - base.address
             if offset < 0 or offset + sym.size > entry.contents_size:
                 raise ValueError('%s has offset %x (size %x) but the contents '
@@ -114,7 +114,7 @@ def LookupAndWriteSymbols(elf_fname, entry, image):
                                  (msg, sym.size))
 
             # Look up the symbol in our entry tables.
-            value = image.LookupSymbol(name, sym.weak, msg)
+            value = section.LookupSymbol(name, sym.weak, msg)
             if value is not None:
                 value += base.address
             else:

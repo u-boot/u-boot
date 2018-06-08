@@ -16,8 +16,8 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob):
     See Entry_u_boot_ucode for full details of the 3 entries involved in this
     process.
     """
-    def __init__(self, image, etype, node):
-        Entry_blob.__init__(self, image, etype, node)
+    def __init__(self, section, etype, node):
+        Entry_blob.__init__(self, section, etype, node)
         self.ucode_data = ''
         self.collate = False
         self.ucode_offset = None
@@ -29,10 +29,12 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob):
     def ObtainContents(self):
         Entry_blob.ObtainContents(self)
 
-        # If the image does not need microcode, there is nothing to do
-        ucode_dest_entry = self.image.FindEntryType('u-boot-spl-with-ucode-ptr')
+        # If the section does not need microcode, there is nothing to do
+        ucode_dest_entry = self.section.FindEntryType(
+            'u-boot-spl-with-ucode-ptr')
         if not ucode_dest_entry or not ucode_dest_entry.target_pos:
-            ucode_dest_entry = self.image.FindEntryType('u-boot-with-ucode-ptr')
+            ucode_dest_entry = self.section.FindEntryType(
+                'u-boot-with-ucode-ptr')
         if not ucode_dest_entry or not ucode_dest_entry.target_pos:
             return True
 

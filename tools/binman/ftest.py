@@ -146,15 +146,19 @@ class TestFunctional(unittest.TestCase):
         # options.verbosity = tout.DEBUG
         return control.Binman(options, args)
 
-    def _DoTestFile(self, fname, debug=False):
+    def _DoTestFile(self, fname, debug=False, map=False):
         """Run binman with a given test file
 
         Args:
-            fname: Device tree source filename to use (e.g. 05_simple.dts)
+            fname: Device-tree source filename to use (e.g. 05_simple.dts)
+            debug: True to enable debugging output
+            map: True to output map files for the images
         """
         args = ['-p', '-I', self._indir, '-d', self.TestFile(fname)]
         if debug:
             args.append('-D')
+        if map:
+            args.append('-m')
         return self._DoBinman(*args)
 
     def _SetupDtb(self, fname, outfile='u-boot.dtb'):
@@ -165,10 +169,10 @@ class TestFunctional(unittest.TestCase):
 
         Args:
             fname: Filename of .dts file to read
-            outfile: Output filename for compiled device tree binary
+            outfile: Output filename for compiled device-tree binary
 
         Returns:
-            Contents of device tree binary
+            Contents of device-tree binary
         """
         if not self._output_setup:
             tools.PrepareOutputDir(self._indir, True)
@@ -179,7 +183,7 @@ class TestFunctional(unittest.TestCase):
             TestFunctional._MakeInputFile(outfile, data)
             return data
 
-    def _DoReadFileDtb(self, fname, use_real_dtb=False):
+    def _DoReadFileDtb(self, fname, use_real_dtb=False, map=False):
         """Run binman and return the resulting image
 
         This runs binman with a given test file and then reads the resulting
@@ -189,16 +193,18 @@ class TestFunctional(unittest.TestCase):
         Raises an assertion failure if binman returns a non-zero exit code.
 
         Args:
-            fname: Device tree source filename to use (e.g. 05_simple.dts)
+            fname: Device-tree source filename to use (e.g. 05_simple.dts)
             use_real_dtb: True to use the test file as the contents of
                 the u-boot-dtb entry. Normally this is not needed and the
                 test contents (the U_BOOT_DTB_DATA string) can be used.
                 But in some test we need the real contents.
+            map: True to output map files for the images
 
         Returns:
             Tuple:
                 Resulting image contents
                 Device tree contents
+                Map data showing contents of image (or None if none)
         """
         dtb_data = None
         # Use the compiled test file as the u-boot-dtb input
@@ -206,22 +212,36 @@ class TestFunctional(unittest.TestCase):
             dtb_data = self._SetupDtb(fname)
 
         try:
-            retcode = self._DoTestFile(fname)
+            retcode = self._DoTestFile(fname, map=map)
             self.assertEqual(0, retcode)
 
             # Find the (only) image, read it and return its contents
             image = control.images['image']
             fname = tools.GetOutputFilename('image.bin')
             self.assertTrue(os.path.exists(fname))
+            if map:
+                map_fname = tools.GetOutputFilename('image.map')
+                with open(map_fname) as fd:
+                    map_data = fd.read()
+            else:
+                map_data = None
             with open(fname) as fd:
-                return fd.read(), dtb_data
+                return fd.read(), dtb_data, map_data
         finally:
             # Put the test file back
             if use_real_dtb:
                 TestFunctional._MakeInputFile('u-boot.dtb', U_BOOT_DTB_DATA)
 
     def _DoReadFile(self, fname, use_real_dtb=False):
-        """Helper function which discards the device-tree binary"""
+        """Helper function which discards the device-tree binary
+
+        Args:
+            fname: Device-tree source filename to use (e.g. 05_simple.dts)
+            use_real_dtb: True to use the test file as the contents of
+                the u-boot-dtb entry. Normally this is not needed and the
+                test contents (the U_BOOT_DTB_DATA string) can be used.
+                But in some test we need the real contents.
+        """
         return self._DoReadFileDtb(fname, use_real_dtb)[0]
 
     @classmethod
@@ -270,13 +290,13 @@ class TestFunctional(unittest.TestCase):
             pos += entry.size
 
     def GetFdtLen(self, dtb):
-        """Get the totalsize field from a device tree binary
+        """Get the totalsize field from a device-tree binary
 
         Args:
-            dtb: Device tree binary contents
+            dtb: Device-tree binary contents
 
         Returns:
-            Total size of device tree binary, from the header
+            Total size of device-tree binary, from the header
         """
         return struct.unpack('>L', dtb[4:8])[0]
 
@@ -326,7 +346,7 @@ class TestFunctional(unittest.TestCase):
                 str(e.exception))
 
     def testMissingDt(self):
-        """Test that an invalid device tree file generates an error"""
+        """Test that an invalid device-tree file generates an error"""
         with self.assertRaises(Exception) as e:
             self._RunBinman('-d', 'missing_file')
         # We get one error from libfdt, and a different one from fdtget.
@@ -334,7 +354,7 @@ class TestFunctional(unittest.TestCase):
                            'No such file or directory'], str(e.exception))
 
     def testBrokenDt(self):
-        """Test that an invalid device tree source file generates an error
+        """Test that an invalid device-tree source file generates an error
 
         Since this is a source file it should be compiled and the error
         will come from the device-tree compiler (dtc).
@@ -413,7 +433,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(0, retcode)
         self.assertIn('image', control.images)
         image = control.images['image']
-        entries = image._entries
+        entries = image.GetEntries()
         self.assertEqual(5, len(entries))
 
         # First u-boot
@@ -456,7 +476,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(0, retcode)
         self.assertIn('image', control.images)
         image = control.images['image']
-        entries = image._entries
+        entries = image.GetEntries()
         self.assertEqual(5, len(entries))
 
         # First u-boot with padding before and after
@@ -540,7 +560,7 @@ class TestFunctional(unittest.TestCase):
         """Test that entries which overflow the image size are detected"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('16_pack_image_overflow.dts')
-        self.assertIn("Image '/binman': contents size 0x4 (4) exceeds image "
+        self.assertIn("Section '/binman': contents size 0x4 (4) exceeds section "
                       "size 0x3 (3)", str(e.exception))
 
     def testPackImageSize(self):
@@ -563,14 +583,14 @@ class TestFunctional(unittest.TestCase):
         """Test that invalid image alignment is detected"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('19_pack_inv_image_align.dts')
-        self.assertIn("Image '/binman': Size 0x7 (7) does not match "
+        self.assertIn("Section '/binman': Size 0x7 (7) does not match "
                       "align-size 0x8 (8)", str(e.exception))
 
     def testPackAlignPowerOf2(self):
         """Test that invalid image alignment is detected"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('20_pack_inv_image_align_power2.dts')
-        self.assertIn("Image '/binman': Alignment size 131 must be a power of "
+        self.assertIn("Section '/binman': Alignment size 131 must be a power of "
                       "two", str(e.exception))
 
     def testImagePadByte(self):
@@ -620,7 +640,7 @@ class TestFunctional(unittest.TestCase):
         """Test that the end-at-4gb property requires a size property"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('27_pack_4gb_no_size.dts')
-        self.assertIn("Image '/binman': Image size must be provided when "
+        self.assertIn("Section '/binman': Section size must be provided when "
                       "using end-at-4gb", str(e.exception))
 
     def testPackX86RomOutside(self):
@@ -628,7 +648,7 @@ class TestFunctional(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('28_pack_4gb_outside.dts')
         self.assertIn("Node '/binman/u-boot': Position 0x0 (0) is outside "
-                      "the image starting at 0xffffffe0 (4294967264)",
+                      "the section starting at 0xffffffe0 (4294967264)",
                       str(e.exception))
 
     def testPackX86Rom(self):
@@ -800,13 +820,13 @@ class TestFunctional(unittest.TestCase):
             self._DoReadFile('40_x86_ucode_not_in_image.dts', True)
         self.assertIn("Node '/binman/u-boot-with-ucode-ptr': Microcode "
                 "pointer _dt_ucode_base_size at fffffe14 is outside the "
-                "image ranging from 00000000 to 0000002e", str(e.exception))
+                "section ranging from 00000000 to 0000002e", str(e.exception))
 
     def testWithoutMicrocode(self):
         """Test that we can cope with an image without microcode (e.g. qemu)"""
         with open(self.TestFile('u_boot_no_ucode_ptr')) as fd:
             TestFunctional._MakeInputFile('u-boot', fd.read())
-        data, dtb = self._DoReadFileDtb('44_x86_optional_ucode.dts', True)
+        data, dtb, _ = self._DoReadFileDtb('44_x86_optional_ucode.dts', True)
 
         # Now check the device tree has no microcode
         self.assertEqual(U_BOOT_NODTB_DATA, data[:len(U_BOOT_NODTB_DATA)])
@@ -823,7 +843,7 @@ class TestFunctional(unittest.TestCase):
         """Test that microcode must be placed within the image"""
         with self.assertRaises(ValueError) as e:
             self._DoReadFile('41_unknown_pos_size.dts', True)
-        self.assertIn("Image '/binman': Unable to set pos/size for unknown "
+        self.assertIn("Section '/binman': Unable to set pos/size for unknown "
                 "entry 'invalid-entry'", str(e.exception))
 
     def testPackFsp(self):
@@ -909,6 +929,36 @@ class TestFunctional(unittest.TestCase):
                     sym_values + U_BOOT_SPL_DATA[16:])
         self.assertEqual(expected, data)
 
+    def testPackUnitAddress(self):
+        """Test that we support multiple binaries with the same name"""
+        data = self._DoReadFile('54_unit_address.dts')
+        self.assertEqual(U_BOOT_DATA + U_BOOT_DATA, data)
+
+    def testSections(self):
+        """Basic test of sections"""
+        data = self._DoReadFile('55_sections.dts')
+        expected = U_BOOT_DATA + '!' * 12 + U_BOOT_DATA + 'a' * 12 + '&' * 8
+        self.assertEqual(expected, data)
+
+    def testMap(self):
+        """Tests outputting a map of the images"""
+        _, _, map_data = self._DoReadFileDtb('55_sections.dts', map=True)
+        self.assertEqual('''Position      Size  Name
+00000000  00000010  section@0
+ 00000000  00000004  u-boot
+00000010  00000010  section@1
+ 00000000  00000004  u-boot
+''', map_data)
+
+    def testNamePrefix(self):
+        """Tests that name prefixes are used"""
+        _, _, map_data = self._DoReadFileDtb('56_name_prefix.dts', map=True)
+        self.assertEqual('''Position      Size  Name
+00000000  00000010  section@0
+ 00000000  00000004  ro-u-boot
+00000010  00000010  section@1
+ 00000000  00000004  rw-u-boot
+''', map_data)
 
 if __name__ == "__main__":
     unittest.main()

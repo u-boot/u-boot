@@ -302,9 +302,9 @@ align-size:
 align-end:
 	This sets the alignment of the end of an entry. Some entries require
 	that they end on an alignment boundary, regardless of where they
-	start. If 'align-end' is not provided, no alignment is performed.
-
-	Note: This is not yet implemented in binman.
+	start. This does not move the start of the entry, so the contents of
+	the entry will still start at the beginning. But there may be padding
+	at the end. If 'align-end' is not provided, no alignment is performed.
 
 filename:
 	For 'blob' types this provides the filename containing the binary to
@@ -315,6 +315,13 @@ type:
 	Sets the type of an entry. This defaults to the entry name, but it is
 	possible to use any name, and then add (for example) 'type = "u-boot"'
 	to specify the type.
+
+pos-unset:
+	Indicates that the position of this entry should not be set by placing
+	it immediately after the entry before. Instead, is set by another
+	entry which knows where this entry should go. When this boolean
+	property is present, binman will give an error if another entry does
+	not set the position (with the GetPositions() method).
 
 
 The attributes supported for images are described below. Several are similar
@@ -386,6 +393,57 @@ end-at-4gb:
 
 Examples of the above options can be found in the tests. See the
 tools/binman/test directory.
+
+It is possible to have the same binary appear multiple times in the image,
+either by using a unit number suffix (u-boot@0, u-boot@1) or by using a
+different name for each and specifying the type with the 'type' attribute.
+
+
+Sections and hiearchical images
+-------------------------------
+
+Sometimes it is convenient to split an image into several pieces, each of which
+contains its own set of binaries. An example is a flash device where part of
+the image is read-only and part is read-write. We can set up sections for each
+of these, and place binaries in them independently. The image is still produced
+as a single output file.
+
+This feature provides a way of creating hierarchical images. For example here
+is an example image with two copies of U-Boot. One is read-only (ro), intended
+to be written only in the factory. Another is read-write (rw), so that it can be
+upgraded in the field. The sizes are fixed so that the ro/rw boundary is known
+and can be programmed:
+
+	binman {
+		section@0 {
+			read-only;
+			name-prefix = "ro-";
+			size = <0x100000>;
+			u-boot {
+			};
+		};
+		section@1 {
+			name-prefix = "rw-";
+			size = <0x100000>;
+			u-boot {
+			};
+		};
+	};
+
+This image could be placed into a SPI flash chip, with the protection boundary
+set at 1MB.
+
+A few special properties are provided for sections:
+
+read-only:
+	Indicates that this section is read-only. This has no impact on binman's
+	operation, but his property can be read at run time.
+
+name-prefix:
+	This string is prepended to all the names of the binaries in the
+	section. In the example above, the 'u-boot' binaries which actually be
+	renamed to 'ro-u-boot' and 'rw-u-boot'. This can be useful to
+	distinguish binaries with otherwise identical names.
 
 
 Special properties
@@ -498,6 +556,25 @@ At present this feature is only supported in SPL. In principle it is possible
 to fill in such symbols in U-Boot proper, as well.
 
 
+Map files
+---------
+
+The -m option causes binman to output a .map file for each image that it
+generates. This shows the position and size of each entry. For example:
+
+    Position      Size  Name
+    00000000  00000010  section@0
+     00000000  00000004  u-boot
+    00000010  00000010  section@1
+     00000000  00000004  u-boot
+
+This shows a hierarchical image with two sections, each with a single entry. The
+positions of the sections are absolute hex byte offsets within the image. The
+positions of the entries are relative to their respective sections. The size of
+each entry is also shown, in bytes (hex). The indentation shows the entries
+nested inside their sections.
+
+
 Code coverage
 -------------
 
@@ -547,7 +624,7 @@ Binman takes a lot of inspiration from a Chrome OS tool called
 a reasonably simple and sound design but has expanded greatly over the
 years. In particular its handling of x86 images is convoluted.
 
-Quite a few lessons have been learned which are hopefully be applied here.
+Quite a few lessons have been learned which are hopefully applied here.
 
 
 Design notes
@@ -578,17 +655,13 @@ Some ideas:
   'Access to binman entry positions at run time' above
 - Use of-platdata to make the information available to code that is unable
   to use device tree (such as a very small SPL image)
-- Write an image map to a text file
 - Allow easy building of images by specifying just the board name
 - Produce a full Python binding for libfdt (for upstream)
 - Add an option to decode an image into the constituent binaries
-- Suppoort hierarchical images (packing of binaries into another binary
-  which is then placed in the image)
 - Support building an image for a board (-b) more completely, with a
   configurable build directory
 - Consider making binman work with buildman, although if it is used in the
   Makefile, this will be automatic
-- Implement align-end
 
 --
 Simon Glass <sjg@chromium.org>

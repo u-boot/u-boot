@@ -23,15 +23,18 @@ for dirname in ['../patman', '../dtoc', '..']:
 # Bring in the libfdt module
 sys.path.insert(0, 'scripts/dtc/pylibfdt')
 
-# Also allow entry-type modules to be brought in from the etype directory.
-sys.path.insert(0, os.path.join(our_path, 'etype'))
-
 import cmdline
 import command
 import control
 
-def RunTests(debug):
-    """Run the functional tests and any embedded doctests"""
+def RunTests(debug, args):
+    """Run the functional tests and any embedded doctests
+
+    Args:
+        debug: True to enable debugging, which shows a full stack trace on error
+        args: List of positional args provided to binman. This can hold a test
+            name to execute (as in 'binman -t testSections', for example)
+    """
     import elf_test
     import entry_test
     import fdt_test
@@ -53,9 +56,16 @@ def RunTests(debug):
     # 'entry' module.
     suite = unittest.TestLoader().loadTestsFromTestCase(entry_test.TestEntry)
     suite.run(result)
+    test_name = args and args[0] or None
     for module in (ftest.TestFunctional, fdt_test.TestFdt, elf_test.TestElf,
                    image_test.TestImage):
-        suite = unittest.TestLoader().loadTestsFromTestCase(module)
+        if test_name:
+            try:
+                suite = unittest.TestLoader().loadTestsFromName(args[0], module)
+            except AttributeError:
+                continue
+        else:
+            suite = unittest.TestLoader().loadTestsFromTestCase(module)
         suite.run(result)
 
     print result
@@ -114,7 +124,7 @@ def RunBinman(options, args):
         sys.tracebacklimit = 0
 
     if options.test:
-        ret_code = RunTests(options.debug)
+        ret_code = RunTests(options.debug, args[1:])
 
     elif options.test_coverage:
         RunTestCoverage()
