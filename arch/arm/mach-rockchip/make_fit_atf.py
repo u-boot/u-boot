@@ -53,7 +53,7 @@ DT_END="""
 };
 """
 
-def append_atf_node(file, atf_index, phy_addr):
+def append_atf_node(file, atf_index, phy_addr, elf_entry):
     """
     Append ATF DT node to input FIT dts file.
     """
@@ -67,7 +67,7 @@ def append_atf_node(file, atf_index, phy_addr):
     print >> file, '\t\t\tcompression = "none";'
     print >> file, '\t\t\tload = <0x%08x>;' % phy_addr
     if atf_index == 1:
-        print >> file, '\t\t\tentry = <0x%08x>;' % phy_addr
+        print >> file, '\t\t\tentry = <0x%08x>;' % elf_entry
     print >> file, '\t\t};'
     print >> file, ''
 
@@ -141,12 +141,13 @@ def generate_atf_fit_dts(fit_file_name, bl31_file_name, uboot_file_name, dtbs_fi
 
     with open(bl31_file_name) as bl31_file:
         bl31 = ELFFile(bl31_file)
+        elf_entry = bl31.header['e_entry']
         for i in range(bl31.num_segments()):
             seg = bl31.get_segment(i)
             if ('PT_LOAD' == seg.__getitem__(ELF_SEG_P_TYPE)):
                 paddr = seg.__getitem__(ELF_SEG_P_PADDR)
                 p= seg.__getitem__(ELF_SEG_P_PADDR)
-                append_atf_node(fit_file, i+1, paddr)
+                append_atf_node(fit_file, i+1, paddr, elf_entry)
     atf_cnt = i+1
     append_fdt_node(fit_file, dtbs_file_name)
     print >> fit_file, '%s' % DT_IMAGES_NODE_END
