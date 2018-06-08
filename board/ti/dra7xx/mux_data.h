@@ -858,7 +858,7 @@ const struct pad_conf_entry dra76x_core_padconf_array[] = {
 	{SPI1_D1, (M0 | PIN_INPUT_PULLDOWN)},	/* spi1_d1.spi1_d1 */
 	{SPI1_D0, (M0 | PIN_INPUT_PULLDOWN)},	/* spi1_d0.spi1_d0 */
 	{SPI1_CS0, (M0 | PIN_INPUT_PULLUP)},	/* spi1_cs0.spi1_cs0 */
-	{SPI1_CS2, (M6 | 0x000f0000)},	/* spi1_cs2.hdmi1_hpd */
+	{SPI1_CS2, (M14 | PIN_INPUT_PULLDOWN)},	/* spi1_cs2.gpio7_12 */
 	{SPI1_CS3, (M6 | PIN_INPUT | SLEWCONTROL)},	/* spi1_cs3.hdmi1_cec */
 	{SPI2_SCLK, (M1 | PIN_INPUT_PULLDOWN)},	/* spi2_sclk.uart3_rxd */
 	{SPI2_D1, (M1 | PIN_INPUT_SLEW)},	/* spi2_d1.uart3_txd */
