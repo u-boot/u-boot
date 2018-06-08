@@ -107,6 +107,16 @@ F:	drivers/video/bcm2835.c
 F:	include/dm/platform_data/serial_bcm283x_mu.h
 F:	drivers/pinctrl/broadcom/
 
+ARM BROADCOM BCMSTB
+M:	Thomas Fitzsimmons <fitzsim@fitzsim.org>
+S:	Maintained
+F:	arch/arm/mach-bcmstb/
+F:	board/broadcom/bcmstb/
+F:	configs/bcm7445_defconfig
+F:	doc/README.bcm7xxx
+F:	drivers/mmc/bcmstb_sdhci.c
+F:	drivers/spi/bcmstb_spi.c
+
 ARM FREESCALE IMX
 M:	Stefano Babic <sbabic@denx.de>
 M:	Fabio Estevam <fabio.estevam@nxp.com>

@@ -66,6 +66,13 @@ config BCM63XX_SPI
 	  access the SPI NOR flash on platforms embedding these Broadcom
 	  SPI cores.
 
+config BCMSTB_SPI
+	bool "BCMSTB SPI driver"
+	help
+	  Enable the Broadcom set-top box SPI driver. This driver can
+	  be used to access the SPI flash on platforms embedding this
+	  Broadcom SPI core.
+
 config CADENCE_QSPI
 	bool "Cadence QSPI driver"
 	help

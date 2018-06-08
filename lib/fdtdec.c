@@ -1324,8 +1324,12 @@ int fdtdec_setup(void)
 # endif
 # ifndef CONFIG_SPL_BUILD
 	/* Allow the early environment to override the fdt address */
+#  if CONFIG_IS_ENABLED(OF_PRIOR_STAGE)
+	gd->fdt_blob = (void *)prior_stage_fdt_address;
+#  else
 	gd->fdt_blob = (void *)env_get_ulong("fdtcontroladdr", 16,
 						(uintptr_t)gd->fdt_blob);
+#  endif
 # endif
 
 # if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
