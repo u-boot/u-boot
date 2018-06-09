@@ -23,6 +23,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/*
+ * GUID for basic data partions.
+ */
+static const efi_guid_t partition_basic_data_guid = PARTITION_BASIC_DATA_GUID;
+
 #ifdef CONFIG_HAVE_BLOCK_DEVICE
 /**
  * efi_crc32() - EFI version of crc32 function
@@ -502,12 +507,12 @@ int gpt_fill_pte(struct blk_desc *dev_desc,
 		} else {
 			/* default partition type GUID */
 			memcpy(bin_type_guid,
-			       &PARTITION_BASIC_DATA_GUID, 16);
+			       &partition_basic_data_guid, 16);
 		}
 #else
 		/* partition type GUID */
 		memcpy(gpt_e[i].partition_type_guid.b,
-			&PARTITION_BASIC_DATA_GUID, 16);
+			&partition_basic_data_guid, 16);
 #endif
 
 #if CONFIG_IS_ENABLED(PARTITION_UUIDS)
