@@ -267,6 +267,16 @@ config FIT_SIGNATURE
 	  format support in this case, enable it using
 	  CONFIG_IMAGE_FORMAT_LEGACY.
 
+config FIT_SIGNATURE_MAX_SIZE
+	hex "Max size of signed FIT structures"
+	depends on FIT_SIGNATURE
+	default 0x10000000
+	help
+	  This option sets a max size in bytes for verified FIT uImages.
+	  A sane value of 256MB protects corrupted DTB structures from overlapping
+	  device memory. Assure this size does not extend past expected storage
+	  space.
+
 config FIT_VERBOSE
 	bool "Show verbose messages when FIT images fail"
 	help
