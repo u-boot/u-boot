@@ -340,6 +340,11 @@ M:	Icenowy Zheng <icenowy@aosc.xyz>
 S:	Maintained
 F:	configs/orangepi_zero_defconfig
 
+ORANGEPI ZERO PLUS BOARD
+M:	Hauke Mehrtens <hauke@hauke-m.de>
+S:	Maintained
+F:	configs/orangepi_zero_plus_defconfig
+
 ORANGEPI ZERO PLUS 2 BOARD
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
