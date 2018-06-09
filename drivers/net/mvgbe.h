@@ -216,6 +216,7 @@
 
 /* SMI register fields */
 #define MVGBE_PHY_SMI_TIMEOUT		10000
+#define MVGBE_PHY_SMI_TIMEOUT_MS	1000
 #define MVGBE_PHY_SMI_DATA_OFFS		0	/* Data */
 #define MVGBE_PHY_SMI_DATA_MASK		(0xffff << MVGBE_PHY_SMI_DATA_OFFS)
 #define MVGBE_PHY_SMI_DEV_ADDR_OFFS	16	/* PHY device address */
