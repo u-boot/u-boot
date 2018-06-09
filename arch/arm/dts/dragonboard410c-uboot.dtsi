@@ -21,14 +21,14 @@
 			};
 		};
 
-	qcom,gcc@1800000 {
-		u-boot,dm-pre-reloc;
-	};
-
-	serial@78b0000 {
-		u-boot,dm-pre-reloc;
+		qcom,gcc@1800000 {
+			u-boot,dm-pre-reloc;
 		};
-	};
+
+		serial@78b0000 {
+			u-boot,dm-pre-reloc;
+			};
+		};
 };
 
 
