@@ -135,6 +135,7 @@ static int fit_image_write_sig(void *fit, int noffset, uint8_t *value,
 
 		ret = fdt_setprop(fit, noffset, "hashed-nodes",
 				   region_prop, region_proplen);
+		/* This is a legacy offset, it is unused, and must remain 0. */
 		strdata[0] = 0;
 		strdata[1] = cpu_to_fdt32(string_size);
 		if (!ret) {
