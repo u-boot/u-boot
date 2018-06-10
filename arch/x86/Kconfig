@@ -735,6 +735,12 @@ config I8259_PIC
 	  slave) interrupt controllers. Include this to have U-Boot set up
 	  the interrupt correctly.
 
+config PINCTRL_ICH6
+	bool
+	help
+	  Intel ICH6 compatible chipset pinctrl driver. It needs to work
+	  together with the ICH6 compatible gpio driver.
+
 config I8254_TIMER
 	bool
 	default y
