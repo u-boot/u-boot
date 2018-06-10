@@ -1182,6 +1182,11 @@ static int _dm_pci_bus_to_phys(struct udevice *ctlr,
 	struct pci_region *res;
 	int i;
 
+	if (hose->region_count == 0) {
+		*pa = bus_addr;
+		return 0;
+	}
+
 	for (i = 0; i < hose->region_count; i++) {
 		res = &hose->regions[i];
 
@@ -1244,6 +1249,11 @@ int _dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t phys_addr,
 	/* The root controller has the region information */
 	ctlr = pci_get_controller(dev);
 	hose = dev_get_uclass_priv(ctlr);
+
+	if (hose->region_count == 0) {
+		*ba = phys_addr;
+		return 0;
+	}
 
 	for (i = 0; i < hose->region_count; i++) {
 		res = &hose->regions[i];
