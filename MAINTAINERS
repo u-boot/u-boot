@@ -184,7 +184,7 @@ F:	arch/arm/mach-s5pc1xx/
 F:	arch/arm/cpu/armv7/s5p-common/
 
 ARM SNAPDRAGON
-M:	Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
+M:	Ramon Fried <ramon.fried@gmail.com>
 S:	Maintained
 F:	arch/arm/mach-snapdragon/
 
