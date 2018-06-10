@@ -43,26 +43,13 @@ https://git.collabora.com/cgit/user/tomeu/u-boot.git/commit/?h=nyan-big
 https://lists.denx.de/pipermail/u-boot/2017-May/289491.html
 https://github.com/chromeos-nvidia-androidtv/gnu-linux-on-acer-chromebook-13#copy-data-to-the-sd-card
 
-1. Patch U-Boot
-
-Open include/configs/tegra124-common.h
-
-Change:
-
-#define CONFIG_SYS_TEXT_BASE	0x80110000
-
-to:
-
-#define CONFIG_SYS_TEXT_BASE	0x81000100
-
-
-2. Build U-Boot
+1. Build U-Boot
 
    mkdir b
    make -j8 O=b/nyan-big CROSS_COMPILE=arm-linux-gnueabi- nyan-big_defconfig all
 
 
-3. Select a .its file
+2. Select a .its file
 
 Select something from doc/chromium which matches your board, or create your
 own.
@@ -72,7 +59,7 @@ used by U-Boot. This is because the Chromebook expects to pass it to the
 kernel, and crashes if it is not present.
 
 
-4. Build and sign an image
+3. Build and sign an image
 
    ./b/nyan-big/tools/mkimage -f doc/chromium/nyan-big.its u-boot-chromium.fit
    echo test >dummy.txt
@@ -82,7 +69,7 @@ kernel, and crashes if it is not present.
 	--bootloader dummy.txt --pack u-boot.kpart
 
 
-5. Prepare an SD card
+4. Prepare an SD card
 
    DISK=/dev/sdc   # Replace with your actual SD card device
    sudo cgpt create $DISK
@@ -91,12 +78,12 @@ kernel, and crashes if it is not present.
    sudo gdisk $DISK   # Enter command 'w' to write a protective MBR to the disk
 
 
-6. Write U-Boot to the SD card
+5. Write U-Boot to the SD card
 
    sudo dd if=u-boot.kpart of=/dev/sdc1; sync
 
 
-7. Start it up
+6. Start it up
 
 Reboot the device in dev mode. Make sure that you have USB booting enabled. To
 do this, login as root (via Ctrl-Alt-forward_arrow) and type
@@ -115,7 +102,7 @@ mode screen. It should show something like the following on the display:
    Tegra124 (Nyan-big) #
 
 
-8. Known problems
+7. Known problems
 
 On the serial console the word MMC is chopped at the start of the line:
 
