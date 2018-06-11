@@ -651,7 +651,30 @@ int ofnode_read_simple_size_cells(ofnode node);
  */
 bool ofnode_pre_reloc(ofnode node);
 
+/**
+ * ofnode_read_resource() - Read a resource from a node
+ *
+ * Read resource information from a node at the given index
+ *
+ * @node: Node to read from
+ * @index: Index of resource to read (0 = first)
+ * @res: Returns resource that was read, on success
+ * @return 0 if OK, -ve on error
+ */
 int ofnode_read_resource(ofnode node, uint index, struct resource *res);
+
+/**
+ * ofnode_read_resource_byname() - Read a resource from a node by name
+ *
+ * Read resource information from a node matching the given name. This uses a
+ * 'reg-names' string list property with the names matching the associated
+ * 'reg' property list.
+ *
+ * @node: Node to read from
+ * @name: Name of resource to read
+ * @res: Returns resource that was read, on success
+ * @return 0 if OK, -ve on error
+ */
 int ofnode_read_resource_byname(ofnode node, const char *name,
 				struct resource *res);
 
