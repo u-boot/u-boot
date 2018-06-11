@@ -729,3 +729,15 @@ int ofnode_device_is_compatible(ofnode node, const char *compat)
 						  ofnode_to_offset(node),
 						  compat);
 }
+
+ofnode ofnode_by_compatible(ofnode from, const char *compat)
+{
+	if (of_live_active()) {
+		return np_to_ofnode(of_find_compatible_node(
+			(struct device_node *)ofnode_to_np(from), NULL,
+			compat));
+	} else {
+		return offset_to_ofnode(fdt_node_offset_by_compatible(
+				gd->fdt_blob, ofnode_to_offset(from), compat));
+	}
+}

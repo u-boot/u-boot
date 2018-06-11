@@ -679,6 +679,17 @@ int ofnode_read_resource_byname(ofnode node, const char *name,
 				struct resource *res);
 
 /**
+ * ofnode_by_compatible() - Find the next compatible node
+ *
+ * Find the next node after @from that is compatible with @compat
+ *
+ * @from: ofnode to start from (use ofnode_null() to start at the beginning)
+ * @compat: Compatible string to match
+ * @return ofnode found, or ofnode_null() if none
+ */
+ofnode ofnode_by_compatible(ofnode from, const char *compat);
+
+/**
  * ofnode_for_each_subnode() - iterate over all subnodes of a parent
  *
  * @node:       child node (ofnode, lvalue)
