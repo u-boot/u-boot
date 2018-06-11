@@ -237,6 +237,16 @@ int ofnode_read_u32_default(ofnode ref, const char *propname, u32 def);
 int ofnode_read_s32_default(ofnode node, const char *propname, s32 def);
 
 /**
+ * ofnode_read_u64_default() - Read a 64-bit integer from a property
+ *
+ * @ref:	valid node reference to read property from
+ * @propname:	name of the property to read from
+ * @def:	default value to return if the property has no value
+ * @return property value, or @def if not found
+ */
+int ofnode_read_u64_default(ofnode node, const char *propname, u64 def);
+
+/**
  * ofnode_read_string() - Read a string from a property
  *
  * @ref:	valid node reference to read property from
