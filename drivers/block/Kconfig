@@ -37,6 +37,13 @@ config BLOCK_CACHE
 	  it will prevent repeated reads from directory structures and other
 	  filesystem data structures.
 
+config SPL_BLOCK_CACHE
+	bool "Use block device cache in SPL"
+	depends on SPL_BLK
+	default n
+	help
+	  This option enables the disk-block cache in SPL
+
 config IDE
 	bool "Support IDE controllers"
 	select HAVE_BLOCK_DEVICE
