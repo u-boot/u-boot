@@ -9,6 +9,8 @@
 *.a
 *.bin
 *.cfgtmp
+*.dtb
+*.dtb.S
 *.elf
 *.exe
 *.gcda
