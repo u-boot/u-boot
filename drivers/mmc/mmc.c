@@ -2491,35 +2491,10 @@ static int mmc_power_cycle(struct mmc *mmc)
 	return mmc_power_on(mmc);
 }
 
-int mmc_start_init(struct mmc *mmc)
+int mmc_get_op_cond(struct mmc *mmc)
 {
-	bool no_card;
 	bool uhs_en = supports_uhs(mmc->cfg->host_caps);
 	int err;
-
-	/*
-	 * all hosts are capable of 1 bit bus-width and able to use the legacy
-	 * timings.
-	 */
-	mmc->host_caps = mmc->cfg->host_caps | MMC_CAP(SD_LEGACY) |
-			 MMC_CAP(MMC_LEGACY) | MMC_MODE_1BIT;
-
-#if !defined(CONFIG_MMC_BROKEN_CD)
-	/* we pretend there's no card when init is NULL */
-	no_card = mmc_getcd(mmc) == 0;
-#else
-	no_card = 0;
-#endif
-#if !CONFIG_IS_ENABLED(DM_MMC)
-	no_card = no_card || (mmc->cfg->ops->init == NULL);
-#endif
-	if (no_card) {
-		mmc->has_init = 0;
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-		pr_err("MMC: no card present\n");
-#endif
-		return -ENOMEDIUM;
-	}
 
 	if (mmc->has_init)
 		return 0;
@@ -2596,6 +2571,40 @@ retry:
 			return -EOPNOTSUPP;
 		}
 	}
+
+	return err;
+}
+
+int mmc_start_init(struct mmc *mmc)
+{
+	bool no_card;
+	int err = 0;
+
+	/*
+	 * all hosts are capable of 1 bit bus-width and able to use the legacy
+	 * timings.
+	 */
+	mmc->host_caps = mmc->cfg->host_caps | MMC_CAP(SD_LEGACY) |
+			 MMC_CAP(MMC_LEGACY) | MMC_MODE_1BIT;
+
+#if !defined(CONFIG_MMC_BROKEN_CD)
+	/* we pretend there's no card when init is NULL */
+	no_card = mmc_getcd(mmc) == 0;
+#else
+	no_card = 0;
+#endif
+#if !CONFIG_IS_ENABLED(DM_MMC)
+	no_card = no_card || (mmc->cfg->ops->init == NULL);
+#endif
+	if (no_card) {
+		mmc->has_init = 0;
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+		pr_err("MMC: no card present\n");
+#endif
+		return -ENOMEDIUM;
+	}
+
+	err = mmc_get_op_cond(mmc);
 
 	if (!err)
 		mmc->init_in_progress = 1;
