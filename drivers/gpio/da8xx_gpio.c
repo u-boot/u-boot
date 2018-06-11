@@ -7,11 +7,14 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <fdtdec.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/davinci_misc.h>
 
+#ifndef CONFIG_DM_GPIO
 static struct gpio_registry {
 	int is_registered;
 	char name[GPIO_NAME_SIZE];
@@ -303,7 +306,7 @@ static const struct pinmux_config gpio_pinmux[] = {
 #define davinci_configure_pin_mux(a, b)
 #endif /* CONFIG_SOC_DA8XX */
 
-int gpio_request(unsigned gpio, const char *label)
+int gpio_request(unsigned int gpio, const char *label)
 {
 	if (gpio >= MAX_NUM_GPIOS)
 		return -1;
@@ -320,7 +323,7 @@ int gpio_request(unsigned gpio, const char *label)
 	return 0;
 }
 
-int gpio_free(unsigned gpio)
+int gpio_free(unsigned int gpio)
 {
 	if (gpio >= MAX_NUM_GPIOS)
 		return -1;
@@ -333,42 +336,30 @@ int gpio_free(unsigned gpio)
 	/* Do not configure as input or change pin mux here */
 	return 0;
 }
+#endif
 
-int gpio_direction_input(unsigned gpio)
+static int _gpio_direction_output(struct davinci_gpio *bank, unsigned int gpio, int value)
 {
-	struct davinci_gpio *bank;
-
-	bank = GPIO_BANK(gpio);
-	setbits_le32(&bank->dir, 1U << GPIO_BIT(gpio));
-	return 0;
-}
-
-int gpio_direction_output(unsigned gpio, int value)
-{
-	struct davinci_gpio *bank;
-
-	bank = GPIO_BANK(gpio);
 	clrbits_le32(&bank->dir, 1U << GPIO_BIT(gpio));
 	gpio_set_value(gpio, value);
 	return 0;
 }
 
-int gpio_get_value(unsigned gpio)
+static int _gpio_direction_input(struct davinci_gpio *bank, unsigned int gpio)
 {
-	struct davinci_gpio *bank;
-	unsigned int ip;
+	setbits_le32(&bank->dir, 1U << GPIO_BIT(gpio));
+	return 0;
+}
 
-	bank = GPIO_BANK(gpio);
+static int _gpio_get_value(struct davinci_gpio *bank, unsigned int gpio)
+{
+	unsigned int ip;
 	ip = in_le32(&bank->in_data) & (1U << GPIO_BIT(gpio));
 	return ip ? 1 : 0;
 }
 
-int gpio_set_value(unsigned gpio, int value)
+static int _gpio_set_value(struct davinci_gpio *bank, unsigned int gpio, int value)
 {
-	struct davinci_gpio *bank;
-
-	bank = GPIO_BANK(gpio);
-
 	if (value)
 		bank->set_data = 1U << GPIO_BIT(gpio);
 	else
@@ -377,14 +368,21 @@ int gpio_set_value(unsigned gpio, int value)
 	return 0;
 }
 
+static int _gpio_get_dir(struct davinci_gpio *bank, unsigned int gpio)
+{
+	return in_le32(&bank->dir) & (1U << GPIO_BIT(gpio));
+}
+
+#ifndef CONFIG_DM_GPIO
+
 void gpio_info(void)
 {
-	unsigned gpio, dir, val;
+	unsigned int gpio, dir, val;
 	struct davinci_gpio *bank;
 
 	for (gpio = 0; gpio < MAX_NUM_GPIOS; ++gpio) {
 		bank = GPIO_BANK(gpio);
-		dir = in_le32(&bank->dir) & (1U << GPIO_BIT(gpio));
+		dir = _gpio_get_dir(bank, gpio);
 		val = gpio_get_value(gpio);
 
 		printf("% 4d: %s: %d [%c] %s\n",
@@ -393,3 +391,150 @@ void gpio_info(void)
 			gpio_registry[gpio].name);
 	}
 }
+
+int gpio_direction_input(unsigned int gpio)
+{
+	struct davinci_gpio *bank;
+
+	bank = GPIO_BANK(gpio);
+	return _gpio_direction_input(bank, gpio);
+}
+
+int gpio_direction_output(unsigned int gpio, int value)
+{
+	struct davinci_gpio *bank;
+
+	bank = GPIO_BANK(gpio);
+	return _gpio_direction_output(bank, gpio, value);
+}
+
+int gpio_get_value(unsigned int gpio)
+{
+	struct davinci_gpio *bank;
+
+	bank = GPIO_BANK(gpio);
+	return _gpio_get_value(bank, gpio);
+}
+
+int gpio_set_value(unsigned int gpio, int value)
+{
+	struct davinci_gpio *bank;
+
+	bank = GPIO_BANK(gpio);
+	return _gpio_set_value(bank, gpio, value);
+}
+
+#else /* CONFIG_DM_GPIO */
+
+static struct davinci_gpio *davinci_get_gpio_bank(struct udevice *dev, unsigned int offset)
+{
+	struct davinci_gpio_bank *bank = dev_get_priv(dev);
+
+	/* The device tree is not broken into banks but the infrastructure is
+	 * expecting it this way, so we'll first include the 0x10 offset, then
+	 * calculate the bank manually based on the offset.
+	 */
+
+	return ((struct davinci_gpio *)bank->base) + 0x10 + (offset >> 5);
+}
+
+static int davinci_gpio_direction_input(struct udevice *dev, unsigned int offset)
+{
+	struct davinci_gpio *base = davinci_get_gpio_bank(dev, offset);
+
+	_gpio_direction_input(base, offset);
+	return 0;
+}
+
+static int davinci_gpio_direction_output(struct udevice *dev, unsigned int offset,
+					 int value)
+{
+	struct davinci_gpio *base = davinci_get_gpio_bank(dev, offset);
+
+	_gpio_direction_output(base, offset, value);
+	return 0;
+}
+
+static int davinci_gpio_get_value(struct udevice *dev, unsigned int offset)
+{
+	struct davinci_gpio *base = davinci_get_gpio_bank(dev, offset);
+
+	return _gpio_get_value(base, offset);
+}
+
+static int davinci_gpio_set_value(struct udevice *dev, unsigned int offset,
+				  int value)
+{
+	struct davinci_gpio *base = davinci_get_gpio_bank(dev, offset);
+
+	_gpio_set_value(base, offset, value);
+
+	return 0;
+}
+
+static int davinci_gpio_get_function(struct udevice *dev, unsigned int offset)
+{
+	unsigned int dir;
+	struct davinci_gpio *base = davinci_get_gpio_bank(dev, offset);
+
+	dir = _gpio_get_dir(base, offset);
+
+	if (dir)
+		return GPIOF_INPUT;
+
+	return GPIOF_OUTPUT;
+}
+
+static const struct dm_gpio_ops gpio_davinci_ops = {
+	.direction_input	= davinci_gpio_direction_input,
+	.direction_output	= davinci_gpio_direction_output,
+	.get_value		= davinci_gpio_get_value,
+	.set_value		= davinci_gpio_set_value,
+	.get_function		= davinci_gpio_get_function,
+};
+
+static int davinci_gpio_probe(struct udevice *dev)
+{
+	struct davinci_gpio_bank *bank = dev_get_priv(dev);
+	struct davinci_gpio_platdata *plat = dev_get_platdata(dev);
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	const void *fdt = gd->fdt_blob;
+	int node = dev_of_offset(dev);
+
+	uc_priv->bank_name = plat->port_name;
+	uc_priv->gpio_count = fdtdec_get_int(fdt, node, "ti,ngpio", -1);
+	bank->base = (struct davinci_gpio *)plat->base;
+	return 0;
+}
+
+static const struct udevice_id davinci_gpio_ids[] = {
+	{ .compatible = "ti,dm6441-gpio" },
+	{ }
+};
+
+static int davinci_gpio_ofdata_to_platdata(struct udevice *dev)
+{
+	struct davinci_gpio_platdata *plat = dev_get_platdata(dev);
+	fdt_addr_t addr;
+
+	addr = devfdt_get_addr(dev);
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	plat->base = addr;
+	return 0;
+}
+
+U_BOOT_DRIVER(gpio_davinci) = {
+	.name	= "gpio_davinci",
+	.id	= UCLASS_GPIO,
+	.ops	= &gpio_davinci_ops,
+	.ofdata_to_platdata = of_match_ptr(davinci_gpio_ofdata_to_platdata),
+	.of_match = davinci_gpio_ids,
+	.bind   = dm_scan_fdt_dev,
+	.platdata_auto_alloc_size = sizeof(struct davinci_gpio_platdata),
+	.probe	= davinci_gpio_probe,
+	.priv_auto_alloc_size = sizeof(struct davinci_gpio_bank),
+};
+
+#endif

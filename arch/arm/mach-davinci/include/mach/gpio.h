@@ -39,7 +39,7 @@ struct davinci_gpio_bank {
 	unsigned int irq_num;
 	unsigned int irq_mask;
 	unsigned long *in_use;
-	unsigned long base;
+	struct davinci_gpio *base;
 };
 
 #define davinci_gpio_bank01 ((struct davinci_gpio *)DAVINCI_GPIO_BANK01)
@@ -48,7 +48,9 @@ struct davinci_gpio_bank {
 #define davinci_gpio_bank67 ((struct davinci_gpio *)DAVINCI_GPIO_BANK67)
 #define davinci_gpio_bank8 ((struct davinci_gpio *)DAVINCI_GPIO_BANK8)
 
+#ifndef CONFIG_DM_GPIO
 #define gpio_status()		gpio_info()
+#endif
 #define GPIO_NAME_SIZE		20
 #if defined(CONFIG_SOC_DM644X)
 /* GPIO0 to GPIO53, omit the V3.3 volts one */
@@ -62,5 +64,15 @@ struct davinci_gpio_bank {
 #define GPIO_BIT(gp)		((gp) & 0x1F)
 
 void gpio_info(void);
+
+#ifdef CONFIG_DM_GPIO
+
+/* Information about a GPIO bank */
+struct davinci_gpio_platdata {
+	int bank_index;
+	ulong base;	/* address of registers in physical memory */
+	const char *port_name;
+};
+#endif
 
 #endif
