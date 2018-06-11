@@ -23,7 +23,7 @@ static int dm_test_spi_find(struct unit_test_state *uts)
 	struct udevice *bus, *dev;
 	const int busnum = 0, cs = 0, mode = 0, speed = 1000000, cs_b = 1;
 	struct spi_cs_info info;
-	int of_offset;
+	ofnode node;
 
 	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_SPI, busnum,
 						       false, &bus));
@@ -34,7 +34,7 @@ static int dm_test_spi_find(struct unit_test_state *uts)
 	 */
 	ut_asserteq(0, uclass_get_device_by_seq(UCLASS_SPI, busnum, &bus));
 	ut_assertok(spi_cs_info(bus, cs, &info));
-	of_offset = dev_of_offset(info.dev);
+	node = dev_ofnode(info.dev);
 	device_remove(info.dev, DM_REMOVE_NORMAL);
 	device_unbind(info.dev);
 
@@ -65,7 +65,7 @@ static int dm_test_spi_find(struct unit_test_state *uts)
 	ut_asserteq_ptr(NULL, info.dev);
 
 	/* Add the emulation and try again */
-	ut_assertok(sandbox_sf_bind_emul(state, busnum, cs, bus, of_offset,
+	ut_assertok(sandbox_sf_bind_emul(state, busnum, cs, bus, node,
 					 "name"));
 	ut_assertok(spi_find_bus_and_cs(busnum, cs, &bus, &dev));
 	ut_assertok(spi_get_bus_and_cs(busnum, cs, speed, mode,
@@ -75,7 +75,7 @@ static int dm_test_spi_find(struct unit_test_state *uts)
 	ut_asserteq_ptr(info.dev, slave->dev);
 
 	/* We should be able to add something to another chip select */
-	ut_assertok(sandbox_sf_bind_emul(state, busnum, cs_b, bus, of_offset,
+	ut_assertok(sandbox_sf_bind_emul(state, busnum, cs_b, bus, node,
 					 "name"));
 	ut_assertok(spi_get_bus_and_cs(busnum, cs_b, speed, mode,
 				       "spi_flash_std", "name", &bus, &slave));

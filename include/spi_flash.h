@@ -185,7 +185,7 @@ static inline int spi_flash_erase(struct spi_flash *flash, u32 offset,
 struct sandbox_state;
 
 int sandbox_sf_bind_emul(struct sandbox_state *state, int busnum, int cs,
-			 struct udevice *bus, int of_offset, const char *spec);
+			 struct udevice *bus, ofnode node, const char *spec);
 
 void sandbox_sf_unbind_emul(struct sandbox_state *state, int busnum, int cs);
 
