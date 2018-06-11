@@ -122,6 +122,16 @@ static int veyron_init(void)
 	if (IS_ERR_VALUE(ret))
 		return ret;
 
+	ret = regulator_get_by_platname("vcc33_sd", &dev);
+	if (ret) {
+		debug("Cannot get regulator name\n");
+		return ret;
+	}
+
+	ret = regulator_set_value(dev, 3300000);
+	if (ret)
+		return ret;
+
 	ret = regulators_enable_boot_on(false);
 	if (ret) {
 		debug("%s: Cannot enable boot on regulators\n", __func__);
