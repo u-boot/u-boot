@@ -78,7 +78,7 @@
 #endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"console=ttymxc0,115200\0" \
+	"console=ttymxc0\0" \
 	"splashpos=m,m\0" \
 	"fdtfile=undefined\0" \
 	"fdt_high=0xffffffff\0" \
