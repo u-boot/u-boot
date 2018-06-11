@@ -13,7 +13,6 @@
 
 struct btrfs_info {
 	struct btrfs_super_block sb;
-	struct btrfs_root_backup *root_backup;
 
 	struct btrfs_root tree_root;
 	struct btrfs_root fs_root;
