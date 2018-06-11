@@ -122,6 +122,12 @@ static int veyron_init(void)
 	if (IS_ERR_VALUE(ret))
 		return ret;
 
+	ret = regulators_enable_boot_on(false);
+	if (ret) {
+		debug("%s: Cannot enable boot on regulators\n", __func__);
+		return ret;
+	}
+
 	return 0;
 }
 #endif
