@@ -3,28 +3,28 @@
 # subdirectories here. Add them in the ".gitignore" file
 # in that subdirectory instead.
 #
-# Normal rules
+# Normal rules (sorted alphabetically)
 #
 .*
-*.o
-*.o.*
 *.a
-*.s
-*.su
-*.mod.c
+*.bin
+*.cfgtmp
+*.elf
+*.exe
+*.gcda
+*.gcno
 *.i
 *.lex.c
 *.lst
+*.mod.c
+*.o
+*.o.*
 *.order
-*.elf
-*.swp
-*.bin
 *.patch
-*.cfgtmp
+*.s
+*.su
+*.swp
 *.tab.[ch]
-
-# host programs on Cygwin
-*.exe
 
 # Build tree
 /build-*
@@ -86,7 +86,3 @@ GTAGS
 *.orig
 *~
 \#*#
-
-# gcc code coverage files
-*.gcda
-*.gcno
