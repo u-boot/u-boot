@@ -126,6 +126,20 @@ static iomux_v3_cfg_t const usdhc2_pads[] = {
 	IOMUX_PADS(PAD_SD2_DAT3__SD2_DATA3	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 };
 
+static iomux_v3_cfg_t const usdhc3_pads[] = {
+	IOMUX_PADS(PAD_SD3_CLK__SD3_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_CMD__SD3_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT0__SD3_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT1__SD3_DATA1      | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT2__SD3_DATA2      | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT3__SD3_DATA3      | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT4__SD3_DATA4      | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT5__SD3_DATA5      | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT6__SD3_DATA6      | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT7__SD3_DATA7      | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_RST__SD3_RESET       | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+};
+
 static iomux_v3_cfg_t const board_detect[] = {
 	/* These pins are for sensing if it is a CuBox-i or a HummingBoard */
 	IOMUX_PADS(PAD_KEY_ROW1__GPIO4_IO09  | MUX_PAD_CTRL(UART_PAD_CTRL)),
@@ -148,23 +162,95 @@ static void setup_iomux_uart(void)
 	SETUP_IOMUX_PADS(uart1_pads);
 }
 
-static struct fsl_esdhc_cfg usdhc_cfg[1] = {
-	{USDHC2_BASE_ADDR},
+static struct fsl_esdhc_cfg usdhc_cfg = {
+	.esdhc_base = USDHC2_BASE_ADDR,
+	.max_bus_width = 4,
 };
+
+static struct fsl_esdhc_cfg emmc_cfg = {
+	.esdhc_base = USDHC3_BASE_ADDR,
+	.max_bus_width = 8,
+};
+
+int board_mmc_get_env_dev(int devno)
+{
+	return devno - 1;
+}
+
+#define USDHC2_CD_GPIO  IMX_GPIO_NR(1, 4)
 
 int board_mmc_getcd(struct mmc *mmc)
 {
-	return 1; /* uSDHC2 is always present */
+	struct fsl_esdhc_cfg *cfg = mmc->priv;
+	int ret = 0;
+
+	switch (cfg->esdhc_base) {
+	case USDHC2_BASE_ADDR:
+		ret = !gpio_get_value(USDHC2_CD_GPIO);
+		break;
+	case USDHC3_BASE_ADDR:
+		ret = 1; /* eMMC/uSDHC3 has no CD GPIO */
+		break;
+	}
+
+	return ret;
+}
+
+static int mmc_init_main(bd_t *bis)
+{
+	int ret;
+
+	/*
+	 * Following map is done:
+	 * (U-Boot device node)    (Physical Port)
+	 * mmc0                    Carrier board MicroSD
+	 * mmc1                    SOM eMMC
+	 */
+	SETUP_IOMUX_PADS(usdhc2_pads);
+	usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+	ret = fsl_esdhc_initialize(bis, &usdhc_cfg);
+	if (ret)
+		return ret;
+
+	SETUP_IOMUX_PADS(usdhc3_pads);
+	emmc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
+	return fsl_esdhc_initialize(bis, &emmc_cfg);
+}
+
+static int mmc_init_spl(bd_t *bis)
+{
+	struct src *psrc = (struct src *)SRC_BASE_ADDR;
+	unsigned reg = readl(&psrc->sbmr1) >> 11;
+
+	/*
+	 * Upon reading BOOT_CFG register the following map is done:
+	 * Bit 11 and 12 of BOOT_CFG register can determine the current
+	 * mmc port
+	 * 0x1                  SD2
+	 * 0x2                  SD3
+	 */
+	switch (reg & 0x3) {
+	case 0x1:
+		SETUP_IOMUX_PADS(usdhc2_pads);
+		usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+		gd->arch.sdhc_clk = usdhc_cfg.sdhc_clk;
+		return fsl_esdhc_initialize(bis, &usdhc_cfg);
+	case 0x2:
+		SETUP_IOMUX_PADS(usdhc3_pads);
+		emmc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
+		gd->arch.sdhc_clk = emmc_cfg.sdhc_clk;
+		return fsl_esdhc_initialize(bis, &emmc_cfg);
+	}
+
+	return -ENODEV;
 }
 
 int board_mmc_init(bd_t *bis)
 {
-	SETUP_IOMUX_PADS(usdhc2_pads);
-	usdhc_cfg[0].esdhc_base = USDHC2_BASE_ADDR;
-	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-	gd->arch.sdhc_clk = usdhc_cfg[0].sdhc_clk;
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		return mmc_init_spl(bis);
 
-	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
+	return mmc_init_main(bis);
 }
 
 static iomux_v3_cfg_t const enet_pads[] = {
