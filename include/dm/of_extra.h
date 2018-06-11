@@ -34,12 +34,10 @@ struct fmap_entry {
 /**
  * Read a flash entry from the fdt
  *
- * @param node	Reference to node to read
- * @param name		Name of node being read
+ * @param node		Reference to node to read
  * @param entry		Place to put offset and size of this node
  * @return 0 if ok, -ve on error
  */
-int of_read_fmap_entry(ofnode node, const char *name,
-		       struct fmap_entry *entry);
+int ofnode_read_fmap_entry(ofnode node, struct fmap_entry *entry);
 
 #endif

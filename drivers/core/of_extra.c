@@ -10,15 +10,15 @@
 #include <dm/of_extra.h>
 #include <dm/ofnode.h>
 
-int of_read_fmap_entry(ofnode node, const char *name,
-		       struct fmap_entry *entry)
+int ofnode_read_fmap_entry(ofnode node, struct fmap_entry *entry)
 {
 	const char *prop;
 	u32 reg[2];
 
 	if (ofnode_read_u32_array(node, "reg", reg, 2)) {
-		debug("Node '%s' has bad/missing 'reg' property\n", name);
-		return -FDT_ERR_NOTFOUND;
+		debug("Node '%s' has bad/missing 'reg' property\n",
+		      ofnode_get_name(node));
+		return -log_ret(ENOENT);
 	}
 	entry->offset = reg[0];
 	entry->length = reg[1];
