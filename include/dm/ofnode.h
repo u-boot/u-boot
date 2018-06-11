@@ -262,6 +262,7 @@ const char *ofnode_read_string(ofnode node, const char *propname);
  * @propname:	name of the property to read
  * @out_values:	pointer to return value, modified only if return value is 0
  * @sz:		number of array elements to read
+ * @return 0 if OK, -ve on error
  *
  * Search for a property in a device node and read 32-bit value(s) from
  * it. Returns 0 on success, -EINVAL if the property does not exist,
@@ -490,6 +491,7 @@ ofnode ofnode_path(const char *path);
  * This looks for a property within the /chosen node and returns its value
  *
  * @propname: Property name to look for
+ * @return property value if found, else NULL
  */
 const char *ofnode_get_chosen_prop(const char *propname);
 
@@ -645,7 +647,7 @@ int ofnode_read_simple_size_cells(ofnode node);
  *   new platforms.
  *
  * @node: node to check
- * @eturns true if node is needed in SPL/TL, false otherwise
+ * @return true if node is needed in SPL/TL, false otherwise
  */
 bool ofnode_pre_reloc(ofnode node);
 
