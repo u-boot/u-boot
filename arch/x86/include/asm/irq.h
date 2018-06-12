@@ -29,6 +29,7 @@ enum pirq_config {
  *
  * @config:	PIRQ_VIA_PCI or PIRQ_VIA_IBASE
  * @link_base:	link value base number
+ * @link_num:	number of PIRQ links supported
  * @irq_mask:	IRQ mask reprenting the 16 IRQs in 8259, bit N is 1 means
  *		IRQ N is available to be routed
  * @lb_bdf:	irq router's PCI bus/device/function number encoding
@@ -39,6 +40,7 @@ enum pirq_config {
 struct irq_router {
 	int config;
 	u32 link_base;
+	int link_num;
 	u16 irq_mask;
 	u32 bdf;
 	u32 ibase;

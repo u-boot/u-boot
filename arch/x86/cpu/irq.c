@@ -116,10 +116,16 @@ static int create_pirq_routing_table(struct udevice *dev)
 			return -EINVAL;
 	}
 
-	ret = fdtdec_get_int(blob, node, "intel,pirq-link", -1);
-	if (ret == -1)
-		return ret;
-	priv->link_base = ret;
+	cell = fdt_getprop(blob, node, "intel,pirq-link", &len);
+	if (!cell || len != 8)
+		return -EINVAL;
+	priv->link_base = fdt_addr_to_cpu(cell[0]);
+	priv->link_num = fdt_addr_to_cpu(cell[1]);
+	if (priv->link_num > CONFIG_MAX_PIRQ_LINKS) {
+		debug("Limiting supported PIRQ link number from %d to %d\n",
+		      priv->link_num, CONFIG_MAX_PIRQ_LINKS);
+		priv->link_num = CONFIG_MAX_PIRQ_LINKS;
+	}
 
 	priv->irq_mask = fdtdec_get_int(blob, node,
 					"intel,pirq-mask", PIRQ_BITMAP);
