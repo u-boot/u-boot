@@ -241,6 +241,7 @@ struct efi_open_protocol_info_entry {
 enum efi_entry_t {
 	EFIET_END,	/* Signals this is the last (empty) entry */
 	EFIET_MEMORY_MAP,
+	EFIET_GOP_MODE,
 
 	/* Number of entries */
 	EFIET_MEMORY_COUNT,
@@ -295,6 +296,40 @@ struct efi_entry_memmap {
 	u32 desc_size;
 	u64 spare;
 	struct efi_mem_desc desc[];
+};
+
+/**
+ * struct efi_entry_gopmode - a GOP mode table passed to U-Boot
+ *
+ * @fb_base:	EFI's framebuffer base address
+ * @fb_size:	EFI's framebuffer size
+ * @info_size:	GOP mode info structure size
+ * @info:	Start address of the GOP mode info structure
+ */
+struct efi_entry_gopmode {
+	efi_physical_addr_t fb_base;
+	/*
+	 * Not like the ones in 'struct efi_gop_mode' which are 'unsigned
+	 * long', @fb_size and @info_size have to be 'u64' here. As the EFI
+	 * stub codes may have different bit size from the U-Boot payload,
+	 * using 'long' will cause mismatch between the producer (stub) and
+	 * the consumer (payload).
+	 */
+	u64 fb_size;
+	u64 info_size;
+	/*
+	 * We cannot directly use 'struct efi_gop_mode_info info[]' here as
+	 * it causes compiler to complain: array type has incomplete element
+	 * type 'struct efi_gop_mode_info'.
+	 */
+	struct /* efi_gop_mode_info */ {
+		u32 version;
+		u32 width;
+		u32 height;
+		u32 pixel_format;
+		u32 pixel_bitmask[4];
+		u32 pixels_per_scanline;
+	} info[];
 };
 
 static inline struct efi_mem_desc *efi_get_next_mem_desc(
