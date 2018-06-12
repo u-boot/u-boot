@@ -635,6 +635,15 @@ static int fdt_add_bignum(void *blob, int noffset, const char *prop_name,
 	big2 = BN_new();
 	big32 = BN_new();
 	big2_32 = BN_new();
+
+	/*
+	 * Note: This code assumes that all of the above succeed, or all fail.
+	 * In practice memory allocations generally do not fail (unless the
+	 * process is killed), so it does not seem worth handling each of these
+	 * as a separate case. Technicaly this could leak memory on failure,
+	 * but a) it won't happen in practice, and b) it doesn't matter as we
+	 * will immediately exit with a failure code.
+	 */
 	if (!tmp || !big2 || !big32 || !big2_32) {
 		fprintf(stderr, "Out of memory (bignum)\n");
 		return -ENOMEM;
@@ -667,15 +676,13 @@ static int fdt_add_bignum(void *blob, int noffset, const char *prop_name,
 	 * might fail several times
 	 */
 	ret = fdt_setprop(blob, noffset, prop_name, buf, size);
-	if (ret)
-		return -FDT_ERR_NOSPACE;
 	free(buf);
 	BN_free(tmp);
 	BN_free(big2);
 	BN_free(big32);
 	BN_free(big2_32);
 
-	return ret;
+	return ret ? -FDT_ERR_NOSPACE : 0;
 }
 
 int rsa_add_verify_data(struct image_sign_info *info, void *keydest)
