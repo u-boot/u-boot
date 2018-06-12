@@ -241,6 +241,14 @@ skip_errata_798870:
 skip_errata_801819:
 #endif
 
+#ifdef CONFIG_ARM_CORTEX_A15_CVE_2017_5715
+	mrc	p15, 0, r0, c1, c0, 1	@ read auxilary control register
+	orr	r0, r0, #1 << 0		@ Enable invalidates of BTB
+	push	{r1-r5}			@ Save the cpu info registers
+	bl	v7_arch_cp15_set_acr
+	pop	{r1-r5}			@ Restore the cpu info - fall through
+#endif
+
 #ifdef CONFIG_ARM_ERRATA_454179
 	mrc	p15, 0, r0, c1, c0, 1	@ Read ACR
 
