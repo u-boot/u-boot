@@ -567,16 +567,17 @@ int sandbox_sf_bind_emul(struct sandbox_state *state, int busnum, int cs,
 	strncpy(name, spec, sizeof(name) - 6);
 	name[sizeof(name) - 6] = '\0';
 	strcat(name, "-emul");
-	str = strdup(name);
-	if (!str)
-		return -ENOMEM;
 	drv = lists_driver_lookup_name("sandbox_sf_emul");
 	if (!drv) {
 		puts("Cannot find sandbox_sf_emul driver\n");
 		return -ENOENT;
 	}
+	str = strdup(name);
+	if (!str)
+		return -ENOMEM;
 	ret = device_bind(bus, drv, str, NULL, of_offset, &emul);
 	if (ret) {
+		free(str);
 		printf("Cannot create emul device for spec '%s' (err=%d)\n",
 		       spec, ret);
 		return ret;
