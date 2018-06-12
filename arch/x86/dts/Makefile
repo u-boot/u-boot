@@ -11,6 +11,7 @@ dtb-y += bayleybay.dtb \
 	dfi-bt700-q7x-151.dtb \
 	edison.dtb \
 	efi.dtb \
+	efi-x86_payload.dtb \
 	galileo.dtb \
 	minnowmax.dtb \
 	qemu-x86_i440fx.dtb \
