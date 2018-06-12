@@ -288,11 +288,17 @@ static int omap_gpio_probe(struct udevice *dev)
 	struct gpio_bank *bank = dev_get_priv(dev);
 	struct omap_gpio_platdata *plat = dev_get_platdata(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	int banknum;
+	char name[18], *str;
 
-	uc_priv->bank_name = plat->port_name;
+	banknum = plat->bank_index;
+	sprintf(name, "GPIO%d_", banknum + 1);
+	str = strdup(name);
+	if (!str)
+		return -ENOMEM;
+	uc_priv->bank_name = str;
 	uc_priv->gpio_count = GPIO_PER_BANK;
 	bank->base = (void *)plat->base;
-
 	return 0;
 }
 
