@@ -143,10 +143,6 @@ int arch_cpu_init(void)
 
 	return x86_cpu_init_f();
 }
-#endif
-
-#if !CONFIG_IS_ENABLED(EFI_STUB) && \
-	!CONFIG_IS_ENABLED(SPL_X86_32BIT_INIT)
 
 int checkcpu(void)
 {
