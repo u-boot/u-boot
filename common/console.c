@@ -502,8 +502,10 @@ void putc(const char c)
 		return;
 	}
 #endif
+	if (!gd)
+		return;
 #ifdef CONFIG_CONSOLE_RECORD
-	if (gd && (gd->flags & GD_FLG_RECORD) && gd->console_out.start)
+	if ((gd->flags & GD_FLG_RECORD) && gd->console_out.start)
 		membuff_putbyte(&gd->console_out, c);
 #endif
 #ifdef CONFIG_SILENT_CONSOLE
@@ -541,8 +543,10 @@ void puts(const char *s)
 		return;
 	}
 #endif
+	if (!gd)
+		return;
 #ifdef CONFIG_CONSOLE_RECORD
-	if (gd && (gd->flags & GD_FLG_RECORD) && gd->console_out.start)
+	if ((gd->flags & GD_FLG_RECORD) && gd->console_out.start)
 		membuff_put(&gd->console_out, s, strlen(s));
 #endif
 #ifdef CONFIG_SILENT_CONSOLE
