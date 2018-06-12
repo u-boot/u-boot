@@ -28,6 +28,10 @@ static efi_status_t __efi_runtime EFIAPI efi_unimplemented(void);
 static efi_status_t __efi_runtime EFIAPI efi_device_error(void);
 static efi_status_t __efi_runtime EFIAPI efi_invalid_parameter(void);
 
+/*
+ * TODO(sjg@chromium.org): These defines and structs should come from the elf
+ * header for each arch (or a generic header) rather than being repeated here.
+ */
 #if defined(CONFIG_ARM64)
 #define R_RELATIVE	1027
 #define R_MASK		0xffffffffULL
