@@ -4,8 +4,8 @@ choice
 	prompt "Mainboard model"
 	optional
 
-config TARGET_EFI
-	bool "efi"
+config TARGET_EFI_APP
+	bool "efi application"
 	help
 	  This target is used for running U-Boot on top of EFI. In
 	  this case EFI does the early initialisation, and U-Boot
@@ -22,7 +22,7 @@ config TARGET_EFI_PAYLOAD
 
 endchoice
 
-source "board/efi/efi-x86/Kconfig"
+source "board/efi/efi-x86_app/Kconfig"
 source "board/efi/efi-x86_payload/Kconfig"
 
 endif

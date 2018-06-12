@@ -65,10 +65,10 @@ for that board. It will be either 32-bit or 64-bit. Alternatively, you can
 opt for using QEMU [1] and the OVMF [2], as detailed below.
 
 To build U-Boot as an EFI application (32-bit EFI required), enable CONFIG_EFI
-and CONFIG_EFI_APP. The efi-x86 config (efi-x86_defconfig) is set up for this.
-Just build U-Boot as normal, e.g.
+and CONFIG_EFI_APP. The efi-x86_app config (efi-x86_app_defconfig) is set up
+for this. Just build U-Boot as normal, e.g.
 
-   make efi-x86_defconfig
+   make efi-x86_app_defconfig
    make
 
 To build U-Boot as an EFI payload (32-bit or 64-bit EFI can be used), enable
@@ -234,7 +234,7 @@ lib/efi
 arch/x86/cpu/efi
 	x86 support code for running as an EFI application and payload
 
-board/efi/efi-x86/efi.c
+board/efi/efi-x86_app/efi.c
 	x86 board code for running as an EFI application
 
 board/efi/efi-x86_payload
