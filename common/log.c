@@ -38,12 +38,16 @@ static const char *log_level_name[LOGL_COUNT] = {
 
 const char *log_get_cat_name(enum log_category_t cat)
 {
-	if (cat > LOGC_COUNT)
-		return "invalid";
+	const char *name;
+
+	if (cat < 0 || cat >= LOGC_COUNT)
+		return "<invalid>";
 	if (cat >= LOGC_NONE)
 		return log_cat_name[cat - LOGC_NONE];
 
-	return uclass_get_name((enum uclass_id)cat);
+	name = uclass_get_name((enum uclass_id)cat);
+
+	return name ? name : "<missing>";
 }
 
 enum log_category_t log_get_cat_by_name(const char *name)
