@@ -261,40 +261,6 @@ config SYS_LS_PPA_FW_IN_NAND
 
 endchoice
 
-config SYS_LS_PPA_FW_ADDR
-	hex "Address of PPA firmware loading from"
-	depends on FSL_LS_PPA
-	default 0x20400000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT && ARCH_LS2080A
-	default 0x40400000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT
-	default 0x580400000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS2080A
-	default 0x20400000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1088A
-	default 0x60400000 if SYS_LS_PPA_FW_IN_XIP
-	default 0x400000 if SYS_LS_PPA_FW_IN_MMC
-	default 0x400000 if SYS_LS_PPA_FW_IN_NAND
-
-	help
-	  If the PPA firmware locate at XIP flash, such as NOR or
-	  QSPI flash, this address is a directly memory-mapped.
-	  If it is in a serial accessed flash, such as NAND and SD
-	  card, it is a byte offset.
-
-config SYS_LS_PPA_ESBC_ADDR
-	hex "hdr address of PPA firmware loading from"
-	depends on FSL_LS_PPA && CHAIN_OF_TRUST
-	default 0x60680000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1043A
-	default 0x40680000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1046A
-	default 0x40680000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1012A
-	default 0x20680000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT && ARCH_LS2080A
-	default 0x580680000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS2080A
-	default 0x20680000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1088A
-	default 0x680000 if SYS_LS_PPA_FW_IN_MMC
-	default 0x680000 if SYS_LS_PPA_FW_IN_NAND
-	help
-	  If the PPA header firmware locate at XIP flash, such as NOR or
-	  QSPI flash, this address is a directly memory-mapped.
-	  If it is in a serial accessed flash, such as NAND and SD
-	  card, it is a byte offset.
-
 config LS_PPA_ESBC_HDR_SIZE
 	hex "Length of PPA ESBC header"
 	depends on FSL_LS_PPA && CHAIN_OF_TRUST && !SYS_LS_PPA_FW_IN_XIP

@@ -1034,6 +1034,19 @@ config TARGET_LS1012A2G5RDB
 	  development platform that supports the QorIQ LS1012A
 	  Layerscape Architecture processor.
 
+config TARGET_LS1012AFRWY
+	bool "Support ls1012afrwy"
+	select ARCH_LS1012A
+	select BOARD_LATE_INIT
+	select ARM64
+	imply SCSI
+	imply SCSI_AHCI
+	help
+	 Support for Freescale LS1012AFRWY platform.
+	 The LS1012A FRWY board (FRWY) is a high-performance
+	 development platform that supports the QorIQ LS1012A
+	 Layerscape Architecture processor.
+
 config TARGET_LS1012AFRDM
 	bool "Support ls1012afrdm"
 	select ARCH_LS1012A
