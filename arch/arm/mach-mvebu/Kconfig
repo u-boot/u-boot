@@ -75,6 +75,10 @@ config TARGET_CLEARFOG
 	bool "Support ClearFog"
 	select 88F6820
 
+config TARGET_HELIOS4
+	bool "Support Helios4"
+	select 88F6820
+
 config TARGET_MVEBU_ARMADA_37XX
 	bool "Support Armada 37xx platforms"
 	select ARMADA_3700
@@ -132,6 +136,7 @@ endchoice
 
 config SYS_BOARD
 	default "clearfog" if TARGET_CLEARFOG
+	default "helios4" if TARGET_HELIOS4
 	default "mvebu_armada-37xx" if TARGET_MVEBU_ARMADA_37XX
 	default "db-88f6720" if TARGET_DB_88F6720
 	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
@@ -146,6 +151,7 @@ config SYS_BOARD
 
 config SYS_CONFIG_NAME
 	default "clearfog" if TARGET_CLEARFOG
+	default "helios4" if TARGET_HELIOS4
 	default "mvebu_armada-37xx" if TARGET_MVEBU_ARMADA_37XX
 	default "db-88f6720" if TARGET_DB_88F6720
 	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
@@ -166,6 +172,7 @@ config SYS_VENDOR
 	default "Marvell" if TARGET_DB_88F6820_AMC
 	default "Marvell" if TARGET_MVEBU_ARMADA_8K
 	default "solidrun" if TARGET_CLEARFOG
+	default "kobol" if TARGET_HELIOS4
 	default "Synology" if TARGET_DS414
 	default "CZ.NIC" if TARGET_TURRIS_OMNIA
 	default "CZ.NIC" if TARGET_TURRIS_MOX
