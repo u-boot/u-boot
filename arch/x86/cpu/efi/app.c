@@ -9,7 +9,7 @@
 
 int arch_cpu_init(void)
 {
-	return 0;
+	return x86_cpu_init_f();
 }
 
 int checkcpu(void)
