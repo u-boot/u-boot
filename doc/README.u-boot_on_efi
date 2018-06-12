@@ -235,12 +235,8 @@ Where is the code?
 lib/efi
 	payload stub, application, support code. Mostly arch-neutral
 
-arch/x86/lib/efi
-	helper functions for the fake DRAM init, etc. These can be used by
-	any board that runs as a payload.
-
 arch/x86/cpu/efi
-	x86 support code for running as an EFI application
+	x86 support code for running as an EFI application and payload
 
 board/efi/efi-x86/efi.c
 	x86 board code for running as an EFI application
