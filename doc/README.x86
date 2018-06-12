@@ -1134,18 +1134,18 @@ the "Power" submenu from the Windows start menu.
 EFI Support
 -----------
 U-Boot supports booting as a 32-bit or 64-bit EFI payload, e.g. with UEFI.
-This is enabled with CONFIG_EFI_STUB. U-Boot can also run as an EFI
-application, with CONFIG_EFI_APP. The CONFIG_EFI_LOADER option, where U-Booot
-provides an EFI environment to the kernel (i.e. replaces UEFI completely but
-provides the same EFI run-time services) is not currently supported on x86.
+This is enabled with CONFIG_EFI_STUB to boot from both 32-bit and 64-bit
+UEFI BIOS. U-Boot can also run as an EFI application, with CONFIG_EFI_APP.
+The CONFIG_EFI_LOADER option, where U-Booot provides an EFI environment to
+the kernel (i.e. replaces UEFI completely but provides the same EFI run-time
+services) is not currently supported on x86.
 
-See README.efi for details of EFI support in U-Boot.
+See README.u-boot_on_efi and README.uefi for details of EFI support in U-Boot.
 
 64-bit Support
 --------------
 U-Boot supports booting a 64-bit kernel directly and is able to change to
-64-bit mode to do so. It also supports (with CONFIG_EFI_STUB) booting from
-both 32-bit and 64-bit UEFI. However, U-Boot itself is currently always built
+64-bit mode to do so. However, U-Boot itself is currently always built
 in 32-bit mode. Some access to the full memory range is provided with
 arch_phys_memset().
 
