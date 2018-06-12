@@ -133,11 +133,11 @@ static int value_add(struct display_info *disp, struct value_node **headp,
 	}
 
 	str = strdup(str);
+	if (!str)
+		goto err_mem;
 	node = malloc(sizeof(*node));
-	if (!str || !node) {
-		fprintf(stderr, "Out of memory\n");
-		return -1;
-	}
+	if (!node)
+		goto err_mem;
 	node->next = *headp;
 	node->type = type;
 	node->include = include;
@@ -145,6 +145,9 @@ static int value_add(struct display_info *disp, struct value_node **headp,
 	*headp = node;
 
 	return 0;
+err_mem:
+	fprintf(stderr, "Out of memory\n");
+	return -1;
 }
 
 static bool util_is_printable_string(const void *data, int len)
