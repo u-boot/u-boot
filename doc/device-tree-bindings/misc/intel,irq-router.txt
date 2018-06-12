@@ -22,6 +22,12 @@ Required properties :
 - intel,pirq-link : Specifies the PIRQ link information with two cells. The
     first cell is the register offset that controls the first PIRQ link routing.
     The second cell is the total number of PIRQ links the router supports.
+- intel,pirq-regmap : Specifies PIRQ routing register offset of all PIRQ links,
+    encoded as 2 cells a group for each link. The first cell is the PIRQ link
+    number (0 for PIRQA, 1 for PIRQB, etc). The second cell is the PIRQ routing
+    register offset from the interrupt router's base address. If this property
+    is omitted, it indicates a consecutive register offset from the first PIRQ
+    link, as specified by the first cell of intel,pirq-link.
 - intel,pirq-mask : Specifies the IRQ mask representing the 16 IRQs in the
     8259 PIC. Bit N is 1 means IRQ N is available to be routed.
 - intel,pirq-routing : Specifies all PCI devices' IRQ routing information,

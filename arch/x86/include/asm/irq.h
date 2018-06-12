@@ -22,6 +22,11 @@ enum pirq_config {
 	PIRQ_VIA_IBASE
 };
 
+struct pirq_regmap {
+	int link;
+	int offset;
+};
+
 /**
  * Intel interrupt router control block
  *
@@ -30,6 +35,7 @@ enum pirq_config {
  * @config:	PIRQ_VIA_PCI or PIRQ_VIA_IBASE
  * @link_base:	link value base number
  * @link_num:	number of PIRQ links supported
+ * @has_regmap:	has mapping table between PIRQ link and routing register offset
  * @irq_mask:	IRQ mask reprenting the 16 IRQs in 8259, bit N is 1 means
  *		IRQ N is available to be routed
  * @lb_bdf:	irq router's PCI bus/device/function number encoding
@@ -41,6 +47,8 @@ struct irq_router {
 	int config;
 	u32 link_base;
 	int link_num;
+	bool has_regmap;
+	struct pirq_regmap *regmap;
 	u16 irq_mask;
 	u32 bdf;
 	u32 ibase;
@@ -53,30 +61,6 @@ struct pirq_routing {
 	int pin;
 	int pirq;
 };
-
-/**
- * pirq_reg_to_linkno() - Convert a PIRQ routing register offset to link number
- *
- * @reg:	PIRQ routing register offset from the base address
- * @base:	PIRQ routing register block base address
- * @return:	PIRQ link number (0 for PIRQA, 1 for PIRQB, etc)
- */
-static inline int pirq_reg_to_linkno(int reg, int base)
-{
-	return reg - base;
-}
-
-/**
- * pirq_linkno_to_reg() - Convert a PIRQ link number to routing register offset
- *
- * @linkno:	PIRQ link number (0 for PIRQA, 1 for PIRQB, etc)
- * @base:	PIRQ routing register block base address
- * @return:	PIRQ routing register offset from the base address
- */
-static inline int pirq_linkno_to_reg(int linkno, int base)
-{
-	return linkno + base;
-}
 
 #define PIRQ_BITMAP		0xdef8
 
