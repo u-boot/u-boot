@@ -406,8 +406,8 @@ static inline int guidcmp(const efi_guid_t *g1, const efi_guid_t *g2)
  * Use these to indicate that your code / data should go into the EFI runtime
  * section and thus still be available when the OS is running
  */
-#define __efi_runtime_data __attribute__ ((section ("efi_runtime_data")))
-#define __efi_runtime __attribute__ ((section ("efi_runtime_text")))
+#define __efi_runtime_data __attribute__ ((section (".data.efi_runtime")))
+#define __efi_runtime __attribute__ ((section (".text.efi_runtime")))
 
 /* Call this with mmio_ptr as the _pointer_ to a pointer to an MMIO region
  * to make it available at runtime */

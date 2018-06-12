@@ -24,8 +24,9 @@ SECTIONS
 	}
 
 	.efi_runtime : {
-		*(efi_runtime_text)
-		*(efi_runtime_data)
+		*(.text.efi_runtime*)
+		*(.rodata.efi_runtime*)
+		*(.data.efi_runtime*)
 	}
 
 	.__efi_runtime_stop : {
@@ -38,8 +39,8 @@ SECTIONS
 	}
 
 	.efi_runtime_rel : {
-		*(.relefi_runtime_text)
-		*(.relefi_runtime_data)
+		*(.rel*.efi_runtime)
+		*(.rel*.efi_runtime.*)
 	}
 
 	.efi_runtime_rel_stop :

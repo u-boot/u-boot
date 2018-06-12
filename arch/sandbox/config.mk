@@ -5,6 +5,9 @@ PLATFORM_CPPFLAGS += -D__SANDBOX__ -U_FORTIFY_SOURCE
 PLATFORM_CPPFLAGS += -DCONFIG_ARCH_MAP_SYSMEM
 PLATFORM_LIBS += -lrt
 
+LDFLAGS_FINAL += --gc-sections
+PLATFORM_RELFLAGS += -ffunction-sections -fdata-sections
+
 # Define this to avoid linking with SDL, which requires SDL libraries
 # This can solve 'sdl-config: Command not found' errors
 ifneq ($(NO_SDL),)

@@ -17,6 +17,9 @@ SECTIONS
 
 	. = CONFIG_SYS_TEXT_BASE;	/* Location of bootcode in flash */
 	__text_start = .;
+
+	.text.start : { *(.text.start); }
+
 	.text  : { *(.text*); }
 
 	. = ALIGN(4);
