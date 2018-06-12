@@ -30,6 +30,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply USB_XHCI_HCD
 	imply USB_STORAGE
 	imply USB_KEYBOARD
+	imply VIDEO_EFI
 	imply E1000
 	imply ETH_DESIGNWARE
 	imply PCH_GBE

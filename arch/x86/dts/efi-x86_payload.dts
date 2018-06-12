@@ -33,4 +33,8 @@
 		compatible = "pci-x86";
 		u-boot,dm-pre-reloc;
 	};
+
+	efi-fb {
+		compatible = "efi-fb";
+	};
 };
