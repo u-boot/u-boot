@@ -591,7 +591,7 @@ static int sh_pfc_pinconf_set_drive_strength(struct sh_pfc *pfc,
 	strength = strength / step - 1;
 
 	val = sh_pfc_read_raw_reg(reg, 32);
-	val &= ~GENMASK(offset + size - 1, offset);
+	val &= ~GENMASK(offset + 4 - 1, offset);
 	val |= strength << offset;
 
 	if (unlock_reg)
