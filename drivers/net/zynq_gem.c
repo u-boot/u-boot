@@ -244,7 +244,7 @@ static int phywrite(struct zynq_gem_priv *priv, u32 phy_addr,
 static int phy_detection(struct udevice *dev)
 {
 	int i;
-	u16 phyreg;
+	u16 phyreg = 0;
 	struct zynq_gem_priv *priv = dev->priv;
 
 	if (priv->phyaddr != -1) {
