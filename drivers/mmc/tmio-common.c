@@ -642,11 +642,11 @@ int tmio_sd_set_ios(struct udevice *dev)
 	dev_dbg(dev, "clock %uHz, DDRmode %d, width %u\n",
 		mmc->clock, mmc->ddr_mode, mmc->bus_width);
 
+	tmio_sd_set_clk_rate(priv, mmc);
 	ret = tmio_sd_set_bus_width(priv, mmc);
 	if (ret)
 		return ret;
 	tmio_sd_set_ddr_mode(priv, mmc);
-	tmio_sd_set_clk_rate(priv, mmc);
 	tmio_sd_set_pins(dev);
 
 	return 0;
