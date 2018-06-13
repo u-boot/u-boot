@@ -202,8 +202,23 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 
 	if (images.os.type == IH_TYPE_KERNEL_NOLOAD) {
-		images.os.load = images.os.image_start;
-		images.ep += images.os.load;
+		if (CONFIG_IS_ENABLED(CMD_BOOTI) &&
+		    images.os.arch == IH_ARCH_ARM64) {
+			ulong image_addr;
+			ulong image_size;
+
+			ret = booti_setup(images.os.image_start, &image_addr,
+					  &image_size, true);
+			if (ret != 0)
+				return 1;
+
+			images.os.type = IH_TYPE_KERNEL;
+			images.os.load = image_addr;
+			images.ep = image_addr;
+		} else {
+			images.os.load = images.os.image_start;
+			images.ep += images.os.image_start;
+		}
 	}
 
 	images.os.start = map_to_sysmem(os_hdr);
