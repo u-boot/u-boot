@@ -17,6 +17,7 @@
 
 #include "compiler.h"
 #include <asm/byteorder.h>
+#include <stdbool.h>
 
 /* Define this to avoid #ifdefs later on */
 struct lmb;
@@ -881,9 +882,11 @@ int bootz_setup(ulong image, ulong *start, ulong *end);
  * @image: Address of image
  * @start: Returns start address of image
  * @size : Returns size image
+ * @force_reloc: Ignore image->ep field, always place image to RAM start
  * @return 0 if OK, 1 if the image was not recognised
  */
-int booti_setup(ulong image, ulong *relocated_addr, ulong *size);
+int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
+		bool force_reloc);
 
 /*******************************************************************/
 /* New uImage format specific code (prefixed with fit_) */

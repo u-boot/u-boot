@@ -26,7 +26,8 @@ struct Image_header {
 	uint32_t	res5;
 };
 
-int booti_setup(ulong image, ulong *relocated_addr, ulong *size)
+int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
+		bool force_reloc)
 {
 	struct Image_header *ih;
 	uint64_t dst;
@@ -63,7 +64,7 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size)
 	 * images->ep.  Otherwise, relocate the image to the base of RAM
 	 * since memory below it is not accessible via the linear mapping.
 	 */
-	if (le64_to_cpu(ih->flags) & BIT(3))
+	if (!force_reloc && (le64_to_cpu(ih->flags) & BIT(3)))
 		dst = image - text_offset;
 	else
 		dst = gd->bd->bi_dram[0].start;
