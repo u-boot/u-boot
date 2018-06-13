@@ -188,7 +188,7 @@ static int gpio_is_valid(unsigned gpio, struct udevice *dev)
 {
 	struct zynq_gpio_privdata *priv = dev_get_priv(dev);
 
-	return (gpio >= 0) && (gpio < priv->p_data->ngpio);
+	return gpio < priv->p_data->ngpio;
 }
 
 static int check_gpio(unsigned gpio, struct udevice *dev)
