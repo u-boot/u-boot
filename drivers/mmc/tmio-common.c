@@ -574,6 +574,10 @@ static void tmio_sd_set_clk_rate(struct tmio_sd_priv *priv,
 
 	divisor = DIV_ROUND_UP(mclk, mmc->clock);
 
+	/* Do not set divider to 0xff in DDR mode */
+	if (mmc->ddr_mode && (divisor == 1))
+		divisor = 2;
+
 	if (divisor <= 1)
 		val = (priv->caps & TMIO_SD_CAP_RCAR) ?
 		      TMIO_SD_CLKCTL_RCAR_DIV1 : TMIO_SD_CLKCTL_DIV1;
