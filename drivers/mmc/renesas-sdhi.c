@@ -34,6 +34,8 @@
 #define   RENESAS_SDHI_SCC_RVSREQ_RVSERR		BIT(2)
 #define RENESAS_SDHI_SCC_SMPCMP			0x818
 #define RENESAS_SDHI_SCC_TMPPORT2			0x81c
+#define   RENESAS_SDHI_SCC_TMPPORT2_HS400EN		BIT(31)
+#define   RENESAS_SDHI_SCC_TMPPORT2_HS400OSEL		BIT(4)
 
 #define RENESAS_SDHI_MAX_TAP 3
 
@@ -89,6 +91,11 @@ static void renesas_sdhi_reset_tuning(struct tmio_sd_priv *priv)
 	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_CKSEL);
 	reg &= ~RENESAS_SDHI_SCC_CKSEL_DTSEL;
 	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_CKSEL);
+
+	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_TMPPORT2);
+	reg &= ~(RENESAS_SDHI_SCC_TMPPORT2_HS400EN |
+		 RENESAS_SDHI_SCC_TMPPORT2_HS400OSEL);
+	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_TMPPORT2);
 
 	reg = tmio_sd_readl(priv, TMIO_SD_CLKCTL);
 	reg |= TMIO_SD_CLKCTL_SCLKEN;
