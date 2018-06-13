@@ -879,8 +879,8 @@
 			interrupts = <0 133 4>;
 			power-domains = <&pd_sata>;
 			#stream-id-cells = <4>;
-			iommus = <&smmu 0x4c0>, <&smmu 0x4c1>,
-				 <&smmu 0x4c2>, <&smmu 0x4c3>;
+			/* iommus = <&smmu 0x4c0>, <&smmu 0x4c1>, */
+			/*	 <&smmu 0x4c2>, <&smmu 0x4c3>; */
 			/* dma-coherent; */
 		};
 
