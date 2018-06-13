@@ -399,6 +399,7 @@ cmd_acpi_c_asl=         \
 
 $(obj)/dsdt.c:    $(src)/dsdt.asl
 	$(call cmd,acpi_c_asl)
+	$(Q)sed -i -e "s,dsdt_aml_code,AmlCode," $@
 
 # Bzip2
 # ---------------------------------------------------------------------------

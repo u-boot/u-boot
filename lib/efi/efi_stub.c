@@ -281,7 +281,8 @@ efi_status_t efi_main(efi_handle_t image, struct efi_system_table *sys_table)
 
 	ret = efi_init(priv, "Payload", image, sys_table);
 	if (ret) {
-		printhex2(ret); puts(" efi_init() failed\n");
+		printhex2(ret);
+		puts(" efi_init() failed\n");
 		return ret;
 	}
 	global_priv = priv;
@@ -294,7 +295,8 @@ efi_status_t efi_main(efi_handle_t image, struct efi_system_table *sys_table)
 	size = 0;
 	ret = boot->get_memory_map(&size, NULL, &key, &desc_size, &version);
 	if (ret != EFI_BUFFER_TOO_SMALL) {
-		printhex2(BITS_PER_LONG);
+		printhex2(EFI_BITS_PER_LONG);
+		putc(' ');
 		printhex2(ret);
 		puts(" No memory map\n");
 		return ret;
@@ -303,7 +305,7 @@ efi_status_t efi_main(efi_handle_t image, struct efi_system_table *sys_table)
 	desc = efi_malloc(priv, size, &ret);
 	if (!desc) {
 		printhex2(ret);
-		puts(" No memory for memory descriptor: ");
+		puts(" No memory for memory descriptor\n");
 		return ret;
 	}
 	ret = setup_info_table(priv, size + 128);

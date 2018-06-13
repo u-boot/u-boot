@@ -26,14 +26,12 @@
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		u-boot,dm-pre-reloc;
 
 		cpu@0 {
 			device_type = "cpu";
 			compatible = "intel,core-gen3";
 			reg = <0>;
 			intel,apic-id = <0>;
-			u-boot,dm-pre-reloc;
 		};
 
 		cpu@1 {
@@ -41,7 +39,6 @@
 			compatible = "intel,core-gen3";
 			reg = <1>;
 			intel,apic-id = <1>;
-			u-boot,dm-pre-reloc;
 		};
 
 		cpu@2 {
@@ -49,7 +46,6 @@
 			compatible = "intel,core-gen3";
 			reg = <2>;
 			intel,apic-id = <2>;
-			u-boot,dm-pre-reloc;
 		};
 
 		cpu@3 {
@@ -57,7 +53,6 @@
 			compatible = "intel,core-gen3";
 			reg = <3>;
 			intel,apic-id = <3>;
-			u-boot,dm-pre-reloc;
 		};
 
 	};
