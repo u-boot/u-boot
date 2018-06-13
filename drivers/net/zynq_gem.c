@@ -633,10 +633,16 @@ static int zynq_gem_probe(struct udevice *dev)
 
 	/* Align rxbuffers to ARCH_DMA_MINALIGN */
 	priv->rxbuffers = memalign(ARCH_DMA_MINALIGN, RX_BUF * PKTSIZE_ALIGN);
+	if (!priv->rxbuffers)
+		return -ENOMEM;
+
 	memset(priv->rxbuffers, 0, RX_BUF * PKTSIZE_ALIGN);
 
 	/* Align bd_space to MMU_SECTION_SHIFT */
 	bd_space = memalign(1 << MMU_SECTION_SHIFT, BD_SPACE);
+	if (!bd_space)
+		return -ENOMEM;
+
 	mmu_set_region_dcache_behaviour((phys_addr_t)bd_space,
 					BD_SPACE, DCACHE_OFF);
 
