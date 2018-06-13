@@ -536,10 +536,10 @@ void show_activity(int arg);
 
 /* Multicore arch functions */
 #ifdef CONFIG_MP
-int cpu_status(int nr);
-int cpu_reset(int nr);
-int cpu_disable(int nr);
-int cpu_release(int nr, int argc, char * const argv[]);
+int cpu_status(u32 nr);
+int cpu_reset(u32 nr);
+int cpu_disable(u32 nr);
+int cpu_release(u32 nr, int argc, char * const argv[]);
 #endif
 
 #else	/* __ASSEMBLY__ */

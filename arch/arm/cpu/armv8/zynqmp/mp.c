@@ -45,7 +45,7 @@ int is_core_valid(unsigned int core)
 	return 0;
 }
 
-int cpu_reset(int nr)
+int cpu_reset(u32 nr)
 {
 	puts("Feature is not implemented.\n");
 	return 0;
@@ -131,7 +131,7 @@ static void enable_clock_r5(void)
 	udelay(0x500);
 }
 
-int cpu_disable(int nr)
+int cpu_disable(u32 nr)
 {
 	if (nr >= ZYNQMP_CORE_APU0 && nr <= ZYNQMP_CORE_APU3) {
 		u32 val = readl(&crfapb_base->rst_fpd_apu);
@@ -144,7 +144,7 @@ int cpu_disable(int nr)
 	return 0;
 }
 
-int cpu_status(int nr)
+int cpu_status(u32 nr)
 {
 	if (nr >= ZYNQMP_CORE_APU0 && nr <= ZYNQMP_CORE_APU3) {
 		u32 addr_low = readl(((u8 *)&apu_base->rvbar_addr0_l) + nr * 8);
@@ -220,7 +220,7 @@ void initialize_tcm(bool mode)
 	}
 }
 
-int cpu_release(int nr, int argc, char * const argv[])
+int cpu_release(u32 nr, int argc, char * const argv[])
 {
 	if (nr >= ZYNQMP_CORE_APU0 && nr <= ZYNQMP_CORE_APU3) {
 		u64 boot_addr = simple_strtoull(argv[0], NULL, 16);
