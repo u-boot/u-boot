@@ -185,7 +185,7 @@ struct zynq_gem_priv {
 	bool int_pcs;
 };
 
-static u32 phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
+static int phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
 			u32 op, u16 *data)
 {
 	u32 mgtcr;
@@ -216,10 +216,10 @@ static u32 phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
 	return 0;
 }
 
-static u32 phyread(struct zynq_gem_priv *priv, u32 phy_addr,
+static int phyread(struct zynq_gem_priv *priv, u32 phy_addr,
 		   u32 regnum, u16 *val)
 {
-	u32 ret;
+	int ret;
 
 	ret = phy_setup_op(priv, phy_addr, regnum,
 			   ZYNQ_GEM_PHYMNTNC_OP_R_MASK, val);
@@ -231,7 +231,7 @@ static u32 phyread(struct zynq_gem_priv *priv, u32 phy_addr,
 	return ret;
 }
 
-static u32 phywrite(struct zynq_gem_priv *priv, u32 phy_addr,
+static int phywrite(struct zynq_gem_priv *priv, u32 phy_addr,
 		    u32 regnum, u16 data)
 {
 	debug("%s: phy_addr %d, regnum 0x%x, data 0x%x\n", __func__, phy_addr,
