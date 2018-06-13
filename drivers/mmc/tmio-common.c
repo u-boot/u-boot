@@ -720,6 +720,8 @@ int tmio_sd_probe(struct udevice *dev, u32 quirks)
 
 #ifdef CONFIG_DM_REGULATOR
 	device_get_supply_regulator(dev, "vqmmc-supply", &priv->vqmmc_dev);
+	if (priv->vqmmc_dev)
+		regulator_set_value(priv->vqmmc_dev, 3300000);
 #endif
 
 	ret = mmc_of_parse(dev, &plat->cfg);
