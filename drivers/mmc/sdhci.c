@@ -161,8 +161,8 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	/* We shouldn't wait for data inihibit for stop commands, even
 	   though they might use busy signaling */
 	if (cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION ||
-	    cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK ||
-	    cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK_HS200)
+	    ((cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK ||
+	      cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK_HS200) && !data))
 		mask &= ~SDHCI_DATA_INHIBIT;
 
 	while (sdhci_readl(host, SDHCI_PRESENT_STATE) & mask) {
@@ -184,8 +184,8 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	sdhci_writel(host, SDHCI_INT_ALL_MASK, SDHCI_INT_STATUS);
 
 	mask = SDHCI_INT_RESPONSE;
-	if (cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK ||
-	    cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK_HS200)
+	if ((cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK ||
+	     cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK_HS200) && !data)
 		mask = SDHCI_INT_DATA_AVAIL;
 
 	if (!(cmd->resp_type & MMC_RSP_PRESENT))
