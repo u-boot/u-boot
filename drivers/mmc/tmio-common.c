@@ -612,10 +612,16 @@ static void tmio_sd_set_clk_rate(struct tmio_sd_priv *priv,
 	tmio_sd_writel(priv, tmp, TMIO_SD_CLKCTL);
 
 	tmp &= ~TMIO_SD_CLKCTL_DIV_MASK;
-	tmp |= val | TMIO_SD_CLKCTL_OFFEN;
+	tmp |= val;
 	tmio_sd_writel(priv, tmp, TMIO_SD_CLKCTL);
 
-	tmp |= TMIO_SD_CLKCTL_SCLKEN;
+	if (!mmc->clk_disable) {
+		tmp &= ~TMIO_SD_CLKCTL_OFFEN;
+		tmp |= TMIO_SD_CLKCTL_SCLKEN;
+	} else {
+		tmp |= TMIO_SD_CLKCTL_OFFEN;
+		tmp &= ~TMIO_SD_CLKCTL_SCLKEN;
+	}
 	tmio_sd_writel(priv, tmp, TMIO_SD_CLKCTL);
 
 	udelay(1000);
