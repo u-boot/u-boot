@@ -166,6 +166,10 @@ int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
 		cfg->host_caps |= MMC_CAP(MMC_HS_200);
 	if (dev_read_bool(dev, "mmc-hs200-1_2v"))
 		cfg->host_caps |= MMC_CAP(MMC_HS_200);
+	if (dev_read_bool(dev, "mmc-hs400-1_8v"))
+		cfg->host_caps |= MMC_CAP(MMC_HS_400);
+	if (dev_read_bool(dev, "mmc-hs400-1_2v"))
+		cfg->host_caps |= MMC_CAP(MMC_HS_400);
 
 	return 0;
 }
