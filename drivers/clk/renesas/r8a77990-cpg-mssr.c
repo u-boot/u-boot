@@ -43,6 +43,7 @@ enum clk_ids {
 	CLK_S2,
 	CLK_S3,
 	CLK_SDSRC,
+	CLK_RPCSRC,
 
 	/* Module Clocks */
 	MOD_CLK_BASE
@@ -70,6 +71,7 @@ static const struct cpg_core_clk r8a77990_core_clks[] = {
 	DEF_FIXED(".s2",       CLK_S2,             CLK_PLL1,       4, 1),
 	DEF_FIXED(".s3",       CLK_S3,             CLK_PLL1,       6, 1),
 	DEF_FIXED(".sdsrc",    CLK_SDSRC,          CLK_PLL1,       2, 1),
+	DEF_FIXED(".rpcsrc",   CLK_RPCSRC,         CLK_PLL1,       2, 1),
 
 	/* Core Clock Outputs */
 	DEF_FIXED("za2",       R8A77990_CLK_ZA2,   CLK_PLL0D24,    1, 1),
@@ -95,6 +97,8 @@ static const struct cpg_core_clk r8a77990_core_clks[] = {
 	DEF_GEN3_SD("sd0",     R8A77990_CLK_SD0,   CLK_SDSRC,	  0x0074),
 	DEF_GEN3_SD("sd1",     R8A77990_CLK_SD1,   CLK_SDSRC,	  0x0078),
 	DEF_GEN3_SD("sd3",     R8A77990_CLK_SD3,   CLK_SDSRC,	  0x026c),
+
+	DEF_GEN3_RPC("rpc",    R8A77990_CLK_RPC,   CLK_RPCSRC,    0x238),
 
 	DEF_FIXED("cl",        R8A77990_CLK_CL,    CLK_PLL1,      48, 1),
 	DEF_FIXED("cp",        R8A77990_CLK_CP,    CLK_EXTAL,      2, 1),
@@ -194,6 +198,7 @@ static const struct mssr_mod_clk r8a77990_mod_clks[] = {
 	DEF_MOD("can-fd",		 914,	R8A77990_CLK_S3D2),
 	DEF_MOD("can-if1",		 915,	R8A77990_CLK_S3D4),
 	DEF_MOD("can-if0",		 916,	R8A77990_CLK_S3D4),
+	DEF_MOD("rpc",			 917,	R8A77990_CLK_RPC),
 	DEF_MOD("i2c6",			 918,	R8A77990_CLK_S3D2),
 	DEF_MOD("i2c5",			 919,	R8A77990_CLK_S3D2),
 	DEF_MOD("i2c-dvfs",		 926,	R8A77990_CLK_CP),
