@@ -51,12 +51,9 @@ static unsigned int renesas_sdhi_init_tuning(struct tmio_sd_priv *priv)
 	tmio_sd_writel(priv, reg, TMIO_SD_CLKCTL);
 
 	/* Set sampling clock selection range */
-	tmio_sd_writel(priv, 0x8 << RENESAS_SDHI_SCC_DTCNTL_TAPNUM_SHIFT,
-			   RENESAS_SDHI_SCC_DTCNTL);
-
-	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_DTCNTL);
-	reg |= RENESAS_SDHI_SCC_DTCNTL_TAPEN;
-	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_DTCNTL);
+	tmio_sd_writel(priv, (0x8 << RENESAS_SDHI_SCC_DTCNTL_TAPNUM_SHIFT) |
+			     RENESAS_SDHI_SCC_DTCNTL_TAPEN,
+			     RENESAS_SDHI_SCC_DTCNTL);
 
 	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_CKSEL);
 	reg |= RENESAS_SDHI_SCC_CKSEL_DTSEL;
