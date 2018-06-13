@@ -137,6 +137,7 @@ struct tmio_sd_priv {
 #endif
 #if CONFIG_IS_ENABLED(RENESAS_SDHI)
 	u8				tap_set;
+	u8				nrtaps;
 #endif
 	ulong (*clk_get_rate)(struct tmio_sd_priv *);
 };

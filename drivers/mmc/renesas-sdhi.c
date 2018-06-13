@@ -17,7 +17,9 @@
 
 #include "tmio-common.h"
 
-#if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT)
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
 
 /* SCC registers */
 #define RENESAS_SDHI_SCC_DTCNTL			0x800
@@ -105,6 +107,56 @@ static void renesas_sdhi_reset_tuning(struct tmio_sd_priv *priv)
 	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_RVSCNTL);
 	reg &= ~RENESAS_SDHI_SCC_RVSCNTL_RVSEN;
 	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_RVSCNTL);
+}
+
+static int renesas_sdhi_hs400(struct udevice *dev)
+{
+	struct tmio_sd_priv *priv = dev_get_priv(dev);
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	bool hs400 = (mmc->selected_mode == MMC_HS_400);
+	int ret, taps = hs400 ? priv->nrtaps : 8;
+	u32 reg;
+
+	if (taps == 4)	/* HS400 on 4tap SoC needs different clock */
+		ret = clk_set_rate(&priv->clk, 400000000);
+	else
+		ret = clk_set_rate(&priv->clk, 200000000);
+	if (ret < 0)
+		return ret;
+
+	tmio_sd_writel(priv, 0, RENESAS_SDHI_SCC_RVSREQ);
+
+	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_TMPPORT2);
+	if (hs400) {
+		reg |= RENESAS_SDHI_SCC_TMPPORT2_HS400EN |
+		       RENESAS_SDHI_SCC_TMPPORT2_HS400OSEL;
+	} else {
+		reg &= ~(RENESAS_SDHI_SCC_TMPPORT2_HS400EN |
+		       RENESAS_SDHI_SCC_TMPPORT2_HS400OSEL);
+	}
+
+	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_TMPPORT2);
+
+	tmio_sd_writel(priv, (taps << RENESAS_SDHI_SCC_DTCNTL_TAPNUM_SHIFT) |
+			     RENESAS_SDHI_SCC_DTCNTL_TAPEN,
+			     RENESAS_SDHI_SCC_DTCNTL);
+
+	if (taps == 4) {
+		tmio_sd_writel(priv, priv->tap_set >> 1,
+			       RENESAS_SDHI_SCC_TAPSET);
+	} else {
+		tmio_sd_writel(priv, priv->tap_set, RENESAS_SDHI_SCC_TAPSET);
+	}
+
+	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_CKSEL);
+	reg |= RENESAS_SDHI_SCC_CKSEL_DTSEL;
+	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_CKSEL);
+
+	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_RVSCNTL);
+	reg |= RENESAS_SDHI_SCC_RVSCNTL_RVSEN;
+	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_RVSCNTL);
+
+	return 0;
 }
 
 static void renesas_sdhi_prepare_tuning(struct tmio_sd_priv *priv,
@@ -239,6 +291,7 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 
 	/* clock tuning is not needed for upto 52MHz */
 	if (!((mmc->selected_mode == MMC_HS_200) ||
+	      (mmc->selected_mode == MMC_HS_400) ||
 	      (mmc->selected_mode == UHS_SDR104) ||
 	      (mmc->selected_mode == UHS_SDR50)))
 		return 0;
@@ -286,19 +339,42 @@ out:
 
 	return ret;
 }
+#else
+static int renesas_sdhi_hs400(struct udevice *dev)
+{
+	return 0;
+}
 #endif
 
 static int renesas_sdhi_set_ios(struct udevice *dev)
 {
-	int ret = tmio_sd_set_ios(dev);
+	struct tmio_sd_priv *priv = dev_get_priv(dev);
+	u32 tmp;
+	int ret;
+
+	/* Stop the clock before changing its rate to avoid a glitch signal */
+	tmp = tmio_sd_readl(priv, TMIO_SD_CLKCTL);
+	tmp &= ~TMIO_SD_CLKCTL_SCLKEN;
+	tmio_sd_writel(priv, tmp, TMIO_SD_CLKCTL);
+
+	ret = renesas_sdhi_hs400(dev);
+	if (ret)
+		return ret;
+
+	ret = tmio_sd_set_ios(dev);
 
 	mdelay(10);
 
-#if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT)
-	struct tmio_sd_priv *priv = dev_get_priv(dev);
-
-	if (priv->caps & TMIO_SD_CAP_RCAR_UHS)
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	if ((priv->caps & TMIO_SD_CAP_RCAR_UHS) &&
+	    (mmc->selected_mode != UHS_SDR104) &&
+	    (mmc->selected_mode != MMC_HS_200) &&
+	    (mmc->selected_mode != MMC_HS_400)) {
 		renesas_sdhi_reset_tuning(priv);
+	}
 #endif
 
 	return ret;
@@ -330,7 +406,9 @@ static const struct dm_mmc_ops renesas_sdhi_ops = {
 	.send_cmd = tmio_sd_send_cmd,
 	.set_ios = renesas_sdhi_set_ios,
 	.get_cd = tmio_sd_get_cd,
-#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || CONFIG_IS_ENABLED(MMC_HS200_SUPPORT)
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
 	.execute_tuning = renesas_sdhi_execute_tuning,
 #endif
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
@@ -377,6 +455,13 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 	    (rmobile_get_cpu_rev_integer() == 1) &&
 	    (rmobile_get_cpu_rev_fraction() <= 1)))
 		plat->cfg.host_caps &= ~MMC_MODE_HS400;
+
+	/* H3 ES2.0 uses 4 tuning taps */
+	if ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7795) &&
+	    (rmobile_get_cpu_rev_integer() == 2))
+		priv->nrtaps = 4;
+	else
+		priv->nrtaps = 8;
 }
 
 static int renesas_sdhi_probe(struct udevice *dev)
@@ -426,7 +511,9 @@ static int renesas_sdhi_probe(struct udevice *dev)
 
 	renesas_sdhi_filter_caps(dev);
 
-#if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT)
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
 	if (!ret && (priv->caps & TMIO_SD_CAP_RCAR_UHS))
 		renesas_sdhi_reset_tuning(priv);
 #endif
