@@ -125,7 +125,6 @@ static int renesas_sdhi_select_tuning(struct tmio_sd_priv *priv,
 				     unsigned int smpcmp)
 {
 	unsigned long tap_cnt;  /* counter of tuning success */
-	unsigned long tap_set;  /* tap position */
 	unsigned long tap_start;/* start position of tuning success */
 	unsigned long tap_end;  /* end position of tuning success */
 	unsigned long ntap;     /* temporary counter of tuning success */
@@ -209,12 +208,12 @@ static int renesas_sdhi_select_tuning(struct tmio_sd_priv *priv,
 		select = true;
 
 	if (select)
-		tap_set = ((tap_start + tap_end) / 2) % tap_num;
+		priv->tap_set = ((tap_start + tap_end) / 2) % tap_num;
 	else
 		return -EIO;
 
 	/* Set SCC */
-	tmio_sd_writel(priv, tap_set, RENESAS_SDHI_SCC_TAPSET);
+	tmio_sd_writel(priv, priv->tap_set, RENESAS_SDHI_SCC_TAPSET);
 
 	/* Enable auto re-tuning */
 	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_RVSCNTL);
