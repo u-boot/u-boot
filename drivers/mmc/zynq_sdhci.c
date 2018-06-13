@@ -92,7 +92,7 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	u32 ctrl;
 	struct sdhci_host *host;
 	struct arasan_sdhci_priv *priv = dev_get_priv(mmc->dev);
-	u8 tuning_loop_counter = SDHCI_TUNING_LOOP_COUNT;
+	char tuning_loop_counter = SDHCI_TUNING_LOOP_COUNT;
 	u8 deviceid;
 
 	debug("%s\n", __func__);
