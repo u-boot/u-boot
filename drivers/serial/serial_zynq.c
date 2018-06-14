@@ -15,14 +15,14 @@
 #include <linux/compiler.h>
 #include <serial.h>
 
-#define ZYNQ_UART_SR_TXEMPTY	(1 << 3) /* TX FIFO empty */
-#define ZYNQ_UART_SR_TXACTIVE	(1 << 11)  /* TX active */
-#define ZYNQ_UART_SR_RXEMPTY	0x00000002 /* RX FIFO empty */
+#define ZYNQ_UART_SR_TXEMPTY	BIT(3) /* TX FIFO empty */
+#define ZYNQ_UART_SR_TXACTIVE	BIT(11) /* TX active */
+#define ZYNQ_UART_SR_RXEMPTY	BIT(1) /* RX FIFO empty */
 
-#define ZYNQ_UART_CR_TX_EN	0x00000010 /* TX enabled */
-#define ZYNQ_UART_CR_RX_EN	0x00000004 /* RX enabled */
-#define ZYNQ_UART_CR_TXRST	0x00000002 /* TX logic reset */
-#define ZYNQ_UART_CR_RXRST	0x00000001 /* RX logic reset */
+#define ZYNQ_UART_CR_TX_EN	BIT(4) /* TX enabled */
+#define ZYNQ_UART_CR_RX_EN	BIT(2) /* RX enabled */
+#define ZYNQ_UART_CR_TXRST	BIT(1) /* TX logic reset */
+#define ZYNQ_UART_CR_RXRST	BIT(0) /* RX logic reset */
 
 #define ZYNQ_UART_MR_PARITY_NONE	0x00000020  /* No parity mode */
 
