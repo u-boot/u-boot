@@ -15,6 +15,8 @@
 #include <linux/compiler.h>
 #include <serial.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define ZYNQ_UART_SR_TXACTIVE	BIT(11) /* TX active */
 #define ZYNQ_UART_SR_TXFULL	BIT(4) /* TX FIFO full */
 #define ZYNQ_UART_SR_RXEMPTY	BIT(1) /* RX FIFO empty */
@@ -136,6 +138,10 @@ int zynq_serial_setbrg(struct udevice *dev, int baudrate)
 static int zynq_serial_probe(struct udevice *dev)
 {
 	struct zynq_uart_priv *priv = dev_get_priv(dev);
+
+	/* No need to reinitialize the UART after relocation */
+	if (gd->flags & GD_FLG_RELOC)
+		return 0;
 
 	_uart_zynq_serial_init(priv->regs);
 
