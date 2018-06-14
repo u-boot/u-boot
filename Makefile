@@ -1111,8 +1111,8 @@ u-boot.sha1:	u-boot.bin
 u-boot.dis:	u-boot
 		$(OBJDUMP) -d $< > $@
 
-ifdef CONFIG_TPL
-SPL_PAYLOAD := tpl/u-boot-with-tpl.bin
+ifneq ($(CONFIG_SPL_PAYLOAD),)
+SPL_PAYLOAD := $(CONFIG_SPL_PAYLOAD:"%"=%)
 else
 SPL_PAYLOAD := u-boot.bin
 endif
