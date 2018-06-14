@@ -625,6 +625,14 @@ config MSM_SERIAL
 	  for example APQ8016 and MSM8916.
 	  Single baudrate is supported in current implementation (115200).
 
+config OWL_SERIAL
+	bool "Actions Semi OWL UART"
+	depends on DM_SERIAL && ARCH_OWL
+	help
+	  If you have a Actions Semi OWL based board and want to use the on-chip
+	  serial port, say Y to this option. If unsure, say N.
+	  Single baudrate is supported in current implementation (115200).
+
 config PXA_SERIAL
 	bool "PXA serial port support"
 	help
