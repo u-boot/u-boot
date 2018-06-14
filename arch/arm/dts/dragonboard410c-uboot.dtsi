@@ -6,10 +6,6 @@
  */
 
 / {
-	config {
-		u-boot,mmc-env-partition = "boot";
-	};
-
 	soc {
 		u-boot,dm-pre-reloc;
 
