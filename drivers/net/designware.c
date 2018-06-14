@@ -15,6 +15,7 @@
 #include <miiphy.h>
 #include <malloc.h>
 #include <pci.h>
+#include <reset.h>
 #include <linux/compiler.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
@@ -673,6 +674,7 @@ int designware_eth_probe(struct udevice *dev)
 	u32 iobase = pdata->iobase;
 	ulong ioaddr;
 	int ret;
+	struct reset_ctl_bulk reset_bulk;
 #ifdef CONFIG_CLK
 	int i, err, clock_nb;
 
@@ -718,6 +720,12 @@ int designware_eth_probe(struct udevice *dev)
 		}
 	}
 #endif
+
+	ret = reset_get_bulk(dev, &reset_bulk);
+	if (ret)
+		dev_warn(dev, "Can't get reset: %d\n", ret);
+	else
+		reset_deassert_bulk(&reset_bulk);
 
 #ifdef CONFIG_DM_PCI
 	/*
