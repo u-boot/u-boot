@@ -654,7 +654,7 @@ static int meson_saradc_probe(struct udevice *dev)
 	struct meson_saradc_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = regmap_init_mem(dev, &priv->regmap);
+	ret = regmap_init_mem(dev_ofnode(dev), &priv->regmap);
 	if (ret)
 		return ret;
 
