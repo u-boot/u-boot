@@ -13,7 +13,7 @@ config SPL
 	select SPL_OF_TRANSLATE
 	select SPL_PINCTRL
 	select SPL_REGMAP
-	select SPL_RESET_SUPPORT
+	select SPL_DM_RESET
 	select SPL_SERIAL_SUPPORT
 	select SPL_SYSCON
 	select SPL_DRIVERS_MISC_SUPPORT

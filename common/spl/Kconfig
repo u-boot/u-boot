@@ -578,7 +578,7 @@ config SPL_POST_MEM_SUPPORT
 	  performed before booting. This enables the drivers in post/drivers
 	  as part of an SPL build.
 
-config SPL_RESET_SUPPORT
+config SPL_DM_RESET
 	bool "Support reset drivers"
 	depends on SPL
 	help
