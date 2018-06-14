@@ -103,7 +103,7 @@ static int _uart_zynq_serial_putc(struct uart_zynq *regs, const char c)
 	return 0;
 }
 
-int zynq_serial_setbrg(struct udevice *dev, int baudrate)
+static int zynq_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct zynq_uart_priv *priv = dev_get_priv(dev);
 	unsigned long clock;
