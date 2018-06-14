@@ -126,6 +126,20 @@ static efi_status_t efi_loader_relocate(const IMAGE_BASE_RELOCATION *rel,
 			case IMAGE_REL_BASED_DIR64:
 				*x64 += (uint64_t)delta;
 				break;
+#ifdef __riscv
+			case IMAGE_REL_BASED_RISCV_HI20:
+				*x32 = ((*x32 & 0xfffff000) + (uint32_t)delta) |
+					(*x32 & 0x00000fff);
+				break;
+			case IMAGE_REL_BASED_RISCV_LOW12I:
+			case IMAGE_REL_BASED_RISCV_LOW12S:
+				/* We know that we're 4k aligned */
+				if (delta & 0xfff) {
+					printf("Unsupported reloc offset\n");
+					return EFI_LOAD_ERROR;
+				}
+				break;
+#endif
 			default:
 				printf("Unknown Relocation off %x type %x\n",
 				       offset, type);
