@@ -22,14 +22,19 @@
 #define AHB_CLK_DIST		1
 #endif
 
+#define SUN6I_AHB_RESET0_CFG_OFFSET 0x2c0
+#define SUN9I_AHB_RESET0_CFG_OFFSET 0x5a0
+
 struct ohci_sunxi_cfg {
 	bool has_reset;
 	u32 extra_ahb_gate_mask;
 	u32 extra_usb_gate_mask;
+	u32 reset0_cfg_offset;
 };
 
 struct ohci_sunxi_priv {
 	struct sunxi_ccm_reg *ccm;
+	u32 *reset0_cfg;
 	ohci_t ohci;
 	int ahb_gate_mask; /* Mask of ahb_gate0 clk gate bits for this hcd */
 	int usb_gate_mask; /* Mask of usb_clk_cfg clk gate bits for this hcd */
@@ -49,6 +54,9 @@ static int ohci_usb_probe(struct udevice *dev)
 	priv->ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	if (IS_ERR(priv->ccm))
 		return PTR_ERR(priv->ccm);
+
+	priv->reset0_cfg = (void *)priv->ccm +
+				   priv->cfg->reset0_cfg_offset;
 
 	phys = dev_count_phandle_with_args(dev, "phys", "#phy-cells");
 	if (phys < 0) {
@@ -93,7 +101,7 @@ no_phy:
 	setbits_le32(&priv->ccm->usb_clk_cfg,
 		     priv->usb_gate_mask | priv->cfg->extra_usb_gate_mask);
 	if (priv->cfg->has_reset)
-		setbits_le32(&priv->ccm->ahb_reset0_cfg,
+		setbits_le32(priv->reset0_cfg,
 			     priv->ahb_gate_mask | extra_ahb_gate_mask);
 
 	return ohci_register(dev, regs);
@@ -117,7 +125,7 @@ static int ohci_usb_remove(struct udevice *dev)
 		return ret;
 
 	if (priv->cfg->has_reset)
-		clrbits_le32(&priv->ccm->ahb_reset0_cfg, priv->ahb_gate_mask);
+		clrbits_le32(priv->reset0_cfg, priv->ahb_gate_mask);
 	clrbits_le32(&priv->ccm->usb_clk_cfg, priv->usb_gate_mask);
 	clrbits_le32(&priv->ccm->ahb_gate0, priv->ahb_gate_mask);
 
@@ -130,17 +138,25 @@ static const struct ohci_sunxi_cfg sun4i_a10_cfg = {
 
 static const struct ohci_sunxi_cfg sun6i_a31_cfg = {
 	.has_reset = true,
+	.reset0_cfg_offset = SUN6I_AHB_RESET0_CFG_OFFSET,
 };
 
 static const struct ohci_sunxi_cfg sun8i_h3_cfg = {
 	.has_reset = true,
 	.extra_ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0,
+	.reset0_cfg_offset = SUN6I_AHB_RESET0_CFG_OFFSET,
+};
+
+static const struct ohci_sunxi_cfg sun9i_a80_cfg = {
+	.has_reset = true,
+	.reset0_cfg_offset = SUN9I_AHB_RESET0_CFG_OFFSET,
 };
 
 static const struct ohci_sunxi_cfg sun50i_a64_cfg = {
 	.has_reset = true,
 	.extra_ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0,
 	.extra_usb_gate_mask = CCM_USB_CTRL_OHCI0_CLK,
+	.reset0_cfg_offset = SUN6I_AHB_RESET0_CFG_OFFSET,
 };
 
 static const struct udevice_id ohci_usb_ids[] = {
@@ -174,7 +190,7 @@ static const struct udevice_id ohci_usb_ids[] = {
 	},
 	{
 		.compatible = "allwinner,sun9i-a80-ohci",
-		.data = (ulong)&sun6i_a31_cfg,
+		.data = (ulong)&sun9i_a80_cfg,
 	},
 	{
 		.compatible = "allwinner,sun50i-a64-ohci",
