@@ -65,6 +65,7 @@ typedef enum {
 	PHY_INTERFACE_MODE_XAUI,
 	PHY_INTERFACE_MODE_RXAUI,
 	PHY_INTERFACE_MODE_SFI,
+	PHY_INTERFACE_MODE_INTERNAL,
 	PHY_INTERFACE_MODE_NONE,	/* Must be last */
 
 	PHY_INTERFACE_MODE_COUNT,
@@ -87,6 +88,7 @@ static const char *phy_interface_strings[] = {
 	[PHY_INTERFACE_MODE_XAUI]		= "xaui",
 	[PHY_INTERFACE_MODE_RXAUI]		= "rxaui",
 	[PHY_INTERFACE_MODE_SFI]		= "sfi",
+	[PHY_INTERFACE_MODE_INTERNAL]		= "internal",
 	[PHY_INTERFACE_MODE_NONE]		= "",
 };
 
@@ -314,6 +316,7 @@ static inline bool phy_interface_is_sgmii(struct phy_device *phydev)
 
 /* PHY UIDs for various PHYs that are referenced in external code */
 #define PHY_UID_CS4340  0x13e51002
+#define PHY_UID_CS4223  0x03e57003
 #define PHY_UID_TN2020	0x00a19410
 
 #endif

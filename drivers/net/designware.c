@@ -280,6 +280,15 @@ int designware_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
 
 	writel(readl(&dma_p->busmode) | DMAMAC_SRST, &dma_p->busmode);
 
+	/*
+	 * When a MII PHY is used, we must set the PS bit for the DMA
+	 * reset to succeed.
+	 */
+	if (priv->phydev->interface == PHY_INTERFACE_MODE_MII)
+		writel(readl(&mac_p->conf) | MII_PORTSELECT, &mac_p->conf);
+	else
+		writel(readl(&mac_p->conf) & ~MII_PORTSELECT, &mac_p->conf);
+
 	start = get_timer(0);
 	while (readl(&dma_p->busmode) & DMAMAC_SRST) {
 		if (get_timer(start) >= CONFIG_MACRESET_TIMEOUT) {

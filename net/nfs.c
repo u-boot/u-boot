@@ -822,6 +822,8 @@ static void nfs_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 
 	case STATE_READ_REQ:
 		rlen = nfs_read_reply(pkt, len);
+		if (rlen == -NFS_RPC_DROP)
+			break;
 		net_set_timeout_handler(nfs_timeout, nfs_timeout_handler);
 		if (rlen > 0) {
 			nfs_offset += rlen;

@@ -910,8 +910,22 @@ out:
 	return ret;
 }
 
+static int cpsw_reap_completed_packets(struct cpsw_priv *priv)
+{
+	int timeout = CPDMA_TIMEOUT;
+
+	/* reap completed packets */
+	while (timeout-- &&
+	       (cpdma_process(priv, &priv->tx_chan, NULL, NULL) >= 0))
+		;
+
+	return timeout;
+}
+
 static void _cpsw_halt(struct cpsw_priv *priv)
 {
+	cpsw_reap_completed_packets(priv);
+
 	writel(0, priv->dma_regs + CPDMA_TXCONTROL);
 	writel(0, priv->dma_regs + CPDMA_RXCONTROL);
 
@@ -925,18 +939,12 @@ static void _cpsw_halt(struct cpsw_priv *priv)
 
 static int _cpsw_send(struct cpsw_priv *priv, void *packet, int length)
 {
-	void *buffer;
-	int len;
-	int timeout = CPDMA_TIMEOUT;
+	int timeout;
 
 	flush_dcache_range((unsigned long)packet,
 			   (unsigned long)packet + ALIGN(length, PKTALIGN));
 
-	/* first reap completed packets */
-	while (timeout-- &&
-		(cpdma_process(priv, &priv->tx_chan, &buffer, &len) >= 0))
-		;
-
+	timeout = cpsw_reap_completed_packets(priv);
 	if (timeout == -1) {
 		printf("cpdma_process timeout\n");
 		return -ETIMEDOUT;

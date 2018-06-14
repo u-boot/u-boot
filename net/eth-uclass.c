@@ -395,7 +395,7 @@ int eth_initialize(void)
 	 * This is accomplished by attempting to probe each device and calling
 	 * their write_hwaddr() operation.
 	 */
-	uclass_first_device(UCLASS_ETH, &dev);
+	uclass_first_device_check(UCLASS_ETH, &dev);
 	if (!dev) {
 		printf("No ethernet found.\n");
 		bootstage_error(BOOTSTAGE_ID_NET_ETH_START);
@@ -424,7 +424,7 @@ int eth_initialize(void)
 
 			eth_write_hwaddr(dev);
 
-			uclass_next_device(&dev);
+			uclass_next_device_check(&dev);
 			num_devices++;
 		} while (dev);
 

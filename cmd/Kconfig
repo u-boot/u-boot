@@ -1219,6 +1219,7 @@ config CMD_DNS
 
 config CMD_LINK_LOCAL
 	bool "linklocal"
+	select LIB_RAND
 	help
 	  Acquire a network IP address using the link-local protocol
 

@@ -185,7 +185,7 @@ struct zynq_gem_priv {
 	bool int_pcs;
 };
 
-static u32 phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
+static int phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
 			u32 op, u16 *data)
 {
 	u32 mgtcr;
@@ -216,10 +216,10 @@ static u32 phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
 	return 0;
 }
 
-static u32 phyread(struct zynq_gem_priv *priv, u32 phy_addr,
+static int phyread(struct zynq_gem_priv *priv, u32 phy_addr,
 		   u32 regnum, u16 *val)
 {
-	u32 ret;
+	int ret;
 
 	ret = phy_setup_op(priv, phy_addr, regnum,
 			   ZYNQ_GEM_PHYMNTNC_OP_R_MASK, val);
@@ -231,7 +231,7 @@ static u32 phyread(struct zynq_gem_priv *priv, u32 phy_addr,
 	return ret;
 }
 
-static u32 phywrite(struct zynq_gem_priv *priv, u32 phy_addr,
+static int phywrite(struct zynq_gem_priv *priv, u32 phy_addr,
 		    u32 regnum, u16 data)
 {
 	debug("%s: phy_addr %d, regnum 0x%x, data 0x%x\n", __func__, phy_addr,
@@ -244,7 +244,7 @@ static u32 phywrite(struct zynq_gem_priv *priv, u32 phy_addr,
 static int phy_detection(struct udevice *dev)
 {
 	int i;
-	u16 phyreg;
+	u16 phyreg = 0;
 	struct zynq_gem_priv *priv = dev->priv;
 
 	if (priv->phyaddr != -1) {
@@ -633,10 +633,16 @@ static int zynq_gem_probe(struct udevice *dev)
 
 	/* Align rxbuffers to ARCH_DMA_MINALIGN */
 	priv->rxbuffers = memalign(ARCH_DMA_MINALIGN, RX_BUF * PKTSIZE_ALIGN);
+	if (!priv->rxbuffers)
+		return -ENOMEM;
+
 	memset(priv->rxbuffers, 0, RX_BUF * PKTSIZE_ALIGN);
 
 	/* Align bd_space to MMU_SECTION_SHIFT */
 	bd_space = memalign(1 << MMU_SECTION_SHIFT, BD_SPACE);
+	if (!bd_space)
+		return -ENOMEM;
+
 	mmu_set_region_dcache_behaviour((phys_addr_t)bd_space,
 					BD_SPACE, DCACHE_OFF);
 
