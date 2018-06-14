@@ -15,8 +15,8 @@
 #include <linux/compiler.h>
 #include <serial.h>
 
-#define ZYNQ_UART_SR_TXEMPTY	BIT(3) /* TX FIFO empty */
 #define ZYNQ_UART_SR_TXACTIVE	BIT(11) /* TX active */
+#define ZYNQ_UART_SR_TXFULL	BIT(4) /* TX FIFO full */
 #define ZYNQ_UART_SR_RXEMPTY	BIT(1) /* RX FIFO empty */
 
 #define ZYNQ_UART_CR_TX_EN	BIT(4) /* TX enabled */
@@ -93,7 +93,7 @@ static void _uart_zynq_serial_init(struct uart_zynq *regs)
 
 static int _uart_zynq_serial_putc(struct uart_zynq *regs, const char c)
 {
-	if (!(readl(&regs->channel_sts) & ZYNQ_UART_SR_TXEMPTY))
+	if (readl(&regs->channel_sts) & ZYNQ_UART_SR_TXFULL)
 		return -EAGAIN;
 
 	writel(c, &regs->tx_rx_fifo);
