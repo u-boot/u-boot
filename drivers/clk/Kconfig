@@ -89,6 +89,7 @@ source "drivers/clk/exynos/Kconfig"
 source "drivers/clk/at91/Kconfig"
 source "drivers/clk/renesas/Kconfig"
 source "drivers/clk/mvebu/Kconfig"
+source "drivers/clk/owl/Kconfig"
 
 config ICS8N3QV01
 	bool "Enable ICS8N3QV01 VCXO driver"
