@@ -32,6 +32,14 @@
 		#size-cells = <0x2>;
 		ranges;
 
+		uart5: serial@e012a000 {
+			u-boot,dm-pre-reloc;
+			compatible = "actions,s900-serial";
+			reg = <0x0 0xe012a000 0x0 0x1000>;
+			clocks = <&cmu CLOCK_UART5>;
+			status = "disabled";
+		};
+
 		cmu: clock-controller@e0160000 {
 			u-boot,dm-pre-reloc;
 			compatible = "actions,s900-cmu";
