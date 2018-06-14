@@ -30,9 +30,6 @@ int misc_init_r(void)
 
 	meson_gx_eth_init(PHY_INTERFACE_MODE_RGMII, 0);
 
-	/* Enable power and clock gate */
-	setbits_le32(GX_GCLK_MPEG_0, GX_GCLK_MPEG_0_I2C);
-
 	/* Reset PHY on GPIOZ_14 */
 	clrbits_le32(GX_GPIO_EN(3), BIT(14));
 	clrbits_le32(GX_GPIO_OUT(3), BIT(14));

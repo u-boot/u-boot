@@ -32,10 +32,6 @@ int misc_init_r(void)
 	meson_gx_eth_init(PHY_INTERFACE_MODE_RMII,
 			  MESON_GXL_USE_INTERNAL_RMII_PHY);
 
-	/* Enable power and clock gate */
-	setbits_le32(GX_GCLK_MPEG_1, GX_GCLK_MPEG_1_ETH);
-	clrbits_le32(GX_MEM_PD_REG_0, GX_MEM_PD_REG_0_ETH_MASK);
-
 	if (!eth_env_get_enetaddr("ethaddr", mac_addr)) {
 		len = meson_sm_read_efuse(EFUSE_MAC_OFFSET,
 					  mac_addr, EFUSE_MAC_SIZE);

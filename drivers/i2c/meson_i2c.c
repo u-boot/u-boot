@@ -3,8 +3,8 @@
  * (C) Copyright 2017 - Beniamino Galvani <b.galvani@gmail.com>
  */
 #include <common.h>
-#include <asm/arch/i2c.h>
 #include <asm/io.h>
+#include <clk.h>
 #include <dm.h>
 #include <i2c.h>
 
@@ -42,6 +42,7 @@ struct i2c_regs {
 };
 
 struct meson_i2c {
+	struct clk clk;
 	struct i2c_regs *regs;
 	struct i2c_msg *msg;	/* Current I2C message */
 	bool last;		/* Whether the message is the last */
@@ -221,8 +222,12 @@ static int meson_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 static int meson_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 {
 	struct meson_i2c *i2c = dev_get_priv(bus);
-	unsigned int clk_rate = MESON_I2C_CLK_RATE;
+	ulong clk_rate;
 	unsigned int div;
+
+	clk_rate = clk_get_rate(&i2c->clk);
+	if (IS_ERR_VALUE(clk_rate))
+		return -EINVAL;
 
 	div = DIV_ROUND_UP(clk_rate, speed * 4);
 
@@ -238,7 +243,7 @@ static int meson_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 	clrsetbits_le32(&i2c->regs->ctrl, REG_CTRL_CLKDIVEXT_MASK,
 			(div >> 10) << REG_CTRL_CLKDIVEXT_SHIFT);
 
-	debug("meson i2c: set clk %u, src %u, div %u\n", speed, clk_rate, div);
+	debug("meson i2c: set clk %u, src %lu, div %u\n", speed, clk_rate, div);
 
 	return 0;
 }
@@ -246,6 +251,15 @@ static int meson_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 static int meson_i2c_probe(struct udevice *bus)
 {
 	struct meson_i2c *i2c = dev_get_priv(bus);
+	int ret;
+
+	ret = clk_get_by_index(bus, 0, &i2c->clk);
+	if (ret < 0)
+		return ret;
+
+	ret = clk_enable(&i2c->clk);
+	if (ret)
+		return ret;
 
 	i2c->regs = dev_read_addr_ptr(bus);
 	clrbits_le32(&i2c->regs->ctrl, REG_CTRL_START);

@@ -48,7 +48,6 @@ void meson_gx_eth_init(phy_interface_t mode, unsigned int flags)
 		return;
 	}
 
-	/* Enable power and clock gate */
-	setbits_le32(GX_GCLK_MPEG_1, GX_GCLK_MPEG_1_ETH);
+	/* Enable power gate */
 	clrbits_le32(GX_MEM_PD_REG_0, GX_MEM_PD_REG_0_ETH_MASK);
 }

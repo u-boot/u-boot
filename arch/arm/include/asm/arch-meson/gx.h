@@ -56,14 +56,4 @@
 /* Ethernet memory power domain */
 #define GX_MEM_PD_REG_0_ETH_MASK	(BIT(2) | BIT(3))
 
-/* Clock gates */
-#define GX_GCLK_MPEG_0	GX_HIU_ADDR(0x50)
-#define GX_GCLK_MPEG_1	GX_HIU_ADDR(0x51)
-#define GX_GCLK_MPEG_2	GX_HIU_ADDR(0x52)
-#define GX_GCLK_MPEG_OTHER	GX_HIU_ADDR(0x53)
-#define GX_GCLK_MPEG_AO	GX_HIU_ADDR(0x54)
-
-#define GX_GCLK_MPEG_0_I2C   BIT(9)
-#define GX_GCLK_MPEG_1_ETH	BIT(3)
-
 #endif /* __GX_H__ */
