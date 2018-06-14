@@ -708,6 +708,13 @@ config ARCH_MX5
 	select BOARD_EARLY_INIT_F
 	imply MXC_GPIO
 
+config ARCH_OWL
+	bool "Actions Semi OWL SoCs"
+	select ARM64
+	select DM
+	select DM_SERIAL
+	select OF_CONTROL
+
 config ARCH_QEMU
 	bool "QEMU Virtual Platform"
 	select DM
@@ -1356,6 +1363,8 @@ source "arch/arm/mach-omap2/Kconfig"
 source "arch/arm/cpu/armv8/fsl-layerscape/Kconfig"
 
 source "arch/arm/mach-orion5x/Kconfig"
+
+source "arch/arm/mach-owl/Kconfig"
 
 source "arch/arm/mach-rmobile/Kconfig"
 

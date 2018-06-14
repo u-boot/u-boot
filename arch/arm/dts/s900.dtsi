@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: GPL-2.0+
+//
+// Device Tree Source for Actions Semi S900 SoC
+//
+// Copyright (C) 2015 Actions Semi Co., Ltd.
+// Copyright (C) 2018 Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+
+/dts-v1/;
+
+/ {
+	compatible = "actions,s900";
+	#address-cells = <0x2>;
+	#size-cells = <0x2>;
+
+	soc {
+		u-boot,dm-pre-reloc;
+		compatible = "simple-bus";
+		#address-cells = <0x2>;
+		#size-cells = <0x2>;
+		ranges;
+	};
+};
+

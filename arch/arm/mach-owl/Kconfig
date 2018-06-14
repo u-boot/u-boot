@@ -1,0 +1,6 @@
+if ARCH_OWL
+
+config SYS_SOC
+	default "owl"
+
+endif
