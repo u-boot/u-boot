@@ -3,6 +3,7 @@ if ARCH_MESON
 config MESON_GXBB
 	bool "Support Meson GXBaby"
 	select ARM64
+	select CLK
 	select DM
 	select DM_SERIAL
 	help
@@ -12,6 +13,7 @@ config MESON_GXBB
 config MESON_GXL
 	bool "Support Meson GXL"
 	select ARM64
+	select CLK
 	select DM
 	select DM_SERIAL
 	help
