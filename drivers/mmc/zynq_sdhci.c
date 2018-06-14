@@ -208,7 +208,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 		       SDHCI_QUIRK_USE_ACMD12;
 
 #ifdef CONFIG_ZYNQ_HISPD_BROKEN
-	host->quirks |= SDHCI_QUIRK_NO_HISPD_BIT;
+	host->quirks |= SDHCI_QUIRK_BROKEN_HISPD_MODE;
 #endif
 
 	if (priv->no_1p8)
