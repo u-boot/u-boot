@@ -268,7 +268,8 @@ static void add_entry_addr(struct efi_priv *priv, enum efi_entry_t type,
  * This function is called by our EFI start-up code. It handles running
  * U-Boot. If it returns, EFI will continue.
  */
-efi_status_t efi_main(efi_handle_t image, struct efi_system_table *sys_table)
+efi_status_t EFIAPI efi_main(efi_handle_t image,
+			     struct efi_system_table *sys_table)
 {
 	struct efi_priv local_priv, *priv = &local_priv;
 	struct efi_boot_services *boot = sys_table->boottime;
