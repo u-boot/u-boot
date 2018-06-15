@@ -157,7 +157,8 @@ static void store_net_params(struct bootp_hdr *bp)
 #if defined(CONFIG_CMD_DHCP)
 	    !(dhcp_option_overload & OVERLOAD_FILE) &&
 #endif
-	    (strlen(bp->bp_file) > 0)) {
+	    (strlen(bp->bp_file) > 0) &&
+	    !net_boot_file_name_explicit) {
 		copy_filename(net_boot_file_name, bp->bp_file,
 			      sizeof(net_boot_file_name));
 	}
@@ -889,10 +890,13 @@ static void dhcp_process_options(uchar *popt, uchar *end)
 		case 66:	/* Ignore TFTP server name */
 			break;
 		case 67:	/* Bootfile option */
-			size = truncate_sz("Bootfile",
-					   sizeof(net_boot_file_name), oplen);
-			memcpy(&net_boot_file_name, popt + 2, size);
-			net_boot_file_name[size] = 0;
+			if (!net_boot_file_name_explicit) {
+				size = truncate_sz("Bootfile",
+						   sizeof(net_boot_file_name),
+						   oplen);
+				memcpy(&net_boot_file_name, popt + 2, size);
+				net_boot_file_name[size] = 0;
+			}
 			break;
 		default:
 #if defined(CONFIG_BOOTP_VENDOREX)
