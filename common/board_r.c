@@ -553,6 +553,7 @@ static int initr_scsi(void)
 {
 	puts("SCSI:  ");
 	scsi_init();
+	puts("\n");
 
 	return 0;
 }
