@@ -20,6 +20,11 @@
 #include <asm-generic/unaligned.h>
 #include <linux/linkage.h>
 
+#ifdef CONFIG_ARMV7_NONSEC
+#include <asm/armv7.h>
+#include <asm/secure.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #define OBJ_LIST_NOT_INITIALIZED 1
@@ -194,6 +199,18 @@ static efi_status_t efi_run_in_el2(EFIAPI efi_status_t (*entry)(
 }
 #endif
 
+#ifdef CONFIG_ARMV7_NONSEC
+static efi_status_t efi_run_in_hyp(EFIAPI efi_status_t (*entry)(
+			efi_handle_t image_handle, struct efi_system_table *st),
+			efi_handle_t image_handle, struct efi_system_table *st)
+{
+	/* Enable caches again */
+	dcache_enable();
+
+	return efi_do_enter(image_handle, st, entry);
+}
+#endif
+
 /* Carve out DT reserved memory ranges */
 static efi_status_t efi_carve_out_dt_rsv(void *fdt)
 {
@@ -344,6 +361,22 @@ static efi_status_t do_bootefi_exec(void *efi,
 				    (ulong)&loaded_image_info_obj.handle,
 				    (ulong)&systab, 0, (ulong)efi_run_in_el2,
 				    ES_TO_AARCH64);
+
+		/* Should never reach here, efi exits with longjmp */
+		while (1) { }
+	}
+#endif
+
+#ifdef CONFIG_ARMV7_NONSEC
+	if (armv7_boot_nonsec()) {
+		dcache_disable();	/* flush cache before switch to HYP */
+
+		armv7_init_nonsec();
+		secure_ram_addr(_do_nonsec_entry)(
+					efi_run_in_hyp,
+					(uintptr_t)entry,
+					(uintptr_t)loaded_image_info_obj.handle,
+					(uintptr_t)&systab);
 
 		/* Should never reach here, efi exits with longjmp */
 		while (1) { }
