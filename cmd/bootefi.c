@@ -200,12 +200,16 @@ static efi_status_t efi_run_in_el2(EFIAPI efi_status_t (*entry)(
 #endif
 
 #ifdef CONFIG_ARMV7_NONSEC
+static bool is_nonsec;
+
 static efi_status_t efi_run_in_hyp(EFIAPI efi_status_t (*entry)(
 			efi_handle_t image_handle, struct efi_system_table *st),
 			efi_handle_t image_handle, struct efi_system_table *st)
 {
 	/* Enable caches again */
 	dcache_enable();
+
+	is_nonsec = true;
 
 	return efi_do_enter(image_handle, st, entry);
 }
@@ -368,7 +372,7 @@ static efi_status_t do_bootefi_exec(void *efi,
 #endif
 
 #ifdef CONFIG_ARMV7_NONSEC
-	if (armv7_boot_nonsec()) {
+	if (armv7_boot_nonsec() && !is_nonsec) {
 		dcache_disable();	/* flush cache before switch to HYP */
 
 		armv7_init_nonsec();
