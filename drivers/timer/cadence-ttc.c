@@ -31,6 +31,28 @@ struct cadence_ttc_priv {
 	struct cadence_ttc_regs *regs;
 };
 
+#if CONFIG_IS_ENABLED(BOOTSTAGE)
+ulong timer_get_boot_us(void)
+{
+	u64 ticks = 0;
+	u32 rate = 1;
+	u64 us;
+	int ret;
+
+	ret = dm_timer_init();
+	if (!ret) {
+		/* The timer is available */
+		rate = timer_get_rate(gd->timer);
+		timer_get_count(gd->timer, &ticks);
+	} else {
+		return 0;
+	}
+
+	us = (ticks * 1000) / rate;
+	return us;
+}
+#endif
+
 static int cadence_ttc_get_count(struct udevice *dev, u64 *count)
 {
 	struct cadence_ttc_priv *priv = dev_get_priv(dev);

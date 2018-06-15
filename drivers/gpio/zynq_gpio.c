@@ -111,9 +111,9 @@ struct zynq_gpio_privdata {
 struct zynq_platform_data {
 	const char *label;
 	u16 ngpio;
-	int max_bank;
-	int bank_min[ZYNQMP_GPIO_MAX_BANK];
-	int bank_max[ZYNQMP_GPIO_MAX_BANK];
+	u32 max_bank;
+	u32 bank_min[ZYNQMP_GPIO_MAX_BANK];
+	u32 bank_max[ZYNQMP_GPIO_MAX_BANK];
 };
 
 static const struct zynq_platform_data zynqmp_gpio_def = {
@@ -165,7 +165,7 @@ static inline void zynq_gpio_get_bank_pin(unsigned int pin_num,
 					  struct udevice *dev)
 {
 	struct zynq_gpio_privdata *priv = dev_get_priv(dev);
-	int bank;
+	u32 bank;
 
 	for (bank = 0; bank < priv->p_data->max_bank; bank++) {
 		if ((pin_num >= priv->p_data->bank_min[bank]) &&
@@ -188,7 +188,7 @@ static int gpio_is_valid(unsigned gpio, struct udevice *dev)
 {
 	struct zynq_gpio_privdata *priv = dev_get_priv(dev);
 
-	return (gpio >= 0) && (gpio < priv->p_data->ngpio);
+	return gpio < priv->p_data->ngpio;
 }
 
 static int check_gpio(unsigned gpio, struct udevice *dev)

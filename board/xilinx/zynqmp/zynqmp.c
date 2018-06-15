@@ -596,6 +596,8 @@ int board_late_init(void)
 
 	new_targets = calloc(1, strlen(mode) + env_targets_len + 2 +
 			     bootseq_len);
+	if (!new_targets)
+		return -ENOMEM;
 
 	if (bootseq >= 0)
 		sprintf(new_targets, "%s%x %s", mode, bootseq,

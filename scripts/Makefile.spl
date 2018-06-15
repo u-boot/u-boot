@@ -167,8 +167,14 @@ ifdef CONFIG_ARCH_ZYNQ
 MKIMAGEFLAGS_boot.bin = -T zynqimage -R $(srctree)/$(CONFIG_BOOT_INIT_FILE)
 endif
 ifdef CONFIG_ARCH_ZYNQMP
+ifneq ($(CONFIG_PMUFW_INIT_FILE),"")
+spl/boot.bin: zynqmp-check-pmufw
+zynqmp-check-pmufw: FORCE
+	( cd $(srctree) && test -r $(CONFIG_PMUFW_INIT_FILE) ) \
+		|| ( echo "Cannot read $(CONFIG_PMUFW_INIT_FILE)" && false )
+endif
 MKIMAGEFLAGS_boot.bin = -T zynqmpimage -R $(srctree)/$(CONFIG_BOOT_INIT_FILE) \
-	-n $(srctree)/$(CONFIG_PMUFW_INIT_FILE)
+	-n "$(shell cd $(srctree); readlink -f $(CONFIG_PMUFW_INIT_FILE))"
 endif
 
 spl/boot.bin: $(obj)/u-boot-spl.bin FORCE

@@ -39,6 +39,9 @@
 #define CONFIG_ZYNQ_EEPROM_BUS		5
 #define CONFIG_ZYNQ_GEM_EEPROM_ADDR	0x54
 
+#define CONFIG_SPD_EEPROM
+#define CONFIG_DDR_SPD
+
 #include <configs/xilinx_zynqmp.h>
 
 #endif /* __CONFIG_ZYNQMP_ZCU102_H */

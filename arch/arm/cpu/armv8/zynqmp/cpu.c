@@ -212,8 +212,12 @@ static int zynqmp_mmio_rawwrite(const u32 address,
 {
 	u32 data;
 	u32 value_local = value;
+	int ret;
 
-	zynqmp_mmio_read(address, &data);
+	ret = zynqmp_mmio_read(address, &data);
+	if (ret)
+		return ret;
+
 	data &= ~mask;
 	value_local &= mask;
 	value_local |= data;
