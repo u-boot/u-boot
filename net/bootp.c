@@ -147,9 +147,14 @@ static void store_net_params(struct bootp_hdr *bp)
 {
 #if !defined(CONFIG_BOOTP_SERVERIP)
 	struct in_addr tmp_ip;
+	bool overwrite_serverip = true;
+
+#if defined(CONFIG_BOOTP_PREFER_SERVERIP)
+	overwrite_serverip = false;
+#endif
 
 	net_copy_ip(&tmp_ip, &bp->bp_siaddr);
-	if (tmp_ip.s_addr != 0)
+	if (tmp_ip.s_addr != 0 && (overwrite_serverip || !net_server_ip.s_addr))
 		net_copy_ip(&net_server_ip, &bp->bp_siaddr);
 	memcpy(net_server_ethaddr,
 	       ((struct ethernet_hdr *)net_rx_packet)->et_src, 6);
