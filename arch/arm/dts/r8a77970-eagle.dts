@@ -32,6 +32,8 @@
 };
 
 &avb {
+	pinctrl-0 = <&avb0_pins>;
+	pinctrl-names = "default";
 	renesas,no-ether-link;
 	phy-handle = <&phy0>;
 	phy-mode = "rgmii-id";
@@ -69,6 +71,13 @@
 };
 
 &pfc {
+	avb0_pins: avb {
+		mux {
+			groups = "avb0_link", "avb0_mdio", "avb0_rgmii", "avb0_txcrefclk";
+			function = "avb0";
+		};
+	};
+
 	i2c0_pins: i2c0 {
 		groups = "i2c0";
 		function = "i2c0";
