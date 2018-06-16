@@ -8,6 +8,7 @@
 
 /dts-v1/;
 #include "r8a77970.dtsi"
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	model = "Renesas Eagle board based on r8a77970";
@@ -38,6 +39,7 @@
 	phy-handle = <&phy0>;
 	phy-mode = "rgmii-id";
 	status = "okay";
+	reset-gpios = <&gpio1 16 GPIO_ACTIVE_LOW>;
 
 	phy0: ethernet-phy@0 {
 		rxc-skew-ps = <1500>;
