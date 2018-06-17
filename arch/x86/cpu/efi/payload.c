@@ -7,6 +7,7 @@
 #include <common.h>
 #include <efi.h>
 #include <errno.h>
+#include <usb.h>
 #include <asm/post.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -157,6 +158,14 @@ int reserve_arch(void)
 	debug("Stashing EFI table at %lx to %lx, size %x\n",
 	      gd->arch.table, gd->start_addr_sp, hdr->total_size);
 	gd->arch.table = gd->start_addr_sp;
+
+	return 0;
+}
+
+int last_stage_init(void)
+{
+	/* start usb so that usb keyboard can be used as input device */
+	usb_init();
 
 	return 0;
 }

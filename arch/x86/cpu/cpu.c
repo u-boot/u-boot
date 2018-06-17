@@ -193,7 +193,7 @@ void show_boot_progress(int val)
 	outb(val, POST_PORT);
 }
 
-#ifndef CONFIG_SYS_COREBOOT
+#if !defined(CONFIG_SYS_COREBOOT) && !defined(CONFIG_EFI_STUB)
 /*
  * Implement a weak default function for boards that optionally
  * need to clean up the system before jumping to the kernel.
