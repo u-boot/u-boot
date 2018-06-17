@@ -174,7 +174,12 @@ void *os_malloc(size_t length)
 	struct os_mem_hdr *hdr;
 	int page_size = getpagesize();
 
-	hdr = mmap(NULL, length + page_size,
+	/*
+	 * Use an address that is hopefully available to us so that pointers
+	 * to this memory are fairly obvious. If we end up with a different
+	 * address, that's fine too.
+	 */
+	hdr = mmap((void *)0x10000000, length + page_size,
 		   PROT_READ | PROT_WRITE | PROT_EXEC,
 		   MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (hdr == MAP_FAILED)
