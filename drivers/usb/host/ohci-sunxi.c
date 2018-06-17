@@ -33,9 +33,9 @@ struct ohci_sunxi_cfg {
 };
 
 struct ohci_sunxi_priv {
+	ohci_t ohci;
 	struct sunxi_ccm_reg *ccm;
 	u32 *reset0_cfg;
-	ohci_t ohci;
 	int ahb_gate_mask; /* Mask of ahb_gate0 clk gate bits for this hcd */
 	int usb_gate_mask; /* Mask of usb_clk_cfg clk gate bits for this hcd */
 	struct phy phy;
