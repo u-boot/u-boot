@@ -24,15 +24,6 @@
 		stdout-path = "serial0:115200n8";
 	};
 
-	cpld {
-		compatible = "renesas,ulcb-cpld";
-		status = "okay";
-		gpio-sck = <&gpio6 8 0>;
-		gpio-mosi = <&gpio6 7 0>;
-		gpio-miso = <&gpio6 10 0>;
-		gpio-sstbz = <&gpio2 3 0>;
-	};
-
 	audio_clkout: audio-clkout {
 		/*
 		 * This is same as <&rcar_sound 0>
@@ -40,7 +31,7 @@
 		 */
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
-		clock-frequency = <11289600>;
+		clock-frequency = <12288000>;
 	};
 
 	hdmi0-out {
@@ -154,9 +145,8 @@
 &avb {
 	pinctrl-0 = <&avb_pins>;
 	pinctrl-names = "default";
-	renesas,no-ether-link;
 	phy-handle = <&phy0>;
-	reset-gpios = <&gpio2 10 GPIO_ACTIVE_LOW>;
+	phy-mode = "rgmii-txid";
 	status = "okay";
 
 	phy0: ethernet-phy@0 {
@@ -164,7 +154,12 @@
 		reg = <0>;
 		interrupt-parent = <&gpio2>;
 		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
+		reset-gpios = <&gpio2 10 GPIO_ACTIVE_LOW>;
 	};
+};
+
+&du {
+	status = "okay";
 };
 
 &ehci1 {
@@ -260,8 +255,7 @@
 
 	avb_pins: avb {
 		mux {
-			groups = "avb_link", "avb_phy_int", "avb_mdc",
-				 "avb_mii";
+			groups = "avb_link", "avb_mdc", "avb_mii";
 			function = "avb";
 		};
 

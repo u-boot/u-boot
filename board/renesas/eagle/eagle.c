@@ -26,8 +26,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define CPGWPR  0xE6150900
 #define CPGWPCR	0xE6150904
-#define CPGWPR  0xE615090C
 
 /* PLL */
 #define PLL0CR		0xE61500D8
@@ -54,8 +54,9 @@ void s_init(void)
 
 int board_early_init_f(void)
 {
-	writel(0xA5A5FFFF, CPGWPCR);
-	writel(0x5A5A0000, CPGWPR);
+	/* Unlock CPG access */
+	writel(0xA5A5FFFF, CPGWPR);
+	writel(0x5A5A0000, CPGWPCR);
 
 	/* TMU0 */
 	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125);

@@ -8,6 +8,7 @@
 
 /dts-v1/;
 #include "r8a77970.dtsi"
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	model = "Renesas Eagle board based on r8a77970";
@@ -31,6 +32,23 @@
 	};
 };
 
+&avb {
+	pinctrl-0 = <&avb0_pins>;
+	pinctrl-names = "default";
+	renesas,no-ether-link;
+	phy-handle = <&phy0>;
+	phy-mode = "rgmii-id";
+	status = "okay";
+	reset-gpios = <&gpio1 16 GPIO_ACTIVE_LOW>;
+
+	phy0: ethernet-phy@0 {
+		rxc-skew-ps = <1500>;
+		reg = <0>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <17 IRQ_TYPE_LEVEL_LOW>;
+	};
+};
+
 &extal_clk {
 	clock-frequency = <16666666>;
 };
@@ -39,23 +57,37 @@
 	clock-frequency = <32768>;
 };
 
-&pfc {
-	pinctrl-0 = <&scif_clk_pins>;
+&i2c0 {
+	pinctrl-0 = <&i2c0_pins>;
 	pinctrl-names = "default";
+
+	status = "okay";
+	clock-frequency = <400000>;
+
+	io_expander: gpio@20 {
+		compatible = "onnn,pca9654";
+		reg = <0x20>;
+		gpio-controller;
+		#gpio-cells = <2>;
+	};
+};
+
+&pfc {
+	avb0_pins: avb {
+		mux {
+			groups = "avb0_link", "avb0_mdio", "avb0_rgmii", "avb0_txcrefclk";
+			function = "avb0";
+		};
+	};
+
+	i2c0_pins: i2c0 {
+		groups = "i2c0";
+		function = "i2c0";
+	};
 
 	scif0_pins: scif0 {
 		groups = "scif0_data";
 		function = "scif0";
-	};
-
-	scif_clk_pins: scif_clk {
-		groups = "scif_clk_b";
-		function = "scif_clk";
-	};
-
-	avb_pins: avb {
-		groups = "avb0_mdc";
-		function = "avb0";
 	};
 };
 
@@ -78,27 +110,14 @@
 	};
 };
 
+&rwdt {
+	timeout-sec = <60>;
+	status = "okay";
+};
+
 &scif0 {
 	pinctrl-0 = <&scif0_pins>;
 	pinctrl-names = "default";
 
 	status = "okay";
-};
-
-&scif_clk {
-	clock-frequency = <14745600>;
-	status = "okay";
-};
-
-&avb {
-	pinctrl-0 = <&avb_pins>;
-	pinctrl-names = "default";
-	renesas,no-ether-link;
-	phy-handle = <&phy0>;
-	status = "okay";
-
-	phy0: ethernet-phy@0 {
-		rxc-skew-ps = <1500>;
-		reg = <0>;
-	};
 };

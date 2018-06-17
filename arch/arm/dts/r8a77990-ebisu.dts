@@ -52,14 +52,44 @@
 };
 
 &pfc {
+	pinctrl-0 = <&scif_clk_pins>;
+	pinctrl-names = "default";
+
 	avb_pins: avb {
 		mux {
 			groups = "avb_link", "avb_mii";
 			function = "avb";
 		};
 	};
+
+	scif2_pins: scif2 {
+		groups = "scif2_data_a";
+		function = "scif2";
+	};
+
+	scif_clk_pins: scif_clk {
+		groups = "scif_clk_a";
+		function = "scif_clk";
+	};
+};
+
+&sdhi0 {
+	status = "okay";
+};
+
+&sdhi1 {
+	status = "okay";
+};
+
+&sdhi3 {
+	bus-width = <8>;
+	non-removable;
+	status = "okay";
 };
 
 &scif2 {
+	pinctrl-0 = <&scif2_pins>;
+	pinctrl-names = "default";
+
 	status = "okay";
 };
