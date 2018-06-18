@@ -41,7 +41,7 @@ endif
 
 # TODO: As of v2018.01 the relocation code for the EFI application cannot
 # be built on x86_64.
-ifeq ($(CONFIG_X86_64),)
+ifeq ($(CONFIG_X86_64)$(CONFIG_SANDBOX),)
 
 ifneq ($(CONFIG_CMD_BOOTEFI_SELFTEST),)
 
