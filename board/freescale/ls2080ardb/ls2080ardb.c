@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2017 NXP Semiconductors
  * Copyright 2015 Freescale Semiconductor
+ * Copyright 2017 NXP
  */
 #include <common.h>
 #include <malloc.h>
