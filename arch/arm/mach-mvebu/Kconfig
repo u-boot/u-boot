@@ -193,6 +193,9 @@ config MVEBU_SPL_BOOT_DEVICE_MMC
 	bool "SDIO/MMC card"
 	select SPL_LIBDISK_SUPPORT
 
+config MVEBU_SPL_BOOT_DEVICE_UART
+	bool "UART"
+
 endchoice
 
 config MVEBU_EFUSE
