@@ -148,8 +148,12 @@ static void *copy_fdt(void *fdt)
 			fdt_ram_start = ram_start;
 	}
 
-	/* Give us at least 4kb breathing room */
-	fdt_size = ALIGN(fdt_size + 4096, EFI_PAGE_SIZE);
+	/*
+	 * Give us at least 4KB of breathing room in case the device tree needs
+	 * to be expanded later. Round up to the nearest EFI page boundary.
+	 */
+	fdt_size += 4096;
+	fdt_size = ALIGN(fdt_size + EFI_PAGE_SIZE - 1, EFI_PAGE_SIZE);
 	fdt_pages = fdt_size >> EFI_PAGE_SHIFT;
 
 	/* Safe fdt location is at 128MB */
