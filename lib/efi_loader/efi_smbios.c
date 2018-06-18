@@ -26,8 +26,15 @@ efi_status_t efi_smbios_register(void)
 	/* Reserve 4kiB page for SMBIOS */
 	ret = efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
 				 EFI_RUNTIME_SERVICES_DATA, 1, &dmi);
-	if (ret != EFI_SUCCESS)
-		return ret;
+
+	if (ret != EFI_SUCCESS) {
+		/* Could not find space in lowmem, use highmem instead */
+		ret = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES,
+					 EFI_RUNTIME_SERVICES_DATA, 1, &dmi);
+
+		if (ret != EFI_SUCCESS)
+			return ret;
+	}
 
 	/*
 	 * Generate SMBIOS tables - we know that efi_allocate_pages() returns
