@@ -437,7 +437,7 @@ static int ravb_start(struct udevice *dev)
 
 	ret = ravb_reset(dev);
 	if (ret)
-		goto err;
+		return ret;
 
 	ravb_base_desc_init(eth);
 	ravb_tx_desc_init(eth);
@@ -445,16 +445,12 @@ static int ravb_start(struct udevice *dev)
 
 	ret = ravb_config(dev);
 	if (ret)
-		goto err;
+		return ret;
 
 	/* Setting the control will start the AVB-DMAC process. */
 	writel(CCC_OPC_OPERATION, eth->iobase + RAVB_REG_CCC);
 
 	return 0;
-
-err:
-	clk_disable(&eth->clk);
-	return ret;
 }
 
 static void ravb_stop(struct udevice *dev)
