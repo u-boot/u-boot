@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <linux/libfdt.h>
 #include <linux/libfdt_env.h>
+#include <mapmem.h>
 #include <memalign.h>
 #include <asm/global_data.h>
 #include <asm-generic/sections.h>
@@ -431,7 +432,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	unsigned long addr;
 	char *saddr;
 	efi_status_t r;
-	void *fdt_addr;
+	unsigned long fdt_addr;
+	void *fdt;
 
 	/* Allow unaligned memory access */
 	allow_unaligned();
@@ -448,11 +450,12 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return CMD_RET_USAGE;
 
 	if (argc > 2) {
-		fdt_addr = (void *)simple_strtoul(argv[2], NULL, 16);
+		fdt_addr = simple_strtoul(argv[2], NULL, 16);
 		if (!fdt_addr && *argv[2] != '0')
 			return CMD_RET_USAGE;
 		/* Install device tree */
-		r = efi_install_fdt(fdt_addr);
+		fdt = map_sysmem(fdt_addr, 0);
+		r = efi_install_fdt(fdt);
 		if (r != EFI_SUCCESS) {
 			printf("ERROR: failed to install device tree\n");
 			return CMD_RET_FAILURE;
@@ -471,7 +474,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			addr = simple_strtoul(saddr, NULL, 16);
 		else
 			addr = CONFIG_SYS_LOAD_ADDR;
-		memcpy((char *)addr, __efi_helloworld_begin, size);
+		memcpy(map_sysmem(addr, size), __efi_helloworld_begin, size);
 	} else
 #endif
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
@@ -517,7 +520,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	printf("## Starting EFI application at %08lx ...\n", addr);
-	r = do_bootefi_exec((void *)addr, bootefi_device_path,
+	r = do_bootefi_exec(map_sysmem(addr, 0), bootefi_device_path,
 			    bootefi_image_path);
 	printf("## Application terminated, r = %lu\n",
 	       r & ~EFI_ERROR_MASK);
