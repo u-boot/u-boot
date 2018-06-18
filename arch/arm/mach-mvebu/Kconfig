@@ -183,20 +183,17 @@ config SYS_VENDOR
 config SYS_SOC
 	default "mvebu"
 
-if TARGET_TURRIS_OMNIA
-
 choice
-	prompt "Turris Omnia boot method"
+	prompt "Boot method"
 
-config TURRIS_OMNIA_SPL_BOOT_DEVICE_SPI
+config MVEBU_SPL_BOOT_DEVICE_SPI
 	bool "SPI NOR flash"
 
-config TURRIS_OMNIA_SPL_BOOT_DEVICE_MMC
+config MVEBU_SPL_BOOT_DEVICE_MMC
 	bool "SDIO/MMC card"
+	select SPL_LIBDISK_SUPPORT
 
 endchoice
-
-endif
 
 config MVEBU_EFUSE
 	bool "Enable eFuse support"
