@@ -496,13 +496,12 @@ __weak void efi_add_known_memory(void)
 	}
 }
 
-int efi_memory_init(void)
+/* Add memory regions for U-Boot's memory and for the runtime services code */
+static void add_u_boot_and_runtime(void)
 {
 	unsigned long runtime_start, runtime_end, runtime_pages;
 	unsigned long uboot_start, uboot_pages;
 	unsigned long uboot_stack_size = 16 * 1024 * 1024;
-
-	efi_add_known_memory();
 
 	/* Add U-Boot */
 	uboot_start = (gd->start_addr_sp - uboot_stack_size) & ~EFI_PAGE_MASK;
@@ -516,6 +515,14 @@ int efi_memory_init(void)
 	runtime_pages = (runtime_end - runtime_start) >> EFI_PAGE_SHIFT;
 	efi_add_memory_map(runtime_start, runtime_pages,
 			   EFI_RUNTIME_SERVICES_CODE, false);
+}
+
+int efi_memory_init(void)
+{
+	efi_add_known_memory();
+
+	if (!IS_ENABLED(CONFIG_SANDBOX))
+		add_u_boot_and_runtime();
 
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
 	/* Request a 32bit 64MB bounce buffer region */
