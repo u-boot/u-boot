@@ -2302,7 +2302,7 @@ static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces(
 {
 	EFI_ENTRY("%p", handle);
 
-	va_list argptr;
+	efi_va_list argptr;
 	const efi_guid_t *protocol;
 	void *protocol_interface;
 	efi_status_t r = EFI_SUCCESS;
@@ -2311,12 +2311,12 @@ static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces(
 	if (!handle)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-	va_start(argptr, handle);
+	efi_va_start(argptr, handle);
 	for (;;) {
-		protocol = va_arg(argptr, efi_guid_t*);
+		protocol = efi_va_arg(argptr, efi_guid_t*);
 		if (!protocol)
 			break;
-		protocol_interface = va_arg(argptr, void*);
+		protocol_interface = efi_va_arg(argptr, void*);
 		r = EFI_CALL(efi_install_protocol_interface(
 						handle, protocol,
 						EFI_NATIVE_INTERFACE,
@@ -2325,19 +2325,19 @@ static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces(
 			break;
 		i++;
 	}
-	va_end(argptr);
+	efi_va_end(argptr);
 	if (r == EFI_SUCCESS)
 		return EFI_EXIT(r);
 
 	/* If an error occurred undo all changes. */
-	va_start(argptr, handle);
+	efi_va_start(argptr, handle);
 	for (; i; --i) {
-		protocol = va_arg(argptr, efi_guid_t*);
-		protocol_interface = va_arg(argptr, void*);
+		protocol = efi_va_arg(argptr, efi_guid_t*);
+		protocol_interface = efi_va_arg(argptr, void*);
 		EFI_CALL(efi_uninstall_protocol_interface(handle, protocol,
 							  protocol_interface));
 	}
-	va_end(argptr);
+	efi_va_end(argptr);
 
 	return EFI_EXIT(r);
 }
@@ -2361,7 +2361,7 @@ static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
 {
 	EFI_ENTRY("%p", handle);
 
-	va_list argptr;
+	efi_va_list argptr;
 	const efi_guid_t *protocol;
 	void *protocol_interface;
 	efi_status_t r = EFI_SUCCESS;
@@ -2370,12 +2370,12 @@ static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
 	if (!handle)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-	va_start(argptr, handle);
+	efi_va_start(argptr, handle);
 	for (;;) {
-		protocol = va_arg(argptr, efi_guid_t*);
+		protocol = efi_va_arg(argptr, efi_guid_t*);
 		if (!protocol)
 			break;
-		protocol_interface = va_arg(argptr, void*);
+		protocol_interface = efi_va_arg(argptr, void*);
 		r = EFI_CALL(efi_uninstall_protocol_interface(
 						handle, protocol,
 						protocol_interface));
@@ -2383,20 +2383,20 @@ static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
 			break;
 		i++;
 	}
-	va_end(argptr);
+	efi_va_end(argptr);
 	if (r == EFI_SUCCESS)
 		return EFI_EXIT(r);
 
 	/* If an error occurred undo all changes. */
-	va_start(argptr, handle);
+	efi_va_start(argptr, handle);
 	for (; i; --i) {
-		protocol = va_arg(argptr, efi_guid_t*);
-		protocol_interface = va_arg(argptr, void*);
+		protocol = efi_va_arg(argptr, efi_guid_t*);
+		protocol_interface = efi_va_arg(argptr, void*);
 		EFI_CALL(efi_install_protocol_interface(&handle, protocol,
 							EFI_NATIVE_INTERFACE,
 							protocol_interface));
 	}
-	va_end(argptr);
+	efi_va_end(argptr);
 
 	return EFI_EXIT(r);
 }
