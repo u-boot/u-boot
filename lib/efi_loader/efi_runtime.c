@@ -32,18 +32,18 @@ static efi_status_t __efi_runtime EFIAPI efi_invalid_parameter(void);
  * TODO(sjg@chromium.org): These defines and structs should come from the elf
  * header for each arch (or a generic header) rather than being repeated here.
  */
-#if defined(CONFIG_ARM64)
+#if defined(__aarch64__)
 #define R_RELATIVE	1027
 #define R_MASK		0xffffffffULL
 #define IS_RELA		1
-#elif defined(CONFIG_ARM)
+#elif defined(__arm__)
 #define R_RELATIVE	23
 #define R_MASK		0xffULL
-#elif defined(CONFIG_X86)
+#elif defined(__x86_64__) || defined(__i386__)
 #include <asm/elf.h>
 #define R_RELATIVE	R_386_RELATIVE
 #define R_MASK		0xffULL
-#elif defined(CONFIG_RISCV)
+#elif defined(__riscv)
 #include <elf.h>
 #define R_RELATIVE	R_RISCV_RELATIVE
 #define R_MASK		0xffULL
@@ -55,12 +55,14 @@ struct dyn_sym {
 	u32 foo2;
 	u32 foo3;
 };
-#ifdef CONFIG_CPU_RISCV_32
+#if (__riscv_xlen == 32)
 #define R_ABSOLUTE	R_RISCV_32
 #define SYM_INDEX	8
-#else
+#elif (__riscv_xlen == 64)
 #define R_ABSOLUTE	R_RISCV_64
 #define SYM_INDEX	32
+#else
+#error unknown riscv target
 #endif
 #else
 #error Need to add relocation awareness
