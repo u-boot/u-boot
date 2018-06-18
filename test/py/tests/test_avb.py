@@ -23,6 +23,7 @@ mmc_dev = 1
 temp_addr = 0x90000000
 temp_addr2 = 0x90002000
 
+@pytest.mark.buildconfigspec('cmd_avb')
 def test_avb_verify(u_boot_console):
     """Run AVB 2.0 boot verification chain with avb subset of commands
     """
@@ -35,6 +36,7 @@ def test_avb_verify(u_boot_console):
     assert response.find(success_str)
 
 
+@pytest.mark.buildconfigspec('cmd_avb')
 def test_avb_mmc_uuid(u_boot_console):
     """Check if 'avb get_uuid' works, compare results with
     'part list mmc 1' output
@@ -67,6 +69,7 @@ def test_avb_mmc_uuid(u_boot_console):
         assert guid == avb_guid_resp.split("UUID: ")[1]
 
 
+@pytest.mark.buildconfigspec('cmd_avb')
 def test_avb_read_rb(u_boot_console):
     """Test reading rollback indexes
     """
@@ -77,6 +80,7 @@ def test_avb_read_rb(u_boot_console):
     response = u_boot_console.run_command('avb read_rb 1')
 
 
+@pytest.mark.buildconfigspec('cmd_avb')
 def test_avb_is_unlocked(u_boot_console):
     """Test if device is in the unlocked state
     """
@@ -87,6 +91,7 @@ def test_avb_is_unlocked(u_boot_console):
     response = u_boot_console.run_command('avb is_unlocked')
 
 
+@pytest.mark.buildconfigspec('cmd_avb')
 def test_avb_mmc_read(u_boot_console):
     """Test mmc read operation
     """
