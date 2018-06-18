@@ -19,25 +19,25 @@ const efi_guid_t efi_simple_file_system_protocol_guid =
 const efi_guid_t efi_file_info_guid = EFI_FILE_INFO_GUID;
 
 static int machines[] = {
-#if defined(CONFIG_ARM64)
+#if defined(__aarch64__)
 	IMAGE_FILE_MACHINE_ARM64,
-#elif defined(CONFIG_ARM)
+#elif defined(__arm__)
 	IMAGE_FILE_MACHINE_ARM,
 	IMAGE_FILE_MACHINE_THUMB,
 	IMAGE_FILE_MACHINE_ARMNT,
 #endif
 
-#if defined(CONFIG_X86_64)
+#if defined(__x86_64__)
 	IMAGE_FILE_MACHINE_AMD64,
-#elif defined(CONFIG_X86)
+#elif defined(__i386__)
 	IMAGE_FILE_MACHINE_I386,
 #endif
 
-#if defined(CONFIG_CPU_RISCV_32)
+#if defined(__riscv) && (__riscv_xlen == 32)
 	IMAGE_FILE_MACHINE_RISCV32,
 #endif
 
-#if defined(CONFIG_CPU_RISCV_64)
+#if defined(__riscv) && (__riscv_xlen == 64)
 	IMAGE_FILE_MACHINE_RISCV64,
 #endif
 	0 };
