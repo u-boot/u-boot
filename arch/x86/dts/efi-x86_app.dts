@@ -9,8 +9,8 @@
 /include/ "tsc_timer.dtsi"
 
 / {
-	model = "EFI";
-	compatible = "efi,app";
+	model = "EFI x86 Application";
+	compatible = "efi,x86-app";
 
 	chosen {
 		stdout-path = &serial;

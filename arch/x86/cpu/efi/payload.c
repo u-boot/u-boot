@@ -5,11 +5,9 @@
  */
 
 #include <common.h>
-#include <debug_uart.h>
 #include <efi.h>
 #include <errno.h>
-#include <linux/err.h>
-#include <linux/types.h>
+#include <asm/post.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -124,6 +122,13 @@ int dram_init_banksize(void)
 	}
 
 	return 0;
+}
+
+int arch_cpu_init(void)
+{
+	post_code(POST_CPU_INIT);
+
+	return x86_cpu_init_f();
 }
 
 int checkcpu(void)

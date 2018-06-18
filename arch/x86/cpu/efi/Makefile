@@ -2,5 +2,12 @@
 #
 # Copyright (c) 2015 Google, Inc
 
-obj-y += efi.o
+ifdef CONFIG_EFI_APP
+obj-y += app.o
 obj-y += sdram.o
+endif
+
+ifdef CONFIG_EFI_STUB
+obj-y += car.o
+obj-y += payload.o
+endif

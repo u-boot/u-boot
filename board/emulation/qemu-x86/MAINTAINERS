@@ -4,8 +4,6 @@ S:	Maintained
 F:	board/emulation/qemu-x86/
 F:	include/configs/qemu-x86.h
 F:	configs/qemu-x86_defconfig
-F:	configs/qemu-x86_efi_payload32_defconfig
-F:	configs/qemu-x86_efi_payload64_defconfig
 
 QEMU X86 64-bit BOARD
 M:	Bin Meng <bmeng.cn@gmail.com>

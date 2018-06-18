@@ -65,18 +65,19 @@ for that board. It will be either 32-bit or 64-bit. Alternatively, you can
 opt for using QEMU [1] and the OVMF [2], as detailed below.
 
 To build U-Boot as an EFI application (32-bit EFI required), enable CONFIG_EFI
-and CONFIG_EFI_APP. The efi-x86 config (efi-x86_defconfig) is set up for this.
-Just build U-Boot as normal, e.g.
+and CONFIG_EFI_APP. The efi-x86_app config (efi-x86_app_defconfig) is set up
+for this. Just build U-Boot as normal, e.g.
 
-   make efi-x86_defconfig
+   make efi-x86_app_defconfig
    make
 
-To build U-Boot as an EFI payload (32-bit or 64-bit EFI can be used), adjust an
-existing config (like qemu-x86_defconfig) to enable CONFIG_EFI, CONFIG_EFI_STUB
-and either CONFIG_EFI_STUB_32BIT or CONFIG_EFI_STUB_64BIT. All of these are
-boolean Kconfig options. Then build U-Boot as normal, e.g.
+To build U-Boot as an EFI payload (32-bit or 64-bit EFI can be used), enable
+CONFIG_EFI, CONFIG_EFI_STUB, and select either CONFIG_EFI_STUB_32BIT or
+CONFIG_EFI_STUB_64BIT. The efi-x86_payload configs (efi-x86_payload32_defconfig
+and efi-x86_payload32_defconfig) are set up for this. Then build U-Boot as
+normal, e.g.
 
-   make qemu-x86_defconfig
+   make efi-x86_payload32_defconfig (or efi-x86_payload64_defconfig)
    make
 
 You will end up with one of these files depending on what you build for:
@@ -211,11 +212,6 @@ Future work
 -----------
 This work could be extended in a number of ways:
 
-- Add a generic x86 EFI payload configuration. At present you need to modify
-an existing one, but mostly the low-level x86 code is disabled when booting
-on EFI anyway, so a generic 'EFI' board could be created with a suitable set
-of drivers enabled.
-
 - Add ARM support
 
 - Add 64-bit application support
@@ -235,15 +231,14 @@ Where is the code?
 lib/efi
 	payload stub, application, support code. Mostly arch-neutral
 
-arch/x86/lib/efi
-	helper functions for the fake DRAM init, etc. These can be used by
-	any board that runs as a payload.
-
 arch/x86/cpu/efi
-	x86 support code for running as an EFI application
+	x86 support code for running as an EFI application and payload
 
-board/efi/efi-x86/efi.c
+board/efi/efi-x86_app/efi.c
 	x86 board code for running as an EFI application
+
+board/efi/efi-x86_payload
+	generic x86 EFI payload board support code
 
 common/cmd_efi.c
 	the 'efi' command

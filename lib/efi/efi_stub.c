@@ -268,12 +268,16 @@ static void add_entry_addr(struct efi_priv *priv, enum efi_entry_t type,
  * This function is called by our EFI start-up code. It handles running
  * U-Boot. If it returns, EFI will continue.
  */
-efi_status_t efi_main(efi_handle_t image, struct efi_system_table *sys_table)
+efi_status_t EFIAPI efi_main(efi_handle_t image,
+			     struct efi_system_table *sys_table)
 {
 	struct efi_priv local_priv, *priv = &local_priv;
 	struct efi_boot_services *boot = sys_table->boottime;
 	struct efi_mem_desc *desc;
 	struct efi_entry_memmap map;
+	struct efi_gop *gop;
+	struct efi_entry_gopmode mode;
+	efi_guid_t efi_gop_guid = EFI_GOP_GUID;
 	efi_uintn_t key, desc_size, size;
 	efi_status_t ret;
 	u32 version;
@@ -311,6 +315,18 @@ efi_status_t efi_main(efi_handle_t image, struct efi_system_table *sys_table)
 	ret = setup_info_table(priv, size + 128);
 	if (ret)
 		return ret;
+
+	ret = boot->locate_protocol(&efi_gop_guid, NULL, (void **)&gop);
+	if (ret) {
+		puts(" GOP unavailable\n");
+	} else {
+		mode.fb_base = gop->mode->fb_base;
+		mode.fb_size = gop->mode->fb_size;
+		mode.info_size = gop->mode->info_size;
+		add_entry_addr(priv, EFIET_GOP_MODE, &mode, sizeof(mode),
+			       gop->mode->info,
+			       sizeof(struct efi_gop_mode_info));
+	}
 
 	ret = boot->get_memory_map(&size, desc, &key, &desc_size, &version);
 	if (ret) {

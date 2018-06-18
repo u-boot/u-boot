@@ -10,7 +10,7 @@ obj-$(CONFIG_$(SPL_)X86_32BIT_INIT) += mrc.o
 endif
 obj-y += cpu.o
 obj-y += lpc.o
-ifndef CONFIG_TARGET_EFI
+ifndef CONFIG_TARGET_EFI_APP
 obj-y += microcode.o
 endif
 obj-y += pch.o

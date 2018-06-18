@@ -17,7 +17,6 @@
 #define BYT_TRIG_LVL		BIT(24)
 #define BYT_TRIG_POS		BIT(25)
 
-#ifndef CONFIG_EFI_APP
 int arch_cpu_init(void)
 {
 	post_code(POST_CPU_INIT);
@@ -56,8 +55,6 @@ int arch_misc_init(void)
 
 	return 0;
 }
-
-#endif
 
 void reset_cpu(ulong addr)
 {

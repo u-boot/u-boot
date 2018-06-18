@@ -12,12 +12,11 @@ config SYS_CONFIG_NAME
 	default "theadorable-x86-conga-qa3-e3845" if TARGET_THEADORABLE_X86_CONGA_QA3_E3845
 
 config SYS_TEXT_BASE
-	default 0xfff00000 if !EFI_STUB
-	default 0x01110000 if EFI_STUB
+	default 0xfff00000
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
-	select X86_RESET_VECTOR if !EFI_STUB
+	select X86_RESET_VECTOR
 	select INTEL_BAYTRAIL
 	select BOARD_ROMSIZE_KB_8192
 	select BOARD_EARLY_INIT_F
