@@ -8,6 +8,7 @@
 #include <common.h>
 #include <command.h>
 #include <dm.h>
+#include <elf.h>
 #include <efi_loader.h>
 #include <rtc.h>
 
@@ -33,18 +34,16 @@ static efi_status_t __efi_runtime EFIAPI efi_invalid_parameter(void);
  * header for each arch (or a generic header) rather than being repeated here.
  */
 #if defined(__aarch64__)
-#define R_RELATIVE	1027
+#define R_RELATIVE	R_AARCH64_RELATIVE
 #define R_MASK		0xffffffffULL
 #define IS_RELA		1
 #elif defined(__arm__)
-#define R_RELATIVE	23
+#define R_RELATIVE	R_ARM_RELATIVE
 #define R_MASK		0xffULL
 #elif defined(__x86_64__) || defined(__i386__)
-#include <asm/elf.h>
 #define R_RELATIVE	R_386_RELATIVE
 #define R_MASK		0xffULL
 #elif defined(__riscv)
-#include <elf.h>
 #define R_RELATIVE	R_RISCV_RELATIVE
 #define R_MASK		0xffULL
 #define IS_RELA		1
