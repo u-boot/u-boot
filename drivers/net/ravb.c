@@ -318,12 +318,13 @@ static int ravb_phy_config(struct udevice *dev)
 
 	eth->phydev = phydev;
 
-	/* 10BASE is not supported for Ethernet AVB MAC */
-	phydev->supported &= ~(SUPPORTED_10baseT_Full
-			       | SUPPORTED_10baseT_Half);
+	phydev->supported &= SUPPORTED_100baseT_Full |
+			     SUPPORTED_1000baseT_Full | SUPPORTED_Autoneg |
+			     SUPPORTED_TP | SUPPORTED_MII | SUPPORTED_Pause |
+			     SUPPORTED_Asym_Pause;
+
 	if (pdata->max_speed != 1000) {
-		phydev->supported &= ~(SUPPORTED_1000baseT_Half
-				       | SUPPORTED_1000baseT_Full);
+		phydev->supported &= ~SUPPORTED_1000baseT_Full;
 		reg = phy_read(phydev, -1, MII_CTRL1000);
 		reg &= ~(BIT(9) | BIT(8));
 		phy_write(phydev, -1, MII_CTRL1000, reg);
