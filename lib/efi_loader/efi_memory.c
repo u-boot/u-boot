@@ -9,6 +9,7 @@
 #include <efi_loader.h>
 #include <inttypes.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <watchdog.h>
 #include <linux/list_sort.h>
 
@@ -325,7 +326,7 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 		/* Reserve that map in our memory maps */
 		ret = efi_add_memory_map(addr, pages, memory_type, true);
 		if (ret == addr) {
-			*memory = addr;
+			*memory = (uintptr_t)map_sysmem(addr, len);
 		} else {
 			/* Map would overlap, bail out */
 			r = EFI_OUT_OF_RESOURCES;
@@ -359,11 +360,12 @@ void *efi_alloc(uint64_t len, int memory_type)
 efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 {
 	uint64_t r = 0;
+	uint64_t addr = map_to_sysmem((void *)(uintptr_t)memory);
 
-	r = efi_add_memory_map(memory, pages, EFI_CONVENTIONAL_MEMORY, false);
+	r = efi_add_memory_map(addr, pages, EFI_CONVENTIONAL_MEMORY, false);
 	/* Merging of adjacent free regions is missing */
 
-	if (r == memory)
+	if (r == addr)
 		return EFI_SUCCESS;
 
 	return EFI_NOT_FOUND;
@@ -380,7 +382,7 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 efi_status_t efi_allocate_pool(int pool_type, efi_uintn_t size, void **buffer)
 {
 	efi_status_t r;
-	efi_physical_addr_t t;
+	struct efi_pool_allocation *alloc;
 	u64 num_pages = (size + sizeof(struct efi_pool_allocation) +
 			 EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
 
@@ -390,10 +392,9 @@ efi_status_t efi_allocate_pool(int pool_type, efi_uintn_t size, void **buffer)
 	}
 
 	r = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES, pool_type, num_pages,
-			       &t);
+			       (uint64_t *)&alloc);
 
 	if (r == EFI_SUCCESS) {
-		struct efi_pool_allocation *alloc = (void *)(uintptr_t)t;
 		alloc->num_pages = num_pages;
 		*buffer = alloc->data;
 	}
