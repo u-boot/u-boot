@@ -220,8 +220,16 @@ static efi_status_t efi_run_in_hyp(EFIAPI efi_status_t (*entry)(
 }
 #endif
 
-/* Carve out DT reserved memory ranges */
-static efi_status_t efi_carve_out_dt_rsv(void *fdt)
+/*
+ * efi_carve_out_dt_rsv() - Carve out DT reserved memory ranges
+ *
+ * The mem_rsv entries of the FDT are added to the memory map. Any failures are
+ * ignored because this is not critical and we would rather continue to try to
+ * boot.
+ *
+ * @fdt: Pointer to device tree
+ */
+static void efi_carve_out_dt_rsv(void *fdt)
 {
 	int nr_rsv, i;
 	uint64_t addr, size, pages;
@@ -234,11 +242,10 @@ static efi_status_t efi_carve_out_dt_rsv(void *fdt)
 			continue;
 
 		pages = ALIGN(size, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT;
-		efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
-				   false);
+		if (!efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
+					false))
+			printf("FDT memrsv map %d: Failed to add to map\n", i);
 	}
-
-	return EFI_SUCCESS;
 }
 
 static efi_status_t efi_install_fdt(void *fdt)
@@ -262,10 +269,7 @@ static efi_status_t efi_install_fdt(void *fdt)
 		return EFI_LOAD_ERROR;
 	}
 
-	if (efi_carve_out_dt_rsv(fdt) != EFI_SUCCESS) {
-		printf("ERROR: failed to carve out memory\n");
-		return EFI_LOAD_ERROR;
-	}
+	efi_carve_out_dt_rsv(fdt);
 
 	/* Link to it in the efi tables */
 	ret = efi_install_configuration_table(&efi_guid_fdt, fdt);
