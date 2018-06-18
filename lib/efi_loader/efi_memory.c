@@ -295,7 +295,7 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 	switch (type) {
 	case EFI_ALLOCATE_ANY_PAGES:
 		/* Any page */
-		addr = efi_find_free_memory(len, gd->start_addr_sp);
+		addr = efi_find_free_memory(len, -1ULL);
 		if (!addr) {
 			r = EFI_NOT_FOUND;
 			break;
