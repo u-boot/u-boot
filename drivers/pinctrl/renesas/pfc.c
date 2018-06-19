@@ -121,7 +121,7 @@ void sh_pfc_write_raw_reg(void __iomem *mapped_reg, unsigned int reg_width,
 
 u32 sh_pfc_read(struct sh_pfc *pfc, u32 reg)
 {
-	return sh_pfc_read_raw_reg(pfc->regs + reg, 32);
+	return sh_pfc_read_raw_reg((void __iomem *)(uintptr_t)reg, 32);
 }
 
 void sh_pfc_write(struct sh_pfc *pfc, u32 reg, u32 data)
@@ -132,7 +132,7 @@ void sh_pfc_write(struct sh_pfc *pfc, u32 reg, u32 data)
 	if (pfc->info->unlock_reg)
 		sh_pfc_write_raw_reg(unlock_reg, 32, ~data);
 
-	sh_pfc_write_raw_reg(pfc->regs + reg, 32, data);
+	sh_pfc_write_raw_reg((void __iomem *)(uintptr_t)reg, 32, data);
 }
 
 static void sh_pfc_config_reg_helper(struct sh_pfc *pfc,
