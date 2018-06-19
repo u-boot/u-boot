@@ -1708,6 +1708,7 @@ static int mvneta_probe(struct udevice *dev)
 		buffer_loc.tx_descs = (struct mvneta_tx_desc *)bd_space;
 		size = roundup(MVNETA_MAX_TXD * sizeof(struct mvneta_tx_desc),
 				ARCH_DMA_MINALIGN);
+		memset(buffer_loc.tx_descs, 0, size);
 		buffer_loc.rx_descs = (struct mvneta_rx_desc *)
 			((phys_addr_t)bd_space + size);
 		size += roundup(MVNETA_MAX_RXD * sizeof(struct mvneta_rx_desc),
