@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: MIT OR BSD-3-Clause
 /*
  * Copyright (C) 2016 The Android Open Source Project
- *
- * SPDX-License-Identifier:	(MIT or BSD-3-Clause)
  */
 
 /* Implementation of RSA signature verification which uses a pre-processed

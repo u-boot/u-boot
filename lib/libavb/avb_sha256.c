@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: BSD-3-Clause
 /*
  * Copyright (C) 2005, 2007 Olivier Gay <olivier.gay@a3.epfl.ch>
  * All rights reserved.
@@ -5,8 +6,6 @@
  * FIPS 180-2 SHA-224/256/384/512 implementation
  * Last update: 02/02/2007
  * Issue date:  04/30/2005
- *
- * SPDX-License-Identifier:	BSD-3-Clause
  */
 
 #include "avb_sha.h"
