@@ -62,6 +62,8 @@ parser.add_option('--no-check', action='store_false', dest='check_patch',
                   help="Don't check for patch compliance")
 parser.add_option('--no-tags', action='store_false', dest='process_tags',
                   default=True, help="Don't process subject tags as aliaes")
+parser.add_option('--smtp-server', type='str',
+                  help="Specify the SMTP server to 'git send-email'")
 parser.add_option('-T', '--thread', action='store_true', dest='thread',
                   default=False, help='Create patches as a single thread')
 
@@ -167,7 +169,8 @@ else:
     if its_a_go:
         cmd = gitutil.EmailPatches(series, cover_fname, args,
                 options.dry_run, not options.ignore_bad_tags, cc_file,
-                in_reply_to=options.in_reply_to, thread=options.thread)
+                in_reply_to=options.in_reply_to, thread=options.thread,
+                smtp_server=options.smtp_server)
     else:
         print(col.Color(col.RED, "Not sending emails due to errors/warnings"))
 
