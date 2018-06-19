@@ -21,7 +21,6 @@
 
 /* High Level Configuration Options */
 #define CONFIG_SYS_BOOK3E_HV	/* Category E.HV supported */
-#define CONFIG_MP		/* support multiple processors */
 #define CONFIG_ENABLE_36BIT_PHYS
 
 #ifdef CONFIG_PHYS_64BIT

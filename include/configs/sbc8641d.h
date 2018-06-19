@@ -20,7 +20,6 @@
 #define __CONFIG_H
 
 /* High Level Configuration Options */
-#define CONFIG_MP		1	/* support multiple processors */
 #define CONFIG_LINUX_RESET_VEC  0x100   /* Reset vector used by Linux */
 
 #ifdef RUN_DIAG

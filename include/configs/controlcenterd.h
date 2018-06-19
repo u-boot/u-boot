@@ -36,7 +36,6 @@
 
 /* High Level Configuration Options */
 #define CONFIG_CONTROLCENTERD
-#define CONFIG_MP			/* support multiple processors */
 
 #define CONFIG_ENABLE_36BIT_PHYS
 

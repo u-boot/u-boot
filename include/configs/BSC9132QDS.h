@@ -96,8 +96,6 @@
 #define CONFIG_DDR_CLK_FREQ	133000000
 #endif
 
-#define CONFIG_MP
-
 #define CONFIG_HWCONFIG
 /*
  * These can be toggled for performance analysis, otherwise use default.

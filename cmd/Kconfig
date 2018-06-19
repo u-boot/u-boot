@@ -1356,6 +1356,13 @@ config CMD_MISC
 	help
 	  Delay execution for some time
 
+config MP
+	bool "support for multiprocessor"
+	help
+	  This provides an option to brinup
+	  different processors in multiprocessor
+	  cases.
+
 config CMD_TIMER
 	bool "timer"
 	help
