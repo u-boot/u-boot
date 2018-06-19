@@ -79,7 +79,6 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart0>;
 			clocks = <&peri_clk 0>;
-			clock-frequency = <73728000>;
 			resets = <&peri_rst 0>;
 		};
 
@@ -91,7 +90,6 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart1>;
 			clocks = <&peri_clk 1>;
-			clock-frequency = <73728000>;
 			resets = <&peri_rst 1>;
 		};
 
@@ -103,7 +101,6 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart2>;
 			clocks = <&peri_clk 2>;
-			clock-frequency = <73728000>;
 			resets = <&peri_rst 2>;
 		};
 
@@ -115,7 +112,6 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart3>;
 			clocks = <&peri_clk 3>;
-			clock-frequency = <73728000>;
 			resets = <&peri_rst 3>;
 		};
 
@@ -429,7 +425,7 @@
 			pinctrl-0 = <&pinctrl_ether_rgmii>;
 			clock-names = "gio", "ether", "ether-gb", "ether-phy";
 			clocks = <&sys_clk 12>, <&sys_clk 6>, <&sys_clk 7>,
-				<&sys_clk 10>;
+				 <&sys_clk 10>;
 			reset-names = "gio", "ether";
 			resets = <&sys_rst 12>, <&sys_rst 6>;
 			phy-mode = "rgmii";

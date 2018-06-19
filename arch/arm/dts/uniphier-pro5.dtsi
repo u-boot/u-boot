@@ -164,7 +164,6 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart0>;
 			clocks = <&peri_clk 0>;
-			clock-frequency = <73728000>;
 			resets = <&peri_rst 0>;
 		};
 
@@ -176,7 +175,6 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart1>;
 			clocks = <&peri_clk 1>;
-			clock-frequency = <73728000>;
 			resets = <&peri_rst 1>;
 		};
 
@@ -188,7 +186,6 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart2>;
 			clocks = <&peri_clk 2>;
-			clock-frequency = <73728000>;
 			resets = <&peri_rst 2>;
 		};
 
@@ -200,7 +197,6 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_uart3>;
 			clocks = <&peri_clk 3>;
-			clock-frequency = <73728000>;
 			resets = <&peri_rst 3>;
 		};
 
