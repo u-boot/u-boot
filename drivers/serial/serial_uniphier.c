@@ -33,17 +33,17 @@ struct uniphier_serial {
 	u32 dlr;		/* Divisor Latch Register */
 };
 
-struct uniphier_serial_private_data {
+struct uniphier_serial_priv {
 	struct uniphier_serial __iomem *membase;
 	unsigned int uartclk;
 };
 
 #define uniphier_serial_port(dev)	\
-	((struct uniphier_serial_private_data *)dev_get_priv(dev))->membase
+	((struct uniphier_serial_priv *)dev_get_priv(dev))->membase
 
 static int uniphier_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct uniphier_serial_private_data *priv = dev_get_priv(dev);
+	struct uniphier_serial_priv *priv = dev_get_priv(dev);
 	struct uniphier_serial __iomem *port = uniphier_serial_port(dev);
 	const unsigned int mode_x_div = 16;
 	unsigned int divisor;
@@ -90,7 +90,7 @@ static int uniphier_serial_pending(struct udevice *dev, bool input)
 static int uniphier_serial_probe(struct udevice *dev)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	struct uniphier_serial_private_data *priv = dev_get_priv(dev);
+	struct uniphier_serial_priv *priv = dev_get_priv(dev);
 	struct uniphier_serial __iomem *port;
 	fdt_addr_t base;
 	u32 tmp;
@@ -133,6 +133,6 @@ U_BOOT_DRIVER(uniphier_serial) = {
 	.id = UCLASS_SERIAL,
 	.of_match = uniphier_uart_of_match,
 	.probe = uniphier_serial_probe,
-	.priv_auto_alloc_size = sizeof(struct uniphier_serial_private_data),
+	.priv_auto_alloc_size = sizeof(struct uniphier_serial_priv),
 	.ops = &uniphier_serial_ops,
 };
