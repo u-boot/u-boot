@@ -504,7 +504,7 @@ static int mxc_spi_probe(struct udevice *bus)
 		return -EINVAL;
 	}
 
-	plat->base = dev_get_addr(bus);
+	plat->base = devfdt_get_addr(bus);
 	if (plat->base == FDT_ADDR_T_NONE)
 		return -ENODEV;
 
