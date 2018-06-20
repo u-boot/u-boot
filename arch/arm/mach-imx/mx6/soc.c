@@ -548,8 +548,10 @@ const struct boot_mode soc_boot_modes[] = {
 
 void reset_misc(void)
 {
+#ifndef CONFIG_SPL_BUILD
 #ifdef CONFIG_VIDEO_MXS
 	lcdif_power_down();
+#endif
 #endif
 }
 
