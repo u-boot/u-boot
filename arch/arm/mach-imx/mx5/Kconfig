@@ -8,9 +8,11 @@ config MX5
 config MX51
 	bool
 	select SYS_FSL_ERRATUM_ESDHC_A001
+	select ARM_CORTEX_A8_CVE_2017_5715
 
 config MX53
 	bool
+	select ARM_CORTEX_A8_CVE_2017_5715
 
 choice
 	prompt "MX5 board select"
