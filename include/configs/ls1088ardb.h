@@ -416,7 +416,7 @@
 		"env exists mcinitcmd && mmcinfo; "		\
 		"mmc read 0x80001000 0x6800 0x800; "		\
 		"env exists mcinitcmd && env exists secureboot "	\
-		" && mmc read 0x80780000 0x3800 0x10 "		\
+		" && mmc read 0x80780000 0x3C00 0x10 "		\
 		"&& esbc_validate 0x80780000;env exists mcinitcmd "	\
 		"&& fsl_mc lazyapply dpl 0x80001000;"		\
 		"run distro_bootcmd;run sd_bootcmd;"		\
