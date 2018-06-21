@@ -337,6 +337,8 @@ static int zynq_gpio_probe(struct udevice *dev)
 	struct zynq_gpio_privdata *priv = dev_get_priv(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
+	uc_priv->bank_name = dev->name;
+
 	if (priv->p_data)
 		uc_priv->gpio_count = priv->p_data->ngpio;
 
