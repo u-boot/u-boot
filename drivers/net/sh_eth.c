@@ -810,6 +810,7 @@ static int sh_ether_probe(struct udevice *udev)
 	struct eth_pdata *pdata = dev_get_platdata(udev);
 	struct sh_ether_priv *priv = dev_get_priv(udev);
 	struct sh_eth_dev *eth = &priv->shdev;
+	struct ofnode_phandle_args phandle_args;
 	struct mii_dev *mdiodev;
 	int ret;
 
@@ -819,8 +820,16 @@ static int sh_ether_probe(struct udevice *udev)
 	if (ret < 0)
 		return ret;
 
-	gpio_request_by_name(udev, "reset-gpios", 0, &priv->reset_gpio,
-			     GPIOD_IS_OUT);
+	ret = dev_read_phandle_with_args(udev, "phy-handle", NULL, 0, 0, &phandle_args);
+	if (!ret) {
+		gpio_request_by_name_nodev(phandle_args.node, "reset-gpios", 0,
+					   &priv->reset_gpio, GPIOD_IS_OUT);
+	}
+
+	if (!dm_gpio_is_valid(&priv->reset_gpio)) {
+		gpio_request_by_name(udev, "reset-gpios", 0, &priv->reset_gpio,
+				     GPIOD_IS_OUT);
+	}
 
 	mdiodev = mdio_alloc();
 	if (!mdiodev) {
