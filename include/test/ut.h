@@ -90,6 +90,18 @@ void ut_failf(struct unit_test_state *uts, const char *fname, int line,
 	}								\
 }
 
+/* Assert that a pointer is NULL */
+#define ut_assertnull(expr) {					\
+	const void *val = (expr);					\
+									\
+	if (val != NULL) {						\
+		ut_failf(uts, __FILE__, __LINE__, __func__,		\
+			 #expr " != NULL",				\
+			 "Expected NULL, got %p", val);		\
+		return CMD_RET_FAILURE;					\
+	}								\
+}
+
 /* Assert that a pointer is not NULL */
 #define ut_assertnonnull(expr) {					\
 	const void *val = (expr);					\
