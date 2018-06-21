@@ -361,6 +361,7 @@ efi_status_t efi_net_register(void)
 	memcpy(netobj->net_mode.current_address.mac_addr, eth_get_ethaddr(), 6);
 	netobj->net_mode.hwaddr_size = ARP_HLEN;
 	netobj->net_mode.max_packet_size = PKTSIZE;
+	netobj->net_mode.if_type = ARP_ETHER;
 
 	netobj->pxe.mode = &netobj->pxe_mode;
 	if (dhcp_ack)
