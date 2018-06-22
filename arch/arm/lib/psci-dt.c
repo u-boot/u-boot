@@ -116,6 +116,10 @@ init_psci_node:
 	if (tmp)
 		return tmp;
 
+	tmp = fdt_setprop_string(fdt, nodeoff, "status", "okay");
+	if (tmp)
+		return tmp;
+
 #endif
 	return 0;
 }
