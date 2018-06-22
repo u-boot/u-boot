@@ -67,6 +67,8 @@ init_psci_node:
 	psci_ver = sec_firmware_support_psci_version();
 #elif defined(CONFIG_ARMV7_PSCI_1_0) || defined(CONFIG_ARMV8_PSCI)
 	psci_ver = ARM_PSCI_VER_1_0;
+#elif defined(CONFIG_ARMV7_PSCI_0_2)
+	psci_ver = ARM_PSCI_VER_0_2;
 #endif
 	if (psci_ver >= ARM_PSCI_VER_1_0) {
 		tmp = fdt_setprop_string(fdt, nodeoff,
