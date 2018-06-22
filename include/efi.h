@@ -19,12 +19,19 @@
 #include <linux/string.h>
 #include <linux/types.h>
 
-#if CONFIG_EFI_STUB_64BIT || (!defined(CONFIG_EFI_STUB) && defined(__x86_64__))
-/* EFI uses the Microsoft ABI which is not the default for GCC */
+/*
+ * EFI on x86_64 uses the Microsoft ABI which is not the default for GCC.
+ *
+ * There are two scenarios for EFI on x86_64: building a 64-bit EFI stub
+ * codes (CONFIG_EFI_STUB_64BIT) and building a 64-bit U-Boot (CONFIG_X86_64).
+ * Either needs to be properly built with the '-m64' compiler flag, and hence
+ * it is enough to only check the compiler provided define __x86_64__ here.
+ */
+#ifdef __x86_64__
 #define EFIAPI __attribute__((ms_abi))
 #else
 #define EFIAPI asmlinkage
-#endif
+#endif /* __x86_64__ */
 
 struct efi_device_path;
 
@@ -32,16 +39,7 @@ typedef struct {
 	u8 b[16];
 } efi_guid_t;
 
-#define EFI_BITS_PER_LONG	BITS_PER_LONG
-
-/*
- * With 64-bit EFI stub, EFI_BITS_PER_LONG has to be 64. EFI_STUB is set
- * in lib/efi/Makefile, when building the stub.
- */
-#if defined(CONFIG_EFI_STUB_64BIT) && defined(EFI_STUB)
-#undef EFI_BITS_PER_LONG
-#define EFI_BITS_PER_LONG	64
-#endif
+#define EFI_BITS_PER_LONG	(sizeof(long) * 8)
 
 /* Bit mask for EFI status code with error */
 #define EFI_ERROR_MASK (1UL << (EFI_BITS_PER_LONG - 1))
