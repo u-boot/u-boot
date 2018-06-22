@@ -6,6 +6,7 @@
 #include <common.h>
 #include <nand.h>
 #include <malloc.h>
+#include "mxs_nand.h"
 
 static struct mtd_info *mtd;
 static struct nand_chip nand_chip;
@@ -145,7 +146,7 @@ static int mxs_nand_init(void)
 		return 0;
 
 	/* init mxs nand driver */
-	board_nand_init(&nand_chip);
+	mxs_nand_init_spl(&nand_chip);
 	mtd = nand_to_mtd(&nand_chip);
 	/* set mtd functions */
 	nand_chip.cmdfunc = mxs_nand_command;

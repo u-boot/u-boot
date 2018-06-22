@@ -25,6 +25,7 @@
 #include <asm/mach-imx/regs-gpmi.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/dma.h>
+#include "mxs_nand.h"
 
 #define	MXS_NAND_DMA_DESCRIPTOR_COUNT		4
 
@@ -1147,6 +1148,48 @@ err1:
 	if (ret == -ENOMEM)
 		printf("MXS NAND: Unable to allocate DMA descriptors\n");
 	return ret;
+}
+
+int mxs_nand_init_spl(struct nand_chip *nand)
+{
+	struct mxs_nand_info *nand_info;
+	int err;
+
+	nand_info = malloc(sizeof(struct mxs_nand_info));
+	if (!nand_info) {
+		printf("MXS NAND: Failed to allocate private data\n");
+		return -ENOMEM;
+	}
+	memset(nand_info, 0, sizeof(struct mxs_nand_info));
+
+	err = mxs_nand_alloc_buffers(nand_info);
+	if (err)
+		return err;
+
+	err = mxs_nand_init(nand_info);
+	if (err)
+		return err;
+
+	nand_set_controller_data(nand, nand_info);
+
+	nand->options |= NAND_NO_SUBPAGE_WRITE;
+
+	nand->cmd_ctrl		= mxs_nand_cmd_ctrl;
+	nand->dev_ready		= mxs_nand_device_ready;
+	nand->select_chip	= mxs_nand_select_chip;
+	nand->scan_bbt		= mxs_nand_scan_bbt;
+
+	nand->read_byte		= mxs_nand_read_byte;
+	nand->read_buf		= mxs_nand_read_buf;
+
+	nand->ecc.read_page	= mxs_nand_ecc_read_page;
+
+	nand->ecc.mode		= NAND_ECC_HW;
+	nand->ecc.bytes		= 9;
+	nand->ecc.size		= 512;
+	nand->ecc.strength	= 8;
+
+	return 0;
 }
 
 /*!
