@@ -104,6 +104,43 @@ static void remove_cpu_resets(void)
 	writel(reg, &clkrst->crc_rst_cpug_cmplx_clr);
 }
 
+static void tegra124_ram_repair(void)
+{
+	struct flow_ctlr *flow = (struct flow_ctlr *)NV_PA_FLOW_BASE;
+	u32 ram_repair_timeout; /*usec*/
+	u32 val;
+
+	/*
+	 * Request the Flow Controller perform RAM repair whenever it turns on
+	 * a power rail that requires RAM repair.
+	 */
+	clrbits_le32(&flow->ram_repair, RAM_REPAIR_BYPASS_EN);
+
+	/* Request SW trigerred RAM repair by setting req  bit */
+	/* cluster 0 */
+	setbits_le32(&flow->ram_repair, RAM_REPAIR_REQ);
+	/* Wait for completion (status == 0) */
+	ram_repair_timeout = 500;
+	do {
+		udelay(1);
+		val = readl(&flow->ram_repair);
+	} while (!(val & RAM_REPAIR_STS) && ram_repair_timeout--);
+	if (!ram_repair_timeout)
+		debug("Ram Repair cluster0 failed\n");
+
+	/* cluster 1 */
+	setbits_le32(&flow->ram_repair_cluster1, RAM_REPAIR_REQ);
+	/* Wait for completion (status == 0) */
+	ram_repair_timeout = 500;
+	do {
+		udelay(1);
+		val = readl(&flow->ram_repair_cluster1);
+	} while (!(val & RAM_REPAIR_STS) && ram_repair_timeout--);
+
+	if (!ram_repair_timeout)
+		debug("Ram Repair cluster1 failed\n");
+}
+
 /**
  * Tegra124 requires some special clock initialization, including setting up
  * the DVC I2C, turning on MSELECT and selecting the G CPU cluster
@@ -254,10 +291,11 @@ void start_cpu(u32 reset_vector)
 	       &pmc->pmc_pwrgate_timer_mult);
 
 	enable_cpu_power_rail();
+	powerup_cpus();
+	tegra124_ram_repair();
 	enable_cpu_clocks();
 	clock_enable_coresight(1);
-	remove_cpu_resets();
 	writel(reset_vector, EXCEP_VECTOR_CPU_RESET_VECTOR);
-	powerup_cpus();
+	remove_cpu_resets();
 	debug("%s exit, should continue @ reset_vector\n", __func__);
 }
