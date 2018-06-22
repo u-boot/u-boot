@@ -1137,7 +1137,7 @@ int mxs_nand_alloc_buffers(struct mxs_nand_info *nand_info)
 /*
  * Initializes the NFC hardware.
  */
-int mxs_nand_init(struct mxs_nand_info *info)
+int mxs_nand_init_dma(struct mxs_nand_info *info)
 {
 	int i = 0, j, ret = 0;
 
@@ -1212,7 +1212,7 @@ int mxs_nand_init_spl(struct nand_chip *nand)
 	if (err)
 		return err;
 
-	err = mxs_nand_init(nand_info);
+	err = mxs_nand_init_dma(nand_info);
 	if (err)
 		return err;
 
@@ -1259,7 +1259,7 @@ void board_nand_init(void)
 	if (err)
 		goto err1;
 
-	err = mxs_nand_init(nand_info);
+	err = mxs_nand_init_dma(nand_info);
 	if (err)
 		goto err2;
 
