@@ -1201,6 +1201,9 @@ int mxs_nand_init_ctrl(struct mxs_nand_info *nand_info)
 	nand_set_controller_data(nand, nand_info);
 	nand->options |= NAND_NO_SUBPAGE_WRITE;
 
+	if (nand_info->dev)
+		nand->flash_node = dev_of_offset(nand_info->dev);
+
 	nand->cmd_ctrl		= mxs_nand_cmd_ctrl;
 
 	nand->dev_ready		= mxs_nand_device_ready;
@@ -1247,6 +1250,7 @@ err_free_buffers:
 	return err;
 }
 
+#ifndef CONFIG_NAND_MXS_DT
 void board_nand_init(void)
 {
 	struct mxs_nand_info *nand_info;
@@ -1279,3 +1283,4 @@ void board_nand_init(void)
 err:
 	free(nand_info);
 }
+#endif

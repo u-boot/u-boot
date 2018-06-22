@@ -154,6 +154,13 @@ config NAND_MXS
 
 if NAND_MXS
 
+config NAND_MXS_DT
+	bool "Support MXS NAND controller as a DT device"
+	depends on OF_CONTROL && MTD
+	help
+	  Enable the driver for MXS NAND flash on platforms using
+	  device tree.
+
 config NAND_MXS_USE_MINIMUM_ECC
 	bool "Use minimum ECC strength supported by the controller"
 	default false
