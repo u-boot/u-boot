@@ -84,6 +84,9 @@ struct mxs_nand_info {
 	uint8_t		marking_block_bad;
 	uint8_t		raw_oob_mode;
 
+	struct mxs_gpmi_regs *gpmi_regs;
+	struct mxs_bch_regs *bch_regs;
+
 	/* Functions with altered behaviour */
 	int		(*hooked_read_oob)(struct mtd_info *mtd,
 				loff_t from, struct mtd_oob_ops *ops);
@@ -297,16 +300,15 @@ static inline int mxs_nand_calc_ecc_layout(struct bch_geometry *geo,
 /*
  * Wait for BCH complete IRQ and clear the IRQ
  */
-static int mxs_nand_wait_for_bch_complete(void)
+static int mxs_nand_wait_for_bch_complete(struct mxs_nand_info *nand_info)
 {
-	struct mxs_bch_regs *bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
 	int timeout = MXS_NAND_BCH_TIMEOUT;
 	int ret;
 
-	ret = mxs_wait_mask_set(&bch_regs->hw_bch_ctrl_reg,
+	ret = mxs_wait_mask_set(&nand_info->bch_regs->hw_bch_ctrl_reg,
 		BCH_CTRL_COMPLETE_IRQ, timeout);
 
-	writel(BCH_CTRL_COMPLETE_IRQ, &bch_regs->hw_bch_ctrl_clr);
+	writel(BCH_CTRL_COMPLETE_IRQ, &nand_info->bch_regs->hw_bch_ctrl_clr);
 
 	return ret;
 }
@@ -404,11 +406,9 @@ static int mxs_nand_device_ready(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
 	struct mxs_nand_info *nand_info = nand_get_controller_data(chip);
-	struct mxs_gpmi_regs *gpmi_regs =
-		(struct mxs_gpmi_regs *)MXS_GPMI_BASE;
 	uint32_t tmp;
 
-	tmp = readl(&gpmi_regs->hw_gpmi_stat);
+	tmp = readl(&nand_info->gpmi_regs->hw_gpmi_stat);
 	tmp >>= (GPMI_STAT_READY_BUSY_OFFSET + nand_info->cur_chip);
 
 	return tmp & 1;
@@ -705,7 +705,7 @@ static int mxs_nand_ecc_read_page(struct mtd_info *mtd, struct nand_chip *nand,
 		goto rtn;
 	}
 
-	ret = mxs_nand_wait_for_bch_complete();
+	ret = mxs_nand_wait_for_bch_complete(nand_info);
 	if (ret) {
 		printf("MXS NAND: BCH read timeout\n");
 		goto rtn;
@@ -813,7 +813,7 @@ static int mxs_nand_ecc_write_page(struct mtd_info *mtd,
 		goto rtn;
 	}
 
-	ret = mxs_nand_wait_for_bch_complete();
+	ret = mxs_nand_wait_for_bch_complete(nand_info);
 	if (ret) {
 		printf("MXS NAND: BCH write timeout\n");
 		goto rtn;
@@ -1038,7 +1038,7 @@ int mxs_nand_setup_ecc(struct mtd_info *mtd)
 	struct nand_chip *nand = mtd_to_nand(mtd);
 	struct mxs_nand_info *nand_info = nand_get_controller_data(nand);
 	struct bch_geometry *geo = &nand_info->bch_geometry;
-	struct mxs_bch_regs *bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
+	struct mxs_bch_regs *bch_regs = nand_info->bch_regs;
 	uint32_t tmp;
 	int ret = -ENOTSUPP;
 
@@ -1139,10 +1139,6 @@ int mxs_nand_alloc_buffers(struct mxs_nand_info *nand_info)
  */
 int mxs_nand_init(struct mxs_nand_info *info)
 {
-	struct mxs_gpmi_regs *gpmi_regs =
-		(struct mxs_gpmi_regs *)MXS_GPMI_BASE;
-	struct mxs_bch_regs *bch_regs =
-		(struct mxs_bch_regs *)MXS_BCH_BASE;
 	int i = 0, j, ret = 0;
 
 	info->desc = malloc(sizeof(struct mxs_dma_desc *) *
@@ -1171,14 +1167,14 @@ int mxs_nand_init(struct mxs_nand_info *info)
 	}
 
 	/* Reset the GPMI block. */
-	mxs_reset_block(&gpmi_regs->hw_gpmi_ctrl0_reg);
-	mxs_reset_block(&bch_regs->hw_bch_ctrl_reg);
+	mxs_reset_block(&info->gpmi_regs->hw_gpmi_ctrl0_reg);
+	mxs_reset_block(&info->bch_regs->hw_bch_ctrl_reg);
 
 	/*
 	 * Choose NAND mode, set IRQ polarity, disable write protection and
 	 * select BCH ECC.
 	 */
-	clrsetbits_le32(&gpmi_regs->hw_gpmi_ctrl1,
+	clrsetbits_le32(&info->gpmi_regs->hw_gpmi_ctrl1,
 			GPMI_CTRL1_GPMI_MODE,
 			GPMI_CTRL1_ATA_IRQRDY_POLARITY | GPMI_CTRL1_DEV_RESET |
 			GPMI_CTRL1_BCH_MODE);
@@ -1210,6 +1206,8 @@ int mxs_nand_init_spl(struct nand_chip *nand)
 	}
 	memset(nand_info, 0, sizeof(struct mxs_nand_info));
 
+	nand_info->gpmi_regs = (struct mxs_gpmi_regs *)MXS_GPMI_BASE;
+	nand_info->bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
 	err = mxs_nand_alloc_buffers(nand_info);
 	if (err)
 		return err;
@@ -1253,6 +1251,8 @@ void board_nand_init(void)
 	}
 	memset(nand_info, 0, sizeof(struct mxs_nand_info));
 
+	nand_info->gpmi_regs = (struct mxs_gpmi_regs *)MXS_GPMI_BASE;
+	nand_info->bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
 	nand = &nand_info->chip;
 	mtd = nand_to_mtd(nand);
 	err = mxs_nand_alloc_buffers(nand_info);
