@@ -30,7 +30,6 @@
 
 #define	MXS_NAND_DMA_DESCRIPTOR_COUNT		4
 
-#define	MXS_NAND_CHUNK_DATA_CHUNK_SIZE		512
 #if (defined(CONFIG_MX6) || defined(CONFIG_MX7))
 #define	MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT	2
 #else
@@ -47,12 +46,35 @@
 
 #define	MXS_NAND_BCH_TIMEOUT			10000
 
+/**
+ * @gf_len:                   The length of Galois Field. (e.g., 13 or 14)
+ * @ecc_strength:             A number that describes the strength of the ECC
+ *                            algorithm.
+ * @ecc_chunk_size:           The size, in bytes, of a single ECC chunk. Note
+ *                            the first chunk in the page includes both data and
+ *                            metadata, so it's a bit larger than this value.
+ * @ecc_chunk_count:          The number of ECC chunks in the page,
+ * @block_mark_byte_offset:   The byte offset in the ECC-based page view at
+ *                            which the underlying physical block mark appears.
+ * @block_mark_bit_offset:    The bit offset into the ECC-based page view at
+ *                            which the underlying physical block mark appears.
+ */
+struct bch_geometry {
+	unsigned int  gf_len;
+	unsigned int  ecc_strength;
+	unsigned int  ecc_chunk_size;
+	unsigned int  ecc_chunk_count;
+	unsigned int  block_mark_byte_offset;
+	unsigned int  block_mark_bit_offset;
+};
+
 struct mxs_nand_info {
 	struct nand_chip chip;
 	int		cur_chip;
 
 	uint32_t	cmd_queue_len;
 	uint32_t	data_buf_size;
+	struct bch_geometry bch_geometry;
 
 	uint8_t		*cmd_buf;
 	uint8_t		*data_buf;
@@ -75,8 +97,6 @@ struct mxs_nand_info {
 };
 
 struct nand_ecclayout fake_ecc_layout;
-static int chunk_data_size = MXS_NAND_CHUNK_DATA_CHUNK_SIZE;
-static int galois_field = 13;
 
 /*
  * Cache management functions
@@ -137,60 +157,20 @@ static void mxs_nand_return_dma_descs(struct mxs_nand_info *info)
 	info->desc_index = 0;
 }
 
-static uint32_t mxs_nand_ecc_chunk_cnt(uint32_t page_data_size)
-{
-	return page_data_size / chunk_data_size;
-}
-
-static uint32_t mxs_nand_ecc_size_in_bits(uint32_t ecc_strength)
-{
-	return ecc_strength * galois_field;
-}
-
 static uint32_t mxs_nand_aux_status_offset(void)
 {
 	return (MXS_NAND_METADATA_SIZE + 0x3) & ~0x3;
 }
 
-static inline uint32_t mxs_nand_get_ecc_strength(uint32_t page_data_size,
-						uint32_t page_oob_size)
+static inline int mxs_nand_calc_mark_offset(struct bch_geometry *geo,
+					    uint32_t page_data_size)
 {
-	int ecc_strength;
-	int max_ecc_strength_supported;
-
-	/* Refer to Chapter 17 for i.MX6DQ, Chapter 18 for i.MX6SX */
-	if (is_mx6sx() || is_mx7())
-		max_ecc_strength_supported = 62;
-	else
-		max_ecc_strength_supported = 40;
-
-	/*
-	 * Determine the ECC layout with the formula:
-	 *	ECC bits per chunk = (total page spare data bits) /
-	 *		(bits per ECC level) / (chunks per page)
-	 * where:
-	 *	total page spare data bits =
-	 *		(page oob size - meta data size) * (bits per byte)
-	 */
-	ecc_strength = ((page_oob_size - MXS_NAND_METADATA_SIZE) * 8)
-			/ (galois_field *
-			   mxs_nand_ecc_chunk_cnt(page_data_size));
-
-	return min(round_down(ecc_strength, 2), max_ecc_strength_supported);
-}
-
-static inline uint32_t mxs_nand_get_mark_offset(uint32_t page_data_size,
-						uint32_t ecc_strength)
-{
-	uint32_t chunk_data_size_in_bits;
-	uint32_t chunk_ecc_size_in_bits;
+	uint32_t chunk_data_size_in_bits = geo->ecc_chunk_size * 8;
+	uint32_t chunk_ecc_size_in_bits = geo->ecc_strength * geo->gf_len;
 	uint32_t chunk_total_size_in_bits;
 	uint32_t block_mark_chunk_number;
 	uint32_t block_mark_chunk_bit_offset;
 	uint32_t block_mark_bit_offset;
-
-	chunk_data_size_in_bits = chunk_data_size * 8;
-	chunk_ecc_size_in_bits  = mxs_nand_ecc_size_in_bits(ecc_strength);
 
 	chunk_total_size_in_bits =
 			chunk_data_size_in_bits + chunk_ecc_size_in_bits;
@@ -216,7 +196,7 @@ static inline uint32_t mxs_nand_get_mark_offset(uint32_t page_data_size,
 			(block_mark_chunk_number * chunk_total_size_in_bits);
 
 	if (block_mark_chunk_bit_offset > chunk_data_size_in_bits)
-		return 1;
+		return -EINVAL;
 
 	/*
 	 * Now that we know the chunk number in which the block mark appears,
@@ -225,21 +205,59 @@ static inline uint32_t mxs_nand_get_mark_offset(uint32_t page_data_size,
 	block_mark_bit_offset -=
 		block_mark_chunk_number * chunk_ecc_size_in_bits;
 
-	return block_mark_bit_offset;
+	geo->block_mark_byte_offset = block_mark_bit_offset >> 3;
+	geo->block_mark_bit_offset = block_mark_bit_offset & 0x7;
+
+	return 0;
 }
 
-static uint32_t mxs_nand_mark_byte_offset(struct mtd_info *mtd)
+static inline int mxs_nand_calc_ecc_layout(struct bch_geometry *geo,
+					   struct mtd_info *mtd)
 {
-	uint32_t ecc_strength;
-	ecc_strength = mxs_nand_get_ecc_strength(mtd->writesize, mtd->oobsize);
-	return mxs_nand_get_mark_offset(mtd->writesize, ecc_strength) >> 3;
-}
+	unsigned int max_ecc_strength_supported;
 
-static uint32_t mxs_nand_mark_bit_offset(struct mtd_info *mtd)
-{
-	uint32_t ecc_strength;
-	ecc_strength = mxs_nand_get_ecc_strength(mtd->writesize, mtd->oobsize);
-	return mxs_nand_get_mark_offset(mtd->writesize, ecc_strength) & 0x7;
+	/* The default for the length of Galois Field. */
+	geo->gf_len = 13;
+
+	/* The default for chunk size. */
+	geo->ecc_chunk_size = 512;
+
+	if (geo->ecc_chunk_size < mtd->oobsize) {
+		geo->gf_len = 14;
+		geo->ecc_chunk_size *= 2;
+	}
+
+	if (mtd->oobsize > geo->ecc_chunk_size) {
+		printf("Not support the NAND chips whose oob size is larger then %d bytes!\n",
+		       geo->ecc_chunk_size);
+		return -EINVAL;
+	}
+
+	geo->ecc_chunk_count = mtd->writesize / geo->ecc_chunk_size;
+
+	/* Refer to Chapter 17 for i.MX6DQ, Chapter 18 for i.MX6SX */
+	if (is_mx6sx() || is_mx7())
+		max_ecc_strength_supported = 62;
+	else
+		max_ecc_strength_supported = 40;
+
+	/*
+	 * Determine the ECC layout with the formula:
+	 *	ECC bits per chunk = (total page spare data bits) /
+	 *		(bits per ECC level) / (chunks per page)
+	 * where:
+	 *	total page spare data bits =
+	 *		(page oob size - meta data size) * (bits per byte)
+	 */
+	geo->ecc_strength = ((mtd->oobsize - MXS_NAND_METADATA_SIZE) * 8)
+			/ (geo->gf_len * geo->ecc_chunk_count);
+
+	geo->ecc_strength = min(round_down(geo->ecc_strength, 2), max_ecc_strength_supported);
+
+	if (mxs_nand_calc_mark_offset(geo, mtd->writesize) < 0)
+		return -EINVAL;
+
+	return 0;
 }
 
 /*
@@ -380,17 +398,14 @@ static void mxs_nand_select_chip(struct mtd_info *mtd, int chip)
  * swapping the block mark, or swapping it *back* -- but it doesn't matter
  * because the the operation is the same.
  */
-static void mxs_nand_swap_block_mark(struct mtd_info *mtd,
-					uint8_t *data_buf, uint8_t *oob_buf)
+static void mxs_nand_swap_block_mark(struct bch_geometry *geo,
+				     uint8_t *data_buf, uint8_t *oob_buf)
 {
-	uint32_t bit_offset;
-	uint32_t buf_offset;
+	uint32_t bit_offset = geo->block_mark_bit_offset;
+	uint32_t buf_offset = geo->block_mark_byte_offset;
 
 	uint32_t src;
 	uint32_t dst;
-
-	bit_offset = mxs_nand_mark_bit_offset(mtd);
-	buf_offset = mxs_nand_mark_byte_offset(mtd);
 
 	/*
 	 * Get the byte from the data area that overlays the block mark. Since
@@ -567,6 +582,7 @@ static int mxs_nand_ecc_read_page(struct mtd_info *mtd, struct nand_chip *nand,
 					int page)
 {
 	struct mxs_nand_info *nand_info = nand_get_controller_data(nand);
+	struct bch_geometry *geo = &nand_info->bch_geometry;
 	struct mxs_dma_desc *d;
 	uint32_t channel = MXS_DMA_CHANNEL_AHB_APBH_GPMI0 + nand_info->cur_chip;
 	uint32_t corrected = 0, failed = 0;
@@ -665,11 +681,11 @@ static int mxs_nand_ecc_read_page(struct mtd_info *mtd, struct nand_chip *nand,
 	mxs_nand_inval_data_buf(nand_info);
 
 	/* Read DMA completed, now do the mark swapping. */
-	mxs_nand_swap_block_mark(mtd, nand_info->data_buf, nand_info->oob_buf);
+	mxs_nand_swap_block_mark(geo, nand_info->data_buf, nand_info->oob_buf);
 
 	/* Loop over status bytes, accumulating ECC status. */
 	status = nand_info->oob_buf + mxs_nand_aux_status_offset();
-	for (i = 0; i < mxs_nand_ecc_chunk_cnt(mtd->writesize); i++) {
+	for (i = 0; i < geo->ecc_chunk_count; i++) {
 		if (status[i] == 0x00)
 			continue;
 
@@ -717,6 +733,7 @@ static int mxs_nand_ecc_write_page(struct mtd_info *mtd,
 				int oob_required, int page)
 {
 	struct mxs_nand_info *nand_info = nand_get_controller_data(nand);
+	struct bch_geometry *geo = &nand_info->bch_geometry;
 	struct mxs_dma_desc *d;
 	uint32_t channel = MXS_DMA_CHANNEL_AHB_APBH_GPMI0 + nand_info->cur_chip;
 	int ret;
@@ -725,7 +742,7 @@ static int mxs_nand_ecc_write_page(struct mtd_info *mtd,
 	memcpy(nand_info->oob_buf, nand->oob_poi, mtd->oobsize);
 
 	/* Handle block mark swapping. */
-	mxs_nand_swap_block_mark(mtd, nand_info->data_buf, nand_info->oob_buf);
+	mxs_nand_swap_block_mark(geo, nand_info->data_buf, nand_info->oob_buf);
 
 	/* Compile the DMA descriptor - write data. */
 	d = mxs_nand_get_dma_desc(nand_info);
@@ -986,39 +1003,30 @@ int mxs_nand_setup_ecc(struct mtd_info *mtd)
 {
 	struct nand_chip *nand = mtd_to_nand(mtd);
 	struct mxs_nand_info *nand_info = nand_get_controller_data(nand);
+	struct bch_geometry *geo = &nand_info->bch_geometry;
 	struct mxs_bch_regs *bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
 	uint32_t tmp;
 
-	if (mtd->oobsize > MXS_NAND_CHUNK_DATA_CHUNK_SIZE) {
-		galois_field = 14;
-		chunk_data_size = MXS_NAND_CHUNK_DATA_CHUNK_SIZE * 2;
-	}
-
-	if (mtd->oobsize > chunk_data_size) {
-		printf("Not support the NAND chips whose oob size is larger then %d bytes!\n", chunk_data_size);
+	if (mxs_nand_calc_ecc_layout(geo, mtd))
 		return -EINVAL;
-	}
 
 	/* Configure BCH and set NFC geometry */
 	mxs_reset_block(&bch_regs->hw_bch_ctrl_reg);
 
 	/* Configure layout 0 */
-	tmp = (mxs_nand_ecc_chunk_cnt(mtd->writesize) - 1)
-		<< BCH_FLASHLAYOUT0_NBLOCKS_OFFSET;
+	tmp = (geo->ecc_chunk_count - 1) << BCH_FLASHLAYOUT0_NBLOCKS_OFFSET;
 	tmp |= MXS_NAND_METADATA_SIZE << BCH_FLASHLAYOUT0_META_SIZE_OFFSET;
-	tmp |= (mxs_nand_get_ecc_strength(mtd->writesize, mtd->oobsize) >> 1)
-		<< BCH_FLASHLAYOUT0_ECC0_OFFSET;
-	tmp |= chunk_data_size >> MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT;
-	tmp |= (14 == galois_field ? 1 : 0) <<
+	tmp |= (geo->ecc_strength >> 1) << BCH_FLASHLAYOUT0_ECC0_OFFSET;
+	tmp |= geo->ecc_chunk_size >> MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT;
+	tmp |= (geo->gf_len == 14 ? 1 : 0) <<
 		BCH_FLASHLAYOUT0_GF13_0_GF14_1_OFFSET;
 	writel(tmp, &bch_regs->hw_bch_flash0layout0);
 
 	tmp = (mtd->writesize + mtd->oobsize)
 		<< BCH_FLASHLAYOUT1_PAGE_SIZE_OFFSET;
-	tmp |= (mxs_nand_get_ecc_strength(mtd->writesize, mtd->oobsize) >> 1)
-		<< BCH_FLASHLAYOUT1_ECCN_OFFSET;
-	tmp |= chunk_data_size >> MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT;
-	tmp |= (14 == galois_field ? 1 : 0) <<
+	tmp |= (geo->ecc_strength >> 1) << BCH_FLASHLAYOUT1_ECCN_OFFSET;
+	tmp |= geo->ecc_chunk_size >> MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT;
+	tmp |= (geo->gf_len == 14 ? 1 : 0) <<
 		BCH_FLASHLAYOUT1_GF13_0_GF14_1_OFFSET;
 	writel(tmp, &bch_regs->hw_bch_flash0layout1);
 
