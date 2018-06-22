@@ -161,15 +161,14 @@ static inline int mxs_nand_calc_mark_offset(struct bch_geometry *geo,
 }
 
 static inline int mxs_nand_calc_ecc_layout_by_info(struct bch_geometry *geo,
-						   struct mtd_info *mtd)
+						   struct mtd_info *mtd,
+						   unsigned int ecc_strength,
+						   unsigned int ecc_step)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
 	struct mxs_nand_info *nand_info = nand_get_controller_data(chip);
 
-	if (!(chip->ecc_strength_ds > 0 && chip->ecc_step_ds > 0))
-		return -ENOTSUPP;
-
-	switch (chip->ecc_step_ds) {
+	switch (ecc_step) {
 	case SZ_512:
 		geo->gf_len = 13;
 		break;
@@ -180,8 +179,8 @@ static inline int mxs_nand_calc_ecc_layout_by_info(struct bch_geometry *geo,
 		return -EINVAL;
 	}
 
-	geo->ecc_chunk_size = chip->ecc_step_ds;
-	geo->ecc_strength = round_up(chip->ecc_strength_ds, 2);
+	geo->ecc_chunk_size = ecc_step;
+	geo->ecc_strength = round_up(ecc_strength, 2);
 
 	/* Keep the C >= O */
 	if (geo->ecc_chunk_size < mtd->oobsize)
@@ -964,6 +963,28 @@ static int mxs_nand_block_bad(struct mtd_info *mtd, loff_t ofs)
 	return 0;
 }
 
+static int mxs_nand_set_geometry(struct mtd_info *mtd, struct bch_geometry *geo)
+{
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct nand_chip *nand = mtd_to_nand(mtd);
+	struct mxs_nand_info *nand_info = nand_get_controller_data(nand);
+
+	if (chip->ecc.strength > 0 && chip->ecc.size > 0)
+		return mxs_nand_calc_ecc_layout_by_info(geo, mtd,
+				chip->ecc.strength, chip->ecc.size);
+
+	if (nand_info->use_minimum_ecc ||
+		mxs_nand_calc_ecc_layout(geo, mtd)) {
+		if (!(chip->ecc_strength_ds > 0 && chip->ecc_step_ds > 0))
+			return -EINVAL;
+
+		return mxs_nand_calc_ecc_layout_by_info(geo, mtd,
+				chip->ecc_strength_ds, chip->ecc_step_ds);
+	}
+
+	return 0;
+}
+
 /*
  * At this point, the physical NAND Flash chips have been identified and
  * counted, so we know the physical geometry. This enables us to make some
@@ -980,14 +1001,9 @@ int mxs_nand_setup_ecc(struct mtd_info *mtd)
 	struct bch_geometry *geo = &nand_info->bch_geometry;
 	struct mxs_bch_regs *bch_regs = nand_info->bch_regs;
 	uint32_t tmp;
-	int ret = -ENOTSUPP;
+	int ret;
 
-	if (nand_info->use_minimum_ecc)
-		ret = mxs_nand_calc_ecc_layout_by_info(geo, mtd);
-
-	if (ret == -ENOTSUPP)
-		ret = mxs_nand_calc_ecc_layout(geo, mtd);
-
+	ret = mxs_nand_set_geometry(mtd, geo);
 	if (ret)
 		return ret;
 
