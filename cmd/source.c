@@ -22,6 +22,24 @@
 #include <asm/byteorder.h>
 #include <asm/io.h>
 
+#if defined(CONFIG_FIT)
+/**
+ * get_default_image() - Return default property from /images
+ *
+ * Return: Pointer to value of default property (or NULL)
+ */
+static const char *get_default_image(const void *fit)
+{
+	int images_noffset;
+
+	images_noffset = fdt_path_offset(fit, FIT_IMAGES_PATH);
+	if (images_noffset < 0)
+		return NULL;
+
+	return fdt_getprop(fit, images_noffset, FIT_DEFAULT_PROP, NULL);
+}
+#endif
+
 int
 source (ulong addr, const char *fit_uname)
 {
@@ -87,14 +105,17 @@ source (ulong addr, const char *fit_uname)
 #endif
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
-		if (fit_uname == NULL) {
-			puts ("No FIT subimage unit name\n");
-			return 1;
-		}
-
 		fit_hdr = buf;
 		if (!fit_check_format (fit_hdr)) {
 			puts ("Bad FIT image format\n");
+			return 1;
+		}
+
+		if (!fit_uname)
+			fit_uname = get_default_image(fit_hdr);
+
+		if (!fit_uname) {
+			puts("No FIT subimage unit name\n");
 			return 1;
 		}
 
