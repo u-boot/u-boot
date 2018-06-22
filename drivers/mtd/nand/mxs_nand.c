@@ -71,6 +71,8 @@ struct bch_geometry {
 
 struct mxs_nand_info {
 	struct nand_chip chip;
+	unsigned int	max_ecc_strength_supported;
+	bool		use_minimum_ecc;
 	int		cur_chip;
 
 	uint32_t	cmd_queue_len;
@@ -215,19 +217,11 @@ static inline int mxs_nand_calc_mark_offset(struct bch_geometry *geo,
 	return 0;
 }
 
-static inline unsigned int mxs_nand_max_ecc_strength_supported(void)
-{
-	/* Refer to Chapter 17 for i.MX6DQ, Chapter 18 for i.MX6SX */
-	if (is_mx6sx() || is_mx7())
-		return 62;
-	else
-		return 40;
-}
-
 static inline int mxs_nand_calc_ecc_layout_by_info(struct bch_geometry *geo,
 						   struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct mxs_nand_info *nand_info = nand_get_controller_data(chip);
 
 	if (!(chip->ecc_strength_ds > 0 && chip->ecc_step_ds > 0))
 		return -ENOTSUPP;
@@ -250,7 +244,7 @@ static inline int mxs_nand_calc_ecc_layout_by_info(struct bch_geometry *geo,
 	if (geo->ecc_chunk_size < mtd->oobsize)
 		return -EINVAL;
 
-	if (geo->ecc_strength > mxs_nand_max_ecc_strength_supported())
+	if (geo->ecc_strength > nand_info->max_ecc_strength_supported)
 		return -EINVAL;
 
 	geo->ecc_chunk_count = mtd->writesize / geo->ecc_chunk_size;
@@ -261,6 +255,9 @@ static inline int mxs_nand_calc_ecc_layout_by_info(struct bch_geometry *geo,
 static inline int mxs_nand_calc_ecc_layout(struct bch_geometry *geo,
 					   struct mtd_info *mtd)
 {
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct mxs_nand_info *nand_info = nand_get_controller_data(chip);
+
 	/* The default for the length of Galois Field. */
 	geo->gf_len = 13;
 
@@ -292,7 +289,7 @@ static inline int mxs_nand_calc_ecc_layout(struct bch_geometry *geo,
 			/ (geo->gf_len * geo->ecc_chunk_count);
 
 	geo->ecc_strength = min(round_down(geo->ecc_strength, 2),
-				mxs_nand_max_ecc_strength_supported());
+				nand_info->max_ecc_strength_supported);
 
 	return 0;
 }
@@ -1042,9 +1039,8 @@ int mxs_nand_setup_ecc(struct mtd_info *mtd)
 	uint32_t tmp;
 	int ret = -ENOTSUPP;
 
-#ifdef CONFIG_NAND_MXS_USE_MINIMUM_ECC
-	ret = mxs_nand_calc_ecc_layout_by_info(geo, mtd);
-#endif
+	if (nand_info->use_minimum_ecc)
+		ret = mxs_nand_calc_ecc_layout_by_info(geo, mtd);
 
 	if (ret == -ENOTSUPP)
 		ret = mxs_nand_calc_ecc_layout(geo, mtd);
@@ -1321,6 +1317,16 @@ void board_nand_init(void)
 
 	nand_info->gpmi_regs = (struct mxs_gpmi_regs *)MXS_GPMI_BASE;
 	nand_info->bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
+
+	/* Refer to Chapter 17 for i.MX6DQ, Chapter 18 for i.MX6SX */
+	if (is_mx6sx() || is_mx7())
+		nand_info->max_ecc_strength_supported = 62;
+	else
+		nand_info->max_ecc_strength_supported = 40;
+
+#ifdef CONFIG_NAND_MXS_USE_MINIMUM_ECC
+	nand_info->use_minimum_ecc = true;
+#endif
 
 	if (mxs_nand_init(nand_info) < 0)
 		goto err;
