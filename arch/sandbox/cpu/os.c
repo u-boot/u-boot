@@ -146,7 +146,8 @@ void *os_malloc(size_t length)
 	int page_size = getpagesize();
 
 	hdr = mmap(NULL, length + page_size,
-		   PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		   PROT_READ | PROT_WRITE | PROT_EXEC,
+		   MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (hdr == MAP_FAILED)
 		return NULL;
 	hdr->length = length;
