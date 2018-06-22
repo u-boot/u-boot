@@ -1237,31 +1237,21 @@ int mxs_nand_init_spl(struct nand_chip *nand)
 	return 0;
 }
 
-void board_nand_init(void)
+int mxs_nand_init(struct mxs_nand_info *nand_info)
 {
 	struct mtd_info *mtd;
-	struct mxs_nand_info *nand_info;
 	struct nand_chip *nand;
 	int err;
 
-	nand_info = malloc(sizeof(struct mxs_nand_info));
-	if (!nand_info) {
-		printf("MXS NAND: Failed to allocate private data\n");
-			return;
-	}
-	memset(nand_info, 0, sizeof(struct mxs_nand_info));
-
-	nand_info->gpmi_regs = (struct mxs_gpmi_regs *)MXS_GPMI_BASE;
-	nand_info->bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
 	nand = &nand_info->chip;
 	mtd = nand_to_mtd(nand);
 	err = mxs_nand_alloc_buffers(nand_info);
 	if (err)
-		goto err1;
+		return err;
 
 	err = mxs_nand_init_dma(nand_info);
 	if (err)
-		goto err2;
+		goto err_free_buffers;
 
 	memset(&fake_ecc_layout, 0, sizeof(fake_ecc_layout));
 
@@ -1285,10 +1275,10 @@ void board_nand_init(void)
 
 	/* first scan to find the device and get the page size */
 	if (nand_scan_ident(mtd, CONFIG_SYS_MAX_NAND_DEVICE, NULL))
-		goto err2;
+		goto err_free_buffers;
 
 	if (mxs_nand_setup_ecc(mtd))
-		goto err2;
+		goto err_free_buffers;
 
 	nand->ecc.read_page	= mxs_nand_ecc_read_page;
 	nand->ecc.write_page	= mxs_nand_ecc_write_page;
@@ -1303,18 +1293,40 @@ void board_nand_init(void)
 	/* second phase scan */
 	err = nand_scan_tail(mtd);
 	if (err)
-		goto err2;
+		goto err_free_buffers;
 
 	err = nand_register(0, mtd);
 	if (err)
-		goto err2;
+		goto err_free_buffers;
 
-	return;
+	return 0;
 
-err2:
+err_free_buffers:
 	free(nand_info->data_buf);
 	free(nand_info->cmd_buf);
-err1:
-	free(nand_info);
+
+	return err;
+}
+
+void board_nand_init(void)
+{
+	struct mxs_nand_info *nand_info;
+
+	nand_info = malloc(sizeof(struct mxs_nand_info));
+	if (!nand_info) {
+		printf("MXS NAND: Failed to allocate private data\n");
+			return;
+	}
+	memset(nand_info, 0, sizeof(struct mxs_nand_info));
+
+	nand_info->gpmi_regs = (struct mxs_gpmi_regs *)MXS_GPMI_BASE;
+	nand_info->bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
+
+	if (mxs_nand_init(nand_info) < 0)
+		goto err;
+
 	return;
+
+err:
+	free(nand_info);
 }
