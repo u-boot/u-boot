@@ -1253,9 +1253,8 @@ void board_nand_init(void)
 
 	nand->ecc.layout	= &fake_ecc_layout;
 	nand->ecc.mode		= NAND_ECC_HW;
-	nand->ecc.bytes		= 9;
-	nand->ecc.size		= 512;
-	nand->ecc.strength	= 8;
+	nand->ecc.size		= nand_info->bch_geometry.ecc_chunk_size;
+	nand->ecc.strength	= nand_info->bch_geometry.ecc_strength;
 
 	/* second phase scan */
 	err = nand_scan_tail(mtd);
