@@ -109,11 +109,10 @@ int dram_init_banksize(void)
 	     desc < end && num_banks < CONFIG_NR_DRAM_BANKS;
 	     desc = efi_get_next_mem_desc(map, desc)) {
 		/*
-		 * We only use conventional memory below 4GB, and ignore
+		 * We only use conventional memory and ignore
 		 * anything less than 1MB.
 		 */
 		if (desc->type != EFI_CONVENTIONAL_MEMORY ||
-		    desc->physical_start >= 1ULL << 32 ||
 		    (desc->num_pages << EFI_PAGE_SHIFT) < 1 << 20)
 			continue;
 		gd->bd->bi_dram[num_banks].start = desc->physical_start;
