@@ -143,6 +143,7 @@ config NAND_MXC
 config NAND_MXS
 	bool "MXS NAND support"
 	depends on MX23 || MX28 || MX6 || MX7
+	select SYS_NAND_SELF_INIT
 	imply CMD_NAND
 	select APBH_DMA
 	select APBH_DMA_BURST if ARCH_MX6 || ARCH_MX7

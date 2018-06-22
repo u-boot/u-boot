@@ -8,3 +8,4 @@
  */
 
 int mxs_nand_init_spl(struct nand_chip *nand);
+int mxs_nand_setup_ecc(struct mtd_info *mtd);

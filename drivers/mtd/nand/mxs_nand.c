@@ -17,6 +17,7 @@
 #include <linux/mtd/rawnand.h>
 #include <linux/types.h>
 #include <malloc.h>
+#include <nand.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
@@ -47,6 +48,7 @@
 #define	MXS_NAND_BCH_TIMEOUT			10000
 
 struct mxs_nand_info {
+	struct nand_chip chip;
 	int		cur_chip;
 
 	uint32_t	cmd_queue_len;
@@ -972,20 +974,15 @@ static int mxs_nand_block_bad(struct mtd_info *mtd, loff_t ofs)
 }
 
 /*
- * Nominally, the purpose of this function is to look for or create the bad
- * block table. In fact, since the we call this function at the very end of
- * the initialization process started by nand_scan(), and we doesn't have a
- * more formal mechanism, we "hook" this function to continue init process.
- *
  * At this point, the physical NAND Flash chips have been identified and
  * counted, so we know the physical geometry. This enables us to make some
  * important configuration decisions.
  *
  * The return value of this function propagates directly back to this driver's
- * call to nand_scan(). Anything other than zero will cause this driver to
+ * board_nand_init(). Anything other than zero will cause this driver to
  * tear everything down and declare failure.
  */
-static int mxs_nand_scan_bbt(struct mtd_info *mtd)
+int mxs_nand_setup_ecc(struct mtd_info *mtd)
 {
 	struct nand_chip *nand = mtd_to_nand(mtd);
 	struct mxs_nand_info *nand_info = nand_get_controller_data(nand);
@@ -1047,8 +1044,7 @@ static int mxs_nand_scan_bbt(struct mtd_info *mtd)
 		mtd->_block_markbad = mxs_nand_hook_block_markbad;
 	}
 
-	/* We use the reference implementation for bad block management. */
-	return nand_default_bbt(mtd);
+	return 0;
 }
 
 /*
@@ -1177,7 +1173,6 @@ int mxs_nand_init_spl(struct nand_chip *nand)
 	nand->cmd_ctrl		= mxs_nand_cmd_ctrl;
 	nand->dev_ready		= mxs_nand_device_ready;
 	nand->select_chip	= mxs_nand_select_chip;
-	nand->scan_bbt		= mxs_nand_scan_bbt;
 
 	nand->read_byte		= mxs_nand_read_byte;
 	nand->read_buf		= mxs_nand_read_buf;
@@ -1192,27 +1187,22 @@ int mxs_nand_init_spl(struct nand_chip *nand)
 	return 0;
 }
 
-/*!
- * This function is called during the driver binding process.
- *
- * @param   pdev  the device structure used to store device specific
- *                information that is used by the suspend, resume and
- *                remove functions
- *
- * @return  The function always returns 0.
- */
-int board_nand_init(struct nand_chip *nand)
+void board_nand_init(void)
 {
+	struct mtd_info *mtd;
 	struct mxs_nand_info *nand_info;
+	struct nand_chip *nand;
 	int err;
 
 	nand_info = malloc(sizeof(struct mxs_nand_info));
 	if (!nand_info) {
 		printf("MXS NAND: Failed to allocate private data\n");
-		return -ENOMEM;
+			return;
 	}
 	memset(nand_info, 0, sizeof(struct mxs_nand_info));
 
+	nand = &nand_info->chip;
+	mtd = nand_to_mtd(nand);
 	err = mxs_nand_alloc_buffers(nand_info);
 	if (err)
 		goto err1;
@@ -1231,12 +1221,18 @@ int board_nand_init(struct nand_chip *nand)
 	nand->dev_ready		= mxs_nand_device_ready;
 	nand->select_chip	= mxs_nand_select_chip;
 	nand->block_bad		= mxs_nand_block_bad;
-	nand->scan_bbt		= mxs_nand_scan_bbt;
 
 	nand->read_byte		= mxs_nand_read_byte;
 
 	nand->read_buf		= mxs_nand_read_buf;
 	nand->write_buf		= mxs_nand_write_buf;
+
+	/* first scan to find the device and get the page size */
+	if (nand_scan_ident(mtd, CONFIG_SYS_MAX_NAND_DEVICE, NULL))
+		goto err2;
+
+	if (mxs_nand_setup_ecc(mtd))
+		goto err2;
 
 	nand->ecc.read_page	= mxs_nand_ecc_read_page;
 	nand->ecc.write_page	= mxs_nand_ecc_write_page;
@@ -1249,12 +1245,21 @@ int board_nand_init(struct nand_chip *nand)
 	nand->ecc.size		= 512;
 	nand->ecc.strength	= 8;
 
-	return 0;
+	/* second phase scan */
+	err = nand_scan_tail(mtd);
+	if (err)
+		goto err2;
+
+	err = nand_register(0, mtd);
+	if (err)
+		goto err2;
+
+	return;
 
 err2:
 	free(nand_info->data_buf);
 	free(nand_info->cmd_buf);
 err1:
 	free(nand_info);
-	return err;
+	return;
 }
