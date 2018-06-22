@@ -148,7 +148,6 @@
 #include <config_distro_bootcmd.h>
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_PROMPT		"=> "
 
 #define CONFIG_SYS_MEMTEST_START	(DDR_BASE_ADDR)

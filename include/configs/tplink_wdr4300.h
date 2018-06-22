@@ -44,7 +44,6 @@
 #define CONFIG_SYS_MAXARGS	32		/* Max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 						/* Boot argument buffer size */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /* USB, USB storage, USB ethernet */
 #define CONFIG_EHCI_MMIO_BIG_ENDIAN
