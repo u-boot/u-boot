@@ -1239,6 +1239,11 @@ config CMD_PXE
 	help
 	  Boot image via network using PXE protocol
 
+config CMD_WOL
+	bool "wol"
+	help
+	  Wait for wake-on-lan Magic Packet
+
 endif
 
 menu "Misc commands"
