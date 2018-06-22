@@ -43,8 +43,6 @@ static int microcode_decode_node(const void *blob, int node,
 	update->data = fdt_getprop(blob, node, "data", &update->size);
 	if (!update->data)
 		return -ENOENT;
-	update->data += UCODE_HEADER_LEN;
-	update->size -= UCODE_HEADER_LEN;
 
 	update->header_version = fdtdec_get_int(blob, node,
 						"intel,header-version", 0);
@@ -124,6 +122,7 @@ static void microcode_read_cpu(struct microcode_update *cpu)
 int microcode_update_intel(void)
 {
 	struct microcode_update cpu, update;
+	ulong address;
 	const void *blob = gd->fdt_blob;
 	int skipped;
 	int count;
@@ -167,7 +166,8 @@ int microcode_update_intel(void)
 			skipped++;
 			continue;
 		}
-		wrmsr(MSR_IA32_UCODE_WRITE, (ulong)update.data, 0);
+		address = (ulong)update.data + UCODE_HEADER_LEN;
+		wrmsr(MSR_IA32_UCODE_WRITE, address, 0);
 		rev = microcode_read_rev();
 		debug("microcode: updated to revision 0x%x date=%04x-%02x-%02x\n",
 		      rev, update.date_code & 0xffff,
@@ -178,5 +178,9 @@ int microcode_update_intel(void)
 			return -EFAULT;
 		}
 		count++;
+		if (!ucode_base) {
+			ucode_base = (ulong)update.data;
+			ucode_size = update.size;
+		}
 	} while (1);
 }

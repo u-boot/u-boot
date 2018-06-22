@@ -10,6 +10,7 @@
 
 /* This is a declaration for ucode_base in start.S */
 extern u32 ucode_base;
+extern u32 ucode_size;
 
 /**
  * microcode_update_intel() - Apply microcode updates
