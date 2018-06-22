@@ -9,7 +9,6 @@
 #include <asm/arch/mx7-pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
-#include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
 #include <common.h>
@@ -317,24 +316,6 @@ int board_init(void)
 #ifdef CONFIG_USB_EHCI_MX7
 	imx_iomux_v3_setup_multiple_pads(usb_cdet_pads, ARRAY_SIZE(usb_cdet_pads));
 	gpio_request(USB_CDET_GPIO, "usb-cdet-gpio");
-#endif
-
-	return 0;
-}
-
-#ifdef CONFIG_CMD_BMODE
-static const struct boot_mode board_boot_modes[] = {
-	/* 4 bit bus width */
-	{"nand", MAKE_CFGVAL(0x40, 0x34, 0x00, 0x00)},
-	{"sd1", MAKE_CFGVAL(0x10, 0x10, 0x00, 0x00)},
-	{NULL, 0},
-};
-#endif
-
-int board_late_init(void)
-{
-#ifdef CONFIG_CMD_BMODE
-	add_board_boot_modes(board_boot_modes);
 #endif
 
 	return 0;
