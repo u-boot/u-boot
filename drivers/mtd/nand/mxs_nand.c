@@ -15,6 +15,7 @@
 #include <common.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/rawnand.h>
+#include <linux/sizes.h>
 #include <linux/types.h>
 #include <malloc.h>
 #include <nand.h>
@@ -211,11 +212,52 @@ static inline int mxs_nand_calc_mark_offset(struct bch_geometry *geo,
 	return 0;
 }
 
+static inline unsigned int mxs_nand_max_ecc_strength_supported(void)
+{
+	/* Refer to Chapter 17 for i.MX6DQ, Chapter 18 for i.MX6SX */
+	if (is_mx6sx() || is_mx7())
+		return 62;
+	else
+		return 40;
+}
+
+static inline int mxs_nand_calc_ecc_layout_by_info(struct bch_geometry *geo,
+						   struct mtd_info *mtd)
+{
+	struct nand_chip *chip = mtd_to_nand(mtd);
+
+	if (!(chip->ecc_strength_ds > 0 && chip->ecc_step_ds > 0))
+		return -ENOTSUPP;
+
+	switch (chip->ecc_step_ds) {
+	case SZ_512:
+		geo->gf_len = 13;
+		break;
+	case SZ_1K:
+		geo->gf_len = 14;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	geo->ecc_chunk_size = chip->ecc_step_ds;
+	geo->ecc_strength = round_up(chip->ecc_strength_ds, 2);
+
+	/* Keep the C >= O */
+	if (geo->ecc_chunk_size < mtd->oobsize)
+		return -EINVAL;
+
+	if (geo->ecc_strength > mxs_nand_max_ecc_strength_supported())
+		return -EINVAL;
+
+	geo->ecc_chunk_count = mtd->writesize / geo->ecc_chunk_size;
+
+	return 0;
+}
+
 static inline int mxs_nand_calc_ecc_layout(struct bch_geometry *geo,
 					   struct mtd_info *mtd)
 {
-	unsigned int max_ecc_strength_supported;
-
 	/* The default for the length of Galois Field. */
 	geo->gf_len = 13;
 
@@ -235,12 +277,6 @@ static inline int mxs_nand_calc_ecc_layout(struct bch_geometry *geo,
 
 	geo->ecc_chunk_count = mtd->writesize / geo->ecc_chunk_size;
 
-	/* Refer to Chapter 17 for i.MX6DQ, Chapter 18 for i.MX6SX */
-	if (is_mx6sx() || is_mx7())
-		max_ecc_strength_supported = 62;
-	else
-		max_ecc_strength_supported = 40;
-
 	/*
 	 * Determine the ECC layout with the formula:
 	 *	ECC bits per chunk = (total page spare data bits) /
@@ -252,10 +288,8 @@ static inline int mxs_nand_calc_ecc_layout(struct bch_geometry *geo,
 	geo->ecc_strength = ((mtd->oobsize - MXS_NAND_METADATA_SIZE) * 8)
 			/ (geo->gf_len * geo->ecc_chunk_count);
 
-	geo->ecc_strength = min(round_down(geo->ecc_strength, 2), max_ecc_strength_supported);
-
-	if (mxs_nand_calc_mark_offset(geo, mtd->writesize) < 0)
-		return -EINVAL;
+	geo->ecc_strength = min(round_down(geo->ecc_strength, 2),
+				mxs_nand_max_ecc_strength_supported());
 
 	return 0;
 }
@@ -1006,9 +1040,19 @@ int mxs_nand_setup_ecc(struct mtd_info *mtd)
 	struct bch_geometry *geo = &nand_info->bch_geometry;
 	struct mxs_bch_regs *bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
 	uint32_t tmp;
+	int ret = -ENOTSUPP;
 
-	if (mxs_nand_calc_ecc_layout(geo, mtd))
-		return -EINVAL;
+#ifdef CONFIG_NAND_MXS_USE_MINIMUM_ECC
+	ret = mxs_nand_calc_ecc_layout_by_info(geo, mtd);
+#endif
+
+	if (ret == -ENOTSUPP)
+		ret = mxs_nand_calc_ecc_layout(geo, mtd);
+
+	if (ret)
+		return ret;
+
+	mxs_nand_calc_mark_offset(geo, mtd->writesize);
 
 	/* Configure BCH and set NFC geometry */
 	mxs_reset_block(&bch_regs->hw_bch_ctrl_reg);
