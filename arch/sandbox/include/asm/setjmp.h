@@ -24,6 +24,11 @@ struct jmp_buf_data {
 
 typedef struct jmp_buf_data jmp_buf[1];
 
+/*
+ * We have to directly link with the system versions of
+ * setjmp/longjmp, because setjmp must not return as otherwise
+ * the stack may become invalid.
+ */
 int setjmp(jmp_buf jmp);
 __noreturn void longjmp(jmp_buf jmp, int ret);
 

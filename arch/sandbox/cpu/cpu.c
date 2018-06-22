@@ -288,15 +288,3 @@ ulong timer_get_boot_us(void)
 
 	return (count - base_count) / 1000;
 }
-
-int setjmp(jmp_buf jmp)
-{
-	return os_setjmp((ulong *)jmp, sizeof(*jmp));
-}
-
-void longjmp(jmp_buf jmp, int ret)
-{
-	os_longjmp((ulong *)jmp, ret);
-	while (1)
-		;
-}
