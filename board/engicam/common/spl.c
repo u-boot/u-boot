@@ -414,7 +414,8 @@ void board_init_f(ulong dummy)
 	/* setup AIPS and disable watchdog */
 	arch_cpu_init();
 
-	gpr_init();
+	if (!(is_mx6ul()))
+		gpr_init();
 
 	/* iomux */
 	SETUP_IOMUX_PADS(uart_pads);
