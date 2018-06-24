@@ -777,10 +777,10 @@ int envmatch(uchar *s1, int i2)
 }
 
 #ifndef CONFIG_SPL_BUILD
-static int do_env_default(cmd_tbl_t *cmdtp, int __flag,
+static int do_env_default(cmd_tbl_t *cmdtp, int flag,
 			  int argc, char * const argv[])
 {
-	int all = 0, flag = 0;
+	int all = 0, env_flag = 0;
 
 	debug("Initial value for argc=%d\n", argc);
 	while (--argc > 0 && **++argv == '-') {
@@ -792,7 +792,7 @@ static int do_env_default(cmd_tbl_t *cmdtp, int __flag,
 				all = 1;
 				break;
 			case 'f':		/* force */
-				flag |= H_FORCE;
+				env_flag |= H_FORCE;
 				break;
 			default:
 				return cmd_usage(cmdtp);
