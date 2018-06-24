@@ -106,7 +106,7 @@ static void env_sata_load(void)
 	}
 
 	if (read_env(sata, CONFIG_ENV_SIZE, CONFIG_ENV_OFFSET, buf)) {
-		set_default_env(NULL);
+		set_default_env(NULL, 0);
 		return -EIO;
 	}
 

@@ -155,19 +155,19 @@ static inline int mmc_set_env_part(struct mmc *mmc) {return 0; };
 static const char *init_mmc_for_env(struct mmc *mmc)
 {
 	if (!mmc)
-		return "!No MMC card found";
+		return "No MMC card found";
 
 #if CONFIG_IS_ENABLED(BLK)
 	struct udevice *dev;
 
 	if (blk_get_from_parent(mmc->dev, &dev))
-		return "!No block device";
+		return "No block device";
 #else
 	if (mmc_init(mmc))
-		return "!MMC init failed";
+		return "MMC init failed";
 #endif
 	if (mmc_set_env_part(mmc))
-		return "!MMC partition switch failed";
+		return "MMC partition switch failed";
 
 	return NULL;
 }
@@ -298,7 +298,7 @@ fini:
 	fini_mmc_for_env(mmc);
 err:
 	if (ret)
-		set_default_env(errmsg);
+		set_default_env(errmsg, 0);
 
 #endif
 	return ret;
@@ -339,7 +339,7 @@ fini:
 	fini_mmc_for_env(mmc);
 err:
 	if (ret)
-		set_default_env(errmsg);
+		set_default_env(errmsg, 0);
 #endif
 	return ret;
 }

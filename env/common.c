@@ -58,22 +58,18 @@ char *env_get_default(const char *name)
 	return ret_val;
 }
 
-void set_default_env(const char *s)
+void set_default_env(const char *s, int flags)
 {
-	int flags = 0;
-
 	if (sizeof(default_environment) > ENV_SIZE) {
 		puts("*** Error - default environment is too large\n\n");
 		return;
 	}
 
 	if (s) {
-		if (*s == '!') {
+		if ((flags & H_INTERACTIVE) == 0) {
 			printf("*** Warning - %s, "
-				"using default environment\n\n",
-				s + 1);
+				"using default environment\n\n", s);
 		} else {
-			flags = H_INTERACTIVE;
 			puts(s);
 		}
 	} else {
@@ -117,7 +113,7 @@ int env_import(const char *buf, int check)
 		memcpy(&crc, &ep->crc, sizeof(crc));
 
 		if (crc32(0, ep->data, ENV_SIZE) != crc) {
-			set_default_env("!bad CRC");
+			set_default_env("bad CRC", 0);
 			return -EIO;
 		}
 	}
@@ -130,7 +126,7 @@ int env_import(const char *buf, int check)
 
 	pr_err("Cannot import environment: errno = %d\n", errno);
 
-	set_default_env("!import failed");
+	set_default_env("import failed", 0);
 
 	return -EIO;
 }
@@ -155,7 +151,7 @@ int env_import_redund(const char *buf1, int buf1_read_fail,
 	}
 
 	if (buf1_read_fail && buf2_read_fail) {
-		set_default_env("!bad env area");
+		set_default_env("bad env area", 0);
 		return -EIO;
 	} else if (!buf1_read_fail && buf2_read_fail) {
 		gd->env_valid = ENV_VALID;
@@ -171,7 +167,7 @@ int env_import_redund(const char *buf1, int buf1_read_fail,
 			tmp_env2->crc;
 
 	if (!crc1_ok && !crc2_ok) {
-		set_default_env("!bad CRC");
+		set_default_env("bad CRC", 0);
 		return -EIO;
 	} else if (crc1_ok && !crc2_ok) {
 		gd->env_valid = ENV_VALID;
@@ -233,10 +229,10 @@ void env_relocate(void)
 	if (gd->env_valid == ENV_INVALID) {
 #if defined(CONFIG_ENV_IS_NOWHERE) || defined(CONFIG_SPL_BUILD)
 		/* Environment not changable */
-		set_default_env(NULL);
+		set_default_env(NULL, 0);
 #else
 		bootstage_error(BOOTSTAGE_ID_NET_CHECKSUM);
-		set_default_env("!bad CRC");
+		set_default_env("bad CRC", 0);
 #endif
 	} else {
 		env_load();

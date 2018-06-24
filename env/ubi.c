@@ -114,7 +114,7 @@ static int env_ubi_load(void)
 	if (ubi_part(CONFIG_ENV_UBI_PART, NULL)) {
 		printf("\n** Cannot find mtd partition \"%s\"\n",
 		       CONFIG_ENV_UBI_PART);
-		set_default_env(NULL);
+		set_default_env(NULL, 0);
 		return -EIO;
 	}
 
@@ -151,14 +151,14 @@ static int env_ubi_load(void)
 	if (ubi_part(CONFIG_ENV_UBI_PART, NULL)) {
 		printf("\n** Cannot find mtd partition \"%s\"\n",
 		       CONFIG_ENV_UBI_PART);
-		set_default_env(NULL);
+		set_default_env(NULL, 0);
 		return -EIO;
 	}
 
 	if (ubi_volume_read(CONFIG_ENV_UBI_VOLUME, buf, CONFIG_ENV_SIZE)) {
 		printf("\n** Unable to read env from %s:%s **\n",
 		       CONFIG_ENV_UBI_PART, CONFIG_ENV_UBI_VOLUME);
-		set_default_env(NULL);
+		set_default_env(NULL, 0);
 		return -EIO;
 	}
 

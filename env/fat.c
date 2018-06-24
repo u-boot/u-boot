@@ -122,7 +122,7 @@ static int env_fat_load(void)
 	return env_import(buf, 1);
 
 err_env_relocate:
-	set_default_env(NULL);
+	set_default_env(NULL, 0);
 
 	return -EIO;
 }
