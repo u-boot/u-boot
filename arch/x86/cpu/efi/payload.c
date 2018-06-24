@@ -7,6 +7,7 @@
 #include <common.h>
 #include <efi.h>
 #include <errno.h>
+#include <usb.h>
 #include <asm/post.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -108,11 +109,10 @@ int dram_init_banksize(void)
 	     desc < end && num_banks < CONFIG_NR_DRAM_BANKS;
 	     desc = efi_get_next_mem_desc(map, desc)) {
 		/*
-		 * We only use conventional memory below 4GB, and ignore
+		 * We only use conventional memory and ignore
 		 * anything less than 1MB.
 		 */
 		if (desc->type != EFI_CONVENTIONAL_MEMORY ||
-		    desc->physical_start >= 1ULL << 32 ||
 		    (desc->num_pages << EFI_PAGE_SHIFT) < 1 << 20)
 			continue;
 		gd->bd->bi_dram[num_banks].start = desc->physical_start;
@@ -157,6 +157,14 @@ int reserve_arch(void)
 	debug("Stashing EFI table at %lx to %lx, size %x\n",
 	      gd->arch.table, gd->start_addr_sp, hdr->total_size);
 	gd->arch.table = gd->start_addr_sp;
+
+	return 0;
+}
+
+int last_stage_init(void)
+{
+	/* start usb so that usb keyboard can be used as input device */
+	usb_init();
 
 	return 0;
 }

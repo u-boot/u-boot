@@ -596,7 +596,7 @@ static int initr_pcmcia(void)
 }
 #endif
 
-#if defined(CONFIG_IDE)
+#if defined(CONFIG_IDE) && !defined(CONFIG_BLK)
 static int initr_ide(void)
 {
 	puts("IDE:   ");
@@ -826,7 +826,7 @@ static init_fnc_t init_sequence_r[] = {
 #if defined(CONFIG_CMD_PCMCIA) && !defined(CONFIG_IDE)
 	initr_pcmcia,
 #endif
-#if defined(CONFIG_IDE)
+#if defined(CONFIG_IDE) && !defined(CONFIG_BLK)
 	initr_ide,
 #endif
 #ifdef CONFIG_LAST_STAGE_INIT

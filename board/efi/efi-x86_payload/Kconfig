@@ -17,6 +17,7 @@ config SYS_TEXT_BASE
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
+	select BOARD_EARLY_INIT_R
 	imply SYS_NS16550
 	imply SCSI
 	imply SCSI_AHCI
