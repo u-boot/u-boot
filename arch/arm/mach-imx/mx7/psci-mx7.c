@@ -201,6 +201,12 @@ __secure s32 psci_affinity_info(u32 __always_unused function_id,
 	return psci_state[cpu];
 }
 
+__secure s32 psci_migrate_info_type(u32 function_id)
+{
+	/* Trusted OS is either not present or does not require migration */
+	return 2;
+}
+
 __secure s32 psci_features(u32 __always_unused function_id, u32 psci_fid)
 {
 	switch (psci_fid) {
@@ -208,6 +214,7 @@ __secure s32 psci_features(u32 __always_unused function_id, u32 psci_fid)
 	case ARM_PSCI_0_2_FN_CPU_OFF:
 	case ARM_PSCI_0_2_FN_CPU_ON:
 	case ARM_PSCI_0_2_FN_AFFINITY_INFO:
+	case ARM_PSCI_0_2_FN_MIGRATE_INFO_TYPE:
 	case ARM_PSCI_0_2_FN_SYSTEM_OFF:
 	case ARM_PSCI_0_2_FN_SYSTEM_RESET:
 	case ARM_PSCI_1_0_FN_PSCI_FEATURES:
