@@ -14,8 +14,10 @@
 
 #define GPC_CPU_PGC_SW_PDN_REQ	0xfc
 #define GPC_CPU_PGC_SW_PUP_REQ	0xf0
+#define GPC_PGC_C0		0x800
 #define GPC_PGC_C1		0x840
 
+#define BM_CPU_PGC_SW_PDN_PUP_REQ_CORE0_A7	0x1
 #define BM_CPU_PGC_SW_PDN_PUP_REQ_CORE1_A7	0x2
 
 /* below is for i.MX7D */
@@ -58,22 +60,24 @@ static inline void imx_gpcv2_set_m_core_pgc(bool enable, u32 offset)
 	writel(enable, GPC_IPS_BASE_ADDR + offset);
 }
 
-__secure void imx_gpcv2_set_core1_power(bool pdn)
+__secure void imx_gpcv2_set_core_power(int cpu, bool pdn)
 {
 	u32 reg = pdn ? GPC_CPU_PGC_SW_PUP_REQ : GPC_CPU_PGC_SW_PDN_REQ;
+	u32 pgc = cpu ? GPC_PGC_C1 : GPC_PGC_C0;
+	u32 pdn_pup_req = cpu ? BM_CPU_PGC_SW_PDN_PUP_REQ_CORE1_A7 :
+				BM_CPU_PGC_SW_PDN_PUP_REQ_CORE0_A7;
 	u32 val;
 
-	imx_gpcv2_set_m_core_pgc(true, GPC_PGC_C1);
+	imx_gpcv2_set_m_core_pgc(true, pgc);
 
 	val = readl(GPC_IPS_BASE_ADDR + reg);
-	val |= BM_CPU_PGC_SW_PDN_PUP_REQ_CORE1_A7;
+	val |= pdn_pup_req;
 	writel(val, GPC_IPS_BASE_ADDR + reg);
 
-	while ((readl(GPC_IPS_BASE_ADDR + reg) &
-	       BM_CPU_PGC_SW_PDN_PUP_REQ_CORE1_A7) != 0)
+	while ((readl(GPC_IPS_BASE_ADDR + reg) & pdn_pup_req) != 0)
 		;
 
-	imx_gpcv2_set_m_core_pgc(false, GPC_PGC_C1);
+	imx_gpcv2_set_m_core_pgc(false, pgc);
 }
 
 __secure void imx_enable_cpu_ca7(int cpu, bool enable)
@@ -116,7 +120,7 @@ __secure s32 psci_cpu_on(u32 __always_unused function_id, u32 mpidr, u32 ep,
 
 	psci_set_state(cpu, PSCI_AFFINITY_LEVEL_ON_PENDING);
 
-	imx_gpcv2_set_core1_power(true);
+	imx_gpcv2_set_core_power(cpu, true);
 	imx_enable_cpu_ca7(cpu, true);
 
 	return ARM_PSCI_RET_SUCCESS;
@@ -132,7 +136,7 @@ __secure s32 psci_cpu_off(void)
 	psci_set_state(cpu, PSCI_AFFINITY_LEVEL_OFF);
 
 	imx_enable_cpu_ca7(cpu, false);
-	imx_gpcv2_set_core1_power(false);
+	imx_gpcv2_set_core_power(cpu, false);
 	writel(0, SRC_BASE_ADDR + cpu * 8 + SRC_GPR1_MX7D + 4);
 
 	while (1)
