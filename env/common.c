@@ -97,7 +97,7 @@ int set_default_vars(int nvars, char * const vars[], int flags)
 	 * Special use-case: import from default environment
 	 * (and use \0 as a separator)
 	 */
-	flags |= H_NOCLEAR | H_INTERACTIVE;
+	flags |= H_NOCLEAR;
 	return himport_r(&env_htab, (const char *)default_environment,
 				sizeof(default_environment), '\0',
 				flags, 0, nvars, vars);

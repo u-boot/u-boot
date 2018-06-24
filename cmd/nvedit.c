@@ -780,7 +780,7 @@ int envmatch(uchar *s1, int i2)
 static int do_env_default(cmd_tbl_t *cmdtp, int flag,
 			  int argc, char * const argv[])
 {
-	int all = 0, env_flag = 0;
+	int all = 0, env_flag = H_INTERACTIVE;
 
 	debug("Initial value for argc=%d\n", argc);
 	while (--argc > 0 && **++argv == '-') {
