@@ -22,14 +22,9 @@ static void set_icmp_header(uchar *pkt, struct in_addr dest)
 	/*
 	 *	Construct an IP and ICMP header.
 	 */
-	struct ip_hdr *ip = (struct ip_hdr *)pkt;
 	struct icmp_hdr *icmp = (struct icmp_hdr *)(pkt + IP_HDR_SIZE);
 
-	net_set_ip_header(pkt, dest, net_ip);
-
-	ip->ip_len   = htons(IP_ICMP_HDR_SIZE);
-	ip->ip_p     = IPPROTO_ICMP;
-	ip->ip_sum   = compute_ip_checksum(ip, IP_HDR_SIZE);
+	net_set_ip_header(pkt, dest, net_ip, IP_ICMP_HDR_SIZE, IPPROTO_ICMP);
 
 	icmp->type = ICMP_ECHO_REQUEST;
 	icmp->code = 0;
