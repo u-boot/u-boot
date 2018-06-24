@@ -91,15 +91,16 @@ void set_default_env(const char *s)
 
 
 /* [re]set individual variables to their value in the default environment */
-int set_default_vars(int nvars, char * const vars[])
+int set_default_vars(int nvars, char * const vars[], int flags)
 {
 	/*
 	 * Special use-case: import from default environment
 	 * (and use \0 as a separator)
 	 */
+	flags |= H_NOCLEAR | H_INTERACTIVE;
 	return himport_r(&env_htab, (const char *)default_environment,
 				sizeof(default_environment), '\0',
-				H_NOCLEAR | H_INTERACTIVE, 0, nvars, vars);
+				flags, 0, nvars, vars);
 }
 
 /*
