@@ -67,23 +67,34 @@ __secure void imx_enable_cpu_ca7(int cpu, bool enable)
 	writel(val, SRC_BASE_ADDR + SRC_A7RCR1);
 }
 
-__secure int imx_cpu_on(int fn, int cpu, int pc)
+__secure s32 psci_cpu_on(u32 __always_unused function_id, u32 mpidr, u32 ep,
+			 u32 context_id)
 {
-	writel(pc, SRC_BASE_ADDR + cpu * 8 + SRC_GPR1_MX7D);
+	u32 cpu = (mpidr & 0x1);
+
+	psci_save(cpu, ep, context_id);
+
+	writel((u32)psci_cpu_entry, SRC_BASE_ADDR + cpu * 8 + SRC_GPR1_MX7D);
 	imx_gpcv2_set_core1_power(true);
 	imx_enable_cpu_ca7(cpu, true);
 	return 0;
 }
 
-__secure int imx_cpu_off(int cpu)
+__secure s32 psci_cpu_off(void)
 {
+	int cpu;
+
+	psci_cpu_off_common();
+	cpu = psci_get_cpu_id();
 	imx_enable_cpu_ca7(cpu, false);
 	imx_gpcv2_set_core1_power(false);
 	writel(0, SRC_BASE_ADDR + cpu * 8 + SRC_GPR1_MX7D + 4);
-	return 0;
+
+	while (1)
+		wfi();
 }
 
-__secure void imx_system_reset(void)
+__secure void psci_system_reset(void)
 {
 	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
 
@@ -91,9 +102,12 @@ __secure void imx_system_reset(void)
 	writel(0x1 << 28, CCM_BASE_ADDR + CCM_ROOT_WDOG);
 	writel(0x3, CCM_BASE_ADDR + CCM_CCGR_WDOG1);
 	writew(WCR_WDE, &wdog->wcr);
+
+	while (1)
+		wfi();
 }
 
-__secure void imx_system_off(void)
+__secure void psci_system_off(void)
 {
 	u32 val;
 
@@ -103,4 +117,7 @@ __secure void imx_system_off(void)
 	val = readl(SNVS_BASE_ADDR + SNVS_LPCR);
 	val |= BP_SNVS_LPCR_DP_EN | BP_SNVS_LPCR_TOP;
 	writel(val, SNVS_BASE_ADDR + SNVS_LPCR);
+
+	while (1)
+		wfi();
 }
