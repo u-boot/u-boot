@@ -62,6 +62,9 @@ config TARGET_NSA310S
 config TARGET_SBx81LIFKW
 	bool "Allied Telesis SBx81GS24/SBx81GT40/SBx81XS6/SBx81XS16"
 
+config TARGET_SBx81LIFXCAT
+	bool "Allied Telesis SBx81GP24/SBx81GT24"
+
 endchoice
 
 config SYS_SOC
@@ -85,5 +88,6 @@ source "board/Seagate/goflexhome/Kconfig"
 source "board/Seagate/nas220/Kconfig"
 source "board/zyxel/nsa310s/Kconfig"
 source "board/alliedtelesis/SBx81LIFKW/Kconfig"
+source "board/alliedtelesis/SBx81LIFXCAT/Kconfig"
 
 endif
