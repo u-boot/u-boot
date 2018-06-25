@@ -486,7 +486,7 @@ static int zynq_qspi_transfer(struct zynq_qspi_priv *priv)
 		break;
 	}
 
-	return 0;
+	return status;
 }
 
 static int zynq_qspi_claim_bus(struct udevice *dev)
