@@ -146,6 +146,6 @@
 
 /* Environment organization */
 #define CONFIG_ENV_SIZE			(8 * 1024)
-#define CONFIG_ENV_OFFSET		(8 * 64 * 1024)
+#define CONFIG_ENV_OFFSET		(SZ_1M - CONFIG_ENV_SIZE)
 
 #endif                         /* __MX6CUBOXI_CONFIG_H */
