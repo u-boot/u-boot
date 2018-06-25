@@ -29,6 +29,12 @@ config TARGET_ODROID_C2
 	  with 2 GiB of RAM, Gigabit Ethernet, HDMI, 4 USB, micro-SD
 	  slot, eMMC, IR receiver and a 40-pin GPIO header.
 
+config TARGET_NANOPI_K2
+	bool "NANOPI_K2"
+	help
+	  NANOPI_K2 is a single board computer based on Meson GXBaby
+	  with 2 GiB of RAM, Gigabit Ethernet,AP6212 Wifi, HDMI, 4 USB,
+	  micro-SD slot, eMMC, IR receiver and a 40-pin GPIO header.
 endif
 
 if MESON_GXL
@@ -63,6 +69,8 @@ config SYS_MALLOC_F_LEN
 	default 0x1000
 
 source "board/amlogic/odroid-c2/Kconfig"
+
+source "board/amlogic/nanopi-k2/Kconfig"
 
 source "board/amlogic/p212/Kconfig"
 

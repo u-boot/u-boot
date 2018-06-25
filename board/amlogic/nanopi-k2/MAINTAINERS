@@ -1,0 +1,6 @@
+NANOPI-K2
+M:	Neil Armstrong <narmstrong@baylibre.com>
+S:	Maintained
+F:	board/amlogic/nanopi-k2/
+F:	include/configs/nanopi-k2.h
+F:	configs/nanopi-k2_defconfig

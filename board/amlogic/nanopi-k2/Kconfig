@@ -1,0 +1,12 @@
+if TARGET_NANOPI_K2
+
+config SYS_BOARD
+	default "nanopi-k2"
+
+config SYS_VENDOR
+	default "amlogic"
+
+config SYS_CONFIG_NAME
+	default "nanopi-k2"
+
+endif
