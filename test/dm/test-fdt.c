@@ -557,3 +557,31 @@ static int dm_test_fdt_livetree_writing(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_fdt_livetree_writing, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+static int dm_test_fdt_disable_enable_by_path(struct unit_test_state *uts)
+{
+	ofnode node;
+
+	if (!of_live_active()) {
+		printf("Live tree not active; ignore test\n");
+		return 0;
+	}
+
+	node = ofnode_path("/usb@2");
+
+	/* Test enabling devices */
+
+	ut_assert(!of_device_is_available(ofnode_to_np(node)));
+	dev_enable_by_path("/usb@2");
+	ut_assert(of_device_is_available(ofnode_to_np(node)));
+
+	/* Test disabling devices */
+
+	ut_assert(of_device_is_available(ofnode_to_np(node)));
+	dev_disable_by_path("/usb@2");
+	ut_assert(!of_device_is_available(ofnode_to_np(node)));
+
+	return 0;
+}
+DM_TEST(dm_test_fdt_disable_enable_by_path, DM_TESTF_SCAN_PDATA |
+					    DM_TESTF_SCAN_FDT);
