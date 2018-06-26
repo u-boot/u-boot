@@ -6,10 +6,25 @@
 #include <common.h>
 #include <spl.h>
 
+#ifdef CONFIG_SPL_LOAD_FIT
+static ulong spl_nor_load_read(struct spl_load_info *load, ulong sector,
+			       ulong count, void *buf)
+{
+	debug("%s: sector %lx, count %lx, buf %p\n",
+	      __func__, sector, count, buf);
+	memcpy(buf, (void *)sector, count);
+
+	return count;
+}
+#endif
+
 static int spl_nor_load_image(struct spl_image_info *spl_image,
 			      struct spl_boot_device *bootdev)
 {
 	int ret;
+	__maybe_unused const struct image_header *header;
+	__maybe_unused struct spl_load_info load;
+
 	/*
 	 * Loading of the payload to SDRAM is done with skipping of
 	 * the mkimage header in this SPL NOR driver
@@ -18,14 +33,24 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 
 #ifdef CONFIG_SPL_OS_BOOT
 	if (!spl_start_uboot()) {
-		const struct image_header *header;
-
 		/*
 		 * Load Linux from its location in NOR flash to its defined
 		 * location in SDRAM
 		 */
 		header = (const struct image_header *)CONFIG_SYS_OS_BASE;
+#ifdef CONFIG_SPL_LOAD_FIT
+		if (image_get_magic(header) == FDT_MAGIC) {
+			debug("Found FIT\n");
+			load.bl_len = 1;
+			load.read = spl_nor_load_read;
 
+			ret = spl_load_simple_fit(spl_image, &load,
+						  CONFIG_SYS_OS_BASE,
+						  (void *)header);
+
+			return ret;
+		}
+#endif
 		if (image_get_os(header) == IH_OS_LINUX) {
 			/* happy - was a Linux */
 
@@ -53,6 +78,19 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 	 * Load real U-Boot from its location in NOR flash to its
 	 * defined location in SDRAM
 	 */
+#ifdef CONFIG_SPL_LOAD_FIT
+	header = (const struct image_header *)CONFIG_SYS_UBOOT_BASE;
+	if (image_get_magic(header) == FDT_MAGIC) {
+		debug("Found FIT format U-Boot\n");
+		load.bl_len = 1;
+		load.read = spl_nor_load_read;
+		ret = spl_load_simple_fit(spl_image, &load,
+					  CONFIG_SYS_UBOOT_BASE,
+					  (void *)header);
+
+		return ret;
+	}
+#endif
 	ret = spl_parse_image_header(spl_image,
 			(const struct image_header *)CONFIG_SYS_UBOOT_BASE);
 	if (ret)
