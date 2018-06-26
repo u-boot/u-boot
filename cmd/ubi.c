@@ -512,6 +512,7 @@ int ubi_part(char *part_name, const char *vid_header_offset)
 			vid_header_offset);
 	if (err) {
 		printf("UBI init error %d\n", err);
+		printf("Please check, if the correct MTD partition is used (size big enough?)\n");
 		ubi_dev.selected = 0;
 		return err;
 	}
