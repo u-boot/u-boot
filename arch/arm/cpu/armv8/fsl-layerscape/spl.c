@@ -11,6 +11,7 @@
 #include <fsl_csu.h>
 #include <asm/arch/fdt.h>
 #include <asm/arch/ppa.h>
+#include <asm/arch/soc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -102,6 +103,9 @@ void board_init_f(ulong dummy)
 	gd->arch.tlb_addr = (gd->ram_top - gd->arch.tlb_size) & ~(0x10000 - 1);
 	gd->arch.tlb_allocated = gd->arch.tlb_addr;
 #endif	/* CONFIG_SPL_FSL_LS_PPA */
+#if defined(CONFIG_QSPI_AHB_INIT) && defined(CONFIG_QSPI_BOOT)
+	qspi_ahb_init();
+#endif
 }
 
 #ifdef CONFIG_SPL_OS_BOOT

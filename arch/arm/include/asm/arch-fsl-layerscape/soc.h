@@ -98,6 +98,9 @@ int board_setup_core_volt(u32 vdd);
 void init_pfe_scfg_dcfg_regs(void);
 #endif
 #endif
+#ifdef CONFIG_QSPI_AHB_INIT
+int qspi_ahb_init(void);
+#endif
 
 void cpu_name(char *name);
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009635
