@@ -52,6 +52,7 @@ void spl_board_init(void)
 
 void board_init_f(ulong dummy)
 {
+	icache_enable();
 	/* Clear global data */
 	memset((void *)gd, 0, sizeof(gd_t));
 	board_early_init_f();
