@@ -764,4 +764,50 @@ u64 ofnode_translate_address(ofnode node, const fdt32_t *in_addr);
  * @return true if OK, false if the compatible is not found
  */
 int ofnode_device_is_compatible(ofnode node, const char *compat);
+
+/**
+ * ofnode_write_prop() - Set a property of a ofnode
+ *
+ * Note that the value passed to the function is *not* allocated by the
+ * function itself, but must be allocated by the caller if necessary.
+ *
+ * @node:	The node for whose property should be set
+ * @propname:	The name of the property to set
+ * @len:	The length of the new value of the property
+ * @value:	The new value of the property (must be valid prior to calling
+ *		the function)
+ * @return 0 if successful, -ve on error
+ */
+int ofnode_write_prop(ofnode node, const char *propname, int len,
+		      const void *value);
+
+/**
+ * ofnode_write_string() - Set a string property of a ofnode
+ *
+ * Note that the value passed to the function is *not* allocated by the
+ * function itself, but must be allocated by the caller if necessary.
+ *
+ * @node:	The node for whose string property should be set
+ * @propname:	The name of the string property to set
+ * @value:	The new value of the string property (must be valid prior to
+ *		calling the function)
+ * @return 0 if successful, -ve on error
+ */
+int ofnode_write_string(ofnode node, const char *propname, const char *value);
+
+/**
+ * ofnode_set_enabled() - Enable or disable a device tree node given by its
+ *			  ofnode
+ *
+ * This function effectively sets the node's "status" property to either "okay"
+ * or "disable", hence making it available for driver model initialization or
+ * not.
+ *
+ * @node:	The node to enable
+ * @value:	Flag that tells the function to either disable or enable the
+ *		node
+ * @return 0 if successful, -ve on error
+ */
+int ofnode_set_enabled(ofnode node, bool value);
+
 #endif
