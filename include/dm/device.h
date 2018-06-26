@@ -601,6 +601,22 @@ bool device_is_compatible(struct udevice *dev, const char *compat);
 bool of_machine_is_compatible(const char *compat);
 
 /**
+ * dev_disable_by_path() - Disable a device given its device tree path
+ *
+ * @path:	The device tree path identifying the device to be disabled
+ * @return 0 on success, -ve on error
+ */
+int dev_disable_by_path(const char *path);
+
+/**
+ * dev_enable_by_path() - Enable a device given its device tree path
+ *
+ * @path:	The device tree path identifying the device to be enabled
+ * @return 0 on success, -ve on error
+ */
+int dev_enable_by_path(const char *path);
+
+/**
  * device_is_on_pci_bus - Test if a device is on a PCI bus
  *
  * @dev:	device to test
