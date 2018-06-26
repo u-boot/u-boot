@@ -129,6 +129,16 @@ Example:
 
 The "loadables" is not optional. It tells SPL which images to load into memory.
 
+Falcon mode with QSPI boot
+--------------------------
+To use falcon mode with QSPI boot, SPL needs to be enabled. Similar to SD or
+NAND boot, a RAM version full feature U-Boot is needed. Unlike SD or NAND boot,
+SPL with QSPI doesn't need to combine SPL image with RAM version image. Two
+separated images are used, u-boot-spl.pbl and u-boot.img. The former is SPL
+image with RCW and PBI commands to load the SPL payload into On-Chip RAM. The
+latter is RAM version U-Boot in FIT format (or legacy format if FIT is not
+used).
+
 Other things to consider
 -----------------------
 Falcon boot skips a lot of initialization in U-Boot. If Linux expects the

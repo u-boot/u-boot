@@ -23,6 +23,9 @@ u32 spl_boot_device(void)
 #ifdef CONFIG_SPL_NAND_SUPPORT
 	return BOOT_DEVICE_NAND;
 #endif
+#ifdef CONFIG_QSPI_BOOT
+	return BOOT_DEVICE_NOR;
+#endif
 	return 0;
 }
 

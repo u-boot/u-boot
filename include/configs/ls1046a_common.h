@@ -16,11 +16,11 @@
 #define SPL_NO_USB
 #define SPL_NO_SATA
 #endif
-#if (defined(CONFIG_SPL_BUILD) && defined(CONFIG_NAND_BOOT))
+#if defined(CONFIG_SPL_BUILD) && \
+	(defined(CONFIG_NAND_BOOT) || defined(CONFIG_QSPI_BOOT))
 #define SPL_NO_MMC
 #endif
 #if defined(CONFIG_SPL_BUILD)		&& \
-	defined(CONFIG_SD_BOOT)		&& \
 	!defined(CONFIG_SPL_FSL_LS_PPA)
 #define SPL_NO_IFC
 #endif
@@ -82,6 +82,21 @@
 #else
 #define CONFIG_SYS_MONITOR_LEN		0x100000
 #endif /* ifdef CONFIG_SECURE_BOOT */
+#endif
+
+#if defined(CONFIG_QSPI_BOOT) && defined(CONFIG_SPL)
+#define CONFIG_SPL_TARGET		"spl/u-boot-spl.pbl"
+#define CONFIG_SPL_TEXT_BASE		0x10000000
+#define CONFIG_SPL_MAX_SIZE		0x1f000
+#define CONFIG_SPL_STACK		0x10020000
+#define CONFIG_SPL_PAD_TO		0x20000
+#define CONFIG_SPL_BSS_START_ADDR	0x8f000000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x80000
+#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_BSS_START_ADDR + \
+					CONFIG_SPL_BSS_MAX_SIZE)
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
+#define CONFIG_SYS_MONITOR_LEN		0x100000
+#define CONFIG_SYS_UBOOT_START		CONFIG_SYS_TEXT_BASE
 #endif
 
 /* NAND SPL */
