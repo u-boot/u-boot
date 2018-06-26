@@ -26,6 +26,11 @@ $(warning Put custom ps7_init_gpl.c/h to board/xilinx/zynq/custom_hw_platform/))
 endif
 endif
 
+ifndef CONFIG_SPL_BUILD
+obj-$(CONFIG_CMD_ZYNQ) += cmds.o
+obj-$(CONFIG_CMD_ZYNQ_RSA) += bootimg.o
+endif
+
 obj-$(CONFIG_SPL_BUILD) += $(init-objs)
 
 # Suppress "warning: function declaration isn't a prototype"
