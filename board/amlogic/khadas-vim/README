@@ -4,7 +4,7 @@ U-Boot for Khadas VIM
 Khadas VIM is an Open Source DIY Box manufactured by Shenzhen Wesion
 Technology Co., Ltd with the following specifications:
 
- - Amlogic S905x ARM Cortex-A53 quad-core SoC @ 2GHz
+ - Amlogic S905X ARM Cortex-A53 quad-core SoC @ 1.5GHz
  - ARM Mali 450 GPU
  - 2GB DDR3 SDRAM
  - 10/100 Ethernet
@@ -20,6 +20,12 @@ Currently the u-boot port supports the following devices:
  - serial
  - eMMC, microSD
  - Ethernet
+ - I2C
+ - Regulators
+ - Reset controller
+ - Clock controller
+ - USB Host
+ - ADC
 
 U-Boot compilation
 ==================

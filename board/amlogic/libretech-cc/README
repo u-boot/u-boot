@@ -4,13 +4,13 @@ U-Boot for LibreTech CC
 LibreTech CC is a single board computer manufactured by Libre Technology
 with the following specifications:
 
- - Amlogic S905X ARM Cortex-A53 quad-core SoC @ 2GHz
+ - Amlogic S905X ARM Cortex-A53 quad-core SoC @ 1.5GHz
  - ARM Mali 450 GPU
  - 2GB DDR3 SDRAM
- - Gigabit Ethernet
+ - 10/100 Ethernet
  - HDMI 2.0 4K/60Hz display
  - 40-pin GPIO header
- - 4 x USB 2.0 Host, 1 x USB OTG
+ - 4 x USB 2.0 Host
  - eMMC, microSD
  - Infrared receiver
 
@@ -20,6 +20,12 @@ Currently the U-Boot port supports the following devices:
  - serial
  - eMMC, microSD
  - Ethernet
+ - I2C
+ - Regulators
+ - Reset controller
+ - Clock controller
+ - USB Host
+ - ADC
 
 U-Boot compilation
 ==================

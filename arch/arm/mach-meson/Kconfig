@@ -17,7 +17,7 @@ config MESON_GXL
 	select DM
 	select DM_SERIAL
 	help
-	  The Amlogic Meson GXL (S905X and S905X) is an ARM SoC with a
+	  The Amlogic Meson GXL (S905X and S905D) is an ARM SoC with a
 	  quad-core Cortex-A53 CPU and a Mali-450 GPU.
 
 if MESON_GXBB
