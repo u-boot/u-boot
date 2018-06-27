@@ -20,27 +20,46 @@ unsigned long get_tbclk(void)
 	return cntfrq;
 }
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008585
 /*
- * Generic timer implementation of timer_read_counter()
+ * FSL erratum A-008585 says that the ARM generic timer counter "has the
+ * potential to contain an erroneous value for a small number of core
+ * clock cycles every time the timer value changes".
+ * This sometimes leads to a consecutive counter read returning a lower
+ * value than the previous one, thus reporting the time to go backwards.
+ * The workaround is to read the counter twice and only return when the value
+ * was the same in both reads.
+ * Assumes that the CPU runs in much higher frequency than the timer.
  */
 unsigned long timer_read_counter(void)
 {
 	unsigned long cntpct;
-#ifdef CONFIG_SYS_FSL_ERRATUM_A008585
-	/* This erratum number needs to be confirmed to match ARM document */
 	unsigned long temp;
-#endif
+
 	isb();
 	asm volatile("mrs %0, cntpct_el0" : "=r" (cntpct));
-#ifdef CONFIG_SYS_FSL_ERRATUM_A008585
 	asm volatile("mrs %0, cntpct_el0" : "=r" (temp));
 	while (temp != cntpct) {
 		asm volatile("mrs %0, cntpct_el0" : "=r" (cntpct));
 		asm volatile("mrs %0, cntpct_el0" : "=r" (temp));
 	}
-#endif
+
 	return cntpct;
 }
+#else
+/*
+ * timer_read_counter() using the Arm Generic Timer (aka arch timer).
+ */
+unsigned long timer_read_counter(void)
+{
+	unsigned long cntpct;
+
+	isb();
+	asm volatile("mrs %0, cntpct_el0" : "=r" (cntpct));
+
+	return cntpct;
+}
+#endif
 
 uint64_t get_ticks(void)
 {
