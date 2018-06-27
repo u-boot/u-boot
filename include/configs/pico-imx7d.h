@@ -41,7 +41,7 @@
 	"console=ttymxc4\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"fdt_file=imx7d-pico.dtb\0" \
+	"fdt_file=imx7d-pico-pi.dtb\0" \
 	"fdt_addr=0x83000000\0" \
 	"ip_dyn=yes\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \

@@ -86,6 +86,10 @@
 				MX53_PAD_PATA_DA_2__GPIO7_8 0x1e4
 				/* BOOSTER_OFF */
 				MX53_PAD_EIM_CS0__GPIO2_23 0x1e4
+				/* LCD BACKLIGHT */
+				MX53_PAD_GPIO_1__GPIO1_1 0x1e4
+				/* KEY1 GPIO */
+				MX53_PAD_EIM_RW__GPIO2_26 0x1e4
 			>;
 		};
 

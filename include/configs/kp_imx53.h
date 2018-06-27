@@ -46,6 +46,7 @@
 	"fdt_high=0xffffffff\0"		\
 	"scriptaddr=0x74000000\0"	\
 	"kernel_file=fitImage\0"\
+	"silent=1\0"\
 	"rdinit=/sbin/init\0" \
 	"addinitrd=setenv bootargs ${bootargs} rdinit=${rdinit} ${debug} \0" \
 	"upd_image=st.4k\0" \

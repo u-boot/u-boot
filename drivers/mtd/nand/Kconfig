@@ -143,6 +143,7 @@ config NAND_MXC
 config NAND_MXS
 	bool "MXS NAND support"
 	depends on MX23 || MX28 || MX6 || MX7
+	select SYS_NAND_SELF_INIT
 	imply CMD_NAND
 	select APBH_DMA
 	select APBH_DMA_BURST if ARCH_MX6 || ARCH_MX7
@@ -150,6 +151,21 @@ config NAND_MXS
 	help
 	  This enables NAND driver for the NAND flash controller on the
 	  MXS processors.
+
+if NAND_MXS
+
+config NAND_MXS_DT
+	bool "Support MXS NAND controller as a DT device"
+	depends on OF_CONTROL && MTD
+	help
+	  Enable the driver for MXS NAND flash on platforms using
+	  device tree.
+
+config NAND_MXS_USE_MINIMUM_ECC
+	bool "Use minimum ECC strength supported by the controller"
+	default false
+
+endif
 
 config NAND_ZYNQ
 	bool "Support for Zynq Nand controller"

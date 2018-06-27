@@ -22,8 +22,15 @@
 #include <asm/cache.h>
 
 struct mtd_info;
+struct nand_chip;
 struct nand_flash_dev;
 struct device_node;
+
+/* Get the flash and manufacturer id and lookup if the type is supported. */
+struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
+					   struct nand_chip *chip,
+					   int *maf_id, int *dev_id,
+					   struct nand_flash_dev *type);
 
 /* Scan and identify a NAND device */
 int nand_scan(struct mtd_info *mtd, int max_chips);
@@ -246,9 +253,6 @@ typedef enum {
 #define NAND_CI_CHIPNR_MSK	0x03
 #define NAND_CI_CELLTYPE_MSK	0x0C
 #define NAND_CI_CELLTYPE_SHIFT	2
-
-/* Keep gcc happy */
-struct nand_chip;
 
 /* ONFI features */
 #define ONFI_FEATURE_16_BIT_BUS		(1 << 0)

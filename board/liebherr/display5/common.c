@@ -34,6 +34,16 @@ void displ5_set_iomux_uart(void)
 	SETUP_IOMUX_PADS(uart_pads);
 }
 
+iomux_v3_cfg_t const misc_pads_spl[] = {
+	/* Emergency recovery pin */
+	MX6_PAD_EIM_D29__GPIO3_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+void displ5_set_iomux_misc_spl(void)
+{
+	SETUP_IOMUX_PADS(misc_pads_spl);
+}
+
 #ifdef CONFIG_MXC_SPI
 iomux_v3_cfg_t const ecspi_pads[] = {
 	/* SPI3 */

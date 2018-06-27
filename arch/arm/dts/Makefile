@@ -425,7 +425,7 @@ dtb-$(CONFIG_MX6SX) += \
 	imx6sx-sdb.dtb
 
 dtb-$(CONFIG_MX6UL) += \
-	imx6ul-geam-kit.dtb \
+	imx6ul-geam.dtb \
 	imx6ul-isiot-emmc.dtb \
 	imx6ul-isiot-nand.dtb \
 	imx6ul-opos6uldev.dtb
