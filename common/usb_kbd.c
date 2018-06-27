@@ -368,7 +368,7 @@ static int usb_kbd_testc(struct stdio_dev *sdev)
 		return 0;
 	kbd_testc_tms = get_timer(0);
 #endif
-	dev = stdio_get_by_name(DEVNAME);
+	dev = stdio_get_by_name(sdev->name);
 	usb_kbd_dev = (struct usb_device *)dev->priv;
 	data = usb_kbd_dev->privptr;
 
@@ -384,7 +384,7 @@ static int usb_kbd_getc(struct stdio_dev *sdev)
 	struct usb_device *usb_kbd_dev;
 	struct usb_kbd_pdata *data;
 
-	dev = stdio_get_by_name(DEVNAME);
+	dev = stdio_get_by_name(sdev->name);
 	usb_kbd_dev = (struct usb_device *)dev->priv;
 	data = usb_kbd_dev->privptr;
 
