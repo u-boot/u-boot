@@ -36,8 +36,8 @@ int generic_phy_get_by_index(struct udevice *dev, int index,
 {
 	struct ofnode_phandle_args args;
 	struct phy_ops *ops;
-	int ret;
 	struct udevice *phydev;
+	int i, ret;
 
 	debug("%s(dev=%p, index=%d, phy=%p)\n", __func__, dev, index, phy);
 
@@ -55,7 +55,20 @@ int generic_phy_get_by_index(struct udevice *dev, int index,
 	if (ret) {
 		debug("%s: uclass_get_device_by_ofnode failed: err=%d\n",
 		      __func__, ret);
-		return ret;
+
+		/* Check if args.node's parent is a PHY provider */
+		ret = uclass_get_device_by_ofnode(UCLASS_PHY,
+						  ofnode_get_parent(args.node),
+						  &phydev);
+		if (ret)
+			return ret;
+
+		/* insert phy idx at first position into args array */
+		for (i = args.args_count; i > 1 ; i--)
+			args.args[i] = args.args[i - 1];
+
+		args.args_count++;
+		args.args[0] = ofnode_read_u32_default(args.node, "reg", -1);
 	}
 
 	phy->dev = phydev;
