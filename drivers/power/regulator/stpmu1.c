@@ -183,6 +183,8 @@ static int stpmu1_buck_get_enable(struct udevice *dev)
 static int stpmu1_buck_set_enable(struct udevice *dev, bool enable)
 {
 	struct dm_regulator_uclass_platdata *uc_pdata;
+	int delay = enable ? STPMU1_DEFAULT_START_UP_DELAY_MS :
+			     STPMU1_DEFAULT_STOP_DELAY_MS;
 	int ret, uv;
 
 	/* if regulator is already in the wanted state, nothing to do */
@@ -199,8 +201,7 @@ static int stpmu1_buck_set_enable(struct udevice *dev, bool enable)
 	ret = pmic_clrsetbits(dev->parent,
 			      STPMU1_BUCKX_CTRL_REG(dev->driver_data - 1),
 			      STPMU1_BUCK_EN, enable ? STPMU1_BUCK_EN : 0);
-	if (enable)
-		mdelay(STPMU1_DEFAULT_START_UP_DELAY_MS);
+	mdelay(delay);
 
 	return ret;
 }
@@ -361,6 +362,8 @@ static int stpmu1_ldo_get_enable(struct udevice *dev)
 static int stpmu1_ldo_set_enable(struct udevice *dev, bool enable)
 {
 	struct dm_regulator_uclass_platdata *uc_pdata;
+	int delay = enable ? STPMU1_DEFAULT_START_UP_DELAY_MS :
+			     STPMU1_DEFAULT_STOP_DELAY_MS;
 	int ret, uv;
 
 	/* if regulator is already in the wanted state, nothing to do */
@@ -377,8 +380,7 @@ static int stpmu1_ldo_set_enable(struct udevice *dev, bool enable)
 	ret = pmic_clrsetbits(dev->parent,
 			      STPMU1_LDOX_CTRL_REG(dev->driver_data - 1),
 			      STPMU1_LDO_EN, enable ? STPMU1_LDO_EN : 0);
-	if (enable)
-		mdelay(STPMU1_DEFAULT_START_UP_DELAY_MS);
+	mdelay(delay);
 
 	return ret;
 }
@@ -489,6 +491,8 @@ static int stpmu1_vref_ddr_get_enable(struct udevice *dev)
 
 static int stpmu1_vref_ddr_set_enable(struct udevice *dev, bool enable)
 {
+	int delay = enable ? STPMU1_DEFAULT_START_UP_DELAY_MS :
+			     STPMU1_DEFAULT_STOP_DELAY_MS;
 	int ret;
 
 	/* if regulator is already in the wanted state, nothing to do */
@@ -497,8 +501,7 @@ static int stpmu1_vref_ddr_set_enable(struct udevice *dev, bool enable)
 
 	ret = pmic_clrsetbits(dev->parent, STPMU1_VREF_CTRL_REG,
 			      STPMU1_VREF_EN, enable ? STPMU1_VREF_EN : 0);
-	if (enable)
-		mdelay(STPMU1_DEFAULT_START_UP_DELAY_MS);
+	mdelay(delay);
 
 	return ret;
 }
@@ -610,6 +613,8 @@ static int stpmu1_pwr_sw_get_enable(struct udevice *dev)
 static int stpmu1_pwr_sw_set_enable(struct udevice *dev, bool enable)
 {
 	uint mask = 1 << dev->driver_data;
+	int delay = enable ? STPMU1_DEFAULT_START_UP_DELAY_MS :
+			     STPMU1_DEFAULT_STOP_DELAY_MS;
 	int ret;
 
 	ret = pmic_reg_read(dev->parent, STPMU1_USB_CTRL_REG);
@@ -633,8 +638,7 @@ static int stpmu1_pwr_sw_set_enable(struct udevice *dev, bool enable)
 
 	ret = pmic_clrsetbits(dev->parent, STPMU1_USB_CTRL_REG,
 			      mask, enable ? mask : 0);
-	if (enable)
-		mdelay(STPMU1_DEFAULT_START_UP_DELAY_MS);
+	mdelay(delay);
 
 	return ret;
 }
