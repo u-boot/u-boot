@@ -46,6 +46,30 @@ unsigned long timer_read_counter(void)
 
 	return cntpct;
 }
+#elif CONFIG_SUNXI_A64_TIMER_ERRATUM
+/*
+ * This erratum sometimes flips the lower 11 bits of the counter value
+ * to all 0's or all 1's, leading to jumps forwards or backwards.
+ * Backwards jumps might be interpreted all roll-overs and be treated as
+ * huge jumps forward.
+ * The workaround is to check whether the lower 11 bits of the counter are
+ * all 0 or all 1, then discard this value and read again.
+ * This occasionally discards valid values, but will catch all erroneous
+ * reads and fixes the problem reliably. Also this mostly requires only a
+ * single read, so does not have any significant overhead.
+ * The algorithm was conceived by Samuel Holland.
+ */
+unsigned long timer_read_counter(void)
+{
+	unsigned long cntpct;
+
+	isb();
+	do {
+		asm volatile("mrs %0, cntpct_el0" : "=r" (cntpct));
+	} while (((cntpct + 1) & GENMASK(10, 0)) <= 1);
+
+	return cntpct;
+}
 #else
 /*
  * timer_read_counter() using the Arm Generic Timer (aka arch timer).
