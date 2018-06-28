@@ -1136,9 +1136,34 @@ EFI Support
 U-Boot supports booting as a 32-bit or 64-bit EFI payload, e.g. with UEFI.
 This is enabled with CONFIG_EFI_STUB to boot from both 32-bit and 64-bit
 UEFI BIOS. U-Boot can also run as an EFI application, with CONFIG_EFI_APP.
-The CONFIG_EFI_LOADER option, where U-Booot provides an EFI environment to
+The CONFIG_EFI_LOADER option, where U-Boot provides an EFI environment to
 the kernel (i.e. replaces UEFI completely but provides the same EFI run-time
-services) is not currently supported on x86.
+services) is supported too. For example, we can even use 'bootefi' command
+to load a 'u-boot-payload.efi', see below test logs on QEMU.
+
+  => load ide 0 3000000 u-boot-payload.efi
+  489787 bytes read in 138 ms (3.4 MiB/s)
+  => bootefi 3000000
+  Scanning disk ide.blk#0...
+  Found 2 disks
+  WARNING: booting without device tree
+  ## Starting EFI application at 03000000 ...
+  U-Boot EFI Payload
+
+
+  U-Boot 2018.07-rc2 (Jun 23 2018 - 17:12:58 +0800)
+
+  CPU: x86_64, vendor AMD, device 663h
+  DRAM:  2 GiB
+  MMC:
+  Video: 1024x768x32
+  Model: EFI x86 Payload
+  Net:   e1000: 52:54:00:12:34:56
+
+  Warning: e1000#0 using MAC address from ROM
+  eth0: e1000#0
+  No controllers found
+  Hit any key to stop autoboot:  0
 
 See README.u-boot_on_efi and README.uefi for details of EFI support in U-Boot.
 
