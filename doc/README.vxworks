@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2013, Miao Yan <miao.yan@windriver.com>
-# Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
+# Copyright (C) 2015-2018, Bin Meng <bmeng.cn@gmail.com>
 
 VxWorks Support
 ===============
@@ -15,10 +15,13 @@ For booting old kernels (6.9.x) on PowerPC and ARM, and all kernel versions
 on other architectures, 'bootvx' shall be used. For booting VxWorks 7 kernels
 on PowerPC and ARM, 'bootm' shall be used.
 
+With CONFIG_EFI_LOADER option, it's possible to chain load a VxWorks x86 kernel
+via the UEFI boot loader application for VxWorks loaded by 'bootefi' command.
+
 VxWorks 7 on PowerPC and ARM
 ---------------------------
-From VxWorks 7, VxWorks starts adopting device tree as its hardware decription
-mechansim (for PowerPC and ARM), thus requiring boot interface changes.
+From VxWorks 7, VxWorks starts adopting device tree as its hardware description
+mechanism (for PowerPC and ARM), thus requiring boot interface changes.
 This section will describe the new interface.
 
 For PowerPC, the calling convention of the new VxWorks entry point conforms to
@@ -53,6 +56,9 @@ gatewayip, hostname, othbootargs.
 When using 'bootm', just define "bootargs" in the environment and U-Boot will
 handle bootline fix up for the kernel dtb automatically.
 
+When using 'bootefi' to chain load an x86 kernel, the UEFI boot loader
+application for VxWorks takes care of the kernel bootline preparation.
+
 Serial console
 --------------
 It's very common that VxWorks BSPs configure a different baud rate for the
@@ -63,9 +69,9 @@ look like VxWorks hangs somewhere as nothing outputs on the serial console.
 
 x86-specific information
 ------------------------
-Before loading an x86 kernel, one additional environment variable need to be
-provided. This is "vx_phys_mem_base", which represent the physical memory
-base address of VxWorks.
+Before direct loading an x86 kernel via 'bootvx', one additional environment
+variable need to be provided. This is "vx_phys_mem_base", which represent the
+physical memory base address of VxWorks.
 
 Check VxWorks kernel configuration to look for LOCAL_MEM_LOCAL_ADRS. For
 VxWorks 7, this is normally a virtual address and you need find out its
