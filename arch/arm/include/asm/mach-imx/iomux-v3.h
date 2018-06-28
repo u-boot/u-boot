@@ -163,6 +163,14 @@ typedef u64 iomux_v3_cfg_t;
 #define PAD_CTL_DSE_40ohm	(6 << 3)
 #define PAD_CTL_DSE_34ohm	(7 << 3)
 
+#define PAD_CTL_DSE_260ohm	(1 << 3)
+#define PAD_CTL_DSE_130ohm	(2 << 3)
+#define PAD_CTL_DSE_88ohm	(3 << 3)
+#define PAD_CTL_DSE_65ohm	(4 << 3)
+#define PAD_CTL_DSE_52ohm	(5 << 3)
+#define PAD_CTL_DSE_43ohm	(6 << 3)
+#define PAD_CTL_DSE_37ohm	(7 << 3)
+
 /* i.MX6SL/SLL */
 #define PAD_CTL_LVE		(1 << 1)
 #define PAD_CTL_LVE_BIT		(1 << 22)
