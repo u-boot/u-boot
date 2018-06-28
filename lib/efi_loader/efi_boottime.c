@@ -3058,6 +3058,8 @@ out:
 
 static const struct efi_boot_services efi_boot_services = {
 	.hdr = {
+		.signature = EFI_BOOT_SERVICES_SIGNATURE,
+		.revision = EFI_SPECIFICATION_VERSION,
 		.headersize = sizeof(struct efi_table_hdr),
 	},
 	.raise_tpl = efi_raise_tpl,
@@ -3113,7 +3115,7 @@ static uint16_t __efi_runtime_data firmware_vendor[] = L"Das U-Boot";
 struct efi_system_table __efi_runtime_data systab = {
 	.hdr = {
 		.signature = EFI_SYSTEM_TABLE_SIGNATURE,
-		.revision = 2 << 16 | 70, /* 2.7 */
+		.revision = EFI_SPECIFICATION_VERSION,
 		.headersize = sizeof(struct efi_table_hdr),
 	},
 	.fw_vendor = (long)firmware_vendor,

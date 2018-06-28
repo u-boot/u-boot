@@ -459,7 +459,7 @@ efi_status_t __efi_runtime EFIAPI efi_query_variable_info(
 struct efi_runtime_services __efi_runtime_data efi_runtime_services = {
 	.hdr = {
 		.signature = EFI_RUNTIME_SERVICES_SIGNATURE,
-		.revision = EFI_RUNTIME_SERVICES_REVISION,
+		.revision = EFI_SPECIFICATION_VERSION,
 		.headersize = sizeof(struct efi_table_hdr),
 	},
 	.get_time = &efi_get_time_boottime,

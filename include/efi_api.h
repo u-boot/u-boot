@@ -21,6 +21,9 @@
 #include <asm/setjmp.h>
 #endif
 
+/* UEFI spec version 2.7 */
+#define EFI_SPECIFICATION_VERSION (2 << 16 | 70)
+
 /* Types and defines for EFI CreateEvent */
 enum efi_timer_delay {
 	EFI_TIMER_STOP = 0,
@@ -46,6 +49,7 @@ typedef uint16_t *efi_string_t;
 struct efi_event;
 
 /* EFI Boot Services table */
+#define EFI_BOOT_SERVICES_SIGNATURE 0x56524553544f4f42
 struct efi_boot_services {
 	struct efi_table_hdr hdr;
 	efi_status_t (EFIAPI *raise_tpl)(efi_uintn_t new_tpl);
@@ -186,7 +190,6 @@ enum efi_reset_type {
 
 /* EFI Runtime Services table */
 #define EFI_RUNTIME_SERVICES_SIGNATURE	0x5652453544e5552ULL
-#define EFI_RUNTIME_SERVICES_REVISION	0x00010000
 
 #define CAPSULE_FLAGS_PERSIST_ACROSS_RESET	0x00010000
 #define CAPSULE_FLAGS_POPULATE_SYSTEM_TABLE	0x00020000
