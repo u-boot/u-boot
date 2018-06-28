@@ -3110,7 +3110,7 @@ static const struct efi_boot_services efi_boot_services = {
 	.create_event_ex = efi_create_event_ex,
 };
 
-static uint16_t __efi_runtime_data firmware_vendor[] = L"Das U-Boot";
+static u16 __efi_runtime_data firmware_vendor[] = L"Das U-Boot";
 
 struct efi_system_table __efi_runtime_data systab = {
 	.hdr = {
@@ -3118,7 +3118,8 @@ struct efi_system_table __efi_runtime_data systab = {
 		.revision = EFI_SPECIFICATION_VERSION,
 		.headersize = sizeof(struct efi_system_table),
 	},
-	.fw_vendor = (long)firmware_vendor,
+	.fw_vendor = firmware_vendor,
+	.fw_revision = FW_VERSION << 16 | FW_PATCHLEVEL << 8,
 	.con_in = (void *)&efi_con_in,
 	.con_out = (void *)&efi_con_out,
 	.std_err = (void *)&efi_con_out,

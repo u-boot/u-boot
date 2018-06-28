@@ -303,7 +303,7 @@ struct efi_configuration_table
 
 struct efi_system_table {
 	struct efi_table_hdr hdr;
-	unsigned long fw_vendor;   /* physical addr of wchar_t vendor string */
+	u16 *fw_vendor;   /* physical addr of wchar_t vendor string */
 	u32 fw_revision;
 	efi_handle_t con_in_handle;
 	struct efi_simple_input_interface *con_in;
