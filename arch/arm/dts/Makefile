@@ -445,7 +445,8 @@ dtb-$(CONFIG_MX6UL) += \
 dtb-$(CONFIG_MX6ULL) += imx6ull-14x14-evk.dtb
 
 dtb-$(CONFIG_MX7) += imx7-colibri.dtb \
-	imx7d-sdb.dtb
+	imx7d-sdb.dtb \
+	imx7d-sdb-qspi.dtb
 
 dtb-$(CONFIG_ARCH_MX7ULP) += imx7ulp-evk.dtb
 
