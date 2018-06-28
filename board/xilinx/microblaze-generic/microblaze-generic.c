@@ -58,6 +58,7 @@ int dram_init(void)
 	return 0;
 };
 
+#if !defined(CONFIG_SYSRESET) || defined(CONFIG_SPL_BUILD)
 int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #ifndef CONFIG_SPL_BUILD
@@ -76,6 +77,7 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	return 0;
 }
+#endif
 
 static int gpio_init(void)
 {
