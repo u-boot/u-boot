@@ -35,16 +35,6 @@ LIST_HEAD(efi_events);
  */
 static bool efi_is_direct_boot = true;
 
-/*
- * EFI can pass arbitrary additional "tables" containing vendor specific
- * information to the payload. One such table is the FDT table which contains
- * a pointer to a flattened device tree blob.
- *
- * In most cases we want to pass an FDT to the payload, so reserve one slot of
- * config table space for it. The pointer gets populated by do_bootefi_exec().
- */
-static struct efi_configuration_table __efi_runtime_data efi_conf_table[16];
-
 #ifdef CONFIG_ARM
 /*
  * The "gd" pointer lives in a register on ARM and AArch64 that we declare
@@ -1402,9 +1392,9 @@ static efi_status_t EFIAPI efi_locate_handle_ext(
  */
 static void efi_remove_configuration_table(int i)
 {
-	struct efi_configuration_table *this = &efi_conf_table[i];
-	struct efi_configuration_table *next = &efi_conf_table[i + 1];
-	struct efi_configuration_table *end = &efi_conf_table[systab.nr_tables];
+	struct efi_configuration_table *this = &systab.tables[i];
+	struct efi_configuration_table *next = &systab.tables[i + 1];
+	struct efi_configuration_table *end = &systab.tables[systab.nr_tables];
 
 	memmove(this, next, (ulong)end - (ulong)next);
 	systab.nr_tables--;
@@ -1432,9 +1422,9 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
 
 	/* Check for guid override */
 	for (i = 0; i < systab.nr_tables; i++) {
-		if (!guidcmp(guid, &efi_conf_table[i].guid)) {
+		if (!guidcmp(guid, &systab.tables[i].guid)) {
 			if (table)
-				efi_conf_table[i].table = table;
+				systab.tables[i].table = table;
 			else
 				efi_remove_configuration_table(i);
 			goto out;
@@ -1445,12 +1435,12 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
 		return EFI_NOT_FOUND;
 
 	/* No override, check for overflow */
-	if (i >= ARRAY_SIZE(efi_conf_table))
+	if (i >= EFI_MAX_CONFIGURATION_TABLES)
 		return EFI_OUT_OF_RESOURCES;
 
 	/* Add a new entry */
-	memcpy(&efi_conf_table[i].guid, guid, sizeof(*guid));
-	efi_conf_table[i].table = table;
+	memcpy(&systab.tables[i].guid, guid, sizeof(*guid));
+	systab.tables[i].table = table;
 	systab.nr_tables = i + 1;
 
 out:
@@ -3136,7 +3126,7 @@ struct efi_system_table __efi_runtime_data systab = {
 	.runtime = (void *)&efi_runtime_services,
 	.boottime = (void *)&efi_boot_services,
 	.nr_tables = 0,
-	.tables = (void *)efi_conf_table,
+	.tables = NULL,
 };
 
 /**
@@ -3146,9 +3136,18 @@ struct efi_system_table __efi_runtime_data systab = {
  */
 efi_status_t efi_initialize_system_table(void)
 {
+	efi_status_t ret;
+
+	/* Allocate configuration table array */
+	ret = efi_allocate_pool(EFI_RUNTIME_SERVICES_DATA,
+				EFI_MAX_CONFIGURATION_TABLES *
+				sizeof(struct efi_configuration_table),
+				(void **)&systab.tables);
+
 	/* Set crc32 field in table headers */
 	efi_update_table_header_crc32(&systab.hdr);
 	efi_update_table_header_crc32(&efi_runtime_services.hdr);
 	efi_update_table_header_crc32(&efi_boot_services.hdr);
-	return EFI_SUCCESS;
+
+	return ret;
 }

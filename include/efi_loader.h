@@ -17,6 +17,9 @@
 
 #include <linux/list.h>
 
+/* Maximum number of configuration tables */
+#define EFI_MAX_CONFIGURATION_TABLES 16
+
 int __efi_entry_check(void);
 int __efi_exit_check(void);
 const char *__efi_nesting(void);
