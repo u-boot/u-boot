@@ -40,11 +40,13 @@
 		serial3 = &uart4;
 		serial4 = &uart5;
 		serial5 = &uart6;
-		spi0 = &ecspi1;
-		spi1 = &ecspi2;
-		spi2 = &ecspi3;
-		spi3 = &ecspi4;
-		spi4 = &ecspi5;
+		spi0 = &qspi1;
+		spi1 = &qspi2;
+		spi2 = &ecspi1;
+		spi3 = &ecspi2;
+		spi4 = &ecspi3;
+		spi5 = &ecspi4;
+		spi6 = &ecspi5;
 		usbphy0 = &usbphy1;
 		usbphy1 = &usbphy2;
 	};
