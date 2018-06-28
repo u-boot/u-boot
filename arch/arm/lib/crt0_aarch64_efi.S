@@ -122,8 +122,6 @@ _start:
 	mov		x29, sp
 
 	stp		x0, x1, [sp, #16]
-	mov		x2, x0
-	mov		x3, x1
 	adr		x0, ImageBase
 	adrp		x1, _DYNAMIC
 	add		x1, x1, #:lo12:_DYNAMIC

@@ -38,8 +38,7 @@
 
 #include <elf.h>
 
-efi_status_t _relocate(long ldbase, Elf64_Dyn *dyn, efi_handle_t image,
-		       struct efi_system_table *systab)
+efi_status_t EFIAPI _relocate(long ldbase, Elf64_Dyn *dyn)
 {
 	long relsz = 0, relent = 0;
 	Elf64_Rela *rel = 0;
