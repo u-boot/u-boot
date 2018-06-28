@@ -8,11 +8,9 @@
 #include <linux/compat.h>
 #include <malloc.h>
 
-#include <fdtdec.h>
 #include <dm.h>
 #include <dt-bindings/net/ti-dp83867.h>
 
-DECLARE_GLOBAL_DATA_PTR;
 
 /* TI DP83867 */
 #define DP83867_DEVADDR		0x1f
@@ -175,26 +173,27 @@ static int dp83867_of_init(struct phy_device *phydev)
 {
 	struct dp83867_private *dp83867 = phydev->priv;
 	struct udevice *dev = phydev->dev;
-	int node = dev_of_offset(dev);
-	const void *fdt = gd->fdt_blob;
+	ofnode node = dev_ofnode(dev);
 
-	if (fdtdec_get_bool(fdt, node, "ti,max-output-impedance"))
+	if (ofnode_read_bool(node, "ti,max-output-impedance"))
 		dp83867->io_impedance = DP83867_IO_MUX_CFG_IO_IMPEDANCE_MAX;
-	else if (fdtdec_get_bool(fdt, node, "ti,min-output-impedance"))
+	else if (ofnode_read_bool(node, "ti,min-output-impedance"))
 		dp83867->io_impedance = DP83867_IO_MUX_CFG_IO_IMPEDANCE_MIN;
 	else
 		dp83867->io_impedance = -EINVAL;
 
-	if (fdtdec_get_bool(fdt, node, "ti,dp83867-rxctrl-strap-quirk"))
+	if (ofnode_read_bool(node, "ti,dp83867-rxctrl-strap-quirk"))
 		dp83867->rxctrl_strap_quirk = true;
-	dp83867->rx_id_delay = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
-				 "ti,rx-internal-delay", -1);
+	dp83867->rx_id_delay = ofnode_read_u32_default(node,
+						       "ti,rx-internal-delay",
+						       -1);
 
-	dp83867->tx_id_delay = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
-				 "ti,tx-internal-delay", -1);
+	dp83867->tx_id_delay = ofnode_read_u32_default(node,
+						       "ti,tx-internal-delay",
+						       -1);
 
-	dp83867->fifo_depth = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
-				 "ti,fifo-depth", -1);
+	dp83867->fifo_depth = ofnode_read_u32_default(node, "ti,fifo-depth",
+						      -1);
 
 	return 0;
 }
