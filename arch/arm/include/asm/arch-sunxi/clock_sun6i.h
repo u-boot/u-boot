@@ -275,9 +275,13 @@ struct sunxi_ccm_reg {
  * These are EHCI1 - EHCI3 in the datasheet (EHCI0 is for the OTG) we call
  * them 0 - 2 like they were called on older SoCs.
  */
+#define AHB_GATE_OFFSET_USB_OHCI3	31
+#define AHB_GATE_OFFSET_USB_OHCI2	30
+#define AHB_GATE_OFFSET_USB_OHCI1	29
 #define AHB_GATE_OFFSET_USB_OHCI0	28
-#define AHB_GATE_OFFSET_USB_EHCI2	27
-#define AHB_GATE_OFFSET_USB_EHCI1	26
+#define AHB_GATE_OFFSET_USB_EHCI3	27
+#define AHB_GATE_OFFSET_USB_EHCI2	26
+#define AHB_GATE_OFFSET_USB_EHCI1	25
 #define AHB_GATE_OFFSET_USB_EHCI0	24
 #elif defined(CONFIG_MACH_SUN50I)
 #define AHB_GATE_OFFSET_USB_OHCI0	28
@@ -290,7 +294,7 @@ struct sunxi_ccm_reg {
 #define AHB_GATE_OFFSET_USB_EHCI1	27
 #define AHB_GATE_OFFSET_USB_EHCI0	26
 #endif
-#ifdef CONFIG_MACH_SUN50I
+#if defined(CONFIG_MACH_SUN50I) || defined(CONFIG_MACH_SUNXI_H3_H5)
 #define AHB_GATE_OFFSET_USB0		23
 #elif !defined(CONFIG_MACH_SUN8I_R40)
 #define AHB_GATE_OFFSET_USB0		24
