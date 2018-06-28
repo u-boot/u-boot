@@ -202,6 +202,8 @@ extern struct list_head efi_obj_list;
 /* List of all events */
 extern struct list_head efi_events;
 
+/* Called by bootefi to initialize runtime */
+efi_status_t efi_initialize_system_table(void);
 /* Called by bootefi to make console interface available */
 int efi_console_register(void);
 /* Called by bootefi to make all disk storage accessible as EFI objects */

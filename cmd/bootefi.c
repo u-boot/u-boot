@@ -44,6 +44,11 @@ efi_status_t efi_init_obj_list(void)
 	if (efi_obj_list_initialized != OBJ_LIST_NOT_INITIALIZED)
 		return efi_obj_list_initialized;
 
+	/* Initialize system table */
+	ret = efi_initialize_system_table();
+	if (ret != EFI_SUCCESS)
+		goto out;
+
 	/* Initialize EFI driver uclass */
 	ret = efi_driver_init();
 	if (ret != EFI_SUCCESS)

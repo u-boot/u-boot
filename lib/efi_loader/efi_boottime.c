@@ -164,6 +164,18 @@ const char *__efi_nesting_dec(void)
 }
 
 /**
+ * efi_update_table_header_crc32() - Update CRC32 in table header
+ *
+ * @table:	EFI table
+ */
+static void efi_update_table_header_crc32(struct efi_table_hdr *table)
+{
+	table->crc32 = 0;
+	table->crc32 = crc32(0, (const unsigned char *)table,
+			     table->headersize);
+}
+
+/**
  * efi_queue_event() - queue an EFI event
  * @event:     event to signal
  * @check_tpl: check the TPL level
@@ -1901,9 +1913,7 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 	systab.boottime = NULL;
 
 	/* Recalculate CRC32 */
-	systab.hdr.crc32 = 0;
-	systab.hdr.crc32 = crc32(0, (const unsigned char *)&systab,
-				 sizeof(struct efi_system_table));
+	efi_update_table_header_crc32(&systab.hdr);
 
 	/* Give the payload some time to boot */
 	efi_set_watchdog(0);
@@ -3056,7 +3066,7 @@ out:
 	return EFI_EXIT(r);
 }
 
-static const struct efi_boot_services efi_boot_services = {
+static struct efi_boot_services efi_boot_services = {
 	.hdr = {
 		.signature = EFI_BOOT_SERVICES_SIGNATURE,
 		.revision = EFI_SPECIFICATION_VERSION,
@@ -3128,3 +3138,17 @@ struct efi_system_table __efi_runtime_data systab = {
 	.nr_tables = 0,
 	.tables = (void *)efi_conf_table,
 };
+
+/**
+ * efi_initialize_system_table() - Initialize system table
+ *
+ * Return Value:        status code
+ */
+efi_status_t efi_initialize_system_table(void)
+{
+	/* Set crc32 field in table headers */
+	efi_update_table_header_crc32(&systab.hdr);
+	efi_update_table_header_crc32(&efi_runtime_services.hdr);
+	efi_update_table_header_crc32(&efi_boot_services.hdr);
+	return EFI_SUCCESS;
+}
