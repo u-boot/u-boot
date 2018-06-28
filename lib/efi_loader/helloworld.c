@@ -14,6 +14,7 @@
 
 static const efi_guid_t loaded_image_guid = LOADED_IMAGE_GUID;
 static const efi_guid_t fdt_guid = EFI_FDT_GUID;
+static const efi_guid_t acpi_guid = EFI_ACPI_TABLE_GUID;
 static const efi_guid_t smbios_guid = SMBIOS_TABLE_GUID;
 
 static int hw_memcmp(const void *buf1, const void *buf2, size_t length)
@@ -79,6 +80,9 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
 		if (!hw_memcmp(&systable->tables[i].guid, &fdt_guid,
 			       sizeof(efi_guid_t)))
 			con_out->output_string(con_out, L"Have device tree\n");
+		if (!hw_memcmp(&systable->tables[i].guid, &acpi_guid,
+			       sizeof(efi_guid_t)))
+			con_out->output_string(con_out, L"Have ACPI 2.0 table\n");
 		if (!hw_memcmp(&systable->tables[i].guid, &smbios_guid,
 			       sizeof(efi_guid_t)))
 			con_out->output_string(con_out, L"Have SMBIOS table\n");
