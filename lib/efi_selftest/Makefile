@@ -13,6 +13,7 @@ CFLAGS_REMOVE_efi_selftest_miniapp_return.o := $(CFLAGS_NON_EFI) -Os
 obj-$(CONFIG_CMD_BOOTEFI_SELFTEST) += \
 efi_selftest.o \
 efi_selftest_bitblt.o \
+efi_selftest_config_table.o \
 efi_selftest_controllers.o \
 efi_selftest_console.o \
 efi_selftest_devicepath.o \
