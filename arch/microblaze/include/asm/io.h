@@ -120,9 +120,6 @@ io_outsl (unsigned long port, const void *src, unsigned long count)
 #define insw(a,b,l) io_insw(a,b,l)
 #define insl(a,b,l) io_insl(a,b,l)
 
-
-#define iounmap(addr)				((void)0)
-#define ioremap(physaddr, size)			(physaddr)
 #define ioremap_nocache(physaddr, size)		(physaddr)
 #define ioremap_writethrough(physaddr, size)	(physaddr)
 #define ioremap_fullcache(physaddr, size)	(physaddr)
