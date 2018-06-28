@@ -3060,7 +3060,7 @@ static const struct efi_boot_services efi_boot_services = {
 	.hdr = {
 		.signature = EFI_BOOT_SERVICES_SIGNATURE,
 		.revision = EFI_SPECIFICATION_VERSION,
-		.headersize = sizeof(struct efi_table_hdr),
+		.headersize = sizeof(struct efi_boot_services),
 	},
 	.raise_tpl = efi_raise_tpl,
 	.restore_tpl = efi_restore_tpl,
@@ -3116,7 +3116,7 @@ struct efi_system_table __efi_runtime_data systab = {
 	.hdr = {
 		.signature = EFI_SYSTEM_TABLE_SIGNATURE,
 		.revision = EFI_SPECIFICATION_VERSION,
-		.headersize = sizeof(struct efi_table_hdr),
+		.headersize = sizeof(struct efi_system_table),
 	},
 	.fw_vendor = (long)firmware_vendor,
 	.con_in = (void *)&efi_con_in,

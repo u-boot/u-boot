@@ -460,7 +460,7 @@ struct efi_runtime_services __efi_runtime_data efi_runtime_services = {
 	.hdr = {
 		.signature = EFI_RUNTIME_SERVICES_SIGNATURE,
 		.revision = EFI_SPECIFICATION_VERSION,
-		.headersize = sizeof(struct efi_table_hdr),
+		.headersize = sizeof(struct efi_runtime_services),
 	},
 	.get_time = &efi_get_time_boottime,
 	.set_time = (void *)&efi_device_error,
