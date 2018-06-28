@@ -215,6 +215,14 @@ efi_status_t efi_net_register(void);
 efi_status_t efi_watchdog_register(void);
 /* Called by bootefi to make SMBIOS tables available */
 /**
+ * efi_acpi_register() - write out ACPI tables
+ *
+ * Called by bootefi to make ACPI tables available
+ *
+ * @return 0 if OK, -ENOMEM if no memory is available for the tables
+ */
+efi_status_t efi_acpi_register(void);
+/**
  * efi_smbios_register() - write out SMBIOS tables
  *
  * Called by bootefi to make SMBIOS tables available
