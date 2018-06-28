@@ -24,6 +24,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DP83867_CTRL		0x1f
 
 /* Extended Registers */
+#define DP83867_CFG4		0x0031
 #define DP83867_RGMIICTL	0x0032
 #define DP83867_RGMIIDCTL	0x0086
 #define DP83867_IO_MUX_CFG	0x0170
@@ -95,6 +96,7 @@ struct dp83867_private {
 	int tx_id_delay;
 	int fifo_depth;
 	int io_impedance;
+	bool rxctrl_strap_quirk;
 };
 
 /**
@@ -183,6 +185,8 @@ static int dp83867_of_init(struct phy_device *phydev)
 	else
 		dp83867->io_impedance = -EINVAL;
 
+	if (fdtdec_get_bool(fdt, node, "ti,dp83867-rxctrl-strap-quirk"))
+		dp83867->rxctrl_strap_quirk = true;
 	dp83867->rx_id_delay = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
 				 "ti,rx-internal-delay", -1);
 
@@ -231,6 +235,15 @@ static int dp83867_config(struct phy_device *phydev)
 	val = phy_read(phydev, MDIO_DEVAD_NONE, DP83867_CTRL);
 	phy_write(phydev, MDIO_DEVAD_NONE, DP83867_CTRL,
 		  val | DP83867_SW_RESTART);
+
+	/* Mode 1 or 2 workaround */
+	if (dp83867->rxctrl_strap_quirk) {
+		val = phy_read_mmd_indirect(phydev, DP83867_CFG4,
+					    DP83867_DEVADDR, phydev->addr);
+		val &= ~BIT(7);
+		phy_write_mmd_indirect(phydev, DP83867_CFG4,
+				       DP83867_DEVADDR, phydev->addr, val);
+	}
 
 	if (phy_interface_is_rgmii(phydev)) {
 		ret = phy_write(phydev, MDIO_DEVAD_NONE, MII_DP83867_PHYCTRL,
