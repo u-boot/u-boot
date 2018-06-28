@@ -38,17 +38,14 @@
 
 /* I2C configs */
 #ifdef CONFIG_CMD_I2C
-#define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
 #define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 #define CONFIG_SYS_I2C_SPEED		100000
+#endif
 
-/* PMIC only for 9X9 EVK */
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
-#define CONFIG_POWER_PFUZE3000
-#define CONFIG_POWER_PFUZE3000_I2C_ADDR  0x08
+#ifdef CONFIG_DM_GPIO
+#define CONFIG_DM_74X164
 #endif
 
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
@@ -166,6 +163,7 @@
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
 
 #ifdef CONFIG_FSL_QSPI
+#define CONFIG_SYS_FSL_QSPI_AHB
 #define CONFIG_SF_DEFAULT_BUS		0
 #define CONFIG_SF_DEFAULT_CS		0
 #define CONFIG_SF_DEFAULT_SPEED	40000000
@@ -190,12 +188,13 @@
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR          0x2
 #define CONFIG_FEC_XCV_TYPE             RMII
+#define CONFIG_ETHPRIME			"eth0"
 #elif (CONFIG_FEC_ENET_DEV == 1)
 #define IMX_FEC_BASE			ENET2_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR		0x1
 #define CONFIG_FEC_XCV_TYPE		RMII
+#define CONFIG_ETHPRIME			"eth1"
 #endif
-#define CONFIG_ETHPRIME			"FEC"
 #endif
 
 #define CONFIG_IMX_THERMAL
