@@ -97,10 +97,8 @@ static bool is_1g(void)
 
 static void ddr_init(void)
 {
-	if (is_1g()) {
-		ddrc_regs_val.addrmap5	= 0x07070707;
+	if (is_1g())
 		ddrc_regs_val.addrmap6	= 0x0f070707;
-	}
 
 	mx7_dram_cfg(&ddrc_regs_val, &ddrc_mp_val, &ddr_phy_regs_val,
 		     &calib_param);
