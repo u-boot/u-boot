@@ -33,7 +33,9 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 
 #define CONFIG_DFU_ENV_SETTINGS \
-	"dfu_alt_info=u-boot raw 0x2 0x400 mmcpart 1;" \
+	"dfu_alt_info=" \
+		"spl raw 0x2 0x400 mmcpart 1;" \
+		"u-boot raw 0x8a 0x400 mmcpart 1;" \
 		"/boot/zImage ext4 0 1;" \
 		"/boot/imx7d-pico-pi.dtb ext4 0 1;" \
 		"rootfs part 0 1\0" \
