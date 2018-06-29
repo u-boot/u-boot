@@ -60,6 +60,7 @@
 	"partitions=" \
 		"uuid_disk=${uuid_gpt_disk};" \
 		"name=rootfs,size=0,uuid=${uuid_gpt_rootfs}\0" \
+	"fastboot_partition_alias_system=rootfs\0" \
 	"setup_emmc=mmc dev 0; gpt write mmc 0 $partitions; reset;\0" \
 	BOOTENV
 
