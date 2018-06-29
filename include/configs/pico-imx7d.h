@@ -50,6 +50,10 @@
 	"ramdiskaddr=0x83000000\0" \
 	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
 	"finduuid=part uuid mmc 0:1 uuid\0" \
+	"partitions=" \
+		"uuid_disk=${uuid_gpt_disk};" \
+		"name=rootfs,size=0,uuid=${uuid_gpt_rootfs}\0" \
+	"setup_emmc=mmc dev 0; gpt write mmc 0 $partitions; reset;\0" \
 	BOOTENV
 
 #define BOOT_TARGET_DEVICES(func) \
