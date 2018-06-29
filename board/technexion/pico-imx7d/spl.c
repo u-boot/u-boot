@@ -13,6 +13,14 @@
 #include <spl.h>
 
 #if defined(CONFIG_SPL_BUILD)
+
+#ifdef CONFIG_SPL_OS_BOOT
+int spl_start_uboot(void)
+{
+	return 0;
+}
+#endif
+
 static struct ddrc ddrc_regs_val = {
 	.mstr		= 0x01040001,
 	.rfshtmg	= 0x00400046,
