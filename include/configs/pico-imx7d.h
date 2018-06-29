@@ -49,6 +49,7 @@
 	"ramdisk_addr_r=0x83000000\0" \
 	"ramdiskaddr=0x83000000\0" \
 	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
+	"finduuid=part uuid mmc 0:1 uuid\0" \
 	BOOTENV
 
 #define BOOT_TARGET_DEVICES(func) \
