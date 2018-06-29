@@ -32,6 +32,12 @@
 /* MMC Config */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 
+#define CONFIG_DFU_ENV_SETTINGS \
+	"dfu_alt_info=u-boot raw 0x2 0x400 mmcpart 1;" \
+		"/boot/zImage ext4 0 1;" \
+		"/boot/imx7d-pico-pi.dtb ext4 0 1;" \
+		"rootfs part 0 1\0" \
+
 #define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
@@ -49,6 +55,7 @@
 	"ramdisk_addr_r=0x83000000\0" \
 	"ramdiskaddr=0x83000000\0" \
 	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
+	CONFIG_DFU_ENV_SETTINGS \
 	"finduuid=part uuid mmc 0:1 uuid\0" \
 	"partitions=" \
 		"uuid_disk=${uuid_gpt_disk};" \
