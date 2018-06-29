@@ -38,13 +38,18 @@ static int do_fastboot_usb(int argc, char *const argv[],
 #if CONFIG_IS_ENABLED(USB_FUNCTION_FASTBOOT)
 	int controller_index;
 	char *usb_controller;
+	char *endp;
 	int ret;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
 	usb_controller = argv[1];
-	controller_index = simple_strtoul(usb_controller, NULL, 0);
+	controller_index = simple_strtoul(usb_controller, &endp, 0);
+	if (*endp != '\0') {
+		pr_err("Error: Wrong USB controller index format\n");
+		return CMD_RET_FAILURE;
+	}
 
 	ret = board_usb_init(controller_index, USB_INIT_DEVICE);
 	if (ret) {
@@ -118,6 +123,12 @@ static int do_fastboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		}
 NXTARG:
 		;
+	}
+
+	/* Handle case when USB controller param is just '-' */
+	if (argc == 1) {
+		pr_err("Error: Incorrect USB controller index\n");
+		return CMD_RET_USAGE;
 	}
 
 	fastboot_init((void *)buf_addr, buf_size);
