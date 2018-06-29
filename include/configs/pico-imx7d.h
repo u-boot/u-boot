@@ -40,6 +40,10 @@
 		"/boot/imx7d-pico-pi.dtb ext4 0 1;" \
 		"rootfs part 0 1\0" \
 
+#define BOOTMENU_ENV \
+	"bootmenu_0=Boot using PICO-PI baseboard=" \
+		"setenv fdtfile imx7d-pico-pi.dtb\0" \
+
 #define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
@@ -49,7 +53,8 @@
 	"console=ttymxc4\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"fdtfile=imx7d-pico-pi.dtb\0" \
+	"fdtfile=ask\0" \
+	BOOTMENU_ENV \
 	"fdt_addr=0x83000000\0" \
 	"fdt_addr_r=0x83000000\0" \
 	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
@@ -58,6 +63,11 @@
 	"ramdiskaddr=0x83000000\0" \
 	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
 	CONFIG_DFU_ENV_SETTINGS \
+	"findfdt=" \
+		"if test $fdtfile = ask ; then " \
+			"bootmenu -1; fi;" \
+		"if test $fdtfile != ask ; then " \
+			"saveenv; fi;\0" \
 	"finduuid=part uuid mmc 0:1 uuid\0" \
 	"partitions=" \
 		"uuid_disk=${uuid_gpt_disk};" \
