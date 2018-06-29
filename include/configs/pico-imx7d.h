@@ -10,7 +10,7 @@
 
 #include "mx7_common.h"
 
-#define PHYS_SDRAM_SIZE		SZ_1G
+#include "imx7_spl.h"
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
