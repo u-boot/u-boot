@@ -637,7 +637,9 @@ static int sunxi_mmc_bind(struct udevice *dev)
 }
 
 static const struct udevice_id sunxi_mmc_ids[] = {
+	{ .compatible = "allwinner,sun4i-a10-mmc" },
 	{ .compatible = "allwinner,sun5i-a13-mmc" },
+	{ .compatible = "allwinner,sun7i-a20-mmc" },
 	{ }
 };
 
