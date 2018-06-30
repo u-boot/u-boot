@@ -77,10 +77,6 @@
 #define CONFIG_XILINX_SPI_IDLE_VAL	GENMASK(7, 0)
 #endif
 
-#ifndef CONFIG_SYS_XILINX_SPI_LIST
-#define CONFIG_SYS_XILINX_SPI_LIST	{ CONFIG_SYS_SPI_BASE }
-#endif
-
 /* xilinx spi register set */
 struct xilinx_spi_regs {
 	u32 __space0__[7];
@@ -107,13 +103,12 @@ struct xilinx_spi_priv {
 	unsigned int mode;
 };
 
-static unsigned long xilinx_spi_base_list[] = CONFIG_SYS_XILINX_SPI_LIST;
 static int xilinx_spi_probe(struct udevice *bus)
 {
 	struct xilinx_spi_priv *priv = dev_get_priv(bus);
 	struct xilinx_spi_regs *regs = priv->regs;
 
-	priv->regs = (struct xilinx_spi_regs *)xilinx_spi_base_list[bus->seq];
+	priv->regs = (struct xilinx_spi_regs *)devfdt_get_addr(bus);
 
 	writel(SPISSR_RESET_VALUE, &regs->srr);
 
