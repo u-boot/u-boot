@@ -105,6 +105,7 @@ struct xilinx_spi_priv {
 	unsigned int freq;
 	unsigned int mode;
 	unsigned int fifo_depth;
+	u8 startup;
 };
 
 static int xilinx_spi_probe(struct udevice *bus)
@@ -205,6 +206,39 @@ static u32 xilinx_spi_read_rxfifo(struct udevice *bus, u8 *rxp, u32 rxbytes)
 	return i;
 }
 
+static void xilinx_spi_startup_block(struct udevice *dev, unsigned int bytes,
+				     const void *dout, void *din)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct xilinx_spi_priv *priv = dev_get_priv(bus);
+	struct xilinx_spi_regs *regs = priv->regs;
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	const unsigned char *txp = dout;
+	unsigned char *rxp = din;
+	u32 reg, count;
+	u32 txbytes = bytes;
+	u32 rxbytes = bytes;
+
+	/*
+	 * This loop runs two times. First time to send the command.
+	 * Second time to transfer data. After transferring data,
+	 * it sets txp to the initial value for the normal operation.
+	 */
+	for ( ; priv->startup < 2; priv->startup++) {
+		count = xilinx_spi_fill_txfifo(bus, txp, txbytes);
+		reg = readl(&regs->spicr) & ~SPICR_MASTER_INHIBIT;
+		writel(reg, &regs->spicr);
+		count = xilinx_spi_read_rxfifo(bus, rxp, rxbytes);
+		txp = din;
+
+		if (priv->startup) {
+			spi_cs_deactivate(dev);
+			spi_cs_activate(dev, slave_plat->cs);
+			txp = dout;
+		}
+	}
+}
+
 static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			    const void *dout, void *din, unsigned long flags)
 {
@@ -237,6 +271,13 @@ static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	if (flags & SPI_XFER_BEGIN)
 		spi_cs_activate(dev, slave_plat->cs);
 
+	/*
+	 * This is the work around for the startup block issue in
+	 * the spi controller. SPI clock is passing through STARTUP
+	 * block to FLASH. STARTUP block don't provide clock as soon
+	 * as QSPI provides command. So first command fails.
+	 */
+	xilinx_spi_startup_block(dev, bytes, dout, din);
 
 	while (txbytes && rxbytes) {
 		count = xilinx_spi_fill_txfifo(bus, txp, txbytes);
