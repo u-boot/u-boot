@@ -17,8 +17,10 @@
 #include <generic-phy.h>
 
 #ifdef CONFIG_SUNXI_GEN_SUN4I
+#define BASE_DIST		0x8000
 #define AHB_CLK_DIST		2
 #else
+#define BASE_DIST		0x1000
 #define AHB_CLK_DIST		1
 #endif
 
@@ -47,6 +49,7 @@ static int ehci_usb_probe(struct udevice *dev)
 	struct ehci_hccr *hccr = (struct ehci_hccr *)devfdt_get_addr(dev);
 	struct ehci_hcor *hcor;
 	int extra_ahb_gate_mask = 0;
+	u8 reg_mask = 0;
 	int phys, ret;
 
 	priv->cfg = (const struct ehci_sunxi_cfg *)dev_get_driver_data(dev);
@@ -86,10 +89,11 @@ no_phy:
 	 * This should go away once we've moved to the driver model for
 	 * clocks resp. phys.
 	 */
+	reg_mask = ((uintptr_t)hccr - SUNXI_USB1_BASE) / BASE_DIST;
 	priv->ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0;
 	extra_ahb_gate_mask = priv->cfg->extra_ahb_gate_mask;
-	priv->ahb_gate_mask <<= phys * AHB_CLK_DIST;
-	extra_ahb_gate_mask <<= phys * AHB_CLK_DIST;
+	priv->ahb_gate_mask <<= reg_mask * AHB_CLK_DIST;
+	extra_ahb_gate_mask <<= reg_mask * AHB_CLK_DIST;
 
 	setbits_le32(&priv->ccm->ahb_gate0,
 		     priv->ahb_gate_mask | extra_ahb_gate_mask);

@@ -17,8 +17,10 @@
 #include <generic-phy.h>
 
 #ifdef CONFIG_SUNXI_GEN_SUN4I
+#define BASE_DIST		0x8000
 #define AHB_CLK_DIST		2
 #else
+#define BASE_DIST		0x1000
 #define AHB_CLK_DIST		1
 #endif
 
@@ -33,9 +35,9 @@ struct ohci_sunxi_cfg {
 };
 
 struct ohci_sunxi_priv {
+	ohci_t ohci;
 	struct sunxi_ccm_reg *ccm;
 	u32 *reset0_cfg;
-	ohci_t ohci;
 	int ahb_gate_mask; /* Mask of ahb_gate0 clk gate bits for this hcd */
 	int usb_gate_mask; /* Mask of usb_clk_cfg clk gate bits for this hcd */
 	struct phy phy;
@@ -48,6 +50,7 @@ static int ohci_usb_probe(struct udevice *dev)
 	struct ohci_sunxi_priv *priv = dev_get_priv(dev);
 	struct ohci_regs *regs = (struct ohci_regs *)devfdt_get_addr(dev);
 	int extra_ahb_gate_mask = 0;
+	u8 reg_mask = 0;
 	int phys, ret;
 
 	priv->cfg = (const struct ohci_sunxi_cfg *)dev_get_driver_data(dev);
@@ -89,12 +92,13 @@ no_phy:
 	 * This should go away once we've moved to the driver model for
 	 * clocks resp. phys.
 	 */
+	reg_mask = ((uintptr_t)regs - (SUNXI_USB1_BASE + 0x400)) / BASE_DIST;
 	priv->ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_OHCI0;
 	extra_ahb_gate_mask = priv->cfg->extra_ahb_gate_mask;
 	priv->usb_gate_mask = CCM_USB_CTRL_OHCI0_CLK;
-	priv->ahb_gate_mask <<= phys * AHB_CLK_DIST;
-	extra_ahb_gate_mask <<= phys * AHB_CLK_DIST;
-	priv->usb_gate_mask <<= phys;
+	priv->ahb_gate_mask <<= reg_mask * AHB_CLK_DIST;
+	extra_ahb_gate_mask <<= reg_mask * AHB_CLK_DIST;
+	priv->usb_gate_mask <<= reg_mask;
 
 	setbits_le32(&priv->ccm->ahb_gate0,
 		     priv->ahb_gate_mask | extra_ahb_gate_mask);
