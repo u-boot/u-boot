@@ -113,10 +113,9 @@ static int xilinx_spi_probe(struct udevice *bus)
 	struct xilinx_spi_priv *priv = dev_get_priv(bus);
 	struct xilinx_spi_regs *regs = priv->regs;
 
-	priv->regs = (struct xilinx_spi_regs *)devfdt_get_addr(bus);
+	priv->regs = (struct xilinx_spi_regs *)dev_read_addr(bus);
 
-	priv->fifo_depth = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus),
-					  "fifo-size", 0);
+	priv->fifo_depth = dev_read_u32_default(bus, "fifo-size", 0);
 
 	writel(SPISSR_RESET_VALUE, &regs->srr);
 
