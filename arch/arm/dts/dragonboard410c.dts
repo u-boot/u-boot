@@ -27,10 +27,21 @@
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
+
+		smem_mem: smem_region@86300000 {
+			reg = <0x0 0x86300000 0x0 0x100000>;
+			no-map;
+		};
 	};
 
 	chosen {
 		stdout-path = "/soc/serial@78b0000";
+	};
+
+	smem {
+		compatible = "qcom,smem";
+		memory-region = <&smem_mem>;
+		qcom,rpm-msg-ram = <&rpm_msg_ram>;
 	};
 
 	soc {
@@ -38,6 +49,11 @@
 		#size-cells = <0x1>;
 		ranges = <0x0 0x0 0x0 0xffffffff>;
 		compatible = "simple-bus";
+
+		rpm_msg_ram: memory@60000 {
+			compatible = "qcom,rpm-msg-ram";
+			reg = <0x60000 0x8000>;
+		};
 
 		pinctrl: qcom,tlmm@1000000 {
 			compatible = "qcom,tlmm-apq8016";
