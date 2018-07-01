@@ -754,6 +754,8 @@ config ARCH_SNAPDRAGON
 	select SPMI
 	select OF_CONTROL
 	select OF_SEPARATE
+	select SMEM
+	select MSM_SMEM
 
 config ARCH_SOCFPGA
 	bool "Altera SOCFPGA family"

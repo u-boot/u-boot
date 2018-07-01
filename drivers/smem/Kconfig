@@ -1,2 +1,15 @@
 menuconfig SMEM
 	bool  "SMEM (Shared Memory mamanger) support"
+
+if SMEM
+
+config MSM_SMEM
+    bool "Qualcomm Shared Memory Manager (SMEM)"
+    depends on DM
+    depends on ARCH_SNAPDRAGON
+    help
+      Enable support for the Qualcomm Shared Memory Manager.
+      The driver provides an interface to items in a heap shared among all
+      processors in a Qualcomm platform.
+
+endif # menu "SMEM Support"
