@@ -382,6 +382,10 @@
 		remoteproc-name = "remoteproc-test-dev2";
 	};
 
+	smem@0 {
+		compatible = "sandbox,smem";
+	};
+
 	spi@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;

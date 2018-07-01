@@ -3,6 +3,15 @@ menuconfig SMEM
 
 if SMEM
 
+config SANDBOX_SMEM
+    bool "Sandbox Shared Memory Manager (SMEM)"
+    depends on SANDBOX && DM
+    help
+      enable SMEM support for sandbox. This is an emulation of a real SMEM
+      manager.
+      The sandbox driver allocates a shared memory from the heap and
+      initialzies it on start.
+
 config MSM_SMEM
     bool "Qualcomm Shared Memory Manager (SMEM)"
     depends on DM
