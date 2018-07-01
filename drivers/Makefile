@@ -98,6 +98,7 @@ obj-y += pwm/
 obj-y += reset/
 obj-y += input/
 # SOC specific infrastructure drivers.
+obj-y += smem/
 obj-y += soc/
 obj-$(CONFIG_REMOTEPROC) += remoteproc/
 obj-y += thermal/

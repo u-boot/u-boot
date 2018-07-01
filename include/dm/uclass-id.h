@@ -74,6 +74,7 @@ enum uclass_id {
 	UCLASS_RTC,		/* Real time clock device */
 	UCLASS_SCSI,		/* SCSI device */
 	UCLASS_SERIAL,		/* Serial UART */
+	UCLASS_SMEM,		/* Shared memory interface */
 	UCLASS_SPI,		/* SPI bus */
 	UCLASS_SPMI,		/* System Power Management Interface bus */
 	UCLASS_SPI_FLASH,	/* SPI flash */

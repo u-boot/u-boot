@@ -1,0 +1,2 @@
+menuconfig SMEM
+	bool  "SMEM (Shared Memory mamanger) support"
