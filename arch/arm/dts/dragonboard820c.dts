@@ -28,9 +28,25 @@
 		reg = <0 0x80000000 0 0xc0000000>;
 	};
 
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		smem_mem: smem_region@86300000 {
+			reg = <0x0 0x86300000 0x0 0x200000>;
+			no-map;
+		};
+	};
+
 	psci {
 		compatible = "arm,psci-1.0";
 		method = "smc";
+	};
+
+	smem {
+		compatible = "qcom,smem";
+		memory-region = <&smem_mem>;
 	};
 
 	soc: soc {
