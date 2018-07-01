@@ -33,6 +33,7 @@ obj-$(CONFIG_DM_RESET) += reset.o
 obj-$(CONFIG_SYSRESET) += sysreset.o
 obj-$(CONFIG_DM_RTC) += rtc.o
 obj-$(CONFIG_DM_SPI_FLASH) += sf.o
+obj-$(CONFIG_SMEM) += smem.o
 obj-$(CONFIG_DM_SPI) += spi.o
 obj-y += syscon.o
 obj-$(CONFIG_DM_USB) += usb.o
