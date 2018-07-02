@@ -7,8 +7,8 @@ config DM_ETH
 	help
 	  Enable driver model for Ethernet.
 
-	  The eth_*() interface will be implemented by the UC_ETH class
-	  This is currently implemented in net/eth.c
+	  The eth_*() interface will be implemented by the UCLASS_ETH class
+	  This is currently implemented in net/eth-uclass.c
 	  Look in include/net.h for details.
 
 config DRIVER_TI_CPSW
