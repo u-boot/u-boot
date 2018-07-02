@@ -609,7 +609,7 @@ static int zynq_gem_miiphy_read(struct mii_dev *bus, int addr,
 {
 	struct zynq_gem_priv *priv = bus->priv;
 	int ret;
-	u16 val;
+	u16 val = 0;
 
 	ret = phyread(priv, addr, reg, &val);
 	debug("%s 0x%x, 0x%x, 0x%x, 0x%x\n", __func__, addr, reg, val, ret);

@@ -78,6 +78,12 @@
  *			- own IP address
  *	We want:	- network time
  *	Next step:	none
+ *
+ * WOL:
+ *
+ *	Prerequisites:	- own ethernet address
+ *	We want:	- magic packet or timeout
+ *	Next step:	none
  */
 
 
@@ -107,6 +113,9 @@
 #include "rarp.h"
 #if defined(CONFIG_CMD_SNTP)
 #include "sntp.h"
+#endif
+#if defined(CONFIG_CMD_WOL)
+#include "wol.h"
 #endif
 
 /** BOOTP EXTENTIONS **/
@@ -165,6 +174,8 @@ ushort		net_native_vlan = 0xFFFF;
 
 /* Boot File name */
 char net_boot_file_name[1024];
+/* Indicates whether the file name was specified on the command line */
+bool net_boot_file_name_explicit;
 /* The actual transferred size of the bootfile (in bytes) */
 u32 net_boot_file_size;
 /* Boot file size in blocks as reported by the DHCP server */
@@ -513,6 +524,11 @@ restart:
 #if defined(CONFIG_CMD_LINK_LOCAL)
 		case LINKLOCAL:
 			link_local_start();
+			break;
+#endif
+#if defined(CONFIG_CMD_WOL)
+		case WOL:
+			wol_start();
 			break;
 #endif
 		default:
@@ -1281,6 +1297,11 @@ void net_process_received_packet(uchar *in_packet, int len)
 				      ntohs(ip->udp_src),
 				      ntohs(ip->udp_len) - UDP_HDR_SIZE);
 		break;
+#ifdef CONFIG_CMD_WOL
+	case PROT_WOL:
+		wol_receive(ip, len);
+		break;
+#endif
 	}
 }
 

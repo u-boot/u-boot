@@ -1121,6 +1121,16 @@ config BOOTP_HOSTNAME
 	help
 	  The name may or may not be qualified with the local domain name.
 
+config BOOTP_PREFER_SERVERIP
+	bool "serverip variable takes precedent over DHCP server IP."
+	depends on CMD_BOOTP
+	help
+	  By default a BOOTP/DHCP reply will overwrite the 'serverip' variable.
+
+	  With this option enabled, the 'serverip' variable in the environment
+	  takes precedence over DHCP server IP and will only be set by the DHCP
+	  server if not already set in the environment.
+
 config BOOTP_SUBNETMASK
 	bool "Request & store 'netmask' from BOOTP/DHCP server"
 	default y
@@ -1238,6 +1248,11 @@ config CMD_PXE
 	select MENU
 	help
 	  Boot image via network using PXE protocol
+
+config CMD_WOL
+	bool "wol"
+	help
+	  Wait for wake-on-lan Magic Packet
 
 endif
 

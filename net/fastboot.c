@@ -309,7 +309,9 @@ void fastboot_start_server(void)
 
 	fastboot_our_port = WELL_KNOWN_PORT;
 
+#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 	fastboot_set_progress_callback(fastboot_timed_send_info);
+#endif
 	net_set_udp_handler(fastboot_handler);
 
 	/* zero out server ether in case the server ip has changed */
