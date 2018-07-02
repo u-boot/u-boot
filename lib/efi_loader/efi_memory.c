@@ -453,6 +453,9 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 	struct list_head *lhandle;
 	efi_uintn_t provided_map_size = *memory_map_size;
 
+	if (!memory_map_size)
+		return EFI_INVALID_PARAMETER;
+
 	list_for_each(lhandle, &efi_mem)
 		map_entries++;
 
@@ -463,6 +466,9 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 	if (provided_map_size < map_size)
 		return EFI_BUFFER_TOO_SMALL;
 
+	if (!memory_map)
+		return EFI_INVALID_PARAMETER;
+
 	if (descriptor_size)
 		*descriptor_size = sizeof(struct efi_mem_desc);
 
@@ -470,19 +476,18 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 		*descriptor_version = EFI_MEMORY_DESCRIPTOR_VERSION;
 
 	/* Copy list into array */
-	if (memory_map) {
-		/* Return the list in ascending order */
-		memory_map = &memory_map[map_entries - 1];
-		list_for_each(lhandle, &efi_mem) {
-			struct efi_mem_list *lmem;
+	/* Return the list in ascending order */
+	memory_map = &memory_map[map_entries - 1];
+	list_for_each(lhandle, &efi_mem) {
+		struct efi_mem_list *lmem;
 
-			lmem = list_entry(lhandle, struct efi_mem_list, link);
-			*memory_map = lmem->desc;
-			memory_map--;
-		}
+		lmem = list_entry(lhandle, struct efi_mem_list, link);
+		*memory_map = lmem->desc;
+		memory_map--;
 	}
 
-	*map_key = 0;
+	if (map_key)
+		*map_key = 0;
 
 	return EFI_SUCCESS;
 }
