@@ -1427,21 +1427,14 @@ int fw_env_open(struct env_opts *opts)
 	}
 
 	dev_current = 0;
-
-	if (!flash_io(O_RDONLY)) {
-		crc0 = crc32(0, (uint8_t *)environment.data, ENV_SIZE);
-		crc0_ok = (crc0 == *environment.crc);
-	} else if (have_redund_env) {
-		/*
-		 * to give the redundant env a chance, maybe it's good:
-		 * mark env crc0 invalid then test below if crc1 is ok
-		 */
-		crc0_ok = 0;
-	} else {
+	if (flash_io(O_RDONLY)) {
 		ret = -EIO;
 		goto open_cleanup;
 	}
 
+	crc0 = crc32(0, (uint8_t *)environment.data, ENV_SIZE);
+
+	crc0_ok = (crc0 == *environment.crc);
 	if (!have_redund_env) {
 		if (!crc0_ok) {
 			fprintf(stderr,
@@ -1469,10 +1462,8 @@ int fw_env_open(struct env_opts *opts)
 		 */
 		environment.image = addr1;
 		if (flash_io(O_RDONLY)) {
-			crc1_ok = 0;
-		} else {
-			crc1 = crc32(0, (uint8_t *)redundant->data, ENV_SIZE);
-			crc1_ok = (crc1 == redundant->crc);
+			ret = -EIO;
+			goto open_cleanup;
 		}
 
 		/* Check flag scheme compatibility */
@@ -1498,6 +1489,9 @@ int fw_env_open(struct env_opts *opts)
 			goto open_cleanup;
 		}
 
+		crc1 = crc32(0, (uint8_t *)redundant->data, ENV_SIZE);
+
+		crc1_ok = (crc1 == redundant->crc);
 		flag1 = redundant->flags;
 
 		if (crc0_ok && !crc1_ok) {
