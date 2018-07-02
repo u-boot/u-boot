@@ -189,7 +189,6 @@ dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
 	socfpga_arria5_socdk.dtb			\
 	socfpga_arria10_socdk_sdmmc.dtb			\
 	socfpga_cyclone5_is1.dtb			\
-	socfpga_cyclone5_mcvevk.dtb			\
 	socfpga_cyclone5_socdk.dtb			\
 	socfpga_cyclone5_dbm_soc1.dtb			\
 	socfpga_cyclone5_de0_nano_soc.dtb		\
@@ -510,9 +509,6 @@ dtb-$(CONFIG_TARGET_SAMA5D3XEK) += \
 
 dtb-$(CONFIG_TARGET_SAMA5D3_XPLAINED) += \
 	at91-sama5d3_xplained.dtb
-
-dtb-$(CONFIG_TARGET_MA5D4EK) += \
-	at91-sama5d4_ma5d4evk.dts.dtb
 
 dtb-$(CONFIG_TARGET_SAMA5D4EK) += \
 	at91-sama5d4ek.dtb

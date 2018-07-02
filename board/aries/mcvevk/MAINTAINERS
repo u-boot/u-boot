@@ -1,5 +1,0 @@
-Aries MCVEVK BOARD
-#M:	Marek Vasut <marek.vasut@gmail.com>
-S:	Orphan (since 2017-07)
-F:	include/configs/socfpga_mcvevk.h
-F:	configs/socfpga_mcvevk_defconfig
