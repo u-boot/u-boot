@@ -29,6 +29,8 @@ static int sb_eth_raw_start(struct udevice *dev)
 	if (priv->local) {
 		env_set("ipaddr", "127.0.0.1");
 		env_set("serverip", "127.0.0.1");
+		net_ip = string_to_ip("127.0.0.1");
+		net_server_ip = net_ip;
 	}
 	return ret;
 }
@@ -140,6 +142,7 @@ static int sb_eth_raw_ofdata_to_platdata(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct eth_sandbox_raw_priv *priv = dev_get_priv(dev);
 	const char *ifname;
+	u32 local;
 
 	pdata->iobase = dev_read_addr(dev);
 
@@ -147,9 +150,12 @@ static int sb_eth_raw_ofdata_to_platdata(struct udevice *dev)
 	if (ifname) {
 		strncpy(priv->host_ifname, ifname, IFNAMSIZ);
 		printf(": Using %s from DT\n", priv->host_ifname);
-		if (strcmp(ifname, "lo") == 0)
-			priv->local = 1;
 	}
+
+	local = sandbox_eth_raw_os_is_local(priv->host_ifname);
+	if (local < 0)
+		return local;
+	priv->local = local;
 
 	return 0;
 }

@@ -34,6 +34,14 @@ struct eth_sandbox_raw_priv {
 	unsigned short local_bind_udp_port;
 };
 
+/*
+ * Check if the interface named "ifname" is a localhost interface or not.
+ * ifname - the interface name on the host to check
+ *
+ * returns - 0 if real interface, 1 if local, negative if error
+ */
+int sandbox_eth_raw_os_is_local(const char *ifname);
+
 int sandbox_eth_raw_os_start(struct eth_sandbox_raw_priv *priv,
 			     unsigned char *ethmac);
 int sandbox_eth_raw_os_send(void *packet, int length,

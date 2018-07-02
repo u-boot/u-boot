@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (c) 2015 National Instruments
- *
- * (C) Copyright 2015
- * Joe Hershberger <joe.hershberger@ni.com>
+ * Copyright (c) 2015-2018 National Instruments
+ * Copyright (c) 2015-2018 Joe Hershberger <joe.hershberger@ni.com>
  */
 
 #include <asm/eth-raw-os.h>
@@ -24,6 +22,27 @@
 #include <arpa/inet.h>
 #include <linux/if_ether.h>
 #include <linux/if_packet.h>
+
+int sandbox_eth_raw_os_is_local(const char *ifname)
+{
+	int fd = socket(AF_INET, SOCK_DGRAM, 0);
+	struct ifreq ifr;
+	int ret = 0;
+
+	if (fd < 0)
+		return -errno;
+	memset(&ifr, 0, sizeof(ifr));
+	strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
+	ret = ioctl(fd, SIOCGIFFLAGS, &ifr);
+	if (ret < 0) {
+		ret = -errno;
+		goto out;
+	}
+	ret = !!(ifr.ifr_flags & IFF_LOOPBACK);
+out:
+	close(fd);
+	return ret;
+}
 
 static int _raw_packet_start(struct eth_sandbox_raw_priv *priv,
 			     unsigned char *ethmac)
