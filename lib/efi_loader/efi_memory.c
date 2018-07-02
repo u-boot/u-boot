@@ -15,6 +15,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+efi_uintn_t efi_memory_map_key;
+
 struct efi_mem_list {
 	struct list_head link;
 	struct efi_mem_desc desc;
@@ -160,9 +162,13 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 	debug("%s: 0x%" PRIx64 " 0x%" PRIx64 " %d %s\n", __func__,
 	      start, pages, memory_type, overlap_only_ram ? "yes" : "no");
 
+	if (memory_type >= EFI_MAX_MEMORY_TYPE)
+		return EFI_INVALID_PARAMETER;
+
 	if (!pages)
 		return start;
 
+	++efi_memory_map_key;
 	newlist = calloc(1, sizeof(*newlist));
 	newlist->desc.type = memory_type;
 	newlist->desc.physical_start = start;
@@ -487,7 +493,7 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 	}
 
 	if (map_key)
-		*map_key = 0;
+		*map_key = efi_memory_map_key;
 
 	return EFI_SUCCESS;
 }

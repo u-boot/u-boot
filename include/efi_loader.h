@@ -82,6 +82,9 @@ const char *__efi_nesting_dec(void);
 #define EFI_CACHELINE_SIZE 128
 #endif
 
+/* Key identifying current memory map */
+extern efi_uintn_t efi_memory_map_key;
+
 extern struct efi_runtime_services efi_runtime_services;
 extern struct efi_system_table systab;
 
