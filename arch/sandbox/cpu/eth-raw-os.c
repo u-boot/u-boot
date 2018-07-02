@@ -34,6 +34,7 @@ static int _raw_packet_start(const char *ifname, unsigned char *ethmac,
 	int flags;
 
 	/* Prepare device struct */
+	priv->local_bind_sd = -1;
 	priv->device = malloc(sizeof(struct sockaddr_ll));
 	if (priv->device == NULL)
 		return -ENOMEM;
@@ -103,6 +104,8 @@ static int _local_inet_start(struct eth_sandbox_raw_priv *priv)
 	int one = 1;
 
 	/* Prepare device struct */
+	priv->local_bind_sd = -1;
+	priv->local_bind_udp_port = 0;
 	priv->device = malloc(sizeof(struct sockaddr_in));
 	if (priv->device == NULL)
 		return -ENOMEM;
@@ -136,8 +139,6 @@ static int _local_inet_start(struct eth_sandbox_raw_priv *priv)
 		       strerror(errno));
 		return -errno;
 	}
-	priv->local_bind_sd = -1;
-	priv->local_bind_udp_port = 0;
 	return 0;
 }
 
