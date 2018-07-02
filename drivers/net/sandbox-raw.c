@@ -130,11 +130,21 @@ static void sb_eth_raw_stop(struct udevice *dev)
 	sandbox_eth_raw_os_stop(priv);
 }
 
+static int sb_eth_raw_read_rom_hwaddr(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+	net_random_ethaddr(pdata->enetaddr);
+
+	return 0;
+}
+
 static const struct eth_ops sb_eth_raw_ops = {
 	.start			= sb_eth_raw_start,
 	.send			= sb_eth_raw_send,
 	.recv			= sb_eth_raw_recv,
 	.stop			= sb_eth_raw_stop,
+	.read_rom_hwaddr	= sb_eth_raw_read_rom_hwaddr,
 };
 
 static int sb_eth_raw_ofdata_to_platdata(struct udevice *dev)
