@@ -155,25 +155,25 @@
 	eth@10002000 {
 		compatible = "sandbox,eth";
 		reg = <0x10002000 0x1000>;
-		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x00>;
+		fake-host-hwaddr = [00 00 66 44 22 00];
 	};
 
 	eth_5: eth@10003000 {
 		compatible = "sandbox,eth";
 		reg = <0x10003000 0x1000>;
-		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x11>;
+		fake-host-hwaddr = [00 00 66 44 22 11];
 	};
 
 	eth_3: sbe5 {
 		compatible = "sandbox,eth";
 		reg = <0x10005000 0x1000>;
-		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x33>;
+		fake-host-hwaddr = [00 00 66 44 22 33];
 	};
 
 	eth@10004000 {
 		compatible = "sandbox,eth";
 		reg = <0x10004000 0x1000>;
-		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x22>;
+		fake-host-hwaddr = [00 00 66 44 22 22];
 	};
 
 	gpio_a: base-gpios {
