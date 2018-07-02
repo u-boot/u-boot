@@ -191,6 +191,25 @@ static void efi_queue_event(struct efi_event *event, bool check_tpl)
 }
 
 /**
+ * is_valid_tpl() - check if the task priority level is valid
+ *
+ * @tpl:		TPL level to check
+ * ReturnValue:		status code
+ */
+efi_status_t is_valid_tpl(efi_uintn_t tpl)
+{
+	switch (tpl) {
+	case TPL_APPLICATION:
+	case TPL_CALLBACK:
+	case TPL_NOTIFY:
+	case TPL_HIGH_LEVEL:
+		return EFI_SUCCESS;
+	default:
+		return EFI_INVALID_PARAMETER;
+	}
+}
+
+/**
  * efi_signal_event() - signal an EFI event
  * @event:     event to signal
  * @check_tpl: check the TPL level
@@ -592,11 +611,21 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 	if (event == NULL)
 		return EFI_INVALID_PARAMETER;
 
-	if ((type & EVT_NOTIFY_SIGNAL) && (type & EVT_NOTIFY_WAIT))
+	switch (type) {
+	case 0:
+	case EVT_TIMER:
+	case EVT_NOTIFY_SIGNAL:
+	case EVT_TIMER | EVT_NOTIFY_SIGNAL:
+	case EVT_NOTIFY_WAIT:
+	case EVT_TIMER | EVT_NOTIFY_WAIT:
+	case EVT_SIGNAL_EXIT_BOOT_SERVICES:
+	case EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE:
+		break;
+	default:
 		return EFI_INVALID_PARAMETER;
+	}
 
-	if ((type & (EVT_NOTIFY_SIGNAL | EVT_NOTIFY_WAIT)) &&
-	    notify_function == NULL)
+	if (is_valid_tpl(notify_tpl) != EFI_SUCCESS)
 		return EFI_INVALID_PARAMETER;
 
 	evt = calloc(1, sizeof(struct efi_event));
