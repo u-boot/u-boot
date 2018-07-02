@@ -23,6 +23,16 @@
 #include <linux/if_ether.h>
 #include <linux/if_packet.h>
 
+struct sandbox_eth_raw_if_nameindex *sandbox_eth_raw_if_nameindex(void)
+{
+	return (struct sandbox_eth_raw_if_nameindex *)if_nameindex();
+}
+
+void sandbox_eth_raw_if_freenameindex(struct sandbox_eth_raw_if_nameindex *ptr)
+{
+	if_freenameindex((struct if_nameindex *)ptr);
+}
+
 int sandbox_eth_raw_os_is_local(const char *ifname)
 {
 	int fd = socket(AF_INET, SOCK_DGRAM, 0);

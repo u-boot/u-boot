@@ -34,6 +34,17 @@ struct eth_sandbox_raw_priv {
 	unsigned short local_bind_udp_port;
 };
 
+/* A struct to mimic if_nameindex but that does not depend on Linux headers */
+struct sandbox_eth_raw_if_nameindex {
+	unsigned int if_index; /* Index of interface (1, 2, ...) */
+	char        *if_name;  /* Null-terminated name ("eth0", etc.) */
+};
+
+/* Enumerate host network interfaces */
+struct sandbox_eth_raw_if_nameindex *sandbox_eth_raw_if_nameindex(void);
+/* Free the data structure of enumerated network interfaces */
+void sandbox_eth_raw_if_freenameindex(struct sandbox_eth_raw_if_nameindex *ptr);
+
 /*
  * Check if the interface named "ifname" is a localhost interface or not.
  * ifname - the interface name on the host to check
