@@ -909,9 +909,11 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 	volume_info volinfo;
 	fsdata datablock;
 	fsdata *mydata = &datablock;
-	int cursect;
+	int cursect, i;
 	int ret = -1, name_len;
 	char l_filename[VFAT_MAXLEN_BYTES];
+	char bad[2] = " ";
+	const char illegal[] = "<>:\"/\\|?*";
 
 	*actwrite = size;
 	dir_curclust = 0;
@@ -970,6 +972,18 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 		goto exit;
 	}
 	dentptr = (dir_entry *) do_fat_read_at_block;
+
+	/* Strip leading (back-)slashes */
+	while ISDIRDELIM(*filename)
+		++filename;
+	/* Check that the filename is valid */
+	for (i = 0; i < strlen(illegal); ++i) {
+		*bad = illegal[i];
+		if (strstr(filename, bad)) {
+			printf("FAT: illegal filename (%s)\n", filename);
+			return -1;
+		}
+	}
 
 	name_len = strlen(filename);
 	if (name_len >= VFAT_MAXLEN_BYTES)
