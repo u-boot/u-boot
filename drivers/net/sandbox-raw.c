@@ -21,21 +21,16 @@ static int sb_eth_raw_start(struct udevice *dev)
 {
 	struct eth_sandbox_raw_priv *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_platdata(dev);
-	const char *interface;
+	int ret;
 
 	debug("eth_sandbox_raw: Start\n");
 
-	interface = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
-					    "host-raw-interface", NULL);
-	if (interface == NULL)
-		return -EINVAL;
-
-	if (strcmp(interface, "lo") == 0) {
-		priv->local = 1;
+	ret = sandbox_eth_raw_os_start(priv, pdata->enetaddr);
+	if (priv->local) {
 		env_set("ipaddr", "127.0.0.1");
 		env_set("serverip", "127.0.0.1");
 	}
-	return sandbox_eth_raw_os_start(interface, pdata->enetaddr, priv);
+	return ret;
 }
 
 static int sb_eth_raw_send(struct udevice *dev, void *packet, int length)
@@ -143,8 +138,19 @@ static const struct eth_ops sb_eth_raw_ops = {
 static int sb_eth_raw_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_sandbox_raw_priv *priv = dev_get_priv(dev);
+	const char *ifname;
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
+
+	ifname = dev_read_string(dev, "host-raw-interface");
+	if (ifname) {
+		strncpy(priv->host_ifname, ifname, IFNAMSIZ);
+		printf(": Using %s from DT\n", priv->host_ifname);
+		if (strcmp(ifname, "lo") == 0)
+			priv->local = 1;
+	}
+
 	return 0;
 }
 

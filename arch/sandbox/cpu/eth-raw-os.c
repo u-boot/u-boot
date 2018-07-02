@@ -25,8 +25,8 @@
 #include <linux/if_ether.h>
 #include <linux/if_packet.h>
 
-static int _raw_packet_start(const char *ifname, unsigned char *ethmac,
-			    struct eth_sandbox_raw_priv *priv)
+static int _raw_packet_start(struct eth_sandbox_raw_priv *priv,
+			     unsigned char *ethmac)
 {
 	struct sockaddr_ll *device;
 	struct packet_mreq mr;
@@ -40,7 +40,8 @@ static int _raw_packet_start(const char *ifname, unsigned char *ethmac,
 		return -ENOMEM;
 	device = priv->device;
 	memset(device, 0, sizeof(struct sockaddr_ll));
-	device->sll_ifindex = if_nametoindex(ifname);
+	device->sll_ifindex = if_nametoindex(priv->host_ifname);
+	priv->host_ifindex = device->sll_ifindex;
 	device->sll_family = AF_PACKET;
 	memcpy(device->sll_addr, ethmac, 6);
 	device->sll_halen = htons(6);
@@ -53,11 +54,11 @@ static int _raw_packet_start(const char *ifname, unsigned char *ethmac,
 		return -errno;
 	}
 	/* Bind to the specified interface */
-	ret = setsockopt(priv->sd, SOL_SOCKET, SO_BINDTODEVICE, ifname,
-		   strlen(ifname) + 1);
+	ret = setsockopt(priv->sd, SOL_SOCKET, SO_BINDTODEVICE,
+			 priv->host_ifname, strlen(priv->host_ifname) + 1);
 	if (ret < 0) {
-		printf("Failed to bind to '%s': %d %s\n", ifname, errno,
-		       strerror(errno));
+		printf("Failed to bind to '%s': %d %s\n", priv->host_ifname,
+		       errno, strerror(errno));
 		return -errno;
 	}
 
@@ -76,11 +77,12 @@ static int _raw_packet_start(const char *ifname, unsigned char *ethmac,
 		printf("Failed to set promiscuous mode: %d %s\n"
 		       "Falling back to the old \"flags\" way...\n",
 			errno, strerror(errno));
-		if (strlen(ifname) >= IFNAMSIZ) {
-			printf("Interface name %s is too long.\n", ifname);
+		if (strlen(priv->host_ifname) >= IFNAMSIZ) {
+			printf("Interface name %s is too long.\n",
+			       priv->host_ifname);
 			return -EINVAL;
 		}
-		strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
+		strncpy(ifr.ifr_name, priv->host_ifname, IFNAMSIZ);
 		if (ioctl(priv->sd, SIOCGIFFLAGS, &ifr) < 0) {
 			printf("Failed to read flags: %d %s\n", errno,
 			       strerror(errno));
@@ -142,13 +144,13 @@ static int _local_inet_start(struct eth_sandbox_raw_priv *priv)
 	return 0;
 }
 
-int sandbox_eth_raw_os_start(const char *ifname, unsigned char *ethmac,
-			    struct eth_sandbox_raw_priv *priv)
+int sandbox_eth_raw_os_start(struct eth_sandbox_raw_priv *priv,
+			     unsigned char *ethmac)
 {
 	if (priv->local)
 		return _local_inet_start(priv);
 	else
-		return _raw_packet_start(ifname, ethmac, priv);
+		return _raw_packet_start(priv, ethmac);
 }
 
 int sandbox_eth_raw_os_send(void *packet, int length,
