@@ -43,7 +43,7 @@ static bool efi_is_direct_boot = true;
  * In most cases we want to pass an FDT to the payload, so reserve one slot of
  * config table space for it. The pointer gets populated by do_bootefi_exec().
  */
-static struct efi_configuration_table __efi_runtime_data efi_conf_table[2];
+static struct efi_configuration_table __efi_runtime_data efi_conf_table[16];
 
 #ifdef CONFIG_ARM
 /*

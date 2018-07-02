@@ -22,4 +22,5 @@ obj-$(CONFIG_LCD) += efi_gop.o
 obj-$(CONFIG_DM_VIDEO) += efi_gop.o
 obj-$(CONFIG_PARTITIONS) += efi_disk.o
 obj-$(CONFIG_NET) += efi_net.o
+obj-$(CONFIG_GENERATE_ACPI_TABLE) += efi_acpi.o
 obj-$(CONFIG_GENERATE_SMBIOS_TABLE) += efi_smbios.o
