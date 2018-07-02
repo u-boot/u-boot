@@ -156,7 +156,7 @@ int sandbox_eth_raw_os_send(void *packet, int length,
 	int retval;
 	struct udphdr *udph = packet + sizeof(struct iphdr);
 
-	if (!priv->sd || !priv->device)
+	if (priv->sd < 0 || !priv->device)
 		return -EINVAL;
 
 	/*
@@ -221,7 +221,7 @@ int sandbox_eth_raw_os_recv(void *packet, int *length,
 	int retval;
 	int saddr_size;
 
-	if (!priv->sd || !priv->device)
+	if (priv->sd < 0 || !priv->device)
 		return -EINVAL;
 	saddr_size = sizeof(struct sockaddr);
 	retval = recvfrom(priv->sd, packet, 1536, 0,
