@@ -293,6 +293,9 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 	efi_status_t r = EFI_SUCCESS;
 	uint64_t addr;
 
+	if (!memory)
+		return EFI_INVALID_PARAMETER;
+
 	switch (type) {
 	case EFI_ALLOCATE_ANY_PAGES:
 		/* Any page */
@@ -385,6 +388,9 @@ efi_status_t efi_allocate_pool(int pool_type, efi_uintn_t size, void **buffer)
 	struct efi_pool_allocation *alloc;
 	u64 num_pages = (size + sizeof(struct efi_pool_allocation) +
 			 EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
+
+	if (!buffer)
+		return EFI_INVALID_PARAMETER;
 
 	if (size == 0) {
 		*buffer = NULL;
