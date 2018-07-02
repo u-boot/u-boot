@@ -143,6 +143,7 @@ static int sb_eth_raw_ofdata_to_platdata(struct udevice *dev)
 	struct eth_sandbox_raw_priv *priv = dev_get_priv(dev);
 	const char *ifname;
 	u32 local;
+	int ret;
 
 	pdata->iobase = dev_read_addr(dev);
 
@@ -150,6 +151,16 @@ static int sb_eth_raw_ofdata_to_platdata(struct udevice *dev)
 	if (ifname) {
 		strncpy(priv->host_ifname, ifname, IFNAMSIZ);
 		printf(": Using %s from DT\n", priv->host_ifname);
+	}
+	if (dev_read_u32(dev, "host-raw-interface-idx",
+			 &priv->host_ifindex) < 0) {
+		priv->host_ifindex = 0;
+	} else {
+		ret = sandbox_eth_raw_os_idx_to_name(priv);
+		if (ret < 0)
+			return ret;
+		printf(": Using interface index %d from DT (%s)\n",
+		       priv->host_ifindex, priv->host_ifname);
 	}
 
 	local = sandbox_eth_raw_os_is_local(priv->host_ifname);

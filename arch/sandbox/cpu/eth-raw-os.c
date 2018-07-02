@@ -44,6 +44,13 @@ out:
 	return ret;
 }
 
+int sandbox_eth_raw_os_idx_to_name(struct eth_sandbox_raw_priv *priv)
+{
+	if (!if_indextoname(priv->host_ifindex, priv->host_ifname))
+		return -errno;
+	return 0;
+}
+
 static int _raw_packet_start(struct eth_sandbox_raw_priv *priv,
 			     unsigned char *ethmac)
 {

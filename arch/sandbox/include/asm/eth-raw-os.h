@@ -42,6 +42,15 @@ struct eth_sandbox_raw_priv {
  */
 int sandbox_eth_raw_os_is_local(const char *ifname);
 
+/*
+ * Look up the name of the interface based on the ifindex populated in priv.
+ *
+ * Overwrite the host_ifname member in priv based on looking up host_ifindex
+ *
+ * returns - 0 if success, negative if error
+ */
+int sandbox_eth_raw_os_idx_to_name(struct eth_sandbox_raw_priv *priv);
+
 int sandbox_eth_raw_os_start(struct eth_sandbox_raw_priv *priv,
 			     unsigned char *ethmac);
 int sandbox_eth_raw_os_send(void *packet, int length,
