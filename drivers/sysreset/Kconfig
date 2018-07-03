@@ -51,4 +51,10 @@ config SYSRESET_WATCHDOG
 	help
 	  Reboot support for generic watchdog reset.
 
+config SYSRESET_X86
+	bool "Enable support for x86 processor reboot driver"
+	depends on X86
+	help
+	  Reboot support for generic x86 processor reset.
+
 endmenu
