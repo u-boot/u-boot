@@ -196,20 +196,21 @@ static int console_tstc(int file)
 {
 	int i, ret;
 	struct stdio_dev *dev;
+	int prev;
 
-	disable_ctrlc(1);
+	prev = disable_ctrlc(1);
 	for (i = 0; i < cd_count[file]; i++) {
 		dev = console_devices[file][i];
 		if (dev->tstc != NULL) {
 			ret = dev->tstc(dev);
 			if (ret > 0) {
 				tstcdev = dev;
-				disable_ctrlc(0);
+				disable_ctrlc(prev);
 				return ret;
 			}
 		}
 	}
-	disable_ctrlc(0);
+	disable_ctrlc(prev);
 
 	return 0;
 }
