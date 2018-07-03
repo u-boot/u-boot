@@ -604,7 +604,6 @@ static int ctrlc_disabled = 0;	/* see disable_ctrl() */
 static int ctrlc_was_pressed = 0;
 int ctrlc(void)
 {
-#ifndef CONFIG_SANDBOX
 	if (!ctrlc_disabled && gd->have_console) {
 		if (tstc()) {
 			switch (getc()) {
@@ -616,7 +615,6 @@ int ctrlc(void)
 			}
 		}
 	}
-#endif
 
 	return 0;
 }
