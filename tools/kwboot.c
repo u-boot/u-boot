@@ -821,7 +821,7 @@ main(int argc, char **argv)
 			perror("debugmsg");
 			goto out;
 		}
-	} else {
+	} else if (bootmsg) {
 		rc = kwboot_bootmsg(tty, bootmsg);
 		if (rc) {
 			perror("bootmsg");
