@@ -839,6 +839,9 @@ ushort env_get_vlan(char *);
 /* copy a filename (allow for "..." notation, limit length) */
 void copy_filename(char *dst, const char *src, int size);
 
+/* check if serverip is specified in filename from the command line */
+int is_serverip_in_cmd(void);
+
 /* get a random source port */
 unsigned int random_port(void);
 
