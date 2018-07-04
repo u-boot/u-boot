@@ -1522,12 +1522,12 @@ void net_set_udp_header(uchar *pkt, struct in_addr dest, int dport, int sport,
 
 void copy_filename(char *dst, const char *src, int size)
 {
-	if (*src && (*src == '"')) {
+	if (src && *src && (*src == '"')) {
 		++src;
 		--size;
 	}
 
-	while ((--size > 0) && *src && (*src != '"'))
+	while ((--size > 0) && src && *src && (*src != '"'))
 		*dst++ = *src++;
 	*dst = '\0';
 }
