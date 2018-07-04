@@ -44,6 +44,8 @@ struct ohci_sunxi_priv {
 	const struct ohci_sunxi_cfg *cfg;
 };
 
+static fdt_addr_t last_ohci_addr = 0;
+
 static int ohci_usb_probe(struct udevice *dev)
 {
 	struct usb_bus_priv *bus_priv = dev_get_uclass_priv(dev);
@@ -52,6 +54,9 @@ static int ohci_usb_probe(struct udevice *dev)
 	int extra_ahb_gate_mask = 0;
 	u8 reg_mask = 0;
 	int phys, ret;
+
+	if ((fdt_addr_t)regs > last_ohci_addr)
+		last_ohci_addr = (fdt_addr_t)regs;
 
 	priv->cfg = (const struct ohci_sunxi_cfg *)dev_get_driver_data(dev);
 	priv->ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
@@ -114,6 +119,7 @@ no_phy:
 static int ohci_usb_remove(struct udevice *dev)
 {
 	struct ohci_sunxi_priv *priv = dev_get_priv(dev);
+	fdt_addr_t base_addr = devfdt_get_addr(dev);
 	int ret;
 
 	if (generic_phy_valid(&priv->phy)) {
@@ -130,7 +136,18 @@ static int ohci_usb_remove(struct udevice *dev)
 
 	if (priv->cfg->has_reset)
 		clrbits_le32(priv->reset0_cfg, priv->ahb_gate_mask);
-	clrbits_le32(&priv->ccm->usb_clk_cfg, priv->usb_gate_mask);
+	/*
+	 * On the A64 CLK_USB_OHCI0 is the parent of CLK_USB_OHCI1, so
+	 * we have to wait with bringing down any clock until the last
+	 * OHCI controller is removed.
+	 */
+	if (!priv->cfg->extra_usb_gate_mask || base_addr == last_ohci_addr) {
+		u32 usb_gate_mask = priv->usb_gate_mask;
+
+		usb_gate_mask |= priv->cfg->extra_usb_gate_mask;
+		clrbits_le32(&priv->ccm->usb_clk_cfg, usb_gate_mask);
+	}
+
 	clrbits_le32(&priv->ccm->ahb_gate0, priv->ahb_gate_mask);
 
 	return 0;
