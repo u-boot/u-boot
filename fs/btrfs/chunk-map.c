@@ -78,7 +78,7 @@ u64 btrfs_map_logical_to_physical(u64 logical)
 
 		if (item->logical > logical)
 			node = node->rb_left;
-		else if (logical > item->logical + item->length)
+		else if (logical >= item->logical + item->length)
 			node = node->rb_right;
 		else
 			return item->physical + logical - item->logical;
