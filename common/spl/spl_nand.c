@@ -12,7 +12,7 @@
 #include <fdt.h>
 
 #if defined(CONFIG_SPL_NAND_RAW_ONLY)
-int spl_nand_load_image(struct spl_image_info *spl_image,
+static int spl_nand_load_image(struct spl_image_info *spl_image,
 			struct spl_boot_device *bootdev)
 {
 	nand_init();
