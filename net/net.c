@@ -332,6 +332,16 @@ void net_auto_load(void)
 	const char *s = env_get("autoload");
 
 	if (s != NULL && strcmp(s, "NFS") == 0) {
+		if (net_check_prereq(NFS)) {
+/* We aren't expecting to get a serverip, so just accept the assigned IP */
+#ifdef CONFIG_BOOTP_SERVERIP
+			net_set_state(NETLOOP_SUCCESS);
+#else
+			printf("Cannot autoload with NFS\n");
+			net_set_state(NETLOOP_FAIL);
+#endif
+			return;
+		}
 		/*
 		 * Use NFS to load the bootfile.
 		 */
@@ -345,6 +355,16 @@ void net_auto_load(void)
 		 * Do not use TFTP to load the bootfile.
 		 */
 		net_set_state(NETLOOP_SUCCESS);
+		return;
+	}
+	if (net_check_prereq(TFTPGET)) {
+/* We aren't expecting to get a serverip, so just accept the assigned IP */
+#ifdef CONFIG_BOOTP_SERVERIP
+		net_set_state(NETLOOP_SUCCESS);
+#else
+		printf("Cannot autoload with TFTPGET\n");
+		net_set_state(NETLOOP_FAIL);
+#endif
 		return;
 	}
 	tftp_start(TFTPGET);
