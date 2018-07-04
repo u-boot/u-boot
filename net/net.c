@@ -216,26 +216,6 @@ int __maybe_unused net_busy_flag;
 
 /**********************************************************************/
 
-static int on_bootfile(const char *name, const char *value, enum env_op op,
-	int flags)
-{
-	if (flags & H_PROGRAMMATIC)
-		return 0;
-
-	switch (op) {
-	case env_op_create:
-	case env_op_overwrite:
-		copy_filename(net_boot_file_name, value,
-			      sizeof(net_boot_file_name));
-		break;
-	default:
-		break;
-	}
-
-	return 0;
-}
-U_BOOT_ENV_CALLBACK(bootfile, on_bootfile);
-
 static int on_ipaddr(const char *name, const char *value, enum env_op op,
 	int flags)
 {
