@@ -896,7 +896,7 @@ void nfs_start(void)
 		struct in_addr server_net;
 
 		our_net.s_addr = net_ip.s_addr & net_netmask.s_addr;
-		server_net.s_addr = net_server_ip.s_addr & net_netmask.s_addr;
+		server_net.s_addr = nfs_server_ip.s_addr & net_netmask.s_addr;
 		if (our_net.s_addr != server_net.s_addr)
 			debug("; sending through gateway %pI4",
 			      &net_gateway);
