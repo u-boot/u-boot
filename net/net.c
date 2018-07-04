@@ -1517,6 +1517,26 @@ int is_serverip_in_cmd(void)
 	return !!strchr(net_boot_file_name, ':');
 }
 
+int net_parse_bootfile(struct in_addr *ipaddr, char *filename, int max_len)
+{
+	char *colon;
+
+	if (net_boot_file_name[0] == '\0')
+		return 0;
+
+	colon = strchr(net_boot_file_name, ':');
+	if (colon) {
+		if (ipaddr)
+			*ipaddr = string_to_ip(net_boot_file_name);
+		strncpy(filename, colon + 1, max_len);
+	} else {
+		strncpy(filename, net_boot_file_name, max_len);
+	}
+	filename[max_len - 1] = '\0';
+
+	return 1;
+}
+
 #if	defined(CONFIG_CMD_NFS)		|| \
 	defined(CONFIG_CMD_SNTP)	|| \
 	defined(CONFIG_CMD_DNS)

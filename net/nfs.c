@@ -859,7 +859,8 @@ void nfs_start(void)
 		return;
 	}
 
-	if (net_boot_file_name[0] == '\0') {
+	if (!net_parse_bootfile(&nfs_server_ip, nfs_path,
+				sizeof(nfs_path_buff))) {
 		sprintf(nfs_path, "/nfsroot/%02X%02X%02X%02X.img",
 			net_ip.s_addr & 0xFF,
 			(net_ip.s_addr >>  8) & 0xFF,
@@ -868,18 +869,6 @@ void nfs_start(void)
 
 		printf("*** Warning: no boot file name; using '%s'\n",
 		       nfs_path);
-	} else {
-		char *p = net_boot_file_name;
-
-		p = strchr(p, ':');
-
-		if (p != NULL) {
-			nfs_server_ip = string_to_ip(net_boot_file_name);
-			++p;
-			strcpy(nfs_path, p);
-		} else {
-			strcpy(nfs_path, net_boot_file_name);
-		}
 	}
 
 	nfs_filename = basename(nfs_path);
