@@ -182,6 +182,10 @@ config BOOTDELAY
 	  set to -1 to disable autoboot.
 	  set to -2 to autoboot with no delay and not check for abort
 
+	  If this value is >= 0 then it is also used for the default delay
+	  before starting the default entry in bootmenu. If it is < 0 then
+	  a default value of 10s is used.
+
 	  See doc/README.autoboot for details.
 
 config USE_BOOTARGS
