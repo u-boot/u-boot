@@ -1497,6 +1497,7 @@ efi_status_t efi_setup_loaded_image(
 	/* efi_exit() assumes that the handle points to the info */
 	obj->handle = info;
 
+	info->revision =  EFI_LOADED_IMAGE_PROTOCOL_REVISION;
 	info->file_path = file_path;
 
 	if (device_path) {
