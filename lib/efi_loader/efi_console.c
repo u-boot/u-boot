@@ -381,7 +381,12 @@ static efi_status_t EFIAPI efi_cin_reset(
 			bool extended_verification)
 {
 	EFI_ENTRY("%p, %d", this, extended_verification);
-	return EFI_EXIT(EFI_UNSUPPORTED);
+
+	/* Empty input buffer */
+	while (tstc())
+		getc();
+
+	return EFI_EXIT(EFI_SUCCESS);
 }
 
 /*
