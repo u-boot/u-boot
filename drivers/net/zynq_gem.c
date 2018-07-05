@@ -350,7 +350,7 @@ static int zynq_phy_init(struct udevice *dev)
 	priv->phydev->advertising = priv->phydev->supported;
 
 	if (priv->phy_of_handle > 0)
-		dev_set_of_offset(priv->phydev->dev, priv->phy_of_handle);
+		priv->phydev->node = offset_to_ofnode(priv->phy_of_handle);
 
 	return phy_config(priv->phydev);
 }
