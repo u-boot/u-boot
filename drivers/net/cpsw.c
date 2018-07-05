@@ -999,7 +999,7 @@ static int cpsw_phy_init(struct cpsw_priv *priv, struct cpsw_slave *slave)
 
 #ifdef CONFIG_DM_ETH
 	if (slave->data->phy_of_handle)
-		dev_set_of_offset(phydev->dev, slave->data->phy_of_handle);
+		phydev->node = offset_to_ofnode(slave->data->phy_of_handle);
 #endif
 
 	priv->phydev = phydev;
