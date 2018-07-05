@@ -40,7 +40,7 @@ const uchar default_environment[] = {
 #ifdef	CONFIG_NFSBOOTCOMMAND
 	"nfsboot="	CONFIG_NFSBOOTCOMMAND		"\0"
 #endif
-#if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0)
+#if defined(CONFIG_BOOTDELAY)
 	"bootdelay="	__stringify(CONFIG_BOOTDELAY)	"\0"
 #endif
 #if defined(CONFIG_BAUDRATE) && (CONFIG_BAUDRATE >= 0)
