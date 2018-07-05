@@ -194,7 +194,7 @@ const struct spi_flash_info spi_flash_ids[] = {
 	 * Below paired flash devices has similar spi_flash params.
 	 * (s25fl129p_64k, s25fl128s_64k)
 	 * (w25q80bl, w25q80bv)
-	 * (w25q16cl, w25q16dv)
+	 * (w25q16cl, w25q16dv, w25q16jv)
 	 * (w25q32bv, w25q32fv_spi)
 	 * (w25q64cv, w25q64fv_spi)
 	 * (w25q128bv, w25q128fv_spi)
