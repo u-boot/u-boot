@@ -208,6 +208,45 @@ static void setup_iomux_boardid(void)
 	SETUP_IOMUX_PADS(hwcode_pads);
 }
 
+/* DDR Code */
+static iomux_v3_cfg_t const ddrcode_pads[] = {
+	IOMUX_PADS(PAD_EIM_A16__GPIO2_IO22	| MUX_PAD_CTRL(GPIO_PAD_CTRL)),
+	IOMUX_PADS(PAD_EIM_A17__GPIO2_IO21	| MUX_PAD_CTRL(GPIO_PAD_CTRL)),
+};
+
+static void setup_iomux_ddrcode(void)
+{
+	/* ddr code pins */
+	SETUP_IOMUX_PADS(ddrcode_pads);
+}
+
+enum dhcom_ddr3_code {
+	DH_DDR3_SIZE_256MIB = 0x00,
+	DH_DDR3_SIZE_512MIB = 0x01,
+	DH_DDR3_SIZE_1GIB   = 0x02,
+	DH_DDR3_SIZE_2GIB   = 0x03
+};
+
+#define DDR3_CODE_BIT_0   IMX_GPIO_NR(2, 22)
+#define DDR3_CODE_BIT_1   IMX_GPIO_NR(2, 21)
+
+enum dhcom_ddr3_code dhcom_get_ddr3_code(void)
+{
+	enum dhcom_ddr3_code ddr3_code;
+
+	gpio_request(DDR3_CODE_BIT_0, "DDR3_CODE_BIT_0");
+	gpio_request(DDR3_CODE_BIT_1, "DDR3_CODE_BIT_1");
+
+	gpio_direction_input(DDR3_CODE_BIT_0);
+	gpio_direction_input(DDR3_CODE_BIT_1);
+
+	/* 256MB = 0b00; 512MB = 0b01; 1GB = 0b10; 2GB = 0b11 */
+	ddr3_code = (!!gpio_get_value(DDR3_CODE_BIT_1) << 1)
+	     | (!!gpio_get_value(DDR3_CODE_BIT_0));
+
+	return ddr3_code;
+}
+
 /* GPIO */
 static iomux_v3_cfg_t const gpio_pads[] = {
 	IOMUX_PADS(PAD_GPIO_2__GPIO1_IO02	| MUX_PAD_CTRL(GPIO_PAD_CTRL)),
@@ -365,6 +404,7 @@ void board_init_f(ulong dummy)
 	timer_init();
 
 	setup_iomux_boardid();
+	setup_iomux_ddrcode();
 	setup_iomux_gpio();
 	setup_iomux_enet();
 	setup_iomux_sd();
