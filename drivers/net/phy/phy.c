@@ -642,6 +642,10 @@ static struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
 	dev->link = 0;
 	dev->interface = interface;
 
+#ifdef CONFIG_DM_ETH
+	dev->node = ofnode_null();
+#endif
+
 	dev->autoneg = AUTONEG_ENABLE;
 
 	dev->addr = addr;

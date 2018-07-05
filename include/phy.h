@@ -9,6 +9,7 @@
 #ifndef _PHY_H
 #define _PHY_H
 
+#include <dm.h>
 #include <linux/list.h>
 #include <linux/mii.h>
 #include <linux/ethtool.h>
@@ -112,6 +113,7 @@ struct phy_device {
 
 #ifdef CONFIG_DM_ETH
 	struct udevice *dev;
+	ofnode node;
 #else
 	struct eth_device *dev;
 #endif
@@ -182,11 +184,22 @@ void phy_connect_dev(struct phy_device *phydev, struct udevice *dev);
 struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 				struct udevice *dev,
 				phy_interface_t interface);
+static inline ofnode phy_get_ofnode(struct phy_device *phydev)
+{
+	if (ofnode_valid(phydev->node))
+		return phydev->node;
+	else
+		return dev_ofnode(phydev->dev);
+}
 #else
 void phy_connect_dev(struct phy_device *phydev, struct eth_device *dev);
 struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 				struct eth_device *dev,
 				phy_interface_t interface);
+static inline ofnode phy_get_ofnode(struct phy_device *phydev)
+{
+	return ofnode_null();
+}
 #endif
 int phy_startup(struct phy_device *phydev);
 int phy_config(struct phy_device *phydev);
