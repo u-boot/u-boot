@@ -138,6 +138,7 @@ class Prop:
         else:
             return TYPE_INT, val
 
+    @classmethod
     def GetEmpty(self, type):
         """Get an empty / zero value of the given type
 
@@ -335,11 +336,18 @@ class Fdt:
         """
         return self._fdt
 
-    def CheckErr(errnum, msg):
+    def GetFdtObj(self):
+        """Get the contents of the FDT
+
+        Returns:
+            The FDT contents as a libfdt.Fdt object
+        """
+        return self._fdt_obj
+
+    def CheckErr(self, errnum, msg):
         if errnum:
             raise ValueError('Error %d: %s: %s' %
                 (errnum, libfdt.fdt_strerror(errnum), msg))
-
 
     def GetProps(self, node):
         """Get all properties from a node.
