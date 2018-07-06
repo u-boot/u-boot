@@ -22,14 +22,10 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <i2c.h>
-#include <miiphy.h>
-#include <cpsw.h>
 #include <power/tps65217.h>
 #include <lcd.h>
 #include "bur_common.h"
 #include "../../../drivers/video/am335x-fb.h"
-
-static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -270,6 +266,9 @@ int ft_board_setup(void *blob, bd_t *bd)
 }
 
 #ifdef CONFIG_SPL_BUILD
+
+static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
+
 void pmicsetup(u32 mpupll)
 {
 	int mpu_vdd;
@@ -354,100 +353,6 @@ void set_mux_conf_regs(void)
 
 #endif /* CONFIG_SPL_BUILD */
 
-#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
-	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
-static void cpsw_control(int enabled)
-{
-	/* VTP can be added here */
-	return;
-}
-
-/* describing port offsets of TI's CPSW block */
-static struct cpsw_slave_data cpsw_slaves[] = {
-	{
-		.slave_reg_ofs	= 0x208,
-		.sliver_reg_ofs	= 0xd80,
-		.phy_addr	= 1,
-	},
-	{
-		.slave_reg_ofs	= 0x308,
-		.sliver_reg_ofs	= 0xdc0,
-		.phy_addr	= 2,
-	},
-};
-
-static struct cpsw_platform_data cpsw_data = {
-	.mdio_base		= CPSW_MDIO_BASE,
-	.cpsw_base		= CPSW_BASE,
-	.mdio_div		= 0xff,
-	.channels		= 8,
-	.cpdma_reg_ofs		= 0x800,
-	.slaves			= 1,
-	.slave_data		= cpsw_slaves,
-	.ale_reg_ofs		= 0xd00,
-	.ale_entries		= 1024,
-	.host_port_reg_ofs	= 0x108,
-	.hw_stats_reg_ofs	= 0x900,
-	.bd_ram_ofs		= 0x2000,
-	.mac_control		= (1 << 5),
-	.control		= cpsw_control,
-	.host_port_num		= 0,
-	.version		= CPSW_CTRL_VERSION_2,
-};
-#endif /* CONFIG_DRIVER_TI_CPSW, ... */
-
-#if defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)
-int board_eth_init(bd_t *bis)
-{
-	int rv = 0;
-	char mac_addr[6];
-	const char *mac = 0;
-	uint32_t mac_hi, mac_lo;
-	/* try reading mac address from efuse */
-	mac_lo = readl(&cdev->macid0l);
-	mac_hi = readl(&cdev->macid0h);
-	mac_addr[0] = mac_hi & 0xFF;
-	mac_addr[1] = (mac_hi & 0xFF00) >> 8;
-	mac_addr[2] = (mac_hi & 0xFF0000) >> 16;
-	mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
-	mac_addr[4] = mac_lo & 0xFF;
-	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
-
-	if (!env_get("ethaddr")) {
-		if (!mac) {
-			printf("<ethaddr> not set. validating E-fuse MAC ... ");
-			if (is_valid_ethaddr((const u8 *)mac_addr))
-				mac = (const char *)mac_addr;
-		}
-
-		if (mac) {
-			printf("using: %pM on ", mac);
-			eth_env_set_enetaddr("ethaddr", (const u8 *)mac);
-		}
-	}
-	writel(MII_MODE_ENABLE, &cdev->miisel);
-	cpsw_slaves[0].phy_if = PHY_INTERFACE_MODE_MII;
-	cpsw_slaves[1].phy_if =	PHY_INTERFACE_MODE_MII;
-
-	rv = cpsw_register(&cpsw_data);
-	if (rv < 0) {
-		printf("Error %d registering CPSW switch\n", rv);
-		return 0;
-	}
-	return rv;
-}
-#endif /* defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD) */
-#if defined(CONFIG_MMC)
-int board_mmc_init(bd_t *bis)
-{
-	int rc = 0;
-
-	rc |= omap_mmc_init(0, 0, 0, -1, -1);
-	rc |= omap_mmc_init(1, 0, 0, -1, -1);
-
-	return rc;
-}
-#endif
 int overwrite_console(void)
 {
 	return 1;

@@ -37,13 +37,13 @@
 #endif /* CONFIG_EMMC_BOOT */
 
 /*
- * When we have SPI or NAND flash we expect to be making use of mtdparts,
+ * When we have NAND flash we expect to be making use of mtdparts,
  * both for ease of use in U-Boot and for passing information on to
  * the Linux kernel.
  */
-#if defined(CONFIG_SPI_BOOT) || defined(CONFIG_NAND)
+#if defined(CONFIG_NAND)
 #define CONFIG_MTD_DEVICE		/* Required for mtdparts */
-#endif /* CONFIG_SPI_BOOT, ... */
+#endif
 
 #ifdef CONFIG_NAND
 #define CONFIG_SPL_NAND_BASE
@@ -95,7 +95,7 @@
 "b_tgts_pme=net usb0 mmc0 mmc1\0" \
 "loaddev=mmc 1\0"
 
-#ifdef CONFIG_MMC
+#ifdef CONFIG_ENV_IS_IN_MMC
 #define MMCTGTS \
 MMCSPI_TGTS \
 "cfgscr=mmc dev 1; mmc read ${cfgaddr} 200 80; source ${cfgaddr}\0"
@@ -167,37 +167,32 @@ NANDTGTS \
 #define CONFIG_SYS_NAND_ECCBYTES	14
 
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 
 #define CONFIG_NAND_OMAP_GPMC_WSCFG	1
 #endif /* CONFIG_NAND */
 
 /* USB configuration */
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
-#define CONFIG_AM335X_USB0
-#define CONFIG_AM335X_USB0_MODE	MUSB_HOST
-#define CONFIG_AM335X_USB1
-#define CONFIG_AM335X_USB1_MODE MUSB_HOST
 
-#if defined(CONFIG_SPI_BOOT)
-/* McSPI IP block */
-#define CONFIG_SF_DEFAULT_SPEED		24000000
-
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
+#if defined(CONFIG_SPI)
+/* SPI Flash */
+#define CONFIG_SF_DEFAULT_SPEED			24000000
+#define CONFIG_SYS_SPI_U_BOOT_OFFS		0x40000
+/* Environment */
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-#define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
-#define CONFIG_ENV_SECT_SIZE		(4 << 10) /* 4 KB sectors */
-#define CONFIG_ENV_OFFSET		(768 << 10) /* 768 KiB in */
-#define CONFIG_ENV_OFFSET_REDUND	(896 << 10) /* 896 KiB in */
-
-#elif defined(CONFIG_EMMC_BOOT)
+#define CONFIG_ENV_SPI_MAX_HZ			CONFIG_SF_DEFAULT_SPEED
+#define CONFIG_ENV_SECT_SIZE			CONFIG_ENV_SIZE
+#define CONFIG_ENV_OFFSET			0x20000
+#define CONFIG_ENV_OFFSET_REDUND		(CONFIG_ENV_OFFSET + \
+						 CONFIG_ENV_SECT_SIZE)
+#elif defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2
 #define CONFIG_ENV_OFFSET		0x40000	/* TODO: Adresse definieren */
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
-#elif defined(CONFIG_NAND)
+#elif defined(CONFIG_ENV_IS_IN_NAND)
 /* No NAND env support in SPL */
 #define CONFIG_ENV_OFFSET		0x60000
 #define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_ENV_SIZE

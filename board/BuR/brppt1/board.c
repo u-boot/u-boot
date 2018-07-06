@@ -77,6 +77,8 @@ static const struct dpll_params dpll_ddr3 = { 400, OSC-1, 1, -1, -1, -1, -1};
 
 void am33xx_spl_board_init(void)
 {
+	int rc;
+
 	struct cm_perpll *const cmper = (struct cm_perpll *)CM_PER;
 	/*struct cm_wkuppll *const cmwkup = (struct cm_wkuppll *)CM_WKUP;*/
 	struct cm_dpll *const cmdpll = (struct cm_dpll *)CM_DPLL;
@@ -108,8 +110,21 @@ void am33xx_spl_board_init(void)
 	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 	pmicsetup(0);
 
-	gpio_direction_output(64+29, 1); /* switch NAND_RnB to GPMC_WAIT1 */
-	gpio_direction_output(64+28, 1); /* switch MII2_CRS to GPMC_WAIT0 */
+	/* peripheral reset */
+	rc = gpio_request(64 + 29, "GPMC_WAIT1");
+	if (rc != 0)
+		printf("cannot request GPMC_WAIT1 GPIO!\n");
+	rc = gpio_direction_output(64 + 29, 1);
+	if (rc != 0)
+		printf("cannot set GPMC_WAIT1 GPIO!\n");
+
+	rc = gpio_request(64 + 28, "GPMC_WAIT0");
+	if (rc != 0)
+		printf("cannot request GPMC_WAIT0 GPIO!\n");
+	rc = gpio_direction_output(64 + 28, 1);
+	if (rc != 0)
+		printf("cannot set GPMC_WAIT0 GPIO!\n");
+
 }
 
 const struct dpll_params *get_dpll_ddr_params(void)
@@ -151,10 +166,13 @@ int board_late_init(void)
 {
 	unsigned char bmode = 0;
 	ulong bootcount = 0;
+	int rc;
 
 	bootcount = bootcount_load() & 0xF;
 
-	if (gpio_get_value(REPSWITCH) == 0 || bootcount == 12)
+	rc = gpio_request(REPSWITCH, "REPSWITCH");
+
+	if (rc != 0 || gpio_get_value(REPSWITCH) == 0 || bootcount == 12)
 		bmode = 12;
 	else if (bootcount > 0)
 		bmode = 0;
