@@ -55,6 +55,7 @@ class Entry(object):
         self.name = node and (name_prefix + node.name) or 'none'
         self.pos = None
         self.size = None
+        self.data = ''
         self.contents_size = 0
         self.align = None
         self.align_size = None
@@ -137,6 +138,33 @@ class Entry(object):
         """
         if prefix:
             self.name = prefix + self.name
+
+    def SetContents(self, data):
+        """Set the contents of an entry
+
+        This sets both the data and content_size properties
+
+        Args:
+            data: Data to set to the contents (string)
+        """
+        self.data = data
+        self.contents_size = len(self.data)
+
+    def ProcessContentsUpdate(self, data):
+        """Update the contens of an entry, after the size is fixed
+
+        This checks that the new data is the same size as the old.
+
+        Args:
+            data: Data to set to the contents (string)
+
+        Raises:
+            ValueError if the new data size is not the same as the old
+        """
+        if len(data) != self.contents_size:
+            self.Raise('Cannot update entry size from %d to %d' %
+                       (len(data), self.contents_size))
+        self.SetContents(data)
 
     def ObtainContents(self):
         """Figure out the contents of an entry.

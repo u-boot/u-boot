@@ -22,6 +22,8 @@ class Entry__testing(Entry):
                                                      'return-invalid-entry')
         self.return_unknown_contents = fdt_util.GetBool(self._node,
                                                      'return-unknown-contents')
+        self.bad_update_contents = fdt_util.GetBool(self._node,
+                                                    'bad-update-contents')
 
     def ObtainContents(self):
         if self.return_unknown_contents:
@@ -34,3 +36,9 @@ class Entry__testing(Entry):
         if self.return_invalid_entry :
             return {'invalid-entry': [1, 2]}
         return {}
+
+    def ProcessContents(self):
+        if self.bad_update_contents:
+            # Request to update the conents with something larger, to cause a
+            # failure.
+            self.ProcessContentsUpdate('aa')

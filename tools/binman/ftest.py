@@ -1006,5 +1006,13 @@ class TestFunctional(unittest.TestCase):
                 "processing of contents: remaining [<_testing.Entry__testing ",
                 str(e.exception))
 
+    def testBadChangeSize(self):
+        """Test that trying to change the size of an entry fails"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('59_change_size.dts', True)
+        self.assertIn("Node '/binman/_testing': Cannot update entry size from "
+                      '2 to 1', str(e.exception))
+
+
 if __name__ == "__main__":
     unittest.main()

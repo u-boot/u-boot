@@ -81,5 +81,5 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
         # Write the microcode position and size into the entry
         pos_and_size = struct.pack('<2L', pos, size)
         self.target_pos -= self.pos
-        self.data = (self.data[:self.target_pos] + pos_and_size +
-                     self.data[self.target_pos + 8:])
+        self.ProcessContentsUpdate(self.data[:self.target_pos] + pos_and_size +
+                                   self.data[self.target_pos + 8:])
