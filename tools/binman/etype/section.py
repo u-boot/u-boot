@@ -18,7 +18,7 @@ class Entry_section(Entry):
         self._section = bsection.Section(node.name, node)
 
     def ObtainContents(self):
-        self._section.GetEntryContents()
+        return self._section.GetEntryContents()
 
     def GetData(self):
         return self._section.GetData()

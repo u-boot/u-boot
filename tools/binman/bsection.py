@@ -162,6 +162,10 @@ class Section(object):
             todo = next_todo
             if not todo:
                 break
+        if todo:
+            self._Raise('Internal error: Could not complete processing of '
+                        'contents: remaining %s' % todo)
+        return True
 
     def _SetEntryPosSize(self, name, pos, size):
         """Set the position and size of an entry

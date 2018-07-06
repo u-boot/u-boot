@@ -688,12 +688,14 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('33_x86-start16.dts')
         self.assertEqual(X86_START16_DATA, data[:len(X86_START16_DATA)])
 
-    def _RunMicrocodeTest(self, dts_fname, nodtb_data):
+    def _RunMicrocodeTest(self, dts_fname, nodtb_data, ucode_second=False):
         """Handle running a test for insertion of microcode
 
         Args:
             dts_fname: Name of test .dts file
             nodtb_data: Data that we expect in the first section
+            ucode_second: True if the microsecond entry is second instead of
+                third
 
         Returns:
             Tuple:
@@ -704,10 +706,16 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile(dts_fname, True)
 
         # Now check the device tree has no microcode
-        dtb_with_ucode = data[len(nodtb_data):]
-        fdt_len = self.GetFdtLen(dtb_with_ucode)
-        ucode_content = dtb_with_ucode[fdt_len:]
-        ucode_pos = len(nodtb_data) + fdt_len
+        if ucode_second:
+            ucode_content = data[len(nodtb_data):]
+            ucode_pos = len(nodtb_data)
+            dtb_with_ucode = ucode_content[16:]
+            fdt_len = self.GetFdtLen(dtb_with_ucode)
+        else:
+            dtb_with_ucode = data[len(nodtb_data):]
+            fdt_len = self.GetFdtLen(dtb_with_ucode)
+            ucode_content = dtb_with_ucode[fdt_len:]
+            ucode_pos = len(nodtb_data) + fdt_len
         fname = tools.GetOutputFilename('test.dtb')
         with open(fname, 'wb') as fd:
             fd.write(dtb_with_ucode)
@@ -728,8 +736,8 @@ class TestFunctional(unittest.TestCase):
         # expected position and size
         pos_and_size = struct.pack('<2L', 0xfffffe00 + ucode_pos,
                                    len(ucode_data))
-        first = data[:len(nodtb_data)]
-        return first, pos_and_size
+        u_boot = data[:len(nodtb_data)]
+        return u_boot, pos_and_size
 
     def testPackUbootMicrocode(self):
         """Test that x86 microcode can be handled correctly
@@ -892,22 +900,41 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('48_x86-start16-spl.dts')
         self.assertEqual(X86_START16_SPL_DATA, data[:len(X86_START16_SPL_DATA)])
 
-    def testPackUbootSplMicrocode(self):
-        """Test that x86 microcode can be handled correctly in SPL
+    def _PackUbootSplMicrocode(self, dts, ucode_second=False):
+        """Helper function for microcode tests
 
         We expect to see the following in the image, in order:
             u-boot-spl-nodtb.bin with a microcode pointer inserted at the
                 correct place
             u-boot.dtb with the microcode removed
             the microcode
+
+        Args:
+            dts: Device tree file to use for test
+            ucode_second: True if the microsecond entry is second instead of
+                third
         """
         # ELF file with a '_dt_ucode_base_size' symbol
         with open(self.TestFile('u_boot_ucode_ptr')) as fd:
             TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
-        first, pos_and_size = self._RunMicrocodeTest('49_x86_ucode_spl.dts',
-                                                     U_BOOT_SPL_NODTB_DATA)
+        first, pos_and_size = self._RunMicrocodeTest(dts, U_BOOT_SPL_NODTB_DATA,
+                                                     ucode_second=ucode_second)
         self.assertEqual('splnodtb with microc' + pos_and_size +
                          'ter somewhere in here', first)
+
+    def testPackUbootSplMicrocode(self):
+        """Test that x86 microcode can be handled correctly in SPL"""
+        self._PackUbootSplMicrocode('49_x86_ucode_spl.dts')
+
+    def testPackUbootSplMicrocodeReorder(self):
+        """Test that order doesn't matter for microcode entries
+
+        This is the same as testPackUbootSplMicrocode but when we process the
+        u-boot-ucode entry we have not yet seen the u-boot-dtb-with-ucode
+        entry, so we reply on binman to try later.
+        """
+        self._PackUbootSplMicrocode('58_x86_ucode_spl_needs_retry.dts',
+                                    ucode_second=True)
 
     def testPackMrc(self):
         """Test that an image with an MRC binary can be created"""
@@ -970,6 +997,14 @@ class TestFunctional(unittest.TestCase):
 00000010  00000010  section@1
  00000000  00000004  rw-u-boot
 ''', map_data)
+
+    def testUnknownContents(self):
+        """Test that obtaining the contents works as expected"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('57_unknown_contents.dts', True)
+        self.assertIn("Section '/binman': Internal error: Could not complete "
+                "processing of contents: remaining [<_testing.Entry__testing ",
+                str(e.exception))
 
 if __name__ == "__main__":
     unittest.main()

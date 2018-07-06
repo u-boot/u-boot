@@ -9,6 +9,7 @@ from entry import Entry
 import fdt_util
 import tools
 
+
 class Entry__testing(Entry):
     """A fake entry used for testing
 
@@ -19,8 +20,12 @@ class Entry__testing(Entry):
         Entry.__init__(self, section, etype, node)
         self.return_invalid_entry = fdt_util.GetBool(self._node,
                                                      'return-invalid-entry')
+        self.return_unknown_contents = fdt_util.GetBool(self._node,
+                                                     'return-unknown-contents')
 
     def ObtainContents(self):
+        if self.return_unknown_contents:
+            return False
         self.data = 'a'
         self.contents_size = len(self.data)
         return True

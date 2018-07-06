@@ -24,3 +24,4 @@ class Entry_u_boot_spl_bss_pad(Entry_blob):
             self.Raise('Expected __bss_size symbol in spl/u-boot-spl')
         self.data = chr(0) * bss_size
         self.contents_size = bss_size
+        return True
