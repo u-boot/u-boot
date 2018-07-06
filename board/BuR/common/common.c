@@ -26,42 +26,22 @@
 #include <cpsw.h>
 #include <power/tps65217.h>
 #include <lcd.h>
-#include <fs.h>
-#ifdef CONFIG_USE_FDT
-  #include <fdt_support.h>
-#endif
 #include "bur_common.h"
 #include "../../../drivers/video/am335x-fb.h"
-#include <nand.h>
 #include <fdt_simplefb.h>
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_USE_FDT
-  #define FDTPROP(b, c) fdt_getprop_u32_default(gd->fdt_blob, b, c, ~0UL)
-  #define PATHTIM "/panel/display-timings/default"
-  #define PATHINF "/panel/panel-info"
-#endif
 /* --------------------------------------------------------------------------*/
 #if defined(CONFIG_LCD) && defined(CONFIG_AM335X_LCD) && \
 	!defined(CONFIG_SPL_BUILD)
 void lcdbacklight(int on)
 {
-#ifdef CONFIG_USE_FDT
-	if (gd->fdt_blob == NULL) {
-		printf("%s: don't have a valid gd->fdt_blob!\n", __func__);
-		return;
-	}
-	unsigned int driver = FDTPROP(PATHINF, "brightdrv");
-	unsigned int bright = FDTPROP(PATHINF, "brightdef");
-	unsigned int pwmfrq = FDTPROP(PATHINF, "brightfdim");
-#else
 	unsigned int driver = env_get_ulong("ds1_bright_drv", 16, 0UL);
 	unsigned int bright = env_get_ulong("ds1_bright_def", 10, 50);
 	unsigned int pwmfrq = env_get_ulong("ds1_pwmfreq", 10, ~0UL);
-#endif
 	unsigned int tmp;
 	struct gptimer *timerhw;
 
@@ -116,70 +96,7 @@ void lcdbacklight(int on)
 int load_lcdtiming(struct am335x_lcdpanel *panel)
 {
 	struct am335x_lcdpanel pnltmp;
-#ifdef CONFIG_USE_FDT
-	u32 dtbprop;
-	char buf[32];
-	const char *nodep = 0;
-	int nodeoff;
 
-	if (gd->fdt_blob == NULL) {
-		printf("%s: don't have a valid gd->fdt_blob!\n", __func__);
-		return -1;
-	}
-	memcpy(&pnltmp, (void *)panel, sizeof(struct am335x_lcdpanel));
-
-	pnltmp.hactive = FDTPROP(PATHTIM, "hactive");
-	pnltmp.vactive = FDTPROP(PATHTIM, "vactive");
-	pnltmp.bpp = FDTPROP(PATHINF, "bpp");
-	pnltmp.hfp = FDTPROP(PATHTIM, "hfront-porch");
-	pnltmp.hbp = FDTPROP(PATHTIM, "hback-porch");
-	pnltmp.hsw = FDTPROP(PATHTIM, "hsync-len");
-	pnltmp.vfp = FDTPROP(PATHTIM, "vfront-porch");
-	pnltmp.vbp = FDTPROP(PATHTIM, "vback-porch");
-	pnltmp.vsw = FDTPROP(PATHTIM, "vsync-len");
-	pnltmp.pup_delay = FDTPROP(PATHTIM, "pupdelay");
-	pnltmp.pon_delay = FDTPROP(PATHTIM, "pondelay");
-	pnltmp.pxl_clk = FDTPROP(PATHTIM, "clock-frequency");
-
-	/* check polarity of control-signals */
-	dtbprop = FDTPROP(PATHTIM, "hsync-active");
-	if (dtbprop == 0)
-		pnltmp.pol |= HSYNC_INVERT;
-	dtbprop = FDTPROP(PATHTIM, "vsync-active");
-	if (dtbprop == 0)
-		pnltmp.pol |= VSYNC_INVERT;
-	dtbprop = FDTPROP(PATHINF, "sync-ctrl");
-	if (dtbprop == 1)
-		pnltmp.pol |= HSVS_CONTROL;
-	dtbprop = FDTPROP(PATHINF, "sync-edge");
-	if (dtbprop == 1)
-		pnltmp.pol |= HSVS_RISEFALL;
-	dtbprop = FDTPROP(PATHTIM, "pixelclk-active");
-	if (dtbprop == 0)
-		pnltmp.pol |= PXCLK_INVERT;
-	dtbprop = FDTPROP(PATHTIM, "de-active");
-	if (dtbprop == 0)
-		pnltmp.pol |= DE_INVERT;
-
-	nodeoff = fdt_path_offset(gd->fdt_blob, "/factory-settings");
-	if (nodeoff >= 0) {
-		nodep = fdt_getprop(gd->fdt_blob, nodeoff, "rotation", NULL);
-		if (nodep != 0) {
-			if (strcmp(nodep, "cw") == 0)
-				panel_info.vl_rot = 1;
-			else if (strcmp(nodep, "ud") == 0)
-				panel_info.vl_rot = 2;
-			else if (strcmp(nodep, "ccw") == 0)
-				panel_info.vl_rot = 3;
-			else
-				panel_info.vl_rot = 0;
-		}
-	} else {
-		puts("no 'factory-settings / rotation' in dtb!\n");
-	}
-	snprintf(buf, sizeof(buf), "fbcon=rotate:%d", panel_info.vl_rot);
-	env_set("optargs_rot", buf);
-#else
 	pnltmp.hactive = env_get_ulong("ds1_hactive", 10, ~0UL);
 	pnltmp.vactive = env_get_ulong("ds1_vactive", 10, ~0UL);
 	pnltmp.bpp = env_get_ulong("ds1_bpp", 10, ~0UL);
@@ -194,7 +111,7 @@ int load_lcdtiming(struct am335x_lcdpanel *panel)
 	pnltmp.pup_delay = env_get_ulong("ds1_pupdelay", 10, ~0UL);
 	pnltmp.pon_delay = env_get_ulong("ds1_tondelay", 10, ~0UL);
 	panel_info.vl_rot = env_get_ulong("ds1_rotation", 10, 0);
-#endif
+
 	if (
 	   ~0UL == (pnltmp.hactive) ||
 	   ~0UL == (pnltmp.vactive) ||
@@ -240,117 +157,6 @@ int load_lcdtiming(struct am335x_lcdpanel *panel)
 	return 0;
 }
 
-#ifdef CONFIG_USE_FDT
-static int load_devicetree(void)
-{
-	int rc;
-	loff_t dtbsize;
-	u32 dtbaddr = env_get_ulong("dtbaddr", 16, 0UL);
-
-	if (dtbaddr == 0) {
-		printf("%s: don't have a valid <dtbaddr> in env!\n", __func__);
-		return -1;
-	}
-#ifdef CONFIG_NAND
-	dtbsize = 0x20000;
-	rc = nand_read_skip_bad(get_nand_dev_by_index(0), 0x40000,
-				(size_t *)&dtbsize,
-				NULL, 0x20000, (u_char *)dtbaddr);
-#else
-	char *dtbname = env_get("dtb");
-	char *dtbdev = env_get("dtbdev");
-	char *dtbpart = env_get("dtbpart");
-	if (!dtbdev || !dtbpart || !dtbname) {
-		printf("%s: <dtbdev>/<dtbpart>/<dtb> missing.\n", __func__);
-		return -1;
-	}
-
-	if (fs_set_blk_dev(dtbdev, dtbpart, FS_TYPE_EXT)) {
-		puts("load_devicetree: set_blk_dev failed.\n");
-		return -1;
-	}
-	rc = fs_read(dtbname, (u32)dtbaddr, 0, 0, &dtbsize);
-#endif
-	if (rc == 0) {
-		gd->fdt_blob = (void *)dtbaddr;
-		gd->fdt_size = dtbsize;
-		debug("loaded %d bytes of dtb onto 0x%08x\n",
-		      (u32)dtbsize, (u32)gd->fdt_blob);
-		return dtbsize;
-	}
-
-	printf("%s: load dtb failed!\n", __func__);
-	return -1;
-}
-
-static const char *dtbmacaddr(u32 ifno)
-{
-	int node, len;
-	char enet[16];
-	const char *mac;
-	const char *path;
-
-	if (gd->fdt_blob == NULL) {
-		printf("%s: don't have a valid gd->fdt_blob!\n", __func__);
-		return NULL;
-	}
-
-	node = fdt_path_offset(gd->fdt_blob, "/aliases");
-	if (node < 0)
-		return NULL;
-
-	sprintf(enet, "ethernet%d", ifno);
-	path = fdt_getprop(gd->fdt_blob, node, enet, NULL);
-	if (!path) {
-		printf("no alias for %s\n", enet);
-		return NULL;
-	}
-
-	node = fdt_path_offset(gd->fdt_blob, path);
-	mac = fdt_getprop(gd->fdt_blob, node, "mac-address", &len);
-	if (mac && is_valid_ethaddr((u8 *)mac))
-		return mac;
-
-	return NULL;
-}
-
-static void br_summaryscreen_printdtb(char *prefix,
-				       char *name,
-				       char *suffix)
-{
-	char buf[32] = { 0 };
-	const char *nodep = buf;
-	char *mac = 0;
-	int nodeoffset;
-	int len;
-
-	if (gd->fdt_blob == NULL) {
-		printf("%s: don't have a valid gd->fdt_blob!\n", __func__);
-		return;
-	}
-
-	if (strcmp(name, "brmac1") == 0) {
-		mac = (char *)dtbmacaddr(0);
-		if (mac)
-			sprintf(buf, "%pM", mac);
-	} else if (strcmp(name, "brmac2") == 0) {
-		mac =  (char *)dtbmacaddr(1);
-		if (mac)
-			sprintf(buf, "%pM", mac);
-	} else {
-		nodeoffset = fdt_path_offset(gd->fdt_blob,
-					     "/factory-settings");
-		if (nodeoffset < 0) {
-			puts("no 'factory-settings' in dtb!\n");
-			return;
-		}
-		nodep = fdt_getprop(gd->fdt_blob, nodeoffset, name, &len);
-	}
-	if (nodep && strlen(nodep) > 1)
-		lcd_printf("%s %s %s", prefix, nodep, suffix);
-	else
-		lcd_printf("\n");
-}
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	int nodeoffset;
@@ -393,7 +199,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	return 0;
 }
-#else
 
 static void br_summaryscreen_printenv(char *prefix,
 				       char *name, char *altname,
@@ -410,39 +215,23 @@ static void br_summaryscreen_printenv(char *prefix,
 		lcd_printf("\n");
 	}
 }
-#endif
+
 void br_summaryscreen(void)
 {
-#ifdef CONFIG_USE_FDT
-	br_summaryscreen_printdtb(" - B&R -", "order-no", "-\n");
-	br_summaryscreen_printdtb(" Serial/Rev :", "serial-no", " /");
-	br_summaryscreen_printdtb(" ", "hw-revision", "\n");
-	br_summaryscreen_printdtb(" MAC (IF1)  :", "brmac1", "\n");
-	br_summaryscreen_printdtb(" MAC (IF2)  :", "brmac2", "\n");
-	lcd_puts(" Bootloader : " PLAIN_VERSION "\n");
-	lcd_puts("\n");
-#else
 	br_summaryscreen_printenv(" - B&R -", "br_orderno", 0, "-\n");
 	br_summaryscreen_printenv(" Serial/Rev :", "br_serial", 0, "\n");
 	br_summaryscreen_printenv(" MAC (IF1)  :", "br_mac1", "ethaddr", "\n");
 	br_summaryscreen_printenv(" MAC (IF2)  :", "br_mac2", 0, "\n");
 	lcd_puts(" Bootloader : " PLAIN_VERSION "\n");
 	lcd_puts("\n");
-#endif
 }
 
 void lcdpower(int on)
 {
 	u32 pin, swval, i;
-#ifdef CONFIG_USE_FDT
-	if (gd->fdt_blob == NULL) {
-		printf("%s: don't have a valid gd->fdt_blob!\n", __func__);
-		return;
-	}
-	pin = FDTPROP(PATHINF, "pwrpin");
-#else
+
 	pin = env_get_ulong("ds1_pwr", 16, ~0UL);
-#endif
+
 	if (pin == ~0UL) {
 		puts("no pwrpin in dtb/env, cannot powerup display!\n");
 		return;
@@ -475,10 +264,7 @@ vidinfo_t	panel_info = {
 void lcd_ctrl_init(void *lcdbase)
 {
 	struct am335x_lcdpanel lcd_panel;
-#ifdef CONFIG_USE_FDT
-	/* TODO: is there a better place to load the dtb ? */
-	load_devicetree();
-#endif
+
 	memset(&lcd_panel, 0, sizeof(struct am335x_lcdpanel));
 	if (load_lcdtiming(&lcd_panel) != 0)
 		return;
@@ -652,10 +438,6 @@ int board_eth_init(bd_t *bis)
 	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
 
 	if (!env_get("ethaddr")) {
-		#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_USE_FDT)
-		printf("<ethaddr> not set. trying DTB ... ");
-		mac = dtbmacaddr(0);
-		#endif
 		if (!mac) {
 			printf("<ethaddr> not set. validating E-fuse MAC ... ");
 			if (is_valid_ethaddr((const u8 *)mac_addr))
