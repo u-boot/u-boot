@@ -210,7 +210,9 @@ class TestProp(unittest.TestCase):
 
     def testPhandle(self):
         dtb = fdt.FdtScan('tools/dtoc/dtoc_test_phandle.dts')
-        node = dtb.GetNode('/phandle-source')
+        node = dtb.GetNode('/phandle-source2')
+        prop = node.props['clocks']
+        self.assertTrue(fdt32_to_cpu(prop.value) > 0)
 
     def _ConvertProp(self, prop_name):
         """Helper function to look up a property in self.node and return it

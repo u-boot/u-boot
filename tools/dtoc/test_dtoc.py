@@ -323,6 +323,16 @@ U_BOOT_DEVICE(phandle_source) = {
 \t.platdata_size\t= sizeof(dtv_phandle_source),
 };
 
+static struct dtd_source dtv_phandle_source2 = {
+\t.clocks\t\t\t= {
+\t\t\t{&dtv_phandle_target, {}},},
+};
+U_BOOT_DEVICE(phandle_source2) = {
+\t.name\t\t= "source",
+\t.platdata\t= &dtv_phandle_source2,
+\t.platdata_size\t= sizeof(dtv_phandle_source2),
+};
+
 ''', data)
 
     def test_aliases(self):
