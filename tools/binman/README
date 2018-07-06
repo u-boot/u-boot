@@ -495,9 +495,11 @@ contents of an entry in some way. For example, it would be possible to create
 an entry containing a hash of the contents of some other entries. At this
 stage the position and size of entries should not be adjusted.
 
-6. WriteEntryInfo()
+7. WriteSymbols() - write the value of symbols into the U-Boot SPL binary.
+See 'Access to binman entry positions at run time' below for a description of
+what happens in this stage.
 
-7. BuildImage() - builds the image and writes it to a file. This is the final
+8. BuildImage() - builds the image and writes it to a file. This is the final
 step.
 
 
