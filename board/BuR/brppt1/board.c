@@ -72,22 +72,6 @@ static const struct ctrl_ioregs ddr3_ioregs = {
 	.dt1ioctl = MT41K256M16HA125E_IOCTRL_VALUE,
 };
 
-#ifdef CONFIG_SPL_OS_BOOT
-/*
- * called from spl_nand.c
- * return 0 for loading linux, return 1 for loading u-boot
- */
-int spl_start_uboot(void)
-{
-	if (0 == gpio_get_value(REPSWITCH)) {
-		mdelay(1000);
-		printf("SPL: entering u-boot instead kernel image.\n");
-		return 1;
-	}
-	return 0;
-}
-#endif /* CONFIG_SPL_OS_BOOT */
-
 #define OSC	(V_OSCK/1000000)
 static const struct dpll_params dpll_ddr3 = { 400, OSC-1, 1, -1, -1, -1, -1};
 
