@@ -689,29 +689,40 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(X86_START16_DATA, data[:len(X86_START16_DATA)])
 
     def _RunMicrocodeTest(self, dts_fname, nodtb_data):
+        """Handle running a test for insertion of microcode
+
+        Args:
+            dts_fname: Name of test .dts file
+            nodtb_data: Data that we expect in the first section
+
+        Returns:
+            Tuple:
+                Contents of first region (U-Boot or SPL)
+                Position and size components of microcode pointer, as inserted
+                    in the above (two 4-byte words)
+        """
         data = self._DoReadFile(dts_fname, True)
 
         # Now check the device tree has no microcode
-        second = data[len(nodtb_data):]
+        dtb_with_ucode = data[len(nodtb_data):]
+        fdt_len = self.GetFdtLen(dtb_with_ucode)
+        ucode_content = dtb_with_ucode[fdt_len:]
+        ucode_pos = len(nodtb_data) + fdt_len
         fname = tools.GetOutputFilename('test.dtb')
         with open(fname, 'wb') as fd:
-            fd.write(second)
+            fd.write(dtb_with_ucode)
         dtb = fdt.FdtScan(fname)
         ucode = dtb.GetNode('/microcode')
         self.assertTrue(ucode)
         for node in ucode.subnodes:
             self.assertFalse(node.props.get('data'))
 
-        fdt_len = self.GetFdtLen(second)
-        third = second[fdt_len:]
-
         # Check that the microcode appears immediately after the Fdt
         # This matches the concatenation of the data properties in
         # the /microcode/update@xxx nodes in 34_x86_ucode.dts.
         ucode_data = struct.pack('>4L', 0x12345678, 0x12345679, 0xabcd0000,
                                  0x78235609)
-        self.assertEqual(ucode_data, third[:len(ucode_data)])
-        ucode_pos = len(nodtb_data) + fdt_len
+        self.assertEqual(ucode_data, ucode_content[:len(ucode_data)])
 
         # Check that the microcode pointer was inserted. It should match the
         # expected position and size
