@@ -19,16 +19,10 @@
 static int ubifs_initialized;
 static int ubifs_mounted;
 
-static int do_ubifs_mount(cmd_tbl_t *cmdtp, int flag, int argc,
-				char * const argv[])
+int cmd_ubifs_mount(char *vol_name)
 {
-	char *vol_name;
 	int ret;
 
-	if (argc != 2)
-		return CMD_RET_USAGE;
-
-	vol_name = argv[1];
 	debug("Using volume %s\n", vol_name);
 
 	if (ubifs_initialized == 0) {
@@ -42,7 +36,19 @@ static int do_ubifs_mount(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	ubifs_mounted = 1;
 
-	return 0;
+	return ret;
+}
+static int do_ubifs_mount(cmd_tbl_t *cmdtp, int flag, int argc,
+				char * const argv[])
+{
+	char *vol_name;
+
+	if (argc != 2)
+		return CMD_RET_USAGE;
+
+	vol_name = argv[1];
+
+	return cmd_ubifs_mount(vol_name);
 }
 
 int ubifs_is_mounted(void)
