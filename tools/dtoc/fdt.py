@@ -10,6 +10,7 @@ import sys
 
 import fdt_util
 import libfdt
+from libfdt import QUIET_NOTFOUND
 
 # This deals with a device tree, presenting it as an assortment of Node and
 # Prop objects, representing nodes and properties, respectively. This file
@@ -211,22 +212,22 @@ class Node:
         This fills in the props and subnodes properties, recursively
         searching into subnodes so that the entire tree is built.
         """
+        fdt_obj = self._fdt._fdt_obj
         self.props = self._fdt.GetProps(self)
-        phandle = self.props.get('phandle')
+        phandle = fdt_obj.get_phandle(self.Offset())
         if phandle:
-            val = fdt_util.fdt32_to_cpu(phandle.value)
-            self._fdt.phandle_to_node[val] = self
+            self._fdt.phandle_to_node[phandle] = self
 
-        offset = libfdt.fdt_first_subnode(self._fdt.GetFdt(), self.Offset())
+        offset = fdt_obj.first_subnode(self.Offset(), QUIET_NOTFOUND)
         while offset >= 0:
             sep = '' if self.path[-1] == '/' else '/'
-            name = self._fdt._fdt_obj.get_name(offset)
+            name = fdt_obj.get_name(offset)
             path = self.path + sep + name
             node = Node(self._fdt, self, offset, name, path)
             self.subnodes.append(node)
 
             node.Scan()
-            offset = libfdt.fdt_next_subnode(self._fdt.GetFdt(), offset)
+            offset = fdt_obj.next_subnode(offset, QUIET_NOTFOUND)
 
     def Refresh(self, my_offset):
         """Fix up the _offset for each node, recursively
@@ -324,9 +325,8 @@ class Fdt:
         When nodes and properties shrink or are deleted, wasted space can
         build up in the device tree binary.
         """
-        CheckErr(libfdt.fdt_pack(self._fdt), 'pack')
-        fdt_len = libfdt.fdt_totalsize(self._fdt)
-        del self._fdt[fdt_len:]
+        CheckErr(self._fdt_obj.pack(), 'pack')
+        self.Invalidate()
 
     def GetFdt(self):
         """Get the contents of the FDT
@@ -363,13 +363,15 @@ class Fdt:
             ValueError: if the node does not exist.
         """
         props_dict = {}
-        poffset = libfdt.fdt_first_property_offset(self._fdt, node._offset)
+        poffset = self._fdt_obj.first_property_offset(node._offset,
+                                                      QUIET_NOTFOUND)
         while poffset >= 0:
             p = self._fdt_obj.get_property_by_offset(poffset)
             prop = Prop(node, poffset, p.name, p)
             props_dict[prop.name] = prop
 
-            poffset = libfdt.fdt_next_property_offset(self._fdt, poffset)
+            poffset = self._fdt_obj.next_property_offset(poffset,
+                                                         QUIET_NOTFOUND)
         return props_dict
 
     def Invalidate(self):
@@ -395,7 +397,7 @@ class Fdt:
         Returns:
             Position of @offset within the device tree binary
         """
-        return libfdt.fdt_off_dt_struct(self._fdt) + offset
+        return self._fdt_obj.off_dt_struct() + offset
 
     @classmethod
     def Node(self, fdt, parent, offset, name, path):
