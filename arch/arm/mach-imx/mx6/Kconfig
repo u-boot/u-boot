@@ -205,6 +205,8 @@ config TARGET_MX6CUBOXI
 
 config TARGET_MX6LOGICPD
 	bool "Logic PD i.MX6 SOM"
+	select MX6Q
+	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select DM
@@ -213,7 +215,6 @@ config TARGET_MX6LOGICPD
 	select DM_I2C
 	select DM_MMC
 	select DM_PMIC
-	select DM_REGULATOR
 	select OF_CONTROL
 
 config TARGET_MX6MEMCAL
