@@ -176,8 +176,8 @@ void br_summaryscreen(void)
 {
 	br_summaryscreen_printenv(" - B&R -", "br_orderno", 0, "-\n");
 	br_summaryscreen_printenv(" Serial/Rev :", "br_serial", 0, "\n");
-	br_summaryscreen_printenv(" MAC (IF1)  :", "br_mac1", "ethaddr", "\n");
-	br_summaryscreen_printenv(" MAC (IF2)  :", "br_mac2", 0, "\n");
+	br_summaryscreen_printenv(" MAC1       :", "br_mac1", "ethaddr", "\n");
+	br_summaryscreen_printenv(" MAC2       :", "br_mac2", 0, "\n");
 	lcd_puts(" Bootloader : " PLAIN_VERSION "\n");
 	lcd_puts("\n");
 }
