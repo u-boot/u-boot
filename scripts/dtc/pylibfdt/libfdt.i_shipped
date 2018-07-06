@@ -398,6 +398,27 @@ class Fdt:
             return pdata
         return Property(pdata[0], pdata[1])
 
+    def get_property(self, nodeoffset, prop_name, quiet=()):
+        """Obtains a property by name
+
+        Args:
+            nodeoffset: Offset to the node to check
+            prop_name: Name of property to get
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Returns:
+            Property object, or None if not found
+
+        Raises:
+            FdtException on error (e.g. invalid prop_offset or device
+            tree format)
+        """
+        pdata = check_err_null(
+                fdt_get_property(self._fdt, nodeoffset, prop_name), quiet)
+        if isinstance(pdata, (int)):
+            return pdata
+        return Property(pdata[0], pdata[1])
+
     @staticmethod
     def create_empty_tree(size, quiet=()):
         """Create an empty device tree ready for use
@@ -631,6 +652,17 @@ class Fdt:
             FdtException if no node found or other error occurs
         """
         return check_err(fdt_node_offset_by_phandle(self._fdt, phandle), quiet)
+
+    def del_node(self, nodeoffset):
+        """Delete a node
+
+        Args:
+            nodeoffset: Node offset containing property to delete
+
+        Raises:
+            FdtError if the node does not exist, or another error occurs
+        """
+        return check_err(fdt_del_node(self._fdt, nodeoffset))
 
 
 class Property(bytearray):
