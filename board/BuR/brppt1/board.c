@@ -140,11 +140,33 @@ int board_init(void)
 }
 
 #ifdef CONFIG_BOARD_LATE_INIT
+static char *bootmodeascii[16] = {
+	"BOOT",		"reserved",	"reserved",	"reserved",
+	"RUN",		"reserved",	"reserved",	"reserved",
+	"reserved",	"reserved",	"reserved",	"reserved",
+	"PME",		"reserved",	"reserved",	"DIAG",
+};
+
 int board_late_init(void)
 {
-	if (0 == gpio_get_value(REPSWITCH)) {
-		env_set("bootcmd", "run netconsole");
-	}
+	unsigned char bmode = 0;
+	ulong bootcount = 0;
+
+	bootcount = bootcount_load() & 0xF;
+
+	if (gpio_get_value(REPSWITCH) == 0 || bootcount == 12)
+		bmode = 12;
+	else if (bootcount > 0)
+		bmode = 0;
+	else
+		bmode = 4;
+
+	printf("Mode:  %s\n", bootmodeascii[bmode & 0x0F]);
+	env_set_ulong("b_mode", bmode);
+
+	/* get sure that bootcmd isn't affected by any bootcount value */
+	env_set_ulong("bootlimit", 0);
+
 	return 0;
 }
 #endif /* CONFIG_BOARD_LATE_INIT */
