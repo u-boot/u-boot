@@ -54,14 +54,12 @@ def RunTests(debug, args):
 
     # Run the entry tests first ,since these need to be the first to import the
     # 'entry' module.
-    suite = unittest.TestLoader().loadTestsFromTestCase(entry_test.TestEntry)
-    suite.run(result)
     test_name = args and args[0] or None
-    for module in (ftest.TestFunctional, fdt_test.TestFdt, elf_test.TestElf,
-                   image_test.TestImage):
+    for module in (entry_test.TestEntry, ftest.TestFunctional, fdt_test.TestFdt,
+                   elf_test.TestElf, image_test.TestImage):
         if test_name:
             try:
-                suite = unittest.TestLoader().loadTestsFromName(args[0], module)
+                suite = unittest.TestLoader().loadTestsFromName(test_name, module)
             except AttributeError:
                 continue
         else:
