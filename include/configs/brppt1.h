@@ -14,11 +14,6 @@
 #include <configs/bur_cfg_common.h>
 #include <configs/bur_am335x_common.h>
 /* ------------------------------------------------------------------------- */
-#define CONFIG_AM335X_LCD
-#define CONFIG_LCD_ROTATION
-#define CONFIG_LCD_DT_SIMPLEFB
-#define LCD_BPP				LCD_COLOR32
-
 /* memory */
 #define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
 

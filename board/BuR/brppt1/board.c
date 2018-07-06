@@ -26,7 +26,6 @@
 #include <i2c.h>
 #include <power/tps65217.h>
 #include "../common/bur_common.h"
-#include <lcd.h>
 #include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -160,9 +159,6 @@ int board_init(void)
 int board_late_init(void)
 {
 	if (0 == gpio_get_value(REPSWITCH)) {
-		lcd_position_cursor(1, 8);
-		lcd_puts(
-		"switching to network-console ...       ");
 		env_set("bootcmd", "run netconsole");
 	}
 	return 0;
