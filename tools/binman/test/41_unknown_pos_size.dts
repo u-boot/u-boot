@@ -6,6 +6,7 @@
 
 	binman {
 		_testing {
+			return-invalid-entry;
 		};
         };
 };
