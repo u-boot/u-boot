@@ -156,24 +156,6 @@ int load_lcdtiming(struct am335x_lcdpanel *panel)
 	return 0;
 }
 
-int ft_board_setup(void *blob, bd_t *bd)
-{
-	int nodeoffset;
-
-	nodeoffset = fdt_path_offset(blob, "/factory-settings");
-	if (nodeoffset < 0) {
-		puts("set bootloader version 'factory-settings' not in dtb!\n");
-		return -1;
-	}
-	if (fdt_setprop(blob, nodeoffset, "bl-version",
-			PLAIN_VERSION, strlen(PLAIN_VERSION)) != 0) {
-		puts("set bootloader version 'bl-version' prop. not in dtb!\n");
-		return -1;
-	}
-
-	return 0;
-}
-
 static void br_summaryscreen_printenv(char *prefix,
 				       char *name, char *altname,
 				       char *suffix)
@@ -262,10 +244,25 @@ void lcd_enable(void)
 	br_summaryscreen();
 	lcdbacklight(1);
 }
-#elif CONFIG_SPL_BUILD
-#else
-#error "LCD-support with a suitable FB-Driver is mandatory !"
 #endif /* CONFIG_LCD */
+
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	int nodeoffset;
+
+	nodeoffset = fdt_path_offset(blob, "/factory-settings");
+	if (nodeoffset < 0) {
+		puts("set bootloader version 'factory-settings' not in dtb!\n");
+		return -1;
+	}
+	if (fdt_setprop(blob, nodeoffset, "bl-version",
+			PLAIN_VERSION, strlen(PLAIN_VERSION)) != 0) {
+		puts("set bootloader version 'bl-version' prop. not in dtb!\n");
+		return -1;
+	}
+
+	return 0;
+}
 
 #ifdef CONFIG_SPL_BUILD
 void pmicsetup(u32 mpupll)
