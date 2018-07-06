@@ -28,7 +28,6 @@
 #include <lcd.h>
 #include "bur_common.h"
 #include "../../../drivers/video/am335x-fb.h"
-#include <fdt_simplefb.h>
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
@@ -170,31 +169,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 			PLAIN_VERSION, strlen(PLAIN_VERSION)) != 0) {
 		puts("set bootloader version 'bl-version' prop. not in dtb!\n");
 		return -1;
-	}
-	/*
-	 * if no simplefb is requested through environment, we don't set up
-	 * one, instead we turn off backlight.
-	 */
-	if (env_get_ulong("simplefb", 10, 0) == 0) {
-		lcdbacklight(0);
-		return 0;
-	}
-	/* Setup simplefb devicetree node, also adapt memory-node,
-	 * upper limit for kernel e.g. linux is memtop-framebuffer alligned
-	 * to a full megabyte.
-	 */
-	u64 start = gd->bd->bi_dram[0].start;
-	u64 size = (gd->fb_base - start) & ~0xFFFFF;
-	int rc = fdt_fixup_memory_banks(blob, &start, &size, 1);
-
-	if (rc) {
-		puts("cannot setup simplefb: Error reserving memory!\n");
-		return rc;
-	}
-	rc = lcd_dt_simplefb_enable_existing_node(blob);
-	if (rc) {
-		puts("cannot setup simplefb: error enabling simplefb node!\n");
-		return rc;
 	}
 
 	return 0;
