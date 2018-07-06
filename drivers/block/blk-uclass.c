@@ -132,6 +132,29 @@ struct blk_desc *blk_get_devnum_by_typename(const char *if_typename, int devnum)
 }
 
 /**
+ * blk_get_by_device() - Get the block device descriptor for the given device
+ * @dev:	Instance of a storage device
+ *
+ * Return: With block device descriptor on success , NULL if there is no such
+ *	   block device.
+ */
+struct blk_desc *blk_get_by_device(struct udevice *dev)
+{
+	struct udevice *child_dev, *next;
+
+	device_foreach_child_safe(child_dev, next, dev) {
+		if (device_get_uclass_id(child_dev) != UCLASS_BLK)
+			continue;
+
+		return dev_get_uclass_platdata(child_dev);
+	}
+
+	debug("%s: No block device found\n", __func__);
+
+	return NULL;
+}
+
+/**
  * get_desc() - Get the block device descriptor for the given device number
  *
  * @if_type:	Interface type

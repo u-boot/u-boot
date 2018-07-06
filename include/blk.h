@@ -406,6 +406,15 @@ int blk_select_hwpart(struct udevice *dev, int hwpart);
  */
 int blk_get_from_parent(struct udevice *parent, struct udevice **devp);
 
+/**
+ * blk_get_by_device() - Get the block device descriptor for the given device
+ * @dev:	Instance of a storage device
+ *
+ * Return: With block device descriptor on success , NULL if there is no such
+ *	   block device.
+ */
+struct blk_desc *blk_get_by_device(struct udevice *dev);
+
 #else
 #include <errno.h>
 /*
