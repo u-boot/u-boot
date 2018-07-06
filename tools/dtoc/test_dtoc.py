@@ -68,6 +68,34 @@ class TestDtoc(unittest.TestCase):
     def tearDownClass(cls):
         tools._RemoveOutputDir()
 
+    def _WritePythonString(self, fname, data):
+        """Write a string with tabs expanded as done in this Python file
+
+        Args:
+            fname: Filename to write to
+            data: Raw string to convert
+        """
+        data = data.replace('\t', '\\t')
+        with open(fname, 'w') as fd:
+            fd.write(data)
+
+    def _CheckStrings(self, expected, actual):
+        """Check that a string matches its expected value
+
+        If the strings do not match, they are written to the /tmp directory in
+        the same Python format as is used here in the test. This allows for
+        easy comparison and update of the tests.
+
+        Args:
+            expected: Expected string
+            actual: Actual string
+        """
+        if expected != actual:
+            self._WritePythonString('/tmp/binman.expected', expected)
+            self._WritePythonString('/tmp/binman.actual', actual)
+            print 'Failures written to /tmp/binman.{expected,actual}'
+        self.assertEquals(expected, actual)
+
     def test_name(self):
         """Test conversion of device tree names to C identifiers"""
         self.assertEqual('serial_at_0x12', conv_name_to_c('serial@0x12'))
@@ -138,7 +166,7 @@ class TestDtoc(unittest.TestCase):
         dtb_platdata.run_steps(['struct'], dtb_file, False, output)
         with open(output) as infile:
             data = infile.read()
-        self.assertEqual(HEADER + '''
+        self._CheckStrings(HEADER + '''
 struct dtd_sandbox_i2c_test {
 };
 struct dtd_sandbox_pmic_test {
@@ -162,7 +190,7 @@ struct dtd_sandbox_spl_test_2 {
         dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
         with open(output) as infile:
             data = infile.read()
-        self.assertEqual(C_HEADER + '''
+        self._CheckStrings(C_HEADER + '''
 static struct dtd_sandbox_spl_test dtv_spl_test = {
 \t.bytearray\t\t= {0x6, 0x0, 0x0},
 \t.byteval\t\t= 0x5,
@@ -240,7 +268,7 @@ U_BOOT_DEVICE(pmic_at_9) = {
         dtb_platdata.run_steps(['struct'], dtb_file, False, output)
         with open(output) as infile:
             data = infile.read()
-        self.assertEqual(HEADER + '''
+        self._CheckStrings(HEADER + '''
 struct dtd_source {
 \tstruct phandle_2_arg clocks[4];
 };
@@ -252,7 +280,7 @@ struct dtd_target {
         dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
         with open(output) as infile:
             data = infile.read()
-        self.assertEqual(C_HEADER + '''
+        self._CheckStrings(C_HEADER + '''
 static struct dtd_target dtv_phandle_target = {
 \t.intval\t\t\t= 0x0,
 };
@@ -302,7 +330,7 @@ U_BOOT_DEVICE(phandle_source) = {
         dtb_platdata.run_steps(['struct'], dtb_file, False, output)
         with open(output) as infile:
             data = infile.read()
-        self.assertEqual(HEADER + '''
+        self._CheckStrings(HEADER + '''
 struct dtd_compat1 {
 \tfdt32_t\t\tintval;
 };
@@ -313,7 +341,7 @@ struct dtd_compat1 {
         dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
         with open(output) as infile:
             data = infile.read()
-        self.assertEqual(C_HEADER + '''
+        self._CheckStrings(C_HEADER + '''
 static struct dtd_compat1 dtv_spl_test = {
 \t.intval\t\t\t= 0x1,
 };
@@ -332,7 +360,7 @@ U_BOOT_DEVICE(spl_test) = {
         dtb_platdata.run_steps(['struct'], dtb_file, False, output)
         with open(output) as infile:
             data = infile.read()
-        self.assertEqual(HEADER + '''
+        self._CheckStrings(HEADER + '''
 struct dtd_test1 {
 \tfdt64_t\t\treg[2];
 };
@@ -347,7 +375,7 @@ struct dtd_test3 {
         dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
         with open(output) as infile:
             data = infile.read()
-        self.assertEqual(C_HEADER + '''
+        self._CheckStrings(C_HEADER + '''
 static struct dtd_test1 dtv_test1 = {
 \t.reg\t\t\t= {0x1234, 0x5678},
 };
@@ -384,7 +412,7 @@ U_BOOT_DEVICE(test3) = {
         dtb_platdata.run_steps(['struct'], dtb_file, False, output)
         with open(output) as infile:
             data = infile.read()
-        self.assertEqual(HEADER + '''
+        self._CheckStrings(HEADER + '''
 struct dtd_test1 {
 \tfdt32_t\t\treg[2];
 };
@@ -396,7 +424,7 @@ struct dtd_test2 {
         dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
         with open(output) as infile:
             data = infile.read()
-        self.assertEqual(C_HEADER + '''
+        self._CheckStrings(C_HEADER + '''
 static struct dtd_test1 dtv_test1 = {
 \t.reg\t\t\t= {0x1234, 0x5678},
 };
@@ -424,7 +452,7 @@ U_BOOT_DEVICE(test2) = {
         dtb_platdata.run_steps(['struct'], dtb_file, False, output)
         with open(output) as infile:
             data = infile.read()
-        self.assertEqual(HEADER + '''
+        self._CheckStrings(HEADER + '''
 struct dtd_test1 {
 \tfdt64_t\t\treg[2];
 };
@@ -439,7 +467,7 @@ struct dtd_test3 {
         dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
         with open(output) as infile:
             data = infile.read()
-        self.assertEqual(C_HEADER + '''
+        self._CheckStrings(C_HEADER + '''
 static struct dtd_test1 dtv_test1 = {
 \t.reg\t\t\t= {0x123400000000, 0x5678},
 };
@@ -476,7 +504,7 @@ U_BOOT_DEVICE(test3) = {
         dtb_platdata.run_steps(['struct'], dtb_file, False, output)
         with open(output) as infile:
             data = infile.read()
-        self.assertEqual(HEADER + '''
+        self._CheckStrings(HEADER + '''
 struct dtd_test1 {
 \tfdt64_t\t\treg[2];
 };
@@ -491,7 +519,7 @@ struct dtd_test3 {
         dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
         with open(output) as infile:
             data = infile.read()
-        self.assertEqual(C_HEADER + '''
+        self._CheckStrings(C_HEADER + '''
 static struct dtd_test1 dtv_test1 = {
 \t.reg\t\t\t= {0x1234, 0x567800000000},
 };
