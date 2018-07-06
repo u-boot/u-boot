@@ -319,6 +319,26 @@ class TestProp(unittest.TestCase):
         self.assertTrue(isinstance(prop.value, list))
         self.assertEqual(3, len(prop.value))
 
+    def testAdd(self):
+        """Test adding properties"""
+        self.fdt.pack()
+        # This function should automatically expand the device tree
+        self.node.AddZeroProp('one')
+        self.node.AddZeroProp('two')
+        self.node.AddZeroProp('three')
+
+        # Updating existing properties should be OK, since the device-tree size
+        # does not change
+        self.fdt.pack()
+        self.node.SetInt('one', 1)
+        self.node.SetInt('two', 2)
+        self.node.SetInt('three', 3)
+
+        # This should fail since it would need to increase the device-tree size
+        with self.assertRaises(libfdt.FdtException) as e:
+            self.node.SetInt('four', 4)
+        self.assertIn('FDT_ERR_NOSPACE', str(e.exception))
+
 
 class TestFdtUtil(unittest.TestCase):
     """Tests for the fdt_util module

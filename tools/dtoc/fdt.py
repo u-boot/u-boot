@@ -270,6 +270,33 @@ class Node:
         del self.props[prop_name]
         self._fdt.Invalidate()
 
+    def AddZeroProp(self, prop_name):
+        """Add a new property to the device tree with an integer value of 0.
+
+        Args:
+            prop_name: Name of property
+        """
+        fdt_obj = self._fdt._fdt_obj
+        if fdt_obj.setprop_u32(self.Offset(), prop_name, 0,
+                               (libfdt.NOSPACE,)) == -libfdt.NOSPACE:
+            fdt_obj.open_into(fdt_obj.totalsize() + 1024)
+            fdt_obj.setprop_u32(self.Offset(), prop_name, 0)
+        self.props[prop_name] = Prop(self, -1, prop_name, '\0' * 4)
+        self._fdt.Invalidate()
+
+    def SetInt(self, prop_name, val):
+        """Update an integer property int the device tree.
+
+        This is not allowed to change the size of the FDT.
+
+        Args:
+            prop_name: Name of property
+            val: Value to set
+        """
+        fdt_obj = self._fdt._fdt_obj
+        fdt_obj.setprop_u32(self.Offset(), prop_name, val)
+
+
 class Fdt:
     """Provides simple access to a flat device tree blob using libfdts.
 
