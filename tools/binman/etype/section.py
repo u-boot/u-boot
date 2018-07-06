@@ -20,6 +20,10 @@ class Entry_section(Entry):
     def ProcessFdt(self, fdt):
         return self._section.ProcessFdt(fdt)
 
+    def AddMissingProperties(self):
+        Entry.AddMissingProperties(self)
+        self._section.AddMissingProperties()
+
     def ObtainContents(self):
         return self._section.GetEntryContents()
 
@@ -44,6 +48,10 @@ class Entry_section(Entry):
     def WriteSymbols(self, section):
         """Write symbol values into binary files for access at run time"""
         self._section.WriteSymbols()
+
+    def SetCalculatedProperties(self):
+        Entry.SetCalculatedProperties(self)
+        self._section.SetCalculatedProperties()
 
     def ProcessContents(self):
         self._section.ProcessEntryContents()

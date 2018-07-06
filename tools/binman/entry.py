@@ -130,6 +130,17 @@ class Entry(object):
         self.align_end = fdt_util.GetInt(self._node, 'align-end')
         self.pos_unset = fdt_util.GetBool(self._node, 'pos-unset')
 
+    def AddMissingProperties(self):
+        """Add new properties to the device tree as needed for this entry"""
+        for prop in ['pos', 'size']:
+            if not prop in self._node.props:
+                self._node.AddZeroProp(prop)
+
+    def SetCalculatedProperties(self):
+        """Set the value of device-tree properties calculated by binman"""
+        self._node.SetInt('pos', self.pos)
+        self._node.SetInt('size', self.size)
+
     def ProcessFdt(self, fdt):
         return True
 

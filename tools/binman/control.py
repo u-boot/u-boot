@@ -144,6 +144,8 @@ def Binman(options, args):
             # without changing the device-tree size, thus ensuring that our
             # entry positions remain the same.
             for image in images.values():
+                if options.update_fdt:
+                    image.AddMissingProperties()
                 image.ProcessFdt(dtb)
 
             dtb.Pack()
@@ -159,6 +161,8 @@ def Binman(options, args):
                 image.PackEntries()
                 image.CheckSize()
                 image.CheckEntries()
+                if options.update_fdt:
+                    image.SetCalculatedProperties()
                 image.ProcessEntryContents()
                 image.WriteSymbols()
                 image.BuildImage()

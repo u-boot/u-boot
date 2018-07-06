@@ -90,6 +90,14 @@ class Section(object):
             entry.SetPrefix(self._name_prefix)
             self._entries[node.name] = entry
 
+    def AddMissingProperties(self):
+        for entry in self._entries.values():
+            entry.AddMissingProperties()
+
+    def SetCalculatedProperties(self):
+        for entry in self._entries.values():
+            entry.SetCalculatedProperties()
+
     def ProcessFdt(self, fdt):
         todo = self._entries.values()
         for passnum in range(3):
