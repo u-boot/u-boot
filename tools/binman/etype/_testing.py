@@ -24,6 +24,9 @@ class Entry__testing(Entry):
                                                      'return-unknown-contents')
         self.bad_update_contents = fdt_util.GetBool(self._node,
                                                     'bad-update-contents')
+        self.process_fdt_ready = False
+        self.never_complete_process_fdt = fdt_util.GetBool(self._node,
+                                                'never-complete-process-fdt')
 
     def ObtainContents(self):
         if self.return_unknown_contents:
@@ -42,3 +45,10 @@ class Entry__testing(Entry):
             # Request to update the conents with something larger, to cause a
             # failure.
             self.ProcessContentsUpdate('aa')
+
+    def ProcessFdt(self, fdt):
+        """Force reprocessing the first time"""
+        ready = self.process_fdt_ready
+        if not self.never_complete_process_fdt:
+            self.process_fdt_ready = True
+        return ready

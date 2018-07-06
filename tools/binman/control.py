@@ -168,6 +168,8 @@ def Binman(options, args):
                 image.BuildImage()
                 if options.map:
                     image.WriteMap()
+            with open(fname, 'wb') as outfd:
+                outfd.write(dtb.GetContents())
         finally:
             tools.FinaliseOutputDir()
     finally:
