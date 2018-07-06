@@ -695,7 +695,7 @@ steps (see device_probe()):
    allocate it yourself in ofdata_to_platdata(). Note that it is preferable
    to do all the device tree decoding in ofdata_to_platdata() rather than
    in probe(). (Apart from the ugliness of mixing configuration and run-time
-   data, one day it is possible that U-Boot will cache platformat data for
+   data, one day it is possible that U-Boot will cache platform data for
    devices which are regularly de/activated).
 
    h. The device's probe() method is called. This should do anything that
