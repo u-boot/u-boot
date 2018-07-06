@@ -72,7 +72,7 @@ class TestFdt(unittest.TestCase):
 
     def testGetFdt(self):
         """Tetst that we can access the raw device-tree data"""
-        self.assertTrue(isinstance(self.dtb.GetFdt(), bytearray))
+        self.assertTrue(isinstance(self.dtb.GetContents(), bytearray))
 
     def testGetProps(self):
         """Tests obtaining a list of properties"""
@@ -157,7 +157,7 @@ class TestProp(unittest.TestCase):
 
         # Add 12, which is sizeof(struct fdt_property), to get to start of data
         offset = prop.GetOffset() + 12
-        data = self.dtb._fdt[offset:offset + len(prop.value)]
+        data = self.dtb.GetContents()[offset:offset + len(prop.value)]
         bytes = [chr(x) for x in data]
         self.assertEqual(bytes, prop.value)
 

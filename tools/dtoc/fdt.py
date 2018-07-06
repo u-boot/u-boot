@@ -235,12 +235,13 @@ class Node:
         Note: This does not take account of property offsets - these will not
         be updated.
         """
+        fdt_obj = self._fdt._fdt_obj
         if self._offset != my_offset:
             self._offset = my_offset
-        offset = libfdt.fdt_first_subnode(self._fdt.GetFdt(), self._offset)
+        offset = fdt_obj.first_subnode(self._offset, QUIET_NOTFOUND)
         for subnode in self.subnodes:
             subnode.Refresh(offset)
-            offset = libfdt.fdt_next_subnode(self._fdt.GetFdt(), offset)
+            offset = fdt_obj.next_subnode(offset, QUIET_NOTFOUND)
 
     def DeleteProp(self, prop_name):
         """Delete a property of a node
@@ -252,7 +253,7 @@ class Node:
         Raises:
             ValueError if the property does not exist
         """
-        CheckErr(libfdt.fdt_delprop(self._fdt.GetFdt(), self.Offset(), prop_name),
+        CheckErr(self._fdt._fdt_obj.delprop(self.Offset(), prop_name),
                  "Node '%s': delete property: '%s'" % (self.path, prop_name))
         del self.props[prop_name]
         self._fdt.Invalidate()
@@ -272,8 +273,7 @@ class Fdt:
             self._fname = fdt_util.EnsureCompiled(self._fname)
 
             with open(self._fname) as fd:
-                self._fdt = bytearray(fd.read())
-                self._fdt_obj = libfdt.Fdt(self._fdt)
+                self._fdt_obj = libfdt.Fdt(fd.read())
 
     def Scan(self, root='/'):
         """Scan a device tree, building up a tree of Node objects
@@ -317,7 +317,7 @@ class Fdt:
         If the device tree has changed in memory, write it back to the file.
         """
         with open(self._fname, 'wb') as fd:
-            fd.write(self._fdt)
+            fd.write(self._fdt_obj.as_bytearray())
 
     def Pack(self):
         """Pack the device tree down to its minimum size
@@ -328,13 +328,13 @@ class Fdt:
         CheckErr(self._fdt_obj.pack(), 'pack')
         self.Invalidate()
 
-    def GetFdt(self):
+    def GetContents(self):
         """Get the contents of the FDT
 
         Returns:
             The FDT contents as a string of bytes
         """
-        return self._fdt
+        return self._fdt_obj.as_bytearray()
 
     def GetFdtObj(self):
         """Get the contents of the FDT
