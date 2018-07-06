@@ -47,8 +47,7 @@ struct selected_dev {
 static struct selected_dev ubi_dev;
 
 #ifdef CONFIG_CMD_UBIFS
-int ubifs_is_mounted(void);
-void cmd_ubifs_umount(void);
+#include <ubifs_uboot.h>
 #endif
 
 static void display_volume_info(struct ubi_device *ubi)
