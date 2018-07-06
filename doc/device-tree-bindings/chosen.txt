@@ -83,3 +83,24 @@ of where said later stage was booted from.
 
 You should not define this property yourself in the device-tree, as it
 may be overwritten without warning.
+
+firmware-loader property
+------------------------
+Multiple file system firmware loader nodes could be defined in device trees for
+multiple storage type and their default partition, then a property
+"firmware-loader" can be used to pass default firmware loader
+node(default storage type) to the firmware loader driver.
+
+Example
+-------
+/ {
+	chosen {
+		firmware-loader = &fs_loader0;
+	};
+
+	fs_loader0: fs-loader@0 {
+		u-boot,dm-pre-reloc;
+		compatible = "u-boot,fs-loader";
+		phandlepart = <&mmc 1>;
+	};
+};
