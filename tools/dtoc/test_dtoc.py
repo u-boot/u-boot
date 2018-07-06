@@ -20,6 +20,7 @@ from dtb_platdata import get_value
 from dtb_platdata import tab_to
 import fdt
 import fdt_util
+import test_util
 import tools
 
 our_path = os.path.dirname(os.path.realpath(__file__))
@@ -335,6 +336,68 @@ U_BOOT_DEVICE(phandle_source2) = {
 
 ''', data)
 
+    def test_phandle_single(self):
+        """Test output from a node containing a phandle reference"""
+        dtb_file = get_dtb_file('dtoc_test_phandle_single.dts')
+        output = tools.GetOutputFilename('output')
+        dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        with open(output) as infile:
+            data = infile.read()
+        self._CheckStrings(HEADER + '''
+struct dtd_source {
+\tstruct phandle_0_arg clocks[1];
+};
+struct dtd_target {
+\tfdt32_t\t\tintval;
+};
+''', data)
+
+    def test_phandle_reorder(self):
+        """Test that phandle targets are generated before their references"""
+        dtb_file = get_dtb_file('dtoc_test_phandle_reorder.dts')
+        output = tools.GetOutputFilename('output')
+        dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
+        with open(output) as infile:
+            data = infile.read()
+        self._CheckStrings(C_HEADER + '''
+static struct dtd_target dtv_phandle_target = {
+};
+U_BOOT_DEVICE(phandle_target) = {
+\t.name\t\t= "target",
+\t.platdata\t= &dtv_phandle_target,
+\t.platdata_size\t= sizeof(dtv_phandle_target),
+};
+
+static struct dtd_source dtv_phandle_source2 = {
+\t.clocks\t\t\t= {
+\t\t\t{&dtv_phandle_target, {}},},
+};
+U_BOOT_DEVICE(phandle_source2) = {
+\t.name\t\t= "source",
+\t.platdata\t= &dtv_phandle_source2,
+\t.platdata_size\t= sizeof(dtv_phandle_source2),
+};
+
+''', data)
+
+    def test_phandle_bad(self):
+        """Test a node containing an invalid phandle fails"""
+        dtb_file = get_dtb_file('dtoc_test_phandle_bad.dts')
+        output = tools.GetOutputFilename('output')
+        with self.assertRaises(ValueError) as e:
+            dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        self.assertIn("Cannot parse 'clocks' in node 'phandle-source'",
+                      str(e.exception))
+
+    def test_phandle_bad2(self):
+        """Test a phandle target missing its #*-cells property"""
+        dtb_file = get_dtb_file('dtoc_test_phandle_bad2.dts')
+        output = tools.GetOutputFilename('output')
+        with self.assertRaises(ValueError) as e:
+            dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        self.assertIn("Node 'phandle-target' has no '#clock-cells' property",
+                      str(e.exception))
+
     def test_aliases(self):
         """Test output from a node with multiple compatible strings"""
         dtb_file = get_dtb_file('dtoc_test_aliases.dts')
@@ -560,3 +623,81 @@ U_BOOT_DEVICE(test3) = {
 };
 
 ''', data)
+
+    def test_bad_reg(self):
+        """Test that a reg property with an invalid type generates an error"""
+        dtb_file = get_dtb_file('dtoc_test_bad_reg.dts')
+        output = tools.GetOutputFilename('output')
+        with self.assertRaises(ValueError) as e:
+            dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        self.assertIn("Node 'spl-test' reg property is not an int",
+                      str(e.exception))
+
+    def test_bad_reg2(self):
+        """Test that a reg property with an invalid cell count is detected"""
+        dtb_file = get_dtb_file('dtoc_test_bad_reg2.dts')
+        output = tools.GetOutputFilename('output')
+        with self.assertRaises(ValueError) as e:
+            dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        self.assertIn("Node 'spl-test' reg property has 3 cells which is not a multiple of na + ns = 1 + 1)",
+                      str(e.exception))
+
+    def test_add_prop(self):
+        """Test that a subequent node can add a new property to a struct"""
+        dtb_file = get_dtb_file('dtoc_test_add_prop.dts')
+        output = tools.GetOutputFilename('output')
+        dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        with open(output) as infile:
+            data = infile.read()
+        self._CheckStrings(HEADER + '''
+struct dtd_sandbox_spl_test {
+\tfdt32_t\t\tintarray;
+\tfdt32_t\t\tintval;
+};
+''', data)
+
+        dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
+        with open(output) as infile:
+            data = infile.read()
+        self._CheckStrings(C_HEADER + '''
+static struct dtd_sandbox_spl_test dtv_spl_test = {
+\t.intval\t\t\t= 0x1,
+};
+U_BOOT_DEVICE(spl_test) = {
+\t.name\t\t= "sandbox_spl_test",
+\t.platdata\t= &dtv_spl_test,
+\t.platdata_size\t= sizeof(dtv_spl_test),
+};
+
+static struct dtd_sandbox_spl_test dtv_spl_test2 = {
+\t.intarray\t\t= 0x5,
+};
+U_BOOT_DEVICE(spl_test2) = {
+\t.name\t\t= "sandbox_spl_test",
+\t.platdata\t= &dtv_spl_test2,
+\t.platdata_size\t= sizeof(dtv_spl_test2),
+};
+
+''', data)
+
+    def testStdout(self):
+        """Test output to stdout"""
+        dtb_file = get_dtb_file('dtoc_test_simple.dts')
+        with test_util.capture_sys_output() as (stdout, stderr):
+            dtb_platdata.run_steps(['struct'], dtb_file, False, '-')
+
+    def testNoCommand(self):
+        """Test running dtoc without a command"""
+        with self.assertRaises(ValueError) as e:
+            dtb_platdata.run_steps([], '', False, '')
+        self.assertIn("Please specify a command: struct, platdata",
+                      str(e.exception))
+
+    def testBadCommand(self):
+        """Test running dtoc with an invalid command"""
+        dtb_file = get_dtb_file('dtoc_test_simple.dts')
+        output = tools.GetOutputFilename('output')
+        with self.assertRaises(ValueError) as e:
+            dtb_platdata.run_steps(['invalid-cmd'], dtb_file, False, output)
+        self.assertIn("Unknown command 'invalid-cmd': (use: struct, platdata)",
+                      str(e.exception))
