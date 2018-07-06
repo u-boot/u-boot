@@ -1313,10 +1313,13 @@ static inline int fdt_property_u64(void *fdt, const char *name, uint64_t val)
 	fdt64_t tmp = cpu_to_fdt64(val);
 	return fdt_property(fdt, name, &tmp, sizeof(tmp));
 }
+
+#ifndef SWIG /* Not available in Python */
 static inline int fdt_property_cell(void *fdt, const char *name, uint32_t val)
 {
 	return fdt_property_u32(fdt, name, val);
 }
+#endif
 
 /**
  * fdt_property_placeholder - add a new property and return a ptr to its value

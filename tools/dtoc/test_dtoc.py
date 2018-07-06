@@ -4,7 +4,8 @@
 
 """Tests for the dtb_platdata module
 
-This includes unit tests for some functions and functional tests for
+This includes unit tests for some functions and functional tests for the dtoc
+tool.
 """
 
 import collections

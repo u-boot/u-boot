@@ -36,14 +36,26 @@ sys.path.append(os.path.join(our_path, '../patman'))
 
 import dtb_platdata
 
-def run_tests():
-    """Run all the test we have for dtoc"""
+def run_tests(args):
+    """Run all the test we have for dtoc
+
+    Args:
+        args: List of positional args provided to binman. This can hold a test
+            name to execute (as in 'binman -t testSections', for example)
+    """
     import test_dtoc
 
     result = unittest.TestResult()
     sys.argv = [sys.argv[0]]
+    test_name = args and args[0] or None
     for module in (test_dtoc.TestDtoc,):
-        suite = unittest.TestLoader().loadTestsFromTestCase(module)
+        if test_name:
+            try:
+                suite = unittest.TestLoader().loadTestsFromName(test_name, module)
+            except AttributeError:
+                continue
+        else:
+            suite = unittest.TestLoader().loadTestsFromTestCase(module)
         suite.run(result)
 
     print result
@@ -68,7 +80,7 @@ parser.add_option('-t', '--test', action='store_true', dest='test',
 
 # Run our meagre tests
 if options.test:
-    run_tests()
+    run_tests(args)
 
 else:
     dtb_platdata.run_steps(args, options.dtb_file, options.include_disabled,

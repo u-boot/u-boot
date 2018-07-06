@@ -234,7 +234,6 @@ class Node:
         be updated.
         """
         if self._offset != my_offset:
-            #print '%s: %d -> %d\n' % (self.path, self._offset, my_offset)
             self._offset = my_offset
         offset = libfdt.fdt_first_subnode(self._fdt.GetFdt(), self._offset)
         for subnode in self.subnodes:
@@ -359,7 +358,7 @@ class Fdt:
         poffset = libfdt.fdt_first_property_offset(self._fdt, node._offset)
         while poffset >= 0:
             p = self._fdt_obj.get_property_by_offset(poffset)
-            prop = Prop(node, poffset, p.name, p.value)
+            prop = Prop(node, poffset, p.name, p)
             props_dict[prop.name] = prop
 
             poffset = libfdt.fdt_next_property_offset(self._fdt, poffset)
