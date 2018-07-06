@@ -280,7 +280,7 @@ void pmicsetup(u32 mpupll)
 	printf("detected max. frequency: %d - ", dpll_mpu_opp100.m);
 
 	if (0 != mpupll) {
-		dpll_mpu_opp100.m = MPUPLL_M_1000;
+		dpll_mpu_opp100.m = mpupll;
 		printf("retuning MPU-PLL to: %d MHz.\n", dpll_mpu_opp100.m);
 	} else {
 		puts("ok.\n");
