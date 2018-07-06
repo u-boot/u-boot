@@ -18,6 +18,7 @@ for dirname in ['../patman', '..']:
 import command
 import fdt
 from fdt import TYPE_BYTE, TYPE_INT, TYPE_STRING, TYPE_BOOL
+import fdt_util
 from fdt_util import fdt32_to_cpu
 import libfdt
 import test_util
@@ -53,6 +54,7 @@ class TestFdt(unittest.TestCase):
         node = self.dtb.GetNode('/i2c@0/pmic@9')
         self.assertTrue(isinstance(node, fdt.Node))
         self.assertEqual('pmic@9', node.name)
+        self.assertIsNone(self.dtb.GetNode('/i2c@0/pmic@9/missing'))
 
     def testFlush(self):
         """Check that we can flush the device tree out to its file"""
@@ -79,14 +81,14 @@ class TestFdt(unittest.TestCase):
         node = self.dtb.GetNode('/spl-test')
         props = self.dtb.GetProps(node)
         self.assertEqual(['boolval', 'bytearray', 'byteval', 'compatible',
-                          'intarray', 'intval', 'longbytearray',
+                          'intarray', 'intval', 'longbytearray', 'notstring',
                           'stringarray', 'stringval', 'u-boot,dm-pre-reloc'],
                          sorted(props.keys()))
 
     def testCheckError(self):
         """Tests the ChecKError() function"""
         with self.assertRaises(ValueError) as e:
-            self.dtb.CheckErr(-libfdt.NOTFOUND, 'hello')
+            fdt.CheckErr(-libfdt.NOTFOUND, 'hello')
         self.assertIn('FDT_ERR_NOTFOUND: hello', str(e.exception))
 
 
@@ -119,6 +121,8 @@ class TestNode(unittest.TestCase):
         self.node.DeleteProp('intarray')
         offset3 = node2.Offset()
         self.assertTrue(offset3 < offset2)
+        with self.assertRaises(libfdt.FdtException):
+            self.node.DeleteProp('missing')
 
     def testFindNode(self):
         """Tests that we can find a node using the _FindNode() functoin"""
@@ -126,6 +130,7 @@ class TestNode(unittest.TestCase):
         self.assertEqual('i2c@0', node.name)
         subnode = node._FindNode('pmic@9')
         self.assertEqual('pmic@9', subnode.name)
+        self.assertEqual(None, node._FindNode('missing'))
 
 
 class TestProp(unittest.TestCase):
@@ -143,6 +148,58 @@ class TestProp(unittest.TestCase):
         self.dtb = fdt.FdtScan('tools/dtoc/dtoc_test_simple.dts')
         self.node = self.dtb.GetNode('/spl-test')
         self.fdt = self.dtb.GetFdtObj()
+
+    def testPhandle(self):
+        dtb = fdt.FdtScan('tools/dtoc/dtoc_test_phandle.dts')
+        node = dtb.GetNode('/phandle-source')
+
+    def _ConvertProp(self, prop_name):
+        """Helper function to look up a property in self.node and return it
+
+        Args:
+            Property name to find
+
+        Return fdt.Prop object for this property
+        """
+        p = self.fdt.get_property(self.node.Offset(), prop_name)
+        return fdt.Prop(self.node, -1, prop_name, p)
+
+    def testMakeProp(self):
+        """Test we can convert all the the types that are supported"""
+        prop = self._ConvertProp('boolval')
+        self.assertEqual(fdt.TYPE_BOOL, prop.type)
+        self.assertEqual(True, prop.value)
+
+        prop = self._ConvertProp('intval')
+        self.assertEqual(fdt.TYPE_INT, prop.type)
+        self.assertEqual(1, fdt32_to_cpu(prop.value))
+
+        prop = self._ConvertProp('intarray')
+        self.assertEqual(fdt.TYPE_INT, prop.type)
+        val = [fdt32_to_cpu(val) for val in prop.value]
+        self.assertEqual([2, 3, 4], val)
+
+        prop = self._ConvertProp('byteval')
+        self.assertEqual(fdt.TYPE_BYTE, prop.type)
+        self.assertEqual(5, ord(prop.value))
+
+        prop = self._ConvertProp('longbytearray')
+        self.assertEqual(fdt.TYPE_BYTE, prop.type)
+        val = [ord(val) for val in prop.value]
+        self.assertEqual([9, 10, 11, 12, 13, 14, 15, 16, 17], val)
+
+        prop = self._ConvertProp('stringval')
+        self.assertEqual(fdt.TYPE_STRING, prop.type)
+        self.assertEqual('message', prop.value)
+
+        prop = self._ConvertProp('stringarray')
+        self.assertEqual(fdt.TYPE_STRING, prop.type)
+        self.assertEqual(['multi-word', 'message'], prop.value)
+
+        prop = self._ConvertProp('notstring')
+        self.assertEqual(fdt.TYPE_BYTE, prop.type)
+        val = [ord(val) for val in prop.value]
+        self.assertEqual([0x20, 0x21, 0x22, 0x10, 0], val)
 
     def testGetEmpty(self):
         """Tests the GetEmpty() function for the various supported types"""
@@ -207,6 +264,71 @@ class TestProp(unittest.TestCase):
         self.assertEqual(3, len(prop.value))
 
 
+class TestFdtUtil(unittest.TestCase):
+    """Tests for the fdt_util module
+
+    This module will likely be mostly replaced at some point, once upstream
+    libfdt has better Python support. For now, this provides tests for current
+    functionality.
+    """
+    @classmethod
+    def setUpClass(cls):
+        tools.PrepareOutputDir(None)
+
+    def setUp(self):
+        self.dtb = fdt.FdtScan('tools/dtoc/dtoc_test_simple.dts')
+        self.node = self.dtb.GetNode('/spl-test')
+
+    def testGetInt(self):
+        self.assertEqual(1, fdt_util.GetInt(self.node, 'intval'))
+        self.assertEqual(3, fdt_util.GetInt(self.node, 'missing', 3))
+
+        with self.assertRaises(ValueError) as e:
+            self.assertEqual(3, fdt_util.GetInt(self.node, 'intarray'))
+        self.assertIn("property 'intarray' has list value: expecting a single "
+                      'integer', str(e.exception))
+
+    def testGetString(self):
+        self.assertEqual('message', fdt_util.GetString(self.node, 'stringval'))
+        self.assertEqual('test', fdt_util.GetString(self.node, 'missing',
+                                                    'test'))
+
+        with self.assertRaises(ValueError) as e:
+            self.assertEqual(3, fdt_util.GetString(self.node, 'stringarray'))
+        self.assertIn("property 'stringarray' has list value: expecting a "
+                      'single string', str(e.exception))
+
+    def testGetBool(self):
+        self.assertEqual(True, fdt_util.GetBool(self.node, 'boolval'))
+        self.assertEqual(False, fdt_util.GetBool(self.node, 'missing'))
+        self.assertEqual(True, fdt_util.GetBool(self.node, 'missing', True))
+        self.assertEqual(False, fdt_util.GetBool(self.node, 'missing', False))
+
+    def testFdtCellsToCpu(self):
+        val = self.node.props['intarray'].value
+        self.assertEqual(0, fdt_util.fdt_cells_to_cpu(val, 0))
+        self.assertEqual(2, fdt_util.fdt_cells_to_cpu(val, 1))
+
+        dtb2 = fdt.FdtScan('tools/dtoc/dtoc_test_addr64.dts')
+        node2 = dtb2.GetNode('/test1')
+        val = node2.props['reg'].value
+        self.assertEqual(0x1234, fdt_util.fdt_cells_to_cpu(val, 2))
+
+    def testEnsureCompiled(self):
+        """Test a degenerate case of this function"""
+        dtb = fdt_util.EnsureCompiled('tools/dtoc/dtoc_test_simple.dts')
+        self.assertEqual(dtb, fdt_util.EnsureCompiled(dtb))
+
+    def testGetPlainBytes(self):
+        self.assertEqual('fred', fdt_util.get_plain_bytes('fred'))
+
+
+def RunTestCoverage():
+    """Run the tests and check that we get 100% coverage"""
+    test_util.RunTestCoverage('tools/dtoc/test_fdt.py', None,
+            ['tools/patman/*.py', '*test_fdt.py'], options.build_dir)
+
+
 def RunTests(args):
     """Run all the test we have for the fdt model
 
@@ -217,7 +339,7 @@ def RunTests(args):
     result = unittest.TestResult()
     sys.argv = [sys.argv[0]]
     test_name = args and args[0] or None
-    for module in (TestFdt, TestNode, TestProp):
+    for module in (TestFdt, TestNode, TestProp, TestFdtUtil):
         if test_name:
             try:
                 suite = unittest.TestLoader().loadTestsFromName(test_name, module)
@@ -237,10 +359,16 @@ if __name__ != '__main__':
     sys.exit(1)
 
 parser = OptionParser()
+parser.add_option('-B', '--build-dir', type='string', default='b',
+        help='Directory containing the build output')
 parser.add_option('-t', '--test', action='store_true', dest='test',
                   default=False, help='run tests')
+parser.add_option('-T', '--test-coverage', action='store_true',
+                default=False, help='run tests and check for 100% coverage')
 (options, args) = parser.parse_args()
 
 # Run our meagre tests
 if options.test:
     RunTests(args)
+elif options.test_coverage:
+    RunTestCoverage()

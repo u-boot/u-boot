@@ -180,6 +180,7 @@ struct dtd_sandbox_spl_test {
 \tfdt32_t\t\tintarray[4];
 \tfdt32_t\t\tintval;
 \tunsigned char\tlongbytearray[9];
+\tunsigned char\tnotstring[5];
 \tconst char *\tstringarray[3];
 \tconst char *\tstringval;
 };
@@ -195,6 +196,7 @@ static struct dtd_sandbox_spl_test dtv_spl_test = {
 \t.bytearray\t\t= {0x6, 0x0, 0x0},
 \t.byteval\t\t= 0x5,
 \t.intval\t\t\t= 0x1,
+\t.notstring\t\t= {0x20, 0x21, 0x22, 0x10, 0x0},
 \t.longbytearray\t\t= {0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10,
 \t\t0x11},
 \t.stringval\t\t= "message",

@@ -49,13 +49,6 @@ class Prop:
             return
         self.type, self.value = self.BytesToValue(bytes)
 
-    def GetPhandle(self):
-        """Get a (single) phandle value from a property
-
-        Gets the phandle valuie from a property and returns it as an integer
-        """
-        return fdt_util.fdt32_to_cpu(self.value[:4])
-
     def Widen(self, newprop):
         """Figure out which property type is more general
 
@@ -343,11 +336,6 @@ class Fdt:
             The FDT contents as a libfdt.Fdt object
         """
         return self._fdt_obj
-
-    def CheckErr(self, errnum, msg):
-        if errnum:
-            raise ValueError('Error %d: %s: %s' %
-                (errnum, libfdt.fdt_strerror(errnum), msg))
 
     def GetProps(self, node):
         """Get all properties from a node.
