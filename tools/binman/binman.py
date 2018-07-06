@@ -81,24 +81,25 @@ def RunTests(debug, args):
 def RunTestCoverage():
     """Run the tests and check that we get 100% coverage"""
     # This uses the build output from sandbox_spl to get _libfdt.so
-    cmd = ('PYTHONPATH=$PYTHONPATH:%s/sandbox_spl/tools coverage run '
+    cmd = ('PYTHONPATH=$PYTHONPATH:%s/sandbox_spl/tools python-coverage run '
             '--include "tools/binman/*.py" --omit "*test*,*binman.py" '
             'tools/binman/binman.py -t' % options.build_dir)
     os.system(cmd)
-    stdout = command.Output('coverage', 'report')
+    stdout = command.Output('python-coverage', 'report')
     lines = stdout.splitlines()
 
     test_set= set([os.path.basename(line.split()[0])
                      for line in lines if '/etype/' in line])
     glob_list = glob.glob(os.path.join(our_path, 'etype/*.py'))
-    all_set = set([os.path.basename(item) for item in glob_list])
+    all_set = set([os.path.splitext(os.path.basename(item))[0]
+                   for item in glob_list if '_testing' not in item])
     missing_list = all_set
     missing_list.difference_update(test_set)
-    missing_list.remove('_testing.py')
     coverage = lines[-1].split(' ')[-1]
     ok = True
     if missing_list:
         print 'Missing tests for %s' % (', '.join(missing_list))
+        print stdout
         ok = False
     if coverage != '100%':
         print stdout
