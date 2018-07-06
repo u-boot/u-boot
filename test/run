@@ -29,6 +29,10 @@ PYTHONPATH=${DTC_DIR}/pylibfdt DTC=${DTC_DIR}/dtc run_test ./tools/dtoc/dtoc -t
 #   $ sudo apt-get install python-pytest python-coverage
 PYTHONPATH=${DTC_DIR}/pylibfdt DTC=${DTC_DIR}/dtc run_test \
 	./tools/binman/binman -T
+PYTHONPATH=${DTC_DIR}/pylibfdt DTC=${DTC_DIR}/dtc run_test \
+	./tools/dtoc/dtoc -T
+PYTHONPATH=${DTC_DIR}/pylibfdt DTC=${DTC_DIR}/dtc run_test \
+	./tools/dtoc/test_fdt -T
 
 if [ $result == 0 ]; then
 	echo "Tests passed!"
