@@ -130,6 +130,9 @@ class Entry(object):
         self.align_end = fdt_util.GetInt(self._node, 'align-end')
         self.pos_unset = fdt_util.GetBool(self._node, 'pos-unset')
 
+    def ProcessFdt(self, fdt):
+        return True
+
     def SetPrefix(self, prefix):
         """Set the name prefix for a node
 

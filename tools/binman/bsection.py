@@ -90,6 +90,21 @@ class Section(object):
             entry.SetPrefix(self._name_prefix)
             self._entries[node.name] = entry
 
+    def ProcessFdt(self, fdt):
+        todo = self._entries.values()
+        for passnum in range(3):
+            next_todo = []
+            for entry in todo:
+                if not entry.ProcessFdt(fdt):
+                    next_todo.append(entry)
+            todo = next_todo
+            if not todo:
+                break
+        if todo:
+            self._Raise('Internal error: Could not complete processing of Fdt: '
+                        'remaining %s' % todo)
+        return True
+
     def CheckSize(self):
         """Check that the section contents does not exceed its size, etc."""
         contents_size = 0

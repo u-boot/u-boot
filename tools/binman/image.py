@@ -54,6 +54,9 @@ class Image:
             self._filename = filename
         self._section = bsection.Section('main-section', self._node)
 
+    def ProcessFdt(self, fdt):
+        return self._section.ProcessFdt(fdt)
+
     def GetEntryContents(self):
         """Call ObtainContents() for the section
         """

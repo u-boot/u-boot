@@ -17,6 +17,9 @@ class Entry_section(Entry):
         Entry.__init__(self, image, etype, node)
         self._section = bsection.Section(node.name, node)
 
+    def ProcessFdt(self, fdt):
+        return self._section.ProcessFdt(fdt)
+
     def ObtainContents(self):
         return self._section.GetEntryContents()
 

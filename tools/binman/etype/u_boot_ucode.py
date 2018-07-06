@@ -71,7 +71,7 @@ class Entry_u_boot_ucode(Entry_blob):
         fdt_entry = self.section.FindEntryType('u-boot-dtb-with-ucode')
         if not fdt_entry:
             return True
-        if not fdt_entry.ucode_data:
+        if not fdt_entry.ready:
             return False
 
         if not fdt_entry.collate:
