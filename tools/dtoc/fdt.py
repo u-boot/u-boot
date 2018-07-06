@@ -49,6 +49,9 @@ class Prop:
             return
         self.type, self.value = self.BytesToValue(bytes)
 
+    def RefreshOffset(self, poffset):
+        self._offset = poffset
+
     def Widen(self, newprop):
         """Figure out which property type is more general
 
@@ -154,6 +157,7 @@ class Prop:
         Returns:
             The offset of the property (struct fdt_property) within the file
         """
+        self._node._fdt.CheckCache()
         return self._node._fdt.GetStructOffset(self._offset)
 
 class Node:
@@ -233,8 +237,23 @@ class Node:
             self._offset = my_offset
         offset = fdt_obj.first_subnode(self._offset, QUIET_NOTFOUND)
         for subnode in self.subnodes:
+            if subnode.name != fdt_obj.get_name(offset):
+                raise ValueError('Internal error, node name mismatch %s != %s' %
+                                 (subnode.name, fdt_obj.get_name(offset)))
             subnode.Refresh(offset)
             offset = fdt_obj.next_subnode(offset, QUIET_NOTFOUND)
+        if offset != -libfdt.FDT_ERR_NOTFOUND:
+            raise ValueError('Internal error, offset == %d' % offset)
+
+        poffset = fdt_obj.first_property_offset(self._offset, QUIET_NOTFOUND)
+        while poffset >= 0:
+            p = fdt_obj.get_property_by_offset(poffset)
+            prop = self.props.get(p.name)
+            if not prop:
+                raise ValueError("Internal error, property '%s' missing, "
+                                 'offset %d' % (p.name, poffset))
+            prop.RefreshOffset(poffset)
+            poffset = fdt_obj.next_property_offset(poffset, QUIET_NOTFOUND)
 
     def DeleteProp(self, prop_name):
         """Delete a property of a node
@@ -278,6 +297,7 @@ class Fdt:
 
         TODO(sjg@chromium.org): Implement the 'root' parameter
         """
+        self._cached_offsets = True
         self._root = self.Node(self, None, 0, '/', '/')
         self._root.Scan()
 

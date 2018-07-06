@@ -24,6 +24,30 @@ import libfdt
 import test_util
 import tools
 
+def _GetPropertyValue(dtb, node, prop_name):
+    """Low-level function to get the property value based on its offset
+
+    This looks directly in the device tree at the property's offset to find
+    its value. It is useful as a check that the property is in the correct
+    place.
+
+    Args:
+        node: Node to look in
+        prop_name: Property name to find
+
+    Returns:
+        Tuple:
+            Prop object found
+            Value of property as a string (found using property offset)
+    """
+    prop = node.props[prop_name]
+
+    # Add 12, which is sizeof(struct fdt_property), to get to start of data
+    offset = prop.GetOffset() + 12
+    data = dtb.GetContents()[offset:offset + len(prop.value)]
+    return prop, [chr(x) for x in data]
+
+
 class TestFdt(unittest.TestCase):
     """Tests for the Fdt module
 
@@ -124,6 +148,12 @@ class TestNode(unittest.TestCase):
         with self.assertRaises(libfdt.FdtException):
             self.node.DeleteProp('missing')
 
+    def testDeleteGetOffset(self):
+        """Test that property offset update when properties are deleted"""
+        self.node.DeleteProp('intval')
+        prop, value = _GetPropertyValue(self.dtb, self.node, 'longbytearray')
+        self.assertEqual(prop.value, value)
+
     def testFindNode(self):
         """Tests that we can find a node using the _FindNode() functoin"""
         node = self.dtb.GetRoot()._FindNode('i2c@0')
@@ -131,6 +161,32 @@ class TestNode(unittest.TestCase):
         subnode = node._FindNode('pmic@9')
         self.assertEqual('pmic@9', subnode.name)
         self.assertEqual(None, node._FindNode('missing'))
+
+    def testRefreshMissingNode(self):
+        """Test refreshing offsets when an extra node is present in dtb"""
+        # Delete it from our tables, not the device tree
+        del self.dtb._root.subnodes[-1]
+        with self.assertRaises(ValueError) as e:
+            self.dtb.Refresh()
+        self.assertIn('Internal error, offset', str(e.exception))
+
+    def testRefreshExtraNode(self):
+        """Test refreshing offsets when an expected node is missing"""
+        # Delete it from the device tre, not our tables
+        self.dtb.GetFdtObj().del_node(self.node.Offset())
+        with self.assertRaises(ValueError) as e:
+            self.dtb.Refresh()
+        self.assertIn('Internal error, node name mismatch '
+                      'spl-test != spl-test2', str(e.exception))
+
+    def testRefreshMissingProp(self):
+        """Test refreshing offsets when an extra property is present in dtb"""
+        # Delete it from our tables, not the device tree
+        del self.node.props['notstring']
+        with self.assertRaises(ValueError) as e:
+            self.dtb.Refresh()
+        self.assertIn("Internal error, property 'notstring' missing, offset ",
+                      str(e.exception))
 
 
 class TestProp(unittest.TestCase):
@@ -210,13 +266,8 @@ class TestProp(unittest.TestCase):
 
     def testGetOffset(self):
         """Test we can get the offset of a property"""
-        prop = self.node.props['longbytearray']
-
-        # Add 12, which is sizeof(struct fdt_property), to get to start of data
-        offset = prop.GetOffset() + 12
-        data = self.dtb.GetContents()[offset:offset + len(prop.value)]
-        bytes = [chr(x) for x in data]
-        self.assertEqual(bytes, prop.value)
+        prop, value = _GetPropertyValue(self.dtb, self.node, 'longbytearray')
+        self.assertEqual(prop.value, value)
 
     def testWiden(self):
         """Test widening of values"""
