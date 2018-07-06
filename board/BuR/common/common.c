@@ -252,15 +252,20 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	nodeoffset = fdt_path_offset(blob, "/factory-settings");
 	if (nodeoffset < 0) {
-		puts("set bootloader version 'factory-settings' not in dtb!\n");
-		return -1;
-	}
-	if (fdt_setprop(blob, nodeoffset, "bl-version",
-			PLAIN_VERSION, strlen(PLAIN_VERSION)) != 0) {
-		puts("set bootloader version 'bl-version' prop. not in dtb!\n");
-		return -1;
+		printf("%s: cannot find /factory-settings, trying /fset\n",
+		       __func__);
+		nodeoffset = fdt_path_offset(blob, "/fset");
+		if (nodeoffset < 0) {
+			printf("%s: cannot find /fset.\n", __func__);
+			return 0;
+		}
 	}
 
+	if (fdt_setprop(blob, nodeoffset, "bl-version",
+			PLAIN_VERSION, strlen(PLAIN_VERSION)) != 0) {
+		printf("%s: no 'bl-version' prop in fdt!\n", __func__);
+		return 0;
+	}
 	return 0;
 }
 
