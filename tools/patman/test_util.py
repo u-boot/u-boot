@@ -3,11 +3,18 @@
 # Copyright (c) 2016 Google, Inc
 #
 
+from contextlib import contextmanager
 import glob
 import os
 import sys
 
 import command
+
+try:
+  from StringIO import StringIO
+except ImportError:
+  from io import StringIO
+
 
 def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None):
     """Run tests and check that we get 100% coverage
@@ -62,3 +69,17 @@ def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None):
         ok = False
     if not ok:
         raise ValueError('Test coverage failure')
+
+
+# Use this to suppress stdout/stderr output:
+# with capture_sys_output() as (stdout, stderr)
+#   ...do something...
+@contextmanager
+def capture_sys_output():
+    capture_out, capture_err = StringIO(), StringIO()
+    old_out, old_err = sys.stdout, sys.stderr
+    try:
+        sys.stdout, sys.stderr = capture_out, capture_err
+        yield capture_out, capture_err
+    finally:
+        sys.stdout, sys.stderr = old_out, old_err

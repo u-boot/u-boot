@@ -7,7 +7,7 @@
 import unittest
 
 from image import Image
-from elf_test import capture_sys_output
+from test_util import capture_sys_output
 
 class TestImage(unittest.TestCase):
     def testInvalidFormat(self):
