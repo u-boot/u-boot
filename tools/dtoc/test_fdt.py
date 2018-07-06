@@ -205,6 +205,9 @@ class TestProp(unittest.TestCase):
         self.node = self.dtb.GetNode('/spl-test')
         self.fdt = self.dtb.GetFdtObj()
 
+    def testMissingNode(self):
+        self.assertEqual(None, self.dtb.GetNode('missing'))
+
     def testPhandle(self):
         dtb = fdt.FdtScan('tools/dtoc/dtoc_test_phandle.dts')
         node = dtb.GetNode('/phandle-source')

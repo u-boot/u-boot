@@ -318,7 +318,10 @@ class Fdt:
             Node object, or None if not found
         """
         node = self._root
-        for part in path.split('/')[1:]:
+        parts = path.split('/')
+        if len(parts) < 2:
+            return None
+        for part in parts[1:]:
             node = node._FindNode(part)
             if not node:
                 return None
