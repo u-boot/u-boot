@@ -47,16 +47,19 @@ C_HEADER = '''/*
 '''
 
 
-def get_dtb_file(dts_fname):
+
+def get_dtb_file(dts_fname, capture_stderr=False):
     """Compile a .dts file to a .dtb
 
     Args:
         dts_fname: Filename of .dts file in the current directory
+        capture_stderr: True to capture and discard stderr output
 
     Returns:
         Filename of compiled file in output directory
     """
-    return fdt_util.EnsureCompiled(os.path.join(our_path, dts_fname))
+    return fdt_util.EnsureCompiled(os.path.join(our_path, dts_fname),
+                                   capture_stderr=capture_stderr)
 
 
 class TestDtoc(unittest.TestCase):
@@ -626,7 +629,8 @@ U_BOOT_DEVICE(test3) = {
 
     def test_bad_reg(self):
         """Test that a reg property with an invalid type generates an error"""
-        dtb_file = get_dtb_file('dtoc_test_bad_reg.dts')
+        # Capture stderr since dtc will emit warnings for this file
+        dtb_file = get_dtb_file('dtoc_test_bad_reg.dts', capture_stderr=True)
         output = tools.GetOutputFilename('output')
         with self.assertRaises(ValueError) as e:
             dtb_platdata.run_steps(['struct'], dtb_file, False, output)
@@ -635,7 +639,8 @@ U_BOOT_DEVICE(test3) = {
 
     def test_bad_reg2(self):
         """Test that a reg property with an invalid cell count is detected"""
-        dtb_file = get_dtb_file('dtoc_test_bad_reg2.dts')
+        # Capture stderr since dtc will emit warnings for this file
+        dtb_file = get_dtb_file('dtoc_test_bad_reg2.dts', capture_stderr=True)
         output = tools.GetOutputFilename('output')
         with self.assertRaises(ValueError) as e:
             dtb_platdata.run_steps(['struct'], dtb_file, False, output)

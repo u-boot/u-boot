@@ -51,7 +51,7 @@ def fdt_cells_to_cpu(val, cells):
         out = out << 32 | fdt32_to_cpu(val[1])
     return out
 
-def EnsureCompiled(fname):
+def EnsureCompiled(fname, capture_stderr=False):
     """Compile an fdt .dts source file into a .dtb binary blob if needed.
 
     Args:
@@ -86,7 +86,7 @@ def EnsureCompiled(fname):
     args.extend(search_list)
     args.append(dts_input)
     dtc = os.environ.get('DTC') or 'dtc'
-    command.Run(dtc, *args)
+    command.Run(dtc, *args, capture_stderr=capture_stderr)
     return dtb_output
 
 def GetInt(node, propname, default=None):
