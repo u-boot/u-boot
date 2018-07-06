@@ -316,7 +316,8 @@ class DtbPlatdata(object):
             total = na + ns
 
             if reg.type != fdt.TYPE_INT:
-                raise ValueError("Node '%s' reg property is not an int")
+                raise ValueError("Node '%s' reg property is not an int" %
+                                 node.name)
             if len(reg.value) % total:
                 raise ValueError("Node '%s' reg property has %d cells "
                         'which is not a multiple of na + ns = %d + %d)' %

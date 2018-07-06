@@ -428,7 +428,7 @@ class Fdt:
         return node
 
 def FdtScan(fname):
-    """Returns a new Fdt object from the implementation we are using"""
+    """Returns a new Fdt object"""
     dtb = Fdt(fname)
     dtb.Scan()
     return dtb

@@ -40,8 +40,8 @@ def run_tests(args):
     """Run all the test we have for dtoc
 
     Args:
-        args: List of positional args provided to binman. This can hold a test
-            name to execute (as in 'binman -t testSections', for example)
+        args: List of positional args provided to dtoc. This can hold a test
+            name to execute (as in 'dtoc -t test_empty_file', for example)
     """
     import test_dtoc
 
