@@ -117,24 +117,41 @@ static void EFIAPI efi_reset_system_boottime(
 	while (1) { }
 }
 
+/**
+ * efi_get_time_boottime - get current time
+ *
+ * This function implements the GetTime runtime service.
+ * See the Unified Extensible Firmware Interface (UEFI) specification
+ * for details.
+ *
+ * @time:		pointer to structure to receive current time
+ * @capabilities:	pointer to structure to receive RTC properties
+ * Return Value:	status code
+ */
 static efi_status_t EFIAPI efi_get_time_boottime(
 			struct efi_time *time,
 			struct efi_time_cap *capabilities)
 {
-#if defined(CONFIG_CMD_DATE) && defined(CONFIG_DM_RTC)
-	struct rtc_time tm;
+#ifdef CONFIG_DM_RTC
+	efi_status_t ret = EFI_SUCCESS;
 	int r;
+	struct rtc_time tm;
 	struct udevice *dev;
 
 	EFI_ENTRY("%p %p", time, capabilities);
 
-	r = uclass_get_device(UCLASS_RTC, 0, &dev);
-	if (r)
-		return EFI_EXIT(EFI_DEVICE_ERROR);
+	if (!time) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
 
-	r = dm_rtc_get(dev, &tm);
-	if (r)
-		return EFI_EXIT(EFI_DEVICE_ERROR);
+	r = uclass_get_device(UCLASS_RTC, 0, &dev);
+	if (!r)
+		r = dm_rtc_get(dev, &tm);
+	if (r) {
+		ret = EFI_DEVICE_ERROR;
+		goto out;
+	}
 
 	memset(time, 0, sizeof(*time));
 	time->year = tm.tm_year;
@@ -142,11 +159,23 @@ static efi_status_t EFIAPI efi_get_time_boottime(
 	time->day = tm.tm_mday;
 	time->hour = tm.tm_hour;
 	time->minute = tm.tm_min;
-	time->daylight = tm.tm_isdst;
+	time->second = tm.tm_sec;
+	time->daylight = EFI_TIME_ADJUST_DAYLIGHT;
+	if (tm.tm_isdst > 0)
+		time->daylight |= EFI_TIME_IN_DAYLIGHT;
+	time->timezone = EFI_UNSPECIFIED_TIMEZONE;
 
-	return EFI_EXIT(EFI_SUCCESS);
+	if (capabilities) {
+		/* Set reasonable dummy values */
+		capabilities->resolution = 1;		/* 1 Hz */
+		capabilities->accuracy = 100000000;	/* 100 ppm */
+		capabilities->sets_to_zero = false;
+	}
+out:
+	return EFI_EXIT(ret);
 #else
-	return EFI_DEVICE_ERROR;
+	EFI_ENTRY("%p %p", time, capabilities);
+	return EFI_EXIT(EFI_DEVICE_ERROR);
 #endif
 }
 
