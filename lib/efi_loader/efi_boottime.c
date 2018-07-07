@@ -1444,6 +1444,9 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
 	systab.nr_tables = i + 1;
 
 out:
+	/* systab.nr_tables may have changed. So we need to update the crc32 */
+	efi_update_table_header_crc32(&systab.hdr);
+
 	/* Notify that the configuration table was changed */
 	list_for_each_entry(evt, &efi_events, link) {
 		if (evt->group && !guidcmp(evt->group, guid)) {
