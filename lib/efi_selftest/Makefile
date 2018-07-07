@@ -25,6 +25,7 @@ efi_selftest_exitbootservices.o \
 efi_selftest_fdt.o \
 efi_selftest_gop.o \
 efi_selftest_manageprotocols.o \
+efi_selftest_rtc.o \
 efi_selftest_snp.o \
 efi_selftest_textinput.o \
 efi_selftest_textoutput.o \
