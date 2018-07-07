@@ -208,7 +208,18 @@ void rtc_write32(int reg, u32 value);
  * rtc_init() - Set up the real time clock ready for use
  */
 void rtc_init(void);
-#endif
+#endif /* CONFIG_DM_RTC */
+
+/**
+ * is_leap_year - Check if year is a leap year
+ *
+ * @year	Year
+ * @return	1 if leap year
+ */
+static inline bool is_leap_year(unsigned int year)
+{
+	return (!(year % 4) && (year % 100)) || !(year % 400);
+}
 
 /**
  * rtc_calc_weekday() - Work out the weekday from a time
@@ -231,9 +242,8 @@ int rtc_calc_weekday(struct rtc_time *time);
  *
  * @time_t:	Number of seconds since 1970-01-01 00:00:00
  * @time:	Place to put the broken-out time
- * @return 0 if OK, -EINVAL if the weekday could not be determined
  */
-int rtc_to_tm(int time_t, struct rtc_time *time);
+void rtc_to_tm(u64 time_t, struct rtc_time *time);
 
 /**
  * rtc_mktime() - Convert a broken-out time into a time_t value
