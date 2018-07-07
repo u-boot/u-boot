@@ -83,7 +83,7 @@ static void mc146818_write8(int reg, uchar val)
 
 static int mc146818_get(struct rtc_time *tmp)
 {
-	uchar sec, min, hour, mday, wday, mon, year;
+	uchar sec, min, hour, mday, wday __attribute__((unused)),mon, year;
 
 	/* here check if rtc can be accessed */
 	while ((mc146818_read8(RTC_CONFIG_A) & 0x80) == 0x80)
@@ -111,7 +111,6 @@ static int mc146818_get(struct rtc_time *tmp)
 	tmp->tm_mday = bcd2bin(mday & 0x3f);
 	tmp->tm_mon  = bcd2bin(mon & 0x1f);
 	tmp->tm_year = bcd2bin(year);
-	tmp->tm_wday = bcd2bin(wday & 0x07);
 
 	if (tmp->tm_year < 70)
 		tmp->tm_year += 2000;
@@ -120,6 +119,11 @@ static int mc146818_get(struct rtc_time *tmp)
 
 	tmp->tm_yday = 0;
 	tmp->tm_isdst = 0;
+	/*
+	 * The mc146818 only updates wday if it is non-zero, sunday is 1
+	 * saturday is 7. So let's use our library routine.
+	 */
+	rtc_calc_weekday(tmp);
 #ifdef RTC_DEBUG
 	printf("Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 	       tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
