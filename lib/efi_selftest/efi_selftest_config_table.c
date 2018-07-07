@@ -33,6 +33,36 @@ static void EFIAPI notify(struct efi_event *event, void *context)
 }
 
 /*
+ * Check crc32 of a table.
+ */
+static int check_table(const void *table)
+{
+	efi_status_t ret;
+	u32 crc32, res;
+	/* Casting from const to not const */
+	struct efi_table_hdr *hdr = (struct efi_table_hdr *)table;
+
+	crc32 = hdr->crc32;
+	/*
+	 * Setting the crc32 of the 'const' table to zero is easier than
+	 * copying
+	 */
+	hdr->crc32 = 0;
+	ret = boottime->calculate_crc32(table, hdr->headersize, &res);
+	/* Reset table crc32 so it stays constant */
+	hdr->crc32 = crc32;
+	if (ret != EFI_ST_SUCCESS) {
+		efi_st_error("CalculateCrc32 failed\n");
+		return EFI_ST_FAILURE;
+	}
+	if (res != crc32) {
+		efi_st_error("Incorrect CRC32\n");
+		return EFI_ST_FAILURE;
+	}
+	return EFI_ST_SUCCESS;
+}
+
+/*
  * Setup unit test.
  *
  * @handle:	handle of the loaded image
@@ -135,6 +165,11 @@ static int execute(void)
 		efi_st_error("Incorrect table address\n");
 		return EFI_ST_FAILURE;
 	}
+	if (check_table(sys_table) != EFI_ST_SUCCESS) {
+		efi_st_error("Checking system table\n");
+		return EFI_ST_FAILURE;
+	}
+
 	/* Update table */
 	ret = boottime->install_configuration_table(&table_guid,
 						    (void *)&tables[1]);
@@ -175,6 +210,10 @@ static int execute(void)
 		efi_st_error("Incorrect table address\n");
 		return EFI_ST_FAILURE;
 	}
+	if (check_table(sys_table) != EFI_ST_SUCCESS) {
+		efi_st_error("Checking system table\n");
+		return EFI_ST_FAILURE;
+	}
 
 	/* Delete table */
 	ret = boottime->install_configuration_table(&table_guid, NULL);
@@ -209,6 +248,10 @@ static int execute(void)
 	ret = boottime->close_event(event);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Failed to close event\n");
+		return EFI_ST_FAILURE;
+	}
+	if (check_table(sys_table) != EFI_ST_SUCCESS) {
+		efi_st_error("Checking system table\n");
 		return EFI_ST_FAILURE;
 	}
 
