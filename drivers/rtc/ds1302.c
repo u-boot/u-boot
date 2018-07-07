@@ -9,8 +9,6 @@
 #include <command.h>
 #include <rtc.h>
 
-#if defined(CONFIG_CMD_DATE)
-
 /* GPP Pins */
 #define DATA		0x200
 #define SCLK		0x400
@@ -328,5 +326,3 @@ int rtc_set(struct rtc_time *tmp)
 
 	return 0;
 }
-
-#endif

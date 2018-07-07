@@ -16,8 +16,6 @@
 #include <rtc.h>
 #include <config.h>
 
-#if defined(CONFIG_CMD_DATE)
-
 static uchar rtc_read  (uchar reg);
 static void  rtc_write (uchar reg, uchar val);
 
@@ -135,5 +133,3 @@ static void rtc_write (uchar reg, uchar val)
 	*(unsigned char *)
 		((CONFIG_SYS_NVRAM_BASE_ADDR + CONFIG_SYS_NVRAM_SIZE - 8) + reg) = val;
 }
-
-#endif

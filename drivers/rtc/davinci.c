@@ -9,7 +9,6 @@
 #include <asm/io.h>
 #include <asm/davinci_rtc.h>
 
-#if defined(CONFIG_CMD_DATE)
 int rtc_get(struct rtc_time *tmp)
 {
 	struct davinci_rtc *rtc = (struct davinci_rtc *)DAVINCI_RTC_BASE;
@@ -79,4 +78,3 @@ void rtc_reset(void)
 	/* run RTC counter */
 	writel(0x01, &rtc->ctrl);
 }
-#endif

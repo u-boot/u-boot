@@ -16,8 +16,6 @@
 #include <rtc.h>
 #include <i2c.h>
 
-#if defined(CONFIG_CMD_DATE)
-
 /*
  * RTC register addresses
  */
@@ -166,5 +164,3 @@ static void rtc_write (uchar reg, uchar val)
 {
 	i2c_reg_write (CONFIG_SYS_I2C_RTC_ADDR, reg, val);
 }
-
-#endif

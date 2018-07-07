@@ -20,8 +20,6 @@
 #include <rtc.h>
 
 
-#if defined(CONFIG_CMD_DATE)
-
 static uchar    rtc_read(unsigned int addr );
 static void     rtc_write(unsigned int addr, uchar val);
 
@@ -171,5 +169,3 @@ static void rtc_write( unsigned int addr, uchar val )
 #endif
 	*(volatile unsigned char*)(addr) = val;
 }
-
-#endif

@@ -19,8 +19,6 @@
 #include <rtc.h>
 #include <spi.h>
 
-#if defined(CONFIG_CMD_DATE)
-
 #define	RTC_SECONDS		0x00
 #define	RTC_MINUTES		0x01
 #define	RTC_HOURS		0x02
@@ -437,5 +435,3 @@ static void rtc_write (unsigned char reg, unsigned char val)
 }
 
 #endif /* end of code exclusion (see #ifdef CONFIG_SXNI855T above) */
-
-#endif

@@ -19,8 +19,6 @@
 #define out8(p, v) outb(v, p)
 #endif
 
-#if defined(CONFIG_CMD_DATE)
-
 /* Set this to 1 to clear the CMOS RAM */
 #define CLEAR_CMOS		0
 
@@ -195,7 +193,6 @@ static void mc146818_init(void)
 	/* Clear any pending interrupts */
 	mc146818_read8(RTC_CONFIG_C);
 }
-#endif /* CONFIG_CMD_DATE */
 
 #ifdef CONFIG_DM_RTC
 
