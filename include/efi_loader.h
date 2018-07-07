@@ -434,7 +434,6 @@ efi_status_t efi_reset_system_init(void);
 efi_status_t __efi_runtime EFIAPI efi_get_time(
 			struct efi_time *time,
 			struct efi_time_cap *capabilities);
-efi_status_t efi_get_time_init(void);
 
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
 /*

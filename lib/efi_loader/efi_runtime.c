@@ -174,11 +174,6 @@ efi_status_t __weak __efi_runtime EFIAPI efi_get_time(
 	return EFI_DEVICE_ERROR;
 }
 
-efi_status_t __weak efi_get_time_init(void)
-{
-	return EFI_SUCCESS;
-}
-
 struct efi_runtime_detach_list_struct {
 	void *ptr;
 	void *patchto;
