@@ -16,6 +16,7 @@ efi_selftest_bitblt.o \
 efi_selftest_config_table.o \
 efi_selftest_controllers.o \
 efi_selftest_console.o \
+efi_selftest_crc32.o \
 efi_selftest_devicepath.o \
 efi_selftest_devicepath_util.o \
 efi_selftest_events.o \
