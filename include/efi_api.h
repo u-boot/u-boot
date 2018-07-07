@@ -165,8 +165,9 @@ struct efi_boot_services {
 			void **handle, ...);
 	efi_status_t (EFIAPI *uninstall_multiple_protocol_interfaces)(
 			void *handle, ...);
-	efi_status_t (EFIAPI *calculate_crc32)(void *data,
-			unsigned long data_size, uint32_t *crc32);
+	efi_status_t (EFIAPI *calculate_crc32)(const void *data,
+					       efi_uintn_t data_size,
+					       u32 *crc32);
 	void (EFIAPI *copy_mem)(void *destination, const void *source,
 			size_t length);
 	void (EFIAPI *set_mem)(void *buffer, size_t size, uint8_t value);

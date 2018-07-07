@@ -2448,11 +2448,11 @@ static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_calculate_crc32(void *data,
-					       unsigned long data_size,
-					       uint32_t *crc32_p)
+static efi_status_t EFIAPI efi_calculate_crc32(const void *data,
+					       efi_uintn_t data_size,
+					       u32 *crc32_p)
 {
-	EFI_ENTRY("%p, %ld", data, data_size);
+	EFI_ENTRY("%p, %zu", data, data_size);
 	*crc32_p = crc32(0, data, data_size);
 	return EFI_EXIT(EFI_SUCCESS);
 }
