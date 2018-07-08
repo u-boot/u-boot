@@ -31,6 +31,11 @@ config NAND_DENALI_SPARE_AREA_SKIP_BYTES
 	  of OOB area before last ECC sector data starts.  This is potentially
 	  used to preserve the bad block marker in the OOB area.
 
+config NAND_LPC32XX_SLC
+	bool "Support LPC32XX_SLC controller"
+	help
+	  Enable the LPC32XX SLC NAND controller.
+
 config NAND_OMAP_GPMC
 	bool "Support OMAP GPMC NAND controller"
 	depends on ARCH_OMAP2PLUS
