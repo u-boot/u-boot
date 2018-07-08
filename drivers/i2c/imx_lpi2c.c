@@ -8,7 +8,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/imx_lpi2c.h>
+#include <imx_lpi2c.h>
 #include <asm/arch/sys_proto.h>
 #include <dm.h>
 #include <fdtdec.h>
@@ -447,6 +447,7 @@ static const struct dm_i2c_ops imx_lpi2c_ops = {
 
 static const struct udevice_id imx_lpi2c_ids[] = {
 	{ .compatible = "fsl,imx7ulp-lpi2c", },
+	{ .compatible = "fsl,imx8qm-lpi2c", },
 	{}
 };
 
