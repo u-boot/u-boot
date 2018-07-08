@@ -132,17 +132,8 @@
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-#if defined(CONFIG_CMD_JFFS2)
-# define CONFIG_MTD_PARTITIONS
-#endif
-
-#if defined(CONFIG_CMD_UBI)
-# define CONFIG_MTD_PARTITIONS
-#endif
-
 #if defined(CONFIG_MTD_PARTITIONS)
 /* MTD partitions */
-#define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 #define CONFIG_FLASH_CFI_MTD
 
 /* default mtd partition table */

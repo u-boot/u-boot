@@ -37,8 +37,6 @@
 #define CONFIG_SYS_NAND_BASE		NFC_BASE_ADDR
 
 /* Dynamic MTD partition support */
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_MTD_DEVICE
 #endif
 
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0

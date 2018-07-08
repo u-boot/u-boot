@@ -77,8 +77,6 @@
 #define CONFIG_SYS_FLASH_BANKS_SIZES	{ (32 * SZ_1M) }
 
 /* MTD support */
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
 
 /* USB Configs */
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2

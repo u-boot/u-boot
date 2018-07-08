@@ -145,8 +145,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x200000
 
 /* MTD device */
-# define CONFIG_MTD_DEVICE
-# define CONFIG_MTD_PARTITIONS
 
 /* DMA stuff, needed for GPMI/MXS NAND support */
 

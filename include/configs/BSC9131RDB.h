@@ -312,8 +312,6 @@ extern unsigned long get_sdram_size(void);
 /*
  * Dynamic MTD Partition support with mtdparts
  */
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
 
 /*
  * Environment Configuration

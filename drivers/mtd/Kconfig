@@ -13,6 +13,18 @@ config MTD_NOR_FLASH
 	help
 	  Enable support for parallel NOR flash.
 
+config MTD_DEVICE
+	bool "Enable MTD Device for NAND and ONENAND devices"
+	help
+	  Adds the MTD device infrastructure from the Linux kernel.
+	  Needed for mtdparts command support.
+
+config MTD_PARTITIONS
+	bool "Add MTD Partioning infrastructure"
+	help
+	  Adds the MTD partitioning infrastructure from the Linux
+	  kernel. Needed for UBI support.
+
 config CFI_FLASH
 	bool "Enable Driver Model for CFI Flash driver"
 	depends on MTD

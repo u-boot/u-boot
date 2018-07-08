@@ -48,7 +48,6 @@
 #define CONFIG_ENV_OFFSET               0x260000
 #define CONFIG_ENV_ADDR                 0x260000
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_MTD_PARTITIONS           /* required for UBI partition support */
 /* NAND: SPL falcon mode configs */
 #if defined(CONFIG_SPL_OS_BOOT)
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS 0x2a0000

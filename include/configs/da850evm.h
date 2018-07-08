@@ -221,8 +221,6 @@
 #ifdef CONFIG_SPL_BUILD
 #undef CONFIG_SPI_FLASH_MTD
 #endif
-#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
-#define CONFIG_MTD_PARTITIONS		/* required for UBI partition support */
 #endif
 
 #define CONFIG_DA8XX_GPIO
@@ -270,11 +268,6 @@
 
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS
-#endif
-
-#ifdef CONFIG_NAND
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
 #endif
 
 #if !defined(CONFIG_NAND) && \

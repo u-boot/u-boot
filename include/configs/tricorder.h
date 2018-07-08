@@ -65,7 +65,6 @@
 #define CONFIG_TWL4030_LED
 
 /* Board NAND Info */
-#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 
 #define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
 							/* to access nand */
@@ -78,8 +77,6 @@
 #define CONFIG_SYS_NAND_MAX_ECCPOS	56
 
 /* needed for ubi */
-#define CONFIG_MTD_DEVICE       /* needed for mtdparts commands */
-#define CONFIG_MTD_PARTITIONS
 
 /* Environment information (this is the common part) */
 

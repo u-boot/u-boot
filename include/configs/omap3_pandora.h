@@ -50,10 +50,6 @@
 #define CONFIG_SYS_NAND_PAGE_SIZE	2048
 #define CONFIG_SYS_NAND_OOBSIZE		64
 
-#ifdef CONFIG_NAND
-#define CONFIG_MTD_PARTITIONS	/* required for UBI partition support */
-#endif
-
 
 #define CONFIG_BOOTCOMMAND \
 	"run distro_bootcmd; " \

@@ -52,9 +52,6 @@
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
-
 #define CONFIG_BOOTCOMMAND	"run ubifsboot"
 
 #define CONFIG_RAMDISK_BOOT	"root=/dev/ram0 rw rootfstype=ext2" \

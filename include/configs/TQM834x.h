@@ -475,7 +475,6 @@
  * JFFS2 partitions
  */
 /* mtdparts command line support */
-#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_FLASH_CFI_MTD
 
 /* default mtd partition table */

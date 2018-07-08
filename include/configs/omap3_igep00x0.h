@@ -91,7 +91,6 @@
 
 #endif
 
-#define CONFIG_MTD_PARTITIONS
 #define CONFIG_SYS_MTDPARTS_RUNTIME
 
 /* OneNAND config */

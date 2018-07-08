@@ -108,9 +108,6 @@
 /* NAND support */
 #define CONFIG_SYS_NAND_ONFI_DETECTION	1
 
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_MTD_DEVICE
-
 /* SPL */
 
 /* UBI configuration */

@@ -54,8 +54,6 @@
 
 /* SF MTD */
 #if defined(CONFIG_SPI_FLASH_MTD) && !defined(CONFIG_SPL_BUILD)
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
 #else
 #undef CONFIG_SPI_FLASH_MTD
 #endif

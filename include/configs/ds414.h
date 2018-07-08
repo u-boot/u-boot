@@ -61,8 +61,6 @@
 #endif
 
 /* why is this only defined in mv-common.h if CONFIG_DM is undefined? */
-#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
-#define CONFIG_MTD_PARTITIONS
 
 /*
  * mv-common.h should be defined after CMD configs since it used them

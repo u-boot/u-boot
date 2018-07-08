@@ -189,10 +189,6 @@ int vct_gpio_get(int pin);
 /*
  * UBI configuration
  */
-#if defined(CONFIG_VCT_ONENAND)
-#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
-#define CONFIG_MTD_PARTITIONS
-#endif
 
 /*
  * We need a small, stripped down image to fit into the first 128k OneNAND

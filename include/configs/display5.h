@@ -36,9 +36,7 @@
  */
 
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_MTD_DEVICE
 #define CONFIG_SPI_FLASH_MTD
-#define CONFIG_MTD_PARTITIONS
 #endif
 
 /* Below values are "dummy" - only to avoid build break */
@@ -393,8 +391,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Commands */
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_MTD_DEVICE
 
 /* Watchdog */
 #define CONFIG_HW_WATCHDOG

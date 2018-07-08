@@ -108,8 +108,6 @@
 #define CONFIG_PREBOOT
 
 /* MTD/UBI/UBIFS config */
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
 
 /*
  * Environment configuration

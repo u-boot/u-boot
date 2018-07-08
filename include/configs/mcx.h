@@ -72,9 +72,6 @@
 
 /* commands to include */
 
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_MTD_DEVICE
-
 #define CONFIG_SYS_I2C
 
 /* RTC */

@@ -25,7 +25,6 @@
 #define CONFIG_TIMESTAMP
 
 /* FLASH related */
-#define CONFIG_MTD_DEVICE
 
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI

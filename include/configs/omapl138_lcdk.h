@@ -257,11 +257,6 @@
 #define CONFIG_CLOCKS
 #endif
 
-#ifdef CONFIG_NAND
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
-#endif
-
 #if !defined(CONFIG_NAND) && \
 	!defined(CONFIG_SYS_USE_NOR) && \
 	!defined(CONFIG_USE_SPIFLASH)

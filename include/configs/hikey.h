@@ -61,8 +61,6 @@
 
 /* Command line configuration */
 
-#define CONFIG_MTD_PARTITIONS
-
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
 

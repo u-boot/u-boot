@@ -141,8 +141,6 @@
 #endif
 
 /* File systems */
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
 
 /* Boot command */
 #define CONFIG_CMDLINE_TAG

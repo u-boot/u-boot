@@ -159,8 +159,6 @@
 #define CONFIG_SYS_NAND_MX7_GPMI_62_ECC_BYTES
 
 /* Dynamic MTD partition support */
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 
 /* DMA stuff, needed for GPMI/MXS NAND support */
 

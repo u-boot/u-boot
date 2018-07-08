@@ -116,7 +116,6 @@
  * MTD
  */
 #define CONFIG_FLASH_CFI_MTD
-#define CONFIG_MTD_DEVICE
 
 /*
  * NAND

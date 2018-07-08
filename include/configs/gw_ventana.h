@@ -171,8 +171,6 @@
 /*
  * MTD Command for mtdparts
  */
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
 
 /* Persistent Environment Config */
 #if defined(CONFIG_ENV_IS_IN_MMC)

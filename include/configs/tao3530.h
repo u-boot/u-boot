@@ -58,7 +58,6 @@
 #define CONFIG_ENV_OVERWRITE
 
 /* commands to include */
-#define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 
 #define CONFIG_SYS_I2C
 #define CONFIG_I2C_MULTI_BUS

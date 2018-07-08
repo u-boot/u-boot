@@ -165,7 +165,5 @@
 #endif /* CONFIG_CMD_NAND */
 
 /* UBI/UBIFS config options */
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
 
 #endif			       /* __CONFIG_H */

@@ -41,8 +41,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 /* Dynamic MTD partition support */
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 
 /* Environment in NAND, 64K is a bit excessive but erase block is 512K anyway */
 #define CONFIG_ENV_OFFSET		(SZ_2M)

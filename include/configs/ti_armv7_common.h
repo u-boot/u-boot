@@ -124,9 +124,6 @@
  * mtdparts, both for ease of use in U-Boot and for passing information
  * on to the Linux kernel.
  */
-#if defined(CONFIG_SPI_BOOT) || defined(CONFIG_NOR) || defined(CONFIG_NAND) || defined(CONFIG_NAND_DAVINCI)
-#define CONFIG_MTD_DEVICE		/* Required for mtdparts */
-#endif
 
 /*
  * Our platforms make use of SPL to initalize the hardware (primarily

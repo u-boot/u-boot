@@ -41,9 +41,20 @@
  * both for ease of use in U-Boot and for passing information on to
  * the Linux kernel.
  */
-#if defined(CONFIG_NAND)
-#define CONFIG_MTD_DEVICE		/* Required for mtdparts */
-#endif
+
+#ifdef CONFIG_SPL_OS_BOOT
+#define CONFIG_SYS_SPL_ARGS_ADDR		0x80F80000
+
+/* RAW SD card / eMMC */
+#define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0x900	/* address 0x120000 */
+#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x80	/* address 0x10000 */
+#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0x80	/* 64KiB */
+
+/* NAND */
+#ifdef CONFIG_NAND
+#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS		0x140000
+#endif /* CONFIG_NAND */
+#endif /* CONFIG_SPL_OS_BOOT */
 
 #ifdef CONFIG_NAND
 #define CONFIG_SPL_NAND_BASE

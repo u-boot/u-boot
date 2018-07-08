@@ -94,8 +94,6 @@
  */
 #define CONFIG_JFFS2_NAND
 #define CONFIG_JFFS2_LZO
-#define CONFIG_MTD_DEVICE               /* needed for mtdparts commands */
-#define CONFIG_MTD_PARTITIONS
 
 /*
  * SATA

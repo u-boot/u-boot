@@ -56,10 +56,6 @@
 #endif
 
 /* UBI and NAND partitioning */
-#ifdef CONFIG_CMD_NAND
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
-#endif
 
 /* FEC Ethernet on SoC */
 #ifdef	CONFIG_CMD_NET

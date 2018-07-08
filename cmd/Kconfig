@@ -1664,6 +1664,7 @@ config CMD_JFFS2
 
 config CMD_MTDPARTS
 	bool "MTD partition support"
+	select MTD_DEVICE if (CMD_NAND || NAND)
 	help
 	  MTD partition support
 

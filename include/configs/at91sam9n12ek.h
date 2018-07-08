@@ -66,9 +66,6 @@
 #define CONFIG_PMECC_CAP		2
 #define CONFIG_PMECC_SECTOR_SIZE	512
 
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_MTD_DEVICE
-
 #define CONFIG_EXTRA_ENV_SETTINGS                                       \
 	"console=console=ttyS0,115200\0"                                \
 	"mtdparts="CONFIG_MTDPARTS_DEFAULT"\0"					\

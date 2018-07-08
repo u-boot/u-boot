@@ -35,8 +35,6 @@
 #define CONFIG_SYS_BOOTM_LEN         SZ_64M
 
 /* UBI Support */
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_MTD_DEVICE
 
 /* I2C configuration */
 

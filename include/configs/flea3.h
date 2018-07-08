@@ -106,9 +106,7 @@
 /*
  * MTD Command for mtdparts
  */
-#define CONFIG_MTD_DEVICE
 #define CONFIG_FLASH_CFI_MTD
-#define CONFIG_MTD_PARTITIONS
 
 /*
  * FLASH and environment organization

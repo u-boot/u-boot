@@ -460,7 +460,6 @@
 
 /* mtdparts command line support */
 #define CONFIG_FLASH_CFI_MTD
-#define CONFIG_MTD_DEVICE
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"netdev=" __stringify(CONFIG_NETDEV) "\0"			\
@@ -503,6 +502,5 @@
 	"bootm ${loadaddr} - ${fdtaddr}"
 
 /* UBI Support */
-#define CONFIG_MTD_PARTITIONS
 
 #endif	/* __CONFIG_H */
