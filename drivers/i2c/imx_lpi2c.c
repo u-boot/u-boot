@@ -15,6 +15,7 @@
 #include <i2c.h>
 
 #define LPI2C_FIFO_SIZE 4
+#define LPI2C_NACK_TOUT_MS 1
 #define LPI2C_TIMEOUT_MS 100
 
 /* Weak linked function for overridden by some SoC power function */
@@ -184,6 +185,7 @@ static int bus_i2c_stop(struct imx_lpi2c_reg *regs)
 {
 	lpi2c_status_t result;
 	u32 status;
+	ulong start_time;
 
 	result = bus_i2c_wait_for_tx_ready(regs);
 	if (result) {
@@ -194,7 +196,8 @@ static int bus_i2c_stop(struct imx_lpi2c_reg *regs)
 	/* send stop command */
 	writel(LPI2C_MTDR_CMD(0x2), &regs->mtdr);
 
-	while (result == LPI2C_SUCESS) {
+	start_time = get_timer(0);
+	while (1) {
 		status = readl(&regs->msr);
 		result = imx_lpci2c_check_clear_error(regs);
 		/* stop detect flag */
@@ -203,6 +206,11 @@ static int bus_i2c_stop(struct imx_lpi2c_reg *regs)
 			status &= LPI2C_MSR_SDF_MASK;
 			writel(status, &regs->msr);
 			break;
+		}
+
+		if (get_timer(start_time) > LPI2C_NACK_TOUT_MS) {
+			debug("stop timeout\n");
+			return -ETIMEDOUT;
 		}
 	}
 
@@ -363,10 +371,8 @@ static int imx_lpi2c_probe_chip(struct udevice *bus, u32 chip,
 	}
 
 	result = bus_i2c_stop(regs);
-	if (result) {
+	if (result)
 		bus_i2c_init(bus, 100000);
-		return -result;
-	}
 
 	return result;
 }
