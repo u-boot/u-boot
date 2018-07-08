@@ -149,7 +149,6 @@
  * Flash & Environment
  */
 #ifdef CONFIG_USE_NAND
-#define CONFIG_NAND_DAVINCI
 #define CONFIG_ENV_OFFSET		0x0 /* Block 0--not used by bootcode */
 #define CONFIG_ENV_SIZE			(128 << 10)
 #define	CONFIG_SYS_NAND_USE_FLASH_BBT

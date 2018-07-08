@@ -16,6 +16,12 @@ config NAND_ATMEL
 	  Enable this driver for NAND flash platforms using an Atmel NAND
 	  controller.
 
+config NAND_DAVINCI
+	bool "Support TI Davinci NAND controller"
+	help
+	  Enable this driver for NAND flash controllers available in TI Davinci
+	  and Keystone2 platforms
+
 config NAND_DENALI
 	bool
 	select SYS_NAND_SELF_INIT
