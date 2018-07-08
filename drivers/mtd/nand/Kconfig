@@ -9,6 +9,13 @@ config SYS_NAND_SELF_INIT
 	  This option, if enabled, provides more flexible and linux-like
 	  NAND initialization process.
 
+config NAND_ATMEL
+	bool "Support Atmel NAND controller"
+	imply SYS_NAND_USE_FLASH_BBT
+	help
+	  Enable this driver for NAND flash platforms using an Atmel NAND
+	  controller.
+
 config NAND_DENALI
 	bool
 	select SYS_NAND_SELF_INIT
