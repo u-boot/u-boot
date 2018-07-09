@@ -27,12 +27,7 @@
 #define ETH0_BASE AU1500_ETH0_BASE
 #define MAC0_ENABLE AU1500_MAC0_ENABLE
 #else
-#ifdef CONFIG_SOC_AU1550
-#define ETH0_BASE AU1550_ETH0_BASE
-#define MAC0_ENABLE AU1550_MAC0_ENABLE
-#else
 #error "No valid cpu set"
-#endif
 #endif
 #endif
 #endif

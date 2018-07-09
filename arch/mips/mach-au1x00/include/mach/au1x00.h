@@ -118,27 +118,6 @@ static __inline__ int au_ffs(int x)
 #define CP0_DEBUG		$23
 
 /* SDRAM Controller */
-#ifdef CONFIG_SOC_AU1550
-
-#define MEM_SDMODE0                0xB4000800
-#define MEM_SDMODE1                0xB4000808
-#define MEM_SDMODE2                0xB4000810
-
-#define MEM_SDADDR0                0xB4000820
-#define MEM_SDADDR1                0xB4000828
-#define MEM_SDADDR2                0xB4000830
-
-#define MEM_SDCONFIGA              0xB4000840
-#define MEM_SDCONFIGB              0xB4000848
-#define MEM_SDPRECMD               0xB40008c0
-#define MEM_SDAUTOREF              0xB40008c8
-
-#define MEM_SDWRMD0                0xB4000880
-#define MEM_SDWRMD1                0xB4000888
-#define MEM_SDWRMD2                0xB4000890
-
-#else /* CONFIG_SOC_AU1550 */
-
 #define MEM_SDMODE0                0xB4000000
 #define MEM_SDMODE1                0xB4000004
 #define MEM_SDMODE2                0xB4000008
@@ -154,8 +133,6 @@ static __inline__ int au_ffs(int x)
 #define MEM_SDWRMD0                0xB4000024
 #define MEM_SDWRMD1                0xB4000028
 #define MEM_SDWRMD2                0xB400002C
-
-#endif /* CONFIG_SOC_AU1550 */
 
 #define MEM_SDSLEEP                0xB4000030
 #define MEM_SDSMCKE                0xB4000034
@@ -483,8 +460,6 @@ static __inline__ int au_ffs(int x)
 #define AU1500_ETH0_BASE	  0xB1500000
 #define AU1500_ETH1_BASE	  0xB1510000
 #define AU1100_ETH0_BASE	  0xB0500000
-#define AU1550_ETH0_BASE	  0xB0500000
-#define AU1550_ETH1_BASE	  0xB0510000
 
 /* 4 byte offsets from AU1000_ETH_BASE */
 #define MAC_CONTROL                     0x0
@@ -534,8 +509,6 @@ static __inline__ int au_ffs(int x)
 #define AU1500_MAC0_ENABLE       0xB1520000
 #define AU1500_MAC1_ENABLE       0xB1520004
 #define AU1100_MAC0_ENABLE       0xB0520000
-#define AU1550_MAC0_ENABLE       0xB0520000
-#define AU1550_MAC1_ENABLE       0xB0520004
 
 #define MAC_EN_CLOCK_ENABLE         (1<<0)
 #define MAC_EN_RESET0               (1<<1)
@@ -995,11 +968,7 @@ static __inline__ int au_ffs(int x)
 #define DB1000_BCSR_ADDR 0xAE000000
 #define DB1550_BCSR_ADDR 0xAF000000
 
-#ifdef CONFIG_DBAU1550
-#define DB1XX0_BCSR_ADDR DB1550_BCSR_ADDR
-#else
 #define DB1XX0_BCSR_ADDR DB1000_BCSR_ADDR
-#endif
 
 #ifdef CONFIG_SOC_AU1500
 /* Au1500 PCI Controller */
