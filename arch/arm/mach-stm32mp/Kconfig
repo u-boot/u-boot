@@ -5,6 +5,7 @@ config SPL
 	select SPL_CLK
 	select SPL_DM
 	select SPL_DM_SEQ_ALIAS
+	select SPL_DRIVERS_MISC_SUPPORT
 	select SPL_FRAMEWORK
 	select SPL_GPIO_SUPPORT
 	select SPL_LIBCOMMON_SUPPORT
