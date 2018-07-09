@@ -220,7 +220,7 @@ static void _stm32_qspi_set_cs(struct stm32_qspi_priv *priv, unsigned int cs)
 			cs ? STM32_QSPI_CR_FSEL : 0);
 }
 
-static unsigned int _stm32_qspi_gen_ccr(struct stm32_qspi_priv *priv)
+static unsigned int _stm32_qspi_gen_ccr(struct stm32_qspi_priv *priv, u8 fmode)
 {
 	unsigned int ccr_reg = 0;
 	u8 imode, admode, dmode;
@@ -258,8 +258,11 @@ static unsigned int _stm32_qspi_gen_ccr(struct stm32_qspi_priv *priv)
 				<< STM32_QSPI_CCR_ADSIZE_SHIFT);
 		ccr_reg |= (admode << STM32_QSPI_CCR_ADMODE_SHIFT);
 	}
+
+	ccr_reg |= (fmode << STM32_QSPI_CCR_FMODE_SHIFT);
 	ccr_reg |= (imode << STM32_QSPI_CCR_IMODE_SHIFT);
 	ccr_reg |= cmd;
+
 	return ccr_reg;
 }
 
@@ -272,8 +275,7 @@ static void _stm32_qspi_enable_mmap(struct stm32_qspi_priv *priv,
 			| CMD_HAS_DUMMY;
 	priv->dummycycles = flash->dummy_byte * 8;
 
-	ccr_reg = _stm32_qspi_gen_ccr(priv);
-	ccr_reg |= (STM32_QSPI_CCR_MEM_MAP << STM32_QSPI_CCR_FMODE_SHIFT);
+	ccr_reg = _stm32_qspi_gen_ccr(priv, STM32_QSPI_CCR_MEM_MAP);
 
 	_stm32_qspi_wait_for_not_busy(priv);
 
@@ -359,9 +361,8 @@ static int _stm32_qspi_xfer(struct stm32_qspi_priv *priv,
 		}
 
 		if (flags & SPI_XFER_END) {
-			ccr_reg = _stm32_qspi_gen_ccr(priv);
-			ccr_reg |= STM32_QSPI_CCR_IND_WRITE
-					<< STM32_QSPI_CCR_FMODE_SHIFT;
+			ccr_reg = _stm32_qspi_gen_ccr(priv,
+						      STM32_QSPI_CCR_IND_WRITE);
 
 			_stm32_qspi_wait_for_not_busy(priv);
 
@@ -392,9 +393,7 @@ static int _stm32_qspi_xfer(struct stm32_qspi_priv *priv,
 			}
 		}
 	} else if (din) {
-		ccr_reg = _stm32_qspi_gen_ccr(priv);
-		ccr_reg |= STM32_QSPI_CCR_IND_READ
-				<< STM32_QSPI_CCR_FMODE_SHIFT;
+		ccr_reg = _stm32_qspi_gen_ccr(priv, STM32_QSPI_CCR_IND_READ);
 
 		_stm32_qspi_wait_for_not_busy(priv);
 
