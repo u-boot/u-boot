@@ -169,7 +169,7 @@ config STM32MP_FUSE
 
 config STM32_RCC
 	bool "Enable RCC driver for the STM32 SoC's family"
-	depends on STM32 && MISC
+	depends on (STM32 || ARCH_STM32MP) && MISC
 	help
 	  Enable the STM32 RCC driver. The RCC block (Reset and Clock Control
 	  block) is responsible of the management of the clock and reset

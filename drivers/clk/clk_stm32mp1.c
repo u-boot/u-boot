@@ -1764,15 +1764,9 @@ static const struct clk_ops stm32mp1_clk_ops = {
 	.get_rate = stm32mp1_clk_get_rate,
 };
 
-static const struct udevice_id stm32mp1_clk_ids[] = {
-	{ .compatible = "st,stm32mp1-rcc-clk" },
-	{ }
-};
-
 U_BOOT_DRIVER(stm32mp1_clock) = {
 	.name = "stm32mp1_clk",
 	.id = UCLASS_CLK,
-	.of_match = stm32mp1_clk_ids,
 	.ops = &stm32mp1_clk_ops,
 	.priv_auto_alloc_size = sizeof(struct stm32mp1_clk_priv),
 	.probe = stm32mp1_clk_probe,
