@@ -144,10 +144,6 @@ config TARGET_M5253DEMO
 	bool "Support M5253DEMO"
 	select M5253
 
-config TARGET_M5253EVBE
-	bool "Support M5253EVBE"
-	select M5253
-
 config TARGET_M5272C3
 	bool "Support M5272C3"
 	select M5272
@@ -214,7 +210,6 @@ source "board/freescale/m52277evb/Kconfig"
 source "board/freescale/m5235evb/Kconfig"
 source "board/freescale/m5249evb/Kconfig"
 source "board/freescale/m5253demo/Kconfig"
-source "board/freescale/m5253evbe/Kconfig"
 source "board/freescale/m5272c3/Kconfig"
 source "board/freescale/m5275evb/Kconfig"
 source "board/freescale/m5282evb/Kconfig"
