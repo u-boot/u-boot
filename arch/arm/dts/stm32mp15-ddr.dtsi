@@ -13,12 +13,12 @@
 			reg = <0x5A003000 0x550
 			       0x5A004000 0x234>;
 
-			clocks = <&rcc_clk AXIDCG>,
-				 <&rcc_clk DDRC1>,
-				 <&rcc_clk DDRC2>,
-				 <&rcc_clk DDRPHYC>,
-				 <&rcc_clk DDRCAPB>,
-				 <&rcc_clk DDRPHYCAPB>;
+			clocks = <&rcc AXIDCG>,
+				 <&rcc DDRC1>,
+				 <&rcc DDRC2>,
+				 <&rcc DDRPHYC>,
+				 <&rcc DDRCAPB>,
+				 <&rcc DDRPHYCAPB>;
 
 			clock-names = "axidcg",
 				      "ddrc1",

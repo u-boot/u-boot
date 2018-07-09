@@ -1,27 +1,24 @@
-/* SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause) */
+// SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
 /*
  * Copyright (C) STMicroelectronics 2017 - All Rights Reserved
  * Author: Ludovic Barre <ludovic.barre@st.com> for STMicroelectronics.
  */
-
 /dts-v1/;
 
-#include "stm32mp157.dtsi"
+#include "stm32mp157c.dtsi"
+#include "stm32mp157-pinctrl.dtsi"
 #include <dt-bindings/gpio/gpio.h>
-#include <dt-bindings/input/input.h>
-#include <dt-bindings/pinctrl/stm32-pinfunc.h>
 #include <dt-bindings/mfd/st,stpmu1.h>
 
 / {
-	model = "STMicroelectronics STM32MP157C pmic eval daughter";
+	model = "STMicroelectronics STM32MP157C eval daughter";
 	compatible = "st,stm32mp157c-ed1", "st,stm32mp157";
 
 	chosen {
-		bootargs = "earlyprintk console=ttyS3,115200 root=/dev/ram";
 		stdout-path = "serial3:115200n8";
 	};
 
-	memory {
+	memory@c0000000 {
 		reg = <0xC0000000 0x40000000>;
 	};
 
@@ -39,129 +36,14 @@
 	};
 };
 
-&gpioa {
+&rng1 {
 	status = "okay";
 };
 
-&gpiob {
+&timers6 {
 	status = "okay";
-};
-
-&gpioc {
-	status = "okay";
-};
-
-&gpiod {
-	status = "okay";
-};
-
-&gpioe {
-	status = "okay";
-};
-
-&gpiof {
-	status = "okay";
-};
-
-&gpiog {
-	status = "okay";
-};
-
-&gpioh {
-	status = "okay";
-};
-
-&gpioi {
-	status = "okay";
-};
-
-&gpioj {
-	status = "okay";
-};
-
-&gpiok {
-	status = "okay";
-};
-
-&gpioz {
-	status = "okay";
-};
-
-&pinctrl {
-	uart4_pins_a: uart4@0 {
-		pins1 {
-			pinmux = <STM32_PINMUX('G', 11, AF6)>; /* UART4_TX */
-			bias-disable;
-			drive-push-pull;
-			slew-rate = <0>;
-		};
-		pins2 {
-			pinmux = <STM32_PINMUX('B', 2, AF8)>; /* UART4_RX */
-			bias-disable;
-		};
-	};
-
-	sdmmc1_b4_pins_a: sdmmc1-b4@0 {
-		pins {
-			pinmux = <STM32_PINMUX('C', 8, AF12)>, /* SDMMC1_D0 */
-				 <STM32_PINMUX('C', 9, AF12)>, /* SDMMC1_D1 */
-				 <STM32_PINMUX('C', 10, AF12)>, /* SDMMC1_D2 */
-				 <STM32_PINMUX('C', 11, AF12)>, /* SDMMC1_D3 */
-				 <STM32_PINMUX('C', 12, AF12)>, /* SDMMC1_CK */
-				 <STM32_PINMUX('D', 2, AF12)>; /* SDMMC1_CMD */
-			slew-rate = <3>;
-			drive-push-pull;
-			bias-disable;
-		};
-	};
-
-	sdmmc1_dir_pins_a: sdmmc1-dir@0 {
-		pins {
-			pinmux = <STM32_PINMUX('F', 2, AF11)>, /* SDMMC1_D0DIR */
-				 <STM32_PINMUX('C', 7, AF8)>, /* SDMMC1_D123DIR */
-				 <STM32_PINMUX('B', 9, AF11)>, /* SDMMC1_CDIR */
-				 <STM32_PINMUX('E', 4, AF8)>; /* SDMMC1_CKIN */
-			slew-rate = <3>;
-			drive-push-pull;
-			bias-pull-up;
-		};
-	};
-	sdmmc2_b4_pins_a: sdmmc2-b4@0 {
-		pins {
-			pinmux = <STM32_PINMUX('B', 14, AF9)>, /* SDMMC2_D0 */
-				 <STM32_PINMUX('B', 15, AF9)>, /* SDMMC2_D1 */
-				 <STM32_PINMUX('B', 3, AF9)>, /* SDMMC2_D2 */
-				 <STM32_PINMUX('B', 4, AF9)>, /* SDMMC2_D3 */
-				 <STM32_PINMUX('E', 3, AF9)>, /* SDMMC2_CK */
-				 <STM32_PINMUX('G', 6, AF10)>; /* SDMMC2_CMD */
-			slew-rate = <3>;
-			drive-push-pull;
-			bias-pull-up;
-		};
-	};
-
-	sdmmc2_d47_pins_a: sdmmc2-d47@0 {
-		pins {
-			pinmux = <STM32_PINMUX('A', 8, AF9)>, /* SDMMC2_D4 */
-				 <STM32_PINMUX('A', 9, AF10)>, /* SDMMC2_D5 */
-				 <STM32_PINMUX('E', 5, AF9)>, /* SDMMC2_D6 */
-				 <STM32_PINMUX('D', 3, AF9)>; /* SDMMC2_D7 */
-			slew-rate = <3>;
-			drive-push-pull;
-			bias-pull-up;
-		};
-	};
-};
-
-&pinctrl_z {
-	i2c4_pins_a: i2c4@0 {
-		pins {
-			pinmux = <STM32_PINMUX('Z', 4, AF6)>, /* I2C4_SCL */
-				 <STM32_PINMUX('Z', 5, AF6)>; /* I2C4_SDA */
-			bias-disable;
-			drive-open-drain;
-			slew-rate = <0>;
-		};
+	timer@5 {
+		status = "okay";
 	};
 };
 
@@ -439,8 +321,11 @@
 	};
 };
 
+&pwr {
+	pwr-supply = <&vdd>;
+};
+
 &sdmmc1 {
-	pinctrl-names = "default";
 	pinctrl-0 = <&sdmmc1_b4_pins_a &sdmmc1_dir_pins_a>;
 	broken-cd;
 	st,dirpol;
@@ -458,7 +343,6 @@
 };
 
 &sdmmc2 {
-	pinctrl-names = "default";
 	pinctrl-0 = <&sdmmc2_b4_pins_a &sdmmc2_d47_pins_a>;
 	non-removable;
 	no-sd;
@@ -466,6 +350,8 @@
 	st,dirpol;
 	st,negedge;
 	bus-width = <8>;
+	vmmc-supply = <&v3v3>;
+	vqmmc-supply = <&vdd>;
 	status = "okay";
 };
 
@@ -473,4 +359,16 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart4_pins_a>;
 	status = "okay";
+};
+
+&usbphyc_port0 {
+	phy-supply = <&vdd_usb>;
+	vdda1v1-supply = <&reg11>;
+	vdda1v8-supply = <&reg18>;
+};
+
+&usbphyc_port1 {
+	phy-supply = <&vdd_usb>;
+	vdda1v1-supply = <&reg11>;
+	vdda1v8-supply = <&reg18>;
 };

@@ -45,7 +45,7 @@
 };
 
 /* CLOCK init */
-&rcc_clk {
+&rcc {
 	st,clksrc = <
 		CLK_MPU_PLL1P
 		CLK_AXI_PLL2P
