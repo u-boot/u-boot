@@ -1005,8 +1005,11 @@ sep_err:
 
 #ifdef CONFIG_CMD_IMPORTENV
 /*
- * env import [-d] [-t [-r] | -b | -c] addr [size]
- *	-d:	delete existing environment before importing;
+ * env import [-d] [-t [-r] | -b | -c] addr [size] [var ...]
+ *	-d:	delete existing environment before importing if no var is
+ *		passed; if vars are passed, if one var is in the current
+ *		environment but not in the environment at addr, delete var from
+ *		current environment;
  *		otherwise overwrite / append to existing definitions
  *	-t:	assume text format; either "size" must be given or the
  *		text data must be '\0' terminated
@@ -1019,6 +1022,11 @@ sep_err:
  *	addr:	memory address to read from
  *	size:	length of input data; if missing, proper '\0'
  *		termination is mandatory
+ *		if var is set and size should be missing (i.e. '\0'
+ *		termination), set size to '-'
+ *	var...	List of the names of the only variables that get imported from
+ *		the environment at address 'addr'. Without arguments, the whole
+ *		environment gets imported.
  */
 static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 			 int argc, char * const argv[])
@@ -1030,6 +1038,7 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 	int	fmt = 0;
 	int	del = 0;
 	int	crlf_is_lf = 0;
+	int	wl = 0;
 	size_t	size;
 
 	cmd = *argv;
@@ -1078,9 +1087,9 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 	addr = simple_strtoul(argv[0], NULL, 16);
 	ptr = map_sysmem(addr, 0);
 
-	if (argc == 2) {
+	if (argc >= 2 && strcmp(argv[1], "-")) {
 		size = simple_strtoul(argv[1], NULL, 16);
-	} else if (argc == 1 && chk) {
+	} else if (chk) {
 		puts("## Error: external checksum format must pass size\n");
 		return CMD_RET_FAILURE;
 	} else {
@@ -1102,6 +1111,9 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 		printf("## Info: input data size = %zu = 0x%zX\n", size, size);
 	}
 
+	if (argc > 2)
+		wl = 1;
+
 	if (chk) {
 		uint32_t crc;
 		env_t *ep = (env_t *)ptr;
@@ -1116,8 +1128,8 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 		ptr = (char *)ep->data;
 	}
 
-	if (himport_r(&env_htab, ptr, size, sep, del ? 0 : H_NOCLEAR,
-			crlf_is_lf, 0, NULL) == 0) {
+	if (!himport_r(&env_htab, ptr, size, sep, del ? 0 : H_NOCLEAR,
+		       crlf_is_lf, wl ? argc - 2 : 0, wl ? &argv[2] : NULL)) {
 		pr_err("## Error: Environment import failed: errno = %d\n",
 		       errno);
 		return 1;
@@ -1247,7 +1259,7 @@ static char env_help_text[] =
 #endif
 #endif
 #if defined(CONFIG_CMD_IMPORTENV)
-	"env import [-d] [-t [-r] | -b | -c] addr [size] - import environment\n"
+	"env import [-d] [-t [-r] | -b | -c] addr [size] [var ...] - import environment\n"
 #endif
 	"env print [-a | name ...] - print environment\n"
 #if defined(CONFIG_CMD_RUN)
