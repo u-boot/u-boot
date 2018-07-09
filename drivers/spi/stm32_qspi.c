@@ -229,21 +229,21 @@ static unsigned int _stm32_qspi_gen_ccr(struct stm32_qspi_priv *priv, u8 fmode)
 
 	imode = STM32_QSPI_CCR_IMODE_ONE_LINE;
 	admode = STM32_QSPI_CCR_ADMODE_ONE_LINE;
+	dmode = STM32_QSPI_CCR_DMODE_ONE_LINE;
 
-	if (mode & SPI_RX_QUAD) {
-		dmode = STM32_QSPI_CCR_DMODE_FOUR_LINE;
-		if (mode & SPI_TX_QUAD) {
-			imode = STM32_QSPI_CCR_IMODE_FOUR_LINE;
-			admode = STM32_QSPI_CCR_ADMODE_FOUR_LINE;
+	if ((priv->command & CMD_HAS_ADR) && (priv->command & CMD_HAS_DATA)) {
+		if (fmode == STM32_QSPI_CCR_IND_WRITE) {
+			if (mode & SPI_TX_QUAD)
+				dmode = STM32_QSPI_CCR_DMODE_FOUR_LINE;
+			else if (mode & SPI_TX_DUAL)
+				dmode = STM32_QSPI_CCR_DMODE_TWO_LINE;
+		} else if ((fmode == STM32_QSPI_CCR_MEM_MAP) ||
+			 (fmode == STM32_QSPI_CCR_IND_READ)) {
+			if (mode & SPI_RX_QUAD)
+				dmode = STM32_QSPI_CCR_DMODE_FOUR_LINE;
+			else if (mode & SPI_RX_DUAL)
+				dmode = STM32_QSPI_CCR_DMODE_TWO_LINE;
 		}
-	} else if (mode & SPI_RX_DUAL) {
-		dmode = STM32_QSPI_CCR_DMODE_TWO_LINE;
-		if (mode & SPI_TX_DUAL) {
-			imode = STM32_QSPI_CCR_IMODE_TWO_LINE;
-			admode = STM32_QSPI_CCR_ADMODE_TWO_LINE;
-		}
-	} else {
-		dmode = STM32_QSPI_CCR_DMODE_ONE_LINE;
 	}
 
 	if (priv->command & CMD_HAS_DATA)
