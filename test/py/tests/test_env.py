@@ -5,6 +5,7 @@
 # Test operation of shell commands relating to environment variables.
 
 import pytest
+import u_boot_utils
 
 # FIXME: This might be useful for other tests;
 # perhaps refactor it into ConsoleBase or some other state object?
@@ -239,3 +240,99 @@ def test_env_expansion_spaces(state_test_env):
             unset_var(state_test_env, var_space)
         if var_test:
             unset_var(state_test_env, var_test)
+
+@pytest.mark.buildconfigspec('cmd_importenv')
+def test_env_import_checksum_no_size(state_test_env):
+    """Test that omitted ('-') size parameter with checksum validation fails the
+       env import function.
+    """
+    c = state_test_env.u_boot_console
+    ram_base = u_boot_utils.find_ram_base(state_test_env.u_boot_console)
+    addr = '%08x' % ram_base
+
+    with c.disable_check('error_notification'):
+        response = c.run_command('env import -c %s -' % addr)
+    assert(response == '## Error: external checksum format must pass size')
+
+@pytest.mark.buildconfigspec('cmd_importenv')
+def test_env_import_whitelist_checksum_no_size(state_test_env):
+    """Test that omitted ('-') size parameter with checksum validation fails the
+       env import function when variables are passed as parameters.
+    """
+    c = state_test_env.u_boot_console
+    ram_base = u_boot_utils.find_ram_base(state_test_env.u_boot_console)
+    addr = '%08x' % ram_base
+
+    with c.disable_check('error_notification'):
+        response = c.run_command('env import -c %s - foo1 foo2 foo4' % addr)
+    assert(response == '## Error: external checksum format must pass size')
+
+@pytest.mark.buildconfigspec('cmd_exportenv')
+@pytest.mark.buildconfigspec('cmd_importenv')
+def test_env_import_whitelist(state_test_env):
+    """Test importing only a handful of env variables from an environment."""
+    c = state_test_env.u_boot_console
+    ram_base = u_boot_utils.find_ram_base(state_test_env.u_boot_console)
+    addr = '%08x' % ram_base
+
+    set_var(state_test_env, 'foo1', 'bar1')
+    set_var(state_test_env, 'foo2', 'bar2')
+    set_var(state_test_env, 'foo3', 'bar3')
+
+    c.run_command('env export %s' % addr)
+
+    unset_var(state_test_env, 'foo1')
+    set_var(state_test_env, 'foo2', 'test2')
+    set_var(state_test_env, 'foo4', 'bar4')
+
+    # no foo1 in current env, foo2 overridden, foo3 should be of the value
+    # before exporting and foo4 should be of the value before importing.
+    c.run_command('env import %s - foo1 foo2 foo4' % addr)
+
+    validate_set(state_test_env, 'foo1', 'bar1')
+    validate_set(state_test_env, 'foo2', 'bar2')
+    validate_set(state_test_env, 'foo3', 'bar3')
+    validate_set(state_test_env, 'foo4', 'bar4')
+
+    # Cleanup test environment
+    unset_var(state_test_env, 'foo1')
+    unset_var(state_test_env, 'foo2')
+    unset_var(state_test_env, 'foo3')
+    unset_var(state_test_env, 'foo4')
+
+@pytest.mark.buildconfigspec('cmd_exportenv')
+@pytest.mark.buildconfigspec('cmd_importenv')
+def test_env_import_whitelist_delete(state_test_env):
+
+    """Test importing only a handful of env variables from an environment, with.
+       deletion if a var A that is passed to env import is not in the
+       environment to be imported.
+    """
+    c = state_test_env.u_boot_console
+    ram_base = u_boot_utils.find_ram_base(state_test_env.u_boot_console)
+    addr = '%08x' % ram_base
+
+    set_var(state_test_env, 'foo1', 'bar1')
+    set_var(state_test_env, 'foo2', 'bar2')
+    set_var(state_test_env, 'foo3', 'bar3')
+
+    c.run_command('env export %s' % addr)
+
+    unset_var(state_test_env, 'foo1')
+    set_var(state_test_env, 'foo2', 'test2')
+    set_var(state_test_env, 'foo4', 'bar4')
+
+    # no foo1 in current env, foo2 overridden, foo3 should be of the value
+    # before exporting and foo4 should be empty.
+    c.run_command('env import -d %s - foo1 foo2 foo4' % addr)
+
+    validate_set(state_test_env, 'foo1', 'bar1')
+    validate_set(state_test_env, 'foo2', 'bar2')
+    validate_set(state_test_env, 'foo3', 'bar3')
+    validate_empty(state_test_env, 'foo4')
+
+    # Cleanup test environment
+    unset_var(state_test_env, 'foo1')
+    unset_var(state_test_env, 'foo2')
+    unset_var(state_test_env, 'foo3')
+    unset_var(state_test_env, 'foo4')
