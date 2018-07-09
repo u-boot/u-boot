@@ -236,6 +236,12 @@ def find_ram_base(u_boot_console):
             ram_base = -1
             raise Exception('Failed to find RAM bank start in `bdinfo`')
 
+    # We don't want ram_base to be zero as some functions test if the given
+    # address is NULL (0). Let's add 2MiB then (size of an ARM LPAE/v8 section).
+
+    if ram_base == 0:
+        ram_base += 1024 * 1024 * 2
+
     return ram_base
 
 class PersistentFileHelperCtxMgr(object):
