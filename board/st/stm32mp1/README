@@ -29,9 +29,12 @@ Everything is supported in Linux but U-Boot is limited to:
 And the necessary drivers
 1. I2C
 2. STPMU1
-3. Clock, Reset
+2. STPMU1 (PMIC and regulator)
+3. Clock, Reset, Sysreset
+4. Fuse
 
 Currently the following boards are supported:
++ stm32mp157c-ev1
 + stm32mp157c-ed1
 
 3. Boot Sequences
@@ -60,6 +63,9 @@ Each board is configurated only with the associated device tree.
 
 You need to select the appropriate device tree for your board,
 the supported device trees for stm32mp157 are:
+
++ ev1: eval board with pmic stpmu1 (ev1 = mother board + daughter ed1)
+  dts: stm32mp157c-ev1
 
 + ed1: daughter board with pmic stpmu1
   dts: stm32mp157c-ed1
@@ -98,6 +104,11 @@ the supported device trees for stm32mp157 are:
 
 
   example:
+     basic boot on ev1
+	# export KBUILD_OUTPUT=stm32mp15_basic
+	# make stm32mp15_basic_defconfig
+	# make DEVICE_TREE=stm32mp157c-ev1 all
+
      basic boot on ed1
 	# export KBUILD_OUTPUT=stm32mp15_basic
 	# make stm32mp15_basic_defconfig
@@ -105,7 +116,7 @@ the supported device trees for stm32mp157 are:
 
 6. Output files
 
-  BootRom and ATF expect binaries with STM32 image header
+  BootRom and TF-A expect binaries with STM32 image header
   SPL expects file with U-Boot uImage header
 
   So in the output directory (selected by KBUILD_OUTPUT),
@@ -150,8 +161,8 @@ Then the minimal GPT partition is:
    ----- ------- --------- -------------
   | Num | Name  | Size    |  Content    |
    ----- ------- -------- --------------
-  |  1  | fsbl1 | 256 KiB |  ATF or SPL |
-  |  2  | fsbl2 | 256 KiB |  ATF or SPL |
+  |  1  | fsbl1 | 256 KiB |  TF-A or SPL |
+  |  2  | fsbl2 | 256 KiB |  TF-A or SPL |
   |  3  | ssbl  | enought |  U-Boot     |
   |  *  |  -    |  -      |  Boot/Rootfs|
    ----- ------- --------- -------------
@@ -176,7 +187,9 @@ for example: with gpt table with 128 entries
 		-n 3:1058:5153		-c 3:ssbl \
 		-p /dev/<SDCard dev>
 
-	you can add other partition for kernel (rootfs for example)
+	you can add other partitions for kernel
+	one partition rootfs for example:
+		-n 3:5154:		-c 4:rootfs
 
   c) copy the FSBL (2 times) and SSBL file on the correct partition.
      in this example in partition 1 to 3
@@ -223,3 +236,33 @@ b) copy U-Boot in first GPT partition of eMMC
 	# mmc write ${fileaddr} ${partstart} ${partsize}
 
 To boot from eMMC, select BootPinMode = 0 1 0 and reset.
+
+9. MAC Address
+==============
+
+Please read doc/README.enetaddr for the implementation guidelines for mac id
+usage. Basically, environment has precedence over board specific storage.
+
+Mac id storage and retrieval in stm32mp otp :
+- OTP_57[31:0] = MAC_ADDR[31:0]
+- OTP_58[15:0] = MAC_ADDR[47:32]
+
+To program a MAC address on virgin OTP words above, you can use the fuse command
+on bank 0 to access to internal OTP:
+
+    example to set mac address "12:34:56:78:9a:bc"
+
+    1- Write OTP
+       STM32MP> fuse prog -y 0 57 0x78563412 0x0000bc9a
+
+    2- Read OTP
+       STM32MP> fuse sense 0 57 2
+       Sensing bank 0:
+       Word 0x00000039: 78563412 0000bc9a
+
+    3- next REBOOT :
+       ### Setting environment from OTP MAC address = "12:34:56:78:9a:bc"
+
+    4 check env update
+       STM32MP> print ethaddr
+       ethaddr=12:34:56:78:9a:bc
