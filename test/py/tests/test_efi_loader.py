@@ -118,7 +118,7 @@ def fetch_tftp_file(u_boot_console, env_conf):
 
     addr = f.get('addr', None)
     if not addr:
-        addr = u_boot_utils.find_ram_base(u_boot_console) + (1024 * 1024 * 4)
+        addr = u_boot_utils.find_ram_base(u_boot_console)
 
     fn = f['fn']
     output = u_boot_console.run_command('tftpboot %x %s' % (addr, fn))

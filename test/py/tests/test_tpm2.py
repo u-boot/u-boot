@@ -183,7 +183,7 @@ def test_tpm2_pcr_read(u_boot_console):
     """
 
     force_init(u_boot_console)
-    ram = u_boot_utils.find_ram_base(u_boot_console) + 1024
+    ram = u_boot_utils.find_ram_base(u_boot_console)
 
     read_pcr = u_boot_console.run_command('tpm pcr_read 0 0x%x' % ram)
     output = u_boot_console.run_command('echo $?')
@@ -210,7 +210,7 @@ def test_tpm2_pcr_extend(u_boot_console):
     """
 
     force_init(u_boot_console)
-    ram = u_boot_utils.find_ram_base(u_boot_console) + 1024
+    ram = u_boot_utils.find_ram_base(u_boot_console)
 
     u_boot_console.run_command('tpm pcr_extend 0 0x%x' % ram)
     output = u_boot_console.run_command('echo $?')
