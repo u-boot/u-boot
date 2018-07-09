@@ -1824,7 +1824,6 @@ endmenu
 
 config CMD_UBI
 	tristate "Enable UBI - Unsorted block images commands"
-	default y if NAND_SUNXI
 	select CMD_MTDPARTS
 	select CRC32
 	select MTD_UBI

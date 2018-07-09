@@ -831,6 +831,7 @@ config ARCH_SUNXI
 	select USE_TINY_PRINTF
 	imply CMD_DM
 	imply CMD_GPT
+	imply CMD_UBI if NAND
 	imply DISTRO_DEFAULTS
 	imply FAT_WRITE
 	imply OF_LIBFDT_OVERLAY
