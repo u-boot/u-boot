@@ -35,18 +35,20 @@ static struct sysreset_ops syscon_reboot_ops = {
 
 int syscon_reboot_probe(struct udevice *dev)
 {
-	struct udevice *syscon;
 	struct syscon_reboot_priv *priv = dev_get_priv(dev);
 	int err;
+	u32 phandle;
+	ofnode node;
 
-	err = uclass_get_device_by_phandle(UCLASS_SYSCON, dev,
-					   "regmap", &syscon);
-	if (err) {
-		pr_err("unable to find syscon device\n");
+	err = ofnode_read_u32(dev_ofnode(dev), "regmap", &phandle);
+	if (err)
 		return err;
-	}
 
-	priv->regmap = syscon_get_regmap(syscon);
+	node = ofnode_get_by_phandle(phandle);
+	if (!ofnode_valid(node))
+		return -EINVAL;
+
+	priv->regmap = syscon_node_to_regmap(node);
 	if (!priv->regmap) {
 		pr_err("unable to find regmap\n");
 		return -ENODEV;
