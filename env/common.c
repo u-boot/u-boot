@@ -79,7 +79,8 @@ void set_default_env(const char *s, int flags)
 	if (himport_r(&env_htab, (char *)default_environment,
 			sizeof(default_environment), '\0', flags, 0,
 			0, NULL) == 0)
-		pr_err("Environment import failed: errno = %d\n", errno);
+		pr_err("## Error: Environment import failed: errno = %d\n",
+		       errno);
 
 	gd->flags |= GD_FLG_ENV_READY;
 	gd->flags |= GD_FLG_ENV_DEFAULT;
