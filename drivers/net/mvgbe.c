@@ -55,20 +55,13 @@ static int smi_wait_ready(struct mvgbe_device *dmvgbe)
 	return 0;
 }
 
-/*
- * smi_reg_read - miiphy_read callback function.
- *
- * Returns 16bit phy register value, or -EFAULT on error
- */
-static int smi_reg_read(struct mii_dev *bus, int phy_adr, int devad,
-			int reg_ofs)
+static int __mvgbe_mdio_read(struct mvgbe_device *dmvgbe, int phy_adr,
+			     int devad, int reg_ofs)
 {
-	u16 data = 0;
-	struct eth_device *dev = eth_get_dev_by_name(bus->name);
-	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
 	struct mvgbe_registers *regs = dmvgbe->regs;
 	u32 smi_reg;
 	u32 timeout;
+	u16 data = 0;
 
 	/* Phyadr read request */
 	if (phy_adr == MV_PHY_ADR_REQUEST &&
@@ -127,15 +120,22 @@ static int smi_reg_read(struct mii_dev *bus, int phy_adr, int devad,
 }
 
 /*
- * smi_reg_write - miiphy_write callback function.
+ * smi_reg_read - miiphy_read callback function.
  *
- * Returns 0 if write succeed, -EFAULT on error
+ * Returns 16bit phy register value, or -EFAULT on error
  */
-static int smi_reg_write(struct mii_dev *bus, int phy_adr, int devad,
-			 int reg_ofs, u16 data)
+static int smi_reg_read(struct mii_dev *bus, int phy_adr, int devad,
+			int reg_ofs)
 {
 	struct eth_device *dev = eth_get_dev_by_name(bus->name);
 	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
+
+	return __mvgbe_mdio_read(dmvgbe, phy_adr, devad, reg_ofs);
+}
+
+static int __mvgbe_mdio_write(struct mvgbe_device *dmvgbe, int phy_adr,
+			      int devad, int reg_ofs, u16 data)
+{
 	struct mvgbe_registers *regs = dmvgbe->regs;
 	u32 smi_reg;
 
@@ -170,6 +170,20 @@ static int smi_reg_write(struct mii_dev *bus, int phy_adr, int devad,
 	MVGBE_REG_WR(MVGBE_SMI_REG, smi_reg);
 
 	return 0;
+}
+
+/*
+ * smi_reg_write - miiphy_write callback function.
+ *
+ * Returns 0 if write succeed, -EFAULT on error
+ */
+static int smi_reg_write(struct mii_dev *bus, int phy_adr, int devad,
+			 int reg_ofs, u16 data)
+{
+	struct eth_device *dev = eth_get_dev_by_name(bus->name);
+	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
+
+	return __mvgbe_mdio_write(dmvgbe, phy_adr, devad, reg_ofs, data);
 }
 #endif
 
@@ -357,8 +371,9 @@ static int port_uc_addr(struct mvgbe_registers *regs, u8 uc_nibble,
 /*
  * port_uc_addr_set - This function Set the port Unicast address.
  */
-static void port_uc_addr_set(struct mvgbe_registers *regs, u8 * p_addr)
+static void port_uc_addr_set(struct mvgbe_device *dmvgbe, u8 *p_addr)
 {
+	struct mvgbe_registers *regs = dmvgbe->regs;
 	u32 mac_h;
 	u32 mac_l;
 
@@ -400,9 +415,8 @@ static void mvgbe_init_rx_desc_ring(struct mvgbe_device *dmvgbe)
 	dmvgbe->p_rxdesc_curr = dmvgbe->p_rxdesc;
 }
 
-static int mvgbe_init(struct eth_device *dev)
+static int __mvgbe_init(struct mvgbe_device *dmvgbe)
 {
-	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
 	struct mvgbe_registers *regs = dmvgbe->regs;
 #if (defined(CONFIG_MII) || defined(CONFIG_CMD_MII)) &&  \
 	!defined(CONFIG_PHYLIB) &&			 \
@@ -422,7 +436,7 @@ static int mvgbe_init(struct eth_device *dev)
 
 	set_dram_access(regs);
 	port_init_mac_tables(regs);
-	port_uc_addr_set(regs, dmvgbe->dev.enetaddr);
+	port_uc_addr_set(dmvgbe, dmvgbe->dev.enetaddr);
 
 	/* Assign port configuration and command. */
 	MVGBE_REG_WR(regs->pxc, PRT_CFG_VAL);
@@ -464,23 +478,29 @@ static int mvgbe_init(struct eth_device *dev)
 	for (i = 0; i < 5; i++) {
 		u16 phyadr;
 
-		miiphy_read(dev->name, MV_PHY_ADR_REQUEST,
+		miiphy_read(dmvgbe->dev.name, MV_PHY_ADR_REQUEST,
 				MV_PHY_ADR_REQUEST, &phyadr);
 		/* Return if we get link up */
-		if (miiphy_link(dev->name, phyadr))
+		if (miiphy_link(dmvgbe->dev.name, phyadr))
 			return 0;
 		udelay(1000000);
 	}
 
-	printf("No link on %s\n", dev->name);
+	printf("No link on %s\n", dmvgbe->dev.name);
 	return -1;
 #endif
 	return 0;
 }
 
-static int mvgbe_halt(struct eth_device *dev)
+static int mvgbe_init(struct eth_device *dev)
 {
 	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
+
+	return __mvgbe_init(dmvgbe);
+}
+
+static void __mvgbe_halt(struct mvgbe_device *dmvgbe)
+{
 	struct mvgbe_registers *regs = dmvgbe->regs;
 
 	/* Disable all gigE address decoder */
@@ -502,6 +522,13 @@ static int mvgbe_halt(struct eth_device *dev)
 	MVGBE_REG_WR(regs->ice, 0);
 	MVGBE_REG_WR(regs->pim, 0);
 	MVGBE_REG_WR(regs->peim, 0);
+}
+
+static int mvgbe_halt(struct eth_device *dev)
+{
+	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
+
+	__mvgbe_halt(dmvgbe);
 
 	return 0;
 }
@@ -509,16 +536,15 @@ static int mvgbe_halt(struct eth_device *dev)
 static int mvgbe_write_hwaddr(struct eth_device *dev)
 {
 	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
-	struct mvgbe_registers *regs = dmvgbe->regs;
 
 	/* Programs net device MAC address after initialization */
-	port_uc_addr_set(regs, dmvgbe->dev.enetaddr);
+	port_uc_addr_set(dmvgbe, dmvgbe->dev.enetaddr);
 	return 0;
 }
 
-static int mvgbe_send(struct eth_device *dev, void *dataptr, int datasize)
+static int __mvgbe_send(struct mvgbe_device *dmvgbe, void *dataptr,
+			int datasize)
 {
-	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
 	struct mvgbe_registers *regs = dmvgbe->regs;
 	struct mvgbe_txdesc *p_txdesc = dmvgbe->p_txdesc;
 	void *p = (void *)dataptr;
@@ -571,13 +597,23 @@ static int mvgbe_send(struct eth_device *dev, void *dataptr, int datasize)
 	return 0;
 }
 
-static int mvgbe_recv(struct eth_device *dev)
+static int mvgbe_send(struct eth_device *dev, void *dataptr, int datasize)
 {
 	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
+
+	return __mvgbe_send(dmvgbe, dataptr, datasize);
+}
+
+static int __mvgbe_recv(struct mvgbe_device *dmvgbe, uchar **packetp)
+{
 	struct mvgbe_rxdesc *p_rxdesc_curr = dmvgbe->p_rxdesc_curr;
 	u32 cmd_sts;
 	u32 timeout = 0;
 	u32 rxdesc_curr_addr;
+	unsigned char *data;
+	int rx_bytes = 0;
+
+	*packetp = NULL;
 
 	/* wait untill rx packet available or timeout */
 	do {
@@ -621,11 +657,11 @@ static int mvgbe_recv(struct eth_device *dev)
 		      " upper layer (net_process_received_packet)\n",
 		      __func__);
 
-		/* let the upper layer handle the packet */
-		net_process_received_packet((p_rxdesc_curr->buf_ptr +
-					     RX_BUF_OFFSET),
-					    (int)(p_rxdesc_curr->byte_cnt -
-						  RX_BUF_OFFSET));
+		data = (p_rxdesc_curr->buf_ptr + RX_BUF_OFFSET);
+		rx_bytes = (int)(p_rxdesc_curr->byte_cnt -
+						  RX_BUF_OFFSET);
+
+		*packetp = data;
 	}
 	/*
 	 * free these descriptors and point next in the ring
@@ -637,6 +673,21 @@ static int mvgbe_recv(struct eth_device *dev)
 
 	rxdesc_curr_addr = (u32)&dmvgbe->p_rxdesc_curr;
 	writel((unsigned)p_rxdesc_curr->nxtdesc_p, rxdesc_curr_addr);
+
+	return rx_bytes;
+}
+
+static int mvgbe_recv(struct eth_device *dev)
+{
+	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
+	uchar *packet;
+	int ret;
+
+	ret = __mvgbe_recv(dmvgbe, &packet);
+	if (ret < 0)
+		return ret;
+
+	net_process_received_packet(packet, ret);
 
 	return 0;
 }
