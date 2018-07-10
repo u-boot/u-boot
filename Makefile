@@ -1707,9 +1707,11 @@ tests:
 
 # Documentation targets
 # ---------------------------------------------------------------------------
-%docs: scripts_basic FORCE
-	$(Q)$(MAKE) $(build)=scripts build_docproc
-	$(Q)$(MAKE) $(build)=doc/DocBook $@
+DOC_TARGETS := xmldocs latexdocs pdfdocs htmldocs epubdocs cleandocs \
+	       linkcheckdocs dochelp refcheckdocs
+PHONY += $(DOC_TARGETS)
+$(DOC_TARGETS): scripts_basic FORCE
+	$(Q)$(MAKE) $(build)=Documentation $@
 
 endif #ifeq ($(config-targets),1)
 endif #ifeq ($(mixed-targets),1)
