@@ -64,9 +64,14 @@ class Entry_u_boot_ucode(Entry_blob):
             self.data = ''
             return True
 
-        # Get the microcode from the device tree entry
+        # Get the microcode from the device tree entry. If it is not available
+        # yet, return False so we will be called later. If the section simply
+        # doesn't exist, then we may as well return True, since we are going to
+        # get an error anyway.
         fdt_entry = self.section.FindEntryType('u-boot-dtb-with-ucode')
-        if not fdt_entry or not fdt_entry.ucode_data:
+        if not fdt_entry:
+            return True
+        if not fdt_entry.ready:
             return False
 
         if not fdt_entry.collate:

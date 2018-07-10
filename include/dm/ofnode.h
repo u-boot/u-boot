@@ -237,6 +237,16 @@ int ofnode_read_u32_default(ofnode ref, const char *propname, u32 def);
 int ofnode_read_s32_default(ofnode node, const char *propname, s32 def);
 
 /**
+ * ofnode_read_u64_default() - Read a 64-bit integer from a property
+ *
+ * @ref:	valid node reference to read property from
+ * @propname:	name of the property to read from
+ * @def:	default value to return if the property has no value
+ * @return property value, or @def if not found
+ */
+int ofnode_read_u64_default(ofnode node, const char *propname, u64 def);
+
+/**
  * ofnode_read_string() - Read a string from a property
  *
  * @ref:	valid node reference to read property from
@@ -252,6 +262,7 @@ const char *ofnode_read_string(ofnode node, const char *propname);
  * @propname:	name of the property to read
  * @out_values:	pointer to return value, modified only if return value is 0
  * @sz:		number of array elements to read
+ * @return 0 if OK, -ve on error
  *
  * Search for a property in a device node and read 32-bit value(s) from
  * it. Returns 0 on success, -EINVAL if the property does not exist,
@@ -480,6 +491,7 @@ ofnode ofnode_path(const char *path);
  * This looks for a property within the /chosen node and returns its value
  *
  * @propname: Property name to look for
+ * @return property value if found, else NULL
  */
 const char *ofnode_get_chosen_prop(const char *propname);
 
@@ -635,13 +647,47 @@ int ofnode_read_simple_size_cells(ofnode node);
  *   new platforms.
  *
  * @node: node to check
- * @eturns true if node is needed in SPL/TL, false otherwise
+ * @return true if node is needed in SPL/TL, false otherwise
  */
 bool ofnode_pre_reloc(ofnode node);
 
+/**
+ * ofnode_read_resource() - Read a resource from a node
+ *
+ * Read resource information from a node at the given index
+ *
+ * @node: Node to read from
+ * @index: Index of resource to read (0 = first)
+ * @res: Returns resource that was read, on success
+ * @return 0 if OK, -ve on error
+ */
 int ofnode_read_resource(ofnode node, uint index, struct resource *res);
+
+/**
+ * ofnode_read_resource_byname() - Read a resource from a node by name
+ *
+ * Read resource information from a node matching the given name. This uses a
+ * 'reg-names' string list property with the names matching the associated
+ * 'reg' property list.
+ *
+ * @node: Node to read from
+ * @name: Name of resource to read
+ * @res: Returns resource that was read, on success
+ * @return 0 if OK, -ve on error
+ */
 int ofnode_read_resource_byname(ofnode node, const char *name,
 				struct resource *res);
+
+/**
+ * ofnode_by_compatible() - Find the next compatible node
+ *
+ * Find the next node after @from that is compatible with @compat
+ *
+ * @from: ofnode to start from (use ofnode_null() to start at the beginning)
+ * @compat: Compatible string to match
+ * @return ofnode found, or ofnode_null() if none
+ */
+ofnode ofnode_by_compatible(ofnode from, const char *compat);
 
 /**
  * ofnode_for_each_subnode() - iterate over all subnodes of a parent

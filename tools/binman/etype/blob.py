@@ -28,8 +28,7 @@ class Entry_blob(Entry):
             # new Entry method which can read in chunks. Then we could copy
             # the data in chunks and avoid reading it all at once. For now
             # this seems like an unnecessary complication.
-            self.data = fd.read()
-            self.contents_size = len(self.data)
+            self.SetContents(fd.read())
         return True
 
     def GetDefaultFilename(self):

@@ -462,7 +462,22 @@ Order of image creation
 
 Image creation proceeds in the following order, for each entry in the image.
 
-1. GetEntryContents() - the contents of each entry are obtained, normally by
+1. AddMissingProperties() - binman can add calculated values to the device
+tree as part of its processing, for example the position and size of each
+entry. This method adds any properties associated with this, expanding the
+device tree as needed. These properties can have placeholder values which are
+set later by SetCalculatedProperties(). By that stage the size of sections
+cannot be changed (since it would cause the images to need to be repacked),
+but the correct values can be inserted.
+
+2. ProcessFdt() - process the device tree information as required by the
+particular entry. This may involve adding or deleting properties. If the
+processing is complete, this method should return True. If the processing
+cannot complete because it needs the ProcessFdt() method of another entry to
+run first, this method should return False, in which case it will be called
+again later.
+
+3. GetEntryContents() - the contents of each entry are obtained, normally by
 reading from a file. This calls the Entry.ObtainContents() to read the
 contents. The default version of Entry.ObtainContents() calls
 Entry.GetDefaultFilename() and then reads that file. So a common mechanism
@@ -471,33 +486,38 @@ functions must return True when they have read the contents. Binman will
 retry calling the functions a few times if False is returned, allowing
 dependencies between the contents of different entries.
 
-2. GetEntryPositions() - calls Entry.GetPositions() for each entry. This can
+4. GetEntryPositions() - calls Entry.GetPositions() for each entry. This can
 return a dict containing entries that need updating. The key should be the
 entry name and the value is a tuple (pos, size). This allows an entry to
 provide the position and size for other entries. The default implementation
 of GetEntryPositions() returns {}.
 
-3. PackEntries() - calls Entry.Pack() which figures out the position and
+5. PackEntries() - calls Entry.Pack() which figures out the position and
 size of an entry. The 'current' image position is passed in, and the function
 returns the position immediately after the entry being packed. The default
 implementation of Pack() is usually sufficient.
 
-4. CheckSize() - checks that the contents of all the entries fits within
+6. CheckSize() - checks that the contents of all the entries fits within
 the image size. If the image does not have a defined size, the size is set
 large enough to hold all the entries.
 
-5. CheckEntries() - checks that the entries do not overlap, nor extend
+7. CheckEntries() - checks that the entries do not overlap, nor extend
 outside the image.
 
-6. ProcessEntryContents() - this calls Entry.ProcessContents() on each entry.
+8. SetCalculatedProperties() - update any calculated properties in the device
+tree. This sets the correct 'pos' and 'size' vaues, for example.
+
+9. ProcessEntryContents() - this calls Entry.ProcessContents() on each entry.
 The default implementatoin does nothing. This can be overriden to adjust the
 contents of an entry in some way. For example, it would be possible to create
 an entry containing a hash of the contents of some other entries. At this
 stage the position and size of entries should not be adjusted.
 
-6. WriteEntryInfo()
+10. WriteSymbols() - write the value of symbols into the U-Boot SPL binary.
+See 'Access to binman entry positions at run time' below for a description of
+what happens in this stage.
 
-7. BuildImage() - builds the image and writes it to a file. This is the final
+11. BuildImage() - builds the image and writes it to a file. This is the final
 step.
 
 
@@ -583,8 +603,7 @@ implementations target 100% test coverage. Run 'binman -T' to check this.
 
 To enable Python test coverage on Debian-type distributions (e.g. Ubuntu):
 
-   $ sudo apt-get install python-pip python-pytest
-   $ sudo pip install coverage
+   $ sudo apt-get install python-coverage python-pytest
 
 
 Advanced Features / Technical docs
@@ -650,13 +669,11 @@ To do
 -----
 
 Some ideas:
-- Fill out the device tree to include the final position and size of each
-  entry (since the input file may not always specify these). See also
-  'Access to binman entry positions at run time' above
 - Use of-platdata to make the information available to code that is unable
   to use device tree (such as a very small SPL image)
 - Allow easy building of images by specifying just the board name
-- Produce a full Python binding for libfdt (for upstream)
+- Produce a full Python binding for libfdt (for upstream). This is nearing
+    completion but some work remains
 - Add an option to decode an image into the constituent binaries
 - Support building an image for a board (-b) more completely, with a
   configurable build directory

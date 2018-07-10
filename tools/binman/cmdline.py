@@ -42,6 +42,8 @@ def ParseArgs(argv):
                     default=False, help='run tests')
     parser.add_option('-T', '--test-coverage', action='store_true',
                     default=False, help='run tests and check for 100% coverage')
+    parser.add_option('-u', '--update-fdt', action='store_true',
+        default=False, help='Update the binman node with position/size info')
     parser.add_option('-v', '--verbosity', default=1,
         type='int', help='Control verbosity: 0=silent, 1=progress, 3=full, '
         '4=debug')

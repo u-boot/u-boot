@@ -55,6 +55,7 @@ class Entry(object):
         self.name = node and (name_prefix + node.name) or 'none'
         self.pos = None
         self.size = None
+        self.data = ''
         self.contents_size = 0
         self.align = None
         self.align_size = None
@@ -129,6 +130,20 @@ class Entry(object):
         self.align_end = fdt_util.GetInt(self._node, 'align-end')
         self.pos_unset = fdt_util.GetBool(self._node, 'pos-unset')
 
+    def AddMissingProperties(self):
+        """Add new properties to the device tree as needed for this entry"""
+        for prop in ['pos', 'size']:
+            if not prop in self._node.props:
+                self._node.AddZeroProp(prop)
+
+    def SetCalculatedProperties(self):
+        """Set the value of device-tree properties calculated by binman"""
+        self._node.SetInt('pos', self.pos)
+        self._node.SetInt('size', self.size)
+
+    def ProcessFdt(self, fdt):
+        return True
+
     def SetPrefix(self, prefix):
         """Set the name prefix for a node
 
@@ -137,6 +152,33 @@ class Entry(object):
         """
         if prefix:
             self.name = prefix + self.name
+
+    def SetContents(self, data):
+        """Set the contents of an entry
+
+        This sets both the data and content_size properties
+
+        Args:
+            data: Data to set to the contents (string)
+        """
+        self.data = data
+        self.contents_size = len(self.data)
+
+    def ProcessContentsUpdate(self, data):
+        """Update the contens of an entry, after the size is fixed
+
+        This checks that the new data is the same size as the old.
+
+        Args:
+            data: Data to set to the contents (string)
+
+        Raises:
+            ValueError if the new data size is not the same as the old
+        """
+        if len(data) != self.contents_size:
+            self.Raise('Cannot update entry size from %d to %d' %
+                       (len(data), self.contents_size))
+        self.SetContents(data)
 
     def ObtainContents(self):
         """Figure out the contents of an entry.

@@ -5,7 +5,7 @@
  * Copyright 2017 Google, Inc
  */
 
- /dts-v1/;
+/dts-v1/;
 
 / {
 	#address-cells = <1>;

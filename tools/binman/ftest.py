@@ -146,19 +146,23 @@ class TestFunctional(unittest.TestCase):
         # options.verbosity = tout.DEBUG
         return control.Binman(options, args)
 
-    def _DoTestFile(self, fname, debug=False, map=False):
+    def _DoTestFile(self, fname, debug=False, map=False, update_dtb=False):
         """Run binman with a given test file
 
         Args:
             fname: Device-tree source filename to use (e.g. 05_simple.dts)
             debug: True to enable debugging output
             map: True to output map files for the images
+            update_dtb: Update the position and size of each entry in the device
+                tree before packing it into the image
         """
         args = ['-p', '-I', self._indir, '-d', self.TestFile(fname)]
         if debug:
             args.append('-D')
         if map:
             args.append('-m')
+        if update_dtb:
+            args.append('-up')
         return self._DoBinman(*args)
 
     def _SetupDtb(self, fname, outfile='u-boot.dtb'):
@@ -183,7 +187,8 @@ class TestFunctional(unittest.TestCase):
             TestFunctional._MakeInputFile(outfile, data)
             return data
 
-    def _DoReadFileDtb(self, fname, use_real_dtb=False, map=False):
+    def _DoReadFileDtb(self, fname, use_real_dtb=False, map=False,
+                       update_dtb=False):
         """Run binman and return the resulting image
 
         This runs binman with a given test file and then reads the resulting
@@ -199,6 +204,8 @@ class TestFunctional(unittest.TestCase):
                 test contents (the U_BOOT_DTB_DATA string) can be used.
                 But in some test we need the real contents.
             map: True to output map files for the images
+            update_dtb: Update the position and size of each entry in the device
+                tree before packing it into the image
 
         Returns:
             Tuple:
@@ -212,21 +219,22 @@ class TestFunctional(unittest.TestCase):
             dtb_data = self._SetupDtb(fname)
 
         try:
-            retcode = self._DoTestFile(fname, map=map)
+            retcode = self._DoTestFile(fname, map=map, update_dtb=update_dtb)
             self.assertEqual(0, retcode)
+            out_dtb_fname = control.GetFdtPath('u-boot.dtb')
 
             # Find the (only) image, read it and return its contents
             image = control.images['image']
-            fname = tools.GetOutputFilename('image.bin')
-            self.assertTrue(os.path.exists(fname))
+            image_fname = tools.GetOutputFilename('image.bin')
+            self.assertTrue(os.path.exists(image_fname))
             if map:
                 map_fname = tools.GetOutputFilename('image.map')
                 with open(map_fname) as fd:
                     map_data = fd.read()
             else:
                 map_data = None
-            with open(fname) as fd:
-                return fd.read(), dtb_data, map_data
+            with open(image_fname) as fd:
+                return fd.read(), dtb_data, map_data, out_dtb_fname
         finally:
             # Put the test file back
             if use_real_dtb:
@@ -299,6 +307,26 @@ class TestFunctional(unittest.TestCase):
             Total size of device-tree binary, from the header
         """
         return struct.unpack('>L', dtb[4:8])[0]
+
+    def _GetPropTree(self, dtb_data, node_names):
+        def AddNode(node, path):
+            if node.name != '/':
+                path += '/' + node.name
+            #print 'path', path
+            for subnode in node.subnodes:
+                for prop in subnode.props.values():
+                    if prop.name in node_names:
+                        prop_path = path + '/' + subnode.name + ':' + prop.name
+                        tree[prop_path[len('/binman/'):]] = fdt_util.fdt32_to_cpu(
+                            prop.value)
+                    #print '   ', prop.name
+                AddNode(subnode, path)
+
+        tree = {}
+        dtb = fdt.Fdt(dtb_data)
+        dtb.Scan()
+        AddNode(dtb.GetRoot(), '')
+        return tree
 
     def testRun(self):
         """Test a basic run with valid args"""
@@ -688,37 +716,56 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('33_x86-start16.dts')
         self.assertEqual(X86_START16_DATA, data[:len(X86_START16_DATA)])
 
-    def _RunMicrocodeTest(self, dts_fname, nodtb_data):
+    def _RunMicrocodeTest(self, dts_fname, nodtb_data, ucode_second=False):
+        """Handle running a test for insertion of microcode
+
+        Args:
+            dts_fname: Name of test .dts file
+            nodtb_data: Data that we expect in the first section
+            ucode_second: True if the microsecond entry is second instead of
+                third
+
+        Returns:
+            Tuple:
+                Contents of first region (U-Boot or SPL)
+                Position and size components of microcode pointer, as inserted
+                    in the above (two 4-byte words)
+        """
         data = self._DoReadFile(dts_fname, True)
 
         # Now check the device tree has no microcode
-        second = data[len(nodtb_data):]
+        if ucode_second:
+            ucode_content = data[len(nodtb_data):]
+            ucode_pos = len(nodtb_data)
+            dtb_with_ucode = ucode_content[16:]
+            fdt_len = self.GetFdtLen(dtb_with_ucode)
+        else:
+            dtb_with_ucode = data[len(nodtb_data):]
+            fdt_len = self.GetFdtLen(dtb_with_ucode)
+            ucode_content = dtb_with_ucode[fdt_len:]
+            ucode_pos = len(nodtb_data) + fdt_len
         fname = tools.GetOutputFilename('test.dtb')
         with open(fname, 'wb') as fd:
-            fd.write(second)
+            fd.write(dtb_with_ucode)
         dtb = fdt.FdtScan(fname)
         ucode = dtb.GetNode('/microcode')
         self.assertTrue(ucode)
         for node in ucode.subnodes:
             self.assertFalse(node.props.get('data'))
 
-        fdt_len = self.GetFdtLen(second)
-        third = second[fdt_len:]
-
         # Check that the microcode appears immediately after the Fdt
         # This matches the concatenation of the data properties in
         # the /microcode/update@xxx nodes in 34_x86_ucode.dts.
         ucode_data = struct.pack('>4L', 0x12345678, 0x12345679, 0xabcd0000,
                                  0x78235609)
-        self.assertEqual(ucode_data, third[:len(ucode_data)])
-        ucode_pos = len(nodtb_data) + fdt_len
+        self.assertEqual(ucode_data, ucode_content[:len(ucode_data)])
 
         # Check that the microcode pointer was inserted. It should match the
         # expected position and size
         pos_and_size = struct.pack('<2L', 0xfffffe00 + ucode_pos,
                                    len(ucode_data))
-        first = data[:len(nodtb_data)]
-        return first, pos_and_size
+        u_boot = data[:len(nodtb_data)]
+        return u_boot, pos_and_size
 
     def testPackUbootMicrocode(self):
         """Test that x86 microcode can be handled correctly
@@ -826,7 +873,7 @@ class TestFunctional(unittest.TestCase):
         """Test that we can cope with an image without microcode (e.g. qemu)"""
         with open(self.TestFile('u_boot_no_ucode_ptr')) as fd:
             TestFunctional._MakeInputFile('u-boot', fd.read())
-        data, dtb, _ = self._DoReadFileDtb('44_x86_optional_ucode.dts', True)
+        data, dtb, _, _ = self._DoReadFileDtb('44_x86_optional_ucode.dts', True)
 
         # Now check the device tree has no microcode
         self.assertEqual(U_BOOT_NODTB_DATA, data[:len(U_BOOT_NODTB_DATA)])
@@ -881,22 +928,41 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('48_x86-start16-spl.dts')
         self.assertEqual(X86_START16_SPL_DATA, data[:len(X86_START16_SPL_DATA)])
 
-    def testPackUbootSplMicrocode(self):
-        """Test that x86 microcode can be handled correctly in SPL
+    def _PackUbootSplMicrocode(self, dts, ucode_second=False):
+        """Helper function for microcode tests
 
         We expect to see the following in the image, in order:
             u-boot-spl-nodtb.bin with a microcode pointer inserted at the
                 correct place
             u-boot.dtb with the microcode removed
             the microcode
+
+        Args:
+            dts: Device tree file to use for test
+            ucode_second: True if the microsecond entry is second instead of
+                third
         """
         # ELF file with a '_dt_ucode_base_size' symbol
         with open(self.TestFile('u_boot_ucode_ptr')) as fd:
             TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
-        first, pos_and_size = self._RunMicrocodeTest('49_x86_ucode_spl.dts',
-                                                     U_BOOT_SPL_NODTB_DATA)
+        first, pos_and_size = self._RunMicrocodeTest(dts, U_BOOT_SPL_NODTB_DATA,
+                                                     ucode_second=ucode_second)
         self.assertEqual('splnodtb with microc' + pos_and_size +
                          'ter somewhere in here', first)
+
+    def testPackUbootSplMicrocode(self):
+        """Test that x86 microcode can be handled correctly in SPL"""
+        self._PackUbootSplMicrocode('49_x86_ucode_spl.dts')
+
+    def testPackUbootSplMicrocodeReorder(self):
+        """Test that order doesn't matter for microcode entries
+
+        This is the same as testPackUbootSplMicrocode but when we process the
+        u-boot-ucode entry we have not yet seen the u-boot-dtb-with-ucode
+        entry, so we reply on binman to try later.
+        """
+        self._PackUbootSplMicrocode('58_x86_ucode_spl_needs_retry.dts',
+                                    ucode_second=True)
 
     def testPackMrc(self):
         """Test that an image with an MRC binary can be created"""
@@ -942,7 +1008,7 @@ class TestFunctional(unittest.TestCase):
 
     def testMap(self):
         """Tests outputting a map of the images"""
-        _, _, map_data = self._DoReadFileDtb('55_sections.dts', map=True)
+        _, _, map_data, _ = self._DoReadFileDtb('55_sections.dts', map=True)
         self.assertEqual('''Position      Size  Name
 00000000  00000010  section@0
  00000000  00000004  u-boot
@@ -952,13 +1018,58 @@ class TestFunctional(unittest.TestCase):
 
     def testNamePrefix(self):
         """Tests that name prefixes are used"""
-        _, _, map_data = self._DoReadFileDtb('56_name_prefix.dts', map=True)
+        _, _, map_data, _ = self._DoReadFileDtb('56_name_prefix.dts', map=True)
         self.assertEqual('''Position      Size  Name
 00000000  00000010  section@0
  00000000  00000004  ro-u-boot
 00000010  00000010  section@1
  00000000  00000004  rw-u-boot
 ''', map_data)
+
+    def testUnknownContents(self):
+        """Test that obtaining the contents works as expected"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('57_unknown_contents.dts', True)
+        self.assertIn("Section '/binman': Internal error: Could not complete "
+                "processing of contents: remaining [<_testing.Entry__testing ",
+                str(e.exception))
+
+    def testBadChangeSize(self):
+        """Test that trying to change the size of an entry fails"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('59_change_size.dts', True)
+        self.assertIn("Node '/binman/_testing': Cannot update entry size from "
+                      '2 to 1', str(e.exception))
+
+    def testUpdateFdt(self):
+        """Test that we can update the device tree with pos/size info"""
+        _, _, _, out_dtb_fname = self._DoReadFileDtb('60_fdt_update.dts',
+                                                     update_dtb=True)
+        props = self._GetPropTree(out_dtb_fname, ['pos', 'size'])
+        with open('/tmp/x.dtb', 'wb') as outf:
+            with open(out_dtb_fname) as inf:
+                outf.write(inf.read())
+        self.assertEqual({
+            '_testing:pos': 32,
+            '_testing:size': 1,
+            'section@0/u-boot:pos': 0,
+            'section@0/u-boot:size': len(U_BOOT_DATA),
+            'section@0:pos': 0,
+            'section@0:size': 16,
+
+            'section@1/u-boot:pos': 0,
+            'section@1/u-boot:size': len(U_BOOT_DATA),
+            'section@1:pos': 16,
+            'section@1:size': 16,
+            'size': 40
+        }, props)
+
+    def testUpdateFdtBad(self):
+        """Test that we detect when ProcessFdt never completes"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('61_fdt_update_bad.dts', update_dtb=True)
+        self.assertIn('Could not complete processing of Fdt: remaining '
+                      '[<_testing.Entry__testing', str(e.exception))
 
 if __name__ == "__main__":
     unittest.main()

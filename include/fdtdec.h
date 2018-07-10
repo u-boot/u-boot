@@ -41,6 +41,8 @@ struct fdt_memory {
 	fdt_addr_t end;
 };
 
+struct bd_info;
+
 #ifdef CONFIG_SPL_BUILD
 #define SPL_BUILD	1
 #else
@@ -993,6 +995,40 @@ int fdtdec_setup(void);
  * Called when CONFIG_OF_BOARD is defined, or if CONFIG_OF_SEPARATE is defined
  * and the board implements it.
  */
-void *board_fdt_blob_setup(void);
+
+/*
+ * Decode the size of memory
+ *
+ * RAM size is normally set in a /memory node and consists of a list of
+ * (base, size) cells in the 'reg' property. This information is used to
+ * determine the total available memory as well as the address and size
+ * of each bank.
+ *
+ * Optionally the memory configuration can vary depending on a board id,
+ * typically read from strapping resistors or an EEPROM on the board.
+ *
+ * Finally, memory size can be detected (within certain limits) by probing
+ * the available memory. It is safe to do so within the limits provides by
+ * the board's device tree information. This makes it possible to produce
+ * boards with different memory sizes, where the device tree specifies the
+ * maximum memory configuration, and the smaller memory configuration is
+ * probed.
+ *
+ * This function decodes that information, returning the memory base address,
+ * size and bank information. See the memory.txt binding for full
+ * documentation.
+ *
+ * @param blob		Device tree blob
+ * @param area		Name of node to check (NULL means "/memory")
+ * @param board_id	Board ID to look up
+ * @param basep		Returns base address of first memory bank (NULL to
+ *			ignore)
+ * @param sizep		Returns total memory size (NULL to ignore)
+ * @param bd		Updated with the memory bank information (NULL to skip)
+ * @return 0 if OK, -ve on error
+ */
+int fdtdec_decode_ram_size(const void *blob, const char *area, int board_id,
+			   phys_addr_t *basep, phys_size_t *sizep,
+			   struct bd_info *bd);
 
 #endif
