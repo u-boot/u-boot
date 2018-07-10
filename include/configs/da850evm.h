@@ -223,7 +223,6 @@
 #endif
 #endif
 
-#define CONFIG_DA8XX_GPIO
 /*
  * U-Boot general configuration
  */
