@@ -9,3 +9,15 @@
 		stdout-path = &uart3;
 	};
 };
+
+&uart1 {
+	reg-shift = <2>;
+};
+
+&uart2 {
+	reg-shift = <2>;
+};
+
+&uart3 {
+	reg-shift = <2>;
+};
