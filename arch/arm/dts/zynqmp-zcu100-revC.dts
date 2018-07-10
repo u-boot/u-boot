@@ -107,6 +107,7 @@
 
 	ltc2954: ltc2954 { /* U7 */
 		compatible = "lltc,ltc2954", "lltc,ltc2952";
+		status = "disabled";
 		trigger-gpios = <&gpio 26 GPIO_ACTIVE_LOW>; /* INT line - input */
 		/* If there is HW watchdog on mezzanine this signal should be connected there */
 		watchdog-gpios = <&gpio 35 GPIO_ACTIVE_HIGH>; /* MIO on PAD */
