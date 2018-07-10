@@ -20,6 +20,20 @@ SECTIONS
 
 	.text.start : { *(.text.start); }
 
+	.__efi_runtime_start : {
+		*(.__efi_runtime_start)
+	}
+
+	.efi_runtime : {
+		*(.text.efi_runtime*)
+		*(.rodata.efi_runtime*)
+		*(.data.efi_runtime*)
+	}
+
+	.__efi_runtime_stop : {
+		*(.__efi_runtime_stop)
+	}
+
 	.text  : { *(.text*); }
 
 	. = ALIGN(4);
@@ -30,7 +44,10 @@ SECTIONS
 	}
 
 	. = ALIGN(4);
-	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
+	.rodata : {
+		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
+		KEEP(*(.rodata.efi.init));
+	}
 
 	. = ALIGN(4);
 	.data : { *(.data*) }
@@ -40,6 +57,21 @@ SECTIONS
 
 	. = ALIGN(4);
 	.got : { *(.got*) }
+
+	.efi_runtime_rel_start :
+	{
+		*(.__efi_runtime_rel_start)
+	}
+
+	.efi_runtime_rel : {
+		*(.rel*.efi_runtime)
+		*(.rel*.efi_runtime.*)
+	}
+
+	.efi_runtime_rel_stop :
+	{
+		*(.__efi_runtime_rel_stop)
+	}
 
 	. = ALIGN(4);
 	__data_end = .;
