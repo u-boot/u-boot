@@ -18,6 +18,6 @@ else
 		--image $(srctree)/u-boot.bin \
 		--elf $(srctree)/u-boot
 endif
-	$(Q)mkimage -T script -C none -n 'uboot update script' \
+	$(Q)tools/mkimage -T script -C none -n 'uboot update script' \
 		-d $(srctree)/u-boot-update.txt \
 		$(srctree)/u-boot-update.img &> /dev/null
