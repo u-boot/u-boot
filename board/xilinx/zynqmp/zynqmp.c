@@ -312,12 +312,16 @@ int board_init(void)
 #endif
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT)
-	if (uclass_get_device(UCLASS_WDT, 0, &watchdog_dev)) {
-		puts("Watchdog: Not found!\n");
-	} else {
-		wdt_start(watchdog_dev, 0, 0);
-		puts("Watchdog: Started\n");
+	if (uclass_get_device_by_seq(UCLASS_WDT, 0, &watchdog_dev)) {
+		debug("Watchdog: Not found by seq!\n");
+		if (uclass_get_device(UCLASS_WDT, 0, &watchdog_dev)) {
+			puts("Watchdog: Not found!\n");
+			return 0;
+		}
 	}
+
+	wdt_start(watchdog_dev, 0, 0);
+	puts("Watchdog: Started\n");
 #endif
 
 	return 0;
