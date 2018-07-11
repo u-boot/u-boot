@@ -65,5 +65,6 @@ int wdt_expire_now(struct udevice *dev, ulong flags)
 
 UCLASS_DRIVER(wdt) = {
 	.id		= UCLASS_WDT,
-	.name		= "wdt",
+	.name		= "watchdog",
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };
