@@ -18,10 +18,14 @@ import os
 import os.path
 import pytest
 from _pytest.runner import runtestprotocol
-import ConfigParser
 import re
 import StringIO
 import sys
+
+try:
+    import configparser
+except:
+    import ConfigParser as configparser
 
 # Globals: The HTML log file, and the connection to the U-Boot console.
 log = None
@@ -166,7 +170,7 @@ def pytest_configure(config):
         with open(dot_config, 'rt') as f:
             ini_str = '[root]\n' + f.read()
             ini_sio = StringIO.StringIO(ini_str)
-            parser = ConfigParser.RawConfigParser()
+            parser = configparser.RawConfigParser()
             parser.readfp(ini_sio)
             ubconfig.buildconfig.update(parser.items('root'))
 
@@ -586,7 +590,7 @@ def pytest_runtest_protocol(item, nextitem):
         # is fixed, if this exception still exists, it will then be logged as
         # part of the test's stdout.
         import traceback
-        print 'Exception occurred while logging runtest status:'
+        print('Exception occurred while logging runtest status:')
         traceback.print_exc()
         # FIXME: Can we force a test failure here?
 

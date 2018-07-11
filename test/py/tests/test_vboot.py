@@ -210,8 +210,8 @@ def test_vboot(u_boot_console):
     public_exponent = 65537
     util.run_and_log(cons, 'openssl genpkey -algorithm RSA -out %sdev.key '
                      '-pkeyopt rsa_keygen_bits:2048 '
-                     '-pkeyopt rsa_keygen_pubexp:%d '
-                     '2>/dev/null'  % (tmpdir, public_exponent))
+                     '-pkeyopt rsa_keygen_pubexp:%d' %
+                     (tmpdir, public_exponent))
 
     # Create a certificate containing the public key
     util.run_and_log(cons, 'openssl req -batch -new -x509 -key %sdev.key -out '
