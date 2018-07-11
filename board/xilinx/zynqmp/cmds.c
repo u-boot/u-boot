@@ -10,24 +10,37 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 
-static int zynqmp_verify_secure(u8 *key_ptr, u8 *src_ptr, u32 len)
+static int do_zynqmp_verify_secure(cmd_tbl_t *cmdtp, int flag, int argc,
+				   char * const argv[])
 {
+	u64 src_addr, addr;
+	u32 len, src_lo, src_hi;
+	u8 *key_ptr = NULL;
 	int ret;
-	u32 src_lo, src_hi;
 	u32 key_lo = 0;
 	u32 key_hi = 0;
 	u32 ret_payload[PAYLOAD_ARG_CNT];
-	u64 addr;
 
-	if ((ulong)src_ptr != ALIGN((ulong)src_ptr,
-				    CONFIG_SYS_CACHELINE_SIZE)) {
-		printf("Failed: source address not aligned:%p\n", src_ptr);
+	if (argc < 4)
+		return CMD_RET_USAGE;
+
+	src_addr = simple_strtoull(argv[2], NULL, 16);
+	len = simple_strtoul(argv[3], NULL, 16);
+
+	if (argc == 5)
+		key_ptr = (uint8_t *)(uintptr_t)simple_strtoull(argv[4],
+								NULL, 16);
+
+	if ((ulong)src_addr != ALIGN((ulong)src_addr,
+				     CONFIG_SYS_CACHELINE_SIZE)) {
+		printf("Failed: source address not aligned:%lx\n",
+		       (ulong)src_addr);
 		return -EINVAL;
 	}
 
-	src_lo = lower_32_bits((ulong)src_ptr);
-	src_hi = upper_32_bits((ulong)src_ptr);
-	flush_dcache_range((ulong)src_ptr, (ulong)(src_ptr + len));
+	src_lo = lower_32_bits((ulong)src_addr);
+	src_hi = upper_32_bits((ulong)src_addr);
+	flush_dcache_range((ulong)src_addr, (ulong)(src_addr + len));
 
 	if (key_ptr) {
 		key_lo = lower_32_bits((ulong)key_ptr);
@@ -49,6 +62,10 @@ static int zynqmp_verify_secure(u8 *key_ptr, u8 *src_ptr, u32 len)
 	return ret;
 }
 
+static cmd_tbl_t cmd_zynqmp_sub[] = {
+	U_BOOT_CMD_MKENT(secure, 5, 0, do_zynqmp_verify_secure, "", ""),
+};
+
 /**
  * do_zynqmp - Handle the "zynqmp" command-line command
  * @cmdtp:	Command data struct pointer
@@ -63,30 +80,18 @@ static int zynqmp_verify_secure(u8 *key_ptr, u8 *src_ptr, u32 len)
 static int do_zynqmp(cmd_tbl_t *cmdtp, int flag, int argc,
 		     char *const argv[])
 {
-	u64 src_addr;
-	u32 len;
-	u8 *key_ptr = NULL;
-	u8 *src_ptr;
-	int ret;
+	cmd_tbl_t *c;
 
-	if (argc > 5 || argc < 4 || strncmp(argv[1], "secure", 6))
+	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	src_addr = simple_strtoull(argv[2], NULL, 16);
+	c = find_cmd_tbl(argv[1], &cmd_zynqmp_sub[0],
+			 ARRAY_SIZE(cmd_zynqmp_sub));
 
-	len = simple_strtoul(argv[3], NULL, 16);
-
-	if (argc > 4)
-		key_ptr = (uint8_t *)(uintptr_t)simple_strtoull(argv[4],
-								NULL, 16);
-
-	src_ptr = (uint8_t *)(uintptr_t)src_addr;
-
-	ret = zynqmp_verify_secure(key_ptr, src_ptr, len);
-	if (ret)
-		return CMD_RET_FAILURE;
-
-	return CMD_RET_SUCCESS;
+	if (c)
+		return c->cmd(c, flag, argc, argv);
+	else
+		return CMD_RET_USAGE;
 }
 
 /***************************************************/
@@ -100,6 +105,6 @@ static char zynqmp_help_text[] =
 
 U_BOOT_CMD(
 	zynqmp, 5, 1, do_zynqmp,
-	"Verify and load secure images",
+	"ZynqMP sub-system",
 	zynqmp_help_text
 )
