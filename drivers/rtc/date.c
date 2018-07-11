@@ -9,7 +9,8 @@
 #include <errno.h>
 #include <rtc.h>
 
-#if defined(CONFIG_CMD_DATE) || defined(CONFIG_TIMESTAMP)
+#if defined(CONFIG_CMD_DATE) || defined(CONFIG_DM_RTC) || \
+				defined(CONFIG_TIMESTAMP)
 
 #define FEBRUARY		2
 #define	STARTOFTIME		1970
