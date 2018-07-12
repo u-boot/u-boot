@@ -384,7 +384,7 @@ static int rockusb_tx_write_csw(u32 tag, int residue, u8 status, int size)
 	csw->residue = cpu_to_be32(residue);
 	csw->status = status;
 #ifdef DEBUG
-	printcsw((char *)&csw);
+	printcsw((char *)csw);
 #endif
 	return rockusb_tx_write((char *)csw, size);
 }
