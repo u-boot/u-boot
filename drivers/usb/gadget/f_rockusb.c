@@ -474,7 +474,7 @@ static void tx_handler_ul_image(struct usb_ep *ep, struct usb_request *req)
 	memcpy(in_req->buf, rbuffer, transfer_size);
 	in_req->length = transfer_size;
 	in_req->complete = tx_handler_ul_image;
-	printf("Uploading 0x%x bytes\n", transfer_size);
+	debug("Uploading 0x%x bytes\n", transfer_size);
 	usb_ep_dequeue(rockusb_func->in_ep, in_req);
 	ret = usb_ep_queue(rockusb_func->in_ep, in_req, 0);
 	if (ret)
@@ -536,7 +536,7 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 		req->complete = rx_handler_command;
 		req->length = EP_BUFFER_SIZE;
 		f_rkusb->buf = f_rkusb->buf_head;
-		printf("transfer 0x%x bytes done\n", f_rkusb->dl_size);
+		debug("transfer 0x%x bytes done\n", f_rkusb->dl_size);
 		f_rkusb->dl_size = 0;
 		rockusb_tx_write_csw(f_rkusb->tag, 0, CSW_GOOD,
 				     USB_BULK_CS_WRAP_LEN);
