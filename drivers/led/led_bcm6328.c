@@ -173,7 +173,7 @@ static int bcm6328_led_probe(struct udevice *dev)
 		struct bcm6328_led_priv *priv = dev_get_priv(dev);
 		unsigned int pin;
 
-		priv->regs = dev_remap_addr(dev);
+		priv->regs = dev_remap_addr(dev_get_parent(dev));
 		if (!priv->regs)
 			return -EINVAL;
 
