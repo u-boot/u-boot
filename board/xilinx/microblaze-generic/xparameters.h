@@ -10,8 +10,6 @@
  *          the generated file from your Xilinx design flow.
  */
 
-#define XILINX_BOARD_NAME	microblaze-generic
-
 /* Microblaze is microblaze_0 */
 #define XILINX_FSL_NUMBER	3
 
