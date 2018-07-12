@@ -47,6 +47,7 @@ Current set of rkdeveloptool commands supported:
 - rfi: Read Flash Id
 - rd : Reset Device
 - td : Test Device Ready
+- rl : Read blocks using LBA
 - wl : Write blocks using LBA
 
 To do

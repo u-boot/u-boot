@@ -27,6 +27,7 @@
  */
 
 #define RKUSB_BUF_SIZE		EP_BUFFER_SIZE * 2
+#define RKBLOCK_BUF_SIZE		4096
 
 #define RKUSB_STATUS_IDLE			0
 #define RKUSB_STATUS_CMD			1
@@ -120,6 +121,8 @@ struct f_rockusb {
 	unsigned int lba;
 	unsigned int dl_size;
 	unsigned int dl_bytes;
+	unsigned int ul_size;
+	unsigned int ul_bytes;
 	struct blk_desc *desc;
 	int reboot_flag;
 	void *buf;
