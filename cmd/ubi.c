@@ -356,6 +356,8 @@ int ubi_volume_read(char *volume, char *buf, size_t size)
 		size = vol->used_bytes;
 	}
 
+	printf("Read %u bytes from volume %s to %p\n", size, volume, buf);
+
 	if (vol->corrupted)
 		printf("read from corrupted volume %d", vol->vol_id);
 	if (offp + size > vol->used_bytes)
@@ -510,6 +512,7 @@ int ubi_part(char *part_name, const char *vid_header_offset)
 			vid_header_offset);
 	if (err) {
 		printf("UBI init error %d\n", err);
+		printf("Please check, if the correct MTD partition is used (size big enough?)\n");
 		ubi_dev.selected = 0;
 		return err;
 	}
@@ -674,9 +677,6 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 
 		if (argc == 3) {
-			printf("Read %lld bytes from volume %s to %lx\n", size,
-			       argv[3], addr);
-
 			return ubi_volume_read(argv[3], (char *)addr, size);
 		}
 	}

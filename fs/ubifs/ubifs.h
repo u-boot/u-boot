@@ -316,8 +316,8 @@ struct super_block {
 	struct backing_dev_info *s_bdi;
 #endif
 	struct mtd_info		*s_mtd;
-	struct hlist_node	s_instances;
 #ifndef __UBOOT__
+	struct hlist_node	s_instances;
 	struct quota_info	s_dquot;	/* Diskquota specific options */
 #endif
 
