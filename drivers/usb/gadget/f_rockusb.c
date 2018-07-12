@@ -388,6 +388,20 @@ static int rockusb_tx_write_csw(u32 tag, int residue, u8 status, int size)
 	return rockusb_tx_write((char *)csw, size);
 }
 
+static void tx_handler_send_csw(struct usb_ep *ep, struct usb_request *req)
+{
+	struct f_rockusb *f_rkusb = get_rkusb();
+	int status = req->status;
+
+	if (status)
+		debug("status: %d ep '%s' trans: %d\n",
+		      status, ep->name, req->actual);
+
+	/* Return back to default in_req complete function after sending CSW */
+	req->complete = rockusb_complete;
+	rockusb_tx_write_csw(f_rkusb->tag, 0, CSW_GOOD, USB_BULK_CS_WRAP_LEN);
+}
+
 static unsigned int rx_bytes_expected(struct usb_ep *ep)
 {
 	struct f_rockusb *f_rkusb = get_rkusb();
@@ -496,13 +510,17 @@ static void cb_read_storage_id(struct usb_ep *ep, struct usb_request *req)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(struct fsg_bulk_cb_wrap, cbw,
 				 sizeof(struct fsg_bulk_cb_wrap));
+	struct f_rockusb *f_rkusb = get_rkusb();
 	char emmc_id[] = "EMMC ";
 
 	printf("read storage id\n");
 	memcpy((char *)cbw, req->buf, USB_BULK_CB_WRAP_LEN);
+
+	/* Prepare for sending subsequent CSW_GOOD */
+	f_rkusb->tag = cbw->tag;
+	f_rkusb->in_req->complete = tx_handler_send_csw;
+
 	rockusb_tx_write_str(emmc_id);
-	rockusb_tx_write_csw(cbw->tag, cbw->data_transfer_length, CSW_GOOD,
-			     USB_BULK_CS_WRAP_LEN);
 }
 
 static void cb_write_lba(struct usb_ep *ep, struct usb_request *req)
