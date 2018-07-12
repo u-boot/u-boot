@@ -19,6 +19,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 void s_init(void) {
+#ifndef CONFIG_ARM64
 	/*
 	 * Preconfigure ACTLR, make sure Write Full Line of Zeroes is disabled.
 	 * This is optional on CycloneV / ArriaV.
@@ -29,6 +30,7 @@ void s_init(void) {
 		"isb\n"
 		"dsb\n"
 	::"r"(0x0));
+#endif
 }
 
 /*
