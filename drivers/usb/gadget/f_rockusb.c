@@ -692,6 +692,50 @@ static void cb_write_lba(struct usb_ep *ep, struct usb_request *req)
 	}
 }
 
+static void cb_erase_lba(struct usb_ep *ep, struct usb_request *req)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(struct fsg_bulk_cb_wrap, cbw,
+				 sizeof(struct fsg_bulk_cb_wrap));
+	struct f_rockusb *f_rkusb = get_rkusb();
+	int sector_count, lba, blks;
+
+	memcpy((char *)cbw, req->buf, USB_BULK_CB_WRAP_LEN);
+	sector_count = (int)get_unaligned_be16(&cbw->CDB[7]);
+	f_rkusb->tag = cbw->tag;
+
+	if (!f_rkusb->desc) {
+		char *type = f_rkusb->dev_type;
+		int index = f_rkusb->dev_index;
+
+		f_rkusb->desc = blk_get_dev(type, index);
+		if (!f_rkusb->desc ||
+		    f_rkusb->desc->type == DEV_TYPE_UNKNOWN) {
+			printf("invalid device \"%s\", %d\n", type, index);
+			rockusb_tx_write_csw(f_rkusb->tag, 0, CSW_FAIL,
+					     USB_BULK_CS_WRAP_LEN);
+			return;
+		}
+	}
+
+	lba = get_unaligned_be32(&cbw->CDB[2]);
+
+	debug("require erase %x sectors from lba %x\n",
+	      sector_count, lba);
+
+	blks = blk_derase(f_rkusb->desc, lba, sector_count);
+	if (blks != sector_count) {
+		printf("failed erasing device %s: %d\n", f_rkusb->dev_type,
+		       f_rkusb->dev_index);
+		rockusb_tx_write_csw(f_rkusb->tag,
+				     cbw->data_transfer_length, CSW_FAIL,
+				     USB_BULK_CS_WRAP_LEN);
+		return;
+	}
+
+	rockusb_tx_write_csw(cbw->tag, cbw->data_transfer_length, CSW_GOOD,
+			     USB_BULK_CS_WRAP_LEN);
+}
+
 void __weak rkusb_set_reboot_flag(int flag)
 {
 	struct f_rockusb *f_rkusb = get_rkusb();
@@ -822,6 +866,10 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 	{
 		.cmd = K_FW_SPI_WRITE_10,
 		.cb = cb_not_support,
+	},
+	{
+		.cmd = K_FW_LBA_ERASE_10,
+		.cb = cb_erase_lba,
 	},
 	{
 		.cmd = K_FW_SESSION,

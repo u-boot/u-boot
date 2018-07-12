@@ -49,6 +49,7 @@ Current set of rkdeveloptool commands supported:
 - td : Test Device Ready
 - rl : Read blocks using LBA
 - wl : Write blocks using LBA
+- wlx: Write partition
 
 To do
 -----
