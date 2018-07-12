@@ -179,7 +179,7 @@ static inline void zynq_gpio_get_bank_pin(unsigned int pin_num,
 	}
 
 	if (bank >= priv->p_data->max_bank) {
-		printf("Inavlid bank and pin num\n");
+		printf("Invalid bank and pin num\n");
 		*bank_num = 0;
 		*bank_pin_num = 0;
 	}
