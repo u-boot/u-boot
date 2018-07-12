@@ -490,19 +490,6 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 	unsigned int buffer_size = req->actual;
 
 	transfer_size = f_rkusb->dl_size - f_rkusb->dl_bytes;
-	if (!f_rkusb->desc) {
-		char *type = f_rkusb->dev_type;
-		int index = f_rkusb->dev_index;
-
-		f_rkusb->desc = blk_get_dev(type, index);
-		if (!f_rkusb->desc ||
-		    f_rkusb->desc->type == DEV_TYPE_UNKNOWN) {
-			puts("invalid mmc device\n");
-			rockusb_tx_write_csw(f_rkusb->tag, 0, CSW_FAIL,
-					     USB_BULK_CS_WRAP_LEN);
-			return;
-		}
-	}
 
 	if (req->status != 0) {
 		printf("Bad status: %d\n", req->status);
@@ -516,7 +503,7 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 
 	memcpy((void *)f_rkusb->buf, buffer, transfer_size);
 	f_rkusb->dl_bytes += transfer_size;
-	int blks = 0, blkcnt = transfer_size  / 512;
+	int blks = 0, blkcnt = transfer_size  / f_rkusb->desc->blksz;
 
 	debug("dl %x bytes, %x blks, write lba %x, dl_size:%x, dl_bytes:%x, ",
 	      transfer_size, blkcnt, f_rkusb->lba, f_rkusb->dl_size,
@@ -547,8 +534,8 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 		else
 			f_rkusb->buf = f_rkusb->buf_head;
 
-		debug("remain %x bytes, %x sectors\n", req->length,
-		      req->length / 512);
+		debug("remain %x bytes, %lx sectors\n", req->length,
+		      req->length / f_rkusb->desc->blksz);
 	}
 
 	req->actual = 0;
@@ -676,10 +663,26 @@ static void cb_write_lba(struct usb_ep *ep, struct usb_request *req)
 
 	memcpy((char *)cbw, req->buf, USB_BULK_CB_WRAP_LEN);
 	sector_count = (int)get_unaligned_be16(&cbw->CDB[7]);
-	f_rkusb->lba = get_unaligned_be32(&cbw->CDB[2]);
-	f_rkusb->dl_size = sector_count * 512;
-	f_rkusb->dl_bytes = 0;
 	f_rkusb->tag = cbw->tag;
+
+	if (!f_rkusb->desc) {
+		char *type = f_rkusb->dev_type;
+		int index = f_rkusb->dev_index;
+
+		f_rkusb->desc = blk_get_dev(type, index);
+		if (!f_rkusb->desc ||
+		    f_rkusb->desc->type == DEV_TYPE_UNKNOWN) {
+			printf("invalid device \"%s\", %d\n", type, index);
+			rockusb_tx_write_csw(f_rkusb->tag, 0, CSW_FAIL,
+					     USB_BULK_CS_WRAP_LEN);
+			return;
+		}
+	}
+
+	f_rkusb->lba = get_unaligned_be32(&cbw->CDB[2]);
+	f_rkusb->dl_size = sector_count * f_rkusb->desc->blksz;
+	f_rkusb->dl_bytes = 0;
+
 	debug("require write %x bytes, %x sectors to lba %x\n",
 	      f_rkusb->dl_size, sector_count, f_rkusb->lba);
 
