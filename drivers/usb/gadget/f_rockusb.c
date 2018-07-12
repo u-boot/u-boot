@@ -523,6 +523,48 @@ static void cb_read_storage_id(struct usb_ep *ep, struct usb_request *req)
 	rockusb_tx_write_str(emmc_id);
 }
 
+int __weak rk_get_bootrom_chip_version(unsigned int *chip_info, int size)
+{
+	return 0;
+}
+
+static void cb_get_chip_version(struct usb_ep *ep, struct usb_request *req)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(struct fsg_bulk_cb_wrap, cbw,
+				 sizeof(struct fsg_bulk_cb_wrap));
+	struct f_rockusb *f_rkusb = get_rkusb();
+	unsigned int chip_info[4], i;
+
+	memset(chip_info, 0, sizeof(chip_info));
+	rk_get_bootrom_chip_version(chip_info, 4);
+
+	/*
+	 * Chip Version is a string saved in BOOTROM address space Little Endian
+	 *
+	 * Ex for rk3288: 0x33323041 0x32303134 0x30383133 0x56323030
+	 * which brings:  320A20140813V200
+	 *
+	 * Note that memory version do invert MSB/LSB so printing the char
+	 * buffer will show: A02341023180002V
+	 */
+	printf("read chip version: ");
+	for (i = 0; i < 4; i++) {
+		printf("%c%c%c%c",
+		       (chip_info[i] >> 24) & 0xFF,
+		       (chip_info[i] >> 16) & 0xFF,
+		       (chip_info[i] >>  8) & 0xFF,
+		       (chip_info[i] >>  0) & 0xFF);
+	}
+	printf("\n");
+	memcpy((char *)cbw, req->buf, USB_BULK_CB_WRAP_LEN);
+
+	/* Prepare for sending subsequent CSW_GOOD */
+	f_rkusb->tag = cbw->tag;
+	f_rkusb->in_req->complete = tx_handler_send_csw;
+
+	rockusb_tx_write((char *)chip_info, sizeof(chip_info));
+}
+
 static void cb_write_lba(struct usb_ep *ep, struct usb_request *req)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(struct fsg_bulk_cb_wrap, cbw,
@@ -661,7 +703,7 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 	},
 	{
 		.cmd = K_FW_GET_CHIP_VER,
-		.cb = cb_not_support,
+		.cb = cb_get_chip_version,
 	},
 	{
 		.cmd = K_FW_LOW_FORMAT,
