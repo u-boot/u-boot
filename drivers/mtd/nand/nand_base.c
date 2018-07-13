@@ -3041,7 +3041,7 @@ static int nand_onfi_set_features(struct mtd_info *mtd, struct nand_chip *chip,
 	if (!chip->onfi_version ||
 	    !(le16_to_cpu(chip->onfi_params.opt_cmd)
 	      & ONFI_OPT_CMD_SET_GET_FEATURES))
-		return -EINVAL;
+		return -ENOTSUPP;
 #endif
 
 	chip->cmdfunc(mtd, NAND_CMD_SET_FEATURES, addr, -1);
@@ -3070,7 +3070,7 @@ static int nand_onfi_get_features(struct mtd_info *mtd, struct nand_chip *chip,
 	if (!chip->onfi_version ||
 	    !(le16_to_cpu(chip->onfi_params.opt_cmd)
 	      & ONFI_OPT_CMD_SET_GET_FEATURES))
-		return -EINVAL;
+		return -ENOTSUPP;
 #endif
 
 	chip->cmdfunc(mtd, NAND_CMD_GET_FEATURES, addr, -1);
