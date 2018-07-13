@@ -215,6 +215,30 @@ static int ddr_setup(void)
 	return 0;
 }
 
+static int sdram_is_ecc_enabled(void)
+{
+	return !!(readl(&socfpga_ecc_hmc_base->eccctrl) &
+		  ALT_ECC_HMC_OCP_ECCCTL_ECC_EN_SET_MSK);
+}
+
+/* Initialize SDRAM ECC bits to avoid false DBE */
+static void sdram_init_ecc_bits(u32 size)
+{
+	icache_enable();
+
+	memset(0, 0, 0x8000);
+	gd->arch.tlb_addr = 0x4000;
+	gd->arch.tlb_size = PGTABLE_SIZE;
+
+	dcache_enable();
+
+	printf("DDRCAL: Scrubbing ECC RAM (%i MiB).\n", size >> 20);
+	memset((void *)0x8000, 0, size - 0x8000);
+	flush_dcache_all();
+	printf("DDRCAL: Scrubbing ECC RAM done.\n");
+	dcache_disable();
+}
+
 /* Function to startup the SDRAM*/
 static int sdram_startup(void)
 {
@@ -711,30 +735,8 @@ int ddr_calibration_sequence(void)
 	if (of_sdram_firewall_setup(gd->fdt_blob))
 		puts("FW: Error Configuring Firewall\n");
 
+	if (sdram_is_ecc_enabled())
+		sdram_init_ecc_bits(gd->ram_size);
+
 	return 0;
-}
-
-void dram_bank_mmu_setup(int bank)
-{
-	bd_t *bd = gd->bd;
-	int	i;
-
-	debug("%s: bank: %d\n", __func__, bank);
-	for (i = bd->bi_dram[bank].start >> 20;
-	     i < (bd->bi_dram[bank].start + bd->bi_dram[bank].size) >> 20;
-	     i++) {
-#if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
-		set_section_dcache(i, DCACHE_WRITETHROUGH);
-#else
-		set_section_dcache(i, DCACHE_WRITEBACK);
-#endif
-	}
-
-	/* same as above but just that we would want cacheable for ocram too */
-	i = CONFIG_SYS_INIT_RAM_ADDR >> 20;
-#if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
-	set_section_dcache(i, DCACHE_WRITETHROUGH);
-#else
-	set_section_dcache(i, DCACHE_WRITEBACK);
-#endif
 }

@@ -36,8 +36,8 @@
 
 	memory {
 		device_type = "memory";
-		/* We expect the bootloader to fill in the reg */
-		reg = <0 0 0 0>;
+		reg = <0 0 0 0x80000000>; /* 2GB */
+		u-boot,dm-pre-reloc;
 	};
 };
 

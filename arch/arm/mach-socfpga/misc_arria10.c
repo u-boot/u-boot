@@ -14,6 +14,7 @@
 #include <asm/arch/misc.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/reset_manager.h>
+#include <asm/arch/reset_manager_arria10.h>
 #include <asm/arch/sdram_arria10.h>
 #include <asm/arch/system_manager.h>
 #include <asm/arch/nic301.h>
@@ -262,3 +263,11 @@ int arch_misc_init(void)
 	return socfpga_eth_reset();
 }
 #endif
+
+void do_bridge_reset(int enable)
+{
+	if (enable)
+		socfpga_reset_deassert_bridges_handoff();
+	else
+		socfpga_bridges_reset();
+}
