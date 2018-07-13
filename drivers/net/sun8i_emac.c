@@ -65,11 +65,9 @@
 
 #define AHB_GATE_OFFSET_EPHY	0
 
-#if defined(CONFIG_MACH_SUNXI_H3_H5)
-#define SUN8I_GPD8_GMAC		2
-#else
-#define SUN8I_GPD8_GMAC		4
-#endif
+/* IO mux settings */
+#define SUN8I_IOMUX_H3		2
+#define SUN8I_IOMUX		4
 
 /* H3/A64 EMAC Register's offset */
 #define EMAC_CTL0		0x00
@@ -453,6 +451,7 @@ static int _sun8i_emac_eth_init(struct emac_eth_dev *priv, u8 *enetaddr)
 
 static int parse_phy_pins(struct udevice *dev)
 {
+	struct emac_eth_dev *priv = dev_get_priv(dev);
 	int offset;
 	const char *pin_name;
 	int drive, pull = SUN4I_PINCTRL_NO_PULL, i;
@@ -494,7 +493,11 @@ static int parse_phy_pins(struct udevice *dev)
 		if (pin < 0)
 			continue;
 
-		sunxi_gpio_set_cfgpin(pin, SUN8I_GPD8_GMAC);
+		if (priv->variant == H3_EMAC)
+			sunxi_gpio_set_cfgpin(pin, SUN8I_IOMUX_H3);
+		else
+			sunxi_gpio_set_cfgpin(pin, SUN8I_IOMUX);
+
 		if (drive != ~0)
 			sunxi_gpio_set_drv(pin, drive);
 		if (pull != ~0)
@@ -618,16 +621,18 @@ static void sun8i_emac_board_setup(struct emac_eth_dev *priv)
 {
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
-#ifdef CONFIG_MACH_SUNXI_H3_H5
-	/* Only H3/H5 have clock controls for internal EPHY */
-	if (priv->use_internal_phy) {
-		/* Set clock gating for ephy */
-		setbits_le32(&ccm->bus_gate4, BIT(AHB_GATE_OFFSET_EPHY));
+	if (priv->variant == H3_EMAC) {
+		/* Only H3/H5 have clock controls for internal EPHY */
+		if (priv->use_internal_phy) {
+			/* Set clock gating for ephy */
+			setbits_le32(&ccm->bus_gate4,
+				     BIT(AHB_GATE_OFFSET_EPHY));
 
-		/* Deassert EPHY */
-		setbits_le32(&ccm->ahb_reset2_cfg, BIT(AHB_RESET_OFFSET_EPHY));
+			/* Deassert EPHY */
+			setbits_le32(&ccm->ahb_reset2_cfg,
+				     BIT(AHB_RESET_OFFSET_EPHY));
+		}
 	}
-#endif
 
 	/* Set clock gating for emac */
 	setbits_le32(&ccm->ahb_gate0, BIT(AHB_GATE_OFFSET_GMAC));
