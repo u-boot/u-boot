@@ -1369,7 +1369,7 @@ static int sunxi_nand_chip_init_timings(struct sunxi_nand_chip *chip)
 						ONFI_FEATURE_ADDR_TIMING_MODE,
 						feature);
 			chip->nand.select_chip(mtd, -1);
-			if (ret)
+			if (ret && ret != -ENOTSUPP)
 				return ret;
 		}
 	}
