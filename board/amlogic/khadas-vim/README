@@ -73,7 +73,7 @@ Go back to mainline U-Boot source tree then :
 	fip/bl30_new.bin \
 	bl30
 
- > $FIPDIR/acs_tool.pyc fip/bl2.bin fip/bl2_acs.bin fip/acs.bin 0
+ > python $FIPDIR/acs_tool.pyc fip/bl2.bin fip/bl2_acs.bin fip/acs.bin 0
 
  > $FIPDIR/blx_fix.sh \
 	fip/bl2_acs.bin \
