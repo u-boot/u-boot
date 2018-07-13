@@ -15,6 +15,14 @@ config SYSRESET
 
 if SYSRESET
 
+config SYSRESET_GPIO
+	bool "Enable support for GPIO reset driver"
+	select GPIO
+	help
+	  Reset support via GPIO pin connected reset logic. This is used for
+	  example on Microblaze where reset logic can be controlled via GPIO
+	  pin which triggers cpu reset.
+
 config SYSRESET_PSCI
 	bool "Enable support for PSCI System Reset"
 	depends on ARM_PSCI_FW
