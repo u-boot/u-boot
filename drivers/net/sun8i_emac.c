@@ -843,8 +843,7 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 	priv->variant = dev_get_driver_data(dev);
 
 	if (!priv->variant) {
-		printf("%s: Missing variant '%s'\n", __func__,
-		       (char *)priv->variant);
+		printf("%s: Missing variant\n", __func__);
 		return -EINVAL;
 	}
 
