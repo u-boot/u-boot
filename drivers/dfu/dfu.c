@@ -56,7 +56,7 @@ int dfu_init_env_entities(char *interface, char *devstr)
 {
 	const char *str_env;
 	char *env_bkp;
-	int ret;
+	int ret = 0;
 
 #ifdef CONFIG_SET_DFU_ALT_INFO
 	set_dfu_alt_info(interface, devstr);
@@ -71,11 +71,12 @@ int dfu_init_env_entities(char *interface, char *devstr)
 	ret = dfu_config_entities(env_bkp, interface, devstr);
 	if (ret) {
 		pr_err("DFU entities configuration failed!\n");
-		return ret;
+		goto done;
 	}
 
+done:
 	free(env_bkp);
-	return 0;
+	return ret;
 }
 
 static unsigned char *dfu_buf;
