@@ -60,7 +60,11 @@ struct sunxi_ccm_reg {
 	u32 reserved11;
 	u32 sata_clk_cfg;	/* 0xc8 SATA clock control (R40 only) */
 	u32 usb_clk_cfg;	/* 0xcc USB clock control */
-	u32 gmac_clk_cfg;	/* 0xd0 GMAC clock control */
+#ifdef CONFIG_MACH_SUN8I_R40
+	u32 cir0_clk_cfg;	/* 0xd0 CIR0 clock control (R40 only) */
+#else
+	u32 gmac_clk_cfg;	/* 0xd0 GMAC clock control (not for R40) */
+#endif
 	u32 reserved12[7];
 	u32 mdfs_clk_cfg;	/* 0xf0 MDFS clock control */
 	u32 dram_clk_cfg;	/* 0xf4 DRAM configuration clock control */
@@ -103,7 +107,11 @@ struct sunxi_ccm_reg {
 	u32 mtc_clk_cfg;	/* 0x158 MTC module clock */
 	u32 mbus0_clk_cfg;	/* 0x15c MBUS0 module clock */
 	u32 mbus1_clk_cfg;	/* 0x160 MBUS1 module clock */
+#ifdef CONFIG_MACH_SUN8I_R40
+	u32 gmac_clk_cfg;	/* 0x164 GMAC clock control (R40 only) */
+#else
 	u32 reserved16;
+#endif
 	u32 mipi_dsi_clk_cfg;	/* 0x168 MIPI DSI clock control */
 	u32 mipi_csi_clk_cfg;	/* 0x16c MIPI CSI clock control */
 	u32 reserved17[4];
