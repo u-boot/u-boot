@@ -462,7 +462,7 @@ int dfu_config_entities(char *env, char *interface, char *devstr)
 		ret = dfu_fill_entity(&dfu[i], s, alt_num_cnt, interface,
 				      devstr);
 		if (ret) {
-			free(dfu);
+			/* We will free "dfu" in dfu_free_entities() */
 			return -1;
 		}
 
