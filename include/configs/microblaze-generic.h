@@ -38,11 +38,6 @@
 /* setting reset address */
 /*#define	CONFIG_SYS_RESET_ADDRESS	CONFIG_SYS_TEXT_BASE*/
 
-/* gpio */
-#ifdef XILINX_GPIO_BASEADDR
-# define CONFIG_SYS_GPIO_0_ADDR		XILINX_GPIO_BASEADDR
-#endif
-
 #define CONFIG_SYS_MALLOC_LEN	0xC0000
 
 /* Stack location before relocation */
