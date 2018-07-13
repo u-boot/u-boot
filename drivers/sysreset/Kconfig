@@ -23,6 +23,12 @@ config SYSRESET_GPIO
 	  example on Microblaze where reset logic can be controlled via GPIO
 	  pin which triggers cpu reset.
 
+config SYSRESET_MICROBLAZE
+	bool "Enable support for Microblaze soft reset"
+	depends on MICROBLAZE
+	help
+	  This is soft reset on Microblaze which does jump to 0x0 address.
+
 config SYSRESET_PSCI
 	bool "Enable support for PSCI System Reset"
 	depends on ARM_PSCI_FW
