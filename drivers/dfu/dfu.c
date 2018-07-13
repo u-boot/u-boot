@@ -71,6 +71,7 @@ int dfu_init_env_entities(char *interface, char *devstr)
 	ret = dfu_config_entities(env_bkp, interface, devstr);
 	if (ret) {
 		pr_err("DFU entities configuration failed!\n");
+		pr_err("(partition table does not match dfu_alt_info?)\n");
 		goto done;
 	}
 
