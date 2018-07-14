@@ -5,8 +5,10 @@
  * Michal  SIMEK <monstr@monstr.eu>
  */
 
-/* This is a board specific file.  It's OK to include board specific
- * header files */
+/*
+ * This is a board specific file.  It's OK to include board specific
+ * header files
+ */
 
 #include <common.h>
 #include <config.h>
@@ -71,7 +73,7 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	hw_watchdog_disable();
 #endif
 #endif
-	puts ("Reseting board\n");
+	puts("Resetting board\n");
 	__asm__ __volatile__ ("	mts rmsr, r0;" \
 				"bra r0");
 
