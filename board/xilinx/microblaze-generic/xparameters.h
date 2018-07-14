@@ -19,7 +19,3 @@
 /* Flash Memory is FLASH_2Mx32 */
 #define XILINX_FLASH_START	0x2c000000
 #define XILINX_FLASH_SIZE	0x00800000
-
-/* Watchdog IP is wxi_timebase_wdt_0 */
-#define XILINX_WATCHDOG_BASEADDR	0x50000000
-#define XILINX_WATCHDOG_IRQ		1

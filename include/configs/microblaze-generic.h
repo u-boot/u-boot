@@ -43,16 +43,6 @@
 # define CONFIG_SYS_GPIO_0_ADDR		XILINX_GPIO_BASEADDR
 #endif
 
-/* watchdog */
-#if defined(XILINX_WATCHDOG_BASEADDR) && defined(XILINX_WATCHDOG_IRQ)
-# define CONFIG_WATCHDOG_BASEADDR	XILINX_WATCHDOG_BASEADDR
-# define CONFIG_WATCHDOG_IRQ		XILINX_WATCHDOG_IRQ
-# ifndef CONFIG_SPL_BUILD
-#  define CONFIG_HW_WATCHDOG
-#  define CONFIG_XILINX_TB_WATCHDOG
-# endif
-#endif
-
 #define CONFIG_SYS_MALLOC_LEN	0xC0000
 
 /* Stack location before relocation */
