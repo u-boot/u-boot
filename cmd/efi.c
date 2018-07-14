@@ -173,7 +173,7 @@ static void efi_print_mem_table(struct efi_entry_memmap *map,
 		bool first;
 		int j;
 
-		printf("%c%llx: ", attr & EFI_MEMORY_RUNTIME ? 'r' : ' ',
+		printf("%c%llx: ", (attr & EFI_MEMORY_RUNTIME) ? 'r' : ' ',
 		       attr & ~EFI_MEMORY_RUNTIME);
 		for (j = 0, first = true; j < ARRAY_SIZE(mem_attr); j++) {
 			if (attr & mem_attr[j].val) {
