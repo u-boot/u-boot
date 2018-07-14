@@ -17,12 +17,18 @@
 #include <asm/microblaze_intc.h>
 #include <asm/asm.h>
 #include <asm/gpio.h>
+#include <dm/uclass.h>
+#include <wdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_XILINX_GPIO
 static int reset_pin = -1;
 #endif
+
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT)
+static struct udevice *watchdog_dev;
+#endif /* !CONFIG_SPL_BUILD && CONFIG_WDT */
 
 ulong ram_base;
 
@@ -68,10 +74,6 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (reset_pin != -1)
 		gpio_direction_output(reset_pin, 1);
 #endif
-
-#ifdef CONFIG_XILINX_TB_WATCHDOG
-	hw_watchdog_disable();
-#endif
 #endif
 	puts("Resetting board\n");
 	__asm__ __volatile__ ("	mts rmsr, r0;" \
@@ -91,9 +93,46 @@ static int gpio_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_WDT
+/* Called by macro WATCHDOG_RESET */
+void watchdog_reset(void)
+{
+#if !defined(CONFIG_SPL_BUILD)
+	ulong now;
+	static ulong next_reset;
+
+	if (!watchdog_dev)
+		return;
+
+	now = timer_get_us();
+
+	/* Do not reset the watchdog too often */
+	if (now > next_reset) {
+		wdt_reset(watchdog_dev);
+		next_reset = now + 1000;
+	}
+#endif /* !CONFIG_SPL_BUILD */
+}
+#endif /* CONFIG_WDT */
+
 int board_late_init(void)
 {
 	gpio_init();
+
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT)
+	watchdog_dev = NULL;
+
+	if (uclass_get_device_by_seq(UCLASS_WDT, 0, &watchdog_dev)) {
+		debug("Watchdog: Not found by seq!\n");
+		if (uclass_get_device(UCLASS_WDT, 0, &watchdog_dev)) {
+			puts("Watchdog: Not found!\n");
+			return 0;
+		}
+	}
+
+	wdt_start(watchdog_dev, 0, 0);
+	puts("Watchdog: Started\n");
+#endif /* !CONFIG_SPL_BUILD && CONFIG_WDT */
 
 	return 0;
 }
