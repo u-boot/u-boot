@@ -178,14 +178,13 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 	switch (memory_type) {
 	case EFI_RUNTIME_SERVICES_CODE:
 	case EFI_RUNTIME_SERVICES_DATA:
-		newlist->desc.attribute = (1 << EFI_MEMORY_WB_SHIFT) |
-					  (1ULL << EFI_MEMORY_RUNTIME_SHIFT);
+		newlist->desc.attribute = EFI_MEMORY_WB | EFI_MEMORY_RUNTIME;
 		break;
 	case EFI_MMAP_IO:
-		newlist->desc.attribute = 1ULL << EFI_MEMORY_RUNTIME_SHIFT;
+		newlist->desc.attribute = EFI_MEMORY_RUNTIME;
 		break;
 	default:
-		newlist->desc.attribute = 1 << EFI_MEMORY_WB_SHIFT;
+		newlist->desc.attribute = EFI_MEMORY_WB;
 		break;
 	}
 
