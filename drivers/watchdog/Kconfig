@@ -103,4 +103,12 @@ config WDT_CDNS
 	   Select this to enable Cadence watchdog timer, which can be found on some
 	   Xilinx Microzed Platform.
 
+config XILINX_TB_WATCHDOG
+	bool "Xilinx Axi watchdog timer support"
+	depends on WDT
+	imply WATCHDOG
+	help
+	   Select this to enable Xilinx Axi watchdog timer, which can be found on some
+	   Xilinx Microblaze Platforms.
+
 endmenu
