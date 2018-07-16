@@ -62,6 +62,7 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{"en25s64",	   INFO(0x1c3817, 0x0, 64 * 1024,   128, 0) },
 #endif
 #ifdef CONFIG_SPI_FLASH_GIGADEVICE	/* GIGADEVICE */
+	{"gd25q16c",	   INFO(0xc84015, 0x0, 64 * 1024,    32, RD_FULL | WR_QPP | SECT_4K) },
 	{"gd25q64b",	   INFO(0xc84017, 0x0, 64 * 1024,   128, SECT_4K) },
 	{"gd25q32b",       INFO(0xc84016, 0x0, 64 * 1024,    64, SECT_4K) },
 	{"gd25lq32",	   INFO(0xc86016, 0x0, 64 * 1024,    64, SECT_4K) },
@@ -86,6 +87,7 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{"mx25l12805",	   INFO(0xc22018, 0x0, 64 * 1024,   256, RD_FULL | WR_QPP) },
 	{"mx25l25635f",	   INFO(0xc22019, 0x0, 64 * 1024,   512, RD_FULL | WR_QPP) },
 	{"mx25l51235f",	   INFO(0xc2201a, 0x0, 64 * 1024,  1024, RD_FULL | WR_QPP) },
+	{"mx25l1633e",	   INFO(0xc22415, 0x0, 64 * 1024,    32, RD_FULL | WR_QPP | SECT_4K) },
 	{"mx25u6435f",	   INFO(0xc22537, 0x0, 64 * 1024,   128, RD_FULL | WR_QPP) },
 	{"mx25l12855e",	   INFO(0xc22618, 0x0, 64 * 1024,   256, RD_FULL | WR_QPP) },
 	{"mx25u1635e",     INFO(0xc22535, 0x0, 64 * 1024,  32, SECT_4K) },
@@ -176,10 +178,15 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{"w25q256",	   INFO(0xef4019, 0x0,	64 * 1024,   512, RD_FULL | WR_QPP | SECT_4K) },
 	{"w25q80bw",	   INFO(0xef5014, 0x0,	64 * 1024,    16, RD_FULL | WR_QPP | SECT_4K) },
 	{"w25q16dw",	   INFO(0xef6015, 0x0,	64 * 1024,    32, RD_FULL | WR_QPP | SECT_4K) },
+	{"w25q16jv",	   INFO(0xef7015, 0x0,	64 * 1024,    32, RD_FULL | WR_QPP | SECT_4K) },
 	{"w25q32dw",	   INFO(0xef6016, 0x0,	64 * 1024,    64, RD_FULL | WR_QPP | SECT_4K) },
+	{"w25q32jv",	   INFO(0xef7016, 0x0,	64 * 1024,    64, RD_FULL | WR_QPP | SECT_4K) },
 	{"w25q64dw",	   INFO(0xef6017, 0x0,	64 * 1024,   128, RD_FULL | WR_QPP | SECT_4K) },
+	{"w25q64jv",	   INFO(0xef7017, 0x0,	64 * 1024,   128, RD_FULL | WR_QPP | SECT_4K) },
 	{"w25q128fw",	   INFO(0xef6018, 0x0,	64 * 1024,   256, RD_FULL | WR_QPP | SECT_4K) },
+	{"w25q128jv",	   INFO(0xef7018, 0x0,	64 * 1024,   256, RD_FULL | WR_QPP | SECT_4K) },
 	{"w25q256fw",	   INFO(0xef6019, 0x0,	64 * 1024,   512, RD_FULL | WR_QPP | SECT_4K) },
+	{"w25q256jw",	   INFO(0xef7019, 0x0,	64 * 1024,   512, RD_FULL | WR_QPP | SECT_4K) },
 #endif
 	{},	/* Empty entry to terminate the list */
 	/*
@@ -187,7 +194,7 @@ const struct spi_flash_info spi_flash_ids[] = {
 	 * Below paired flash devices has similar spi_flash params.
 	 * (s25fl129p_64k, s25fl128s_64k)
 	 * (w25q80bl, w25q80bv)
-	 * (w25q16cl, w25q16dv)
+	 * (w25q16cl, w25q16dv, w25q16jv)
 	 * (w25q32bv, w25q32fv_spi)
 	 * (w25q64cv, w25q64fv_spi)
 	 * (w25q128bv, w25q128fv_spi)
