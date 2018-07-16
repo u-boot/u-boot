@@ -7,6 +7,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/sizes.h>
+
 /* ram memory-related information */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			0x40000000
@@ -19,6 +21,7 @@
 /* Environment */
 
 #define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR
+#define CONFIG_SYS_BOOTM_LEN		SZ_16M
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
