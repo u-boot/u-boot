@@ -175,13 +175,14 @@
 #define RCC_PLLNCFGR1_IFRGE_SHIFT	24
 #define RCC_PLLNCFGR1_IFRGE_MASK	GENMASK(25, 24)
 
-/* used for ALL PLLNCFGR2 registers */
+/* used for ALL PLLNCFGR2 registers , using stm32mp1_div_id */
+#define RCC_PLLNCFGR2_SHIFT(div_id)	((div_id) * 8)
 #define RCC_PLLNCFGR2_DIVX_MASK		GENMASK(6, 0)
-#define RCC_PLLNCFGR2_DIVP_SHIFT	0
+#define RCC_PLLNCFGR2_DIVP_SHIFT	RCC_PLLNCFGR2_SHIFT(_DIV_P)
 #define RCC_PLLNCFGR2_DIVP_MASK		GENMASK(6, 0)
-#define RCC_PLLNCFGR2_DIVQ_SHIFT	8
+#define RCC_PLLNCFGR2_DIVQ_SHIFT	RCC_PLLNCFGR2_SHIFT(_DIV_Q)
 #define RCC_PLLNCFGR2_DIVQ_MASK		GENMASK(14, 8)
-#define RCC_PLLNCFGR2_DIVR_SHIFT	16
+#define RCC_PLLNCFGR2_DIVR_SHIFT	RCC_PLLNCFGR2_SHIFT(_DIV_R)
 #define RCC_PLLNCFGR2_DIVR_MASK		GENMASK(22, 16)
 
 /* used for ALL PLLNFRACR registers */
@@ -814,10 +815,6 @@ static ulong stm32mp1_read_pll_freq(struct stm32mp1_clk_priv *priv,
 	int divm, divn, divy, src;
 	ulong refclk, dfout;
 	u32 selr, cfgr1, cfgr2, fracr;
-	const u8 shift[_DIV_NB] = {
-		[_DIV_P] = RCC_PLLNCFGR2_DIVP_SHIFT,
-		[_DIV_Q] = RCC_PLLNCFGR2_DIVQ_SHIFT,
-		[_DIV_R] = RCC_PLLNCFGR2_DIVR_SHIFT };
 
 	debug("%s(%d, %d)\n", __func__, pll_id, div_id);
 	if (div_id > _DIV_NB)
@@ -833,7 +830,7 @@ static ulong stm32mp1_read_pll_freq(struct stm32mp1_clk_priv *priv,
 
 	divm = (cfgr1 & (RCC_PLLNCFGR1_DIVM_MASK)) >> RCC_PLLNCFGR1_DIVM_SHIFT;
 	divn = cfgr1 & RCC_PLLNCFGR1_DIVN_MASK;
-	divy = (cfgr2 >> shift[div_id]) & RCC_PLLNCFGR2_DIVX_MASK;
+	divy = (cfgr2 >> RCC_PLLNCFGR2_SHIFT(div_id)) & RCC_PLLNCFGR2_DIVX_MASK;
 
 	debug("        DIVN=%d DIVM=%d DIVY=%d\n", divn, divm, divy);
 
