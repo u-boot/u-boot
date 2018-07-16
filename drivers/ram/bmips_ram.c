@@ -43,6 +43,7 @@ struct bmips_ram_hw {
 
 struct bmips_ram_priv {
 	void __iomem *regs;
+	u32 force_size;
 	const struct bmips_ram_hw *hw;
 };
 
@@ -104,7 +105,10 @@ static int bmips_ram_get_info(struct udevice *dev, struct ram_info *info)
 	const struct bmips_ram_hw *hw = priv->hw;
 
 	info->base = 0x80000000;
-	info->size = hw->get_ram_size(priv);
+	if (priv->force_size)
+		info->size = priv->force_size;
+	else
+		info->size = hw->get_ram_size(priv);
 
 	return 0;
 }
@@ -154,6 +158,8 @@ static int bmips_ram_probe(struct udevice *dev)
 	priv->regs = dev_remap_addr(dev);
 	if (!priv->regs)
 		return -EINVAL;
+
+	dev_read_u32(dev, "force-size", &priv->force_size);
 
 	priv->hw = hw;
 
