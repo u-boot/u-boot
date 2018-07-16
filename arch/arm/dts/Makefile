@@ -129,6 +129,7 @@ dtb-$(CONFIG_ARCH_UNIPHIER_SLD8) += \
 
 dtb-$(CONFIG_ARCH_ZYNQ) += \
 	zynq-cc108.dtb \
+	zynq-cse-nand.dtb \
 	zynq-cse-qspi-single.dtb \
 	zynq-microzed.dtb \
 	zynq-minized.dtb \
