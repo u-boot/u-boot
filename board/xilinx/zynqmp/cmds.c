@@ -61,8 +61,51 @@ static int do_zynqmp_verify_secure(cmd_tbl_t *cmdtp, int flag, int argc,
 	return ret;
 }
 
+static int do_zynqmp_mmio_read(cmd_tbl_t *cmdtp, int flag, int argc,
+			       char * const argv[])
+{
+	u32 read_val, addr;
+	int ret;
+
+	if (argc != cmdtp->maxargs)
+		return CMD_RET_USAGE;
+
+	addr = simple_strtoul(argv[2], NULL, 16);
+
+	ret = zynqmp_mmio_read(addr, &read_val);
+	if (!ret)
+		printf("mmio read value at 0x%x = 0x%x\n",
+		       addr, read_val);
+	else
+		printf("Failed: mmio read\n");
+
+	return ret;
+}
+
+static int do_zynqmp_mmio_write(cmd_tbl_t *cmdtp, int flag, int argc,
+				char * const argv[])
+{
+	u32 addr, mask, val;
+	int ret;
+
+	if (argc != cmdtp->maxargs)
+		return CMD_RET_USAGE;
+
+	addr = simple_strtoul(argv[2], NULL, 16);
+	mask = simple_strtoul(argv[3], NULL, 16);
+	val = simple_strtoul(argv[4], NULL, 16);
+
+	ret = zynqmp_mmio_write(addr, mask, val);
+	if (ret != 0)
+		printf("Failed: mmio write\n");
+
+	return ret;
+}
+
 static cmd_tbl_t cmd_zynqmp_sub[] = {
 	U_BOOT_CMD_MKENT(secure, 5, 0, do_zynqmp_verify_secure, "", ""),
+	U_BOOT_CMD_MKENT(mmio_read, 3, 0, do_zynqmp_mmio_read, "", ""),
+	U_BOOT_CMD_MKENT(mmio_write, 5, 0, do_zynqmp_mmio_write, "", ""),
 };
 
 /**
@@ -99,7 +142,10 @@ static char zynqmp_help_text[] =
 	"secure src len [key_addr] - verifies secure images of $len bytes\n"
 	"                            long at address $src. Optional key_addr\n"
 	"                            can be specified if user key needs to\n"
-	"                            be used for decryption\n";
+	"                            be used for decryption\n"
+	"zynqmp mmio_read address - read from address\n"
+	"zynqmp mmio_write address mask value - write value after masking to\n"
+	"					address\n";
 #endif
 
 U_BOOT_CMD(
