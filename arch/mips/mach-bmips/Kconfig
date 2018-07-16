@@ -14,6 +14,7 @@ config SYS_SOC
 	default "bcm6368" if SOC_BMIPS_BCM6368
 	default "bcm6362" if SOC_BMIPS_BCM6362
 	default "bcm63268" if SOC_BMIPS_BCM63268
+	default "bcm6838" if SOC_BMIPS_BCM6838
 
 choice
 	prompt "Broadcom MIPS SoC select"
@@ -117,6 +118,18 @@ config SOC_BMIPS_BCM63268
 	help
 	  This supports BMIPS BCM63268 family including BCM63168, BCM63169,
 	  BCM63268 and BCM63269.
+
+config SOC_BMIPS_BCM6838
+	bool "BMIPS BCM6838 family"
+	select MIPS_L1_CACHE_SHIFT_4
+	select MIPS_TUNE_4KC
+	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select SWAP_IO_SPACE
+	select SYSRESET_SYSCON
+	help
+	  This supports BMIPS BCM6838 family including BCM68380, BCM68381,
+	  and BCM68385.
 
 endchoice
 
