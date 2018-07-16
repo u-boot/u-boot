@@ -1173,6 +1173,7 @@ int fdtdec_setup_memory_size(void)
 	}
 
 	gd->ram_size = (phys_size_t)(res.end - res.start + 1);
+	gd->ram_base = (unsigned long)res.start;
 	debug("%s: Initial DRAM size %llx\n", __func__,
 	      (unsigned long long)gd->ram_size);
 
