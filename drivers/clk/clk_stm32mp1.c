@@ -808,56 +808,87 @@ static int stm32mp1_clk_get_parent(struct stm32mp1_clk_priv *priv,
 	return -EINVAL;
 }
 
-static ulong stm32mp1_read_pll_freq(struct stm32mp1_clk_priv *priv,
-				    int pll_id, int div_id)
+static ulong  pll_get_fref_ck(struct stm32mp1_clk_priv *priv,
+			      int pll_id)
 {
 	const struct stm32mp1_clk_pll *pll = priv->data->pll;
-	int divm, divn, divy, src;
-	ulong refclk, dfout;
-	u32 selr, cfgr1, cfgr2, fracr;
+	u32 selr;
+	int src;
+	ulong refclk;
 
-	debug("%s(%d, %d)\n", __func__, pll_id, div_id);
-	if (div_id > _DIV_NB)
-		return 0;
-
+	/* Get current refclk */
 	selr = readl(priv->base + pll[pll_id].rckxselr);
-	cfgr1 = readl(priv->base + pll[pll_id].pllxcfgr1);
-	cfgr2 = readl(priv->base + pll[pll_id].pllxcfgr2);
-	fracr = readl(priv->base + pll[pll_id].pllxfracr);
+	src = selr & RCC_SELR_SRC_MASK;
 
-	debug("PLL%d : selr=%x cfgr1=%x cfgr2=%x fracr=%x\n",
-	      pll_id, selr, cfgr1, cfgr2, fracr);
+	refclk = stm32mp1_clk_get_fixed(priv, pll[pll_id].refclk[src]);
+	debug("PLL%d : selr=%x refclk = %d kHz\n",
+	      pll_id, selr, (u32)(refclk / 1000));
+
+	return refclk;
+}
+
+/*
+ * pll_get_fvco() : return the VCO or (VCO / 2) frequency for the requested PLL
+ * - PLL1 & PLL2 => return VCO / 2 with Fpll_y_ck = FVCO / 2 * (DIVy + 1)
+ * - PLL3 & PLL4 => return VCO     with Fpll_y_ck = FVCO / (DIVy + 1)
+ * => in all the case Fpll_y_ck = pll_get_fvco() / (DIVy + 1)
+ */
+static ulong pll_get_fvco(struct stm32mp1_clk_priv *priv,
+			  int pll_id)
+{
+	const struct stm32mp1_clk_pll *pll = priv->data->pll;
+	int divm, divn;
+	ulong refclk, fvco;
+	u32 cfgr1, fracr;
+
+	cfgr1 = readl(priv->base + pll[pll_id].pllxcfgr1);
+	fracr = readl(priv->base + pll[pll_id].pllxfracr);
 
 	divm = (cfgr1 & (RCC_PLLNCFGR1_DIVM_MASK)) >> RCC_PLLNCFGR1_DIVM_SHIFT;
 	divn = cfgr1 & RCC_PLLNCFGR1_DIVN_MASK;
-	divy = (cfgr2 >> RCC_PLLNCFGR2_SHIFT(div_id)) & RCC_PLLNCFGR2_DIVX_MASK;
 
-	debug("        DIVN=%d DIVM=%d DIVY=%d\n", divn, divm, divy);
+	debug("PLL%d : cfgr1=%x fracr=%x DIVN=%d DIVM=%d\n",
+	      pll_id, cfgr1, fracr, divn, divm);
 
-	src = selr & RCC_SELR_SRC_MASK;
-	refclk = stm32mp1_clk_get_fixed(priv, pll[pll_id].refclk[src]);
+	refclk = pll_get_fref_ck(priv, pll_id);
 
-	debug("        refclk = %d kHz\n", (u32)(refclk / 1000));
-
-	/*
-	 * For: PLL1 & PLL2 => VCO is * 2 but ck_pll_y is also / 2
-	 * So same final result than PLL2 et 4
-	 * with FRACV :
-	 *   Fck_pll_y = Fck_ref * ((DIVN + 1) + FRACV / 2^13)
-	 *               / (DIVM + 1) * (DIVy + 1)
+	/* with FRACV :
+	 *   Fvco = Fck_ref * ((DIVN + 1) + FRACV / 2^13) / (DIVM + 1)
 	 * without FRACV
-	 *   Fck_pll_y = Fck_ref * ((DIVN + 1) / (DIVM + 1) *(DIVy + 1)
+	 *   Fvco = Fck_ref * ((DIVN + 1) / (DIVM + 1)
 	 */
 	if (fracr & RCC_PLLNFRACR_FRACLE) {
 		u32 fracv = (fracr & RCC_PLLNFRACR_FRACV_MASK)
 			    >> RCC_PLLNFRACR_FRACV_SHIFT;
-		dfout = (ulong)lldiv((unsigned long long)refclk *
+		fvco = (ulong)lldiv((unsigned long long)refclk *
 				     (((divn + 1) << 13) + fracv),
-				     ((unsigned long long)(divm + 1) *
-				      (divy + 1)) << 13);
+				     ((unsigned long long)(divm + 1)) << 13);
 	} else {
-		dfout = (ulong)(refclk * (divn + 1) / (divm + 1) * (divy + 1));
+		fvco = (ulong)(refclk * (divn + 1) / (divm + 1));
 	}
+	debug("PLL%d : %s = %ld\n", pll_id, __func__, fvco);
+
+	return fvco;
+}
+
+static ulong stm32mp1_read_pll_freq(struct stm32mp1_clk_priv *priv,
+				    int pll_id, int div_id)
+{
+	const struct stm32mp1_clk_pll *pll = priv->data->pll;
+	int divy;
+	ulong dfout;
+	u32 cfgr2;
+
+	debug("%s(%d, %d)\n", __func__, pll_id, div_id);
+	if (div_id >= _DIV_NB)
+		return 0;
+
+	cfgr2 = readl(priv->base + pll[pll_id].pllxcfgr2);
+	divy = (cfgr2 >> RCC_PLLNCFGR2_SHIFT(div_id)) & RCC_PLLNCFGR2_DIVX_MASK;
+
+	debug("PLL%d : cfgr2=%x DIVY=%d\n", pll_id, cfgr2, divy);
+
+	dfout = pll_get_fvco(priv, pll_id) / (divy + 1);
 	debug("        => dfout = %d kHz\n", (u32)(dfout / 1000));
 
 	return dfout;
