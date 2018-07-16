@@ -20,7 +20,7 @@ int dram_init(void)
 		return ret;
 	}
 
-	if (fdtdec_setup_memory_size() != 0)
+	if (fdtdec_setup_mem_size_base() != 0)
 		ret = -EINVAL;
 
 	return ret;

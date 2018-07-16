@@ -1,7 +1,7 @@
 From 5ab48490f03051875ab13d288a4bf32b507d76fd Mon Sep 17 00:00:00 2001
 From: Simon Glass <sjg@chromium.org>
 Date: Sat, 15 Apr 2017 15:39:08 -0600
-Subject: [RFC 2/2] fdt: Correct cast for sandbox in fdtdec_setup_memory_size()
+Subject: [RFC 2/2] fdt: Correct cast for sandbox in fdtdec_setup_mem_size_base()
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ diff --git a/lib/fdtdec.c b/lib/fdtdec.c
 index c072e54..942244f 100644
 --- a/lib/fdtdec.c
 +++ b/lib/fdtdec.c
-@@ -1200,7 +1200,8 @@ int fdtdec_setup_memory_size(void)
+@@ -1200,7 +1200,8 @@ int fdtdec_setup_mem_size_base(void)
  	}
  
  	gd->ram_size = (phys_size_t)(res.end - res.start + 1);
