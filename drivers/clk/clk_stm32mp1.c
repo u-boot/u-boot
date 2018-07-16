@@ -149,6 +149,7 @@
 #define RCC_BDCR_LSEON		BIT(0)
 #define RCC_BDCR_LSEBYP		BIT(1)
 #define RCC_BDCR_LSERDY		BIT(2)
+#define RCC_BDCR_DIGBYP		BIT(3)
 #define RCC_BDCR_LSEDRV_MASK	GENMASK(5, 4)
 #define RCC_BDCR_LSEDRV_SHIFT	4
 #define RCC_BDCR_LSECSSON	BIT(8)
@@ -203,6 +204,7 @@
 /* used for RCC_OCENSETR and RCC_OCENCLRR registers */
 #define RCC_OCENR_HSION			BIT(0)
 #define RCC_OCENR_CSION			BIT(4)
+#define RCC_OCENR_DIGBYP		BIT(7)
 #define RCC_OCENR_HSEON			BIT(8)
 #define RCC_OCENR_HSEBYP		BIT(10)
 #define RCC_OCENR_HSECSSON		BIT(11)
@@ -1202,11 +1204,15 @@ static int stm32mp1_osc_wait(int enable, fdt_addr_t rcc, u32 offset,
 	return ret;
 }
 
-static void stm32mp1_lse_enable(fdt_addr_t rcc, int bypass, int lsedrv)
+static void stm32mp1_lse_enable(fdt_addr_t rcc, int bypass, int digbyp,
+				int lsedrv)
 {
 	u32 value;
 
-	if (bypass)
+	if (digbyp)
+		setbits_le32(rcc + RCC_BDCR, RCC_BDCR_DIGBYP);
+
+	if (bypass || digbyp)
 		setbits_le32(rcc + RCC_BDCR, RCC_BDCR_LSEBYP);
 
 	/*
@@ -1241,9 +1247,11 @@ static void stm32mp1_lsi_set(fdt_addr_t rcc, int enable)
 	stm32mp1_osc_wait(enable, rcc, RCC_RDLSICR, RCC_RDLSICR_LSIRDY);
 }
 
-static void stm32mp1_hse_enable(fdt_addr_t rcc, int bypass, int css)
+static void stm32mp1_hse_enable(fdt_addr_t rcc, int bypass, int digbyp, int css)
 {
-	if (bypass)
+	if (digbyp)
+		setbits_le32(rcc + RCC_OCENSETR, RCC_OCENR_DIGBYP);
+	if (bypass || digbyp)
 		setbits_le32(rcc + RCC_OCENSETR, RCC_OCENR_HSEBYP);
 
 	stm32mp1_hs_ocs_set(1, rcc, RCC_OCENR_HSEON);
@@ -1606,26 +1614,27 @@ static int stm32mp1_clktree(struct udevice *dev)
 		stm32mp1_lsi_set(rcc, 1);
 
 	if (priv->osc[_LSE]) {
-		int bypass;
-		int lsedrv;
+		int bypass, digbyp, lsedrv;
 		struct udevice *dev = priv->osc_dev[_LSE];
 
 		bypass = dev_read_bool(dev, "st,bypass");
+		digbyp = dev_read_bool(dev, "st,digbypass");
 		lse_css = dev_read_bool(dev, "st,css");
 		lsedrv = dev_read_u32_default(dev, "st,drive",
 					      LSEDRV_MEDIUM_HIGH);
 
-		stm32mp1_lse_enable(rcc, bypass, lsedrv);
+		stm32mp1_lse_enable(rcc, bypass, digbyp, lsedrv);
 	}
 
 	if (priv->osc[_HSE]) {
-		int bypass, css;
+		int bypass, digbyp, css;
 		struct udevice *dev = priv->osc_dev[_HSE];
 
 		bypass = dev_read_bool(dev, "st,bypass");
+		digbyp = dev_read_bool(dev, "st,digbypass");
 		css = dev_read_bool(dev, "st,css");
 
-		stm32mp1_hse_enable(rcc, bypass, css);
+		stm32mp1_hse_enable(rcc, bypass, digbyp, css);
 	}
 	/* CSI is mandatory for automatic I/O compensation (SYSCFG_CMPCR)
 	 * => switch on CSI even if node is not present in device tree

@@ -170,8 +170,10 @@ Optional properties :
 
 a) for external oscillator: "clk-lse", "clk-hse"
 
-	3 optional fields are managed
+	4 optional fields are managed
 	- "st,bypass" Configure the oscillator bypass mode (HSEBYP, LSEBYP)
+	- "st,digbypass" Configure the bypass mode as full-swing digital signal
+	  (DIGBYP)
 	- "st,css" Activate the clock security system (HSECSSON, LSECSSON)
 	- "st,drive" (only for LSE) value of the drive for the oscillator
 	   (see LSEDRV_ define in the file dt-bindings/clock/stm32mp1-clksrc.h)
