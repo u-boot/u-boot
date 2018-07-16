@@ -99,6 +99,7 @@
 #define RCC_FMCCKSELR		0x904
 #define RCC_USBCKSELR		0x91C
 #define RCC_DSICKSELR		0x924
+#define RCC_ADCCKSELR		0x928
 #define RCC_MP_APB1ENSETR	0xA00
 #define RCC_MP_APB2ENSETR	0XA08
 #define RCC_MP_APB3ENSETR	0xA10
@@ -290,6 +291,7 @@ enum stm32mp1_parent_sel {
 	_USBO_SEL,
 	_STGEN_SEL,
 	_DSI_SEL,
+	_ADC12_SEL,
 	_PARENT_SEL_NB,
 	_UNKNOWN_SEL = 0xff,
 };
@@ -525,6 +527,8 @@ static const struct stm32mp1_clk_gate stm32mp1_clk_gate[] = {
 	STM32MP1_CLK_SET_CLR(RCC_MP_APB5ENSETR, 2, I2C4_K, _I2C46_SEL),
 	STM32MP1_CLK_SET_CLR(RCC_MP_APB5ENSETR, 20, STGEN_K, _STGEN_SEL),
 
+	STM32MP1_CLK_SET_CLR_F(RCC_MP_AHB2ENSETR, 5, ADC12, _HCLK2),
+	STM32MP1_CLK_SET_CLR(RCC_MP_AHB2ENSETR, 5, ADC12_K, _ADC12_SEL),
 	STM32MP1_CLK_SET_CLR(RCC_MP_AHB2ENSETR, 8, USBO_K, _USBO_SEL),
 	STM32MP1_CLK_SET_CLR(RCC_MP_AHB2ENSETR, 16, SDMMC3_K, _SDMMC3_SEL),
 
@@ -575,6 +579,7 @@ static const u8 usbphy_parents[] = {_HSE_KER, _PLL4_R, _HSE_KER_DIV2};
 static const u8 usbo_parents[] = {_PLL4_R, _USB_PHY_48};
 static const u8 stgen_parents[] = {_HSI_KER, _HSE_KER};
 static const u8 dsi_parents[] = {_DSI_PHY, _PLL4_P};
+static const u8 adc_parents[] = {_PLL4_R, _CK_PER, _PLL3_Q};
 
 static const struct stm32mp1_clk_sel stm32mp1_clk_sel[_PARENT_SEL_NB] = {
 	STM32MP1_CLK_PARENT(_I2C12_SEL, RCC_I2C12CKSELR, 0, 0x7, i2c12_parents),
@@ -598,6 +603,7 @@ static const struct stm32mp1_clk_sel stm32mp1_clk_sel[_PARENT_SEL_NB] = {
 	STM32MP1_CLK_PARENT(_USBO_SEL, RCC_USBCKSELR, 4, 0x1, usbo_parents),
 	STM32MP1_CLK_PARENT(_STGEN_SEL, RCC_STGENCKSELR, 0, 0x3, stgen_parents),
 	STM32MP1_CLK_PARENT(_DSI_SEL, RCC_DSICKSELR, 0, 0x1, dsi_parents),
+	STM32MP1_CLK_PARENT(_ADC12_SEL, RCC_ADCCKSELR, 0, 0x1, adc_parents),
 };
 
 #ifdef STM32MP1_CLOCK_TREE_INIT
@@ -710,6 +716,7 @@ static const char * const stm32mp1_clk_parent_sel_name[_PARENT_SEL_NB] = {
 	[_USBO_SEL] = "USBO",
 	[_STGEN_SEL] = "STGEN",
 	[_DSI_SEL] = "DSI",
+	[_ADC12_SEL] = "ADC12",
 };
 #endif
 
