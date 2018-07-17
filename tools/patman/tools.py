@@ -116,8 +116,8 @@ def GetInputFilename(fname):
         if os.path.exists(pathname):
             return pathname
 
-    raise ValueError("Filename '%s' not found in input path (%s)" %
-                     (fname, ','.join(indir)))
+    raise ValueError("Filename '%s' not found in input path (%s) (cwd='%s')" %
+                     (fname, ','.join(indir), os.getcwd()))
 
 def Align(pos, align):
     if align:
