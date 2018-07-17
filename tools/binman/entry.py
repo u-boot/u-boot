@@ -143,6 +143,8 @@ class Entry(object):
 
         This reads all the fields we recognise from the node, ready for use.
         """
+        if 'pos' in self._node.props:
+            self.Raise("Please use 'offset' instead of 'pos'")
         self.offset = fdt_util.GetInt(self._node, 'offset')
         self.size = fdt_util.GetInt(self._node, 'size')
         self.align = fdt_util.GetInt(self._node, 'align')

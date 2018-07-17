@@ -1361,6 +1361,13 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('78_u_boot_tpl.dts')
         self.assertEqual(U_BOOT_TPL_DATA + U_BOOT_TPL_DTB_DATA, data)
 
+    def testUsesPos(self):
+        """Test that the 'pos' property cannot be used anymore"""
+        with self.assertRaises(ValueError) as e:
+           data = self._DoReadFile('79_uses_pos.dts')
+        self.assertIn("Node '/binman/u-boot': Please use 'offset' instead of "
+                      "'pos'", str(e.exception))
+
 
 if __name__ == "__main__":
     unittest.main()
