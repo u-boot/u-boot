@@ -65,7 +65,7 @@ class Entry(object):
         self.name = node and (name_prefix + node.name) or 'none'
         self.offset = None
         self.size = None
-        self.data = ''
+        self.data = None
         self.contents_size = 0
         self.align = None
         self.align_size = None

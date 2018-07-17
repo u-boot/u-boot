@@ -381,3 +381,27 @@ class Section(object):
         Entry.WriteMapLine(fd, indent, self._name, self._offset, self._size)
         for entry in self._entries.values():
             entry.WriteMap(fd, indent + 1)
+
+    def GetContentsByPhandle(self, phandle, source_entry):
+        """Get the data contents of an entry specified by a phandle
+
+        This uses a phandle to look up a node and and find the entry
+        associated with it. Then it returnst he contents of that entry.
+
+        Args:
+            phandle: Phandle to look up (integer)
+            source_entry: Entry containing that phandle (used for error
+                reporting)
+
+        Returns:
+            data from associated entry (as a string), or None if not found
+        """
+        node = self._node.GetFdt().LookupPhandle(phandle)
+        if not node:
+            source_entry.Raise("Cannot find node for phandle %d" % phandle)
+        for entry in self._entries.values():
+            if entry._node == node:
+                if entry.data is None:
+                    return None
+                return entry.data
+        source_entry.Raise("Cannot find entry for node '%s'" % node.name)

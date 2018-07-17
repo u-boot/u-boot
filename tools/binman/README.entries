@@ -496,6 +496,23 @@ complicated. Otherwise it is the same as the u_boot entry.
 
 
 
+Entry: vblock: An entry which contains a Chromium OS verified boot block
+------------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - keydir: Directory containing the public keys to use
+    - keyblock: Name of the key file to use (inside keydir)
+    - signprivate: Name of provide key file to use (inside keydir)
+    - version: Version number of the vblock (typically 1)
+    - kernelkey: Name of the kernel key to use (inside keydir)
+    - preamble-flags: Value of the vboot preamble flags (typically 0)
+
+Chromium OS  signs the read-write firmware and kernel, writing the signature
+in this block. This allows U-Boot to verify that the next firmware stage
+and kernel are genuine.
+
+
+
 Entry: x86-start16: x86 16-bit start-up code for U-Boot
 -------------------------------------------------------
 

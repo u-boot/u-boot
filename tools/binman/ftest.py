@@ -49,6 +49,7 @@ TEXT_DATA3            = 'text3'
 CROS_EC_RW_DATA       = 'ecrw'
 GBB_DATA              = 'gbbd'
 BMPBLK_DATA           = 'bmp'
+VBLOCK_DATA           = 'vblk'
 
 
 class TestFunctional(unittest.TestCase):
@@ -1303,6 +1304,46 @@ class TestFunctional(unittest.TestCase):
             self._DoReadFileDtb('73_gbb_no_size.dts')
         self.assertIn("Node '/binman/gbb': GBB must have a fixed size",
                       str(e.exception))
+
+    def _HandleVblockCommand(self, pipe_list):
+        """Fake calls to the futility utility"""
+        if pipe_list[0][0] == 'futility':
+            fname = pipe_list[0][3]
+            with open(fname, 'w') as fd:
+                fd.write(VBLOCK_DATA)
+            return command.CommandResult()
+
+    def testVblock(self):
+        """Test for the Chromium OS Verified Boot Block"""
+        command.test_result = self._HandleVblockCommand
+        entry_args = {
+            'keydir': 'devkeys',
+        }
+        data, _, _, _ = self._DoReadFileDtb('74_vblock.dts',
+                                            entry_args=entry_args)
+        expected = U_BOOT_DATA + VBLOCK_DATA + U_BOOT_DTB_DATA
+        self.assertEqual(expected, data)
+
+    def testVblockNoContent(self):
+        """Test we detect a vblock which has no content to sign"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('75_vblock_no_content.dts')
+        self.assertIn("Node '/binman/vblock': Vblock must have a 'content' "
+                      'property', str(e.exception))
+
+    def testVblockBadPhandle(self):
+        """Test that we detect a vblock with an invalid phandle in contents"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('76_vblock_bad_phandle.dts')
+        self.assertIn("Node '/binman/vblock': Cannot find node for phandle "
+                      '1000', str(e.exception))
+
+    def testVblockBadEntry(self):
+        """Test that we detect an entry that points to a non-entry"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('77_vblock_bad_entry.dts')
+        self.assertIn("Node '/binman/vblock': Cannot find entry for node "
+                      "'other'", str(e.exception))
 
 
 if __name__ == "__main__":
