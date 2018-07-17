@@ -13,8 +13,6 @@ import tools
 
 import command
 import elf
-import fdt
-import fdt_util
 from image import Image
 import tout
 
@@ -129,6 +127,11 @@ def Binman(options, args):
         options.indir.append(board_pathname)
 
     try:
+        # Import these here in case libfdt.py is not available, in which case
+        # the above help option still works.
+        import fdt
+        import fdt_util
+
         tout.Init(options.verbosity)
         elf.debug = options.debug
         try:
