@@ -5,7 +5,9 @@
 # Entry-type module for testing purposes. Not used in real images.
 #
 
-from entry import Entry
+from collections import OrderedDict
+
+from entry import Entry, EntryArg
 import fdt_util
 import tools
 
@@ -27,6 +29,21 @@ class Entry__testing(Entry):
         self.process_fdt_ready = False
         self.never_complete_process_fdt = fdt_util.GetBool(self._node,
                                                 'never-complete-process-fdt')
+        self.require_args = fdt_util.GetBool(self._node, 'require-args')
+
+        # This should be picked up by GetEntryArgsOrProps()
+        self.test_existing_prop = 'existing'
+        self.force_bad_datatype = fdt_util.GetBool(self._node,
+                                                   'force-bad-datatype')
+        (self.test_str_fdt, self.test_str_arg, self.test_int_fdt,
+         self.test_int_arg, existing) = self.GetEntryArgsOrProps([
+            EntryArg('test-str-fdt', str),
+            EntryArg('test-str-arg', str),
+            EntryArg('test-int-fdt', int),
+            EntryArg('test-int-arg', int),
+            EntryArg('test-existing-prop', str)], self.require_args)
+        if self.force_bad_datatype:
+            self.GetEntryArgsOrProps([EntryArg('test-bad-datatype-arg', bool)])
 
     def ObtainContents(self):
         if self.return_unknown_contents:

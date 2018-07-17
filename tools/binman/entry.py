@@ -6,6 +6,8 @@
 
 from __future__ import print_function
 
+from collections import namedtuple
+
 # importlib was introduced in Python 2.7 but there was a report of it not
 # working in 2.7.12, so we work around this:
 # http://lists.denx.de/pipermail/u-boot/2016-October/269729.html
@@ -16,6 +18,7 @@ except:
     have_importlib = False
 
 import fdt_util
+import control
 import os
 import sys
 import tools
@@ -23,6 +26,12 @@ import tools
 modules = {}
 
 our_path = os.path.dirname(os.path.realpath(__file__))
+
+
+# An argument which can be passed to entries on the command line, in lieu of
+# device-tree properties.
+EntryArg = namedtuple('EntryArg', ['name', 'datatype'])
+
 
 class Entry(object):
     """An Entry in the section
@@ -249,6 +258,33 @@ class Entry(object):
         """Convenience function to raise an error referencing a node"""
         raise ValueError("Node '%s': %s" % (self._node.path, msg))
 
+    def GetEntryArgsOrProps(self, props, required=False):
+        """Return the values of a set of properties
+
+        Args:
+            props: List of EntryArg objects
+
+        Raises:
+            ValueError if a property is not found
+        """
+        values = []
+        missing = []
+        for prop in props:
+            python_prop = prop.name.replace('-', '_')
+            if hasattr(self, python_prop):
+                value = getattr(self, python_prop)
+            else:
+                value = None
+            if value is None:
+                value = self.GetArg(prop.name, prop.datatype)
+            if value is None and required:
+                missing.append(prop.name)
+            values.append(value)
+        if missing:
+            self.Raise('Missing required properties/entry args: %s' %
+                       (', '.join(missing)))
+        return values
+
     def GetPath(self):
         """Get the path of a node
 
@@ -307,3 +343,36 @@ class Entry(object):
             indent: Curent indent level of map (0=none, 1=one level, etc.)
         """
         self.WriteMapLine(fd, indent, self.name, self.offset, self.size)
+
+    def GetArg(self, name, datatype=str):
+        """Get the value of an entry argument or device-tree-node property
+
+        Some node properties can be provided as arguments to binman. First check
+        the entry arguments, and fall back to the device tree if not found
+
+        Args:
+            name: Argument name
+            datatype: Data type (str or int)
+
+        Returns:
+            Value of argument as a string or int, or None if no value
+
+        Raises:
+            ValueError if the argument cannot be converted to in
+        """
+        value = control.GetEntryArg(name)
+        if value is not None:
+            if datatype == int:
+                try:
+                    value = int(value)
+                except ValueError:
+                    self.Raise("Cannot convert entry arg '%s' (value '%s') to integer" %
+                               (name, value))
+            elif datatype == str:
+                pass
+            else:
+                raise ValueError("GetArg() internal error: Unknown data type '%s'" %
+                                 datatype)
+        else:
+            value = fdt_util.GetDatatype(self._node, name, datatype)
+        return value

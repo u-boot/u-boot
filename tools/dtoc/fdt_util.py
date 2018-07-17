@@ -147,3 +147,24 @@ def GetBool(node, propname, default=False):
     if propname in node.props:
         return True
     return default
+
+def GetDatatype(node, propname, datatype):
+    """Get a value of a given type from a property
+
+    Args:
+        node: Node object to read from
+        propname: property name to read
+        datatype: Type to read (str or int)
+
+    Returns:
+        value read, or None if none
+
+    Raises:
+        ValueError if datatype is not str or int
+    """
+    if datatype == str:
+        return GetString(node, propname)
+    elif datatype == int:
+        return GetInt(node, propname)
+    raise ValueError("fdt_util internal error: Unknown data type '%s'" %
+                     datatype)

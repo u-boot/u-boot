@@ -380,6 +380,14 @@ class TestFdtUtil(unittest.TestCase):
         self.assertEqual(True, fdt_util.GetBool(self.node, 'missing', True))
         self.assertEqual(False, fdt_util.GetBool(self.node, 'missing', False))
 
+    def testGetDataType(self):
+        self.assertEqual(1, fdt_util.GetDatatype(self.node, 'intval', int))
+        self.assertEqual('message', fdt_util.GetDatatype(self.node, 'stringval',
+                                                         str))
+        with self.assertRaises(ValueError) as e:
+            self.assertEqual(3, fdt_util.GetDatatype(self.node, 'boolval',
+                                                     bool))
+
     def testFdtCellsToCpu(self):
         val = self.node.props['intarray'].value
         self.assertEqual(0, fdt_util.fdt_cells_to_cpu(val, 0))

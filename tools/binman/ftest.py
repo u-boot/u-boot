@@ -146,7 +146,8 @@ class TestFunctional(unittest.TestCase):
         # options.verbosity = tout.DEBUG
         return control.Binman(options, args)
 
-    def _DoTestFile(self, fname, debug=False, map=False, update_dtb=False):
+    def _DoTestFile(self, fname, debug=False, map=False, update_dtb=False,
+                    entry_args=None):
         """Run binman with a given test file
 
         Args:
@@ -163,6 +164,9 @@ class TestFunctional(unittest.TestCase):
             args.append('-m')
         if update_dtb:
             args.append('-up')
+        if entry_args:
+            for arg, value in entry_args.iteritems():
+                args.append('-a%s=%s' % (arg, value))
         return self._DoBinman(*args)
 
     def _SetupDtb(self, fname, outfile='u-boot.dtb'):
@@ -188,7 +192,7 @@ class TestFunctional(unittest.TestCase):
             return data
 
     def _DoReadFileDtb(self, fname, use_real_dtb=False, map=False,
-                       update_dtb=False):
+                       update_dtb=False, entry_args=None):
         """Run binman and return the resulting image
 
         This runs binman with a given test file and then reads the resulting
@@ -220,7 +224,8 @@ class TestFunctional(unittest.TestCase):
             dtb_data = self._SetupDtb(fname)
 
         try:
-            retcode = self._DoTestFile(fname, map=map, update_dtb=update_dtb)
+            retcode = self._DoTestFile(fname, map=map, update_dtb=update_dtb,
+                                       entry_args=entry_args)
             self.assertEqual(0, retcode)
             out_dtb_fname = control.GetFdtPath('u-boot.dtb')
 
@@ -1084,6 +1089,78 @@ class TestFunctional(unittest.TestCase):
             self._DoReadFileDtb('61_fdt_update_bad.dts', update_dtb=True)
         self.assertIn('Could not complete processing of Fdt: remaining '
                       '[<_testing.Entry__testing', str(e.exception))
+
+    def testEntryArgs(self):
+        """Test passing arguments to entries from the command line"""
+        entry_args = {
+            'test-str-arg': 'test1',
+            'test-int-arg': '456',
+        }
+        self._DoReadFileDtb('62_entry_args.dts', entry_args=entry_args)
+        self.assertIn('image', control.images)
+        entry = control.images['image'].GetEntries()['_testing']
+        self.assertEqual('test0', entry.test_str_fdt)
+        self.assertEqual('test1', entry.test_str_arg)
+        self.assertEqual(123, entry.test_int_fdt)
+        self.assertEqual(456, entry.test_int_arg)
+
+    def testEntryArgsMissing(self):
+        """Test missing arguments and properties"""
+        entry_args = {
+            'test-int-arg': '456',
+        }
+        self._DoReadFileDtb('63_entry_args_missing.dts', entry_args=entry_args)
+        entry = control.images['image'].GetEntries()['_testing']
+        self.assertEqual('test0', entry.test_str_fdt)
+        self.assertEqual(None, entry.test_str_arg)
+        self.assertEqual(None, entry.test_int_fdt)
+        self.assertEqual(456, entry.test_int_arg)
+
+    def testEntryArgsRequired(self):
+        """Test missing arguments and properties"""
+        entry_args = {
+            'test-int-arg': '456',
+        }
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('64_entry_args_required.dts')
+        self.assertIn("Node '/binman/_testing': Missing required "
+            'properties/entry args: test-str-arg, test-int-fdt, test-int-arg',
+            str(e.exception))
+
+    def testEntryArgsInvalidFormat(self):
+        """Test that an invalid entry-argument format is detected"""
+        args = ['-d', self.TestFile('64_entry_args_required.dts'), '-ano-value']
+        with self.assertRaises(ValueError) as e:
+            self._DoBinman(*args)
+        self.assertIn("Invalid entry arguemnt 'no-value'", str(e.exception))
+
+    def testEntryArgsInvalidInteger(self):
+        """Test that an invalid entry-argument integer is detected"""
+        entry_args = {
+            'test-int-arg': 'abc',
+        }
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('62_entry_args.dts', entry_args=entry_args)
+        self.assertIn("Node '/binman/_testing': Cannot convert entry arg "
+                      "'test-int-arg' (value 'abc') to integer",
+            str(e.exception))
+
+    def testEntryArgsInvalidDatatype(self):
+        """Test that an invalid entry-argument datatype is detected
+
+        This test could be written in entry_test.py except that it needs
+        access to control.entry_args, which seems more than that module should
+        be able to see.
+        """
+        entry_args = {
+            'test-bad-datatype-arg': '12',
+        }
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('65_entry_args_unknown_datatype.dts',
+                                entry_args=entry_args)
+        self.assertIn('GetArg() internal error: Unknown data type ',
+                      str(e.exception))
+
 
 if __name__ == "__main__":
     unittest.main()

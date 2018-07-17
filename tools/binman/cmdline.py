@@ -18,6 +18,8 @@ def ParseArgs(argv):
             args is a list of string arguments
     """
     parser = OptionParser()
+    parser.add_option('-a', '--entry-arg', type='string', action='append',
+            help='Set argument value arg=value')
     parser.add_option('-b', '--board', type='string',
             help='Board name to build')
     parser.add_option('-B', '--build-dir', type='string', default='b',
