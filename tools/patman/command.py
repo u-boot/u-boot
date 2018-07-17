@@ -61,8 +61,12 @@ def RunPipe(pipe_list, infile=None, outfile=None,
     """
     if test_result:
         if hasattr(test_result, '__call__'):
-            return test_result(pipe_list=pipe_list)
-        return test_result
+            result = test_result(pipe_list=pipe_list)
+            if result:
+                return result
+        else:
+            return test_result
+        # No result: fall through to normal processing
     result = CommandResult()
     last_pipe = None
     pipeline = list(pipe_list)
