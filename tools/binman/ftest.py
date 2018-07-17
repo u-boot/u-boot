@@ -212,6 +212,7 @@ class TestFunctional(unittest.TestCase):
                 Resulting image contents
                 Device tree contents
                 Map data showing contents of image (or None if none)
+                Output device tree binary filename ('u-boot.dtb' path)
         """
         dtb_data = None
         # Use the compiled test file as the u-boot-dtb input
@@ -249,6 +250,9 @@ class TestFunctional(unittest.TestCase):
                 the u-boot-dtb entry. Normally this is not needed and the
                 test contents (the U_BOOT_DTB_DATA string) can be used.
                 But in some test we need the real contents.
+
+        Returns:
+            Resulting image contents
         """
         return self._DoReadFileDtb(fname, use_real_dtb)[0]
 
@@ -312,7 +316,6 @@ class TestFunctional(unittest.TestCase):
         def AddNode(node, path):
             if node.name != '/':
                 path += '/' + node.name
-            #print 'path', path
             for subnode in node.subnodes:
                 for prop in subnode.props.values():
                     if prop.name in node_names:
@@ -408,7 +411,6 @@ class TestFunctional(unittest.TestCase):
         with self.assertRaises(Exception) as e:
             result = self._RunBinman('-d',
                                      self.TestFile('04_invalid_entry.dts'))
-        #print e.exception
         self.assertIn("Unknown entry type 'not-a-valid-type' in node "
                 "'/binman/not-a-valid-type'", str(e.exception))
 
