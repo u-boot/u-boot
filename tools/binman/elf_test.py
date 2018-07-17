@@ -15,6 +15,10 @@ binman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
 
 
 class FakeEntry:
+    """A fake Entry object, usedfor testing
+
+    This supports an entry with a given size.
+    """
     def __init__(self, contents_size):
         self.contents_size = contents_size
         self.data = 'a' * contents_size
@@ -22,7 +26,14 @@ class FakeEntry:
     def GetPath(self):
         return 'entry_path'
 
+
 class FakeSection:
+    """A fake Section object, used for testing
+
+    This has the minimum feature set needed to support testing elf functions.
+    A LookupSymbol() function is provided which returns a fake value for amu
+    symbol requested.
+    """
     def __init__(self, sym_value=1):
         self.sym_value = sym_value
 
@@ -30,15 +41,19 @@ class FakeSection:
         return 'section_path'
 
     def LookupSymbol(self, name, weak, msg):
+        """Fake implementation which returns the same value for all symbols"""
         return self.sym_value
+
 
 class TestElf(unittest.TestCase):
     def testAllSymbols(self):
+        """Test that we can obtain a symbol from the ELF file"""
         fname = os.path.join(binman_dir, 'test', 'u_boot_ucode_ptr')
         syms = elf.GetSymbols(fname, [])
         self.assertIn('.ucode', syms)
 
     def testRegexSymbols(self):
+        """Test that we can obtain from the ELF file by regular expression"""
         fname = os.path.join(binman_dir, 'test', 'u_boot_ucode_ptr')
         syms = elf.GetSymbols(fname, ['ucode'])
         self.assertIn('.ucode', syms)
@@ -48,6 +63,7 @@ class TestElf(unittest.TestCase):
         self.assertIn('.ucode', syms)
 
     def testMissingFile(self):
+        """Test that a missing file is detected"""
         entry = FakeEntry(10)
         section = FakeSection()
         with self.assertRaises(ValueError) as e:
@@ -56,6 +72,7 @@ class TestElf(unittest.TestCase):
                       str(e.exception))
 
     def testOutsideFile(self):
+        """Test a symbol which extends outside the entry area is detected"""
         entry = FakeEntry(10)
         section = FakeSection()
         elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms')
@@ -65,6 +82,11 @@ class TestElf(unittest.TestCase):
                       'is a', str(e.exception))
 
     def testMissingImageStart(self):
+        """Test that we detect a missing __image_copy_start symbol
+
+        This is needed to mark the start of the image. Without it we cannot
+        locate the offset of a binman symbol within the image.
+        """
         entry = FakeEntry(10)
         section = FakeSection()
         elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms_bad')
@@ -72,6 +94,11 @@ class TestElf(unittest.TestCase):
                          None)
 
     def testBadSymbolSize(self):
+        """Test that an attempt to use an 8-bit symbol are detected
+
+        Only 32 and 64 bits are supported, since we need to store an offset
+        into the image.
+        """
         entry = FakeEntry(10)
         section = FakeSection()
         elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms_size')
@@ -81,6 +108,11 @@ class TestElf(unittest.TestCase):
                       str(e.exception))
 
     def testNoValue(self):
+        """Test the case where we have no value for the symbol
+
+        This should produce -1 values for all thress symbols, taking up the
+        first 16 bytes of the image.
+        """
         entry = FakeEntry(20)
         section = FakeSection(sym_value=None)
         elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms')
@@ -88,6 +120,7 @@ class TestElf(unittest.TestCase):
         self.assertEqual(chr(255) * 16 + 'a' * 4, entry.data)
 
     def testDebug(self):
+        """Check that enabling debug in the elf module produced debug output"""
         elf.debug = True
         entry = FakeEntry(20)
         section = FakeSection()
