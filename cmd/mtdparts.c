@@ -690,7 +690,7 @@ static int part_parse(const char *const partdef, const char **ret, struct part_i
 		part->auto_name = 0;
 	} else {
 		/* auto generated name in form of size@offset */
-		sprintf(part->name, "0x%08llx@0x%08llx", size, offset);
+		snprintf(part->name, name_len, "0x%08llx@0x%08llx", size, offset);
 		part->auto_name = 1;
 	}
 
