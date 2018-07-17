@@ -92,6 +92,6 @@ class Entry_u_boot_ucode(Entry_blob):
             fd.write(fdt_entry.ucode_data)
 
         self._pathname = fname
-        self.ReadContents()
+        self.ReadBlobContents()
 
         return True

@@ -71,7 +71,7 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob):
         # Call the base class just in case it does something important.
         Entry_blob.ObtainContents(self)
         self._pathname = control.GetFdtPath(self._filename)
-        self.ReadContents()
+        self.ReadBlobContents()
         if self.ucode:
             for node in self.ucode.subnodes:
                 data_prop = node.props.get('data')

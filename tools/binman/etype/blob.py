@@ -29,10 +29,10 @@ class Entry_blob(Entry):
     def ObtainContents(self):
         self._filename = self.GetDefaultFilename()
         self._pathname = tools.GetInputFilename(self._filename)
-        self.ReadContents()
+        self.ReadBlobContents()
         return True
 
-    def ReadContents(self):
+    def ReadBlobContents(self):
         with open(self._pathname) as fd:
             # We assume the data is small enough to fit into memory. If this
             # is used for large filesystem image that might not be true.
