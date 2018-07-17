@@ -1004,27 +1004,32 @@ class TestFunctional(unittest.TestCase):
     def testSections(self):
         """Basic test of sections"""
         data = self._DoReadFile('55_sections.dts')
-        expected = U_BOOT_DATA + '!' * 12 + U_BOOT_DATA + 'a' * 12 + '&' * 8
+        expected = (U_BOOT_DATA + '!' * 12 + U_BOOT_DATA + 'a' * 12 +
+                    U_BOOT_DATA + '&' * 4)
         self.assertEqual(expected, data)
 
     def testMap(self):
         """Tests outputting a map of the images"""
         _, _, map_data, _ = self._DoReadFileDtb('55_sections.dts', map=True)
         self.assertEqual('''  Offset      Size  Name
-00000000  00000010  section@0
- 00000000  00000004  u-boot
-00000010  00000010  section@1
- 00000000  00000004  u-boot
+00000000  00000028  main-section
+ 00000000  00000010  section@0
+  00000000  00000004  u-boot
+ 00000010  00000010  section@1
+  00000000  00000004  u-boot
+ 00000020  00000004  section@2
+  00000000  00000004  u-boot
 ''', map_data)
 
     def testNamePrefix(self):
         """Tests that name prefixes are used"""
         _, _, map_data, _ = self._DoReadFileDtb('56_name_prefix.dts', map=True)
         self.assertEqual('''  Offset      Size  Name
-00000000  00000010  section@0
- 00000000  00000004  ro-u-boot
-00000010  00000010  section@1
- 00000000  00000004  rw-u-boot
+00000000  00000028  main-section
+ 00000000  00000010  section@0
+  00000000  00000004  ro-u-boot
+ 00000010  00000010  section@1
+  00000000  00000004  rw-u-boot
 ''', map_data)
 
     def testUnknownContents(self):
@@ -1051,6 +1056,7 @@ class TestFunctional(unittest.TestCase):
             with open(out_dtb_fname) as inf:
                 outf.write(inf.read())
         self.assertEqual({
+            'offset': 0,
             '_testing:offset': 32,
             '_testing:size': 1,
             'section@0/u-boot:offset': 0,

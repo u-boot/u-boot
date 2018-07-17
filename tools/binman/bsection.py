@@ -50,6 +50,7 @@ class Section(object):
         import entry
         from entry import Entry
 
+        self._name = name
         self._node = node
         self._offset = 0
         self._size = None
@@ -90,11 +91,20 @@ class Section(object):
             entry.SetPrefix(self._name_prefix)
             self._entries[node.name] = entry
 
+    def SetOffset(self, offset):
+        self._offset = offset
+
     def AddMissingProperties(self):
+        """Add new properties to the device tree as needed for this entry"""
+        for prop in ['offset', 'size']:
+            if not prop in self._node.props:
+                self._node.AddZeroProp(prop)
         for entry in self._entries.values():
             entry.AddMissingProperties()
 
     def SetCalculatedProperties(self):
+        self._node.SetInt('offset', self._offset)
+        self._node.SetInt('size', self._size)
         for entry in self._entries.values():
             entry.SetCalculatedProperties()
 
@@ -269,7 +279,7 @@ class Section(object):
         fd.write(self.GetData())
 
     def GetData(self):
-        """Write the section to a file"""
+        """Get the contents of the section"""
         section_data = chr(self._pad_byte) * self._size
 
         for entry in self._entries.values():
@@ -335,7 +345,24 @@ class Section(object):
             raise ValueError("%s: No such property '%s'" % (msg, prop_name))
 
     def GetEntries(self):
+        """Get the number of entries in a section
+
+        Returns:
+            Number of entries in a section
+        """
         return self._entries
+
+    def GetSize(self):
+        """Get the size of a section in bytes
+
+        This is only meaningful if the section has a pre-defined size, or the
+        entries within it have been packed, so that the size has been
+        calculated.
+
+        Returns:
+            Entry size in bytes
+        """
+        return self._size
 
     def WriteMap(self, fd, indent):
         """Write a map of the section to a .map file
@@ -343,5 +370,6 @@ class Section(object):
         Args:
             fd: File to write the map to
         """
+        Entry.WriteMapLine(fd, indent, self._name, self._offset, self._size)
         for entry in self._entries.values():
-            entry.WriteMap(fd, indent)
+            entry.WriteMap(fd, indent + 1)

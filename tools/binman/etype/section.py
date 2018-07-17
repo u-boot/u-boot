@@ -42,7 +42,8 @@ class Entry_section(Entry):
     def Pack(self, offset):
         """Pack all entries into the section"""
         self._section.PackEntries()
-        self.size = self._section.CheckSize()
+        self._section.SetOffset(offset)
+        self.size = self._section.GetSize()
         return super(Entry_section, self).Pack(offset)
 
     def WriteSymbols(self, section):
@@ -66,5 +67,4 @@ class Entry_section(Entry):
         Args:
             fd: File to write the map to
         """
-        super(Entry_section, self).WriteMap(fd, indent)
-        self._section.WriteMap(fd, indent + 1)
+        self._section.WriteMap(fd, indent)

@@ -36,7 +36,7 @@ class Entry(object):
     Entry.
 
     Attributes:
-        section: The section containing this entry
+        section: Section object containing this entry
         node: The node that created this entry
         offset: Offset of entry within the section, None if not known yet (in
             which case it will be calculated by Pack())
@@ -72,7 +72,7 @@ class Entry(object):
         """Create a new entry for a node.
 
         Args:
-            section:  Image object containing this node
+            section:  Section object containing this node
             node:   Node object containing information about the entry to create
             etype:  Entry type to use, or None to work it out (used for tests)
 
@@ -133,7 +133,7 @@ class Entry(object):
 
     def AddMissingProperties(self):
         """Add new properties to the device tree as needed for this entry"""
-        for prop in ['offset', 'size', 'global-pos']:
+        for prop in ['offset', 'size']:
             if not prop in self._node.props:
                 self._node.AddZeroProp(prop)
 
@@ -285,6 +285,10 @@ class Entry(object):
         """
         pass
 
+    @staticmethod
+    def WriteMapLine(fd, indent, name, offset, size):
+        print('%s%08x  %08x  %s' % (' ' * indent, offset, size, name), file=fd)
+
     def WriteMap(self, fd, indent):
         """Write a map of the entry to a .map file
 
@@ -292,5 +296,4 @@ class Entry(object):
             fd: File to write the map to
             indent: Curent indent level of map (0=none, 1=one level, etc.)
         """
-        print('%s%08x  %08x  %s' % (' ' * indent, self.offset, self.size,
-                                    self.name), file=fd)
+        self.WriteMapLine(fd, indent, self.name, self.offset, self.size)

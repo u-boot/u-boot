@@ -584,10 +584,11 @@ The -m option causes binman to output a .map file for each image that it
 generates. This shows the offset and size of each entry. For example:
 
       Offset      Size  Name
-    00000000  00000010  section@0
-     00000000  00000004  u-boot
-    00000010  00000010  section@1
-     00000000  00000004  u-boot
+    00000000  00000028  main-section
+     00000000  00000010  section@0
+      00000000  00000004  u-boot
+     00000010  00000010  section@1
+      00000000  00000004  u-boot
 
 This shows a hierarchical image with two sections, each with a single entry. The
 offsets of the sections are absolute hex byte offsets within the image. The
