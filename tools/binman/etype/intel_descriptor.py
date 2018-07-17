@@ -13,6 +13,7 @@ from blob import Entry_blob
 FD_SIGNATURE   = struct.pack('<L', 0x0ff0a55a)
 MAX_REGIONS    = 5
 
+# Region numbers supported by the Intel firmware format
 (REGION_DESCRIPTOR, REGION_BIOS, REGION_ME, REGION_GBE,
         REGION_PDATA) = range(5)
 
@@ -27,10 +28,21 @@ class Region:
 class Entry_intel_descriptor(Entry_blob):
     """Intel flash descriptor block (4KB)
 
-    This is placed at the start of flash and provides information about
+    Properties / Entry arguments:
+        filename: Filename of file containing the descriptor. This is typically
+            a 4KB binary file, sometimes called 'descriptor.bin'
+
+    This entry is placed at the start of flash and provides information about
     the SPI flash regions. In particular it provides the base address and
-    size of the ME region, allowing us to place the ME binary in the right
-    place.
+    size of the ME (Management Engine) region, allowing us to place the ME
+    binary in the right place.
+
+    With this entry in your image, the position of the 'intel-me' entry will be
+    fixed in the image, which avoids you needed to specify an offset for that
+    region. This is useful, because it is not possible to change the position
+    of the ME region without updating the descriptor.
+
+    See README.x86 for information about x86 binary blobs.
     """
     def __init__(self, section, etype, node):
         Entry_blob.__init__(self, section, etype, node)

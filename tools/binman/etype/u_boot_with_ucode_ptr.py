@@ -17,8 +17,13 @@ import tools
 class Entry_u_boot_with_ucode_ptr(Entry_blob):
     """U-Boot with embedded microcode pointer
 
-    See Entry_u_boot_ucode for full details of the 3 entries involved in this
-    process.
+    Properties / Entry arguments:
+        - filename: Filename of u-boot-nodtb.dtb (default 'u-boot-nodtb.dtb')
+
+    See Entry_u_boot_ucode for full details of the three entries involved in
+    this process. This entry updates U-Boot with the offset and size of the
+    microcode, to allow early x86 boot code to find it without doing anything
+    complicated. Otherwise it is the same as the u_boot entry.
     """
     def __init__(self, section, etype, node):
         Entry_blob.__init__(self, section, etype, node)

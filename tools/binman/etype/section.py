@@ -13,6 +13,23 @@ import tools
 import bsection
 
 class Entry_section(Entry):
+    """Entry that contains other entries
+
+    Properties / Entry arguments: (see binman README for more information)
+        - size: Size of section in bytes
+        - align-size: Align size to a particular power of two
+        - pad-before: Add padding before the entry
+        - pad-after: Add padding after the entry
+        - pad-byte: Pad byte to use when padding
+        - sort-by-offset: Reorder the entries by offset
+        - end-at-4gb: Used to build an x86 ROM which ends at 4GB (2^32)
+        - name-prefix: Adds a prefix to the name of every entry in the section
+            when writing out the map
+
+    A section is an entry which can contain other entries, thus allowing
+    hierarchical images to be created. See 'Sections and hierarchical images'
+    in the binman README for more information.
+    """
     def __init__(self, image, etype, node):
         Entry.__init__(self, image, etype, node)
         self._section = bsection.Section(node.name, node)

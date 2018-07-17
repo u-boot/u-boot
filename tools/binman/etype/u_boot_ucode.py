@@ -12,6 +12,12 @@ import tools
 class Entry_u_boot_ucode(Entry_blob):
     """U-Boot microcode block
 
+    Properties / Entry arguments:
+        None
+
+    The contents of this entry are filled in automatically by other entries
+    which must also be in the image.
+
     U-Boot on x86 needs a single block of microcode. This is collected from
     the various microcode update nodes in the device tree. It is also unable
     to read the microcode from the device tree on platforms that use FSP

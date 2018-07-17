@@ -13,7 +13,14 @@ class Entry_text(Entry):
     """An entry which contains text
 
     The text can be provided either in the node itself or by a command-line
-    argument.
+    argument. There is a level of indirection to allow multiple text strings
+    and sharing of text.
+
+    Properties / Entry arguments:
+        text-label: The value of this string indicates the property / entry-arg
+            that contains the string to place in the entry
+        <xxx> (actual name is the value of text-label): contains the string to
+            place in the entry.
 
     Example node:
 

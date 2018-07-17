@@ -15,8 +15,30 @@ import tools
 class Entry__testing(Entry):
     """A fake entry used for testing
 
+    This entry should not be used in normal images. It is a special entry with
+    strange features used for testing.
+
+    Properties / Entry arguments
+        test-str-fdt: Test string, normally in the node
+        test-int-fdt: Test integer, normally in the node
+        test-str-arg: Test string, normally in the entry arguments
+        test-int-arg: Test integer, normally in the entry arguments
+
+    The entry has a single 'a' byte as its contents. Operation is controlled by
+    a number of properties in the node, as follows:
+
     Properties:
-        return_invalid_entry: Return an invalid entry from GetOffsets()
+        return-invalid-entry: Return an invalid entry from GetOffsets()
+        return-unknown-contents: Refuse to provide any contents (to cause a
+            failure)
+        bad-update-contents: Implement ProcessContents() incorrectly so as to
+            cause a failure
+        never-complete-process-fdt: Refund to process the FDT (to cause a
+            failure)
+        require-args: Require that all used args are present (generating an
+            error if not)
+        force-bad-datatype: Force a call to GetEntryArgsOrProps() with a bad
+            data type (generating an error)
     """
     def __init__(self, section, etype, node):
         Entry.__init__(self, section, etype, node)
@@ -26,6 +48,8 @@ class Entry__testing(Entry):
                                                      'return-unknown-contents')
         self.bad_update_contents = fdt_util.GetBool(self._node,
                                                     'bad-update-contents')
+
+        # Set to True when the entry is ready to process the FDT.
         self.process_fdt_ready = False
         self.never_complete_process_fdt = fdt_util.GetBool(self._node,
                                                 'never-complete-process-fdt')
