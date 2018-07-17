@@ -5,6 +5,7 @@
  */
 
 #include <avb_verify.h>
+#include <blk.h>
 #include <fastboot.h>
 #include <image.h>
 #include <malloc.h>
@@ -288,8 +289,8 @@ static unsigned long mmc_read_and_flush(struct mmc_part *part,
 		tmp_buf = buffer;
 	}
 
-	blks = part->mmc->block_dev.block_read(part->mmc_blk,
-				start, sectors, tmp_buf);
+	blks = blk_dread(part->mmc_blk,
+			 start, sectors, tmp_buf);
 	/* flush cache after read */
 	flush_cache((ulong)tmp_buf, sectors * part->info.blksz);
 
@@ -327,8 +328,8 @@ static unsigned long mmc_write(struct mmc_part *part, lbaint_t start,
 		tmp_buf = buffer;
 	}
 
-	return part->mmc->block_dev.block_write(part->mmc_blk,
-				start, sectors, tmp_buf);
+	return blk_dwrite(part->mmc_blk,
+			  start, sectors, tmp_buf);
 }
 
 static struct mmc_part *get_partition(AvbOps *ops, const char *partition)
