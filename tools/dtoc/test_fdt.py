@@ -380,6 +380,20 @@ class TestFdtUtil(unittest.TestCase):
         self.assertEqual(True, fdt_util.GetBool(self.node, 'missing', True))
         self.assertEqual(False, fdt_util.GetBool(self.node, 'missing', False))
 
+    def testGetByte(self):
+        self.assertEqual(5, fdt_util.GetByte(self.node, 'byteval'))
+        self.assertEqual(3, fdt_util.GetByte(self.node, 'missing', 3))
+
+        with self.assertRaises(ValueError) as e:
+            fdt_util.GetByte(self.node, 'longbytearray')
+        self.assertIn("property 'longbytearray' has list value: expecting a "
+                      'single byte', str(e.exception))
+
+        with self.assertRaises(ValueError) as e:
+            fdt_util.GetByte(self.node, 'intval')
+        self.assertIn("property 'intval' has length 4, expecting 1",
+                      str(e.exception))
+
     def testGetDataType(self):
         self.assertEqual(1, fdt_util.GetDatatype(self.node, 'intval', int))
         self.assertEqual('message', fdt_util.GetDatatype(self.node, 'stringval',
@@ -387,7 +401,6 @@ class TestFdtUtil(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             self.assertEqual(3, fdt_util.GetDatatype(self.node, 'boolval',
                                                      bool))
-
     def testFdtCellsToCpu(self):
         val = self.node.props['intarray'].value
         self.assertEqual(0, fdt_util.fdt_cells_to_cpu(val, 0))

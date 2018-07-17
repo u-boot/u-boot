@@ -1235,6 +1235,19 @@ class TestFunctional(unittest.TestCase):
         data, _, _, _ = self._DoReadFileDtb('68_blob_named_by_arg.dts',
                                             entry_args=entry_args)
 
+    def testFill(self):
+        """Test for an fill entry type"""
+        data = self._DoReadFile('69_fill.dts')
+        expected = 8 * chr(0xff) + 8 * chr(0)
+        self.assertEqual(expected, data)
+
+    def testFillNoSize(self):
+        """Test for an fill entry type with no size"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('70_fill_no_size.dts')
+        self.assertIn("'fill' entry must have a size property",
+                      str(e.exception))
+
 
 if __name__ == "__main__":
     unittest.main()

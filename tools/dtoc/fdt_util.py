@@ -148,6 +148,29 @@ def GetBool(node, propname, default=False):
         return True
     return default
 
+def GetByte(node, propname, default=None):
+    """Get an byte from a property
+
+    Args:
+        node: Node object to read from
+        propname: property name to read
+        default: Default value to use if the node/property do not exist
+
+    Returns:
+        Byte value read, or default if none
+    """
+    prop = node.props.get(propname)
+    if not prop:
+        return default
+    value = prop.value
+    if isinstance(value, list):
+        raise ValueError("Node '%s' property '%s' has list value: expecting "
+                         "a single byte" % (node.name, propname))
+    if len(value) != 1:
+        raise ValueError("Node '%s' property '%s' has length %d, expecting %d" %
+                         (node.name, propname, len(value), 1))
+    return ord(value[0])
+
 def GetDatatype(node, propname, datatype):
     """Get a value of a given type from a property
 

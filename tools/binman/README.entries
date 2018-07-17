@@ -55,6 +55,22 @@ updating the EC on startup via software sync.
 
 
 
+Entry: fill: An entry which is filled to a particular byte value
+----------------------------------------------------------------
+
+Properties / Entry arguments:
+    - fill-byte: Byte to use to fill the entry
+
+Note that the size property must be set since otherwise this entry does not
+know how large it should be.
+
+You can often achieve the same effect using the pad-byte property of the
+overall image, in that the space between entries will then be padded with
+that byte. But this entry is sometimes useful for explicitly setting the
+byte value of a region.
+
+
+
 Entry: fmap: An entry which contains an Fmap section
 ----------------------------------------------------
 
