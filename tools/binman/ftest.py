@@ -46,6 +46,8 @@ MRC_DATA              = 'mrc'
 TEXT_DATA             = 'text'
 TEXT_DATA2            = 'text2'
 TEXT_DATA3            = 'text3'
+CROS_EC_RW_DATA       = 'ecrw'
+
 
 class TestFunctional(unittest.TestCase):
     """Functional tests for binman
@@ -92,6 +94,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('cmc.bin', CMC_DATA)
         TestFunctional._MakeInputFile('vbt.bin', VBT_DATA)
         TestFunctional._MakeInputFile('mrc.bin', MRC_DATA)
+        TestFunctional._MakeInputFile('ecrw.bin', CROS_EC_RW_DATA)
         self._output_setup = False
 
         # ELF file with a '_dt_ucode_base_size' symbol
@@ -1223,6 +1226,14 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(fmap_util.FMAP_HEADER_LEN +
                          fmap_util.FMAP_AREA_LEN * 3, fentries[2].size)
         self.assertEqual('FMAP', fentries[2].name)
+
+    def testBlobNamedByArg(self):
+        """Test we can add a blob with the filename coming from an entry arg"""
+        entry_args = {
+            'cros-ec-rw-path': 'ecrw.bin',
+        }
+        data, _, _, _ = self._DoReadFileDtb('68_blob_named_by_arg.dts',
+                                            entry_args=entry_args)
 
 
 if __name__ == "__main__":
