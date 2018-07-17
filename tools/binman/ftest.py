@@ -353,21 +353,19 @@ class TestFunctional(unittest.TestCase):
         """
         return struct.unpack('>L', dtb[4:8])[0]
 
-    def _GetPropTree(self, dtb_data, node_names):
+    def _GetPropTree(self, dtb, prop_names):
         def AddNode(node, path):
             if node.name != '/':
                 path += '/' + node.name
             for subnode in node.subnodes:
                 for prop in subnode.props.values():
-                    if prop.name in node_names:
+                    if prop.name in prop_names:
                         prop_path = path + '/' + subnode.name + ':' + prop.name
                         tree[prop_path[len('/binman/'):]] = fdt_util.fdt32_to_cpu(
                             prop.value)
                 AddNode(subnode, path)
 
         tree = {}
-        dtb = fdt.Fdt(dtb_data)
-        dtb.Scan()
         AddNode(dtb.GetRoot(), '')
         return tree
 
@@ -1092,11 +1090,9 @@ class TestFunctional(unittest.TestCase):
         """Test that we can update the device tree with offset/size info"""
         _, _, _, out_dtb_fname = self._DoReadFileDtb('60_fdt_update.dts',
                                                      update_dtb=True)
-        props = self._GetPropTree(out_dtb_fname, ['offset', 'size',
-                                                  'image-pos'])
-        with open('/tmp/x.dtb', 'wb') as outf:
-            with open(out_dtb_fname) as inf:
-                outf.write(inf.read())
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['offset', 'size', 'image-pos'])
         self.assertEqual({
             'image-pos': 0,
             'offset': 0,
