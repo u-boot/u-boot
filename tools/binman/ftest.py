@@ -41,6 +41,9 @@ FSP_DATA              = 'fsp'
 CMC_DATA              = 'cmc'
 VBT_DATA              = 'vbt'
 MRC_DATA              = 'mrc'
+TEXT_DATA             = 'text'
+TEXT_DATA2            = 'text2'
+TEXT_DATA3            = 'text3'
 
 class TestFunctional(unittest.TestCase):
     """Functional tests for binman
@@ -1160,6 +1163,19 @@ class TestFunctional(unittest.TestCase):
                                 entry_args=entry_args)
         self.assertIn('GetArg() internal error: Unknown data type ',
                       str(e.exception))
+
+    def testText(self):
+        """Test for a text entry type"""
+        entry_args = {
+            'test-id': TEXT_DATA,
+            'test-id2': TEXT_DATA2,
+            'test-id3': TEXT_DATA3,
+        }
+        data, _, _, _ = self._DoReadFileDtb('66_text.dts',
+                                            entry_args=entry_args)
+        expected = (TEXT_DATA + chr(0) * (8 - len(TEXT_DATA)) + TEXT_DATA2 +
+                    TEXT_DATA3 + 'some text')
+        self.assertEqual(expected, data)
 
 
 if __name__ == "__main__":
