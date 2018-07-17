@@ -622,7 +622,7 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
 
 			list[n++] = ep;
 
-			totlen += strlen(ep->key) + 2;
+			totlen += strlen(ep->key);
 
 			if (sep == '\0') {
 				totlen += strlen(ep->data);
@@ -662,7 +662,7 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
 			return (-1);
 		}
 	} else {
-		size = totlen + 1;
+		size = totlen;
 	}
 
 	/* Check if the user provided a buffer */
