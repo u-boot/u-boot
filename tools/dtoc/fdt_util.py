@@ -5,6 +5,9 @@
 # Written by Simon Glass <sjg@chromium.org>
 #
 
+# Utility functions for reading from a device tree. Once the upstream pylibfdt
+# implementation advances far enough, we should be able to drop these.
+
 import os
 import struct
 import sys
@@ -90,6 +93,16 @@ def EnsureCompiled(fname, capture_stderr=False):
     return dtb_output
 
 def GetInt(node, propname, default=None):
+    """Get an integer from a property
+
+    Args:
+        node: Node object to read from
+        propname: property name to read
+        default: Default value to use if the node/property do not exist
+
+    Returns:
+        Integer value read, or default if none
+    """
     prop = node.props.get(propname)
     if not prop:
         return default
@@ -100,6 +113,16 @@ def GetInt(node, propname, default=None):
     return value
 
 def GetString(node, propname, default=None):
+    """Get a string from a property
+
+    Args:
+        node: Node object to read from
+        propname: property name to read
+        default: Default value to use if the node/property do not exist
+
+    Returns:
+        String value read, or default if none
+    """
     prop = node.props.get(propname)
     if not prop:
         return default
@@ -110,6 +133,17 @@ def GetString(node, propname, default=None):
     return value
 
 def GetBool(node, propname, default=False):
+    """Get an boolean from a property
+
+    Args:
+        node: Node object to read from
+        propname: property name to read
+        default: Default value to use if the node/property do not exist
+
+    Returns:
+        Boolean value read, or default if none (if you set this to True the
+            function will always return True)
+    """
     if propname in node.props:
         return True
     return default
