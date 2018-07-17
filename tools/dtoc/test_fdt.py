@@ -155,12 +155,12 @@ class TestNode(unittest.TestCase):
         self.assertEqual(prop.value, value)
 
     def testFindNode(self):
-        """Tests that we can find a node using the _FindNode() functoin"""
-        node = self.dtb.GetRoot()._FindNode('i2c@0')
+        """Tests that we can find a node using the FindNode() functoin"""
+        node = self.dtb.GetRoot().FindNode('i2c@0')
         self.assertEqual('i2c@0', node.name)
-        subnode = node._FindNode('pmic@9')
+        subnode = node.FindNode('pmic@9')
         self.assertEqual('pmic@9', subnode.name)
-        self.assertEqual(None, node._FindNode('missing'))
+        self.assertEqual(None, node.FindNode('missing'))
 
     def testRefreshMissingNode(self):
         """Test refreshing offsets when an extra node is present in dtb"""

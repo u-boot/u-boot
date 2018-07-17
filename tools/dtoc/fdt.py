@@ -181,7 +181,7 @@ class Node:
         self.subnodes = []
         self.props = {}
 
-    def _FindNode(self, name):
+    def FindNode(self, name):
         """Find a node given its name
 
         Args:
@@ -349,7 +349,7 @@ class Fdt:
         if len(parts) < 2:
             return None
         for part in parts[1:]:
-            node = node._FindNode(part)
+            node = node.FindNode(part)
             if not node:
                 return None
         return node
