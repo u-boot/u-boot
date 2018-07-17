@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Chen-Yu Tsai <wens@csie.org>
+ * Copyright 2017 Icenowy Zheng <icenowy@aosc.xyz>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -40,46 +40,116 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/dts-v1/;
-#include "sun8i-r40.dtsi"
+/*
+ * AXP803 Integrated Power Management Chip
+ * http://files.pine64.org/doc/datasheet/pine64/AXP803_Datasheet_V1.0.pdf
+ */
 
-/ {
-	model = "Banana Pi BPI-M2-Ultra";
-	compatible = "sinovoip,bpi-m2-ultra", "allwinner,sun8i-r40";
+&axp803 {
+	interrupt-controller;
+	#interrupt-cells = <1>;
 
-	aliases {
-		ethernet0 = &gmac;
-		serial0 = &uart0;
-	};
+	regulators {
+		/* Default work frequency for buck regulators */
+		x-powers,dcdc-freq = <3000>;
 
-	chosen {
-		stdout-path = "serial0:115200n8";
-	};
-};
+		reg_aldo1: aldo1 {
+			regulator-name = "aldo1";
+		};
 
-&i2c0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&i2c0_pins>;
-	status = "okay";
-};
+		reg_aldo2: aldo2 {
+			regulator-name = "aldo2";
+		};
 
-&uart0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&uart0_pb_pins>;
-	status = "okay";
-};
+		reg_aldo3: aldo3 {
+			regulator-name = "aldo3";
+		};
 
-&gmac {
-	pinctrl-names = "default";
-	pinctrl-0 = <&gmac_rgmii_pins>;
-	phy-handle = <&phy1>;
-	phy-mode = "rgmii";
-	status = "okay";
-};
+		reg_dc1sw: dc1sw {
+			regulator-name = "dc1sw";
+		};
 
-&gmac_mdio {
-	phy1: ethernet-phy@1 {
-		compatible = "ethernet-phy-ieee802.3-c22";
-		reg = <1>;
+		reg_dcdc1: dcdc1 {
+			regulator-name = "dcdc1";
+		};
+
+		reg_dcdc2: dcdc2 {
+			regulator-name = "dcdc2";
+		};
+
+		reg_dcdc3: dcdc3 {
+			regulator-name = "dcdc3";
+		};
+
+		reg_dcdc4: dcdc4 {
+			regulator-name = "dcdc4";
+		};
+
+		reg_dcdc5: dcdc5 {
+			regulator-name = "dcdc5";
+		};
+
+		reg_dcdc6: dcdc6 {
+			regulator-name = "dcdc6";
+		};
+
+		reg_dldo1: dldo1 {
+			regulator-name = "dldo1";
+		};
+
+		reg_dldo2: dldo2 {
+			regulator-name = "dldo2";
+		};
+
+		reg_dldo3: dldo3 {
+			regulator-name = "dldo3";
+		};
+
+		reg_dldo4: dldo4 {
+			regulator-name = "dldo4";
+		};
+
+		reg_eldo1: eldo1 {
+			regulator-name = "eldo1";
+		};
+
+		reg_eldo2: eldo2 {
+			regulator-name = "eldo2";
+		};
+
+		reg_eldo3: eldo3 {
+			regulator-name = "eldo3";
+		};
+
+		reg_fldo1: fldo1 {
+			regulator-name = "fldo1";
+		};
+
+		reg_fldo2: fldo2 {
+			regulator-name = "fldo2";
+		};
+
+		reg_ldo_io0: ldo-io0 {
+			regulator-name = "ldo-io0";
+			status = "disabled";
+		};
+
+		reg_ldo_io1: ldo-io1 {
+			regulator-name = "ldo-io1";
+			status = "disabled";
+		};
+
+		reg_rtc_ldo: rtc-ldo {
+			/* RTC_LDO is a fixed, always-on regulator */
+			regulator-always-on;
+			regulator-min-microvolt = <3000000>;
+			regulator-max-microvolt = <3000000>;
+			regulator-name = "rtc-ldo";
+		};
+
+		reg_drivevbus: drivevbus {
+			regulator-name = "drivevbus";
+			status = "disabled";
+		};
 	};
 };

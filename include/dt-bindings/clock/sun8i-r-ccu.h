@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2016 ARM Ltd.
+ * Copyright (c) 2016 Icenowy Zheng <icenowy@aosc.xyz>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
  * licensing only applies to this file, and not this project as a
  * whole.
  *
- *  a) This library is free software; you can redistribute it and/or
+ *  a) This file is free software; you can redistribute it and/or
  *     modify it under the terms of the GNU General Public License as
  *     published by the Free Software Foundation; either version 2 of the
  *     License, or (at your option) any later version.
  *
- *     This library is distributed in the hope that it will be useful,
+ *     This file is distributed in the hope that it will be useful,
  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
@@ -40,26 +40,20 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "sun50i-a64-pine64.dts"
+#ifndef _DT_BINDINGS_CLK_SUN8I_R_CCU_H_
+#define _DT_BINDINGS_CLK_SUN8I_R_CCU_H_
 
-/ {
-	model = "Pine64+";
-	compatible = "pine64,pine64-plus", "allwinner,sun50i-a64";
+#define CLK_AR100		0
 
-	/* TODO: Camera, touchscreen, etc. */
-};
+#define CLK_APB0_PIO		3
+#define CLK_APB0_IR		4
+#define CLK_APB0_TIMER		5
+#define CLK_APB0_RSB		6
+#define CLK_APB0_UART		7
+/* 8 is reserved for CLK_APB0_W1 on A31 */
+#define CLK_APB0_I2C		9
+#define CLK_APB0_TWD		10
 
-&emac {
-	pinctrl-names = "default";
-	pinctrl-0 = <&rgmii_pins>;
-	phy-mode = "rgmii";
-	phy-handle = <&ext_rgmii_phy>;
-	status = "okay";
-};
+#define CLK_IR			11
 
-&mdio {
-	ext_rgmii_phy: ethernet-phy@1 {
-		compatible = "ethernet-phy-ieee802.3-c22";
-		reg = <1>;
-	};
-};
+#endif /* _DT_BINDINGS_CLK_SUN8I_R_CCU_H_ */
