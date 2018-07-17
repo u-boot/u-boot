@@ -453,6 +453,15 @@ name-prefix:
 	distinguish binaries with otherwise identical names.
 
 
+Entry Documentation
+-------------------
+
+For details on the various entry types supported by binman and how to use them,
+see README.entries. This is generated from the source code using:
+
+	binman -E >tools/binman/README.entries
+
+
 Special properties
 ------------------
 
