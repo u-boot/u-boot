@@ -19,15 +19,9 @@
 #undef	SPIFLASH
 #undef	RAMENV	/* hold environment in flash */
 #else
-#ifdef XILINX_SPI_FLASH_BASEADDR
-#undef	FLASH
-#define	SPIFLASH
-#undef	RAMENV	/* hold environment in flash */
-#else
 #undef	FLASH
 #undef	SPIFLASH
 #define	RAMENV	/* hold environment in RAM */
-#endif
 #endif
 
 /* uart */
@@ -91,7 +85,6 @@
 #else /* !FLASH */
 
 #ifdef SPIFLASH
-# define CONFIG_SYS_SPI_BASE		XILINX_SPI_FLASH_BASEADDR
 # define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
 # define CONFIG_SF_DEFAULT_SPEED	XILINX_SPI_FLASH_MAX_FREQ
 # define CONFIG_SF_DEFAULT_CS		XILINX_SPI_FLASH_CS
