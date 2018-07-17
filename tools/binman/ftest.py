@@ -30,11 +30,13 @@ import tout
 U_BOOT_DATA           = '1234'
 U_BOOT_IMG_DATA       = 'img'
 U_BOOT_SPL_DATA       = '56780123456789abcde'
+U_BOOT_TPL_DATA       = 'tpl'
 BLOB_DATA             = '89'
 ME_DATA               = '0abcd'
 VGA_DATA              = 'vga'
 U_BOOT_DTB_DATA       = 'udtb'
 U_BOOT_SPL_DTB_DATA   = 'spldtb'
+U_BOOT_TPL_DTB_DATA   = 'tpldtb'
 X86_START16_DATA      = 'start16'
 X86_START16_SPL_DATA  = 'start16spl'
 U_BOOT_NODTB_DATA     = 'nodtb with microcode pointer somewhere in here'
@@ -82,11 +84,11 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('u-boot.bin', U_BOOT_DATA)
         TestFunctional._MakeInputFile('u-boot.img', U_BOOT_IMG_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-spl.bin', U_BOOT_SPL_DATA)
+        TestFunctional._MakeInputFile('tpl/u-boot-tpl.bin', U_BOOT_TPL_DATA)
         TestFunctional._MakeInputFile('blobfile', BLOB_DATA)
         TestFunctional._MakeInputFile('me.bin', ME_DATA)
         TestFunctional._MakeInputFile('vga.bin', VGA_DATA)
-        TestFunctional._MakeInputFile('u-boot.dtb', U_BOOT_DTB_DATA)
-        TestFunctional._MakeInputFile('spl/u-boot-spl.dtb', U_BOOT_SPL_DTB_DATA)
+        self._ResetDtbs()
         TestFunctional._MakeInputFile('u-boot-x86-16bit.bin', X86_START16_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-x86-16bit-spl.bin',
                                       X86_START16_SPL_DATA)
@@ -125,6 +127,12 @@ class TestFunctional(unittest.TestCase):
     def tearDown(self):
         """Remove the temporary output directory"""
         tools._FinaliseForTest()
+
+    @classmethod
+    def _ResetDtbs(self):
+        TestFunctional._MakeInputFile('u-boot.dtb', U_BOOT_DTB_DATA)
+        TestFunctional._MakeInputFile('spl/u-boot-spl.dtb', U_BOOT_SPL_DTB_DATA)
+        TestFunctional._MakeInputFile('tpl/u-boot-tpl.dtb', U_BOOT_TPL_DTB_DATA)
 
     def _RunBinman(self, *args, **kwargs):
         """Run binman using the command line
@@ -257,7 +265,7 @@ class TestFunctional(unittest.TestCase):
         finally:
             # Put the test file back
             if use_real_dtb:
-                TestFunctional._MakeInputFile('u-boot.dtb', U_BOOT_DTB_DATA)
+                self._ResetDtbs()
 
     def _DoReadFile(self, fname, use_real_dtb=False):
         """Helper function which discards the device-tree binary
@@ -1344,6 +1352,14 @@ class TestFunctional(unittest.TestCase):
             self._DoReadFile('77_vblock_bad_entry.dts')
         self.assertIn("Node '/binman/vblock': Cannot find entry for node "
                       "'other'", str(e.exception))
+
+    def testTpl(self):
+        """Test that an image with TPL and ots device tree can be created"""
+        # ELF file with a '__bss_size' symbol
+        with open(self.TestFile('bss_data')) as fd:
+            TestFunctional._MakeInputFile('tpl/u-boot-tpl', fd.read())
+        data = self._DoReadFile('78_u_boot_tpl.dts')
+        self.assertEqual(U_BOOT_TPL_DATA + U_BOOT_TPL_DTB_DATA, data)
 
 
 if __name__ == "__main__":

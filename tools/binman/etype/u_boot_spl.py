@@ -20,7 +20,7 @@ class Entry_u_boot_spl(Entry_blob):
     binary which loads before U-Boot proper, typically into on-chip SRAM. It is
     responsible for locating, loading and jumping to U-Boot. Note that SPL is
     not relocatable so must be loaded to the correct address in SRAM, or written
-    to run from the correct address is direct flash execution is possible (e.g.
+    to run from the correct address if direct flash execution is possible (e.g.
     on x86 devices).
 
     SPL can access binman symbols at runtime. See:
