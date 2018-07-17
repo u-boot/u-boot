@@ -58,6 +58,7 @@ Slot verification result: ERROR_IO
 -----------------------------------
 The following options must be enabled:
 CONFIG_LIBAVB=y
+CONFIG_AVB_VERIFY=y
 CONFIG_CMD_AVB=y
 
 

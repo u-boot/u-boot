@@ -637,6 +637,16 @@ config HASH
 	  and the algorithms it supports are defined in common/hash.c. See
 	  also CMD_HASH for command-line access.
 
+config AVB_VERIFY
+	bool "Build Android Verified Boot operations"
+	depends on LIBAVB && FASTBOOT
+	help
+	  This option enables compilation of bootloader-dependent operations,
+	  used by Android Verified Boot 2.0 library (libavb). Includes:
+	    * Helpers to process strings in order to build OS bootargs.
+	    * Helpers to access MMC, similar to drivers/fastboot/fb_mmc.c.
+	    * Helpers to alloc/init/free avb ops.
+
 endmenu
 
 menu "Update support"

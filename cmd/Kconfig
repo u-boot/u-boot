@@ -1779,7 +1779,7 @@ config CMD_TRACE
 
 config CMD_AVB
 	bool "avb - Android Verified Boot 2.0 operations"
-	depends on LIBAVB
+	depends on AVB_VERIFY
 	default n
 	help
 	  Enables a "avb" command to perform verification of partitions using
