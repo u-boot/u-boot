@@ -91,6 +91,25 @@ FMAP does not support this.
 
 
 
+Entry: gbb: An entry which contains a Chromium OS Google Binary Block
+---------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - hardware-id: Hardware ID to use for this build (a string)
+    - keydir: Directory containing the public keys to use
+    - bmpblk: Filename containing images used by recovery
+
+Chromium OS uses a GBB to store various pieces of information, in particular
+the root and recovery keys that are used to verify the boot process. Some
+more details are here:
+
+    https://www.chromium.org/chromium-os/firmware-porting-guide/2-concepts
+
+but note that the page dates from 2013 so is quite out of date. See
+README.chromium for how to obtain the required keys and tools.
+
+
+
 Entry: intel-cmc: Entry containing an Intel Chipset Micro Code (CMC) file
 -------------------------------------------------------------------------
 

@@ -47,6 +47,8 @@ TEXT_DATA             = 'text'
 TEXT_DATA2            = 'text2'
 TEXT_DATA3            = 'text3'
 CROS_EC_RW_DATA       = 'ecrw'
+GBB_DATA              = 'gbbd'
+BMPBLK_DATA           = 'bmp'
 
 
 class TestFunctional(unittest.TestCase):
@@ -95,6 +97,8 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('vbt.bin', VBT_DATA)
         TestFunctional._MakeInputFile('mrc.bin', MRC_DATA)
         TestFunctional._MakeInputFile('ecrw.bin', CROS_EC_RW_DATA)
+        TestFunctional._MakeInputDir('devkeys')
+        TestFunctional._MakeInputFile('bmpblk.bin', BMPBLK_DATA)
         self._output_setup = False
 
         # ELF file with a '_dt_ucode_base_size' symbol
@@ -285,6 +289,21 @@ class TestFunctional(unittest.TestCase):
             os.makedirs(dirname)
         with open(pathname, 'wb') as fd:
             fd.write(contents)
+        return pathname
+
+    @classmethod
+    def _MakeInputDir(self, dirname):
+        """Create a new test input directory, creating directories as needed
+
+        Args:
+            dirname: Directory name to create
+
+        Returns:
+            Full pathname of directory created
+        """
+        pathname = os.path.join(self._indir, dirname)
+        if not os.path.exists(pathname):
+            os.makedirs(pathname)
         return pathname
 
     @classmethod
@@ -1246,6 +1265,43 @@ class TestFunctional(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             self._DoReadFile('70_fill_no_size.dts')
         self.assertIn("'fill' entry must have a size property",
+                      str(e.exception))
+
+    def _HandleGbbCommand(self, pipe_list):
+        """Fake calls to the futility utility"""
+        if pipe_list[0][0] == 'futility':
+            fname = pipe_list[0][-1]
+            # Append our GBB data to the file, which will happen every time the
+            # futility command is called.
+            with open(fname, 'a') as fd:
+                fd.write(GBB_DATA)
+            return command.CommandResult()
+
+    def testGbb(self):
+        """Test for the Chromium OS Google Binary Block"""
+        command.test_result = self._HandleGbbCommand
+        entry_args = {
+            'keydir': 'devkeys',
+            'bmpblk': 'bmpblk.bin',
+        }
+        data, _, _, _ = self._DoReadFileDtb('71_gbb.dts', entry_args=entry_args)
+
+        # Since futility
+        expected = GBB_DATA + GBB_DATA + 8 * chr(0) + (0x2180 - 16) * chr(0)
+        self.assertEqual(expected, data)
+
+    def testGbbTooSmall(self):
+        """Test for the Chromium OS Google Binary Block being large enough"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('72_gbb_too_small.dts')
+        self.assertIn("Node '/binman/gbb': GBB is too small",
+                      str(e.exception))
+
+    def testGbbNoSize(self):
+        """Test for the Chromium OS Google Binary Block having a size"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('73_gbb_no_size.dts')
+        self.assertIn("Node '/binman/gbb': GBB must have a fixed size",
                       str(e.exception))
 
 
