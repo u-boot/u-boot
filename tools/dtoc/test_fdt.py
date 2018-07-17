@@ -115,6 +115,9 @@ class TestFdt(unittest.TestCase):
             fdt.CheckErr(-libfdt.NOTFOUND, 'hello')
         self.assertIn('FDT_ERR_NOTFOUND: hello', str(e.exception))
 
+    def testGetFdt(self):
+        node = self.dtb.GetNode('/spl-test')
+        self.assertEqual(self.dtb, node.GetFdt())
 
 class TestNode(unittest.TestCase):
     """Test operation of the Node class"""
@@ -187,6 +190,14 @@ class TestNode(unittest.TestCase):
             self.dtb.Refresh()
         self.assertIn("Internal error, property 'notstring' missing, offset ",
                       str(e.exception))
+
+    def testLookupPhandle(self):
+        """Test looking up a single phandle"""
+        dtb = fdt.FdtScan('tools/dtoc/dtoc_test_phandle.dts')
+        node = dtb.GetNode('/phandle-source2')
+        prop = node.props['clocks']
+        target = dtb.GetNode('/phandle-target')
+        self.assertEqual(target, dtb.LookupPhandle(fdt32_to_cpu(prop.value)))
 
 
 class TestProp(unittest.TestCase):
@@ -393,6 +404,15 @@ class TestFdtUtil(unittest.TestCase):
             fdt_util.GetByte(self.node, 'intval')
         self.assertIn("property 'intval' has length 4, expecting 1",
                       str(e.exception))
+
+    def testGetPhandleList(self):
+        dtb = fdt.FdtScan('tools/dtoc/dtoc_test_phandle.dts')
+        node = dtb.GetNode('/phandle-source2')
+        self.assertEqual([1], fdt_util.GetPhandleList(node, 'clocks'))
+        node = dtb.GetNode('/phandle-source')
+        self.assertEqual([1, 2, 11, 3, 12, 13, 1],
+                         fdt_util.GetPhandleList(node, 'clocks'))
+        self.assertEqual(None, fdt_util.GetPhandleList(node, 'missing'))
 
     def testGetDataType(self):
         self.assertEqual(1, fdt_util.GetDatatype(self.node, 'intval', int))

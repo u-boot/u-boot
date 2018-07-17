@@ -171,6 +171,24 @@ def GetByte(node, propname, default=None):
                          (node.name, propname, len(value), 1))
     return ord(value[0])
 
+def GetPhandleList(node, propname):
+    """Get a list of phandles from a property
+
+    Args:
+        node: Node object to read from
+        propname: property name to read
+
+    Returns:
+        List of phandles read, each an integer
+    """
+    prop = node.props.get(propname)
+    if not prop:
+        return None
+    value = prop.value
+    if not isinstance(value, list):
+        value = [value]
+    return [fdt32_to_cpu(v) for v in value]
+
 def GetDatatype(node, propname, datatype):
     """Get a value of a given type from a property
 
