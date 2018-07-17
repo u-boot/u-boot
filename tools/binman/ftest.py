@@ -21,6 +21,7 @@ import control
 import elf
 import fdt
 import fdt_util
+import fmap_util
 import test_util
 import tools
 import tout
@@ -1191,6 +1192,37 @@ class TestFunctional(unittest.TestCase):
                 control.WriteEntryDocs(binman.GetEntryModules(), 'u_boot')
         self.assertIn('Documentation is missing for modules: u_boot',
                       str(e.exception))
+
+    def testFmap(self):
+        """Basic test of generation of a flashrom fmap"""
+        data = self._DoReadFile('67_fmap.dts')
+        fhdr, fentries = fmap_util.DecodeFmap(data[32:])
+        expected = U_BOOT_DATA + '!' * 12 + U_BOOT_DATA + 'a' * 12
+        self.assertEqual(expected, data[:32])
+        self.assertEqual('__FMAP__', fhdr.signature)
+        self.assertEqual(1, fhdr.ver_major)
+        self.assertEqual(0, fhdr.ver_minor)
+        self.assertEqual(0, fhdr.base)
+        self.assertEqual(16 + 16 +
+                         fmap_util.FMAP_HEADER_LEN +
+                         fmap_util.FMAP_AREA_LEN * 3, fhdr.image_size)
+        self.assertEqual('FMAP', fhdr.name)
+        self.assertEqual(3, fhdr.nareas)
+        for fentry in fentries:
+            self.assertEqual(0, fentry.flags)
+
+        self.assertEqual(0, fentries[0].offset)
+        self.assertEqual(4, fentries[0].size)
+        self.assertEqual('RO_U_BOOT', fentries[0].name)
+
+        self.assertEqual(16, fentries[1].offset)
+        self.assertEqual(4, fentries[1].size)
+        self.assertEqual('RW_U_BOOT', fentries[1].name)
+
+        self.assertEqual(32, fentries[2].offset)
+        self.assertEqual(fmap_util.FMAP_HEADER_LEN +
+                         fmap_util.FMAP_AREA_LEN * 3, fentries[2].size)
+        self.assertEqual('FMAP', fentries[2].name)
 
 
 if __name__ == "__main__":

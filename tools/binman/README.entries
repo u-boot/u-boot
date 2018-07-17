@@ -26,6 +26,26 @@ example the 'u_boot' entry which provides the filename 'u-boot.bin'.
 
 
 
+Entry: fmap: An entry which contains an Fmap section
+----------------------------------------------------
+
+Properties / Entry arguments:
+    None
+
+FMAP is a simple format used by flashrom, an open-source utility for
+reading and writing the SPI flash, typically on x86 CPUs. The format
+provides flashrom with a list of areas, so it knows what it in the flash.
+It can then read or write just a single area, instead of the whole flash.
+
+The format is defined by the flashrom project, in the file lib/fmap.h -
+see www.flashrom.org/Flashrom for more information.
+
+When used, this entry will be populated with an FMAP which reflects the
+entries in the current image. Note that any hierarchy is squashed, since
+FMAP does not support this.
+
+
+
 Entry: intel-cmc: Entry containing an Intel Chipset Micro Code (CMC) file
 -------------------------------------------------------------------------
 

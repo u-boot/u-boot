@@ -361,6 +361,15 @@ class Entry(object):
         """
         self.WriteMapLine(fd, indent, self.name, self.offset, self.size)
 
+    def GetEntries(self):
+        """Return a list of entries contained by this entry
+
+        Returns:
+            List of entries, or None if none. A normal entry has no entries
+                within it so will return None
+        """
+        return None
+
     def GetArg(self, name, datatype=str):
         """Get the value of an entry argument or device-tree-node property
 

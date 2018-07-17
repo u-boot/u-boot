@@ -30,8 +30,8 @@ class Entry_section(Entry):
     hierarchical images to be created. See 'Sections and hierarchical images'
     in the binman README for more information.
     """
-    def __init__(self, image, etype, node):
-        Entry.__init__(self, image, etype, node)
+    def __init__(self, section, etype, node):
+        Entry.__init__(self, section, etype, node)
         self._section = bsection.Section(node.name, node)
 
     def ProcessFdt(self, fdt):
@@ -89,3 +89,6 @@ class Entry_section(Entry):
             fd: File to write the map to
         """
         self._section.WriteMap(fd, indent)
+
+    def GetEntries(self):
+        return self._section.GetEntries()
