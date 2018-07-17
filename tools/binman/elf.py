@@ -57,7 +57,9 @@ def GetSymbols(fname, patterns):
             name = parts[2]
             syms[name] = Symbol(section, int(value, 16), int(size,16),
                                 flags[1] == 'w')
-    return syms
+
+    # Sort dict by address
+    return OrderedDict(sorted(syms.iteritems(), key=lambda x: x[1].address))
 
 def GetSymbolAddress(fname, sym_name):
     """Get a value of a symbol from an ELF file
