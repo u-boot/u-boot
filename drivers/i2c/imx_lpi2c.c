@@ -261,8 +261,14 @@ static int bus_i2c_write(struct udevice *bus, u32 chip, u8 *buf, int len)
 }
 
 
+u32 __weak imx_get_i2cclk(u32 i2c_num)
+{
+	return 0;
+}
+
 static int bus_i2c_set_bus_speed(struct udevice *bus, int speed)
 {
+	struct imx_lpi2c_bus *i2c_bus = dev_get_priv(bus);
 	struct imx_lpi2c_reg *regs;
 	u32 val;
 	u32 preescale = 0, best_pre = 0, clkhi = 0;
@@ -273,9 +279,18 @@ static int bus_i2c_set_bus_speed(struct udevice *bus, int speed)
 	int i;
 
 	regs = (struct imx_lpi2c_reg *)devfdt_get_addr(bus);
-	clock_rate = imx_get_i2cclk(bus->seq);
-	if (!clock_rate)
-		return -EPERM;
+
+	if (IS_ENABLED(CONFIG_CLK)) {
+		clock_rate = clk_get_rate(&i2c_bus->per_clk);
+		if (clock_rate <= 0) {
+			dev_err(bus, "Failed to get i2c clk: %d\n", clock_rate);
+			return clock_rate;
+		}
+	} else {
+		clock_rate = imx_get_i2cclk(bus->seq);
+		if (!clock_rate)
+			return -EPERM;
+	}
 
 	mode = (readl(&regs->mcr) & LPI2C_MCR_MEN_MASK) >> LPI2C_MCR_MEN_SHIFT;
 	/* disable master mode */
@@ -417,6 +432,11 @@ static int imx_lpi2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 	return bus_i2c_set_bus_speed(bus, speed);
 }
 
+__weak int enable_i2c_clk(unsigned char enable, unsigned int i2c_num)
+{
+	return 0;
+}
+
 static int imx_lpi2c_probe(struct udevice *bus)
 {
 	struct imx_lpi2c_bus *i2c_bus = dev_get_priv(bus);
@@ -440,10 +460,23 @@ static int imx_lpi2c_probe(struct udevice *bus)
 		return ret;
 	}
 
-	/* To i.MX7ULP, only i2c4-7 can be handled by A7 core */
-	ret = enable_i2c_clk(1, bus->seq);
-	if (ret < 0)
-		return ret;
+	if (IS_ENABLED(CONFIG_CLK)) {
+		ret = clk_get_by_name(bus, "per", &i2c_bus->per_clk);
+		if (ret) {
+			dev_err(bus, "Failed to get per clk\n");
+			return ret;
+		}
+		ret = clk_enable(&i2c_bus->per_clk);
+		if (ret) {
+			dev_err(bus, "Failed to enable per clk\n");
+			return ret;
+		}
+	} else {
+		/* To i.MX7ULP, only i2c4-7 can be handled by A7 core */
+		ret = enable_i2c_clk(1, bus->seq);
+		if (ret < 0)
+			return ret;
+	}
 
 	ret = bus_i2c_init(bus, 100000);
 	if (ret < 0)
