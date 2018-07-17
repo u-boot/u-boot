@@ -349,8 +349,9 @@ class Entry(object):
         pass
 
     @staticmethod
-    def WriteMapLine(fd, indent, name, offset, size):
-        print('%s%08x  %08x  %s' % (' ' * indent, offset, size, name), file=fd)
+    def WriteMapLine(fd, indent, name, offset, size, image_pos):
+        print('%08x  %s%08x  %08x  %s' % (image_pos, ' ' * indent, offset,
+                                          size, name), file=fd)
 
     def WriteMap(self, fd, indent):
         """Write a map of the entry to a .map file
@@ -359,7 +360,8 @@ class Entry(object):
             fd: File to write the map to
             indent: Curent indent level of map (0=none, 1=one level, etc.)
         """
-        self.WriteMapLine(fd, indent, self.name, self.offset, self.size)
+        self.WriteMapLine(fd, indent, self.name, self.offset, self.size,
+                          self.image_pos)
 
     def GetEntries(self):
         """Return a list of entries contained by this entry

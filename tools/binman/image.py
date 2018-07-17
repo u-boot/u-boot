@@ -124,5 +124,6 @@ class Image:
         filename = '%s.map' % self._name
         fname = tools.GetOutputFilename(filename)
         with open(fname, 'w') as fd:
-            print('%8s  %8s  %s' % ('Offset', 'Size', 'Name'), file=fd)
+            print('%8s  %8s  %8s  %s' % ('ImagePos', 'Offset', 'Size', 'Name'),
+                  file=fd)
             self._section.WriteMap(fd, 0)

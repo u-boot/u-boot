@@ -1052,25 +1052,25 @@ class TestFunctional(unittest.TestCase):
     def testMap(self):
         """Tests outputting a map of the images"""
         _, _, map_data, _ = self._DoReadFileDtb('55_sections.dts', map=True)
-        self.assertEqual('''  Offset      Size  Name
-00000000  00000028  main-section
- 00000000  00000010  section@0
-  00000000  00000004  u-boot
- 00000010  00000010  section@1
-  00000000  00000004  u-boot
- 00000020  00000004  section@2
-  00000000  00000004  u-boot
+        self.assertEqual('''ImagePos    Offset      Size  Name
+00000000  00000000  00000028  main-section
+00000000   00000000  00000010  section@0
+00000000    00000000  00000004  u-boot
+00000010   00000010  00000010  section@1
+00000010    00000000  00000004  u-boot
+00000020   00000020  00000004  section@2
+00000020    00000000  00000004  u-boot
 ''', map_data)
 
     def testNamePrefix(self):
         """Tests that name prefixes are used"""
         _, _, map_data, _ = self._DoReadFileDtb('56_name_prefix.dts', map=True)
-        self.assertEqual('''  Offset      Size  Name
-00000000  00000028  main-section
- 00000000  00000010  section@0
-  00000000  00000004  ro-u-boot
- 00000010  00000010  section@1
-  00000000  00000004  rw-u-boot
+        self.assertEqual('''ImagePos    Offset      Size  Name
+00000000  00000000  00000028  main-section
+00000000   00000000  00000010  section@0
+00000000    00000000  00000004  ro-u-boot
+00000010   00000010  00000010  section@1
+00000010    00000000  00000004  rw-u-boot
 ''', map_data)
 
     def testUnknownContents(self):
