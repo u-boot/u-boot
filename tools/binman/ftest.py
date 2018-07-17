@@ -21,6 +21,7 @@ import control
 import elf
 import fdt
 import fdt_util
+import test_util
 import tools
 import tout
 
@@ -1176,6 +1177,20 @@ class TestFunctional(unittest.TestCase):
         expected = (TEXT_DATA + chr(0) * (8 - len(TEXT_DATA)) + TEXT_DATA2 +
                     TEXT_DATA3 + 'some text')
         self.assertEqual(expected, data)
+
+    def testEntryDocs(self):
+        """Test for creation of entry documentation"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            control.WriteEntryDocs(binman.GetEntryModules())
+        self.assertTrue(len(stdout.getvalue()) > 0)
+
+    def testEntryDocsMissing(self):
+        """Test handling of missing entry documentation"""
+        with self.assertRaises(ValueError) as e:
+            with test_util.capture_sys_output() as (stdout, stderr):
+                control.WriteEntryDocs(binman.GetEntryModules(), 'u_boot')
+        self.assertIn('Documentation is missing for modules: u_boot',
+                      str(e.exception))
 
 
 if __name__ == "__main__":

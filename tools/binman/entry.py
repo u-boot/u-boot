@@ -78,20 +78,18 @@ class Entry(object):
             self.ReadNode()
 
     @staticmethod
-    def Create(section, node, etype=None):
-        """Create a new entry for a node.
+    def Lookup(section, node_path, etype):
+        """Look up the entry class for a node.
 
         Args:
-            section:  Section object containing this node
-            node:   Node object containing information about the entry to create
-            etype:  Entry type to use, or None to work it out (used for tests)
+            section:   Section object containing this node
+            node_node: Path name of Node object containing information about
+                       the entry to create (used for errors)
+            etype:   Entry type to use
 
         Returns:
-            A new Entry object of the correct type (a subclass of Entry)
+            The entry class object if found, else None
         """
-        if not etype:
-            etype = fdt_util.GetString(node, 'type', node.name)
-
         # Convert something like 'u-boot@0' to 'u_boot' since we are only
         # interested in the type.
         module_name = etype.replace('-', '_')
@@ -110,15 +108,34 @@ class Entry(object):
                     module = importlib.import_module(module_name)
                 else:
                     module = __import__(module_name)
-            except ImportError:
-                raise ValueError("Unknown entry type '%s' in node '%s'" %
-                        (etype, node.path))
+            except ImportError as e:
+                raise ValueError("Unknown entry type '%s' in node '%s' (expected etype/%s.py, error '%s'" %
+                                 (etype, node_path, module_name, e))
             finally:
                 sys.path = old_path
             modules[module_name] = module
 
+        # Look up the expected class name
+        return getattr(module, 'Entry_%s' % module_name)
+
+    @staticmethod
+    def Create(section, node, etype=None):
+        """Create a new entry for a node.
+
+        Args:
+            section: Section object containing this node
+            node:    Node object containing information about the entry to
+                     create
+            etype:   Entry type to use, or None to work it out (used for tests)
+
+        Returns:
+            A new Entry object of the correct type (a subclass of Entry)
+        """
+        if not etype:
+            etype = fdt_util.GetString(node, 'type', node.name)
+        obj = Entry.Lookup(section, node.path, etype)
+
         # Call its constructor to get the object we want.
-        obj = getattr(module, 'Entry_%s' % module_name)
         return obj(section, etype, node)
 
     def ReadNode(self):
@@ -376,3 +393,53 @@ class Entry(object):
         else:
             value = fdt_util.GetDatatype(self._node, name, datatype)
         return value
+
+    @staticmethod
+    def WriteDocs(modules, test_missing=None):
+        """Write out documentation about the various entry types to stdout
+
+        Args:
+            modules: List of modules to include
+            test_missing: Used for testing. This is a module to report
+                as missing
+        """
+        print('''Binman Entry Documentation
+===========================
+
+This file describes the entry types supported by binman. These entry types can
+be placed in an image one by one to build up a final firmware image. It is
+fairly easy to create new entry types. Just add a new file to the 'etype'
+directory. You can use the existing entries as examples.
+
+Note that some entries are subclasses of others, using and extending their
+features to produce new behaviours.
+
+
+''')
+        modules = sorted(modules)
+
+        # Don't show the test entry
+        if '_testing' in modules:
+            modules.remove('_testing')
+        missing = []
+        for name in modules:
+            module = Entry.Lookup(name, name, name)
+            docs = getattr(module, '__doc__')
+            if test_missing == name:
+                docs = None
+            if docs:
+                lines = docs.splitlines()
+                first_line = lines[0]
+                rest = [line[4:] for line in lines[1:]]
+                hdr = 'Entry: %s: %s' % (name.replace('_', '-'), first_line)
+                print(hdr)
+                print('-' * len(hdr))
+                print('\n'.join(rest))
+                print()
+                print()
+            else:
+                missing.append(name)
+
+        if missing:
+            raise ValueError('Documentation is missing for modules: %s' %
+                             ', '.join(missing))

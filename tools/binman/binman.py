@@ -77,9 +77,20 @@ def RunTests(debug, args):
       return 1
     return 0
 
+def GetEntryModules(include_testing=True):
+    """Get a set of entry class implementations
+
+    Returns:
+        Set of paths to entry class filenames
+    """
+    glob_list = glob.glob(os.path.join(our_path, 'etype/*.py'))
+    return set([os.path.splitext(os.path.basename(item))[0]
+                for item in glob_list
+                if include_testing or '_testing' not in item])
+
 def RunTestCoverage():
     """Run the tests and check that we get 100% coverage"""
-    glob_list = glob.glob(os.path.join(our_path, 'etype/*.py'))
+    glob_list = GetEntryModules(False)
     all_set = set([os.path.splitext(os.path.basename(item))[0]
                    for item in glob_list if '_testing' not in item])
     test_util.RunTestCoverage('tools/binman/binman.py', None,
@@ -107,13 +118,8 @@ def RunBinman(options, args):
     elif options.test_coverage:
         RunTestCoverage()
 
-    elif options.full_help:
-        pager = os.getenv('PAGER')
-        if not pager:
-            pager = 'more'
-        fname = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
-                            'README')
-        command.Run(pager, fname)
+    elif options.entry_docs:
+        control.WriteEntryDocs(GetEntryModules())
 
     else:
         try:

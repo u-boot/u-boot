@@ -92,6 +92,10 @@ def SetEntryArgs(args):
 def GetEntryArg(name):
     return entry_args.get(name)
 
+def WriteEntryDocs(modules, test_missing=None):
+    from entry import Entry
+    Entry.WriteDocs(modules, test_missing)
+
 def Binman(options, args):
     """The main control code for binman
 

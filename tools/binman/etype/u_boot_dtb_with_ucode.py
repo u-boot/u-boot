@@ -6,7 +6,6 @@
 #
 
 import control
-import fdt
 from entry import Entry
 from blob import Entry_blob
 import tools
@@ -38,6 +37,9 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob):
         return 'u-boot.dtb'
 
     def ProcessFdt(self, fdt):
+        # So the module can be loaded without it
+        import fdt
+
         # If the section does not need microcode, there is nothing to do
         ucode_dest_entry = self.section.FindEntryType(
             'u-boot-spl-with-ucode-ptr')

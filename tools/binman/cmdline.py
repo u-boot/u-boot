@@ -28,6 +28,8 @@ def ParseArgs(argv):
             help='Configuration file (.dtb) to use')
     parser.add_option('-D', '--debug', action='store_true',
             help='Enabling debugging (provides a full traceback on error)')
+    parser.add_option('-E', '--entry-docs', action='store_true',
+            help='Write out entry documentation (see README.entries)')
     parser.add_option('-I', '--indir', action='append',
             help='Add a path to a directory to use for input files')
     parser.add_option('-H', '--full-help', action='store_true',
