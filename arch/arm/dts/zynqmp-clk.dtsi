@@ -225,6 +225,10 @@
 	clocks = <&clk250>;
 };
 
+&lpd_watchdog {
+	clocks = <&clk250>;
+};
+
 &zynqmp_dpsub {
 	clocks = <&dp_aclk>, <&dp_aud_clk>, <&drm_clock>;
 };

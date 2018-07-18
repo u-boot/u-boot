@@ -267,6 +267,10 @@
 	clocks = <&clk 75>;
 };
 
+&lpd_watchdog {
+	clocks = <&clk 75>;
+};
+
 &xilinx_ams {
 	clocks = <&clk 70>;
 };
