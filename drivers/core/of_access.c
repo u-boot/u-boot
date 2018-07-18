@@ -457,6 +457,26 @@ int of_read_u32_array(const struct device_node *np, const char *propname,
 	return 0;
 }
 
+int of_read_u64(const struct device_node *np, const char *propname, u64 *outp)
+{
+	const __be64 *val;
+
+	debug("%s: %s: ", __func__, propname);
+	if (!np)
+		return -EINVAL;
+	val = of_find_property_value_of_size(np, propname, sizeof(*outp));
+	if (IS_ERR(val)) {
+		debug("(not found)\n");
+		return PTR_ERR(val);
+	}
+
+	*outp = be64_to_cpup(val);
+	debug("%#llx (%lld)\n", (unsigned long long)*outp,
+              (unsigned long long)*outp);
+
+	return 0;
+}
+
 int of_property_match_string(const struct device_node *np, const char *propname,
 			     const char *string)
 {

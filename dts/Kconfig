@@ -101,6 +101,13 @@ config OF_HOSTFILE
 	  This is only useful for Sandbox.  Use the -d flag to U-Boot to
 	  specify the file to read.
 
+config OF_PRIOR_STAGE
+	bool "Prior stage bootloader DTB for DT control"
+	help
+	  If this option is enabled, the device tree used for DT
+	  control will be read from a device tree binary, at a memory
+	  location passed to U-Boot by the prior stage bootloader.
+
 endchoice
 
 config DEFAULT_DEVICE_TREE

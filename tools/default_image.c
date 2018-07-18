@@ -100,7 +100,7 @@ static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
 				sizeof(image_header_t)),
 			sbuf->st_size - sizeof(image_header_t));
 
-	time = imagetool_get_source_date(params, sbuf->st_mtime);
+	time = imagetool_get_source_date(params->cmdname, sbuf->st_mtime);
 	ep = params->ep;
 	addr = params->addr;
 

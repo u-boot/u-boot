@@ -51,7 +51,8 @@ static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
 
 	/* for first image creation, add a timestamp at offset 0 i.e., root  */
 	if (params->datafile) {
-		time_t time = imagetool_get_source_date(params, sbuf.st_mtime);
+		time_t time = imagetool_get_source_date(params->cmdname,
+							sbuf.st_mtime);
 		ret = fit_set_timestamp(ptr, 0, time);
 	}
 
@@ -59,7 +60,8 @@ static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
 		ret = fit_add_verification_data(params->keydir, dest_blob, ptr,
 						params->comment,
 						params->require_keys,
-						params->engine_id);
+						params->engine_id,
+						params->cmdname);
 	}
 
 	if (dest_blob) {

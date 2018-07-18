@@ -28,7 +28,7 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
     def GetDefaultFilename(self):
         return 'u-boot-nodtb.bin'
 
-    def ObtainContents(self):
+    def ProcessFdt(self, fdt):
         # Figure out where to put the microcode pointer
         fname = tools.GetInputFilename(self.elf_fname)
         sym = elf.GetSymbolAddress(fname, '_dt_ucode_base_size')
@@ -36,8 +36,7 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
            self.target_pos = sym
         elif not fdt_util.GetBool(self._node, 'optional-ucode'):
             self.Raise('Cannot locate _dt_ucode_base_size symbol in u-boot')
-
-        return Entry_blob.ObtainContents(self)
+        return True
 
     def ProcessContents(self):
         # If the image does not need microcode, there is nothing to do
@@ -73,7 +72,7 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
             pos, size = ucode_entry.pos, ucode_entry.size
         else:
             dtb_entry = self.section.FindEntryType('u-boot-dtb-with-ucode')
-            if not dtb_entry:
+            if not dtb_entry or not dtb_entry.ready:
                 self.Raise('Cannot find microcode region u-boot-dtb-with-ucode')
             pos = dtb_entry.pos + dtb_entry.ucode_offset
             size = dtb_entry.ucode_size
@@ -81,5 +80,5 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
         # Write the microcode position and size into the entry
         pos_and_size = struct.pack('<2L', pos, size)
         self.target_pos -= self.pos
-        self.data = (self.data[:self.target_pos] + pos_and_size +
-                     self.data[self.target_pos + 8:])
+        self.ProcessContentsUpdate(self.data[:self.target_pos] + pos_and_size +
+                                   self.data[self.target_pos + 8:])

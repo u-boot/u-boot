@@ -4,32 +4,14 @@
 #
 # Test for the elf module
 
-from contextlib import contextmanager
 import os
 import sys
 import unittest
 
-try:
-  from StringIO import StringIO
-except ImportError:
-  from io import StringIO
-
 import elf
+import test_util
 
 binman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
-
-# Use this to suppress stdout/stderr output:
-# with capture_sys_output() as (stdout, stderr)
-#   ...do something...
-@contextmanager
-def capture_sys_output():
-  capture_out, capture_err = StringIO(), StringIO()
-  old_out, old_err = sys.stdout, sys.stderr
-  try:
-    sys.stdout, sys.stderr = capture_out, capture_err
-    yield capture_out, capture_err
-  finally:
-    sys.stdout, sys.stderr = old_out, old_err
 
 
 class FakeEntry:
@@ -110,7 +92,7 @@ class TestElf(unittest.TestCase):
         entry = FakeEntry(20)
         section = FakeSection()
         elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms')
-        with capture_sys_output() as (stdout, stderr):
+        with test_util.capture_sys_output() as (stdout, stderr):
             syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
         elf.debug = False
         self.assertTrue(len(stdout.getvalue()) > 0)

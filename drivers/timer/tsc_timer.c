@@ -377,14 +377,23 @@ static int tsc_timer_probe(struct udevice *dev)
 {
 	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
-	tsc_timer_ensure_setup();
-	uc_priv->clock_rate = gd->arch.clock_rate;
+	if (!uc_priv->clock_rate) {
+		tsc_timer_ensure_setup();
+		uc_priv->clock_rate = gd->arch.clock_rate;
+	} else {
+		gd->arch.tsc_base = rdtsc();
+	}
 
 	return 0;
 }
 
 unsigned long notrace timer_early_get_rate(void)
 {
+	/*
+	 * When TSC timer is used as the early timer, be warned that the timer
+	 * clock rate can only be calibrated via some hardware ways. Specifying
+	 * it in the device tree won't work for the early timer.
+	 */
 	tsc_timer_ensure_setup();
 
 	return gd->arch.clock_rate;

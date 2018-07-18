@@ -212,9 +212,6 @@
 #define CONFIG_CLOCKS
 #endif
 
-#ifndef CONFIG_DRIVER_TI_EMAC
-#endif
-
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 

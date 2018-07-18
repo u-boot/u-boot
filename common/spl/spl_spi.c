@@ -110,8 +110,17 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 			return err;
 		}
 
-		if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
-			image_get_magic(header) == FDT_MAGIC) {
+		if (IS_ENABLED(CONFIG_SPL_LOAD_FIT_FULL) &&
+		    image_get_magic(header) == FDT_MAGIC) {
+			err = spi_flash_read(flash, payload_offs,
+					     roundup(fdt_totalsize(header), 4),
+					     (void *)CONFIG_SYS_LOAD_ADDR);
+			if (err)
+				return err;
+			err = spl_parse_image_header(spl_image,
+					(struct image_header *)CONFIG_SYS_LOAD_ADDR);
+		} else if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
+			   image_get_magic(header) == FDT_MAGIC) {
 			struct spl_load_info load;
 
 			debug("Found FIT\n");

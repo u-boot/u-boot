@@ -33,4 +33,10 @@
 		compatible = "source";
 		clocks = <&phandle &phandle_1 11 &phandle_2 12 13 &phandle>;
 	};
+
+	phandle-source2 {
+		u-boot,dm-pre-reloc;
+		compatible = "source";
+		clocks = <&phandle>;
+	};
 };

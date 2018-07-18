@@ -166,8 +166,16 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 		log(LOG_CATEGORY, LOGL_ERR, "returning err=%d\n", __ret); \
 	__ret; \
 	})
+#define log_msg_ret(_msg, _ret) ({ \
+	int __ret = (_ret); \
+	if (__ret < 0) \
+		log(LOG_CATEGORY, LOGL_ERR, "%s: returning err=%d\n", _msg, \
+		    __ret); \
+	__ret; \
+	})
 #else
 #define log_ret(_ret) (_ret)
+#define log_msg_ret(_ret) (_ret)
 #endif
 
 /**

@@ -30,6 +30,7 @@ CONFIG_CMD_PCI=y
 CONFIG_CMD_SF=y
 CONFIG_CMD_USB=y
 CONFIG_CMD_CACHE=y
+CONFIG_MP=y
 CONFIG_MTDPARTS_DEFAULT="mtdparts=60000000.nor:2m@0x100000(nor_bank0_uboot),40m@0x1100000(nor_bank0_fit),7m(nor_bank0_user),2m@0x4100000(nor_bank4_uboot),40m@0x5100000(nor_bank4_fit),-(nor_bank4_user);7e800000.flash:4m(nand_uboot),36m(nand_kernel),472m(nand_free);spi0.0:2m(uboot),14m(free)"
 CONFIG_OF_CONTROL=y
 CONFIG_ENV_IS_IN_NAND=y

@@ -216,12 +216,12 @@ int imagetool_get_filesize(struct image_tool_params *params, const char *fname);
  * an error message if SOURCE_DATE_EPOCH contains an invalid value and returns
  * 0.
  *
- * @params:	mkimage parameters
+ * @cmdname:	command name
  * @fallback:	timestamp to use if SOURCE_DATE_EPOCH isn't set
  * @return timestamp based on SOURCE_DATE_EPOCH
  */
 time_t imagetool_get_source_date(
-	struct image_tool_params *params,
+	const char *cmdname,
 	time_t fallback);
 
 /*

@@ -23,6 +23,10 @@ setenv mmcroot "/dev/mmcblk${devnum}p2 rootwait rw"
 setenv displayargs ""
 setenv mmcargs "setenv bootargs console=${console} ${smp} root=${mmcroot} \
 	${displayargs}"
+setenv miscadj "
+if test '${boardsoc}' = 'imx53'; then
+       setenv bootargs '${bootargs} di=${dig_in} key1=${key1}';
+fi;"
 setenv boot_fitImage "
 	setenv fdt_conf 'conf@${boardsoc}-${boardname}.dtb';
 	setenv itbcfg "\"#\${fdt_conf}\"";
@@ -39,6 +43,7 @@ if test -e ${devtype} ${devnum}:${distro_bootpart} ${kernel_file}; then
 	if load ${devtype} ${devnum}:${distro_bootpart} ${loadaddr} \
 	   ${kernel_file}; then
 		run mmcargs;
+		run miscadj;
 		run boot_fitImage;
 	fi;
 fi;"
@@ -52,6 +57,7 @@ setenv download_kernel "tftpboot ${loadaddr} ${kernel_file}"
 setenv boot_tftp_kernel "
 if run download_kernel; then
 	run mmcargs;
+	run miscadj;
 	run boot_fitImage;
 fi"
 

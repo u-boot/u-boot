@@ -92,7 +92,7 @@
 			"fi; " \
 		"else run defaultboot; fi\0" \
 	"defaultboot=run mmcramboot\0" \
-	"consoledevice=ttyO0\0" \
+	"consoledevice=ttyS0\0" \
 	"setconsole=setenv console ${consoledevice},${baudrate}n8\0" \
 	"dump_bootargs=echo 'Bootargs: '; echo $bootargs\0" \
 	"rotation=0\0" \

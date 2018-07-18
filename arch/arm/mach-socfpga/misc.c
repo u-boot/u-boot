@@ -40,7 +40,9 @@ struct bsel bsel_str[] = {
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((long *)PHYS_SDRAM_1, PHYS_SDRAM_1_SIZE);
+	if (fdtdec_setup_memory_size() != 0)
+		return -EINVAL;
+
 	return 0;
 }
 
@@ -203,4 +205,35 @@ int socfpga_eth_reset_common(void (*resetfn)(const u8 of_reset_id,
 
 	return 0;
 }
+#endif
+
+#ifndef CONFIG_SPL_BUILD
+static int do_bridge(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	if (argc != 2)
+		return CMD_RET_USAGE;
+
+	argv++;
+
+	switch (*argv[0]) {
+	case 'e':	/* Enable */
+		do_bridge_reset(1);
+		break;
+	case 'd':	/* Disable */
+		do_bridge_reset(0);
+		break;
+	default:
+		return CMD_RET_USAGE;
+	}
+
+	return 0;
+}
+
+U_BOOT_CMD(bridge, 2, 1, do_bridge,
+	   "SoCFPGA HPS FPGA bridge control",
+	   "enable  - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
+	   "bridge disable - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
+	   ""
+);
+
 #endif

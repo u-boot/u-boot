@@ -108,6 +108,9 @@ config SYS_ARM_MPU
 # CONFIG_ARM_ERRATA_621766
 # CONFIG_ARM_ERRATA_798870
 # CONFIG_ARM_ERRATA_801819
+# CONFIG_ARM_CORTEX_A8_CVE_2017_5715
+# CONFIG_ARM_CORTEX_A15_CVE_2017_5715
+
 config ARM_ERRATA_430973
 	bool
 
@@ -175,6 +178,12 @@ config ARM_ERRATA_852423
 	bool
 
 config ARM_ERRATA_855873
+	bool
+
+config ARM_CORTEX_A8_CVE_2017_5715
+	bool
+
+config ARM_CORTEX_A15_CVE_2017_5715
 	bool
 
 config CPU_ARM720T
@@ -533,6 +542,16 @@ config TARGET_VEXPRESS_CA15_TC2
 	select CPU_V7_HAS_VIRT
 	select PL011_SERIAL
 
+config ARCH_BCMSTB
+	bool "Broadcom BCM7XXX family"
+	select CPU_V7A
+	select DM
+	select OF_CONTROL
+	select OF_PRIOR_STAGE
+	help
+	  This enables support for Broadcom ARM-based set-top box
+	  chipsets, including the 7445 family of chips.
+
 config TARGET_VEXPRESS_CA5X2
 	bool "Support vexpress_ca5x2"
 	select CPU_V7A
@@ -699,6 +718,13 @@ config ARCH_MX5
 	select BOARD_EARLY_INIT_F
 	imply MXC_GPIO
 
+config ARCH_OWL
+	bool "Actions Semi OWL SoCs"
+	select ARM64
+	select DM
+	select DM_SERIAL
+	select OF_CONTROL
+
 config ARCH_QEMU
 	bool "QEMU Virtual Platform"
 	select DM
@@ -733,10 +759,10 @@ config ARCH_SOCFPGA
 	bool "Altera SOCFPGA family"
 	select ARCH_EARLY_INIT_R
 	select ARCH_MISC_INIT
-	select CPU_V7A
+	select CPU_V7A if TARGET_SOCFPGA_GEN5 || TARGET_SOCFPGA_ARRIA10
 	select DM
 	select DM_SERIAL
-	select ENABLE_ARM_SOC_BOOT0_HOOK
+	select ENABLE_ARM_SOC_BOOT0_HOOK if TARGET_SOCFPGA_GEN5 || TARGET_SOCFPGA_ARRIA10
 	select OF_CONTROL
 	select SPL_LIBCOMMON_SUPPORT
 	select SPL_LIBDISK_SUPPORT
@@ -746,20 +772,22 @@ config ARCH_SOCFPGA
 	select SPL_OF_CONTROL
 	select SPL_SERIAL_SUPPORT
 	select SPL_DM_SERIAL
+	select SPL_RESET_SUPPORT
 	select SPL_SPI_FLASH_SUPPORT if SPL_SPI_SUPPORT
 	select SPL_SPI_SUPPORT if DM_SPI
 	select SPL_WATCHDOG_SUPPORT
 	select SUPPORT_SPL
 	select SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE
 	select SYS_NS16550
-	select SYS_THUMB_BUILD
+	select SYS_THUMB_BUILD if TARGET_SOCFPGA_GEN5 || TARGET_SOCFPGA_ARRIA10
+	select ARM64 if TARGET_SOCFPGA_STRATIX10
 	imply CMD_MTDPARTS
 	imply CRC32_VERIFY
 	imply DM_SPI
 	imply DM_SPI_FLASH
 	imply FAT_WRITE
-	imply HW_WATCHDOG
 	imply SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
+	select SPL_SEPARATE_BSS if TARGET_SOCFPGA_STRATIX10
 
 config ARCH_SUNXI
 	bool "Support sunxi (Allwinner) SoCs"
@@ -1310,6 +1338,8 @@ source "arch/arm/mach-at91/Kconfig"
 
 source "arch/arm/mach-bcm283x/Kconfig"
 
+source "arch/arm/mach-bcmstb/Kconfig"
+
 source "arch/arm/mach-davinci/Kconfig"
 
 source "arch/arm/mach-exynos/Kconfig"
@@ -1347,6 +1377,8 @@ source "arch/arm/mach-omap2/Kconfig"
 source "arch/arm/cpu/armv8/fsl-layerscape/Kconfig"
 
 source "arch/arm/mach-orion5x/Kconfig"
+
+source "arch/arm/mach-owl/Kconfig"
 
 source "arch/arm/mach-rmobile/Kconfig"
 
@@ -1435,6 +1467,7 @@ source "board/spear/spear600/Kconfig"
 source "board/spear/x600/Kconfig"
 source "board/st/stv0991/Kconfig"
 source "board/tcl/sl50/Kconfig"
+source "board/ucRobotics/bubblegum_96/Kconfig"
 source "board/birdland/bav335x/Kconfig"
 source "board/timll/devkit3250/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"

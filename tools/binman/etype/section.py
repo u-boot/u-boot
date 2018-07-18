@@ -17,8 +17,15 @@ class Entry_section(Entry):
         Entry.__init__(self, image, etype, node)
         self._section = bsection.Section(node.name, node)
 
+    def ProcessFdt(self, fdt):
+        return self._section.ProcessFdt(fdt)
+
+    def AddMissingProperties(self):
+        Entry.AddMissingProperties(self)
+        self._section.AddMissingProperties()
+
     def ObtainContents(self):
-        self._section.GetEntryContents()
+        return self._section.GetEntryContents()
 
     def GetData(self):
         return self._section.GetData()
@@ -41,6 +48,10 @@ class Entry_section(Entry):
     def WriteSymbols(self, section):
         """Write symbol values into binary files for access at run time"""
         self._section.WriteSymbols()
+
+    def SetCalculatedProperties(self):
+        Entry.SetCalculatedProperties(self)
+        self._section.SetCalculatedProperties()
 
     def ProcessContents(self):
         self._section.ProcessEntryContents()

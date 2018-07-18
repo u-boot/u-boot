@@ -181,20 +181,20 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	uint8_t image_comp = -1, type = -1;
 	const void *data;
 	bool external_data = false;
-#ifdef CONFIG_SPL_FIT_SIGNATURE
-	int ret;
-#endif
+
+	if (IS_ENABLED(CONFIG_SPL_FPGA_SUPPORT) ||
+	    (IS_ENABLED(CONFIG_SPL_OS_BOOT) && IS_ENABLED(CONFIG_SPL_GZIP))) {
+		if (fit_image_get_type(fit, node, &type))
+			puts("Cannot get image type.\n");
+		else
+			debug("%s ", genimg_get_type_name(type));
+	}
 
 	if (IS_ENABLED(CONFIG_SPL_OS_BOOT) && IS_ENABLED(CONFIG_SPL_GZIP)) {
 		if (fit_image_get_comp(fit, node, &image_comp))
 			puts("Cannot get image compression format.\n");
 		else
 			debug("%s ", genimg_get_comp_name(image_comp));
-
-		if (fit_image_get_type(fit, node, &type))
-			puts("Cannot get image type.\n");
-		else
-			debug("%s ", genimg_get_type_name(type));
 	}
 
 	if (fit_image_get_load(fit, node, &load_addr))
@@ -244,6 +244,15 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 		src = (void *)data;
 	}
 
+#ifdef CONFIG_SPL_FIT_SIGNATURE
+	printf("## Checking hash(es) for Image %s ... ",
+	       fit_get_name(fit, node, NULL));
+	if (!fit_image_verify_with_data(fit, node,
+					 src, length))
+		return -EPERM;
+	puts("OK\n");
+#endif
+
 #ifdef CONFIG_SPL_FIT_IMAGE_POST_PROCESS
 	board_fit_image_post_process(&src, &length);
 #endif
@@ -269,16 +278,7 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 		image_info->entry_point = fdt_getprop_u32(fit, node, "entry");
 	}
 
-#ifdef CONFIG_SPL_FIT_SIGNATURE
-	printf("## Checking hash(es) for Image %s ...\n",
-	       fit_get_name(fit, node, NULL));
-	ret = fit_image_verify_with_data(fit, node,
-					 (const void *)load_addr, length);
-	printf("\n");
-	return !ret;
-#else
 	return 0;
-#endif
 }
 
 static int spl_fit_append_fdt(struct spl_image_info *spl_image,

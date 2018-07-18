@@ -197,14 +197,6 @@ config TARGET_SAMA5D4EK
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 
-config TARGET_MA5D4EVK
-	bool "Aries MA5D4EVK Evaluation Kit"
-	select SAMA5D4
-	select SUPPORT_SPL
-	select DM
-	select DM_SPI
-	select SPI
-
 config TARGET_MEESC
 	bool "Support meesc"
 	select AT91SAM9263
@@ -263,7 +255,6 @@ endchoice
 config SYS_SOC
 	default "at91"
 
-source "board/aries/ma5d4evk/Kconfig"
 source "board/atmel/at91rm9200ek/Kconfig"
 source "board/atmel/at91sam9260ek/Kconfig"
 source "board/atmel/at91sam9261ek/Kconfig"

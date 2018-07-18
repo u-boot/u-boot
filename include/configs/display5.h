@@ -30,9 +30,9 @@
  * 0x020000 - 0x120000 : SPI.u-boot (1MiB)
  * 0x120000 - 0x130000 : SPI.u-boot-env1 (64KiB)
  * 0x130000 - 0x140000 : SPI.u-boot-env2 (64KiB)
- * 0x140000 - 0x940000 : SPI.fitImage-recovery (8MiB)
- * 0x940000 - 0xD40000 : SPI.swupdate-kernel-FIT (4MiB)
- * 0xD40000 - 0x1540000 : SPI.swupdate-initramfs  (8MiB)
+ * 0x140000 - 0x540000 : SPI.swupdate-kernel-FIT (4MiB)
+ * 0x540000 - 0x1540000 : SPI.swupdate-initramfs  (16MiB)
+ * 0x1540000 - 0x1640000 : SPI.factory  (1MiB)
  */
 
 #ifndef CONFIG_SPL_BUILD
@@ -100,7 +100,13 @@
 #define CONFIG_BAUDRATE			115200
 
 #ifndef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND "run boot_mmc"
+#define CONFIG_BOOTCOMMAND "if run check_em_pad; then " \
+	     "run recovery;" \
+	"else if test ${BOOT_FROM} = FACTORY; then " \
+	     "run factory_nfs;" \
+	"else " \
+	     "run boot_mmc;" \
+	"fi;fi"
 #endif
 
 #define PARTS_DEFAULT \
@@ -110,7 +116,7 @@
 	"name=kernel_raw1,start=128K,size=8M,uuid=${uuid_gpt_kernel_raw1};" \
 	"name=rootfs1,size=1528M,uuid=${uuid_gpt_rootfs1};" \
 	"name=kernel_raw2,size=8M,uuid=${uuid_gpt_kernel_raw2};" \
-	"name=rootfs2,size=1528M,uuid=${uuid_gpt_rootfs2};" \
+	"name=rootfs2,size=512M,uuid=${uuid_gpt_rootfs2};" \
 	"name=data,size=-,uuid=${uuid_gpt_data}\0"
 
 #define FACTORY_PROCEDURE \
@@ -123,7 +129,6 @@
 	"run tftp_sf_SPL;" \
 	"run tftp_sf_uboot;" \
 	TFTP_UPDATE_KERNEL \
-	"run tftp_sf_fitImg_recovery;" \
 	"run tftp_sf_fitImg_SWU;" \
 	"run tftp_sf_initramfs_SWU;" \
 	TFTP_UPDATE_ROOTFS \
@@ -139,6 +144,16 @@
 	"echo '#######################';" \
 	"echo '# RECOVERY SWUupdate  #';" \
 	"echo '#######################';" \
+	"echo '#######################';" \
+	"echo '# GPT verify          #';" \
+	"if gpt verify mmc ${mmcdev} ${partitions}; then " \
+		"echo '# OK !                #';" \
+	"else " \
+		"echo '# FAILED !            #';" \
+		"echo '# GPT RESTORATION     #';" \
+		"gpt write mmc ${mmcdev} ${partitions};" \
+	"fi;" \
+	"echo '#######################';" \
 	"setenv loadaddr_swu_initramfs 0x14000000;" \
 	"setenv bootargs console=${console} " \
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}" \
@@ -146,15 +161,7 @@
 	"sf probe;" \
 	"sf read ${loadaddr} swu-kernel;" \
 	"sf read ${loadaddr_swu_initramfs} swu-initramfs;" \
-	"bootm ${loadaddr} ${loadaddr_swu_initramfs};"
-
-#define KERNEL_RECOVERY_PROCEDURE \
-	"echo '#######################';" \
-	"echo '# RECOVERY KERNEL IMG #';" \
-	"echo '#######################';" \
-	"sf probe;" \
-	"sf read ${loadaddr} lin-recovery;" \
-	"bootm;"
+	"bootm ${loadaddr} ${loadaddr_swu_initramfs};reset;"
 
 #define SETUP_BOOTARGS \
 	"run set_rootfs_part;" \
@@ -197,13 +204,11 @@
 	       "mmc write ${loadaddr} ${lba_start} ${fw_sz}; " \
 	   "; fi\0" \
 
-/* To save some considerable time, we only once download the rootfs image */
-/* and store it on 'active' and 'backup' rootfs partitions */
 #define TFTP_UPDATE_ROOTFS \
 	"setenv rootfs_part ${rootfs_part_active};" \
 	"run tftp_mmc_rootfs;" \
-	"part start mmc ${mmcdev} ${rootfs_part_backup} lba_start;" \
-	"mmc write ${loadaddr} ${lba_start} ${fw_sz};" \
+	"run tftp_mmc_rootfs_bkp;" \
+
 
 #define TFTP_UPDATE_RECOVERY_SWU_KERNEL \
 	"tftp_sf_fitImg_SWU=" \
@@ -214,21 +219,12 @@
 	"; fi\0"	  \
 
 #define TFTP_UPDATE_RECOVERY_SWU_INITRAMFS \
-	"swu_initramfs_file=swupdate-image-display5.ext3.gz.u-boot\0" \
+	"swu_initramfs_file=swupdate-image-display5.ext4.gz.u-boot\0" \
 	"tftp_sf_initramfs_SWU=" \
 	    "if tftp ${loadaddr} ${swu_initramfs_file}; then " \
 		"sf probe;" \
 		"sf erase swu-initramfs +${filesize};" \
 		"sf write ${loadaddr} swu-initramfs ${filesize};" \
-	"; fi\0"	  \
-
-#define TFTP_UPDATE_RECOVERY_KERNEL_INITRAMFS \
-	"kernel_recovery_file=fitImage-initramfs\0" \
-	"tftp_sf_fitImg_recovery=" \
-	    "if tftp ${loadaddr} ${kernel_recovery_file}; then " \
-		"sf probe;" \
-		"sf erase lin-recovery +${filesize};" \
-		"sf write ${loadaddr} lin-recovery ${filesize};" \
 	"; fi\0"	  \
 
 #define TFTP_UPDATE_BOOTLOADER \
@@ -248,8 +244,20 @@
 		"sf write ${loadaddr} 0x400 ${filesize};" \
 	"fi\0" \
 
+#define TFTP_UPDATE_SPINOR \
+	"spinorfile=core-image-lwn-display5.spinor\0" \
+	"spinorsize=0x2000000\0" \
+	"tftp_sf_img=" \
+	    "if tftp ${loadaddr} ${spinorfile}; then " \
+		"sf probe;" \
+		"sf erase 0x0 ${spinorsize};" \
+		"sf write ${loadaddr} 0x0 ${filesize};" \
+	"fi\0" \
+
 #define CONFIG_EXTRA_ENV_SETTINGS	  \
 	PARTS_DEFAULT \
+	"gpio_recovery=93\0" \
+	"check_em_pad=gpio input ${gpio_recovery};test $? -eq 0;\0" \
 	"display=tianma-tm070-800x480\0" \
 	"board=display5\0" \
 	"mmcdev=0\0" \
@@ -265,7 +273,7 @@
 	"hostname=display5\0" \
 	"loadaddr=0x12000000\0" \
 	"fdtaddr=0x12800000\0" \
-	"console=ttymxc4,115200 quiet\0" \
+	"console=ttymxc4,115200 quiet cma=256M\0" \
 	"fdtfile=imx6q-display5.dtb\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
@@ -273,21 +281,22 @@
 	"up=run tftp_sf_SPL; run tftp_sf_uboot\0" \
 	"download_kernel=" \
 		"tftpboot ${loadaddr} ${kernel_file};\0" \
-	"boot_kernel_recovery=" KERNEL_RECOVERY_PROCEDURE "\0" \
+	"factory_nfs=" \
+	     "setenv ipaddr 192.168.1.102;" \
+	     "setenv gatewayip 192.168.1.1;" \
+	     "setenv netmask 255.255.255.0;" \
+	     "setenv serverip 192.168.1.2;" \
+	     "echo BOOT: FACTORY (LEG);" \
+	     "run boot_nfs\0" \
 	"boot_swu_recovery=" SWUPDATE_RECOVERY_PROCEDURE "\0" \
 	"recovery=" \
-	"if test ${BOOT_FROM_RECOVERY} = SWU; then " \
 	     "echo BOOT: RECOVERY: SWU;" \
-	     "run boot_swu_recovery;" \
-	"else " \
-	     "echo BOOT: RECOVERY: Linux;" \
-	     "run boot_kernel_recovery;" \
-	"fi\0" \
+	     "run boot_swu_recovery\0" \
 	"boot_tftp=" \
 	"if run download_kernel; then "	  \
 	     "setenv bootargs console=${console} " \
 	     "root=/dev/mmcblk0p2 rootwait;" \
-	     "bootm ${loadaddr} - ${fdtaddr};" \
+	     "bootm ${loadaddr} - ${fdtaddr};reset;" \
 	"fi\0" \
 	"addip=setenv bootargs ${bootargs} " \
 	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:" \
@@ -304,7 +313,7 @@
 	     "run addip;"	  \
 	     "setenv bootargs ${bootargs} console=${console};"	  \
 	     "setenv fdt_conf imx6q-${board}-${display}.dtb; " \
-	     "bootm ${loadaddr}#conf@${fdt_conf};" \
+	     "bootm ${loadaddr}#conf@${fdt_conf};reset;" \
 	"fi\0" \
 	"falcon_setup=" \
 	"if mmc dev ${mmcdev}; then "	  \
@@ -318,7 +327,7 @@
 	"boot_mmc=" \
 	"if mmc dev ${mmcdev}; then "	  \
 	     SETUP_BOOTARGS \
-	     "bootm ${loadaddr}#conf@${fdt_conf};" \
+	     "bootm ${loadaddr}#conf@${fdt_conf};reset;" \
 	"fi\0" \
 	"set_kernel_part=" \
 	"if test ${BOOT_FROM} = ACTIVE; then " \
@@ -339,16 +348,20 @@
 	     "run recovery;" \
 	"fi;fi\0" \
 	"BOOT_FROM=ACTIVE\0" \
-	"BOOT_FROM_RECOVERY=Linux\0" \
 	TFTP_UPDATE_BOOTLOADER \
+	TFTP_UPDATE_SPINOR \
 	"kernel_part_active=1\0" \
 	"kernel_part_backup=3\0" \
 	__TFTP_UPDATE_KERNEL \
 	"rootfs_part_active=2\0" \
 	"rootfs_part_backup=4\0" \
 	"rootfs_file=core-image-lwn-display5.ext4\0" \
+	"rootfs_file_backup=core-image-lwn-backup-display5.ext4\0" \
 	__TFTP_UPDATE_ROOTFS \
-	TFTP_UPDATE_RECOVERY_KERNEL_INITRAMFS \
+	"tftp_mmc_rootfs_bkp=" \
+	   "setenv rootfs_part ${rootfs_part_backup};" \
+	   "setenv rootfs_file ${rootfs_file_backup};" \
+	   "run tftp_mmc_rootfs\0" \
 	TFTP_UPDATE_RECOVERY_SWU_KERNEL \
 	TFTP_UPDATE_RECOVERY_SWU_INITRAMFS \
 	"\0" \
@@ -382,6 +395,11 @@
 /* Commands */
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
+
+/* Watchdog */
+#define CONFIG_HW_WATCHDOG
+#define CONFIG_IMX_WATCHDOG
+#define CONFIG_WATCHDOG_TIMEOUT_MSECS   15000
 
 /* ENV config */
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH

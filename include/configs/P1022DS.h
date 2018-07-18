@@ -81,7 +81,6 @@
 #endif
 
 /* High Level Configuration Options */
-#define CONFIG_MP			/* support multiple processors */
 
 #ifndef CONFIG_RESET_VECTOR_ADDRESS
 #define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
@@ -361,9 +360,6 @@
  * disable empty flash sector detection, which is I/O-intensive.
  */
 #undef CONFIG_SYS_FLASH_EMPTY_INFO
-#endif
-
-#ifndef CONFIG_FSL_DIU_FB
 #endif
 
 #ifdef CONFIG_ATI

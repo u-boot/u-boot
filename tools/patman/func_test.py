@@ -149,7 +149,8 @@ class TestFunctional(unittest.TestCase):
                 patchstream.InsertCoverLetter(cover_fname, series, count)
             series.DoChecks()
             cc_file = series.MakeCcFile(process_tags, cover_fname,
-                                        not ignore_bad_tags, add_maintainers)
+                                        not ignore_bad_tags, add_maintainers,
+                                        None)
             cmd = gitutil.EmailPatches(series, cover_fname, args,
                     dry_run, not ignore_bad_tags, cc_file,
                     in_reply_to=in_reply_to, thread=None)

@@ -1028,7 +1028,7 @@ int cros_ec_decode_ec_flash(struct udevice *dev, struct fdt_cros_ec *config)
 		return -1;
 	}
 
-	if (of_read_fmap_entry(flash_node, "flash", &config->flash)) {
+	if (ofnode_read_fmap_entry(flash_node,  &config->flash)) {
 		debug("Failed to decode flash node in chrome-ec\n");
 		return -1;
 	}
@@ -1050,7 +1050,7 @@ int cros_ec_decode_ec_flash(struct udevice *dev, struct fdt_cros_ec *config)
 			return -1;
 		}
 
-		if (of_read_fmap_entry(node, "reg", &config->region[region])) {
+		if (ofnode_read_fmap_entry(node, &config->region[region])) {
 			debug("Failed to decode flash region in chrome-ec'\n");
 			return -1;
 		}

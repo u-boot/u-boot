@@ -232,7 +232,7 @@ extern uint32_t __div64_32(uint64_t *dividend, uint32_t divisor);
 #endif /* BITS_PER_LONG */
 
 /* Wrapper for do_div(). Doesn't modify dividend and returns
- * the result, not reminder.
+ * the result, not remainder.
  */
 static inline uint64_t lldiv(uint64_t dividend, uint32_t divisor)
 {

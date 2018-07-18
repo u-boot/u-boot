@@ -65,11 +65,10 @@
 
 #define AHB_GATE_OFFSET_EPHY	0
 
-#if defined(CONFIG_MACH_SUNXI_H3_H5)
-#define SUN8I_GPD8_GMAC		2
-#else
-#define SUN8I_GPD8_GMAC		4
-#endif
+/* IO mux settings */
+#define SUN8I_IOMUX_H3		2
+#define SUN8I_IOMUX_R40	5
+#define SUN8I_IOMUX		4
 
 /* H3/A64 EMAC Register's offset */
 #define EMAC_CTL0		0x00
@@ -99,6 +98,7 @@ enum emac_variant {
 	A83T_EMAC = 1,
 	H3_EMAC,
 	A64_EMAC,
+	R40_GMAC,
 };
 
 struct emac_dma_desc {
@@ -280,6 +280,9 @@ static int sun8i_emac_set_syscon(struct emac_eth_dev *priv)
 
 	reg = readl(priv->sysctl_reg + 0x30);
 
+	if (priv->variant == R40_GMAC)
+		return 0;
+
 	if (priv->variant == H3_EMAC) {
 		ret = sun8i_emac_set_syscon_ephy(priv, &reg);
 		if (ret)
@@ -453,6 +456,7 @@ static int _sun8i_emac_eth_init(struct emac_eth_dev *priv, u8 *enetaddr)
 
 static int parse_phy_pins(struct udevice *dev)
 {
+	struct emac_eth_dev *priv = dev_get_priv(dev);
 	int offset;
 	const char *pin_name;
 	int drive, pull = SUN4I_PINCTRL_NO_PULL, i;
@@ -494,7 +498,13 @@ static int parse_phy_pins(struct udevice *dev)
 		if (pin < 0)
 			continue;
 
-		sunxi_gpio_set_cfgpin(pin, SUN8I_GPD8_GMAC);
+		if (priv->variant == H3_EMAC)
+			sunxi_gpio_set_cfgpin(pin, SUN8I_IOMUX_H3);
+		else if (priv->variant == R40_GMAC)
+			sunxi_gpio_set_cfgpin(pin, SUN8I_IOMUX_R40);
+		else
+			sunxi_gpio_set_cfgpin(pin, SUN8I_IOMUX);
+
 		if (drive != ~0)
 			sunxi_gpio_set_drv(pin, drive);
 		if (pull != ~0)
@@ -618,22 +628,39 @@ static void sun8i_emac_board_setup(struct emac_eth_dev *priv)
 {
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
-#ifdef CONFIG_MACH_SUNXI_H3_H5
-	/* Only H3/H5 have clock controls for internal EPHY */
-	if (priv->use_internal_phy) {
-		/* Set clock gating for ephy */
-		setbits_le32(&ccm->bus_gate4, BIT(AHB_GATE_OFFSET_EPHY));
+	if (priv->variant == H3_EMAC) {
+		/* Only H3/H5 have clock controls for internal EPHY */
+		if (priv->use_internal_phy) {
+			/* Set clock gating for ephy */
+			setbits_le32(&ccm->bus_gate4,
+				     BIT(AHB_GATE_OFFSET_EPHY));
 
-		/* Deassert EPHY */
-		setbits_le32(&ccm->ahb_reset2_cfg, BIT(AHB_RESET_OFFSET_EPHY));
+			/* Deassert EPHY */
+			setbits_le32(&ccm->ahb_reset2_cfg,
+				     BIT(AHB_RESET_OFFSET_EPHY));
+		}
 	}
-#endif
 
-	/* Set clock gating for emac */
-	setbits_le32(&ccm->ahb_gate0, BIT(AHB_GATE_OFFSET_GMAC));
+	if (priv->variant == R40_GMAC) {
+		/* Set clock gating for emac */
+		setbits_le32(&ccm->ahb_reset1_cfg, BIT(AHB_RESET_OFFSET_GMAC));
 
-	/* De-assert EMAC */
-	setbits_le32(&ccm->ahb_reset0_cfg, BIT(AHB_RESET_OFFSET_GMAC));
+		/* De-assert EMAC */
+		setbits_le32(&ccm->ahb_gate1, BIT(AHB_GATE_OFFSET_GMAC));
+
+		/* Select RGMII for R40 */
+		setbits_le32(&ccm->gmac_clk_cfg,
+			     CCM_GMAC_CTRL_TX_CLK_SRC_INT_RGMII |
+			     CCM_GMAC_CTRL_GPIT_RGMII);
+		setbits_le32(&ccm->gmac_clk_cfg,
+			     CCM_GMAC_CTRL_TX_CLK_DELAY(CONFIG_GMAC_TX_DELAY));
+	} else {
+		/* Set clock gating for emac */
+		setbits_le32(&ccm->ahb_gate0, BIT(AHB_GATE_OFFSET_GMAC));
+
+		/* De-assert EMAC */
+		setbits_le32(&ccm->ahb_reset0_cfg, BIT(AHB_RESET_OFFSET_GMAC));
+	}
 }
 
 #if defined(CONFIG_DM_GPIO)
@@ -800,22 +827,32 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	offset = fdtdec_lookup_phandle(gd->fdt_blob, node, "syscon");
-	if (offset < 0) {
-		debug("%s: cannot find syscon node\n", __func__);
+	priv->variant = dev_get_driver_data(dev);
+
+	if (!priv->variant) {
+		printf("%s: Missing variant\n", __func__);
 		return -EINVAL;
 	}
-	reg = fdt_getprop(gd->fdt_blob, offset, "reg", NULL);
-	if (!reg) {
-		debug("%s: cannot find reg property in syscon node\n",
-		      __func__);
-		return -EINVAL;
-	}
-	priv->sysctl_reg = fdt_translate_address((void *)gd->fdt_blob,
-						 offset, reg);
-	if (priv->sysctl_reg == FDT_ADDR_T_NONE) {
-		debug("%s: Cannot find syscon base address\n", __func__);
-		return -EINVAL;
+
+	if (priv->variant != R40_GMAC) {
+		offset = fdtdec_lookup_phandle(gd->fdt_blob, node, "syscon");
+		if (offset < 0) {
+			debug("%s: cannot find syscon node\n", __func__);
+			return -EINVAL;
+		}
+		reg = fdt_getprop(gd->fdt_blob, offset, "reg", NULL);
+		if (!reg) {
+			debug("%s: cannot find reg property in syscon node\n",
+			      __func__);
+			return -EINVAL;
+		}
+		priv->sysctl_reg = fdt_translate_address((void *)gd->fdt_blob,
+							 offset, reg);
+		if (priv->sysctl_reg == FDT_ADDR_T_NONE) {
+			debug("%s: Cannot find syscon base address\n",
+			      __func__);
+			return -EINVAL;
+		}
 	}
 
 	pdata->phy_interface = -1;
@@ -837,14 +874,6 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 
 	if (pdata->phy_interface == -1) {
 		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
-		return -EINVAL;
-	}
-
-	priv->variant = dev_get_driver_data(dev);
-
-	if (!priv->variant) {
-		printf("%s: Missing variant '%s'\n", __func__,
-		       (char *)priv->variant);
 		return -EINVAL;
 	}
 
@@ -888,6 +917,8 @@ static const struct udevice_id sun8i_emac_eth_ids[] = {
 		.data = (uintptr_t)A64_EMAC },
 	{.compatible = "allwinner,sun8i-a83t-emac",
 		.data = (uintptr_t)A83T_EMAC },
+	{.compatible = "allwinner,sun8i-r40-gmac",
+		.data = (uintptr_t)R40_GMAC },
 	{ }
 };
 

@@ -27,7 +27,6 @@
 /*
  * Multicore config
  */
-#define CONFIG_MP
 #define CONFIG_BPTR_VIRT_ADDR	0xee000000	/* virt boot page address */
 #define CONFIG_MPC8xxx_DISABLE_BPTR		/* Don't leave BPTR enabled */
 

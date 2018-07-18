@@ -36,7 +36,6 @@
 
 /* High Level Configuration Options */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
-#define CONFIG_MP			/* support multiple processors */
 
 #define CONFIG_SYS_MMC_MAX_DEVICE     1
 
@@ -474,8 +473,5 @@
 #define CONFIG_BOOTCOMMAND		CONFIG_HDBOOT
 
 #include <asm/fsl_secure_boot.h>
-
-#ifdef CONFIG_SECURE_BOOT
-#endif
 
 #endif	/* __CONFIG_H */

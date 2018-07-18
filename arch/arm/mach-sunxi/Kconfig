@@ -84,6 +84,9 @@ config SUNXI_HIGH_SRAM
 	Chips using the latter setup are supposed to select this option to
 	adjust the addresses accordingly.
 
+config SUNXI_A64_TIMER_ERRATUM
+	bool
+
 # Note only one of these may be selected at a time! But hidden choices are
 # not supported by Kconfig
 config SUNXI_GEN_SUN4I
@@ -139,6 +142,8 @@ config MACH_SUN4I
 	bool "sun4i (Allwinner A10)"
 	select CPU_V7A
 	select ARM_CORTEX_CPU_IS_UP
+	select DM_MMC if MMC
+	select DM_SCSI if SCSI
 	select PHY_SUN4I_USB
 	select DRAM_SUN4I
 	select SUNXI_GEN_SUN4I
@@ -270,6 +275,7 @@ config MACH_SUN50I
 	select SUNXI_DRAM_DW_32BIT
 	select FIT
 	select SPL_LOAD_FIT
+	select SUNXI_A64_TIMER_ERRATUM
 
 config MACH_SUN50I_H5
 	bool "sun50i (Allwinner H5)"

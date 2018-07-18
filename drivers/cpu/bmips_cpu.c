@@ -407,7 +407,7 @@ int bmips_cpu_probe(struct udevice *dev)
 	const struct bmips_cpu_hw *hw =
 		(const struct bmips_cpu_hw *)dev_get_driver_data(dev);
 
-	priv->regs = dev_remap_addr(dev);
+	priv->regs = dev_remap_addr(dev_get_parent(dev));
 	if (!priv->regs)
 		return -EINVAL;
 

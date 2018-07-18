@@ -16,7 +16,8 @@ typedef int		__kernel_pid_t;
 typedef unsigned short	__kernel_ipc_pid_t;
 typedef unsigned short	__kernel_uid_t;
 typedef unsigned short	__kernel_gid_t;
-#if CONFIG_IS_ENABLED(X86_64)
+/* checking against __x86_64__ covers both 64-bit EFI stub and 64-bit U-Boot */
+#if defined(__x86_64__)
 typedef unsigned long	__kernel_size_t;
 typedef long		__kernel_ssize_t;
 #else

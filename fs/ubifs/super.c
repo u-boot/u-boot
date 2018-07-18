@@ -2360,7 +2360,9 @@ static struct super_block *alloc_super(struct file_system_type *type, int flags)
 		return ERR_PTR(err);
 	}
 
+#ifndef __UBOOT__
 	INIT_HLIST_NODE(&s->s_instances);
+#endif
 	INIT_LIST_HEAD(&s->s_inodes);
 	s->s_time_gran = 1000000000;
 	s->s_flags = flags;
@@ -2429,14 +2431,12 @@ retry:
 #ifndef __UBOOT__
 	strlcpy(s->s_id, type->name, sizeof(s->s_id));
 	list_add_tail(&s->s_list, &super_blocks);
-#else
-	strncpy(s->s_id, type->name, sizeof(s->s_id));
-#endif
 	hlist_add_head(&s->s_instances, &type->fs_supers);
-#ifndef __UBOOT__
 	spin_unlock(&sb_lock);
 	get_filesystem(type);
 	register_shrinker(&s->s_shrink);
+#else
+	strncpy(s->s_id, type->name, sizeof(s->s_id));
 #endif
 	return s;
 }

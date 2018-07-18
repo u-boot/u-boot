@@ -77,7 +77,7 @@ struct reset_ctl_bulk {
 	unsigned int count;
 };
 
-#ifdef CONFIG_DM_RESET
+#if CONFIG_IS_ENABLED(DM_RESET)
 /**
  * reset_get_by_index - Get/request a reset signal by integer index.
  *

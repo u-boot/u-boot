@@ -40,12 +40,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
- * Commands configuration
- */
-#ifndef CONFIG_NETSPACE_MINI_V2 /* No USB ports on Network Space v2 Mini */
-#endif
-
-/*
  * Core clock definition
  */
 #define CONFIG_SYS_TCLK			166000000 /* 166MHz */

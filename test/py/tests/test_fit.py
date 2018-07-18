@@ -3,6 +3,8 @@
 #
 # Sanity check of the FIT handling in U-Boot
 
+from __future__ import print_function
+
 import os
 import pytest
 import struct
@@ -141,7 +143,7 @@ def test_fit(u_boot_console):
         Returns:
             Contents of file as a string
         """
-        with open(fname, 'r') as fd:
+        with open(fname, 'rb') as fd:
             return fd.read()
 
     def make_dtb():
@@ -153,7 +155,7 @@ def test_fit(u_boot_console):
         src = make_fname('u-boot.dts')
         dtb = make_fname('u-boot.dtb')
         with open(src, 'w') as fd:
-            print >> fd, base_fdt
+            print(base_fdt, file=fd)
         util.run_and_log(cons, ['dtc', src, '-O', 'dtb', '-o', dtb])
         return dtb
 
@@ -167,7 +169,7 @@ def test_fit(u_boot_console):
         """
         its = make_fname('test.its')
         with open(its, 'w') as fd:
-            print >> fd, base_its % params
+            print(base_its % params, file=fd)
         return its
 
     def make_fit(mkimage, params):
@@ -186,7 +188,7 @@ def test_fit(u_boot_console):
         its = make_its(params)
         util.run_and_log(cons, [mkimage, '-f', its, fit])
         with open(make_fname('u-boot.dts'), 'w') as fd:
-            print >> fd, base_fdt
+            print(base_fdt, file=fd)
         return fit
 
     def make_kernel(filename, text):
@@ -202,7 +204,7 @@ def test_fit(u_boot_console):
         for i in range(100):
             data += 'this %s %d is unlikely to boot\n' % (text, i)
         with open(fname, 'w') as fd:
-            print >> fd, data
+            print(data, file=fd)
         return fname
 
     def make_ramdisk(filename, text):
@@ -216,7 +218,7 @@ def test_fit(u_boot_console):
         for i in range(100):
             data += '%s %d was seldom used in the middle ages\n' % (text, i)
         with open(fname, 'w') as fd:
-            print >> fd, data
+            print(data, file=fd)
         return fname
 
     def find_matching(text, match):

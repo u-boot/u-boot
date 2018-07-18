@@ -1,6 +1,0 @@
-M28EVK BOARD
-#M:	Marek Vasut <marek.vasut@gmail.com>
-S:	Orphan (since 2017-07)
-F:	board/aries/m28evk/
-F:	include/configs/m28evk.h
-F:	configs/m28evk_defconfig

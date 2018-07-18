@@ -18,7 +18,20 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void s_init(void) {}
+void s_init(void) {
+#ifndef CONFIG_ARM64
+	/*
+	 * Preconfigure ACTLR, make sure Write Full Line of Zeroes is disabled.
+	 * This is optional on CycloneV / ArriaV.
+	 * This is mandatory on Arria10, otherwise Linux refuses to boot.
+	 */
+	asm volatile(
+		"mcr p15, 0, %0, c1, c0, 1\n"
+		"isb\n"
+		"dsb\n"
+	::"r"(0x0));
+#endif
+}
 
 /*
  * Miscellaneous platform dependent initialisations

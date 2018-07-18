@@ -26,6 +26,7 @@ sys.path.insert(0, 'scripts/dtc/pylibfdt')
 import cmdline
 import command
 import control
+import test_util
 
 def RunTests(debug, args):
     """Run the functional tests and any embedded doctests
@@ -54,14 +55,12 @@ def RunTests(debug, args):
 
     # Run the entry tests first ,since these need to be the first to import the
     # 'entry' module.
-    suite = unittest.TestLoader().loadTestsFromTestCase(entry_test.TestEntry)
-    suite.run(result)
     test_name = args and args[0] or None
-    for module in (ftest.TestFunctional, fdt_test.TestFdt, elf_test.TestElf,
-                   image_test.TestImage):
+    for module in (entry_test.TestEntry, ftest.TestFunctional, fdt_test.TestFdt,
+                   elf_test.TestElf, image_test.TestImage):
         if test_name:
             try:
-                suite = unittest.TestLoader().loadTestsFromName(args[0], module)
+                suite = unittest.TestLoader().loadTestsFromName(test_name, module)
             except AttributeError:
                 continue
         else:
@@ -80,33 +79,12 @@ def RunTests(debug, args):
 
 def RunTestCoverage():
     """Run the tests and check that we get 100% coverage"""
-    # This uses the build output from sandbox_spl to get _libfdt.so
-    cmd = ('PYTHONPATH=$PYTHONPATH:%s/sandbox_spl/tools coverage run '
-            '--include "tools/binman/*.py" --omit "*test*,*binman.py" '
-            'tools/binman/binman.py -t' % options.build_dir)
-    os.system(cmd)
-    stdout = command.Output('coverage', 'report')
-    lines = stdout.splitlines()
-
-    test_set= set([os.path.basename(line.split()[0])
-                     for line in lines if '/etype/' in line])
     glob_list = glob.glob(os.path.join(our_path, 'etype/*.py'))
-    all_set = set([os.path.basename(item) for item in glob_list])
-    missing_list = all_set
-    missing_list.difference_update(test_set)
-    missing_list.remove('_testing.py')
-    coverage = lines[-1].split(' ')[-1]
-    ok = True
-    if missing_list:
-        print 'Missing tests for %s' % (', '.join(missing_list))
-        ok = False
-    if coverage != '100%':
-        print stdout
-        print "Type 'coverage html' to get a report in htmlcov/index.html"
-        print 'Coverage error: %s, but should be 100%%' % coverage
-        ok = False
-    if not ok:
-      raise ValueError('Test coverage failure')
+    all_set = set([os.path.splitext(os.path.basename(item))[0]
+                   for item in glob_list if '_testing' not in item])
+    test_util.RunTestCoverage('tools/binman/binman.py', None,
+            ['*test*', '*binman.py', 'tools/patman/*', 'tools/dtoc/*'],
+            options.build_dir, all_set)
 
 def RunBinman(options, args):
     """Main entry point to binman once arguments are parsed

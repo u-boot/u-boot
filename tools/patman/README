@@ -107,6 +107,7 @@ patman.py.  For reference, the useful ones (at the moment) shown below
 ignore_errors: True
 process_tags: False
 verbose: True
+smtp_server: /path/to/sendmail
 
 <<<
 

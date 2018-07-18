@@ -13,6 +13,7 @@
 #include <linux/libfdt.h>
 #include <linux/err.h>
 #include <malloc.h>
+#include <reset.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -32,6 +33,20 @@ struct dwmci_socfpga_priv_data {
 	unsigned int		drvsel;
 	unsigned int		smplsel;
 };
+
+static void socfpga_dwmci_reset(struct udevice *dev)
+{
+	struct reset_ctl_bulk reset_bulk;
+	int ret;
+
+	ret = reset_get_bulk(dev, &reset_bulk);
+	if (ret) {
+		dev_warn(dev, "Can't get reset: %d\n", ret);
+		return;
+	}
+
+	reset_deassert_bulk(&reset_bulk);
+}
 
 static void socfpga_dwmci_clksel(struct dwmci_host *host)
 {
@@ -108,6 +123,8 @@ static int socfpga_dwmmc_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct dwmci_socfpga_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
+
+	socfpga_dwmci_reset(dev);
 
 #ifdef CONFIG_BLK
 	dwmci_setup_cfg(&plat->cfg, host, host->bus_hz, 400000);

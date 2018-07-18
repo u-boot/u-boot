@@ -26,6 +26,7 @@ Tests run with both SHA1 and SHA256 hashing.
 
 import pytest
 import sys
+import struct
 import u_boot_utils as util
 
 @pytest.mark.boardspec('sandbox')
@@ -105,6 +106,26 @@ def test_vboot(u_boot_console):
         util.run_and_log(cons, [mkimage, '-F', '-k', tmpdir, '-K', dtb,
                                 '-r', fit])
 
+    def replace_fit_totalsize(size):
+        """Replace FIT header's totalsize with something greater.
+
+        The totalsize must be less than or equal to FIT_SIGNATURE_MAX_SIZE.
+        If the size is greater, the signature verification should return false.
+
+        Args:
+            size: The new totalsize of the header
+
+        Returns:
+            prev_size: The previous totalsize read from the header
+        """
+        total_size = 0
+        with open(fit, 'r+b') as handle:
+            handle.seek(4)
+            total_size = handle.read(4)
+            handle.seek(4)
+            handle.write(struct.pack(">I", size))
+        return struct.unpack(">I", total_size)[0]
+
     def test_with_algo(sha_algo):
         """Test verified boot with the given hash algorithm.
 
@@ -146,6 +167,18 @@ def test_vboot(u_boot_console):
         util.run_and_log(cons, [fit_check_sign, '-f', fit, '-k', tmpdir,
                                 '-k', dtb])
 
+        # Replace header bytes
+        bcfg = u_boot_console.config.buildconfig
+        max_size = int(bcfg.get('config_fit_signature_max_size', 0x10000000), 0)
+        existing_size = replace_fit_totalsize(max_size + 1)
+        run_bootm(sha_algo, 'Signed config with bad hash', 'Bad Data Hash', False)
+        cons.log.action('%s: Check overflowed FIT header totalsize' % sha_algo)
+
+        # Replace with existing header bytes
+        replace_fit_totalsize(existing_size)
+        run_bootm(sha_algo, 'signed config', 'dev+', True)
+        cons.log.action('%s: Check default FIT header totalsize' % sha_algo)
+
         # Increment the first byte of the signature, which should cause failure
         sig = util.run_and_log(cons, 'fdtget -t bx %s %s value' %
                                (fit, sig_node))
@@ -177,8 +210,8 @@ def test_vboot(u_boot_console):
     public_exponent = 65537
     util.run_and_log(cons, 'openssl genpkey -algorithm RSA -out %sdev.key '
                      '-pkeyopt rsa_keygen_bits:2048 '
-                     '-pkeyopt rsa_keygen_pubexp:%d '
-                     '2>/dev/null'  % (tmpdir, public_exponent))
+                     '-pkeyopt rsa_keygen_pubexp:%d' %
+                     (tmpdir, public_exponent))
 
     # Create a certificate containing the public key
     util.run_and_log(cons, 'openssl req -batch -new -x509 -key %sdev.key -out '

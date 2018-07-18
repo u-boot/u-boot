@@ -57,9 +57,58 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ETH_PHY_RESET	IMX_GPIO_NR(4, 15)
 #define USB_H1_VBUS	IMX_GPIO_NR(1, 0)
 
+enum board_type {
+	CUBOXI          = 0x00,
+	HUMMINGBOARD    = 0x01,
+	HUMMINGBOARD2   = 0x02,
+	UNKNOWN         = 0x03,
+};
+
+#define MEM_STRIDE 0x4000000
+static u32 get_ram_size_stride_test(u32 *base, u32 maxsize)
+{
+        volatile u32 *addr;
+        u32          save[64];
+        u32          cnt;
+        u32          size;
+        int          i = 0;
+
+        /* First save the data */
+        for (cnt = 0; cnt < maxsize; cnt += MEM_STRIDE) {
+                addr = (volatile u32 *)((u32)base + cnt);       /* pointer arith! */
+                sync ();
+                save[i++] = *addr;
+                sync ();
+        }
+
+        /* First write a signature */
+        * (volatile u32 *)base = 0x12345678;
+        for (size = MEM_STRIDE; size < maxsize; size += MEM_STRIDE) {
+                * (volatile u32 *)((u32)base + size) = size;
+                sync ();
+                if (* (volatile u32 *)((u32)base) == size) {	/* We reached the overlapping address */
+                        break;
+                }
+        }
+
+        /* Restore the data */
+        for (cnt = (maxsize - MEM_STRIDE); i > 0; cnt -= MEM_STRIDE) {
+                addr = (volatile u32 *)((u32)base + cnt);       /* pointer arith! */
+                sync ();
+                *addr = save[i--];
+                sync ();
+        }
+
+        return (size);
+}
+
 int dram_init(void)
 {
-	gd->ram_size = imx_ddr_size();
+	u32 max_size = imx_ddr_size();
+
+	gd->ram_size = get_ram_size_stride_test((u32 *) CONFIG_SYS_SDRAM_BASE,
+						(u32)max_size);
+
 	return 0;
 }
 
@@ -77,10 +126,17 @@ static iomux_v3_cfg_t const usdhc2_pads[] = {
 	IOMUX_PADS(PAD_SD2_DAT3__SD2_DATA3	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 };
 
-static iomux_v3_cfg_t const hb_cbi_sense[] = {
+static iomux_v3_cfg_t const board_detect[] = {
 	/* These pins are for sensing if it is a CuBox-i or a HummingBoard */
 	IOMUX_PADS(PAD_KEY_ROW1__GPIO4_IO09  | MUX_PAD_CTRL(UART_PAD_CTRL)),
 	IOMUX_PADS(PAD_EIM_DA4__GPIO3_IO04   | MUX_PAD_CTRL(UART_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD4_DAT0__GPIO2_IO08  | MUX_PAD_CTRL(UART_PAD_CTRL)),
+};
+
+static iomux_v3_cfg_t const som_rev_detect[] = {
+	/* These pins are for sensing if it is a CuBox-i or a HummingBoard */
+	IOMUX_PADS(PAD_CSI0_DAT14__GPIO6_IO00  | MUX_PAD_CTRL(UART_PAD_CTRL)),
+	IOMUX_PADS(PAD_CSI0_DAT18__GPIO6_IO04  | MUX_PAD_CTRL(UART_PAD_CTRL)),
 };
 
 static iomux_v3_cfg_t const usb_pads[] = {
@@ -333,88 +389,110 @@ int board_init(void)
 	return ret;
 }
 
-static bool is_hummingboard(void)
+static enum board_type board_type(void)
 {
-	int val1, val2;
+	int val1, val2, val3;
 
-	SETUP_IOMUX_PADS(hb_cbi_sense);
-
-	gpio_direction_input(IMX_GPIO_NR(4, 9));
-	gpio_direction_input(IMX_GPIO_NR(3, 4));
-
-	val1 = gpio_get_value(IMX_GPIO_NR(4, 9));
-	val2 = gpio_get_value(IMX_GPIO_NR(3, 4));
+	SETUP_IOMUX_PADS(board_detect);
 
 	/*
 	 * Machine selection -
-	 * Machine        val1, val2
-	 * -------------------------
-	 * HB2            x     x
-	 * HB rev 3.x     x     0
-	 * CBi            0     1
-	 * HB             1     1
+	 * Machine      val1, val2, val3
+	 * ----------------------------
+	 * HB2            x     x    0
+	 * HB rev 3.x     x     0    x
+	 * CBi            0     1    x
+	 * HB             1     1    x
 	 */
-
-	if (val2 == 0)
-		return true;
-	else if (val1 == 0)
-		return false;
-	else
-		return true;
-}
-
-static bool is_hummingboard2(void)
-{
-	int val1;
-
-	SETUP_IOMUX_PADS(hb_cbi_sense);
 
 	gpio_direction_input(IMX_GPIO_NR(2, 8));
+	val3 = gpio_get_value(IMX_GPIO_NR(2, 8));
 
-        val1 = gpio_get_value(IMX_GPIO_NR(2, 8));
+	if (val3 == 0)
+		return HUMMINGBOARD2;
 
-	/*
-	 * Machine selection -
-	 * Machine        val1
-	 * -------------------
-	 * HB2            0
-	 * HB rev 3.x     x
-	 * CBi            x
-	 * HB             x
-	 */
+	gpio_direction_input(IMX_GPIO_NR(3, 4));
+	val2 = gpio_get_value(IMX_GPIO_NR(3, 4));
 
-	if (val1 == 0)
+	if (val2 == 0)
+		return HUMMINGBOARD;
+
+	gpio_direction_input(IMX_GPIO_NR(4, 9));
+	val1 = gpio_get_value(IMX_GPIO_NR(4, 9));
+
+	if (val1 == 0) {
+		return CUBOXI;
+	} else {
+		return HUMMINGBOARD;
+	}
+}
+
+static bool is_rev_15_som(void)
+{
+	int val1, val2;
+	SETUP_IOMUX_PADS(som_rev_detect);
+
+	val1 = gpio_get_value(IMX_GPIO_NR(6, 0));
+	val2 = gpio_get_value(IMX_GPIO_NR(6, 4));
+
+	if (val1 == 1 && val2 == 0)
 		return true;
-	else
-		return false;
+
+	return false;
 }
 
 int checkboard(void)
 {
-	if (is_hummingboard2())
-		puts("Board: MX6 Hummingboard2\n");
-	else if (is_hummingboard())
-		puts("Board: MX6 Hummingboard\n");
-	else
-		puts("Board: MX6 Cubox-i\n");
+	switch (board_type()) {
+	case CUBOXI:
+		puts("Board: MX6 Cubox-i");
+		break;
+	case HUMMINGBOARD:
+		puts("Board: MX6 HummingBoard");
+		break;
+	case HUMMINGBOARD2:
+		puts("Board: MX6 HummingBoard2");
+		break;
+	case UNKNOWN:
+	default:
+		puts("Board: Unknown\n");
+		goto out;
+	}
 
+	if (is_rev_15_som())
+		puts(" (som rev 1.5)\n");
+	else
+		puts("\n");
+
+out:
 	return 0;
 }
 
 int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	if (is_hummingboard2())
-		env_set("board_name", "HUMMINGBOARD2");
-	else if (is_hummingboard())
-		env_set("board_name", "HUMMINGBOARD");
-	else
+	switch (board_type()) {
+	case CUBOXI:
 		env_set("board_name", "CUBOXI");
+		break;
+	case HUMMINGBOARD:
+		env_set("board_name", "HUMMINGBOARD");
+		break;
+	case HUMMINGBOARD2:
+		env_set("board_name", "HUMMINGBOARD2");
+		break;
+	case UNKNOWN:
+	default:
+		env_set("board_name", "CUBOXI");
+	}
 
 	if (is_mx6dq())
 		env_set("board_rev", "MX6Q");
 	else
 		env_set("board_rev", "MX6DL");
+
+	if (is_rev_15_som())
+		env_set("som_rev", "V15");
 #endif
 
 	return 0;
@@ -590,7 +668,7 @@ static struct mx6_ddr3_cfg mem_ddr_4g = {
 	.density = 4,
 	.width = 16,
 	.banks = 8,
-	.rowaddr = 15,
+	.rowaddr = 16,
 	.coladdr = 10,
 	.pagesz = 2,
 	.trcd = 1375,

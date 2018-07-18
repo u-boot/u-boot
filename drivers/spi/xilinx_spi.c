@@ -19,6 +19,7 @@
 #include <malloc.h>
 #include <spi.h>
 #include <asm/io.h>
+#include <wait_bit.h>
 
 /*
  * [0]: http://www.xilinx.com/support/documentation
@@ -77,9 +78,7 @@
 #define CONFIG_XILINX_SPI_IDLE_VAL	GENMASK(7, 0)
 #endif
 
-#ifndef CONFIG_SYS_XILINX_SPI_LIST
-#define CONFIG_SYS_XILINX_SPI_LIST	{ CONFIG_SYS_SPI_BASE }
-#endif
+#define XILINX_SPISR_TIMEOUT	10000 /* in milliseconds */
 
 /* xilinx spi register set */
 struct xilinx_spi_regs {
@@ -105,15 +104,18 @@ struct xilinx_spi_priv {
 	struct xilinx_spi_regs *regs;
 	unsigned int freq;
 	unsigned int mode;
+	unsigned int fifo_depth;
+	u8 startup;
 };
 
-static unsigned long xilinx_spi_base_list[] = CONFIG_SYS_XILINX_SPI_LIST;
 static int xilinx_spi_probe(struct udevice *bus)
 {
 	struct xilinx_spi_priv *priv = dev_get_priv(bus);
 	struct xilinx_spi_regs *regs = priv->regs;
 
-	priv->regs = (struct xilinx_spi_regs *)xilinx_spi_base_list[bus->seq];
+	priv->regs = (struct xilinx_spi_regs *)dev_read_addr(bus);
+
+	priv->fifo_depth = dev_read_u32_default(bus, "fifo-size", 0);
 
 	writel(SPISSR_RESET_VALUE, &regs->srr);
 
@@ -162,6 +164,80 @@ static int xilinx_spi_release_bus(struct udevice *dev)
 	return 0;
 }
 
+static u32 xilinx_spi_fill_txfifo(struct udevice *bus, const u8 *txp,
+				  u32 txbytes)
+{
+	struct xilinx_spi_priv *priv = dev_get_priv(bus);
+	struct xilinx_spi_regs *regs = priv->regs;
+	unsigned char d;
+	u32 i = 0;
+
+	while (txbytes && !(readl(&regs->spisr) & SPISR_TX_FULL) &&
+	       i < priv->fifo_depth) {
+		d = txp ? *txp++ : CONFIG_XILINX_SPI_IDLE_VAL;
+		debug("spi_xfer: tx:%x ", d);
+		/* write out and wait for processing (receive data) */
+		writel(d & SPIDTR_8BIT_MASK, &regs->spidtr);
+		txbytes--;
+		i++;
+	}
+
+	return i;
+}
+
+static u32 xilinx_spi_read_rxfifo(struct udevice *bus, u8 *rxp, u32 rxbytes)
+{
+	struct xilinx_spi_priv *priv = dev_get_priv(bus);
+	struct xilinx_spi_regs *regs = priv->regs;
+	unsigned char d;
+	unsigned int i = 0;
+
+	while (rxbytes && !(readl(&regs->spisr) & SPISR_RX_EMPTY)) {
+		d = readl(&regs->spidrr) & SPIDRR_8BIT_MASK;
+		if (rxp)
+			*rxp++ = d;
+		debug("spi_xfer: rx:%x\n", d);
+		rxbytes--;
+		i++;
+	}
+	debug("Rx_done\n");
+
+	return i;
+}
+
+static void xilinx_spi_startup_block(struct udevice *dev, unsigned int bytes,
+				     const void *dout, void *din)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct xilinx_spi_priv *priv = dev_get_priv(bus);
+	struct xilinx_spi_regs *regs = priv->regs;
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	const unsigned char *txp = dout;
+	unsigned char *rxp = din;
+	u32 reg, count;
+	u32 txbytes = bytes;
+	u32 rxbytes = bytes;
+
+	/*
+	 * This loop runs two times. First time to send the command.
+	 * Second time to transfer data. After transferring data,
+	 * it sets txp to the initial value for the normal operation.
+	 */
+	for ( ; priv->startup < 2; priv->startup++) {
+		count = xilinx_spi_fill_txfifo(bus, txp, txbytes);
+		reg = readl(&regs->spicr) & ~SPICR_MASTER_INHIBIT;
+		writel(reg, &regs->spicr);
+		count = xilinx_spi_read_rxfifo(bus, rxp, rxbytes);
+		txp = din;
+
+		if (priv->startup) {
+			spi_cs_deactivate(dev);
+			spi_cs_activate(dev, slave_plat->cs);
+			txp = dout;
+		}
+	}
+}
+
 static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			    const void *dout, void *din, unsigned long flags)
 {
@@ -173,8 +249,10 @@ static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	unsigned int bytes = bitlen / XILSPI_MAX_XFER_BITS;
 	const unsigned char *txp = dout;
 	unsigned char *rxp = din;
-	unsigned rxecount = 17;	/* max. 16 elements in FIFO, leftover 1 */
-	unsigned global_timeout;
+	u32 txbytes = bytes;
+	u32 rxbytes = bytes;
+	u32 reg, count, timeout;
+	int ret;
 
 	debug("spi_xfer: bus:%i cs:%i bitlen:%i bytes:%i flags:%lx\n",
 	      bus->seq, slave_plat->cs, bitlen, bytes, flags);
@@ -189,48 +267,38 @@ static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		goto done;
 	}
 
-	/* empty read buffer */
-	while (rxecount && !(readl(&regs->spisr) & SPISR_RX_EMPTY)) {
-		readl(&regs->spidrr);
-		rxecount--;
-	}
-
-	if (!rxecount) {
-		printf("XILSPI error: Rx buffer not empty\n");
-		return -1;
-	}
-
 	if (flags & SPI_XFER_BEGIN)
 		spi_cs_activate(dev, slave_plat->cs);
 
-	/* at least 1usec or greater, leftover 1 */
-	global_timeout = priv->freq > XILSPI_MAX_XFER_BITS * 1000000 ? 2 :
-			(XILSPI_MAX_XFER_BITS * 1000000 / priv->freq) + 1;
+	/*
+	 * This is the work around for the startup block issue in
+	 * the spi controller. SPI clock is passing through STARTUP
+	 * block to FLASH. STARTUP block don't provide clock as soon
+	 * as QSPI provides command. So first command fails.
+	 */
+	xilinx_spi_startup_block(dev, bytes, dout, din);
 
-	while (bytes--) {
-		unsigned timeout = global_timeout;
-		/* get Tx element from data out buffer and count up */
-		unsigned char d = txp ? *txp++ : CONFIG_XILINX_SPI_IDLE_VAL;
-		debug("spi_xfer: tx:%x ", d);
+	while (txbytes && rxbytes) {
+		count = xilinx_spi_fill_txfifo(bus, txp, txbytes);
+		reg = readl(&regs->spicr) & ~SPICR_MASTER_INHIBIT;
+		writel(reg, &regs->spicr);
+		txbytes -= count;
+		if (txp)
+			txp += count;
 
-		/* write out and wait for processing (receive data) */
-		writel(d & SPIDTR_8BIT_MASK, &regs->spidtr);
-		while (timeout && readl(&regs->spisr)
-						& SPISR_RX_EMPTY) {
-			timeout--;
-			udelay(1);
-		}
-
-		if (!timeout) {
+		ret = wait_for_bit_le32(&regs->spisr, SPISR_TX_EMPTY, true,
+					XILINX_SPISR_TIMEOUT, false);
+		if (ret < 0) {
 			printf("XILSPI error: Xfer timeout\n");
-			return -1;
+			return ret;
 		}
 
-		/* read Rx element and push into data in buffer */
-		d = readl(&regs->spidrr) & SPIDRR_8BIT_MASK;
+		debug("txbytes:0x%x,txp:0x%p\n", txbytes, txp);
+		count = xilinx_spi_read_rxfifo(bus, rxp, rxbytes);
+		rxbytes -= count;
 		if (rxp)
-			*rxp++ = d;
-		debug("spi_xfer: rx:%x\n", d);
+			rxp += count;
+		debug("rxbytes:0x%x rxp:0x%p\n", rxbytes, rxp);
 	}
 
  done:

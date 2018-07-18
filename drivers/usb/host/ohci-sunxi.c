@@ -17,8 +17,10 @@
 #include <generic-phy.h>
 
 #ifdef CONFIG_SUNXI_GEN_SUN4I
+#define BASE_DIST		0x8000
 #define AHB_CLK_DIST		2
 #else
+#define BASE_DIST		0x1000
 #define AHB_CLK_DIST		1
 #endif
 
@@ -33,14 +35,16 @@ struct ohci_sunxi_cfg {
 };
 
 struct ohci_sunxi_priv {
+	ohci_t ohci;
 	struct sunxi_ccm_reg *ccm;
 	u32 *reset0_cfg;
-	ohci_t ohci;
 	int ahb_gate_mask; /* Mask of ahb_gate0 clk gate bits for this hcd */
 	int usb_gate_mask; /* Mask of usb_clk_cfg clk gate bits for this hcd */
 	struct phy phy;
 	const struct ohci_sunxi_cfg *cfg;
 };
+
+static fdt_addr_t last_ohci_addr = 0;
 
 static int ohci_usb_probe(struct udevice *dev)
 {
@@ -48,7 +52,11 @@ static int ohci_usb_probe(struct udevice *dev)
 	struct ohci_sunxi_priv *priv = dev_get_priv(dev);
 	struct ohci_regs *regs = (struct ohci_regs *)devfdt_get_addr(dev);
 	int extra_ahb_gate_mask = 0;
+	u8 reg_mask = 0;
 	int phys, ret;
+
+	if ((fdt_addr_t)regs > last_ohci_addr)
+		last_ohci_addr = (fdt_addr_t)regs;
 
 	priv->cfg = (const struct ohci_sunxi_cfg *)dev_get_driver_data(dev);
 	priv->ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
@@ -89,12 +97,13 @@ no_phy:
 	 * This should go away once we've moved to the driver model for
 	 * clocks resp. phys.
 	 */
+	reg_mask = ((uintptr_t)regs - (SUNXI_USB1_BASE + 0x400)) / BASE_DIST;
 	priv->ahb_gate_mask = 1 << AHB_GATE_OFFSET_USB_OHCI0;
 	extra_ahb_gate_mask = priv->cfg->extra_ahb_gate_mask;
 	priv->usb_gate_mask = CCM_USB_CTRL_OHCI0_CLK;
-	priv->ahb_gate_mask <<= phys * AHB_CLK_DIST;
-	extra_ahb_gate_mask <<= phys * AHB_CLK_DIST;
-	priv->usb_gate_mask <<= phys;
+	priv->ahb_gate_mask <<= reg_mask * AHB_CLK_DIST;
+	extra_ahb_gate_mask <<= reg_mask * AHB_CLK_DIST;
+	priv->usb_gate_mask <<= reg_mask;
 
 	setbits_le32(&priv->ccm->ahb_gate0,
 		     priv->ahb_gate_mask | extra_ahb_gate_mask);
@@ -110,6 +119,7 @@ no_phy:
 static int ohci_usb_remove(struct udevice *dev)
 {
 	struct ohci_sunxi_priv *priv = dev_get_priv(dev);
+	fdt_addr_t base_addr = devfdt_get_addr(dev);
 	int ret;
 
 	if (generic_phy_valid(&priv->phy)) {
@@ -126,7 +136,18 @@ static int ohci_usb_remove(struct udevice *dev)
 
 	if (priv->cfg->has_reset)
 		clrbits_le32(priv->reset0_cfg, priv->ahb_gate_mask);
-	clrbits_le32(&priv->ccm->usb_clk_cfg, priv->usb_gate_mask);
+	/*
+	 * On the A64 CLK_USB_OHCI0 is the parent of CLK_USB_OHCI1, so
+	 * we have to wait with bringing down any clock until the last
+	 * OHCI controller is removed.
+	 */
+	if (!priv->cfg->extra_usb_gate_mask || base_addr == last_ohci_addr) {
+		u32 usb_gate_mask = priv->usb_gate_mask;
+
+		usb_gate_mask |= priv->cfg->extra_usb_gate_mask;
+		clrbits_le32(&priv->ccm->usb_clk_cfg, usb_gate_mask);
+	}
+
 	clrbits_le32(&priv->ccm->ahb_gate0, priv->ahb_gate_mask);
 
 	return 0;

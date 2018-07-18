@@ -36,7 +36,6 @@
 
 /* High Level Configuration Options */
 #define CONFIG_CONTROLCENTERD
-#define CONFIG_MP			/* support multiple processors */
 
 #define CONFIG_ENABLE_36BIT_PHYS
 
@@ -176,9 +175,6 @@
 #define CONFIG_SYS_FSL_I2C2_SPEED	400000
 #define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
 #define CONFIG_SYS_FSL_I2C2_OFFSET	0x3100
-
-#ifndef CONFIG_TRAILBLAZER
-#endif
 
 #define CONFIG_PCA9698			/* NXP PCA9698 */
 

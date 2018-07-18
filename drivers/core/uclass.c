@@ -308,6 +308,7 @@ int uclass_find_device_by_ofnode(enum uclass_id id, ofnode node,
 	struct udevice *dev;
 	int ret;
 
+	log(LOGC_DM, LOGL_DEBUG, "Looking for %s\n", ofnode_get_name(node));
 	*devp = NULL;
 	if (!ofnode_valid(node))
 		return -ENODEV;
@@ -316,13 +317,19 @@ int uclass_find_device_by_ofnode(enum uclass_id id, ofnode node,
 		return ret;
 
 	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+		log(LOGC_DM, LOGL_DEBUG_CONTENT, "      - checking %s\n",
+		    dev->name);
 		if (ofnode_equal(dev_ofnode(dev), node)) {
 			*devp = dev;
-			return 0;
+			goto done;
 		}
 	}
+	ret = -ENODEV;
 
-	return -ENODEV;
+done:
+	log(LOGC_DM, LOGL_DEBUG, "   - result for %s: %s (ret=%d)\n",
+	    ofnode_get_name(node), *devp ? (*devp)->name : "(none)", ret);
+	return ret;
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
@@ -449,8 +456,11 @@ int uclass_get_device_by_ofnode(enum uclass_id id, ofnode node,
 	struct udevice *dev;
 	int ret;
 
+	log(LOGC_DM, LOGL_DEBUG, "Looking for %s\n", ofnode_get_name(node));
 	*devp = NULL;
 	ret = uclass_find_device_by_ofnode(id, node, &dev);
+	log(LOGC_DM, LOGL_DEBUG, "   - result for %s: %s (ret=%d)\n",
+	    ofnode_get_name(node), dev ? dev->name : "(none)", ret);
 
 	return uclass_get_device_tail(dev, ret, devp);
 }

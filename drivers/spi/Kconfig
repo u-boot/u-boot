@@ -66,6 +66,13 @@ config BCM63XX_SPI
 	  access the SPI NOR flash on platforms embedding these Broadcom
 	  SPI cores.
 
+config BCMSTB_SPI
+	bool "BCMSTB SPI driver"
+	help
+	  Enable the Broadcom set-top box SPI driver. This driver can
+	  be used to access the SPI flash on platforms embedding this
+	  Broadcom SPI core.
+
 config CADENCE_QSPI
 	bool "Cadence QSPI driver"
 	help
@@ -222,6 +229,13 @@ config ZYNQ_QSPI
 	  used to access the SPI NOR flash on platforms embedding this
 	  Zynq QSPI IP core. This IP is used to connect the flash in
 	  4-bit qspi, 8-bit dual stacked and shared 4-bit dual parallel.
+
+config ZYNQMP_GQSPI
+	bool "Configure ZynqMP Generic QSPI"
+	depends on ARCH_ZYNQMP
+	help
+	  This option is used to enable ZynqMP QSPI controller driver which
+	  is used to communicate with qspi flash devices.
 
 endif # if DM_SPI
 

@@ -259,40 +259,20 @@ static void socfpga_sdram_apply_static_cfg(void)
 	: : "r"(val), "r"(&sdr_ctrl->static_cfg) : "memory", "cc");
 }
 
-static int do_bridge(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+void do_bridge_reset(int enable)
 {
-	if (argc != 2)
-		return CMD_RET_USAGE;
-
-	argv++;
-
-	switch (*argv[0]) {
-	case 'e':	/* Enable */
+	if (enable) {
 		writel(iswgrp_handoff[2], &sysmgr_regs->fpgaintfgrp_module);
 		socfpga_sdram_apply_static_cfg();
 		writel(iswgrp_handoff[3], &sdr_ctrl->fpgaport_rst);
 		writel(iswgrp_handoff[0], &reset_manager_base->brg_mod_reset);
 		writel(iswgrp_handoff[1], &nic301_regs->remap);
-		break;
-	case 'd':	/* Disable */
+	} else {
 		writel(0, &sysmgr_regs->fpgaintfgrp_module);
 		writel(0, &sdr_ctrl->fpgaport_rst);
 		socfpga_sdram_apply_static_cfg();
 		writel(0, &reset_manager_base->brg_mod_reset);
 		writel(1, &nic301_regs->remap);
-		break;
-	default:
-		return CMD_RET_USAGE;
 	}
-
-	return 0;
 }
-
-U_BOOT_CMD(
-	bridge, 2, 1, do_bridge,
-	"SoCFPGA HPS FPGA bridge control",
-	"enable  - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
-	"bridge disable - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
-	""
-);
 #endif

@@ -26,10 +26,13 @@ PYTHONPATH=${DTC_DIR}/pylibfdt DTC=${DTC_DIR}/dtc run_test ./tools/dtoc/dtoc -t
 
 # This needs you to set up Python test coverage tools.
 # To enable Python test coverage on Debian-type distributions (e.g. Ubuntu):
-#   $ sudo apt-get install python-pip python-pytest
-#   $ sudo pip install coverage
+#   $ sudo apt-get install python-pytest python-coverage
 PYTHONPATH=${DTC_DIR}/pylibfdt DTC=${DTC_DIR}/dtc run_test \
 	./tools/binman/binman -T
+PYTHONPATH=${DTC_DIR}/pylibfdt DTC=${DTC_DIR}/dtc run_test \
+	./tools/dtoc/dtoc -T
+PYTHONPATH=${DTC_DIR}/pylibfdt DTC=${DTC_DIR}/dtc run_test \
+	./tools/dtoc/test_fdt -T
 
 if [ $result == 0 ]; then
 	echo "Tests passed!"

@@ -361,13 +361,13 @@ efi_status_t EFIAPI efi_main(efi_handle_t image,
 		}
 	}
 
+	/* The EFI UART won't work now, switch to a debug one */
+	use_uart = true;
+
 	map.version = version;
 	map.desc_size = desc_size;
 	add_entry_addr(priv, EFIET_MEMORY_MAP, &map, sizeof(map), desc, size);
 	add_entry_addr(priv, EFIET_END, NULL, 0, 0, 0);
-
-	/* The EFI UART won't work now, switch to a debug one */
-	use_uart = true;
 
 	memcpy((void *)CONFIG_SYS_TEXT_BASE, _binary_u_boot_bin_start,
 	       (ulong)_binary_u_boot_bin_end -

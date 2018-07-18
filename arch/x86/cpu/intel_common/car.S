@@ -239,4 +239,6 @@ _dt_ucode_base_size:
 .globl ucode_base
 ucode_base:	/* Declared in microcode.h */
 	.long	0			/* microcode base */
+.globl ucode_size
+ucode_size:	/* Declared in microcode.h */
 	.long	0			/* microcode size */

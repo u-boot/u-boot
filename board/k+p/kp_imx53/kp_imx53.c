@@ -22,6 +22,8 @@
 #define VBUS_PWR_EN IMX_GPIO_NR(7, 8)
 #define PHY_nRST IMX_GPIO_NR(7, 6)
 #define BOOSTER_OFF IMX_GPIO_NR(2, 23)
+#define LCD_BACKLIGHT IMX_GPIO_NR(1, 1)
+#define KEY1 IMX_GPIO_NR(2, 26)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -41,18 +43,6 @@ int dram_init_banksize(void)
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 
 	return 0;
-}
-
-u32 get_board_rev(void)
-{
-	struct iim_regs *iim = (struct iim_regs *)IMX_IIM_BASE;
-	struct fuse_bank *bank = &iim->bank[0];
-	struct fuse_bank0_regs *fuse =
-		(struct fuse_bank0_regs *)bank->fuse_regs;
-
-	int rev = readl(&fuse->gp[6]);
-
-	return (get_cpu_rev() & ~(0xF << 8)) | (rev & 0xF) << 8;
 }
 
 #ifdef CONFIG_USB_EHCI_MX5
@@ -189,10 +179,28 @@ void eth_phy_reset(void)
 	udelay(50);
 }
 
+void board_disable_display(void)
+{
+	gpio_request(LCD_BACKLIGHT, "LCD_BACKLIGHT");
+	gpio_direction_output(LCD_BACKLIGHT, 0);
+}
+
+void board_misc_setup(void)
+{
+	gpio_request(KEY1, "KEY1_GPIO");
+	gpio_direction_input(KEY1);
+
+	if (gpio_get_value(KEY1))
+		env_set("key1", "off");
+	else
+		env_set("key1", "on");
+}
+
 int board_late_init(void)
 {
 	int ret = 0;
 
+	board_disable_display();
 	setup_ups();
 
 	if (!power_init())
@@ -206,6 +214,8 @@ int board_late_init(void)
 
 	show_eeprom();
 	read_board_id();
+
+	board_misc_setup();
 
 	return ret;
 }

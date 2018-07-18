@@ -12,6 +12,17 @@
 %{
 #define SWIG_FILE_WITH_INIT
 #include "libfdt.h"
+
+/*
+ * We rename this function here to avoid problems with swig, since we also have
+ * a struct called fdt_property. That struct causes swig to create a class in
+ * libfdt.py called fdt_property(), which confuses things.
+ */
+static int _fdt_property(void *fdt, const char *name, const char *val, int len)
+{
+    return fdt_property(fdt, name, val, len);
+}
+
 %}
 
 %pythoncode %{
@@ -108,6 +119,7 @@ def check_err_null(val, quiet=()):
             raise FdtException(val)
     return val
 
+
 class Fdt:
     """Device tree class, supporting all operations
 
@@ -128,6 +140,163 @@ class Fdt:
     def __init__(self, data):
         self._fdt = bytearray(data)
         check_err(fdt_check_header(self._fdt));
+
+    def as_bytearray(self):
+        """Get the device tree contents as a bytearray
+
+        This can be passed directly to libfdt functions that access a
+        const void * for the device tree.
+
+        Returns:
+            bytearray containing the device tree
+        """
+        return bytearray(self._fdt)
+
+    def next_node(self, nodeoffset, depth, quiet=()):
+        """Find the next subnode
+
+        Args:
+            nodeoffset: Node offset of previous node
+            depth: On input, the depth of the node at nodeoffset. On output, the
+               depth of the returned node
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Returns:
+            The offset of the next node, if any
+
+        Raises:
+            FdtException if no more nodes found or other error occurs
+        """
+        return check_err(fdt_next_node(self._fdt, nodeoffset, depth), quiet)
+
+    def first_subnode(self, nodeoffset, quiet=()):
+        """Find the first subnode of a parent node
+
+        Args:
+            nodeoffset: Node offset of parent node
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Returns:
+            The offset of the first subnode, if any
+
+        Raises:
+            FdtException if no subnodes found or other error occurs
+        """
+        return check_err(fdt_first_subnode(self._fdt, nodeoffset), quiet)
+
+    def next_subnode(self, nodeoffset, quiet=()):
+        """Find the next subnode
+
+        Args:
+            nodeoffset: Node offset of previous subnode
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Returns:
+            The offset of the next subnode, if any
+
+        Raises:
+            FdtException if no more subnodes found or other error occurs
+        """
+        return check_err(fdt_next_subnode(self._fdt, nodeoffset), quiet)
+
+    def magic(self):
+        """Return the magic word from the header
+
+        Returns:
+            Magic word
+        """
+        return fdt_magic(self._fdt) & 0xffffffff
+
+    def totalsize(self):
+        """Return the total size of the device tree
+
+        Returns:
+            Total tree size in bytes
+        """
+        return check_err(fdt_totalsize(self._fdt))
+
+    def off_dt_struct(self):
+        """Return the start of the device-tree struct area
+
+        Returns:
+            Start offset of struct area
+        """
+        return check_err(fdt_off_dt_struct(self._fdt))
+
+    def off_dt_strings(self):
+        """Return the start of the device-tree string area
+
+        Returns:
+            Start offset of string area
+        """
+        return check_err(fdt_off_dt_strings(self._fdt))
+
+    def off_mem_rsvmap(self):
+        """Return the start of the memory reserve map
+
+        Returns:
+            Start offset of memory reserve map
+        """
+        return check_err(fdt_off_mem_rsvmap(self._fdt))
+
+    def version(self):
+        """Return the version of the device tree
+
+        Returns:
+            Version number of the device tree
+        """
+        return check_err(fdt_version(self._fdt))
+
+    def last_comp_version(self):
+        """Return the last compatible version of the device tree
+
+        Returns:
+            Last compatible version number of the device tree
+        """
+        return check_err(fdt_last_comp_version(self._fdt))
+
+    def boot_cpuid_phys(self):
+        """Return the physical boot CPU ID
+
+        Returns:
+            Physical boot CPU ID
+        """
+        return check_err(fdt_boot_cpuid_phys(self._fdt))
+
+    def size_dt_strings(self):
+        """Return the start of the device-tree string area
+
+        Returns:
+            Start offset of string area
+        """
+        return check_err(fdt_size_dt_strings(self._fdt))
+
+    def size_dt_struct(self):
+        """Return the start of the device-tree struct area
+
+        Returns:
+            Start offset of struct area
+        """
+        return check_err(fdt_size_dt_struct(self._fdt))
+
+    def num_mem_rsv(self, quiet=()):
+        """Return the number of memory reserve-map records
+
+        Returns:
+            Number of memory reserve-map records
+        """
+        return check_err(fdt_num_mem_rsv(self._fdt), quiet)
+
+    def get_mem_rsv(self, index, quiet=()):
+        """Return the indexed memory reserve-map record
+
+        Args:
+            index: Record to return (0=first)
+
+        Returns:
+            Number of memory reserve-map records
+        """
+        return check_err(fdt_get_mem_rsv(self._fdt, index), quiet)
 
     def subnode_offset(self, parentoffset, name, quiet=()):
         """Get the offset of a named subnode
@@ -160,6 +329,20 @@ class Fdt:
             FdtException if the path is not valid or not found
         """
         return check_err(fdt_path_offset(self._fdt, path), quiet)
+
+    def get_name(self, nodeoffset):
+        """Get the name of a node
+
+        Args:
+            nodeoffset: Offset of node to check
+
+        Returns:
+            Node name
+
+        Raises:
+            FdtException on error (e.g. nodeoffset is invalid)
+        """
+        return check_err_null(fdt_get_name(self._fdt, nodeoffset))[0]
 
     def first_property_offset(self, nodeoffset, quiet=()):
         """Get the offset of the first property in a node offset
@@ -195,20 +378,6 @@ class Fdt:
         return check_err(fdt_next_property_offset(self._fdt, prop_offset),
                          quiet)
 
-    def get_name(self, nodeoffset):
-        """Get the name of a node
-
-        Args:
-            nodeoffset: Offset of node to check
-
-        Returns:
-            Node name
-
-        Raises:
-            FdtException on error (e.g. nodeoffset is invalid)
-        """
-        return check_err_null(fdt_get_name(self._fdt, nodeoffset))[0]
-
     def get_property_by_offset(self, prop_offset, quiet=()):
         """Obtains a property that can be examined
 
@@ -229,51 +398,59 @@ class Fdt:
             return pdata
         return Property(pdata[0], pdata[1])
 
-    def first_subnode(self, nodeoffset, quiet=()):
-        """Find the first subnode of a parent node
+    def get_property(self, nodeoffset, prop_name, quiet=()):
+        """Obtains a property by name
 
         Args:
-            nodeoffset: Node offset of parent node
+            nodeoffset: Offset to the node to check
+            prop_name: Name of property to get
             quiet: Errors to ignore (empty to raise on all errors)
 
         Returns:
-            The offset of the first subnode, if any
+            Property object, or None if not found
 
         Raises:
-            FdtException if no subnode found or other error occurs
+            FdtException on error (e.g. invalid prop_offset or device
+            tree format)
         """
-        return check_err(fdt_first_subnode(self._fdt, nodeoffset), quiet)
+        pdata = check_err_null(
+                fdt_get_property(self._fdt, nodeoffset, prop_name), quiet)
+        if isinstance(pdata, (int)):
+            return pdata
+        return Property(pdata[0], pdata[1])
 
-    def next_subnode(self, nodeoffset, quiet=()):
-        """Find the next subnode
+    @staticmethod
+    def create_empty_tree(size, quiet=()):
+        """Create an empty device tree ready for use
 
         Args:
-            nodeoffset: Node offset of previous subnode
-            quiet: Errors to ignore (empty to raise on all errors)
+            size: Size of device tree in bytes
 
         Returns:
-            The offset of the next subnode, if any
-
-        Raises:
-            FdtException if no more subnode found or other error occurs
+            Fdt object containing the device tree
         """
-        return check_err(fdt_next_subnode(self._fdt, nodeoffset), quiet)
+        data = bytearray(size)
+        err = check_err(fdt_create_empty_tree(data, size), quiet)
+        if err:
+            return err
+        return Fdt(data)
 
-    def totalsize(self):
-        """Return the total size of the device tree
+    def open_into(self, size, quiet=()):
+        """Move the device tree into a larger or smaller space
 
-        Returns:
-            Total tree size in bytes
+        This creates a new device tree of size @size and moves the existing
+        device tree contents over to that. It can be used to create more space
+        in a device tree.
+
+        Args:
+            size: Required new size of device tree in bytes
         """
-        return check_err(fdt_totalsize(self._fdt))
-
-    def off_dt_struct(self):
-        """Return the start of the device tree struct area
-
-        Returns:
-            Start offset of struct area
-        """
-        return check_err(fdt_off_dt_struct(self._fdt))
+        fdt = bytearray(size)
+        fdt[:len(self._fdt)] = self._fdt
+        err = check_err(fdt_open_into(self._fdt, fdt, size), quiet)
+        if err:
+            return err
+        self._fdt = fdt
 
     def pack(self, quiet=()):
         """Pack the device tree to remove unused space
@@ -286,19 +463,11 @@ class Fdt:
         Raises:
             FdtException if any error occurs
         """
-        return check_err(fdt_pack(self._fdt), quiet)
-
-    def delprop(self, nodeoffset, prop_name):
-        """Delete a property from a node
-
-        Args:
-            nodeoffset: Node offset containing property to delete
-            prop_name: Name of property to delete
-
-        Raises:
-            FdtError if the property does not exist, or another error occurs
-        """
-        return check_err(fdt_delprop(self._fdt, nodeoffset, prop_name))
+        err = check_err(fdt_pack(self._fdt), quiet)
+        if err:
+            return err
+        del self._fdt[self.totalsize():]
+        return err
 
     def getprop(self, nodeoffset, prop_name, quiet=()):
         """Get a property from a node
@@ -309,7 +478,7 @@ class Fdt:
             quiet: Errors to ignore (empty to raise on all errors)
 
         Returns:
-            Value of property as a bytearray, or -ve error number
+            Value of property as a string, or -ve error number
 
         Raises:
             FdtError if any error occurs (e.g. the property is not found)
@@ -318,7 +487,27 @@ class Fdt:
                                quiet)
         if isinstance(pdata, (int)):
             return pdata
-        return bytearray(pdata[0])
+        return str(pdata[0])
+
+    def getprop_obj(self, nodeoffset, prop_name, quiet=()):
+        """Get a property from a node as a Property object
+
+        Args:
+            nodeoffset: Node offset containing property to get
+            prop_name: Name of property to get
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Returns:
+            Property object, or None if not found
+
+        Raises:
+            FdtError if any error occurs (e.g. the property is not found)
+        """
+        pdata = check_err_null(fdt_getprop(self._fdt, nodeoffset, prop_name),
+                               quiet)
+        if isinstance(pdata, (int)):
+            return None
+        return Property(prop_name, bytearray(pdata[0]))
 
     def get_phandle(self, nodeoffset):
         """Get the phandle of a node
@@ -347,6 +536,108 @@ class Fdt:
         """
         return check_err(fdt_parent_offset(self._fdt, nodeoffset), quiet)
 
+    def set_name(self, nodeoffset, name, quiet=()):
+        """Set the name of a node
+
+        Args:
+            nodeoffset: Node offset of node to update
+            name: New node name
+
+        Returns:
+            Error code, or 0 if OK
+
+        Raises:
+            FdtException if no parent found or other error occurs
+        """
+        return check_err(fdt_set_name(self._fdt, nodeoffset, name), quiet)
+
+    def setprop(self, nodeoffset, prop_name, val, quiet=()):
+        """Set the value of a property
+
+        Args:
+            nodeoffset: Node offset containing the property to create/update
+            prop_name: Name of property
+            val: Value to write (string or bytearray)
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Returns:
+            Error code, or 0 if OK
+
+        Raises:
+            FdtException if no parent found or other error occurs
+        """
+        return check_err(fdt_setprop(self._fdt, nodeoffset, prop_name, val,
+                                     len(val)), quiet)
+
+    def setprop_u32(self, nodeoffset, prop_name, val, quiet=()):
+        """Set the value of a property
+
+        Args:
+            nodeoffset: Node offset containing the property to create/update
+            prop_name: Name of property
+            val: Value to write (integer)
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Returns:
+            Error code, or 0 if OK
+
+        Raises:
+            FdtException if no parent found or other error occurs
+        """
+        return check_err(fdt_setprop_u32(self._fdt, nodeoffset, prop_name, val),
+                         quiet)
+
+    def setprop_u64(self, nodeoffset, prop_name, val, quiet=()):
+        """Set the value of a property
+
+        Args:
+            nodeoffset: Node offset containing the property to create/update
+            prop_name: Name of property
+            val: Value to write (integer)
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Returns:
+            Error code, or 0 if OK
+
+        Raises:
+            FdtException if no parent found or other error occurs
+        """
+        return check_err(fdt_setprop_u64(self._fdt, nodeoffset, prop_name, val),
+                         quiet)
+
+    def setprop_str(self, nodeoffset, prop_name, val, quiet=()):
+        """Set the string value of a property
+
+        The property is set to the string, with a nul terminator added
+
+        Args:
+            nodeoffset: Node offset containing the property to create/update
+            prop_name: Name of property
+            val: Value to write (string without nul terminator)
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Returns:
+            Error code, or 0 if OK
+
+        Raises:
+            FdtException if no parent found or other error occurs
+        """
+        val += '\0'
+        return check_err(fdt_setprop(self._fdt, nodeoffset, prop_name,
+                                     val, len(val)), quiet)
+
+    def delprop(self, nodeoffset, prop_name):
+        """Delete a property from a node
+
+        Args:
+            nodeoffset: Node offset containing property to delete
+            prop_name: Name of property to delete
+
+        Raises:
+            FdtError if the property does not exist, or another error occurs
+        """
+        return check_err(fdt_delprop(self._fdt, nodeoffset, prop_name))
+
     def node_offset_by_phandle(self, phandle, quiet=()):
         """Get the offset of a node with the given phandle
 
@@ -362,7 +653,19 @@ class Fdt:
         """
         return check_err(fdt_node_offset_by_phandle(self._fdt, phandle), quiet)
 
-class Property:
+    def del_node(self, nodeoffset):
+        """Delete a node
+
+        Args:
+            nodeoffset: Node offset containing property to delete
+
+        Raises:
+            FdtError if the node does not exist, or another error occurs
+        """
+        return check_err(fdt_del_node(self._fdt, nodeoffset))
+
+
+class Property(bytearray):
     """Holds a device tree property name and value.
 
     This holds a copy of a property taken from the device tree. It does not
@@ -371,11 +674,274 @@ class Property:
 
     Properties:
         name: Property name
-        value: Proper value as a bytearray
+        value: Property value as a bytearray
     """
     def __init__(self, name, value):
+        bytearray.__init__(self, value)
         self.name = name
-        self.value = value
+
+    def as_cell(self, fmt):
+        return struct.unpack('>' + fmt, self)[0]
+
+    def as_uint32(self):
+        return self.as_cell('L')
+
+    def as_int32(self):
+        return self.as_cell('l')
+
+    def as_uint64(self):
+        return self.as_cell('Q')
+
+    def as_int64(self):
+        return self.as_cell('q')
+
+    def as_str(self):
+        return self[:-1]
+
+
+class FdtSw(object):
+    """Software interface to create a device tree from scratch
+
+    The methods in this class work by adding to an existing 'partial' device
+    tree buffer of a fixed size created by instantiating this class. When the
+    tree is complete, call finish() to complete the device tree so that it can
+    be used.
+
+    Similarly with nodes, a new node is started with begin_node() and finished
+    with end_node().
+
+    The context manager functions can be used to make this a bit easier:
+
+    # First create the device tree with a node and property:
+    with FdtSw(small_size) as sw:
+        with sw.AddNode('node'):
+            sw.property_u32('reg', 2)
+    fdt = sw.AsFdt()
+
+    # Now we can use it as a real device tree
+    fdt.setprop_u32(0, 'reg', 3)
+    """
+    def __init__(self, size, quiet=()):
+        fdtrw = bytearray(size)
+        err = check_err(fdt_create(fdtrw, size))
+        if err:
+            return err
+        self._fdtrw = fdtrw
+
+    def __enter__(self):
+        """Contact manager to use to create a device tree via software"""
+        return self
+
+    def __exit__(self, type, value, traceback):
+        check_err(fdt_finish(self._fdtrw))
+
+    def AsFdt(self):
+        """Convert a FdtSw into an Fdt so it can be accessed as normal
+
+        Note that finish() must be called before this function will work. If
+        you are using the context manager (see 'with' code in the FdtSw class
+        comment) then this will happen automatically.
+
+        Returns:
+            Fdt object allowing access to the newly created device tree
+        """
+        return Fdt(self._fdtrw)
+
+    def resize(self, size, quiet=()):
+        """Resize the buffer to accommodate a larger tree
+
+        Args:
+            size: New size of tree
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Raises:
+            FdtException if no node found or other error occurs
+        """
+        fdt = bytearray(size)
+        fdt[:len(self._fdtrw)] = self._fdtrw
+        err = check_err(fdt_resize(self._fdtrw, fdt, size), quiet)
+        if err:
+            return err
+        self._fdtrw = fdt
+
+    def add_reservemap_entry(self, addr, size, quiet=()):
+        """Add a new memory reserve map entry
+
+        Once finished adding, you must call finish_reservemap().
+
+        Args:
+            addr: 64-bit start address
+            size: 64-bit size
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Raises:
+            FdtException if no node found or other error occurs
+        """
+        return check_err(fdt_add_reservemap_entry(self._fdtrw, addr, size),
+                         quiet)
+
+    def finish_reservemap(self, quiet=()):
+        """Indicate that there are no more reserve map entries to add
+
+        Args:
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Raises:
+            FdtException if no node found or other error occurs
+        """
+        return check_err(fdt_finish_reservemap(self._fdtrw), quiet)
+
+    def begin_node(self, name, quiet=()):
+        """Begin a new node
+
+        Use this before adding properties to the node. Then call end_node() to
+        finish it. You can also use the context manager as shown in the FdtSw
+        class comment.
+
+        Args:
+            name: Name of node to begin
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Raises:
+            FdtException if no node found or other error occurs
+        """
+        return check_err(fdt_begin_node(self._fdtrw, name), quiet)
+
+    def property_string(self, name, string, quiet=()):
+        """Add a property with a string value
+
+        The string will be nul-terminated when written to the device tree
+
+        Args:
+            name: Name of property to add
+            string: String value of property
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Raises:
+            FdtException if no node found or other error occurs
+        """
+        return check_err(fdt_property_string(self._fdtrw, name, string), quiet)
+
+    def property_u32(self, name, val, quiet=()):
+        """Add a property with a 32-bit value
+
+        Write a single-cell value to the device tree
+
+        Args:
+            name: Name of property to add
+            val: Value of property
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Raises:
+            FdtException if no node found or other error occurs
+        """
+        return check_err(fdt_property_u32(self._fdtrw, name, val), quiet)
+
+    def property_u64(self, name, val, quiet=()):
+        """Add a property with a 64-bit value
+
+        Write a double-cell value to the device tree in big-endian format
+
+        Args:
+            name: Name of property to add
+            val: Value of property
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Raises:
+            FdtException if no node found or other error occurs
+        """
+        return check_err(fdt_property_u64(self._fdtrw, name, val), quiet)
+
+    def property_cell(self, name, val, quiet=()):
+        """Add a property with a single-cell value
+
+        Write a single-cell value to the device tree
+
+        Args:
+            name: Name of property to add
+            val: Value of property
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Raises:
+            FdtException if no node found or other error occurs
+        """
+        return check_err(fdt_property_cell(self._fdtrw, name, val), quiet)
+
+    def property(self, name, val, quiet=()):
+        """Add a property
+
+        Write a new property with the given value to the device tree. The value
+        is taken as is and is not nul-terminated
+
+        Args:
+            name: Name of property to add
+            val: Value of property
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Raises:
+            FdtException if no node found or other error occurs
+        """
+        return check_err(_fdt_property(self._fdtrw, name, val, len(val)), quiet)
+
+    def end_node(self, quiet=()):
+        """End a node
+
+        Use this after adding properties to a node to close it off. You can also
+        use the context manager as shown in the FdtSw class comment.
+
+        Args:
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Raises:
+            FdtException if no node found or other error occurs
+        """
+        return check_err(fdt_end_node(self._fdtrw), quiet)
+
+    def finish(self, quiet=()):
+        """Finish writing the device tree
+
+        This closes off the device tree ready for use
+
+        Args:
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Raises:
+            FdtException if no node found or other error occurs
+        """
+        return check_err(fdt_finish(self._fdtrw), quiet)
+
+    def AddNode(self, name):
+        """Create a new context for adding a node
+
+        When used in a 'with' clause this starts a new node and finishes it
+        afterward.
+
+        Args:
+            name: Name of node to add
+        """
+        return NodeAdder(self._fdtrw, name)
+
+
+class NodeAdder():
+    """Class to provide a node context
+
+    This allows you to add nodes in a more natural way:
+
+        with fdtsw.AddNode('name'):
+            fdtsw.property_string('test', 'value')
+
+    The node is automatically completed with a call to end_node() when the
+    context exits.
+    """
+    def __init__(self, fdt, name):
+        self._fdt = fdt
+        self._name = name
+
+    def __enter__(self):
+        check_err(fdt_begin_node(self._fdt, self._name))
+
+    def __exit__(self, type, value, traceback):
+        check_err(fdt_end_node(self._fdt))
 %}
 
 %rename(fdt_property) fdt_property_func;
@@ -408,6 +974,7 @@ typedef int fdt32_t;
         fdt = fdt; /* avoid unused variable warning */
 }
 
+/* typemap used for fdt_get_property_by_offset() */
 %typemap(out) (struct fdt_property *) {
 	PyObject *buff;
 
@@ -430,6 +997,44 @@ typedef int fdt32_t;
 		$result = Py_BuildValue("s#", $1, *arg4);
 }
 
+/* typemap used for fdt_setprop() */
+%typemap(in) (const void *val) {
+    $1 = PyString_AsString($input);   /* char *str */
+}
+
+/* typemap used for fdt_add_reservemap_entry() */
+%typemap(in) uint64_t {
+   $1 = PyLong_AsUnsignedLong($input);
+}
+
+/* typemaps used for fdt_next_node() */
+%typemap(in, numinputs=1) int *depth (int depth) {
+   depth = (int) PyInt_AsLong($input);
+   $1 = &depth;
+}
+
+%typemap(argout) int *depth {
+        PyObject *val = Py_BuildValue("i", *arg$argnum);
+        resultobj = SWIG_Python_AppendOutput(resultobj, val);
+}
+
+%apply int *depth { int *depth };
+
+/* typemaps for fdt_get_mem_rsv */
+%typemap(in, numinputs=0) uint64_t * (uint64_t temp) {
+   $1 = &temp;
+}
+
+%typemap(argout) uint64_t * {
+        PyObject *val = PyLong_FromUnsignedLong(*arg$argnum);
+        if (!result) {
+           if (PyTuple_GET_SIZE(resultobj) == 0)
+              resultobj = val;
+           else
+              resultobj = SWIG_Python_AppendOutput(resultobj, val);
+        }
+}
+
 /* We have both struct fdt_property and a function fdt_property() */
 %warnfilter(302) fdt_property;
 
@@ -444,5 +1049,13 @@ int fdt_last_comp_version(const void *fdt);
 int fdt_boot_cpuid_phys(const void *fdt);
 int fdt_size_dt_strings(const void *fdt);
 int fdt_size_dt_struct(const void *fdt);
+int fdt_property_string(void *fdt, const char *name, const char *val);
+int fdt_property_cell(void *fdt, const char *name, uint32_t val);
+
+/*
+ * This function has a stub since the name fdt_property is used for both a
+  * function and a struct, which confuses SWIG.
+ */
+int _fdt_property(void *fdt, const char *name, const char *val, int len);
 
 %include <../libfdt/libfdt.h>

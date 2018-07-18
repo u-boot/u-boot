@@ -54,6 +54,20 @@ class Image:
             self._filename = filename
         self._section = bsection.Section('main-section', self._node)
 
+    def AddMissingProperties(self):
+        """Add properties that are not present in the device tree
+
+        When binman has completed packing the entries the position and size of
+        each entry are known. But before this the device tree may not specify
+        these. Add any missing properties, with a dummy value, so that the
+        size of the entry is correct. That way we can insert the correct values
+        later.
+        """
+        self._section.AddMissingProperties()
+
+    def ProcessFdt(self, fdt):
+        return self._section.ProcessFdt(fdt)
+
     def GetEntryContents(self):
         """Call ObtainContents() for the section
         """
@@ -78,6 +92,9 @@ class Image:
     def CheckEntries(self):
         """Check that entries do not overlap or extend outside the image"""
         self._section.CheckEntries()
+
+    def SetCalculatedProperties(self):
+        self._section.SetCalculatedProperties()
 
     def ProcessEntryContents(self):
         """Call the ProcessContents() method for each entry

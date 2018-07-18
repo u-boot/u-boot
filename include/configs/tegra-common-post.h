@@ -109,14 +109,10 @@
 #ifdef CONFIG_SYS_I2C_TEGRA
 #undef CONFIG_SYS_I2C_TEGRA
 #endif
-#ifdef CONFIG_CMD_I2C
-#endif
 
 /* remove USB */
 #ifdef CONFIG_USB_EHCI_TEGRA
 #undef CONFIG_USB_EHCI_TEGRA
-#endif
-#ifdef CONFIG_CMD_USB
 #endif
 
 #endif /* CONFIG_SPL_BUILD */
