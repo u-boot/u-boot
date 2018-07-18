@@ -223,6 +223,10 @@
 	clocks = <&clk100>;
 };
 
+&lpd_watchdog {
+	clocks = <&clk250>;
+};
+
 &xilinx_drm {
 	clocks = <&drm_clock>;
 };

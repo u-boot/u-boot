@@ -272,6 +272,10 @@
 	clocks = <&zynqmp_clk WDT>;
 };
 
+&lpd_watchdog {
+	clocks = <&zynqmp_clk LPD_WDT>;
+};
+
 &xilinx_ams {
 	clocks = <&zynqmp_clk AMS_REF>;
 };
