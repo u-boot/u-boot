@@ -23,4 +23,9 @@
 	serial: serial {
 		compatible = "efi,uart";
 	};
+
+	reset {
+		compatible = "efi,reset";
+		u-boot,dm-pre-reloc;
+	};
 };

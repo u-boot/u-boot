@@ -118,6 +118,8 @@ config X86
 	imply DM_SPI_FLASH
 	imply DM_USB
 	imply DM_VIDEO
+	imply SYSRESET
+	imply SYSRESET_X86
 	imply CMD_FPGA_LOADMK
 	imply CMD_GETTIME
 	imply CMD_IO

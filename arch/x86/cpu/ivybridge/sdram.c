@@ -18,6 +18,7 @@
 #include <spi.h>
 #include <spi_flash.h>
 #include <syscon.h>
+#include <sysreset.h>
 #include <asm/cpu.h>
 #include <asm/processor.h>
 #include <asm/gpio.h>
@@ -497,7 +498,7 @@ int dram_init(void)
 	/* If MRC data is not found we cannot continue S3 resume. */
 	if (pei_data->boot_mode == PEI_BOOT_RESUME && !pei_data->mrc_input) {
 		debug("Giving up in sdram_initialize: No MRC data\n");
-		reset_cpu(0);
+		sysreset_walk_halt(SYSRESET_COLD);
 	}
 
 	/* Pass console handler in pei_data */

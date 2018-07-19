@@ -75,35 +75,9 @@ int x86_init_cache(void)
 }
 int init_cache(void) __attribute__((weak, alias("x86_init_cache")));
 
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	printf("resetting ...\n");
-
-	/* wait 50 ms */
-	udelay(50000);
-	disable_interrupts();
-	reset_cpu(0);
-
-	/*NOTREACHED*/
-	return 0;
-}
-
 void  flush_cache(unsigned long dummy1, unsigned long dummy2)
 {
 	asm("wbinvd\n");
-}
-
-__weak void reset_cpu(ulong addr)
-{
-	/* Do a hard reset through the chipset's reset control register */
-	outb(SYS_RST | RST_CPU, IO_PORT_RESET);
-	for (;;)
-		cpu_hlt();
-}
-
-void x86_full_reset(void)
-{
-	outb(FULL_RST | SYS_RST | RST_CPU, IO_PORT_RESET);
 }
 
 /* Define these functions to allow ehch-hcd to function */

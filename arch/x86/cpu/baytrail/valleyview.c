@@ -55,9 +55,3 @@ int arch_misc_init(void)
 
 	return 0;
 }
-
-void reset_cpu(ulong addr)
-{
-	/* cold reset */
-	x86_full_reset();
-}

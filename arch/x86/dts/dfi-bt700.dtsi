@@ -9,6 +9,7 @@
 #include <dt-bindings/interrupt-router/intel-irq.h>
 
 #include "skeleton.dtsi"
+#include "reset.dtsi"
 #include "rtc.dtsi"
 #include "tsc_timer.dtsi"
 

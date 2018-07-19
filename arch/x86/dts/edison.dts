@@ -85,4 +85,9 @@
 		compatible = "intel,scu-ipc";
 		reg = <0xff009000 0x1000>;
 	};
+
+	reset {
+		compatible = "intel,reset-tangier";
+		u-boot,dm-pre-reloc;
+	};
 };
