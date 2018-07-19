@@ -412,6 +412,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 			printf("%s: Cannot load the FPGA: %i\n", __func__, ret);
 			return ret;
 		}
+		puts("FPGA image loaded from FIT\n");
 		node = -1;
 	}
 #endif
