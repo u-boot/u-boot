@@ -893,9 +893,9 @@ err_prop:
  *
  *	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
  */
-void fdt_fixup_mtdparts(void *blob, void *node_info, int node_info_size)
+void fdt_fixup_mtdparts(void *blob, const struct node_info *node_info,
+			int node_info_size)
 {
-	struct node_info *ni = node_info;
 	struct mtd_device *dev;
 	int i, idx;
 	int noff;
@@ -905,12 +905,13 @@ void fdt_fixup_mtdparts(void *blob, void *node_info, int node_info_size)
 
 	for (i = 0; i < node_info_size; i++) {
 		idx = 0;
-		noff = fdt_node_offset_by_compatible(blob, -1, ni[i].compat);
+		noff = fdt_node_offset_by_compatible(blob, -1,
+						     node_info[i].compat);
 		while (noff != -FDT_ERR_NOTFOUND) {
 			debug("%s: %s, mtd dev type %d\n",
 				fdt_get_name(blob, noff, 0),
-				ni[i].compat, ni[i].type);
-			dev = device_find(ni[i].type, idx++);
+				node_info[i].compat, node_info[i].type);
+			dev = device_find(node_info[i].type, idx++);
 			if (dev) {
 				if (fdt_node_set_part_info(blob, noff, dev))
 					return; /* return on error */
@@ -918,7 +919,7 @@ void fdt_fixup_mtdparts(void *blob, void *node_info, int node_info_size)
 
 			/* Jump to next flash node */
 			noff = fdt_node_offset_by_compatible(blob, noff,
-							     ni[i].compat);
+							     node_info[i].compat);
 		}
 	}
 }
