@@ -19,15 +19,9 @@
 #undef	SPIFLASH
 #undef	RAMENV	/* hold environment in flash */
 #else
-#ifdef XILINX_SPI_FLASH_BASEADDR
-#undef	FLASH
-#define	SPIFLASH
-#undef	RAMENV	/* hold environment in flash */
-#else
 #undef	FLASH
 #undef	SPIFLASH
 #define	RAMENV	/* hold environment in RAM */
-#endif
 #endif
 
 /* uart */
@@ -37,21 +31,6 @@
 
 /* setting reset address */
 /*#define	CONFIG_SYS_RESET_ADDRESS	CONFIG_SYS_TEXT_BASE*/
-
-/* gpio */
-#ifdef XILINX_GPIO_BASEADDR
-# define CONFIG_SYS_GPIO_0_ADDR		XILINX_GPIO_BASEADDR
-#endif
-
-/* watchdog */
-#if defined(XILINX_WATCHDOG_BASEADDR) && defined(XILINX_WATCHDOG_IRQ)
-# define CONFIG_WATCHDOG_BASEADDR	XILINX_WATCHDOG_BASEADDR
-# define CONFIG_WATCHDOG_IRQ		XILINX_WATCHDOG_IRQ
-# ifndef CONFIG_SPL_BUILD
-#  define CONFIG_HW_WATCHDOG
-#  define CONFIG_XILINX_TB_WATCHDOG
-# endif
-#endif
 
 #define CONFIG_SYS_MALLOC_LEN	0xC0000
 
@@ -106,7 +85,6 @@
 #else /* !FLASH */
 
 #ifdef SPIFLASH
-# define CONFIG_SYS_SPI_BASE		XILINX_SPI_FLASH_BASEADDR
 # define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
 # define CONFIG_SF_DEFAULT_SPEED	XILINX_SPI_FLASH_MAX_FREQ
 # define CONFIG_SF_DEFAULT_CS		XILINX_SPI_FLASH_CS
@@ -217,7 +195,7 @@
 
 #define CONFIG_SYS_FDT_BASE		(CONFIG_SYS_FLASH_BASE + \
 					 0x40000)
-#define CONFIG_SYS_FDT_SIZE		(16<<10)
+#define CONFIG_SYS_FDT_SIZE		(16 << 10)
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_TEXT_BASE + \
 					 0x1000000)
 

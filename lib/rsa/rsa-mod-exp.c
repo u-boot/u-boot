@@ -300,3 +300,54 @@ int rsa_mod_exp_sw(const uint8_t *sig, uint32_t sig_len,
 
 	return 0;
 }
+
+#if defined(CONFIG_CMD_ZYNQ_RSA)
+/**
+ * zynq_pow_mod - in-place public exponentiation
+ *
+ * @keyptr:	RSA key
+ * @inout:	Big-endian word array containing value and result
+ * @return 0 on successful calculation, otherwise failure error code
+ *
+ * FIXME: Use pow_mod() instead of zynq_pow_mod()
+ *        pow_mod calculation required for zynq is bit different from
+ *        pw_mod above here, hence defined zynq specific routine.
+ */
+int zynq_pow_mod(u32 *keyptr, u32 *inout)
+{
+	u32 *result, *ptr;
+	uint i;
+	struct rsa_public_key *key;
+	u32 val[RSA2048_BYTES], acc[RSA2048_BYTES], tmp[RSA2048_BYTES];
+
+	key = (struct rsa_public_key *)keyptr;
+
+	/* Sanity check for stack size - key->len is in 32-bit words */
+	if (key->len > RSA_MAX_KEY_BITS / 32) {
+		debug("RSA key words %u exceeds maximum %d\n", key->len,
+		      RSA_MAX_KEY_BITS / 32);
+		return -EINVAL;
+	}
+
+	result = tmp;  /* Re-use location. */
+
+	for (i = 0, ptr = inout; i < key->len; i++, ptr++)
+		val[i] = *(ptr);
+
+	montgomery_mul(key, acc, val, key->rr);  /* axx = a * RR / R mod M */
+	for (i = 0; i < 16; i += 2) {
+		montgomery_mul(key, tmp, acc, acc); /* tmp = acc^2 / R mod M */
+		montgomery_mul(key, acc, tmp, tmp); /* acc = tmp^2 / R mod M */
+	}
+	montgomery_mul(key, result, acc, val);  /* result = XX * a / R mod M */
+
+	/* Make sure result < mod; result is at most 1x mod too large. */
+	if (greater_equal_modulus(key, result))
+		subtract_modulus(key, result);
+
+	for (i = 0, ptr = inout; i < key->len; i++, ptr++)
+		*ptr = result[i];
+
+	return 0;
+}
+#endif

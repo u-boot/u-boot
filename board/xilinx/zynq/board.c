@@ -36,12 +36,16 @@ int board_early_init_f(void)
 int board_init(void)
 {
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT)
-	if (uclass_get_device(UCLASS_WDT, 0, &watchdog_dev)) {
-		puts("Watchdog: Not found!\n");
-	} else {
-		wdt_start(watchdog_dev, 0, 0);
-		puts("Watchdog: Started\n");
+	if (uclass_get_device_by_seq(UCLASS_WDT, 0, &watchdog_dev)) {
+		debug("Watchdog: Not found by seq!\n");
+		if (uclass_get_device(UCLASS_WDT, 0, &watchdog_dev)) {
+			puts("Watchdog: Not found!\n");
+			return 0;
+		}
 	}
+
+	wdt_start(watchdog_dev, 0, 0);
+	puts("Watchdog: Started\n");
 # endif
 
 	return 0;
@@ -94,7 +98,7 @@ int dram_init_banksize(void)
 
 int dram_init(void)
 {
-	if (fdtdec_setup_memory_size() != 0)
+	if (fdtdec_setup_mem_size_base() != 0)
 		return -EINVAL;
 
 	zynq_ddrc_init();

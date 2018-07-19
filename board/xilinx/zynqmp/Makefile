@@ -5,10 +5,18 @@
 
 obj-y	:= zynqmp.o
 
-hw-platform-y :=$(shell echo $(CONFIG_DEFAULT_DEVICE_TREE))
+ifneq ($(CONFIG_XILINX_PS_INIT_FILE),"")
+PS_INIT_FILE := $(shell cd $(srctree); readlink -f $(CONFIG_XILINX_PS_INIT_FILE))
+init-objs := ps_init_gpl.o
+spl/board/xilinx/zynqmp/ps_init_gpl.o board/xilinx/zynqmp/ps_init_gpl.o: $(PS_INIT_FILE)
+	$(CC) $(c_flags) -I $(srctree)/$(src) -c -o $@ $^
+endif
 
+ifeq ($(init-objs),)
+hw-platform-y :=$(shell echo $(CONFIG_DEFAULT_DEVICE_TREE))
 init-objs := $(if $(wildcard $(srctree)/$(src)/$(hw-platform-y)/psu_init_gpl.c),\
 	$(hw-platform-y)/psu_init_gpl.o)
+endif
 
 ifeq ($(init-objs),)
 ifneq ($(wildcard $(srctree)/$(src)/psu_init_gpl.c),)

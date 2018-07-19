@@ -129,6 +129,8 @@ dtb-$(CONFIG_ARCH_UNIPHIER_SLD8) += \
 
 dtb-$(CONFIG_ARCH_ZYNQ) += \
 	zynq-cc108.dtb \
+	zynq-cse-nand.dtb \
+	zynq-cse-nor.dtb \
 	zynq-cse-qspi-single.dtb \
 	zynq-microzed.dtb \
 	zynq-minized.dtb \
@@ -150,6 +152,7 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-mini-emmc0.dtb			\
 	zynqmp-mini-emmc1.dtb			\
 	zynqmp-mini-nand.dtb			\
+	zynqmp-mini-qspi.dtb			\
 	zynqmp-zcu100-revC.dtb			\
 	zynqmp-zcu102-revA.dtb			\
 	zynqmp-zcu102-revB.dtb			\

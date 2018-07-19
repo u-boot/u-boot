@@ -185,6 +185,7 @@ config SANDBOX_GPIO_COUNT
 
 config XILINX_GPIO
 	bool "Xilinx GPIO driver"
+	depends on DM_GPIO
 	help
 	  This config enable the Xilinx GPIO driver for Microblaze.
 

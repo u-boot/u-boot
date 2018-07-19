@@ -419,6 +419,7 @@ F:	drivers/net/xilinx_axi_emac.c
 F:	drivers/net/xilinx_emaclite.c
 F:	drivers/serial/serial_xuartlite.c
 F:	drivers/spi/xilinx_spi.c
+F:	drivers/sysreset/sysreset_gpio.c
 F:	drivers/watchdog/xilinx_tb_wdt.c
 N:	xilinx
 

@@ -339,7 +339,7 @@ int board_eth_init(bd_t *bis)
 
 int dram_init(void)
 {
-	if (fdtdec_setup_memory_size() != 0)
+	if (fdtdec_setup_mem_size_base() != 0)
 		return -EINVAL;
 
 	return 0;

@@ -1155,7 +1155,7 @@ int fdtdec_decode_display_timing(const void *blob, int parent, int index,
 	return ret;
 }
 
-int fdtdec_setup_memory_size(void)
+int fdtdec_setup_mem_size_base(void)
 {
 	int ret, mem;
 	struct fdt_resource res;
@@ -1173,6 +1173,7 @@ int fdtdec_setup_memory_size(void)
 	}
 
 	gd->ram_size = (phys_size_t)(res.end - res.start + 1);
+	gd->ram_base = (unsigned long)res.start;
 	debug("%s: Initial DRAM size %llx\n", __func__,
 	      (unsigned long long)gd->ram_size);
 

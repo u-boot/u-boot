@@ -854,11 +854,46 @@ static int gpio_pre_remove(struct udevice *dev)
 	return gpio_renumber(dev);
 }
 
+static int gpio_post_bind(struct udevice *dev)
+{
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
+	struct dm_gpio_ops *ops = (struct dm_gpio_ops *)device_get_ops(dev);
+	static int reloc_done;
+
+	if (!reloc_done) {
+		if (ops->request)
+			ops->request += gd->reloc_off;
+		if (ops->free)
+			ops->free += gd->reloc_off;
+		if (ops->direction_input)
+			ops->direction_input += gd->reloc_off;
+		if (ops->direction_output)
+			ops->direction_output += gd->reloc_off;
+		if (ops->get_value)
+			ops->get_value += gd->reloc_off;
+		if (ops->set_value)
+			ops->set_value += gd->reloc_off;
+		if (ops->get_open_drain)
+			ops->get_open_drain += gd->reloc_off;
+		if (ops->set_open_drain)
+			ops->set_open_drain += gd->reloc_off;
+		if (ops->get_function)
+			ops->get_function += gd->reloc_off;
+		if (ops->xlate)
+			ops->xlate += gd->reloc_off;
+
+		reloc_done++;
+	}
+#endif
+	return 0;
+}
+
 UCLASS_DRIVER(gpio) = {
 	.id		= UCLASS_GPIO,
 	.name		= "gpio",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_probe	= gpio_post_probe,
+	.post_bind	= gpio_post_bind,
 	.pre_remove	= gpio_pre_remove,
 	.per_device_auto_alloc_size = sizeof(struct gpio_dev_priv),
 };

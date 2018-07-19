@@ -24,9 +24,6 @@
 				{0, {{I2C_MUX_PCA9548, 0x75, 7} } }, \
 				}
 
-#define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_ASIX
-
 #include <configs/xilinx_zynqmp.h>
 
 #endif /* __CONFIG_ZYNQMP_ZCU100_H */

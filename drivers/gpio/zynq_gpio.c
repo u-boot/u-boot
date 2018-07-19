@@ -15,8 +15,6 @@
 #include <dm.h>
 #include <fdtdec.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Maximum banks */
 #define ZYNQ_GPIO_MAX_BANK	4
 
@@ -178,7 +176,7 @@ static inline void zynq_gpio_get_bank_pin(unsigned int pin_num,
 	}
 
 	if (bank >= priv->p_data->max_bank) {
-		printf("Inavlid bank and pin num\n");
+		printf("Invalid bank and pin num\n");
 		*bank_num = 0;
 		*bank_pin_num = 0;
 	}
@@ -334,35 +332,12 @@ static const struct udevice_id zynq_gpio_ids[] = {
 	{ }
 };
 
-static void zynq_gpio_getplat_data(struct udevice *dev)
-{
-	const struct udevice_id *of_match = zynq_gpio_ids;
-	int ret;
-	struct zynq_gpio_privdata *priv = dev_get_priv(dev);
-
-	while (of_match->compatible) {
-		ret = fdt_node_offset_by_compatible(gd->fdt_blob, -1,
-						    of_match->compatible);
-		if (ret >= 0) {
-			priv->p_data =
-				    (struct zynq_platform_data *)of_match->data;
-			break;
-		} else  {
-			of_match++;
-			continue;
-		}
-	}
-
-	if (!priv->p_data)
-		printf("No Platform data found\n");
-}
-
 static int zynq_gpio_probe(struct udevice *dev)
 {
 	struct zynq_gpio_privdata *priv = dev_get_priv(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
-	zynq_gpio_getplat_data(dev);
+	uc_priv->bank_name = dev->name;
 
 	if (priv->p_data)
 		uc_priv->gpio_count = priv->p_data->ngpio;
@@ -374,7 +349,9 @@ static int zynq_gpio_ofdata_to_platdata(struct udevice *dev)
 {
 	struct zynq_gpio_privdata *priv = dev_get_priv(dev);
 
-	priv->base = devfdt_get_addr(dev);
+	priv->base = (phys_addr_t)dev_read_addr(dev);
+
+	priv->p_data = (struct zynq_platform_data *)dev_get_driver_data(dev);
 
 	return 0;
 }

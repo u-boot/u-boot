@@ -17,6 +17,7 @@
 
 #define DEVCFG_CTRL_PCFG_PROG_B		0x40000000
 #define DEVCFG_CTRL_PCFG_AES_EFUSE_MASK	0x00001000
+#define DEVCFG_CTRL_PCAP_RATE_EN_MASK	0x02000000
 #define DEVCFG_ISR_FATAL_ERROR_MASK	0x00740040
 #define DEVCFG_ISR_ERROR_FLAGS_MASK	0x00340840
 #define DEVCFG_ISR_RX_FIFO_OV		0x00040000
@@ -410,7 +411,7 @@ static int zynq_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	return FPGA_SUCCESS;
 }
 
-#if defined(CONFIG_CMD_FPGA_LOADFS)
+#if defined(CONFIG_CMD_FPGA_LOADFS) && !defined(CONFIG_SPL_BUILD)
 static int zynq_loadfs(xilinx_desc *desc, const void *buf, size_t bsize,
 		       fpga_fs_info *fsinfo)
 {
@@ -493,7 +494,51 @@ static int zynq_loadfs(xilinx_desc *desc, const void *buf, size_t bsize,
 
 struct xilinx_fpga_op zynq_op = {
 	.load = zynq_load,
-#if defined(CONFIG_CMD_FPGA_LOADFS)
+#if defined(CONFIG_CMD_FPGA_LOADFS) && !defined(CONFIG_SPL_BUILD)
 	.loadfs = zynq_loadfs,
 #endif
 };
+
+#ifdef CONFIG_CMD_ZYNQ_AES
+/*
+ * Load the encrypted image from src addr and decrypt the image and
+ * place it back the decrypted image into dstaddr.
+ */
+int zynq_decrypt_load(u32 srcaddr, u32 srclen, u32 dstaddr, u32 dstlen)
+{
+	if (srcaddr < SZ_1M || dstaddr < SZ_1M) {
+		printf("%s: src and dst addr should be > 1M\n",
+		       __func__);
+		return FPGA_FAIL;
+	}
+
+	if (zynq_dma_xfer_init(BIT_NONE)) {
+		printf("%s: zynq_dma_xfer_init FAIL\n", __func__);
+		return FPGA_FAIL;
+	}
+
+	writel((readl(&devcfg_base->ctrl) | DEVCFG_CTRL_PCAP_RATE_EN_MASK),
+	       &devcfg_base->ctrl);
+
+	debug("%s: Source = 0x%08X\n", __func__, (u32)srcaddr);
+	debug("%s: Size = %zu\n", __func__, srclen);
+
+	/* flush(clean & invalidate) d-cache range buf */
+	flush_dcache_range((u32)srcaddr, (u32)srcaddr +
+			roundup(srclen << 2, ARCH_DMA_MINALIGN));
+	/*
+	 * Flush destination address range only if image is not
+	 * bitstream.
+	 */
+	flush_dcache_range((u32)dstaddr, (u32)dstaddr +
+			   roundup(dstlen << 2, ARCH_DMA_MINALIGN));
+
+	if (zynq_dma_transfer(srcaddr | 1, srclen, dstaddr | 1, dstlen))
+		return FPGA_FAIL;
+
+	writel((readl(&devcfg_base->ctrl) & ~DEVCFG_CTRL_PCAP_RATE_EN_MASK),
+	       &devcfg_base->ctrl);
+
+	return FPGA_SUCCESS;
+}
+#endif

@@ -210,7 +210,7 @@ Changes in v4:
 
 Simon Glass (2):
   pci: Correct cast for sandbox
-  fdt: Correct cast for sandbox in fdtdec_setup_memory_size()
+  fdt: Correct cast for sandbox in fdtdec_setup_mem_size_base()
 
  cmd/pci.c                   | 3 ++-
  fs/fat/fat.c                | 1 +

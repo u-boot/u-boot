@@ -224,8 +224,6 @@ static int cdns_wdt_probe(struct udevice *dev)
 {
 	debug("%s: Probing wdt%u\n", __func__, dev->seq);
 
-	cdns_wdt_stop(dev);
-
 	return 0;
 }
 
@@ -251,6 +249,7 @@ static const struct wdt_ops cdns_wdt_ops = {
 	.start = cdns_wdt_start,
 	.reset = cdns_wdt_reset,
 	.stop = cdns_wdt_stop,
+	/* There is no bit/reg/support in IP for expire_now functionality */
 };
 
 static const struct udevice_id cdns_wdt_ids[] = {

@@ -281,9 +281,9 @@ static int setup_dest_addr(void)
 	gd->ram_size -= CONFIG_SYS_MEM_TOP_HIDE;
 #endif
 #ifdef CONFIG_SYS_SDRAM_BASE
-	gd->ram_top = CONFIG_SYS_SDRAM_BASE;
+	gd->ram_base = CONFIG_SYS_SDRAM_BASE;
 #endif
-	gd->ram_top += get_effective_memsize();
+	gd->ram_top = gd->ram_base + get_effective_memsize();
 	gd->ram_top = board_get_usable_ram_top(gd->mon_len);
 	gd->relocaddr = gd->ram_top;
 	debug("Ram top: %08lX\n", (ulong)gd->ram_top);
