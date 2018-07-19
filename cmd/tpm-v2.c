@@ -319,14 +319,14 @@ static cmd_tbl_t tpm2_commands[] = {
 			 do_tpm_pcr_setauthvalue, "", ""),
 };
 
-cmd_tbl_t *get_tpm_commands(unsigned int *size)
+cmd_tbl_t *get_tpm2_commands(unsigned int *size)
 {
 	*size = ARRAY_SIZE(tpm2_commands);
 
 	return tpm2_commands;
 }
 
-U_BOOT_CMD(tpm, CONFIG_SYS_MAXARGS, 1, do_tpm, "Issue a TPMv2.x command",
+U_BOOT_CMD(tpm2, CONFIG_SYS_MAXARGS, 1, do_tpm, "Issue a TPMv2.x command",
 "<command> [<arguments>]\n"
 "\n"
 "info\n"

@@ -4,9 +4,6 @@
 
 menu "TPM support"
 
-comment "Please select only one TPM revision"
-	depends on TPM_V1 && TPM_V2
-
 config TPM_V1
 	bool "TPMv1.x support"
 	depends on TPM
@@ -15,7 +12,7 @@ config TPM_V1
 	  Major TPM versions are not compatible at all, choose either
 	  one or the other. This option enables TPMv1.x drivers/commands.
 
-if TPM_V1 && !TPM_V2
+if TPM_V1
 
 config TPM_TIS_SANDBOX
 	bool "Enable sandbox TPM driver"
@@ -127,7 +124,7 @@ config TPM_V2
 	  Major TPM versions are not compatible at all, choose either
 	  one or the other. This option enables TPMv2.x drivers/commands.
 
-if TPM_V2 && !TPM_V1
+if TPM_V2
 
 config TPM2_TIS_SANDBOX
 	bool "Enable sandbox TPMv2.x driver"

@@ -232,7 +232,7 @@ static int sandbox_tpm2_fill_buf(u8 **recv, size_t *recv_len, u16 tag, u32 rc)
 	*recv += sizeof(rc);
 
 	/* Add trailing \0 */
-	*recv = '\0';
+	*recv = NULL;
 
 	return 0;
 }
@@ -589,6 +589,9 @@ static int sandbox_tpm2_probe(struct udevice *dev)
 {
 	struct sandbox_tpm2 *tpm = dev_get_priv(dev);
 	struct tpm_chip_priv *priv = dev_get_uclass_priv(dev);
+
+	/* Use the TPM v2 stack */
+	priv->version = TPM_V2;
 
 	memset(tpm, 0, sizeof(*tpm));
 

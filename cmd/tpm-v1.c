@@ -608,7 +608,7 @@ static cmd_tbl_t tpm1_commands[] = {
 #endif /* CONFIG_TPM_LIST_RESOURCES */
 };
 
-cmd_tbl_t *get_tpm_commands(unsigned int *size)
+cmd_tbl_t *get_tpm1_commands(unsigned int *size)
 {
 	*size = ARRAY_SIZE(tpm1_commands);
 

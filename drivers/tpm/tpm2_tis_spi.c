@@ -510,6 +510,7 @@ static int tpm_tis_spi_cleanup(struct udevice *dev)
 static int tpm_tis_spi_open(struct udevice *dev)
 {
 	struct tpm_chip *chip = dev_get_priv(dev);
+	struct tpm_chip_priv *priv = dev_get_uclass_priv(dev);
 
 	if (chip->is_open)
 		return -EBUSY;
@@ -574,6 +575,9 @@ static int tpm_tis_spi_probe(struct udevice *dev)
 	struct tpm_chip_priv *priv = dev_get_uclass_priv(dev);
 	struct tpm_chip *chip = dev_get_priv(dev);
 	int ret;
+
+	/* Use the TPM v2 stack */
+	priv->version = TPM_V2;
 
 	if (IS_ENABLED(CONFIG_DM_GPIO)) {
 		struct gpio_desc reset_gpio;
