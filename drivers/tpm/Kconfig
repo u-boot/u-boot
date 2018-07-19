@@ -20,6 +20,7 @@ if TPM_V1 && !TPM_V2
 config TPM_TIS_SANDBOX
 	bool "Enable sandbox TPM driver"
 	depends on TPM_V1 && SANDBOX
+	default y
 	help
 	  This driver emulates a TPMv1.x, providing access to base functions
 	  such as reading and writing TPM private data. This is enough to
@@ -132,6 +133,7 @@ if TPM_V2 && !TPM_V1
 config TPM2_TIS_SANDBOX
 	bool "Enable sandbox TPMv2.x driver"
 	depends on TPM_V2 && SANDBOX
+	default y
 	select TPM_DRIVER_SELECTED
 	help
 	  This driver emulates a TPMv2.x, providing access to base functions
