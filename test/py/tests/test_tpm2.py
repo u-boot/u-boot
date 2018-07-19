@@ -29,22 +29,22 @@ def force_init(u_boot_console, force=False):
     twice will spawn an error used to detect that the TPM was not reset and no
     initialization code should be run.
     """
-    output = u_boot_console.run_command('tpm init')
+    output = u_boot_console.run_command('tpm2 init')
     if force or not 'Error' in output:
         u_boot_console.run_command('echo --- start of init ---')
-        u_boot_console.run_command('tpm startup TPM2_SU_CLEAR')
-        u_boot_console.run_command('tpm self_test full')
-        u_boot_console.run_command('tpm clear TPM2_RH_LOCKOUT')
+        u_boot_console.run_command('tpm2 startup TPM2_SU_CLEAR')
+        u_boot_console.run_command('tpm2 self_test full')
+        u_boot_console.run_command('tpm2 clear TPM2_RH_LOCKOUT')
         output = u_boot_console.run_command('echo $?')
         if not output.endswith('0'):
-            u_boot_console.run_command('tpm clear TPM2_RH_PLATFORM')
+            u_boot_console.run_command('tpm2 clear TPM2_RH_PLATFORM')
         u_boot_console.run_command('echo --- end of init ---')
 
 @pytest.mark.buildconfigspec('cmd_tpm_v2')
 def test_tpm2_init(u_boot_console):
     """Init the software stack to use TPMv2 commands."""
 
-    u_boot_console.run_command('tpm init')
+    u_boot_console.run_command('tpm2 init')
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
 
@@ -55,7 +55,7 @@ def test_tpm2_startup(u_boot_console):
     Initiate the TPM internal state machine.
     """
 
-    u_boot_console.run_command('tpm startup TPM2_SU_CLEAR')
+    u_boot_console.run_command('tpm2 startup TPM2_SU_CLEAR')
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
 
@@ -66,7 +66,7 @@ def test_tpm2_self_test_full(u_boot_console):
     Ask the TPM to perform all self tests to also enable full capabilities.
     """
 
-    u_boot_console.run_command('tpm self_test full')
+    u_boot_console.run_command('tpm2 self_test full')
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
 
@@ -78,7 +78,7 @@ def test_tpm2_continue_self_test(u_boot_console):
     to enter a fully operational state.
     """
 
-    u_boot_console.run_command('tpm self_test continue')
+    u_boot_console.run_command('tpm2 self_test continue')
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
 
@@ -95,11 +95,11 @@ def test_tpm2_clear(u_boot_console):
     PLATFORM hierarchies are also available.
     """
 
-    u_boot_console.run_command('tpm clear TPM2_RH_LOCKOUT')
+    u_boot_console.run_command('tpm2 clear TPM2_RH_LOCKOUT')
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
 
-    u_boot_console.run_command('tpm clear TPM2_RH_PLATFORM')
+    u_boot_console.run_command('tpm2 clear TPM2_RH_PLATFORM')
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
 
@@ -115,13 +115,13 @@ def test_tpm2_change_auth(u_boot_console):
 
     force_init(u_boot_console)
 
-    u_boot_console.run_command('tpm change_auth TPM2_RH_LOCKOUT unicorn')
+    u_boot_console.run_command('tpm2 change_auth TPM2_RH_LOCKOUT unicorn')
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
 
-    u_boot_console.run_command('tpm clear TPM2_RH_LOCKOUT unicorn')
+    u_boot_console.run_command('tpm2 clear TPM2_RH_LOCKOUT unicorn')
     output = u_boot_console.run_command('echo $?')
-    u_boot_console.run_command('tpm clear TPM2_RH_PLATFORM')
+    u_boot_console.run_command('tpm2 clear TPM2_RH_PLATFORM')
     assert output.endswith('0')
 
 @pytest.mark.buildconfigspec('cmd_tpm_v2')
@@ -140,7 +140,7 @@ def test_tpm2_get_capability(u_boot_console):
     force_init(u_boot_console)
     ram = u_boot_utils.find_ram_base(u_boot_console)
 
-    read_cap = u_boot_console.run_command('tpm get_capability 0x6 0x20e 0x200 1') #0x%x 1' % ram)
+    read_cap = u_boot_console.run_command('tpm2 get_capability 0x6 0x20e 0x200 1') #0x%x 1' % ram)
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
     assert 'Property 0x0000020e: 0x00000000' in read_cap
@@ -163,12 +163,12 @@ def test_tpm2_dam_parameters(u_boot_console):
     ram = u_boot_utils.find_ram_base(u_boot_console)
 
     # Set the DAM parameters to known values
-    u_boot_console.run_command('tpm dam_parameters 3 10 0')
+    u_boot_console.run_command('tpm2 dam_parameters 3 10 0')
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
 
     # Check the values have been saved
-    read_cap = u_boot_console.run_command('tpm get_capability 0x6 0x20f 0x%x 3' % ram)
+    read_cap = u_boot_console.run_command('tpm2 get_capability 0x6 0x20f 0x%x 3' % ram)
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
     assert 'Property 0x0000020f: 0x00000003' in read_cap
@@ -185,7 +185,7 @@ def test_tpm2_pcr_read(u_boot_console):
     force_init(u_boot_console)
     ram = u_boot_utils.find_ram_base(u_boot_console)
 
-    read_pcr = u_boot_console.run_command('tpm pcr_read 0 0x%x' % ram)
+    read_pcr = u_boot_console.run_command('tpm2 pcr_read 0 0x%x' % ram)
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
 
@@ -212,11 +212,11 @@ def test_tpm2_pcr_extend(u_boot_console):
     force_init(u_boot_console)
     ram = u_boot_utils.find_ram_base(u_boot_console)
 
-    u_boot_console.run_command('tpm pcr_extend 0 0x%x' % ram)
+    u_boot_console.run_command('tpm2 pcr_extend 0 0x%x' % ram)
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
 
-    read_pcr = u_boot_console.run_command('tpm pcr_read 0 0x%x' % ram)
+    read_pcr = u_boot_console.run_command('tpm2 pcr_read 0 0x%x' % ram)
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
     assert 'f5 a5 fd 42 d1 6a 20 30 27 98 ef 6e d3 09 97 9b' in read_pcr
