@@ -7,6 +7,8 @@
 #include <common.h>
 #include <fdt_support.h>
 #include <fdtdec.h>
+#include <jffs2/load_kernel.h>
+#include <mtd_node.h>
 #include <linux/kernel.h>
 #include <linux/printk.h>
 
@@ -46,7 +48,13 @@ static int uniphier_ld20_fdt_mem_rsv(void *fdt, bd_t *bd)
 
 int ft_board_setup(void *fdt, bd_t *bd)
 {
+	static const struct node_info nodes[] = {
+		{ "socionext,uniphier-denali-nand-v5a", MTD_DEV_TYPE_NAND },
+		{ "socionext,uniphier-denali-nand-v5b", MTD_DEV_TYPE_NAND },
+	};
 	int ret;
+
+	fdt_fixup_mtdparts(fdt, nodes, ARRAY_SIZE(nodes));
 
 	ret = uniphier_ld20_fdt_mem_rsv(fdt, bd);
 	if (ret)
