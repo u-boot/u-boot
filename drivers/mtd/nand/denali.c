@@ -1270,7 +1270,7 @@ int denali_init(struct denali_nand_info *denali)
 		denali->dma_avail = 1;
 
 	if (denali->dma_avail) {
-		chip->buf_align = 16;
+		chip->buf_align = ARCH_DMA_MINALIGN;
 		if (denali->caps & DENALI_CAP_DMA_64BIT)
 			denali->setup_dma = denali_setup_dma64;
 		else
