@@ -12,7 +12,6 @@
 #include <dm/uclass-internal.h>
 #include <version.h>
 #include <asm/acpi/global_nvs.h>
-#include <asm/acpi.h>
 #include <asm/acpi_table.h>
 #include <asm/ioapic.h>
 #include <asm/lapic.h>
@@ -443,16 +442,6 @@ ulong write_acpi_tables(ulong start)
 
 	acpi_rsdp_addr = (unsigned long)rsdp;
 	debug("ACPI: done\n");
-
-	/* Don't touch ACPI hardware on HW reduced platforms */
-	if (fadt->flags & ACPI_FADT_HW_REDUCED_ACPI)
-		return current;
-
-	/*
-	 * Other than waiting for OSPM to request us to switch to ACPI mode,
-	 * do it by ourselves, since SMI will not be triggered.
-	 */
-	enter_acpi_mode(fadt->pm1a_cnt_blk);
 
 	return current;
 }

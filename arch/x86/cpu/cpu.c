@@ -179,16 +179,31 @@ __weak void board_final_cleanup(void)
 
 int last_stage_init(void)
 {
+	struct acpi_fadt __maybe_unused *fadt;
+
 	board_final_cleanup();
 
-#if CONFIG_HAVE_ACPI_RESUME
-	struct acpi_fadt *fadt = acpi_find_fadt();
+#ifdef CONFIG_HAVE_ACPI_RESUME
+	fadt = acpi_find_fadt();
 
-	if (fadt != NULL && gd->arch.prev_sleep_state == ACPI_S3)
+	if (fadt && gd->arch.prev_sleep_state == ACPI_S3)
 		acpi_resume(fadt);
 #endif
 
 	write_tables();
+
+#ifdef CONFIG_GENERATE_ACPI_TABLE
+	fadt = acpi_find_fadt();
+
+	/* Don't touch ACPI hardware on HW reduced platforms */
+	if (fadt && !(fadt->flags & ACPI_FADT_HW_REDUCED_ACPI)) {
+		/*
+		 * Other than waiting for OSPM to request us to switch to ACPI
+		 * mode, do it by ourselves, since SMI will not be triggered.
+		 */
+		enter_acpi_mode(fadt->pm1a_cnt_blk);
+	}
+#endif
 
 	return 0;
 }
