@@ -6,6 +6,9 @@
  * Copyright (C) 2016, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#ifndef __ASM_ACPI_TABLE_H__
+#define __ASM_ACPI_TABLE_H__
+
 #define RSDP_SIG		"RSD PTR "	/* RSDP pointer signature */
 #define OEM_ID			"U-BOOT"	/* U-Boot */
 #define OEM_TABLE_ID		"U-BOOTBL"	/* U-Boot Table */
@@ -327,3 +330,5 @@ ulong write_acpi_tables(ulong start);
  * @return:	ACPI RSDP table address
  */
 ulong acpi_get_rsdp_addr(void);
+
+#endif /* __ASM_ACPI_TABLE_H__ */
