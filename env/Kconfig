@@ -431,22 +431,34 @@ config ENV_EXT4_FILE
 	  It's a string of the EXT4 file name. This file use to store the
 	  environment (explicit path to the file)
 
-if ARCH_SUNXI
+if ARCH_ROCKCHIP || ARCH_SUNXI || ARCH_ZYNQ || ARCH_ZYNQMP
 
 config ENV_OFFSET
 	hex "Environment Offset"
 	depends on !ENV_IS_IN_UBI
 	depends on !ENV_IS_NOWHERE
+	default 0x3f8000 if ARCH_ROCKCHIP
 	default 0x88000 if ARCH_SUNXI
+	default 0xE0000 if ARCH_ZYNQ
+	default 0x1E00000 if ARCH_ZYNQMP
 	help
 	  Offset from the start of the device (or partition)
 
 config ENV_SIZE
 	hex "Environment Size"
-	depends on !ENV_IS_NOWHERE
-	default 0x20000 if ARCH_SUNXI
+	default 0x40000 if ENV_IS_IN_SPI_FLASH && ARCH_ZYNQMP
+	default 0x20000 if ARCH_SUNXI || ARCH_ZYNQ
+	default 0x8000 if ARCH_ROCKCHIP || ARCH_ZYNQMP
 	help
 	  Size of the environment storage area
+
+config ENV_SECT_SIZE
+	hex "Environment Sector-Size"
+	depends on !ENV_IS_NOWHERE && (ARCH_ZYNQ || ARCH_ZYNQMP)
+	default 0x40000 if ARCH_ZYNQMP
+	default 0x20000 if ARCH_ZYNQ
+	help
+	  Size of the sector containing the environment.
 
 config ENV_UBI_PART
 	string "UBI partition name"
@@ -459,52 +471,6 @@ config ENV_UBI_VOLUME
 	depends on ENV_IS_IN_UBI
 	help
 	  Name of the volume that you want to store the environment in.
-
-endif
-
-if ARCH_ROCKCHIP
-
-config ENV_OFFSET
-	hex
-	depends on !ENV_IS_IN_UBI
-	depends on !ENV_IS_NOWHERE
-	default 0x3f8000
-	help
-	  Offset from the start of the device (or partition)
-
-config ENV_SIZE
-	hex
-	default 0x8000
-	help
-	  Size of the environment storage area
-
-endif
-
-if ARCH_ZYNQMP || ARCH_ZYNQ
-
-config ENV_OFFSET
-	hex "Environment Offset"
-	depends on !ENV_IS_NOWHERE
-	default 0x1E00000 if ARCH_ZYNQMP
-	default 0xE0000 if ARCH_ZYNQ
-	help
-	  Offset from the start of the device (or partition)
-
-config ENV_SIZE
-	hex "Environment Size"
-	default 0x40000 if ENV_IS_IN_SPI_FLASH && ARCH_ZYNQMP
-	default 0x8000 if ARCH_ZYNQMP
-	default 0x20000 if ARCH_ZYNQ
-	help
-	  Size of the environment storage area.
-
-config ENV_SECT_SIZE
-	hex "Environment Sector-Size"
-	depends on !ENV_IS_NOWHERE
-	default 0x40000 if ARCH_ZYNQMP
-	default 0x20000 if ARCH_ZYNQ
-	help
-	  Size of the sector containing the environment.
 
 endif
 

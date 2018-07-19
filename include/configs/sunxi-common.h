@@ -153,8 +153,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #endif
 #define CONFIG_SYS_MMC_MAX_DEVICE	4
-#elif defined(CONFIG_ENV_IS_NOWHERE)
-#define CONFIG_ENV_SIZE			(128 << 10)
 #endif
 
 #ifndef CONFIG_MACH_SUN8I_V3S
