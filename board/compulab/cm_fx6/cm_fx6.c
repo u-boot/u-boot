@@ -519,7 +519,7 @@ int cm_fx6_setup_ecspi(void) { return 0; }
 #ifdef CONFIG_OF_BOARD_SETUP
 #define USDHC3_PATH	"/soc/aips-bus@02100000/usdhc@02198000/"
 
-struct node_info nodes[] = {
+static const struct node_info nodes[] = {
 	/*
 	 * Both entries target the same flash chip. The st,m25p compatible
 	 * is used in the vendor device trees, while upstream uses (the

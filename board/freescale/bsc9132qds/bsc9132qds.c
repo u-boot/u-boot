@@ -357,7 +357,7 @@ void fdt_del_node_compat(void *blob, const char *compatible)
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 #ifdef CONFIG_FDT_FIXUP_PARTITIONS
-struct node_info nodes[] = {
+static const struct node_info nodes[] = {
 	{ "cfi-flash",			MTD_DEV_TYPE_NOR,  },
 	{ "fsl,ifc-nand",		MTD_DEV_TYPE_NAND, },
 };

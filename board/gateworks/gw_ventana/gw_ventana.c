@@ -1114,7 +1114,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 {
 	struct ventana_board_info *info = &ventana_info;
 	struct ventana_eeprom_config *cfg;
-	struct node_info nodes[] = {
+	static const struct node_info nodes[] = {
 		{ "sst,w25q256",          MTD_DEV_TYPE_NOR, },  /* SPI flash */
 		{ "fsl,imx6q-gpmi-nand",  MTD_DEV_TYPE_NAND, }, /* NAND flash */
 	};
