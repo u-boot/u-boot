@@ -120,6 +120,7 @@ endif # TPM_V1
 config TPM_V2
 	bool "TPMv2.x support"
 	depends on TPM
+	default y
 	help
 	  Major TPM versions are not compatible at all, choose either
 	  one or the other. This option enables TPMv2.x drivers/commands.
