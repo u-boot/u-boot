@@ -71,7 +71,7 @@ struct tpm_ops {
 	 * After all commands have been completed the caller should call
 	 * close().
 	 *
-	 * @dev:	Device to close
+	 * @dev:	Device to open
 	 * @return 0 ok OK, -ve on error
 	 */
 	int (*open)(struct udevice *dev);
