@@ -63,7 +63,6 @@ config TPM_TIS_I2C_BURST_LIMITATION_LEN
 config TPM_TIS_LPC
 	bool "Enable support for Infineon SLB9635/45 TPMs on LPC"
 	depends on TPM_V1 && X86
-	select TPM_DRIVER_SELECTED
 	help
 	  This driver supports Infineon TPM devices connected on the LPC bus.
 	  The usual tpm operations and the 'tpm' command can be used to talk
@@ -134,7 +133,6 @@ config TPM2_TIS_SANDBOX
 	bool "Enable sandbox TPMv2.x driver"
 	depends on TPM_V2 && SANDBOX
 	default y
-	select TPM_DRIVER_SELECTED
 	help
 	  This driver emulates a TPMv2.x, providing access to base functions
 	  such as basic configuration, PCR extension and PCR read. Extended
@@ -143,7 +141,6 @@ config TPM2_TIS_SANDBOX
 config TPM2_TIS_SPI
 	bool "Enable support for TPMv2.x SPI chips"
 	depends on TPM_V2 && DM_SPI
-	select TPM_DRIVER_SELECTED
 	help
 	  This driver supports TPMv2.x devices connected on the SPI bus.
 	  The usual TPM operations and the 'tpm' command can be used to talk
