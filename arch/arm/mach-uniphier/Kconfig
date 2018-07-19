@@ -68,7 +68,6 @@ config ARCH_UNIPHIER_LD11
 config ARCH_UNIPHIER_LD20
 	bool "Enable UniPhier LD20 SoC support"
 	depends on ARCH_UNIPHIER_V8_MULTI
-	select OF_BOARD_SETUP
 	default y
 
 config ARCH_UNIPHIER_PXS3

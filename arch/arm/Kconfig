@@ -1223,6 +1223,7 @@ config ARCH_UNIPHIER
 	select DM_RESET
 	select DM_SERIAL
 	select DM_USB
+	select OF_BOARD_SETUP
 	select OF_CONTROL
 	select OF_LIBFDT
 	select PINCTRL
