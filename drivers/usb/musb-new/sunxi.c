@@ -331,6 +331,33 @@ static int sunxi_musb_init(struct musb *musb)
 	return 0;
 }
 
+static int sunxi_musb_exit(struct musb *musb)
+{
+	struct sunxi_glue *glue = to_sunxi_glue(musb->controller);
+	int ret = 0;
+
+	if (generic_phy_valid(&glue->phy)) {
+		ret = generic_phy_exit(&glue->phy);
+		if (ret) {
+			dev_err(dev, "failed to power off usb phy\n");
+			return ret;
+		}
+	}
+
+	if (glue->cfg->has_reset)
+		clrbits_le32(glue->reg_reset0, BIT(AHB_GATE_OFFSET_USB0));
+
+	if (glue->cfg->rst_bit)
+		clrbits_le32(glue->reg_reset0, BIT(glue->cfg->rst_bit));
+
+	clrbits_le32(&glue->ccm->ahb_gate0, BIT(AHB_GATE_OFFSET_USB0));
+	if (glue->cfg->clkgate_bit)
+		clrbits_le32(&glue->ccm->ahb_gate0,
+			     BIT(glue->cfg->clkgate_bit));
+
+	return 0;
+}
+
 static void sunxi_musb_pre_root_reset_end(struct musb *musb)
 {
 	struct sunxi_glue *glue = to_sunxi_glue(musb->controller);
@@ -347,6 +374,7 @@ static void sunxi_musb_post_root_reset_end(struct musb *musb)
 
 static const struct musb_platform_ops sunxi_musb_ops = {
 	.init		= sunxi_musb_init,
+	.exit		= sunxi_musb_exit,
 	.enable		= sunxi_musb_enable,
 	.disable	= sunxi_musb_disable,
 	.pre_root_reset_end = sunxi_musb_pre_root_reset_end,
@@ -463,29 +491,8 @@ static int musb_usb_remove(struct udevice *dev)
 {
 	struct sunxi_glue *glue = dev_get_priv(dev);
 	struct musb_host_data *host = &glue->mdata;
-	int ret;
-
-	if (generic_phy_valid(&glue->phy)) {
-		ret = generic_phy_exit(&glue->phy);
-		if (ret) {
-			pr_err("failed to exit %s USB PHY\n", dev->name);
-			return ret;
-		}
-	}
 
 	musb_stop(host->host);
-
-	if (glue->cfg->has_reset)
-		clrbits_le32(glue->reg_reset0, BIT(AHB_GATE_OFFSET_USB0));
-
-	if (glue->cfg->rst_bit)
-		clrbits_le32(glue->reg_reset0, BIT(glue->cfg->rst_bit));
-
-	clrbits_le32(&glue->ccm->ahb_gate0, BIT(AHB_GATE_OFFSET_USB0));
-	if (glue->cfg->clkgate_bit)
-		clrbits_le32(&glue->ccm->ahb_gate0,
-			     BIT(glue->cfg->clkgate_bit));
-
 	free(host->host);
 	host->host = NULL;
 
