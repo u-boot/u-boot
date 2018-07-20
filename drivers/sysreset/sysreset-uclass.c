@@ -69,6 +69,8 @@ void reset_cpu(ulong addr)
 
 int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+	printf("resetting ...\n");
+
 	sysreset_walk_halt(SYSRESET_COLD);
 
 	return 0;

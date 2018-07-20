@@ -132,7 +132,7 @@ int arch_fsp_init(void)
 				chipset_clear_sleep_state();
 				/* Reboot */
 				debug("Rebooting..\n");
-				reset_cpu(0);
+				outb(SYS_RST | RST_CPU, IO_PORT_RESET);
 				/* Should not reach here.. */
 				panic("Reboot System");
 			}

@@ -40,7 +40,6 @@ int x86_cleanup_before_linux(void);
 void x86_enable_caches(void);
 void x86_disable_caches(void);
 int x86_init_cache(void);
-void reset_cpu(ulong addr);
 ulong board_get_usable_ram_top(ulong total_size);
 int default_print_cpuinfo(void);
 
