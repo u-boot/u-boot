@@ -52,7 +52,8 @@
 			compatible = "xlnx,zynqmp-8.9a", "arasan,sdhci-8.9a";
 			status = "disabled";
 			reg = <0x0 0xff170000 0x0 0x1000>;
-			clock-names = "clk_xin", "clk_xin";
+			clock-names = "clk_xin", "clk_ahb";
+			clocks = <&clk_xin &clk_xin>;
 			xlnx,device_id = <1>;
 		};
 	};
