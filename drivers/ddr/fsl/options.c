@@ -742,8 +742,7 @@ unsigned int populate_memctl_options(const common_timing_params_t *common_dimm,
 			unsigned int ctrl_num)
 {
 	unsigned int i;
-	char buffer[HWCONFIG_BUFFER_SIZE];
-	char *buf = NULL;
+	char buf[HWCONFIG_BUFFER_SIZE];
 #if defined(CONFIG_SYS_FSL_DDR3) || \
 	defined(CONFIG_SYS_FSL_DDR2) || \
 	defined(CONFIG_SYS_FSL_DDR4)
@@ -757,8 +756,8 @@ unsigned int populate_memctl_options(const common_timing_params_t *common_dimm,
 	 * Extract hwconfig from environment since we have not properly setup
 	 * the environment but need it for ddr config params
 	 */
-	if (env_get_f("hwconfig", buffer, sizeof(buffer)) > 0)
-		buf = buffer;
+	if (env_get_f("hwconfig", buf, sizeof(buf)) < 0)
+		buf[0] = '\0';
 
 #if defined(CONFIG_SYS_FSL_DDR3) || \
 	defined(CONFIG_SYS_FSL_DDR2) || \
@@ -1398,15 +1397,14 @@ int fsl_use_spd(void)
 	int use_spd = 0;
 
 #ifdef CONFIG_DDR_SPD
-	char buffer[HWCONFIG_BUFFER_SIZE];
-	char *buf = NULL;
+	char buf[HWCONFIG_BUFFER_SIZE];
 
 	/*
 	 * Extract hwconfig from environment since we have not properly setup
 	 * the environment but need it for ddr config params
 	 */
-	if (env_get_f("hwconfig", buffer, sizeof(buffer)) > 0)
-		buf = buffer;
+	if (env_get_f("hwconfig", buf, sizeof(buf)) < 0)
+		buf[0] = '\0';
 
 	/* if hwconfig is not enabled, or "sdram" is not defined, use spd */
 	if (hwconfig_sub_f("fsl_ddr", "sdram", buf)) {
