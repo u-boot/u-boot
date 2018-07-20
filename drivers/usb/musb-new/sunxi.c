@@ -87,7 +87,7 @@ struct sunxi_glue {
 	struct sunxi_ccm_reg *ccm;
 	struct sunxi_musb_config *cfg;
 	struct device dev;
-	struct phy *phy;
+	struct phy phy;
 };
 #define to_sunxi_glue(d)	container_of(d, struct sunxi_glue, dev)
 
@@ -235,19 +235,19 @@ static int sunxi_musb_enable(struct musb *musb)
 	musb_writeb(musb->mregs, USBC_REG_o_VEND0, 0);
 
 	if (is_host_enabled(musb)) {
-		ret = sun4i_usb_phy_vbus_detect(glue->phy);
+		ret = sun4i_usb_phy_vbus_detect(&glue->phy);
 		if (ret == 1) {
 			printf("A charger is plugged into the OTG: ");
 			return -ENODEV;
 		}
 
-		ret = sun4i_usb_phy_id_detect(glue->phy);
+		ret = sun4i_usb_phy_id_detect(&glue->phy);
 		if (ret == 1) {
 			printf("No host cable detected: ");
 			return -ENODEV;
 		}
 
-		ret = generic_phy_power_on(glue->phy);
+		ret = generic_phy_power_on(&glue->phy);
 		if (ret) {
 			pr_err("failed to power on USB PHY\n");
 			return ret;
@@ -271,7 +271,7 @@ static void sunxi_musb_disable(struct musb *musb)
 		return;
 
 	if (is_host_enabled(musb)) {
-		ret = generic_phy_power_off(glue->phy);
+		ret = generic_phy_power_off(&glue->phy);
 		if (ret) {
 			pr_err("failed to power off USB PHY\n");
 			return;
@@ -291,7 +291,7 @@ static int sunxi_musb_init(struct musb *musb)
 
 	pr_debug("%s():\n", __func__);
 
-	ret = generic_phy_init(glue->phy);
+	ret = generic_phy_init(&glue->phy);
 	if (ret) {
 		pr_err("failed to init USB PHY\n");
 		return ret;
@@ -330,14 +330,14 @@ static void sunxi_musb_pre_root_reset_end(struct musb *musb)
 {
 	struct sunxi_glue *glue = to_sunxi_glue(musb->controller);
 
-	sun4i_usb_phy_set_squelch_detect(glue->phy, false);
+	sun4i_usb_phy_set_squelch_detect(&glue->phy, false);
 }
 
 static void sunxi_musb_post_root_reset_end(struct musb *musb)
 {
 	struct sunxi_glue *glue = to_sunxi_glue(musb->controller);
 
-	sun4i_usb_phy_set_squelch_detect(glue->phy, true);
+	sun4i_usb_phy_set_squelch_detect(&glue->phy, true);
 }
 
 static const struct musb_platform_ops sunxi_musb_ops = {
@@ -405,7 +405,6 @@ static int musb_usb_probe(struct udevice *dev)
 	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
 	struct musb_hdrc_platform_data pdata;
 	void *base = dev_read_addr_ptr(dev);
-	struct phy phy;
 	int ret;
 
 	if (!base)
@@ -419,13 +418,12 @@ static int musb_usb_probe(struct udevice *dev)
 	if (IS_ERR(glue->ccm))
 		return PTR_ERR(glue->ccm);
 
-	ret = generic_phy_get_by_name(dev, "usb", &phy);
+	ret = generic_phy_get_by_name(dev, "usb", &glue->phy);
 	if (ret) {
 		pr_err("failed to get usb PHY\n");
 		return ret;
 	}
 
-	glue->phy = &phy;
 	priv->desc_before_addr = true;
 
 	memset(&pdata, 0, sizeof(pdata));
@@ -460,8 +458,8 @@ static int musb_usb_remove(struct udevice *dev)
 	struct musb_host_data *host = &glue->mdata;
 	int ret;
 
-	if (generic_phy_valid(glue->phy)) {
-		ret = generic_phy_exit(glue->phy);
+	if (generic_phy_valid(&glue->phy)) {
+		ret = generic_phy_exit(&glue->phy);
 		if (ret) {
 			pr_err("failed to exit %s USB PHY\n", dev->name);
 			return ret;
