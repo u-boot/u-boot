@@ -76,15 +76,20 @@
  * From usbc/usbc.c
  ******************************************************************************/
 
+#define OFF_SUN6I_AHB_RESET0	0x2c0
+
 struct sunxi_musb_config {
 	struct musb_hdrc_config *config;
+	bool has_reset;
 	u8 rst_bit;
 	u8 clkgate_bit;
+	u32 off_reset0;
 };
 
 struct sunxi_glue {
 	struct musb_host_data mdata;
 	struct sunxi_ccm_reg *ccm;
+	u32 *reg_reset0;
 	struct sunxi_musb_config *cfg;
 	struct device dev;
 	struct phy phy;
@@ -303,12 +308,12 @@ static int sunxi_musb_init(struct musb *musb)
 	if (glue->cfg->clkgate_bit)
 		setbits_le32(&glue->ccm->ahb_gate0,
 			     BIT(glue->cfg->clkgate_bit));
-#ifdef CONFIG_SUNXI_GEN_SUN6I
-	setbits_le32(&glue->ccm->ahb_reset0_cfg, BIT(AHB_GATE_OFFSET_USB0));
+
+	if (glue->cfg->has_reset)
+		setbits_le32(glue->reg_reset0, BIT(AHB_GATE_OFFSET_USB0));
+
 	if (glue->cfg->rst_bit)
-		setbits_le32(&glue->ccm->ahb_reset0_cfg,
-			     BIT(glue->cfg->rst_bit));
-#endif
+		setbits_le32(glue->reg_reset0, BIT(glue->cfg->rst_bit));
 
 	USBC_ConfigFIFO_Base();
 	USBC_EnableDpDmPullUp(musb->mregs);
@@ -418,6 +423,8 @@ static int musb_usb_probe(struct udevice *dev)
 	if (IS_ERR(glue->ccm))
 		return PTR_ERR(glue->ccm);
 
+	glue->reg_reset0 = (void *)glue->ccm + glue->cfg->off_reset0;
+
 	ret = generic_phy_get_by_name(dev, "usb", &glue->phy);
 	if (ret) {
 		pr_err("failed to get usb PHY\n");
@@ -468,12 +475,12 @@ static int musb_usb_remove(struct udevice *dev)
 
 	musb_stop(host->host);
 
-#ifdef CONFIG_SUNXI_GEN_SUN6I
-	clrbits_le32(&glue->ccm->ahb_reset0_cfg, BIT(AHB_GATE_OFFSET_USB0));
+	if (glue->cfg->has_reset)
+		clrbits_le32(glue->reg_reset0, BIT(AHB_GATE_OFFSET_USB0));
+
 	if (glue->cfg->rst_bit)
-		clrbits_le32(&glue->ccm->ahb_reset0_cfg,
-			     BIT(glue->cfg->rst_bit));
-#endif
+		clrbits_le32(glue->reg_reset0, BIT(glue->cfg->rst_bit));
+
 	clrbits_le32(&glue->ccm->ahb_gate0, BIT(AHB_GATE_OFFSET_USB0));
 	if (glue->cfg->clkgate_bit)
 		clrbits_le32(&glue->ccm->ahb_gate0,
@@ -487,21 +494,30 @@ static int musb_usb_remove(struct udevice *dev)
 
 static const struct sunxi_musb_config sun4i_a10_cfg = {
 	.config = &musb_config,
+	.has_reset = false,
+};
+
+static const struct sunxi_musb_config sun6i_a31_cfg = {
+	.config = &musb_config,
+	.has_reset = true,
+	.off_reset0 = OFF_SUN6I_AHB_RESET0,
 };
 
 static const struct sunxi_musb_config sun8i_h3_cfg = {
 	.config = &musb_config_h3,
+	.has_reset = true,
 	.rst_bit = 23,
 	.clkgate_bit = 23,
+	.off_reset0 = OFF_SUN6I_AHB_RESET0,
 };
 
 static const struct udevice_id sunxi_musb_ids[] = {
 	{ .compatible = "allwinner,sun4i-a10-musb",
 			.data = (ulong)&sun4i_a10_cfg },
 	{ .compatible = "allwinner,sun6i-a31-musb",
-			.data = (ulong)&sun4i_a10_cfg },
+			.data = (ulong)&sun6i_a31_cfg },
 	{ .compatible = "allwinner,sun8i-a33-musb",
-			.data = (ulong)&sun4i_a10_cfg },
+			.data = (ulong)&sun6i_a31_cfg },
 	{ .compatible = "allwinner,sun8i-h3-musb",
 			.data = (ulong)&sun8i_h3_cfg },
 	{ }
