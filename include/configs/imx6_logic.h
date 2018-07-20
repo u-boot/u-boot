@@ -35,10 +35,8 @@
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"bootm_size=0x10000000\0" \
-	"fdt_addr_r=0x18000000\0" \
-	"fdt_addr=0x18000000\0" \
-	"ramdisk_addr_r=0x13000000\0" \
-	"ramdiskaddr=0x13000000\0" \
+	"fdt_addr_r=0x13000000\0" \
+	"ramdisk_addr_r=0x14000000\0" \
 	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
 	"ramdisk_file=rootfs.cpio.uboot\0" \
 	"boot_fdt=try\0" \
@@ -60,25 +58,25 @@
 	" source\0" \
 	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image};" \
 	" setenv kernelsize ${filesize}\0" \
-	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
-	"loadramdisk=fatload mmc ${mmcdev}:${mmcpart} ${ramdiskaddr}" \
+	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr_r} ${fdt_file}\0" \
+	"loadramdisk=fatload mmc ${mmcdev}:${mmcpart} ${ramdisk_addr_r}" \
 	" ${ramdisk_file}; setenv ramdisksize ${filesize}\0" \
 	"mmcboot=echo Booting from mmc...; run mmcargs; run loadimage;" \
-	" run loadfdt; bootz ${loadaddr} - ${fdt_addr}\0" \
+	" run loadfdt; bootz ${loadaddr} - ${fdt_addr_r}\0" \
 	"mmcramboot=run ramargs; run loadimage;" \
 	" run loadfdt; run loadramdisk;" \
-	" bootz ${loadaddr} ${ramdiskaddr} ${fdt_addr}\0" \
+	" bootz ${loadaddr} ${ramdisk_addr_r} ${fdt_addr_r}\0" \
 	"nandboot=echo Booting from nand ...; " \
 	" run nandargs;" \
 	" nand read ${loadaddr} kernel ${kernelsize};" \
 	" nand read ${fdt_addr} dtb;" \
 	" bootz ${loadaddr} - ${fdt_addr}\0" \
 	"nandramboot=echo Booting RAMdisk from nand ...; " \
-	" nand read ${ramdiskaddr} fs ${ramdisksize};" \
+	" nand read ${ramdisk_addr_r} fs ${ramdisksize};" \
 	" nand read ${loadaddr} kernel ${kernelsize};" \
-	" nand read ${fdt_addr} dtb;" \
+	" nand read ${fdt_addr_r} dtb;" \
 	" run ramargs;" \
-	" bootz ${loadaddr} ${ramdiskaddr} ${fdt_addr}\0" \
+	" bootz ${loadaddr} ${ramdisk_addr_r} ${fdt_addr_r}\0" \
 	"netargs=setenv bootargs console=${console},${baudrate} " \
 	"root=/dev/nfs" \
 	" ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
