@@ -300,8 +300,7 @@ static int sun4i_usb_phy_init(struct phy *phy)
 				    data->cfg->disc_thresh, PHY_DISCON_TH_LEN);
 	}
 
-	if (usb_phy->id != 0)
-		sun4i_usb_phy_passby(phy, true);
+	sun4i_usb_phy_passby(phy, true);
 
 	sun4i_usb_phy0_reroute(data, true);
 
