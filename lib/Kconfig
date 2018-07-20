@@ -334,7 +334,7 @@ config SPL_OF_LIBFDT
 config FDT_FIXUP_PARTITIONS
 	bool "overwrite MTD partitions in DTS through defined in 'mtdparts'"
 	depends on OF_LIBFDT
-	default n
+	depends on CMD_MTDPARTS
 	help
 	  Allow overwriting defined partitions in the device tree blob
 	  using partition info defined in the 'mtdparts' environment
