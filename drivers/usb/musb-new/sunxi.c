@@ -444,9 +444,11 @@ static int musb_usb_probe(struct udevice *dev)
 		printf("Allwinner mUSB OTG (Host)\n");
 #else
 	pdata.mode = MUSB_PERIPHERAL;
-	ret = musb_register(&pdata, &glue->dev, base);
-	if (!ret)
-		printf("Allwinner mUSB OTG (Peripheral)\n");
+	host->host = musb_register(&pdata, &glue->dev, base);
+	if (!host->host)
+		return -EIO;
+
+	printf("Allwinner mUSB OTG (Peripheral)\n");
 #endif
 
 	return ret;

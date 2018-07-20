@@ -419,8 +419,8 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 }
 #endif /* CONFIG_USB_MUSB_GADGET */
 
-int musb_register(struct musb_hdrc_platform_data *plat, void *bdata,
-			void *ctl_regs)
+struct musb *musb_register(struct musb_hdrc_platform_data *plat, void *bdata,
+			   void *ctl_regs)
 {
 	struct musb **musbp;
 
@@ -436,14 +436,14 @@ int musb_register(struct musb_hdrc_platform_data *plat, void *bdata,
 		break;
 #endif
 	default:
-		return -EINVAL;
+		return ERR_PTR(-EINVAL);
 	}
 
 	*musbp = musb_init_controller(plat, (struct device *)bdata, ctl_regs);
-	if (!*musbp) {
+	if (IS_ERR(*musbp)) {
 		printf("Failed to init the controller\n");
-		return -EIO;
+		return ERR_CAST(*musbp);
 	}
 
-	return 0;
+	return *musbp;
 }
