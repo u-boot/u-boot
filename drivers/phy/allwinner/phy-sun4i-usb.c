@@ -462,8 +462,6 @@ static int sun4i_usb_phy_probe(struct udevice *dev)
 		phy->rst_mask = info->rst_mask;
 	};
 
-	setbits_le32(&data->ccm->usb_clk_cfg, CCM_USB_CTRL_PHYGATE);
-
 	debug("Allwinner Sun4I USB PHY driver loaded\n");
 	return 0;
 }
