@@ -1007,6 +1007,7 @@ void musb_stop(struct musb *musb)
 	 *  - ...
 	 */
 	musb_platform_try_idle(musb, 0);
+	musb_platform_exit(musb);
 }
 
 #ifndef __UBOOT__
