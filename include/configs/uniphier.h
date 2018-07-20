@@ -10,6 +10,35 @@
 #ifndef __CONFIG_UNIPHIER_COMMON_H__
 #define __CONFIG_UNIPHIER_COMMON_H__
 
+#ifndef CONFIG_SPL_BUILD
+#include <config_distro_bootcmd.h>
+
+#ifdef CONFIG_CMD_MMC
+#define BOOT_TARGET_DEVICE_MMC(func)	func(MMC, mmc, 0) func(MMC, mmc, 1)
+#else
+#define BOOT_TARGET_DEVICE_MMC(func)
+#endif
+
+#ifdef CONFIG_CMD_UBIFS
+#define BOOT_TARGET_DEVICE_UBIFS(func)	func(UBIFS, ubifs, 0)
+#else
+#define BOOT_TARGET_DEVICE_UBIFS(func)
+#endif
+
+#ifdef CONFIG_CMD_USB
+#define BOOT_TARGET_DEVICE_USB(func)	func(USB, usb, 0)
+#else
+#define BOOT_TARGET_DEVICE_USB(func)
+#endif
+
+#define BOOT_TARGET_DEVICES(func)	\
+	BOOT_TARGET_DEVICE_MMC(func)	\
+	BOOT_TARGET_DEVICE_UBIFS(func)	\
+	BOOT_TARGET_DEVICE_USB(func)
+#else
+#define BOOTENV
+#endif
+
 #define CONFIG_ARMV7_PSCI_1_0
 
 /*-----------------------------------------------------------------------
@@ -98,8 +127,6 @@
 	"third_image=u-boot.bin\0"
 #endif
 
-#define CONFIG_BOOTCOMMAND		"run $bootmode"
-
 #define CONFIG_ROOTPATH			"/nfs/root/path"
 #define CONFIG_NFSBOOTCOMMAND						\
 	"setenv bootargs $bootargs root=/dev/nfs rw "			\
@@ -110,64 +137,31 @@
 #ifdef CONFIG_FIT
 #define CONFIG_BOOTFILE			"fitImage"
 #define LINUXBOOT_ENV_SETTINGS \
-	"fit_addr=0x00100000\0" \
-	"fit_addr_r=0x85100000\0" \
-	"fit_size=0x00f00000\0" \
-	"norboot=setexpr fit_addr $nor_base + $fit_addr &&" \
-		"bootm $fit_addr\0" \
-	"nandboot=nand read $fit_addr_r $fit_addr $fit_size &&" \
-		"bootm $fit_addr_r\0" \
-	"tftpboot=tftpboot $fit_addr_r $bootfile &&" \
-		"bootm $fit_addr_r\0" \
+	"kernel_addr_r=0x85100000\0" \
+	"tftpboot=tftpboot $kernel_addr_r $bootfile &&" \
+		"bootm $kernel_addr_r\0" \
 	"__nfsboot=run tftpboot\0"
 #else
 #ifdef CONFIG_ARM64
-#define CONFIG_BOOTFILE			"Image.gz"
+#define CONFIG_BOOTFILE			"Image"
 #define LINUXBOOT_CMD			"booti"
-#define KERNEL_ADDR_LOAD		"kernel_addr_load=0x85200000\0"
 #define KERNEL_ADDR_R			"kernel_addr_r=0x82080000\0"
 #else
 #define CONFIG_BOOTFILE			"zImage"
 #define LINUXBOOT_CMD			"bootz"
-#define KERNEL_ADDR_LOAD		"kernel_addr_load=0x80208000\0"
 #define KERNEL_ADDR_R			"kernel_addr_r=0x80208000\0"
 #endif
 #define LINUXBOOT_ENV_SETTINGS \
-	"fdt_addr=0x00100000\0" \
 	"fdt_addr_r=0x85100000\0" \
-	"fdt_size=0x00008000\0" \
-	"kernel_addr=0x00200000\0" \
-	KERNEL_ADDR_LOAD \
 	KERNEL_ADDR_R \
-	"kernel_size=0x00e00000\0" \
-	"ramdisk_addr=0x01000000\0" \
 	"ramdisk_addr_r=0x86000000\0" \
-	"ramdisk_size=0x00800000\0" \
-	"ramdisk_file=rootfs.cpio.uboot\0" \
+	"ramdisk_file=rootfs.cpio.gz\0" \
 	"boot_common=setexpr bootm_low $kernel_addr_r '&' fe000000 && " \
-		"if test $kernel_addr_load = $kernel_addr_r; then " \
-			"true; " \
-		"else " \
-			"unzip $kernel_addr_load $kernel_addr_r; " \
-		"fi && " \
 		LINUXBOOT_CMD " $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
-	"norboot=setexpr kernel_addr_nor $nor_base + $kernel_addr && " \
-		"setexpr kernel_size_div4 $kernel_size / 4 && " \
-		"cp $kernel_addr_nor $kernel_addr_load $kernel_size_div4 && " \
-		"setexpr ramdisk_addr_nor $nor_base + $ramdisk_addr && " \
-		"setexpr ramdisk_size_div4 $ramdisk_size / 4 && " \
-		"cp $ramdisk_addr_nor $ramdisk_addr_r $ramdisk_size_div4 && " \
-		"setexpr fdt_addr_nor $nor_base + $fdt_addr && " \
-		"setexpr fdt_size_div4 $fdt_size / 4 && " \
-		"cp $fdt_addr_nor $fdt_addr_r $fdt_size_div4 && " \
-		"run boot_common\0" \
-	"nandboot=nand read $kernel_addr_load $kernel_addr $kernel_size && " \
-		"nand read $ramdisk_addr_r $ramdisk_addr $ramdisk_size &&" \
-		"nand read $fdt_addr_r $fdt_addr $fdt_size &&" \
-		"run boot_common\0" \
-	"tftpboot=tftpboot $kernel_addr_load $bootfile && " \
-		"tftpboot $ramdisk_addr_r $ramdisk_file &&" \
+	"tftpboot=tftpboot $kernel_addr_r $bootfile && " \
 		"tftpboot $fdt_addr_r $fdtfile &&" \
+		"tftpboot $ramdisk_addr_r $ramdisk_file &&" \
+		"setenv ramdisk_addr_r $ramdisk_addr_r:$filesize &&" \
 		"run boot_common\0" \
 	"__nfsboot=tftpboot $kernel_addr_load $bootfile && " \
 		"tftpboot $fdt_addr_r $fdtfile &&" \
@@ -178,6 +172,7 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"netdev=eth0\0"						\
 	"initrd_high=0xffffffffffffffff\0"			\
+	"scriptaddr=0x85000000\0"				\
 	"nor_base=0x42000000\0"					\
 	"sramupdate=setexpr tmp_addr $nor_base + 0x50000 &&"	\
 		"tftpboot $tmp_addr $second_image && " \
@@ -201,7 +196,8 @@
 		"tftpboot $third_image && " \
 		"usb write $loadaddr 100 f00\0" \
 	BOOT_IMAGES \
-	LINUXBOOT_ENV_SETTINGS
+	LINUXBOOT_ENV_SETTINGS \
+	BOOTENV
 
 #define CONFIG_SYS_BOOTMAPSZ			0x20000000
 

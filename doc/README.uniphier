@@ -332,6 +332,61 @@ for kernel, DTB, and Init ramdisk.
 If they are not displayed, the Verified Boot is not working.
 
 
+Deployment for Distro Boot
+--------------------------
+
+UniPhier SoC family boot the kernel in a generic manner as described in
+doc/README.distro .
+
+To boot the kernel, you need to deploy necesssary components to a file
+system on one of your block devices (eMMC, NAND, USB drive, etc.).
+
+The components depend on the kernel image format.
+
+[1] Bare images
+
+  - kernel
+  - init ramdisk
+  - device tree blob
+  - boot configuration file (extlinux.conf)
+
+Here is an exmple of the configuration file.
+
+-------------------->8--------------------
+menu title UniPhier Boot Options.
+
+timeout 50
+default UniPhier
+
+label UniPhier
+      kernel ../Image
+      initrd ../rootfs.cpio.gz
+      fdtdir ..
+-------------------->8--------------------
+
+Then, write 'Image', 'rootfs.cpio.gz', 'uniphier-ld20-ref.dtb' (DTB depends on
+your board), and 'extlinux/extlinux.conf' to the file system.
+
+[2] FIT
+
+  - FIT blob
+  - boot configuration file (extlinux.conf)
+
+-------------------->8--------------------
+menu title UniPhier Boot Options.
+
+timeout 50
+default UniPhier
+
+label UniPhier
+      kernel ../fitImage
+-------------------->8--------------------
+
+Since the init ramdisk and DTB are contained in the FIT blob,
+you do not need to describe them in the configuration file.
+Write 'fitImage' and 'extlinux/extlinux.conf' to the file system.
+
+
 UniPhier specific commands
 --------------------------
 
