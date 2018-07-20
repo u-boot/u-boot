@@ -136,6 +136,13 @@ config SYS_MALLOC_F_LEN
 	  particular needs this to operate, so that it can allocate the
 	  initial serial device and any others that are needed.
 
+config SYS_MALLOC_LEN
+	hex "Define memory for Dynamic allocation"
+	depends on ARCH_ZYNQ
+	help
+	  This defines memory to be allocated for Dynamic allocation
+	  TODO: Use for other architectures
+
 config SPL_SYS_MALLOC_F_LEN
 	hex "Size of malloc() pool in SPL before relocation"
 	depends on SYS_MALLOC_F
