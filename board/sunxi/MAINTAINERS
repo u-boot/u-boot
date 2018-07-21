@@ -370,6 +370,11 @@ M:	Andre Przywara <andre.przywara@arm.com>
 S:	Maintained
 F:	configs/pine64_plus_defconfig
 
+PINE H64 BOARD
+M:	Icenowy Zheng <icenowy@aosc.io>
+S:	Maintained
+F:	configs/pine_h64_defconfig
+
 R16 EVB PARROT BOARD
 M:	Quentin Schulz <quentin.schulz@free-electrons.com>
 S:	Maintained
