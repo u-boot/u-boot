@@ -977,9 +977,6 @@ The following options need to be configured:
 			Define this to use i/o functions instead of macros
 			(some hardware wont work with macros)
 
-		CONFIG_DRIVER_TI_EMAC
-		Support for davinci emac
-
 			CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT
 			Define this if you have more then 3 PHYs.
 

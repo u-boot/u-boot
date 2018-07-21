@@ -13,7 +13,6 @@
 /*
  * Board
  */
-#define CONFIG_DRIVER_TI_EMAC
 #define CONFIG_USE_SPIFLASH
 #define	CONFIG_SYS_USE_NAND
 #define CONFIG_DRIVER_TI_EMAC_USE_RMII
@@ -68,7 +67,6 @@
  * Network & Ethernet Configuration
  */
 #ifdef CONFIG_DRIVER_TI_EMAC
-#define CONFIG_MII
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT	10

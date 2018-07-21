@@ -376,7 +376,6 @@
 
 #ifdef CONFIG_FMAN_ENET
 #define CONFIG_SYS_TBIPA_VALUE	8
-#define CONFIG_MII		/* MII PHY management */
 #define CONFIG_ETHPRIME		"FM1@DTSEC4"
 #endif
 

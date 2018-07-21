@@ -442,7 +442,6 @@
 
 #define CONFIG_BOOTP_SERVERIP
 
-#define CONFIG_MII		/* MII PHY management */
 #define CONFIG_TSEC1_NAME	"eTSEC1"
 #define CONFIG_TSEC2_NAME	"eTSEC2"
 #define CONFIG_TSEC3_NAME	"eTSEC3"

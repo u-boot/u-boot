@@ -13,7 +13,6 @@
 /* U-Boot Load Address */
 
 /* Ethernet driver configuration */
-#define CONFIG_MII
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
 
 /* USBD driver configuration */

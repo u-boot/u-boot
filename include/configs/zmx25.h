@@ -45,7 +45,6 @@
  */
 #define CONFIG_FEC_MXC
 #define CONFIG_FEC_MXC_PHYADDR		0x00
-#define CONFIG_MII
 
 /*
  * BOOTP options

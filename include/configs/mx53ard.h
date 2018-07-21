@@ -46,7 +46,6 @@
 
 /* Eth Configs */
 #define CONFIG_HAS_ETH1
-#define CONFIG_MII
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

@@ -61,7 +61,6 @@
 /* Ethernet */
 #define CONFIG_FEC_MXC
 #define CONFIG_FEC_MXC_PHYADDR		0x1f
-#define CONFIG_MII
 #define CONFIG_ENV_OVERWRITE
 
 /* ESDHC driver */

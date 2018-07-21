@@ -70,7 +70,6 @@
 
 #define CONFIG_FEC_MXC
 #define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_MII
 
 #define CONFIG_ARP_TIMEOUT		200UL
 

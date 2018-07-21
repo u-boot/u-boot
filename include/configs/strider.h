@@ -502,7 +502,6 @@ void fpga_control_clear(unsigned int bus, int pin);
 /*
  * TSEC ethernet configuration
  */
-#define CONFIG_MII		1 /* MII PHY management */
 #define CONFIG_TSEC1
 #define CONFIG_TSEC1_NAME	"eTSEC0"
 #define TSEC1_PHY_ADDR		1

@@ -36,7 +36,6 @@
 
 /* GMAC related configs */
 
-#define CONFIG_MII
 #define CONFIG_DW_ALTDESCRIPTOR
 
 /* Command support defines */

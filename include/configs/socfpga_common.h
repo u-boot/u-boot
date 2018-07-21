@@ -74,7 +74,6 @@
  */
 #ifdef CONFIG_CMD_NET
 #define CONFIG_DW_ALTDESCRIPTOR
-#define CONFIG_MII
 #endif
 
 /*

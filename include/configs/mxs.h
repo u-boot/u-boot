@@ -111,7 +111,6 @@
 
 /* FEC Ethernet on SoC */
 #ifdef CONFIG_FEC_MXC
-#define CONFIG_MII
 #ifndef CONFIG_ETHPRIME
 #define CONFIG_ETHPRIME			"FEC0"
 #endif

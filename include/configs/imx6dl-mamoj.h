@@ -55,7 +55,6 @@
 
 /* Ethernet */
 #define CONFIG_FEC_MXC_PHYADDR		1
-#define CONFIG_MII
 
 /* USB */
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET

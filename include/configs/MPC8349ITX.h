@@ -408,9 +408,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 /* TSEC */
 
 #ifdef CONFIG_TSEC_ENET
-
-#define CONFIG_MII
-
 #define CONFIG_TSEC1
 
 #ifdef CONFIG_TSEC1

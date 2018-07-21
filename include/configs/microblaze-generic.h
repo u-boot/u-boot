@@ -170,10 +170,7 @@
 #define CONFIG_LMB		1
 
 #if defined(CONFIG_XILINX_AXIEMAC)
-# define CONFIG_MII		1
 # define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	1
-#else
-# undef CONFIG_MII
 #endif
 
 /* SPL part */

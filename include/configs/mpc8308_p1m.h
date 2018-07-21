@@ -337,7 +337,6 @@
 /*
  * TSEC ethernet configuration
  */
-#define CONFIG_MII		1 /* MII PHY management */
 #define CONFIG_TSEC1_NAME	"eTSEC0"
 #define CONFIG_TSEC2_NAME	"eTSEC1"
 #define TSEC1_PHY_ADDR		1

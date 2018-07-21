@@ -302,7 +302,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_FM1_DTSEC2_PHY_ADDR	0x2
 
 #define CONFIG_SYS_TBIPA_VALUE	8
-#define CONFIG_MII		/* MII PHY management */
 #define CONFIG_ETHPRIME		"FM1@DTSEC1"
 #endif
 

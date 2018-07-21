@@ -235,7 +235,6 @@
 /*
  * Networking options
  */
-#define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_ETHPRIME		"eTSEC1"
 
 #define CONFIG_TSEC1		1

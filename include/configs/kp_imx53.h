@@ -21,7 +21,6 @@
 #define CONFIG_SYS_FSL_ESDHC_NUM	1
 
 /* Eth Configs */
-#define CONFIG_MII
 
 /* USB Configs */
 #define CONFIG_USB_EHCI_MX5

@@ -48,7 +48,6 @@
 #define CONFIG_MARVELL_GPIO
 
 /* PHY configuration */
-#define CONFIG_MII
 #define CONFIG_RESET_PHY_R
 /* 88E3015 register definition */
 #define PHY_LED_PAR_SEL_REG		22

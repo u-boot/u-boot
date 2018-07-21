@@ -389,7 +389,6 @@ extern int board_pci_host_broken(void);
 /*
  * TSEC ethernet configuration
  */
-#define CONFIG_MII		1 /* MII PHY management */
 #define CONFIG_TSEC1		1
 #define CONFIG_TSEC1_NAME	"eTSEC0"
 #define CONFIG_TSEC2		1

@@ -241,6 +241,11 @@ config RGMII
 	  Enable the support of the Reduced Gigabit Media-Independent
 	  Interface (RGMII).
 
+config MII
+	bool "Enable MII"
+	help
+	  Enable support of the Media-Independent Interface (MII)
+
 config RTL8139
 	bool "Realtek 8139 series Ethernet controller driver"
 	help
@@ -316,6 +321,11 @@ config SH_ETHER
 	select PHYLIB
 	help
 	  This driver supports the Ethernet for Renesas SH and ARM SoCs.
+
+config DRIVER_TI_EMAC
+	bool "TI Davinci EMAC"
+	help
+	   Support for davinci emac
 
 config XILINX_AXIEMAC
 	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)

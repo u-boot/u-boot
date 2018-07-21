@@ -42,7 +42,6 @@
 #define CONFIG_SYS_BOOTCOUNT_BE
 
 /* FEC ethernet */
-#define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_XCV_TYPE		RMII
 #define CONFIG_ETHPRIME			"FEC"

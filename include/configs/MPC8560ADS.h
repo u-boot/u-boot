@@ -253,9 +253,6 @@
 
 #ifdef CONFIG_TSEC_ENET
 
-#ifndef CONFIG_MII
-#define CONFIG_MII		1	/* MII PHY management */
-#endif
 #define CONFIG_TSEC1	1
 #define CONFIG_TSEC1_NAME	"TSEC0"
 #define CONFIG_TSEC2	1
@@ -293,10 +290,6 @@
   /* need more definitions here for FE3 */
   #define FETH3_RST		0x80
 #endif					/* CONFIG_ETHER_INDEX */
-
-#ifndef CONFIG_MII
-#define CONFIG_MII		1	/* MII PHY management */
-#endif
 
 #define CONFIG_BITBANGMII		/* bit-bang MII PHY management */
 

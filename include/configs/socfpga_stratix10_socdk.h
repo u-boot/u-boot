@@ -165,7 +165,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 /* Ethernet on SoC (EMAC) */
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_DW_ALTDESCRIPTOR
-#define CONFIG_MII
 #endif /* CONFIG_CMD_NET */
 
 /*

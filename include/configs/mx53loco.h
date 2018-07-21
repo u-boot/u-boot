@@ -32,7 +32,6 @@
 #define CONFIG_SYS_FSL_ESDHC_NUM	2
 
 /* Eth Configs */
-#define CONFIG_MII
 
 #define CONFIG_FEC_MXC
 #define IMX_FEC_BASE	FEC_BASE_ADDR

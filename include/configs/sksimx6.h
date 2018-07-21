@@ -26,7 +26,6 @@
 #define CONFIG_ETHPRIME			"FEC"
 #define CONFIG_FEC_MXC_PHYADDR		0x01
 
-#define CONFIG_MII
 #define CONFIG_PHY_MICREL_KSZ9021
 
 /* I2C Configs */

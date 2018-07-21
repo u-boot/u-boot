@@ -13,7 +13,6 @@
 /*
  * Board
  */
-#define CONFIG_DRIVER_TI_EMAC
 #undef CONFIG_USE_SPIFLASH
 #undef	CONFIG_SYS_USE_NOR
 
@@ -204,7 +203,6 @@
  * Network & Ethernet Configuration
  */
 #ifdef CONFIG_DRIVER_TI_EMAC
-#define CONFIG_MII
 #undef	CONFIG_DRIVER_TI_EMAC_USE_RMII
 #define CONFIG_BOOTP_DEFAULT
 #define CONFIG_BOOTP_DNS2

@@ -295,7 +295,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  * Networking options
  */
 #define CONFIG_TSEC_TBI
-#define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_MII_DEFAULT_TSEC	1	/* Allow unregistered phys */
 #define CONFIG_ETHPRIME		"eTSEC2"
 

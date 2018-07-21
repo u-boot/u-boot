@@ -290,12 +290,8 @@ extern int soft_i2c_gpio_scl;
 #endif /* CONFIG_VIDEO_SUNXI */
 
 /* Ethernet support */
-#ifdef CONFIG_SUN4I_EMAC
-#define CONFIG_MII			/* MII PHY management		*/
-#endif
 
 #ifdef CONFIG_SUN7I_GMAC
-#define CONFIG_MII			/* MII PHY management		*/
 #define CONFIG_PHY_REALTEK
 #endif
 
