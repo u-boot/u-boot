@@ -17,6 +17,11 @@
 #include <asm/gpio.h>
 #include <dm/pinctrl.h>
 
+__weak int rk_board_late_init(void)
+{
+	return 0;
+}
+
 int board_late_init(void)
 {
 	struct rk3188_grf *grf;
@@ -32,7 +37,7 @@ int board_late_init(void)
 			NOC_REMAP_MASK << NOC_REMAP_SHIFT);
 	}
 
-	return 0;
+	return rk_board_late_init();
 }
 
 int board_init(void)

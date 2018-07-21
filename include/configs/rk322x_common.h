@@ -52,6 +52,7 @@
 /* Linux fails to load the fdt if it's loaded above 512M on a evb-rk3036 board,
  * so limit the fdt reallocation to that */
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"fdt_high=0x7fffffff\0" \
 	"partitions=" PARTS_DEFAULT \
 	ENV_MEM_LAYOUT_SETTINGS \

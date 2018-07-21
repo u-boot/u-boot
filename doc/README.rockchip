@@ -124,11 +124,11 @@ something like:
    =>
 
 The rockchip bootrom can load and boot an initial spl, then continue to
-load a second-level bootloader(ie. U-BOOT) as soon as it returns to bootrom.
-Therefore RK3288 has another loading sequence like RK3036. The option of
-U-Boot is controlled with this setting in U-Boot:
+load a second-stage bootloader (ie. U-Boot) as soon as the control is returned
+to the bootrom. Both the RK3288 and the RK3036 use this special boot sequence.
+The configuration option enabling this is:
 
-	#define CONFIG_SPL_ROCKCHIP_BACK_TO_BROM
+	CONFIG_SPL_ROCKCHIP_BACK_TO_BROM=y
 
 You can create the image via the following operations:
 

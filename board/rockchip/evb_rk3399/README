@@ -65,7 +65,7 @@ Compile the U-Boot
 Compile the rkdeveloptool
 =======================
   Follow instructions in latest README
-  > cd ../rkflashtool
+  > cd ../rkdeveloptool
   > autoreconf -i
   > ./configure
   > make

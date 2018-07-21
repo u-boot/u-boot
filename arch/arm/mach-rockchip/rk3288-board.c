@@ -122,6 +122,22 @@ static int veyron_init(void)
 	if (IS_ERR_VALUE(ret))
 		return ret;
 
+	ret = regulator_get_by_platname("vcc33_sd", &dev);
+	if (ret) {
+		debug("Cannot get regulator name\n");
+		return ret;
+	}
+
+	ret = regulator_set_value(dev, 3300000);
+	if (ret)
+		return ret;
+
+	ret = regulators_enable_boot_on(false);
+	if (ret) {
+		debug("%s: Cannot enable boot on regulators\n", __func__);
+		return ret;
+	}
+
 	return 0;
 }
 #endif
@@ -301,10 +317,10 @@ U_BOOT_CMD(
 	""
 );
 
-#define GRF_SOC_CON2 0xff77024c
-
 int board_early_init_f(void)
 {
+	const uintptr_t GRF_SOC_CON0 = 0xff770244;
+	const uintptr_t GRF_SOC_CON2 = 0xff77024c;
 	struct udevice *pinctrl;
 	struct udevice *dev;
 	int ret;
@@ -332,6 +348,12 @@ int board_early_init_f(void)
 		return ret;
 	}
 	rk_setreg(GRF_SOC_CON2, 1 << 0);
+
+	/*
+	 * Disable JTAG on sdmmc0 IO. The SDMMC won't work until this bit is
+	 * cleared
+	 */
+	rk_clrreg(GRF_SOC_CON0, 1 << 12);
 
 	return 0;
 }

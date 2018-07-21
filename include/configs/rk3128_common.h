@@ -53,6 +53,7 @@
 #include <config_distro_bootcmd.h>
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
+	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"partitions=" PARTS_DEFAULT \
 	BOOTENV
 

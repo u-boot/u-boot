@@ -73,3 +73,13 @@ Example
 		u-boot,spl-boot-order = "same-as-spl", &sdmmc, "/sdhci@fe330000";
 	};
 };
+
+u-boot,spl-boot-device property
+-------------------------------
+
+This property is a companion-property to the u-boot,spl-boot-order and
+will be injected automatically by the SPL stage to notify a later stage
+of where said later stage was booted from.
+
+You should not define this property yourself in the device-tree, as it
+may be overwritten without warning.
