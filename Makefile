@@ -1234,8 +1234,9 @@ endif
 
 ifneq ($(CONFIG_TEGRA),)
 ifneq ($(CONFIG_BINMAN),)
-u-boot-dtb-tegra.bin u-boot-tegra.bin u-boot-nodtb-tegra.bin: \
-		spl/u-boot-spl u-boot.bin FORCE
+# Makes u-boot-dtb-tegra.bin u-boot-tegra.bin u-boot-nodtb-tegra.bin
+%-dtb-tegra.bin %-tegra.bin %-nodtb-tegra.bin: \
+		spl/%-spl %.bin FORCE
 	$(call if_changed,binman)
 else
 OBJCOPYFLAGS_u-boot-nodtb-tegra.bin = -O binary --pad-to=$(CONFIG_SYS_TEXT_BASE)
