@@ -72,6 +72,14 @@ config BOOTCOUNT_AT91
 
 endchoice
 
+config BOOTCOUNT_BOOTLIMIT
+	int "Maximum number of reboot cycles allowed"
+	default 0
+	help
+	  Set the Maximum number of reboot cycles allowed without the boot
+	  counter being cleared.
+	  If set to 0 do not set a boot limit in the environment.
+
 config BOOTCOUNT_ALEN
 	int "I2C address length"
 	default 1
