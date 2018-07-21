@@ -251,7 +251,6 @@
 	"verify=n\0"							\
 	"clearenv=protect off all;"					\
 		"erase 0x60040000 +0x40000;\0"				\
-	"bootlimit=3\0"							\
 	"altbootcmd=run bootrlk\0"
 
 #define CONFIG_PREBOOT			\

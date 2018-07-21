@@ -263,7 +263,6 @@
 	"baudrate=115200\0" \
 	"bootcmd=" CONFIG_BOOTCOMMAND "\0" \
 	"factory=" FACTORY_PROCEDURE "\0" \
-	"bootlimit=3\0" \
 	"ethact=FEC\0" \
 	"netdev=eth0\0" \
 	"boot_os=y\0" \

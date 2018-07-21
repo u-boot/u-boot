@@ -101,7 +101,6 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	PPD_CONFIG_NFS \
-	"bootlimit=10\0" \
 	"image=/boot/fitImage\0" \
 	"fdt_high=0xffffffff\0" \
 	"dev=mmc\0" \
