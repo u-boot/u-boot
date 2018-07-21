@@ -70,10 +70,12 @@ static int mmc_resource_init(int sdc_no)
 		priv->reg = (struct sunxi_mmc *)SUNXI_MMC2_BASE;
 		priv->mclkreg = &ccm->sd2_clk_cfg;
 		break;
+#ifdef SUNXI_MMC3_BASE
 	case 3:
 		priv->reg = (struct sunxi_mmc *)SUNXI_MMC3_BASE;
 		priv->mclkreg = &ccm->sd3_clk_cfg;
 		break;
+#endif
 	default:
 		printf("Wrong mmc number %d\n", sdc_no);
 		return -1;
@@ -116,6 +118,9 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 #ifdef CONFIG_MACH_SUN9I
 		pll = CCM_MMC_CTRL_PLL_PERIPH0;
 		pll_hz = clock_get_pll4_periph0();
+#elif defined(CONFIG_MACH_SUN50I_H6)
+		pll = CCM_MMC_CTRL_PLL6X2;
+		pll_hz = clock_get_pll6() * 2;
 #else
 		pll = CCM_MMC_CTRL_PLL6;
 		pll_hz = clock_get_pll6();
@@ -494,7 +499,7 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	cfg->host_caps = MMC_MODE_4BIT;
-#if defined(CONFIG_MACH_SUN50I) || defined(CONFIG_MACH_SUN8I)
+#if defined(CONFIG_MACH_SUN50I) || defined(CONFIG_MACH_SUN8I) || defined(CONFIG_MACH_SUN50I_H6)
 	if (sdc_no == 2)
 		cfg->host_caps = MMC_MODE_8BIT;
 #endif
@@ -509,6 +514,7 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 
 	/* config ahb clock */
 	debug("init mmc %d clock and io\n", sdc_no);
+#if !defined(CONFIG_MACH_SUN50I_H6)
 	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MMC(sdc_no));
 
 #ifdef CONFIG_SUNXI_GEN_SUN6I
@@ -519,6 +525,11 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 	/* sun9i has a mmc-common module, also set the gate and reset there */
 	writel(SUNXI_MMC_COMMON_CLK_GATE | SUNXI_MMC_COMMON_RESET,
 	       SUNXI_MMC_COMMON_BASE + 4 * sdc_no);
+#endif
+#else /* CONFIG_MACH_SUN50I_H6 */
+	setbits_le32(&ccm->sd_gate_reset, 1 << sdc_no);
+	/* unassert reset */
+	setbits_le32(&ccm->sd_gate_reset, 1 << (RESET_SHIFT + sdc_no));
 #endif
 	ret = mmc_set_mod_clk(priv, 24000000);
 	if (ret)
