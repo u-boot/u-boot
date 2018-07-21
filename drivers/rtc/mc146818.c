@@ -145,7 +145,8 @@ static int mc146818_set(struct rtc_time *tmp)
 
 	mc146818_write8(RTC_YEAR, bin2bcd(tmp->tm_year % 100));
 	mc146818_write8(RTC_MONTH, bin2bcd(tmp->tm_mon));
-	mc146818_write8(RTC_DAY_OF_WEEK, bin2bcd(tmp->tm_wday));
+	/* Sunday = 1, Saturday = 7 */
+	mc146818_write8(RTC_DAY_OF_WEEK, bin2bcd(tmp->tm_wday + 1));
 	mc146818_write8(RTC_DATE_OF_MONTH, bin2bcd(tmp->tm_mday));
 	mc146818_write8(RTC_HOURS, bin2bcd(tmp->tm_hour));
 	mc146818_write8(RTC_MINUTES, bin2bcd(tmp->tm_min));
