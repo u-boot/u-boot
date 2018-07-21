@@ -76,7 +76,7 @@ struct sunxi_timer_reg {
 	struct sunxi_tgp tgp[4];
 	u8 res5[8];
 	u32 cpu_cfg;
-#elif defined(CONFIG_SUNXI_GEN_SUN6I)
+#elif defined(CONFIG_SUNXI_GEN_SUN6I) || defined(CONFIG_MACH_SUN50I_H6)
 	u8 res3[16];
 	struct sunxi_wdog wdog[5];	/* We have 5 watchdogs */
 #endif
