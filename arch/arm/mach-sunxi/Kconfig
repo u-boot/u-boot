@@ -73,16 +73,15 @@ config SUN8I_RSB
 	  with various RSB based devices, such as AXP223, AXP8XX PMICs,
 	  and AC100/AC200 ICs.
 
-config SUNXI_HIGH_SRAM
-	bool
-	default n
+config SUNXI_SRAM_ADDRESS
+	hex
+	default 0x10000 if MACH_SUN9I || MACH_SUN50I || MACH_SUN50I_H5
+	default 0x0
 	---help---
 	Older Allwinner SoCs have their mask boot ROM mapped just below 4GB,
 	with the first SRAM region being located at address 0.
 	Some newer SoCs map the boot ROM at address 0 instead and move the
-	SRAM to 64KB, just behind the mask ROM.
-	Chips using the latter setup are supposed to select this option to
-	adjust the addresses accordingly.
+	SRAM to a different address.
 
 config SUNXI_A64_TIMER_ERRATUM
 	bool
@@ -257,7 +256,6 @@ config MACH_SUN9I
 	select CPU_V7A
 	select DRAM_SUN9I
 	select SUN6I_PRCM
-	select SUNXI_HIGH_SRAM
 	select SUNXI_GEN_SUN6I
 	select SUN8I_RSB
 	select SUPPORT_SPL
@@ -269,7 +267,6 @@ config MACH_SUN50I
 	select PHY_SUN4I_USB
 	select SUNXI_DE2
 	select SUNXI_GEN_SUN6I
-	select SUNXI_HIGH_SRAM
 	select SUPPORT_SPL
 	select SUNXI_DRAM_DW
 	select SUNXI_DRAM_DW_32BIT
@@ -281,7 +278,6 @@ config MACH_SUN50I_H5
 	bool "sun50i (Allwinner H5)"
 	select ARM64
 	select MACH_SUNXI_H3_H5
-	select SUNXI_HIGH_SRAM
 	select FIT
 	select SPL_LOAD_FIT
 
