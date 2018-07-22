@@ -415,7 +415,7 @@ static int execute(void)
 
 #ifdef CONFIG_FAT_WRITE
 	/* Write file */
-	ret = root->open(root, &file, (s16 *)L"u-boot.txt",
+	ret = root->open(root, &file, (s16 *)L"u-boot.txt", EFI_FILE_MODE_READ |
 			 EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE, 0);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Failed to open file\n");
