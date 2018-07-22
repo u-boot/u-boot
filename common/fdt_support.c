@@ -409,11 +409,7 @@ static int fdt_pack_reg(const void *fdt, void *buf, u64 *address, u64 *size,
 	return p - (char *)buf;
 }
 
-#ifdef CONFIG_NR_DRAM_BANKS
-#define MEMORY_BANKS_MAX CONFIG_NR_DRAM_BANKS
-#else
 #define MEMORY_BANKS_MAX 4
-#endif
 int fdt_fixup_memory_banks(void *blob, u64 start[], u64 size[], int banks)
 {
 	int err, nodeoffset;
