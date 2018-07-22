@@ -42,6 +42,12 @@ config DRAM_SUN9I
 	  Select this dram controller driver for Sun9i platforms,
 	  like A80.
 
+config DRAM_SUN50I_H6
+	bool
+	help
+	  Select this dram controller driver for some sun50i platforms,
+	  like H6.
+
 config SUN6I_P2WI
 	bool "Allwinner sun6i internal P2WI controller"
 	help
