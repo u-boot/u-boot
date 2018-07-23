@@ -1012,11 +1012,12 @@ config CMD_USB_SDP
 	help
 	  Enables the command "sdp" which is used to have U-Boot emulating the
 	  Serial Download Protocol (SDP) via USB.
+
 config CMD_ROCKUSB
 	bool "rockusb"
 	depends on USB_FUNCTION_ROCKUSB
 	help
-          Rockusb protocol is widely used by Rockchip SoC based devices. It can
+	  Rockusb protocol is widely used by Rockchip SoC based devices. It can
 	  read/write info, image to/from devices. This enable rockusb command
 	  support to communication with rockusb device. for more detail about
 	  this command, please read doc/README.rockusb.
@@ -1489,7 +1490,7 @@ config CMD_BLOB
 	  the original data.
 
 	  Sub-commands:
-            blob enc - encapsulating data as a cryptgraphic blob
+	    blob enc - encapsulating data as a cryptgraphic blob
 	    blob dec - decapsulating cryptgraphic blob to get the data
 
 	  Syntax:

@@ -301,11 +301,11 @@ config TARGET_MX6SLEVK
 	select SUPPORT_SPL
 
 config TARGET_MX6SLLEVK
-        bool "mx6sll evk"
+	bool "mx6sll evk"
 	select BOARD_LATE_INIT
-        select MX6SLL
-        select DM
-        select DM_THERMAL
+	select MX6SLL
+	select DM
+	select DM_THERMAL
 
 config TARGET_MX6SXSABRESD
 	bool "mx6sxsabresd"
@@ -317,11 +317,11 @@ config TARGET_MX6SXSABRESD
 	select BOARD_EARLY_INIT_F
 
 config TARGET_MX6SXSABREAUTO
-        bool "mx6sxsabreauto"
+	bool "mx6sxsabreauto"
 	select BOARD_LATE_INIT
 	select MX6SX
-        select DM
-        select DM_THERMAL
+	select DM
+	select DM_THERMAL
 	select BOARD_EARLY_INIT_F
 
 config TARGET_MX6UL_9X9_EVK
