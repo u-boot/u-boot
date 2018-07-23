@@ -202,7 +202,7 @@ config SPL_MULTI_DTB_FIT_NO_COMPRESSION
 endchoice
 
 choice
-	prompt "Location of uncompressed DTBs "
+	prompt "Location of uncompressed DTBs"
 	depends on (SPL_MULTI_DTB_FIT_GZIP || SPL_MULTI_DTB_FIT_LZO)
 	default SPL_MULTI_DTB_FIT_DYN_ALLOC if SYS_MALLOC_F
 

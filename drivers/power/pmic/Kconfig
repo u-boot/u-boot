@@ -131,7 +131,7 @@ config PMIC_S2MPS11
 	Binding info: doc/device-tree-bindings/pmic/s2mps11.txt
 
 config DM_PMIC_SANDBOX
-	bool "Enable Driver Model for emulated Sandbox PMIC "
+	bool "Enable Driver Model for emulated Sandbox PMIC"
 	depends on DM_PMIC
 	---help---
 	Enable the driver for Sandbox PMIC emulation. The emulated PMIC device
