@@ -1,14 +1,14 @@
 if ARCH_MX5
 
 config MX5
-	select GPT_TIMER
 	bool
 	default y
+	select GPT_TIMER
 
 config MX51
 	bool
-	select SYS_FSL_ERRATUM_ESDHC_A001
 	select ARM_CORTEX_A8_CVE_2017_5715
+	select SYS_FSL_ERRATUM_ESDHC_A001
 
 config MX53
 	bool
@@ -21,13 +21,13 @@ choice
 config TARGET_KP_IMX53
 	bool "Support K+P imx53 board"
 	select BOARD_LATE_INIT
-	select MX53
 	select DM
-	select DM_SERIAL
 	select DM_ETH
-	select DM_I2C
 	select DM_GPIO
+	select DM_I2C
 	select DM_PMIC
+	select DM_SERIAL
+	select MX53
 
 config TARGET_MX51EVK
 	bool "Support mx51evk"
@@ -41,9 +41,9 @@ config TARGET_MX53ARD
 config TARGET_MX53CX9020
 	bool "Support CX9020"
 	select BOARD_LATE_INIT
-	select MX53
 	select DM
 	select DM_SERIAL
+	select MX53
 
 config TARGET_MX53EVK
 	bool "Support mx53evk"

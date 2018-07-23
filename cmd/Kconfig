@@ -152,8 +152,8 @@ config CMD_BDI
 
 config CMD_CONFIG
 	bool "config"
-	select BUILD_BIN2C
 	default SANDBOX
+	select BUILD_BIN2C
 	help
 	  Print ".config" contents.
 
@@ -429,8 +429,8 @@ config CMD_BINOP
 
 config CMD_CRC32
 	bool "crc32"
-	select HASH
 	default y
+	select HASH
 	help
 	  Compute CRC32.
 
@@ -737,9 +737,9 @@ config CMD_GPIO
 
 config CMD_GPT
 	bool "GPT (GUID Partition Table) command"
-	select PARTITION_UUIDS
 	select EFI_PARTITION
 	select HAVE_BLOCK_DEVICE
+	select PARTITION_UUIDS
 	imply RANDOM_UUID
 	help
 	  Enable the 'gpt' command to ready and write GPT style partition
@@ -899,8 +899,8 @@ config CMD_ONENAND
 
 config CMD_PART
 	bool "part"
-	select PARTITION_UUIDS
 	select HAVE_BLOCK_DEVICE
+	select PARTITION_UUIDS
 	help
 	  Read and display information about the partition table on
 	  various media.
@@ -1798,10 +1798,10 @@ endmenu
 
 config CMD_UBI
 	tristate "Enable UBI - Unsorted block images commands"
+	default y if NAND_SUNXI
+	select CMD_MTDPARTS
 	select CRC32
 	select MTD_UBI
-	select CMD_MTDPARTS
-	default y if NAND_SUNXI
 	help
 	  UBI is a software layer above MTD layer which admits use of LVM-like
 	  logical volumes on top of MTD devices, hides some complexities of
@@ -1813,9 +1813,9 @@ config CMD_UBI
 config CMD_UBIFS
 	tristate "Enable UBIFS - Unsorted block images filesystem commands"
 	depends on CMD_UBI
+	default y if CMD_UBI
 	select CRC32
 	select LZO
-	default y if CMD_UBI
 	help
 	  UBIFS is a file system for flash devices which works on top of UBI.
 

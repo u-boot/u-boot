@@ -10,12 +10,12 @@ choice
 
 config ARC
 	bool "ARC architecture"
+	select ARCH_EARLY_INIT_R
+	select ARC_TIMER
+	select CLK
 	select HAVE_PRIVATE_LIBGCC
 	select SUPPORT_OF_CONTROL
-	select ARCH_EARLY_INIT_R
-	select CLK
 	select TIMER
-	select ARC_TIMER
 
 config ARM
 	bool "ARM architecture"
@@ -46,10 +46,10 @@ config NDS32
 
 config NIOS2
 	bool "Nios II architecture"
-	select SUPPORT_OF_CONTROL
-	select OF_CONTROL
-	select DM
 	select CPU
+	select DM
+	select OF_CONTROL
+	select SUPPORT_OF_CONTROL
 
 config PPC
 	bool "PowerPC architecture"
@@ -65,30 +65,30 @@ config RISCV
 config SANDBOX
 	bool "Sandbox"
 	select BOARD_LATE_INIT
-	select SUPPORT_OF_CONTROL
 	select DM
-	select DM_KEYBOARD
-	select DM_SPI_FLASH
-	select DM_SERIAL
-	select DM_I2C
-	select DM_SPI
 	select DM_GPIO
+	select DM_I2C
+	select DM_KEYBOARD
 	select DM_MMC
+	select DM_SERIAL
+	select DM_SPI
+	select DM_SPI_FLASH
 	select HAVE_BLOCK_DEVICE
-	select SPI
 	select LZO
+	select SPI
+	select SUPPORT_OF_CONTROL
 	imply CMD_GETTIME
 	imply CMD_HASH
 	imply CMD_IO
 	imply CMD_IOTRACE
 	imply CMD_LZMADEC
+	imply CMD_SATA
+	imply CMD_SF_TEST
 	imply CRC32_VERIFY
 	imply FAT_WRITE
 	imply HASH_VERIFY
 	imply LZMA
 	imply SCSI
-	imply CMD_SATA
-	imply CMD_SF_TEST
 
 config SH
 	bool "SuperH architecture"
@@ -97,29 +97,16 @@ config SH
 config X86
 	bool "x86 architecture"
 	select CREATE_ARCH_SYMLINK
-	select HAVE_PRIVATE_LIBGCC
-	select USE_PRIVATE_LIBGCC
-	select SUPPORT_OF_CONTROL
-	select OF_CONTROL
 	select DM
 	select DM_PCI
+	select HAVE_PRIVATE_LIBGCC
+	select OF_CONTROL
 	select PCI
+	select SUPPORT_OF_CONTROL
 	select TIMER
+	select USE_PRIVATE_LIBGCC
 	select X86_TSC_TIMER
 	imply BLK
-	imply DM_ETH
-	imply DM_GPIO
-	imply DM_KEYBOARD
-	imply DM_MMC
-	imply DM_RTC
-	imply DM_SERIAL
-	imply DM_SCSI
-	imply DM_SPI
-	imply DM_SPI_FLASH
-	imply DM_USB
-	imply DM_VIDEO
-	imply SYSRESET
-	imply SYSRESET_X86
 	imply CMD_FPGA_LOADMK
 	imply CMD_GETTIME
 	imply CMD_IO
@@ -127,9 +114,22 @@ config X86
 	imply CMD_PCI
 	imply CMD_SF_TEST
 	imply CMD_ZBOOT
-	imply USB_HOST_ETHER
+	imply DM_ETH
+	imply DM_GPIO
+	imply DM_KEYBOARD
+	imply DM_MMC
+	imply DM_RTC
+	imply DM_SCSI
+	imply DM_SERIAL
+	imply DM_SPI
+	imply DM_SPI_FLASH
+	imply DM_USB
+	imply DM_VIDEO
+	imply SYSRESET
+	imply SYSRESET_X86
 	imply USB_ETHER_ASIX
 	imply USB_ETHER_SMSC95XX
+	imply USB_HOST_ETHER
 
 config XTENSA
 	bool "Xtensa architecture"

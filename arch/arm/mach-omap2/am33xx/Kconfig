@@ -31,9 +31,11 @@ config TARGET_AM335X_EVM
 	bool "Support am335x_evm"
 	select BOARD_LATE_INIT
 	select DM
-	select DM_SERIAL
 	select DM_GPIO
+	select DM_SERIAL
 	select TI_I2C_BOARD_DETECT
+	imply SPL_DM
+	imply SPL_DM_SEQ_ALIAS
 	imply SPL_ENV_SUPPORT
 	imply SPL_EXT_SUPPORT
 	imply SPL_FAT_SUPPORT
@@ -44,15 +46,13 @@ config TARGET_AM335X_EVM
 	imply SPL_LIBGENERIC_SUPPORT
 	imply SPL_MMC_SUPPORT
 	imply SPL_NAND_SUPPORT
+	imply SPL_OF_LIBFDT
 	imply SPL_POWER_SUPPORT
+	imply SPL_SEPARATE_BSS
 	imply SPL_SERIAL_SUPPORT
+	imply SPL_SYS_MALLOC_SIMPLE
 	imply SPL_WATCHDOG_SUPPORT
 	imply SPL_YMODEM_SUPPORT
-	imply SPL_SYS_MALLOC_SIMPLE
-	imply SPL_SEPARATE_BSS
-	imply SPL_DM
-	imply SPL_DM_SEQ_ALIAS
-	imply SPL_OF_LIBFDT
 	help
 	  This option specifies support for the AM335x
 	  GP and HS EVM development platforms. The AM335x
@@ -65,30 +65,30 @@ config TARGET_AM335X_BALTOS
 	bool "Support am335x_baltos"
 	select BOARD_LATE_INIT
 	select DM
-	select DM_SERIAL
 	select DM_GPIO
+	select DM_SERIAL
 
 config TARGET_AM335X_IGEP003X
 	bool "Support am335x_igep003x"
 	select BOARD_LATE_INIT
 	select DM
-	select DM_SERIAL
 	select DM_GPIO
+	select DM_SERIAL
 
 config TARGET_AM335X_SHC
 	bool "Support am335x based shc board from bosch"
 	select BOARD_LATE_INIT
 	select DM
-	select DM_SERIAL
 	select DM_GPIO
+	select DM_SERIAL
 	imply CMD_SPL
 
 config TARGET_AM335X_SL50
 	bool "Support am335x_sl50"
 	select BOARD_LATE_INIT
 	select DM
-	select DM_SERIAL
 	select DM_GPIO
+	select DM_SERIAL
 
 config TARGET_BAV335X
 	bool "Support bav335x"
@@ -122,68 +122,68 @@ config TARGET_CHILIBOARD
 config TARGET_CM_T335
 	bool "Support cm_t335"
 	select DM
-	select DM_SERIAL
 	select DM_GPIO
+	select DM_SERIAL
 
 config TARGET_DRACO
 	bool "Support draco"
 	select BOARD_LATE_INIT
 	select DM
-	select DM_SERIAL
 	select DM_GPIO
+	select DM_SERIAL
 
 config TARGET_ETAMIN
 	bool "Support etamin"
 	select BOARD_LATE_INIT
 	select DM
-	select DM_SERIAL
 	select DM_GPIO
+	select DM_SERIAL
 
 config TARGET_PCM051
 	bool "Support pcm051"
 	select DM
-	select DM_SERIAL
 	select DM_GPIO
+	select DM_SERIAL
 
 config TARGET_PENGWYN
 	bool "Support pengwyn"
 	select DM
-	select DM_SERIAL
 	select DM_GPIO
+	select DM_SERIAL
 
 config TARGET_PEPPER
 	bool "Support pepper"
 	select DM
-	select DM_SERIAL
 	select DM_GPIO
+	select DM_SERIAL
 
 config TARGET_PXM2
 	bool "Support pxm2"
 	select BOARD_LATE_INIT
 	select DM
-	select DM_SERIAL
 	select DM_GPIO
+	select DM_SERIAL
 
 config TARGET_RASTABAN
 	bool "Support rastaban"
 	select BOARD_LATE_INIT
 	select DM
-	select DM_SERIAL
 	select DM_GPIO
+	select DM_SERIAL
 
 config TARGET_RUT
 	bool "Support rut"
 	select BOARD_LATE_INIT
 	select DM
-	select DM_SERIAL
 	select DM_GPIO
+	select DM_SERIAL
 
 config TARGET_THUBAN
 	bool "Support thuban"
 	select BOARD_LATE_INIT
 	select DM
-	select DM_SERIAL
 	select DM_GPIO
+	select DM_SERIAL
 
 config TARGET_PDU001
 	bool "Support PDU001"
@@ -258,6 +258,8 @@ endif
 if AM43XX || AM33XX
 config ISW_ENTRY_ADDR
 	hex "Address in memory or XIP flash of bootloader entry point"
+	default 0x402F4000 if AM43XX
+	default 0x402F0400 if AM33XX
 	help
 	  After any reset, the boot ROM on the AM43XX SOC
 	  searches the boot media for a valid boot image.
@@ -268,11 +270,10 @@ config ISW_ENTRY_ADDR
 	  point address depending on the device type
 	  (secure/non-secure), boot media (xip/non-xip) and
 	  image headers.
-	default 0x402F4000 if AM43XX
-	default 0x402F0400 if AM33XX
 
 config PUB_ROM_DATA_SIZE
 	hex "Size in bytes of the L3 SRAM reserved by ROM to store data"
+	default 0x8400
 	help
 	  During the device boot, the public ROM uses the top of
 	  the public L3 OCMC RAM to store r/w data like stack,
@@ -283,5 +284,4 @@ config PUB_ROM_DATA_SIZE
 	  boot image. Once the ROM transfers control to the boot
 	  image, this area is no longer used, and can be reclaimed
 	  for run time use by the boot image.
-	default 0x8400
 endif

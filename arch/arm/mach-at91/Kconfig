@@ -76,18 +76,18 @@ config TARGET_SNAPPER9260
 	bool "Support snapper9260"
 	select AT91SAM9260
 	select DM
-	select DM_SERIAL
 	select DM_GPIO
+	select DM_SERIAL
 
 config TARGET_GURNARD
 	bool "Support gurnard"
 	select AT91SAM9G45
 	select BOARD_LATE_INIT
 	select DM
+	select DM_ETH
+	select DM_GPIO
 	select DM_SERIAL
 	select DM_SPI
-	select DM_GPIO
-	select DM_ETH
 	select SPI
 
 config TARGET_AT91SAM9261EK
@@ -115,8 +115,8 @@ config TARGET_PM9263
 config TARGET_AT91SAM9M10G45EK
 	bool "Atmel AT91SAM9M10G45-EK board"
 	select AT91SAM9M10G45
-	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
+	select SUPPORT_SPL
 
 config TARGET_PM9G45
 	bool "Ronetix pm9g45 board"
@@ -130,8 +130,8 @@ config TARGET_PICOSAM9G45
 config TARGET_AT91SAM9N12EK
 	bool "Atmel AT91SAM9N12-EK board"
 	select AT91SAM9N12
-	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
+	select SUPPORT_SPL
 
 config TARGET_AT91SAM9RLEK
 	bool "Atmel at91sam9rl reference board"
@@ -141,28 +141,28 @@ config TARGET_AT91SAM9RLEK
 config TARGET_AT91SAM9X5EK
 	bool "Atmel AT91SAM9X5-EK board"
 	select AT91SAM9X5
-	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
+	select SUPPORT_SPL
 
 config TARGET_SAMA5D2_PTC_EK
 	bool "SAMA5D2 PTC EK board"
-	select SAMA5D2
 	select BOARD_EARLY_INIT_F
+	select SAMA5D2
 
 config TARGET_SAMA5D2_XPLAINED
 	bool "SAMA5D2 Xplained board"
-	select SAMA5D2
-	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
+	select SAMA5D2
+	select SUPPORT_SPL
 
 config TARGET_SAMA5D27_SOM1_EK
 	bool "SAMA5D27 SOM1 EK board"
-	select CPU_V7A
-	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
+	select CPU_V7A
+	select SUPPORT_SPL
 	help
 	  The SAMA5D27 SOM1 embeds SAMA5D2 SiP(System in Package),
 	  a 64Mbit QSPI flash, KSZ8081 Phy and a Mac-address EEPROM
@@ -172,30 +172,30 @@ config TARGET_SAMA5D27_SOM1_EK
 
 config TARGET_SAMA5D3_XPLAINED
 	bool "SAMA5D3 Xplained board"
+	select BOARD_EARLY_INIT_F
 	select SAMA5D3
 	select SUPPORT_SPL
-	select BOARD_EARLY_INIT_F
 
 config TARGET_SAMA5D3XEK
 	bool "SAMA5D3X-EK board"
-	select SAMA5D3
-	select BOARD_LATE_INIT
-	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
+	select SAMA5D3
+	select SUPPORT_SPL
 
 config TARGET_SAMA5D4_XPLAINED
 	bool "SAMA5D4 Xplained board"
-	select SAMA5D4
-	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
+	select SAMA5D4
+	select SUPPORT_SPL
 
 config TARGET_SAMA5D4EK
 	bool "SAMA5D4 Evaluation Kit"
-	select SAMA5D4
-	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
+	select SAMA5D4
+	select SUPPORT_SPL
 
 config TARGET_MEESC
 	bool "Support meesc"
@@ -204,39 +204,39 @@ config TARGET_MEESC
 config TARGET_CORVUS
 	bool "Support corvus"
 	select AT91SAM9M10G45
-	select SUPPORT_SPL
 	select DM
-	select DM_SERIAL
-	select DM_GPIO
 	select DM_ETH
+	select DM_GPIO
+	select DM_SERIAL
+	select SUPPORT_SPL
 
 config TARGET_TAURUS
 	bool "Support taurus"
 	select AT91SAM9G20
-	select SUPPORT_SPL
 	select DM
+	select DM_ETH
+	select DM_GPIO
 	select DM_SERIAL
 	select DM_SPI
-	select DM_GPIO
-	select DM_ETH
 	select SPI
+	select SUPPORT_SPL
 
 config TARGET_SMARTWEB
 	bool "Support smartweb"
 	select AT91SAM9260
-	select SUPPORT_SPL
 	select DM
-	select DM_SERIAL
-	select DM_GPIO
 	select DM_ETH
+	select DM_GPIO
+	select DM_SERIAL
+	select SUPPORT_SPL
 
 config TARGET_VINCO
 	bool "Support VINCO"
-	select SAMA5D4
-	select SUPPORT_SPL
 	select DM
 	select DM_SPI
+	select SAMA5D4
 	select SPI
+	select SUPPORT_SPL
 
 config TARGET_WB45N
 	bool "Support Laird WB45N"
@@ -245,10 +245,10 @@ config TARGET_WB45N
 
 config TARGET_WB50N
 	bool "Support Laird WB50N"
+	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select CPU_V7A
 	select SUPPORT_SPL
-	select BOARD_EARLY_INIT_F
 
 endchoice
 

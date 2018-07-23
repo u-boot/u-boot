@@ -22,6 +22,8 @@ config TEGRA_IVC
 
 config TEGRA_COMMON
 	bool "Tegra common options"
+	select BINMAN
+	select BOARD_EARLY_INIT_F
 	select CLK
 	select DM
 	select DM_ETH
@@ -35,11 +37,9 @@ config TEGRA_COMMON
 	select DM_SPI
 	select DM_SPI_FLASH
 	select MISC
-	select SPI
 	select OF_CONTROL
+	select SPI
 	select VIDCONSOLE_AS_LCD if DM_VIDEO
-	select BOARD_EARLY_INIT_F
-	select BINMAN
 	imply CRC32_VERIFY
 
 config TEGRA_NO_BPMP
@@ -98,8 +98,8 @@ config TEGRA124
 
 config TEGRA210
 	bool "Tegra210 family"
-	select TEGRA_GPIO
 	select TEGRA_ARMV8_COMMON
+	select TEGRA_GPIO
 	select TEGRA_NO_BPMP
 
 config TEGRA186
