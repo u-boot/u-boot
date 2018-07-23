@@ -331,6 +331,8 @@ ENTRY(psci_cpu_entry)
 
 	bl	_nonsec_init
 
+	bl	psci_stack_setup
+
 	bl	psci_arch_cpu_entry
 
 	bl	psci_get_cpu_id			@ CPU ID => r0

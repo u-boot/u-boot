@@ -40,6 +40,7 @@ config TARGET_PICO_IMX7D
 	select MX7D
 	select DM
 	select DM_THERMAL
+	select SUPPORT_SPL
 
 config TARGET_WARP7
 	bool "warp7"
@@ -50,7 +51,6 @@ config TARGET_WARP7
 
 config TARGET_COLIBRI_IMX7
 	bool "Support Colibri iMX7S/iMX7D modules"
-	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
 	select DM_THERMAL

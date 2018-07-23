@@ -148,6 +148,13 @@ config TARGET_COLIBRI_IMX6
 	select DM_SERIAL
 	select DM_THERMAL
 
+config TARGET_COLIBRI_IMX6ULL
+	bool "Toradex Colibri iMX6ULL"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_THERMAL
+	select MX6ULL
+
 config TARGET_DHCOMIMX6
 	bool "dh_imx6"
 	select MX6QDL
@@ -198,6 +205,8 @@ config TARGET_MX6CUBOXI
 
 config TARGET_MX6LOGICPD
 	bool "Logic PD i.MX6 SOM"
+	select MX6Q
+	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select DM
@@ -206,7 +215,6 @@ config TARGET_MX6LOGICPD
 	select DM_I2C
 	select DM_MMC
 	select DM_PMIC
-	select DM_REGULATOR
 	select OF_CONTROL
 
 config TARGET_MX6MEMCAL
@@ -530,6 +538,7 @@ source "board/tbs/tbs2910/Kconfig"
 source "board/tqc/tqma6/Kconfig"
 source "board/toradex/apalis_imx6/Kconfig"
 source "board/toradex/colibri_imx6/Kconfig"
+source "board/toradex/colibri-imx6ull/Kconfig"
 source "board/k+p/kp_imx6q_tpc/Kconfig"
 source "board/udoo/Kconfig"
 source "board/udoo/neo/Kconfig"

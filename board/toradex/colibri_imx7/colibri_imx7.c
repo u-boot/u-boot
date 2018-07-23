@@ -9,7 +9,6 @@
 #include <asm/arch/mx7-pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
-#include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
 #include <common.h>
@@ -322,24 +321,6 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_CMD_BMODE
-static const struct boot_mode board_boot_modes[] = {
-	/* 4 bit bus width */
-	{"nand", MAKE_CFGVAL(0x40, 0x34, 0x00, 0x00)},
-	{"sd1", MAKE_CFGVAL(0x10, 0x10, 0x00, 0x00)},
-	{NULL, 0},
-};
-#endif
-
-int board_late_init(void)
-{
-#ifdef CONFIG_CMD_BMODE
-	add_board_boot_modes(board_boot_modes);
-#endif
-
-	return 0;
-}
-
 #ifdef CONFIG_DM_PMIC
 int power_init_board(void)
 {
@@ -410,6 +391,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 #if defined(CONFIG_FDT_FIXUP_PARTITIONS)
 	static struct node_info nodes[] = {
 		{ "fsl,imx7d-gpmi-nand", MTD_DEV_TYPE_NAND, }, /* NAND flash */
+		{ "fsl,imx6q-gpmi-nand", MTD_DEV_TYPE_NAND, },
 	};
 
 	/* Update partition nodes using info from mtdparts env var */

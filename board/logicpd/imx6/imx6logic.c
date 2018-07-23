@@ -182,3 +182,144 @@ int board_late_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_SPL_BUILD
+#include <asm/arch/mx6-ddr.h>
+#include <asm/arch/mx6q-ddr.h>
+#include <spl.h>
+#include <linux/libfdt.h>
+
+#ifdef CONFIG_SPL_OS_BOOT
+int spl_start_uboot(void)
+{
+	/* break into full u-boot on 'c' */
+	if (serial_tstc() && serial_getc() == 'c')
+		return 1;
+
+	return 0;
+}
+#endif
+
+static void ccgr_init(void)
+{
+	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+
+	writel(0x00C03F3F, &ccm->CCGR0);
+	writel(0x0030FC03, &ccm->CCGR1);
+	writel(0x0FFFC000, &ccm->CCGR2);
+	writel(0x3FF00000, &ccm->CCGR3);
+	writel(0xFFFFF300, &ccm->CCGR4);
+	writel(0x0F0000F3, &ccm->CCGR5);
+	writel(0x00000FFF, &ccm->CCGR6);
+}
+
+static int mx6q_dcd_table[] = {
+	MX6_IOM_GRP_DDR_TYPE, 0x000C0000,
+	MX6_IOM_GRP_DDRPKE, 0x00000000,
+	MX6_IOM_DRAM_SDCLK_0, 0x00000030,
+	MX6_IOM_DRAM_SDCLK_1, 0x00000030,
+	MX6_IOM_DRAM_CAS, 0x00000030,
+	MX6_IOM_DRAM_RAS, 0x00000030,
+	MX6_IOM_GRP_ADDDS, 0x00000030,
+	MX6_IOM_DRAM_RESET, 0x00000030,
+	MX6_IOM_DRAM_SDBA2, 0x00000000,
+	MX6_IOM_DRAM_SDODT0, 0x00000030,
+	MX6_IOM_DRAM_SDODT1, 0x00000030,
+	MX6_IOM_GRP_CTLDS, 0x00000030,
+	MX6_IOM_DDRMODE_CTL, 0x00020000,
+	MX6_IOM_DRAM_SDQS0, 0x00000030,
+	MX6_IOM_DRAM_SDQS1, 0x00000030,
+	MX6_IOM_DRAM_SDQS2, 0x00000030,
+	MX6_IOM_DRAM_SDQS3, 0x00000030,
+	MX6_IOM_GRP_DDRMODE, 0x00020000,
+	MX6_IOM_GRP_B0DS, 0x00000030,
+	MX6_IOM_GRP_B1DS, 0x00000030,
+	MX6_IOM_GRP_B2DS, 0x00000030,
+	MX6_IOM_GRP_B3DS, 0x00000030,
+	MX6_IOM_DRAM_DQM0, 0x00000030,
+	MX6_IOM_DRAM_DQM1, 0x00000030,
+	MX6_IOM_DRAM_DQM2, 0x00000030,
+	MX6_IOM_DRAM_DQM3, 0x00000030,
+	MX6_MMDC_P0_MDSCR, 0x00008000,
+	MX6_MMDC_P0_MPZQHWCTRL, 0xA1390003,
+	MX6_MMDC_P0_MPWLDECTRL0, 0x002D003A,
+	MX6_MMDC_P0_MPWLDECTRL1, 0x0038002B,
+	MX6_MMDC_P0_MPDGCTRL0, 0x03340338,
+	MX6_MMDC_P0_MPDGCTRL1, 0x0334032C,
+	MX6_MMDC_P0_MPRDDLCTL, 0x4036383C,
+	MX6_MMDC_P0_MPWRDLCTL, 0x2E384038,
+	MX6_MMDC_P0_MPRDDQBY0DL, 0x33333333,
+	MX6_MMDC_P0_MPRDDQBY1DL, 0x33333333,
+	MX6_MMDC_P0_MPRDDQBY2DL, 0x33333333,
+	MX6_MMDC_P0_MPRDDQBY3DL, 0x33333333,
+	MX6_MMDC_P0_MPMUR0, 0x00000800,
+	MX6_MMDC_P0_MDPDC, 0x00020036,
+	MX6_MMDC_P0_MDOTC, 0x09444040,
+	MX6_MMDC_P0_MDCFG0, 0xB8BE7955,
+	MX6_MMDC_P0_MDCFG1, 0xFF328F64,
+	MX6_MMDC_P0_MDCFG2, 0x01FF00DB,
+	MX6_MMDC_P0_MDMISC, 0x00011740,
+	MX6_MMDC_P0_MDSCR, 0x00008000,
+	MX6_MMDC_P0_MDRWD, 0x000026D2,
+	MX6_MMDC_P0_MDOR, 0x00BE1023,
+	MX6_MMDC_P0_MDASP, 0x00000047,
+	MX6_MMDC_P0_MDCTL, 0x85190000,
+	MX6_MMDC_P0_MDSCR, 0x00888032,
+	MX6_MMDC_P0_MDSCR, 0x00008033,
+	MX6_MMDC_P0_MDSCR, 0x00008031,
+	MX6_MMDC_P0_MDSCR, 0x19408030,
+	MX6_MMDC_P0_MDSCR, 0x04008040,
+	MX6_MMDC_P0_MDREF, 0x00007800,
+	MX6_MMDC_P0_MPODTCTRL, 0x00000007,
+	MX6_MMDC_P0_MDPDC, 0x00025576,
+	MX6_MMDC_P0_MAPSR, 0x00011006,
+	MX6_MMDC_P0_MDSCR, 0x00000000,
+	/* enable AXI cache for VDOA/VPU/IPU */
+
+	MX6_IOMUXC_GPR4, 0xF00000CF,
+	/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
+	MX6_IOMUXC_GPR6, 0x007F007F,
+	MX6_IOMUXC_GPR7, 0x007F007F,
+};
+
+static void ddr_init(int *table, int size)
+{
+	int i;
+
+	for (i = 0; i < size / 2 ; i++)
+		writel(table[2 * i + 1], table[2 * i]);
+}
+
+static void spl_dram_init(void)
+{
+	if (is_mx6dq())
+		ddr_init(mx6q_dcd_table, ARRAY_SIZE(mx6q_dcd_table));
+}
+
+void board_init_f(ulong dummy)
+{
+	/* DDR initialization */
+	spl_dram_init();
+
+	/* setup AIPS and disable watchdog */
+	arch_cpu_init();
+
+	ccgr_init();
+	gpr_init();
+
+	/* iomux and setup of uart and NAND pins */
+	board_early_init_f();
+
+	/* setup GP timer */
+	timer_init();
+
+	/* UART clocks enabled and gd valid - init serial console */
+	preloader_console_init();
+
+	/* Clear the BSS. */
+	memset(__bss_start, 0, __bss_end - __bss_start);
+
+	/* load/boot image from boot device */
+	board_init_r(NULL, 0);
+}
+#endif

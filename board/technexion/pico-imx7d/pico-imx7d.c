@@ -58,7 +58,7 @@ static struct i2c_pads_info i2c_pad_info4 = {
 
 int dram_init(void)
 {
-	gd->ram_size = PHYS_SDRAM_SIZE;
+	gd->ram_size = imx_ddr_size();
 
 	return 0;
 }

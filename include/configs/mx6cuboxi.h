@@ -67,11 +67,12 @@
 
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONSOLE_DEV	"ttymxc0"
-#define CONFIG_SYS_FSL_USDHC_NUM	1
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* SDHC2 */
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"som_rev=undefined\0" \
+	"has_emmc=undefined\0" \
 	"fdtfile=undefined\0" \
 	"fdt_addr_r=0x18000000\0" \
 	"fdt_addr=0x18000000\0" \
@@ -101,19 +102,21 @@
 			"fi; "	\
 		"fi\0" \
 	"findfdt="\
-		"if test $board_rev = MX6Q ; then " \
+		"if test ${board_rev} = MX6Q; then " \
 			"setenv fdtprefix imx6q; fi; " \
-		"if test $board_rev = MX6DL ; then " \
+		"if test ${board_rev} = MX6DL; then " \
 			"setenv fdtprefix imx6dl; fi; " \
-		"if test $som_rev = V15 ; then " \
+		"if test ${som_rev} = V15; then " \
 			"setenv fdtsuffix -som-v15; fi; " \
-		"if test $board_name = HUMMINGBOARD2 ; then " \
-			"setenv fdtfile ${fdtprefix}-hummingboard2${fdtsuffix}.dtb; fi; " \
-		"if test $board_name = HUMMINGBOARD ; then " \
-			"setenv fdtfile ${fdtprefix}-hummingboard${fdtsuffix}.dtb; fi; " \
-		"if test $board_name = CUBOXI ; then " \
-			"setenv fdtfile ${fdtprefix}-cubox-i${fdtsuffix}.dtb; fi; " \
-		"if test $fdtfile = undefined; then " \
+		"if test ${has_emmc} = yes; then " \
+			"setenv emmcsuffix -emmc; fi; " \
+		"if test ${board_name} = HUMMINGBOARD2 ; then " \
+			"setenv fdtfile ${fdtprefix}-hummingboard2${emmcsuffix}${fdtsuffix}.dtb; fi; " \
+		"if test ${board_name} = HUMMINGBOARD ; then " \
+			"setenv fdtfile ${fdtprefix}-hummingboard${emmcsuffix}${fdtsuffix}.dtb; fi; " \
+		"if test ${board_name} = CUBOXI ; then " \
+			"setenv fdtfile ${fdtprefix}-cubox-i${emmcsuffix}${fdtsuffix}.dtb; fi; " \
+		"if test ${fdtfile} = undefined; then " \
 			"echo WARNING: Could not determine dtb to use; fi; \0" \
 	BOOTENV
 
@@ -143,6 +146,6 @@
 
 /* Environment organization */
 #define CONFIG_ENV_SIZE			(8 * 1024)
-#define CONFIG_ENV_OFFSET		(8 * 64 * 1024)
+#define CONFIG_ENV_OFFSET		(SZ_1M - CONFIG_ENV_SIZE)
 
 #endif                         /* __MX6CUBOXI_CONFIG_H */

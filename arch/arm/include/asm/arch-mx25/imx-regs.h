@@ -359,7 +359,12 @@ struct cspi_regs {
 #define IMX_IIM_BASE		(0x53FF0000)
 #define IIM_BASE_ADDR		IMX_IIM_BASE
 #define IMX_USB_BASE		(0x53FF4000)
-#define IMX_USB_PORT_OFFSET	0x200
+/*
+ * This is in contradiction to the imx25 reference manual, which says that
+ * port 1's registers start at 0x53FF4200. The correct base address for
+ * port 1 is 0x53FF4400. The kernel uses 0x53FF4400 as well.
+ */
+#define IMX_USB_PORT_OFFSET	0x400
 #define IMX_CSI_BASE		(0x53FF8000)
 #define IMX_DRYICE_BASE		(0x53FFC000)
 

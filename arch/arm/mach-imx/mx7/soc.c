@@ -8,7 +8,6 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/dma.h>
 #include <asm/mach-imx/hab.h>
 #include <asm/mach-imx/rdc-sema.h>
@@ -253,30 +252,6 @@ void set_wdog_reset(struct wdog_regs *wdog)
 	reg |= 1 << 0;
 	writew(reg, &wdog->wcr);
 }
-
-/*
- * cfg_val will be used for
- * Boot_cfg4[7:0]:Boot_cfg3[7:0]:Boot_cfg2[7:0]:Boot_cfg1[7:0]
- * After reset, if GPR10[28] is 1, ROM will copy GPR9[25:0]
- * to SBMR1, which will determine the boot device.
- */
-const struct boot_mode soc_boot_modes[] = {
-	{"ecspi1:0",	MAKE_CFGVAL(0x00, 0x60, 0x00, 0x00)},
-	{"ecspi1:1",	MAKE_CFGVAL(0x40, 0x62, 0x00, 0x00)},
-	{"ecspi1:2",	MAKE_CFGVAL(0x80, 0x64, 0x00, 0x00)},
-	{"ecspi1:3",	MAKE_CFGVAL(0xc0, 0x66, 0x00, 0x00)},
-
-	{"weim",	MAKE_CFGVAL(0x00, 0x50, 0x00, 0x00)},
-	{"qspi1",	MAKE_CFGVAL(0x10, 0x40, 0x00, 0x00)},
-	/* 4 bit bus width */
-	{"usdhc1",	MAKE_CFGVAL(0x10, 0x10, 0x00, 0x00)},
-	{"usdhc2",	MAKE_CFGVAL(0x10, 0x14, 0x00, 0x00)},
-	{"usdhc3",	MAKE_CFGVAL(0x10, 0x18, 0x00, 0x00)},
-	{"mmc1",	MAKE_CFGVAL(0x10, 0x20, 0x00, 0x00)},
-	{"mmc2",	MAKE_CFGVAL(0x10, 0x24, 0x00, 0x00)},
-	{"mmc3",	MAKE_CFGVAL(0x10, 0x28, 0x00, 0x00)},
-	{NULL,		0},
-};
 
 void s_init(void)
 {

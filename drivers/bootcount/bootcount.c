@@ -18,6 +18,9 @@ __weak void bootcount_store(ulong a)
 	raw_bootcount_store(reg, a);
 	raw_bootcount_store(reg + 4, BOOTCOUNT_MAGIC);
 #endif /* defined(CONFIG_SYS_BOOTCOUNT_SINGLEWORD */
+	flush_dcache_range(CONFIG_SYS_BOOTCOUNT_ADDR,
+				CONFIG_SYS_BOOTCOUNT_ADDR +
+				CONFIG_SYS_CACHELINE_SIZE);
 }
 
 __weak ulong bootcount_load(void)
