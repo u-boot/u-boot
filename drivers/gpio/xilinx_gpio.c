@@ -25,6 +25,11 @@ struct xilinx_gpio_platdata {
 	int bank_max[XILINX_GPIO_MAX_BANK];
 	int bank_input[XILINX_GPIO_MAX_BANK];
 	int bank_output[XILINX_GPIO_MAX_BANK];
+	u32 dout_default[XILINX_GPIO_MAX_BANK];
+};
+
+struct xilinx_gpio_privdata {
+	u32 output_val[XILINX_GPIO_MAX_BANK];
 };
 
 static int xilinx_gpio_get_bank_pin(unsigned offset, u32 *bank_num,
@@ -54,6 +59,7 @@ static int xilinx_gpio_set_value(struct udevice *dev, unsigned offset,
 				 int value)
 {
 	struct xilinx_gpio_platdata *platdata = dev_get_platdata(dev);
+	struct xilinx_gpio_privdata *priv = dev_get_priv(dev);
 	int val, ret;
 	u32 bank, pin;
 
@@ -61,10 +67,10 @@ static int xilinx_gpio_set_value(struct udevice *dev, unsigned offset,
 	if (ret)
 		return ret;
 
-	val = readl(&platdata->regs->gpiodata + bank * 2);
+	val = priv->output_val[bank];
 
-	debug("%s: regs: %lx, value: %x, gpio: %x, bank %x, pin %x\n",
-	      __func__, (ulong)platdata->regs, value, offset, bank, pin);
+	debug("%s: regs: %lx, value: %x, gpio: %x, bank %x, pin %x, out %x\n",
+	      __func__, (ulong)platdata->regs, value, offset, bank, pin, val);
 
 	if (value)
 		val = val | (1 << pin);
@@ -73,12 +79,15 @@ static int xilinx_gpio_set_value(struct udevice *dev, unsigned offset,
 
 	writel(val, &platdata->regs->gpiodata + bank * 2);
 
+	priv->output_val[bank] = val;
+
 	return val;
 };
 
 static int xilinx_gpio_get_value(struct udevice *dev, unsigned offset)
 {
 	struct xilinx_gpio_platdata *platdata = dev_get_platdata(dev);
+	struct xilinx_gpio_privdata *priv = dev_get_priv(dev);
 	int val, ret;
 	u32 bank, pin;
 
@@ -89,7 +98,14 @@ static int xilinx_gpio_get_value(struct udevice *dev, unsigned offset)
 	debug("%s: regs: %lx, gpio: %x, bank %x, pin %x\n", __func__,
 	      (ulong)platdata->regs, offset, bank, pin);
 
-	val = readl(&platdata->regs->gpiodata + bank * 2);
+	if (platdata->bank_output[bank]) {
+		debug("%s: Read saved output value\n", __func__);
+		val = priv->output_val[bank];
+	} else {
+		debug("%s: Read input value from reg\n", __func__);
+		val = readl(&platdata->regs->gpiodata + bank * 2);
+	}
+
 	val = !!(val & (1 << pin));
 
 	return val;
@@ -223,11 +239,17 @@ static const struct dm_gpio_ops xilinx_gpio_ops = {
 static int xilinx_gpio_probe(struct udevice *dev)
 {
 	struct xilinx_gpio_platdata *platdata = dev_get_platdata(dev);
+	struct xilinx_gpio_privdata *priv = dev_get_priv(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	uc_priv->bank_name = dev->name;
 
 	uc_priv->gpio_count = platdata->bank_max[0] + platdata->bank_max[1];
+
+	priv->output_val[0] = platdata->dout_default[0];
+
+	if (platdata->bank_max[1])
+		priv->output_val[1] = platdata->dout_default[1];
 
 	return 0;
 }
@@ -245,6 +267,9 @@ static int xilinx_gpio_ofdata_to_platdata(struct udevice *dev)
 						       "xlnx,all-inputs", 0);
 	platdata->bank_output[0] = dev_read_u32_default(dev,
 							"xlnx,all-outputs", 0);
+	platdata->dout_default[0] = dev_read_u32_default(dev,
+							 "xlnx,dout-default",
+							 0);
 
 	is_dual = dev_read_u32_default(dev, "xlnx,is-dual", 0);
 	if (is_dual) {
@@ -254,6 +279,8 @@ static int xilinx_gpio_ofdata_to_platdata(struct udevice *dev)
 						"xlnx,all-inputs-2", 0);
 		platdata->bank_output[1] = dev_read_u32_default(dev,
 						"xlnx,all-outputs-2", 0);
+		platdata->dout_default[1] = dev_read_u32_default(dev,
+						"xlnx,dout-default-2", 0);
 	}
 
 	return 0;
@@ -272,4 +299,5 @@ U_BOOT_DRIVER(xilinx_gpio) = {
 	.ofdata_to_platdata = xilinx_gpio_ofdata_to_platdata,
 	.probe = xilinx_gpio_probe,
 	.platdata_auto_alloc_size = sizeof(struct xilinx_gpio_platdata),
+	.priv_auto_alloc_size = sizeof(struct xilinx_gpio_privdata),
 };
