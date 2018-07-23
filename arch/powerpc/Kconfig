@@ -20,9 +20,9 @@ config MPC85xx
 	select CREATE_ARCH_SYMLINK
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
-	imply USB_EHCI_HCD if USB
 	imply CMD_HASH
 	imply CMD_IRQ
+	imply USB_EHCI_HCD if USB
 
 config MPC86xx
 	bool "MPC86xx"

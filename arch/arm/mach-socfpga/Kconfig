@@ -9,8 +9,8 @@ config TARGET_SOCFPGA_ARRIA5
 
 config TARGET_SOCFPGA_ARRIA10
 	bool
-	select SPL_BOARD_INIT if SPL
 	select ALTERA_SDRAM
+	select SPL_BOARD_INIT if SPL
 
 config TARGET_SOCFPGA_CYCLONE5
 	bool
@@ -23,8 +23,8 @@ config TARGET_SOCFPGA_GEN5
 config TARGET_SOCFPGA_STRATIX10
 	bool
 	select ARMV8_MULTIENTRY
-	select ARMV8_SPIN_TABLE
 	select ARMV8_SET_SMPEN
+	select ARMV8_SPIN_TABLE
 
 choice
 	prompt "Altera SOCFPGA board select"

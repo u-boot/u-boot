@@ -31,36 +31,36 @@ choice
 
 config CPU_ARC750D
 	bool "ARC 750D"
-	select ARC_MMU_V2
 	depends on ISA_ARCOMPACT
+	select ARC_MMU_V2
 	help
 	  Choose this option to build an U-Boot for ARC750D CPU.
 
 config CPU_ARC770D
 	bool "ARC 770D"
-	select ARC_MMU_V3
 	depends on ISA_ARCOMPACT
+	select ARC_MMU_V3
 	help
 	  Choose this option to build an U-Boot for ARC770D CPU.
 
 config CPU_ARCEM6
 	bool "ARC EM6"
-	select ARC_MMU_ABSENT
 	depends on ISA_ARCV2
+	select ARC_MMU_ABSENT
 	help
 	  Next Generation ARC Core based on ISA-v2 ISA without MMU.
 
 config CPU_ARCHS36
 	bool "ARC HS36"
-	select ARC_MMU_ABSENT
 	depends on ISA_ARCV2
+	select ARC_MMU_ABSENT
 	help
 	  Next Generation ARC Core based on ISA-v2 ISA without MMU.
 
 config CPU_ARCHS38
 	bool "ARC HS38"
-	select ARC_MMU_V4
 	depends on ISA_ARCV2
+	select ARC_MMU_V4
 	help
 	  Next Generation ARC Core based on ISA-v2 ISA with MMU.
 

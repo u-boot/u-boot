@@ -9,9 +9,9 @@ config STM32F4
 	select PINCTRL
 	select PINCTRL_STM32
 	select RAM
-	select STM32_SDRAM
 	select STM32_RCC
 	select STM32_RESET
+	select STM32_SDRAM
 	select STM32_SERIAL
 	select STM32_TIMER
 	select TIMER
@@ -25,13 +25,6 @@ config STM32F7
 	select PINCTRL
 	select PINCTRL_STM32
 	select RAM
-	select STM32_SDRAM
-	select STM32_RCC
-	select STM32_RESET
-	select STM32_SERIAL
-	select STM32_TIMER
-	select TIMER
-	select SUPPORT_SPL
 	select SPL
 	select SPL_BOARD_INIT
 	select SPL_CLK
@@ -46,13 +39,20 @@ config STM32F7
 	select SPL_OF_CONTROL
 	select SPL_OF_LIBFDT
 	select SPL_OF_TRANSLATE
-	imply SPL_OS_BOOT
 	select SPL_PINCTRL
 	select SPL_RAM
 	select SPL_SERIAL_SUPPORT
 	select SPL_SYS_MALLOC_SIMPLE
 	select SPL_TIMER
 	select SPL_XIP_SUPPORT
+	select STM32_RCC
+	select STM32_RESET
+	select STM32_SDRAM
+	select STM32_SERIAL
+	select STM32_TIMER
+	select SUPPORT_SPL
+	select TIMER
+	imply SPL_OS_BOOT
 
 config STM32H7
 	bool "stm32h7 family"
@@ -64,9 +64,9 @@ config STM32H7
 	select PINCTRL_STM32
 	select RAM
 	select REGMAP
-	select STM32_SDRAM
 	select STM32_RCC
 	select STM32_RESET
+	select STM32_SDRAM
 	select STM32_SERIAL
 	select STM32_TIMER
 	select SYSCON

@@ -44,8 +44,8 @@ config ARMV8_SPIN_TABLE
 menu "ARMv8 secure monitor firmware"
 config ARMV8_SEC_FIRMWARE_SUPPORT
 	bool "Enable ARMv8 secure monitor firmware framework support"
-	select OF_LIBFDT
 	select FIT
+	select OF_LIBFDT
 	help
 	  This framework is aimed at making secure monitor firmware load
 	  process brief.
@@ -60,8 +60,8 @@ config ARMV8_SEC_FIRMWARE_SUPPORT
 
 config SPL_ARMV8_SEC_FIRMWARE_SUPPORT
 	bool "Enable ARMv8 secure monitor firmware framework support for SPL"
-	select SPL_OF_LIBFDT
 	select SPL_FIT
+	select SPL_OF_LIBFDT
 	help
 	  Say Y here to support this framework in SPL phase.
 

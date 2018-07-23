@@ -6,8 +6,8 @@ choice
 
 config ARCH_EXYNOS4
 	bool "Exynos4 SoC family"
-	select CPU_V7A
 	select BOARD_EARLY_INIT_F
+	select CPU_V7A
 	help
 	  Samsung Exynos4 SoC family are based on ARM Cortex-A9 CPU. There
 	  are multiple SoCs in this family including Exynos4210, Exynos4412,
@@ -15,14 +15,14 @@ config ARCH_EXYNOS4
 
 config ARCH_EXYNOS5
 	bool "Exynos5 SoC family"
-	select CPU_V7A
 	select BOARD_EARLY_INIT_F
+	select CPU_V7A
 	select SHA_HW_ACCEL
-	imply CRC32_VERIFY
 	imply CMD_HASH
+	imply CRC32_VERIFY
 	imply HASH_VERIFY
-	imply USB_ETHER_RTL8152
 	imply USB_ETHER_ASIX
+	imply USB_ETHER_RTL8152
 	imply USB_ETHER_SMSC95XX
 	help
 	  Samsung Exynos5 SoC family are based on ARM Cortex-A15 CPU (and
@@ -46,9 +46,9 @@ choice
 	prompt "EXYNOS4 board select"
 
 config TARGET_SMDKV310
-	select SUPPORT_SPL
 	bool "Exynos4210 SMDKV310 board"
 	select OF_CONTROL
+	select SUPPORT_SPL
 
 config TARGET_TRATS
 	bool "Exynos4210 Trats board"
@@ -93,39 +93,39 @@ config TARGET_ARNDALE
 	select ARM_ERRATA_774769
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
-	select SUPPORT_SPL
 	select OF_CONTROL
+	select SUPPORT_SPL
 
 config TARGET_SMDK5250
 	bool "SMDK5250 board"
-	select SUPPORT_SPL
 	select OF_CONTROL
+	select SUPPORT_SPL
 
 config TARGET_SNOW
 	bool "Snow board"
-	select SUPPORT_SPL
 	select OF_CONTROL
+	select SUPPORT_SPL
 
 config TARGET_SPRING
 	bool "Spring board"
-	select SUPPORT_SPL
 	select OF_CONTROL
 	select SPL_DISABLE_OF_CONTROL
+	select SUPPORT_SPL
 
 config TARGET_SMDK5420
 	bool "SMDK5420 board"
-	select SUPPORT_SPL
 	select OF_CONTROL
+	select SUPPORT_SPL
 
 config TARGET_PEACH_PI
 	bool "Peach Pi board"
-	select SUPPORT_SPL
 	select OF_CONTROL
+	select SUPPORT_SPL
 
 config TARGET_PEACH_PIT
 	bool "Peach Pit board"
-	select SUPPORT_SPL
 	select OF_CONTROL
+	select SUPPORT_SPL
 
 endchoice
 endif
@@ -139,12 +139,12 @@ config  TARGET_ESPRESSO7420
 	bool "ESPRESSO7420 board"
 	select ARM64
 	select ARMV8_MULTIENTRY
-	select SUPPORT_SPL
+	select CLK_EXYNOS
 	select OF_CONTROL
-	select SPL_DISABLE_OF_CONTROL
 	select PINCTRL
 	select PINCTRL_EXYNOS7420
-	select CLK_EXYNOS
+	select SPL_DISABLE_OF_CONTROL
+	select SUPPORT_SPL
 
 endchoice
 endif

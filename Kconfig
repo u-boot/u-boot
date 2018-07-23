@@ -68,25 +68,25 @@ config CC_COVERAGE
 
 config DISTRO_DEFAULTS
 	bool "Select defaults suitable for booting general purpose Linux distributions"
-	imply USE_BOOTCOMMAND
-	select CMD_BOOTZ if ARM && !ARM64
+	select AUTO_COMPLETE
+	select CMDLINE_EDITING
 	select CMD_BOOTI if ARM64
+	select CMD_BOOTZ if ARM && !ARM64
 	select CMD_DHCP if CMD_NET
-	select CMD_PING if CMD_NET
-	select CMD_PXE if NET
 	select CMD_ENV_EXISTS
 	select CMD_EXT2
 	select CMD_EXT4
 	select CMD_FAT
 	select CMD_FS_GENERIC
-	imply CMD_MII if NET
 	select CMD_PART if PARTITIONS
-	select HUSH_PARSER
-	select CMDLINE_EDITING
-	select AUTO_COMPLETE
-	select SYS_LONGHELP
-	select SUPPORT_RAW_INITRD
+	select CMD_PING if CMD_NET
+	select CMD_PXE if NET
 	select ENV_VARS_UBOOT_CONFIG
+	select HUSH_PARSER
+	select SUPPORT_RAW_INITRD
+	select SYS_LONGHELP
+	imply CMD_MII if NET
+	imply USE_BOOTCOMMAND
 	help
 	  Select this to enable various options and commands which are suitable
 	  for building u-boot for booting general purpose Linux distributions.
@@ -237,8 +237,8 @@ if FIT
 
 config FIT_ENABLE_SHA256_SUPPORT
 	bool "Support SHA256 checksum of FIT image contents"
-	select SHA256
 	default y
+	select SHA256
 	help
 	  Enable this to support SHA256 checksum of FIT image contents. A
 	  SHA256 checksum is a 256-bit (32-byte) hash value used to check that
@@ -252,8 +252,8 @@ config FIT_ENABLE_SHA256_SUPPORT
 config FIT_SIGNATURE
 	bool "Enable signature verification of FIT uImages"
 	depends on DM
-	select RSA
 	select HASH
+	select RSA
 	help
 	  This option enables signature verification of FIT uImages,
 	  using a hash signed and verified using RSA. If

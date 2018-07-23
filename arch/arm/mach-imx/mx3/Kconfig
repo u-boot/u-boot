@@ -9,9 +9,9 @@ choice
 
 config TARGET_MX31PDK
 	bool "Support the i.MX31 PDK board from Freescale/NXP"
+	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
-	select BOARD_EARLY_INIT_F
 
 endchoice
 

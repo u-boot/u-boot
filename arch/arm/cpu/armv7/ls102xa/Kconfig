@@ -1,5 +1,7 @@
 config ARCH_LS1021A
 	bool
+	select SYS_FSL_DDR_BE if SYS_FSL_DDR
+	select SYS_FSL_DDR_VER_50 if SYS_FSL_DDR
 	select SYS_FSL_ERRATUM_A008378
 	select SYS_FSL_ERRATUM_A008407
 	select SYS_FSL_ERRATUM_A008997
@@ -10,18 +12,16 @@ config ARCH_LS1021A
 	select SYS_FSL_ERRATUM_A009942
 	select SYS_FSL_ERRATUM_A010315
 	select SYS_FSL_HAS_CCI400
-	select SYS_FSL_SRDS_1
-	select SYS_HAS_SERDES
-	select SYS_FSL_DDR_BE if SYS_FSL_DDR
-	select SYS_FSL_DDR_VER_50 if SYS_FSL_DDR
 	select SYS_FSL_HAS_DDR3 if SYS_FSL_DDR
 	select SYS_FSL_HAS_DDR4 if SYS_FSL_DDR
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_5
 	select SYS_FSL_SEC_LE
+	select SYS_FSL_SRDS_1
+	select SYS_HAS_SERDES
+	imply CMD_PCI
 	imply SCSI
 	imply SCSI_AHCI
-	imply CMD_PCI
 
 menu "LS102xA architecture"
 	depends on ARCH_LS1021A
