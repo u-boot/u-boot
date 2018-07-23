@@ -27,6 +27,7 @@ config TARGET_AM3517_EVM
 	select DM_I2C
 	select DM_MMC
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_MT_VENTOUX
 	bool "TeeJet Mt.Ventoux"
@@ -40,6 +41,7 @@ config TARGET_OMAP3_BEAGLE
 	select DM_SERIAL
 	select OMAP3_GPIO_5
 	select OMAP3_GPIO_6
+	imply CMD_DM
 
 config TARGET_CM_T35
 	bool "CompuLab CM-T3530 and CM-T3730 boards"
@@ -58,6 +60,7 @@ config TARGET_DEVKIT8000
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_OMAP3_EVM
 	bool "TI OMAP3 EVM"
@@ -65,6 +68,7 @@ config TARGET_OMAP3_EVM
 	select DM_GPIO
 	select DM_SERIAL
 	select OMAP3_GPIO_3
+	imply CMD_DM
 
 config TARGET_OMAP3_IGEP00X0
 	bool "IGEP"
@@ -74,6 +78,7 @@ config TARGET_OMAP3_IGEP00X0
 	select OMAP3_GPIO_3
 	select OMAP3_GPIO_5
 	select OMAP3_GPIO_6
+	imply CMD_DM
 
 config TARGET_OMAP3_OVERO
 	bool "OMAP35xx Gumstix Overo"
@@ -85,12 +90,14 @@ config TARGET_OMAP3_OVERO
 	select OMAP3_GPIO_4
 	select OMAP3_GPIO_5
 	select OMAP3_GPIO_6
+	imply CMD_DM
 
 config TARGET_OMAP3_ZOOM1
 	bool "TI Zoom1"
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_AM3517_CRANE
 	bool "am3517_crane"
@@ -123,6 +130,7 @@ config TARGET_OMAP3_LOGIC
 	select OMAP3_GPIO_3
 	select OMAP3_GPIO_4
 	select OMAP3_GPIO_6
+	imply CMD_DM
 
 config TARGET_NOKIA_RX51
 	bool "Nokia RX51"
@@ -145,6 +153,7 @@ config TARGET_OMAP3_CAIRO
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_SNIPER
 	bool "LG Optimus Black"
@@ -156,6 +165,7 @@ config TARGET_SNIPER
 	select OMAP3_GPIO_4
 	select OMAP3_GPIO_5
 	select OMAP3_GPIO_6
+	imply CMD_DM
 
 endchoice
 

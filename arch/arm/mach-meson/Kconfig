@@ -6,6 +6,7 @@ config MESON_GXBB
 	select CLK
 	select DM
 	select DM_SERIAL
+	imply CMD_DM
 	help
 	  The Amlogic Meson GXBaby (S905) is an ARM SoC with a
 	  quad-core Cortex-A53 CPU and a Mali-450 GPU.
@@ -16,6 +17,7 @@ config MESON_GXL
 	select CLK
 	select DM
 	select DM_SERIAL
+	imply CMD_DM
 	help
 	  The Amlogic Meson GXL (S905X and S905D) is an ARM SoC with a
 	  quad-core Cortex-A53 CPU and a Mali-450 GPU.

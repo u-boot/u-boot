@@ -64,6 +64,7 @@ config MX6UL_LITESOM
 	select DM_THERMAL
 	select MX6UL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config MX6UL_OPOS6UL
 	bool
@@ -78,6 +79,7 @@ config MX6UL_OPOS6UL
 	select SPL_PINCTRL if SPL
 	select SPL_SEPARATE_BSS if SPL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config MX6ULL
 	bool
@@ -110,6 +112,7 @@ config TARGET_APALIS_IMX6
 	select DM_SERIAL
 	select DM_THERMAL
 	select SUPPORT_SPL
+	imply CMD_DM
 	imply CMD_SATA
 
 config TARGET_ARISTAINETOS
@@ -130,6 +133,7 @@ config TARGET_CGTQMX6EVAL
 	select DM_THERMAL
 	select MX6QDL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_CM_FX6
 	bool "CM-FX6"
@@ -139,6 +143,7 @@ config TARGET_CM_FX6
 	select DM_SERIAL
 	select MX6QDL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_COLIBRI_IMX6
 	bool "Toradex Colibri iMX6 board"
@@ -147,6 +152,7 @@ config TARGET_COLIBRI_IMX6
 	select DM_SERIAL
 	select DM_THERMAL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_COLIBRI_IMX6ULL
 	bool "Toradex Colibri iMX6ULL"
@@ -163,6 +169,7 @@ config TARGET_DHCOMIMX6
 	select DM_THERMAL
 	select MX6QDL
 	select SUPPORT_SPL
+	imply CMD_DM
 	imply CMD_SPL
 
 config TARGET_DISPLAY5
@@ -170,6 +177,7 @@ config TARGET_DISPLAY5
 	select DM
 	select DM_SERIAL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_EMBESTMX6BOARDS
 	bool "embestmx6boards"
@@ -216,6 +224,7 @@ config TARGET_MX6LOGICPD
 	select DM_MMC
 	select DM_PMIC
 	select OF_CONTROL
+	imply CMD_DM
 
 config TARGET_MX6MEMCAL
 	bool "mx6memcal"
@@ -258,6 +267,7 @@ config TARGET_MX6DL_MAMOJ
 	select SPL_USB_SDP_SUPPORT if SPL
 	select SPL_WATCHDOG_SUPPORT if SPL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_MX6Q_ENGICAM
 	bool "Support Engicam i.Core(RQS)"
@@ -276,6 +286,7 @@ config TARGET_MX6Q_ENGICAM
 	select SPL_PINCTRL if SPL
 	select SPL_SEPARATE_BSS if SPL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_MX6SABREAUTO
 	bool "mx6sabreauto"
@@ -285,6 +296,7 @@ config TARGET_MX6SABREAUTO
 	select DM_THERMAL
 	select MX6QDL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_MX6SABRESD
 	bool "mx6sabresd"
@@ -294,6 +306,7 @@ config TARGET_MX6SABRESD
 	select DM_THERMAL
 	select MX6QDL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_MX6SLEVK
 	bool "mx6slevk"
@@ -306,6 +319,7 @@ config TARGET_MX6SLLEVK
 	select DM
 	select DM_THERMAL
 	select MX6SLL
+	imply CMD_DM
 
 config TARGET_MX6SXSABRESD
 	bool "mx6sxsabresd"
@@ -323,6 +337,7 @@ config TARGET_MX6SXSABREAUTO
 	select DM
 	select DM_THERMAL
 	select MX6SX
+	imply CMD_DM
 
 config TARGET_MX6UL_9X9_EVK
 	bool "mx6ul_9x9_evk"
@@ -331,6 +346,7 @@ config TARGET_MX6UL_9X9_EVK
 	select DM_THERMAL
 	select MX6UL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_MX6UL_14X14_EVK
 	bool "mx6ul_14x14_evk"
@@ -339,6 +355,7 @@ config TARGET_MX6UL_14X14_EVK
 	select DM_THERMAL
 	select MX6UL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_MX6UL_ENGICAM
 	bool "Support Engicam GEAM6UL/Is.IoT"
@@ -356,6 +373,7 @@ config TARGET_MX6UL_ENGICAM
 	select SPL_PINCTRL if SPL
 	select SPL_SEPARATE_BSS if SPL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_MX6ULL_14X14_EVK
 	bool "Support mx6ull_14x14_evk"
@@ -363,6 +381,7 @@ config TARGET_MX6ULL_14X14_EVK
 	select DM
 	select DM_THERMAL
 	select MX6ULL
+	imply CMD_DM
 
 config TARGET_NITROGEN6X
 	bool "nitrogen6x"
@@ -429,6 +448,7 @@ config TARGET_KP_IMX6Q_TPC
 	select DM_THERMAL
 	select MX6QDL
 	select SUPPORT_SPL
+	imply CMD_DM
 	imply CMD_SPL
 
 config TARGET_TQMA6
@@ -448,6 +468,7 @@ config TARGET_UDOO_NEO
 	select DM_THERMAL
 	select MX6SX
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_SAMTEC_VINING_2000
 	bool "samtec VIN|ING 2000"
@@ -455,6 +476,7 @@ config TARGET_SAMTEC_VINING_2000
 	select DM
 	select DM_THERMAL
 	select MX6SX
+	imply CMD_DM
 
 config TARGET_WANDBOARD
 	bool "wandboard"
@@ -474,6 +496,7 @@ config TARGET_XPRESS
 	select DM_THERMAL
 	select MX6UL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_ZC5202
 	bool "zc5202"
@@ -481,6 +504,7 @@ config TARGET_ZC5202
 	select DM
 	select DM_THERMAL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_ZC5601
 	bool "zc5601"
@@ -488,6 +512,7 @@ config TARGET_ZC5601
 	select DM
 	select DM_THERMAL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 endchoice
 

@@ -50,6 +50,7 @@ config NIOS2
 	select DM
 	select OF_CONTROL
 	select SUPPORT_OF_CONTROL
+	imply CMD_DM
 
 config PPC
 	bool "PowerPC architecture"
@@ -77,6 +78,7 @@ config SANDBOX
 	select LZO
 	select SPI
 	select SUPPORT_OF_CONTROL
+	imply CMD_DM
 	imply CMD_GETTIME
 	imply CMD_HASH
 	imply CMD_IO
@@ -107,6 +109,7 @@ config X86
 	select USE_PRIVATE_LIBGCC
 	select X86_TSC_TIMER
 	imply BLK
+	imply CMD_DM
 	imply CMD_FPGA_LOADMK
 	imply CMD_GETTIME
 	imply CMD_IO

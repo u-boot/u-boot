@@ -28,6 +28,7 @@ config TARGET_KP_IMX53
 	select DM_PMIC
 	select DM_SERIAL
 	select MX53
+	imply CMD_DM
 
 config TARGET_MX51EVK
 	bool "Support mx51evk"
@@ -44,6 +45,7 @@ config TARGET_MX53CX9020
 	select DM
 	select DM_SERIAL
 	select MX53
+	imply CMD_DM
 
 config TARGET_MX53EVK
 	bool "Support mx53evk"

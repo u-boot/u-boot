@@ -78,6 +78,7 @@ config TARGET_SNAPPER9260
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_GURNARD
 	bool "Support gurnard"
@@ -89,6 +90,7 @@ config TARGET_GURNARD
 	select DM_SERIAL
 	select DM_SPI
 	select SPI
+	imply CMD_DM
 
 config TARGET_AT91SAM9261EK
 	bool "Atmel at91sam9261 reference board"
@@ -209,6 +211,7 @@ config TARGET_CORVUS
 	select DM_GPIO
 	select DM_SERIAL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_TAURUS
 	bool "Support taurus"
@@ -220,6 +223,7 @@ config TARGET_TAURUS
 	select DM_SPI
 	select SPI
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_SMARTWEB
 	bool "Support smartweb"
@@ -229,6 +233,7 @@ config TARGET_SMARTWEB
 	select DM_GPIO
 	select DM_SERIAL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_VINCO
 	bool "Support VINCO"
@@ -237,6 +242,7 @@ config TARGET_VINCO
 	select SAMA5D4
 	select SPI
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_WB45N
 	bool "Support Laird WB45N"

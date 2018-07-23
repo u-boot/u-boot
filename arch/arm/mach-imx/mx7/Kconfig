@@ -26,6 +26,7 @@ config TARGET_CL_SOM_IMX7
 	select DM_THERMAL
 	select MX7D
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_MX7DSABRESD
 	bool "mx7dsabresd"
@@ -33,6 +34,7 @@ config TARGET_MX7DSABRESD
 	select DM
 	select DM_THERMAL
 	select MX7D
+	imply CMD_DM
 
 config TARGET_PICO_IMX7D
 	bool "pico-imx7d"
@@ -48,12 +50,15 @@ config TARGET_WARP7
 	select DM
 	select DM_THERMAL
 	select MX7D
+	imply CMD_DM
+	imply CMD_DM
 
 config TARGET_COLIBRI_IMX7
 	bool "Support Colibri iMX7S/iMX7D modules"
 	select DM
 	select DM_SERIAL
 	select DM_THERMAL
+	imply CMD_DM
 
 endchoice
 

@@ -34,6 +34,7 @@ config TARGET_AM335X_EVM
 	select DM_GPIO
 	select DM_SERIAL
 	select TI_I2C_BOARD_DETECT
+	imply CMD_DM
 	imply SPL_DM
 	imply SPL_DM_SEQ_ALIAS
 	imply SPL_ENV_SUPPORT
@@ -67,6 +68,7 @@ config TARGET_AM335X_BALTOS
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_AM335X_IGEP003X
 	bool "Support am335x_igep003x"
@@ -74,6 +76,7 @@ config TARGET_AM335X_IGEP003X
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_AM335X_SHC
 	bool "Support am335x based shc board from bosch"
@@ -81,6 +84,7 @@ config TARGET_AM335X_SHC
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	imply CMD_DM
 	imply CMD_SPL
 
 config TARGET_AM335X_SL50
@@ -89,12 +93,14 @@ config TARGET_AM335X_SL50
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_BAV335X
 	bool "Support bav335x"
 	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
+	imply CMD_DM
 	help
 	  The BAV335x OEM Network Processor integrates all the functions of an
 	  embedded network computer in a small, easy to use SODIMM module which
@@ -118,12 +124,14 @@ config TARGET_CHILIBOARD
 	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_CM_T335
 	bool "Support cm_t335"
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_DRACO
 	bool "Support draco"
@@ -131,6 +139,7 @@ config TARGET_DRACO
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_ETAMIN
 	bool "Support etamin"
@@ -138,24 +147,28 @@ config TARGET_ETAMIN
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_PCM051
 	bool "Support pcm051"
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_PENGWYN
 	bool "Support pengwyn"
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_PEPPER
 	bool "Support pepper"
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_PXM2
 	bool "Support pxm2"
@@ -163,6 +176,7 @@ config TARGET_PXM2
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_RASTABAN
 	bool "Support rastaban"
@@ -170,6 +184,7 @@ config TARGET_RASTABAN
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_RUT
 	bool "Support rut"
@@ -177,6 +192,7 @@ config TARGET_RUT
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_THUBAN
 	bool "Support thuban"
@@ -184,11 +200,13 @@ config TARGET_THUBAN
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	imply CMD_DM
 
 config TARGET_PDU001
 	bool "Support PDU001"
 	select DM
 	select DM_SERIAL
+	imply CMD_DM
 	help
 	  Support for PDU001 platform developed by EETS GmbH.
 	  The PDU001 is a processor and display unit developed around

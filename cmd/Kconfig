@@ -640,7 +640,6 @@ config CMD_DFU
 config CMD_DM
 	bool "dm - Access to driver model information"
 	depends on DM
-	default y
 	help
 	  Provides access to driver model data structures and information,
 	  such as a list of devices, list of uclasses and the state of each

@@ -64,6 +64,7 @@ config TARGET_MPC837XERDB
 config TARGET_IDS8313
 	bool "Support ids8313"
 	select DM
+	imply CMD_DM
 
 config TARGET_KM8360
 	bool "Support km8360"

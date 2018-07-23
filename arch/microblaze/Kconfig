@@ -16,6 +16,7 @@ config TARGET_MICROBLAZE_GENERIC
 	select OF_CONTROL
 	select SUPPORT_SPL
 	select SYSRESET
+	imply CMD_DM
 
 endchoice
 
