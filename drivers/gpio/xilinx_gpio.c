@@ -435,6 +435,10 @@ static int xilinx_gpio_get_function(struct udevice *dev, unsigned offset)
 	int val, ret;
 	u32 bank, pin;
 
+	ret = xilinx_gpio_get_bank_pin(offset, &bank, &pin, dev);
+	if (ret)
+		return ret;
+
 	/* Check if all pins are inputs */
 	if (platdata->bank_input[bank])
 		return GPIOF_INPUT;
@@ -442,10 +446,6 @@ static int xilinx_gpio_get_function(struct udevice *dev, unsigned offset)
 	/* Check if all pins are outputs */
 	if (platdata->bank_output[bank])
 		return GPIOF_OUTPUT;
-
-	ret = xilinx_gpio_get_bank_pin(offset, &bank, &pin, dev);
-	if (ret)
-		return ret;
 
 	/* FIXME test on dual */
 	val = readl(&platdata->regs->gpiodir + bank * 2);
