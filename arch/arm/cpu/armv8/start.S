@@ -87,13 +87,22 @@ pie_fixup_done:
 #ifdef CONFIG_SYS_RESET_SCTRL
 	bl reset_sctrl
 #endif
+
+#if defined(CONFIG_ARMV8__SPL_EXCEPTION_VECTORS) || !defined(CONFIG_SPL_BUILD)
+.macro	set_vbar, regname, reg
+	msr	\regname, \reg
+.endm
+	adr	x0, vectors
+#else
+.macro	set_vbar, regname, reg
+.endm
+#endif
 	/*
 	 * Could be EL3/EL2/EL1, Initial State:
 	 * Little Endian, MMU Disabled, i/dCache Disabled
 	 */
-	adr	x0, vectors
 	switch_el x1, 3f, 2f, 1f
-3:	msr	vbar_el3, x0
+3:	set_vbar vbar_el3, x0
 	mrs	x0, scr_el3
 	orr	x0, x0, #0xf			/* SCR_EL3.NS|IRQ|FIQ|EA */
 	msr	scr_el3, x0
@@ -103,11 +112,11 @@ pie_fixup_done:
 	msr	cntfrq_el0, x0			/* Initialize CNTFRQ */
 #endif
 	b	0f
-2:	msr	vbar_el2, x0
+2:	set_vbar	vbar_el2, x0
 	mov	x0, #0x33ff
 	msr	cptr_el2, x0			/* Enable FP/SIMD */
 	b	0f
-1:	msr	vbar_el1, x0
+1:	set_vbar	vbar_el1, x0
 	mov	x0, #3 << 20
 	msr	cpacr_el1, x0			/* Enable FP/SIMD */
 0:
@@ -345,6 +354,7 @@ ENDPROC(smp_kick_all_cpus)
 /*-----------------------------------------------------------------------*/
 
 ENTRY(c_runtime_cpu_setup)
+#if defined(CONFIG_ARMV8__SPL_EXCEPTION_VECTORS) || !defined(CONFIG_SPL_BUILD)
 	/* Relocate vBAR */
 	adr	x0, vectors
 	switch_el x1, 3f, 2f, 1f
@@ -354,6 +364,7 @@ ENTRY(c_runtime_cpu_setup)
 	b	0f
 1:	msr	vbar_el1, x0
 0:
+#endif
 
 	ret
 ENDPROC(c_runtime_cpu_setup)

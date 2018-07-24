@@ -10,7 +10,11 @@ ifndef CONFIG_$(SPL_TPL_)TIMER
 obj-$(CONFIG_SYS_ARCH_TIMER) += generic_timer.o
 endif
 obj-y	+= cache_v8.o
+ifdef CONFIG_SPL_BUILD
+obj-$(CONFIG_ARMV8_SPL_EXCEPTION_VECTORS) += exceptions.o
+else
 obj-y	+= exceptions.o
+endif
 obj-y	+= cache.o
 obj-y	+= tlb.o
 obj-y	+= transition.o
