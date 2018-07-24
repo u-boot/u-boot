@@ -401,6 +401,8 @@ config VIDEO_LCD_SPI_MISO
 	option takes a string in the format understood by 'name_to_gpio'
 	function, e.g. PH1 for pin 1 of port H.
 
+source "drivers/video/meson/Kconfig"
+
 config VIDEO_MVEBU
 	bool "Armada XP LCD controller"
 	default n
