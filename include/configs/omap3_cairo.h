@@ -203,8 +203,6 @@
  * function per_clocks_enable().
  */
 #ifdef CONFIG_SPL_BUILD
-#undef CONFIG_SYS_NS16550_COM3
-#define CONFIG_SYS_NS16550_COM2		OMAP34XX_UART2
 #undef CONFIG_SERIAL3
 #define CONFIG_SERIAL2
 #endif

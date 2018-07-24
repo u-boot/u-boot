@@ -38,6 +38,8 @@
 
 /* Select serial console configuration */
 #ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_NS16550_COM1		OMAP34XX_UART1
+#define CONFIG_SYS_NS16550_COM2		OMAP34XX_UART2
 #define CONFIG_SYS_NS16550_COM3		OMAP34XX_UART3
 #define CONFIG_SERIAL3			3
 #endif

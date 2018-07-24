@@ -16,12 +16,6 @@
 
 #include <configs/ti_omap3_common.h>
 
-#ifdef CONFIG_SPL_BUILD
-/* select serial console configuration for SPL */
-#define CONFIG_SYS_NS16550_COM1                OMAP34XX_UART1
-#endif
-
-
 /*
  * We are only ever GP parts and will utilize all of the "downloaded image"
  * area in SRAM which starts at 0x40200000 and ends at 0x4020FFFF (64KB) in
