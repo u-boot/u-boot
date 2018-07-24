@@ -294,4 +294,14 @@ int clk_disable_bulk(struct clk_bulk *bulk);
 
 int soc_clk_dump(void);
 
+/**
+ * clk_valid() - check if clk is valid
+ *
+ * @clk:	the clock to check
+ * @return true if valid, or false
+ */
+static inline bool clk_valid(struct clk *clk)
+{
+	return !!clk->dev;
+}
 #endif

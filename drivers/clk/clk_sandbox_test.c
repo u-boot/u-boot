@@ -116,6 +116,19 @@ int sandbox_clk_test_release_bulk(struct udevice *dev)
 	return clk_release_bulk(&sbct->bulk);
 }
 
+int sandbox_clk_test_valid(struct udevice *dev)
+{
+	struct sandbox_clk_test *sbct = dev_get_priv(dev);
+	int i;
+
+	for (i = 0; i < SANDBOX_CLK_TEST_ID_COUNT; i++) {
+		if (!clk_valid(&sbct->clks[i]))
+			return -EINVAL;
+	}
+
+	return 0;
+}
+
 static const struct udevice_id sandbox_clk_test_ids[] = {
 	{ .compatible = "sandbox,clk-test" },
 	{ }

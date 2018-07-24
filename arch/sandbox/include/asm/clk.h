@@ -138,5 +138,13 @@ int sandbox_clk_test_free(struct udevice *dev);
  * @return:	0 if OK, or a negative error code.
  */
 int sandbox_clk_test_release_bulk(struct udevice *dev);
+/**
+ * sandbox_clk_test_valid - Ask the sandbox clock test device to check its
+ * clocks are valid.
+ *
+ * @dev:	The sandbox clock test (client) devivce.
+ * @return:	0 if OK, or a negative error code.
+ */
+int sandbox_clk_test_valid(struct udevice *dev);
 
 #endif
