@@ -149,7 +149,8 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
 	zynq-zc770-xm013.dtb \
 	zynq-zed.dtb \
 	zynq-zturn.dtb \
-	zynq-zybo.dtb
+	zynq-zybo.dtb \
+	zynq-zybo-z7.dtb
 dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-mini-emmc0.dtb			\
 	zynqmp-mini-emmc1.dtb			\
