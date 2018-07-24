@@ -317,6 +317,7 @@ F:	drivers/usb/host/ehci-zynq.c
 F:	drivers/watchdog/cdns_wdt.c
 F:	include/zynqmppl.h
 F:	tools/zynqmp*
+N:	ultra96
 N:	zynqmp
 
 ARM ZYNQMP R5

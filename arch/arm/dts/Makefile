@@ -152,6 +152,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
 	zynq-zybo.dtb \
 	zynq-zybo-z7.dtb
 dtb-$(CONFIG_ARCH_ZYNQMP) += \
+	avnet-ultra96-rev1.dtb			\
 	zynqmp-mini-emmc0.dtb			\
 	zynqmp-mini-emmc1.dtb			\
 	zynqmp-mini-nand.dtb			\
