@@ -68,8 +68,14 @@ const struct spi_flash_info spi_flash_ids[] = {
 #endif
 #ifdef CONFIG_SPI_FLASH_ISSI		/* ISSI */
 	{"is25lq040b",	   INFO(0x9d4013, 0x0, 64 * 1024,    8, 0)  },
-	{"is25lp032",	   INFO(0x9d6016, 0x0, 64 * 1024,    64, 0) },
+	{"is25lp008d",	   INFO(0x9d6014, 0x0, 64 * 1024,    16, RD_QUAD) },
+	{"is25wp008d",	   INFO(0x9d7014, 0x0, 64 * 1024,    16, RD_QUAD) },
+	{"is25lp016d",	   INFO(0x9d6015, 0x0, 64 * 1024,    32, RD_QUAD) },
+	{"is25wp016d",	   INFO(0x9d7015, 0x0, 64 * 1024,    32, RD_QUAD) },
+	{"is25lp032d",	   INFO(0x9d6016, 0x0, 64 * 1024,    64, RD_QUAD) },
+	{"is25wp032d",	   INFO(0x9d7016, 0x0, 64 * 1024,    64, RD_QUAD) },
 	{"is25lp064",	   INFO(0x9d6017, 0x0, 64 * 1024,   128, 0) },
+	{"is25wp064d",	   INFO(0x9d7017, 0x0, 64 * 1024,   128, RD_QUAD) },
 	{"is25lp128",	   INFO(0x9d6018, 0x0, 64 * 1024,   256, 0) },
 	{"is25lp256d",	   INFO(0x9d6019, 0x0, 64 * 1024,   512, RD_QUAD) },
 	{"is25wp256d",	   INFO(0x9d7019, 0x0, 64 * 1024,   512, RD_QUAD) },
