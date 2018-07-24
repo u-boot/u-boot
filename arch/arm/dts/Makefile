@@ -154,6 +154,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
 	zynq-zturn-myir.dtb \
 	zynq-zybo.dtb
 dtb-$(CONFIG_ARCH_ZYNQMP) += \
+	avnet-ultra96-rev1.dtb			\
 	zynqmp-mini.dtb				\
 	zynqmp-mini-qspi-parallel.dtb		\
 	zynqmp-mini-qspi-single.dtb		\
