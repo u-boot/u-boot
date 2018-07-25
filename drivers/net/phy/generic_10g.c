@@ -7,8 +7,6 @@
  *
  * Based loosely off of Linux's PHY Lib
  */
-
-#include <config.h>
 #include <common.h>
 #include <miiphy.h>
 #include <phy.h>

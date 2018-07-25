@@ -8,8 +8,6 @@
  * (C) Copyright 2017 Adaptrum, Inc.
  * Written by Alexandru Gagniuc <alex.g@adaptrum.com> for Adaptrum, Inc.
  */
-
-#include <config.h>
 #include <common.h>
 #include <dm.h>
 #include <errno.h>

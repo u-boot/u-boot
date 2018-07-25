@@ -9,6 +9,7 @@
  * Some code copied from linux kernel
  * Copyright (c) 2006 Herbert Valerio Riedel <hvr@gnu.org>
  */
+#include <common.h>
 #include <miiphy.h>
 
 /* This code does not check the partner abilities. */
