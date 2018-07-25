@@ -1603,7 +1603,7 @@ clean: rm-files := $(CLEAN_FILES)
 
 clean-dirs	:= $(foreach f,$(u-boot-alldirs),$(if $(wildcard $(srctree)/$f/Makefile),$f))
 
-clean-dirs      := $(addprefix _clean_, $(clean-dirs) doc/DocBook)
+clean-dirs      := $(addprefix _clean_, $(clean-dirs))
 
 PHONY += $(clean-dirs) clean archclean
 $(clean-dirs):
@@ -1685,7 +1685,7 @@ help:
 	@echo  '  coccicheck      - Execute static code analysis with Coccinelle'
 	@echo  ''
 	@echo  'Documentation targets:'
-	@$(MAKE) -f $(srctree)/doc/DocBook/Makefile dochelp
+	@$(MAKE) -f $(srctree)/Documentation/Makefile dochelp
 	@echo  ''
 	@echo  '  make V=0|1 [targets] 0 => quiet build (default), 1 => verbose build'
 	@echo  '  make V=2   [targets] 2 => give reason for rebuild of target'
