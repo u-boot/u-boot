@@ -164,7 +164,6 @@
 	"mmcbootpart=1\0" \
 	"mmcrootdev=0\0" \
 	"mmcrootpart=2\0" \
-	"bootdelay=0\0" \
 	"dfu_alt_system="CONFIG_DFU_ALT \
 	"dfu_alt_info=Please reset the board\0" \
 	"consoleon=set console console=ttySAC1,115200n8; save; reset\0" \
