@@ -205,7 +205,7 @@ u32 get_board_rev(void)
  */
 int ft_board_setup(void *blob, bd_t *bd)
 {
-	struct node_info nodes[] = {
+	static const struct node_info nodes[] = {
 		{ "physmap-flash.0", MTD_DEV_TYPE_NOR, },  /* NOR flash */
 		{ "mxc_nand", MTD_DEV_TYPE_NAND, }, /* NAND flash */
 	};

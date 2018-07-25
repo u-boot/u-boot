@@ -211,7 +211,7 @@ int board_late_init(void)
 int ft_board_setup(void *blob, bd_t *bd)
 {
 #ifdef CONFIG_FDT_FIXUP_PARTITIONS
-	static struct node_info nodes[] = {
+	static const struct node_info nodes[] = {
 		{ "ti,omap2-nand", MTD_DEV_TYPE_NAND, },
 	};
 

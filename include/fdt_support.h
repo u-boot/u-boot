@@ -205,11 +205,16 @@ int fdt_increase_size(void *fdt, int add_len);
 
 int fdt_fixup_nor_flash_size(void *blob);
 
+struct node_info;
 #if defined(CONFIG_FDT_FIXUP_PARTITIONS)
-void fdt_fixup_mtdparts(void *fdt, void *node_info, int node_info_size);
+void fdt_fixup_mtdparts(void *fdt, const struct node_info *node_info,
+			int node_info_size);
 #else
-static inline void fdt_fixup_mtdparts(void *fdt, void *node_info,
-					int node_info_size) {}
+static inline void fdt_fixup_mtdparts(void *fdt,
+				      const struct node_info *node_info,
+				      int node_info_size)
+{
+}
 #endif
 
 void fdt_del_node_and_alias(void *blob, const char *alias);
