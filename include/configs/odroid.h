@@ -100,21 +100,21 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadbootscript=load mmc ${mmcbootdev}:${mmcbootpart} ${scriptaddr} " \
 		"boot.scr\0" \
-	"loadkernel=load mmc ${mmcbootdev}:${mmcbootpart} ${kerneladdr} " \
+	"loadkernel=load mmc ${mmcbootdev}:${mmcbootpart} ${kernel_addr_r} " \
 		"${kernelname}\0" \
-	"loadinitrd=load mmc ${mmcbootdev}:${mmcbootpart} ${initrdaddr} " \
+	"loadinitrd=load mmc ${mmcbootdev}:${mmcbootpart} ${ramdisk_addr_r} " \
 		"${initrdname}\0" \
-	"loaddtb=load mmc ${mmcbootdev}:${mmcbootpart} ${fdtaddr} " \
+	"loaddtb=load mmc ${mmcbootdev}:${mmcbootpart} ${fdt_addr_r} " \
 		"${fdtfile}\0" \
 	"check_ramdisk=" \
 		"if run loadinitrd; then " \
-			"setenv initrd_addr ${initrdaddr};" \
+			"setenv initrd_addr ${ramdisk_addr_r};" \
 		"else " \
 			"setenv initrd_addr -;" \
 		"fi;\0" \
 	"check_dtb=" \
 		"if run loaddtb; then " \
-			"setenv fdt_addr ${fdtaddr};" \
+			"setenv fdt_addr ${fdt_addr_r};" \
 		"else " \
 			"setenv fdt_addr;" \
 		"fi;\0" \
@@ -125,27 +125,24 @@
 		"run loadbootscript;" \
 		"source ${scriptaddr}\0" \
 	"boot_fit=" \
-		"setenv kerneladdr 0x42000000;" \
 		"setenv kernelname Image.itb;" \
 		"run loadkernel;" \
 		"run kernel_args;" \
-		"bootm ${kerneladdr}#${boardname}\0" \
+		"bootm ${kernel_addr_r}#${boardname}\0" \
 	"boot_uimg=" \
-		"setenv kerneladdr 0x40007FC0;" \
 		"setenv kernelname uImage;" \
 		"run check_dtb;" \
 		"run check_ramdisk;" \
 		"run loadkernel;" \
 		"run kernel_args;" \
-		"bootm ${kerneladdr} ${initrd_addr} ${fdt_addr};\0" \
+		"bootm ${kernel_addr_r} ${initrd_addr} ${fdt_addr};\0" \
 	"boot_zimg=" \
-		"setenv kerneladdr 0x40007FC0;" \
 		"setenv kernelname zImage;" \
 		"run check_dtb;" \
 		"run check_ramdisk;" \
 		"run loadkernel;" \
 		"run kernel_args;" \
-		"bootz ${kerneladdr} ${initrd_addr} ${fdt_addr};\0" \
+		"bootz ${kernel_addr_r} ${initrd_addr} ${fdt_addr};\0" \
 	"autoboot=" \
 		"if test -e mmc 0 boot.scr; then; " \
 			"run boot_script; " \
@@ -167,9 +164,10 @@
 	"consoleon=set console console=ttySAC1,115200n8; save; reset\0" \
 	"consoleoff=set console console=ram; save; reset\0" \
 	"initrdname=uInitrd\0" \
-	"initrdaddr=42000000\0" \
+	"ramdisk_addr_r=0x42000000\0" \
 	"scriptaddr=0x42000000\0" \
-	"fdtaddr=40800000\0"
+	"fdt_addr_r=0x40800000\0" \
+	"kernel_addr_r=0x41000000\0"
 
 /* GPT */
 
