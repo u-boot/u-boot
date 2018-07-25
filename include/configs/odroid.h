@@ -41,7 +41,7 @@
 
 /* Console configuration */
 
-#define CONFIG_BOOTCOMMAND		"run autoboot"
+#define CONFIG_BOOTCOMMAND		"run distro_bootcmd ; run autoboot"
 #define CONFIG_DEFAULT_CONSOLE		"ttySAC1,115200n8"
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
@@ -82,6 +82,12 @@
 	"bl1 raw 0x1 0x1e;" \
 	"bl2 raw 0x1f 0x1d;" \
 	"tzsw raw 0x83f 0x138\0"
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 1) \
+	func(MMC, mmc, 0)
+
+#include <config_distro_bootcmd.h>
 
 /*
  * Bootable media layout:
@@ -167,7 +173,8 @@
 	"ramdisk_addr_r=0x42000000\0" \
 	"scriptaddr=0x42000000\0" \
 	"fdt_addr_r=0x40800000\0" \
-	"kernel_addr_r=0x41000000\0"
+	"kernel_addr_r=0x41000000\0" \
+	BOOTENV
 
 /* GPT */
 
