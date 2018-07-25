@@ -192,7 +192,6 @@ struct pl180_mmc_host {
 	struct mmc_config cfg;
 #ifdef CONFIG_DM_MMC
 	struct gpio_desc cd_gpio;
-	bool cd_inverted;
 #endif
 };
 

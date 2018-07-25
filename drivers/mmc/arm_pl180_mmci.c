@@ -499,11 +499,8 @@ static int dm_mmc_getcd(struct udevice *dev)
 	struct pl180_mmc_host *host = dev->priv;
 	int value = 1;
 
-	if (dm_gpio_is_valid(&host->cd_gpio)) {
+	if (dm_gpio_is_valid(&host->cd_gpio))
 		value = dm_gpio_get_value(&host->cd_gpio);
-		if (host->cd_inverted)
-			return !value;
-	}
 
 	return value;
 }
