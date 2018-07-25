@@ -11,16 +11,23 @@
 __weak void bootcount_store(ulong a)
 {
 	void *reg = (void *)CONFIG_SYS_BOOTCOUNT_ADDR;
+	uintptr_t flush_start = rounddown(CONFIG_SYS_BOOTCOUNT_ADDR,
+					  CONFIG_SYS_CACHELINE_SIZE);
+	uintptr_t flush_end;
 
 #if defined(CONFIG_SYS_BOOTCOUNT_SINGLEWORD)
 	raw_bootcount_store(reg, (BOOTCOUNT_MAGIC & 0xffff0000) | a);
+
+	flush_end = roundup(CONFIG_SYS_BOOTCOUNT_ADDR + 4,
+			    CONFIG_SYS_CACHELINE_SIZE);
 #else
 	raw_bootcount_store(reg, a);
 	raw_bootcount_store(reg + 4, BOOTCOUNT_MAGIC);
+
+	flush_end = roundup(CONFIG_SYS_BOOTCOUNT_ADDR + 8,
+			    CONFIG_SYS_CACHELINE_SIZE);
 #endif /* defined(CONFIG_SYS_BOOTCOUNT_SINGLEWORD */
-	flush_dcache_range(CONFIG_SYS_BOOTCOUNT_ADDR,
-				CONFIG_SYS_BOOTCOUNT_ADDR +
-				CONFIG_SYS_CACHELINE_SIZE);
+	flush_dcache_range(flush_start, flush_end);
 }
 
 __weak ulong bootcount_load(void)
