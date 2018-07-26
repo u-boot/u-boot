@@ -93,6 +93,19 @@ static void initialize_security_policies(void)
 	/* Put OCRAM in non-secure */
 	writel(0x003f0000, &noc_fw_ocram_base->region0);
 	writel(0x1, &noc_fw_ocram_base->enable);
+
+	/* Put DDR in non-secure */
+	writel(0xffff0000, SOCFPGA_SDR_FIREWALL_L3_ADDRESS + 0xc);
+	writel(0x1, SOCFPGA_SDR_FIREWALL_L3_ADDRESS);
+
+	/* Enable priviledged and non-priviledged access to L4 peripherals */
+	writel(~0, SOCFPGA_NOC_L4_PRIV_FLT_OFST);
+
+	/* Enable secure and non-secure transactions to bridges */
+	writel(~0, SOCFPGA_NOC_FW_H2F_SCR_OFST);
+	writel(~0, SOCFPGA_NOC_FW_H2F_SCR_OFST + 4);
+
+	writel(0x0007FFFF, &sysmgr_regs->ecc_intmask_set);
 }
 
 int arch_early_init_r(void)
