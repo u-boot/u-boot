@@ -11,6 +11,7 @@ Required properties:
 Optional properties:
 - gpio: GPIO to use for enable control
 - startup-delay-us: startup time in microseconds
+- u-boot,off-on-delay-us: off delay time in microseconds
 - regulator constraints (binding info: regulator.txt)
 - enable-active-high: Polarity of GPIO is Active high. If this property
   is missing, the default assumed is Active low.
