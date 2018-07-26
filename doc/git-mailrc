@@ -39,7 +39,6 @@ alias prafulla       Prafulla Wadaskar <prafulla@marvell.com>
 alias prom           Minkyu Kang <mk7.kang@samsung.com>
 alias ptomsich       Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
 alias sbabic         Stefano Babic <sbabic@denx.de>
-alias scottwood      Scott Wood <oss@buserror.net>
 alias sjg            Simon Glass <sjg@chromium.org>
 alias smcnutt        Scott McNutt <smcnutt@psyent.com>
 alias stroese        Stefan Roese <sr@denx.de>
@@ -113,7 +112,7 @@ alias fdt            uboot, sjg
 alias i2c            uboot, hs
 alias kconfig        uboot, masahiro
 alias mmc            uboot, jaehoon
-alias nand           uboot, scottwood
+alias nand           uboot
 alias net            uboot, jhersh
 alias phy            uboot, jhersh
 alias spi            uboot, jagan

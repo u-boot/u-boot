@@ -437,8 +437,8 @@ T:	git git://git.denx.de/u-boot-mmc.git
 F:	drivers/mmc/
 
 NAND FLASH
-M:	Scott Wood <oss@buserror.net>
-S:	Maintained
+#M:	Scott Wood <oss@buserror.net>
+S:	Orphaned (Since 2018-07)
 T:	git git://git.denx.de/u-boot-nand-flash.git
 F:	drivers/mtd/nand/
 
