@@ -533,7 +533,7 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 			switch (ntohl(rpc_pkt.u.reply.data[0])) {
 			/* Minimal supported NFS version */
 			case 3:
-				debug("*** Waring: NFS version not supported: Requested: V%d, accepted: min V%d - max V%d\n",
+				debug("*** Warning: NFS version not supported: Requested: V%d, accepted: min V%d - max V%d\n",
 				      (supported_nfs_versions & NFSV2_FLAG) ?
 						2 : 3,
 				      ntohl(rpc_pkt.u.reply.data[0]),
@@ -855,40 +855,29 @@ void nfs_start(void)
 
 	if (nfs_path == NULL) {
 		net_set_state(NETLOOP_FAIL);
-		debug("*** ERROR: Fail allocate memory\n");
+		printf("*** ERROR: Fail allocate memory\n");
 		return;
 	}
 
-	if (net_boot_file_name[0] == '\0') {
+	if (!net_parse_bootfile(&nfs_server_ip, nfs_path,
+				sizeof(nfs_path_buff))) {
 		sprintf(nfs_path, "/nfsroot/%02X%02X%02X%02X.img",
 			net_ip.s_addr & 0xFF,
 			(net_ip.s_addr >>  8) & 0xFF,
 			(net_ip.s_addr >> 16) & 0xFF,
 			(net_ip.s_addr >> 24) & 0xFF);
 
-		debug("*** Warning: no boot file name; using '%s'\n",
-		      nfs_path);
-	} else {
-		char *p = net_boot_file_name;
-
-		p = strchr(p, ':');
-
-		if (p != NULL) {
-			nfs_server_ip = string_to_ip(net_boot_file_name);
-			++p;
-			strcpy(nfs_path, p);
-		} else {
-			strcpy(nfs_path, net_boot_file_name);
-		}
+		printf("*** Warning: no boot file name; using '%s'\n",
+		       nfs_path);
 	}
 
 	nfs_filename = basename(nfs_path);
 	nfs_path     = dirname(nfs_path);
 
-	debug("Using %s device\n", eth_get_name());
+	printf("Using %s device\n", eth_get_name());
 
-	debug("File transfer via NFS from server %pI4; our IP address is %pI4",
-	      &nfs_server_ip, &net_ip);
+	printf("File transfer via NFS from server %pI4; our IP address is %pI4",
+	       &nfs_server_ip, &net_ip);
 
 	/* Check if we need to send across this subnet */
 	if (net_gateway.s_addr && net_netmask.s_addr) {
@@ -896,19 +885,19 @@ void nfs_start(void)
 		struct in_addr server_net;
 
 		our_net.s_addr = net_ip.s_addr & net_netmask.s_addr;
-		server_net.s_addr = net_server_ip.s_addr & net_netmask.s_addr;
+		server_net.s_addr = nfs_server_ip.s_addr & net_netmask.s_addr;
 		if (our_net.s_addr != server_net.s_addr)
-			debug("; sending through gateway %pI4",
-			      &net_gateway);
+			printf("; sending through gateway %pI4",
+			       &net_gateway);
 	}
-	debug("\nFilename '%s/%s'.", nfs_path, nfs_filename);
+	printf("\nFilename '%s/%s'.", nfs_path, nfs_filename);
 
 	if (net_boot_file_expected_size_in_blocks) {
-		debug(" Size is 0x%x Bytes = ",
-		      net_boot_file_expected_size_in_blocks << 9);
+		printf(" Size is 0x%x Bytes = ",
+		       net_boot_file_expected_size_in_blocks << 9);
 		print_size(net_boot_file_expected_size_in_blocks << 9, "");
 	}
-	debug("\nLoad address: 0x%lx\nLoading: *\b", load_addr);
+	printf("\nLoad address: 0x%lx\nLoading: *\b", load_addr);
 
 	net_set_timeout_handler(nfs_timeout, nfs_timeout_handler);
 	net_set_udp_handler(nfs_handler);

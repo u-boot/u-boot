@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <lcd.h>
@@ -68,6 +69,9 @@ static int sandbox_serial_probe(struct udevice *dev)
 	if (state->term_raw != STATE_TERM_COOKED)
 		os_tty_raw(0, state->term_raw == STATE_TERM_RAW_WITH_SIGS);
 	priv->start_of_line = 0;
+
+	if (state->term_raw != STATE_TERM_RAW)
+		disable_ctrlc(1);
 
 	return 0;
 }

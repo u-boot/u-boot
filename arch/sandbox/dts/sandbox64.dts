@@ -8,7 +8,6 @@
 	model = "sandbox";
 
 	aliases {
-		eth5 = "/eth@90000000";
 		i2c0 = &i2c_0;
 		pci0 = &pci;
 		rtc0 = &rtc_0;
@@ -47,22 +46,15 @@
 		};
 	};
 
+	ethrawbus {
+		compatible = "sandbox,eth-raw-bus";
+		skip-localhost = <1>;
+	};
+
 	eth@10002000 {
 		compatible = "sandbox,eth";
 		reg = <0x0 0x10002000 0x0 0x1000>;
 		fake-host-hwaddr = [00 00 66 44 22 00];
-	};
-
-	eth@80000000 {
-		compatible = "sandbox,eth-raw";
-		reg = <0x0 0x80000000 0x0 0x1000>;
-		host-raw-interface = "eth0";
-	};
-
-	eth@90000000 {
-		compatible = "sandbox,eth-raw";
-		reg = <0x0 0x90000000 0x0 0x1000>;
-		host-raw-interface = "lo";
 	};
 
 	gpio_a: gpios@0 {

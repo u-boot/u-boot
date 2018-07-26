@@ -21,21 +21,18 @@ static int sb_eth_raw_start(struct udevice *dev)
 {
 	struct eth_sandbox_raw_priv *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_platdata(dev);
-	const char *interface;
+	int ret;
 
 	debug("eth_sandbox_raw: Start\n");
 
-	interface = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
-					    "host-raw-interface", NULL);
-	if (interface == NULL)
-		return -EINVAL;
-
-	if (strcmp(interface, "lo") == 0) {
-		priv->local = 1;
+	ret = sandbox_eth_raw_os_start(priv, pdata->enetaddr);
+	if (priv->local) {
 		env_set("ipaddr", "127.0.0.1");
 		env_set("serverip", "127.0.0.1");
+		net_ip = string_to_ip("127.0.0.1");
+		net_server_ip = net_ip;
 	}
-	return sandbox_eth_raw_os_start(interface, pdata->enetaddr, priv);
+	return ret;
 }
 
 static int sb_eth_raw_send(struct udevice *dev, void *packet, int length)
@@ -133,18 +130,54 @@ static void sb_eth_raw_stop(struct udevice *dev)
 	sandbox_eth_raw_os_stop(priv);
 }
 
+static int sb_eth_raw_read_rom_hwaddr(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+	net_random_ethaddr(pdata->enetaddr);
+
+	return 0;
+}
+
 static const struct eth_ops sb_eth_raw_ops = {
 	.start			= sb_eth_raw_start,
 	.send			= sb_eth_raw_send,
 	.recv			= sb_eth_raw_recv,
 	.stop			= sb_eth_raw_stop,
+	.read_rom_hwaddr	= sb_eth_raw_read_rom_hwaddr,
 };
 
 static int sb_eth_raw_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_sandbox_raw_priv *priv = dev_get_priv(dev);
+	const char *ifname;
+	u32 local;
+	int ret;
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
+
+	ifname = dev_read_string(dev, "host-raw-interface");
+	if (ifname) {
+		strncpy(priv->host_ifname, ifname, IFNAMSIZ);
+		printf(": Using %s from DT\n", priv->host_ifname);
+	}
+	if (dev_read_u32(dev, "host-raw-interface-idx",
+			 &priv->host_ifindex) < 0) {
+		priv->host_ifindex = 0;
+	} else {
+		ret = sandbox_eth_raw_os_idx_to_name(priv);
+		if (ret < 0)
+			return ret;
+		printf(": Using interface index %d from DT (%s)\n",
+		       priv->host_ifindex, priv->host_ifname);
+	}
+
+	local = sandbox_eth_raw_os_is_local(priv->host_ifname);
+	if (local < 0)
+		return local;
+	priv->local = local;
+
 	return 0;
 }
 

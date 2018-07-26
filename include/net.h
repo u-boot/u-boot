@@ -839,6 +839,20 @@ ushort env_get_vlan(char *);
 /* copy a filename (allow for "..." notation, limit length) */
 void copy_filename(char *dst, const char *src, int size);
 
+/* check if serverip is specified in filename from the command line */
+int is_serverip_in_cmd(void);
+
+/**
+ * net_parse_bootfile - Parse the bootfile env var / cmd line param
+ *
+ * @param ipaddr - a pointer to the ipaddr to populate if included in bootfile
+ * @param filename - a pointer to the string to save the filename part
+ * @param max_len - The longest - 1 that the filename part can be
+ *
+ * return 1 if parsed, 0 if bootfile is empty
+ */
+int net_parse_bootfile(struct in_addr *ipaddr, char *filename, int max_len);
+
 /* get a random source port */
 unsigned int random_port(void);
 

@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (c) 2015 National Instruments
- *
- * (C) Copyright 2015
- * Joe Hershberger <joe.hershberger@ni.com>
+ * Copyright (c) 2015-2018 National Instruments
+ * Copyright (c) 2015-2018 Joe Hershberger <joe.hershberger@ni.com>
  */
 
 #include <asm/eth-raw-os.h>
@@ -25,8 +23,46 @@
 #include <linux/if_ether.h>
 #include <linux/if_packet.h>
 
-static int _raw_packet_start(const char *ifname, unsigned char *ethmac,
-			    struct eth_sandbox_raw_priv *priv)
+struct sandbox_eth_raw_if_nameindex *sandbox_eth_raw_if_nameindex(void)
+{
+	return (struct sandbox_eth_raw_if_nameindex *)if_nameindex();
+}
+
+void sandbox_eth_raw_if_freenameindex(struct sandbox_eth_raw_if_nameindex *ptr)
+{
+	if_freenameindex((struct if_nameindex *)ptr);
+}
+
+int sandbox_eth_raw_os_is_local(const char *ifname)
+{
+	int fd = socket(AF_INET, SOCK_DGRAM, 0);
+	struct ifreq ifr;
+	int ret = 0;
+
+	if (fd < 0)
+		return -errno;
+	memset(&ifr, 0, sizeof(ifr));
+	strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
+	ret = ioctl(fd, SIOCGIFFLAGS, &ifr);
+	if (ret < 0) {
+		ret = -errno;
+		goto out;
+	}
+	ret = !!(ifr.ifr_flags & IFF_LOOPBACK);
+out:
+	close(fd);
+	return ret;
+}
+
+int sandbox_eth_raw_os_idx_to_name(struct eth_sandbox_raw_priv *priv)
+{
+	if (!if_indextoname(priv->host_ifindex, priv->host_ifname))
+		return -errno;
+	return 0;
+}
+
+static int _raw_packet_start(struct eth_sandbox_raw_priv *priv,
+			     unsigned char *ethmac)
 {
 	struct sockaddr_ll *device;
 	struct packet_mreq mr;
@@ -34,12 +70,14 @@ static int _raw_packet_start(const char *ifname, unsigned char *ethmac,
 	int flags;
 
 	/* Prepare device struct */
+	priv->local_bind_sd = -1;
 	priv->device = malloc(sizeof(struct sockaddr_ll));
 	if (priv->device == NULL)
 		return -ENOMEM;
 	device = priv->device;
 	memset(device, 0, sizeof(struct sockaddr_ll));
-	device->sll_ifindex = if_nametoindex(ifname);
+	device->sll_ifindex = if_nametoindex(priv->host_ifname);
+	priv->host_ifindex = device->sll_ifindex;
 	device->sll_family = AF_PACKET;
 	memcpy(device->sll_addr, ethmac, 6);
 	device->sll_halen = htons(6);
@@ -52,11 +90,11 @@ static int _raw_packet_start(const char *ifname, unsigned char *ethmac,
 		return -errno;
 	}
 	/* Bind to the specified interface */
-	ret = setsockopt(priv->sd, SOL_SOCKET, SO_BINDTODEVICE, ifname,
-		   strlen(ifname) + 1);
+	ret = setsockopt(priv->sd, SOL_SOCKET, SO_BINDTODEVICE,
+			 priv->host_ifname, strlen(priv->host_ifname) + 1);
 	if (ret < 0) {
-		printf("Failed to bind to '%s': %d %s\n", ifname, errno,
-		       strerror(errno));
+		printf("Failed to bind to '%s': %d %s\n", priv->host_ifname,
+		       errno, strerror(errno));
 		return -errno;
 	}
 
@@ -75,11 +113,12 @@ static int _raw_packet_start(const char *ifname, unsigned char *ethmac,
 		printf("Failed to set promiscuous mode: %d %s\n"
 		       "Falling back to the old \"flags\" way...\n",
 			errno, strerror(errno));
-		if (strlen(ifname) >= IFNAMSIZ) {
-			printf("Interface name %s is too long.\n", ifname);
+		if (strlen(priv->host_ifname) >= IFNAMSIZ) {
+			printf("Interface name %s is too long.\n",
+			       priv->host_ifname);
 			return -EINVAL;
 		}
-		strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
+		strncpy(ifr.ifr_name, priv->host_ifname, IFNAMSIZ);
 		if (ioctl(priv->sd, SIOCGIFFLAGS, &ifr) < 0) {
 			printf("Failed to read flags: %d %s\n", errno,
 			       strerror(errno));
@@ -103,6 +142,8 @@ static int _local_inet_start(struct eth_sandbox_raw_priv *priv)
 	int one = 1;
 
 	/* Prepare device struct */
+	priv->local_bind_sd = -1;
+	priv->local_bind_udp_port = 0;
 	priv->device = malloc(sizeof(struct sockaddr_in));
 	if (priv->device == NULL)
 		return -ENOMEM;
@@ -136,18 +177,16 @@ static int _local_inet_start(struct eth_sandbox_raw_priv *priv)
 		       strerror(errno));
 		return -errno;
 	}
-	priv->local_bind_sd = -1;
-	priv->local_bind_udp_port = 0;
 	return 0;
 }
 
-int sandbox_eth_raw_os_start(const char *ifname, unsigned char *ethmac,
-			    struct eth_sandbox_raw_priv *priv)
+int sandbox_eth_raw_os_start(struct eth_sandbox_raw_priv *priv,
+			     unsigned char *ethmac)
 {
 	if (priv->local)
 		return _local_inet_start(priv);
 	else
-		return _raw_packet_start(ifname, ethmac, priv);
+		return _raw_packet_start(priv, ethmac);
 }
 
 int sandbox_eth_raw_os_send(void *packet, int length,
@@ -156,7 +195,7 @@ int sandbox_eth_raw_os_send(void *packet, int length,
 	int retval;
 	struct udphdr *udph = packet + sizeof(struct iphdr);
 
-	if (!priv->sd || !priv->device)
+	if (priv->sd < 0 || !priv->device)
 		return -EINVAL;
 
 	/*
@@ -221,7 +260,7 @@ int sandbox_eth_raw_os_recv(void *packet, int *length,
 	int retval;
 	int saddr_size;
 
-	if (!priv->sd || !priv->device)
+	if (priv->sd < 0 || !priv->device)
 		return -EINVAL;
 	saddr_size = sizeof(struct sockaddr);
 	retval = recvfrom(priv->sd, packet, 1536, 0,

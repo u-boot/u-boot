@@ -7,8 +7,6 @@
  *
  * Based loosely off of Linux's PHY Lib
  */
-
-#include <config.h>
 #include <common.h>
 #include <console.h>
 #include <dm.h>
@@ -643,6 +641,10 @@ static struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
 	dev->duplex = -1;
 	dev->link = 0;
 	dev->interface = interface;
+
+#ifdef CONFIG_DM_ETH
+	dev->node = ofnode_null();
+#endif
 
 	dev->autoneg = AUTONEG_ENABLE;
 

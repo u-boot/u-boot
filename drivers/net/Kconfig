@@ -7,8 +7,8 @@ config DM_ETH
 	help
 	  Enable driver model for Ethernet.
 
-	  The eth_*() interface will be implemented by the UC_ETH class
-	  This is currently implemented in net/eth.c
+	  The eth_*() interface will be implemented by the UCLASS_ETH class
+	  This is currently implemented in net/eth-uclass.c
 	  Look in include/net.h for details.
 
 config DRIVER_TI_CPSW
@@ -181,6 +181,7 @@ config FTMAC100
 config MVGBE
 	bool "Marvell Orion5x/Kirkwood network interface support"
 	depends on KIRKWOOD || ORION5X
+	select PHYLIB if DM_ETH
 	help
 	  This driver supports the network interface units in the
 	  Marvell Orion5x and Kirkwood SoCs

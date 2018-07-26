@@ -59,10 +59,8 @@ static int sb_eth_start(struct udevice *dev)
 
 	debug("eth_sandbox: Start\n");
 
-	fdtdec_get_byte_array(gd->fdt_blob, dev_of_offset(dev),
-			      "fake-host-hwaddr", priv->fake_host_hwaddr,
-			      ARP_HLEN);
 	priv->recv_packet_buffer = net_rx_packets[0];
+
 	return 0;
 }
 
@@ -203,8 +201,18 @@ static int sb_eth_remove(struct udevice *dev)
 static int sb_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_sandbox_priv *priv = dev_get_priv(dev);
+	const u8 *mac;
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
+
+	mac = dev_read_u8_array_ptr(dev, "fake-host-hwaddr", ARP_HLEN);
+	if (!mac) {
+		printf("'fake-host-hwaddr' is missing from the DT\n");
+		return -EINVAL;
+	}
+	memcpy(priv->fake_host_hwaddr, mac, ARP_HLEN);
+
 	return 0;
 }
 

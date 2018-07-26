@@ -42,6 +42,7 @@
  * case, most NFS servers are optimized for a power of 2.
  */
 #define NFS_READ_SIZE	1024	/* biggest power of two that fits Ether frame */
+#define NFS_MAX_ATTRS	26
 
 /* Values for Accept State flag on RPC answers (See: rfc1831) */
 enum rpc_accept_stat {
@@ -55,7 +56,8 @@ enum rpc_accept_stat {
 
 struct rpc_t {
 	union {
-		uint8_t data[2048];
+		uint8_t data[NFS_READ_SIZE + (6 + NFS_MAX_ATTRS) *
+			sizeof(uint32_t)];
 		struct {
 			uint32_t id;
 			uint32_t type;
@@ -72,7 +74,8 @@ struct rpc_t {
 			uint32_t verifier;
 			uint32_t v2;
 			uint32_t astatus;
-			uint32_t data[NFS_READ_SIZE];
+			uint32_t data[NFS_READ_SIZE / sizeof(uint32_t) +
+				NFS_MAX_ATTRS];
 		} reply;
 	} u;
 } __attribute__((packed));

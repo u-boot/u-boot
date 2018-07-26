@@ -6,7 +6,6 @@
  * author Andy Fleming
  * Copyright 2016 Karsten Merker <merker@debian.org>
  */
-#include <config.h>
 #include <common.h>
 #include <linux/bitops.h>
 #include <phy.h>

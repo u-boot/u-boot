@@ -10,8 +10,6 @@
 #include <phy.h>
 #include <dm.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define MII_PHY_STATUS_SPD_MASK		0x0C00
 #define MII_PHY_STATUS_FULLDUPLEX	0x1000
 #define MII_PHY_STATUS_1000		0x0800
@@ -101,10 +99,14 @@ static int xilinxphy_startup(struct phy_device *phydev)
 static int xilinxphy_of_init(struct phy_device *phydev)
 {
 	u32 phytype;
+	ofnode node;
 
 	debug("%s\n", __func__);
-	phytype = fdtdec_get_int(gd->fdt_blob, dev_of_offset(phydev->dev),
-				 "xlnx,phy-type", -1);
+	node = phy_get_ofnode(phydev);
+	if (!ofnode_valid(node))
+		return -EINVAL;
+
+	phytype = ofnode_read_u32_default(node, "xlnx,phy-type", -1);
 	if (phytype == XAE_PHY_TYPE_1000BASE_X)
 		phydev->flags |= XAE_PHY_TYPE_1000BASE_X;
 

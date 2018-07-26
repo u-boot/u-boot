@@ -178,7 +178,7 @@ struct zynq_gem_priv {
 	struct zynq_gem_regs *iobase;
 	phy_interface_t interface;
 	struct phy_device *phydev;
-	int phy_of_handle;
+	ofnode phy_of_node;
 	struct mii_dev *bus;
 	struct clk clk;
 	u32 max_speed;
@@ -348,9 +348,7 @@ static int zynq_phy_init(struct udevice *dev)
 	}
 
 	priv->phydev->advertising = priv->phydev->supported;
-
-	if (priv->phy_of_handle > 0)
-		dev_set_of_offset(priv->phydev->dev, priv->phy_of_handle);
+	priv->phydev->node = priv->phy_of_node;
 
 	return phy_config(priv->phydev);
 }
@@ -693,21 +691,23 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
-	int node = dev_of_offset(dev);
+	struct ofnode_phandle_args phandle_args;
 	const char *phy_mode;
 
-	pdata->iobase = (phys_addr_t)devfdt_get_addr(dev);
+	pdata->iobase = (phys_addr_t)dev_read_addr(dev);
 	priv->iobase = (struct zynq_gem_regs *)pdata->iobase;
 	/* Hardcode for now */
 	priv->phyaddr = -1;
 
-	priv->phy_of_handle = fdtdec_lookup_phandle(gd->fdt_blob, node,
-						    "phy-handle");
-	if (priv->phy_of_handle > 0)
-		priv->phyaddr = fdtdec_get_int(gd->fdt_blob,
-					priv->phy_of_handle, "reg", -1);
+	if (dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
+				       &phandle_args)) {
+		debug("phy-handle does not exist %s\n", dev->name);
+		return -ENOENT;
+	}
 
-	phy_mode = fdt_getprop(gd->fdt_blob, node, "phy-mode", NULL);
+	priv->phyaddr = ofnode_read_u32_default(phandle_args.node, "reg", -1);
+	priv->phy_of_node = phandle_args.node;
+	phy_mode = dev_read_prop(dev, "phy-mode", NULL);
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (pdata->phy_interface == -1) {
@@ -716,10 +716,8 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	}
 	priv->interface = pdata->phy_interface;
 
-	priv->max_speed = fdtdec_get_uint(gd->fdt_blob, priv->phy_of_handle,
-					  "max-speed", SPEED_1000);
-	priv->int_pcs = fdtdec_get_bool(gd->fdt_blob, node,
-					"is-internal-pcspma");
+	priv->max_speed = dev_read_u32_default(dev, "max-speed", SPEED_1000);
+	priv->int_pcs = dev_read_bool(dev, "is-internal-pcspma");
 
 	printf("ZYNQ GEM: %lx, phyaddr %x, interface %s\n", (ulong)priv->iobase,
 	       priv->phyaddr, phy_string_for_interface(priv->interface));
