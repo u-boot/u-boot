@@ -34,14 +34,6 @@ DECLARE_GLOBAL_DATA_PTR;
 # error Marvell mvneta requires PHYLIB
 #endif
 
-/* Some linux -> U-Boot compatibility stuff */
-#define netdev_err(dev, fmt, args...)		\
-	printf(fmt, ##args)
-#define netdev_warn(dev, fmt, args...)		\
-	printf(fmt, ##args)
-#define netdev_info(dev, fmt, args...)		\
-	printf(fmt, ##args)
-
 #define CONFIG_NR_CPUS		1
 #define ETH_HLEN		14	/* Total octets in header */
 

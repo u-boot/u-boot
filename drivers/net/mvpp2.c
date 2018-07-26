@@ -35,16 +35,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Some linux -> U-Boot compatibility stuff */
-#define netdev_err(dev, fmt, args...)		\
-	printf(fmt, ##args)
-#define netdev_warn(dev, fmt, args...)		\
-	printf(fmt, ##args)
-#define netdev_info(dev, fmt, args...)		\
-	printf(fmt, ##args)
-#define netdev_dbg(dev, fmt, args...)		\
-	printf(fmt, ##args)
-
 #define ETH_ALEN	6		/* Octets in one ethernet addr	*/
 
 #define __verify_pcpu_ptr(ptr)						\
