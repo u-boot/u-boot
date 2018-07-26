@@ -287,7 +287,7 @@ class Node:
         fdt_obj = self._fdt._fdt_obj
         if fdt_obj.setprop_u32(self.Offset(), prop_name, 0,
                                (libfdt.NOSPACE,)) == -libfdt.NOSPACE:
-            fdt_obj.open_into(fdt_obj.totalsize() + 1024)
+            fdt_obj.resize(fdt_obj.totalsize() + 1024)
             fdt_obj.setprop_u32(self.Offset(), prop_name, 0)
         self.props[prop_name] = Prop(self, -1, prop_name, '\0' * 4)
         self._fdt.Invalidate()
