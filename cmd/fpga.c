@@ -22,7 +22,7 @@ static long do_fpga_get_device(char *arg)
 		/* Should be strtol to handle -1 cases */
 		dev = simple_strtol(devstr, NULL, 16);
 
-	if (arg)
+	if (dev == FPGA_INVALID_DEVICE && arg)
 		dev = simple_strtol(arg, NULL, 16);
 
 	debug("%s: device = %ld\n", __func__, dev);
@@ -312,29 +312,44 @@ static int do_fpga_loadmk(cmd_tbl_t *cmdtp, int flag, int argc,
 	ulong dev = do_fpga_get_device(argv[0]);
 	char *datastr = env_get("fpgadata");
 
-	if (datastr)
-		fpga_data = (void *)simple_strtoul(datastr, NULL, 16);
+	debug("fpga: argc %x, dev %lx, datastr %s\n", argc, dev, datastr);
+
+	if (dev == FPGA_INVALID_DEVICE) {
+		debug("fpga: Invalid fpga device\n");
+		return CMD_RET_USAGE;
+	}
+
+	if (argc == 0 && !datastr) {
+		debug("fpga: No datastr passed\n");
+		return CMD_RET_USAGE;
+	}
 
 	if (argc == 2) {
+		datastr = argv[1];
+		debug("fpga: Full command with two args\n");
+	} else if (argc == 1 && !datastr) {
+		debug("fpga: Dev is setup - fpgadata passed\n");
+		datastr = argv[0];
+	}
+
 #if defined(CONFIG_FIT)
-		if (fit_parse_subimage(argv[1], (ulong)fpga_data,
-				       &fit_addr, &fit_uname)) {
-			fpga_data = (void *)fit_addr;
-			debug("*  fpga: subimage '%s' from FIT image ",
-			      fit_uname);
-			debug("at 0x%08lx\n", fit_addr);
-		} else
+	if (fit_parse_subimage(datastr, (ulong)fpga_data,
+			       &fit_addr, &fit_uname)) {
+		fpga_data = (void *)fit_addr;
+		debug("*  fpga: subimage '%s' from FIT image ",
+		      fit_uname);
+		debug("at 0x%08lx\n", fit_addr);
+	} else
 #endif
-		{
-			fpga_data = (void *)simple_strtoul(argv[1], NULL, 16);
-			debug("*  fpga: cmdline image address = 0x%08lx\n",
-			      (ulong)fpga_data);
-		}
-		debug("%s: fpga_data = 0x%lx\n", __func__, (ulong)fpga_data);
-		if (!fpga_data) {
-			puts("Zero fpga_data address\n");
-			return CMD_RET_USAGE;
-		}
+	{
+		fpga_data = (void *)simple_strtoul(datastr, NULL, 16);
+		debug("*  fpga: cmdline image address = 0x%08lx\n",
+		      (ulong)fpga_data);
+	}
+	debug("%s: fpga_data = 0x%lx\n", __func__, (ulong)fpga_data);
+	if (!fpga_data) {
+		puts("Zero fpga_data address\n");
+		return CMD_RET_USAGE;
 	}
 
 	switch (genimg_get_format(fpga_data)) {
