@@ -1,0 +1,15 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2019 BayLibre, SAS.
+ * Author: Maxime Jourdan <mjourdan@baylibre.com>
+ */
+
+/ {
+	soc {
+		u-boot,dm-pre-reloc;
+	};
+};
+
+&vpu {
+	u-boot,dm-pre-reloc;
+};
