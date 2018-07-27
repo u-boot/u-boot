@@ -32,6 +32,9 @@ static int dm_test_led_default_state(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 
+	/* configure the default state (auto-probe) */
+	led_default_state();
+
 	/* Check that we handle the default-state property correctly. */
 	ut_assertok(led_get_by_label("sandbox:default_on", &dev));
 	ut_asserteq(LEDST_ON, led_get_state(dev));
