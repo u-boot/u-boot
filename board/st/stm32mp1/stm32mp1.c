@@ -4,6 +4,7 @@
  */
 #include <config.h>
 #include <common.h>
+#include <led.h>
 #include <asm/arch/stm32.h>
 
 /*
@@ -21,6 +22,9 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = STM32_DDR_BASE + 0x100;
+
+	if (IS_ENABLED(CONFIG_LED))
+		led_default_state();
 
 	return 0;
 }
