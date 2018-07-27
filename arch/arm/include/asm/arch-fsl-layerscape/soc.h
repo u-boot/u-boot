@@ -85,39 +85,7 @@ struct cpu_type {
 #define SVR_DEV(svr)		((svr) >> 8)
 #define IS_SVR_DEV(svr, dev)	(((svr) >> 16) == (dev))
 
-/* ahci port register default value */
-#define AHCI_PORT_PHY_1_CFG    0xa003fffe
-#define AHCI_PORT_PHY2_CFG	0x28184d1f
-#define AHCI_PORT_PHY3_CFG	0x0e081509
-#define AHCI_PORT_TRANS_CFG    0x08000029
-#define AHCI_PORT_AXICC_CFG	0x3fffffff
-
 #ifndef __ASSEMBLY__
-/* AHCI (sata) register map */
-struct ccsr_ahci {
-	u32 res1[0xa4/4];	/* 0x0 - 0xa4 */
-	u32 pcfg;	/* port config */
-	u32 ppcfg;	/* port phy1 config */
-	u32 pp2c;	/* port phy2 config */
-	u32 pp3c;	/* port phy3 config */
-	u32 pp4c;	/* port phy4 config */
-	u32 pp5c;	/* port phy5 config */
-	u32 axicc;	/* AXI cache control */
-	u32 paxic;	/* port AXI config */
-	u32 axipc;	/* AXI PROT control */
-	u32 ptc;	/* port Trans Config */
-	u32 pts;	/* port Trans Status */
-	u32 plc;	/* port link config */
-	u32 plc1;	/* port link config1 */
-	u32 plc2;	/* port link config2 */
-	u32 pls;	/* port link status */
-	u32 pls1;	/* port link status1 */
-	u32 pcmdc;	/* port CMD config */
-	u32 ppcs;	/* port phy control status */
-	u32 pberr;	/* port 0/1 BIST error */
-	u32 cmds;	/* port 0/1 CMD status error */
-};
-
 #ifdef CONFIG_FSL_LSCH3
 void fsl_lsch3_early_init_f(void);
 int get_core_volt_from_fuse(void);
@@ -129,6 +97,9 @@ int board_setup_core_volt(u32 vdd);
 #ifdef CONFIG_FSL_PFE
 void init_pfe_scfg_dcfg_regs(void);
 #endif
+#endif
+#ifdef CONFIG_QSPI_AHB_INIT
+int qspi_ahb_init(void);
 #endif
 
 void cpu_name(char *name);

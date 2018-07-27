@@ -11,6 +11,7 @@
 #include <fsl_csu.h>
 #include <asm/arch/fdt.h>
 #include <asm/arch/ppa.h>
+#include <asm/arch/soc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -21,6 +22,9 @@ u32 spl_boot_device(void)
 #endif
 #ifdef CONFIG_SPL_NAND_SUPPORT
 	return BOOT_DEVICE_NAND;
+#endif
+#ifdef CONFIG_QSPI_BOOT
+	return BOOT_DEVICE_NOR;
 #endif
 	return 0;
 }
@@ -52,6 +56,7 @@ void spl_board_init(void)
 
 void board_init_f(ulong dummy)
 {
+	icache_enable();
 	/* Clear global data */
 	memset((void *)gd, 0, sizeof(gd_t));
 	board_early_init_f();
@@ -101,6 +106,9 @@ void board_init_f(ulong dummy)
 	gd->arch.tlb_addr = (gd->ram_top - gd->arch.tlb_size) & ~(0x10000 - 1);
 	gd->arch.tlb_allocated = gd->arch.tlb_addr;
 #endif	/* CONFIG_SPL_FSL_LS_PPA */
+#if defined(CONFIG_QSPI_AHB_INIT) && defined(CONFIG_QSPI_BOOT)
+	qspi_ahb_init();
+#endif
 }
 
 #ifdef CONFIG_SPL_OS_BOOT

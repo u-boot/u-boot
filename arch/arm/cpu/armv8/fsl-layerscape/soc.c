@@ -6,8 +6,6 @@
 #include <common.h>
 #include <fsl_immap.h>
 #include <fsl_ifc.h>
-#include <ahci.h>
-#include <scsi.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>
 #include <asm/io.h>
@@ -330,36 +328,6 @@ void fsl_lsch3_early_init_f(void)
 #endif
 }
 
-#ifdef CONFIG_SCSI_AHCI_PLAT
-int sata_init(void)
-{
-	struct ccsr_ahci __iomem *ccsr_ahci;
-
-#ifdef CONFIG_SYS_SATA2
-	ccsr_ahci  = (void *)CONFIG_SYS_SATA2;
-	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
-	out_le32(&ccsr_ahci->pp2c, AHCI_PORT_PHY2_CFG);
-	out_le32(&ccsr_ahci->pp3c, AHCI_PORT_PHY3_CFG);
-	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
-	out_le32(&ccsr_ahci->axicc, AHCI_PORT_AXICC_CFG);
-#endif
-
-#ifdef CONFIG_SYS_SATA1
-	ccsr_ahci  = (void *)CONFIG_SYS_SATA1;
-	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
-	out_le32(&ccsr_ahci->pp2c, AHCI_PORT_PHY2_CFG);
-	out_le32(&ccsr_ahci->pp3c, AHCI_PORT_PHY3_CFG);
-	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
-	out_le32(&ccsr_ahci->axicc, AHCI_PORT_AXICC_CFG);
-
-	ahci_init((void __iomem *)CONFIG_SYS_SATA1);
-	scsi_scan(false);
-#endif
-
-	return 0;
-}
-#endif
-
 /* Get VDD in the unit mV from voltage ID */
 int get_core_volt_from_fuse(void)
 {
@@ -400,25 +368,6 @@ int get_core_volt_from_fuse(void)
 }
 
 #elif defined(CONFIG_FSL_LSCH2)
-#ifdef CONFIG_SCSI_AHCI_PLAT
-int sata_init(void)
-{
-	struct ccsr_ahci __iomem *ccsr_ahci = (void *)CONFIG_SYS_SATA;
-
-	/* Disable SATA ECC */
-	out_le32((void *)CONFIG_SYS_DCSR_DCFG_ADDR + 0x520, 0x80000000);
-	out_le32(&ccsr_ahci->ppcfg, AHCI_PORT_PHY_1_CFG);
-	out_le32(&ccsr_ahci->pp2c, AHCI_PORT_PHY2_CFG);
-	out_le32(&ccsr_ahci->pp3c, AHCI_PORT_PHY3_CFG);
-	out_le32(&ccsr_ahci->ptc, AHCI_PORT_TRANS_CFG);
-	out_le32(&ccsr_ahci->axicc, AHCI_PORT_AXICC_CFG);
-
-	ahci_init((void __iomem *)CONFIG_SYS_SATA);
-	scsi_scan(false);
-
-	return 0;
-}
-#endif
 
 static void erratum_a009929(void)
 {
@@ -719,9 +668,6 @@ int qspi_ahb_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
-#ifdef CONFIG_SCSI_AHCI_PLAT
-	sata_init();
-#endif
 #ifdef CONFIG_CHAIN_OF_TRUST
 	fsl_setenv_chain_of_trust();
 #endif

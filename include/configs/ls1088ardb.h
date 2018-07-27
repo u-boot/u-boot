@@ -381,8 +381,8 @@
 	"installer=load mmc 0:2 $load_addr "			\
 		"/flex_installer_arm64.itb; "			\
 		"env exists mcinitcmd && run mcinitcmd && "	\
-		"mmc read 0x80200000 0x6800 0x800;"		\
-		"fsl_mc apply dpl 0x80200000;"			\
+		"mmc read 0x80001000 0x6800 0x800;"		\
+		"fsl_mc lazyapply dpl 0x80001000;"			\
 		"bootm $load_addr#ls1088ardb\0"			\
 	"qspi_bootcmd=echo Trying load from qspi..;"		\
 		"sf probe && sf read $load_addr "		\
@@ -402,11 +402,11 @@
 #if defined(CONFIG_QSPI_BOOT)
 /* Try to boot an on-QSPI kernel first, then do normal distro boot */
 #define CONFIG_BOOTCOMMAND                                      \
-		"sf read 0x80200000 0xd00000 0x100000;"		\
+		"sf read 0x80001000 0xd00000 0x100000;"		\
 		"env exists mcinitcmd && env exists secureboot "	\
 		" && sf read 0x80780000 0x780000 0x100000 "	\
 		"&& esbc_validate 0x80780000;env exists mcinitcmd "	\
-		"&& fsl_mc apply dpl 0x80200000;"		\
+		"&& fsl_mc lazyapply dpl 0x80001000;"		\
 		"run distro_bootcmd;run qspi_bootcmd;"		\
 		"env exists secureboot && esbc_halt;"
 
@@ -414,11 +414,11 @@
 #elif defined(CONFIG_SD_BOOT)
 #define CONFIG_BOOTCOMMAND                                      \
 		"env exists mcinitcmd && mmcinfo; "		\
-		"mmc read 0x80200000 0x6800 0x800; "		\
+		"mmc read 0x80001000 0x6800 0x800; "		\
 		"env exists mcinitcmd && env exists secureboot "	\
-		" && mmc read 0x80780000 0x3800 0x10 "		\
+		" && mmc read 0x80780000 0x3C00 0x10 "		\
 		"&& esbc_validate 0x80780000;env exists mcinitcmd "	\
-		"&& fsl_mc apply dpl 0x80200000;"		\
+		"&& fsl_mc lazyapply dpl 0x80001000;"		\
 		"run distro_bootcmd;run sd_bootcmd;"		\
 		"env exists secureboot && esbc_halt;"
 #endif

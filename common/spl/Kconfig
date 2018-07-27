@@ -553,6 +553,16 @@ config SYS_OS_BASE
 
 endif # SPL_OS_BOOT
 
+config SPL_PAYLOAD
+	string "SPL payload"
+	default "tpl/u-boot-with-tpl.bin" if TPL
+	default "u-boot.bin"
+	help
+	  Payload for SPL boot. For backward compability, default to
+	  u-boot.bin, i.e. RAW image without any header. In case of
+	  TPL, tpl/u-boot-with-tpl.bin. For new boards, suggest to
+	  use u-boot.img.
+
 config SPL_PCI_SUPPORT
 	bool "Support PCI drivers"
 	help
