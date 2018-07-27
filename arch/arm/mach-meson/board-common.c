@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <asm/arch/boot.h>
 #include <linux/libfdt.h>
 #include <linux/err.h>
 #include <asm/arch/mem.h>
@@ -64,6 +65,50 @@ void meson_board_add_reserved_memory(void *fdt, u64 start, u64 size)
 				   ALIGN(size, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT,
 				   EFI_RESERVED_MEMORY_TYPE, false);
 	}
+}
+
+static void meson_set_boot_source(void)
+{
+	const char *source;
+
+	switch (meson_get_boot_device()) {
+	case BOOT_DEVICE_EMMC:
+		source = "emmc";
+		break;
+
+	case BOOT_DEVICE_NAND:
+		source = "nand";
+		break;
+
+	case BOOT_DEVICE_SPI:
+		source = "spi";
+		break;
+
+	case BOOT_DEVICE_SD:
+		source = "sd";
+		break;
+
+	case BOOT_DEVICE_USB:
+		source = "usb";
+		break;
+
+	default:
+		source = "unknown";
+	}
+
+	env_set("boot_source", source);
+}
+
+__weak int meson_board_late_init(void)
+{
+	return 0;
+}
+
+int board_late_init(void)
+{
+	meson_set_boot_source();
+
+	return meson_board_late_init();
 }
 
 void reset_cpu(ulong addr)

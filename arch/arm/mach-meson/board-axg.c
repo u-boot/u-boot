@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <asm/arch/boot.h>
 #include <asm/arch/eth.h>
 #include <asm/arch/axg.h>
 #include <asm/arch/mem.h>
@@ -14,6 +15,11 @@
 #include <phy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+int meson_get_boot_device(void)
+{
+	return readl(AXG_AO_SEC_GP_CFG0) & AXG_AO_BOOT_DEVICE;
+}
 
 /* Configure the reserved memory zones exported by the secure registers
  * into EFI and DTB reserved memory entries.

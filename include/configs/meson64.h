@@ -28,6 +28,18 @@
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_BOOTM_LEN		(64 << 20) /* 64 MiB */
 
+/* ROM USB boot support, auto-execute boot.scr at scriptaddr */
+#define BOOTENV_DEV_ROMUSB(devtypeu, devtypel, instance) \
+	"bootcmd_romusb=" \
+		"if test \"${boot_source}\" = \"usb\" && " \
+				"test -n \"${scriptaddr}\"; then " \
+			"echo '(ROM USB boot)'; " \
+			"source ${scriptaddr}; " \
+		"fi\0"
+
+#define BOOTENV_DEV_NAME_ROMUSB(devtypeu, devtypel, instance)	\
+		"romusb "
+
 #ifdef CONFIG_CMD_USB
 #define BOOT_TARGET_DEVICES_USB(func) func(USB, usb, 0)
 #else
@@ -36,6 +48,7 @@
 
 #ifndef BOOT_TARGET_DEVICES
 #define BOOT_TARGET_DEVICES(func) \
+	func(ROMUSB, romusb, na)  \
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 2) \
