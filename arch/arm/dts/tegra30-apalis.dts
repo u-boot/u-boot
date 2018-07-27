@@ -119,9 +119,6 @@
 			vccio-supply = <&sys_3v3_reg>;
 
 			regulators {
-				#address-cells = <1>;
-				#size-cells = <0>;
-
 				/* SW1: +V1.35_VDDIO_DDR */
 				vdd1_reg: vdd1 {
 					regulator-name = "vddio_ddr_1v35";
