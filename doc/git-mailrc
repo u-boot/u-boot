@@ -20,7 +20,7 @@ alias alisonwang     Alison Wang <alison.wang@nxp.com>
 alias angelo_ts      Angelo Dureghello <angelo@sysam.it>
 alias bmeng          Bin Meng <bmeng.cn@gmail.com>
 alias danielschwierzeck Daniel Schwierzeck <daniel.schwierzeck@gmail.com>
-alias dinh	     Dinh Nguyen <dinguyen@kernel.org>
+alias dinh           Dinh Nguyen <dinguyen@kernel.org>
 alias hs             Heiko Schocher <hs@denx.de>
 alias iwamatsu       Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 alias jaehoon        Jaehoon Chung <jh80.chung@samsung.com>
@@ -33,7 +33,7 @@ alias marex          Marek Vasut <marex@denx.de>
 alias mariosix       Mario Six <mario.six@gdsys.cc>
 alias masahiro       Masahiro Yamada <yamada.masahiro@socionext.com>
 alias mateusz        Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
-alias maxime	     Maxime Ripard <maxime.ripard@free-electrons.com>
+alias maxime         Maxime Ripard <maxime.ripard@free-electrons.com>
 alias monstr         Michal Simek <monstr@monstr.eu>
 alias prafulla       Prafulla Wadaskar <prafulla@marvell.com>
 alias prom           Minkyu Kang <mk7.kang@samsung.com>
