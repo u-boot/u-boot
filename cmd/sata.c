@@ -107,8 +107,8 @@ static int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* If the user has not yet run `sata init`, do it now */
 	if (sata_curr_device == -1) {
 		rc = sata_probe(0);
-		if (rc < 0)
-			return CMD_RET_FAILURE;
+		if (rc)
+			return rc;
 		sata_curr_device = 0;
 	}
 
