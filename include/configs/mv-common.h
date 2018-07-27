@@ -38,14 +38,6 @@
 #define CONFIG_SYS_NS16550_COM1		MV_UART_CONSOLE_BASE
 #endif
 
-/*
- * Serial Port configuration
- * The following definitions let you select what serial you want to use
- * for your console driver.
- */
-
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, \
-					  115200,230400, 460800, 921600 }
 /* auto boot */
 #define CONFIG_PREBOOT
 
