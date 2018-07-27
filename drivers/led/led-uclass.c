@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <led.h>
+#include <dm/device-internal.h>
 #include <dm/root.h>
 #include <dm/uclass-internal.h>
 
@@ -62,6 +63,35 @@ int led_set_period(struct udevice *dev, int period_ms)
 	return ops->set_period(dev, period_ms);
 }
 #endif
+
+int led_default_state(void)
+{
+	struct udevice *dev;
+	struct uclass *uc;
+	const char *default_state;
+	int ret;
+
+	ret = uclass_get(UCLASS_LED, &uc);
+	if (ret)
+		return ret;
+	for (uclass_find_first_device(UCLASS_LED, &dev);
+	     dev;
+	     uclass_find_next_device(&dev)) {
+		default_state = dev_read_string(dev, "default-state");
+		if (!default_state)
+			continue;
+		ret = device_probe(dev);
+		if (ret)
+			return ret;
+		if (!strncmp(default_state, "on", 2))
+			led_set_state(dev, LEDST_ON);
+		else if (!strncmp(default_state, "off", 3))
+			led_set_state(dev, LEDST_OFF);
+		/* default-state = "keep" : device is only probed */
+	}
+
+	return ret;
+}
 
 UCLASS_DRIVER(led) = {
 	.id		= UCLASS_LED,

@@ -106,4 +106,13 @@ enum led_state_t led_get_state(struct udevice *dev);
  */
 int led_set_period(struct udevice *dev, int period_ms);
 
+/**
+ * led_default_state() - set the default state for all the LED
+ *
+ * This enables all leds which have default state.
+ * see Documentation/devicetree/bindings/leds/common.txt
+ *
+ */
+int led_default_state(void);
+
 #endif
