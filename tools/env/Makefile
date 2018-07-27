@@ -9,7 +9,8 @@
 override HOSTCC = $(CC)
 
 # Compile for a hosted environment on the target
-HOST_EXTRACFLAGS  = $(patsubst -I%,-idirafter%, $(filter -I%, $(UBOOTINCLUDE))) \
+HOST_EXTRACFLAGS  = -I$(srctree)/tools \
+		$(patsubst -I%,-idirafter%, $(filter -I%, $(UBOOTINCLUDE))) \
 		-idirafter $(srctree)/tools/env \
 		-DUSE_HOSTCC \
 		-DTEXT_BASE=$(TEXT_BASE)
