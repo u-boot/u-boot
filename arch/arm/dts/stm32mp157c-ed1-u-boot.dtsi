@@ -13,6 +13,30 @@
 		mmc1 = &sdmmc2;
 		i2c3 = &i2c4;
 	};
+
+	led {
+		compatible = "gpio-leds";
+
+		red {
+			label = "stm32mp:red:status";
+			gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
+		green {
+			label = "stm32mp:green:user";
+			gpios = <&gpioa 14 GPIO_ACTIVE_LOW>;
+			default-state = "on";
+		};
+		orange {
+			label = "stm32mp:orange:status";
+			gpios = <&gpioh 7 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		blue {
+			label = "stm32mp:blue:user";
+			gpios = <&gpiod 11 GPIO_ACTIVE_HIGH>;
+		};
+	};
 };
 
 &uart4_pins_a {
