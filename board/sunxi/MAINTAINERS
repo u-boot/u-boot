@@ -330,6 +330,11 @@ S:	Maintained
 F:	configs/A20-Olimex-SOM204-EVB_defconfig
 F:	configs/A20-Olimex-SOM204-EVB-eMMC_defconfig
 
+ORANGEPI ONE PLUS BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/orangepi_one_plus_defconfig
+
 ORANGEPI WIN/WIN PLUS BOARD
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
