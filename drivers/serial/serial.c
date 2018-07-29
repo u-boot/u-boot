@@ -36,7 +36,15 @@ static void serial_null(void)
 /**
  * on_baudrate() - Update the actual baudrate when the env var changes
  *
+ * @name:	changed environment variable
+ * @value:	new value of the environment variable
+ * @op:		operation (create, overwrite, or delete)
+ * @flags:	attributes of environment variable change,
+ *		see flags H_* in include/search.h
+ *
  * This will check for a valid baudrate and only apply it if valid.
+ *
+ * Return:	0 on success, 1 on error
  */
 static int on_baudrate(const char *name, const char *value, enum env_op op,
 	int flags)
