@@ -12,6 +12,7 @@
 #include <arpa/inet.h>
 #else
 #include <common.h>
+#include <efi_loader.h>
 #endif
 #include <compiler.h>
 #include <u-boot/crc.h>
@@ -21,16 +22,18 @@
 #endif
 #include "u-boot/zlib.h"
 
-#define local static
-#define ZEXPORT	/* empty */
+#ifdef USE_HOSTCC
+#define __efi_runtime
+#define __efi_runtime_data
+#endif
 
 #define tole(x) cpu_to_le32(x)
 
 #ifdef CONFIG_DYNAMIC_CRC_TABLE
 
-local int crc_table_empty = 1;
-local uint32_t crc_table[256];
-local void make_crc_table OF((void));
+static int __efi_runtime_data crc_table_empty = 1;
+static uint32_t __efi_runtime_data crc_table[256];
+static void __efi_runtime make_crc_table OF((void));
 
 /*
   Generate a table for a byte-wise 32-bit CRC calculation on the polynomial:
@@ -56,7 +59,7 @@ local void make_crc_table OF((void));
   the information needed to generate CRC's on data a byte at a time for all
   combinations of CRC register values and incoming bytes.
 */
-local void make_crc_table()
+static void __efi_runtime make_crc_table(void)
 {
   uint32_t c;
   int n, k;
@@ -83,7 +86,7 @@ local void make_crc_table()
  * Table of CRC-32's of all single-byte values (made by make_crc_table)
  */
 
-local const uint32_t crc_table[256] = {
+static const uint32_t __efi_runtime_data crc_table[256] = {
 tole(0x00000000L), tole(0x77073096L), tole(0xee0e612cL), tole(0x990951baL),
 tole(0x076dc419L), tole(0x706af48fL), tole(0xe963a535L), tole(0x9e6495a3L),
 tole(0x0edb8832L), tole(0x79dcb8a4L), tole(0xe0d5e91eL), tole(0x97d2d988L),
@@ -176,7 +179,7 @@ const uint32_t * ZEXPORT get_crc_table()
 /* No ones complement version. JFFS2 (and other things ?)
  * don't use ones compliment in their CRC calculations.
  */
-uint32_t ZEXPORT crc32_no_comp(uint32_t crc, const Bytef *buf, uInt len)
+uint32_t __efi_runtime crc32_no_comp(uint32_t crc, const Bytef *buf, uInt len)
 {
     const uint32_t *tab = crc_table;
     const uint32_t *b =(const uint32_t *)buf;
@@ -218,7 +221,7 @@ uint32_t ZEXPORT crc32_no_comp(uint32_t crc, const Bytef *buf, uInt len)
 }
 #undef DO_CRC
 
-uint32_t ZEXPORT crc32 (uint32_t crc, const Bytef *p, uInt len)
+uint32_t __efi_runtime crc32(uint32_t crc, const Bytef *p, uInt len)
 {
      return crc32_no_comp(crc ^ 0xffffffffL, p, len) ^ 0xffffffffL;
 }
@@ -227,9 +230,8 @@ uint32_t ZEXPORT crc32 (uint32_t crc, const Bytef *p, uInt len)
  * Calculate the crc32 checksum triggering the watchdog every 'chunk_sz' bytes
  * of input.
  */
-uint32_t ZEXPORT crc32_wd (uint32_t crc,
-			   const unsigned char *buf,
-			   uInt len, uInt chunk_sz)
+uint32_t crc32_wd(uint32_t crc, const unsigned char *buf, uInt len,
+		  uInt chunk_sz)
 {
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
 	const unsigned char *end, *curr;
