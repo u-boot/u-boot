@@ -21,8 +21,6 @@
 
 #define CONFIG_PCI_INDIRECT_BRIDGE
 
-#define CONFIG_MISC_INIT_R	1	/* Call misc_init_r		*/
-
 /*
  * Only possible on E500 Version 2 or newer cores.
  */

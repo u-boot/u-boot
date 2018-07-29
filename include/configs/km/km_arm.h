@@ -80,7 +80,6 @@
 	""
 
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-#define CONFIG_MISC_INIT_R
 
 /*
  * NS16550 Configuration

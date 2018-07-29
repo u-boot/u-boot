@@ -262,7 +262,6 @@
 
 #endif /* CONFIG_NAND_FSL_ELBC */
 
-#define CONFIG_MISC_INIT_R
 #define CONFIG_HWCONFIG
 
 #define CONFIG_FSL_NGPIXIS

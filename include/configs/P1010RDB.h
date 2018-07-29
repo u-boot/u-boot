@@ -184,7 +184,6 @@
 #define CONFIG_DDR_CLK_FREQ	66666666 /* DDRCLK on P1010 RDB */
 #define CONFIG_SYS_CLK_FREQ	66666666 /* SYSCLK for P1010 RDB */
 
-#define CONFIG_MISC_INIT_R
 #define CONFIG_HWCONFIG
 /*
  * These can be toggled for performance analysis, otherwise use default.

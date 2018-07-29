@@ -10,8 +10,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_MISC_INIT_R
-
 #ifdef CONFIG_SDCARD
 #define CONFIG_RAMBOOT_SDCARD
 #define CONFIG_SYS_RAMBOOT

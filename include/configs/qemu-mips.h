@@ -13,8 +13,6 @@
 
 #define CONFIG_QEMU_MIPS
 
-#define CONFIG_MISC_INIT_R
-
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\

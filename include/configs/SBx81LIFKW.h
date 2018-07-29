@@ -24,8 +24,6 @@
 #define CONFIG_KIRKWOOD_RGMII_PAD_1V8	/* Set RGMII Pad voltage to 1.8V */
 #define CONFIG_KIRKWOOD_GPIO	1
 
-#define CONFIG_MISC_INIT_R		/* call misc_init_r */
-
 /*
  * NS16550 Configuration
  */

@@ -32,8 +32,6 @@
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_VME8349		1	/* ESD VME8349 board specific */
 
-#define CONFIG_MISC_INIT_R
-
 /* Don't enable PCI2 on vme834x - it doesn't exist physically. */
 #undef CONFIG_MPC83XX_PCI2		/* support for 2nd PCI controller */
 

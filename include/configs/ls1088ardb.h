@@ -8,8 +8,6 @@
 
 #include "ls1088a_common.h"
 
-#define CONFIG_MISC_INIT_R
-
 #if defined(CONFIG_QSPI_BOOT)
 #define CONFIG_ENV_SIZE			0x2000          /* 8KB */
 #define CONFIG_ENV_SECT_SIZE		0x40000

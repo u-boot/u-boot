@@ -99,7 +99,6 @@
 			" onenand write 0x32008000 0x0 0x100000\0"
 
 #define CONFIG_MISC_COMMON
-#define CONFIG_MISC_INIT_R
 
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_EXTRA_ENV_SETTINGS					\

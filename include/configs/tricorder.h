@@ -30,8 +30,6 @@
 #define V_OSCK				26000000 /* Clock output from T2 */
 #define V_SCLK				(V_OSCK >> 1)
 
-#define CONFIG_MISC_INIT_R
-
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG

@@ -94,7 +94,6 @@
  */
 
 /* Board startup config */
-#define CONFIG_MISC_INIT_R
 
 #define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM
 #define CONFIG_SYS_MEMTEST_END			(CONFIG_SYS_MEMTEST_START + \

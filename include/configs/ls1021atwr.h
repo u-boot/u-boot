@@ -503,8 +503,6 @@
 #define CONFIG_ENV_SECT_SIZE		0x20000 /* 128K (one sector) */
 #endif
 
-#define CONFIG_MISC_INIT_R
-
 #include <asm/fsl_secure_boot.h>
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20) /* Increase max gunzip size */
 

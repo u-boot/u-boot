@@ -310,7 +310,6 @@
 /*
  * Board initialisation callbacks
  */
-#define CONFIG_MISC_INIT_R
 #endif /* CONFIG_TRAILBLAZER */
 
 /*

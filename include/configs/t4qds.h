@@ -89,8 +89,6 @@
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #endif
 
-#define CONFIG_MISC_INIT_R
-
 #define CONFIG_HWCONFIG
 
 /* define to use L1 as initial stack */

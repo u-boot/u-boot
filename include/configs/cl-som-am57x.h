@@ -20,7 +20,6 @@
 #include <configs/ti_omap5_common.h>
 
 /* misc */
-#define CONFIG_MISC_INIT_R
 #define CONFIG_REVISION_TAG
 
 /* PMIC I2C bus number */

@@ -15,7 +15,6 @@
 #define CONFIG_SPL_TEXT_BASE		0x40200000
 
 /* call misc_init_r */
-#define CONFIG_MISC_INIT_R
 
 /* pass the revision tag */
 #define CONFIG_REVISION_TAG

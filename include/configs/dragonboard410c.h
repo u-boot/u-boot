@@ -11,8 +11,6 @@
 #include <linux/sizes.h>
 #include <asm/arch/sysmap-apq8016.h>
 
-#define CONFIG_MISC_INIT_R /* To stop autoboot */
-
 /* Physical Memory Map */
 #define PHYS_SDRAM_1			0x80000000
 /* 1008 MB (the last ~30Mb are secured for TrustZone by ATF*/

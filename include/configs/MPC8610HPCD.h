@@ -57,8 +57,6 @@
 #define CONFIG_SYS_CLK_FREQ	get_board_sys_clk(0)
 #endif
 
-#define CONFIG_MISC_INIT_R		1
-
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest region */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
 

@@ -21,8 +21,6 @@
  * Board
  */
 
-#define CONFIG_MISC_INIT_R
-
 /*
  * Clocks
  */

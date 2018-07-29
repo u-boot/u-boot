@@ -24,7 +24,6 @@
 
 #define CONFIG_SYS_BOOTCOUNT_LE		/* Use little-endian accessors */
 
-#define CONFIG_MISC_INIT_R
 #define CONFIG_SCSI_AHCI_PLAT
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID	5
 #define CONFIG_SYS_SCSI_MAX_LUN		1

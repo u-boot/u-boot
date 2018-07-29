@@ -29,8 +29,6 @@
 #define V_OSCK			26000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
 
-#define CONFIG_MISC_INIT_R
-
 /*
  * The early kernel mapping on ARM currently only maps from the base of DRAM
  * to the end of the kernel image.  The kernel is loaded at DRAM base + 0x8000.

@@ -54,7 +54,6 @@
 #define CONFIG_SYS_TIMER_COUNTER	(TIMER_BASE_ADDR + 4) /* STCLO offset */
 
 /* Init functions */
-#define CONFIG_MISC_INIT_R	/* board's misc_init_r function */
 
 /* Some commands use this as the default load address */
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE

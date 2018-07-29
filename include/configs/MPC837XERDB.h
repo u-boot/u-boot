@@ -15,7 +15,6 @@
 #define CONFIG_MPC837x		1 /* MPC837x CPU specific */
 #define CONFIG_MPC837XERDB	1
 
-#define CONFIG_MISC_INIT_R
 #define CONFIG_HWCONFIG
 
 /*

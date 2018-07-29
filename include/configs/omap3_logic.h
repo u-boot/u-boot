@@ -22,7 +22,6 @@
 #undef CONFIG_SPL_TEXT_BASE
 #define CONFIG_SPL_TEXT_BASE		0x40200000
 
-#define CONFIG_MISC_INIT_R		/* misc_init_r dumps the die id */
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG

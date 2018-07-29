@@ -11,7 +11,6 @@
 #include "keymile-common.h"
 #include "km-powerpc.h"
 
-#define CONFIG_MISC_INIT_R
 /*
  * System Clock Setup
  */

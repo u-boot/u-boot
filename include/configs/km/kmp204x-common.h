@@ -187,7 +187,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_OR1_PRELIM  CONFIG_SYS_QRIO_OR_PRELIM /* QRIO Options */
 
 #define CONFIG_MISC_INIT_F
-#define CONFIG_MISC_INIT_R
 
 #define CONFIG_HWCONFIG
 

@@ -11,8 +11,6 @@
 
 #include "at91-sama5_common.h"
 
-#define CONFIG_MISC_INIT_R
-
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE           0x20000000
 #define CONFIG_SYS_SDRAM_SIZE		0x20000000

@@ -13,7 +13,6 @@
 
 #include <configs/ti_omap3_common.h>
 
-#define CONFIG_MISC_INIT_R
 #define CONFIG_REVISION_TAG		1
 
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */

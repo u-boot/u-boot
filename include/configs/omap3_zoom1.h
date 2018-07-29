@@ -21,8 +21,6 @@
 /* Generic NAND definition conflicts with debug_base */
 #undef CONFIG_SYS_NAND_BASE
 
-#define CONFIG_MISC_INIT_R
-
 #define CONFIG_REVISION_TAG		1
 
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */

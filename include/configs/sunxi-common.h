@@ -305,8 +305,6 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_PREBOOT
 #endif
 
-#define CONFIG_MISC_INIT_R
-
 #ifndef CONFIG_SPL_BUILD
 
 #ifdef CONFIG_ARM64

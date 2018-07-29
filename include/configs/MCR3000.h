@@ -8,7 +8,6 @@
 #define __CONFIG_H
 
 /* High Level Configuration Options */
-#define CONFIG_MISC_INIT_R		1	/* Call misc_init_r	*/
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"sdram_type=SDRAM\0"						\

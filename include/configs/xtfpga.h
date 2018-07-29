@@ -108,7 +108,6 @@
 /*==============================*/
 
 #define CONFIG_BOARD_POSTCLK_INIT
-#define CONFIG_MISC_INIT_R
 
 #define CONFIG_BOOTFILE			"uImage"
 	/* Console I/O Buffer Size  */

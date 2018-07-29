@@ -25,7 +25,6 @@
 #include <configs/ti_omap3_common.h>
 #undef CONFIG_SDRC	/* Disable SDRC since we have EMIF4 */
 
-#define CONFIG_MISC_INIT_R
 #define CONFIG_REVISION_TAG
 
 /* Hardware drivers */

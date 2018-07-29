@@ -143,8 +143,6 @@ int universal_spi_read(void);
 /* Common misc for Samsung */
 #define CONFIG_MISC_COMMON
 
-#define CONFIG_MISC_INIT_R
-
 /* Download menu - Samsung common */
 #define CONFIG_LCD_MENU
 

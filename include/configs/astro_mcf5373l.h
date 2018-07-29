@@ -123,7 +123,6 @@
 #endif
 
 /* here we put our FPGA configuration... */
-#define CONFIG_MISC_INIT_R	1
 
 /* Define user parameters that have to be customized most likely */
 

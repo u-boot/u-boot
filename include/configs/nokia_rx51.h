@@ -40,7 +40,6 @@
 #define V_OSCK			26000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
 
-#define CONFIG_MISC_INIT_R
 #define CONFIG_SKIP_LOWLEVEL_INIT		/* X-Loader set everything up */
 
 #define CONFIG_CMDLINE_TAG	/* enable passing kernel command line string */

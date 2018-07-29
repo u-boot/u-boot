@@ -171,8 +171,6 @@
 #define CONFIG_ENV_OFFSET_REDUND	\
 	(CONFIG_ENV_OFFSET + CONFIG_ENV_SECT_SIZE)
 
-#define CONFIG_MISC_INIT_R
-
 /* Support changing the prompt string */
 #define CONFIG_CMDLINE_PS_SUPPORT
 

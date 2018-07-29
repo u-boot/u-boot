@@ -33,7 +33,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
 
 /* Init Functions */
-#define CONFIG_MISC_INIT_R
 
 /* Driver Model */
 #ifndef CONFIG_SPL_BUILD

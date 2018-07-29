@@ -13,8 +13,6 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
 
-#define CONFIG_MISC_INIT_R
-
 #define VIDEO_IO_OFFSET			0
 #define CONFIG_X86EMU_RAW_IO
 

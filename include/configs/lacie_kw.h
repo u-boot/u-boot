@@ -73,7 +73,6 @@
 /*
  * Enable platform initialisation via misc_init_r() function
  */
-#define CONFIG_MISC_INIT_R
 
 /*
  * Ethernet Driver configuration

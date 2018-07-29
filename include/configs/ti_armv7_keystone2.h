@@ -179,7 +179,6 @@
 #define CONFIG_USB_PHY_CFG_BASE			KS2_USB_PHY_CFG_BASE
 
 /* U-Boot general configuration */
-#define CONFIG_MISC_INIT_R
 #define CONFIG_MX_CYCLIC
 #define CONFIG_TIMESTAMP
 

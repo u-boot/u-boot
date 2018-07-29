@@ -65,7 +65,6 @@
 
 #ifdef CONFIG_CMD_USB
 #define CONFIG_TFTP_TSIZE
-#define CONFIG_MISC_INIT_R
 #endif
 
 /* Console configuration */

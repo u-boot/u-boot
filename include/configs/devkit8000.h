@@ -34,8 +34,6 @@
 
 #include <configs/ti_omap3_common.h>
 
-#define CONFIG_MISC_INIT_R
-
 #define CONFIG_REVISION_TAG		1
 
 /* Size of malloc() pool */

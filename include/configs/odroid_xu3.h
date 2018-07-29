@@ -81,7 +81,6 @@
 
 /* Enable: board/samsung/common/misc.c to use set_dfu_alt_info() */
 #define CONFIG_MISC_COMMON
-#define CONFIG_MISC_INIT_R
 #define CONFIG_SET_DFU_ALT_INFO
 #define CONFIG_SET_DFU_ALT_BUF_LEN	(SZ_1K)
 

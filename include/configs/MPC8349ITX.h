@@ -52,7 +52,6 @@
 #define CONFIG_SYS_IMMR	0xE0000000	/* The IMMR is relocated to here */
 
 #define CONFIG_MISC_INIT_F
-#define CONFIG_MISC_INIT_R
 
 /*
  * On-board devices
