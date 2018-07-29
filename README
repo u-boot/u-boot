@@ -3943,6 +3943,17 @@ If CONFIG_REGEX is defined, the variable_name above is evaluated as a
 regular expression. This allows multiple variables to be connected to
 the same callback without explicitly listing them all out.
 
+The signature of the callback functions is:
+
+    int callback(const char *name, const char *value, enum env_op op, int flags)
+
+* name - changed environment variable
+* value - new value of the environment variable
+* op - operation (create, overwrite, or delete)
+* flags - attributes of the environment variable change, see flags H_* in
+  include/search.h
+
+The return value is 0 if the variable change is accepted and 1 otherwise.
 
 Command Line Parsing:
 =====================
