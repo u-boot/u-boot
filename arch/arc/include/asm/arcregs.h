@@ -19,6 +19,9 @@
 #define ARC_AUX_IDENTITY	0x04
 #define ARC_AUX_STATUS32	0x0a
 
+/* STATUS32 Bits Positions */
+#define STATUS_AD_BIT		19	/* Enable unaligned access */
+
 /* Instruction cache related auxiliary registers */
 #define ARC_AUX_IC_IVIC		0x10
 #define ARC_AUX_IC_CTRL		0x11
