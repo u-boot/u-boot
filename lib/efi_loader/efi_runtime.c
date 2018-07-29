@@ -96,6 +96,20 @@ void __efi_runtime efi_update_table_header_crc32(struct efi_table_hdr *table)
 			     table->headersize);
 }
 
+/**
+ * efi_reset_system_boottime() - reset system at boottime
+ *
+ * This function implements the ResetSystem() runtime service before
+ * SetVirtualAddressMap() is called.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @reset_type:		type of reset to perform
+ * @reset_status:	status code for the reset
+ * @data_size:		size of reset_data
+ * @reset_data:		information about the reset
+ */
 static void EFIAPI efi_reset_system_boottime(
 			enum efi_reset_type reset_type,
 			efi_status_t reset_status,
@@ -130,15 +144,17 @@ static void EFIAPI efi_reset_system_boottime(
 }
 
 /**
- * efi_get_time_boottime - get current time
+ * efi_get_time_boottime() - get current time at boottime
  *
- * This function implements the GetTime runtime service.
+ * This function implements the GetTime runtime service before
+ * SetVirtualAddressMap() is called.
+ *
  * See the Unified Extensible Firmware Interface (UEFI) specification
  * for details.
  *
  * @time:		pointer to structure to receive current time
  * @capabilities:	pointer to structure to receive RTC properties
- * Return Value:	status code
+ * Returns:		status code
  */
 static efi_status_t EFIAPI efi_get_time_boottime(
 			struct efi_time *time,
@@ -191,8 +207,22 @@ out:
 #endif
 }
 
-/* Boards may override the helpers below to implement RTS functionality */
 
+/**
+ * efi_reset_system() - reset system
+ *
+ * This function implements the ResetSystem() runtime service after
+ * SetVirtualAddressMap() is called. It only executes an endless loop.
+ * Boards may override the helpers below to implement reset functionality.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @reset_type:		type of reset to perform
+ * @reset_status:	status code for the reset
+ * @data_size:		size of reset_data
+ * @reset_data:		information about the reset
+ */
 void __weak __efi_runtime EFIAPI efi_reset_system(
 			enum efi_reset_type reset_type,
 			efi_status_t reset_status,
@@ -202,11 +232,30 @@ void __weak __efi_runtime EFIAPI efi_reset_system(
 	while (1) { }
 }
 
+/**
+ * efi_reset_system_init() - initialize the reset driver
+ *
+ * Boards may override this function to initialize the reset driver.
+ */
 efi_status_t __weak efi_reset_system_init(void)
 {
 	return EFI_SUCCESS;
 }
 
+/**
+ * efi_get_time() - get current time
+ *
+ * This function implements the GetTime runtime service after
+ * SetVirtualAddressMap() is called. As the U-Boot driver are not available
+ * anymore only an error code is returned.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification
+ * for details.
+ *
+ * @time:		pointer to structure to receive current time
+ * @capabilities:	pointer to structure to receive RTC properties
+ * Returns:		status code
+ */
 efi_status_t __weak __efi_runtime EFIAPI efi_get_time(
 			struct efi_time *time,
 			struct efi_time_cap *capabilities)
@@ -353,6 +402,20 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
         invalidate_icache_all();
 }
 
+/**
+ * efi_set_virtual_address_map() - change from physical to virtual mapping
+ *
+ * This function implements the SetVirtualAddressMap() runtime service.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @memory_map_size:	size of the virtual map
+ * @descriptor_size:	size of an entry in the map
+ * @descriptor_version:	version of the map entries
+ * @virtmap:		virtual address mapping information
+ * Return:		status code
+ */
 static efi_status_t EFIAPI efi_set_virtual_address_map(
 			unsigned long memory_map_size,
 			unsigned long descriptor_size,
@@ -419,6 +482,16 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 	return EFI_EXIT(EFI_INVALID_PARAMETER);
 }
 
+/**
+ * efi_add_runtime_mmio() - add memory-mapped IO region
+ *
+ * This function adds a memory-mapped IO region to the memory map to make it
+ * available at runtime.
+ *
+ * @mmio_ptr:		address of the memory-mapped IO region
+ * @len:		size of thememory-mapped IO region
+ * Returns:		status code
+ */
 efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
 {
 	struct efi_runtime_mmio_list *newmmio;
@@ -461,21 +534,61 @@ efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
  * address map calls.
  */
 
+/**
+ * efi_unimplemented() - replacement function, returns EFI_UNSUPPORTED
+ *
+ * This function is used after SetVirtualAddressMap() is called as replacement
+ * for services that are not available anymore due to constraints of the U-Boot
+ * implementation.
+ *
+ * Return:	EFI_UNSUPPORTED
+ */
 static efi_status_t __efi_runtime EFIAPI efi_unimplemented(void)
 {
 	return EFI_UNSUPPORTED;
 }
 
+/**
+ * efi_device_error() - replacement function, returns EFI_DEVICE_ERROR
+ *
+ * This function is used after SetVirtualAddressMap() is called as replacement
+ * for services that are not available anymore due to constraints of the U-Boot
+ * implementation.
+ *
+ * Return:	EFI_DEVICE_ERROR
+ */
 static efi_status_t __efi_runtime EFIAPI efi_device_error(void)
 {
 	return EFI_DEVICE_ERROR;
 }
 
+/**
+ * efi_invalid_parameter() - replacement function, returns EFI_INVALID_PARAMETER
+ *
+ * This function is used after SetVirtualAddressMap() is called as replacement
+ * for services that are not available anymore due to constraints of the U-Boot
+ * implementation.
+ *
+ * Return:	EFI_INVALID_PARAMETER
+ */
 static efi_status_t __efi_runtime EFIAPI efi_invalid_parameter(void)
 {
 	return EFI_INVALID_PARAMETER;
 }
 
+/**
+ * efi_update_capsule() - process information from operating system
+ *
+ * This function implements the UpdateCapsule() runtime service.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @capsule_header_array:	pointer to array of virtual pointers
+ * @capsule_count:		number of pointers in capsule_header_array
+ * @scatter_gather_list:	pointer to arry of physical pointers
+ * Returns:			status code
+ */
 efi_status_t __efi_runtime EFIAPI efi_update_capsule(
 			struct efi_capsule_header **capsule_header_array,
 			efi_uintn_t capsule_count,
@@ -484,6 +597,20 @@ efi_status_t __efi_runtime EFIAPI efi_update_capsule(
 	return EFI_UNSUPPORTED;
 }
 
+/**
+ * efi_query_capsule_caps() - check if capsule is supported
+ *
+ * This function implements the QueryCapsuleCapabilities() runtime service.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @capsule_header_array:	pointer to array of virtual pointers
+ * @capsule_count:		number of pointers in capsule_header_array
+ * @capsule_size:		maximum capsule size
+ * @reset_type:			type of reset needed for capsule update
+ * Returns:			status code
+ */
 efi_status_t __efi_runtime EFIAPI efi_query_capsule_caps(
 			struct efi_capsule_header **capsule_header_array,
 			efi_uintn_t capsule_count,
@@ -493,6 +620,24 @@ efi_status_t __efi_runtime EFIAPI efi_query_capsule_caps(
 	return EFI_UNSUPPORTED;
 }
 
+/**
+ * efi_query_variable_info() - get information about EFI variables
+ *
+ * This function implements the QueryVariableInfo() runtime service.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @attributes:				bitmask to select variables to be
+ *					queried
+ * @maximum_variable_storage_size:	maximum size of storage area for the
+ *					selected variable types
+ * @remaining_variable_storage_size:	remaining size of storage are for the
+ *					selected variable types
+ * @maximum_variable_size:		maximum size of a variable of the
+ *					selected type
+ * Returns:				status code
+ */
 efi_status_t __efi_runtime EFIAPI efi_query_variable_info(
 			u32 attributes,
 			u64 *maximum_variable_storage_size,
