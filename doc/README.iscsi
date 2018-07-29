@@ -1,6 +1,8 @@
-# iSCSI booting with U-Boot and iPXE
+iSCSI booting with U-Boot and iPXE
+==================================
 
-## Motivation
+Motivation
+----------
 
 U-Boot has only a reduced set of supported network protocols. The focus for
 network booting has been on UDP based protocols. A TCP stack and HTTP support
@@ -32,14 +34,15 @@ via HTTPS and to download any other files needed for booting via iSCSI from the
 same target where the operating system is installed.
 
 An alternative to implementing these protocols in U-Boot is to use an existing
-software that can run on top of U-Boot. iPXE is the "swiss army knife" of
+software that can run on top of U-Boot. iPXE[1] is the "swiss army knife" of
 network booting. It supports both HTTPS and iSCSI. It has a scripting engine for
 fine grained control of the boot process and can provide a command shell.
 
 iPXE can be built as an EFI application (named snp.efi) which can be loaded and
 run by U-Boot.
 
-## Boot sequence
+Boot sequence
+-------------
 
 U-Boot loads the EFI application iPXE snp.efi using the bootefi command. This
 application has network access via the simple network protocol offered by
@@ -56,67 +59,68 @@ For a selected iSCSI target iPXE sets up a handle with the block IO protocol. It
 uses the ConnectController boot service of U-Boot to request U-Boot to connect a
 file system driver. U-Boot reads from the iSCSI drive via the block IO protocol
 offered by iPXE. It creates the partition handles and installs the simple file
-protocol. Now iPXE can call the simple file protocol to load Grub. U-Boot uses
-the block IO protocol offered by iPXE to fulfill the request.
+protocol. Now iPXE can call the simple file protocol to load GRUB[2]. U-Boot
+uses the block IO protocol offered by iPXE to fulfill the request.
 
-Once Grub is started it uses the same block IO protocol to load Linux. Via
-the EFI stub Linux is called as an EFI application.
+Once GRUB is started it uses the same block IO protocol to load Linux. Via
+the EFI stub Linux is called as an EFI application::
 
-```
-               +--------+          +--------+
-               |        | Runs     |        |
-               | U-Boot |=========>| iPXE   |
-               | EFI    |          | snp.efi|
-+--------+     |        | DHCP     |        |
-|        |<====|********|<=========|        |
-| DHCP   |     |        | Get IP   |        |
-| Server |     |        | Address  |        |
-|        |====>|********|=========>|        |
-+--------+     |        | Response |        |
-               |        |          |        |
-               |        |          |        |
-+--------+     |        | HTTPS    |        |
-|        |<====|********|<=========|        |
-| HTTPS  |     |        | Load     |        |
-| Server |     |        | Script   |        |
-|        |====>|********|=========>|        |
-+--------+     |        |          |        |
-               |        |          |        |
-               |        |          |        |
-+--------+     |        | iSCSI    |        |
-|        |<====|********|<=========|        |
-| iSCSI  |     |        | Auth     |        |
-| Server |====>|********|=========>|        |
-|        |     |        |          |        |
-|        |     |        | Loads    |        |
-|        |<====|********|<=========|        |        +--------+
-|        |     |        | Grub     |        | Runs   |        |
-|        |====>|********|=========>|        |=======>| Grub   |
-|        |     |        |          |        |        |        |
-|        |     |        |          |        |        |        |
-|        |     |        |          |        | Loads  |        |
-|        |<====|********|<=========|********|<=======|        |      +--------+
-|        |     |        |          |        | Linux  |        | Runs |        |
-|        |====>|********|=========>|********|=======>|        |=====>| Linux  |
-|        |     |        |          |        |        |        |      |        |
-+--------+     +--------+          +--------+        +--------+      |        |
-                                                                     |        |
-                                                                     |        |
-                                                                     | ~ ~ ~ ~|
-```
+                  +--------+         +--------+
+                  |        | Runs    |        |
+                  | U-Boot |========>| iPXE   |
+                  | EFI    |         | snp.efi|
+    +--------+    |        | DHCP    |        |
+    |        |<===|********|<========|        |
+    | DHCP   |    |        | Get IP  |        |
+    | Server |    |        | Address |        |
+    |        |===>|********|========>|        |
+    +--------+    |        | Response|        |
+                  |        |         |        |
+                  |        |         |        |
+    +--------+    |        | HTTPS   |        |
+    |        |<===|********|<========|        |
+    | HTTPS  |    |        | Load    |        |
+    | Server |    |        | Script  |        |
+    |        |===>|********|========>|        |
+    +--------+    |        |         |        |
+                  |        |         |        |
+                  |        |         |        |
+    +--------+    |        | iSCSI   |        |
+    |        |<===|********|<========|        |
+    | iSCSI  |    |        | Auth    |        |
+    | Server |===>|********|========>|        |
+    |        |    |        |         |        |
+    |        |    |        | Loads   |        |
+    |        |<===|********|<========|        |       +--------+
+    |        |    |        | GRUB    |        | Runs  |        |
+    |        |===>|********|========>|        |======>| GRUB   |
+    |        |    |        |         |        |       |        |
+    |        |    |        |         |        |       |        |
+    |        |    |        |         |        | Loads |        |
+    |        |<===|********|<========|********|<======|        |      +--------+
+    |        |    |        |         |        | Linux |        | Runs |        |
+    |        |===>|********|========>|********|======>|        |=====>| Linux  |
+    |        |    |        |         |        |       |        |      |        |
+    +--------+    +--------+         +--------+       +--------+      |        |
+                                                                      |        |
+                                                                      |        |
+                                                                      | ~ ~ ~ ~|
 
-## Security
+Security
+--------
 
 The iSCSI protocol is not encrypted. The traffic could be secured using IPsec
 but neither U-Boot nor iPXE does support this. So we should at least separate
 the iSCSI traffic from all other network traffic. This can be achieved using a
 virtual local area network (VLAN).
 
-## Configuration
+Configuration
+-------------
 
-### iPXE
+iPXE
+^^^^
 
-For running iPXE on arm64 the bin-arm64-efi/snp.efi build target is needed.
+For running iPXE on arm64 the bin-arm64-efi/snp.efi build target is needed::
 
     git clone http://git.ipxe.org/ipxe.git
     cd ipxe/src
@@ -132,7 +136,7 @@ http://ipxe.org/cfg
 
 iPXE by default will put the CPU to rest when waiting for input. U-Boot does
 not wake it up due to missing interrupt support. To avoid this behavior create
-file src/config/local/nap.h.
+file src/config/local/nap.h::
 
     /* nap.h */
     #undef NAP_EFIX86
@@ -140,7 +144,7 @@ file src/config/local/nap.h.
     #define NAP_NULL
 
 The supported commands in iPXE are controlled by an include, too. Putting the
-following into src/config/local/general.h is sufficient for most use cases.
+following into src/config/local/general.h is sufficient for most use cases::
 
     /* general.h */
     #define NSLOOKUP_CMD            /* Name resolution command */
@@ -153,7 +157,9 @@ following into src/config/local/general.h is sufficient for most use cases.
     #define DOWNLOAD_PROTO_NFS      /* Network File System Protocol */
     #define DOWNLOAD_PROTO_FILE     /* Local file system access */
 
-## Links
+Links
+-----
 
-* https://ipxe.org - iPXE open source boot firmware
-* https://www.gnu.org/software/grub/ - GNU Grub (Grand Unified Bootloader)
+* [1](https://ipxe.org) https://ipxe.org - iPXE open source boot firmware
+* [2](https://www.gnu.org/software/grub/) https://www.gnu.org/software/grub/ -
+  GNU GRUB (Grand Unified Bootloader)
