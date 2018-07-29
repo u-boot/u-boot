@@ -417,6 +417,9 @@ static inline int guidcmp(const efi_guid_t *g1, const efi_guid_t *g2)
 #define __efi_runtime_data __attribute__ ((section (".data.efi_runtime")))
 #define __efi_runtime __attribute__ ((section (".text.efi_runtime")))
 
+/* Update CRC32 in table header */
+void __efi_runtime efi_update_table_header_crc32(struct efi_table_hdr *table);
+
 /* Call this with mmio_ptr as the _pointer_ to a pointer to an MMIO region
  * to make it available at runtime */
 efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len);

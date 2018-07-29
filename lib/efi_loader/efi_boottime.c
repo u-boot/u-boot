@@ -154,18 +154,6 @@ const char *__efi_nesting_dec(void)
 }
 
 /**
- * efi_update_table_header_crc32() - Update CRC32 in table header
- *
- * @table:	EFI table
- */
-static void efi_update_table_header_crc32(struct efi_table_hdr *table)
-{
-	table->crc32 = 0;
-	table->crc32 = crc32(0, (const unsigned char *)table,
-			     table->headersize);
-}
-
-/**
  * efi_queue_event() - queue an EFI event
  * @event:     event to signal
  * @check_tpl: check the TPL level

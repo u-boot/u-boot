@@ -84,6 +84,18 @@ struct elf_rela {
  * handle a good number of runtime callbacks
  */
 
+/**
+ * efi_update_table_header_crc32() - Update crc32 in table header
+ *
+ * @table:	EFI table
+ */
+void __efi_runtime efi_update_table_header_crc32(struct efi_table_hdr *table)
+{
+	table->crc32 = 0;
+	table->crc32 = crc32(0, (const unsigned char *)table,
+			     table->headersize);
+}
+
 static void EFIAPI efi_reset_system_boottime(
 			enum efi_reset_type reset_type,
 			efi_status_t reset_status,
@@ -273,6 +285,9 @@ static void efi_runtime_detach(ulong offset)
 		debug("%s: Setting %p to %lx\n", __func__, p, newaddr);
 		*p = newaddr;
 	}
+
+	/* Update crc32 */
+	efi_update_table_header_crc32(&efi_runtime_services.hdr);
 }
 
 /* Relocate EFI runtime to uboot_reloc_base = offset */
