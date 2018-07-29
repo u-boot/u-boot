@@ -60,9 +60,6 @@
 #define CONFIG_TWL4030_LED		1
 
 /* Board NAND Info */
-
-#define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
-							/* to access nand */
 #define CONFIG_JFFS2_NAND
 /* nand device jffs2 lives on */
 #define CONFIG_JFFS2_DEV		"nand0"

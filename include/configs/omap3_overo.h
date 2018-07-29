@@ -51,8 +51,6 @@
 #endif /* CONFIG_NAND */
 
 /* Board NAND Info. */
-#define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
-							/* to access nand */
 /* Environment information */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \

@@ -37,8 +37,6 @@
 
 /* Board NAND Info. */
 #ifdef CONFIG_NAND
-#define CONFIG_SYS_NAND_ADDR		NAND_BASE /* physical address */
-						  /* to access nand */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1	  /* Max number of */
 						  /* NAND devices */
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
