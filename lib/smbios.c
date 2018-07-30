@@ -278,6 +278,7 @@ ulong write_smbios_table(ulong addr)
 	/* populate minimum required tables */
 	for (i = 0; i < ARRAY_SIZE(smbios_write_funcs); i++) {
 		int tmp = smbios_write_funcs[i]((ulong *)&addr, handle++);
+
 		max_struct_size = max(max_struct_size, tmp);
 		len += tmp;
 	}
