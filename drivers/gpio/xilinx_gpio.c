@@ -139,13 +139,13 @@ static int xilinx_gpio_direction_output(struct udevice *dev, unsigned offset,
 	if (platdata->bank_input[bank])
 		return -EINVAL;
 
+	xilinx_gpio_set_value(dev, offset, value);
+
 	if (!platdata->bank_output[bank]) {
 		val = readl(&platdata->regs->gpiodir + bank * 2);
 		val = val & ~(1 << pin);
 		writel(val, &platdata->regs->gpiodir + bank * 2);
 	}
-
-	xilinx_gpio_set_value(dev, offset, value);
 
 	return 0;
 }
