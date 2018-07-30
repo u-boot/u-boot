@@ -164,7 +164,9 @@ the '/images' node should have the following layout:
   - data : Path to the external file which contains this node's binary data.
   - compression : Compression used by included data. Supported compressions
     are "gzip" and "bzip2". If no compression is used compression property
-    should be set to "none".
+    should be set to "none". If the data is compressed but it should not be
+    uncompressed by U-Boot (e.g. compressed ramdisk), this should also be set
+    to "none".
 
   Conditionally mandatory property:
   - os : OS name, mandatory for types "kernel" and "ramdisk". Valid OS names
