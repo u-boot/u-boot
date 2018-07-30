@@ -61,18 +61,17 @@ static int xilinx_gpio_set_value(struct udevice *dev, unsigned offset,
 	if (ret)
 		return ret;
 
+	val = readl(&platdata->regs->gpiodata + bank * 2);
+
 	debug("%s: regs: %lx, value: %x, gpio: %x, bank %x, pin %x\n",
 	      __func__, (ulong)platdata->regs, value, offset, bank, pin);
 
-	if (value) {
-		val = readl(&platdata->regs->gpiodata + bank * 2);
+	if (value)
 		val = val | (1 << pin);
-		writel(val, &platdata->regs->gpiodata + bank * 2);
-	} else {
-		val = readl(&platdata->regs->gpiodata + bank * 2);
+	else
 		val = val & ~(1 << pin);
-		writel(val, &platdata->regs->gpiodata + bank * 2);
-	}
+
+	writel(val, &platdata->regs->gpiodata + bank * 2);
 
 	return val;
 };
