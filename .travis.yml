@@ -146,233 +146,277 @@ matrix:
   include:
   # we need to build by vendor due to 50min time limit for builds
   # each env setting here is a dedicated build
-    - env:
+    - name: "buildman arc"
+      env:
         - BUILDMAN="arc"
           TOOLCHAIN="arc"
-    - env:
+    - name: "buildman arm11 arm7 arm920t arm946es"
+      env:
         - BUILDMAN="arm11 arm7 arm920t arm946es"
-    - env:
+    - name: "buildman arm926ejs (non-mx,siemens,atmel,kirkwood)"
+      env:
         - JOB="arm926ejs"
           BUILDMAN="arm926ejs -x mx,siemens,atmel,kirkwood"
-    - env:
+    - name: "buildman atmel"
+      env:
         - BUILDMAN="atmel"
-    - env:
-          BUILDMAN="boundary engicam toradex"
-    - env:
-        - JOB="Freescale ARM32"
-          BUILDMAN="freescale -x powerpc,m68k,aarch64"
-    - env:
-        - JOB="Freescale AArch64"
-          BUILDMAN="freescale&aarch64"
-    - env:
-        - JOB="i.MX6 (non-Freescale)"
-          BUILDMAN="mx6 -x freescale,toradex,boundary,engicam"
-    - env:
-        - JOB="i.MX (non-Freescale, non-i.MX6)"
-          BUILDMAN="mx -x freescale,mx6,toradex"
-    - env:
+    - name: "buildman boundary engicam toradex"
+      env:
+        - BUILDMAN="boundary engicam toradex"
+    - name: "buildman Freescale ARM32"
+      env:
+        - BUILDMAN="freescale -x powerpc,m68k,aarch64"
+    - name: "buildman Freescale AArch64"
+      env:
+        - BUILDMAN="freescale&aarch64"
+    - name: "buildman i.MX6 (non-Freescale)"
+      env:
+        - BUILDMAN="mx6 -x freescale,toradex,boundary,engicam"
+    - name: "buildman i.MX (non-Freescale,i.MX6,toradex)"
+      env:
+        - BUILDMAN="mx -x freescale,mx6,toradex"
+    - name: "buildman k2"
+      env:
         - BUILDMAN="k2"
-    - env:
+    - name: "buildman samsung socfpga"
+      env:
         - BUILDMAN="samsung socfpga"
-    - env:
+    - name: "buildman sun4i"
+      env:
         - BUILDMAN="sun4i"
-    - env:
+    - name: "buildman sun5i"
+      env:
         - BUILDMAN="sun5i"
-    - env:
+    - name: "buildman sun6i"
+      env:
         - BUILDMAN="sun6i"
-    - env:
+    - name: "builman sun7i"
+      env:
         - BUILDMAN="sun7i"
-    - env:
+    - name: "buildman sun8i"
+      env:
         - BUILDMAN="sun8i"
-    - env:
+    - name: "buildman sun9i"
+      env:
         - BUILDMAN="sun9i"
-    - env:
+    - name: "buildman sun50i"
+      env:
         - BUILDMAN="sun50i"
-    - env:
-        - JOB="Catch-all ARM"
-          BUILDMAN="arm -x arm11,arm7,arm9,aarch64,atmel,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,pxa,rockchip,toradex,socfpga,k2,xilinx"
-    - env:
+    - name: "buildman catch-all ARM"
+      env:
+        - BUILDMAN="arm -x arm11,arm7,arm9,aarch64,atmel,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,pxa,rockchip,toradex,socfpga,k2,xilinx"
+    - name: "buildman sandbox x86"
+      env:
         - BUILDMAN="sandbox x86"
           TOOLCHAIN="x86_64"
-    - env:
+    - name: "buildman kirkwood (excluding openrd)"
+      env:
         - BUILDMAN="kirkwood -x openrd"
-    - env:
+    - name: "buildman mvebu"
+      env:
         - BUILDMAN="mvebu"
-    - env:
-        - JOB="PXA"
+    - name: "buildman PXA (non-toradex)"
+      env:
         - BUILDMAN="pxa -x toradex"
-    - env:
+    - name: "buildman m68k"
+      env:
         - BUILDMAN="m68k"
           TOOLCHAIN="m68k"
-    - env:
+    - name: "buildman microblaze"
+      env:
         - BUILDMAN="microblaze"
           TOOLCHAIN="microblaze"
-    - env:
+    - name: "buildman mips"
+      env:
         - BUILDMAN="mips"
           TOOLCHAIN="mips"
-    - env:
-        - JOB="Non-Freescale PowerPC"
-          BUILDMAN="powerpc -x freescale"
+    - name: "buildman non-Freescale PowerPC"
+      env:
+        - BUILDMAN="powerpc -x freescale"
           TOOLCHAIN="powerpc"
-    - env:
+    - name: "buildman mpc85xx&freescale (excluding many)"
+      env:
         - BUILDMAN="mpc85xx&freescale -x t208xrdb -x t4qds -x t102* -x p1_p2_rdb_pc -x p1010rdb -x corenet_ds -x b4860qds -x bsc91*"
           TOOLCHAIN="powerpc"
-    - env:
+    - name: "buildman t208xrdb corenet_ds"
+      env:
         - BUILDMAN="t208xrdb corenet_ds"
           TOOLCHAIN="powerpc"
-    - env:
+    - name: "buildman Freescale PowerPC"
+      env:
         - BUILDMAN="t4qds b4860qds mpc83xx&freescale mpc86xx&freescale"
           TOOLCHAIN="powerpc"
-    - env:
+    - name: "buildman t102*"
+      env:
         - BUILDMAN="t102*"
           TOOLCHAIN="powerpc"
-    - env:
+    - name: "buildman p1_p2_rdb_pc"
+      env:
         - BUILDMAN="p1_p2_rdb_pc"
           TOOLCHAIN="powerpc"
-    - env:
+    - name: "buildman p1010rdb bsc91"
+      env:
         - BUILDMAN="p1010rdb bsc91"
           TOOLCHAIN="powerpc"
-    - env:
+    - name: "buildman siemens"
+      env:
         - BUILDMAN="siemens"
-    - env:
-        - JOB="tegra"
-          BUILDMAN="tegra -x toradex"
-    - env:
-        - JOB="am33xx"
-          BUILDMAN="am33xx -x siemens"
-    - env:
+    - name: "buildman tegra"
+      env:
+        - BUILDMAN="tegra -x toradex"
+    - name: "buildman am33xx (no siemens)"
+      env:
+        - BUILDMAN="am33xx -x siemens"
+    - name: "buildman omap"
+      env:
         - BUILDMAN="omap"
-    - env:
+    - name: "buildman uniphier"
+      env:
         - BUILDMAN="uniphier"
-    - env:
-        - JOB="Catch-all AArch64"
-          BUILDMAN="aarch64 -x tegra,freescale,mvebu,uniphier,sunxi,samsung,rockchip,xilinx"
-    - env:
+    - name: "buildman catch-all AArch64"
+      env:
+        - BUILDMAN="aarch64 -x tegra,freescale,mvebu,uniphier,sunxi,samsung,rockchip,xilinx"
+    - name: "buildman rockchip"
+      env:
         - BUILDMAN="rockchip"
-    - env:
-        - JOB="sh"
-          BUILDMAN="sh -x arm"
+    - name: "buildman sh"
+      env:
+        - BUILDMAN="sh -x arm"
           TOOLCHAIN="sh"
-    - env:
-        - JOB="Xilinx (ARM)"
-          BUILDMAN="xilinx -x microblaze"
-    - env:
+    - name: "buildman Xilinx (ARM)"
+      env:
+        - BUILDMAN="xilinx -x microblaze"
+    - name: "buildman xtensa"
+      env:
         - BUILDMAN="xtensa"
           TOOLCHAIN="xtensa-dc233c-elf"
-    - env:
+    - name: "buildman riscv"
+      env:
         - BUILDMAN="riscv"
           TOOLCHAIN="riscv"
 
     # QA jobs for code analytics
     # static code analysis with cppcheck (we can add --enable=all later)
-    - env:
-        - JOB="cppcheck"
+    - name: "cppcheck"
       script:
         - cppcheck --force --quiet --inline-suppr .
     # search for TODO within source tree
-    - env:
-        - JOB="grep TODO"
+    - name: "grep TODO"
       script:
         - grep -r TODO .
     # search for FIXME within source tree
-    - env:
-        - JOB="grep FIXME HACK"
+    - name: "grep FIXME HACK"
       script:
         - grep -r FIXME .
     # search for HACK within source tree and ignore HACKKIT board
       script:
         - grep -r HACK . | grep -v HACKKIT
     # some statistics about the code base
-    - env:
-        - JOB="sloccount"
+    - name: "sloccount"
       script:
         - sloccount .
 
     # test/py
-    - env:
+    - name: "test/py sandbox"
+      env:
         - TEST_PY_BD="sandbox"
           BUILDMAN="^sandbox$"
           TOOLCHAIN="x86_64"
-    - env:
+    - name: "test/py sandbox_spl"
+      env:
         - TEST_PY_BD="sandbox_spl"
           TEST_PY_TEST_SPEC="test_ofplatdata"
           BUILDMAN="^sandbox$"
           TOOLCHAIN="x86_64"
           TEST_PY_TOOLS="yes"
-    - env:
+    - name: "test/py sandbox_flattree"
+      env:
         - TEST_PY_BD="sandbox_flattree"
           BUILDMAN="^sandbox_flattree$"
           TOOLCHAIN="x86_64"
-    - env:
+    - name: "test/py vexpress_ca15_tc2"
+      env:
         - TEST_PY_BD="vexpress_ca15_tc2"
           TEST_PY_ID="--id qemu"
           QEMU_TARGET="arm-softmmu"
           BUILDMAN="^vexpress_ca15_tc2$"
-    - env:
+    - name: "test/py vexpress_ca9x4"
+      env:
         - TEST_PY_BD="vexpress_ca9x4"
           TEST_PY_ID="--id qemu"
           QEMU_TARGET="arm-softmmu"
           BUILDMAN="^vexpress_ca9x4$"
-    - env:
+    - name: "test/py integratorcp_cm926ejs"
+      env:
         - TEST_PY_BD="integratorcp_cm926ejs"
           TEST_PY_TEST_SPEC="not sleep"
           TEST_PY_ID="--id qemu"
           QEMU_TARGET="arm-softmmu"
           BUILDMAN="^integratorcp_cm926ejs$"
-    - env:
+    - name: "test/py qemu_arm"
+      env:
         - TEST_PY_BD="qemu_arm"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="arm-softmmu"
           BUILDMAN="^qemu_arm$"
-    - env:
+    - name: "test/py qemu_arm64"
+      env:
         - TEST_PY_BD="qemu_arm64"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="aarch64-softmmu"
           BUILDMAN="^qemu_arm64$"
-    - env:
+    - name: "test/py qemu_mips"
+      env:
         - TEST_PY_BD="qemu_mips"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="mips-softmmu"
           BUILDMAN="^qemu_mips$"
           TOOLCHAIN="mips"
-    - env:
+    - name: "test/py qemu_mipsel"
+      env:
         - TEST_PY_BD="qemu_mipsel"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="mipsel-softmmu"
           BUILDMAN="^qemu_mipsel$"
           TOOLCHAIN="mips"
-    - env:
+    - name: "test/py qemu_mips64"
+      env:
         - TEST_PY_BD="qemu_mips64"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="mips64-softmmu"
           BUILDMAN="^qemu_mips64$"
           TOOLCHAIN="mips"
-    - env:
+    - name: "test/py qemu_mips64el"
+      env:
         - TEST_PY_BD="qemu_mips64el"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="mips64el-softmmu"
           BUILDMAN="^qemu_mips64el$"
           TOOLCHAIN="mips"
-    - env:
+    - name: "test/py qemu-ppce500"
+      env:
         - TEST_PY_BD="qemu-ppce500"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="ppc-softmmu"
           BUILDMAN="^qemu-ppce500$"
           TOOLCHAIN="powerpc"
-    - env:
+    - name: "test/py qemu-x86"
+      env:
         - TEST_PY_BD="qemu-x86"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="i386-softmmu"
           BUILDMAN="^qemu-x86$"
           TOOLCHAIN="x86_64"
           BUILD_ROM="yes"
-    - env:
+    - name: "test/py zynq_zc702"
+      env:
         - TEST_PY_BD="zynq_zc702"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="arm-softmmu"
           TEST_PY_ID="--id qemu"
           BUILDMAN="^zynq_zc702$"
-    - env:
+    - name: "test/py xtfpga"
+      env:
         - TEST_PY_BD="xtfpga"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="xtensa-softmmu"
