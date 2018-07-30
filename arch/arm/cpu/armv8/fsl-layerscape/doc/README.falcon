@@ -110,7 +110,7 @@ Example:
 			type = "ramdisk";
 			arch = "arm64";
 			os = "linux";
-			compression = "gzip";
+			compression = "none";
 			load = <0xa0000000>;
 		};
 	};
