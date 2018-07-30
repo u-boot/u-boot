@@ -7,6 +7,8 @@
 #include <fdtdec.h>
 #include <asm/io.h>
 #include <dm.h>
+#include <clk.h>
+#include <dm/device-internal.h>
 #include <asm/arch/clock_manager.h>
 
 static const struct socfpga_clock_manager *clock_manager_base =
@@ -141,9 +143,9 @@ struct strtopu32 {
 };
 
 const struct strtopu32 dt_to_val[] = {
-	{ "/clocks/altera_arria10_hps_eosc1", &eosc1_hz},
-	{ "/clocks/altera_arria10_hps_cb_intosc_ls", &cb_intosc_hz},
-	{ "/clocks/altera_arria10_hps_f2h_free", &f2s_free_hz},
+	{ "altera_arria10_hps_eosc1", &eosc1_hz },
+	{ "altera_arria10_hps_cb_intosc_ls", &cb_intosc_hz },
+	{ "altera_arria10_hps_f2h_free", &f2s_free_hz },
 };
 
 static int of_to_struct(const void *blob, int node, const struct strtou32 *cfg_tab,
@@ -163,28 +165,39 @@ static int of_to_struct(const void *blob, int node, const struct strtou32 *cfg_t
 	return 0;
 }
 
-static void of_get_input_clks(const void *blob)
+static int of_get_input_clks(const void *blob)
 {
-	int node, i;
+	struct udevice *dev;
+	struct clk clk;
+	int i, ret;
 
 	for (i = 0; i < ARRAY_SIZE(dt_to_val); i++) {
-		node = fdt_path_offset(blob, dt_to_val[i].str);
+		memset(&clk, 0, sizeof(clk));
 
-		if (node < 0)
-			continue;
+		ret = uclass_get_device_by_name(UCLASS_CLK, dt_to_val[i].str,
+						&dev);
+		if (ret)
+			return ret;
 
-		fdtdec_get_int_array(blob, node, "clock-frequency",
-				     dt_to_val[i].p, 1);
+		ret = clk_request(dev, &clk);
+		if (ret)
+			return ret;
+
+		*dt_to_val[i].p = clk_get_rate(&clk);
 	}
+
+	return 0;
 }
 
 static int of_get_clk_cfg(const void *blob, struct mainpll_cfg *main_cfg,
 			  struct perpll_cfg *per_cfg)
 {
-	int node, child, len;
+	int ret, node, child, len;
 	const char *node_name;
 
-	of_get_input_clks(blob);
+	ret = of_get_input_clks(blob);
+	if (ret)
+		return ret;
 
 	node = fdtdec_next_compatible(blob, 0, COMPAT_ALTERA_SOCFPGA_CLK_INIT);
 
