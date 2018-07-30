@@ -13,8 +13,10 @@ CFLAGS_REMOVE_efi_selftest_miniapp_return.o := $(CFLAGS_NON_EFI) -Os
 obj-$(CONFIG_CMD_BOOTEFI_SELFTEST) += \
 efi_selftest.o \
 efi_selftest_bitblt.o \
+efi_selftest_config_table.o \
 efi_selftest_controllers.o \
 efi_selftest_console.o \
+efi_selftest_crc32.o \
 efi_selftest_devicepath.o \
 efi_selftest_devicepath_util.o \
 efi_selftest_events.o \
@@ -23,6 +25,7 @@ efi_selftest_exitbootservices.o \
 efi_selftest_fdt.o \
 efi_selftest_gop.o \
 efi_selftest_manageprotocols.o \
+efi_selftest_rtc.o \
 efi_selftest_snp.o \
 efi_selftest_textinput.o \
 efi_selftest_textoutput.o \
@@ -41,7 +44,7 @@ endif
 
 # TODO: As of v2018.01 the relocation code for the EFI application cannot
 # be built on x86_64.
-ifeq ($(CONFIG_X86_64),)
+ifeq ($(CONFIG_X86_64)$(CONFIG_SANDBOX),)
 
 ifneq ($(CONFIG_CMD_BOOTEFI_SELFTEST),)
 

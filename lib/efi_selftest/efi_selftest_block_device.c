@@ -309,11 +309,14 @@ static int execute(void)
 	efi_uintn_t buf_size;
 	char buf[16] __aligned(ARCH_DMA_MINALIGN);
 
+	/* Connect controller to virtual disk */
 	ret = boottime->connect_controller(disk_handle, NULL, NULL, 1);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Failed to connect controller\n");
 		return EFI_ST_FAILURE;
 	}
+
+	/* Get the handle for the partition */
 	ret = boottime->locate_handle_buffer(
 				BY_PROTOCOL, &guid_device_path, NULL,
 				&no_handles, &handles);
@@ -347,6 +350,8 @@ static int execute(void)
 		efi_st_error("Partition handle not found\n");
 		return EFI_ST_FAILURE;
 	}
+
+	/* Open the simple file system protocol */
 	ret = boottime->open_protocol(handle_partition,
 				      &guid_simple_file_system_protocol,
 				      (void **)&file_system, NULL, NULL,
@@ -355,6 +360,8 @@ static int execute(void)
 		efi_st_error("Failed to open simple file system protocol\n");
 		return EFI_ST_FAILURE;
 	}
+
+	/* Open volume */
 	ret = file_system->open_volume(file_system, &root);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Failed to open volume\n");
@@ -377,6 +384,8 @@ static int execute(void)
 			"Wrong volume label '%ps', expected 'U-BOOT TEST'\n",
 			system_info.info.volume_label);
 	}
+
+	/* Read file */
 	ret = root->open(root, &file, (s16 *)L"hello.txt", EFI_FILE_MODE_READ,
 			 0);
 	if (ret != EFI_SUCCESS) {
@@ -389,6 +398,11 @@ static int execute(void)
 		efi_st_error("Failed to read file\n");
 		return EFI_ST_FAILURE;
 	}
+	if (buf_size != 13) {
+		efi_st_error("Wrong number of bytes read: %u\n",
+			     (unsigned int)buf_size);
+		return EFI_ST_FAILURE;
+	}
 	if (efi_st_memcmp(buf, "Hello world!", 12)) {
 		efi_st_error("Unexpected file content\n");
 		return EFI_ST_FAILURE;
@@ -398,6 +412,62 @@ static int execute(void)
 		efi_st_error("Failed to close file\n");
 		return EFI_ST_FAILURE;
 	}
+
+#ifdef CONFIG_FAT_WRITE
+	/* Write file */
+	ret = root->open(root, &file, (s16 *)L"u-boot.txt",
+			 EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE, 0);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Failed to open file\n");
+		return EFI_ST_FAILURE;
+	}
+	buf_size = 7;
+	boottime->set_mem(buf, sizeof(buf), 0);
+	boottime->copy_mem(buf, "U-Boot", buf_size);
+	ret = file->write(file, &buf_size, buf);
+	if (ret != EFI_SUCCESS || buf_size != 7) {
+		efi_st_error("Failed to write file\n");
+		return EFI_ST_FAILURE;
+	}
+	ret = file->close(file);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Failed to close file\n");
+		return EFI_ST_FAILURE;
+	}
+
+	/* Verify file */
+	boottime->set_mem(buf, sizeof(buf), 0);
+	ret = root->open(root, &file, (s16 *)L"u-boot.txt", EFI_FILE_MODE_READ,
+			 0);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Failed to open file\n");
+		return EFI_ST_FAILURE;
+	}
+	buf_size = sizeof(buf) - 1;
+	ret = file->read(file, &buf_size, buf);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Failed to read file\n");
+		return EFI_ST_FAILURE;
+	}
+	if (buf_size != 7) {
+		efi_st_error("Wrong number of bytes read: %u\n",
+			     (unsigned int)buf_size);
+		return EFI_ST_FAILURE;
+	}
+	if (efi_st_memcmp(buf, "U-Boot", 7)) {
+		efi_st_error("Unexpected file content %s\n", buf);
+		return EFI_ST_FAILURE;
+	}
+	ret = file->close(file);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Failed to close file\n");
+		return EFI_ST_FAILURE;
+	}
+#else
+	efi_st_todo("CONFIG_FAT_WRITE is not set\n");
+#endif /* CONFIG_FAT_WRITE */
+
+	/* Close volume */
 	ret = root->close(root);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Failed to close volume\n");

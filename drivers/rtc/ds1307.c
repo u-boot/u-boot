@@ -51,8 +51,6 @@ enum ds_type {
 
 #ifndef CONFIG_DM_RTC
 
-#if defined(CONFIG_CMD_DATE)
-
 /*---------------------------------------------------------------------*/
 #undef DEBUG_RTC
 
@@ -203,8 +201,6 @@ static void rtc_write (uchar reg, uchar val)
 {
 	i2c_reg_write (CONFIG_SYS_I2C_RTC_ADDR, reg, val);
 }
-
-#endif /* CONFIG_CMD_DATE*/
 
 #endif /* !CONFIG_DM_RTC */
 

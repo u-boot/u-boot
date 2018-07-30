@@ -14,11 +14,17 @@
 #include <errno.h>
 #include <linux/libfdt.h>
 #include <linux/libfdt_env.h>
+#include <mapmem.h>
 #include <memalign.h>
 #include <asm/global_data.h>
 #include <asm-generic/sections.h>
 #include <asm-generic/unaligned.h>
 #include <linux/linkage.h>
+
+#ifdef CONFIG_ARMV7_NONSEC
+#include <asm/armv7.h>
+#include <asm/secure.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -37,6 +43,11 @@ efi_status_t efi_init_obj_list(void)
 	/* Initialize once only */
 	if (efi_obj_list_initialized != OBJ_LIST_NOT_INITIALIZED)
 		return efi_obj_list_initialized;
+
+	/* Initialize system table */
+	ret = efi_initialize_system_table();
+	if (ret != EFI_SUCCESS)
+		goto out;
 
 	/* Initialize EFI driver uclass */
 	ret = efi_driver_init();
@@ -77,9 +88,6 @@ efi_status_t efi_init_obj_list(void)
 
 	/* Initialize EFI runtime services */
 	ret = efi_reset_system_init();
-	if (ret != EFI_SUCCESS)
-		goto out;
-	ret = efi_get_time_init();
 	if (ret != EFI_SUCCESS)
 		goto out;
 
@@ -142,8 +150,12 @@ static void *copy_fdt(void *fdt)
 			fdt_ram_start = ram_start;
 	}
 
-	/* Give us at least 4kb breathing room */
-	fdt_size = ALIGN(fdt_size + 4096, EFI_PAGE_SIZE);
+	/*
+	 * Give us at least 4KB of breathing room in case the device tree needs
+	 * to be expanded later. Round up to the nearest EFI page boundary.
+	 */
+	fdt_size += 4096;
+	fdt_size = ALIGN(fdt_size + EFI_PAGE_SIZE - 1, EFI_PAGE_SIZE);
 	fdt_pages = fdt_size >> EFI_PAGE_SHIFT;
 
 	/* Safe fdt location is at 128MB */
@@ -194,8 +206,32 @@ static efi_status_t efi_run_in_el2(EFIAPI efi_status_t (*entry)(
 }
 #endif
 
-/* Carve out DT reserved memory ranges */
-static efi_status_t efi_carve_out_dt_rsv(void *fdt)
+#ifdef CONFIG_ARMV7_NONSEC
+static bool is_nonsec;
+
+static efi_status_t efi_run_in_hyp(EFIAPI efi_status_t (*entry)(
+			efi_handle_t image_handle, struct efi_system_table *st),
+			efi_handle_t image_handle, struct efi_system_table *st)
+{
+	/* Enable caches again */
+	dcache_enable();
+
+	is_nonsec = true;
+
+	return efi_do_enter(image_handle, st, entry);
+}
+#endif
+
+/*
+ * efi_carve_out_dt_rsv() - Carve out DT reserved memory ranges
+ *
+ * The mem_rsv entries of the FDT are added to the memory map. Any failures are
+ * ignored because this is not critical and we would rather continue to try to
+ * boot.
+ *
+ * @fdt: Pointer to device tree
+ */
+static void efi_carve_out_dt_rsv(void *fdt)
 {
 	int nr_rsv, i;
 	uint64_t addr, size, pages;
@@ -208,11 +244,10 @@ static efi_status_t efi_carve_out_dt_rsv(void *fdt)
 			continue;
 
 		pages = ALIGN(size, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT;
-		efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
-				   false);
+		if (!efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
+					false))
+			printf("FDT memrsv map %d: Failed to add to map\n", i);
 	}
-
-	return EFI_SUCCESS;
 }
 
 static efi_status_t efi_install_fdt(void *fdt)
@@ -236,10 +271,7 @@ static efi_status_t efi_install_fdt(void *fdt)
 		return EFI_LOAD_ERROR;
 	}
 
-	if (efi_carve_out_dt_rsv(fdt) != EFI_SUCCESS) {
-		printf("ERROR: failed to carve out memory\n");
-		return EFI_LOAD_ERROR;
-	}
+	efi_carve_out_dt_rsv(fdt);
 
 	/* Link to it in the efi tables */
 	ret = efi_install_configuration_table(&efi_guid_fdt, fdt);
@@ -350,6 +382,22 @@ static efi_status_t do_bootefi_exec(void *efi,
 	}
 #endif
 
+#ifdef CONFIG_ARMV7_NONSEC
+	if (armv7_boot_nonsec() && !is_nonsec) {
+		dcache_disable();	/* flush cache before switch to HYP */
+
+		armv7_init_nonsec();
+		secure_ram_addr(_do_nonsec_entry)(
+					efi_run_in_hyp,
+					(uintptr_t)entry,
+					(uintptr_t)loaded_image_info_obj.handle,
+					(uintptr_t)&systab);
+
+		/* Should never reach here, efi exits with longjmp */
+		while (1) { }
+	}
+#endif
+
 	ret = efi_do_enter(loaded_image_info_obj.handle, &systab, entry);
 
 exit:
@@ -394,7 +442,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	unsigned long addr;
 	char *saddr;
 	efi_status_t r;
-	void *fdt_addr;
+	unsigned long fdt_addr;
+	void *fdt;
 
 	/* Allow unaligned memory access */
 	allow_unaligned();
@@ -411,11 +460,12 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return CMD_RET_USAGE;
 
 	if (argc > 2) {
-		fdt_addr = (void *)simple_strtoul(argv[2], NULL, 16);
+		fdt_addr = simple_strtoul(argv[2], NULL, 16);
 		if (!fdt_addr && *argv[2] != '0')
 			return CMD_RET_USAGE;
 		/* Install device tree */
-		r = efi_install_fdt(fdt_addr);
+		fdt = map_sysmem(fdt_addr, 0);
+		r = efi_install_fdt(fdt);
 		if (r != EFI_SUCCESS) {
 			printf("ERROR: failed to install device tree\n");
 			return CMD_RET_FAILURE;
@@ -434,7 +484,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			addr = simple_strtoul(saddr, NULL, 16);
 		else
 			addr = CONFIG_SYS_LOAD_ADDR;
-		memcpy((char *)addr, __efi_helloworld_begin, size);
+		memcpy(map_sysmem(addr, size), __efi_helloworld_begin, size);
 	} else
 #endif
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
@@ -480,7 +530,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	printf("## Starting EFI application at %08lx ...\n", addr);
-	r = do_bootefi_exec((void *)addr, bootefi_device_path,
+	r = do_bootefi_exec(map_sysmem(addr, 0), bootefi_device_path,
 			    bootefi_image_path);
 	printf("## Application terminated, r = %lu\n",
 	       r & ~EFI_ERROR_MASK);

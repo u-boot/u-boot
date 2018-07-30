@@ -12,7 +12,6 @@
 #include <common.h>
 #include <efi.h>
 #include <elf.h>
-#include <asm/elf.h>
 
 efi_status_t EFIAPI _relocate(long ldbase, Elf64_Dyn *dyn)
 {

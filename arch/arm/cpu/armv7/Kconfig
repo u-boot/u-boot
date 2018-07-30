@@ -53,7 +53,7 @@ config ARMV7_PSCI_NR_CPUS
 config ARMV7_LPAE
 	bool "Use LPAE page table format" if EXPERT
 	depends on CPU_V7A
-	default n
+	default y if ARMV7_VIRT
 	---help---
 	Say Y here to use the long descriptor page table format. This is
 	required if U-Boot runs in HYP mode.

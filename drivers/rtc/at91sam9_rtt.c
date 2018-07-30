@@ -27,8 +27,6 @@
 #include <asm/arch/at91_rtt.h>
 #include <asm/arch/at91_gpbr.h>
 
-#if defined(CONFIG_CMD_DATE)
-
 int rtc_get (struct rtc_time *tmp)
 {
 	at91_rtt_t *rtt = (at91_rtt_t *) ATMEL_BASE_RTT;
@@ -78,5 +76,3 @@ void rtc_reset (void)
 	while (readl(&rtt->vr) != 0)
 		;
 }
-
-#endif

@@ -8,6 +8,7 @@
 #include <common.h>
 #include <command.h>
 #include <dm.h>
+#include <elf.h>
 #include <efi_loader.h>
 #include <rtc.h>
 
@@ -32,19 +33,17 @@ static efi_status_t __efi_runtime EFIAPI efi_invalid_parameter(void);
  * TODO(sjg@chromium.org): These defines and structs should come from the elf
  * header for each arch (or a generic header) rather than being repeated here.
  */
-#if defined(CONFIG_ARM64)
-#define R_RELATIVE	1027
+#if defined(__aarch64__)
+#define R_RELATIVE	R_AARCH64_RELATIVE
 #define R_MASK		0xffffffffULL
 #define IS_RELA		1
-#elif defined(CONFIG_ARM)
-#define R_RELATIVE	23
+#elif defined(__arm__)
+#define R_RELATIVE	R_ARM_RELATIVE
 #define R_MASK		0xffULL
-#elif defined(CONFIG_X86)
-#include <asm/elf.h>
+#elif defined(__x86_64__) || defined(__i386__)
 #define R_RELATIVE	R_386_RELATIVE
 #define R_MASK		0xffULL
-#elif defined(CONFIG_RISCV)
-#include <elf.h>
+#elif defined(__riscv)
 #define R_RELATIVE	R_RISCV_RELATIVE
 #define R_MASK		0xffULL
 #define IS_RELA		1
@@ -55,12 +54,14 @@ struct dyn_sym {
 	u32 foo2;
 	u32 foo3;
 };
-#ifdef CONFIG_CPU_RISCV_32
+#if (__riscv_xlen == 32)
 #define R_ABSOLUTE	R_RISCV_32
 #define SYM_INDEX	8
-#else
+#elif (__riscv_xlen == 64)
 #define R_ABSOLUTE	R_RISCV_64
 #define SYM_INDEX	32
+#else
+#error unknown riscv target
 #endif
 #else
 #error Need to add relocation awareness
@@ -116,24 +117,41 @@ static void EFIAPI efi_reset_system_boottime(
 	while (1) { }
 }
 
+/**
+ * efi_get_time_boottime - get current time
+ *
+ * This function implements the GetTime runtime service.
+ * See the Unified Extensible Firmware Interface (UEFI) specification
+ * for details.
+ *
+ * @time:		pointer to structure to receive current time
+ * @capabilities:	pointer to structure to receive RTC properties
+ * Return Value:	status code
+ */
 static efi_status_t EFIAPI efi_get_time_boottime(
 			struct efi_time *time,
 			struct efi_time_cap *capabilities)
 {
-#if defined(CONFIG_CMD_DATE) && defined(CONFIG_DM_RTC)
-	struct rtc_time tm;
+#ifdef CONFIG_DM_RTC
+	efi_status_t ret = EFI_SUCCESS;
 	int r;
+	struct rtc_time tm;
 	struct udevice *dev;
 
 	EFI_ENTRY("%p %p", time, capabilities);
 
-	r = uclass_get_device(UCLASS_RTC, 0, &dev);
-	if (r)
-		return EFI_EXIT(EFI_DEVICE_ERROR);
+	if (!time) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
 
-	r = dm_rtc_get(dev, &tm);
-	if (r)
-		return EFI_EXIT(EFI_DEVICE_ERROR);
+	r = uclass_get_device(UCLASS_RTC, 0, &dev);
+	if (!r)
+		r = dm_rtc_get(dev, &tm);
+	if (r) {
+		ret = EFI_DEVICE_ERROR;
+		goto out;
+	}
 
 	memset(time, 0, sizeof(*time));
 	time->year = tm.tm_year;
@@ -141,11 +159,23 @@ static efi_status_t EFIAPI efi_get_time_boottime(
 	time->day = tm.tm_mday;
 	time->hour = tm.tm_hour;
 	time->minute = tm.tm_min;
-	time->daylight = tm.tm_isdst;
+	time->second = tm.tm_sec;
+	time->daylight = EFI_TIME_ADJUST_DAYLIGHT;
+	if (tm.tm_isdst > 0)
+		time->daylight |= EFI_TIME_IN_DAYLIGHT;
+	time->timezone = EFI_UNSPECIFIED_TIMEZONE;
 
-	return EFI_EXIT(EFI_SUCCESS);
+	if (capabilities) {
+		/* Set reasonable dummy values */
+		capabilities->resolution = 1;		/* 1 Hz */
+		capabilities->accuracy = 100000000;	/* 100 ppm */
+		capabilities->sets_to_zero = false;
+	}
+out:
+	return EFI_EXIT(ret);
 #else
-	return EFI_DEVICE_ERROR;
+	EFI_ENTRY("%p %p", time, capabilities);
+	return EFI_EXIT(EFI_DEVICE_ERROR);
 #endif
 }
 
@@ -171,11 +201,6 @@ efi_status_t __weak __efi_runtime EFIAPI efi_get_time(
 {
 	/* Nothing we can do */
 	return EFI_DEVICE_ERROR;
-}
-
-efi_status_t __weak efi_get_time_init(void)
-{
-	return EFI_SUCCESS;
 }
 
 struct efi_runtime_detach_list_struct {
@@ -458,8 +483,8 @@ efi_status_t __efi_runtime EFIAPI efi_query_variable_info(
 struct efi_runtime_services __efi_runtime_data efi_runtime_services = {
 	.hdr = {
 		.signature = EFI_RUNTIME_SERVICES_SIGNATURE,
-		.revision = EFI_RUNTIME_SERVICES_REVISION,
-		.headersize = sizeof(struct efi_table_hdr),
+		.revision = EFI_SPECIFICATION_VERSION,
+		.headersize = sizeof(struct efi_runtime_services),
 	},
 	.get_time = &efi_get_time_boottime,
 	.set_time = (void *)&efi_device_error,

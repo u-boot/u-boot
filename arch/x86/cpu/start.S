@@ -17,7 +17,7 @@
 #include <generated/generic-asm-offsets.h>
 #include <generated/asm-offsets.h>
 
-.section .text
+.section .text.start
 .code32
 .globl _start
 .type _start, @function

@@ -13,8 +13,6 @@
 #include <rtc.h>
 #include <i2c.h>
 
-#if defined(CONFIG_CMD_DATE)
-
 /*---------------------------------------------------------------------*/
 #undef DEBUG_RTC
 
@@ -190,5 +188,3 @@ static void rtc_write (uchar reg, uchar val)
 		printf("Error writing to RTC\n");
 
 }
-
-#endif /* CONFIG_RTC_RX8025 && CONFIG_CMD_DATE */

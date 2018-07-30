@@ -407,7 +407,10 @@ static char *uuid_string(char *buf, char *end, u8 *addr, int field_width,
 		break;
 	}
 
-	uuid_bin_to_str(addr, uuid, str_format);
+	if (addr)
+		uuid_bin_to_str(addr, uuid, str_format);
+	else
+		strcpy(uuid, "<NULL>");
 
 	return string(buf, end, uuid, field_width, precision, flags);
 }

@@ -6,8 +6,6 @@
 
 #include <common.h>
 
-#if defined(CONFIG_CMD_DATE)
-
 #include <command.h>
 #include <rtc.h>
 #include <asm/immap.h>
@@ -104,5 +102,3 @@ void rtc_reset(void)
 
 	rtc->cr |= RTC_CR_SWR;
 }
-
-#endif				/* CONFIG_MCFRTC && CONFIG_CMD_DATE */

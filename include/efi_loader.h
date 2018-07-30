@@ -17,6 +17,9 @@
 
 #include <linux/list.h>
 
+/* Maximum number of configuration tables */
+#define EFI_MAX_CONFIGURATION_TABLES 16
+
 int __efi_entry_check(void);
 int __efi_exit_check(void);
 const char *__efi_nesting(void);
@@ -81,6 +84,9 @@ const char *__efi_nesting_dec(void);
 /* Just use the greatest cache flush alignment requirement I'm aware of */
 #define EFI_CACHELINE_SIZE 128
 #endif
+
+/* Key identifying current memory map */
+extern efi_uintn_t efi_memory_map_key;
 
 extern struct efi_runtime_services efi_runtime_services;
 extern struct efi_system_table systab;
@@ -199,6 +205,8 @@ extern struct list_head efi_obj_list;
 /* List of all events */
 extern struct list_head efi_events;
 
+/* Called by bootefi to initialize runtime */
+efi_status_t efi_initialize_system_table(void);
 /* Called by bootefi to make console interface available */
 int efi_console_register(void);
 /* Called by bootefi to make all disk storage accessible as EFI objects */
@@ -406,8 +414,8 @@ static inline int guidcmp(const efi_guid_t *g1, const efi_guid_t *g2)
  * Use these to indicate that your code / data should go into the EFI runtime
  * section and thus still be available when the OS is running
  */
-#define __efi_runtime_data __attribute__ ((section ("efi_runtime_data")))
-#define __efi_runtime __attribute__ ((section ("efi_runtime_text")))
+#define __efi_runtime_data __attribute__ ((section (".data.efi_runtime")))
+#define __efi_runtime __attribute__ ((section (".text.efi_runtime")))
 
 /* Call this with mmio_ptr as the _pointer_ to a pointer to an MMIO region
  * to make it available at runtime */
@@ -426,7 +434,6 @@ efi_status_t efi_reset_system_init(void);
 efi_status_t __efi_runtime EFIAPI efi_get_time(
 			struct efi_time *time,
 			struct efi_time_cap *capabilities);
-efi_status_t efi_get_time_init(void);
 
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
 /*

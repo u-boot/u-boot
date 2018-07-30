@@ -70,8 +70,6 @@ void nvram_write(short dest, const void *src, size_t count)
 		rtc_write(d++, *s++);
 }
 
-#if defined(CONFIG_CMD_DATE)
-
 /* ------------------------------------------------------------------------- */
 
 int rtc_get (struct rtc_time *tmp)
@@ -175,5 +173,3 @@ void rtc_set_watchdog(short multi, short res)
 	wd_value = RTC_WDS | ((multi & 0x1F) << 2) | (res & 0x3);
 	rtc_write(RTC_WATCHDOG, wd_value);
 }
-
-#endif

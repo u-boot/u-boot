@@ -8,7 +8,7 @@
 
 #include <config.h>
 
-.section .text
+.section .text.start
 .code64
 .globl _start
 .type _start, @function

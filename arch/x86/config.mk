@@ -23,6 +23,8 @@ endif
 
 ifeq ($(IS_32BIT),y)
 PLATFORM_CPPFLAGS += -march=i386 -m32
+# TODO: These break on x86_64; need to debug further
+PLATFORM_RELFLAGS += -fdata-sections
 else
 PLATFORM_CPPFLAGS += $(if $(CONFIG_SPL_BUILD),,-fpic) -fno-common -m64
 endif

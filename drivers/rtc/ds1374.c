@@ -18,8 +18,6 @@
 #include <rtc.h>
 #include <i2c.h>
 
-#if defined(CONFIG_CMD_DATE)
-
 /*---------------------------------------------------------------------*/
 #undef DEBUG_RTC
 #define DEBUG_RTC
@@ -214,4 +212,3 @@ static void rtc_write_raw (uchar reg, uchar val)
 {
 		i2c_reg_write (CONFIG_SYS_I2C_RTC_ADDR, reg, val);
 }
-#endif

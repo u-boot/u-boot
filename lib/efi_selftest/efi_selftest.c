@@ -8,9 +8,7 @@
 #include <efi_selftest.h>
 #include <vsprintf.h>
 
-/*
- * Constants for test step bitmap
- */
+/* Constants for test step bitmap */
 #define EFI_ST_SETUP	1
 #define EFI_ST_EXECUTE	2
 #define EFI_ST_TEARDOWN	4
@@ -26,7 +24,7 @@ static u16 reset_message[] = L"Selftest completed";
  *
  * The size of the memory map is determined.
  * Pool memory is allocated to copy the memory map.
- * The memory amp is copied and the map key is obtained.
+ * The memory map is copied and the map key is obtained.
  * The map key is used to exit the boot services.
  */
 void efi_st_exit_boot_services(void)
@@ -146,7 +144,7 @@ static int teardown(struct efi_unit_test *test, unsigned int *failures)
  * Check that a test exists.
  *
  * @testname:	name of the test
- * @return:	test
+ * @return:	test, or NULL if not found
  */
 static struct efi_unit_test *find_test(const u16 *testname)
 {
@@ -182,7 +180,7 @@ static void list_all_tests(void)
  *
  * @testname	name of a single selected test or NULL
  * @phase	test phase
- * @steps	steps to execute
+ * @steps	steps to execute (mask with bits from EFI_ST_...)
  * failures	returns EFI_ST_SUCCESS if all test steps succeeded
  */
 void efi_st_do_tests(const u16 *testname, unsigned int phase,
@@ -296,12 +294,12 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 	efi_st_printc(EFI_WHITE, "\nSummary: %u failures\n\n", failures);
 
 	/* Reset system */
-	efi_st_printf("Preparing for reset. Press any key.\n");
+	efi_st_printf("Preparing for reset. Press any key...\n");
 	efi_st_get_key();
 	runtime->reset_system(EFI_RESET_WARM, EFI_NOT_READY,
 			      sizeof(reset_message), reset_message);
 	efi_st_printf("\n");
-	efi_st_error("Reset failed.\n");
+	efi_st_error("Reset failed\n");
 
 	return EFI_UNSUPPORTED;
 }

@@ -35,16 +35,6 @@ LIST_HEAD(efi_events);
  */
 static bool efi_is_direct_boot = true;
 
-/*
- * EFI can pass arbitrary additional "tables" containing vendor specific
- * information to the payload. One such table is the FDT table which contains
- * a pointer to a flattened device tree blob.
- *
- * In most cases we want to pass an FDT to the payload, so reserve one slot of
- * config table space for it. The pointer gets populated by do_bootefi_exec().
- */
-static struct efi_configuration_table __efi_runtime_data efi_conf_table[16];
-
 #ifdef CONFIG_ARM
 /*
  * The "gd" pointer lives in a register on ARM and AArch64 that we declare
@@ -164,6 +154,18 @@ const char *__efi_nesting_dec(void)
 }
 
 /**
+ * efi_update_table_header_crc32() - Update CRC32 in table header
+ *
+ * @table:	EFI table
+ */
+static void efi_update_table_header_crc32(struct efi_table_hdr *table)
+{
+	table->crc32 = 0;
+	table->crc32 = crc32(0, (const unsigned char *)table,
+			     table->headersize);
+}
+
+/**
  * efi_queue_event() - queue an EFI event
  * @event:     event to signal
  * @check_tpl: check the TPL level
@@ -188,6 +190,25 @@ static void efi_queue_event(struct efi_event *event, bool check_tpl)
 						     event->notify_context));
 	}
 	event->is_queued = false;
+}
+
+/**
+ * is_valid_tpl() - check if the task priority level is valid
+ *
+ * @tpl:		TPL level to check
+ * ReturnValue:		status code
+ */
+efi_status_t is_valid_tpl(efi_uintn_t tpl)
+{
+	switch (tpl) {
+	case TPL_APPLICATION:
+	case TPL_CALLBACK:
+	case TPL_NOTIFY:
+	case TPL_HIGH_LEVEL:
+		return EFI_SUCCESS;
+	default:
+		return EFI_INVALID_PARAMETER;
+	}
 }
 
 /**
@@ -592,11 +613,21 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 	if (event == NULL)
 		return EFI_INVALID_PARAMETER;
 
-	if ((type & EVT_NOTIFY_SIGNAL) && (type & EVT_NOTIFY_WAIT))
+	switch (type) {
+	case 0:
+	case EVT_TIMER:
+	case EVT_NOTIFY_SIGNAL:
+	case EVT_TIMER | EVT_NOTIFY_SIGNAL:
+	case EVT_NOTIFY_WAIT:
+	case EVT_TIMER | EVT_NOTIFY_WAIT:
+	case EVT_SIGNAL_EXIT_BOOT_SERVICES:
+	case EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE:
+		break;
+	default:
 		return EFI_INVALID_PARAMETER;
+	}
 
-	if ((type & (EVT_NOTIFY_SIGNAL | EVT_NOTIFY_WAIT)) &&
-	    notify_function == NULL)
+	if (is_valid_tpl(notify_tpl) != EFI_SUCCESS)
 		return EFI_INVALID_PARAMETER;
 
 	evt = calloc(1, sizeof(struct efi_event));
@@ -1361,9 +1392,9 @@ static efi_status_t EFIAPI efi_locate_handle_ext(
  */
 static void efi_remove_configuration_table(int i)
 {
-	struct efi_configuration_table *this = &efi_conf_table[i];
-	struct efi_configuration_table *next = &efi_conf_table[i + 1];
-	struct efi_configuration_table *end = &efi_conf_table[systab.nr_tables];
+	struct efi_configuration_table *this = &systab.tables[i];
+	struct efi_configuration_table *next = &systab.tables[i + 1];
+	struct efi_configuration_table *end = &systab.tables[systab.nr_tables];
 
 	memmove(this, next, (ulong)end - (ulong)next);
 	systab.nr_tables--;
@@ -1391,9 +1422,9 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
 
 	/* Check for guid override */
 	for (i = 0; i < systab.nr_tables; i++) {
-		if (!guidcmp(guid, &efi_conf_table[i].guid)) {
+		if (!guidcmp(guid, &systab.tables[i].guid)) {
 			if (table)
-				efi_conf_table[i].table = table;
+				systab.tables[i].table = table;
 			else
 				efi_remove_configuration_table(i);
 			goto out;
@@ -1404,15 +1435,18 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
 		return EFI_NOT_FOUND;
 
 	/* No override, check for overflow */
-	if (i >= ARRAY_SIZE(efi_conf_table))
+	if (i >= EFI_MAX_CONFIGURATION_TABLES)
 		return EFI_OUT_OF_RESOURCES;
 
 	/* Add a new entry */
-	memcpy(&efi_conf_table[i].guid, guid, sizeof(*guid));
-	efi_conf_table[i].table = table;
+	memcpy(&systab.tables[i].guid, guid, sizeof(*guid));
+	systab.tables[i].table = table;
 	systab.nr_tables = i + 1;
 
 out:
+	/* systab.nr_tables may have changed. So we need to update the crc32 */
+	efi_update_table_header_crc32(&systab.hdr);
+
 	/* Notify that the configuration table was changed */
 	list_for_each_entry(evt, &efi_events, link) {
 		if (evt->group && !guidcmp(evt->group, guid)) {
@@ -1468,6 +1502,7 @@ efi_status_t efi_setup_loaded_image(
 	/* efi_exit() assumes that the handle points to the info */
 	obj->handle = info;
 
+	info->revision =  EFI_LOADED_IMAGE_PROTOCOL_REVISION;
 	info->file_path = file_path;
 
 	if (device_path) {
@@ -1825,6 +1860,10 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 
 	EFI_ENTRY("%p, %ld", image_handle, map_key);
 
+	/* Check that the caller has read the current memory map */
+	if (map_key != efi_memory_map_key)
+		return EFI_INVALID_PARAMETER;
+
 	/* Make sure that notification functions are not called anymore */
 	efi_tpl = TPL_HIGH_LEVEL;
 
@@ -1867,9 +1906,7 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 	systab.boottime = NULL;
 
 	/* Recalculate CRC32 */
-	systab.hdr.crc32 = 0;
-	systab.hdr.crc32 = crc32(0, (const unsigned char *)&systab,
-				 sizeof(struct efi_system_table));
+	efi_update_table_header_crc32(&systab.hdr);
 
 	/* Give the payload some time to boot */
 	efi_set_watchdog(0);
@@ -2302,7 +2339,7 @@ static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces(
 {
 	EFI_ENTRY("%p", handle);
 
-	va_list argptr;
+	efi_va_list argptr;
 	const efi_guid_t *protocol;
 	void *protocol_interface;
 	efi_status_t r = EFI_SUCCESS;
@@ -2311,12 +2348,12 @@ static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces(
 	if (!handle)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-	va_start(argptr, handle);
+	efi_va_start(argptr, handle);
 	for (;;) {
-		protocol = va_arg(argptr, efi_guid_t*);
+		protocol = efi_va_arg(argptr, efi_guid_t*);
 		if (!protocol)
 			break;
-		protocol_interface = va_arg(argptr, void*);
+		protocol_interface = efi_va_arg(argptr, void*);
 		r = EFI_CALL(efi_install_protocol_interface(
 						handle, protocol,
 						EFI_NATIVE_INTERFACE,
@@ -2325,19 +2362,19 @@ static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces(
 			break;
 		i++;
 	}
-	va_end(argptr);
+	efi_va_end(argptr);
 	if (r == EFI_SUCCESS)
 		return EFI_EXIT(r);
 
 	/* If an error occurred undo all changes. */
-	va_start(argptr, handle);
+	efi_va_start(argptr, handle);
 	for (; i; --i) {
-		protocol = va_arg(argptr, efi_guid_t*);
-		protocol_interface = va_arg(argptr, void*);
+		protocol = efi_va_arg(argptr, efi_guid_t*);
+		protocol_interface = efi_va_arg(argptr, void*);
 		EFI_CALL(efi_uninstall_protocol_interface(handle, protocol,
 							  protocol_interface));
 	}
-	va_end(argptr);
+	efi_va_end(argptr);
 
 	return EFI_EXIT(r);
 }
@@ -2361,7 +2398,7 @@ static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
 {
 	EFI_ENTRY("%p", handle);
 
-	va_list argptr;
+	efi_va_list argptr;
 	const efi_guid_t *protocol;
 	void *protocol_interface;
 	efi_status_t r = EFI_SUCCESS;
@@ -2370,12 +2407,12 @@ static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
 	if (!handle)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-	va_start(argptr, handle);
+	efi_va_start(argptr, handle);
 	for (;;) {
-		protocol = va_arg(argptr, efi_guid_t*);
+		protocol = efi_va_arg(argptr, efi_guid_t*);
 		if (!protocol)
 			break;
-		protocol_interface = va_arg(argptr, void*);
+		protocol_interface = efi_va_arg(argptr, void*);
 		r = EFI_CALL(efi_uninstall_protocol_interface(
 						handle, protocol,
 						protocol_interface));
@@ -2383,20 +2420,20 @@ static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
 			break;
 		i++;
 	}
-	va_end(argptr);
+	efi_va_end(argptr);
 	if (r == EFI_SUCCESS)
 		return EFI_EXIT(r);
 
 	/* If an error occurred undo all changes. */
-	va_start(argptr, handle);
+	efi_va_start(argptr, handle);
 	for (; i; --i) {
-		protocol = va_arg(argptr, efi_guid_t*);
-		protocol_interface = va_arg(argptr, void*);
+		protocol = efi_va_arg(argptr, efi_guid_t*);
+		protocol_interface = efi_va_arg(argptr, void*);
 		EFI_CALL(efi_install_protocol_interface(&handle, protocol,
 							EFI_NATIVE_INTERFACE,
 							protocol_interface));
 	}
-	va_end(argptr);
+	efi_va_end(argptr);
 
 	return EFI_EXIT(r);
 }
@@ -2414,11 +2451,11 @@ static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_calculate_crc32(void *data,
-					       unsigned long data_size,
-					       uint32_t *crc32_p)
+static efi_status_t EFIAPI efi_calculate_crc32(const void *data,
+					       efi_uintn_t data_size,
+					       u32 *crc32_p)
 {
-	EFI_ENTRY("%p, %ld", data, data_size);
+	EFI_ENTRY("%p, %zu", data, data_size);
 	*crc32_p = crc32(0, data, data_size);
 	return EFI_EXIT(EFI_SUCCESS);
 }
@@ -3022,9 +3059,11 @@ out:
 	return EFI_EXIT(r);
 }
 
-static const struct efi_boot_services efi_boot_services = {
+static struct efi_boot_services efi_boot_services = {
 	.hdr = {
-		.headersize = sizeof(struct efi_table_hdr),
+		.signature = EFI_BOOT_SERVICES_SIGNATURE,
+		.revision = EFI_SPECIFICATION_VERSION,
+		.headersize = sizeof(struct efi_boot_services),
 	},
 	.raise_tpl = efi_raise_tpl,
 	.restore_tpl = efi_restore_tpl,
@@ -3074,20 +3113,44 @@ static const struct efi_boot_services efi_boot_services = {
 	.create_event_ex = efi_create_event_ex,
 };
 
-static uint16_t __efi_runtime_data firmware_vendor[] = L"Das U-Boot";
+static u16 __efi_runtime_data firmware_vendor[] = L"Das U-Boot";
 
 struct efi_system_table __efi_runtime_data systab = {
 	.hdr = {
 		.signature = EFI_SYSTEM_TABLE_SIGNATURE,
-		.revision = 2 << 16 | 70, /* 2.7 */
-		.headersize = sizeof(struct efi_table_hdr),
+		.revision = EFI_SPECIFICATION_VERSION,
+		.headersize = sizeof(struct efi_system_table),
 	},
-	.fw_vendor = (long)firmware_vendor,
+	.fw_vendor = firmware_vendor,
+	.fw_revision = FW_VERSION << 16 | FW_PATCHLEVEL << 8,
 	.con_in = (void *)&efi_con_in,
 	.con_out = (void *)&efi_con_out,
 	.std_err = (void *)&efi_con_out,
 	.runtime = (void *)&efi_runtime_services,
 	.boottime = (void *)&efi_boot_services,
 	.nr_tables = 0,
-	.tables = (void *)efi_conf_table,
+	.tables = NULL,
 };
+
+/**
+ * efi_initialize_system_table() - Initialize system table
+ *
+ * Return Value:        status code
+ */
+efi_status_t efi_initialize_system_table(void)
+{
+	efi_status_t ret;
+
+	/* Allocate configuration table array */
+	ret = efi_allocate_pool(EFI_RUNTIME_SERVICES_DATA,
+				EFI_MAX_CONFIGURATION_TABLES *
+				sizeof(struct efi_configuration_table),
+				(void **)&systab.tables);
+
+	/* Set crc32 field in table headers */
+	efi_update_table_header_crc32(&systab.hdr);
+	efi_update_table_header_crc32(&efi_runtime_services.hdr);
+	efi_update_table_header_crc32(&efi_boot_services.hdr);
+
+	return ret;
+}

@@ -29,8 +29,16 @@
  */
 #ifdef __x86_64__
 #define EFIAPI __attribute__((ms_abi))
+#define efi_va_list __builtin_ms_va_list
+#define efi_va_start __builtin_ms_va_start
+#define efi_va_arg __builtin_va_arg
+#define efi_va_end __builtin_ms_va_end
 #else
 #define EFIAPI asmlinkage
+#define efi_va_list va_list
+#define efi_va_start va_start
+#define efi_va_arg va_arg
+#define efi_va_end va_end
 #endif /* __x86_64__ */
 
 struct efi_device_path;

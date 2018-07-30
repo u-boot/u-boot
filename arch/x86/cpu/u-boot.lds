@@ -17,6 +17,23 @@ SECTIONS
 
 	. = CONFIG_SYS_TEXT_BASE;	/* Location of bootcode in flash */
 	__text_start = .;
+
+	.text.start : { *(.text.start); }
+
+	.__efi_runtime_start : {
+		*(.__efi_runtime_start)
+	}
+
+	.efi_runtime : {
+		*(.text.efi_runtime*)
+		*(.rodata.efi_runtime*)
+		*(.data.efi_runtime*)
+	}
+
+	.__efi_runtime_stop : {
+		*(.__efi_runtime_stop)
+	}
+
 	.text  : { *(.text*); }
 
 	. = ALIGN(4);
@@ -43,27 +60,14 @@ SECTIONS
 
 	. = ALIGN(4);
 
-	.__efi_runtime_start : {
-		*(.__efi_runtime_start)
-	}
-
-	.efi_runtime : {
-		*(efi_runtime_text)
-		*(efi_runtime_data)
-	}
-
-	.__efi_runtime_stop : {
-		*(.__efi_runtime_stop)
-	}
-
 	.efi_runtime_rel_start :
 	{
 		*(.__efi_runtime_rel_start)
 	}
 
 	.efi_runtime_rel : {
-		*(.relefi_runtime_text)
-		*(.relefi_runtime_data)
+		*(.rel*.efi_runtime)
+		*(.rel*.efi_runtime.*)
 	}
 
 	.efi_runtime_rel_stop :

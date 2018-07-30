@@ -21,6 +21,9 @@
 #include <asm/setjmp.h>
 #endif
 
+/* UEFI spec version 2.7 */
+#define EFI_SPECIFICATION_VERSION (2 << 16 | 70)
+
 /* Types and defines for EFI CreateEvent */
 enum efi_timer_delay {
 	EFI_TIMER_STOP = 0,
@@ -46,6 +49,7 @@ typedef uint16_t *efi_string_t;
 struct efi_event;
 
 /* EFI Boot Services table */
+#define EFI_BOOT_SERVICES_SIGNATURE 0x56524553544f4f42
 struct efi_boot_services {
 	struct efi_table_hdr hdr;
 	efi_status_t (EFIAPI *raise_tpl)(efi_uintn_t new_tpl);
@@ -161,8 +165,9 @@ struct efi_boot_services {
 			void **handle, ...);
 	efi_status_t (EFIAPI *uninstall_multiple_protocol_interfaces)(
 			void *handle, ...);
-	efi_status_t (EFIAPI *calculate_crc32)(void *data,
-			unsigned long data_size, uint32_t *crc32);
+	efi_status_t (EFIAPI *calculate_crc32)(const void *data,
+					       efi_uintn_t data_size,
+					       u32 *crc32);
 	void (EFIAPI *copy_mem)(void *destination, const void *source,
 			size_t length);
 	void (EFIAPI *set_mem)(void *buffer, size_t size, uint8_t value);
@@ -185,8 +190,7 @@ enum efi_reset_type {
 };
 
 /* EFI Runtime Services table */
-#define EFI_RUNTIME_SERVICES_SIGNATURE	0x5652453544e5552ULL
-#define EFI_RUNTIME_SERVICES_REVISION	0x00010000
+#define EFI_RUNTIME_SERVICES_SIGNATURE	0x56524553544e5552ULL
 
 #define CAPSULE_FLAGS_PERSIST_ACROSS_RESET	0x00010000
 #define CAPSULE_FLAGS_POPULATE_SYSTEM_TABLE	0x00020000
@@ -300,7 +304,7 @@ struct efi_configuration_table
 
 struct efi_system_table {
 	struct efi_table_hdr hdr;
-	unsigned long fw_vendor;   /* physical addr of wchar_t vendor string */
+	u16 *fw_vendor;   /* physical addr of wchar_t vendor string */
 	u32 fw_revision;
 	efi_handle_t con_in_handle;
 	struct efi_simple_input_interface *con_in;
@@ -317,6 +321,8 @@ struct efi_system_table {
 #define LOADED_IMAGE_GUID \
 	EFI_GUID(0x5b1b31a1, 0x9562, 0x11d2, \
 		 0x8e, 0x3f, 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
+
+#define EFI_LOADED_IMAGE_PROTOCOL_REVISION 0x1000
 
 struct efi_loaded_image {
 	u32 revision;
