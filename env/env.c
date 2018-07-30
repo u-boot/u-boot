@@ -186,14 +186,18 @@ int env_load(void)
 			continue;
 
 		printf("Loading Environment from %s... ", drv->name);
+		/*
+		 * In error case, the error message must be printed during
+		 * drv->load() in some underlying API, and it must be exactly
+		 * one message.
+		 */
 		ret = drv->load();
-		if (ret)
-			printf("Failed (%d)\n", ret);
-		else
+		if (ret) {
+			debug("Failed (%d)\n", ret);
+		} else {
 			printf("OK\n");
-
-		if (!ret)
 			return 0;
+		}
 	}
 
 	/*
