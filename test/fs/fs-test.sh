@@ -12,13 +12,13 @@
 # fs-test.fs.ext4.out: Summary: PASS: 24 FAIL: 0
 # FAT16 tests:
 # fs-test.sb.fat16.out: Summary: PASS: 24 FAIL: 0
-# fs-test.fat16.out: Summary: PASS: 21 FAIL: 3
-# fs-test.fs.fat16.out: Summary: PASS: 21 FAIL: 3
+# fs-test.fat16.out: Summary: PASS: 20 FAIL: 4
+# fs-test.fs.fat16.out: Summary: PASS: 20 FAIL: 4
 # FAT32 tests:
 # fs-test.sb.fat32.out: Summary: PASS: 24 FAIL: 0
-# fs-test.fat32.out: Summary: PASS: 21 FAIL: 3
-# fs-test.fs.fat32.out: Summary: PASS: 21 FAIL: 3
-# Total Summary: TOTAL PASS: 204 TOTAL FAIL: 12
+# fs-test.fat32.out: Summary: PASS: 20 FAIL: 4
+# fs-test.fs.fat32.out: Summary: PASS: 20 FAIL: 4
+# Total Summary: TOTAL PASS: 200 TOTAL FAIL: 16
 
 # pre-requisite binaries list.
 PREREQ_BINS="md5sum mkfs mount umount dd fallocate mkdir"
