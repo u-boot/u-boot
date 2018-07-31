@@ -4,3 +4,8 @@ S:	Maintained
 F:	board/technexion/pico-imx7d/
 F:	include/configs/pico-imx7d.h
 F:	configs/pico-imx7d_defconfig
+
+Technexion PICO-PI-IMX7
+M:	Otavio Salvador <otavio@ossystems.com.br>
+S:	Maintained
+F:	configs/pico-pi-imx7d_defconfig
