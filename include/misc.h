@@ -60,6 +60,23 @@ int misc_call(struct udevice *dev, int msgid, void *tx_msg, int tx_size,
 	      void *rx_msg, int rx_size);
 
 /**
+ * misc_set_enabled() - Enable or disable a device.
+ * @dev: the device to enable or disable.
+ * @val: the flag that tells the driver to either enable or disable the device.
+ *
+ * The semantics of "disable" and "enable" should be understood here as
+ * activating or deactivating the device's primary function, hence a "disabled"
+ * device should be dormant, but still answer to commands and queries.
+ *
+ * A probed device may start in a disabled or enabled state, depending on the
+ * driver and hardware.
+ *
+ * Return: -ve on error, 0 if the previous state was "disabled", 1 if the
+ *	   previous state was "enabled"
+ */
+int misc_set_enabled(struct udevice *dev, bool val);
+
+/*
  * struct misc_ops - Driver model Misc operations
  *
  * The uclass interface is implemented by all miscellaneous devices which
@@ -112,6 +129,16 @@ struct misc_ops {
 	 */
 	int (*call)(struct udevice *dev, int msgid, void *tx_msg, int tx_size,
 		    void *rx_msg, int rx_size);
+	/**
+	 * Enable or disable a device, optional.
+	 * @dev: the device to enable.
+	 * @val: the flag that tells the driver to either enable or disable the
+	 *	 device.
+	 *
+	 * Return: -ve on error, 0 if the previous state was "disabled", 1 if
+	 *	   the previous state was "enabled"
+	 */
+	int (*set_enabled)(struct udevice *dev, bool val);
 };
 
 #endif	/* _MISC_H_ */
