@@ -277,4 +277,10 @@ config GDSYS_RXAUI_CTRL
 	depends on MISC
 	help
 	  Support gdsys FPGA's RXAUI control.
+
+config GDSYS_IOEP
+	bool "Enable gdsys IOEP driver"
+	depends on MISC
+	help
+	  Support gdsys FPGA's IO endpoint driver.
 endmenu
