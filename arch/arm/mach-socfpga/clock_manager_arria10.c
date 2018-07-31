@@ -17,10 +17,6 @@ static const struct socfpga_clock_manager *clock_manager_base =
 static u32 eosc1_hz;
 static u32 cb_intosc_hz;
 static u32 f2s_free_hz;
-static u32 cm_l4_main_clk_hz;
-static u32 cm_l4_sp_clk_hz;
-static u32 cm_l4_mp_clk_hz;
-static u32 cm_l4_sys_free_clk_hz;
 
 struct mainpll_cfg {
 	u32 vco0_psrc;
@@ -965,18 +961,7 @@ int cm_basic_init(const void *blob)
 	if (rval)
 		return rval;
 
-	rval =  cm_full_cfg(&main_cfg, &per_cfg);
-
-	cm_l4_main_clk_hz =
-		cm_get_l4_noc_hz(CLKMGR_MAINPLL_NOCDIV_L4MAINCLK_LSB);
-
-	cm_l4_mp_clk_hz = cm_get_l4_noc_hz(CLKMGR_MAINPLL_NOCDIV_L4MPCLK_LSB);
-
-	cm_l4_sp_clk_hz = cm_get_l4_sp_clk_hz();
-
-	cm_l4_sys_free_clk_hz = cm_get_noc_clk_hz() / 4;
-
-	return rval;
+	return cm_full_cfg(&main_cfg, &per_cfg);
 }
 
 unsigned long cm_get_mpu_clk_hz(void)
@@ -1173,5 +1158,5 @@ void cm_print_clock_quick_summary(void)
 	printf("L4 MP       %8d kHz\n",
 	       cm_get_l4_noc_hz(CLKMGR_MAINPLL_NOCDIV_L4MPCLK_LSB) / 1000);
 	printf("L4 SP       %8d kHz\n", cm_get_l4_sp_clk_hz() / 1000);
-	printf("L4 sys free %8d kHz\n", cm_l4_sys_free_clk_hz / 1000);
+	printf("L4 sys free %8d kHz\n", cm_get_noc_clk_hz() / 4000);
 }
