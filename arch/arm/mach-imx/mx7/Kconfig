@@ -43,6 +43,7 @@ config TARGET_PICO_IMX7D
 	select DM_THERMAL
 	select MX7D
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_WARP7
 	bool "warp7"
@@ -50,7 +51,6 @@ config TARGET_WARP7
 	select DM
 	select DM_THERMAL
 	select MX7D
-	imply CMD_DM
 	imply CMD_DM
 
 config TARGET_COLIBRI_IMX7
