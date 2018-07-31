@@ -71,11 +71,6 @@ unsigned packet_received, packet_sent;
  * RNDIS specs are ambiguous and appear to be incomplete, and are also
  * needlessly complex.  They borrow more from CDC ACM than CDC ECM.
  */
-#define ETH_ALEN	6		/* Octets in one ethernet addr	 */
-#define ETH_HLEN	14		/* Total octets in header.	 */
-#define ETH_ZLEN	60		/* Min. octets in frame sans FCS */
-#define ETH_DATA_LEN	1500		/* Max. octets in payload	 */
-#define ETH_FRAME_LEN	PKTSIZE_ALIGN	/* Max. octets in frame sans FCS */
 
 #define DRIVER_DESC		"Ethernet Gadget"
 /* Based on linux 2.6.27 version */
@@ -529,7 +524,7 @@ static const struct usb_cdc_ether_desc ether_desc = {
 	/* this descriptor actually adds value, surprise! */
 	.iMACAddress =		STRING_ETHADDR,
 	.bmEthernetStatistics = __constant_cpu_to_le32(0), /* no statistics */
-	.wMaxSegmentSize =	__constant_cpu_to_le16(ETH_FRAME_LEN),
+	.wMaxSegmentSize =	__constant_cpu_to_le16(PKTSIZE_ALIGN),
 	.wNumberMCFilters =	__constant_cpu_to_le16(0),
 	.bNumberPowerFilters =	0,
 };
@@ -1575,7 +1570,7 @@ static void rx_complete(struct usb_ep *ep, struct usb_request *req)
 			req->length -= length;
 			req->actual -= length;
 		}
-		if (req->actual < ETH_HLEN || ETH_FRAME_LEN < req->actual) {
+		if (req->actual < ETH_HLEN || PKTSIZE_ALIGN < req->actual) {
 length_err:
 			dev->stats.rx_errors++;
 			dev->stats.rx_length_errors++;

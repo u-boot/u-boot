@@ -80,10 +80,6 @@
 
 #define RTL_TIMEOUT	100000
 
-#define ETH_FRAME_LEN		1514
-#define ETH_ALEN		6
-#define ETH_ZLEN		60
-
 /* PCI Tuning Parameters
    Threshold is bytes transferred to chip before transmission starts. */
 #define TX_FIFO_THRESH 256	/* In bytes, rounded down to 32 byte units. */

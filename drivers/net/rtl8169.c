@@ -102,10 +102,6 @@ static int media[MAX_UNITS] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 #define RTL_R16(reg)		readw(ioaddr + (reg))
 #define RTL_R32(reg)		readl(ioaddr + (reg))
 
-#define ETH_FRAME_LEN	MAX_ETH_FRAME_SIZE
-#define ETH_ALEN	MAC_ADDR_LEN
-#define ETH_ZLEN	60
-
 #define bus_to_phys(a)	pci_mem_to_phys((pci_dev_t)(unsigned long)dev->priv, \
 	(pci_addr_t)(unsigned long)a)
 #define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)(unsigned long)dev->priv, \

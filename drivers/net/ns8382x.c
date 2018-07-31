@@ -59,7 +59,6 @@
 
 /* defines */
 #define DSIZE     0x00000FFF
-#define ETH_ALEN		6
 #define CRC_SIZE  4
 #define TOUT_LOOP   500000
 #define TX_BUF_SIZE    1536

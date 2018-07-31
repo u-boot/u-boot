@@ -35,8 +35,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define ETH_ALEN	6		/* Octets in one ethernet addr	*/
-
 #define __verify_pcpu_ptr(ptr)						\
 do {									\
 	const void __percpu *__vpp_verify = (typeof((ptr) + 0))NULL;	\
@@ -58,7 +56,6 @@ do {									\
 #define NET_SKB_PAD	max(32, MVPP2_CPU_D_CACHE_LINE_SIZE)
 
 #define CONFIG_NR_CPUS		1
-#define ETH_HLEN		ETHER_HDR_SIZE	/* Total octets in header */
 
 /* 2(HW hdr) 14(MAC hdr) 4(CRC) 32(extra for cache prefetch) */
 #define WRAP			(2 + ETH_HLEN + 4 + 32)

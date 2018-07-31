@@ -193,8 +193,6 @@ struct descriptor {			/* A generic descriptor. */
 
 #define TOUT_LOOP		1000000
 
-#define ETH_ALEN		6
-
 static struct RxFD rx_ring[NUM_RX_DESC];	/* RX descriptor ring	      */
 static struct TxFD tx_ring[NUM_TX_DESC];	/* TX descriptor ring	      */
 static int rx_next;			/* RX descriptor ring pointer */
