@@ -155,4 +155,24 @@
 #define ETH_P_MAP	0x00F9	/* Qualcomm multiplexing and    */
 				/* aggregation protocol         */
 
+/* The following macros come from Linux kernel include/linux/if_vlan.h */
+
+#define VLAN_HLEN	4	/* The additional bytes required by VLAN */
+				/* (in addition to the Ethernet header)  */
+#define VLAN_ETH_HLEN	18	/* Total octets in header.               */
+#define VLAN_ETH_ZLEN	64	/* Min. octets in frame sans FCS         */
+
+/*
+ * According to 802.3ac, the packet can be 4 bytes longer. --Klika Jan
+ */
+#define VLAN_ETH_DATA_LEN	1500	/* Max. octets in payload        */
+#define VLAN_ETH_FRAME_LEN	1518	/* Max. octets in frame sans FCS */
+
+#define VLAN_PRIO_MASK		0xe000	/* Priority Code Point           */
+#define VLAN_PRIO_SHIFT		13
+#define VLAN_CFI_MASK		0x1000	/* Canonical Format Indicator    */
+#define VLAN_TAG_PRESENT	VLAN_CFI_MASK
+#define VLAN_VID_MASK		0x0fff	/* VLAN Identifier               */
+#define VLAN_N_VID		4096
+
 #endif /* _UAPI_LINUX_IF_ETHER_H */
