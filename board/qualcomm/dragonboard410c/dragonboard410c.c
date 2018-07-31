@@ -10,6 +10,7 @@
 #include <usb.h>
 #include <asm/gpio.h>
 #include <fdt_support.h>
+#include <asm/arch/dram.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -179,6 +180,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 			do_fixup_by_compat(blob, fix[i].compatible,
 					   fix[i].property, mac, ARP_HLEN, 1);
 	}
+
+	msm_fixup_memory(blob);
 
 	return 0;
 }
