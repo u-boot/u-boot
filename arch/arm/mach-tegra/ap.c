@@ -155,8 +155,13 @@ static void init_pmc_scratch(void)
 	int i;
 
 	/* SCRATCH0 is initialized by the boot ROM and shouldn't be cleared */
-	for (i = 0; i < 23; i++)
-		writel(0, &pmc->pmc_scratch1+i);
+#if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
+	if (!tegra_cpu_is_non_secure())
+#endif
+	{
+		for (i = 0; i < 23; i++)
+			writel(0, &pmc->pmc_scratch1 + i);
+	}
 
 	/* ODMDATA is for kernel use to determine RAM size, LP config, etc. */
 	odmdata = get_odmdata();
