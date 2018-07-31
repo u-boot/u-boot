@@ -642,6 +642,10 @@
 			};
 		};
 	};
+
+	board {
+		compatible = "sandbox,board_sandbox";
+	};
 };
 
 #include "sandbox_pmic.dtsi"

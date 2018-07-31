@@ -10,8 +10,13 @@ if BOARD
 
 
 config BOARD_GAZERBEAM
-	bool "Enable device information for the Gazerbeam board"
+	bool "Enable board driver for the Gazerbeam board"
 	help
 	  Support querying device information for the gdsys Gazerbeam board.
+
+config BOARD_SANDBOX
+	bool "Enable board driver for the Sandbox board"
+	help
+	  Support querying device information for the Sandbox boards.
 
 endif
