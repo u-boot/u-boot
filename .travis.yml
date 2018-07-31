@@ -195,7 +195,7 @@ matrix:
         - BUILDMAN="sandbox x86"
           TOOLCHAIN="x86_64"
     - env:
-        - BUILDMAN="kirkwood"
+        - BUILDMAN="kirkwood -x openrd"
     - env:
         - BUILDMAN="mvebu"
     - env:
