@@ -39,7 +39,7 @@ ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SANDBOX) += spltest_sandbox.o
 endif
 endif
-obj-$(CONFIG_SANDBOX) += syscon_sandbox.o
+obj-$(CONFIG_SANDBOX) += syscon_sandbox.o misc_sandbox.o
 obj-$(CONFIG_TEGRA_CAR) += tegra_car.o
 obj-$(CONFIG_TEGRA186_BPMP) += tegra186_bpmp.o
 obj-$(CONFIG_TWL4030_LED) += twl4030_led.o

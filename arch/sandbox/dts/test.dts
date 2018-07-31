@@ -285,6 +285,10 @@
 		mbox-names = "other", "test";
 	};
 
+	misc-test {
+		compatible = "sandbox,misc_sandbox";
+	};
+
 	mmc2 {
 		compatible = "sandbox,mmc";
 	};
