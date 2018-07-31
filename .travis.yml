@@ -153,7 +153,7 @@ matrix:
         - BUILDMAN="arm11 arm7 arm920t arm946es"
     - env:
         - JOB="arm926ejs"
-          BUILDMAN="arm926ejs -x mx,siemens,atmel"
+          BUILDMAN="arm926ejs -x mx,siemens,atmel,kirkwood"
     - env:
         - BUILDMAN="atmel"
     - env:
