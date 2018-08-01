@@ -46,6 +46,10 @@ class Entry_section(Entry):
         self.size = self._section.GetSize()
         return super(Entry_section, self).Pack(offset)
 
+    def SetImagePos(self, image_pos):
+        Entry.SetImagePos(self, image_pos)
+        self._section.SetImagePos(image_pos + self.offset)
+
     def WriteSymbols(self, section):
         """Write symbol values into binary files for access at run time"""
         self._section.WriteSymbols()

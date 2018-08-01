@@ -34,7 +34,7 @@ DECLARE_GLOBAL_DATA_PTR;
 u32 *boot_params_ptr = NULL;
 
 /* See spl.h for information about this */
-binman_sym_declare(ulong, u_boot_any, offset);
+binman_sym_declare(ulong, u_boot_any, image_pos);
 
 /* Define board data structure */
 static bd_t bdata __attribute__ ((section(".data")));
@@ -129,7 +129,7 @@ __weak void spl_board_prepare_for_boot(void)
 
 void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 {
-	ulong u_boot_pos = binman_sym(ulong, u_boot_any, offset);
+	ulong u_boot_pos = binman_sym(ulong, u_boot_any, image_pos);
 
 	spl_image->size = CONFIG_SYS_MONITOR_LEN;
 

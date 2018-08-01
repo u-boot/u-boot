@@ -324,6 +324,12 @@ offset-unset:
 	property is present, binman will give an error if another entry does
 	not set the offset (with the GetOffsets() method).
 
+image-pos:
+	This cannot be set on entry (or at least it is ignored if it is), but
+	with the -u option, binman will set it to the absolute image position
+	for each entry. This makes it easy to find out exactly where the entry
+	ended up in the image, regardless of parent sections, etc.
+
 
 The attributes supported for images are described below. Several are similar
 to those for entries.
@@ -550,8 +556,8 @@ the 'warning' line in scripts/Makefile.lib to see what it has found:
    # u_boot_dtsi_options_debug = $(u_boot_dtsi_options_raw)
 
 
-Access to binman entry offsets at run time
-------------------------------------------
+Access to binman entry offsets at run time (symbols)
+----------------------------------------------------
 
 Binman assembles images and determines where each entry is placed in the image.
 This information may be useful to U-Boot at run time. For example, in SPL it
@@ -575,6 +581,18 @@ that address to start U-Boot.
 
 At present this feature is only supported in SPL. In principle it is possible
 to fill in such symbols in U-Boot proper, as well.
+
+
+Access to binman entry offsets at run time (fdt)
+------------------------------------------------
+
+Binman can update the U-Boot FDT to include the final position and size of
+each entry in the images it processes. The option to enable this is -u and it
+causes binman to make sure that the 'offset', 'image-pos' and 'size' properties
+are set correctly for every entry. Since it is not necessary to specify these in
+the image definition, binman calculates the final values and writes these to
+the device tree. These can be used by U-Boot at run-time to find the location
+of each entry.
 
 
 Map files

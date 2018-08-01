@@ -96,6 +96,9 @@ class Image:
     def SetCalculatedProperties(self):
         self._section.SetCalculatedProperties()
 
+    def SetImagePos(self):
+        self._section.SetImagePos(0)
+
     def ProcessEntryContents(self):
         """Call the ProcessContents() method for each entry
 

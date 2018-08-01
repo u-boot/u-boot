@@ -96,7 +96,7 @@ class Section(object):
 
     def AddMissingProperties(self):
         """Add new properties to the device tree as needed for this entry"""
-        for prop in ['offset', 'size']:
+        for prop in ['offset', 'size', 'image-pos']:
             if not prop in self._node.props:
                 self._node.AddZeroProp(prop)
         for entry in self._entries.values():
@@ -105,6 +105,7 @@ class Section(object):
     def SetCalculatedProperties(self):
         self._node.SetInt('offset', self._offset)
         self._node.SetInt('size', self._size)
+        self._node.SetInt('image-pos', self._image_pos)
         for entry in self._entries.values():
             entry.SetCalculatedProperties()
 
@@ -260,6 +261,11 @@ class Section(object):
             offset = entry.offset + entry.size
             prev_name = entry.GetPath()
 
+    def SetImagePos(self, image_pos):
+        self._image_pos = image_pos
+        for entry in self._entries.values():
+            entry.SetImagePos(image_pos)
+
     def ProcessEntryContents(self):
         """Call the ProcessContents() method for each entry
 
@@ -341,6 +347,8 @@ class Section(object):
             raise ValueError(err)
         if prop_name == 'offset':
             return entry.offset
+        elif prop_name == 'image_pos':
+            return entry.image_pos
         else:
             raise ValueError("%s: No such property '%s'" % (msg, prop_name))
 

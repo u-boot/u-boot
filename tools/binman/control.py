@@ -161,6 +161,7 @@ def Binman(options, args):
                 image.PackEntries()
                 image.CheckSize()
                 image.CheckEntries()
+                image.SetImagePos()
                 if options.update_fdt:
                     image.SetCalculatedProperties()
                 image.ProcessEntryContents()

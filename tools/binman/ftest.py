@@ -1051,23 +1051,30 @@ class TestFunctional(unittest.TestCase):
         """Test that we can update the device tree with offset/size info"""
         _, _, _, out_dtb_fname = self._DoReadFileDtb('60_fdt_update.dts',
                                                      update_dtb=True)
-        props = self._GetPropTree(out_dtb_fname, ['offset', 'size'])
+        props = self._GetPropTree(out_dtb_fname, ['offset', 'size',
+                                                  'image-pos'])
         with open('/tmp/x.dtb', 'wb') as outf:
             with open(out_dtb_fname) as inf:
                 outf.write(inf.read())
         self.assertEqual({
+            'image-pos': 0,
             'offset': 0,
             '_testing:offset': 32,
             '_testing:size': 1,
+            '_testing:image-pos': 32,
             'section@0/u-boot:offset': 0,
             'section@0/u-boot:size': len(U_BOOT_DATA),
+            'section@0/u-boot:image-pos': 0,
             'section@0:offset': 0,
             'section@0:size': 16,
+            'section@0:image-pos': 0,
 
             'section@1/u-boot:offset': 0,
             'section@1/u-boot:size': len(U_BOOT_DATA),
+            'section@1/u-boot:image-pos': 16,
             'section@1:offset': 16,
             'section@1:size': 16,
+            'section@1:image-pos': 16,
             'size': 40
         }, props)
 

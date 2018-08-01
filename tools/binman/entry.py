@@ -64,6 +64,7 @@ class Entry(object):
         self.pad_before = 0
         self.pad_after = 0
         self.offset_unset = False
+        self.image_pos = None
         if read_node:
             self.ReadNode()
 
@@ -133,7 +134,7 @@ class Entry(object):
 
     def AddMissingProperties(self):
         """Add new properties to the device tree as needed for this entry"""
-        for prop in ['offset', 'size']:
+        for prop in ['offset', 'size', 'image-pos']:
             if not prop in self._node.props:
                 self._node.AddZeroProp(prop)
 
@@ -141,6 +142,7 @@ class Entry(object):
         """Set the value of device-tree properties calculated by binman"""
         self._node.SetInt('offset', self.offset)
         self._node.SetInt('size', self.size)
+        self._node.SetInt('image-pos', self.image_pos)
 
     def ProcessFdt(self, fdt):
         return True
@@ -264,6 +266,14 @@ class Entry(object):
     def SetOffsetSize(self, pos, size):
         self.offset = pos
         self.size = size
+
+    def SetImagePos(self, image_pos):
+        """Set the position in the image
+
+        Args:
+            image_pos: Position of this entry in the image
+        """
+        self.image_pos = image_pos + self.offset
 
     def ProcessContents(self):
         pass
