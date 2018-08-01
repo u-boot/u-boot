@@ -82,6 +82,12 @@ Useful notes on bulding and using of U-Boot on ARC HS Development Kit (AKA HSDK)
       be put on the first FAT partition of micro SD-card to be inserted in the
       HSDK board.
 
+      Note that Python3 script is used for generation of a header, thus
+      to get that done it's required to have Python3 with elftools installed.
+      On CentOS/RHEL/Fedora this could be installed with:
+      ------------------------->8----------------------
+      sudo dnf install python3-pyelftools
+      ------------------------->8----------------------
 
    EXECUTING U-BOOT
 
@@ -104,8 +110,8 @@ Useful notes on bulding and using of U-Boot on ARC HS Development Kit (AKA HSDK)
    1. Create `u-boot.head` and `u-boot-update.scr` as discribed above with
       `make bsp-generate` command.
 
-   2. Copy `u-boot.head` and `u-boot-update.scr` to the first the first FAT
-      partition of micro SD-card.
+   2. Copy `u-boot.head` and `u-boot-update.scr` to the first FAT partition
+      of micro SD-card.
 
    3. Connect USB cable from the HSDK board to the developemnt host and
       fire-up serial terminal.

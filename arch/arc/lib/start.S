@@ -61,6 +61,15 @@ ENTRY(_start)
 1:
 #endif
 
+#ifdef __ARC_UNALIGNED__
+	/*
+	 * Enable handling of unaligned access in the CPU as by default
+	 * this HW feature is disabled while GCC starting from 8.1.0
+	 * unconditionally uses it for ARC HS cores.
+	 */
+	flag	1 << STATUS_AD_BIT
+#endif
+
 	/* Establish C runtime stack and frame */
 	mov	%sp, CONFIG_SYS_INIT_SP_ADDR
 	mov	%fp, %sp
