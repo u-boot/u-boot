@@ -88,6 +88,7 @@
 enum ceva_soc {
 	CEVA_1V84,
 	CEVA_LS1012A,
+	CEVA_LS1043A,
 };
 
 struct ceva_sata_priv {
@@ -114,6 +115,7 @@ static int ceva_init_sata(struct ceva_sata_priv *priv)
 		break;
 
 	case CEVA_LS1012A:
+	case CEVA_LS1043A:
 		writel(ECC_DIS_ADDR_CH2, ECC_DIS_VAL_CH2);
 		writel(CEVA_PHY1_CFG, base + AHCI_VEND_PPCFG);
 		writel(CEVA_TRANS_CFG, base + AHCI_VEND_PTC);
@@ -144,6 +146,7 @@ static int sata_ceva_probe(struct udevice *dev)
 static const struct udevice_id sata_ceva_ids[] = {
 	{ .compatible = "ceva,ahci-1v84", .data = CEVA_1V84 },
 	{ .compatible = "fsl,ls1012a-ahci", .data = CEVA_LS1012A },
+	{ .compatible = "fsl,ls1043a-ahci", .data = CEVA_LS1043A },
 	{ }
 };
 
