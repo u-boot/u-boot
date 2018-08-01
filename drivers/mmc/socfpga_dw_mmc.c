@@ -6,6 +6,7 @@
 #include <common.h>
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/system_manager.h>
+#include <clk.h>
 #include <dm.h>
 #include <dwmmc.h>
 #include <errno.h>
@@ -70,19 +71,38 @@ static void socfpga_dwmci_clksel(struct dwmci_host *host)
 		CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);
 }
 
-static int socfpga_dwmmc_ofdata_to_platdata(struct udevice *dev)
+static int socfpga_dwmmc_get_clk_rate(struct udevice *dev)
 {
-	/* FIXME: probe from DT eventually too/ */
-	const unsigned long clk = cm_get_mmc_controller_clk_hz();
-
 	struct dwmci_socfpga_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
-	int fifo_depth;
+#if CONFIG_IS_ENABLED(CLK)
+	struct clk clk;
+	int ret;
 
-	if (clk == 0) {
+	ret = clk_get_by_index(dev, 1, &clk);
+	if (ret)
+		return ret;
+
+	host->bus_hz = clk_get_rate(&clk);
+
+	clk_free(&clk);
+#else
+	/* Fixed clock divide by 4 which due to the SDMMC wrapper */
+	host->bus_hz = cm_get_mmc_controller_clk_hz();
+#endif
+	if (host->bus_hz == 0) {
 		printf("DWMMC: MMC clock is zero!");
 		return -EINVAL;
 	}
+
+	return 0;
+}
+
+static int socfpga_dwmmc_ofdata_to_platdata(struct udevice *dev)
+{
+	struct dwmci_socfpga_priv_data *priv = dev_get_priv(dev);
+	struct dwmci_host *host = &priv->host;
+	int fifo_depth;
 
 	fifo_depth = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 				    "fifo-depth", 0);
@@ -102,8 +122,6 @@ static int socfpga_dwmmc_ofdata_to_platdata(struct udevice *dev)
 	 * We only have one dwmmc block on gen5 SoCFPGA.
 	 */
 	host->dev_index = 0;
-	/* Fixed clock divide by 4 which due to the SDMMC wrapper */
-	host->bus_hz = clk;
 	host->fifoth_val = MSIZE(0x2) |
 		RX_WMARK(fifo_depth / 2 - 1) | TX_WMARK(fifo_depth / 2);
 	priv->drvsel = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
@@ -123,6 +141,11 @@ static int socfpga_dwmmc_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct dwmci_socfpga_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
+	int ret;
+
+	ret = socfpga_dwmmc_get_clk_rate(dev);
+	if (ret)
+		return ret;
 
 	socfpga_dwmci_reset(dev);
 
@@ -130,7 +153,6 @@ static int socfpga_dwmmc_probe(struct udevice *dev)
 	dwmci_setup_cfg(&plat->cfg, host, host->bus_hz, 400000);
 	host->mmc = &plat->mmc;
 #else
-	int ret;
 
 	ret = add_dwmci(host, host->bus_hz, 400000);
 	if (ret)
