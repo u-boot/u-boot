@@ -295,6 +295,7 @@ static int exynos_dwmmc_bind(struct udevice *dev)
 
 static const struct udevice_id exynos_dwmmc_ids[] = {
 	{ .compatible = "samsung,exynos4412-dw-mshc" },
+	{ .compatible = "samsung,exynos-dwmmc" },
 	{ }
 };
 
