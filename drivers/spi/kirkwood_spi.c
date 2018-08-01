@@ -386,6 +386,10 @@ static const struct dm_spi_ops mvebu_spi_ops = {
 	 */
 };
 
+static const struct mvebu_spi_dev armada_spi_dev_data = {
+	.is_errata_50mhz_ac = false,
+};
+
 static const struct mvebu_spi_dev armada_xp_spi_dev_data = {
 	.is_errata_50mhz_ac = false,
 };
@@ -399,6 +403,10 @@ static const struct mvebu_spi_dev armada_380_spi_dev_data = {
 };
 
 static const struct udevice_id mvebu_spi_ids[] = {
+	{
+		.compatible = "marvell,orion-spi",
+		.data = (ulong)&armada_spi_dev_data,
+	},
 	{
 		.compatible = "marvell,armada-375-spi",
 		.data = (ulong)&armada_375_spi_dev_data
