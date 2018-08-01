@@ -5,13 +5,13 @@
 	#size-cells = <1>;
 
 	binman {
-		sort-by-pos;
+		sort-by-offset;
 		u-boot {
-			pos = <22>;
+			offset = <22>;
 		};
 
 		u-boot-spl {
-			pos = <1>;
+			offset = <1>;
 		};
 	};
 };

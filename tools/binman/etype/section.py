@@ -30,20 +30,20 @@ class Entry_section(Entry):
     def GetData(self):
         return self._section.GetData()
 
-    def GetPositions(self):
-        """Handle entries that want to set the position/size of other entries
+    def GetOffsets(self):
+        """Handle entries that want to set the offset/size of other entries
 
-        This calls each entry's GetPositions() method. If it returns a list
+        This calls each entry's GetOffsets() method. If it returns a list
         of entries to update, it updates them.
         """
-        self._section.GetEntryPositions()
+        self._section.GetEntryOffsets()
         return {}
 
-    def Pack(self, pos):
+    def Pack(self, offset):
         """Pack all entries into the section"""
         self._section.PackEntries()
         self.size = self._section.CheckSize()
-        return super(Entry_section, self).Pack(pos)
+        return super(Entry_section, self).Pack(offset)
 
     def WriteSymbols(self, section):
         """Write symbol values into binary files for access at run time"""
@@ -57,7 +57,7 @@ class Entry_section(Entry):
         self._section.ProcessEntryContents()
         super(Entry_section, self).ProcessContents()
 
-    def CheckPosition(self):
+    def CheckOffset(self):
         self._section.CheckEntries()
 
     def WriteMap(self, fd, indent):

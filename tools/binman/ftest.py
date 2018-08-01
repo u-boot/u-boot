@@ -153,7 +153,7 @@ class TestFunctional(unittest.TestCase):
             fname: Device-tree source filename to use (e.g. 05_simple.dts)
             debug: True to enable debugging output
             map: True to output map files for the images
-            update_dtb: Update the position and size of each entry in the device
+            update_dtb: Update the offset and size of each entry in the device
                 tree before packing it into the image
         """
         args = ['-p', '-I', self._indir, '-d', self.TestFile(fname)]
@@ -204,7 +204,7 @@ class TestFunctional(unittest.TestCase):
                 test contents (the U_BOOT_DTB_DATA string) can be used.
                 But in some test we need the real contents.
             map: True to output map files for the images
-            update_dtb: Update the position and size of each entry in the device
+            update_dtb: Update the offset and size of each entry in the device
                 tree before packing it into the image
 
         Returns:
@@ -257,7 +257,7 @@ class TestFunctional(unittest.TestCase):
         """Create a new test input file, creating directories as needed
 
         Args:
-            fname: Filenaem to create
+            fname: Filename to create
             contents: File contents to write in to the file
         Returns:
             Full pathname of file created
@@ -292,10 +292,10 @@ class TestFunctional(unittest.TestCase):
         Args:
             entries: List of entries to check
         """
-        pos = 0
+        offset = 0
         for entry in entries.values():
-            self.assertEqual(pos, entry.pos)
-            pos += entry.size
+            self.assertEqual(offset, entry.offset)
+            offset += entry.size
 
     def GetFdtLen(self, dtb):
         """Get the totalsize field from a device-tree binary
@@ -319,7 +319,6 @@ class TestFunctional(unittest.TestCase):
                         prop_path = path + '/' + subnode.name + ':' + prop.name
                         tree[prop_path[len('/binman/'):]] = fdt_util.fdt32_to_cpu(
                             prop.value)
-                    #print '   ', prop.name
                 AddNode(subnode, path)
 
         tree = {}
@@ -467,32 +466,32 @@ class TestFunctional(unittest.TestCase):
         # First u-boot
         self.assertIn('u-boot', entries)
         entry = entries['u-boot']
-        self.assertEqual(0, entry.pos)
+        self.assertEqual(0, entry.offset)
         self.assertEqual(len(U_BOOT_DATA), entry.size)
 
         # Second u-boot, aligned to 16-byte boundary
         self.assertIn('u-boot-align', entries)
         entry = entries['u-boot-align']
-        self.assertEqual(16, entry.pos)
+        self.assertEqual(16, entry.offset)
         self.assertEqual(len(U_BOOT_DATA), entry.size)
 
         # Third u-boot, size 23 bytes
         self.assertIn('u-boot-size', entries)
         entry = entries['u-boot-size']
-        self.assertEqual(20, entry.pos)
+        self.assertEqual(20, entry.offset)
         self.assertEqual(len(U_BOOT_DATA), entry.contents_size)
         self.assertEqual(23, entry.size)
 
         # Fourth u-boot, placed immediate after the above
         self.assertIn('u-boot-next', entries)
         entry = entries['u-boot-next']
-        self.assertEqual(43, entry.pos)
+        self.assertEqual(43, entry.offset)
         self.assertEqual(len(U_BOOT_DATA), entry.size)
 
-        # Fifth u-boot, placed at a fixed position
+        # Fifth u-boot, placed at a fixed offset
         self.assertIn('u-boot-fixed', entries)
         entry = entries['u-boot-fixed']
-        self.assertEqual(61, entry.pos)
+        self.assertEqual(61, entry.offset)
         self.assertEqual(len(U_BOOT_DATA), entry.size)
 
         self.assertEqual(65, image._size)
@@ -510,32 +509,32 @@ class TestFunctional(unittest.TestCase):
         # First u-boot with padding before and after
         self.assertIn('u-boot', entries)
         entry = entries['u-boot']
-        self.assertEqual(0, entry.pos)
+        self.assertEqual(0, entry.offset)
         self.assertEqual(3, entry.pad_before)
         self.assertEqual(3 + 5 + len(U_BOOT_DATA), entry.size)
 
         # Second u-boot has an aligned size, but it has no effect
         self.assertIn('u-boot-align-size-nop', entries)
         entry = entries['u-boot-align-size-nop']
-        self.assertEqual(12, entry.pos)
+        self.assertEqual(12, entry.offset)
         self.assertEqual(4, entry.size)
 
         # Third u-boot has an aligned size too
         self.assertIn('u-boot-align-size', entries)
         entry = entries['u-boot-align-size']
-        self.assertEqual(16, entry.pos)
+        self.assertEqual(16, entry.offset)
         self.assertEqual(32, entry.size)
 
         # Fourth u-boot has an aligned end
         self.assertIn('u-boot-align-end', entries)
         entry = entries['u-boot-align-end']
-        self.assertEqual(48, entry.pos)
+        self.assertEqual(48, entry.offset)
         self.assertEqual(16, entry.size)
 
         # Fifth u-boot immediately afterwards
         self.assertIn('u-boot-align-both', entries)
         entry = entries['u-boot-align-both']
-        self.assertEqual(64, entry.pos)
+        self.assertEqual(64, entry.offset)
         self.assertEqual(64, entry.size)
 
         self.CheckNoGaps(entries)
@@ -556,10 +555,10 @@ class TestFunctional(unittest.TestCase):
                       "power of two", str(e.exception))
 
     def testPackInvalidAlign(self):
-        """Test detection of an position that does not match its alignment"""
+        """Test detection of an offset that does not match its alignment"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('12_pack_inv_align.dts')
-        self.assertIn("Node '/binman/u-boot': Position 0x5 (5) does not match "
+        self.assertIn("Node '/binman/u-boot': Offset 0x5 (5) does not match "
                       "align 0x4 (4)", str(e.exception))
 
     def testPackInvalidSizeAlign(self):
@@ -573,7 +572,7 @@ class TestFunctional(unittest.TestCase):
         """Test that overlapping regions are detected"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('14_pack_overlap.dts')
-        self.assertIn("Node '/binman/u-boot-align': Position 0x3 (3) overlaps "
+        self.assertIn("Node '/binman/u-boot-align': Offset 0x3 (3) overlaps "
                       "with previous entry '/binman/u-boot' ending at 0x4 (4)",
                       str(e.exception))
 
@@ -651,11 +650,11 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(chr(0) * 1 + U_BOOT_SPL_DATA + chr(0) * 2 +
                          U_BOOT_DATA, data)
 
-    def testPackZeroPosition(self):
-        """Test that an entry at position 0 is not given a new position"""
+    def testPackZeroOffset(self):
+        """Test that an entry at offset 0 is not given a new offset"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('25_pack_zero_size.dts')
-        self.assertIn("Node '/binman/u-boot-spl': Position 0x0 (0) overlaps "
+        self.assertIn("Node '/binman/u-boot-spl': Offset 0x0 (0) overlaps "
                       "with previous entry '/binman/u-boot' ending at 0x4 (4)",
                       str(e.exception))
 
@@ -672,10 +671,10 @@ class TestFunctional(unittest.TestCase):
                       "using end-at-4gb", str(e.exception))
 
     def testPackX86RomOutside(self):
-        """Test that the end-at-4gb property checks for position boundaries"""
+        """Test that the end-at-4gb property checks for offset boundaries"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('28_pack_4gb_outside.dts')
-        self.assertIn("Node '/binman/u-boot': Position 0x0 (0) is outside "
+        self.assertIn("Node '/binman/u-boot': Offset 0x0 (0) is outside "
                       "the section starting at 0xffffffe0 (4294967264)",
                       str(e.exception))
 
@@ -697,9 +696,9 @@ class TestFunctional(unittest.TestCase):
         """Test that the Intel requires a descriptor entry"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('30_x86-rom-me-no-desc.dts')
-        self.assertIn("Node '/binman/intel-me': No position set with "
-                      "pos-unset: should another entry provide this correct "
-                      "position?", str(e.exception))
+        self.assertIn("Node '/binman/intel-me': No offset set with "
+                      "offset-unset: should another entry provide this correct "
+                      "offset?", str(e.exception))
 
     def testPackX86RomMe(self):
         """Test that an x86 ROM with an ME region can be created"""
@@ -728,7 +727,7 @@ class TestFunctional(unittest.TestCase):
         Returns:
             Tuple:
                 Contents of first region (U-Boot or SPL)
-                Position and size components of microcode pointer, as inserted
+                Offset and size components of microcode pointer, as inserted
                     in the above (two 4-byte words)
         """
         data = self._DoReadFile(dts_fname, True)
@@ -761,7 +760,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(ucode_data, ucode_content[:len(ucode_data)])
 
         # Check that the microcode pointer was inserted. It should match the
-        # expected position and size
+        # expected offset and size
         pos_and_size = struct.pack('<2L', 0xfffffe00 + ucode_pos,
                                    len(ucode_data))
         u_boot = data[:len(nodtb_data)]
@@ -806,7 +805,7 @@ class TestFunctional(unittest.TestCase):
         ucode_pos = second.find(ucode_data) + len(U_BOOT_NODTB_DATA)
 
         # Check that the microcode pointer was inserted. It should match the
-        # expected position and size
+        # expected offset and size
         pos_and_size = struct.pack('<2L', 0xfffffe00 + ucode_pos,
                                    len(ucode_data))
         first = data[:len(U_BOOT_NODTB_DATA)]
@@ -890,7 +889,7 @@ class TestFunctional(unittest.TestCase):
         """Test that microcode must be placed within the image"""
         with self.assertRaises(ValueError) as e:
             self._DoReadFile('41_unknown_pos_size.dts', True)
-        self.assertIn("Section '/binman': Unable to set pos/size for unknown "
+        self.assertIn("Section '/binman': Unable to set offset/size for unknown "
                 "entry 'invalid-entry'", str(e.exception))
 
     def testPackFsp(self):
@@ -984,7 +983,7 @@ class TestFunctional(unittest.TestCase):
         elf_fname = self.TestFile('u_boot_binman_syms')
         syms = elf.GetSymbols(elf_fname, ['binman', 'image'])
         addr = elf.GetSymbolAddress(elf_fname, '__image_copy_start')
-        self.assertEqual(syms['_binman_u_boot_spl_prop_pos'].address, addr)
+        self.assertEqual(syms['_binman_u_boot_spl_prop_offset'].address, addr)
 
         with open(self.TestFile('u_boot_binman_syms')) as fd:
             TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
@@ -1009,7 +1008,7 @@ class TestFunctional(unittest.TestCase):
     def testMap(self):
         """Tests outputting a map of the images"""
         _, _, map_data, _ = self._DoReadFileDtb('55_sections.dts', map=True)
-        self.assertEqual('''Position      Size  Name
+        self.assertEqual('''  Offset      Size  Name
 00000000  00000010  section@0
  00000000  00000004  u-boot
 00000010  00000010  section@1
@@ -1019,7 +1018,7 @@ class TestFunctional(unittest.TestCase):
     def testNamePrefix(self):
         """Tests that name prefixes are used"""
         _, _, map_data, _ = self._DoReadFileDtb('56_name_prefix.dts', map=True)
-        self.assertEqual('''Position      Size  Name
+        self.assertEqual('''  Offset      Size  Name
 00000000  00000010  section@0
  00000000  00000004  ro-u-boot
 00000010  00000010  section@1
@@ -1042,24 +1041,24 @@ class TestFunctional(unittest.TestCase):
                       '2 to 1', str(e.exception))
 
     def testUpdateFdt(self):
-        """Test that we can update the device tree with pos/size info"""
+        """Test that we can update the device tree with offset/size info"""
         _, _, _, out_dtb_fname = self._DoReadFileDtb('60_fdt_update.dts',
                                                      update_dtb=True)
-        props = self._GetPropTree(out_dtb_fname, ['pos', 'size'])
+        props = self._GetPropTree(out_dtb_fname, ['offset', 'size'])
         with open('/tmp/x.dtb', 'wb') as outf:
             with open(out_dtb_fname) as inf:
                 outf.write(inf.read())
         self.assertEqual({
-            '_testing:pos': 32,
+            '_testing:offset': 32,
             '_testing:size': 1,
-            'section@0/u-boot:pos': 0,
+            'section@0/u-boot:offset': 0,
             'section@0/u-boot:size': len(U_BOOT_DATA),
-            'section@0:pos': 0,
+            'section@0:offset': 0,
             'section@0:size': 16,
 
-            'section@1/u-boot:pos': 0,
+            'section@1/u-boot:offset': 0,
             'section@1/u-boot:size': len(U_BOOT_DATA),
-            'section@1:pos': 16,
+            'section@1:offset': 16,
             'section@1:size': 16,
             'size': 40
         }, props)

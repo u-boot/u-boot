@@ -57,7 +57,7 @@ class Image:
     def AddMissingProperties(self):
         """Add properties that are not present in the device tree
 
-        When binman has completed packing the entries the position and size of
+        When binman has completed packing the entries the offset and size of
         each entry are known. But before this the device tree may not specify
         these. Add any missing properties, with a dummy value, so that the
         size of the entry is correct. That way we can insert the correct values
@@ -73,13 +73,13 @@ class Image:
         """
         self._section.GetEntryContents()
 
-    def GetEntryPositions(self):
-        """Handle entries that want to set the position/size of other entries
+    def GetEntryOffsets(self):
+        """Handle entries that want to set the offset/size of other entries
 
-        This calls each entry's GetPositions() method. If it returns a list
+        This calls each entry's GetOffsets() method. If it returns a list
         of entries to update, it updates them.
         """
-        self._section.GetEntryPositions()
+        self._section.GetEntryOffsets()
 
     def PackEntries(self):
         """Pack all entries into the image"""
@@ -121,5 +121,5 @@ class Image:
         filename = '%s.map' % self._name
         fname = tools.GetOutputFilename(filename)
         with open(fname, 'w') as fd:
-            print('%8s  %8s  %s' % ('Position', 'Size', 'Name'), file=fd)
+            print('%8s  %8s  %s' % ('Offset', 'Size', 'Name'), file=fd)
             self._section.WriteMap(fd, 0)

@@ -9,7 +9,7 @@
 		};
 
 		u-boot-spl {
-			pos = <0>;
+			offset = <0>;
 		};
 	};
 };

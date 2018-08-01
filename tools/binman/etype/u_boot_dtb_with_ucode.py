@@ -33,10 +33,10 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob):
         # If the section does not need microcode, there is nothing to do
         ucode_dest_entry = self.section.FindEntryType(
             'u-boot-spl-with-ucode-ptr')
-        if not ucode_dest_entry or not ucode_dest_entry.target_pos:
+        if not ucode_dest_entry or not ucode_dest_entry.target_offset:
             ucode_dest_entry = self.section.FindEntryType(
                 'u-boot-with-ucode-ptr')
-        if not ucode_dest_entry or not ucode_dest_entry.target_pos:
+        if not ucode_dest_entry or not ucode_dest_entry.target_offset:
             return True
 
         # Remove the microcode

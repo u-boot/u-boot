@@ -142,7 +142,7 @@ def Binman(options, args):
             # size of the device tree is correct. Later, in
             # SetCalculatedProperties() we will insert the correct values
             # without changing the device-tree size, thus ensuring that our
-            # entry positions remain the same.
+            # entry offsets remain the same.
             for image in images.values():
                 if options.update_fdt:
                     image.AddMissingProperties()
@@ -157,7 +157,7 @@ def Binman(options, args):
                 # image will be reported after earlier images are already
                 # completed and written, but that does not seem important.
                 image.GetEntryContents()
-                image.GetEntryPositions()
+                image.GetEntryOffsets()
                 image.PackEntries()
                 image.CheckSize()
                 image.CheckEntries()

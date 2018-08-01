@@ -36,12 +36,12 @@ class Entry_intel_descriptor(Entry_blob):
         Entry_blob.__init__(self, section, etype, node)
         self._regions = []
 
-    def GetPositions(self):
-        pos = self.data.find(FD_SIGNATURE)
-        if pos == -1:
+    def GetOffsets(self):
+        offset = self.data.find(FD_SIGNATURE)
+        if offset == -1:
             self.Raise('Cannot find FD signature')
         flvalsig, flmap0, flmap1, flmap2 = struct.unpack('<LLLL',
-                                                    self.data[pos:pos + 16])
+                                                self.data[offset:offset + 16])
         frba = ((flmap0 >> 16) & 0xff) << 4
         for i in range(MAX_REGIONS):
             self._regions.append(Region(self.data, frba, i))

@@ -14,7 +14,7 @@ class Entry__testing(Entry):
     """A fake entry used for testing
 
     Properties:
-        return_invalid_entry: Return an invalid entry from GetPositions()
+        return_invalid_entry: Return an invalid entry from GetOffsets()
     """
     def __init__(self, section, etype, node):
         Entry.__init__(self, section, etype, node)
@@ -35,7 +35,7 @@ class Entry__testing(Entry):
         self.contents_size = len(self.data)
         return True
 
-    def GetPositions(self):
+    def GetOffsets(self):
         if self.return_invalid_entry :
             return {'invalid-entry': [1, 2]}
         return {}

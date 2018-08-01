@@ -59,8 +59,8 @@ class Entry_u_boot_ucode(Entry_blob):
         ucode_dest_entry = self.section.FindEntryType('u-boot-with-ucode-ptr')
         ucode_dest_entry_spl = self.section.FindEntryType(
             'u-boot-spl-with-ucode-ptr')
-        if ((not ucode_dest_entry or not ucode_dest_entry.target_pos) and
-            (not ucode_dest_entry_spl or not ucode_dest_entry_spl.target_pos)):
+        if ((not ucode_dest_entry or not ucode_dest_entry.target_offset) and
+            (not ucode_dest_entry_spl or not ucode_dest_entry_spl.target_offset)):
             self.data = ''
             return True
 
