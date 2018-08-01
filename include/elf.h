@@ -593,6 +593,9 @@ unsigned long elf_hash(const unsigned char *name);
 /* Values for Elf32/64_Ehdr.e_flags */
 #define EF_PPC_EMB		0x80000000	/* PowerPC embedded flag */
 
+#define EF_PPC64_ELFV1_ABI	0x00000001
+#define EF_PPC64_ELFV2_ABI	0x00000002
+
 /* Cygnus local bits below */
 #define EF_PPC_RELOCATABLE	0x00010000	/* PowerPC -mrelocatable flag*/
 #define EF_PPC_RELOCATABLE_LIB	0x00008000	/* PowerPC -mrelocatable-lib

@@ -57,6 +57,79 @@ static unsigned long load_elf64_image_phdr(unsigned long addr)
 		++phdr;
 	}
 
+	if (ehdr->e_machine == EM_PPC64 && (ehdr->e_flags &
+					    EF_PPC64_ELFV1_ABI)) {
+		/*
+		 * For the 64-bit PowerPC ELF V1 ABI, e_entry is a function
+		 * descriptor pointer with the first double word being the
+		 * address of the entry point of the function.
+		 */
+		uintptr_t addr = ehdr->e_entry;
+
+		return *(Elf64_Addr *)addr;
+	}
+
+	return ehdr->e_entry;
+}
+
+static unsigned long load_elf64_image_shdr(unsigned long addr)
+{
+	Elf64_Ehdr *ehdr; /* Elf header structure pointer */
+	Elf64_Shdr *shdr; /* Section header structure pointer */
+	unsigned char *strtab = 0; /* String table pointer */
+	unsigned char *image; /* Binary image pointer */
+	int i; /* Loop counter */
+
+	ehdr = (Elf64_Ehdr *)addr;
+
+	/* Find the section header string table for output info */
+	shdr = (Elf64_Shdr *)(addr + (ulong)ehdr->e_shoff +
+			     (ehdr->e_shstrndx * sizeof(Elf64_Shdr)));
+
+	if (shdr->sh_type == SHT_STRTAB)
+		strtab = (unsigned char *)(addr + (ulong)shdr->sh_offset);
+
+	/* Load each appropriate section */
+	for (i = 0; i < ehdr->e_shnum; ++i) {
+		shdr = (Elf64_Shdr *)(addr + (ulong)ehdr->e_shoff +
+				     (i * sizeof(Elf64_Shdr)));
+
+		if (!(shdr->sh_flags & SHF_ALLOC) ||
+		    shdr->sh_addr == 0 || shdr->sh_size == 0) {
+			continue;
+		}
+
+		if (strtab) {
+			debug("%sing %s @ 0x%08lx (%ld bytes)\n",
+			      (shdr->sh_type == SHT_NOBITS) ? "Clear" : "Load",
+			       &strtab[shdr->sh_name],
+			       (unsigned long)shdr->sh_addr,
+			       (long)shdr->sh_size);
+		}
+
+		if (shdr->sh_type == SHT_NOBITS) {
+			memset((void *)(uintptr_t)shdr->sh_addr, 0,
+			       shdr->sh_size);
+		} else {
+			image = (unsigned char *)addr + (ulong)shdr->sh_offset;
+			memcpy((void *)(uintptr_t)shdr->sh_addr,
+			       (const void *)image, shdr->sh_size);
+		}
+		flush_cache((ulong)shdr->sh_addr, shdr->sh_size);
+	}
+
+	if (ehdr->e_machine == EM_PPC64 && (ehdr->e_flags &
+					    EF_PPC64_ELFV1_ABI)) {
+		/*
+		 * For the 64-bit PowerPC ELF V1 ABI, e_entry is a function
+		 * descriptor pointer with the first double word being the
+		 * address of the entry point of the function.
+		 */
+		uintptr_t addr = ehdr->e_entry;
+
+		return *(Elf64_Addr *)addr;
+	}
+
 	return ehdr->e_entry;
 }
 
@@ -107,6 +180,8 @@ static unsigned long load_elf_image_shdr(unsigned long addr)
 	int i; /* Loop counter */
 
 	ehdr = (Elf32_Ehdr *)addr;
+	if (ehdr->e_ident[EI_CLASS] == ELFCLASS64)
+		return load_elf64_image_shdr(addr);
 
 	/* Find the section header string table for output info */
 	shdr = (Elf32_Shdr *)(addr + ehdr->e_shoff +
