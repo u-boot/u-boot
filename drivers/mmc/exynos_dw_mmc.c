@@ -46,8 +46,12 @@ struct dwmci_exynos_priv_data {
  */
 static void exynos_dwmci_clksel(struct dwmci_host *host)
 {
+#ifdef CONFIG_DM_MMC
+	struct dwmci_exynos_priv_data *priv =
+		container_of(host, struct dwmci_exynos_priv_data, host);
+#else
 	struct dwmci_exynos_priv_data *priv = host->priv;
-
+#endif
 	dwmci_writel(host, DWMCI_CLKSEL, priv->sdr_timing);
 }
 
