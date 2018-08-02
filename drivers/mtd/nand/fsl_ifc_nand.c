@@ -242,31 +242,6 @@ static void set_addr(struct mtd_info *mtd, int column, int page_addr, int oob)
 		ctrl->index += mtd->writesize;
 }
 
-static int is_blank(struct mtd_info *mtd, struct fsl_ifc_ctrl *ctrl,
-		    unsigned int bufnum)
-{
-	struct nand_chip *chip = mtd_to_nand(mtd);
-	struct fsl_ifc_mtd *priv = nand_get_controller_data(chip);
-	u8 __iomem *addr = priv->vbase + bufnum * (mtd->writesize * 2);
-	u32 __iomem *main = (u32 *)addr;
-	u8 __iomem *oob = addr + mtd->writesize;
-	int i;
-
-	for (i = 0; i < mtd->writesize / 4; i++) {
-		if (__raw_readl(&main[i]) != 0xffffffff)
-			return 0;
-	}
-
-	for (i = 0; i < chip->ecc.layout->eccbytes; i++) {
-		int pos = chip->ecc.layout->eccpos[i];
-
-		if (__raw_readb(&oob[pos]) != 0xff)
-			return 0;
-	}
-
-	return 1;
-}
-
 /* returns nonzero if entire page is blank */
 static int check_read_ecc(struct mtd_info *mtd, struct fsl_ifc_ctrl *ctrl,
 			  u32 eccstat, unsigned int bufnum)
@@ -331,16 +306,14 @@ static int fsl_ifc_run_command(struct mtd_info *mtd)
 			if (errors == 15) {
 				/*
 				 * Uncorrectable error.
-				 * OK only if the whole page is blank.
+				 * We'll check for blank pages later.
 				 *
 				 * We disable ECCER reporting due to erratum
 				 * IFC-A002770 -- so report it now if we
 				 * see an uncorrectable error in ECCSTAT.
 				 */
-				if (!is_blank(mtd, ctrl, bufnum))
-					ctrl->status |=
-						IFC_NAND_EVTER_STAT_ECCER;
-				break;
+				ctrl->status |= IFC_NAND_EVTER_STAT_ECCER;
+				continue;
 			}
 
 			mtd->ecc_stats.corrected += errors;
@@ -727,6 +700,39 @@ static int fsl_ifc_wait(struct mtd_info *mtd, struct nand_chip *chip)
 	return status | NAND_STATUS_WP;
 }
 
+/*
+ * The controller does not check for bitflips in erased pages,
+ * therefore software must check instead.
+ */
+static int
+check_erased_page(struct nand_chip *chip, u8 *buf, struct mtd_info *mtd)
+{
+	u8 *ecc = chip->oob_poi;
+	const int ecc_size = chip->ecc.bytes;
+	const int pkt_size = chip->ecc.size;
+	int i, res, bitflips;
+
+	/* IFC starts ecc bytes at offset 8 in the spare area. */
+	ecc += 8;
+	bitflips = 0;
+	for (i = 0; i < chip->ecc.steps; i++) {
+		res = nand_check_erased_ecc_chunk(buf, pkt_size, ecc, ecc_size,
+						  NULL, 0, chip->ecc.strength);
+
+		if (res < 0) {
+			printf("fsl-ifc: NAND Flash ECC Uncorrectable Error\n");
+			mtd->ecc_stats.failed++;
+		} else if (res > 0) {
+			mtd->ecc_stats.corrected += res;
+		}
+		bitflips = max(res, bitflips);
+		buf += pkt_size;
+		ecc += ecc_size;
+	}
+
+	return bitflips;
+}
+
 static int fsl_ifc_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 			     uint8_t *buf, int oob_required, int page)
 {
@@ -735,6 +741,9 @@ static int fsl_ifc_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 
 	fsl_ifc_read_buf(mtd, buf, mtd->writesize);
 	fsl_ifc_read_buf(mtd, chip->oob_poi, mtd->oobsize);
+
+	if (ctrl->status & IFC_NAND_EVTER_STAT_ECCER)
+		return check_erased_page(chip, buf, mtd);
 
 	if (ctrl->status != IFC_NAND_EVTER_STAT_OPC)
 		mtd->ecc_stats.failed++;
