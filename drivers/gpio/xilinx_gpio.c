@@ -241,8 +241,16 @@ static int xilinx_gpio_probe(struct udevice *dev)
 	struct xilinx_gpio_platdata *platdata = dev_get_platdata(dev);
 	struct xilinx_gpio_privdata *priv = dev_get_priv(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	const void *label_ptr;
 
-	uc_priv->bank_name = dev->name;
+	label_ptr = dev_read_prop(dev, "label", NULL);
+	if (label_ptr) {
+		uc_priv->bank_name = strdup(label_ptr);
+		if (!uc_priv->bank_name)
+			return -ENOMEM;
+	} else {
+		uc_priv->bank_name = dev->name;
+	}
 
 	uc_priv->gpio_count = platdata->bank_max[0] + platdata->bank_max[1];
 

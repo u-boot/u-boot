@@ -336,8 +336,16 @@ static int zynq_gpio_probe(struct udevice *dev)
 {
 	struct zynq_gpio_platdata *platdata = dev_get_platdata(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	const void *label_ptr;
 
-	uc_priv->bank_name = dev->name;
+	label_ptr = dev_read_prop(dev, "label", NULL);
+	if (label_ptr) {
+		uc_priv->bank_name = strdup(label_ptr);
+		if (!uc_priv->bank_name)
+			return -ENOMEM;
+	} else {
+		uc_priv->bank_name = dev->name;
+	}
 
 	if (platdata->p_data)
 		uc_priv->gpio_count = platdata->p_data->ngpio;
