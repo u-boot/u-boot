@@ -7,5 +7,6 @@
 obj-$(CONFIG_CLK_SUNXI) += clk_sunxi.o
 
 obj-$(CONFIG_CLK_SUN4I_A10) += clk_a10.o
+obj-$(CONFIG_CLK_SUN5I_A10S) += clk_a10s.o
 obj-$(CONFIG_CLK_SUN8I_H3) += clk_h3.o
 obj-$(CONFIG_CLK_SUN50I_A64) += clk_a64.o
