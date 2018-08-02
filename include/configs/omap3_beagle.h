@@ -58,7 +58,6 @@
 #define CONFIG_I2C_MULTI_BUS
 
 /* DSS Support */
-#define CONFIG_VIDEO_OMAP3
 
 /* TWL4030 LED Support */
 #define CONFIG_TWL4030_LED

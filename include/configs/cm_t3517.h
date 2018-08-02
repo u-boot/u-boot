@@ -203,7 +203,6 @@
 #define GREEN_LED_GPIO			186 /* CM-T3517 Green LED is GPIO186 */
 
 /* Display Configuration */
-#define CONFIG_VIDEO_OMAP3
 #define LCD_BPP		LCD_COLOR16
 
 #define CONFIG_SPLASH_SCREEN

@@ -198,7 +198,6 @@
 #define CONFIG_SPLASHIMAGE_GUARD
 
 /* Display Configuration */
-#define CONFIG_VIDEO_OMAP3
 #define LCD_BPP		LCD_COLOR16
 
 #define CONFIG_SPLASH_SCREEN

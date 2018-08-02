@@ -408,6 +408,12 @@ config VIDEO_MVEBU
 	Support for the LCD controller integrated in the Marvell
 	Armada XP SoC.
 
+config VIDEO_OMAP3
+	bool "Enable OMAP3+ DSS Support"
+	depends on ARCH_OMAP2PLUS
+	help
+	  This enables the Display subsystem (DSS) on OMAP3+ boards.
+
 config I2C_EDID
 	bool "Enable EDID library"
 	default n
