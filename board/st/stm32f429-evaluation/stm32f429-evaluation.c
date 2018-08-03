@@ -48,7 +48,7 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = gd->bd->bi_dram[0].start + 0x100;
 
 	return 0;
 }
