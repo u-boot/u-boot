@@ -5,6 +5,9 @@
 # Written by Simon Glass <sjg@chromium.org>
 #
 
+# Utility functions for reading from a device tree. Once the upstream pylibfdt
+# implementation advances far enough, we should be able to drop these.
+
 import os
 import struct
 import sys
@@ -90,6 +93,16 @@ def EnsureCompiled(fname, capture_stderr=False):
     return dtb_output
 
 def GetInt(node, propname, default=None):
+    """Get an integer from a property
+
+    Args:
+        node: Node object to read from
+        propname: property name to read
+        default: Default value to use if the node/property do not exist
+
+    Returns:
+        Integer value read, or default if none
+    """
     prop = node.props.get(propname)
     if not prop:
         return default
@@ -100,6 +113,16 @@ def GetInt(node, propname, default=None):
     return value
 
 def GetString(node, propname, default=None):
+    """Get a string from a property
+
+    Args:
+        node: Node object to read from
+        propname: property name to read
+        default: Default value to use if the node/property do not exist
+
+    Returns:
+        String value read, or default if none
+    """
     prop = node.props.get(propname)
     if not prop:
         return default
@@ -110,6 +133,79 @@ def GetString(node, propname, default=None):
     return value
 
 def GetBool(node, propname, default=False):
+    """Get an boolean from a property
+
+    Args:
+        node: Node object to read from
+        propname: property name to read
+        default: Default value to use if the node/property do not exist
+
+    Returns:
+        Boolean value read, or default if none (if you set this to True the
+            function will always return True)
+    """
     if propname in node.props:
         return True
     return default
+
+def GetByte(node, propname, default=None):
+    """Get an byte from a property
+
+    Args:
+        node: Node object to read from
+        propname: property name to read
+        default: Default value to use if the node/property do not exist
+
+    Returns:
+        Byte value read, or default if none
+    """
+    prop = node.props.get(propname)
+    if not prop:
+        return default
+    value = prop.value
+    if isinstance(value, list):
+        raise ValueError("Node '%s' property '%s' has list value: expecting "
+                         "a single byte" % (node.name, propname))
+    if len(value) != 1:
+        raise ValueError("Node '%s' property '%s' has length %d, expecting %d" %
+                         (node.name, propname, len(value), 1))
+    return ord(value[0])
+
+def GetPhandleList(node, propname):
+    """Get a list of phandles from a property
+
+    Args:
+        node: Node object to read from
+        propname: property name to read
+
+    Returns:
+        List of phandles read, each an integer
+    """
+    prop = node.props.get(propname)
+    if not prop:
+        return None
+    value = prop.value
+    if not isinstance(value, list):
+        value = [value]
+    return [fdt32_to_cpu(v) for v in value]
+
+def GetDatatype(node, propname, datatype):
+    """Get a value of a given type from a property
+
+    Args:
+        node: Node object to read from
+        propname: property name to read
+        datatype: Type to read (str or int)
+
+    Returns:
+        value read, or None if none
+
+    Raises:
+        ValueError if datatype is not str or int
+    """
+    if datatype == str:
+        return GetString(node, propname)
+    elif datatype == int:
+        return GetInt(node, propname)
+    raise ValueError("fdt_util internal error: Unknown data type '%s'" %
+                     datatype)

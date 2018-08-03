@@ -181,7 +181,15 @@ class Node:
         self.subnodes = []
         self.props = {}
 
-    def _FindNode(self, name):
+    def GetFdt(self):
+        """Get the Fdt object for this node
+
+        Returns:
+            Fdt object
+        """
+        return self._fdt
+
+    def FindNode(self, name):
         """Find a node given its name
 
         Args:
@@ -314,6 +322,17 @@ class Fdt:
             with open(self._fname) as fd:
                 self._fdt_obj = libfdt.Fdt(fd.read())
 
+    def LookupPhandle(self, phandle):
+        """Look up a phandle
+
+        Args:
+            phandle: Phandle to look up (int)
+
+        Returns:
+            Node object the phandle points to
+        """
+        return self.phandle_to_node.get(phandle)
+
     def Scan(self, root='/'):
         """Scan a device tree, building up a tree of Node objects
 
@@ -349,7 +368,7 @@ class Fdt:
         if len(parts) < 2:
             return None
         for part in parts[1:]:
-            node = node._FindNode(part)
+            node = node.FindNode(part)
             if not node:
                 return None
         return node

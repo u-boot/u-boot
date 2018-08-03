@@ -10,7 +10,7 @@
 		};
 
 		u-boot {
-			pos = <20>;
+			offset = <20>;
 		};
 
 		u-boot-spl2 {

@@ -6,6 +6,8 @@
 
 from __future__ import print_function
 
+from collections import namedtuple
+
 # importlib was introduced in Python 2.7 but there was a report of it not
 # working in 2.7.12, so we work around this:
 # http://lists.denx.de/pipermail/u-boot/2016-October/269729.html
@@ -16,6 +18,7 @@ except:
     have_importlib = False
 
 import fdt_util
+import control
 import os
 import sys
 import tools
@@ -23,6 +26,12 @@ import tools
 modules = {}
 
 our_path = os.path.dirname(os.path.realpath(__file__))
+
+
+# An argument which can be passed to entries on the command line, in lieu of
+# device-tree properties.
+EntryArg = namedtuple('EntryArg', ['name', 'datatype'])
+
 
 class Entry(object):
     """An Entry in the section
@@ -36,14 +45,15 @@ class Entry(object):
     Entry.
 
     Attributes:
-        section: The section containing this entry
+        section: Section object containing this entry
         node: The node that created this entry
-        pos: Absolute position of entry within the section, None if not known
+        offset: Offset of entry within the section, None if not known yet (in
+            which case it will be calculated by Pack())
         size: Entry size in bytes, None if not known
         contents_size: Size of contents in bytes, 0 by default
-        align: Entry start position alignment, or None
+        align: Entry start offset alignment, or None
         align_size: Entry size alignment, or None
-        align_end: Entry end position alignment, or None
+        align_end: Entry end offset alignment, or None
         pad_before: Number of pad bytes before the contents, 0 if none
         pad_after: Number of pad bytes after the contents, 0 if none
         data: Contents of entry (string of bytes)
@@ -53,34 +63,33 @@ class Entry(object):
         self.etype = etype
         self._node = node
         self.name = node and (name_prefix + node.name) or 'none'
-        self.pos = None
+        self.offset = None
         self.size = None
-        self.data = ''
+        self.data = None
         self.contents_size = 0
         self.align = None
         self.align_size = None
         self.align_end = None
         self.pad_before = 0
         self.pad_after = 0
-        self.pos_unset = False
+        self.offset_unset = False
+        self.image_pos = None
         if read_node:
             self.ReadNode()
 
     @staticmethod
-    def Create(section, node, etype=None):
-        """Create a new entry for a node.
+    def Lookup(section, node_path, etype):
+        """Look up the entry class for a node.
 
         Args:
-            section:  Image object containing this node
-            node:   Node object containing information about the entry to create
-            etype:  Entry type to use, or None to work it out (used for tests)
+            section:   Section object containing this node
+            node_node: Path name of Node object containing information about
+                       the entry to create (used for errors)
+            etype:   Entry type to use
 
         Returns:
-            A new Entry object of the correct type (a subclass of Entry)
+            The entry class object if found, else None
         """
-        if not etype:
-            etype = fdt_util.GetString(node, 'type', node.name)
-
         # Convert something like 'u-boot@0' to 'u_boot' since we are only
         # interested in the type.
         module_name = etype.replace('-', '_')
@@ -99,15 +108,34 @@ class Entry(object):
                     module = importlib.import_module(module_name)
                 else:
                     module = __import__(module_name)
-            except ImportError:
-                raise ValueError("Unknown entry type '%s' in node '%s'" %
-                        (etype, node.path))
+            except ImportError as e:
+                raise ValueError("Unknown entry type '%s' in node '%s' (expected etype/%s.py, error '%s'" %
+                                 (etype, node_path, module_name, e))
             finally:
                 sys.path = old_path
             modules[module_name] = module
 
+        # Look up the expected class name
+        return getattr(module, 'Entry_%s' % module_name)
+
+    @staticmethod
+    def Create(section, node, etype=None):
+        """Create a new entry for a node.
+
+        Args:
+            section: Section object containing this node
+            node:    Node object containing information about the entry to
+                     create
+            etype:   Entry type to use, or None to work it out (used for tests)
+
+        Returns:
+            A new Entry object of the correct type (a subclass of Entry)
+        """
+        if not etype:
+            etype = fdt_util.GetString(node, 'type', node.name)
+        obj = Entry.Lookup(section, node.path, etype)
+
         # Call its constructor to get the object we want.
-        obj = getattr(module, 'Entry_%s' % module_name)
         return obj(section, etype, node)
 
     def ReadNode(self):
@@ -115,7 +143,9 @@ class Entry(object):
 
         This reads all the fields we recognise from the node, ready for use.
         """
-        self.pos = fdt_util.GetInt(self._node, 'pos')
+        if 'pos' in self._node.props:
+            self.Raise("Please use 'offset' instead of 'pos'")
+        self.offset = fdt_util.GetInt(self._node, 'offset')
         self.size = fdt_util.GetInt(self._node, 'size')
         self.align = fdt_util.GetInt(self._node, 'align')
         if tools.NotPowerOfTwo(self.align):
@@ -128,18 +158,19 @@ class Entry(object):
             raise ValueError("Node '%s': Alignment size %s must be a power "
                              "of two" % (self._node.path, self.align_size))
         self.align_end = fdt_util.GetInt(self._node, 'align-end')
-        self.pos_unset = fdt_util.GetBool(self._node, 'pos-unset')
+        self.offset_unset = fdt_util.GetBool(self._node, 'offset-unset')
 
     def AddMissingProperties(self):
         """Add new properties to the device tree as needed for this entry"""
-        for prop in ['pos', 'size']:
+        for prop in ['offset', 'size', 'image-pos']:
             if not prop in self._node.props:
                 self._node.AddZeroProp(prop)
 
     def SetCalculatedProperties(self):
         """Set the value of device-tree properties calculated by binman"""
-        self._node.SetInt('pos', self.pos)
+        self._node.SetInt('offset', self.offset)
         self._node.SetInt('size', self.size)
+        self._node.SetInt('image-pos', self.image_pos)
 
     def ProcessFdt(self, fdt):
         return True
@@ -190,39 +221,39 @@ class Entry(object):
         # No contents by default: subclasses can implement this
         return True
 
-    def Pack(self, pos):
+    def Pack(self, offset):
         """Figure out how to pack the entry into the section
 
         Most of the time the entries are not fully specified. There may be
         an alignment but no size. In that case we take the size from the
         contents of the entry.
 
-        If an entry has no hard-coded position, it will be placed at @pos.
+        If an entry has no hard-coded offset, it will be placed at @offset.
 
-        Once this function is complete, both the position and size of the
+        Once this function is complete, both the offset and size of the
         entry will be know.
 
         Args:
-            Current section position pointer
+            Current section offset pointer
 
         Returns:
-            New section position pointer (after this entry)
+            New section offset pointer (after this entry)
         """
-        if self.pos is None:
-            if self.pos_unset:
-                self.Raise('No position set with pos-unset: should another '
-                           'entry provide this correct position?')
-            self.pos = tools.Align(pos, self.align)
+        if self.offset is None:
+            if self.offset_unset:
+                self.Raise('No offset set with offset-unset: should another '
+                           'entry provide this correct offset?')
+            self.offset = tools.Align(offset, self.align)
         needed = self.pad_before + self.contents_size + self.pad_after
         needed = tools.Align(needed, self.align_size)
         size = self.size
         if not size:
             size = needed
-        new_pos = self.pos + size
-        aligned_pos = tools.Align(new_pos, self.align_end)
-        if aligned_pos != new_pos:
-            size = aligned_pos - self.pos
-            new_pos = aligned_pos
+        new_offset = self.offset + size
+        aligned_offset = tools.Align(new_offset, self.align_end)
+        if aligned_offset != new_offset:
+            size = aligned_offset - self.offset
+            new_offset = aligned_offset
 
         if not self.size:
             self.size = size
@@ -231,20 +262,47 @@ class Entry(object):
             self.Raise("Entry contents size is %#x (%d) but entry size is "
                        "%#x (%d)" % (needed, needed, self.size, self.size))
         # Check that the alignment is correct. It could be wrong if the
-        # and pos or size values were provided (i.e. not calculated), but
+        # and offset or size values were provided (i.e. not calculated), but
         # conflict with the provided alignment values
         if self.size != tools.Align(self.size, self.align_size):
             self.Raise("Size %#x (%d) does not match align-size %#x (%d)" %
                   (self.size, self.size, self.align_size, self.align_size))
-        if self.pos != tools.Align(self.pos, self.align):
-            self.Raise("Position %#x (%d) does not match align %#x (%d)" %
-                  (self.pos, self.pos, self.align, self.align))
+        if self.offset != tools.Align(self.offset, self.align):
+            self.Raise("Offset %#x (%d) does not match align %#x (%d)" %
+                  (self.offset, self.offset, self.align, self.align))
 
-        return new_pos
+        return new_offset
 
     def Raise(self, msg):
         """Convenience function to raise an error referencing a node"""
         raise ValueError("Node '%s': %s" % (self._node.path, msg))
+
+    def GetEntryArgsOrProps(self, props, required=False):
+        """Return the values of a set of properties
+
+        Args:
+            props: List of EntryArg objects
+
+        Raises:
+            ValueError if a property is not found
+        """
+        values = []
+        missing = []
+        for prop in props:
+            python_prop = prop.name.replace('-', '_')
+            if hasattr(self, python_prop):
+                value = getattr(self, python_prop)
+            else:
+                value = None
+            if value is None:
+                value = self.GetArg(prop.name, prop.datatype)
+            if value is None and required:
+                missing.append(prop.name)
+            values.append(value)
+        if missing:
+            self.Raise('Missing required properties/entry args: %s' %
+                       (', '.join(missing)))
+        return values
 
     def GetPath(self):
         """Get the path of a node
@@ -257,12 +315,20 @@ class Entry(object):
     def GetData(self):
         return self.data
 
-    def GetPositions(self):
+    def GetOffsets(self):
         return {}
 
-    def SetPositionSize(self, pos, size):
-        self.pos = pos
+    def SetOffsetSize(self, pos, size):
+        self.offset = pos
         self.size = size
+
+    def SetImagePos(self, image_pos):
+        """Set the position in the image
+
+        Args:
+            image_pos: Position of this entry in the image
+        """
+        self.image_pos = image_pos + self.offset
 
     def ProcessContents(self):
         pass
@@ -275,14 +341,19 @@ class Entry(object):
         """
         pass
 
-    def CheckPosition(self):
-        """Check that the entry positions are correct
+    def CheckOffset(self):
+        """Check that the entry offsets are correct
 
-        This is used for entries which have extra position requirements (other
+        This is used for entries which have extra offset requirements (other
         than having to be fully inside their section). Sub-classes can implement
         this function and raise if there is a problem.
         """
         pass
+
+    @staticmethod
+    def WriteMapLine(fd, indent, name, offset, size, image_pos):
+        print('%08x  %s%08x  %08x  %s' % (image_pos, ' ' * indent, offset,
+                                          size, name), file=fd)
 
     def WriteMap(self, fd, indent):
         """Write a map of the entry to a .map file
@@ -291,5 +362,97 @@ class Entry(object):
             fd: File to write the map to
             indent: Curent indent level of map (0=none, 1=one level, etc.)
         """
-        print('%s%08x  %08x  %s' % (' ' * indent, self.pos, self.size,
-                                    self.name), file=fd)
+        self.WriteMapLine(fd, indent, self.name, self.offset, self.size,
+                          self.image_pos)
+
+    def GetEntries(self):
+        """Return a list of entries contained by this entry
+
+        Returns:
+            List of entries, or None if none. A normal entry has no entries
+                within it so will return None
+        """
+        return None
+
+    def GetArg(self, name, datatype=str):
+        """Get the value of an entry argument or device-tree-node property
+
+        Some node properties can be provided as arguments to binman. First check
+        the entry arguments, and fall back to the device tree if not found
+
+        Args:
+            name: Argument name
+            datatype: Data type (str or int)
+
+        Returns:
+            Value of argument as a string or int, or None if no value
+
+        Raises:
+            ValueError if the argument cannot be converted to in
+        """
+        value = control.GetEntryArg(name)
+        if value is not None:
+            if datatype == int:
+                try:
+                    value = int(value)
+                except ValueError:
+                    self.Raise("Cannot convert entry arg '%s' (value '%s') to integer" %
+                               (name, value))
+            elif datatype == str:
+                pass
+            else:
+                raise ValueError("GetArg() internal error: Unknown data type '%s'" %
+                                 datatype)
+        else:
+            value = fdt_util.GetDatatype(self._node, name, datatype)
+        return value
+
+    @staticmethod
+    def WriteDocs(modules, test_missing=None):
+        """Write out documentation about the various entry types to stdout
+
+        Args:
+            modules: List of modules to include
+            test_missing: Used for testing. This is a module to report
+                as missing
+        """
+        print('''Binman Entry Documentation
+===========================
+
+This file describes the entry types supported by binman. These entry types can
+be placed in an image one by one to build up a final firmware image. It is
+fairly easy to create new entry types. Just add a new file to the 'etype'
+directory. You can use the existing entries as examples.
+
+Note that some entries are subclasses of others, using and extending their
+features to produce new behaviours.
+
+
+''')
+        modules = sorted(modules)
+
+        # Don't show the test entry
+        if '_testing' in modules:
+            modules.remove('_testing')
+        missing = []
+        for name in modules:
+            module = Entry.Lookup(name, name, name)
+            docs = getattr(module, '__doc__')
+            if test_missing == name:
+                docs = None
+            if docs:
+                lines = docs.splitlines()
+                first_line = lines[0]
+                rest = [line[4:] for line in lines[1:]]
+                hdr = 'Entry: %s: %s' % (name.replace('_', '-'), first_line)
+                print(hdr)
+                print('-' * len(hdr))
+                print('\n'.join(rest))
+                print()
+                print()
+            else:
+                missing.append(name)
+
+        if missing:
+            raise ValueError('Documentation is missing for modules: %s' %
+                             ', '.join(missing))

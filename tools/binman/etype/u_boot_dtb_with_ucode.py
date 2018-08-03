@@ -6,7 +6,6 @@
 #
 
 import control
-import fdt
 from entry import Entry
 from blob import Entry_blob
 import tools
@@ -14,8 +13,16 @@ import tools
 class Entry_u_boot_dtb_with_ucode(Entry_blob):
     """A U-Boot device tree file, with the microcode removed
 
-    See Entry_u_boot_ucode for full details of the 3 entries involved in this
-    process.
+    Properties / Entry arguments:
+        - filename: Filename of u-boot.dtb (default 'u-boot.dtb')
+
+    See Entry_u_boot_ucode for full details of the three entries involved in
+    this process. This entry provides the U-Boot device-tree file, which
+    contains the microcode. If the microcode is not being collated into one
+    place then the offset and size of the microcode is recorded by this entry,
+    for use by u_boot_with_ucode_ptr. If it is being collated, then this
+    entry deletes the microcode from the device tree (to save space) and makes
+    it available to u_boot_ucode.
     """
     def __init__(self, section, etype, node):
         Entry_blob.__init__(self, section, etype, node)
@@ -30,13 +37,16 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob):
         return 'u-boot.dtb'
 
     def ProcessFdt(self, fdt):
+        # So the module can be loaded without it
+        import fdt
+
         # If the section does not need microcode, there is nothing to do
         ucode_dest_entry = self.section.FindEntryType(
             'u-boot-spl-with-ucode-ptr')
-        if not ucode_dest_entry or not ucode_dest_entry.target_pos:
+        if not ucode_dest_entry or not ucode_dest_entry.target_offset:
             ucode_dest_entry = self.section.FindEntryType(
                 'u-boot-with-ucode-ptr')
-        if not ucode_dest_entry or not ucode_dest_entry.target_pos:
+        if not ucode_dest_entry or not ucode_dest_entry.target_offset:
             return True
 
         # Remove the microcode
@@ -61,7 +71,7 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob):
         # Call the base class just in case it does something important.
         Entry_blob.ObtainContents(self)
         self._pathname = control.GetFdtPath(self._filename)
-        self.ReadContents()
+        self.ReadBlobContents()
         if self.ucode:
             for node in self.ucode.subnodes:
                 data_prop = node.props.get('data')

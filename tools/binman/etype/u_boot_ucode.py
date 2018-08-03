@@ -12,6 +12,12 @@ import tools
 class Entry_u_boot_ucode(Entry_blob):
     """U-Boot microcode block
 
+    Properties / Entry arguments:
+        None
+
+    The contents of this entry are filled in automatically by other entries
+    which must also be in the image.
+
     U-Boot on x86 needs a single block of microcode. This is collected from
     the various microcode update nodes in the device tree. It is also unable
     to read the microcode from the device tree on platforms that use FSP
@@ -59,8 +65,8 @@ class Entry_u_boot_ucode(Entry_blob):
         ucode_dest_entry = self.section.FindEntryType('u-boot-with-ucode-ptr')
         ucode_dest_entry_spl = self.section.FindEntryType(
             'u-boot-spl-with-ucode-ptr')
-        if ((not ucode_dest_entry or not ucode_dest_entry.target_pos) and
-            (not ucode_dest_entry_spl or not ucode_dest_entry_spl.target_pos)):
+        if ((not ucode_dest_entry or not ucode_dest_entry.target_offset) and
+            (not ucode_dest_entry_spl or not ucode_dest_entry_spl.target_offset)):
             self.data = ''
             return True
 
@@ -86,6 +92,6 @@ class Entry_u_boot_ucode(Entry_blob):
             fd.write(fdt_entry.ucode_data)
 
         self._pathname = fname
-        self.ReadContents()
+        self.ReadBlobContents()
 
         return True

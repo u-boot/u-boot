@@ -3,15 +3,25 @@
 # Copyright (c) 2016 Google, Inc
 #
 
+import command
 import os
 import shutil
 import tempfile
 
 import tout
 
+# Output directly (generally this is temporary)
 outdir = None
-indirs = None
+
+# True to keep the output directory around after exiting
 preserve_outdir = False
+
+# Path to the Chrome OS chroot, if we know it
+chroot_path = None
+
+# Search paths to use for Filename(), used to find files
+search_paths = []
+
 
 def PrepareOutputDir(dirname, preserve=False):
     """Select an output directory, ensuring it exists.
@@ -106,8 +116,8 @@ def GetInputFilename(fname):
         if os.path.exists(pathname):
             return pathname
 
-    raise ValueError("Filename '%s' not found in input path (%s)" %
-                     (fname, ','.join(indir)))
+    raise ValueError("Filename '%s' not found in input path (%s) (cwd='%s')" %
+                     (fname, ','.join(indir), os.getcwd()))
 
 def Align(pos, align):
     if align:
@@ -117,3 +127,67 @@ def Align(pos, align):
 
 def NotPowerOfTwo(num):
     return num and (num & (num - 1))
+
+def Run(name, *args):
+    command.Run(name, *args, cwd=outdir)
+
+def Filename(fname):
+    """Resolve a file path to an absolute path.
+
+    If fname starts with ##/ and chroot is available, ##/ gets replaced with
+    the chroot path. If chroot is not available, this file name can not be
+    resolved, `None' is returned.
+
+    If fname is not prepended with the above prefix, and is not an existing
+    file, the actual file name is retrieved from the passed in string and the
+    search_paths directories (if any) are searched to for the file. If found -
+    the path to the found file is returned, `None' is returned otherwise.
+
+    Args:
+      fname: a string,  the path to resolve.
+
+    Returns:
+      Absolute path to the file or None if not found.
+    """
+    if fname.startswith('##/'):
+      if chroot_path:
+        fname = os.path.join(chroot_path, fname[3:])
+      else:
+        return None
+
+    # Search for a pathname that exists, and return it if found
+    if fname and not os.path.exists(fname):
+        for path in search_paths:
+            pathname = os.path.join(path, os.path.basename(fname))
+            if os.path.exists(pathname):
+                return pathname
+
+    # If not found, just return the standard, unchanged path
+    return fname
+
+def ReadFile(fname):
+    """Read and return the contents of a file.
+
+    Args:
+      fname: path to filename to read, where ## signifiies the chroot.
+
+    Returns:
+      data read from file, as a string.
+    """
+    with open(Filename(fname), 'rb') as fd:
+        data = fd.read()
+    #self._out.Info("Read file '%s' size %d (%#0x)" %
+                   #(fname, len(data), len(data)))
+    return data
+
+def WriteFile(fname, data):
+    """Write data into a file.
+
+    Args:
+        fname: path to filename to write
+        data: data to write to file, as a string
+    """
+    #self._out.Info("Write file '%s' size %d (%#0x)" %
+                   #(fname, len(data), len(data)))
+    with open(Filename(fname), 'wb') as fd:
+        fd.write(data)

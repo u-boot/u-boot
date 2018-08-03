@@ -13,8 +13,25 @@ import tools
 import bsection
 
 class Entry_section(Entry):
-    def __init__(self, image, etype, node):
-        Entry.__init__(self, image, etype, node)
+    """Entry that contains other entries
+
+    Properties / Entry arguments: (see binman README for more information)
+        - size: Size of section in bytes
+        - align-size: Align size to a particular power of two
+        - pad-before: Add padding before the entry
+        - pad-after: Add padding after the entry
+        - pad-byte: Pad byte to use when padding
+        - sort-by-offset: Reorder the entries by offset
+        - end-at-4gb: Used to build an x86 ROM which ends at 4GB (2^32)
+        - name-prefix: Adds a prefix to the name of every entry in the section
+            when writing out the map
+
+    A section is an entry which can contain other entries, thus allowing
+    hierarchical images to be created. See 'Sections and hierarchical images'
+    in the binman README for more information.
+    """
+    def __init__(self, section, etype, node):
+        Entry.__init__(self, section, etype, node)
         self._section = bsection.Section(node.name, node)
 
     def ProcessFdt(self, fdt):
@@ -30,20 +47,25 @@ class Entry_section(Entry):
     def GetData(self):
         return self._section.GetData()
 
-    def GetPositions(self):
-        """Handle entries that want to set the position/size of other entries
+    def GetOffsets(self):
+        """Handle entries that want to set the offset/size of other entries
 
-        This calls each entry's GetPositions() method. If it returns a list
+        This calls each entry's GetOffsets() method. If it returns a list
         of entries to update, it updates them.
         """
-        self._section.GetEntryPositions()
+        self._section.GetEntryOffsets()
         return {}
 
-    def Pack(self, pos):
+    def Pack(self, offset):
         """Pack all entries into the section"""
         self._section.PackEntries()
-        self.size = self._section.CheckSize()
-        return super(Entry_section, self).Pack(pos)
+        self._section.SetOffset(offset)
+        self.size = self._section.GetSize()
+        return super(Entry_section, self).Pack(offset)
+
+    def SetImagePos(self, image_pos):
+        Entry.SetImagePos(self, image_pos)
+        self._section.SetImagePos(image_pos + self.offset)
 
     def WriteSymbols(self, section):
         """Write symbol values into binary files for access at run time"""
@@ -57,7 +79,7 @@ class Entry_section(Entry):
         self._section.ProcessEntryContents()
         super(Entry_section, self).ProcessContents()
 
-    def CheckPosition(self):
+    def CheckOffset(self):
         self._section.CheckEntries()
 
     def WriteMap(self, fd, indent):
@@ -66,5 +88,7 @@ class Entry_section(Entry):
         Args:
             fd: File to write the map to
         """
-        super(Entry_section, self).WriteMap(fd, indent)
-        self._section.WriteMap(fd, indent + 1)
+        self._section.WriteMap(fd, indent)
+
+    def GetEntries(self):
+        return self._section.GetEntries()

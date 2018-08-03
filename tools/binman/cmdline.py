@@ -18,6 +18,8 @@ def ParseArgs(argv):
             args is a list of string arguments
     """
     parser = OptionParser()
+    parser.add_option('-a', '--entry-arg', type='string', action='append',
+            help='Set argument value arg=value')
     parser.add_option('-b', '--board', type='string',
             help='Board name to build')
     parser.add_option('-B', '--build-dir', type='string', default='b',
@@ -26,6 +28,8 @@ def ParseArgs(argv):
             help='Configuration file (.dtb) to use')
     parser.add_option('-D', '--debug', action='store_true',
             help='Enabling debugging (provides a full traceback on error)')
+    parser.add_option('-E', '--entry-docs', action='store_true',
+            help='Write out entry documentation (see README.entries)')
     parser.add_option('-I', '--indir', action='append',
             help='Add a path to a directory to use for input files')
     parser.add_option('-H', '--full-help', action='store_true',
@@ -43,7 +47,7 @@ def ParseArgs(argv):
     parser.add_option('-T', '--test-coverage', action='store_true',
                     default=False, help='run tests and check for 100% coverage')
     parser.add_option('-u', '--update-fdt', action='store_true',
-        default=False, help='Update the binman node with position/size info')
+        default=False, help='Update the binman node with offset/size info')
     parser.add_option('-v', '--verbosity', default=1,
         type='int', help='Control verbosity: 0=silent, 1=progress, 3=full, '
         '4=debug')

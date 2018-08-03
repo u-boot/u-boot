@@ -57,7 +57,9 @@ def GetSymbols(fname, patterns):
             name = parts[2]
             syms[name] = Symbol(section, int(value, 16), int(size,16),
                                 flags[1] == 'w')
-    return syms
+
+    # Sort dict by address
+    return OrderedDict(sorted(syms.iteritems(), key=lambda x: x[1].address))
 
 def GetSymbolAddress(fname, sym_name):
     """Get a value of a symbol from an ELF file
@@ -79,9 +81,9 @@ def LookupAndWriteSymbols(elf_fname, entry, section):
     """Replace all symbols in an entry with their correct values
 
     The entry contents is updated so that values for referenced symbols will be
-    visible at run time. This is done by finding out the symbols positions in
-    the entry (using the ELF file) and replacing them with values from binman's
-    data structures.
+    visible at run time. This is done by finding out the symbols offsets in the
+    entry (using the ELF file) and replacing them with values from binman's data
+    structures.
 
     Args:
         elf_fname: Filename of ELF image containing the symbol information for

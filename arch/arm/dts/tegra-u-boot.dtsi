@@ -15,7 +15,7 @@
 			u-boot-spl {
 			};
 			u-boot {
-				pos = <(U_BOOT_OFFSET)>;
+				offset = <(U_BOOT_OFFSET)>;
 			};
 		};
 
@@ -26,7 +26,7 @@
 			u-boot-spl {
 			};
 			u-boot {
-				pos = <(U_BOOT_OFFSET)>;
+				offset = <(U_BOOT_OFFSET)>;
 			};
 		};
 
@@ -36,7 +36,7 @@
 			u-boot-spl {
 			};
 			u-boot-nodtb {
-				pos = <(U_BOOT_OFFSET)>;
+				offset = <(U_BOOT_OFFSET)>;
 			};
 		};
 	};

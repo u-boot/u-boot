@@ -115,6 +115,9 @@ class TestFdt(unittest.TestCase):
             fdt.CheckErr(-libfdt.NOTFOUND, 'hello')
         self.assertIn('FDT_ERR_NOTFOUND: hello', str(e.exception))
 
+    def testGetFdt(self):
+        node = self.dtb.GetNode('/spl-test')
+        self.assertEqual(self.dtb, node.GetFdt())
 
 class TestNode(unittest.TestCase):
     """Test operation of the Node class"""
@@ -155,12 +158,12 @@ class TestNode(unittest.TestCase):
         self.assertEqual(prop.value, value)
 
     def testFindNode(self):
-        """Tests that we can find a node using the _FindNode() functoin"""
-        node = self.dtb.GetRoot()._FindNode('i2c@0')
+        """Tests that we can find a node using the FindNode() functoin"""
+        node = self.dtb.GetRoot().FindNode('i2c@0')
         self.assertEqual('i2c@0', node.name)
-        subnode = node._FindNode('pmic@9')
+        subnode = node.FindNode('pmic@9')
         self.assertEqual('pmic@9', subnode.name)
-        self.assertEqual(None, node._FindNode('missing'))
+        self.assertEqual(None, node.FindNode('missing'))
 
     def testRefreshMissingNode(self):
         """Test refreshing offsets when an extra node is present in dtb"""
@@ -187,6 +190,14 @@ class TestNode(unittest.TestCase):
             self.dtb.Refresh()
         self.assertIn("Internal error, property 'notstring' missing, offset ",
                       str(e.exception))
+
+    def testLookupPhandle(self):
+        """Test looking up a single phandle"""
+        dtb = fdt.FdtScan('tools/dtoc/dtoc_test_phandle.dts')
+        node = dtb.GetNode('/phandle-source2')
+        prop = node.props['clocks']
+        target = dtb.GetNode('/phandle-target')
+        self.assertEqual(target, dtb.LookupPhandle(fdt32_to_cpu(prop.value)))
 
 
 class TestProp(unittest.TestCase):
@@ -380,6 +391,36 @@ class TestFdtUtil(unittest.TestCase):
         self.assertEqual(True, fdt_util.GetBool(self.node, 'missing', True))
         self.assertEqual(False, fdt_util.GetBool(self.node, 'missing', False))
 
+    def testGetByte(self):
+        self.assertEqual(5, fdt_util.GetByte(self.node, 'byteval'))
+        self.assertEqual(3, fdt_util.GetByte(self.node, 'missing', 3))
+
+        with self.assertRaises(ValueError) as e:
+            fdt_util.GetByte(self.node, 'longbytearray')
+        self.assertIn("property 'longbytearray' has list value: expecting a "
+                      'single byte', str(e.exception))
+
+        with self.assertRaises(ValueError) as e:
+            fdt_util.GetByte(self.node, 'intval')
+        self.assertIn("property 'intval' has length 4, expecting 1",
+                      str(e.exception))
+
+    def testGetPhandleList(self):
+        dtb = fdt.FdtScan('tools/dtoc/dtoc_test_phandle.dts')
+        node = dtb.GetNode('/phandle-source2')
+        self.assertEqual([1], fdt_util.GetPhandleList(node, 'clocks'))
+        node = dtb.GetNode('/phandle-source')
+        self.assertEqual([1, 2, 11, 3, 12, 13, 1],
+                         fdt_util.GetPhandleList(node, 'clocks'))
+        self.assertEqual(None, fdt_util.GetPhandleList(node, 'missing'))
+
+    def testGetDataType(self):
+        self.assertEqual(1, fdt_util.GetDatatype(self.node, 'intval', int))
+        self.assertEqual('message', fdt_util.GetDatatype(self.node, 'stringval',
+                                                         str))
+        with self.assertRaises(ValueError) as e:
+            self.assertEqual(3, fdt_util.GetDatatype(self.node, 'boolval',
+                                                     bool))
     def testFdtCellsToCpu(self):
         val = self.node.props['intarray'].value
         self.assertEqual(0, fdt_util.fdt_cells_to_cpu(val, 0))

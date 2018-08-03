@@ -8,7 +8,7 @@
 			filename = "spl/sunxi-spl.bin";
 		};
 		u-boot-img {
-			pos = <CONFIG_SPL_PAD_TO>;
+			offset = <CONFIG_SPL_PAD_TO>;
 		};
 	};
 };

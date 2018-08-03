@@ -7,13 +7,12 @@
 
 from collections import OrderedDict
 import os
+import re
 import sys
 import tools
 
 import command
 import elf
-import fdt
-import fdt_util
 from image import Image
 import tout
 
@@ -24,6 +23,9 @@ images = OrderedDict()
 # Records the device-tree files known to binman, keyed by filename (e.g.
 # 'u-boot-spl.dtb')
 fdt_files = {}
+
+# Arguments passed to binman to provide arguments to entries
+entry_args = {}
 
 
 def _ReadImageDesc(binman_node):
@@ -76,6 +78,24 @@ def GetFdt(fname):
 def GetFdtPath(fname):
     return fdt_files[fname]._fname
 
+def SetEntryArgs(args):
+    global entry_args
+
+    entry_args = {}
+    if args:
+        for arg in args:
+            m = re.match('([^=]*)=(.*)', arg)
+            if not m:
+                raise ValueError("Invalid entry arguemnt '%s'" % arg)
+            entry_args[m.group(1)] = m.group(2)
+
+def GetEntryArg(name):
+    return entry_args.get(name)
+
+def WriteEntryDocs(modules, test_missing=None):
+    from entry import Entry
+    Entry.WriteDocs(modules, test_missing)
+
 def Binman(options, args):
     """The main control code for binman
 
@@ -111,11 +131,17 @@ def Binman(options, args):
         options.indir.append(board_pathname)
 
     try:
+        # Import these here in case libfdt.py is not available, in which case
+        # the above help option still works.
+        import fdt
+        import fdt_util
+
         tout.Init(options.verbosity)
         elf.debug = options.debug
         try:
             tools.SetInputDirs(options.indir)
             tools.PrepareOutputDir(options.outdir, options.preserve)
+            SetEntryArgs(options.entry_arg)
 
             # Get the device tree ready by compiling it and copying the compiled
             # output into a file in our output directly. Then scan it for use
@@ -142,7 +168,7 @@ def Binman(options, args):
             # size of the device tree is correct. Later, in
             # SetCalculatedProperties() we will insert the correct values
             # without changing the device-tree size, thus ensuring that our
-            # entry positions remain the same.
+            # entry offsets remain the same.
             for image in images.values():
                 if options.update_fdt:
                     image.AddMissingProperties()
@@ -157,10 +183,11 @@ def Binman(options, args):
                 # image will be reported after earlier images are already
                 # completed and written, but that does not seem important.
                 image.GetEntryContents()
-                image.GetEntryPositions()
+                image.GetEntryOffsets()
                 image.PackEntries()
                 image.CheckSize()
                 image.CheckEntries()
+                image.SetImagePos()
                 if options.update_fdt:
                     image.SetCalculatedProperties()
                 image.ProcessEntryContents()

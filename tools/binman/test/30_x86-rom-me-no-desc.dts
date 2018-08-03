@@ -5,12 +5,12 @@
 	#size-cells = <1>;
 
 	binman {
-		sort-by-pos;
+		sort-by-offset;
 		end-at-4gb;
 		size = <16>;
 		intel-me {
 			filename = "me.bin";
-			pos-unset;
+			offset-unset;
 		};
 	};
 };

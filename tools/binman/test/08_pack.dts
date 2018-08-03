@@ -24,7 +24,7 @@
 
 		u-boot-fixed {
 			type = "u-boot";
-			pos = <61>;
+			offset = <61>;
 		};
 	};
 };

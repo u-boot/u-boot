@@ -10,7 +10,7 @@
 
 		u-boot-align {
 			type = "u-boot";
-			pos = <3>;
+			offset = <3>;
 		};
 	};
 };
