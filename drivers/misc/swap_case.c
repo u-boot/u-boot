@@ -118,6 +118,27 @@ static int sandbox_swap_case_read_config(struct udevice *emul, uint offset,
 		*valuep = result;
 		break;
 	}
+	case PCI_CAPABILITY_LIST:
+		*valuep = PCI_CAP_ID_PM_OFFSET;
+		break;
+	case PCI_CAP_ID_PM_OFFSET:
+		*valuep = (PCI_CAP_ID_EXP_OFFSET << 8) | PCI_CAP_ID_PM;
+		break;
+	case PCI_CAP_ID_EXP_OFFSET:
+		*valuep = (PCI_CAP_ID_MSIX_OFFSET << 8) | PCI_CAP_ID_EXP;
+		break;
+	case PCI_CAP_ID_MSIX_OFFSET:
+		*valuep = PCI_CAP_ID_MSIX;
+		break;
+	case PCI_EXT_CAP_ID_ERR_OFFSET:
+		*valuep = (PCI_EXT_CAP_ID_VC_OFFSET << 20) | PCI_EXT_CAP_ID_ERR;
+		break;
+	case PCI_EXT_CAP_ID_VC_OFFSET:
+		*valuep = (PCI_EXT_CAP_ID_DSN_OFFSET << 20) | PCI_EXT_CAP_ID_VC;
+		break;
+	case PCI_EXT_CAP_ID_DSN_OFFSET:
+		*valuep = PCI_EXT_CAP_ID_DSN;
+		break;
 	}
 
 	return 0;

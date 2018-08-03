@@ -188,3 +188,35 @@ static int dm_test_pci_mixed(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_pci_mixed, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test looking up PCI capability and extended capability */
+static int dm_test_pci_cap(struct unit_test_state *uts)
+{
+	struct udevice *bus, *swap;
+	int cap;
+
+	ut_assertok(uclass_get_device_by_seq(UCLASS_PCI, 0, &bus));
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1f, 0), &swap));
+
+	/* look up PCI_CAP_ID_EXP */
+	cap = dm_pci_find_capability(swap, PCI_CAP_ID_EXP);
+	ut_asserteq(PCI_CAP_ID_EXP_OFFSET, cap);
+
+	/* look up PCI_CAP_ID_PCIX */
+	cap = dm_pci_find_capability(swap, PCI_CAP_ID_PCIX);
+	ut_asserteq(0, cap);
+
+	ut_assertok(uclass_get_device_by_seq(UCLASS_PCI, 1, &bus));
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(1, 0x08, 0), &swap));
+
+	/* look up PCI_EXT_CAP_ID_DSN */
+	cap = dm_pci_find_ext_capability(swap, PCI_EXT_CAP_ID_DSN);
+	ut_asserteq(PCI_EXT_CAP_ID_DSN_OFFSET, cap);
+
+	/* look up PCI_EXT_CAP_ID_SRIOV */
+	cap = dm_pci_find_ext_capability(swap, PCI_EXT_CAP_ID_SRIOV);
+	ut_asserteq(0, cap);
+
+	return 0;
+}
+DM_TEST(dm_test_pci_cap, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
