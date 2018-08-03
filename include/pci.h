@@ -17,6 +17,7 @@
  * Under PCI, each device has 256 bytes of configuration address space,
  * of which the first 64 bytes are standardized as follows:
  */
+#define PCI_STD_HEADER_SIZEOF	64
 #define PCI_VENDOR_ID		0x00	/* 16 bits */
 #define PCI_DEVICE_ID		0x02	/* 16 bits */
 #define PCI_COMMAND		0x04	/* 16 bits */
@@ -1310,6 +1311,51 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t addr,
  * @return: pointer to the virtual address to use
  */
 void *dm_pci_map_bar(struct udevice *dev, int bar, int flags);
+
+/**
+ * dm_pci_find_capability() - find a capability
+ *
+ * Tell if a device supports a given PCI capability. Returns the
+ * address of the requested capability structure within the device's
+ * PCI configuration space or 0 in case the device does not support it.
+ *
+ * Possible values for @cap:
+ *
+ *  %PCI_CAP_ID_MSI	Message Signalled Interrupts
+ *  %PCI_CAP_ID_PCIX	PCI-X
+ *  %PCI_CAP_ID_EXP	PCI Express
+ *  %PCI_CAP_ID_MSIX	MSI-X
+ *
+ * See PCI_CAP_ID_xxx for the complete capability ID codes.
+ *
+ * @dev:	PCI device to query
+ * @cap:	capability code
+ * @return:	capability address or 0 if not supported
+ */
+int dm_pci_find_capability(struct udevice *dev, int cap);
+
+/**
+ * dm_pci_find_ext_capability() - find an extended capability
+ *
+ * Tell if a device supports a given PCI express extended capability.
+ * Returns the address of the requested extended capability structure
+ * within the device's PCI configuration space or 0 in case the device
+ * does not support it.
+ *
+ * Possible values for @cap:
+ *
+ *  %PCI_EXT_CAP_ID_ERR	Advanced Error Reporting
+ *  %PCI_EXT_CAP_ID_VC	Virtual Channel
+ *  %PCI_EXT_CAP_ID_DSN	Device Serial Number
+ *  %PCI_EXT_CAP_ID_PWR	Power Budgeting
+ *
+ * See PCI_EXT_CAP_ID_xxx for the complete extended capability ID codes.
+ *
+ * @dev:	PCI device to query
+ * @cap:	extended capability code
+ * @return:	extended capability address or 0 if not supported
+ */
+int dm_pci_find_ext_capability(struct udevice *dev, int cap);
 
 #define dm_pci_virt_to_bus(dev, addr, flags) \
 	dm_pci_phys_to_bus(dev, (virt_to_phys(addr)), (flags))
