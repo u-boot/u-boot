@@ -40,11 +40,20 @@
 
 #define CONFIG_SYS_MALLOC_LEN		(1 * 1024 * 1024)
 
-#define CONFIG_BOOTCOMMAND						\
-	"run boot_sd"
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0)
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"boot_sd=mmc dev 0;fatload mmc 0 0x00700000 stm32f469-disco.dtb; fatload mmc 0 0x00008000 zImage; bootz 0x00008000 - 0x00700000"
+#include <config_distro_bootcmd.h>
+#define CONFIG_EXTRA_ENV_SETTINGS				\
+			"kernel_addr_r=0x00008000\0"		\
+			"fdtfile=stm32f469-disco.dtb\0"	\
+			"fdt_addr_r=0x00700000\0"		\
+			"scriptaddr=0x00800000\0"		\
+			"pxefile_addr_r=0x00800000\0" \
+			"fdt_high=0xffffffffffffffff\0"		\
+			"initrd_high=0xffffffffffffffff\0"	\
+			"ramdisk_addr_r=0x00900000\0"		\
+			BOOTENV
 
 /*
  * Command line configuration.
