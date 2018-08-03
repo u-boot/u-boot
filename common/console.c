@@ -311,12 +311,12 @@ int serial_printf(const char *fmt, ...)
 int fgetc(int file)
 {
 	if (file < MAX_FILES) {
-#if CONFIG_IS_ENABLED(CONSOLE_MUX)
 		/*
 		 * Effectively poll for input wherever it may be available.
 		 */
 		for (;;) {
 			WATCHDOG_RESET();
+#if CONFIG_IS_ENABLED(CONSOLE_MUX)
 			/*
 			 * Upper layer may have already called tstc() so
 			 * check for that first.
@@ -324,6 +324,10 @@ int fgetc(int file)
 			if (tstcdev != NULL)
 				return console_getc(file);
 			console_tstc(file);
+#else
+			if (console_tstc(file))
+				return console_getc(file);
+#endif
 #ifdef CONFIG_WATCHDOG
 			/*
 			 * If the watchdog must be rate-limited then it should
@@ -332,9 +336,6 @@ int fgetc(int file)
 			 udelay(1);
 #endif
 		}
-#else
-		return console_getc(file);
-#endif
 	}
 
 	return -1;
