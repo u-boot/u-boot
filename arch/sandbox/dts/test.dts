@@ -14,7 +14,8 @@
 		i2c0 = "/i2c@0";
 		mmc0 = "/mmc0";
 		mmc1 = "/mmc1";
-		pci0 = &pci;
+		pci0 = &pci0;
+		pci1 = &pci1;
 		remoteproc1 = &rproc_1;
 		remoteproc2 = &rproc_2;
 		rtc0 = &rtc_0;
@@ -295,7 +296,7 @@
 		compatible = "sandbox,mmc";
 	};
 
-	pci: pci-controller {
+	pci0: pci-controller0 {
 		compatible = "sandbox,pci";
 		device_type = "pci";
 		#address-cells = <3>;
@@ -313,6 +314,29 @@
 			compatible = "pci-generic";
 			reg = <0xf800 0 0 0 0>;
 			emul@1f,0 {
+				compatible = "sandbox,swap-case";
+			};
+		};
+	};
+
+	pci1: pci-controller1 {
+		compatible = "sandbox,pci";
+		device_type = "pci";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		ranges = <0x02000000 0 0x30000000 0x30000000 0 0x2000
+				0x01000000 0 0x40000000 0x40000000 0 0x2000>;
+		pci@8,0 {
+			compatible = "pci-generic";
+			reg = <0x4000 0 0 0 0>;
+			emul@8,0 {
+				compatible = "sandbox,swap-case";
+			};
+		};
+		pci@c,0 {
+			compatible = "pci-generic";
+			reg = <0x6000 0 0 0 0>;
+			emul@c,0 {
 				compatible = "sandbox,swap-case";
 			};
 		};

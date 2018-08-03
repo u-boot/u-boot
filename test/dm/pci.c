@@ -26,6 +26,7 @@ static int dm_test_pci_busdev(struct unit_test_state *uts)
 	struct udevice *bus;
 	struct udevice *emul, *swap;
 
+	/* Test bus#0 and its devices */
 	ut_assertok(uclass_get_device_by_seq(UCLASS_PCI, 0, &bus));
 
 	ut_assertok(uclass_get_device(UCLASS_PCI_EMUL, 0, &emul));
@@ -33,6 +34,16 @@ static int dm_test_pci_busdev(struct unit_test_state *uts)
 	ut_assert(device_active(swap));
 	ut_assertok(uclass_get_device(UCLASS_PCI_EMUL, 1, &emul));
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1f, 0), &swap));
+	ut_assert(device_active(swap));
+
+	/* Test bus#1 and its devices */
+	ut_assertok(uclass_get_device_by_seq(UCLASS_PCI, 1, &bus));
+
+	ut_assertok(uclass_get_device(UCLASS_PCI_EMUL, 2, &emul));
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(1, 0x08, 0), &swap));
+	ut_assert(device_active(swap));
+	ut_assertok(uclass_get_device(UCLASS_PCI_EMUL, 3, &emul));
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(1, 0x0c, 0), &swap));
 	ut_assert(device_active(swap));
 
 	return 0;
