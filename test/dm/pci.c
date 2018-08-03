@@ -108,3 +108,20 @@ static int dm_test_pci_swapcase(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_pci_swapcase, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test that we can dynamically bind the device driver correctly */
+static int dm_test_pci_drvdata(struct unit_test_state *uts)
+{
+	struct udevice *bus, *swap;
+
+	/* Check that asking for the device automatically fires up PCI */
+	ut_assertok(uclass_get_device_by_seq(UCLASS_PCI, 1, &bus));
+
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(1, 0x08, 0), &swap));
+	ut_asserteq(SWAP_CASE_DRV_DATA, swap->driver_data);
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(1, 0x0c, 0), &swap));
+	ut_asserteq(SWAP_CASE_DRV_DATA, swap->driver_data);
+
+	return 0;
+}
+DM_TEST(dm_test_pci_drvdata, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
