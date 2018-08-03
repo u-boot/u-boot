@@ -207,7 +207,11 @@ ARM SNAPDRAGON
 M:	Ramon Fried <ramon.fried@gmail.com>
 S:	Maintained
 F:	arch/arm/mach-snapdragon/
+F:	drivers/gpio/msm_gpio.c
+F:	drivers/mmc/msm_sdhci.c
+F:	drivers/serial/serial_msm.c
 F:	drivers/smem/msm_smem.c
+F:	drivers/usb/host/ehci-msm.c
 
 ARM STI
 M:	Patrice Chotard <patrice.chotard@st.com>
