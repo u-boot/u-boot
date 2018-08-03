@@ -57,7 +57,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_CACHE
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_DISPLAY_BOARDINFO
 
