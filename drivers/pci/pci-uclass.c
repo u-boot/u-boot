@@ -690,7 +690,7 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 			if (ret)
 				goto error;
 			debug("%s: Match found: %s\n", __func__, drv->name);
-			dev->driver_data = find_id->driver_data;
+			dev->driver_data = id->driver_data;
 			*devp = dev;
 			return 0;
 		}
