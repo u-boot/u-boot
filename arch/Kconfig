@@ -78,6 +78,7 @@ config SANDBOX
 	select LZO
 	select SPI
 	select SUPPORT_OF_CONTROL
+	imply BITREVERSE
 	imply CMD_DM
 	imply CMD_GETTIME
 	imply CMD_HASH
