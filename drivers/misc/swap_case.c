@@ -285,3 +285,10 @@ U_BOOT_DRIVER(sandbox_swap_case_emul) = {
 	.priv_auto_alloc_size = sizeof(struct swap_case_priv),
 	.platdata_auto_alloc_size = sizeof(struct swap_case_platdata),
 };
+
+static struct pci_device_id sandbox_swap_case_supported[] = {
+	{ PCI_VDEVICE(SANDBOX, SANDBOX_PCI_DEVICE_ID), SWAP_CASE_DRV_DATA },
+	{},
+};
+
+U_BOOT_PCI_DEVICE(sandbox_swap_case_emul, sandbox_swap_case_supported);
