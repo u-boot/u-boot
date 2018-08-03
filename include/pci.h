@@ -1441,11 +1441,12 @@ struct dm_pci_emul_ops {
  *
  * @bus:	PCI bus to search
  * @find_devfn:	PCI device and function address (PCI_DEVFN())
+ * @containerp:	Returns container device if found
  * @emulp:	Returns emulated device if found
  * @return 0 if found, -ENODEV if not found
  */
 int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
-			 struct udevice **emulp);
+			 struct udevice **containerp, struct udevice **emulp);
 
 #endif /* CONFIG_DM_PCI */
 

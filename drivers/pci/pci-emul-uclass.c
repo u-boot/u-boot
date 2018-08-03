@@ -16,21 +16,27 @@ struct sandbox_pci_priv {
 };
 
 int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
-			 struct udevice **emulp)
+			 struct udevice **containerp, struct udevice **emulp)
 {
 	struct udevice *dev;
 	int ret;
 
+	*containerp = NULL;
 	ret = pci_bus_find_devfn(bus, PCI_MASK_BUS(find_devfn), &dev);
 	if (ret) {
 		debug("%s: Could not find emulator for dev %x\n", __func__,
 		      find_devfn);
 		return ret;
 	}
+	*containerp = dev;
 
-	ret = device_find_first_child(dev, emulp);
-	if (ret)
-		return ret;
+	if (device_get_uclass_id(dev) == UCLASS_PCI_GENERIC) {
+		ret = device_find_first_child(dev, emulp);
+		if (ret)
+			return ret;
+	} else {
+		*emulp = dev;
+	}
 
 	return *emulp ? 0 : -ENODEV;
 }
