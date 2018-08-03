@@ -143,6 +143,19 @@ static int sandbox_serial_getc(struct udevice *dev)
 	return result;
 }
 
+static int sandbox_serial_setconfig(struct udevice *dev, uint serial_config)
+{
+	u8 parity = SERIAL_GET_PARITY(serial_config);
+	u8 bits = SERIAL_GET_BITS(serial_config);
+	u8 stop = SERIAL_GET_STOP(serial_config);
+
+	if (bits != SERIAL_8_BITS || stop != SERIAL_ONE_STOP ||
+	    parity != SERIAL_PAR_NONE)
+		return -ENOTSUPP; /* not supported in driver*/
+
+	return 0;
+}
+
 static const char * const ansi_colour[] = {
 	"black", "red", "green", "yellow", "blue", "megenta", "cyan",
 	"white",
@@ -173,6 +186,7 @@ static const struct dm_serial_ops sandbox_serial_ops = {
 	.putc = sandbox_serial_putc,
 	.pending = sandbox_serial_pending,
 	.getc = sandbox_serial_getc,
+	.setconfig = sandbox_serial_setconfig,
 };
 
 static const struct udevice_id sandbox_serial_ids[] = {

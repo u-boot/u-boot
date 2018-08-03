@@ -102,6 +102,11 @@ enum serial_stop {
 #define SERIAL_GET_STOP(config) \
 	((config & SERIAL_STOP_MASK) >> SERIAL_STOP_SHIFT)
 
+#define SERIAL_CONFIG(par, bits, stop) \
+		     (par << SERIAL_PAR_SHIFT | \
+		      bits << SERIAL_BITS_SHIFT | \
+		      stop << SERIAL_STOP_SHIFT)
+
 #define SERIAL_DEFAULT_CONFIG	SERIAL_PAR_NONE << SERIAL_PAR_SHIFT | \
 				SERIAL_8_BITS << SERIAL_BITS_SHIFT | \
 				SERIAL_ONE_STOP << SERIAL_STOP_SHIFT
