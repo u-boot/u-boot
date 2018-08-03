@@ -271,21 +271,6 @@
 #define  PCI_BRIDGE_CTL_BUS_RESET 0x40	/* Secondary bus reset */
 #define  PCI_BRIDGE_CTL_FAST_BACK 0x80	/* Fast Back2Back enabled on secondary interface */
 
-/* From 440ep */
-#define PCI_ERREN       0x48     /* Error Enable */
-#define PCI_ERRSTS      0x49     /* Error Status */
-#define PCI_BRDGOPT1    0x4A     /* PCI Bridge Options 1 */
-#define PCI_PLBSESR0    0x4C     /* PCI PLB Slave Error Syndrome 0 */
-#define PCI_PLBSESR1    0x50     /* PCI PLB Slave Error Syndrome 1 */
-#define PCI_PLBSEAR     0x54     /* PCI PLB Slave Error Address */
-#define PCI_CAPID       0x58     /* Capability Identifier */
-#define PCI_NEXTITEMPTR 0x59     /* Next Item Pointer */
-#define PCI_PMC         0x5A     /* Power Management Capabilities */
-#define PCI_PMCSR       0x5C     /* Power Management Control Status */
-#define PCI_PMCSRBSE    0x5E     /* PMCSR PCI to PCI Bridge Support Extensions */
-#define PCI_BRDGOPT2    0x60     /* PCI Bridge Options 2 */
-#define PCI_PMSCRR      0x64     /* Power Management State Change Request Re. */
-
 /* Header type 2 (CardBus bridges) */
 #define PCI_CB_CAPABILITY_LIST	0x14
 /* 0x15 reserved */
