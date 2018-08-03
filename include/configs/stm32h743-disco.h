@@ -37,7 +37,6 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_CACHE
 #define CONFIG_BOARD_LATE_INIT
 
 #endif /* __CONFIG_H */
