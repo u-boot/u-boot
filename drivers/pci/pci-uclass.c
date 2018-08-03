@@ -745,6 +745,8 @@ int pci_bind_bus_devices(struct udevice *bus)
 		struct udevice *dev;
 		ulong class;
 
+		if (!PCI_FUNC(bdf))
+			found_multi = false;
 		if (PCI_FUNC(bdf) && !found_multi)
 			continue;
 		/* Check only the first access, we don't expect problems */
