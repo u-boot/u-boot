@@ -34,14 +34,12 @@ DM_TEST(dm_test_pci_busnum, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 /* Test that we can use the swapcase device correctly */
 static int dm_test_pci_swapcase(struct unit_test_state *uts)
 {
-	struct udevice *emul, *swap;
+	struct udevice *swap;
 	ulong io_addr, mem_addr;
 	char *ptr;
 
 	/* Check that asking for the device automatically fires up PCI */
-	ut_assertok(uclass_get_device(UCLASS_PCI_EMUL, 0, &emul));
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1f, 0), &swap));
-	ut_assert(device_active(swap));
 
 	/* First test I/O */
 	io_addr = dm_pci_read_bar32(swap, 0);
