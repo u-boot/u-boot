@@ -125,3 +125,66 @@ static int dm_test_pci_drvdata(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_pci_drvdata, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test that devices on PCI bus#2 can be accessed correctly */
+static int dm_test_pci_mixed(struct unit_test_state *uts)
+{
+	/* PCI bus#2 has both statically and dynamic declared devices */
+	struct udevice *bus, *swap;
+	u16 vendor, device;
+	ulong io_addr, mem_addr;
+	char *ptr;
+
+	ut_assertok(uclass_get_device_by_seq(UCLASS_PCI, 2, &bus));
+
+	/* Test the dynamic device */
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(2, 0x08, 0), &swap));
+	vendor = 0;
+	ut_assertok(dm_pci_read_config16(swap, PCI_VENDOR_ID, &vendor));
+	ut_asserteq(SANDBOX_PCI_VENDOR_ID, vendor);
+
+	/* First test I/O */
+	io_addr = dm_pci_read_bar32(swap, 0);
+	outb(2, io_addr);
+	ut_asserteq(2, inb(io_addr));
+
+	/*
+	 * Now test memory mapping - note we must unmap and remap to cause
+	 * the swapcase emulation to see our data and response.
+	 */
+	mem_addr = dm_pci_read_bar32(swap, 1);
+	ptr = map_sysmem(mem_addr, 30);
+	strcpy(ptr, "This is a TesT oN dYNAMIc");
+	unmap_sysmem(ptr);
+
+	ptr = map_sysmem(mem_addr, 30);
+	ut_asserteq_str("tHIS IS A tESt On DynamiC", ptr);
+	unmap_sysmem(ptr);
+
+	/* Test the static device */
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(2, 0x1f, 0), &swap));
+	device = 0;
+	ut_assertok(dm_pci_read_config16(swap, PCI_DEVICE_ID, &device));
+	ut_asserteq(SANDBOX_PCI_DEVICE_ID, device);
+
+	/* First test I/O */
+	io_addr = dm_pci_read_bar32(swap, 0);
+	outb(2, io_addr);
+	ut_asserteq(2, inb(io_addr));
+
+	/*
+	 * Now test memory mapping - note we must unmap and remap to cause
+	 * the swapcase emulation to see our data and response.
+	 */
+	mem_addr = dm_pci_read_bar32(swap, 1);
+	ptr = map_sysmem(mem_addr, 30);
+	strcpy(ptr, "This is a TesT oN sTATIc");
+	unmap_sysmem(ptr);
+
+	ptr = map_sysmem(mem_addr, 30);
+	ut_asserteq_str("tHIS IS A tESt On StatiC", ptr);
+	unmap_sysmem(ptr);
+
+	return 0;
+}
+DM_TEST(dm_test_pci_mixed, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

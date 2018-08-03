@@ -16,6 +16,7 @@
 		mmc1 = "/mmc1";
 		pci0 = &pci0;
 		pci1 = &pci1;
+		pci2 = &pci2;
 		remoteproc1 = &rproc_1;
 		remoteproc2 = &rproc_2;
 		rtc0 = &rtc_0;
@@ -328,6 +329,23 @@
 				0x01000000 0 0x40000000 0x40000000 0 0x2000>;
 		sandbox,dev-info = <0x08 0x00 0x1234 0x5678
 				    0x0c 0x00 0x1234 0x5678>;
+	};
+
+	pci2: pci-controller2 {
+		compatible = "sandbox,pci";
+		device_type = "pci";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		ranges = <0x02000000 0 0x50000000 0x50000000 0 0x2000
+				0x01000000 0 0x60000000 0x60000000 0 0x2000>;
+		sandbox,dev-info = <0x08 0x00 0x1234 0x5678>;
+		pci@1f,0 {
+			compatible = "pci-generic";
+			reg = <0xf800 0 0 0 0>;
+			emul@1f,0 {
+				compatible = "sandbox,swap-case";
+			};
+		};
 	};
 
 	probing {
