@@ -10,7 +10,9 @@
 #include <usb.h>
 #include <asm/gpio.h>
 #include <fdt_support.h>
+#include <environment.h>
 #include <asm/arch/dram.h>
+#include <asm/arch/misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -149,40 +151,38 @@ int board_init(void)
 	return 0;
 }
 
+/* Fixup of DTB for Linux Kernel
+ * 1. Fixup installed DRAM.
+ * 2. Fixup WLAN/BT Mac address:
+ *	First, check if MAC addresses for WLAN/BT exists as environemnt
+ *	variables wlanaddr,btaddr. if not, generate a unique address.
+ */
+
 int ft_board_setup(void *blob, bd_t *bd)
 {
-	int offset, len, i;
-	const char *mac;
-	struct {
-		const char *compatible;
-		const char *property;
-	} fix[] = {
-		[0] = {
-			/* update the kernel's dtb with wlan mac */
-			.compatible = "qcom,wcnss-wlan",
-			.property = "local-mac-address",
-		},
-		[1] = {
-			/* update the kernel's dtb with bt mac */
-			.compatible = "qcom,wcnss-bt",
-			.property = "local-bd-address",
-		},
-	};
-
-	for (i = 0; i < sizeof(fix) / sizeof(fix[0]); i++) {
-		offset = fdt_node_offset_by_compatible(gd->fdt_blob, -1,
-						       fix[i].compatible);
-		if (offset < 0)
-			continue;
-
-		mac = fdt_getprop(gd->fdt_blob, offset, fix[i].property, &len);
-		if (mac)
-			do_fixup_by_compat(blob, fix[i].compatible,
-					   fix[i].property, mac, ARP_HLEN, 1);
-	}
+	u8 mac[ARP_HLEN];
 
 	msm_fixup_memory(blob);
 
+	if (!eth_env_get_enetaddr("wlanaddr", mac)) {
+		msm_generate_mac_addr(mac);
+	};
+
+	do_fixup_by_compat(blob, "qcom,wcnss-wlan",
+			   "local-mac-address", mac, ARP_HLEN, 1);
+
+
+	if (!eth_env_get_enetaddr("btaddr", mac)) {
+		msm_generate_mac_addr(mac);
+
+/* The BD address is same as WLAN MAC address but with
+ * least significant bit flipped.
+ */
+		mac[0] ^= 0x01;
+	};
+
+	do_fixup_by_compat(blob, "qcom,wcnss-bt",
+			   "local-bd-address", mac, ARP_HLEN, 1);
 	return 0;
 }
 
