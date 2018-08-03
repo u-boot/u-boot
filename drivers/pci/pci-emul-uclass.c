@@ -21,7 +21,7 @@ int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
 	struct udevice *dev;
 	int ret;
 
-	ret = pci_bus_find_devfn(bus, find_devfn, &dev);
+	ret = pci_bus_find_devfn(bus, PCI_MASK_BUS(find_devfn), &dev);
 	if (ret) {
 		debug("%s: Could not find emulator for dev %x\n", __func__,
 		      find_devfn);
