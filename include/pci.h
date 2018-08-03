@@ -318,7 +318,21 @@
 #define  PCI_CAP_ID_SLOTID	0x04	/* Slot Identification */
 #define  PCI_CAP_ID_MSI		0x05	/* Message Signalled Interrupts */
 #define  PCI_CAP_ID_CHSWP	0x06	/* CompactPCI HotSwap */
-#define  PCI_CAP_ID_EXP 	0x10	/* PCI Express */
+#define  PCI_CAP_ID_PCIX	0x07	/* PCI-X */
+#define  PCI_CAP_ID_HT		0x08	/* HyperTransport */
+#define  PCI_CAP_ID_VNDR	0x09	/* Vendor-Specific */
+#define  PCI_CAP_ID_DBG		0x0A	/* Debug port */
+#define  PCI_CAP_ID_CCRC	0x0B	/* CompactPCI Central Resource Control */
+#define  PCI_CAP_ID_SHPC	0x0C	/* PCI Standard Hot-Plug Controller */
+#define  PCI_CAP_ID_SSVID	0x0D	/* Bridge subsystem vendor/device ID */
+#define  PCI_CAP_ID_AGP3	0x0E	/* AGP Target PCI-PCI bridge */
+#define  PCI_CAP_ID_SECDEV	0x0F	/* Secure Device */
+#define  PCI_CAP_ID_EXP		0x10	/* PCI Express */
+#define  PCI_CAP_ID_MSIX	0x11	/* MSI-X */
+#define  PCI_CAP_ID_SATA	0x12	/* SATA Data/Index Conf. */
+#define  PCI_CAP_ID_AF		0x13	/* PCI Advanced Features */
+#define  PCI_CAP_ID_EA		0x14	/* PCI Enhanced Allocation */
+#define  PCI_CAP_ID_MAX		PCI_CAP_ID_EA
 #define PCI_CAP_LIST_NEXT	1	/* Next capability in the list */
 #define PCI_CAP_FLAGS		2	/* Capability defined flags (16 bits) */
 #define PCI_CAP_SIZEOF		4
@@ -434,6 +448,10 @@
 #define PCI_EXT_CAP_ID_SECPCI	0x19	/* Secondary PCIe Capability */
 #define PCI_EXT_CAP_ID_PMUX	0x1A	/* Protocol Multiplexing */
 #define PCI_EXT_CAP_ID_PASID	0x1B	/* Process Address Space ID */
+#define PCI_EXT_CAP_ID_DPC	0x1D	/* Downstream Port Containment */
+#define PCI_EXT_CAP_ID_L1SS	0x1E	/* L1 PM Substates */
+#define PCI_EXT_CAP_ID_PTM	0x1F	/* Precision Time Measurement */
+#define PCI_EXT_CAP_ID_MAX	PCI_EXT_CAP_ID_PTM
 
 /* Include the ID list */
 
