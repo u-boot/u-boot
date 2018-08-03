@@ -987,19 +987,18 @@ static int pci_uclass_child_post_bind(struct udevice *dev)
 	if (!dev_of_valid(dev))
 		return 0;
 
-	/*
-	 * We could read vendor, device, class if available. But for now we
-	 * just check the address.
-	 */
 	pplat = dev_get_parent_platdata(dev);
+
+	/* Extract vendor id and device id if available */
+	ofnode_read_pci_vendev(dev_ofnode(dev), &pplat->vendor, &pplat->device);
+
+	/* Extract the devfn from fdt_pci_addr */
 	ret = ofnode_read_pci_addr(dev_ofnode(dev), FDT_PCI_SPACE_CONFIG, "reg",
 				   &addr);
-
 	if (ret) {
 		if (ret != -ENOENT)
 			return -EINVAL;
 	} else {
-		/* extract the devfn from fdt_pci_addr */
 		pplat->devfn = addr.phys_hi & 0xff00;
 	}
 
