@@ -302,7 +302,7 @@ int uclass_first_device_err(enum uclass_id id, struct udevice **devp);
 int uclass_next_device(struct udevice **devp);
 
 /**
- * uclass_first_device() - Get the first device in a uclass
+ * uclass_first_device_check() - Get the first device in a uclass
  *
  * The device returned is probed if necessary, and ready for use
  *
@@ -318,7 +318,7 @@ int uclass_next_device(struct udevice **devp);
 int uclass_first_device_check(enum uclass_id id, struct udevice **devp);
 
 /**
- * uclass_next_device() - Get the next device in a uclass
+ * uclass_next_device_check() - Get the next device in a uclass
  *
  * The device returned is probed if necessary, and ready for use
  *
