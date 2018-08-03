@@ -228,6 +228,9 @@ static int _serial_getc(struct udevice *dev)
 	struct serial_dev_priv *upriv = dev_get_uclass_priv(dev);
 	char val;
 
+	if (upriv->rd_ptr == upriv->wr_ptr)
+		return __serial_getc(dev);
+
 	val = upriv->buf[upriv->rd_ptr++];
 	upriv->rd_ptr %= CONFIG_SERIAL_RX_BUFFER_SIZE;
 
