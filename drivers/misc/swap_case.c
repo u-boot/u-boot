@@ -142,6 +142,8 @@ static int sandbox_swap_case_write_config(struct udevice *emul, uint offset,
 
 		debug("w bar %d=%lx\n", barnum, value);
 		*bar = value;
+		/* space indicator (bit#0) is read-only */
+		*bar |= barinfo[barnum].type;
 		break;
 	}
 	}
@@ -157,11 +159,11 @@ static int sandbox_swap_case_find_bar(struct udevice *emul, unsigned int addr,
 
 	for (barnum = 0; barnum < ARRAY_SIZE(barinfo); barnum++) {
 		unsigned int size = barinfo[barnum].size;
+		u32 base = plat->bar[barnum] & ~PCI_BASE_ADDRESS_SPACE;
 
-		if (addr >= plat->bar[barnum] &&
-		    addr < plat->bar[barnum] + size) {
+		if (addr >= base && addr < base + size) {
 			*barnump = barnum;
-			*offsetp = addr - plat->bar[barnum];
+			*offsetp = addr - base;
 			return 0;
 		}
 	}
