@@ -586,6 +586,19 @@ int ofnode_read_pci_addr(ofnode node, enum fdt_pci_space type,
 			 const char *propname, struct fdt_pci_addr *addr);
 
 /**
+ * ofnode_read_pci_vendev() - look up PCI vendor and device id
+ *
+ * Look at the compatible property of a device node that represents a PCI
+ * device and extract pci vendor id and device id from it.
+ *
+ * @param node		node to examine
+ * @param vendor	vendor id of the pci device
+ * @param device	device id of the pci device
+ * @return 0 if ok, negative on error
+ */
+int ofnode_read_pci_vendev(ofnode node, u16 *vendor, u16 *device);
+
+/**
  * ofnode_read_addr_cells() - Get the number of address cells for a node
  *
  * This walks back up the tree to find the closest #address-cells property
