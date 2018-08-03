@@ -47,20 +47,28 @@ static int stm32_serial_setbrg(struct udevice *dev, int baudrate)
 	return 0;
 }
 
-static int stm32_serial_setparity(struct udevice *dev, enum serial_par parity)
+static int stm32_serial_setconfig(struct udevice *dev, uint serial_config)
 {
 	struct stm32x7_serial_platdata *plat = dev_get_platdata(dev);
 	bool stm32f4 = plat->uart_info->stm32f4;
 	u8 uart_enable_bit = plat->uart_info->uart_enable_bit;
 	u32 cr1 = plat->base + CR1_OFFSET(stm32f4);
 	u32 config = 0;
+	uint parity = SERIAL_GET_PARITY(serial_config);
+	uint bits = SERIAL_GET_BITS(serial_config);
+	uint stop = SERIAL_GET_STOP(serial_config);
 
-	if (stm32f4)
-		return -EINVAL; /* not supported in driver*/
+	/*
+	 * only parity config is implemented, check if other serial settings
+	 * are the default one.
+	 * (STM32F4 serial IP didn't support parity setting)
+	 */
+	if (bits != SERIAL_8_BITS || stop != SERIAL_ONE_STOP || stm32f4)
+		return -ENOTSUPP; /* not supported in driver*/
 
 	clrbits_le32(cr1, USART_CR1_RE | USART_CR1_TE | BIT(uart_enable_bit));
 	/* update usart configuration (uart need to be disable)
-	 * PCE: parity check control
+	 * PCE: parity check enable
 	 * PS : '0' : Even / '1' : Odd
 	 * M[1:0] = '00' : 8 Data bits
 	 * M[1:0] = '01' : 9 Data bits with parity
@@ -77,6 +85,7 @@ static int stm32_serial_setparity(struct udevice *dev, enum serial_par parity)
 		config = USART_CR1_PCE | USART_CR1_M0;
 		break;
 	}
+
 	clrsetbits_le32(cr1,
 			USART_CR1_PCE | USART_CR1_PS | USART_CR1_M1 |
 			USART_CR1_M0,
@@ -210,7 +219,7 @@ static const struct dm_serial_ops stm32_serial_ops = {
 	.pending = stm32_serial_pending,
 	.getc = stm32_serial_getc,
 	.setbrg = stm32_serial_setbrg,
-	.setparity = stm32_serial_setparity
+	.setconfig = stm32_serial_setconfig
 };
 
 U_BOOT_DRIVER(serial_stm32) = {
