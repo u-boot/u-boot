@@ -13,9 +13,6 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR		0x10010000
 
-#define CONFIG_SYS_ICACHE_OFF
-#define CONFIG_SYS_DCACHE_OFF
-
 /*
  * Configuration of the external SDRAM memory
  */
@@ -48,7 +45,7 @@
 	"run boot_sd"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"boot_sd=mmc dev 0;fatload mmc 0 0x00700000 stm32429i-eval.dtb; fatload mmc 0 0x00008000 zImage; icache off; bootz 0x00008000 - 0x00700000"
+	"boot_sd=mmc dev 0;fatload mmc 0 0x00700000 stm32429i-eval.dtb; fatload mmc 0 0x00008000 zImage; bootz 0x00008000 - 0x00700000"
 
 /*
  * Command line configuration.
