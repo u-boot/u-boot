@@ -34,7 +34,6 @@
 #define CONFIG_MII
 #define CONFIG_PHY_SMSC
 
-#define CONFIG_SYS_CLK_FREQ		200000000 /* 200 MHz */
 #define CONFIG_SYS_HZ_CLOCK		1000000	/* Timer is clocked at 1MHz */
 
 #define CONFIG_CMDLINE_TAG

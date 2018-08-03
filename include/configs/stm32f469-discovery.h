@@ -33,7 +33,6 @@
 
 #define CONFIG_STM32_FLASH
 
-#define CONFIG_SYS_CLK_FREQ		180000000 /* 180 MHz */
 #define CONFIG_SYS_HZ_CLOCK		1000000	/* Timer is clocked at 1MHz */
 
 #define CONFIG_CMDLINE_TAG
