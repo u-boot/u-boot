@@ -53,10 +53,12 @@
 	status = "okay";
 };
 
-&gsl1680 {
+&touchscreen {
+	reg = <0x40>;
+	compatible = "silead,gsl1680";
+	firmware-name = "gsl1680-inet86dz.fw";
 	touchscreen-size-x = <960>;
 	touchscreen-size-y = <640>;
-	touchscreen-fw-name = "silead/gsl1680-inet86dz.fw";
 	status = "okay";
 };
 
