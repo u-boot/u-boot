@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Hans de Goede <hdegoede@redhat.com>
+ * Copyright (C) 2017 Priit Laes <plaes@plaes.org>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -40,105 +40,30 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/dts-v1/;
-#include "sun4i-a10.dtsi"
-#include "sunxi-common-regulators.dtsi"
-#include <dt-bindings/gpio/gpio.h>
+#ifndef _DT_BINDINGS_RST_SUN4I_A10_H
+#define _DT_BINDINGS_RST_SUN4I_A10_H
 
-/ {
-	model = "MK802";
-	compatible = "allwinner,mk802", "allwinner,sun4i-a10";
+#define	RST_USB_PHY0		1
+#define	RST_USB_PHY1		2
+#define	RST_USB_PHY2		3
+#define	RST_GPS			4
+#define	RST_DE_BE0		5
+#define	RST_DE_BE1		6
+#define	RST_DE_FE0		7
+#define	RST_DE_FE1		8
+#define	RST_DE_MP		9
+#define	RST_TVE0		10
+#define	RST_TCON0		11
+#define	RST_TVE1		12
+#define	RST_TCON1		13
+#define	RST_CSI0		14
+#define	RST_CSI1		15
+#define	RST_VE			16
+#define	RST_ACE			17
+#define	RST_LVDS		18
+#define	RST_GPU			19
+#define	RST_HDMI_H		20
+#define	RST_HDMI_SYS		21
+#define	RST_HDMI_AUDIO_DMA	22
 
-	aliases {
-		serial0 = &uart0;
-	};
-
-	chosen {
-		stdout-path = "serial0:115200n8";
-	};
-
-	hdmi-connector {
-		compatible = "hdmi-connector";
-		type = "a";
-
-		port {
-			hdmi_con_in: endpoint {
-				remote-endpoint = <&hdmi_out_con>;
-			};
-		};
-	};
-};
-
-&codec {
-	status = "okay";
-};
-
-&de {
-	status = "okay";
-};
-
-&ehci0 {
-	status = "okay";
-};
-
-&ehci1 {
-	status = "okay";
-};
-
-&hdmi {
-	status = "okay";
-};
-
-&hdmi_out {
-	hdmi_out_con: endpoint {
-		remote-endpoint = <&hdmi_con_in>;
-	};
-};
-
-&mmc0 {
-	vmmc-supply = <&reg_vcc3v3>;
-	bus-width = <4>;
-	cd-gpios = <&pio 7 1 GPIO_ACTIVE_LOW>; /* PH1 */
-	status = "okay";
-};
-
-&ohci0 {
-	status = "okay";
-};
-
-&otg_sram {
-	status = "okay";
-};
-
-&reg_usb0_vbus {
-	status = "okay";
-};
-
-&reg_usb1_vbus {
-	status = "okay";
-};
-
-&reg_usb2_vbus {
-	gpio = <&pio 7 12 GPIO_ACTIVE_HIGH>; /* PH12 */
-	status = "okay";
-};
-
-&uart0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&uart0_pb_pins>;
-	status = "okay";
-};
-
-&usb_otg {
-	dr_mode = "otg";
-	status = "okay";
-};
-
-&usbphy {
-	usb0_id_det-gpios = <&pio 7 4 GPIO_ACTIVE_HIGH>; /* PH4 */
-	usb0_vbus_det-gpios = <&pio 7 5 GPIO_ACTIVE_HIGH>; /* PH5 */
-	usb0_vbus-supply = <&reg_usb0_vbus>;
-	usb1_vbus-supply = <&reg_usb1_vbus>;
-	usb2_vbus-supply = <&reg_usb2_vbus>;
-	status = "okay";
-};
+#endif /* DT_BINDINGS_RST_SUN4I_A10_H */
