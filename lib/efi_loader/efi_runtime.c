@@ -360,6 +360,7 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 		efi_physical_addr_t map_start = map->physical_start;
 		efi_physical_addr_t map_len = map->num_pages << EFI_PAGE_SHIFT;
 		efi_physical_addr_t map_end = map_start + map_len;
+		u64 off = map->virtual_start - map_start;
 
 		/* Adjust all mmio pointers in this region */
 		list_for_each(lhandle, &efi_runtime_mmio) {
@@ -370,10 +371,16 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 					   link);
 			if ((map_start <= lmmio->paddr) &&
 			    (map_end >= lmmio->paddr)) {
-				u64 off = map->virtual_start - map_start;
 				uintptr_t new_addr = lmmio->paddr + off;
 				*lmmio->ptr = (void *)new_addr;
 			}
+		}
+		if ((map_start <= (uintptr_t)systab.tables) &&
+		    (map_end >= (uintptr_t)systab.tables)) {
+			char *ptr = (char *)systab.tables;
+
+			ptr += off;
+			systab.tables = (struct efi_configuration_table *)ptr;
 		}
 	}
 
