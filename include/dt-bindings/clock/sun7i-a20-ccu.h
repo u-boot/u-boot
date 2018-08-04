@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 - Marcus Cooper <codekipper@gmail.com>
+ * Copyright (C) 2017 Priit Laes <plaes@plaes.org>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -35,113 +35,19 @@
  *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/dts-v1/;
-#include "sun7i-a20.dtsi"
-#include "sunxi-itead-core-common.dtsi"
+#ifndef _DT_BINDINGS_CLK_SUN7I_A20_H_
+#define _DT_BINDINGS_CLK_SUN7I_A20_H_
 
-/ {
-	model = "Itead Ibox A20";
-	compatible = "itead,itead-ibox-a20", "allwinner,sun7i-a20";
+#include <dt-bindings/clock/sun4i-a10-ccu.h>
 
-	leds {
-		compatible = "gpio-leds";
-		pinctrl-names = "default";
-		pinctrl-0 = <&led_pins_itead_core>;
+#define CLK_MBUS		166
+#define CLK_HDMI1_SLOW		167
+#define CLK_HDMI1		168
+#define CLK_OUT_A		169
+#define CLK_OUT_B		170
 
-		green {
-			label = "itead_core:green:usr";
-			gpios = <&pio 7 20 GPIO_ACTIVE_HIGH>;
-			default-state = "on";
-		};
-
-		blue {
-			label = "itead_core:blue:usr";
-			gpios = <&pio 7 21 GPIO_ACTIVE_HIGH>;
-			default-state = "on";
-		};
-	};
-
-	sound {
-		compatible = "simple-audio-card";
-		simple-audio-card,name = "On-board SPDIF";
-
-		simple-audio-card,cpu {
-			sound-dai = <&spdif>;
-		};
-
-		simple-audio-card,codec {
-			sound-dai = <&spdif_out>;
-		};
-	};
-
-	spdif_out: spdif-out {
-		#sound-dai-cells = <0>;
-		compatible = "linux,spdif-dit";
-	};
-};
-
-&ahci {
-	target-supply = <&reg_ahci_5v>;
-	status = "okay";
-};
-
-&codec {
-	status = "okay";
-};
-
-&gmac {
-	pinctrl-names = "default";
-	pinctrl-0 = <&gmac_pins_mii_a>;
-	phy = <&phy1>;
-	phy-mode = "mii";
-	status = "okay";
-
-	phy1: ethernet-phy@1 {
-		reg = <1>;
-	};
-};
-
-&i2c0 {
-	axp209: pmic@34 {
-		interrupt-parent = <&nmi_intc>;
-		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-	};
-};
-
-&ir0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&ir0_rx_pins_a>;
-	status = "okay";
-};
-
-&mmc0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mmc0_pins_a>;
-	vmmc-supply = <&reg_vcc3v3>;
-	bus-width = <4>;
-	cd-gpios = <&pio 7 1 GPIO_ACTIVE_LOW>; /* PH1 */
-	status = "okay";
-};
-
-&pio {
-	led_pins_itead_core: led_pins@0 {
-		pins = "PH20","PH21";
-		function = "gpio_out";
-		drive-strength = <20>;
-	};
-};
-
-&reg_ahci_5v {
-	status = "okay";
-};
-
-&spdif {
-	pinctrl-names = "default";
-	pinctrl-0 = <&spdif_tx_pins_a>;
-	status = "okay";
-};
+#endif /* _DT_BINDINGS_CLK_SUN7I_A20_H_ */
