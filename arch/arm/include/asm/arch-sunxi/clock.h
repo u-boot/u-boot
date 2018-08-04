@@ -16,6 +16,8 @@
 /* clock control module regs definition */
 #if defined(CONFIG_MACH_SUN8I_A83T)
 #include <asm/arch/clock_sun8i_a83t.h>
+#elif defined(CONFIG_MACH_SUN50I_H6)
+#include <asm/arch/clock_sun50i_h6.h>
 #elif defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN8I) || \
       defined(CONFIG_MACH_SUN50I)
 #include <asm/arch/clock_sun6i.h>

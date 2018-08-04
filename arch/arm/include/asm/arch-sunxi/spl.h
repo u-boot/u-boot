@@ -11,11 +11,7 @@
 #define SPL_SIGNATURE		"SPL" /* marks "sunxi" SPL header */
 #define SPL_HEADER_VERSION	2
 
-#ifdef CONFIG_SUNXI_HIGH_SRAM
-#define SPL_ADDR		0x10000
-#else
-#define SPL_ADDR		0x0
-#endif
+#define SPL_ADDR		CONFIG_SUNXI_SRAM_ADDRESS
 
 /* The low 8-bits of the 'boot_media' field in the SPL header */
 #define SUNXI_BOOTED_FROM_MMC0	0

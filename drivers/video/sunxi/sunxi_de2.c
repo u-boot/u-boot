@@ -347,6 +347,9 @@ int sunxi_simplefb_setup(void *blob)
 	if (ret) {
 		debug("DE2 not present\n");
 		return 0;
+	} else if (!device_active(de2)) {
+		debug("DE2 present but not probed\n");
+		return 0;
 	}
 
 	ret = uclass_find_device_by_name(UCLASS_DISPLAY,
