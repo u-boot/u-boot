@@ -21,6 +21,7 @@
  *	R0 - Service ID
  *	R1 - paramer list
  */
+/* TODO: Re-evaluate the comment at the end regarding armv5 vs armv7 */
 ENTRY(do_omap3_emu_romcode_call)
 	PUSH {r4-r12, lr} @ Save all registers from ROM code!
 	MOV r12, r0	@ Copy the Secure Service ID in R12

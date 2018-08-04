@@ -23,13 +23,6 @@ Currently the following boards are supported:
 
 * CompuLab Ltd. CM-T35 [8]
 
-Toolchain
-=========
-
-While ARM Cortex-A8 support ARM v7 instruction set (-march=armv7a) we compile
-with -march=armv5 to allow more compilers to work. For U-Boot code this has
-no performance impact.
-
 Build
 =====
 
