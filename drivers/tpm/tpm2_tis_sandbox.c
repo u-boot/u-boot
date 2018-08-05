@@ -272,7 +272,7 @@ static int sandbox_tpm2_xfer(struct udevice *dev, const u8 *sendbuf,
 	u32 capability, property, property_count;
 
 	/* TPM2_PCR_Read/Extend variables */
-	int pcr_index;
+	int pcr_index = 0;
 	u64 pcr_map = 0;
 	u32 selections, pcr_nb;
 	u16 alg;
@@ -483,8 +483,8 @@ static int sandbox_tpm2_xfer(struct udevice *dev, const u8 *sendbuf,
 			return sandbox_tpm2_fill_buf(&recv, recv_len, tag, rc);
 		}
 
-		if (pcr_map >> SANDBOX_TPM_PCR_NB) {
-			printf("Wrong PCR map.\n");
+		if (!pcr_map) {
+			printf("Empty PCR map.\n");
 			rc = TPM2_RC_VALUE;
 			return sandbox_tpm2_fill_buf(&recv, recv_len, tag, rc);
 		}
