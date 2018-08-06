@@ -115,6 +115,7 @@ int checkcpu(void)
 	return 0;
 }
 
+#ifndef CONFIG_SYSRESET
 int
 do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
@@ -169,7 +170,7 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 	return 1;
 }
-
+#endif
 
 /*
  * Get timebase clock frequency (like cpu_clk in Hz)

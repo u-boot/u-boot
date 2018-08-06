@@ -521,6 +521,8 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-mpc83xx.git
 F:	drivers/ram/mpc83xx_sdram.c
 F:	include/dt-bindings/memory/mpc83xx-sdram.h
+F:	drivers/sysreset/sysreset_mpc83xx.c
+F:	drivers/sysreset/sysreset_mpc83xx.h
 F:	arch/powerpc/cpu/mpc83xx/
 F:	arch/powerpc/include/asm/arch-mpc83xx/
 
