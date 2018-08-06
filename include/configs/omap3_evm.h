@@ -33,9 +33,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
-/* Override OMAP3 serial console configuration */
-#define CONFIG_SYS_NS16550_COM1         OMAP34XX_UART1
-
 /* NAND */
 #if defined(CONFIG_NAND)
 #define CONFIG_SYS_FLASH_BASE		NAND_BASE
