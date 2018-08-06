@@ -457,10 +457,12 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 	efi_uintn_t map_size = 0;
 	int map_entries = 0;
 	struct list_head *lhandle;
-	efi_uintn_t provided_map_size = *memory_map_size;
+	efi_uintn_t provided_map_size;
 
 	if (!memory_map_size)
 		return EFI_INVALID_PARAMETER;
+
+	provided_map_size = *memory_map_size;
 
 	list_for_each(lhandle, &efi_mem)
 		map_entries++;
