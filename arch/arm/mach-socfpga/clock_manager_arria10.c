@@ -903,50 +903,6 @@ void cm_use_intosc(void)
 		     CLKMGR_CLKMGR_CTL_BOOTCLK_INTOSC_SET_MSK);
 }
 
-unsigned int cm_get_noc_clk_hz(void)
-{
-	unsigned int clk_src, divisor, nocclk, src_hz;
-
-	nocclk = readl(&clock_manager_base->main_pll.nocclk);
-	clk_src = (nocclk >> CLKMGR_MAINPLL_NOCCLK_SRC_LSB) &
-		  CLKMGR_MAINPLL_NOCCLK_SRC_MSK;
-
-	divisor = 1 + (nocclk & CLKMGR_MAINPLL_NOCDIV_MSK);
-
-	if (clk_src == CLKMGR_PERPLLGRP_SRC_MAIN) {
-		src_hz = cm_get_main_vco_clk_hz();
-		src_hz /= 1 +
-		(readl(SOCFPGA_CLKMGR_ADDRESS + CLKMGR_MAINPLL_NOC_CLK_OFFSET) &
-		CLKMGR_MAINPLL_NOCCLK_CNT_MSK);
-	} else if (clk_src == CLKMGR_PERPLLGRP_SRC_PERI) {
-		src_hz = cm_get_per_vco_clk_hz();
-		src_hz /= 1 +
-		((readl(SOCFPGA_CLKMGR_ADDRESS +
-			CLKMGR_MAINPLL_NOC_CLK_OFFSET) >>
-			CLKMGR_MAINPLL_NOCCLK_PERICNT_LSB) &
-			CLKMGR_MAINPLL_NOCCLK_CNT_MSK);
-	} else if (clk_src == CLKMGR_PERPLLGRP_SRC_OSC1) {
-		src_hz = eosc1_hz;
-	} else if (clk_src == CLKMGR_PERPLLGRP_SRC_INTOSC) {
-		src_hz = cb_intosc_hz;
-	} else if (clk_src == CLKMGR_PERPLLGRP_SRC_FPGA) {
-		src_hz = f2s_free_hz;
-	} else {
-		src_hz = 0;
-	}
-
-	return src_hz / divisor;
-}
-
-unsigned int cm_get_l4_noc_hz(unsigned int nocdivshift)
-{
-	unsigned int divisor2 = 1 <<
-		((readl(&clock_manager_base->main_pll.nocdiv) >>
-			nocdivshift) & CLKMGR_MAINPLL_NOCDIV_MSK);
-
-	return cm_get_noc_clk_hz() / divisor2;
-}
-
 int cm_basic_init(const void *blob)
 {
 	struct mainpll_cfg main_cfg;
@@ -964,199 +920,71 @@ int cm_basic_init(const void *blob)
 	return cm_full_cfg(&main_cfg, &per_cfg);
 }
 
+static u32 cm_get_rate_dm(char *name)
+{
+	struct uclass *uc;
+	struct udevice *dev = NULL;
+	struct clk clk = { 0 };
+	ulong rate;
+	int ret;
+
+	/* Device addresses start at 1 */
+	ret = uclass_get(UCLASS_CLK, &uc);
+	if (ret)
+		return 0;
+
+	ret = uclass_get_device_by_name(UCLASS_CLK, name, &dev);
+	if (ret)
+		return 0;
+
+	ret = device_probe(dev);
+	if (ret)
+		return 0;
+
+	ret = clk_request(dev, &clk);
+	if (ret)
+		return 0;
+
+	rate = clk_get_rate(&clk);
+
+	clk_free(&clk);
+
+	return rate;
+}
+
+static u32 cm_get_rate_dm_khz(char *name)
+{
+	return cm_get_rate_dm(name) / 1000;
+}
+
 unsigned long cm_get_mpu_clk_hz(void)
 {
-	u32 reg, clk_hz;
-	u32 clk_src, mainmpuclk_reg;
-
-	mainmpuclk_reg = readl(&clock_manager_base->main_pll.mpuclk);
-
-	clk_src = (mainmpuclk_reg >> CLKMGR_MAINPLL_MPUCLK_SRC_LSB) &
-		CLKMGR_MAINPLL_MPUCLK_SRC_MSK;
-
-	reg = readl(&clock_manager_base->altera.mpuclk);
-	/* Check MPU clock source: main, periph, osc1, intosc or f2s? */
-	switch (clk_src) {
-	case CLKMGR_MAINPLL_MPUCLK_SRC_MAIN:
-		clk_hz = cm_get_main_vco_clk_hz();
-		clk_hz /= (reg & CLKMGR_MAINPLL_MPUCLK_CNT_MSK) + 1;
-		break;
-	case CLKMGR_MAINPLL_MPUCLK_SRC_PERI:
-		clk_hz = cm_get_per_vco_clk_hz();
-		clk_hz /= (((reg >> CLKMGR_MAINPLL_MPUCLK_PERICNT_LSB) &
-			   CLKMGR_MAINPLL_MPUCLK_CNT_MSK) + 1);
-		break;
-	case CLKMGR_MAINPLL_MPUCLK_SRC_OSC1:
-		clk_hz = eosc1_hz;
-		break;
-	case CLKMGR_MAINPLL_MPUCLK_SRC_INTOSC:
-		clk_hz = cb_intosc_hz;
-		break;
-	case CLKMGR_MAINPLL_MPUCLK_SRC_FPGA:
-		clk_hz = f2s_free_hz;
-		break;
-	default:
-		printf("cm_get_mpu_clk_hz invalid clk_src %d\n", clk_src);
-		return 0;
-	}
-
-	clk_hz /= (mainmpuclk_reg & CLKMGR_MAINPLL_MPUCLK_CNT_MSK) + 1;
-
-	return clk_hz;
-}
-
-unsigned int cm_get_per_vco_clk_hz(void)
-{
-	u32 src_hz = 0;
-	u32 clk_src = 0;
-	u32 numer = 0;
-	u32 denom = 0;
-	u32 vco = 0;
-
-	clk_src = readl(&clock_manager_base->per_pll.vco0);
-
-	clk_src = (clk_src >> CLKMGR_PERPLL_VCO0_PSRC_LSB) &
-		CLKMGR_PERPLL_VCO0_PSRC_MSK;
-
-	if (clk_src == CLKMGR_PERPLL_VCO0_PSRC_EOSC) {
-		src_hz = eosc1_hz;
-	} else if (clk_src == CLKMGR_PERPLL_VCO0_PSRC_E_INTOSC) {
-		src_hz = cb_intosc_hz;
-	} else if (clk_src == CLKMGR_PERPLL_VCO0_PSRC_F2S) {
-		src_hz = f2s_free_hz;
-	} else if (clk_src == CLKMGR_PERPLL_VCO0_PSRC_MAIN) {
-		src_hz = cm_get_main_vco_clk_hz();
-		src_hz /= (readl(&clock_manager_base->main_pll.cntr15clk) &
-			CLKMGR_MAINPLL_CNTRCLK_MSK) + 1;
-	} else {
-		printf("cm_get_per_vco_clk_hz invalid clk_src %d\n", clk_src);
-		return 0;
-	}
-
-	vco = readl(&clock_manager_base->per_pll.vco1);
-
-	numer = vco & CLKMGR_PERPLL_VCO1_NUMER_MSK;
-
-	denom = (vco >> CLKMGR_PERPLL_VCO1_DENOM_LSB) &
-			CLKMGR_PERPLL_VCO1_DENOM_MSK;
-
-	vco = src_hz;
-	vco /= 1 + denom;
-	vco *= 1 + numer;
-
-	return vco;
-}
-
-unsigned int cm_get_main_vco_clk_hz(void)
-{
-	u32 src_hz, numer, denom, vco;
-
-	u32 clk_src = readl(&clock_manager_base->main_pll.vco0);
-
-	clk_src = (clk_src >> CLKMGR_MAINPLL_VCO0_PSRC_LSB) &
-		CLKMGR_MAINPLL_VCO0_PSRC_MSK;
-
-	if (clk_src == CLKMGR_MAINPLL_VCO0_PSRC_EOSC) {
-		src_hz = eosc1_hz;
-	} else if (clk_src == CLKMGR_MAINPLL_VCO0_PSRC_E_INTOSC) {
-		src_hz = cb_intosc_hz;
-	} else if (clk_src == CLKMGR_MAINPLL_VCO0_PSRC_F2S) {
-		src_hz = f2s_free_hz;
-	} else {
-		printf("cm_get_main_vco_clk_hz invalid clk_src %d\n", clk_src);
-		return 0;
-	}
-
-	vco = readl(&clock_manager_base->main_pll.vco1);
-
-	numer = vco & CLKMGR_MAINPLL_VCO1_NUMER_MSK;
-
-	denom = (vco >> CLKMGR_MAINPLL_VCO1_DENOM_LSB) &
-			CLKMGR_MAINPLL_VCO1_DENOM_MSK;
-
-	vco = src_hz;
-	vco /= 1 + denom;
-	vco *= 1 + numer;
-
-	return vco;
-}
-
-unsigned int cm_get_l4_sp_clk_hz(void)
-{
-	return cm_get_l4_noc_hz(CLKMGR_MAINPLL_NOCDIV_L4SPCLK_LSB);
-}
-
-unsigned int cm_get_mmc_controller_clk_hz(void)
-{
-	u32 clk_hz = 0;
-	u32 clk_input = 0;
-
-	clk_input = readl(&clock_manager_base->per_pll.cntr6clk);
-	clk_input = (clk_input >> CLKMGR_PERPLL_CNTR6CLK_SRC_LSB) &
-		CLKMGR_PERPLLGRP_SRC_MSK;
-
-	switch (clk_input) {
-	case CLKMGR_PERPLLGRP_SRC_MAIN:
-		clk_hz = cm_get_main_vco_clk_hz();
-		clk_hz /= 1 + (readl(&clock_manager_base->main_pll.cntr6clk) &
-			CLKMGR_MAINPLL_CNTRCLK_MSK);
-		break;
-
-	case CLKMGR_PERPLLGRP_SRC_PERI:
-		clk_hz = cm_get_per_vco_clk_hz();
-		clk_hz /= 1 + (readl(&clock_manager_base->per_pll.cntr6clk) &
-			CLKMGR_PERPLL_CNTRCLK_MSK);
-		break;
-
-	case CLKMGR_PERPLLGRP_SRC_OSC1:
-		clk_hz = eosc1_hz;
-		break;
-
-	case CLKMGR_PERPLLGRP_SRC_INTOSC:
-		clk_hz = cb_intosc_hz;
-		break;
-
-	case CLKMGR_PERPLLGRP_SRC_FPGA:
-		clk_hz = f2s_free_hz;
-		break;
-	}
-
-	return clk_hz / 4;
-}
-
-unsigned int cm_get_spi_controller_clk_hz(void)
-{
-	return cm_get_l4_noc_hz(CLKMGR_MAINPLL_NOCDIV_L4MPCLK_LSB);
+	return cm_get_rate_dm("main_mpu_base_clk");
 }
 
 unsigned int cm_get_qspi_controller_clk_hz(void)
 {
-	return  cm_get_l4_noc_hz(CLKMGR_MAINPLL_NOCDIV_L4MAINCLK_LSB);
+	return cm_get_rate_dm("qspi_clk");
 }
 
-/* Override weak dw_spi_get_clk implementation in designware_spi.c driver */
-int dw_spi_get_clk(struct udevice *bus, ulong *rate)
+unsigned int cm_get_l4_sp_clk_hz(void)
 {
-	*rate = cm_get_spi_controller_clk_hz();
-
-	return 0;
+	return cm_get_rate_dm("l4_sp_clk");
 }
 
 void cm_print_clock_quick_summary(void)
 {
-	printf("MPU       %10ld kHz\n", cm_get_mpu_clk_hz() / 1000);
-	printf("MMC         %8d kHz\n", cm_get_mmc_controller_clk_hz() / 1000);
-	printf("QSPI        %8d kHz\n", cm_get_qspi_controller_clk_hz() / 1000);
-	printf("SPI         %8d kHz\n", cm_get_spi_controller_clk_hz() / 1000);
-	printf("EOSC1       %8d kHz\n", eosc1_hz / 1000);
-	printf("cb_intosc   %8d kHz\n", cb_intosc_hz / 1000);
-	printf("f2s_free    %8d kHz\n", f2s_free_hz / 1000);
-	printf("Main VCO    %8d kHz\n", cm_get_main_vco_clk_hz() / 1000);
-	printf("NOC         %8d kHz\n", cm_get_noc_clk_hz() / 1000);
-	printf("L4 Main	    %8d kHz\n",
-	       cm_get_l4_noc_hz(CLKMGR_MAINPLL_NOCDIV_L4MAINCLK_LSB) / 1000);
-	printf("L4 MP       %8d kHz\n",
-	       cm_get_l4_noc_hz(CLKMGR_MAINPLL_NOCDIV_L4MPCLK_LSB) / 1000);
-	printf("L4 SP       %8d kHz\n", cm_get_l4_sp_clk_hz() / 1000);
-	printf("L4 sys free %8d kHz\n", cm_get_noc_clk_hz() / 4000);
+	printf("MPU       %10d kHz\n", cm_get_rate_dm_khz("main_mpu_base_clk"));
+	printf("MMC         %8d kHz\n", cm_get_rate_dm_khz("sdmmc_clk"));
+	printf("QSPI        %8d kHz\n", cm_get_rate_dm_khz("qspi_clk"));
+	printf("SPI         %8d kHz\n", cm_get_rate_dm_khz("spi_m_clk"));
+	printf("EOSC1       %8d kHz\n", cm_get_rate_dm_khz("osc1"));
+	printf("cb_intosc   %8d kHz\n", cm_get_rate_dm_khz("cb_intosc_ls_clk"));
+	printf("f2s_free    %8d kHz\n", cm_get_rate_dm_khz("f2s_free_clk"));
+	printf("Main VCO    %8d kHz\n", cm_get_rate_dm_khz("main_pll@40"));
+	printf("NOC         %8d kHz\n", cm_get_rate_dm_khz("main_noc_base_clk"));
+	printf("L4 Main	    %8d kHz\n", cm_get_rate_dm_khz("l4_main_clk"));
+	printf("L4 MP       %8d kHz\n", cm_get_rate_dm_khz("l4_mp_clk"));
+	printf("L4 SP       %8d kHz\n", cm_get_rate_dm_khz("l4_sp_clk"));
+	printf("L4 sys free %8d kHz\n", cm_get_rate_dm_khz("l4_sys_free_clk"));
 }
