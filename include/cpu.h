@@ -125,4 +125,11 @@ int cpu_get_count(struct udevice *dev);
  */
 int cpu_get_vendor(struct udevice *dev, char *buf, int size);
 
+/**
+ * cpu_probe_all() - Probe all available CPUs
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int cpu_probe_all(void);
+
 #endif
