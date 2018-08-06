@@ -27,7 +27,7 @@ void board_init_f(ulong dummy);
  * board_f.c for where it is called. If this is not provided, a default
  * version (which does nothing) will be used.
  *
- * @return: 0 on success, otherwise error
+ * Return: 0 on success, otherwise error
  */
 int arch_cpu_init(void);
 
@@ -38,7 +38,7 @@ int arch_cpu_init(void);
  * relocation. This is similar to arch_cpu_init() but is able to reference
  * devices
  *
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int arch_cpu_init_dm(void);
 
@@ -50,7 +50,7 @@ int arch_cpu_init_dm(void);
  * board_f.c for where it is called. If this is not provided, a default
  * version (which does nothing) will be used.
  *
- * @return: 0 on success, otherwise error
+ * Return: 0 on success, otherwise error
  */
 int mach_cpu_init(void);
 
@@ -60,6 +60,8 @@ int mach_cpu_init(void);
  * Where U-Boot relies on binary blobs to handle part of the system init, this
  * function can be used to set up the blobs. This is used on some Intel
  * platforms.
+ *
+ * Return: 0
  */
 int arch_fsp_init(void);
 
@@ -78,12 +80,12 @@ int dram_init(void);
  * CONFIG_SYS_SDRAM_BASE and the size will be determined by a call to
  * get_effective_memsize().
  *
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int dram_init_banksize(void);
 
 /**
- * Reserve all necessary stacks
+ * arch_reserve_stacks() - Reserve all necessary stacks
  *
  * This is used in generic board init sequence in common/board_f.c. Each
  * architecture could provide this function to tailor the required stacks.
@@ -96,14 +98,14 @@ int dram_init_banksize(void);
  * positions of the stack. The stack pointer(s) will be set to this later.
  * gd->irq_sp is only required, if the architecture needs it.
  *
- * @return 0 if no error
+ * Return: 0 if no error
  */
 int arch_reserve_stacks(void);
 
 /**
  * init_cache_f_r() - Turn on the cache in preparation for relocation
  *
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int init_cache_f_r(void);
 
@@ -111,6 +113,7 @@ int print_cpuinfo(void);
 int timer_init(void);
 int reserve_mmu(void);
 int misc_init_f(void);
+
 #if defined(CONFIG_DTB_RESELECT)
 int embedded_dtb_select(void);
 #endif
@@ -120,28 +123,28 @@ extern ulong monitor_flash_len;
 
 /**
  * ulong board_init_f_alloc_reserve - allocate reserved area
+ * @top: top of the reserve area, growing down.
  *
  * This function is called by each architecture very early in the start-up
  * code to allow the C runtime to reserve space on the stack for writable
  * 'globals' such as GD and the malloc arena.
  *
- * @top:	top of the reserve area, growing down.
- * @return:	bottom of reserved area
+ * Return: bottom of reserved area
  */
 ulong board_init_f_alloc_reserve(ulong top);
 
 /**
  * board_init_f_init_reserve - initialize the reserved area(s)
+ * @base:	top from which reservation was done
  *
  * This function is called once the C runtime has allocated the reserved
  * area on the stack. It must initialize the GD at the base of that area.
- *
- * @base:	top from which reservation was done
  */
 void board_init_f_init_reserve(ulong base);
 
 /**
  * arch_setup_gd() - Set up the global_data pointer
+ * @gd_ptr: Pointer to global data
  *
  * This pointer is special in some architectures and cannot easily be assigned
  * to. For example on x86 it is implemented by adding a specific record to its
@@ -149,8 +152,6 @@ void board_init_f_init_reserve(ulong base);
  * For most architectures this can simply be:
  *
  *    gd = gd_ptr;
- *
- * @gd_ptr:	Pointer to global data
  */
 void arch_setup_gd(gd_t *gd_ptr);
 
