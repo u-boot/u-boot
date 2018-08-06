@@ -10,6 +10,8 @@
  * Xianghua Xiao (X.Xiao@motorola.com)
  */
 
+#ifndef CONFIG_MPC83XX_SDRAM
+
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/io.h>
@@ -924,3 +926,5 @@ void ddr_enable_ecc(unsigned int dram_size)
 	__asm__ __volatile__ ("isync");
 }
 #endif	/* CONFIG_DDR_ECC */
+
+#endif /* !CONFIG_MPC83XX_SDRAM */

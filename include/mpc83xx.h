@@ -1110,6 +1110,8 @@
 #define CSBNDS_EA			0x000000FF
 #define CSBNDS_EA_SHIFT			24
 
+#ifndef CONFIG_MPC83XX_SDRAM
+
 /*
  * CSn_CONFIG - Chip Select Configuration Register
  */
@@ -1407,6 +1409,8 @@
 #define ECC_ERROR_MAN_SBEC		(0xff000000 >> 24)
 #define ECC_ERROR_MAN_SBEC_SHIFT	0
 
+#endif /* !CONFIG_MPC83XX_SDRAM */
+
 /*
  * CONFIG_ADDRESS - PCI Config Address Register
  */
@@ -1510,6 +1514,7 @@
  */
 #define PMCCR1_POWER_OFF		0x00000020
 
+#ifndef CONFIG_RAM
 /*
  * DDRCDR - DDR Control Driver Register
  */
@@ -1531,6 +1536,7 @@
 #define DDRCDR_DDR_CFG		0x00040000
 #define DDRCDR_M_ODR		0x00000002
 #define DDRCDR_Q_DRN		0x00000001
+#endif /* !CONFIG_RAM */
 
 /*
  * PCIE Bridge Register

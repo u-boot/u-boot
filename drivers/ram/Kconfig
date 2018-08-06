@@ -34,4 +34,13 @@ config STM32_SDRAM
 	  support external memories like sdram, psram & nand.
 	  This driver is for the sdram memory interface with the FMC.
 
+config MPC83XX_SDRAM
+	bool "Enable MPC83XX SDRAM support"
+	depends on RAM
+	help
+	  Enable support for the internal DDR Memory Controller of the MPC83xx
+	  family of SoCs. Both static configurations, as well as configuring
+	  the RAM through the use of SPD (Serial Presence Detect) is supported
+	  via device tree settings.
+
 source "drivers/ram/stm32mp1/Kconfig"
