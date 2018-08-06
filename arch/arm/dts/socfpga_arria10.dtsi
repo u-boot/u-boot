@@ -94,29 +94,35 @@
 		clkmgr@ffd04000 {
 				compatible = "altr,clk-mgr";
 				reg = <0xffd04000 0x1000>;
+				u-boot,dm-pre-reloc;
 
 				clocks {
 					#address-cells = <1>;
 					#size-cells = <0>;
+					u-boot,dm-pre-reloc;
 
 					cb_intosc_hs_div2_clk: cb_intosc_hs_div2_clk {
 						#clock-cells = <0>;
 						compatible = "fixed-clock";
+						u-boot,dm-pre-reloc;
 					};
 
 					cb_intosc_ls_clk: cb_intosc_ls_clk {
 						#clock-cells = <0>;
 						compatible = "fixed-clock";
+						u-boot,dm-pre-reloc;
 					};
 
 					f2s_free_clk: f2s_free_clk {
 						#clock-cells = <0>;
 						compatible = "fixed-clock";
+						u-boot,dm-pre-reloc;
 					};
 
 					osc1: osc1 {
 						#clock-cells = <0>;
 						compatible = "fixed-clock";
+						u-boot,dm-pre-reloc;
 					};
 
 					main_pll: main_pll@40 {
@@ -127,6 +133,7 @@
 						clocks = <&osc1>, <&cb_intosc_ls_clk>,
 							 <&f2s_free_clk>;
 						reg = <0x40>;
+						u-boot,dm-pre-reloc;
 
 						main_mpu_base_clk: main_mpu_base_clk {
 							#clock-cells = <0>;
@@ -215,6 +222,7 @@
 						clocks = <&osc1>, <&cb_intosc_ls_clk>,
 							 <&f2s_free_clk>, <&main_periph_ref_clk>;
 						reg = <0xC0>;
+						u-boot,dm-pre-reloc;
 
 						peri_mpu_base_clk: peri_mpu_base_clk {
 							#clock-cells = <0>;
