@@ -24,6 +24,7 @@
 #include <relocate.h>
 #include <spi.h>
 #include <status_led.h>
+#include <sysreset.h>
 #include <timer.h>
 #include <trace.h>
 #include <video.h>
@@ -139,6 +140,30 @@ static int display_text_info(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_SYSRESET
+static int print_resetinfo(void)
+{
+	struct udevice *dev;
+	char status[256];
+	int ret;
+
+	ret = uclass_first_device_err(UCLASS_SYSRESET, &dev);
+	if (ret) {
+		debug("%s: No sysreset device found (error: %d)\n",
+		      __func__, ret);
+		/* Not all boards have sysreset drivers available during early
+		 * boot, so don't fail if one can't be found.
+		 */
+		return 0;
+	}
+
+	if (!sysreset_get_status(dev, status, sizeof(status)))
+		printf("%s", status);
+
+	return 0;
+}
+#endif
 
 static int announce_dram_init(void)
 {
@@ -789,6 +814,9 @@ static const init_fnc_t init_sequence_f[] = {
 	display_text_info,	/* show debugging info if required */
 #if defined(CONFIG_PPC) || defined(CONFIG_SH) || defined(CONFIG_X86)
 	checkcpu,
+#endif
+#if defined(CONFIG_SYSRESET)
+	print_resetinfo,
 #endif
 #if defined(CONFIG_DISPLAY_CPUINFO)
 	print_cpuinfo,		/* display cpu info (and speed) */
