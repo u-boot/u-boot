@@ -55,3 +55,4 @@ obj-$(CONFIG_STM32MP_FUSE) += stm32mp_fuse.o
 obj-$(CONFIG_SYS_DPAA_QBMAN) += fsl_portals.o
 obj-$(CONFIG_GDSYS_IOEP) += gdsys_ioep.o
 obj-$(CONFIG_GDSYS_RXAUI_CTRL) += gdsys_rxaui_ctrl.o
+obj-$(CONFIG_MPC83XX_SERDES) += mpc83xx_serdes.o

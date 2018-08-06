@@ -288,4 +288,11 @@ config GDSYS_IOEP
 	depends on MISC
 	help
 	  Support gdsys FPGA's IO endpoint driver.
+
+config MPC83XX_SERDES
+	bool "Enable MPC83xx serdes driver"
+	depends on MISC
+	help
+	  Support for serdes found on MPC83xx SoCs.
+
 endmenu
