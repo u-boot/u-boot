@@ -25,6 +25,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifndef CONFIG_CPU_MPC83XX
 int checkcpu(void)
 {
 	volatile immap_t *immr;
@@ -114,6 +115,7 @@ int checkcpu(void)
 
 	return 0;
 }
+#endif
 
 #ifndef CONFIG_SYSRESET
 int
