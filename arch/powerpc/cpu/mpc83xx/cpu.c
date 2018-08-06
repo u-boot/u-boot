@@ -175,12 +175,12 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 /*
  * Get timebase clock frequency (like cpu_clk in Hz)
  */
-
+#ifndef CONFIG_TIMER
 unsigned long get_tbclk(void)
 {
 	return (gd->bus_clk + 3L) / 4L;
 }
-
+#endif
 
 #if defined(CONFIG_WATCHDOG)
 void watchdog_reset (void)
