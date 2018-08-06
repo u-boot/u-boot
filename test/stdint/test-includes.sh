@@ -46,10 +46,8 @@ try_test() {
 	$cmd
 }
 
-# Run a test with and without CONFIG_USE_STDINT
 try_both() {
 	try_test $@
-	try_test $@ -DCONFIG_USE_STDINT
 }
 
 # board arch soc path-to-gcc

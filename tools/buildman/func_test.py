@@ -27,7 +27,7 @@ settings_data = '''
 [make-flags]
 src=/home/sjg/c/src
 chroot=/home/sjg/c/chroot
-vboot=USE_STDINT=1 VBOOT_DEBUG=1 MAKEFLAGS_VBOOT=DEBUG=1 CFLAGS_EXTRA_VBOOT=-DUNROLL_LOOPS VBOOT_SOURCE=${src}/platform/vboot_reference
+vboot=VBOOT_DEBUG=1 MAKEFLAGS_VBOOT=DEBUG=1 CFLAGS_EXTRA_VBOOT=-DUNROLL_LOOPS VBOOT_SOURCE=${src}/platform/vboot_reference
 chromeos_coreboot=VBOOT=${chroot}/build/link/usr ${vboot}
 chromeos_daisy=VBOOT=${chroot}/build/daisy/usr ${vboot}
 chromeos_peach=VBOOT=${chroot}/build/peach_pit/usr ${vboot}

@@ -34,19 +34,9 @@ typedef wchar_t __gwchar_t;
    defined if explicitly requested.  */
 #if !defined __cplusplus || defined __STDC_FORMAT_MACROS
 
-#ifdef CONFIG_USE_STDINT
-# if __WORDSIZE == 64
-#  define __PRI64_PREFIX	"l"
-#  define __PRIPTR_PREFIX	"l"
-# else
-#  define __PRI64_PREFIX	"ll"
-#  define __PRIPTR_PREFIX
-# endif
-#else
 /* linux/types.h always uses long long for 64-bit and long for uintptr_t */
 # define __PRI64_PREFIX	"ll"
 # define __PRIPTR_PREFIX	"l"
-#endif
 
 /* Macros for printing format specifiers.  */
 

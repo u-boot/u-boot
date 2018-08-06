@@ -106,8 +106,7 @@ typedef		__u8		uint8_t;
 typedef		__u16		uint16_t;
 typedef		__u32		uint32_t;
 
-#if defined(__GNUC__) && !defined(__STRICT_ANSI__) && \
-	(!defined(CONFIG_USE_STDINT) || !defined(__INT64_TYPE__))
+#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
 typedef		__u64		uint64_t;
 typedef		__u64		u_int64_t;
 typedef		__s64		int64_t;
@@ -119,12 +118,6 @@ typedef		__s64		int64_t;
 #define aligned_u64 __u64 __aligned(8)
 #define aligned_be64 __be64 __aligned(8)
 #define aligned_le64 __le64 __aligned(8)
-
-#if defined(CONFIG_USE_STDINT) && defined(__INT64_TYPE__)
-typedef		__UINT64_TYPE__	uint64_t;
-typedef		__UINT64_TYPE__	u_int64_t;
-typedef		__INT64_TYPE__		int64_t;
-#endif
 
 #ifdef __KERNEL__
 typedef phys_addr_t resource_size_t;
