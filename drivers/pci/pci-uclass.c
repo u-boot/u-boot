@@ -7,7 +7,6 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-#include <inttypes.h>
 #include <pci.h>
 #include <asm/io.h>
 #include <dm/device-internal.h>
@@ -854,9 +853,8 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
 		prop += addr_cells;
 		size = fdtdec_get_number(prop, size_cells);
 		prop += size_cells;
-		debug("%s: region %d, pci_addr=%" PRIx64 ", addr=%" PRIx64
-		      ", size=%" PRIx64 ", space_code=%d\n", __func__,
-		      hose->region_count, pci_addr, addr, size, space_code);
+		debug("%s: region %d, pci_addr=%llx, addr=%llx, size=%llx, space_code=%d\n",
+		      __func__, hose->region_count, pci_addr, addr, size, space_code);
 		if (space_code & 2) {
 			type = flags & (1U << 30) ? PCI_REGION_PREFETCH :
 					PCI_REGION_MEM;

@@ -9,7 +9,6 @@
 #include <blk.h>
 #include <dm.h>
 #include <efi_loader.h>
-#include <inttypes.h>
 #include <part.h>
 #include <malloc.h>
 
@@ -66,7 +65,7 @@ static efi_status_t efi_disk_rw_blocks(struct efi_block_io *this,
 	blocks = buffer_size / blksz;
 	lba += diskobj->offset;
 
-	debug("EFI: %s:%d blocks=%x lba=%"PRIx64" blksz=%x dir=%d\n", __func__,
+	debug("EFI: %s:%d blocks=%x lba=%llx blksz=%x dir=%d\n", __func__,
 	      __LINE__, blocks, lba, blksz, direction);
 
 	/* We only support full block access */
@@ -111,7 +110,7 @@ static efi_status_t EFIAPI efi_disk_read_blocks(struct efi_block_io *this,
 	real_buffer = efi_bounce_buffer;
 #endif
 
-	EFI_ENTRY("%p, %x, %" PRIx64 ", %zx, %p", this, media_id, lba,
+	EFI_ENTRY("%p, %x, %llx, %zx, %p", this, media_id, lba,
 		  buffer_size, buffer);
 
 	r = efi_disk_rw_blocks(this, media_id, lba, buffer_size, real_buffer,
@@ -146,7 +145,7 @@ static efi_status_t EFIAPI efi_disk_write_blocks(struct efi_block_io *this,
 	real_buffer = efi_bounce_buffer;
 #endif
 
-	EFI_ENTRY("%p, %x, %" PRIx64 ", %zx, %p", this, media_id, lba,
+	EFI_ENTRY("%p, %x, %llx, %zx, %p", this, media_id, lba,
 		  buffer_size, buffer);
 
 	/* Populate bounce buffer if necessary */

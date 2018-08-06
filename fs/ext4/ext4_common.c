@@ -21,7 +21,6 @@
 #include <common.h>
 #include <ext_common.h>
 #include <ext4fs.h>
-#include <inttypes.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <stddef.h>
@@ -210,7 +209,7 @@ void put_ext4(uint64_t off, void *buf, uint32_t size)
 	if ((startblock + (size >> log2blksz)) >
 	    (part_offset + fs->total_sect)) {
 		printf("part_offset is " LBAFU "\n", part_offset);
-		printf("total_sector is %" PRIu64 "\n", fs->total_sect);
+		printf("total_sector is %llu\n", fs->total_sect);
 		printf("error: overflow occurs\n");
 		return;
 	}

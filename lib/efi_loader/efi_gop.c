@@ -8,7 +8,6 @@
 #include <common.h>
 #include <dm.h>
 #include <efi_loader.h>
-#include <inttypes.h>
 #include <lcd.h>
 #include <malloc.h>
 #include <video.h>

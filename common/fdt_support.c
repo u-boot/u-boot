@@ -7,7 +7,6 @@
  */
 
 #include <common.h>
-#include <inttypes.h>
 #include <stdio_dev.h>
 #include <linux/ctype.h>
 #include <linux/types.h>
@@ -1025,8 +1024,7 @@ static u64 of_bus_default_map(fdt32_t *addr, const fdt32_t *range,
 	s  = fdt_read_number(range + na + pna, ns);
 	da = fdt_read_number(addr, na);
 
-	debug("OF: default map, cp=%" PRIu64 ", s=%" PRIu64
-	      ", da=%" PRIu64 "\n", cp, s, da);
+	debug("OF: default map, cp=%llu, s=%llu, da=%llu\n", cp, s, da);
 
 	if (da < cp || da >= (cp + s))
 		return OF_BAD_ADDR;
@@ -1081,8 +1079,7 @@ static u64 of_bus_isa_map(fdt32_t *addr, const fdt32_t *range,
 	s  = fdt_read_number(range + na + pna, ns);
 	da = fdt_read_number(addr + 1, na - 1);
 
-	debug("OF: ISA map, cp=%" PRIu64 ", s=%" PRIu64
-	      ", da=%" PRIu64 "\n", cp, s, da);
+	debug("OF: ISA map, cp=%llu, s=%llu, da=%llu\n", cp, s, da);
 
 	if (da < cp || da >= (cp + s))
 		return OF_BAD_ADDR;
@@ -1188,7 +1185,7 @@ static int of_translate_one(const void *blob, int parent, struct of_bus *bus,
 
  finish:
 	of_dump_addr("OF: parent translation for:", addr, pna);
-	debug("OF: with offset: %" PRIu64 "\n", offset);
+	debug("OF: with offset: %llu\n", offset);
 
 	/* Translate it into parent bus space */
 	return pbus->translate(addr, offset, pna);
@@ -1518,9 +1515,9 @@ int fdt_verify_alias_address(void *fdt, int anode, const char *alias, u64 addr)
 
 	dt_addr = fdt_translate_address(fdt, node, reg);
 	if (addr != dt_addr) {
-		printf("Warning: U-Boot configured device %s at address %"
-		       PRIx64 ",\n but the device tree has it address %"
-		       PRIx64 ".\n", alias, addr, dt_addr);
+		printf("Warning: U-Boot configured device %s at address %llu,\n"
+		       "but the device tree has it address %llx.\n",
+		       alias, addr, dt_addr);
 		return 0;
 	}
 
@@ -1668,7 +1665,7 @@ int fdt_setup_simplefb_node(void *fdt, int node, u64 base_address, u32 width,
 	if (ret < 0)
 		return ret;
 
-	snprintf(name, sizeof(name), "framebuffer@%" PRIx64, base_address);
+	snprintf(name, sizeof(name), "framebuffer@%llx", base_address);
 	ret = fdt_set_name(fdt, node, name);
 	if (ret < 0)
 		return ret;

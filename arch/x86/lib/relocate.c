@@ -15,7 +15,6 @@
  */
 
 #include <common.h>
-#include <inttypes.h>
 #include <relocate.h>
 #include <asm/u-boot-x86.h>
 #include <asm/sections.h>
@@ -70,8 +69,7 @@ static void do_elf_reloc_fixups64(unsigned int text_base, uintptr_t size,
 				*offset_ptr_ram = gd->reloc_off +
 							re_src->r_addend;
 			} else {
-				debug("   %p: %lx: rom reloc %lx, ram %p, value %lx, limit %"
-				      PRIXPTR "\n",
+				debug("   %p: %lx: rom reloc %lx, ram %p, value %lx, limit %lX\n",
 				      re_src, (ulong)re_src->r_info,
 				      (ulong)re_src->r_offset, offset_ptr_ram,
 				      (ulong)*offset_ptr_ram, text_base + size);
@@ -109,11 +107,9 @@ static void do_elf_reloc_fixups32(unsigned int text_base, uintptr_t size,
 			    *offset_ptr_ram <= text_base + size) {
 				*offset_ptr_ram += gd->reloc_off;
 			} else {
-				debug("   %p: rom reloc %x, ram %p, value %x,"
-					" limit %" PRIXPTR "\n", re_src,
-					re_src->r_offset, offset_ptr_ram,
-					*offset_ptr_ram,
-					text_base + size);
+				debug("   %p: rom reloc %x, ram %p, value %x, limit %lX\n",
+				      re_src, re_src->r_offset, offset_ptr_ram,
+				      *offset_ptr_ram, text_base + size);
 			}
 		} else {
 			debug("   %p: rom reloc %x, last %p\n", re_src,

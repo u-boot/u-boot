@@ -7,7 +7,6 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
-#include <inttypes.h>
 #include <pci.h>
 
 #define FDT_DEV_INFO_CELLS	4

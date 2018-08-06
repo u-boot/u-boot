@@ -7,7 +7,6 @@
 
 #include <common.h>
 #include <efi_loader.h>
-#include <inttypes.h>
 #include <lcd.h>
 #include <malloc.h>
 

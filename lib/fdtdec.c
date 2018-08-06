@@ -11,7 +11,6 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
-#include <inttypes.h>
 #include <linux/libfdt.h>
 #include <serial.h>
 #include <asm/sections.h>
@@ -1448,13 +1447,12 @@ int fdtdec_decode_ram_size(const void *blob, const char *area, int board_id,
 		if (auto_size) {
 			u64 new_size;
 
-			debug("Auto-sizing %" PRIx64 ", size %" PRIx64 ": ",
-			      addr, size);
+			debug("Auto-sizing %llx, size %llx: ", addr, size);
 			new_size = get_ram_size((long *)(uintptr_t)addr, size);
 			if (new_size == size) {
 				debug("OK\n");
 			} else {
-				debug("sized to %" PRIx64 "\n", new_size);
+				debug("sized to %llx\n", new_size);
 				size = new_size;
 			}
 		}
@@ -1464,7 +1462,7 @@ int fdtdec_decode_ram_size(const void *blob, const char *area, int board_id,
 		total_size += size;
 	}
 
-	debug("Memory size %" PRIu64 "\n", total_size);
+	debug("Memory size %llu\n", total_size);
 	if (sizep)
 		*sizep = (phys_size_t)total_size;
 
