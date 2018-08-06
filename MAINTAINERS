@@ -523,6 +523,9 @@ F:	drivers/ram/mpc83xx_sdram.c
 F:	include/dt-bindings/memory/mpc83xx-sdram.h
 F:	drivers/sysreset/sysreset_mpc83xx.c
 F:	drivers/sysreset/sysreset_mpc83xx.h
+F:	drivers/clk/mpc83xx_clk.c
+F:	drivers/clk/mpc83xx_clk.h
+F:	include/dt-bindings/clk/mpc83xx-clk.h
 F:	arch/powerpc/cpu/mpc83xx/
 F:	arch/powerpc/include/asm/arch-mpc83xx/
 

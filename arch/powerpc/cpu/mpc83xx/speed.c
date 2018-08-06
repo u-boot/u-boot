@@ -6,6 +6,8 @@
  * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
  */
 
+#ifndef CONFIG_CLK_MPC83XX
+
 #include <common.h>
 #include <mpc83xx.h>
 #include <command.h>
@@ -590,3 +592,5 @@ U_BOOT_CMD(clocks, 1, 0, do_clocks,
 	"print clock configuration",
 	"    clocks"
 );
+
+#endif
