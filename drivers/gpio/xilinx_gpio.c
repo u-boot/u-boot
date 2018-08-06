@@ -81,7 +81,7 @@ static int xilinx_gpio_set_value(struct udevice *dev, unsigned offset,
 
 	priv->output_val[bank] = val;
 
-	return val;
+	return 0;
 };
 
 static int xilinx_gpio_get_value(struct udevice *dev, unsigned offset)
