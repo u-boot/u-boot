@@ -48,6 +48,7 @@
 /dts-v1/;
 #include "stm32f746.dtsi"
 #include <dt-bindings/memory/stm32-sdram.h>
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	model = "STMicroelectronics STM32F746-DISCO board";
@@ -307,8 +308,7 @@
 
 &sdio {
 	status = "okay";
-	cd-gpios = <&gpioc 13 0>;
-	cd-inverted;
+	cd-gpios = <&gpioc 13 GPIO_ACTIVE_LOW>;
 	pinctrl-names = "default", "opendrain";
 	pinctrl-0 = <&sdio_pins>;
 	pinctrl-1 = <&sdio_pins_od>;
