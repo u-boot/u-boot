@@ -11,8 +11,8 @@
 
 #include <common.h>
 #include <console.h>
-#include <environment.h>
 #include <dm.h>
+#include <environment.h>
 #include <fdtdec.h>
 #include <fs.h>
 #include <i2c.h>
