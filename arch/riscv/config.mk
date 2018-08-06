@@ -10,10 +10,6 @@
 # Rick Chen, Andes Technology Corporation <rick@andestech.com>
 #
 
-ifeq ($(CROSS_COMPILE),)
-CROSS_COMPILE := riscv32-unknown-linux-gnu-
-endif
-
 32bit-emul		:= elf32lriscv
 64bit-emul		:= elf64lriscv
 
