@@ -17,9 +17,7 @@ SECTIONS
 	_u_boot_sandbox_getopt : { *(.u_boot_sandbox_getopt) }
 	__u_boot_sandbox_option_end = .;
 
-	__bss_start = .;
-
-		.__efi_runtime_start : {
+	.__efi_runtime_start : {
 		*(.__efi_runtime_start)
 	}
 
@@ -48,6 +46,7 @@ SECTIONS
 		*(.__efi_runtime_rel_stop)
 	}
 
+	__bss_start = .;
 }
 
 INSERT BEFORE .data;
