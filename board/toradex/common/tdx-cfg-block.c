@@ -156,10 +156,13 @@ out:
 static int read_tdx_cfg_block_from_nand(unsigned char *config_block)
 {
 	size_t size = TDX_CFG_BLOCK_MAX_SIZE;
+	struct mtd_info *mtd = get_nand_dev_by_index(0);
+
+	if (!mtd)
+		return -ENODEV;
 
 	/* Read production parameter config block from NAND page */
-	return nand_read_skip_bad(get_nand_dev_by_index(0),
-				  CONFIG_TDX_CFG_BLOCK_OFFSET,
+	return nand_read_skip_bad(mtd, CONFIG_TDX_CFG_BLOCK_OFFSET,
 				  &size, NULL, TDX_CFG_BLOCK_MAX_SIZE,
 				  config_block);
 }
