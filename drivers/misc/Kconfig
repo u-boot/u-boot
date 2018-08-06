@@ -195,6 +195,11 @@ config TEGRA186_BPMP
 	  can make requests to the BPMP. This driver is similar to an MFD
 	  driver in the Linux kernel.
 
+config TWL4030_LED
+	bool "Enable TWL4030 LED controller"
+	help
+	  Enable this to add support for the TWL4030 LED controller.
+
 config WINBOND_W83627
 	bool "Enable Winbond Super I/O driver"
 	help

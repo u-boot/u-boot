@@ -60,7 +60,6 @@
 #define CONFIG_SYS_EEPROM_BUS_NUM	1
 
 /* TWL4030 */
-#define CONFIG_TWL4030_LED
 
 /* Board NAND Info */
 #define CONFIG_SYS_NAND_BASE		NAND_BASE	/* physical address */

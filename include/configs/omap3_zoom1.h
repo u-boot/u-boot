@@ -48,7 +48,6 @@
 /*
  * TWL4030
  */
-#define CONFIG_TWL4030_LED		1
 
 /*
  * Board NAND Info.

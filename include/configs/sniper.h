@@ -60,8 +60,6 @@
  * Input
  */
 
-#define CONFIG_TWL4030_INPUT
-
 /*
  * SPL
  */

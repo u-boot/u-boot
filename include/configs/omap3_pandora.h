@@ -24,7 +24,6 @@
  */
 
 /* TWL4030 LED */
-#define CONFIG_TWL4030_LED
 
 /*
  * NS16550 Configuration

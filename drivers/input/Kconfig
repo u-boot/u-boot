@@ -24,3 +24,8 @@ config I8042_KEYB
 	  driver handles English and German keyboards - set the environment
 	  variable 'keymap' to "de" to select German. Keyboard repeat is
 	  handled by the keyboard itself.
+
+config TWL4030_INPUT
+	bool "Enable TWL4030 Input controller"
+	help
+	  Enable TWL4030 Input controller

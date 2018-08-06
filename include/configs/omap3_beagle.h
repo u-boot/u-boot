@@ -60,7 +60,6 @@
 /* DSS Support */
 
 /* TWL4030 LED Support */
-#define CONFIG_TWL4030_LED
 
 /* Environment */
 #define CONFIG_ENV_SIZE                 SZ_128K

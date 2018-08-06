@@ -92,8 +92,6 @@
 /*
  * TWL4030
  */
-#define CONFIG_TWL4030_LED
-#define CONFIG_TWL4030_KEYPAD
 
 #define GPIO_SLIDE			71
 

@@ -29,7 +29,6 @@
 /* I2C Support */
 
 /* TWL4030 LED */
-#define CONFIG_TWL4030_LED
 
 /* USB EHCI */
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	183

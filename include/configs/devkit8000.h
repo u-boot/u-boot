@@ -54,7 +54,6 @@
 #undef	CONFIG_DM9000_DEBUG
 
 /* TWL4030 */
-#define CONFIG_TWL4030_LED		1
 
 /* Board NAND Info */
 #define CONFIG_JFFS2_NAND
