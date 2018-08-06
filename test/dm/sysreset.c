@@ -45,6 +45,26 @@ static int dm_test_sysreset_base(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_sysreset_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
+static int dm_test_sysreset_get_status(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	char msg[64];
+
+	/* Device 1 is the warm sysreset device */
+	ut_assertok(uclass_get_device(UCLASS_SYSRESET, 1, &dev));
+	ut_assertok(sysreset_get_status(dev, msg, sizeof(msg)));
+	ut_asserteq_str("Reset Status: WARM", msg);
+
+	/* Device 2 is the cold sysreset device */
+	ut_assertok(uclass_get_device(UCLASS_SYSRESET, 2, &dev));
+	ut_assertok(sysreset_get_status(dev, msg, sizeof(msg)));
+	ut_asserteq_str("Reset Status: COLD", msg);
+
+	return 0;
+}
+
+DM_TEST(dm_test_sysreset_get_status, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
 /* Test that we can walk through the sysreset devices */
 static int dm_test_sysreset_walk(struct unit_test_state *uts)
 {
