@@ -375,6 +375,10 @@ KBUILD_CFLAGS   := -Wall -Wstrict-prototypes \
 KBUILD_CFLAGS	+= -fshort-wchar
 KBUILD_AFLAGS   := -D__ASSEMBLY__
 
+# Don't generate position independent code
+KBUILD_CFLAGS	+= $(call cc-option,-fno-PIE)
+KBUILD_AFLAGS	+= $(call cc-option,-fno-PIE)
+
 # Read UBOOTRELEASE from include/config/uboot.release (if it exists)
 UBOOTRELEASE = $(shell cat include/config/uboot.release 2> /dev/null)
 UBOOTVERSION = $(VERSION)$(if $(PATCHLEVEL),.$(PATCHLEVEL)$(if $(SUBLEVEL),.$(SUBLEVEL)))$(EXTRAVERSION)
