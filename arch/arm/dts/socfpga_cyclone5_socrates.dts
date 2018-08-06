@@ -76,6 +76,7 @@
 
 &qspi {
 	status = "okay";
+	u-boot,dm-pre-reloc;
 
 	flash: flash@0 {
 		#address-cells = <1>;
@@ -90,5 +91,6 @@
 		cdns,tchsh-ns = <4>;
 		cdns,tslch-ns = <4>;
 		status = "okay";
+		u-boot,dm-pre-reloc;
 	};
 };
