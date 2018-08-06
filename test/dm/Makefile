@@ -47,4 +47,5 @@ obj-$(CONFIG_WDT) += wdt.o
 obj-$(CONFIG_AXI) += axi.o
 obj-$(CONFIG_MISC) += misc.o
 obj-$(CONFIG_DM_SERIAL) += serial.o
+obj-$(CONFIG_CPU) += cpu.o
 endif

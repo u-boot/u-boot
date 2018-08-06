@@ -297,6 +297,18 @@
 		mbox-names = "other", "test";
 	};
 
+	cpu-test1 {
+		compatible = "sandbox,cpu_sandbox";
+	};
+
+	cpu-test2 {
+		compatible = "sandbox,cpu_sandbox";
+	};
+
+	cpu-test3 {
+		compatible = "sandbox,cpu_sandbox";
+	};
+
 	misc-test {
 		compatible = "sandbox,misc_sandbox";
 	};
