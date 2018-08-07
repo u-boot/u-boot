@@ -64,7 +64,7 @@ int generic_phy_get_by_index(struct udevice *dev, int index,
 			return ret;
 
 		/* insert phy idx at first position into args array */
-		for (i = args.args_count; i > 1 ; i--)
+		for (i = args.args_count; i >= 1 ; i--)
 			args.args[i] = args.args[i - 1];
 
 		args.args_count++;
