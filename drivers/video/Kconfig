@@ -410,7 +410,6 @@ config VIDEO_MVEBU
 
 config I2C_EDID
 	bool "Enable EDID library"
-	depends on DM_I2C
 	default n
 	help
 	   This enables library for accessing EDID data from an LCD panel.
