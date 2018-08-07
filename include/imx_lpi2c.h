@@ -8,6 +8,8 @@
 #ifndef __IMX_LPI2C_H__
 #define __IMX_LPI2C_H__
 
+#include <clk.h>
+
 struct imx_lpi2c_bus {
 	int index;
 	ulong base;
@@ -15,6 +17,7 @@ struct imx_lpi2c_bus {
 	int speed;
 	struct i2c_pads_info *pads_info;
 	struct udevice *bus;
+	struct clk per_clk;
 };
 
 struct imx_lpi2c_reg {
