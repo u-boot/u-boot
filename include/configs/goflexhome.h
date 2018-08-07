@@ -93,11 +93,4 @@
 #define CONFIG_SYS_ATA_IDE0_OFFSET      MV_SATA_PORT0_OFFSET
 #endif /*CONFIG_MVSATA_IDE*/
 
-/*
- *  * RTC driver configuration
- *   */
-#ifdef CONFIG_CMD_DATE
-#define CONFIG_RTC_MV
-#endif /* CONFIG_CMD_DATE */
-
 #endif /* _CONFIG_GOFLEXHOME_H */

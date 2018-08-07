@@ -109,11 +109,6 @@
 #define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
 #endif /* CONFIG_CMD_NET */
 
-/*
- * Time settings
- */
-#define CONFIG_RTC_MV
-
 #define CONFIG_SYS_LOAD_ADDR  0x1000000      /* default location for tftp and bootm */
 
 #endif /* _CONFIG_SBX81LIFKW_H */

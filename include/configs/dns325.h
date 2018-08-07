@@ -55,13 +55,6 @@
 #endif
 
 /*
- * RTC driver configuration
- */
-#ifdef CONFIG_CMD_DATE
-#define CONFIG_RTC_MV
-#endif
-
-/*
  * Enable GPI0 support
  */
 #define CONFIG_KIRKWOOD_GPIO

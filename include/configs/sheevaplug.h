@@ -29,10 +29,6 @@
  */
 #include "mv-plug-common.h"
 
-#ifdef CONFIG_CMD_DATE
-#define CONFIG_RTC_MV
-#endif /* CONFIG_CMD_DATE */
-
 /*
  *  Environment variables configurations
  */
