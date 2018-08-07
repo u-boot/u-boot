@@ -5,3 +5,4 @@ F:	arch/arm/dts/zynqmp-*
 F:	board/xilinx/zynqmp/
 F:	include/configs/xilinx_zynqmp*
 F:	configs/xilinx_zynqmp*
+F:	configs/avnet_ultra96_rev1_defconfig
