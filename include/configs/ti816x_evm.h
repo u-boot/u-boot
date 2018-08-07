@@ -52,9 +52,6 @@
 /* allow overwriting serial config and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_SERIAL1
-#define CONFIG_SERIAL2
-#define CONFIG_SERIAL3
 
 /*
  * GPMC NAND block.  We support 1 device and the physical address to

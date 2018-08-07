@@ -10,7 +10,6 @@
 #ifndef __CONFIG_PENGWYN_H
 #define __CONFIG_PENGWYN_H
 
-#define CONFIG_SERIAL1
 
 #include <configs/ti_am335x_common.h>
 

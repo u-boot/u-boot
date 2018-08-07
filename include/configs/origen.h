@@ -29,7 +29,6 @@
 #define CONFIG_MACH_TYPE		MACH_TYPE_ORIGEN
 
 /* select serial console configuration */
-#define CONFIG_SERIAL2
 
 /* Console configuration */
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"

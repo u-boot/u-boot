@@ -47,7 +47,6 @@
 
 /* select serial console configuration */
 #define CONFIG_SYS_NS16550_COM3		OMAP34XX_UART3
-#define CONFIG_SERIAL3			3
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
 

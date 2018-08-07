@@ -28,7 +28,6 @@
 #define S5P_CHECK_LPA			0xABAD0000
 
 /* select serial console configuration */
-#define CONFIG_SERIAL1			1	/* use SERIAL 1 */
 #define EXYNOS4_DEFAULT_UART_OFFSET	0x010000
 
 /* allow to overwrite serial and ethaddr */

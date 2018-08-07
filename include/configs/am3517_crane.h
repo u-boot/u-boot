@@ -56,7 +56,6 @@
  * select serial console configuration
  */
 #define CONFIG_SYS_NS16550_COM3		OMAP34XX_UART3
-#define CONFIG_SERIAL3			3	/* UART3 on CRANEBOARD */
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

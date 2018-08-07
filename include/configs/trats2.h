@@ -30,7 +30,6 @@
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
 
 /* select serial console configuration */
-#define CONFIG_SERIAL2
 
 /* Console configuration */
 

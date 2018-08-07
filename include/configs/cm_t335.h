@@ -79,7 +79,6 @@
 #define CONFIG_SYS_AUTOLOAD		"no"
 
 /* Serial console configuration */
-#define CONFIG_SERIAL1			1	/* UART0 */
 
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* UART0 */

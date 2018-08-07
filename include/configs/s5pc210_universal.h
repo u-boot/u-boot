@@ -23,7 +23,6 @@
 #define SDRAM_BANK_SIZE			(256 << 20)	/* 256 MB */
 
 /* select serial console configuration */
-#define CONFIG_SERIAL2
 
 /* Console configuration */
 

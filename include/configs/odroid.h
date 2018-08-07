@@ -36,7 +36,6 @@
 #include <linux/sizes.h>
 
 /* select serial console configuration */
-#define CONFIG_SERIAL1
 
 /* Console configuration */
 

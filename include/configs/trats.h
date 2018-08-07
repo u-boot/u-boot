@@ -32,7 +32,6 @@
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x4800000)
 
 /* select serial console configuration */
-#define CONFIG_SERIAL2
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_TRATS
 

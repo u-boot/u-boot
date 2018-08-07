@@ -198,8 +198,6 @@
  * function per_clocks_enable().
  */
 #ifdef CONFIG_SPL_BUILD
-#undef CONFIG_SERIAL3
-#define CONFIG_SERIAL2
 #endif
 
 /* Provide the MACH_TYPE value the vendor kernel requires */
