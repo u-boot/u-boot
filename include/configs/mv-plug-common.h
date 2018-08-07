@@ -22,11 +22,4 @@
  */
 #include "mv-common.h"
 
-/*
- * RTC driver configuration
- */
-#ifdef CONFIG_CMD_DATE
-#define CONFIG_RTC_MV
-#endif /* CONFIG_CMD_DATE */
-
 #endif /* _CONFIG_MARVELL_PLUG_H */
