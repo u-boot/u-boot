@@ -53,7 +53,6 @@
 #define CONFIG_SF_DEFAULT_MODE SPI_MODE_0
 #define CONFIG_ENV_SPI_MAX_HZ CONFIG_SF_DEFAULT_SPEED
 #undef CONFIG_SPI_FLASH_WINBOND
-#undef CONFIG_SPI_FLASH_ISSI
 
 /* Setup proper boot sequences for Miami boards */
 
