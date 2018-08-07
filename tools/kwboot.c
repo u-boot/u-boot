@@ -182,7 +182,7 @@ kwboot_tty_recv(int fd, void *buf, size_t len, int timeo)
 		}
 
 		n = read(fd, buf, len);
-		if (n < 0)
+		if (n <= 0)
 			goto out;
 
 		buf = (char *)buf + n;
@@ -466,7 +466,7 @@ kwboot_term_pipe(int in, int out, char *quit, int *s)
 	char _buf[128], *buf = _buf;
 
 	nin = read(in, buf, sizeof(buf));
-	if (nin < 0)
+	if (nin <= 0)
 		return -1;
 
 	if (quit) {
@@ -821,7 +821,7 @@ main(int argc, char **argv)
 			perror("debugmsg");
 			goto out;
 		}
-	} else {
+	} else if (bootmsg) {
 		rc = kwboot_bootmsg(tty, bootmsg);
 		if (rc) {
 			perror("bootmsg");

@@ -107,13 +107,6 @@
  * EFI partition
  */
 
-/*
- *  Date Time
- */
-#ifdef CONFIG_CMD_DATE
-#define CONFIG_RTC_MV
-#endif /* CONFIG_CMD_DATE */
-
 #define CONFIG_KIRKWOOD_GPIO
 
 #endif /* _CONFIG_NAS220_H */

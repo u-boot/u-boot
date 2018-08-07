@@ -148,6 +148,7 @@ config SYS_BOARD
 	default "ds414" if TARGET_DS414
 	default "maxbcm" if TARGET_MAXBCM
 	default "theadorable" if TARGET_THEADORABLE
+	default "a38x" if TARGET_CONTROLCENTERDC
 
 config SYS_CONFIG_NAME
 	default "clearfog" if TARGET_CLEARFOG
@@ -163,6 +164,7 @@ config SYS_CONFIG_NAME
 	default "theadorable" if TARGET_THEADORABLE
 	default "turris_omnia" if TARGET_TURRIS_OMNIA
 	default "turris_mox" if TARGET_TURRIS_MOX
+	default "controlcenterdc" if TARGET_CONTROLCENTERDC
 
 config SYS_VENDOR
 	default "Marvell" if TARGET_DB_MV784MP_GP
@@ -176,24 +178,25 @@ config SYS_VENDOR
 	default "Synology" if TARGET_DS414
 	default "CZ.NIC" if TARGET_TURRIS_OMNIA
 	default "CZ.NIC" if TARGET_TURRIS_MOX
+	default "gdsys" if TARGET_CONTROLCENTERDC
 
 config SYS_SOC
 	default "mvebu"
 
-if TARGET_TURRIS_OMNIA
-
 choice
-	prompt "Turris Omnia boot method"
+	prompt "Boot method"
 
-config TURRIS_OMNIA_SPL_BOOT_DEVICE_SPI
+config MVEBU_SPL_BOOT_DEVICE_SPI
 	bool "SPI NOR flash"
 
-config TURRIS_OMNIA_SPL_BOOT_DEVICE_MMC
+config MVEBU_SPL_BOOT_DEVICE_MMC
 	bool "SDIO/MMC card"
+	select SPL_LIBDISK_SUPPORT
+
+config MVEBU_SPL_BOOT_DEVICE_UART
+	bool "UART"
 
 endchoice
-
-endif
 
 config MVEBU_EFUSE
 	bool "Enable eFuse support"

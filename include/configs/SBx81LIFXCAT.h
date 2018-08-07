@@ -3,8 +3,8 @@
  * (C) Copyright 2016 Allied Telesis <www.alliedtelesis.co.nz>
  */
 
-#ifndef _CONFIG_SBX81LIFKW_H
-#define _CONFIG_SBX81LIFKW_H
+#ifndef _CONFIG_SBX81LIFXCAT_H
+#define _CONFIG_SBX81LIFXCAT_H
 
 /*
  * High Level Configuration Options (easy to change)
@@ -111,4 +111,4 @@
 
 #define CONFIG_SYS_LOAD_ADDR  0x1000000      /* default location for tftp and bootm */
 
-#endif /* _CONFIG_SBX81LIFKW_H */
+#endif /* _CONFIG_SBX81LIFXCAT_H */

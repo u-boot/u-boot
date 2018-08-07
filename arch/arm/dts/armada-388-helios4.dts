@@ -248,7 +248,7 @@
 				bus-width = <4>;
 				cd-gpios = <&gpio0 20 GPIO_ACTIVE_LOW>;
 				no-1-8-v;
-				pinctrl-0 = <&helios_sdhci_pins
+				pinctrl-0 = <&microsom_sdhci_pins
 					     &helios_sdhci_cd_pins>;
 				pinctrl-names = "default";
 				status = "okay";
@@ -285,12 +285,6 @@
 				helios_sdhci_cd_pins: helios-sdhci-cd-pins {
 					marvell,pins = "mpp20";
 					marvell,function = "gpio";
-				};
-				helios_sdhci_pins: helios-sdhci-pins {
-					marvell,pins = "mpp21", "mpp28",
-						       "mpp37", "mpp38",
-						       "mpp39", "mpp40";
-					marvell,function = "sd0";
 				};
 				helios_led_pins: helios-led-pins {
 					marvell,pins = "mpp24", "mpp25",
