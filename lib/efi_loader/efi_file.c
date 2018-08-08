@@ -9,6 +9,7 @@
 #include <charset.h>
 #include <efi_loader.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <fs.h>
 
 /* GUID for file system information */
@@ -232,8 +233,10 @@ static efi_status_t file_read(struct file_handle *fh, u64 *buffer_size,
 		void *buffer)
 {
 	loff_t actread;
+	/* fs_read expects buffer address, not pointer */
+	uintptr_t buffer_addr = (uintptr_t)map_to_sysmem(buffer);
 
-	if (fs_read(fh->path, (ulong)buffer, fh->offset,
+	if (fs_read(fh->path, buffer_addr, fh->offset,
 		    *buffer_size, &actread))
 		return EFI_DEVICE_ERROR;
 
