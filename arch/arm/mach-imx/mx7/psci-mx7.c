@@ -44,6 +44,14 @@
 #error "invalid value for CONFIG_ARMV7_PSCI_NR_CPUS"
 #endif
 
+#define imx_cpu_gpr_entry_offset(cpu) \
+	(SRC_BASE_ADDR + SRC_GPR1_MX7D + cpu * 8)
+#define imx_cpu_gpr_para_offset(cpu) \
+	(imx_cpu_gpr_entry_offset(cpu) + 4)
+
+#define IMX_CPU_SYNC_OFF	~0
+#define IMX_CPU_SYNC_ON		0
+
 u8 psci_state[IMX7D_PSCI_NR_CPUS] __secure_data = {
 	 PSCI_AFFINITY_LEVEL_ON,
 	 PSCI_AFFINITY_LEVEL_OFF};
@@ -116,7 +124,7 @@ __secure s32 psci_cpu_on(u32 __always_unused function_id, u32 mpidr, u32 ep,
 
 	psci_save(cpu, ep, context_id);
 
-	writel((u32)psci_cpu_entry, SRC_BASE_ADDR + cpu * 8 + SRC_GPR1_MX7D);
+	writel((u32)psci_cpu_entry, imx_cpu_gpr_entry_offset(cpu));
 
 	psci_set_state(cpu, PSCI_AFFINITY_LEVEL_ON_PENDING);
 
@@ -137,7 +145,11 @@ __secure s32 psci_cpu_off(void)
 
 	imx_enable_cpu_ca7(cpu, false);
 	imx_gpcv2_set_core_power(cpu, false);
-	writel(0, SRC_BASE_ADDR + cpu * 8 + SRC_GPR1_MX7D + 4);
+	/*
+	 * We use the cpu jumping argument register to sync with
+	 * psci_affinity_info() which is running on cpu0 to kill the cpu.
+	 */
+	writel(IMX_CPU_SYNC_OFF, imx_cpu_gpr_para_offset(cpu));
 
 	while (1)
 		wfi();
@@ -197,6 +209,13 @@ __secure s32 psci_affinity_info(u32 __always_unused function_id,
 
 	if (cpu >= IMX7D_PSCI_NR_CPUS)
 		return ARM_PSCI_RET_INVAL;
+
+	/* CPU is waiting for killed */
+	if (readl(imx_cpu_gpr_para_offset(cpu)) == IMX_CPU_SYNC_OFF) {
+		imx_enable_cpu_ca7(cpu, false);
+		imx_gpcv2_set_core_power(cpu, false);
+		writel(IMX_CPU_SYNC_ON, imx_cpu_gpr_para_offset(cpu));
+	}
 
 	return psci_state[cpu];
 }
