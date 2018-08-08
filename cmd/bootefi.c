@@ -131,17 +131,30 @@ static void set_load_options(struct efi_loaded_image *loaded_image_info,
 	loaded_image_info->load_options_size = size * 2;
 }
 
-static void *copy_fdt(void *fdt)
+/**
+ * copy_fdt() - Copy the device tree to a new location available to EFI
+ *
+ * The FDT is relocated into a suitable location within the EFI memory map.
+ * An additional 12KB is added to the space in case the device tree needs to be
+ * expanded later with fdt_open_into().
+ *
+ * @fdt_addr: On entry, address of start of FDT. On exit, address of relocated
+ *	FDT start
+ * @fdt_sizep: Returns new size of FDT, including
+ * @return new relocated address of FDT
+ */
+static efi_status_t copy_fdt(ulong *fdt_addrp, ulong *fdt_sizep)
 {
-	u64 fdt_size = fdt_totalsize(fdt);
 	unsigned long fdt_ram_start = -1L, fdt_pages;
+	efi_status_t ret = 0;
+	void *fdt, *new_fdt;
 	u64 new_fdt_addr;
-	void *new_fdt;
+	uint fdt_size;
 	int i;
 
-        for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-                u64 ram_start = gd->bd->bi_dram[i].start;
-                u64 ram_size = gd->bd->bi_dram[i].size;
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		u64 ram_start = gd->bd->bi_dram[i].start;
+		u64 ram_size = gd->bd->bi_dram[i].size;
 
 		if (!ram_size)
 			continue;
@@ -154,30 +167,37 @@ static void *copy_fdt(void *fdt)
 	 * Give us at least 4KB of breathing room in case the device tree needs
 	 * to be expanded later. Round up to the nearest EFI page boundary.
 	 */
-	fdt_size += 4096;
+	fdt = map_sysmem(*fdt_addrp, 0);
+	fdt_size = fdt_totalsize(fdt);
+	fdt_size += 4096 * 3;
 	fdt_size = ALIGN(fdt_size + EFI_PAGE_SIZE - 1, EFI_PAGE_SIZE);
 	fdt_pages = fdt_size >> EFI_PAGE_SHIFT;
 
 	/* Safe fdt location is at 127MB */
 	new_fdt_addr = fdt_ram_start + (127 * 1024 * 1024) + fdt_size;
-	if (efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
-			       EFI_RUNTIME_SERVICES_DATA, fdt_pages,
-			       &new_fdt_addr) != EFI_SUCCESS) {
+	ret = efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
+				 EFI_RUNTIME_SERVICES_DATA, fdt_pages,
+				 &new_fdt_addr);
+	if (ret != EFI_SUCCESS) {
 		/* If we can't put it there, put it somewhere */
 		new_fdt_addr = (ulong)memalign(EFI_PAGE_SIZE, fdt_size);
-		if (efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
-				       EFI_RUNTIME_SERVICES_DATA, fdt_pages,
-				       &new_fdt_addr) != EFI_SUCCESS) {
+		ret = efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
+					 EFI_RUNTIME_SERVICES_DATA, fdt_pages,
+					 &new_fdt_addr);
+		if (ret != EFI_SUCCESS) {
 			printf("ERROR: Failed to reserve space for FDT\n");
-			return NULL;
+			goto done;
 		}
 	}
 
-	new_fdt = (void*)(ulong)new_fdt_addr;
+	new_fdt = map_sysmem(new_fdt_addr, fdt_size);
 	memcpy(new_fdt, fdt, fdt_totalsize(fdt));
 	fdt_set_totalsize(new_fdt, fdt_size);
 
-	return new_fdt;
+	*fdt_addrp = new_fdt_addr;
+	*fdt_sizep = fdt_size;
+done:
+	return ret;
 }
 
 static efi_status_t efi_do_enter(
@@ -250,22 +270,27 @@ static void efi_carve_out_dt_rsv(void *fdt)
 	}
 }
 
-static efi_status_t efi_install_fdt(void *fdt)
+static efi_status_t efi_install_fdt(ulong fdt_addr)
 {
 	bootm_headers_t img = { 0 };
-	ulong fdt_pages, fdt_size, fdt_start, fdt_end;
+	ulong fdt_pages, fdt_size, fdt_start;
 	efi_status_t ret;
+	void *fdt;
 
+	fdt = map_sysmem(fdt_addr, 0);
 	if (fdt_check_header(fdt)) {
 		printf("ERROR: invalid device tree\n");
 		return EFI_INVALID_PARAMETER;
 	}
 
 	/* Prepare fdt for payload */
-	fdt = copy_fdt(fdt);
-	if (!fdt)
-		return EFI_OUT_OF_RESOURCES;
+	ret = copy_fdt(&fdt_addr, &fdt_size);
+	if (ret)
+		return ret;
 
+	unmap_sysmem(fdt);
+	fdt = map_sysmem(fdt_addr, 0);
+	fdt_size = fdt_totalsize(fdt);
 	if (image_setup_libfdt(&img, fdt, 0, NULL)) {
 		printf("ERROR: failed to process device tree\n");
 		return EFI_LOAD_ERROR;
@@ -279,14 +304,12 @@ static efi_status_t efi_install_fdt(void *fdt)
 		return EFI_OUT_OF_RESOURCES;
 
 	/* And reserve the space in the memory map */
-	fdt_start = ((ulong)fdt) & ~EFI_PAGE_MASK;
-	fdt_end = ((ulong)fdt) + fdt_totalsize(fdt);
-	fdt_size = (fdt_end - fdt_start) + EFI_PAGE_MASK;
+	fdt_start = fdt_addr;
 	fdt_pages = fdt_size >> EFI_PAGE_SHIFT;
-	/* Give a bootloader the chance to modify the device tree */
-	fdt_pages += 2;
+
 	ret = efi_add_memory_map(fdt_start, fdt_pages,
 				 EFI_BOOT_SERVICES_DATA, true);
+
 	return ret;
 }
 
@@ -443,7 +466,6 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *saddr;
 	efi_status_t r;
 	unsigned long fdt_addr;
-	void *fdt;
 
 	/* Allow unaligned memory access */
 	allow_unaligned();
@@ -464,8 +486,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (!fdt_addr && *argv[2] != '0')
 			return CMD_RET_USAGE;
 		/* Install device tree */
-		fdt = map_sysmem(fdt_addr, 0);
-		r = efi_install_fdt(fdt);
+		r = efi_install_fdt(fdt_addr);
 		if (r != EFI_SUCCESS) {
 			printf("ERROR: failed to install device tree\n");
 			return CMD_RET_FAILURE;
