@@ -158,8 +158,8 @@ static void *copy_fdt(void *fdt)
 	fdt_size = ALIGN(fdt_size + EFI_PAGE_SIZE - 1, EFI_PAGE_SIZE);
 	fdt_pages = fdt_size >> EFI_PAGE_SHIFT;
 
-	/* Safe fdt location is at 128MB */
-	new_fdt_addr = fdt_ram_start + (128 * 1024 * 1024) + fdt_size;
+	/* Safe fdt location is at 127MB */
+	new_fdt_addr = fdt_ram_start + (127 * 1024 * 1024) + fdt_size;
 	if (efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
 			       EFI_RUNTIME_SERVICES_DATA, fdt_pages,
 			       &new_fdt_addr) != EFI_SUCCESS) {
