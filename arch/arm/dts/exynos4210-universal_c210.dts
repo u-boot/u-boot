@@ -25,8 +25,6 @@
 		gpio-mosi = <&gpy3 3 0>;
 		gpio-miso = <&gpy3 0 0>;
 		spi-delay-us = <1>;
-		#address-cells = <1>;
-		#size-cells = <0>;
 		cs@0 {
 		};
 	};
