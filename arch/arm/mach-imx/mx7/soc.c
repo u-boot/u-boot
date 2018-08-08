@@ -18,6 +18,37 @@
 #include <fsl_sec.h>
 #include <asm/setup.h>
 
+#define IOMUXC_GPR1		0x4
+#define BM_IOMUXC_GPR1_IRQ	0x1000
+
+#define GPC_LPCR_A7_BSC		0x0
+#define GPC_LPCR_M4		0x8
+#define GPC_SLPCR		0x14
+#define GPC_PGC_ACK_SEL_A7	0x24
+#define GPC_IMR1_CORE0		0x30
+#define GPC_IMR1_CORE1		0x40
+#define GPC_IMR1_M4		0x50
+#define GPC_PGC_CPU_MAPPING	0xec
+#define GPC_PGC_C0_PUPSCR	0x804
+#define GPC_PGC_SCU_TIMING	0x890
+#define GPC_PGC_C1_PUPSCR	0x844
+
+#define BM_LPCR_A7_BSC_IRQ_SRC_A7_WAKEUP	0x70000000
+#define BM_LPCR_A7_BSC_CPU_CLK_ON_LPM		0x4000
+#define BM_LPCR_M4_MASK_DSM_TRIGGER		0x80000000
+#define BM_SLPCR_EN_DSM				0x80000000
+#define BM_SLPCR_RBC_EN				0x40000000
+#define BM_SLPCR_REG_BYPASS_COUNT		0x3f000000
+#define BM_SLPCR_VSTBY				0x4
+#define BM_SLPCR_SBYOS				0x2
+#define BM_SLPCR_BYPASS_PMIC_READY		0x1
+#define BM_SLPCR_EN_A7_FASTWUP_WAIT_MODE	0x10000
+
+#define BM_GPC_PGC_ACK_SEL_A7_DUMMY_PUP_ACK	0x80000000
+#define BM_GPC_PGC_ACK_SEL_A7_DUMMY_PDN_ACK	0x8000
+
+#define BM_GPC_PGC_CORE_PUPSCR			0x7fff80
+
 #if defined(CONFIG_IMX_THERMAL)
 static const struct imx_thermal_plat imx7_thermal_plat = {
 	.regs = (void *)ANATOP_BASE_ADDR,
@@ -159,6 +190,76 @@ static void imx_enet_mdio_fixup(void)
 	}
 }
 
+static void imx_gpcv2_init(void)
+{
+	u32 val, i;
+
+	/*
+	 * Force IOMUXC irq pending, so that the interrupt to GPC can be
+	 * used to deassert dsm_request signal when the signal gets
+	 * asserted unexpectedly.
+	 */
+	val = readl(IOMUXC_GPR_BASE_ADDR + IOMUXC_GPR1);
+	val |= BM_IOMUXC_GPR1_IRQ;
+	writel(val, IOMUXC_GPR_BASE_ADDR + IOMUXC_GPR1);
+
+	/* Initially mask all interrupts */
+	for (i = 0; i < 4; i++) {
+		writel(~0, GPC_IPS_BASE_ADDR + GPC_IMR1_CORE0 + i * 4);
+		writel(~0, GPC_IPS_BASE_ADDR + GPC_IMR1_CORE1 + i * 4);
+		writel(~0, GPC_IPS_BASE_ADDR + GPC_IMR1_M4 + i * 4);
+	}
+
+	/* set SCU timing */
+	writel((0x59 << 10) | 0x5B | (0x2 << 20),
+	       GPC_IPS_BASE_ADDR + GPC_PGC_SCU_TIMING);
+
+	/* only external IRQs to wake up LPM and core 0/1 */
+	val = readl(GPC_IPS_BASE_ADDR + GPC_LPCR_A7_BSC);
+	val |= BM_LPCR_A7_BSC_IRQ_SRC_A7_WAKEUP;
+	writel(val, GPC_IPS_BASE_ADDR + GPC_LPCR_A7_BSC);
+
+	/* set C0 power up timming per design requirement */
+	val = readl(GPC_IPS_BASE_ADDR + GPC_PGC_C0_PUPSCR);
+	val &= ~BM_GPC_PGC_CORE_PUPSCR;
+	val |= (0x1A << 7);
+	writel(val, GPC_IPS_BASE_ADDR + GPC_PGC_C0_PUPSCR);
+
+	/* set C1 power up timming per design requirement */
+	val = readl(GPC_IPS_BASE_ADDR + GPC_PGC_C1_PUPSCR);
+	val &= ~BM_GPC_PGC_CORE_PUPSCR;
+	val |= (0x1A << 7);
+	writel(val, GPC_IPS_BASE_ADDR + GPC_PGC_C1_PUPSCR);
+
+	/* dummy ack for time slot by default */
+	writel(BM_GPC_PGC_ACK_SEL_A7_DUMMY_PUP_ACK |
+		BM_GPC_PGC_ACK_SEL_A7_DUMMY_PDN_ACK,
+		GPC_IPS_BASE_ADDR + GPC_PGC_ACK_SEL_A7);
+
+	/* mask M4 DSM trigger */
+	writel(readl(GPC_IPS_BASE_ADDR + GPC_LPCR_M4) |
+		 BM_LPCR_M4_MASK_DSM_TRIGGER,
+		 GPC_IPS_BASE_ADDR + GPC_LPCR_M4);
+
+	/* set mega/fast mix in A7 domain */
+	writel(0x1, GPC_IPS_BASE_ADDR + GPC_PGC_CPU_MAPPING);
+
+	/* DSM related settings */
+	val = readl(GPC_IPS_BASE_ADDR + GPC_SLPCR);
+	val &= ~(BM_SLPCR_EN_DSM | BM_SLPCR_VSTBY | BM_SLPCR_RBC_EN |
+		BM_SLPCR_SBYOS | BM_SLPCR_BYPASS_PMIC_READY |
+		BM_SLPCR_REG_BYPASS_COUNT);
+	val |= BM_SLPCR_EN_A7_FASTWUP_WAIT_MODE;
+	writel(val, GPC_IPS_BASE_ADDR + GPC_SLPCR);
+
+	/*
+	 * disabling RBC need to delay at least 2 cycles of CKIL(32K)
+	 * due to hardware design requirement, which is
+	 * ~61us, here we use 65us for safe
+	 */
+	udelay(65);
+}
+
 int arch_cpu_init(void)
 {
 	init_aips();
@@ -179,6 +280,8 @@ int arch_cpu_init(void)
 #endif
 
 	init_snvs();
+
+	imx_gpcv2_init();
 
 	return 0;
 }
