@@ -24,7 +24,6 @@ void setup_qbman_portals(void)
 				CONFIG_SYS_BMAN_SWP_ISDR_REG;
 	void __iomem *qpaddr = (void *)CONFIG_SYS_QMAN_CINH_BASE +
 				CONFIG_SYS_QMAN_SWP_ISDR_REG;
-#ifdef CONFIG_PPC
 	struct ccsr_qman *qman = (void *)CONFIG_SYS_FSL_QMAN_ADDR;
 
 	/* Set the Qman initiator BAR to match the LAW (for DQRR stashing) */
@@ -32,7 +31,6 @@ void setup_qbman_portals(void)
 	out_be32(&qman->qcsp_bare, (u32)(CONFIG_SYS_QMAN_MEM_PHYS >> 32));
 #endif
 	out_be32(&qman->qcsp_bar, (u32)CONFIG_SYS_QMAN_MEM_PHYS);
-#endif
 #ifdef CONFIG_FSL_CORENET
 	int i;
 
