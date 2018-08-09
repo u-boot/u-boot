@@ -11,6 +11,7 @@
 #include <asm/io.h>
 #include <asm/global_data.h>
 #include <asm/arch-fsl-layerscape/config.h>
+#include <asm/arch-fsl-layerscape/fsl_icid.h>
 #ifdef CONFIG_LAYERSCAPE_NS_ACCESS
 #include <fsl_csu.h>
 #endif
@@ -623,6 +624,10 @@ void fsl_lsch2_early_init_f(void)
 	erratum_a009798();
 	erratum_a008997();
 	erratum_a009007();
+
+#ifdef CONFIG_ARCH_LS1046A
+	set_icids();
+#endif
 }
 #endif
 

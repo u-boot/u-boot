@@ -14,6 +14,7 @@
 #include <asm/arch/fdt.h>
 #include <asm/arch/mmu.h>
 #include <asm/arch/soc.h>
+#include <asm/arch-fsl-layerscape/fsl_icid.h>
 #include <ahci.h>
 #include <hwconfig.h>
 #include <mmc.h>
@@ -308,6 +309,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_fman_ethernet(blob);
 	fdt_fixup_board_enet(blob);
 #endif
+
+	fdt_fixup_icid(blob);
 
 	reg = QIXIS_READ(brdcfg[0]);
 	reg = (reg & QIXIS_LBMAP_MASK) >> QIXIS_LBMAP_SHIFT;

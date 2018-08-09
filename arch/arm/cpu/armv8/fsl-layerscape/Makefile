@@ -37,6 +37,7 @@ endif
 
 ifneq ($(CONFIG_ARCH_LS1046A),)
 obj-$(CONFIG_SYS_HAS_SERDES) += ls1046a_serdes.o
+obj-y += icid.o ls1046_ids.o
 endif
 
 ifneq ($(CONFIG_ARCH_LS1088A),)
