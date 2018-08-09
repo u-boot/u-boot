@@ -331,6 +331,7 @@
 
 	pcap: pcap {
 		compatible = "xlnx,zynqmp-pcap-fpga";
+		clock-names = "ref_clk";
 	};
 
 	rst: reset-controller {

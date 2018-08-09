@@ -286,3 +286,7 @@
 &zynqmp_dp_snd_codec0 {
 	clocks = <&clk 17>;
 };
+
+&pcap {
+	clocks = <&clk 41>;
+};
