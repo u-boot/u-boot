@@ -6,3 +6,4 @@
 #
 
 obj-$(CONFIG_AXI) += axi-uclass.o
+obj-$(CONFIG_IHS_AXI) += ihs_axi.o
