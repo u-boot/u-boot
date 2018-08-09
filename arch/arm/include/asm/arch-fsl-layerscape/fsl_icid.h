@@ -17,6 +17,11 @@ struct icid_id_table {
 	phys_addr_t reg_addr;
 };
 
+struct fman_icid_id_table {
+	u32 port_id;
+	u32 icid;
+};
+
 u32 get_ppid_icid(int ppid_tbl_idx, int ppid);
 int fdt_get_smmu_phandle(void *blob);
 int fdt_set_iommu_prop(void *blob, int off, int smmu_ph, u32 *ids, int num_ids);
@@ -74,7 +79,12 @@ void fdt_fixup_icid(void *blob);
 		CONFIG_SYS_FSL_BMAN_ADDR, \
 		CONFIG_SYS_FSL_BMAN_ADDR)
 
+#define SET_FMAN_ICID_ENTRY(_port_id, streamid) \
+	{ .port_id = (_port_id), .icid = (streamid) }
+
 extern struct icid_id_table icid_tbl[];
+extern struct fman_icid_id_table fman_icid_tbl[];
 extern int icid_tbl_sz;
+extern int fman_icid_tbl_sz;
 
 #endif
