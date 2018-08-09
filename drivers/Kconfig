@@ -8,6 +8,8 @@ source "drivers/adc/Kconfig"
 
 source "drivers/ata/Kconfig"
 
+source "drivers/axi/Kconfig"
+
 source "drivers/block/Kconfig"
 
 source "drivers/bootcount/Kconfig"
