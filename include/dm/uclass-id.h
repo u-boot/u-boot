@@ -23,6 +23,7 @@ enum uclass_id {
 	UCLASS_I2C_EMUL,	/* sandbox I2C device emulator */
 	UCLASS_PCI_EMUL,	/* sandbox PCI device emulator */
 	UCLASS_USB_EMUL,	/* sandbox USB bus device emulator */
+	UCLASS_AXI_EMUL,	/* sandbox AXI bus device emulator */
 	UCLASS_SIMPLE_BUS,	/* bus with child devices */
 
 	/* U-Boot uclasses start here - in alphabetical order */
