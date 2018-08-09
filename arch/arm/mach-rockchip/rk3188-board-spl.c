@@ -49,7 +49,7 @@ u32 spl_boot_device(void)
 		debug("node=%d\n", node);
 		goto fallback;
 	}
-	ret = device_get_global_by_of_offset(node, &dev);
+	ret = device_get_global_by_ofnode(offset_to_ofnode(node), &dev);
 	if (ret) {
 		debug("device at node %s/%d not found: %d\n", bootdev, node,
 		      ret);

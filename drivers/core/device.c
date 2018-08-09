@@ -594,16 +594,16 @@ int device_get_child_by_of_offset(struct udevice *parent, int node,
 	return device_get_device_tail(dev, ret, devp);
 }
 
-static struct udevice *_device_find_global_by_of_offset(struct udevice *parent,
-							int of_offset)
+static struct udevice *_device_find_global_by_ofnode(struct udevice *parent,
+						     ofnode ofnode)
 {
 	struct udevice *dev, *found;
 
-	if (dev_of_offset(parent) == of_offset)
+	if (ofnode_equal(dev_ofnode(parent), ofnode))
 		return parent;
 
 	list_for_each_entry(dev, &parent->child_head, sibling_node) {
-		found = _device_find_global_by_of_offset(dev, of_offset);
+		found = _device_find_global_by_ofnode(dev, ofnode);
 		if (found)
 			return found;
 	}
@@ -611,11 +611,18 @@ static struct udevice *_device_find_global_by_of_offset(struct udevice *parent,
 	return NULL;
 }
 
-int device_get_global_by_of_offset(int of_offset, struct udevice **devp)
+int device_find_global_by_ofnode(ofnode ofnode, struct udevice **devp)
+{
+	*devp = _device_find_global_by_ofnode(gd->dm_root, ofnode);
+
+	return *devp ? 0 : -ENOENT;
+}
+
+int device_get_global_by_ofnode(ofnode ofnode, struct udevice **devp)
 {
 	struct udevice *dev;
 
-	dev = _device_find_global_by_of_offset(gd->dm_root, of_offset);
+	dev = _device_find_global_by_ofnode(gd->dm_root, ofnode);
 	return device_get_device_tail(dev, dev ? 0 : -ENOENT, devp);
 }
 
