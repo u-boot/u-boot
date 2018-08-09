@@ -690,7 +690,7 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 			if (ret)
 				goto error;
 			debug("%s: Match found: %s\n", __func__, drv->name);
-			dev->driver_data = find_id->driver_data;
+			dev->driver_data = id->driver_data;
 			*devp = dev;
 			return 0;
 		}
@@ -745,6 +745,8 @@ int pci_bind_bus_devices(struct udevice *bus)
 		struct udevice *dev;
 		ulong class;
 
+		if (!PCI_FUNC(bdf))
+			found_multi = false;
 		if (PCI_FUNC(bdf) && !found_multi)
 			continue;
 		/* Check only the first access, we don't expect problems */
@@ -987,19 +989,18 @@ static int pci_uclass_child_post_bind(struct udevice *dev)
 	if (!dev_of_valid(dev))
 		return 0;
 
-	/*
-	 * We could read vendor, device, class if available. But for now we
-	 * just check the address.
-	 */
 	pplat = dev_get_parent_platdata(dev);
+
+	/* Extract vendor id and device id if available */
+	ofnode_read_pci_vendev(dev_ofnode(dev), &pplat->vendor, &pplat->device);
+
+	/* Extract the devfn from fdt_pci_addr */
 	ret = ofnode_read_pci_addr(dev_ofnode(dev), FDT_PCI_SPACE_CONFIG, "reg",
 				   &addr);
-
 	if (ret) {
 		if (ret != -ENOENT)
 			return -EINVAL;
 	} else {
-		/* extract the devfn from fdt_pci_addr */
 		pplat->devfn = addr.phys_hi & 0xff00;
 	}
 
@@ -1317,6 +1318,74 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
 	 * and pass that as the size if needed.
 	 */
 	return dm_pci_bus_to_virt(dev, pci_bus_addr, flags, 0, MAP_NOCACHE);
+}
+
+int dm_pci_find_capability(struct udevice *dev, int cap)
+{
+	u16 status;
+	u8 header_type;
+	int ttl = PCI_FIND_CAP_TTL;
+	u8 id;
+	u16 ent;
+	u8 pos;
+
+	dm_pci_read_config16(dev, PCI_STATUS, &status);
+	if (!(status & PCI_STATUS_CAP_LIST))
+		return 0;
+
+	dm_pci_read_config8(dev, PCI_HEADER_TYPE, &header_type);
+	if ((header_type & 0x7f) == PCI_HEADER_TYPE_CARDBUS)
+		pos = PCI_CB_CAPABILITY_LIST;
+	else
+		pos = PCI_CAPABILITY_LIST;
+
+	dm_pci_read_config8(dev, pos, &pos);
+	while (ttl--) {
+		if (pos < PCI_STD_HEADER_SIZEOF)
+			break;
+		pos &= ~3;
+		dm_pci_read_config16(dev, pos, &ent);
+
+		id = ent & 0xff;
+		if (id == 0xff)
+			break;
+		if (id == cap)
+			return pos;
+		pos = (ent >> 8);
+	}
+
+	return 0;
+}
+
+int dm_pci_find_ext_capability(struct udevice *dev, int cap)
+{
+	u32 header;
+	int ttl;
+	int pos = PCI_CFG_SPACE_SIZE;
+
+	/* minimum 8 bytes per capability */
+	ttl = (PCI_CFG_SPACE_EXP_SIZE - PCI_CFG_SPACE_SIZE) / 8;
+
+	dm_pci_read_config32(dev, pos, &header);
+	/*
+	 * If we have no capabilities, this is indicated by cap ID,
+	 * cap version and next pointer all being 0.
+	 */
+	if (header == 0)
+		return 0;
+
+	while (ttl--) {
+		if (PCI_EXT_CAP_ID(header) == cap)
+			return pos;
+
+		pos = PCI_EXT_CAP_NEXT(header);
+		if (pos < PCI_CFG_SPACE_SIZE)
+			break;
+
+		dm_pci_read_config32(dev, pos, &header);
+	}
+
+	return 0;
 }
 
 UCLASS_DRIVER(pci) = {

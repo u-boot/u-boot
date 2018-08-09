@@ -623,6 +623,42 @@ fail:
 	return ret;
 }
 
+int ofnode_read_pci_vendev(ofnode node, u16 *vendor, u16 *device)
+{
+	const char *list, *end;
+	int len;
+
+	list = ofnode_get_property(node, "compatible", &len);
+	if (!list)
+		return -ENOENT;
+
+	end = list + len;
+	while (list < end) {
+		len = strlen(list);
+		if (len >= strlen("pciVVVV,DDDD")) {
+			char *s = strstr(list, "pci");
+
+			/*
+			 * check if the string is something like pciVVVV,DDDD.RR
+			 * or just pciVVVV,DDDD
+			 */
+			if (s && s[7] == ',' &&
+			    (s[12] == '.' || s[12] == 0)) {
+				s += 3;
+				*vendor = simple_strtol(s, NULL, 16);
+
+				s += 5;
+				*device = simple_strtol(s, NULL, 16);
+
+				return 0;
+			}
+		}
+		list += (len + 1);
+	}
+
+	return -ENOENT;
+}
+
 int ofnode_read_addr_cells(ofnode node)
 {
 	if (ofnode_is_np(node))

@@ -133,3 +133,31 @@ When this bus is scanned we will end up with something like this:
 
 When accesses go to the pci@1f,0 device they are forwarded to its child, the
 emulator.
+
+The sandbox PCI drivers also support dynamic driver binding, allowing device
+driver to declare the driver binding information via U_BOOT_PCI_DEVICE(),
+eliminating the need to provide any device tree node under the host controller
+node. It is required a "sandbox,dev-info" property must be provided in the
+host controller node for this functionality to work.
+
+	pci1: pci-controller1 {
+		compatible = "sandbox,pci";
+		...
+		sandbox,dev-info = <0x08 0x00 0x1234 0x5678
+				    0x0c 0x00 0x1234 0x5678>;
+	};
+
+The "sandbox,dev-info" property specifies all dynamic PCI devices on this bus.
+Each dynamic PCI device is encoded as 4 cells a group. The first and second
+cells are PCI device number and function number respectively. The third and
+fourth cells are PCI vendor ID and device ID respectively.
+
+When this bus is scanned we will end up with something like this:
+
+ pci        [ + ]   pci_sandbo  |-- pci-controller1
+ pci_emul   [   ]   sandbox_sw  |   |-- sandbox_swap_case_emul
+ pci_emul   [   ]   sandbox_sw  |   `-- sandbox_swap_case_emul
+
+Note the difference from the statically declared device nodes is that the
+device is directly attached to the host controller, instead of via a container
+device like pci@1f,0.

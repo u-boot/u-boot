@@ -233,7 +233,7 @@ class TestProp(unittest.TestCase):
 
         Return fdt.Prop object for this property
         """
-        p = self.fdt.get_property(self.node.Offset(), prop_name)
+        p = self.fdt.getprop(self.node.Offset(), prop_name)
         return fdt.Prop(self.node, -1, prop_name, p)
 
     def testMakeProp(self):

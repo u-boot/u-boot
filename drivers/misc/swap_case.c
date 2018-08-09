@@ -118,6 +118,27 @@ static int sandbox_swap_case_read_config(struct udevice *emul, uint offset,
 		*valuep = result;
 		break;
 	}
+	case PCI_CAPABILITY_LIST:
+		*valuep = PCI_CAP_ID_PM_OFFSET;
+		break;
+	case PCI_CAP_ID_PM_OFFSET:
+		*valuep = (PCI_CAP_ID_EXP_OFFSET << 8) | PCI_CAP_ID_PM;
+		break;
+	case PCI_CAP_ID_EXP_OFFSET:
+		*valuep = (PCI_CAP_ID_MSIX_OFFSET << 8) | PCI_CAP_ID_EXP;
+		break;
+	case PCI_CAP_ID_MSIX_OFFSET:
+		*valuep = PCI_CAP_ID_MSIX;
+		break;
+	case PCI_EXT_CAP_ID_ERR_OFFSET:
+		*valuep = (PCI_EXT_CAP_ID_VC_OFFSET << 20) | PCI_EXT_CAP_ID_ERR;
+		break;
+	case PCI_EXT_CAP_ID_VC_OFFSET:
+		*valuep = (PCI_EXT_CAP_ID_DSN_OFFSET << 20) | PCI_EXT_CAP_ID_VC;
+		break;
+	case PCI_EXT_CAP_ID_DSN_OFFSET:
+		*valuep = PCI_EXT_CAP_ID_DSN;
+		break;
 	}
 
 	return 0;
@@ -142,6 +163,8 @@ static int sandbox_swap_case_write_config(struct udevice *emul, uint offset,
 
 		debug("w bar %d=%lx\n", barnum, value);
 		*bar = value;
+		/* space indicator (bit#0) is read-only */
+		*bar |= barinfo[barnum].type;
 		break;
 	}
 	}
@@ -157,11 +180,11 @@ static int sandbox_swap_case_find_bar(struct udevice *emul, unsigned int addr,
 
 	for (barnum = 0; barnum < ARRAY_SIZE(barinfo); barnum++) {
 		unsigned int size = barinfo[barnum].size;
+		u32 base = plat->bar[barnum] & ~PCI_BASE_ADDRESS_SPACE;
 
-		if (addr >= plat->bar[barnum] &&
-		    addr < plat->bar[barnum] + size) {
+		if (addr >= base && addr < base + size) {
 			*barnump = barnum;
-			*offsetp = addr - plat->bar[barnum];
+			*offsetp = addr - base;
 			return 0;
 		}
 	}
@@ -283,3 +306,10 @@ U_BOOT_DRIVER(sandbox_swap_case_emul) = {
 	.priv_auto_alloc_size = sizeof(struct swap_case_priv),
 	.platdata_auto_alloc_size = sizeof(struct swap_case_platdata),
 };
+
+static struct pci_device_id sandbox_swap_case_supported[] = {
+	{ PCI_VDEVICE(SANDBOX, SANDBOX_PCI_DEVICE_ID), SWAP_CASE_DRV_DATA },
+	{},
+};
+
+U_BOOT_PCI_DEVICE(sandbox_swap_case_emul, sandbox_swap_case_supported);
