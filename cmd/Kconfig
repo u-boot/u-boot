@@ -607,6 +607,15 @@ config CMD_ADC
 	  Shows ADC device info and permit printing one-shot analog converted
 	  data from a named Analog to Digital Converter.
 
+config CMD_BIND
+	bool "bind/unbind - Bind or unbind a device to/from a driver"
+	depends on DM
+	help
+	  Bind or unbind a device to/from a driver from the command line.
+	  This is useful in situations where a device may be handled by several
+	  drivers. For example, this can be used to bind a UDC to the usb ether
+	  gadget driver from the command line.
+
 config CMD_CLK
 	bool "clk - Show clock frequencies"
 	help
