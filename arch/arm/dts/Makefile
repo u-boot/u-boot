@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0+
 
-dtb-$(CONFIG_AT91FAMILY) += at91sam9260-smartweb.dtb \
-	at91sam9g20-taurus.dtb \
-	at91sam9g45-corvus.dtb \
-	at91sam9g45-gurnard.dtb
+dtb-$(CONFIG_TARGET_SMARTWEB) += at91sam9260-smartweb.dtb
+dtb-$(CONFIG_TARGET_TAURUS) += at91sam9g20-taurus.dtb
+dtb-$(CONFIG_TARGET_CORVUS) += at91sam9g45-corvus.dtb
+dtb-$(CONFIG_TARGET_GURNARD) += at91sam9g45-gurnard.dtb
 
 dtb-$(CONFIG_S5PC100) += s5pc1xx-smdkc100.dtb
 dtb-$(CONFIG_S5PC110) += s5pc1xx-goni.dtb
