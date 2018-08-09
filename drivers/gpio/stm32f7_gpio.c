@@ -18,7 +18,7 @@
 #define STM32_GPIOS_PER_BANK		16
 #define MODE_BITS(gpio_pin)		(gpio_pin * 2)
 #define MODE_BITS_MASK			3
-#define IN_OUT_BIT_INDEX(gpio_pin)	(1UL << (gpio_pin))
+#define BSRR_BIT(gpio_pin, value)	BIT(gpio_pin + (value ? 0 : 16))
 
 static int stm32_gpio_direction_input(struct udevice *dev, unsigned offset)
 {
@@ -41,8 +41,8 @@ static int stm32_gpio_direction_output(struct udevice *dev, unsigned offset,
 	int mask = MODE_BITS_MASK << bits_index;
 
 	clrsetbits_le32(&regs->moder, mask, STM32_GPIO_MODE_OUT << bits_index);
-	mask = IN_OUT_BIT_INDEX(offset);
-	clrsetbits_le32(&regs->odr, mask, value ? mask : 0);
+
+	writel(BSRR_BIT(offset, value), &regs->bsrr);
 
 	return 0;
 }
@@ -52,16 +52,15 @@ static int stm32_gpio_get_value(struct udevice *dev, unsigned offset)
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
 	struct stm32_gpio_regs *regs = priv->regs;
 
-	return readl(&regs->idr) & IN_OUT_BIT_INDEX(offset) ? 1 : 0;
+	return readl(&regs->idr) & BIT(offset) ? 1 : 0;
 }
 
 static int stm32_gpio_set_value(struct udevice *dev, unsigned offset, int value)
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
 	struct stm32_gpio_regs *regs = priv->regs;
-	int mask = IN_OUT_BIT_INDEX(offset);
 
-	clrsetbits_le32(&regs->odr, mask, value ? mask : 0);
+	writel(BSRR_BIT(offset, value), &regs->bsrr);
 
 	return 0;
 }
