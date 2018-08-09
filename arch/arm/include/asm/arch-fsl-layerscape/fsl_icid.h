@@ -8,6 +8,7 @@
 
 #include <asm/types.h>
 #include <fsl_qbman.h>
+#include <fsl_sec.h>
 
 struct icid_id_table {
 	const char *compat;
@@ -81,6 +82,30 @@ void fdt_fixup_icid(void *blob);
 
 #define SET_FMAN_ICID_ENTRY(_port_id, streamid) \
 	{ .port_id = (_port_id), .icid = (streamid) }
+
+#define SET_SEC_QI_ICID(streamid) \
+	SET_ICID_ENTRY("fsl,sec-v4.0", streamid, \
+		(((streamid) << 16) | (streamid)), \
+		offsetof(ccsr_sec_t, qilcr_ls) + \
+		CONFIG_SYS_FSL_SEC_ADDR, \
+		CONFIG_SYS_FSL_SEC_ADDR)
+
+#define SET_SEC_JR_ICID_ENTRY(jr_num, streamid) \
+	SET_ICID_ENTRY("fsl,sec-v4.0-job-ring", streamid, \
+		(((streamid) << 16) | (streamid)), \
+		offsetof(ccsr_sec_t, jrliodnr[jr_num].ls) + \
+		CONFIG_SYS_FSL_SEC_ADDR, \
+		FSL_SEC_JR##jr_num##_BASE_ADDR)
+
+#define SET_SEC_DECO_ICID_ENTRY(deco_num, streamid) \
+	SET_ICID_ENTRY(NULL, streamid, (((streamid) << 16) | (streamid)), \
+		offsetof(ccsr_sec_t, decoliodnr[deco_num].ls) + \
+		CONFIG_SYS_FSL_SEC_ADDR, 0)
+
+#define SET_SEC_RTIC_ICID_ENTRY(rtic_num, streamid) \
+	SET_ICID_ENTRY(NULL, streamid, (((streamid) << 16) | (streamid)), \
+		offsetof(ccsr_sec_t, rticliodnr[rtic_num].ls) + \
+		CONFIG_SYS_FSL_SEC_ADDR, 0)
 
 extern struct icid_id_table icid_tbl[];
 extern struct fman_icid_id_table fman_icid_tbl[];
