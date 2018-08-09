@@ -109,7 +109,6 @@ U_BOOT_ENV_CALLBACK(baudrate, on_baudrate);
 		__attribute__((weak, alias("serial_null")));
 
 serial_initfunc(atmel_serial_initialize);
-serial_initfunc(au1x00_serial_initialize);
 serial_initfunc(mcf_serial_initialize);
 serial_initfunc(mpc85xx_serial_initialize);
 serial_initfunc(mpc8xx_serial_initialize);
@@ -164,7 +163,6 @@ void serial_register(struct serial_device *dev)
 void serial_initialize(void)
 {
 	atmel_serial_initialize();
-	au1x00_serial_initialize();
 	mcf_serial_initialize();
 	mpc85xx_serial_initialize();
 	mpc8xx_serial_initialize();

@@ -182,7 +182,6 @@ struct serial_dev_priv {
 #define serial_get_ops(dev)	((struct dm_serial_ops *)(dev)->driver->ops)
 
 void atmel_serial_initialize(void);
-void au1x00_serial_initialize(void);
 void mcf_serial_initialize(void);
 void mpc85xx_serial_initialize(void);
 void mpc8xx_serial_initialize(void);

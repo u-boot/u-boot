@@ -52,25 +52,6 @@ config TARGET_VCT
 	select SUPPORTS_CPU_MIPS32_R2
 	select SYS_MIPS_CACHE_INIT_RAM_LOAD
 
-config TARGET_DBAU1X00
-	bool "Support dbau1x00"
-	select MIPS_TUNE_4KC
-	select ROM_EXCEPTION_VECTORS
-	select SUPPORTS_BIG_ENDIAN
-	select SUPPORTS_CPU_MIPS32_R1
-	select SUPPORTS_CPU_MIPS32_R2
-	select SUPPORTS_LITTLE_ENDIAN
-	select SYS_MIPS_CACHE_INIT_RAM_LOAD
-
-config TARGET_PB1X00
-	bool "Support pb1x00"
-	select MIPS_TUNE_4KC
-	select ROM_EXCEPTION_VECTORS
-	select SUPPORTS_CPU_MIPS32_R1
-	select SUPPORTS_CPU_MIPS32_R2
-	select SUPPORTS_LITTLE_ENDIAN
-	select SYS_MIPS_CACHE_INIT_RAM_LOAD
-
 config ARCH_ATH79
 	bool "Support QCA/Atheros ath79"
 	select DM
@@ -131,12 +112,10 @@ config TARGET_XILFPGA
 
 endchoice
 
-source "board/dbau1x00/Kconfig"
 source "board/imgtec/boston/Kconfig"
 source "board/imgtec/malta/Kconfig"
 source "board/imgtec/xilfpga/Kconfig"
 source "board/micronas/vct/Kconfig"
-source "board/pb1x00/Kconfig"
 source "board/qemu-mips/Kconfig"
 source "arch/mips/mach-ath79/Kconfig"
 source "arch/mips/mach-bmips/Kconfig"

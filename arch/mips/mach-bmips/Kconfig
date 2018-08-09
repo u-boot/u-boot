@@ -14,6 +14,7 @@ config SYS_SOC
 	default "bcm6368" if SOC_BMIPS_BCM6368
 	default "bcm6362" if SOC_BMIPS_BCM6362
 	default "bcm63268" if SOC_BMIPS_BCM63268
+	default "bcm6838" if SOC_BMIPS_BCM6838
 
 choice
 	prompt "Broadcom MIPS SoC select"
@@ -118,10 +119,33 @@ config SOC_BMIPS_BCM63268
 	  This supports BMIPS BCM63268 family including BCM63168, BCM63169,
 	  BCM63268 and BCM63269.
 
+config SOC_BMIPS_BCM6838
+	bool "BMIPS BCM6838 family"
+	select MIPS_L1_CACHE_SHIFT_4
+	select MIPS_TUNE_4KC
+	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select SWAP_IO_SPACE
+	select SYSRESET_SYSCON
+	help
+	  This supports BMIPS BCM6838 family including BCM68380, BCM68381,
+	  and BCM68385.
+
 endchoice
 
 choice
 	prompt "Board select"
+
+config BOARD_BROADCOM_BCM968380GERG
+	bool "Broadcom bcm968380gerg"
+	depends on SOC_BMIPS_BCM6838
+	select BMIPS_SUPPORTS_BOOT_RAM
+	help
+	  Broadcom BCM968380GERG reference board with BCM68380 SoC with 512 MB
+	  of RAM and 128 MB of flash (nand).
+	  Between its different peripherals there's an integrated switch with 4
+	  ethernet ports, 2 USB ports, 1 UART, GPIO buttons and LEDs, and
+	  a BCM43217 (PCIe).
 
 config BOARD_COMTREND_AR5315U
 	bool "Comtrend AR-5315u"
@@ -251,6 +275,7 @@ endchoice
 config BMIPS_SUPPORTS_BOOT_RAM
 	bool
 
+source "board/broadcom/bcm968380gerg/Kconfig"
 source "board/comtrend/ar5315u/Kconfig"
 source "board/comtrend/ar5387un/Kconfig"
 source "board/comtrend/ct5361/Kconfig"
