@@ -13,6 +13,9 @@
 #ifdef CONFIG_PPC
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
+#else
+#include <asm/arch-fsl-layerscape/fsl_portals.h>
+#include <asm/arch-fsl-layerscape/fsl_icid.h>
 #endif
 #include <fsl_qbman.h>
 
@@ -45,6 +48,22 @@ void setup_qbman_portals(void)
 		/* set frame liodn */
 		out_be32(&qman->qcsp[i].qcsp_io_cfg, (sdest << 16) | fliodn);
 	}
+#else
+#ifdef CONFIG_ARCH_LS1046A
+	int i;
+
+	for (i = 0; i < CONFIG_SYS_QMAN_NUM_PORTALS; i++) {
+		u8 sdest = qp_info[i].sdest;
+		u16 ficid = qp_info[i].ficid;
+		u16 dicid = qp_info[i].dicid;
+		u16 icid = qp_info[i].icid;
+
+		out_be32(&qman->qcsp[i].qcsp_lio_cfg, (icid << 16) |
+					dicid);
+		/* set frame icid */
+		out_be32(&qman->qcsp[i].qcsp_io_cfg, (sdest << 16) | ficid);
+	}
+#endif
 #endif
 
 	/* Change default state of BMan ISDR portals to all 1s */
@@ -178,6 +197,10 @@ void fdt_fixup_qportals(void *blob)
 	char compat[64];
 	int compat_len;
 
+#ifdef CONFIG_ARCH_LS1046A
+	int smmu_ph = fdt_get_smmu_phandle(blob);
+#endif
+
 	maj = (rev_1 >> 8) & 0xff;
 	min = rev_1 & 0xff;
 	ip_cfg = rev_2 & 0xff;
@@ -188,7 +211,7 @@ void fdt_fixup_qportals(void *blob)
 
 	off = fdt_node_offset_by_compatible(blob, -1, "fsl,qman-portal");
 	while (off != -FDT_ERR_NOTFOUND) {
-#ifdef CONFIG_PPC
+#if defined(CONFIG_PPC) || defined(CONFIG_ARCH_LS1046A)
 #ifdef CONFIG_FSL_CORENET
 		u32 liodns[2];
 #endif
@@ -198,12 +221,12 @@ void fdt_fixup_qportals(void *blob)
 		if (!ci)
 			goto err;
 
-		i = *ci;
-#ifdef CONFIG_SYS_DPAA_FMAN
+		i = fdt32_to_cpu(*ci);
+#if defined(CONFIG_SYS_DPAA_FMAN) && defined(CONFIG_PPC)
 		int j;
 #endif
 
-#endif /* CONFIG_PPC */
+#endif /* CONFIG_PPC || CONFIG_ARCH_LS1046A */
 		err = fdt_setprop(blob, off, "compatible", compat, compat_len);
 		if (err < 0)
 			goto err;
@@ -250,6 +273,18 @@ void fdt_fixup_qportals(void *blob)
 				  FSL_HW_PORTAL_RMAN, 1);
 		if (err < 0)
 			goto err;
+#endif
+#else
+#ifdef CONFIG_ARCH_LS1046A
+		if (smmu_ph >= 0) {
+			u32 icids[3];
+
+			icids[0] = qp_info[i].icid;
+			icids[1] = qp_info[i].dicid;
+			icids[2] = qp_info[i].ficid;
+
+			fdt_set_iommu_prop(blob, off, smmu_ph, icids, 3);
+		}
 #endif
 #endif /* CONFIG_PPC */
 
