@@ -37,9 +37,6 @@
 		spi0 = &spi0;
 	};
 	cpus {
-		#address-cells = <0>;
-		#size-cells = <0>;
-
 		cpu {
 			compatible = "arm,arm926ej-s";
 			device_type = "cpu";

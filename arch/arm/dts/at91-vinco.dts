@@ -152,6 +152,8 @@
 			};
 
 			tcb2: timer@fc024000 {
+				#address-cells = <1>;
+				#size-cells = <0>;
 				timer@0 {
 					compatible = "atmel,tcb-timer";
 					reg = <0>;
