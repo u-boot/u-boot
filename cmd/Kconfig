@@ -1027,6 +1027,14 @@ config CMD_USB_MASS_STORAGE
 	help
 	  USB mass storage support
 
+config CMD_AXI
+	bool "axi"
+	depends on AXI
+	help
+	  Enable the command "axi" for accessing AXI (Advanced eXtensible
+	  Interface) busses, a on-chip interconnect specification for managing
+	  functional blocks in SoC designs, which is also often used in designs
+	  involving FPGAs (e.g.  communication with IP cores in Xilinx FPGAs).
 endmenu
 
 
