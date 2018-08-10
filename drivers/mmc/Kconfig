@@ -111,6 +111,19 @@ config SPL_MMC_UHS_SUPPORT
 	  cards. The IO voltage must be switchable from 3.3v to 1.8v. The bus
 	  frequency can go up to 208MHz (SDR104)
 
+config MMC_HS400_SUPPORT
+	bool "enable HS400 support"
+	select MMC_HS200_SUPPORT
+	help
+	  The HS400 mode is support by some eMMC. The bus frequency is up to
+	  200MHz. This mode requires tuning the IO.
+
+config SPL_MMC_HS400_SUPPORT
+	bool "enable HS400 support in SPL"
+	help
+	  The HS400 mode is support by some eMMC. The bus frequency is up to
+	  200MHz. This mode requires tuning the IO.
+
 config MMC_HS200_SUPPORT
 	bool "enable HS200 support"
 	help
