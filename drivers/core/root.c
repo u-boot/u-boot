@@ -357,8 +357,14 @@ int dm_extended_scan_fdt(const void *blob, bool pre_reloc_only)
 	}
 
 	ret = dm_scan_fdt_ofnode_path("/clocks", pre_reloc_only);
-	if (ret)
+	if (ret) {
 		debug("scan for /clocks failed: %d\n", ret);
+		return ret;
+	}
+
+	ret = dm_scan_fdt_ofnode_path("/firmware", pre_reloc_only);
+	if (ret)
+		debug("scan for /firmware failed: %d\n", ret);
 
 	return ret;
 }
