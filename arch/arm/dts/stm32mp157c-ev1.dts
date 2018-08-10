@@ -96,6 +96,13 @@
 	};
 };
 
+&usbh_ehci {
+	phys = <&usbphyc_port0>;
+	phy-names = "usb";
+	vbus-supply = <&vbus_sw>;
+	status = "okay";
+};
+
 &usbotg_hs {
 	pinctrl-names = "default";
 	pinctrl-0 = <&usbotg_hs_pins_a>;
