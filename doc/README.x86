@@ -47,21 +47,6 @@ on other architectures, like below:
 $ make coreboot_defconfig
 $ make all
 
-Note this default configuration will build a U-Boot payload for the QEMU board.
-To build a coreboot payload against another board, you can change the build
-configuration during the 'make menuconfig' process.
-
-x86 architecture  --->
-	...
-	(qemu-x86) Board configuration file
-	(qemu-x86_i440fx) Board Device Tree Source (dts) file
-	(0x01920000) Board specific Cache-As-RAM (CAR) address
-	(0x4000) Board specific Cache-As-RAM (CAR) size
-
-Change the 'Board configuration file' and 'Board Device Tree Source (dts) file'
-to point to a new board. You can also change the Cache-As-RAM (CAR) related
-settings here if the default values do not fit your new board.
-
 Build Instructions for U-Boot as main bootloader
 ------------------------------------------------
 
