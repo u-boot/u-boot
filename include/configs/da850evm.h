@@ -138,7 +138,6 @@
  * I2C Configuration
  */
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_SYS_I2C_DAVINCI
 #define CONFIG_SYS_I2C_EXPANDER_ADDR   0x20
 #endif
 

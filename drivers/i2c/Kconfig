@@ -96,6 +96,12 @@ config SYS_I2C_CADENCE
 	  Say yes here to select Cadence I2C Host Controller. This controller is
 	  e.g. used by Xilinx Zynq.
 
+config SYS_I2C_DAVINCI
+	bool "Davinci I2C Controller"
+	depends on (ARCH_KEYSTONE || ARCH_DAVINCI)
+	help
+	  Say yes here to add support for Davinci and Keystone I2C controller
+
 config SYS_I2C_DW
 	bool "Designware I2C Controller"
 	default n
