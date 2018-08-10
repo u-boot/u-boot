@@ -42,9 +42,14 @@ see doc/README.rockchip for more detail about how to get U-Boot binary.
 
 sudo rkdeveloptool wl  64 <U-Boot binary>
 
-There are plenty of Rockusb command. but wl(write lba) and
-rd(reboot) command. These two command can let people flash
-image to device.
+Current set of rkdeveloptool commands supported:
+- rci: Read Chip Info
+- rfi: Read Flash Id
+- rd : Reset Device
+- td : Test Device Ready
+- rl : Read blocks using LBA
+- wl : Write blocks using LBA
+- wlx: Write partition
 
 To do
 -----

@@ -328,6 +328,7 @@ static int rockusb_tx_write(const char *buffer, unsigned int buffer_size)
 
 	memcpy(in_req->buf, buffer, buffer_size);
 	in_req->length = buffer_size;
+	debug("Transferring 0x%x bytes\n", buffer_size);
 	usb_ep_dequeue(rockusb_func->in_ep, in_req);
 	ret = usb_ep_queue(rockusb_func->in_ep, in_req, 0);
 	if (ret)
@@ -383,9 +384,23 @@ static int rockusb_tx_write_csw(u32 tag, int residue, u8 status, int size)
 	csw->residue = cpu_to_be32(residue);
 	csw->status = status;
 #ifdef DEBUG
-	printcsw((char *)&csw);
+	printcsw((char *)csw);
 #endif
 	return rockusb_tx_write((char *)csw, size);
+}
+
+static void tx_handler_send_csw(struct usb_ep *ep, struct usb_request *req)
+{
+	struct f_rockusb *f_rkusb = get_rkusb();
+	int status = req->status;
+
+	if (status)
+		debug("status: %d ep '%s' trans: %d\n",
+		      status, ep->name, req->actual);
+
+	/* Return back to default in_req complete function after sending CSW */
+	req->complete = rockusb_complete;
+	rockusb_tx_write_csw(f_rkusb->tag, 0, CSW_GOOD, USB_BULK_CS_WRAP_LEN);
 }
 
 static unsigned int rx_bytes_expected(struct usb_ep *ep)
@@ -407,6 +422,65 @@ static unsigned int rx_bytes_expected(struct usb_ep *ep)
 	return rx_remain;
 }
 
+/* usb_request complete call back to handle upload image */
+static void tx_handler_ul_image(struct usb_ep *ep, struct usb_request *req)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(char, rbuffer, RKBLOCK_BUF_SIZE);
+	struct f_rockusb *f_rkusb = get_rkusb();
+	struct usb_request *in_req = rockusb_func->in_req;
+	int ret;
+
+	/* Print error status of previous transfer */
+	if (req->status)
+		debug("status: %d ep '%s' trans: %d len %d\n", req->status,
+		      ep->name, req->actual, req->length);
+
+	/* On transfer complete reset in_req and feedback host with CSW_GOOD */
+	if (f_rkusb->ul_bytes >= f_rkusb->ul_size) {
+		in_req->length = 0;
+		in_req->complete = rockusb_complete;
+
+		rockusb_tx_write_csw(f_rkusb->tag, 0, CSW_GOOD,
+				     USB_BULK_CS_WRAP_LEN);
+		return;
+	}
+
+	/* Proceed with current chunk */
+	unsigned int transfer_size = f_rkusb->ul_size - f_rkusb->ul_bytes;
+
+	if (transfer_size > RKBLOCK_BUF_SIZE)
+		transfer_size = RKBLOCK_BUF_SIZE;
+	/* Read at least one block */
+	unsigned int blkcount = (transfer_size + f_rkusb->desc->blksz - 1) /
+				f_rkusb->desc->blksz;
+
+	debug("ul %x bytes, %x blks, read lba %x, ul_size:%x, ul_bytes:%x, ",
+	      transfer_size, blkcount, f_rkusb->lba,
+	      f_rkusb->ul_size, f_rkusb->ul_bytes);
+
+	int blks = blk_dread(f_rkusb->desc, f_rkusb->lba, blkcount, rbuffer);
+
+	if (blks != blkcount) {
+		printf("failed reading from device %s: %d\n",
+		       f_rkusb->dev_type, f_rkusb->dev_index);
+		rockusb_tx_write_csw(f_rkusb->tag, 0, CSW_FAIL,
+				     USB_BULK_CS_WRAP_LEN);
+		return;
+	}
+	f_rkusb->lba += blkcount;
+	f_rkusb->ul_bytes += transfer_size;
+
+	/* Proceed with USB request */
+	memcpy(in_req->buf, rbuffer, transfer_size);
+	in_req->length = transfer_size;
+	in_req->complete = tx_handler_ul_image;
+	debug("Uploading 0x%x bytes\n", transfer_size);
+	usb_ep_dequeue(rockusb_func->in_ep, in_req);
+	ret = usb_ep_queue(rockusb_func->in_ep, in_req, 0);
+	if (ret)
+		printf("Error %d on queue\n", ret);
+}
+
 /* usb_request complete call back to handle down load image */
 static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 {
@@ -416,19 +490,6 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 	unsigned int buffer_size = req->actual;
 
 	transfer_size = f_rkusb->dl_size - f_rkusb->dl_bytes;
-	if (!f_rkusb->desc) {
-		char *type = f_rkusb->dev_type;
-		int index = f_rkusb->dev_index;
-
-		f_rkusb->desc = blk_get_dev(type, index);
-		if (!f_rkusb->desc ||
-		    f_rkusb->desc->type == DEV_TYPE_UNKNOWN) {
-			puts("invalid mmc device\n");
-			rockusb_tx_write_csw(f_rkusb->tag, 0, CSW_FAIL,
-					     USB_BULK_CS_WRAP_LEN);
-			return;
-		}
-	}
 
 	if (req->status != 0) {
 		printf("Bad status: %d\n", req->status);
@@ -442,7 +503,7 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 
 	memcpy((void *)f_rkusb->buf, buffer, transfer_size);
 	f_rkusb->dl_bytes += transfer_size;
-	int blks = 0, blkcnt = transfer_size  / 512;
+	int blks = 0, blkcnt = transfer_size  / f_rkusb->desc->blksz;
 
 	debug("dl %x bytes, %x blks, write lba %x, dl_size:%x, dl_bytes:%x, ",
 	      transfer_size, blkcnt, f_rkusb->lba, f_rkusb->dl_size,
@@ -462,7 +523,7 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 		req->complete = rx_handler_command;
 		req->length = EP_BUFFER_SIZE;
 		f_rkusb->buf = f_rkusb->buf_head;
-		printf("transfer 0x%x bytes done\n", f_rkusb->dl_size);
+		debug("transfer 0x%x bytes done\n", f_rkusb->dl_size);
 		f_rkusb->dl_size = 0;
 		rockusb_tx_write_csw(f_rkusb->tag, 0, CSW_GOOD,
 				     USB_BULK_CS_WRAP_LEN);
@@ -473,8 +534,8 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 		else
 			f_rkusb->buf = f_rkusb->buf_head;
 
-		debug("remain %x bytes, %x sectors\n", req->length,
-		      req->length / 512);
+		debug("remain %x bytes, %lx sectors\n", req->length,
+		      req->length / f_rkusb->desc->blksz);
 	}
 
 	req->actual = 0;
@@ -496,13 +557,101 @@ static void cb_read_storage_id(struct usb_ep *ep, struct usb_request *req)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(struct fsg_bulk_cb_wrap, cbw,
 				 sizeof(struct fsg_bulk_cb_wrap));
+	struct f_rockusb *f_rkusb = get_rkusb();
 	char emmc_id[] = "EMMC ";
 
 	printf("read storage id\n");
 	memcpy((char *)cbw, req->buf, USB_BULK_CB_WRAP_LEN);
+
+	/* Prepare for sending subsequent CSW_GOOD */
+	f_rkusb->tag = cbw->tag;
+	f_rkusb->in_req->complete = tx_handler_send_csw;
+
 	rockusb_tx_write_str(emmc_id);
-	rockusb_tx_write_csw(cbw->tag, cbw->data_transfer_length, CSW_GOOD,
-			     USB_BULK_CS_WRAP_LEN);
+}
+
+int __weak rk_get_bootrom_chip_version(unsigned int *chip_info, int size)
+{
+	return 0;
+}
+
+static void cb_get_chip_version(struct usb_ep *ep, struct usb_request *req)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(struct fsg_bulk_cb_wrap, cbw,
+				 sizeof(struct fsg_bulk_cb_wrap));
+	struct f_rockusb *f_rkusb = get_rkusb();
+	unsigned int chip_info[4], i;
+
+	memset(chip_info, 0, sizeof(chip_info));
+	rk_get_bootrom_chip_version(chip_info, 4);
+
+	/*
+	 * Chip Version is a string saved in BOOTROM address space Little Endian
+	 *
+	 * Ex for rk3288: 0x33323041 0x32303134 0x30383133 0x56323030
+	 * which brings:  320A20140813V200
+	 *
+	 * Note that memory version do invert MSB/LSB so printing the char
+	 * buffer will show: A02341023180002V
+	 */
+	printf("read chip version: ");
+	for (i = 0; i < 4; i++) {
+		printf("%c%c%c%c",
+		       (chip_info[i] >> 24) & 0xFF,
+		       (chip_info[i] >> 16) & 0xFF,
+		       (chip_info[i] >>  8) & 0xFF,
+		       (chip_info[i] >>  0) & 0xFF);
+	}
+	printf("\n");
+	memcpy((char *)cbw, req->buf, USB_BULK_CB_WRAP_LEN);
+
+	/* Prepare for sending subsequent CSW_GOOD */
+	f_rkusb->tag = cbw->tag;
+	f_rkusb->in_req->complete = tx_handler_send_csw;
+
+	rockusb_tx_write((char *)chip_info, sizeof(chip_info));
+}
+
+static void cb_read_lba(struct usb_ep *ep, struct usb_request *req)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(struct fsg_bulk_cb_wrap, cbw,
+				 sizeof(struct fsg_bulk_cb_wrap));
+	struct f_rockusb *f_rkusb = get_rkusb();
+	int sector_count;
+
+	memcpy((char *)cbw, req->buf, USB_BULK_CB_WRAP_LEN);
+	sector_count = (int)get_unaligned_be16(&cbw->CDB[7]);
+	f_rkusb->tag = cbw->tag;
+
+	if (!f_rkusb->desc) {
+		char *type = f_rkusb->dev_type;
+		int index = f_rkusb->dev_index;
+
+		f_rkusb->desc = blk_get_dev(type, index);
+		if (!f_rkusb->desc ||
+		    f_rkusb->desc->type == DEV_TYPE_UNKNOWN) {
+			printf("invalid device \"%s\", %d\n", type, index);
+			rockusb_tx_write_csw(f_rkusb->tag, 0, CSW_FAIL,
+					     USB_BULK_CS_WRAP_LEN);
+			return;
+		}
+	}
+
+	f_rkusb->lba = get_unaligned_be32(&cbw->CDB[2]);
+	f_rkusb->ul_size = sector_count * f_rkusb->desc->blksz;
+	f_rkusb->ul_bytes = 0;
+
+	debug("require read %x bytes, %x sectors from lba %x\n",
+	      f_rkusb->ul_size, sector_count, f_rkusb->lba);
+
+	if (f_rkusb->ul_size == 0)  {
+		rockusb_tx_write_csw(cbw->tag, cbw->data_transfer_length,
+				     CSW_FAIL, USB_BULK_CS_WRAP_LEN);
+		return;
+	}
+
+	/* Start right now sending first chunk */
+	tx_handler_ul_image(ep, req);
 }
 
 static void cb_write_lba(struct usb_ep *ep, struct usb_request *req)
@@ -514,10 +663,26 @@ static void cb_write_lba(struct usb_ep *ep, struct usb_request *req)
 
 	memcpy((char *)cbw, req->buf, USB_BULK_CB_WRAP_LEN);
 	sector_count = (int)get_unaligned_be16(&cbw->CDB[7]);
-	f_rkusb->lba = get_unaligned_be32(&cbw->CDB[2]);
-	f_rkusb->dl_size = sector_count * 512;
-	f_rkusb->dl_bytes = 0;
 	f_rkusb->tag = cbw->tag;
+
+	if (!f_rkusb->desc) {
+		char *type = f_rkusb->dev_type;
+		int index = f_rkusb->dev_index;
+
+		f_rkusb->desc = blk_get_dev(type, index);
+		if (!f_rkusb->desc ||
+		    f_rkusb->desc->type == DEV_TYPE_UNKNOWN) {
+			printf("invalid device \"%s\", %d\n", type, index);
+			rockusb_tx_write_csw(f_rkusb->tag, 0, CSW_FAIL,
+					     USB_BULK_CS_WRAP_LEN);
+			return;
+		}
+	}
+
+	f_rkusb->lba = get_unaligned_be32(&cbw->CDB[2]);
+	f_rkusb->dl_size = sector_count * f_rkusb->desc->blksz;
+	f_rkusb->dl_bytes = 0;
+
 	debug("require write %x bytes, %x sectors to lba %x\n",
 	      f_rkusb->dl_size, sector_count, f_rkusb->lba);
 
@@ -528,6 +693,50 @@ static void cb_write_lba(struct usb_ep *ep, struct usb_request *req)
 		req->complete = rx_handler_dl_image;
 		req->length = rx_bytes_expected(ep);
 	}
+}
+
+static void cb_erase_lba(struct usb_ep *ep, struct usb_request *req)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(struct fsg_bulk_cb_wrap, cbw,
+				 sizeof(struct fsg_bulk_cb_wrap));
+	struct f_rockusb *f_rkusb = get_rkusb();
+	int sector_count, lba, blks;
+
+	memcpy((char *)cbw, req->buf, USB_BULK_CB_WRAP_LEN);
+	sector_count = (int)get_unaligned_be16(&cbw->CDB[7]);
+	f_rkusb->tag = cbw->tag;
+
+	if (!f_rkusb->desc) {
+		char *type = f_rkusb->dev_type;
+		int index = f_rkusb->dev_index;
+
+		f_rkusb->desc = blk_get_dev(type, index);
+		if (!f_rkusb->desc ||
+		    f_rkusb->desc->type == DEV_TYPE_UNKNOWN) {
+			printf("invalid device \"%s\", %d\n", type, index);
+			rockusb_tx_write_csw(f_rkusb->tag, 0, CSW_FAIL,
+					     USB_BULK_CS_WRAP_LEN);
+			return;
+		}
+	}
+
+	lba = get_unaligned_be32(&cbw->CDB[2]);
+
+	debug("require erase %x sectors from lba %x\n",
+	      sector_count, lba);
+
+	blks = blk_derase(f_rkusb->desc, lba, sector_count);
+	if (blks != sector_count) {
+		printf("failed erasing device %s: %d\n", f_rkusb->dev_type,
+		       f_rkusb->dev_index);
+		rockusb_tx_write_csw(f_rkusb->tag,
+				     cbw->data_transfer_length, CSW_FAIL,
+				     USB_BULK_CS_WRAP_LEN);
+		return;
+	}
+
+	rockusb_tx_write_csw(cbw->tag, cbw->data_transfer_length, CSW_GOOD,
+			     USB_BULK_CS_WRAP_LEN);
 }
 
 void __weak rkusb_set_reboot_flag(int flag)
@@ -615,7 +824,7 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 	},
 	{
 		.cmd = K_FW_LBA_READ_10,
-		.cb = cb_not_support,
+		.cb = cb_read_lba,
 	},
 	{
 		.cmd = K_FW_LBA_WRITE_10,
@@ -643,7 +852,7 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 	},
 	{
 		.cmd = K_FW_GET_CHIP_VER,
-		.cb = cb_not_support,
+		.cb = cb_get_chip_version,
 	},
 	{
 		.cmd = K_FW_LOW_FORMAT,
@@ -660,6 +869,10 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 	{
 		.cmd = K_FW_SPI_WRITE_10,
 		.cb = cb_not_support,
+	},
+	{
+		.cmd = K_FW_LBA_ERASE_10,
+		.cb = cb_erase_lba,
 	},
 	{
 		.cmd = K_FW_SESSION,
