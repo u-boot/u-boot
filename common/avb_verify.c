@@ -700,6 +700,37 @@ static AvbIOResult get_unique_guid_for_partition(AvbOps *ops,
 }
 
 /**
+ * get_size_of_partition() - gets the size of a partition identified
+ * by a string name
+ *
+ * @ops: contains AVB ops handlers
+ * @partition: partition name (NUL-terminated UTF-8 string)
+ * @out_size_num_bytes: returns the value of a partition size
+ *
+ * @return:
+ *      AVB_IO_RESULT_OK, on success (GUID found)
+ *      AVB_IO_RESULT_ERROR_INSUFFICIENT_SPACE, out_size_num_bytes is NULL
+ *      AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION, if partition was not found
+ */
+static AvbIOResult get_size_of_partition(AvbOps *ops,
+					 const char *partition,
+					 u64 *out_size_num_bytes)
+{
+	struct mmc_part *part;
+
+	if (!out_size_num_bytes)
+		return AVB_IO_RESULT_ERROR_INSUFFICIENT_SPACE;
+
+	part = get_partition(ops, partition);
+	if (!part)
+		return AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION;
+
+	*out_size_num_bytes = part->info.blksz * part->info.size;
+
+	return AVB_IO_RESULT_OK;
+}
+
+/**
  * ============================================================================
  * AVB2.0 AvbOps alloc/initialisation/free
  * ============================================================================
@@ -722,7 +753,7 @@ AvbOps *avb_ops_alloc(int boot_device)
 	ops_data->ops.read_is_device_unlocked = read_is_device_unlocked;
 	ops_data->ops.get_unique_guid_for_partition =
 		get_unique_guid_for_partition;
-
+	ops_data->ops.get_size_of_partition = get_size_of_partition;
 	ops_data->mmc_dev = boot_device;
 
 	return &ops_data->ops;
