@@ -14,7 +14,6 @@
 /include/ "reset.dtsi"
 /include/ "rtc.dtsi"
 /include/ "tsc_timer.dtsi"
-/include/ "coreboot_fb.dtsi"
 
 / {
 	model = "Intel Minnowboard Max";
