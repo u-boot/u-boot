@@ -321,6 +321,12 @@
 					bias-disable;
 				};
 			};
+
+			usbotg_hs_pins_a: usbotg_hs-0 {
+				pins {
+					pinmux = <STM32_PINMUX('A', 10, ANALOG)>; /* OTG_ID */
+				};
+			};
 		};
 
 		pinctrl_z: pin-controller-z@54004000 {

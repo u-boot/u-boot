@@ -96,6 +96,14 @@
 	};
 };
 
+&usbotg_hs {
+	pinctrl-names = "default";
+	pinctrl-0 = <&usbotg_hs_pins_a>;
+	phys = <&usbphyc_port1 0>;
+	phy-names = "usb2-phy";
+	status = "okay";
+};
+
 &usbphyc {
 	status = "okay";
 };
