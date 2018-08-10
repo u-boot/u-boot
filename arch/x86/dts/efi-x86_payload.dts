@@ -30,6 +30,10 @@
 		stdout-path = "/serial";
 	};
 
+	tsc-timer {
+		clock-frequency = <1000000000>;
+	};
+
 	pci {
 		compatible = "pci-x86";
 		u-boot,dm-pre-reloc;
