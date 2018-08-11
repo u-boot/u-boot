@@ -518,18 +518,34 @@ int cadence_qspi_apb_command_read(void *reg_base,
 }
 
 /* For commands: WRSR, WREN, WRDI, CHIP_ERASE, BE, etc. */
-int cadence_qspi_apb_command_write(void *reg_base, unsigned int cmdlen,
-	const u8 *cmdbuf, unsigned int txlen,  const u8 *txbuf)
+int cadence_qspi_apb_command_write(struct cadence_spi_platdata *plat,
+				   unsigned int cmdlen, const u8 *cmdbuf,
+				   unsigned int txlen,  const u8 *txbuf)
 {
+	void *reg_base = plat->regbase;
 	unsigned int reg = 0;
-	unsigned int addr_value;
+	unsigned int addr_value = 0;
 	unsigned int wr_data;
 	unsigned int wr_len;
+	bool pageprgm = false;
+	unsigned int pgmlen = 0;
+	int ret;
 
-	if (!cmdlen || cmdlen > 5 || txlen > 8 || cmdbuf == NULL) {
+	if (!cmdlen || cmdlen > 5 || cmdbuf == NULL) {
 		printf("QSPI: Invalid input arguments cmdlen %d txlen %d\n",
 		       cmdlen, txlen);
 		return -EINVAL;
+	}
+
+	if (txlen > 8) {
+		if (plat->stg_pgm) {
+			pageprgm = true;
+			pgmlen = txlen;
+			txlen = 8;
+		} else {
+			printf("%s Invalid txlen %d\n", __func__, txlen);
+			return -EINVAL;
+		}
 	}
 
 	reg |= cmdbuf[0] << CQSPI_REG_CMDCTRL_OPCODE_LSB;
@@ -565,10 +581,58 @@ int cadence_qspi_apb_command_write(void *reg_base, unsigned int cmdlen,
 			writel(wr_data, reg_base +
 				CQSPI_REG_CMDWRITEDATAUPPER);
 		}
+
+		if (pageprgm) {
+			pgmlen -= txlen;
+			txbuf += wr_len;
+			addr_value += txlen;
+		}
 	}
 
 	/* Execute the command */
-	return cadence_qspi_apb_exec_flash_cmd(reg_base, reg);
+	ret = cadence_qspi_apb_exec_flash_cmd(reg_base, reg);
+	if (ret)
+		return ret;
+
+	while (pgmlen) {
+		reg = 0x6 << CQSPI_REG_CMDCTRL_OPCODE_LSB;
+		ret = cadence_qspi_apb_exec_flash_cmd(reg_base, reg);
+		if (ret)
+			return ret;
+
+		reg = cmdbuf[0] << CQSPI_REG_CMDCTRL_OPCODE_LSB;
+		reg |= (0x1 << CQSPI_REG_CMDCTRL_ADDR_EN_LSB);
+		reg |= ((cmdlen - 2) & CQSPI_REG_CMDCTRL_ADD_BYTES_MASK)
+			<< CQSPI_REG_CMDCTRL_ADD_BYTES_LSB;
+		writel(addr_value, reg_base + CQSPI_REG_CMDADDRESS);
+
+		reg |= (0x1 << CQSPI_REG_CMDCTRL_WR_EN_LSB);
+		reg |= ((txlen - 1) & CQSPI_REG_CMDCTRL_WR_BYTES_MASK)
+			<< CQSPI_REG_CMDCTRL_WR_BYTES_LSB;
+		wr_len = txlen > 4 ? 4 : txlen;
+		memcpy(&wr_data, txbuf, wr_len);
+		writel(wr_data, reg_base +
+			CQSPI_REG_CMDWRITEDATALOWER);
+
+		if (txlen > 4) {
+			txbuf += wr_len;
+			wr_len = txlen - wr_len;
+			memcpy(&wr_data, txbuf, wr_len);
+			writel(wr_data, reg_base +
+				CQSPI_REG_CMDWRITEDATAUPPER);
+		}
+
+		pgmlen -= txlen;
+		txbuf += wr_len;
+		addr_value += txlen;
+		txlen = pgmlen > 8 ? 8 : pgmlen;
+
+		ret =  cadence_qspi_apb_exec_flash_cmd(reg_base, reg);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
 }
 
 /* Opcode + Address (3/4 bytes) + dummy bytes (0-4 bytes) */

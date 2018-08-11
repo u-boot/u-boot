@@ -33,6 +33,7 @@ struct cadence_spi_platdata {
 	u32		tchsh_ns;
 	u32		tslch_ns;
 	bool		is_dma;
+	bool		stg_pgm;
 };
 
 struct cadence_spi_priv {
@@ -57,9 +58,9 @@ void cadence_qspi_apb_controller_disable(void *reg_base_addr);
 
 int cadence_qspi_apb_command_read(void *reg_base_addr,
 	unsigned int cmdlen, const u8 *cmdbuf, unsigned int rxlen, u8 *rxbuf);
-int cadence_qspi_apb_command_write(void *reg_base_addr,
-	unsigned int cmdlen, const u8 *cmdbuf,
-	unsigned int txlen,  const u8 *txbuf);
+int cadence_qspi_apb_command_write(struct cadence_spi_platdata *plat,
+				   unsigned int cmdlen, const u8 *cmdbuf,
+				   unsigned int txlen,  const u8 *txbuf);
 
 int cadence_qspi_apb_indirect_read_setup(struct cadence_spi_platdata *plat,
 	unsigned int cmdlen, unsigned int rx_width, const u8 *cmdbuf);
