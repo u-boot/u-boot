@@ -30,6 +30,7 @@
 #define SPI_RX_SLOW	BIT(11)			/* receive with 1 wire slow */
 #define SPI_RX_DUAL	BIT(12)			/* receive with 2 wires */
 #define SPI_RX_QUAD	BIT(13)			/* receive with 4 wires */
+#define SPI_RX_OCTAL	BIT(14)
 
 #define SPI_3BYTE_MODE	0x0
 #define SPI_4BYTE_MODE	0x1
