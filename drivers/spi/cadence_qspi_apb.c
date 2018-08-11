@@ -41,6 +41,7 @@
 #define CQSPI_INST_TYPE_SINGLE			0
 #define CQSPI_INST_TYPE_DUAL			1
 #define CQSPI_INST_TYPE_QUAD			2
+#define CQSPI_INST_TYPE_OCTAL			3
 
 #define CQSPI_STIG_DATA_LEN_MAX			8
 
@@ -563,6 +564,11 @@ int cadence_qspi_apb_indirect_read_setup(struct cadence_spi_platdata *plat,
 	if (rx_width & SPI_RX_QUAD)
 		/* Instruction and address at DQ0, data at DQ0-3. */
 		rd_reg |= CQSPI_INST_TYPE_QUAD << CQSPI_REG_RD_INSTR_TYPE_DATA_LSB;
+
+	if (rx_width & SPI_RX_OCTAL)
+		/* Instruction and address at DQ0, data at DQ0-7. */
+		rd_reg |= CQSPI_INST_TYPE_OCTAL <<
+			  CQSPI_REG_RD_INSTR_TYPE_DATA_LSB;
 
 	/* Get address */
 	addr_value = cadence_qspi_apb_cmd2addr(&cmdbuf[1], addr_bytes);
