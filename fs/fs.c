@@ -112,7 +112,7 @@ struct fstype_info {
 	 * Is it legal to pass NULL as .probe()'s  fs_dev_desc parameter? This
 	 * should be false in most cases. For "virtual" filesystems which
 	 * aren't based on a U-Boot block device (e.g. sandbox), this can be
-	 * set to true. This should also be true for the dumm entry at the end
+	 * set to true. This should also be true for the dummy entry at the end
 	 * of fstypes[], since that is essentially a "virtual" (non-existent)
 	 * filesystem.
 	 */
