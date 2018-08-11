@@ -291,6 +291,7 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 	plat->fifo_width = fdtdec_get_uint(blob, node, "cdns,fifo-width", 4);
 	plat->trigger_address = fdtdec_get_uint(blob, node,
 						"cdns,trigger-address", 0);
+	plat->is_dma = fdtdec_get_bool(blob, node, "cdns,is-dma");
 
 	/* All other paramters are embedded in the child node */
 	subnode = fdt_first_subnode(blob, node);
