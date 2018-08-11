@@ -45,4 +45,5 @@ obj-$(CONFIG_ADC) += adc.o
 obj-$(CONFIG_SPMI) += spmi.o
 obj-$(CONFIG_WDT) += wdt.o
 obj-$(CONFIG_AXI) += axi.o
+obj-$(CONFIG_MISC) += misc.o
 endif

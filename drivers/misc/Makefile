@@ -39,7 +39,7 @@ ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SANDBOX) += spltest_sandbox.o
 endif
 endif
-obj-$(CONFIG_SANDBOX) += syscon_sandbox.o
+obj-$(CONFIG_SANDBOX) += syscon_sandbox.o misc_sandbox.o
 obj-$(CONFIG_TEGRA_CAR) += tegra_car.o
 obj-$(CONFIG_TEGRA186_BPMP) += tegra186_bpmp.o
 obj-$(CONFIG_TWL4030_LED) += twl4030_led.o
@@ -53,4 +53,5 @@ obj-$(CONFIG_ROCKCHIP_EFUSE) += rockchip-efuse.o
 obj-$(CONFIG_STM32_RCC) += stm32_rcc.o
 obj-$(CONFIG_STM32MP_FUSE) += stm32mp_fuse.o
 obj-$(CONFIG_SYS_DPAA_QBMAN) += fsl_portals.o
+obj-$(CONFIG_GDSYS_IOEP) += gdsys_ioep.o
 obj-$(CONFIG_GDSYS_RXAUI_CTRL) += gdsys_rxaui_ctrl.o
