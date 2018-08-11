@@ -431,6 +431,17 @@ config ATMEL_HLCD
 	help
 	   HLCDC supports video output to an attached LCD panel.
 
+config LOGICORE_DP_TX
+	bool "Enable Logicore DP TX driver"
+	depends on DISPLAY
+	help
+	  Enable the driver for the transmitter part of the Xilinx LogiCORE
+	  DisplayPort, a IP core for Xilinx FPGAs that implements a DisplayPort
+	  video interface as defined by VESA DisplayPort v1.2.
+
+	  Note that this is a pure transmitter device, and has no display
+	  capabilities by itself.
+
 config VIDEO_BROADWELL_IGD
 	bool "Enable Intel Broadwell integrated graphics device"
 	depends on X86

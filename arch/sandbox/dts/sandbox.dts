@@ -11,6 +11,7 @@
 		i2c0 = &i2c_0;
 		pci0 = &pci;
 		rtc0 = &rtc_0;
+		axi0 = &axi;
 	};
 
 	chosen {
@@ -309,6 +310,16 @@
 				#gpio-cells = <2>;
 				gpio-bank-name="spmi";
 			};
+		};
+	};
+
+	axi: axi@0 {
+		compatible = "sandbox,axi";
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		store@0 {
+			compatible = "sandbox,sandbox_store";
+			reg = <0x0 0x400>;
 		};
 	};
 };

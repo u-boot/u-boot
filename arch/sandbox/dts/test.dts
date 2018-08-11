@@ -36,6 +36,7 @@
 		usb0 = &usb_0;
 		usb1 = &usb_1;
 		usb2 = &usb_2;
+		axi0 = &axi;
 	};
 
 	a-test {
@@ -550,6 +551,16 @@
 
 	wdt0: wdt@0 {
 		compatible = "sandbox,wdt";
+	};
+
+	axi: axi@0 {
+		compatible = "sandbox,axi";
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		store@0 {
+			compatible = "sandbox,sandbox_store";
+			reg = <0x0 0x400>;
+		};
 	};
 
 	chosen {
