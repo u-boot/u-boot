@@ -228,7 +228,7 @@ static int cadence_spi_xfer(struct udevice *dev, unsigned int bitlen,
 				mode = CQSPI_INDIRECT_READ;
 		} else if (dout && !(flags & SPI_XFER_BEGIN)) {
 			/* write */
-			if (!CQSPI_IS_ADDR(priv->cmd_len))
+			if (!CQSPI_IS_ADDR(priv->cmd_len) || plat->stg_pgm)
 				mode = CQSPI_STIG_WRITE;
 			else
 				mode = CQSPI_INDIRECT_WRITE;
@@ -242,9 +242,10 @@ static int cadence_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 		break;
 		case CQSPI_STIG_WRITE:
-			err = cadence_qspi_apb_command_write(base,
-				priv->cmd_len, cmd_buf,
-				data_bytes, dout);
+			err = cadence_qspi_apb_command_write(plat,
+							     priv->cmd_len,
+							     cmd_buf,
+							     data_bytes, dout);
 		break;
 		case CQSPI_INDIRECT_READ:
 			err = cadence_qspi_apb_indirect_read_setup(plat,
@@ -292,6 +293,7 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 	plat->trigger_address = fdtdec_get_uint(blob, node,
 						"cdns,trigger-address", 0);
 	plat->is_dma = fdtdec_get_bool(blob, node, "cdns,is-dma");
+	plat->stg_pgm = fdtdec_get_bool(blob, node, "cdns,is-stig-pgm");
 
 	/* All other paramters are embedded in the child node */
 	subnode = fdt_first_subnode(blob, node);
