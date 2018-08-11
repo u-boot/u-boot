@@ -1670,6 +1670,8 @@ int spi_flash_scan(struct spi_flash *flash)
 	flash->read_cmd = CMD_READ_ARRAY_FAST;
 	if (spi->mode & SPI_RX_SLOW) {
 		flash->read_cmd = CMD_READ_ARRAY_SLOW;
+	} else if (spi->mode & SPI_RX_OCTAL && info->flags & RD_OCTAL) {
+		flash->read_cmd = CMD_READ_OCTAL_OUTPUT_FAST;
 	} else if (spi->mode & SPI_RX_QUAD && info->flags & RD_QUAD) {
 		flash->read_cmd = CMD_READ_QUAD_OUTPUT_FAST;
 		if (((JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_SPANSION) &&

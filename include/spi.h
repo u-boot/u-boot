@@ -57,6 +57,7 @@
 #define SPI_RX_FAST	BIT(1)			/* receive with 1 wire fast */
 #define SPI_RX_DUAL	BIT(2)			/* receive with 2 wires */
 #define SPI_RX_QUAD	BIT(3)			/* receive with 4 wires */
+#define SPI_RX_OCTAL	BIT(4)
 
 /* Header byte that marks the start of the message */
 #define SPI_PREAMBLE_END_BYTE	0xec
