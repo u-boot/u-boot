@@ -30,6 +30,12 @@
 # define COUNTER_FREQUENCY	CONFIG_COUNTER_FREQUENCY
 #endif
 
+/*
+ * TODO: This has to be be calculated later
+ * using clock framework.
+ */
+#define CONFIG_CQSPI_REF_CLK	200000000
+
 /* Serial setup */
 #define CONFIG_ARM_DCC
 #define CONFIG_CPU_ARMV8
@@ -65,6 +71,8 @@
 #define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
 
 #define CONFIG_CLOCKS
+
+#define CONFIG_SF_DEFAULT_SPEED	30000000
 
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"fdt_high=10000000\0" \

@@ -316,6 +316,7 @@ M:	Michal Simek <michal.simek@xilinx.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-microblaze.git
 F:	arch/arm/mach-versal/
+F:	drivers/spi/cadence_ospi_versal.c
 
 ARM VERSATILE EXPRESS DRIVERS
 M:	Liviu Dudau <liviu.dudau@foss.arm.com>
