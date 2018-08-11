@@ -121,6 +121,13 @@ config CADENCE_QSPI
 	  used to access the SPI NOR flash on platforms embedding this
 	  Cadence IP core.
 
+config CADENCE_OSPI_VERSAL
+	bool "Configure Versal OSPI"
+	depends on ARCH_VERSAL && CADENCE_QSPI
+	help
+	  This option is used to enable Versal OSPI DMA operations which
+	  are used for ospi flash read using cadence qspi controller.
+
 config CF_SPI
         bool "ColdFire SPI driver"
         help
