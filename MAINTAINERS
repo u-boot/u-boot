@@ -418,6 +418,7 @@ T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	arch/arm/mach-versal/
 F:	cmd/fru.c
 F:	common/fru_ops.c
+F:	drivers/spi/cadence_ospi_versal.c
 F:	include/fru.h
 N:	(?<!uni)versal
 

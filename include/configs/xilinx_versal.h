@@ -30,6 +30,12 @@
 # define COUNTER_FREQUENCY	CONFIG_COUNTER_FREQUENCY
 #endif
 
+/*
+ * TODO: This has to be be calculated later
+ * using clock framework.
+ */
+#define CONFIG_CQSPI_REF_CLK	200000000
+
 /* Serial setup */
 #define CONFIG_ARM_DCC
 #define CONFIG_CPU_ARMV8
