@@ -306,6 +306,7 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 	plat->trigger_address = dev_read_u32_default(bus,
 						     "cdns,trigger-address",
 						     0);
+	plat->is_dma = dev_read_bool(bus, "cdns,is-dma");
 
 	/* All other paramters are embedded in the child node */
 	subnode = dev_read_first_subnode(bus);

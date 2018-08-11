@@ -57,6 +57,7 @@
 #define	CQSPI_REG_CONFIG_CLK_PHA		BIT(2)
 #define	CQSPI_REG_CONFIG_DIRECT			BIT(7)
 #define	CQSPI_REG_CONFIG_DECODE			BIT(9)
+#define	CQSPI_REG_CONFIG_ENBL_DMA		BIT(15)
 #define	CQSPI_REG_CONFIG_XIP_IMM		BIT(18)
 #define	CQSPI_REG_CONFIG_CHIPSELECT_LSB		10
 #define	CQSPI_REG_CONFIG_BAUD_LSB		19
@@ -172,6 +173,17 @@
 #define CQSPI_GET_WR_SRAM_LEVEL(reg_base)			\
 	(((readl(reg_base + CQSPI_REG_SDRAMLEVEL)) >>	\
 	CQSPI_REG_SDRAMLEVEL_WR_LSB) & CQSPI_REG_SDRAMLEVEL_WR_MASK)
+
+__weak void cadence_qspi_apb_dma_read(struct cadence_spi_platdata *plat,
+				      unsigned int n_rx, u8 *rxbuf)
+{
+}
+
+__weak
+int cadence_qspi_apb_wait_for_dma_cmplt(struct cadence_spi_platdata *plat)
+{
+	return 0;
+}
 
 static unsigned int cadence_qspi_apb_cmd2addr(const unsigned char *addr_buf,
 	unsigned int addr_width)
@@ -399,6 +411,13 @@ void cadence_qspi_apb_controller_init(struct cadence_spi_platdata *plat)
 
 	/* Disable all interrupts */
 	writel(0, plat->regbase + CQSPI_REG_IRQMASK);
+
+	reg = readl(plat->regbase + CQSPI_REG_CONFIG);
+	reg &= ~CQSPI_REG_CONFIG_DIRECT;
+	if (plat->is_dma)
+		reg |= CQSPI_REG_CONFIG_ENBL_DMA;
+
+	writel(reg, plat->regbase + CQSPI_REG_CONFIG);
 
 	cadence_qspi_apb_controller_enable(plat->regbase);
 }
@@ -638,9 +657,19 @@ int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
 
 	writel(n_rx, plat->regbase + CQSPI_REG_INDIRECTRDBYTES);
 
+	if (plat->is_dma)
+		cadence_qspi_apb_dma_read(plat, n_rx, rxbuf);
+
 	/* Start the indirect read transfer */
 	writel(CQSPI_REG_INDIRECTRD_START,
 	       plat->regbase + CQSPI_REG_INDIRECTRD);
+
+	if (plat->is_dma) {
+		ret = cadence_qspi_apb_wait_for_dma_cmplt(plat);
+		if (ret)
+			return ret;
+		goto rd_done;
+	}
 
 	while (remaining > 0) {
 		ret = cadence_qspi_wait_for_data(plat);
@@ -670,6 +699,7 @@ int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
 		}
 	}
 
+rd_done:
 	/* Check indirect done status */
 	ret = wait_for_bit_le32(plat->regbase + CQSPI_REG_INDIRECTRD,
 				CQSPI_REG_INDIRECTRD_DONE, 1, 10, 0);
