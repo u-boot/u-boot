@@ -112,6 +112,25 @@ uflash writes the AIS image at offset 117. For compatibility with uflash,
 CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR is set to take into account this
 offset, and the dd command is adjusted accordingly.
 
+Flashing the images to NOR
+==========================
+NOR Flash is XIP (execute-in-place), so no AIS (or SPL) is needed. The
+u-boot.bin is directy flashed, but CONFIT_DA850_LOWLEVEL must be set
+to initialize hardware that's normally done by SPL.
+
+For this case, CONFIG_SYS_TEXT_BASE=0x60000000 which is the address to
+which the bootloader jumps when powered on.
+
+Example:
+For the da850evm, there is a defconfig setup to use the NOR flash on
+the UI expander board called da850evm_direct_nor_defconfig.
+
+Flash to NOR directly using
+sudo mono ./sfh_OMAP-L138.exe -p /dev/ttyUSB0 -flash_noubl
+  -flashType NOR u-boot.bin
+
+SW7:5 through SW7:7 should be switched on and all others off.
+
 Recovery
 ========
 
