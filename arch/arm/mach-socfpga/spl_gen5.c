@@ -20,6 +20,7 @@
 #include <asm/arch/scu.h>
 #include <asm/arch/nic301.h>
 #include <asm/sections.h>
+#include <debug_uart.h>
 #include <fdtdec.h>
 #include <watchdog.h>
 
@@ -152,6 +153,11 @@ void board_init_f(ulong dummy)
 	debug("Unfreezing/Thaw all I/O banks\n");
 	/* unfreeze / thaw all IO banks */
 	sys_mgr_frzctrl_thaw_req();
+
+#ifdef CONFIG_DEBUG_UART
+	socfpga_per_reset(SOCFPGA_RESET(UART0), 0);
+	debug_uart_init();
+#endif
 
 	ret = spl_early_init();
 	if (ret) {
