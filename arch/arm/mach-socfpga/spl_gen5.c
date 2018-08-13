@@ -86,6 +86,7 @@ void board_init_f(ulong dummy)
 	const struct cm_config *cm_default_cfg = cm_get_default_config();
 	unsigned long sdram_size;
 	unsigned long reg;
+	int ret;
 
 	/*
 	 * First C code to run. Clear fake OCRAM ECC first as SBE
@@ -151,6 +152,12 @@ void board_init_f(ulong dummy)
 	debug("Unfreezing/Thaw all I/O banks\n");
 	/* unfreeze / thaw all IO banks */
 	sys_mgr_frzctrl_thaw_req();
+
+	ret = spl_early_init();
+	if (ret) {
+		debug("spl_early_init() failed: %d\n", ret);
+		hang();
+	}
 
 	/* enable console uart printing */
 	preloader_console_init();
