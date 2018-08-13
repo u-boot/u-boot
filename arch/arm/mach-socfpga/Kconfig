@@ -11,6 +11,8 @@ config TARGET_SOCFPGA_ARRIA10
 	bool
 	select ALTERA_SDRAM
 	select SPL_BOARD_INIT if SPL
+	select DM_RESET
+	select SPL_DM_RESET if SPL
 
 config TARGET_SOCFPGA_CYCLONE5
 	bool
