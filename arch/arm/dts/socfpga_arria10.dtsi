@@ -55,6 +55,7 @@
 		device_type = "soc";
 		interrupt-parent = <&intc>;
 		ranges;
+		u-boot,dm-pre-reloc;
 
 		amba {
 			compatible = "simple-bus";
@@ -735,6 +736,7 @@
 			compatible = "altr,rst-mgr";
 			reg = <0xffd05000 0x100>;
 			altr,modrst-offset = <0x20>;
+			u-boot,dm-pre-reloc;
 		};
 
 		scu: snoop-control-unit@ffffc000 {
