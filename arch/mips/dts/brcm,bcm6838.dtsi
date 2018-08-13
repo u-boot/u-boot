@@ -55,6 +55,18 @@
 			u-boot,dm-pre-reloc;
 		};
 
+		gpio_test_port: syscon@14e00294 {
+			compatible = "syscon";
+			reg = <0x14e00294 0x1c>;
+		};
+
+		pinctrl: pinctrl {
+			compatible = "brcm,bcm6838-pinctrl";
+			regmap = <&gpio_test_port>;
+			brcm,pins-count = <74>;
+			brcm,functions-count = <8>;
+		};
+
 		uart0: serial@14e00500 {
 			compatible = "brcm,bcm6345-uart";
 			reg = <0x14e00500 0x18>;
