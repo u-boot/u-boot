@@ -317,8 +317,6 @@ static int spl_common_init(bool setup_malloc)
 {
 	int ret;
 
-	debug("spl_early_init()\n");
-
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	if (setup_malloc) {
 #ifdef CONFIG_MALLOC_F_ADDR
@@ -366,6 +364,8 @@ int spl_early_init(void)
 {
 	int ret;
 
+	debug("%s\n", __func__);
+
 	ret = spl_common_init(true);
 	if (ret)
 		return ret;
@@ -379,6 +379,8 @@ int spl_init(void)
 	int ret;
 	bool setup_malloc = !(IS_ENABLED(CONFIG_SPL_STACK_R) &&
 			IS_ENABLED(CONFIG_SPL_SYS_MALLOC_SIMPLE));
+
+	debug("%s\n", __func__);
 
 	if (!(gd->flags & GD_FLG_SPL_EARLY_INIT)) {
 		ret = spl_common_init(setup_malloc);
