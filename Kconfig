@@ -104,6 +104,12 @@ config ENV_VARS_UBOOT_CONFIG
 	  - CONFIG_SYS_VENDOR
 	  - CONFIG_SYS_SOC
 
+config NR_DRAM_BANKS
+	int "Number of DRAM banks"
+	default 4
+	help
+	  This defines the number of DRAM banks.
+
 config SYS_BOOT_GET_CMDLINE
 	bool "Enable kernel command line setup"
 	help
