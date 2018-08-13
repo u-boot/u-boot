@@ -23,6 +23,7 @@
 	aliases {
 		ethernet0 = &gmac0;
 		serial0 = &uart1;
+		i2c0 = &i2c1;
 	};
 
 	chosen {
