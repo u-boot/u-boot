@@ -38,48 +38,6 @@ static const struct socfpga_noc_fw_ocram *noc_fw_ocram_base =
 static struct socfpga_system_manager *sysmgr_regs =
 	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
 
-/*
- * DesignWare Ethernet initialization
- */
-#ifdef CONFIG_ETH_DESIGNWARE
-static void arria10_dwmac_reset(const u8 of_reset_id, const u8 phymode)
-{
-	u32 reset;
-
-	if (of_reset_id == EMAC0_RESET) {
-		reset = SOCFPGA_RESET(EMAC0);
-	} else if (of_reset_id == EMAC1_RESET) {
-		reset = SOCFPGA_RESET(EMAC1);
-	} else if (of_reset_id == EMAC2_RESET) {
-		reset = SOCFPGA_RESET(EMAC2);
-	} else {
-		printf("GMAC: Invalid reset ID (%i)!\n", of_reset_id);
-		return;
-	}
-
-	clrsetbits_le32(&sysmgr_regs->emac[of_reset_id - EMAC0_RESET],
-			SYSMGR_EMACGRP_CTRL_PHYSEL_MASK,
-			phymode);
-
-	/* Release the EMAC controller from reset */
-	socfpga_per_reset(reset, 0);
-}
-
-static int socfpga_eth_reset(void)
-{
-	/* Put all GMACs into RESET state. */
-	socfpga_per_reset(SOCFPGA_RESET(EMAC0), 1);
-	socfpga_per_reset(SOCFPGA_RESET(EMAC1), 1);
-	socfpga_per_reset(SOCFPGA_RESET(EMAC2), 1);
-	return socfpga_eth_reset_common(arria10_dwmac_reset);
-};
-#else
-static int socfpga_eth_reset(void)
-{
-	return 0;
-};
-#endif
-
 #if defined(CONFIG_SPL_BUILD)
 /*
 + * This function initializes security policies to be consistent across
@@ -140,13 +98,6 @@ int print_cpuinfo(void)
 
 	printf("BOOT:  %s\n", bsel_str[bsel].name);
 	return 0;
-}
-#endif
-
-#ifdef CONFIG_ARCH_MISC_INIT
-int arch_misc_init(void)
-{
-	return socfpga_eth_reset();
 }
 #endif
 
