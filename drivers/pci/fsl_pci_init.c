@@ -321,6 +321,12 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 
 	pci_setup_indirect(hose, cfg_addr, cfg_data);
 
+#ifdef PEX_CCB_DIV
+	/* Configure the PCIE controller core clock ratio */
+	pci_hose_write_config_dword(hose, dev, 0x440,
+				    ((gd->bus_clk / 1000000) *
+				     (16 / PEX_CCB_DIV)) / 333);
+#endif
 	block_rev = in_be32(&pci->block_rev1);
 	if (PEX_IP_BLK_REV_2_2 <= block_rev) {
 		pi = &pci->pit[2];	/* 0xDC0 */

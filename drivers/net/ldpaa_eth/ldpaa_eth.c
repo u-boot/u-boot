@@ -993,8 +993,8 @@ static int ldpaa_eth_netdev_init(struct eth_device *net_dev,
 	int err;
 	struct ldpaa_eth_priv *priv = (struct ldpaa_eth_priv *)net_dev->priv;
 
-	sprintf(net_dev->name, "DPMAC%d@%s", priv->dpmac_id,
-		phy_interface_strings[enet_if]);
+	snprintf(net_dev->name, ETH_NAME_LEN, "DPMAC%d@%s", priv->dpmac_id,
+		 phy_interface_strings[enet_if]);
 
 	net_dev->iobase = 0;
 	net_dev->init = ldpaa_eth_open;

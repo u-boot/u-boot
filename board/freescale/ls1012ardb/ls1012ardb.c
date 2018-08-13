@@ -25,6 +25,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define BOOT_FROM_UPPER_BANK	0x2
+#define BOOT_FROM_LOWER_BANK	0x1
+
 int checkboard(void)
 {
 #ifdef CONFIG_TARGET_LS1012ARDB
@@ -211,3 +214,85 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	return 0;
 }
+
+static int switch_to_bank1(void)
+{
+	u8 data;
+	int ret;
+
+	i2c_set_bus_num(0);
+
+	data = 0xf4;
+	ret = i2c_write(0x24, 0x3, 1, &data, 1);
+	if (ret) {
+		printf("i2c write error to chip : %u, addr : %u, data : %u\n",
+		       0x24, 0x3, data);
+	}
+
+	return ret;
+}
+
+static int switch_to_bank2(void)
+{
+	u8 data;
+	int ret;
+
+	i2c_set_bus_num(0);
+
+	data = 0xfc;
+	ret = i2c_write(0x24, 0x7, 1, &data, 1);
+	if (ret) {
+		printf("i2c write error to chip : %u, addr : %u, data : %u\n",
+		       0x24, 0x7, data);
+		goto err;
+	}
+
+	data = 0xf5;
+	ret = i2c_write(0x24, 0x3, 1, &data, 1);
+	if (ret) {
+		printf("i2c write error to chip : %u, addr : %u, data : %u\n",
+		       0x24, 0x3, data);
+	}
+err:
+	return ret;
+}
+
+static int convert_flash_bank(int bank)
+{
+	int ret = 0;
+
+	switch (bank) {
+	case BOOT_FROM_UPPER_BANK:
+		ret = switch_to_bank2();
+		break;
+	case BOOT_FROM_LOWER_BANK:
+		ret = switch_to_bank1();
+		break;
+	default:
+		ret = CMD_RET_USAGE;
+		break;
+	};
+
+	return ret;
+}
+
+static int flash_bank_cmd(cmd_tbl_t *cmdtp, int flag, int argc,
+			  char * const argv[])
+{
+	if (argc != 2)
+		return CMD_RET_USAGE;
+	if (strcmp(argv[1], "1") == 0)
+		convert_flash_bank(BOOT_FROM_LOWER_BANK);
+	else if (strcmp(argv[1], "2") == 0)
+		convert_flash_bank(BOOT_FROM_UPPER_BANK);
+	else
+		return CMD_RET_USAGE;
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	boot_bank, 2, 0, flash_bank_cmd,
+	"Flash bank Selection Control",
+	"bank[1-lower bank/2-upper bank] (e.g. boot_bank 1)"
+);

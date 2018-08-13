@@ -11,6 +11,8 @@
 #include <asm/io.h>
 #include <asm/global_data.h>
 #include <asm/arch-fsl-layerscape/config.h>
+#include <asm/arch-fsl-layerscape/ns_access.h>
+#include <asm/arch-fsl-layerscape/fsl_icid.h>
 #ifdef CONFIG_LAYERSCAPE_NS_ACCESS
 #include <fsl_csu.h>
 #endif
@@ -614,6 +616,14 @@ void fsl_lsch2_early_init_f(void)
 			 CCI400_DVM_MESSAGE_REQ_EN | CCI400_SNOOP_REQ_EN);
 	}
 
+	/*
+	 * Program Central Security Unit (CSU) to grant access
+	 * permission for USB 2.0 controller
+	 */
+#if defined(CONFIG_ARCH_LS1012A) && defined(CONFIG_USB_EHCI_FSL)
+	if (current_el() == 3)
+		set_devices_ns_access(CSU_CSLX_USB_2, CSU_ALL_RW);
+#endif
 	/* Erratum */
 	erratum_a008850_early(); /* part 1 of 2 */
 	erratum_a009929();
@@ -623,6 +633,10 @@ void fsl_lsch2_early_init_f(void)
 	erratum_a009798();
 	erratum_a008997();
 	erratum_a009007();
+
+#ifdef CONFIG_ARCH_LS1046A
+	set_icids();
+#endif
 }
 #endif
 
