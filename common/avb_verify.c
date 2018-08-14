@@ -348,34 +348,37 @@ static struct mmc_part *get_partition(AvbOps *ops, const char *partition)
 	part->mmc = find_mmc_device(dev_num);
 	if (!part->mmc) {
 		printf("No MMC device at slot %x\n", dev_num);
-		return NULL;
+		goto err;
 	}
 
 	if (mmc_init(part->mmc)) {
 		printf("MMC initialization failed\n");
-		return NULL;
+		goto err;
 	}
 
 	ret = mmc_switch_part(part->mmc, part_num);
 	if (ret)
-		return NULL;
+		goto err;
 
 	mmc_blk = mmc_get_blk_desc(part->mmc);
 	if (!mmc_blk) {
 		printf("Error - failed to obtain block descriptor\n");
-		return NULL;
+		goto err;
 	}
 
 	ret = part_get_info_by_name(mmc_blk, partition, &part->info);
 	if (!ret) {
 		printf("Can't find partition '%s'\n", partition);
-		return NULL;
+		goto err;
 	}
 
 	part->dev_num = dev_num;
 	part->mmc_blk = mmc_blk;
 
 	return part;
+err:
+	free(part);
+	return NULL;
 }
 
 static AvbIOResult mmc_byte_io(AvbOps *ops,
