@@ -331,6 +331,9 @@ AvbSlotVerifyResult avb_append_options(
         verity_mode = "logging";
         dm_verity_mode = "ignore_corruption";
         break;
+      default:
+        ret = AVB_SLOT_VERIFY_RESULT_ERROR_INVALID_ARGUMENT;
+        goto out;
     }
     new_ret = avb_replace(
         slot_data->cmdline, "$(ANDROID_VERITY_MODE)", dm_verity_mode);
