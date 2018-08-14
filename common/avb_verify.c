@@ -176,7 +176,7 @@ static int avb_find_dm_args(char **args, char *str)
 	if (!str)
 		return -1;
 
-	for (i = 0; i < AVB_MAX_ARGS, args[i]; ++i) {
+	for (i = 0; i < AVB_MAX_ARGS && args[i]; ++i) {
 		if (strstr(args[i], str))
 			return i;
 	}
