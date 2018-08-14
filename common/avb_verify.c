@@ -402,6 +402,9 @@ static AvbIOResult mmc_byte_io(AvbOps *ops,
 	if (!part)
 		return AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION;
 
+	if (!part->info.blksz)
+		return AVB_IO_RESULT_ERROR_IO;
+
 	start_offset = calc_offset(part, offset);
 	while (num_bytes) {
 		start_sector = start_offset / part->info.blksz;
