@@ -61,8 +61,7 @@ int spl_ubi_load_image(struct spl_image_info *spl_image,
 		puts("Loading Linux failed, falling back to U-Boot.\n");
 	}
 #endif
-	header = (struct image_header *)
-		(CONFIG_SYS_TEXT_BASE - sizeof(struct image_header));
+	header = spl_get_load_buffer(-sizeof(*header), sizeof(header));
 	volumes[0].vol_id = CONFIG_SPL_UBI_LOAD_MONITOR_ID;
 	volumes[0].load_addr = (void *)header;
 

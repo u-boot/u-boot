@@ -55,13 +55,13 @@ int mmc_load_image_raw_sector(struct spl_image_info *spl_image,
 {
 	unsigned long count;
 	struct image_header *header;
+	struct blk_desc *bd = mmc_get_blk_desc(mmc);
 	int ret = 0;
 
-	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE -
-					 sizeof(struct image_header));
+	header = spl_get_load_buffer(-sizeof(*header), bd->blksz);
 
 	/* read image header to find the image size & load address */
-	count = blk_dread(mmc_get_blk_desc(mmc), sector, 1, header);
+	count = blk_dread(bd, sector, 1, header);
 	debug("hdr read sector %lx, count=%lu\n", sector, count);
 	if (count == 0) {
 		ret = -EIO;

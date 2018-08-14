@@ -83,8 +83,8 @@ static int spl_nand_load_image(struct spl_image_info *spl_image,
 #endif
 	nand_init();
 
-	/*use CONFIG_SYS_TEXT_BASE as temporary storage area */
-	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE);
+	header = spl_get_load_buffer(0, sizeof(*header));
+
 #ifdef CONFIG_SPL_OS_BOOT
 	if (!spl_start_uboot()) {
 		/*

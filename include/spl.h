@@ -303,4 +303,13 @@ void board_return_to_bootrom(void);
  *                        the boot-payload
  */
 void spl_perform_fixups(struct spl_image_info *spl_image);
+
+/*
+ * spl_get_load_buffer() - get buffer for loading partial image data
+ *
+ * Returns memory area which can be populated by partial image data,
+ * ie. uImage or fitImage header.
+ */
+struct image_header *spl_get_load_buffer(ssize_t offset, size_t size);
+
 #endif

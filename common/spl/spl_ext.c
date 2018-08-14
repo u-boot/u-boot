@@ -16,8 +16,7 @@ int spl_load_image_ext(struct spl_image_info *spl_image,
 	loff_t filelen, actlen;
 	disk_partition_t part_info = {};
 
-	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE -
-						sizeof(struct image_header));
+	header = spl_get_load_buffer(-sizeof(*header), sizeof(*header));
 
 	if (part_get_info(block_dev, partition, &part_info)) {
 		printf("spl: no partition table found\n");

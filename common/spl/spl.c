@@ -127,6 +127,11 @@ __weak void spl_board_prepare_for_boot(void)
 	/* Nothing to do! */
 }
 
+__weak struct image_header *spl_get_load_buffer(ssize_t offset, size_t size)
+{
+	return (struct image_header *)(CONFIG_SYS_TEXT_BASE + offset);
+}
+
 void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 {
 	ulong u_boot_pos = binman_sym(ulong, u_boot_any, image_pos);

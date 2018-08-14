@@ -63,8 +63,7 @@ int spl_load_image_fat(struct spl_image_info *spl_image,
 	if (err)
 		goto end;
 
-	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE -
-						sizeof(struct image_header));
+	header = spl_get_load_buffer(-sizeof(*header), sizeof(*header));
 
 	err = file_fat_read(filename, header, sizeof(struct image_header));
 	if (err <= 0)

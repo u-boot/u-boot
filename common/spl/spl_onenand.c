@@ -21,8 +21,7 @@ static int spl_onenand_load_image(struct spl_image_info *spl_image,
 
 	debug("spl: onenand\n");
 
-	/*use CONFIG_SYS_TEXT_BASE as temporary storage area */
-	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE);
+	header = spl_get_load_buffer(0, CONFIG_SYS_ONENAND_PAGE_SIZE);
 	/* Load u-boot */
 	onenand_spl_load_image(CONFIG_SYS_ONENAND_U_BOOT_OFFS,
 		CONFIG_SYS_ONENAND_PAGE_SIZE, (void *)header);
