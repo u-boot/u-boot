@@ -647,6 +647,7 @@ config HASH
 config AVB_VERIFY
 	bool "Build Android Verified Boot operations"
 	depends on LIBAVB && FASTBOOT
+	depends on PARTITION_UUIDS
 	help
 	  This option enables compilation of bootloader-dependent operations,
 	  used by Android Verified Boot 2.0 library (libavb). Includes:
