@@ -159,7 +159,7 @@ static int gpio_dwapb_bind(struct udevice *dev)
 	if (plat)
 		return 0;
 
-	base = fdtdec_get_addr(blob, dev_of_offset(dev), "reg");
+	base = dev_read_addr(dev);
 	if (base == FDT_ADDR_T_NONE) {
 		debug("Can't get the GPIO register base address\n");
 		return -ENXIO;
