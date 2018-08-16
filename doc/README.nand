@@ -116,7 +116,7 @@ Configuration Options:
       The maximum number of NAND chips per device to be supported.
 
    CONFIG_SYS_NAND_SELF_INIT
-      Traditionally, glue code in drivers/mtd/nand/nand.c has driven
+      Traditionally, glue code in drivers/mtd/nand/raw/nand.c has driven
       the initialization process -- it provides the mtd and nand
       structs, calls a board init function for a specific device,
       calls nand_scan(), and registers with mtd.
@@ -125,7 +125,7 @@ Configuration Options:
       run code between nand_scan_ident() and nand_scan_tail(), or other
       deviations from the "normal" flow.
 
-      If a board defines CONFIG_SYS_NAND_SELF_INIT, drivers/mtd/nand/nand.c
+      If a board defines CONFIG_SYS_NAND_SELF_INIT, drivers/mtd/nand/raw/nand.c
       will make one call to board_nand_init(), with no arguments.  That
       function is responsible for calling a driver init function for
       each NAND device on the board, that performs all initialization
@@ -280,7 +280,7 @@ NOTE:
 =====
 
 The Disk On Chip driver is currently broken and has been for some time.
-There is a driver in drivers/mtd/nand, taken from Linux, that works with
+There is a driver in drivers/mtd/nand/raw, taken from Linux, that works with
 the current NAND system but has not yet been adapted to the u-boot
 environment.
 

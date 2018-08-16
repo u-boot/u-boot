@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * drivers/mtd/nand/nand_util.c
+ * drivers/mtd/nand/raw/nand_util.c
  *
  * Copyright (C) 2006 by Weiss-Electronic GmbH.
  * All rights reserved.

@@ -3,7 +3,7 @@
  * This file contains an ECC algorithm from Toshiba that detects and
  * corrects 1 bit errors in a 256 byte block of data.
  *
- * drivers/mtd/nand/nand_ecc.c
+ * drivers/mtd/nand/raw/nand_ecc.c
  *
  * Copyright (C) 2000-2004 Steven J. Hill (sjhill@realitydiluted.com)
  *                         Toshiba America Electronics Components, Inc.

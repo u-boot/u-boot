@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <linux/io.h>
 #include <linux/printk.h>
-#include <../drivers/mtd/nand/denali.h>
+#include <../drivers/mtd/nand/raw/denali.h>
 
 #include "init.h"
 

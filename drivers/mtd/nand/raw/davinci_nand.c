@@ -9,7 +9,7 @@
 
 /*
  *
- * linux/drivers/mtd/nand/nand_davinci.c
+ * linux/drivers/mtd/nand/raw/nand_davinci.c
  *
  * NAND Flash Driver
  *

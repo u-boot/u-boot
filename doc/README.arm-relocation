@@ -84,7 +84,7 @@ Relocation with SPL (example for the tx25 booting from NAND Flash):
 - cpu copies the first page from NAND to 0xbb000000 (IMX_NFC_BASE)
   and start with code execution on this address.
 
-- The First page contains u-boot code from drivers/mtd/nand/mxc_nand_spl.c
+- The First page contains u-boot code from drivers/mtd/nand/raw/mxc_nand_spl.c
   which inits the dram, cpu registers, reloacte itself to CONFIG_SPL_TEXT_BASE	and loads
   the "real" u-boot to CONFIG_SYS_NAND_U_BOOT_DST and starts execution
   @CONFIG_SYS_NAND_U_BOOT_START

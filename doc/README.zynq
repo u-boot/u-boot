@@ -63,7 +63,7 @@ bootmode strings at runtime.
   spi - drivers/spi/zynq_spi.c
   qspi - drivers/spi/zynq_qspi.c
   i2c - drivers/i2c/zynq_i2c.c
-  nand - drivers/mtd/nand/zynq_nand.c
+  nand - drivers/mtd/nand/raw/zynq_nand.c
 - Done proper cleanups on board configurations
 - Added basic FDT support for zynq boards
 - d-cache support for zynq_gem.c

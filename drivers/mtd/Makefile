@@ -18,3 +18,5 @@ obj-$(CONFIG_FLASH_PIC32) += pic32_flash.o
 obj-$(CONFIG_ST_SMI) += st_smi.o
 obj-$(CONFIG_STM32_FLASH) += stm32_flash.o
 obj-$(CONFIG_RENESAS_RPC_HF) += renesas_rpc_hf.o
+
+obj-y += nand/
