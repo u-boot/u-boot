@@ -33,6 +33,7 @@ obj-$(CONFIG_KIRKWOOD_SPI) += kirkwood_spi.o
 obj-$(CONFIG_LPC32XX_SSP) += lpc32xx_ssp.o
 obj-$(CONFIG_MPC8XX_SPI) += mpc8xx_spi.o
 obj-$(CONFIG_MPC8XXX_SPI) += mpc8xxx_spi.o
+obj-$(CONFIG_MT7621_SPI) += mt7621_spi.o
 obj-$(CONFIG_MVEBU_A3700_SPI) += mvebu_a3700_spi.o
 obj-$(CONFIG_MXC_SPI) += mxc_spi.o
 obj-$(CONFIG_MXS_SPI) += mxs_spi.o
