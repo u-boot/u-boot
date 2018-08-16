@@ -43,13 +43,13 @@ static int single_configure_pins(struct udevice *dev,
 {
 	struct single_pdata *pdata = dev->platdata;
 	int count = size / sizeof(struct single_fdt_pin_cfg);
-	int n, reg;
+	phys_addr_t n, reg;
 	u32 val;
 
 	for (n = 0; n < count; n++, pins++) {
 		reg = fdt32_to_cpu(pins->reg);
 		if ((reg < 0) || (reg > pdata->offset)) {
-			dev_dbg(dev, "  invalid register offset 0x%08x\n", reg);
+			dev_dbg(dev, "  invalid register offset 0x%pa\n", &reg);
 			continue;
 		}
 		reg += pdata->base;
@@ -66,7 +66,7 @@ static int single_configure_pins(struct udevice *dev,
 				 pdata->width);
 			continue;
 		}
-		dev_dbg(dev, "  reg/val 0x%08x/0x%08x\n",reg, val);
+		dev_dbg(dev, "  reg/val 0x%pa/0x%08x\n", &reg, val);
 	}
 	return 0;
 }
