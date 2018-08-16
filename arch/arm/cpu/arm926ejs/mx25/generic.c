@@ -214,14 +214,6 @@ int print_cpuinfo(void)
 }
 #endif
 
-void enable_caches(void)
-{
-#ifndef CONFIG_SYS_DCACHE_OFF
-	/* Enable D-cache. I-cache is already enabled in start.S */
-	dcache_enable();
-#endif
-}
-
 #if defined(CONFIG_FEC_MXC)
 /*
  * Initializes on-chip ethernet controllers.

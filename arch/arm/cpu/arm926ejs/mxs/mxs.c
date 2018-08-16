@@ -49,16 +49,6 @@ void reset_cpu(ulong ignored)
 		;
 }
 
-void enable_caches(void)
-{
-#ifndef CONFIG_SYS_ICACHE_OFF
-	icache_enable();
-#endif
-#ifndef CONFIG_SYS_DCACHE_OFF
-	dcache_enable();
-#endif
-}
-
 /*
  * This function will craft a jumptable at 0x0 which will redirect interrupt
  * vectoring to proper location of U-Boot in RAM.
