@@ -19,7 +19,7 @@
 #include <dm.h>
 #include <serial.h>
 
-#if defined(CONFIG_CPU_V6) || defined(CONFIG_CPU_V7A)
+#if defined(CONFIG_CPU_V6) || defined(CONFIG_CPU_V7A) || defined(CONFIG_CPU_V7R)
 /*
  * ARMV6 & ARMV7
  */
