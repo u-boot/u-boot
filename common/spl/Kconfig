@@ -409,7 +409,7 @@ config SPL_LIBCOMMON_SUPPORT
 	  an SPL build.
 
 config SPL_LIBDISK_SUPPORT
-	bool "Support disk paritions"
+	bool "Support disk partitions"
 	help
 	  Enable support for disk partitions within SPL. 'Disk' is something
 	  of a misnomer as it includes non-spinning media such as flash (as
