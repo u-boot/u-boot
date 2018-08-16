@@ -76,6 +76,8 @@
 			reg = <0xb00 0x40>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+
+			clock-frequency = <200000000>;
 		};
 
 		uart0: uartlite@c00 {
